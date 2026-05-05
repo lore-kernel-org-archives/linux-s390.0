@@ -1,44 +1,76 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E010329C71;
-	Tue,  5 May 2026 09:30:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 12CCB1EF09B;
+	Tue,  5 May 2026 10:03:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777973431; cv=none; b=aizbw/BtZyB5JmutYWt4ciBwhi9hMgsJG+t1QBUv3W+40ex6BstV+pcRiVaaxg3fGFNmdKj85nrUy6kwddVGobFr7IqNjXx59HMTqW9lwTjRKZYqAzBzhBYSdQVJvnV1RhklGQ7PDwTw+5j52rgJ3C7aEdLgVOLbCGQhk9aJTEw=
+	t=1777975419; cv=none; b=WUwDdf3L2P/tvJHco0TGzZ+hwXbp8WEavq4Aw6SuuwnDXm4+R1Wr3v8KlEo9XiByHtlEq//TRiSsH1OYr1sQ1uhgnagCND0b4s89u+nTF4oqhaBxaLzYN4B2IuCrYITWnWhYhINpYT+cfUj8onIeUQgqgS3y+buek99XTxmUQFQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777973431; c=relaxed/simple;
-	bh=QUEqaKOiHh1ZOxaKg3KfDUXaatpEkTtgP1z5oeVjDEY=;
+	s=arc-20240116; t=1777975419; c=relaxed/simple;
+	bh=rEv4iadz4cn8zezvajgcLDcsiVZXq2zsdafTBeo3gp4=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=smFfAYYXrbwUZ5JVtpA0bC6Ig2jiT7ock7LVSj8sm4d/Z7qLA0WLU3hFwDzeggiPaaEmvuWsr7SAMbsmtbZ9sSfYx4rt41V8JCYQ8ZVwotxIzvxSSsFjT6nvY47xYdxqTM/UH/zgfffUT0wqKEEaN7Bs84TLHZrDYnZ0F5URjvM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kNjDGJ1Z; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=QpeSQB8uGW+QYRGqJmintR36DVt8dbKSz8I6b85RZKdG8+yQoQJLcu1m5xuufPsBWAOk8XPBD+xlJlAOHm/CKnCV4oF2l9hSInti+suKUo1UWpR1ZYXHm0uSZ8Gt7jniIH7xcTZ/lUod33r6oZ2pmTztqQVRqt8ET1nLxHT7PUU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Pa1uqgyi; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kNjDGJ1Z"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A312FC2BCB4;
-	Tue,  5 May 2026 09:30:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1777973431;
-	bh=QUEqaKOiHh1ZOxaKg3KfDUXaatpEkTtgP1z5oeVjDEY=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=kNjDGJ1Z9jqR1AtJaHLz3UVwRtXa8wKRn+8Z9ABA+bP9K3b3UlQsZfV3KaB9xXUrD
-	 tmA+fj7ZuWJ/HHF5+lYbinlXCbgP6C2pJQBYysbOsyawOhvsP2og3vA+D3ZQmGXL46
-	 pGnVL2EBxZKnvUV82LohPKjuVV+r6/1uK5EbByOf0nAF87KWiSaE8MAod56uaqQQcZ
-	 o9lhCctY4vS/HenHDEzGg0SDg1UfZckSXLnmSQDL3OY36jWIhIcPRcecCiBMb/PhCr
-	 NmIzyqEmW2pEwY9z8JzF/4kIV4dztCCztn0hLL9CbfkzSQwSf0zLmK9I2Fk6L1IXTZ
-	 vjukxG7XLahGQ==
-Date: Tue, 5 May 2026 11:30:22 +0200
-From: Christian Brauner <brauner@kernel.org>
-To: Michal Hocko <mhocko@suse.com>
-Cc: Minchan Kim <minchan@kernel.org>, akpm@linux-foundation.org, 
-	hca@linux.ibm.com, linux-s390@vger.kernel.org, david@kernel.org, linux-mm@kvack.org, 
-	linux-kernel@vger.kernel.org, surenb@google.com, timmurray@google.com
-Subject: Re: [PATCH v2] mm: process_mrelease: introduce
- PROCESS_MRELEASE_REAP_KILL flag
-Message-ID: <20260505-wegbleiben-deshalb-f929089dbdab@brauner>
-References: <20260429211359.3829683-1-minchan@kernel.org>
- <afMnKrYT0xG_a-b3@tiehlicka>
- <afUYfpwWsUQoB9hz@google.com>
- <afhQB0CWEcflXpOi@tiehlicka>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Pa1uqgyi"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6457LFci2292859;
+	Tue, 5 May 2026 10:03:08 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=LRSll72Z0sVGkl4mYwmsnZ55Zwi4p1
+	rrr2XnRYLIGf8=; b=Pa1uqgyiyVWXNhSGnTrq0U+HgECxbrES6AYVRrrh/nyyAp
+	uMH+cCmMbeXwSo7K3g4u1ztCOIFkH2zKy//UDSsY3nfxDimVFlAFJJovJIW9LWxJ
+	5Eah3ErYZl4zrXiPhVVkNhBsWcCF34qHh1vpEwKbODUo7XqdU4UUiEc9ZFzM7lyT
+	fso+zHxxDhZqHw/EjWzMFAMxXyuN3l6KUmsnbND5jRYqn1OoL3jBJ7M/u/fU+QMQ
+	ANQxCkhgnWReqcuqjXUOPdQBrQeXPeW+GXR9lZDc9AodBcfxLfJBM/uZP/UEH/CQ
+	j9IXm9dlsT6lnzxWsgJk/AZPSom0dEKW8nfgMRyw==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4dw9x4k0jk-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 05 May 2026 10:03:07 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 6459sXHU002825;
+	Tue, 5 May 2026 10:03:06 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4dwx9y8t6r-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 05 May 2026 10:03:06 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 645A35uo46268820
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 5 May 2026 10:03:05 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id DCA722006A;
+	Tue,  5 May 2026 10:03:04 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 10E282004E;
+	Tue,  5 May 2026 10:03:04 +0000 (GMT)
+Received: from localhost (unknown [9.111.75.48])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Tue,  5 May 2026 10:03:03 +0000 (GMT)
+Date: Tue, 5 May 2026 12:03:02 +0200
+From: Vasily Gorbik <gor@linux.ibm.com>
+To: K Prateek Nayak <kprateek.nayak@amd.com>
+Cc: Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Steven Rostedt <rostedt@goodmis.org>, Ben Segall <bsegall@google.com>,
+        Mel Gorman <mgorman@suse.de>, Valentin Schneider <vschneid@redhat.com>,
+        John Stultz <jstultz@google.com>,
+        "Connor O'Brien" <connoro@google.com>,
+        Vineeth Pillai <vineethrp@google.com>,
+        Joel Fernandes <joelagnelf@nvidia.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/1] sched/core: Don't steal a proxy-exec donor
+Message-ID: <ttek6l2@ub.hpns>
+References: <c00-01.ttedd70@ub.hpns>
+ <p01-01.g703486db8203.ttedd70@ub.hpns>
+ <10282ce9-f4ae-498f-9b57-f4e1e61fffbc@amd.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -47,124 +79,110 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <afhQB0CWEcflXpOi@tiehlicka>
+In-Reply-To: <10282ce9-f4ae-498f-9b57-f4e1e61fffbc@amd.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTA1MDA4OSBTYWx0ZWRfXxYGdsg5Af43Z
+ Kp/C2w4YfdKigAZfXwhZG4wUZDlqmABEKQeai0cXZJCiN0st6vX5glwYmv6U0qCkhVReq+X9ab0
+ rtJOvjmPwC9NxttmiDocP73WpmFxFfhuni1wJVbwmXsKLDcPD6KXzhd3Gs2cFE2xuesAZZIBkGQ
+ MJiViM3uiizyda9XPY+tuZWCXNIGpK95fQiY5W9C7C+z0idpAcQ7wZj8uIEP8czvzkkvvKNvGD6
+ QxpypZRgQsdMKEZRFLrzQRIyI/a6625YkcG4eS581NmHUpYFgugBPkShV+03D3hqNN2wtrB74ro
+ KxsT8N9ZOk7pe6q1/YoxxoORGT69IWfX7so9qvhnlPOg4Thk8gzLxRs1MYSVXtAXpPCMK3RXChY
+ JovCdafbbCb18+TS2trHLlehKt+nUkF1uaL1ZA6/jkHt7Gj8/uu3RqZQqC0M+gedXWMzdgw1vcU
+ CHBy/j1ZlU18AwCjEKA==
+X-Proofpoint-ORIG-GUID: 1CFdqXYUJwZJgPySmnoBH7lhMnUGV3T-
+X-Proofpoint-GUID: mRQjUoC_ZrP6ZvNapkwovWUolEinJVFR
+X-Authority-Analysis: v=2.4 cv=W7UIkxWk c=1 sm=1 tr=0 ts=69f9c05c cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=IkcTkHD0fZMA:10 a=NGcC8JguVDcA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8
+ a=WWO3Wv_cxqnUzhJZ8lcA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-05-05_02,2026-04-30_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ priorityscore=1501 adultscore=0 lowpriorityscore=0 malwarescore=0
+ suspectscore=0 spamscore=0 clxscore=1015 phishscore=0 bulkscore=0
+ impostorscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2604200000
+ definitions=main-2605050089
 
-On Mon, May 04, 2026 at 09:51:35AM +0200, Michal Hocko wrote:
-> On Fri 01-05-26 14:17:50, Minchan Kim wrote:
-> > On Thu, Apr 30, 2026 at 11:55:54AM +0200, Michal Hocko wrote:
-> > > On Wed 29-04-26 14:13:59, Minchan Kim wrote:
-> > > > This policy differs from the global OOM killer, which kills all processes
-> > > > sharing the same mm to guarantee memory reclamation at all costs (preventing
-> > > > system hangs).
-> > > 
-> > > Incorrect, we do the same for memcg OOM killer as well. This is not
-> > > about preventing system hands. But rather to 
-> > > 
-> > > > However, process_mrelease() is invoked by userspace policy.
-> > > > If it fails due to sharing, userspace can simply adapt and select another
-> > > > victim process (such as another background app in Android case) to release
-> > > > memory. We do not need to force success or affect processes that were not
-> > > > targeted.
-> > > 
-> > > This is a wrong justification for the proposed semantic. You seem to be
-> > > assuming this is just fine rather than this would be problematic for
-> > > reasons a), b) and c). If there are no strong reasons _against_
-> > > following the global policy then we should stick with it. There are very
-> > > good reasons why we are doing that on the global level.
-> > > 
-> > > If for no other reasons then the proposed semantic severly criples the
-> > > shared MM case. You are left with a racy kill and call process_mrelease
-> > > approach. You certainly do not want to allow a simple way for tasks to
-> > > evade your LMK, do you? So just choose something else is a very bad
-> > > approach.
-> > > 
-> > > So unless you are aware of a specific reason(s) where collective kill is a
-> > > clearly an incorrect behavior then I believe the proper way is to kill
-> > > all processes sharing the mm (unless you are crossing any security
-> > > boundary when doing that).
+On Mon, May 04, 2026 at 06:49:05PM +0530, K Prateek Nayak wrote:
+> On 5/4/2026 6:01 PM, Vasily Gorbik wrote:
+...
+> > Commit 7de9d4f94638 ("sched: Start blocked_on chain processing in
+> > find_proxy_task()") tweaked the fair class logic so that the donor task
+> > isn't migrated away while running the proxy. Do it similarly for
+> > try_steal_cookie() and skip src->donor as well.
 > > 
-> > I agree that in the case of a global or memcg OOM, the kernel deals with an
-> > emergency, system-wide crisis where killing all sibling processes sharing
-> > the same mm is an absolute necessity for system survival, bypassing
-> > user-space privilege screening.
+> > Fixes: 7de9d4f94638 ("sched: Start blocked_on chain processing in find_proxy_task()")
+> > Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+> > ---
+> >  kernel/sched/core.c | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> > 
+> > diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+> > index b8871449d3c6..3cf5fb70814c 100644
+> > --- a/kernel/sched/core.c
+> > +++ b/kernel/sched/core.c
+> > @@ -6358,7 +6358,7 @@ static bool try_steal_cookie(int this, int that)
+> >  		return false;
+> >  
+> >  	do {
+> > -		if (p == src->core_pick || p == src->curr)
+> > +		if (p == src->core_pick || p == src->curr || p == src->donor)
 > 
-> You are misinterpreting or missing my point. I am not suggesting to
-> cross privilege boundaries. The syscall should fail if the mm is shared
-> with tasks the caller cannot kill (same as it does now).
-> 
-> > However, process_mrelease() is an explicit user-space initiated system call,
-> > and I am still hesitant to place that same raw, destructive policy blindly
-> > at the UAPI syscall level even though I don't know of any known security
-> > issues right now.
-> 
-> This is very wrong argument to introduce a potentially crippled syscall
-> semantic.
->  
-> > If we really want to go that way for the collective kill, at least, we should
-> > evaluate signal authorization (kill permission) against *every single*
-> > sibling process beforehand instead of only the target task of
-> > process_mrelease. Do you agree?
-> 
-> This is what I've proposed already.
-> 
-> > Also, I wonder what the signal/process maintainer thinks about this approach.
-> > Christian Brauner <brauner@kernel.org>?
-> 
-> Yes, this makes sense. There might be a very good reason why we might
-> not want to introduce a way to kill cross thread groups when they share
-> mm from userspace. I do not see any as long as you keep the proper
-> permissions for all affected tasks. Maybe we cannot do that sanely now.
-> But these reasons have to be properly documented. You whole argument
-> that this is different from in-kernel oom killing is just not valid.
+> Although this solves the issue of stealing the donor, I'm a bit
+> skeptical if proxy exec even works with core scheduling at all since
+> __schedule() can override the decision of core_pick and the CPU
+> may end up running a task with different core-cookie if it found
+> the core_pick to be blocked on a mutex :-(
 
-IIUC, then the OOM kill if invoked from the kernel just takes down
-without permission checking what it wants to take down. That makes a lot
-of sense and is mostly safe - after all it is the kernel that initiates
-the kill.
+I think this patch is still valid on its own.
 
-However, when userspace initiates the kill we need at least the
-semantics you proposed, Michal. You can only kill processes that you
-have the necessary privileges over otherwise you end up allowing to
-SIGKILL setuid binaries over which you hold no privileged possibly
-generating information leaks or worse.
+The cookie problem probably needs to be handled separately.
+Do you mean this path?
 
-The other thing to keep in mind is that currently pidfds explicitly do
-not to allow to signal taks that are outside of their pid namespace
-hierarchy - see pidfd_send_signal()'s permission checking. I don't want
-to break these semantics - it's just very bad api design if signaling
-suddenly behaves differently and pidfd suddenly convey the ability to
-do a very wide signal scope.
+   next = pick_next_task(...);
+   rq_set_donor(rq, next);
+   next = find_proxy_task(...);   /* may replace next with mutex owner */
 
-The other thing is that pidfds are handles that can be sent around using
-SCM_RIGHTS which means they could be forwarded to a container or another
-privileged user that then initiates kill semantics.
+I'm trying a check in find_proxy_task(), before returning the final owner:
+---
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index 3cf5fb70814c..46d21ac83e72 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -6952,6 +6952,12 @@ find_proxy_task(struct rq *rq, struct task_struct *donor, struct rq_flags *rf)
+ 		 */
+ 	}
+ 	WARN_ON_ONCE(owner && !owner->on_rq);
++
++	if (owner && !sched_cpu_cookie_match(rq, owner)) {
++		if (curr_in_chain)
++			return proxy_resched_idle(rq);
++		goto deactivate;
++	}
+ 	return owner;
+ 
+ deactivate:
+-- 
 
-The other thing is that the type of pidfd selects the scope of the
-signaling operation:
+But I'm not sure this is the right/acceptable/sufficient fix though.
 
-* If the pidfd was created via PIDFD_THREAD then the scope of the signal
-  is by default the individual thread - unless the signal itself is
-  thread-group oriented ofc.
+With that check and with temporary debugfs counters I added, on the same
+LPAR as in my initial report:
 
-* If the pidfd was created wihout PIDFD_THREAD then the scope of the
-  signal is by default the thread-group.
+cd strace/tests && make -j$(nproc) check
 
-* pidfd_send_signal() provides explicitly scope overrides:
+gives:
 
-  (1) PIDFD_SIGNAL_THREAD
-  (2) PIDFD_SIGNAL_THREAD_GROUP
-  (3) PIDFD_SIGNAL_PROCESS_GROUP
+attempt_total 157
+attempt_cookie 106
+attempt_cookie_mismatch 105
+exec_total 52
+exec_cookie 1
+exec_cookie_mismatch 0
 
-  The flags should be mostly self-explanatory.
-
-  So I really dislike the idea of now letting the pidfd passed to
-  process_mrelease() to have an implicit scope suddenly. The problem is
-  that this is very opaque to userspace and introduces another way to
-  signal a group of processes.
-
-IOW, I still dislike the fact that process_mrelease() is suddenly turned
-into a signal sending syscall and I really dislike the fact that it
-implies a "kill everything with that mm and cross other thread-groups".
-
-I wonder if you couldn't just add PIDFD_SIGNAL_MM_GROUP or something to
-pidfd_send_signal() instead.
+So strace tests do exercise mismatched proxy attempts. I'm not sure if
+there is a better specific proxy-exec test to run, please let me know.
