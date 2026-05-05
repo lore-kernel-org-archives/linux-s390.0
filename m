@@ -1,136 +1,251 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC920346E40;
-	Tue,  5 May 2026 05:05:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 108893BD643;
+	Tue,  5 May 2026 05:50:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777957501; cv=none; b=SGCVqtiLw0Q1B9AwsElRcGCPVpL8kw31rSxvMm6xXqz20Zg6YeTGWE3kXqAY3UTih1SRCyhK+khZmCnUmPjuVx+/36zJvCJTh1z8YXBkW/TaxID74UJaU6v72rj003+6V/YyQ9a6WZOGhZm8l+uedse2DvYhl9JtJIFzTHXdSM8=
+	t=1777960258; cv=none; b=kVZD8JZVp1e6n3+dAk21azHtWr9dM7nGQfeKdADfsMWcmeyISbEJMQtM1OqoZdFlpA659X+N+m+Z21drn8VE0CZO0vCk4tDlylnDmsKl9qDm1/RlK1iAkMPs7D6z5+aEaJrSK/3fZk1FDS+RdtlX4q7zrjml6/YMKfl4jiUzZaM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777957501; c=relaxed/simple;
-	bh=ulYwfhIrZiiyOA+ej0SzTrh2d/+ULM4vkEf6B8JaKfw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=trKJCylEwulMHTxsE0Kqasj7K0gDR6943ey3mav8dkBdg/lHhIWYlskrOR/yVafjRpRmWVofinLmb39mLc3Mi1EEYnn3/vxJCbUS6P/LJTt3hsjJx0D99RA8/vt+0mUVaIXkTimaPY71bOorC3/T1qUHRUMH33r6mziGlOgKbPM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YQdIe8ip; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1777960258; c=relaxed/simple;
+	bh=1h1Imgv640ifBXtrd+y+H9E6RFUTd99d4CwkCxGXbYo=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Enx7e5HTsmG7veZzD6Olr27bQfRrBaukDASLZqH6Pk6ljOqAxuRZxTq9aH0GSBfOYl6dgOBXFXD82JO3geixuWyUE6+XWRCcx92sqmOO1tzAW5uImFTApztir8cbG2gEO03yj6osn9ZT8m8hKW+B5U3vl9/odLMozaPBm7y1cc8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=qkEmj3Kg; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YQdIe8ip"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED059C2BCB4;
-	Tue,  5 May 2026 05:05:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1777957501;
-	bh=ulYwfhIrZiiyOA+ej0SzTrh2d/+ULM4vkEf6B8JaKfw=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=YQdIe8ipp3zoPQt/M1IT100RhJkC1LW7HKyjFJV5+jOWmbpwh82QuzbAQDo5jHwcH
-	 zXZ1pTxLQu3i0metigYKkT9eK/TSWmxLHxaSnrXUlvjZVlh5yHVJAHUfUHsYJArZjg
-	 qnzp/NMRdY+bXEj0RqUZJ1/sGsTnM3Wxbu0y/KABvw/LSoGO2CC26cYIjJssFtu0eZ
-	 gJMgVE/nHI9ss534NzOBzovG17IXtAPTv9e9xXKHvg6kuAFYAZWYmuVQsDFPz+PFo7
-	 h1b+OOmlAr9lI5p8WhktdQhvYSz+abjWJ8Aj896wtbG2xwjbvpoJKzTUfzeo6f+8Ep
-	 3I4JbmUkM80Yg==
-Date: Mon, 4 May 2026 22:04:59 -0700
-From: Minchan Kim <minchan@kernel.org>
-To: Michal Hocko <mhocko@suse.com>
-Cc: Christian Brauner <brauner@kernel.org>, akpm@linux-foundation.org,
-	hca@linux.ibm.com, linux-s390@vger.kernel.org, david@kernel.org,
-	linux-mm@kvack.org, linux-kernel@vger.kernel.org, surenb@google.com,
-	timmurray@google.com
-Subject: Re: [PATCH v2] mm: process_mrelease: introduce
- PROCESS_MRELEASE_REAP_KILL flag
-Message-ID: <afl6e__ljPCkVX6j@google.com>
-References: <20260429211359.3829683-1-minchan@kernel.org>
- <afMnKrYT0xG_a-b3@tiehlicka>
- <afUYfpwWsUQoB9hz@google.com>
- <afhQB0CWEcflXpOi@tiehlicka>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="qkEmj3Kg"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 644FNnr83464145;
+	Tue, 5 May 2026 05:50:54 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=67XDh5
+	/PQqC8WBC9U8Q4i7lTh59IJadyaZq3mpGjTBY=; b=qkEmj3KgBjkPHyN9MiIY1q
+	B0OX6nOu1bHQbCzl7MdkuEEomFfGcZlxZ8tRw+iReTAuFicF6X2os4sL6cwp1gr4
+	vYFebWHYsXJvrpNidMu/kgB1ivOstWVz/a38CTKH72LNf52Ch2ku1FnV9ze+49Dm
+	5Rz2eHi5/IprchGZb4yaqJc+AAct73YRBHzePs3z8IT4+/rQcevo69S/XP6frL6c
+	5PalX2ULBsfDaXdfznyYnkJnXsQCxzOqK5TyDGEWUAEX2TtlXwZQ1ukvZOSMI18s
+	HU+hnt/Rc2wtE7Hgl8GxNX+KEc44dFBh0XFnsDRldLNNxttv+oHvKTKt36mE0fYg
+	==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4dw9v7a5n3-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 05 May 2026 05:50:54 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 6455dTVh009515;
+	Tue, 5 May 2026 05:50:53 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4dwukq8cxy-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 05 May 2026 05:50:53 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6455oo4D14221822
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 5 May 2026 05:50:50 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E342520040;
+	Tue,  5 May 2026 05:50:49 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A5CAD2004B;
+	Tue,  5 May 2026 05:50:49 +0000 (GMT)
+Received: from [9.52.199.37] (unknown [9.52.199.37])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue,  5 May 2026 05:50:49 +0000 (GMT)
+Message-ID: <79649f94-1ba5-44c7-a4c7-dcda8ae58b56@linux.ibm.com>
+Date: Tue, 5 May 2026 07:50:49 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] perf callchain: Handle multiple address spaces
+To: Namhyung Kim <namhyung@kernel.org>
+Cc: Arnaldo Carvalho de Melo <acme@kernel.org>, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-perf-users@vger.kernel.org,
+        agordeev@linux.ibm.com, gor@linux.ibm.com, sumanthk@linux.ibm.com,
+        hca@linux.ibm.com, japo@linux.ibm.com
+References: <20260414124241.490185-1-tmricht@linux.ibm.com>
+ <aeemNo-8_RByiwvP@google.com>
+ <5b3c3edd-4661-4e1e-8971-16eacc230f5c@linux.ibm.com>
+ <afLFGZcaEY2sW0ci@google.com>
+ <56678675-cecd-4561-96d9-b1c0335dc841@linux.ibm.com>
+ <afkwVAXmhApn5z_I@google.com>
+Content-Language: en-US
+From: Thomas Richter <tmricht@linux.ibm.com>
+Organization: IBM
+In-Reply-To: <afkwVAXmhApn5z_I@google.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <afhQB0CWEcflXpOi@tiehlicka>
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTA1MDA0OSBTYWx0ZWRfX/8C+5jpdTMnb
+ CaMWxHrZoM4yxhY4IdQDiYl+BfS4qYIA41bDDpNkfoT3FAXM4H01X0xcQQV+6BGxXbVws8FDpTq
+ ctYtIzBrw5Avaz4b9DERirDc9VVoRVyOK3XZqRK7r2lo/fm1BgxcQraT00KWFwQAMtubThm8tSv
+ 1Mzy9gt+wA76CVLn7PUf2UW3Ez+mg8Q9azShWYJQMgelQttdFnDynhdMF1D68/fLqkG6D/5k9JP
+ M0fIEACcRtBLwN1gmUAmzDQx1UoLy1uAIMUCf3cM5pXoblcAqtZNDhaiwWCkzJ9mKZB0LVy1gFF
+ 5S5D3GWtceQQiSRILQ4SqYHzBJBL5qtRr0jE0O8mFi6Cv2kyXFsjPFGscDMkE1yH0OLLqf8a5k5
+ 0dj8ehEAP7ns9MYzkJU02gRnw6Br5KQif4Ufkl1eLDvY9+ZOwRW9fkVSN8nB/Jr6C9xJB2kRzLM
+ 5hi2E09FRD82ykc5KCg==
+X-Proofpoint-GUID: PljmQjvZxk3jqUBH0-0zxNe7liZHlKG_
+X-Proofpoint-ORIG-GUID: PljmQjvZxk3jqUBH0-0zxNe7liZHlKG_
+X-Authority-Analysis: v=2.4 cv=eu/vCIpX c=1 sm=1 tr=0 ts=69f9853e cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+ a=IkcTkHD0fZMA:10 a=NGcC8JguVDcA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VwQbUJbxAAAA:8
+ a=VnNF1IyMAAAA:8 a=DLm-R2jRA0AhwLrLVMoA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-05-05_01,2026-04-30_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ priorityscore=1501 phishscore=0 lowpriorityscore=0 clxscore=1015 adultscore=0
+ suspectscore=0 malwarescore=0 bulkscore=0 impostorscore=0 spamscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2604200000 definitions=main-2605050049
 
-On Mon, May 04, 2026 at 09:51:35AM +0200, Michal Hocko wrote:
-> On Fri 01-05-26 14:17:50, Minchan Kim wrote:
-> > On Thu, Apr 30, 2026 at 11:55:54AM +0200, Michal Hocko wrote:
-> > > On Wed 29-04-26 14:13:59, Minchan Kim wrote:
-> > > > This policy differs from the global OOM killer, which kills all processes
-> > > > sharing the same mm to guarantee memory reclamation at all costs (preventing
-> > > > system hangs).
-> > > 
-> > > Incorrect, we do the same for memcg OOM killer as well. This is not
-> > > about preventing system hands. But rather to 
-> > > 
-> > > > However, process_mrelease() is invoked by userspace policy.
-> > > > If it fails due to sharing, userspace can simply adapt and select another
-> > > > victim process (such as another background app in Android case) to release
-> > > > memory. We do not need to force success or affect processes that were not
-> > > > targeted.
-> > > 
-> > > This is a wrong justification for the proposed semantic. You seem to be
-> > > assuming this is just fine rather than this would be problematic for
-> > > reasons a), b) and c). If there are no strong reasons _against_
-> > > following the global policy then we should stick with it. There are very
-> > > good reasons why we are doing that on the global level.
-> > > 
-> > > If for no other reasons then the proposed semantic severly criples the
-> > > shared MM case. You are left with a racy kill and call process_mrelease
-> > > approach. You certainly do not want to allow a simple way for tasks to
-> > > evade your LMK, do you? So just choose something else is a very bad
-> > > approach.
-> > > 
-> > > So unless you are aware of a specific reason(s) where collective kill is a
-> > > clearly an incorrect behavior then I believe the proper way is to kill
-> > > all processes sharing the mm (unless you are crossing any security
-> > > boundary when doing that).
-> > 
-> > I agree that in the case of a global or memcg OOM, the kernel deals with an
-> > emergency, system-wide crisis where killing all sibling processes sharing
-> > the same mm is an absolute necessity for system survival, bypassing
-> > user-space privilege screening.
+On 5/5/26 01:48, Namhyung Kim wrote:
+> On Mon, May 04, 2026 at 11:56:15AM +0200, Thomas Richter wrote:
+>> On 4/30/26 04:57, Namhyung Kim wrote:
+>>> On Wed, Apr 29, 2026 at 09:14:38AM +0200, Thomas Richter wrote:
+>>>> On 4/21/26 18:30, Namhyung Kim wrote:
+>>>>> Hello,
+>>>>>
+>>>>> On Tue, Apr 14, 2026 at 02:42:41PM +0200, Thomas Richter wrote:
+>>>>>> perf test 'perf inject to convert DWARF callchains to regular ones'
+>>>>>> fails on s390. It was introduced with
+>>>>>> commit 92ea788d2af4 ("perf inject: Add --convert-callchain option")
+>>>>>>
+>>>>>> The failure comes the difference in output. Without the inject script to
+>>>>>> convert DWARF the callchains is:
+>>>>>>  # ./perf record -F 999 --call-graph dwarf -- perf test -w noploop
+>>>>>>  # ./perf report -i perf.data --stdio --no-children -q \
+>>>>>> 					 --percent-limit=1 > /tmp/111
+>>>>>>  # cat /tmp/111
+>>>>>>     99.30%  perf-noploop  perf               [.] noploop
+>>>>>>             |
+>>>>>>             ---noploop
+>>>>>>                run_workload (inlined)
+>>>>>>                cmd_test
+>>>>>>                run_builtin (inlined)
+>>>>>>                handle_internal_command
+>>>>>>                run_argv (inlined)
+>>>>>>                main
+>>>>>>                __libc_start_call_main
+>>>>>>                __libc_start_main_impl (inlined)
+>>>>>>                _start
+>>>>>>  #
+>>>>>>
+>>>>>> With the inject script step the output is:
+>>>>>>  # ./perf inject -i perf.data --convert-callchain -o /tmp/perf-inject-1.out
+>>>>>>  # ./perf report -i /tmp/perf-inject-1.out --stdio --no-children -q \
+>>>>>> 		--percent-limit=1 > /tmp/222
+>>>>>>  # cat /tmp/222
+>>>>>>     99.40%  perf-noploop  perf               [.] noploop
+>>>>>>             |
+>>>>>>             ---noploop
+>>>>>>                run_workload (inlined)
+>>>>>>                cmd_test
+>>>>>>                run_builtin (inlined)
+>>>>>>                handle_internal_command
+>>>>>>                run_argv (inlined)
+>>>>>>                main
+>>>>>>                _start
+>>>>>>  # diff /tmp/111 /tmp/222
+>>>>>>  1c1
+>>>>>>  <     99.30%  perf-noploop  perf               [.] noploop
+>>>>>>  ---
+>>>>>>  >     99.40%  perf-noploop  perf               [.] noploop
+>>>>>>  10,11d9
+>>>>>>  <                __libc_start_call_main
+>>>>>>  <                __libc_start_main_impl (inlined)
+>>>>>>  #
+>>>>>>
+>>>>>> The difference are the symbols __libc_start_call_main and
+>>>>>> __libc_start_main_impl.
+>>>>>>
+>>>>>> On x86_64, kernel and user space share a single virtual address space,
+>>>>>> with the kernel mapped to the upper end of memory. The instruction
+>>>>>> pointer value alone is sufficient to distinguish between user space
+>>>>>> and kernel space addresses. This is not true for s390, which uses
+>>>>>> separate address spaces for user and kernel. The same virtual address
+>>>>>> can be valid in both address spaces, so the instruction pointer value
+>>>>>> alone cannot determine whether an address belongs to the kernel or
+>>>>>> user space. Instead, perf must rely on the cpumode metadata derived
+>>>>>> from the processor status word (PSW) at sample time.
+>>>>>>
+>>>>>> In function perf_event__convert_sample_callchain() the first part
+>>>>>> copies a kernel callchain and context entries, if any.
+>>>>>> It then appends additional entries ignoring the address space
+>>>>>> architecture. Taking that into account, the symbols at addresses
+>>>>>>
+>>>>>>    0x3ff970348cb __libc_start_call_main
+>>>>>>    0x3ff970349c5 __libc_start_main_impl
+>>>>>>
+>>>>>> (located after the kernel address space on s390) are now included.
+>>>>>>
+>>>>>> Output before:
+>>>>>>  # ./perf test 83
+>>>>>>  83: perf inject to convert DWARF callchains to regular ones : FAILED!
+>>>>>>
+>>>>>> Output after:
+>>>>>>  # ./perf test 83
+>>>>>>  83: perf inject to convert DWARF callchains to regular ones : Ok
+>>>>>>
+>>>>>> Question to Namhyung:
+>>>>>> In function perf_event__convert_sample_callchain() just before the
+>>>>>> for() loop this patch modifies, the kernel callchain is copied,
+>>>>>> see this comment and the next 5 lines:
+>>>>>>    /* copy kernel callchain and context entries */ 
+>>>>>> Then why is machine__kernel_ip() needed in the for() loop, when
+>>>>>> the kernel entries have been copied just before the loop?
+>>>>>
+>>>>> IIRC I wanted to make sure to have PERF_CONTEXT_* part in the raw
+>>>>> callchains.
+>>>>>
+>>>>>>
+>>>>>> Note: This patch was tested on x86_64 virtual machine and succeeded.
+>>>>>>
+>>>>>> Fixes: 92ea788d2af4 ("perf inject: Add --convert-callchain option")
+>>>>>> Cc: Namhyung Kim <namhyung@kernel.org>
+>>>>>>
+>>>>>> Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+>>>>>
+>>>>> Acked-by: Namhyung Kim <namhyung@kernel.org>
+>>>>>
+>>>>> Thanks,
+>>>>> Namhyung
+>>>>>
+>>>>
+>>>> Hi Namhyung,
+>>>>
+>>>> is there something which needs to be done on my side to get this patch picked?
+>>>> It still fails on s390.
+>>>>
+>>>> Please adviseon how to proceed.
+>>>
+>>> Arnaldo will take care of 7.2 development cycle.
+>>>
+>>
+>> Today we are at v7.1-rc2. Does this mean the fix won't make it into v7.1 at all
+>> and we have to wait roughly 2 month?
 > 
-> You are misinterpreting or missing my point. I am not suggesting to
-> cross privilege boundaries. The syscall should fail if the mm is shared
-> with tasks the caller cannot kill (same as it does now).
-> 
-> > However, process_mrelease() is an explicit user-space initiated system call,
-> > and I am still hesitant to place that same raw, destructive policy blindly
-> > at the UAPI syscall level even though I don't know of any known security
-> > issues right now.
-> 
-> This is very wrong argument to introduce a potentially crippled syscall
-> semantic.
->  
-> > If we really want to go that way for the collective kill, at least, we should
-> > evaluate signal authorization (kill permission) against *every single*
-> > sibling process beforehand instead of only the target task of
-> > process_mrelease. Do you agree?
-> 
-> This is what I've proposed already.
+> Just out of curiousity, do you plan to use v7.1 for this feature
+> specifically or just for test failures?  Probably better to use v7.2
+> series (i.e. perf-tools-next) instead?
 
-Sounds good.
-
-One thing to note is that this approach is still not perfect, as some sibling
-processes sharing the mm might not be killed due to different UID or SELinux
-policies while others are. In such cases, the actual memory reaping via
-process_mrelease() will still fail anyway.
-
-If we are okay with this limitation - meaning it acts as a best-effort
-approach where we might end up killing some processes without successfully
-releasing the memory — then I can proceed with this design.
-
-> 
-> > Also, I wonder what the signal/process maintainer thinks about this approach.
-> > Christian Brauner <brauner@kernel.org>?
-> 
-> Yes, this makes sense. There might be a very good reason why we might
-> not want to introduce a way to kill cross thread groups when they share
-> mm from userspace. I do not see any as long as you keep the proper
-> permissions for all affected tasks. Maybe we cannot do that sanely now.
-> But these reasons have to be properly documented. You whole argument
-> that this is different from in-kernel oom killing is just not valid.
-
-Okay, let's wait for any valid reasons or concerns they might raise.
+Right now I just care for failing test features. I am fine with 7.2
+as long as it gets picked.
 
 Thanks.
+-- 
+Thomas Richter, Dept 3303, IBM s390 Linux Development, Boeblingen, Germany
+--
+IBM Deutschland Research & Development GmbH
+
+Vorsitzender des Aufsichtsrats: Wolfgang Wendt
+
+Geschäftsführung: David Faller
+
+Sitz der Gesellschaft: Böblingen / Registergericht: Amtsgericht Stuttgart, HRB 243294
