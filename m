@@ -1,32 +1,32 @@
 Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 1643744D696;
-	Wed,  6 May 2026 15:28:52 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id A13AE3FCB06;
+	Wed,  6 May 2026 15:37:07 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778081334; cv=none; b=Nu+nrx1J866bjIv5hOA1LihfCkV9KLy7Ywpoj9Jic3kqpuyffBUmWYKPWm70PdyVzTjJ8YjUKzbKOAWySjg8K5/vi4XpYRVA/FlJV1BQn3nc3aLTdWb1oL3kaSqzoXQ2aqSxSl1xTPsR1MLAUbeWA5iZct+v/WkVj8IPm1slMCQ=
+	t=1778081829; cv=none; b=hqixUcWy+vqOBAur00/mVpYwL4Fq8pyWjvoDskcWlibrB1USa70Sj8w/nDwuVamihlF4m/2SimRzhwzG+cJ3Tou+Cntvk6IXuKAVV4M6i5xF3SEKx7mGbf8w4QNEL8prJY1ZE9VG0YHiTuaTApFuCStvbx/s+KrSi3QoF8M90Ts=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778081334; c=relaxed/simple;
-	bh=GIso8zzP6WAZvBCfiOiq2OM7xb6XbVZS+Ipq3OD55sQ=;
+	s=arc-20240116; t=1778081829; c=relaxed/simple;
+	bh=5jyzOt/YE4MAJ87a+6OW9BOIOtlHnKUUXQbFsJ69GA8=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=daFm5Njc+MRS5hQ+hDjtpXnJyKgsgCjc/VgwKVmI/fnqu67vVPZiX7dzxCrnpGjCnhz985jiExfLqArILUSS2pV/USEL4mK7inWHsH5fupgcP7U6Ck6hWaw2b3AQFuuzYaMM2y6Khc9Qgby4N1p6Y0aen1iGd8A03SGDIWg00+8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=BtEvq0hO; arc=none smtp.client-ip=217.140.110.172
+	 Content-Type:Content-Disposition:In-Reply-To; b=b5wf4G3j7tr8PLIuJyxQqrFEBjG6I7aNX4GRjmG80EDhV1wkW2kfg6CESZJKDrCiWfNdeSIW/bkWClV7u+5rB2E4UNq854p78LfNqUHdWaP1MN9+r85/lmA9yV1WMdenFxWQwvgGycBdhR84I2IFGwRjmzZ7IloTFsMcS9AmWA4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=bMdi+zP3; arc=none smtp.client-ip=217.140.110.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="BtEvq0hO"
+	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="bMdi+zP3"
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 1C8961A00;
-	Wed,  6 May 2026 08:28:47 -0700 (PDT)
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 67E5B1682;
+	Wed,  6 May 2026 08:37:01 -0700 (PDT)
 Received: from arm.com (usa-sjc-mx-foss1.foss.arm.com [172.31.20.19])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 471923F7B4;
-	Wed,  6 May 2026 08:28:50 -0700 (PDT)
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 923CB3F7B4;
+	Wed,  6 May 2026 08:37:04 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=arm.com; s=foss;
-	t=1778081332; bh=GIso8zzP6WAZvBCfiOiq2OM7xb6XbVZS+Ipq3OD55sQ=;
+	t=1778081826; bh=5jyzOt/YE4MAJ87a+6OW9BOIOtlHnKUUXQbFsJ69GA8=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=BtEvq0hOdFvxUgOxCi2MB69loUyTEabOCf0BaPHD2hMrEuCGOXgUv/70AUtuV964m
-	 aeCZZ0B7oQV/nD37CLaFZFnrdPqAG/fEOiVGTZiVZHq9BhO/sTZCn86wqVIkBBfO8l
-	 AuSF/N1qkMfY3ghKS4w3SHk8JlixjHj4Z6b+0hd0=
-Date: Wed, 6 May 2026 16:28:47 +0100
+	b=bMdi+zP3Eg/uLU1d3mO63YYr4BA3ZO4t1algcuI4CFGs8XeA9T34+qb0rdR39jzeg
+	 j06elKg2k5eNJF+ZUZm4HfbXrZgBVCdvHX1pcaN+Q7kkJVmt6743pZjHTA/47tQcPO
+	 EhPeVMH+7RxtBnh++b/ct/abuXYH8cT/M2HIAXHg=
+Date: Wed, 6 May 2026 16:37:01 +0100
 From: Catalin Marinas <catalin.marinas@arm.com>
 To: K Prateek Nayak <kprateek.nayak@amd.com>
 Cc: Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
@@ -39,11 +39,11 @@ Cc: Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
 	linux-s390@vger.kernel.org, linux-riscv@lists.infradead.org,
 	linux-arm-kernel@lists.infradead.org,
 	Jisheng Zhang <jszhang@kernel.org>
-Subject: Re: [PATCH v4 2/8] arm64/runtime-const: Use
- aarch64_insn_patch_text_nosync() for patching
-Message-ID: <afteLyir2cGUbEi_@arm.com>
+Subject: Re: [PATCH v4 3/8] arm64/runtime-const: Introduce
+ runtime_const_mask_32()
+Message-ID: <aftgHVEW3dsnblfc@arm.com>
 References: <20260430094730.31624-1-kprateek.nayak@amd.com>
- <20260430094730.31624-3-kprateek.nayak@amd.com>
+ <20260430094730.31624-4-kprateek.nayak@amd.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -52,51 +52,30 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260430094730.31624-3-kprateek.nayak@amd.com>
+In-Reply-To: <20260430094730.31624-4-kprateek.nayak@amd.com>
 
-On Thu, Apr 30, 2026 at 09:47:24AM +0000, K Prateek Nayak wrote:
-> The current scheme to directly patch the kernel text for runtime
-> constants runs into the following issue with futex adapted to using
-> runtime constants on arm64:
+On Thu, Apr 30, 2026 at 09:47:25AM +0000, K Prateek Nayak wrote:
+> Futex hash computation requires a mask operation with read-only after
+> init data that will be converted to a runtime constant in the subsequent
+> commit.
 > 
->   Unable to handle kernel write to read-only memory at virtual address ...
+> Introduce runtime_const_mask_32 to further optimize the mask operation
+> in the futex hash computation hot path. GCC generates a:
 > 
-> The pc points to the *p assignment in the following call chain:
+>   movz  w1, #lo16, lsl #0     // w1 = bits [15:0]
+>   movk  w1, #hi16, lsl #16    // w1 = full 32-bit value
+>   and   w0, w0, w1	      // w0 = w0 & w1
 > 
->   futex_init()
->     runtime_const_init(shift, __futex_shift)
->       __runtime_fixup_shift()
->         *p = cpu_to_le32(insn);
+> pattern to tackle arbitrary 32-bit masks and the same was also suggested
+> by Claude which is implemented here. The final (__ret & mask) operation
+> is intentiaonally placed outside of asm block to allow compilers to
+> further optimize it if possible.
 > 
-> which suggests that core_initcall() is too late to patch the kernel text
-> directly unlike the "d_hash_shift" which is initialized during
-> vfs_caches_init_early() before the protections are in place.
+> __runtime_fixup_ptr() already patches a "movz, + movk lsl #16" sequence
+> which has been reused to patch the same sequence for
+> __runtime_fixup_mask().
 > 
-> Use aarch64_insn_patch_text_nosync() to patch the runtime constants
-> instead of doing it directly to allow runtime_const_init() slightly
-> later into the boot.
-> 
-> Since aarch64_insn_patch_text_nosync() calls caches_clean_inval_pou()
-> internally, __runtime_fixup_caches() ends up being redundant.
-> runtime_const_init() are rare and the overheads of multiple calls to
-> caches_clean_inval_pou() instead of batching them together should be
-> negligible in practice.
-> 
-> The cpu_to_le32() conversion of instruction isn't necessary since it is
-> handled later in the aarch64_insn_patch_text_nosync() call-chain:
-> 
->   aarch64_insn_patch_text_nosync(addr, insn)
->     aarch64_insn_write(addr, insn)
->       __aarch64_insn_write(addr, cpu_to_le32(insn))
-> 
-> Sashiko noted that aarch64_insn_patch_text_nosync() does not expect a
-> lm_alias() address and Catalin suggested it is safe to drop the
-> lm_alias() for runtime patching since the kernel text is readable. The
-> address passed to fixup function is interpreted as a __le32 and
-> dereferenced as is to read the opcode at the patch site.
-> 
-> No functional changes are intended.
-> 
+> Assisted-by: Claude:claude-sonnet-4-5
 > Signed-off-by: K Prateek Nayak <kprateek.nayak@amd.com>
 
 Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
