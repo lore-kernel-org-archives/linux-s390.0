@@ -1,100 +1,118 @@
-Received: from out30-97.freemail.mail.aliyun.com (out30-97.freemail.mail.aliyun.com [115.124.30.97])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C39D22580F3;
-	Wed,  6 May 2026 01:41:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.97
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2338F78F2E;
+	Wed,  6 May 2026 04:57:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778031681; cv=none; b=LBPYh9j7Ze+B3vxTBpsmuexc3nHoA6a5oq40bA9V0KFovtFK+8Ay9gKhoIZV6GXfC4cV4c6muKSb8Em3dY+je06kU0lG9m9cGHmL2xGZedxgc2lVT4EaiWzCJJikhipT33bekFEOcMee3c+2nkP9klxsdA1vY+LSmTbS1qhCq5c=
+	t=1778043464; cv=none; b=FjEVk0HG+gQiHwYV4SBKiAVk0vAs3jzO7dYHzUZJnZL7Dbu+ozBAo/zlUJsgVgSgWnUKa70/xsX/lxQ2nrPX2aXQC4hMitvJIrmKAgNTk6chpBh8fySDRoJNcq9LcHuexiAuaZM0MWrcY+PdGkXVWjlnyYPBjp+Q2DChevO4Rm8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778031681; c=relaxed/simple;
-	bh=pnmZZhAHCFw2R56Un6jB8g3I0UAfHhdY+6q2FWlzRKs=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=tnfnZV1EEfcOiIUVo4R65xPRcr9E+D+tPJBy6pODSNnP/WOoTIuoWywsU+Gm155tzizQ7waifFa5FVjx+XosZAkzEIs2rCMtHNJ9VzBqe4ALXa3D4o5nnbVnvkqp5kMJol5Ninigoc7tT+aF4Ddz5vntdhLpeFPADxTBXRqH7CU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=D3Mvyh6v; arc=none smtp.client-ip=115.124.30.97
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1778043464; c=relaxed/simple;
+	bh=juU0I79it44AO2vpgUR6yrH4LZfYtlHzQZ6EFxh5C3g=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=IUbu/O2WTTtA/SVlwPVYwSswma2zXnjJy0QjyXkcHWw+EpvZGufo7jmdZHv54kpsKLTaNzIgN65LzBVE5rd7vJB5Nrj/VQy6u6bOenqI8/wJ3md2iOyAuyP/sBX3faEHP3fASUUAc1Rv/6Zn2n6RqV7BHGlZoSTCcXQz8JaFCig=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Y2VmOlwp; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="D3Mvyh6v"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1778031670; h=From:To:Subject:Date:Message-ID:MIME-Version;
-	bh=6yti4GL1+tcD4wNIQaYPwVaTZwBljAcSrHFDH4V+DeY=;
-	b=D3Mvyh6vwcKuEPrXbHqqu0NuDiu4+JOMkIP360DjHFdMN/L7RTAGvpuLEFQ2kuDsWZZa6FjwgNmXHcuBj16kTppCGKDXaf8u5E+G1jqxWQRVI25BCdA8byVQ7uSb1pQheCt1rp2j5gIxvgigi4PY9W/Q61xZ8pER+ZZVFNrztDM=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R731e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033032089153;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=19;SR=0;TI=SMTPD_---0X2JDI-l_1778031665;
-Received: from j66a10360.sqa.eu95.tbsite.net(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0X2JDI-l_1778031665 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Wed, 06 May 2026 09:41:09 +0800
-From: "D. Wythe" <alibuda@linux.alibaba.com>
-To: "David S. Miller" <davem@davemloft.net>,
-	Dust Li <dust.li@linux.alibaba.com>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	Sidraya Jayagond <sidraya@linux.ibm.com>,
-	Wenjia Zhang <wenjia@linux.ibm.com>
-Cc: Karsten Graul <kgraul@linux.ibm.com>,
-	Mahanta Jambigi <mjambigi@linux.ibm.com>,
-	Simon Horman <horms@kernel.org>,
-	Tony Lu <tonylu@linux.alibaba.com>,
-	Ursula Braun <ubraun@linux.ibm.com>,
-	Wen Gu <guwen@linux.alibaba.com>,
-	linux-kernel@vger.kernel.org,
-	linux-rdma@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	netdev@vger.kernel.org,
-	oliver.yang@linux.alibaba.com,
-	pasic@linux.ibm.com
-Subject: [PATCH net] net/smc: fix missing sk_err when TCP handshake fails
-Date: Wed,  6 May 2026 09:41:05 +0800
-Message-ID: <20260506014105.27093-1-alibuda@linux.alibaba.com>
-X-Mailer: git-send-email 2.45.0
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Y2VmOlwp"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 645E64Cv1944676;
+	Wed, 6 May 2026 04:57:40 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=vaYk4sjlQ9z1mrbToKyoqOJSMnirYT
+	WmjGrMSCZ4jpg=; b=Y2VmOlwpLWjQd2GhB7cCjWv56JxqGWskMDupopU1z6VwQ6
+	DcY5UqiCTiKwYsml3nuFoYjK4RGho2GvFtG9bb8pa1OQ4/RP4KpyWVUpHkioap9S
+	0YFnuncZr3uf/jGEKE1xm4hDXKyYdFVONOIcjZkIcZoQh5mFzaHeG4yG/OPDGxV6
+	vhzJ371BJRwUHqqm6ZeTul8mbOQCPkBJbVCK/VWVzpnaDni+gyvQDCUoR6cDqlfZ
+	Kw6iE+0Q8+a4tjyR/7QOuYbSA4lXoBLX8KfPPdJvOPihRpHSnNpa7eyAD6zQA1oo
+	Rh2XM+nJ2IXGVuFGGwiQcgmdOBcJTCKAJp8H2bkQ==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4dw9w6ee59-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 06 May 2026 04:57:39 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 6464sR5l028819;
+	Wed, 6 May 2026 04:57:39 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4dww3h4nhw-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 06 May 2026 04:57:39 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6464vZdh15991152
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 6 May 2026 04:57:35 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 7B2452004B;
+	Wed,  6 May 2026 04:57:35 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 470BA20040;
+	Wed,  6 May 2026 04:57:35 +0000 (GMT)
+Received: from osiris (unknown [9.52.214.206])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Wed,  6 May 2026 04:57:35 +0000 (GMT)
+Date: Wed, 6 May 2026 06:57:34 +0200
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Douglas Freimuth <freimuth@linux.ibm.com>
+Cc: borntraeger@linux.ibm.com, imbrenda@linux.ibm.com, frankja@linux.ibm.com,
+        david@kernel.org, gor@linux.ibm.com, agordeev@linux.ibm.com,
+        svens@linux.ibm.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, mjrosato@linux.ibm.com
+Subject: Re: [PATCH v5 3/4] KVM: s390: Change the fi->lock to a raw_spinlock
+ for RT case
+Message-ID: <20260506045734.11230A02-hca@linux.ibm.com>
+References: <20260505173728.160562-1-freimuth@linux.ibm.com>
+ <20260505173728.160562-4-freimuth@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260505173728.160562-4-freimuth@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=XPQAjwhE c=1 sm=1 tr=0 ts=69faca43 cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=kj9zAlcOel0A:10 a=NGcC8JguVDcA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8
+ a=ymQ7mPXCrkQ1VZPLqxAA:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-ORIG-GUID: BAzQ6tc44Eh1GnTEB_l6ma4PFz7LKN-1
+X-Proofpoint-GUID: BAzQ6tc44Eh1GnTEB_l6ma4PFz7LKN-1
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTA2MDA0MiBTYWx0ZWRfX/B4iAH6fWS6N
+ lbg7tkDc7dBOflX9YE/SgWnwEfJ/XcXnVjf9sBV9dvSm7+cXTpD61wPXAjHDQVS+JQwrdK5nR6T
+ E2TcxOoVUA+gXu4t+5g5AeJb0EDX8Pmzc8pFhG3rq1hotXz2u1+nE25NWc3OCKndunx0xWSjE3j
+ v51v+frJsvBWLJFrMQuFqGHvvcDUfgjNvhT2oJptfUomtOwLoTaAcS9BDQjhktOp7RwWTJWv6h/
+ XRfqJ1lx0hovAyicJUbfIedyORzlyto70rAdW24dXx9HfUawbVdkF6UdYGiTl/Oe23LSdKsMIpB
+ zref8gXi58bktQ/5QPyJN3XKG0+KSi2pQyyWI4Snzsmql+Z3rWALyM7yMZqb0FLbQseIMCDbURV
+ 7Z7bd/pYp20JlyJdKIfmWVvckOO6qbOZ5Y4aX8I6pMXX6CAlECMSAMXije+yFFZA92S66NrV7t5
+ DDB+DnQXlevP+JF7YNw==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-05-05_02,2026-04-30_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ bulkscore=0 lowpriorityscore=0 suspectscore=0 adultscore=0 spamscore=0
+ priorityscore=1501 impostorscore=0 phishscore=0 malwarescore=0 clxscore=1015
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2604200000 definitions=main-2605060042
 
-In smc_connect_work(), when the underlying TCP handshake fails, the error
-code (rc) must be propagated to sk_err to ensure userspace can correctly
-retrieve the error status via SO_ERROR. Currently, the code only handles
-a restricted set of error codes (e.g., EPIPE, ECONNREFUSED). If other
-errors occurs, such as EHOSTUNREACH, sk_err remains unset (zero).
+On Tue, May 05, 2026 at 07:37:27PM +0200, Douglas Freimuth wrote:
+> s390 needs to maintain support for an RT kernel. This requires the
+> floating interrupt lock, fi->lock to be changed to a raw spin lock 
+> since the fi->lock maybe called with interrupts disabled in __inject_io.
+> 
+> Signed-off-by: Douglas Freimuth <freimuth@linux.ibm.com>
+> ---
+>  arch/s390/include/asm/kvm_host.h |  2 +-
+>  arch/s390/kvm/intercept.c        |  4 +-
+>  arch/s390/kvm/interrupt.c        | 68 ++++++++++++++++----------------
+>  arch/s390/kvm/kvm-s390.c         |  2 +-
+>  4 files changed, 38 insertions(+), 38 deletions(-)
 
-This affects applications that rely on SO_ERROR to determine connect
-outcome. For example, higher versions of Go's netpoller treats
-SO_ERROR == 0 combined with a failed getpeername() as a spurious wakeup
-and re-enters epoll_wait(). Under ET mode, no further edge will be
-generated since the socket is already in a terminal state, causing the
-connect to hang indefinitely or until a user-specified timeout, if one
-is set.
+s390 does not support RT, but I guess you are referring to a lockdep splat
+which you would see without doing this change, similar like we have seen at
+other places.
 
-Fixes: 50717a37db03 ("net/smc: nonblocking connect rework")
-Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
----
- net/smc/af_smc.c | 8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
-
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 1a565095376a..185dbed7de5d 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -1628,12 +1628,8 @@ static void smc_connect_work(struct work_struct *work)
- 	lock_sock(&smc->sk);
- 	if (rc != 0 || smc->sk.sk_err) {
- 		smc->sk.sk_state = SMC_CLOSED;
--		if (rc == -EPIPE || rc == -EAGAIN)
--			smc->sk.sk_err = EPIPE;
--		else if (rc == -ECONNREFUSED)
--			smc->sk.sk_err = ECONNREFUSED;
--		else if (signal_pending(current))
--			smc->sk.sk_err = -sock_intr_errno(timeo);
-+		if (!smc->sk.sk_err)
-+			smc->sk.sk_err = (rc == -EAGAIN) ? EPIPE : -rc;
- 		sock_put(&smc->sk); /* passive closing */
- 		goto out;
- 	}
--- 
-2.45.0
-
+Can you include the relevant parts of the splat for reference, please?
