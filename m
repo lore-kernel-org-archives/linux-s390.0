@@ -1,149 +1,190 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A45F3EB7F8;
-	Thu,  7 May 2026 10:42:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 502603EE1E2;
+	Thu,  7 May 2026 13:17:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778150544; cv=none; b=S5l6x+13CPoN/clzfa42x/OKb9/d3TxEwD6SJOmkpjNYXj6o0v3trPvSP6L3UVN3vcFQUABKLVaVc5ylwWLg7MqEMFc/u10GoxCds/WmbSyZor+SGE9bVQdCSSy+vUHay+Cs8E395/wrCIbxlNwpf2Y083Qjaxjp4rb5sclOmpI=
+	t=1778159830; cv=none; b=XJnaj2LrAX1SsZzF8sZ+HRWBYC1/Ja+iNeIx2XpiWjItFnjtNujEvTkKf6SituNz8A5yBMxKNTuGcZo1f7FOUd0vO+ZIO6hlQEJqcu7QyYUHm0Y4eyNNbz+kwONHaI3xydk62PCscZ3OLJSRVzGdfHmbogaLul+OU5oUKhC4AME=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778150544; c=relaxed/simple;
-	bh=4HT4DTe36P0Uqm7n6580ZZp9IbuC4oziJ8jrvTdIJUI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=SpI8/YI39xkxVEd27uDt35JCgprSD+V8TPLLtcubyO+HoPhhgbLSA6v8SPPq0e7HkbnnH6bb7UHiXWHkMEwYn9Eb/7AuqzUTB3v2F8QCQNstr9R92WYwwlKWWw/ub4sBgGaPg81f1lhX9/9y7/QIeRZbPvhAUprIuqu1X6DE3Tg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=J0nqymmX; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1778159830; c=relaxed/simple;
+	bh=SjI9KuWqB5eEq+gAvFPh2e+4xxGMjYd2K6HtviapvSY=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=T0Rc/bLAt+1fASTyq8O/SbMCAr22585Ipa0vJs0Y+VCWYuoFWSAjEAQHp38AlOh+7FjUNgOxkjHIDgbDwwAiDg42/l6MdIrxQS6qhFuuSnZzt8FW5SkRukoxYkq1dNy/RogdtvUMxgaZuWYTOLD0+J1vTS96aVw2MvtBVMObT+k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=OPdJI0s8; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="J0nqymmX"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6478UwHw800514;
-	Thu, 7 May 2026 10:42:06 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="OPdJI0s8"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 647AFdY53182093;
+	Thu, 7 May 2026 13:17:05 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=VJouRhW043MTZQidCG16xvopELiugw
-	TQcwQHT1ND7dg=; b=J0nqymmXb1hoypeCAkfP/b2ePs3lSPa7ywP5I8j9ONiy/W
-	eXASR3WBp7S8I/YXW1SNVdqh6P4oljXdZtHqVSSAbglDLnXTmyttne7r07POMMOc
-	RS1PhF44wq1YYwBCTulsb9Myjjo8y3UO05fj9TUZPwYJm49/KHXWCCh+jvlcQ3IY
-	f5lDxnjLYmi6wtjatQQ6uQO5phZbJgmwY5iCI/Vx9gcJJJLmCsRHysuuSOfFlXUI
-	axxgOvoZ4jKFoVSTGMkkdZdjj/xoUEKq5vHQpLhhYG54xxbk7pugvbQQBAIvbZJE
-	3X07ni1gXzD8umgK5RGzUvWU67JFy/z1SPC+rAXg==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4dw9x4wm5t-1
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=5bKUpg
+	4eYDkMsYvkWVpAoYUUA9XPdC+uIztaXeOhwmA=; b=OPdJI0s84Ke96hw2lkq9fp
+	ZIG2mc2Xx3fr9lHOho8EauXEHRXkeVaceeahPcT/lcOFJTqTcYRTIXTyTFy4E9Xl
+	diGjL5MNOjTnQxts9VdA2DTKVVTZsICeny086LNBcmEhma0pfO1sisygs6Gccle+
+	fPcACQktY811gHq7ZOmr85rFl4fQLDsSnxWiPBhialldtHa205MEC8atwjV2FpJl
+	wjtxOG869DUS9Cdp94C276yWjA89Rz453/Apt/CWfM8hjrwFsowAwgVjdaKqstDJ
+	mUEkuQv7o1ECmX1NMTFbaD0w4edpXA0bdZBCKrYWdSdSaf3v8pMmI7tNpdCQ+lTw
+	==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4dw9xxwn85-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 07 May 2026 10:42:05 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 647A9TYD027828;
-	Thu, 7 May 2026 10:42:04 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4dww3haqfp-1
+	Thu, 07 May 2026 13:17:04 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 647D9a2d007652;
+	Thu, 7 May 2026 13:17:04 GMT
+Received: from smtprelay05.wdc07v.mail.ibm.com ([172.16.1.72])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4dwwtgkg5v-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 07 May 2026 10:42:04 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 647Ag0h148628058
+	Thu, 07 May 2026 13:17:04 +0000 (GMT)
+Received: from smtpav02.wdc07v.mail.ibm.com (smtpav02.wdc07v.mail.ibm.com [10.39.53.229])
+	by smtprelay05.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 647DH2OM10551996
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 7 May 2026 10:42:00 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 452912004B;
-	Thu,  7 May 2026 10:42:00 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 40CDA20040;
-	Thu,  7 May 2026 10:41:59 +0000 (GMT)
-Received: from localhost (unknown [9.111.2.188])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Thu,  7 May 2026 10:41:59 +0000 (GMT)
-Date: Thu, 7 May 2026 12:41:59 +0200
-From: Vasily Gorbik <gor@linux.ibm.com>
-To: Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        K Prateek Nayak <kprateek.nayak@amd.com>
-Cc: Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Steven Rostedt <rostedt@goodmis.org>, Ben Segall <bsegall@google.com>,
-        Mel Gorman <mgorman@suse.de>, Valentin Schneider <vschneid@redhat.com>,
-        John Stultz <jstultz@google.com>,
-        Vineeth Pillai <vineethrp@google.com>,
-        Joel Fernandes <joelagnelf@nvidia.com>,
-        Heiko Carstens <hca@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH v2 2/2] sched/core: Don't proxy-exec unmatched cookie lock
- owners
-Message-ID: <p02-02.v2.g990a0c64420d.ttenwd4@ub.hpns>
-References: <c00-02.v2.ttenwd4@ub.hpns>
+	Thu, 7 May 2026 13:17:02 GMT
+Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8B8F35805E;
+	Thu,  7 May 2026 13:17:02 +0000 (GMT)
+Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 3D2435805C;
+	Thu,  7 May 2026 13:17:01 +0000 (GMT)
+Received: from [9.61.162.242] (unknown [9.61.162.242])
+	by smtpav02.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Thu,  7 May 2026 13:17:01 +0000 (GMT)
+Message-ID: <191a1272-1f8c-4a67-a01d-abfdb89fcaf5@linux.ibm.com>
+Date: Thu, 7 May 2026 09:17:00 -0400
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <c00-02.v2.ttenwd4@ub.hpns>
-X-Patchwork-Bot: notify
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v5 3/4] KVM: s390: Change the fi->lock to a raw_spinlock
+ for RT case
+To: Heiko Carstens <hca@linux.ibm.com>,
+        Douglas Freimuth <freimuth@linux.ibm.com>
+Cc: borntraeger@linux.ibm.com, imbrenda@linux.ibm.com, frankja@linux.ibm.com,
+        david@kernel.org, gor@linux.ibm.com, agordeev@linux.ibm.com,
+        svens@linux.ibm.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20260505173728.160562-1-freimuth@linux.ibm.com>
+ <20260505173728.160562-4-freimuth@linux.ibm.com>
+ <20260506045734.11230A02-hca@linux.ibm.com>
+ <d39c54bc-1984-490c-9457-5eff63edef56@linux.ibm.com>
+ <20260507095630.10395Aa0-hca@linux.ibm.com>
+Content-Language: en-US
+From: Matthew Rosato <mjrosato@linux.ibm.com>
+In-Reply-To: <20260507095630.10395Aa0-hca@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTA3MDEwNSBTYWx0ZWRfX40SoSm0iDRJk
- cGd+RXZgsO/2UIC1Sszrvl/3H/0RY8SBHviTtylsdmvAbYO6BQuE5QZOWUe5RBc/kD0XyGE6zWS
- YyQ3onb8cOvqDQskO11fLvCI8K2P3h02WtALrShm9Fm1k3fArfda6rL9VCPEMF3QEPCKiFIUXfE
- jf7HgIbkECph+f56kl0TbuCEWunNA3lA71xxv009D3Nh0l48KsQjT2LW4Glu4YEce6i5hiX2D2g
- L8ZCxEfXETEfcDvAYlqX3yy5ZG4B9qGYBOnk1j+7nAZEXPbfODzuHLQLwbJvCA6TcFyqRSgcIfk
- AEXVSH6KuQnuAgP+GOMVYW3ixdNFlgRcT2ltqKrnW/rbrZfuZQgLXmQ7l3yMfVULpr2gVtQ9Xrs
- O31zcfOU98M6cgoSU0Fp+MkFfd+RXpIXwC6Ei3utUcQQTT4RCeHR5uzqrrZYxy8mjfYQ6RejXD1
- MTmKL+1jMCtCmLtWUVA==
-X-Proofpoint-ORIG-GUID: XwjeGZGEYBKe-HHug21ORO6RPhyC-tbz
-X-Proofpoint-GUID: 3WsugX8fnBKY6K84u2ojPHtVX7ihGzf-
-X-Authority-Analysis: v=2.4 cv=W7UIkxWk c=1 sm=1 tr=0 ts=69fc6c7d cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTA3MDEzMSBTYWx0ZWRfX4bNS1ejhA2K8
+ 47xshJwH3AXA9BKpBXKG+0FQpn8vEmWun5a5VkZIBsohgI/jCrO3XcGH+GOoocE2ndSfBwJJDez
+ oxCbLypMOj0TBBys7GqKbOKpvJCUbzq3BlHd5/Ee36pvNNojiD5Gt/83ZUCfUEBDjVrilEvunsX
+ CsYpbVGhJ42S9CVM9siLHlPZCDS0f946wEmBPPHxT4rZObCEQVZeMMAXL2m+VMTyos50Pmco0ke
+ cW2pelnT8lDswKzzhbIITeQT+DfFwIhTLBUoXRrImXZfaNfCEg+tLa4Uo6MR/uDE2ubdAMSJF/b
+ C9F3Zh/H79hMPW3yEUQiUETJsUawNaSHBE4GSiAR6r1moLg+5w6o5eD0x7Dme8mgzEphCQmP42f
+ 9fIPet6ZD4aemg7/u0oheYIYaTWYE1tA7lzlNcMInPNnHXM0ds5ZuPQzeacefJHzYsnYdzUb9bI
+ ZbjSdnOsufvxxPa3uCg==
+X-Proofpoint-ORIG-GUID: _Tq8n_NGK6fFzdUoicVZqqSaw77eAGL0
+X-Proofpoint-GUID: _Tq8n_NGK6fFzdUoicVZqqSaw77eAGL0
+X-Authority-Analysis: v=2.4 cv=ctWrVV4i c=1 sm=1 tr=0 ts=69fc90d1 cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
  a=IkcTkHD0fZMA:10 a=NGcC8JguVDcA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=zd2uoN0lAAAA:8
- a=VnNF1IyMAAAA:8 a=OSSEJBYsAaiz_FGXeO4A:9 a=QEXdDO2ut3YA:10
+ a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8
+ a=DbsqzBMTFuslpglZLXsA:9 a=QEXdDO2ut3YA:10
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-05-06_02,2026-05-06_01,2025-10-01_01
+ definitions=2026-05-07_01,2026-05-06_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 adultscore=0 lowpriorityscore=0 malwarescore=0
- suspectscore=0 spamscore=0 clxscore=1015 phishscore=0 bulkscore=0
- impostorscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2604200000
- definitions=main-2605070105
+ priorityscore=1501 lowpriorityscore=0 adultscore=0 clxscore=1015
+ suspectscore=0 impostorscore=0 spamscore=0 malwarescore=0 phishscore=0
+ bulkscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
+ adjust=0 reason=mlx scancount=1 engine=8.22.0-2604200000
+ definitions=main-2605070131
 
-Core scheduling chooses a core-wide cookie before __schedule()
-installs the next task. With proxy-exec enabled, that task becomes the
-donor/scheduling context, and find_proxy_task() may then replace the
-execution context with the runnable mutex owner. If its cookie differs
-from the selected core cookie, running it would bypass core scheduling's
-cookie selection.
+On 5/7/26 5:56 AM, Heiko Carstens wrote:
+> On Wed, May 06, 2026 at 10:50:52AM -0400, Douglas Freimuth wrote:
+>> On 5/6/26 12:57 AM, Heiko Carstens wrote:
+>>> On Tue, May 05, 2026 at 07:37:27PM +0200, Douglas Freimuth wrote:
+>>>> s390 needs to maintain support for an RT kernel. This requires the
+>>>> floating interrupt lock, fi->lock to be changed to a raw spin lock
+>>>> since the fi->lock maybe called with interrupts disabled in __inject_io.
+>>>>
+>>>> Signed-off-by: Douglas Freimuth <freimuth@linux.ibm.com>
+>>>> ---
+>>>>   arch/s390/include/asm/kvm_host.h |  2 +-
+>>>>   arch/s390/kvm/intercept.c        |  4 +-
+>>>>   arch/s390/kvm/interrupt.c        | 68 ++++++++++++++++----------------
+>>>>   arch/s390/kvm/kvm-s390.c         |  2 +-
+>>>>   4 files changed, 38 insertions(+), 38 deletions(-)
+>>>
+>>> s390 does not support RT, but I guess you are referring to a lockdep splat
+>>> which you would see without doing this change, similar like we have seen at
+>>> other places.
+>>>
+>>> Can you include the relevant parts of the splat for reference, please?
+>>
+>> Heiko, thank you for you response. I dont recall trapping it with lockdep
+>> (while it was on) but discussion on the mailing list in an earlier version
+>> made us look closer (and we saw it across the AI models that reviewed the
+>> patch.) It appears that while RT isn't supported it can still be compiled in
+>> to the kernel so we wanted to mitigate the issues we would add to if someone
+>> does that while not impacting non-RT environments, the main use case.
+> 
+> RT support cannot be compiled in for s390, because of the missing
+> "select ARCH_SUPPORTS_RT", however you can still enable lockdep checks
+> for raw_spinlock vs spinlock nesting, which this seems to appear about?
+> 
+> See PROVE_RAW_LOCK_NESTING config option for a more detailed description.
+> 
+> Therefore my question about a lockdep splat. However I don't see why
+> using spin_lock() instead of raw_spin_lock() alone in irq disabled
+> context could be problematic. On the other hand this patch does
 
-When the final mutex owner found by find_proxy_task() does not match the
-selected core cookie, stop proxying the donor. If the current execution
-context is already in the blocked chain, fall back to idle like the
-existing proxy-exec retry paths do. Otherwise deactivate the donor and
-let __schedule() pick again. The mutex owner can be picked later under
-its own cookie.
+Hi Heiko,
 
-Fixes: 7de9d4f94638 ("sched: Start blocked_on chain processing in find_proxy_task()")
-Reported-by: K Prateek Nayak <kprateek.nayak@amd.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
----
- kernel/sched/core.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+AFAIU it is only problematic if we (s390) should ever want to support RT
+in the future.
 
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index 8aed55592ca9..d338fb714ce8 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -6960,6 +6960,12 @@ find_proxy_task(struct rq *rq, struct task_struct *donor, struct rq_flags *rf)
- 		 */
- 	}
- 	WARN_ON_ONCE(owner && !owner->on_rq);
-+
-+	if (owner && !sched_cpu_cookie_match(rq, owner)) {
-+		if (curr_in_chain)
-+			return proxy_resched_idle(rq);
-+		goto deactivate;
-+	}
- 	return owner;
- 
- deactivate:
--- 
-2.53.0
+As the name implies, the point of kvm_arch_set_irq_inatomic() is to
+inject the interrupt without the possibility of sleeping, or
+alternatively recognizing the need to sleep and fall back to a queued
+"slow path" that can safely sleep while delivering it.
+
+My original thinking was 'well, it won't hurt to use the raw spinlocks
+in the new code' so I set Doug down this road with my review comments --
+I did not consider that there would be a need for additional fallout
+like this patch, which means increased chance of regressions (see below)
+to accomodate a feature that we don't support today.
+
+If you are saying it's OK to simply not care about RT for s390 now, then
+AFAICT it should be fine to just use s/raw_spin_)lock/spin_lock/ for
+this whole series, drop this patch and then ignore the subsequent
+Sashiko complaints about RT.
+
+What do you think?
+
+> introduce a
+> 
+>       raw_spin_lock();
+>       spin_lock();
+>       spin_unlock();
+>       raw_spin_unlock();
+> 
+> sequence in __deliver_machine_check() which seems to be incorrect and
+> indeed should generate a lockdep splat iff PROVE_RAW_LOCK_NESTING is
+> enabled.
+
++1
+Doug, I know you've run with lockdep enabled before on this series --
+please make sure to test with lockdep for next version
+
+Thanks,
+Matt
+
+
+
