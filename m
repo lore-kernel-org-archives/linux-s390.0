@@ -1,131 +1,145 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F10753E9588;
-	Thu,  7 May 2026 10:32:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B742D2D63E5;
+	Thu,  7 May 2026 10:42:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778149949; cv=none; b=MqCS+qFHJr2OzL+m/+cjszQfkZyahE44N28sbu7f1mNXFpoCx+w/psHWpUI6dOKWIolRmKvblHY1Gm1gtc9MqxE6pHAoP24iusgXHc/RoaYE8M7mzj3T9+pRbfMeJdd2Ld/1PbtgxOvofi0h3dsMrtR5u3U7CO4Our+1btLx7jk=
+	t=1778150542; cv=none; b=licTedNtWgWHZU2Ga7s074OwyP5FIFvcOktyvdTFJHD3CNgBI5FPqpyGX2xuuYn8YA+P+CvUSL75ikh3TYZE20mQdIpseFBXt3SaSwAM3peWDcaPcbgwGcevSi68Kw3iCrnRIhwkhFsFy3cSF2Aybh/0WKFjCw7lQPCvrH2RnZQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778149949; c=relaxed/simple;
-	bh=Xp5J/nVAsEa1LmkDRxT/S6oEtNsiW1RhqOp2/SzsEb0=;
+	s=arc-20240116; t=1778150542; c=relaxed/simple;
+	bh=PjinT7tiraG1S6a40BSKxF3WKdS/o9XMEvAmSIMqUkw=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=EaCcs85YELUhVenevr+6JNlMbZ6gpx+TIuN0p0Kc70H1QIXmXzcs7yGlIbg8LOMcz7MM+QIO6w/B4yQCAHtzmCRbGW7Kcey/Pp0lxE07iLGvAJpCVXyYs0NloWDdi+VH1Y8eFSteiFH0UMzBHWnkj2NssrmBzyopqWkclwHrdLo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=TklwlF4e; arc=none smtp.client-ip=148.163.158.5
+	 Content-Type:Content-Disposition:In-Reply-To; b=annWvY4EX85w23bxt43RcSuzCgPxxBjj1ZOUwCJOp96lVdkZOMb62k+shasCcKeOJ6vhbIoP+5Sm0ohpOQ9DX9SCS1WnOHiFc8Y1Djgv0YKagYhkYKDKegSeKXakzljWbt77JWLXkeIOxYfPD8D3wEy7dD94WbzCw4IfHacVqKg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=fKTMZUeY; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="TklwlF4e"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6478pJO81944676;
-	Thu, 7 May 2026 10:32:16 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="fKTMZUeY"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6471Cxvt837252;
+	Thu, 7 May 2026 10:42:03 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=b5Ddx+MuqAF6oUS+rxqJx6cEL60cvc
-	VClEjL1dSCRSY=; b=TklwlF4e0x+q6seZpNY0NLQIC8wtaXYIqdVEBH8mZDp3Ty
-	OqOwzRkVyi4jiq9OsOw0N+zgIUYR82zAXEYvJgHTDCkXoN/ZJ/dkLoU70TZ7pySd
-	WmMiLGJwy7pIUNqSnN5gbCxXrKHtzih920PWJ+5A08JrUzyApmAgiR+X/FT3T2t5
-	UY3IlIrbge6EwL/N1AVwNa8L9DtnqJS4eWMU5M5t+fZm9xslDHsglusW9+iXWRD4
-	ftHp74KVcQhq2sgwGnhTe7YfrAvscOza1saAqJjtdbU5BSH//69Zk3bDNg7yUiri
-	J6kbxaa1NVYPJ4GK6Khti81spZLF69Nba5EI/W3w==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4dw9w6mp2g-1
+	:references:subject:to; s=pp1; bh=WO99NNWu/VEdAvrd3Gt3tt75cdopfi
+	IZaVngJwl7O2E=; b=fKTMZUeYLu1gEL54NzN2fVow3rSpKGJd1jKitoaKVyi/RZ
+	EheNxNsTp/C0HVjtGwJas8EzrGf5ynjy3HrvHeJpjgrpzuoPTTZx1KvgtsV0H7E5
+	XbxNU/RxRSVzWbIFqJyTGP9h2PlEiG9duV6myqBNK2GWLAePVQwSIDqpRhQd0znu
+	cmb++O14n+FgrwkfWVRnbIzNtLHX4KAn7nLx0aP3GbGz+Ucr38IY+iJ2xsZjJUVi
+	A7Elk48YNT8qhjFL/BKhx2riK6bHJWxBulZ0sQtEMz/cewp0I130C2Yjw6yQthwi
+	WU0AcczpAF6yom6ntus5ypzLUHayVFtXjJhfzPUQ==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4dw9x4wm5f-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 07 May 2026 10:32:16 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 647A9Yb0027865;
-	Thu, 7 May 2026 10:32:15 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4dww3hanwb-1
+	Thu, 07 May 2026 10:42:03 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 647AdZH4017281;
+	Thu, 7 May 2026 10:42:02 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4dwvkk2s1w-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 07 May 2026 10:32:15 +0000 (GMT)
+	Thu, 07 May 2026 10:42:01 +0000 (GMT)
 Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 647AWBUL49545478
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 647AfwPi21627304
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 7 May 2026 10:32:11 GMT
+	Thu, 7 May 2026 10:41:58 GMT
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B81B520043;
-	Thu,  7 May 2026 10:32:11 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 1FB4020043;
+	Thu,  7 May 2026 10:41:58 +0000 (GMT)
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0CDF22005A;
-	Thu,  7 May 2026 10:32:11 +0000 (GMT)
-Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.111.66.252])
+	by IMSVA (Postfix) with ESMTP id 1B4462004B;
+	Thu,  7 May 2026 10:41:57 +0000 (GMT)
+Received: from localhost (unknown [9.111.2.188])
 	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Thu,  7 May 2026 10:32:10 +0000 (GMT)
-Date: Thu, 7 May 2026 12:32:09 +0200
-From: Alexander Gordeev <agordeev@linux.ibm.com>
-To: Wei Yang <richard.weiyang@gmail.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
-        David Hildenbrand <david@redhat.com>, Lorenzo Stoakes <ljs@kernel.org>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Oscar Salvador <osalvador@suse.de>, linux-s390@vger.kernel.org,
-        linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>
-Subject: Re: [PATCH v2] mm/page_vma_mapped_walk: Use ptep_get_lockless() for
- lockless access
-Message-ID: <43815634-29d3-4fa4-b967-0e251ff32f73-agordeev@linux.ibm.com>
-References: <20260504130434.2285053-1-agordeev@linux.ibm.com>
- <20260507093433.q5xybwumryxclnqy@master>
+	Thu,  7 May 2026 10:41:57 +0000 (GMT)
+Date: Thu, 7 May 2026 12:41:56 +0200
+From: Vasily Gorbik <gor@linux.ibm.com>
+To: Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        K Prateek Nayak <kprateek.nayak@amd.com>
+Cc: Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Steven Rostedt <rostedt@goodmis.org>, Ben Segall <bsegall@google.com>,
+        Mel Gorman <mgorman@suse.de>, Valentin Schneider <vschneid@redhat.com>,
+        John Stultz <jstultz@google.com>,
+        Vineeth Pillai <vineethrp@google.com>,
+        Joel Fernandes <joelagnelf@nvidia.com>,
+        Heiko Carstens <hca@linux.ibm.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH v2 1/2] sched/core: Don't steal a proxy-exec donor
+Message-ID: <p01-02.v2.g318c298267e3.ttenwd4@ub.hpns>
+References: <c00-02.v2.ttenwd4@ub.hpns>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20260507093433.q5xybwumryxclnqy@master>
+In-Reply-To: <c00-02.v2.ttenwd4@ub.hpns>
+X-Patchwork-Bot: notify
 X-TM-AS-GCONF: 00
 X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Authority-Analysis: v=2.4 cv=XPQAjwhE c=1 sm=1 tr=0 ts=69fc6a30 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=kj9zAlcOel0A:10 a=NGcC8JguVDcA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=D19gQVrFAAAA:8
- a=7CFNzQo_ZtPcNetzl2UA:9 a=CjuIK1q_8ugA:10 a=W4TVW4IDbPiebHqcZpNg:22
-X-Proofpoint-ORIG-GUID: 8QOWfc7k0b7o7pCZUW67IeWT83QfImhq
-X-Proofpoint-GUID: qN--_Yog5Tix-ByckweoU--16gQTXerf
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTA3MDEwMCBTYWx0ZWRfX2wTtXQzvHzvL
- xI8BnlJ8Pxm/3TvmS47XwcJZexg69P1SXrHM6Zyz/Lmif+mjbOqNI9O3UpjG6WHrx9tsMNzaTwa
- iVOWgkeh+TLRZO96TOmQTUGXaRJTIleMJC09wJpG+pvyIEeNo9qBC1Ir5asWJa4YNRDyJRHcb18
- aEEFXQQQ8pzT32KUPHJxQ2n2tT0TFk4Ocb/WCIhT3npPMra0Qf2kC6B5WasnW8oUbcyQDTziI+z
- SNERrdIjFWMpS/2q2Qf+S5EyBC4hQpOX+BvTvihoSsJxdx7Y+2WJpw1GmEmr8aZlDiqpg3WzQ5t
- ommhqmlI//BmBSpjvaZpeCcO7SXDU6+0HhVwFbJoel/lbDwN9tb0Q1Fpfjq3OJFvK1aP/mkkOuE
- P5FRJRKcna2FfalADhYzlKVSwAkrN54krW7KT2emrntOZZEVu+6VClcqx1cjQ1Uyi60W56xnqOW
- wVIR9MK2vEYAGnNYntA==
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTA3MDEwNSBTYWx0ZWRfXzrkE6AVc9tPD
+ tjKY9EwvyU1pCcjVnx+6fcPvgE6tf92E05DXcfl8lvLm5nfV3UeMEDFREcHcyMqkzC7MkT0itVN
+ 11Wdy8rXfuuMnM9A+kWjhFlfxST1RxWeEycxSkRmjRv+JrKRbxDIA+SnYpYH7oidiijTIoKdf0J
+ aUq4U/V34fYmeKGGtm7AX0Y4ld+6d6sLwKEOhoi0BkrOujcWyZbDjAYJTw/K+FACQajTkhLT6p/
+ 2Tdne/YvVGJH82jOqeBd6M/+R4sYMeUqobPpbTjBce1kzc5McWvJ+nvYHZYBshIege9bg8tFm97
+ CnjpdnMFowDlAyYi+DD/B0xDAE48r4EqRhUcugaw/E35lTkjkvdzHYxwViAfo8EN69yXp7voXas
+ Fioj11jEF7JCbQu5VxrnCiwoQQU4VppwTmzMDq3yfqOkzk/3iD1fY2q2I5ObkqtDmrS2cW+texd
+ YmGe5rkSjftt8cWpeTQ==
+X-Proofpoint-ORIG-GUID: _ZV2UZGYgpWjWY8Prd-GnVQBRj1xbN6s
+X-Proofpoint-GUID: kx4ecCa1V--M_cSHNvklz9_M9e5R5YYU
+X-Authority-Analysis: v=2.4 cv=W7UIkxWk c=1 sm=1 tr=0 ts=69fc6c7b cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=IkcTkHD0fZMA:10 a=NGcC8JguVDcA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8
+ a=i_mD11TinqcGUWm_tM0A:9 a=QEXdDO2ut3YA:10
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
  definitions=2026-05-06_02,2026-05-06_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0 lowpriorityscore=0 suspectscore=0 adultscore=0 spamscore=0
- priorityscore=1501 impostorscore=0 phishscore=0 malwarescore=0 clxscore=1015
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2604200000 definitions=main-2605070100
+ priorityscore=1501 adultscore=0 lowpriorityscore=0 malwarescore=0
+ suspectscore=0 spamscore=0 clxscore=1015 phishscore=0 bulkscore=0
+ impostorscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2604200000
+ definitions=main-2605070105
 
-On Thu, May 07, 2026 at 09:34:33AM +0000, Wei Yang wrote:
-> >@@ -310,7 +310,7 @@ bool page_vma_mapped_walk(struct page_vma_mapped_walk *pvmw)
-> > 				goto restart;
-> > 			}
-> > 			pvmw->pte++;
-> >-		} while (pte_none(ptep_get(pvmw->pte)));
-> >+		} while (pte_none(ptep_get_lockless(pvmw->pte)));
-> 
-> As Oscar mentioned in lkml.org/lkml/2026/4/27/630, map_pte() may take the
-> lock. So probably it is not right?
+try_steal_cookie() avoids stealing src->core_pick and src->curr before
+moving a task with the same cookie via move_queued_task_locked().
 
-If I read the code correctly map_pte() might take the lock, but also
-might not take it. If it took the lock and uses ptep_get_lockless(),
-then it is fine. But if it did not take the lock and uses ptep_get(),
-then it is an issue.
+With proxy-exec, src->donor is the current scheduling context and may
+differ from src->curr. Stealing it migrates a task that the source rq
+still treats as current, leaving src's scheduler state for that task
+stale. For CFS this means cfs_rq->curr points at the stolen entity,
+and the next pick on the source rq hits the WARN_ON_ONCE in
+put_prev_entity().
 
-> > 
-> > 		if (!pvmw->ptl) {
-> > 			spin_lock(ptl);
-> >-- 
-> >2.51.0
-> >
-> 
-> -- 
-> Wei Yang
+Commit 7de9d4f94638 ("sched: Start blocked_on chain processing in
+find_proxy_task()") tweaked the fair class logic so that the donor task
+isn't migrated away while we're running the proxy. Do it similarly for
+try_steal_cookie() and skip src->donor as well.
 
-Thanks!
+Fixes: 7de9d4f94638 ("sched: Start blocked_on chain processing in find_proxy_task()")
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+---
+ kernel/sched/core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index b905805bbcbe..8aed55592ca9 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -6366,7 +6366,7 @@ static bool try_steal_cookie(int this, int that)
+ 		return false;
+ 
+ 	do {
+-		if (p == src->core_pick || p == src->curr)
++		if (p == src->core_pick || p == src->curr || p == src->donor)
+ 			goto next;
+ 
+ 		if (!is_cpu_allowed(p, this))
+-- 
+2.53.0
+
