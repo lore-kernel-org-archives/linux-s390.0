@@ -1,130 +1,152 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yw1-f175.google.com (mail-yw1-f175.google.com [209.85.128.175])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8D4093F0ABA;
-	Fri,  8 May 2026 14:50:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778251817; cv=none; b=Uo1uf8DCxHsSdr2vocFLsejC29SBEZ066m+rPD468PeD1JmMnbilOzejmlbTbAd8tJeVKo9QvQJgx1l2LBXXYLk/NA0Hl9AOxqmbudax/kHO+k0wBnzo5olanVmpnqcunbsk4q3z3Jve3hnDtpezl5rY+wqQHXFCQrPOM2y+75E=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778251817; c=relaxed/simple;
-	bh=NxjnDOLQdTD8kjfb8cTfMB64tdE5xq06GfcPAQnB8oI=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=EKGEXMk/yyfaLxereZMVwWBEzE5ig91f33QhVrk3wukRBec9CabiBYalgZEiplkZ3XpMTVpJIZQZwJqrphP9lxlG6Rv8rbeRHS0wE828+A4ccSySk9TOE60ekrF77y87uCvvrPm2zVTepYWra17PLRr9EiImWp5/LC/7SS8UtEk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=qqgxiLqC; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2DC3D344D95
+	for <linux-s390@vger.kernel.org>; Fri,  8 May 2026 19:33:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.128.175
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1778268804; cv=pass; b=NzmCXMDX6nz/RWreazdvdazwvVFSbon/dKt3GZRE/l6H0EJW9Jth80WcqUbXkGQAKQeBqh8GX+YYQbuyP0h+C0TTnIIkwIUtXor0i1vRr18jzsyWj7jPwh9jeHd2bO/58/4FIefU5Oadxt3oyLbIrm1ttZ5PfwuTTcqLKKElhvI=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1778268804; c=relaxed/simple;
+	bh=KOz2CthW9DZTi9DtDOS4s6UwKiyzP3Sh6aGujr/riF4=;
+	h=MIME-Version:From:Date:Message-ID:Subject:To:Cc:Content-Type; b=ipRl6JophdGQwdREHLXYJd/J7KKK/bZ3mYg8hYn95wcdQZUWU/I21XpZeMkIj5UkEHk7yu7D6Wkb3JdC3jzJb1ENJrjvXTxYjrmszdwlF2xD/fy1E5boAKz2g8q+2k1Xz8jFF9XnJCFwchHdC9BmluWYu/Kl5yRbYXXuraRgkkk=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=boZEVMj8; arc=pass smtp.client-ip=209.85.128.175
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="qqgxiLqC"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 648EmYhe3486157;
-	Fri, 8 May 2026 14:50:12 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=O4DT2R
-	ZcqHereuROhB0xcE5TxgMsQaUcQz/aqdGBuTo=; b=qqgxiLqCGyDT0VtQw1NNmD
-	1jgH+LT1YmiD3lJRZX3eS+0+f56Sq1/A/bk3WHF1FOVVW8UMf5C3E8ewWLh3N3Dw
-	7y16chsgG0PDPvsps1HkmkpCF1usHZZue07UmBqY9TwL0MUajIHdJ6Je+IF55bsc
-	PDvhHBXs0t/Ynkihf/MtqjgECCBj71I2SR6furAob6ghG7rvQahO8DY/nKztGSPU
-	es70RirtQgqCtHKIki8F+9tWweu3W0tNHZm5AUSwBQmeiE58f9nFTKkKZKcPDPBG
-	xlZJBcmQRO9TU+KsV8lFhonB36i3oZG05V0ygBZkfejNGxsJ62yTNfeR0Dj2Ll8A
-	==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4dw9xy2tum-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 08 May 2026 14:50:12 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 648EdWDk000596;
-	Fri, 8 May 2026 14:50:11 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4dwx9yrbqv-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 08 May 2026 14:50:11 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 648Eo84L42991914
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 8 May 2026 14:50:08 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1AAB020049;
-	Fri,  8 May 2026 14:50:08 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id EB18920040;
-	Fri,  8 May 2026 14:50:07 +0000 (GMT)
-Received: from [9.52.200.39] (unknown [9.52.200.39])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri,  8 May 2026 14:50:07 +0000 (GMT)
-Message-ID: <30406106-f64c-4cb7-8496-1006cffa8bc8@linux.ibm.com>
-Date: Fri, 8 May 2026 16:50:07 +0200
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="boZEVMj8"
+Received: by mail-yw1-f175.google.com with SMTP id 00721157ae682-7bf0b47d2f1so21811877b3.3
+        for <linux-s390@vger.kernel.org>; Fri, 08 May 2026 12:33:22 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1778268801; cv=none;
+        d=google.com; s=arc-20240605;
+        b=CECQK7ePdh5moFqLjbGdxuVUapRXDQWJw8jMNqitAJDpWBb1e5sBiHKfUsp7Q8ms7h
+         SNSnbzcAeG14qIx8M8+OZl4Hp4qcQstJlaR09lZuQeTXzFUbmBxKypLtWvnX2CcigA4/
+         u+w/g2Il6RjLamn3s+6nOUbOKV7v8SHBMNGRLdQyQaqagOM9tiRYIZ+jMehuRF68Uge0
+         +RRBqtCO6dHnVN0wFX7IPyhVbu31wPhy6YrLzHn3gcXZh/Oa0hPwqVv/I9Hs0dRfBP6/
+         eovmIfouHAIShFdl2xMdaKX1IAulaaZ7I3jmwLbGf67MFaVC/ZqPfaMqMH2KRAIMlTCR
+         dIQA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :mime-version:dkim-signature;
+        bh=9WbqQFwC9sQ1kT2Ez9037TuxaYTirplDCZyYgdcthAE=;
+        fh=eYGltH7CNUnPJsy/xdIcRe+qXBrkJuiXI5seROeLxec=;
+        b=CyZOBuZVWJ10IGscBra0sYF0KexBFL0F7icvW11L730hmvMxcLmwfc08jz/Xx3m5Y9
+         gCccdpd5tlSs3E00I7hWOpbY7Unk9vB3zLITzLHu0UDXyMxIG6jdtGQiNT6eVuzHcWZ2
+         eLc3XbxNz9cNdxkPBUzd15Yu33YfFjyLkjKXssGL6j6O4InPDEROzSj+yUyEqO/TXHS9
+         gQ1YbAklri6hK/bAVV1Edj/oQ37zL/9H5FTvwV+KUN/b2ZMUhaIgNfN72IBARbU2c/ZH
+         YxzpRCUv5MRRh/tE3QmpyLcdKSulvgshWsThS9qyKuvbwaRUHUrqXfeC4QjJq9eqOF7x
+         F8MA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1778268801; x=1778873601; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=9WbqQFwC9sQ1kT2Ez9037TuxaYTirplDCZyYgdcthAE=;
+        b=boZEVMj8RhGvjAkdwEjwq5DtKyLdb9sXKJONA4I5PbKTihIXgsrRXpNDO8d5NtFw/5
+         hlrNB7nLNpOzjtWGfzvMjznhLPmDGL2sRWh3gMOrWgWser5ZBcsI5vUJ0rBok96sFnSH
+         AyShRTK0PZxIy5aKMQetKrJ23HQjckcDYNwtOkXbRt3nuBIPLh/U1TgEwZ10aMXTusK4
+         YNr2sEBFvgLlNSXvACQCrA6OlSh8PaASTxrZSGA+2dsA7PDOqGba7h0qv/gDyHMJ/wA+
+         kcvJ1ZA84TT0HTIihx8m9tcA6/7AboezqcaLjtmCiyubuBEYOCTszGtDeyBhkTDMjvuc
+         ETYQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1778268801; x=1778873601;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=9WbqQFwC9sQ1kT2Ez9037TuxaYTirplDCZyYgdcthAE=;
+        b=NvdzzpN/gbpeF7+kRha7kmy62w5cJAfkGXR4wOsNaROQec7z/S9JAteVM7xpmXjFMl
+         ytqGosMEgVKl9GWbK48BJzkMME6c2RIQ+zfraIcDEccsYj7/N/ceAUy5MPzxctVHuAey
+         Hvxkskwd42CrFd5WIIKgKUtU06R7viWEnUf98otoS16qjfd/6jy6R025EolvbYSoZfRd
+         ku+Py+MBzj+cRnFdpgy3so4Nf76u30M31zyPvHw7LdIKAm8YOpPnX9U8e9ycDH9AN6tc
+         dYIJAgFzCdEVthQRGtl+ayP8VuRQVIMX4DlA8vMEcsZTAXxoSKdj3rfmch297WUpTzrF
+         P6TA==
+X-Forwarded-Encrypted: i=1; AFNElJ84RF0DllxP3IcF+SGwyHMRpTFuZocMvE4ct/HhKAamsSj3hGiF/ZPdc+48xyAAMxYlCP2yQW6mf+Bb@vger.kernel.org
+X-Gm-Message-State: AOJu0YyOWMYl2x6lPwZo0m1GxfSDsqPPwr8AMhjvUPF2I+oVLBfOtnq/
+	D5tKAmvRjoXC5O2kCduBDErKP2Q0qxMR13m6vY4BNQSQWjLNUKQjnSUxcDdT7yqMu1U7X8oOXcU
+	ZTbYcmxCON+OcFkoOqJz+jFqH3GGRjZ0iMxupqdI=
+X-Gm-Gg: Acq92OEoa6oZNCuBsFtQSrhXDbIvpyBgJXk4YUsuuZn4mRUeHultAZtAa7k/YngiZa8
+	mhf1AsufKqXOv0agP45hxDsGxpRZZPDsr4EfZ6TpE9+Dr8sjpXIRD4kcxcD7039PImVfEDqGAIf
+	ve8nVSUmxiru9NibHOGbwVNC0yPSHWYfCGmzL6XvuMxMqz9l4+3sSEBIuKqh0ZoLQQ8SYqff2gW
+	K1YrlRHi0aprxRPwpPZF7342ibD8Wfyl3v9q7ywwQ6wJ0K4HvZ9jKh5aePGTqB8E6oxXubEKPAd
+	R1EAtqQSR6QxPeIdb95MaHPWbH0C4JqyK8n8HWkTfc1MjZrB8C5lmosoQr85cw==
+X-Received: by 2002:a05:690c:3482:b0:7ba:eefe:9f9c with SMTP id
+ 00721157ae682-7bfb93b91bfmr36362517b3.23.1778268801312; Fri, 08 May 2026
+ 12:33:21 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 0/3] KVM: s390: Toggle operation exception for
- userspace
-To: Eric Farman <farman@linux.ibm.com>, Janosch Frank
- <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@kernel.org>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org
-References: <20260507200836.3500368-1-farman@linux.ibm.com>
-Content-Language: en-US
-From: Christian Borntraeger <borntraeger@linux.ibm.com>
-In-Reply-To: <20260507200836.3500368-1-farman@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTA4MDE1MCBTYWx0ZWRfXy/Sm16uwNJAv
- 0MK4GqrA9RsBunP/dShCKGyjzsTgEnuPH9kATwUXlHDbmPr6hrynm6+avOWdRfjmrtphdR9/DQ6
- +cbr2/Z0P7JA0tF6W7XnfoOqhHJ/NUpqPq2g5Pe3dJEoAmiF6rkiKpmyD9RKBllzVVIhJOrA+Hh
- tnlwT76o5z+8r3y+LkFOW68dKhJR2mGbTwWKpgrLsXpLo09yUX8W3vyItuLmGL55zVj8FIQe2Mj
- WYA0yuQCMdtNe8fucnaZ56YqQrWWvtmNpma3ZwsRJuuJ8wfn7ri/jDBOKtA4WdKZjGozG39NSvc
- AcFqYodS6fqXmwEQ/+88Je49d6lkXM9Gwp9E/8T0PkFupSX2VIWQd9Ny8CqEGqAAfyF5gwK6ayL
- QHpCno3x48ihItq6v5H9/hlJ1/KMYQZIPgAmWNpwp9WQkkZXSdL3HotPI2P/OuYdp+NMxwAl2Mn
- gSzx4oMFUUJPZ3FCPNg==
-X-Proofpoint-ORIG-GUID: _c5H-Jf8xpp83FAVvKmhzDg7g3OnE6fd
-X-Proofpoint-GUID: _c5H-Jf8xpp83FAVvKmhzDg7g3OnE6fd
-X-Authority-Analysis: v=2.4 cv=ctWrVV4i c=1 sm=1 tr=0 ts=69fdf824 cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=IkcTkHD0fZMA:10 a=NGcC8JguVDcA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=IANEE5CLunT1K2rsnZcA:9
- a=QEXdDO2ut3YA:10
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-05-07_02,2026-05-08_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 lowpriorityscore=0 adultscore=0 clxscore=1015
- suspectscore=0 impostorscore=0 spamscore=0 malwarescore=0 phishscore=0
- bulkscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
- adjust=0 reason=mlx scancount=1 engine=8.22.0-2604200000
- definitions=main-2605080150
+From: =?UTF-8?Q?Nicol=C3=B2_Coccia?= <n.coccia96@gmail.com>
+Date: Fri, 8 May 2026 21:33:10 +0200
+X-Gm-Features: AVHnY4IhlBncjhRtEcRWNeScfK7pKvEfB82Sn4DdDRYZUjuTlbimERLOeRjk1Nw
+Message-ID: <CALSA8UaEKUHRqYaYqKFYbUQb4KHipDBDHfgMZHj2Tq0D1Ah7zw@mail.gmail.com>
+Subject: [PATCH net] net/smc: fix sleep-inside-lock in __smc_setsockopt()
+ causing local DoS
+To: alibuda@linux.alibaba.com, dust.li@linux.alibaba.com, 
+	sidraya@linux.ibm.com, Wenjia Zhang <wenjia@linux.ibm.com>
+Cc: Tony Lu <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>, 
+	linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, netdev@vger.kernel.org, mjambigi@linux.ibm.com, 
+	=?UTF-8?Q?Nicol=C3=B2_Coccia?= <nicolo.coccia@leonardo.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Am 07.05.26 um 22:08 schrieb Eric Farman:
-> Claudio, et al,
-> 
-> Here's an update to the USER_OPEREXEC patch I'd sent the other day.
-> Besides the addition of Claudio's r-b (thank you!), Patch 1 is identical.
-> 
-> Patch 2 contains a couple of new selftests. As it stands, they all run
-> with patch 1 applied, but I put the failing test at the end for if
-> Patch 1 is missing.
-> 
-> Patch 3 is unrelated, but is a minor typo I stumbled on yesterday while
-> looking at this. It seems small enough that a second `git send-email`
-> command seems unnecessary. :)
-> 
-> Eric Farman (3):
->    KVM: s390: Toggle operation exception for userspace
->    KVM: s390: selftests: Extended user_operexec tests
->    KVM: s390: Fix typo in UCONTROL documentation
-> 
->   Documentation/virt/kvm/api.rst                |   2 +-
->   arch/s390/kvm/kvm-s390.c                      |   3 +-
->   .../selftests/kvm/include/s390/facility.h     |   6 +
->   .../selftests/kvm/s390/user_operexec.c        | 110 ++++++++++++++++++
->   4 files changed, 119 insertions(+), 2 deletions(-)
+A logic flaw in __smc_setsockopt() allows a local unprivileged user to
+cause a Denial of Service (DoS) by holding the socket lock indefinitely.
 
-I applied this series internally and queued for CI.
+The function __smc_setsockopt() calls copy_from_sockptr() while holding
+lock_sock(sk). By passing a userfaultfd-monitored memory page (or
+FUSE-backed memory on systems where unprivileged userfaultfd is disabled)
+as the optval, an attacker can halt execution during the copy operation,
+keeping the lock held.
 
+Combined with asynchronous tear-down operations like shutdown(), this
+exhausts the kernel wq (kworkers) and triggers the hung task watchdog.
+
+[  240.123456] INFO: task kworker/u8:2 blocked for more than 120 seconds.
+[  240.123489] Call Trace:
+[  240.123501]  smc_shutdown+...
+[  240.123512]  lock_sock_nested+...
+
+This patch moves the user-space copy outside the lock_sock() critical
+section to prevent the issue.
+
+Signed-off-by: Nicol=C3=B2 Coccia nicolo.coccia@leonardo.com>
+---
+ net/smc/af_smc.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
+
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -XXXX,X +XXXX,X @@ static int __smc_setsockopt(struct socket *sock,
+int level, int optname,
+
+  smc =3D smc_sk(sk);
+
++ /* pre-fetch user data outside the lock */
++ if (optname =3D=3D SMC_LIMIT_HS) {
++ if (optlen < sizeof(int))
++ return -EINVAL;
++ if (copy_from_sockptr(&val, optval, sizeof(int)))
++ return -EFAULT;
++ }
++
+  lock_sock(sk);
+  switch (optname) {
+  case SMC_LIMIT_HS:
+- if (optlen < sizeof(int)) {
+- rc =3D -EINVAL;
+- break;
+- }
+- if (copy_from_sockptr(&val, optval, sizeof(int))) {
+- rc =3D -EFAULT;
+- break;
+- }
+-
+  smc->limit_smc_hs =3D !!val;
+  rc =3D 0;
+  break;
