@@ -1,282 +1,223 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 07C913E3DA9;
-	Fri,  8 May 2026 13:25:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AAA3E3C73DE
+	for <linux-s390@vger.kernel.org>; Fri,  8 May 2026 14:48:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778246733; cv=none; b=hQcd5QExWgA6NjlhTYYsIg0QnSHUhP8OfLHRNRjDlQQMmSb+al72aBa/B2LlqSRwYoece79QypfMsvKr4AqovHLramcnfi0eSToc3rbst+yy4LUNH/f7JI7qCFbRYQUPymAPiuhkmQ+rAT0AWFzBPNjRzkPlAMJFkzbFFEvfYrc=
+	t=1778251718; cv=none; b=YqMChoS6MjSt7tGx8mq9i4w+2yzwwVRW/IqiqTVGW2Ge5yzVjagTxc6Rv14gWuAVKcNIIoHtrGWp2czuFnhpCJlEXlzrcMgiOBRluUeacUbFi/f9EwT0ViyNnroOhvND1ySoAbD8n4Gzu9VY7cFWzfo+6VThBnBnvi1rXNClioA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778246733; c=relaxed/simple;
-	bh=TbxRhXrZVjXIg2jkCQ+Lj3a0haNTs4sB3Its3VkIoKM=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=s4AUzTKGLJ6ACrPF5vg1ayXH7SirjheGcTAqzWK3hP9+vfEzrlyu1KFpKf4dJNTJQ2wHcmQ8u6bDwhVhMnjJ0nDyj+AZJGn02MaFSRrs5act0TI87B57f2rnY4GgX+2zqeo1m5RUkMQvQi6HKda6lN6p1YU5d/WYQPfyDHftBss=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=kE4cbQx0; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1778251718; c=relaxed/simple;
+	bh=cgN7A1X7T0cojU2T2uSFT+6vqQbWtR5/P5UyiMggOKg=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=P9cyU2aQsc+aFXLjlS8RGxnJjmtfJ9JTCE6582v7PlFcXgfTvLWwiZ1IEQylZ11HFomJajME2F9wh099JjR+GkOfLzW8MJ3cFAlPW8FqES38IqG5tVwxhB70Y3aZYi/qO/J0WWSzFN/Pjthjn2/PNSb49QjMmRg5q3HbNGwRddI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JFlyKRcp; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="kE4cbQx0"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6486Ta1H1531488;
-	Fri, 8 May 2026 13:25:26 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=bcw4Lp
-	xZ5p5qk0ACsnIlB/lvzXcRVMy58Dp00PgHetI=; b=kE4cbQx0tIc25rAobhQB1T
-	mktkStktTFif1CryUTGZ+YzD9XBLh27mXid4mTijCZtSl5dcBYdXZHloDhWzlVkk
-	pOcRoSfI7BQxxaLrijhYCDMKgAjvCL+Cfo+5Merl/DhsFssYdzb0IShtE38pXjsr
-	7JV+NKnKPXXIT6vDZlhJX68FazwdTIVqt+/7tckyzdauvsPpSejkBCYqEWfDWp0D
-	PDnWkzxU83/Rl9v+YvK6xvVdwQ95EgSB0lublXExHot4ppVHEmskjZ/cYMAgpQkK
-	nKolF4GG+PjCTDtyetS6P8o+J1lTXbDEoBoqqm/AczTkrzoaB7MNRwOWIgFVz2kg
-	==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4dw9x53vk7-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 08 May 2026 13:25:25 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 648DOTYQ018391;
-	Fri, 8 May 2026 13:25:24 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4dww3hg8fr-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 08 May 2026 13:25:24 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 648DPL2a51904946
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 8 May 2026 13:25:21 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 116D720040;
-	Fri,  8 May 2026 13:25:21 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4BC5B2004F;
-	Fri,  8 May 2026 13:25:20 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.111.47.82])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with SMTP;
-	Fri,  8 May 2026 13:25:20 +0000 (GMT)
-Date: Fri, 8 May 2026 12:30:09 +0200
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-To: Eric Farman <farman@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank
- <frankja@linux.ibm.com>,
-        David Hildenbrand <david@kernel.org>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Subject: Re: [PATCH v2 2/3] KVM: s390: selftests: Extended user_operexec
- tests
-Message-ID: <20260508123009.50b406be@p-imbrenda>
-In-Reply-To: <20260507200836.3500368-3-farman@linux.ibm.com>
-References: <20260507200836.3500368-1-farman@linux.ibm.com>
-	<20260507200836.3500368-3-farman@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-redhat-linux-gnu)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JFlyKRcp"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2EBEAC2BCB0;
+	Fri,  8 May 2026 14:48:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1778251718;
+	bh=cgN7A1X7T0cojU2T2uSFT+6vqQbWtR5/P5UyiMggOKg=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=JFlyKRcpvlD/bPMRtFzjnSRf/xPrUdavMyRgaXwDWvTkhWFW3Wy/zhihMQfrgvtyK
+	 8pQE/DEp04tWidhWuD+3OUwblCKpyltcoPrQ0itzhLLLoeMCPIxtue7b6fGAbp1OSO
+	 E0GEil1PvkDWjpyU77Bulfu6GuAaWfnhpKh+sGQdzLYlhY7bpaFrnB427zt2SsK/Ir
+	 lNLmTB6f/J0r77EnM3CyBHxxH0PIlIDEtQCTffT/D6eteRigUB3A2dpYtVUxYS/dqJ
+	 fX5krC/8FhTakbq1VKqs7Tbi8Dhn/KqQAe5NrMXzb1+bj/b7Ffx84OwuaDdDcMJTb/
+	 6jqNiyJ6W0/7Q==
+Received: from phl-compute-11.internal (phl-compute-11.internal [10.202.2.51])
+	by mailfauth.phl.internal (Postfix) with ESMTP id 68CAEF40071;
+	Fri,  8 May 2026 10:48:36 -0400 (EDT)
+Received: from phl-frontend-03 ([10.202.2.162])
+  by phl-compute-11.internal (MEProxy); Fri, 08 May 2026 10:48:36 -0400
+X-ME-Sender: <xms:xPf9acOfuYU0lGUlWUFxgRlwtXOonYDb2Jzd4suBZm6azQLCEem0cw>
+    <xme:xPf9aYwUeZugIxSEf8iSoqrAeZDEwEFhOXRsPAMTnme8ICYe2vzvtCkaBuOKPUS1r
+    qyaR3zZPaUPG4qXl_cslrr2Rq8tLzfVADoZ1XPcRmQnppdoFxw1VQ>
+X-ME-Received: <xmr:xPf9aYWaKFaWMenMNxUYVc1uSp4eVybh9FIWnxSfcFf_BVCzaC5icjOoqFqb_u_jBKbRCvyMqmSeMC1NWhZN7KRJS2pf9_-I>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefhedrtddtgdduuddtieefucetufdoteggodetrf
+    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
+    rghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujf
+    gurhepfffhvfevuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepuehoqhhunhcu
+    hfgvnhhguceosghoqhhunheskhgvrhhnvghlrdhorhhgqeenucggtffrrghtthgvrhhnpe
+    ekgffhhfeuheelhfekteeuffejveetjeefffettedtteegfefftdduteduudfgleenucev
+    lhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpegsohhquhhnod
+    hmvghsmhhtphgruhhthhhpvghrshhonhgrlhhithihqdduieejtdelkeegjeduqddujeej
+    keehheehvddqsghoqhhunheppehkvghrnhgvlhdrohhrghesfhhigihmvgdrnhgrmhgvpd
+    hnsggprhgtphhtthhopeehjedpmhhouggvpehsmhhtphhouhhtpdhrtghpthhtohepmhgr
+    rhhkrdhruhhtlhgrnhgusegrrhhmrdgtohhmpdhrtghpthhtohepphgvthgvrhiisehinh
+    hfrhgruggvrggurdhorhhgpdhrtghpthhtoheptggrthgrlhhinhdrmhgrrhhinhgrshes
+    rghrmhdrtghomhdprhgtphhtthhopeifihhllheskhgvrhhnvghlrdhorhhgpdhrtghpth
+    htohepjhhonhgrshesshhouhhthhhpohhlvgdrshgvpdhrtghpthhtohepshhtvghfrghn
+    rdhkrhhishhtihgrnhhsshhonhesshgruhhnrghlrghhthhirdhfihdprhgtphhtthhope
+    hshhhorhhnvgesghhmrghilhdrtghomhdprhgtphhtthhopehhtggrsehlihhnuhigrdhi
+    sghmrdgtohhmpdhrtghpthhtohepghhorheslhhinhhugidrihgsmhdrtghomh
+X-ME-Proxy: <xmx:xPf9aTtPViALwsR-GBUDqdJRZ7UgaSYbpbVi3tp27kMrsUzEj4eZug>
+    <xmx:xPf9aeuU6kdXUI9aDuKfL8Ep1pzFR1YRqNDp_odvfBe9GS4asRVZ2w>
+    <xmx:xPf9aQEtkgzjCi2KdPqwXU7pdtFeY5kgRWO1xvUPSUkbilYxloK_4w>
+    <xmx:xPf9aVj9kvhtECnLEc9FWYLHLm3MSrBP28JD4FD9tHdOC69YRWjYgQ>
+    <xmx:xPf9adCk8T09C4oXlmfuG0CR9eb0TB_w-nWGPRAORtupUYAbOELiad2W>
+Feedback-ID: i8dbe485b:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Fri,
+ 8 May 2026 10:48:35 -0400 (EDT)
+Date: Fri, 8 May 2026 07:48:34 -0700
+From: Boqun Feng <boqun@kernel.org>
+To: Mark Rutland <mark.rutland@arm.com>
+Cc: Peter Zijlstra <peterz@infradead.org>,
+	Catalin Marinas <catalin.marinas@arm.com>,	Will Deacon <will@kernel.org>,
+ Jonas Bonn <jonas@southpole.se>,
+	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
+	Stafford Horne <shorne@gmail.com>,	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,	Thomas Gleixner <tglx@kernel.org>,
+ Ingo Molnar <mingo@redhat.com>,	Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+	"H. Peter Anvin" <hpa@zytor.com>, Arnd Bergmann <arnd@arndb.de>,
+	Juri Lelli <juri.lelli@redhat.com>,
+	Vincent Guittot <vincent.guittot@linaro.org>,
+	Dietmar Eggemann <dietmar.eggemann@arm.com>,
+	Steven Rostedt <rostedt@goodmis.org>,	Ben Segall <bsegall@google.com>,
+ Mel Gorman <mgorman@suse.de>,	Valentin Schneider <vschneid@redhat.com>,
+	K Prateek Nayak <kprateek.nayak@amd.com>,
+	Waiman Long <longman@redhat.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Miguel Ojeda <ojeda@kernel.org>, Gary Guo <gary@garyguo.net>,
+	=?iso-8859-1?Q?Bj=F6rn?= Roy Baron <bjorn3_gh@protonmail.com>,
+	Benno Lossin <lossin@kernel.org>,
+	Andreas Hindborg <a.hindborg@kernel.org>,
+	Alice Ryhl <aliceryhl@google.com>, Trevor Gross <tmgross@umich.edu>,
+	Danilo Krummrich <dakr@kernel.org>,	Jinjie Ruan <ruanjinjie@huawei.com>,
+	Ada Couprie Diaz <ada.coupriediaz@arm.com>,
+	Lyude Paul <lyude@redhat.com>, Sohil Mehta <sohil.mehta@intel.com>,
+	Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
+	"Xin Li (Intel)" <xin@zytor.com>,
+	Sean Christopherson <seanjc@google.com>,
+	Nikunj A Dadhania <nikunj@amd.com>,
+	Joel Fernandes <joelagnelf@nvidia.com>,
+	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+	Randy Dunlap <rdunlap@infradead.org>,	Yury Norov <ynorov@nvidia.com>,
+	Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	linux-openrisc@vger.kernel.org, linux-s390@vger.kernel.org,
+	linux-arch@vger.kernel.org, rust-for-linux@vger.kernel.org
+Subject: Re: [PATCH 11/11] arm64: sched/preempt: Enable PREEMPT_COUNT_64BIT
+Message-ID: <af33wq5R09HWVE84@tardis.local>
+References: <20260508042111.24358-1-boqun@kernel.org>
+ <20260508042111.24358-12-boqun@kernel.org>
+ <af2dPMW97tNOWuGF@J2N7QTR9R3>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTA4MDEzNiBTYWx0ZWRfXysqBQtVsjF3x
- E7r0NR8fR6Umm9nxsYASZT359NaGQBwzxNvdoBTpfqn4ycc+vxzn+SeDUlWiLc4z1FKYMR8Rh1S
- 0G8zrTZGm+RNAWYcvDgXlhLIu0zaSzI1Pizda7bclMaP45Rwb+bOpYFo5Z9jj/Ih6LyZtqztexG
- zcv3fDAPtUGwNjMgFM/Ldu+6k2rROHNWHbM++lNX8AJj/qcNmeY7vhE6TuW5EDmbcpfxPsSZ5R3
- qt65AkHS/nQvgaUF6JRumnR7unN+N+UOv8iZiEibf7Ih6Hk+VgT7e9W2aTLUVTOyu0O4EjcaqpF
- mQExUwZ8L7+2uThtTsXRvczr9IM15c0uX3jjwPzC3UlrzOfSTmgzV6aqJJHX0UX4FAj8QElfuBY
- E65GlNqLesvI1JeMGVSNc118PkhYd6Ltkcg0Sse1yKSO4aruyOOypICCHDx52iJWi6Xs2L4lPTs
- ixTWfVa1vNOL2O7YXfg==
-X-Proofpoint-ORIG-GUID: tCuT2o3cYkuyUChtYvywOYMoUWQJaxez
-X-Proofpoint-GUID: tCuT2o3cYkuyUChtYvywOYMoUWQJaxez
-X-Authority-Analysis: v=2.4 cv=W7UIkxWk c=1 sm=1 tr=0 ts=69fde446 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=kj9zAlcOel0A:10 a=NGcC8JguVDcA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8
- a=sPCGW8O3KLxBFVHUMcMA:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-05-07_02,2026-05-06_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 adultscore=0 lowpriorityscore=0 malwarescore=0
- suspectscore=0 spamscore=0 clxscore=1015 phishscore=0 bulkscore=0
- impostorscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2604200000
- definitions=main-2605080136
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <af2dPMW97tNOWuGF@J2N7QTR9R3>
 
-On Thu,  7 May 2026 22:08:35 +0200
-Eric Farman <farman@linux.ibm.com> wrote:
-
-> There is a possibility that the user_operexec capability
-> only works if facility bit 74 is enabled. This is now fixed,
-> but add a selftest to demonstrate that.
+On Fri, May 08, 2026 at 09:22:20AM +0100, Mark Rutland wrote:
+> Hi Boqun,
 > 
-> Signed-off-by: Eric Farman <farman@linux.ibm.com>
-
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-
-
-> ---
->  .../selftests/kvm/include/s390/facility.h     |   6 +
->  .../selftests/kvm/s390/user_operexec.c        | 110 ++++++++++++++++++
->  2 files changed, 116 insertions(+)
+> I have a question at the end, with some context for other reviewers
+> before that.
 > 
-> diff --git a/tools/testing/selftests/kvm/include/s390/facility.h b/tools/testing/selftests/kvm/include/s390/facility.h
-> index 41a265742666..e5259f63be22 100644
-> --- a/tools/testing/selftests/kvm/include/s390/facility.h
-> +++ b/tools/testing/selftests/kvm/include/s390/facility.h
-> @@ -11,6 +11,7 @@
->  #ifndef SELFTEST_KVM_FACILITY_H
->  #define SELFTEST_KVM_FACILITY_H
->  
-> +#include <linux/atomic.h>
->  #include <linux/bitops.h>
->  
->  /* alt_stfle_fac_list[16] + stfle_fac_list[16] */
-> @@ -19,6 +20,11 @@
->  extern u64 stfl_doublewords[NB_STFL_DOUBLEWORDS];
->  extern bool stfle_flag;
->  
-> +static inline bool clear_bit_inv(unsigned long nr, unsigned long *ptr)
-> +{
-> +	return clear_bit(nr ^ (BITS_PER_LONG - 1), ptr);
-> +}
-> +
->  static inline bool test_bit_inv(unsigned long nr, const unsigned long *ptr)
->  {
->  	return test_bit(nr ^ (BITS_PER_LONG - 1), ptr);
-> diff --git a/tools/testing/selftests/kvm/s390/user_operexec.c b/tools/testing/selftests/kvm/s390/user_operexec.c
-> index 714906c1d12a..b24c1f9dbbe8 100644
-> --- a/tools/testing/selftests/kvm/s390/user_operexec.c
-> +++ b/tools/testing/selftests/kvm/s390/user_operexec.c
-> @@ -6,6 +6,7 @@
->   * Authors:
->   *  Janosch Frank <frankja@linux.ibm.com>
->   */
-> +#include "facility.h"
->  #include "kselftest.h"
->  #include "kvm_util.h"
->  #include "test_util.h"
-> @@ -109,6 +110,111 @@ static void test_user_operexec_combined(void)
->  	kvm_vm_free(vm);
->  }
->  
-> +static struct kvm_vm *create_vm_without_sthyi(void)
-> +{
-> +	struct kvm_s390_vm_cpu_processor info;
-> +	struct kvm_vm *vm;
-> +
-> +	vm = vm_create(1);
-> +
-> +	kvm_device_attr_get(vm->fd, KVM_S390_VM_CPU_MODEL,
-> +			    KVM_S390_VM_CPU_PROCESSOR, &info);
-> +
-> +	clear_bit_inv(74, (unsigned long *)&info.fac_list);
-> +	kvm_device_attr_set(vm->fd, KVM_S390_VM_CPU_MODEL,
-> +			    KVM_S390_VM_CPU_PROCESSOR, &info);
-> +
-> +	return vm;
-> +}
-> +
-> +static void test_user_instr0_no_stfle_74(void)
-> +{
-> +	struct kvm_vcpu *vcpu;
-> +	struct kvm_vm *vm;
-> +	int rc;
-> +
-> +	vm = create_vm_without_sthyi();
-> +
-> +	rc = __vm_enable_cap(vm, KVM_CAP_S390_USER_INSTR0, 0);
-> +	TEST_ASSERT_EQ(0, rc);
-> +
-> +	vcpu = vm_vcpu_add(vm, 0, guest_code_instr0);
-> +
-> +	vcpu_run(vcpu);
-> +	TEST_ASSERT_KVM_EXIT_REASON(vcpu, KVM_EXIT_S390_SIEIC);
-> +	TEST_ASSERT_EQ(vcpu->run->s390_sieic.icptcode, ICPT_OPEREXC);
-> +	TEST_ASSERT_EQ(vcpu->run->s390_sieic.ipa, 0x0000);
-> +
-> +	kvm_vm_free(vm);
-> +}
-> +
-> +static void test_user_operexec_no_stfle_74(void)
-> +{
-> +	struct kvm_vcpu *vcpu;
-> +	struct kvm_vm *vm;
-> +	int rc;
-> +
-> +	vm = create_vm_without_sthyi();
-> +
-> +	rc = __vm_enable_cap(vm, KVM_CAP_S390_USER_OPEREXEC, 0);
-> +	TEST_ASSERT_EQ(0, rc);
-> +
-> +	vcpu = vm_vcpu_add(vm, 0, guest_code_user_operexec);
-> +
-> +	vcpu_run(vcpu);
-> +	TEST_ASSERT_KVM_EXIT_REASON(vcpu, KVM_EXIT_S390_SIEIC);
-> +	TEST_ASSERT_EQ(vcpu->run->s390_sieic.icptcode, ICPT_OPEREXC);
-> +	TEST_ASSERT_EQ(vcpu->run->s390_sieic.ipa, 0x0807);
-> +
-> +	kvm_vm_free(vm);
-> +}
-> +
-> +static void test_instr0_combined_no_stfle_74(void)
-> +{
-> +	struct kvm_vcpu *vcpu;
-> +	struct kvm_vm *vm;
-> +	int rc;
-> +
-> +	vm = create_vm_without_sthyi();
-> +
-> +	rc = __vm_enable_cap(vm, KVM_CAP_S390_USER_INSTR0, 0);
-> +	TEST_ASSERT_EQ(0, rc);
-> +	rc = __vm_enable_cap(vm, KVM_CAP_S390_USER_OPEREXEC, 0);
-> +	TEST_ASSERT_EQ(0, rc);
-> +
-> +	vcpu = vm_vcpu_add(vm, 0, guest_code_instr0);
-> +
-> +	vcpu_run(vcpu);
-> +	TEST_ASSERT_KVM_EXIT_REASON(vcpu, KVM_EXIT_S390_SIEIC);
-> +	TEST_ASSERT_EQ(vcpu->run->s390_sieic.icptcode, ICPT_OPEREXC);
-> +	TEST_ASSERT_EQ(vcpu->run->s390_sieic.ipa, 0x0000);
-> +
-> +	kvm_vm_free(vm);
-> +}
-> +
-> +static void test_operexec_combined_no_stfle_74(void)
-> +{
-> +	struct kvm_vcpu *vcpu;
-> +	struct kvm_vm *vm;
-> +	int rc;
-> +
-> +	vm = create_vm_without_sthyi();
-> +
-> +	rc = __vm_enable_cap(vm, KVM_CAP_S390_USER_INSTR0, 0);
-> +	TEST_ASSERT_EQ(0, rc);
-> +	rc = __vm_enable_cap(vm, KVM_CAP_S390_USER_OPEREXEC, 0);
-> +	TEST_ASSERT_EQ(0, rc);
-> +
-> +	vcpu = vm_vcpu_add(vm, 0, guest_code_user_operexec);
-> +
-> +	vcpu_run(vcpu);
-> +	TEST_ASSERT_KVM_EXIT_REASON(vcpu, KVM_EXIT_S390_SIEIC);
-> +	TEST_ASSERT_EQ(vcpu->run->s390_sieic.icptcode, ICPT_OPEREXC);
-> +	TEST_ASSERT_EQ(vcpu->run->s390_sieic.ipa, 0x0807);
-> +
-> +	kvm_vm_free(vm);
-> +}
-> +
->  /*
->   * Run all tests above.
->   *
-> @@ -122,6 +228,10 @@ static struct testdef {
->  	{ "instr0", test_user_instr0 },
->  	{ "operexec", test_user_operexec },
->  	{ "operexec_combined", test_user_operexec_combined},
-> +	{ "instr0_no_stfle_74", test_user_instr0_no_stfle_74 },
-> +	{ "instr0_combined_no_stfle_74", test_instr0_combined_no_stfle_74 },
-> +	{ "operexec_combined_no_stfle_74", test_operexec_combined_no_stfle_74 },
-> +	{ "operexec_no_stfle_74", test_user_operexec_no_stfle_74 },
->  };
->  
->  int main(int argc, char *argv[])
 
+Thank you for adding the context.
+
+> On Thu, May 07, 2026 at 09:21:11PM -0700, Boqun Feng wrote:
+> > ARM64 already uses 64bit preempt count and the need reschedule bit is
+> > maintained in a separate 32bit than the preempt count. 
+> 
+> For the benefit of those reading the list, arm64 has a separate 32-bit
+> count and a 32-bit field for need_resched, which are unioned together as
+> a composite 64-bit value:
+> 
+> 	union {
+> 		u64             preempt_count;  /* 0 => preemptible, <0 => bug */
+> 		struct {
+> 			u32     count;
+> 			u32     need_resched;
+> 		} preempt;
+> 	};
+> 
+> All of our "count" operations work on the 32-bit count, e.g.
+> 
+> 	static inline int preempt_count(void)
+> 	{
+> 		return READ_ONCE(current_thread_info()->preempt.count);
+> 	}
+> 
+> 
+> 	static inline void __preempt_count_add(int val)
+> 	{
+> 		u32 pc = READ_ONCE(current_thread_info()->preempt.count);
+> 		pc += val;
+> 		WRITE_ONCE(current_thread_info()->preempt.count, pc);
+> 	}
+> 
+> 	static inline void __preempt_count_sub(int val)
+> 	{
+> 		u32 pc = READ_ONCE(current_thread_info()->preempt.count);
+> 		pc -= val;
+> 		WRITE_ONCE(current_thread_info()->preempt.count, pc);
+> 	}
+> 
+> ... but some operations use the 64-bit 'preempt_count' field from the union, e.g.
+> 
+> 	static inline bool should_resched(int preempt_offset)
+> 	{
+> 		u64 pc = READ_ONCE(current_thread_info()->preempt_count);
+> 		return pc == preempt_offset;
+> 	}	
+> 
+> > Therefore preempt count has enough bits to represent 16 level of NMI
+> > nesting, hence enable it for ARM64. This saves a per-CPU variable and
+> > additional instructions in the NMI path.
+> 
+> This might be true, but I think the name "PREEMPT_COUNT_64BIT" is
+> misleading given the above. What exactly does PREEMPT_COUNT_64BIT tell
+> core code it can do?
+
+It tells the core code that all 32bit of preempt_count() can be used.
+
+> 
+> If this is just telling core code that it doesn't need ot reserve space
+> in preempt_count for the resched bits, can this be called something
+> else, e.g. HAS_SEPARATE_PREEMPT_RESCHED_BITS?
+
+You are right on that the resched bit detail is a major difference
+between PREEMPT_COUNT_64BIT=y or n. I haven't gone that far to resolve
+the #1 difficult issue in programming (i.e. naming) ;-)
+HAS_SEPARATE_PREEMPT_RESCHED_BITS seems reasonable, I will use it if no
+other better ideas. Thanks!
+
+Regards,
+Boqun
+
+> 
+> Mark.
+> 
+> > 
+> > Signed-off-by: Boqun Feng <boqun@kernel.org>
+> > ---
+> >  arch/arm64/Kconfig | 1 +
+> >  1 file changed, 1 insertion(+)
+> > 
+> > diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
+> > index fe60738e5943..1ed5173872fc 100644
+> > --- a/arch/arm64/Kconfig
+> > +++ b/arch/arm64/Kconfig
+> > @@ -248,6 +248,7 @@ config ARM64
+> >  	select PCI_SYSCALL if PCI
+> >  	select POWER_RESET
+> >  	select POWER_SUPPLY
+> > +	select PREEMPT_COUNT_64BIT
+> >  	select SPARSE_IRQ
+> >  	select SWIOTLB
+> >  	select SYSCTL_EXCEPTION_TRACE
+> > -- 
+> > 2.50.1 (Apple Git-155)
+> > 
+> > 
