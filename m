@@ -1,56 +1,45 @@
-Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 90FF61DF75B;
-	Fri,  8 May 2026 20:57:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1305C313E1D;
+	Fri,  8 May 2026 21:56:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778273855; cv=none; b=mdve11xRwgNPsFFH9Q1S1kfiFMfMjfuTLz0C8XNFbRQzmR1YabaM7cJfd4VvOjj33VYuUmUbtoEv5dFjSaCyzoOgL6SqIcd2AQPogFSjGXNZQM9YZYygf2T6tgFw3Dtl3umg3neU70Stxi6mi2xSluTX8KUJyiyXdnvcZ8TqIFY=
+	t=1778277397; cv=none; b=iPQMsPMneSRb2+LpXrSWTeQkwjMhyN5zCcydSHNUl2saZeX1T6jyEWDfYSU49LqXtBbKOSDUGlN6Fi3OK0G+I+jNwrIaErYwvXczyityHDhRvTS8eN+ppp6Qk5Xi0WD7ukNHup/7GL8xp5kp5+dfsgEfZl9LinO5Htvvxs+L/Q0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778273855; c=relaxed/simple;
-	bh=6tsyJYfxilAusCSocB51kUZkp7E69qaKYWtBRFECzXs=;
+	s=arc-20240116; t=1778277397; c=relaxed/simple;
+	bh=E4/S7h7x9+VkHjz+trqpUCCjAbfa/5Fb4fkF5zP2WWo=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Of29u1i/Lk1bsuualCscKhb9Ltpp2eXHaohzn1tyUnqLSPi7sq8mcEWO167xOsuHzAJZqQOsebexOltzCvGZrBpqY2BPJM5+DfG+QS4PNpJGwHTBikq3+6d3Hh9/rMwL+0iLSFaNvr5GO/FV0wrToEiXfcGBJxnVy09B+xRsqPE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=dVjdGo1W; arc=none smtp.client-ip=198.137.202.133
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
+	 Content-Type:Content-Disposition:In-Reply-To; b=WHdKRXzTx5tbojZG2l5VjnnZ7S1MGCouAYDeveQwfDAb+gwiRv0tj2pF9PFax9qpewUhdHTz7jB4ixZHsjCHnHIDFxGERAvrUuPzFhFJ+KEqk26M4Pdkrf9Wt9dIoC32IFjFCyu69nTN3G57CD5tC13puj6huVGqxkecsBH438w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gjLk8Q+i; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="dVjdGo1W"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=bombadil.20210309; h=In-Reply-To:Content-Type:MIME-Version
-	:References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=mu8daim6qkcaeD6OUpYjQtJ/V2hKZECcF7+XQco/y+o=; b=dVjdGo1W+YqvAgdP/RzAqBIFIE
-	S7PuZ1jYjDbsjnOIUcYBZeQl1zUPvNBz+Q7B7iHt3F2LRKZbLV9nZ1Kr5ocUh3TRqYuMkmqXQrZpr
-	2FXeNgegJCfy9yq17MmHgnSCJOvgVXFivFQMDnUBmZuxju84WovJBsGnbRjlAVd6guDPMIsks8ZKx
-	RbmBoiNFmyPfuIThUtGeqknQoGTuW7RsQFua9OAaSUL+6Rcn68hUTLAWtBZJA5YpAFcKR8eIpNM1S
-	1RRrsvg1pa8dmWgWeA/QQfqLH8jDXtkAYdudncw5hToS+HDomPyvyvJYqsOPeZ0Qz7I/8olqKKMRZ
-	xfvN/SWA==;
-Received: from [38.23.173.23] (helo=localhost)
-	by bombadil.infradead.org with esmtpsa (Exim 4.99.1 #2 (Red Hat Linux))
-	id 1wLSGI-00000007VHt-3YCB;
-	Fri, 08 May 2026 20:57:31 +0000
-Date: Fri, 8 May 2026 22:57:31 +0200
-From: "Liam R. Howlett" <liam@infradead.org>
-To: "David Hildenbrand (Arm)" <david@kernel.org>
-Cc: Michal Hocko <mhocko@suse.com>, Minchan Kim <minchan@kernel.org>, 
-	Suren Baghdasaryan <surenb@google.com>, akpm@linux-foundation.org, hca@linux.ibm.com, 
-	linux-s390@vger.kernel.org, brauner@kernel.org, linux-mm@kvack.org, 
-	linux-kernel@vger.kernel.org, timmurray@google.com, 
-	"Liam R. Howlett" <Liam.Howlett@oracle.com>
-Subject: Re: [PATCH v1 2/3] mm: process_mrelease: skip LRU movement for
- exclusive file folios
-Message-ID: <7g5g57jbll5joujbwjb4osqhdwqd4yzc54wmoi7ftx4a4chuax@xtxyljtqaodp>
-References: <ae-Zu-VAzAA7SdLa@tiehlicka>
- <ae_roPR64e6sY_fN@google.com>
- <afBaJLLFigkdszov@tiehlicka>
- <afFco71vwmpQy3pk@google.com>
- <afG-4hq7Hr62Uu6J@tiehlicka>
- <7f98f461-62a7-455d-a7a8-cb8928465946@kernel.org>
- <afHeXY-yeTwmURWh@tiehlicka>
- <4a612d63-2838-40f5-ab67-79bf35dd3a56@kernel.org>
- <afIZQOtaBabeHtCc@tiehlicka>
- <b2d9fe2b-abb0-49d1-8056-ac93aa232bbb@kernel.org>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gjLk8Q+i"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C1BDC2BCB0;
+	Fri,  8 May 2026 21:56:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1778277396;
+	bh=E4/S7h7x9+VkHjz+trqpUCCjAbfa/5Fb4fkF5zP2WWo=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=gjLk8Q+iHwQyjywvpCvrlThddaPjfA0/KW7CRqpZtRFNbAGzgwUw/Tn732VkbmWeF
+	 JZgyUs6HKHSY6uy8MeTO51AZ+LiqFjo3qnmlggQLR1PqYvMSTjVEAGrpaJjf1VY6g3
+	 VRAG2yKL93gQiRku2ORPFgMG/QupHaHQUeNB4xlxQ5kom9kRfpvyq30QyzQD5kxrHI
+	 D+uFnS/Ys0/RglApXgB67b0ip6zGJoWuJVlpMxJTZ6U7NKjtZvb4s8kob30r7ip6zM
+	 aJ7Xsq34gCpUimFZK1VY97zJUmyGJPKXgaXkXtXfsZPbdHHOjaVyJ0BmJa3S2L5F2X
+	 5CGXGLyS1Oiqw==
+Date: Fri, 8 May 2026 14:56:35 -0700
+From: Minchan Kim <minchan@kernel.org>
+To: Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: akpm@linux-foundation.org, hca@linux.ibm.com,
+	linux-s390@vger.kernel.org, david@kernel.org, mhocko@suse.com,
+	brauner@kernel.org, linux-mm@kvack.org,
+	linux-kernel@vger.kernel.org, surenb@google.com,
+	timmurray@google.com
+Subject: Re: [PATCH v1 1/3] mm: process_mrelease: expedite clean file folio
+ reclaim via mmu_gather
+Message-ID: <af5cEycgIu2GUicn@google.com>
+References: <20260421230239.172582-1-minchan@kernel.org>
+ <20260421230239.172582-2-minchan@kernel.org>
+ <20260505145318.97692A14-agordeev@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -59,106 +48,177 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <b2d9fe2b-abb0-49d1-8056-ac93aa232bbb@kernel.org>
+In-Reply-To: <20260505145318.97692A14-agordeev@linux.ibm.com>
 
-On 26/04/30 08:08AM, David Hildenbrand (Arm) wrote:
-> On 4/29/26 16:44, Michal Hocko wrote:
-> > On Wed 29-04-26 15:07:04, David Hildenbrand wrote:
-> >> On 4/29/26 12:33, Michal Hocko wrote:
-> >>>
-> >>> While the oom is the only current kernel user of MMF_UNSTABLE (in a
-> >>> sense it sets the flag) the flag should denote that any page faults are
-> >>> reliable because it might fault in a fresh memory and user would lose
-> >>> the previous content without knowing that. Not sure MMF_OOM_REAPING
-> >>> would reflect that reality better.
-> >>
-> >> We use it for failed fork() as well, but that's slightly different semantics (no
-> >> real page faults ever made sense).
-> 
-> Well, there is a difference: a failed-fork process was never scheduled and will
-> never get scheduled.
-> 
-> In fact, we added the MMF_UNSTABLE to the fork path in
-> 
-> commit 64c37e134b120fb462fb4a80694bfb8e7be77b14
-> Author: Liam R. Howlett <liam@infradead.org>
-> Date:   Mon Jan 27 12:02:21 2025 -0500
-> 
->     kernel: be more careful about dup_mmap() failures and uprobe registering
-> 
->     If a memory allocation fails during dup_mmap(), the maple tree can be left
->     in an unsafe state for other iterators besides the exit path.  All the
->     locks are dropped before the exit_mmap() call (in mm/mmap.c), but the
->     incomplete mm_struct can be reached through (at least) the rmap finding
->     the vmas which have a pointer back to the mm_struct.
-> 
->     Up to this point, there have been no issues with being able to find an
->     mm_struct that was only partially initialised.  Syzbot was able to make
->     the incomplete mm_struct fail with recent forking changes, so it has been
->     proven unsafe to use the mm_struct that hasn't been initialised, as
->     referenced in the link below.
-> 
->     Although 8ac662f5da19f ("fork: avoid inappropriate uprobe access to
->     invalid mm") fixed the uprobe access, it does not completely remove the
->     race.
-> 
->     This patch sets the MMF_OOM_SKIP to avoid the iteration of the vmas on the
->     oom side (even though this is extremely unlikely to be selected as an oom
->     victim in the race window), and sets MMF_UNSTABLE to avoid other potential
->     users from using a partially initialised mm_struct.
-> 
-> Which was later changed in
-> 
-> commit 43873af772f8138c5cb4b76dde9c26339e89be3b
-> Author: Liam R. Howlett <liam@infradead.org>
-> Date:   Wed Jan 21 11:49:42 2026 -0500
-> 
->     mm: change dup_mmap() recovery
-> 
->     When the dup_mmap() fails during the vma duplication or setup, don't write
->     the XA_ZERO entry in the vma tree.  Instead, destroy the tree and free the
->     new resources, leaving an empty vma tree.
-> 
->     Using XA_ZERO introduced races where the vma could be found between
->     dup_mmap() dropping all locks and exit_mmap() taking the locks.  The race
->     can occur because the mm can be reached through the other trees via
->     successfully copied vmas and other methods such as the swapoff code.
-> ...
-> 
-> and I am not sure if MMF_UNSTABLE is still required, as we don't leave these
-> stale VMA copies in the maple tree.
-> 
-> The process might just look like just another process that is getting torn down now.
-> 
-> But we'd have to learn from Liam :)
+Hi Alexander,
 
-Yes, it will be a zero entry tree now.
+Sorry for late reply.
 
-I left the flag to indicate that it's an unstable mm, not for faulting
-in but to be skipped in OOM events and process_mrelease since neither
-should bother doing anything in the window between the dup_mm() failure
-and the exit_mmap() window where the write lock was dropped.
-
-We can safely drop the flag now if you want to, because everything has
-to deal with an empty vma tree anyways - a race can occur between a call
-to unmap everything and the task seg faulting.
-
+On Tue, May 05, 2026 at 04:53:18PM +0200, Alexander Gordeev wrote:
+> On Tue, Apr 21, 2026 at 04:02:37PM -0700, Minchan Kim wrote:
 > 
+> Hi Minchan,
 > 
+> > Currently, process_mrelease() unmaps pages but file-backed pages are
+> > not evicted and stay in the pagecache, relying on standard memory reclaim
+> > (kswapd or direct reclaim) to eventually free them. This delays the
+> > immediate recovery of system memory under Android's LMKD scenarios,
+> > leading to redundant background apps kills.
 > > 
-> > The bottom line is the same. Make sure PF fails rather than silently
-> > provide potentially corrupted data.
+> > This patch implements an expedited eviction mechanism for clean pagecache
+> > folios in the mmu_gather code, similar to how swapcache folios are handled.
+> > It drops them from the pagecache (i.e., evicting them) if they are completely
+> > unmapped during reaping.
 > > 
-> >> Looking at the original patch here, using MMF_OOM_REAPING to modify zapping
-> >> behavior would be clearer than MMF_UNSTABLE, I guess.
+> > Within this single unified loop, anonymous pages are released via
+> > free_swap_cache(), and file-backed folios are symmetrically released via
+> > free_file_cache().
 > > 
-> > Ohh, you mean to add a new flag, right?
+> > Signed-off-by: Minchan Kim <minchan@kernel.org>
+> > ---
+> >  arch/s390/include/asm/tlb.h |  2 +-
+> >  include/linux/swap.h        |  5 ++---
+> >  mm/mmu_gather.c             |  7 ++++---
+> >  mm/swap.c                   | 42 +++++++++++++++++++++++++++++++++++++
+> >  mm/swap_state.c             | 26 -----------------------
+> >  5 files changed, 49 insertions(+), 33 deletions(-)
+> > 
+> > diff --git a/arch/s390/include/asm/tlb.h b/arch/s390/include/asm/tlb.h
+> > index 619fd41e710e..2736dbb571a8 100644
+> > --- a/arch/s390/include/asm/tlb.h
+> > +++ b/arch/s390/include/asm/tlb.h
+> > @@ -62,7 +62,7 @@ static inline bool __tlb_remove_folio_pages(struct mmu_gather *tlb,
+> >  	VM_WARN_ON_ONCE(delay_rmap);
+> >  	VM_WARN_ON_ONCE(page_folio(page) != page_folio(page + nr_pages - 1));
+> >  
+> > -	free_pages_and_swap_cache(encoded_pages, ARRAY_SIZE(encoded_pages));
+> > +	free_pages_and_caches(tlb->mm, encoded_pages, ARRAY_SIZE(encoded_pages));
+> >  	return false;
+> >  }
+> >  
+> > diff --git a/include/linux/swap.h b/include/linux/swap.h
+> > index 62fc7499b408..bdb784966343 100644
+> > --- a/include/linux/swap.h
+> > +++ b/include/linux/swap.h
+> > @@ -414,7 +414,9 @@ extern int sysctl_min_unmapped_ratio;
+> >  extern int sysctl_min_slab_ratio;
+> >  #endif
+> >  
+> > +struct mm_struct;
+> >  void check_move_unevictable_folios(struct folio_batch *fbatch);
+> > +void free_pages_and_caches(struct mm_struct *mm, struct encoded_page **pages, int nr);
+> >  
+> >  extern void __meminit kswapd_run(int nid);
+> >  extern void __meminit kswapd_stop(int nid);
+> > @@ -433,7 +435,6 @@ static inline unsigned long total_swapcache_pages(void)
+> >  
+> >  void free_swap_cache(struct folio *folio);
+> >  void free_folio_and_swap_cache(struct folio *folio);
+> > -void free_pages_and_swap_cache(struct encoded_page **, int);
+> >  /* linux/mm/swapfile.c */
+> >  extern atomic_long_t nr_swap_pages;
+> >  extern long total_swap_pages;
+> > @@ -510,8 +511,6 @@ static inline void put_swap_device(struct swap_info_struct *si)
+> >  	do { (val)->freeswap = (val)->totalswap = 0; } while (0)
+> >  #define free_folio_and_swap_cache(folio) \
+> >  	folio_put(folio)
+> > -#define free_pages_and_swap_cache(pages, nr) \
+> > -	release_pages((pages), (nr));
+> >  
+> >  static inline void free_swap_cache(struct folio *folio)
+> >  {
+> > diff --git a/mm/mmu_gather.c b/mm/mmu_gather.c
+> > index fe5b6a031717..3c6c315d3c48 100644
+> > --- a/mm/mmu_gather.c
+> > +++ b/mm/mmu_gather.c
+> > @@ -100,7 +100,8 @@ void tlb_flush_rmaps(struct mmu_gather *tlb, struct vm_area_struct *vma)
+> >   */
+> >  #define MAX_NR_FOLIOS_PER_FREE		512
+> >  
+> > -static void __tlb_batch_free_encoded_pages(struct mmu_gather_batch *batch)
+> > +static void __tlb_batch_free_encoded_pages(struct mm_struct *mm,
+> > +		struct mmu_gather_batch *batch)
+> >  {
+> >  	struct encoded_page **pages = batch->encoded_pages;
+> >  	unsigned int nr, nr_pages;
+> > @@ -135,7 +136,7 @@ static void __tlb_batch_free_encoded_pages(struct mmu_gather_batch *batch)
+> >  			}
+> >  		}
+> >  
+> > -		free_pages_and_swap_cache(pages, nr);
+> > +		free_pages_and_caches(mm, pages, nr);
+> >  		pages += nr;
+> >  		batch->nr -= nr;
+> >  
+> > @@ -148,7 +149,7 @@ static void tlb_batch_pages_flush(struct mmu_gather *tlb)
+> >  	struct mmu_gather_batch *batch;
+> >  
+> >  	for (batch = &tlb->local; batch && batch->nr; batch = batch->next)
+> > -		__tlb_batch_free_encoded_pages(batch);
+> > +		__tlb_batch_free_encoded_pages(tlb->mm, batch);
+> >  	tlb->active = &tlb->local;
+> >  }
+> >  
+> > diff --git a/mm/swap.c b/mm/swap.c
+> > index bb19ccbece46..e44bc8cefceb 100644
+> > --- a/mm/swap.c
+> > +++ b/mm/swap.c
+> > @@ -1043,6 +1043,48 @@ void release_pages(release_pages_arg arg, int nr)
+> >  }
+> >  EXPORT_SYMBOL(release_pages);
+> >  
+> > +static inline void free_file_cache(struct folio *folio)
+> > +{
+> > +	if (folio_trylock(folio)) {
+> > +		mapping_evict_folio(folio_mapping(folio), folio);
+> > +		folio_unlock(folio);
+> > +	}
+> > +}
+> > +
+> > +/*
+> > + * Passed an array of pages, drop them all from swapcache and then release
+> > + * them.  They are removed from the LRU and freed if this is their last use.
+> > + *
+> > + * If @try_evict_file_folios is true, this function will proactively evict clean
+> > + * file-backed folios if they are no longer mapped.
+> > + */
+> > +void free_pages_and_caches(struct mm_struct *mm, struct encoded_page **pages, int nr)
+> > +{
+> > +	bool try_evict_file_folios = mm_flags_test(MMF_UNSTABLE, mm);
+> > +	struct folio_batch folios;
+> > +	unsigned int refs[PAGEVEC_SIZE];
+> > +
+> > +	folio_batch_init(&folios);
+> > +	for (int i = 0; i < nr; i++) {
+> > +		struct folio *folio = page_folio(encoded_page_ptr(pages[i]));
+> > +
+> > +		if (folio_test_anon(folio))
+> > +			free_swap_cache(folio);
+> > +		else if (unlikely(try_evict_file_folios))
+> > +			free_file_cache(folio);
 > 
-> We could do that as well, if it's of any help.
+> This condition is absent in free_pages_and_swap_cache().
+> What would happen with non-anon and non-evict folio?
 
-I really think this goes back to the life cycle of the mm being somewhat
-difficult to figure out.  I'm fine with another flag.
+Are you asking about mlocked pages for file?
 
-Thanks,
-Liam
+During unmapping, munlock_vma_folio() inside __folio_remove_rmap() clears
+the PG_mlocked flag and moves the folio back to the evictable LRU list.
 
+By the time the folios reach free_pages_and_caches(), if the folio is
+exclusive, it will be successfully evicted. However, if the folio is shared,
+mapping_evict_folio() detects it via the refcount check and skips the
+eviction.
+
+However, I realized we miss shmem folios in the swap cache due to the new
+folio_test_anon() check we introduced. I will update the check to something
+like this:
+
+if (folio_test_swapcache(folio))
+    free_swap_cache(folio);
+else if (unlikely(try_evict_file_folios))
+    free_file_cache(folio);
+
+Let me know if I missed something from your point.
+
+Thank you.
