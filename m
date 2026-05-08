@@ -1,166 +1,239 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 487101F8691;
-	Fri,  8 May 2026 13:08:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B92930F95F;
+	Fri,  8 May 2026 13:17:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778245700; cv=none; b=QNmjertwiYe8t7OobBFwHXwODbd2aHcbNk942ENWamDLJztKDzN7DhYHxPj7KkPiNqMD4dyA/SkTvpkOSCHR9liDLyG+qFEfgwisxToMircYZcGG/aN7R7HI+9DX41SykwLBmBMPx8sLeOMGv815SufNmB0i87/BZ6w67EBpKMY=
+	t=1778246227; cv=none; b=df0LbJKRnNsYKVbBiBVTD+x/lS2ss1GXBRvt7aDhIiqogG7GhZGR+QAIjHOdxHhCpXfSKQ4c4/Wo6R2PoJCYXwTC1slPXf7Hc3O53z3VlElRBtxd/Tw24vQWexFwVyqW7vNcuCm81Ag9Tjp9g8kfX5eqpnA5MPAwetlBNvcTH6E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778245700; c=relaxed/simple;
-	bh=ITYGj1EjPgggdECL7+NWLs5KvF5gFyktyuXpGKgy1WA=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=X7E4OAllILL95lqf5JSzcL9scGXhkrwmQ5rW0kpt5c+vAlGACz9spLICzUswxAC2ZVGQZGdbPc3hUHV7jsQHt4+n9G8fZi5/rpCkwKK9sYDAUEjkLHfFV54PHCbHhVf65+MxYvlzdVHfeEk9fiYne8g/EHHOBD9uFmLZuWSa0dc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=iNwJSew/; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1778246227; c=relaxed/simple;
+	bh=Vta7hllmwFIumsR7obeWKsvWVRLZq990abYtI1WVcNk=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=dCX7bKnhUqlP9GHnWZcSpehCGvDR5m6CUifN2MQh8VpcR+M5lawa3pta/4Rktw8w9z2x6ISYPBdh9DaAZBYpcZAVPsAHWT81+s68SJbkXhXAev4L9ZHVE9TPlyeRj8UjnAhRuwA+9t1LndjPs9y+6ezDGiuOCV2O2HON5xQF3aU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MGP5FK9r; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="iNwJSew/"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 648124QG2805903;
-	Fri, 8 May 2026 13:08:17 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=EJBZh8
-	NphQAerlQeRvJ0i9+Rxs6rH3UaZ+wSL42Cy6c=; b=iNwJSew/Qu/2PeeoxyTXV1
-	WxzWegktzeQR3exKGrehb9LMHwlI+xsBuGvTrCPliZrOQGrVWZuExtigzy9vUNX9
-	NJhrNQqufSJ+jF6wUNvP3Mj7xbqOHkJ2OV/WLxaNu68qGNeq9bWlzB1A4EoCQ/BZ
-	I58ovpYS6q4BECfbXeBwa0lFVf1hxynttKUGky1mc6RmSmAC5eG0V6lV5PGXLRGC
-	+erZqhD9QKVJ1QTGZ2bHYk6YwYkyjTx1kv38Zp/3fQTND1QAkTTAa2dVEJGKzEH+
-	rkHTWKVLSIDOSCj6M1Aiu0OJoZAhVPBxLX7Na7HlwsqVCzqAknka+2V/Dc+PHcCw
-	==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4dw9v7uu37-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 08 May 2026 13:08:16 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 648CdcOY018067;
-	Fri, 8 May 2026 13:08:16 GMT
-Received: from smtprelay07.dal12v.mail.ibm.com ([172.16.1.9])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4dwwtgr32m-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 08 May 2026 13:08:16 +0000 (GMT)
-Received: from smtpav05.dal12v.mail.ibm.com (smtpav05.dal12v.mail.ibm.com [10.241.53.104])
-	by smtprelay07.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 648D8F8t28705444
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 8 May 2026 13:08:15 GMT
-Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2FE1758052;
-	Fri,  8 May 2026 13:08:15 +0000 (GMT)
-Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 775245805D;
-	Fri,  8 May 2026 13:08:14 +0000 (GMT)
-Received: from li-479af74c-31f9-11b2-a85c-e4ddee11713b.ibm.com (unknown [9.61.111.34])
-	by smtpav05.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Fri,  8 May 2026 13:08:14 +0000 (GMT)
-Message-ID: <66f7c47f9931bfc9be47c7f6d02861bd3f3f37e8.camel@linux.ibm.com>
-Subject: Re: [PATCH v2 0/3] KVM: s390: Toggle operation exception for
- userspace
-From: Eric Farman <farman@linux.ibm.com>
-To: Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank
-	 <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David
- Hildenbrand <david@kernel.org>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org
-Date: Fri, 08 May 2026 09:08:14 -0400
-In-Reply-To: <1ac58dd8-1b06-42b5-9a19-67620b4fdc25@linux.ibm.com>
-References: <20260507200836.3500368-1-farman@linux.ibm.com>
-	 <1ac58dd8-1b06-42b5-9a19-67620b4fdc25@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.58.3 (3.58.3-1.fc43) 
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MGP5FK9r"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB1B3C2BCB0;
+	Fri,  8 May 2026 13:16:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1778246226;
+	bh=Vta7hllmwFIumsR7obeWKsvWVRLZq990abYtI1WVcNk=;
+	h=From:To:Cc:Subject:Date:From;
+	b=MGP5FK9r9QEOy860Im4ejrteL4FwEhVVu14vipu9Z+cC0I316uNQwgOy0hPfLaVhY
+	 zQhpMRfoyyqaX7J92xkQ+LLBJPltZMpkOyxK8CW1LDab4vsyBS15jl9dAajLFcYQ+d
+	 kK5YF3Hom2fADVLNDaSgsqvXA0DaQeukbeZ8GVvmIZvU7rBkXPEHxGdUBBENsvirza
+	 ARd5MU8U0tleul+fXPjitjj+XOBfZwXLfuLAE6K8/NWnjBl5m1NH7Ymk0sokSPUqTJ
+	 I2DswfY8YWOGs4TB0lt1eaRgSZBvqBl+VOwwXu2m22zdvgatVVuQ0wwR7N55pFdd2N
+	 d+E2RmzRgmsqQ==
+From: Frederic Weisbecker <frederic@kernel.org>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Frederic Weisbecker <frederic@kernel.org>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Jan Kiszka <jan.kiszka@siemens.com>,
+	Dietmar Eggemann <dietmar.eggemann@arm.com>,
+	Shrikanth Hegde <sshegde@linux.ibm.com>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Ben Segall <bsegall@google.com>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	"Rafael J. Wysocki" <rafael@kernel.org>,
+	linux-pm@vger.kernel.org,
+	Sashiko,
+	Ingo Molnar <mingo@kernel.org>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Boqun Feng <boqun.feng@gmail.com>,
+	Valentin Schneider <vschneid@redhat.com>,
+	linuxppc-dev@lists.ozlabs.org,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Ingo Molnar <mingo@redhat.com>,
+	Vincent Guittot <vincent.guittot@linaro.org>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Mel Gorman <mgorman@suse.de>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Joel Fernandes <joelagnelf@nvidia.com>,
+	"Paul E . McKenney" <paulmck@kernel.org>,
+	Neeraj Upadhyay <neeraj.upadhyay@kernel.org>,
+	Anna-Maria Behnsen <anna-maria@linutronix.de>,
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+	Juri Lelli <juri.lelli@redhat.com>,
+	Uladzislau Rezki <urezki@gmail.com>,
+	Viresh Kumar <viresh.kumar@linaro.org>,
+	Kieran Bingham <kbingham@kernel.org>,
+	Xin Zhao <jackzxcui1989@163.com>,
+	linux-s390@vger.kernel.org,
+	Heiko Carstens <hca@linux.ibm.com>
+Subject: [PATCH 00/15 v4] tick/sched: Refactor idle cputime accounting
+Date: Fri,  8 May 2026 15:16:32 +0200
+Message-ID: <20260508131647.43868-1-frederic@kernel.org>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTA4MDEzNiBTYWx0ZWRfX+E+dYpv64FxU
- mllZkS2TnA+/w+Bapd42mcMurrpBz2rLq6U81Ts7v6FH3eDgySGwEodOpGqbM89maacOruKEtPc
- ctRwm7ypM/9Ookl27eMZHKHU2lhNgPw3EOVeDICw2JCO1QfreFSKvqDQgR2AgCN5WUliW1hNULI
- kXWkYuyioWSBOiC8cHoFoiY72/M0ftA4jTkk1+qplidcCPsPwpIfnEIyglTqFT9XCJUmJQmQKNy
- mVXgapZrQpHh8aeO/1YZfGpFxDHbrGNkXwTh2tsEl7LtTAFbpL97EOlUf09NjLTmd9CqTOsf9dU
- nVnsrUf9HkJ4ckyDxKLjbh9pnQu/MozVTIGU8loV4eBLBb29iGzv4MY8DM6XzrZTgw2uLCgXthL
- gFLFMIafIqVdii+Xk5rDqOzehcDOZtZW2Vvw0xIEob65lqGVCuLhjCfaaqKcN659gAnoCjunXYe
- AI1maRAnty0TK/DsrhA==
-X-Proofpoint-GUID: eYBVaZe1vQyDAXhlrSyLS6dIPjMsYYbX
-X-Proofpoint-ORIG-GUID: eYBVaZe1vQyDAXhlrSyLS6dIPjMsYYbX
-X-Authority-Analysis: v=2.4 cv=eu/vCIpX c=1 sm=1 tr=0 ts=69fde040 cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=IkcTkHD0fZMA:10 a=NGcC8JguVDcA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=Jmiu7mG_WmB9V10SlMQA:9
- a=QEXdDO2ut3YA:10
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-05-07_02,2026-05-06_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 phishscore=0 lowpriorityscore=0 clxscore=1015 adultscore=0
- suspectscore=0 malwarescore=0 bulkscore=0 impostorscore=0 spamscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2604200000 definitions=main-2605080136
+Content-Transfer-Encoding: 8bit
 
-On Fri, 2026-05-08 at 12:07 +0200, Christian Borntraeger wrote:
-> Am 07.05.26 um 22:08 schrieb Eric Farman:
-> > Claudio, et al,
-> >=20
-> > Here's an update to the USER_OPEREXEC patch I'd sent the other day.
-> > Besides the addition of Claudio's r-b (thank you!), Patch 1 is identica=
-l.
-> >=20
-> > Patch 2 contains a couple of new selftests. As it stands, they all run
-> > with patch 1 applied, but I put the failing test at the end for if
-> > Patch 1 is missing.
-> >=20
-> > Patch 3 is unrelated, but is a minor typo I stumbled on yesterday while
-> > looking at this. It seems small enough that a second `git send-email`
-> > command seems unnecessary. :)
-> >=20
-> > Eric Farman (3):
-> >    KVM: s390: Toggle operation exception for userspace
-> >    KVM: s390: selftests: Extended user_operexec tests
-> >    KVM: s390: Fix typo in UCONTROL documentation
-> >=20
-> >   Documentation/virt/kvm/api.rst                |   2 +-
-> >   arch/s390/kvm/kvm-s390.c                      |   3 +-
-> >   .../selftests/kvm/include/s390/facility.h     |   6 +
-> >   .../selftests/kvm/s390/user_operexec.c        | 110 +++++++++++++++++=
-+
-> >   4 files changed, 119 insertions(+), 2 deletions(-)
-> >=20
->=20
-> Independent from this series (which makes sense on its own)
-> shouldnt we add another fixup so that we send these kernel injects also t=
-o userspace?
->=20
+Hi,
 
-Hrm, that's a reasonable idea for the ones in priv.c (intercept.c are alrea=
-dy covered, see below).
-I'll see if I can find a way to unify (and test) them.
+After the issue reported here:
 
->=20
-> git grep PGM_OPERATION linux/master arch/s390/kvm/
-> linux/master:arch/s390/kvm/intercept.c:         return kvm_s390_inject_pr=
-ogram_int(vcpu, PGM_OPERATION);
+        https://lore.kernel.org/all/20251210083135.3993562-1-jackzxcui1989@163.com/
 
-This is handle_sthyi(), called by handle_operexc(), if stfle.74 is not pres=
-ent.
+It occurs that the idle cputime accounting is a big mess that
+accumulates within two concurrent statistics, each having their own
+shortcomings:
 
-> linux/master:arch/s390/kvm/intercept.c: return kvm_s390_inject_program_in=
-t(vcpu, PGM_OPERATION);
+* The accounting for online CPUs which is based on the delta between
+  tick_nohz_start_idle() and tick_nohz_stop_idle().
 
-This is handle_operexc(), if neither user_instr0 nor user_operexec are pres=
-ent.
+  Pros:
+       - Works when the tick is off
 
-> linux/master:arch/s390/kvm/priv.c:              return kvm_s390_inject_pr=
-ogram_int(vcpu, PGM_OPERATION);
-> linux/master:arch/s390/kvm/priv.c:              return kvm_s390_inject_pr=
-ogram_int(vcpu, PGM_OPERATION);
-> linux/master:arch/s390/kvm/priv.c:              return kvm_s390_inject_pr=
-ogram_int(vcpu, PGM_OPERATION);
-> linux/master:arch/s390/kvm/priv.c:              return kvm_s390_inject_pr=
-ogram_int(vcpu, PGM_OPERATION);
-> linux/master:arch/s390/kvm/priv.c:              return kvm_s390_inject_pr=
-ogram_int(vcpu, PGM_OPERATION)
+       - Has nsecs granularity
+
+  Cons:
+       - Account idle steal time but doesn't substract it from idle
+         cputime.
+
+       - Assumes CONFIG_IRQ_TIME_ACCOUNTING by not accounting IRQs but
+         the IRQ time is simply ignored when
+         CONFIG_IRQ_TIME_ACCOUNTING=n
+
+       - The windows between 1) idle task scheduling and the first call
+         to tick_nohz_start_idle() and 2) idle task between the last
+         tick_nohz_stop_idle() and the rest of the idle time are
+         blindspots wrt. cputime accounting (though mostly insignificant
+         amount)
+
+       - Relies on private fields outside of kernel stats, with specific
+         accessors.
+
+* The accounting for offline CPUs which is based on ticks and the
+  jiffies delta during which the tick was stopped.
+
+  Pros:
+       - Handles steal time correctly
+
+       - Handle CONFIG_IRQ_TIME_ACCOUNTING=y and
+         CONFIG_IRQ_TIME_ACCOUNTING=n correctly.
+
+       - Handles the whole idle task
+
+       - Accounts directly to kernel stats, without midlayer accumulator.
+
+   Cons:
+       - Doesn't elapse when the tick is off, which doesn't make it
+         suitable for online CPUs.
+
+       - Has TICK_NSEC granularity (jiffies)
+
+       - Needs to track the dyntick-idle ticks that were accounted and
+         substract them from the total jiffies time spent while the tick
+         was stopped. This is an ugly workaround.
+
+Having two different accounting for a single context is not the only
+problem: since those accountings are of different natures, it is
+possible to observe the global idle time going backward after a CPU goes
+offline, as reported by Xin Zhao.
+
+Clean up the situation with introducing a hybrid approach that stays
+coherent, fixes the backward jumps and works for both online and offline
+CPUs:
+
+* Tick based or native vtime accounting operate before the tick is
+  stopped and resumes once the tick is restarted.
+
+* When the idle loop starts, switch to dynticks-idle accounting as is
+  done currently, except that the statistics accumulate directly to the
+  relevant kernel stat fields.
+
+* Private dyntick cputime accounting fields are removed.
+
+* Works on both online and offline case.
+
+* Move most of the relevant code to the common sched/cputime subsystem
+
+* Handle CONFIG_IRQ_TIME_ACCOUNTING=n correctly such that the
+  dynticks-idle accounting still elapses while on IRQs.
+
+* Correctly substract idle steal cputime from idle time
+
+Changes since v3 (among which a lot of relevant reviews from Sashiko):
+
+- Add new tags
+
+- Rebase on latest -rc1
+
+- Add "tick/sched: Fix TOCTOU in nohz idle time fetch" (Sashiko)
+
+- Fix buggy state refetch in kcpustat_cpu_fetch_vtime() (Sashiko)
+
+- Fix build issue on powerpc (Christophe Leroy)
+
+- Fix s390 lost steal time occuring on idle IRQs (call vtime_flush() on
+  vtime_account_hardirq() and vtime_account_softirq()) (Sashiko)
+
+- Fix build issue on s390
+
+- Fix uninitialized idle_sleeptime_seq (Sashiko)
+
+- Fix irqtime being disabled or enabled in the middle of an idle IRQ
+  (Sashiko)
+  
+- Fix tick restart and then restop in the same idle loop (Sashiko)
+
+- Fix "sched/cputime: Handle idle irqtime gracefully" changelog (Sashiko)
+
+- Fix idle steal time substracted from the wrong index between idle and
+  iowait kcpustat. (Sashiko)
+
+git://git.kernel.org/pub/scm/linux/kernel/git/frederic/linux-dynticks.git
+	timers/core-v4
+
+HEAD: e64ba052ce04e363ff76d3cb8bedc5f812188acb
+Thanks,
+	Frederic
+---
+
+Frederic Weisbecker (15):
+      tick/sched: Fix TOCTOU in nohz idle time fetch
+      sched/idle: Handle offlining first in idle loop
+      sched/cputime: Remove superfluous and error prone kcpustat_field() parameter
+      sched/cputime: Correctly support generic vtime idle time
+      powerpc/time: Prepare to stop elapsing in dynticks-idle
+      s390/time: Prepare to stop elapsing in dynticks-idle
+      tick/sched: Unify idle cputime accounting
+      tick/sched: Remove nohz disabled special case in cputime fetch
+      tick/sched: Move dyntick-idle cputime accounting to cputime code
+      tick/sched: Remove unused fields
+      tick/sched: Account tickless idle cputime only when tick is stopped
+      tick/sched: Consolidate idle time fetching APIs
+      sched/cputime: Provide get_cpu_[idle|iowait]_time_us() off-case
+      sched/cputime: Handle idle irqtime gracefully
+      sched/cputime: Handle dyntick-idle steal time correctly
+
+ arch/powerpc/kernel/time.c         |  41 +++++
+ arch/s390/include/asm/idle.h       |   2 +
+ arch/s390/kernel/idle.c            |   5 +-
+ arch/s390/kernel/vtime.c           |  75 ++++++++-
+ drivers/cpufreq/cpufreq.c          |  29 +---
+ drivers/cpufreq/cpufreq_governor.c |   6 +-
+ drivers/macintosh/rack-meter.c     |   2 +-
+ fs/proc/stat.c                     |  40 +----
+ fs/proc/uptime.c                   |   8 +-
+ include/linux/kernel_stat.h        |  76 +++++++--
+ include/linux/tick.h               |   4 -
+ include/linux/vtime.h              |  22 ++-
+ kernel/rcu/tree.c                  |   9 +-
+ kernel/rcu/tree_stall.h            |   7 +-
+ kernel/sched/core.c                |   6 +-
+ kernel/sched/cputime.c             | 308 +++++++++++++++++++++++++++++++------
+ kernel/sched/idle.c                |  13 +-
+ kernel/time/tick-sched.c           | 212 ++++++-------------------
+ kernel/time/tick-sched.h           |  12 --
+ kernel/time/timer_list.c           |   6 +-
+ scripts/gdb/linux/timerlist.py     |   4 -
+ 21 files changed, 529 insertions(+), 358 deletions(-)
