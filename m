@@ -1,127 +1,166 @@
-Received: from mail-wr1-f54.google.com (mail-wr1-f54.google.com [209.85.221.54])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E449C140E5F
-	for <linux-s390@vger.kernel.org>; Fri,  8 May 2026 12:35:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 487101F8691;
+	Fri,  8 May 2026 13:08:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778243740; cv=none; b=n5Ef1/GFUAvwh2pg/+1uAigDEIUfI9tCgDvS6P/Bq8/JmNS7WXPnWf/cX/D0WDDIuv7/jlH0+2lGWENK+OmGruhGEDRbVPNPNJs9g/OkhoOy2KCQMBnd7u60V+7TaNISS0rqOvEKxN7MOQ9DE71BBmHhJoV8A9Y64ndbH6239VQ=
+	t=1778245700; cv=none; b=QNmjertwiYe8t7OobBFwHXwODbd2aHcbNk942ENWamDLJztKDzN7DhYHxPj7KkPiNqMD4dyA/SkTvpkOSCHR9liDLyG+qFEfgwisxToMircYZcGG/aN7R7HI+9DX41SykwLBmBMPx8sLeOMGv815SufNmB0i87/BZ6w67EBpKMY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778243740; c=relaxed/simple;
-	bh=3Zu2cnydmPT5amHK0mlDyIk6+Q04rwpN1ccSaHEZyB0=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=YOFhKCPYPxiQXPUe9ifPOwEVuOihv8dE41LApAvpxgakdrUHfdWMoFRYG9034SeNlxCSnG0HNj2KOVeJ0gxYojUn7HWYcN0Lflqbr/Y3UkJLzBQBPQWIDOi9mFyPjFA7tL34HUW5JXfzEGIJemE2G30eyAvSx0f4/4Mi12aDak4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TnfrPh9y; arc=none smtp.client-ip=209.85.221.54
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1778245700; c=relaxed/simple;
+	bh=ITYGj1EjPgggdECL7+NWLs5KvF5gFyktyuXpGKgy1WA=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=X7E4OAllILL95lqf5JSzcL9scGXhkrwmQ5rW0kpt5c+vAlGACz9spLICzUswxAC2ZVGQZGdbPc3hUHV7jsQHt4+n9G8fZi5/rpCkwKK9sYDAUEjkLHfFV54PHCbHhVf65+MxYvlzdVHfeEk9fiYne8g/EHHOBD9uFmLZuWSa0dc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=iNwJSew/; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TnfrPh9y"
-Received: by mail-wr1-f54.google.com with SMTP id ffacd0b85a97d-44c4cc7c1cfso1612186f8f.0
-        for <linux-s390@vger.kernel.org>; Fri, 08 May 2026 05:35:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1778243737; x=1778848537; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :sender:from:to:cc:subject:date:message-id:reply-to;
-        bh=3Zu2cnydmPT5amHK0mlDyIk6+Q04rwpN1ccSaHEZyB0=;
-        b=TnfrPh9yZubgk1mnXllvHhfkdJLmAsJQeGu2ne9xitVgo8JlonXngG/yoyN/yGfwgj
-         9RVVI0adGpz5r3a4DVsrNwAozWlimMo/xZFirZIUIwaTmqLTXSMKgXgg0X041Y4c+VIt
-         Fh4bADrYsfYVg9mFHit1neDjMd+AQgP+fDqD9itPZ/9UXRMuLwfVX36Z031PjGYrBGX2
-         dfqO8nxyc8DBNFunBT1s7ptRqDImrfnx9Bo24wd9gOfa1DscrXuoqbJdj4IzKp92Q40K
-         w2PwZrzokqHhjAI3MKpwYar8b/5W2X99uJllyWLcWl8ccSnA/oP70iZRNZZjNyTbvlJ6
-         M/+Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778243737; x=1778848537;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :sender:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=3Zu2cnydmPT5amHK0mlDyIk6+Q04rwpN1ccSaHEZyB0=;
-        b=Oaz7oT3srNLjgFUpR1JdZWbidNzyTSR+T1OrvYOj3kda/+EhmkBAPl9n6IV7Ms1sk/
-         JU76Ks01+ao0UYucXOCrm4ESTjWjjR8aprmAAAO4kM3o21db1S/m8ljUM0VOt0vsCUUL
-         xiQBjubNAMjBSftDYndf/xFHKNWtMqKyJ4md9CJMAzB/SL0I48ZLulfpefm27mdlp0jW
-         KjwFEsbNJ4DmKHUJQlHykcC9B8o37Y3djfQbz7fcX1eyq0EGnu8l4EcTJpH+UCyux1+i
-         3dWzNu28EJbwtT1WjzApfSMC7YqPa1OX6Jljxx6ds/TVlTCYuUjL0/P+qQ4ESYAD4Fqc
-         A2wQ==
-X-Forwarded-Encrypted: i=1; AFNElJ8bXG3TrrrSvpOMvd5joedlKqxjIzfb82kZaDSRR6uLXsgcij51A2LddT3qJmVxY0EueSl1ajQ7/HFq@vger.kernel.org
-X-Gm-Message-State: AOJu0YxjSWU0plMUNfAmCF6qYBUEzzn5DHIlVMjTbzRMmmjw88yGbDm8
-	CzeAdM04amGe/6Vam7G5kNANvh/6MYaMeI2b7KVx6MkM7L51aDwqxoJw
-X-Gm-Gg: Acq92OHN6Pp44BvTjyVdf+Ztz25s8aPPS7fyVedvM7HfOEvHLQNSFmyT7Wt9cm2Iq5R
-	/RAioXQNDkYWrESgM/evusVBB0sOGZvwBm+/wUK0dFIH7+owmtjehl92HtvojjSnc4JhjG0aI1b
-	G9o2Ou4+LNSRSNXumedIPSbSDcTqxs7CCT4PfqLCS3X6mKwxrmbtHCt7ZGbitFrDd/4ucLW/ne5
-	8KfyUoCx7PY89EnNmXvIIKneqSdrogyt7vAqwinLtVrSgx9MWuW/iGShVmsPp3G00/LXyDp0MP/
-	BSm2LX2gZFQ/TbLzpFe2ufo/yBLX88H5cm96d61Pn0banrveenMoRZDeLpLekBgB+dzGUmBtKwT
-	WYVAVdIhTSWtcBRw3wjTfjUhr948HOR7OH6qrEFoGjfguQ1k2qW0PDzd8BRcxt/8fk2AM8hxymK
-	ikt0g8HiufqaGlE5qJhVo554qi8GRoJJbthsNY4s/QWuRAgfgrgvxG2YUc3t4=
-X-Received: by 2002:a05:6000:2011:b0:43e:a69b:d814 with SMTP id ffacd0b85a97d-4515d008849mr20607094f8f.28.1778243736925;
-        Fri, 08 May 2026 05:35:36 -0700 (PDT)
-Received: from [10.128.10.158] (195-23-151-163.net.novis.pt. [195.23.151.163])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-45491cab9c2sm4454377f8f.31.2026.05.08.05.35.34
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 08 May 2026 05:35:36 -0700 (PDT)
-Sender: Julian Braha <julian.braha@gmail.com>
-Message-ID: <27bc3de0-7006-4ced-a53c-9fb0d3e760f9@gmail.com>
-Date: Fri, 8 May 2026 13:35:34 +0100
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="iNwJSew/"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 648124QG2805903;
+	Fri, 8 May 2026 13:08:17 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=EJBZh8
+	NphQAerlQeRvJ0i9+Rxs6rH3UaZ+wSL42Cy6c=; b=iNwJSew/Qu/2PeeoxyTXV1
+	WxzWegktzeQR3exKGrehb9LMHwlI+xsBuGvTrCPliZrOQGrVWZuExtigzy9vUNX9
+	NJhrNQqufSJ+jF6wUNvP3Mj7xbqOHkJ2OV/WLxaNu68qGNeq9bWlzB1A4EoCQ/BZ
+	I58ovpYS6q4BECfbXeBwa0lFVf1hxynttKUGky1mc6RmSmAC5eG0V6lV5PGXLRGC
+	+erZqhD9QKVJ1QTGZ2bHYk6YwYkyjTx1kv38Zp/3fQTND1QAkTTAa2dVEJGKzEH+
+	rkHTWKVLSIDOSCj6M1Aiu0OJoZAhVPBxLX7Na7HlwsqVCzqAknka+2V/Dc+PHcCw
+	==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4dw9v7uu37-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 08 May 2026 13:08:16 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 648CdcOY018067;
+	Fri, 8 May 2026 13:08:16 GMT
+Received: from smtprelay07.dal12v.mail.ibm.com ([172.16.1.9])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4dwwtgr32m-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 08 May 2026 13:08:16 +0000 (GMT)
+Received: from smtpav05.dal12v.mail.ibm.com (smtpav05.dal12v.mail.ibm.com [10.241.53.104])
+	by smtprelay07.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 648D8F8t28705444
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 8 May 2026 13:08:15 GMT
+Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 2FE1758052;
+	Fri,  8 May 2026 13:08:15 +0000 (GMT)
+Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 775245805D;
+	Fri,  8 May 2026 13:08:14 +0000 (GMT)
+Received: from li-479af74c-31f9-11b2-a85c-e4ddee11713b.ibm.com (unknown [9.61.111.34])
+	by smtpav05.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Fri,  8 May 2026 13:08:14 +0000 (GMT)
+Message-ID: <66f7c47f9931bfc9be47c7f6d02861bd3f3f37e8.camel@linux.ibm.com>
+Subject: Re: [PATCH v2 0/3] KVM: s390: Toggle operation exception for
+ userspace
+From: Eric Farman <farman@linux.ibm.com>
+To: Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank
+	 <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David
+ Hildenbrand <david@kernel.org>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org
+Date: Fri, 08 May 2026 09:08:14 -0400
+In-Reply-To: <1ac58dd8-1b06-42b5-9a19-67620b4fdc25@linux.ibm.com>
+References: <20260507200836.3500368-1-farman@linux.ibm.com>
+	 <1ac58dd8-1b06-42b5-9a19-67620b4fdc25@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.58.3 (3.58.3-1.fc43) 
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RESEND PATCH] s390: fix dead defaults for
- S390_MODULES_SANITY_TEST and S390_UNWIND_SELFTEST
-To: Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: gor@linux.ibm.com, hca@linux.ibm.com, iii@linux.ibm.com,
- meted@linux.ibm.com, borntraeger@linux.ibm.com, svens@linux.ibm.com,
- akpm@linux-foundation.org, linux-s390@vger.kernel.org,
- linux-kernel@vger.kernel.org
-References: <20260414215651.151228-1-julianbraha@gmail.com>
- <a3adc8e8-ce4c-458c-a0c8-c0e66078589d-agordeev@linux.ibm.com>
- <b3dba59d-22cc-4404-8876-8fd4e22021b5@gmail.com>
- <3ec20142-09d1-436f-a623-21a2440ef7f0-agordeev@linux.ibm.com>
- <cffeec5e-068c-4562-98ef-f65e346dff3c@gmail.com>
- <5bd572e5-78c6-4f6e-ba95-4e79a8ef8341-agordeev@linux.ibm.com>
-Content-Language: en-US
-From: Julian Braha <julianbraha@gmail.com>
-In-Reply-To: <5bd572e5-78c6-4f6e-ba95-4e79a8ef8341-agordeev@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTA4MDEzNiBTYWx0ZWRfX+E+dYpv64FxU
+ mllZkS2TnA+/w+Bapd42mcMurrpBz2rLq6U81Ts7v6FH3eDgySGwEodOpGqbM89maacOruKEtPc
+ ctRwm7ypM/9Ookl27eMZHKHU2lhNgPw3EOVeDICw2JCO1QfreFSKvqDQgR2AgCN5WUliW1hNULI
+ kXWkYuyioWSBOiC8cHoFoiY72/M0ftA4jTkk1+qplidcCPsPwpIfnEIyglTqFT9XCJUmJQmQKNy
+ mVXgapZrQpHh8aeO/1YZfGpFxDHbrGNkXwTh2tsEl7LtTAFbpL97EOlUf09NjLTmd9CqTOsf9dU
+ nVnsrUf9HkJ4ckyDxKLjbh9pnQu/MozVTIGU8loV4eBLBb29iGzv4MY8DM6XzrZTgw2uLCgXthL
+ gFLFMIafIqVdii+Xk5rDqOzehcDOZtZW2Vvw0xIEob65lqGVCuLhjCfaaqKcN659gAnoCjunXYe
+ AI1maRAnty0TK/DsrhA==
+X-Proofpoint-GUID: eYBVaZe1vQyDAXhlrSyLS6dIPjMsYYbX
+X-Proofpoint-ORIG-GUID: eYBVaZe1vQyDAXhlrSyLS6dIPjMsYYbX
+X-Authority-Analysis: v=2.4 cv=eu/vCIpX c=1 sm=1 tr=0 ts=69fde040 cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+ a=IkcTkHD0fZMA:10 a=NGcC8JguVDcA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=Jmiu7mG_WmB9V10SlMQA:9
+ a=QEXdDO2ut3YA:10
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-05-07_02,2026-05-06_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ priorityscore=1501 phishscore=0 lowpriorityscore=0 clxscore=1015 adultscore=0
+ suspectscore=0 malwarescore=0 bulkscore=0 impostorscore=0 spamscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2604200000 definitions=main-2605080136
 
-On 5/8/26 12:22, Alexander Gordeev wrote:
-> I could not recreate it. Could you please provide the exact steps?
+On Fri, 2026-05-08 at 12:07 +0200, Christian Borntraeger wrote:
+> Am 07.05.26 um 22:08 schrieb Eric Farman:
+> > Claudio, et al,
+> >=20
+> > Here's an update to the USER_OPEREXEC patch I'd sent the other day.
+> > Besides the addition of Claudio's r-b (thank you!), Patch 1 is identica=
+l.
+> >=20
+> > Patch 2 contains a couple of new selftests. As it stands, they all run
+> > with patch 1 applied, but I put the failing test at the end for if
+> > Patch 1 is missing.
+> >=20
+> > Patch 3 is unrelated, but is a minor typo I stumbled on yesterday while
+> > looking at this. It seems small enough that a second `git send-email`
+> > command seems unnecessary. :)
+> >=20
+> > Eric Farman (3):
+> >    KVM: s390: Toggle operation exception for userspace
+> >    KVM: s390: selftests: Extended user_operexec tests
+> >    KVM: s390: Fix typo in UCONTROL documentation
+> >=20
+> >   Documentation/virt/kvm/api.rst                |   2 +-
+> >   arch/s390/kvm/kvm-s390.c                      |   3 +-
+> >   .../selftests/kvm/include/s390/facility.h     |   6 +
+> >   .../selftests/kvm/s390/user_operexec.c        | 110 +++++++++++++++++=
++
+> >   4 files changed, 119 insertions(+), 2 deletions(-)
+> >=20
+>=20
+> Independent from this series (which makes sense on its own)
+> shouldnt we add another fixup so that we send these kernel injects also t=
+o userspace?
+>=20
 
-Sure, here are the exact commands I ran to reproduce for
-S390_UNWIND_SELFTEST. Note that I'm on x86-64 and cross-compiling for
-s390:
+Hrm, that's a reasonable idea for the ones in priv.c (intercept.c are alrea=
+dy covered, see below).
+I'll see if I can find a way to unify (and test) them.
 
-1. Start from a minimal configuration:
-'make ARCH=s390 CROSS_COMPILE=s390x-unknown-linux-gnu- allnoconfig'
+>=20
+> git grep PGM_OPERATION linux/master arch/s390/kvm/
+> linux/master:arch/s390/kvm/intercept.c:         return kvm_s390_inject_pr=
+ogram_int(vcpu, PGM_OPERATION);
 
-2. Enter menuconfig:
-'make ARCH=s390 CROSS_COMPILE=s390x-unknown-linux-gnu- menuconfig'
+This is handle_sthyi(), called by handle_operexc(), if stfle.74 is not pres=
+ent.
 
-3. Set CONFIG_KUNIT=y
+> linux/master:arch/s390/kvm/intercept.c: return kvm_s390_inject_program_in=
+t(vcpu, PGM_OPERATION);
 
-4. Set CONFIG_KUNIT_ALL_TESTS=y
+This is handle_operexc(), if neither user_instr0 nor user_operexec are pres=
+ent.
 
-5. Check '.config', and see that S390_UNWIND_SELFTEST is still disabled
-
-The steps to reproduce for S390_MODULES_SANITY_TEST are the same, but
-you also need to enable MODULES because of the additional dependency.
-
-> I do appreciate your effort to bring a new tool! But unless it is part
-> of
-> the toolchain it shold not be referred to in a commit message as far as
-> I am concerned. IOW, once it is in the tree, it is fine to mention it:
-
-Thanks :)
-Separately, I checked with Greg, and he says that:
-1. it is a requirement to acknowledge tool usage, but
-2. this patch (and others like it) shouldn't have the Fixes tag.
-
-So I will resubmit this patch without "Fixes", but still acknowledging
-the tool, see also:
-https://lore.kernel.org/all/2026050728-construct-tingle-0852@gregkh/
-
-- Julian Braha
+> linux/master:arch/s390/kvm/priv.c:              return kvm_s390_inject_pr=
+ogram_int(vcpu, PGM_OPERATION);
+> linux/master:arch/s390/kvm/priv.c:              return kvm_s390_inject_pr=
+ogram_int(vcpu, PGM_OPERATION);
+> linux/master:arch/s390/kvm/priv.c:              return kvm_s390_inject_pr=
+ogram_int(vcpu, PGM_OPERATION);
+> linux/master:arch/s390/kvm/priv.c:              return kvm_s390_inject_pr=
+ogram_int(vcpu, PGM_OPERATION);
+> linux/master:arch/s390/kvm/priv.c:              return kvm_s390_inject_pr=
+ogram_int(vcpu, PGM_OPERATION)
