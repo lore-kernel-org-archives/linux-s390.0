@@ -1,31 +1,31 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5CD0C37F00C;
-	Fri,  8 May 2026 13:17:23 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3A5FA3E274C;
+	Fri,  8 May 2026 13:17:31 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778246243; cv=none; b=EjUGvNr+43spF0VAUPf6CJ68xEPTe6kUysZyyiXfc0C7b6edA1JDIebq92lf+IEfoZWt94p9AVxHhEc02D/ZmHZ+pvc4RviaN5ekiBJZOqBOLqALN5r1tnp9yAoCDQH+TDOG19wGq8oeyinHm6VxTwD+XtE3WI+UrQI8wcXMZZ0=
+	t=1778246252; cv=none; b=KUDObska/Eo8NS+tYJEHkejxAbrAfTofOWf8/SnMadW+UDAlCYbbpdjKqdOqOlco1e1v8XSnUwR+15pIlGOo1mQeKxLI+rM9WVeI2eJRLoe3UAOfrghSqEXMX5Wzw5ySfQAP5NHb7G8zI3a/sBtty3zdlcnTy+QfJD/OSfVSu50=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778246243; c=relaxed/simple;
-	bh=UeCeMdJXLMsqcLiyE7L6BjEm2BBFQStG53xrIqv/KCw=;
+	s=arc-20240116; t=1778246252; c=relaxed/simple;
+	bh=DuIrzTdqfwYdjGcSnL/bgQqtrGTM3ykPIwoij6LiEs0=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=rn3lWF/nIc+0LjZMTeeMn/jrQNfpZswQpz3QoaI3yJ3xe5XNpmhgyItH75+JQOAhDYa96msrcrRTjDI8IYAS9baKC9YrfsAhFaShjL/7RMdHRlPgRSmWl9l3ikrN7auImU0pO77UQkTHri+oUQQ0Xyi5VcYCZHEqFFMEiXbljCY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HWkHfw6j; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version; b=Oc221+L+5dKg938X15XWJ9LkIlyjOpBoF7FJ3s7+D9A5m7nJLAtgfEBsraRvD7ikOqQ9KRxf9NCON7H1qqlJjiU76dglA5v5OrzaEZTjJk50B3EXFIBHGmzf1CGRQOWQfP39GQKFuJo+qtqVqEogncRQBSeSBquQTmuK+L9309g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Z1Xg8Xas; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HWkHfw6j"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 985AFC2BCC7;
-	Fri,  8 May 2026 13:17:15 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Z1Xg8Xas"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AFCCBC2BCB8;
+	Fri,  8 May 2026 13:17:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1778246243;
-	bh=UeCeMdJXLMsqcLiyE7L6BjEm2BBFQStG53xrIqv/KCw=;
+	s=k20201202; t=1778246251;
+	bh=DuIrzTdqfwYdjGcSnL/bgQqtrGTM3ykPIwoij6LiEs0=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=HWkHfw6jK75cNMzAAZKQ5+/l6MQMArstvk7RP/tFCMfz1+R6CNXzwQ3L0ZyjukjaW
-	 0uyIzp+bWzVXPIlYleMk1IZZD7hH0tto03sYlMgkIkkouJZt7q9EatrTk/zPWIdMq2
-	 NihSRoDrT0G0J7hUFIithGrluCdjOPrWuIJyxPvZVeAZHZpJJFDYPkIUFJ+5LaAPEA
-	 4HiPOFmjN8qjLPKmjUuPfz+KrRUCy11VGrzeX571pG2Wrc/Ql8CU5O0Y2ldbRSTgKK
-	 xyPyr6dHzCFJb7Bcu1S9kcPxV2uY4hoIYSRtyG8CBqKhj51y1CXnCOZA2CKC6q4tty
-	 wyUJbfcdYY/Vg==
+	b=Z1Xg8Xas7U7pZjqTsNluqtgPnrIyqHsgTonVSRQ8o3HYmfxVWjIIVIfNTL1SaQrUD
+	 BgsappcmDyrHUhD2uaYYzpPqBxqXmpXEeV94p6jykhuk1r6TDaeFB4aZKwrumeu0ac
+	 vDAiO6epvEoStnyXEEBCAeWvV+UIBWtGoMIJbsj6JK/v9mEHp23VTDpIZxSNzXsXsw
+	 nF0xoa/I/hOHytyFrsDRrJ5qpTHJT5uGJvLwNkhSJCy+wJuwG8NkApACLs+l1kRDat
+	 0pObi9UjDA+xOSOH4SxmzFH2s0zccm7PB7Mf5ckfaorFAujB9wbNxSLGaG4BPhDZQ7
+	 3+ReX095trunA==
 From: Frederic Weisbecker <frederic@kernel.org>
 To: LKML <linux-kernel@vger.kernel.org>
 Cc: Frederic Weisbecker <frederic@kernel.org>,
@@ -65,9 +65,9 @@ Cc: Frederic Weisbecker <frederic@kernel.org>,
 	linux-pm@vger.kernel.org,
 	linux-s390@vger.kernel.org,
 	linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH 02/15] sched/idle: Handle offlining first in idle loop
-Date: Fri,  8 May 2026 15:16:34 +0200
-Message-ID: <20260508131647.43868-3-frederic@kernel.org>
+Subject: [PATCH 03/15] sched/cputime: Remove superfluous and error prone kcpustat_field() parameter
+Date: Fri,  8 May 2026 15:16:35 +0200
+Message-ID: <20260508131647.43868-4-frederic@kernel.org>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260508131647.43868-1-frederic@kernel.org>
 References: <20260508131647.43868-1-frederic@kernel.org>
@@ -79,70 +79,156 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Offline handling happens from within the inner idle loop,
-after the beginning of dyntick cputime accounting, nohz idle
-load balancing and TIF_NEED_RESCHED polling.
+The first parameter to kcpustat_field() is a pointer to the cpu kcpustat
+to be fetched from. This parameter is error prone because a copy to a
+kcpustat could be passed by accident instead of the original one. Also
+the kcpustat structure can already be retrieved with the help of the
+mandatory CPU argument.
 
-This is not necessary and even buggy because:
+Remove the needless parameter.
 
-* There is no dyntick handling to do. And calling tick_nohz_idle_enter()
-  messes up with the struct tick_sched reset that was performed on
-  tick_sched_timer_dying().
-
-* There is no nohz idle balancing to do.
-
-* Polling on TIF_RESCHED is irrelevant at this stage, there are no more
-  tasks allowed to run.
-
-* No need to check if need_resched() before offline handling since
-  stop_machine is done and all per-cpu kthread should be done with
-  their job.
-
-Therefore move the offline handling at the beginning of the idle loop.
-This will also ease the idle cputime unification later by not elapsing
-idle time while offline through the call to:
-
-	tick_nohz_idle_enter() -> tick_nohz_start_idle()
-
-Reviewed-by: Rafael J. Wysocki (Intel) <rafael@kernel.org>
+Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
 Reviewed-by: Shrikanth Hegde <sshegde@linux.ibm.com>
 Tested-by: Shrikanth Hegde <sshegde@linux.ibm.com>
-Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
 ---
- kernel/sched/idle.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ drivers/cpufreq/cpufreq_governor.c | 6 +++---
+ drivers/macintosh/rack-meter.c     | 2 +-
+ include/linux/kernel_stat.h        | 8 +++-----
+ kernel/rcu/tree.c                  | 9 +++------
+ kernel/rcu/tree_stall.h            | 7 +++----
+ kernel/sched/cputime.c             | 5 ++---
+ 6 files changed, 15 insertions(+), 22 deletions(-)
 
-diff --git a/kernel/sched/idle.c b/kernel/sched/idle.c
-index a83be0c834dd..aa7e3dc59856 100644
---- a/kernel/sched/idle.c
-+++ b/kernel/sched/idle.c
-@@ -280,6 +280,14 @@ static void do_idle(void)
- 	int cpu = smp_processor_id();
- 	bool got_tick = false;
+diff --git a/drivers/cpufreq/cpufreq_governor.c b/drivers/cpufreq/cpufreq_governor.c
+index 86f35e451914..3c4a1f9af3ae 100644
+--- a/drivers/cpufreq/cpufreq_governor.c
++++ b/drivers/cpufreq/cpufreq_governor.c
+@@ -105,7 +105,7 @@ void gov_update_cpu_data(struct dbs_data *dbs_data)
+ 			j_cdbs->prev_cpu_idle = get_cpu_idle_time(j, &j_cdbs->prev_update_time,
+ 								  dbs_data->io_is_busy);
+ 			if (dbs_data->ignore_nice_load)
+-				j_cdbs->prev_cpu_nice = kcpustat_field(&kcpustat_cpu(j), CPUTIME_NICE, j);
++				j_cdbs->prev_cpu_nice = kcpustat_field(CPUTIME_NICE, j);
+ 		}
+ 	}
+ }
+@@ -165,7 +165,7 @@ unsigned int dbs_update(struct cpufreq_policy *policy)
+ 		j_cdbs->prev_cpu_idle = cur_idle_time;
  
-+	if (cpu_is_offline(cpu)) {
-+		local_irq_disable();
-+		/* All per-CPU kernel threads should be done by now. */
-+		WARN_ON_ONCE(need_resched());
-+		cpuhp_report_idle_dead();
-+		arch_cpu_idle_dead();
-+	}
-+
- 	/*
- 	 * Check if we need to update blocked load
- 	 */
-@@ -331,11 +339,6 @@ static void do_idle(void)
- 		 */
- 		local_irq_disable();
+ 		if (ignore_nice) {
+-			u64 cur_nice = kcpustat_field(&kcpustat_cpu(j), CPUTIME_NICE, j);
++			u64 cur_nice = kcpustat_field(CPUTIME_NICE, j);
  
--		if (cpu_is_offline(cpu)) {
--			cpuhp_report_idle_dead();
--			arch_cpu_idle_dead();
--		}
+ 			idle_time += div_u64(cur_nice - j_cdbs->prev_cpu_nice, NSEC_PER_USEC);
+ 			j_cdbs->prev_cpu_nice = cur_nice;
+@@ -539,7 +539,7 @@ int cpufreq_dbs_governor_start(struct cpufreq_policy *policy)
+ 		j_cdbs->prev_load = 0;
+ 
+ 		if (ignore_nice)
+-			j_cdbs->prev_cpu_nice = kcpustat_field(&kcpustat_cpu(j), CPUTIME_NICE, j);
++			j_cdbs->prev_cpu_nice = kcpustat_field(CPUTIME_NICE, j);
+ 	}
+ 
+ 	gov->start(policy);
+diff --git a/drivers/macintosh/rack-meter.c b/drivers/macintosh/rack-meter.c
+index 8a1e2c08b096..26cb93191ede 100644
+--- a/drivers/macintosh/rack-meter.c
++++ b/drivers/macintosh/rack-meter.c
+@@ -87,7 +87,7 @@ static inline u64 get_cpu_idle_time(unsigned int cpu)
+ 		 kcpustat->cpustat[CPUTIME_IOWAIT];
+ 
+ 	if (rackmeter_ignore_nice)
+-		retval += kcpustat_field(kcpustat, CPUTIME_NICE, cpu);
++		retval += kcpustat_field(CPUTIME_NICE, cpu);
+ 
+ 	return retval;
+ }
+diff --git a/include/linux/kernel_stat.h b/include/linux/kernel_stat.h
+index b97ce2df376f..dd020ecaf67b 100644
+--- a/include/linux/kernel_stat.h
++++ b/include/linux/kernel_stat.h
+@@ -100,14 +100,12 @@ static inline unsigned long kstat_cpu_irqs_sum(unsigned int cpu)
+ }
+ 
+ #ifdef CONFIG_VIRT_CPU_ACCOUNTING_GEN
+-extern u64 kcpustat_field(struct kernel_cpustat *kcpustat,
+-			  enum cpu_usage_stat usage, int cpu);
++extern u64 kcpustat_field(enum cpu_usage_stat usage, int cpu);
+ extern void kcpustat_cpu_fetch(struct kernel_cpustat *dst, int cpu);
+ #else
+-static inline u64 kcpustat_field(struct kernel_cpustat *kcpustat,
+-				 enum cpu_usage_stat usage, int cpu)
++static inline u64 kcpustat_field(enum cpu_usage_stat usage, int cpu)
+ {
+-	return kcpustat->cpustat[usage];
++	return kcpustat_cpu(cpu).cpustat[usage];
+ }
+ 
+ static inline void kcpustat_cpu_fetch(struct kernel_cpustat *dst, int cpu)
+diff --git a/kernel/rcu/tree.c b/kernel/rcu/tree.c
+index 55df6d37145e..3cbf79bee976 100644
+--- a/kernel/rcu/tree.c
++++ b/kernel/rcu/tree.c
+@@ -969,14 +969,11 @@ static int rcu_watching_snap_recheck(struct rcu_data *rdp)
+ 		if (rcu_cpu_stall_cputime && rdp->snap_record.gp_seq != rdp->gp_seq) {
+ 			int cpu = rdp->cpu;
+ 			struct rcu_snap_record *rsrp;
+-			struct kernel_cpustat *kcsp;
 -
- 		arch_cpu_idle_enter();
- 		rcu_nocb_flush_deferred_wakeup();
+-			kcsp = &kcpustat_cpu(cpu);
  
+ 			rsrp = &rdp->snap_record;
+-			rsrp->cputime_irq     = kcpustat_field(kcsp, CPUTIME_IRQ, cpu);
+-			rsrp->cputime_softirq = kcpustat_field(kcsp, CPUTIME_SOFTIRQ, cpu);
+-			rsrp->cputime_system  = kcpustat_field(kcsp, CPUTIME_SYSTEM, cpu);
++			rsrp->cputime_irq     = kcpustat_field(CPUTIME_IRQ, cpu);
++			rsrp->cputime_softirq = kcpustat_field(CPUTIME_SOFTIRQ, cpu);
++			rsrp->cputime_system  = kcpustat_field(CPUTIME_SYSTEM, cpu);
+ 			rsrp->nr_hardirqs = kstat_cpu_irqs_sum(cpu) + arch_irq_stat_cpu(cpu);
+ 			rsrp->nr_softirqs = kstat_cpu_softirqs_sum(cpu);
+ 			rsrp->nr_csw = nr_context_switches_cpu(cpu);
+diff --git a/kernel/rcu/tree_stall.h b/kernel/rcu/tree_stall.h
+index b67532cb8770..cf7ae51cba40 100644
+--- a/kernel/rcu/tree_stall.h
++++ b/kernel/rcu/tree_stall.h
+@@ -479,7 +479,6 @@ static void print_cpu_stat_info(int cpu)
+ {
+ 	struct rcu_snap_record rsr, *rsrp;
+ 	struct rcu_data *rdp = per_cpu_ptr(&rcu_data, cpu);
+-	struct kernel_cpustat *kcsp = &kcpustat_cpu(cpu);
+ 
+ 	if (!rcu_cpu_stall_cputime)
+ 		return;
+@@ -488,9 +487,9 @@ static void print_cpu_stat_info(int cpu)
+ 	if (rsrp->gp_seq != rdp->gp_seq)
+ 		return;
+ 
+-	rsr.cputime_irq     = kcpustat_field(kcsp, CPUTIME_IRQ, cpu);
+-	rsr.cputime_softirq = kcpustat_field(kcsp, CPUTIME_SOFTIRQ, cpu);
+-	rsr.cputime_system  = kcpustat_field(kcsp, CPUTIME_SYSTEM, cpu);
++	rsr.cputime_irq     = kcpustat_field(CPUTIME_IRQ, cpu);
++	rsr.cputime_softirq = kcpustat_field(CPUTIME_SOFTIRQ, cpu);
++	rsr.cputime_system  = kcpustat_field(CPUTIME_SYSTEM, cpu);
+ 
+ 	pr_err("\t         hardirqs   softirqs   csw/system\n");
+ 	pr_err("\t number: %8lld %10d %12lld\n",
+diff --git a/kernel/sched/cputime.c b/kernel/sched/cputime.c
+index fbf31db0d2f3..caaaf0a04ced 100644
+--- a/kernel/sched/cputime.c
++++ b/kernel/sched/cputime.c
+@@ -975,10 +975,9 @@ static int kcpustat_field_vtime(u64 *cpustat,
+ 	return 0;
+ }
+ 
+-u64 kcpustat_field(struct kernel_cpustat *kcpustat,
+-		   enum cpu_usage_stat usage, int cpu)
++u64 kcpustat_field(enum cpu_usage_stat usage, int cpu)
+ {
+-	u64 *cpustat = kcpustat->cpustat;
++	u64 *cpustat = kcpustat_cpu(cpu).cpustat;
+ 	u64 val = cpustat[usage];
+ 	struct rq *rq;
+ 	int err;
 -- 
 2.53.0
 
