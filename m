@@ -1,224 +1,120 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from out30-124.freemail.mail.aliyun.com (out30-124.freemail.mail.aliyun.com [115.124.30.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1305C313E1D;
-	Fri,  8 May 2026 21:56:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9FE1A2B2D7;
+	Sat,  9 May 2026 01:26:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778277397; cv=none; b=iPQMsPMneSRb2+LpXrSWTeQkwjMhyN5zCcydSHNUl2saZeX1T6jyEWDfYSU49LqXtBbKOSDUGlN6Fi3OK0G+I+jNwrIaErYwvXczyityHDhRvTS8eN+ppp6Qk5Xi0WD7ukNHup/7GL8xp5kp5+dfsgEfZl9LinO5Htvvxs+L/Q0=
+	t=1778290013; cv=none; b=S1jqjZmMAbH92HmJx0ZHcnSshf87Ijgi/r1i3cluIoXPNTs5g6o+5s0FojZcrL0se+HIhEVQBlsKuyDvb6vmFn+5taiCGQ7W/vVEtNf94I3eapodZlf7RqA7tXaCcFocmCEnNrsRUkU+xwV7+56qHxTLfysHjx4Ba6ypaWSxa8s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778277397; c=relaxed/simple;
-	bh=E4/S7h7x9+VkHjz+trqpUCCjAbfa/5Fb4fkF5zP2WWo=;
+	s=arc-20240116; t=1778290013; c=relaxed/simple;
+	bh=o/pgEhujTgFW9ZrLOfE0EEkoxNHPRtp/uayciKrbSy8=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=WHdKRXzTx5tbojZG2l5VjnnZ7S1MGCouAYDeveQwfDAb+gwiRv0tj2pF9PFax9qpewUhdHTz7jB4ixZHsjCHnHIDFxGERAvrUuPzFhFJ+KEqk26M4Pdkrf9Wt9dIoC32IFjFCyu69nTN3G57CD5tC13puj6huVGqxkecsBH438w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gjLk8Q+i; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=ItRa1GQEaf6KtPLfh42MPSHTlgXcNUJN8Y5LW1lQNlsyk8T2GOFz9WpYIOnzrjXIznxTbK8nQ/eJDNYNgPszmnLPdQjhpiKcB2qzXoqChAcdB0sox/I2Bp77iNP/e7KKBL+/kJhqOgawaZkDpj5snYKuxeHHyMMUlwx9/Rm5S+Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=MzHKQbEN; arc=none smtp.client-ip=115.124.30.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gjLk8Q+i"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C1BDC2BCB0;
-	Fri,  8 May 2026 21:56:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1778277396;
-	bh=E4/S7h7x9+VkHjz+trqpUCCjAbfa/5Fb4fkF5zP2WWo=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=gjLk8Q+iHwQyjywvpCvrlThddaPjfA0/KW7CRqpZtRFNbAGzgwUw/Tn732VkbmWeF
-	 JZgyUs6HKHSY6uy8MeTO51AZ+LiqFjo3qnmlggQLR1PqYvMSTjVEAGrpaJjf1VY6g3
-	 VRAG2yKL93gQiRku2ORPFgMG/QupHaHQUeNB4xlxQ5kom9kRfpvyq30QyzQD5kxrHI
-	 D+uFnS/Ys0/RglApXgB67b0ip6zGJoWuJVlpMxJTZ6U7NKjtZvb4s8kob30r7ip6zM
-	 aJ7Xsq34gCpUimFZK1VY97zJUmyGJPKXgaXkXtXfsZPbdHHOjaVyJ0BmJa3S2L5F2X
-	 5CGXGLyS1Oiqw==
-Date: Fri, 8 May 2026 14:56:35 -0700
-From: Minchan Kim <minchan@kernel.org>
-To: Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: akpm@linux-foundation.org, hca@linux.ibm.com,
-	linux-s390@vger.kernel.org, david@kernel.org, mhocko@suse.com,
-	brauner@kernel.org, linux-mm@kvack.org,
-	linux-kernel@vger.kernel.org, surenb@google.com,
-	timmurray@google.com
-Subject: Re: [PATCH v1 1/3] mm: process_mrelease: expedite clean file folio
- reclaim via mmu_gather
-Message-ID: <af5cEycgIu2GUicn@google.com>
-References: <20260421230239.172582-1-minchan@kernel.org>
- <20260421230239.172582-2-minchan@kernel.org>
- <20260505145318.97692A14-agordeev@linux.ibm.com>
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="MzHKQbEN"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1778290008; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
+	bh=9UtXgVP0JZ98tn0yJorMvY+odKuLJcc0wOsPfDynW4E=;
+	b=MzHKQbENAHOKa+E4dz8w525oX9uUTE5vKK4/EsjO0pyAu4rm4lp7CLGjBk2U2jJIDaaRwGI2iWNlR4HZ+yxjBCw26a5ccdmbnHM6RS9GTOSscqfgwYLUhquN2HcfVGEv/UoN3TLXwAiiJjpAyhXs+6k+7FGCK1PUAXiFWy0I1pE=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R191e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037026112;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=12;SR=0;TI=SMTPD_---0X2YvkY1_1778290006;
+Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0X2YvkY1_1778290006 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Sat, 09 May 2026 09:26:47 +0800
+Date: Sat, 9 May 2026 09:26:46 +0800
+From: Dust Li <dust.li@linux.alibaba.com>
+To: =?iso-8859-1?Q?Nicol=F2?= Coccia <n.coccia96@gmail.com>,
+	alibuda@linux.alibaba.com, sidraya@linux.ibm.com,
+	Wenjia Zhang <wenjia@linux.ibm.com>
+Cc: Tony Lu <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>,
+	linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
+	linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+	mjambigi@linux.ibm.com,
+	=?iso-8859-1?Q?Nicol=F2?= Coccia <nicolo.coccia@leonardo.com>
+Subject: Re: [PATCH net] net/smc: fix sleep-inside-lock in __smc_setsockopt()
+ causing local DoS
+Message-ID: <af6NVrIetbLkENvu@linux.alibaba.com>
+Reply-To: dust.li@linux.alibaba.com
+References: <CALSA8UaEKUHRqYaYqKFYbUQb4KHipDBDHfgMZHj2Tq0D1Ah7zw@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20260505145318.97692A14-agordeev@linux.ibm.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CALSA8UaEKUHRqYaYqKFYbUQb4KHipDBDHfgMZHj2Tq0D1Ah7zw@mail.gmail.com>
 
-Hi Alexander,
+On 2026-05-08 21:33:10, Nicolò Coccia wrote:
 
-Sorry for late reply.
+Hi Nicolò,
 
-On Tue, May 05, 2026 at 04:53:18PM +0200, Alexander Gordeev wrote:
-> On Tue, Apr 21, 2026 at 04:02:37PM -0700, Minchan Kim wrote:
-> 
-> Hi Minchan,
-> 
-> > Currently, process_mrelease() unmaps pages but file-backed pages are
-> > not evicted and stay in the pagecache, relying on standard memory reclaim
-> > (kswapd or direct reclaim) to eventually free them. This delays the
-> > immediate recovery of system memory under Android's LMKD scenarios,
-> > leading to redundant background apps kills.
-> > 
-> > This patch implements an expedited eviction mechanism for clean pagecache
-> > folios in the mmu_gather code, similar to how swapcache folios are handled.
-> > It drops them from the pagecache (i.e., evicting them) if they are completely
-> > unmapped during reaping.
-> > 
-> > Within this single unified loop, anonymous pages are released via
-> > free_swap_cache(), and file-backed folios are symmetrically released via
-> > free_file_cache().
-> > 
-> > Signed-off-by: Minchan Kim <minchan@kernel.org>
-> > ---
-> >  arch/s390/include/asm/tlb.h |  2 +-
-> >  include/linux/swap.h        |  5 ++---
-> >  mm/mmu_gather.c             |  7 ++++---
-> >  mm/swap.c                   | 42 +++++++++++++++++++++++++++++++++++++
-> >  mm/swap_state.c             | 26 -----------------------
-> >  5 files changed, 49 insertions(+), 33 deletions(-)
-> > 
-> > diff --git a/arch/s390/include/asm/tlb.h b/arch/s390/include/asm/tlb.h
-> > index 619fd41e710e..2736dbb571a8 100644
-> > --- a/arch/s390/include/asm/tlb.h
-> > +++ b/arch/s390/include/asm/tlb.h
-> > @@ -62,7 +62,7 @@ static inline bool __tlb_remove_folio_pages(struct mmu_gather *tlb,
-> >  	VM_WARN_ON_ONCE(delay_rmap);
-> >  	VM_WARN_ON_ONCE(page_folio(page) != page_folio(page + nr_pages - 1));
-> >  
-> > -	free_pages_and_swap_cache(encoded_pages, ARRAY_SIZE(encoded_pages));
-> > +	free_pages_and_caches(tlb->mm, encoded_pages, ARRAY_SIZE(encoded_pages));
-> >  	return false;
-> >  }
-> >  
-> > diff --git a/include/linux/swap.h b/include/linux/swap.h
-> > index 62fc7499b408..bdb784966343 100644
-> > --- a/include/linux/swap.h
-> > +++ b/include/linux/swap.h
-> > @@ -414,7 +414,9 @@ extern int sysctl_min_unmapped_ratio;
-> >  extern int sysctl_min_slab_ratio;
-> >  #endif
-> >  
-> > +struct mm_struct;
-> >  void check_move_unevictable_folios(struct folio_batch *fbatch);
-> > +void free_pages_and_caches(struct mm_struct *mm, struct encoded_page **pages, int nr);
-> >  
-> >  extern void __meminit kswapd_run(int nid);
-> >  extern void __meminit kswapd_stop(int nid);
-> > @@ -433,7 +435,6 @@ static inline unsigned long total_swapcache_pages(void)
-> >  
-> >  void free_swap_cache(struct folio *folio);
-> >  void free_folio_and_swap_cache(struct folio *folio);
-> > -void free_pages_and_swap_cache(struct encoded_page **, int);
-> >  /* linux/mm/swapfile.c */
-> >  extern atomic_long_t nr_swap_pages;
-> >  extern long total_swap_pages;
-> > @@ -510,8 +511,6 @@ static inline void put_swap_device(struct swap_info_struct *si)
-> >  	do { (val)->freeswap = (val)->totalswap = 0; } while (0)
-> >  #define free_folio_and_swap_cache(folio) \
-> >  	folio_put(folio)
-> > -#define free_pages_and_swap_cache(pages, nr) \
-> > -	release_pages((pages), (nr));
-> >  
-> >  static inline void free_swap_cache(struct folio *folio)
-> >  {
-> > diff --git a/mm/mmu_gather.c b/mm/mmu_gather.c
-> > index fe5b6a031717..3c6c315d3c48 100644
-> > --- a/mm/mmu_gather.c
-> > +++ b/mm/mmu_gather.c
-> > @@ -100,7 +100,8 @@ void tlb_flush_rmaps(struct mmu_gather *tlb, struct vm_area_struct *vma)
-> >   */
-> >  #define MAX_NR_FOLIOS_PER_FREE		512
-> >  
-> > -static void __tlb_batch_free_encoded_pages(struct mmu_gather_batch *batch)
-> > +static void __tlb_batch_free_encoded_pages(struct mm_struct *mm,
-> > +		struct mmu_gather_batch *batch)
-> >  {
-> >  	struct encoded_page **pages = batch->encoded_pages;
-> >  	unsigned int nr, nr_pages;
-> > @@ -135,7 +136,7 @@ static void __tlb_batch_free_encoded_pages(struct mmu_gather_batch *batch)
-> >  			}
-> >  		}
-> >  
-> > -		free_pages_and_swap_cache(pages, nr);
-> > +		free_pages_and_caches(mm, pages, nr);
-> >  		pages += nr;
-> >  		batch->nr -= nr;
-> >  
-> > @@ -148,7 +149,7 @@ static void tlb_batch_pages_flush(struct mmu_gather *tlb)
-> >  	struct mmu_gather_batch *batch;
-> >  
-> >  	for (batch = &tlb->local; batch && batch->nr; batch = batch->next)
-> > -		__tlb_batch_free_encoded_pages(batch);
-> > +		__tlb_batch_free_encoded_pages(tlb->mm, batch);
-> >  	tlb->active = &tlb->local;
-> >  }
-> >  
-> > diff --git a/mm/swap.c b/mm/swap.c
-> > index bb19ccbece46..e44bc8cefceb 100644
-> > --- a/mm/swap.c
-> > +++ b/mm/swap.c
-> > @@ -1043,6 +1043,48 @@ void release_pages(release_pages_arg arg, int nr)
-> >  }
-> >  EXPORT_SYMBOL(release_pages);
-> >  
-> > +static inline void free_file_cache(struct folio *folio)
-> > +{
-> > +	if (folio_trylock(folio)) {
-> > +		mapping_evict_folio(folio_mapping(folio), folio);
-> > +		folio_unlock(folio);
-> > +	}
-> > +}
-> > +
-> > +/*
-> > + * Passed an array of pages, drop them all from swapcache and then release
-> > + * them.  They are removed from the LRU and freed if this is their last use.
-> > + *
-> > + * If @try_evict_file_folios is true, this function will proactively evict clean
-> > + * file-backed folios if they are no longer mapped.
-> > + */
-> > +void free_pages_and_caches(struct mm_struct *mm, struct encoded_page **pages, int nr)
-> > +{
-> > +	bool try_evict_file_folios = mm_flags_test(MMF_UNSTABLE, mm);
-> > +	struct folio_batch folios;
-> > +	unsigned int refs[PAGEVEC_SIZE];
-> > +
-> > +	folio_batch_init(&folios);
-> > +	for (int i = 0; i < nr; i++) {
-> > +		struct folio *folio = page_folio(encoded_page_ptr(pages[i]));
-> > +
-> > +		if (folio_test_anon(folio))
-> > +			free_swap_cache(folio);
-> > +		else if (unlikely(try_evict_file_folios))
-> > +			free_file_cache(folio);
-> 
-> This condition is absent in free_pages_and_swap_cache().
-> What would happen with non-anon and non-evict folio?
+This patch doesn't apply on net/main
 
-Are you asking about mlocked pages for file?
+>A logic flaw in __smc_setsockopt() allows a local unprivileged user to
+>cause a Denial of Service (DoS) by holding the socket lock indefinitely.
+>
+>The function __smc_setsockopt() calls copy_from_sockptr() while holding
+>lock_sock(sk). By passing a userfaultfd-monitored memory page (or
+>FUSE-backed memory on systems where unprivileged userfaultfd is disabled)
+>as the optval, an attacker can halt execution during the copy operation,
+>keeping the lock held.
+>
+>Combined with asynchronous tear-down operations like shutdown(), this
+>exhausts the kernel wq (kworkers) and triggers the hung task watchdog.
+>
+>[  240.123456] INFO: task kworker/u8:2 blocked for more than 120 seconds.
+>[  240.123489] Call Trace:
+>[  240.123501]  smc_shutdown+...
+>[  240.123512]  lock_sock_nested+...
+>
+>This patch moves the user-space copy outside the lock_sock() critical
+>section to prevent the issue.
+>
 
-During unmapping, munlock_vma_folio() inside __folio_remove_rmap() clears
-the PG_mlocked flag and moves the folio back to the evictable LRU list.
+You should add a Fixes tag here.
+>Signed-off-by: Nicolò Coccia nicolo.coccia@leonardo.com>
+>---
+> net/smc/af_smc.c | 16 ++++++++--------
+> 1 file changed, 8 insertions(+), 8 deletions(-)
+>
+>diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+>--- a/net/smc/af_smc.c
+>+++ b/net/smc/af_smc.c
+>@@ -XXXX,X +XXXX,X @@ static int __smc_setsockopt(struct socket *sock,
+>int level, int optname,
+>
+>  smc = smc_sk(sk);
+>
+>+ /* pre-fetch user data outside the lock */
+>+ if (optname == SMC_LIMIT_HS) {
+>+ if (optlen < sizeof(int))
+>+ return -EINVAL;
+>+ if (copy_from_sockptr(&val, optval, sizeof(int)))
+>+ return -EFAULT;
+>+ }
+>+
+>  lock_sock(sk);
+>  switch (optname) {
+>  case SMC_LIMIT_HS:
+>- if (optlen < sizeof(int)) {
+>- rc = -EINVAL;
+>- break;
+>- }
+>- if (copy_from_sockptr(&val, optval, sizeof(int))) {
+>- rc = -EFAULT;
+>- break;
+>- }
+>-
 
-By the time the folios reach free_pages_and_caches(), if the folio is
-exclusive, it will be successfully evicted. However, if the folio is shared,
-mapping_evict_folio() detects it via the refcount check and skips the
-eviction.
+The indenting is all messed up
 
-However, I realized we miss shmem folios in the swap cache due to the new
-folio_test_anon() check we introduced. I will update the check to something
-like this:
+Best regards,
+Dust
 
-if (folio_test_swapcache(folio))
-    free_swap_cache(folio);
-else if (unlikely(try_evict_file_folios))
-    free_file_cache(folio);
-
-Let me know if I missed something from your point.
-
-Thank you.
