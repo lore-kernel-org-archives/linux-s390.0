@@ -1,134 +1,99 @@
-Received: from mail-wm1-f42.google.com (mail-wm1-f42.google.com [209.85.128.42])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out30-112.freemail.mail.aliyun.com (out30-112.freemail.mail.aliyun.com [115.124.30.112])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 630F032720D
-	for <linux-s390@vger.kernel.org>; Sat,  9 May 2026 19:50:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 373E62F8E81;
+	Sun, 10 May 2026 15:19:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.112
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778356260; cv=none; b=L0YeSUxagV9eaVeJIx4W0iCxKRpFQURTk4Xr8fnYHEcGXenDka2Co5Jh+7bUEbxGaEMfiMNTRQpIPvxn5BaCL33+S/9kFQaD7Th3veDwQCAfPk5d8yZ0sgCROCQfg3QNJUgCo8K+n2J0szmuiiATDFLmUWtS2lrrcj8sSV3GqOM=
+	t=1778426365; cv=none; b=SgRmddCs2vQdq1Z+/od+TFlqzSaoK4cteI4oq+6XmrkyyaoKd+os4gajDe2Vssrj1mXQ6c9GIONVvnvGIxS3qJKzErF0TOiKKg5WFCK7MFmsF33qegh8VW6M6qmR25aXGyIDbdlvGA3A9wUC8m7KwqFMxCHroJA61gAsjI//4mw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778356260; c=relaxed/simple;
-	bh=o1EjnzHyZhODTZ415VxWwjtvAsnecvgFKbsv2m0Dmc0=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ZWwbXysloSpD4DPaEC7FRPdPTzvOZCkJ0FZyanCBcjzB/szZxFeLt9feDoYnD6x8pyyT5XpWEw0xxgOXRUsohKNSrtRHN5niRew/7a1E1on/rCaj6Aof/dK1geqxCZK5svHbNs+lYtOCGlOMoD3z2xTxHbTTEW00JM2507rqdPM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ehZEBHjJ; arc=none smtp.client-ip=209.85.128.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1778426365; c=relaxed/simple;
+	bh=KA/p1RhujIaTAg1hTVqbE076u80O9x23DXASfs8gZPE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Eb0RIEX8WnYw4T2djRsmXzQTQBYz8IlyqMpVBA2Y4GpSPH/ZOT9pUbQkRrSefD5sagpY+zx81OtKUQ7sz+/gGaz1A88igEmFKn50Nabm22zJ2nZEcoyBf4rrVnLzhjqKARi4PoZ49le1M8CNEzPMEx/pvf2hYrgv4IvWw3vZwQs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=B7gr0Djg; arc=none smtp.client-ip=115.124.30.112
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ehZEBHjJ"
-Received: by mail-wm1-f42.google.com with SMTP id 5b1f17b1804b1-488e1a8ac40so30304005e9.2
-        for <linux-s390@vger.kernel.org>; Sat, 09 May 2026 12:50:59 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1778356258; x=1778961058; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:sender:from:to:cc:subject:date:message-id:reply-to;
-        bh=iILYjv1QSXJF3m9JtN3x0yqcia4a4+vFdY5mp7r7BZ4=;
-        b=ehZEBHjJ71m0usptJoUjv/FdcwrJiR5wcO1QZztxi71WyyQBSZ4Eqq8fS5nq9rG/pj
-         AjvOXLmIkFBDisTUiC0ZG16gaY+8Necyi+k1898HtXYXarbCMBo410egvWrCCveq01Pm
-         sFDykKDzblQVp9YuPDFhP3bHmSUzZsOLgLa14YjUE8jYALMRpsKoCbPPRVMgZz/nMidz
-         rH68J7x1l2jC4R8hTJ914QFlWPKEpNz4TDF6bkO/azOVRvejAirXR2MBYbtJ1IhYSJyk
-         uoYkVm/AUabR7lV8tDjLVgDGaIno4ep/gC4egX7O4IXjGoDM3tF7n8d7MhieIVvNBY0y
-         R5Jw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778356258; x=1778961058;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:sender:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=iILYjv1QSXJF3m9JtN3x0yqcia4a4+vFdY5mp7r7BZ4=;
-        b=YjHQZaT2oDS9YVAnbloAUykEyzo9KeEYD+nPo/dPUmcSX0CiE09/wxPJDrS2kjcnHi
-         gePYOBjum7+n7lcb5Lxhv+h6KF47NMeADIOhssRoBHGGn+cVIDYFElBUriCb+rm0iNjc
-         dA+BNez9dgAowstR4sLe4A2Z3exEZb9/sc3qvrXt2gJV2yB0sKVSY+zEh0ClC2mnOAMK
-         g5XArYC2yb8vy5HNSm9GM5xEmsILsybXDruzc8FA/8I7ZWlLtV8kXQjlMJqRhc9iiHcd
-         vivaFyh6+hjqrc8slEOEWeE9aj6N/T8miXyZC3Z3otCc/9Z52VAJO2053xszAlqh4L1Q
-         n8mQ==
-X-Forwarded-Encrypted: i=1; AFNElJ+LHjEm7d4YFQ3KHZdKeaH92Xko/8UC7Xifv0Y1Gik4jiiIxnKFEv0hTixfsZ421OK0mF49y6p+jI5I@vger.kernel.org
-X-Gm-Message-State: AOJu0Yz0FkO/rp7VF0xfVGUMHsXiKcr2DPseGrCQQfeQKLhUNIkFA6QH
-	U8wUe/mOf8RxM3gv06i6lgbWUF6aU/QB5AiYw+C4c2mDWex0B68qK6ok
-X-Gm-Gg: Acq92OENQKAXFQNcRzXtVDmmx0iOnwDbk0O96iNXvHdP2JUg41g8XlOF+UKgmI8RcLB
-	i6MHolfDz4vY6a10Xo8ZKyn0LgSgZTzb3EuweHCf2/C9AiUYXemejBlFN0hoDFcljcRHKD7CO9X
-	mgD60/4osatR8FrRTopt2vjrjoX/DXNkxv8Cwu0bK7h6riF/bCRIneyOo3CFmwzNNXSGzE62rfP
-	dbzKQ03vPQhme8ubYSD/a39kQRO3u+F9GuDryXPVsHQdmwDSqZ5MFILJ46WrgRg21qG4KAOG2hp
-	smLb1AQbHwBgTuM/G0P8/aBHcqMlKxWFlwwikwA0/EqnHl3KYxGNxNwgJ7jEED11vaoFRz1bvSo
-	aHq7/FbZSi/i2L9xW0Ux1AcJaovtW810fOjPz2wTY8CGMijE16OoGFD3bQcGvsvrCNP/BrI1zAE
-	rInCoK2OcNCO6BERV0TH8Slm4sowXRpMxgtxp5YRoerqTUvBMA8aX5ZJ0=
-X-Received: by 2002:a05:600c:3e05:b0:488:9ed3:1492 with SMTP id 5b1f17b1804b1-48e51f2a997mr309114625e9.10.1778356257580;
-        Sat, 09 May 2026 12:50:57 -0700 (PDT)
-Received: from nixos-office (195-23-151-163.net.novis.pt. [195.23.151.163])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4548eb75c29sm13958076f8f.9.2026.05.09.12.50.56
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 09 May 2026 12:50:57 -0700 (PDT)
-Sender: Julian Braha <julian.braha@gmail.com>
-From: Julian Braha <julianbraha@gmail.com>
-To: agordeev@linux.ibm.com,
-	gor@linux.ibm.com,
-	hca@linux.ibm.com,
-	iii@linux.ibm.com
-Cc: meted@linux.ibm.com,
-	borntraeger@linux.ibm.com,
-	svens@linux.ibm.com,
-	akpm@linux-foundation.org,
-	linux-s390@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Julian Braha <julianbraha@gmail.com>
-Subject: [PATCH v2] s390: fix dead defaults for S390_MODULES_SANITY_TEST and S390_UNWIND_SELFTEST
-Date: Sat,  9 May 2026 20:50:43 +0100
-Message-ID: <20260509195043.1133169-1-julianbraha@gmail.com>
-X-Mailer: git-send-email 2.53.0
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="B7gr0Djg"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1778426353; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
+	bh=h8xm0ICWFyWAHAFUbZ2x6pFmPnB7nZ1XWtBXDMkVHTY=;
+	b=B7gr0DjgCvQaFFuoGvNTi4v0bV56JJQ1ykBne7gpROPhqkxEbvsQtyonu4J+LPsUZpGPrp1y9zFuBs4EOudwmheQ7jf/M71CZgp3zrTlIWU+A8tOPti3Tx/tj8dwde9OVAGWRcd3rkO55axfCAa44wl2hor9a+GgcSu+F+CB9Cw=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R151e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam011083073210;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=12;SR=0;TI=SMTPD_---0X2cvymd_1778426352;
+Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0X2cvymd_1778426352 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Sun, 10 May 2026 23:19:12 +0800
+Date: Sun, 10 May 2026 23:19:12 +0800
+From: Dust Li <dust.li@linux.alibaba.com>
+To: =?iso-8859-1?Q?Nicol=F2?= Coccia <n.coccia96@gmail.com>,
+	alibuda@linux.alibaba.com, sidraya@linux.ibm.com,
+	Wenjia Zhang <wenjia@linux.ibm.com>
+Cc: Tony Lu <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>,
+	linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
+	linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+	mjambigi@linux.ibm.com,
+	=?iso-8859-1?Q?Nicol=F2?= Coccia <nicolo.coccia@leonardo.com>
+Subject: Re: [PATCH net] net/smc: fix sleep-inside-lock in __smc_setsockopt()
+ causing local DoS
+Message-ID: <agCh8NuM69sYSIRA@linux.alibaba.com>
+Reply-To: dust.li@linux.alibaba.com
+References: <CALSA8UZaE8FR2K-60fPYE6uSUvUNuLnH=8pPq0Hak2ADQpp1Qw@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <CALSA8UZaE8FR2K-60fPYE6uSUvUNuLnH=8pPq0Hak2ADQpp1Qw@mail.gmail.com>
 
-These config options currently have unconditional defaults of 'n' from the
-def_tristate statement, which shadow the later default of
-'KUNIT_ALL_TESTS', causing it to be dead code.
+On 2026-05-09 07:01:02, Nicolò Coccia wrote:
+>A logic flaw in __smc_setsockopt() allows a local unprivileged user to
+>cause a Denial of Service (DoS) by holding the socket lock indefinitely.
+>
+>The function __smc_setsockopt() calls copy_from_sockptr() while holding
+>lock_sock(sk). By passing a userfaultfd-monitored memory page (or
+>FUSE-backed memory on systems where unprivileged userfaultfd is disabled)
+>as the optval, an attacker can halt execution during the copy operation,
+>keeping the lock held.
+>
+>Combined with asynchronous tear-down operations like shutdown(), this
+>exhausts the kernel wq (kworkers) and triggers the hung task watchdog.
+>
+>[  240.123456] INFO: task kworker/u8:2 blocked for more than 120 seconds.
+>[  240.123489] Call Trace:
+>[  240.123501]  smc_shutdown+...
+>[  240.123512]  lock_sock_nested+...
+>
+>This patch moves the user-space copy outside the lock_sock() critical
+>section to prevent the issue.
+>
+>Fixes: a6a6fe27bab4 ("net/smc: Dynamic control handshake limitation by
+>socket options")
+>Signed-off-by: Nicolò Coccia <n.coccia96@gmail.com>
+>---
+>v1 -> v2:
+> - Rebased against netdev/net tree
+> - Added Fixes tag
+>
+> net/smc/af_smc.c | 17 ++++++++---------
+> 1 file changed, 8 insertions(+), 9 deletions(-)
+>
+>diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+>index 185dbed7de5d..da28652f6810 100644
+>--- a/net/smc/af_smc.c
+>+++ b/net/smc/af_smc.c
+>@@ -3054,18 +3054,17 @@ static int __smc_setsockopt(struct socket
+>*sock, int level, int optname,
 
-It looks to me like the commit 25d36a85c61b ("s390/test_unwind: convert to KUnit")
-added the KUNIT_ALL_TESTS default to S390_UNWIND_SELFTEST, but mistakenly
-didn't remove the previous 'n' default.
 
-Then, the later commit 90c5318795ee ("s390/module: test loading modules with a lot of relocations")
-copied the Kconfig layout from S390_UNWIND_SELFTEST when adding the
-S390_MODULES_SANITY_TEST config option, without noticing the existing mistake.
+Still not apply, have you changed this manually ?
+You can produce the patch simply using `git format-patch `
 
-This dead code was found by kconfirm, a static analysis tool for Kconfig.
-
-Signed-off-by: Julian Braha <julianbraha@gmail.com>
----
-v2: remove Fixes tags
-Link to v1: https://lore.kernel.org/all/20260414215651.151228-1-julianbraha@gmail.com/
----
- arch/s390/Kconfig | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
-
-diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index ecbcbb781e40..4bd1023a45a3 100644
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -999,9 +999,8 @@ config S390_MODULES_SANITY_TEST_HELPERS
- menu "Selftests"
- 
- config S390_UNWIND_SELFTEST
--	def_tristate n
-+	def_tristate KUNIT_ALL_TESTS
- 	depends on KUNIT
--	default KUNIT_ALL_TESTS
- 	prompt "Test unwind functions"
- 	help
- 	  This option enables s390 specific stack unwinder testing kernel
-@@ -1023,9 +1022,8 @@ config S390_KPROBES_SANITY_TEST
- 	  Say N if you are unsure.
- 
- config S390_MODULES_SANITY_TEST
--	def_tristate n
-+	def_tristate KUNIT_ALL_TESTS
- 	depends on KUNIT && m
--	default KUNIT_ALL_TESTS
- 	prompt "Enable s390 specific modules tests"
- 	select S390_MODULES_SANITY_TEST_HELPERS
- 	help
--- 
-2.53.0
+Best regards,
+Dust
 
