@@ -1,150 +1,134 @@
-Received: from mail-wm1-f52.google.com (mail-wm1-f52.google.com [209.85.128.52])
+Received: from mail-dy1-f179.google.com (mail-dy1-f179.google.com [74.125.82.179])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B9E3371CFF
-	for <linux-s390@vger.kernel.org>; Sun, 10 May 2026 16:35:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0EC252E5429
+	for <linux-s390@vger.kernel.org>; Sun, 10 May 2026 22:26:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778430928; cv=none; b=LI4dyhEhO5jwEWZDxQCdJp7g0sWsve8DDYYxkIMYQ/nEIfqRAgVRVEGywVmZfT5cq/CCKzKk2yuMGMvBtvTBGvz1Uu8Dv0t8ndBWM2mJivNvFmR2QlMxnhQYPV8/A5LYwb9ZQt9jBtp1KARKnTh0yJ5zQbNAPaE7z4hvXfprTkk=
+	t=1778452012; cv=none; b=ggT/GxsftUkqnpPuTFZnuYrzch0oEgJTWqpvJbxnRX3Y6kPZg1PRTF6m1Fs99qAq6diri2OAcTAkGIrh6Zm6a119X0sGBYFHMMhkoRdckIGopVFQBjXEjNh80PNu4DB+rRP1VMSjrL8BnmBj3TdbSD9WAnIVi+SbXZNmj6XwKYc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778430928; c=relaxed/simple;
-	bh=dD6l8VmKuNQkIv7tvRgwMxIbtAjjBGjAsfRUM+v1bss=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=I342JU7WhN3xQtrsBTwcrmlJB6pzPgCCc1L8gdWEZymMVWalOLaAhLn50F38uXMfrhHTp1nhG7yf+r6jaGkskMTL8bqci+YrJEEYAMNTJYJxA58fsnY2qwr63A5hz3AAHpRGaxwWmoLE1hjbueDV2MVxRDJCKTVRnnm31aebMcU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Byym8Uok; arc=none smtp.client-ip=209.85.128.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1778452012; c=relaxed/simple;
+	bh=bRTtC/Y15xDEtxte9f/6vRbkFyBjJbqPWN5T/9gK6dA=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=J5W4YprnTI4cSb5mlGYL0/AjdJTz3k5o2rs0RE+UFozRrZWjwNzCdJ/LxG0GUg7KkVoQjvX+wtfN1tZm0NohG03oly64+8GdynwRdYnH8JjTFu5I0/v1Ed6/G/nbRxJU7Ui7mdGhrXxx6NSgMUDCTgEtnzbKwsKU2zx9DGI7IdE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=asu.edu; spf=pass smtp.mailfrom=asu.edu; dkim=pass (2048-bit key) header.d=asu.edu header.i=@asu.edu header.b=LPHcRNQp; arc=none smtp.client-ip=74.125.82.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=asu.edu
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=asu.edu
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Byym8Uok"
-Received: by mail-wm1-f52.google.com with SMTP id 5b1f17b1804b1-488a8ca4aadso31703215e9.3
-        for <linux-s390@vger.kernel.org>; Sun, 10 May 2026 09:35:26 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=asu.edu header.i=@asu.edu header.b="LPHcRNQp"
+Received: by mail-dy1-f179.google.com with SMTP id 5a478bee46e88-2c15849aa2cso4469941eec.0
+        for <linux-s390@vger.kernel.org>; Sun, 10 May 2026 15:26:50 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1778430925; x=1779035725; darn=vger.kernel.org;
+        d=asu.edu; s=google; t=1778452010; x=1779056810; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=66E1wRA9xWgEOR2dqWlyPjo6zh/YZ58R9fKD8OAxMUY=;
-        b=Byym8UokMGbCigue6+UHQHftxYr4A1Ck8dCM5TM6lCjSw3uQm8fA4UducmVbErqPUd
-         v1JvAcihawzU3zCdgZbLkVMM1/Ez/0OHe2/AaKqt5Y6LeYKfjxqD2CtVsQrqOiOApgos
-         8hPsNmDq8ByqJ2re1VN//bpUTFteTHa6CDdbl1X7elx3XZuuoItbwx6qhPT3LLm7OpuB
-         qrBFoAI2SGdmCKzdqwjlT7FSptud5jn2Wdl7KMbSdsLjeN4A9hzAc5KjpsyWFRpJRgP3
-         bMfp73Q/ZzVbSCtJmVZYgbwr5vSK4NLTSurMKWQlMHsP+DKh077e14ZlKWlleUN84ksV
-         226w==
+        bh=+7jw5q6CV7UA5J8SrJGgRjMCaga/xFBXiIaTtBtIkq8=;
+        b=LPHcRNQpyA8LHU0CD4BSba/AFLiUCtkxJozbnzrEHCxUCAa3Jt2rRDOkHVMcewCRgK
+         dHljdlQ0IaBJOUGstUuI+9mR9gxE1xCjGnnJxhLUB9EyTyyjBs2scdZElAEnPauVJtgj
+         v9LF1RjJ34FqWKhpHbIXFH+DUNw+Ko3E3MlUAG3Ok8Xh/jr+aGOrDiRSTLjzZubxcJ5n
+         7UGTVEIPD7pJK1itWfm6o27iNJrn3gpF+Li2h87gxFixzcKrM+DB+lxyNvEybQzDV8k9
+         iIfaXeRgDFv89hBfgpVfkFne2n9ZEFxQ+wiVwudLw0yt44rixeaCcK8q6aDSbfSynefP
+         nBTQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778430925; x=1779035725;
+        d=1e100.net; s=20251104; t=1778452010; x=1779056810;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=66E1wRA9xWgEOR2dqWlyPjo6zh/YZ58R9fKD8OAxMUY=;
-        b=GNyP83Bed+LzEL0i4pWI+XR7lQyIt66wh4NiQcW6N+tZU6Didl/j+XnsfWC5/2F97X
-         NRZkd3LZj8DMy5XaxYEqRlQSN1r0+P+J6/KoZbxPBl7yYo8EunXU1EKO6MYzgUaRIgd4
-         VRxgMZ6r6vaZXd6yLuLK2KDOwERghhJO7Z3Akp9IcIZzUZPWyiLWcNCAYkW3H64z/QI1
-         tbPbVxo4K91C+OacQ7GHTYRslf4Afw1sJOd7a8EpJivpVSVjjrubOjOHxkhKl47kET3V
-         XTzW5TUglIq2mdNU/N8ZxdxnvOEIku2DAazycERBiM3zcWpKTYHpJptoCtV53SkywH8J
-         1v9w==
-X-Forwarded-Encrypted: i=1; AFNElJ/t/Bs4L8Dc0t78XNj2m2IdsVRhlKlNcykx+RHMdiYHUJwl2QBK+8GxKtw/EadvaTHdbyDHOzs2qjy0@vger.kernel.org
-X-Gm-Message-State: AOJu0YwkzZ7hfezDQkNGUtkApf9RstRuActi7EXOxp/WIH7t8W7Hw/OJ
-	JoIx9NmUsHd7YNRAltKic55pOKs8huGlI5EesRov0UoRaY3mI0VvsOll
-X-Gm-Gg: Acq92OGAoP4LvbRdrsUWYRMFU15YW4bBQMHDBJDuAU8Pb9vRS5F/NQVBBpO89ovBT4R
-	wwNghdgfJYWBqE3uCJ517wYYaAbesC2wiLMjxmlXMSgUvgyHCUrwS0LjQWSJLwR92f70LILiW8R
-	JXM1nxsn58E/zeWvR9A0EEvOzBAme4jprwu1IB+57U5XjKJMFAySKWkfp/zBi4etll6bB6TZsB8
-	SfYOAUBWAotCoBUQCD49ndsbvTTUuJ2kuBxbuxSaIafkkbYxIVPm3qvUIyi0ntOmkP/iQRWI3Zm
-	OBwKn3MDAtsBYztJ+9JPW7rUoEKKTO9ZAOOs3TI4uWyq8794g493MCe1NiW+e8Wz/lnlqtPkLhl
-	qXL6eExzI3XMWz5j9HnR+fxukrZ9Ym/L7ZIN0MVccbDw//U2NPlGG/ZVhit2jirfxPX43jwrayA
-	CJrcjZvCCAQWiIpiVCIobz9fwZbeQGqkBVvJ5MFtfOwE3RYS97A8R+u9KAYUw=
-X-Received: by 2002:a05:600c:696:b0:489:1c1f:35df with SMTP id 5b1f17b1804b1-48e51e215a4mr190222805e9.10.1778430924757;
-        Sun, 10 May 2026 09:35:24 -0700 (PDT)
-Received: from kali (93-41-117-77.ip81.fastwebnet.it. [93.41.117.77])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48e6fffba52sm143706015e9.3.2026.05.10.09.35.23
+        bh=+7jw5q6CV7UA5J8SrJGgRjMCaga/xFBXiIaTtBtIkq8=;
+        b=Ae3dsM1sAQqZxCcFsJG2jLFpHBlqG8oLBtA0Z2U938IF0uDs2+ErK14sxtxWiKeFW6
+         XzBPQcjfI85z2KmReLyHfTkngAfnu6f0/ke6dw7dJxQDI8e3cVB7P/J1SFIaDsw4kINP
+         Gl05Uhv0vtHdlskdRXYK5B/KD9QPOMuBcf8gVIObM502Rg4ldaCQbHd8EtONSuEmBdCO
+         j801KjeapAn4veViItSPsG9UllyYanItYVsOe5LRSv7DN94zJITId4UsXkUWFJNcIGHw
+         Q5Ck16DYnkI8S7ikQgjSTOL6zyAJG/yLFZgoIjXAaJ7dnDArD/5doUFWiL651t5ISUcV
+         T9Gg==
+X-Forwarded-Encrypted: i=1; AFNElJ8+lnWw7Mk4ZgGhp5SLZpjiSTyRPnuq3QAx0MBxrVsDa7+xE7yzmsXagrUrzucKM8zzAr6YFw5UBGGM@vger.kernel.org
+X-Gm-Message-State: AOJu0Ywcg8tafY2AqvJUVFRRNVJpjoFh9rDtVExCKyK5CnKmKo+b4mQv
+	yRxFfSddWYjJOorOeHDpj6Y63mFn3hClV8ogoqe0C8z2wQ1dnKdoWFRh708NQrmf3w==
+X-Gm-Gg: Acq92OHhdcZs/IQ7oYUDGFzGh/tkbpkq/iapVmT0yPMwDJ628YXyg9TzdIaKefupJG1
+	awRqh33R0h96C28IJpfL6psDZ6VisxLJ9gC03piBRVoVzNJNK7VUFWxz5+MC3q8khGGzjSONMgw
+	SjyRPPS6TYmKh+n3Jx/gnNwMRu0zUio7mQKBQCxW7EeITkt2BCIXo3C2didDtDHa0s94/XyGJgp
+	/4qj2m8GvJsl1Y4eFHuBCPzbXZ2eADj2c1OtLUzXUk2eYcYKECEkAz3E7VPX6gf3giTqubDzE2D
+	3VzwS1eAprZ6scq98F8QSewc/NrE5GDJkEDfQvo/0SRKU9DjTInZmRS1w61BiLH7UbPFZTBciz5
+	6/Snau6b1XW9dHUUl8qxgWPZIPmC1PXbEuvarJKEeR/t46ooc99pAlZuCCoMAlhvkFtj/uOkUDt
+	xU28MarKO24QIvwM6aXfZNKSXHDZ6jQjbv2sPRIU/lqhZQLFRWyK8qJg==
+X-Received: by 2002:a05:7301:578d:b0:2ed:935:aa33 with SMTP id 5a478bee46e88-2f5482684a9mr10241346eec.5.1778452009918;
+        Sun, 10 May 2026 15:26:49 -0700 (PDT)
+Received: from p1.scai.dhcp.asu.edu (209-147-138-15.nat.asu.edu. [209.147.138.15])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2f8862d429asm11143902eec.12.2026.05.10.15.26.49
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 10 May 2026 09:35:24 -0700 (PDT)
-From: =?UTF-8?q?Nicol=C3=B2=20Coccia?= <n.coccia96@gmail.com>
-To: alibuda@linux.alibaba.com,
+        Sun, 10 May 2026 15:26:49 -0700 (PDT)
+From: Xiang Mei <xmei5@asu.edu>
+To: netdev@vger.kernel.org
+Cc: alibuda@linux.alibaba.com,
 	dust.li@linux.alibaba.com,
+	wenjia@linux.ibm.com,
 	sidraya@linux.ibm.com,
-	wenjia@linux.ibm.com
-Cc: mjambigi@linux.ibm.com,
 	tonylu@linux.alibaba.com,
-	guwen@linux.alibaba.com,
 	linux-rdma@vger.kernel.org,
 	linux-s390@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	netdev@vger.kernel.org,
-	nicolo.coccia@leonardo.com,
-	=?UTF-8?q?Nicol=C3=B2=20Coccia?= <n.coccia96@gmail.com>
-Subject: [PATCH v3] net/smc: fix sleep-inside-lock in __smc_setsockopt() causing local DoS
-Date: Sun, 10 May 2026 12:34:13 -0400
-Message-ID: <20260510163414.16651-1-n.coccia96@gmail.com>
-X-Mailer: git-send-email 2.53.0
+	bestswngs@gmail.com,
+	Xiang Mei <xmei5@asu.edu>
+Subject: [PATCH net] net/smc: avoid NULL deref of conn->lnk in smc_msg_event tracepoint
+Date: Sun, 10 May 2026 15:26:40 -0700
+Message-ID: <20260510222640.1230720-1-xmei5@asu.edu>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-A logic flaw in __smc_setsockopt() allows a local unprivileged user to
-cause a Denial of Service (DoS) by holding the socket lock indefinitely.
+The smc_msg_event tracepoint class, shared by smc_tx_sendmsg and
+smc_rx_recvmsg, unconditionally dereferences smc->conn.lnk:
 
-The function __smc_setsockopt() calls copy_from_sockptr() while holding
-lock_sock(sk). By passing a userfaultfd-monitored memory page (or
-FUSE-backed memory on systems where unprivileged userfaultfd is disabled)
-as the optval, an attacker can halt execution during the copy operation,
-keeping the lock held.
+	__string(name, smc->conn.lnk->ibname)
 
-Combined with asynchronous tear-down operations like shutdown(), this
-exhausts the kernel wq (kworkers) and triggers the hung task watchdog.
+conn->lnk is only set for SMC-R; for SMC-D it is NULL. Other code on
+these paths already handles this (e.g. !conn->lnk in
+SMC_STAT_RMB_TX_SIZE_SMALL()). With the tracepoint enabled, the first
+sendmsg()/recvmsg() on an SMC-D socket crashes:
 
-[  240.123456] INFO: task kworker/u8:2 blocked for more than 120 seconds.
-[  240.123489] Call Trace:
-[  240.123501]  smc_shutdown+...
-[  240.123512]  lock_sock_nested+...
+  Oops: general protection fault, probably for non-canonical address
+  KASAN: null-ptr-deref in range [...]
+  RIP: 0010:strlen+0x1e/0xa0
+  Call Trace:
+   trace_event_raw_event_smc_msg_event (net/smc/smc_tracepoint.h:44)
+   smc_rx_recvmsg (net/smc/smc_rx.c:515)
+   smc_recvmsg (net/smc/af_smc.c:2859)
+   __sys_recvfrom (net/socket.c:2315)
+   __x64_sys_recvfrom (net/socket.c:2326)
+   do_syscall_64
 
-This patch moves the user-space copy outside the lock_sock() critical
-section to prevent the issue.
+The faulting address 0x3e0 is offsetof(struct smc_link, ibname),
+confirming the NULL ->lnk deref. Enabling the tracepoint requires
+root, but the trigger itself is unprivileged: socket(AF_SMC, ...) has
+no capability check, and SMC-D negotiation needs no admin step on
+s390 or on x86 with the loopback ISM device loaded.
 
-Fixes: a6a6fe27bab4 ("net/smc: Dynamic control handshake limitation by socket options")
+Log an empty device name for SMC-D instead of dereferencing NULL.
 
-Signed-off-by: Nicolò Coccia <n.coccia96@gmail.com>
+Fixes: aff3083f10bf ("net/smc: Introduce tracepoints for tx and rx msg")
+Reported-by: Weiming Shi <bestswngs@gmail.com>
+Assisted-by: Claude:claude-opus-4-7
+Signed-off-by: Xiang Mei <xmei5@asu.edu>
 ---
- v1 -> v3:
- - Resend via git send-email to fix webmail whitespace corruption
- - Rebased against netdev/net tree
- - Added Fixes tag
- net/smc/af_smc.c | 17 ++++++++---------
- 1 file changed, 8 insertions(+), 9 deletions(-)
+ net/smc/smc_tracepoint.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 185dbed7de5d..da28652f6810 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -3054,18 +3054,17 @@ static int __smc_setsockopt(struct socket *sock, int level, int optname,
+diff --git a/net/smc/smc_tracepoint.h b/net/smc/smc_tracepoint.h
+index a9a6e3c1113a..53da84f57fd6 100644
+--- a/net/smc/smc_tracepoint.h
++++ b/net/smc/smc_tracepoint.h
+@@ -51,7 +51,7 @@ DECLARE_EVENT_CLASS(smc_msg_event,
+ 				     __field(const void *, smc)
+ 				     __field(u64, net_cookie)
+ 				     __field(size_t, len)
+-				     __string(name, smc->conn.lnk->ibname)
++				     __string(name, smc->conn.lnk ? smc->conn.lnk->ibname : "")
+ 		    ),
  
- 	smc = smc_sk(sk);
- 
-+	/* pre-fetch user data outside the lock */
-+	if (optname == SMC_LIMIT_HS) {
-+		if (optlen < sizeof(int))
-+			return -EINVAL;
-+		if (copy_from_sockptr(&val, optval, sizeof(int)))
-+			return -EFAULT;
-+	}
-+
- 	lock_sock(sk);
- 	switch (optname) {
- 	case SMC_LIMIT_HS:
--		if (optlen < sizeof(int)) {
--			rc = -EINVAL;
--			break;
--		}
--		if (copy_from_sockptr(&val, optval, sizeof(int))) {
--			rc = -EFAULT;
--			break;
--		}
--
- 		smc->limit_smc_hs = !!val;
- 		rc = 0;
- 		break;
+ 		    TP_fast_assign(
 -- 
-2.53.0
+2.43.0
 
