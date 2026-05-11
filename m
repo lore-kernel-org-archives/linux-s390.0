@@ -1,35 +1,34 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB1993A1D05;
-	Mon, 11 May 2026 14:05:58 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C18E93ED113;
+	Mon, 11 May 2026 14:06:03 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778508358; cv=none; b=g9mrHXa0Id8o92NuFTqG03S6N+6wOlZMjes1S83tHvNf24Ku1x68U3ojFXFeD2kMMLNOcoFyhIjVLKfzKRlEcta+xnfw8kCvqGjsUBXIX2TB8T3HEdgTNdJ5pnR3aM+BN/f/lXsjWTiEKRpeRMNYTtrwBfKqo01xnXLojlNC/5I=
+	t=1778508363; cv=none; b=KGOMfeWn6Fb3AN0MF6+GSXFNPQZR6fLEnYv25WvUGK3GJLhzTBKPqb0R10XnS8le9GUuzih2Hps49UqQSzHoKC8seulWTZQLd1aZISjGKEvl/afSvlkJqHzDR+gF1ZCZrH4yYnb/nR0RLihF+QzNDweShBJ05f6U8BIU8+zxC0U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778508358; c=relaxed/simple;
-	bh=0Ocue3eCm7kftjDOEvgMIfcEU6dPF7QGnIf4HYzbk1E=;
+	s=arc-20240116; t=1778508363; c=relaxed/simple;
+	bh=MFrlSNsTp04kT+A7ReVQ6q1RUJiMOyuWN+whgS79KCI=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=GCeVyepad+jHFzhtZigZsQpPmFRsZ11T702KLBVr3V8nOJQPcOzSfwXdFIJc61ogEAJj6DUoh8sWvLhh9zH1XGRqm9oLTgcvR+qvOgr9Tx17bz4lCpE03w90HAHeoJX3LMtFZKcziJ/xf728ZGHFMIlyacnE7Kjie+PnvHO+/E8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kohAm45R; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=HadTFk+p5GhqFno/qEY3BhYMYFTydQ/DJjaHRy8eQrYYN2H1NdNGLSj0wWuFkkeMBsHQMI3JeXSiSSetjjzyBtdTmg1SPa9TrpKoKVS12im9LRz3EC/1XSShgdT3EJIgL870Ini3gwNW7bb+yFIP7aQ+hObmbTrWQL1CmDKegBY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VzzaUGht; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kohAm45R"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A68AC2BCB0;
-	Mon, 11 May 2026 14:05:53 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VzzaUGht"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6A89C2BCC9;
+	Mon, 11 May 2026 14:05:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1778508358;
-	bh=0Ocue3eCm7kftjDOEvgMIfcEU6dPF7QGnIf4HYzbk1E=;
+	s=k20201202; t=1778508363;
+	bh=MFrlSNsTp04kT+A7ReVQ6q1RUJiMOyuWN+whgS79KCI=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
-	b=kohAm45Rpj0GtsJc339+4HuV+qMJDQGo+OaGrUlsvRENMLfGC7yd+8Am9w+nMsbot
-	 lj6c+L4Z1u6qvm6mkjovGEmaHCIyIMXnG7LyJQpkgojs5UXrNFgpWefy6AwbnY5C1z
-	 ty2kfu8/5ma/3T+/lZKlKFaDOGpcpGI/QWxfqZjZNw2uJlzHEDnZjf6L6VSMEqPIiI
-	 AW+6ECoossl3ODeBCgdyyUGa1ibx5REXX3G95YbmSUcDkQIkm4h6rzaV3iCdE20VEm
-	 omnCjbI3KzvVWJnQ8H1EH6BJI5eh2E/YkK6veo2XPHKLx0TNxDaFyDiqrm2Xf0StNx
-	 ljcaeng7fr+ig==
+	b=VzzaUGhtjmv+hgICpWb9Ds9RkOduoJ8mQ0Y/DcgBVY2dFaaRVfcVxiN2SbUKQuwiL
+	 o7eRr+5Toxr4lABnCNoOTIMMN4aJ7fOgqOVvyGtkdg6QrUqs7rUeaGOqi3u1nVPDkg
+	 Ksz0MxzCsMSNEnnyFYKhliTDT4hT3Njg5ZT2r8cMD3/8wzL/mBhdvfWXpE7D+1LW98
+	 rN7lvX13lEtdJbla8okiBqaGSKrxpTp5HtBwVqWJp27YyraoMyd04koJ5hVKbMZSfn
+	 dFRNDUbp6ZtPNR/BNeg+D8gkJkfsmTb8oqE4KzJl4JXpHPBQHLEyE3u3AiI6BbVR9e
+	 ixKjUMbFwUVSQ==
 From: "David Hildenbrand (Arm)" <david@kernel.org>
-Date: Mon, 11 May 2026 16:05:32 +0200
-Subject: [PATCH 4/8] mm/bootmem_info: remove call to
- kmemleak_free_part_phys()
+Date: Mon, 11 May 2026 16:05:33 +0200
+Subject: [PATCH 5/8] mm/bootmem_info: stop marking the pgdat as NODE_INFO
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -38,7 +37,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260511-bootmem_info_prep-v1-4-3fb0be6fc688@kernel.org>
+Message-Id: <20260511-bootmem_info_prep-v1-5-3fb0be6fc688@kernel.org>
 References: <20260511-bootmem_info_prep-v1-0-3fb0be6fc688@kernel.org>
 In-Reply-To: <20260511-bootmem_info_prep-v1-0-3fb0be6fc688@kernel.org>
 To: "David S. Miller" <davem@davemloft.net>, 
@@ -60,48 +59,48 @@ Cc: sparclinux@vger.kernel.org, linux-kernel@vger.kernel.org,
  linuxppc-dev@lists.ozlabs.org, "David Hildenbrand (Arm)" <david@kernel.org>
 X-Mailer: b4 0.13.0
 
-The call to kmemleak_free_part_phys() was added in 2022 in
-commit dd0ff4d12dd2 ("bootmem: remove the vmemmap pages from kmemleak in
-put_page_bootmem").
+We removed the last user of NODE_INFO in commit 119c31caa59e ("mm/sparse:
+remove !CONFIG_SPARSEMEM_VMEMMAP leftovers for CONFIG_MEMORY_HOTPLUG").
 
-In 2025, commit b2aad24b5333 ("mm/memmap: prevent double scanning of memmap
-by kmemleak") started to use MEMBLOCK_ALLOC_NOLEAKTRACE when allocating
-the memmap to skip the kmemleak_alloc_phys() in the buddy.
+But it really was never used it besides for safety-checks ever since it was
+introduced in commit 04753278769f ("memory hotplug: register section/node
+id to free"), where we had the comment:
 
-So remove the call to kmemleak_free_part_phys(). If this would still
-be required for other purposes, either free_reserved_page() should take
-care of it, or selected users.
+	5) The node information like pgdat has similar issues. But, this
+	   will be able to be solved too by this.
+	   (Not implemented yet, but, remembering node id in the pages.)
+
+Of course, that never happened, and we are not planning on freeing the
+node data (pgdat/pglist_data), during memory hotunplug.
+
+So let's just stop marking the pgdat as NODE_INFO.
 
 Signed-off-by: David Hildenbrand (Arm) <david@kernel.org>
 ---
- include/linux/bootmem_info.h | 1 -
- mm/bootmem_info.c            | 1 -
- 2 files changed, 2 deletions(-)
+ mm/bootmem_info.c | 9 +--------
+ 1 file changed, 1 insertion(+), 8 deletions(-)
 
-diff --git a/include/linux/bootmem_info.h b/include/linux/bootmem_info.h
-index 492ceeb1cdf8..f724340755e5 100644
---- a/include/linux/bootmem_info.h
-+++ b/include/linux/bootmem_info.h
-@@ -82,7 +82,6 @@ static inline void get_page_bootmem(unsigned long info, struct page *page,
- 
- static inline void free_bootmem_page(struct page *page)
- {
--	kmemleak_free_part_phys(PFN_PHYS(page_to_pfn(page)), PAGE_SIZE);
- 	free_reserved_page(page);
- }
- #endif
 diff --git a/mm/bootmem_info.c b/mm/bootmem_info.c
-index 6e2aaab3dca9..74c1116626c8 100644
+index 74c1116626c8..cce1d560f094 100644
 --- a/mm/bootmem_info.c
 +++ b/mm/bootmem_info.c
-@@ -32,7 +32,6 @@ void put_page_bootmem(struct page *page)
+@@ -62,15 +62,8 @@ static void __init register_page_bootmem_info_section(unsigned long start_pfn)
  
- 	if (page_ref_dec_return(page) == 1) {
- 		set_page_private(page, 0);
--		kmemleak_free_part_phys(PFN_PHYS(page_to_pfn(page)), PAGE_SIZE);
- 		free_reserved_page(page);
- 	}
- }
+ void __init register_page_bootmem_info_node(struct pglist_data *pgdat)
+ {
+-	unsigned long i, pfn, end_pfn, nr_pages;
++	unsigned long pfn, end_pfn;
+ 	int node = pgdat->node_id;
+-	struct page *page;
+-
+-	nr_pages = PAGE_ALIGN(sizeof(struct pglist_data)) >> PAGE_SHIFT;
+-	page = virt_to_page(pgdat);
+-
+-	for (i = 0; i < nr_pages; i++, page++)
+-		get_page_bootmem(node, page, NODE_INFO);
+ 
+ 	pfn = pgdat->node_start_pfn;
+ 	end_pfn = pgdat_end_pfn(pgdat);
 
 -- 
 2.43.0
