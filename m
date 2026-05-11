@@ -1,68 +1,86 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0B4741448D5;
-	Mon, 11 May 2026 15:16:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E0ECB3009F6;
+	Mon, 11 May 2026 15:23:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778512572; cv=none; b=JEoCpcQB2B/2G4/yqCmTsSvD64z9iWaWw2vu2J8EU0KM92PEh/sOVr2moTB2QQTk4vjfpcd8anL7hu3tvcrCfvutksdU0kuwFrkSN4WIdJHKuIvvKodLgBgBjd8a1HJwmxUN4uKUbP6/J76b4MpHLE9pFKUceboKVvaG4Z0NuhQ=
+	t=1778512987; cv=none; b=JDuam+LltvfJ/mBVL58erZLLg2sMLSwt1v8vywq7yPLMglg7knUllDPz8jIJqyqx6F03shSUUwKryYXpKttYLjUk36PShUq515KRnVTZ0B+xWVUVEuwbJ5h8Hpiua/Yg93KAdNgSowx73qxhjux0rEzTS/QkOLlCXlFiB7kIcqI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778512572; c=relaxed/simple;
-	bh=bvTxOy00YyQesry6yZcnd2STkTxE5x+5rTNkbewO+Ck=;
+	s=arc-20240116; t=1778512987; c=relaxed/simple;
+	bh=tQTlRvkHXdTrQkxxae0MOn3QlXKepYIUITh2tgLTOl4=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Pz9QmTJIoH38eHN358qFhbYGr6hrKghWO4ZPgAFxDNXmnp62v5Fk3mX21A55sq20JcXJ1j2PnY9Rb1trJM+sbakxXM4Z3kd8i0gZG6uL27f3XvzGN+45FUyKQymZgrsVPditBJLlEoaH7W9jk7o2/SnIDcOGEMRWR5kkLgkssk0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Lnfcr7IF; arc=none smtp.client-ip=148.163.156.1
+	 Content-Type:Content-Disposition:In-Reply-To; b=sFz2xF9ZKZBVYAQXksNZZd5a5BwB5ww+K3HvqGCG08g/H0lG0foGILuJ3Q8cRySWDumMfC4Ceh95gAOevLo7yojfniYs1H28Q1Cqpo68KtAAk9fngB4k9l1Tf3YP20MupG+S6A6lkL6/HiB12GBK08mS4fFUVcb/nNG5RW5ZYnY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=N1ZlExLh; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Lnfcr7IF"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 64B8aFpI2353419;
-	Mon, 11 May 2026 15:16:09 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="N1ZlExLh"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 64B8nx1A2604219;
+	Mon, 11 May 2026 15:22:34 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=GyYXGuzUvKnnlKGioDqLBqYf8XTz/7
-	L0qyXrsajWKHU=; b=Lnfcr7IFUJLi9hHqd6GD0CP37aff+HSFHnXXQi+BbeI2Sw
-	DhG+OX8ZM2b4rzOtfuJvgOzcx11QXd+jtb4UfHdbOeqVuysqLdbWqOt7q2FoffYd
-	4ebmtmvCf3SXx+MhtjDh1K69ePrkEyOGdo95+KWAMGQYOCUjXiFsehrKin5GhwMu
-	aX2+JRULtAxY/k25/sAXNuZasfGNJFKL4IfsGtnC1pmggQqIIv4dOZIiGmk4Bx78
-	gCHHVKNhvRnkG03NaH+j2DuEuoiw7JPfw1Mj7iP6LTdiFwg2ZiXpXJ9+s+0XgseC
-	CyWUNUnEfZ0Z916cIsj5CNCOoP+eVvDDE+4SX08w==
+	:references:subject:to; s=pp1; bh=lREhxjgfMCEfNMe2J8pIiNemYsfo+j
+	KGynVtsmFuIjI=; b=N1ZlExLhP6RfsP0FuGGNyrVj+Ngv0DTytRFIAdSBTU6+ni
+	5F7RsrIyjiHgUOeXYuBcfG1yXi1OUwyAzTIsepgz2FcKosBahIKFBuKVupfwQFLo
+	2FaQQ5cifxsz34jConKBFi8/s1PxaNVJqYPvKsRCwbIWRAqoKDYAyIw6Zyv/JhDA
+	BuONcXMHHuTL/Lide0JcY+uBsPTzFYuvOA3JF1qkDkEwbNSvQAyElMYoc8EPa9As
+	QK7ij+5KTjpUNxFNkdhhS5EHmJ3MNx05rOnWfTsAzZnk1+AdTL6JJDiHlbJ0ce/1
+	p6LFfazX/+DguvonVOfPhIgF3LG8MkhJTSziscvA==
 Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4e1vkqrwjq-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4e1vju8atp-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 11 May 2026 15:16:09 +0000 (GMT)
+	Mon, 11 May 2026 15:22:33 +0000 (GMT)
 Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 64BF9R7H022698;
-	Mon, 11 May 2026 15:16:08 GMT
+	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 64BF9cWC022908;
+	Mon, 11 May 2026 15:22:33 GMT
 Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4e2hfg5nfw-1
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4e2hfg5p2q-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 11 May 2026 15:16:08 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 64BFG42k47579482
+	Mon, 11 May 2026 15:22:32 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 64BFMTEm52167146
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 11 May 2026 15:16:04 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B904720043;
-	Mon, 11 May 2026 15:16:04 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 85DFF20040;
-	Mon, 11 May 2026 15:16:04 +0000 (GMT)
-Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.52.215.75])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Mon, 11 May 2026 15:16:04 +0000 (GMT)
-Date: Mon, 11 May 2026 17:16:03 +0200
-From: Alexander Gordeev <agordeev@linux.ibm.com>
-To: Julian Braha <julianbraha@gmail.com>
-Cc: gor@linux.ibm.com, hca@linux.ibm.com, iii@linux.ibm.com,
-        meted@linux.ibm.com, borntraeger@linux.ibm.com, svens@linux.ibm.com,
-        akpm@linux-foundation.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2] s390: fix dead defaults for S390_MODULES_SANITY_TEST
- and S390_UNWIND_SELFTEST
-Message-ID: <593da9c3-dbbc-47e7-9ebb-964d4bc887e7-agordeev@linux.ibm.com>
-References: <20260509195043.1133169-1-julianbraha@gmail.com>
+	Mon, 11 May 2026 15:22:29 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 763F720043;
+	Mon, 11 May 2026 15:22:29 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 3333420040;
+	Mon, 11 May 2026 15:22:28 +0000 (GMT)
+Received: from osiris (unknown [9.111.59.149])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Mon, 11 May 2026 15:22:28 +0000 (GMT)
+Date: Mon, 11 May 2026 17:22:26 +0200
+From: Heiko Carstens <hca@linux.ibm.com>
+To: "David Hildenbrand (Arm)" <david@kernel.org>
+Cc: "David S. Miller" <davem@davemloft.net>,
+        Andreas Larsson <andreas@gaisler.com>, Mike Rapoport <rppt@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Madhavan Srinivasan <maddy@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+        Lorenzo Stoakes <ljs@kernel.org>,
+        "Liam R. Howlett" <liam@infradead.org>,
+        Vlastimil Babka <vbabka@kernel.org>,
+        Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>,
+        sparclinux@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, linux-s390@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org
+Subject: Re: [PATCH 7/8] s390/mm: use free_reserved_page() in
+ vmem_free_pages()
+Message-ID: <20260511152226.9589G9f-hca@linux.ibm.com>
+References: <20260511-bootmem_info_prep-v1-0-3fb0be6fc688@kernel.org>
+ <20260511-bootmem_info_prep-v1-7-3fb0be6fc688@kernel.org>
+ <20260511142157.9589E90-hca@linux.ibm.com>
+ <9e313bd2-cc90-4b9f-9d6c-7dac8d9ec9db@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -71,64 +89,60 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260509195043.1133169-1-julianbraha@gmail.com>
+In-Reply-To: <9e313bd2-cc90-4b9f-9d6c-7dac8d9ec9db@kernel.org>
 X-TM-AS-GCONF: 00
 X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTExMDE2NiBTYWx0ZWRfX1KdzWoq7UBwB
- pVpJ3FuZcHnTfpZFFtnLnmAR5KnYJpTA334ZkyXC+Y1zZq5TnWxn05D9gGlxE9P7+jx6VG5ajlM
- zVxti9tv4ORT3W3uvEFuYwQq8QHfvDrcHAwvm0V7ANYse1GQSAT5d8zE2xc96iIq1TQ29lRad8l
- uXebT316ZIYnoKh7Q8mQ44Ouifd3ewYwAzh2O0AxpYZjdceoNSmdfbKC+YIC//HSnKgQNTKzdOn
- 7c+CD+WgPHIQhSWS9VF9VSqwfphqfKtaLuT2S9I7Tfyxss4g7WCK12wseVc5W40w7/NuKH2rli4
- Umgx+6xBLOHgAX26UF0t5V9+qN5WJ5vfxK0i5TNU5hxG5EPJZnN5036YzGGsyxQyQp217pVyQYp
- sAIyNwHq0Tjxb5fL6ujHLVGj6p5J3PEIkyj3lV5zGJu8ytyYiejSSWNezq/QBvZL1AQMhtA+WcH
- /MRWw1bkhSUfRss8w6w==
-X-Authority-Analysis: v=2.4 cv=OaWoyBTY c=1 sm=1 tr=0 ts=6a01f2b9 cx=c_pps
+X-Authority-Analysis: v=2.4 cv=cYbiaHDM c=1 sm=1 tr=0 ts=6a01f43a cx=c_pps
  a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
  a=kj9zAlcOel0A:10 a=NGcC8JguVDcA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VwQbUJbxAAAA:8
- a=pGLkceISAAAA:8 a=y_g4XRjoB-AmfD2Nf9UA:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-ORIG-GUID: 3HR1Y9yVcvj-kl0LYZZVFXCubITfEwU_
-X-Proofpoint-GUID: 0-82LthPj0CvGnkD0nj6VlLwZW-g4Tb_
+ a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VwQbUJbxAAAA:8
+ a=VnNF1IyMAAAA:8 a=NFYRbTnByepKOcQhdncA:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-GUID: gN9Yk6mt80cK9LfSmo9v_xzOKx4r8LXy
+X-Proofpoint-ORIG-GUID: 66JSwiufrwIzx4YfPj_zFY-ra2fLxLyY
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTExMDE2NiBTYWx0ZWRfX1ynHyOJtHkaC
+ 8U0ZYrKHh74sQaxFxjytwkSlxsL8uN27y45bSqkIh59anl/e0Gifw9Am4AgpCtA7z2l4Gbyc5AM
+ ESRpd/TuUpB6Ms4Zds9qcl920m4oMTfbXeR6iivPPRGgCuw2cz6xTAX95FbfUzUYecpPB/T8bfl
+ gH2WeXPtPpft2I0WUjuURstdDZVYwoV9A8oiYK6hek9Jb0fRoddektOTZ4BNKyPazoOEtScS2LO
+ k3PL0TRI25618sxcgwLBlogm2hHSc9x0irp9Q/cAGdaf0pkdrw6c39KeVFE7B4XuFRamKgFhwnu
+ 2ZaLfHt45w1pp4tqTRfDQVFJjkC56Bfqz+3jRdJdgo0g0ZGV/ogyi/3ZV+/Sk2zM0Gu7ELaXIF0
+ oSnNuyBxHHXLbmAU4Lmwgjm9bFPV0DG/MZo+FIGRVv1Cn9sWD7bHUcAEjQmxE+LU39frHFM7Tq0
+ WEQFSkvKXu1GztKpy3w==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
  definitions=2026-05-11_04,2026-05-08_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 suspectscore=0 spamscore=0 clxscore=1015 bulkscore=0
- phishscore=0 lowpriorityscore=0 priorityscore=1501 impostorscore=0
- adultscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2604200000
- definitions=main-2605110166
+ malwarescore=0 adultscore=0 clxscore=1015 spamscore=0 priorityscore=1501
+ suspectscore=0 bulkscore=0 impostorscore=0 lowpriorityscore=0 phishscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2604200000 definitions=main-2605110166
 
-On Sat, May 09, 2026 at 08:50:43PM +0100, Julian Braha wrote:
-> These config options currently have unconditional defaults of 'n' from the
-> def_tristate statement, which shadow the later default of
-> 'KUNIT_ALL_TESTS', causing it to be dead code.
-
-Please, note that it is Kconfig Language dead code, not kernel one.
-
-> It looks to me like the commit 25d36a85c61b ("s390/test_unwind: convert to KUnit")
-> added the KUNIT_ALL_TESTS default to S390_UNWIND_SELFTEST, but mistakenly
-> didn't remove the previous 'n' default.
+On Mon, May 11, 2026 at 04:24:16PM +0200, David Hildenbrand (Arm) wrote:
+> On 5/11/26 16:21, Heiko Carstens wrote:
+> > On Mon, May 11, 2026 at 04:05:35PM +0200, David Hildenbrand (Arm) wrote:
+> >> We never select CONFIG_HAVE_BOOTMEM_INFO_NODE on s390. Therefore,
+> >> free_bootmem_page() nowadays always translates to free_reserved_page().
+> >>
+> >> Let's use free_reserved_page() to replace the free_bootmem_page() loop.
+> >> We can stop including bootmem_info.h.
+> >>
+> >> Likely, vmemmap freeing code could be factored out into the core in the
+> >> future.
+> >>
+> >> Signed-off-by: David Hildenbrand (Arm) <david@kernel.org>
+> >> ---
+> >>  arch/s390/mm/vmem.c | 3 +--
+> >>  1 file changed, 1 insertion(+), 2 deletions(-)
+...
+> > What about the implicit call of kmemleak_free_part_phys() which gets
+> > removed with this?
 > 
-> Then, the later commit 90c5318795ee ("s390/module: test loading modules with a lot of relocations")
-> copied the Kconfig layout from S390_UNWIND_SELFTEST when adding the
-> S390_MODULES_SANITY_TEST config option, without noticing the existing mistake.
-
-Please, paraphrase the above paragraphs in imperative and honour the
-line lengths.
-
-Also, please add this patch and adjust the commit message so it looks
-like a s390 selftests config cleanup.
-
-[PATCH] "s390: include S390_KPROBES_SANITY_TEST with KUNIT_ALL_TESTS"
-https://lore.kernel.org/linux-s390/20260323125118.1417455-1-julianbraha@gmail.com/
-
-
-> This dead code was found by kconfirm, a static analysis tool for Kconfig.
+> Thanks for taking a look!
 > 
-> Signed-off-by: Julian Braha <julianbraha@gmail.com>
-> ---
-> v2: remove Fixes tags
-> Link to v1: https://lore.kernel.org/all/20260414215651.151228-1-julianbraha@gmail.com/
+> See patch #4:
+> 
+> https://lore.kernel.org/r/20260511-bootmem_info_prep-v1-4-3fb0be6fc688@kernel.org
 
-Thanks!
+Heh, right, you can't expect from me that I would read more than one
+patch of a series :)
+
+Acked-by: Heiko Carstens <hca@linux.ibm.com>
