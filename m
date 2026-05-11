@@ -1,138 +1,73 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8CDE83C9438
-	for <linux-s390@vger.kernel.org>; Mon, 11 May 2026 09:02:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 809C83DC4AE;
+	Mon, 11 May 2026 10:59:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778490159; cv=none; b=oDKev+lby2Yfguyimu9N2lfeJA7XkY68WSO8vzEwCIV2UuZm95dh/76BFWLS66jQX3xi1UhgMTu/+CUWbwEWC6fK9NASJwNO26i/h+kxXsXBMTRFk/Vgw/Gsbd+spFRhzeDlGGMb7K+o7rohYvdvzgKl3umXyDpIGJRG+hBZ1n8=
+	t=1778497159; cv=none; b=MNDG+rsN0lo7xLf3c6cjX/bZ/ZnWIhua7iGmju1uVqrNq7lCCqIgD8JCkrcSIaXlwepflccwOIkW5/wVkqx6az6X3/TPe+7E08P3zsiu22aqcMJ1i6/Gz41iSTRYcDcXDfq393xcbjWekWkt4wmAx64+mw87Uz5CqPqNJ6C9zpE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778490159; c=relaxed/simple;
-	bh=xVZpENOTPSkcCw9H72WToBvwV1ZsJAWZkigdtcUbLLU=;
+	s=arc-20240116; t=1778497159; c=relaxed/simple;
+	bh=gc2DxwpIUHKjBtX1JmA5H7O8FjGN02um1IzQrN/qXJw=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Di2uKZ1D2ahuLS79uC8lwHdp1i5bKj9DqZZU8Ri75u8ZjXWrEpIjtA7D//5nVecMR6wOzpjGquBRTyEZSSjY8Jy+we/X2SYXO9L4bJE1sHY17dOnDcNMMHGz+ao/k8Fz8Krf0imVV95jBNQ2O9GlF6PxSWt/DmunjYBC9oB9+0Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=LhUUdbXU; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=pxS20Td/; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=KpODgvvvndb1lssKs8Ij6T4BONU1MHfMrTeDW4nhma04B08BiSNL7/U2xU4S3NTDuwQbyvNijoq6pWWE3UccwW9mqjCZeW+ZXjDdE8QzLGGTCLXOnbLe+YgpUQ3IvbzlU042u+BH+Re1uuysV9ao+A/vjIIE7I8KaMWvmZX5r5A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Lui/AkIR; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LhUUdbXU";
-	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="pxS20Td/"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1778490156;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=+4kzhpMcne9QL/iUfytpcOnuwyhDfw3DKjMmXnNjefM=;
-	b=LhUUdbXU5rLV8LcGjKMJ7r6KcdK7v0VpU8kl2gujOLfEBw1QcpFZdU6JKHVXp4MytvGz30
-	+y5eg9IbWLKL9LXyBi6mjJwCJ6W1WtJLqPjv/iGnJ12xGqKZgn2ppJxahTHKMc6w/iweU7
-	iGCkJvSUZhFRT6AySbmuZVbnoaDdzwE=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-582-ZHNkR_aWN2-ZtNnSAm0pKQ-1; Mon, 11 May 2026 05:02:35 -0400
-X-MC-Unique: ZHNkR_aWN2-ZtNnSAm0pKQ-1
-X-Mimecast-MFC-AGG-ID: ZHNkR_aWN2-ZtNnSAm0pKQ_1778490154
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-48e79219704so7725195e9.1
-        for <linux-s390@vger.kernel.org>; Mon, 11 May 2026 02:02:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=redhat.com; s=google; t=1778490154; x=1779094954; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=+4kzhpMcne9QL/iUfytpcOnuwyhDfw3DKjMmXnNjefM=;
-        b=pxS20Td/tXuBCp+2WwfKjxOzm/PvmO82GEQX/QjIjoVxg+zwFN/WR4VJz8P9zmQqaG
-         4+Lh6Vz9hgego5Qz8YxqD1lECpXeFnTh7av3NccEbkMiVg4+NuqWYFjHFQSqDyLUg05z
-         pqNLJFmnDWkYEpDgh9E6/g2UcKynHnuVYXjk6aNXzk/rS+/61pJRkL8ZN9kBsG/EBnFf
-         eqI1Y9Fp8bBiu5y8bS0CXW6S2axX1FB5qotl8PMjc1wLhbok+ewdJDqRPYWmV0rFnJit
-         jicXPVzO2Az32Al/rLp7unQ4V3P/kkzt7xaEqyV9adgaFj5JuihEdKSF7ylgR9o5s/c3
-         6LMA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778490154; x=1779094954;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=+4kzhpMcne9QL/iUfytpcOnuwyhDfw3DKjMmXnNjefM=;
-        b=sDuroV0sdoqafaJya7kgs7HxcYgRnswGSOSlu2ZgPSRR6QQ3xOMq7WQkLCWv0awIPd
-         akFq9RxExHUDpxGTsd5BK4i2d2NIRAVA7a/JBL/X7MQXM/W5vtFM/zWSoNvBc02so/WA
-         z1YAkqsC0L5/8DU/cggrR3ZJFQV+pZuXzHALRQudt2UOdEqkybjjyYUMUkatN9BZblFl
-         G20picJX/1YLLNINNrGQhqcNf4yOERHFNJQOKPboXXo8kwdeeIMw8cH+p4uhXpkj/ALX
-         SiH07Rj7vC/KM6Y2U7u7axf4TS9AGTqdaECuBFMaA3HUqmLy9yHMisTCDMybV0kPS4G0
-         DgJA==
-X-Forwarded-Encrypted: i=1; AFNElJ8HgYRuHGTubOKoPoSQ07BtIUY1z/jzSHCe9R5N4NRneo3hRlFLm/Fip1atm52aZQgv6M/6hb/Y9bs1@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy2hh9GaIjgOUL7ll/o2Pu18PeHSyurwx+/qcWPOEXqtZShMPsW
-	Ah8Cd2vfzsZDYsW/pm+9w7zoplrPsdPDSwPWC8cwlJizi+RpgNSft32XNQlCK2RcHKKsOme3+PO
-	3PNtNU62f+XN0VAATfG5FzUYG/TjlJ8jD8e+2XakWSZVb+75+5lxhjeQItHOMsTk=
-X-Gm-Gg: Acq92OH34wGPQYPFs3HhrPToZtPMogVMiJzwOBhlqO+4q5iEtzS3gF9SYak8p2sYIug
-	fBbAsu006dsmn8kpTBK41nNwVh3QUK4oJ11vfpoD/AAFx1wgx2S9VnDXbbCh/1ZL5pSW2LlQEeK
-	+VdsGQsWCQIIXZlzPEwvZhCGjAbPGkY1HPAKblpVGSJxguO/1MUt3MCfExHdaJNQ3Zy4bZjyg0U
-	nvw92hxS+oGEltxYGoVAhoWTXiVJV0abWssd4Inm2H5FvjPXuQ21XC9L4HB23pODQ3T20c2EklC
-	Z9aMRwXsY4FZwgWRNe4aueHbXUzsEYQ3d4ykEFxEIxR4RD72es4hMYpSBtAqu3F39whd21r9hm3
-	tTCx8mR42h5vVDvb/wpqDeDBRczgcp33xH+izGZBU
-X-Received: by 2002:a05:600c:1d18:b0:48a:906b:14ca with SMTP id 5b1f17b1804b1-48e51f46e46mr365112575e9.20.1778490153235;
-        Mon, 11 May 2026 02:02:33 -0700 (PDT)
-X-Received: by 2002:a05:600c:1d18:b0:48a:906b:14ca with SMTP id 5b1f17b1804b1-48e51f46e46mr365111235e9.20.1778490152468;
-        Mon, 11 May 2026 02:02:32 -0700 (PDT)
-Received: from redhat.com (IGLD-80-230-48-7.inter.net.il. [80.230.48.7])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48e7040a9a9sm297049045e9.9.2026.05.11.02.02.26
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 11 May 2026 02:02:32 -0700 (PDT)
-Date: Mon, 11 May 2026 05:02:25 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: linux-kernel@vger.kernel.org
-Cc: "David Hildenbrand (Arm)" <david@kernel.org>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>,
-	Muchun Song <muchun.song@linux.dev>,
-	Oscar Salvador <osalvador@suse.de>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Lorenzo Stoakes <ljs@kernel.org>,
-	"Liam R. Howlett" <Liam.Howlett@oracle.com>,
-	Vlastimil Babka <vbabka@kernel.org>,
-	Mike Rapoport <rppt@kernel.org>,
-	Suren Baghdasaryan <surenb@google.com>,
-	Michal Hocko <mhocko@suse.com>,
-	Brendan Jackman <jackmanb@google.com>,
-	Johannes Weiner <hannes@cmpxchg.org>, Zi Yan <ziy@nvidia.com>,
-	Baolin Wang <baolin.wang@linux.alibaba.com>,
-	Nico Pache <npache@redhat.com>, Ryan Roberts <ryan.roberts@arm.com>,
-	Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>,
-	Lance Yang <lance.yang@linux.dev>, Hugh Dickins <hughd@google.com>,
-	Matthew Brost <matthew.brost@intel.com>,
-	Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
-	Byungchul Park <byungchul@sk.com>,
-	Gregory Price <gourry@gourry.net>,
-	Ying Huang <ying.huang@linux.alibaba.com>,
-	Alistair Popple <apopple@nvidia.com>,
-	Christoph Lameter <cl@gentwo.org>,
-	David Rientjes <rientjes@google.com>,
-	Roman Gushchin <roman.gushchin@linux.dev>,
-	Harry Yoo <harry.yoo@oracle.com>,
-	Axel Rasmussen <axelrasmussen@google.com>,
-	Yuanchu Xie <yuanchu@google.com>, Wei Xu <weixugc@google.com>,
-	Chris Li <chrisl@kernel.org>, Kairui Song <kasong@tencent.com>,
-	Kemeng Shi <shikemeng@huaweicloud.com>,
-	Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>,
-	virtualization@lists.linux.dev, linux-mm@kvack.org,
-	Andrea Arcangeli <aarcange@redhat.com>,
-	Magnus Lindholm <linmag7@gmail.com>,
-	Greg Ungerer <gerg@linux-m68k.org>,
-	Geert Uytterhoeven <geert@linux-m68k.org>,
-	Richard Henderson <richard.henderson@linaro.org>,
-	Matt Turner <mattst88@gmail.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
-	Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-	"H. Peter Anvin" <hpa@zytor.com>, linux-alpha@vger.kernel.org,
-	linux-m68k@lists.linux-m68k.org, linux-s390@vger.kernel.org
-Subject: [PATCH resend v6 08/30] mm: remove arch
- vma_alloc_zeroed_movable_folio overrides
-Message-ID: <24a1b25f4f1cf31fc5bc053e475958ed5e1bf8bd.1778489843.git.mst@redhat.com>
-References: <cover.1778489843.git.mst@redhat.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Lui/AkIR"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 64ALFAhJ3864008;
+	Mon, 11 May 2026 10:59:15 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:sender:subject:to; s=pp1; bh=q5kqPWfpG2YwyRciIXrlPmu
+	/OQxVH/67G/Fbf4EwDRI=; b=Lui/AkIRbobUvpuLK5N6C2U/KLqZ2SJJig1IKPI
+	amMJedrYO+Xog0cN9pgIJaTsJDPSSyZxq4fDynUgepcB83Dioyox7BzDMGtaNo7Y
+	jKjY5h36TSSWJCosl5pl5uI/4b6EabXcJKqZMEVUBuCsvZAG6Ag7o20U93MBXel8
+	wTLtj4oWPGLa3GSlmAWuI4svS50W9vGwsrYRDNQNkXHXRauvblJIZ7YVAt5HVbo1
+	B06lJHaMla0jV6zoY1Q12pQXDfVne2CPugSAY9EYpLcOoFmHxUTnH9XlKGgrAgjG
+	Lc14faP+CxQp1v6v8bHNkfuQilwiDdKyZQWtMx6GVGNu6Sw==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4e1vn4qv9b-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 11 May 2026 10:59:15 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 64BAsbF4011225;
+	Mon, 11 May 2026 10:59:14 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4e2hfg4r43-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 11 May 2026 10:59:14 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 64BAxBrj43713022
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 11 May 2026 10:59:11 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id EC64320043;
+	Mon, 11 May 2026 10:59:10 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id D3F7920040;
+	Mon, 11 May 2026 10:59:10 +0000 (GMT)
+Received: from vela (unknown [9.111.77.58])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Mon, 11 May 2026 10:59:10 +0000 (GMT)
+Received: from brueckner by vela with local (Exim 4.99.1)
+	(envelope-from <brueckner@linux.ibm.com>)
+	id 1wMOLu-00000000Sk0-0BHY;
+	Mon, 11 May 2026 12:59:10 +0200
+Date: Mon, 11 May 2026 12:59:10 +0200
+From: Hendrik Brueckner <brueckner@linux.ibm.com>
+To: Eric Farman <farman@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@kernel.org>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: Re: [PATCH v2 3/3] KVM: s390: Fix typo in UCONTROL documentation
+Message-ID: <agG2fncs1hGjFBt8@linux.ibm.com>
+References: <20260507200836.3500368-1-farman@linux.ibm.com>
+ <20260507200836.3500368-4-farman@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -141,85 +76,40 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <cover.1778489843.git.mst@redhat.com>
-X-Mailer: git-send-email 2.27.0.106.g8ac3dc51b1
-X-Mutt-Fcc: =sent
+In-Reply-To: <20260507200836.3500368-4-farman@linux.ibm.com>
+Sender: Hendrik Brueckner <brueckner@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=BM+DalQG c=1 sm=1 tr=0 ts=6a01b683 cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+ a=kj9zAlcOel0A:10 a=NGcC8JguVDcA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8
+ a=gYbddNRvOjDexA9mkPUA:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTExMDExNyBTYWx0ZWRfX8SeI423qxk+4
+ F5j/pk4M+yKqIu4orw20E8s6cp5fkyKkKItfe8AGhXsuzfxqnyzx26Oc6l1dMVBfbXdgzzwii6w
+ jx1ArhTOi77lo9R+iZgFvUAfgplb4oMiWgh7qoltVrJa70jHTnvzHzpufAfXp4tRPcqqOQNov2Z
+ RmFd5zyElwY+PrEEu+dZzMJoNVNyzD9pIJ8JZtySrWkyIwxtRNnnJAt7ka0lOJFcS95wpX9uI6w
+ jBaww79M1k5KwsYD+d/lou+1XRmfeFkStSLDUBlJkR9Q9K1kMCZ4Z5AGaIlvH70f25p1NFuNCPr
+ ojx3b7fVX55d+TD+bTc5olGj+yXDq9kml+62vxnybOEr/SaRYwjpUiv0wkdfjsPWFcjTUO7eFZZ
+ sAhwiD3BAE+mCjWe9l/rknY6eYcBxyWE6tcA4szZcMIou3OuArRn9idiHe2qvKgOMGeFfJfoDL6
+ lS4zXEfyOFviP0zpf2A==
+X-Proofpoint-GUID: 0MBUeMW35Vumj6wgKIzEGGQTAKnxU5T5
+X-Proofpoint-ORIG-GUID: 0MBUeMW35Vumj6wgKIzEGGQTAKnxU5T5
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-05-11_03,2026-05-08_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ clxscore=1015 impostorscore=0 suspectscore=0 bulkscore=0 spamscore=0
+ lowpriorityscore=0 priorityscore=1501 adultscore=0 malwarescore=0
+ phishscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2604200000
+ definitions=main-2605110117
 
-Now that the generic vma_alloc_zeroed_movable_folio() uses
-__GFP_ZERO, the arch-specific macros on alpha, m68k, s390, and
-x86 that did the same thing are redundant.  Remove them.
-
-arm64 is not affected: it has a real function override that
-handles MTE tag zeroing, not just __GFP_ZERO.
-
-Suggested-by: David Hildenbrand <david@kernel.org>
-Acked-by: Magnus Lindholm <linmag7@gmail.com>
-Acked-by: Greg Ungerer <gerg@linux-m68k.org>
-Acked-by: Geert Uytterhoeven <geert@linux-m68k.org> # m68k
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- arch/alpha/include/asm/page.h   | 3 ---
- arch/m68k/include/asm/page_no.h | 3 ---
- arch/s390/include/asm/page.h    | 3 ---
- arch/x86/include/asm/page.h     | 3 ---
- 4 files changed, 12 deletions(-)
-
-diff --git a/arch/alpha/include/asm/page.h b/arch/alpha/include/asm/page.h
-index 59d01f9b77f6..4327029cd660 100644
---- a/arch/alpha/include/asm/page.h
-+++ b/arch/alpha/include/asm/page.h
-@@ -12,9 +12,6 @@
- 
- extern void clear_page(void *page);
- 
--#define vma_alloc_zeroed_movable_folio(vma, vaddr) \
--	vma_alloc_folio(GFP_HIGHUSER_MOVABLE | __GFP_ZERO, 0, vma, vaddr)
--
- extern void copy_page(void * _to, void * _from);
- #define copy_user_page(to, from, vaddr, pg)	copy_page(to, from)
- 
-diff --git a/arch/m68k/include/asm/page_no.h b/arch/m68k/include/asm/page_no.h
-index d2532bc407ef..f511b763a235 100644
---- a/arch/m68k/include/asm/page_no.h
-+++ b/arch/m68k/include/asm/page_no.h
-@@ -12,9 +12,6 @@ extern unsigned long memory_end;
- 
- #define copy_user_page(to, from, vaddr, pg)	copy_page(to, from)
- 
--#define vma_alloc_zeroed_movable_folio(vma, vaddr) \
--	vma_alloc_folio(GFP_HIGHUSER_MOVABLE | __GFP_ZERO, 0, vma, vaddr)
--
- #define __pa(vaddr)		((unsigned long)(vaddr))
- #define __va(paddr)		((void *)((unsigned long)(paddr)))
- 
-diff --git a/arch/s390/include/asm/page.h b/arch/s390/include/asm/page.h
-index 56da819a79e6..e995d2a413f9 100644
---- a/arch/s390/include/asm/page.h
-+++ b/arch/s390/include/asm/page.h
-@@ -67,9 +67,6 @@ static inline void copy_page(void *to, void *from)
- 
- #define copy_user_page(to, from, vaddr, pg)	copy_page(to, from)
- 
--#define vma_alloc_zeroed_movable_folio(vma, vaddr) \
--	vma_alloc_folio(GFP_HIGHUSER_MOVABLE | __GFP_ZERO, 0, vma, vaddr)
--
- #ifdef CONFIG_STRICT_MM_TYPECHECKS
- #define STRICT_MM_TYPECHECKS
- #endif
-diff --git a/arch/x86/include/asm/page.h b/arch/x86/include/asm/page.h
-index 416dc88e35c1..92fa975b46f3 100644
---- a/arch/x86/include/asm/page.h
-+++ b/arch/x86/include/asm/page.h
-@@ -28,9 +28,6 @@ static inline void copy_user_page(void *to, void *from, unsigned long vaddr,
- 	copy_page(to, from);
- }
- 
--#define vma_alloc_zeroed_movable_folio(vma, vaddr) \
--	vma_alloc_folio(GFP_HIGHUSER_MOVABLE | __GFP_ZERO, 0, vma, vaddr)
--
- #ifndef __pa
- #define __pa(x)		__phys_addr((unsigned long)(x))
- #endif
--- 
-MST
-
+On Thu, May 07, 2026 at 10:08:36PM +0200, Eric Farman wrote:
+> Small typo noticed while writing the USER_OPEREXEC selftest.
+> 
+> Signed-off-by: Eric Farman <farman@linux.ibm.com>
+> ---
+>  Documentation/virt/kvm/api.rst | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+Reviewed-by: Hendrik Brueckner <brueckner@linux.ibm.com>
