@@ -1,146 +1,167 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from out-182.mta0.migadu.com (out-182.mta0.migadu.com [91.218.175.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D80673BAD90;
-	Mon, 11 May 2026 13:05:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B3FCD3783BB
+	for <linux-s390@vger.kernel.org>; Mon, 11 May 2026 13:24:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778504748; cv=none; b=GOdaSCBcGHNXOw+LtTi1WDk7wngJ0iZPW8wR7F0lxcysqueJRRXUwpzEnkq9HE9SdKnDT7EXr/Pghsdd9awP17te8Rp3yXT4pu6p8fzGZ5dNzK6oRpNDgZmK2AD5Fg3UTQPFt6VRG+dbRC6vWwPdixnTsk1aP8GmfAvaQz28UNA=
+	t=1778505863; cv=none; b=CNIYcMv6367Ioz/hld5DBAxAOP2iWhWZpnSKw6ujTzoVKTx9TlCIU4ZTjqeDUY5mFiCjsSeOOHLYV/38OmFqusRf/O1IZQhT6RlUpL0SPj8JPXQpxmNRqP05H5poK1S2eFfFQ50Q8JqCQNem79Y7u28nyuVbdnKYaPm4HGWfixM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778504748; c=relaxed/simple;
-	bh=D4TZ2PDbQ1D4kjvzq/nrJ+Uq6CeX3FneZzCQz8PjBeo=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=lBCfyR0yEDx4Hew35RAVVb8msv4ZWSq/aac/CgT7B2FbZlo3fEZS09Cd2bTRMNIQ2T1HHpwT5x0CyDMACKdSOmk/FlzUsKmbc1OoJWCTOX0nvP3hIzXbyIYGU+cYJZYJhNDe2gD5ZVk2AzZ3wLcaSEIBmAPIqndANxb3i8JfCx0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=tDDYWlLU; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1778505863; c=relaxed/simple;
+	bh=4Oty7p29C8oNyyH72Iy8dxZZ6HAi9idSJYItIxPswfs=;
+	h=Content-Type:From:Mime-Version:Subject:Date:Message-Id:References:
+	 Cc:In-Reply-To:To; b=WxqJPGsu4exhQhG5xHSl4nytteXCNUFNA7Cs7BX7k4JehB9v083XENF+QTA2E/qG4+caueAnwZ8asPnk3mlpoopHOr3YUT8WzPnJXHmi5zPQGx9E7BS46KwRjtenbj/qRLGr0/lrRofWrkOrNzumgJT1nHJR78BlDqtbXKhAELI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=tR6uiK4v; arc=none smtp.client-ip=91.218.175.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="tDDYWlLU"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3B48C2BCB0;
-	Mon, 11 May 2026 13:05:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1778504748;
-	bh=D4TZ2PDbQ1D4kjvzq/nrJ+Uq6CeX3FneZzCQz8PjBeo=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=tDDYWlLU6lMBmIRR99eo79X8GJzcf/TVADyvfp3K4/zs7YokACeF1tOsC947D162J
-	 JNxZC0BnVx4IZGnIM6dL4UXmE7Tz5c36rdrkb/pNiRKxHojvEMS1JGVEaOI95wPXJq
-	 Wro67TeQLzRvccM4SvXngRjGeZBKPxYJo2Xj7Q2BUYV0pn3korL6Kt3FVaei9ghdyL
-	 +HHzQhYKaltX2xrJVj4JO3KPWQOgYdInXEw5NFY0kdbel72ut0cPRW4/8iTaBuHVPs
-	 +Q0dH/8Bou1kJbS2k4a/5b7K2yaPpCmv56aTRPnYuOAduo5DX4oxCOPyhH4RvV5Qpp
-	 uxo6JudqRrdHA==
-Message-ID: <4df23f32-c538-4755-a1c9-be8559a103a3@kernel.org>
-Date: Mon, 11 May 2026 15:05:44 +0200
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="tR6uiK4v"
+Content-Type: text/plain; charset=utf-8
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1778505849;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=5z8Lm7PbYzdvsHr44p/Kq/5LGVMLu1AFqGqWWK02nUg=;
+	b=tR6uiK4vEp5eioru6Ipra4Az/BhAvo1kWF1fPx6I9XeodPF8HIrBISmioNv7imWa3B6iiI
+	/VEPQtEj82FsW6aw7jq/5BB4OkswlViDVjO+jJucIVX6gDAj4r/773nRMQen1GTVH5A6RO
+	KhzO5EEzI5sjkIVCHpA+MgQlMRr49rQ=
+Content-Transfer-Encoding: quoted-printable
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From: Muchun Song <muchun.song@linux.dev>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 2/3] mm: process_mrelease: skip LRU movement for
- exclusive file folios
-To: "Liam R. Howlett" <liam@infradead.org>
-Cc: Michal Hocko <mhocko@suse.com>, Minchan Kim <minchan@kernel.org>,
- Suren Baghdasaryan <surenb@google.com>, akpm@linux-foundation.org,
- hca@linux.ibm.com, linux-s390@vger.kernel.org, brauner@kernel.org,
- linux-mm@kvack.org, linux-kernel@vger.kernel.org, timmurray@google.com,
- "Liam R. Howlett" <Liam.Howlett@oracle.com>
-References: <ae-Zu-VAzAA7SdLa@tiehlicka> <ae_roPR64e6sY_fN@google.com>
- <afBaJLLFigkdszov@tiehlicka> <afFco71vwmpQy3pk@google.com>
- <afG-4hq7Hr62Uu6J@tiehlicka>
- <7f98f461-62a7-455d-a7a8-cb8928465946@kernel.org>
- <afHeXY-yeTwmURWh@tiehlicka>
- <4a612d63-2838-40f5-ab67-79bf35dd3a56@kernel.org>
- <afIZQOtaBabeHtCc@tiehlicka>
- <b2d9fe2b-abb0-49d1-8056-ac93aa232bbb@kernel.org>
- <7g5g57jbll5joujbwjb4osqhdwqd4yzc54wmoi7ftx4a4chuax@xtxyljtqaodp>
-From: "David Hildenbrand (Arm)" <david@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=david@kernel.org; keydata=
- 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
- qIws/H2t
-In-Reply-To: <7g5g57jbll5joujbwjb4osqhdwqd4yzc54wmoi7ftx4a4chuax@xtxyljtqaodp>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Mime-Version: 1.0 (1.0)
+Subject: Re: [PATCH] drivers/base/memory: make memory block get/put explicit
+Date: Mon, 11 May 2026 21:23:18 +0800
+Message-Id: <3234B4D3-8202-4E79-B85B-8B6373BB76F6@linux.dev>
+References: <2841f424-580c-48c6-bb26-de30e4397b7f@kernel.org>
+Cc: Muchun Song <songmuchun@bytedance.com>,
+ Oscar Salvador <osalvador@suse.de>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ "Rafael J. Wysocki" <rafael@kernel.org>,
+ Danilo Krummrich <dakr@kernel.org>,
+ Andrew Morton <akpm@linux-foundation.org>,
+ Lorenzo Stoakes <ljs@kernel.org>, "Liam R. Howlett" <liam@infradead.org>,
+ Vlastimil Babka <vbabka@kernel.org>, Mike Rapoport <rppt@kernel.org>,
+ Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>,
+ Madhavan Srinivasan <maddy@linux.ibm.com>,
+ Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
+ Christophe Leroy <chleroy@kernel.org>, Heiko Carstens <hca@linux.ibm.com>,
+ Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>, linux-mm@kvack.org,
+ driver-core@lists.linux.dev, linux-kernel@vger.kernel.org,
+ linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org
+In-Reply-To: <2841f424-580c-48c6-bb26-de30e4397b7f@kernel.org>
+To: David Hildenbrand <david@kernel.org>
+X-Migadu-Flow: FLOW_OUT
 
->>
->> But we'd have to learn from Liam :)
-> 
-> Yes, it will be a zero entry tree now.
-> 
-> I left the flag to indicate that it's an unstable mm, not for faulting
-> in but to be skipped in OOM events and process_mrelease since neither
-> should bother doing anything in the window between the dup_mm() failure
-> and the exit_mmap() window where the write lock was dropped.
-> 
-> We can safely drop the flag now if you want to, because everything has
-> to deal with an empty vma tree anyways - a race can occur between a call
-> to unmap everything and the task seg faulting.
 
-Thanks for confirming!
 
-> 
->>
->>
->>>
->>> The bottom line is the same. Make sure PF fails rather than silently
->>> provide potentially corrupted data.
->>>
->>>
->>> Ohh, you mean to add a new flag, right?
->>
->> We could do that as well, if it's of any help.
-> 
-> I really think this goes back to the life cycle of the mm being somewhat
-> difficult to figure out.  
+> On May 11, 2026, at 20:22, David Hildenbrand (Arm) <david@kernel.org> wrot=
+e:
+>=20
+> =EF=BB=BFOn 5/11/26 13:18, Muchun Song wrote:
+>> Rename the memory block lookup helper to make the acquired reference
+>> explicit, add memory_block_put() to wrap put_device(), and collapse the
+>> redundant section-number wrapper into a single block-id based lookup
+>> interface.
+>>=20
+>> This makes it clearer to callers that a successful lookup holds a
+>> reference that must be dropped, reducing the chance of forgetting the
+>> matching put and leaking the memory block device reference.
+>=20
+> Better mention some of the other changes here, like removing find_memory_b=
+lock().
 
-Agreed.
+Will do.
 
-> I'm fine with another flag.
+>=20
+> [...]
+>=20
+>>    unlock_device_hotplug();
+>> diff --git a/include/linux/memory.h b/include/linux/memory.h
+>> index 5bb5599c6b2b..29edef1f975c 100644
+>> --- a/include/linux/memory.h
+>> +++ b/include/linux/memory.h
+>> @@ -158,7 +158,11 @@ int create_memory_block_devices(unsigned long start,=
+ unsigned long size,
+>> void remove_memory_block_devices(unsigned long start, unsigned long size)=
+;
+>> extern void memory_dev_init(void);
+>> extern int memory_notify(enum memory_block_state state, void *v);
+>> -extern struct memory_block *find_memory_block(unsigned long section_nr);=
 
-Right, alternatively we could just turn the unstable flag into a "OOM is hiding
-in the bushes to reap this MM".
+>> +extern struct memory_block *memory_block_get(unsigned long block_id);
+>=20
+> While at it, please drop the "extern".
 
--- 
-Cheers,
+OK.
 
-David
+>=20
+>> +static inline void memory_block_put(struct memory_block *mem)
+>> +{
+>> +    put_device(&mem->dev);
+>> +}
+>> typedef int (*walk_memory_blocks_func_t)(struct memory_block *, void *);
+>> extern int walk_memory_blocks(unsigned long start, unsigned long size,
+>>                  void *arg, walk_memory_blocks_func_t func);
+>> @@ -171,7 +175,6 @@ struct memory_group *memory_group_find_by_id(int mgid=
+);
+>> typedef int (*walk_memory_groups_func_t)(struct memory_group *, void *);
+>> int walk_dynamic_memory_groups(int nid, walk_memory_groups_func_t func,
+>>                   struct memory_group *excluded, void *arg);
+>> -struct memory_block *find_memory_block_by_id(unsigned long block_id);
+>> #define hotplug_memory_notifier(fn, pri) ({        \
+>>    static __meminitdata struct notifier_block fn##_mem_nb =3D\
+>>        { .notifier_call =3D fn, .priority =3D pri };\
+>> diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
+>> index 462d8dcd636d..890c6453e887 100644
+>> --- a/mm/memory_hotplug.c
+>> +++ b/mm/memory_hotplug.c
+>> @@ -1417,14 +1417,13 @@ static void remove_memory_blocks_and_altmaps(u64 s=
+tart, u64 size)
+>>        struct vmem_altmap *altmap =3D NULL;
+>>        struct memory_block *mem;
+>>=20
+>> -        mem =3D find_memory_block(pfn_to_section_nr(PFN_DOWN(cur_start))=
+);
+>> +        mem =3D memory_block_get(phys_to_block_id(cur_start));
+>>        if (WARN_ON_ONCE(!mem))
+>>            continue;
+>>=20
+>>        altmap =3D mem->altmap;
+>>        mem->altmap =3D NULL;
+>> -        /* drop the ref. we got via find_memory_block() */
+>> -        put_device(&mem->dev);
+>> +        memory_block_put(mem);
+>=20
+> Would guards come in handy here?
+
+You mean to introduce something like:
+
+scoped_guard(memory_block, id) {
+}
+
+Right? If yes, I will give it a try.
+
+>=20
+> In general
+>=20
+> Acked-by: David Hildenbrand (Arm) <david@kernel.org>
+
+Thanks.
+
+Muchun
+
+>=20
+> --
+> Cheers,
+>=20
+> David
