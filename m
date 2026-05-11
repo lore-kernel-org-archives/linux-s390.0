@@ -1,34 +1,35 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C18E93ED113;
-	Mon, 11 May 2026 14:06:03 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F04DA25333F;
+	Mon, 11 May 2026 14:06:08 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778508363; cv=none; b=KGOMfeWn6Fb3AN0MF6+GSXFNPQZR6fLEnYv25WvUGK3GJLhzTBKPqb0R10XnS8le9GUuzih2Hps49UqQSzHoKC8seulWTZQLd1aZISjGKEvl/afSvlkJqHzDR+gF1ZCZrH4yYnb/nR0RLihF+QzNDweShBJ05f6U8BIU8+zxC0U=
+	t=1778508369; cv=none; b=GvhFjPc218fgJeQ/Tx+pVkY3GF6DGVtGz5fBnvgZlS8J2BeOoE2/CvN4GrPLsv0mwsPyMn/IIpDj3lajBr+5NDsptOWDTEy1n7szFx00cyCMfSLOGEt3pUO6TQzexgWsTFbPkgWXZdyBUGM3A2f2DjeDXl0Pybyl7thYAXVdqnE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778508363; c=relaxed/simple;
-	bh=MFrlSNsTp04kT+A7ReVQ6q1RUJiMOyuWN+whgS79KCI=;
+	s=arc-20240116; t=1778508369; c=relaxed/simple;
+	bh=Df7YQtlt1u58ew8l6Y3LcE6eBp8Ob9c95zjKPT1feMY=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=HadTFk+p5GhqFno/qEY3BhYMYFTydQ/DJjaHRy8eQrYYN2H1NdNGLSj0wWuFkkeMBsHQMI3JeXSiSSetjjzyBtdTmg1SPa9TrpKoKVS12im9LRz3EC/1XSShgdT3EJIgL870Ini3gwNW7bb+yFIP7aQ+hObmbTrWQL1CmDKegBY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VzzaUGht; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=ToiU9+j0IAFjyXqnmEIHvH6+Pi2cJ3SYzl8FP93nbWGl80ZuEKPO+4upe6CciMeMBl0Ywqc9DOw4Z7EY1Ib9e1hdFNITSh9DSYY3v3BT0YPoUbMJ6Mk1qwgRGTriN5XOD4D94x9WBUzPjnci3rY/GvoKyAxkxb4hcMpMzSl6eW0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FkHD5Qko; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VzzaUGht"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6A89C2BCC9;
-	Mon, 11 May 2026 14:05:58 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FkHD5Qko"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3134C2BCB0;
+	Mon, 11 May 2026 14:06:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1778508363;
-	bh=MFrlSNsTp04kT+A7ReVQ6q1RUJiMOyuWN+whgS79KCI=;
+	s=k20201202; t=1778508368;
+	bh=Df7YQtlt1u58ew8l6Y3LcE6eBp8Ob9c95zjKPT1feMY=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
-	b=VzzaUGhtjmv+hgICpWb9Ds9RkOduoJ8mQ0Y/DcgBVY2dFaaRVfcVxiN2SbUKQuwiL
-	 o7eRr+5Toxr4lABnCNoOTIMMN4aJ7fOgqOVvyGtkdg6QrUqs7rUeaGOqi3u1nVPDkg
-	 Ksz0MxzCsMSNEnnyFYKhliTDT4hT3Njg5ZT2r8cMD3/8wzL/mBhdvfWXpE7D+1LW98
-	 rN7lvX13lEtdJbla8okiBqaGSKrxpTp5HtBwVqWJp27YyraoMyd04koJ5hVKbMZSfn
-	 dFRNDUbp6ZtPNR/BNeg+D8gkJkfsmTb8oqE4KzJl4JXpHPBQHLEyE3u3AiI6BbVR9e
-	 ixKjUMbFwUVSQ==
+	b=FkHD5QkoYoiTQo6rsfptPtJyyjVmT203uCGrdm3RY3TRoKsGoRzuEBRzTLOM/MoDg
+	 MayWcxnF91mKM6xXDqXD9sGLU9DDrFF/Wd0FcMZBhsbYliBwps+T+lJ6mRl4OaaReO
+	 AlharA0hbNn+y6DBkFP+QQAyvIrUPUFzFmpPv9Aeut02HsJDMZ8DCG5+AYe4QiH1Jo
+	 8RHEPoYqRTLWsqkE6/OR/o79ST9ZtLIw1kKnllAjVgvLKKr3BbYRA+dtRv8sj5b0ws
+	 pNwKalE2Qqrlt/eCvy2KefMfl81e24Y17AgpykKyxL2jc/Kn4MflcxXJ6feg6RoApD
+	 oitkf0c1mdkoQ==
 From: "David Hildenbrand (Arm)" <david@kernel.org>
-Date: Mon, 11 May 2026 16:05:33 +0200
-Subject: [PATCH 5/8] mm/bootmem_info: stop marking the pgdat as NODE_INFO
+Date: Mon, 11 May 2026 16:05:34 +0200
+Subject: [PATCH 6/8] mm/bootmem_info: stop marking mem_section_usage as
+ MIX_SECTION_INFO
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -37,7 +38,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260511-bootmem_info_prep-v1-5-3fb0be6fc688@kernel.org>
+Message-Id: <20260511-bootmem_info_prep-v1-6-3fb0be6fc688@kernel.org>
 References: <20260511-bootmem_info_prep-v1-0-3fb0be6fc688@kernel.org>
 In-Reply-To: <20260511-bootmem_info_prep-v1-0-3fb0be6fc688@kernel.org>
 To: "David S. Miller" <davem@davemloft.net>, 
@@ -59,48 +60,49 @@ Cc: sparclinux@vger.kernel.org, linux-kernel@vger.kernel.org,
  linuxppc-dev@lists.ozlabs.org, "David Hildenbrand (Arm)" <david@kernel.org>
 X-Mailer: b4 0.13.0
 
-We removed the last user of NODE_INFO in commit 119c31caa59e ("mm/sparse:
-remove !CONFIG_SPARSEMEM_VMEMMAP leftovers for CONFIG_MEMORY_HOTPLUG").
+We never free the ms->usage data for boot memory sections (see
+section_deactivate()). And to identify whether ms->usage was allocated
+from memblock, we simply identify it by looking at PG_reserved.
 
-But it really was never used it besides for safety-checks ever since it was
-introduced in commit 04753278769f ("memory hotplug: register section/node
-id to free"), where we had the comment:
-
-	5) The node information like pgdat has similar issues. But, this
-	   will be able to be solved too by this.
-	   (Not implemented yet, but, remembering node id in the pages.)
-
-Of course, that never happened, and we are not planning on freeing the
-node data (pgdat/pglist_data), during memory hotunplug.
-
-So let's just stop marking the pgdat as NODE_INFO.
+Consequently, there is no need to mark ms->usage as MIX_SECTION_INFO.
+Let's just stop doing that.
 
 Signed-off-by: David Hildenbrand (Arm) <david@kernel.org>
 ---
- mm/bootmem_info.c | 9 +--------
- 1 file changed, 1 insertion(+), 8 deletions(-)
+ mm/bootmem_info.c | 12 +-----------
+ 1 file changed, 1 insertion(+), 11 deletions(-)
 
 diff --git a/mm/bootmem_info.c b/mm/bootmem_info.c
-index 74c1116626c8..cce1d560f094 100644
+index cce1d560f094..0fa78db7fbc0 100644
 --- a/mm/bootmem_info.c
 +++ b/mm/bootmem_info.c
-@@ -62,15 +62,8 @@ static void __init register_page_bootmem_info_section(unsigned long start_pfn)
+@@ -38,10 +38,8 @@ void put_page_bootmem(struct page *page)
+ 
+ static void __init register_page_bootmem_info_section(unsigned long start_pfn)
+ {
+-	unsigned long mapsize, section_nr, i;
++	unsigned long section_nr;
+ 	struct mem_section *ms;
+-	struct mem_section_usage *usage;
+-	struct page *page;
+ 
+ 	start_pfn = SECTION_ALIGN_DOWN(start_pfn);
+ 	section_nr = pfn_to_section_nr(start_pfn);
+@@ -50,14 +48,6 @@ static void __init register_page_bootmem_info_section(unsigned long start_pfn)
+ 	if (!preinited_vmemmap_section(ms))
+ 		register_page_bootmem_memmap(section_nr, pfn_to_page(start_pfn),
+ 					     PAGES_PER_SECTION);
+-
+-	usage = ms->usage;
+-	page = virt_to_page(usage);
+-
+-	mapsize = PAGE_ALIGN(mem_section_usage_size()) >> PAGE_SHIFT;
+-
+-	for (i = 0; i < mapsize; i++, page++)
+-		get_page_bootmem(section_nr, page, MIX_SECTION_INFO);
+ }
  
  void __init register_page_bootmem_info_node(struct pglist_data *pgdat)
- {
--	unsigned long i, pfn, end_pfn, nr_pages;
-+	unsigned long pfn, end_pfn;
- 	int node = pgdat->node_id;
--	struct page *page;
--
--	nr_pages = PAGE_ALIGN(sizeof(struct pglist_data)) >> PAGE_SHIFT;
--	page = virt_to_page(pgdat);
--
--	for (i = 0; i < nr_pages; i++, page++)
--		get_page_bootmem(node, page, NODE_INFO);
- 
- 	pfn = pgdat->node_start_pfn;
- 	end_pfn = pgdat_end_pfn(pgdat);
 
 -- 
 2.43.0
