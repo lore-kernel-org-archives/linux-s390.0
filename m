@@ -1,60 +1,60 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 351B73BED16;
-	Mon, 11 May 2026 08:35:43 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 327183BED23;
+	Mon, 11 May 2026 08:37:40 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778488558; cv=none; b=Xq9d79hwnk0CuCZgPrU+RZo5kE44MOyjjwioxwebgJeCMJ1BrDAhtjxlvPorHg/veyCtf/R6FVT2oRMDSfdJvCoY11O6QcorTpDOiGC4RXmbCJ7dOOMpzbL0fbSA0OFHe73dCTNVjf35rBgDOjNZ5QXn+A4eIP3XVGrWVfEkYIs=
+	t=1778488664; cv=none; b=sCyXXKhXhASdbe/xqqmrA1ib2uO2DQWOaoDNWDkgtBzhvdHtr04v5ywGYE60l55SbSVV8ie25p5/dTvIhGmSRJygUBx13SCFo0pvJY9T5FtNRYAwkioQHSK54yzzJbryg0jBlYlKFbpmbuXcCROeu/HFdS6gr2ztM+BPjU/N1n4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778488558; c=relaxed/simple;
-	bh=DknbBKzchxgZ53+UH8Ho9oLwNOUvTaGNhH4rAPzKsw8=;
+	s=arc-20240116; t=1778488664; c=relaxed/simple;
+	bh=wrQfNQFF+noiK4Zzne2oXM4X2bP/2xcitguHXubqJPU=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=MHVSzhH8sqGkJBzkthd2+YLFvgloKYldDxoybNLHHru8eXEExVms2vmf7ZyppJ0Zo+GCvy1NHt0ltwlXch6soPaKbWrGfx4UmcXJu5/P7k7vdZxHPRQf2n9dlr03iKKUaH98BokmYspt2IteKN69l+HKCkKu4TzRi+7nDHeUIK0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=AHkAxace; arc=none smtp.client-ip=148.163.156.1
+	 In-Reply-To:Content-Type; b=XinUUHvHGU1j9BKd4Ry9WDma+ntfMcOd6sx/ZPU7go5QNOcqjo1uOdppCV9b+PytVQSfBR9XZLA2JEjTCa+cJRm5PVw8BkGdh4wr7ZcIeYR1yTmBoQp68YW+kL/GNVl+strK3eQIxQw79aGHe7Y3e1R1v0787NrJX861eG5NphA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=XCfnHsqx; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="AHkAxace"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 64AKj5HN3808092;
-	Mon, 11 May 2026 08:35:38 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="XCfnHsqx"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 64A9tx9G2478628;
+	Mon, 11 May 2026 08:37:31 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=3b8A3b
-	iwaEMZTkcgdonuLbbgmL/dPYjr2nXmHxglC1o=; b=AHkAxaceS5QlSdBwWc1FKb
-	8VKq7kQZDsGZ4NB/08sPDGv3QxY9txjz3Z0qYus0JtXI9fjX9EyTZIDGo/oTuVEU
-	0V5CsIbhRp3m67mOZBbZi7I1VJH9mz+Esfef+xEwW8FhIDqW4WKxsV0grluXF+77
-	4XHBHrgErz0Xem6gC3rId9lZbrzVF2VwN68E9XkAL5NAGcwg+/DAGVirlXo52A5G
-	UFC7SHlvjN+fbnLxyfvz+Gw79WRWna8EsBCzfAVmfjljuoPM9TYLcrdsPlIlw7TN
-	g+ZIvAbdCvFN7Dm8PxeUbMw8GY3GVyfST5Ts4VDkhMPcvF3XCzDH76w9adLZYtNg
+	:message-id:mime-version:references:subject:to; s=pp1; bh=UUN6N4
+	A3ZRkJHj3MjeRGSGeexRZNtiEt2KMnbNEH7fk=; b=XCfnHsqxUPyw06tQzF6Cpg
+	j+xkBYmOogJtVUcbkjSHm9jiFfIFiebCkryKd3sGpNJyFpb7c2Wc7pBAQFSGZsUM
+	PJCQ6xWKWYJOU7/u9iH4BVILloERFDAGS8IPMxxCheQ7zJXPYKDndoVMlQajWqsS
+	+a/SZo42tH9C9aXrDm5ZyG13v0KXuDVfV4ZWygLZNwkmiIm3ZLR4bdcsTeXUuTpG
+	CHyHq4RhQSrzrU9Wiw0UCIEFB9C2G84d5kQX/unQdhei8pbX4CHhtUku+7CIxSfN
+	l6zlcQ4Bjc94R7Vvhdc/py9m91bgVQms/4Q0x1lCw8mAb/JjW0OwBNjUcbFrXedA
 	==
 Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4e1vn4qbm5-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4e1vkqqb82-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 11 May 2026 08:35:38 +0000 (GMT)
+	Mon, 11 May 2026 08:37:31 +0000 (GMT)
 Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 64B8OTvl014722;
-	Mon, 11 May 2026 08:35:37 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4e2grh4bx1-1
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 64B8OTPJ014726;
+	Mon, 11 May 2026 08:37:30 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4e2grh4c3m-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 11 May 2026 08:35:37 +0000 (GMT)
+	Mon, 11 May 2026 08:37:30 +0000 (GMT)
 Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 64B8ZXif13566262
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 64B8bQ2450921952
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 11 May 2026 08:35:33 GMT
+	Mon, 11 May 2026 08:37:26 GMT
 Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8BB842004B;
-	Mon, 11 May 2026 08:35:33 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 7EA8420040;
+	Mon, 11 May 2026 08:37:26 +0000 (GMT)
 Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 28FFA20043;
-	Mon, 11 May 2026 08:35:33 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 3B5B22004B;
+	Mon, 11 May 2026 08:37:26 +0000 (GMT)
 Received: from [9.87.154.62] (unknown [9.87.154.62])
 	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 11 May 2026 08:35:33 +0000 (GMT)
-Message-ID: <dd51233a-1bb9-4af6-8314-60725f1a1178@linux.ibm.com>
-Date: Mon, 11 May 2026 10:35:32 +0200
+	Mon, 11 May 2026 08:37:26 +0000 (GMT)
+Message-ID: <ed408697-610a-4ebd-85f2-38205e5292b0@linux.ibm.com>
+Date: Mon, 11 May 2026 10:37:26 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -62,22 +62,17 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 1/4] KVM: s390: Minor refactor of base/ext facility
- lists
+Subject: Re: [kvm-unit-tests PATCH v5 5/6] s390x: sclp: Add detection of
+ alternate STFLE facilities
 To: Christoph Schlameuss <schlameuss@linux.ibm.com>,
-        linux-s390@vger.kernel.org
-Cc: David Hildenbrand <david@kernel.org>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Heiko Carstens
- <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Hendrik Brueckner <brueckner@linux.ibm.com>,
-        Nina Schoetterl-Glausch <nsg@linux.ibm.com>, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <20260226-vsie-alter-stfle-fac-v2-0-914974cb922c@linux.ibm.com>
- <20260226-vsie-alter-stfle-fac-v2-1-914974cb922c@linux.ibm.com>
+        linux-s390@vger.kernel.org, kvm@vger.kernel.org
+Cc: Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        =?UTF-8?Q?Nico_B=C3=B6hr?=
+ <nrb@linux.ibm.com>,
+        David Hildenbrand <david@kernel.org>, Thomas Huth <thuth@redhat.com>,
+        Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+References: <20260428-vsie-stfle-fac-v5-0-34c5933a218c@linux.ibm.com>
+ <20260428-vsie-stfle-fac-v5-5-34c5933a218c@linux.ibm.com>
 Content-Language: en-US
 From: Janosch Frank <frankja@linux.ibm.com>
 Autocrypt: addr=frankja@linux.ibm.com; keydata=
@@ -122,51 +117,43 @@ Autocrypt: addr=frankja@linux.ibm.com; keydata=
  DchCqFm5adiSP5+OT4NjkKUeGpBe/aRyQSle/RropTgCi85pje/juYEn2P9UAgkfBJrOHvQ9
  Z+2Sva8FRd61NJLkCJ4LFumRn9wQlX2icFbi8UDV3do0hXJRRYTWCxrHscMhkrFWLhYiPF4i
  phX7UNdOWBQ90qpHyAxHmDazdo27gEjfvsgYMdveKknEOTEb5phwxWgg7BcIDoJf9UMC
-In-Reply-To: <20260226-vsie-alter-stfle-fac-v2-1-914974cb922c@linux.ibm.com>
+In-Reply-To: <20260428-vsie-stfle-fac-v5-5-34c5933a218c@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=BM+DalQG c=1 sm=1 tr=0 ts=6a0194da cx=c_pps
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTExMDA5NCBTYWx0ZWRfX+93wLyYxi0nF
+ 1lp0gaIBvOfoyyBAS7rcVdOxSg/2eEmG6kqGPXK3HX3d/lD9oJ4lojypBIDM/coWw1VzrfyhB0Z
+ kGWBkgPdpTHY43CMxVgMb6tYjVUNgxodFHF5IfrNX9x7umMfEDhVqb3YxxKGesOYAdSwe/gCpd+
+ RST9nFoMjslV/ybTkJPB4S9C6hJJHWofkitCKRdSW+oFWKHuZS8EgRWjP7BlBHEGqpVK2bxYtQ2
+ 9uOCMkTup/7jZFjYj5S6jtvR3CI2Al5wZToWopd11Xt5ae5DtsLUKCnN3MygLN028YcPeNVtN2p
+ kzMTHHYKYl2gN+bmCmtVg5SuOVNDEY+3NS5fN1gHF9PZYPTQIutnitB/DNfNMg8QNpe9mrTdUTj
+ XztFTjd1sa5OGBhMjbk3bcmMBZbuSnad4bu/l8lEyk0NrSiuyLeYNjj/N8pqguxdkF4QsyN7PH1
+ 30PupsMD+nw9hiVxKJw==
+X-Authority-Analysis: v=2.4 cv=OaWoyBTY c=1 sm=1 tr=0 ts=6a01954b cx=c_pps
  a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
  a=IkcTkHD0fZMA:10 a=NGcC8JguVDcA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8
- a=ceqhacd-cv4ruIrLx50A:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTExMDA4OCBTYWx0ZWRfXwrhclOdjFBN+
- XQnEMftQn0XGZm/YRKNZnD+G7QTH4SyCOmcIHMk51YPhvE4reGS/07w4eC0MHpn29iVGnj3QCb+
- Tzbt9G1cuH9TovXJLElLTZkiOoZje/VkO/urNo1apQXzziIrWkhs5w906zJpizQbVGpFrQm73ki
- aVHkmNzi1FK79kzpvuChbXzRxf5CivwiGnj6h4nR8XGYY6esQlEc599QttpRCcFx6JUuzTQ1uuA
- OfVjpN2bM6JHTstYL1qJTkekYb9HpYRm9HXa14ZswhZogIDQJY/JdBni5/eYp6KzEE2sZstiGaj
- xseDxK27DfswzzLcaHfN38PSQRqIblCuWw+aeLk5EEUs2CMSr+qcKiVDAqqmRVRIzJ/ueyeHGxL
- AEf7M/opZvuhKUvS1DjxhDM2IFRPT4ezhXw21jnVRFC6QHU56zeLNoGO6aUlhIY1Veh4udKFx18
- huM3uY7/CFB3z7qK+WA==
-X-Proofpoint-GUID: rqifkcpEafqwYg90YY_fwGMTk_JnfE7v
-X-Proofpoint-ORIG-GUID: rqifkcpEafqwYg90YY_fwGMTk_JnfE7v
+ a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8
+ a=86puRCfdM6Ku_ZMdecYA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-ORIG-GUID: 7SLdUSJf8vyvz3Byf10xbyLMI-HQJXfa
+X-Proofpoint-GUID: 7SLdUSJf8vyvz3Byf10xbyLMI-HQJXfa
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
  definitions=2026-05-11_02,2026-05-08_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 impostorscore=0 suspectscore=0 bulkscore=0 spamscore=0
- lowpriorityscore=0 priorityscore=1501 adultscore=0 malwarescore=0
- phishscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ malwarescore=0 suspectscore=0 spamscore=0 clxscore=1015 bulkscore=0
+ phishscore=0 lowpriorityscore=0 priorityscore=1501 impostorscore=0
+ adultscore=0 classifier=typeunknown authscore=0 authtc= authcc=
  route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2604200000
- definitions=main-2605110088
+ definitions=main-2605110094
 
-On 2/26/26 13:49, Christoph Schlameuss wrote:
+On 4/28/26 10:15, Christoph Schlameuss wrote:
 > From: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
 > 
-> Directly use the size of the arrays instead of going through the
-> indirection of kvm_s390_fac_size().
-> Don't use magic number for the number of entries in the non hypervisor
-> managed facility bit mask list.
-> Make the constraint of that number on kvm_s390_fac_base obvious.
-> Get rid of implicit double anding of stfle_fac_list.
+> Detect availability of alternate STFLE interpretive execution facilities
+> 1 and 2.
 > 
 > Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
 > Co-developed-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
 > Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
-
-I strongly dislike the facility management code as a whole and this 
-patch makes it a tiny bit better. At some point this should be polished 
-but today is not the day, so onto the TODO pile it goes.
 
 Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
