@@ -1,60 +1,60 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3A6523AE71F;
-	Mon, 11 May 2026 08:04:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D3C783B774B;
+	Mon, 11 May 2026 08:08:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778486707; cv=none; b=EAjlxFILUsTTMrADZx9+WWuV7dlka3WXGiEecdDwTV/pg2vxnKkGpeQsuMK0J7QZVCUrhySfjlmKyeY2Gw+pLK0Vm6gikGR52htz6bpRPrcMLCLpBpLrqAtjNZBpAI41B6xrTQdF4Rp5OWBVOgR1G512ooF/i5E1eDgVNHXPdHg=
+	t=1778486919; cv=none; b=UfmdSaKDVm2sa2pAP2NO9ebHOYZHykR4Y/xkWNN//6odHFDt0yRZeSSCE/joWHFn8z+LAr7gNleZBgQPNVxRW0pSTc3v3etBXPHSqaiQq4LG9ftW5Ew0McKoczXerpjTcvPO6iKOUQhiIz9zDR6KcsUHS6kgm+3J1vupq7VqNdg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778486707; c=relaxed/simple;
-	bh=C+94Y1PBeM+K5ZrGNK0Gd7BpHq39edpYtOl5pxZyze8=;
+	s=arc-20240116; t=1778486919; c=relaxed/simple;
+	bh=iI+E6N20RWRD3rlg/Q1diIsjzWWtlEqNVSjTkUyOnxM=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=CG9/35ttN/TzQXmW5LsIAJ0jl0JbT/tgJP/WMU6m6482h3/IIgoilK4noaFSAloH7b/XoDZPiHWzCqXQ8ooyJZu/pq8IBNIUFDIyDrqrtL8/cSgwQhgOM3cQpN5F1kBN6LdF+K7ZTyVu/rX04cKlROEkU6QjzAgUcmogH91zdAM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=YqRrIB5U; arc=none smtp.client-ip=148.163.156.1
+	 In-Reply-To:Content-Type; b=vGkpkZ9mOUnrBmnePipa4WCfqTigtXQYImGqof4RX6BCXygtUV+gAETCcOw4xw35eSn3OEtja2S3s9QxAAycbPsNhIEJLCBBqXPdMo+g1Sb6Ds2lLUd4IL8jX7JimIf/IH9Te1LFus2ytuPbCovuycdM4rA1bDTQ33yfCHVEJnI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=cTL6n3wc; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="YqRrIB5U"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 64B6GwGA1281610;
-	Mon, 11 May 2026 08:04:52 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="cTL6n3wc"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 64ABva6O3928885;
+	Mon, 11 May 2026 08:08:27 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=C+94Y1
-	PBeM+K5ZrGNK0Gd7BpHq39edpYtOl5pxZyze8=; b=YqRrIB5UqePJvVHTwK1dzc
-	UYJtGQs/5tt2bPwcmAn3MQeegkPFxk17GKAV7xcQzoEG0+PagICU0qZ1olICeMSN
-	ckvfWL0mzWyh3yE3vsaSRLCj/pg7F59T3gu9CW+sR/V8vQAcfxVRJSymeo7A3ZL0
-	Wb7ndqctyC7mA/fayopbgDRSc0yIx5vAmRLJloc6r1kXxwIGunjUsdBjZBuv17TT
-	Z/MeG3hVQRXuyx7Yicw7xAjtke5w2Zq7CLQSdxvRSF7NJGWS8yp35LXfsFr61ucJ
-	FTI8MYvsaEGftY7H5Mn3ivpcCNmJuFXIT/n4Bpx9gGmphrW+3/s9J1RB5g29mNSw
+	:message-id:mime-version:references:subject:to; s=pp1; bh=JlsCNk
+	SeFumQZI2bwJ9XJeV6QqP0W3v7WSSuo3h8KmE=; b=cTL6n3wcpBqJj90TEoekjK
+	2Tolif9uRpT6xCTcvmqOTY4G2GaA9EMO5YmnDiLrOlIpssvBXrNOt6FMwucRCaZb
+	RoT+8280kM30rucNG2S+dU2c1YNCMFuequAEaRkx2OHcTknpouNrsmRo36CUmjm0
+	glaajPacMciWlx9+Uu/H7qeKLVG17kX2GAxGzacjoTwIO147amBiTlo8suFfOD7w
+	voju5V2Mdv/v/6ImR7Q+41m5h1/KkhSLnDKdK/hoAAW11TYsb8JvjTyfs3QOq4wE
+	o6LX8nR2gfUA3DpJ2PQGaOjC0JMd9RDDXwqryl2nSsivo/6YkbUfUavWvYmgOvpw
 	==
 Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4e1vkqq7bv-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4e1ubdpuuv-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 11 May 2026 08:04:52 +0000 (GMT)
+	Mon, 11 May 2026 08:08:27 +0000 (GMT)
 Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 64B7sb6k014743;
-	Mon, 11 May 2026 08:04:51 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4e2fmvve3c-1
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 64B7sQu5014661;
+	Mon, 11 May 2026 08:08:26 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4e2fmvvehe-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 11 May 2026 08:04:51 +0000 (GMT)
+	Mon, 11 May 2026 08:08:26 +0000 (GMT)
 Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 64B84lJc16056788
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 64B88McX31326484
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 11 May 2026 08:04:47 GMT
+	Mon, 11 May 2026 08:08:22 GMT
 Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0CA5320043;
-	Mon, 11 May 2026 08:04:47 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id AB9852004D;
+	Mon, 11 May 2026 08:08:22 +0000 (GMT)
 Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C169B20040;
-	Mon, 11 May 2026 08:04:46 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 4BC1B20040;
+	Mon, 11 May 2026 08:08:22 +0000 (GMT)
 Received: from [9.87.154.62] (unknown [9.87.154.62])
 	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 11 May 2026 08:04:46 +0000 (GMT)
-Message-ID: <28da1cb5-5482-42fa-beda-fbdf8ac623a4@linux.ibm.com>
-Date: Mon, 11 May 2026 10:04:46 +0200
+	Mon, 11 May 2026 08:08:22 +0000 (GMT)
+Message-ID: <c7655af3-9705-487c-add2-dd31d8bc6623@linux.ibm.com>
+Date: Mon, 11 May 2026 10:08:22 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -62,14 +62,15 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 2/3] KVM: s390: selftests: Extended user_operexec tests
+Subject: Re: [PATCH v2 1/3] KVM: s390: Toggle operation exception for
+ userspace
 To: Eric Farman <farman@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
         Claudio Imbrenda <imbrenda@linux.ibm.com>,
         David Hildenbrand <david@kernel.org>
 Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org
 References: <20260507200836.3500368-1-farman@linux.ibm.com>
- <20260507200836.3500368-3-farman@linux.ibm.com>
+ <20260507200836.3500368-2-farman@linux.ibm.com>
 Content-Language: en-US
 From: Janosch Frank <frankja@linux.ibm.com>
 Autocrypt: addr=frankja@linux.ibm.com; keydata=
@@ -114,38 +115,49 @@ Autocrypt: addr=frankja@linux.ibm.com; keydata=
  DchCqFm5adiSP5+OT4NjkKUeGpBe/aRyQSle/RropTgCi85pje/juYEn2P9UAgkfBJrOHvQ9
  Z+2Sva8FRd61NJLkCJ4LFumRn9wQlX2icFbi8UDV3do0hXJRRYTWCxrHscMhkrFWLhYiPF4i
  phX7UNdOWBQ90qpHyAxHmDazdo27gEjfvsgYMdveKknEOTEb5phwxWgg7BcIDoJf9UMC
-In-Reply-To: <20260507200836.3500368-3-farman@linux.ibm.com>
+In-Reply-To: <20260507200836.3500368-2-farman@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTExMDA4MyBTYWx0ZWRfX/Q8bnKSr9kqt
- BhRtblcoYxVlj2nzmUImrQNPSniobgrw5GAkthQi70Me+s9X+b0F+v/UnwFTr38Lx0+9PCmDiTF
- fIxFRRwoyMibZjBUNJPeGIlBKIPUr/U6rRFZeSnG9gzRirUjCF+wxvA2WXIciHXpwZb2ERqa3fq
- 116P72PeGdDF2UQn3GgjD4sTJY2l4uRLgUbj9cGW6L3vF4rXsLXiYTYdiHSbNr78TJNNsjGoE/E
- PX4cznjbNg7FORnyQw27mlvjFODNh5ADjCaEdQ3PYi3CgyaPDawMEGoah9dtNK0PUS+bagM9uV7
- IvoMriUer7hsWrvqYQ61t6JSM8e72hUeJSaOLfjAX3Hnbi46FqOpXruDjOcjfiDECktdkaf/BxL
- DpwxfMIkmvqeCMHvmBGMUoiNjtQTXZG2FtenARfnNiePSjkX0pj15ZRZpyeXCUFwWJx6TWwdx9n
- 3RQ/Amk4hSxHdCJPvTA==
-X-Authority-Analysis: v=2.4 cv=OaWoyBTY c=1 sm=1 tr=0 ts=6a018da4 cx=c_pps
+X-Authority-Analysis: v=2.4 cv=BezoFLt2 c=1 sm=1 tr=0 ts=6a018e7b cx=c_pps
  a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
  a=IkcTkHD0fZMA:10 a=NGcC8JguVDcA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8
- a=eNiyezpbepxsKGXvb8YA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-ORIG-GUID: Ms29vnt9xpE2vXaqwr4Zv5bXEADxfKec
-X-Proofpoint-GUID: Ms29vnt9xpE2vXaqwr4Zv5bXEADxfKec
+ a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=t-ayeCvoQsVKj1yFb5wA:9
+ a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: kRpceeIfqFAwSwkRyYEJq2pRdONcLAAo
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTExMDA4OCBTYWx0ZWRfX5nnCCCa2RsNp
+ uD8FckF70H+LqpH3W40ro8qz0gUVePppfI2MuPNw/uw9IFFf7ojCT7QyGgU/6JCPrHeRlTi5qad
+ n3y7QrhvC/ZalNjU271rJ+GKeaDZDUk3mJbdTmQVOD8gqHwOKBQT80lu4vgV1/AYHdERn2Wrsgx
+ vjRyEOf2CIn8zbjrw1ctpTTURMp4kYjAqPG+kS+bc2q7u9NjSvPvB/50XNom1Nh0rApbm6ETcQu
+ cQkQHsdZJhqtp9VOIag/xo+farWDypMwiHx8hxigxjvVK817XYGBIQwa3muZ9o6taI61yosP7k8
+ tYNQzXLlhSrxzK7uJ2IvdFaqEVQZWAaqYfi2haFTD8xTQddcV205EnBSYWghhO0ECoeKON4qxk3
+ XQJNtQ/HqY05rgThWMSq4YOdyO3Zb2tzb0se3n4LJ4T8UGKNB7wT6E15XqOAx5e+GbQnpMljHcd
+ XY5TriWWje65OR9FMdQ==
+X-Proofpoint-ORIG-GUID: kRpceeIfqFAwSwkRyYEJq2pRdONcLAAo
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
  definitions=2026-05-11_02,2026-05-08_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 suspectscore=0 spamscore=0 clxscore=1015 bulkscore=0
- phishscore=0 lowpriorityscore=0 priorityscore=1501 impostorscore=0
- adultscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2604200000
- definitions=main-2605110083
+ clxscore=1015 priorityscore=1501 bulkscore=0 phishscore=0 malwarescore=0
+ adultscore=0 lowpriorityscore=0 suspectscore=0 impostorscore=0 spamscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2604200000 definitions=main-2605110088
 
 On 5/7/26 22:08, Eric Farman wrote:
-> There is a possibility that the user_operexec capability
-> only works if facility bit 74 is enabled. This is now fixed,
-> but add a selftest to demonstrate that.
+> The KVM_CAP_S390_USER_OPEREXEC capability allows operation exceptions
+> to be forwarded to userspace. But the actual enablement at the hardware
+> level occurs in kvm_arch_vcpu_postcreate(), and only if STFLE.74 or
+> user_instr0 are enabled. The latter is associated with a separate
+> capability (KVM_CAP_S390_USER_INSTR0), so the only way this happens
+> for the USER_OPEREXEC capability is if STFLE.74 is enabled. KVM
+> unconditionally enables this bit in kvm_arch_init_vm(), but the guest
+> could disable it from the CPU model and thus ignore this capability.
+> 
+> Add USER_OPEREXEC to the check in kvm_arch_vcpu_postcreate(), such that
+> either capability would enable this type of exception.
+> 
 
-Acked-by: Janosch Frank <frankja@linux.ibm.com>
+Naming wise shouldn't this be something like:
+KVM: s390: Fix S390_USER_OPEREXEC enablement without stfle 74
+
+?
