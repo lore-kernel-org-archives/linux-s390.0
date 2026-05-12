@@ -1,225 +1,138 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dl1-f51.google.com (mail-dl1-f51.google.com [74.125.82.51])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0B8943C7E15
-	for <linux-s390@vger.kernel.org>; Tue, 12 May 2026 21:06:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778619976; cv=none; b=O/vK3j25aJdJOj4YHD6jlHwrLvG9ZLgQSyBK0E7bifNeXjNPBA9feilxC7a3J3rPqvjmWx9UAEt3wBbSfXuw9EPlYfOQrDHMxnZ6h6B6QQWfwTiexvQi2obi+Cmp7wSjqH0dhp8nwQWKvFn0jkV3ZjLXr6OTlqPBI98And6eaG0=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778619976; c=relaxed/simple;
-	bh=xVZpENOTPSkcCw9H72WToBvwV1ZsJAWZkigdtcUbLLU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=qExILCdeRHPISHJcRvo3AVkQRMBewi7QtNtIrEp8jFDg9DjW6/kyLCx38Ml5ycwKWkDuc4p0lHPyQAhH32CM7hkalSD76WTwQ+0o513PTLstXBt5lpBlzmyq4N4XIYhweDAOSBh8WLOFbJMhP/gECI5DKMkPmUmCKU0mMIPvuzo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=izoxYKXl; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=lWc16jQ6; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AAB4C347BC6
+	for <linux-s390@vger.kernel.org>; Tue, 12 May 2026 21:17:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.82.51
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1778620638; cv=pass; b=nc2xqLH2vy8/dvoSi9HX7l8FT5oi/ribSqKcyL4+zWAoCWImj0McJCpsdNoIUdwFyEJjjEpDJByZ/f7ssEFrCl7BaCkOtWE1yiu2OR3LPes7H6kiUnIDTgDja1Fo/QRwX/Cjozq3JGPTcwdUFWFZW71aM6/PqnjcPkqf+F25cy4=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1778620638; c=relaxed/simple;
+	bh=5zh4msfOlywozry5XquR1R9jhEz2NzPVF1rCKXwj7Sc=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=bCNuslr9ZK0Jves87zLSir75uyvoxb92sQolUVjLaugeQau8AaJ0S8LHkLwM++tS71KOPleiQJojIPFksvgxjJuvo2cUH+lRtHteSTxgSgFer7banfPP4c9bdWFwbVne/a93pZKjSnH4gbFfpxb+BwNxV4Uc7AQwoHcSdonScnE=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=j6ln+zxR; arc=pass smtp.client-ip=74.125.82.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="izoxYKXl";
-	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="lWc16jQ6"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1778619974;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=+4kzhpMcne9QL/iUfytpcOnuwyhDfw3DKjMmXnNjefM=;
-	b=izoxYKXlLv3ukMyoF2ZCqzDJ4Y6Jz9tu2NDqdEbxrj6xZQbs9JrY524rfmYKwZ1v/hGILO
-	bSNUFX1j20Ex/RhKsKZSnaOup6LJO/S3/gk+xdZ0552Qe0EkmYq2Cgn1qYFxK09qqZibos
-	J1HawoAmm3bioUu7sj1mwyXsiSzLFpM=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-393-G9OE-naJNxOXPVAZVxakGA-1; Tue, 12 May 2026 17:06:13 -0400
-X-MC-Unique: G9OE-naJNxOXPVAZVxakGA-1
-X-Mimecast-MFC-AGG-ID: G9OE-naJNxOXPVAZVxakGA_1778619972
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-48e5dfa8ec7so33999045e9.2
-        for <linux-s390@vger.kernel.org>; Tue, 12 May 2026 14:06:12 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="j6ln+zxR"
+Received: by mail-dl1-f51.google.com with SMTP id a92af1059eb24-1330d6bb78dso2643538c88.1
+        for <linux-s390@vger.kernel.org>; Tue, 12 May 2026 14:17:16 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1778620636; cv=none;
+        d=google.com; s=arc-20240605;
+        b=PhKtyomgXm3FibfPEBhTgPqXZHIcPUys1w9V3uex2p6reU4djGUrhheKD92G6MROYS
+         upntd7wbRtSmo1rr6r8ZDc21UMkM6SweLycagVcbz8yIHlkBA5c7dx4O3hd4rcrtj2Lg
+         WFKtlQSGxqwPlbWSsaD/OXnpec+NDwGIu+KV1tAabp/AYj3Ucdvcw7d6QQElYBTbUuuQ
+         cAJmunHb8m2oS5e5CBb7WlvYTtYAPKN27vwVET+IMiaZbC034qtPqfNhYCILrGpmX6Rw
+         8hYN6u1TNJ9LjdWlwjtCJ0q8d2cT9/SElhs5p2u+0rFq2DUSO0PUUsvKI6i4jJwYSsxa
+         bi6Q==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=5zh4msfOlywozry5XquR1R9jhEz2NzPVF1rCKXwj7Sc=;
+        fh=1ZYY5w+3GFuUayTcONjVfqpmVT63MXKVaOaze5BjGi0=;
+        b=B6+5TZoUshOSUfCF46ixezoGTW+HRyn5tdQVf/SDp3dQrqTShzZJ1XEqEH5oX1kckb
+         TJqgVV3W4u27aYAjYQVOPIB53Pze0sI2avAQYYmcPlaZjpGjIaFt+VM/zcsAJU7yVAM4
+         jt8ANV+Ef/ibZ+QD3Gx/kgJEo5e0UG4bcgIfWLhMUdrHW5Pm9LKzj6e9NVz3apG0x8ro
+         IoCAyRzPtp9NIMP16sJFzXhaEcZpPVaVA4fS+Ikwq52JAS9+7cTD2XSgJGQQuPLUlNH6
+         X+c0aSw2lXRs4Z1GJVq4ZLt7WffByHNsAelNBjIwiawdcN5gWiA607SgLLWOtk51TEa1
+         wOGQ==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=redhat.com; s=google; t=1778619972; x=1779224772; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=+4kzhpMcne9QL/iUfytpcOnuwyhDfw3DKjMmXnNjefM=;
-        b=lWc16jQ6JJ1S6F427WzZqfe9mV3nGCuLtjxhxznbGxuQegURYU35/KwZCfFiUeaet5
-         OGZp05NqLEfpQZCpYD8pE6s0RNz0kDCgX7DYaM33hX67OcsoiNiyF7K5gRtIAP3OpnYs
-         myx5/10bEG3e3u5451qpV8VYMsGPXMBHUcmsVsuhhFECTVwLzZY2Fy+SEn/J5C55Skze
-         wp1PFZfkQLebNlAx/W50jIX0ZyaQo5hUT5vHrCu2d2Qo8XWx/gSVFLCjKQR4wkwMJxD/
-         YlzIBc9nMl6jFJYnK8uCv4E3+oBxfrtqmn6jhElRPNvgzrMhWylBUKA3LTdVfmpf1vsa
-         yaQQ==
+        d=google.com; s=20251104; t=1778620636; x=1779225436; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=5zh4msfOlywozry5XquR1R9jhEz2NzPVF1rCKXwj7Sc=;
+        b=j6ln+zxRDo1B6WA/fqal9hoyGJY+GHdc5hcSBJxyaPOFACKYsGxSc2haFPyH5HHaFK
+         OiD793D/wCTqETVP2mHSHluXEOzWh+64HjXrSL2Bp4tTyn72/Bl9DbpEoGMMaTJswN4F
+         uppHQxY1H2eDglxKkYgcjd/za4uI8Wsyz7B19QyvexNaIavh3byUXAvVMwRv+25fwuKn
+         iz/Mmhvrse4cPBJQtpQfWTG3Cje8pYgHWKmBlZX39x1CawusW6Qx6xsGVcYnwVU3bgTm
+         Pdgnz6aGnfEsHjQGspCmYKfTgeNA6X4jxBkrHWacfHoGJgwt5iGmfqQjRwc4AzxjaGrR
+         UJaQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778619972; x=1779224772;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=+4kzhpMcne9QL/iUfytpcOnuwyhDfw3DKjMmXnNjefM=;
-        b=b3Xl1CKjhf9TQBs6OBRrr77B+sTcAGm3UNtIFAvq6jHe+JMi6iv+ESNwWEoFyYvOit
-         E73VCP3b14tvst/gJer6Er6eD7nSH446wV+BeHyCE0FJpN/Zvlnl3ZN6HDCOjJI5yuA3
-         J91oM0mPvzRpukXV13O0kSA1rJ5Jb7w+MoV1ru9U6+uatck6XmJp2U4mZQhRPFuVSy4P
-         LRf8DOOSRia2E+LbA5061gKva6QlBjt/bZdakMeLh2/2m6VNfJAGrw9rzzTgIVzKZ0DM
-         9Eh4FgGUqgkitG0nn3p8eBtOfRXAP5cufbpxItDSXS1pvsbKypDtXZ8V6hMiKhz43ecV
-         TSpw==
-X-Forwarded-Encrypted: i=1; AFNElJ/QpuXNKr8+BB4wvCjC7OOg11G2dgLJDRTSWKPRDqZemqoofPQSVIQFoiWrN/CFKgdCrvfH+GKn4vpW@vger.kernel.org
-X-Gm-Message-State: AOJu0YzapnKgXidCwCiNv2o3nlk9nPvHy8lnJ2YWLPIrqp3lXa+Cb+fi
-	jnEgfymX+S7BS3+h5k3TMN3K8j5S2UFsN6+Q4WJjCpjSsvMnQT3gCRG5wCNaqW6hWB5cCeJOaQJ
-	e1iDRKSDt6KGkfTjKEn4c8o3NLicgjveWl8r7+Zy1vq2DN7vv0K8x+jBmJ+3nMVw=
-X-Gm-Gg: Acq92OGDk2eY+CrTR7azvmS+OEqSaZ5kvgGkSwIOrWabSi6GML3hcE6/n0DIIM8KdF4
-	p6eIHUdxt9JdV9LPrQShOs8Kdudi9pcxQFCifwL/hJIFDne9imIAZXKTXEeMpFiQnOOhTembZDD
-	kGUo+FNb1h92B/lHGY5/w0Y+m7ljSPzmRsdaHAj2OMGq1/zpcdBQFiEUUO6Aja0GVp7BcP1LKr3
-	CSO9ka+QTFQp12R7DPkk0kRux3Hx9nzYYLWGcyEB1D8sEBgBfCPnLqhyKiOVglDEaDzhRPlGC/h
-	y1IIAKlowGQs6Yg1ZAYHYf56+Tfvv01Aj77Or+ZfWSZXT02MvD3k/SWvjGdlLlADiif8sTYWMlz
-	ZaxkB3KhaYWSkXtYBNVOaY1pyR4YBFf22BuQioTWz
-X-Received: by 2002:a05:600c:3f1b:b0:48a:6fd4:d3d4 with SMTP id 5b1f17b1804b1-48fc9a50d32mr5862615e9.29.1778619971676;
-        Tue, 12 May 2026 14:06:11 -0700 (PDT)
-X-Received: by 2002:a05:600c:3f1b:b0:48a:6fd4:d3d4 with SMTP id 5b1f17b1804b1-48fc9a50d32mr5862425e9.29.1778619971141;
-        Tue, 12 May 2026 14:06:11 -0700 (PDT)
-Received: from redhat.com (IGLD-80-230-48-7.inter.net.il. [80.230.48.7])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4548ec6c221sm36066581f8f.13.2026.05.12.14.06.05
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 12 May 2026 14:06:10 -0700 (PDT)
-Date: Tue, 12 May 2026 17:06:04 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: linux-kernel@vger.kernel.org
-Cc: "David Hildenbrand (Arm)" <david@kernel.org>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>,
-	Muchun Song <muchun.song@linux.dev>,
-	Oscar Salvador <osalvador@suse.de>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Lorenzo Stoakes <ljs@kernel.org>,
-	"Liam R. Howlett" <liam@infradead.org>,
-	Vlastimil Babka <vbabka@kernel.org>,
-	Mike Rapoport <rppt@kernel.org>,
-	Suren Baghdasaryan <surenb@google.com>,
-	Michal Hocko <mhocko@suse.com>,
-	Brendan Jackman <jackmanb@google.com>,
-	Johannes Weiner <hannes@cmpxchg.org>, Zi Yan <ziy@nvidia.com>,
-	Baolin Wang <baolin.wang@linux.alibaba.com>,
-	Nico Pache <npache@redhat.com>, Ryan Roberts <ryan.roberts@arm.com>,
-	Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>,
-	Lance Yang <lance.yang@linux.dev>, Hugh Dickins <hughd@google.com>,
-	Matthew Brost <matthew.brost@intel.com>,
-	Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
-	Byungchul Park <byungchul@sk.com>,
-	Gregory Price <gourry@gourry.net>,
-	Ying Huang <ying.huang@linux.alibaba.com>,
-	Alistair Popple <apopple@nvidia.com>,
-	Christoph Lameter <cl@gentwo.org>,
-	David Rientjes <rientjes@google.com>,
-	Roman Gushchin <roman.gushchin@linux.dev>,
-	Harry Yoo <harry.yoo@oracle.com>,
-	Axel Rasmussen <axelrasmussen@google.com>,
-	Yuanchu Xie <yuanchu@google.com>, Wei Xu <weixugc@google.com>,
-	Chris Li <chrisl@kernel.org>, Kairui Song <kasong@tencent.com>,
-	Kemeng Shi <shikemeng@huaweicloud.com>,
-	Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>,
-	virtualization@lists.linux.dev, linux-mm@kvack.org,
-	Andrea Arcangeli <aarcange@redhat.com>,
-	Magnus Lindholm <linmag7@gmail.com>,
-	Greg Ungerer <gerg@linux-m68k.org>,
-	Geert Uytterhoeven <geert@linux-m68k.org>,
-	Richard Henderson <richard.henderson@linaro.org>,
-	Matt Turner <mattst88@gmail.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
-	Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-	"H. Peter Anvin" <hpa@zytor.com>, linux-alpha@vger.kernel.org,
-	linux-m68k@lists.linux-m68k.org, linux-s390@vger.kernel.org
-Subject: [PATCH v7 11/31] mm: remove arch vma_alloc_zeroed_movable_folio
- overrides
-Message-ID: <7d637bcac4bb5705388136a75f0fdfe2881e5f20.1778616612.git.mst@redhat.com>
-References: <cover.1778616612.git.mst@redhat.com>
+        d=1e100.net; s=20251104; t=1778620636; x=1779225436;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=5zh4msfOlywozry5XquR1R9jhEz2NzPVF1rCKXwj7Sc=;
+        b=aPB1mtF9X0cNDhj2vEK3W9F0SO2/YikHs9xSlL5/Exf39VcLp7mcWz7c2Rcfidb1Mg
+         HVT8QXj1X3cqZJ0yfTVraYs7H4LRreQbwWxPG3PTZT31ZRRfCd6GxTdIM4kNQIfiINDY
+         wRq0dxs6VVoDIcFu4ooFlmH/+bKZVs+5yYkgs2psT7I0ZN5LOg011B3NughwakrtV7Jv
+         G/Vk5onHBo3lEJG8pm8CdmfrBF16DgtaKgmU40y2XJ04vENiDKeP8Vyb8QcNmghrLOkO
+         F4W0DAWfDHm+f/tBg8oi4o8YDYZINpJQX5uXPttlB4SPsPBc10NP9/yUcBlW3U/Cy7X1
+         doHg==
+X-Forwarded-Encrypted: i=1; AFNElJ9/mI0bh8DLEANFLaE32qU7IzSVVi0cyjGVwSd4gBSmc/dBnrhfCUzEYx04VxOSV0+hWKzNtKC+PoaB@vger.kernel.org
+X-Gm-Message-State: AOJu0YxQb4YhjKFn5ONiN+cPaV9ogtyHuwWWU33Senb4VOT2EMHXfluF
+	5ZqmCmE2mRNeqzhNnxnA9B6yv2fH8bcgp7loZunDPNdsj/PQcwqN+2h/PJnoLYlrB/f3/UJ1iDQ
+	7Ke8qI+RM+WEOXD3yxkcChRiiKmjyyH+cJeL+BcA=
+X-Gm-Gg: Acq92OEnfru99b6t+RvbRgdfiYjK7T6Sx+Q2KaZvUfkyU54z+s96DnKp1B8VAc1Prci
+	FHgT88ooCiuzzwUEswE0TYLhcNx6qPseRq01PBPJS5qfYr7RkCeKp39ZeUHf6yYBLeBdDB3JFAf
+	oGj8ieh1jwElyr2zCbK6w9x2yoNQ5hvR4PPvXLYoQcch8vvkPj7pVtc3uR0CzXp7x1287J9id7n
+	st8LcG2g5RadNL791RgZxYlMD01S68cpxTX0vpiwHnp/YPNz8PCa3HFe9cHjMiSM6j5S15DgwFB
+	bzkqJJEB0a6UHo4XU0hNoAuH8nWgn2RGtavzsO7+G/pElKnTACTqWBSUxeJxod2UNuSn8rztlCA
+	vdJuEyg1N9FObI1utalNu/S4GD5iu8Ekwpj9u7ok8qO99n0DZ0wgD9JoF
+X-Received: by 2002:a05:7022:326:b0:128:d219:e169 with SMTP id
+ a92af1059eb24-1342ef3dc7dmr363352c88.10.1778620635128; Tue, 12 May 2026
+ 14:17:15 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <cover.1778616612.git.mst@redhat.com>
-X-Mailer: git-send-email 2.27.0.106.g8ac3dc51b1
-X-Mutt-Fcc: =sent
+References: <c00-02.v2.ttenwd4@ub.hpns>
+In-Reply-To: <c00-02.v2.ttenwd4@ub.hpns>
+From: John Stultz <jstultz@google.com>
+Date: Tue, 12 May 2026 14:17:02 -0700
+X-Gm-Features: AVHnY4I9LH40rMyv4tDazzyMAqF7zbdeswmUejMJYjFYyTNiekAi_gdX1fiwGeY
+Message-ID: <CANDhNCoJHSaiZiD7xgqd-L9LXq2-iGU-4FtjVGy0PP2uRpnxEw@mail.gmail.com>
+Subject: Re: [PATCH v2 0/2] sched/core: Fix proxy-exec/core-sched interactions
+To: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, 
+	Juri Lelli <juri.lelli@redhat.com>, Vincent Guittot <vincent.guittot@linaro.org>, 
+	K Prateek Nayak <kprateek.nayak@amd.com>, Dietmar Eggemann <dietmar.eggemann@arm.com>, 
+	Steven Rostedt <rostedt@goodmis.org>, Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>, 
+	Valentin Schneider <vschneid@redhat.com>, Vineeth Pillai <vineethrp@google.com>, 
+	Joel Fernandes <joelagnelf@nvidia.com>, Heiko Carstens <hca@linux.ibm.com>, linux-s390@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Now that the generic vma_alloc_zeroed_movable_folio() uses
-__GFP_ZERO, the arch-specific macros on alpha, m68k, s390, and
-x86 that did the same thing are redundant.  Remove them.
+On Thu, May 7, 2026 at 3:42=E2=80=AFAM Vasily Gorbik <gor@linux.ibm.com> wr=
+ote:
+>
+> v1 [1] consisted of a fix for a scheduler corruption where
+> try_steal_cookie() could migrate a proxy-exec donor away from the source
+> rq while that rq still used it as the active scheduling context.
+>
+> Prateek pointed out [2] a separate proxy-exec/core-sched issue: after
+> pick_next_task() selects a core cookie compatible donor, find_proxy_task(=
+)
+> can replace the execution context with a mutex owner with a different
+> cookie.
+>
+> This v2 keeps the donor steal fix as patch 1 and adds patch 2 to reject
+> mismatched final proxy owners.
+>
+> The v1 reported the issue reproduced on s390 LPAR, but it seems to be
+> easily reproducible with strace test suite "make -j$(nproc) check" on
+> any system with SMT, CONFIG_SCHED_CORE=3Dy and CONFIG_SCHED_PROXY_EXEC=3D=
+y
+> enabled, e.g. on x86 KVM with -smp cpus=3D16,sockets=3D1,cores=3D8,thread=
+s=3D2:
+>
 
-arm64 is not affected: it has a real function override that
-handles MTE tag zeroing, not just __GFP_ZERO.
+Vasily! Thank you so much for reporting this and working out fixes
+(along with K Prateek!)
 
-Suggested-by: David Hildenbrand <david@kernel.org>
-Acked-by: Magnus Lindholm <linmag7@gmail.com>
-Acked-by: Greg Ungerer <gerg@linux-m68k.org>
-Acked-by: Geert Uytterhoeven <geert@linux-m68k.org> # m68k
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- arch/alpha/include/asm/page.h   | 3 ---
- arch/m68k/include/asm/page_no.h | 3 ---
- arch/s390/include/asm/page.h    | 3 ---
- arch/x86/include/asm/page.h     | 3 ---
- 4 files changed, 12 deletions(-)
+Apologies for being slow to reply, I've been under the weather.
 
-diff --git a/arch/alpha/include/asm/page.h b/arch/alpha/include/asm/page.h
-index 59d01f9b77f6..4327029cd660 100644
---- a/arch/alpha/include/asm/page.h
-+++ b/arch/alpha/include/asm/page.h
-@@ -12,9 +12,6 @@
- 
- extern void clear_page(void *page);
- 
--#define vma_alloc_zeroed_movable_folio(vma, vaddr) \
--	vma_alloc_folio(GFP_HIGHUSER_MOVABLE | __GFP_ZERO, 0, vma, vaddr)
--
- extern void copy_page(void * _to, void * _from);
- #define copy_user_page(to, from, vaddr, pg)	copy_page(to, from)
- 
-diff --git a/arch/m68k/include/asm/page_no.h b/arch/m68k/include/asm/page_no.h
-index d2532bc407ef..f511b763a235 100644
---- a/arch/m68k/include/asm/page_no.h
-+++ b/arch/m68k/include/asm/page_no.h
-@@ -12,9 +12,6 @@ extern unsigned long memory_end;
- 
- #define copy_user_page(to, from, vaddr, pg)	copy_page(to, from)
- 
--#define vma_alloc_zeroed_movable_folio(vma, vaddr) \
--	vma_alloc_folio(GFP_HIGHUSER_MOVABLE | __GFP_ZERO, 0, vma, vaddr)
--
- #define __pa(vaddr)		((unsigned long)(vaddr))
- #define __va(paddr)		((void *)((unsigned long)(paddr)))
- 
-diff --git a/arch/s390/include/asm/page.h b/arch/s390/include/asm/page.h
-index 56da819a79e6..e995d2a413f9 100644
---- a/arch/s390/include/asm/page.h
-+++ b/arch/s390/include/asm/page.h
-@@ -67,9 +67,6 @@ static inline void copy_page(void *to, void *from)
- 
- #define copy_user_page(to, from, vaddr, pg)	copy_page(to, from)
- 
--#define vma_alloc_zeroed_movable_folio(vma, vaddr) \
--	vma_alloc_folio(GFP_HIGHUSER_MOVABLE | __GFP_ZERO, 0, vma, vaddr)
--
- #ifdef CONFIG_STRICT_MM_TYPECHECKS
- #define STRICT_MM_TYPECHECKS
- #endif
-diff --git a/arch/x86/include/asm/page.h b/arch/x86/include/asm/page.h
-index 416dc88e35c1..92fa975b46f3 100644
---- a/arch/x86/include/asm/page.h
-+++ b/arch/x86/include/asm/page.h
-@@ -28,9 +28,6 @@ static inline void copy_user_page(void *to, void *from, unsigned long vaddr,
- 	copy_page(to, from);
- }
- 
--#define vma_alloc_zeroed_movable_folio(vma, vaddr) \
--	vma_alloc_folio(GFP_HIGHUSER_MOVABLE | __GFP_ZERO, 0, vma, vaddr)
--
- #ifndef __pa
- #define __pa(x)		__phys_addr((unsigned long)(x))
- #endif
--- 
-MST
+I really appreciate this reproducer detail, but I've so far not been
+able to trip this issue up (SCHED_CORE=3Dy, SCHED_PROXY_EXEC=3Dy and using
+the qemu arguments you included above). Could you mail me your .config
+in case something else is needed?
 
+thanks
+-john
