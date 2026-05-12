@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B95F3043DC;
-	Tue, 12 May 2026 07:47:40 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 653EB47DF80;
+	Tue, 12 May 2026 07:48:57 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778572060; cv=none; b=JvYh9LMyVSWJKOv5joXl7eK8GM4wYH76Gh84eezIDq9DhR8BRzCKzsuEb6f/udfPP9o3bmDNLsmAMCpggIOfXVa68w5uwU33KdC8nqLIQMnnarNFb9vmf1ujVeGcxdO7Z6dEAwiFY0yNZkj2JqIdguugajPqphd0yoATJA0bCuw=
+	t=1778572137; cv=none; b=DSYhI2ACTxttMkU4UV04/HYoMMw52AJhR3e2YsnvygWz7pz4/ZFylOfYpzG8YGxpr8tLmBkZAcOewpsGW377dkn6WuYUvipEzuIHJtar58VVSowgVf2jFkNDjt2H3hIu2QLFjACFjEZq1U+JxRwi86b+S6Avt0GJZc8bjIyZxG4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778572060; c=relaxed/simple;
-	bh=SqZ7JuR9aZYiSNIjFrM9/Owp7pj1r/N+r9S6ZbflLLs=;
+	s=arc-20240116; t=1778572137; c=relaxed/simple;
+	bh=W1sWVav77uChxJzFCxQ1pVlTmhfGKv0xL+Q/RQCskXs=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=VNXwwBtiWhSiE9FQ+MHdpuFQwXdT7X9TicCoS0oFXk9kDR+p161iKweN9EmbqRG4slJSlgizxW8aHPdjEmfXXJhgaRBHRzI4N9ianqqO6QDBcqKlIT60tsYLU6mMB9uu8oVcWh2x9cnKO1jdqSkTsN+ZG55lvTpWrcddsKbnw/Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KfH8aFKm; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:Content-Type; b=b17zZY0P+YEjnZE2ADJmH9m4LAMWpw2k9hKCMvn1NUYRIQr7QyDH3rpX2W8uV+Uvg8vk7ubaYKLK6KiVa6coLV/JEvUwzlMZcrAdbDF9DGRGh8f3aeLA7f3A2Mg2lYPa834boqBguk+YOradXd+mtPaA6+SV5UAAv+fy+8EbAvs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=uCa1nNIK; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KfH8aFKm"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EAD3FC2BCB8;
-	Tue, 12 May 2026 07:47:35 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="uCa1nNIK"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A162EC2BCB0;
+	Tue, 12 May 2026 07:48:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1778572060;
-	bh=SqZ7JuR9aZYiSNIjFrM9/Owp7pj1r/N+r9S6ZbflLLs=;
+	s=k20201202; t=1778572136;
+	bh=W1sWVav77uChxJzFCxQ1pVlTmhfGKv0xL+Q/RQCskXs=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=KfH8aFKm9U4WSzucyrLYsh/QmdVCSVlPGKBRnnS5gmbsYLlAGMaD5dfTgD3OJJtxQ
-	 SrIzwEEBr+JLyyxd6cSDlD+Yb/V6jguPm4vjh3hNlVrJERzxAZecZwXlFgBhjqUJCP
-	 fq2iNIHqnKcOTKN5VVQRmdEg4FtJq83TkTTMR6iIq+GGGmP9JtcM/S47L81kQd4O+c
-	 FrJe0I5Pk7GS7XZzb+SW1CGEpirOjbkeUCe5Z9qpO4HgSMGVCfKdLtdgax9fMGnFJV
-	 DoJD8cUmo93tkso5BAxtd/wJxsVLSkUS/0pnLKkpOqh/VP6Y4F0c6r0o++ZwL6ExyH
-	 HHTZm8Epupc7w==
-Message-ID: <ae34ed69-f56f-4d19-8a2d-48f7ff671342@kernel.org>
-Date: Tue, 12 May 2026 09:47:34 +0200
+	b=uCa1nNIKd5PutJrooTknPXUs80TLQpe5mDuqGyg3XdKeFcMgbrXW4uhM0VlL8QJAS
+	 tQkUOtlMj9URZs76ee1yVbbtMvlzQY/vQl4CvVAEqVWWEOBDxx1clD350rQubg+2Ur
+	 bViQdkGWZkA+laQ9XhWC5TXa81qIP9c404lIrdeEKWrXAez/FqMegKBkgXZHVqUk+U
+	 XOWjtI2YE5PNbOeJb/1H+HvjlvpCrQa/1ySqbQrMKQMu4fY6jDFEk9ygBnlEMUbuPa
+	 rr/nC0VGKvcPvc6GUqQaHH8BlFsA9sqw1CPDYVOT88H9nLO9WdrbESu/nYgX1gy7kh
+	 NH0TPCI2BTCug==
+Message-ID: <0edd94cf-0895-4f49-8afe-44651681965e@kernel.org>
+Date: Tue, 12 May 2026 09:48:50 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -35,7 +35,7 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 5/8] mm/bootmem_info: stop marking the pgdat as NODE_INFO
+Subject: Re: [PATCH 0/8] mm: remove CONFIG_HAVE_BOOTMEM_INFO_NODE (Part 1)
 To: Michal Hocko <mhocko@suse.com>
 Cc: "David S. Miller" <davem@davemloft.net>,
  Andreas Larsson <andreas@gaisler.com>, Mike Rapoport <rppt@kernel.org>,
@@ -53,8 +53,7 @@ Cc: "David S. Miller" <davem@davemloft.net>,
  sparclinux@vger.kernel.org, linux-kernel@vger.kernel.org,
  linux-mm@kvack.org, linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
 References: <20260511-bootmem_info_prep-v1-0-3fb0be6fc688@kernel.org>
- <20260511-bootmem_info_prep-v1-5-3fb0be6fc688@kernel.org>
- <agLai5lr0CQRZLBK@tiehlicka>
+ <agLawTyWlnuC9Rz1@tiehlicka>
 From: "David Hildenbrand (Arm)" <david@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=david@kernel.org; keydata=
@@ -101,34 +100,58 @@ Autocrypt: addr=david@kernel.org; keydata=
  3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
  CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
  qIws/H2t
-In-Reply-To: <agLai5lr0CQRZLBK@tiehlicka>
+In-Reply-To: <agLawTyWlnuC9Rz1@tiehlicka>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-On 5/12/26 09:45, Michal Hocko wrote:
-> On Mon 11-05-26 16:05:33, David Hildenbrand wrote:
->> We removed the last user of NODE_INFO in commit 119c31caa59e ("mm/sparse:
->> remove !CONFIG_SPARSEMEM_VMEMMAP leftovers for CONFIG_MEMORY_HOTPLUG").
+On 5/12/26 09:46, Michal Hocko wrote:
+> On Mon 11-05-26 16:05:28, David Hildenbrand wrote:
+>> We want to remove CONFIG_HAVE_BOOTMEM_INFO_NODE. As a first step,
+>> let's limit the remaining harm to x86 and core code, removing
+>> sparc, ppc and s390 leftovers, starting the stepwise removal by removing
+>> and simplifying some code.
 >>
->> But it really was never used it besides for safety-checks ever since it was
->> introduced in commit 04753278769f ("memory hotplug: register section/node
->> id to free"), where we had the comment:
+>> Once a related x86 vmemmap fix [1] is in, we can merge part 2 that will
+>> remove CONFIG_HAVE_BOOTMEM_INFO_NODE entirely.
 >>
->> 	5) The node information like pgdat has similar issues. But, this
->> 	   will be able to be solved too by this.
->> 	   (Not implemented yet, but, remembering node id in the pages.)
+>> Tested on x86-64 with hugetlb vmemmap optimization in combination with
+>> KMEMLEAK, making sure that the problem reported in dd0ff4d12dd2 ("bootmem:
+>> remove the vmemmap pages from kmemleak in put_page_bootmem") does not
+>> reappear -- hoping I managed to trigger the original problem.
 >>
->> Of course, that never happened, and we are not planning on freeing the
->> node data (pgdat/pglist_data), during memory hotunplug.
+>> Heavily cross-compiled, but let's let build bots run on it for a bit.
 >>
->> So let's just stop marking the pgdat as NODE_INFO.
+>> [1] https://lore.kernel.org/r/20260429-vmemmap-v2-1-8dfcacffd877@kernel.org 
+>>
+>> Signed-off-by: David Hildenbrand (Arm) <david@kernel.org>
+>> ---
+>> David Hildenbrand (Arm) (8):
+>>       sparc/mm: remove register_page_bootmem_info()
+>>       mm/bootmem_info: drop initialization of page->lru
+>>       mm/bootmem_info: stop using PG_private
+>>       mm/bootmem_info: remove call to kmemleak_free_part_phys()
+>>       mm/bootmem_info: stop marking the pgdat as NODE_INFO
+>>       mm/bootmem_info: stop marking mem_section_usage as MIX_SECTION_INFO
+>>       s390/mm: use free_reserved_page() in vmem_free_pages()
+>>       powerpc/mm: remove CONFIG_HAVE_BOOTMEM_INFO_NODE
+>>
+>>  arch/powerpc/mm/init_64.c    |  8 --------
+>>  arch/s390/mm/vmem.c          |  3 +--
+>>  arch/sparc/mm/init_64.c      | 20 --------------------
+>>  include/linux/bootmem_info.h |  1 -
+>>  mm/Kconfig                   |  2 +-
+>>  mm/bootmem_info.c            | 25 ++-----------------------
+>>  6 files changed, 4 insertions(+), 55 deletions(-)
 > 
-> With the last user, shouldn't we simply drop NODE_INFO?
+> Good clean up. Feel free to add
+> Acked-by: Michal Hocko <mhocko@suse.com>
 
-I'll drop the whole thing in part 2.
+Thanks!
 
-I actually had both parts together until I stumbled into the vmmemmap x86
-freeing issue that now causes conflicts until upstream and synced to the MM tree.
+> to all patches but kmemleak one which I do not feel qualified to judge.
+
+It's black magic to me as well. I tried to test that scenario in particular and
+was not able to trigger the problem.
 
 -- 
 Cheers,
