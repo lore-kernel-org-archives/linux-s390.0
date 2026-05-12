@@ -1,243 +1,167 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 23F153839A9;
-	Tue, 12 May 2026 11:00:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF8E3360ED4
+	for <linux-s390@vger.kernel.org>; Tue, 12 May 2026 11:42:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778583626; cv=none; b=qdH2G0EZRvcW3Fbf5dCnbfYsMSHvFhhns+nNIskwZEJS7hq0VfxYUi793chSCpYiFsAvNwMtRMGYx7yUliB0Cb0o9WP7ttDH/N7yYqe6YfAEDRHGvlnHCw2K8R/0dMhn0iE7a6207j53iD9bX4OF2nJ0fnwHZvP6AFpWeKUVKqo=
+	t=1778586165; cv=none; b=nJ678WowNJmONZKO1c9yoCc+N8MwopUWgPaCGVdZfL3Ya1wWMX24L6oM4kOsTtoHxvkt/c7bdarasn04u70gIj7TbSijH75SfbLpkUaVVbf73zZbhKqtrdelWCzAewBbv53cIdU4Gcb4rGPFh1JFHYzC1g24dFB46WDgOqIxj/8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778583626; c=relaxed/simple;
-	bh=q2R+EVNo1o9PgkGYpslbUjkN2z64oCvqM+PH3e97aBc=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=UZR6cAF6PQvY/Qs0VR8A8yEItLMl0tBd9nd7UE/qSdlu805etHVLZflsc/989yvJ0pMhgkPoJqTCTRA1n/LX+66rqT3Yb6eb8BDb4RHQPy814wwHb7qrYoZw5ybNcbnBGlnBl3GASDDI7T00JZ9YzsqljsVnrerkGMi594qPdmc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=OeHSfNZz; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1778586165; c=relaxed/simple;
+	bh=HOKkDeeqlSpCzlTTBisOlKHbEWYFncII5EuW97xNlKc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=ATACWRPxDHxKyPBE87bNbk/d1LNzYdvLfOmJXyhSOyvZhpBll1zdEWCex5+SLn3HioDzBeyRJ0v9hKbyFN91A05ECRZ1TneAfLnGnXPjfsSgdtRu17Tx1iJfp53aOznKYkn/djz99jMxmNdNt5PNFEDkh6vuYhoTriHgGm5lYjg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz; spf=pass smtp.mailfrom=suse.cz; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=KEweNcFX; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=0J342uiq; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=KEweNcFX; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=0J342uiq; arc=none smtp.client-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.cz
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="OeHSfNZz"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 64BK7PvM3180075;
-	Tue, 12 May 2026 10:59:39 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=k0wTovysRtG6sqD3D
-	xP+NT+DiL9VptC1pj45zPv0kww=; b=OeHSfNZz44h6NlwkS7d39u6aEkmujteYg
-	b8ZbI21SEoNCbQKnsBX8rUWn5xLBjBbNfgZmOmQv9HypDPGe1KVvY5iEg3OP+Y1T
-	YI7sxiyQYSLVlp0c8CFOcCfQtWVr+K17RmH5zjtnrxbUoOBrzOO65dwFFTVu8A/d
-	5nFn61X2CwJX3N3piZkQCfLii7u9vqoGDHFKk/ZyZ8+JrFPrBTFJwA2wHIObqx0Z
-	XFZXGldodUi+quv0gQna+Wdxwfj/Fgg4kBLziPqTaNZ/pCKQRIJpdNDAgU8CKHnA
-	O5AeC2Un7nr4W7zzxEmZsN+1prfLSkSCZNRbq7ibfgVLKGAqEstbg==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4e3nv6jhks-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 12 May 2026 10:59:38 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 64CAdYnw007502;
-	Tue, 12 May 2026 10:59:37 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4e3nfgjtcn-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 12 May 2026 10:59:37 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 64CAxXvl29950678
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 12 May 2026 10:59:34 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id DB39320040;
-	Tue, 12 May 2026 10:59:33 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8BA8D2004D;
-	Tue, 12 May 2026 10:59:33 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 12 May 2026 10:59:33 +0000 (GMT)
-From: Jan Polensky <japo@linux.ibm.com>
-To: hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
-        ojeda@kernel.org, peterz@infradead.org, jpoimboe@kernel.org,
-        jbaron@akamai.com, aliceryhl@google.com
-Cc: borntraeger@linux.ibm.com, svens@linux.ibm.com, boqun@kernel.org,
-        gary@garyguo.net, bjorn3_gh@protonmail.com, lossin@kernel.org,
-        a.hindborg@kernel.org, tmgross@umich.edu, dakr@kernel.org,
-        rostedt@goodmis.org, ardb@kernel.org, linux-s390@vger.kernel.org,
-        rust-for-linux@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 4/4] s390: enable Rust support
-Date: Tue, 12 May 2026 12:59:20 +0200
-Message-ID: <20260512105920.2426293-5-japo@linux.ibm.com>
-X-Mailer: git-send-email 2.51.0
-In-Reply-To: <20260512105920.2426293-1-japo@linux.ibm.com>
-References: <20260512105920.2426293-1-japo@linux.ibm.com>
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="KEweNcFX";
+	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="0J342uiq";
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="KEweNcFX";
+	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="0J342uiq"
+Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id 34B7376120;
+	Tue, 12 May 2026 11:42:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+	t=1778586161;
+	h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
+	 cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=QLgB5RUZcid9XLsWsmXqzit5YR0tRKGHMrKjGe72tnI=;
+	b=KEweNcFXbI/4awwwikZwQpLsJhqdcKP/ND/eEIHZpMVZYswHjsmnrwZiU2bxaD8n1OK0IS
+	Kc6YjC0sw7nAn6qO/p47INirDH4cevpavEC2j0COzrDVxJtWpDOoi9k2FZAGtUc4QSsWyH
+	YY7KnSMmVLtonjV5smZq449Ls/XSOCc=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+	s=susede2_ed25519; t=1778586161;
+	h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
+	 cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=QLgB5RUZcid9XLsWsmXqzit5YR0tRKGHMrKjGe72tnI=;
+	b=0J342uiqkSfyW8DZyH8r4hsv6i4foe07KIq12qtoXRLRS5m/d+XbyypVqVX3QbmZPnqRJi
+	sxhM5qcbrx7pPCAQ==
+Authentication-Results: smtp-out2.suse.de;
+	none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+	t=1778586161;
+	h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
+	 cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=QLgB5RUZcid9XLsWsmXqzit5YR0tRKGHMrKjGe72tnI=;
+	b=KEweNcFXbI/4awwwikZwQpLsJhqdcKP/ND/eEIHZpMVZYswHjsmnrwZiU2bxaD8n1OK0IS
+	Kc6YjC0sw7nAn6qO/p47INirDH4cevpavEC2j0COzrDVxJtWpDOoi9k2FZAGtUc4QSsWyH
+	YY7KnSMmVLtonjV5smZq449Ls/XSOCc=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+	s=susede2_ed25519; t=1778586161;
+	h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
+	 cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=QLgB5RUZcid9XLsWsmXqzit5YR0tRKGHMrKjGe72tnI=;
+	b=0J342uiqkSfyW8DZyH8r4hsv6i4foe07KIq12qtoXRLRS5m/d+XbyypVqVX3QbmZPnqRJi
+	sxhM5qcbrx7pPCAQ==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 08727593A9;
+	Tue, 12 May 2026 11:42:41 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id rkjQATESA2rLPQAAD6G6ig
+	(envelope-from <dsterba@suse.cz>); Tue, 12 May 2026 11:42:41 +0000
+Date: Tue, 12 May 2026 13:42:31 +0200
+From: David Sterba <dsterba@suse.cz>
+To: Christoph Hellwig <hch@lst.de>
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Will Deacon <will@kernel.org>, Ard Biesheuvel <ardb@kernel.org>,
+	Huacai Chen <chenhuacai@kernel.org>,
+	WANG Xuerui <kernel@xen0n.name>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+	Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
+	Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+	Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	Herbert Xu <herbert@gondor.apana.org.au>,
+	Dan Williams <dan.j.williams@intel.com>, Chris Mason <clm@fb.com>,
+	David Sterba <dsterba@suse.com>, Arnd Bergmann <arnd@arndb.de>,
+	Song Liu <song@kernel.org>, Yu Kuai <yukuai@fnnas.com>,
+	Li Nan <linan122@huawei.com>, linux-kernel@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
+	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org, linux-crypto@vger.kernel.org,
+	linux-btrfs@vger.kernel.org, linux-arch@vger.kernel.org,
+	linux-raid@vger.kernel.org
+Subject: Re: [PATCH 01/19] btrfs: require at least 4 devices for RAID 6
+Message-ID: <20260512114231.GG2558453@suse.cz>
+Reply-To: dsterba@suse.cz
+References: <20260512052230.2947683-1-hch@lst.de>
+ <20260512052230.2947683-2-hch@lst.de>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Authority-Analysis: v=2.4 cv=Us1T8ewB c=1 sm=1 tr=0 ts=6a03081a cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=NGcC8JguVDcA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8 a=OycHxKo1JGOom9522MEA:9
-X-Proofpoint-GUID: 0qdPOTKxaVl0fE-6NJ_YAIzcXSUzmurX
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTEyMDEwOSBTYWx0ZWRfXyy4DR4X8iF+V
- opC6FbN6RGvfnkHMHGJrbQ1x43ezBlRdEtRN7m9tgwlQFKwk5jcorSaDE78869xF1gE08PAomlE
- gN7pT2CfDIko+Spy/RGx8Fiwx/9JQ3F5qVpsz5T+6sCEStKtCg2asSUJsVgccVT3xktPy3ZI9nV
- IksDWNETNWg6Uo26l/cS6wvHQJPglIyVQa+L3BxfcH7jurLQjtUp9O4HnToFKDy/eOWJYcLAZ0F
- G2Yidr955B1NEkOFCXBGOgw2H7Wyi1/ACXOsVdnCo0dN7nhBOGtI6v19ijtZKPz0deatHiKhq85
- kqhIr6TZU15aUj7s+f60cArmvb5VXPh1HOfBnph1OXRCt163TTwiXI658lkuqPI230PLKufNhXZ
- xg5aWOG1krviw8H6QsQph3urlCM0LHbbrSw4O3akWBtohkTvLq0C6AgNEVfYfikhT9FHA4L21oB
- FHH0493yEqE1oNOmMnA==
-X-Proofpoint-ORIG-GUID: j-eSqocwXA4keioqoHmZemb-aQmd4aaC
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-05-11_05,2026-05-08_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- phishscore=0 priorityscore=1501 impostorscore=0 lowpriorityscore=0
- bulkscore=0 suspectscore=0 spamscore=0 malwarescore=0 clxscore=1015
- adultscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2605050000
- definitions=main-2605120109
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260512052230.2947683-2-hch@lst.de>
+User-Agent: Mutt/1.5.23.1-rc1 (2014-03-12)
+X-Spam-Flag: NO
+X-Spam-Score: -8.00
+X-Spamd-Result: default: False [-8.00 / 50.00];
+	REPLY(-4.00)[];
+	BAYES_HAM(-3.00)[99.99%];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	HAS_REPLYTO(0.30)[dsterba@suse.cz];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MIME_TRACE(0.00)[0:+];
+	R_RATELIMIT(0.00)[to_ip_from(RLj13sa47em33kcomko4xd63ai)];
+	RCPT_COUNT_TWELVE(0.00)[44];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	ARC_NA(0.00)[];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	TO_DN_SOME(0.00)[];
+	RCVD_TLS_ALL(0.00)[];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com];
+	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	FREEMAIL_CC(0.00)[linux-foundation.org,arm.com,kernel.org,xen0n.name,linux.ibm.com,ellerman.id.au,gmail.com,dabbelt.com,eecs.berkeley.edu,ghiti.fr,redhat.com,alien8.de,linux.intel.com,zytor.com,gondor.apana.org.au,intel.com,fb.com,suse.com,arndb.de,fnnas.com,huawei.com,vger.kernel.org,lists.infradead.org,lists.linux.dev,lists.ozlabs.org];
+	MID_RHS_MATCH_FROM(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,suse.cz:mid,suse.cz:replyto];
+	RCVD_COUNT_TWO(0.00)[2];
+	REPLYTO_ADDR_EQ_FROM(0.00)[];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	REPLYTO_DOM_NEQ_TO_DOM(0.00)[]
+X-Spam-Level: 
 
-Enable building Rust code on s390 by wiring the architecture into the
-kernel Rust infrastructure.
+On Tue, May 12, 2026 at 07:20:41AM +0200, Christoph Hellwig wrote:
+> While the RAID6 algorithm could in theory support 3 devices by just
+> copying the data disk to the two parity disks, this version is not only
+> useless because it is a suboptimal version of 3-way mirroring, but also
+> broken with various crashes and incorrect parity generation in various
+> architecture-optimized implementations.  Disallow it similar to mdraid
+> which requires at least 4 devices for RAID 6.
+> 
+> Fixes: 53b381b3abeb ("Btrfs: RAID5 and RAID6")
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
 
-Add s390 to the Rust arch support documentation, provide the s390 Rust
-target and required compiler flags, and set the bindgen target for
-arch/s390. Adjust the Rust target generation and minimum rustc version
-gating so the s390 setup is handled explicitly.
-
-The Rust toolchain uses the "s390x" triple naming for the 64 bit target.
-
-Rust support is currently incompatible with CONFIG_EXPOLINE, which
-relies on compiler support for the -mindirect-branch= and
--mfunction_return= options. Therefore, select HAVE_RUST only when
-EXPOLINE is disabled.
-
-Signed-off-by: Jan Polensky <japo@linux.ibm.com>
----
- Documentation/rust/arch-support.rst |  1 +
- arch/s390/Kconfig                   |  1 +
- arch/s390/Makefile                  | 28 +++++++++++++++++-----------
- rust/Makefile                       |  1 +
- scripts/generate_rust_target.rs     |  2 ++
- scripts/min-tool-version.sh         |  6 +++++-
- 6 files changed, 27 insertions(+), 12 deletions(-)
-
-diff --git a/Documentation/rust/arch-support.rst b/Documentation/rust/arch-support.rst
-index 6e6a515d0899..ce9804b8226c 100644
---- a/Documentation/rust/arch-support.rst
-+++ b/Documentation/rust/arch-support.rst
-@@ -19,6 +19,7 @@ Architecture   Level of support  Constraints
- ``arm64``      Maintained        Little Endian only.
- ``loongarch``  Maintained        \-
- ``riscv``      Maintained        ``riscv64`` and LLVM/Clang only.
-+``s390``       Maintained        \-
- ``um``         Maintained        \-
- ``x86``        Maintained        ``x86_64`` only.
- =============  ================  ==============================================
-diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index ecbcbb781e40..26951781d74d 100644
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -248,6 +248,7 @@ config S390
- 	select HAVE_RELIABLE_STACKTRACE
- 	select HAVE_RETHOOK
- 	select HAVE_RSEQ
-+	select HAVE_RUST if !EXPOLINE
- 	select HAVE_SAMPLE_FTRACE_DIRECT
- 	select HAVE_SAMPLE_FTRACE_DIRECT_MULTI
- 	select HAVE_SETUP_PER_CPU_AREA
-diff --git a/arch/s390/Makefile b/arch/s390/Makefile
-index 297976b41088..c393c22c47c8 100644
---- a/arch/s390/Makefile
-+++ b/arch/s390/Makefile
-@@ -35,25 +35,31 @@ KBUILD_CFLAGS_DECOMPRESSOR += $(if $(CONFIG_DEBUG_INFO),-g)
- KBUILD_CFLAGS_DECOMPRESSOR += $(if $(CONFIG_DEBUG_INFO_DWARF4), $(call cc-option, -gdwarf-4,))
- KBUILD_CFLAGS_DECOMPRESSOR += $(if $(CONFIG_CC_NO_ARRAY_BOUNDS),-Wno-array-bounds)
- 
-+KBUILD_RUSTFLAGS += --target=s390x-unknown-none-softfloat -Zpacked-stack -Ctarget-feature=+backchain
-+
- UTS_MACHINE	:= s390x
- STACK_SIZE	:= $(if $(CONFIG_KASAN),65536,$(if $(CONFIG_KMSAN),65536,16384))
- CHECKFLAGS	+= -D__s390__ -D__s390x__
- 
- export LD_BFD
- 
--mflags-$(CONFIG_MARCH_Z10)    := -march=z10
--mflags-$(CONFIG_MARCH_Z196)   := -march=z196
--mflags-$(CONFIG_MARCH_ZEC12)  := -march=zEC12
--mflags-$(CONFIG_MARCH_Z13)    := -march=z13
--mflags-$(CONFIG_MARCH_Z14)    := -march=z14
--mflags-$(CONFIG_MARCH_Z15)    := -march=z15
--mflags-$(CONFIG_MARCH_Z16)    := -march=z16
--mflags-$(CONFIG_MARCH_Z17)    := -march=z17
-+march-name-$(CONFIG_MARCH_Z10)   := z10
-+march-name-$(CONFIG_MARCH_Z196)  := z196
-+march-name-$(CONFIG_MARCH_ZEC12) := zEC12
-+march-name-$(CONFIG_MARCH_Z13)   := z13
-+march-name-$(CONFIG_MARCH_Z14)   := z14
-+march-name-$(CONFIG_MARCH_Z15)   := z15
-+march-name-$(CONFIG_MARCH_Z16)   := z16
-+march-name-$(CONFIG_MARCH_Z17)   := z17
- 
--export CC_FLAGS_MARCH := $(mflags-y)
-+mflags += -march=$(march-name-y)
- 
--aflags-y += $(mflags-y)
--cflags-y += $(mflags-y)
-+export CC_FLAGS_MARCH := $(mflags)
-+
-+aflags-y += $(mflags)
-+cflags-y += $(mflags)
-+
-+KBUILD_RUSTFLAGS += -Ctarget-cpu=$(march-name-y)
- 
- cflags-$(CONFIG_MARCH_Z10_TUNE)		+= -mtune=z10
- cflags-$(CONFIG_MARCH_Z196_TUNE)	+= -mtune=z196
-diff --git a/rust/Makefile b/rust/Makefile
-index b9e9f512cec3..77460502f576 100644
---- a/rust/Makefile
-+++ b/rust/Makefile
-@@ -403,6 +403,7 @@ BINDGEN_TARGET_x86	:= x86_64-linux-gnu
- BINDGEN_TARGET_arm64	:= aarch64-linux-gnu
- BINDGEN_TARGET_arm	:= arm-linux-gnueabi
- BINDGEN_TARGET_loongarch	:= loongarch64-linux-gnusf
-+BINDGEN_TARGET_s390	:= s390x-linux-gnu
- # This is only for i386 UM builds, which need the 32-bit target not -m32
- BINDGEN_TARGET_i386	:= i386-linux-gnu
- BINDGEN_TARGET_um	:= $(BINDGEN_TARGET_$(SUBARCH))
-diff --git a/scripts/generate_rust_target.rs b/scripts/generate_rust_target.rs
-index 38b3416bb979..8f1df6819d0b 100644
---- a/scripts/generate_rust_target.rs
-+++ b/scripts/generate_rust_target.rs
-@@ -256,6 +256,8 @@ fn main() {
-         }
-     } else if cfg.has("LOONGARCH") {
-         panic!("loongarch uses the builtin rustc loongarch64-unknown-none-softfloat target");
-+    } else if cfg.has("S390") {
-+        panic!("s390 uses the builtin rustc s390x-unknown-none-softfloat target");
-     } else {
-         panic!("Unsupported architecture");
-     }
-diff --git a/scripts/min-tool-version.sh b/scripts/min-tool-version.sh
-index b96ec2d379b6..b1020cb9b755 100755
---- a/scripts/min-tool-version.sh
-+++ b/scripts/min-tool-version.sh
-@@ -31,7 +31,11 @@ llvm)
- 	fi
- 	;;
- rustc)
--	echo 1.85.0
-+	if [ "$SRCARCH" = "s390" ]; then
-+		echo 1.97.0-nightly
-+	else
-+		echo 1.85.0
-+	fi
- 	;;
- bindgen)
- 	echo 0.71.1
--- 
-2.51.0
-
+This patch should have been sent separately as it has user visible
+impact and can potentially break some setups. The degenerate modes of
+raid0, 5, or 6 are explicit as a possible middle step when converting
+profiles.  We can use a fallback implementation for this case if the
+accelerated implementations cannot do it.
