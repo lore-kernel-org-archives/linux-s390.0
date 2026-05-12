@@ -1,134 +1,117 @@
-Received: from mail-wr1-f51.google.com (mail-wr1-f51.google.com [209.85.221.51])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.16])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 101D13CDBDD
-	for <linux-s390@vger.kernel.org>; Tue, 12 May 2026 17:43:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 656D121FF21
+	for <linux-s390@vger.kernel.org>; Tue, 12 May 2026 17:45:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.16
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778607827; cv=none; b=ezjiMozhCJAg0dYUsMhX4zoWii2TsIFYn5eG2Cknk02Teeq6oclKuiq+tjMphuR58a1jh4/NVX5ZDuHtrmA5HKfJCCQQ2+E74YGleqI2iPTUCNkfbrN44Mqyz2lRvj91TSdQusEHEBvY80KdVU4MhaOM06j+AJjLWXnDG0tnsJs=
+	t=1778607957; cv=none; b=EzwAd2H9AEVuStkRsCoHLvugdpMvqZdKpdYru1iUiP8OPaEMnmd0/D5Oi+DBnF8f6JvS/8nZUm6C4PgTo9z9GovgAqHeHjI+s1KN+zk/ZyJlpWrivlnH1pEVjwi9IOtnFb9eKKUkK41cseZpGFujgmbrGFW3PZXlnFdUMAkbUns=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778607827; c=relaxed/simple;
-	bh=4hMpz9IU/uwDFrIduflHUvfH+zn9i091lrWCzQ3RzfY=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=jf8FK1ldDsRi0r4ph50ip3zeCSqVFFldbCd8XZYyWXpau6FvD6Mqmgew4VN+HFJGx0DUcAe39a6G/LPlPR78EIA/buaHrCBBoO0qjZvDgzAQ6U87Go0NV6FDOcvc5RELLUh5sJVbhsz2UQzm5796sH9faR9q95H9qfFgymDY1Ao=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LaNElIr7; arc=none smtp.client-ip=209.85.221.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1778607957; c=relaxed/simple;
+	bh=QMiOXftQsgE92WFbru5pfm4C24Knj1NQvy4huaRXetk=;
+	h=Date:From:To:Cc:Subject:Message-ID; b=Vzf7XEMp1C3QyHvkVThCkWjaqyFY5H63hMjDM28edOonRoMMwYvHKQMgX8KPsMhQ0kNtA+TMCOyJ9JrOy8ksgRN05cbdz0s5qwe7KiA0dmdydNPazDIX7dsbjNltbDAsYPAqUHJuEPbpMrQQYdAVxnva4yWfICfV3caj9SFpTRQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=XQ3ZnKaM; arc=none smtp.client-ip=198.175.65.16
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LaNElIr7"
-Received: by mail-wr1-f51.google.com with SMTP id ffacd0b85a97d-44dd5cb0f81so4440105f8f.0
-        for <linux-s390@vger.kernel.org>; Tue, 12 May 2026 10:43:45 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1778607824; x=1779212624; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:sender:from:to:cc:subject:date:message-id:reply-to;
-        bh=bQsYfl6dRJnMsTlZum51r7UJJ5K++DgCVkUEYqn/RVE=;
-        b=LaNElIr7emJ7hUbamvVsqRhWZXXlxI94yQR/U18qQ7ydCsuuxaJ8UW1TxxQvRVLiLG
-         uX8exWwN63mKcx7+kxyXiOnhBNgG342X7Gvg99tgajS7QgQmOltPSm7+he/KUp1sjRF9
-         Wr4mvHiVsXjxPsKxmukMJONM4X3cLlT2kKLDOTuOfYH34ILW/46aRnYklJKKkx2Uwf0e
-         qlFruZvVXS6IV+SSwy43UfyW6zRhu21y0te/msp7EI+h2Ux+z/nb5iOzrd2x/OuctBk2
-         bMXYibHxBzSKIP5YpDtuY4uQsh3uM37OMLQ9nLoayT1Ho+RJ9y92Y98W87pzWmtulxEi
-         1fyQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778607824; x=1779212624;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:sender:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=bQsYfl6dRJnMsTlZum51r7UJJ5K++DgCVkUEYqn/RVE=;
-        b=aUDDi2hGZ72D54cBgyC1AOJS96PE0AGVQ2pwEU8hMXjPhn6At/JixGWLM6w+n+Zw+k
-         RWrDEfFaGE1Mn0vHhFbOkxndeg6j2NG8Q8H13n7KJablYjUBFi2txuf/Eot4vHRzjt4m
-         RoNGvirDqBmQW/2wAPJl2mwJhlh9YV7aIuqdu3g0N0eF5qgbTbzsf8c3G2SRXm8Tz7nC
-         u3uGL+5I4xNfNkPFftU0a9zh2DkIKhahB2QsivudSFilLwMt4gNonBZbSFVeYjwojO3q
-         +iBun+htVZnzFX3VIAgI0xnSJisA5n+PKfwIiIMjFFsFnLVxSkuLFu5FvWfIMcH8GY8j
-         /RGQ==
-X-Forwarded-Encrypted: i=1; AFNElJ8MUPgIYZiIzI6s6ViQEzLZzy/MnKNP1DD6tIkCr09BJG37OnTDh0na+HBu0hCFc1Y/gbeKHY5VT/pI@vger.kernel.org
-X-Gm-Message-State: AOJu0Yyq0mLVltfP/9pM9ntLRlfVPxrlj5Rmru4ohxXsqtiIy5m1qPJQ
-	/raepj5d2hc7F1yojdcn6lvQ2r8ip9zaUAaV2iekmvhG3tdE69bVSA7VKq86qYpbHswLWQ==
-X-Gm-Gg: Acq92OEJ1BB9002R16TZqfcrDR3SgaOINZqxjNTp/PiOKAziVKeGMeG1CknJkml7MRE
-	uWQ9PrwVLJldGNKdaqFtJKRS9teT05BCy34BvNIqYgNJJWrqe/dsfiixf1VIu4TyB2orxG1sLlJ
-	mG4uppHieWSyFR1haWhbZLe0opoUIyWIllcaI1Yoi/4tgUtZYQo17m32gz2vuaGzC1IYSsWKejr
-	8VFYJj0fHLUmINKJPO1VfTbgq/+l5WJJLo0y3zzD+FJ2fw8St8fZjPgbuyYNYHXfwyoq/YzQupA
-	oN3/+ufXCgMuns46/wDr2PIBcdg3q2yotEVKXd6+KJrC+KoiZOxJyzBKOIrw4WGbetcgOT0arYH
-	zKijVuesvRxHoL7O5mUGSvdNZDWvaU6W7OJouZ+z3o/dj/H4LWRIh9eayLQsRoZwmacHKioRSG+
-	fSW04cLFFGiqYjzbU9dvHY+P/e9WoFvb6JXl8vF1BRm3dDFD6YpIsChD8=
-X-Received: by 2002:a05:6000:430b:b0:449:b7dd:4a75 with SMTP id ffacd0b85a97d-45c474bc2ffmr12736f8f.20.1778607824273;
-        Tue, 12 May 2026 10:43:44 -0700 (PDT)
-Received: from nixos-office (195-23-151-163.net.novis.pt. [195.23.151.163])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4548e6a68ebsm32458092f8f.1.2026.05.12.10.43.43
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 12 May 2026 10:43:43 -0700 (PDT)
-Sender: Julian Braha <julian.braha@gmail.com>
-From: Julian Braha <julianbraha@gmail.com>
-To: agordeev@linux.ibm.com,
-	gor@linux.ibm.com,
-	hca@linux.ibm.com,
-	iii@linux.ibm.com
-Cc: meted@linux.ibm.com,
-	borntraeger@linux.ibm.com,
-	svens@linux.ibm.com,
-	akpm@linux-foundation.org,
-	linux-s390@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Julian Braha <julianbraha@gmail.com>
-Subject: [PATCH] s390: cleanup kconfig defaults for selftests
-Date: Tue, 12 May 2026 18:43:36 +0100
-Message-ID: <20260512174336.907050-1-julianbraha@gmail.com>
-X-Mailer: git-send-email 2.53.0
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="XQ3ZnKaM"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1778607955; x=1810143955;
+  h=date:from:to:cc:subject:message-id;
+  bh=QMiOXftQsgE92WFbru5pfm4C24Knj1NQvy4huaRXetk=;
+  b=XQ3ZnKaMkbf0EvM08oSQUPcEg+542FOpiVx/pr9yPqSyJkpPsRo0Jilw
+   Tt6bnsfW0KKu1DZiA+ckRSIKMKe8D6t4JBycC+egrTGxbYsvKcM79Hfy9
+   35STvxr/U6E+gRRJGE1wyb3jQg94w0DU2/M3g26dHk4xq1Qc2fBT+LeVX
+   q6gpQKSQ6wrQFUJInCmIr/+aW9/QSL+OQ0Sv3H/OO5Il55WyPnbUtdnNl
+   CPvbUkZR5a4+Or/wU0dwPJ2NlNKlruOonjMgEdD2kNoRPg0E035aDeRw3
+   36r4wETYoL6IKMZ2cBpbtkQCfHT0rXdUWIaINv5qyXZBUyEJZ1pbtnM2+
+   g==;
+X-CSE-ConnectionGUID: Fx/dEt76RFGRVLvR13Arag==
+X-CSE-MsgGUID: nLAVG/m+T3OXcJ8QR5t60w==
+X-IronPort-AV: E=McAfee;i="6800,10657,11784"; a="79705744"
+X-IronPort-AV: E=Sophos;i="6.23,231,1770624000"; 
+   d="scan'208";a="79705744"
+Received: from orviesa004.jf.intel.com ([10.64.159.144])
+  by orvoesa108.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 May 2026 10:45:54 -0700
+X-CSE-ConnectionGUID: jA2zEmZfQJ2aCrij/ovo4Q==
+X-CSE-MsgGUID: n2PYtZqJQS2KbNa78C+kSg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.23,231,1770624000"; 
+   d="scan'208";a="242181900"
+Received: from lkp-server01.sh.intel.com (HELO dca79079c3eb) ([10.239.97.150])
+  by orviesa004.jf.intel.com with ESMTP; 12 May 2026 10:45:53 -0700
+Received: from kbuild by dca79079c3eb with local (Exim 4.98.2)
+	(envelope-from <lkp@intel.com>)
+	id 1wMrAz-000000002Wx-28Xv;
+	Tue, 12 May 2026 17:45:49 +0000
+Date: Wed, 13 May 2026 01:45:03 +0800
+From: kernel test robot <lkp@intel.com>
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
+ linux-s390@vger.kernel.org, Steffen Eiden <seiden@linux.ibm.com>
+Subject: [kvms390:sae 2/54] arch/x86/kvm/svm/sev.c:117:27: error: no
+ member named 'users_count' in 'struct kvm'
+Message-ID: <202605130154.8hoiUlcD-lkp@intel.com>
+User-Agent: s-nail v14.9.25
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-Remove the unconditional defaults of 'n' from the def_tristate statements,
-which shadow the later 'KUNIT_ALL_TESTS' default, causing it to be dead
-kconfig code.
+tree:   https://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git sae
+head:   e952fb65773b1e5cd2e5ca409e712db5ef252bb1
+commit: 134336e0cba8dd18185738333bc26c1b0b020b6d [2/54] KVM, vfio: remove symbol_get(kvm_get_kvm_safe) from vfio
+config: x86_64-allyesconfig (https://download.01.org/0day-ci/archive/20260513/202605130154.8hoiUlcD-lkp@intel.com/config)
+compiler: clang version 20.1.8 (https://github.com/llvm/llvm-project 87f0227cb60147a26a1eeb4fb06e3b505e9c7261)
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260513/202605130154.8hoiUlcD-lkp@intel.com/reproduce)
 
-Also, include S390_KPROBES_SANITY_TEST in KUNIT_ALL_TESTS.
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202605130154.8hoiUlcD-lkp@intel.com/
 
-This dead code was found by kconfirm, a static analysis tool for Kconfig.
+All errors (new ones prefixed by >>):
 
-Signed-off-by: Julian Braha <julianbraha@gmail.com>
----
- arch/s390/Kconfig | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+>> arch/x86/kvm/svm/sev.c:117:27: error: no member named 'users_count' in 'struct kvm'
+     117 |         if (!refcount_read(&kvm->users_count))
+         |                             ~~~  ^
+   1 error generated.
 
-diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index ecbcbb781e40..4d7c492c6bca 100644
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -999,9 +999,8 @@ config S390_MODULES_SANITY_TEST_HELPERS
- menu "Selftests"
- 
- config S390_UNWIND_SELFTEST
--	def_tristate n
-+	def_tristate KUNIT_ALL_TESTS
- 	depends on KUNIT
--	default KUNIT_ALL_TESTS
- 	prompt "Test unwind functions"
- 	help
- 	  This option enables s390 specific stack unwinder testing kernel
-@@ -1011,7 +1010,7 @@ config S390_UNWIND_SELFTEST
- 	  Say N if you are unsure.
- 
- config S390_KPROBES_SANITY_TEST
--	def_tristate n
-+	def_tristate KUNIT_ALL_TESTS
- 	prompt "Enable s390 specific kprobes tests"
- 	depends on KPROBES
- 	depends on KUNIT
-@@ -1023,9 +1022,8 @@ config S390_KPROBES_SANITY_TEST
- 	  Say N if you are unsure.
- 
- config S390_MODULES_SANITY_TEST
--	def_tristate n
-+	def_tristate KUNIT_ALL_TESTS
- 	depends on KUNIT && m
--	default KUNIT_ALL_TESTS
- 	prompt "Enable s390 specific modules tests"
- 	select S390_MODULES_SANITY_TEST_HELPERS
- 	help
+
+vim +117 arch/x86/kvm/svm/sev.c
+
+eaf78265a4ab339 Joerg Roedel        2020-03-24  109  
+ba903f738249077 Sean Christopherson 2026-03-10  110  static __always_inline void kvm_lockdep_assert_sev_lock_held(struct kvm *kvm)
+ba903f738249077 Sean Christopherson 2026-03-10  111  {
+ba903f738249077 Sean Christopherson 2026-03-10  112  #ifdef CONFIG_PROVE_LOCKING
+ba903f738249077 Sean Christopherson 2026-03-10  113  	/*
+ba903f738249077 Sean Christopherson 2026-03-10  114  	 * Querying SEV+ support is safe if there are no other references, i.e.
+ba903f738249077 Sean Christopherson 2026-03-10  115  	 * if concurrent initialization of SEV+ is impossible.
+ba903f738249077 Sean Christopherson 2026-03-10  116  	 */
+ba903f738249077 Sean Christopherson 2026-03-10 @117  	if (!refcount_read(&kvm->users_count))
+ba903f738249077 Sean Christopherson 2026-03-10  118  		return;
+ba903f738249077 Sean Christopherson 2026-03-10  119  
+ba903f738249077 Sean Christopherson 2026-03-10  120  	/*
+ba903f738249077 Sean Christopherson 2026-03-10  121  	 * Querying SEV+ support from vCPU context is always safe, as vCPUs can
+ba903f738249077 Sean Christopherson 2026-03-10  122  	 * only be created after SEV+ is initialized (and KVM disallows all SEV
+ba903f738249077 Sean Christopherson 2026-03-10  123  	 * sub-ioctls while vCPU creation is in-progress).
+ba903f738249077 Sean Christopherson 2026-03-10  124  	 */
+ba903f738249077 Sean Christopherson 2026-03-10  125  	if (kvm_get_running_vcpu())
+ba903f738249077 Sean Christopherson 2026-03-10  126  		return;
+ba903f738249077 Sean Christopherson 2026-03-10  127  
+ba903f738249077 Sean Christopherson 2026-03-10  128  	lockdep_assert_held(&kvm->lock);
+ba903f738249077 Sean Christopherson 2026-03-10  129  #endif
+ba903f738249077 Sean Christopherson 2026-03-10  130  }
+ba903f738249077 Sean Christopherson 2026-03-10  131  
+
+:::::: The code at line 117 was first introduced by commit
+:::::: ba903f7382490776d2df2fca6bf5c8ef2eb4663f KVM: SEV: Assert that kvm->lock is held when querying SEV+ support
+
+:::::: TO: Sean Christopherson <seanjc@google.com>
+:::::: CC: Sean Christopherson <seanjc@google.com>
+
 -- 
-2.53.0
-
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
