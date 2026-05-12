@@ -1,150 +1,215 @@
-Received: from mail-dl1-f52.google.com (mail-dl1-f52.google.com [74.125.82.52])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC4852BE7D1
-	for <linux-s390@vger.kernel.org>; Tue, 12 May 2026 21:36:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.82.52
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778621772; cv=pass; b=IBQT6spY7ROVeqv//pqgRlWW4pS+lsFGNAW9igLkXKRBqAslhllJDSrqH0YGNksCZ7aA35vu01CoJcZ+TiXTJJleva2qXDbq/diFkREUuLZF9s8JIW1C7TLIyS7pW1Xhr2HvTrPioQ3qbkKvjQnk0v7WSlJ1D2GkEx0IOPZEieA=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778621772; c=relaxed/simple;
-	bh=tNVFIzJVs0+iZMuJrmxC7LemBx7xzRbpwl1nigl6Caw=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=dzO8+VXpOqgN/lW7XRPsYibP9zJK9ai+bD+CHJ+EmqcNWlqMUBAwx2H3QWNW0z824srVf3BVD6nyF8Gl+dJ2xRo4hCcB1dsq561vZ0ph+rT+lWiRXe8pfsLR16rEmVCA9bQAw2LJ24JBXigpk/HaaITJY/LeglTTBWz7qt8eeaQ=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=oIAAl11l; arc=pass smtp.client-ip=74.125.82.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 56E9039BFF8;
+	Tue, 12 May 2026 22:16:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1778624215; cv=none; b=OxqaeQWsMcsSY+OmW9AAGblIDT3MnieSCFd52zeZF9Scg8JW4cmdkrqeQhUvildZH2gMqVUVuDPRABacBrb9fFwp+YXhzVOeikcRKwMkR2pxsM32lNCqOWQE389R++fz0to79aP+i42uUI2ajfKBCVId5TXHssUNKhEqdh31uok=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1778624215; c=relaxed/simple;
+	bh=qFgg86vfNYlSBmwjPSiUrMA9vqu5u8ZMpls612yt4yk=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=m5Y8YDucmq2hlw80VJJyKL4XGYzLmZ5t2ID/LR0fw36UrtQpdpbHV+1iugam6k5/HZ5KS2SBa0jyLollcmdQqErCuGpLd2kLk+wv1pmLmmZfen48n0HyrwElkUh5qhR85/cMC4cxlIU7D8zvAHYzw7+88r35Cr44sDzULip2Wdg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=aI24+0Q9; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="oIAAl11l"
-Received: by mail-dl1-f52.google.com with SMTP id a92af1059eb24-12c88e5f4aeso3569410c88.0
-        for <linux-s390@vger.kernel.org>; Tue, 12 May 2026 14:36:10 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1778621770; cv=none;
-        d=google.com; s=arc-20240605;
-        b=IofDm3ZxlP8s3HVKoeo1nRFSo1uBikgzODOiAdeC5hEawwG7Y/AFXV33YP9Q63r4d6
-         xRjWusDu6uRMWVBA2YqvnwpNh16QpqlVCSWpE2YdKz4tpHz2KSHnnOUGffB9Q2sRh7Iw
-         QpVmKjvMk1Oje5uSmX7D3A/eVWYUYY9BQiHw64i+N3Nc2LzFUb9vj2wwRoU8RmX7SEbO
-         Qx+yWGzBoDPhUoZuIlTssk90SUi9cPOr8josbWHQVhWESnWqiFVoaPth/ozC3xwGL/Ox
-         /PWZYSvMGV6pFxVj7F3vo94XuO9WwRYzvC0c0kY9idWnIzJXdJsYTuSyGU4029CHLqKB
-         tQxQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=nSfrdVT23xuwz4hEJjcmKT2AG7iJ7xwKeb8ijCFAitg=;
-        fh=R2n7dgwXSj2SVC9+gLf08R/VwCZFu2kxj067cG0eCVs=;
-        b=FLJEQXVc/9HhuEYYKnQZoBGjgQY9ctMOh7YxXFkgXa27gighvGCDG3/gw+O4VaqOKo
-         Cgbj1wqBpGDzxgLbxcT6sFyfhOsA6gUK0EFKD+lj8nBcix4IdcFIHN1PLyjZfSXPvfRy
-         fMEgDWKH0MdErNS1vNC62zWVxag5WnQ+kQDs0GkPmXL9F3qy343Z3ajBSekRCqM4xHn4
-         jBTRKkK+WbiZuYv38fZZmpz+5VgFzApPGikDiLbwTlgJK/GvMppFnjqjt1p9teUvb5Z5
-         w3vl19znnlOTWptjRwXegjET2ldjj5aPXJ8AVXYWlm5zzdfPD9TvrL6goWc4xOx1mwp/
-         HT8w==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1778621770; x=1779226570; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=nSfrdVT23xuwz4hEJjcmKT2AG7iJ7xwKeb8ijCFAitg=;
-        b=oIAAl11lIikzrQnnaZR9DpV+8+huZvRT5KfEaOcDiMT10kDlMaxgZmr08p5AnUfIkD
-         jM5B017vrbfzwMsB5YJEU1bSDks6N550QMJqFNp/KreEioif2FsbQ6+mT2+yiQqtybIt
-         rjymbIAkPew90+mrqLu4CCVEnqjOSzZK4zYLRo5VimoxMaVw/sMv0tNSAoihsqAO91kd
-         5nk9TtZaS27uQ+pJvjDr5reVMIZFxeKXDJcgDhcI8s3WGWd/DUuCFjx7iTpmbF2E5rRQ
-         VxQOFgb/w7llJpvg6+VLES9owv5FwLnTtddK5ugvMU+E2zsruG0EGCVGESncjPp36ewe
-         XDFQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778621770; x=1779226570;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=nSfrdVT23xuwz4hEJjcmKT2AG7iJ7xwKeb8ijCFAitg=;
-        b=LgxJOD1bksDmDVyZ64Attifv50wZ5vMxjFt0jG/k/k1q6E2AaAkJ8BZVUrgp+6Ci4d
-         mk/6U3L2dH5J9UX5m+lA2G6Sre1jZQL0YgURFYzeRx40w5R8Trms/aXXz+5V9vo11z5L
-         XUAoffVt4zK83qQm/QEUEnguIM2W5TetiMuj6tq7+WDLEcMDvCXQX7iJB0NYlFsxodVz
-         j2XiveDJemk2pQyb4GYG+vGAGq5Y0SfvEaIhwtXqxfOi5Ufim80zAD+cnaUv1p5ZXrZ/
-         S6pMDPpzo11qtz5Re+vD2Tq9v4FYWnQ8WJe+vJ7LaKYNlfnJXt05c+4EpliQY+jALxSI
-         P/0g==
-X-Forwarded-Encrypted: i=1; AFNElJ8d6KNOLaZq71Tz9Lkq8ngzM/9UYDtllrPovSpLdKlnF2XTzMBeNDc6DOTYy8Lgqio9sqjHYqUfjSow@vger.kernel.org
-X-Gm-Message-State: AOJu0Yxu5FXMF+eEZkLOnBeIpIRMc7F8MOBLc64H5JvpAMCDc6O98vR/
-	0mtWEIAXyL1ALKTs36blTLEB1BS04BO65qLbEPiDKC/rWR0gUKfaxDWwpZ0zTw0VXKOl7mm0BCq
-	vW/IkOhhykx3xAg2XQzipSoZnS30dgCRSN09d0cI=
-X-Gm-Gg: Acq92OGbT3Y5AmTACnwlaZVBfzrB/Sgqx4Wr/lkti2V7VCosWZGo+uclSOb8AXd0yZW
-	oK8sNOUpJKVK5xWvVMjAVw7fWXhJ902LWg0JVPws4v0zrORCd17MSxkqrvfX/rfRYreoNqym8u/
-	L7t53Wp09tOgmTm5mI7e3BagMBFzvZc7CMYqAznuF2Lmvm5up1L2MyUaWs3ykudhk/EaT4o1df4
-	NKf2u82LO3oFKxjFoy2yr8zFa2ZWKJ8uG9p2Y79bLIQhNxsKD7uVVsJsN2C3OltLAttf4ekJCD+
-	HRVcxgUZAhigWrMcNsAcmrYl5MNbyKyi6z5RQn6/s/nr/pi2I0HT3OoetfTRcwbf0d8Ze+CX7Xe
-	f+R7/pzgS+3CkXHwyd/2jnbDbfViFZBWOb7xddW5mPKv2ZX99hZIBd0SW
-X-Received: by 2002:a05:7022:4a3:b0:12c:81b:c74b with SMTP id
- a92af1059eb24-1333af7fc9emr3319324c88.1.1778621769297; Tue, 12 May 2026
- 14:36:09 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="aI24+0Q9"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48AA9C4AF09;
+	Tue, 12 May 2026 22:16:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1778624215;
+	bh=qFgg86vfNYlSBmwjPSiUrMA9vqu5u8ZMpls612yt4yk=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=aI24+0Q9jcy6+u/TPKMhDNSZJHhXpJ8/72gt6JXDmYPIS3K9Ox4hc9zmC7TShhlz0
+	 5DJLLNc06iXDkN8llI86CR0QdfQqvRwh0SRHF14bJVKnbvMIJ9dnx7FJLFay6OGVCI
+	 xq+4Q/WJ/fsaZnBrtuyPXcxnfSMhUNFR/zdGt6AjyVucU0GPRwTQ6dw5HNdbs3m2c5
+	 v6kvoiSNTBZuHDadEUqqzDvS2fc2ub3K6prk5sfljASCHjtWbHfzzHUKqUjqkmEZec
+	 RKDIZjQ9mZeq9+W30jDbr9UCe5lxwLyAXKY1Ke9H3mwz7ELr6EbeNNQAzWU6NjL/pz
+	 2dA+NHTAl42Dg==
+Received: from phl-compute-03.internal (phl-compute-03.internal [10.202.2.43])
+	by mailfauth.phl.internal (Postfix) with ESMTP id 5B59DF40069;
+	Tue, 12 May 2026 18:16:52 -0400 (EDT)
+Received: from phl-frontend-04 ([10.202.2.163])
+  by phl-compute-03.internal (MEProxy); Tue, 12 May 2026 18:16:52 -0400
+X-ME-Sender: <xms:1KYDav0_8vbBX42T8iRkXCdm5uJzplrP08KzxpJbhRfNWTd6mHLa5g>
+    <xme:1KYDahFDfahaWa2tsBdMRBA0f5XSMBWlaE74qoAxZpr2iWbVw2zAMy0LB5rFTi0n5
+    ej7N0aog_YdqvdlyXUYNjvuKuKop68QRIA9C18AbM9JK2xRYogCRg>
+X-ME-Received: <xmr:1KYDarjWRrXH5HaTwpWgqF-OvG9S-AS3loE_R1KtENN30NAh3AaTe5h9Irvj9I6du60661DaoWjHtRizbHh8WGvK6neunpvc>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefhedrtddtgdduvddvleekucetufdoteggodetrf
+    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
+    rghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujf
+    gurhepfffhvfevuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepuehoqhhunhcu
+    hfgvnhhguceosghoqhhunheskhgvrhhnvghlrdhorhhgqeenucggtffrrghtthgvrhhnpe
+    dtieegleekgeeggffhffeikeegfffgffeileekjeevgfejfeejtddtteffledugeenucff
+    ohhmrghinhepmhhsghhiugdrlhhinhhknecuvehluhhsthgvrhfuihiivgeptdenucfrrg
+    hrrghmpehmrghilhhfrhhomhepsghoqhhunhdomhgvshhmthhprghuthhhphgvrhhsohhn
+    rghlihhthidqudeijedtleekgeejuddqudejjeekheehhedvqdgsohhquhhnpeepkhgvrh
+    hnvghlrdhorhhgsehfihigmhgvrdhnrghmvgdpnhgspghrtghpthhtohepheekpdhmohgu
+    vgepshhmthhpohhuthdprhgtphhtthhopehjohgvlhgrghhnvghlfhesnhhvihguihgrrd
+    gtohhmpdhrtghpthhtoheprhhoshhtvgguthesghhoohgumhhishdrohhrghdprhgtphht
+    thhopehpvghtvghriiesihhnfhhrrgguvggrugdrohhrghdprhgtphhtthhopegtrghtrg
+    hlihhnrdhmrghrihhnrghssegrrhhmrdgtohhmpdhrtghpthhtohepfihilhhlsehkvghr
+    nhgvlhdrohhrghdprhgtphhtthhopehjohhnrghssehsohhuthhhphholhgvrdhsvgdprh
+    gtphhtthhopehsthgvfhgrnhdrkhhrihhsthhirghnshhsohhnsehsrghunhgrlhgrhhht
+    ihdrfhhipdhrtghpthhtohepshhhohhrnhgvsehgmhgrihhlrdgtohhmpdhrtghpthhtoh
+    ephhgtrgeslhhinhhugidrihgsmhdrtghomh
+X-ME-Proxy: <xmx:1KYDajhHepiJeDf0PcgrDtqPaw7ywhmn9zw_yRXK25LyOZRfbLXv3Q>
+    <xmx:1KYDagLyzmL6A2qYl29cMMGKyY1nvIDGkyxfmtOj8Y0mbp-z4AAJOQ>
+    <xmx:1KYDanOj9FavIsrhFrhD5j0nAwH-yVa5ZsfP4VT0ELCN-oRadUCeSQ>
+    <xmx:1KYDaosyPIgGT5Nq3jO6Bx380jIxmyuOC5Xh_-YvveDGXSVspq1c3Q>
+    <xmx:1KYDavFzjrlkwabNnZR76aE-U0G04KfLBHMKsFKnrQJU7vyTPpdWLurm>
+Feedback-ID: i8dbe485b:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
+ 12 May 2026 18:16:51 -0400 (EDT)
+Date: Tue, 12 May 2026 15:16:50 -0700
+From: Boqun Feng <boqun@kernel.org>
+To: Joel Fernandes <joelagnelf@nvidia.com>
+Cc: Steven Rostedt <rostedt@goodmis.org>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Catalin Marinas <catalin.marinas@arm.com>,	Will Deacon <will@kernel.org>,
+ Jonas Bonn <jonas@southpole.se>,
+	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
+	Stafford Horne <shorne@gmail.com>,	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,	Thomas Gleixner <tglx@kernel.org>,
+ Ingo Molnar <mingo@redhat.com>,	Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+	"H. Peter Anvin" <hpa@zytor.com>, Arnd Bergmann <arnd@arndb.de>,
+	Juri Lelli <juri.lelli@redhat.com>,
+	Vincent Guittot <vincent.guittot@linaro.org>,
+	Dietmar Eggemann <dietmar.eggemann@arm.com>,
+	Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
+	Valentin Schneider <vschneid@redhat.com>,
+	K Prateek Nayak <kprateek.nayak@amd.com>,
+	Waiman Long <longman@redhat.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Miguel Ojeda <ojeda@kernel.org>, Gary Guo <gary@garyguo.net>,
+	=?iso-8859-1?Q?Bj=F6rn?= Roy Baron <bjorn3_gh@protonmail.com>,
+	Benno Lossin <lossin@kernel.org>,
+	Andreas Hindborg <a.hindborg@kernel.org>,
+	Alice Ryhl <aliceryhl@google.com>, Trevor Gross <tmgross@umich.edu>,
+	Danilo Krummrich <dakr@kernel.org>,	Jinjie Ruan <ruanjinjie@huawei.com>,
+	Ada Couprie Diaz <ada.coupriediaz@arm.com>,
+	Lyude Paul <lyude@redhat.com>, Sohil Mehta <sohil.mehta@intel.com>,
+	Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
+	"Xin Li (Intel)" <xin@zytor.com>,
+	Sean Christopherson <seanjc@google.com>,
+	Nikunj A Dadhania <nikunj@amd.com>,
+	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+	Randy Dunlap <rdunlap@infradead.org>,	Yury Norov <ynorov@nvidia.com>,
+	Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	linux-openrisc@vger.kernel.org, linux-s390@vger.kernel.org,
+	linux-arch@vger.kernel.org, rust-for-linux@vger.kernel.org,
+	Boqun Feng <boqun.feng@gmail.com>,	Joel Fernandes <joelaf@google.com>
+Subject: Re: [PATCH 02/11] preempt: Track NMI nesting to separate per-CPU
+ counter
+Message-ID: <agOm0iiqrqPWXQPO@tardis.local>
+References: <20260508042111.24358-1-boqun@kernel.org>
+ <20260508042111.24358-3-boqun@kernel.org>
+ <20260512123048.6666343f@gandalf.local.home>
+ <6b2a38fb-1828-43bf-8059-fca8f703e179@nvidia.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <c00-02.v2.ttenwd4@ub.hpns> <p01-02.v2.g318c298267e3.ttenwd4@ub.hpns>
-In-Reply-To: <p01-02.v2.g318c298267e3.ttenwd4@ub.hpns>
-From: John Stultz <jstultz@google.com>
-Date: Tue, 12 May 2026 14:35:56 -0700
-X-Gm-Features: AVHnY4Lea-1Mo6XfoYgaXQAM1WvAL6V2xb41TrcKYtBn0cUfeE49P69xWlqM7sU
-Message-ID: <CANDhNCobpxgBJ8ZRxNfXuD_TSmv+DW_3wYCAjJ7yjRa-syL+Yw@mail.gmail.com>
-Subject: Re: [PATCH v2 1/2] sched/core: Don't steal a proxy-exec donor
-To: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, 
-	Juri Lelli <juri.lelli@redhat.com>, Vincent Guittot <vincent.guittot@linaro.org>, 
-	K Prateek Nayak <kprateek.nayak@amd.com>, Dietmar Eggemann <dietmar.eggemann@arm.com>, 
-	Steven Rostedt <rostedt@goodmis.org>, Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>, 
-	Valentin Schneider <vschneid@redhat.com>, Vineeth Pillai <vineethrp@google.com>, 
-	Joel Fernandes <joelagnelf@nvidia.com>, Heiko Carstens <hca@linux.ibm.com>, linux-s390@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <6b2a38fb-1828-43bf-8059-fca8f703e179@nvidia.com>
 
-On Thu, May 7, 2026 at 3:42=E2=80=AFAM Vasily Gorbik <gor@linux.ibm.com> wr=
-ote:
->
-> try_steal_cookie() avoids stealing src->core_pick and src->curr before
-> moving a task with the same cookie via move_queued_task_locked().
->
-> With proxy-exec, src->donor is the current scheduling context and may
-> differ from src->curr. Stealing it migrates a task that the source rq
-> still treats as current, leaving src's scheduler state for that task
-> stale. For CFS this means cfs_rq->curr points at the stolen entity,
-> and the next pick on the source rq hits the WARN_ON_ONCE in
-> put_prev_entity().
->
-> Commit 7de9d4f94638 ("sched: Start blocked_on chain processing in
-> find_proxy_task()") tweaked the fair class logic so that the donor task
-> isn't migrated away while we're running the proxy. Do it similarly for
-> try_steal_cookie() and skip src->donor as well.
->
-> Fixes: 7de9d4f94638 ("sched: Start blocked_on chain processing in find_pr=
-oxy_task()")
-> Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-> ---
->  kernel/sched/core.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-> index b905805bbcbe..8aed55592ca9 100644
-> --- a/kernel/sched/core.c
-> +++ b/kernel/sched/core.c
-> @@ -6366,7 +6366,7 @@ static bool try_steal_cookie(int this, int that)
->                 return false;
->
->         do {
-> -               if (p =3D=3D src->core_pick || p =3D=3D src->curr)
-> +               if (p =3D=3D src->core_pick || p =3D=3D src->curr || p =
-=3D=3D src->donor)
->                         goto next;
->
+On Tue, May 12, 2026 at 03:22:39PM -0400, Joel Fernandes wrote:
+> 
+> 
+> On 5/12/2026 12:30 PM, Steven Rostedt wrote:
+> > On Thu,  7 May 2026 21:21:02 -0700
+> > Boqun Feng <boqun@kernel.org> wrote:
+> > 
+> >> From: Joel Fernandes <joelagnelf@nvidia.com>
+> >>
+> >> Move NMI nesting tracking from the preempt_count bits to a separate per-CPU
+> >> counter (nmi_nesting). This is to free up the NMI bits in the preempt_count,
+> >> allowing those bits to be repurposed for other uses.  This also has the benefit
+> >> of tracking more than 16-levels deep if there is ever a need.
+> >>
+> >> Reduce multiple bits in preempt_count for NMI tracking. Reduce NMI_BITS
+> >> from 3 to 1, using it only to detect if we're in an NMI.
+> >>
+> >> Suggested-by: Boqun Feng <boqun.feng@gmail.com>
+> >> Signed-off-by: Joel Fernandes <joelaf@google.com>
+> >> Signed-off-by: Lyude Paul <lyude@redhat.com>
+> >> Signed-off-by: Boqun Feng <boqun@kernel.org>
+> >> Link: https://patch.msgid.link/20260121223933.1568682-3-lyude@redhat.com
+> >> ---
+> >>  include/linux/hardirq.h | 16 ++++++++++++----
+> >>  include/linux/preempt.h | 13 +++++++++----
+> >>  kernel/softirq.c        |  2 ++
+> >>  3 files changed, 23 insertions(+), 8 deletions(-)
+> >>
+> >> diff --git a/include/linux/hardirq.h b/include/linux/hardirq.h
+> >> index d57cab4d4c06..cc06bda52c3e 100644
+> >> --- a/include/linux/hardirq.h
+> >> +++ b/include/linux/hardirq.h
+> >> @@ -10,6 +10,8 @@
+> >>  #include <linux/vtime.h>
+> >>  #include <asm/hardirq.h>
+> >>  
+> >> +DECLARE_PER_CPU(unsigned int, nmi_nesting);
+> >> +
+> >>  extern void synchronize_irq(unsigned int irq);
+> >>  extern bool synchronize_hardirq(unsigned int irq);
+> >>  
+> >> @@ -102,14 +104,16 @@ void irq_exit_rcu(void);
+> >>   */
+> >>  
+> >>  /*
+> >> - * nmi_enter() can nest up to 15 times; see NMI_BITS.
+> >> + * nmi_enter() can nest - nesting is tracked in a per-CPU counter.
+> >>   */
+> >>  #define __nmi_enter()						\
+> >>  	do {							\
+> >>  		lockdep_off();					\
+> >>  		arch_nmi_enter();				\
+> >> -		BUG_ON(in_nmi() == NMI_MASK);			\
+> >> -		__preempt_count_add(NMI_OFFSET + HARDIRQ_OFFSET);	\
+> >> +		BUG_ON(__this_cpu_read(nmi_nesting) == UINT_MAX);	\
+> > 
+> > I think we should keep the max nesting fixed to 15. If this doesn't trigger
+> > until UINT_MAX, it may take a long time to see that, and there's no reason
+> > NMIs should nest more than 15 anyway.
 
-This makes sense to me, we don't want to be migrating rq donors.
- Acked-by: John Stultz <jstultz@google.com>
 
-I'm still getting my head around the finer details of the core
-scheduler, but I suspect we also should add a task_is_blocked() check
-in here as well, since migrating blocked_on tasks isn't useful either.
 
-thanks
--john
+> > 
+> > Just because the counter allows it, doesn't me the system should allow it.
+> 
+> That's fine with me. Boqun, do you want to make the one-line change to the patch?
+> 
+
+Something like this on top of your patch?
+
+diff --git a/include/linux/hardirq.h b/include/linux/hardirq.h
+index cc06bda52c3e..a59a33e0f5ca 100644
+--- a/include/linux/hardirq.h
++++ b/include/linux/hardirq.h
+@@ -110,7 +110,8 @@ void irq_exit_rcu(void);
+ 	do {							\
+ 		lockdep_off();					\
+ 		arch_nmi_enter();				\
+-		BUG_ON(__this_cpu_read(nmi_nesting) == UINT_MAX);	\
++		/* Maximum NMI nesting is 15 */			\
++		BUG_ON(__this_cpu_read(nmi_nesting) == 15);	\
+ 		__this_cpu_inc(nmi_nesting);			\
+ 		__preempt_count_add(HARDIRQ_OFFSET);		\
+ 		preempt_count_set(preempt_count() | NMI_MASK);	\
+
+I will need to adjust this in patch #10 as well, but shouldn't be hard.
+
+Regards,
+Boqun
+
+> Thanks.
+> 
