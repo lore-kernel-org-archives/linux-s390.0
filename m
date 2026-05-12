@@ -1,147 +1,134 @@
-Received: from relay.hostedemail.com (smtprelay0015.hostedemail.com [216.40.44.15])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f51.google.com (mail-wr1-f51.google.com [209.85.221.51])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE2573CF966;
-	Tue, 12 May 2026 16:31:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=216.40.44.15
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 101D13CDBDD
+	for <linux-s390@vger.kernel.org>; Tue, 12 May 2026 17:43:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778603475; cv=none; b=SB6+y4LIyhvc/4kqeuKL6izdHUXhWvuklrCqJgEgS+ykfVoBUKOv1UjBf2a51f+dgN10Uct/cU3zbB52/r45GhMKhiR0S+7N+tRCq+g5dnNyEuQAlVdsEd0Rw7aZU4v+pA+r8FVmd+pqibDjAu0432mgbYoIaxfuuZXyqJ2yOpM=
+	t=1778607827; cv=none; b=ezjiMozhCJAg0dYUsMhX4zoWii2TsIFYn5eG2Cknk02Teeq6oclKuiq+tjMphuR58a1jh4/NVX5ZDuHtrmA5HKfJCCQQ2+E74YGleqI2iPTUCNkfbrN44Mqyz2lRvj91TSdQusEHEBvY80KdVU4MhaOM06j+AJjLWXnDG0tnsJs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778603475; c=relaxed/simple;
-	bh=IMbW7exXtcrNMyBQoQ3lKIf11X87bEjhtS6Gp02LSlU=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=SL0K/gO+dIA2pwdAPf+GQKppxF90r7d8wzGsQjz131V1obOq0pW7VyN8l10hf7cg7izfknt7p/dFKcbdKMYDuU7Q+pmp3nml4KlnPdhslsTOGzvlMCtGDcznEB4tbiWh9nFhPm4KkfFW30n3ude9fno4Yain+4bLUr0W8tR6J2g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=goodmis.org; spf=pass smtp.mailfrom=goodmis.org; arc=none smtp.client-ip=216.40.44.15
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=goodmis.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=goodmis.org
-Received: from omf15.hostedemail.com (lb01a-stub [10.200.18.249])
-	by unirelay07.hostedemail.com (Postfix) with ESMTP id 94B2C1605C8;
-	Tue, 12 May 2026 16:31:06 +0000 (UTC)
-Received: from [HIDDEN] (Authenticated sender: rostedt@goodmis.org) by omf15.hostedemail.com (Postfix) with ESMTPA id 2E92318;
-	Tue, 12 May 2026 16:30:48 +0000 (UTC)
-Date: Tue, 12 May 2026 12:30:48 -0400
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Boqun Feng <boqun@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>, Catalin Marinas
- <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Jonas Bonn
- <jonas@southpole.se>, Stefan Kristiansson
- <stefan.kristiansson@saunalahti.fi>, Stafford Horne <shorne@gmail.com>,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger
- <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, Thomas
- Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov
- <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
- "H. Peter Anvin" <hpa@zytor.com>, Arnd Bergmann <arnd@arndb.de>, Juri Lelli
- <juri.lelli@redhat.com>, Vincent Guittot <vincent.guittot@linaro.org>,
- Dietmar Eggemann <dietmar.eggemann@arm.com>, Ben Segall
- <bsegall@google.com>, Mel Gorman <mgorman@suse.de>, Valentin Schneider
- <vschneid@redhat.com>, K Prateek Nayak <kprateek.nayak@amd.com>, Waiman
- Long <longman@redhat.com>, Andrew Morton <akpm@linux-foundation.org>,
- Miguel Ojeda <ojeda@kernel.org>, Gary Guo <gary@garyguo.net>,
- =?UTF-8?B?QmrDtnJu?= Roy Baron <bjorn3_gh@protonmail.com>, Benno Lossin
- <lossin@kernel.org>, Andreas Hindborg <a.hindborg@kernel.org>, Alice Ryhl
- <aliceryhl@google.com>, Trevor Gross <tmgross@umich.edu>, Danilo Krummrich
- <dakr@kernel.org>, Jinjie Ruan <ruanjinjie@huawei.com>, Ada Couprie Diaz
- <ada.coupriediaz@arm.com>, Lyude Paul <lyude@redhat.com>, Sohil Mehta
- <sohil.mehta@intel.com>, Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
- "Xin Li (Intel)" <xin@zytor.com>, Sean Christopherson <seanjc@google.com>,
- Nikunj A Dadhania <nikunj@amd.com>, Joel Fernandes <joelagnelf@nvidia.com>,
- Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Randy Dunlap
- <rdunlap@infradead.org>, Yury Norov <ynorov@nvidia.com>, Sebastian Andrzej
- Siewior <bigeasy@linutronix.de>, linux-arm-kernel@lists.infradead.org,
- linux-kernel@vger.kernel.org, linux-openrisc@vger.kernel.org,
- linux-s390@vger.kernel.org, linux-arch@vger.kernel.org,
- rust-for-linux@vger.kernel.org, Boqun Feng <boqun.feng@gmail.com>, Joel
- Fernandes <joelaf@google.com>
-Subject: Re: [PATCH 02/11] preempt: Track NMI nesting to separate per-CPU
- counter
-Message-ID: <20260512123048.6666343f@gandalf.local.home>
-In-Reply-To: <20260508042111.24358-3-boqun@kernel.org>
-References: <20260508042111.24358-1-boqun@kernel.org>
-	<20260508042111.24358-3-boqun@kernel.org>
-X-Mailer: Claws Mail 3.20.0git84 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+	s=arc-20240116; t=1778607827; c=relaxed/simple;
+	bh=4hMpz9IU/uwDFrIduflHUvfH+zn9i091lrWCzQ3RzfY=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=jf8FK1ldDsRi0r4ph50ip3zeCSqVFFldbCd8XZYyWXpau6FvD6Mqmgew4VN+HFJGx0DUcAe39a6G/LPlPR78EIA/buaHrCBBoO0qjZvDgzAQ6U87Go0NV6FDOcvc5RELLUh5sJVbhsz2UQzm5796sH9faR9q95H9qfFgymDY1Ao=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LaNElIr7; arc=none smtp.client-ip=209.85.221.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LaNElIr7"
+Received: by mail-wr1-f51.google.com with SMTP id ffacd0b85a97d-44dd5cb0f81so4440105f8f.0
+        for <linux-s390@vger.kernel.org>; Tue, 12 May 2026 10:43:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1778607824; x=1779212624; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:sender:from:to:cc:subject:date:message-id:reply-to;
+        bh=bQsYfl6dRJnMsTlZum51r7UJJ5K++DgCVkUEYqn/RVE=;
+        b=LaNElIr7emJ7hUbamvVsqRhWZXXlxI94yQR/U18qQ7ydCsuuxaJ8UW1TxxQvRVLiLG
+         uX8exWwN63mKcx7+kxyXiOnhBNgG342X7Gvg99tgajS7QgQmOltPSm7+he/KUp1sjRF9
+         Wr4mvHiVsXjxPsKxmukMJONM4X3cLlT2kKLDOTuOfYH34ILW/46aRnYklJKKkx2Uwf0e
+         qlFruZvVXS6IV+SSwy43UfyW6zRhu21y0te/msp7EI+h2Ux+z/nb5iOzrd2x/OuctBk2
+         bMXYibHxBzSKIP5YpDtuY4uQsh3uM37OMLQ9nLoayT1Ho+RJ9y92Y98W87pzWmtulxEi
+         1fyQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1778607824; x=1779212624;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:sender:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=bQsYfl6dRJnMsTlZum51r7UJJ5K++DgCVkUEYqn/RVE=;
+        b=aUDDi2hGZ72D54cBgyC1AOJS96PE0AGVQ2pwEU8hMXjPhn6At/JixGWLM6w+n+Zw+k
+         RWrDEfFaGE1Mn0vHhFbOkxndeg6j2NG8Q8H13n7KJablYjUBFi2txuf/Eot4vHRzjt4m
+         RoNGvirDqBmQW/2wAPJl2mwJhlh9YV7aIuqdu3g0N0eF5qgbTbzsf8c3G2SRXm8Tz7nC
+         u3uGL+5I4xNfNkPFftU0a9zh2DkIKhahB2QsivudSFilLwMt4gNonBZbSFVeYjwojO3q
+         +iBun+htVZnzFX3VIAgI0xnSJisA5n+PKfwIiIMjFFsFnLVxSkuLFu5FvWfIMcH8GY8j
+         /RGQ==
+X-Forwarded-Encrypted: i=1; AFNElJ8MUPgIYZiIzI6s6ViQEzLZzy/MnKNP1DD6tIkCr09BJG37OnTDh0na+HBu0hCFc1Y/gbeKHY5VT/pI@vger.kernel.org
+X-Gm-Message-State: AOJu0Yyq0mLVltfP/9pM9ntLRlfVPxrlj5Rmru4ohxXsqtiIy5m1qPJQ
+	/raepj5d2hc7F1yojdcn6lvQ2r8ip9zaUAaV2iekmvhG3tdE69bVSA7VKq86qYpbHswLWQ==
+X-Gm-Gg: Acq92OEJ1BB9002R16TZqfcrDR3SgaOINZqxjNTp/PiOKAziVKeGMeG1CknJkml7MRE
+	uWQ9PrwVLJldGNKdaqFtJKRS9teT05BCy34BvNIqYgNJJWrqe/dsfiixf1VIu4TyB2orxG1sLlJ
+	mG4uppHieWSyFR1haWhbZLe0opoUIyWIllcaI1Yoi/4tgUtZYQo17m32gz2vuaGzC1IYSsWKejr
+	8VFYJj0fHLUmINKJPO1VfTbgq/+l5WJJLo0y3zzD+FJ2fw8St8fZjPgbuyYNYHXfwyoq/YzQupA
+	oN3/+ufXCgMuns46/wDr2PIBcdg3q2yotEVKXd6+KJrC+KoiZOxJyzBKOIrw4WGbetcgOT0arYH
+	zKijVuesvRxHoL7O5mUGSvdNZDWvaU6W7OJouZ+z3o/dj/H4LWRIh9eayLQsRoZwmacHKioRSG+
+	fSW04cLFFGiqYjzbU9dvHY+P/e9WoFvb6JXl8vF1BRm3dDFD6YpIsChD8=
+X-Received: by 2002:a05:6000:430b:b0:449:b7dd:4a75 with SMTP id ffacd0b85a97d-45c474bc2ffmr12736f8f.20.1778607824273;
+        Tue, 12 May 2026 10:43:44 -0700 (PDT)
+Received: from nixos-office (195-23-151-163.net.novis.pt. [195.23.151.163])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4548e6a68ebsm32458092f8f.1.2026.05.12.10.43.43
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 12 May 2026 10:43:43 -0700 (PDT)
+Sender: Julian Braha <julian.braha@gmail.com>
+From: Julian Braha <julianbraha@gmail.com>
+To: agordeev@linux.ibm.com,
+	gor@linux.ibm.com,
+	hca@linux.ibm.com,
+	iii@linux.ibm.com
+Cc: meted@linux.ibm.com,
+	borntraeger@linux.ibm.com,
+	svens@linux.ibm.com,
+	akpm@linux-foundation.org,
+	linux-s390@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Julian Braha <julianbraha@gmail.com>
+Subject: [PATCH] s390: cleanup kconfig defaults for selftests
+Date: Tue, 12 May 2026 18:43:36 +0100
+Message-ID: <20260512174336.907050-1-julianbraha@gmail.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Stat-Signature: rxzg8jbfdtkk4aitrpcusrqxkwme1q84
-X-Rspamd-Server: rspamout02
-X-Rspamd-Queue-Id: 2E92318
-X-Session-Marker: 726F737465647440676F6F646D69732E6F7267
-X-Session-ID: U2FsdGVkX1/wsxhK3YvLhxUJYewPwd+JDlrDDxI7THU=
-X-HE-Tag: 1778603448-881851
-X-HE-Meta: U2FsdGVkX19IoNKjn8/2CFuwQduihhp8T9fcERCiZ9DMjEPnQs4CgfXWCNX1eLR6jbWJWlnvk67MmsoS1U7wa0d0G2bcz4PY/4q9PQk9b2m720qNMXGNi/FtZn9L5vWoSAAmhinHOBCskUHmgFY3OyYuytp7wXzFllSmnf3MkgmvUa/tjWXwsp4HEaxkfJJih156So8K+ajlb94mCRbbnuNyrK8iIruiIRG+ofpNwV3eRM1ME/t/H1HWyrAdtwKz7Vo1lRKqK6Qu2nWCMg5ZxZ7ewaP6pnwF1qpkZsU239HpFmLpTAfJEzP/6CyhQ3mXi3Fph5W7sa7YTzxooOLZm9GaTVwD1jnGZpkvzMrTlQCKZIq0bFqrFqbLVIBwqiGnX5lYMKEZ3jMtYlOJk6VsPauVMs6wrMPzR2cumlZVwIyKG1eZJOEtKVxiCiukJhJs3w2DD/JFvEYZ0ZMz+4Ik+JHpQmHJ8rMoLnRf19wR8ZBCAM1BFWJXJYWwZ0uhjX/GDV0JQfolp30=
+Content-Transfer-Encoding: 8bit
 
-On Thu,  7 May 2026 21:21:02 -0700
-Boqun Feng <boqun@kernel.org> wrote:
+Remove the unconditional defaults of 'n' from the def_tristate statements,
+which shadow the later 'KUNIT_ALL_TESTS' default, causing it to be dead
+kconfig code.
 
-> From: Joel Fernandes <joelagnelf@nvidia.com>
-> 
-> Move NMI nesting tracking from the preempt_count bits to a separate per-CPU
-> counter (nmi_nesting). This is to free up the NMI bits in the preempt_count,
-> allowing those bits to be repurposed for other uses.  This also has the benefit
-> of tracking more than 16-levels deep if there is ever a need.
-> 
-> Reduce multiple bits in preempt_count for NMI tracking. Reduce NMI_BITS
-> from 3 to 1, using it only to detect if we're in an NMI.
-> 
-> Suggested-by: Boqun Feng <boqun.feng@gmail.com>
-> Signed-off-by: Joel Fernandes <joelaf@google.com>
-> Signed-off-by: Lyude Paul <lyude@redhat.com>
-> Signed-off-by: Boqun Feng <boqun@kernel.org>
-> Link: https://patch.msgid.link/20260121223933.1568682-3-lyude@redhat.com
-> ---
->  include/linux/hardirq.h | 16 ++++++++++++----
->  include/linux/preempt.h | 13 +++++++++----
->  kernel/softirq.c        |  2 ++
->  3 files changed, 23 insertions(+), 8 deletions(-)
-> 
-> diff --git a/include/linux/hardirq.h b/include/linux/hardirq.h
-> index d57cab4d4c06..cc06bda52c3e 100644
-> --- a/include/linux/hardirq.h
-> +++ b/include/linux/hardirq.h
-> @@ -10,6 +10,8 @@
->  #include <linux/vtime.h>
->  #include <asm/hardirq.h>
->  
-> +DECLARE_PER_CPU(unsigned int, nmi_nesting);
-> +
->  extern void synchronize_irq(unsigned int irq);
->  extern bool synchronize_hardirq(unsigned int irq);
->  
-> @@ -102,14 +104,16 @@ void irq_exit_rcu(void);
->   */
->  
->  /*
-> - * nmi_enter() can nest up to 15 times; see NMI_BITS.
-> + * nmi_enter() can nest - nesting is tracked in a per-CPU counter.
->   */
->  #define __nmi_enter()						\
->  	do {							\
->  		lockdep_off();					\
->  		arch_nmi_enter();				\
-> -		BUG_ON(in_nmi() == NMI_MASK);			\
-> -		__preempt_count_add(NMI_OFFSET + HARDIRQ_OFFSET);	\
-> +		BUG_ON(__this_cpu_read(nmi_nesting) == UINT_MAX);	\
+Also, include S390_KPROBES_SANITY_TEST in KUNIT_ALL_TESTS.
 
-I think we should keep the max nesting fixed to 15. If this doesn't trigger
-until UINT_MAX, it may take a long time to see that, and there's no reason
-NMIs should nest more than 15 anyway.
+This dead code was found by kconfirm, a static analysis tool for Kconfig.
 
-Just because the counter allows it, doesn't me the system should allow it.
+Signed-off-by: Julian Braha <julianbraha@gmail.com>
+---
+ arch/s390/Kconfig | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
--- Steve
+diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+index ecbcbb781e40..4d7c492c6bca 100644
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -999,9 +999,8 @@ config S390_MODULES_SANITY_TEST_HELPERS
+ menu "Selftests"
+ 
+ config S390_UNWIND_SELFTEST
+-	def_tristate n
++	def_tristate KUNIT_ALL_TESTS
+ 	depends on KUNIT
+-	default KUNIT_ALL_TESTS
+ 	prompt "Test unwind functions"
+ 	help
+ 	  This option enables s390 specific stack unwinder testing kernel
+@@ -1011,7 +1010,7 @@ config S390_UNWIND_SELFTEST
+ 	  Say N if you are unsure.
+ 
+ config S390_KPROBES_SANITY_TEST
+-	def_tristate n
++	def_tristate KUNIT_ALL_TESTS
+ 	prompt "Enable s390 specific kprobes tests"
+ 	depends on KPROBES
+ 	depends on KUNIT
+@@ -1023,9 +1022,8 @@ config S390_KPROBES_SANITY_TEST
+ 	  Say N if you are unsure.
+ 
+ config S390_MODULES_SANITY_TEST
+-	def_tristate n
++	def_tristate KUNIT_ALL_TESTS
+ 	depends on KUNIT && m
+-	default KUNIT_ALL_TESTS
+ 	prompt "Enable s390 specific modules tests"
+ 	select S390_MODULES_SANITY_TEST_HELPERS
+ 	help
+-- 
+2.53.0
 
-
-> +		__this_cpu_inc(nmi_nesting);			\
-> +		__preempt_count_add(HARDIRQ_OFFSET);		\
-> +		preempt_count_set(preempt_count() | NMI_MASK);	\
->  	} while (0)
->  
->  #define nmi_enter()						\
-> @@ -124,8 +128,12 @@ void irq_exit_rcu(void);
->  
