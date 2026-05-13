@@ -1,82 +1,92 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from verein.lst.de (verein.lst.de [213.95.11.211])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 93618397E64;
-	Wed, 13 May 2026 03:46:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C5CB8384CE0;
+	Wed, 13 May 2026 05:47:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.95.11.211
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778643971; cv=none; b=cbUSKDT442OGMVq3ZiXbF+kHs04XxfvHHy3wyEqlq9iwUHCs6K6G+0IGbfc67mdp3/JFbQYlPngPbqQZcnUZlD3UJIgnQp7Aiha3e04eAjXO03I9CBfR69NEcSlyWbMOtH90OvPa9917gllqE+6ghJMFF0hIwQinUuLFTcObKiY=
+	t=1778651272; cv=none; b=jI8qyoHu/2GuGAfG8M7jcUPVCHop4VH80gplVQqW78DQgPiV0xn2xZgUImTTeeAKUTp4O7LTpbJ8iLHXNReJVQYqemBkoMGuIEp2pRHIY4qATK9xHlZTeNxhedQqETdBjyAKbvS8r747ufDwpnCRiynFMPy5BDVmLIBJwmp/Xpg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778643971; c=relaxed/simple;
-	bh=j/ZWZ6nYtJAegsuNwpg1A7rc1Fkj1DJrX/2XmoQLtPg=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=bZXzpI1ohYk5GWOq+yeoSr7ZvLknBwsNdi5fmWDJpaW8v3xNgfYVLc9a1mRcgrnIvzjlelV1R9rfHwXQ+zRO9iwKue470ZFjiKMrEBEQFJxC6ZZ0eCK/JySW4hTRxoguydLYD3H5BuU7ZU+g5GVZKIXvqohwSb5y7J132o7yhEk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ODT40+2p; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ODT40+2p"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0268CC2BCC7;
-	Wed, 13 May 2026 03:46:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1778643971;
-	bh=j/ZWZ6nYtJAegsuNwpg1A7rc1Fkj1DJrX/2XmoQLtPg=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=ODT40+2pWoO7xzEp6IsbAr3MUpahEORMoCXnDsAbUW3EPL2cq/wKJApwXxJb+QPxB
-	 VjG7YVZtjH3/iFEcXOJv1Bv16zqtv/Y4vTa+uvJHB9Lq4w1Gc5R+1pliwQy2qoky6A
-	 ECCNsgQgnp1Zlq50+qoyIASH+2jBwQVy8t0dyFHD8kIlIrSEtEJoC5Y+Xjf7bUQJw/
-	 xSNN030I16mRTyMFik/Bs1BM2jThY4nlvhjEZJ9teo2IwhqG1sey/X0TIlqsbFOpAA
-	 xUrD6N5nbDKtANmAgCCU6xJkqMywpuXw5XObuJv8F2A/mhzLxe/jhkNUP4j/aDLpxC
-	 ZRd5zj1PGByeg==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 02E423822D60;
-	Wed, 13 May 2026 03:45:18 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	s=arc-20240116; t=1778651272; c=relaxed/simple;
+	bh=gLgo4WQ3hzDs13tL91Gp16GFz3W0lr9TsHhf12nzTgo=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=gWWqtE3oERaGl7wV8Z2+x/NZBOSBtbiR91Gz2yyzz3T1Tn/sYgYC/eYW9WDcKlZywJt7uYcTPD6/3UEHhIP9oPxryc2+IqZhjTP5T1WuEDrK+lxUEAV5tW8CyOI1WQdn6GWg5MylbT30u1P6gbRrz5n8RKJJp+9k0RlxuOxM9M4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lst.de; spf=pass smtp.mailfrom=lst.de; arc=none smtp.client-ip=213.95.11.211
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lst.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lst.de
+Received: by verein.lst.de (Postfix, from userid 2407)
+	id B404568B05; Wed, 13 May 2026 07:47:42 +0200 (CEST)
+Date: Wed, 13 May 2026 07:47:42 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: David Sterba <dsterba@suse.cz>
+Cc: Christoph Hellwig <hch@lst.de>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Will Deacon <will@kernel.org>, Ard Biesheuvel <ardb@kernel.org>,
+	Huacai Chen <chenhuacai@kernel.org>,
+	WANG Xuerui <kernel@xen0n.name>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+	Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
+	Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+	Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	Herbert Xu <herbert@gondor.apana.org.au>,
+	Dan Williams <dan.j.williams@intel.com>, Chris Mason <clm@fb.com>,
+	David Sterba <dsterba@suse.com>, Arnd Bergmann <arnd@arndb.de>,
+	Song Liu <song@kernel.org>, Yu Kuai <yukuai@fnnas.com>,
+	Li Nan <linan122@huawei.com>, linux-kernel@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
+	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org, linux-crypto@vger.kernel.org,
+	linux-btrfs@vger.kernel.org, linux-arch@vger.kernel.org,
+	linux-raid@vger.kernel.org
+Subject: Re: [PATCH 01/19] btrfs: require at least 4 devices for RAID 6
+Message-ID: <20260513054742.GA1018@lst.de>
+References: <20260512052230.2947683-1-hch@lst.de> <20260512052230.2947683-2-hch@lst.de> <20260512114231.GG2558453@suse.cz>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH v3] net/smc: fix sleep-inside-lock in __smc_setsockopt()
- causing local DoS
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <177864391679.3173643.11650967377034857635.git-patchwork-notify@kernel.org>
-Date: Wed, 13 May 2026 03:45:16 +0000
-References: <20260510163414.16651-1-n.coccia96@gmail.com>
-In-Reply-To: <20260510163414.16651-1-n.coccia96@gmail.com>
-To: =?utf-8?q?Nicol=C3=B2_Coccia_=3Cn=2Ecoccia96=40gmail=2Ecom=3E?=@aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org
-Cc: alibuda@linux.alibaba.com, dust.li@linux.alibaba.com,
- sidraya@linux.ibm.com, wenjia@linux.ibm.com, mjambigi@linux.ibm.com,
- tonylu@linux.alibaba.com, guwen@linux.alibaba.com,
- linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
- linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
- nicolo.coccia@leonardo.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260512114231.GG2558453@suse.cz>
+User-Agent: Mutt/1.5.17 (2007-11-01)
 
-Hello:
-
-This patch was applied to netdev/net.git (main)
-by Jakub Kicinski <kuba@kernel.org>:
-
-On Sun, 10 May 2026 12:34:13 -0400 you wrote:
-> A logic flaw in __smc_setsockopt() allows a local unprivileged user to
-> cause a Denial of Service (DoS) by holding the socket lock indefinitely.
+On Tue, May 12, 2026 at 01:42:31PM +0200, David Sterba wrote:
+> On Tue, May 12, 2026 at 07:20:41AM +0200, Christoph Hellwig wrote:
+> > While the RAID6 algorithm could in theory support 3 devices by just
+> > copying the data disk to the two parity disks, this version is not only
+> > useless because it is a suboptimal version of 3-way mirroring, but also
+> > broken with various crashes and incorrect parity generation in various
+> > architecture-optimized implementations.  Disallow it similar to mdraid
+> > which requires at least 4 devices for RAID 6.
+> > 
+> > Fixes: 53b381b3abeb ("Btrfs: RAID5 and RAID6")
+> > Signed-off-by: Christoph Hellwig <hch@lst.de>
 > 
-> The function __smc_setsockopt() calls copy_from_sockptr() while holding
-> lock_sock(sk). By passing a userfaultfd-monitored memory page (or
-> FUSE-backed memory on systems where unprivileged userfaultfd is disabled)
-> as the optval, an attacker can halt execution during the copy operation,
-> keeping the lock held.
-> 
-> [...]
+> This patch should have been sent separately as it has user visible
+> impact and can potentially break some setups.
 
-Here is the summary with links:
-  - [v3] net/smc: fix sleep-inside-lock in __smc_setsockopt() causing local DoS
-    https://git.kernel.org/netdev/net/c/a3fdd924d88c
+It _is_ sent out separate.
 
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+> The degenerate modes of
+> raid0, 5, or 6 are explicit as a possible middle step when converting
+> profiles.  We can use a fallback implementation for this case if the
+> accelerated implementations cannot do it.
 
-
+This is not about a degenerated mode.  For a degenerated RAID 6, parity
+generation uses the RAID 5 XOR routines as the second parity will be
+missing.  This is about generating two parities for a single data disk,
+which must be explicitly selected.
