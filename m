@@ -1,63 +1,63 @@
-Received: from mail-pj1-f68.google.com (mail-pj1-f68.google.com [209.85.216.68])
+Received: from mail-pg1-f195.google.com (mail-pg1-f195.google.com [209.85.215.195])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CFE2D349CCD
-	for <linux-s390@vger.kernel.org>; Wed, 13 May 2026 15:32:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.68
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0BE7A30675A
+	for <linux-s390@vger.kernel.org>; Wed, 13 May 2026 15:33:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.195
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778686363; cv=none; b=FY1dal2q7aRDgL0HmCYJFI4pOBX/83UyRnlEwiYM+sj4B1xXPShwxE1pP6tc8iohb5zt1jkRkqBsGSz4Ui/uL9JW3A7oNe0JJ1gIrV8W3nW2t5/v9A598wUy2A4FftNLkYgZKlWE2rWmBz8p+bg3TsnTYDrhIob1hFMluk7u4rI=
+	t=1778686400; cv=none; b=tBInb+VPcF8n8m8yS/u3tSI1iKfyD0Uuh321iY3Xji+POBL/kekMw+aXlU/o/Owb+y8ObQYG82VSxEQzXWeSEALySn6L3vKDMBkNGTvuJQsmkvfB/nr7ZJSP1N4igFIaK4VWZbM3zpU3ltNcNo2D7WTeBENEOlX0KznbgzNJByY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778686363; c=relaxed/simple;
-	bh=uEdiX3bsYBq/wVfVqaY6nIE6JvVlmP8CjNL6fk0R+S8=;
+	s=arc-20240116; t=1778686400; c=relaxed/simple;
+	bh=ptCC6ECWoq8NwvEdGxDOHxyoOAmU11HMhIDNaeufYn8=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=JnbyohNDGF4W2/zb0AOpnhrgWYxspvJSuAcx0FuBB1BjRLxjntRVdvYDk4Qva8RrA4zBq21g/6KkIjmP4j0zmHWs2Yz2xti2lqkCSGwVT8uFiX88+JrCg6NxlNXt2p891oGVmkytj5EQYy8nhY0nfuqekXUW5KfqzQtZ7gLriWE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hQrO/dQ7; arc=none smtp.client-ip=209.85.216.68
+	 Content-Type:Content-Disposition:In-Reply-To; b=jmd+bUiWXVp0g/IuglfNzept+r5c1v161wqlQz0373/7SO1wQEEYy/P4JY7lc8gdlaffHZo9Jl2oxTsdCZnI4TpOoSPbwjWQUUoLC7eM36q4azM8ln2f0Otr9NzoB6SR89OJ0yVRrbyNKkQMOwmH/thO/5BMMxv2Xrw6h32dqYk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=iE9QBlWp; arc=none smtp.client-ip=209.85.215.195
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hQrO/dQ7"
-Received: by mail-pj1-f68.google.com with SMTP id 98e67ed59e1d1-3660daea6a5so3814215a91.1
-        for <linux-s390@vger.kernel.org>; Wed, 13 May 2026 08:32:40 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="iE9QBlWp"
+Received: by mail-pg1-f195.google.com with SMTP id 41be03b00d2f7-c801912c903so3267455a12.0
+        for <linux-s390@vger.kernel.org>; Wed, 13 May 2026 08:33:16 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1778686360; x=1779291160; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1778686395; x=1779291195; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=2C8hObdO8WpevMDGMCA7yvRyBq1XyhuobSazR5gNIQs=;
-        b=hQrO/dQ75FkRUjpGtoKNrMBNsuAu5i803NBLZKR4r3tU3e6aOv+MTELV/oWyDab6qd
-         BhUo6+VuEOGuuJtkDfegJMOao02B3tNm87chYCdHYs6wmQIkzRGgNmD3MPhQPo9QyQ+M
-         Zol5oaIgxL6JybiDuhu4Z16nnxYr55Pe65zE4wNkpQZUx6akqwsqnut1MX+fZNSwiSK/
-         Eqqe0asrCPmSTTFZwoTcKXcsCFZgQhZq3GDQ3Ml6sIjegUF5Hq0JxkKwRc/HiiEg0JZd
-         U8dfxY4q29axC37VRLN9jmD83QzWeP8AjLkGhfvC4t7DXHucp4a52l3yJpl93BG+L+Pu
-         3BAA==
+        bh=r9pfvZX6NILfeGSOJxHfBjON7lRfDPEPyL1FGEyg6nE=;
+        b=iE9QBlWp5OQLkejtWY/11Lz8YrrdM/OYTTKVvnKseUkr/lI6vH/bgkErOF6Hq1KZFP
+         lDcmgu9s93arsru9+rFQbIulGzqd335bcMAIUoy76udbWQaCSrtd4RDfhb1hZIXJFFut
+         UwyOxdJE3i8oG4GMMGqnuFqmMLSycCkuub2/zfTAzWuaQ0/nuGHxlI1s1nYMdaCIcR2p
+         xWydnJJmVWwEzDJRtfmh8MUAvYyU5vSAle3sraXh9xxxRvxj3Z0we77JR1hdjmZfv6do
+         BOlaxxvVrvcM5wQPC0VN1fcORyTAK7p/A4ejyWQJrpD8tfhO08w5cQJhPdjf0NQRJ+1y
+         dWKA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778686360; x=1779291160;
+        d=1e100.net; s=20251104; t=1778686395; x=1779291195;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=2C8hObdO8WpevMDGMCA7yvRyBq1XyhuobSazR5gNIQs=;
-        b=KTdlCD+uUmcvGYMhi9U5+pbyTel9IQ+bq4eROsi0012gQ7vZpK8GlzaiJbN1lUpb5g
-         wYyvky5yB4wcA9C8nJogdDYrnOljgAKQXf9nprAtIAdf1fuVrEQP7cwQ6rwj4ypBkCgm
-         /a+U0qk3CoKkKYmuI26QRTRycTMlM6fmVU3PQ6cM0pE59KVXe5HuMQRXMQWY60P404l4
-         4AO9r3H6xfgADwYqhIFk7z+Iihflhq1/eglj75hhVlkr32CSFai5jq6C8nw8jPaAyv8P
-         HcxpEQQNGkQvCDRSwk5Rru8H1NcFpOybXH/oJHe0YV9glKUGzXl07+x7KDQzjcwNwKCy
-         XXrA==
-X-Forwarded-Encrypted: i=1; AFNElJ9qA8PACqhGpw+3ZoiEilleb89NiS+aBt6Naa4i2+0HxuIxzVVH9QvjIQbryjJYNetaD8hborc3E3YM@vger.kernel.org
-X-Gm-Message-State: AOJu0YxyEG4L9ig1s1BU1XkZthmwozWSlSJz1NpE7JnLHsBMl/gjRJPk
-	q6IfqYwhksgycX0ms7AnBBDWNB5W/+8jSL45izr8JxggbU7PCW2dqMUi
-X-Gm-Gg: Acq92OE7GDazzVUwvVBpm7+8xMXWWDL6m4euutZUpzK+PVSmE55LX6Jc7z58MpBmFc7
-	43jbINPnStY1XzmcVzUoo+ir49bgXkx40H4wB4ciF9XarsgLpA6aGajY6n1RuWGVIoycC0kMWJJ
-	KGuSCM8fflM6sg6+sjZxMc3i6zXKd8tD8IjMZwxw9Kn2ete5BHj+AuCWGPpHp3d+tw0DoxHFjRi
-	lQj9fBW4HfwS1zihTo8nc0kJlSSRzE4WRoviFUb6Zh13Nu1kNj3U0r35W8sNMsqfBXq5a0fWC7y
-	4vqzD4GOs6fg5PM8dK8vlMMTyVt4UEioDgaa8yEHDSFMnwIDl1XEapbmQRw+1Pnh+cy2AnYwql2
-	HYGlJxVkssJldxN6cG5KDiw7g4NcIoQhE5fmH7R+RODqgt8zww2ZVB6r5XqWaw8NNqdwMeaCVyi
-	/ua+K4y7DkFUoCBGDu
-X-Received: by 2002:a17:90a:c105:b0:368:5367:d681 with SMTP id 98e67ed59e1d1-368f782ef5amr3543149a91.10.1778686359919;
-        Wed, 13 May 2026 08:32:39 -0700 (PDT)
-Received: from localhost ([2a03:2880:2ff:54::])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-368ee6280d0sm3409228a91.16.2026.05.13.08.32.39
+        bh=r9pfvZX6NILfeGSOJxHfBjON7lRfDPEPyL1FGEyg6nE=;
+        b=oJv9Z9lkpL9gTrN9ztXOZgyrePe4/Z42+1Hoj4TLpV1E2I3jP0Vh2D5OJRVX347FFe
+         cmbqqBeFWvAV0ExBciSVcZY5Shc/HdqVWixc3yMtGSMrqsjAwUqPRfpbYBACOAFvc9AL
+         7nVMZDpU0KicZ1M9KJZSUmF8MIK9g2jrRr4lYVuBEgyiTbBqDSnuW43CtvBIOxKkyJNL
+         pBDPcHiJAvBaZtnhM5yPilGZaaPXhdcWwDYerXT1kJ2YU6J7iMrmN6WC8mI+5Ev6F1bt
+         9iA+K/lc7d7RLHQ+BkK2O2OxxITFBaWxDB2lNbUfb62q7e/HVf8CFW6Mpo1rqxS5kCIA
+         WWsQ==
+X-Forwarded-Encrypted: i=1; AFNElJ/W8nRfEcn48eDAJnEMM416F6HL47Cq+4U/WqLVEiUyTBBZvhUakA+0q7hVftK7a7czs5x/LZTcVhRj@vger.kernel.org
+X-Gm-Message-State: AOJu0Yw4CYEAw5qYejsQIqkYMP0xJBW9e2v2enRGhf6FmJDnDyD75TDB
+	3ycX3rbhS0pXBk0160/loihgd0x1Xj2f4k0fYcNYHPMQ2PtWggw45Yd0
+X-Gm-Gg: Acq92OH1932AT69ObcMftPI2K0d+qWn7X3DKP4UlJH0IlyHKK062eiso3+0CIEEkCO0
+	O5yYG/KCnjG1VC/YitsVlzF5kgVd+jFOV5xWOVkpXK9QlqZlKBzShWDSrkdTZ1uq0xNMh+VMIb6
+	bLoFOMNwACzCOq8vF8hwwywVubkWRW4xV6sTUcPtWJlXDulTKL1mkF7wJ7qgOLCo5TYgUKQkRjy
+	1s/uKpk7be5XWLs5hvpq/AES+L/65/RVgJSSD48bM5pRU3FmstQAu8q46Utua0qaI0YVeNKZH6L
+	EPfbdTWUMvr41+/dSisbbrMiWFTJsFLa3sPQ1HoM0HQG20eRrtEex1iwLhRHawigqS37WrwS2e0
+	BdNZMDt35tCM/asDviUjfvp5Y/TK1UCdQXqIeJAtGRjAL2rQKUvNIiodF/7bctABJuwu5RQ5IkM
+	07jaC2Jzt00OPWsjQE
+X-Received: by 2002:a05:6a21:6d8f:b0:398:6bb5:54c4 with SMTP id adf61e73a8af0-3af7ee34f61mr4503273637.5.1778686394884;
+        Wed, 13 May 2026 08:33:14 -0700 (PDT)
+Received: from localhost ([2a03:2880:2ff:55::])
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-c82675fb236sm15718164a12.0.2026.05.13.08.33.14
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 13 May 2026 08:32:39 -0700 (PDT)
-Date: Wed, 13 May 2026 08:32:39 -0700
+        Wed, 13 May 2026 08:33:14 -0700 (PDT)
+Date: Wed, 13 May 2026 08:33:13 -0700
 From: Stanislav Fomichev <sdf.kernel@gmail.com>
 To: Breno Leitao <leitao@debian.org>
 Cc: Chas Williams <3chas3@gmail.com>, 
@@ -74,10 +74,10 @@ Cc: Chas Williams <3chas3@gmail.com>,
 	linux-kernel@vger.kernel.org, bpf@vger.kernel.org, tipc-discussion@lists.sourceforge.net, 
 	linux-s390@vger.kernel.org, linux-afs@lists.infradead.org, oe-linux-nfc@lists.linux.dev, 
 	kernel-team@meta.com
-Subject: Re: [PATCH net-next 4/6] l2tp: ppp: convert to getsockopt_iter
-Message-ID: <agSZeMEvxE0xyNB8@devvm7509.cco0.facebook.com>
+Subject: Re: [PATCH net-next 5/6] rxrpc: convert to getsockopt_iter
+Message-ID: <agSZsZGe_MpQzY0L@devvm7509.cco0.facebook.com>
 References: <20260513-getsock_four-v1-0-fe7f0e756fac@debian.org>
- <20260513-getsock_four-v1-4-fe7f0e756fac@debian.org>
+ <20260513-getsock_four-v1-5-fe7f0e756fac@debian.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -86,10 +86,10 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20260513-getsock_four-v1-4-fe7f0e756fac@debian.org>
+In-Reply-To: <20260513-getsock_four-v1-5-fe7f0e756fac@debian.org>
 
 On 05/13, Breno Leitao wrote:
-> Convert PPPoL2TP socket's getsockopt implementation to use the new
+> Convert RxRPC socket's getsockopt implementation to use the new
 > getsockopt_iter callback with sockopt_t.
 > 
 > Key changes:
@@ -98,60 +98,5 @@ On 05/13, Breno Leitao wrote:
 > - Use copy_to_iter() instead of put_user()/copy_to_user()
 > 
 > Signed-off-by: Breno Leitao <leitao@debian.org>
-> ---
->  net/l2tp/l2tp_ppp.c | 18 ++++++++----------
->  1 file changed, 8 insertions(+), 10 deletions(-)
-> 
-> diff --git a/net/l2tp/l2tp_ppp.c b/net/l2tp/l2tp_ppp.c
-> index 99d6582f41de2..4c7a1152b20ba 100644
-> --- a/net/l2tp/l2tp_ppp.c
-> +++ b/net/l2tp/l2tp_ppp.c
-> @@ -59,6 +59,7 @@
->  #include <linux/string.h>
->  #include <linux/list.h>
->  #include <linux/uaccess.h>
-> +#include <linux/uio.h>
->  
->  #include <linux/kernel.h>
->  #include <linux/spinlock.h>
-> @@ -1317,7 +1318,7 @@ static int pppol2tp_session_getsockopt(struct sock *sk,
->   * or the special tunnel type.
->   */
->  static int pppol2tp_getsockopt(struct socket *sock, int level, int optname,
-> -			       char __user *optval, int __user *optlen)
-> +			       sockopt_t *opt)
->  {
->  	struct sock *sk = sock->sk;
->  	struct l2tp_session *session;
-> @@ -1328,9 +1329,7 @@ static int pppol2tp_getsockopt(struct socket *sock, int level, int optname,
->  	if (level != SOL_PPPOL2TP)
->  		return -EINVAL;
->  
-> -	if (get_user(len, optlen))
-> -		return -EFAULT;
-> -
-> +	len = opt->optlen;
->  	if (len < 0)
->  		return -EINVAL;
->  
-> @@ -1358,12 +1357,11 @@ static int pppol2tp_getsockopt(struct socket *sock, int level, int optname,
->  			goto end_put_sess;
->  	}
->  
-> -	err = -EFAULT;
-> -	if (put_user(len, optlen))
-> -		goto end_put_sess;
-> -
-> -	if (copy_to_user((void __user *)optval, &val, len))
-> +	opt->optlen = len;
-> +	if (copy_to_iter(&val, len, &opt->iter_out) != len) {
-> +		err = -EFAULT;
->  		goto end_put_sess;
-> +	}
->  
->  	err = 0;
-
-nit: if you're moving `err = -EFAULT`, you might as well remove this
-`err = 0` ?
 
 Acked-by: Stanislav Fomichev <sdf@fomichev.me>
