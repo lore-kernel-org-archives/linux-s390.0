@@ -1,247 +1,109 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mail.zytor.com (terminus.zytor.com [198.137.202.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 34B7C30BF4E;
-	Wed, 13 May 2026 16:16:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7FF5B44A724;
+	Wed, 13 May 2026 16:27:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778688984; cv=none; b=NkzR2afQ7nIGgEjXyDcQ29qxLtfliMwuIqDdO6hPFjbx56QLNlvjQ3bbQyukWJz0Ibg2HyAfsxhzBz4wlufkzV6XMm8O2ZBaGtVTWMbb6OOqyKvChajpIXsxmwXzoB43l1mk74Z7K79J7DiuGAhnrfS4OPf/Id7VEGFQXgQu7fg=
+	t=1778689653; cv=none; b=NjSxIUAqFqfaLka9eAJfmV4qM3i2DpElGcXdG4aWpAiu/CAI112WiUDatUL3WKr8Fc8WjuIv4z3f1um27GLqLoUZufi0skKyuFprwsvHb7KcQ93Mk22bOucZfF9htoOQj1yrLP5bvDtsukxPBisIgcJqUJPHhsBCsabE+x2DFnE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778688984; c=relaxed/simple;
-	bh=L8jrsYHVTEE8zLHGgLHY9zKU0T0C7rnFaCcc1HD1P6k=;
-	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=TLJmt5QgPU832GGzvR4G68FcSh39U6BA0Qp5kpll0CR+5k8jdvSwIsvfH54hO4YokmlxXRjPC6E5YMAAelISeCf9EURcS5kkRpdMIyA/d7CrLgJIOwPKi9dUF/l/Jqx8liNj/k/k8pHK5ORLYfIRDgtk5DNXhS37MCcF7Ei+6+s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=GY/1GeDr; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1778689653; c=relaxed/simple;
+	bh=CDzF6zxpWm/EIG7IClV3NwFJ7pzNxzMC2HVtf6q6ESc=;
+	h=Date:From:To:CC:Subject:In-Reply-To:References:Message-ID:
+	 MIME-Version:Content-Type; b=CwVEUnQ+XZhcOIiU6+3cne3D42kLjnU08brxc+vpnxcgBFX5Fx3khnczAQkMlUr3sZfZAEgHnP7dAczgnnEf+6wU/MqW4Bs6hxmFNJivM3crGjo/WF5GRKpNcBoRNfFI3uxGEK8VOIQNQzhIh4LavpOKCDrvsz7YW89Lo7FquCc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=Ahhs2ZaN; arc=none smtp.client-ip=198.137.202.136
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zytor.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="GY/1GeDr"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 64DEhlG52758961;
-	Wed, 13 May 2026 16:16:20 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=
-	content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=MzMxz1
-	HePvB4ExTKcFNTUwgHTY03v2TR1E06+VOdB1g=; b=GY/1GeDr2O47EYJX+Omltr
-	dhCOPNlsz/nXWxVL+mqi/1aINIrebpgTunb1MJX9cKapmOL9rgXG0w8gKnjpcCgB
-	0KiaEn/SG0zBp21YbV92xc735nuyvcQ6ryN1wfnsM6BvtB+maqUcsuWYWvYNzkaq
-	0QXXa/s4o1ykAS3+MvnZMGfUjVjrI65LQ9dio5L4B3hZUAtNbKwYr5w9VnFTaQ8V
-	JvnN7Bi8UdLmBclXUOsX872f2ZUnBwPwY0SSva8F28OEtFPzqAm6jGYG5V2wrDdv
-	NwsI4iLkiYZr7n1uYo5TPrJ3WDuC78cFAlovKzDg+AjDmkUmhm4Di0pfuRau6FZw
-	==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4e3nv6r8b6-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 13 May 2026 16:16:19 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 64DG9vlf026614;
-	Wed, 13 May 2026 16:16:19 GMT
-Received: from smtprelay02.dal12v.mail.ibm.com ([172.16.1.4])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4e3nfgrgjj-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 13 May 2026 16:16:19 +0000 (GMT)
-Received: from smtpav02.wdc07v.mail.ibm.com (smtpav02.wdc07v.mail.ibm.com [10.39.53.229])
-	by smtprelay02.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 64DGGHSf28574312
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 13 May 2026 16:16:18 GMT
-Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id AC37D58058;
-	Wed, 13 May 2026 16:16:17 +0000 (GMT)
-Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E9F4158059;
-	Wed, 13 May 2026 16:16:15 +0000 (GMT)
-Received: from [9.61.44.159] (unknown [9.61.44.159])
-	by smtpav02.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 13 May 2026 16:16:15 +0000 (GMT)
-Message-ID: <9c83dbc9-51db-4ffb-83d2-638128c3b422@linux.ibm.com>
-Date: Wed, 13 May 2026 12:16:15 -0400
+	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="Ahhs2ZaN"
+Received: from ehlo.thunderbird.net (c-76-133-66-138.hsd1.ca.comcast.net [76.133.66.138])
+	(authenticated bits=0)
+	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 64DGEn1a2905667
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NO);
+	Wed, 13 May 2026 09:14:50 -0700
+DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 64DGEn1a2905667
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
+	s=2026042601; t=1778688894;
+	bh=kzc3j2nHoRxQd9M0vkzx/uZg5Iwn8WIixU3RTEBg+i4=;
+	h=Date:From:To:CC:Subject:In-Reply-To:References:From;
+	b=Ahhs2ZaNxCuIyTcDd/to/S7gqU6ft6zabx6TakulFhnIjDt8bXMJ0LGzYVyEfrxzF
+	 EoSq1ir5sKEz+X8RiAhKD9hHd7SJ2OozMvt9/+9wrxu0pBvVJBlgjVq84smFg5PvWl
+	 ODAygtu3MetLOSzf39fcORVc45KgUJxXa0B3c1WcYV/TBfKv8I2j2JZj6Oo7LMLnaS
+	 F/w+6e9Kh9WjQd20++VspvTwbnc9Zogl0CKsAiiMu7QXkJbZu0hP9l3BvRBi3h/lIE
+	 60H32//SMm5Gsh1hto9j6ldrE4pFtBClA6C9ESo0hnzWXYJCYw3OlK+u43GeYa68K6
+	 OTz8RC1DMTHsw==
+Date: Wed, 13 May 2026 09:14:44 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+To: Christoph Hellwig <hch@lst.de>, Andrew Morton <akpm@linux-foundation.org>
+CC: Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
+        Ard Biesheuvel <ardb@kernel.org>, Huacai Chen <chenhuacai@kernel.org>,
+        WANG Xuerui <kernel@xen0n.name>,
+        Madhavan Srinivasan <maddy@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+        Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, Thomas Gleixner <tglx@kernel.org>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Dan Williams <dan.j.williams@intel.com>, Chris Mason <clm@fb.com>,
+        David Sterba <dsterba@suse.com>, Arnd Bergmann <arnd@arndb.de>,
+        Song Liu <song@kernel.org>,
+        Yu Kuai <yukuai@alb-78bjiv52429oh8qptp.cn-shenzhen.alb.aliyuncs.com>,
+        Li Nan <linan122@huawei.com>, linux-kernel@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-crypto@vger.kernel.org,
+        linux-btrfs@vger.kernel.org, linux-arch@vger.kernel.org,
+        linux-raid@vger.kernel.org
+Subject: Re: [PATCH 01/19] btrfs: require at least 4 devices for RAID 6
+User-Agent: K-9 Mail for Android
+In-Reply-To: <20260512052230.2947683-2-hch@lst.de>
+References: <20260512052230.2947683-1-hch@lst.de> <20260512052230.2947683-2-hch@lst.de>
+Message-ID: <45B68AA3-36E2-4187-BD30-F4631C7F32C2@zytor.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v6 2/4] KVM: s390: Enable adapter_indicators_set to use
- mapped pages
-To: Douglas Freimuth <freimuth@linux.ibm.com>, borntraeger@linux.ibm.com,
-        imbrenda@linux.ibm.com, frankja@linux.ibm.com, david@kernel.org,
-        hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
-        svens@linux.ibm.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <20260511161451.209464-1-freimuth@linux.ibm.com>
- <20260511161451.209464-3-freimuth@linux.ibm.com>
-Content-Language: en-US
-From: Matthew Rosato <mjrosato@linux.ibm.com>
-In-Reply-To: <20260511161451.209464-3-freimuth@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 4gWdGzTY3ZbxHVtj5kxVu2M_YV36Ewc8
-X-Proofpoint-GUID: 4gWdGzTY3ZbxHVtj5kxVu2M_YV36Ewc8
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTEzMDE2NCBTYWx0ZWRfX5Ux4h4zeINto
- I37aDLYNhaDboyCGTnlJScWlMf2fve02HBfuBgcL1UXesWnwjE1uQSm97KJU9ofoErbg58+Iv2K
- XQpPsdHM17/u8+kaepoYEJa5cjX0uFijZ5a3Dhkn/hGv0wJL271b1aPa11NawZUsKhYtgV40gKo
- aEg4yEv8THCRdFnYmA4pkeAsUZtmruz7Iv+eKfCeJF5HcOTiJ0oZWg40wtr8mMn419tWAgOzHxX
- 7Z3mynX0XxECRrMWrDRgEyoZ2aHU7oxECGfZBC7c2YZ1w6is1C/+BbOEqYXVkRipVqWxTpPgkGz
- ivSovR8GJM3vsw1yo85KkF5Mi1IMisvgE3/K72E322c7VwimRfJynYJmDznice+vcdUuYqqYnVY
- sqxka/KyZcIMCT/HcD0D4zo7ftAAocirBuoeGnjfj6LvjkIqs+sE6C22QR0gsg9JygMkA6Xa7LQ
- TuIriOXkQGFwEpmx7eA==
-X-Authority-Analysis: v=2.4 cv=P8UKQCAu c=1 sm=1 tr=0 ts=6a04a3d3 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=IkcTkHD0fZMA:10 a=NGcC8JguVDcA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=yJ7A1TyqSRYUUuSQqjIA:9
- a=QEXdDO2ut3YA:10
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-05-13_01,2026-05-13_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- adultscore=0 priorityscore=1501 phishscore=0 bulkscore=0 clxscore=1015
- malwarescore=0 spamscore=0 lowpriorityscore=0 suspectscore=0 impostorscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2605050000 definitions=main-2605130164
+Content-Type: text/plain;
+ charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-On 5/11/26 12:14 PM, Douglas Freimuth wrote:
-> The S390 adapter_indicators_set function needs to be able to use mapped
+On May 11, 2026 10:20:41 PM PDT, Christoph Hellwig <hch@lst=2Ede> wrote:
+>While the RAID6 algorithm could in theory support 3 devices by just
+>copying the data disk to the two parity disks, this version is not only
+>useless because it is a suboptimal version of 3-way mirroring, but also
+>broken with various crashes and incorrect parity generation in various
+>architecture-optimized implementations=2E  Disallow it similar to mdraid
+>which requires at least 4 devices for RAID 6=2E
+>
+>Fixes: 53b381b3abeb ("Btrfs: RAID5 and RAID6")
+>Signed-off-by: Christoph Hellwig <hch@lst=2Ede>
+>---
+> fs/btrfs/volumes=2Ec | 2 +-
+> 1 file changed, 1 insertion(+), 1 deletion(-)
+>
+>diff --git a/fs/btrfs/volumes=2Ec b/fs/btrfs/volumes=2Ec
+>index a88e68f90564=2E=2E0b54b97bdad8 100644
+>--- a/fs/btrfs/volumes=2Ec
+>+++ b/fs/btrfs/volumes=2Ec
+>@@ -159,7 +159,7 @@ const struct btrfs_raid_attr btrfs_raid_array[BTRFS_N=
+R_RAID_TYPES] =3D {
+> 		=2Esub_stripes	=3D 1,
+> 		=2Edev_stripes	=3D 1,
+> 		=2Edevs_max	=3D 0,
+>-		=2Edevs_min	=3D 3,
+>+		=2Edevs_min	=3D 4,
+> 		=2Etolerated_failures =3D 2,
+> 		=2Edevs_increment	=3D 1,
+> 		=2Encopies	=3D 1,
 
-Nit: s/S390/s390/
-
-> pages so that worked can be processed,on a fast path when interrupts are
-> disabled. If adapter indicator pages are not mapped then local mapping is
-> done on a slow path as it is prior to this patch. For example, Secure
-> Execution environments will take the local mapping path as it does prior to
-> this patch.
-
-Slight tweak to the commit message:  adapter_indicators_set doesn't
-really _need_ to use the long-term mapped pages.  It's an optimization
-to do so, while your will later add the _fast() variant where it is
-a requirement.
-
-Maybe re-word like:
-'The S390 adapter_indicators_set function can now be optimized to use
-long-term mapped pages when available so that work can be
-processed...'
-
-[...]
-
->  static int adapter_indicators_set(struct kvm *kvm,
->  				  struct s390_io_adapter *adapter,
->  				  struct kvm_s390_adapter_int *adapter_int)
->  {
->  	unsigned long bit;
->  	int summary_set, idx;
-> -	struct page *ind_page, *summary_page;
-> +	struct s390_map_info *ind_info, *summary_info;
->  	void *map;
-> +	struct page *ind_page, *summary_page;
-> +	unsigned long flags;
->  
-> -	ind_page = pin_map_page(kvm, adapter_int->ind_addr, 0);
-> -	if (!ind_page)
-> -		return -1;
-> -	summary_page = pin_map_page(kvm, adapter_int->summary_addr, 0);
-> -	if (!summary_page) {
-> -		unpin_user_page(ind_page);
-> -		return -1;
-> +	raw_spin_lock_irqsave(&adapter->maps_lock, flags);
-> +	ind_info = get_map_info(adapter, adapter_int->ind_addr);
-> +	if (!ind_info) {
-> +		raw_spin_unlock_irqrestore(&adapter->maps_lock, flags);
-> +		ind_page = pin_map_page(kvm, adapter_int->ind_addr, 0);
-> +		if (!ind_page)
-> +			return -1;
-> +		idx = srcu_read_lock(&kvm->srcu);
-> +		map = page_address(ind_page);
-> +		bit = get_ind_bit(adapter_int->ind_addr,
-> +				  adapter_int->ind_offset, adapter->swap);
-> +		set_bit(bit, map);
-> +		mark_page_dirty(kvm, adapter_int->ind_gaddr >> PAGE_SHIFT);
-> +		set_page_dirty_lock(ind_page);
-> +		srcu_read_unlock(&kvm->srcu, idx);
-
-I think you can simplify some of this unpin logic by just calling 
-unpin_user_page(ind_page) here?  You don't use it past this point
-and you aren't holding a raw spinlock ...
-
-> +	} else {
-> +		map = page_address(ind_info->page);
-> +		bit = get_ind_bit(ind_info->addr, adapter_int->ind_offset, adapter->swap);
-> +		set_bit(bit, map);
-> +		raw_spin_unlock_irqrestore(&adapter->maps_lock, flags);
-> +	}
-> +	raw_spin_lock_irqsave(&adapter->maps_lock, flags);
-> +	summary_info = get_map_info(adapter, adapter_int->summary_addr);
-> +	if (!summary_info) {
-> +		raw_spin_unlock_irqrestore(&adapter->maps_lock, flags);
-> +		summary_page = pin_map_page(kvm, adapter_int->summary_addr, 0);
-> +		if (!summary_page) {
-> +			if (!ind_info) {
-> +				WARN_ON_ONCE(!ind_page);
-> +				unpin_user_page(ind_page);
-> +			}
-
-... Then you wouldn't need this !ind_info logic, it's safe to return
-immediately
-
-I also don't think that WARN_ON_ONCE does what was intended.  Looking
-back any my v3 comments, the idea was to catch a case where we map
-indicator pages and set the associated bits but cannot map summary
-page.  That means if you want a WARN here, then something like...
-
-if (!summary_page) {
-  WARN_ON_ONCE(ind_page || ind_info);
-  return -1;
-}
-
-Also ind_page needs to be initialized to NULL for that to work.
-
-
-> +			return -1;
-> +		}
-> +		idx = srcu_read_lock(&kvm->srcu);
-> +		map = page_address(summary_page);
-> +		bit = get_ind_bit(adapter_int->summary_addr,
-> +				  adapter_int->summary_offset, adapter->swap);
-> +		summary_set = test_and_set_bit(bit, map);
-> +		mark_page_dirty(kvm, adapter_int->summary_gaddr >> PAGE_SHIFT);
-> +		set_page_dirty_lock(summary_page);
-> +		srcu_read_unlock(&kvm->srcu, idx);
-
-Same here, unpin_user_page(summary_page) ...
-
-> +	} else {
-> +		map = page_address(summary_info->page);
-> +		bit = get_ind_bit(summary_info->addr, adapter_int->summary_offset,
-> +				  adapter->swap);
-> +		summary_set = test_and_set_bit(bit, map);
-> +		raw_spin_unlock_irqrestore(&adapter->maps_lock, flags);
->  	}
->  
-> -	idx = srcu_read_lock(&kvm->srcu);
-> -	map = page_address(ind_page);
-> -	bit = get_ind_bit(adapter_int->ind_addr,
-> -			  adapter_int->ind_offset, adapter->swap);
-> -	set_bit(bit, map);
-> -	mark_page_dirty(kvm, adapter_int->ind_gaddr >> PAGE_SHIFT);
-> -	set_page_dirty_lock(ind_page);
-> -	map = page_address(summary_page);
-> -	bit = get_ind_bit(adapter_int->summary_addr,
-> -			  adapter_int->summary_offset, adapter->swap);
-> -	summary_set = test_and_set_bit(bit, map);
-> -	mark_page_dirty(kvm, adapter_int->summary_gaddr >> PAGE_SHIFT);
-> -	set_page_dirty_lock(summary_page);
-> -	srcu_read_unlock(&kvm->srcu, idx);
-> -
-> -	unpin_user_page(ind_page);
-> -	unpin_user_page(summary_page);
-> +	if (!ind_info)
-> +		unpin_user_page(ind_page);
-> +	if (!summary_info)
-> +		unpin_user_page(summary_page);
-
-... And then you don't need either of these checks/unpins?
-
->  	return summary_set ? 0 : 1;
->  }
->  
-
+Yes, if anyone cares about < 4 disks for the RAID-6 case (or < 3 for the R=
+AID-4/5 case), just use the RAID-1 code=2E
