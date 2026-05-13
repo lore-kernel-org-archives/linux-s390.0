@@ -1,81 +1,84 @@
-Received: from mail-wr1-f44.google.com (mail-wr1-f44.google.com [209.85.221.44])
+Received: from mail-wm1-f50.google.com (mail-wm1-f50.google.com [209.85.128.50])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 632CB379C2F
-	for <linux-s390@vger.kernel.org>; Wed, 13 May 2026 06:45:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 58903379C2F
+	for <linux-s390@vger.kernel.org>; Wed, 13 May 2026 06:47:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778654724; cv=none; b=K3AWYpMu5QCwuFaacl0P4tY4ZsieVJvew781btFx/ollzlhq9g9nY358RFgzIemTh1crnDCZlm4oVqGlZNcWYWVKIar2qha7B1yiC3TAE9Q2Sex0kHCuU060sQMqktJKkYPF/gfZyr5j97R/ky86pCBABuSUgUKowzWRIVvNe3c=
+	t=1778654839; cv=none; b=R3DscTQM6lWZZyg2GC9+6ovwS6GAbbXna8lbn+pylJuSLKe6P8uuv4Ee/yvyvk8FdzDUNxs3SuOKrBxKuP44jnUdIeU9kKJKbXcHXLEMBQ7u0k53+WH9IXftNtF8qyjXKQahkPjr+C56+pzg5AimxMH51LnIzS/kFezRVp5zIxY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778654724; c=relaxed/simple;
-	bh=UbqLcD/n4v9/Ngn2+4DlIeMfW07tqVE8aBBN62PlleI=;
+	s=arc-20240116; t=1778654839; c=relaxed/simple;
+	bh=2X0H0p5NSkgPnIRkuJQ0A52/WPsnDBookRtsYGCKrJg=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=UdA1bejoIT8WfCFFj/d3QsPOVpy1WrCsaavW4LZskUY2oWMcygHTi1Q8KsaRpUvz5TO652ZV/rbUu6Dp3CNolYULD1IAcWDDk+5aFh3QjwDpreZW/zWpzN0frwFGEDIcs3z3y2ewVFa4MQ1IGK/T9vlhVFQQilrixL4tHXJi8Mc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=SrNONMsf; arc=none smtp.client-ip=209.85.221.44
+	 Content-Type:Content-Disposition:In-Reply-To; b=pUX/P+9p1TXdwR+9Qc4Z4xOspp0fFWu33MK074yCmvacxuRjUKV0XlO+oPQLdzvn0I5EzbTCNy1W9p7lxeb1zVHokjjk2ByzmcgIBQMVYabIB3Y6MDGGiJs6E3rn2isooqb/2/41dWlDzTsSTnQXYzPaFLnXyQwnYN1VNeS/PKo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=Kdo4dMqw; arc=none smtp.client-ip=209.85.128.50
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="SrNONMsf"
-Received: by mail-wr1-f44.google.com with SMTP id ffacd0b85a97d-44a5174670eso3532495f8f.1
-        for <linux-s390@vger.kernel.org>; Tue, 12 May 2026 23:45:23 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="Kdo4dMqw"
+Received: by mail-wm1-f50.google.com with SMTP id 5b1f17b1804b1-48d146705b4so76889645e9.3
+        for <linux-s390@vger.kernel.org>; Tue, 12 May 2026 23:47:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=suse.com; s=google; t=1778654722; x=1779259522; darn=vger.kernel.org;
+        d=suse.com; s=google; t=1778654837; x=1779259637; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=k93jNbFsgBY3MlSTxImzToR0APgHl6uw97YoSg32KR0=;
-        b=SrNONMsfa8DF1XfQgRyIbo1/uzmg8ghKVC5sYwW1ZH1DqPt7zgt/IeNgikpC1FwBQy
-         dlgdVtzaWnhS0KQqTCfQgog3BlVffK2C2sHQefzNgg+nkQSH5U8Wty9045k7Lnf1V/Dr
-         eIXSWlIdd5aedGO76IK85lAEsn76FOguz+jYnayd+FW3r1wQ9w5NdjgxgdKw3IrtfYuN
-         BdnRZwFllkC7m40QrL+430hFLNu7mIcZFWX7b9B09M/6mvTQ1sPgjjqoG5a2w1Hfa5ZL
-         8kd55gq7xzFXlmF+5qiqz93UHSotrrQdmcTsYDnVUFhG/Tk2h1n+2LLPlaBeo2Z9cczt
-         lpYA==
+        bh=f2g2BIMhP1pLlqkrEASLiC7ivBcGm/mtdCu11mEtx0Q=;
+        b=Kdo4dMqwJkEG0u9j6348OnBghNBRDujOgE95ByyrQIuqGaNRwRr8O4/JEp0xYSGGrr
+         VEWIF6zJ1WcaKiiRskntxzF0ZAr0cy2aiBrbVZ0PDhjBQndt+ysxo+m8XBqw3ipKCPQ9
+         CGV27WAM3xFv7s1gCtazO5Df49kMd4si9mNNDGxZrmjA+hFz+iYqZy7XO/e0aIUirmpq
+         3gLkxzXbPfaTkXb0HpLuGb7msEsSg2j4DC0qYcH7aLyJpSHhQ78nZthVBiteBtafqh7V
+         VNRz+Ht2UmbvGJW4eAJZhy5mWrhdeO74C+zd2D5YUwccvDFlhVqEJ5sx/y4jZvoQLNqi
+         wdNw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778654722; x=1779259522;
+        d=1e100.net; s=20251104; t=1778654837; x=1779259637;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=k93jNbFsgBY3MlSTxImzToR0APgHl6uw97YoSg32KR0=;
-        b=EonhcfGCAF8a8yTDCoxpG3M0e5AWUQ6ASBcoCo2xzjAfHNli6GClJox74uXOvv/Vnf
-         xvRLkAaXLJdq0QNDYbq9OxUu+YjwRIwmnY5QgBc7/La571cEuv6aZCMoATrxDIn/oEAu
-         A+JWNtM3jA2IrYaYWbDBxDlmfbOLTA6wAQ7w4+v00L+Kw8uf6iPQtm39m0crxdgg1Bek
-         lm/d9fS7QM7CJRnV0deczwhiCqC6PBY/z6YJxXS2s7Wqoz4NBxsB9S1tkMo19RTyuq55
-         zJRtX6EwA6cfNFO5J5rFrmcrtTgTm8BuWvWqOADdc9ZI5bW/R6bXBZz06tb+SdhJ7Y08
-         3izA==
-X-Forwarded-Encrypted: i=1; AFNElJ+Cl0t18o0qJzH85CzF5tEyCOub+uxTMmDgpXo/y4eAt8z+cM2gxZft0Ejt+4l3/hBPWTXN6hUDWzXr@vger.kernel.org
-X-Gm-Message-State: AOJu0YxfE6rPls9o2qfvwWc0CdA2dj2UP1vCaGSWjwpR7YzLZE+AQurj
-	aV1rhKxXIIgVfL4b1kUphkmQmFny3BYowMbau5dT6PxqWRzx+TKxER6SSZl+XqBvCR6LLwadVDq
-	uQGZbLrM=
-X-Gm-Gg: Acq92OHtUDzt7mqc72GMyWrRo8aJdJd+koYyceDgK5CpvrshcDG7+O5mh0oNmTqc8uc
-	IDsHjKJhn1jKt3E/0O2zLOMlyxlbmK2jV6ymlnEabHfULdZEGrRGBO/JmqwGcwtXaOT6N/+mMIV
-	c2HjSBC1nIE4BxPyPkz0ZH6amat+wFzX1dhT3GSg07Qg03ESHQj2gW+/RvJ4lHOI6sEEp+Dyt/t
-	Qw5xVK4wKqS/+qRI17IObMrc/24my8/RoBiVUXIvaT3wIbL6IL/xDuW2v8Ut7PhoyRhz+LXNuJR
-	ihtTX4Ok56DxUgIfrolXF/YBHI6gQ/cmUOuo/CuVEm1+SQPTA6WNBux1eRq6eci+0BQS2lyIo7N
-	kzXLmRe/1OzcdwG4X0t7GLn7UTf6dOLMN0IQV2+orHFMewR1CsvVmBIH4x+PyoBAGdq8qMR/bz0
-	qVlqCvtdfYY1h1bLSyQ9nXVYbuzWx6P3rZ3r18
-X-Received: by 2002:a05:600c:4ed1:b0:48d:361:4df6 with SMTP id 5b1f17b1804b1-48fce9bfdecmr17101375e9.9.1778654721650;
-        Tue, 12 May 2026 23:45:21 -0700 (PDT)
+        bh=f2g2BIMhP1pLlqkrEASLiC7ivBcGm/mtdCu11mEtx0Q=;
+        b=gJ8VWbaB2sH31FOY/rxmtvu/FwJDpww3ULKX03wt5X+uLyg82TgqKn7Ai6Mz6l9kAU
+         0sx1hEA9S0gDAeqeDgqUIy9YJb6ZjSGrslM0UeczT0ofjoETwse/HtdC4HS7arsnJtSs
+         xe/2poBuTtmrxkEBBafioDofYsdoS1GW9BD10VDe92PWMZ6Dg/5Cyl2+fwbplDfuVL9z
+         biVX8V1UmYb5eaf2W7sF5c542aSdA1dhh+86svjq7oaqPtcNMoH919vt+x/ZfN8bo3Z4
+         BQcDEXFU9Z7ba0TrXrAHzNx/zYmpiGUxXmYPSfCGIzT6y3OfMtQmCZbBkRZ4CHOqPLVw
+         BbhA==
+X-Forwarded-Encrypted: i=1; AFNElJ+b5/s3aHe6usbHWg6c4BhtSGL4YJC2mMRx88hPGLGyh7hiKsgKdEU9SQdkU4Mp2VUC1jJXjEzYYbYf@vger.kernel.org
+X-Gm-Message-State: AOJu0YxTSJ7a4EpLH89R0jp7veBgAUjThH4Ift7fENiDqzF0uaDKnHKj
+	JGPe1gv0OBCODkeVzaesD9qqyJH4zevqyunXwYKl8DPFA71t7o2E1UBICnSuV6Lkilw=
+X-Gm-Gg: Acq92OG4XGMlae4VdOBtEKHZRkVtaizBj872ZB6BVAYtl0kKRESHfiP2+fPDzph/oez
+	mUx4aFKawSgnYgMIMok9bmebv80gK5+izx0rhzoTmCDBC5PEdPm3jHYI8XbwT+KPe3cOnE3SjIz
+	8S6E55HoaJ0AaoP6+U8AseGUSBEO0JoJJVlLXQLO6wB86V3zH0A5Wq8bp3dx3vJQeN9K9Wmwrf4
+	CprqBzAxDeVwIzc+qEyi+QPu4cvoKFh6XQpBtVmKWfsOWUfr2S2OUuMyRX50brRIdV3rN3d1dAm
+	Rx0c/zmbB11Ss/jW3j/I1zAvDuLmZboIJSdJxnY0vmMfY7m0ZxfxK1w5ctACUx55m+Y8TYzG6+t
+	tfe7feVf2YgDR1GNRKk4lJu1AeTew3A/tKkBWrmrO4YQi7/uxYrUsWLkNUdBQncoZd/kK/nOHP9
+	9EiAcMPIuNoyor40s84UlwEIQVC5V7+muyt1Tq
+X-Received: by 2002:a05:600c:1910:b0:488:9ed3:1492 with SMTP id 5b1f17b1804b1-48fc9a09cb7mr27643115e9.10.1778654836793;
+        Tue, 12 May 2026 23:47:16 -0700 (PDT)
 Received: from localhost (109-81-93-105.rct.o2.cz. [109.81.93.105])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48e8f3e174fsm53304665e9.3.2026.05.12.23.45.20
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48fce38328esm22796985e9.13.2026.05.12.23.47.16
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 12 May 2026 23:45:21 -0700 (PDT)
-Date: Wed, 13 May 2026 08:45:20 +0200
+        Tue, 12 May 2026 23:47:16 -0700 (PDT)
+Date: Wed, 13 May 2026 08:47:15 +0200
 From: Michal Hocko <mhocko@suse.com>
-To: Minchan Kim <minchan@kernel.org>
-Cc: Christian Brauner <brauner@kernel.org>, akpm@linux-foundation.org,
-	hca@linux.ibm.com, linux-s390@vger.kernel.org, david@kernel.org,
-	linux-mm@kvack.org, linux-kernel@vger.kernel.org, surenb@google.com,
-	timmurray@google.com
-Subject: Re: [PATCH v2] mm: process_mrelease: introduce
- PROCESS_MRELEASE_REAP_KILL flag
-Message-ID: <agQeABD0W7wn4pCt@tiehlicka>
-References: <20260429211359.3829683-1-minchan@kernel.org>
- <afMnKrYT0xG_a-b3@tiehlicka>
- <afUYfpwWsUQoB9hz@google.com>
- <afhQB0CWEcflXpOi@tiehlicka>
- <20260505-wegbleiben-deshalb-f929089dbdab@brauner>
- <afoUt3te1k2TNao-@tiehlicka>
- <afowD31YsGVdVUBP@google.com>
- <agJN2esiIGIhUlMG@google.com>
+To: "Liam R. Howlett" <liam@infradead.org>
+Cc: "David Hildenbrand (Arm)" <david@kernel.org>,
+	Minchan Kim <minchan@kernel.org>,
+	Suren Baghdasaryan <surenb@google.com>, akpm@linux-foundation.org,
+	hca@linux.ibm.com, linux-s390@vger.kernel.org, brauner@kernel.org,
+	linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+	timmurray@google.com, "Liam R. Howlett" <Liam.Howlett@oracle.com>
+Subject: Re: [PATCH v1 2/3] mm: process_mrelease: skip LRU movement for
+ exclusive file folios
+Message-ID: <agQec_L2TXtaXOEo@tiehlicka>
+References: <ae_roPR64e6sY_fN@google.com>
+ <afBaJLLFigkdszov@tiehlicka>
+ <afFco71vwmpQy3pk@google.com>
+ <afG-4hq7Hr62Uu6J@tiehlicka>
+ <7f98f461-62a7-455d-a7a8-cb8928465946@kernel.org>
+ <afHeXY-yeTwmURWh@tiehlicka>
+ <4a612d63-2838-40f5-ab67-79bf35dd3a56@kernel.org>
+ <afIZQOtaBabeHtCc@tiehlicka>
+ <b2d9fe2b-abb0-49d1-8056-ac93aa232bbb@kernel.org>
+ <7g5g57jbll5joujbwjb4osqhdwqd4yzc54wmoi7ftx4a4chuax@xtxyljtqaodp>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -84,16 +87,14 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <agJN2esiIGIhUlMG@google.com>
+In-Reply-To: <7g5g57jbll5joujbwjb4osqhdwqd4yzc54wmoi7ftx4a4chuax@xtxyljtqaodp>
 
-On Mon 11-05-26 14:44:57, Minchan Kim wrote:
-> Posted v3 - https://lore.kernel.org/linux-mm/20260511214226.937793-1-minchan@kernel.org/
+On Fri 08-05-26 22:57:31, Liam R. Howlett wrote:
+> We can safely drop the flag now if you want to, because everything has
+> to deal with an empty vma tree anyways - a race can occur between a call
+> to unmap everything and the task seg faulting.
 
-Is there any reason to fragment the discussion into yet another email
-threat? I believe Christian is still catching up after LSFMMBPF last
-week so give him some time to have a look at this proposal before
-sending yet another version please.
-
+Let's just drop it if it doesn't sever any real need anymore.
 -- 
 Michal Hocko
 SUSE Labs
