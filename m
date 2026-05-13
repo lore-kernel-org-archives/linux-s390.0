@@ -1,40 +1,40 @@
 Received: from stravinsky.debian.org (stravinsky.debian.org [82.195.75.108])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 14CCB428821;
-	Wed, 13 May 2026 12:35:00 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB83A41C30A;
+	Wed, 13 May 2026 12:35:08 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=82.195.75.108
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778675703; cv=none; b=oozw0zaOmTF2UrfwHrjrB0EMgXL/FcIF++CEbicb9nECkB8v5cBT7ZLcikBRVZg/vZUZggMOwBFSZMPST1ee7KsAQ0tGee82fXSwznfr5Gx8HA/J1qcqWoa3k+6St5QdLwbzioMWjbnqkgSk+ZWXpEKhrpLDF/4QVRt36uMId2k=
+	t=1778675715; cv=none; b=RUBngss4X3jyerqp1I3NHo+nwcLHaNjFV3fTstYlr3APuoXcfFxQI1u+ZEoxQ2eGx3ShSWGYLiZFGLcaQDMmapb5YMzSplwD+kMwVtiU1+8pYtNsglm5FgPDNSN8M6RUssdfudExRataMDU8vtKpsrLERuXETZLa+5PtePlb6Kc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778675703; c=relaxed/simple;
-	bh=Fr+0wmjHlF79em7QD3yyoUyusFO+aw9/+aA1oi3mVTM=;
+	s=arc-20240116; t=1778675715; c=relaxed/simple;
+	bh=/ifnZ+R/m/l4sS+35vtlLiYTDUDaOuXzlwMquGGtep0=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=ncF/UlCVk8DRdCvw3DxyRDS2U1F9OzlRPafPcHNr4m3dP3GZHZHAqpsJ6ZyyCsgFbBnDVurBIMjThgBTmQEeryKDvwSWhBFQBJkPeVK50nrpo7Johnl8bx2I17kL6STBBTfTeSNQNQjjp+U14bUMTwXTI5LQUHD0nuo3IFnb1/M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=debian.org; spf=pass smtp.mailfrom=debian.org; dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.b=Ru3PuHEs; arc=none smtp.client-ip=82.195.75.108
+	 In-Reply-To:To:Cc; b=SS2dCnzkVwW6MWPo/y/mexVmA5/MvfnG3yD69+nnztzFgWs8zHX3C+RzwoAUUwJXPjM6j0IsskrkP1zxlXGTflsPaHuS0AcwV19rkgBgQcAG8mLqJRUQ6P7B/eo4nE97kX1IwBxX6DwrJg/r2HsQfBmgWX/MlMasCp5s4ibAX/E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=debian.org; spf=pass smtp.mailfrom=debian.org; dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.b=O4gPHsEg; arc=none smtp.client-ip=82.195.75.108
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=debian.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=debian.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.b="Ru3PuHEs"
+	dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.b="O4gPHsEg"
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=debian.org;
 	s=smtpauto.stravinsky; h=X-Debian-User:Cc:To:In-Reply-To:References:
 	Message-Id:Content-Transfer-Encoding:Content-Type:MIME-Version:Subject:Date:
 	From:Reply-To:Content-ID:Content-Description;
-	bh=2WMPuApTHPuVLLw+lzkepvgCjK8SwBMKbbLMEPuDxpo=; b=Ru3PuHEsdj61Wv3bybbJCOUyRJ
-	Of2+eYBmmDEI/XbkbfuHLFIwkCSDJMmfcDfBcX9Vs9Vg7m6z+vr0G8U6ZYcRNcF3MHpU2RYw7PvXL
-	D/28CO9x9z9oF3yfh7EWmv31gCBnKicfqWHATO3PDNXqPkIDCanadY3yShAJyNeLPMJ751yqzz+yy
-	lYTZ6xlbUmfY135+mb/RAOngbazxNdINioDIk9ZM2i1TNCF7sGB25bRCJmCnOvtYzUeW5fS8Zn/vL
-	BkONJhnKw7XZBLhvwme5F3bogjhZc70R8E+zbPvrZ+/QzJ6MUVVXsUH+1O7xjZ9PhZ6WUrhQVxMCU
-	C1tX7mJw==;
+	bh=rFPiwC2zxGv1gubkilKgGFfkbSf1GmG2sq5wGP6WhaI=; b=O4gPHsEgRyeo6n3qRfo/eW+SQu
+	qjAzHVwuHmqFiH3FuytMJrDBjQuT9QPWDpd7KR4wkpgaSF2zLwnj5sE3ZRytYRKjcHKRLXAkCbT3n
+	Jm7LlxS3oY1SpyFXTXlVDYDTaykOUvat+JogRq84uW1IP9/qLtWs9sdRpFswLEv73hLrJDE7MjtQ/
+	Mh8+zw7o57ph7nnVDoe1j3YX+zzaH8x3QW+qMw0VxktKQdM+N/h/dWRMjcPCiet8LN3raoRlfh34S
+	gzV78v61Vuh/UvwPQCYfrlu7qzt/dZOx+mkZAVhxfenQm05we5XhQdNXBMqYatVvbVLLyH1VjDUje
+	le5HjOgQ==;
 Received: from authenticated user
 	by stravinsky.debian.org with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
 	(Exim 4.96)
 	(envelope-from <leitao@debian.org>)
-	id 1wN8nb-003A8M-10;
-	Wed, 13 May 2026 12:34:51 +0000
+	id 1wN8nh-003A8f-36;
+	Wed, 13 May 2026 12:34:58 +0000
 From: Breno Leitao <leitao@debian.org>
-Date: Wed, 13 May 2026 05:34:14 -0700
-Subject: [PATCH net-next 3/6] af_iucv: convert to getsockopt_iter
+Date: Wed, 13 May 2026 05:34:15 -0700
+Subject: [PATCH net-next 4/6] l2tp: ppp: convert to getsockopt_iter
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -43,7 +43,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260513-getsock_four-v1-3-fe7f0e756fac@debian.org>
+Message-Id: <20260513-getsock_four-v1-4-fe7f0e756fac@debian.org>
 References: <20260513-getsock_four-v1-0-fe7f0e756fac@debian.org>
 In-Reply-To: <20260513-getsock_four-v1-0-fe7f0e756fac@debian.org>
 To: Chas Williams <3chas3@gmail.com>, 
@@ -67,25 +67,25 @@ Cc: linux-atm-general@lists.sourceforge.net, netdev@vger.kernel.org,
  linux-afs@lists.infradead.org, oe-linux-nfc@lists.linux.dev, 
  Breno Leitao <leitao@debian.org>, kernel-team@meta.com
 X-Mailer: b4 0.16-dev-d5d98
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2137; i=leitao@debian.org;
- h=from:subject:message-id; bh=Fr+0wmjHlF79em7QD3yyoUyusFO+aw9/+aA1oi3mVTM=;
- b=owEBbQKS/ZANAwAIATWjk5/8eHdtAcsmYgBqBG/Po5/1i6RhWkIFNZRER12k/7yJVu0+bsNu1
- 1GxS8VLtQuJAjMEAAEIAB0WIQSshTmm6PRnAspKQ5s1o5Of/Hh3bQUCagRvzwAKCRA1o5Of/Hh3
- beylD/9Viop+R7QCfyllsFEtw2FvAbAusw52xe9pcfIVnghXfL/+Wt/au1wpIR2WRndXi7hRoAZ
- fsguRFGA1slFHLP+3OaNSpiqA6nnITQxx08x3jR7dp+wPnI3inntY9+zq4EySzFbJupvEwXzcF+
- KkYoUNItO7itUmwqvAKAxoHzYFqG+9zwZtvYZ7OdhIzMwZaFZfBB1O4LmmAPguQ8QpP/qm9AIeB
- 1BcVWUmV8WDlY5Y8xTK29GAHV1Xs22K5e/Z1BRA/M8HVu8+dZFnk56Q8GcUf0nORK9j0ao7ZdUT
- eC/HJCZMQc0Yz1hh623QQCLT9K9w6Xe1os/yAiCPGG0Kn5zqb+Ag/uvT/ZvRoklFU1iRu6q04Aq
- 1Ieh4GjiAv8zKAxITbDG6USNYHYh1jbwASohFV+VL8O3ZvCY8eob5yXIjTxlhOvIIRRZVvHu+YS
- rqnoGpEZn3ktjKhsPRs0edIxRfU0itGM/DQyCBvSzxjVXhrj+000vHOgNJ3JgjnLZqN4oC14lk+
- XaLamQ0OWyphgrWnMVHJsOlf8dEwXwIK2+dehzOfnH0CdUcHBaNo/kWf2lj2wpEUMXtr5Fl4EYE
- fdzjdaqF62pVaG/QOEwoFQ/4F0OMP55QX3+V+Yz7GnymKvOzSFjxMbbjHeLHUTUwlAnRrzKnItv
- N8QZKT/4BKp/IrQ==
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2205; i=leitao@debian.org;
+ h=from:subject:message-id; bh=/ifnZ+R/m/l4sS+35vtlLiYTDUDaOuXzlwMquGGtep0=;
+ b=owEBbQKS/ZANAwAIATWjk5/8eHdtAcsmYgBqBG/PzrXZt6ARFDTQtGmOtRsdKAww4WTLwGhQe
+ 8/4AS+wIIGJAjMEAAEIAB0WIQSshTmm6PRnAspKQ5s1o5Of/Hh3bQUCagRvzwAKCRA1o5Of/Hh3
+ bROGD/wJLDsiBeFZIBM7asusZwiEQcnGlYBQmtNbrgkbL37oksylpvNxnPl29ugy41kgPwISprg
+ jdHR1oMxv6XqUxx4m3K4gyUipmUTObYqZYxKtPg1a8VkRBC2wa3y2nd2kKQ1k++m7FMfni8zYe1
+ yyD82EORRQChny2uLbZlG1jS31qmFnLIkS81LhhiaJYDr7sYN5VbA5hW5kNIfP6Gf60NInZtztX
+ qBfvXgu49oyYIOoPqnDQihwgCCED6m5iy8PQMkxLRrAtps4akkHQ8MQ/w6G3I4VMzsB1Xhe4+U5
+ TX0IHsHPlFHLwFMy9TSQJelrXq/BebVdNLcijPv95nTiwjIlvZRyPv3AkQ5BlOjPoBqflIpqveB
+ l657SjPCRNOpf6EpMdBn4Pwgtgtkn6WFhu7/QQ5grUWmjv48tr1FHXjqQtew4fZ13ND7ubJa6tw
+ j6+wY1ocD87fLPGscC6EgZ+q3AHVv9Y2Ct7Urcl0cNJ7TZVqaXde2Q8tJyr5ek31B4u9sNcHBKh
+ QcM92xS/u6mhL6NOCk+q84v+x2Jmcg/ylO74mO86Rgx7biwA01aLeKE1RlNVQ8oF8uzXX1wCnc8
+ D6bWlxyrKKLyTtJybhYxsAQMm3x19w3WIKAEUmHAqg02tAb4XVgz3CWk2AvKfmIGr8H1CxUqWTs
+ Afab7cEsL+7P9rg==
 X-Developer-Key: i=leitao@debian.org; a=openpgp;
  fpr=AC8539A6E8F46702CA4A439B35A3939FFC78776D
 X-Debian-User: leitao
 
-Convert IUCV socket's getsockopt implementation to use the new
+Convert PPPoL2TP socket's getsockopt implementation to use the new
 getsockopt_iter callback with sockopt_t.
 
 Key changes:
@@ -95,33 +95,33 @@ Key changes:
 
 Signed-off-by: Breno Leitao <leitao@debian.org>
 ---
- net/iucv/af_iucv.c | 14 ++++++--------
- 1 file changed, 6 insertions(+), 8 deletions(-)
+ net/l2tp/l2tp_ppp.c | 18 ++++++++----------
+ 1 file changed, 8 insertions(+), 10 deletions(-)
 
-diff --git a/net/iucv/af_iucv.c b/net/iucv/af_iucv.c
-index 72dfccd4e3d58..7a5ce93a83d9c 100644
---- a/net/iucv/af_iucv.c
-+++ b/net/iucv/af_iucv.c
-@@ -26,6 +26,7 @@
- #include <linux/init.h>
- #include <linux/poll.h>
- #include <linux/security.h>
+diff --git a/net/l2tp/l2tp_ppp.c b/net/l2tp/l2tp_ppp.c
+index 99d6582f41de2..4c7a1152b20ba 100644
+--- a/net/l2tp/l2tp_ppp.c
++++ b/net/l2tp/l2tp_ppp.c
+@@ -59,6 +59,7 @@
+ #include <linux/string.h>
+ #include <linux/list.h>
+ #include <linux/uaccess.h>
 +#include <linux/uio.h>
- #include <net/sock.h>
- #include <asm/machine.h>
- #include <asm/ebcdic.h>
-@@ -1535,7 +1536,7 @@ static int iucv_sock_setsockopt(struct socket *sock, int level, int optname,
- }
  
- static int iucv_sock_getsockopt(struct socket *sock, int level, int optname,
--				char __user *optval, int __user *optlen)
-+				sockopt_t *opt)
+ #include <linux/kernel.h>
+ #include <linux/spinlock.h>
+@@ -1317,7 +1318,7 @@ static int pppol2tp_session_getsockopt(struct sock *sk,
+  * or the special tunnel type.
+  */
+ static int pppol2tp_getsockopt(struct socket *sock, int level, int optname,
+-			       char __user *optval, int __user *optlen)
++			       sockopt_t *opt)
  {
  	struct sock *sk = sock->sk;
- 	struct iucv_sock *iucv = iucv_sk(sk);
-@@ -1545,9 +1546,7 @@ static int iucv_sock_getsockopt(struct socket *sock, int level, int optname,
- 	if (level != SOL_IUCV)
- 		return -ENOPROTOOPT;
+ 	struct l2tp_session *session;
+@@ -1328,9 +1329,7 @@ static int pppol2tp_getsockopt(struct socket *sock, int level, int optname,
+ 	if (level != SOL_PPPOL2TP)
+ 		return -EINVAL;
  
 -	if (get_user(len, optlen))
 -		return -EFAULT;
@@ -130,27 +130,32 @@ index 72dfccd4e3d58..7a5ce93a83d9c 100644
  	if (len < 0)
  		return -EINVAL;
  
-@@ -1574,9 +1573,8 @@ static int iucv_sock_getsockopt(struct socket *sock, int level, int optname,
- 		return -ENOPROTOOPT;
+@@ -1358,12 +1357,11 @@ static int pppol2tp_getsockopt(struct socket *sock, int level, int optname,
+ 			goto end_put_sess;
  	}
  
+-	err = -EFAULT;
 -	if (put_user(len, optlen))
--		return -EFAULT;
--	if (copy_to_user(optval, &val, len))
+-		goto end_put_sess;
+-
+-	if (copy_to_user((void __user *)optval, &val, len))
 +	opt->optlen = len;
-+	if (copy_to_iter(&val, len, &opt->iter_out) != len)
- 		return -EFAULT;
++	if (copy_to_iter(&val, len, &opt->iter_out) != len) {
++		err = -EFAULT;
+ 		goto end_put_sess;
++	}
  
- 	return 0;
-@@ -2228,7 +2226,7 @@ static const struct proto_ops iucv_sock_ops = {
- 	.socketpair	= sock_no_socketpair,
- 	.shutdown	= iucv_sock_shutdown,
- 	.setsockopt	= iucv_sock_setsockopt,
--	.getsockopt	= iucv_sock_getsockopt,
-+	.getsockopt_iter = iucv_sock_getsockopt,
- };
+ 	err = 0;
  
- static int iucv_sock_create(struct net *net, struct socket *sock, int protocol,
+@@ -1634,7 +1632,7 @@ static const struct proto_ops pppol2tp_ops = {
+ 	.listen		= sock_no_listen,
+ 	.shutdown	= sock_no_shutdown,
+ 	.setsockopt	= pppol2tp_setsockopt,
+-	.getsockopt	= pppol2tp_getsockopt,
++	.getsockopt_iter = pppol2tp_getsockopt,
+ 	.sendmsg	= pppol2tp_sendmsg,
+ 	.recvmsg	= pppol2tp_recvmsg,
+ 	.mmap		= sock_no_mmap,
 
 -- 
 2.53.0-Meta
