@@ -1,70 +1,68 @@
-Received: from mail-lf1-f50.google.com (mail-lf1-f50.google.com [209.85.167.50])
+Received: from mail-wm1-f41.google.com (mail-wm1-f41.google.com [209.85.128.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF50E40FD9B
-	for <linux-s390@vger.kernel.org>; Thu, 14 May 2026 14:43:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F0A3E41B36D
+	for <linux-s390@vger.kernel.org>; Thu, 14 May 2026 15:44:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778769829; cv=none; b=s7puQwVH/f96Ts+MtBiJvrUDUqVkp38bX9Bsnml1TSu7XdHx98o4lXb82SK1ThA7rA0lwLL879t9KabPcC8RTWva5mfzL1HkT5rShLEfRpyCxetrEsj4lDQFMFK7juiqTRU35/WuAkfp+7tLiTdLXkmzo3DSce+Qiy+I8wUXLMU=
+	t=1778773447; cv=none; b=FH2g5hZSUg5PmEm2Wrp55kUfa4CtC/hOvxPSUPBkR9p/NefF5ZRoTMDA9hBpsCYpEp71bg4v3UBIU/4UwPhWrnuhDRzBaFeG76Z2K/j3wNW89IKLqk6ZNPr33y4Vh4eGqJFUXQRui8SuwEpoQmMTT7hbx9s6f8hCDFotVLE9N4c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778769829; c=relaxed/simple;
-	bh=G87smce+vNuHo88yX9surKXdFHW5En45v4bRTrGHlSQ=;
+	s=arc-20240116; t=1778773447; c=relaxed/simple;
+	bh=RPg0i4XM92mQzsrFW8OMk2e1DfkKszLgHmEy1kgrd5g=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=AMdoBFEO+TKAPZbKoEV8kYRcu6m1Ql5KHL30Va16W7h8V/ir8h2t7XTVjZOl08GK4r3OiHN2Q2Z+znlT2zbQSw8D1W67jRYerm5aiJ1/uWYmdk2ifBGM+EGwHTlWM3XH4nofwJAVNnHCoZ2XWdA+dNuvsaMLUs6RpdC6zt9XCOo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=ekCMuJei; arc=none smtp.client-ip=209.85.167.50
+	 Content-Type:Content-Disposition:In-Reply-To; b=WARa//j3YpSVJG/bNem5AjwSpXgYk14t8xj5sEBst5KbZtjFDjsLukmjqPxmr9Qj9VeiucEZ35A0E4OKzkbwbhK7CvQL0jnOSq16Ylip0K2MoDjjF0u9IIhDIltcECrETm/xv0wHCio+fM4GjNSjtXjut5TXqF408xrpuNPUNBA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=JrCvnCWK; arc=none smtp.client-ip=209.85.128.41
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="ekCMuJei"
-Received: by mail-lf1-f50.google.com with SMTP id 2adb3069b0e04-5a86704c74eso6706e87.0
-        for <linux-s390@vger.kernel.org>; Thu, 14 May 2026 07:43:47 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="JrCvnCWK"
+Received: by mail-wm1-f41.google.com with SMTP id 5b1f17b1804b1-4891b4934ffso120345e9.0
+        for <linux-s390@vger.kernel.org>; Thu, 14 May 2026 08:44:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1778769826; x=1779374626; darn=vger.kernel.org;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=i68MgXr4Uit+MmJrWGtw9NAg1hDWWWOTovHHIC3ey2A=;
-        b=ekCMuJeisq6upKZI4JqqlqEu1VzDbFE//6lz6wkJZg03wXWZbZArk8RsEK80cSVmZk
-         HfByEX30GcwbopEu0GrXNBP1wQzp1+0wN/VbzFaSHDm76H19D1UdAc9iJU7XChRtNLDw
-         NKuftkTeARMr/8YkQLqJ/kZ3LGCnj3Y7FbJnmJN9bnr3jEoByHBfPLBOHqKJ8C6deD2Z
-         St9DUE7I6uO2RlyLuXNO6XPMcSTGYwLRjGEBgbht0bQra6EkY2Uh0xbbYxZ4iv1KGzTY
-         k7usvVSjTrXN6okobGveFckCr/P8crXXseZIUdvs64UBJvdYryiFhJjhE9FboOQOYGlh
-         DYfg==
+        d=google.com; s=20251104; t=1778773444; x=1779378244; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=lh6aFT9PQ6X1PkDdo12UH9E/whRlrKT0Rk5qkvPCSq8=;
+        b=JrCvnCWK3D/xpb6D18vIO23Pr7WcS0RlqnvJFuNMrnA/0Un7xHuqGFsZhf+Wvxctz0
+         7KkGjFx2tTCFYKiYbO7NH30qslJNn/Gxk06VJWlA8gW8inZqD6nBaJQxT6qnbsw/6gGt
+         XBko/G+/+6ll6axxQUDIUe+unqvBmLDyo8xTLEN3aRRFXRa9NcJWxWYTGiBuAZX5CHgB
+         seGdCix6VltkbXe2XA6OvL35KecAjtqof7SXo4hzlpNbzq68oEbWJAimiaA8qKkoTr3X
+         +ifzpcaRSJuqlBNrfjzU0MssQf9f2TV2zhEEsa/gcIXj+n3celAQlGMtKTt0FZ5ErGSX
+         gMew==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778769826; x=1779374626;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=i68MgXr4Uit+MmJrWGtw9NAg1hDWWWOTovHHIC3ey2A=;
-        b=F5hZdXqAGkFh0csy6TblqwSIPD2MB5JFmPtFH6rEwwmNe1pY7wE73Q0ko6Pplz1ckl
-         xHuGogaS5w79voAtnRq9Hi0Zb62G6Ad0/W8ZkxQxMbn59nq1dDJ7YB+7Kf3ZTpPSQ/bg
-         JO3KsFMIh6MHRW9zFcXDLYyXgg54Vm3cvcDA9lFZ1AXjO6vPf+cksYf1y9i90RwT/uTy
-         1HeA1ZDdQXAGQ3EZARlCjZkqNjH8wZ5GWJYsAyQwVu6tLhQ+uaRrb1NdGNAtRRShYZyJ
-         QBCvuYPDyxfnWgt2COjvo8O8OW3XolLJlOgt3JD+ehK4TyOzKbDzCRJs4dZb1C15d7M6
-         bgSg==
-X-Forwarded-Encrypted: i=1; AFNElJ/7Tl4ZhaLSXUoE+rGysrMi2smTZK64QaeC0nemFCLAeTg/Mn0wFQ0AMrq0AyyNIiHad9n3LM/bQQ4B@vger.kernel.org
-X-Gm-Message-State: AOJu0YzGZqDJPDyyOLioS2fOJhIXQ4+l3VHl/Gissie5TyhSOWfEQyqB
-	ibh+MeLW7CxKdIMW/9OW+qTuMVkiE/WhDFX4x+KPiSfWq0R/2D+n4SjqNOnbz1QLTA==
-X-Gm-Gg: Acq92OHDlIYnT2cpOH5iOuiruL5YMgDGEC8EXeH9YfZvTfOjKJXFvlj3OyR2mznAjqf
-	OAC31s5Z6vkwGrl7C2n7NHvAQi4ZQSx+jdu7W9kAXodkhtp1dUKSK1nmKA7OuIWktkUJ3WqpGaC
-	q/djVfDYc2wcVyLf0+Fsmo5pt7nAZes+QdUwSRNxYM3j+5ruA6TxrdJuhjSI8o0lQnZvYZfCrez
-	eHYV2dYHSJ5VMiJoxtW2wx8uTQwXAQSgx7/Z5wrslTfPVKwsXPEl7pl6Rnt2xLXfaa50pcy7ZTM
-	YnRA7GDbrM7Bdm4/Zq0Am5QsMp0wn3FgCYQeeeWHAYTDaL1xUxhOvgERlMXUtxntyF5mCjfbUkT
-	KSqpK0ZCU4P5V4/kzIB7WCuYXjW82uRLWsgFNniEdjjlOE0hqSIeqwKmXp2IzmXCOEnOjQDzAkv
-	+oRu7piHxaqtoNWY5VtjKrTuhlTsabVZPjYXDcPCeETCPTSC0sy5vbSq/BZWNxotAXwnIF
-X-Received: by 2002:a05:6512:66c2:20b0:5a7:478a:e6e1 with SMTP id 2adb3069b0e04-5a9282ddf8amr143960e87.5.1778769825580;
-        Thu, 14 May 2026 07:43:45 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1778773444; x=1779378244;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=lh6aFT9PQ6X1PkDdo12UH9E/whRlrKT0Rk5qkvPCSq8=;
+        b=QulObnTthkWGmVJcQhfc7Gs7Fq0v5Ok5vgLUJmnC9Fs1iD+ZQiFi+V7mwyaUAYtUAp
+         fo2UtpPFEjC4I++Cu74zOvJ0XWW/GkYcdZaIT2MTaOvDNdG7P5AVfdYLDt06aqc369Hj
+         AIPpTIyF80j0LnMr/8l1F+qvIFW9M1w6KTNU5+IC9ZsnqzHEQDj4ytQ/aqRvFrXAsKhY
+         Bx8Jgyk45341EjEgKlKT6KVGXJoBccBNsLASGX19YjCRRxoMVenMYCWvvsHuTrpVTHSO
+         DxhRTlADlRFej1ND9Z3boMscajfz20yM+VI4zgFjYK+KFXvDFySFN3zVJGd+721fSQcJ
+         FU2w==
+X-Forwarded-Encrypted: i=1; AFNElJ8nB2IQDgW1R4AXgsIFTNZ3/AtygLhWGJRej0BcT8CzBR58ynNskTdCMg7LYj6iHHrtzcAaOA8D7X+E@vger.kernel.org
+X-Gm-Message-State: AOJu0YzCUGRPanxiPJUkvcJYGgbgnMlVpq2A/Wmn4j4Dq6rSb4r6t5oJ
+	LIzI1qBOlpTNlklegB3VGE9yz5Xtuwv2Vh0ESt5OCdJo1ofgfrjXZB1+IZrmXyWwmA==
+X-Gm-Gg: Acq92OEpdD5M2bK2SXhgah9I1P7tZ/Zz2Q8AS96aF8k1MtJH89WfWGz+mBl6tkBQ7oD
+	NnlE+5VG0wEL0wwY+YWwKLmLzzZQwKlc2TXn8pSlqymyluQfrFoOglmyiaej1N+qk1CISRyaq7i
+	clGeR70eqeRvXFROCz9oJAsxF9yHQMfjOxpP2M62UCDAIJbvMAYs63WUdBLxrPLNHmkO1NkP+bN
+	epqOKHGvCvZXBDgkuRL8a4PxcX9sCm2TniTVE6E8zSd1k4myphKmiNhIJ3rPfIofit9Hg/GMISY
+	5tmSUPDTis4bRPGINcZpsRHYF+PtsxV1/mBy83/Mx5r47cY1ZxCBu9cXqZaiH2YEenfaXVxzxmu
+	1xKWK5vNrd2lHSSz2snpgqO0sJs3mYTbGXhMXwy/lmMMQTWAOsbPU0ftwzf0mbvrwioFMuyQmWL
+	GFtIY536i5zVH/vdVYKqWPX3PN5kyOp9nc4rehkwm6aD03LWEFm9GueFShvGTd/gbMqZM=
+X-Received: by 2002:a05:600c:c04b:10b0:48a:5d95:d33e with SMTP id 5b1f17b1804b1-48fd6e10247mr915845e9.6.1778773444106;
+        Thu, 14 May 2026 08:44:04 -0700 (PDT)
 Received: from google.com (8.181.38.34.bc.googleusercontent.com. [34.38.181.8])
-        by smtp.gmail.com with ESMTPSA id 38308e7fff4ca-3945c885856sm6691881fa.5.2026.05.14.07.43.42
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-45da0fe0f72sm7842670f8f.25.2026.05.14.08.44.03
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 14 May 2026 07:43:44 -0700 (PDT)
-Date: Thu, 14 May 2026 14:43:39 +0000
+        Thu, 14 May 2026 08:44:03 -0700 (PDT)
+Date: Thu, 14 May 2026 15:43:59 +0000
 From: Mostafa Saleh <smostafa@google.com>
 To: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: "Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org>,
-	iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev,
-	Robin Murphy <robin.murphy@arm.com>,
+Cc: "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>, iommu@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	linux-coco@lists.linux.dev, Robin Murphy <robin.murphy@arm.com>,
 	Marek Szyprowski <m.szyprowski@samsung.com>,
 	Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
 	Steven Price <steven.price@arm.com>,
@@ -87,157 +85,51 @@ Cc: "Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org>,
 	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org
 Subject: Re: [PATCH v4 04/13] dma: swiotlb: track pool encryption state and
  honor DMA_ATTR_CC_SHARED
-Message-ID: <agXfm3mS_M3fvRrN@google.com>
+Message-ID: <agXtv-Wsun82SRmf@google.com>
 References: <20260512090408.794195-1-aneesh.kumar@kernel.org>
  <20260512090408.794195-5-aneesh.kumar@kernel.org>
  <agSKQrSIhizCXKwx@google.com>
- <20260513172450.GR7702@ziepe.ca>
- <agW2lzJI-20DyJVe@google.com>
- <20260514123529.GZ7702@ziepe.ca>
+ <yq5ah5oaa63h.fsf@kernel.org>
+ <agW5rhE9n2gDQ0w5@google.com>
+ <yq5apl2y5f96.fsf@kernel.org>
+ <20260514143733.GB7702@ziepe.ca>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20260514123529.GZ7702@ziepe.ca>
+In-Reply-To: <20260514143733.GB7702@ziepe.ca>
 
-On Thu, May 14, 2026 at 09:35:29AM -0300, Jason Gunthorpe wrote:
-> > > How will pKVM signal what kind of memory the DMA needs then?
-> > > 
-> > > Does it use set_memory_decrypted()? How can it use
-> > > set_memory_decrypted() without offering CC_ATTR_MEM_ENCRYPT ?
+On Thu, May 14, 2026 at 11:37:33AM -0300, Jason Gunthorpe wrote:
+> On Thu, May 14, 2026 at 06:18:05PM +0530, Aneesh Kumar K.V wrote:
+> > > There is no problem with non-protected guests as they don't use memory
+> > > encryption, my initial thought was that th encrpyted/decrypted is
+> > > per-pool property which is decided by FW (device-tree).
 > > 
-> > pKVM (hypervisor) doesn’t signal anything.
-> > The VMM when running protected guests will use restricted dma-pools
-> > for emulated vritio devices in the guest, which gets decrypted by
-> > the guest kernel and hence shared with the host kernel, and then
-> > traffic is bounced via the pool.
+> > What I meant was that we need a generic way to identify a pKVM guest, so
+> > that we can use it in the conditional above.
 > 
-> That really does sound like CC and set_memory_decrypted() to me..
-> 
-> > It’s also worth noting that bouncing here isn't just about visibility.
-> > Because memory sharing operates at page granularity, bouncing sub-page
-> > allocations through the restricted pool prevents adjacent, sensitive
-> > guest data from being exposed to the untrusted host.
-> 
-> That's a somewhat different problem, we have the dev->trusted stuff
-> that is supposed to deal with this kind of security. We need it for
-> IOMMU based systems too, eg hot plug thunderbolt should have it.
+> If I understood Mostafa's remarks I think different devices in the
+> guest need shared/decrypted and some don't? Ie a virtio hypervisor
+> device needs shared while a real PCI device doesn't? Is that right?
 
-I see that it is used only for dma-iommu and for PCI devices.
-However, I think that should be a problem with other CCA solutions
-with emulated devices as they are untrusted. As I'd expect they
-would have virtio devices.
+In upstream, device passthrough is not supported, but that case is
+supported in Android and we plan to upstream it (it currently
+depends on the SMMUv3 series first)
 
 > 
-> Then CC issue is more that the DMA API can't decrypt random passed in
-> memory because doing so often requires changing the PTEs pointing at
-> the page so it would break everything if done transparently.
+> In CC terms that would be a mixture of T=0 and T=1 devices hardwired
+> and signaled by firwmare..
 > 
-> > > > I believe that the pool should have a way to control it’s property
-> > > > (encrypted or decrypted) and that takes priority over whatever
-> > > > attributes comes from allocation.
-> > > 
-> > > We should get here because dma_capable() fails, and then swiotlb needs
-> > > to return something that makes dma_capable() succeed. Yes, it should
-> > > return details about the thing it decided, but it shouldn't have been
-> > > pre-created with some idea how to make dma_capable() work.
-> > 
-> > That sounds neat, but at the end we have force_dma_unencrypted() in
-> > dma_capable() which is just hardcoded to true/false by the platform.
-> 
-> For now, the next step is it becomes per-device and dynamic during the
-> device lifecycle.
-> 
-> > How is that different from having the state static by the pool?
-> 
-> statically attached pools to the device are not so flexible when
-> devices have dynamically changing capabilities..
+> Ideally we'd have a flow where if the arch precreates a swiotlb pool
+> with special parameters this overrides all other decision making. Then
+> this series is about making CC NOT use that flow... ??
 
-Pools can be per-device also. A device can have mutiple pools with
-different memory attrs, which then can be matched by the DMA code
-at runtime, it's not as flexible, but removes some complexity from
-the guest code.
-
-> 
-> > > If dma_capable() can fail, then swiotlb should know exactly what to do
-> > > to fix it.
-> > 
-> > dma_capable() returns a bool, I don’t think it can know what exactly
-> > went wrong (based on address, size, attrs, dev...)
-> 
-> Yes, but I think the design is swiotlb is supposed to re-inspect what
-> is going on against the limits dma_capable checks and then select the
-> correct remedy..
-
-I see, but that’s not part of this series, and probably would require
-some rework so dma_capable() can return an error code (ERANGE, EPERM...)
-so that caller can deal with that.
-
-> 
-> > While we can debate the aesthetics of the setup , this is
-> > the exisitng behaviour for Linux, which existed for years
-> > and pKVM relies on and is used extensively.
-> > And, this patch alters that long-standing logic and introduces
-> > a functional regression.
-> 
-> Yeah, Aneesh needs to do something here, I'm pointing out it is
-> entirely seperate thing from the CC path we are working on which is
-> decoupling CC from reylying on force swiotlb.
-
-I am looking into converting pKVM to use the CC stuff, I replied with
-a patch to Aneesh in this thread. However, I need to do more testing
-and make sure there are not any unwanted consequences.
-
-> 
-> > We can address this by either adjusting this patch or by changing
-> > pKVM guests to be more aligned with other CCA guests which is
-> > something I have been wondering about if it would help reduce
-> > bouncing.
-> 
-> Every time I look at pkvm I think it is just ARM CCA with a different
-> design and no access to the unique HW features..
-> 
-> > > If we can make that work then maybe the flows are designed correctly.
-> > 
-> > Mmm, I am not sure I understand this one, shouldn’t the device also be
-> > notified about the switch in memory state, if it expects to read/write
-> > decrypted memory, how would that work if the kernel changes it to an
-> > encrypted one?
-> 
-> Nothing on the device changes. In a CC world we put the device in a
-> T=0 or T=1 state before the driver loads and the expectation from the
-> DMA API is that the device will only use that T=x DMA type during
-> operation.
-> 
-> A T=1 state device can access all of memory, private or shared. Any
-> information the platform may need is encoded in the dma_addr_t or in
-> the S1 IOPTEs.
-> 
-> So we never need to tell the device driver what kind of memory the DMA
-> is targetting, and we NEVER expect a device in T=1 mode to have to
-> issue a T=0 DMA to use the DMA API.
-> 
-> In a pkvm world it should be the same, the S2 table for the SMMU will
-> control what the device can access, and if the SMMU points to a
-> "private" or "shared" page is not something the device needs to know
-> or care about.
-
-I see that's because dma-iommu chooses the attrs for iommu_map().
-
-In pKVM, dma_addr_t and IOPTE are the same for private and shared,
-so nothing differs in that case.
-We don’t expect pass-through devices to interact with shared
-memory (T=0) at the moment.
-However, I can see use cases for that, where the host and the guest
-collaborate with device passthrough and require zero copy.
-
-One other interesting case for device-passthrough is non-coherent
-devices which then require private pools for bouncing.
+Yes, I believe that will be needed, we do this at android by a per-pool
+property added in the device tree.
 
 Thanks,
 Mostafa
