@@ -1,160 +1,118 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from libero.it (smtp-18.italiaonline.it [213.209.10.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 119A03988E4;
-	Thu, 14 May 2026 18:01:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 50F483BFE4C
+	for <linux-s390@vger.kernel.org>; Thu, 14 May 2026 19:54:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.209.10.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778781688; cv=none; b=oZA8grESz6CpGuR625fAXL7KpWj8VI0dpBB1tBhd1DdCqWMB9MExD712sauuMNKbPT8v4XbTUfvcvd26XqMqatk3CIrGtqi7YEcuw7/Jtvgy9qXi0yGvlxg/GA0jVNs2NRfArgljw6At+TIfoanOr7RjZjuWhGMiSb5G9tDTQxI=
+	t=1778788487; cv=none; b=oyGUDkVPjgrD3LrkKfSXswjx0S6pCFzg6zyjuqiDbOnBBk9edC3bB6bWCP4x0x9fvsPRJy5jlCwrCgMI4doN33uAEEwLWZKJgIQ8meLcfEa/BAAssDlqekOiLV+U4jG2eEFEHuOAdtjRuZxeal08xgALSYSlvtOAU9/MDJOYUMQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778781688; c=relaxed/simple;
-	bh=3TYFc6itqVc3zvA3ORsy9QJMk5peLve+M+b/RlDFXR0=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=rKYBvxpdy+zNmDxRDQ2uy2XO7HS43kWcDPzALBLto+1UJebMGnfazHcWwmQIXewv8psylOHZ2BVW70l3JbDt+fNB5kWmPKVfbhmsnTYdgzEpx2cciKo2E75K7nf8nchjKQPRm2BaxMYi68zgqEsSJEpiyxGfnWqxlcRwB0oU99A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=YS0alzfL; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1778788487; c=relaxed/simple;
+	bh=bxZEKtTP0qO2jIGzW7Kwa31tfboGR2aCepPMKsO9DGg=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=pDdWIWzHt44l85xzSBWyQ+A3PPeRoEA2c8NdN/NYG4y9Gz7GRHFuDHlfrztCEk1Yo4UfNQi7ihXDguN7nGTkGDXAtSfm4KHdQTUx1UOALYBGi2n/vpWqNbs5nqfwhnwTOC1C2diG9BQYhoNTiYJ8sGDXtrtqLspSiCEUgCImIxw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=libero.it; spf=pass smtp.mailfrom=libero.it; dkim=pass (2048-bit key) header.d=libero.it header.i=@libero.it header.b=WjBd6m5G; arc=none smtp.client-ip=213.209.10.18
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=libero.it
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=libero.it
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="YS0alzfL"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 64E82KxV3178345;
-	Thu, 14 May 2026 18:01:14 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=2t4MJ6w9XSNqCnRGI
-	TK3LALBDAsPD/NV/iok/YHO6WA=; b=YS0alzfLFiOoKdbArEWN62QC6Klb/UpVa
-	CysNHtZsTitkZAN2tLwChiUCMfb46vn9pud3RtkCJhmqZGpgO8dmQwfj/t07cipt
-	/XhKqSyxDxmULLC2Yyl9VWFOBvj1E0jZlG+n21wO7tA2MKNV9ySw9k2PNsoylHQq
-	jXdQweVPCbS/GD45YrXbs0SMDclxVBU39rt6Vbo6c62PcxWcaV4Zkkcw/QtGEfm+
-	Ts6K+PnQ9ZYsUEWjN8ZZwRJODN2nNaXJqrJxiaOPREIDBcN6+lZqoEA3wPf1+okj
-	yH4dk6KdiMaD2sFyOytyuHz65TPg++AmEnZOdn4wtJFwYW+LT7K0w==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4e3nv6w60t-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 14 May 2026 18:01:13 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 64EHsVAB019461;
-	Thu, 14 May 2026 18:01:13 GMT
-Received: from smtprelay06.dal12v.mail.ibm.com ([172.16.1.8])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4e3nfgwh1v-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 14 May 2026 18:01:13 +0000 (GMT)
-Received: from smtpav04.wdc07v.mail.ibm.com (smtpav04.wdc07v.mail.ibm.com [10.39.53.231])
-	by smtprelay06.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 64EI1BBP22151912
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 14 May 2026 18:01:12 GMT
-Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8BDDC58054;
-	Thu, 14 May 2026 18:01:11 +0000 (GMT)
-Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8DF4758045;
-	Thu, 14 May 2026 18:01:10 +0000 (GMT)
-Received: from IBM-D32RQW3.ibm.com (unknown [9.61.254.43])
-	by smtpav04.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 14 May 2026 18:01:10 +0000 (GMT)
-From: Farhan Ali <alifm@linux.ibm.com>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-pci@vger.kernel.org
-Cc: helgaas@kernel.org, alex@shazbot.org, alifm@linux.ibm.com,
-        schnelle@linux.ibm.com, mjrosato@linux.ibm.com,
-        Julian Ruess <julianr@linux.ibm.com>
-Subject: [PATCH v16 7/7] vfio/pci: Remove the pcie check for VFIO_PCI_ERR_IRQ_INDEX
-Date: Thu, 14 May 2026 11:00:59 -0700
-Message-ID: <20260514180059.1553-8-alifm@linux.ibm.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260514180059.1553-1-alifm@linux.ibm.com>
-References: <20260514180059.1553-1-alifm@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=libero.it header.i=@libero.it header.b="WjBd6m5G"
+Received: from [192.168.1.27] ([84.220.171.3])
+	by smtp-18.iol.local with ESMTPA
+	id Nc6CwXG9svXD3Nc6CwmS65; Thu, 14 May 2026 21:52:07 +0200
+x-libjamoibt: 1601
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=libero.it; s=s2021;
+	t=1778788327; bh=bD3QJ+lr63//8NcpvDCT9tKc3YLZWQgdbpAaQhjYRpQ=;
+	h=From;
+	b=WjBd6m5GeZLiEpJDmyyT/8VPp5EOXd4PhZx9kHUiOpqfvSBe7IFbl7krzNd92M9Ij
+	 h6EhL6qXXq9UaNsQfdJ5a66jWHPe3D2L7Nu/xrybOS+yOAwV6LdAjAl7orTfUz4kwH
+	 3auL6iqBbyl11V0qHQa1mg54QFrGy31tudePZPxfmDSHUVOc9cV7FN4yHppkUtjtZO
+	 1eNNuq7/0Y74HmPuEqWqRhs3SrQQlZ7arXDilEcB+jEsAp8ofe+4bD0Y0I0ZeAg86U
+	 3nuNpLvyVhMptjCg9r0R4NKBj3/xghtHqCInpSBZcxe6j2wOauOLHj8pRwkeniaUAa
+	 v7xxVDpm6+b5w==
+X-CNFS-Analysis: v=2.4 cv=KNpaDEFo c=1 sm=1 tr=0 ts=6a0627e7 cx=a_exe
+ a=hciw9o01/L1eIHAASTHaSw==:117 a=hciw9o01/L1eIHAASTHaSw==:17
+ a=IkcTkHD0fZMA:10 a=gdOXTq2rPY5K92qxl70A:9 a=QEXdDO2ut3YA:10
+Message-ID: <0a8d1ff4-f5a2-49e9-aa45-d25dbe4ded40@libero.it>
+Date: Thu, 14 May 2026 21:51:59 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=Us1T8ewB c=1 sm=1 tr=0 ts=6a060de9 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=NGcC8JguVDcA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8 a=r1p2_3pzAAAA:8
- a=bf5i11FZjm5gBOpVircA:9 a=r_pkcD-q9-ctt7trBg_g:22
-X-Proofpoint-GUID: nyEJLopEp_Jwbo1yUwayZDoROe-6xWV3
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTE0MDE3NiBTYWx0ZWRfXzBscWbGvk/zO
- skXbplEBIZnZRbDrHJryqd/PtIuo/5IiI5PiBffcvE7unSb1+F+TGERLojbLKRyDstPAE9WJ0Us
- pU4lQtJWPD4rExBPfFIl6Lg4+757+HR8xq76APPIsMHMTDmmuh7UPG2rEq0uoI6HB6dNwrSiIcj
- W1gNpx8wObNL0SvKJ9Npem41HEBPy9h6NuNvSsaxhXavvovywsRdnZJYb2ffS8FdUQDk6apfXlw
- 0ZGaaCN0f+49gut5YQITDIdHqgJoVQc12iNW2tw9+xm3eOrK33cdzABfXXfw1liCN35bUAcfOo/
- q8hky1+9GYBDBY/37PCRVY6hXyLEYims5qkh1osfeEtiZXoe0eATT7laTlTPai8mQwP2c03mr7Z
- e34cYUlss9CGi3rtiwABdcdQAXnBMGbS7LYxsusNNG+AJ9nfyKuHqAGxk6gQfnTJofiaNbw6EKt
- +Rm/3OkCIvEw8tmXaiA==
-X-Proofpoint-ORIG-GUID: nyEJLopEp_Jwbo1yUwayZDoROe-6xWV3
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-05-14_04,2026-05-13_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- phishscore=0 priorityscore=1501 impostorscore=0 lowpriorityscore=0
- bulkscore=0 suspectscore=0 spamscore=0 malwarescore=0 clxscore=1015
- adultscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2605050000
- definitions=main-2605140176
+User-Agent: Mozilla Thunderbird
+Reply-To: kreijack@inwind.it
+Subject: Re: [PATCH 01/19] btrfs: require at least 4 devices for RAID 6
+To: Christoph Hellwig <hch@lst.de>, David Sterba <dsterba@suse.cz>
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+ Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
+ Ard Biesheuvel <ardb@kernel.org>, Huacai Chen <chenhuacai@kernel.org>,
+ WANG Xuerui <kernel@xen0n.name>, Madhavan Srinivasan <maddy@linux.ibm.com>,
+ Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
+ "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+ Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
+ Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>, Thomas Gleixner <tglx@kernel.org>,
+ Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+ Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+ "H. Peter Anvin" <hpa@zytor.com>, Herbert Xu <herbert@gondor.apana.org.au>,
+ Dan Williams <dan.j.williams@intel.com>, Chris Mason <clm@fb.com>,
+ David Sterba <dsterba@suse.com>, Arnd Bergmann <arnd@arndb.de>,
+ Song Liu <song@kernel.org>, Yu Kuai <yukuai@fnnas.com>,
+ Li Nan <linan122@huawei.com>, linux-kernel@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
+ linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+ linux-s390@vger.kernel.org, linux-crypto@vger.kernel.org,
+ linux-btrfs@vger.kernel.org, linux-arch@vger.kernel.org,
+ linux-raid@vger.kernel.org
+References: <20260512052230.2947683-1-hch@lst.de>
+ <20260512052230.2947683-2-hch@lst.de> <20260512114231.GG2558453@suse.cz>
+ <20260513054742.GA1018@lst.de>
+Content-Language: en-US
+From: Goffredo Baroncelli <kreijack@libero.it>
+In-Reply-To: <20260513054742.GA1018@lst.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-CMAE-Envelope: MS4xfIDtr7UvibXhotDq/eGXiDloNUqbPDkdUcxlgBaAHHbQvsiYahHpeNORunqIajszasgr8c3B8z/XyVOyAuN5hf4175nD+vlvtMC0bIY9QJZp6woWJNrG
+ aQk3PfyHHPYy0hAJeCmEsrwL+sXrn8raXvwSVFwja+mNIGcKFygU4bdVw8v1VKDOhOcKheYp3BbVwQqMojH7Fl3INb7gtuRV2KJmyAjSGXNJhncVaQGAWAXT
+ oo9oBSC2F1t8jl/GotUy7wzpLHDbKBEqbAMmtYHdik+INpHro8RYa5E9Xq6OjONzHdXTvo9rbFmCDPwVpbwYHwCe0MqnMSDrNEtco2tbBGAHXZQltPV0OL6m
+ Xs4XHyVNJychZ3wNHl+FP7VInrjAJxVyZarLA6h1GLmH6C7bo7xh7AiFVhmS448mJ7oddw2E4GcHCQLw5nc+mncOBuUBdW8FPmgVqBmLYRW/E1uHf5H7ymxf
+ 7+M72Ab7Lfz5l1ZroO9USEopaT2TBjueXvWWFJeuh+TSc+GQh5CVcLujqqlEOSlSp1R8OM48gPzAiNRzuVncRPYO912eFvGsZNofHbnJZ9P4JQlVvIPXrGUB
+ k7Rksq1+0+/sGJ2glUPm+veTLd0hOFrGOX4ZELZW5Img1Rjh7oT/YM8G+lXjJbJOhlr6dtYSc1AC8AObXM80AsLIGbqAOpJVhPL0SZOZ5g6Eu3Cfm1/Q33as
+ QHSlwOGbMr3uM6BXBwCA/iRSLcteO0RORQvEAQO/e8MiSvc/dUNZzTez6wHixpEXWQgZ9Z2NCRxukJhNoR1Rx4h+eGB19h2fhW2x2HiNZrbKd9S9OcLI88MY
+ VUksbcbJ5ZMjktY8kGFSnH8Sl2ShB0yrH/NgA0RY1roEXSzCGqsE7TP3RQARPk+NJazqFOqfqBBqnZtd5+mQ4UNQ7vAQ8hGUUzJa0YumkRS4nD9X559FZfXe
+ 3QOgg2TlhwAwcQGvb+Ss+4k9h9DXM6VcEJLsA1QfBnYHYKfliz3h16SIG6W9Iv+uyDk540G1k9dytoNAOXtfwInzV/kvD8Gdkx/D5xTLs2Sy2Vsz+fiNYheM
+ RnLdoR588cGVPiQvhFzHmun/E7dTIUBeFfbij8HjYQhlm3iRhm0aHJPBV9Vy9cCHzTY2Xgl9a5O9fV2pbB+fheegaejlj1NEvwMJXnqpW4b7V72sTbFeBBpq
+ sV7UY0G4iFsh4psQSpK2n56bqWeEew5AkQ99Y/kUreS7WeUBfBiERWWaetQDZDCQNQA8U71Vc5hY0RLOFV2Aw7GFB7tuY8UWgz+lrNAODlW3lBkv98wvQAM2
+ elm5SufYC+WToRDZbALHIfeKQaWetyvkUyIdnsY+d8sgX9LlFz8i7BQ2NdF+Kx5bVl5SHJ+7SVGlrENFPkZmuc9c76uB16GUvPNEKCGDocJxGmG4zCOAHF2C
+ /C9IjdfcMCOt4BPR2AQ5I7a7UIHbl/0cLeCT3ndssV7yObVQj8fyrC9JvV103G4ONfKQAFRlbxqOghcPn/SVhhkuA7CbWDbiGwsvIIr4aWyBADP7w9O7YYob
+ oxPW28FwtEbUoi7iCAVuNr75ZuhwG4v9wrI1nPiKemFdJA==
 
-The error signaling is configured for the vast majority of devices and it's
-extremely rare that it fires anyway. Removing the pcie check will allow
-userspace to be notified on errors for legacy PCI devices. The Internal
-Shared Memory (ISM) device on s390 is one such device. For PCI devices on
-IBM s390 error recovery involves platform firmware and notification to
-operating system is done by architecture specific way. So the ISM device
-can still be recovered when notified of an error.
+On 13/05/2026 07.47, Christoph Hellwig wrote:
+> On Tue, May 12, 2026 at 01:42:31PM +0200, David Sterba wrote:
 
-Reviewed-by: Julian Ruess <julianr@linux.ibm.com>
-Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
-Reviewed-by: Alex Williamson <alex@shazbot.org>
-Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
----
- drivers/vfio/pci/vfio_pci_core.c  | 8 ++------
- drivers/vfio/pci/vfio_pci_intrs.c | 3 +--
- 2 files changed, 3 insertions(+), 8 deletions(-)
+> 
+>> The degenerate modes of
+>> raid0, 5, or 6 are explicit as a possible middle step when converting
+>> profiles.  We can use a fallback implementation for this case if the
+>> accelerated implementations cannot do it.
+> 
+> This is not about a degenerated mode.  For a degenerated RAID 6, parity
+> generation uses the RAID 5 XOR routines as the second parity will be
+> missing.  This is about generating two parities for a single data disk,
+> which must be explicitly selected.
+> 
 
-diff --git a/drivers/vfio/pci/vfio_pci_core.c b/drivers/vfio/pci/vfio_pci_core.c
-index 6358b59fab2b..cd9f31b28160 100644
---- a/drivers/vfio/pci/vfio_pci_core.c
-+++ b/drivers/vfio/pci/vfio_pci_core.c
-@@ -786,8 +786,7 @@ static int vfio_pci_get_irq_count(struct vfio_pci_core_device *vdev, int irq_typ
- 			return (flags & PCI_MSIX_FLAGS_QSIZE) + 1;
- 		}
- 	} else if (irq_type == VFIO_PCI_ERR_IRQ_INDEX) {
--		if (pci_is_pcie(vdev->pdev))
--			return 1;
-+		return 1;
- 	} else if (irq_type == VFIO_PCI_REQ_IRQ_INDEX) {
- 		return 1;
- 	}
-@@ -1163,11 +1162,8 @@ static int vfio_pci_ioctl_get_irq_info(struct vfio_pci_core_device *vdev,
- 	switch (info.index) {
- 	case VFIO_PCI_INTX_IRQ_INDEX ... VFIO_PCI_MSIX_IRQ_INDEX:
- 	case VFIO_PCI_REQ_IRQ_INDEX:
--		break;
- 	case VFIO_PCI_ERR_IRQ_INDEX:
--		if (pci_is_pcie(vdev->pdev))
--			break;
--		fallthrough;
-+		break;
- 	default:
- 		return -EINVAL;
- 	}
-diff --git a/drivers/vfio/pci/vfio_pci_intrs.c b/drivers/vfio/pci/vfio_pci_intrs.c
-index 33944d4d9dc4..64f80f64ff57 100644
---- a/drivers/vfio/pci/vfio_pci_intrs.c
-+++ b/drivers/vfio/pci/vfio_pci_intrs.c
-@@ -859,8 +859,7 @@ int vfio_pci_set_irqs_ioctl(struct vfio_pci_core_device *vdev, uint32_t flags,
- 	case VFIO_PCI_ERR_IRQ_INDEX:
- 		switch (flags & VFIO_IRQ_SET_ACTION_TYPE_MASK) {
- 		case VFIO_IRQ_SET_ACTION_TRIGGER:
--			if (pci_is_pcie(vdev->pdev))
--				func = vfio_pci_set_err_trigger;
-+			func = vfio_pci_set_err_trigger;
- 			break;
- 		}
- 		break;
+I think that the David concern is : "what happens for an already
+existing btrfs raid6 3 disks filesystem when the user upgrade the kernel ?"
+(I am thinking when a new BG needs to be allocated)...
+
+BR
+GB
+
 -- 
-2.43.0
-
+gpg @keyserver.linux.it: Goffredo Baroncelli <kreijackATinwind.it>
+Key fingerprint BBF5 1610 0B64 DAC6 5F7D  17B2 0EDA 9B37 8B82 E0B5
