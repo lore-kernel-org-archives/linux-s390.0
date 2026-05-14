@@ -1,246 +1,234 @@
-Received: from mail-vk1-f172.google.com (mail-vk1-f172.google.com [209.85.221.172])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B914342C98
-	for <linux-s390@vger.kernel.org>; Thu, 14 May 2026 16:45:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.221.172
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778777125; cv=pass; b=o2gDPWRgwd1T+1rutPhGkDsuKWqzL0wPxa6H2e4T1EP35iQQEacKPe8+nfoiHaFxcri5M65Xioc1IthrBhu44SIi/3P4M5LK6L90HfNq/BuCOyaTIBS8JcBE8xWVcfgHI7oR8jtep/NjZuv4Qm9clqt9yPdnHKtDqWGgtniBv5g=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778777125; c=relaxed/simple;
-	bh=PmAIcppCWJmcGf0UnWT1GlVwFgygixvvwcZwvNaEkWE=;
-	h=From:In-Reply-To:References:MIME-Version:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=mpto/vFDUCXGMgu3aC/ERz2WWqwiI93qMMQY1kZfEfoHQKi2awNCOqj5BgPznCp/JRl+yXzwb5+4WsLlW3cXBvj6EkNI35PyZBvAUG47sleS/VfW4zE5nJGL6Cb9TbbpMBmz+W+LSf+N1CtB9aWCHWqHgnM7MYZwLw3yS7FL4Dw=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=VFtvQD1R; arc=pass smtp.client-ip=209.85.221.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD4FF1EB5FD;
+	Thu, 14 May 2026 18:01:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1778781672; cv=none; b=MgigAhnZqmyNAeDmMUfyjFOHUTf+EC917Bh0uL0n1LyDmMfGR5Tg9DxBWMJwPWhVbej+PT9RciViu0CXTgb/9NayKlBUeqrBWOfKhZBKLS5gBtryz6ipt1Aj7pLudLd90o7t/KfArP9U308u3aWtRvT0YJXn6+k2nrapSvmtA3E=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1778781672; c=relaxed/simple;
+	bh=m7BLakxpKZCPOaClEdaTvGjk7blGTAjE4Dm9WYW3sWI=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=kUrh6VXex9WyFXFIgqrEc4UVK9hctb+B8IZOP3jCF4VDqv9he6mfV8g2jyBgCy8M2BKSTvDoAgFlwf44XAWC/dGTEIzNaM4KyFe8/NbPKp+l8K8yy5HiHzjPawgm/J26SFK6CswvHfL3+CwWb0/wIMrxv+ivKUWzr80almSQ0LM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=BH0ZwTiO; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="VFtvQD1R"
-Received: by mail-vk1-f172.google.com with SMTP id 71dfb90a1353d-56a9a7e762bso7791353e0c.3
-        for <linux-s390@vger.kernel.org>; Thu, 14 May 2026 09:45:23 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1778777122; cv=none;
-        d=google.com; s=arc-20240605;
-        b=lvBfGH4WoVBnm27Rgo+dIP3WwtuXMMSfMwlP+oZLryF8V2ACbz8k8sPPSVh2mz9IeT
-         wMAq6uq5LOQE0n91gpWJ9qizWBxa8sGoHdMR8t3r39nfhjIwwznVAeAyGeqK9XuSaAop
-         GgnucfsQgGJ6Nmge2gQonctde9dypELgeZojCx92p6cp/sdOcLwaKVauGsg4/zZYKfTg
-         v2WBi5N3fkNvqcMqI4K5IQOr+rVvWZlqZKRn3Eu4rHwu3W3INRY8kTL5v53CAlg+g4rq
-         e1Z1DuR/lfsqeh1ILLeD/hl6UF3C/0Eoyff71TA96tq0eOMAMjyQwJjsS0hAJVFBm27r
-         Ju0A==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date
-         :mime-version:references:in-reply-to:from:dkim-signature;
-        bh=os0eHsZVJX0chVl1RmCC7RjaweXl8YpOUWjuIOShXWI=;
-        fh=dtwebI+TnmcjNaqQH2nz89zn2hSe2ZMypo0uVILcCNw=;
-        b=H5z8zdwqToDBgkSIXOd2ivfp29Y+mf4Qogi37GGMWfbg+Yedz9efJKhiiuMUBmrGlF
-         KtbtBP8TdhYdo5DtQpsIE3VjlmaEdoPPVwn+xgKpUGvoB1CP9vgtGcqxaKwaxSBnQqlR
-         B7qjt9EXdqfdEIJbqrNQ6tLIrpIjinWLP0qIw6EEAPPmt7kra+GDVV4pCjzb/kHEOi4z
-         IxciKpaR+ZnXjKzbSaNNeCx/5XVU0W020ZscqmVA7mIzGLNZi+3bzl9hczOMTFAmHNsb
-         YmT1c3rPDGWni5sP1mlwXigkagHry9uVr9Qrmx69ygTGXItaCHHdhFiE3Dj5M0m5xKO/
-         04BA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1778777122; x=1779381922; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date
-         :mime-version:references:in-reply-to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=os0eHsZVJX0chVl1RmCC7RjaweXl8YpOUWjuIOShXWI=;
-        b=VFtvQD1RTdgqWEX8R7rJ5E+lG6jtu3YV71KQieo9tFcPnVu8X9ckwARGLw2zVJUmRv
-         4QnKB8BzYAXDs9qtMf8+fVr5c5p4LaTpFMbopxQuEUAbBz8WjxBGCFaJEeQUTFzqVaur
-         UvDfEH9PsiCLOC++9gsqSYnngByVIIggErBVF/tG3vYFcPIzvcw0H1fill+TMfu0EpA/
-         Z7CoXdN1wcK6GMibXBW5zW2q1rznvEEYPUBHmt1sT8DF/5UMSq8tNiNC+dKvATeBFRON
-         iAttSBSTPdQXLV1iwmET0wtHGCPj3tcDp1ikzcx9+oKlzGhMAXUazhajmAQG4TnppxAe
-         4iBw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778777122; x=1779381922;
-        h=content-transfer-encoding:cc:to:subject:message-id:date
-         :mime-version:references:in-reply-to:from:x-gm-gg:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=os0eHsZVJX0chVl1RmCC7RjaweXl8YpOUWjuIOShXWI=;
-        b=r0EdYo6pS+9wSpBedLWXdiBKj1EqP8RIugCLe0B4dJTqAmq/d04FgiE+gFcp+Fzj/s
-         WjxrxWNX4Kr3spfhWiZFsxp40x9czNQrsDOltEVaEaCuYdikveDRbF+kSJZt2PZDeEl7
-         vfYb8tqfpM+xKfdXRSoe2x/psGqghxdDyMdu+lMCZwuCSBYC5YQirWAjNfIqH+doGqXz
-         NMP51+BFj2q6ZSknz6mKsjGF/6RDG4yl+qAhcjdiSCZ/IZVKLqnjUT7XAlvYyxkd5cR3
-         zJWQTKRFCSxJaC5g6PVE9si79Vf+64PwzO4BgDUYQSq9bf8mmlHxB8UHH0lI/RcavkE0
-         x22A==
-X-Forwarded-Encrypted: i=1; AFNElJ+4ZhVEm+iKdQJGyMGb/mE2ZzrOBfRXo8BdRA+S1xQEY6gNaon0gR9tbD3x+V8aYZd4JyWyzm1B/myt@vger.kernel.org
-X-Gm-Message-State: AOJu0YxTPSlM0dTr7xrEk4d4NgESX/O4Zgkw611DZrbmIRSt3CUnUbwL
-	LZD4aCYoo9khRh115MAcWk4TZmnhoEk37XgKAhEPFYZbTJ9YSsQXBzkfCaLd2XZUyYLsXs58AI7
-	jXSta6fRV5caGrrDSJqpV5v6PP513EWEGK+DVMurv
-X-Gm-Gg: Acq92OHnWvgXggba9LIB8dmrCmqYrgFgv5obWdZ/vPWRNgRLRoQIS52zh376yWUiuA8
-	W8lHwiLGYN8ekWcKi1IwMEAuDMEUJeUuKmBTf/n2UbpINYllwc5hgLStZX7VpLqCPJZT7klDFnQ
-	cYmCuaK+ZLpNfSJ4cu26VnD/7O/A2xTeNHgvaNq89tHGGi3RhmMPGR6phC5Xkv3V4os8KsQq0O2
-	3zd03SYpuYd6zfw+9kwRWei9r3c34M2y36LNj2a2TrHTJcX1sB7YDr6CEpdpbKsCRZQznF8pTJX
-	M3OIFCG8Szzk0pc6NwdXEehltQWw4/vAg9EwmTbF6zrv62HAQc5gtZkH4LLv0HvppQVKipTNl09
-	Nweul
-X-Received: by 2002:a05:6122:1814:b0:575:178f:62d2 with SMTP id
- 71dfb90a1353d-5760c092d3cmr165926e0c.14.1778777121451; Thu, 14 May 2026
- 09:45:21 -0700 (PDT)
-Received: from 176938342045 named unknown by gmailapi.google.com with
- HTTPREST; Thu, 14 May 2026 09:45:20 -0700
-Received: from 176938342045 named unknown by gmailapi.google.com with
- HTTPREST; Thu, 14 May 2026 09:45:19 -0700
-From: Ackerley Tng <ackerleytng@google.com>
-In-Reply-To: <20260508081812.12345-1-itazur@amazon.com>
-References: <CAPTztWb67XZvfcMVnbegDNNW0LJa9UsaTGx3M898xJUJrekk0w@mail.gmail.com>
- <20260508081812.12345-1-itazur@amazon.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="BH0ZwTiO"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 64E91uwd2612176;
+	Thu, 14 May 2026 18:01:06 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=Fp//nfQtB+3rmICylPI6SLsL6AtIBDjuao+UNoU7w
+	lA=; b=BH0ZwTiOMpN1D0IWQVj6koAdwpyYvTuvRDrLKZUJAeRWawQbd5JCki57W
+	KyZRhy6LWULDLQ1QTeFKkpSCSllchm2WKwScMB4RrEbIPfAV1nt1MMoJBOnvHKzK
+	mxvn9obdGdYSNxKZm+yQzqfduvclp+mMV8yYNSqzCWhelfROGFh16Pi55mDrAJDO
+	hvesQoxW92aiTPeCR3ySL6dP/sPfHUUL9xuwtibNQH3Dj9CpNMPn8C7qB2kQJ27L
+	sGBOw0ygdpCRT0FG0nR/b5BdHVZyRQ3+syqwNP87SSPC4JOX0U18+kULy/e969vz
+	VKXbXloP+j/vWjpauyRjzVJ8HOk4g==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4e3nve5tka-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 14 May 2026 18:01:05 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 64EHsYwN019384;
+	Thu, 14 May 2026 18:01:04 GMT
+Received: from smtprelay04.wdc07v.mail.ibm.com ([172.16.1.71])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4e3nfgnj0e-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 14 May 2026 18:01:04 +0000 (GMT)
+Received: from smtpav04.wdc07v.mail.ibm.com (smtpav04.wdc07v.mail.ibm.com [10.39.53.231])
+	by smtprelay04.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 64EI13WO33030888
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 14 May 2026 18:01:03 GMT
+Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 1856658054;
+	Thu, 14 May 2026 18:01:03 +0000 (GMT)
+Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 182A058052;
+	Thu, 14 May 2026 18:01:02 +0000 (GMT)
+Received: from IBM-D32RQW3.ibm.com (unknown [9.61.254.43])
+	by smtpav04.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 14 May 2026 18:01:01 +0000 (GMT)
+From: Farhan Ali <alifm@linux.ibm.com>
+To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-pci@vger.kernel.org
+Cc: helgaas@kernel.org, alex@shazbot.org, alifm@linux.ibm.com,
+        schnelle@linux.ibm.com, mjrosato@linux.ibm.com
+Subject: [PATCH v16 0/7] Error recovery for vfio-pci devices on s390x
+Date: Thu, 14 May 2026 11:00:52 -0700
+Message-ID: <20260514180059.1553-1-alifm@linux.ibm.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Date: Thu, 14 May 2026 09:45:19 -0700
-X-Gm-Features: AVHnY4JqumP2VJstFZ-DobQ0sDmpWwtOhYCl663Ih2m9TKxeTUM0glktONR3Yps
-Message-ID: <CAEvNRgG07EMrx-SpMaO3gHmdGVwOb75XNy7_RARBo0chidn7Yg@mail.gmail.com>
-Subject: Re: [PATCH v12 10/16] KVM: guest_memfd: Add flag to remove from
- direct map
-To: Takahiro Itazuri <itazur@amazon.com>, fvdl@google.com, seanjc@google.com, ljs@kernel.org
-Cc: Liam.Howlett@oracle.com, agordeev@linux.ibm.com, ajones@ventanamicro.com, 
-	akpm@linux-foundation.org, alex@ghiti.fr, andrii@kernel.org, 
-	aou@eecs.berkeley.edu, ast@kernel.org, baolu.lu@linux.intel.com, 
-	borntraeger@linux.ibm.com, bp@alien8.de, bpf@vger.kernel.org, 
-	catalin.marinas@arm.com, chenhuacai@kernel.org, corbet@lwn.net, 
-	coxu@redhat.com, daniel@iogearbox.net, dave.hansen@linux.intel.com, 
-	david@kernel.org, derekmn@amazon.com, dev.jain@arm.com, eddyz87@gmail.com, 
-	gerald.schaefer@linux.ibm.com, gor@linux.ibm.com, haoluo@google.com, 
-	hca@linux.ibm.com, hpa@zytor.com, itazur@amazon.co.uk, jackabt@amazon.co.uk, 
-	jackmanb@google.com, jannh@google.com, jgg@ziepe.ca, jgross@suse.com, 
-	jhubbard@nvidia.com, jiayuan.chen@shopee.com, jmattson@google.com, 
-	joey.gouly@arm.com, john.fastabend@gmail.com, jolsa@kernel.org, 
-	jthoughton@google.com, kalyazin@amazon.co.uk, kas@kernel.org, 
-	kernel@xen0n.name, kpsingh@kernel.org, kvm@vger.kernel.org, 
-	kvmarm@lists.linux.dev, lenb@kernel.org, linux-arm-kernel@lists.infradead.org, 
-	linux-doc@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, 
-	linux-mm@kvack.org, linux-pm@vger.kernel.org, linux-riscv@lists.infradead.org, 
-	linux-s390@vger.kernel.org, loongarch@lists.linux.dev, 
-	lorenzo.stoakes@oracle.com, luto@kernel.org, maobibo@loongson.cn, 
-	martin.lau@linux.dev, maz@kernel.org, mhocko@suse.com, mingo@redhat.com, 
-	mlevitsk@redhat.com, nikita.kalyazin@linux.dev, oupton@kernel.org, 
-	palmer@dabbelt.com, patrick.roy@linux.dev, pavel@kernel.org, 
-	pbonzini@redhat.com, peterx@redhat.com, peterz@infradead.org, 
-	pfalcato@suse.de, pjw@kernel.org, prsampat@amd.com, rafael@kernel.org, 
-	riel@surriel.com, rppt@kernel.org, ryan.roberts@arm.com, sdf@fomichev.me, 
-	shijie@os.amperecomputing.com, skhan@linuxfoundation.org, song@kernel.org, 
-	surenb@google.com, suzuki.poulose@arm.com, svens@linux.ibm.com, 
-	tabba@google.com, tglx@kernel.org, thuth@redhat.com, urezki@gmail.com, 
-	vannapurve@google.com, vbabka@kernel.org, will@kernel.org, 
-	willy@infradead.org, wu.fei9@sanechips.com.cn, x86@kernel.org, 
-	yang@os.amperecomputing.com, yangyicong@hisilicon.com, 
-	yonghong.song@linux.dev, yosry@kernel.org, yu-cheng.yu@intel.com, 
-	yuzenghui@huawei.com, zhengqi.arch@bytedance.com, zulinx86@gmai.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=Y/XIdBeN c=1 sm=1 tr=0 ts=6a060de1 cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+ a=NGcC8JguVDcA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=U7nrCbtTmkRpXpFmAIza:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
+ a=4zu8aI-QVnT60ftJUTQA:9 a=O8hF6Hzn-FEA:10
+X-Proofpoint-GUID: MyZoSdsHOM3aHuYUnl0yeILCUyuYDzPI
+X-Proofpoint-ORIG-GUID: MyZoSdsHOM3aHuYUnl0yeILCUyuYDzPI
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTE0MDE3NiBTYWx0ZWRfX7iC1DPAAUOzm
+ z7iyuqvzKhFRpib8a61XuuQ44DdHj2FCURTSGdejKHjz9PNFDtthFdEEnIU5VOhVkl6IL0ynm/V
+ qHeB0QuDTdUvUMkguK454Ke87xK6RgsfUAyeN9+Nf86FZnzCEmjiNo1WV0irovWoDQyL0V196Jz
+ Mlcj8B4Vwb9iFFTDi46WhJjlU7Z4k4EFzU5bLLD8oAwOu2zALsv5DdTyH+M+mVI6QW9FNINBVlk
+ JPa+Uzb6EkAVAqkwiY1Qf44W7j2bAGYQwLOgrLh7qM7m6Ju4UfLFTDnAinESNPJDfgFXvWtCa1u
+ 487wb7GYL3wy/iQ8wETI6K9n/q/ReAo0bqFMv5znl6kPYdHFXNtKrY+bajH5EdVxI2tjHANDlH3
+ AUi70xANd57mLjOC0KYOyAM08pTB3e9xUx+FlankQ28VYvBwxbdiXcsX1f3UMIsjSt8JJcmzZgm
+ gCkOA2KmYa/AzsTIm/A==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-05-14_04,2026-05-13_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ clxscore=1015 priorityscore=1501 lowpriorityscore=0 phishscore=0
+ malwarescore=0 suspectscore=0 bulkscore=0 spamscore=0 adultscore=0
+ impostorscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2605050000
+ definitions=main-2605140176
 
-Takahiro Itazuri <itazur@amazon.com> writes:
+Hi,
 
->
-> [...snip...]
->
+This Linux kernel patch series introduces support for error recovery for
+passthrough PCI devices on System Z (s390x).
 
-Brought this topic up on the guest_memfd biweekly today!
+Background
+----------
+For PCI devices on s390x an operating system receives platform specific
+error events from firmware rather than through AER.Today for
+passthrough/userspace devices, we don't attempt any error recovery and
+ignore any error events for the devices. The passthrough/userspace devices
+are managed by the vfio-pci driver. The driver does register error handling
+callbacks (error_detected), and on an error trigger an eventfd to
+userspace.  But we need a mechanism to notify userspace
+(QEMU/guest/userspace drivers) about the error event.
 
->
-> Agreed with both of you.  I'll adopt the filemap-level approach:
->
-> - Move the zap/restore hooks from guest_memfd into filemap_add_folio()
->   / filemap_remove_folio().
-> - Tighten AS_NO_DIRECT_MAP semantics so that, for folios in such a
->   mapping, the direct map is invalid for the entire time the folio
->   resides in the page cache.
-> - Drop the per-folio KVM_GMEM_FOLIO_NO_DIRECT_MAP bookkeeping in
->   folio->private, since the existence of the folio in the mapping is
->   itself the state.
->
-> On each guest memory population path,
->
-> - memcpy-based population from userspace goes through the userspace
->   mapping of guest_memfd, not through the kernel direct map, so the
->   filemap-level invariant doesn't affect it.  But this is slow, which
->   is what motivated the write() syscall support.
->
-> - write(): meant to speed up the userspace-memcpy case above by doing
->   the copy in the kernel.  I believe Brendan's __GFP_UNMAPPED/mermap
->   work [1] would give us a low-overhead way to get temporary kernel
->   access to an AS_NO_DIRECT_MAP.  Landing mermap may take a while, but
->   this series does not introduce the write() path, so mermap is not a
->   blocker for now.
->
-> - kvm_gmem_populate(): this is a TDX/SNP-only path, and NO_DIRECT_MAP
->   is not available on those VM types =E2=80=94
->   kvm_arch_gmem_supports_no_direct_map() returns false for
->   KVM_X86_TDX_VM and KVM_X86_SNP_VM, which are its only callers
->   today.  So it doesn't interact with the filemap invariant IIUC.
->
+Proposal
+--------
+We can expose this error information (currently only the PCI Error Code)
+via a device feature. Userspace can then obtain the error information
+via VFIO_DEVICE_FEATURE ioctl and take appropriate actions such as driving
+a device reset.
 
-I'm a little bit uncomfortable this statement since it seems to say TDX
-and SNP aren't taken care of. Would just like to discuss (for
-a line of sight to SNP and TDX support):
+This is how a typical flow for passthrough devices to a VM would work:
+For passthrough devices to a VM, the driver bound to the device on the host
+is vfio-pci. vfio-pci driver does support the error_detected() callback
+(vfio_pci_core_aer_err_detected()), and on an PCI error s390x recovery
+code on the host will call the vfio-pci error_detected() callback. The
+vfio-pci error_detected() callback will notify userspace/QEMU via an
+eventfd, and return PCI_ERS_RESULT_CAN_RECOVER. At this point the s390x
+error recovery on the host will skip any further action(see patch 4) and
+let userspace drive the error recovery.
 
-For non-in-place population where the source physical page is different
-from the destination physical page,
+Once userspace/QEMU is notified, it then injects this error into the VM
+so device drivers in the VM can take recovery actions. For example for a
+passthrough NVMe device, the VM's OS NVMe driver will access the device.
+At this point the VM's NVMe driver's error_detected() will drive the
+recovery by returning PCI_ERS_RESULT_NEED_RESET, and the s390x error
+recovery in the VM's OS will try to do a reset. Resets are privileged
+operations and so the VM will need intervention from QEMU to perform the
+reset. QEMU will invoke the VFIO_DEVICE_RESET ioctl to now notify the
+host that the VM is requesting a reset of the device. The vfio-pci driver
+on the host will then perform the reset on the device to recover it.
 
-+ TDX: the TDX module does the population and works with physical
-  addresses, so no issue with populate? Other parts of TDX may have
-  trouble though, but that can be handled later.
-+ SNP: sev_gmem_post_populate() does a memcpy() after using
-  kmap_local_page()
 
-Would mermap be a drop in replacement for kmap_local_page() here? Would
-guest_memfd need to force a TLB flush after mermap+memcpy?
+Thanks
+Farhan
 
-> So, unless I'm missing any path, adopting the filemap-level approach in
-> this series should be fine.
->
->
-> I'd like to consult with you folks on how to proceed in advance.  In a
-> separate reply on the cover letter thread [2], Lorenzo and Sean
-> suggested that the mm pieces should go through the mm subsystem:
->
-> On Tue, Apr 21, 2026 at 04:36:00PM +0000, Sean Christopherson wrote:
->> Yeah, when the time comes, the mm pieces definitely need to go through t=
-he mm
->> tree.  Ideally, I think this would be merged in two separate parts, with=
- all mm
->> changes going through the mm tree, and then the KVM changes through the =
-KVM tree
->> using a stable topic branch/tag from Andrew.
->
-> I see two reasonable paths to get there, and would appreciate your
-> input on which you prefer:
->
-> Path A =E2=80=94 validate on KVM side first, then split:
->   - Post v13 as a single series on the KVM list, gather feedback and
->     make sure the design is acceptable to KVM reviewers.
->   - Once v13 looks good ("the time comes"), do the MM/KVM split,
->     rebase the MM part onto the appropriate MM branch, and post the
->     MM part to linux-mm to build consensus with MM maintainers.
->
-> Path B =E2=80=94 split early and seek MM consensus in parallel:
->   - With the filemap rework already in place, do the MM/KVM split
->     now and post the MM part to linux-mm directly.  The KVM part follows
->     on top of a stable topic from MM.
->
-> Which of the two would you rather see?  Happy to go either way.
->
+ChangeLog
+---------
+This only includes change log from last 5 revision. Older change log is
+available in previous version cover letter.
 
-Vlastimil pointed out that there's a temporary limitation now that the
-mm-tree cannot do stable branches shared between trees now.
+v15 https://lore.kernel.org/all/20260505200510.2954-1-alifm@linux.ibm.com/
+v15 -> v16
+   - Implement error recovery to be handled in user space mode or host mode
+   based on checking mediated_recovery only once (suggested by Niklas).
 
-I think it depends on how quickly you plan to refresh this series, but
-Path A wouldn't be blocked by the temporary limitation.
+   - Rebase on 7.1-rc3
 
-My opinion would be to go ahead with a new revision (Path A) to fully
-address comments before splitting the series. Any Reviewed-bys can be
-carried over to the split series anyway :)
 
-Alternatively you could wait till conversion lands :P Either one of us
-will need to do more work for conversion wrt direct map removal.
+v14 https://lore.kernel.org/all/20260421163031.704-1-alifm@linux.ibm.com/
+v14 -> v15
+   - Fix issues identified by Sashiko (patch 4).
 
->
-> [1] https://lore.kernel.org/all/20260320-page_alloc-unmapped-v2-0-28bf1bd=
-54f41@google.com/
-> [2] https://lore.kernel.org/all/20260506080753.14517-1-itazur@amazon.com/
->
-> Takahiro
+   - Address Niklas feedback (patch 4 and patch 5).
+
+   - Rebase on 7.1-rc2.
+
+
+v13 series https://lore.kernel.org/all/20260413210608.2912-1-alifm@linux.ibm.com/
+v13 -> v14
+   - Remove version from vfio uAPI struct. Instead reserve additional space
+   and add a flags field. The flags will be used to indicate any usage of
+   the reserved space (patch 5).
+
+   - Remove pending_errors from vfio uAPI struct and instead return an
+   error to indicate no more pending error for userspace to handle (patch 5).
+
+   - Rebase on recent linux master
+
+v12 series https://lore.kernel.org/all/20260330174011.1161-1-alifm@linux.ibm.com/
+v12 -> v13
+   - Add the mediated_recovery flag as part of struct zpci_ccdf_pending
+   and protect the struct with pending_errs_lock (patch 4).
+
+   - Move dequeing pending error logic to a helper function (patch 5).
+
+   - Update device feature number for VFIO_DEVICE_FEATURE_ZPCI_ERROR (patch 5).
+
+   - Rebase on linux-next with tag next-20260410
+
+v11 series https://lore.kernel.org/all/20260316191544.2279-1-alifm@linux.ibm.com/
+   - Address Bjorn's comments from v11 (patches 1-3).
+
+   - Create a common function to check config space accessibility
+   (patch 2).
+
+   - Address Alex's comments from v11 (patches 4, 5, 7).
+
+   - Protect the mediated_recovery flag with the pending_errs_lock.
+   Doing that it made sense to squash patches 5 and 6 from v11
+   (current patch 4). Even though the code didn't change significantly
+   I have dropped R-b tags for it. Would appreciate another look at the
+   patch (current patch 4).
+
+   - Dropped arch specific pcibios_resource_to_bus and
+   pcibios_bus_to_resource as its not needed for this series. Will address
+   the issue as a standalone patch separate from this series.
+
+   - Rebased on pci/next, with head at f8a1c947ccc6 ("Merge branch 'pci/misc'")
+
+
+Farhan Ali (7):
+  PCI: Allow per function PCI slots to fix slot reset on s390
+  PCI: Avoid saving config space state if inaccessible
+  PCI: Fail FLR when config space is inaccessible
+  s390/pci: Store PCI error information for passthrough devices
+  vfio-pci/zdev: Add a device feature for error information
+  vfio/pci: Add a reset_done callback for vfio-pci driver
+  vfio/pci: Remove the pcie check for VFIO_PCI_ERR_IRQ_INDEX
+
+ arch/s390/include/asm/pci.h       |  32 +++++++
+ arch/s390/pci/pci.c               |   1 +
+ arch/s390/pci/pci_event.c         | 133 ++++++++++++++++++------------
+ drivers/pci/hotplug/rpaphp_slot.c |   2 +-
+ drivers/pci/pci.c                 |  32 ++++++-
+ drivers/pci/slot.c                |  33 ++++++--
+ drivers/vfio/pci/vfio_pci_core.c  |  22 +++--
+ drivers/vfio/pci/vfio_pci_intrs.c |   3 +-
+ drivers/vfio/pci/vfio_pci_priv.h  |   9 ++
+ drivers/vfio/pci/vfio_pci_zdev.c  |  57 ++++++++++++-
+ include/linux/pci.h               |   8 +-
+ include/uapi/linux/vfio.h         |  30 +++++++
+ 12 files changed, 287 insertions(+), 75 deletions(-)
+
+-- 
+2.43.0
+
