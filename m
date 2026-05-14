@@ -1,110 +1,73 @@
-Received: from mail.zytor.com (terminus.zytor.com [198.137.202.136])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DFF1733F58A;
-	Thu, 14 May 2026 20:11:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1600238B7D2;
+	Thu, 14 May 2026 21:50:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778789472; cv=none; b=peha03Flm9iib//ALo9YG6nnppW6lQWTSEsvmdoS/aLkYJAxeOzZsl2mGy9nvVZJPzJLlqJwaE76H1ga+Q1/NbmkphQxOP/SUbMQ/GyeSw6pjRdlyXSPoq+ZlnlAaxiYxIgw/JVviYKfhDSz2jy6zZrCPGWOvmUxOsCsD8TduZg=
+	t=1778795418; cv=none; b=YFBGv6dI3sIvIa2bXHq9/FYhdjIZC0gG4T4QT2s8mZ7TCepGSJVlxBj4tEpI5w88tSjKppBQ7oWuTF6jE9IaknQifo9VZs5CjxfduAsMj1HTmKm0BSkWK4qlBF35F6M4aHfqPbJMAL7oy8nm8TMgsd52/JLr+vb7aJ9ehusvP1s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778789472; c=relaxed/simple;
-	bh=JJUyJ3nN1jAla23wfkD6/9LaCidK8nPRv54si1Hc+Ko=;
-	h=Date:From:To:CC:Subject:In-Reply-To:References:Message-ID:
-	 MIME-Version:Content-Type; b=qmAR+NwuMsW8G4MzjnqvcjtVp+xLbQhgQdCBpcJ6Ki38velK+tBouYP2yb3EtvdJ9dWiFDz2B9LMCuZtvHjG5sUlpagJSXOe94gUpKK1Y4nrx5y1uN0APWrxtrqnKRUU/5c6u2c1RchrpaV25Nz/F4QCbhE/WFJu+3idYE0Shnc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=TMJRrv8q; arc=none smtp.client-ip=198.137.202.136
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zytor.com
+	s=arc-20240116; t=1778795418; c=relaxed/simple;
+	bh=L7Ez0iCQC+05BbsOTxEjlWXKRJ4hPTpPWBaZww8I3wY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=VdCsJHY9j81hoVObxasOP3bHeR8gU6DA2a+Dyvh0fP+oaCBw1Z1UPlcjzyqUlhwhosx7WBWF3OVTTVorvrnFqLexuXKvjjZPDbpUpzUToH3qYft4V1jVonTlO3dHhnVeyHl+I3i3v3E6GRqRRdSig1f7iwZQft/Zi8uEbgH2UFQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=c21uPsub; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="TMJRrv8q"
-Received: from ehlo.thunderbird.net (c-76-133-66-138.hsd1.ca.comcast.net [76.133.66.138])
-	(authenticated bits=0)
-	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 64EJvxqM1443783
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NO);
-	Thu, 14 May 2026 12:58:00 -0700
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 64EJvxqM1443783
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
-	s=2026042601; t=1778788682;
-	bh=xeBHge+llXOwbb4JcAn9Da3zKsJCWrqg8YV6SgfLoXo=;
-	h=Date:From:To:CC:Subject:In-Reply-To:References:From;
-	b=TMJRrv8qsGR2DCztL/jIBPGQO28wsQqHTK/NveRi2zk0+LzcLKFnn8Iviy502ok9i
-	 5OPdaLnKd7D98poTZNiOmU0cpqecXLRAlMLlzcNAcqmYAOBC161NH9p9vqagHz1Xzp
-	 BPHAozGQd8pC11kLXAzXk4hpCEC4Qm5nr3r8fLBpDaXFU6ItVDJJC6CoKBpExDsJpx
-	 SBUnV+538SZRyCwQ4LxXbvqDNKSQfPPT+pqoR4zWD30U5xD3yvUXZOrx9md0+xwCLQ
-	 k9df5Yhe3oajwADOBTxx2BUJt+DFl3mJhhVx9sGvHpXM1M36RT8sI9kIAAkr7iTx6O
-	 TigG32CPWMUsQ==
-Date: Thu, 14 May 2026 12:57:53 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-To: kreijack@inwind.it, Goffredo Baroncelli <kreijack@libero.it>,
-        Christoph Hellwig <hch@lst.de>, David Sterba <dsterba@suse.cz>
-CC: Andrew Morton <akpm@linux-foundation.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, Ard Biesheuvel <ardb@kernel.org>,
-        Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>,
-        Madhavan Srinivasan <maddy@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-        Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, Thomas Gleixner <tglx@kernel.org>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Dan Williams <dan.j.williams@intel.com>, Chris Mason <clm@fb.com>,
-        David Sterba <dsterba@suse.com>, Arnd Bergmann <arnd@arndb.de>,
-        Song Liu <song@kernel.org>,
-        Yu Kuai <yukuai@alb-78bjiv52429oh8qptp.cn-shenzhen.alb.aliyuncs.com>,
-        Li Nan <linan122@huawei.com>, linux-kernel@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
-        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-crypto@vger.kernel.org,
-        linux-btrfs@vger.kernel.org, linux-arch@vger.kernel.org,
-        linux-raid@vger.kernel.org
-Subject: Re: [PATCH 01/19] btrfs: require at least 4 devices for RAID 6
-User-Agent: K-9 Mail for Android
-In-Reply-To: <0a8d1ff4-f5a2-49e9-aa45-d25dbe4ded40@libero.it>
-References: <20260512052230.2947683-1-hch@lst.de> <20260512052230.2947683-2-hch@lst.de> <20260512114231.GG2558453@suse.cz> <20260513054742.GA1018@lst.de> <0a8d1ff4-f5a2-49e9-aa45-d25dbe4ded40@libero.it>
-Message-ID: <0507CCEF-0548-442F-8703-1D006B5E068B@zytor.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="c21uPsub"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69F6CC2BCB3;
+	Thu, 14 May 2026 21:50:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1778795417;
+	bh=L7Ez0iCQC+05BbsOTxEjlWXKRJ4hPTpPWBaZww8I3wY=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=c21uPsub557efwmh+L/O7rOj/eP5vUrJklcFxPiHcKwpO9+TuFlB1JFR76efGNHkl
+	 zzopvWhRp6pCE73nFm75CJzCXTQ7zZ3TftFZ8/Bp83sAPradO7M3D8VAu7DlkdTQKa
+	 1MZVTYeyoSl5YcwQSAoPJLh6A1xROz655vUpdsBUMz7sNY3f8+p8wHijv42jmiPUE6
+	 nUulHHPtyLXKCvlH/awPftkzsQQMXQ9TDfQS+l/4Tf+KOEdcbCqNys0rzAOOlc1+lz
+	 MoMbT99pFNxgR/arxCB9zGdU2Rci9qIkOvVQxUnJ3O2a+J70KMWKR4aE97I5aiV0Cx
+	 e7daomm47AixQ==
+Date: Thu, 14 May 2026 14:50:16 -0700
+From: Minchan Kim <minchan@kernel.org>
+To: Michal Hocko <mhocko@suse.com>
+Cc: Christian Brauner <brauner@kernel.org>, akpm@linux-foundation.org,
+	hca@linux.ibm.com, linux-s390@vger.kernel.org, david@kernel.org,
+	linux-mm@kvack.org, linux-kernel@vger.kernel.org, surenb@google.com,
+	timmurray@google.com
+Subject: Re: [PATCH v2] mm: process_mrelease: introduce
+ PROCESS_MRELEASE_REAP_KILL flag
+Message-ID: <agZDmE70VHiyKfXI@google.com>
+References: <20260429211359.3829683-1-minchan@kernel.org>
+ <afMnKrYT0xG_a-b3@tiehlicka>
+ <afUYfpwWsUQoB9hz@google.com>
+ <afhQB0CWEcflXpOi@tiehlicka>
+ <20260505-wegbleiben-deshalb-f929089dbdab@brauner>
+ <afoUt3te1k2TNao-@tiehlicka>
+ <afowD31YsGVdVUBP@google.com>
+ <agJN2esiIGIhUlMG@google.com>
+ <agQeABD0W7wn4pCt@tiehlicka>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <agQeABD0W7wn4pCt@tiehlicka>
 
-On May 14, 2026 12:51:59 PM PDT, Goffredo Baroncelli <kreijack@libero=2Eit>=
- wrote:
->On 13/05/2026 07=2E47, Christoph Hellwig wrote:
->> On Tue, May 12, 2026 at 01:42:31PM +0200, David Sterba wrote:
->
->>=20
->>> The degenerate modes of
->>> raid0, 5, or 6 are explicit as a possible middle step when converting
->>> profiles=2E  We can use a fallback implementation for this case if the
->>> accelerated implementations cannot do it=2E
->>=20
->> This is not about a degenerated mode=2E  For a degenerated RAID 6, pari=
-ty
->> generation uses the RAID 5 XOR routines as the second parity will be
->> missing=2E  This is about generating two parities for a single data dis=
-k,
->> which must be explicitly selected=2E
->>=20
->
->I think that the David concern is : "what happens for an already
->existing btrfs raid6 3 disks filesystem when the user upgrade the kernel =
-?"
->(I am thinking when a new BG needs to be allocated)=2E=2E=2E
->
->BR
->GB
->
+On Wed, May 13, 2026 at 08:45:20AM +0200, Michal Hocko wrote:
+> On Mon 11-05-26 14:44:57, Minchan Kim wrote:
+> > Posted v3 - https://lore.kernel.org/linux-mm/20260511214226.937793-1-minchan@kernel.org/
+> 
+> Is there any reason to fragment the discussion into yet another email
+> threat? I believe Christian is still catching up after LSFMMBPF last
+> week so give him some time to have a look at this proposal before
+> sending yet another version please.
 
-That's what I'm saying =E2=80=93 it should invoke the RAID-1 code under th=
-e cover (as with 3 disks, D =3D P =3D Q=2E)
+My only reason for sending v3 earlier was to demonstrate the exact code,
+hoping the concrete implementation would clarify the intent.
+
+I will gladly wait for his feedback before taking any further steps.
+Thank you.
+
+
