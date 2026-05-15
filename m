@@ -1,78 +1,62 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD2944C6F09;
-	Fri, 15 May 2026 16:54:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E8A4413D8C
+	for <linux-s390@vger.kernel.org>; Fri, 15 May 2026 20:16:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778864059; cv=none; b=qCgUN+efilbb7JSP0ybPZ3sNqyDvfsgRE0geaSSWn4WO8+SNiEpyoXLWLLEsN9qmpwyewjeD9ttRrKnjJT5eSzN+ykh6d31B+a522ZT19UEF/uc42Dpr6P1gtmZJrmszcsQadfMCA3kfXIpxIRPXA5zf+/NS+2OKEUwnptBi3TU=
+	t=1778876170; cv=none; b=EGmnWhQESm/KJnFSR1b8vVy6XbJr+LbBcJ4Vx3WdvLSSJ+JgGsF2asg4GZFk0er3PRv+kc/jGuEeb7pbP6LwiTGapIXDNdxsXLuh5EMhBGnpCylDjMp3KrFlGpvVpCjOG9cjXJz00/S9oMFKtm7zKLdGSrcQBI70R5X1iY7FjyM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778864059; c=relaxed/simple;
-	bh=Oq8sA+f5fwEz3Gbhe4/UQdT03Rgd/EdfMErxJReByvM=;
+	s=arc-20240116; t=1778876170; c=relaxed/simple;
+	bh=VvDbho/ycMJrj4/etDVpBHhuznbtd+KBBl2aXO2hAg8=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=aQfEUrnwxZBVkIkuNV7Tt6KfYTx+DoWK33K4NtVLibMO+LNr1v53hYYl09cSjkhnocV6tHx+4nfe/gJ9aBsJfLZXhqJzM/+ItY/Xl8bq400w8edKYnLZZRjZ/ZUFFAOr+hTkho7PARfbVUtFpaVDuBM7WQ6Kv4w4a8Qj4G7T9qQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=EZQk/eXo; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=XUyDOylkSN1X7xaPr0rasS+8YHhbHIjG/it8AvTzx96z6eArKQu1VBvGHU54Bl9V4l9w3C0UImqwicD2tlPX3KrTrtSv2ciNOO3oldQLX9gDq42eVnBKLG7vBOmoqDKkUgtqMJW3o3v2j5UVogkb+9au+0RyFM6ytpgubJxQpec=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=IT8rGP7i; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="EZQk/eXo"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 64FBSGSR576688;
-	Fri, 15 May 2026 16:54:05 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=3St4iq7uw2n4Oi89NYsuWxbE42N21e
-	/j3GToZVButWw=; b=EZQk/eXo+BEb0EOqsQAgtBgWWQtdp4Ob9NcF72Kd4QRScJ
-	nO5p7KGmUJ/W1mVxCLJ5fRN4N4TpHHLc58V38m3OpQP0qCqhXpmMt01hovITftJC
-	jNUocNqv25eHPpJoA302c/eXT0tMlf5SXivdfDRIF1ZzAg4KWPALeUTQowygK5WS
-	12fjcwW9/exzMsI3fYFF9fj+061fcp9UCucH8aN1tZjb5xASBquJztlWAv8a/WAx
-	/GICNsPvsD/GsKd2Vd5+AU039rrvfzYAvBOn/YAhJTMs54ZIHaxDjy5SHANJEd6x
-	a5KUlztwf1tp/BWPkZHYNph4okCOksSV/PjJmEeQ==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4e5m92m3hj-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 15 May 2026 16:54:04 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 64FGd96F026489;
-	Fri, 15 May 2026 16:54:03 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4e5kvcmea1-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 15 May 2026 16:54:03 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 64FGrxtg13107564
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 15 May 2026 16:54:00 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C98A120043;
-	Fri, 15 May 2026 16:53:59 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id ECAE22004D;
-	Fri, 15 May 2026 16:53:58 +0000 (GMT)
-Received: from osiris (unknown [9.87.152.91])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Fri, 15 May 2026 16:53:58 +0000 (GMT)
-Date: Fri, 15 May 2026 18:53:57 +0200
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Arnd Bergmann <arnd@kernel.org>
-Cc: linux-hardening@vger.kernel.org, linux-s390@vger.kernel.org,
-        Kees Cook <kees@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
-        Marco Elver <elver@google.com>,
-        Andrey Konovalov <andreyknvl@gmail.com>,
-        Andrey Ryabinin <ryabinin.a.a@gmail.com>, kasan-dev@googlegroups.com,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Nick Terrell <terrelln@fb.com>, David Sterba <dsterba@suse.com>,
-        Nathan Chancellor <nathan@kernel.org>, linux-kernel@vger.kernel.org,
-        Peter Zijlstra <peterz@infradead.org>,
-        Stefan Schulze Frielinghaus <stefansf@linux.ibm.com>,
-        Juergen Christ <jchrist@linux.ibm.com>
-Subject: Re: [PATCH] [RFC] ubsan: turn off UBSAN_ALIGNMENT on s390
-Message-ID: <20260515165357.10935D74-hca@linux.ibm.com>
-References: <20260515092057.810542-1-arnd@kernel.org>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="IT8rGP7i"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1778876168;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=VvDbho/ycMJrj4/etDVpBHhuznbtd+KBBl2aXO2hAg8=;
+	b=IT8rGP7ipBVDQhOOXsyg24KmeKODvRzlb9stBiHeiUn/GIl8EtcCNKConoN9t7TqjzhT1O
+	7ErRYGSEfm5N+PSdUy8bwqvks2sfUDtpolTovc7asQarDgoqUJGO1EUBKAZvKuALIK7x24
+	xLCiYaOXF6MUJxUi5qW5X+ZezO9MZ30=
+Received: from mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-342-3gJze-F2PlKucRHeD5WMxQ-1; Fri,
+ 15 May 2026 16:16:02 -0400
+X-MC-Unique: 3gJze-F2PlKucRHeD5WMxQ-1
+X-Mimecast-MFC-AGG-ID: 3gJze-F2PlKucRHeD5WMxQ_1778876160
+Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id D6E9E19560B4;
+	Fri, 15 May 2026 20:15:59 +0000 (UTC)
+Received: from fedora (unknown [10.44.32.66])
+	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with SMTP id 3D3C930001A2;
+	Fri, 15 May 2026 20:15:54 +0000 (UTC)
+Received: by fedora (nbSMTP-1.00) for uid 1000
+	oleg@redhat.com; Fri, 15 May 2026 22:15:59 +0200 (CEST)
+Date: Fri, 15 May 2026 22:15:53 +0200
+From: Oleg Nesterov <oleg@redhat.com>
+To: Christian Brauner <brauner@kernel.org>
+Cc: Minchan Kim <minchan@kernel.org>, Jann Horn <jannh@google.com>,
+	Linus Torvalds <torvalds@linux-foundation.org>,
+	akpm@linux-foundation.org, hca@linux.ibm.com,
+	linux-s390@vger.kernel.org, david@kernel.org, mhocko@suse.com,
+	linux-mm@kvack.org, linux-kernel@vger.kernel.org, surenb@google.com,
+	timmurray@google.com
+Subject: Re: [PATCH v3] mm: process_mrelease: introduce
+ PROCESS_MRELEASE_REAP_KILL flag
+Message-ID: <agd--WZpeTq2iKFW@redhat.com>
+References: <20260511214226.937793-1-minchan@kernel.org>
+ <20260515-nachdenken-umbenannt-a90006a46e14@brauner>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -81,89 +65,26 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260515092057.810542-1-arnd@kernel.org>
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTE1MDE3MCBTYWx0ZWRfX0Sdgqd2mbOFw
- KkwpotWDkb5iMlunsj0AnCKrYChzb8Nxz9zKCYOeVw8wVOHFb7mGA5rcu7GnkjmJnGUqKeiNOT6
- nxhwTmcZWQ141Iwj3D/OEGSjVkmvfZwzlpzjIqqikeGpqT5brZ/sJ+megDwJVgLmSkZYy9RxDuK
- xOKcM8sPehgUsrWal/xaadErluJkpX0z+b1lq0P/iXZqGXF2CQFVrjhdyD0lQ22lz4q+EmRycMn
- d2XVL9awFqwzsZ72v+/8jl+nZDMgjZQ5RGuXlcfdcu2y0xvstUWHQPTDsJcRCErYc3RAXla+ugI
- m9PrJkp/7QIze9f1LXyVtsutKs+MnF/WG5PnDssxavt1cpXADFQ2oWfOc0u4zSHzCSBwc36/73h
- I3/RoJTjfNsBKlw0acbJgIr3W1RgdXkXhrVWNkq8nVz7PLOcT5HJPGrrXmZ3KOT8ySBqficZ6mP
- CkT9ClEpKnO3wm7hRmQ==
-X-Proofpoint-ORIG-GUID: dFUWlXN3yEx0zRZhdfr_E6pX1tSmd4PZ
-X-Authority-Analysis: v=2.4 cv=aNnAb79m c=1 sm=1 tr=0 ts=6a074fac cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=kj9zAlcOel0A:10 a=NGcC8JguVDcA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=yuVE4MsfjvIhWQyEmLAA:9
- a=CjuIK1q_8ugA:10
-X-Proofpoint-GUID: AG3tYxTwIk-uHnozpkweqL_TBK0aOZF8
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-05-15_04,2026-05-15_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0 malwarescore=0 suspectscore=0 spamscore=0 lowpriorityscore=0
- impostorscore=0 priorityscore=1501 clxscore=1011 adultscore=0 phishscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2605130000 definitions=main-2605150170
+In-Reply-To: <20260515-nachdenken-umbenannt-a90006a46e14@brauner>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.4
 
-On Fri, May 15, 2026 at 11:19:54AM +0200, Arnd Bergmann wrote:
-> From: Arnd Bergmann <arnd@arndb.de>
-> 
-> Testing randconfig builds on s390 with gcc-15, I came across a number of
-> seemingly unrelated build failures that ended up all being caused
-> by the -fsanitize=alignment option:
-> 
-> s390-linux-ld: kernel/sched/build_policy.o: in function `thread_group_cputime':
-> include/linux/seqlock.h:1286:(.text+0x1f738): undefined reference to `__scoped_seqlock_bug'
+In fact I don't even understand the motivation...
 
-Does this only happen with __scoped_seqlock_bug()?
-I just enabled UBSAN_ALIGNMENT, and with gcc-16 I can see this too.
+On 05/15, Christian Brauner wrote:
+>
+> On Mon, May 11, 2026 at 02:42:26PM -0700, Minchan Kim wrote:
+> > leaving the actual address space teardown (exit_mmap) to be deferred until
+> > the mm's reference count drops to zero. In the field (e.g., Android),
+> > arbitrary reference counts (reading /proc/<pid>/cmdline, or various other
+> > remote VM accesses) frequently delay this teardown indefinitely,
 
-> What I observe here is a huge increase in generated calls to
-> __ubsan_handle_type_mismatch_v1() that ends up thowing off a number of
-> compiler optimizations that the kernel relies on.
-> 
-> I have not been able to figure out why this happens on s390 but not arm64,
-> arm or x86, if other toolchain versions are affected by the same thing,
-> and if this is a problem in gcc or in the kernel itself, e.g. some
-> variable being identified as unaligned when it should be aligned.
-> 
-> This clearly needs more investigation to figure out properly what is
-> going on, but turning it off is currently required for randconfig testing.
-...
-> ---
->  lib/Kconfig.ubsan | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/lib/Kconfig.ubsan b/lib/Kconfig.ubsan
-> index 1ecaae7064d2..3fc03a6b5af4 100644
-> --- a/lib/Kconfig.ubsan
-> +++ b/lib/Kconfig.ubsan
-> @@ -152,6 +152,7 @@ config UBSAN_ENUM
->  
->  config UBSAN_ALIGNMENT
->  	bool "Perform checking for misaligned pointer usage"
-> +	depends on !S390 || BROKEN
+Sure, get_task_cmdline() can delay mmput(). But indefinitely ?
 
-Wouldn't it be more appropriate to extend the ifdef at __scoped_seqlock_bug()
-which emits an empty function for exactly this reason for some gcc versions
-and kernel configs?
+Perhaps the changelog could be more clear? I don't see how any remote VM access
+can pin mm->mm_users "indefinitely". Even if, say, a lot of threads read
+/proc/<pid>/cmdline in an endless loop in parallel...
 
-That is: add CONFIG_UBSAN_ALIGNMENT to the list (copy-pasted - white space
-damage below)?
+I must have missed something.
 
-diff --git a/include/linux/seqlock.h b/include/linux/seqlock.h
-index 5a40252b8334..18affa4d21a6 100644
---- a/include/linux/seqlock.h
-+++ b/include/linux/seqlock.h
-@@ -1259,7 +1259,7 @@ static __always_inline void __scoped_seqlock_cleanup(struct ss_tmp *sst)
- 
- extern void __scoped_seqlock_invalid_target(void);
- 
--#if (defined(CONFIG_CC_IS_GCC) && CONFIG_GCC_VERSION < 90000) || defined(CONFIG_KASAN)
-+#if (defined(CONFIG_CC_IS_GCC) && CONFIG_GCC_VERSION < 90000) || defined(CONFIG_KASAN) || defined(CONFIG_UBSAN_ALIGNMENT)
- /*
-  * For some reason some GCC-8 architectures (nios2, alpha) have trouble
-  * determining that the ss_done state is impossible in __scoped_seqlock_next()
+Oleg.
+
