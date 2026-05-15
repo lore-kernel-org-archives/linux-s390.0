@@ -1,142 +1,159 @@
-Received: from mail-pj1-f68.google.com (mail-pj1-f68.google.com [209.85.216.68])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from flow-b5-smtp.messagingengine.com (flow-b5-smtp.messagingengine.com [202.12.124.140])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A0B0938E8B8
-	for <linux-s390@vger.kernel.org>; Fri, 15 May 2026 20:45:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.68
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F49430C174;
+	Fri, 15 May 2026 20:51:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.140
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778877932; cv=none; b=QImjYh2E283x6NkngSIFxBm6s38PNGRpiCatCbGHIZ53nSROe0leiBM9PZX3lDFjgFvCRKvCNPh5tSDCLJv9gg4LCULgOBoPDHEgMzaWoO2vPEcyDTWgqZtLytBf9b+NaE5SgsojF3SFuv76pvBefBHMLfcmA1Z6bB2PBaIYpio=
+	t=1778878308; cv=none; b=VJDyL/NUT6UafDaYsD/SYXLCR+X9IuOi81gxHCbGeI3v9Dqs6e1dAWISqXM9KV7MEokTHffVrb2fQ6/WIV1fya0SdJ/k2KWVFQmlxfz+uFWgUDofZlrcatKFigaI2lM/l8XdhxfFj2WVZ4ZgoF/iSdVwcDAFCizf+lDpXanJHDI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778877932; c=relaxed/simple;
-	bh=jYFCW0q2oH14t/Tdq68TImEf4QAJ0L7oEU4dKSkZpjY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=KALkBhISp8SJcblNFTxDVIQpZBUHr2JgEfnzCSualaVJdPc2nFDJAzUWxyeJrm4jNzZaKdS28MHpZgUw+5QpHgS5NlhAVJWMi7TsFuBECiNsDggcGAlBm65oQ0kTQxeaGbo8n3NQOZxWzLo0EzMQjhk4QTguxEoO5XqZhuwF0Ig=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=F/DPFY2q; arc=none smtp.client-ip=209.85.216.68
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1778878308; c=relaxed/simple;
+	bh=x+vLSkXCJNQ05repT0IHPhoUUAu3mSh4lu7BJ/e4z3U=;
+	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
+	 Subject:Content-Type; b=aLM3myusKJhROb6zHkhSEAxKv0KcK3/TzWiK4L09FbOahQd0pR/BOSNNIAZFqFxua8tI8y6ErRyOZTyCs/NaKi5OZ0VDonzIAMroYCdmUWCxqtohgee3OmvPZSXHUI8G8rt0KPjXqT4zR006eJ1Zhc5DtwazOnp2zPwyOXnLfpU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=K4txOVOG; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=HBDBV7+w; arc=none smtp.client-ip=202.12.124.140
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="F/DPFY2q"
-Received: by mail-pj1-f68.google.com with SMTP id 98e67ed59e1d1-3665b67ed66so122829a91.1
-        for <linux-s390@vger.kernel.org>; Fri, 15 May 2026 13:45:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1778877929; x=1779482729; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=5Jp3G/+8nHauE/XI0omIm5SsO4BbcTyQ1cU6IXSGwNU=;
-        b=F/DPFY2qHcEADU66AoQ/HAiAUlJsUgix7K5w2KL/d345RfzWcZ6/PEzo+Y1thEIbVX
-         D6pBggvaMQ4CeZvz4e+7UIecvaw/fDIZTZOkyf4rTCXp8iRSySBbW5Vno5f6XClfLy7Y
-         sscb1UyDNZCvN4XOc4pZdW+IpC1S9opSJKuKSfZtVKazLuGgEpBJ2rL4274QDUb86avo
-         elS6sVawMNeL20eBSkLQWSVJPwOQOeKdunhYEgARNhF1tAB1DyIDQv4PWfB89guc5O5g
-         gcEfpJiN7Fy5RO8kI6D5jH+ss5UEHZ/1xjMKWg0S9lcPhQKlHmRuYKtZ37PYOKKX6rjq
-         EE3Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778877929; x=1779482729;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=5Jp3G/+8nHauE/XI0omIm5SsO4BbcTyQ1cU6IXSGwNU=;
-        b=oqqkFjUNS/pPT4CJx9NVjIJ6F1Uu46GSyr62xOrIMUuFY7n2KjhW3mJArwuCuSzKz8
-         fChNy6pJnzur09bS5+6vrT2+YRz5cQVnNyItgEIsj1pLeIQC16hYdwboynP95nM+M6om
-         P6//ot8a8XMvIo+y06mfE7Smrub3dJHJZlR7pjMarR04Z16bLdgEUkKlCgpfk0cMmDfk
-         9VPd+WetYXhgdIhce6A3whqi95//11pMnELnKXt217c34mNBr3OZozSn6eThxaDufN0D
-         e9WxO5K1l6Bw0JM6pvmZMfsQFnQvx54M8Xr4i3p9RMqPLUpWP2qrcOjPoa1bzHiHwjVI
-         yhEA==
-X-Forwarded-Encrypted: i=1; AFNElJ8a1rQ9AiGYo8ylaTajLXGS+dHVfJIkwGFIVu4JwWCMom1J/rHL/0AmZ3InMrvsCgWY0qqzK5S05C6l@vger.kernel.org
-X-Gm-Message-State: AOJu0Ywg2Gr//UNzz7w27clDIHReYrjolP+wbLMP5QwMq9ro0aXFsSqt
-	TixHAbFLu1INIK//xIvxf4ujp1jfv4DOaeHeuUuzGzeP7hisZFlXegcp
-X-Gm-Gg: Acq92OE+LNRdy2LwyWf4W0QIEgDM5XOR+DOoJTK8TplEO5TZz8r02ZMuWxwPQNpArXR
-	nLVULN4yet3ygNFmrMR0yf7F2p2AvXmGznRXtTpAtlFspQmRZamgaCgL23rmSjPCxVk8458WrN6
-	OS2GhofHj6cLTB4n+G3E0BT075pRQs/aDGyH6oldg2+DXmAa98VM7AMLkWBzQTeMki7nWdE+X3L
-	ewHPh6uWr2IY1OVhraATgYvkQOSlFBsgaCgJnv7UWrB/GeQQ8qMmNwsjARVQoq2ZAol5Cq+A/FB
-	zkZBLpwxhg6adHsgKPbiUGv+BJtDbAUMIaziWlej+Hc/qRyVMIMQwqdqdMDc2J7j/azjeJf2Gwg
-	xi/MhLs8GuxlBib0BG3XLvmX+Rvk4L8kF7536Ob+0lLAUjs/xvLfl5SaknLwBvBu1386/Zl05hb
-	KNry5136OEJYz19y0r
-X-Received: by 2002:a17:90b:1810:b0:35c:cba:3453 with SMTP id 98e67ed59e1d1-36951ca602amr5899046a91.22.1778877928785;
-        Fri, 15 May 2026 13:45:28 -0700 (PDT)
-Received: from localhost ([2a03:2880:2ff:5f::])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-369703bcc91sm167683a91.3.2026.05.15.13.45.27
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 15 May 2026 13:45:28 -0700 (PDT)
-Date: Fri, 15 May 2026 13:45:27 -0700
-From: Stanislav Fomichev <sdf.kernel@gmail.com>
-To: Breno Leitao <leitao@debian.org>
-Cc: Chas Williams <3chas3@gmail.com>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
-	Magnus Karlsson <magnus.karlsson@intel.com>, Maciej Fijalkowski <maciej.fijalkowski@intel.com>, 
-	Stanislav Fomichev <sdf@fomichev.me>, Alexei Starovoitov <ast@kernel.org>, 
-	Daniel Borkmann <daniel@iogearbox.net>, Jesper Dangaard Brouer <hawk@kernel.org>, 
-	John Fastabend <john.fastabend@gmail.com>, Jon Maloy <jmaloy@redhat.com>, 
-	Alexandra Winter <wintera@linux.ibm.com>, Thorsten Winkler <twinkler@linux.ibm.com>, 
-	James Chapman <jchapman@katalix.com>, David Howells <dhowells@redhat.com>, 
-	Marc Dionne <marc.dionne@auristor.com>, David Heidelberg <david+nfc@ixit.cz>, 
-	Samuel Ortiz <sameo@linux.intel.com>, linux-atm-general@lists.sourceforge.net, netdev@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, bpf@vger.kernel.org, tipc-discussion@lists.sourceforge.net, 
-	linux-s390@vger.kernel.org, linux-afs@lists.infradead.org, oe-linux-nfc@lists.linux.dev, 
-	kernel-team@meta.com
-Subject: Re: [PATCH net-next v2 1/7] af_iucv: take socket lock around
- SO_MSGSIZE getsockopt
-Message-ID: <ageFn6UV-c-pOPBW@devvm7509.cco0.facebook.com>
-References: <20260515-getsock_four-v2-0-0d8eed952627@debian.org>
- <20260515-getsock_four-v2-1-0d8eed952627@debian.org>
+	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="K4txOVOG";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="HBDBV7+w"
+Received: from phl-compute-04.internal (phl-compute-04.internal [10.202.2.44])
+	by mailflow.stl.internal (Postfix) with ESMTP id D23341300102;
+	Fri, 15 May 2026 16:51:44 -0400 (EDT)
+Received: from phl-imap-05 ([10.202.2.95])
+  by phl-compute-04.internal (MEProxy); Fri, 15 May 2026 16:51:45 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
+	:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm2; t=1778878304;
+	 x=1778885504; bh=lX4nJlxbqCT1SqPB0U+wt2alGi7/SuKCjG3lA5xdSKU=; b=
+	K4txOVOGwllZHxeJQ5XBvOTKMUOgEeo8iJQB3FdPNaiYhZwTEb7pI5Yo4+gYlFnR
+	7Y2P6U4N3XWJmJgfjA7j5ZLo9MTA690OhL0aJovQ7bi8y7a+UCBwUOKe8BG4BfGi
+	LDR6GSflXgyTPeOlgo3ebSsSohk3E/Qcs7dTrWPBgjrcMvufrj6DFjHLKhL42T2I
+	1ZJvaLWzrkwQGthjEkbCyoRBAP78dSNODDkBVjeEBfV3fzKGnMVo04wsFCKqaZsM
+	XP4/egwW2K7Z+LZYBihpunmgEr6DwknGqoNWnveBZdBKKHhL82STsUs4gh1AowCL
+	BAEpLBRZfmOpjXWKUIjvuA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1778878304; x=
+	1778885504; bh=lX4nJlxbqCT1SqPB0U+wt2alGi7/SuKCjG3lA5xdSKU=; b=H
+	BDBV7+w0AogogJ+lkEVj1eY4DPq6n7n22XrfpSkOXuBsEyAcQFQPAMvfNk4RTBiW
+	ELBPVjHEYLQwkHGtdkPanKjXsoAs9H5Cj5uAnLBHBLFQUQzAjSRUh+qEWL+JhKt3
+	xDmtwaaccdpLm9uUfPIyOpOwt445rKS61XRUrv7fPooqB6V1gdOzyldJPHC/fbje
+	Z/ShnK15RSdnHM8i4WHswJq7uxI8uvFW0ehkj7m+Cpjq9dP3YcQAxJYRIoL/QxoH
+	OfT4qSzMeJZUnWl7keHe6wW3r5jEHYkx1tG8t1N/ihb9r3e4zrDs8dQ0BWC/2lM2
+	TYNVPTpVJdbF9oluexXKA==
+X-ME-Sender: <xms:X4cHap3e3kVei8rLrMWkej3_Rt85qz0aCb1yqSRV-o3W1Z-gSMq6jg>
+    <xme:X4cHaq6qMDYUVODv_7X3vO8jOdDsdr21zXt3dlANeZSwEcqizttIkluuP5Des2H2K
+    KPFX1J0duS-4TmfE3hTQ2Rqk4M4TSnID8gYrfu-6tmgCocGDuxXcB4>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefhedrtddtgddufedugeduucetufdoteggodetrf
+    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
+    rghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujf
+    gurhepofggfffhvfevkfgjfhfutgfgsehtjeertdertddtnecuhfhrohhmpedftehrnhgu
+    uceuvghrghhmrghnnhdfuceorghrnhgusegrrhhnuggsrdguvgeqnecuggftrfgrthhtvg
+    hrnhephfdthfdvtdefhedukeetgefggffhjeeggeetfefggfevudegudevledvkefhvdei
+    necuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomheprghrnh
+    gusegrrhhnuggsrdguvgdpnhgspghrtghpthhtohepvddupdhmohguvgepshhmthhpohhu
+    thdprhgtphhtthhopehtvghrrhgvlhhlnhesfhgsrdgtohhmpdhrtghpthhtoheprghnug
+    hrvgihkhhnvhhlsehgmhgrihhlrdgtohhmpdhrtghpthhtoheprhihrggsihhnihhnrdgr
+    rdgrsehgmhgrihhlrdgtohhmpdhrtghpthhtohepvghlvhgvrhesghhoohhglhgvrdgtoh
+    hmpdhrtghpthhtohepkhgrshgrnhdquggvvhesghhoohhglhgvghhrohhuphhsrdgtohhm
+    pdhrtghpthhtohepphgvthgvrhiisehinhhfrhgruggvrggurdhorhhgpdhrtghpthhtoh
+    eprghrnhgusehkvghrnhgvlhdrohhrghdprhgtphhtthhopehkvggvsheskhgvrhhnvghl
+    rdhorhhgpdhrtghpthhtohepnhgrthhhrghnsehkvghrnhgvlhdrohhrgh
+X-ME-Proxy: <xmx:X4cHao2MN6fXhrMCYkSEavIZfrt9ZFUcA2536eRVBNRn_lza4zAUzQ>
+    <xmx:X4cHan95OvX8A0sndaxIPTK9W_Q89uuDeD55zv_PCfUF6b0wvCoHXw>
+    <xmx:X4cHauflTW4p9zONdTPPEgORKKQnQ2IeWQk1sqvkdnkvS0ek4QBsnQ>
+    <xmx:X4cHaj49T0OeccffGxfZIss2QMrCpjeXEbAsMsY3YTjNfOzDSbSr7w>
+    <xmx:YIcHaircjx8SAmStb-YZbk6OSA5oY_PzTotvvSqle_gdgPaMlMGM-O_w>
+Feedback-ID: i56a14606:Fastmail
+Received: by mailuser.phl.internal (Postfix, from userid 501)
+	id AB3E6182007A; Fri, 15 May 2026 16:51:43 -0400 (EDT)
+X-Mailer: MessagingEngine.com Webmail Interface
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20260515-getsock_four-v2-1-0d8eed952627@debian.org>
+X-ThreadId: AHLmA04tG45J
+Date: Fri, 15 May 2026 22:51:02 +0200
+From: "Arnd Bergmann" <arnd@arndb.de>
+To: "Heiko Carstens" <hca@linux.ibm.com>, "Arnd Bergmann" <arnd@kernel.org>
+Cc: linux-hardening@vger.kernel.org, linux-s390@vger.kernel.org,
+ "Kees Cook" <kees@kernel.org>, "Marco Elver" <elver@google.com>,
+ "Andrey Konovalov" <andreyknvl@gmail.com>,
+ "Andrey Ryabinin" <ryabinin.a.a@gmail.com>, kasan-dev@googlegroups.com,
+ "Vasily Gorbik" <gor@linux.ibm.com>,
+ "Alexander Gordeev" <agordeev@linux.ibm.com>,
+ "Christian Borntraeger" <borntraeger@linux.ibm.com>,
+ "Sven Schnelle" <svens@linux.ibm.com>,
+ "Andrew Morton" <akpm@linux-foundation.org>,
+ "Nick Terrell" <terrelln@fb.com>, "David Sterba" <dsterba@suse.com>,
+ "Nathan Chancellor" <nathan@kernel.org>, linux-kernel@vger.kernel.org,
+ "Peter Zijlstra" <peterz@infradead.org>,
+ "Stefan Schulze Frielinghaus" <stefansf@linux.ibm.com>,
+ "Juergen Christ" <jchrist@linux.ibm.com>
+Message-Id: <5502d883-a7c4-4e14-8f27-7bffd1f4d35f@app.fastmail.com>
+In-Reply-To: <20260515165357.10935D74-hca@linux.ibm.com>
+References: <20260515092057.810542-1-arnd@kernel.org>
+ <20260515165357.10935D74-hca@linux.ibm.com>
+Subject: Re: [PATCH] [RFC] ubsan: turn off UBSAN_ALIGNMENT on s390
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-On 05/15, Breno Leitao wrote:
-> Mirror the locking used by the SO_MSGLIMIT case directly above: take
-> lock_sock() before reading iucv->hs_dev and dereferencing hs_dev->mtu,
-> and release it afterwards. This keeps the two adjacent getsockopt arms
-> consistent and matches the lock held by iucv_sock_close() when it
-> clears hs_dev.
-> 
-> This is not an exploitable bug. iucv_sock_close() is the only writer
-> of iucv->hs_dev and only runs from the protocol release callback,
-> which the socket layer invokes after the last file reference drops.
-> The getsockopt() syscall holds an fd reference for its entire
-> duration via fdget()/fdput(), so iucv_sock_close() cannot run
-> concurrently with the SO_MSGSIZE read on the same socket. There is
-> no other writer of hs_dev, and the aligned pointer load cannot tear
-> on any architecture Linux supports, so the existing code cannot
-> observe a NULL dereference or use-after-free in practice.
-> 
-> The change is purely defensive: making the locking pattern uniform
-> across the function avoids surprising the next reader and removes a
-> foot-gun should the close path ever grow a new caller that does not
-> hold the fd reference.
-> 
-> Note: For the reason above, it doesn't contain a "Fixes" tag, and is
-> aiming at net-next instead of net.
-> 
-> Signed-off-by: Breno Leitao <leitao@debian.org>
-> ---
->  net/iucv/af_iucv.c | 2 ++
->  1 file changed, 2 insertions(+)
-> 
-> diff --git a/net/iucv/af_iucv.c b/net/iucv/af_iucv.c
-> index 72dfccd4e3d58..3dd11d7a967c8 100644
-> --- a/net/iucv/af_iucv.c
-> +++ b/net/iucv/af_iucv.c
-> @@ -1566,9 +1566,11 @@ static int iucv_sock_getsockopt(struct socket *sock, int level, int optname,
->  	case SO_MSGSIZE:
->  		if (sk->sk_state == IUCV_OPEN)
->  			return -EBADFD;
-> +		lock_sock(sk);
->  		val = (iucv->hs_dev) ? iucv->hs_dev->mtu -
->  				sizeof(struct af_iucv_trans_hdr) - ETH_HLEN :
->  				0x7fffffff;
-> +		release_sock(sk);
->  		break;
->  	default:
->  		return -ENOPROTOOPT;
-> 
+On Fri, May 15, 2026, at 18:53, Heiko Carstens wrote:
+> On Fri, May 15, 2026 at 11:19:54AM +0200, Arnd Bergmann wrote:
+>> From: Arnd Bergmann <arnd@arndb.de>
+>> 
+>> Testing randconfig builds on s390 with gcc-15, I came across a number of
+>> seemingly unrelated build failures that ended up all being caused
+>> by the -fsanitize=alignment option:
+>> 
+>> s390-linux-ld: kernel/sched/build_policy.o: in function `thread_group_cputime':
+>> include/linux/seqlock.h:1286:(.text+0x1f738): undefined reference to `__scoped_seqlock_bug'
+>
+> Does this only happen with __scoped_seqlock_bug()?
+> I just enabled UBSAN_ALIGNMENT, and with gcc-16 I can see this too.
 
-SO_IPRMDATA_MSG also seems to be only reading the value set via setsockopt,
-so maybe it's ok to just cover the whole switch with lock/unlock? (will
-mirror what setsockopt does)
+Yes, it's specifically this one file that triggers the
+__scoped_seqlock_bug check.
+
+>> --- a/lib/Kconfig.ubsan
+>> +++ b/lib/Kconfig.ubsan
+>> @@ -152,6 +152,7 @@ config UBSAN_ENUM
+>>  
+>>  config UBSAN_ALIGNMENT
+>>  	bool "Perform checking for misaligned pointer usage"
+>> +	depends on !S390 || BROKEN
+>
+> Wouldn't it be more appropriate to extend the ifdef at __scoped_seqlock_bug()
+> which emits an empty function for exactly this reason for some gcc versions
+> and kernel configs?
+>
+> That is: add CONFIG_UBSAN_ALIGNMENT to the list (copy-pasted - white space
+> damage below)?
+
+This would work around the failed check in kernel/sched/build_policy.o
+but not address the underlying issue, or any other the other symptoms.
+
+After trying to come up with a simplified test case that shows
+a problem on s390 but not arm64, I have now realized what is going
+on: My randconfig build script force-enables 'CONFIG_COMPILE_TEST=y'
+on all architectures, in order to avoid known-broken configurations
+and options that lead to a longer build time but are unlikely
+to find additional bugs. UBSAN_ALIGNMENT in turn depends on
+!COMPILE_TEST as of d0a3ac549f38 ("ubsan: enable for all*config
+builds"). On s390, COMPILE_TEST is unavailable when MMIO is
+disabled, so randconfig builds sometimes run into those broken
+configurations on s390 that I don't see elsewhere.
+
+I think your suggestion for __scoped_seqlock_bug makes sense,
+and I've sent a fix for the fs/fat/ issue. I'll see if I can
+also reproduce the other issues across architectures and come
+up with local workarounds for UBSAN_ALIGNMENT.
+
+       Arnd
