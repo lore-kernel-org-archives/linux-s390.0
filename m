@@ -1,159 +1,342 @@
-Received: from flow-b5-smtp.messagingengine.com (flow-b5-smtp.messagingengine.com [202.12.124.140])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F49430C174;
-	Fri, 15 May 2026 20:51:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.140
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 846AA3806BE;
+	Fri, 15 May 2026 20:52:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778878308; cv=none; b=VJDyL/NUT6UafDaYsD/SYXLCR+X9IuOi81gxHCbGeI3v9Dqs6e1dAWISqXM9KV7MEokTHffVrb2fQ6/WIV1fya0SdJ/k2KWVFQmlxfz+uFWgUDofZlrcatKFigaI2lM/l8XdhxfFj2WVZ4ZgoF/iSdVwcDAFCizf+lDpXanJHDI=
+	t=1778878362; cv=none; b=o4D0owc9ECY+vtMZxuyCrJaGMRHzCYzqWDY6na/Q7IgQnwlGGZeSA/GV30LLAaa0dXfxgO4pd9Mr6Fe5Z4s0QB1IaNEhVEEIoeh/fAaRLi9AUgW+lWw5IVR91FGog9SEW+F8sY/BwAUUU9xkI3yccvMmQz5ygIh4bMitCS/SzjE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778878308; c=relaxed/simple;
-	bh=x+vLSkXCJNQ05repT0IHPhoUUAu3mSh4lu7BJ/e4z3U=;
-	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
-	 Subject:Content-Type; b=aLM3myusKJhROb6zHkhSEAxKv0KcK3/TzWiK4L09FbOahQd0pR/BOSNNIAZFqFxua8tI8y6ErRyOZTyCs/NaKi5OZ0VDonzIAMroYCdmUWCxqtohgee3OmvPZSXHUI8G8rt0KPjXqT4zR006eJ1Zhc5DtwazOnp2zPwyOXnLfpU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=K4txOVOG; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=HBDBV7+w; arc=none smtp.client-ip=202.12.124.140
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
+	s=arc-20240116; t=1778878362; c=relaxed/simple;
+	bh=k2L1X5wmfaJTfYccSe1oeRjdS8+g4LrLFB3drvRjVAw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=jez6ah4bBCiL0NsDOJ4VhzMCBLQfSNAvodEyV1DIvDHzUWv5VRfkcwW5VinQ9vwUJCL9mWJ+gTy6h8EvYKy6ULNCySD2mGXmpgMKKo7Okn4A7jTr/+IV8jtRQZeXOUujZh9TF9KTG221ag7O9AN/lUZCi/v4PIkYbDapD6ZOcko=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SpmVlAMQ; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="K4txOVOG";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="HBDBV7+w"
-Received: from phl-compute-04.internal (phl-compute-04.internal [10.202.2.44])
-	by mailflow.stl.internal (Postfix) with ESMTP id D23341300102;
-	Fri, 15 May 2026 16:51:44 -0400 (EDT)
-Received: from phl-imap-05 ([10.202.2.95])
-  by phl-compute-04.internal (MEProxy); Fri, 15 May 2026 16:51:45 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
-	:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm2; t=1778878304;
-	 x=1778885504; bh=lX4nJlxbqCT1SqPB0U+wt2alGi7/SuKCjG3lA5xdSKU=; b=
-	K4txOVOGwllZHxeJQ5XBvOTKMUOgEeo8iJQB3FdPNaiYhZwTEb7pI5Yo4+gYlFnR
-	7Y2P6U4N3XWJmJgfjA7j5ZLo9MTA690OhL0aJovQ7bi8y7a+UCBwUOKe8BG4BfGi
-	LDR6GSflXgyTPeOlgo3ebSsSohk3E/Qcs7dTrWPBgjrcMvufrj6DFjHLKhL42T2I
-	1ZJvaLWzrkwQGthjEkbCyoRBAP78dSNODDkBVjeEBfV3fzKGnMVo04wsFCKqaZsM
-	XP4/egwW2K7Z+LZYBihpunmgEr6DwknGqoNWnveBZdBKKHhL82STsUs4gh1AowCL
-	BAEpLBRZfmOpjXWKUIjvuA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1778878304; x=
-	1778885504; bh=lX4nJlxbqCT1SqPB0U+wt2alGi7/SuKCjG3lA5xdSKU=; b=H
-	BDBV7+w0AogogJ+lkEVj1eY4DPq6n7n22XrfpSkOXuBsEyAcQFQPAMvfNk4RTBiW
-	ELBPVjHEYLQwkHGtdkPanKjXsoAs9H5Cj5uAnLBHBLFQUQzAjSRUh+qEWL+JhKt3
-	xDmtwaaccdpLm9uUfPIyOpOwt445rKS61XRUrv7fPooqB6V1gdOzyldJPHC/fbje
-	Z/ShnK15RSdnHM8i4WHswJq7uxI8uvFW0ehkj7m+Cpjq9dP3YcQAxJYRIoL/QxoH
-	OfT4qSzMeJZUnWl7keHe6wW3r5jEHYkx1tG8t1N/ihb9r3e4zrDs8dQ0BWC/2lM2
-	TYNVPTpVJdbF9oluexXKA==
-X-ME-Sender: <xms:X4cHap3e3kVei8rLrMWkej3_Rt85qz0aCb1yqSRV-o3W1Z-gSMq6jg>
-    <xme:X4cHaq6qMDYUVODv_7X3vO8jOdDsdr21zXt3dlANeZSwEcqizttIkluuP5Des2H2K
-    KPFX1J0duS-4TmfE3hTQ2Rqk4M4TSnID8gYrfu-6tmgCocGDuxXcB4>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefhedrtddtgddufedugeduucetufdoteggodetrf
-    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
-    rghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujf
-    gurhepofggfffhvfevkfgjfhfutgfgsehtjeertdertddtnecuhfhrohhmpedftehrnhgu
-    uceuvghrghhmrghnnhdfuceorghrnhgusegrrhhnuggsrdguvgeqnecuggftrfgrthhtvg
-    hrnhephfdthfdvtdefhedukeetgefggffhjeeggeetfefggfevudegudevledvkefhvdei
-    necuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomheprghrnh
-    gusegrrhhnuggsrdguvgdpnhgspghrtghpthhtohepvddupdhmohguvgepshhmthhpohhu
-    thdprhgtphhtthhopehtvghrrhgvlhhlnhesfhgsrdgtohhmpdhrtghpthhtoheprghnug
-    hrvgihkhhnvhhlsehgmhgrihhlrdgtohhmpdhrtghpthhtoheprhihrggsihhnihhnrdgr
-    rdgrsehgmhgrihhlrdgtohhmpdhrtghpthhtohepvghlvhgvrhesghhoohhglhgvrdgtoh
-    hmpdhrtghpthhtohepkhgrshgrnhdquggvvhesghhoohhglhgvghhrohhuphhsrdgtohhm
-    pdhrtghpthhtohepphgvthgvrhiisehinhhfrhgruggvrggurdhorhhgpdhrtghpthhtoh
-    eprghrnhgusehkvghrnhgvlhdrohhrghdprhgtphhtthhopehkvggvsheskhgvrhhnvghl
-    rdhorhhgpdhrtghpthhtohepnhgrthhhrghnsehkvghrnhgvlhdrohhrgh
-X-ME-Proxy: <xmx:X4cHao2MN6fXhrMCYkSEavIZfrt9ZFUcA2536eRVBNRn_lza4zAUzQ>
-    <xmx:X4cHan95OvX8A0sndaxIPTK9W_Q89uuDeD55zv_PCfUF6b0wvCoHXw>
-    <xmx:X4cHauflTW4p9zONdTPPEgORKKQnQ2IeWQk1sqvkdnkvS0ek4QBsnQ>
-    <xmx:X4cHaj49T0OeccffGxfZIss2QMrCpjeXEbAsMsY3YTjNfOzDSbSr7w>
-    <xmx:YIcHaircjx8SAmStb-YZbk6OSA5oY_PzTotvvSqle_gdgPaMlMGM-O_w>
-Feedback-ID: i56a14606:Fastmail
-Received: by mailuser.phl.internal (Postfix, from userid 501)
-	id AB3E6182007A; Fri, 15 May 2026 16:51:43 -0400 (EDT)
-X-Mailer: MessagingEngine.com Webmail Interface
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SpmVlAMQ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC9FEC2BCB0;
+	Fri, 15 May 2026 20:52:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1778878362;
+	bh=k2L1X5wmfaJTfYccSe1oeRjdS8+g4LrLFB3drvRjVAw=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=SpmVlAMQsenNFryEZGvkmUsYvajcCxB+UXSgXy7PomyUJAmaxY2qvcQpNuQGNBuo+
+	 rKvvWnkzc0qtUC6cZFTH6wULPH0+xpBt8UUUeN4Z8Tf/E46x1ZuN9cNz1yBMlJowTQ
+	 yia5uzJvauumibe0UxMyy3VwfVcONTffh4sTBTe03ZW/2smt7kmEM6mdHIkRq+TCaS
+	 bbTi459OKk41infK3HC50SQmQPqpkXTW9GShLNPxJ9p+u0SaetHekAT4daUwNI86qK
+	 BkyrEar0LDJp2i7SoQ8IUE0XIAi4rWYiK6Chrk9rAj7xenkVhHUwMdN5nY5SRfWoWT
+	 O38nq5eEfYWcw==
+Date: Fri, 15 May 2026 13:52:40 -0700
+From: Minchan Kim <minchan@kernel.org>
+To: Christian Brauner <brauner@kernel.org>
+Cc: Jann Horn <jannh@google.com>,
+	Linus Torvalds <torvalds@linux-foundation.org>,
+	Oleg Nesterov <oleg@redhat.com>, akpm@linux-foundation.org,
+	hca@linux.ibm.com, linux-s390@vger.kernel.org, david@kernel.org,
+	mhocko@suse.com, linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+	surenb@google.com, timmurray@google.com
+Subject: Re: [PATCH v3] mm: process_mrelease: introduce
+ PROCESS_MRELEASE_REAP_KILL flag
+Message-ID: <ageHmE1QIzK4R3nO@google.com>
+References: <20260511214226.937793-1-minchan@kernel.org>
+ <20260515-nachdenken-umbenannt-a90006a46e14@brauner>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-ThreadId: AHLmA04tG45J
-Date: Fri, 15 May 2026 22:51:02 +0200
-From: "Arnd Bergmann" <arnd@arndb.de>
-To: "Heiko Carstens" <hca@linux.ibm.com>, "Arnd Bergmann" <arnd@kernel.org>
-Cc: linux-hardening@vger.kernel.org, linux-s390@vger.kernel.org,
- "Kees Cook" <kees@kernel.org>, "Marco Elver" <elver@google.com>,
- "Andrey Konovalov" <andreyknvl@gmail.com>,
- "Andrey Ryabinin" <ryabinin.a.a@gmail.com>, kasan-dev@googlegroups.com,
- "Vasily Gorbik" <gor@linux.ibm.com>,
- "Alexander Gordeev" <agordeev@linux.ibm.com>,
- "Christian Borntraeger" <borntraeger@linux.ibm.com>,
- "Sven Schnelle" <svens@linux.ibm.com>,
- "Andrew Morton" <akpm@linux-foundation.org>,
- "Nick Terrell" <terrelln@fb.com>, "David Sterba" <dsterba@suse.com>,
- "Nathan Chancellor" <nathan@kernel.org>, linux-kernel@vger.kernel.org,
- "Peter Zijlstra" <peterz@infradead.org>,
- "Stefan Schulze Frielinghaus" <stefansf@linux.ibm.com>,
- "Juergen Christ" <jchrist@linux.ibm.com>
-Message-Id: <5502d883-a7c4-4e14-8f27-7bffd1f4d35f@app.fastmail.com>
-In-Reply-To: <20260515165357.10935D74-hca@linux.ibm.com>
-References: <20260515092057.810542-1-arnd@kernel.org>
- <20260515165357.10935D74-hca@linux.ibm.com>
-Subject: Re: [PATCH] [RFC] ubsan: turn off UBSAN_ALIGNMENT on s390
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260515-nachdenken-umbenannt-a90006a46e14@brauner>
 
-On Fri, May 15, 2026, at 18:53, Heiko Carstens wrote:
-> On Fri, May 15, 2026 at 11:19:54AM +0200, Arnd Bergmann wrote:
->> From: Arnd Bergmann <arnd@arndb.de>
->> 
->> Testing randconfig builds on s390 with gcc-15, I came across a number of
->> seemingly unrelated build failures that ended up all being caused
->> by the -fsanitize=alignment option:
->> 
->> s390-linux-ld: kernel/sched/build_policy.o: in function `thread_group_cputime':
->> include/linux/seqlock.h:1286:(.text+0x1f738): undefined reference to `__scoped_seqlock_bug'
->
-> Does this only happen with __scoped_seqlock_bug()?
-> I just enabled UBSAN_ALIGNMENT, and with gcc-16 I can see this too.
+On Fri, May 15, 2026 at 04:41:18PM +0200, Christian Brauner wrote:
+> On Mon, May 11, 2026 at 02:42:26PM -0700, Minchan Kim wrote:
+> > Currently, process_mrelease() requires userspace to send a SIGKILL signal
+> > prior to invocation. This separation introduces a scheduling race window
+> > where the victim task may receive the signal and enter the exit path
+> > before the reaper can invoke process_mrelease().
+> > 
+> > When the victim enters the exit path (do_exit -> exit_mm), it clears its
+> > task->mm immediately. This causes process_mrelease() to fail with -ESRCH,
+> 
+> To be quite frank about the patch as written below: I think this is a
+> completely crazy api. And I really dislike it.
+> 
+> Right now we have clear and simple signal sending semantics for pidfds:
+> 
+> * thread-specific pidfd -> thread-directed signal (unless signal is thread-group scoped by default)
+> * thread-group pidfd -> thread-group directed signal
+> 
+> with specific overrides for pidfd_send_signal():
+> 
+> * PIDFD_SIGNAL_THREAD           -> only signal thread
+> * PIDFD_SIGNAL_THREAD_GROUP     -> signal thread-group
+> * PIDFD_SIGNAL_PROCESS_GROUP    -> signal process-group
+> 
+> And now this patch aims to elevate process_mrelease() to a _signal
+> sending function_. And the semantics are complete special sauce too.
+> 
+> You are effectively introducing a custom signal scope that is mm-based
+> and then also plumbing it into a completely unrelated function that
+> should have absolutely nothing to do with this.
+> 
+> This is such Zebroid API. I really would hate to see it land.
+> 
+> This came up because of the ptrace bug that was just recently discovered
+> and that Linus fixed yesterday. This is another instance where I think
+> the correct fix is to keep task->mm around until the process is reaped
+> and then you can throw away all of the really ugly semantic in this
+> patch afaict. I'd really like to see that merged as it would also clean
+> up the ptrace code:
+> 
+> https://lore.kernel.org/all/20201016024019.1882062-1-jannh@google.com
 
-Yes, it's specifically this one file that triggers the
-__scoped_seqlock_bug check.
+Thank you for pointing this out. I completely agree.
 
->> --- a/lib/Kconfig.ubsan
->> +++ b/lib/Kconfig.ubsan
->> @@ -152,6 +152,7 @@ config UBSAN_ENUM
->>  
->>  config UBSAN_ALIGNMENT
->>  	bool "Perform checking for misaligned pointer usage"
->> +	depends on !S390 || BROKEN
->
-> Wouldn't it be more appropriate to extend the ifdef at __scoped_seqlock_bug()
-> which emits an empty function for exactly this reason for some gcc versions
-> and kernel configs?
->
-> That is: add CONFIG_UBSAN_ALIGNMENT to the list (copy-pasted - white space
-> damage below)?
+The only reason for adding PROCESS_MRELEASE_REAP_KILL and its complex signaling
+was to work around task->mm being cleared early in exit_mm(), which causes
+process_mrelease() to fail with -ESRCH.
 
-This would work around the failed check in kernel/sched/build_policy.o
-but not address the underlying issue, or any other the other symptoms.
+If Jann's patch to keep task->mm around is merged, this race naturally vanishes.
+Userspace can reliably send SIGKILL and call the normal process_mrelease()
+with the exit_mm
 
-After trying to come up with a simplified test case that shows
-a problem on s390 but not arm64, I have now realized what is going
-on: My randconfig build script force-enables 'CONFIG_COMPILE_TEST=y'
-on all architectures, in order to avoid known-broken configurations
-and options that lead to a longer build time but are unlikely
-to find additional bugs. UBSAN_ALIGNMENT in turn depends on
-!COMPILE_TEST as of d0a3ac549f38 ("ubsan: enable for all*config
-builds"). On s390, COMPILE_TEST is unavailable when MMIO is
-disabled, so randconfig builds sometimes run into those broken
-configurations on s390 that I don't see elsewhere.
+I would be thrilled to see Jann's patch merged. It allows us to drop this
+complex REAP_KILL patch entirely while still fully resolving the expedited
+reclaim issue.
 
-I think your suggestion for __scoped_seqlock_bug makes sense,
-and I've sent a fix for the fs/fat/ issue. I'll see if I can
-also reproduce the other issues across architectures and come
-up with local workarounds for UBSAN_ALIGNMENT.
-
-       Arnd
+> 
+> > leaving the actual address space teardown (exit_mmap) to be deferred until
+> > the mm's reference count drops to zero. In the field (e.g., Android),
+> > arbitrary reference counts (reading /proc/<pid>/cmdline, or various other
+> > remote VM accesses) frequently delay this teardown indefinitely,
+> > defeating the purpose of expedited reclamation.
+> > 
+> > In Android's LMKD scenarios, this delay keeps memory pressure high, forcing
+> > the system to unnecessarily kill additional innocent background apps before
+> > the memory from the first victim is recovered.
+> > 
+> > This patch introduces the PROCESS_MRELEASE_REAP_KILL UAPI flag to support
+> > an integrated auto-kill mode. When specified, process_mrelease() directly
+> > injects a SIGKILL into the target task after finding its mm.
+> > 
+> > To solve the race condition, we grab the mm reference via mmgrab() before
+> > sending the SIGKILL. If the user passed PROCESS_MRELEASE_REAP_KILL, we assume
+> > it will free its memory and proceed with reaping, making the logic as simple
+> > as reap = reap_kill || task_will_free_mem(p).
+> > 
+> > To handle shared address spaces, we deliver SIGKILL to all processes sharing
+> > the same address space using do_pidfd_send_signal_pidns(). This ensures the
+> > target pid resides inside the caller's PID namespace hierarchy prior to
+> > signal delivery. We iterate over all processes sharing the mm and deliver
+> > SIGKILL to each. If delivering the signal to any of the sharing processes
+> > fails, we return an error. Note that this approach may leave partial
+> > side-effects if some processes are killed successfully before a failure occurs.
+> > 
+> > Cc: Christian Brauner <brauner@kernel.org>
+> > Suggested-by: Michal Hocko <mhocko@suse.com>
+> > Reviewed-by: Suren Baghdasaryan <surenb@google.com>
+> > Signed-off-by: Minchan Kim <minchan@kernel.org>
+> > ---
+> >  include/linux/signal.h    |  4 +++
+> >  include/uapi/linux/mman.h |  4 +++
+> >  kernel/signal.c           | 29 ++++++++++++++++++---
+> >  mm/oom_kill.c             | 55 ++++++++++++++++++++++++++++++++++-----
+> >  4 files changed, 81 insertions(+), 11 deletions(-)
+> > 
+> > diff --git a/include/linux/signal.h b/include/linux/signal.h
+> > index f19816832f05..bdbe6b3addec 100644
+> > --- a/include/linux/signal.h
+> > +++ b/include/linux/signal.h
+> > @@ -276,6 +276,8 @@ static inline int valid_signal(unsigned long sig)
+> >  
+> >  struct timespec;
+> >  struct pt_regs;
+> > +struct mm_struct;
+> > +struct pid;
+> >  enum pid_type;
+> >  
+> >  extern int next_signal(struct sigpending *pending, sigset_t *mask);
+> > @@ -283,6 +285,8 @@ extern int do_send_sig_info(int sig, struct kernel_siginfo *info,
+> >  				struct task_struct *p, enum pid_type type);
+> >  extern int group_send_sig_info(int sig, struct kernel_siginfo *info,
+> >  			       struct task_struct *p, enum pid_type type);
+> > +extern int do_pidfd_send_signal_pidns(struct pid *pid, int sig, enum pid_type type,
+> > +				      siginfo_t __user *info, unsigned int flags);
+> >  extern int send_signal_locked(int sig, struct kernel_siginfo *info,
+> >  			      struct task_struct *p, enum pid_type type);
+> >  extern int sigprocmask(int, sigset_t *, sigset_t *);
+> > diff --git a/include/uapi/linux/mman.h b/include/uapi/linux/mman.h
+> > index e89d00528f2f..4266976b45ad 100644
+> > --- a/include/uapi/linux/mman.h
+> > +++ b/include/uapi/linux/mman.h
+> > @@ -56,4 +56,8 @@ struct cachestat {
+> >  	__u64 nr_recently_evicted;
+> >  };
+> >  
+> > +/* Flags for process_mrelease */
+> > +#define PROCESS_MRELEASE_REAP_KILL	(1 << 0)
+> > +#define PROCESS_MRELEASE_VALID_FLAGS	(PROCESS_MRELEASE_REAP_KILL)
+> > +
+> >  #endif /* _UAPI_LINUX_MMAN_H */
+> > diff --git a/kernel/signal.c b/kernel/signal.c
+> > index d65d0fe24bfb..b2dc08a9bdd3 100644
+> > --- a/kernel/signal.c
+> > +++ b/kernel/signal.c
+> > @@ -4046,6 +4046,30 @@ static int do_pidfd_send_signal(struct pid *pid, int sig, enum pid_type type,
+> >  	return kill_pid_info_type(sig, &kinfo, pid, type);
+> >  }
+> >  
+> > +/**
+> > + * do_pidfd_send_signal_pidns - Send a signal to a process via its struct pid
+> > + *                              while validating PID namespace hierarchy.
+> > + * @pid:   the struct pid of the target process
+> > + * @sig:   signal to send
+> > + * @type:  scope of the signal (e.g. PIDTYPE_TGID)
+> > + * @info:  signal info payload
+> > + * @flags: signaling flags
+> > + *
+> > + * Verify that the target pid resides inside the caller's PID namespace
+> > + * hierarchy prior to signal delivery.
+> > + *
+> > + * Return: 0 on success, negative errno on failure.
+> > + */
+> > +int do_pidfd_send_signal_pidns(struct pid *pid, int sig, enum pid_type type,
+> > +			       siginfo_t __user *info, unsigned int flags)
+> > +{
+> > +	/* Enforce PID namespace hierarchy boundary */
+> > +	if (!access_pidfd_pidns(pid))
+> > +		return -EINVAL;
+> > +
+> > +	return do_pidfd_send_signal(pid, sig, type, info, flags);
+> > +}
+> > +
+> >  /**
+> >   * sys_pidfd_send_signal - Signal a process through a pidfd
+> >   * @pidfd:  file descriptor of the process
+> > @@ -4094,16 +4118,13 @@ SYSCALL_DEFINE4(pidfd_send_signal, int, pidfd, int, sig,
+> >  		if (IS_ERR(pid))
+> >  			return PTR_ERR(pid);
+> >  
+> > -		if (!access_pidfd_pidns(pid))
+> > -			return -EINVAL;
+> > -
+> >  		/* Infer scope from the type of pidfd. */
+> >  		if (fd_file(f)->f_flags & PIDFD_THREAD)
+> >  			type = PIDTYPE_PID;
+> >  		else
+> >  			type = PIDTYPE_TGID;
+> >  
+> > -		return do_pidfd_send_signal(pid, sig, type, info, flags);
+> > +		return do_pidfd_send_signal_pidns(pid, sig, type, info, flags);
+> >  	}
+> >  	}
+> >  
+> > diff --git a/mm/oom_kill.c b/mm/oom_kill.c
+> > index 5c6c95c169ee..253aa80770f2 100644
+> > --- a/mm/oom_kill.c
+> > +++ b/mm/oom_kill.c
+> > @@ -20,6 +20,7 @@
+> >  
+> >  #include <linux/oom.h>
+> >  #include <linux/mm.h>
+> > +#include <uapi/linux/mman.h>
+> >  #include <linux/err.h>
+> >  #include <linux/gfp.h>
+> >  #include <linux/sched.h>
+> > @@ -925,6 +926,39 @@ static bool task_will_free_mem(struct task_struct *task)
+> >  	return ret;
+> >  }
+> >  
+> > +/*
+> > + * kill_all_shared_mm - Deliver SIGKILL to all processes sharing the given address space.
+> > + * @victim: the targeted OOM process group leader
+> > + * @mm:     the virtual memory space being reaped
+> > + *
+> > + * Traverse all threads globally and signal any user processes sharing the identical
+> > + * mm footprints, ensuring no concurrent users pin the memory. Skips the system
+> > + * global init and kernel worker threads.
+> > + */
+> > +static int kill_all_shared_mm(struct task_struct *victim, struct mm_struct *mm)
+> > +{
+> > +	struct task_struct *p;
+> > +	bool failed = false;
+> > +
+> > +	rcu_read_lock();
+> > +	for_each_process(p) {
+> > +		if (!process_shares_mm(p, mm))
+> > +			continue;
+> > +		if (is_global_init(p)) {
+> 
+> You can't signal init in any shape or form any way. Why bother reporting
+> failure at all.
+> 
+> > +			failed = true;
+> > +			continue;
+> > +		}
+> > +		if (unlikely(p->flags & PF_KTHREAD))
+> > +			continue;
+> > +
+> > +		if (do_pidfd_send_signal_pidns(task_pid(p), SIGKILL, PIDTYPE_TGID, NULL, 0))
+> > +			failed = true;
+> > +	}
+> > +	rcu_read_unlock();
+> > +
+> > +	return failed ? -EBUSY : 0;
+> 
+> Why are you returning EBUSY? This makes no sense imho.
+> 
+> > +}
+> > +
+> >  static void __oom_kill_process(struct task_struct *victim, const char *message)
+> >  {
+> >  	struct task_struct *p;
+> > @@ -1217,9 +1251,11 @@ SYSCALL_DEFINE2(process_mrelease, int, pidfd, unsigned int, flags)
+> >  	unsigned int f_flags;
+> >  	bool reap = false;
+> >  	long ret = 0;
+> > +	bool reap_kill;
+> >  
+> > -	if (flags)
+> > +	if (flags & ~PROCESS_MRELEASE_VALID_FLAGS)
+> >  		return -EINVAL;
+> > +	reap_kill = !!(flags & PROCESS_MRELEASE_REAP_KILL);
+> >  
+> >  	task = pidfd_get_task(pidfd, &f_flags);
+> >  	if (IS_ERR(task))
+> > @@ -1236,19 +1272,24 @@ SYSCALL_DEFINE2(process_mrelease, int, pidfd, unsigned int, flags)
+> >  	}
+> >  
+> >  	mm = p->mm;
+> > -	mmgrab(mm);
+> >  
+> > -	if (task_will_free_mem(p))
+> > -		reap = true;
+> > -	else {
+> > +	reap = reap_kill || task_will_free_mem(p);
+> > +	if (!reap) {
+> >  		/* Error only if the work has not been done already */
+> >  		if (!mm_flags_test(MMF_OOM_SKIP, mm))
+> >  			ret = -EINVAL;
+> > +		task_unlock(p);
+> > +		goto put_task;
+> >  	}
+> > +
+> > +	mmgrab(mm);
+> >  	task_unlock(p);
+> >  
+> > -	if (!reap)
+> > -		goto drop_mm;
+> > +	if (reap_kill) {
+> > +		ret = kill_all_shared_mm(task, mm);
+> > +		if (ret)
+> > +			goto drop_mm;
+> > +	}
+> >  
+> >  	if (mmap_read_lock_killable(mm)) {
+> >  		ret = -EINTR;
+> > -- 
+> > 2.54.0.563.g4f69b47b94-goog
+> > 
+> > 
