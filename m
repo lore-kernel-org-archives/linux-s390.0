@@ -1,125 +1,169 @@
-Received: from libero.it (smtp-16.italiaonline.it [213.209.10.16])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9A4694CA278
-	for <linux-s390@vger.kernel.org>; Fri, 15 May 2026 16:53:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.209.10.16
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD2944C6F09;
+	Fri, 15 May 2026 16:54:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778864025; cv=none; b=KnofhMX3ojNisJq+z4oBHB4nZ03SYRF+ELKOFd3y3sx278JSw2AbhGppiDb0CmR6df+nvNsLwxgG5nU4kE7g/gqg6fB5uIqHdVtjGPvDUa7AqgbUuPF+u06P+ESGhZ/1sD9ktBI0qWj2QCq9heJpqIloFFLQKH0EJOKa2+bzazo=
+	t=1778864059; cv=none; b=qCgUN+efilbb7JSP0ybPZ3sNqyDvfsgRE0geaSSWn4WO8+SNiEpyoXLWLLEsN9qmpwyewjeD9ttRrKnjJT5eSzN+ykh6d31B+a522ZT19UEF/uc42Dpr6P1gtmZJrmszcsQadfMCA3kfXIpxIRPXA5zf+/NS+2OKEUwnptBi3TU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778864025; c=relaxed/simple;
-	bh=Q5y5TpyR9Ncy4ttCUCRxgzAe0cmnTXVzfKh6vZzJhBs=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=BOwBBUilGi/BP5sCHzVmiC6cWtUIHCFBjS2oFPnlf0JJRl8LG1KOspl75kcMdrCBQRv9aWAZjiQCLsI6k3et9ck5YkkJBtQmfMI6lXRjtDn5zcAPu5syk+wHoQIvx0H2Rfif/tmvuvzczJYWNH6THxksTmH1gRgexrsjHD81SYo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=inwind.it; spf=pass smtp.mailfrom=inwind.it; dkim=pass (2048-bit key) header.d=inwind.it header.i=@inwind.it header.b=m+g/qCp4; arc=none smtp.client-ip=213.209.10.16
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=inwind.it
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=inwind.it
+	s=arc-20240116; t=1778864059; c=relaxed/simple;
+	bh=Oq8sA+f5fwEz3Gbhe4/UQdT03Rgd/EdfMErxJReByvM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=aQfEUrnwxZBVkIkuNV7Tt6KfYTx+DoWK33K4NtVLibMO+LNr1v53hYYl09cSjkhnocV6tHx+4nfe/gJ9aBsJfLZXhqJzM/+ItY/Xl8bq400w8edKYnLZZRjZ/ZUFFAOr+hTkho7PARfbVUtFpaVDuBM7WQ6Kv4w4a8Qj4G7T9qQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=EZQk/eXo; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=inwind.it header.i=@inwind.it header.b="m+g/qCp4"
-Received: from [192.168.1.27] ([84.220.171.3])
-	by smtp-16.iol.local with ESMTPSA
-	id NvkWw93JTwuJmNvkWwUGk9; Fri, 15 May 2026 18:51:04 +0200
-x-libjamoibt: 1601
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=inwind.it; s=s2014;
-	t=1778863864; bh=9WdAPwKSp54bIXm01Oq6LbLaPfYtCmuqhvark2IMT2k=;
-	h=From;
-	b=m+g/qCp4tzbt0bfLHz2HXIh1xSUujGy9ADLjjh657vY4gNP4lbZYMwcDvTDqGmJHn
-	 guKy97+1kM74qxw7PyF+I/NFPIVb8cWlfUtHTVz4VHnD4oSGB3HweAfU7uZKlSx86x
-	 Vyk8KrD9zr0HMhRMr7f5y9sIjd4bHO5srzzWxOOO5kKtztzC545W0ulDGpkTzcPfcI
-	 DPxCb1vHX2wC8W5Sj1nVM4xgQ9uISn+3FrOWzYFTg6LAcHL3zl6P6sTT7UInpTlL5L
-	 zdnAK2M5Uwlx5YpksdXUvJQT7Ni0sawoxU1CvZY8rV+cXe1DIy1fUI/vZzSzY1teva
-	 BHCuKc3H/tYsg==
-X-CNFS-Analysis: v=2.4 cv=OKAXGyaB c=1 sm=1 tr=0 ts=6a074ef8 cx=a_exe
- a=hciw9o01/L1eIHAASTHaSw==:117 a=hciw9o01/L1eIHAASTHaSw==:17
- a=IkcTkHD0fZMA:10 a=5UzOym4Vq6aNC_X-wu4A:9 a=QEXdDO2ut3YA:10
-Message-ID: <ae5e68e5-06a8-45d1-a8a9-59c619d32db6@inwind.it>
-Date: Fri, 15 May 2026 18:50:56 +0200
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="EZQk/eXo"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 64FBSGSR576688;
+	Fri, 15 May 2026 16:54:05 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=3St4iq7uw2n4Oi89NYsuWxbE42N21e
+	/j3GToZVButWw=; b=EZQk/eXo+BEb0EOqsQAgtBgWWQtdp4Ob9NcF72Kd4QRScJ
+	nO5p7KGmUJ/W1mVxCLJ5fRN4N4TpHHLc58V38m3OpQP0qCqhXpmMt01hovITftJC
+	jNUocNqv25eHPpJoA302c/eXT0tMlf5SXivdfDRIF1ZzAg4KWPALeUTQowygK5WS
+	12fjcwW9/exzMsI3fYFF9fj+061fcp9UCucH8aN1tZjb5xASBquJztlWAv8a/WAx
+	/GICNsPvsD/GsKd2Vd5+AU039rrvfzYAvBOn/YAhJTMs54ZIHaxDjy5SHANJEd6x
+	a5KUlztwf1tp/BWPkZHYNph4okCOksSV/PjJmEeQ==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4e5m92m3hj-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 15 May 2026 16:54:04 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 64FGd96F026489;
+	Fri, 15 May 2026 16:54:03 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4e5kvcmea1-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 15 May 2026 16:54:03 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 64FGrxtg13107564
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 15 May 2026 16:54:00 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C98A120043;
+	Fri, 15 May 2026 16:53:59 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id ECAE22004D;
+	Fri, 15 May 2026 16:53:58 +0000 (GMT)
+Received: from osiris (unknown [9.87.152.91])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Fri, 15 May 2026 16:53:58 +0000 (GMT)
+Date: Fri, 15 May 2026 18:53:57 +0200
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Arnd Bergmann <arnd@kernel.org>
+Cc: linux-hardening@vger.kernel.org, linux-s390@vger.kernel.org,
+        Kees Cook <kees@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+        Marco Elver <elver@google.com>,
+        Andrey Konovalov <andreyknvl@gmail.com>,
+        Andrey Ryabinin <ryabinin.a.a@gmail.com>, kasan-dev@googlegroups.com,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Nick Terrell <terrelln@fb.com>, David Sterba <dsterba@suse.com>,
+        Nathan Chancellor <nathan@kernel.org>, linux-kernel@vger.kernel.org,
+        Peter Zijlstra <peterz@infradead.org>,
+        Stefan Schulze Frielinghaus <stefansf@linux.ibm.com>,
+        Juergen Christ <jchrist@linux.ibm.com>
+Subject: Re: [PATCH] [RFC] ubsan: turn off UBSAN_ALIGNMENT on s390
+Message-ID: <20260515165357.10935D74-hca@linux.ibm.com>
+References: <20260515092057.810542-1-arnd@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Reply-To: kreijack@inwind.it
-Subject: Re: [PATCH 01/19] btrfs: require at least 4 devices for RAID 6
-To: Christoph Hellwig <hch@lst.de>
-Cc: David Sterba <dsterba@suse.cz>, Andrew Morton
- <akpm@linux-foundation.org>, Catalin Marinas <catalin.marinas@arm.com>,
- Will Deacon <will@kernel.org>, Ard Biesheuvel <ardb@kernel.org>,
- Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>,
- Madhavan Srinivasan <maddy@linux.ibm.com>,
- Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
- "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
- Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
- Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, Thomas Gleixner <tglx@kernel.org>,
- Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
- Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
- "H. Peter Anvin" <hpa@zytor.com>, Herbert Xu <herbert@gondor.apana.org.au>,
- Dan Williams <dan.j.williams@intel.com>, Chris Mason <clm@fb.com>,
- David Sterba <dsterba@suse.com>, Arnd Bergmann <arnd@arndb.de>,
- Song Liu <song@kernel.org>, Yu Kuai <yukuai@fnnas.com>,
- Li Nan <linan122@huawei.com>, linux-kernel@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
- linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
- linux-s390@vger.kernel.org, linux-crypto@vger.kernel.org,
- linux-btrfs@vger.kernel.org, linux-arch@vger.kernel.org,
- linux-raid@vger.kernel.org
-References: <20260512052230.2947683-1-hch@lst.de>
- <20260512052230.2947683-2-hch@lst.de> <20260512114231.GG2558453@suse.cz>
- <20260513054742.GA1018@lst.de>
- <0a8d1ff4-f5a2-49e9-aa45-d25dbe4ded40@libero.it>
- <20260515043705.GA3855@lst.de>
-Content-Language: en-US
-From: Goffredo Baroncelli <kreijack@inwind.it>
-In-Reply-To: <20260515043705.GA3855@lst.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-CMAE-Envelope: MS4xfIRcSTt5STXgccljMnCIz2eHZSPUpoG6zdkAW/1BRn9L53xyO+P3wQrbMMLVbxJHW+N8sp0yzakc3MR2cCcFMo1dlAl8gvSc/SDOWCHxfinPvWCytcjr
- E2ajSvp2CIF9Ys2QWNCM2YCTOuPJ18kbaVkxxmFRnVsIOb0ucyjN9KNL3BFkk7Ud+bru2koUwvlDAPKrMAw63A+BOuJVVDbieCPNq4YxJvtCma8dYpiqD09G
- sCh5JNMMXuGgnTgfqUUJ+Qbzsqdtto0je5KdmrGMW40aotZ/+S/kJn4sCFnf5g1gapE4BKz75kSmw6JFXPdxmZFJdOFG7z5fdUrA1Dwsb6umoqal7VDvdbma
- DiZm9XRnZCDhNNF+ZPkLQZb1TofZUdq6d7ug1o+src70lE6+LihoJsyM0ZbmxVgrTjewmbztqjnQJoYArZ4QqbywD5Sd3TiEGsl9lWWu5eyiQTebAIVRFeC8
- nEqFAs21qZrxPF6Uq/SnJv8qagoxXJRfWwNn66R+K3YiI6mOSG16+ZHThNqvJU3/bHi683USl3wE7UhRu5VlqQEZ6WoE/qj+eUN839hKRWt7YLcOTrEGd/uO
- +pqymzrMyy9izoH0Srz7Zk/PSTaid7BTCeO82xYw+Mzv4uwzhc/nYaOUlTLtPwW9T43BOc5MH2JAKYVnn9cO2AqtXKYykFg4x9FPEOR9cuMRTVbENtjdWpps
- Bq5zTF+AXkoWW6W61ZuXitS+tT5vlt/ELS+pUxVBCkm5yUJSSkqICuZHNRnhM3gKHDVhh4Ns6Swhs8GpYekFjqnPHq7KrOecxDq4JL82hLJZf8uClKDfY/3Q
- YHJVueku5+JW2Kx+xEEIQJUzojSwxWIVlFgz4S6a7t1jEw/PMDrQxkW28BP8BmfQ2L51hNvmCWAwFJZVe9DOoBKat2mMwYNyTMLCbQPOK8IepgFN3Xh5J9Yr
- zsELdIh47mqn+n9m1dJHl8pdLI16lbpd7JPS+rkT+X/VBpGWYSg1SizlQW7Zd6jRhZj+jugRLz8FW+5F6xSEi/1ryCr9UJ8Hnp8FeykJKC0csQa4tsyRBeQ7
- 4+oDZCBNS8xIrFMYdp9mzmc5IPnpusyfFrNplemnIr8YCvMYHgimmAuUw7B+Z604HGNs7Ovl7kfpP19u/d989Txfb5lqbJA0NcloGgH+Za5UVq2UnfUCc3RG
- yQ6hJ/UHoxEGDfFw8Vjo0ZJLwPp9Fb5piSf6i8OG4nhtHPa9h6ifl2mQkomRIENZEoVPODly2pGPdGYQ8ofZVwl5dOxvxVdP8xHs/4FTnwWuYPn2oGuykHIe
- tZhMm58QeEehltvUobNgm0ZVAba57PviaUzaSzgaYIj4G5+83y9jvcY6E9AO6TnOWTIFW7iK62Oq25b2ClXNlm0KYceNhHqEH6EZrPkegcRv+/fMsmtDrqXG
- OY843VHWlpsPvVHxWqQzTl72N0dCPlXPWy8SLXM96jwzxecEP5uEeZQ5LKvFAEh2+TfNPdIksDMJ/PnhBFMdAGHk4SJJcNiBcsZTNHeSHvJlW/8TI23ooPzr
- 23+SWyghG4+6P1hrYFbwUDsjIGhuuatpKNV34Vl6jEmPQg==
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260515092057.810542-1-arnd@kernel.org>
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTE1MDE3MCBTYWx0ZWRfX0Sdgqd2mbOFw
+ KkwpotWDkb5iMlunsj0AnCKrYChzb8Nxz9zKCYOeVw8wVOHFb7mGA5rcu7GnkjmJnGUqKeiNOT6
+ nxhwTmcZWQ141Iwj3D/OEGSjVkmvfZwzlpzjIqqikeGpqT5brZ/sJ+megDwJVgLmSkZYy9RxDuK
+ xOKcM8sPehgUsrWal/xaadErluJkpX0z+b1lq0P/iXZqGXF2CQFVrjhdyD0lQ22lz4q+EmRycMn
+ d2XVL9awFqwzsZ72v+/8jl+nZDMgjZQ5RGuXlcfdcu2y0xvstUWHQPTDsJcRCErYc3RAXla+ugI
+ m9PrJkp/7QIze9f1LXyVtsutKs+MnF/WG5PnDssxavt1cpXADFQ2oWfOc0u4zSHzCSBwc36/73h
+ I3/RoJTjfNsBKlw0acbJgIr3W1RgdXkXhrVWNkq8nVz7PLOcT5HJPGrrXmZ3KOT8ySBqficZ6mP
+ CkT9ClEpKnO3wm7hRmQ==
+X-Proofpoint-ORIG-GUID: dFUWlXN3yEx0zRZhdfr_E6pX1tSmd4PZ
+X-Authority-Analysis: v=2.4 cv=aNnAb79m c=1 sm=1 tr=0 ts=6a074fac cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=kj9zAlcOel0A:10 a=NGcC8JguVDcA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=yuVE4MsfjvIhWQyEmLAA:9
+ a=CjuIK1q_8ugA:10
+X-Proofpoint-GUID: AG3tYxTwIk-uHnozpkweqL_TBK0aOZF8
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-05-15_04,2026-05-15_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ bulkscore=0 malwarescore=0 suspectscore=0 spamscore=0 lowpriorityscore=0
+ impostorscore=0 priorityscore=1501 clxscore=1011 adultscore=0 phishscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2605130000 definitions=main-2605150170
 
-On 15/05/2026 06.37, Christoph Hellwig wrote:
-> On Thu, May 14, 2026 at 09:51:59PM +0200, Goffredo Baroncelli wrote:
->> I think that the David concern is : "what happens for an already
->> existing btrfs raid6 3 disks filesystem when the user upgrade the kernel ?"
->> (I am thinking when a new BG needs to be allocated)...
+On Fri, May 15, 2026 at 11:19:54AM +0200, Arnd Bergmann wrote:
+> From: Arnd Bergmann <arnd@arndb.de>
 > 
-> Then it will cleanly fail to mount instead of constantly corrupting data
-> and memory with every write, yes.  Which clearly suggest that such
-> file systems don't exist in the wild.
+> Testing randconfig builds on s390 with gcc-15, I came across a number of
+> seemingly unrelated build failures that ended up all being caused
+> by the -fsanitize=alignment option:
 > 
-> But if btrfs wants to keep supporting this I'll just add a _unsafe
-> version without the check in the core library.
+> s390-linux-ld: kernel/sched/build_policy.o: in function `thread_group_cputime':
+> include/linux/seqlock.h:1286:(.text+0x1f738): undefined reference to `__scoped_seqlock_bug'
+
+Does this only happen with __scoped_seqlock_bug()?
+I just enabled UBSAN_ALIGNMENT, and with gcc-16 I can see this too.
+
+> What I observe here is a huge increase in generated calls to
+> __ubsan_handle_type_mismatch_v1() that ends up thowing off a number of
+> compiler optimizations that the kernel relies on.
 > 
+> I have not been able to figure out why this happens on s390 but not arm64,
+> arm or x86, if other toolchain versions are affected by the same thing,
+> and if this is a problem in gcc or in the kernel itself, e.g. some
+> variable being identified as unaligned when it should be aligned.
+> 
+> This clearly needs more investigation to figure out properly what is
+> going on, but turning it off is currently required for randconfig testing.
+...
+> ---
+>  lib/Kconfig.ubsan | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/lib/Kconfig.ubsan b/lib/Kconfig.ubsan
+> index 1ecaae7064d2..3fc03a6b5af4 100644
+> --- a/lib/Kconfig.ubsan
+> +++ b/lib/Kconfig.ubsan
+> @@ -152,6 +152,7 @@ config UBSAN_ENUM
+>  
+>  config UBSAN_ALIGNMENT
+>  	bool "Perform checking for misaligned pointer usage"
+> +	depends on !S390 || BROKEN
 
-I am not arguing about this part. My point is that the change shouldn't have impacted the
-BTRFS interface versus the user (as patch 01/19 does), but instead the change should
-have modify the interface raid code <-> btrfs (e.g. doing a memcpy....), or at least the
-cover letter should warn that the raid6 code requires a number of disk >= 4, pointing
-to BTRFS as "client doing wrong things".
+Wouldn't it be more appropriate to extend the ifdef at __scoped_seqlock_bug()
+which emits an empty function for exactly this reason for some gcc versions
+and kernel configs?
 
-At least, the message was received: don't relay to the raid6 code when the number of disk is
-less than 4.
+That is: add CONFIG_UBSAN_ALIGNMENT to the list (copy-pasted - white space
+damage below)?
 
-BR
-GB
-
--- 
-gpg @keyserver.linux.it: Goffredo Baroncelli <kreijackATinwind.it>
-Key fingerprint BBF5 1610 0B64 DAC6 5F7D  17B2 0EDA 9B37 8B82 E0B5
+diff --git a/include/linux/seqlock.h b/include/linux/seqlock.h
+index 5a40252b8334..18affa4d21a6 100644
+--- a/include/linux/seqlock.h
++++ b/include/linux/seqlock.h
+@@ -1259,7 +1259,7 @@ static __always_inline void __scoped_seqlock_cleanup(struct ss_tmp *sst)
+ 
+ extern void __scoped_seqlock_invalid_target(void);
+ 
+-#if (defined(CONFIG_CC_IS_GCC) && CONFIG_GCC_VERSION < 90000) || defined(CONFIG_KASAN)
++#if (defined(CONFIG_CC_IS_GCC) && CONFIG_GCC_VERSION < 90000) || defined(CONFIG_KASAN) || defined(CONFIG_UBSAN_ALIGNMENT)
+ /*
+  * For some reason some GCC-8 architectures (nios2, alpha) have trouble
+  * determining that the ss_done state is impossible in __scoped_seqlock_next()
