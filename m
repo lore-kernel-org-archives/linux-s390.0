@@ -1,123 +1,110 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1922B43CEFC;
-	Fri, 15 May 2026 09:21:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 639A4481659;
+	Fri, 15 May 2026 11:51:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778836866; cv=none; b=WSpQiJLlwkM47GQnw3kiWCBEB+5wkz+GOaY7APGS+KVeWsQ6p6ZuhhsBS3oACoqkdp099HKpyJb3y0GdUkMyuIZpmbL1Rhe5mCQDBA/OsPknWbw8zYwbsEdGo/ckJp76yreP0kEzBN0nxk26MKyNngm1m07fG3sgPa4PJb0PgjU=
+	t=1778845911; cv=none; b=SF8S0I+m4VK2YlLVDv2ClNnanwkCN+/CQ7jIo9Eg24XRtEtandpuVGsEU5GF4zEWZ38Ax8JZI7j5Rf0V1NMg0yZ3JTWEXaQYxMmoWaV63K44NaP9rvj64/PK/APPKmySBK6iJslvH/wDPccloFzPHyz7kUiWPpCZc+CJmAwN2pQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778836866; c=relaxed/simple;
-	bh=SxzE0nnibdkJFjlkvbsIyW+y7Yp7ydupQKVnqN+i4Vo=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=ddx5JwdIRiEffnuCUMza6s+A7AzMdVY1g1N1U7sqnweFoMVPDf0LcoYvxgP45B+N8l1Xu4bJpJUS6aP4Rq2S52P3lEle4dFzqZL4jAzyzQ+na7IeswfQL0qsfvdX6gwuSOfG2w/8MWmhdrLTN4jRDdi4mq9rlHm7UBo6ht8O6lQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bmRVv3IB; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1778845911; c=relaxed/simple;
+	bh=IA6oFuJ5AoXVALeoE3z81xeRiIabX4iRJZhmWDJOgao=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=LI4UxMi7dGc8gniy1nJJAlRmIFrqfgQ8qUYQt5HIna0q/wiBvzJYmePCOIeCx75TDXjLjMDvgyC8hxnXGPDxclmwMtJFDK7tfNUgCX3PipqJlEcEAaweDPwqINsl67rpBsFiNXEmREnlZpkL3WtmoyeE3aY+WTRY4yyuxqanfWY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=njNZLYDk; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bmRVv3IB"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21A35C2BCB8;
-	Fri, 15 May 2026 09:21:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1778836865;
-	bh=SxzE0nnibdkJFjlkvbsIyW+y7Yp7ydupQKVnqN+i4Vo=;
-	h=From:To:Cc:Subject:Date:From;
-	b=bmRVv3IBSWvvodL+hDM9uN3idz/usl7CJmPAK3w4fMShzzLFYPzOxNZO6uSUMl2ZM
-	 vk2eKivZ41mVSVx8SHIBme4RAEk7g5y1CuZVuBYdpeTsp0ojXWgOEqv3sf8B7h0X8b
-	 WoRM5LIe4i56CzC1dD640NHCT/iKN40IkeXKaCjdZ1JoCusB6QcxnKffvYrhKwUgMU
-	 lO3vsiv/3U+RhyPmMDMiLLAr4zpnKTiaoPEd5sWPeEM3GgOIcpPFKQsYNTC01t/sHl
-	 d6QqF0raZNvhZ6Fqft0zD+IVU3p14oEQaj7KDJ9HhwC3AT+DJbJXgvyeOVbQ5vZNic
-	 uVFy+9Lkk33iw==
-From: Arnd Bergmann <arnd@kernel.org>
-To: linux-hardening@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	Kees Cook <kees@kernel.org>
-Cc: Arnd Bergmann <arnd@arndb.de>,
-	Marco Elver <elver@google.com>,
-	Andrey Konovalov <andreyknvl@gmail.com>,
-	Andrey Ryabinin <ryabinin.a.a@gmail.com>,
-	kasan-dev@googlegroups.com,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Nick Terrell <terrelln@fb.com>,
-	David Sterba <dsterba@suse.com>,
-	Nathan Chancellor <nathan@kernel.org>,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH] [RFC] ubsan: turn off UBSAN_ALIGNMENT on s390
-Date: Fri, 15 May 2026 11:19:54 +0200
-Message-Id: <20260515092057.810542-1-arnd@kernel.org>
-X-Mailer: git-send-email 2.39.5
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="njNZLYDk"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 64EJ6jZq4193819;
+	Fri, 15 May 2026 11:51:49 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=mpvwHfINL6xOH5ideGCzJ3vk44PHop
+	VrE5MJMjqqR5g=; b=njNZLYDkwAetu7Dslrfq36i0uVhTIKc0iVhwp2rfM2WZGo
+	9QbEP+EHMqKNqjPyzmjkyIfuL7Egp1rDsREZzZKz1Lj7q4ogcjS62Cq3P8nIYbW3
+	YdPPbk3gIZ3BfQBAVDGyuvoDVhBvSE9im6Tz5Oj7TRGdPQFyOhpxiBt/fsI7AHAF
+	xyzO30z3Rb0J2Sfih5IXxncu881uPBbx6DR69xUzZXJqco36jRpEOMQ/o8Pprifo
+	R7XIr4vBcJmICC489wF9vLcmIIzDIAbbMbceZ6CZQolASFrUC4/Q5RrDv1LvPSBU
+	jo2wMyU2yXPpmhewjdCVaXs+LvxZV9HOjqb7weCA==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4e5m8y2w4j-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 15 May 2026 11:51:49 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 64FBd5Um009796;
+	Fri, 15 May 2026 11:51:48 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4e5kvckb03-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 15 May 2026 11:51:48 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 64FBpjo840042968
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 15 May 2026 11:51:45 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E6DBD20043;
+	Fri, 15 May 2026 11:51:44 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 54B6520040;
+	Fri, 15 May 2026 11:51:44 +0000 (GMT)
+Received: from osiris (unknown [9.111.88.167])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Fri, 15 May 2026 11:51:44 +0000 (GMT)
+Date: Fri, 15 May 2026 13:51:42 +0200
+From: Steffen Eiden <seiden@linux.ibm.com>
+To: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, borntraeger@de.ibm.com,
+        frankja@linux.ibm.com, david@kernel.org, nrb@linux.ibm.com,
+        schlameuss@linux.ibm.com, gra@linux.ibm.com
+Subject: Re: [PATCH v2 5/5] KVM: s390: Properly reset zero bit in PGSTE
+Message-ID: <20260515115142.70445-E-seiden@linux.ibm.com>
+References: <20260512175251.300882-1-imbrenda@linux.ibm.com>
+ <20260512175251.300882-6-imbrenda@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260512175251.300882-6-imbrenda@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: B6NsyhI4p6wytRHiUb1erfj1FUANlBxq
+X-Authority-Analysis: v=2.4 cv=RemgzVtv c=1 sm=1 tr=0 ts=6a0708d5 cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+ a=kj9zAlcOel0A:10 a=NGcC8JguVDcA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8
+ a=9DvXnxvuG7zSzAFeCowA:9 a=CjuIK1q_8ugA:10 a=UzISIztuOb4A:10
+ a=VxAk22fqlfwA:10
+X-Proofpoint-ORIG-GUID: B6NsyhI4p6wytRHiUb1erfj1FUANlBxq
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTE1MDExNyBTYWx0ZWRfX8a0TRFT5URfi
+ c51sOHU3ts9qNfLCHyR1gK083oYTKBVZECGZxsjX07tWFqP40pNByfB5t2vpbO2uBFVednz9sb9
+ 8L9PFIi3x/HBA5s9DLTnqATAl05W2jJ0wOHK52poWTDu/rpUXB8q/g2pE9lADITV8cTwEkKzbeB
+ HFriSoPzMOxmF8ypeP9eGFK51rM2DvAbCCe7lvkTZkB5HS9ChOmuTvercFK2zkawm5zeoiKFp97
+ IdWEl5BTZ7qUVsJ9YdcS3B75cl24LlfUaOTvXIYSWlVDvc1j3+Mn5OAEOu10LrjUwtC8vhfbJU7
+ mimyfVxwavT+d7cCNDG37O/cfRknn4A8fxphapRicPN/uUzix6emqBHzn74kgLdbB4Y8XrfgS26
+ j8oiU8QDU4o9HHIst09DM2agMi49w2OgkvFpxk+SWnPDUl49FwOxcxYkwvop/3Z4sKpzsd7xyEs
+ /mFbvMao674IrprA76Q==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-05-15_02,2026-05-13_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ lowpriorityscore=0 clxscore=1015 suspectscore=0 adultscore=0
+ priorityscore=1501 bulkscore=0 phishscore=0 spamscore=0 impostorscore=0
+ malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2605130000
+ definitions=main-2605150117
 
-From: Arnd Bergmann <arnd@arndb.de>
+On Tue, May 12, 2026 at 07:52:51PM +0200, Claudio Imbrenda wrote:
+> When calling _gmap_ptep_xchg(), always clear the pgste.zero bit. This
+> prevents the page from being accidentally discarded when getting
+> unmapped.
+> 
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-Testing randconfig builds on s390 with gcc-15, I came across a number of
-seemingly unrelated build failures that ended up all being caused
-by the -fsanitize=alignment option:
-
-s390-linux-ld: kernel/sched/build_policy.o: in function `thread_group_cputime':
-include/linux/seqlock.h:1286:(.text+0x1f738): undefined reference to `__scoped_seqlock_bug'
-
-lib/tests/overflow_kunit.c: In function 'same_type_test':
-lib/tests/overflow_kunit.c:1008:13: note: variable tracking size limit exceeded with '-fvar-tracking-assignments', retrying without
-
-fs/fat/fat_test.c: In function 'fat_clus_to_blknr_test':
-fs/fat/fat_test.c:33:1: error: the frame size of 4736 bytes is larger than 1536 bytes [-Werror=frame-larger-than=]
-lib/crypto/chacha-block-generic.c: In function 'chacha_permute':
-lib/crypto/chacha-block-generic.c:65:1: error: the frame size of 2000 bytes is larger than 1536 bytes [-Werror=frame-larger-than=]
-lib/crypto/sha3.c: In function 'sha3_keccakf_generic':
-lib/crypto/sha3.c:175:1: error: the frame size of 2248 bytes is larger than 1536 bytes [-Werror=frame-larger-than=]
-lib/zstd/decompress/huf_decompress.c: In function 'HUF_decompress4X2_usingDTable_internal_default':
-lib/zstd/decompress/huf_decompress.c:1512:1: error: the frame size of 1352 bytes is larger than 1280 bytes [-Werror=frame-larger-than=]
-
-What I observe here is a huge increase in generated calls to
-__ubsan_handle_type_mismatch_v1() that ends up thowing off a number of
-compiler optimizations that the kernel relies on.
-
-I have not been able to figure out why this happens on s390 but not arm64,
-arm or x86, if other toolchain versions are affected by the same thing,
-and if this is a problem in gcc or in the kernel itself, e.g. some
-variable being identified as unaligned when it should be aligned.
-
-This clearly needs more investigation to figure out properly what is
-going on, but turning it off is currently required for randconfig testing.
-
-Cc: Kees Cook <kees@kernel.org>
-Cc: Marco Elver <elver@google.com>
-Cc: Andrey Konovalov <andreyknvl@gmail.com>
-Cc: Andrey Ryabinin <ryabinin.a.a@gmail.com>
-Cc: kasan-dev@googlegroups.com
-Cc: linux-hardening@vger.kernel.org
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
-Cc: Sven Schnelle <svens@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
----
- lib/Kconfig.ubsan | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/lib/Kconfig.ubsan b/lib/Kconfig.ubsan
-index 1ecaae7064d2..3fc03a6b5af4 100644
---- a/lib/Kconfig.ubsan
-+++ b/lib/Kconfig.ubsan
-@@ -152,6 +152,7 @@ config UBSAN_ENUM
- 
- config UBSAN_ALIGNMENT
- 	bool "Perform checking for misaligned pointer usage"
-+	depends on !S390 || BROKEN
- 	default !HAVE_EFFICIENT_UNALIGNED_ACCESS
- 	depends on !UBSAN_TRAP && !COMPILE_TEST
- 	depends on $(cc-option,-fsanitize=alignment)
--- 
-2.39.5
+Reviewed-by: Steffen Eiden <seiden@linux.ibm.com>
 
