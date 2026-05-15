@@ -1,181 +1,151 @@
-Received: from mail-qt1-f175.google.com (mail-qt1-f175.google.com [209.85.160.175])
+Received: from mail-ed1-f43.google.com (mail-ed1-f43.google.com [209.85.208.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1167A395243
-	for <linux-s390@vger.kernel.org>; Fri, 15 May 2026 22:51:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28AE7405C21
+	for <linux-s390@vger.kernel.org>; Fri, 15 May 2026 23:45:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778885477; cv=none; b=tb7GXKPBDGUVyJj12YYRZEk5HFRUc55qQuf2u7T1PWJFsAgNRMnRSzVmHgaxb9DID+8zDtGnVO0x0IisDoV8SQkUYLhDUKGIFunQAYOPbupfltH7vf64O6PQj+Z1i/4AF1KsYRE3aLMJBFsVc+dIybaQyEBDW8ZA7WEHHM2NFIo=
+	t=1778888759; cv=none; b=hgprEXmDAWIpfgaxSY3iK5fJmnTGz04hD0QoESVD1ARnTs+94vr+4JFvEysgAwvq3+7xYMj/EdYG8rF5axifoh1nW4djSic9svlr9sPb9yefm0hCm1MiuiGJOAwLrkbgY+C5YEaXY2TRQf3BMXNqZWzPiNWkAud4cP/nZmGd3dI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778885477; c=relaxed/simple;
-	bh=r4o8kNBsfNITnPuziuAzBiGGbEdWSyP9HN1hm0J0N4c=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=l4GysLD0u8iUGNfKvLKBbC/4u0yKLMwLwfMHN9gOMS226Lj+0MBq0pD+tHJ10/5e06atWnHtCIlqznEm3SXq5faouGIdv8z9ZaXNqp2Uj27xXadTaydqLZhcVuDNhUOyX8ANlpuVBkg6p6dAzogv78+QjVHEH+WG1FS7HGqJXxY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca; spf=pass smtp.mailfrom=ziepe.ca; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=Aa0y6wdw; arc=none smtp.client-ip=209.85.160.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
+	s=arc-20240116; t=1778888759; c=relaxed/simple;
+	bh=kDfFFhlbQ9JRwkWYtPQHXJsCxysa9jjnPwXQpLDaJec=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=Q+oU4KfPULhDOD2iKALyDxYlFvs+pN3V6eNOJ5J8Dv6h+7ncGUpajYIyGebeX1OeVjsfk69CKKGU/b7SdHsGRQOvau3EY3x347/qNfri3NST9VjD9PQX1VASO1lUdXsbC76YYFCzbqM+osO61m6naPzTpfRUA0FXk13lc0a+ygA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org; spf=pass smtp.mailfrom=linuxfoundation.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=LbNC54yV; arc=none smtp.client-ip=209.85.208.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linuxfoundation.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="Aa0y6wdw"
-Received: by mail-qt1-f175.google.com with SMTP id d75a77b69052e-512f750d4b2so5858601cf.1
-        for <linux-s390@vger.kernel.org>; Fri, 15 May 2026 15:51:15 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="LbNC54yV"
+Received: by mail-ed1-f43.google.com with SMTP id 4fb4d7f45d1cf-6763cc8775cso3396341a12.0
+        for <linux-s390@vger.kernel.org>; Fri, 15 May 2026 16:45:57 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google; t=1778885475; x=1779490275; darn=vger.kernel.org;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=immH+g/3RYXTN+iTjjy3LaccswRoDpZE21Qsh/sCfkE=;
-        b=Aa0y6wdwQdQJLuCuY/J6Ayi18P0IsRvuPe0YESsaCTGj+OO0A5qnFHHcArUPwbkZGy
-         /3ULnMIrCpJoEetah300odJn0ZTP7zL4u931d6v530FQLI+cKc6MytplXK7f42ZNmDye
-         GYPbzLh5UN+19W7GlUtMnLQsSJDo6N8KbuHI+5McYxjwDz/40SaydbXb/viLnl8RQtMW
-         eASlY0Wmk+GSzHnhIxDOIVQ2pV9i7V29UM2YfwziWKzwA4WBsNSh8f1XNAAtawSLWvjT
-         OiG8OnZKZpXow0kNgbvekOLs0yITBrmUcJjN5cMA2Wy2UQtdit/RGN5NzF4+TYHl2Eiw
-         xnTg==
+        d=linux-foundation.org; s=google; t=1778888756; x=1779493556; darn=vger.kernel.org;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=JnoPlBIHGBifXSZSzBae7mPDjhkTo65UoK8Z/KktsdA=;
+        b=LbNC54yVn+q1f66R3AjkqsETg1uDHPIagGrvayl345adiZal/R3yHGN0KRw5r2axyY
+         4HGOFyfbPSDiGR1QKPBbkurFtZj/VA8y+i4K/sOo6kKNi2ItBwgdIhnE8oDiGS/kcCJM
+         X1pIT9jIhYI8e+6AS1ZtY1byUBWNMN+hem74Q=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778885475; x=1779490275;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=immH+g/3RYXTN+iTjjy3LaccswRoDpZE21Qsh/sCfkE=;
-        b=CdTiyAP655k7wB3/on5NyEPVcn+YgqYxbAFgx5W3E7quM+OW6YM0dGXiJwReCzEjvI
-         tljuxTCNHG4xPkZhfNQ9buevZTbub7nVYOTkGB+qIF2OExdSuYK4b7wLSBfx6NWVm455
-         ZEo+ZCloRgqhCpNWnsHs8tFmlJVIdlkD+DtIe3UhqUtfS+3Q/MD8f0a6cQruZdQFTuli
-         DbH9fbkA+SCmnOtdXXQSnQzyiWCGqnhIi4nJe9o1tMlqkgWapz4pcR1p91oXF9KrlXAT
-         SLAgeZIf8PNZhXiQiYU0iZSmVBLM3bOCMANJuhpEHYNHV67x9VXojrYzlbIhQSxT2lpq
-         fJGw==
-X-Forwarded-Encrypted: i=1; AFNElJ+ExLREckuwAg/8D8q1D0DpZGH+Mo9odMylcnd7eocbv/HwtRZo6SLoF6ItNO5cj3Aw6eYTCsVGHY9i@vger.kernel.org
-X-Gm-Message-State: AOJu0YxKC07pcYGg1n64m7o3jJENDpQyJ8siBUgTpHu5AYyXdj2ZIQmp
-	vIEYoNOXsdlkQtfQLn4/eRh5pUWQWXySETARlYNnAbUafcR5YN/JDsDH6Vox9+KIsPw=
-X-Gm-Gg: Acq92OFLVmnHDjoYGwHrocsjum7vnjqa9LqsTHCyrORPCcg86hSfl8g9KAAvmL27IFO
-	vgZ0a+5i9hs+9ezKgiXAvHn7eaRdc32gehxaRQnHqCSA+lfhOqUzr6Vjvks6vv+45OVm9dvEhzJ
-	VrKKzRnAVrrrzu48bhMMWbe4q0SC7HfF+J0PwmI3HEswRfrqrpF0oZdOZsaiTAslIsxJ0KDnQ7y
-	YQB/mWyJdum3Dp7H3710QiYcDoDmN/VaGFtvPgNvHz4BzHr/gI3NYDN85lJBmuCuMRj63suljdA
-	8OAXyY4vON1r9JwFglv8QFzaMCxf1wUEu9Eg2WaZEx6X0IZn2kOivheOFAyZ/sIt3mptG25b2Pr
-	C/jH+al/Ly+qyqqSVcQButwIHAZIgZECfUX6m+4Tu/HFEk/QIVT20WypeaS7HkfhazdVHw51hq2
-	Y4ZdNpxUQGeY2FxbeBCi9blA092QH65QRhQK6UarTm/6KsAUUKZoej5C8PN5yydbaOoFJpjA5Gm
-	1Laow==
-X-Received: by 2002:a05:622a:590c:b0:50e:fcbc:6b7e with SMTP id d75a77b69052e-5165a275f74mr79497231cf.29.1778885475017;
-        Fri, 15 May 2026 15:51:15 -0700 (PDT)
-Received: from ziepe.ca (crbknf0213w-47-54-130-67.pppoe-dynamic.high-speed.nl.bellaliant.net. [47.54.130.67])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-5164585c5e0sm56735501cf.29.2026.05.15.15.51.14
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 15 May 2026 15:51:14 -0700 (PDT)
-Received: from jgg by wakko with local (Exim 4.97)
-	(envelope-from <jgg@ziepe.ca>)
-	id 1wO1NC-00000008Fgc-00Mh;
-	Fri, 15 May 2026 19:51:14 -0300
-Date: Fri, 15 May 2026 19:51:13 -0300
-From: Jason Gunthorpe <jgg@ziepe.ca>
-To: Mostafa Saleh <smostafa@google.com>
-Cc: "Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org>,
-	iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev,
-	Robin Murphy <robin.murphy@arm.com>,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
-	Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
-	Steven Price <steven.price@arm.com>,
-	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Jiri Pirko <jiri@resnulli.us>, Petr Tesarik <ptesarik@suse.com>,
-	Alexey Kardashevskiy <aik@amd.com>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Xu Yilun <yilun.xu@linux.intel.com>, linuxppc-dev@lists.ozlabs.org,
-	linux-s390@vger.kernel.org,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org
-Subject: Re: [PATCH v4 04/13] dma: swiotlb: track pool encryption state and
- honor DMA_ATTR_CC_SHARED
-Message-ID: <20260515225113.GN7702@ziepe.ca>
-References: <20260512090408.794195-1-aneesh.kumar@kernel.org>
- <20260512090408.794195-5-aneesh.kumar@kernel.org>
- <agSKQrSIhizCXKwx@google.com>
- <20260513172450.GR7702@ziepe.ca>
- <agW2lzJI-20DyJVe@google.com>
- <20260514123529.GZ7702@ziepe.ca>
- <agXfm3mS_M3fvRrN@google.com>
+        d=1e100.net; s=20251104; t=1778888756; x=1779493556;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=JnoPlBIHGBifXSZSzBae7mPDjhkTo65UoK8Z/KktsdA=;
+        b=bz5JHDyDqJAiA1vS65NAUyt3oX5FzPB4sywIf/QBPsdO5W3Pb8rAdJ5BwQ3wuQ2TCp
+         vi6nTBNXU843hDikwPLyiO6CHC+sy7XCpHNgkujIr9Ty2+X/Ns9qiHaVKaopmN77DyQZ
+         aeFoZWvDIggP/UNy8vJ618QVn1Uqw7Km8qf8rOsmdY4tMW3V2Re8ri+AAARI2e8HOJV3
+         2sA8J9Vt69fm0az32P3YmB+XASicJ25WNlt4qIaZnX2pSeaJmGDxy34uyLKMWLiwsdoV
+         dOKzWREnixDoOpkILRi/MVAg7Gcwb+jghtBMYQ22s9OG2bM1CpFbGMuBwcrDaM1Kor0k
+         ZseA==
+X-Forwarded-Encrypted: i=1; AFNElJ/09Y+nRnwmqYMoNF2AAI4DhD1hhvQNkpu+L0LEK75wscVGY3X9lG9ndxSO67kmDHHZ+HtwKOqmYV5+@vger.kernel.org
+X-Gm-Message-State: AOJu0YyfCQEJjIb813A+sAzhc8l4+6S9mrRbt18tl7VSwBU6VsJ7/H/f
+	IWkmpt+UXP4BTSBnoNw6dFQk8PxOgA7zpheWa5qJfjia/7JkU6tahSkrXc/SauNrfq91WnHHQaJ
+	Im2ueYhs=
+X-Gm-Gg: Acq92OH0gQUhkzQLgFYh/3peZ+tZfa4aqQk+79K/89lmdLEsZoX0MHjbuyJkNJ7tA0s
+	2c/2wanz26dRO+E/T6uAQ1msUZH3/+8xwJ9YAigD+xgJDEmJCaCfTJilmCP9vxXMOa1310RxwFy
+	Il++F27H2thHeEXLDdZq6/nMyq+2T1fj0KTOwQY0t5A28qmvoumDwslRm8Kk1K8WRl99I5Du3vd
+	G5GU5RfbddyIN7wzZQmOv8bY0heR0pEjtj/RlWF9WFL4+0eLb+/iaKgT9XFHU/LGUb6O3K4M5RQ
+	yeW+gREbiW8MaPaw72ZTdAuAk9LxL8GlBnmXVCwAttoptEisp9e8Y2mBN2tuuAtqgWuax6M/fEI
+	59EDFBJxZW9VHvIlbz8pQf8PVhXKvIRVbtwEJgYBYMtxzrjEyKKNezqAszWnR0dO9Kr6W4caoqw
+	QCOFzzrWoo+EwwmBK+QIUfxuQbD0cXduXwP1H2075C0y16ApwvCi239vl9MF3VfFSxU0P8fzGI
+X-Received: by 2002:a17:907:d091:b0:bc6:bb4b:1726 with SMTP id a640c23a62f3a-bd51553a62cmr322848566b.22.1778888756421;
+        Fri, 15 May 2026 16:45:56 -0700 (PDT)
+Received: from mail-ed1-f50.google.com (mail-ed1-f50.google.com. [209.85.208.50])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-bd4f4e9175csm275247166b.55.2026.05.15.16.45.54
+        for <linux-s390@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 15 May 2026 16:45:55 -0700 (PDT)
+Received: by mail-ed1-f50.google.com with SMTP id 4fb4d7f45d1cf-67b32c695efso3408470a12.1
+        for <linux-s390@vger.kernel.org>; Fri, 15 May 2026 16:45:54 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AFNElJ8tN5Bed7JuxTfuHYYmxYyJokYqGZTZ/FI6fcfE+X9BXwTK7OkaQBfBx3V7BZoxDcS5WoSftQ23gUNv@vger.kernel.org
+X-Received: by 2002:a17:907:c10:b0:bd1:f09f:f819 with SMTP id
+ a640c23a62f3a-bd4f34bd039mr495323566b.25.1778888754734; Fri, 15 May 2026
+ 16:45:54 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <agXfm3mS_M3fvRrN@google.com>
+References: <20260511214226.937793-1-minchan@kernel.org> <20260515-nachdenken-umbenannt-a90006a46e14@brauner>
+ <agd--WZpeTq2iKFW@redhat.com> <agefLhQeWpvil14M@google.com>
+In-Reply-To: <agefLhQeWpvil14M@google.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Date: Fri, 15 May 2026 16:45:38 -0700
+X-Gmail-Original-Message-ID: <CAHk-=wiHfzbufXD2nuc9BhOVp-pYEmnVUYeThKmfZRXLU0kJ7w@mail.gmail.com>
+X-Gm-Features: AVHnY4ISab34jjbhdpMRq24hfEjl9hP1VDaCyqC4-uWVI2wdpSycH5ojtzu1j7I
+Message-ID: <CAHk-=wiHfzbufXD2nuc9BhOVp-pYEmnVUYeThKmfZRXLU0kJ7w@mail.gmail.com>
+Subject: Re: [PATCH v3] mm: process_mrelease: introduce PROCESS_MRELEASE_REAP_KILL
+ flag
+To: Minchan Kim <minchan@kernel.org>
+Cc: Oleg Nesterov <oleg@redhat.com>, Christian Brauner <brauner@kernel.org>, Jann Horn <jannh@google.com>, 
+	akpm@linux-foundation.org, hca@linux.ibm.com, linux-s390@vger.kernel.org, 
+	david@kernel.org, mhocko@suse.com, linux-mm@kvack.org, 
+	linux-kernel@vger.kernel.org, surenb@google.com, timmurray@google.com
+Content-Type: text/plain; charset="UTF-8"
 
-On Thu, May 14, 2026 at 02:43:39PM +0000, Mostafa Saleh wrote:
-> > That's a somewhat different problem, we have the dev->trusted stuff
-> > that is supposed to deal with this kind of security. We need it for
-> > IOMMU based systems too, eg hot plug thunderbolt should have it.
-> 
-> I see that it is used only for dma-iommu and for PCI devices.
-> However, I think that should be a problem with other CCA solutions
-> with emulated devices as they are untrusted. As I'd expect they
-> would have virtio devices.
+On Fri, 15 May 2026 at 15:33, Minchan Kim <minchan@kernel.org> wrote:
+>
+> I hope thisclarifies the motivation and mechanics behind this issue.
 
-Yes, any security solution with an out of TCB device should be using either
-memory encryption so the kernel already bounces or this trusted stuff
-and a force strict dma-iommu so the dma layer is careful.
+This still seems very hacky and a complete special case for one odd situation.
 
-This is more policy from userspace what devices they want in or out of
-their TCB. Like you make accept the device into T=1 but then still
-want to keep it out of your TCB with the vIOMMU, I can see good
-arguments for something like that.
+This all sounds like it's just because smap is a pig.
 
-> > > While we can debate the aesthetics of the setup , this is
-> > > the exisitng behaviour for Linux, which existed for years
-> > > and pKVM relies on and is used extensively.
-> > > And, this patch alters that long-standing logic and introduces
-> > > a functional regression.
-> > 
-> > Yeah, Aneesh needs to do something here, I'm pointing out it is
-> > entirely seperate thing from the CC path we are working on which is
-> > decoupling CC from reylying on force swiotlb.
-> 
-> I am looking into converting pKVM to use the CC stuff, I replied with
-> a patch to Aneesh in this thread. However, I need to do more testing
-> and make sure there are not any unwanted consequences.
+And yes, smap *is* a pig, but it should be trivial to just fix smap
+for this case - fix the problem spot, don't add new horrid logic
+elsewhere.
 
-Yeah, it is a nice patch and I think it will help reduce the
-complexity if it aligns to CCA type stuff.
+I really think the fix is to fix smap instead.
 
-> > In a pkvm world it should be the same, the S2 table for the SMMU will
-> > control what the device can access, and if the SMMU points to a
-> > "private" or "shared" page is not something the device needs to know
-> > or care about.
-> 
-> I see that's because dma-iommu chooses the attrs for iommu_map().
+And I think smap is doing odd things. For example, it does
 
-Long term the DMA API path through the dma-iommu will pass the
-ATTR_CC_SHARED through to iommu_map so when the arch requires a
-different IOPTE it can construct it.
+   pid_smaps_open -> do_maps_open -> proc_mem_open
 
-> In pKVM, dma_addr_t and IOPTE are the same for private and shared,
-> so nothing differs in that case.
+and that proc_mem_open() takes that long-term ref to the mm. And then
+does various memory allocations - and copying data to user space -
+under that long-term ref, which is presumably what causes all the
+latency issues.
 
-Yes, so you don't have to worry.
+But it doesn't actually seem to *need* a long-term ref to the mm. The
+seqfile interface is designed so that it should all be chunkable, and
+the locks and refs should be done at m_start/m_end time.
 
-> We don’t expect pass-through devices to interact with shared
-> memory (T=0) at the moment.
-> However, I can see use cases for that, where the host and the guest
-> collaborate with device passthrough and require zero copy.
+And the smap / maps m_start and m_end functions already *almost* seem
+to do that. They literally look up the task again with
 
-Once you add the CC patch it becomes immediately possible though
-because the user can allocate a CC shared DMA HEAP and feed that all
-over the place.
+        priv->task = get_proc_task(priv->inode);
 
-> One other interesting case for device-passthrough is non-coherent
-> devices which then require private pools for bouncing.
+etc, but then they do that odd
 
-Why does shared/private matter for bouncing? Why do you need to bounce
-at all? Do cmo's not work in pkvm guests?
+        lock_ctx = &priv->lock_ctx;
+        mm = lock_ctx->mm;
+        if (!mm || !mmget_not_zero(mm)) {
+                put_task_struct(priv->task);
+                priv->task = NULL;
+                return NULL;
+        }
 
-Jason
+dance (where lock_ctx->mm is literally that long-term ref we hold).
+
+And I don't see why they need to do any of this. I think it's all a
+historical accident.
+
+Because I think it could look up the mm from the task pointer every
+time, without holding that long-term ref from proc_mem_open() at all.
+
+IOW, at open time, we could save off the "this is the mm I opened",
+but *without* any refcount, and then just verify that "yes, the task
+mm still matches". No long-term refs anywhere.
+
+Yes, yes, we'd need some sequence counter for when the mm changes due
+to execve, but *that* should be absolutely trivial.
+
+And wouldn't that make all of this go away entirely? And probably
+clean up the code at the same time?
+
+I think the only reason "proc_mem_open()" does what it does was that
+it was simple. Not because it was a good idea.
+
+                   Linus
