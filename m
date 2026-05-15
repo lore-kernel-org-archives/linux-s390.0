@@ -1,40 +1,40 @@
 Received: from stravinsky.debian.org (stravinsky.debian.org [82.195.75.108])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 94F0A40FD8F;
-	Fri, 15 May 2026 08:33:57 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 16D9840245C;
+	Fri, 15 May 2026 08:34:05 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=82.195.75.108
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778834039; cv=none; b=TQuYVkgxaJUQ4OHrol+QUsSTNMjYxxyPEfSt2FvLatVpTINT8JuGgf3hzdS3Ue+iWRjNQorYT1y9AYhul7XNd+4Q+7IjV3+ZiCF5bpAQVyEC4s5PTe2mAAWL9DNlsvRfyCEge38C5GTDfO4fQQSXfCA2oNNbOnw63ZK1hXtHXpo=
+	t=1778834047; cv=none; b=ckp9nHVhuDcJTMgclVGoJ0jLluwS4Kzr2gIE8wWdLy1JuQCnP0VDnbbsJ0uY/4pAVo5tbgS/AtGP70LdJpvUK7BEb7fQmbx+/kZoxzssfhycyZw/eannJHMdg7SNpz4Eq3UQPFA45F87g1PHRNA4egra5uubNWISziuAu9VcOgE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778834039; c=relaxed/simple;
-	bh=mLjMS8AXXQWWpHQvJDt9wZGN1YLyFgu0AP5yDHz+tM8=;
+	s=arc-20240116; t=1778834047; c=relaxed/simple;
+	bh=W56Zt/m5WtA6ZtxQtbYwmAFL4lHK2Y63RhGd2qkl1no=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=OGkEK0pZgWJ682wvIptGadgHT87Y51AyDqqGksPDG6bH5UPOwID3c6OLXGnmKKUyWVuv8vPQxF8OCP5dmaavFyVthBxn3VNeeyd1qm0DSy8kWbzny3d3FMOylwmtdJ6AWenboNxu1xeormAv3kgukcmYoUJz/dIjsEUtyE+WcKI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=debian.org; spf=pass smtp.mailfrom=debian.org; dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.b=lZTX8sEF; arc=none smtp.client-ip=82.195.75.108
+	 In-Reply-To:To:Cc; b=Trst1dH48NnzQy/NFLzBVdGS64wKkE9on3LALoR8jsk9PgjOHHx5ICt4LHTkt3J0t9qIGjxyxMlXCXcFanDK7RxPH4CoCWICMxW4gi28AMTFd+qonzWuLv8fUTNEXO0Kc9FhwNQ9ZK0tOz6w6Lff7z5yfOJwQF2W0/wTwv20tWU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=debian.org; spf=pass smtp.mailfrom=debian.org; dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.b=X1Xwegh/; arc=none smtp.client-ip=82.195.75.108
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=debian.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=debian.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.b="lZTX8sEF"
+	dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.b="X1Xwegh/"
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=debian.org;
 	s=smtpauto.stravinsky; h=X-Debian-User:Cc:To:In-Reply-To:References:
 	Message-Id:Content-Transfer-Encoding:Content-Type:MIME-Version:Subject:Date:
 	From:Reply-To:Content-ID:Content-Description;
-	bh=6WroK2SRMCzSY7s1w6oOlAckh2hz3l6QOa4ze9nZxOw=; b=lZTX8sEFA55RG+THVuKsgwkx8j
-	a5Ecrndzgg5Wbncj86IDoxjltKG5Tqmp/d5xK4AeGVsrD2Xzvi1vvKaaKXGLKQcALzLXRuOMm4TVp
-	F03DAc9nZEejo6dt7KBDtqxujokoSoVqKtwcGsngH3xHQcrWiecbwtqZg2iim0QNG6W2LDTBBdUaZ
-	byI3DHxDIty1j2iaYoeN8q8t3H69aKUqNNSVMOAKLtLmUvAZ1vSX+5q6/BU4mLsGzM2K+EgcT5PYQ
-	1lbISls1XnrWj4pLOB4Pd97BhmvD+EZ9j66O2+JQXlRARDN+0+6iXXdtCtqi14iuPjbUzAt0YZNot
-	YmVS/4yQ==;
+	bh=L1ykyjVwNL5KxggtxIRFk0UAsUP7TQjsS7m6hNH6g0o=; b=X1Xwegh/TbtDYviH9UXIL/zJE0
+	K1elmZG+B9gSV6cVWWrlJdRjC+D6E6e+iXBWLIDgsjlHPJzBKeHgkwYgTfQqeEQ6hZ6AtbAUAcSkX
+	b2vCCbZn/zl+R4+T1uFSzN42+Lo7qDknMBhT7DH8P6XqK/WsKyranuS25mMOM0alFc29ELA/yOiDT
+	r8IxUGywom0LHJBW4FRkZ83vXDcj+64CpdqrTVp4/HvNTZPaFq/WoGOylGmKAEJI/ylpsihbDF2KM
+	rz/ac3gQ4oidh5JaHBjKBNZgBQAvcusHIOKWNBLrqDgYpOuL1ne10L/rIuOl+De5CD0M5tcXN6BBV
+	+GSFhstA==;
 Received: from authenticated user
 	by stravinsky.debian.org with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
 	(Exim 4.96)
 	(envelope-from <leitao@debian.org>)
-	id 1wNnzO-004b9h-1t;
-	Fri, 15 May 2026 08:33:46 +0000
+	id 1wNnzV-004bCh-0b;
+	Fri, 15 May 2026 08:33:53 +0000
 From: Breno Leitao <leitao@debian.org>
-Date: Fri, 15 May 2026 01:32:28 -0700
-Subject: [PATCH net-next v2 4/7] xdp: convert to getsockopt_iter
+Date: Fri, 15 May 2026 01:32:29 -0700
+Subject: [PATCH net-next v2 5/7] l2tp: ppp: convert to getsockopt_iter
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -43,7 +43,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260515-getsock_four-v2-4-0d8eed952627@debian.org>
+Message-Id: <20260515-getsock_four-v2-5-0d8eed952627@debian.org>
 References: <20260515-getsock_four-v2-0-0d8eed952627@debian.org>
 In-Reply-To: <20260515-getsock_four-v2-0-0d8eed952627@debian.org>
 To: Chas Williams <3chas3@gmail.com>, 
@@ -67,25 +67,25 @@ Cc: linux-atm-general@lists.sourceforge.net, netdev@vger.kernel.org,
  linux-afs@lists.infradead.org, oe-linux-nfc@lists.linux.dev, 
  Breno Leitao <leitao@debian.org>, kernel-team@meta.com
 X-Mailer: b4 0.16-dev-d5d98
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2887; i=leitao@debian.org;
- h=from:subject:message-id; bh=mLjMS8AXXQWWpHQvJDt9wZGN1YLyFgu0AP5yDHz+tM8=;
- b=owEBbQKS/ZANAwAIATWjk5/8eHdtAcsmYgBqBtpK1LnbS49KtCbUe6Gz0SZPIqNo5LB4637FB
- zfwXecNSneJAjMEAAEIAB0WIQSshTmm6PRnAspKQ5s1o5Of/Hh3bQUCagbaSgAKCRA1o5Of/Hh3
- bc1WD/4vl/DjHTDe+El9I1dIWtMFioM9nJ33C04jOEmQFAwhhlHABqOOeGm4lmeiZmIJOhK33v/
- pJuPZEwUtCTXhbgbwVJ5eRWdT64CbkUnU0zwEL1Mn1rztJ0h5Jb8aQ6NJIGiCVE5Ge1aXk1sSXi
- vNbf4KXPAWhZ9SmoWUex4mxz38eIKx9cb41ueMPbW28zwiZHKkN/askvuHBVwZKvsuFIfDYuJuA
- Ozp1GYngGxV2mCIj8rtatl56axnk9l2mwex0m4tdb0TDaFGBGza544EDfQRBnR4EA/AO3suaxUt
- fJBz8C+K54GK//L4yOP8AhAQrb5YRWXXW/kDkls9KmXAQiDk2KtDN5GYvfk0Kt5yct3VKNd0KOG
- C9B8E2oqkDkvhaXOjN/gY/AIutyY1RRvvab1yybyCFkMpSi8wk4p+B6ISRtdqXm16N9T+IP2bPL
- R5ozucfTquAFmYnsxX4TkC4HBaJh0w30ONm4+04poDEkcUKOd/oK98FWop4kSh+5koiwGqyJy0F
- p4b4ST2UyN+yGjM8/KnCOPF5Lj3VTmMh6HlMyhagEncG5j5iBR9boeEi7GpxqsFHSGrjwbLs2/T
- fsSQq9AqsGvPn9L682zevtg7TiZAPgOpm6hviTc5f6S2KyWnAn+ZNKZHfzt8aNh8ShoT8ek4b7J
- 42DZyAcytJzye0w==
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2293; i=leitao@debian.org;
+ h=from:subject:message-id; bh=W56Zt/m5WtA6ZtxQtbYwmAFL4lHK2Y63RhGd2qkl1no=;
+ b=owEBbQKS/ZANAwAIATWjk5/8eHdtAcsmYgBqBtpKrXuQgkErmGkxOiLZxQOPdS8pY3yJg3A78
+ lMJR51CnjaJAjMEAAEIAB0WIQSshTmm6PRnAspKQ5s1o5Of/Hh3bQUCagbaSgAKCRA1o5Of/Hh3
+ bXFAD/92DWue4VjunUMMpAytLhzekJP19SL0ruIm/U9TKHSCNpdyENK1ekXLPUdNNqqe7gaqqo6
+ MULBfINYTK4NnP6Fj6fs1KBDuSJ3nXPGfFlWSiFbAf/ubsMFMRYZc3yC8hYxWQzWA5GnmNqVXyd
+ shgXjXNp0j27c09rTp72iHQX5scphj63UyhYD32VyzuF8STaAuF2qlBMbntPD0F8AuiA726ZbHF
+ fp8c61U4b6/TaAPxEA8ZKN8gBRgKiDdnS4cDU3w2fi2gQ72bN4VLw+oKu3Eh9F0msGPwhkCbIfU
+ Hsu0CmiuyS6dPdAtEr36Kk/1NUKz1WWSEPDS2281WpING0LEy3Q+ju052ccDkloer9n5TXBMgQX
+ yqncvXwLsPcOQsJTjWym77aT/1yn73+9/wT0poNFXiMIE/DtS9sUbj/3C2pVAGUcrAEkPi2SCat
+ Ycg35HAl80OaQINZIKZ0YWy8CwWIv+49b9bVNPY50lBNpPcia+HFr0G19CdeTaYTG3OuNQo4qFM
+ cAb9vB+YiiQZXdQKGJ10jYihBPtMdh5yRZNEkRUtS7OeWd898d1cgNL+2GKTs/lBL7FFyVRH9Ar
+ fp71LjyBMgEIIAO6LGXa4yet5FvUZF7f+F3Xwm8LGWVHWjhLLQCTW5QiKZMFa/uwLeS2dWft+i9
+ 9B9IptAT8OmhwHA==
 X-Developer-Key: i=leitao@debian.org; a=openpgp;
  fpr=AC8539A6E8F46702CA4A439B35A3939FFC78776D
 X-Debian-User: leitao
 
-Convert XDP socket's getsockopt implementation to use the new
+Convert PPPoL2TP socket's getsockopt implementation to use the new
 getsockopt_iter callback with sockopt_t.
 
 Key changes:
@@ -96,89 +96,68 @@ Key changes:
 Acked-by: Stanislav Fomichev <sdf@fomichev.me>
 Signed-off-by: Breno Leitao <leitao@debian.org>
 ---
- net/xdp/xsk.c | 24 +++++++++++-------------
- 1 file changed, 11 insertions(+), 13 deletions(-)
+ net/l2tp/l2tp_ppp.c | 20 +++++++-------------
+ 1 file changed, 7 insertions(+), 13 deletions(-)
 
-diff --git a/net/xdp/xsk.c b/net/xdp/xsk.c
-index 5e5786cd9af55..77f8de054a1be 100644
---- a/net/xdp/xsk.c
-+++ b/net/xdp/xsk.c
-@@ -22,6 +22,7 @@
- #include <linux/net.h>
- #include <linux/netdevice.h>
- #include <linux/rculist.h>
+diff --git a/net/l2tp/l2tp_ppp.c b/net/l2tp/l2tp_ppp.c
+index 99d6582f41de2..46143e882af5e 100644
+--- a/net/l2tp/l2tp_ppp.c
++++ b/net/l2tp/l2tp_ppp.c
+@@ -59,6 +59,7 @@
+ #include <linux/string.h>
+ #include <linux/list.h>
+ #include <linux/uaccess.h>
 +#include <linux/uio.h>
- #include <linux/vmalloc.h>
  
- #include <net/netdev_queues.h>
-@@ -1729,7 +1730,7 @@ struct xdp_statistics_v1 {
- };
- 
- static int xsk_getsockopt(struct socket *sock, int level, int optname,
--			  char __user *optval, int __user *optlen)
-+			  sockopt_t *opt)
+ #include <linux/kernel.h>
+ #include <linux/spinlock.h>
+@@ -1317,7 +1318,7 @@ static int pppol2tp_session_getsockopt(struct sock *sk,
+  * or the special tunnel type.
+  */
+ static int pppol2tp_getsockopt(struct socket *sock, int level, int optname,
+-			       char __user *optval, int __user *optlen)
++			       sockopt_t *opt)
  {
  	struct sock *sk = sock->sk;
- 	struct xdp_sock *xs = xdp_sk(sk);
-@@ -1738,8 +1739,7 @@ static int xsk_getsockopt(struct socket *sock, int level, int optname,
- 	if (level != SOL_XDP)
- 		return -ENOPROTOOPT;
+ 	struct l2tp_session *session;
+@@ -1328,9 +1329,7 @@ static int pppol2tp_getsockopt(struct socket *sock, int level, int optname,
+ 	if (level != SOL_PPPOL2TP)
+ 		return -EINVAL;
  
 -	if (get_user(len, optlen))
 -		return -EFAULT;
+-
 +	len = opt->optlen;
  	if (len < 0)
  		return -EINVAL;
  
-@@ -1773,10 +1773,10 @@ static int xsk_getsockopt(struct socket *sock, int level, int optname,
- 		stats.tx_invalid_descs = xskq_nb_invalid_descs(xs->tx);
- 		mutex_unlock(&xs->mutex);
- 
--		if (copy_to_user(optval, &stats, stats_size))
--			return -EFAULT;
--		if (put_user(stats_size, optlen))
-+		if (copy_to_iter(&stats, stats_size, &opt->iter_out) !=
-+		    stats_size)
- 			return -EFAULT;
-+		opt->optlen = stats_size;
- 
- 		return 0;
+@@ -1358,14 +1357,9 @@ static int pppol2tp_getsockopt(struct socket *sock, int level, int optname,
+ 			goto end_put_sess;
  	}
-@@ -1825,10 +1825,9 @@ static int xsk_getsockopt(struct socket *sock, int level, int optname,
- 			to_copy = &off_v1;
- 		}
  
--		if (copy_to_user(optval, to_copy, len))
--			return -EFAULT;
--		if (put_user(len, optlen))
-+		if (copy_to_iter(to_copy, len, &opt->iter_out) != len)
- 			return -EFAULT;
-+		opt->optlen = len;
+-	err = -EFAULT;
+-	if (put_user(len, optlen))
+-		goto end_put_sess;
+-
+-	if (copy_to_user((void __user *)optval, &val, len))
+-		goto end_put_sess;
+-
+-	err = 0;
++	opt->optlen = len;
++	if (copy_to_iter(&val, len, &opt->iter_out) != len)
++		err = -EFAULT;
  
- 		return 0;
- 	}
-@@ -1845,10 +1844,9 @@ static int xsk_getsockopt(struct socket *sock, int level, int optname,
- 		mutex_unlock(&xs->mutex);
- 
- 		len = sizeof(opts);
--		if (copy_to_user(optval, &opts, len))
--			return -EFAULT;
--		if (put_user(len, optlen))
-+		if (copy_to_iter(&opts, len, &opt->iter_out) != len)
- 			return -EFAULT;
-+		opt->optlen = len;
- 
- 		return 0;
- 	}
-@@ -1949,7 +1947,7 @@ static const struct proto_ops xsk_proto_ops = {
+ end_put_sess:
+ 	l2tp_session_put(session);
+@@ -1634,7 +1628,7 @@ static const struct proto_ops pppol2tp_ops = {
  	.listen		= sock_no_listen,
  	.shutdown	= sock_no_shutdown,
- 	.setsockopt	= xsk_setsockopt,
--	.getsockopt	= xsk_getsockopt,
-+	.getsockopt_iter = xsk_getsockopt,
- 	.sendmsg	= xsk_sendmsg,
- 	.recvmsg	= xsk_recvmsg,
- 	.mmap		= xsk_mmap,
+ 	.setsockopt	= pppol2tp_setsockopt,
+-	.getsockopt	= pppol2tp_getsockopt,
++	.getsockopt_iter = pppol2tp_getsockopt,
+ 	.sendmsg	= pppol2tp_sendmsg,
+ 	.recvmsg	= pppol2tp_recvmsg,
+ 	.mmap		= sock_no_mmap,
 
 -- 
 2.53.0-Meta
