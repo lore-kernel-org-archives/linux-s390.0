@@ -1,67 +1,68 @@
-Received: from mail-ed1-f43.google.com (mail-ed1-f43.google.com [209.85.208.43])
+Received: from mail-ej1-f51.google.com (mail-ej1-f51.google.com [209.85.218.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28AE7405C21
-	for <linux-s390@vger.kernel.org>; Fri, 15 May 2026 23:45:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A32E514883F
+	for <linux-s390@vger.kernel.org>; Sat, 16 May 2026 00:00:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778888759; cv=none; b=hgprEXmDAWIpfgaxSY3iK5fJmnTGz04hD0QoESVD1ARnTs+94vr+4JFvEysgAwvq3+7xYMj/EdYG8rF5axifoh1nW4djSic9svlr9sPb9yefm0hCm1MiuiGJOAwLrkbgY+C5YEaXY2TRQf3BMXNqZWzPiNWkAud4cP/nZmGd3dI=
+	t=1778889644; cv=none; b=QKcEM/WVOb0ehQZMzx58gviR0u0LthY2nZibK9EoEWpYc58DNc24ruqK8i3yOrygwOfW469YLEBMjdTPdf5EtLYiCFE3YrkAG6aMS1F3TGS5zEM20pFv7gOL9n3r2wm899Ab+1TKuVEZDthYF2J/oMnnaUc4h5iZK56Grkpt9Kw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778888759; c=relaxed/simple;
-	bh=kDfFFhlbQ9JRwkWYtPQHXJsCxysa9jjnPwXQpLDaJec=;
+	s=arc-20240116; t=1778889644; c=relaxed/simple;
+	bh=6rznG3Hjk+yGQyMwPaLeWCQYPVbc8eXonwcNrAiTbgg=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Q+oU4KfPULhDOD2iKALyDxYlFvs+pN3V6eNOJ5J8Dv6h+7ncGUpajYIyGebeX1OeVjsfk69CKKGU/b7SdHsGRQOvau3EY3x347/qNfri3NST9VjD9PQX1VASO1lUdXsbC76YYFCzbqM+osO61m6naPzTpfRUA0FXk13lc0a+ygA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org; spf=pass smtp.mailfrom=linuxfoundation.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=LbNC54yV; arc=none smtp.client-ip=209.85.208.43
+	 To:Cc:Content-Type; b=kRcp5NIYsg9NGEo47yLy2ypxV8JQZyRDUd2jP8VOO0A5AE62zO/TB8atfUvEiqlB435thvcmwJdzyLSg0IGlnHQDH7yjz/QFiVEjLHbKItaO49twmLJO2yU96E8ApkRqBPBLC8gm/dSzg7xdv7k0aqvHc3cj75dDXlWiE9Ts+Vc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org; spf=pass smtp.mailfrom=linuxfoundation.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=IJu4HCCm; arc=none smtp.client-ip=209.85.218.51
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linuxfoundation.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="LbNC54yV"
-Received: by mail-ed1-f43.google.com with SMTP id 4fb4d7f45d1cf-6763cc8775cso3396341a12.0
-        for <linux-s390@vger.kernel.org>; Fri, 15 May 2026 16:45:57 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="IJu4HCCm"
+Received: by mail-ej1-f51.google.com with SMTP id a640c23a62f3a-bd394f4a931so90810066b.2
+        for <linux-s390@vger.kernel.org>; Fri, 15 May 2026 17:00:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google; t=1778888756; x=1779493556; darn=vger.kernel.org;
+        d=linux-foundation.org; s=google; t=1778889641; x=1779494441; darn=vger.kernel.org;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=JnoPlBIHGBifXSZSzBae7mPDjhkTo65UoK8Z/KktsdA=;
-        b=LbNC54yVn+q1f66R3AjkqsETg1uDHPIagGrvayl345adiZal/R3yHGN0KRw5r2axyY
-         4HGOFyfbPSDiGR1QKPBbkurFtZj/VA8y+i4K/sOo6kKNi2ItBwgdIhnE8oDiGS/kcCJM
-         X1pIT9jIhYI8e+6AS1ZtY1byUBWNMN+hem74Q=
+        bh=uW71oVHB30vt4EIgGt8pF2rmJSEtvt4hUFu3tv0VEdo=;
+        b=IJu4HCCmpl2WgIA+jggek72vBrdZzMjsOQEtO3HZ7z00vKqPj1dROPYdnhRu56cc/V
+         rlb5UVeG7aADOAGkn9pTDXv3KQft9vGxGet2iCpRSkmhV7FUzMbQ1efxNzUFUSqtK7bF
+         X0zwEdcQ/upzOqPrXEl/zJXfrlMxl0sLGdvP8=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778888756; x=1779493556;
+        d=1e100.net; s=20251104; t=1778889641; x=1779494441;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=JnoPlBIHGBifXSZSzBae7mPDjhkTo65UoK8Z/KktsdA=;
-        b=bz5JHDyDqJAiA1vS65NAUyt3oX5FzPB4sywIf/QBPsdO5W3Pb8rAdJ5BwQ3wuQ2TCp
-         vi6nTBNXU843hDikwPLyiO6CHC+sy7XCpHNgkujIr9Ty2+X/Ns9qiHaVKaopmN77DyQZ
-         aeFoZWvDIggP/UNy8vJ618QVn1Uqw7Km8qf8rOsmdY4tMW3V2Re8ri+AAARI2e8HOJV3
-         2sA8J9Vt69fm0az32P3YmB+XASicJ25WNlt4qIaZnX2pSeaJmGDxy34uyLKMWLiwsdoV
-         dOKzWREnixDoOpkILRi/MVAg7Gcwb+jghtBMYQ22s9OG2bM1CpFbGMuBwcrDaM1Kor0k
-         ZseA==
-X-Forwarded-Encrypted: i=1; AFNElJ/09Y+nRnwmqYMoNF2AAI4DhD1hhvQNkpu+L0LEK75wscVGY3X9lG9ndxSO67kmDHHZ+HtwKOqmYV5+@vger.kernel.org
-X-Gm-Message-State: AOJu0YyfCQEJjIb813A+sAzhc8l4+6S9mrRbt18tl7VSwBU6VsJ7/H/f
-	IWkmpt+UXP4BTSBnoNw6dFQk8PxOgA7zpheWa5qJfjia/7JkU6tahSkrXc/SauNrfq91WnHHQaJ
-	Im2ueYhs=
-X-Gm-Gg: Acq92OH0gQUhkzQLgFYh/3peZ+tZfa4aqQk+79K/89lmdLEsZoX0MHjbuyJkNJ7tA0s
-	2c/2wanz26dRO+E/T6uAQ1msUZH3/+8xwJ9YAigD+xgJDEmJCaCfTJilmCP9vxXMOa1310RxwFy
-	Il++F27H2thHeEXLDdZq6/nMyq+2T1fj0KTOwQY0t5A28qmvoumDwslRm8Kk1K8WRl99I5Du3vd
-	G5GU5RfbddyIN7wzZQmOv8bY0heR0pEjtj/RlWF9WFL4+0eLb+/iaKgT9XFHU/LGUb6O3K4M5RQ
-	yeW+gREbiW8MaPaw72ZTdAuAk9LxL8GlBnmXVCwAttoptEisp9e8Y2mBN2tuuAtqgWuax6M/fEI
-	59EDFBJxZW9VHvIlbz8pQf8PVhXKvIRVbtwEJgYBYMtxzrjEyKKNezqAszWnR0dO9Kr6W4caoqw
-	QCOFzzrWoo+EwwmBK+QIUfxuQbD0cXduXwP1H2075C0y16ApwvCi239vl9MF3VfFSxU0P8fzGI
-X-Received: by 2002:a17:907:d091:b0:bc6:bb4b:1726 with SMTP id a640c23a62f3a-bd51553a62cmr322848566b.22.1778888756421;
-        Fri, 15 May 2026 16:45:56 -0700 (PDT)
-Received: from mail-ed1-f50.google.com (mail-ed1-f50.google.com. [209.85.208.50])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-bd4f4e9175csm275247166b.55.2026.05.15.16.45.54
+        bh=uW71oVHB30vt4EIgGt8pF2rmJSEtvt4hUFu3tv0VEdo=;
+        b=E9t+4hu5JO1ZrYah8YUtEUbBiALP+MDLAJPfra8VfyQRMdMb+PtU36y/yFJIOd5Mo0
+         ADqfsm53Xo3gdaeqM9DDBzp7vDi7kBBKRSE+VSn29mTlUWHzvx/+gRx9baqevBBDvOWw
+         F5F+dWVvA6otidvDvK245QVs+dsx3pkkumSIRminaxTsKa12MCzwtpxane7yG5oydfov
+         DilZEEnLwawX+fxHnYtLDqdIDURTmWUKGDwcnZJns1kiJdsXR0fTpQp6Xuh5aFlbLUYi
+         G73T/LevMofk4YzsZQB0dgGHKKRTouMBNN2cufwDvDGiR9Df1emjwWbHDfK/HkedowAq
+         t5RQ==
+X-Forwarded-Encrypted: i=1; AFNElJ/8eH1F07MyGWVGk5IWDDT+nfUunh6/SjMjcShP9gaUBTwqIalZ28MAuE7TGoYh/S9q6X5ZDHhFcB5n@vger.kernel.org
+X-Gm-Message-State: AOJu0YxZGNy+BRzwerhVHqlPaFKbpiyRXkZPkCGr0loeIyNx+o3suX6h
+	zfjl04so6IDr994qRpvY5MTvrU07gn84XArmsUdTfW+x3OC5Yf1gXt0JdrjXsZnLwL9WST81scd
+	DGmD1Sq0=
+X-Gm-Gg: Acq92OGpfTxeKzRfkoTbs7lrUIjSkDuwI/p2o10h+gOHbEV3WfjWjmXROo4y43V9/uY
+	xKF+7i0fasLUTeradxN6QqXkz5hVIapXdVii9I8S5oTeay5FivfuQmch0Cceq9NoYMIB6Wjl0oi
+	1eaEXPRkAl0Yywl/Oy/lvlQPalFOx2Q25vIcdJkj/x+lCRdIPRQgGKATHROYhjb4uhrWwi7YORS
+	JdkU3zyW4EFOdtOL7E9YlzqpXMs7N8vDc3lj3crjNVvxAjFzu6SsEtenPaUYNZC7QaTZkz4ZguM
+	CDZjx/OUg+O2leO8fn9zkYup9kU3HKtyYF3f/YSLTr+W2CKfBulxNiOMktwv85vUgzgk1JvsZFV
+	jVPKzp3xFX3IllPouASB891V7Tn4PBmIMJuoFe08oFuo/3EfYcGET59KBc04a7xKUv1seGGxjgp
+	0SJD9whSAZZ6FEqcISwiYmrFN79qXaPQEf5p3tUC87v2kQ/uZsSPuyt5zKrUXuCJcDcdYVZGEeT
+	iQ3OKsU5xc=
+X-Received: by 2002:a17:907:c8c7:b0:bac:3bb7:268b with SMTP id a640c23a62f3a-bd517aa8873mr359805666b.38.1778889641064;
+        Fri, 15 May 2026 17:00:41 -0700 (PDT)
+Received: from mail-ed1-f43.google.com (mail-ed1-f43.google.com. [209.85.208.43])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-bd4f4c3150dsm286493566b.24.2026.05.15.17.00.37
         for <linux-s390@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 15 May 2026 16:45:55 -0700 (PDT)
-Received: by mail-ed1-f50.google.com with SMTP id 4fb4d7f45d1cf-67b32c695efso3408470a12.1
-        for <linux-s390@vger.kernel.org>; Fri, 15 May 2026 16:45:54 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AFNElJ8tN5Bed7JuxTfuHYYmxYyJokYqGZTZ/FI6fcfE+X9BXwTK7OkaQBfBx3V7BZoxDcS5WoSftQ23gUNv@vger.kernel.org
-X-Received: by 2002:a17:907:c10:b0:bd1:f09f:f819 with SMTP id
- a640c23a62f3a-bd4f34bd039mr495323566b.25.1778888754734; Fri, 15 May 2026
- 16:45:54 -0700 (PDT)
+        Fri, 15 May 2026 17:00:39 -0700 (PDT)
+Received: by mail-ed1-f43.google.com with SMTP id 4fb4d7f45d1cf-67bc8609a9bso1053779a12.0
+        for <linux-s390@vger.kernel.org>; Fri, 15 May 2026 17:00:37 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AFNElJ+EQbrs2LQuynKYrcLX0QNNmDyF6sxAjR768JlvtunepNqBb5qwG8A6xmjgeurdnuhgbA6FiV1wuf37@vger.kernel.org
+X-Received: by 2002:a17:907:3cc2:b0:ba9:2611:31e6 with SMTP id
+ a640c23a62f3a-bd51780c5bemr340822766b.6.1778889637242; Fri, 15 May 2026
+ 17:00:37 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -69,13 +70,13 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 References: <20260511214226.937793-1-minchan@kernel.org> <20260515-nachdenken-umbenannt-a90006a46e14@brauner>
- <agd--WZpeTq2iKFW@redhat.com> <agefLhQeWpvil14M@google.com>
-In-Reply-To: <agefLhQeWpvil14M@google.com>
+ <agd--WZpeTq2iKFW@redhat.com> <agefLhQeWpvil14M@google.com> <CAHk-=wiHfzbufXD2nuc9BhOVp-pYEmnVUYeThKmfZRXLU0kJ7w@mail.gmail.com>
+In-Reply-To: <CAHk-=wiHfzbufXD2nuc9BhOVp-pYEmnVUYeThKmfZRXLU0kJ7w@mail.gmail.com>
 From: Linus Torvalds <torvalds@linux-foundation.org>
-Date: Fri, 15 May 2026 16:45:38 -0700
-X-Gmail-Original-Message-ID: <CAHk-=wiHfzbufXD2nuc9BhOVp-pYEmnVUYeThKmfZRXLU0kJ7w@mail.gmail.com>
-X-Gm-Features: AVHnY4ISab34jjbhdpMRq24hfEjl9hP1VDaCyqC4-uWVI2wdpSycH5ojtzu1j7I
-Message-ID: <CAHk-=wiHfzbufXD2nuc9BhOVp-pYEmnVUYeThKmfZRXLU0kJ7w@mail.gmail.com>
+Date: Fri, 15 May 2026 17:00:20 -0700
+X-Gmail-Original-Message-ID: <CAHk-=wjRbQhZPLfHFjikMNYyiF=ZwNCuQb-9b7-ssJJuvi2_6Q@mail.gmail.com>
+X-Gm-Features: AVHnY4K1qAtNT0_ldZjhVwjRfx_9wYac0JueZzPmVNpMpI68VH0jl5IZDzRW2lM
+Message-ID: <CAHk-=wjRbQhZPLfHFjikMNYyiF=ZwNCuQb-9b7-ssJJuvi2_6Q@mail.gmail.com>
 Subject: Re: [PATCH v3] mm: process_mrelease: introduce PROCESS_MRELEASE_REAP_KILL
  flag
 To: Minchan Kim <minchan@kernel.org>
@@ -85,67 +86,30 @@ Cc: Oleg Nesterov <oleg@redhat.com>, Christian Brauner <brauner@kernel.org>, Jan
 	linux-kernel@vger.kernel.org, surenb@google.com, timmurray@google.com
 Content-Type: text/plain; charset="UTF-8"
 
-On Fri, 15 May 2026 at 15:33, Minchan Kim <minchan@kernel.org> wrote:
+On Fri, 15 May 2026 at 16:45, Linus Torvalds
+<torvalds@linux-foundation.org> wrote:
 >
-> I hope thisclarifies the motivation and mechanics behind this issue.
+> Yes, yes, we'd need some sequence counter for when the mm changes due
+> to execve, but *that* should be absolutely trivial.
 
-This still seems very hacky and a complete special case for one odd situation.
+I guess we already  have it in the form of "self_exec_id". So the
+tuple <mm,self_exec_id> should basically guarantee it's the same mm as
+it was at open time.
 
-This all sounds like it's just because smap is a pig.
+Except it's not updated at quite the right time. If it was done inside
+the task lock when task->mm was actually set in exec_mmap(), it would
+work as-is.
 
-And yes, smap *is* a pig, but it should be trivial to just fix smap
-for this case - fix the problem spot, don't add new horrid logic
-elsewhere.
+This isn't exactly what that 'self_exec_id' was designed for, but it
+*is* a sequence number for the mm of a task. So if a 'mm' pointer
+value gets reused, you can tell that it's not the same mm as it used
+to be by looking at the exec_id.
 
-I really think the fix is to fix smap instead.
+And I think the only reason for it being done outside the task lock is
+that the current use is all synchronous to the task itself, so locking
+or location simply didn't matter.
 
-And I think smap is doing odd things. For example, it does
+But there's some mqueue signal handling thing that looks like it's
+actually violating that situation and would race with execve().
 
-   pid_smaps_open -> do_maps_open -> proc_mem_open
-
-and that proc_mem_open() takes that long-term ref to the mm. And then
-does various memory allocations - and copying data to user space -
-under that long-term ref, which is presumably what causes all the
-latency issues.
-
-But it doesn't actually seem to *need* a long-term ref to the mm. The
-seqfile interface is designed so that it should all be chunkable, and
-the locks and refs should be done at m_start/m_end time.
-
-And the smap / maps m_start and m_end functions already *almost* seem
-to do that. They literally look up the task again with
-
-        priv->task = get_proc_task(priv->inode);
-
-etc, but then they do that odd
-
-        lock_ctx = &priv->lock_ctx;
-        mm = lock_ctx->mm;
-        if (!mm || !mmget_not_zero(mm)) {
-                put_task_struct(priv->task);
-                priv->task = NULL;
-                return NULL;
-        }
-
-dance (where lock_ctx->mm is literally that long-term ref we hold).
-
-And I don't see why they need to do any of this. I think it's all a
-historical accident.
-
-Because I think it could look up the mm from the task pointer every
-time, without holding that long-term ref from proc_mem_open() at all.
-
-IOW, at open time, we could save off the "this is the mm I opened",
-but *without* any refcount, and then just verify that "yes, the task
-mm still matches". No long-term refs anywhere.
-
-Yes, yes, we'd need some sequence counter for when the mm changes due
-to execve, but *that* should be absolutely trivial.
-
-And wouldn't that make all of this go away entirely? And probably
-clean up the code at the same time?
-
-I think the only reason "proc_mem_open()" does what it does was that
-it was simple. Not because it was a good idea.
-
-                   Linus
+            Linus
