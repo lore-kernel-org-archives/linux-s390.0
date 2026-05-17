@@ -1,169 +1,78 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from out30-111.freemail.mail.aliyun.com (out30-111.freemail.mail.aliyun.com [115.124.30.111])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 00154346AC5
-	for <linux-s390@vger.kernel.org>; Sun, 17 May 2026 08:45:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 76C2F329C57;
+	Sun, 17 May 2026 15:08:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.111
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779007528; cv=none; b=sB/3Tt5SxjUNbfUn9x+VGaHMyZhOR6rZgFsFnEEs0DTaOTaEO0qJLCZfea6WVvUZ/S82I5KZkY8l7wxmg0PBxkgOg2O7dyBkHvox4SGnFIz0/RetPsUIouPtuc9Is9DDXcdHEHP4dZTOw2LqrLnebxkAaZtz+3PBygu1gSMmii8=
+	t=1779030537; cv=none; b=BPWY7Vzzs3O7Nr2yioEqw+lYRvgzIySvcXN5avB+2miM8EKwZT5y2mgJFMhT4QVixlGzqgs0awyWUqMZgMC7oVcRbWl1hWXPkPcUmhC5YKtyCDI3vGTqG98kMB9kzFiOkewwePwLrSVk+WrkiT3Arh8nzjXB9za+3a3f3Sc00hU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779007528; c=relaxed/simple;
-	bh=p/9AJiwpH9htKz1qH1Sl1BuAo/sVquMqqj2hIHE2j60=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=eWOn0COsKH2fDi3Qj63IzQfE6JN6pbuzd0WbAM0S1NUmNe7c367Oy7Trl7J9/MIBtGzUe4UafMb2EK696+yFaeNMlI8fz2z6fQMm8HHtGSFp54MxVpdZYw2jC9pryiUUnNAzsf6u/yLdE1dj7lEHxFlqJKFKqiQBSSJlC9gUtaY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=IcZT9tUo; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1779030537; c=relaxed/simple;
+	bh=WbC5V1eLmSjbNKzONoDR6pDca6tg+TweoUUxx61qfuI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=UCqnJWLNlJRPPwEROriyeCfaEdY/CWkiFxzzWm3rR1nYAXqge88BzhINzN7g7g+2bkRpT6TqAFoDCXaonw80U2Hi4Y1zQYIJ3rHtHCowwWioWZ5G5HwGrl0cqmQQOIZkrUg01RS0rL3akAyBRFycf2Ruvrvi3cJ4cVNWfmISWJY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=BLDrEVGr; arc=none smtp.client-ip=115.124.30.111
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IcZT9tUo"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9BAAC2BCB0
-	for <linux-s390@vger.kernel.org>; Sun, 17 May 2026 08:45:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1779007527;
-	bh=p/9AJiwpH9htKz1qH1Sl1BuAo/sVquMqqj2hIHE2j60=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=IcZT9tUolcrkwWW0g0RY9HTDkbfvMUWKMC+4fxz9cOlxN5nLUbfxb37rlEv77K6Yz
-	 91/W8a+pD9VIXpnwYL9jbGNNe64gmPI7/gmARH/LrsqxjAESIXXbB0hoqlAI/eOVyA
-	 71yxBQAqlF7qQVourMYDTKkIlJOEhH+OOJG8NyQvxKt+Jkv+ZeuvJZZuT8Uv72hHKe
-	 5Uy2D1EisdI1IXy6U24mBXVmBUDot+lzpFzHE4Dt6atMPLsp/jew4RZqdckHNc2wLr
-	 FmqGPcBeg679dY+2flLU2OkyQdSmrf0RqKFym7/EfEyCQaoVLB61fYxtlxJ1BqzoTE
-	 TcjhzGKbClSVA==
-Received: by mail-qv1-f44.google.com with SMTP id 6a1803df08f44-8b6c9fdb68cso14183176d6.2
-        for <linux-s390@vger.kernel.org>; Sun, 17 May 2026 01:45:27 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AFNElJ8qpXGZFYWiKiJzcag/6J6NqNByWhaXQ9nZszs7jbPAz4ICS/yk0w4dG15TmhiSMsspF/aJ0RXRFC7M@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy8EWn3vuYe3Ip+6yE7xSKr9UcHSH9qJGUNKBHDcmAFYbHqZw0n
-	fw+YxHPel9aQHC2V3iaVQleLvRoGu/y2VovjwLowt+uefhHMr5WFR5ZdDOSGhbUQ7cIgoH3KWe7
-	61loD/O0HE0EJY4MO+8BlHQ1TdOeLJXk=
-X-Received: by 2002:a05:6214:1c82:b0:8be:7ed5:477b with SMTP id
- 6a1803df08f44-8ca0f6b95a0mr188510036d6.22.1779007526681; Sun, 17 May 2026
- 01:45:26 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="BLDrEVGr"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1779030526; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
+	bh=6qqHubNw6Ffthb2a69vjor3nIUJMVYWSf99a0QRVW3o=;
+	b=BLDrEVGrEvYV8Qk83z2VvTgT/CKepuKPxRtC79hELCLjcZVuXGZlXFqqNB8h/fy3Rt0CfC77BbPSDOV+A7dTmPTke+Z+PHjm7aV9Y5kt2PV/AKqPQhHcBsx+I+9i+Q2SHMPiL2fDPeaufI6rEDAOLNBqs1eyuqncXnxILf3HXvY=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R261e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033045133197;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=10;SR=0;TI=SMTPD_---0X31y.BW_1779030524;
+Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0X31y.BW_1779030524 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Sun, 17 May 2026 23:08:45 +0800
+Date: Sun, 17 May 2026 23:08:44 +0800
+From: Dust Li <dust.li@linux.alibaba.com>
+To: Leon Romanovsky <leon@kernel.org>, Xiang Mei <xmei5@asu.edu>,
+	alibuda@linux.alibaba.com
+Cc: netdev@vger.kernel.org, wenjia@linux.ibm.com, sidraya@linux.ibm.com,
+	tonylu@linux.alibaba.com, linux-rdma@vger.kernel.org,
+	linux-s390@vger.kernel.org, bestswngs@gmail.com
+Subject: Re: [PATCH net] net/smc: avoid NULL deref of conn->lnk in
+ smc_msg_event tracepoint
+Message-ID: <agnZ_G9_9jZFS2An@linux.alibaba.com>
+Reply-To: dust.li@linux.alibaba.com
+References: <20260510222640.1230720-1-xmei5@asu.edu>
+ <20260517084513.GA33515@unreal>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260430040427.4672-1-baohua@kernel.org> <afNM-gIqxpyJ6ro7@casper.infradead.org>
- <CAGsJ_4w0qcYmukHqsyRd0jomoyYkJjOt8b-Cgp53BgP-8QQghw@mail.gmail.com>
- <afS_L-5XeWIldTXA@casper.infradead.org> <CAGsJ_4wk=SDtgin+84Ev2TamU-JFfmrg_SUay=-tcYmnFvK6Nw@mail.gmail.com>
- <afTpoL3FklpQZNMM@casper.infradead.org>
-In-Reply-To: <afTpoL3FklpQZNMM@casper.infradead.org>
-From: Barry Song <baohua@kernel.org>
-Date: Sun, 17 May 2026 16:45:15 +0800
-X-Gmail-Original-Message-ID: <CAGsJ_4ysMcrmDLSOwBkf7qwCQrcDWeEMXkHDajTJFMLKUk0bSQ@mail.gmail.com>
-X-Gm-Features: AVHnY4ICHad0vRrEOEwJ7DjNSE1jL9epFkBx0OBK2sLJbi9Nv2hHU65J8Z0HpVM
-Message-ID: <CAGsJ_4ysMcrmDLSOwBkf7qwCQrcDWeEMXkHDajTJFMLKUk0bSQ@mail.gmail.com>
-Subject: Re: [PATCH v2 0/5] mm: reduce mmap_lock contention and improve page
- fault performance
-To: Matthew Wilcox <willy@infradead.org>, surenb@google.com
-Cc: akpm@linux-foundation.org, linux-mm@kvack.org, david@kernel.org, 
-	ljs@kernel.org, liam@infradead.org, vbabka@kernel.org, rppt@kernel.org, 
-	mhocko@suse.com, jack@suse.cz, pfalcato@suse.de, wanglian@kylinos.cn, 
-	chentao@kylinos.cn, lianux.mm@gmail.com, kunwu.chan@gmail.com, 
-	liyangouwen1@oppo.com, chrisl@kernel.org, kasong@tencent.com, 
-	shikemeng@huaweicloud.com, nphamcs@gmail.com, bhe@redhat.com, 
-	youngjun.park@lge.com, linux-arm-kernel@lists.infradead.org, 
-	linux-kernel@vger.kernel.org, loongarch@lists.linux.dev, 
-	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, 
-	linux-s390@vger.kernel.org, Nanzhe Zhao <nzzhao@126.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260517084513.GA33515@unreal>
 
-On Sat, May 2, 2026 at 1:58=E2=80=AFAM Matthew Wilcox <willy@infradead.org>=
- wrote:
+On 2026-05-17 11:45:13, Leon Romanovsky wrote:
+>On Sun, May 10, 2026 at 03:26:40PM -0700, Xiang Mei wrote:
+>> The smc_msg_event tracepoint class, shared by smc_tx_sendmsg and
+>> smc_rx_recvmsg, unconditionally dereferences smc->conn.lnk:
+>> 
+>> 	__string(name, smc->conn.lnk->ibname)
 >
-> On Sat, May 02, 2026 at 01:44:34AM +0800, Barry Song wrote:
-> > On Fri, May 1, 2026 at 10:57=E2=80=AFPM Matthew Wilcox <willy@infradead=
-.org> wrote:
-> > >
-> > > On Fri, May 01, 2026 at 06:49:58AM +0800, Barry Song wrote:
-> > > > 1. There is no deterministic latency for I/O completion. It depends=
- on
-> > > > both the hardware and the software stack (bio/request queues and th=
-e
-> > > > block scheduler). Sometimes the latency is short; at other times it=
- can
-> > > > be quite long. In such cases, a high-priority thread performing ope=
-rations
-> > > > such as mprotect, unmap, prctl_set_vma, or madvise may be forced to=
- wait
-> > > > for an unpredictable amount of time.
-> > >
-> > > But does that actually happen?  I find it hard to believe that thread=
- A
-> > > unmaps a VMA while thread B is in the middle of taking a page fault i=
-n
-> > > that same VMA.  mprotect() and madvise() are more likely to happen, b=
-ut
-> > > it still seems really unlikely to me.
-> >
-> > It doesn=E2=80=99t have to involve unmapping or applying mprotect to
-> > the entire VMA=E2=80=94just a portion of it is sufficient.
+>My comment is not directly related to this patch, but it was triggered
+>while reviewing it. The ibname should not be cached, as users can rename
+>it through rdmatool or udev.
 >
-> Yes, but that still fails to answer "does this actually happen".  How muc=
-h
-> performance is all this complexity in the page fault handler buying us?
-> If you don't answer this question, I'm just going to go in and rip it
-> all out.
+>For example, this function is racy:
+>   552 static int smc_nl_handle_smcr_dev(struct smc_ib_device *smcibdev,
+>   553                                   struct sk_buff *skb,
+>   554                                   struct netlink_callback *cb)
+>   555 {
+>   ...
+>   582         snprintf(smc_ibname, sizeof(smc_ibname), "%s", smcibdev->ibdev->name);
 >
+>Thanks
 
-Hi Matthew (and Lorenzo, Jan, and anyone else who may be
-waiting for answers),
+Hi, Leon
 
-As promised during LSF/MM/BPF, we conducted thorough
-testing on Android phones to determine whether performing
-I/O in `filemap_fault()` can block `vma_start_write()`.
-I wanted to give a quick update on this question.
+OK, I'll submit a patch removing all the ibvdev->name in SMC.
 
-Nanzhe at Xiaomi created tracing scripts and ran various
-applications on Android devices with I/O performed under
-the VMA lock in `filemap_fault()`. We found that:
+Best regards,
+Dust
 
-1. There are very few cases where unmap() is blocked by
-   page faults. I assume this is due to buggy user code
-   or poor synchronization between reads and unmap().
-So I assume it is not a problem.
-
-2. We observed many cases where `vma_start_write()`
-   is blocked by page-fault I/O in some applications.
-   The blocking occurs in the `dup_mmap()` path during
-   fork().
-
-With Suren's commit fb49c455323ff ("fork: lock VMAs of
-the parent process when forking"), we now always hold
-`vma_write_lock()` for each VMA. Note that the
-`mmap_lock` write lock is also held, which could lead to
-chained waiting if page-fault I/O is performed without
-releasing the VMA lock.
-
-My gut feeling is that Suren's commit may be overshooting,
-so my rough idea is that we might want to do something like
-the following (we haven't tested it yet and it might be
-wrong):
-
-diff --git a/mm/mmap.c b/mm/mmap.c
-index 2311ae7c2ff4..5ddaf297f31a 100644
---- a/mm/mmap.c
-+++ b/mm/mmap.c
-@@ -1762,7 +1762,13 @@ __latent_entropy int dup_mmap(struct mm_struct
-*mm, struct mm_struct *oldmm)
-        for_each_vma(vmi, mpnt) {
-                struct file *file;
-
--               retval =3D vma_start_write_killable(mpnt);
-+               /*
-+                * For anonymous or writable private VMAs, prevent
-+                * concurrent CoW faults.
-+                */
-+               if (!mpnt->vm_file || (!(mpnt->vm_flags & VM_SHARED) &&
-+                                       (mpnt->vm_flags & VM_WRITE)))
-+                       retval =3D vma_start_write_killable(mpnt);
-                if (retval < 0)
-                        goto loop_out;
-                if (mpnt->vm_flags & VM_DONTCOPY) {
-
-Based on the above, we may want to re-check whether fork()
-can be blocked by page faults. At the same time, if Suren,
-you, or anyone else has any comments, please feel free to
-share them.
-
-Best Regards
-Barry
