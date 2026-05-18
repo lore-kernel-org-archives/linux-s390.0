@@ -1,165 +1,173 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f49.google.com (mail-ed1-f49.google.com [209.85.208.49])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 735E627F017;
-	Mon, 18 May 2026 15:19:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779117590; cv=none; b=JTrllMuPW2ZAlXz5T7fNZd9l0xoK1WnYdzj9GNqzD80YsflO73T6XHqaK30HY6lFBuMCKtUgpbeIHpnc0QaPzzcE2tZwA5u/zqs6j9HZIEplImtf3qG0Etyde9VHkrRehCUwHRq114LmDJp8Me45pwEtxYLlHuzfZyRDPekntEM=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779117590; c=relaxed/simple;
-	bh=ztT+I3bdRQnQ/U1gREjDJ+ZsHMUhpZ4esibexJPoTDE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=MZqFAOU70f6MfRZQaCVZqmE+Ztfsmej9exdUOM1Pq2r9RxHpnWU0BRcc5/5jcmTPotyJxtaGj7DPNy30bOporWk9/uMzBCAYXmp4Dq05panMdkCLgOiIc28A7wxCrfokELwGZ1BZDw/Hz6nyIdvcL8qK6N/K28Z8+t0TU8eWk9I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=CGjG/R+a; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3FD9C3F39D8
+	for <linux-s390@vger.kernel.org>; Mon, 18 May 2026 15:30:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.49
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1779118243; cv=pass; b=Oz4w02pyTq87mmzTFOqZqiJBcpeVcGHncXwKI1o+q2LpQ/Qjzs5wsV4yqYov6/T1W+aNP3mz+TCcB9RS3QJC/xtu0f4fL7mb2Y9ExuXdxDsGns55bPjUAhEXUCysOQUWbuCSgKTNOFSr5e11jnVlVYDXs9OP8nwaBURpqoYRwjo=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1779118243; c=relaxed/simple;
+	bh=+vEAVXbtKXzJ0GXvuxhDs8SaYPlm9eBE4st/1y9OLB4=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=FnMMrqvdu0H3Sb3RqCUkqwv/zS3g6CKW4tgTRDfBQnDbOkwFb6/n/iK/NuiGkOdvTohWpmOy6jcvELjuSWhfb+lzCUimSTbkeku1EmsM7P1k8IaS02phxj86kjowXEiURUZr53YnZabFO+6IQvpBaa6KZlauTplFDN4VaBv0n8s=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=QcCqdOdr; arc=pass smtp.client-ip=209.85.208.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="CGjG/R+a"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 64ID3JIw713511;
-	Mon, 18 May 2026 15:19:31 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=asRf8G
-	ZwhQFo7pcspZ9Qb3Hz5Zwi7ycpce8WuViNLcc=; b=CGjG/R+aDaZLx43KPlERbb
-	0QllqMtvYwOk+POqx1M+vTGzok6ZwmI/Y1CY0Sxol3h/Q3UEBJcaA7BYL5BE3GEF
-	A6tm8CiATkPRhAKEs9yNDdPS1r1JDeX508yRRy6CLIdkzmta6KTscxmGxwnOgE/V
-	vXWjQiN4xczFNdzHGBmosonUHgjTyenPyEnuchaIShGYAHgkMcQUiYH6ROPxCue8
-	/4sQKJR0k0WaUAm3jY8G5cw2Im2amXPlluGl/8Z7YAKAfpGgoy8dGCwBuVfnveHP
-	zsC7PUyPXTWVmPcr9w2AxpInP6C3fjgEh6N0DArrWE6M42/NS0IFT70OTrAyyUdQ
-	==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4e6h74rs9q-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 18 May 2026 15:19:30 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 64IF9B5i021246;
-	Mon, 18 May 2026 15:19:29 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4e72wpxntp-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 18 May 2026 15:19:29 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 64IFJQ1i47841732
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 18 May 2026 15:19:26 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E56622004E;
-	Mon, 18 May 2026 15:19:25 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9851420040;
-	Mon, 18 May 2026 15:19:24 +0000 (GMT)
-Received: from li-276bd24c-2dcc-11b2-a85c-945b6f05615c.ibm.com (unknown [9.111.60.118])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Mon, 18 May 2026 15:19:24 +0000 (GMT)
-Date: Mon, 18 May 2026 17:19:23 +0200
-From: Jan Polensky <japo@linux.ibm.com>
-To: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
-Cc: hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
-        ojeda@kernel.org, peterz@infradead.org, jpoimboe@kernel.org,
-        jbaron@akamai.com, aliceryhl@google.com, borntraeger@linux.ibm.com,
-        svens@linux.ibm.com, boqun@kernel.org, gary@garyguo.net,
-        bjorn3_gh@protonmail.com, lossin@kernel.org, a.hindborg@kernel.org,
-        tmgross@umich.edu, dakr@kernel.org, rostedt@goodmis.org,
-        ardb@kernel.org, linux-s390@vger.kernel.org,
-        rust-for-linux@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 4/4] s390: enable Rust support
-Message-ID: <agst-5rhj2mFF448@li-276bd24c-2dcc-11b2-a85c-945b6f05615c.ibm.com>
-References: <20260512105920.2426293-1-japo@linux.ibm.com>
- <20260512105920.2426293-5-japo@linux.ibm.com>
- <CANiq72=dD5fw6XmLJ=zSq_k_ZQy8sLLMs3m1xjX=UTpO7tLisw@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="QcCqdOdr"
+Received: by mail-ed1-f49.google.com with SMTP id 4fb4d7f45d1cf-67e9e343b22so3567582a12.0
+        for <linux-s390@vger.kernel.org>; Mon, 18 May 2026 08:30:41 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1779118240; cv=none;
+        d=google.com; s=arc-20240605;
+        b=Nr+dwqzpF5eDdV+J+JIIcVLbZsM69NPRZ7FOq0g8kS0Far+aJdndD6y7rIhL9zcP2X
+         uYUHvc5/XQLoA0aCLYQ3UJHLfhuQL8K9Yei7GVJha0JXoAKV2tX1YMFRlK/Nakpn2Uf+
+         3KGhNipxtG7ltJGtbeNS5GSPSXH34PTvKMbzcJnDyCldMg3Ksa/o+H/rZzZ/nEcNum0S
+         IhLQ2v/csoXShF1PXlFkpZcFztjAohUWv6jkXPC1e3aokgGon7p3Jl4yVyBH5m/u5zZN
+         y22YQJ4tfAjAPDGjHHZ6PHeIxkRbzHHqwYsppktonow9ivg6/Jj2rQSrMXCGey3ddwEL
+         IzVQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=xr3YAMIq21QdocFyJjm+i04fdGwMmfXGaCTr4UYHbMU=;
+        fh=QDtG5FlGxwulCQIkA6DDpsDOJ05/LuywSKmY7rJyjAM=;
+        b=HaXt6gZCWgw/qXJsscbbtjugMkXfxk7lbdwObhuvEgNhuFFloteZwUBewgTOOgHgzI
+         AxD+oBPQOetKaXHg/V2/CmjxC96mOQCsBGK49X5LaJlJDxeiVdMbaG9zR15vhzKUkAdu
+         ye6WXSKqkt8CufWLafDuCQCcBTrWT7N5qjjwoV71TwcvY/E5TmkXsYJ8C+7T8bIAXTUi
+         oZ0I8Vymc+FzlJj34quIRF0YFqNxrCx+6YpFQ8g50C1WCf0ICP2RfW/JJt5DRQb4iFsO
+         1zT/LOLMwwfmRedwXSZoLi2CliTWh1+Mq8vJmHlQkNj+wHmVKwpto2e3gyaVpong8ae0
+         rncA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20251104; t=1779118240; x=1779723040; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=xr3YAMIq21QdocFyJjm+i04fdGwMmfXGaCTr4UYHbMU=;
+        b=QcCqdOdrMnSb/sB+vewPV4vW/wng3uq2AVv7fyXx8gNz8qVtg9A3mMIXWmsjNgl3Ay
+         un3p1aYx8zZL+IVAl/eTmVy9GafgyyrpLKfYwQ5++J340MtRwAH3MsAqozT8oJnH9O7S
+         kFCMyajdX5zuNxaOipy5FzKOrr8kwXJj2gOd4pSuaYYMUT0AQ92McvVts1npWpa4GxgT
+         q/UjMMbV1Z8K/SxvqNyjwvZjSoeiSV4nh/wgwisyz/3QPrDh2sPiYQHm5arCqamdlA1e
+         47SxY6xD70Z4awv0k+hUUeZ9/g3WQRIqiQK58qMryDqoewW1SUEGOydi0aSxwfKJu3pK
+         RDuA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1779118240; x=1779723040;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=xr3YAMIq21QdocFyJjm+i04fdGwMmfXGaCTr4UYHbMU=;
+        b=pwtPYUGAo3VRiiyW5lemZycVvC1mNCYjZ7lHHVaBPEMl++qOLWWFBO3f3GEDiCqbSE
+         CiP2VF6dUkyH6rrtg2v20RpM9agdVotibC1RrI2Lqvdc2ggHC9ANdxDTmTe0/XRljtka
+         M6tMCUmVJaJwchLP4+LyukNg6H3rhMq9frHt2c8Dc6SBOYTQWPUIK6sIAzdXpiuYTXvj
+         YoOqDl8om5luWSY62LEt0tvVN8sP25+0oet3dwSGLl+RhExursFKZnvkmbOVL9ilbds8
+         AU4hQSjQ2Ec9vxLu2bKsmnu3HEEYOOexfhVDqAk1v6EKtSVeMaBMlccCd2TIZ1z61mW8
+         iDNQ==
+X-Forwarded-Encrypted: i=1; AFNElJ8FnTOxuc3MQzpsJDkk96Cpk89HqCoq+p/WmIfGJye01YIuz1CvJSkkewYY5u63szUJmjK+SykWLJAa@vger.kernel.org
+X-Gm-Message-State: AOJu0Yxp3OfBF5+1eas2ijKMTzXNFdz7IH9Tz6vvQr+XrqzhOig74lWS
+	bQIjfTyMXxZT+ursW/q15WWn/uc9InlxKhyK9tg2Ck3itWC6vppkboq91m1qb+zY942r/XRdQN2
+	xY174/xlrTohAs154yyNTSlcdxVVHI5a6tTdZoxb9
+X-Gm-Gg: Acq92OGvGPEqRYxcWTyTGYxnjgQcgLH3jwwzlfxvRKOKWyg6CrbZILdojyBT7s41yVn
+	Z/MmuQVygemu41pRUL0cjSt3cThe9Lhfc2gQwRH53Iw89Ye1V8f41a+KqKghbWBX0ZLV6g0CswC
+	vNBm41BD4Do147gkKUS1HURv1X4nShEB5TzGBwSew2M+9/bGYmukYBQBN93qaBELwpu+SmS3e3M
+	cf/lqAB/cU8AusInt/zKDL6Fb3sIIaqXZMwzQ+cLVc0JeFh9jJR9E3Qye5cOPh/VPnTWU1N9ANW
+	RS/s2mRk/DDgp1ZOqMURB3DbIthtKLrrQOK8Ftohz27bHc3iIw==
+X-Received: by 2002:a05:6402:360d:b0:672:6419:8c23 with SMTP id
+ 4fb4d7f45d1cf-683bcda5f49mr7146864a12.14.1779118240014; Mon, 18 May 2026
+ 08:30:40 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CANiq72=dD5fw6XmLJ=zSq_k_ZQy8sLLMs3m1xjX=UTpO7tLisw@mail.gmail.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Authority-Analysis: v=2.4 cv=ffCdDUQF c=1 sm=1 tr=0 ts=6a0b2e03 cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
- a=IkcTkHD0fZMA:10 a=NGcC8JguVDcA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=NEAV23lmAAAA:8
- a=VnNF1IyMAAAA:8 a=HQ1FvIGFvDyT47lXsOsA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-Proofpoint-ORIG-GUID: mAbRrBPTh-gJ1Y5a-KxrYwbKOS9v05Lx
-X-Proofpoint-GUID: cODwNgnwOUAC0KSt4pj5F46AfK8szurB
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTE4MDE0OCBTYWx0ZWRfX1Q28HJGcwgcv
- jzWEZkeAA/Cm79ZEz9nJZ8mgqhytuIHwrJQLp6TXItuvf0EWYYIhD1vi+0yll3TgaE5hZB7ebWO
- pjqkJNbmSEe0wLvjqwMsRWmD9rJ2qy4SIR3WT2W46YVR/FACowMfbyxlWlk4zUrO3+nXD0GUMIH
- s4CwRDAaXsxzLPaxx679SvXgHnu4vwuYXwVl71yB1CocxdTYN6++s6dGbemAJk4oFlFm2bHykdh
- nNE+HoXDXHitveq0R9lBfZinCuWJKQVmTYG5WP6MRhzOhFdQUI0RaDTcv7oTRtJAgfxiQ6e/9cw
- eHfTwieUUloQD3S4ejd0CwReSWIGaqO8SsyfnOVwYZ11scOYWlgKMjldx/3n6lnNd5hfuHevXug
- yWplDMcnnGo5Ov0/Dm2UDxMBABgxBTeQvDWPKcm8Sur6LHFXXdCYooBFng8ddPp+hy2s3WVeNn9
- DD1/j7IQEYJKgZ69p8g==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-05-18_03,2026-05-18_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 spamscore=0 phishscore=0 suspectscore=0 adultscore=0
- clxscore=1015 impostorscore=0 lowpriorityscore=0 bulkscore=0 malwarescore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2605130000 definitions=main-2605180148
+References: <20260512105920.2426293-1-japo@linux.ibm.com> <20260512105920.2426293-5-japo@linux.ibm.com>
+ <CANiq72=dD5fw6XmLJ=zSq_k_ZQy8sLLMs3m1xjX=UTpO7tLisw@mail.gmail.com> <agst-5rhj2mFF448@li-276bd24c-2dcc-11b2-a85c-945b6f05615c.ibm.com>
+In-Reply-To: <agst-5rhj2mFF448@li-276bd24c-2dcc-11b2-a85c-945b6f05615c.ibm.com>
+From: Alice Ryhl <aliceryhl@google.com>
+Date: Mon, 18 May 2026 17:30:26 +0200
+X-Gm-Features: AVHnY4LccPGnU2YDNrFsmFO2WMi9bKjMeNXkKx387N8Rm1kN-rPvvLiTL_jpEeE
+Message-ID: <CAH5fLgjbrPjpYReOYdPs+_Omv3w18AttkSGyc-VNogPZDP90kQ@mail.gmail.com>
+Subject: Re: [PATCH 4/4] s390: enable Rust support
+To: Jan Polensky <japo@linux.ibm.com>
+Cc: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>, hca@linux.ibm.com, gor@linux.ibm.com, 
+	agordeev@linux.ibm.com, ojeda@kernel.org, peterz@infradead.org, 
+	jpoimboe@kernel.org, jbaron@akamai.com, borntraeger@linux.ibm.com, 
+	svens@linux.ibm.com, boqun@kernel.org, gary@garyguo.net, 
+	bjorn3_gh@protonmail.com, lossin@kernel.org, a.hindborg@kernel.org, 
+	tmgross@umich.edu, dakr@kernel.org, rostedt@goodmis.org, ardb@kernel.org, 
+	linux-s390@vger.kernel.org, rust-for-linux@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, May 12, 2026 at 02:10:52PM +0200, Miguel Ojeda wrote:
-> On Tue, May 12, 2026 at 1:00 PM Jan Polensky <japo@linux.ibm.com> wrote:
+On Mon, May 18, 2026 at 5:19=E2=80=AFPM Jan Polensky <japo@linux.ibm.com> w=
+rote:
+>
+> On Tue, May 12, 2026 at 02:10:52PM +0200, Miguel Ojeda wrote:
+> > On Tue, May 12, 2026 at 1:00=E2=80=AFPM Jan Polensky <japo@linux.ibm.co=
+m> wrote:
+> > >
+> > > Signed-off-by: Jan Polensky <japo@linux.ibm.com>
 > >
-> > Signed-off-by: Jan Polensky <japo@linux.ibm.com>
+> > Closes: https://github.com/Rust-for-Linux/linux/issues/106
+> >
+> > I am happy to see IBM getting involved and being able to close a 5
+> > year issue! :)
+> :)
+> >
+> > I backlinked there this thread.
+> >
+> > > +KBUILD_RUSTFLAGS +=3D --target=3Ds390x-unknown-none-softfloat -Zpack=
+ed-stack -Ctarget-feature=3D+backchain
+> >
+> > I added `-Zpacked-stack` and a bunch of related links to:
+> >
+> >   https://github.com/Rust-for-Linux/linux/issues/2
+> >
+> > Is there a tracking issue for it? I linked
+> > https://github.com/rust-lang/rust/issues/150259 for the backchain
+> > feature.
+> >
+> > > +       if [ "$SRCARCH" =3D "s390" ]; then
+> > > +               echo 1.97.0-nightly
+> >
+> > `-Zpacked-stack` landed for 1.96. Is there something queued for 1.97?
+> > If not, does the beta work?
+> >
+> > Either way, I would prefer waiting until we know the actual version
+> > number, i.e. without `-nightly`. It is just a few weeks away anyway.
+> >
+> > Thanks!
+> >
+> > Cheers,
+> > Miguel
 >
-> Closes: https://github.com/Rust-for-Linux/linux/issues/106
+> Hi Miguel,
 >
-> I am happy to see IBM getting involved and being able to close a 5
-> year issue! :)
-:)
+> thanks for the review.
 >
-> I backlinked there this thread.
+> -Zpacked-stack: I=E2=80=99m not aware of a dedicated rust-lang/rust track=
+ing
+> issue for this flag. The implementation landed via rust-lang/rust PR
+> 152432, but it doesn=E2=80=99t appear to reference a tracking issue.
 >
-> > +KBUILD_RUSTFLAGS += --target=s390x-unknown-none-softfloat -Zpacked-stack -Ctarget-feature=+backchain
+> backchain: ack, the s390x target-feature tracking issue you linked is the
+> right umbrella reference.
 >
-> I added `-Zpacked-stack` and a bunch of related links to:
->
->   https://github.com/Rust-for-Linux/linux/issues/2
->
-> Is there a tracking issue for it? I linked
-> https://github.com/rust-lang/rust/issues/150259 for the backchain
-> feature.
->
-> > +       if [ "$SRCARCH" = "s390" ]; then
-> > +               echo 1.97.0-nightly
->
-> `-Zpacked-stack` landed for 1.96. Is there something queued for 1.97?
-> If not, does the beta work?
->
-> Either way, I would prefer waiting until we know the actual version
-> number, i.e. without `-nightly`. It is just a few weeks away anyway.
->
-> Thanks!
->
-> Cheers,
-> Miguel
+> minimum toolchain version / beta: as long as we pass -Zpacked-stack in
+> KBUILD_RUSTFLAGS, we need a nightly compiler; beta/stable won=E2=80=99t a=
+ccept -Z
+> flags. In v2 I=E2=80=99ll drop the 1.97.0-nightly guess and set the minim=
+um to
+> 1.96.0-nightly (the first release line that includes -Zpacked-stack).
+> We=E2=80=99ll keep the =E2=80=9C-nightly=E2=80=9D suffix while this remai=
+ns a -Z flag. If it gets
+> stabilized and nothing blocks, the earliest stable release that could
+> plausibly carry it would be 1.98.
 
-Hi Miguel,
+You should not add a nightly suffix for this reason. If it's available
+in nightly since 1.96.0, then you just write 1.96.0 here. Linux uses
+RUSTC_BOOTSTRAP to allow use of such flags on stable compiler builds.
 
-thanks for the review.
-
--Zpacked-stack: I’m not aware of a dedicated rust-lang/rust tracking
-issue for this flag. The implementation landed via rust-lang/rust PR
-152432, but it doesn’t appear to reference a tracking issue.
-
-backchain: ack, the s390x target-feature tracking issue you linked is the
-right umbrella reference.
-
-minimum toolchain version / beta: as long as we pass -Zpacked-stack in
-KBUILD_RUSTFLAGS, we need a nightly compiler; beta/stable won’t accept -Z
-flags. In v2 I’ll drop the 1.97.0-nightly guess and set the minimum to
-1.96.0-nightly (the first release line that includes -Zpacked-stack).
-We’ll keep the “-nightly” suffix while this remains a -Z flag. If it gets
-stabilized and nothing blocks, the earliest stable release that could
-plausibly carry it would be 1.98.
-
-Thanks,
-Jan
+Alice
