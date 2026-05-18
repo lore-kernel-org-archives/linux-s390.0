@@ -1,207 +1,174 @@
-Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f176.google.com (mail-pf1-f176.google.com [209.85.210.176])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E327F3A3E84;
-	Mon, 18 May 2026 05:23:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.133
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779081795; cv=none; b=ibJwRLH0CXl9aEnJdH02eHH6AJOjYUZgWWpZv/CcyjKI09AXkD0oqBsaPdIEz7q14bqCLG/xMcQs5gl8c5Ed5A3LdAQMQKwH9aV47e2wP0G9Zjj7PsDUIqZIbjGsblqQmYKxTRnkkf+oF71U64YURlEJSwhxjV9lo2brY/PedlE=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779081795; c=relaxed/simple;
-	bh=LXimcR5gIrhc7Ja9lMnRXbnWWKmMZAfemq2OZySt2vs=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=pPJfSG0UOCX6UVpBen/jVveM/+mjExbnWhOfwZ0X/8cSKoSDwaDMcwz4TA/nfsrhu8ujEtQG7tJKpUelhgXyq33XW7uXGIfQqKnrhqqZrhxwH79KJys+ezu9p2vVZvhYGynlujx5WKRSajnKLQU+78JKVWO5IQCXDQyLJkaG0Nw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=lst.de; spf=none smtp.mailfrom=bombadil.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=cN+bAsg8; arc=none smtp.client-ip=198.137.202.133
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=lst.de
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=bombadil.srs.infradead.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E68C6397E81
+	for <linux-s390@vger.kernel.org>; Mon, 18 May 2026 05:26:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.210.176
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1779082005; cv=pass; b=rMtmK5S+00AHyXj6mk13RSF8GVpbg8wTjOyXm7sY7W4jaRWX3UAwUzILbskj1hpuxdluIOCzd56u+c69FnCTEC4WG/WvGrWtaYa5hETPYpeYNkzNgeV7pbMFZm+uHEypDsVCVlZ61q/5qXBqTrRTeu/KH7U1InVheWSYQY2Qxoc=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1779082005; c=relaxed/simple;
+	bh=6mld/fwCl0781+nplbcVK5Q+Atqveim/XuEkZHQqRYA=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=TIfOqW5RqJCyjIHEXMAZVUafkc00InqZvpU6RlRiDigKKCiEMl8ruSi/mI/OlzUvgwB6b05Vyd9inaf3TtS2yrU1n9bAPohbftTE5ut3qf1etzU6EtqGlYMRYKV/6uH3bq7orT12c/QZja7pD2ayIGnvJGTfWXesXIKSLfb5zeo=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=asu.edu; spf=pass smtp.mailfrom=asu.edu; dkim=pass (2048-bit key) header.d=asu.edu header.i=@asu.edu header.b=NSoOpmdf; arc=pass smtp.client-ip=209.85.210.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=asu.edu
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=asu.edu
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="cN+bAsg8"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
-	MIME-Version:References:In-Reply-To:Message-ID:Date:Subject:Cc:To:From:Sender
-	:Reply-To:Content-Type:Content-ID:Content-Description;
-	bh=TUDBo9mJANsgA73DQyJ8kF+exXqX/GsyGWAfqYV6YAM=; b=cN+bAsg8yfx0NrYdBtuwk+NdJw
-	5dyD4ypIeZQ5a1P94iQ7KZrQJB7LYNNJT8rzKpM9SazFc+gkcEGcV9gE+t3Jj1RNwchZpXw5nqE8a
-	cJlBsDsZadvIOIWgThLZtGMb6DDChULMTDc2c54FVfgUyCL48ZHUB4NbQAxAlcYevr1GOM9HzUN2G
-	njymcwbqFde7bppHF0vfeccleKLEh0O9qCBbTG+Y6+jRwWykMxDjWz6oAf8wabBERWknTDlLCT0xA
-	MmDVY9Ng/W9laPrY/fXpjScQ8u/6hzQbtpL6dHM0sYfnKzWjLQ5X9GCTh1eLkEQfXr1acT+WgFKE5
-	H4ew+Qlg==;
-Received: from [2001:4bb8:2d1:6fdb:d67d:128c:34ba:85b8] (helo=localhost)
-	by bombadil.infradead.org with esmtpsa (Exim 4.99.1 #2 (Red Hat Linux))
-	id 1wOqRD-0000000EIZD-1P94;
-	Mon, 18 May 2026 05:22:47 +0000
-From: Christoph Hellwig <hch@lst.de>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will@kernel.org>,
-	Ard Biesheuvel <ardb@kernel.org>,
-	Huacai Chen <chenhuacai@kernel.org>,
-	WANG Xuerui <kernel@xen0n.name>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-	Paul Walmsley <pjw@kernel.org>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	Albert Ou <aou@eecs.berkeley.edu>,
-	Alexandre Ghiti <alex@ghiti.fr>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Thomas Gleixner <tglx@kernel.org>,
-	Ingo Molnar <mingo@redhat.com>,
-	Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	x86@kernel.org,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	Herbert Xu <herbert@gondor.apana.org.au>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Chris Mason <clm@fb.com>,
-	David Sterba <dsterba@suse.com>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Song Liu <song@kernel.org>,
-	Yu Kuai <yukuai@fnnas.com>,
-	Li Nan <linan122@huawei.com>,
-	linux-kernel@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	loongarch@lists.linux.dev,
-	linuxppc-dev@lists.ozlabs.org,
-	linux-riscv@lists.infradead.org,
-	linux-s390@vger.kernel.org,
-	linux-crypto@vger.kernel.org,
-	linux-btrfs@vger.kernel.org,
-	linux-arch@vger.kernel.org,
-	linux-raid@vger.kernel.org
-Subject: [PATCH 18/18] raid6_kunit: randomize buffer alignment
-Date: Mon, 18 May 2026 07:18:01 +0200
-Message-ID: <20260518051804.462141-19-hch@lst.de>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20260518051804.462141-1-hch@lst.de>
-References: <20260518051804.462141-1-hch@lst.de>
+	dkim=pass (2048-bit key) header.d=asu.edu header.i=@asu.edu header.b="NSoOpmdf"
+Received: by mail-pf1-f176.google.com with SMTP id d2e1a72fcca58-836ed29d1e5so666146b3a.2
+        for <linux-s390@vger.kernel.org>; Sun, 17 May 2026 22:26:35 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1779081992; cv=none;
+        d=google.com; s=arc-20240605;
+        b=Dg4otRy8wR91A9FhtlMPlu3ggUUR0qKVaGyLxITLGr1NgA46xiWYFuCGq4dcX4MfUS
+         KGtis2TVTpWVcB9+b5Pv3fy68tyOFSA5KDRp+x6igCyQzh/BW5br6PE1a8tyuRIa8N6A
+         uB+jSR5Dswbv4vNpHkZBrmus7foA2QVtsi+vXE3Ta1+NDfv2ml/NnA0xmDPTEAprn0l6
+         LRgi9yOgQHg2/iAL2pRKDdlFu114J3yLJYnIR9qoqPsnq5+kkW9EE/01Ucbq5argrQHs
+         tFvzGKbR9kxocpzWJretOuZytVsyBEohIwUwB1WQNce+jyzgixJ7YEXgnp/+YmU9/wnC
+         g7+w==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=1k7JCzqf21HQ1C00QUFYl3DOKCHggP5kB3fftLNUTDc=;
+        fh=/qqmtoSvtBgNUNizlEjnG0DBrCNuD1t6HEkF/sKvJsc=;
+        b=SbM5oV5dRR+B4C7fIAvmEp3of80OZAqPvGoSRGbxibpmUYUjovp8ALRWkrkZnK5agJ
+         lJ/0MkbYh88gqe7qk5AMo2l5/Bc2LoMjGyM7qhHhyXkO0jpLLTL9UKSzZGeTir8aQgw8
+         Xt7H4l2YRLghG7Fma5OPF5u0rITNpBx4MYaqUc4zwcN7pG7sFCE0oJ1U15fnWciqraeH
+         lOnOT6RCOc0eBiAV89+CMQUabr8F7AhXb994D5Dk9G1V9ZU0tIn1pfkfMi0lqZl/iejr
+         5iOzMMHIjFCkpFgWlA6vXx8RxcmgGurpE389wSwggxWA5GLpYwY8+u07hLxmyW6S8lX0
+         8hIg==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=asu.edu; s=google; t=1779081992; x=1779686792; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=1k7JCzqf21HQ1C00QUFYl3DOKCHggP5kB3fftLNUTDc=;
+        b=NSoOpmdfwayFqmHQKPsw/9vrUhwTmX9yxO/FPGTUQApyXhQNoGQ73AqSFIAYn9GMoA
+         LVG5BV/FsxtaHQvRITGnZWqMoaKlvHsMotPk1VB9XhyIyQC9daAR3OxTbcTSSwkC7Fyw
+         DYDkjttYMbTWlvq21vGa0Sjp4oYbIFTS+5Qinbaxc78yGaLwMpZ/HhwmM0fpr5MTe5AY
+         1eQp1mYvGfYTsrnhpsP7C6fp9vgo2t9tYOoBsyypTsL44uwl9tcNYmSmKg8QwY7lpcN/
+         A0PuClruV7Uz4omIeeCPaMpCp5Ps85LqcMcmyU4vT6+vxEhmJv9RF4j59AjB6Eb7hmZD
+         uhCQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1779081992; x=1779686792;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=1k7JCzqf21HQ1C00QUFYl3DOKCHggP5kB3fftLNUTDc=;
+        b=pS/SDq0y3YMLZCvfDh3sEisLiayMrvJETGdl1gi1gQxHputEmjZDaudVvAkgvWyp33
+         xvgC7PXzjE3z/8il/ROkA5Xf3qG5Oh2Q/j2FpUkS1hjn+4jUQssPppBW/oDACaUYlfJf
+         IpbQQat8FymFw7j+KWwVxG92UN/wAzmPGq42eFP0rxyOQVQdRd4phGJ3pmKdQXIEz+Eo
+         52DAY4styVLyJv41P5i8KUoMXuitQSM3z5Iwlwe5B4Gxc8nPx2QaYd0Ci0WYYWKomgcf
+         T+BnhMWC3ELAbWhJ/29YmbXB4aiLhFLbPssUC5M1O6/Z1aS5lFrYluC4hn6VM7Bj8K43
+         XxYA==
+X-Forwarded-Encrypted: i=1; AFNElJ+xl60GdLSxv9UwTBLnNl/WJfplvdwKkK2enT2VYzrF+2QeHgFwS7+pRpJoCjBJTBBDDeqn9P33Z92P@vger.kernel.org
+X-Gm-Message-State: AOJu0YzSbeCtWc8gt1vPuqEzsiC1wA9aFp+sJjSS/8GXLy145TkEi3Cd
+	ErylLGOv+QzHpeap4fjNIit6nNGnMkkHnFKiIUCjWNqO/JZYy8+/ecZ7yhbIIC8OHcB+l5xyaRV
+	V+aibJSy/97dPqYhQVEUyE4lSUuTczQ+L6a3qSr9jwryoqysSdbn0gw==
+X-Gm-Gg: Acq92OFDvX9LlH5eGiKn+Sc1ykxNinn22R/FtjLWM+6ZRjg+e3VI2A7mrcM8Eak1aCM
+	UsmlrecZjm9LU8y2axnyFSk58qUUDSTIABDXQGmGTC0LJHjhnWUtVmMEm/w61Bpwhe0ivFWXKvJ
+	YKmJ8pqq9MGg0wLuMSHGhmKgDSiKzBw9wzFmVfqn0SvECrdA4BhezkTBDNS4HUddq667fcHhKXm
+	Wd9uZZITGvQucgP1vfW/VqyvFfdohCfBpnEpCpI0ceXnC7iluAakBG7Fi0gDWycxngJ1KgcZPyQ
+	l89m1VSj7txgZ7fOtw==
+X-Received: by 2002:a05:6a00:4c19:b0:838:af72:fb35 with SMTP id
+ d2e1a72fcca58-83f33c32d51mr13485269b3a.10.1779081992086; Sun, 17 May 2026
+ 22:26:32 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
+References: <20260511062138.2839584-1-xmei5@asu.edu> <deb3e868-456c-43a6-886f-9d882d23975f@redhat.com>
+ <agW4kfDB5JjpPD-r@linux.alibaba.com>
+In-Reply-To: <agW4kfDB5JjpPD-r@linux.alibaba.com>
+From: Xiang Mei <xmei5@asu.edu>
+Date: Sun, 17 May 2026 22:26:20 -0700
+X-Gm-Features: AVHnY4I5pKhATjXOWintNEChLSk7L138mcEGY8bdVrCg4bjT2d8_2rfJtytM1cw
+Message-ID: <CAPpSM+Q+pZkKFv97+1R0kYZud6Mjz-v8qMKP+dg4TO=W=LfauA@mail.gmail.com>
+Subject: Re: [PATCH net] net/smc: reject CHID-0 ACCEPT that matches an empty
+ ism_dev slot
+To: dust.li@linux.alibaba.com
+Cc: Paolo Abeni <pabeni@redhat.com>, netdev@vger.kernel.org, alibuda@linux.alibaba.com, 
+	sidraya@linux.ibm.com, wenjia@linux.ibm.com, ubraun@linux.ibm.com, 
+	linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, bestswngs@gmail.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Add code to add random alignment to the buffers to test the case where
-they are not page aligned, and to move the buffers to the end of the
-allocation so that they are next to the vmalloc guard page.
+Thanks for the information. I just got back from a trip, and I'll send
+a v2 after checking the UAF issue.
 
-This does not include the recovery buffers as the recovery requires
-page alignment.
-
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Acked-by: Ard Biesheuvel <ardb@kernel.org>
-Tested-by: Ard Biesheuvel <ardb@kernel.org> # kunit only on arm64
----
- lib/raid/raid6/tests/raid6_kunit.c | 41 +++++++++++++++++++++++++-----
- 1 file changed, 35 insertions(+), 6 deletions(-)
-
-diff --git a/lib/raid/raid6/tests/raid6_kunit.c b/lib/raid/raid6/tests/raid6_kunit.c
-index 71adf8932e93..9f3e671a1224 100644
---- a/lib/raid/raid6/tests/raid6_kunit.c
-+++ b/lib/raid/raid6/tests/raid6_kunit.c
-@@ -21,6 +21,7 @@ MODULE_IMPORT_NS("EXPORTED_FOR_KUNIT_TESTING");
- 
- static struct rnd_state rng;
- static void *test_buffers[RAID6_KUNIT_MAX_BUFFERS];
-+static void *aligned_buffers[RAID6_KUNIT_MAX_BUFFERS];
- static void *test_recov_buffers[RAID6_KUNIT_MAX_FAILURES];
- static size_t test_buflen;
- 
-@@ -50,6 +51,14 @@ static unsigned int random_nr_buffers(void)
- 			RAID6_MIN_DISKS;
- }
- 
-+/* Generate a random alignment that is a multiple of 64. */
-+static unsigned int random_alignment(unsigned int max_alignment)
-+{
-+	if (max_alignment == 0)
-+		return 0;
-+	return (rand32() % (max_alignment + 1)) & ~63;
-+}
-+
- static void makedata(int start, int stop)
- {
- 	int i;
-@@ -80,7 +89,7 @@ static void test_recover_one(struct kunit *test, unsigned int nr_buffers,
- 	for (i = 0; i < RAID6_KUNIT_MAX_FAILURES; i++)
- 		memset(test_recov_buffers[i], 0xf0, test_buflen);
- 
--	memcpy(dataptrs, test_buffers, sizeof(dataptrs));
-+	memcpy(dataptrs, aligned_buffers, sizeof(dataptrs));
- 	dataptrs[faila] = test_recov_buffers[0];
- 	dataptrs[failb] = test_recov_buffers[1];
- 
-@@ -102,13 +111,13 @@ static void test_recover_one(struct kunit *test, unsigned int nr_buffers,
- 		ta->recov->data2(nr_buffers, len, faila, failb, dataptrs);
- 	}
- 
--	KUNIT_EXPECT_MEMEQ_MSG(test, test_buffers[faila], test_recov_buffers[0],
-+	KUNIT_EXPECT_MEMEQ_MSG(test, aligned_buffers[faila], dataptrs[faila],
- 			len,
- 			"faila miscompared: %3d[%c] buffers %u len %u (failb=%3d[%c])\n",
- 			faila, member_type(nr_buffers, faila),
- 			nr_buffers, len,
- 			failb, member_type(nr_buffers, failb));
--	KUNIT_EXPECT_MEMEQ_MSG(test, test_buffers[failb], test_recov_buffers[1],
-+	KUNIT_EXPECT_MEMEQ_MSG(test, aligned_buffers[failb], dataptrs[failb],
- 			len,
- 			"failb miscompared: %3d[%c] buffers %u len %u (faila=%3d[%c])\n",
- 			failb, member_type(nr_buffers, failb),
-@@ -152,9 +161,9 @@ static void test_rmw_one(struct kunit *test, unsigned int nr_buffers,
- {
- 	const struct test_args *ta = test->param_value;
- 
--	ta->gen->xor_syndrome(nr_buffers, p1, p2, len, test_buffers);
-+	ta->gen->xor_syndrome(nr_buffers, p1, p2, len, aligned_buffers);
- 	makedata(p1, p2);
--	ta->gen->xor_syndrome(nr_buffers, p1, p2, len, test_buffers);
-+	ta->gen->xor_syndrome(nr_buffers, p1, p2, len, aligned_buffers);
- 	test_recover(test, nr_buffers, len);
- }
- 
-@@ -178,13 +187,33 @@ static void raid6_test_one(struct kunit *test)
- 	const struct test_args *ta = test->param_value;
- 	unsigned int nr_buffers = random_nr_buffers();
- 	unsigned int len = random_length(RAID6_KUNIT_MAX_BYTES);
-+	unsigned int max_alignment;
-+	int i;
- 
- 	/* Nuke syndromes */
- 	memset(test_buffers[nr_buffers - 2], 0xee, test_buflen);
- 	memset(test_buffers[nr_buffers - 1], 0xee, test_buflen);
- 
-+	/*
-+	 * If we're not using the entire buffer size, inject randomize alignment
-+	 * into the buffer.
-+	 */
-+	max_alignment = RAID6_KUNIT_MAX_BYTES - len;
-+	if (rand32() % 2 == 0) {
-+		/* Use random alignments mod 64 */
-+		for (i = 0; i < nr_buffers; i++)
-+			aligned_buffers[i] = test_buffers[i] +
-+				random_alignment(max_alignment);
-+	} else {
-+		/* Go up to the guard page, to catch buffer overreads */
-+		unsigned int align = test_buflen - len;
-+
-+		for (i = 0; i < nr_buffers; i++)
-+			aligned_buffers[i] = test_buffers[i] + align;
-+	}
-+
- 	/* Generate assumed good syndrome */
--	ta->gen->gen_syndrome(nr_buffers, len, test_buffers);
-+	ta->gen->gen_syndrome(nr_buffers, len, aligned_buffers);
- 
- 	test_recover(test, nr_buffers, len);
- 
--- 
-2.53.0
-
+On Thu, May 14, 2026 at 4:57=E2=80=AFAM Dust Li <dust.li@linux.alibaba.com>=
+ wrote:
+>
+> On 2026-05-14 12:19:46, Paolo Abeni wrote:
+> >On 5/11/26 8:21 AM, Xiang Mei wrote:
+> >> On the SMC-D client, slot 0 of ini->ism_dev[]/ini->ism_chid[] is
+> >> reserved for an SMC-Dv1 device. smc_find_ism_v2_device_clnt()
+> >> populates V2 entries starting at index 1, so when no V1 device is
+> >> selected slot 0 is left in its kzalloc()'ed state with ism_dev[0] =3D=
+=3D
+> >> NULL and ism_chid[0] =3D=3D 0.
+> >>
+> >> smc_v2_determine_accepted_chid() then matches the peer's CHID against
+> >> the array starting from index 0 using the CHID alone. A malicious
+> >> peer replying to a SMC-Dv2-only proposal with d1.chid =3D=3D 0 matches
+> >> the empty slot, ini->ism_selected becomes 0, and the subsequent
+> >> ism_dev[0]->lgr_lock dereference in smc_conn_create() faults at
+> >> offsetof(struct smcd_dev, lgr_lock) =3D=3D 0x68:
+> >>
+> >>   BUG: KASAN: null-ptr-deref in _raw_spin_lock_bh+0x79/0xe0
+> >>   Write of size 4 at addr 0000000000000068 by task exploit/144
+> >>   Call Trace:
+> >>    _raw_spin_lock_bh
+> >>    smc_conn_create (net/smc/smc_core.c:1997)
+> >>    __smc_connect (net/smc/af_smc.c:1447)
+> >>    smc_connect (net/smc/af_smc.c:1720)
+> >>    __sys_connect
+> >>    __x64_sys_connect
+> >>    do_syscall_64
+> >>
+> >> Require ism_dev[i] to be non-NULL before accepting a CHID match.
+> >>
+> >> Fixes: a7c9c5f4af7f ("net/smc: CLC accept / confirm V2")
+> >> Reported-by: Weiming Shi <bestswngs@gmail.com>
+> >> Assisted-by: Claude:claude-opus-4-7
+> >> Signed-off-by: Xiang Mei <xmei5@asu.edu>
+> >> ---
+> >>  net/smc/af_smc.c | 3 ++-
+> >>  1 file changed, 2 insertions(+), 1 deletion(-)
+> >>
+> >> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+> >> index 185dbed7de5d..12ea3b6dbc64 100644
+> >> --- a/net/smc/af_smc.c
+> >> +++ b/net/smc/af_smc.c
+> >> @@ -1400,7 +1400,8 @@ smc_v2_determine_accepted_chid(struct smc_clc_ms=
+g_accept_confirm *aclc,
+> >>      int i;
+> >>
+> >>      for (i =3D 0; i < ini->ism_offered_cnt + 1; i++) {
+> >> -            if (ini->ism_chid[i] =3D=3D ntohs(aclc->d1.chid)) {
+> >> +            if (ini->ism_dev[i] &&
+> >> +                ini->ism_chid[i] =3D=3D ntohs(aclc->d1.chid)) {
+> >>                      ini->ism_selected =3D i;
+> >>                      return 0;
+> >>              }
+> >
+> >Patch LGTM, thanks!
+> >
+> >@smc maintainers, please note that sashiko reviews:
+> >
+> >https://sashiko.dev/#/patchset/20260511062138.2839584-1-xmei5%40asu.edu
+> >
+> >pointed to another pre-existing issue in this area you may want to addre=
+ss.
+> >
+> >/P
+>
+> I agree. Apologies, I overlooked your comments prior to replying to
+> Xiang Mei's patch.
+>
+> Best regards,
+> Dust
