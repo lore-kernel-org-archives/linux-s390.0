@@ -1,170 +1,117 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f52.google.com (mail-wr1-f52.google.com [209.85.221.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4324E3D0926;
-	Mon, 18 May 2026 08:33:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E7E033E2AB8
+	for <linux-s390@vger.kernel.org>; Mon, 18 May 2026 08:35:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779093187; cv=none; b=e3gkgSoleTNtHiQDogWCmHczlo0VLym0VLBW0A608q1XM6vyBSkJo2EiMEoAkseEvvdrBvwqetRt2ufdEdW7xLi6EaN4YpGu2dG1FkgA7W/s2pE2acPoTX8cmrvvQPvNHs/Wgzpu7Mm35p5ssEIcNzKLaJ2T0FI+8S6Zv0Xr8U4=
+	t=1779093307; cv=none; b=fCK+uY90fyW7zCyy5wO+KJPa2aEec+AJQKyvw7C/3YxQi4M1kEqk3+IKS29I6qctIoEpk9Hj2EgbBhIhQc7zePNZs9QZzEqdwJIzd2AczPelWm9FwwiOe3nfEj0UMuKRT/45Em5IFs2TWOiNkpNyGxTZu8ex9QiSjKPJ0iuCedQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779093187; c=relaxed/simple;
-	bh=Gto/x644J1RoJGCRYuOXFHhKwlN38WzOD0Fh2FU/wX8=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=nJk1DXLZHkp6jvoKc9J1L4kc96lsAz8rse3bRCY2mCLoZYXwYXEk0A4swLkNvGa6/F/XMuYygy49BFoXozIbQX6QqFA6rTZgJRJNfmlutWpNCfdH4IxVigzu02OEyeDIPSgXEm7Job7nuA2QmzzkC2e3gv+k0dqfDyY9qQKtIxY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BE+iNrX9; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1779093307; c=relaxed/simple;
+	bh=KwzE4WvS1tturD3icBf4rnhXP8uxns5EKACf2ikgZYY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=PkvUxQ7hgiiDIzI5UU/RQpjVoxP7GrYZRrCSkRIitJUYt906T42qOggBo/LPBsOnX8gioHhexEUfCrbWbjCmg1Nv8QKljWUeqCpwIYpMfdX6WQxSd19cP55ubm9UC+2OIKPY7gfZFYgNt3IfLPjATjU/wLgjRKzEd85MPlSrCO0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20251104.gappssmtp.com header.i=@resnulli-us.20251104.gappssmtp.com header.b=P5LYrqNL; arc=none smtp.client-ip=209.85.221.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BE+iNrX9"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06DC6C2BCB7;
-	Mon, 18 May 2026 08:32:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1779093186;
-	bh=Gto/x644J1RoJGCRYuOXFHhKwlN38WzOD0Fh2FU/wX8=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
-	b=BE+iNrX9vMsPMUhr8SGMnvgEthIUx/c+NMO3t5BqE5YX/xVRG5zaOrJw4iWhA8tfE
-	 pcSJUFZonGdRKpo6jEKsb0RNG64KXwFOA/gvy32BWyMijZdbGKjvI4VYWqLj1QLOdk
-	 7j+gOOsWp9uOg2i+oW5kltwfeaaRqOx9TI7YwkeHvtyJas4tayDsDtB3mNQclLfzLZ
-	 sSt0IeC6JBt6OmuNfFgoDrbYWkEcO29qFu50kqzFEUahu+HGbWFS9+zA78AldYJ54L
-	 Om2E9GB/saFMFhr1T169Nj9kkUQ6tatrQcmcsHiKY7E+gGrmOlym+/vw4M1+b0qgk6
-	 oLpclk06Q4I3w==
-X-Mailer: emacs 30.2 (via feedmail 11-beta-1 I)
-From: Aneesh Kumar K.V <aneesh.kumar@kernel.org>
-To: Alexey Kardashevskiy <aik@amd.com>, iommu@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev
-Cc: Robin Murphy <robin.murphy@arm.com>,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
-	Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
-	Steven Price <steven.price@arm.com>,
-	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Jiri Pirko <jiri@resnulli.us>,
-	Jason Gunthorpe <jgg@ziepe.ca>,
-	Mostafa Saleh <smostafa@google.com>,
-	Petr Tesarik <ptesarik@suse.com>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Xu Yilun <yilun.xu@linux.intel.com>,
-	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org
-Subject: Re: [PATCH v4 03/13] dma-pool: track decrypted atomic pools and
- select them via attrs
-In-Reply-To: <df4b78cf-6192-4fe3-8ad5-df9e6fdda8e6@amd.com>
+	dkim=pass (2048-bit key) header.d=resnulli-us.20251104.gappssmtp.com header.i=@resnulli-us.20251104.gappssmtp.com header.b="P5LYrqNL"
+Received: by mail-wr1-f52.google.com with SMTP id ffacd0b85a97d-45e6a4d0be0so617470f8f.1
+        for <linux-s390@vger.kernel.org>; Mon, 18 May 2026 01:35:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=resnulli-us.20251104.gappssmtp.com; s=20251104; t=1779093302; x=1779698102; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=KwzE4WvS1tturD3icBf4rnhXP8uxns5EKACf2ikgZYY=;
+        b=P5LYrqNL7XtdbUGcOrnWpRhqpUNEvJXcZ33kH0AJpR2Rnf5DrN6RupVyo8952XYSxO
+         E2doM/aYPY9YgaiXSJin+IqExw2UFgnZas5MuXU+7rPkvF/rZJbflUAgrjkO9s5d9ZCl
+         tY92tlEGjBSUDwzvqsTbHQ9HA6ABqjfviANHzZx/LoWX+XVUBDtwMBNEgVyiBLouVB1U
+         XC4fAE93fgn0FqpavSwzx6a3A96FFNWjdPekMJRTV8uE0BkJ1nJ4IRkgaEesWbFo9Zr9
+         WvNUi0ynIrjOZl0RL3pIkGEP7sFQdTPyGOui2gZt7KKyOQIQLcVkPJod6VZQdT1NJGwz
+         Kvww==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1779093302; x=1779698102;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=KwzE4WvS1tturD3icBf4rnhXP8uxns5EKACf2ikgZYY=;
+        b=GCLbizLlIzgQYVEKtI1Wq2NvA3hgLS8n1tz+QZ05RZ6iy1I1Eq2qCAx0yosndGPeMm
+         YGjSURBfm0tbB1XKUIZ9eaMM0YHc99IGcoASDQNOB3eyxZNqLB6f97xereo57vMfdsJC
+         hAsW74+PVA0bSyp+nlT2ymxd6J+aBGrCCN6qHi+kF4koXaKQ9aQDyhi1oJ/Azpx0W7gW
+         sW/rt9O/+ZWwfXAcj1UhqDglqKI/HsDMTH7qWPOVVZrb0f8jCsJg8Gl9qbgrCfDbfsqW
+         hi6tqbBUnJjuiBrVzD5e58s1MPSpl8RRa4LnWUmIz6igiNCaA30XRL1phPSLu0NUVQiD
+         2jAg==
+X-Forwarded-Encrypted: i=1; AFNElJ8be/x04UZOJvJMW/chPwohuiUr/fg0xjXOG70QQOzl1/Eb6XjdQ3jkp+2dazwCs5dHhPlBU4C++7vW@vger.kernel.org
+X-Gm-Message-State: AOJu0YypWteKInM3aISJLvEen7sx+Wbdq7g9UO3Ed+Go/mSUMDl66dXw
+	KuxCxX1M70h9kwHTzagIBnAQaVPDSSJs14SfsOcLZk27CRVXuV7E8my5KejIjcrk65I=
+X-Gm-Gg: Acq92OEjcjHdaUlbROqWmcnxRGiC5dp9+s7uMv2/9zfSw+tbDOlZsX4R3MqYIio1/6O
+	dbe1ymrM0Ba3tl9t77wnr8N84S1Oi+c/8HlHIxEKqz1VNxmpBVHskKIvu0j31H5VUPFUHxNEqjf
+	iUwDwbEnyK/i23yi8bWYrZwUHoxVHThJwZmCzeZMAzcTqHgeiHqn6evau4EePVKL5CSLbYlbHFy
+	XQzBun5aCKW+6msIgcp/QfbBBYlM1DkKH51NtgLwKLJ4WDMXXwpvExcENh3il6ApVlzPSMPYvFl
+	da7N7me3U9NI6aA7OwWhEpaGTLB58R16DRRWKbNhEMPxMW1uzeL3XGRxMPUBf3XMdt+p+hcDXr8
+	csxj8AOKM4otxk4Em7XFTTA0b+gjFFqFi2nIj8vKFRwg4vYVYS8d+7VaOHo1/8Dhtywxy2KJPD6
+	JBtBZ6C3rtx1G5sScykocvYQKbvol3NJQ3FlYsyYvBONJy
+X-Received: by 2002:a05:6000:2083:b0:43f:ea04:dcc7 with SMTP id ffacd0b85a97d-45e5c5f277emr23023553f8f.24.1779093301850;
+        Mon, 18 May 2026 01:35:01 -0700 (PDT)
+Received: from FV6GYCPJ69 ([140.209.217.212])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-45da15a6449sm35354787f8f.37.2026.05.18.01.34.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 18 May 2026 01:35:01 -0700 (PDT)
+Date: Mon, 18 May 2026 10:34:57 +0200
+From: Jiri Pirko <jiri@resnulli.us>
+To: "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>
+Cc: iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org, 
+	linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev, Robin Murphy <robin.murphy@arm.com>, 
+	Marek Szyprowski <m.szyprowski@samsung.com>, Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>, 
+	Steven Price <steven.price@arm.com>, Suzuki K Poulose <Suzuki.Poulose@arm.com>, 
+	Catalin Marinas <catalin.marinas@arm.com>, Jason Gunthorpe <jgg@ziepe.ca>, 
+	Mostafa Saleh <smostafa@google.com>, Petr Tesarik <ptesarik@suse.com>, 
+	Alexey Kardashevskiy <aik@amd.com>, Dan Williams <dan.j.williams@intel.com>, 
+	Xu Yilun <yilun.xu@linux.intel.com>, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, 
+	Madhavan Srinivasan <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, 
+	Nicholas Piggin <npiggin@gmail.com>, "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Gerald Schaefer <gerald.schaefer@linux.ibm.com>, 
+	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Christian Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org
+Subject: Re: [PATCH v4 00/13] dma-mapping: Use DMA_ATTR_CC_SHARED through
+ direct, pool and swiotlb paths
+Message-ID: <agrPHNClrdRvzOFI@FV6GYCPJ69>
 References: <20260512090408.794195-1-aneesh.kumar@kernel.org>
- <20260512090408.794195-4-aneesh.kumar@kernel.org>
- <6f01978e-ead9-409b-866d-69231dc44d00@amd.com>
- <df4b78cf-6192-4fe3-8ad5-df9e6fdda8e6@amd.com>
-Date: Mon, 18 May 2026 14:02:55 +0530
-Message-ID: <yq5ajyt1xglk.fsf@kernel.org>
+ <agldl4XQLKAtyLty@FV6GYCPJ69>
+ <yq5amrxxxh0h.fsf@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <yq5amrxxxh0h.fsf@kernel.org>
 
-QWxleGV5IEthcmRhc2hldnNraXkgPGFpa0BhbWQuY29tPiB3cml0ZXM6DQoNCj4gT24gMTYvNS8y
-NiAyMjo1MywgQWxleGV5IEthcmRhc2hldnNraXkgd3JvdGU6DQo+PiBPbiAxMi81LzI2IDE5OjAz
-LCBBbmVlc2ggS3VtYXIgSy5WIChBcm0pIHdyb3RlOg0KDQouLi4NCg0KPj4+IC1zdGF0aWMgaW50
-IGF0b21pY19wb29sX2V4cGFuZChzdHJ1Y3QgZ2VuX3Bvb2wgKnBvb2wsIHNpemVfdCBwb29sX3Np
-emUsDQo+Pj4gK3N0YXRpYyBpbnQgYXRvbWljX3Bvb2xfZXhwYW5kKHN0cnVjdCBkbWFfZ2VuX3Bv
-b2wgKmRtYV9wb29sLCBzaXplX3QgcG9vbF9zaXplLA0KPj4+IMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgIGdmcF90IGdmcCkNCj4+PiDCoCB7DQo+Pj4gwqDCoMKgwqDCoCB1
-bnNpZ25lZCBpbnQgb3JkZXI7DQo+Pj4gQEAgLTExMywxMiArMTE5LDE1IEBAIHN0YXRpYyBpbnQg
-YXRvbWljX3Bvb2xfZXhwYW5kKHN0cnVjdCBnZW5fcG9vbCAqcG9vbCwgc2l6ZV90IHBvb2xfc2l6
-ZSwNCj4+PiDCoMKgwqDCoMKgwqAgKiBNZW1vcnkgaW4gdGhlIGF0b21pYyBETUEgcG9vbHMgbXVz
-dCBiZSB1bmVuY3J5cHRlZCwgdGhlIHBvb2xzIGRvIG5vdA0KPj4+IMKgwqDCoMKgwqDCoCAqIHNo
-cmluayBzbyBubyByZS1lbmNyeXB0aW9uIG9jY3VycyBpbiBkbWFfZGlyZWN0X2ZyZWUoKS4NCj4+
-PiDCoMKgwqDCoMKgwqAgKi8NCj4+PiAtwqDCoMKgIHJldCA9IHNldF9tZW1vcnlfZGVjcnlwdGVk
-KCh1bnNpZ25lZCBsb25nKXBhZ2VfdG9fdmlydChwYWdlKSwNCj4+PiArwqDCoMKgIGlmIChkbWFf
-cG9vbC0+dW5lbmNyeXB0ZWQpIHsNCj4+PiArwqDCoMKgwqDCoMKgwqAgcmV0ID0gc2V0X21lbW9y
-eV9kZWNyeXB0ZWQoKHVuc2lnbmVkIGxvbmcpcGFnZV90b192aXJ0KHBhZ2UpLA0KPj4+IMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgMSA8PCBvcmRlcik7DQo+Pj4gLcKg
-wqDCoCBpZiAocmV0KQ0KPj4+IC3CoMKgwqDCoMKgwqDCoCBnb3RvIHJlbW92ZV9tYXBwaW5nOw0K
-Pj4+IC3CoMKgwqAgcmV0ID0gZ2VuX3Bvb2xfYWRkX3ZpcnQocG9vbCwgKHVuc2lnbmVkIGxvbmcp
-YWRkciwgcGFnZV90b19waHlzKHBhZ2UpLA0KPj4+IC3CoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqAgcG9vbF9zaXplLCBOVU1BX05PX05PREUpOw0KPj4+ICvCoMKgwqDCoMKgwqDCoCBpZiAo
-cmV0KQ0KPj4+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIGdvdG8gcmVtb3ZlX21hcHBpbmc7DQo+
-Pj4gK8KgwqDCoCB9DQo+Pj4gKw0KPj4+ICvCoMKgwqAgcmV0ID0gZ2VuX3Bvb2xfYWRkX3ZpcnQo
-ZG1hX3Bvb2wtPnBvb2wsICh1bnNpZ25lZCBsb25nKWFkZHIsDQo+Pj4gK8KgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoCBwYWdlX3RvX3BoeXMocGFnZSksIHBvb2xfc2l6ZSwgTlVNQV9OT19O
-T0RFKTsNCj4NCj4NCj4gVGhpcyBjbGF1c2UgY291bGQgZ28gdG8gdGhlIGVsc2UgYnJhbmNoLg0K
-Pg0KPg0KDQpDYW4geW91IGNsYXJpZnkgdGhpcyBiZXR0ZXI/IA0KDQo+Pj4gwqDCoMKgwqDCoCBp
-ZiAocmV0KQ0KPj4+IMKgwqDCoMKgwqDCoMKgwqDCoCBnb3RvIGVuY3J5cHRfbWFwcGluZzsNCj4+
-PiBAQCAtMTI2LDExICsxMzUsMTUgQEAgc3RhdGljIGludCBhdG9taWNfcG9vbF9leHBhbmQoc3Ry
-dWN0IGdlbl9wb29sICpwb29sLCBzaXplX3QgcG9vbF9zaXplLA0KPj4+IMKgwqDCoMKgwqAgcmV0
-dXJuIDA7DQo+Pj4gwqAgZW5jcnlwdF9tYXBwaW5nOg0KPj4+IC3CoMKgwqAgcmV0ID0gc2V0X21l
-bW9yeV9lbmNyeXB0ZWQoKHVuc2lnbmVkIGxvbmcpcGFnZV90b192aXJ0KHBhZ2UpLA0KPj4+IC3C
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgMSA8PCBvcmRlcik7DQo+Pj4gLcKg
-wqDCoCBpZiAoV0FSTl9PTl9PTkNFKHJldCkpIHsNCj4+PiAtwqDCoMKgwqDCoMKgwqAgLyogRGVj
-cnlwdCBzdWNjZWVkZWQgYnV0IGVuY3J5cHQgZmFpbGVkLCBwdXJwb3NlbHkgbGVhayAqLw0KPj4+
-IC3CoMKgwqDCoMKgwqDCoCBnb3RvIG91dDsNCj4+PiArwqDCoMKgIGlmIChkbWFfcG9vbC0+dW5l
-bmNyeXB0ZWQpIHsNCj4+PiArwqDCoMKgwqDCoMKgwqAgaW50IHJjOw0KPj4+ICsNCj4+PiArwqDC
-oMKgwqDCoMKgwqAgcmMgPSBzZXRfbWVtb3J5X2VuY3J5cHRlZCgodW5zaWduZWQgbG9uZylwYWdl
-X3RvX3ZpcnQocGFnZSksDQo+Pj4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoCAxIDw8IG9yZGVyKTsNCj4+PiArwqDCoMKgwqDCoMKgwqAgaWYgKFdBUk5fT05fT05D
-RShyYykpIHsNCj4+PiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCAvKiBEZWNyeXB0IHN1Y2NlZWRl
-ZCBidXQgZW5jcnlwdCBmYWlsZWQsIHB1cnBvc2VseSBsZWFrICovDQo+Pj4gK8KgwqDCoMKgwqDC
-oMKgwqDCoMKgwqAgZ290byBvdXQ7DQo+Pj4gK8KgwqDCoMKgwqDCoMKgIH0NCj4+PiDCoMKgwqDC
-oMKgIH0NCj4+PiDCoCByZW1vdmVfbWFwcGluZzoNCj4+PiDCoCAjaWZkZWYgQ09ORklHX0RNQV9E
-SVJFQ1RfUkVNQVANCj4+PiBAQCAtMTQyLDQ2ICsxNTUsNTIgQEAgc3RhdGljIGludCBhdG9taWNf
-cG9vbF9leHBhbmQoc3RydWN0IGdlbl9wb29sICpwb29sLCBzaXplX3QgcG9vbF9zaXplLA0KPj4+
-IMKgwqDCoMKgwqAgcmV0dXJuIHJldDsNCj4+PiDCoCB9DQoNCi4uLg0KDQo+Pj4gwqAgYm9vbCBk
-bWFfZnJlZV9mcm9tX3Bvb2woc3RydWN0IGRldmljZSAqZGV2LCB2b2lkICpzdGFydCwgc2l6ZV90
-IHNpemUpDQo+Pj4gwqAgew0KPj4+IC3CoMKgwqAgc3RydWN0IGdlbl9wb29sICpwb29sID0gTlVM
-TDsNCj4+PiArwqDCoMKgIHN0cnVjdCBkbWFfZ2VuX3Bvb2wgKmRtYV9wb29sID0gTlVMTDsNCj4+
-PiArDQo+Pj4gK8KgwqDCoCB3aGlsZSAoKGRtYV9wb29sID0gZG1hX2d1ZXNzX3Bvb2woZG1hX3Bv
-b2wsIDApKSkgew0KPj4+IC3CoMKgwqAgd2hpbGUgKChwb29sID0gZG1hX2d1ZXNzX3Bvb2wocG9v
-bCwgMCkpKSB7DQo+Pj4gLcKgwqDCoMKgwqDCoMKgIGlmICghZ2VuX3Bvb2xfaGFzX2FkZHIocG9v
-bCwgKHVuc2lnbmVkIGxvbmcpc3RhcnQsIHNpemUpKQ0KPj4+ICvCoMKgwqDCoMKgwqDCoCBpZiAo
-IWdlbl9wb29sX2hhc19hZGRyKGRtYV9wb29sLT5wb29sLCAodW5zaWduZWQgbG9uZylzdGFydCwg
-c2l6ZSkpDQo+PiANCj4+IA0KPj4gdjMgb2YgdGhpcyBqdXN0IGNyYXNoZWQgaGVyZSB3aXRoIGRt
-YV9wb29sIT1OVUxMIGJ1dCBkbWFfcG9vbC0+cG9vbD09TlVMTC4gY29udGludWluZyBkZWJ1Z2dp
-bmcuLi4gVGhhbmtzLA0KPg0KPg0KPiBkbWFfZGlyZWN0X2ZyZWU6DQo+ICAgIGRtYV9mcmVlX2Zy
-b21fcG9vbCAobG9vcCBvdmVyIHBvb2xzKSAtPiBmYWxzZQ0KPiAgICAgIFtoZXJlIHdhcyBhIGNy
-YXNoIHdoaWNoIEkgZml4ZWQgYnkgImlmICghZG1hX3Bvb2wtPnBvb2wpIGNvbnRpbnVlIl0NCj4g
-ICAgc3dpb3RsYl9maW5kX3Bvb2wgKGxvb3AgYWdhaW4pIC0+IGZhbHNlDQo+ICAgICAgX19kbWFf
-ZGlyZWN0X2ZyZWVfcGFnZXMNCj4gICAgICAgIHN3aW90bGJfZnJlZQ0KPiAgICAgICAgICBzd2lv
-dGxiX2ZpbmRfcG9vbCAobG9vcCBhZ2FpbikNCj4gICAgICAgIGRtYV9mcmVlX2NvbnRpZ3VvdXMg
-PT4gZG9uZS4NCj4NCj4gc28gdGhhdCB3b3JrcyBidXQga2luZGEgaGFyZCB0byBmb2xsb3cgYW5k
-IHRoZXJlIGlzIHNvbWUgcm9vbSBmb3INCj4gb3B0aW1pemF0aW9uLiBJIGRvIG5vdCBub3JtYWxs
-eSBoYXZlIHN3aW90dGxiIHdoZW4gSSB0ZXN0IHRoaXMgYW5kDQo+IHRoZXJlIGlzIHRvbyBtYW55
-IG9mIHRoaXMgc3dpb3RsYiBzdHVmZiBvbiB0aGUgcmVhbCBkaXJlY3QgZG1hIG1hcHBpbmcNCj4g
-cGF0aCBpbWhvLiBUaGFua3MsDQo+DQoNCkkgd2lsbCB3b3JrIG9uIHRoaXMgaW4gdGhlIG5leHQg
-dXBkYXRlLiBJIGNhbiBwb3NzaWJseSBkcm9wIHRoZQ0Kc3dpb3RsYl9maW5kX3Bvb2wgZnJvbSB0
-aGUgc3dpb3RsYl9mcmVlKCkgcGF0aC4NCg0KPj4gDQo+PiANCj4+PiDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoCBjb250aW51ZTsNCj4+PiAtwqDCoMKgwqDCoMKgwqAgZ2VuX3Bvb2xfZnJlZShw
-b29sLCAodW5zaWduZWQgbG9uZylzdGFydCwgc2l6ZSk7DQo+Pj4gKw0KPj4+ICvCoMKgwqDCoMKg
-wqDCoCBnZW5fcG9vbF9mcmVlKGRtYV9wb29sLT5wb29sLCAodW5zaWduZWQgbG9uZylzdGFydCwg
-c2l6ZSk7DQo+Pj4gwqDCoMKgwqDCoMKgwqDCoMKgIHJldHVybiB0cnVlOw0KPj4+IMKgwqDCoMKg
-wqAgfQ0KPj4+IGRpZmYgLS1naXQgYS9rZXJuZWwvZG1hL3N3aW90bGIuYyBiL2tlcm5lbC9kbWEv
-c3dpb3RsYi5jDQo+Pj4gaW5kZXggMWFiZDNlNjE0NmY0Li5hYjRlY2NiYWEwNzYgMTAwNjQ0DQo+
-Pj4gLS0tIGEva2VybmVsL2RtYS9zd2lvdGxiLmMNCj4+PiArKysgYi9rZXJuZWwvZG1hL3N3aW90
-bGIuYw0KPj4+IEBAIC02MTIsNiArNjEyLDcgQEAgc3RhdGljIHN0cnVjdCBwYWdlICpzd2lvdGxi
-X2FsbG9jX3RsYihzdHJ1Y3QgZGV2aWNlICpkZXYsIHNpemVfdCBieXRlcywNCj4+PiDCoMKgwqDC
-oMKgwqDCoMKgwqAgdTY0IHBoeXNfbGltaXQsIGdmcF90IGdmcCkNCj4+PiDCoCB7DQo+Pj4gwqDC
-oMKgwqDCoCBzdHJ1Y3QgcGFnZSAqcGFnZTsNCj4+PiArwqDCoMKgIHVuc2lnbmVkIGxvbmcgYXR0
-cnMgPSAwOw0KPj4+IMKgwqDCoMKgwqAgLyoNCj4+PiDCoMKgwqDCoMKgwqAgKiBBbGxvY2F0ZSBm
-cm9tIHRoZSBhdG9taWMgcG9vbHMgaWYgbWVtb3J5IGlzIGVuY3J5cHRlZCBhbmQNCj4+PiBAQCAt
-NjIzLDggKzYyNCwxMiBAQCBzdGF0aWMgc3RydWN0IHBhZ2UgKnN3aW90bGJfYWxsb2NfdGxiKHN0
-cnVjdCBkZXZpY2UgKmRldiwgc2l6ZV90IGJ5dGVzLA0KPj4+IMKgwqDCoMKgwqDCoMKgwqDCoCBp
-ZiAoIUlTX0VOQUJMRUQoQ09ORklHX0RNQV9DT0hFUkVOVF9QT09MKSkNCj4+PiDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoCByZXR1cm4gTlVMTDsNCj4+PiArwqDCoMKgwqDCoMKgwqAgLyogc3dp
-b3RsYiBjb25zaWRlcmVkIGRlY3J5cHRlZCBieSBkZWZhdWx0ICovDQo+Pj4gK8KgwqDCoMKgwqDC
-oMKgIGlmIChjY19wbGF0Zm9ybV9oYXMoQ0NfQVRUUl9NRU1fRU5DUllQVCkpDQo+Pj4gK8KgwqDC
-oMKgwqDCoMKgwqDCoMKgwqAgYXR0cnMgPSBETUFfQVRUUl9DQ19TSEFSRUQ7DQo+Pj4gKw0KPj4+
-IMKgwqDCoMKgwqDCoMKgwqDCoCByZXR1cm4gZG1hX2FsbG9jX2Zyb21fcG9vbChkZXYsIGJ5dGVz
-LCAmdmFkZHIsIGdmcCwNCj4+PiAtwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqAgZG1hX2NvaGVyZW50X29rKTsNCj4+PiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqAgYXR0cnMsIGRtYV9jb2hlcmVudF9vayk7DQo+Pj4gwqDCoMKg
-wqDCoCB9DQo+Pj4gwqDCoMKgwqDCoCBnZnAgJj0gfkdGUF9aT05FTUFTSzsNCj4+IA0KPg0KPiAt
-LSANCj4gQWxleGV5DQoNCg0KLWFuZWVzaA0K
+Mon, May 18, 2026 at 10:23:58AM +0200, aneesh.kumar@kernel.org wrote:
+>Jiri Pirko <jiri@resnulli.us> writes:
+>
+>> Tue, May 12, 2026 at 11:03:55AM +0200, aneesh.kumar@kernel.org wrote:
+>>>This series propagates DMA_ATTR_CC_SHARED through the dma-direct,
+>>>dma-pool, and swiotlb paths so that encrypted and decrypted DMA buffers
+>>>are handled consistently.
+>>>
+>>>Today, the direct DMA path mostly relies on force_dma_unencrypted() for
+>>>shared/decrypted buffer handling. This series consolidates the
+>>>force_dma_unencrypted() checks in the top-level functions and ensures
+>>>that the remaining DMA interfaces use DMA attributes to make the correct
+>>>decisions.
+>>
+>> FWIW, the patchset in general looks good to me. I tested this with my
+>> system_cc_shared dmabuf flow, works flawlessly.
+>>
+>> Thanks!
+>>
+>Thanks, Can I add
+>
+>Tested-by: Jiri Pirko <jiri@resnulli.us>
+
+Tested-by: Jiri Pirko <jiri@nvidia.com>
+
+Thanks.
