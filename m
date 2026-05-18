@@ -1,43 +1,59 @@
-Received: from out30-111.freemail.mail.aliyun.com (out30-111.freemail.mail.aliyun.com [115.124.30.111])
+Received: from verein.lst.de (verein.lst.de [213.95.11.211])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 76C2F329C57;
-	Sun, 17 May 2026 15:08:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.111
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A33D331578E;
+	Mon, 18 May 2026 05:12:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.95.11.211
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779030537; cv=none; b=BPWY7Vzzs3O7Nr2yioEqw+lYRvgzIySvcXN5avB+2miM8EKwZT5y2mgJFMhT4QVixlGzqgs0awyWUqMZgMC7oVcRbWl1hWXPkPcUmhC5YKtyCDI3vGTqG98kMB9kzFiOkewwePwLrSVk+WrkiT3Arh8nzjXB9za+3a3f3Sc00hU=
+	t=1779081143; cv=none; b=E0meaC9DSmB26o+E19npiLsbsLLQTFgi63cpRnAxtwFm9Jj6QkRMR/3zvORi8fKR4CQrj+c/lZVHoFR5M0pussBW8b4WMEi/+iq1ik8HI/vT/MA9T6Xk0kj8mSINTJ44VTFaD+9o+oifOblKpUh82i/mmuEEmTmWvpBNJXwT30c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779030537; c=relaxed/simple;
-	bh=WbC5V1eLmSjbNKzONoDR6pDca6tg+TweoUUxx61qfuI=;
+	s=arc-20240116; t=1779081143; c=relaxed/simple;
+	bh=3k4iwQV1oGU42ZOJIoH7bSeLPlTONhWevQ8jf4pH0NE=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=UCqnJWLNlJRPPwEROriyeCfaEdY/CWkiFxzzWm3rR1nYAXqge88BzhINzN7g7g+2bkRpT6TqAFoDCXaonw80U2Hi4Y1zQYIJ3rHtHCowwWioWZ5G5HwGrl0cqmQQOIZkrUg01RS0rL3akAyBRFycf2Ruvrvi3cJ4cVNWfmISWJY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=BLDrEVGr; arc=none smtp.client-ip=115.124.30.111
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="BLDrEVGr"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1779030526; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
-	bh=6qqHubNw6Ffthb2a69vjor3nIUJMVYWSf99a0QRVW3o=;
-	b=BLDrEVGrEvYV8Qk83z2VvTgT/CKepuKPxRtC79hELCLjcZVuXGZlXFqqNB8h/fy3Rt0CfC77BbPSDOV+A7dTmPTke+Z+PHjm7aV9Y5kt2PV/AKqPQhHcBsx+I+9i+Q2SHMPiL2fDPeaufI6rEDAOLNBqs1eyuqncXnxILf3HXvY=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R261e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033045133197;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=10;SR=0;TI=SMTPD_---0X31y.BW_1779030524;
-Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0X31y.BW_1779030524 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Sun, 17 May 2026 23:08:45 +0800
-Date: Sun, 17 May 2026 23:08:44 +0800
-From: Dust Li <dust.li@linux.alibaba.com>
-To: Leon Romanovsky <leon@kernel.org>, Xiang Mei <xmei5@asu.edu>,
-	alibuda@linux.alibaba.com
-Cc: netdev@vger.kernel.org, wenjia@linux.ibm.com, sidraya@linux.ibm.com,
-	tonylu@linux.alibaba.com, linux-rdma@vger.kernel.org,
-	linux-s390@vger.kernel.org, bestswngs@gmail.com
-Subject: Re: [PATCH net] net/smc: avoid NULL deref of conn->lnk in
- smc_msg_event tracepoint
-Message-ID: <agnZ_G9_9jZFS2An@linux.alibaba.com>
-Reply-To: dust.li@linux.alibaba.com
-References: <20260510222640.1230720-1-xmei5@asu.edu>
- <20260517084513.GA33515@unreal>
+	 Content-Type:Content-Disposition:In-Reply-To; b=WUUy7UhM+1hlXcVrBGKaHF1scqjySgFELsdvGszUIoj5gfXNBW2SO+NrU2PaxIH5mNRk69euY2INeTiA7x7Mze/BpZjpWzEWNUZOGYuUXi6/a/qTthnt2gnujgupy405h0XOu87Kcn3LTIYCyOiy8WiRh68POH6znxPZPtIWbk8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lst.de; spf=pass smtp.mailfrom=lst.de; arc=none smtp.client-ip=213.95.11.211
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lst.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lst.de
+Received: by verein.lst.de (Postfix, from userid 2407)
+	id A440768B05; Mon, 18 May 2026 07:12:07 +0200 (CEST)
+Date: Mon, 18 May 2026 07:12:07 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Christoph Hellwig <hch@lst.de>, kreijack@inwind.it,
+	David Sterba <dsterba@suse.cz>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Will Deacon <will@kernel.org>, Ard Biesheuvel <ardb@kernel.org>,
+	Huacai Chen <chenhuacai@kernel.org>,
+	WANG Xuerui <kernel@xen0n.name>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+	Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
+	Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+	Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+	Herbert Xu <herbert@gondor.apana.org.au>,
+	Dan Williams <dan.j.williams@intel.com>, Chris Mason <clm@fb.com>,
+	David Sterba <dsterba@suse.com>, Arnd Bergmann <arnd@arndb.de>,
+	Song Liu <song@kernel.org>,
+	Yu Kuai <yukuai@alb-78bjiv52429oh8qptp.cn-shenzhen.alb.aliyuncs.com>,
+	Li Nan <linan122@huawei.com>, linux-kernel@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
+	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org, linux-crypto@vger.kernel.org,
+	linux-btrfs@vger.kernel.org, linux-arch@vger.kernel.org,
+	linux-raid@vger.kernel.org
+Subject: Re: [PATCH 01/19] btrfs: require at least 4 devices for RAID 6
+Message-ID: <20260518051207.GB9374@lst.de>
+References: <20260512052230.2947683-1-hch@lst.de> <20260512052230.2947683-2-hch@lst.de> <20260512114231.GG2558453@suse.cz> <20260513054742.GA1018@lst.de> <0a8d1ff4-f5a2-49e9-aa45-d25dbe4ded40@libero.it> <20260515043705.GA3855@lst.de> <34C16854-1065-4542-8836-DDED58EC1844@zytor.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -46,33 +62,18 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260517084513.GA33515@unreal>
+In-Reply-To: <34C16854-1065-4542-8836-DDED58EC1844@zytor.com>
+User-Agent: Mutt/1.5.17 (2007-11-01)
 
-On 2026-05-17 11:45:13, Leon Romanovsky wrote:
->On Sun, May 10, 2026 at 03:26:40PM -0700, Xiang Mei wrote:
->> The smc_msg_event tracepoint class, shared by smc_tx_sendmsg and
->> smc_rx_recvmsg, unconditionally dereferences smc->conn.lnk:
->> 
->> 	__string(name, smc->conn.lnk->ibname)
->
->My comment is not directly related to this patch, but it was triggered
->while reviewing it. The ibname should not be cached, as users can rename
->it through rdmatool or udev.
->
->For example, this function is racy:
->   552 static int smc_nl_handle_smcr_dev(struct smc_ib_device *smcibdev,
->   553                                   struct sk_buff *skb,
->   554                                   struct netlink_callback *cb)
->   555 {
->   ...
->   582         snprintf(smc_ibname, sizeof(smc_ibname), "%s", smcibdev->ibdev->name);
->
->Thanks
+On Fri, May 15, 2026 at 12:59:34PM -0700, H. Peter Anvin wrote:
+> I don't think this is a good idea. Error out; it is the btrfs maintainers' job to ensure user data isn't lost. 
+> 
+> The RAID-6 code has *never* supported only 3 units, and if it ever worked for *any* of the implementations it was purely by accident. Speaking as the original author I should know; this was deliberate as in some cases the degenerate case (3) would have required extra trays in the code to no user benefit. 
+> 
+> I would not be surprised if the kernel crashed or corrupted the page cache in that case.
 
-Hi, Leon
-
-OK, I'll submit a patch removing all the ibvdev->name in SMC.
-
-Best regards,
-Dust
-
+It does, that's why I wanted to exclude it.  Anyway, for the about to be
+resent version I'll drop this btrfs patch over the stated objection and
+will otherwise not change anything.  This means the (IMHO hypothetical)
+users of this configuration will get a WARN_ON_ONCE triggered, but
+otherwise keep working (or rather not working) as before.
