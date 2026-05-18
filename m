@@ -1,135 +1,115 @@
-Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
+Received: from out-183.mta0.migadu.com (out-183.mta0.migadu.com [91.218.175.183])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 233693DC4DC;
-	Mon, 18 May 2026 07:45:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.92.199
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3F3CA3B6BFA
+	for <linux-s390@vger.kernel.org>; Mon, 18 May 2026 07:49:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.183
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779090314; cv=none; b=NdEQFeZwe7UD4kyXCzGA7KB0TbrI8UmUwt4sA+9mRoYrUbg8AyJHBNdcqSXle84/UtLbfsx1cZTB2W/HBX+vxef08li1ssx1kZyw2ikrl1LRBOcUDV+HGFp3JClcBKEKewlgD1mApM3bHtkgVz3NZpvhZ2qGX6I/6OtH2jUZi2c=
+	t=1779090592; cv=none; b=uDJaws71YeaU1ifJERtSRWu4WijTZs05xNGPLc1Dv9armXAxUNcnl66U70BUqgvvK6IahKD/FoBSRoX2LpL3wOYvn3ujlEIHDdCr+GY2aDtAO8cwfWMPfrfJu4w3KjhMrovhKejf5XVkCFyYzV2VcRee3R3kfHoEOX0ttyx/AqY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779090314; c=relaxed/simple;
-	bh=QJqelUl577WCFj/Tzkydza7+d0YsaiPx/vfBgnx0wTg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=LEvJqkp9RJ736y2Jbla6f4iZP3/GflMnETFjCfvWeXGy947FyBg7JymLFDAUwn5zc8sdFHx7WEICbcEKB8lWP5uW7r2KMZvJagVhATvTmRg2tJW3k69WU7LAg6QoMSCkTKwRJT06NsuN67p7zPlUX6VSncLbslOt27LhaTxjThE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=aUl0eIP2; arc=none smtp.client-ip=90.155.92.199
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
+	s=arc-20240116; t=1779090592; c=relaxed/simple;
+	bh=dlHK93f7h9wI2wKbxsG36bajUuLGo9Wq/tg0HHtlEMc=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=R/mPG+IGHDw9l47OrUwiGbpwxNxUJoLHS23ntRbcaqGZjblzNnDY3yH1vbHiY06lKSm9CovsigD+ZNgRVobiY9/N8rSHxl1dbkiwLXxI2+7r92VueZ+FvpXQ7HQBlDW7aYb9qp2WBI7KT8YjOtPfcUD6uKJ76YZnFjLMVdR+0Ow=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=sQA9gAlm; arc=none smtp.client-ip=91.218.175.183
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="aUl0eIP2"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
-	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=9SNy0PSQLDBEdWaWsi8e1WsxaDfOs/5iKk51l3if+ks=; b=aUl0eIP2Xay9XsKzYBAdXd+45c
-	RVnY2Rb8MNw0C3V2PoQXyeCIzwuS/Q5eWsd5Tk6Hu9K0S6tvVMTh8hlNX4RvdwVsmKP+rxrydE8pz
-	XskZEruC7dyvdUHnEq4u7PnKeuN0Psms1EzFOuDsTp3YNjeZquMPV+F8bNqihrokpDwr2tICgYJsL
-	IFPKbYQrEJsBmZ114svVnyI4/qP3dOfkpIg3rXMeLWRskOfauqqVRs1Rw6tdr+KG8sM54EzSru0tm
-	v2tx3ovAvrfuwS7Zj/Qi70gAKhhW2i3IBlkKd+1qpGWp4KHAseEOAYo4M0q8PoghyrsIimwS8lIm+
-	xhN6ngLw==;
-Received: from 2001-1c00-8d85-4b00-266e-96ff-fe07-7dcc.cable.dynamic.v6.ziggo.nl ([2001:1c00:8d85:4b00:266e:96ff:fe07:7dcc] helo=noisy.programming.kicks-ass.net)
-	by desiato.infradead.org with esmtpsa (Exim 4.99.1 #2 (Red Hat Linux))
-	id 1wOsew-0000000AERb-3EAT;
-	Mon, 18 May 2026 07:45:07 +0000
-Received: by noisy.programming.kicks-ass.net (Postfix, from userid 1000)
-	id 52B863007A4; Mon, 18 May 2026 09:45:06 +0200 (CEST)
-Date: Mon, 18 May 2026 09:45:06 +0200
-From: Peter Zijlstra <peterz@infradead.org>
-To: Heiko Carstens <hca@linux.ibm.com>
-Cc: Arnd Bergmann <arnd@kernel.org>, linux-hardening@vger.kernel.org,
-	linux-s390@vger.kernel.org, Kees Cook <kees@kernel.org>,
-	Arnd Bergmann <arnd@arndb.de>, Marco Elver <elver@google.com>,
-	Andrey Konovalov <andreyknvl@gmail.com>,
-	Andrey Ryabinin <ryabinin.a.a@gmail.com>,
-	kasan-dev@googlegroups.com, Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Nick Terrell <terrelln@fb.com>, David Sterba <dsterba@suse.com>,
-	Nathan Chancellor <nathan@kernel.org>, linux-kernel@vger.kernel.org,
-	Stefan Schulze Frielinghaus <stefansf@linux.ibm.com>,
-	Juergen Christ <jchrist@linux.ibm.com>
-Subject: Re: [PATCH] [RFC] ubsan: turn off UBSAN_ALIGNMENT on s390
-Message-ID: <20260518074506.GS3102624@noisy.programming.kicks-ass.net>
-References: <20260515092057.810542-1-arnd@kernel.org>
- <20260515165357.10935D74-hca@linux.ibm.com>
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="sQA9gAlm"
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1779090587;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=fTTRIuI2xioXcBOay/WhZ57PMiS4AlcVkZHDZZirdOs=;
+	b=sQA9gAlmLXajI0q10KUnEdN1uuZqCxucU3NRWLlR3WCTWt4IvAIwwMmL9Yv6cg1ak9LTUk
+	GcZJgc51RUZJ7q5loEHLNQ7RZ6YM5RGuq2Q/7SkVZott8sl3sIvYYq4EpVgjv3FmqR41gO
+	tjAWCElujIzm29k6iPaM4P/xnC8SWbI=
+From: Lance Yang <lance.yang@linux.dev>
+To: david@kernel.org
+Cc: davem@davemloft.net,
+	andreas@gaisler.com,
+	rppt@kernel.org,
+	akpm@linux-foundation.org,
+	agordeev@linux.ibm.com,
+	gerald.schaefer@linux.ibm.com,
+	hca@linux.ibm.com,
+	gor@linux.ibm.com,
+	borntraeger@linux.ibm.com,
+	svens@linux.ibm.com,
+	maddy@linux.ibm.com,
+	mpe@ellerman.id.au,
+	npiggin@gmail.com,
+	chleroy@kernel.org,
+	ljs@kernel.org,
+	liam@infradead.org,
+	vbabka@kernel.org,
+	surenb@google.com,
+	mhocko@suse.com,
+	sparclinux@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-mm@kvack.org,
+	linux-s390@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org,
+	Lance Yang <lance.yang@linux.dev>
+Subject: Re: [PATCH 2/8] mm/bootmem_info: drop initialization of page->lru
+Date: Mon, 18 May 2026 15:49:31 +0800
+Message-Id: <20260518074931.34380-1-lance.yang@linux.dev>
+In-Reply-To: <20260511-bootmem_info_prep-v1-2-3fb0be6fc688@kernel.org>
+References: <20260511-bootmem_info_prep-v1-2-3fb0be6fc688@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260515165357.10935D74-hca@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Migadu-Flow: FLOW_OUT
 
-On Fri, May 15, 2026 at 06:53:57PM +0200, Heiko Carstens wrote:
-> On Fri, May 15, 2026 at 11:19:54AM +0200, Arnd Bergmann wrote:
-> > From: Arnd Bergmann <arnd@arndb.de>
-> > 
-> > Testing randconfig builds on s390 with gcc-15, I came across a number of
-> > seemingly unrelated build failures that ended up all being caused
-> > by the -fsanitize=alignment option:
-> > 
-> > s390-linux-ld: kernel/sched/build_policy.o: in function `thread_group_cputime':
-> > include/linux/seqlock.h:1286:(.text+0x1f738): undefined reference to `__scoped_seqlock_bug'
-> 
-> Does this only happen with __scoped_seqlock_bug()?
-> I just enabled UBSAN_ALIGNMENT, and with gcc-16 I can see this too.
-> 
-> > What I observe here is a huge increase in generated calls to
-> > __ubsan_handle_type_mismatch_v1() that ends up thowing off a number of
-> > compiler optimizations that the kernel relies on.
-> > 
-> > I have not been able to figure out why this happens on s390 but not arm64,
-> > arm or x86, if other toolchain versions are affected by the same thing,
-> > and if this is a problem in gcc or in the kernel itself, e.g. some
-> > variable being identified as unaligned when it should be aligned.
-> > 
-> > This clearly needs more investigation to figure out properly what is
-> > going on, but turning it off is currently required for randconfig testing.
-> ...
-> > ---
-> >  lib/Kconfig.ubsan | 1 +
-> >  1 file changed, 1 insertion(+)
-> > 
-> > diff --git a/lib/Kconfig.ubsan b/lib/Kconfig.ubsan
-> > index 1ecaae7064d2..3fc03a6b5af4 100644
-> > --- a/lib/Kconfig.ubsan
-> > +++ b/lib/Kconfig.ubsan
-> > @@ -152,6 +152,7 @@ config UBSAN_ENUM
-> >  
-> >  config UBSAN_ALIGNMENT
-> >  	bool "Perform checking for misaligned pointer usage"
-> > +	depends on !S390 || BROKEN
-> 
-> Wouldn't it be more appropriate to extend the ifdef at __scoped_seqlock_bug()
-> which emits an empty function for exactly this reason for some gcc versions
-> and kernel configs?
-> 
-> That is: add CONFIG_UBSAN_ALIGNMENT to the list (copy-pasted - white space
-> damage below)?
-> 
-> diff --git a/include/linux/seqlock.h b/include/linux/seqlock.h
-> index 5a40252b8334..18affa4d21a6 100644
-> --- a/include/linux/seqlock.h
-> +++ b/include/linux/seqlock.h
-> @@ -1259,7 +1259,7 @@ static __always_inline void __scoped_seqlock_cleanup(struct ss_tmp *sst)
->  
->  extern void __scoped_seqlock_invalid_target(void);
->  
-> -#if (defined(CONFIG_CC_IS_GCC) && CONFIG_GCC_VERSION < 90000) || defined(CONFIG_KASAN)
-> +#if (defined(CONFIG_CC_IS_GCC) && CONFIG_GCC_VERSION < 90000) || defined(CONFIG_KASAN) || defined(CONFIG_UBSAN_ALIGNMENT)
 
-Right, so I have a GCC bug and some mail with Kees about all of this.
+On Mon, May 11, 2026 at 04:05:30PM +0200, David Hildenbrand (Arm) wrote:
+>In the past, we used to store the type in page->lru.next, introduced by
+>commit 5f24ce5fd34c ("thp: remove PG_buddy"). The location changed over
+>the years; ever since commit 0386aaa6e9c8 ("bootmem: stop using
+>page->index"), we store it alongside the info in page->private.
+>
+>Consequently, there is no need to reset page->lru anymore.
+>
+>Signed-off-by: David Hildenbrand (Arm) <david@kernel.org>
+>---
+> mm/bootmem_info.c | 1 -
+> 1 file changed, 1 deletion(-)
+>
+>diff --git a/mm/bootmem_info.c b/mm/bootmem_info.c
+>index 3d7675a3ae04..a0a1ecdec8d0 100644
+>--- a/mm/bootmem_info.c
+>+++ b/mm/bootmem_info.c
+>@@ -34,7 +34,6 @@ void put_page_bootmem(struct page *page)
+> 	if (page_ref_dec_return(page) == 1) {
+> 		ClearPagePrivate(page);
+> 		set_page_private(page, 0);
+>-		INIT_LIST_HEAD(&page->lru);
 
-I wanted to add: CONFIG_UBSAN
+Yep, that old INIT_LIST_HEAD() call was dead cleanup. page->lru and
+page->buddy_list are in the same union:
 
-But for 'raisins' the whole bounds checking thing is mangled into UBSAN,
-so everybody + dog has UBSAN on in their .config :/
+			union {
+				struct list_head lru;
 
-IIRC Kees was going to look at untangling bounds checking from UBSAN and
-make UBSAN pure debugging stuff (again). But I don't think he's managed
-to find time for this.
+				/* Or, free page */
+				struct list_head buddy_list;
+			};
 
-Anyway, yes, I suppose we can do as proposed.
+and free_reserved_page() passes the page to the buddy allocator. The
+later buddy list insertion will overwrite the values written by
+INIT_LIST_HEAD(&page->lru) anyway.
+
+> 		kmemleak_free_part_phys(PFN_PHYS(page_to_pfn(page)), PAGE_SIZE);
+> 		free_reserved_page(page);
+> 	}
+
+LGTM, feel free to add:
+Reviewed-by: Lance Yang <lance.yang@linux.dev>
