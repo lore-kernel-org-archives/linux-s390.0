@@ -1,203 +1,209 @@
-Received: from mail-ej1-f45.google.com (mail-ej1-f45.google.com [209.85.218.45])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 500652C0303
-	for <linux-s390@vger.kernel.org>; Tue, 19 May 2026 21:46:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.218.45
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779227163; cv=pass; b=CvPVlSKIBZ/mmCkOJrshMC6//H4xd2UjPFry+h7q+8a+VQe/uwyK4tsKXO622fLBP0xPMCoDxZQB48AYjKWzf8nZ7l++1otbDmwaeT4kS+5V2rWOmEdoyi2/8okB9I8uupzlqEF3k99zhG7YZC4farxuVs8V0SEaqK9zrhvMuoE=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779227163; c=relaxed/simple;
-	bh=E+tTTb2GqI1vaGquqP1jTXz6HThVzWgXkisHH8EuO8M=;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 743143E5A0B
+	for <linux-s390@vger.kernel.org>; Tue, 19 May 2026 22:02:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1779228130; cv=none; b=jmV0id8JjIwXyo1KmbRb4btYNywemC4Yi1yLIYEAffVlSbODnaSVpbO/qMmgtsa8R26JQI2gMSNUPWnmOW35psy3+rEU0VcBv8MBjQy6+Vm8HHx1kAM/UEcfof2aTEItE9ArlBvY2HfHwr9jlfz7mgcCpAgflUQ+TMJwTzDYFdA=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1779228130; c=relaxed/simple;
+	bh=71vBNelhgIF/xhYgDkUv7qlNsN619m9AzEFmnaaN3QI=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=DAjSpJiV0P2lD0i5gpdqbXXZzebmH9cXiLHRD7/4AhMqHpfqxtlW+8dbw2KMd+C1x5I5+2Nx95vJP4RbApf83KuGXEXoSfvKM0Hco+0G0q75vMaxnNv/g/mqJSdoZp2IX7rRYCev+F/819HCL9wiLyN63FRQJOFFfCk9kseJx0c=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=qH/zNhS6; arc=pass smtp.client-ip=209.85.218.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 To:Cc:Content-Type; b=PCPfYJ0N+5HVQtsHTdl/CRgxrRU2d+J2ebiZ/nz5BZYt6CxGSqRBnEwdY9emqnMI3ruWwFX8P5n568wJD7HxY0db2SAUQlWDxt3KY/N2lLBwZLJk6CpMpU/hlDdlpyBlzK3I7rjn1w+UAvdHWmE34XuhBJAs33ge2LCC8GSqzY8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EEiINEmV; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="qH/zNhS6"
-Received: by mail-ej1-f45.google.com with SMTP id a640c23a62f3a-bcda7765d64so995846666b.1
-        for <linux-s390@vger.kernel.org>; Tue, 19 May 2026 14:46:01 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1779227160; cv=none;
-        d=google.com; s=arc-20240605;
-        b=J5s/y/gqZEu8+EqnqowBDxD42qTxhd3HqnWHV1bbOJbZgj5hWBuEgI4g5t5wD4GGgq
-         tXKcmhVKcVGbct9r0SjjZszR25VLAZMV/Ymc9rA0AqWpxbqauzmZ3KEe3J/EKnAhWf6u
-         mK8pyvYpUOoedrfXniSgQ+8F4ZAAY/NUtE5OT+T+m+/Ij9IDPrFry+nWe6vb1a3yC3QB
-         tKkGPPOYbZYAxr3yC2BccS+C03X3cStAg2nqgUXrfm7ugG41X/8lwyAjBPUDDCG349Jl
-         s5JW8/vQurDPpVK8EAv06bjTueM+lzowR0l4il1FXduGAjB0X3gm9vf7OVgwAGoqgF8n
-         r6eg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=pgd9wE8Ebw9Qeq3ppb48yPpKAYw41QQCB9/zb11k+vo=;
-        fh=vFvYU879jAaHr1oJFl2nNI//TpPfvd4f5RRPrzmEFS8=;
-        b=k6YC4o9ypG2EMJqBzdnzsNv4x/rrtd/XHUrWIjPcKBdRmcDOyZOVi6UUSmA5k2sszc
-         Wf0vaqA1voQBzFyEtZth8ypcfArJAaTNP2XrqMOQog23HnR0Owh19ZcfsICl0qeO7y30
-         GQ596DuCvMkEmNs+3WfeSAWwPoX1N+ST4uqOmdSspuqFZuikGjAvTqvIYgehkwW8rd0c
-         vkssdXe2f27G9ojfe4in9JoN4LsHNFDjvCCIhzLftWi5NZFGmsxKk6cW+GxCjdatfJiA
-         Kv0qcOMrXuqhrUrvmUlkP7Mq/6bCaY1rKjkhsChfHRnnKuifcYFXf/oeNUnT3rwmaarO
-         8p/A==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1779227160; x=1779831960; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=pgd9wE8Ebw9Qeq3ppb48yPpKAYw41QQCB9/zb11k+vo=;
-        b=qH/zNhS6SIUfjxARuMltjUodOjqSlRYKcR0o+zLMBNogXSHqlZQEMROvOJeC4f+f2E
-         vLiEwZ0KUkgNGb+zoOfElkOVC713+DtaP4WZV9waekz+vU46a7NoDVWILgMsoDCezKT8
-         FSHAz7tLZ3pD2vhTmhUfY6KiKSKdQ4x9dvtDvX6LI85Q6P96xQCCBLJizkqXaw5OtLRj
-         jdafE8d7/JlkF70wStQuo26FL+txH1Ro8Fgth/OhWw+uenQEwgf0lMncusjGt0qbig8u
-         jOEMJttZd/ZNnsssN5mDfT7QEI1QsqUGrOKAcLYyGfZKDPRihUu1MlMA6ZmuGeSyMXkC
-         Irnw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779227160; x=1779831960;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=pgd9wE8Ebw9Qeq3ppb48yPpKAYw41QQCB9/zb11k+vo=;
-        b=biZOPF5EKbGpWEjN1Q/9RBVEao6O8O6z1BUIrAqMDW/O2Hz+M4nFB1nMfMe3KD7l89
-         StoIrBaTrReSKozOhrfHHeCWebbrRH2WBoB2bGKVUZ+i1J3zMRe0eYZDXvsrEW04kJJv
-         abY5vbAf4x8XFQjKSnCcF6VXdAMnxCdjq4y/8/N2HUIB+Y6cQaEsvD4Rxo/6VIXt20+W
-         D1QFYNsYc18vFLI86iq64bZXYMSBZys5I1hkE/IyJo/YvNxxl/nVKokK3jvJAcsWp3Yf
-         ZsCHmqNYZ6lFluE3lWkecgbwXAGUWYhfHbE8Hnt20nb/kIcRs2HryvQx0ru6x89CNBxX
-         0Fog==
-X-Forwarded-Encrypted: i=1; AFNElJ8iHaPdE/k3EzG0YU39Y9o2Bj5sPHtSmuGCh+DS7xY62dxkP5RsZ0KDdBrfoY36UmftizcEyKGsSbY9@vger.kernel.org
-X-Gm-Message-State: AOJu0Yw0kBxx5khMFkWiCKHDxmZLIU6NGFDTv/qVxfpc5tvnKrMoeH7e
-	bYWX+pZU52pDX78K9ZtaadKH8hWW/tpswuuRH7R00PXhISp6ThjBRBh3DM8noLMYyWNkZ4P2h5o
-	4xvCpnI0h0FpzsRlD1TBekDSp4rcjoS0=
-X-Gm-Gg: Acq92OFELEUxSJvwPL/AAiw02MroFj9vfa4xcenJZAou8xYuCjmko/bC1JfHOmeszEX
-	3W7+D1eRaKLw/W1v8Rs5fSiMcBk9ABmXF9qNnfOwjgylpdFI86LFvYJc6loNS4A439wVa0MdfOa
-	X0o8bUO8nifBUStpYlUbheuJ5ZQO2KmaO2vfkiKTayxh7PrfKneJKEPTdJk9w4unU/2LQ5iY9cL
-	OVuTZsxuJGJfwE0MetyYsT7dmpBj0TEuG+kKe+HxvvU4hWdTLJ+k+S51C+mvqO3Y/terxdv+AHI
-	tQjMCn8RTBWaasC1gAjQxeKDqplgElvquznwBra84dSxiJR101BtkJFNygO01gzC+CUHT+FZDin
-	a2gCwrG9M3DFh2T8xU1ik55Ig/wIvdAeNQ8AZj8FegYgHVUAVL9KO+DmDot9bQE5oPB34
-X-Received: by 2002:a17:907:c10:b0:bd1:f09f:f819 with SMTP id
- a640c23a62f3a-bd4f34bd039mr1176086066b.25.1779227159626; Tue, 19 May 2026
- 14:45:59 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EEiINEmV"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F1A31F00896
+	for <linux-s390@vger.kernel.org>; Tue, 19 May 2026 22:02:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1779228129;
+	bh=RrgSUFMhpGIkWoOChuhQyLYVDUdtSZljRgOJt705GjA=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc;
+	b=EEiINEmV/ttnXkHREkmSNrg22w/pd85GQ24kGDom/qX0DitA92kwK7imrN1F7tfHP
+	 /WClIpIcz37rNq9FOtLY4huZKlhKLtBg/gq5tOO1/IYaKENgHCq8w5+Lnv5OFXdXSL
+	 2sIuISEhYHzkbmfjMHN6eKzTUmO8K/tDIrzQnMmRv3D90x14h5TzWDmjPA+zx7T0oZ
+	 IE8SbeYeLv8dhtCTOAuISA3eqbujACiE+Q9q0u8nfuITSR5e6vuWcd5Iclq1d5zdAT
+	 HF4oRjC7RA3KX6/I4zDoQ5jAmNSGhxJ1QKqkbIZT/JE9UU3XCdU3Y9b3mu/a4r3yR1
+	 lk/+recZ8aGvQ==
+Received: by mail-yw1-f171.google.com with SMTP id 00721157ae682-7bd4c61765dso37942077b3.3
+        for <linux-s390@vger.kernel.org>; Tue, 19 May 2026 15:02:09 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AFNElJ/jeftEPZ5snwqAWSvbUxY/fd6BSeYB59W1k83ATThM6wv3LJziH7cs+IpLvkP7MvXt8ufsdDBXrcYj@vger.kernel.org
+X-Gm-Message-State: AOJu0Yxy1NBp+2nHCN/Ks9YSEtF1oMKwaAUWuG+eycuD/nI+gwX25OoM
+	xrla4b7QSYJMBE6c1qEUgWZKo3RbHMY+4Jk+t64aQcJN7gz4ozr2Q/1Y7WfAQu/zyRecCwMHcVW
+	gpveQNmz2nVbue83BDr525Ywbs2GmcQE=
+X-Received: by 2002:a05:690c:38a:b0:7bd:9899:f904 with SMTP id
+ 00721157ae682-7c95c7ede6bmr245611007b3.39.1779228128311; Tue, 19 May 2026
+ 15:02:08 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260519005206.628071-1-rosenp@gmail.com> <0b4cff6d-b9e7-4c34-9279-93bec10bcc9d@linux.ibm.com>
-In-Reply-To: <0b4cff6d-b9e7-4c34-9279-93bec10bcc9d@linux.ibm.com>
-From: Rosen Penev <rosenp@gmail.com>
-Date: Tue, 19 May 2026 14:45:47 -0700
-X-Gm-Features: AVHnY4L2A3cissyWzUYO1tXUDK8qIVjkmnbUtyGij0zc_S6K7Z3Goo3Q7aTrmVA
-Message-ID: <CAKxU2N8_JhZhsSqm15DxFBkXv=ZBYQXQJ7xdw6SHrwG9dsWZVg@mail.gmail.com>
-Subject: Re: [PATCH] smc: Use flexible array for SMCD connections
-To: Alexandra Winter <wintera@linux.ibm.com>
-Cc: linux-rdma@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
-	Simon Horman <horms@kernel.org>, "D. Wythe" <alibuda@linux.alibaba.com>, 
-	Dust Li <dust.li@linux.alibaba.com>, Sidraya Jayagond <sidraya@linux.ibm.com>, 
-	Wenjia Zhang <wenjia@linux.ibm.com>, Mahanta Jambigi <mjambigi@linux.ibm.com>, 
-	Tony Lu <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>, 
-	"open list:NETWORKING [GENERAL]" <netdev@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>, 
-	"open list:SHARED MEMORY COMMUNICATIONS (SMC) SOCKETS" <linux-s390@vger.kernel.org>
+References: <afNM-gIqxpyJ6ro7@casper.infradead.org> <CAGsJ_4w0qcYmukHqsyRd0jomoyYkJjOt8b-Cgp53BgP-8QQghw@mail.gmail.com>
+ <afS_L-5XeWIldTXA@casper.infradead.org> <CAGsJ_4wk=SDtgin+84Ev2TamU-JFfmrg_SUay=-tcYmnFvK6Nw@mail.gmail.com>
+ <afTpoL3FklpQZNMM@casper.infradead.org> <CAGsJ_4ysMcrmDLSOwBkf7qwCQrcDWeEMXkHDajTJFMLKUk0bSQ@mail.gmail.com>
+ <agrWuDNGddNmvMFD@lucifer> <CAGsJ_4zqLfdWoTH9s7FFaqWWj0mESfikYgr7=GcV64qcuXrPxA@mail.gmail.com>
+ <CAJuCfpE0WQrB3zJp9qn3jvn5DthS=ttpX7gJJvyEhA_BJGrp5g@mail.gmail.com>
+ <CAGsJ_4zgeE3ebEJ+j7GJFzWVoVYHeiOn4dOoOsmWCLA6s=oECQ@mail.gmail.com> <5zdaa5uv5oj27q3taopl3amops57ouxgyfsdveudz4ovmbdw7z@6lwrlyvmhcp2>
+In-Reply-To: <5zdaa5uv5oj27q3taopl3amops57ouxgyfsdveudz4ovmbdw7z@6lwrlyvmhcp2>
+From: Barry Song <baohua@kernel.org>
+Date: Wed, 20 May 2026 06:01:56 +0800
+X-Gmail-Original-Message-ID: <CAGsJ_4yKxg1QugcsJi3WD0KVGJKe-zXycgm5D6cRi9vWtNcpDQ@mail.gmail.com>
+X-Gm-Features: AVHnY4KXMvR35lLgRvdk-7E8dkEjtOPBxVO6EaEmgpy8kErjRkXyQizjBsuo3fM
+Message-ID: <CAGsJ_4yKxg1QugcsJi3WD0KVGJKe-zXycgm5D6cRi9vWtNcpDQ@mail.gmail.com>
+Subject: Re: [PATCH v2 0/5] mm: reduce mmap_lock contention and improve page
+ fault performance
+To: "Liam R. Howlett" <liam@infradead.org>
+Cc: Suren Baghdasaryan <surenb@google.com>, Lorenzo Stoakes <ljs@kernel.org>, 
+	Matthew Wilcox <willy@infradead.org>, akpm@linux-foundation.org, linux-mm@kvack.org, 
+	david@kernel.org, vbabka@kernel.org, rppt@kernel.org, mhocko@suse.com, 
+	jack@suse.cz, pfalcato@suse.de, wanglian@kylinos.cn, chentao@kylinos.cn, 
+	lianux.mm@gmail.com, kunwu.chan@gmail.com, liyangouwen1@oppo.com, 
+	chrisl@kernel.org, kasong@tencent.com, shikemeng@huaweicloud.com, 
+	nphamcs@gmail.com, bhe@redhat.com, youngjun.park@lge.com, 
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, 
+	loongarch@lists.linux.dev, linuxppc-dev@lists.ozlabs.org, 
+	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, 
+	Nanzhe Zhao <nzzhao@126.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, May 19, 2026 at 1:57=E2=80=AFAM Alexandra Winter <wintera@linux.ibm=
-.com> wrote:
+On Tue, May 19, 2026 at 10:17=E2=80=AFPM Liam R. Howlett <liam@infradead.or=
+g> wrote:
 >
+> On 26/05/19 05:14AM, Barry Song wrote:
+> > On Tue, May 19, 2026 at 3:57=E2=80=AFAM Suren Baghdasaryan <surenb@goog=
+le.com> wrote:
+> > >
+> > > On Mon, May 18, 2026 at 4:26=E2=80=AFAM Barry Song <baohua@kernel.org=
+> wrote:
+> > > >
+> > > > On Mon, May 18, 2026 at 5:47=E2=80=AFPM Lorenzo Stoakes <ljs@kernel=
+.org> wrote:
+> > > > >
+> > > > > On Sun, May 17, 2026 at 04:45:15PM +0800, Barry Song wrote:
+> > [...]
+> > > >
+> > > > I think we either need to fix `fork()`, or keep the current
+> > > > behavior of dropping the VMA lock before performing I/O.
+> > >
+> > > I see. So, this problem arises from the fact that we are changing the
+> > > pagefaults requiring I/O operation to hold VMA lock...
+> > > And you want to lock VMA on fork only if vma_is_anonymous(vma) ||
+> > > is_cow_mapping(vma->vm_flags). So, we will be blocking page faults fo=
+r
+> > > anonymous and COW VMAs only while holding mmap_write_lock, preventing
+> > > any VMA modification. On the surface, that looks ok to me but I might
+> > > be missing some corner cases. If nobody sees any obvious issues, I
+> > > think it's worth a try.
 >
->
-> On 19.05.26 02:52, Rosen Penev wrote:
-> > Store the per-DMB connection pointers in the SMCD device allocation
-> > instead of allocating a separate connection array.
-> >
-> > This keeps the connection table tied to the SMCD device lifetime and
-> > simplifies the allocation and cleanup paths.
-> >
-> > Assisted-by: Codex:GPT-5.5
-> > Signed-off-by: Rosen Penev <rosenp@gmail.com>
-> > ---
->
-> I don't think GPT did a good job here.
-> There are many other instances, where smcd->conn is freed,
-> those would need adoption as well afaiu.
-git grep kfree | grep \\\-\>conn\)
-drivers/media/dvb-core/dvbdev.c: kfree(dvbdev->adapter->conn);
-net/wireless/sme.c: kfree(wdev->conn);
-net/wireless/sme.c: kfree(wdev->conn);
+> From Barry's description, I think what he is saying is that the vma
+> locking has caused the mmap_lock to become unfair?  I think what is
 
-I assume you mean net/wireless/sme.c
+For now, we do not have this problem. Before per-VMA
+locks, we dropped mmap_lock before doing I/O in the
+page-fault path and then retried the page fault. After
+per-VMA locks, we dropped the VMA lock before doing I/O in
+the page-fault path and then retried the page fault.
+
+The problem only starts to exist if we decide to perform
+I/O without releasing the VMA lock =E2=80=94 which is what Matthew
+is suggesting, because it would allow us to rip out a large
+amount of page-fault retry code.
+
+> implied is that the per-vma locking may stall mmap_lock writes for
+> longer than if the mmap_lock was taken in read mode?  Barry, is that
+> correct?
+
+Not the case =E2=80=94 the actual situation is (if we modify the
+current kernel to perform I/O without releasing VMA read locks):
+
+thread 1 PF: lock vma1 read ----  IO ----- ;
+thread 2 PF: lock vma2 read ----- IO ----- ;
+thread 3 PF:  lock vma3 read ---- IO ----- ;
+thread 4 fork:  mmap_lock_write ---- lock vma1, vma2, vma3 write ;
+thread 5 :  take mmap_lock for any read/write reason
+
+Now you can see that thread 4 has to wait for the I/O of
+VMA1, VMA2, and VMA3 to complete, and thread 5 then has to
+wait for thread 4 to release mmap_lock. Both thread 4 and
+thread 5 can become extremely slow, because I/O may be stuck
+anywhere in the bio/request queue or filesystem GC.
+
+So now we have two choices:
+
+1. Change fork() to avoid taking the vma write lock for vma1/2/3 where poss=
+ible;
+2. Keep the current kernel behavior and drop the VMA lock before I/O:
+
+thread 1 PF: lock vma1 read; drop vma1 read_lock ----  IO ----- retry PF
+thread 2 PF: lock vma2 read; drop vma2 read_lock ----- IO ----- retry PF
+thread 3 PF:  lock vma3 read; drop vma3 read_lock ---- IO ----- retry PF
+
+Option 2 is what mainline is currently doing, and what this
+patchset also follows. The only difference in this patchset is
+that page faults are retried under the VMA read lock, rather
+than under mmap_lock as in the current kernel, which is causing
+mmap_lock contention.
+
 >
-> I am also not sure that there is enough improvement in the idea
-> to warrant a patch, but I leave that to the SMC maintainers.
+> Since Android is doing something (according to Barry) that should not be
+> done (according to Willy), both of these together are causing slow down?
+
+The only thing that would cause slowdown is holding the VMA
+lock while performing I/O in the page-fault path, which is not
+happening today. It would only happen if we insist on doing I/O
+under the VMA lock without changing fork().
+
 >
+> >
+> > Thanks. Besides the creation of processes via fork(), I
+> > am also beginning to worry about the death of processes.
+> >
+> > One thing that came to my mind this morning
+> > is that when lowmemorykiller decides to kill an app, we
+> > want the memory to be released as quickly as possible so
+> > the new app or user scenario can get memory sooner.
+> >
+> > In that case, if the app being killed is performing I/O
+> > while holding the VMA lock, the unmapping procedure
+> > could end up being blocked as well.
+> >
+> > If we release the VMA lock as we currently do, we allow
+> > process exit to proceed.
+> >
+> > I haven't thought it through very clearly yet, and I
+> > may be wrong. I'd like to do more investigation. I hope
+> > the apps being killed stay very still, but who knows=E2=80=94we
+> > have so many applications in the market.
+> >
+> > Meanwhile, if you have any comments regarding the death
+> > of processes, they would be very welcome.
 >
+> The oom killer only cleans out anon/not shared vmas [1].  So, what this
+> would hold up would be the actual process exit path.  Although that
+> would have resources associated with it, the amount of resources should
+> be relatively low compared to the amount freed by the oom reaper, right?
 >
-> >  include/net/smc.h |  2 +-
-> >  net/smc/smc_ism.c | 10 ++--------
-> >  2 files changed, 3 insertions(+), 9 deletions(-)
-> >
-> > diff --git a/include/net/smc.h b/include/net/smc.h
-> > index bfdc4c41f019..a2bc3ab88075 100644
-> > --- a/include/net/smc.h
-> > +++ b/include/net/smc.h
-> > @@ -40,7 +40,6 @@ struct smcd_dev {
-> >       struct dibs_dev *dibs;
-> >       struct list_head list;
-> >       spinlock_t lock;
-> > -     struct smc_connection **conn;
-> >       struct list_head vlan;
-> >       struct workqueue_struct *event_wq;
-> >       u8 pnetid[SMC_MAX_PNETID_LEN];
-> > @@ -50,6 +49,7 @@ struct smcd_dev {
-> >       atomic_t lgr_cnt;
-> >       wait_queue_head_t lgrs_deleted;
-> >       u8 going_away : 1;
-> > +     struct smc_connection *conn[];
-> >  };
-> >
-> >  #define SMC_HS_CTRL_NAME_MAX 16
-> > diff --git a/net/smc/smc_ism.c b/net/smc/smc_ism.c
-> > index e0dba2c7b6e3..bde938c5eb39 100644
-> > --- a/net/smc/smc_ism.c
-> > +++ b/net/smc/smc_ism.c
-> > @@ -467,17 +467,14 @@ static struct smcd_dev *smcd_alloc_dev(const char=
- *name, int max_dmbs)
-> >  {
-> >       struct smcd_dev *smcd;
-> >
-> > -     smcd =3D kzalloc_obj(*smcd);
-> > +     smcd =3D kzalloc_flex(*smcd, conn, max_dmbs);
-> >       if (!smcd)
-> >               return NULL;
-> > -     smcd->conn =3D kzalloc_objs(struct smc_connection *, max_dmbs);
-> > -     if (!smcd->conn)
-> > -             goto free_smcd;
-> >
-> >       smcd->event_wq =3D alloc_ordered_workqueue("ism_evt_wq-%s)",
-> >                                                WQ_MEM_RECLAIM, name);
-> >       if (!smcd->event_wq)
-> > -             goto free_conn;
-> > +             goto free_smcd;
-> >
-> >       spin_lock_init(&smcd->lock);
-> >       spin_lock_init(&smcd->lgr_lock);
-> > @@ -486,8 +483,6 @@ static struct smcd_dev *smcd_alloc_dev(const char *=
-name, int max_dmbs)
-> >       init_waitqueue_head(&smcd->lgrs_deleted);
-> >       return smcd;
-> >
-> > -free_conn:
-> > -     kfree(smcd->conn);
-> >  free_smcd:
-> >       kfree(smcd);
-> >       return NULL;
-> > @@ -557,7 +552,6 @@ static void smcd_unregister_dev(struct dibs_dev *di=
-bs)
-> >       list_del_init(&smcd->list);
-> >       mutex_unlock(&smcd_dev_list.mutex);
-> >       destroy_workqueue(smcd->event_wq);
-> > -     kfree(smcd->conn);
-> >       kfree(smcd);
-> >  }
-> >
+> The other entry point that's mostly to do with android,
+> process_mrelease() [2] will end up in the same  __oom_reap_task_mm()
+> function.
 >
+> So, for the most part, the memory will be freed while the file backed
+> vma completes IO and that sounds like the right thing to do anyways.
+
+Thanks very much for your valuable input!
+I=E2=80=99m going to run more experiments to dig deeper into this.
+
+>
+> Thanks,
+> Liam
+>
+> [1]. https://elixir.bootlin.com/linux/v7.1-rc4/source/mm/oom_kill.c#L547
+> [2]. https://elixir.bootlin.com/linux/v6.18.6/source/mm/oom_kill.c#L1210
+>
+
+Best Regards
+Barry
