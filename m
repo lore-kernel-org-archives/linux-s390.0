@@ -1,168 +1,243 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 303BB480340;
-	Tue, 19 May 2026 11:07:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F3C19481FBA
+	for <linux-s390@vger.kernel.org>; Tue, 19 May 2026 11:07:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779188825; cv=none; b=dIL8QAU76MOEsywULIHbYqdwuY3RlujbtxxpF/Ee0lEs7Wbsu4DQhfPYnOtRIf7SVcH/8Y1Nfr83AiK/aYg+hRj2Sm6atLdwr+wga6p/0QFZros6uQlKS+6IyfWhJ2MULIURFheW1w6EJWOeFGi9gBg0UwDuod3myPcf4hICgPs=
+	t=1779188870; cv=none; b=MPt29zcAUHSvBFF2YIFtTPcbMd2mvoaoyU5FCKgntHnMohxY2kUA17EV56cNOyr2IR92N0yKarwJykc5YjH3nf9m/T9lfnS/zZQfobqKXgDTE0R84Oyy2FTs1ktLKIwtXqwFuQFk+DTkh9Ga3hLngR46cokA3OgokOjvOwxWjlM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779188825; c=relaxed/simple;
-	bh=vYiD8VGLXE7VOYUz5qja2kJr1R93//8BulXYCD/ylfM=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=aq2iJrBbx57niriRbfqWu7Jtr0/HT2DTSXiRje32C+5Nkg1a3xn1LWnWvAa2xxpg//sg64uBMGP3sCxDmh0BVJqZeB+C6SdGw/QJ0R4Cw+Oo5JWLFo2BTNo8+w3DcM1w9WOP0DgEUsRLe/EYJEGF5ZFDEH6ietKB1p8Gputris4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Eq+78REA; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1779188870; c=relaxed/simple;
+	bh=AC6EG7Qy5QFar1m8+wNeC36/N8InyfKesUcYtXC1ZRw=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=OkbYGG4S0qk2qZrbFnVt+RVAQd9fiPxyT0B3g+6ni/8E4frceXoPxi+Qd2N2saq1a3AP8BFZmwErfYhY2HSi5nenTE69SBme8hAQu02wZ9ReXW1O2mSF2BRl/n82RCivV/uUV0ISiy1Dmq10JjLBaJpnFCmNsimw3kc8KkwFSWI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=J6HZC9pC; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Eq+78REA"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 64JAeAw4620482;
-	Tue, 19 May 2026 11:07:01 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=SsbHVbSJjdeinSvoGu7TwK/2xG13pBNX8RVSYS1dp
-	wQ=; b=Eq+78REAyvAHf1UdEmH4jOsKr7Y8iJmcwRL36ToEnUmzowBX/iLv0T6KV
-	5sPOGGI/E0psmV2PHmOuC7e5hHoyaWsbRFJx9qSOJPh4zvJYFzDk31tLkBX7uJmc
-	QIR5su73tUZS9B5FJllId6l/twBXkp19fuKUG6Avs0vqYiO83A0E10xjcCRZC9jU
-	DiLpXRTKKJeumZScixV7CRHKI5VBMHte8jFnq17OvZhgz65GQvECb0hLsUx9S97A
-	NpLiwAjR7LCPM9wZ+jNP0u1BqJYuR36s9L/2JsRBrPgSFODSXi/qgHkYkklpbFkL
-	k/nCBbzpoSHMegu/LvGfGLbAHdMZQ==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4e6h88bvp7-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 19 May 2026 11:07:00 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 64JAs9We016041;
-	Tue, 19 May 2026 11:07:00 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4e74dhj60n-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 19 May 2026 11:07:00 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 64JB6uWp51315192
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 19 May 2026 11:06:56 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2DE162004B;
-	Tue, 19 May 2026 11:06:56 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id EF4A220043;
-	Tue, 19 May 2026 11:06:55 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 19 May 2026 11:06:55 +0000 (GMT)
-From: Thomas Richter <tmricht@linux.ibm.com>
-To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-perf-users@vger.kernel.org, acme@kernel.org, namhyung@kernel.org
-Cc: agordeev@linux.ibm.com, gor@linux.ibm.com, sumanthk@linux.ibm.com,
-        hca@linux.ibm.com, japo@linux.ibm.com,
-        Thomas Richter <tmricht@linux.ibm.com>
-Subject: [PATCH ping2 linux-next] perf test: probe_vfs_getname add do_getname() probing fallback
-Date: Tue, 19 May 2026 13:06:43 +0200
-Message-ID: <20260519110643.1424411-1-tmricht@linux.ibm.com>
-X-Mailer: git-send-email 2.51.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="J6HZC9pC"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7BCCEC2BCF6
+	for <linux-s390@vger.kernel.org>; Tue, 19 May 2026 11:07:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1779188869;
+	bh=AC6EG7Qy5QFar1m8+wNeC36/N8InyfKesUcYtXC1ZRw=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+	b=J6HZC9pCBVvKkq/Wxm2hTVYY1qvrimcGxO52O+8iIijmU2YZ84Y/Nc2nNJqOsODAB
+	 BA153SFiXfqJ0byR+6nV06yKp5+ucb39ErHO8HSupUS3liO24LSCSsqMNzOBPIwVoi
+	 Lj/QT11bmTYBhC1rPctv2NgtLGQ6M57TL4Ux01hnPIvSSr9n8bGcnZ7B7nD2N5Hij/
+	 T4MsexjvZRBhtKuWOI85twHBDHISBIjKE06XdV+Jy/d8X9knosht2r3HRGxpwV1E+u
+	 MMB1SzIwyBJD1C4Ps5JFTz0Sb1cRzaFig/nC4peanMKuuvQeAhTOmAPAIQoZYUPmXG
+	 PWDiK6Slkc3iw==
+Received: by mail-qk1-f178.google.com with SMTP id af79cd13be357-911af978bf2so408174885a.1
+        for <linux-s390@vger.kernel.org>; Tue, 19 May 2026 04:07:49 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AFNElJ/n70XXT2J7j6BN2dI0Swp6siAziV81LGnp87mdxPCGSYs5QK9TmAiFuAu0GIkXN6m+EPKBGydc99fM@vger.kernel.org
+X-Gm-Message-State: AOJu0YwrgJRoHYUw+o/PbE6ZugoANBFRMYJShHQEt7XNQC4ouAIYwQWr
+	Jhi4hxcWwFFcy9v8JMZJAVyAmBKwI+LqsT02Seh7Z0Jb6fnbaAQ/zLJHuz46hXPGeYyduqtSCdM
+	rXIfg174lyxNNYUzolbY6OGyVSevIkX8=
+X-Received: by 2002:a05:620a:25cd:b0:8ca:123e:819b with SMTP id
+ af79cd13be357-911ccd8bbe7mr2716864885a.13.1779188868655; Tue, 19 May 2026
+ 04:07:48 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: AEvfqtFt4-rpdQTosVdG1aH3vSpxF_Cx
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTE5MDEwOSBTYWx0ZWRfX3w6JapXKPXNl
- 7JBZPSDblCrClzQSymbppP6Y+NoQDbUflXEoRzCSIo5QgGwrMFpDuyrLG3Cr8uFip5fnBkRMl2p
- NL16dbc7sFAzC+v/Hc1XwAHDrj1Xd9czhC/DYIe2Mc7xNKVfyKNcnOrxLFv18+/6rcuYfv2XJGQ
- 5z9h7FsPuptoIZKAu47EUQy3YqOyXDOkAmSeUSLAGRwAMs0psZiS+/xKm+M16NQwuMTmX14QuJD
- 5UoSyfu0kAAEQIKl7kxFysNp8kwgDqBxEUbOgErqvFrGVJTAum80q/orEN1bK56UVFi1G/+Q9AB
- OYbWVYMWrLAtecNiP48rjkRP1mxOb59+GbSM4UwVHd/3yFVW9wsyzGMiUYAIr+19OvIQn0Q3lxD
- 9bXm7Pe14xlIdkLbwGjmufxLgMD9cM4AYeIH4nzA8cNOWFAwrAaMj+j1AJo9sM6O4Ibzc25ZtRs
- +2s/ansb3fiN0nWruyQ==
-X-Proofpoint-GUID: AEvfqtFt4-rpdQTosVdG1aH3vSpxF_Cx
-X-Authority-Analysis: v=2.4 cv=apyCzyZV c=1 sm=1 tr=0 ts=6a0c4454 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=NGcC8JguVDcA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8 a=HWmUBIJd22lZSy0K-CsA:9
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-05-19_03,2026-05-18_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 lowpriorityscore=0 priorityscore=1501 impostorscore=0
- bulkscore=0 suspectscore=0 adultscore=0 spamscore=0 phishscore=0
- clxscore=1015 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2605130000
- definitions=main-2605190109
+References: <20260430040427.4672-1-baohua@kernel.org> <afNM-gIqxpyJ6ro7@casper.infradead.org>
+ <CAGsJ_4w0qcYmukHqsyRd0jomoyYkJjOt8b-Cgp53BgP-8QQghw@mail.gmail.com>
+ <afS_L-5XeWIldTXA@casper.infradead.org> <CAGsJ_4wk=SDtgin+84Ev2TamU-JFfmrg_SUay=-tcYmnFvK6Nw@mail.gmail.com>
+ <afTpoL3FklpQZNMM@casper.infradead.org> <CAGsJ_4ysMcrmDLSOwBkf7qwCQrcDWeEMXkHDajTJFMLKUk0bSQ@mail.gmail.com>
+ <CAHbLzkrOSoh-jmR=uaNvx73n_wn+vExoKY0UzH5zGcfdAiDbNg@mail.gmail.com>
+In-Reply-To: <CAHbLzkrOSoh-jmR=uaNvx73n_wn+vExoKY0UzH5zGcfdAiDbNg@mail.gmail.com>
+From: Barry Song <baohua@kernel.org>
+Date: Tue, 19 May 2026 19:07:37 +0800
+X-Gmail-Original-Message-ID: <CAGsJ_4w_-Y8qNLDeLX9OWpLpK01YG2bF-N6_mGypgsauvfCvkA@mail.gmail.com>
+X-Gm-Features: AVHnY4IMRz_ZQFDJjmEiieX1rlV8P0ieusFoUXzddUcOWyGa62kJgu1G0wGZ0I0
+Message-ID: <CAGsJ_4w_-Y8qNLDeLX9OWpLpK01YG2bF-N6_mGypgsauvfCvkA@mail.gmail.com>
+Subject: Re: [PATCH v2 0/5] mm: reduce mmap_lock contention and improve page
+ fault performance
+To: Yang Shi <shy828301@gmail.com>
+Cc: Matthew Wilcox <willy@infradead.org>, surenb@google.com, akpm@linux-foundation.org, 
+	linux-mm@kvack.org, david@kernel.org, ljs@kernel.org, liam@infradead.org, 
+	vbabka@kernel.org, rppt@kernel.org, mhocko@suse.com, jack@suse.cz, 
+	pfalcato@suse.de, wanglian@kylinos.cn, chentao@kylinos.cn, 
+	lianux.mm@gmail.com, kunwu.chan@gmail.com, liyangouwen1@oppo.com, 
+	chrisl@kernel.org, kasong@tencent.com, shikemeng@huaweicloud.com, 
+	nphamcs@gmail.com, bhe@redhat.com, youngjun.park@lge.com, 
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, 
+	loongarch@lists.linux.dev, linuxppc-dev@lists.ozlabs.org, 
+	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, 
+	Nanzhe Zhao <nzzhao@126.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-The following tests are skipped for some time now on platforms
-s390 and x86_64:
+On Tue, May 19, 2026 at 5:21=E2=80=AFAM Yang Shi <shy828301@gmail.com> wrot=
+e:
+>
+> On Sun, May 17, 2026 at 1:45=E2=80=AFAM Barry Song <baohua@kernel.org> wr=
+ote:
+> >
+> > On Sat, May 2, 2026 at 1:58=E2=80=AFAM Matthew Wilcox <willy@infradead.=
+org> wrote:
+> > >
+> > > On Sat, May 02, 2026 at 01:44:34AM +0800, Barry Song wrote:
+> > > > On Fri, May 1, 2026 at 10:57=E2=80=AFPM Matthew Wilcox <willy@infra=
+dead.org> wrote:
+> > > > >
+> > > > > On Fri, May 01, 2026 at 06:49:58AM +0800, Barry Song wrote:
+> > > > > > 1. There is no deterministic latency for I/O completion. It dep=
+ends on
+> > > > > > both the hardware and the software stack (bio/request queues an=
+d the
+> > > > > > block scheduler). Sometimes the latency is short; at other time=
+s it can
+> > > > > > be quite long. In such cases, a high-priority thread performing=
+ operations
+> > > > > > such as mprotect, unmap, prctl_set_vma, or madvise may be force=
+d to wait
+> > > > > > for an unpredictable amount of time.
+> > > > >
+> > > > > But does that actually happen?  I find it hard to believe that th=
+read A
+> > > > > unmaps a VMA while thread B is in the middle of taking a page fau=
+lt in
+> > > > > that same VMA.  mprotect() and madvise() are more likely to happe=
+n, but
+> > > > > it still seems really unlikely to me.
+> > > >
+> > > > It doesn=E2=80=99t have to involve unmapping or applying mprotect t=
+o
+> > > > the entire VMA=E2=80=94just a portion of it is sufficient.
+> > >
+> > > Yes, but that still fails to answer "does this actually happen".  How=
+ much
+> > > performance is all this complexity in the page fault handler buying u=
+s?
+> > > If you don't answer this question, I'm just going to go in and rip it
+> > > all out.
+> > >
+> >
+> > Hi Matthew (and Lorenzo, Jan, and anyone else who may be
+> > waiting for answers),
+> >
+> > As promised during LSF/MM/BPF, we conducted thorough
+> > testing on Android phones to determine whether performing
+> > I/O in `filemap_fault()` can block `vma_start_write()`.
+> > I wanted to give a quick update on this question.
+> >
+> > Nanzhe at Xiaomi created tracing scripts and ran various
+> > applications on Android devices with I/O performed under
+> > the VMA lock in `filemap_fault()`. We found that:
+> >
+> > 1. There are very few cases where unmap() is blocked by
+> >    page faults. I assume this is due to buggy user code
+> >    or poor synchronization between reads and unmap().
+> > So I assume it is not a problem.
+> >
+> > 2. We observed many cases where `vma_start_write()`
+> >    is blocked by page-fault I/O in some applications.
+> >    The blocking occurs in the `dup_mmap()` path during
+> >    fork().
+> >
+> > With Suren's commit fb49c455323ff ("fork: lock VMAs of
+> > the parent process when forking"), we now always hold
+> > `vma_write_lock()` for each VMA. Note that the
+> > `mmap_lock` write lock is also held, which could lead to
+> > chained waiting if page-fault I/O is performed without
+> > releasing the VMA lock.
+> >
+> > My gut feeling is that Suren's commit may be overshooting,
+> > so my rough idea is that we might want to do something like
+> > the following (we haven't tested it yet and it might be
+> > wrong):
+> >
+> > diff --git a/mm/mmap.c b/mm/mmap.c
+> > index 2311ae7c2ff4..5ddaf297f31a 100644
+> > --- a/mm/mmap.c
+> > +++ b/mm/mmap.c
+> > @@ -1762,7 +1762,13 @@ __latent_entropy int dup_mmap(struct mm_struct
+> > *mm, struct mm_struct *oldmm)
+> >         for_each_vma(vmi, mpnt) {
+> >                 struct file *file;
+> >
+> > -               retval =3D vma_start_write_killable(mpnt);
+> > +               /*
+> > +                * For anonymous or writable private VMAs, prevent
+> > +                * concurrent CoW faults.
+> > +                */
+> > +               if (!mpnt->vm_file || (!(mpnt->vm_flags & VM_SHARED) &&
+> > +                                       (mpnt->vm_flags & VM_WRITE)))
+> > +                       retval =3D vma_start_write_killable(mpnt);
+> >                 if (retval < 0)
+> >                         goto loop_out;
+> >                 if (mpnt->vm_flags & VM_DONTCOPY) {
+>
+> Maybe a little bit off topic. This is an interesting idea. It seems
+> possible we don't have to take vma write lock unconditionally. IIUC
+> the write lock is mainly used to serialize against page fault and
+> madvise, right? I got a crazy idea off the top of my head. We may be
+> able to just take vma write lock iff vma->anon_vma is not NULL.
+>
+> First of all, write mmap_lock is held, so the vma can't go or be
+> changed under us.
+>
+> Secondly, if vma->anon_vma is NULL, it basically means either no page
+> fault happened or no cow happened, so there is no page table to copy,
+> this is also what copy_page_range() does currently. So we can shrink
+> the critical section to:
+>
+> if (vma->anon_vma) {
+>     vma_start_write_killable(src_vma);
+>     anon_vma_fork(dst_vma, src_vma);
+>     copy_page_range(dst_vma, src_vma);
+> }
+>
+> But page fault can happen before write mmap_lock is taken, when we
+> check vma->anon_vma, it is possible it has not been set up yet. But it
+> seems to be equivalent to page fault after fork and won't break the
+> semantic.
 
- # perf test vfs_getname
- 138: Add vfs_getname probe to get syscall args filenames    : Skip
- 140: Use vfs_getname probe to get syscall args filenames    : Skip
- 154: Check open filename arg using perf trace + vfs_getname : Skip
- #
+Re-reading Suren's commit log for fb49c455323ff8
+("fork: lock VMAs of the parent process when forking"),
+it seems that vm_start_write() is used to protect
+against a race where anon_vma changes from NULL to
+non-NULL during fork. In that scenario, we hold the
+mmap_lock write lock, but not vma_start_write(), so a
+concurrent anon_vma_prepare() could still install an
+anon_vma.
 
-This is caused by a change in kernel code of function
-getname_flags(), see
-  commit 9fa3ec84587c ("allow incomplete imports of filenames")
-This commit changed the function getname_flags() implementation.
+"    A concurrent page fault on a page newly marked read-only by the page
+    copy might trigger wp_page_copy() and a anon_vma_prepare(vma) on the
+    source vma, defeating the anon_vma_clone() that wasn't done because the
+    parent vma originally didn't have an anon_vma, but we now might end up
+    copying a pte entry for a page that has one.
+"
 
-Now the perf probe 'vfs_getname parameter=xxx' does not match any
-more. Extend the test logic to fall back to probing do_getname().
-This reflects the updated kernel code.
+If that is the case, then your change does not work.
 
-Output after:
- # perf test vfs_getname
- 138: Add vfs_getname probe to get syscall args filenames    : Ok
- 140: Use vfs_getname probe to get syscall args filenames    : Ok
- 154: Check open filename arg using perf trace + vfs_getname : Ok
- #
+Nowadays, nobody calls anon_vma_prepare(vma) directly.
+Instead, vmf_anon_prepare() is used, and we always
+require the mmap_lock read lock before calling
+__anon_vma_prepare(). As a result, anon_vma cannot
+transition from NULL to non-NULL during fork.
 
-Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-Reviewed-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
----
- tools/perf/tests/shell/lib/probe_vfs_getname.sh | 16 +++++++++++++++-
- 1 file changed, 15 insertions(+), 1 deletion(-)
+So the original race condition has effectively
+disappeared.
 
-diff --git a/tools/perf/tests/shell/lib/probe_vfs_getname.sh b/tools/perf/tests/shell/lib/probe_vfs_getname.sh
-index 88cd0e26d5f6..9156a79212b9 100644
---- a/tools/perf/tests/shell/lib/probe_vfs_getname.sh
-+++ b/tools/perf/tests/shell/lib/probe_vfs_getname.sh
-@@ -12,6 +12,8 @@ cleanup_probe_vfs_getname() {
- 
- add_probe_vfs_getname() {
- 	add_probe_verbose=$1
-+	do_getname=0
-+
- 	if [ $had_vfs_getname -eq 1 ] ; then
- 		result_initname_re="[[:space:]]+([[:digit:]]+)[[:space:]]+initname.*"
- 		line=$(perf probe -L getname_flags 2>&1 | grep -E "$result_initname_re" | sed -r "s/$result_initname_re/\1/")
-@@ -28,12 +30,24 @@ add_probe_vfs_getname() {
- 			line=$(perf probe -L getname_flags 2>&1 | grep -E "$result_aname_re" | sed -r "s/$result_aname_re/\1/")
- 		fi
- 
-+		if [ -z "$line" ] ; then
-+			do_getname=1
-+			result_iname_re="[[:space:]]+([[:digit:]]+)[[:space:]]+initname\(result\);"
-+			line=$(perf probe -L do_getname 2>&1 | grep -E "$result_iname_re" | sed -r "s/$result_iname_re/\1/")
-+		fi
-+
- 		if [ -z "$line" ] ; then
- 			echo "Could not find probeable line"
- 			return 2
- 		fi
- 
--		perf probe -q       "vfs_getname=getname_flags:${line} pathname=result->name:string" || \
-+		if [ "$do_getname" -eq 1 ]
-+		then
-+			param="vfs_getname=do_getname:${line} pathname=result->iname:string"
-+			perf probe -q "$param" || perf probe $add_probe_verbose "$param" || return 1
-+			return 0
-+		fi
-+		perf probe -q "vfs_getname=getname_flags:${line} pathname=result->name:string" || \
- 		perf probe $add_probe_verbose "vfs_getname=getname_flags:${line} pathname=filename:ustring" || return 1
- 	fi
- }
--- 
-2.53.0
+You also mentioned the madvise() case. If I understand
+correctly, madvise() should take mmap_lock before
+modifying anon_vma. Only some parts of madvise() can
+support per-VMA locking. Therefore, we probably do not
+need:
 
+if (vma->anon_vma) {
+vma_start_write_killable(src_vma);
+...
+}
+
+>
+> Anyway, just a crazy idea, I may miss some corner cases.
+
+To me, it seems that we could remove vma_start_write()
+entirely now. Or is that an even crazier idea?
+
+Thanks
+Barry
