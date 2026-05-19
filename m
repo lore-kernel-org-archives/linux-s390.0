@@ -1,246 +1,165 @@
-Received: from mail-ed1-f48.google.com (mail-ed1-f48.google.com [209.85.208.48])
+Received: from mail-pj1-f48.google.com (mail-pj1-f48.google.com [209.85.216.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D38D7328610
-	for <linux-s390@vger.kernel.org>; Mon, 18 May 2026 21:21:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.48
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779139290; cv=pass; b=jdb+Chu1RTHJpKyUfSL4125n1EkhEdbsyQWajLTsOJntduZ5Z9v7L/DCTTDAlH3GqAByUmisbhHh2gM/uCGF9IBnRsc9FOoXEDddemNn6zsSvQ2khWEP2HxwkIIv6YyCkV4zBEUztb5xqORFyxY52DMeAiPQ3IjMIvPxIiEuH5c=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779139290; c=relaxed/simple;
-	bh=laBUtyj65fO2XYeMxoRChgsX3Gr7mjOx+RzG39EAtNE=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Z+zWkLBKSMUsNlgqksqkNUEr4vKa6lPGZoYB7OKz1KUDJHgVm2y3rNmOHLLF8QqDNxPjKnyuha2gLr4AM0NElDTLtMJDSlMW2XBOMHqrXfeZnpyAQiFbFwCCC9uxgVKH0qJ4s+xfPgHTAp3MKPBn2DMCqOy7kAC0mO0JYFZnBug=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=o+HKPuHJ; arc=pass smtp.client-ip=209.85.208.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF66019CD0A
+	for <linux-s390@vger.kernel.org>; Tue, 19 May 2026 00:52:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.48
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1779151946; cv=none; b=gpJt3kZ1ukb/R+r7y0rwwCEcYC4g7fYs5U/eeo677nGjsFfxsvTKxChxCJSatQbqsr8c8zEVupiPdEaT2dc/INyc9PG5x1WPM72l9aeC/UnWKj7GEKFv9mLX0bSSQDbS+lt/WLcaT31amJCaRSyJPkh0Ut8iJ+sW48QvU+aaCug=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1779151946; c=relaxed/simple;
+	bh=8WR9rCQI8pYKIwDYraHrHjYIExw2j9LSvcpKQg2e6KU=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ZD6LmwU5cdzdTAReo5goSYjUufZqgHcHauhDzrH6io76JO4wbr8olxigf7i4Ml6J5SlqdzSXKsXwO5FbCFqO3EnPcblmdwd7DbZ6CRtiXgldKGQy45ib0YElXGd2wfQY+gaS4XK8HJ+xYz+elCJCGGXkadmdbKmrQIfShTFUv0g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=eD57G5qW; arc=none smtp.client-ip=209.85.216.48
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="o+HKPuHJ"
-Received: by mail-ed1-f48.google.com with SMTP id 4fb4d7f45d1cf-67179ed133dso3366444a12.2
-        for <linux-s390@vger.kernel.org>; Mon, 18 May 2026 14:21:28 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1779139287; cv=none;
-        d=google.com; s=arc-20240605;
-        b=GlyJehdZiVgKEQbMEj8t2qJB3oFMSLsaJ7eJQZw3Mvdr/FVWUy4p82Vspkf0uAFkFB
-         SHjmpraQEZClVXFrLGDzX7UaOQaEDyIvm7wAzPIxQkbk6z2HSkNOOjesw1CwILC5yfQD
-         vUb8/7wvSAxMTP16BJsTFCzvuA527pcjjqCJVEGFJPRDpnv4AW7IL2LNcawJNj4IVxnq
-         CpegxlB0jygL+4MMqgURmHdP9KaLX1Wu6Ue2pfNHt7GBaLGaia6+xo/EnEdvYV1dYTJB
-         pe4MU7Ix/pyLh+Kxv0dj2szXW1xgmQalpS20aEW/UTI7pUg+yqNIIJByf7xmaNcQ9CJ/
-         EnaA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=EsFks/IQaK5zPrUgVquMlDUWIMq4vDiBKG2waN9CznQ=;
-        fh=lSpsJpcOKL7dQUYX4eShvOnu2hA/AQtxsLG3ggtz0HU=;
-        b=FO4hUmaGL2FuUqYNdRqSc1XL0jYiL+3h+FjZoqr/ewOqBG0O0NlbKpAcEWDqC8KYXn
-         lTqphi4byFmhuugBhm3ju8DNjfRYpC1ns1rUs3j7FRDXXncfGlrVzbWagL+uDIFZ/x+Z
-         p0zZV+E6wgj920446HiO5821PU5/SJxEBomya03luQpjKxNVbZGZGnqaKTbvhLo31+Er
-         k4QjW2EonLJhOSDDpEdohWHNn04aScwsMBg5Im7CUthqNlrSmBF56ItaukJx21E9rUym
-         5eWDj1lEb57kaFf9qTTWlEhFjvuBWPE3BiU0Rb+EPP5tCHFQ71piTaHdeal7HgSYqEDd
-         enQA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="eD57G5qW"
+Received: by mail-pj1-f48.google.com with SMTP id 98e67ed59e1d1-3684a6f3b0bso1635319a91.1
+        for <linux-s390@vger.kernel.org>; Mon, 18 May 2026 17:52:25 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1779139287; x=1779744087; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=EsFks/IQaK5zPrUgVquMlDUWIMq4vDiBKG2waN9CznQ=;
-        b=o+HKPuHJYXL6JXBCmJHDifaGKIg5MmcdjoXoxrEsp/VJVCpMB5xFAr+sL18DgLRMGU
-         r60XwRyHtmW9+Er3TAN9J2w6uJLcyGVhFj0iJSs7BZUsldE+wbadZBgmWGgVqwfU1Wyz
-         nxq+tJ9PjMuNaDIGbU0A14BkDscTFiTdWJ/mVDth20o3gXggehNFxZBwFmYLhBEruKYk
-         F5G5gOfDFRITsjkLQ5QYQQ34BfVLZzedG9oPo0UVabEJVv/bNEOEI5atL6xo721SZ1se
-         3jb1FsUrAg9KT6EjwCjC40JxLwd4zioKsDT12PH47B+hldCCCLCnI9INt6yIuYNK/oZx
-         sDuA==
+        d=gmail.com; s=20251104; t=1779151945; x=1779756745; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=/pD9nTHCsUwMY/2ZvH2eEJmq55Tr5vZPtGAv1sHO/wQ=;
+        b=eD57G5qWHjI7bto21FBFhIad4ZzZQBRThwy/3k8aRkIBtsZGdOpjX8+deCRRMakq3t
+         CQ6RrRBoqidAaCx+ztHMCtPAbyLdqD1aYxH+sK/sPI0r+SNoxaJwvL11bigxnPKIZ3l4
+         4pQMa4353Z8JzTgQg57oeUZ4EXgc3VWXfoMUlOlVYXKKNkngMQxsqWKPCjalD3z8DKn7
+         9mJyyjAvsr+yK+muWQf6m6SRAdQGgp8XG42pgpfEGNXRsxDarlQunEVKgi+XMQB+VF0+
+         dEW7Sg2Dy/6gm7EVQtNWRvxuoFNd1cxmJXBjTItyfDi+5VwXmAvPr7wG/skQLyGWszaY
+         elWw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779139287; x=1779744087;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=EsFks/IQaK5zPrUgVquMlDUWIMq4vDiBKG2waN9CznQ=;
-        b=b0Aw1wSe+Rl4pFqHclqWMJvfnceQDhuMLyTsCwcPxE/hchfPorf535sh89b07ZjUuX
-         DPlTiQOIZiMTZVNs+pjf4LAs/WSBS/JeNrfZj9gM5lF2FsHuhFs6NDIkvT9hp6LnRvt5
-         lBM3RZRx665VAJ8pqaAlZ9/lJLHsZXIFfvsejeQi9aYHsH/UWgh+M6cx7CJdi7EHz2bV
-         +EkF8wqAb+nuj8dWFRLvYxe1r87Dj5LArCIDkx6USFjAL2UJAIx45gJLQZ3TvpPYVTCy
-         gDPpNpl/nERkIQw/7IxEQFnhUuN8AFWUqqogFR6dF1u8iqfx8VkDKFxsinJAUj6obT3v
-         7VTA==
-X-Forwarded-Encrypted: i=1; AFNElJ+aV1GY1VjT61HAe3Q0fe1iZApVDJPmV8h+WfH1gzEJRUUjfk0pfsWHcHLCxE1E65IS36xSlkZ5i128@vger.kernel.org
-X-Gm-Message-State: AOJu0YzbaV1rFk/a1uSXz9gaG3MkC8ivgOS4tirtMwRJbfQVuECq5cs6
-	/iFm7z971hJnwnzJD/ifGWtOKNim2tV4GavgLVrRnKKYRRC0vz+OFTnlxgXsMQwBeuho4WG78i1
-	sPRzp5S4tiMdpx6mCk3f5PCaqqT2gpQg=
-X-Gm-Gg: Acq92OGpnTE8kB2umZyOMoP28q11fkplTgXr+MIwOtWNRZ7ehBguxOhF050Ec8SKOEy
-	xkfmyc+VQ2l0SarOM410QmjsO9u4dvDNvi+uPaV9s872+BxkUlPzs6yB78ccxxoKGIGoNvAx5UY
-	dUqmwFzO81gr4dTRmuQx2jiOUvMgwHRAIS3QmEtWrm1o1xUZZH8BysLJBZeDMgKhzs6SquZv5dK
-	YNv6LA+NBN4W5KkdrUF4UYqbMVnzwNFcgoe9Gpz37EgrmCCI8FvtMc/t989SCq6jwpj7bPmyfDg
-	nlQXGpM=
-X-Received: by 2002:aa7:d315:0:b0:683:6705:6e09 with SMTP id
- 4fb4d7f45d1cf-683bd38d823mr5757913a12.13.1779139286945; Mon, 18 May 2026
- 14:21:26 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1779151945; x=1779756745;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=/pD9nTHCsUwMY/2ZvH2eEJmq55Tr5vZPtGAv1sHO/wQ=;
+        b=L1gYPbgdnXXqp7kew5/MUAdQ58kNpbNvSGDky8WMzuNGc/A8Qg7YPqoRR8I2xtTBRU
+         UfijkMLjvsgVGxqNW7Qm9cUjHAwwCWjcf5FYiZENV8cL6ty6tXAb5x3Oe5ZTCIQeddoE
+         igk92d2JV5mU/pjsn05/pMnAL8UmoMPKTFBYV0L81k3yVmHkUV9DyDa6RMisqOzayvs5
+         38B71cK4aqnCNmFe0920O/4oyb2MqnMz39Aj49Wn+/dtwh4C3z/Kx+O/02UYH7ckga1J
+         +IrQUCNMn7fhYk0sNagK0/f6GXTUawuj4MGE738ozM4jyaa5uFV1GOpJtoJ7XnCuMJzm
+         9/vQ==
+X-Forwarded-Encrypted: i=1; AFNElJ/qe8o7l1hE7BJycg2XjoTbckag7VyahWGAzzAVUYB8NZwdl9xEM4cE3e2+4NFR4yV2C2Fy8Nhj5twr@vger.kernel.org
+X-Gm-Message-State: AOJu0YwDSC8jiF5JbkstvMbfwoWza4T1C7w9y9HUJQSrCR38SUwmY1J3
+	82NdV/+VNOEwR6+rk2K77X3ahiccZM4DXlTS9FhrnCW8zuUjlB0pJ8XH
+X-Gm-Gg: Acq92OG4wvetWkjRaVY4mTx2zbUYoiuaOp8ogmsCAgcPudkL9o07hvZ5Sf295KQVOdJ
+	BMmKHEvWXvX3norrtC2McIOG2iFui5YFwkjGhBOpdsI+tsrcyFZfC5/CsOzcjNa3HffZJJiattt
+	BJ7E+gOyRU1Z+k1NIpn6TkM7B04UzIMaL7/eFFYoGV3PbE6rQQuCHZAF5/RPuhLLwn6/6UWA/4P
+	FgBEG/0T3dun3nS89MpvGafEfMDiiV+PoTrgNPuieZTDOK5On7Sy5uTlQDP4fAp5F73Rdn1LbDL
+	UpHkqCESJGiwXRjMXonasEP0TblShC+fszCa/zcrwRO+0Mu7DYFzJ719l8Vu196QxJSoba2nl5+
+	FY7rf8jNckDCDF4vz7ebLBGXhbKPzxuTph/a9ZeV6YQbOGLG/f6vkyULn/lB1T109Yx717orPnH
+	/5cC9bnHBrOaDHZXreSnsBSkwasGCzH3Gk4U+il2YJvd8l5YChuNeNMwoUQ+uykmRFI5pumCJgw
+	NCoV6og/K72TTTCFOvmnncuKcMYD9HYOC0=
+X-Received: by 2002:a17:90a:c10e:b0:368:977e:2bf8 with SMTP id 98e67ed59e1d1-36923603c63mr18107714a91.10.1779151944807;
+        Mon, 18 May 2026 17:52:24 -0700 (PDT)
+Received: from ryzen ([2601:644:8000:5b5d:7285:c2ff:fe45:8a32])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2bdc4c2cda4sm74177405ad.58.2026.05.18.17.52.22
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 18 May 2026 17:52:23 -0700 (PDT)
+From: Rosen Penev <rosenp@gmail.com>
+To: linux-rdma@vger.kernel.org
+Cc: "David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>,
+	"D. Wythe" <alibuda@linux.alibaba.com>,
+	Dust Li <dust.li@linux.alibaba.com>,
+	Sidraya Jayagond <sidraya@linux.ibm.com>,
+	Wenjia Zhang <wenjia@linux.ibm.com>,
+	Mahanta Jambigi <mjambigi@linux.ibm.com>,
+	Tony Lu <tonylu@linux.alibaba.com>,
+	Wen Gu <guwen@linux.alibaba.com>,
+	netdev@vger.kernel.org (open list:NETWORKING [GENERAL]),
+	linux-kernel@vger.kernel.org (open list),
+	linux-s390@vger.kernel.org (open list:SHARED MEMORY COMMUNICATIONS (SMC) SOCKETS)
+Subject: [PATCH] smc: Use flexible array for SMCD connections
+Date: Mon, 18 May 2026 17:52:06 -0700
+Message-ID: <20260519005206.628071-1-rosenp@gmail.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260430040427.4672-1-baohua@kernel.org> <afNM-gIqxpyJ6ro7@casper.infradead.org>
- <CAGsJ_4w0qcYmukHqsyRd0jomoyYkJjOt8b-Cgp53BgP-8QQghw@mail.gmail.com>
- <afS_L-5XeWIldTXA@casper.infradead.org> <CAGsJ_4wk=SDtgin+84Ev2TamU-JFfmrg_SUay=-tcYmnFvK6Nw@mail.gmail.com>
- <afTpoL3FklpQZNMM@casper.infradead.org> <CAGsJ_4ysMcrmDLSOwBkf7qwCQrcDWeEMXkHDajTJFMLKUk0bSQ@mail.gmail.com>
-In-Reply-To: <CAGsJ_4ysMcrmDLSOwBkf7qwCQrcDWeEMXkHDajTJFMLKUk0bSQ@mail.gmail.com>
-From: Yang Shi <shy828301@gmail.com>
-Date: Mon, 18 May 2026 14:21:14 -0700
-X-Gm-Features: AVHnY4JdohddXKx4c8RBQ6M1uUtTSitdJHlU74cl49fvebK4jjJ2w6iuf3X83y8
-Message-ID: <CAHbLzkrOSoh-jmR=uaNvx73n_wn+vExoKY0UzH5zGcfdAiDbNg@mail.gmail.com>
-Subject: Re: [PATCH v2 0/5] mm: reduce mmap_lock contention and improve page
- fault performance
-To: Barry Song <baohua@kernel.org>
-Cc: Matthew Wilcox <willy@infradead.org>, surenb@google.com, akpm@linux-foundation.org, 
-	linux-mm@kvack.org, david@kernel.org, ljs@kernel.org, liam@infradead.org, 
-	vbabka@kernel.org, rppt@kernel.org, mhocko@suse.com, jack@suse.cz, 
-	pfalcato@suse.de, wanglian@kylinos.cn, chentao@kylinos.cn, 
-	lianux.mm@gmail.com, kunwu.chan@gmail.com, liyangouwen1@oppo.com, 
-	chrisl@kernel.org, kasong@tencent.com, shikemeng@huaweicloud.com, 
-	nphamcs@gmail.com, bhe@redhat.com, youngjun.park@lge.com, 
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, 
-	loongarch@lists.linux.dev, linuxppc-dev@lists.ozlabs.org, 
-	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, 
-	Nanzhe Zhao <nzzhao@126.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Sun, May 17, 2026 at 1:45=E2=80=AFAM Barry Song <baohua@kernel.org> wrot=
-e:
->
-> On Sat, May 2, 2026 at 1:58=E2=80=AFAM Matthew Wilcox <willy@infradead.or=
-g> wrote:
-> >
-> > On Sat, May 02, 2026 at 01:44:34AM +0800, Barry Song wrote:
-> > > On Fri, May 1, 2026 at 10:57=E2=80=AFPM Matthew Wilcox <willy@infrade=
-ad.org> wrote:
-> > > >
-> > > > On Fri, May 01, 2026 at 06:49:58AM +0800, Barry Song wrote:
-> > > > > 1. There is no deterministic latency for I/O completion. It depen=
-ds on
-> > > > > both the hardware and the software stack (bio/request queues and =
-the
-> > > > > block scheduler). Sometimes the latency is short; at other times =
-it can
-> > > > > be quite long. In such cases, a high-priority thread performing o=
-perations
-> > > > > such as mprotect, unmap, prctl_set_vma, or madvise may be forced =
-to wait
-> > > > > for an unpredictable amount of time.
-> > > >
-> > > > But does that actually happen?  I find it hard to believe that thre=
-ad A
-> > > > unmaps a VMA while thread B is in the middle of taking a page fault=
- in
-> > > > that same VMA.  mprotect() and madvise() are more likely to happen,=
- but
-> > > > it still seems really unlikely to me.
-> > >
-> > > It doesn=E2=80=99t have to involve unmapping or applying mprotect to
-> > > the entire VMA=E2=80=94just a portion of it is sufficient.
-> >
-> > Yes, but that still fails to answer "does this actually happen".  How m=
-uch
-> > performance is all this complexity in the page fault handler buying us?
-> > If you don't answer this question, I'm just going to go in and rip it
-> > all out.
-> >
->
-> Hi Matthew (and Lorenzo, Jan, and anyone else who may be
-> waiting for answers),
->
-> As promised during LSF/MM/BPF, we conducted thorough
-> testing on Android phones to determine whether performing
-> I/O in `filemap_fault()` can block `vma_start_write()`.
-> I wanted to give a quick update on this question.
->
-> Nanzhe at Xiaomi created tracing scripts and ran various
-> applications on Android devices with I/O performed under
-> the VMA lock in `filemap_fault()`. We found that:
->
-> 1. There are very few cases where unmap() is blocked by
->    page faults. I assume this is due to buggy user code
->    or poor synchronization between reads and unmap().
-> So I assume it is not a problem.
->
-> 2. We observed many cases where `vma_start_write()`
->    is blocked by page-fault I/O in some applications.
->    The blocking occurs in the `dup_mmap()` path during
->    fork().
->
-> With Suren's commit fb49c455323ff ("fork: lock VMAs of
-> the parent process when forking"), we now always hold
-> `vma_write_lock()` for each VMA. Note that the
-> `mmap_lock` write lock is also held, which could lead to
-> chained waiting if page-fault I/O is performed without
-> releasing the VMA lock.
->
-> My gut feeling is that Suren's commit may be overshooting,
-> so my rough idea is that we might want to do something like
-> the following (we haven't tested it yet and it might be
-> wrong):
->
-> diff --git a/mm/mmap.c b/mm/mmap.c
-> index 2311ae7c2ff4..5ddaf297f31a 100644
-> --- a/mm/mmap.c
-> +++ b/mm/mmap.c
-> @@ -1762,7 +1762,13 @@ __latent_entropy int dup_mmap(struct mm_struct
-> *mm, struct mm_struct *oldmm)
->         for_each_vma(vmi, mpnt) {
->                 struct file *file;
->
-> -               retval =3D vma_start_write_killable(mpnt);
-> +               /*
-> +                * For anonymous or writable private VMAs, prevent
-> +                * concurrent CoW faults.
-> +                */
-> +               if (!mpnt->vm_file || (!(mpnt->vm_flags & VM_SHARED) &&
-> +                                       (mpnt->vm_flags & VM_WRITE)))
-> +                       retval =3D vma_start_write_killable(mpnt);
->                 if (retval < 0)
->                         goto loop_out;
->                 if (mpnt->vm_flags & VM_DONTCOPY) {
+Store the per-DMB connection pointers in the SMCD device allocation
+instead of allocating a separate connection array.
 
-Maybe a little bit off topic. This is an interesting idea. It seems
-possible we don't have to take vma write lock unconditionally. IIUC
-the write lock is mainly used to serialize against page fault and
-madvise, right? I got a crazy idea off the top of my head. We may be
-able to just take vma write lock iff vma->anon_vma is not NULL.
+This keeps the connection table tied to the SMCD device lifetime and
+simplifies the allocation and cleanup paths.
 
-First of all, write mmap_lock is held, so the vma can't go or be
-changed under us.
+Assisted-by: Codex:GPT-5.5
+Signed-off-by: Rosen Penev <rosenp@gmail.com>
+---
+ include/net/smc.h |  2 +-
+ net/smc/smc_ism.c | 10 ++--------
+ 2 files changed, 3 insertions(+), 9 deletions(-)
 
-Secondly, if vma->anon_vma is NULL, it basically means either no page
-fault happened or no cow happened, so there is no page table to copy,
-this is also what copy_page_range() does currently. So we can shrink
-the critical section to:
+diff --git a/include/net/smc.h b/include/net/smc.h
+index bfdc4c41f019..a2bc3ab88075 100644
+--- a/include/net/smc.h
++++ b/include/net/smc.h
+@@ -40,7 +40,6 @@ struct smcd_dev {
+ 	struct dibs_dev *dibs;
+ 	struct list_head list;
+ 	spinlock_t lock;
+-	struct smc_connection **conn;
+ 	struct list_head vlan;
+ 	struct workqueue_struct *event_wq;
+ 	u8 pnetid[SMC_MAX_PNETID_LEN];
+@@ -50,6 +49,7 @@ struct smcd_dev {
+ 	atomic_t lgr_cnt;
+ 	wait_queue_head_t lgrs_deleted;
+ 	u8 going_away : 1;
++	struct smc_connection *conn[];
+ };
+ 
+ #define SMC_HS_CTRL_NAME_MAX 16
+diff --git a/net/smc/smc_ism.c b/net/smc/smc_ism.c
+index e0dba2c7b6e3..bde938c5eb39 100644
+--- a/net/smc/smc_ism.c
++++ b/net/smc/smc_ism.c
+@@ -467,17 +467,14 @@ static struct smcd_dev *smcd_alloc_dev(const char *name, int max_dmbs)
+ {
+ 	struct smcd_dev *smcd;
+ 
+-	smcd = kzalloc_obj(*smcd);
++	smcd = kzalloc_flex(*smcd, conn, max_dmbs);
+ 	if (!smcd)
+ 		return NULL;
+-	smcd->conn = kzalloc_objs(struct smc_connection *, max_dmbs);
+-	if (!smcd->conn)
+-		goto free_smcd;
+ 
+ 	smcd->event_wq = alloc_ordered_workqueue("ism_evt_wq-%s)",
+ 						 WQ_MEM_RECLAIM, name);
+ 	if (!smcd->event_wq)
+-		goto free_conn;
++		goto free_smcd;
+ 
+ 	spin_lock_init(&smcd->lock);
+ 	spin_lock_init(&smcd->lgr_lock);
+@@ -486,8 +483,6 @@ static struct smcd_dev *smcd_alloc_dev(const char *name, int max_dmbs)
+ 	init_waitqueue_head(&smcd->lgrs_deleted);
+ 	return smcd;
+ 
+-free_conn:
+-	kfree(smcd->conn);
+ free_smcd:
+ 	kfree(smcd);
+ 	return NULL;
+@@ -557,7 +552,6 @@ static void smcd_unregister_dev(struct dibs_dev *dibs)
+ 	list_del_init(&smcd->list);
+ 	mutex_unlock(&smcd_dev_list.mutex);
+ 	destroy_workqueue(smcd->event_wq);
+-	kfree(smcd->conn);
+ 	kfree(smcd);
+ }
+ 
+-- 
+2.54.0
 
-if (vma->anon_vma) {
-    vma_start_write_killable(src_vma);
-    anon_vma_fork(dst_vma, src_vma);
-    copy_page_range(dst_vma, src_vma);
-}
-
-But page fault can happen before write mmap_lock is taken, when we
-check vma->anon_vma, it is possible it has not been set up yet. But it
-seems to be equivalent to page fault after fork and won't break the
-semantic.
-
-Anyway, just a crazy idea, I may miss some corner cases.
-
-Thanks,
-Yang
-
-}
-
->
-> Based on the above, we may want to re-check whether fork()
-> can be blocked by page faults. At the same time, if Suren,
-> you, or anyone else has any comments, please feel free to
-> share them.
->
-> Best Regards
-> Barry
->
