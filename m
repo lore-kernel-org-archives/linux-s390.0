@@ -1,125 +1,129 @@
-Received: from mail-qk1-f173.google.com (mail-qk1-f173.google.com [209.85.222.173])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 84E342836F
-	for <linux-s390@vger.kernel.org>; Tue, 19 May 2026 14:49:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B880D3769FE;
+	Tue, 19 May 2026 15:01:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779202185; cv=none; b=qyTOPTkqzxFEyvmOSCGLlKOJlLtSNqr74bcf7vQo3Sx04i5+2CIJCeXBoX2Ghw7OxYOhM02sY16EfI4d10btI9OH/9Pw0PhRjIq+xh0XHGFpbo8KXqA0zbJwtvek8kUhAohVNL9urgqW73jUPkqqUs6oRvdoqsrezx7PDes5+Hs=
+	t=1779202889; cv=none; b=D12pJlHiQmSrMFlMmzzRpzs6aYrwrWDq7lUyI93XOcTkOKp8vwpew6FkueWpk4pTJ0wtv4DwDA/gvMVqSSmT42Pk7PPLjNrl2K7+lNL7etFm8VdFH2uXoEkIBPSPZehWQkW1pwc1l1OrlXIJQzqnuGrJ7g+9hwQWziRYv9bpPF4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779202185; c=relaxed/simple;
-	bh=mf/OGUGuIRiuTTXYie0rUXZGqyUUzS6jn0J2l0v1FPs=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=F5Z8JYOsv6DuWZdqui3TdFuxW1K8JPtO/PoKpDWFsLhgrxSgNQtEWTKn4tAjJ1T+6G+JdnUoJjViLJUqOavGpnQqB3Ftt42qjrpXJnYutCQRwdzOkcLGQrjrPfoQJJTAY7hUfj9bOZbTNUGZdsNwTM7QNgb4NB/+TXEb1mdBjCM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca; spf=pass smtp.mailfrom=ziepe.ca; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=PO2O0bal; arc=none smtp.client-ip=209.85.222.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
+	s=arc-20240116; t=1779202889; c=relaxed/simple;
+	bh=IxQztV6GbjkUo7AEeaEUb45NEurD3Pn4LXilsRDGhJ4=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=pYBCU20gt/UCNcBNgNE7Tywc29alE+F/Oonc/MWJsJlzQ3L11kWkFvIpsfbswUMPsQV93XZNpy5H/SsZIiOl7ETZ7oLaUru7wX9wS+ilvm84BqCu5nqJ9NFYOFP1RIm4iTqytHr0pla/WvrP/9TSLRXOtGWZ3tVr0PRs03wmvKo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=fLeSRMiJ; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="PO2O0bal"
-Received: by mail-qk1-f173.google.com with SMTP id af79cd13be357-902deb2412fso469264685a.3
-        for <linux-s390@vger.kernel.org>; Tue, 19 May 2026 07:49:44 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google; t=1779202183; x=1779806983; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=mf/OGUGuIRiuTTXYie0rUXZGqyUUzS6jn0J2l0v1FPs=;
-        b=PO2O0balOwKft4cvvTQKeyiaOJ8URBoNsepkbbNTzqg7940aeI7qQcnzXeZNgS4lhp
-         4WvBHZKCQUPNcC8sOwj461D7Lw6ExuIB5cNL6zuEYkQ5b0gErkJ3F3jhwF+hkl7KuaWG
-         Ry9dCcKherg086ox5RTpcQmFjDowYSXH77GIySzeFV4keGBakc/KR5m+pacPYrHlvrEz
-         fngvw2zNMOwucs4BSrcCabzhhKU9holA5FDBtxFJkicRrz9wFnu3VqVmO9cfUlkh8ZSJ
-         Ier+LOhqGUfEQ+NVdrVOHo4BGFF+o2+VLUJe3/t3+RwQJP0LhGOuR3O45AhJJ+waSC5t
-         GNQg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779202183; x=1779806983;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=mf/OGUGuIRiuTTXYie0rUXZGqyUUzS6jn0J2l0v1FPs=;
-        b=F3IL2AsSO9MqOENFNksNUib3JZu5ZXeG8Qud6zrEFuiH9mMQ5FpV6VRdBoXFOivwp8
-         WqkecmopuMqT6WWoIzI1fw/IRWAYlbNuqA2APvYeC5cYqo50YOf7czIp3ZTlbIYlagjL
-         HeGeiTHLcbsQtPk3z2bKolyzV4hlu0Ly1ZyO5Dy4FtegbuzNbZEqxXHNwdwEAuBk1S9p
-         +K/AEr2CIYEeT8C5094QuHI79g8qIQ4vqP7ItIupf7+ZXjQhZ3gDXoAnW2STlg+7KwND
-         R7p2fVO1N7Ji59BO7vA5jMHRJuJWNoPyodLF5esbkfovquzVvf3iXvcBHqZQt6DdzORZ
-         4jXg==
-X-Forwarded-Encrypted: i=1; AFNElJ/sJcpCP38de34p5uvsXgh0E4lqd7Va+meiWgMn1jcwsGnUYfM2IZKOo4QhMcnrHsiX91sZt9FRPZfT@vger.kernel.org
-X-Gm-Message-State: AOJu0Yw+g27PA46JsjcvNvKP/lCZP3QK3KA7Q1A+x5vQRqj7rKDQ1Fn1
-	09VzPnGwAB3MjSgtsoc+nZkXb1jHCSoz6W7kk5k/Bk5VrgLFoGQ30XOIzh0G1fRi2H0=
-X-Gm-Gg: Acq92OGOXNUYp2uZpgEVc/NNgmn1NFrBD44KnaK5Cly90CtGPaod7tWF0SX17BO7Rwk
-	QBqjhWH9uoVK8p0M4ahPLDEUCu1429lFYgl/o5M5hMXpyNiA9aVmPWRvnexZ/ZXq7PARTVS2uQJ
-	b9fEAzhfgz53gXDbCWg4y5cHA7hBgUg2AJjsOAWQWU5+baEHLAc2xN/7QKBDTs+heaYU22dM1qO
-	nr8CVGDIOGXmN9caH/evWhEFBkeNZbTTrc5YBwZ1llupX8IMyBgTTF2a3LwPz341w1POfZWwxvR
-	+u9n/NtwJUQekxUMM9ULYwrWoXh7pAsOW0CUY6Cy44EDwAhf1SJx92BySNbc8xfucg46zGP9qVl
-	+9K6DkOerqX+qYzHjSl5dvlnVBTpMy6qxUoZZ2F3DRpcyIx7nNZHf3PJ0Ut6RvhjWDVZyYOrFs0
-	Uhq1S8MFPrNXR+dBfP2O0bfZXLVDMvwr9OqoJA5XABbUuvF8jz6gne5mxGamSneMm2d6Pw2NYy5
-	gwWbw==
-X-Received: by 2002:a05:620a:1a14:b0:911:411e:2e4b with SMTP id af79cd13be357-911cd46df94mr3109274985a.23.1779202183344;
-        Tue, 19 May 2026 07:49:43 -0700 (PDT)
-Received: from ziepe.ca (crbknf0213w-47-54-130-67.pppoe-dynamic.high-speed.nl.bellaliant.net. [47.54.130.67])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-910ba36e68csm1851459085a.10.2026.05.19.07.49.42
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 19 May 2026 07:49:42 -0700 (PDT)
-Received: from jgg by wakko with local (Exim 4.97)
-	(envelope-from <jgg@ziepe.ca>)
-	id 1wPLlO-0000000F92G-1VL1;
-	Tue, 19 May 2026 11:49:42 -0300
-Date: Tue, 19 May 2026 11:49:42 -0300
-From: Jason Gunthorpe <jgg@ziepe.ca>
-To: Mostafa Saleh <smostafa@google.com>
-Cc: "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>, iommu@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	linux-coco@lists.linux.dev, Robin Murphy <robin.murphy@arm.com>,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
-	Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
-	Steven Price <steven.price@arm.com>,
-	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Jiri Pirko <jiri@resnulli.us>, Petr Tesarik <ptesarik@suse.com>,
-	Alexey Kardashevskiy <aik@amd.com>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Xu Yilun <yilun.xu@linux.intel.com>, linuxppc-dev@lists.ozlabs.org,
-	linux-s390@vger.kernel.org,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org
-Subject: Re: [PATCH v4 04/13] dma: swiotlb: track pool encryption state and
- honor DMA_ATTR_CC_SHARED
-Message-ID: <20260519144942.GJ7702@ziepe.ca>
-References: <yq5ah5oaa63h.fsf@kernel.org>
- <agW5rhE9n2gDQ0w5@google.com>
- <yq5apl2y5f96.fsf@kernel.org>
- <agXaby-7L7yS3Vva@google.com>
- <yq5ah5oa59wy.fsf@kernel.org>
- <agxDxdxynp4KEovA@google.com>
- <20260519132911.GA7702@ziepe.ca>
- <agxolksC_1nfO34X@google.com>
- <20260519143529.GD7702@ziepe.ca>
- <agx3j6Oc8QivZ3RG@google.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="fLeSRMiJ"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 64J8oBwZ789447;
+	Tue, 19 May 2026 15:01:23 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=WO5FPexyVAPQ+TY5zMai3jpdMTTcMXGPOD4Ts7/W0
+	/Q=; b=fLeSRMiJO9lS4m34zJOxOSJDZQNr8qHDDBcM6VWKWi8G73DeGZ+Se0JFh
+	MLl6/vyizFuQz0PyDpw+ABn1xmmuGJ3ksPaJCFnH31rc9dEeDUybNe92u2oprFhe
+	bH6n4718IZOolvNjupUmieqFlm9dW5yq/HnTwKEczvQwFyhw4nHGqs5KVJKKmuDs
+	yCLICljs9dtV3MU/Tatg2+BiQbQmB2cv9qxKMLM5i34maCK7ArsUZ0OIzB30GdUu
+	wdtddsQuuRpXRaUsuIktvOQR30drsVeOiuxQShM4Xqch6vob5P8ly5bS+FjM/dH6
+	K5aIbzIJZLKcBgSnujRFJFVyYubAA==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4e6hb8cvn1-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 19 May 2026 15:01:23 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 64JEs5v8008026;
+	Tue, 19 May 2026 15:01:22 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4e73wk35nh-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 19 May 2026 15:01:22 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 64JF1F8j30999186
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 19 May 2026 15:01:15 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 76A322004F;
+	Tue, 19 May 2026 15:01:15 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 7EDE720040;
+	Tue, 19 May 2026 15:01:14 +0000 (GMT)
+Received: from p-imbrenda.ibmuc.com (unknown [9.111.4.60])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 19 May 2026 15:01:14 +0000 (GMT)
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, borntraeger@de.ibm.com,
+        frankja@linux.ibm.com, david@kernel.org, seiden@linux.ibm.com,
+        nrb@linux.ibm.com, schlameuss@linux.ibm.com, gra@linux.ibm.com
+Subject: [PATCH v3 0/5] KVM: s390: some vSIE and UCONTROL fixes
+Date: Tue, 19 May 2026 17:01:09 +0200
+Message-ID: <20260519150114.264309-1-imbrenda@linux.ibm.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <agx3j6Oc8QivZ3RG@google.com>
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTE5MDE0NSBTYWx0ZWRfXyQ352Xm4Dej0
+ QRSEALeSpBmwVvqtYtbI9apxJZF0d6mBSSp9cxrTR4dG8sCEp6ix27wkuES6KZO6SCunLoFxFNG
+ JaKlprEU3yjTD2oLo7ColK2nISE0Me0mAoHWKpz+0XwW+dlCKHUhWyZGBD3zOVYmfOtaEtmAjQt
+ ZDS5fnOklMF4Kvp+FarLrifqxU7meI6VzVsyH6PXNiACbE9hUGhEzYVaWrQDM0hHMPubV0bjTpY
+ HXbdflk42oFI7tr/Fb7X9BNnEfc9p2bI9kdNkQPIAXqUpynRShXk3bChz+dfeTjxup7hKQcCLIV
+ 0l/205D72abw/gliW+cefuB9znnlP56Zj8Lj2q6nTH87ik+o4nyo80CVtj3Ab50wWdV/SEbYXXT
+ 7N/C+eYNgQFVL4eXHlcKn7w5J9SLMQ+LtR5qsG/+vh9uodHwK007bxucvFUeqed1fVlCppr6NU4
+ f1tMJD3wNdW4MVikgdg==
+X-Proofpoint-GUID: LtIWuTlgx09q6sy7Vdax1NZ92_N9OZLG
+X-Proofpoint-ORIG-GUID: LtIWuTlgx09q6sy7Vdax1NZ92_N9OZLG
+X-Authority-Analysis: v=2.4 cv=aYBRWxot c=1 sm=1 tr=0 ts=6a0c7b43 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=NGcC8JguVDcA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=Y2IxJ9c9Rs8Kov3niI8_:22 a=WLamS9KfzQc7_2FcH0gA:9
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-05-19_04,2026-05-18_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ impostorscore=0 adultscore=0 bulkscore=0 suspectscore=0 lowpriorityscore=0
+ clxscore=1015 spamscore=0 phishscore=0 priorityscore=1501 malwarescore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2605130000 definitions=main-2605190145
 
-On Tue, May 19, 2026 at 02:45:35PM +0000, Mostafa Saleh wrote:
-> However, it should not alway use SWIOTLB? It can trigger decryption for
-> any memory returned from __dma_direct_alloc_pages() which can come
-> from alloc_pages_node().
+Fix some memory issues and some hangs in vSIE.
 
-The alloc coherent flow is seperate and different, these are not pages
-'passed into the DMA API' but pages fully allocated internally and
-owned by it.
+This is still a fallout from the gmap rewrite.
 
-Yes, it should cause decrypted *allocation*.
+v2->v3:
+* Add comments to pte_needs_unshadow() and crste_needs_unshadow()
+  explaining how they work
+* Improve some patch descriptions
 
-Jason
+v1->v2:
+* Fix potential leak of struct kvm_s390_mmu_cache in gmap_set_limit()
+* Refactor and improve the checks to determine whether an unshadowing
+  is needed
+* Set and propagate vsie_gmem properly
+* Properly mask the address passed to gmap_insert_rmap() to prevent
+  creating multiple redundant rmaps when shadowing
+* Clear the pgste.zero flag when needed, to prevent pages from getting
+  accidentally discarded
+
+Claudio Imbrenda (5):
+  KVM: s390: vsie: Fix memory leak when unshadowing
+  KVM: s390: Fix leaking kvm_s390_mmu_cache in case of errors
+  KVM: s390: vsie: Fix unshadowing logic
+  KVM: s390: vsie: Fix redundant rmap entries
+  KVM: s390: Properly reset zero bit in PGSTE
+
+ arch/s390/kvm/dat.c     |  1 +
+ arch/s390/kvm/dat.h     |  3 +-
+ arch/s390/kvm/gaccess.c |  1 +
+ arch/s390/kvm/gmap.c    | 18 +++++++-----
+ arch/s390/kvm/gmap.h    | 61 +++++++++++++++++++++++++++++++++++++++--
+ 5 files changed, 73 insertions(+), 11 deletions(-)
+
+-- 
+2.54.0
+
