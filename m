@@ -1,133 +1,127 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 252AB27E049
-	for <linux-s390@vger.kernel.org>; Tue, 19 May 2026 14:09:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF43E4028FF;
+	Tue, 19 May 2026 14:17:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779199746; cv=none; b=fWdGg5xPY3d0OVlfSenyzWq5FgKQYTf3neGDdY9tg0hLwlGuOFnLpJOGlJ5M/YWX0Q3x9iQk72+P3oecefMA6sZmJ0tkuBkKRd/giAa0+ZGvexeUDuWTO50bzUA+JLiNo2Cg47xjeqcjozqwqv9USMqYtaL4ZHek9t2R2J1yDHw=
+	t=1779200279; cv=none; b=fbCcUicB5s8o0H4v6o1Qfh8G8cCtW3W9dWJKUHuXe2OX5C/iWMuQaHwIm7+3NlOETovE0pxsaLHq9mDJVVzQhV8a/RUR1s2U6D+QedRaORM5p3IPVo01gGQlUdgBlqKcvMVKiWCujSrYa8Ec9/GtgPGRvgXJ7Xi72BrYiTz0QlQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779199746; c=relaxed/simple;
-	bh=py1MRqKn7exNdjXsmsX1yh47Z7tsmCUTS6qgb/gwScY=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=j3ib+GGtGWogVmbCK/+q2faECS7fcsJw0PvaLon6hcqrF4LnatBRMiPaO51zVWob1eCMszrIRT9ntFh25/3OV8OeoxpUsnymKNR8RtIDkJC5+82TRTemtnrKEiOH8lreMAKEf+W4UqqXaFiMt9D98CmM0U/dPuJNGqlqKyBTZrk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=OhXwcjPm; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=BRC8Ur9P; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1779200279; c=relaxed/simple;
+	bh=omX4jWGqSc4euJhfKZDzYDEyAA00xkxKBKP+MlYpCw8=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=AaGyJXfBRm4hUwuH+v5wIDSU9CP2AkkNsW3/4YaJw6boGG3zxiSX6PD8+ltXenhvhmU8CLcagePZ3wK2XzJnjNW9loGVV95RAI4tSHMgcjAU7DVvnDW1ZGbDYvLTqY7opEbsygca6Sg6Ex8YEs2cEYdKPoMhnQe/93/olNhW028=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lTYt6sua; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="OhXwcjPm";
-	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="BRC8Ur9P"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1779199743;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=9ShAj6l51xuzBF/j17UKisc3z8T5wY7lSXY12qKT0nQ=;
-	b=OhXwcjPmzthMmcuJF6NlB81UcI7ITtN820Of3A/rv0FnVNfHfIs4QiDT0X+336A+LqshCx
-	/kG6EgwyZGmP/uedWYCiimK9KwVpFpl1Mz12Dr35SsJvo5kBVo88N6VAVtfq3RGsUrzfg9
-	qsMxjJJ5iP/GNE2j7nhfLhu1/MoAHcE=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-198-sRCPA9AMPVaaUk2RrOuEqg-1; Tue, 19 May 2026 10:08:44 -0400
-X-MC-Unique: sRCPA9AMPVaaUk2RrOuEqg-1
-X-Mimecast-MFC-AGG-ID: sRCPA9AMPVaaUk2RrOuEqg_1779199723
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-48fe24773c8so18812705e9.3
-        for <linux-s390@vger.kernel.org>; Tue, 19 May 2026 07:08:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=redhat.com; s=google; t=1779199723; x=1779804523; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:content-language:from
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=9ShAj6l51xuzBF/j17UKisc3z8T5wY7lSXY12qKT0nQ=;
-        b=BRC8Ur9Pe6V8siEVZXvjQ4vQL/dOC7tOrTJVQO4KlIAJGjCSqmNKiuq0WqYYb75s9e
-         5YGxcmggdQw2MnMThPhCaDTB7oAfDMafrXc83MAhMa8XvCBIW8LAJhgnVAO+UCDrIKwl
-         DYfSQvQo1lZJCfOrABPbMrMmEmhxfsSKOpRodnWeK5GyYPIvGWW9VtGc//IG517niLBX
-         izknrQRhMAEtj2ZmoQJNItwF1B9mbvwfBOlyT2EUPUuiWfduMnSoqDe6BIiRVFq13kJ/
-         I4yrK7HeJAd8nBWD127GBSR0o+MavsTji0Lc7uWImQ8WHA8XlIUTmYZKiu4GuTqHdbMF
-         8TUA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779199723; x=1779804523;
-        h=content-transfer-encoding:in-reply-to:content-language:from
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=9ShAj6l51xuzBF/j17UKisc3z8T5wY7lSXY12qKT0nQ=;
-        b=rZWQ+W/4Q85yZuZ/xo9r4jLkcKrMc8HgIaVJka6CW7D3KfKNsMYaEHblM/kK84ag9i
-         OogwHhIQzLsXo9Ye472LuoSvVAUNYNCO2RGCzfPERy1HwHD+Fr0E2tdF5vA8638EDHZN
-         klNggqqW8bMGR016SaehjFVFZ20KrIsW2cbP1cYl+iaoFpQuk9s9lMGNt+HJ2VkWjW5k
-         4yUzj9Ub4X0AbEVtX57GvCAfUszIBcMXcK8BnmwnhxpAsRgCqAp4QRvlnmWJjkY935cK
-         Dv5nqLzUVl4r7h7wvqv1/YeZIGrZqk2L8AUTjM1954UzZAGHdpGXaHaJoL4By6pQPPA+
-         42cg==
-X-Forwarded-Encrypted: i=1; AFNElJ8Nza7OpokhAFq1WkE+YzvGg7q4nB7R+zL4o0EkKpudBrpxoAoBeyE1aqI8LYA0DdmBSn35rxpXJnzT@vger.kernel.org
-X-Gm-Message-State: AOJu0Yxkk6WUo4od+9pwtjVzrI7seYDL25SV0vaq0yGILd67IqxPi0Kd
-	+2KMfgT+v4mJiTEEEFldsszNrkZTcWP+yT6HB9Y0q2adr8/MLNqv6uW8Lid9jez7vmwLfpRc2/w
-	+JuI9J7lDXwJFpoass7hegyxZclk9KCiZWPc9b94fJ3Gma3dunqh5UKgAQUagRSc=
-X-Gm-Gg: Acq92OGKttFS3+n3LT9EC7Atf8ZF5bS6BBaw1PExEfnuf+9vDVblLPfyZDktwII31h2
-	DYi19uvRenfR9lSEtK6YPxsoQd/IM63KrOxB8/cihyq+dbhHTkvun29O9fxPrQUOjmOr74QNU7Y
-	XeqtPjpmjO9LCLV1w1S6Qr7GnYmEAvzG5YE4sx28y4NlsB63eYgALX3lfexBMExvK0E+hluOb1g
-	NaOvaR5vaL2jQPkbVTS8BJsHZ4mMtCHtXGHZ6iQwZgZRQTUjVCvhKcdZnAiORTUqO9jtIQ0O4V2
-	RnR05YUTEn2pSWKgGMqjyj10rlijPztUhrHFxJU3zNhJHRDPTN6N/H8bsxblHfgL0okHq6BsQeR
-	9rwdhspd+MfJi5XHUBFezb4RRkjjkgXz3P7M1+ricooxi/YmFTZjR8yXZiXAWMA4raw==
-X-Received: by 2002:a05:600c:5304:b0:490:17da:27f8 with SMTP id 5b1f17b1804b1-49017da2830mr97673415e9.18.1779199722780;
-        Tue, 19 May 2026 07:08:42 -0700 (PDT)
-X-Received: by 2002:a05:600c:5304:b0:490:17da:27f8 with SMTP id 5b1f17b1804b1-49017da2830mr97672985e9.18.1779199722357;
-        Tue, 19 May 2026 07:08:42 -0700 (PDT)
-Received: from [192.168.88.32] ([150.228.25.33])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48febe5bc94sm204874615e9.4.2026.05.19.07.08.40
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 19 May 2026 07:08:41 -0700 (PDT)
-Message-ID: <c05304bd-1c7a-486a-9929-e6947de07adb@redhat.com>
-Date: Tue, 19 May 2026 16:08:39 +0200
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lTYt6sua"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C3CDC2BCB3;
+	Tue, 19 May 2026 14:17:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1779200279;
+	bh=omX4jWGqSc4euJhfKZDzYDEyAA00xkxKBKP+MlYpCw8=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
+	b=lTYt6sua65tkoXlE6Q2BlS8sWIBZa2T8L6x1+ychuvbjhIgKDes/YlNtctIs5MurS
+	 wD2Sl12rive3qkbqzpkk+tCLwkjQs/DxCrfGdUoXLC02uYIc1JCFEdy86S52d2uc9y
+	 g9FC2LhMSJtxI6g9uj7rH6gjLQpb0NEpM4k1SN6H2g7ngPyox//4uss4/gZtV+Ifkr
+	 HJA7XMc52oT9bXh/mEx/JXlwnYV1qcuMWkMR9VA/wBbF3wBtAG826RnNSvIIDkS5uY
+	 AZew3Mf53E71+ceTl7ybvn6GgsZDq0hT4sHTpN4L72FhePHSUiBlWNlbwgUDVM05nW
+	 MgRHtOceOiSng==
+X-Mailer: emacs 30.2 (via feedmail 11-beta-1 I)
+From: Aneesh Kumar K.V <aneesh.kumar@kernel.org>
+To: Mostafa Saleh <smostafa@google.com>
+Cc: Jason Gunthorpe <jgg@ziepe.ca>, iommu@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev,
+	Robin Murphy <robin.murphy@arm.com>,
+	Marek Szyprowski <m.szyprowski@samsung.com>,
+	Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
+	Steven Price <steven.price@arm.com>,
+	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Jiri Pirko <jiri@resnulli.us>,
+	Petr Tesarik <ptesarik@suse.com>,
+	Alexey Kardashevskiy <aik@amd.com>,
+	Dan Williams <dan.j.williams@intel.com>,
+	Xu Yilun <yilun.xu@linux.intel.com>,
+	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org
+Subject: Re: [PATCH v4 04/13] dma: swiotlb: track pool encryption state and
+ honor DMA_ATTR_CC_SHARED
+In-Reply-To: <agxt7SFGT7OLMIah@google.com>
+References: <agSKQrSIhizCXKwx@google.com> <yq5ah5oaa63h.fsf@kernel.org>
+ <agW5rhE9n2gDQ0w5@google.com> <yq5apl2y5f96.fsf@kernel.org>
+ <agXaby-7L7yS3Vva@google.com> <yq5ah5oa59wy.fsf@kernel.org>
+ <agxDxdxynp4KEovA@google.com> <20260519132911.GA7702@ziepe.ca>
+ <agxolksC_1nfO34X@google.com> <yq5ah5o3sdn3.fsf@kernel.org>
+ <agxt7SFGT7OLMIah@google.com>
+Date: Tue, 19 May 2026 19:47:48 +0530
+Message-ID: <yq5aecj7sctv.fsf@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v2 7/7] tipc: convert to getsockopt_iter
-To: Breno Leitao <leitao@debian.org>, Chas Williams <3chas3@gmail.com>,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Simon Horman <horms@kernel.org>,
- Magnus Karlsson <magnus.karlsson@intel.com>,
- Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
- Stanislav Fomichev <sdf@fomichev.me>, Alexei Starovoitov <ast@kernel.org>,
- Daniel Borkmann <daniel@iogearbox.net>,
- Jesper Dangaard Brouer <hawk@kernel.org>,
- John Fastabend <john.fastabend@gmail.com>, Jon Maloy <jmaloy@redhat.com>,
- Alexandra Winter <wintera@linux.ibm.com>,
- Thorsten Winkler <twinkler@linux.ibm.com>,
- James Chapman <jchapman@katalix.com>, David Howells <dhowells@redhat.com>,
- Marc Dionne <marc.dionne@auristor.com>, David Heidelberg
- <david+nfc@ixit.cz>, Samuel Ortiz <sameo@linux.intel.com>
-Cc: linux-atm-general@lists.sourceforge.net, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, bpf@vger.kernel.org,
- tipc-discussion@lists.sourceforge.net, linux-s390@vger.kernel.org,
- linux-afs@lists.infradead.org, oe-linux-nfc@lists.linux.dev,
- kernel-team@meta.com
-References: <20260515-getsock_four-v2-0-0d8eed952627@debian.org>
- <20260515-getsock_four-v2-7-0d8eed952627@debian.org>
-From: Paolo Abeni <pabeni@redhat.com>
-Content-Language: en-US
-In-Reply-To: <20260515-getsock_four-v2-7-0d8eed952627@debian.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-On 5/15/26 10:32 AM, Breno Leitao wrote:
-> @@ -3260,7 +3260,6 @@ static int tipc_getsockopt(struct socket *sock, int lvl, int opt,
->  		break;
->  	case TIPC_CONN_TIMEOUT:
->  		value = tsk->conn_timeout;
-> -		/* no need to set "res", since already 0 at this point */
+Mostafa Saleh <smostafa@google.com> writes:
 
-Since you have to repost, there is another obsoleted comment referring
-to "res" later on:
+> On Tue, May 19, 2026 at 07:30:16PM +0530, Aneesh Kumar K.V wrote:
+>> Mostafa Saleh <smostafa@google.com> writes:
+>>=20
+>> >> >=20
+>> >> > I am still running more tests, but looking more into it. Setting
+>> >> > force_dma_unencrypted() to true for pKVM guests is wrong, as the
+>> >> > guest shouldn=E2=80=99t try to decrypt arbitrary memory as it can i=
+nclude
+>> >> > sensitive information (for example in case of virtio sub-page
+>> >> > allocation) and should strictly rely on the restricted-dma-pool
+>> >> > for that.
+>> >>=20
+>> >> ??
+>> >>=20
+>> >> Where does force_dma_unencrypted() cause arbitary memory passed into
+>> >> the DMA API to be decrypted? That should never happen???
+>> >
+>> > Sorry, maybe arbitrary is not the right expression again :)
+>> > I mean that, with emulated devices that use the DMA-API under pKVM,
+>> > they will map memory coming from other layers (VFS, net) through
+>> > vitrio-block, virtio-net... These can be smaller than a page, and
+>> >
+>>=20
+>> Don't we PAGE_ALIGN these requests?
+>>=20
+>> dma_direct_alloc
+>> 	size =3D PAGE_ALIGN(size);
+>>=20
+>> iommu_dma_alloc_pages
+>> 	size_t alloc_size =3D PAGE_ALIGN(size);
+>>=20
+>>=20
+>
+> For allocation, yes, and that's fine because we bring memory from
+> the pool.
+> But not for mapping, as dma_direct_map_phys(), where the memory is
+> allocated from the driver or other parts in the kernel and the page
+> may be shared with other kernel components.
+>
 
-		return res;	/* "get" failed */
+But if we are using restricted-dma-pool, we also have:
 
-please strip it, too.
+mem->force_bounce =3D true;
+mem->for_alloc =3D true;
 
-/P
+So, will we use the swiotlb buffers for mapping and copy only the shared
+content into those swiotlb buffers?
 
+-aneesh
