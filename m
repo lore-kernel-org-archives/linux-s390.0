@@ -1,133 +1,167 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f53.google.com (mail-wm1-f53.google.com [209.85.128.53])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0B5722FC881
-	for <linux-s390@vger.kernel.org>; Tue, 19 May 2026 14:04:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3619F3ED3D7
+	for <linux-s390@vger.kernel.org>; Tue, 19 May 2026 14:04:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779199471; cv=none; b=Z48maWBy+qN6WD3Q2MjxRPUbT7L/BsY9UhBKxC8jhDrLBhyUWjJbe20Q+3C26e0+rLdj2jdAsGSxqfU2H1lR7I1lwGNxlT28rtCT8/vUnmudJIoThYkycsScEX6z4c6SYWau9R61JBVI9TVK3BnrPIqv0NwrxhMteTDbw09zAlM=
+	t=1779199477; cv=none; b=aJhJcV7GezS9cdJhchr7Typ/LBybtzUB/XeSbkbFCD8wF//W4CKPm3r72x8eNWUnUMI0JjBriRNJxNHUqtKZyPU35RLCg1KxpLj4fEdAp73Y33CFJATUP0qphrs8Q8BWe4Ny6cu0nmdM2fg1IPqSKNK+ku3jVlBfVQZNnsFTob4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779199471; c=relaxed/simple;
-	bh=FMaMUKz/x8QbjfR3g5V6+iL3OxM0o0sNRaKeIldoQQ0=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=STBTsl5qxPW8tA/+0446Ze6s307DyBXUJCU2VfWrLQLyNav3J9i0LzAu+SskUI1dP2VZDziWZ55gV2KGlGTyWxj1Wn9MgdFhsK1Z4xMomXAjvGJflG+LVDhCZ91U1InEMwCz57pQm29cDDCynaZZkMRZFL6PfNsmOO6d4dDxs+s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=cP4QR9s4; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=BwGqlPGP; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1779199477; c=relaxed/simple;
+	bh=ldMlyu6KW0ehhtOLgHgTLzNQrPjv+3vF2LX9OYDZKO4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Zu21UD0cwCHn03C7XrQDE3KDXm55Wz55XYgQVlWKv2wt6ZsB3WtID8hiC0GYXIUw2XZ8Rf4xOBVtkO7bpoXmQtWK6K0khawf0nSt0nyDktShQ2y6SVC/fGJQt6juBShatNStvtWG0eEe8Te46d2jW/+JJlB+xaCTg+g6wVKJhTc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=vrfApZez; arc=none smtp.client-ip=209.85.128.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="cP4QR9s4";
-	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="BwGqlPGP"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1779199466;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=JyK79IEx4ySepGt4cTN7KOjcr0GF19I7WDCAu3CkGGI=;
-	b=cP4QR9s4dD8cEYEUak9SkCrANmRUiQBXD7UQtJ0JsZNLhT6I1rfodF5FVi12txuOYTwerc
-	qkQn6DZC4kKmsMlusRI7ZUF9RxIzOle3ZZ0T4AdD4IxWNwiCbKfttXIqy71laEhnT9Id7v
-	8JpFWCYl28AzCezli0rk7n2RiqdZpSo=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-348-PsfhjmNEO4yxU4SVi73Xug-1; Tue, 19 May 2026 10:04:17 -0400
-X-MC-Unique: PsfhjmNEO4yxU4SVi73Xug-1
-X-Mimecast-MFC-AGG-ID: PsfhjmNEO4yxU4SVi73Xug_1779199456
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-48fdc746a8bso18232895e9.0
-        for <linux-s390@vger.kernel.org>; Tue, 19 May 2026 07:04:17 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="vrfApZez"
+Received: by mail-wm1-f53.google.com with SMTP id 5b1f17b1804b1-4891ca4ce02so3095e9.1
+        for <linux-s390@vger.kernel.org>; Tue, 19 May 2026 07:04:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=redhat.com; s=google; t=1779199456; x=1779804256; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:content-language:from
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=JyK79IEx4ySepGt4cTN7KOjcr0GF19I7WDCAu3CkGGI=;
-        b=BwGqlPGPyTAEKuDwo8sJ84HiXt9d6LyIl3O6pJQ3hFJOV4X0PKuplQNp5LYIT5tB3W
-         jvYM2P1TV4Ezar8/q2HeMsjw+6oduw9NQD8f/Hb0CxUzal9g5uUqJrYPYRRryByceluC
-         dN+sGVRQWEkkApEI9FS4l42ymmv6oRo5fa4yDkCGQYSpQJ+2Kw/S4P2ZS7+TICNjVrMc
-         /H2GzVj7PBn6KpvYWQafxXhQfq5dJT5yS3XCF4/o9+sEC6gxlvL4jze434UqMaL0jH3F
-         ekmJ6zok9+j/itf1kcEJY5lMyadAa/kjXBfmEp9QEGC+/nTaVVsIpHljlx5YsJjmxU2W
-         G0Cw==
+        d=google.com; s=20251104; t=1779199474; x=1779804274; darn=vger.kernel.org;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=/eckcCpi0xrpFbE201pgVvuYoNal9URjmldCWt34Ap8=;
+        b=vrfApZezlt0/gq66lXw5hH7k4uD3XaUuj/oWhSgunnZCcowBuc1pbLVYWMnVs0kifl
+         HylplSTg04tM9Cc+jRBmwy55MXFE4FfDCKr6SIQVslHscg+cIb5e1XrgWn7WI7wtO+k5
+         +kvKJlpEFpCOSAePNkP1Yrbp0/HTseXoUrIWHIA00jVhj7N97js1Mt8vb9Zy0A8Z7oNr
+         ZxOJI3R4wIgSRFO9KwSoMbpNd2auVS693GoDoJqdpLfiulvyzCwfBAQPcSZhq7cZ6al6
+         3CooW6x+pT24sxf+kPXiKWemN6xQm6XU+KE0Wmv1P8qyABIQldnbrvMNduayPNaNTwqm
+         HgCg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779199456; x=1779804256;
-        h=content-transfer-encoding:in-reply-to:content-language:from
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=JyK79IEx4ySepGt4cTN7KOjcr0GF19I7WDCAu3CkGGI=;
-        b=jLv9/YjKOQF8cy6VPJzec18xfZagwWDfv4+V5ERXZ6foj9d+TxGnqoHtTsOm5VmuyC
-         Xq2ckOeBByhXXJa582g0tw5beTP5vlVCI40Tj8kv8yYjq/5ZyTeQ+1VQ5Re5WxNttkTc
-         3UEy8qvq1NILiSNE8jXOPQolWRHxlWFQEa5UTOqFeN+w0+L8wftfX0IocRROy0DKOqLk
-         i6I9788xgsXJVU7vXlC+yDyGEZMgQiS7cR2fSOry9LnFt7BsojnaqvX9Fh74sE0qCMh9
-         EWqcnMHX4tHgmNL0b3kf2uBBtV2dtUnmyBTjRHRMld1zreAw2s8OZtiGWWpp3mV3UnQo
-         T8Zw==
-X-Forwarded-Encrypted: i=1; AFNElJ/TSFVAe0UmLrBldT0tt08YyjrmFUDUxr5d05nLEpRaxQFjgvF6/rAC+0CXnvyGndE9Vzk7TZ73qazQ@vger.kernel.org
-X-Gm-Message-State: AOJu0YzR6ZD6I+PCxrtNU/Wi5xSUMbmkws/2JmXUQVGxHXe+d+jJLsKP
-	7x7QLwZhY+zHvT5ClYAkrrF1U4lUd0YrEnj1Mrr6ipvKEszNZxfMdJpMaKm39JakgIjagZX+02R
-	otoabWom7OmqHWwPNXfR9vYAsQ8xZorIfx++oqZmBovgWhNBHin5B+aZndkx+n30=
-X-Gm-Gg: Acq92OEZa3SJLa8neZ82sSS0hFDm2y00aAQgwbRbyTtrjcGSUyaWR2R9vRNmuSgqhe4
-	7ZwCbwTnewzre4TRqdJnxjc+L3l4XeYrocSdT1nyr64LPZXb1cx5VvabD1cup3XfDOv/LYxmvJH
-	yGhq0kXGYfsllP+iMbGpXn3JXCSCBU0rjq4EI7z15Wq3+a6bFlYb+848FyizI0D50O56u5/E6ws
-	hkBeXOnFT9BrSKrT5COHHyOAu4vG4YFK6YpGkaMP1/I8JYiGW8xXlmViC3siIfVcfMr/P+rojWp
-	uLhtMpkpLXauK8y+i/97fA25U3V2fKUlep0yVlb5kcV8uXFV8ZNs/IR+4361T1bXu6wZFqdpzPl
-	6efS/lzOg+fH6kogBwQWLuN1yZJxZiEWbWzyEWiUOtGhtxuKJLHsfwYE=
-X-Received: by 2002:a05:600c:34cd:b0:488:936a:6220 with SMTP id 5b1f17b1804b1-48fe61f2c03mr335533505e9.21.1779199456385;
-        Tue, 19 May 2026 07:04:16 -0700 (PDT)
-X-Received: by 2002:a05:600c:34cd:b0:488:936a:6220 with SMTP id 5b1f17b1804b1-48fe61f2c03mr335532795e9.21.1779199455912;
-        Tue, 19 May 2026 07:04:15 -0700 (PDT)
-Received: from [192.168.88.32] ([150.228.25.33])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48fe57943b2sm337222105e9.8.2026.05.19.07.04.13
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 19 May 2026 07:04:15 -0700 (PDT)
-Message-ID: <eada2df3-7e3f-46a5-b290-fe0e8975a1bb@redhat.com>
-Date: Tue, 19 May 2026 16:04:12 +0200
+        d=1e100.net; s=20251104; t=1779199474; x=1779804274;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=/eckcCpi0xrpFbE201pgVvuYoNal9URjmldCWt34Ap8=;
+        b=Ju/7yKJcE5vPyn/6DLjkQo39rTYneO5gKYLmxPQ4OXFQQL5Rr8UN1zK3bd8wlowzBY
+         LZNxxuTg9nwkT2Xkr/EriXLPpwgzpV7OZ79undhj5ZSB+X/4uIreW5e2P1ARkUgSqZXn
+         +sexe5btwbdBU5ZgUmlIFVOpXQToEVGepIvLxO7G+HxLy2uAU8CdOfuWH/BLFZj87z+y
+         jq9b1MtoGZosMeCmbaW8cLgUzk5JtT8ELl5mrSB47HWpCfhIQMGeDzX/SGZ2y9Pl+aHM
+         sfPgsftO0QPhITtCfQLpORWpcJAd1Dp7vMHMsDUa6m6N/E8z/ITrc2tcK2QZlzty0tUf
+         FMuQ==
+X-Forwarded-Encrypted: i=1; AFNElJ8Y81IaHmpOk0w/egtbmMLj07blD1Tm+MQZRRfr2XcZjY3eoeRzbUYSCOIyhLYPqE8MU2O5qo5s6ISo@vger.kernel.org
+X-Gm-Message-State: AOJu0Yzmql6ja74ROwP6dswKVNEWjQN0cVBV/GMXi0tpXYqg3sABivxz
+	VO49uz20EjXrqeR6ERNUXAqH8Ori3xjSC48G9GdLCa6B9HGaC2b/5Zci1gcq6+x55g==
+X-Gm-Gg: Acq92OEXRLhxBtNC/IIdIxcy0N1yDCdhhE5k8owqggzF7tihhdeGmObon+r8Zm68Z7n
+	YouF19lf+NN5tThyLzlTvw260CmsNCnbhAuOv4culY42orvLYBDUgFzKXZsLxHzYVfuFzRGhWNq
+	RE/SoHLG3UhZ+WbM78eqVQIZghd5e+sYV4ME2mke9LB4YO/gD56EIGXq35lcoAEVktgy7zW3o+Q
+	TZgKgGUR6fkmLa2DbMSiTETNhhFugjwi1gQDnBmaRBt0hgSb9+tbcHvWubiuu6uVIoLKLd2KRNZ
+	ezppf/uNprrWYn761Be+93mOvHbGp2VHNPzXv8e0IJFBYmJgf2SpCwnHcqhPJBVAJsPDzPn+9uz
+	641KK6HqUKjqtOVSQUMwQpJxlwC++sXVvP23G9SwbC63JHqnHpF6MNBCev148gDDuc3LhJTY3T0
+	dH6eqtirWkDkL3nNTN6+DXxzQt5vxMKceHe+qqQKoBhYhDnESK9E6gRi4B1wgJPxNUDwnQbwRNb
+	mg=
+X-Received: by 2002:a05:600c:621a:b0:489:1adc:f017 with SMTP id 5b1f17b1804b1-4901573b1a3mr2225915e9.5.1779199473882;
+        Tue, 19 May 2026 07:04:33 -0700 (PDT)
+Received: from google.com (136.41.155.104.bc.googleusercontent.com. [104.155.41.136])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-45da0a19b1dsm45189665f8f.17.2026.05.19.07.04.32
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 19 May 2026 07:04:33 -0700 (PDT)
+Date: Tue, 19 May 2026 14:04:29 +0000
+From: Mostafa Saleh <smostafa@google.com>
+To: "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>
+Cc: Jason Gunthorpe <jgg@ziepe.ca>, iommu@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	linux-coco@lists.linux.dev, Robin Murphy <robin.murphy@arm.com>,
+	Marek Szyprowski <m.szyprowski@samsung.com>,
+	Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
+	Steven Price <steven.price@arm.com>,
+	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Jiri Pirko <jiri@resnulli.us>, Petr Tesarik <ptesarik@suse.com>,
+	Alexey Kardashevskiy <aik@amd.com>,
+	Dan Williams <dan.j.williams@intel.com>,
+	Xu Yilun <yilun.xu@linux.intel.com>, linuxppc-dev@lists.ozlabs.org,
+	linux-s390@vger.kernel.org,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org
+Subject: Re: [PATCH v4 04/13] dma: swiotlb: track pool encryption state and
+ honor DMA_ATTR_CC_SHARED
+Message-ID: <agxt7SFGT7OLMIah@google.com>
+References: <agSKQrSIhizCXKwx@google.com>
+ <yq5ah5oaa63h.fsf@kernel.org>
+ <agW5rhE9n2gDQ0w5@google.com>
+ <yq5apl2y5f96.fsf@kernel.org>
+ <agXaby-7L7yS3Vva@google.com>
+ <yq5ah5oa59wy.fsf@kernel.org>
+ <agxDxdxynp4KEovA@google.com>
+ <20260519132911.GA7702@ziepe.ca>
+ <agxolksC_1nfO34X@google.com>
+ <yq5ah5o3sdn3.fsf@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v2 3/7] atm: convert to getsockopt_iter
-To: Breno Leitao <leitao@debian.org>, Chas Williams <3chas3@gmail.com>,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Simon Horman <horms@kernel.org>,
- Magnus Karlsson <magnus.karlsson@intel.com>,
- Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
- Stanislav Fomichev <sdf@fomichev.me>, Alexei Starovoitov <ast@kernel.org>,
- Daniel Borkmann <daniel@iogearbox.net>,
- Jesper Dangaard Brouer <hawk@kernel.org>,
- John Fastabend <john.fastabend@gmail.com>, Jon Maloy <jmaloy@redhat.com>,
- Alexandra Winter <wintera@linux.ibm.com>,
- Thorsten Winkler <twinkler@linux.ibm.com>,
- James Chapman <jchapman@katalix.com>, David Howells <dhowells@redhat.com>,
- Marc Dionne <marc.dionne@auristor.com>, David Heidelberg
- <david+nfc@ixit.cz>, Samuel Ortiz <sameo@linux.intel.com>
-Cc: linux-atm-general@lists.sourceforge.net, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, bpf@vger.kernel.org,
- tipc-discussion@lists.sourceforge.net, linux-s390@vger.kernel.org,
- linux-afs@lists.infradead.org, oe-linux-nfc@lists.linux.dev,
- kernel-team@meta.com
-References: <20260515-getsock_four-v2-0-0d8eed952627@debian.org>
- <20260515-getsock_four-v2-3-0d8eed952627@debian.org>
-From: Paolo Abeni <pabeni@redhat.com>
-Content-Language: en-US
-In-Reply-To: <20260515-getsock_four-v2-3-0d8eed952627@debian.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <yq5ah5o3sdn3.fsf@kernel.org>
 
-On 5/15/26 10:32 AM, Breno Leitao wrote:
-> @@ -797,13 +798,13 @@ int vcc_setsockopt(struct socket *sock, int level, int optname,
->  }
->  
->  int vcc_getsockopt(struct socket *sock, int level, int optname,
-> -		   char __user *optval, int __user *optlen)
-> +		   sockopt_t *opt)
->  {
->  	struct atm_vcc *vcc;
-> +	int val;
+On Tue, May 19, 2026 at 07:30:16PM +0530, Aneesh Kumar K.V wrote:
+> Mostafa Saleh <smostafa@google.com> writes:
+> 
+> >> > 
+> >> > I am still running more tests, but looking more into it. Setting
+> >> > force_dma_unencrypted() to true for pKVM guests is wrong, as the
+> >> > guest shouldn’t try to decrypt arbitrary memory as it can include
+> >> > sensitive information (for example in case of virtio sub-page
+> >> > allocation) and should strictly rely on the restricted-dma-pool
+> >> > for that.
+> >> 
+> >> ??
+> >> 
+> >> Where does force_dma_unencrypted() cause arbitary memory passed into
+> >> the DMA API to be decrypted? That should never happen???
+> >
+> > Sorry, maybe arbitrary is not the right expression again :)
+> > I mean that, with emulated devices that use the DMA-API under pKVM,
+> > they will map memory coming from other layers (VFS, net) through
+> > vitrio-block, virtio-net... These can be smaller than a page, and
+> >
+> 
+> Don't we PAGE_ALIGN these requests?
+> 
+> dma_direct_alloc
+> 	size = PAGE_ALIGN(size);
+> 
+> iommu_dma_alloc_pages
+> 	size_t alloc_size = PAGE_ALIGN(size);
+> 
+> 
 
-I *think* you should use 'unsigned long' here to avoid user-visible
-changes due to put_user() replacement.
+For allocation, yes, and that's fine because we bring memory from
+the pool.
+But not for mapping, as dma_direct_map_phys(), where the memory is
+allocated from the driver or other parts in the kernel and the page
+may be shared with other kernel components.
 
-/P
+Thanks,
+Mostafa
 
+> 
+> > using force_dma_unencrypted() will share the whole page.
+> > And as discussed, that leaks sensitive information to the untrusted
+> > host.
+> > I am currently investigating passing iova/phys/size
+> > to force_dma_unencrypted() and then we can share pages inplace only
+> > if possible without leaking extra information.
+> > I am trying to get some performance results first. But the tricky part
+> > is to get the semantics right, I believe in that case those devices
+> > shouldn’t use restricted-dma-pools as those should always force
+> > bouncing. Instead bouncing happens through the default SWIOTLB pool,
+> > if not possible to decrypt in place.
+> >
+> 
+> -aneesh
