@@ -1,70 +1,55 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8AD4B4D8D8A;
-	Tue, 19 May 2026 12:27:50 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0BE76438FF5;
+	Tue, 19 May 2026 12:44:03 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779193670; cv=none; b=Zm7B+BbQIanyG1MMKLkW1aT/NsUnS+pUSo0KR+IDZM0jvAXiHwn/I/kCavny0NoSeiAeqO5A+hHQ6vDSw+h9hpn6RrTH6qpgNLIohIrXbbTkAODbajO7ySUO10/XKCgaZlG1+GHGHDemOzCZoSiWVuqoMf9ZjMwxcZ+dWdV1I6U=
+	t=1779194643; cv=none; b=JXtFZ9eENkYxcuc0EW1Btg4bDQmu2ZstqAobGaZM3xgUvWH0erC0xXEc2+/xm0EPsKjS7hW90/XK4AwzVHLq1zYs5+++5CBBuWpl9wMBQyLQ7GvYzFYaDyTsOYT39EPfhQ/jL3Fg5j3GjI71d+j71xCCUb626uI+A/GBlmV9nnw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779193670; c=relaxed/simple;
-	bh=oh5xPm7aO87/jnT+7JZsE59suIMOg+uwG7kUANkSuuI=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=UgYP2ZN1bu8X7N82Kphg4pMBUtjxF8fOVBswNQ1aReGhU3oTsejdUw9jgar9XQgkYvgOz/HST8jZCRE0J9WISU1Q8AJHaeD73J2xqnsACN2Az4W5u0MgryQ6r8Mf+mqouxKQN0RX5ynhtUO6tVx1z2l/3gLoOEC4K2vLuM//u/4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=s3oeSiK5; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1779194643; c=relaxed/simple;
+	bh=kMUFbNwBqvJpO+Bjd3l9GBxXRf0w6ZacFORzSNgGrqw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=MlquNxUDO+J6B0Bvyp9AXEW3PazcENLI1DTV5caJsTcJwQs8IzDuTUcWDCwTegMdpSKTUCxmP7YPehWGUNpQRf1GuX4RiVvWh9/87RhinB39RyUN9VGn0g+V73jROF6ASGn518Px/mz0MU79imTMlsdulZefg05ij4dMR5ksXyw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bfo4BDRf; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="s3oeSiK5"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32C3FC2BCB3;
-	Tue, 19 May 2026 12:27:41 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bfo4BDRf"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23CD8C2BCC6;
+	Tue, 19 May 2026 12:43:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1779193670;
-	bh=oh5xPm7aO87/jnT+7JZsE59suIMOg+uwG7kUANkSuuI=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
-	b=s3oeSiK56KkasaDy21lXdRfQDszSI3yWcCMnoLlKn+41S+6zU+PAJqEy2hv5A8k+E
-	 GtFnA/KesjHZTSVPVbtE0+H6iwxJYXPK16SxOeloY4HxuZnWheY5jMOXopVGzmD/tX
-	 x0estu0/tyUMY5mo9AOcnX4J4MK/2WrIN/uHZSCL9536avpyokio0u8SsTUgEz0JZS
-	 krheaIjJ+T0JM9+sgG7PVkxCYbXPfMPvZiIraW7/42ON+11dSoUaWtXRmITP+pQZ6v
-	 MR6kg+qxSRKziQEl05pFMLwJ1RLRLf5uTVMWAk0hWiC8FQd6nHG9rmr97bALIPojqF
-	 8G/bTvvjCUjWw==
-X-Mailer: emacs 30.2 (via feedmail 11-beta-1 I)
-From: Aneesh Kumar K.V <aneesh.kumar@kernel.org>
-To: Mostafa Saleh <smostafa@google.com>
-Cc: iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev,
-	Robin Murphy <robin.murphy@arm.com>,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
-	Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
-	Steven Price <steven.price@arm.com>,
-	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Jiri Pirko <jiri@resnulli.us>,
-	Jason Gunthorpe <jgg@ziepe.ca>,
-	Petr Tesarik <ptesarik@suse.com>,
-	Alexey Kardashevskiy <aik@amd.com>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Xu Yilun <yilun.xu@linux.intel.com>,
-	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org
-Subject: Re: [PATCH v4 04/13] dma: swiotlb: track pool encryption state and
- honor DMA_ATTR_CC_SHARED
-In-Reply-To: <agxDxdxynp4KEovA@google.com>
-References: <20260512090408.794195-1-aneesh.kumar@kernel.org>
- <20260512090408.794195-5-aneesh.kumar@kernel.org>
- <agSKQrSIhizCXKwx@google.com> <yq5ah5oaa63h.fsf@kernel.org>
- <agW5rhE9n2gDQ0w5@google.com> <yq5apl2y5f96.fsf@kernel.org>
- <agXaby-7L7yS3Vva@google.com> <yq5ah5oa59wy.fsf@kernel.org>
- <agxDxdxynp4KEovA@google.com>
-Date: Tue, 19 May 2026 17:57:39 +0530
-Message-ID: <yq5amrxvshxg.fsf@kernel.org>
+	s=k20201202; t=1779194642;
+	bh=kMUFbNwBqvJpO+Bjd3l9GBxXRf0w6ZacFORzSNgGrqw=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=bfo4BDRfvA9myn7305sBhrTH2J0JJJLZN41DyiCsBL5RaW4yJzwWoRjqEv4bw7XRu
+	 3sS6wrONgvzJAEmXQdyWNoxP7IRgXT+BwOJdEatfiHb5tGo3e7Wv57MRVS0Mfl/KwF
+	 x37oBTK95eNvN0DhfsqWoIm8NOxS3mlo/N7lra4/86d92nRL8dOyMRTzXe4aNafoSP
+	 zmYFhFt5OepkId8YyQ/JRMelvQ33s7dDez4kr7Q7tGi40FybpnQQzZ966Ac5xeTssH
+	 5GqAFt9tX2CAZo6ci+b6JD7q1AC8DXMlEmsrGOnNr7zIOL1N/xCP/W2AdAHZDtwZKR
+	 +0JGj8KZOVUKg==
+Date: Tue, 19 May 2026 13:43:52 +0100
+From: Lorenzo Stoakes <ljs@kernel.org>
+To: Barry Song <baohua@kernel.org>
+Cc: Matthew Wilcox <willy@infradead.org>, surenb@google.com, 
+	akpm@linux-foundation.org, linux-mm@kvack.org, david@kernel.org, liam@infradead.org, 
+	vbabka@kernel.org, rppt@kernel.org, mhocko@suse.com, jack@suse.cz, pfalcato@suse.de, 
+	wanglian@kylinos.cn, chentao@kylinos.cn, lianux.mm@gmail.com, kunwu.chan@gmail.com, 
+	liyangouwen1@oppo.com, chrisl@kernel.org, kasong@tencent.com, shikemeng@huaweicloud.com, 
+	nphamcs@gmail.com, bhe@redhat.com, youngjun.park@lge.com, 
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, loongarch@lists.linux.dev, 
+	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, 
+	Nanzhe Zhao <nzzhao@126.com>
+Subject: Re: [PATCH v2 0/5] mm: reduce mmap_lock contention and improve page
+ fault performance
+Message-ID: <agxXPfG--tkoPynl@lucifer>
+References: <20260430040427.4672-1-baohua@kernel.org>
+ <afNM-gIqxpyJ6ro7@casper.infradead.org>
+ <CAGsJ_4w0qcYmukHqsyRd0jomoyYkJjOt8b-Cgp53BgP-8QQghw@mail.gmail.com>
+ <afS_L-5XeWIldTXA@casper.infradead.org>
+ <CAGsJ_4wk=SDtgin+84Ev2TamU-JFfmrg_SUay=-tcYmnFvK6Nw@mail.gmail.com>
+ <afTpoL3FklpQZNMM@casper.infradead.org>
+ <CAGsJ_4ysMcrmDLSOwBkf7qwCQrcDWeEMXkHDajTJFMLKUk0bSQ@mail.gmail.com>
+ <agrWuDNGddNmvMFD@lucifer>
+ <CAGsJ_4zqLfdWoTH9s7FFaqWWj0mESfikYgr7=GcV64qcuXrPxA@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -72,137 +57,240 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAGsJ_4zqLfdWoTH9s7FFaqWWj0mESfikYgr7=GcV64qcuXrPxA@mail.gmail.com>
 
-Mostafa Saleh <smostafa@google.com> writes:
-
-> On Thu, May 14, 2026 at 08:13:25PM +0530, Aneesh Kumar K.V wrote:
->> >>=20
->> >> What I meant was that we need a generic way to identify a pKVM guest,=
- so
->> >> that we can use it in the conditional above.
->> >
->> > I have this patch, with that I can boot with your series unmodified,
->> > but I will need to do more testing.
->> >
->>=20
->> Thanks, I can add this to the series once you complete the required test=
-ing.
->>=20
+On Mon, May 18, 2026 at 07:25:54PM +0800, Barry Song wrote:
+> On Mon, May 18, 2026 at 5:47 PM Lorenzo Stoakes <ljs@kernel.org> wrote:
+> >
+> > On Sun, May 17, 2026 at 04:45:15PM +0800, Barry Song wrote:
+> > > On Sat, May 2, 2026 at 1:58 AM Matthew Wilcox <willy@infradead.org> wrote:
+> > > >
+> > > > On Sat, May 02, 2026 at 01:44:34AM +0800, Barry Song wrote:
+> > > > > On Fri, May 1, 2026 at 10:57 PM Matthew Wilcox <willy@infradead.org> wrote:
+> > > > > >
+> > > > > > On Fri, May 01, 2026 at 06:49:58AM +0800, Barry Song wrote:
+> > > > > > > 1. There is no deterministic latency for I/O completion. It depends on
+> > > > > > > both the hardware and the software stack (bio/request queues and the
+> > > > > > > block scheduler). Sometimes the latency is short; at other times it can
+> > > > > > > be quite long. In such cases, a high-priority thread performing operations
+> > > > > > > such as mprotect, unmap, prctl_set_vma, or madvise may be forced to wait
+> > > > > > > for an unpredictable amount of time.
+> > > > > >
+> > > > > > But does that actually happen?  I find it hard to believe that thread A
+> > > > > > unmaps a VMA while thread B is in the middle of taking a page fault in
+> > > > > > that same VMA.  mprotect() and madvise() are more likely to happen, but
+> > > > > > it still seems really unlikely to me.
+> > > > >
+> > > > > It doesn’t have to involve unmapping or applying mprotect to
+> > > > > the entire VMA—just a portion of it is sufficient.
+> > > >
+> > > > Yes, but that still fails to answer "does this actually happen".  How much
+> > > > performance is all this complexity in the page fault handler buying us?
+> > > > If you don't answer this question, I'm just going to go in and rip it
+> > > > all out.
+> > > >
+> > >
+> > > Hi Matthew (and Lorenzo, Jan, and anyone else who may be
+> > > waiting for answers),
+> > >
+> > > As promised during LSF/MM/BPF, we conducted thorough
+> > > testing on Android phones to determine whether performing
+> > > I/O in `filemap_fault()` can block `vma_start_write()`.
+> > > I wanted to give a quick update on this question.
+> > >
+> > > Nanzhe at Xiaomi created tracing scripts and ran various
+> > > applications on Android devices with I/O performed under
+> > > the VMA lock in `filemap_fault()`. We found that:
+> > >
+> > > 1. There are very few cases where unmap() is blocked by
+> > >    page faults. I assume this is due to buggy user code
+> > >    or poor synchronization between reads and unmap().
+> > > So I assume it is not a problem.
+> > >
+> > > 2. We observed many cases where `vma_start_write()`
+> > >    is blocked by page-fault I/O in some applications.
+> > >    The blocking occurs in the `dup_mmap()` path during
+> > >    fork().
+> > >
+> > > With Suren's commit fb49c455323ff ("fork: lock VMAs of
+> > > the parent process when forking"), we now always hold
+> > > `vma_write_lock()` for each VMA. Note that the
+> > > `mmap_lock` write lock is also held, which could lead to
+> > > chained waiting if page-fault I/O is performed without
+> > > releasing the VMA lock.
+> >
+> > Hm but did you observe this 'chained waiting'? And what were the latencies?
 >
-> I am still running more tests, but looking more into it. Setting
-> force_dma_unencrypted() to true for pKVM guests is wrong, as the
-> guest shouldn=E2=80=99t try to decrypt arbitrary memory as it can include
-> sensitive information (for example in case of virtio sub-page
-> allocation) and should strictly rely on the restricted-dma-pool
-> for that.
->
-> However, with my patch and setting force_dma_unencrypted() to false
-> on top of this series, it fails on pKVM due to a missing shared
-> attribute as Alexey mentioned, as now SWIOTLB rejects non shared
-> attrs, so, the DMA-API has to pass it. With that, I can boot again:
->
-> diff --git a/kernel/dma/direct.c b/kernel/dma/direct.c
-> index 5103a04df99f..b19aeec03f27 100644
-> --- a/kernel/dma/direct.c
-> +++ b/kernel/dma/direct.c
-> @@ -286,6 +286,8 @@ void *dma_direct_alloc(struct device *dev, size_t siz=
-e,
->  	}
->=20=20
->  	if (is_swiotlb_for_alloc(dev)) {
-> +		attrs |=3D DMA_ATTR_CC_SHARED;
-> +
->  		page =3D dma_direct_alloc_swiotlb(dev, size, attrs);
->  		if (page) {
->  			/*
-> @@ -449,6 +451,8 @@ struct page *dma_direct_alloc_pages(struct device *de=
-v, size_t size,
->  						  &cpu_addr, gfp, attrs);
->=20=20
->  	if (is_swiotlb_for_alloc(dev)) {
-> +		attrs |=3D DMA_ATTR_CC_SHARED;
-> +
->  		page =3D dma_direct_alloc_swiotlb(dev, size, attrs);
->  		if (!page)
->  			return NULL;
-> diff --git a/kernel/dma/direct.h b/kernel/dma/direct.h
-> index 4e35264ab6f8..8ee5bbf78cfb 100644
-> --- a/kernel/dma/direct.h
-> +++ b/kernel/dma/direct.h
-> @@ -92,6 +92,7 @@ static inline dma_addr_t dma_direct_map_phys(struct dev=
-ice *dev,
->  		if (attrs & (DMA_ATTR_MMIO | DMA_ATTR_REQUIRE_COHERENT))
->  			return DMA_MAPPING_ERROR;
->=20=20
-> +		attrs |=3D DMA_ATTR_CC_SHARED;
->  		return swiotlb_map(dev, phys, size, dir, attrs);
->  	}
->=20=20
-> --
->
+> We have clearly observed that the `fork()` operations of many
+> popular Android apps, such as iQiyi, Baidu Tieba, and 10086,
+> end up waiting on page-fault (PF) I/O when the VMA lock is
+> held during I/O operations. This has already become a
+> practical issue. I also believe this can lead to chained
+> waiting, since the global `mmap_lock` blocks all threads that
+> need to acquire it.
 
-How about the below?
+I asked about the chained waiting :) I'm aware you've observed contention on
+write lock, you said so in your LSF talk.
 
-modified   kernel/dma/direct.c
-@@ -278,6 +278,10 @@ void *dma_direct_alloc(struct device *dev, size_t size,
- 	}
-=20
- 	if (is_swiotlb_for_alloc(dev)) {
-+
-+		if (dev->dma_io_tlb_mem->unencrypted)
-+			attrs |=3D DMA_ATTR_CC_SHARED;
-+
- 		page =3D dma_direct_alloc_swiotlb(dev, size, attrs);
- 		if (page) {
- 			/*
-@@ -451,6 +455,10 @@ struct page *dma_direct_alloc_pages(struct device *dev=
-, size_t size,
- 						  &cpu_addr, gfp, attrs);
-=20
- 	if (is_swiotlb_for_alloc(dev)) {
-+
-+		if (dev->dma_io_tlb_mem->unencrypted)
-+			attrs |=3D DMA_ATTR_CC_SHARED;
-+
- 		page =3D dma_direct_alloc_swiotlb(dev, size, attrs);
- 		if (!page)
- 			return NULL;
-modified   kernel/dma/direct.h
-@@ -92,6 +92,9 @@ static inline dma_addr_t dma_direct_map_phys(struct devic=
-e *dev,
- 		if (attrs & (DMA_ATTR_MMIO | DMA_ATTR_REQUIRE_COHERENT))
- 			return DMA_MAPPING_ERROR;
-=20
-+		if (dev->dma_io_tlb_mem->unencrypted)
-+			attrs |=3D DMA_ATTR_CC_SHARED;
-+
- 		return swiotlb_map(dev, phys, size, dir, attrs);
- 	}
-=20
-
+So have you observed that or is this a theory?
 
 >
 >
-> I will keep testing and let you know how it goes. If there is nothing
-> else required to convert pKVM guests to CC, I can just post the patch
-> separately as it has no dependency on this series.
+> >
+> > >
+> > > My gut feeling is that Suren's commit may be overshooting,
+> > > so my rough idea is that we might want to do something like
+> > > the following (we haven't tested it yet and it might be
+> > > wrong):
+> >
+> > Yeah I'm really not sure about that.
+> >
+> > Prior to the VMA locks, the mmap write lock would have guaranteed no concurrent
+> > page faults, which is really what Fb49c455323ff is about.
+> >
+> > So Suren's patch was essentially restoring the _existing_ forking behaviour, and
+> > now you're saying 'let's change the forking behaviour that's been like that for
+> > forever'.
 >
+>
+> I am afraid not. Before we introduced the per-VMA lock, we
+> were not performing I/O while holding `mmap_lock`. A page fault
+> that needed I/O would drop the `mmap_lock` read lock and allow
+> `fork()` to proceed.
 
-That would be useful. I can then carry the patch as a dependent change,
-which can also be merged separately
+Err I'm talking about fork? The patch you reference is a change to fork?
+
+So you're saying that Fb49c455323ff which explicitly takes the VMA write lock on
+fork, was somehow an addendum after fork didnt take the mmap write lock?
+
+I must be imagining
+https://elixir.bootlin.com/linux/v6.0/source/kernel/fork.c#L590 then in v6.0
+pre-vma locks :)
+
+I suspect that's _not_ what you're saying, so now what you're suggesting as I
+stated above, is to fundamentally change fork behaviour to account for the
+existing per-VMA lock behaviour on the fault path?
+
+Again I state - are you really sure you want to fundamentally change fork
+behaviour for this?
+
+I am extremely concerned about doing that.
 
 >
-> Re force_dma_unencrypted(), I am looking into a safe way to use it
-> for pKVM as I beleive it will be useful to eliminate some bouncing.
-> However, that=E2=80=99s not critical for this series and can be added lat=
-er
-> as I am still investigating it, if I reach something I can post it
-> along the pKVM patch above.
+> Now, you are suggesting performing I/O while holding the VMA
+> lock, which changes the requirements and introduces this
+> problem.
 >
-> Thanks,
-> Mostafa
+> >
+> > I think you would _really_ have to be sure that's safe. And forking is a very
+> > dangerous time in terms of complexity and sensitivity and 'weird stuff'
+> > happening so I'd tread _very_ carefully here.
 >
->>=20
->>=20
->> -aneesh
+> Yep. I think my original proposal did not require any changes
+> to `fork()`, since it simply preserved the current behavior of
+> dropping the VMA lock before performing I/O. In that model,
+> `fork()` would not end up waiting on I/O at all.
+>
+> What you are suggesting now appears to be performing I/O while
+> holding the VMA lock, which in turn introduces the need to
+> change `fork()`.
+
+Again, you're saying we should fundamentally change the way fork has worked
+forever to work around something else.
+
+At LSF I raised the fact that Josef himself suggested we simply drop this I/O
+waiting behaviour for file-backed mapppings. Isn't there a way forward that way
+rather than 'hey let's drop locks and hope for the best!'
+
+I am really reticent about this because we've seen HORRIBLE bugs come from fork
+behaviour, especially edge cases, and mm testing isn't great so I am basically
+opposed to this, and you're not really convincing me here.
+
+>
+> >
+> > >
+> > > diff --git a/mm/mmap.c b/mm/mmap.c
+> > > index 2311ae7c2ff4..5ddaf297f31a 100644
+> > > --- a/mm/mmap.c
+> > > +++ b/mm/mmap.c
+> > > @@ -1762,7 +1762,13 @@ __latent_entropy int dup_mmap(struct mm_struct
+> > > *mm, struct mm_struct *oldmm)
+> > >         for_each_vma(vmi, mpnt) {
+> > >                 struct file *file;
+> > >
+> > > -               retval = vma_start_write_killable(mpnt);
+> > > +               /*
+> > > +                * For anonymous or writable private VMAs, prevent
+> > > +                * concurrent CoW faults.
+> > > +                */
+> >
+> > To nit pick I think the comment's confusing but also tells you you don't need to
+> > specific anon check - writable private is sufficient. And it's not really just
+> > CoW that's the issue, it's anon_vma population _at all_ as well as CoW.
+> >
+> > > +               if (!mpnt->vm_file || (!(mpnt->vm_flags & VM_SHARED) &&
+> > > +                                       (mpnt->vm_flags & VM_WRITE)))
+> > > +                       retval = vma_start_write_killable(mpnt);
+> >
+> > I think this has to be VM_MAYWRITE, because somebody could otherwise mprotect()
+> > it R/W.
+> >
+> > I also don't understand why !mpnt->vm_file for a read-only anon mapping (more
+> > likely PROT_NONE) is here, just do the second check?
+> >
+> > (Also please use the new interface, so !vma_test(mpnt, VMA_SHARED_BIT) &&
+> > vma_test(mpnt, VMA_MAYWRITE_BIT))
+>
+> Yep, I can definitely refine the check further. But before
+> doing that, I'd first like to confirm that we are aligned on
+> the direction.
+>
+> If you still intend to hold the VMA lock while performing I/O,
+> then I think we should fix `fork()` to avoid taking
+> `vma_start_write()`.
+
+Yeah or we could do something different, it isn't a case of you get to do one of
+two options you propose - the maintainers decide which way is appropriate.
+
+Of the two options dropping the lock on the fault path rather than this fork
+insanity is my preference but I wonder if we can't find another way.
+
+Let me read through the series and give more thoughts I guess.
+
+>
+> >
+> > >                 if (retval < 0)
+> > >                         goto loop_out;
+> > >                 if (mpnt->vm_flags & VM_DONTCOPY) {
+> > >
+> > > Based on the above, we may want to re-check whether fork()
+> > > can be blocked by page faults. At the same time, if Suren,
+> > > you, or anyone else has any comments, please feel free to
+> > > share them.
+> > >
+> > > Best Regards
+> > > Barry
+> >
+> > Technical commentary above is sort of 'just cos' :) because I really question
+> > doing this honestly.
+>
+> I think we either need to fix `fork()`, or keep the current
+> behavior of dropping the VMA lock before performing I/O.
+
+Yup you said :)
+
+>
+> >
+> > I'd also like to get Suren's input, however.
+>
+> Yes. of course.
+>
+> >
+> > Thanks, Lorenzo
+>
+> Best Regards
+> Barry
+
+Thanks, Lorenzo
