@@ -1,201 +1,137 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f49.google.com (mail-pj1-f49.google.com [209.85.216.49])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C2AE3EFFA1;
-	Tue, 19 May 2026 08:57:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6130C39DBEB
+	for <linux-s390@vger.kernel.org>; Tue, 19 May 2026 10:00:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779181074; cv=none; b=o11Tdqvz9PjJvgbrT4QyQ6P46d2woRoqyLYrs1DVeTC2aXB0VBuuSN/Yqk2RsJBc2vz7zgkp8fBvBsPc+5BibIdsRcWEyIjvmh9fwQmmZEdp/Cs8JA1+tuNOZ0c9/OWVNJVPPXaOmV4CLuGOI2FBiPxiTf57GgiKk2BWkc6c0a4=
+	t=1779184833; cv=none; b=kREbLVRlk0vEpToUJ8V+dh8HqbtBdptQjqPK0G6GqsTLoVL8XS6XQpWOp3F/Be0zz9YrIuoFGClLWKYkUhrUQgWT9D7ERqMlSZaWnksWfuAdUUObmdqcoFj3bXgv9UIi56QkYyUlIGGuVjrIiAKvYniXPiplHMeKgifTJ5it6EY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779181074; c=relaxed/simple;
-	bh=vN60PjbJzbQ5WWHxaroZ1AVh/dZPqpOBY39aTDZFQYs=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=gsw3Sa+y9fR4QQFZDuYNOJ75PssbOrN3uKeH/V79AW1TDKl2jTUbqXSvn045eSRFqiSTA0hI9p0ek4nPje58dQpTfZZR7sGD92ifDajekw/z/RB9kQeRGbFkQ77w9ZxgVtX8W7vEdxsccVeqplrUf3pl/KksVBRqOfjtHRyOh5o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=XDLIR5Z9; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1779184833; c=relaxed/simple;
+	bh=3nUL3rrmcUfID0DDtH+fnolF/wVDYul0PA1V7JWUZpE=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=WZY5Ff/QGBIulALjUhXqLahGAAbgpXqX42zDpuEkeBBIVG0vduiDCIb/ZoeiGhjShkkeSt3b5hoMh7nW+9ow2bUxUEF4eLOHuv112vaKoM/GxQkkVzgLxhu+t6s6Lg6JrCkdp3VVJtrigVGZqYLJyPtjPNTcqYVcwoxRuvsC67w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=fKmwsiot; arc=none smtp.client-ip=209.85.216.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="XDLIR5Z9"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 64J8YKSs470901;
-	Tue, 19 May 2026 08:57:47 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=QZH9wj
-	cmIeE57wNi9FaEDmYSxnaFxNVYbUX3qCAT3wM=; b=XDLIR5Z9JjZi84UpYkXXsv
-	S0pmV6syQWYXwM58xszVogQsCYyvWWTjsdYQnJMQLIQsCw4sisvm4HfVBTu8LWeK
-	zENCB5rsKc+Q+akqPUe+I6kTm5cubCEdkboRd5ex5lubk9JLND6JfduswXUgq3rK
-	se3Z2RHttWAVL6nOjdsaHGhyVqSjstzkp2iUuboC7VCf0h+xIZlgmHnnzwYVjmIc
-	BsG7TZ3wAwbL3Rk5oBb2nzBqEk+agMeRn2TKdKKN7rzVmRt4FQupgPIfgrysBH0I
-	z24LFjhE5OZyMMP+iL0QlY8S1dBhROJ/CI1cxCaupuqNJA+8FUFYaLIuJD2ZGbeg
-	==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4e6h88be9g-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 19 May 2026 08:57:46 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 64J8sD5R028409;
-	Tue, 19 May 2026 08:57:45 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4e72wq207x-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 19 May 2026 08:57:45 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 64J8vfC255574806
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 19 May 2026 08:57:42 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9174F2004B;
-	Tue, 19 May 2026 08:57:41 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B56E320043;
-	Tue, 19 May 2026 08:57:40 +0000 (GMT)
-Received: from [9.87.137.247] (unknown [9.87.137.247])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 19 May 2026 08:57:40 +0000 (GMT)
-Message-ID: <0b4cff6d-b9e7-4c34-9279-93bec10bcc9d@linux.ibm.com>
-Date: Tue, 19 May 2026 10:57:40 +0200
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fKmwsiot"
+Received: by mail-pj1-f49.google.com with SMTP id 98e67ed59e1d1-36974217d4eso1901847a91.2
+        for <linux-s390@vger.kernel.org>; Tue, 19 May 2026 03:00:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1779184831; x=1779789631; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=wPlnCZIGFehZKOWoeObeqnRwLPoyuMVquqLHAA3dDM4=;
+        b=fKmwsiot8l+L8eXmTAA/xyJ0iGcNYQYyYhB4THzkoEsiL0mBi5jkix6UMZGu2r6A0P
+         7q+J2VSjC+ORO4bC1wvD63Smef7N8LOhGX4bIa+3PfZ9mO0Ay9bDI5Zze4iHQr0tww8J
+         171JN+kl0CO4RqX6qMWDBBnoZ0FMvc55vSIwb42X34iX0BsAsVepccumWOOvIZtpBQOv
+         Rs8iYdJm0dLlCTKw1tP6rF4kN60pFbBwT0G2wz99EuFYdVPVbIU96e3Y4IIESEWuaxxG
+         crfmUqb5FHOLjORdau0euF85cDUitY5UZO7SJEmmvcQNI4LcqLLP/a4BCz67F/Illb8r
+         BUSA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1779184831; x=1779789631;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=wPlnCZIGFehZKOWoeObeqnRwLPoyuMVquqLHAA3dDM4=;
+        b=b4tTBterA1AeLp6RW2Obqk5dKp0ACpLPDTHiSlztocTk0Zm7yGDmJ8q9BsWuF8RHGO
+         yStfDVwOApLsfx6XHqUDDFGpp7jZcbOlBful18sjM07flHvg6yLUteLUhQtXMEgwgB2X
+         8pVAWOaGSVmY6wQ73aHXHINMlCmLAaFaWlBDTMmVH/U1zf4j3n6FIY53Enn+4VDIA6wQ
+         b2UhSYZ8EYe3oLDgWSIT6Ah14xYt4WNVUvwCI9dbvUzljGoGvv8OLJQdGwjWs4CghVem
+         6fftKXp6hJTNmxJG+urqAGVRbPeoj8cjmCZx54+9mNqI6otFIX+27MZm3zst/TYd220b
+         N62A==
+X-Forwarded-Encrypted: i=1; AFNElJ++DsocgHupAbJwuOYIYVNBujjZUfkiDSTD+vmikUAyHd/BKg6ftqodbwzxivdaVknd30oCCikABqcu@vger.kernel.org
+X-Gm-Message-State: AOJu0YygkSPPhCQ/zdp8kbbbSTFf3z/pCiOmLjUJEjkPt4rmUCVKiWTP
+	dniNj08pOBcXEY4qk7Vk3pvtVzzZuPhKAqLcWxcsZIQBf//teMLz5CxF
+X-Gm-Gg: Acq92OFtvI71hqF854zB1yRgmtiOPjh8sdwLTMBtBJ9X+u2vg5Vo65zOJZv2QcN1CyN
+	hXs/Si685RtHPHJNymCZ2CscYPOQWdzrA+15YUc6qDGdlGX1hs9D7kspdNENULN/LrJy2nEhpM5
+	cTMhAZtF/uyl2wV3geJBIncsSE8EZzsKkji4hwwHjZ0yrnoM87JUhQY99jdpjYwI+uSR/8kd6Er
+	1GJkXrEbqByNWMxZldt7l0I9lfFApQ1Dc9FQuAi7au22MzU3ScVPc1sfhYAjM6GhGNvR3GJSnyL
+	847B/oJ0iAN51tT6hJO/OAOEG0kjhfTSGG0KZg+R87ojjPwNL46V9b/ngzHhyIZK8O9aXKSFU+I
+	M29ConloDHM7E2+SpWXLZwcEu5oGwvuRk2MfVC6B/kwfHolBN2ag18/ow58tFJGHxekHOVUrYP7
+	gYpM37Kwd7ZaopsPLKvPnFgMoh5Ro67mMQrz3ewrCZ3Hz2w6Pp
+X-Received: by 2002:a17:90b:1344:b0:366:4f8a:9847 with SMTP id 98e67ed59e1d1-36951b711dcmr18287582a91.17.1779184830724;
+        Tue, 19 May 2026 03:00:30 -0700 (PDT)
+Received: from csl-conti-dell7858.ntu.edu.sg ([155.69.195.57])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3696e24e857sm6085380a91.0.2026.05.19.03.00.28
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 19 May 2026 03:00:30 -0700 (PDT)
+From: Maoyi Xie <maoyixie.tju@gmail.com>
+To: Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	linux-s390@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: s390/tape: iterator after loop end in tape_assign_minor?
+Date: Tue, 19 May 2026 18:00:26 +0800
+Message-Id: <20260519100026.1970224-1-maoyixie.tju@gmail.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] smc: Use flexible array for SMCD connections
-To: Rosen Penev <rosenp@gmail.com>, linux-rdma@vger.kernel.org
-Cc: "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
-        "D. Wythe" <alibuda@linux.alibaba.com>,
-        Dust Li <dust.li@linux.alibaba.com>,
-        Sidraya Jayagond <sidraya@linux.ibm.com>,
-        Wenjia Zhang
- <wenjia@linux.ibm.com>,
-        Mahanta Jambigi <mjambigi@linux.ibm.com>,
-        Tony Lu <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>,
-        "open list:NETWORKING [GENERAL]" <netdev@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        "open list:SHARED MEMORY COMMUNICATIONS (SMC) SOCKETS"
- <linux-s390@vger.kernel.org>
-References: <20260519005206.628071-1-rosenp@gmail.com>
-Content-Language: en-US
-From: Alexandra Winter <wintera@linux.ibm.com>
-In-Reply-To: <20260519005206.628071-1-rosenp@gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-ORIG-GUID: T4Kd7USZJpDqbwodVidxmi3qJ_Xz86fM
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTE5MDA4NCBTYWx0ZWRfX8Qx4Fdsu03TB
- WnPnFwdyPvVZXG410i4JnnDXqp4qb/X8QcpOyruZR4eipM4whehWaCVeJx5r/sAA5fgbqhqq/n8
- 6vyhizwTwzHc8aQ671828T62Rax8n7HjZJUYEelGuULMrwhyLSmk0007JSkdgRFysl8a1nr7hgp
- 7PhALXslPZyIvkZqCdq7dub7S3bFKFEFRRshIncKCpxx5gQTGULYInWYloBS7O1hvehOpOaEEES
- KwXvpudjmheCXrzFofasz2eV1xwcJlTrEXiyCqgxpmpZ+Q5In0x01GJdq7KRpFNUMpTJwr7/7IJ
- m65aIRSArriH/RwxRI/btKgfJED14VVUDxMNDTXNo1Qr+YdKKA1LMMPlwC7FRjAei0VAJagW6R9
- sPkUzK4dXq1d5fcvInCl6M9e0R4e4Cgcymvnu35b1wKCfQi5Dou0qF9eu3W7N+s1L3tCp/Oqnpm
- b1FdPocRbI38euoBOdg==
-X-Proofpoint-GUID: JTgSCbU6zysfeA6G2s3ICnZRbfyyTsut
-X-Authority-Analysis: v=2.4 cv=apyCzyZV c=1 sm=1 tr=0 ts=6a0c260b cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
- a=IkcTkHD0fZMA:10 a=NGcC8JguVDcA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=pGLkceISAAAA:8
- a=uY9fc7PcPamsBxGr6G4A:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-05-19_02,2026-05-18_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 lowpriorityscore=0 priorityscore=1501 impostorscore=0
- bulkscore=0 suspectscore=0 adultscore=0 spamscore=0 phishscore=0
- clxscore=1011 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2605130000
- definitions=main-2605190084
+Content-Transfer-Encoding: 8bit
 
+Hi all,
 
+While reading drivers/s390/char/tape_core.c I noticed
+something that looks like a past the end iterator pattern.
+I would appreciate it if you could take a look and let me
+know whether this is a real issue, and whether it is worth
+fixing.
 
-On 19.05.26 02:52, Rosen Penev wrote:
-> Store the per-DMB connection pointers in the SMCD device allocation
-> instead of allocating a separate connection array.
-> 
-> This keeps the connection table tied to the SMCD device lifetime and
-> simplifies the allocation and cleanup paths.
-> 
-> Assisted-by: Codex:GPT-5.5
-> Signed-off-by: Rosen Penev <rosenp@gmail.com>
-> ---
+The site is tape_assign_minor() (linux-7.1-rc1, around
+line 339):
 
-I don't think GPT did a good job here.
-There are many other instances, where smcd->conn is freed,
-those would need adoption as well afaiu.
+    list_for_each_entry(tmp, &tape_device_list, node) {
+            if (minor < tmp->first_minor)
+                    break;
+            minor += TAPE_MINORS_PER_DEV;
+    }
+    if (minor >= 256) {
+            write_unlock(&tape_device_lock);
+            return -ENODEV;
+    }
+    device->first_minor = minor;
+    list_add_tail(&device->node, &tmp->node);
 
-I am also not sure that there is enough improvement in the idea
-to warrant a patch, but I leave that to the SMC maintainers.
+When the loop walks all entries without break (every
+existing entry has first_minor at or below the candidate
+minor), tmp is past the end. tmp->node then aliases
+tape_device_list (the list head) via container_of offset
+cancellation. list_add_tail(&device->node, &tape_device_list)
+inserts the new device at the tail of the list. That is the
+intended behaviour for a sorted insertion where the new
+device has the largest first_minor. The dereference of the
+past the end iterator is undefined per C11.
 
+Jakob Koschel cleaned up many such sites in 2022, for
+example commits 99d8ae4ec8a (tracing: Remove usage of list
+iterator variable after the loop), 2966a9918df (clockevents:
+Use dedicated list iterator variable) and dc1acd5c946 (dlm:
+replace usage of found with dedicated list iterator
+variable). This site was not covered.
 
+A candidate fix would track an explicit insertion target.
+Declare `struct list_head *insert_before = &tape_device_list`
+before the loop. Overwrite it to `&tmp->node` only when the
+loop breaks early. The final list_add_tail then reads
+`insert_before`. On break that points to the entry right
+after the insertion position. On fall-through it stays at
+the list head, so list_add_tail appends at the tail. The
+behaviour is unchanged in all cases, including an empty
+list and a list with one entry.
 
->  include/net/smc.h |  2 +-
->  net/smc/smc_ism.c | 10 ++--------
->  2 files changed, 3 insertions(+), 9 deletions(-)
-> 
-> diff --git a/include/net/smc.h b/include/net/smc.h
-> index bfdc4c41f019..a2bc3ab88075 100644
-> --- a/include/net/smc.h
-> +++ b/include/net/smc.h
-> @@ -40,7 +40,6 @@ struct smcd_dev {
->  	struct dibs_dev *dibs;
->  	struct list_head list;
->  	spinlock_t lock;
-> -	struct smc_connection **conn;
->  	struct list_head vlan;
->  	struct workqueue_struct *event_wq;
->  	u8 pnetid[SMC_MAX_PNETID_LEN];
-> @@ -50,6 +49,7 @@ struct smcd_dev {
->  	atomic_t lgr_cnt;
->  	wait_queue_head_t lgrs_deleted;
->  	u8 going_away : 1;
-> +	struct smc_connection *conn[];
->  };
->  
->  #define SMC_HS_CTRL_NAME_MAX 16
-> diff --git a/net/smc/smc_ism.c b/net/smc/smc_ism.c
-> index e0dba2c7b6e3..bde938c5eb39 100644
-> --- a/net/smc/smc_ism.c
-> +++ b/net/smc/smc_ism.c
-> @@ -467,17 +467,14 @@ static struct smcd_dev *smcd_alloc_dev(const char *name, int max_dmbs)
->  {
->  	struct smcd_dev *smcd;
->  
-> -	smcd = kzalloc_obj(*smcd);
-> +	smcd = kzalloc_flex(*smcd, conn, max_dmbs);
->  	if (!smcd)
->  		return NULL;
-> -	smcd->conn = kzalloc_objs(struct smc_connection *, max_dmbs);
-> -	if (!smcd->conn)
-> -		goto free_smcd;
->  
->  	smcd->event_wq = alloc_ordered_workqueue("ism_evt_wq-%s)",
->  						 WQ_MEM_RECLAIM, name);
->  	if (!smcd->event_wq)
-> -		goto free_conn;
-> +		goto free_smcd;
->  
->  	spin_lock_init(&smcd->lock);
->  	spin_lock_init(&smcd->lgr_lock);
-> @@ -486,8 +483,6 @@ static struct smcd_dev *smcd_alloc_dev(const char *name, int max_dmbs)
->  	init_waitqueue_head(&smcd->lgrs_deleted);
->  	return smcd;
->  
-> -free_conn:
-> -	kfree(smcd->conn);
->  free_smcd:
->  	kfree(smcd);
->  	return NULL;
-> @@ -557,7 +552,6 @@ static void smcd_unregister_dev(struct dibs_dev *dibs)
->  	list_del_init(&smcd->list);
->  	mutex_unlock(&smcd_dev_list.mutex);
->  	destroy_workqueue(smcd->event_wq);
-> -	kfree(smcd->conn);
->  	kfree(smcd);
->  }
->  
+If this is intentional or already known, please disregard.
+Otherwise, I am happy to send a [PATCH] or to leave the fix
+to you. Thank you for your time, and sorry for the noise if
+this is not actually worth fixing or has already been
+spotted.
 
+Thanks,
+Maoyi Xie
+https://maoyixie.com/
