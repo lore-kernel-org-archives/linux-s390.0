@@ -1,126 +1,119 @@
-Received: from mail-pj1-f73.google.com (mail-pj1-f73.google.com [209.85.216.73])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out-182.mta1.migadu.com (out-182.mta1.migadu.com [95.215.58.182])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F8A53F1AA7
-	for <linux-s390@vger.kernel.org>; Wed, 20 May 2026 15:27:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.73
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ADFE132ED39
+	for <linux-s390@vger.kernel.org>; Wed, 20 May 2026 15:31:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779290847; cv=none; b=M+2QotUbp89XBmnzWg3u70Y4s2etfiK8D6R60G9hmr5y0VjMM8+8b86FowKxzRT8Et+FpLROoVuRcS9Z3lL2ODz6JThe2Ze4pemZgQHAcS7FPhaN2s2HvB6gUn54x1OABUhtyxZs7g6k+rIeMLSWh0hvWskpqX9/gJc6cfDBgF0=
+	t=1779291097; cv=none; b=OgB971IhcKpRz7giVvMcgLlRFypb76VyNr2vTSu7TEoO7nYKRdp067ZJo1jl6gn9pqvSZQ0oANGmk1x4D7spyptigIVL60bC9OYm85UKct+qjqTTRmbjPk5zzGHlXehSPGxOIXVJI7JJQsoDK7LbDYv7e4xmB9Opwhfwlz22b7w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779290847; c=relaxed/simple;
-	bh=tweE/B5iRx4WqCmZC5jUJFMzY9zDXaqivSkzvGtJbn0=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=qc0F5Kl/Q+awUmY/P5UeJZdOv8YvwRifY5FG/CU2qrx6VJqB/45Satt+IjP9yMMSEn0ocJLXkkBgYfxZLewVVn1lKUbDaUlKPopExpldrUz5/t+repMDIuMmMxG/F3VQYUYqm640tAxESLYingLchMMWSuWEyujmZpYgJImZeAA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=gmEBa3y8; arc=none smtp.client-ip=209.85.216.73
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
+	s=arc-20240116; t=1779291097; c=relaxed/simple;
+	bh=u8WjjRIrjIi+YYl0V7pzG2yc3criivYx2JxFgRlvXg4=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=UplSDIFKXWv45g9KKtSHdExvk4WP0XU85nD0OX+xGjDwxPDNWgIotryxOx41cea9OmqFjLiBKpt2wS8JhZU3QnFjPu1bXbCtamIBlxYebdhtmkYvdijgr0tj/ZiYwLUGOZ3hob29xl7D9HbFpIlAnwcf2wdQdK6fmsw8Bebob80=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=UrD4QznM; arc=none smtp.client-ip=95.215.58.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="gmEBa3y8"
-Received: by mail-pj1-f73.google.com with SMTP id 98e67ed59e1d1-365fd467cf6so4281349a91.0
-        for <linux-s390@vger.kernel.org>; Wed, 20 May 2026 08:27:26 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1779290846; x=1779895646; darn=vger.kernel.org;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=KhkgzLIvh7n8FBkLDCvvyoRLLy05jqAaJJsIAGt7tN0=;
-        b=gmEBa3y8/jRi0+EpWviHV8clYZE0Mh1fvrsRthzQwel0+xtjbG7kZbQ9VUWT3Hkizw
-         5pRPQVL0+keeK0sRMdWT4feH8s+F9sLUygdFrDebBfbOeY5fdSJ2s6eUlEiCExF68W/M
-         RSB0q8/jqgrtcAr49RTi17WmBTpH8yMCT93XMdpUI+F3Ul88J5o8Z4qzTsC0YMH8LpJz
-         RhpceRCra6X3htPPJZQ3qafeDge6q1y6FxT074jdyY4MWapeVR+y9n2jpSUW/gDhlZP3
-         ON7fTkWm4ts8LTwB6G10+gbhvjZ7+vul5gFgSBAlMX7nnWf4Icib6RL7KnH3P9wDu1Ex
-         aAxA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779290846; x=1779895646;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=KhkgzLIvh7n8FBkLDCvvyoRLLy05jqAaJJsIAGt7tN0=;
-        b=ZPUepbSblWVE38T4w21JVRk7lFl/DV7bywI8G6V4wXrSL6lWIeAUIbKVD3nqrv6awe
-         tQkFjngPsZfmFwd5ZVXQq0boP6ZOgf1ASEXZlmUCBABEyDfOOQZDhzodKbXsoiHXDN/T
-         9yuy0d72DkiLLVl+2y7RCZCsauMXtG1R64oNB8HsCbhkXfQUUmNJRvLM1UV8L4oJKkeT
-         WWD4bmgdnyTaVIixtfU3HDc5jKV3B3SbnlnaeHKrQ3HLvj/ybqD5na8KwdJjFKss5fWd
-         2ghWh1VtW7KX2yfQw3SrnG6+VoVy/usIfnZvIhzB2TMm4B9fiJfjS8yUi0fXfeIjavpI
-         +MNQ==
-X-Forwarded-Encrypted: i=1; AFNElJ94KGNNc65t1YGUvC6F8TCZiI04C8JTZ0NnW3JSp95UsUMAym7pFkuo4SNkDdapN52NEzOkpNJwELzN@vger.kernel.org
-X-Gm-Message-State: AOJu0Yw5UteEGXGxd6DAnzz6DbUp0SGYo/6cuNlLuQQ0VXlZyHHbuaUp
-	zUNSBOO7QKDvbQUpDHfEF6KVbZOuVkOmTb6EDSSdHNmcqrwC3ggTeYTqcN6Z8YPtVpMy114if8P
-	9ZMakxg==
-X-Received: from pgct24.prod.google.com ([2002:a05:6a02:5298:b0:c82:73de:68e2])
- (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a17:90b:2e04:b0:368:ed26:15b2
- with SMTP id 98e67ed59e1d1-369519fe820mr25179766a91.8.1779290845382; Wed, 20
- May 2026 08:27:25 -0700 (PDT)
-Date: Wed, 20 May 2026 08:27:24 -0700
-In-Reply-To: <20260520151710.231788-4-imbrenda@linux.ibm.com>
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="UrD4QznM"
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1779291083;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=gxePXEMQDWwNnRA4fuUAEJ8toZ4JkLQ6obW+0ibr2gg=;
+	b=UrD4QznMUDmQ0luAlbLeSSiws6nZUUkmtwBztn8k6zeWl1F6tpAnuJzA7kqzv5F400/CJu
+	tsnsT0njTgvs2egS7NWnQZ3sFoLN2sNldH6aweT3nAwMm/SUsrALg/hSZ40qnAurfGkQIy
+	7NDdgJx0NZYt+FVg9eFvyCYbotjwbEw=
+From: Lance Yang <lance.yang@linux.dev>
+To: david@kernel.org
+Cc: davem@davemloft.net,
+	andreas@gaisler.com,
+	rppt@kernel.org,
+	akpm@linux-foundation.org,
+	agordeev@linux.ibm.com,
+	gerald.schaefer@linux.ibm.com,
+	hca@linux.ibm.com,
+	gor@linux.ibm.com,
+	borntraeger@linux.ibm.com,
+	svens@linux.ibm.com,
+	maddy@linux.ibm.com,
+	mpe@ellerman.id.au,
+	npiggin@gmail.com,
+	chleroy@kernel.org,
+	ljs@kernel.org,
+	liam@infradead.org,
+	vbabka@kernel.org,
+	surenb@google.com,
+	mhocko@suse.com,
+	sparclinux@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-mm@kvack.org,
+	linux-s390@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org,
+	Lance Yang <lance.yang@linux.dev>
+Subject: Re: [PATCH 5/8] mm/bootmem_info: stop marking the pgdat as NODE_INFO
+Date: Wed, 20 May 2026 23:30:55 +0800
+Message-Id: <20260520153055.61173-1-lance.yang@linux.dev>
+In-Reply-To: <20260511-bootmem_info_prep-v1-5-3fb0be6fc688@kernel.org>
+References: <20260511-bootmem_info_prep-v1-5-3fb0be6fc688@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-References: <20260520151710.231788-1-imbrenda@linux.ibm.com> <20260520151710.231788-4-imbrenda@linux.ibm.com>
-Message-ID: <ag3S3MjXHW4AeW_6@google.com>
-Subject: Re: [PATCH v1 3/4] KVM: selftests: Fix pre_fault_memory_test to run
- on s390
-From: Sean Christopherson <seanjc@google.com>
-To: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org, 
-	linux-s390@vger.kernel.org, borntraeger@de.ibm.com, frankja@linux.ibm.com, 
-	david@kernel.org, seiden@linux.ibm.com, nrb@linux.ibm.com, 
-	schlameuss@linux.ibm.com, gra@linux.ibm.com, pbonzini@redhat.com, 
-	yan.y.zhao@intel.com, isaku.yamahata@intel.com
-Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Migadu-Flow: FLOW_OUT
 
-On Wed, May 20, 2026, Claudio Imbrenda wrote:
-> Add a missing #include <ucall_common.h> which is needed and otherwise
-> not included on s390.
-> 
-> Fence the assertion  vcpu->run->exit_reason == KVM_EXIT_IO  so that it
-> is only checked on x86. On s390 the UCALL will return with a different
-> code.
-> 
-> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> ---
->  tools/testing/selftests/kvm/pre_fault_memory_test.c | 7 ++++---
->  1 file changed, 4 insertions(+), 3 deletions(-)
-> 
-> diff --git a/tools/testing/selftests/kvm/pre_fault_memory_test.c b/tools/testing/selftests/kvm/pre_fault_memory_test.c
-> index fcb57fd034e6..42794892e902 100644
-> --- a/tools/testing/selftests/kvm/pre_fault_memory_test.c
-> +++ b/tools/testing/selftests/kvm/pre_fault_memory_test.c
-> @@ -11,6 +11,7 @@
->  #include <kvm_util.h>
->  #include <processor.h>
->  #include <pthread.h>
-> +#include <ucall_common.h>
->  
->  /* Arbitrarily chosen values */
->  #define TEST_SIZE		(SZ_2M + PAGE_SIZE)
-> @@ -167,7 +168,6 @@ static void __test_pre_fault_memory(unsigned long vm_type, bool private)
->  		.type = vm_type,
->  	};
->  	struct kvm_vcpu *vcpu;
-> -	struct kvm_run *run;
->  	struct kvm_vm *vm;
->  	struct ucall uc;
->  
-> @@ -193,10 +193,11 @@ static void __test_pre_fault_memory(unsigned long vm_type, bool private)
->  	vcpu_args_set(vcpu, 1, gva);
->  	vcpu_run(vcpu);
->  
-> -	run = vcpu->run;
-> -	TEST_ASSERT(run->exit_reason == KVM_EXIT_IO,
-> +#ifdef __x86_64__
 
-I'd say just delete this assertion entirely.  It's an extra layer of paranoia to
-guard against stale ucall data, but x86's ucall_arch_get_ucall() already has
-sufficient guards.
-
-> +	TEST_ASSERT(vcpu->run->exit_reason == KVM_EXIT_IO,
->  		    "Wanted KVM_EXIT_IO, got exit reason: %u (%s)",
->  		    run->exit_reason, exit_reason_str(run->exit_reason));
-> +#endif
->  
->  	switch (get_ucall(vcpu, &uc)) {
->  	case UCALL_ABORT:
-> -- 
-> 2.54.0
+On Mon, May 11, 2026 at 04:05:33PM +0200, David Hildenbrand (Arm) wrote:
+>We removed the last user of NODE_INFO in commit 119c31caa59e ("mm/sparse:
+>remove !CONFIG_SPARSEMEM_VMEMMAP leftovers for CONFIG_MEMORY_HOTPLUG").
+>
+>But it really was never used it besides for safety-checks ever since it was
+>introduced in commit 04753278769f ("memory hotplug: register section/node
+>id to free"), where we had the comment:
+>
+>	5) The node information like pgdat has similar issues. But, this
+>	   will be able to be solved too by this.
+>	   (Not implemented yet, but, remembering node id in the pages.)
+>
+>Of course, that never happened, and we are not planning on freeing the
+>node data (pgdat/pglist_data), during memory hotunplug.
+>
+>So let's just stop marking the pgdat as NODE_INFO.
+>
+>Signed-off-by: David Hildenbrand (Arm) <david@kernel.org>
+>---
+> mm/bootmem_info.c | 9 +--------
+> 1 file changed, 1 insertion(+), 8 deletions(-)
+>
+>diff --git a/mm/bootmem_info.c b/mm/bootmem_info.c
+>index 74c1116626c8..cce1d560f094 100644
+>--- a/mm/bootmem_info.c
+>+++ b/mm/bootmem_info.c
+>@@ -62,15 +62,8 @@ static void __init register_page_bootmem_info_section(unsigned long start_pfn)
 > 
+> void __init register_page_bootmem_info_node(struct pglist_data *pgdat)
+> {
+>-	unsigned long i, pfn, end_pfn, nr_pages;
+>+	unsigned long pfn, end_pfn;
+> 	int node = pgdat->node_id;
+>-	struct page *page;
+>-
+>-	nr_pages = PAGE_ALIGN(sizeof(struct pglist_data)) >> PAGE_SHIFT;
+>-	page = virt_to_page(pgdat);
+>-
+>-	for (i = 0; i < nr_pages; i++, page++)
+>-		get_page_bootmem(node, page, NODE_INFO);
+
+Cool. IIUC, pgdat isn't freed during memory hotremove. Offline nodes
+stick around and can get reinitialized on hotadd, so NODE_INFO doesn't
+buy us anything here :D
+
+LGTM, feel free to add:
+Reviewed-by: Lance Yang <lance.yang@linux.dev>
