@@ -1,106 +1,73 @@
-Received: from mail-qv1-f44.google.com (mail-qv1-f44.google.com [209.85.219.44])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B7933E5EFF
-	for <linux-s390@vger.kernel.org>; Wed, 20 May 2026 13:40:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 85AB913B7AE;
+	Wed, 20 May 2026 13:51:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779284448; cv=none; b=u04nToTlzPG/7iI4ki+Rdx0MzM+m9lqjkyS8PoIHNc6nYbbw7HlKDEvsNgh/T/AYUi/TmVWJfxTZz9zYWH7ww0Ai4VVKHHMW/IHS4ZExkqKffxzHV4yCzk02LMVXTqv9wReZx1cpIzv0vPWOOxCu1KUMXoKhvtWA9Fv5WKCwzq4=
+	t=1779285064; cv=none; b=A6iRkQQINub1+aA9ymF6n5gJFxlftzTjLmM6Hohie0+pgJjJ4z68+ZK5yPbvzo59x/CBMVo/05ZyQT3vR/7yG284CcnZps1f3K50WLicMf8hwv+yJaI2k9oULb5nx5he37xVCUXZ94uJfCZMycXGz7Af+Q9hFTXCAI5peZj4MC4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779284448; c=relaxed/simple;
-	bh=gECXMGpw9B7sH8oWBrgJbLY+YztieOR6VxnjmWmVTTU=;
+	s=arc-20240116; t=1779285064; c=relaxed/simple;
+	bh=Tf46coZTLIsBA5n+/BSZv3dM4OcAeIn6MyP5LzEJXYs=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Yv2sM/LfJMDFj/PXGVuDoEhwSKEYWfkvPDTPxfX5MVDBTFnsKDqNNvbyp51FX5NGq4SxgcnuSUQ64egbWbv+LZwukQinj+b1Faf6Xy/ckesGIe7fy9BMdah6e9+BnZFemzeQg22CDyi1e0pIcM6AzdND1Uf1gFQsiXpV/A2vpqo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca; spf=pass smtp.mailfrom=ziepe.ca; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=GRJry4BV; arc=none smtp.client-ip=209.85.219.44
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
+	 Content-Type:Content-Disposition:In-Reply-To; b=R9tpzcqFJ82t4dPaK/2IPCmMRU0Q47bzebd4zzyMeVSCEV8MDNIa8mRdUEoz76UVybrvvsAKhZXZCC5T8VH8/xHrc7AFzVvFIHMy0fBS9PIVNzTAr9KB+hBUxFSd6tae+oZWbS+Lzk62QMM5o8OXiM5npFg22jAaK4NO+DNlI4w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=EoD5iaKs; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="GRJry4BV"
-Received: by mail-qv1-f44.google.com with SMTP id 6a1803df08f44-8b4298d271fso105060126d6.3
-        for <linux-s390@vger.kernel.org>; Wed, 20 May 2026 06:40:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google; t=1779284441; x=1779889241; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=W+SwQbDLFG0Y+rBu9pL52xRO2ueMe5MsHi84X45A//o=;
-        b=GRJry4BVIMcY40woHuF/zrD7rHNKtx9oAQ/gKnuFPXFk4H0K9uHggvOJpVwrb2QgLq
-         lO8c6mvV/ABUv8n4k+SyqZkXJT51g2uremUxRWIAhsCIVKJPTvjSWDdLzl6QV/Ci6Lg0
-         Fb6Qjiy2xhOUk6wVB3bRW42UMNUQM77n99Ax6D58oUqel5fNZeNRY7awW4RLrg2RpREa
-         cf/JCLEhyoSzGHnKlUNJJrigUIIVdsYwmKhrX8qR6L8BIAHuYMlrVISaB0v0DdiCK9iU
-         uQm5PNMv2eoWVBAFv8s+i/Bt9GdL9IPmuE0+saMojYNmXTYuMVfwq3Ov+51OvHaptyhl
-         l5Og==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779284441; x=1779889241;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=W+SwQbDLFG0Y+rBu9pL52xRO2ueMe5MsHi84X45A//o=;
-        b=KnZRekZXkoTzcBZ4h+MGTl9nIxrUIjifVwDVKr0kl2z6olhrKEfYuIItU6UIcxXP/4
-         F3g6oJ+2xSHpyhZtsyQan/6ZOvFORqtPEIVTFI0cpJxjqnSLkCups6EdZC3OU130gdJJ
-         bs+H43TUqSvW7wyfZFBJaUM0isZrzGnVPFKXnjXOYtolMvGnkBvhYy9U2EWvRywpPcu9
-         WIFTDppkA5l34xPgE+WL09hWbQ93lT1mPji8OGa7yrdux09JFWu0LvZIJsCSr1YZPG6h
-         bjkDoTuj1UrkXwcSCCPqeQkd2WY31QJMM5vJIfd05F5qXgpF+ktJ4Mm9dAZCBxrh47zq
-         BHmA==
-X-Forwarded-Encrypted: i=1; AFNElJ/D2VQT98oRVD4T1Nt8kl6ShCF8loCdI37OVOwcXXKKB9U6OKki56fZKADntEYGYIwSt6sX06VW+bI5@vger.kernel.org
-X-Gm-Message-State: AOJu0YxfqGV5gUVzdq1POEOh5iXiInzIyeKc9S8uUM2ngTA/176dnChs
-	MLk5UD+PcnTowp5BVakVDoqM4J00S6hKFGZAbR8uX5LeK4cfJvA7WeSUtIpAfhqrSKs=
-X-Gm-Gg: Acq92OFwGjhAR1WWiprKBZApKVu8PHba9xl7H5PEsga/OfJRp05WEtvwF7AQkwW8VHq
-	IHYrV8QuKuG+w8oYDVTIKza74k/xuK5+nEppuffBpwWkjUxhObbjyHTA7VcmJg50NkI/NBf5DYO
-	JQzrhAv23hASUBHvh26Mq4viCZKDKm4RCSatSu7cKttOZ4hbQjGmCYh3coMNWSLCQuNsdYzOiMn
-	oA7vr3HoupOz7sq+zE5QNnQ82RDJUgunYESvCK9uzHoQd0B+iWKNBkTj5NBz1DOaHYPoYexwQXe
-	qeMCtPhfD1gXC4wNjrD+CKgf3cEw4W3V7gN9ejbAmC4B+h2ma25C16ghIleoCN3G7b6IexJgNxh
-	nnnmiWal7TI6wKrJN0NE6v7iuTNUp93pf0dF0sIEHy9Wpa+TCtvHtyndOi3BDRw/bV/scsVcEYv
-	ta7iPXxRLtqcHgAdsFe6DYncf/mXGwvg3u7RSUeaUVbucJlNT9CIC8abaRQwIFSQmkpaWt3ibsf
-	X37SntF4efAziPl
-X-Received: by 2002:a05:6214:5c42:b0:8ca:16fd:7297 with SMTP id 6a1803df08f44-8ca16fd752cmr347910676d6.30.1779284440966;
-        Wed, 20 May 2026 06:40:40 -0700 (PDT)
-Received: from ziepe.ca (crbknf0213w-47-54-130-67.pppoe-dynamic.high-speed.nl.bellaliant.net. [47.54.130.67])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8ca360ac735sm122405916d6.19.2026.05.20.06.40.40
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 20 May 2026 06:40:40 -0700 (PDT)
-Received: from jgg by wakko with local (Exim 4.97)
-	(envelope-from <jgg@ziepe.ca>)
-	id 1wPhA7-0000000HB8S-389S;
-	Wed, 20 May 2026 10:40:39 -0300
-Date: Wed, 20 May 2026 10:40:39 -0300
-From: Jason Gunthorpe <jgg@ziepe.ca>
-To: "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>
-Cc: Mostafa Saleh <smostafa@google.com>, iommu@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	linux-coco@lists.linux.dev, Robin Murphy <robin.murphy@arm.com>,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
-	Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
-	Steven Price <steven.price@arm.com>,
-	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Jiri Pirko <jiri@resnulli.us>, Petr Tesarik <ptesarik@suse.com>,
-	Alexey Kardashevskiy <aik@amd.com>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Xu Yilun <yilun.xu@linux.intel.com>, linuxppc-dev@lists.ozlabs.org,
-	linux-s390@vger.kernel.org,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org
-Subject: Re: [PATCH v4 04/13] dma: swiotlb: track pool encryption state and
- honor DMA_ATTR_CC_SHARED
-Message-ID: <20260520134039.GT7702@ziepe.ca>
-References: <yq5apl2y5f96.fsf@kernel.org>
- <agXaby-7L7yS3Vva@google.com>
- <yq5ah5oa59wy.fsf@kernel.org>
- <agxDxdxynp4KEovA@google.com>
- <yq5amrxvshxg.fsf@kernel.org>
- <yq5abjebsaid.fsf@kernel.org>
- <20260519152741.GM7702@ziepe.ca>
- <yq5a8q9fs7ud.fsf@kernel.org>
- <20260519161120.GO7702@ziepe.ca>
- <yq5a5x4ispg8.fsf@kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="EoD5iaKs"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 64KDW4253601206;
+	Wed, 20 May 2026 13:50:53 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=4LuzPVdymJnQ7OZiv5vbwQnrnB7z0/
+	n1JcSAIORjZBI=; b=EoD5iaKsNlBXkZz/SH0A+G+ZiGurAwZZKYzM4w4kbrRLw+
+	Dt48tB8XNv3xHU64nvJvGhIG46j4VVNJFfdPNR2NB+pQzE8Y8KS6Dinksi2PJKUB
+	JlIDDFBdG/5eGqxcpShva6ei3GAGfotG7ucxkG+rJUomzjfOC/+T9zIss07p0T7g
+	gutW8/NzcWMTynH536Bfy9c6ROMAIn+2b0r9KMB3gyKbHSc17Z7AZb2dR2B9bgEN
+	3YWJbtWV6kEJnGN0skkwUCC40nuVRYwaXd/Xbg7NqafjKjjzdTKKNsAL+nrkUq/f
+	EPP9N8FInUJ+8cTMNvzBsVrua69Wuua4Q7drqFZA==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4e6h8mt9hc-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 20 May 2026 13:50:53 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 64KDd4YH000521;
+	Wed, 20 May 2026 13:50:52 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4e73wk7k7b-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 20 May 2026 13:50:51 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 64KDomgG49873328
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 20 May 2026 13:50:48 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 1FE2B2004B;
+	Wed, 20 May 2026 13:50:48 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E30DA20043;
+	Wed, 20 May 2026 13:50:47 +0000 (GMT)
+Received: from osiris (unknown [9.52.214.206])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Wed, 20 May 2026 13:50:47 +0000 (GMT)
+Date: Wed, 20 May 2026 15:50:45 +0200
+From: Heiko Carstens <hca@linux.ibm.com>
+To: David Laight <david.laight.linux@gmail.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Juergen Christ <jchrist@linux.ibm.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Yang Shi <yang@os.amperecomputing.com>,
+        Shrikanth Hegde <sshegde@linux.ibm.com>, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: Re: [PATCH v3 1/9] s390/alternatives: Add new ALT_TYPE_PERCPU type
+Message-ID: <20260520135045.96889G76-hca@linux.ibm.com>
+References: <20260520092243.264847-1-hca@linux.ibm.com>
+ <20260520092243.264847-2-hca@linux.ibm.com>
+ <20260520134317.778dc094@pumpkin>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -109,60 +76,60 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <yq5a5x4ispg8.fsf@kernel.org>
+In-Reply-To: <20260520134317.778dc094@pumpkin>
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-GUID: 95UgnGL4owA0HGVAWRkxIzL6YcAq5Fp0
+X-Authority-Analysis: v=2.4 cv=GYMnWwXL c=1 sm=1 tr=0 ts=6a0dbc3d cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=kj9zAlcOel0A:10 a=NGcC8JguVDcA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8
+ a=-J3efravqDvamtWKT7kA:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-ORIG-GUID: 4eKmeADhQ1Jn6yIRD49QC-YLYUukZD6m
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTIwMDEzMiBTYWx0ZWRfX1aFGCWfl0EdW
+ hMvmUEsQOKBiLBKp4uGuAedh8CMQwyeM0TQE1nPOMLCGuJQX5sxz7LYeGFaRv+fp7fStbsUYZDo
+ G1QSmndsnq1G1CMvalEjCAfOQznMr8LtUd3M9uX3LoOjrAQWORYlKePHiMFlEpWF9/2EwilnLfF
+ ujZR2qJmoXYpnE/xRRHZk52JfctJpljYzFCU7G9MN0g9MCIB3JxWLcsuEusWuN0/d+2L83z9ola
+ MqxrCdadRL+g2efcgjS7IYnrRf7hKHuCg5yKnznKAlv0U+wQVVdyudWwONNWnHbmea8ab96ejbZ
+ 8GQrEbkMtCJ/TcgDa435/jE4+YNHegxCKDhMqyA/La+eR2ZgS2Xq/emD6/Ju3e82QKdwvHAPFtt
+ ZOa7ykDt2LwfE+Ob14KOXePT58hZCmqMfZ1zi/Ik+wDJwIXcFe1phqxKJBbaVxAjEi1vQYfPRsN
+ qxbL/oP1XD3LJC5as6A==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-05-20_02,2026-05-18_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ phishscore=0 malwarescore=0 lowpriorityscore=0 priorityscore=1501 bulkscore=0
+ adultscore=0 suspectscore=0 spamscore=0 clxscore=1015 impostorscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2605130000 definitions=main-2605200132
 
-On Wed, May 20, 2026 at 09:27:27AM +0530, Aneesh Kumar K.V wrote:
-> Jason Gunthorpe <jgg@ziepe.ca> writes:
+On Wed, May 20, 2026 at 01:43:17PM +0100, David Laight wrote:
+> On Wed, 20 May 2026 11:22:35 +0200
+> Heiko Carstens <hca@linux.ibm.com> wrote:
 > 
-> > On Tue, May 19, 2026 at 09:35:30PM +0530, Aneesh Kumar K.V wrote:
-> >> Yes, that also resulted in simpler and cleaner code.
-> >> 
-> >> swiotlb_tbl_map_single
-> >> 	/*
-> >> 	 * If the physical address is encrypted but the device requires
-> >> 	 * decrypted DMA, use a decrypted io_tlb_mem and update the
-> >> 	 * attributes so the caller knows that a decrypted io_tlb_mem
-> >> 	 * was used.
-> >> 	 */
-> >> 	if (!(*attrs & DMA_ATTR_CC_SHARED) && force_dma_unencrypted(dev))
-> >> 		*attrs |= DMA_ATTR_CC_SHARED;
-> >> 
-> >> 	if (mem->unencrypted != !!(*attrs & DMA_ATTR_CC_SHARED))
-> >> 		return (phys_addr_t)DMA_MAPPING_ERROR;
-> >
-> > Yeah, exactly that is so much clearer now that the mem->unecrypted is
-> > tied directly.
-> >
-> > That logic is reversed though, the incoming ATTR_CC doesn't matter for
-> > swiotlb, that is just the source of the memcpy.
-> >
-> > /* swiotlb pool is incorrect for this device */
-> > if (mem->unencrypted != force_dma_unencrypted(dev))
-> >     return (phys_addr_t)DMA_MAPPING_ERROR;
-> >
-> > /* Force attrs to match the kind of memory in the pool */
-> > if (mem->unencrypted)
-> >      *attrs |= DMA_ATTR_CC_SHARED;
-> > else
-> >      *attrs &= ~DMA_ATTR_CC_SHARED;
-> >
-> >
-> > Attrs should be forced to whatever memory swiotlb selected.
-> >
+> > The upcoming percpu section code uses two mviy instructions to guard the
+> > beginning and end of a percpu code section.
+> > 
+> > The first mviy instruction writes the register number, which contains the
+> > percpu address to lowcore. This indicates both the beginning of a percpu
+> > code section and which register contains the percpu address.
+> > 
+> > During compile time the mviy instruction is generated in a way that its
+> > base register contains the percpu register, and the immediate field is
+> > zero. This needs to be patched so that the base register is zero, and the
+> > immediate field contains the register number. For example
+> > 
+> >   101424:       eb 00 23 c0 00 52       mviy    960(%r2),0
+> > 
+> > needs to be patched to
+> > 
+> >   101424:       eb 20 03 c0 00 52       mviy    960(%r0),2
 > 
-> But that will not handle a T=1 device that wants to use swiotlb to
-> bounce unencrypted memory. That is:
-> 
-> force_dma_unencrypted(dev) == 0  /* T=1 device */
-> attrs = DMA_ATTR_CC_SHARED;
->
-> In that case, it should use an unencrypted io_tlb_mem:
-> mem->unencrypted == 1
+> I'm sure it is possible get the preprocessor to extract the register number
+> for you.
+> The exception table logic almost certainly already does it.
+> (The x86 version certainly does - and that is far less trivial.)
 
-No! The DMA_ATTR_CC_SHARED only states the nature of the source
-memory, the DMA transfer will always happen under T=1
-
-It is perfectly fine to memcpy from shared to private and do a T=1 DMA
-from the private memory if we have to bounce.
-
-Jason
+That's true, the s390 extable logic is doing the same. However I failed to
+feed the extracted register number as constant into the same inline assembly
+it was extracted from.
