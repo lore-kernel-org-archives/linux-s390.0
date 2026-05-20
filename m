@@ -1,36 +1,36 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ACBE9351C1C;
-	Wed, 20 May 2026 07:50:26 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A2F4636EA84;
+	Wed, 20 May 2026 08:11:32 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779263429; cv=none; b=tKq+MLw7UkmTUmfm/jA1Ffma11JD8H6zjyWG+Fl9txdVn2lChy3lE0p3V1Yl+VOmJxbkEfzQv2PTPhnOsP1pWR8RDLaOCVFMLUgArt5mDpGW5TIRXHoW7EnWrMevlg26IjhfXcIk0aO6uHd1Rfo//EJ7lEWiaKd+4D3+z7CS4Vk=
+	t=1779264694; cv=none; b=mTar5QIxbNeFl2mWwW/K5SEpBvVDlhtIvafSHZ1tMSvXjrQi8plBhqCOX0HsNRnyfGMkRh8e6CJlo7ETYR+z9izWlpZUNlF4qpbuShZ/0XpkXTfq4D4+2tkbS/8QwQRXcRqoVCE/lxa9Q/JlOiZ7cC9mtd8axckfkRfSMJS/8I8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779263429; c=relaxed/simple;
-	bh=8h8QzQ3bvGW1O7RXX739a+wEI+Rm3n1kyOMDOPSvEn4=;
+	s=arc-20240116; t=1779264694; c=relaxed/simple;
+	bh=x6tDiusKRz5rYh2YAwfbYhcbwARlCfAQDDayZ2k5yPI=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=IBVrlK1TuRQ/zND3451PExaR4zRioQ+UxPJBEyDHQJB+8Voqq9F1+Mmzel6nGjBJsph5bFQlISoNlWYcOb11dl9KHhyX9LsNodLMAv37grrIlDU8leOfVYe+Sx1walKKB0gzDebTeG1tcukhn3ASV8KxpCJbzVs9sDb/wUzALBM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gEybL7aB; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=lrLc2TOPd7/N0uSBocUCOTrCz8jHafYQKOijK3z7jcXMeav1xqb1hvOSSoWghwcl23ylHx2m3Z60PIj6rxzhXF5yfM8HsVd72u7nOUy8y1eM9RJu2oFtJUXX4FZPvSj05YN3mxWFexOGw9+Mwcg1V/W3iuxOAQQbpC9O53IEGh8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bnkpa3Fz; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gEybL7aB"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B43D1F00893;
-	Wed, 20 May 2026 07:50:17 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bnkpa3Fz"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83B3F1F000E9;
+	Wed, 20 May 2026 08:11:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1779263424;
-	bh=8h8QzQ3bvGW1O7RXX739a+wEI+Rm3n1kyOMDOPSvEn4=;
+	s=k20260515; t=1779264690;
+	bh=CXxzzbCeNo3sDfk3dzWGFhN8IehnqsFdAWbxh92ducY=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=gEybL7aBm3ng+QrbW0I+5Hs8oWbvhLnqN9+2v+IeAKE9ieM9FaKfZzY/r0KtvGAMv
-	 UlbzgbPaCjqJHKsyF34JuP43LJBXrfZAZzHDm+DgqhrfaYDvVdJKPK2wZl0LGe4aDV
-	 DBmnddYsaubogT9yRSf7C3WuNGyGQjd901PXhgvoWTTKLjmCjQCIVi1K4OqAzSKlXj
-	 61TWkO1lsLpElgwhATl1xyR4ojLPcrMK/IY8eJJgK50WvGOcidhzXThsmufAMeqiFt
-	 PseREKIwrtV7FeW3hPz53msuOkY9tNmm/x3Njh/sOFlQGLBEaSTgEbViYdNEZovb3M
-	 9u5XlFtsz9bdw==
-Date: Wed, 20 May 2026 08:50:14 +0100
+	b=bnkpa3FzKkUUdWFG0smRQZfU40dk46M5NgdqdIyfXEPD1h20NL7bKr72VFJoHgNPK
+	 Zpt0f97bM5yOlAFtMWk1oRJvIjsf1+ECrk3QzWUIz/BWNXDJW0ZYJ2FFouGZZmuMrM
+	 Wo4p0Vkb6/RLl4doyo6ixLI4oE7LpahGy1KRkeyMwou5u+LN+Sw4rNKaJQ+5yI6oFf
+	 vB2uTeyCpF+Vdg78uiOeOk2xvyBn7mhcgugFMKCdMzmjrO0Fwf6NwhxUTUhIuawNn+
+	 NrJZl4Ke/LYbTbo3EkZd4QjkXwxp4OdeRjoSgwxJx/swz4bFwcKMo8A4KVWXBu3sjy
+	 W937Gs5yLpfaw==
+Date: Wed, 20 May 2026 09:11:20 +0100
 From: Lorenzo Stoakes <ljs@kernel.org>
-To: Barry Song <baohua@kernel.org>
-Cc: Suren Baghdasaryan <surenb@google.com>, 
-	Matthew Wilcox <willy@infradead.org>, akpm@linux-foundation.org, linux-mm@kvack.org, david@kernel.org, 
+To: Yang Shi <shy828301@gmail.com>
+Cc: Barry Song <baohua@kernel.org>, Matthew Wilcox <willy@infradead.org>, 
+	surenb@google.com, akpm@linux-foundation.org, linux-mm@kvack.org, david@kernel.org, 
 	liam@infradead.org, vbabka@kernel.org, rppt@kernel.org, mhocko@suse.com, 
 	jack@suse.cz, pfalcato@suse.de, wanglian@kylinos.cn, chentao@kylinos.cn, 
 	lianux.mm@gmail.com, kunwu.chan@gmail.com, liyangouwen1@oppo.com, chrisl@kernel.org, 
@@ -40,17 +40,17 @@ Cc: Suren Baghdasaryan <surenb@google.com>,
 	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, Nanzhe Zhao <nzzhao@126.com>
 Subject: Re: [PATCH v2 0/5] mm: reduce mmap_lock contention and improve page
  fault performance
-Message-ID: <ag1mk2DSJsiORaxK@lucifer>
+Message-ID: <ag1qo0q_bfePgOzx@lucifer>
 References: <CAGsJ_4w0qcYmukHqsyRd0jomoyYkJjOt8b-Cgp53BgP-8QQghw@mail.gmail.com>
  <afS_L-5XeWIldTXA@casper.infradead.org>
  <CAGsJ_4wk=SDtgin+84Ev2TamU-JFfmrg_SUay=-tcYmnFvK6Nw@mail.gmail.com>
  <afTpoL3FklpQZNMM@casper.infradead.org>
  <CAGsJ_4ysMcrmDLSOwBkf7qwCQrcDWeEMXkHDajTJFMLKUk0bSQ@mail.gmail.com>
- <agrWuDNGddNmvMFD@lucifer>
- <CAGsJ_4zqLfdWoTH9s7FFaqWWj0mESfikYgr7=GcV64qcuXrPxA@mail.gmail.com>
- <CAJuCfpE0WQrB3zJp9qn3jvn5DthS=ttpX7gJJvyEhA_BJGrp5g@mail.gmail.com>
- <agxbq1TxJdniMQT3@lucifer>
- <CAGsJ_4zxyZP_xkFCGWfLyXkqomrX6DNqyMVirk=aggtwB1zExw@mail.gmail.com>
+ <CAHbLzkrOSoh-jmR=uaNvx73n_wn+vExoKY0UzH5zGcfdAiDbNg@mail.gmail.com>
+ <agxfLNuLCAT3F4cW@lucifer>
+ <agxnJ8R-G3CRjeTR@lucifer>
+ <CAHbLzkpjOLrdRSUF3-G4d9uz6tn6QYwgB66UU9bud5WHr5FWEw@mail.gmail.com>
+ <CAHbLzkrTF7w+T5mGsQuDRuhnTk6evTKBNRcH4oS=nRcUg2zpsg@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -60,97 +60,84 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAGsJ_4zxyZP_xkFCGWfLyXkqomrX6DNqyMVirk=aggtwB1zExw@mail.gmail.com>
+In-Reply-To: <CAHbLzkrTF7w+T5mGsQuDRuhnTk6evTKBNRcH4oS=nRcUg2zpsg@mail.gmail.com>
 
-On Wed, May 20, 2026 at 05:18:52AM +0800, Barry Song wrote:
-> On Tue, May 19, 2026 at 8:53 PM Lorenzo Stoakes <ljs@kernel.org> wrote:
-> >
-> > On Mon, May 18, 2026 at 12:56:59PM -0700, Suren Baghdasaryan wrote:
-> >
-> > > >
-> > > > I think we either need to fix `fork()`, or keep the current
-> > > > behavior of dropping the VMA lock before performing I/O.
+On Tue, May 19, 2026 at 02:02:09PM -0700, Yang Shi wrote:
+> On Tue, May 19, 2026 at 11:41 AM Yang Shi <shy828301@gmail.com> wrote:
 > > >
-> > > I see. So, this problem arises from the fact that we are changing the
-> > > pagefaults requiring I/O operation to hold VMA lock...
-> > > And you want to lock VMA on fork only if vma_is_anonymous(vma) ||
-> > > is_cow_mapping(vma->vm_flags). So, we will be blocking page faults for
-> > > anonymous and COW VMAs only while holding mmap_write_lock, preventing
-> > > any VMA modification. On the surface, that looks ok to me but I might
-> > > be missing some corner cases. If nobody sees any obvious issues, I
-> > > think it's worth a try.
+> > > >
+> > > > >
+> > > > > Secondly, if vma->anon_vma is NULL, it basically means either no page
+> > > > > fault happened or no cow happened, so there is no page table to copy,
+> > > > > this is also what copy_page_range() does currently. So we can shrink
+> > > > > the critical section to:
+> > > >
+> > > > Firstly, with no VMA write lock, !vma->anon_vma means a fault can race and
+> > > > secondly copy_page_range() checks vma_needs_copy(), there are other cases - PFN
+> > > > maps, mixed maps, UFFD W/P (ugh), guard regions.
+> > > >
+> > > > So yeah this isn't sufficient.
+> > >
+> > > However this is true...
 > >
-> > Not sure if you noticed but I did raise concerns ;)
-> >
-> > I wonder if you've confused the fault path and fork here, as I think Barry has
-> > been a little unclear on that.
+> > Yes, fault can race with fork. Basically this is actually the purpose
+> > of this idea. We can have improved page fault scalability. In my
+> > proposal (take write vma lock if vma->anon_vma is not NULL), the race
+> > just happens on the VMAs which page fault has not happened on before.
 >
-> I think I’ve been absolutely clear :-)
+> Sorry, this is incorrect. Page fault can't happen on those VMAs
+> because page fault needs to create anon_vma, but it requires taking
+> mmap_lock.
+> If anon_vma is not NULL, vma write lock will serialize against page
+> fault. So there should be no race with page fault. Removing vma write
+> lock suggested by Barry may increase race.
 
-On this point sure, I would argue less so around the fork stuff but I responded
-on that specifically elsewhere so let's keep things moving :>)
+Firstly, let's none of us be worried about making mistakes here, the anon_vma
+stuff is confusing, and I've stared at it more than mostly, and even so I
+managed to make mistakes (as corrected here) and forget details :))
 
-> We should either stick to the current behavior - drop
-> the VMA lock before doing I/O, or change fork() so that it
-> does not wait on vma_start_write().
+It's a sign it all needs simplifying, but hey that's what my scalable CoW
+project is (partly) about :)
 
-Again, as I said elsewhere, I think there might be a 3rd way possibly. It's a
-big mistake to assume that there are only specific solutions to problems in the
-kernel then to present a false dichotomy.
+Removing the VMA write lock would cause races with page fault which can result
+in page tables being installed which are then not correctly duplicated for
+ranges that must be.
 
-We absolutely hear you on this being a problem and it WILL be addressed one way
-or another.
+And again I think the underlying thing here overall I think is:
 
-Of the two approaches, as I said elsewhere, I prefer what you've done in this
-series to anything touching fork.
+1. Clearly many cases require serialisation (any that cause copy_page_range() to
+   fire).
 
-But give me time to look through the series please (I'd also suggest RFC'ing
-when it's something kinda fundamental that might generate converastion, makes
-life a bit easier on the review side :)
+2. If we were to decide not to take a lock with concurrent page faults, that
+   lays a trap for any future change that (reasonably) assumes that page tables
+   cannot be simultaneously copied while being accessible to page fault
+   handlers, which is bug prone.
 
->
-> Before per-VMA locks, page faults dropped mmap_lock before
-> doing I/O. After per-VMA locks, page faults dropped the
-> VMA lock before doing I/O. In both cases, fork() would not
-> wait for I/O in the page-fault path.
->
-> Now you guys are suggesting performing I/O while holding
-> the VMA lock, which means fork() must wait for that I/O to
-> complete. Since an application can have more than 1000
-> VMAs, and I/O can be stalled for an unpredictable amount
-> of time in the bio/request queue or filesystem GC, fork()
-> could end up blocked on multiple VMAs while taking
-> vma_start_write() for each of them.
->
-> As a result, fork() could hold mmap_lock for a very, very,
-> very long time. fork() itself would become extremely slow,
-> and any other task needing mmap_lock would also be blocked
-> behind it.
+3. As per 2, even if we were to only take the lock when we felt we absolutely
+   needed to, we still cause risk through adding yet another 'you just have to
+   know' risk to this part of mm.
 
-Yep aware, we spoke in Zagreb about this, and on this thread, we know :)
+4. The serialisation is quite likely relied upon by other things, this is often
+   the case in mm, and we may only realise that such serialisation is critical
+   at the point a subtle issue arises out of it.
 
->
-> >
-> > What's being suggested in this thread is to fundamentally change fork behaviour
-> > so it's different from the entire history of the kernel (or - presumably - at
-> > least recent history :) and permit concurrent page faults to occur on a forking
-> > process.
-> >
-> > I absolutely object to this for being pretty crazy. I mean I'm not sure we
-> > really want to be simultaneously modifying page tables while invoking
-> > copy_page_range()? No?
->
-> If you object to touching fork(), can you at least accept
-> keeping the existing behavior of dropping the VMA lock
-> before doing I/O? If you object to both approaches, then I
-> really do not know how we can continue :-)
+5. Fork is one of the most sensitive, intuation-defying, complicated, and
+   corner- case-problem-baiting areas of mm and I really oppose us changing
+   fundamental behaviour here unless incredibly well justified.
 
-Again as per above, let's not impose a false dichtomy, let's take our time, and
-specifically - please give me time to read through the series and think about
-this.
+On this basis, let's let the sleeping dogs lie and leave fork alone I think :)
+
+I think I am far more inclined to take Barry's fault approach (as I've said to
+him) vs. changing fork behaviour.
+
+But I want to make sure there's not a 'third way' that could avoid either!
+
+I am going to have a look through Barry's series in detail so we can have some
+movement on this one way or another :)
 
 >
-> Thanks
-> Barry
+> Thanks,
+> Yang
+>
 
-Thanks, Lorenzo
+Cheers, Lorenzo
