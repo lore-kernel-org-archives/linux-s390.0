@@ -1,114 +1,117 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f52.google.com (mail-wr1-f52.google.com [209.85.221.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D61D332AAC6;
-	Wed, 20 May 2026 12:15:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 58EA93C276D
+	for <linux-s390@vger.kernel.org>; Wed, 20 May 2026 12:43:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779279342; cv=none; b=QmGiDuVt2Nr8dWiKoYdL3aiR5Dpj25DkR5Medh6FmNs0R3uiOZ+iUGlVrXTQ4MzKTUCHXUSfHvEtPEiW2DWR2iDIodGr++POmNZhywk6ij06NDIjvTDNPwIjXcsa90zBA0HcONFJTtL0smoFjWzSfGRkrEMHaP403ZHdjldX+oE=
+	t=1779281002; cv=none; b=rH55zlH1SdJvjhoQMkpCpyfdV//rfuza4bmT5tdfwZFZX0jeaLngR+FZUJpx8obk3bex9HEQ5Dj6/mSvwo1dr+y5BKl+poVlBEy2bnJF47QKdmVm+CQitE17ADSzRQRfK2GSa9HSaba4tJ+0bp0AZvKJVWqUO1ea52PQVu21l7I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779279342; c=relaxed/simple;
-	bh=f/T2PeXW9wc7BHOLi3Vhvg0R6ZqFUUdz4UBG+p54z4w=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=cs1sLf9HIINkV/0oUNYlx1IZUu9iWFvznmiiSDUnzGnsQwBJ6ih1AbChIIneQEnmTtLmWzr2dEzPpkE789hH8AZozgKtapJc/KwWJoRzVC85OYtwxQeS5/j1A+GGMAdP5foQmiBUifLIt+S/Ytn6mxGyxfCGlZS5/OvwdqQld9Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=RZvFznAE; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1779281002; c=relaxed/simple;
+	bh=9xV2kEuHyLB0jhVQA9YzsyIMdYZ2hjs2wTJWQqBPTI8=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=mRptcPqg02DYZ4gvMQvtQqBY/eGUDrZZUzLQf/VKUJPRVvvd6shVf7gBFB3bpXfBTDkPpGhjYDjJnNEUpiQTxJOxorAH1+yhR7H1veukaa4z8wVjTDbNl8biswI3vK/HBnAeE0VY95fRhFuspvj3hdd3rl7aA39ZKf07QEa5s+E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Rg4BhhrC; arc=none smtp.client-ip=209.85.221.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="RZvFznAE"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 64K8u5nA1853987;
-	Wed, 20 May 2026 12:15:39 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=PxoWntdEnXNof82uV6Z9BhIQfNiQv+
-	+UpIhkoUT4ikA=; b=RZvFznAEWpGp/4rxJu5PaKsHV90efovA3RRHTyc9oaDPTz
-	EzsmyvR7leyg677Z5W4VtPE6kvGBONwh6kWFsM6WmaEwtFH+B8ClMb3sbhTLYHb6
-	y1HEDdcnDaeQnKd/zneQNxeE8sGylV2wuDt7eqh8IklLIiLFgT3YjdW8GZXOhLlk
-	kSnopkIJltYEzuzM1a6PwWiQcvprdGJPKiHYMDorjlWKcd0NiP3Qrz2+eW2zS6ho
-	tvFfvFcqkkqEo5RtyIMJwBLEnd50OVA2M/0X5hnv+uOOoSmJ8QJW7xcs5ZpMrHvw
-	brEbKpSfHbAbXNOYnWlub5NV95rPh/6IM1qssHLg==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4e6hb8gx27-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 20 May 2026 12:15:38 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 64KC95sX002325;
-	Wed, 20 May 2026 12:15:38 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4e73wk78bh-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 20 May 2026 12:15:38 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 64KCFYAM60817772
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 20 May 2026 12:15:34 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 543402004B;
-	Wed, 20 May 2026 12:15:34 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 297CB20043;
-	Wed, 20 May 2026 12:15:34 +0000 (GMT)
-Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.52.215.75])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Wed, 20 May 2026 12:15:34 +0000 (GMT)
-Date: Wed, 20 May 2026 14:15:32 +0200
-From: Alexander Gordeev <agordeev@linux.ibm.com>
-To: Julian Braha <julianbraha@gmail.com>
-Cc: gor@linux.ibm.com, hca@linux.ibm.com, iii@linux.ibm.com,
-        meted@linux.ibm.com, borntraeger@linux.ibm.com, svens@linux.ibm.com,
-        akpm@linux-foundation.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] s390: cleanup kconfig defaults for selftests
-Message-ID: <ae8f5fd8-456a-454d-93b9-cae8c03a4677-agordeev@linux.ibm.com>
-References: <20260512174336.907050-1-julianbraha@gmail.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Rg4BhhrC"
+Received: by mail-wr1-f52.google.com with SMTP id ffacd0b85a97d-44509921fbcso3041917f8f.3
+        for <linux-s390@vger.kernel.org>; Wed, 20 May 2026 05:43:21 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1779281000; x=1779885800; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=hGymKabcBXvuedlpqu+QlTLiXvf7PjEFL+l6BnvAi2I=;
+        b=Rg4BhhrCEw3Mqcg51bP8ZcfdyfHWDhOMVbWcu1tUIDfcWNX1o883anRtZjgtPW5am+
+         V2hXp6C3pQ9CYi947/mcjHeaZ93QhHRLjkHATYfGNdDTbHHLCwp3n5qxzHJfz1LFyYPS
+         pUvqUCixRAVRtrPHW+GPvU/9dZ8O1hp+A499yK1CdgTkoFWkABhZoS16NeobHBi5XLWo
+         Kat8gjbOc9bB1w2S3VeBD6JnzHKQVmxdel4lQg0vlrfrB9HHEDKE55kI0f6bHdyik/q3
+         YZV6AZDjtEtBXAbefQRmqFvDmHeqBgRH3MArCppinPCRkXDfzBtbfRF/QFDMC8CawlZ4
+         RwSA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1779281000; x=1779885800;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=hGymKabcBXvuedlpqu+QlTLiXvf7PjEFL+l6BnvAi2I=;
+        b=MTAcFMLmxeAa01WCV5JwXnoY7QZCXeuBTsQmGdLdqICiG9MttDGbRD2+MI8tjF/pkE
+         /EXTAinjigEX9hLh3T6KiMyOxVoZdpPO9l60NH39iLJ+2EKvQLrTzzXpNSHZp2GKYRl9
+         RVAY4j5eP4BonDBIKJ4EYfGyAVos8i4maEy7OT6PiEuuZKKw/7jBs/x9TyvFAoNHCRXX
+         8Bn82n/9GqjgUp4JzQMjE+0VsnRpvI0f94m2+yXHlTLpjtwvUhxUZCzwjGwR3BDMYm3q
+         UeDghkjOJQAq2gNvDTIpR6vxD3FFozxsldkqeKfb/1NwLbtG2db3W3SfzjWuqNe1VHlh
+         T2RA==
+X-Forwarded-Encrypted: i=1; AFNElJ8iApdVerkAe4RXzA+L7v91t/8cWRHmhmlcXtBjdiefYzKky3cyV6zhyCV0gEgUCM5at3BPfHNp3BRD@vger.kernel.org
+X-Gm-Message-State: AOJu0YyybMPqI6WFPAmjJgds8g1qYQq0WXpXYUb2E5BP4bkVqNhdeFBa
+	DFRdmVZY59uWRDGzjp+e/tTcTfE7N60jbIQxgJDEmrQJDuYVkqq5FWSK
+X-Gm-Gg: Acq92OGlT+Ouenuwy+ooZoYeZb12Crw6QeB/advcVEHubWr1sdWhPJCo606a/+MO0Bg
+	D8fwjrdAYX+0+BP4GeBcklNwtER1et/e+VqCYoVLgfk3M3L+7LRayc5ijSmFCQ/AT21Oizzi3L8
+	mr65sJQb1dUALRJqgDzMLPzBDGEzHTrv9gqpGySGtPR3EWrtiWLMbXKeu8xSoxH3r8ZcWL1leFM
+	lcTugSK7QTThy2uQ4OpGABFJD2BUDGrRzAHL2Cpm6Sv0CG9K5GgYY2AAkxuGTuMAU/EwbURPAYF
+	OcgK5X//3YgB+ZfZey1uTG/21SLOh9znB4RIOgi8WwRLbm0JlQOTxUaBSR6PGtCbtTuxy9mie/Q
+	WYcuoHt4s/7RtOo83Ka1b70e40TEyGEZCJ6neWZhYd5QosfsGM9jy6v+r6+2QZYPELUqa9XHj8h
+	1Dkef7kvb4iIOF2SPtVl7v5GY9tXLKkK2jiYp9yifEYCK1thSWso18KBnx5/q2wNgh
+X-Received: by 2002:a05:6000:228a:b0:44a:b0a3:7c1a with SMTP id ffacd0b85a97d-45e5c5cf9e1mr38233742f8f.24.1779280999565;
+        Wed, 20 May 2026 05:43:19 -0700 (PDT)
+Received: from pumpkin (82-69-66-36.dsl.in-addr.zen.co.uk. [82.69.66.36])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-45e7c22d8b7sm24718459f8f.6.2026.05.20.05.43.18
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 20 May 2026 05:43:19 -0700 (PDT)
+Date: Wed, 20 May 2026 13:43:17 +0100
+From: David Laight <david.laight.linux@gmail.com>
+To: Heiko Carstens <hca@linux.ibm.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>, Sven Schnelle
+ <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian
+ Borntraeger <borntraeger@linux.ibm.com>, Juergen Christ
+ <jchrist@linux.ibm.com>, Peter Zijlstra <peterz@infradead.org>, Yang Shi
+ <yang@os.amperecomputing.com>, Shrikanth Hegde <sshegde@linux.ibm.com>,
+ linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: Re: [PATCH v3 1/9] s390/alternatives: Add new ALT_TYPE_PERCPU type
+Message-ID: <20260520134317.778dc094@pumpkin>
+In-Reply-To: <20260520092243.264847-2-hca@linux.ibm.com>
+References: <20260520092243.264847-1-hca@linux.ibm.com>
+	<20260520092243.264847-2-hca@linux.ibm.com>
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; arm-unknown-linux-gnueabihf)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260512174336.907050-1-julianbraha@gmail.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTIwMDExNyBTYWx0ZWRfXzLfClthbFFNi
- PnAarrePFILrf2NIQU8vdoifKJGITkfl8YmFzLkY9C1y6yGvZ0Ms5/9WkpO4ztCl3HTTyGCRbXJ
- +lR2D/hlN8nCrcyA3IxVLscK3qRPHjWvUCqEB6i9c0BsEykm/9h018rIai5/UfxxGyczxI78w+L
- DLjBUsPULmNjazFVao6h+JL4PLW/emlKc6srx2Fx/cWK5bvwMlcs2ZqfZ9+eNY+h5M68OE9cOLE
- 9YN5pX6DMWYNEv4AKVQdkIXyKuRk/qYV8EKj6MyAz3plhUByhpxlEIcogGjGXxmQILX/KzY6QXr
- QoKsx4hQ4XXHHlYf9H/ZsTHpO6czlWVr8TVderE2PPipwSekARKA2iJAnMTWiB6xpycnIeg1GXs
- TW3e0/2FK9PXXwjOysfP13+tGZut165OO1vl7BQnLNsm2P4hZuX8AHijw3gtR0UqfS6XML8zFve
- YngLotFRh2fgFFORAWQ==
-X-Proofpoint-GUID: k4ejR5R8IMUh_1G6BVb08eGm2WHSgzQX
-X-Proofpoint-ORIG-GUID: nhPWsW4zPm6LQKlYDRDfhMIXW9k9aqBY
-X-Authority-Analysis: v=2.4 cv=aYBRWxot c=1 sm=1 tr=0 ts=6a0da5eb cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=kj9zAlcOel0A:10 a=NGcC8JguVDcA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=pGLkceISAAAA:8
- a=Gwd7sisTJMT39k_OoesA:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-05-20_02,2026-05-18_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- impostorscore=0 adultscore=0 bulkscore=0 suspectscore=0 lowpriorityscore=0
- clxscore=1015 spamscore=0 phishscore=0 priorityscore=1501 malwarescore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2605130000 definitions=main-2605200117
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Tue, May 12, 2026 at 06:43:36PM +0100, Julian Braha wrote:
-> Remove the unconditional defaults of 'n' from the def_tristate statements,
-> which shadow the later 'KUNIT_ALL_TESTS' default, causing it to be dead
-> kconfig code.
-> 
-> Also, include S390_KPROBES_SANITY_TEST in KUNIT_ALL_TESTS.
-> 
-> This dead code was found by kconfirm, a static analysis tool for Kconfig.
-> 
-> Signed-off-by: Julian Braha <julianbraha@gmail.com>
-> ---
->  arch/s390/Kconfig | 8 +++-----
->  1 file changed, 3 insertions(+), 5 deletions(-)
+On Wed, 20 May 2026 11:22:35 +0200
+Heiko Carstens <hca@linux.ibm.com> wrote:
 
-Applied, thanks!
+> The upcoming percpu section code uses two mviy instructions to guard the
+> beginning and end of a percpu code section.
+> 
+> The first mviy instruction writes the register number, which contains the
+> percpu address to lowcore. This indicates both the beginning of a percpu
+> code section and which register contains the percpu address.
+> 
+> During compile time the mviy instruction is generated in a way that its
+> base register contains the percpu register, and the immediate field is
+> zero. This needs to be patched so that the base register is zero, and the
+> immediate field contains the register number. For example
+> 
+>   101424:       eb 00 23 c0 00 52       mviy    960(%r2),0
+> 
+> needs to be patched to
+> 
+>   101424:       eb 20 03 c0 00 52       mviy    960(%r0),2
+
+I'm sure it is possible get the preprocessor to extract the register number
+for you.
+The exception table logic almost certainly already does it.
+(The x86 version certainly does - and that is far less trivial.)
+
+-- David
+
+
+> 
+> Provide a new ALT_TYPE_PERCPU alternative type which handles this specific
+> instruction patching. In addition it also handles the relocated lowcore
+> case, where the displacement of the mviy instruction has a different value.
