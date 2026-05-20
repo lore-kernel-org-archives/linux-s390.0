@@ -1,156 +1,182 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 00EE33C1F4F;
-	Wed, 20 May 2026 09:23:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7A4913BE64B;
+	Wed, 20 May 2026 10:07:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779268996; cv=none; b=EnpSmvjrDEUn85yjsNgUZoy5lcY1aBTccoG3tKCVlX8gDrXwTMt2e1SnSL4tsd75PXXkZad1U9jp+rV6UkAUKu/o5ge13xGl0AJPqh8E7M2SvbE4M6ovMUqGzJ1ehNJSIJEF2i1T4YZLHacsF/bk+1GksiiYgFGWhc1MyNb0uQo=
+	t=1779271651; cv=none; b=skWO2SqfLCTacfxyfRO7khZA58oKhCuTukwuqvxdQpEomPMkRogtFH/HZgpFD7scULi4+3v1hG0fkV0tvIcvbjLIFnuE3QDrFqVkWq/3qed7SHjlsc+86QPshHzft/OVJu7IEHWodZ5fpcV3a+nvquM7Vlc3S5zBIvw3obIQki4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779268996; c=relaxed/simple;
-	bh=kzT4GgF9TOm1SzSZAp0GUl4LgLUdpgjBPWkgjzhwqmg=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=MNVUkqnvExZMlnK4p/IukE8k0iVRE7r3rfUb6g6I/0R5XCSwl1O3fhQmtSA/Vw0Xd22mEKg6/+u4T3xTFnzB1/9yVPtI0Y71ddVTx9V2Ok6QHEY2YwhNtwVyS2wdDkWGja6VOfxiiJEsyA53SvMVhR/jh5J/HY9GFNjEZYesxko=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=KG4zIwr3; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1779271651; c=relaxed/simple;
+	bh=5uTpCdf27XDZ7rU8VT2nSx6sZs8Bwa/a+nJN9dsTFZs=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=PEuKW2U3+vl4GLlDeHbupwv3nuLqRd1/RhR27kOa7nW+dOU+reg7vTfl2lWIzGNmi66LS9ruervxGqD4oC6MIju+YGzAJW52RsPMAnjhgaft5RgVlAQ8/+nCHJZdD1qkUVb8P8kfXSYEkVOAc7xKpxvnNfw6jO39gAx3RWwrYcg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bX7QZvvd; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="KG4zIwr3"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 64JJpaxc069628;
-	Wed, 20 May 2026 09:22:50 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=aNuC9aZ0O1QMyLAoh
-	8AbEsJP6D3xOXXADPlZtT+pV30=; b=KG4zIwr3Nmoa9CJ7d2iJ0SVa2sXfy3ZZH
-	RkJuwaX8WAASBK9mZ9bSOPfJEYg9kMmecaCpXgWjUssuV4NnC7kilMzzMcv8yQ4q
-	2gHZmbHGz9nFzrlodDBQDW9k6iRDPoQOOTNGhmuoGUyxKvB9SN//DElicH6wjCBT
-	an/EF8BP69v03a8XmPa8k3DyrAmiIOuhYKdLt6E10HCRdkKr1CkHiTI8Rbec+xe9
-	I68yacz6x+Fsxwafkbnpk8sozGrjbDRPQtzVYZ+AUe9Cjk4u4UEca6VbDCqbpjrD
-	zZXMO07kSCOT/Vq82wuGZhwCfEYuTlMmf3uezuzzCeCo0p4lmQ1+g==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4e6h8ms95p-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 20 May 2026 09:22:49 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 64K997Hk002414;
-	Wed, 20 May 2026 09:22:49 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4e75ky6dbm-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 20 May 2026 09:22:48 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 64K9MjBs55116218
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 20 May 2026 09:22:45 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6920020040;
-	Wed, 20 May 2026 09:22:45 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3C95520043;
-	Wed, 20 May 2026 09:22:45 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 20 May 2026 09:22:45 +0000 (GMT)
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Juergen Christ <jchrist@linux.ibm.com>
-Cc: Peter Zijlstra <peterz@infradead.org>,
-        Yang Shi <yang@os.amperecomputing.com>,
-        Shrikanth Hegde <sshegde@linux.ibm.com>, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Subject: [PATCH v3 5/9] s390/percpu: Use new percpu code section for arch_this_cpu_add_return()
-Date: Wed, 20 May 2026 11:22:39 +0200
-Message-ID: <20260520092243.264847-6-hca@linux.ibm.com>
-X-Mailer: git-send-email 2.51.0
-In-Reply-To: <20260520092243.264847-1-hca@linux.ibm.com>
-References: <20260520092243.264847-1-hca@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bX7QZvvd"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8006B1F000E9;
+	Wed, 20 May 2026 10:07:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1779271647;
+	bh=5uTpCdf27XDZ7rU8VT2nSx6sZs8Bwa/a+nJN9dsTFZs=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=bX7QZvvdTxa3YSpPgJR/CpVIiAr4LsFJHToqBiUpqQ7OjAJ3JKFYFh8HzISIXKnFl
+	 1E+J/2n87sXxTBfiFUF8qRdzuKZRCrbEiW5rd6ddSTbKXsJZyMjM1T70x1mbw9v0iy
+	 YXZDa7aQwxVF+CY8701SKVnLs7kwSt8WRsZCkxc6xexoxRufJyztW+awoUYKcSOR3V
+	 ZphoL6Dwc5cIDbOia4oI1lg7iHirtApfH1lnEv5WUDqQL/WaQSKARD2Sz4E/mNZ0i/
+	 CCS5/OgWZ5wmRKzFA5XnlGREVMcvJ2weIMSEG1wzLcm4yLFjdP3cRCAdnhnZwf44/+
+	 wOJEQPBG/nIXg==
+Date: Wed, 20 May 2026 11:07:18 +0100
+From: Lorenzo Stoakes <ljs@kernel.org>
+To: Barry Song <baohua@kernel.org>
+Cc: Suren Baghdasaryan <surenb@google.com>, 
+	Matthew Wilcox <willy@infradead.org>, akpm@linux-foundation.org, linux-mm@kvack.org, david@kernel.org, 
+	liam@infradead.org, vbabka@kernel.org, rppt@kernel.org, mhocko@suse.com, 
+	jack@suse.cz, pfalcato@suse.de, wanglian@kylinos.cn, chentao@kylinos.cn, 
+	lianux.mm@gmail.com, kunwu.chan@gmail.com, liyangouwen1@oppo.com, chrisl@kernel.org, 
+	kasong@tencent.com, shikemeng@huaweicloud.com, nphamcs@gmail.com, bhe@redhat.com, 
+	youngjun.park@lge.com, linux-arm-kernel@lists.infradead.org, 
+	linux-kernel@vger.kernel.org, loongarch@lists.linux.dev, linuxppc-dev@lists.ozlabs.org, 
+	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, Nanzhe Zhao <nzzhao@126.com>
+Subject: Re: [PATCH v2 0/5] mm: reduce mmap_lock contention and improve page
+ fault performance
+Message-ID: <ag2GKrvRHzP4KhOl@lucifer>
+References: <CAGsJ_4wk=SDtgin+84Ev2TamU-JFfmrg_SUay=-tcYmnFvK6Nw@mail.gmail.com>
+ <afTpoL3FklpQZNMM@casper.infradead.org>
+ <CAGsJ_4ysMcrmDLSOwBkf7qwCQrcDWeEMXkHDajTJFMLKUk0bSQ@mail.gmail.com>
+ <agrWuDNGddNmvMFD@lucifer>
+ <CAGsJ_4zqLfdWoTH9s7FFaqWWj0mESfikYgr7=GcV64qcuXrPxA@mail.gmail.com>
+ <CAJuCfpE0WQrB3zJp9qn3jvn5DthS=ttpX7gJJvyEhA_BJGrp5g@mail.gmail.com>
+ <agxbq1TxJdniMQT3@lucifer>
+ <CAGsJ_4zxyZP_xkFCGWfLyXkqomrX6DNqyMVirk=aggtwB1zExw@mail.gmail.com>
+ <ag1mk2DSJsiORaxK@lucifer>
+ <CAGsJ_4zN5ezh9vvvQDQdMF2KuuDGvkhNjTZWc0y0Lsa-P4Aahw@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: vZiFTyv7LifXqyfj1ckzHsmaWIl8VL7O
-X-Authority-Analysis: v=2.4 cv=GYMnWwXL c=1 sm=1 tr=0 ts=6a0d7d69 cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=NGcC8JguVDcA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8 a=gp5uoB9lSsFOMp1OYIcA:9
-X-Proofpoint-ORIG-GUID: vZiFTyv7LifXqyfj1ckzHsmaWIl8VL7O
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTIwMDA4NyBTYWx0ZWRfX/mFR7XGklOmF
- ZZVjaYLtbZOmbfJLKCM3kMnroFR7XnFz5S+oimnrluRxD2ikL48S46WPus1bgmJQtsAWQFShvB7
- w1mynhPqz3whbLdnOl9OAT3A0oK2AqvCZcSljyy/hKVIksf0TN1ubB45s9IXXUY2bQ5de5LIbxR
- fg29iyUEDSHz7xe08V0b7ExlOLz2S+EcJj1byUzQ+mraowV/hPIaBYYZXnL1p+JWTWQSROzx2Xh
- 0esFqfHTaDokEP9MESWvGOD7+gYTZeNpjQfiwDN83vEJ4bDuDTFt6nJHaqdsV26vLVJtDLTQEuG
- TVEy6MtmRjvIsaiDf7pVbO893lp5FGf2KQ9Gqph443QHq2qc6lc/e0ax0q46LHCjuThtCq2kRv3
- OJBVPLTym7ft+AG3Xx2IxS9EFAbaA8rdSk73eizY+GjynkseCRthzP5TUd7eFK61P8sigzT9UiD
- Nc9L/bzPS7vaM1vCtyg==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-05-20_01,2026-05-18_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- phishscore=0 malwarescore=0 lowpriorityscore=0 priorityscore=1501 bulkscore=0
- adultscore=0 suspectscore=0 spamscore=0 clxscore=1015 impostorscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2605130000 definitions=main-2605200087
+In-Reply-To: <CAGsJ_4zN5ezh9vvvQDQdMF2KuuDGvkhNjTZWc0y0Lsa-P4Aahw@mail.gmail.com>
 
-Convert arch_this_cpu_add_return() to make use of the new percpu code
-section infrastructure.
+On Wed, May 20, 2026 at 05:07:16PM +0800, Barry Song wrote:
+> On Wed, May 20, 2026 at 3:50 PM Lorenzo Stoakes <ljs@kernel.org> wrote:
+> >
+> > On Wed, May 20, 2026 at 05:18:52AM +0800, Barry Song wrote:
+> > > On Tue, May 19, 2026 at 8:53 PM Lorenzo Stoakes <ljs@kernel.org> wrote:
+> > > >
+> > > > On Mon, May 18, 2026 at 12:56:59PM -0700, Suren Baghdasaryan wrote:
+> > > >
+> > > > > >
+> > > > > > I think we either need to fix `fork()`, or keep the current
+> > > > > > behavior of dropping the VMA lock before performing I/O.
+> > > > >
+> > > > > I see. So, this problem arises from the fact that we are changing the
+> > > > > pagefaults requiring I/O operation to hold VMA lock...
+> > > > > And you want to lock VMA on fork only if vma_is_anonymous(vma) ||
+> > > > > is_cow_mapping(vma->vm_flags). So, we will be blocking page faults for
+> > > > > anonymous and COW VMAs only while holding mmap_write_lock, preventing
+> > > > > any VMA modification. On the surface, that looks ok to me but I might
+> > > > > be missing some corner cases. If nobody sees any obvious issues, I
+> > > > > think it's worth a try.
+> > > >
+> > > > Not sure if you noticed but I did raise concerns ;)
+> > > >
+> > > > I wonder if you've confused the fault path and fork here, as I think Barry has
+> > > > been a little unclear on that.
+> > >
+> > > I think I’ve been absolutely clear :-)
+> >
+> > On this point sure, I would argue less so around the fork stuff but I responded
+> > on that specifically elsewhere so let's keep things moving :>)
+> >
+> > > We should either stick to the current behavior - drop
+> > > the VMA lock before doing I/O, or change fork() so that it
+> > > does not wait on vma_start_write().
+> >
+> > Again, as I said elsewhere, I think there might be a 3rd way possibly. It's a
+> > big mistake to assume that there are only specific solutions to problems in the
+> > kernel then to present a false dichotomy.
+>
+> I recalled that when we discussed this part in my slides:
+>
+> ‘For simplicity, rather than using a whitelist mechanism for
+> per-VMA retry, we could use a blacklist instead: default to
+> always retry via the VMA lock, and only allow mmap_lock-based
+> page-fault retry for specific cases such as
+> __vmf_anon_prepare().’
 
-With this the text size of the kernel image is reduced by ~4k
-(defconfig). Also 66 generated preempt_schedule_notrace() function
-calls within the kernel image (modules not counted) are removed.
+Yeah that's an itneresting approach actually, sorry if I missed that.
 
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
----
- arch/s390/include/asm/percpu.h | 26 +++++++++++++++++++-------
- 1 file changed, 19 insertions(+), 7 deletions(-)
+>
+> Suren mentioned introducing a FALLBACK flag. With the
+> FALLBACK flag, we would retry via mmap_lock; with the RETRY
+> flag, we would retry via the VMA lock.
 
-diff --git a/arch/s390/include/asm/percpu.h b/arch/s390/include/asm/percpu.h
-index 459603c7305a..b3da863954c5 100644
---- a/arch/s390/include/asm/percpu.h
-+++ b/arch/s390/include/asm/percpu.h
-@@ -177,17 +177,29 @@ do {										\
- 
- #define arch_this_cpu_add_return(pcp, val, op)				\
- ({									\
-+	unsigned long lc_pcpr, lc_pcpo;					\
- 	typedef typeof(pcp) pcp_op_T__; 				\
- 	pcp_op_T__ val__ = (val);					\
- 	pcp_op_T__ old__, *ptr__;					\
--	preempt_disable_notrace();					\
--	ptr__ = raw_cpu_ptr(&(pcp));	 				\
--	asm volatile(							\
--		op "    %[old__],%[val__],%[ptr__]"			\
--		: [old__] "=d" (old__), [ptr__] "+Q" (*ptr__)		\
--		: [val__] "d" (val__)					\
-+									\
-+	lc_pcpr = offsetof(struct lowcore, percpu_register);		\
-+	lc_pcpo = offsetof(struct lowcore, percpu_offset);		\
-+	ptr__ = PERCPU_PTR(&(pcp));					\
-+	asm_inline volatile(						\
-+		MVIY_PERCPU("%[disppcpr]", "%[dispaltpcpr]", "%[ptr__]")\
-+		AG_ALT("%[disppcpo]", "%[dispaltpcpo]", "%[ptr__]")	\
-+		op "	%[old__],%[val__],0(%[ptr__])\n"		\
-+		MVIY_ALT("%[disppcpr]", "%[dispaltpcpr]", "%%r0")	\
-+		: [old__] "=&d" (old__),				\
-+		  [ptr__] "+&a" (ptr__), "+m" (*ptr__),			\
-+		  "=m" (((struct lowcore *)0)->percpu_register)		\
-+		: [val__] "d" (val__),					\
-+		  [disppcpr] "i" (lc_pcpr),				\
-+		  [disppcpo] "i" (lc_pcpo),				\
-+		  [dispaltpcpr] "i" (lc_pcpr + LOWCORE_ALT_ADDRESS),	\
-+		  [dispaltpcpo] "i" (lc_pcpo + LOWCORE_ALT_ADDRESS),	\
-+		  "m" (((struct lowcore *)0)->percpu_offset)		\
- 		: "cc");						\
--	preempt_enable_notrace();						\
- 	old__ + val__;							\
- })
- 
--- 
-2.51.0
+Yeah, and honestly I'm beginning to wonder if we don't just have to pay the
+complexity tax anyway and eat the fact we have to deal with that.
 
+But as per Josef's comment re: this whole mechanism, simply not waiting for
+file-backed I think is another option (but I don't recall where we left that
+conversation actually?)
+
+Anyway I want to make sure any complexity we add is necessary so will take a
+look through patches and have a think (and obviously others will have their own
+opinions!)
+
+>
+> Not sure whether this could really be called a ‘third way,’
+> but it seems more like a shift from a whitelist model to a
+> blacklist model, without changing the fundamental design, but
+> it does change where we would need to touch the source code.
+
+Right yeah, good to have more options.
+
+>
+> >
+> > We absolutely hear you on this being a problem and it WILL be addressed one way
+> > or another.
+>
+> Thanks. This is a bit of light in what has felt like a fairly
+> dark situation. I really appreciate your thoughtful and
+> responsible approach.
+
+Yes, sorry, I maybe was a bit too harsh in my tone here, I didn't really intend
+to be negative as to addresisng the problem as a whole.
+
+Moreso I've been concerned about the fork approach, and that is what's led to me
+being shall we say 'emphatic' about it :)
+
+But of course I sometimes make mistakes in quite how my tone comes across, so
+apologies if it came across overly negatively - I am negative (on a technical
+level) about the fork approach, but not the fact we should address this.
+
+To be clear - I'm very glad you've brought this up, it's important, as much as
+it's painful that we have this issue in the first place! :)
+
+>
+> >
+> > Of the two approaches, as I said elsewhere, I prefer what you've done in this
+> > series to anything touching fork.
+> >
+> > But give me time to look through the series please (I'd also suggest RFC'ing
+> > when it's something kinda fundamental that might generate converastion, makes
+> > life a bit easier on the review side :)
+>
+> Thanks! Sure, I’m happy to wait and there’s no urgency.
+>
+> Last year you made quite a significant contribution to the work
+> when I tried to remove mmap_lock in madvise. I really
+> appreciated it. Now we’re back to the same lock again, just in
+> different places.
+
+Yeah :) one day maybe we can get rid of it altogether (maybe I'm dreaming :)
+
+>
+> Best Regards
+> Barry
+
+Cheers, Lorenzo
