@@ -1,53 +1,53 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 93EED3BF67E;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 93C8B3BED66;
 	Wed, 20 May 2026 09:22:58 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779268980; cv=none; b=hDVHr61ppaXhKcXT7X/GVgZzLwCmZPilQ9aPvAVakDdcD0O1adAtKRdTRp1Z/UIHUReSuA5Ki2G0WHR5nTST3KcK2Gd4WqFwHe0q9pcV++9WesBX94xJY186TDnFgLFP1clQMRUBUdEigw3X3kU3shOT20sB/ILMTO4zsmI2jt8=
+	t=1779268980; cv=none; b=MzpIZhMNblrE8fAsQJSwSHNVBo5zTNJQMc0cn/fSccyx3j+FPTG35mCF8g6SHXhObx7wQ4fe/dtTRzmFqbp6BtrisDeiPl6el6Eq154KTDbqkyGbqKvP2L+8rvbu/zQmpX4YCKQ0GzZAv5bilUkSPTCkIu02NBUtKgUUH3Wy7Fc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1779268980; c=relaxed/simple;
-	bh=RoxvrAdCNQnqfNn/2BxPuqYQKFNyXqblRZvfi1+sszc=;
+	bh=PPMUfyzHj1wJrKxOQ1wNO8oKi1gXYEX3a83zcx6MgDo=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=JUXMvRIaOP9PRGtlsBqD5iB7Q9sfaHEIg7sikQ3ImB4Tu3sSbdM6fyNILf3Kfl0plo77mT5ZWjxLl6erDhRV4adzC7uDS9k6zCXG8igfuDWh671OPVH/Noh8lkeaeMTg16XK8tGIanmGX8ylJ9YFtvmW8oAS7aQUO0cqD/Tg2ek=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=lDjHOdOj; arc=none smtp.client-ip=148.163.158.5
+	 MIME-Version; b=WgrFgBVw6+MCtiAToukpR25eJ++1m+ur3SxEEhni3ct2k0kgjch2RgZvapZgiGMgml9q190b6IGePsERK/FTWVdhAnWgBYCNiEm+nMLyDECjaGdoI5xPvO2Yztq0WG3UsigdUoZ/hL16Q3r3FY2qejZd2emwTI7AfOma7ueG2a0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=hV3NNzzP; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="lDjHOdOj"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 64JKBLdI3252227;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="hV3NNzzP"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 64JLADRm3907161;
 	Wed, 20 May 2026 09:22:50 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=eRoHlgFcQDL41Y6Qv
-	+2GL67detecv8uwRK4C+x5v6LU=; b=lDjHOdOjdigPUYkPvOeQXTcUAUnwFTfls
-	Vr3jSmH6SCTz70TP1Ab3dvdlcW0EZAW6K0KVRtjxLC4sbjWCse+eRE3ZJBTaEEVt
-	XU01ZC7xpyIb5Qs7ihuY9foO2Kh0L65hJesk17bpq7uJ8tnLu07jLPkSiswWvjhl
-	LX0b3tpL8b1EUcEDnXQ3Aa2lcZ8WRw6NLpAcpR/fEfU/ac0fJ7JqY3Hsk3Vbp04X
-	MvGpS96RDrBDC2SikuttC+ogyp6BGEwz2uxTJDVT/ryHgJUqZYtkqybDkiwruYy3
-	5Z5nnLn5I8A2P7bNuTH4E9GHt+n7jFyYMhYTkWSHpPq/5EjdNYMew==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4e6haw8cay-1
+	:mime-version:references:subject:to; s=pp1; bh=WS1QX18NMJTzeEbjT
+	v10Xg8Ic9yy6JorqopS7BB+yU8=; b=hV3NNzzP8WYwBlo+J58dnedF9HDlPmTLm
+	Itmrki/ps1DtqJT40HgZu2RQykn6kvKlry4k6hrBUG2i6DSE4CcgSgEHLTVOlWPs
+	aK9D3turdGOyN9pxv7mE+/eYepyMUACzQKi/b9CRIRbzGd8dWWxDmdXl2rAdIjHx
+	flHo60kU7/6FwUiRrAYuoPitww9MClt1Q9xsFprhbT/OmoBDS230bNtBnm5Nq4ej
+	ngU6NHWo0j+el4OqQdvRLyZMqbyuyuoCPVyVJwnJApdFrcE0O7J9iPjw+iN9M1R3
+	TG63tKoE1XuHPfCqWO+7XT8nwlZhDS483IiCbTHf4IkChahodsJ8w==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4e6hb8gb2f-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Wed, 20 May 2026 09:22:49 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 64K994k0032267;
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 64K99ANC022924;
 	Wed, 20 May 2026 09:22:49 GMT
 Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4e72wq6vwv-1
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4e754gef64-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 20 May 2026 09:22:48 +0000 (GMT)
+	Wed, 20 May 2026 09:22:49 +0000 (GMT)
 Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 64K9MjdS55116220
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 64K9Mj6l55116222
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
 	Wed, 20 May 2026 09:22:45 GMT
 Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9C33520043;
+	by IMSVA (Postfix) with ESMTP id CEFF620043;
 	Wed, 20 May 2026 09:22:45 +0000 (GMT)
 Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6F5D62004B;
+	by IMSVA (Postfix) with ESMTP id A1E3120040;
 	Wed, 20 May 2026 09:22:45 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
 	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
@@ -61,9 +61,9 @@ Cc: Peter Zijlstra <peterz@infradead.org>,
         Yang Shi <yang@os.amperecomputing.com>,
         Shrikanth Hegde <sshegde@linux.ibm.com>, linux-kernel@vger.kernel.org,
         linux-s390@vger.kernel.org
-Subject: [PATCH v3 6/9] s390/percpu: Use new percpu code section for arch_this_cpu_[and|or]()
-Date: Wed, 20 May 2026 11:22:40 +0200
-Message-ID: <20260520092243.264847-7-hca@linux.ibm.com>
+Subject: [PATCH v3 7/9] s390/percpu: Provide arch_this_cpu_read() implementation
+Date: Wed, 20 May 2026 11:22:41 +0200
+Message-ID: <20260520092243.264847-8-hca@linux.ibm.com>
 X-Mailer: git-send-email 2.51.0
 In-Reply-To: <20260520092243.264847-1-hca@linux.ibm.com>
 References: <20260520092243.264847-1-hca@linux.ibm.com>
@@ -75,59 +75,58 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTIwMDA4NyBTYWx0ZWRfX7pwQOesG7DSE
- XKu+Xy2xN4h7La33DO6ZukiV36H9KxfuXexTkp25VXa4SQx5rVtQMCxHyXM9SVtY0sLh+xKSvMm
- Zwsy3L+ZmONZABaMd7z5uf6fhblYI+UYKzkxaz/TlytCtyM5VNOMOMZvz8uRrzO38CrUsUxmaZ0
- liH6MXnzDdksk8zSUCgC/rMY/fJjIDhecMG/CDE4UqXzrJV7g5xhZndS342I6MS4zcLWFX+tx3B
- 1fQJtqUwa0n07wHLqfOagCj+PBP7a774Vf7GxXQBd6Eu2lVZhh6WKeDf8vvJo+1tW/B1JLSW8Vk
- r9aa9Kb35z5tspFDoGwUO5CETfo/8FrP5Szd/7C+vfActyWk3Ro0VNMq62tWwDWv/wOkknEM3ZE
- yyfGsVRNp6u5OoaZXmdKn1Ge5lp9o9u73vHmy+V+oZwtmSlyfa+pHFvCqfhHnt030lVi5tqtw9H
- 8EnC726M3fNpUgP95Mw==
-X-Authority-Analysis: v=2.4 cv=Np/htcdJ c=1 sm=1 tr=0 ts=6a0d7d69 cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTIwMDA4NyBTYWx0ZWRfX5be0+wc1KcNS
+ YbOBcwf51DGir+jTRR7srv4fXYVtNsefDoPGLy5l4rJBErNn2V6fY5s7xEOyQdFjg3tTjLQ54fL
+ f5M4sfyAaYyY7LSFMLaFhFlr667qzveY3cQ1jZYklgeNyHmd6CxvvJXQrsgAYyavX+4gN8qV2sH
+ 0lCHRBvuWB0ZgT1bTDczlnc5xa1yqEM338G1jhnj3415XxdT1zbAQmEZn5bnxdslFMsss/lZ58w
+ a0OJ7jxxgS+xAzoj2HsHxwWFA0yRoBvM3tgu5jtCHPrmTpj9LxHUorF5e5bPbmKZxRUVvPc/NWN
+ VA2WJLTi523sgH6ODMCzG/ETkoD4DC0ycRvLKjKJeRgWmFZRi+6qf7t4ncLJ5vINkuHVH/RI+/k
+ qwvphU+NWcMmQ/mpBe9kofdIYpkHjs3gFqO81OAaVt1+TA+YeIX9GI/TO659EU9g32uTYVU/1f6
+ H7qPRzeX4nsn6uj3nOQ==
+X-Proofpoint-GUID: PsXHdtYS-ltAz4RKGlL5uocqu2WfP9X5
+X-Proofpoint-ORIG-GUID: PsXHdtYS-ltAz4RKGlL5uocqu2WfP9X5
+X-Authority-Analysis: v=2.4 cv=aYBRWxot c=1 sm=1 tr=0 ts=6a0d7d6a cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
  a=NGcC8JguVDcA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8 a=4dLYTkTKlH5g-JvQF6AA:9
-X-Proofpoint-ORIG-GUID: 99llkpKqlZUeiKNSlUI_LsE7omIaqKMU
-X-Proofpoint-GUID: 99llkpKqlZUeiKNSlUI_LsE7omIaqKMU
+ a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8 a=4bOSrtcVyj7iNoH5sBwA:9
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
  definitions=2026-05-20_01,2026-05-18_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0 spamscore=0 clxscore=1015 priorityscore=1501 impostorscore=0
- lowpriorityscore=0 suspectscore=0 adultscore=0 phishscore=0 malwarescore=0
+ impostorscore=0 adultscore=0 bulkscore=0 suspectscore=0 lowpriorityscore=0
+ clxscore=1015 spamscore=0 phishscore=0 priorityscore=1501 malwarescore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2605130000 definitions=main-2605200087
 
-Convert arch_this_cpu_[and|or]() to make use of the new percpu code
-section infrastructure.
+Provide an s390 specific implementation of arch_this_cpu_read() instead
+of the generic variant. The generic variant uses preempt_disable() /
+preempt_enable() pair and READ_ONCE().
 
-There is no user of this_cpu_and() and only one user of this_cpu_or()
-within the kernel. Therefore this conversion has hardly any effect,
-and also removes only preempt_schedule_notrace() function call.
+Get rid of the preempt_disable() / preempt_enable() pairs by providing an
+own variant which makes use of the new percpu code section infrastructure.
+
+With this the text size of the kernel image is reduced by ~1k
+(defconfig). Also 87 generated preempt_schedule_notrace() function
+calls within the kernel image (modules not counted) are removed.
 
 Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 ---
- arch/s390/include/asm/percpu.h | 26 +++++++++++++++++++-------
- 1 file changed, 19 insertions(+), 7 deletions(-)
+ arch/s390/include/asm/percpu.h | 31 +++++++++++++++++++++++++++++++
+ 1 file changed, 31 insertions(+)
 
 diff --git a/arch/s390/include/asm/percpu.h b/arch/s390/include/asm/percpu.h
-index b3da863954c5..fa3dc3de5f8b 100644
+index fa3dc3de5f8b..abd774fdd73a 100644
 --- a/arch/s390/include/asm/percpu.h
 +++ b/arch/s390/include/asm/percpu.h
-@@ -208,17 +208,29 @@ do {										\
+@@ -240,6 +240,37 @@ do {									\
  
- #define arch_this_cpu_to_op(pcp, val, op)				\
- do {									\
-+	unsigned long lc_pcpr, lc_pcpo;					\
- 	typedef typeof(pcp) pcp_op_T__; 				\
- 	pcp_op_T__ val__ = (val);					\
- 	pcp_op_T__ old__, *ptr__;					\
--	preempt_disable_notrace();					\
--	ptr__ = raw_cpu_ptr(&(pcp));	 				\
--	asm volatile(							\
--		op "    %[old__],%[val__],%[ptr__]"			\
--		: [old__] "=d" (old__), [ptr__] "+Q" (*ptr__)		\
--		: [val__] "d" (val__)					\
+ #endif /* MARCH_HAS_Z196_FEATURES */
+ 
++#define arch_this_cpu_read(pcp, op)					\
++({									\
++	unsigned long lc_pcpr, lc_pcpo, res__;				\
++	typedef typeof(pcp) pcp_op_T__;					\
++	pcp_op_T__ *ptr__;						\
 +									\
 +	lc_pcpr = offsetof(struct lowcore, percpu_register);		\
 +	lc_pcpo = offsetof(struct lowcore, percpu_offset);		\
@@ -135,22 +134,28 @@ index b3da863954c5..fa3dc3de5f8b 100644
 +	asm_inline volatile(						\
 +		MVIY_PERCPU("%[disppcpr]", "%[dispaltpcpr]", "%[ptr__]")\
 +		AG_ALT("%[disppcpo]", "%[dispaltpcpo]", "%[ptr__]")	\
-+		op "    %[old__],%[val__],0(%[ptr__])\n"		\
++		op "	%[res__],0(%[ptr__])\n"				\
 +		MVIY_ALT("%[disppcpr]", "%[dispaltpcpr]", "%%r0")	\
-+		: [old__] "=&d" (old__),				\
-+		  [ptr__] "+&a" (ptr__), "+m" (*ptr__),			\
++		: [res__] "=&d" (res__), [ptr__] "+&a" (ptr__),		\
 +		  "=m" (((struct lowcore *)0)->percpu_register)		\
-+		: [val__] "d" (val__),					\
-+		  [disppcpr] "i" (lc_pcpr),				\
++		: [disppcpr] "i" (lc_pcpr),				\
 +		  [disppcpo] "i" (lc_pcpo),				\
 +		  [dispaltpcpr] "i" (lc_pcpr + LOWCORE_ALT_ADDRESS),	\
 +		  [dispaltpcpo] "i" (lc_pcpo + LOWCORE_ALT_ADDRESS),	\
++		  "m" (*ptr__),						\
 +		  "m" (((struct lowcore *)0)->percpu_offset)		\
- 		: "cc");						\
--	preempt_enable_notrace();					\
- } while (0)
- 
- #define this_cpu_and_4(pcp, val)	arch_this_cpu_to_op(pcp, val, "lan")
++		: "cc");						\
++	(pcp_op_T__)res__;						\
++})
++
++#define this_cpu_read_1(pcp) arch_this_cpu_read(pcp, "ic")
++#define this_cpu_read_2(pcp) arch_this_cpu_read(pcp, "lh")
++#define this_cpu_read_4(pcp) arch_this_cpu_read(pcp, "l")
++#define this_cpu_read_8(pcp) arch_this_cpu_read(pcp, "lg")
++
+ #define arch_this_cpu_cmpxchg(pcp, oval, nval)				\
+ ({									\
+ 	typedef typeof(pcp) pcp_op_T__;					\
 -- 
 2.51.0
 
