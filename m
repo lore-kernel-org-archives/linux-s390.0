@@ -1,117 +1,120 @@
-Received: from mail-wr1-f52.google.com (mail-wr1-f52.google.com [209.85.221.52])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 58EA93C276D
-	for <linux-s390@vger.kernel.org>; Wed, 20 May 2026 12:43:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1757B3C661A;
+	Wed, 20 May 2026 12:56:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779281002; cv=none; b=rH55zlH1SdJvjhoQMkpCpyfdV//rfuza4bmT5tdfwZFZX0jeaLngR+FZUJpx8obk3bex9HEQ5Dj6/mSvwo1dr+y5BKl+poVlBEy2bnJF47QKdmVm+CQitE17ADSzRQRfK2GSa9HSaba4tJ+0bp0AZvKJVWqUO1ea52PQVu21l7I=
+	t=1779281770; cv=none; b=PUyc5l0cdqjK7Sq3yJtdlRgYu8hkzMgHRj+W/fq6bbookRVuGcqTmXQsoagP5QMCtk7WMylsiz1TfMDXV60gpg32R3GB5BH5FZunFGJvCYDUmDmF8/crHDtjPjasD85ZyrDwJPjOurns5peY3HWDrgzrrZA+STk5i3bV0cwk/uM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779281002; c=relaxed/simple;
-	bh=9xV2kEuHyLB0jhVQA9YzsyIMdYZ2hjs2wTJWQqBPTI8=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=mRptcPqg02DYZ4gvMQvtQqBY/eGUDrZZUzLQf/VKUJPRVvvd6shVf7gBFB3bpXfBTDkPpGhjYDjJnNEUpiQTxJOxorAH1+yhR7H1veukaa4z8wVjTDbNl8biswI3vK/HBnAeE0VY95fRhFuspvj3hdd3rl7aA39ZKf07QEa5s+E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Rg4BhhrC; arc=none smtp.client-ip=209.85.221.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1779281770; c=relaxed/simple;
+	bh=ehjp2pyKA5Vmb1tl80rzsbvCFR/pkm4mxPnsNK2uQRw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=dr4YbRoIhD0Yld979/OqpVK/5viDElb79oUOuOUg/JgWwWA5rC0y/5GAw27/zIuxwFmZTqkrekMjUkLvyqFv0FFzXo8erNrH4pgcncKtLLsluealKkm+kCF6gIjZBngqm6if1xbn8orYfxA2bYqGZuoZhuKq/9N0yl4etSIWMFs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=odw+ysF2; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Rg4BhhrC"
-Received: by mail-wr1-f52.google.com with SMTP id ffacd0b85a97d-44509921fbcso3041917f8f.3
-        for <linux-s390@vger.kernel.org>; Wed, 20 May 2026 05:43:21 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1779281000; x=1779885800; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=hGymKabcBXvuedlpqu+QlTLiXvf7PjEFL+l6BnvAi2I=;
-        b=Rg4BhhrCEw3Mqcg51bP8ZcfdyfHWDhOMVbWcu1tUIDfcWNX1o883anRtZjgtPW5am+
-         V2hXp6C3pQ9CYi947/mcjHeaZ93QhHRLjkHATYfGNdDTbHHLCwp3n5qxzHJfz1LFyYPS
-         pUvqUCixRAVRtrPHW+GPvU/9dZ8O1hp+A499yK1CdgTkoFWkABhZoS16NeobHBi5XLWo
-         Kat8gjbOc9bB1w2S3VeBD6JnzHKQVmxdel4lQg0vlrfrB9HHEDKE55kI0f6bHdyik/q3
-         YZV6AZDjtEtBXAbefQRmqFvDmHeqBgRH3MArCppinPCRkXDfzBtbfRF/QFDMC8CawlZ4
-         RwSA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779281000; x=1779885800;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=hGymKabcBXvuedlpqu+QlTLiXvf7PjEFL+l6BnvAi2I=;
-        b=MTAcFMLmxeAa01WCV5JwXnoY7QZCXeuBTsQmGdLdqICiG9MttDGbRD2+MI8tjF/pkE
-         /EXTAinjigEX9hLh3T6KiMyOxVoZdpPO9l60NH39iLJ+2EKvQLrTzzXpNSHZp2GKYRl9
-         RVAY4j5eP4BonDBIKJ4EYfGyAVos8i4maEy7OT6PiEuuZKKw/7jBs/x9TyvFAoNHCRXX
-         8Bn82n/9GqjgUp4JzQMjE+0VsnRpvI0f94m2+yXHlTLpjtwvUhxUZCzwjGwR3BDMYm3q
-         UeDghkjOJQAq2gNvDTIpR6vxD3FFozxsldkqeKfb/1NwLbtG2db3W3SfzjWuqNe1VHlh
-         T2RA==
-X-Forwarded-Encrypted: i=1; AFNElJ8iApdVerkAe4RXzA+L7v91t/8cWRHmhmlcXtBjdiefYzKky3cyV6zhyCV0gEgUCM5at3BPfHNp3BRD@vger.kernel.org
-X-Gm-Message-State: AOJu0YyybMPqI6WFPAmjJgds8g1qYQq0WXpXYUb2E5BP4bkVqNhdeFBa
-	DFRdmVZY59uWRDGzjp+e/tTcTfE7N60jbIQxgJDEmrQJDuYVkqq5FWSK
-X-Gm-Gg: Acq92OGlT+Ouenuwy+ooZoYeZb12Crw6QeB/advcVEHubWr1sdWhPJCo606a/+MO0Bg
-	D8fwjrdAYX+0+BP4GeBcklNwtER1et/e+VqCYoVLgfk3M3L+7LRayc5ijSmFCQ/AT21Oizzi3L8
-	mr65sJQb1dUALRJqgDzMLPzBDGEzHTrv9gqpGySGtPR3EWrtiWLMbXKeu8xSoxH3r8ZcWL1leFM
-	lcTugSK7QTThy2uQ4OpGABFJD2BUDGrRzAHL2Cpm6Sv0CG9K5GgYY2AAkxuGTuMAU/EwbURPAYF
-	OcgK5X//3YgB+ZfZey1uTG/21SLOh9znB4RIOgi8WwRLbm0JlQOTxUaBSR6PGtCbtTuxy9mie/Q
-	WYcuoHt4s/7RtOo83Ka1b70e40TEyGEZCJ6neWZhYd5QosfsGM9jy6v+r6+2QZYPELUqa9XHj8h
-	1Dkef7kvb4iIOF2SPtVl7v5GY9tXLKkK2jiYp9yifEYCK1thSWso18KBnx5/q2wNgh
-X-Received: by 2002:a05:6000:228a:b0:44a:b0a3:7c1a with SMTP id ffacd0b85a97d-45e5c5cf9e1mr38233742f8f.24.1779280999565;
-        Wed, 20 May 2026 05:43:19 -0700 (PDT)
-Received: from pumpkin (82-69-66-36.dsl.in-addr.zen.co.uk. [82.69.66.36])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-45e7c22d8b7sm24718459f8f.6.2026.05.20.05.43.18
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 20 May 2026 05:43:19 -0700 (PDT)
-Date: Wed, 20 May 2026 13:43:17 +0100
-From: David Laight <david.laight.linux@gmail.com>
-To: Heiko Carstens <hca@linux.ibm.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>, Sven Schnelle
- <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian
- Borntraeger <borntraeger@linux.ibm.com>, Juergen Christ
- <jchrist@linux.ibm.com>, Peter Zijlstra <peterz@infradead.org>, Yang Shi
- <yang@os.amperecomputing.com>, Shrikanth Hegde <sshegde@linux.ibm.com>,
- linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: Re: [PATCH v3 1/9] s390/alternatives: Add new ALT_TYPE_PERCPU type
-Message-ID: <20260520134317.778dc094@pumpkin>
-In-Reply-To: <20260520092243.264847-2-hca@linux.ibm.com>
-References: <20260520092243.264847-1-hca@linux.ibm.com>
-	<20260520092243.264847-2-hca@linux.ibm.com>
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; arm-unknown-linux-gnueabihf)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="odw+ysF2"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 195301F000E9;
+	Wed, 20 May 2026 12:56:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1779281768;
+	bh=IHcIhsCGtp+zFimfYJhlVXiifBlHPpWiDOsOVHQEJSk=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=odw+ysF2fSGs0CYgREQtSvLkA7C1vnjLq+yTGH8uUyZQL5gIwy8l0sgOhMQFrvR/U
+	 uhiwWUqoaRwvkgB0dpBHlc/BUJ1q5+UUOAqod11j8iXpTYoTcMdKWbeJzuR6xMAqQ+
+	 OvTmgxH6iYYQP1hB8J7APtE6URdQBmktp1g/AVzlcWRxqXXJ8L/XVRnaqQo7zC7Xng
+	 ETzTvLZhkt1SvKxjfJTjvTYcMABci75fb1o2/YPfIpAPbJkiRERe++WMYYQiw7kmc/
+	 0b+T91xT73D5pkQltTZRR+EMWtVC4246AhUUcvutCmfPfiXeX8053NtPz89QYDfQc2
+	 xRaHqWoL1+79g==
+Date: Wed, 20 May 2026 13:55:58 +0100
+From: Lorenzo Stoakes <ljs@kernel.org>
+To: "David Hildenbrand (Arm)" <david@kernel.org>
+Cc: Suren Baghdasaryan <surenb@google.com>, Barry Song <baohua@kernel.org>, 
+	Matthew Wilcox <willy@infradead.org>, akpm@linux-foundation.org, linux-mm@kvack.org, 
+	liam@infradead.org, vbabka@kernel.org, rppt@kernel.org, mhocko@suse.com, 
+	jack@suse.cz, pfalcato@suse.de, wanglian@kylinos.cn, chentao@kylinos.cn, 
+	lianux.mm@gmail.com, kunwu.chan@gmail.com, liyangouwen1@oppo.com, chrisl@kernel.org, 
+	kasong@tencent.com, shikemeng@huaweicloud.com, nphamcs@gmail.com, bhe@redhat.com, 
+	youngjun.park@lge.com, linux-arm-kernel@lists.infradead.org, 
+	linux-kernel@vger.kernel.org, loongarch@lists.linux.dev, linuxppc-dev@lists.ozlabs.org, 
+	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, Nanzhe Zhao <nzzhao@126.com>
+Subject: Re: [PATCH v2 0/5] mm: reduce mmap_lock contention and improve page
+ fault performance
+Message-ID: <ag2vKm3K00wCiwUV@lucifer>
+References: <CAGsJ_4w0qcYmukHqsyRd0jomoyYkJjOt8b-Cgp53BgP-8QQghw@mail.gmail.com>
+ <afS_L-5XeWIldTXA@casper.infradead.org>
+ <CAGsJ_4wk=SDtgin+84Ev2TamU-JFfmrg_SUay=-tcYmnFvK6Nw@mail.gmail.com>
+ <afTpoL3FklpQZNMM@casper.infradead.org>
+ <CAGsJ_4ysMcrmDLSOwBkf7qwCQrcDWeEMXkHDajTJFMLKUk0bSQ@mail.gmail.com>
+ <agrWuDNGddNmvMFD@lucifer>
+ <CAGsJ_4zqLfdWoTH9s7FFaqWWj0mESfikYgr7=GcV64qcuXrPxA@mail.gmail.com>
+ <CAJuCfpE0WQrB3zJp9qn3jvn5DthS=ttpX7gJJvyEhA_BJGrp5g@mail.gmail.com>
+ <agxbq1TxJdniMQT3@lucifer>
+ <e6d1017a-e4c5-493e-bfca-932c6d64eaac@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <e6d1017a-e4c5-493e-bfca-932c6d64eaac@kernel.org>
 
-On Wed, 20 May 2026 11:22:35 +0200
-Heiko Carstens <hca@linux.ibm.com> wrote:
+On Wed, May 20, 2026 at 12:33:56PM +0200, David Hildenbrand (Arm) wrote:
+> On 5/19/26 14:53, Lorenzo Stoakes wrote:
+> > On Mon, May 18, 2026 at 12:56:59PM -0700, Suren Baghdasaryan wrote:
+> >
+> >>>
+> >>> I think we either need to fix `fork()`, or keep the current
+> >>> behavior of dropping the VMA lock before performing I/O.
+> >>
+> >> I see. So, this problem arises from the fact that we are changing the
+> >> pagefaults requiring I/O operation to hold VMA lock...
+> >> And you want to lock VMA on fork only if vma_is_anonymous(vma) ||
+> >> is_cow_mapping(vma->vm_flags). So, we will be blocking page faults for
+> >> anonymous and COW VMAs only while holding mmap_write_lock, preventing
+> >> any VMA modification. On the surface, that looks ok to me but I might
+> >> be missing some corner cases. If nobody sees any obvious issues, I
+> >> think it's worth a try.
+> >
+> > Not sure if you noticed but I did raise concerns ;)
+> >
+> > I wonder if you've confused the fault path and fork here, as I think Barry has
+> > been a little unclear on that.
+> >
+> > What's being suggested in this thread is to fundamentally change fork behaviour
+> > so it's different from the entire history of the kernel (or - presumably - at
+> > least recent history :)
+> I don't want fork() to become different in that regard.
+>
+> There is already a slight difference with vs. without per-VMA locks, because
+> there is a window in-between us taking the write mmap_lock and all the per-VMA
+> locks. I raised that previously [1] and assumed that it is probably fine.
+>
+> I also raised in the past why I think we must not allow concurrent page faults,
+> at least as soon as anonymous memory is involved [2].
+>
+> ... and I raised that this is pretty much slower by design right now: "Well, the
+> design decision that CONFIG_PER_VMA_LOCK made for now to make page faults fast
+> and to make blocking any page faults from happening to  be slower ..." [3]
 
-> The upcoming percpu section code uses two mviy instructions to guard the
-> beginning and end of a percpu code section.
-> 
-> The first mviy instruction writes the register number, which contains the
-> percpu address to lowcore. This indicates both the beginning of a percpu
-> code section and which register contains the percpu address.
-> 
-> During compile time the mviy instruction is generated in a way that its
-> base register contains the percpu register, and the immediate field is
-> zero. This needs to be patched so that the base register is zero, and the
-> immediate field contains the register number. For example
-> 
->   101424:       eb 00 23 c0 00 52       mviy    960(%r2),0
-> 
-> needs to be patched to
-> 
->   101424:       eb 20 03 c0 00 52       mviy    960(%r0),2
+Thanks for the background will read through! :)
 
-I'm sure it is possible get the preprocessor to extract the register number
-for you.
-The exception table logic almost certainly already does it.
-(The x86 version certainly does - and that is far less trivial.)
+But yeah I think the transition from !vma->anon_vma -> vma->anon_vma being a bit
+slow is kinda ok most page faults will of course have anon_vma populated.
 
--- David
+Be interesting with CoW context, because we won't need to mmap read lock there
+at all :)
 
+>
+> [1] https://lore.kernel.org/all/970295ab-e85d-7af3-76e6-df53a5c52f8b@redhat.com/
+> [2] https://lore.kernel.org/all/7e3f35cc-59b9-bf12-b8b1-4ed78223844a@redhat.com/
+> [3] https://lore.kernel.org/all/2efa2c89-3765-721d-2c3c-00590054aa5b@redhat.com/
+>
+> --
+> Cheers,
+>
+> David
 
-> 
-> Provide a new ALT_TYPE_PERCPU alternative type which handles this specific
-> instruction patching. In addition it also handles the relocated lowcore
-> case, where the displacement of the mviy instruction has a different value.
+Cheers, Lorenzo
