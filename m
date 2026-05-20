@@ -1,152 +1,89 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 94AD033ADA4;
-	Wed, 20 May 2026 07:25:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3A56F22A4E9;
+	Wed, 20 May 2026 07:39:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779261935; cv=none; b=Xe+f9cuVD/0BmRobBoCEqo8HuMGuC8P7Qp4DKbtCUmn3pLlk1nh2kepNc7MY53KRVrw/DzcdmC7+c4dYYiyyk/SHzqNMnEHnTR0mJlx7nzzqmmEEyhmgGL/+ZOCOOMOszUHhIjiCc+Cbhg+86yUsXKW7KU2ty+HCuRKcom+Wl0w=
+	t=1779262764; cv=none; b=AV2Fcty3hhZckvfN1gdZQLJwR0NLDLmV3NE2yAmfZLkxfDAOUhLrOAcfQOQc/cRJi6tGY+951rCU2fjN5OXn8eHGSEEwBJBVwfIQiNyMY9PSEy/kY6DHoWXdPNffRTqRYbVQDnvMlbd7TQEMg0F5bBKtwh0fEx3QAzO+d+aF8/c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779261935; c=relaxed/simple;
-	bh=dCVksaeKQAvBnGhlDzlkRi9Rt63GGCXqziQsXYW9Q18=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=LXBb7BhT76KvCBxUM8CmP/0CQ/ugmz5hf6Lo89vPkWmfOVbbg2gDYrU7CoA5ydLCO5xeJmpD8XHnglVPYpue32EPgOjg/M29Fs5gyic37FeaB9EVeGoq1CS2sokomdpfCeSUXKdTz61OGHbHd59/5zJzY///kXJqp0SQ48jFIys=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=fFXCWJaA; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1779262764; c=relaxed/simple;
+	bh=xhTIQ3x4oy3yxqiVslSA5RRg84TrczyWOCXLtyXfSAU=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=HK3JrqvbHkprNNstqdZvv39UNE9oaqVzhDMociwOxCgp3rvFYjNlaeL9CS38Nag0ke+9e8sMelhulDR7hRoYs/MFStLl5Sibw3b2p6Pks89yrMTBVau4xZyWUTTCV5srq/P1w33KE4cT4Z+Z20S49s5NY9MiTSF/simyug9J+OY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VclR13Rh; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="fFXCWJaA"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 64K2YJvJ733638;
-	Wed, 20 May 2026 07:25:30 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=of7w2b
-	69rb8HhdQ3auI9HzMUl7bO6DZKjcszXZa5M6U=; b=fFXCWJaA2LSnXZnAnwlLR9
-	Lz8ARcwtROSSHxMlHTcq9qykkOTGEjyfH+v0cpH+W2FdwWiGTPJpnxLXZ+Gpb4OY
-	+zFl0xmXgf4isDHQyFLmZ6EUw8EVVwShW8w2OBuVXpgNpMtjQ88aD/eF2Hwqyu24
-	0zjGp2tpocE7TxFwJSXPog1nl1857QlwXGfh/6RxGLq1LzwzA5cUcB8a87OSkGi7
-	3vIRVKtLM0aq5Mj605jgHRMp9AZ+SYPN+hJP5mGZLVG4C7Cg4NhqXiJU+m0iZHrd
-	/i6ZwTJjwuz2MmbZBHoJQ62ovoBGqJhBuHvJRdsxDSL5QAyTIG6FkYc4MBMY8wuA
-	==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4e6hb8fxc4-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 20 May 2026 07:25:29 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 64K7O6c5013042;
-	Wed, 20 May 2026 07:25:28 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4e754ge3cf-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 20 May 2026 07:25:28 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 64K7PLjF42074410
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 20 May 2026 07:25:21 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 793DE2004E;
-	Wed, 20 May 2026 07:25:21 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 38D6520043;
-	Wed, 20 May 2026 07:25:21 +0000 (GMT)
-Received: from [9.52.217.250] (unknown [9.52.217.250])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 20 May 2026 07:25:21 +0000 (GMT)
-Message-ID: <ab910356-77a8-4aa1-8094-a6e43c027c59@linux.ibm.com>
-Date: Wed, 20 May 2026 09:25:20 +0200
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VclR13Rh"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C3C31F000E9;
+	Wed, 20 May 2026 07:39:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1779262762;
+	bh=ndEtke+/t3zcM+H5tloZeX272R/aTTYQ7iU5PnDulp8=;
+	h=From:To:Cc:Subject:Date;
+	b=VclR13Rhp4ShZdogSuUaeuyo9K/U6V6GYkevxVN+/eNIcFLyDj1f5M3SHq54wkMmo
+	 6DkYU7iH2JVBwwk3fXtW12LUoUtPEbBvGv9Ju6K6Q1JP29jueVDcZIQyDPc/7MQ8st
+	 8FBHDQH58UeZ0xPmCSaSxgAGS3/Jmy6zKGHSzOWjBIlYiMFmWwkvTBiOD0Su7c0xnF
+	 9WpyUB9hX5vtGEe32QmEVQZR0fJud7ir1lnQybNqgTPPc76X8D9DZOZQFwqcBaKjER
+	 +C11b+SsxBEVTWJiXeQlbN/HjsjEdS/SfB9qb973xlf1ehEoGYT79e/3a5u4DaNxPO
+	 ur4kidkHJtKHA==
+From: Arnd Bergmann <arnd@kernel.org>
+To: Herbert Xu <herbert@gondor.apana.org.au>,
+	"David S. Miller" <davem@davemloft.net>,
+	Harald Freudenberger <freude@linux.ibm.com>,
+	Holger Dengler <dengler@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Patrick Steuer <patrick.steuer@de.ibm.com>
+Cc: Arnd Bergmann <arnd@arndb.de>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Eric Biggers <ebiggers@kernel.org>,
+	Ard Biesheuvel <ardb@kernel.org>,
+	linux-crypto@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] s390: crypto: add select CRYPTO_AEAD for aes
+Date: Wed, 20 May 2026 09:38:44 +0200
+Message-Id: <20260520073911.843561-1-arnd@kernel.org>
+X-Mailer: git-send-email 2.39.5
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] smc: Use flexible array for SMCD connections
-To: Rosen Penev <rosenp@gmail.com>
-Cc: linux-rdma@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
-        "D. Wythe" <alibuda@linux.alibaba.com>,
-        Dust Li <dust.li@linux.alibaba.com>,
-        Sidraya Jayagond <sidraya@linux.ibm.com>,
-        Wenjia Zhang
- <wenjia@linux.ibm.com>,
-        Mahanta Jambigi <mjambigi@linux.ibm.com>,
-        Tony Lu <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>,
-        "open list:NETWORKING [GENERAL]" <netdev@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        "open list:SHARED MEMORY COMMUNICATIONS (SMC) SOCKETS"
- <linux-s390@vger.kernel.org>
-References: <20260519005206.628071-1-rosenp@gmail.com>
- <0b4cff6d-b9e7-4c34-9279-93bec10bcc9d@linux.ibm.com>
- <CAKxU2N8_JhZhsSqm15DxFBkXv=ZBYQXQJ7xdw6SHrwG9dsWZVg@mail.gmail.com>
-Content-Language: en-US
-From: Alexandra Winter <wintera@linux.ibm.com>
-In-Reply-To: <CAKxU2N8_JhZhsSqm15DxFBkXv=ZBYQXQJ7xdw6SHrwG9dsWZVg@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTIwMDA2NyBTYWx0ZWRfX8EnlP25bEyLp
- t6dkD+qIbZsLYoFizV/fkayUFtPqIb0UtgtJo/gwlKNqSjLk2F9SJRjcl14k8Qy2psUxmI6yBV1
- D2dSUkCTed4wBCCcuj1P6YYrakNNZisW39ZMptGffrxxoK1eeiYfKVEsWX6tim4lVpg7tW0gnn0
- umImES6OmS4LjNaOrYpq3uccjjBSlNWF6jMxBxbkN6XRSTn32e+xKJuoTSXJTMx48gJXN+4Ys+F
- Xu5WhGi+7yLQa6DGN+Ya62WCISscce3cAWvqimvKA5HduzZ98Edn8F4HFDPmZVAl2k1K+UOtlVL
- stfDyU0Zx1nMtdZY0rtk6/4CrWbsUToLHWPzqtxJyp0U7JaPe55QdC2ZDx6/CXeeNJYU3WmXknv
- ZX0AqTASVhoUK1ncQDu/yTCGS0Kqo+AbadQD7KyyfIrnZwyvL6CIIW3nQsoI8gtMY2XBeTXcugr
- qjIX/HqtThTJikIgQXA==
-X-Proofpoint-GUID: -4Nv24F4KxLWqu1j_-KJFBjN6ixpzjfR
-X-Proofpoint-ORIG-GUID: sldMlx7vcOFkiUSynsKAybSg_-4Fxbeo
-X-Authority-Analysis: v=2.4 cv=aYBRWxot c=1 sm=1 tr=0 ts=6a0d61e9 cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=IkcTkHD0fZMA:10 a=NGcC8JguVDcA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8
- a=pGLkceISAAAA:8 a=TU9vg0zEG-q8dNkrhD4A:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-05-20_01,2026-05-18_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- impostorscore=0 adultscore=0 bulkscore=0 suspectscore=0 lowpriorityscore=0
- clxscore=1015 spamscore=0 phishscore=0 priorityscore=1501 malwarescore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2605130000 definitions=main-2605200067
 
+From: Arnd Bergmann <arnd@arndb.de>
 
+The aes driver registers both skcipher and aead algorithms,
+but when aead is not enabled this causes a link failure:
 
-On 19.05.26 23:45, Rosen Penev wrote:
-> On Tue, May 19, 2026 at 1:57 AM Alexandra Winter <wintera@linux.ibm.com> wrote:
->>
->>
->>
->> On 19.05.26 02:52, Rosen Penev wrote:
->>> Store the per-DMB connection pointers in the SMCD device allocation
->>> instead of allocating a separate connection array.
->>>
->>> This keeps the connection table tied to the SMCD device lifetime and
->>> simplifies the allocation and cleanup paths.
->>>
->>> Assisted-by: Codex:GPT-5.5
->>> Signed-off-by: Rosen Penev <rosenp@gmail.com>
->>> ---
->>
->> I don't think GPT did a good job here.
->> There are many other instances, where smcd->conn is freed,
->> those would need adoption as well afaiu.
-> git grep kfree | grep \\\-\>conn\)
-> drivers/media/dvb-core/dvbdev.c: kfree(dvbdev->adapter->conn);
-> net/wireless/sme.c: kfree(wdev->conn);
-> net/wireless/sme.c: kfree(wdev->conn);
-> 
-> I assume you mean net/wireless/sme.c
->>
+s390-linux-ld: arch/s390/crypto/aes_s390.o: in function `aes_s390_fini':
+arch/s390/crypto/aes_s390.c:969:(.text+0x115e): undefined reference to `crypto_unregister_aead'
+s390-linux-ld: arch/s390/crypto/aes_s390.o: in function `aes_s390_init':
+arch/s390/crypto/aes_s390.c:1028:(.init.text+0x294): undefined reference to `crypto_register_aead'
 
-I have to apologize. You are right, the patch is complete.
-I guess I was confused by smc_conn_free() or what else.
-I should have been more careful.
+Add the missing 'select' statement.
 
+Fixes: bf7fa038707c ("s390/crypto: add s390 platform specific aes gcm support.")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+---
+ arch/s390/crypto/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
->> I am also not sure that there is enough improvement in the idea
->> to warrant a patch, but I leave that to the SMC maintainers.
->>
->>
+diff --git a/arch/s390/crypto/Kconfig b/arch/s390/crypto/Kconfig
+index 00051d27db95..228570a1b233 100644
+--- a/arch/s390/crypto/Kconfig
++++ b/arch/s390/crypto/Kconfig
+@@ -4,6 +4,7 @@ menu "Accelerated Cryptographic Algorithms for CPU (s390)"
+ 
+ config CRYPTO_AES_S390
+ 	tristate "Ciphers: AES, modes: ECB, CBC, CTR, XTS, GCM"
++	select CRYPTO_AEAD
+ 	select CRYPTO_SKCIPHER
+ 	help
+ 	  AEAD cipher: AES with GCM
+-- 
+2.39.5
+
