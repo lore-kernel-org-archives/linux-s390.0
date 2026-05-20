@@ -1,220 +1,219 @@
-Received: from stravinsky.debian.org (stravinsky.debian.org [82.195.75.108])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0BE9A3F65E0;
-	Wed, 20 May 2026 16:54:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=82.195.75.108
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B310E28DC4;
+	Wed, 20 May 2026 17:11:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779296084; cv=none; b=kHDj5JjC7tTCo1ASzTeffjomZ58FxFVYEjaV+t89vw+q1CYSBHC2qRYcKI1of+V4GouA6yMFkKgb5/gTqtlPWHa5VydD1m3O5KHuedTpj0e/pmmSrGJJ9cJMAc7HeytOsOo0W4GKRK2bx++VVGFER1BecYuZglC1mPXoBW+Q/ug=
+	t=1779297083; cv=none; b=EeRv+gMwyjOV6T2tPUkiF4w+jwvqQzVxwCwO532D9S4eI29ncAkytHgo/hU914KfLQ4t1txfyIzRxIOEWDS0s7wPvqtgny/ByYxHX3d83n99akkuyJQ1vG4tQrJIDpCKV/o4o21etGew7Z9Uvx01L/vcZmAZazSfYylOVY017iY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779296084; c=relaxed/simple;
-	bh=EJ91vFLbXslMvIHRojLDFKgOipEyDnI9YsoyRqBaYVE=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=YlqhUYEmB6NTk1bLtewmt4HviNn/q2Ugi4Bh0m4e20ZkNgSSg6AARyt16YgUgLPQdNiBie3cltTzCZ5zfxfFbSnyXWXvqh45i1xIdjgLmv5f/Lx8E4ietlqsHkz2974VSQct7bwlWDZO8PRR36PFscs6OGfEmozOhN70InQ+PVc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=debian.org; spf=pass smtp.mailfrom=debian.org; dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.b=MBmvsGU+; arc=none smtp.client-ip=82.195.75.108
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=debian.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=debian.org
+	s=arc-20240116; t=1779297083; c=relaxed/simple;
+	bh=+ANx1Fg2CXSc4kvWW7/srV3haQCn9ZU6yeMizd6WObY=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=sxOsKTpRMApVxuSvdicZHeY4e4vdQaSvAF6Sq3FEj07Z1poqpKe0EhwjsFzXkY/c4KJsIIAKlDaOqQvy1VfnfYrEHigES0KHa9fi8tFvl1CGrviJmY/KB4VnY9z1JUDFOyNshtSbR3NQ+fUs9Dsp0mqWjwkWvyo/U6E6Eh6WgvQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=N59oJtCL; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.b="MBmvsGU+"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=debian.org;
-	s=smtpauto.stravinsky; h=X-Debian-User:Cc:To:In-Reply-To:References:
-	Message-Id:Content-Transfer-Encoding:Content-Type:MIME-Version:Subject:Date:
-	From:Reply-To:Content-ID:Content-Description;
-	bh=R9vdjw1UBOL4Hyoux1kOF6cKvhkh6pXtVIRprxY+a+g=; b=MBmvsGU+I9nZL0psA6vayRNoH3
-	MqxPfwFe3lnlOqTRZWa9ClPh0Mp3jhXaczm0NqpUdquSShZ4e4rngIzVHClnLFIKV9WzYK6F5KqEA
-	lKtLnr1SrRV+iYg8gwxgfNcLy5NEJMNeSF6889+z97ozgQ+91WtKJtczeStHo3Ij/hO+IZd3SJGzd
-	mrgFBbTt1JPW0RROoZvPYLDtTZ6oL397Afckw7f0R3zrbbfzAGKIByd4bgxYc+N5lE3/4hlmwCIds
-	dbq1eRz3ngVILS9ubI2adzTROl5V3zTdQnXxec/fwSnHoZQxdECfMqM2Io2igH7FZrg9RJLi6Ub+G
-	yqwF5NDw==;
-Received: from authenticated user
-	by stravinsky.debian.org with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-	(Exim 4.96)
-	(envelope-from <leitao@debian.org>)
-	id 1wPkBp-003FVj-14;
-	Wed, 20 May 2026 16:54:37 +0000
-From: Breno Leitao <leitao@debian.org>
-Date: Wed, 20 May 2026 09:53:51 -0700
-Subject: [PATCH net-next v3 6/6] tipc: convert to getsockopt_iter
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="N59oJtCL"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 64KCGqnV223129;
+	Wed, 20 May 2026 17:11:17 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=kmcB/qs4A3VRgHLFn/GGJi/agcECc5rJf3+ETSPpx
+	Mc=; b=N59oJtCLjprf/c6zMEg2FdZz6GZvrunrXCAosVRYaDM5waVo6GB0LCv+A
+	njKAp6ICBAOtot9mlvb4l4BUP2rxrB5a2VztKVP4td0CElQDRxDGxi1zdzrOxkbZ
+	sM2dFN+1RLhAW2pEDm0Uf0gN93zeADPoUeoJcQyi/5MRWSWUs6Heu0YuB0B5GyPu
+	6oVwyvubPRYI9RyskgKBSxcSz3sI0pQiOqxk0T9zIOajWffbjRnvqJ4QU+AIb0fq
+	7v5eLDKbDmWBJsMRQkoG/zKPyV1VZq0wY4dB4PWl3FQG0wBWM3Jr9E/+GTX1R326
+	BnJecsZ9bazHMs70NgJFcjWto80Pw==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4e6h88j51b-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 20 May 2026 17:11:17 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 64KH9ApM014280;
+	Wed, 20 May 2026 17:11:16 GMT
+Received: from smtprelay05.wdc07v.mail.ibm.com ([172.16.1.72])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4e754gg308-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 20 May 2026 17:11:16 +0000 (GMT)
+Received: from smtpav01.wdc07v.mail.ibm.com (smtpav01.wdc07v.mail.ibm.com [10.39.53.228])
+	by smtprelay05.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 64KHBF3V21234388
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 20 May 2026 17:11:15 GMT
+Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 37DA458059;
+	Wed, 20 May 2026 17:11:15 +0000 (GMT)
+Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4ABA858055;
+	Wed, 20 May 2026 17:11:14 +0000 (GMT)
+Received: from IBM-D32RQW3.ibm.com (unknown [9.61.255.46])
+	by smtpav01.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 20 May 2026 17:11:14 +0000 (GMT)
+From: Farhan Ali <alifm@linux.ibm.com>
+To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-pci@vger.kernel.org
+Cc: helgaas@kernel.org, alex@shazbot.org, alifm@linux.ibm.com,
+        schnelle@linux.ibm.com, mjrosato@linux.ibm.com
+Subject: [PATCH v17 0/7] Error recovery for vfio-pci devices on s390x
+Date: Wed, 20 May 2026 10:11:06 -0700
+Message-ID: <20260520171113.1111-1-alifm@linux.ibm.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260520-getsock_four-v3-6-b8c0b16b7780@debian.org>
-References: <20260520-getsock_four-v3-0-b8c0b16b7780@debian.org>
-In-Reply-To: <20260520-getsock_four-v3-0-b8c0b16b7780@debian.org>
-To: Chas Williams <3chas3@gmail.com>, 
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
- Simon Horman <horms@kernel.org>, 
- Magnus Karlsson <magnus.karlsson@intel.com>, 
- Maciej Fijalkowski <maciej.fijalkowski@intel.com>, 
- Stanislav Fomichev <sdf@fomichev.me>, Alexei Starovoitov <ast@kernel.org>, 
- Daniel Borkmann <daniel@iogearbox.net>, 
- Jesper Dangaard Brouer <hawk@kernel.org>, 
- John Fastabend <john.fastabend@gmail.com>, Jon Maloy <jmaloy@redhat.com>, 
- Alexandra Winter <wintera@linux.ibm.com>, 
- Thorsten Winkler <twinkler@linux.ibm.com>, 
- James Chapman <jchapman@katalix.com>, David Howells <dhowells@redhat.com>, 
- Marc Dionne <marc.dionne@auristor.com>, 
- David Heidelberg <david+nfc@ixit.cz>, Samuel Ortiz <sameo@linux.intel.com>
-Cc: linux-atm-general@lists.sourceforge.net, netdev@vger.kernel.org, 
- linux-kernel@vger.kernel.org, bpf@vger.kernel.org, 
- tipc-discussion@lists.sourceforge.net, linux-s390@vger.kernel.org, 
- linux-afs@lists.infradead.org, oe-linux-nfc@lists.linux.dev, 
- Breno Leitao <leitao@debian.org>, kernel-team@meta.com
-X-Mailer: b4 0.16-dev-d5d98
-X-Developer-Signature: v=1; a=openpgp-sha256; l=4223; i=leitao@debian.org;
- h=from:subject:message-id; bh=EJ91vFLbXslMvIHRojLDFKgOipEyDnI9YsoyRqBaYVE=;
- b=owEBbQKS/ZANAwAIATWjk5/8eHdtAcsmYgBqDecgoa2ed7mODMXM5hFG0/d4ScsBrKhwLkdx0
- m4Gsba1ip+JAjMEAAEIAB0WIQSshTmm6PRnAspKQ5s1o5Of/Hh3bQUCag3nIAAKCRA1o5Of/Hh3
- bVL/D/0UzBVtCzaf2YRbFbhLxaS3xilITTsnr/snaC5W1anUe/JAvVLYUuM9RMwBW59Z8/IEOAN
- t2nltU1DxtoCS8v3/Nh8cN3fP804Q/VlS9weCQOD3Veq1UYAyAf101749+7/8x6TtvgdvM6rGL8
- X5gUqzjIcHlZvV33S4lsp/ZLuhxP+iBWnCoaUvEUqSG8rGovhST672w/z4akyYM6Sep02kzkl3L
- w4Cb9lk3Aq7iXF+VvyzfPKArVWNrMGIaFmgWAFzlVK5g78G1+jEFDcbHzmQ+U28tBI2xMD86PTb
- Pg3Wjb4lFqVew1oGf60ECbbJrUf4QstnLRo7zFGl2ocN8x0i8aAbiFJMqJBo7RF82lcxIxKRBoD
- 3G/4/QtKHLLgmsD++bzViEdQkyCj6fB7wbH9ZGTD5IPm/E9Y6qwmjaM2FwVyEVJAs6Ro9dIh80W
- JynRPVwC45WqJA3gWcUFDmKHJb/M96/F19/eXkcUueZXC1Dw6EjsO1g7ymMwpNKL2TZf+bqPIVQ
- BDNCQf/BfVotZqIelgPSebNYqzYkQLRyuuuCKpWrNMsp00ldEE2RidHDZo278aZSV37tqH7nXwL
- +SF9Zg8MpZiut+PYUyhOBUuSL0Y6s6CjtPjWqeWr6fcZSnHhhc35JY4p1l+/PnEblVCVPVVtoM9
- jJgeqAw8jWXpDoA==
-X-Developer-Key: i=leitao@debian.org; a=openpgp;
- fpr=AC8539A6E8F46702CA4A439B35A3939FFC78776D
-X-Debian-User: leitao
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: oGYD8o1q0JdiEU-adNN7Krk8GdqEvHek
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTIwMDE2NiBTYWx0ZWRfXxkXaLoE+IUPS
+ g/TNXeIW+LQj/5irCTkugghme3C31xyhxyVwxoeXNy3ScpNHUVyp+KuDHszl5x7nuhKEtlb6HH/
+ 5aOVQ+aZ9Xu1va6G7plY4sxLY+s+heeHjr7oZHAoH7UYBBpd4tZcWjOPbjswOC5max5gWIuOO9a
+ t2wYbAVDXFoLBthyHviG4aeQO8vCe9WuViCfmiu8ddcgfvfmSEJJXhiUSgQvBFqc4yjeOaECZTC
+ y4lzPFF9DY5JTPgAyUszu7vtQnssE/UD7BwavCUiPBTks8NknKrFXN1sij2qsjXJd3EZPCgqO+p
+ 7Q7PdSOgbla1NFFMnVEa71Dupk8d6RbSmROtJq/xHKtPWI5ioujJm7NryEJ+fJEeEzZNyAis/6u
+ K3zQAl4dDhqWLJHviifhsEwRbBQwX9g+FZOw+6n7FoAuYQaMTfmzLPq3iKTeP39UxGrLn/oJlMx
+ 4g5GaiyxFA22tMls0ZQ==
+X-Proofpoint-GUID: oGYD8o1q0JdiEU-adNN7Krk8GdqEvHek
+X-Authority-Analysis: v=2.4 cv=apyCzyZV c=1 sm=1 tr=0 ts=6a0deb35 cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+ a=NGcC8JguVDcA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=V8glGbnc2Ofi9Qvn3v5h:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
+ a=4zu8aI-QVnT60ftJUTQA:9 a=O8hF6Hzn-FEA:10
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-05-20_03,2026-05-18_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ malwarescore=0 lowpriorityscore=0 priorityscore=1501 impostorscore=0
+ bulkscore=0 suspectscore=0 adultscore=0 spamscore=0 phishscore=0
+ clxscore=1015 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2605130000
+ definitions=main-2605200166
 
-Convert TIPC sockets (msg, packet, stream proto_ops) to use the new
-getsockopt_iter callback with sockopt_t.
+Hi,
 
-Key changes:
-- Replace (char __user *optval, int __user *optlen) with sockopt_t *sopt
-- Use sopt->optlen for buffer length (input) and returned size (output)
-- Use copy_to_iter() instead of put_user()/copy_to_user()
+This Linux kernel patch series introduces support for error recovery for
+passthrough PCI devices on System Z (s390x).
 
-The sockopt_t parameter is named sopt to avoid collision with the
-existing optname parameter named opt.
+Background
+----------
+For PCI devices on s390x an operating system receives platform specific
+error events from firmware rather than through AER.Today for
+passthrough/userspace devices, we don't attempt any error recovery and
+ignore any error events for the devices. The passthrough/userspace devices
+are managed by the vfio-pci driver. The driver does register error handling
+callbacks (error_detected), and on an error trigger an eventfd to
+userspace.  But we need a mechanism to notify userspace
+(QEMU/guest/userspace drivers) about the error event.
 
-Note: Dropped the unnecessary parentheses to make checkpatch happier.
-Also dropped two now-stale comments that referred to the old "res"
-variable handling.
+Proposal
+--------
+We can expose this error information (currently only the PCI Error Code)
+via a device feature. Userspace can then obtain the error information
+via VFIO_DEVICE_FEATURE ioctl and take appropriate actions such as driving
+a device reset.
 
-Acked-by: Stanislav Fomichev <sdf@fomichev.me>
-Signed-off-by: Breno Leitao <leitao@debian.org>
----
- net/tipc/socket.c | 33 +++++++++++++++++----------------
- 1 file changed, 17 insertions(+), 16 deletions(-)
+This is how a typical flow for passthrough devices to a VM would work:
+For passthrough devices to a VM, the driver bound to the device on the host
+is vfio-pci. vfio-pci driver does support the error_detected() callback
+(vfio_pci_core_aer_err_detected()), and on an PCI error s390x recovery
+code on the host will call the vfio-pci error_detected() callback. The
+vfio-pci error_detected() callback will notify userspace/QEMU via an
+eventfd, and return PCI_ERS_RESULT_CAN_RECOVER. At this point the s390x
+error recovery on the host will skip any further action(see patch 4) and
+let userspace drive the error recovery.
 
-diff --git a/net/tipc/socket.c b/net/tipc/socket.c
-index 9329919fb07f0..3a94278a44ac4 100644
---- a/net/tipc/socket.c
-+++ b/net/tipc/socket.c
-@@ -37,6 +37,7 @@
- 
- #include <linux/rhashtable.h>
- #include <linux/sched/signal.h>
-+#include <linux/uio.h>
- #include <trace/events/sock.h>
- 
- #include "core.h"
-@@ -3220,8 +3221,7 @@ static int tipc_setsockopt(struct socket *sock, int lvl, int opt,
-  * @sock: socket structure
-  * @lvl: option level
-  * @opt: option identifier
-- * @ov: receptacle for option value
-- * @ol: receptacle for length of option value
-+ * @sopt: socket option container (input buffer length, output value/length)
-  *
-  * For stream sockets only, returns 0 length result for all IPPROTO_TCP options
-  * (to ease compatibility).
-@@ -3229,22 +3229,22 @@ static int tipc_setsockopt(struct socket *sock, int lvl, int opt,
-  * Return: 0 on success, errno otherwise
-  */
- static int tipc_getsockopt(struct socket *sock, int lvl, int opt,
--			   char __user *ov, int __user *ol)
-+			   sockopt_t *sopt)
- {
- 	struct sock *sk = sock->sk;
- 	struct tipc_sock *tsk = tipc_sk(sk);
- 	struct tipc_service_range seq;
- 	int len, scope;
-+	int res = 0;
- 	u32 value;
--	int res;
- 
--	if ((lvl == IPPROTO_TCP) && (sock->type == SOCK_STREAM))
--		return put_user(0, ol);
-+	if (lvl == IPPROTO_TCP && sock->type == SOCK_STREAM) {
-+		sopt->optlen = 0;
-+		return 0;
-+	}
- 	if (lvl != SOL_TIPC)
- 		return -ENOPROTOOPT;
--	res = get_user(len, ol);
--	if (res)
--		return res;
-+	len = sopt->optlen;
- 
- 	lock_sock(sk);
- 
-@@ -3260,7 +3260,6 @@ static int tipc_getsockopt(struct socket *sock, int lvl, int opt,
- 		break;
- 	case TIPC_CONN_TIMEOUT:
- 		value = tsk->conn_timeout;
--		/* no need to set "res", since already 0 at this point */
- 		break;
- 	case TIPC_NODE_RECVQ_DEPTH:
- 		value = 0; /* was tipc_queue_size, now obsolete */
-@@ -3284,15 +3283,17 @@ static int tipc_getsockopt(struct socket *sock, int lvl, int opt,
- 	release_sock(sk);
- 
- 	if (res)
--		return res;	/* "get" failed */
-+		return res;
- 
- 	if (len < sizeof(value))
- 		return -EINVAL;
- 
--	if (copy_to_user(ov, &value, sizeof(value)))
-+	if (copy_to_iter(&value, sizeof(value), &sopt->iter_out) !=
-+	    sizeof(value))
- 		return -EFAULT;
-+	sopt->optlen = sizeof(value);
- 
--	return put_user(sizeof(value), ol);
-+	return 0;
- }
- 
- static int tipc_ioctl(struct socket *sock, unsigned int cmd, unsigned long arg)
-@@ -3365,7 +3366,7 @@ static const struct proto_ops msg_ops = {
- 	.listen		= sock_no_listen,
- 	.shutdown	= tipc_shutdown,
- 	.setsockopt	= tipc_setsockopt,
--	.getsockopt	= tipc_getsockopt,
-+	.getsockopt_iter = tipc_getsockopt,
- 	.sendmsg	= tipc_sendmsg,
- 	.recvmsg	= tipc_recvmsg,
- 	.mmap		= sock_no_mmap,
-@@ -3385,7 +3386,7 @@ static const struct proto_ops packet_ops = {
- 	.listen		= tipc_listen,
- 	.shutdown	= tipc_shutdown,
- 	.setsockopt	= tipc_setsockopt,
--	.getsockopt	= tipc_getsockopt,
-+	.getsockopt_iter = tipc_getsockopt,
- 	.sendmsg	= tipc_send_packet,
- 	.recvmsg	= tipc_recvmsg,
- 	.mmap		= sock_no_mmap,
-@@ -3405,7 +3406,7 @@ static const struct proto_ops stream_ops = {
- 	.listen		= tipc_listen,
- 	.shutdown	= tipc_shutdown,
- 	.setsockopt	= tipc_setsockopt,
--	.getsockopt	= tipc_getsockopt,
-+	.getsockopt_iter = tipc_getsockopt,
- 	.sendmsg	= tipc_sendstream,
- 	.recvmsg	= tipc_recvstream,
- 	.mmap		= sock_no_mmap,
+Once userspace/QEMU is notified, it then injects this error into the VM
+so device drivers in the VM can take recovery actions. For example for a
+passthrough NVMe device, the VM's OS NVMe driver will access the device.
+At this point the VM's NVMe driver's error_detected() will drive the
+recovery by returning PCI_ERS_RESULT_NEED_RESET, and the s390x error
+recovery in the VM's OS will try to do a reset. Resets are privileged
+operations and so the VM will need intervention from QEMU to perform the
+reset. QEMU will invoke the VFIO_DEVICE_RESET ioctl to now notify the
+host that the VM is requesting a reset of the device. The vfio-pci driver
+on the host will then perform the reset on the device to recover it.
+
+
+Thanks
+Farhan
+
+ChangeLog
+---------
+This only includes change log from last 5 revision. Older change log is
+available in previous version cover letter.
+
+v16 https://lore.kernel.org/all/20260514180059.1553-1-alifm@linux.ibm.com/
+v16 -> v17
+   - Handle ENOMEM case and remove unnecessary mutex_unlock (patch 4).
+   - Rebase on 7.1-rc4
+
+v15 https://lore.kernel.org/all/20260505200510.2954-1-alifm@linux.ibm.com/
+v15 -> v16
+   - Implement error recovery to be handled in user space mode or host mode
+   based on checking mediated_recovery only once (suggested by Niklas).
+
+   - Rebase on 7.1-rc3
+
+
+v14 https://lore.kernel.org/all/20260421163031.704-1-alifm@linux.ibm.com/
+v14 -> v15
+   - Fix issues identified by Sashiko (patch 4).
+
+   - Address Niklas feedback (patch 4 and patch 5).
+
+   - Rebase on 7.1-rc2.
+
+
+v13 series https://lore.kernel.org/all/20260413210608.2912-1-alifm@linux.ibm.com/
+v13 -> v14
+   - Remove version from vfio uAPI struct. Instead reserve additional space
+   and add a flags field. The flags will be used to indicate any usage of
+   the reserved space (patch 5).
+
+   - Remove pending_errors from vfio uAPI struct and instead return an
+   error to indicate no more pending error for userspace to handle (patch 5).
+
+   - Rebase on recent linux master
+
+v12 series https://lore.kernel.org/all/20260330174011.1161-1-alifm@linux.ibm.com/
+v12 -> v13
+   - Add the mediated_recovery flag as part of struct zpci_ccdf_pending
+   and protect the struct with pending_errs_lock (patch 4).
+
+   - Move dequeing pending error logic to a helper function (patch 5).
+
+   - Update device feature number for VFIO_DEVICE_FEATURE_ZPCI_ERROR (patch 5).
+
+   - Rebase on linux-next with tag next-20260410
+
+
+Farhan Ali (7):
+  PCI: Allow per function PCI slots to fix slot reset on s390
+  PCI: Avoid saving config space state if inaccessible
+  PCI: Fail FLR when config space is inaccessible
+  s390/pci: Store PCI error information for passthrough devices
+  vfio-pci/zdev: Add a device feature for error information
+  vfio/pci: Add a reset_done callback for vfio-pci driver
+  vfio/pci: Remove the pcie check for VFIO_PCI_ERR_IRQ_INDEX
+
+ arch/s390/include/asm/pci.h       |  32 +++++++
+ arch/s390/pci/pci.c               |   1 +
+ arch/s390/pci/pci_event.c         | 135 +++++++++++++++++++-----------
+ drivers/pci/hotplug/rpaphp_slot.c |   2 +-
+ drivers/pci/pci.c                 |  32 ++++++-
+ drivers/pci/slot.c                |  33 ++++++--
+ drivers/vfio/pci/vfio_pci_core.c  |  22 +++--
+ drivers/vfio/pci/vfio_pci_intrs.c |   3 +-
+ drivers/vfio/pci/vfio_pci_priv.h  |   9 ++
+ drivers/vfio/pci/vfio_pci_zdev.c  |  57 ++++++++++++-
+ include/linux/pci.h               |   8 +-
+ include/uapi/linux/vfio.h         |  30 +++++++
+ 12 files changed, 289 insertions(+), 75 deletions(-)
 
 -- 
-2.53.0-Meta
+2.43.0
 
