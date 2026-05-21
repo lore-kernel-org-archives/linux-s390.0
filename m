@@ -1,109 +1,189 @@
-Received: from mail-wr1-f73.google.com (mail-wr1-f73.google.com [209.85.221.73])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9866B3C9EE0
-	for <linux-s390@vger.kernel.org>; Thu, 21 May 2026 12:27:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.73
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C934C3CBE75;
+	Thu, 21 May 2026 13:05:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779366460; cv=none; b=RXmlzx8TpfK/iOz4pHsOryd7D81Y2SJQcEFRISkcA24zk727gz2CpH538KeyrG2JxIwsZDn79d3o/7dodW23Yrb9yn2JdZfQNRLadtUA1eoLVDTkW0QOiwnonC3kBN/sRR19bsDP2sqfEmVZubh2fB32jQ/CMwqmh3U/huLOHs4=
+	t=1779368748; cv=none; b=AQJkGrVC2fGvU00rQ8So/VWUWYfv5H71h7nB3foA7sil5VlgbMw9KabftQpDJdbyJykVOwuIK1933EIJmpWLQD96XHY8nvhIgJyI6fnHSrt2bhiPtpCa7rnxgzHtfSFlTO40nu2BExv1l3kfhZEMr/dlVNz4xqCLHOaBNzAouXI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779366460; c=relaxed/simple;
-	bh=M+Mk7QbXAKpkL60TJYSGOP1LwJIztNUkg4IEWFcJJr0=;
-	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=BG0xFi06kxKv4ih5xM2HZJf/nDA/1jVJsFMxNIHkjYtlOURvP+eCS5iliFcgufKrJPRi5+LnOYIDMgSDEc8ClRmWxEOw1PgAykwH2ffuo4gICfa2vFfB4hvZgSF52jgd0vkXc0VKHFvz9bZDarvku9ZLTpkhpcZtaebEAaK+ITw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--elver.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=EUxke5aC; arc=none smtp.client-ip=209.85.221.73
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--elver.bounces.google.com
+	s=arc-20240116; t=1779368748; c=relaxed/simple;
+	bh=NGd74zXTr7yVCdgLJpcJp5urQnD7AFzDHnGuvIlxen8=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=VNmcjFgVmNGX/yVzIdaZhhlRarAneMlikElJAHqhKI79bXU+8rZ8ileQg7eofccqNmmND6zHQySBC9ulrchRyQkYfxtA2QGxvksex/4Ga5P3X5BDf/HzETVY7hezRAuIUewpy1UlVcoNdQKhcYZd0ZMenm/cEV3WL3ehBXcid+c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=C5DTPWc0; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="EUxke5aC"
-Received: by mail-wr1-f73.google.com with SMTP id ffacd0b85a97d-43d789cebcfso4649365f8f.1
-        for <linux-s390@vger.kernel.org>; Thu, 21 May 2026 05:27:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1779366457; x=1779971257; darn=vger.kernel.org;
-        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=BH74M0iFxFJ7OeF2nKs4ve50vTBJ6yjjR8WAtMsTpJ0=;
-        b=EUxke5aCLIxmL87w5YgCejINSSk2CsD/F0c58wucB2ZDAaPfp83+T3eXirOCfmWnIB
-         Z3Cbwjkx7prACsALwXWzCtCGQFyOtMEM4UypGx53JrFKBxEDIfrpx+EMmH+wHr3uCclF
-         vGJeUZIy9FbKInnRLiOqYA/e1ZQ6twJIkzdn//appyXnI9rxeG/EgeI9wEGwlWv+/eHo
-         pvzYZvGH0fbeyZBlt9h4V7mnypV0xKumaJ8qzVkZgE8HONTifax3L15gvcB1KiJ6atjU
-         nUVMnKMOwJ7Eg/w4n5515B0s7mUfczBCLfp2A6hYisEWpl/DidN+B1rT9+UW1z/CYqJZ
-         zjLA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779366457; x=1779971257;
-        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=BH74M0iFxFJ7OeF2nKs4ve50vTBJ6yjjR8WAtMsTpJ0=;
-        b=KaVKGDZekeThZQJHeO4sMJn6TvIxPOQwdjfWb5T+0ZNhWxV6Bm3mKhvvZT8PBrhPcs
-         AKiOjSxx5wVNoDZ3+wuqhFRHh0hod0H4vjJ8r9DNMhAeC7xdMniNZj4lA1NE1gLbjf9E
-         wfGjzZAISbcmOQAQiMW1lN8NoPh691M3kSEo8IuwzIavJxxb5hmhUI1jrXamBwIVrswb
-         b2HO9SMNmC4ilIAxmZlD+EqE6bHsIQWTrRavZwegMEjpwASbpnFrgcHhd9z7HR65tiHW
-         NvLjxzPjXhvjh7Skvvdjr9MvkborvgHXkj/MWAL1FpzOS9ErbD7BHgdI7nvRRprfgeE1
-         eIWw==
-X-Forwarded-Encrypted: i=1; AFNElJ8iqzv5U79IPROkR9FSwR/C9JhoLZgl0BmAGiiPCYLrfS09fPTSZGHygZyrORQRP+hlWgU0PrK2Ylp3@vger.kernel.org
-X-Gm-Message-State: AOJu0Yzg29Z/6vQ2Syp26L66LOGjdx/IS2YWnVxw29nsdABZ41bY6aBd
-	uD/EJMmrsEhupGZl4gAa0zJIkT26sDH32IE9q3i/gSOQipqrc03vXCeGORbGqcanyF4g/XsSmS8
-	czQ==
-X-Received: from wmbhn25.prod.google.com ([2002:a05:600c:a399:b0:490:3e3f:8c8d])
- (user=elver job=prod-delivery.src-stubby-dispatcher) by 2002:a05:600c:490f:b0:48a:5339:a46
- with SMTP id 5b1f17b1804b1-49036090799mr19423255e9.9.1779366456918; Thu, 21
- May 2026 05:27:36 -0700 (PDT)
-Date: Thu, 21 May 2026 14:27:23 +0200
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="C5DTPWc0"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 64L1b1ck3214577;
+	Thu, 21 May 2026 13:05:42 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=pp1; bh=feImQcvzuEXnqHVBD
+	h2+oQtVuWm//l/SVpfSkCqifjk=; b=C5DTPWc0dJrWttShsuCFhMZNcK+NP5UMf
+	HMtbInCTluMoce99Hw5j7SdQ21JSAbi3AI0shXVk67/dUwteH2ul06FOqG1b7T+M
+	gZHxk6SzyqEQJbaNrCdh9oKtYEYNQfyS27k9X8TXbVd6Oc2tD8u9x9G93T5QaPQj
+	/8gqNRIB5H9BtIFg3yqKRNkeHv4ftYfBKZKQaA76YdtzBAjX9JkIO2kplE8d0B0Z
+	CI/bmSnN+RrwRnzxHn5gqedFbH5phFRSRGzaJTUY/jt+0pUq/9iyCdXPvqZfEeEB
+	YQeAs/76P4p0CRu+AqjOtjaot51KphNmWsbhXLESShvfYZGXbWVLQ==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4e6hawdtgg-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 21 May 2026 13:05:41 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 64LCs6gn008445;
+	Thu, 21 May 2026 13:05:40 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4e73wkc6c9-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 21 May 2026 13:05:40 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 64LD5Yg931261090
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 21 May 2026 13:05:34 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A1ABF20040;
+	Thu, 21 May 2026 13:05:34 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 741FE20049;
+	Thu, 21 May 2026 13:05:34 +0000 (GMT)
+Received: from p-imbrenda.aag-de.ibm.com (unknown [9.52.223.175])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 21 May 2026 13:05:34 +0000 (GMT)
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, borntraeger@de.ibm.com,
+        frankja@linux.ibm.com, david@kernel.org, seiden@linux.ibm.com,
+        nrb@linux.ibm.com, schlameuss@linux.ibm.com, gra@linux.ibm.com,
+        pbonzini@redhat.com, seanjc@google.com, yan.y.zhao@intel.com,
+        isaku.yamahata@intel.com
+Subject: [PATCH v2 2/5] KVM: s390: Implement KVM_PRE_FAULT_MEMORY
+Date: Thu, 21 May 2026 15:05:30 +0200
+Message-ID: <20260521130533.156491-3-imbrenda@linux.ibm.com>
+X-Mailer: git-send-email 2.54.0
+In-Reply-To: <20260521130533.156491-1-imbrenda@linux.ibm.com>
+References: <20260521130533.156491-1-imbrenda@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.54.0.746.g67dd491aae-goog
-Message-ID: <20260521122727.142280-1-elver@google.com>
-Subject: [PATCH] s390: Implement _THIS_IP_ using inline asm
-From: Marco Elver <elver@google.com>
-To: elver@google.com
-Cc: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
-	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
-	Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, kasan-dev@googlegroups.com
-Content-Type: text/plain; charset="UTF-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTIxMDEyNiBTYWx0ZWRfX8xplmGRRirD1
+ AzWnbZM6My3fIy2rAASivu8TaU2QLIWJInezz3IggwrhvdbOab1XjXjHX7pkGpTyxqLnuKIZLLH
+ Dy+vZmg2DuIKo49PSq5KQVkVDT7TwGT+TpG/k3nMlY0wvcuURhtwtcdJMF/XnW8Bt8bU9ku4SRq
+ DlpHt+kmdYRbBfse9SYlV8lfsfFK8oGGSXQtoBWcew2n8uAHfpkrwkAt0Cg+GsMpSM6pjGjq6YM
+ JTqT3oEqDcrUz5tQMKWH9roF4wZcp6MuGHhK4voPdSuT14WTk2/K9324aulYxsAlLP7nwJ2Iy12
+ BQ3CBNuhXrxFNrLG0fBDyHL419lg9oPBUxtIy9W1RpA450ZiCFijA78A8Kd89Eh+UFi6myscg9R
+ vWHwdUmxBnOFkp4kFcBeVy3PKHNI8/P7FK266vK7q/IyjZnNuQQeuiMSzZ0Ykhx6kcIe94RuUbY
+ 4Hz65l4WalULufdt6vA==
+X-Authority-Analysis: v=2.4 cv=Np/htcdJ c=1 sm=1 tr=0 ts=6a0f0325 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=NGcC8JguVDcA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8 a=xyOPYXbJwbhnVPa3_EUA:9
+X-Proofpoint-ORIG-GUID: oEqrLTKZM9VhQfsEs8maf72ksjhW1V9U
+X-Proofpoint-GUID: N-1SR1pmaxgXzbxWIlUE-DBHyHjPDDEK
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-05-21_02,2026-05-18_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ bulkscore=0 spamscore=0 clxscore=1015 priorityscore=1501 impostorscore=0
+ lowpriorityscore=0 suspectscore=0 adultscore=0 phishscore=0 malwarescore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2605130000 definitions=main-2605210126
 
-Both GCC [1] and Clang [2] consider the generic version of _THIS_IP_ to
-be broken:
+Implement and enable the KVM_PRE_FAULT_MEMORY ioctl for s390.
 
-        #define _THIS_IP_  ({ __label__ __here; __here: (unsigned long)&&__here; })
+Faulted-in pages will be marked as accessed, unlike x86, otherwise they
+will trigger a minor fault when accessed. Avoiding such faults is one of
+the points of KVM_PRE_FAULT_MEMORY.
 
-In particular, the address of a label is only expected to be used with a
-computed goto.
-
-While the generic version more or less works today, it is known to be
-brittle and may break with current and future optimizations. For
-example, Clang -O2 always returns 1 when this function is inlined:
-
-        static inline unsigned long get_ip(void)
-        { return ({ __label__ __here; __here: (unsigned long)&&__here; }); }
-
-Fix it by overriding _THIS_IP_ in <asm/linkage.h> (which is included by
-<linux/instruction_pointer.h>) using an architecture-specific inline asm
-version. Additionally, avoiding taking the address of a label prevents
-compilers from emitting spurious indirect branch targets (e.g. ENDBR or
-BTI) under control-flow integrity schemes.
-
-Link: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=120071 [1]
-Link: https://github.com/llvm/llvm-project/issues/138272 [2]
-Signed-off-by: Marco Elver <elver@google.com>
+Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 ---
- arch/s390/include/asm/linkage.h | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/s390/kvm/Kconfig    |  1 +
+ arch/s390/kvm/kvm-s390.c | 45 ++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 46 insertions(+)
 
-diff --git a/arch/s390/include/asm/linkage.h b/arch/s390/include/asm/linkage.h
-index df3fb7d8227b..1b3ac553a642 100644
---- a/arch/s390/include/asm/linkage.h
-+++ b/arch/s390/include/asm/linkage.h
-@@ -7,4 +7,6 @@
- #define __ALIGN .balign CONFIG_FUNCTION_ALIGNMENT, 0x07
- #define __ALIGN_STR __stringify(__ALIGN)
+diff --git a/arch/s390/kvm/Kconfig b/arch/s390/kvm/Kconfig
+index 5b835bc6a194..8d3ee17a1bcb 100644
+--- a/arch/s390/kvm/Kconfig
++++ b/arch/s390/kvm/Kconfig
+@@ -30,6 +30,7 @@ config KVM
+ 	select KVM_VFIO
+ 	select VIRT_XFER_TO_GUEST_WORK
+ 	select KVM_MMU_LOCKLESS_AGING
++	select KVM_GENERIC_PRE_FAULT_MEMORY
+ 	help
+ 	  Support hosting paravirtualized guest machines using the SIE
+ 	  virtualization capability on the mainframe. This should work
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index e09960c2e6ed..f6521f16532a 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -630,6 +630,7 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
+ 	case KVM_CAP_S390_USER_OPEREXEC:
+ 	case KVM_CAP_S390_KEYOP:
+ 	case KVM_CAP_S390_VSIE_ESAMODE:
++	case KVM_CAP_PRE_FAULT_MEMORY:
+ 		r = 1;
+ 		break;
+ 	case KVM_CAP_SET_GUEST_DEBUG2:
+@@ -5736,6 +5737,50 @@ void kvm_arch_commit_memory_region(struct kvm *kvm,
+ 	return;
+ }
  
-+#define _THIS_IP_ ({ unsigned long __ip; asm volatile("larl %0, ." : "=d" (__ip)); __ip; })
++/**
++ * kvm_arch_vcpu_pre_fault_memory() -- pre-fault and link gmap dat tables
++ * @vcpu: the vcpu that shall appear to have generated the fault-in.
++ * @range: the range that needs to be faulted in.
++ *
++ * The first page of the given range is faulted in and the corresponding gmap
++ * page tables are created, as if the given vCPU had performed a read
++ * operation.
++ * If the range starts outside any memslots, an error is returned. An error is
++ * also returned for UCONTROL VMs, which should instead use the
++ * KVM_S390_VCPU_FAULT ioctl.
++ *
++ * Return:
++ * * %-ENOENT if the range lies outside of a memslot.
++ * * %-EINVAL in case of invalid state (for example if the VM is UCONTROL).
++ * * %-EIO if errors happen while faulting-in the page (will trigger a warning
++ *   in the caller).
++ * * other error codes < 0 in case of other errors.
++ * * otherwise a number > 0 of bytes that have been faulted in successfully.
++ */
++long kvm_arch_vcpu_pre_fault_memory(struct kvm_vcpu *vcpu, struct kvm_pre_fault_memory *range)
++{
++	struct guest_fault f = { .gfn = gpa_to_gfn(range->gpa), };
++	gpa_t end;
++	int rc;
 +
- #endif
++	if (kvm_is_ucontrol(vcpu->kvm))
++		return -EINVAL;
++
++	rc = kvm_s390_faultin_gfn(vcpu, NULL, &f);
++	if (rc == PGM_ADDRESSING)
++		return -ENOENT;
++	if (rc > 0)
++		return -EIO;
++	if (rc < 0)
++		return rc;
++
++	if (f.ptep)
++		return PAGE_SIZE;
++
++	end = ALIGN(range->gpa + PAGE_SIZE, f.crste_region3 ? _REGION3_SIZE : HPAGE_SIZE);
++	return min(range->size, end - range->gpa);
++}
++
+ /**
+  * kvm_test_age_gfn() - test young
+  * @kvm: the kvm instance
 -- 
-2.54.0.746.g67dd491aae-goog
+2.54.0
 
