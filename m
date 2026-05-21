@@ -1,161 +1,181 @@
-Received: from stravinsky.debian.org (stravinsky.debian.org [82.195.75.108])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9BD713F0AB1;
-	Thu, 21 May 2026 14:34:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=82.195.75.108
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3664C32E696;
+	Thu, 21 May 2026 14:48:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779374100; cv=none; b=buyB/pWQOqJ7Y3QiozBcICxSc7vbnMNkIm2dqQaiR+CR3BlSE6o1r4Ad7V9lygDo1un8snnVRUeQwADIDfzbsDkCRSIl4b4wJyfk7PoX1HdkhVxlXLKQoRBSWZ3bj7O1hKmcPX7lCjMadbV7KZFD8YKYQIfd7CLmfFRVBmGHv9I=
+	t=1779374936; cv=none; b=otSSrL/NIFWVDCreUdJtUtTnBqVaWBxEiF0Z8STerA+RergAX5EN5ZiozUrvlDup4rQEdNyx0KQCv/pd5i7oUIbZmq80qmh/W910m+9klvZxVb8nfQWECwpJyZ0d2qYAGO1x2uoagsGb3rETtjpFTurnFuox8D1gvLNAGNTC2MY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779374100; c=relaxed/simple;
-	bh=KOcqB4yiXaUIQL7EBJxJNPCiiEntHJ1bUw8VYCWroQA=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=SasILCP03v6EOkCTvFeFk0Vm7OiHkZdSZAsJ8gl7C+6fGkCW4EiAz/kHVonzXPB/eImu/LcAlI2nIu5nKKDhPy0/06QPZs2j1zaH3rfQSMuUA8DQ9BaCwTLfsghbss+EeibXaDmfwc5EUd/QQ6s0c9iRfjPSd+IjPfLrBSl44RQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=debian.org; spf=pass smtp.mailfrom=debian.org; dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.b=BSMtO0QA; arc=none smtp.client-ip=82.195.75.108
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=debian.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=debian.org
+	s=arc-20240116; t=1779374936; c=relaxed/simple;
+	bh=pHvmfcrhrurAq2ILFaCX2/i9A2dkXAZG6nS8cECg8ZA=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To; b=PC/pzUT2usQrsz5VU6Cp6KYMSWOYJlCG8RcGsu5sodIxxq+Czg8x/SLwY/1VkJ/QnWomHga66daqRY0w9zt4TB1wo7Ah9E0vhGsl1pODGzPdT5KlOLGEng+DTiYCX4gKi6lwheYBDQqSdJyqfHag/L5tMFSP7oK0kpxZzfVO7mM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Ghnmj9gn; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.b="BSMtO0QA"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=debian.org;
-	s=smtpauto.stravinsky; h=X-Debian-User:Cc:To:Message-Id:
-	Content-Transfer-Encoding:Content-Type:MIME-Version:Subject:Date:From:
-	Reply-To:Content-ID:Content-Description:In-Reply-To:References;
-	bh=qAMGqTgmR8jSCdmI+3X6UVT4uJLS740CwO54lzXmRr0=; b=BSMtO0QAxYtBvbaIUIuu/RkNRo
-	sP7sh6Xt1jZRnIb/d8RI0Jh5vpVeFqcyTdauqTCnkGyuMH9L9jnwfRVO0KRKJjg9iptb6CCj6GE3Y
-	qLqymGi6NbZ09QRCzIK8y9tDItyH2hCOfd8t+zrXi+VyAVMbdgY8isFlYNroWVF3FavcIrpi8iukT
-	6TkZ0KZizXy54h4LnH5K+Ao/yzxrft0HZTyQcuhSMl1maTsHu9qe1F5tEn611lamjSTd6Fjs4waj2
-	X+cftUQvX/sPHNDnpi2Fpha3m+rx3BFqU47CZGSV++Q7GhVqQCuQKmc41usxZFKn9dPfTsB4V6ZGC
-	zzP6/AEA==;
-Received: from authenticated user
-	by stravinsky.debian.org with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-	(Exim 4.96)
-	(envelope-from <leitao@debian.org>)
-	id 1wQ48C-003wJF-2q;
-	Thu, 21 May 2026 14:12:13 +0000
-From: Breno Leitao <leitao@debian.org>
-Date: Thu, 21 May 2026 07:11:45 -0700
-Subject: [PATCH net] net/iucv: fix locking in .getsockopt
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Ghnmj9gn"
+Received: by smtp.kernel.org (Postfix) with UTF8SMTPSA id CB3D31F000E9;
+	Thu, 21 May 2026 14:48:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1779374935;
+	bh=VsFq90skGZw/EGTa/WEfY0J40QXH4oeLLeAltN7Tq/g=;
+	h=Date:From:To:Cc:Subject:In-Reply-To;
+	b=Ghnmj9gnZEIRKYnPRT0EjkI+FemdXvo2nPl/XNKwYq0KjoyIAzi4emBvTvyKexayF
+	 ADaHyEJ/x3LglFHgloWlmKitUSEQKYQXSYAV+SbAXyhMU7t0niQmDrNAFPpTppVZTV
+	 AeG2/S8NC/NySbUDgxuSdCQDmrPrIp9+aHHWXBG66PLQIJxrWorabNaMNy83wpKYpk
+	 2/7aJ3tsE2qxQuNvYc/lwRsuFJ0T4GstKbWrJOqNcxRe9svAy7HhP7YmuhWMKg3poI
+	 2B7g/K3eypfdErXdPNordwsWs2nAymOC2cASd8LU5Cv8D9fKnGtWky6D+YdNAHZLo/
+	 XC0Dgpzg8wBcQ==
+Date: Thu, 21 May 2026 09:48:53 -0500
+From: Bjorn Helgaas <helgaas@kernel.org>
+To: Ramesh Errabolu <ramesh@linux.ibm.com>
+Cc: linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-s390@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>,
+	Lukas Wunner <lukas@wunner.de>,
+	Krzysztof =?utf-8?Q?Wilczy=C5=84ski?= <kw@linux.com>,
+	Niklas Schnelle <schnelle@linux.ibm.com>,
+	Peter Oberparleiter <oberpar@linux.ibm.com>,
+	Matthew Rosato <mjrosato@linux.ibm.com>,
+	Gerd Bayer <gbayer@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Farhan Ali <alifm@linux.ibm.com>, Leon Romanovsky <leon@kernel.org>,
+	driver-core@lists.linux.dev
+Subject: Re: [PATCH v4] PCI: hotplug: Add 'uevent' sysfs attribute to trigger
+ slot events
+Message-ID: <20260521144853.GA163149@bhelgaas>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260521-af_iucv_fix2-v1-1-f16b1c510aa9@debian.org>
-X-B4-Tracking: v=1; b=H4sIAKASD2oC/yXMQQqDMBAF0KsMf20gpsZArlKKpHGi4yItiYog3
- r203b7FO1G5CFd4OlF4lyqvDE9tQ4hzyBMrGeEJRpteW6NVSINscR+SHEa5ztk+6FtnW4eG8C6
- c5Ph1d2Re8fhj3Z4Lx/Ub4bo+w+XycXUAAAA=
-X-Change-ID: 20260520-af_iucv_fix2-74756a034517
-To: Alexandra Winter <wintera@linux.ibm.com>, 
- Thorsten Winkler <twinkler@linux.ibm.com>, 
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
- Simon Horman <horms@kernel.org>, Ursula Braun <ursula.braun@de.ibm.com>, 
- Frank Blaschka <frank.blaschka@de.ibm.com>
-Cc: linux-s390@vger.kernel.org, netdev@vger.kernel.org, 
- linux-kernel@vger.kernel.org, kernel-team@meta.com, 
- Stanislav Fomichev <sdf.kernel@gmail.com>, Breno Leitao <leitao@debian.org>
-X-Mailer: b4 0.16-dev-d5d98
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2436; i=leitao@debian.org;
- h=from:subject:message-id; bh=KOcqB4yiXaUIQL7EBJxJNPCiiEntHJ1bUw8VYCWroQA=;
- b=owEBbQKS/ZANAwAIATWjk5/8eHdtAcsmYgBqDxK3tMf/ylUFHpLxikkm2upb64Ed2ZLgjulnm
- UAsOI56JViJAjMEAAEIAB0WIQSshTmm6PRnAspKQ5s1o5Of/Hh3bQUCag8StwAKCRA1o5Of/Hh3
- bS5GD/9g0WFCY/wMWvxDQMlhYsmfkNfHZL5OCW2hq02snkDp9agp/tjVHT3EFWoUFwc5hnFrSCE
- CGA0GdctEd+tvz/YkaFOA9dmtWruSMZX9IhtffAuvc6ZCZCdRwZvkSG1ZqY6XxUucU23Qe35oOt
- YAjmaXz9Bf19MkV/zPRLPbjmt6GyLJsC/lYUYHENWJhiRh6g1oQzmutnh5E7lO/8LQ2MjeJVu/V
- 5bXdNgfujk41lZ1YCPMbeSWPTLVMRX8GQKJnTB1Sxg7RBbxEFetrO2hPlxIJayTyQGFMGW/nGux
- TytPgwc/CWa4+o/mK0ueahgtCOD6OawLSu4Oukpknw5ldvsbsl44JbVHlXNTFtMsJVHvmA4NXMK
- z9w+HZymOemHONr4UGgMYo3DPLIREg/liAaMCCe1FKAqXQc2qriPc9aJFi3EnEKIS9GuSY00kF3
- D3nsvlwtimm6qV114e4+kiu3a21fohDh5IUX5MRTee4goQ9DtUANd7t/Ou1zdk18eifIddWqOKQ
- wYL0MofDUiCJuOcxPQ99fhI8THBDdTVJBRsMV/BcN5JwHyTwCBTCNwjCAMVv9H/Nb/ZeHQTgDzU
- /ieAQOzoM9IxXe/3pctCDx4qU8ij3GvfstfAonEGX/5y5R4OZ0EaaRJXoV72O+JHaxaGC13RDbJ
- sSCTIEbsk8VDF4g==
-X-Developer-Key: i=leitao@debian.org; a=openpgp;
- fpr=AC8539A6E8F46702CA4A439B35A3939FFC78776D
-X-Debian-User: leitao
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260520221320.99788-1-ramesh@linux.ibm.com>
 
-Mirror iucv_sock_setsockopt() and wrap the whole switch in
-lock_sock()/release_sock(). The pre-existing SO_MSGLIMIT-only lock
-becomes redundant and is removed.
+[+cc Leon, driver-core]
 
-Any AF_IUCV HIPER user can potentially crash the kernel by racing
-recvmsg() with getsockopt(SO_MSGSIZE): the SO_MSGSIZE arm dereferences
-iucv->hs_dev->mtu after iucv_sock_close() (called from the racing
-recvmsg()) has set hs_dev to NULL, producing a NULL pointer dereference
-oops.
+(Ramesh, when you post new versions of a series, please cc anybody who
+responded to earlier versions.  Also, v2, v3, and v4 are identical, so
+there's no need to post them as new "versions"; you can just ping the
+original thread or label them as "RESEND")
 
-Suggested-by: Stanislav Fomichev <sdf.kernel@gmail.com>
-Fixes: 51363b8751a6 ("af_iucv: allow retrieval of maximum message size")
-Signed-off-by: Breno Leitao <leitao@debian.org>
----
-Note1: Not using goto/label to simplify the merge conflict that might
-happen with the migration of af_iucv to getsockopt_iter
+On Wed, May 20, 2026 at 05:13:20PM -0500, Ramesh Errabolu wrote:
+> Add a write-only 'uevent' sysfs attribute for synthesizing
+> uevents for a PCI slot. This extends the existing uevent
+> support which emits a KOBJ_ADD uevent in pci_hp_add() with
+> the ability to replay such uevents for cold plugged devices.
+> As such events are only emitted by hotplug capable PCI slots
+> so is the support for synthesizing them.
+> 
+> The change was validated by manually triggering 'add' uevent
+> for a specific hotplug PCI slot:
+> 
+>     $ echo "add $(uuidgen)" | sudo tee   \
+>                 /sys/bus/pci/slots/<slot-id>/uevent
+> 
+> Signed-off-by: Ramesh Errabolu <ramesh@linux.ibm.com>
+> Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> Tested-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> ---
+>  drivers/pci/hotplug/pci_hotplug_core.c | 25 +++++++++++++++++++++++++
+>  1 file changed, 25 insertions(+)
+> 
+> diff --git a/drivers/pci/hotplug/pci_hotplug_core.c b/drivers/pci/hotplug/pci_hotplug_core.c
+> index fadcf98a8a66..c3634b1cc7a8 100644
+> --- a/drivers/pci/hotplug/pci_hotplug_core.c
+> +++ b/drivers/pci/hotplug/pci_hotplug_core.c
+> @@ -173,12 +173,27 @@ static ssize_t presence_read_file(struct pci_slot *pci_slot, char *buf)
+>  
+>  static struct pci_slot_attribute hotplug_slot_attr_presence = {
+>  	.attr = {.name = "adapter", .mode = S_IFREG | S_IRUGO},
+>  	.show = presence_read_file,
+>  };
+>  
+> +static ssize_t uevent_write_file(struct pci_slot *slot,
+> +				 const char *buf, size_t len)
+> +{
+> +	int rc;
+> +
+> +	rc = kobject_synth_uevent(&slot->kobj, buf, len);
 
-Note2: This was only compile-tested.
----
- net/iucv/af_iucv.c | 20 ++++++++++++++------
- 1 file changed, 14 insertions(+), 6 deletions(-)
+I haven't followed the discussion closely, but I'm skeptical because
+this would be the only use of kobject_synth_uevent() outside the
+driver core.  That means a change like this should include a
+description of something unique about this PCI slot situation that is
+different from all other buses.
 
-diff --git a/net/iucv/af_iucv.c b/net/iucv/af_iucv.c
-index 72dfccd4e3d58..c2dc3338670e8 100644
---- a/net/iucv/af_iucv.c
-+++ b/net/iucv/af_iucv.c
-@@ -1540,7 +1540,7 @@ static int iucv_sock_getsockopt(struct socket *sock, int level, int optname,
- 	struct sock *sk = sock->sk;
- 	struct iucv_sock *iucv = iucv_sk(sk);
- 	unsigned int val;
--	int len;
-+	int len, rc;
- 
- 	if (level != SOL_IUCV)
- 		return -ENOPROTOOPT;
-@@ -1553,26 +1553,34 @@ static int iucv_sock_getsockopt(struct socket *sock, int level, int optname,
- 
- 	len = min_t(unsigned int, len, sizeof(int));
- 
-+	rc = 0;
-+
-+	lock_sock(sk);
- 	switch (optname) {
- 	case SO_IPRMDATA_MSG:
- 		val = (iucv->flags & IUCV_IPRMDATA) ? 1 : 0;
- 		break;
- 	case SO_MSGLIMIT:
--		lock_sock(sk);
- 		val = (iucv->path != NULL) ? iucv->path->msglim	/* connected */
- 					   : iucv->msglimit;	/* default */
--		release_sock(sk);
- 		break;
- 	case SO_MSGSIZE:
--		if (sk->sk_state == IUCV_OPEN)
--			return -EBADFD;
-+		if (sk->sk_state == IUCV_OPEN) {
-+			rc = -EBADFD;
-+			break;
-+		}
- 		val = (iucv->hs_dev) ? iucv->hs_dev->mtu -
- 				sizeof(struct af_iucv_trans_hdr) - ETH_HLEN :
- 				0x7fffffff;
- 		break;
- 	default:
--		return -ENOPROTOOPT;
-+		rc = -ENOPROTOOPT;
-+		break;
- 	}
-+	release_sock(sk);
-+
-+	if (rc)
-+		return rc;
- 
- 	if (put_user(len, optlen))
- 		return -EFAULT;
+For driver-core, the preceding discussion is here:
+https://lore.kernel.org/linux-pci/20260225150815.81268-1-ramesh@linux.ibm.com/t/#m57bf51ce1c073b685b391867d4a9932e5f9dccc9
 
----
-base-commit: dc416e32baaeb620b9809e9e25fc7b30889686e9
-change-id: 20260520-af_iucv_fix2-74756a034517
+> +	return rc ? rc : len;
+> +}
+> +
+> +static struct pci_slot_attribute hotplug_slot_attr_uevent = {
+> +	.attr = {.name = "uevent", .mode = S_IFREG | 0200},
+> +	.show = NULL,
 
-Best regards,
---  
-Breno Leitao <leitao@debian.org>
+Unnecessary to set ".show = NULL" since that's the default.
 
+> +	.store = uevent_write_file
+> +};
+> +
+>  static ssize_t test_write_file(struct pci_slot *pci_slot, const char *buf,
+>  			       size_t count)
+>  {
+>  	struct hotplug_slot *slot = pci_slot->hotplug;
+>  	unsigned long ltest;
+>  	u32 test;
+> @@ -251,12 +266,17 @@ static int fs_add_slot(struct hotplug_slot *slot, struct pci_slot *pci_slot)
+>  		if (retval)
+>  			dev_err(&pci_slot->bus->dev,
+>  				"Error creating sysfs link (%d)\n", retval);
+>  		kobject_put(kobj);
+>  	}
+>  
+> +	retval = sysfs_create_file(&pci_slot->kobj,
+> +				   &hotplug_slot_attr_uevent.attr);
+
+Krzysztof, any sysfs race issues here?  I assume this (and the
+existing uses for power, attention, latch, etc) are not candidates for
+static attributes?
+
+> +	if (retval)
+> +		goto exit_uevent;
+> +
+>  	if (has_power_file(slot)) {
+>  		retval = sysfs_create_file(&pci_slot->kobj,
+>  					   &hotplug_slot_attr_power.attr);
+>  		if (retval)
+>  			goto exit_power;
+>  	}
+> @@ -303,19 +323,24 @@ static int fs_add_slot(struct hotplug_slot *slot, struct pci_slot *pci_slot)
+>  		sysfs_remove_file(&pci_slot->kobj,
+>  				  &hotplug_slot_attr_attention.attr);
+>  exit_attention:
+>  	if (has_power_file(slot))
+>  		sysfs_remove_file(&pci_slot->kobj, &hotplug_slot_attr_power.attr);
+>  exit_power:
+> +	sysfs_remove_file(&pci_slot->kobj,
+> +			  &hotplug_slot_attr_uevent.attr);
+> +exit_uevent:
+>  	sysfs_remove_link(&pci_slot->kobj, "module");
+>  exit:
+>  	return retval;
+>  }
+>  
+>  static void fs_remove_slot(struct hotplug_slot *slot, struct pci_slot *pci_slot)
+>  {
+> +	sysfs_remove_file(&pci_slot->kobj, &hotplug_slot_attr_uevent.attr);
+> +
+>  	if (has_power_file(slot))
+>  		sysfs_remove_file(&pci_slot->kobj, &hotplug_slot_attr_power.attr);
+>  
+>  	if (has_attention_file(slot))
+>  		sysfs_remove_file(&pci_slot->kobj,
+>  				  &hotplug_slot_attr_attention.attr);
+> -- 
+> 2.43.0
+> 
