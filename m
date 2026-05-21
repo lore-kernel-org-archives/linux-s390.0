@@ -1,127 +1,109 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f73.google.com (mail-wr1-f73.google.com [209.85.221.73])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 97EC135F18A;
-	Thu, 21 May 2026 11:54:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9866B3C9EE0
+	for <linux-s390@vger.kernel.org>; Thu, 21 May 2026 12:27:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.73
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779364463; cv=none; b=tEZkH3hkfKHicfwF/7mkse+BI2o6fcg/Ut26iWTLTSWNxZibHfkc8JPoPb7uDARAPtHvD21sbcbOrAWjeFKWFbA/KmYI0eBRajghGxYq+YC0rkRv4CS7A1RBq+yiYg3uHg9ByWcSVUPCujtMDGCMs1ZgbH+1WO+tgMj1I5t/bwg=
+	t=1779366460; cv=none; b=RXmlzx8TpfK/iOz4pHsOryd7D81Y2SJQcEFRISkcA24zk727gz2CpH538KeyrG2JxIwsZDn79d3o/7dodW23Yrb9yn2JdZfQNRLadtUA1eoLVDTkW0QOiwnonC3kBN/sRR19bsDP2sqfEmVZubh2fB32jQ/CMwqmh3U/huLOHs4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779364463; c=relaxed/simple;
-	bh=ZgZIWjW+VmcEbqu15znYRaEOpX+b7l5mNLvU3xhgsCk=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=COVXIYdINCQmqICBtu9N4DqseiiXrI8TnMCGVyOS+8s1y88Ycrbk2OSWzn4cylKyLyIk/cZjhWipULDITU63/tE/sdD8dXXASFn/d9FlswPsIiTVyLNXclw9guy6R+/6KMeugUJm0IoLtw6VTwlvEefzYBKkkRWu9DMq7kJ7+0g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VRoV8Obk; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1779366460; c=relaxed/simple;
+	bh=M+Mk7QbXAKpkL60TJYSGOP1LwJIztNUkg4IEWFcJJr0=;
+	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=BG0xFi06kxKv4ih5xM2HZJf/nDA/1jVJsFMxNIHkjYtlOURvP+eCS5iliFcgufKrJPRi5+LnOYIDMgSDEc8ClRmWxEOw1PgAykwH2ffuo4gICfa2vFfB4hvZgSF52jgd0vkXc0VKHFvz9bZDarvku9ZLTpkhpcZtaebEAaK+ITw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--elver.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=EUxke5aC; arc=none smtp.client-ip=209.85.221.73
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--elver.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VRoV8Obk"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D60901F000E9;
-	Thu, 21 May 2026 11:54:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1779364462;
-	bh=AfaRmOFwq9PG0Q9lB7Y5h4Js0tCrSyooaZYJ9TAjF4I=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date;
-	b=VRoV8Obk6Db2yTrA5yAdD7bmtQFvSWYfd/ZMw0E5GBL5jIdP8p2frzgVjebJ/AI8N
-	 hR/ltXnLmqYytDDOSL4NfrAm8WWL6Eapslk7nKLHkiEPTsINTDc/s/wXE5nhOEOkw0
-	 ocFPhIherbIJmWmA0TT9aOS8dxo5zor2QipnNUscdwsm508C2EjBqUXMBblgS8bTHy
-	 VTwtO3pIzg195ryyporAX+AUffxjuJV03eR50aV96prxY5h11jwtvbWjHvTe3DepXz
-	 Q2BR9ERr09ummMuYbcfqyARU4HAkb3n2S7jWp660Rin4hD/1ttPs8n0zhk15N2/FrI
-	 IAG1as/hVnwgg==
-X-Mailer: emacs 30.2 (via feedmail 11-beta-1 I)
-From: Aneesh Kumar K.V <aneesh.kumar@kernel.org>
-To: iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev
-Cc: Robin Murphy <robin.murphy@arm.com>,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
-	Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
-	Steven Price <steven.price@arm.com>,
-	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Jiri Pirko <jiri@resnulli.us>,
-	Jason Gunthorpe <jgg@ziepe.ca>,
-	Mostafa Saleh <smostafa@google.com>,
-	Petr Tesarik <ptesarik@suse.com>,
-	Alexey Kardashevskiy <aik@amd.com>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Xu Yilun <yilun.xu@linux.intel.com>,
-	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org
-Subject: Re: [PATCH v4 13/13] x86/amd-gart: preserve the direct DMA address
- until GART mapping succeeds
-In-Reply-To: <20260512090408.794195-14-aneesh.kumar@kernel.org>
-References: <20260512090408.794195-1-aneesh.kumar@kernel.org>
- <20260512090408.794195-14-aneesh.kumar@kernel.org>
-Date: Thu, 21 May 2026 17:24:07 +0530
-Message-ID: <yq5a4ik16krk.fsf@kernel.org>
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="EUxke5aC"
+Received: by mail-wr1-f73.google.com with SMTP id ffacd0b85a97d-43d789cebcfso4649365f8f.1
+        for <linux-s390@vger.kernel.org>; Thu, 21 May 2026 05:27:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20251104; t=1779366457; x=1779971257; darn=vger.kernel.org;
+        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=BH74M0iFxFJ7OeF2nKs4ve50vTBJ6yjjR8WAtMsTpJ0=;
+        b=EUxke5aCLIxmL87w5YgCejINSSk2CsD/F0c58wucB2ZDAaPfp83+T3eXirOCfmWnIB
+         Z3Cbwjkx7prACsALwXWzCtCGQFyOtMEM4UypGx53JrFKBxEDIfrpx+EMmH+wHr3uCclF
+         vGJeUZIy9FbKInnRLiOqYA/e1ZQ6twJIkzdn//appyXnI9rxeG/EgeI9wEGwlWv+/eHo
+         pvzYZvGH0fbeyZBlt9h4V7mnypV0xKumaJ8qzVkZgE8HONTifax3L15gvcB1KiJ6atjU
+         nUVMnKMOwJ7Eg/w4n5515B0s7mUfczBCLfp2A6hYisEWpl/DidN+B1rT9+UW1z/CYqJZ
+         zjLA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1779366457; x=1779971257;
+        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=BH74M0iFxFJ7OeF2nKs4ve50vTBJ6yjjR8WAtMsTpJ0=;
+        b=KaVKGDZekeThZQJHeO4sMJn6TvIxPOQwdjfWb5T+0ZNhWxV6Bm3mKhvvZT8PBrhPcs
+         AKiOjSxx5wVNoDZ3+wuqhFRHh0hod0H4vjJ8r9DNMhAeC7xdMniNZj4lA1NE1gLbjf9E
+         wfGjzZAISbcmOQAQiMW1lN8NoPh691M3kSEo8IuwzIavJxxb5hmhUI1jrXamBwIVrswb
+         b2HO9SMNmC4ilIAxmZlD+EqE6bHsIQWTrRavZwegMEjpwASbpnFrgcHhd9z7HR65tiHW
+         NvLjxzPjXhvjh7Skvvdjr9MvkborvgHXkj/MWAL1FpzOS9ErbD7BHgdI7nvRRprfgeE1
+         eIWw==
+X-Forwarded-Encrypted: i=1; AFNElJ8iqzv5U79IPROkR9FSwR/C9JhoLZgl0BmAGiiPCYLrfS09fPTSZGHygZyrORQRP+hlWgU0PrK2Ylp3@vger.kernel.org
+X-Gm-Message-State: AOJu0Yzg29Z/6vQ2Syp26L66LOGjdx/IS2YWnVxw29nsdABZ41bY6aBd
+	uD/EJMmrsEhupGZl4gAa0zJIkT26sDH32IE9q3i/gSOQipqrc03vXCeGORbGqcanyF4g/XsSmS8
+	czQ==
+X-Received: from wmbhn25.prod.google.com ([2002:a05:600c:a399:b0:490:3e3f:8c8d])
+ (user=elver job=prod-delivery.src-stubby-dispatcher) by 2002:a05:600c:490f:b0:48a:5339:a46
+ with SMTP id 5b1f17b1804b1-49036090799mr19423255e9.9.1779366456918; Thu, 21
+ May 2026 05:27:36 -0700 (PDT)
+Date: Thu, 21 May 2026 14:27:23 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.54.0.746.g67dd491aae-goog
+Message-ID: <20260521122727.142280-1-elver@google.com>
+Subject: [PATCH] s390: Implement _THIS_IP_ using inline asm
+From: Marco Elver <elver@google.com>
+To: elver@google.com
+Cc: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
+	Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, kasan-dev@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
 
-"Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org> writes:
+Both GCC [1] and Clang [2] consider the generic version of _THIS_IP_ to
+be broken:
 
-> gart_alloc_coherent() first allocates memory through dma_direct_alloc(),
-> which returns a direct-mapped DMA address in dma_addr. When force_iommu is
-> enabled, the buffer is then remapped.
->
-> Do not overwrite dma_addr before dma_map_area() has succeeded. Keep the
-> dma_map_area result in a temporary variable so the direct DMA address
-> remains available for dma_direct_free() on the error path.
->
-> Signed-off-by: Aneesh Kumar K.V (Arm) <aneesh.kumar@kernel.org>
-> ---
->  arch/x86/kernel/amd_gart_64.c | 10 ++++++----
->  1 file changed, 6 insertions(+), 4 deletions(-)
->
-> diff --git a/arch/x86/kernel/amd_gart_64.c b/arch/x86/kernel/amd_gart_64.c
-> index b5f1f031d45b..a109649c5649 100644
-> --- a/arch/x86/kernel/amd_gart_64.c
-> +++ b/arch/x86/kernel/amd_gart_64.c
-> @@ -467,18 +467,20 @@ gart_alloc_coherent(struct device *dev, size_t size, dma_addr_t *dma_addr,
->  		    gfp_t flag, unsigned long attrs)
->  {
->  	void *vaddr;
-> +	dma_addr_t dma_map_addr;
->  
->  	vaddr = dma_direct_alloc(dev, size, dma_addr, flag, attrs);
->  	if (!vaddr ||
->  	    !force_iommu || dev->coherent_dma_mask <= DMA_BIT_MASK(24))
->  		return vaddr;
->  
-> -	*dma_addr = dma_map_area(dev, virt_to_phys(vaddr), size,
-> -				 DMA_BIDIRECTIONAL,
-> -				 (1UL << get_order(size)) - 1, attrs);
-> +	dma_map_addr = dma_map_area(dev, virt_to_phys(vaddr), size,
-> +				     DMA_BIDIRECTIONAL,
-> +				     (1UL << get_order(size)) - 1, attrs);
->  	flush_gart();
-> -	if (unlikely(*dma_addr == DMA_MAPPING_ERROR))
-> +	if (unlikely(dma_map_addr == DMA_MAPPING_ERROR))
->  		goto out_free;
-> +	*dma_addr = dma_map_addr;
->  	return vaddr;
->  out_free:
->  	dma_direct_free(dev, size, vaddr, *dma_addr, attrs);
-> -- 
-> 2.43.0
->
+        #define _THIS_IP_  ({ __label__ __here; __here: (unsigned long)&&__here; })
 
-This needs corresponding changes on the gart_free_coherent() side as well.
+In particular, the address of a label is only expected to be used with a
+computed goto.
 
-https://sashiko.dev/#/patchset/20260512090408.794195-1-aneesh.kumar%40kernel.org?part=13
+While the generic version more or less works today, it is known to be
+brittle and may break with current and future optimizations. For
+example, Clang -O2 always returns 1 when this function is inlined:
 
-I will avoid making that change as part of this series, since I assume
-it would require specific testing.
+        static inline unsigned long get_ip(void)
+        { return ({ __label__ __here; __here: (unsigned long)&&__here; }); }
 
--aneesh
+Fix it by overriding _THIS_IP_ in <asm/linkage.h> (which is included by
+<linux/instruction_pointer.h>) using an architecture-specific inline asm
+version. Additionally, avoiding taking the address of a label prevents
+compilers from emitting spurious indirect branch targets (e.g. ENDBR or
+BTI) under control-flow integrity schemes.
+
+Link: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=120071 [1]
+Link: https://github.com/llvm/llvm-project/issues/138272 [2]
+Signed-off-by: Marco Elver <elver@google.com>
+---
+ arch/s390/include/asm/linkage.h | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/arch/s390/include/asm/linkage.h b/arch/s390/include/asm/linkage.h
+index df3fb7d8227b..1b3ac553a642 100644
+--- a/arch/s390/include/asm/linkage.h
++++ b/arch/s390/include/asm/linkage.h
+@@ -7,4 +7,6 @@
+ #define __ALIGN .balign CONFIG_FUNCTION_ALIGNMENT, 0x07
+ #define __ALIGN_STR __stringify(__ALIGN)
+ 
++#define _THIS_IP_ ({ unsigned long __ip; asm volatile("larl %0, ." : "=d" (__ip)); __ip; })
++
+ #endif
+-- 
+2.54.0.746.g67dd491aae-goog
+
