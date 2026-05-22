@@ -1,165 +1,136 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f47.google.com (mail-ej1-f47.google.com [209.85.218.47])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D0E22368277;
-	Fri, 22 May 2026 22:09:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 799DC255F2C
+	for <linux-s390@vger.kernel.org>; Fri, 22 May 2026 22:42:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779487757; cv=none; b=lOrYxHcX2rUTDL2fjfWJ4+8/fU7hTNWm+Tr47V0ZhrB1kVoqyVM/B1mbRAJ515I0OLzVZcjidqE1nznQe5dLgR0lr8zeBopEHrfnkiXJJT5bZ+o2EXn/+Meibk1T8W50FH6UuIZpjKojU8pg7C7DYwWbcENPS4BbKi49+59pADE=
+	t=1779489730; cv=none; b=XSk26XBch8bEkcGbw14qwAmoDguTqD+yY8lCquVmsLDVGlDIif7UfWmtMeteJlsKXcB31MVqdeaTlmwFZI9TtA0DXCtY+lxDcbtE/nlsKHovGFQePkuin+RlOS4rkBIsUWju7MEq11tr0jj3S9H6c//PKyf9r9xsckVyyA0dPiE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779487757; c=relaxed/simple;
-	bh=6qIQBkWgoqqmkzAFAs/BuNKqIw/Q0Uwa4clGjMh9Bhg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=YuhXcDBSrNla+5YIZYhSAMutRhXm1YrjfIhWkTXn8E2ydGgzPniMAzSBLeb+zGc4mgBx7pWlQ1JLWa8+7rKapKu3S3Q8oGmvUiupdLi9KowSOUioJd8S1CTpT3SBtsr/1ZGe29zqojRw2C7x5bNnKHFokLpPR4QrTL/VFBc54bM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WBld1bOX; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1779489730; c=relaxed/simple;
+	bh=rdR0kQyigV0CXV9FZb1qsfj91drkmICFMwdJ6UZh7qs=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=RCHijtrR6c01RwhrdIBU26n7ZbmzrYlTUVi9ZsluJ2UOA4hvc2/oSLNohOD5tOskK05L31RjH6jucCpwI9iin0F/tix9ntffpTCdrW+DsohU6EvfO+5121KR4bv2BpYQ9oacRKXIEKjfB/wgjgu2XkuMCiON8KxxqpiK2ZdjCD0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org; spf=pass smtp.mailfrom=linuxfoundation.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=RCOH6QU1; arc=none smtp.client-ip=209.85.218.47
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linuxfoundation.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WBld1bOX"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E2081F000E9;
-	Fri, 22 May 2026 22:09:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1779487755;
-	bh=yf2vEzlZ5+p+ATp9gN007KI2Z3fmEmZMNNzYlyeFYlA=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=WBld1bOXzLJCq3Bw17JrbLFuzGPxIszFTxGQZb7z2lmiU9Yypj3FKG+qWRywZju1E
-	 1KFiWIMGtBflx9SOmTDgX3R8s4+pRHAbVCL23cYXsXSH2sKGZHgvJ+c23rK4KUtEnQ
-	 X0jyv7P1SJbMSGE0AkbgLLGmXbchgiiCXhbMB9HgGtnMgypiKJ7wrnZPfi/gdS85Ub
-	 IvnMYD7XSMNJgsuaQOr7jmFJCX9Gx70hwE5KwfdcQZQAMmHs75Xl54nZsjFiNBkkih
-	 YaCxoRJdA4T8QLKEF2LX96hQDjsC6L3vUfRZ3T3ZHMmG98DWhTYjK/GYx3y3Ug9Dyy
-	 e1GjUdLcRwIaw==
-Date: Fri, 22 May 2026 15:09:13 -0700
-From: Minchan Kim <minchan@kernel.org>
-To: Christian Brauner <brauner@kernel.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>,
-	Oleg Nesterov <oleg@redhat.com>, Jann Horn <jannh@google.com>,
-	akpm@linux-foundation.org, hca@linux.ibm.com,
-	linux-s390@vger.kernel.org, david@kernel.org, mhocko@suse.com,
-	linux-mm@kvack.org, linux-kernel@vger.kernel.org, surenb@google.com,
-	timmurray@google.com
-Subject: Re: [PATCH v3] mm: process_mrelease: introduce
- PROCESS_MRELEASE_REAP_KILL flag
-Message-ID: <ahDUCbo4fIKA7rMZ@google.com>
-References: <20260511214226.937793-1-minchan@kernel.org>
- <20260515-nachdenken-umbenannt-a90006a46e14@brauner>
- <agd--WZpeTq2iKFW@redhat.com>
- <agefLhQeWpvil14M@google.com>
- <CAHk-=wiHfzbufXD2nuc9BhOVp-pYEmnVUYeThKmfZRXLU0kJ7w@mail.gmail.com>
- <aggE2haQ7yGeHPeF@google.com>
- <CAHk-=wg08=sZb=hVa22KjN2pD3aNk-diGmKQnizCgmoMMfrvwQ@mail.gmail.com>
- <agzNyXKIirm1zOob@google.com>
- <20260521-voreilig-investieren-34f6e0c56258@brauner>
+	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="RCOH6QU1"
+Received: by mail-ej1-f47.google.com with SMTP id a640c23a62f3a-bd2d8bb1068so1529188266b.1
+        for <linux-s390@vger.kernel.org>; Fri, 22 May 2026 15:42:05 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google; t=1779489723; x=1780094523; darn=vger.kernel.org;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=P+Cb+Uc7oZT3PJonQSP3vI2NqOWeABlHn7+a2lZVeB4=;
+        b=RCOH6QU1tKonHV/4mIMhMQwXErrrxx3bYx388iWanS2+D7SPp4smD2RfbsjOKRJ6gB
+         2WaQNFExPvSn2TFSz74Ugjz/5fcDgiwGQe6PqUXQQfwW6hU//dtZVJLvBBTO4QlSjoOz
+         qGSf6mqe7DKNotBOPQfoHp0Mio9+ik7noHn/0=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1779489723; x=1780094523;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=P+Cb+Uc7oZT3PJonQSP3vI2NqOWeABlHn7+a2lZVeB4=;
+        b=LBI+PMJB2L5cUmin8sTIO8nqdQrKRjeV81/CKWppJ5NqbHVSHJF9YYM7VYj+mnvMlV
+         bt5h5064pJ5dbrDTDeRZwHgxPOP62pMBTTFYOvgLdvitC911WoCd125haLDCvvcEfYEe
+         +KWbx3+dzHafgNG4bZOhRiB3FtJgpkny9lLTMpf5/p5hkgvKGJKPnpcge92vuEfDif8i
+         8FJzgxIwiBW9A3fzzK7CAFNsaXkMbgrJUzIYg5c8Vg+eyTGx3OVsdDbAOXeRlj9NYxhH
+         e11hAYHB8Q4KUQ/GylAHDJz1oQ37AvenqdqeH/XFBFxvd/0QH7SaywXV4MiggsMG3aCM
+         Edbw==
+X-Forwarded-Encrypted: i=1; AFNElJ+gdqi7yu1TXEfeuB+npSpKWfqYzDg6Hyv7q7Ff4tbGrInTK/vVni3Lw1PKLiucwwhzBGeFYOpB7PfR@vger.kernel.org
+X-Gm-Message-State: AOJu0Ywv3CLQisOzYreQMruuk+Bw9JdTghAG7Hd5CSc3mSDGTiG7E+VA
+	h43GfLYOX7NopwbAYV/xPla/+CmviksMm1rBacIzrLVTUx1A3EQY7sRlQtD9ivSx0ngjUQ9U7Fi
+	5wd0KIu0=
+X-Gm-Gg: Acq92OEbvx0XUQCzw6/jHJafhO7pOaDAXk6G2hluYI6NFEFCR012xmHv8AsnbdmmNk+
+	m+n49cm0yOed+vbPU9/dH5zRHJvmZtUaRskXf3UN7tyKWF4CI9eK/WxR7w0Nx1fZq6x0MbFBzCM
+	TBhSUyMm7BYDPiiq0H2tmmSsiSKEt84A6PZHXRBamzdioXy+0n/qwcIPnffqlfrKhMfylDzNdXS
+	aow0eJvEvGa9bP1P1630b9MFvcQeSSkix3mzwuQIvpzI0A4NfdkYkPqlbm7Zsc+VH8CRXzIdGRU
+	XL3tbzWBXHOtJb36eubZv/m5bxpA40jkrhfviqRnJBy1nl5ToiTvrDVuXMLDzvMuq7flYCTjGO8
+	PlvSZzyu0w11j8MzbCpgCPYN1nbsIiZ21L9BMU0f3ygrhKxSGNj0FIojo3rlEF1iyOcTer/Le1P
+	fufcSPp/saLQK9wNk+s3TFU2wR5YxiFEyDHMWLWOf4Ahgh8GZDbjDiGRhWK5JrIscg7Zhstxz2y
+	++6phZMwIE=
+X-Received: by 2002:a17:907:a0c8:b0:bd5:5ac:d70e with SMTP id a640c23a62f3a-bdd274c7593mr416749266b.26.1779489723026;
+        Fri, 22 May 2026 15:42:03 -0700 (PDT)
+Received: from mail-ed1-f48.google.com (mail-ed1-f48.google.com. [209.85.208.48])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-bddbf97f89csm101825366b.0.2026.05.22.15.42.02
+        for <linux-s390@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 22 May 2026 15:42:02 -0700 (PDT)
+Received: by mail-ed1-f48.google.com with SMTP id 4fb4d7f45d1cf-6804e24803bso299363a12.1
+        for <linux-s390@vger.kernel.org>; Fri, 22 May 2026 15:42:02 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AFNElJ+TiiDjj4tvNWPjhUP7J8JQTli6hQJy0aN8d0FIo0ZeICRYCdx2i5eiO5DBYWJvj6uJLT3k+mATp4E3@vger.kernel.org
+X-Received: by 2002:a17:907:7803:b0:bd5:e3e:98cf with SMTP id
+ a640c23a62f3a-bdd281a5d20mr270251666b.46.1779489721924; Fri, 22 May 2026
+ 15:42:01 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260521-voreilig-investieren-34f6e0c56258@brauner>
+References: <20260511214226.937793-1-minchan@kernel.org> <20260515-nachdenken-umbenannt-a90006a46e14@brauner>
+ <agd--WZpeTq2iKFW@redhat.com> <agefLhQeWpvil14M@google.com>
+ <CAHk-=wiHfzbufXD2nuc9BhOVp-pYEmnVUYeThKmfZRXLU0kJ7w@mail.gmail.com>
+ <aggE2haQ7yGeHPeF@google.com> <CAHk-=wg08=sZb=hVa22KjN2pD3aNk-diGmKQnizCgmoMMfrvwQ@mail.gmail.com>
+ <agzNyXKIirm1zOob@google.com>
+In-Reply-To: <agzNyXKIirm1zOob@google.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Date: Fri, 22 May 2026 15:41:45 -0700
+X-Gmail-Original-Message-ID: <CAHk-=whqfr-M9ip9OWAUR1X6aOEy2P4gSWYDkbkTCc3E=jCz_A@mail.gmail.com>
+X-Gm-Features: AVHnY4J4xF7INrh69EQAzG7z68YTyOrxLQkqkg7ZrFeZIDyZR4c38ibtE6rv0-8
+Message-ID: <CAHk-=whqfr-M9ip9OWAUR1X6aOEy2P4gSWYDkbkTCc3E=jCz_A@mail.gmail.com>
+Subject: Re: [PATCH v3] mm: process_mrelease: introduce PROCESS_MRELEASE_REAP_KILL
+ flag
+To: Minchan Kim <minchan@kernel.org>
+Cc: Oleg Nesterov <oleg@redhat.com>, Christian Brauner <brauner@kernel.org>, Jann Horn <jannh@google.com>, 
+	akpm@linux-foundation.org, hca@linux.ibm.com, linux-s390@vger.kernel.org, 
+	david@kernel.org, mhocko@suse.com, linux-mm@kvack.org, 
+	linux-kernel@vger.kernel.org, surenb@google.com, timmurray@google.com
+Content-Type: text/plain; charset="UTF-8"
 
-On Thu, May 21, 2026 at 01:50:44PM +0200, Christian Brauner wrote:
-> On Tue, May 19, 2026 at 01:53:29PM -0700, Minchan Kim wrote:
-> > On Sat, May 16, 2026 at 09:31:04AM -0700, Linus Torvalds wrote:
-> > > On Fri, 15 May 2026 at 22:47, Minchan Kim <minchan@kernel.org> wrote:
-> > > >
-> > > > Regarding proc_mem_open(), it actually operates very close to what you suggested.
-> > > > It acquires a reference to the mm_struct itself via mmgrab() but immediately
-> > > > unpins the address space memory via mmput(). Thus, no long-term mm_users
-> > > > reference is held across the open file descriptor.
-> > > 
-> > > Ahh, and we've actually done that since 2012. How time flies..
-> > > 
-> > > > The latency issue occurs during seqfile iteration (m_start/m_stop) in
-> > > > smaps/maps, or during get_cmdline() and ptrace_access_vm(), where the reader
-> > > > temporarily acquires mm_users via mmget_not_zero() or get_task_mm().
-> > > 
-> > > Ok, so it's that much smaller region.
-> > > 
-> > > How about a completely different approach then - make exit_mmap() just
-> > > take the mmap_write_lock() properly, and allow walking the vma's
-> > > without ever grabbing mm_users at all?
-> > > 
-> > > IOW, just a mm_count ref would be sufficient to hold the mm_struct
-> > > around, and then the read-lock protects against exit_mm() actually
-> > > tearing the list down when the last "real" user goes away.
-> > > 
-> > > [ exit_mm() is currently a bit odd - it does take the mmap_write lock,
-> > > but it *starts* with the read-lock.
-> > > 
-> > >    I'm not sure why it does that - it used to do the write lock over
-> > > the whole sequence, but that was changed in commit bf3980c85212 ("mm:
-> > > drop oom code from exit_mmap").
-> > > 
-> > >   Sure, read-lock allows more concurrency, but that would seem to be a
-> > > complete non-issue for exit_mmap(), and switching locking seems to
-> > > just complicate things.
-> > > 
-> > >   But that's a separate issue that I just happened to notice while
-> > > looking at this ]
-> > > 
-> > > I may be missing something else again.
-> > 
-> > Hi Linus,
-> > 
-> > Sorry for the slow response.
-> > Thank you for the incredibly detailed feedback and the suggestions.
-> > 
-> > Your proposal to avoid mm_users and synchronize via mmap_lock is an elegant
-> > conceptual cleanup. However, from the perspective of userspace OOM recovery,
-> > we hit two critical roadblocks that this alone cannot resolve:
-> > 
-> > First, the -ESRCH race remains unsolved.
-> > Even if we don't grab mm_users, the victim process still clears its task->mm
-> > to NULL early in exit_mm(). Here is the timing mismatch:
-> > 
-> > CPU A (Userspace OOM Killer)      CPU B (Victim Task)
-> > ----------------------------      -------------------
-> > 1. Sends SIGKILL
-> > 2. Victim receives SIGKILL
-> >                                   do_exit()
-> >                                     exit_mm()
-> >                                       task->mm = NULL  <==== (Stops pinning mm)
-> >                                       mmput()
-> > 3. Calls process_mrelease()
-> >    (Looks up task->mm)
-> >    (Sees NULL)
-> >    Returns -ESRCH! <======================================== (Reaping fails!)
-> > 
-> > Without Jann's patch to preserve the mm pointer via task->exit_mm, the
-> > userspace killer won't even have a chance to attempt reaping.
-> > 
-> > Second, the latency bottleneck transfers from mmput() to mmap_lock.
-> > If a low-priority procfs reader is preempted or stalled while holding the
-> > mmap_read_lock, the exiting process calling exit_mmap() will block indefinitely
-> > when trying to acquire the mmap_write_lock.
-> > 
-> > Crucially, if this lock contention occurs, process_mrelease() itself would
-> > also block on the same mmap_lock while trying to reap the memory, defeating the
-> > synchronous and expedited nature of the API.
-> > 
-> > [An Alternative Proposal: Combining Kill and Reap via pidfd_send_signal()]
-> > 
-> > Taking a step back, I believe the fundamental issue stems from separating
-> > the asynchronous "Kill" and synchronous "Reap" operations into two distinct
-> > system calls. Because userspace cannot predict when the victim will execute
-> > exit_mm(), the timing mismatch is practically unavoidable so the reaping
-> > doesn't work in the end.
-> > 
-> > Since Christian understandably dislikes combining signaling semantics into
-> > process_mrelease(), perhaps we could solve this from the signal side.
-> > 
-> > What if we introduce a new flag for pidfd_send_signal(), such as
-> > PIDFD_SIGNAL_PROCESS_GROUP_EXPEDITE?
-> > 
-> > When invoked with this flag and SIGKILL, pidfd_send_signal() would deliver the
-> > fatal signal and immediately trigger the oom_reaper's VM zapping on the target
-> > mm within the same synchronous syscall context (where task->mm is guaranteed to
-> > be valid and easily locked).
-> 
-> Maybe. We would need to see what that actually looks like.
+ On Tue, 19 May 2026 at 13:53, Minchan Kim <minchan@kernel.org> wrote:
+>
+> First, the -ESRCH race remains unsolved.
 
-Hi Christian,
+Do we really care?
 
-Sure, Let me cook the initial draft.
+> Without Jann's patch to preserve the mm pointer via task->exit_mm, the
+> userspace killer won't even have a chance to attempt reaping.
 
-Thanks.
+.. but without the mm_users grab, the memory gets torn down
+regardless. The mm_struct remains, but none of the page tables would.
+
+So no, it won't attempt reaping and will get -ESRCH, but the process
+will be gone, so what's the difference?
+
+> Second, the latency bottleneck transfers from mmput() to mmap_lock.
+> If a low-priority procfs reader is preempted or stalled while holding the
+> mmap_read_lock, the exiting process calling exit_mmap() will block indefinitely
+> when trying to acquire the mmap_write_lock.
+
+Yes. However, that really does sound like at this point it's no worse
+than the PIDFD_SIGNAL_PROCESS_GROUP_EXPEDITE you suggest. That needs
+the mmap lock too.
+
+One thing that makes /proc/pid/smap worse is that m_start will take
+the lock even completely pointlessly, over and over again.
+
+Even if we just remove the mmget_not_zero() - which I think we should
+do, and just rely on the mm_count of the open/close - it *keeps* doing
+that silly lock_vma_range() using  lock_ctx->mm - even if the task mm
+has long since gone away.
+
+So I think that the code should - in addition to not taking the
+mm_users count - then also do
+
+        if (!task->mm) return -ESRCH;
+
+in m_start(), which should simply stop doing any pointless work on a
+VM that no longer exist.
+
+At that point it will go through at most one iteration of show_smap()
+with the lock held, but that will be true even for your
+PIDFD_SIGNAL_PROCESS_GROUP_EXPEDITE case.
+
+             Linus
