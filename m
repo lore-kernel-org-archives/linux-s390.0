@@ -1,57 +1,57 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EEAB8421F17;
-	Fri, 22 May 2026 14:13:21 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F5B73BB9F4;
+	Fri, 22 May 2026 14:13:19 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779459205; cv=none; b=TJd7Xu4C8rnYbCe5uQK+JF2jYzl2LkO2iH6s5FhqCYd+jPUq5i0YfJBBYLf1wBwFGg4PJiuZKEPihzl8OX4Fovnoj6TTb609yjtNBXh9HK979QR87v3Brwa/d3Enm0nSLTLBCVYnvP+fPeC/qLKIB2TPNdhGWnJi8SC5d6dblXQ=
+	t=1779459208; cv=none; b=RZyDqyg75NmPvwi2+WYS6cSxQJxYnpzxcBbIOQ27n4msEtmotoj/gt54ZhZ9oMQ+0fgcMrifkVTaCOd5ZSwLW14oxRi7p1mAfjkn81QlgBRvwkSy8fowPFkYiOm2dVQunC3jcqs/8MhpC3till0jc6kdIBNXbebk+YSojOHVBfM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779459205; c=relaxed/simple;
-	bh=ef2UwNRzcG9g0NK5tazYND828j/yLBssvJDK5Gg5Xh0=;
+	s=arc-20240116; t=1779459208; c=relaxed/simple;
+	bh=cFdDtHt2t9Nwc7PkeGHAotk/p/U7VHiOsP/nse8/dzY=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=nBO0JXK9AG6eVzkQh89WjA8fsGeHWYDBJNQHgSn5okanb6y2b5BNZMyUqoLpmX6gWyjK2uW9l8zbvMPQqC/tv4EE06W/7cQBkAfDB1bwloYEAXJ+zRn/r7O1SflO1kzeO+8mRIXbUHiRp2ez8b2AGlfsdovoYJ+N+E3DUTyyBeU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=MhLbLbNZ; arc=none smtp.client-ip=148.163.156.1
+	 MIME-Version; b=rcRigwlAGRKA4Vb8/xAeDFSu7WjXNoZYQrbw4b88hMC4dvIb1WSuDlrMys8FbyOJ+PUhIy0xHru2DJZ9QORLKBgRimryl8jx1pCUo9tXHu5de6P1asOsN2KmI9Mpm2LumTbjoGRxvKbNsYfApB7OJ+JSkASOWtPa7rHSqufrnUE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=WmA8bdV6; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="MhLbLbNZ"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 64M10OUN1495915;
-	Fri, 22 May 2026 14:13:05 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="WmA8bdV6"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 64ME3Kcr220727;
+	Fri, 22 May 2026 14:13:03 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=yJkTWInv7qo7a8PXK
-	hXr59zNL9lUcDPJGpABn4QlEu8=; b=MhLbLbNZY6mDWgSSvVKm7k5HhlzF1F9+w
-	oC8+5Vt9gzEL0Y4ZyJl7eFtz7FIyJsYkHs7RGHcWcwHdeaWMY3QL9vib7lIYbiUi
-	I0ELoeaMr3hcmenHkCL4WSZVhrhrwrFnXhPz3Wm/WyMHyjEfoweYACyLONDmvaIF
-	jphtjGwCFCfDfgoQpnLJjiWVFMYQIULnL+A3cwMdcfbI4lvUdSyqCPmuNNQhyHSn
-	/8ze/6bkoWsLVxiXTsYQOgCiLdYBmGwAmJIcbrcsi0YkowEDHcwZZO1gA7OlJHjI
-	KVB8HXx/hwWtnEqypg29IZQARNXLmkyUp0fNaqlG8way2l/JHKz5A==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4e6h9ycegt-1
+	:mime-version:references:subject:to; s=pp1; bh=T+1AB2SUc8Gy4QtAY
+	Boc2rYVnyx3Gryuv3jv9GwWItM=; b=WmA8bdV61K6DKcRPhaQSbMTs6gZSW2Q6F
+	JwZmJEbsnPQN17EuG0WpppP+iGaRlQHfAmkUTpM5HP8UM8T381u3PtIritoCcrd9
+	TMrTQYRleTQ9UavfmXXvS7J9CE0e6298K7oYOtlTZueQ+fqzNqlI1nWQTQUt9VMl
+	gMXIvdpcbYg1OvAsEntoRjPFWlAWQcZdh+LhRgBdRGU2XO2Z9+yzs7Wn+MnE6nMb
+	n8igp0UVnHYi2bE2d2qYwx0LDdD2W9eaSjnsXP/kEOxQhGC/870wux81Z0nVxkSo
+	0+7FwLnmf7wp6KgyfNapZAVHwPW3U8SNOFuQl2e3TTS8U+G7Z3IQA==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4e6h8n49nk-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 22 May 2026 14:13:04 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 64ME97De024233;
-	Fri, 22 May 2026 14:13:03 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4e739w9anu-1
+	Fri, 22 May 2026 14:13:02 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 64ME95Sd028436;
+	Fri, 22 May 2026 14:13:02 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4e72wqhea5-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 22 May 2026 14:13:03 +0000 (GMT)
+	Fri, 22 May 2026 14:13:01 +0000 (GMT)
 Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 64MED0Rt12321152
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 64MECwbD36897144
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 22 May 2026 14:13:00 GMT
+	Fri, 22 May 2026 14:12:58 GMT
 Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id DF1ED20040;
-	Fri, 22 May 2026 14:12:59 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 598C520043;
+	Fri, 22 May 2026 14:12:58 +0000 (GMT)
 Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id AF14F2004B;
-	Fri, 22 May 2026 14:12:59 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 186EF2004B;
+	Fri, 22 May 2026 14:12:58 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
 	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 22 May 2026 14:12:59 +0000 (GMT)
+	Fri, 22 May 2026 14:12:58 +0000 (GMT)
 From: Heiko Carstens <hca@linux.ibm.com>
 To: Alexander Gordeev <agordeev@linux.ibm.com>,
         Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
@@ -62,9 +62,9 @@ Cc: Peter Zijlstra <peterz@infradead.org>,
         Shrikanth Hegde <sshegde@linux.ibm.com>,
         David Laight <david.laight.linux@gmail.com>,
         linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: [PATCH v4 8/8] s390/percpu: Remove one and two byte this_cpu operation implementation
-Date: Fri, 22 May 2026 16:12:57 +0200
-Message-ID: <20260522141257.303617-9-hca@linux.ibm.com>
+Subject: [PATCH v4 1/8] s390/percpu: Infrastructure for more efficient this_cpu operations
+Date: Fri, 22 May 2026 16:12:50 +0200
+Message-ID: <20260522141257.303617-2-hca@linux.ibm.com>
 X-Mailer: git-send-email 2.51.0
 In-Reply-To: <20260522141257.303617-1-hca@linux.ibm.com>
 References: <20260522141257.303617-1-hca@linux.ibm.com>
@@ -77,79 +77,449 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
 X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTIyMDE0MSBTYWx0ZWRfXywCMk8UAfnHd
- TKV3gkAelVAsbfJDaZ+qpS044q6Kk8TRRrMCsWE9o72VCEqXS+wT9pwzuEbLusIxokGTQp2clBz
- yDWkHIg4XW/2lbd7W384ki28jhOTGYwqcB9SwOZvRe89JLy4xkavsvkHFHwu7S2FxrQz/hDq6BZ
- msFLS4qpF5sFnZUBUbAD5lQuXW0dcwr9UjsZDWiQg6kkvWtKkchW+zndVqZlYIOTbj6fOF8dD3R
- B8qQ2yBjkDbbkM4L8rnoj8AbtivMFHgktNesTkuwmJrLgvtYvyaRWiA+kyh4jazcyT5xh/TfmwF
- yHEKrS06wwWR9d2EU5IcbDD4gEBkYoeacl4PKvEUW1SIgiObA8eV9xm+bS4NoFFm5FRyz8rck1X
- jFUUfIVOLF5olE4vh4mU2yuey55z+rTeKaY4HiRy08kg+FUE9TFg4eL+rKuutvUcAcAadnyTRfN
- jw1gKNDKb3W+I7y9vog==
-X-Authority-Analysis: v=2.4 cv=BNuDalQG c=1 sm=1 tr=0 ts=6a106471 cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+X-Proofpoint-GUID: Yiee5jYuFPRCYz9iINM8m-m7Er0fJe3O
+X-Authority-Analysis: v=2.4 cv=GYMnWwXL c=1 sm=1 tr=0 ts=6a10646f cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
  a=NGcC8JguVDcA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8 a=e14ZIUwkndthOOMI8LgA:9
-X-Proofpoint-ORIG-GUID: Ksoz4cUCdVxI9OWnSKG4VMSTod0Wb3RN
-X-Proofpoint-GUID: K2Uig8D3PdNIaOZBGvLxbumqG5vNR92G
+ a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8 a=OodavJ-36c_9b_R7Dl8A:9
+ a=xWHWdn6JnoG3g-vW:21
+X-Proofpoint-ORIG-GUID: dCUfTumLXcCOAYmdifxXYlGkOcSXJBFR
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTIyMDE0MSBTYWx0ZWRfX4Xvscv0r2fAl
+ +UlOhArKQ3QsJMPQke6oZhff0p88bDbD7uLmKEAVG6BWVURfFcFz+ZsgD/qTA6qy4e2MWfgUHO5
+ 8BGEabl9Zl5ohrMNCS/TtlaCfn9sWUEzQiqAB5Mr6mX/AumKR5WNzd9XyPeftCOQYa+92Djf/tT
+ kD141D0S57ChOu41F74fg7c7qLVpxHb+hplauOfDFrGLuB0zGZOkZjPGvfZOodsybAS+qx0DNzM
+ wvzy7kMTWDWzFbkYAmg5dEON03BGvu3cUqYFSfsQotdTAiR9fYdJ9kxnfK1iI0nbVDeywlVD8TL
+ fwlRBqzG1kQotA1kCS8TgIKVROtYIQXgZK5uUslt1p8FqyAbD+VHAQ/HTCeIS9YnyilC6Rn8QRH
+ vwcOs78kR/jOzwT+tAqKrBztDxB+sQ20Ymz/wOPxy7LVCif72APeNy+YXtmyNO8vrDSALUbr7q+
+ FzWYYnrGdMMahofd4Jg==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
  definitions=2026-05-22_03,2026-05-18_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- adultscore=0 priorityscore=1501 malwarescore=0 impostorscore=0 suspectscore=0
- lowpriorityscore=0 phishscore=0 bulkscore=0 spamscore=0 clxscore=1015
+ phishscore=0 malwarescore=0 lowpriorityscore=0 priorityscore=1501 bulkscore=0
+ adultscore=0 suspectscore=0 spamscore=0 clxscore=1015 impostorscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2605130000 definitions=main-2605220141
 
-There are no one and two byte this_cpu operations within the kernel
-(defconfig). However even if there would be, the s390 implementation, which
-uses a cmpxchg loop, generates a very large code sequence due to the lack
-of native one and two byte cmpxchg instructions.
+With the intended removal of PREEMPT_NONE this_cpu operations based on
+atomic instructions, guarded with preempt_disable()/preempt_enable() pairs
+become more expensive: the preempt_disable() / preempt_enable() pairs are
+not optimized away anymore during compile time.
 
-Remove the s390 implementation and use the generic implementation.
+In particular the conditional call to preempt_schedule_notrace() after
+preempt_enable() adds additional code and register pressure.
+
+E.g. this simple C code sequence
+
+DEFINE_PER_CPU(long, foo);
+long bar(long a) { return this_cpu_add_return(foo, a); }
+
+generates this code:
+
+  11a976:       eb af f0 68 00 24       stmg    %r10,%r15,104(%r15)
+  11a97c:       b9 04 00 ef             lgr     %r14,%r15
+  11a980:       b9 04 00 b2             lgr     %r11,%r2
+  11a984:       e3 f0 ff c8 ff 71       lay     %r15,-56(%r15)
+  11a98a:       e3 e0 f0 98 00 24       stg     %r14,152(%r15)
+  11a990:       eb 01 03 a8 00 6a       asi     936,1            <- __preempt_count_add(1)
+  11a996:       c0 10 00 d2 ac b5       larl    %r1,1b70300      <- address of percpu var
+  11a9a0:       e3 10 23 b8 00 08       ag      %r1,952          <- add percpu offset
+  11a9a6:       eb ab 10 00 00 e8       laag    %r10,%r11,0(%r1) <- atomic op
+  11a9ac:       eb ff 03 a8 00 6e       alsi    936,-1           <- __preempt_count_dec_and_test()
+  11a9b2:       a7 54 00 05             jnhe    11a9bc <bar+0x4c>
+  11a9b6:       c0 e5 00 76 d1 bd       brasl   %r14,ff4d30 <preempt_schedule_notrace>
+  11a9bc:       b9 e8 b0 2a             agrk    %r2,%r10,%r11
+  11a9c0:       eb af f0 a0 00 04       lmg     %r10,%r15,160(%r15)
+  11a9c6        07 fe                   br      %r14
+
+Even though the above example is more or less the worst case, since the
+branch to preempt_schedule_notrace() requires a stackframe, which
+otherwise wouldn't be necessary, there is also the conditional jnhe branch
+instruction.
+
+Get rid of the conditional branch with the following code sequence:
+
+  11a8e6:       c0 30 00 d0 c5 0d       larl    %r3,1b33300
+  11a8ec:       b9 04 00 43             lgr     %r4,%r3
+  11a8f0:       eb 00 43 c0 00 52       mviy    960,4
+  11a8f6:       e3 40 03 b8 00 08       ag      %r4,952
+  11a8fc:       eb 52 40 00 00 e8       laag    %r5,%r2,0(%r4)
+  11a902:       eb 00 03 c0 00 52       mviy    960,0
+  11a908:       b9 08 00 25             agr     %r2,%r5
+  11a90c        07 fe                   br      %r14
+
+The general idea is that this_cpu operations based on atomic instructions
+are guarded with mviy instructions:
+
+- The first mviy instruction writes the register number, which contains
+  the percpu address variable to lowcore. This also indicates that a
+  percpu code section is executed.
+
+- The first instruction following the mviy instruction must be the ag
+  instruction which adds the percpu offset to the percpu address register.
+
+- Afterwards the atomic percpu operation follows.
+
+- Then a second mviy instruction writes a zero to lowcore, which indicates
+  the end of the percpu code section.
+
+- In case of an interrupt/exception/nmi the register number which was
+  written to lowcore is copied to the exception frame (pt_regs), and a zero
+  is written to lowcore.
+
+- On return to the previous context it is checked if a percpu code section
+  was executed (saved register number not zero), and if the process was
+  migrated to a different cpu. If the percpu offset was already added to
+  the percpu address register (instruction address does _not_ point to the
+  ag instruction) the content of the percpu address register is adjusted so
+  it points to percpu variable of the new cpu.
 
 Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 ---
- arch/s390/include/asm/percpu.h | 13 -------------
- 1 file changed, 13 deletions(-)
+ arch/s390/include/asm/entry-percpu.h | 78 ++++++++++++++++++++++++++++
+ arch/s390/include/asm/lowcore.h      |  3 +-
+ arch/s390/include/asm/percpu.h       | 62 ++++++++++++++++++++++
+ arch/s390/include/asm/ptrace.h       |  2 +
+ arch/s390/kernel/irq.c               | 24 ++++++---
+ arch/s390/kernel/nmi.c               |  5 ++
+ arch/s390/kernel/traps.c             |  5 ++
+ 7 files changed, 171 insertions(+), 8 deletions(-)
+ create mode 100644 arch/s390/include/asm/entry-percpu.h
 
+diff --git a/arch/s390/include/asm/entry-percpu.h b/arch/s390/include/asm/entry-percpu.h
+new file mode 100644
+index 000000000000..ea91187b1704
+--- /dev/null
++++ b/arch/s390/include/asm/entry-percpu.h
+@@ -0,0 +1,78 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef ARCH_S390_ENTRY_PERCPU_H
++#define ARCH_S390_ENTRY_PERCPU_H
++
++#include <linux/kprobes.h>
++#include <linux/percpu.h>
++#include <asm/lowcore.h>
++#include <asm/ptrace.h>
++#include <asm/asm-offsets.h>
++
++static __always_inline void percpu_entry(struct pt_regs *regs)
++{
++	struct lowcore *lc = get_lowcore();
++
++	if (user_mode(regs))
++		return;
++	regs->cpu = lc->cpu_nr;
++	regs->percpu_register = lc->percpu_register;
++	lc->percpu_register = 0;
++}
++
++static __always_inline bool percpu_code_check(struct pt_regs *regs)
++{
++	unsigned int insn, disp;
++	struct kprobe *p;
++
++	if (likely(user_mode(regs) || !regs->percpu_register))
++		return false;
++	/*
++	 * Within a percpu code section - check if the percpu base register
++	 * needs to be updated. This is the case if the PSW does not point to
++	 * the ADD instruction within the section.
++	 * - AG %rx,percpu_offset_in_lowcore(%r0,%r0)
++	 * which adds the percpu offset to the percpu base register.
++	 */
++	lockdep_assert_preemption_disabled();
++again:
++	insn = READ_ONCE(*(u16 *)psw_bits(regs->psw).ia);
++	if (unlikely(insn == BREAKPOINT_INSTRUCTION)) {
++		p = get_kprobe((void *)psw_bits(regs->psw).ia);
++		/*
++		 * If the kprobe is concurrently removed on a different CPU
++		 * it might not be found anymore. However text must have
++		 * been restored - try again.
++		 */
++		if (!p)
++			goto again;
++		insn = p->opcode;
++	}
++	if ((insn & 0xff0f) != 0xe300)
++		return true;
++	disp = offsetof(struct lowcore, percpu_offset);
++	if (machine_has_relocated_lowcore())
++		disp += LOWCORE_ALT_ADDRESS;
++	insn = (disp & 0xff000) >> 4 | (disp & 0x00fff) << 16 | 0x8;
++	if (*(u32 *)(psw_bits(regs->psw).ia + 2) != insn)
++		return true;
++	return false;
++}
++
++static __always_inline void percpu_exit(struct pt_regs *regs, bool needs_fixup)
++{
++	struct lowcore *lc = get_lowcore();
++	unsigned char reg;
++
++	reg = regs->percpu_register;
++	lc->percpu_register = reg;
++	if (likely(!needs_fixup))
++		return;
++	/* Check if process has been migrated to a different CPU. */
++	if (regs->cpu == lc->cpu_nr)
++		return;
++	/* Fixup percpu base register */
++	regs->gprs[reg] -= __per_cpu_offset[regs->cpu];
++	regs->gprs[reg] += lc->percpu_offset;
++}
++
++#endif
+diff --git a/arch/s390/include/asm/lowcore.h b/arch/s390/include/asm/lowcore.h
+index 50ffe75adeb4..cd1ddfdb5d35 100644
+--- a/arch/s390/include/asm/lowcore.h
++++ b/arch/s390/include/asm/lowcore.h
+@@ -165,7 +165,8 @@ struct lowcore {
+ 	__u32	spinlock_index;			/* 0x03b0 */
+ 	__u8	pad_0x03b4[0x03b8-0x03b4];	/* 0x03b4 */
+ 	__u64	percpu_offset;			/* 0x03b8 */
+-	__u8	pad_0x03c0[0x0400-0x03c0];	/* 0x03c0 */
++	__u8	percpu_register;		/* 0x03c0 */
++	__u8	pad_0x03c1[0x0400-0x03c1];	/* 0x03c1 */
+ 
+ 	__u32	return_lpswe;			/* 0x0400 */
+ 	__u32	return_mcck_lpswe;		/* 0x0404 */
 diff --git a/arch/s390/include/asm/percpu.h b/arch/s390/include/asm/percpu.h
-index 667b165b4c0e..5c0c061dbd10 100644
+index b18a96f3a334..78602d2f5eba 100644
 --- a/arch/s390/include/asm/percpu.h
 +++ b/arch/s390/include/asm/percpu.h
-@@ -51,15 +51,6 @@
- 	new__;								\
- })
+@@ -60,6 +60,68 @@
+ #define this_cpu_or_1(pcp, val)		arch_this_cpu_to_op_simple(pcp, val, |)
+ #define this_cpu_or_2(pcp, val)		arch_this_cpu_to_op_simple(pcp, val, |)
  
--#define this_cpu_add_1(pcp, val)	arch_this_cpu_to_op_simple(pcp, val, +)
--#define this_cpu_add_2(pcp, val)	arch_this_cpu_to_op_simple(pcp, val, +)
--#define this_cpu_add_return_1(pcp, val) arch_this_cpu_to_op_simple(pcp, val, +)
--#define this_cpu_add_return_2(pcp, val) arch_this_cpu_to_op_simple(pcp, val, +)
--#define this_cpu_and_1(pcp, val)	arch_this_cpu_to_op_simple(pcp, val, &)
--#define this_cpu_and_2(pcp, val)	arch_this_cpu_to_op_simple(pcp, val, &)
--#define this_cpu_or_1(pcp, val)		arch_this_cpu_to_op_simple(pcp, val, |)
--#define this_cpu_or_2(pcp, val)		arch_this_cpu_to_op_simple(pcp, val, |)
--
++/*
++ * Macros to be used for percpu code section based on atomic instructions.
++ *
++ * Avoid the need to use preempt_disable() / preempt_disable() pairs and the
++ * conditional preempt_schedule_notrace() function calls which come with
++ * this. The idea is that this_cpu operations based on atomic instructions are
++ * guarded with mviy instructions:
++ *
++ * - The first mviy instruction writes the register number, which contains the
++ *   percpu address variable to lowcore. This also indicates that a percpu
++ *   code section is executed.
++ *
++ * - The first mviy instruction following the mviy instruction must be the ag
++ *   instruction which adds the percpu offset to the percpu address register.
++ *
++ * - Afterwards the atomic percpu operation follows.
++ *
++ * - Then a second mviy instruction writes a zero to lowcore, which indicates
++ *   the end of the percpu code section.
++ *
++ * - In case of an interrupt/exception/nmi the register number which was
++ *   written to lowcore is copied to the exception frame (pt_regs), and a zero
++ *   is written to lowcore.
++ *
++ * - On return to the previous context it is checked if a percpu code section
++ *   was executed (saved register number not zero), and if the process was
++ *   migrated to a different cpu. If the percpu offset was already added to
++ *   the percpu address register (instruction address does _not_ point to the
++ *   ag instruction) the content of the percpu address register is adjusted so
++ *   it points to percpu variable of the new cpu.
++ *
++ * Inline assemblies making use of this typically have a code sequence like:
++ *
++ *   MVIY_PERCPU(...) <- start of percpu code section
++ *   AG_ALT(...)      <- add percpu offset; must be the second instruction
++ *   atomic_op	      <- atomic op
++ *   MVIY_ALT(...)    <- end of percpu code section
++ */
++
++#define MVIY_PERCPU(disp, dispalt, reg)						\
++	".macro GEN_MVIY disp reg\n"						\
++	".irp	rs,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15\n"			\
++	"	.ifc \\reg,%%r\\rs\n"						\
++	"	mviy	\\disp(%%r0),\\rs\n"					\
++	"	.endif\n"							\
++	".endr\n"								\
++	".endm\n"								\
++	ALTERNATIVE("GEN_MVIY " __stringify(disp)    " " __stringify(reg) "\n",	\
++		    "GEN_MVIY " __stringify(dispalt) " " __stringify(reg) "\n",	\
++		    ALT_FEATURE(MFEATURE_LOWCORE))				\
++	".purgem GEN_MVIY\n"
++
++#define MVIY_ALT(disp, dispalt)							\
++	ALTERNATIVE("	mviy	" disp	  "(%%r0),0\n",				\
++		    "	mviy	" dispalt "(%%r0),0\n",				\
++		    ALT_FEATURE(MFEATURE_LOWCORE))
++
++#define AG_ALT(disp, dispalt, reg)						\
++	ALTERNATIVE("	ag	" reg ", " disp	   "(%%r0)\n",			\
++		    "	ag	" reg ", " dispalt "(%%r0)\n",			\
++		    ALT_FEATURE(MFEATURE_LOWCORE))
++
+ #ifndef MARCH_HAS_Z196_FEATURES
+ 
+ #define this_cpu_add_4(pcp, val)	arch_this_cpu_to_op_simple(pcp, val, +)
+diff --git a/arch/s390/include/asm/ptrace.h b/arch/s390/include/asm/ptrace.h
+index aaceb1d9110a..495e310c3d6d 100644
+--- a/arch/s390/include/asm/ptrace.h
++++ b/arch/s390/include/asm/ptrace.h
+@@ -134,6 +134,8 @@ struct pt_regs {
+ 	};
+ 	unsigned long flags;
+ 	unsigned long last_break;
++	unsigned int cpu;
++	unsigned char percpu_register;
+ };
+ 
  /*
-  * Macros to be used for percpu code section based on atomic instructions.
-  *
-@@ -321,8 +312,6 @@ do {									\
- 	ret__;								\
- })
+diff --git a/arch/s390/kernel/irq.c b/arch/s390/kernel/irq.c
+index d10a17e6531d..efb988833c88 100644
+--- a/arch/s390/kernel/irq.c
++++ b/arch/s390/kernel/irq.c
+@@ -33,6 +33,7 @@
+ #include <asm/softirq_stack.h>
+ #include <asm/vtime.h>
+ #include <asm/asm.h>
++#include <asm/entry-percpu.h>
+ #include "entry.h"
  
--#define this_cpu_cmpxchg_1(pcp, oval, nval) arch_this_cpu_cmpxchg(pcp, oval, nval)
--#define this_cpu_cmpxchg_2(pcp, oval, nval) arch_this_cpu_cmpxchg(pcp, oval, nval)
- #define this_cpu_cmpxchg_4(pcp, oval, nval) arch_this_cpu_cmpxchg(pcp, oval, nval)
- #define this_cpu_cmpxchg_8(pcp, oval, nval) arch_this_cpu_cmpxchg(pcp, oval, nval)
+ DEFINE_PER_CPU_SHARED_ALIGNED(struct irq_stat, irq_stat);
+@@ -142,10 +143,13 @@ static int irq_pending(struct pt_regs *regs)
  
-@@ -353,8 +342,6 @@ do {									\
- 	ret__;								\
- })
+ void noinstr do_io_irq(struct pt_regs *regs)
+ {
+-	irqentry_state_t state = irqentry_enter(regs);
+-	struct pt_regs *old_regs = set_irq_regs(regs);
+-	bool from_idle;
++	bool from_idle, percpu_needs_fixup;
++	struct pt_regs *old_regs;
++	irqentry_state_t state;
  
--#define this_cpu_xchg_1(pcp, nval) arch_this_cpu_xchg(pcp, nval)
--#define this_cpu_xchg_2(pcp, nval) arch_this_cpu_xchg(pcp, nval)
- #define this_cpu_xchg_4(pcp, nval) arch_this_cpu_xchg(pcp, nval)
- #define this_cpu_xchg_8(pcp, nval) arch_this_cpu_xchg(pcp, nval)
++	percpu_entry(regs);
++	state = irqentry_enter(regs);
++	old_regs = set_irq_regs(regs);
+ 	from_idle = test_and_clear_cpu_flag(CIF_ENABLED_WAIT);
+ 	if (from_idle)
+ 		update_timer_idle();
+@@ -170,21 +174,25 @@ void noinstr do_io_irq(struct pt_regs *regs)
+ 			do_irq_async(regs, IO_INTERRUPT);
+ 	} while (machine_is_lpar() && irq_pending(regs));
  
++	percpu_needs_fixup = percpu_code_check(regs);
+ 	irq_exit_rcu();
+-
+ 	set_irq_regs(old_regs);
+ 	irqentry_exit(regs, state);
+ 
+ 	if (from_idle)
+ 		regs->psw.mask &= ~(PSW_MASK_EXT | PSW_MASK_IO | PSW_MASK_WAIT);
++	percpu_exit(regs, percpu_needs_fixup);
+ }
+ 
+ void noinstr do_ext_irq(struct pt_regs *regs)
+ {
+-	irqentry_state_t state = irqentry_enter(regs);
+-	struct pt_regs *old_regs = set_irq_regs(regs);
+-	bool from_idle;
++	bool from_idle, percpu_needs_fixup;
++	struct pt_regs *old_regs;
++	irqentry_state_t state;
+ 
++	percpu_entry(regs);
++	state = irqentry_enter(regs);
++	old_regs = set_irq_regs(regs);
+ 	from_idle = test_and_clear_cpu_flag(CIF_ENABLED_WAIT);
+ 	if (from_idle)
+ 		update_timer_idle();
+@@ -206,12 +214,14 @@ void noinstr do_ext_irq(struct pt_regs *regs)
+ 
+ 	do_irq_async(regs, EXT_INTERRUPT);
+ 
++	percpu_needs_fixup = percpu_code_check(regs);
+ 	irq_exit_rcu();
+ 	set_irq_regs(old_regs);
+ 	irqentry_exit(regs, state);
+ 
+ 	if (from_idle)
+ 		regs->psw.mask &= ~(PSW_MASK_EXT | PSW_MASK_IO | PSW_MASK_WAIT);
++	percpu_exit(regs, percpu_needs_fixup);
+ }
+ 
+ static void show_msi_interrupt(struct seq_file *p, int irq)
+diff --git a/arch/s390/kernel/nmi.c b/arch/s390/kernel/nmi.c
+index 94fbfad49f62..e17a59d4d5a4 100644
+--- a/arch/s390/kernel/nmi.c
++++ b/arch/s390/kernel/nmi.c
+@@ -22,6 +22,7 @@
+ #include <linux/module.h>
+ #include <linux/sched/signal.h>
+ #include <linux/kvm_host.h>
++#include <asm/entry-percpu.h>
+ #include <asm/lowcore.h>
+ #include <asm/ctlreg.h>
+ #include <asm/fpu.h>
+@@ -363,6 +364,7 @@ NOKPROBE_SYMBOL(s390_backup_mcck_info);
+  */
+ void notrace s390_do_machine_check(struct pt_regs *regs)
+ {
++	bool percpu_needs_fixup;
+ 	static int ipd_count;
+ 	static DEFINE_SPINLOCK(ipd_lock);
+ 	static unsigned long long last_ipd;
+@@ -374,6 +376,7 @@ void notrace s390_do_machine_check(struct pt_regs *regs)
+ 	unsigned long mcck_dam_code;
+ 	int mcck_pending = 0;
+ 
++	percpu_entry(regs);
+ 	irq_state = irqentry_nmi_enter(regs);
+ 
+ 	if (user_mode(regs))
+@@ -495,7 +498,9 @@ void notrace s390_do_machine_check(struct pt_regs *regs)
+ 	if (mcck_pending)
+ 		schedule_mcck_handler();
+ 
++	percpu_needs_fixup = percpu_code_check(regs);
+ 	irqentry_nmi_exit(regs, irq_state);
++	percpu_exit(regs, percpu_needs_fixup);
+ }
+ NOKPROBE_SYMBOL(s390_do_machine_check);
+ 
+diff --git a/arch/s390/kernel/traps.c b/arch/s390/kernel/traps.c
+index 1b5c6fc431cc..564403496a7c 100644
+--- a/arch/s390/kernel/traps.c
++++ b/arch/s390/kernel/traps.c
+@@ -24,6 +24,7 @@
+ #include <linux/entry-common.h>
+ #include <linux/kmsan.h>
+ #include <linux/bug.h>
++#include <asm/entry-percpu.h>
+ #include <asm/asm-extable.h>
+ #include <asm/irqflags.h>
+ #include <asm/ptrace.h>
+@@ -329,6 +330,7 @@ static void (*pgm_check_table[128])(struct pt_regs *regs);
+ void noinstr __do_pgm_check(struct pt_regs *regs)
+ {
+ 	struct lowcore *lc = get_lowcore();
++	bool percpu_needs_fixup;
+ 	irqentry_state_t state;
+ 	unsigned int trapnr;
+ 	union teid teid;
+@@ -349,6 +351,7 @@ void noinstr __do_pgm_check(struct pt_regs *regs)
+ 		current->thread.gmap_int_code = regs->int_code & 0xffff;
+ 		return;
+ 	}
++	percpu_entry(regs);
+ 	state = irqentry_enter(regs);
+ 	if (user_mode(regs)) {
+ 		update_timer_sys();
+@@ -385,7 +388,9 @@ void noinstr __do_pgm_check(struct pt_regs *regs)
+ 		pgm_check_table[trapnr](regs);
+ out:
+ 	local_irq_disable();
++	percpu_needs_fixup = percpu_code_check(regs);
+ 	irqentry_exit(regs, state);
++	percpu_exit(regs, percpu_needs_fixup);
+ }
+ 
+ /*
 -- 
 2.51.0
 
