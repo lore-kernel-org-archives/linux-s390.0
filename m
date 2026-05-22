@@ -1,105 +1,105 @@
-Received: from mail-ed1-f52.google.com (mail-ed1-f52.google.com [209.85.208.52])
+Received: from mail-pl1-f202.google.com (mail-pl1-f202.google.com [209.85.214.202])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C98D37F8AF
-	for <linux-s390@vger.kernel.org>; Fri, 22 May 2026 22:45:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 45730362137
+	for <linux-s390@vger.kernel.org>; Fri, 22 May 2026 23:06:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.202
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779489919; cv=none; b=HHvSxNvbjdwyuDmmcoJyk8KeSgTzrg9yKNqCQKShKbtXs9I3NCdldSIJBMo94rAR2NeaTztCV9u6w4b2VH0DcS/ogCMcjP2ILStD07zdARsi9tW2x+mMhyTcHlAGyj21tJtO81sh4PD3AA5of1m3HRwQL96KEk+kX6+SmLIQ1O8=
+	t=1779491170; cv=none; b=JaljhbRe5b/2xVczQcINXxJzR/8lzkbdxDmnuRatUb53GEbxFqcF+Rpi44h496hC7BXu0T7V9+M0dmLa7j8US6JU3CfTlOBVSZTPiJLdw50kmKte50RxmHpN3+its+gmBjTGjyLGk4/9roOEnSz8jgZ+DqKFV/eqL7pl6nVVTnc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779489919; c=relaxed/simple;
-	bh=T9KX44UYXGJA7w/mV7wE3XyA+BBG92afu5gBlRGmKT0=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=CWRctPSewAHSJunatODQSNwZkGjZNLyFw5ZrexQg1AeO3mua4bAIcdCDBvH4LRI36N3JYrVzr73FztaemBBwr6oLBKNWKU9qrfHNQRHGd1uLlJQ/B2oP80ioHhNi8x3GMQ641UcUhsr4UtPWgaMJsMlNbx9U1MzcO4YxjO9H92A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org; spf=pass smtp.mailfrom=linuxfoundation.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=Yim2Bzbv; arc=none smtp.client-ip=209.85.208.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linuxfoundation.org
+	s=arc-20240116; t=1779491170; c=relaxed/simple;
+	bh=0FXppDeKTTVTZ6pJebHDrfJ8EGjmC1SknUjLLrTB2mY=;
+	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=tI7bpi723zYcDwStZhXUBXnNqqOdMX48vtOSKMAHBfhmO1eFgBxQbMYhD5LXxsThnT8VGmwZFoXOtvOg+5Oa1hJXgOIEk5LgsvZgbavX9t57FiNeP3til2nbQqggf6+fwsEuuqre9KoWGbyhXXu8t2Qh6bXHQSpnV09vuRM1w+4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--tjmercier.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=YNC2TTXb; arc=none smtp.client-ip=209.85.214.202
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--tjmercier.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="Yim2Bzbv"
-Received: by mail-ed1-f52.google.com with SMTP id 4fb4d7f45d1cf-67b32c695efso15805216a12.1
-        for <linux-s390@vger.kernel.org>; Fri, 22 May 2026 15:45:17 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="YNC2TTXb"
+Received: by mail-pl1-f202.google.com with SMTP id d9443c01a7336-2b4654f9bb6so80253905ad.2
+        for <linux-s390@vger.kernel.org>; Fri, 22 May 2026 16:06:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google; t=1779489916; x=1780094716; darn=vger.kernel.org;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=DGhhwud0T2bSUGixoA5SMvgP96IcOgcTJzS7uIZ7FH8=;
-        b=Yim2Bzbv4BE/ND06CYfIOj9DXaaXlhcAt6ggD0YPWxqZKL5gNB1fbSInDL1nU/mSvr
-         PipmS3uVV42b8zfBwQhxgJBXfpnbtybNz7jiC4rN/dz2BftwDswl7sqcXV7QRGdl0jjg
-         h0Rv9bytEodydDXvavq9oE/odEbgZ/R/QoZt4=
+        d=google.com; s=20251104; t=1779491168; x=1780095968; darn=vger.kernel.org;
+        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=oa6ShCXKOoXccUXmm8NZQPrHCwABB3PfpqI6qY2vEzc=;
+        b=YNC2TTXb1PCKDj6AQ5IgcdmdQKMm2XX/DaVPwtIMA7I4qsOWUIyr5lBdbH55Ine4La
+         Q+UR8ETbBA4aQYqZ/OySyy82QDCEvpvMYM4RVdcJBycUKVyEUKa1QgFhyoJ/8QdbhcMF
+         IxtTdG3+FiYBREglNaONT1QgUXnhPqnFesTCxExqT3NkV1H0dx1LtjT+7Z6X78T5erfn
+         uH/atqaLhI7vrw0lVCbUrNiBpi+Up3qvG1JA/9lVqCh9zF8xc4G7C0x58JHydUs6AObO
+         X+jqt8BdU0tg4jOpPIiwwgRFXPGZ7Qhw/0yIncxn5Gfg22eWWRCWbOIDBquwrXvyNxvS
+         /Iew==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779489916; x=1780094716;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=DGhhwud0T2bSUGixoA5SMvgP96IcOgcTJzS7uIZ7FH8=;
-        b=sQrtQCcAzUCyw6i0Q6DjB6uk++94vh+0D5Y6z0MfKRecCQ6dmMW+Ehsi4b6nTNJP/Y
-         Iobg+donTTKfwvPX4POqjV+deXHBvaydBJW1XvqjOSRkOeDjf8cyPaQHkFKVfxygI+tl
-         aoS1lMWEvqdUbH0YwgIrjVc0Vo24gnI04LBdWZFEP0cP8Sadlf0KRrN8JK3a+jzyVXA9
-         Q12oecJkpUPDiFactIa458vkYXjNszY3McS94MFcXvmQPu1//cCEcN5dNPNjkJcM1RFC
-         M8E8I8WOKPU/nIbtw3R3GjC8I9UlRIWieEwu9FeOlSIrLFmPtKNvE0yUjLSL9H/bl+Ct
-         JA3A==
-X-Forwarded-Encrypted: i=1; AFNElJ8yQyP1EljYgirxLahk4hAVavmxdk99TGYwKo1veSvzQMsaDKR0L2Kr0ZRGZH/IGPYYkEXb6bqjl4TR@vger.kernel.org
-X-Gm-Message-State: AOJu0Yzc03JaW2xIn0gTdjiXXjKkQLJ4IEIDOq5uwVNu5KNW2Md8tQ0/
-	Ci4z05BFFpgzZ7Hl7CZ2YdjoZKAsNyE3anj6Cuactx78BThL8mqu/4Re9VVSn6cSCGOXjJa1G+h
-	M03K3qAA=
-X-Gm-Gg: Acq92OEY8FF9hWs6uWFaVOpg4lIqVDVRwJ7naO3r6gzNdCLSYqU2reqkgLDllqmcmbe
-	xzL4HKYOWpoxUoCAMkwMUWer2MW9z7pMYdIsgDhYOT4SLvcfIsUClRNw0yuJfFpV181E7AjaR3K
-	EGdfzZ5fyXB2OaRQgSJ2TdV0NuzG7qxNLfo5pVVkkujzv1km4Mg34ni1oqP3C6k5Z9N4SOAATH5
-	ShoaGSYIl6qe5dL4AFoE5CJ8eWm2ljOv6PJJ70k0uEEautA3WLiBCBwhSIuCGh2Ul6Jrz1i9uhS
-	CGsnh/5DD0flWiCd3it/FwI+tLXIfYWU3tXmvzsi1F8Rjvt8eXGJ19hmbk+ujg/1+l9aLwXc9bQ
-	1d/OP78hfHtMWQ1Oz9obhhjrH9purq6Lg6disYPcXUs85XBMjfFXgu2zGtxYrK4Mek/zrtzeNEq
-	+FLXeJvKX2EPCRojh9wHdy2r5AJ+sjWz1GQC/LgtaWjF0Xw46lKcUSNaZF8HD17zdAFmQbbAwl
-X-Received: by 2002:a17:907:b0c:b0:bc1:c4d:cc70 with SMTP id a640c23a62f3a-bdd47df5a02mr225624166b.2.1779489916556;
-        Fri, 22 May 2026 15:45:16 -0700 (PDT)
-Received: from mail-ej1-f53.google.com (mail-ej1-f53.google.com. [209.85.218.53])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-bddc5ece387sm98499966b.41.2026.05.22.15.45.15
-        for <linux-s390@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 22 May 2026 15:45:16 -0700 (PDT)
-Received: by mail-ej1-f53.google.com with SMTP id a640c23a62f3a-bcda7765d64so1617574666b.1
-        for <linux-s390@vger.kernel.org>; Fri, 22 May 2026 15:45:15 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AFNElJ/rQL9ldsiuTYHVnbT2X3FrRehbaExczrVGctWOHmTFYZZwVsI/MHYBemoapgTJucm2xm4B8bee2k7k@vger.kernel.org
-X-Received: by 2002:a17:906:6a23:b0:bd3:329e:81e0 with SMTP id
- a640c23a62f3a-bdbffc5fe4bmr534033366b.9.1779489915282; Fri, 22 May 2026
- 15:45:15 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1779491168; x=1780095968;
+        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=oa6ShCXKOoXccUXmm8NZQPrHCwABB3PfpqI6qY2vEzc=;
+        b=FhJLhI6pOLbla6/bW2j25RseOsk7gVoixBMlJpDawT3VkeXygZhUFtyyBQL3kUv/ZZ
+         ZqgeDUOvDWtICsCRenxXsPR1lm/Ed0DG3UIiog05c4ycbf43YF0dF7YA5F9ZBSX8RXjc
+         +O52kB7viPrkY6kD7143iPaSv9HNm2HWvEnQRNgGVDATGqEUdo7lQQ881zNf+DwNkr6n
+         fZufEdN35PSAhwosy4+VoEwl44HNDW9Hj9RmqVSjwKLpMW9U8ETjxNl1CSsqhumJF5yJ
+         FQUzoTXPEiPQjTtfoNvwzSH/Ul06Uqn8gjZsVX7GsYYfiYLW4eV4mIGdwKUHLWpo/N4n
+         EI6Q==
+X-Forwarded-Encrypted: i=1; AFNElJ9cMcikuY7g/0S8WrjQPvX31MMim77kiXgKdccvWJbvtpY+FVwSpHoT4vcE02n5Mecrj6cps26M8y/l@vger.kernel.org
+X-Gm-Message-State: AOJu0Yx1q2ZrsUTzJsCTFHBB+kLRLvAKX6KZBz8zdvo9HooVhYjl2qYp
+	E2NxYlJDye7tEsVCpCgiaJzDMiyHCiX9w5Egq8D9dLrEmeSE2fbpkpbdceNKJXdRB/9u0sintUj
+	CCCyiJekRFScZhsGorA==
+X-Received: from plgk16.prod.google.com ([2002:a17:902:ce10:b0:2bd:b542:cb02])
+ (user=tjmercier job=prod-delivery.src-stubby-dispatcher) by
+ 2002:a17:902:cf08:b0:2b7:aa20:3c61 with SMTP id d9443c01a7336-2beb083ee1fmr56196155ad.33.1779491168236;
+ Fri, 22 May 2026 16:06:08 -0700 (PDT)
+Date: Fri, 22 May 2026 16:06:05 -0700
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <20260511214226.937793-1-minchan@kernel.org> <20260515-nachdenken-umbenannt-a90006a46e14@brauner>
- <agd--WZpeTq2iKFW@redhat.com> <agefLhQeWpvil14M@google.com>
- <CAHk-=wiHfzbufXD2nuc9BhOVp-pYEmnVUYeThKmfZRXLU0kJ7w@mail.gmail.com>
- <aggE2haQ7yGeHPeF@google.com> <CAHk-=wg08=sZb=hVa22KjN2pD3aNk-diGmKQnizCgmoMMfrvwQ@mail.gmail.com>
- <agzNyXKIirm1zOob@google.com> <CAHk-=whqfr-M9ip9OWAUR1X6aOEy2P4gSWYDkbkTCc3E=jCz_A@mail.gmail.com>
-In-Reply-To: <CAHk-=whqfr-M9ip9OWAUR1X6aOEy2P4gSWYDkbkTCc3E=jCz_A@mail.gmail.com>
-From: Linus Torvalds <torvalds@linux-foundation.org>
-Date: Fri, 22 May 2026 15:44:59 -0700
-X-Gmail-Original-Message-ID: <CAHk-=whMQsyjB6DOyWB73jPR4wrtcc++kZy4=hGQiRE+GxKh=A@mail.gmail.com>
-X-Gm-Features: AVHnY4JHHOP3swFysb8Yirnvo4-2-fu_dlBx3L_5llutkMME2AiE0nERZWyjwO0
-Message-ID: <CAHk-=whMQsyjB6DOyWB73jPR4wrtcc++kZy4=hGQiRE+GxKh=A@mail.gmail.com>
-Subject: Re: [PATCH v3] mm: process_mrelease: introduce PROCESS_MRELEASE_REAP_KILL
- flag
-To: Minchan Kim <minchan@kernel.org>
-Cc: Oleg Nesterov <oleg@redhat.com>, Christian Brauner <brauner@kernel.org>, Jann Horn <jannh@google.com>, 
-	akpm@linux-foundation.org, hca@linux.ibm.com, linux-s390@vger.kernel.org, 
-	david@kernel.org, mhocko@suse.com, linux-mm@kvack.org, 
-	linux-kernel@vger.kernel.org, surenb@google.com, timmurray@google.com
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.54.0.746.g67dd491aae-goog
+Message-ID: <20260522230606.883180-1-tjmercier@google.com>
+Subject: [PATCH] s390/mm: Export set_memory_encrypted and set_memory_decrypted
+From: "T.J. Mercier" <tjmercier@google.com>
+To: agordeev@linux.ibm.com, gerald.schaefer@linux.ibm.com, 
+	linux-s390@vger.kernel.org, mripard@kernel.org, sumit.semwal@linaro.org
+Cc: linux-kernel@vger.kernel.org, "T.J. Mercier" <tjmercier@google.com>
 Content-Type: text/plain; charset="UTF-8"
 
-On Fri, 22 May 2026 at 15:41, Linus Torvalds
-<torvalds@linux-foundation.org> wrote:
->
-> At that point it will go through at most one iteration of show_smap()
-> with the lock held, but that will be true even for your
-> PIDFD_SIGNAL_PROCESS_GROUP_EXPEDITE case.
+After commit fd55edff8a0a ("dma-buf: heaps: system: Turn the heap into a
+module") the system dma-buf heaps can be built as a module. The
+system_cc_shared heap uses set_memory_encrypted and set_memory_decrypted
+but those functions are not exported on s390. This results in a build
+error like:
 
-.. basically, what I'm arguing for is really to try to fix the
-underlying *reason* for problems, not add new code and new
-infrastructure elsewhere just because /proc/pid/smap and friends are
-being difficult.
+>> ERROR: modpost: "set_memory_decrypted" [drivers/dma-buf/heaps/system_heap.ko] undefined!
+>> ERROR: modpost: "set_memory_encrypted" [drivers/dma-buf/heaps/system_heap.ko] undefined!
 
-Let's really try to make them *not* cause difficulties for others instead.
+Export the functions so system_heap.ko can be built.
 
-          Linus
+Fixes: fd55edff8a0a ("dma-buf: heaps: system: Turn the heap into a module")
+Signed-off-by: T.J. Mercier <tjmercier@google.com>
+---
+ arch/s390/mm/init.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
+index 36bd9530db52..8244b57da31c 100644
+--- a/arch/s390/mm/init.c
++++ b/arch/s390/mm/init.c
+@@ -124,6 +124,7 @@ int set_memory_encrypted(unsigned long vaddr, int numpages)
+ 	}
+ 	return 0;
+ }
++EXPORT_SYMBOL_GPL(set_memory_encrypted);
+ 
+ int set_memory_decrypted(unsigned long vaddr, int numpages)
+ {
+@@ -135,6 +136,7 @@ int set_memory_decrypted(unsigned long vaddr, int numpages)
+ 	}
+ 	return 0;
+ }
++EXPORT_SYMBOL_GPL(set_memory_decrypted);
+ 
+ /* are we a protected virtualization guest? */
+ bool force_dma_unencrypted(struct device *dev)
+-- 
+2.54.0.746.g67dd491aae-goog
+
