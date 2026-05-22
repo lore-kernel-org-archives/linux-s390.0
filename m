@@ -1,169 +1,171 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f45.google.com (mail-wm1-f45.google.com [209.85.128.45])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 048DA44BC8E;
-	Fri, 22 May 2026 14:31:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ACCFC31D381
+	for <linux-s390@vger.kernel.org>; Fri, 22 May 2026 15:30:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779460295; cv=none; b=bOk17PWv2k07z/cNbNsxjZuuRTmg89E4mbGED534cygQ4ldvqhEVJmWfW8wBGXHRW7ugQ5RlAGwZQgnc/km+T/f1Hv2TjZZzUfItK2MUdkPpnWceaGz987SXIxk9eY//XcIUjYfED0O2j+wXBHx0NJ8CAXHoZY6m5k9AdUMfF4Y=
+	t=1779463822; cv=none; b=Ca2nMxx8YeDXKZIipbVyAuzd/xwbg+4H0mQT/zYPI8b87wLDbXoZpv2luAJUwLG1/x5EUuiq+NCqFfX6h8mYdHjHvl+d1/sreSG0P82VgUDdx4ilqkjRq0WltCpPNQ9L7UVMMMGphf4+0t3eT0VKXWRwm2UFA2T/bDmLPfEZ0NY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779460295; c=relaxed/simple;
-	bh=tumC/KjkJEAap+lYQT7Vz3mdP+3Ci/aFENwA9SbANK8=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=iCAiNd6kUGwnJgq5ZuQQWiZBfUUJF9x57M+fe9buojgcYktNAZolFaBjk3xdsE8RrsHHevj09pFDKg/9FuRDNvvknQoKeM24z08PxSVExizPNRQEK89gVodfRO2umapY6DysUU73BdvCQaZrKOOGkQbK17/ig8QptDykSr74Wsc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=srZ1fqfZ; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1779463822; c=relaxed/simple;
+	bh=jgfGgoNNtT1dpeJOzCcI62vYDerLNLfToFocSoP6lHQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=UQzbZFTH7NCXmVFH6+rhJbNiAm8Ws3iyFcMoD623if0apQCBOnrpVWMKnlldAGxUOxxWDqY57j9eJE5dkl8/eoeUp7d9QyRf90cRbbzuIqPBGdGFL688+3v8SvRn04N+vVo8IvYdH0srsKHsihuFSm0kHj87VwXYTVEcg0mgRTM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b=H7IPP/VR; arc=none smtp.client-ip=209.85.128.45
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="srZ1fqfZ"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 64M86Y393681418;
-	Fri, 22 May 2026 14:31:16 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=axgqIGGle4yfbA5PIa8oerhCL3MRuCYnPvfk+mak6
-	WA=; b=srZ1fqfZ/XyDI5UbpyKSVnYu60gktcuyGdWrFMRqp6gWjL5+h3r7I51YC
-	vV8kQnJW1qLQ7+MgxswlfHBIanbnju6feCRI9O/PuQFW0LzLVqTgauwXv57OBweI
-	0GpYmWsZnkMtcnOTPjwSvQbC13+glb4ubKwnI6dqOF9VOh4gvFa/JpGSSONG51ZZ
-	aI5LCqCrxwyz48hezOwi65W/gUl8hikTLBzIK/vRbmv/r0cRmtFZdqyV8zY8425Y
-	q+nGWDAh78stgjrhfIFsyoy7+cV++330zEqjE3PD5sT4Bf2TO9K0lBzQtCa6J2XU
-	7cNzDHS6NbfgkCaz/cs+4405QDddQ==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4e6h9ycgqu-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 22 May 2026 14:31:16 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 64MEOC5J030064;
-	Fri, 22 May 2026 14:31:15 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4e73wkh86t-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 22 May 2026 14:31:15 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 64MEVBDD28639634
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 22 May 2026 14:31:11 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7B5DA20040;
-	Fri, 22 May 2026 14:31:11 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5609120043;
-	Fri, 22 May 2026 14:31:11 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 22 May 2026 14:31:11 +0000 (GMT)
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>
-Cc: Manuel Ebner <manuelebner@mailbox.org>, Kees Cook <kees@kernel.org>,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: [PATCH] s390/string: Remove strlcat() implementation
-Date: Fri, 22 May 2026 16:31:11 +0200
-Message-ID: <20260522143111.443100-1-hca@linux.ibm.com>
-X-Mailer: git-send-email 2.51.0
+	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b="H7IPP/VR"
+Received: by mail-wm1-f45.google.com with SMTP id 5b1f17b1804b1-48e6db3ff7eso39349745e9.0
+        for <linux-s390@vger.kernel.org>; Fri, 22 May 2026 08:30:19 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=baylibre.com; s=google; t=1779463818; x=1780068618; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=8mC6YmKGbcgPvjI1xvNdPKo2F0RFZ1L9Hpnxyf+wD6k=;
+        b=H7IPP/VRKJVY912WasdwnJ8rbbxxXMjlyZuZnZykWiHL2QuvF4ocnRmEJ9rZN8vRz3
+         yV6ydau9BAB74AgBOvY+kyi8/PL9QB8aWnadtkXJTY0TcqXhi6cBnTxYXvdXv5mtpt6p
+         Im0FOMo5uYqAfaaL/Nbzzmql0yaif3ud/3U8N89ZAli8GsysjT/ei7wq3uY5XeFcwscV
+         P6cfyxdX7/3PPg+eY4yqiFdlI2SYqqibZDw43J+iq64HWBeGRahipS+YuyP6EDf3vTEb
+         s4aPmjcLfWWHpYg7VEc1KfKjd0OTwrbJg03wtRRGiOv98830sE38y279tW+emxyAOJk/
+         mjDQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1779463818; x=1780068618;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=8mC6YmKGbcgPvjI1xvNdPKo2F0RFZ1L9Hpnxyf+wD6k=;
+        b=Km88sOoluryJkf7J5W6v3SWzfI/Gi4blzgffeY/NxVC068+MP0/WfLRUCbB1ihmClW
+         /51M6KsxkiwpRRRt/pLT4DJiUuE/oGRN6a6Tu2CfSJ5lLvKGvaShauFaMybYzO5FEdCw
+         gOdjC3OURLCFYXF5h5wKsvtod0AymLHg/TUqiP8Lk+Sk7w36GGgUMgjINft3kQzR71uk
+         moen+lqiptA1xhe8biWwStBTFiyfmDgL21mbb8DQ57aF5p87n9OyJiad0S6EtTL5zPS6
+         V6B7TdBwBRMyTAmKrpeHREf3CTxZzhEghf+Sffic5IHOhsyQ25DcD8aCk0XQOGU1MvhW
+         w5KQ==
+X-Forwarded-Encrypted: i=1; AFNElJ+r4WMmOK2BHl+d3bM3L9lQj3M0jmS2xo5cF79yZBSk0k3KRFW3+hAtX781rg8foVZjsxTqleSPKnsc@vger.kernel.org
+X-Gm-Message-State: AOJu0YyG744Yp0JRR4x1rY4zLmaSSqpUUYD84p8NBQ2GS345zlhfZVT5
+	MsIAz4nalQs9hbZ2kfPtZX/i4Ld/RRQQ6Gb0g78lLTDcIqXrBR1ftoczY+ci1V6+ye8=
+X-Gm-Gg: Acq92OFF4rwze3zU2ww98P9b1KTleMVFtJqEvKytmwES1S9Ozsqutd7gZ2Cyzg4HrmG
+	F4Ep0gjfFveZBHXnKWEBe+Q2n9yH1D+T4sHgD0ADByW76kQICn7x654nBxcKNBh+P2ujOqPv/kF
+	V+DjJP2WdOk71PYQg5SmlFCqTiJEcGHnNmIlZLlGdppPT3RBEduSubc5Mih95FVzBUAh6RtCkNZ
+	iVIUXGJaQPEbZDO/RjbErbL5IHDD76Xc/SXUEDCkvOWUYwiREViqahbHAN6U98EUXCVqnJJAijo
+	k7Mk/u64SOO/4Q4+HUTVVvQ7zlhGjI7FPOUj9K0vcb80NBQEiXXN2vE1wbg7s9ZiaR4nFKzK2KE
+	TuQRJIFQl9NyrE4BMJCgKWXSqqkXePfXbvAMJxjdvq9OwLNTC5nvWy1Hd2LjacgHfI0xlgpzlcu
+	qysMFQKI45uTYUYOGPukorJUMZPD5HD/xQvphdXzHk68qbkoX0yHPwTbeeJ3e7Cjc3iNDxV5B+m
+	Qc1RFO0BRopRHc=
+X-Received: by 2002:a05:600c:3112:b0:490:40ee:d561 with SMTP id 5b1f17b1804b1-49042487e14mr57090625e9.7.1779463818055;
+        Fri, 22 May 2026 08:30:18 -0700 (PDT)
+Received: from localhost (p200300f65f47db04fdedbb26b9ad100d.dip0.t-ipconnect.de. [2003:f6:5f47:db04:fded:bb26:b9ad:100d])
+        by smtp.gmail.com with UTF8SMTPSA id 5b1f17b1804b1-4904179c615sm19335555e9.4.2026.05.22.08.30.16
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 22 May 2026 08:30:16 -0700 (PDT)
+From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig=20=28The=20Capable=20Hub=29?= <u.kleine-koenig@baylibre.com>
+To: Alexandra Winter <wintera@linux.ibm.com>,
+	Aswin Karuvally <aswin@linux.ibm.com>
+Cc: Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	linux-s390@vger.kernel.org,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v1 net-next] s390/ism: Drop superflous zeros in pci_device_id array
+Date: Fri, 22 May 2026 17:30:09 +0200
+Message-ID: <20260522153010.777081-2-u.kleine-koenig@baylibre.com>
+X-Mailer: git-send-email 2.47.3
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+X-Developer-Signature: v=1; a=openpgp-sha256; l=3296; i=u.kleine-koenig@baylibre.com; h=from:subject; bh=jgfGgoNNtT1dpeJOzCcI62vYDerLNLfToFocSoP6lHQ=; b=owEBbQGS/pANAwAKAY+A+1h9Ev5OAcsmYgBqEHaC0pvCCp+h5VkYJmhzo/Mv4dpfaM605RjVM DQwz3dUu16JATMEAAEKAB0WIQQ/gaxpOnoeWYmt/tOPgPtYfRL+TgUCahB2ggAKCRCPgPtYfRL+ TuLuB/9R5g3cb6bPRPsQXqpV0jjvv7NzE5fns437rY4vjBTkAG4ia92B7JWDedDcKlh4j94tlov dDI+78V7NyfiFctPdoU1yaWutFFRNf91krp8Yqs9ruJASIV8aq/ku5X/hhcE9rOsdVBwjdm2/qv KjEGyFkuxolTzC7UakAHXSi0sxq6X2ZytqtXptb4SUJDOJCx2WmEcrA5t7kqD1paItpKCwUUbB9 JJxFVb5C2HmZWVL6GedHo4Md7HdIV0EhSVpFLpanLTEt9PGPwdJppfQxHtCH6XXpEL501RuLGC6 +gAIHWysC3BgCV4jLUgIAqGHppwI0ZWckDlNUWSQ3d+R1XZU
+X-Developer-Key: i=u.kleine-koenig@baylibre.com; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTIyMDE0MSBTYWx0ZWRfX6haZJyz+gveH
- igeELSddQ48gR/kLjXXMiWjZMa+D95RA3WydbUDSusnw1aieoKmVOwCdTw7UqGuAIpoRmT6PXqq
- PDSetydt8H2yLCI7rsSD8PTDZyxs5h/8eAYyymgTyWPXom32iMU94/sjxYoqDIDKdnMYvOf1uEh
- EgmNRIZShgJF1H5/Q5giSn/I63PwSmq48ahi5OkgwlhSRS4DjMyVMxr0DQOlpWBWHonORK3pa5O
- piSnThUlGN7nGSSb1BH4WOz9C0sud8Bm5EGk9lJWarLR56EltRXuJlX0XrTVVSbH0FlHA57i0LX
- GAF37HbBTviNafpIOmEpZndxJbLFN17zmAy3tGW5TwzyfkRl9e6PT8FrrcUPdvMg0YiMwUPAQw1
- PSwkQy59ft3lk/1eN8eGLbljhAIL5DwAIYlPnSOp3n6voM7xvQUORdUar1Q3EgfMk6zYmhLCFCx
- zAgixbEPs1ttCsx9KXA==
-X-Authority-Analysis: v=2.4 cv=BNuDalQG c=1 sm=1 tr=0 ts=6a1068b4 cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=NGcC8JguVDcA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=iQ6ETzBq9ecOQQE5vZCe:22 a=VwQbUJbxAAAA:8 a=b3CbU_ItAAAA:8 a=VnNF1IyMAAAA:8
- a=OMIvWfQPTyIrM7UbE7wA:9 a=Rv2g8BkzVjQTVhhssdqe:22
-X-Proofpoint-ORIG-GUID: 8l3EhI2g9uwywGQqQIvfX7SwgblSFDSU
-X-Proofpoint-GUID: 8l3EhI2g9uwywGQqQIvfX7SwgblSFDSU
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-05-22_03,2026-05-18_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- adultscore=0 priorityscore=1501 malwarescore=0 impostorscore=0 suspectscore=0
- lowpriorityscore=0 phishscore=0 bulkscore=0 spamscore=0 clxscore=1015
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2605130000 definitions=main-2605220141
 
-strlcat() shouldn't be used anymore (see fortify-string.h), and will be
-deprecated / removed sooner or later [1].
+The .driver_data member of the struct pci_device_id array were
+initialized by a list expressions to zero without making use of that
+value. In this case it's better to not specify a value at all and let
+the compiler fill in the zeros. Same for the list terminator that can
+better be completely empty.
 
-Therefore remove the s390 implementation of strlcat() in favor of the
-generic variant.
+This patch doesn't introduce changes to the compiled array.
 
-[1] https://lore.kernel.org/all/20260514160719.105084-3-manuelebner@mailbox.org/
-
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Uwe Kleine-König (The Capable Hub) <u.kleine-koenig@baylibre.com>
 ---
- arch/s390/include/asm/string.h |  2 --
- arch/s390/lib/string.c         | 26 --------------------------
- 2 files changed, 28 deletions(-)
+Hello,
 
-diff --git a/arch/s390/include/asm/string.h b/arch/s390/include/asm/string.h
-index 238e721e5a22..378f85304ef5 100644
---- a/arch/s390/include/asm/string.h
-+++ b/arch/s390/include/asm/string.h
-@@ -26,7 +26,6 @@ void *memmove(void *dest, const void *src, size_t n);
- #define __HAVE_ARCH_MEMSCAN	/* inline & arch function */
- #define __HAVE_ARCH_STRCAT	/* inline & arch function */
- #define __HAVE_ARCH_STRCMP	/* arch function */
--#define __HAVE_ARCH_STRLCAT	/* arch function */
- #define __HAVE_ARCH_STRLEN	/* inline & arch function */
- #define __HAVE_ARCH_STRNCAT	/* arch function */
- #define __HAVE_ARCH_STRNLEN	/* inline & arch function */
-@@ -38,7 +37,6 @@ void *memmove(void *dest, const void *src, size_t n);
- /* Prototypes for non-inlined arch strings functions. */
- int memcmp(const void *s1, const void *s2, size_t n);
- int strcmp(const char *s1, const char *s2);
--size_t strlcat(char *dest, const char *src, size_t n);
- char *strncat(char *dest, const char *src, size_t n);
- char *strstr(const char *s1, const char *s2);
- #endif /* !defined(CONFIG_KASAN) && !defined(CONFIG_KMSAN) */
-diff --git a/arch/s390/lib/string.c b/arch/s390/lib/string.c
-index 757f58960198..a48e5bb3c15f 100644
---- a/arch/s390/lib/string.c
-+++ b/arch/s390/lib/string.c
-@@ -104,32 +104,6 @@ char *strcat(char *dest, const char *src)
- EXPORT_SYMBOL(strcat);
- #endif
+while being a cleanup that can stand on its own this is also a
+preparation for making driver_data an anonymous union that requires that
+.driver_data is initialized by name and not by list order. The union
+allows to make better use of the C type system and drops the need for
+casting. The change to a driver will look as follows:
+
+	diff --git a/arch/x86/platform/intel-mid/pwr.c b/arch/x86/platform/intel-mid/pwr.c
+	index 1739971478ff..c0d9da81d512 100644
+	--- a/arch/x86/platform/intel-mid/pwr.c
+	+++ b/arch/x86/platform/intel-mid/pwr.c
+	@@ -347,7 +347,7 @@ struct mid_pwr_device_info {
+	 
+	 static int mid_pwr_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+	 {
+	-	struct mid_pwr_device_info *info = (void *)id->driver_data;
+	+	struct mid_pwr_device_info *info = id->driver_data_ptr;
+		struct device *dev = &pdev->dev;
+		struct mid_pwr *pwr;
+		int ret;
+	@@ -471,8 +471,8 @@ static const struct mid_pwr_device_info tng_info = {
+	 
+	 /* This table should be in sync with the one in drivers/pci/pci-mid.c */
+	 static const struct pci_device_id mid_pwr_pci_ids[] = {
+	-	{ PCI_VDEVICE(INTEL, PCI_DEVICE_ID_PENWELL), .driver_data = (kernel_ulong_t)&pnw_info },
+	-	{ PCI_VDEVICE(INTEL, PCI_DEVICE_ID_TANGIER), .driver_data = (kernel_ulong_t)&tng_info },
+	+	{ PCI_VDEVICE(INTEL, PCI_DEVICE_ID_PENWELL), .driver_data_ptr = &pnw_info },
+	+	{ PCI_VDEVICE(INTEL, PCI_DEVICE_ID_TANGIER), .driver_data_ptr = &tng_info },
+		{}
+	 };
  
--/**
-- * strlcat - Append a length-limited, %NUL-terminated string to another
-- * @dest: The string to be appended to
-- * @src: The string to append to it
-- * @n: The size of the destination buffer.
-- */
--#ifdef __HAVE_ARCH_STRLCAT
--size_t strlcat(char *dest, const char *src, size_t n)
--{
--	size_t dsize = __strend(dest) - dest;
--	size_t len = __strend(src) - src;
--	size_t res = dsize + len;
--
--	if (dsize < n) {
--		dest += dsize;
--		n -= dsize;
--		if (len >= n)
--			len = n - 1;
--		dest[len] = '\0';
--		memcpy(dest, src, len);
--	}
--	return res;
--}
--EXPORT_SYMBOL(strlcat);
--#endif
--
- /**
-  * strncat - Append a length-limited, %NUL-terminated string to another
-  * @dest: The string to be appended to
+which is a nice improvement dropping three casts and that will make the
+compiler say:
+
+arch/x86/platform/intel-mid/pwr.c: In function ‘mid_pwr_probe’:
+arch/x86/platform/intel-mid/pwr.c:350:44: error: initialization discards ‘const’ qualifier from pointer target type [-Werror=discarded-qualifiers]
+  350 |         struct mid_pwr_device_info *info = id->driver_data_ptr;
+      |                                            ^~
+
+(so it promotes that driver data is supposed to be const).
+
+The patch under discussion touches the only pci driver below
+drivers/s390, so the example is from a different subsystem. Also this
+means no further patches for this part of my quest to that subsystem.
+
+Best regards
+Uwe
+ drivers/s390/net/ism_drv.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/s390/net/ism_drv.c b/drivers/s390/net/ism_drv.c
+index 7d0479e4e095..d99c588d3e00 100644
+--- a/drivers/s390/net/ism_drv.c
++++ b/drivers/s390/net/ism_drv.c
+@@ -23,8 +23,8 @@ MODULE_LICENSE("GPL");
+ #define DRV_NAME "ism"
+ 
+ static const struct pci_device_id ism_device_table[] = {
+-	{ PCI_VDEVICE(IBM, PCI_DEVICE_ID_IBM_ISM), 0 },
+-	{ 0, }
++	{ PCI_VDEVICE(IBM, PCI_DEVICE_ID_IBM_ISM) },
++	{ }
+ };
+ MODULE_DEVICE_TABLE(pci, ism_device_table);
+ 
+
+base-commit: 254f49634ee16a731174d2ae34bc50bd5f45e731
 -- 
-2.51.0
+2.47.3
 
