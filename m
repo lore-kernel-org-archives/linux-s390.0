@@ -1,171 +1,206 @@
-Received: from mail-wm1-f45.google.com (mail-wm1-f45.google.com [209.85.128.45])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ACCFC31D381
-	for <linux-s390@vger.kernel.org>; Fri, 22 May 2026 15:30:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 40FEA400E1B;
+	Fri, 22 May 2026 15:35:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779463822; cv=none; b=Ca2nMxx8YeDXKZIipbVyAuzd/xwbg+4H0mQT/zYPI8b87wLDbXoZpv2luAJUwLG1/x5EUuiq+NCqFfX6h8mYdHjHvl+d1/sreSG0P82VgUDdx4ilqkjRq0WltCpPNQ9L7UVMMMGphf4+0t3eT0VKXWRwm2UFA2T/bDmLPfEZ0NY=
+	t=1779464160; cv=none; b=K6r6M2o/NUeF8VrqALRFl1VSfBljUSQ1eCEIDgfARTjYYpqVKWKc7H1RDooDkz8+6FkJf7liWYgoOcPK4+SEQ4r9PS25ZgnmiR08LQuNbMEhSOxXJGpuJY+A2e3AS79b7ZxXzKxCCvhsvNKyQ0R38ORwsRDxZPGlqYC0jASdBpw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779463822; c=relaxed/simple;
-	bh=jgfGgoNNtT1dpeJOzCcI62vYDerLNLfToFocSoP6lHQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=UQzbZFTH7NCXmVFH6+rhJbNiAm8Ws3iyFcMoD623if0apQCBOnrpVWMKnlldAGxUOxxWDqY57j9eJE5dkl8/eoeUp7d9QyRf90cRbbzuIqPBGdGFL688+3v8SvRn04N+vVo8IvYdH0srsKHsihuFSm0kHj87VwXYTVEcg0mgRTM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b=H7IPP/VR; arc=none smtp.client-ip=209.85.128.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
+	s=arc-20240116; t=1779464160; c=relaxed/simple;
+	bh=sUqS+RiVvz66OSblPd/7PIejIYT5taU4juyl1DXEeo4=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=YYfbR0H5IhSwqMEc+xPVms1Iti+qYJTObp4oqJED7IE5OoPK/CX/S82hmzP6Luvd1s/X7RpEK904MBAzTEMrGO7BxeYnukiXFzSWTF3TI8gKBGapXCu/AVKAlW3/XeD/8IeoOZA1ubPCvXtZNx94ILNPs1WAAoD12wOqBMGZ+64=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ni/FRil7; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b="H7IPP/VR"
-Received: by mail-wm1-f45.google.com with SMTP id 5b1f17b1804b1-48e6db3ff7eso39349745e9.0
-        for <linux-s390@vger.kernel.org>; Fri, 22 May 2026 08:30:19 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre.com; s=google; t=1779463818; x=1780068618; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=8mC6YmKGbcgPvjI1xvNdPKo2F0RFZ1L9Hpnxyf+wD6k=;
-        b=H7IPP/VRKJVY912WasdwnJ8rbbxxXMjlyZuZnZykWiHL2QuvF4ocnRmEJ9rZN8vRz3
-         yV6ydau9BAB74AgBOvY+kyi8/PL9QB8aWnadtkXJTY0TcqXhi6cBnTxYXvdXv5mtpt6p
-         Im0FOMo5uYqAfaaL/Nbzzmql0yaif3ud/3U8N89ZAli8GsysjT/ei7wq3uY5XeFcwscV
-         P6cfyxdX7/3PPg+eY4yqiFdlI2SYqqibZDw43J+iq64HWBeGRahipS+YuyP6EDf3vTEb
-         s4aPmjcLfWWHpYg7VEc1KfKjd0OTwrbJg03wtRRGiOv98830sE38y279tW+emxyAOJk/
-         mjDQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779463818; x=1780068618;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=8mC6YmKGbcgPvjI1xvNdPKo2F0RFZ1L9Hpnxyf+wD6k=;
-        b=Km88sOoluryJkf7J5W6v3SWzfI/Gi4blzgffeY/NxVC068+MP0/WfLRUCbB1ihmClW
-         /51M6KsxkiwpRRRt/pLT4DJiUuE/oGRN6a6Tu2CfSJ5lLvKGvaShauFaMybYzO5FEdCw
-         gOdjC3OURLCFYXF5h5wKsvtod0AymLHg/TUqiP8Lk+Sk7w36GGgUMgjINft3kQzR71uk
-         moen+lqiptA1xhe8biWwStBTFiyfmDgL21mbb8DQ57aF5p87n9OyJiad0S6EtTL5zPS6
-         V6B7TdBwBRMyTAmKrpeHREf3CTxZzhEghf+Sffic5IHOhsyQ25DcD8aCk0XQOGU1MvhW
-         w5KQ==
-X-Forwarded-Encrypted: i=1; AFNElJ+r4WMmOK2BHl+d3bM3L9lQj3M0jmS2xo5cF79yZBSk0k3KRFW3+hAtX781rg8foVZjsxTqleSPKnsc@vger.kernel.org
-X-Gm-Message-State: AOJu0YyG744Yp0JRR4x1rY4zLmaSSqpUUYD84p8NBQ2GS345zlhfZVT5
-	MsIAz4nalQs9hbZ2kfPtZX/i4Ld/RRQQ6Gb0g78lLTDcIqXrBR1ftoczY+ci1V6+ye8=
-X-Gm-Gg: Acq92OFF4rwze3zU2ww98P9b1KTleMVFtJqEvKytmwES1S9Ozsqutd7gZ2Cyzg4HrmG
-	F4Ep0gjfFveZBHXnKWEBe+Q2n9yH1D+T4sHgD0ADByW76kQICn7x654nBxcKNBh+P2ujOqPv/kF
-	V+DjJP2WdOk71PYQg5SmlFCqTiJEcGHnNmIlZLlGdppPT3RBEduSubc5Mih95FVzBUAh6RtCkNZ
-	iVIUXGJaQPEbZDO/RjbErbL5IHDD76Xc/SXUEDCkvOWUYwiREViqahbHAN6U98EUXCVqnJJAijo
-	k7Mk/u64SOO/4Q4+HUTVVvQ7zlhGjI7FPOUj9K0vcb80NBQEiXXN2vE1wbg7s9ZiaR4nFKzK2KE
-	TuQRJIFQl9NyrE4BMJCgKWXSqqkXePfXbvAMJxjdvq9OwLNTC5nvWy1Hd2LjacgHfI0xlgpzlcu
-	qysMFQKI45uTYUYOGPukorJUMZPD5HD/xQvphdXzHk68qbkoX0yHPwTbeeJ3e7Cjc3iNDxV5B+m
-	Qc1RFO0BRopRHc=
-X-Received: by 2002:a05:600c:3112:b0:490:40ee:d561 with SMTP id 5b1f17b1804b1-49042487e14mr57090625e9.7.1779463818055;
-        Fri, 22 May 2026 08:30:18 -0700 (PDT)
-Received: from localhost (p200300f65f47db04fdedbb26b9ad100d.dip0.t-ipconnect.de. [2003:f6:5f47:db04:fded:bb26:b9ad:100d])
-        by smtp.gmail.com with UTF8SMTPSA id 5b1f17b1804b1-4904179c615sm19335555e9.4.2026.05.22.08.30.16
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 22 May 2026 08:30:16 -0700 (PDT)
-From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig=20=28The=20Capable=20Hub=29?= <u.kleine-koenig@baylibre.com>
-To: Alexandra Winter <wintera@linux.ibm.com>,
-	Aswin Karuvally <aswin@linux.ibm.com>
-Cc: Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	linux-s390@vger.kernel.org,
-	netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH v1 net-next] s390/ism: Drop superflous zeros in pci_device_id array
-Date: Fri, 22 May 2026 17:30:09 +0200
-Message-ID: <20260522153010.777081-2-u.kleine-koenig@baylibre.com>
-X-Mailer: git-send-email 2.47.3
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ni/FRil7"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 64ME0gos1950620;
+	Fri, 22 May 2026 15:35:31 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=qfY64L
+	188KHKxft4si1rfgi5ccweBhUDe5pqly6Wnjw=; b=ni/FRil7mHLX55OrqhjXY+
+	M/R7s/pgQxNuJPQzgCKbwGVFH1LM5BmGYINmjDE24XX1swabU9etsIYHviLw7K6i
+	Hk+qYMBDitwDhZaI/OEcxIVKkLLVla9EtRPAtQxcSDacXLV8rJ61D6Cfk8si5r35
+	vSlj7PKp/tWfwwWOkW+ytOAvTXa1EgU3lFW4v69ufPwQ3BZnE6ZlEOPenUPu73+9
+	pY6L1JADBvFB4a+UW2F+UdDDZamulPbrpzL1HgxQcM8si8Jy7tNXo16ktc7PnRQm
+	W/xoG2RzC8qpez/Zozodtj5W7CdbdF6fD/NUia2vXQ8iqChTi/4lDd+Oe07IzBMQ
+	==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4e6h88u558-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 22 May 2026 15:35:30 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 64MFOFnG030408;
+	Fri, 22 May 2026 15:35:29 GMT
+Received: from smtprelay02.dal12v.mail.ibm.com ([172.16.1.4])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4e73wkhfwe-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 22 May 2026 15:35:29 +0000 (GMT)
+Received: from smtpav03.wdc07v.mail.ibm.com (smtpav03.wdc07v.mail.ibm.com [10.39.53.230])
+	by smtprelay02.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 64MFZSqb30933594
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 22 May 2026 15:35:28 GMT
+Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 213335805D;
+	Fri, 22 May 2026 15:35:28 +0000 (GMT)
+Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 84CC75805A;
+	Fri, 22 May 2026 15:35:26 +0000 (GMT)
+Received: from [9.16.58.46] (unknown [9.16.58.46])
+	by smtpav03.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Fri, 22 May 2026 15:35:26 +0000 (GMT)
+Message-ID: <7ae97379-bb6b-4045-a795-95d8acd09c09@linux.ibm.com>
+Date: Fri, 22 May 2026 10:35:24 -0500
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-X-Developer-Signature: v=1; a=openpgp-sha256; l=3296; i=u.kleine-koenig@baylibre.com; h=from:subject; bh=jgfGgoNNtT1dpeJOzCcI62vYDerLNLfToFocSoP6lHQ=; b=owEBbQGS/pANAwAKAY+A+1h9Ev5OAcsmYgBqEHaC0pvCCp+h5VkYJmhzo/Mv4dpfaM605RjVM DQwz3dUu16JATMEAAEKAB0WIQQ/gaxpOnoeWYmt/tOPgPtYfRL+TgUCahB2ggAKCRCPgPtYfRL+ TuLuB/9R5g3cb6bPRPsQXqpV0jjvv7NzE5fns437rY4vjBTkAG4ia92B7JWDedDcKlh4j94tlov dDI+78V7NyfiFctPdoU1yaWutFFRNf91krp8Yqs9ruJASIV8aq/ku5X/hhcE9rOsdVBwjdm2/qv KjEGyFkuxolTzC7UakAHXSi0sxq6X2ZytqtXptb4SUJDOJCx2WmEcrA5t7kqD1paItpKCwUUbB9 JJxFVb5C2HmZWVL6GedHo4Md7HdIV0EhSVpFLpanLTEt9PGPwdJppfQxHtCH6XXpEL501RuLGC6 +gAIHWysC3BgCV4jLUgIAqGHppwI0ZWckDlNUWSQ3d+R1XZU
-X-Developer-Key: i=u.kleine-koenig@baylibre.com; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v5 02/20] [DO NOT MERGE] s390: Expose protected
+ virtualization through cc_platform_has()
+To: "Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org>, iommu@lists.linux.dev,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-coco@lists.linux.dev
+Cc: Robin Murphy <robin.murphy@arm.com>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
+        Steven Price <steven.price@arm.com>,
+        Suzuki K Poulose <Suzuki.Poulose@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Jiri Pirko <jiri@resnulli.us>, Jason Gunthorpe <jgg@ziepe.ca>,
+        Mostafa Saleh <smostafa@google.com>, Petr Tesarik <ptesarik@suse.com>,
+        Alexey Kardashevskiy <aik@amd.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Xu Yilun
+ <yilun.xu@linux.intel.com>, linuxppc-dev@lists.ozlabs.org,
+        linux-s390@vger.kernel.org, Madhavan Srinivasan <maddy@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>
+References: <20260522042815.370873-1-aneesh.kumar@kernel.org>
+ <20260522042815.370873-3-aneesh.kumar@kernel.org>
+Content-Language: en-US
+From: JAEHOON KIM <jhkim@linux.ibm.com>
+In-Reply-To: <20260522042815.370873-3-aneesh.kumar@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-ORIG-GUID: 0CrITYD2KTwMiysGe5e3SKJRPfrwYCev
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTIyMDE1MCBTYWx0ZWRfX7p/KSlRKoYCk
+ WdB0E9m9xZuL/rIjKRXD85Jkz1+SSkyISAJzmG9d3YJxMGle/4CAMAAqfefZiBqX2ySJgcyj6bH
+ hiDq+D0NoF8LEzF21DcRRyYkBrbto3yMI19jcTQ+s10wfsZeno1234PxG+khmlpDstvyewyN1/i
+ ITly3dMx3Zf8tONRkfzsZTNKkRcLK7iVp70TghSo8Z0NDP0K0rr5Fbww53B98wOKAvrY8VM4l8p
+ V+tRqv3adk2Rg38XtAu7JXzlBf8asTVu/scrI1r8//2CbYKDzHpPdsXENFNUIpV640AWxUCRQ8c
+ +/ePPRj5fI4dTZCm2Hm4hWMDdldz41mtCQRVyAaqlpzOF2yeMnGyZa++ELqTBRRCzAeCi5aOowi
+ DQ3c1w1pWxFUtBoQnkOLcsfPTyM/3+zrEJe58blhgvu0ykDy9PUxfxjmfG5gV3XVWor9NafcNr3
+ TQv3jJsiFQEx2DodgSA==
+X-Proofpoint-GUID: h7hTqgwP-XCCJwt9xUz9Qqw26vagibFE
+X-Authority-Analysis: v=2.4 cv=apyCzyZV c=1 sm=1 tr=0 ts=6a1077c3 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=IkcTkHD0fZMA:10 a=NGcC8JguVDcA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VwQbUJbxAAAA:8
+ a=VnNF1IyMAAAA:8 a=blRdvrxeXnuE--CKtYQA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-05-22_04,2026-05-18_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ malwarescore=0 lowpriorityscore=0 priorityscore=1501 impostorscore=0
+ bulkscore=0 suspectscore=0 adultscore=0 spamscore=0 phishscore=0
+ clxscore=1011 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2605130000
+ definitions=main-2605220150
 
-The .driver_data member of the struct pci_device_id array were
-initialized by a list expressions to zero without making use of that
-value. In this case it's better to not specify a value at all and let
-the compiler fill in the zeros. Same for the list terminator that can
-better be completely empty.
+On 5/21/2026 11:27 PM, Aneesh Kumar K.V (Arm) wrote:
+> Protected virtualization guests use memory encryption, so advertise that to
+> the rest of the kernel through cc_platform_has(CC_ATTR_MEM_ENCRYPT).
+>
+> s390 already forces DMA mappings to be unencrypted for protected
+> virtualization guests through force_dma_unencrypted(). Add
+> ARCH_HAS_CC_PLATFORM and provide the matching cc_platform_has()
+> implementation
+>
+> Signed-off-by: Aneesh Kumar K.V (Arm) <aneesh.kumar@kernel.org>
+> ---
+> Cc: Halil Pasic <pasic@linux.ibm.com>
+> Cc: Matthew Rosato <mjrosato@linux.ibm.com>
+> Cc: Jaehoon  Kim <jhkim@linux.ibm.com>
+> ---
+>   arch/s390/Kconfig   |  1 +
+>   arch/s390/mm/init.c | 14 ++++++++++++++
+>   2 files changed, 15 insertions(+)
+>
+> diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+> index ecbcbb781e40..9b5e6029e043 100644
+> --- a/arch/s390/Kconfig
+> +++ b/arch/s390/Kconfig
+> @@ -87,6 +87,7 @@ config S390
+>   	select ARCH_ENABLE_SPLIT_PMD_PTLOCK if PGTABLE_LEVELS > 2
+>   	select ARCH_ENABLE_THP_MIGRATION if TRANSPARENT_HUGEPAGE
+>   	select ARCH_HAS_CC_CAN_LINK
+> +	select ARCH_HAS_CC_PLATFORM
+>   	select ARCH_HAS_CPU_FINALIZE_INIT
+>   	select ARCH_HAS_CURRENT_STACK_POINTER
+>   	select ARCH_HAS_DEBUG_VIRTUAL
+> diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
+> index 1f72efc2a579..ad3c6d92b801 100644
+> --- a/arch/s390/mm/init.c
+> +++ b/arch/s390/mm/init.c
+> @@ -50,6 +50,7 @@
+>   #include <linux/virtio_anchor.h>
+>   #include <linux/virtio_config.h>
+>   #include <linux/execmem.h>
+> +#include <linux/cc_platform.h>
+>   
+>   pgd_t swapper_pg_dir[PTRS_PER_PGD] __section(".bss..swapper_pg_dir");
+>   pgd_t invalid_pg_dir[PTRS_PER_PGD] __section(".bss..invalid_pg_dir");
+> @@ -140,6 +141,19 @@ bool force_dma_unencrypted(struct device *dev)
+>   	return is_prot_virt_guest();
+>   }
+>   
+> +
+> +bool cc_platform_has(enum cc_attr attr)
+> +{
+> +	switch (attr) {
+> +	case CC_ATTR_MEM_ENCRYPT:
+> +		return is_prot_virt_guest();
+> +
+> +	default:
+> +		return false;
+> +	}
+> +}
+> +EXPORT_SYMBOL_GPL(cc_platform_has);
+> +
+>   /* protected virtualization */
+>   static void __init pv_init(void)
+>   {
 
-This patch doesn't introduce changes to the compiled array.
+Hello Aneesh,
 
-Signed-off-by: Uwe Kleine-König (The Capable Hub) <u.kleine-koenig@baylibre.com>
----
-Hello,
+Thanks for adding this s390 support patch.
 
-while being a cleanup that can stand on its own this is also a
-preparation for making driver_data an anonymous union that requires that
-.driver_data is initialized by name and not by list order. The union
-allows to make better use of the C type system and drops the need for
-casting. The change to a driver will look as follows:
+The previous v4 series broke virtio initialization and caused boot
+failures on s390. With this patch in v5, the issue is completely
+resolved and virtio devices now initialize successfully and are
+working well.
 
-	diff --git a/arch/x86/platform/intel-mid/pwr.c b/arch/x86/platform/intel-mid/pwr.c
-	index 1739971478ff..c0d9da81d512 100644
-	--- a/arch/x86/platform/intel-mid/pwr.c
-	+++ b/arch/x86/platform/intel-mid/pwr.c
-	@@ -347,7 +347,7 @@ struct mid_pwr_device_info {
-	 
-	 static int mid_pwr_probe(struct pci_dev *pdev, const struct pci_device_id *id)
-	 {
-	-	struct mid_pwr_device_info *info = (void *)id->driver_data;
-	+	struct mid_pwr_device_info *info = id->driver_data_ptr;
-		struct device *dev = &pdev->dev;
-		struct mid_pwr *pwr;
-		int ret;
-	@@ -471,8 +471,8 @@ static const struct mid_pwr_device_info tng_info = {
-	 
-	 /* This table should be in sync with the one in drivers/pci/pci-mid.c */
-	 static const struct pci_device_id mid_pwr_pci_ids[] = {
-	-	{ PCI_VDEVICE(INTEL, PCI_DEVICE_ID_PENWELL), .driver_data = (kernel_ulong_t)&pnw_info },
-	-	{ PCI_VDEVICE(INTEL, PCI_DEVICE_ID_TANGIER), .driver_data = (kernel_ulong_t)&tng_info },
-	+	{ PCI_VDEVICE(INTEL, PCI_DEVICE_ID_PENWELL), .driver_data_ptr = &pnw_info },
-	+	{ PCI_VDEVICE(INTEL, PCI_DEVICE_ID_TANGIER), .driver_data_ptr = &tng_info },
-		{}
-	 };
- 
-which is a nice improvement dropping three casts and that will make the
-compiler say:
+I'm going to do some more testing and will let you know if I run
+into any issues.
 
-arch/x86/platform/intel-mid/pwr.c: In function ‘mid_pwr_probe’:
-arch/x86/platform/intel-mid/pwr.c:350:44: error: initialization discards ‘const’ qualifier from pointer target type [-Werror=discarded-qualifiers]
-  350 |         struct mid_pwr_device_info *info = id->driver_data_ptr;
-      |                                            ^~
+Thanks,
+Jaehoon.
 
-(so it promotes that driver data is supposed to be const).
-
-The patch under discussion touches the only pci driver below
-drivers/s390, so the example is from a different subsystem. Also this
-means no further patches for this part of my quest to that subsystem.
-
-Best regards
-Uwe
- drivers/s390/net/ism_drv.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/s390/net/ism_drv.c b/drivers/s390/net/ism_drv.c
-index 7d0479e4e095..d99c588d3e00 100644
---- a/drivers/s390/net/ism_drv.c
-+++ b/drivers/s390/net/ism_drv.c
-@@ -23,8 +23,8 @@ MODULE_LICENSE("GPL");
- #define DRV_NAME "ism"
- 
- static const struct pci_device_id ism_device_table[] = {
--	{ PCI_VDEVICE(IBM, PCI_DEVICE_ID_IBM_ISM), 0 },
--	{ 0, }
-+	{ PCI_VDEVICE(IBM, PCI_DEVICE_ID_IBM_ISM) },
-+	{ }
- };
- MODULE_DEVICE_TABLE(pci, ism_device_table);
- 
-
-base-commit: 254f49634ee16a731174d2ae34bc50bd5f45e731
--- 
-2.47.3
 
