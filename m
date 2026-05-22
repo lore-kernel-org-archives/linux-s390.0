@@ -1,178 +1,192 @@
-Received: from mail-wm1-f47.google.com (mail-wm1-f47.google.com [209.85.128.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 91C8B21CFEF
-	for <linux-s390@vger.kernel.org>; Fri, 22 May 2026 00:27:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B638923BCEE;
+	Fri, 22 May 2026 02:33:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779409642; cv=none; b=uKjEFww0okXgez71ghxK3VDFAZrvRgB/70QS5+4RVYsNxRIyfV3iSp7hh70/WkuJT8FSS/2usTtkeiF//fv71n24pVuU2rV65WCCKrbMUBiqiTcwd9vbbUaDmnvqq6M57RWZjJbi3h8f36Rh0Ur0qYwvMLN1zeLa1Iv7WTQv9Vw=
+	t=1779417194; cv=none; b=U4YugDYhUdplTnObn8yEXmoVvbUJu8yrb9xfIYs1miYDpkK9WmkWCEB0hLFEgBcA8Wqm3Z64asjpPALYSkr3/rLiGwKRCJEoheky+rWWWmIUk7259EB9MbbyuekzU83VMMsi5tCf4CPORHKIHPn/o3qbqHpMq8CP0C1H/bcWscM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779409642; c=relaxed/simple;
-	bh=OeaBJnpyh+HO3KMXuAPZK5iYCsIl+yzigcjSPICIOXM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=cM8bhMaW/V2UvN8umRN9N5gZAyQ1TGhq91qLdq1j03CQ5UQGadOtuJpNKT/rC91FNVxcq4DA0gZa7b19SK5BSkNZQPavyJP3SwWwsWHftJMqzpXFnwGcIrv5bdcKpX1ylT/kCgIGwLRVU5loM8QgPHKsBYqn33cKhxdqaFqZRFM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=PuX/S8HZ; arc=none smtp.client-ip=209.85.128.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
+	s=arc-20240116; t=1779417194; c=relaxed/simple;
+	bh=j6BXrmwQ7bH3x9PD5TtmX5InuSgCrWopcDjLY/ATd6c=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=NEPZfXBi7CAvpGA1cAH7kulozOpjWMVZvZLrArjFtgnKNRx8cvm7k06OJSgSF/PYJzsHYsdaJi4IkDHCEMo6xr+0thX+eM7m0yg+qit306kHSS2FfB5tZvlBliI5RYObF3TJ9kOhhQR4iD/OVJ0Im7RyfXLVSGgz4JSAP9KvxC8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VeKgLmEu; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="PuX/S8HZ"
-Received: by mail-wm1-f47.google.com with SMTP id 5b1f17b1804b1-48e82c23840so54318025e9.3
-        for <linux-s390@vger.kernel.org>; Thu, 21 May 2026 17:27:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=suse.com; s=google; t=1779409639; x=1780014439; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=6Ay5nOcwCJCKL9kJTKSvIioIW4guYTs+JXkN6Y689XM=;
-        b=PuX/S8HZNBG3rGmZb7jXpJY1TmOL6BM1XdZimuQ1Mo3sF1iQd1S+OSvIPpCNoJiRxP
-         ciYUxB+qCCeeiIVtYpCG6xYka03V3TYWGFAXmw6LSRvoRlY8P1HSsPqdN2vgYw+8+cV2
-         YbOorhIREcPpjLYESezzhxI6qhSwn/si/LgXHWjgb25pFgJW4wHAHA4oLh0S/8nSc9L7
-         nr5pQEAchCVDR6gk/vJzRuYg9H3tFchalPQkCtO64xf1/f3GQ7gL/zKWYkgnxIEjepd7
-         yoXnxlib59p3hr0/MhzefrNawh+lCo3Jda+C+8l3P6xklkK5ajky5yBhZBuHER90rsCd
-         JSzA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779409639; x=1780014439;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=6Ay5nOcwCJCKL9kJTKSvIioIW4guYTs+JXkN6Y689XM=;
-        b=GyjpvZppSugVKWGDxcNWj4w3xqF+iMq8ivUE4ZgdgVLjI8qiremibqaREGV8Ta/kpT
-         TbofsLdSmYj9xPFcvIRGpzE8wM7r0JP6cJfJ6OPJiznOyztYYFa5dHUeAbiLR9csk4/1
-         Z7Wo5UShIiwHemt7JRsSBtmS9Wto0Ub9oehPSpieRdLWOKZzZsvdUMlPuONIcvniXVAS
-         BrCN0u3ZVtX8FQXV5sZjqbxmzn0w4ko7sRea1H8EGsY7+UghHcbv0VxU7BbIONHQ8Mqo
-         hgyS1Tf4lunCg5zBNhSl4RR3F4RnMSsv93HKmmfZEYZwiA1H7kv+Rm8q/a5O53qTQIac
-         KatA==
-X-Forwarded-Encrypted: i=1; AFNElJ8uVAmvyzoJJWovsCJAXM1c8uN4LacprYZ/30Ez/VP6N4A3jPqoJu7QEQe52slUxUhgDqEGwOk2FK3K@vger.kernel.org
-X-Gm-Message-State: AOJu0Ywm4OSWxWiC0DHOjYnVBkOCocyMBs4UtxPZG6vZviFmMSw1RKpO
-	Dyq9wHp/vEbE4ftO/wznZCdCSa5ESM6eX7p4oQ8SVJFbqjhHCRPcorpIu54p2D8ZG6g=
-X-Gm-Gg: Acq92OH3lNit9Ad9nYtsTwlLCva2An7F+TW1QRW6Zus8/HsTP+B/vO66Ra7vCnzKG6K
-	8CJMAx5A7gWfyJjzyxYaJqLcqamG8znDozrSpnGby1aR1rMQGW7c36nqHvzxY6AbKL+wfPdq/V/
-	043bvWkbQqqwlUMQmD2X2JLtIpp2jD61zqI6ooh1Id9w7eZn2I6va/4NvPwZbiua8/GR1YCe23X
-	NhJ5LzMFm9CuWK7hT6YWWQXjZke+l0lPQ3wlr4rr9Eu/viQGP/Vvsajf747CmULIStkFJTIbtEH
-	7rvQeIVurie42RQ8y7+6HFpyLfU833WRyz0Dg/i73Y/jBM0zqosTSTmP448MVlTdc6AlJKNIcyI
-	gdGKj/VWFmsTstR/43LgNmLeAgBuP3AzaaSlrgPtxiVKSvjHRyb9YrrhTVhRaV14swX0CcsdWUz
-	GUxSujFNYqGhlzIrksGtUJEpsfAOCKDM6lQUzZGoxoR7uf3/HZ9lr+M+JPRdYlnYeHa8zF1uVuT
-	voT0mRe5RBWfrONJ0miUlfUSjeM/vs/PStexuRWQ1RrYm8zdULBhplx4A==
-X-Received: by 2002:a05:600c:4ecc:b0:490:3c90:2cda with SMTP id 5b1f17b1804b1-490426cef73mr10709345e9.20.1779409638952;
-        Thu, 21 May 2026 17:27:18 -0700 (PDT)
-Received: from ?IPV6:2403:580d:fda1:0:2bb5:f164:6e6a:38d8? (2403-580d-fda1-0-2bb5-f164-6e6a-38d8.ip6.aussiebb.net. [2403:580d:fda1:0:2bb5:f164:6e6a:38d8])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2beb0f91bccsm4187125ad.36.2026.05.21.17.27.03
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 21 May 2026 17:27:17 -0700 (PDT)
-Message-ID: <cced8d26-d846-470d-b112-344e53ec1b9c@suse.com>
-Date: Fri, 22 May 2026 09:57:00 +0930
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VeKgLmEu"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95D771F000E9;
+	Fri, 22 May 2026 02:33:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1779417192;
+	bh=PJskQkzEXcKmwKbi50aKVJcncb0pn8mjKGrAaOB03qE=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References;
+	b=VeKgLmEuttrABY4GEK31DGR0wtvJQrbUrhDPjYBD0fAY03yRd26tJZ2eDRLS+BsTj
+	 Jc8ZK+9ymsTG20hwtzOzSZUvyudQMej6Bcon1ca6XsG1grJ2wrlF+v08Krpa2XNaB9
+	 Ogvd1UMp4/wjQovEhihOm0Mu8C20O7Ia2iMmYnfKXWWDLPzC/a4o6aaU0wXG7HysH/
+	 6AnP+a6YdbcY2AEFhFpvHwLkkxaP+4/nZe5g9D/5FY0ux2dCqHaAtBygGeBMOESKzX
+	 Tt0YzWQyecsO9FINPUXBNfRbkfWKeNeWGARhT827Jk3NyexG0cbCk3pdahcQv7TUVx
+	 TSkNLfO2phPKw==
+From: "Barry Song (Xiaomi)" <baohua@kernel.org>
+To: willy@infradead.org
+Cc: akpm@linux-foundation.org,
+	baohua@kernel.org,
+	bhe@redhat.com,
+	chentao@kylinos.cn,
+	chrisl@kernel.org,
+	david@kernel.org,
+	jack@suse.cz,
+	kasong@tencent.com,
+	kunwu.chan@gmail.com,
+	liam@infradead.org,
+	lianux.mm@gmail.com,
+	linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	linux-mm@kvack.org,
+	linux-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org,
+	liyangouwen1@oppo.com,
+	ljs@kernel.org,
+	loongarch@lists.linux.dev,
+	mhocko@suse.com,
+	nphamcs@gmail.com,
+	nzzhao@126.com,
+	pfalcato@suse.de,
+	rppt@kernel.org,
+	shikemeng@huaweicloud.com,
+	surenb@google.com,
+	vbabka@kernel.org,
+	wanglian@kylinos.cn,
+	youngjun.park@lge.com
+Subject: Re: [PATCH v2 0/5] mm: reduce mmap_lock contention and improve page fault performance
+Date: Fri, 22 May 2026 10:33:05 +0800
+Message-Id: <20260522023305.98223-1-baohua@kernel.org>
+X-Mailer: git-send-email 2.39.3 (Apple Git-146)
+In-Reply-To: <ag4kj84EcKqamdB-@casper.infradead.org>
+References: <ag4kj84EcKqamdB-@casper.infradead.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 01/19] btrfs: require at least 4 devices for RAID 6
-To: Andrew Morton <akpm@linux-foundation.org>,
- Qu Wenruo <quwenruo.btrfs@gmx.com>
-Cc: Christoph Hellwig <hch@lst.de>, "H. Peter Anvin" <hpa@zytor.com>,
- kreijack@inwind.it, David Sterba <dsterba@suse.cz>,
- Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
- Ard Biesheuvel <ardb@kernel.org>, Huacai Chen <chenhuacai@kernel.org>,
- WANG Xuerui <kernel@xen0n.name>, Madhavan Srinivasan <maddy@linux.ibm.com>,
- Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
- "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
- Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
- Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, Thomas Gleixner <tglx@kernel.org>,
- Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
- Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
- Herbert Xu <herbert@gondor.apana.org.au>,
- Dan Williams <dan.j.williams@intel.com>, Chris Mason <clm@fb.com>,
- David Sterba <dsterba@suse.com>, Arnd Bergmann <arnd@arndb.de>,
- Song Liu <song@kernel.org>,
- Yu Kuai <yukuai@alb-78bjiv52429oh8qptp.cn-shenzhen.alb.aliyuncs.com>,
- Li Nan <linan122@huawei.com>, linux-kernel@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
- linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
- linux-s390@vger.kernel.org, linux-crypto@vger.kernel.org,
- linux-btrfs@vger.kernel.org, linux-arch@vger.kernel.org,
- linux-raid@vger.kernel.org
-References: <20260512052230.2947683-1-hch@lst.de>
- <20260512052230.2947683-2-hch@lst.de> <20260512114231.GG2558453@suse.cz>
- <20260513054742.GA1018@lst.de>
- <0a8d1ff4-f5a2-49e9-aa45-d25dbe4ded40@libero.it>
- <20260515043705.GA3855@lst.de>
- <34C16854-1065-4542-8836-DDED58EC1844@zytor.com>
- <20260518051207.GB9374@lst.de> <f46636c8-80ba-4802-a6a0-74cbc35e7bee@gmx.com>
- <20260521171730.7872482df453975cf60ce7dc@linux-foundation.org>
-Content-Language: en-US
-From: Qu Wenruo <wqu@suse.com>
-Autocrypt: addr=wqu@suse.com; keydata=
- xsBNBFnVga8BCACyhFP3ExcTIuB73jDIBA/vSoYcTyysFQzPvez64TUSCv1SgXEByR7fju3o
- 8RfaWuHCnkkea5luuTZMqfgTXrun2dqNVYDNOV6RIVrc4YuG20yhC1epnV55fJCThqij0MRL
- 1NxPKXIlEdHvN0Kov3CtWA+R1iNN0RCeVun7rmOrrjBK573aWC5sgP7YsBOLK79H3tmUtz6b
- 9Imuj0ZyEsa76Xg9PX9Hn2myKj1hfWGS+5og9Va4hrwQC8ipjXik6NKR5GDV+hOZkktU81G5
- gkQtGB9jOAYRs86QG/b7PtIlbd3+pppT0gaS+wvwMs8cuNG+Pu6KO1oC4jgdseFLu7NpABEB
- AAHNGFF1IFdlbnJ1byA8d3F1QHN1c2UuY29tPsLAlAQTAQgAPgIbAwULCQgHAgYVCAkKCwIE
- FgIDAQIeAQIXgBYhBC3fcuWlpVuonapC4cI9kfOhJf6oBQJnEXVgBQkQ/lqxAAoJEMI9kfOh
- Jf6o+jIH/2KhFmyOw4XWAYbnnijuYqb/obGae8HhcJO2KIGcxbsinK+KQFTSZnkFxnbsQ+VY
- fvtWBHGt8WfHcNmfjdejmy9si2jyy8smQV2jiB60a8iqQXGmsrkuR+AM2V360oEbMF3gVvim
- 2VSX2IiW9KERuhifjseNV1HLk0SHw5NnXiWh1THTqtvFFY+CwnLN2GqiMaSLF6gATW05/sEd
- V17MdI1z4+WSk7D57FlLjp50F3ow2WJtXwG8yG8d6S40dytZpH9iFuk12Sbg7lrtQxPPOIEU
- rpmZLfCNJJoZj603613w/M8EiZw6MohzikTWcFc55RLYJPBWQ+9puZtx1DopW2jOwE0EWdWB
- rwEIAKpT62HgSzL9zwGe+WIUCMB+nOEjXAfvoUPUwk+YCEDcOdfkkM5FyBoJs8TCEuPXGXBO
- Cl5P5B8OYYnkHkGWutAVlUTV8KESOIm/KJIA7jJA+Ss9VhMjtePfgWexw+P8itFRSRrrwyUf
- E+0WcAevblUi45LjWWZgpg3A80tHP0iToOZ5MbdYk7YFBE29cDSleskfV80ZKxFv6koQocq0
- vXzTfHvXNDELAuH7Ms/WJcdUzmPyBf3Oq6mKBBH8J6XZc9LjjNZwNbyvsHSrV5bgmu/THX2n
- g/3be+iqf6OggCiy3I1NSMJ5KtR0q2H2Nx2Vqb1fYPOID8McMV9Ll6rh8S8AEQEAAcLAfAQY
- AQgAJgIbDBYhBC3fcuWlpVuonapC4cI9kfOhJf6oBQJnEXWBBQkQ/lrSAAoJEMI9kfOhJf6o
- cakH+QHwDszsoYvmrNq36MFGgvAHRjdlrHRBa4A1V1kzd4kOUokongcrOOgHY9yfglcvZqlJ
- qfa4l+1oxs1BvCi29psteQTtw+memmcGruKi+YHD7793zNCMtAtYidDmQ2pWaLfqSaryjlzR
- /3tBWMyvIeWZKURnZbBzWRREB7iWxEbZ014B3gICqZPDRwwitHpH8Om3eZr7ygZck6bBa4MU
- o1XgbZcspyCGqu1xF/bMAY2iCDcq6ULKQceuKkbeQ8qxvt9hVxJC2W3lHq8dlK1pkHPDg9wO
- JoAXek8MF37R8gpLoGWl41FIUb3hFiu3zhDDvslYM4BmzI18QgQTQnotJH8=
-In-Reply-To: <20260521171730.7872482df453975cf60ce7dc@linux-foundation.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
+On Thu, May 21, 2026 at 5:16 AM Matthew Wilcox <willy@infradead.org> wrote:
+>
+> On Thu, May 21, 2026 at 05:14:20AM +0800, Barry Song wrote:
+> > My understanding is that we should not blame applications here. This is 2026:
+> > there are basically only two kinds of applications — single-threaded and
+> > multi-threaded — and single-threaded applications are nearly extinct.
+>
+> all of the applications i run are either single threaded or don't fork.
+> what multithreaded applications call fork?
 
+As I replied to David [1], we cannot control what those apps do.
+Technically, I agree with you that calling fork() within a
+multithreaded app may not be a good idea. But in such a complex
+ecosystem, we cannot simply say no to those apps.
 
-在 2026/5/22 09:47, Andrew Morton 写道:
-> On Wed, 20 May 2026 18:11:09 +0930 Qu Wenruo <quwenruo.btrfs@gmx.com> wrote:
-> 
->>
->>
->> 在 2026/5/18 14:42, Christoph Hellwig 写道:
->>> On Fri, May 15, 2026 at 12:59:34PM -0700, H. Peter Anvin wrote:
->>>> I don't think this is a good idea. Error out; it is the btrfs maintainers' job to ensure user data isn't lost.
->>>>
->>>> The RAID-6 code has *never* supported only 3 units, and if it ever worked for *any* of the implementations it was purely by accident. Speaking as the original author I should know; this was deliberate as in some cases the degenerate case (3) would have required extra trays in the code to no user benefit.
->>>>
->>>> I would not be surprised if the kernel crashed or corrupted the page cache in that case.
->>>
->>> It does, that's why I wanted to exclude it.  Anyway, for the about to be
->>> resent version I'll drop this btrfs patch over the stated objection and
->>> will otherwise not change anything.  This means the (IMHO hypothetical)
->>> users of this configuration will get a WARN_ON_ONCE triggered, but
->>> otherwise keep working (or rather not working) as before.
->>>
->>
->> For the btrfs part, I believe I can get the current 2-disk-raid5 and
->> 3-disk-raid6 to fallback to raid1 inside btrfs.
->>
->> I hope the btrfs part can be finished and reach the next merge window,
->> but I'm not 100% sure.
->>
->> What is the planned cycle to merge this raid5/6 cleanup?
-> 
-> At present it's on track for the 7.2-rc1 merge window.  Does that suit?
+Especially when our phones are improving the kernel with this fix,
+our customers may instead complain that our phones regress their
+apps first. That feels unfair.
 
-The current btrfs fix (*) is pretty small, I believe we can get it into 
-the next merge window, as long as we got enough review on it.
+I can offer a two-step plan. For the first step, we keep the
+current approach of dropping the VMA lock and retrying page faults,
+while trying to make the smallest possible change.
+As discussed with Suren, the draft code is being changed from a
+whitelist approach to a blacklist approach. This way, we do not
+need to touch `filemap.c` at all (probably because you are already
+maintaining `filemap.c` perfectly):
 
-*: 
-https://lore.kernel.org/linux-btrfs/a1d63733465229936351804f3760803d5894a962.1779274630.git.wqu@suse.com/T/#u
+diff --git a/arch/x86/mm/fault.c b/arch/x86/mm/fault.c
+index 63de8e8684f2..4101d5fa7a82 100644
+--- a/arch/x86/mm/fault.c
++++ b/arch/x86/mm/fault.c
+@@ -1322,6 +1322,7 @@ void do_user_addr_fault(struct pt_regs *regs,
+ 	if (!(flags & FAULT_FLAG_USER))
+ 		goto lock_mmap;
+ 
++retry_vma:
+ 	vma = lock_vma_under_rcu(mm, address);
+ 	if (!vma)
+ 		goto lock_mmap;
+@@ -1351,6 +1352,8 @@ void do_user_addr_fault(struct pt_regs *regs,
+ 						 ARCH_DEFAULT_PKEY);
+ 		return;
+ 	}
++	if (!(fault & VM_FAULT_RETRY_HARD))
++		goto retry_vma;
+ lock_mmap:
+ 
+ retry:
+diff --git a/include/linux/mm_types.h b/include/linux/mm_types.h
+index a308e2c23b82..eeb7d6091bef 100644
+--- a/include/linux/mm_types.h
++++ b/include/linux/mm_types.h
+@@ -1659,6 +1659,7 @@ typedef __bitwise unsigned int vm_fault_t;
+  * @VM_FAULT_NOPAGE:		->fault installed the pte, not return page
+  * @VM_FAULT_LOCKED:		->fault locked the returned page
+  * @VM_FAULT_RETRY:		->fault blocked, must retry
++ * @VM_FAULT_RETRY_HARD:	->fault blocked, must retry via mmap_lock
+  * @VM_FAULT_FALLBACK:		huge page fault failed, fall back to small
+  * @VM_FAULT_DONE_COW:		->fault has fully handled COW
+  * @VM_FAULT_NEEDDSYNC:		->fault did not modify page tables and needs
+@@ -1678,10 +1679,11 @@ enum vm_fault_reason {
+ 	VM_FAULT_NOPAGE         = (__force vm_fault_t)0x000100,
+ 	VM_FAULT_LOCKED         = (__force vm_fault_t)0x000200,
+ 	VM_FAULT_RETRY          = (__force vm_fault_t)0x000400,
+-	VM_FAULT_FALLBACK       = (__force vm_fault_t)0x000800,
+-	VM_FAULT_DONE_COW       = (__force vm_fault_t)0x001000,
+-	VM_FAULT_NEEDDSYNC      = (__force vm_fault_t)0x002000,
+-	VM_FAULT_COMPLETED      = (__force vm_fault_t)0x004000,
++	VM_FAULT_RETRY_HARD     = (__force vm_fault_t)0x000800,
++	VM_FAULT_FALLBACK       = (__force vm_fault_t)0x001000,
++	VM_FAULT_DONE_COW       = (__force vm_fault_t)0x002000,
++	VM_FAULT_NEEDDSYNC      = (__force vm_fault_t)0x004000,
++	VM_FAULT_COMPLETED      = (__force vm_fault_t)0x008000,
+ 	VM_FAULT_HINDEX_MASK    = (__force vm_fault_t)0x0f0000,
+ };
+ 
+diff --git a/mm/memory.c b/mm/memory.c
+index 7c020995eafc..b3e7ffdd83f9 100644
+--- a/mm/memory.c
++++ b/mm/memory.c
+@@ -3797,7 +3797,7 @@ static inline vm_fault_t vmf_can_call_fault(const struct vm_fault *vmf)
+ 	if (vma->vm_ops->map_pages || !(vmf->flags & FAULT_FLAG_VMA_LOCK))
+ 		return 0;
+ 	vma_end_read(vma);
+-	return VM_FAULT_RETRY;
++	return VM_FAULT_RETRY | VM_FAULT_RETRY_HARD;
+ }
+ 
+ /**
+@@ -3824,7 +3824,7 @@ vm_fault_t __vmf_anon_prepare(struct vm_fault *vmf)
+ 		return 0;
+ 	if (vmf->flags & FAULT_FLAG_VMA_LOCK) {
+ 		if (!mmap_read_trylock(vma->vm_mm))
+-			return VM_FAULT_RETRY;
++			return VM_FAULT_RETRY | VM_FAULT_RETRY_HARD;
+ 	}
+ 	if (__anon_vma_prepare(vma))
+ 		ret = VM_FAULT_OOM;
+@@ -4778,7 +4778,7 @@ vm_fault_t do_swap_page(struct vm_fault *vmf)
+ 				 * under VMA lock.
+ 				 */
+ 				vma_end_read(vma);
+-				ret = VM_FAULT_RETRY;
++				ret = VM_FAULT_RETRY | VM_FAULT_RETRY_HARD;
+ 				goto out;
+ 			}
+ 
 
+For the second step, we can move forward with your approach of
+ripping out the PF retry code, after getting in touch with the
+owners of those popular apps one by one to understand why they are
+doing this and whether they can find a different approach. In
+short, this would allow for a one- or two-year transition period.
 
+What do you think about that?
 
+[1] https://lore.kernel.org/linux-mm/CAGsJ_4xC5LdhuoWV1=tK-RZ5rkjc8aOKOkmb1L_8BG_3gtJhDg@mail.gmail.com/
