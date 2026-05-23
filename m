@@ -1,105 +1,84 @@
-Received: from mail-pl1-f202.google.com (mail-pl1-f202.google.com [209.85.214.202])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 45730362137
-	for <linux-s390@vger.kernel.org>; Fri, 22 May 2026 23:06:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.202
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6470D1FE471;
+	Sat, 23 May 2026 00:39:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779491170; cv=none; b=JaljhbRe5b/2xVczQcINXxJzR/8lzkbdxDmnuRatUb53GEbxFqcF+Rpi44h496hC7BXu0T7V9+M0dmLa7j8US6JU3CfTlOBVSZTPiJLdw50kmKte50RxmHpN3+its+gmBjTGjyLGk4/9roOEnSz8jgZ+DqKFV/eqL7pl6nVVTnc=
+	t=1779496800; cv=none; b=NiyEOrn0S93k870JMze+qibyfLNHxfnckxrE4o6Gy7SeSdDFUjW3imgwmDK9csQ73V/zd/qO44OIGTLmsz10vua8wfQWpWMfu8gPAcFIZQpsRB+dbZNFg7qCm10qWYAzaNM20rnJv56P6kVjgX4n+ot+qWpKDTe3WyHwTP+XmNg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779491170; c=relaxed/simple;
-	bh=0FXppDeKTTVTZ6pJebHDrfJ8EGjmC1SknUjLLrTB2mY=;
-	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=tI7bpi723zYcDwStZhXUBXnNqqOdMX48vtOSKMAHBfhmO1eFgBxQbMYhD5LXxsThnT8VGmwZFoXOtvOg+5Oa1hJXgOIEk5LgsvZgbavX9t57FiNeP3til2nbQqggf6+fwsEuuqre9KoWGbyhXXu8t2Qh6bXHQSpnV09vuRM1w+4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--tjmercier.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=YNC2TTXb; arc=none smtp.client-ip=209.85.214.202
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--tjmercier.bounces.google.com
+	s=arc-20240116; t=1779496800; c=relaxed/simple;
+	bh=suNveJ2/qCd8PcjtNHTceevirQ9Jgc5FeD9OaM8PKus=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=ASPsYDU7aJEo9MRPvOI7qGDSeSQnJLNzOMdIWSMNsv8vzh4KslxtcoJsPsrmE5UMgsZZjzx6WZ8YeiXq63+fWR6o30xxj9oT/f2RI7/8JaPechwQK9InNFyio7K4zQfEwZF/XsiQ33AbANqi0t9x8HS6aMntP6gyTO1WmFrwdAg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HjqjFLzx; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="YNC2TTXb"
-Received: by mail-pl1-f202.google.com with SMTP id d9443c01a7336-2b4654f9bb6so80253905ad.2
-        for <linux-s390@vger.kernel.org>; Fri, 22 May 2026 16:06:09 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1779491168; x=1780095968; darn=vger.kernel.org;
-        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=oa6ShCXKOoXccUXmm8NZQPrHCwABB3PfpqI6qY2vEzc=;
-        b=YNC2TTXb1PCKDj6AQ5IgcdmdQKMm2XX/DaVPwtIMA7I4qsOWUIyr5lBdbH55Ine4La
-         Q+UR8ETbBA4aQYqZ/OySyy82QDCEvpvMYM4RVdcJBycUKVyEUKa1QgFhyoJ/8QdbhcMF
-         IxtTdG3+FiYBREglNaONT1QgUXnhPqnFesTCxExqT3NkV1H0dx1LtjT+7Z6X78T5erfn
-         uH/atqaLhI7vrw0lVCbUrNiBpi+Up3qvG1JA/9lVqCh9zF8xc4G7C0x58JHydUs6AObO
-         X+jqt8BdU0tg4jOpPIiwwgRFXPGZ7Qhw/0yIncxn5Gfg22eWWRCWbOIDBquwrXvyNxvS
-         /Iew==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779491168; x=1780095968;
-        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=oa6ShCXKOoXccUXmm8NZQPrHCwABB3PfpqI6qY2vEzc=;
-        b=FhJLhI6pOLbla6/bW2j25RseOsk7gVoixBMlJpDawT3VkeXygZhUFtyyBQL3kUv/ZZ
-         ZqgeDUOvDWtICsCRenxXsPR1lm/Ed0DG3UIiog05c4ycbf43YF0dF7YA5F9ZBSX8RXjc
-         +O52kB7viPrkY6kD7143iPaSv9HNm2HWvEnQRNgGVDATGqEUdo7lQQ881zNf+DwNkr6n
-         fZufEdN35PSAhwosy4+VoEwl44HNDW9Hj9RmqVSjwKLpMW9U8ETjxNl1CSsqhumJF5yJ
-         FQUzoTXPEiPQjTtfoNvwzSH/Ul06Uqn8gjZsVX7GsYYfiYLW4eV4mIGdwKUHLWpo/N4n
-         EI6Q==
-X-Forwarded-Encrypted: i=1; AFNElJ9cMcikuY7g/0S8WrjQPvX31MMim77kiXgKdccvWJbvtpY+FVwSpHoT4vcE02n5Mecrj6cps26M8y/l@vger.kernel.org
-X-Gm-Message-State: AOJu0Yx1q2ZrsUTzJsCTFHBB+kLRLvAKX6KZBz8zdvo9HooVhYjl2qYp
-	E2NxYlJDye7tEsVCpCgiaJzDMiyHCiX9w5Egq8D9dLrEmeSE2fbpkpbdceNKJXdRB/9u0sintUj
-	CCCyiJekRFScZhsGorA==
-X-Received: from plgk16.prod.google.com ([2002:a17:902:ce10:b0:2bd:b542:cb02])
- (user=tjmercier job=prod-delivery.src-stubby-dispatcher) by
- 2002:a17:902:cf08:b0:2b7:aa20:3c61 with SMTP id d9443c01a7336-2beb083ee1fmr56196155ad.33.1779491168236;
- Fri, 22 May 2026 16:06:08 -0700 (PDT)
-Date: Fri, 22 May 2026 16:06:05 -0700
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HjqjFLzx"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B98DA1F000E9;
+	Sat, 23 May 2026 00:39:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1779496796;
+	bh=/HS56sPbhZsprJXjWSZkZnxJ9H4+zwflumIWS3ATgEw=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc;
+	b=HjqjFLzxYBt1F+XJoWChDq8WG9851VrbbXPyazUXaymeMORqb5i9fwLEzY4lAATwa
+	 uCb+/1pG1xuOF89bhXV98RuCQh+zA7EYung6GjGSY5F1WXHG6L6PC0Ddm4h0uzdjKw
+	 sFoyYSW99Bx7lf5kLD/wNPu7UNvejOPc1a7FWIdh3tQsF1Vk3l4/gD1C+Hs2DxsGpp
+	 jHIy88VKqbZJUBrW0LVOIT4zFqIASrqlKvDGJFBtSUN5oD5iy9M/js+JSBtYipk4Pl
+	 Fea8pOHZ5qFLtuDnDQfaThPuoXFGBHKI8nj5WqVD79gKtLSTOO7jPfZCro6A4EYTXo
+	 EB0UdRSTSH0Ag==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id D0A6C393100F;
+	Sat, 23 May 2026 00:40:06 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.54.0.746.g67dd491aae-goog
-Message-ID: <20260522230606.883180-1-tjmercier@google.com>
-Subject: [PATCH] s390/mm: Export set_memory_encrypted and set_memory_decrypted
-From: "T.J. Mercier" <tjmercier@google.com>
-To: agordeev@linux.ibm.com, gerald.schaefer@linux.ibm.com, 
-	linux-s390@vger.kernel.org, mripard@kernel.org, sumit.semwal@linaro.org
-Cc: linux-kernel@vger.kernel.org, "T.J. Mercier" <tjmercier@google.com>
-Content-Type: text/plain; charset="UTF-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net] net/smc: Do not re-initialize smc hashtables
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <177949680539.1426243.8549979818463783234.git-patchwork-notify@kernel.org>
+Date: Sat, 23 May 2026 00:40:05 +0000
+References: <20260521145639.10317-1-wintera@linux.ibm.com>
+In-Reply-To: <20260521145639.10317-1-wintera@linux.ibm.com>
+To: Alexandra Winter <wintera@linux.ibm.com>
+Cc: alibuda@linux.alibaba.com, dust.li@linux.alibaba.com,
+ sidraya@linux.ibm.com, wenjia@linux.ibm.com, davem@davemloft.net,
+ kuba@kernel.org, pabeni@redhat.com, edumazet@google.com,
+ andrew+netdev@lunn.ch, pasic@linux.ibm.com, mjambigi@linux.ibm.com,
+ tonylu@linux.alibaba.com, guwen@linux.alibaba.com,
+ linux-rdma@vger.kernel.org, netdev@vger.kernel.org,
+ linux-s390@vger.kernel.org, hca@linux.ibm.com, gor@linux.ibm.com,
+ agordeev@linux.ibm.com, borntraeger@linux.ibm.com, svens@linux.ibm.com,
+ horms@kernel.org
 
-After commit fd55edff8a0a ("dma-buf: heaps: system: Turn the heap into a
-module") the system dma-buf heaps can be built as a module. The
-system_cc_shared heap uses set_memory_encrypted and set_memory_decrypted
-but those functions are not exported on s390. This results in a build
-error like:
+Hello:
 
->> ERROR: modpost: "set_memory_decrypted" [drivers/dma-buf/heaps/system_heap.ko] undefined!
->> ERROR: modpost: "set_memory_encrypted" [drivers/dma-buf/heaps/system_heap.ko] undefined!
+This patch was applied to netdev/net.git (main)
+by Jakub Kicinski <kuba@kernel.org>:
 
-Export the functions so system_heap.ko can be built.
+On Thu, 21 May 2026 16:56:39 +0200 you wrote:
+> INIT_HLIST_HEAD(&smc_v*_hashinfo.ht) are called after smc_nl_init(),
+> proto_register() and sock_register(). This can lead to smc_v*_hashinfo.ht
+> being reset even though hash entries already exist and are being used,
+> possibly resulting in a corrupted list.
+> 
+> Remove unnecessary and dangerous re-initialisation of smc_v*_hashinfo.ht in
+> smc_init(); it is implicitly initialised to zero anyhow. Add
+> HLIST_HEAD_INIT to the definitions for clarity.
+> 
+> [...]
 
-Fixes: fd55edff8a0a ("dma-buf: heaps: system: Turn the heap into a module")
-Signed-off-by: T.J. Mercier <tjmercier@google.com>
----
- arch/s390/mm/init.c | 2 ++
- 1 file changed, 2 insertions(+)
+Here is the summary with links:
+  - [net] net/smc: Do not re-initialize smc hashtables
+    https://git.kernel.org/netdev/net/c/9e4389b00387
 
-diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
-index 36bd9530db52..8244b57da31c 100644
---- a/arch/s390/mm/init.c
-+++ b/arch/s390/mm/init.c
-@@ -124,6 +124,7 @@ int set_memory_encrypted(unsigned long vaddr, int numpages)
- 	}
- 	return 0;
- }
-+EXPORT_SYMBOL_GPL(set_memory_encrypted);
- 
- int set_memory_decrypted(unsigned long vaddr, int numpages)
- {
-@@ -135,6 +136,7 @@ int set_memory_decrypted(unsigned long vaddr, int numpages)
- 	}
- 	return 0;
- }
-+EXPORT_SYMBOL_GPL(set_memory_decrypted);
- 
- /* are we a protected virtualization guest? */
- bool force_dma_unencrypted(struct device *dev)
+You are awesome, thank you!
 -- 
-2.54.0.746.g67dd491aae-goog
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
 
