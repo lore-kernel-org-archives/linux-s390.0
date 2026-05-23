@@ -1,34 +1,34 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6470D1FE471;
-	Sat, 23 May 2026 00:39:57 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1A00441C6A;
+	Sat, 23 May 2026 00:49:56 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779496800; cv=none; b=NiyEOrn0S93k870JMze+qibyfLNHxfnckxrE4o6Gy7SeSdDFUjW3imgwmDK9csQ73V/zd/qO44OIGTLmsz10vua8wfQWpWMfu8gPAcFIZQpsRB+dbZNFg7qCm10qWYAzaNM20rnJv56P6kVjgX4n+ot+qWpKDTe3WyHwTP+XmNg=
+	t=1779497398; cv=none; b=B0L2pzpQyGYlXlZ+dFwMnsmVLrWpqNqxPcAnLZdbEwahqyxF0Ngt0jBL8Zq1ko6vMK+J48A3WSOuRzj6Gf5BlYfgSe40iq0tbpOK1HaSedxWgPpVKKo4J+gq3tyl4lS1/HkqAGqFkybLUCWd4MPUMdobKMaglojWQumJPmCtEWc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779496800; c=relaxed/simple;
-	bh=suNveJ2/qCd8PcjtNHTceevirQ9Jgc5FeD9OaM8PKus=;
+	s=arc-20240116; t=1779497398; c=relaxed/simple;
+	bh=E/fanjf9lHURY1SC411ZExDg9JUlYsQwtr6ePvEKd2s=;
 	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=ASPsYDU7aJEo9MRPvOI7qGDSeSQnJLNzOMdIWSMNsv8vzh4KslxtcoJsPsrmE5UMgsZZjzx6WZ8YeiXq63+fWR6o30xxj9oT/f2RI7/8JaPechwQK9InNFyio7K4zQfEwZF/XsiQ33AbANqi0t9x8HS6aMntP6gyTO1WmFrwdAg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HjqjFLzx; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:To:Cc; b=Z2WECXBzIVMx+ej773P43pj+eeEJIfRwWp4l3JOhG+NulkoNe38y2qVPsPTKpJBsoIzcqGmHs+kCwwKL4My+HyeJnI35HROB5hee/2yW6OGDuPh3cUkGoNUN/WecLV4kObkiV+u6tTcnVMbdhhq34ZPZAoYbmDkuPywhaGpzE3M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jGYIiaYA; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HjqjFLzx"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B98DA1F000E9;
-	Sat, 23 May 2026 00:39:56 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jGYIiaYA"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC07D1F000E9;
+	Sat, 23 May 2026 00:49:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1779496796;
-	bh=/HS56sPbhZsprJXjWSZkZnxJ9H4+zwflumIWS3ATgEw=;
+	s=k20260515; t=1779497396;
+	bh=xIuOq11z5GncTcUAggi66NcDbtHIM4F6WWbtRE5yPWU=;
 	h=Subject:From:Date:References:In-Reply-To:To:Cc;
-	b=HjqjFLzxYBt1F+XJoWChDq8WG9851VrbbXPyazUXaymeMORqb5i9fwLEzY4lAATwa
-	 uCb+/1pG1xuOF89bhXV98RuCQh+zA7EYung6GjGSY5F1WXHG6L6PC0Ddm4h0uzdjKw
-	 sFoyYSW99Bx7lf5kLD/wNPu7UNvejOPc1a7FWIdh3tQsF1Vk3l4/gD1C+Hs2DxsGpp
-	 jHIy88VKqbZJUBrW0LVOIT4zFqIASrqlKvDGJFBtSUN5oD5iy9M/js+JSBtYipk4Pl
-	 Fea8pOHZ5qFLtuDnDQfaThPuoXFGBHKI8nj5WqVD79gKtLSTOO7jPfZCro6A4EYTXo
-	 EB0UdRSTSH0Ag==
+	b=jGYIiaYAgifDVbuX3Co7WmYjYE23P9Mulonrs+FWU+tk/oQsNdu7N0zJQkCTfbvUl
+	 0+IzNog9ZTMUYtAtWhdW0rzmun9QHSGlxN4CWxN2vI09Dr7UwRNAhATiguiKkSgrDY
+	 P2/zpAqA3WoLpEVRC7f4rDjcs7bDGvAZppgYbVcgkpsIJIQXgj+Gok2hIGKo528rTD
+	 ZBGB7IzuM1xS+t0S5UyX44SXtTnawHwEwjza9AWzDIBalluODKdnze3kUEl9M4kNmG
+	 he2daFCIBDqCjmFJL7yEsHcml5TNo5nSA2EXo8J+H/U4wHIaoYeyBG5uFP4kwfCyEA
+	 TZP7wa5z0c39A==
 Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id D0A6C393100F;
-	Sat, 23 May 2026 00:40:06 +0000 (UTC)
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id D0B693808205;
+	Sat, 23 May 2026 00:50:06 +0000 (UTC)
 Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
@@ -37,44 +37,41 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net] net/smc: Do not re-initialize smc hashtables
+Subject: Re: [PATCH net] net/iucv: fix locking in .getsockopt
 From: patchwork-bot+netdevbpf@kernel.org
 Message-Id: 
- <177949680539.1426243.8549979818463783234.git-patchwork-notify@kernel.org>
-Date: Sat, 23 May 2026 00:40:05 +0000
-References: <20260521145639.10317-1-wintera@linux.ibm.com>
-In-Reply-To: <20260521145639.10317-1-wintera@linux.ibm.com>
-To: Alexandra Winter <wintera@linux.ibm.com>
-Cc: alibuda@linux.alibaba.com, dust.li@linux.alibaba.com,
- sidraya@linux.ibm.com, wenjia@linux.ibm.com, davem@davemloft.net,
- kuba@kernel.org, pabeni@redhat.com, edumazet@google.com,
- andrew+netdev@lunn.ch, pasic@linux.ibm.com, mjambigi@linux.ibm.com,
- tonylu@linux.alibaba.com, guwen@linux.alibaba.com,
- linux-rdma@vger.kernel.org, netdev@vger.kernel.org,
- linux-s390@vger.kernel.org, hca@linux.ibm.com, gor@linux.ibm.com,
- agordeev@linux.ibm.com, borntraeger@linux.ibm.com, svens@linux.ibm.com,
- horms@kernel.org
+ <177949740565.1429997.1649694232488490214.git-patchwork-notify@kernel.org>
+Date: Sat, 23 May 2026 00:50:05 +0000
+References: <20260521-af_iucv_fix2-v1-1-f16b1c510aa9@debian.org>
+In-Reply-To: <20260521-af_iucv_fix2-v1-1-f16b1c510aa9@debian.org>
+To: Breno Leitao <leitao@debian.org>
+Cc: wintera@linux.ibm.com, twinkler@linux.ibm.com, davem@davemloft.net,
+ edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, horms@kernel.org,
+ ursula.braun@de.ibm.com, frank.blaschka@de.ibm.com,
+ linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, kernel-team@meta.com, sdf.kernel@gmail.com
 
 Hello:
 
 This patch was applied to netdev/net.git (main)
 by Jakub Kicinski <kuba@kernel.org>:
 
-On Thu, 21 May 2026 16:56:39 +0200 you wrote:
-> INIT_HLIST_HEAD(&smc_v*_hashinfo.ht) are called after smc_nl_init(),
-> proto_register() and sock_register(). This can lead to smc_v*_hashinfo.ht
-> being reset even though hash entries already exist and are being used,
-> possibly resulting in a corrupted list.
+On Thu, 21 May 2026 07:11:45 -0700 you wrote:
+> Mirror iucv_sock_setsockopt() and wrap the whole switch in
+> lock_sock()/release_sock(). The pre-existing SO_MSGLIMIT-only lock
+> becomes redundant and is removed.
 > 
-> Remove unnecessary and dangerous re-initialisation of smc_v*_hashinfo.ht in
-> smc_init(); it is implicitly initialised to zero anyhow. Add
-> HLIST_HEAD_INIT to the definitions for clarity.
+> Any AF_IUCV HIPER user can potentially crash the kernel by racing
+> recvmsg() with getsockopt(SO_MSGSIZE): the SO_MSGSIZE arm dereferences
+> iucv->hs_dev->mtu after iucv_sock_close() (called from the racing
+> recvmsg()) has set hs_dev to NULL, producing a NULL pointer dereference
+> oops.
 > 
 > [...]
 
 Here is the summary with links:
-  - [net] net/smc: Do not re-initialize smc hashtables
-    https://git.kernel.org/netdev/net/c/9e4389b00387
+  - [net] net/iucv: fix locking in .getsockopt
+    https://git.kernel.org/netdev/net/c/3589d20a666c
 
 You are awesome, thank you!
 -- 
