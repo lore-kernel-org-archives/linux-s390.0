@@ -1,132 +1,82 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 194D82D6E58;
-	Tue, 26 May 2026 13:17:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3127C232367;
+	Tue, 26 May 2026 13:54:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779801448; cv=none; b=Ve7AA0B+2YaCtOi9p5goJRegTNHutwbtb/ik05RrOjQUvxNxElAGrGdmy52QmSB7UOz3bjFVwq0FzNsQtQbAQoohMJ1+OJb30rkFZSpLdkzfiTTP+/Z/Htj+qTQDqoanJls8ggnHyFCa4Z9J4BpZYkeP+osDumXtPu/nwxSzuVE=
+	t=1779803658; cv=none; b=YWvazvN3Hh2zULZruIbJc7l5zi90n8CKm0wgrmq1rl+8mq99rCIisXR9wAd5s3GJ+JVc7n1dQcI4OHJXHWsgOzOJq8IE8qTLwaYhnNP2t42xsnWwo8lOM5hvOQ91R1qWz2q+Wa/mwnoqFVN1hpPiWA4Dwh9a+ircFz1oNhp8Hh4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779801448; c=relaxed/simple;
-	bh=8VD+sBKogxg9JTxks47UafF82ToziQkvyYt01a9musw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=HTzOdk8y+ENl867v2x0b4WyvFEBVuvPxVBHqbIEnfTlrCJcHUpy1SgoQbkwm7h1CXTcqK9cIlhRl2quUBdiPnL97H/WbdAPg4IAabjHvunkCe8fMVBPkyrBR5+/eDTgJLyngeF/BzryvdBSaHC6ZE0YGRn9sGSvcabOKqZ7irJs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=d0wvbliq; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1779803658; c=relaxed/simple;
+	bh=wKJXDkASdxGv5XkbxOAscLvJvMCCT9ydNiDEGPXCgMI=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=tzSryomqLrxy3R8PQ5D3eO+CMSaPgR2lHSAprs/LL2OgAFH2m1GX7A+NY4+clpxL6CERXhrT+wq9mAYr7vQNnH8MpGQacVMUNDb8+2KxsGKEGTO9SPiq+5sNORwp/YFLBHxniSQAtBBsku9xQRsaK56lahAZfvX4zhc37uFaK70=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mlTGdn6U; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="d0wvbliq"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 64Q9dF5D2248392;
-	Tue, 26 May 2026 13:17:25 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=Y1kv+CfNUNO3MeaqDjHj0Sowdx4+Vo
-	UCsj8GaNvaqRU=; b=d0wvbliq1J6P5GlwAS5MU/Uss6jBgNoryS07FKPT8m9tv3
-	h15yxayFExcOzFiqjxsJeA2mpg/LGlexRVA7m28EEG8l3G97bnl7YXrj6t64vQVz
-	SwoWeK4oTNPF9LyDDf8e374p4jS/D7k3zMeMx5VYbOu610q/KclicxYcmNqFSboA
-	w5tCq2q820kETdfMAQyrJP8pKKzNRs8kqt1MydpOUO42g6KhQ/veyEVsUXgHohb6
-	wU+WJQt10D8vBXyJxge4T4qmw2RQcD9hzXxCW3hZoC5iOhpwjTY3bKSqiMVoEoO3
-	bQerSsG6Gf55EMcnL7KpFJByM9K9BbWSnx4I/BkQ==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4eb4pdba3d-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 26 May 2026 13:17:25 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 64QD93DZ028493;
-	Tue, 26 May 2026 13:17:24 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4ebrsg9911-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 26 May 2026 13:17:24 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 64QDHK5t38207776
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 26 May 2026 13:17:20 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C76A420043;
-	Tue, 26 May 2026 13:17:20 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A55D920040;
-	Tue, 26 May 2026 13:17:20 +0000 (GMT)
-Received: from osiris (unknown [9.52.214.206])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Tue, 26 May 2026 13:17:20 +0000 (GMT)
-Date: Tue, 26 May 2026 15:17:18 +0200
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Marco Elver <elver@google.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, kasan-dev@googlegroups.com
-Subject: Re: [PATCH] s390: Implement _THIS_IP_ using inline asm
-Message-ID: <20260526131718.9778B73-hca@linux.ibm.com>
-References: <20260521122727.142280-1-elver@google.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mlTGdn6U"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C76BC1F000E9;
+	Tue, 26 May 2026 13:54:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1779803656;
+	bh=WLgV/Xin7YlIjiVHXZ4eiEvQ7g3pM9UQaagNfol6CcI=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc;
+	b=mlTGdn6UwKHGnAtDoCHqlihkP1FQVsSGmNwid/oTs/b1NfOv4aNVTMmqZyKyWmrlo
+	 Xtnjp6cShAv57ggMfiHV+A51e5iy6HOskyDYysF9Iz4scnRjo5zf1QwINgv0jQSW7f
+	 Wv+RBsIQZlkuvHcz+xb6q3PlaMnJSrOIJH1s+4waSJwUQXjB8AXTfXaptS5CgczYb2
+	 6CofEmjQUHrbvkRPSCZ1SfSPEXX9Jug0BxzvBN5rpVJ1x76JasN/wUQkzdp2ZCn3Pw
+	 ktJZtgwVwLslpg8/i7JCDh7I5gbzVx1F/mn3qsSvA4o7MU4fNWnjS/xIXFxlrxATjp
+	 D2143pzxnXjFA==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 199CC380CED4;
+	Tue, 26 May 2026 13:54:24 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260521122727.142280-1-elver@google.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Authority-Analysis: v=2.4 cv=OdqoyBTY c=1 sm=1 tr=0 ts=6a159d65 cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=kj9zAlcOel0A:10 a=NGcC8JguVDcA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=mDV3o1hIAAAA:8
- a=NEAV23lmAAAA:8 a=1XWaLZrsAAAA:8 a=VnNF1IyMAAAA:8 a=kDix7j7DZTOcE0wP3AwA:9
- a=CjuIK1q_8ugA:10
-X-Proofpoint-GUID: fNHlpc8Dtb3xBM2K8RfIIRb1RuwkNAyg
-X-Proofpoint-ORIG-GUID: m3PnYVOt16oPwZ8UZB8iqH8Tf6ZlAWfN
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTI2MDExMyBTYWx0ZWRfX3F0xLZBxIGSq
- Fb1iNRqRPpo82hicXP1+srJwI7qOZOK+BYy66cC0CqQCAIH9jRny8P2VyerahCD4HRlzwXX65XG
- QDTjLnndRPR4qFaZS7xmyrvwVSUV0EbSJxC3G+fDmFvNOPLIXaXIzDYnQNVrrfRgcYLrOZhKJSn
- v416EDdHfjZsxAzY5vQxZ3eGvB2nAybTLe9TXg1FcZowbP++cgHcitwe9lIZ4+B5ncs6vc1XqZ8
- PNHbtMf8ZNOfZUz2ULk1c13DQMd3yf1WFq7t5CcWcSK/CL6xfNE82IcBRa8mdqWUkw25EFAEOZB
- p68Lvyi6SyVLurFtwlEpBdRntiVzLBQ6O8EUgRh2NSWEGxavcbH5x6XiX7zDn4D0yxKpETovm6y
- q/+VmdCFlB72gLw2ohundn0ZT/T82LYwAZVn8ayLgp/4V0ogQks3KHNPMTy5+iLFufbmnqxHNTv
- BxsuJdXyqTUE4a1NTuA==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
- definitions=2026-05-26_03,2026-05-26_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 impostorscore=0 clxscore=1015 malwarescore=0
- lowpriorityscore=0 bulkscore=0 suspectscore=0 adultscore=0 spamscore=0
- phishscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2605130000
- definitions=main-2605260113
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH v1 net-next] s390/ism: Drop superflous zeros in
+ pci_device_id
+ array
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <177980366265.3384005.17527957478769119230.git-patchwork-notify@kernel.org>
+Date: Tue, 26 May 2026 13:54:22 +0000
+References: <20260522153010.777081-2-u.kleine-koenig@baylibre.com>
+In-Reply-To: <20260522153010.777081-2-u.kleine-koenig@baylibre.com>
+To: =?utf-8?q?Uwe_Kleine-K=C3=B6nig_=28The_Capable_Hub=29_=3Cu=2Ekleine-koenig?=@aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org,
+	=?utf-8?q?=40baylibre=2Ecom=3E?=@aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org
+Cc: wintera@linux.ibm.com, aswin@linux.ibm.com, andrew+netdev@lunn.ch,
+ davem@davemloft.net, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+ hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+ borntraeger@linux.ibm.com, svens@linux.ibm.com, linux-s390@vger.kernel.org,
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, May 21, 2026 at 02:27:23PM +0200, Marco Elver wrote:
-> Both GCC [1] and Clang [2] consider the generic version of _THIS_IP_ to
-> be broken:
-> 
->         #define _THIS_IP_  ({ __label__ __here; __here: (unsigned long)&&__here; })
-> 
-> In particular, the address of a label is only expected to be used with a
-> computed goto.
-> 
-> While the generic version more or less works today, it is known to be
-> brittle and may break with current and future optimizations. For
-> example, Clang -O2 always returns 1 when this function is inlined:
-> 
->         static inline unsigned long get_ip(void)
->         { return ({ __label__ __here; __here: (unsigned long)&&__here; }); }
-> 
-> Fix it by overriding _THIS_IP_ in <asm/linkage.h> (which is included by
-> <linux/instruction_pointer.h>) using an architecture-specific inline asm
-> version. Additionally, avoiding taking the address of a label prevents
-> compilers from emitting spurious indirect branch targets (e.g. ENDBR or
-> BTI) under control-flow integrity schemes.
-> 
-> Link: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=120071 [1]
-> Link: https://github.com/llvm/llvm-project/issues/138272 [2]
-> Signed-off-by: Marco Elver <elver@google.com>
-> ---
->  arch/s390/include/asm/linkage.h | 2 ++
->  1 file changed, 2 insertions(+)
+Hello:
 
-Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
+This patch was applied to netdev/net-next.git (main)
+by Paolo Abeni <pabeni@redhat.com>:
+
+On Fri, 22 May 2026 17:30:09 +0200 you wrote:
+> The .driver_data member of the struct pci_device_id array were
+> initialized by a list expressions to zero without making use of that
+> value. In this case it's better to not specify a value at all and let
+> the compiler fill in the zeros. Same for the list terminator that can
+> better be completely empty.
+> 
+> This patch doesn't introduce changes to the compiled array.
+> 
+> [...]
+
+Here is the summary with links:
+  - [v1,net-next] s390/ism: Drop superflous zeros in pci_device_id array
+    https://git.kernel.org/netdev/net-next/c/18b9f739d3f2
+
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
