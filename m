@@ -1,204 +1,208 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.9])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C7F913FFACF;
-	Tue, 26 May 2026 15:01:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=192.198.163.9
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779807679; cv=fail; b=eaA2A1bzniGPDJDX6SvqNA1pk4UXiOcIoMQi0XKxjvWZpKgJF0PDrvbH6a3l5+rIf/eBynQS/rrhMwarRc8QSuoxCd88ob8l6rky4bZvvBDPm8+Les44MjkBSQgBU9c+UuxgYTD9mytlyGi5i+TrrDUStVG9E4tRbLewNPG8coY=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779807679; c=relaxed/simple;
-	bh=hod68KfeXlE0Ei0cWq1OZr/ImBWAvU6B9ByiwAv0+Zg=;
-	h=Message-ID:Date:Subject:To:CC:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=DdPgOjOFUhj4PanFPZO3NDaCXgGzvUnnprUVnN4fWojMi1zXngCY8b204jKD5bqSJpK6km/JiX/y/V9tp7d0KZQB8q5oum63/YWVLuy3I+myo5Cha+QMN26j5c5mydpRDY3X5i00UOia+VNiosJzaU3WeLoB5ykc4FyGMnSGW8A=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=TES1qhh1; arc=fail smtp.client-ip=192.198.163.9
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B326F1AF4E9;
+	Tue, 26 May 2026 15:21:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1779808918; cv=none; b=KyqJP36K8nEBGHMiHie79yUH3xdpZIGNhAx8SLZITbj0EjfT7XQ6+aMTkBP56Snlzuvu88VAQpvXJ5E6XHDifgvAj1vhASksPBAJUxkFtp/Acgqm8l1OM6u1LiRr6oxUJo4ZDgm8by0RVv8PWIDKk0cYfX25EcEeacr+7cstqFk=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1779808918; c=relaxed/simple;
+	bh=fTKrci0yQyhLBN7q+ikXPwSrGDqHjqNeY3AAetkN90s=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=YIP3N1IWbLB7EROQu9CMCxxczBuz+Tj1VU5eXttvQSmH4BX2swydYWaE1eEPuWmdk3yXrIh3kDv8zCwMU8FJYiOTEnaGQzuRfKMMC1iKU+l+7oIguFTPW35H2XHISNCIL7RKJbJpDcHCZaZBaVJ2xe+29WNoe3am/H+fB9WUZj0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=m2LpCiSJ; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="TES1qhh1"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1779807678; x=1811343678;
-  h=message-id:date:subject:to:cc:references:from:
-   in-reply-to:content-transfer-encoding:mime-version;
-  bh=hod68KfeXlE0Ei0cWq1OZr/ImBWAvU6B9ByiwAv0+Zg=;
-  b=TES1qhh1kskCAa4n7rLovfG9YjBWT4uN25FhG1uewt59VkCB494t3Vfe
-   NTf83AknzZIbl3+IvGPYHfGT5DbT+J3866merPqvtlELpr4sx3A0pxiDZ
-   VwX7nuztIxTyIDjdg7jYTPL6l5ZBsylDSOHn0QU9fStTWdyv0uLFj8NUn
-   DbgxyLFITX0ukIiRCNgz5ySB8uiprlLlpG29MIQunCKkYOabtZ1buUcyu
-   51394KeZ9NKRK03sf5d3cUYRhfrST7qahU5HrmwJqYDDN0sjwlH9gBszx
-   DWDronAslwkSPj2FlqXIoJX1yKnyDRlLIb116fuf4AD4gk68DLCTmmzz7
-   w==;
-X-CSE-ConnectionGUID: JNMQl5MdQACCX8/USqETIA==
-X-CSE-MsgGUID: XbBuz0wHTvuoeqXadVuI0g==
-X-IronPort-AV: E=McAfee;i="6800,10657,11797"; a="91313974"
-X-IronPort-AV: E=Sophos;i="6.24,169,1774335600"; 
-   d="scan'208";a="91313974"
-Received: from fmviesa009.fm.intel.com ([10.60.135.149])
-  by fmvoesa103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 May 2026 08:01:17 -0700
-X-CSE-ConnectionGUID: AaXH2PWLQyO1IUuCyjOWcQ==
-X-CSE-MsgGUID: QwV6Q0fPS2GRvT6wZmb+PA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.24,169,1774335600"; 
-   d="scan'208";a="235591854"
-Received: from fmsmsx901.amr.corp.intel.com ([10.18.126.90])
-  by fmviesa009.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 May 2026 08:01:17 -0700
-Received: from FMSMSX902.amr.corp.intel.com (10.18.126.91) by
- fmsmsx901.amr.corp.intel.com (10.18.126.90) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.37; Tue, 26 May 2026 08:01:16 -0700
-Received: from fmsedg903.ED.cps.intel.com (10.1.192.145) by
- FMSMSX902.amr.corp.intel.com (10.18.126.91) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.37 via Frontend Transport; Tue, 26 May 2026 08:01:16 -0700
-Received: from DM1PR04CU001.outbound.protection.outlook.com (52.101.61.28) by
- edgegateway.intel.com (192.55.55.83) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.37; Tue, 26 May 2026 08:01:15 -0700
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=SlR1OCD+oRPwmfmpZ1gaRgTsN+aC1x7qBeqP651ET87Fnjm2cfia67bQkreyb9ib9jBS/Adm5/ldsXNhi0qYdXxpQc2GXiTvfHCTOJID6aFOHzd7vXA2ns0aUwo2XIMs9ShgYs1g3lrkStw0ghw42CbbqmqDXmuoOLpfPd18eRFXKvRb6w5St18GUC2x2vTBztoY2RSLIKkcvLgZHzMR9zZ6PcP4p74JIwH5hT+H9qyrjfzhXifLFoOcaGEVHFaIBFwIC12JbUfgWA36S4L9qK9WxqGrK/oSeeDAhSsj+TcDZHBoNXyudPs3t8zPTr95qiVgGt+u3SCK05KcGbe16A==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=qb+uFUwwbPIz1JjmiRqIvagrnhKTmwXANjIr16akjJg=;
- b=gkiP6E/LUZ1hWRYWmCh8N2z1ayUPOKU5VeMeOjUhjIG4tp/rW57skJvwJyodXF5cvrF4ICwO8nlKkU9FMieJBWQejEHiWMlitgte+xGzxnUWyKgh5StSxRKqgE6fmJxGeAkjdlgqfmNAukrbC9JGc/JvsOuF/E8EBKaXVrF6gXcAE0Q90yw7gElpAugwLtuurgq2oyjAF0HedjaQFtmJ6DdZNd1+NGCBVBtERBQTiWoY1T7qdy5gkx8OssyPypdPinciQxQow+/Y3lBfXT1W0JtgPRkE5MEG5SwU1391/Vn/cZ6cjLk20UDwoC+znV67cr66H+z0oWGDjB9gv87O2Q==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-Received: from DS0PR11MB8718.namprd11.prod.outlook.com (2603:10b6:8:1b9::20)
- by CH3PR11MB8237.namprd11.prod.outlook.com (2603:10b6:610:154::12) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.71.12; Tue, 26 May
- 2026 15:01:12 +0000
-Received: from DS0PR11MB8718.namprd11.prod.outlook.com
- ([fe80::6aa:411d:4bfa:619c]) by DS0PR11MB8718.namprd11.prod.outlook.com
- ([fe80::6aa:411d:4bfa:619c%5]) with mapi id 15.21.0071.011; Tue, 26 May 2026
- 15:01:12 +0000
-Message-ID: <b5e15330-ed64-4f31-bea2-bb877a24c1ce@intel.com>
-Date: Tue, 26 May 2026 17:01:06 +0200
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] err.h: use __always_inline on all error pointer helpers
-To: Arnd Bergmann <arnd@kernel.org>
-CC: Andrew Morton <akpm@linux-foundation.org>, <linux-kbuild@vger.kernel.org>,
-	Nathan Chancellor <nathan@kernel.org>, Nicolas Schier <nsc@kernel.org>,
-	<linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, "Vasily
- Gorbik" <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>,
-	"Arnd Bergmann" <arnd@arndb.de>, Bjorn Andersson <andersson@kernel.org>,
-	"Andy Shevchenko" <andriy.shevchenko@linux.intel.com>, Christian Marangi
-	<ansuelsmth@gmail.com>, <linux-kernel@vger.kernel.org>
-References: <20260526101851.2495110-1-arnd@kernel.org>
-Content-Language: en-US
-From: Alexander Lobakin <aleksander.lobakin@intel.com>
-In-Reply-To: <20260526101851.2495110-1-arnd@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: VE1PR03CA0011.eurprd03.prod.outlook.com
- (2603:10a6:802:a0::23) To DS0PR11MB8718.namprd11.prod.outlook.com
- (2603:10b6:8:1b9::20)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="m2LpCiSJ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFA6D1F00A3E;
+	Tue, 26 May 2026 15:21:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1779808916;
+	bh=0hQwi5+nW+dV7R2wQlzvmP6fT6QYtAlQz+HAiPUDCiU=;
+	h=From:To:Cc:Subject:Date;
+	b=m2LpCiSJVU237ta4inGXHLXDL24OGeldS92bZjWJO9r0T42Netl7PViNUuprrIp2g
+	 q54ZJ6vboC0uEPuEDNdGwHKfKQqtq0+gI6BY3joCLPiaWEnVX9eX4CZANoZbEeGOX0
+	 3TnaUTC8fvk675J3v16G/IKiberS1ZXAbKE1YW+CQcLpIAJUCCrem/aip6VXlsNLZg
+	 czO0b2dqwSrNRap+s9Szq2QffQTzJ993TBu/vqFDOZ8Jz+9Vt1oOnz4R/LF6hEmQAn
+	 jwLY/iRGVl4vCiLH9stLELphBKzw4FuifhN2VaSOW7y7DSKbZvjKXXPhzY6snwZ3zT
+	 No+11v9zStpiw==
+Received: from phl-compute-02.internal (phl-compute-02.internal [10.202.2.42])
+	by mailfauth.phl.internal (Postfix) with ESMTP id 403B0F4006B;
+	Tue, 26 May 2026 11:21:54 -0400 (EDT)
+Received: from phl-frontend-03 ([10.202.2.162])
+  by phl-compute-02.internal (MEProxy); Tue, 26 May 2026 11:21:54 -0400
+X-ME-Sender: <xms:kroVagybSl3oAEyYhVs-fulOrUpWcDtTdoCA2nEPrqyKMz1FtwwNlA>
+    <xme:kroVapJbk8oSsIW9WpJakxFiyLTOges66Pi7_AwIcpVAlNtGyMSODtgi1Qmn_Cb1B
+    gFxV36cWxt1SFWEVHYL1kUOFgyD9vagp4B2aiDLr3ZkOoQt5CXOLg>
+X-ME-Received: <xmr:kroVaoO_RCv6pL7iuPtVvqH2Wg6JxHVYnCWei9fqChxvHNWccchDLJG1Ivvh-DGOdgTQlf6OgK1MUV_8c8M0yCCZeuVc8Q89>
+X-ME-Proxy-Cause: dmFkZTEc8a0D2GdCjrvIhiNGB2Nh4cWuQxL5ZFYu9/Yar+XUr10figlOqIqzZ35yWmZKqP
+    1e7rvFFTLvMZqOu3FuGq4lX65NtD/MteFhq94HrvbeDHeIwRMhuzkfUd3Nj2G1+NpBICKp
+    6sF87Mj5FVmkDzWHyKKu0EBWLAfJk7BHjLPIkbXNytuoqAp+/FLkSEjFELHI2kl2/BQmsY
+    eymRo7s3JBXS0yRHUCuZp9MDu+CdW526s52Lixpit9kqC/DNyw6ZSWLKiIA/7Ex68TstWu
+    XLy1p2JlIkBHFPlZ0WVdh/zUtiR8MDz6pF8Le6EA7VH4rNS53h+8SZCydHfWRQSzORE1UF
+    wDnMDwsNqklA3mcHdWLOQAM3r2KNCVwvSj+z84CmnWgHTJydUvi4FW3gB61UWhRqNelRbK
+    fNNn4UUiBB80v7p+rmHEjjIfepwm+q5guv4qBZzmqOtd3Hb3Pdt67nxs9yLRaE7d0cbUPJ
+    dKhtAwrfGFqyfQJb+74inmexhzMSsgwmWjQytC2PNoeoOZDL8te1G6KGLMdysorHkrVnFx
+    oKkYZzf8IBLTZM8dvN/4AMUDU8tGzJyTv0GdTQdHHoH5dRkSGEHK/LGnpep0JXhtd2q+rM
+    bbWVifmiPwINUswNxaO+84i5I65WWLTBXUsTGAmEa+8Yhy0i0cTy2iaTHBjg
+X-ME-Proxy: <xmx:kroVag8DthoomKlo_BXoZGQ6V1IYJ-byKB03FK7PyxOm5nZY1fnZhQ>
+    <xmx:kroVaoEeR3snZSyIqn_eikQ0Bo3bWf1boG0Rnf2-bK6Y24qZGtBfzA>
+    <xmx:kroVaolPdSFdJoEvggbZXwd1pqGksSrgohVtwI9h0NpT8HSJVQHubA>
+    <xmx:kroVahq4E_GgWdS0KfntacoyBcxaxeOUCIBzrWLjAiGPFl5TSlBmFg>
+    <xmx:kroVajNHJq0pUr5G5QX3qwvGrHttu0-vPZRLhOZ21LFi0eZ2cIk-cEda>
+Feedback-ID: i8dbe485b:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
+ 26 May 2026 11:21:53 -0400 (EDT)
+From: Boqun Feng <boqun@kernel.org>
+To: Peter Zijlstra <peterz@infradead.org>
+Cc: Catalin Marinas <catalin.marinas@arm.com>,	Will Deacon <will@kernel.org>,
+	Jonas Bonn <jonas@southpole.se>,
+	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
+	Stafford Horne <shorne@gmail.com>,	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,	Thomas Gleixner <tglx@kernel.org>,
+	Ingo Molnar <mingo@redhat.com>,	Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>,	x86@kernel.org,
+	"H. Peter Anvin" <hpa@zytor.com>,	Arnd Bergmann <arnd@arndb.de>,
+	Juri Lelli <juri.lelli@redhat.com>,
+	Vincent Guittot <vincent.guittot@linaro.org>,
+	Dietmar Eggemann <dietmar.eggemann@arm.com>,
+	Steven Rostedt <rostedt@goodmis.org>,	Ben Segall <bsegall@google.com>,
+	Mel Gorman <mgorman@suse.de>,	Valentin Schneider <vschneid@redhat.com>,
+	K Prateek Nayak <kprateek.nayak@amd.com>,	Boqun Feng <boqun@kernel.org>,
+	Waiman Long <longman@redhat.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Andrii Nakryiko <andrii@kernel.org>,
+	Eduard Zingerman <eddyz87@gmail.com>,
+	Alexei Starovoitov <ast@kernel.org>,
+	Daniel Borkmann <daniel@iogearbox.net>,
+	Martin KaFai Lau <martin.lau@linux.dev>,
+	Kumar Kartikeya Dwivedi <memxor@gmail.com>,	Song Liu <song@kernel.org>,
+	Yonghong Song <yonghong.song@linux.dev>,	Jiri Olsa <jolsa@kernel.org>,
+	Shuah Khan <shuah@kernel.org>,	Miguel Ojeda <ojeda@kernel.org>,
+	Gary Guo <gary@garyguo.net>,
+	=?UTF-8?q?Bj=C3=B6rn=20Roy=20Baron?= <bjorn3_gh@protonmail.com>,
+	Benno Lossin <lossin@kernel.org>,
+	Andreas Hindborg <a.hindborg@kernel.org>,
+	Alice Ryhl <aliceryhl@google.com>,	Trevor Gross <tmgross@umich.edu>,
+	Danilo Krummrich <dakr@kernel.org>,	Jinjie Ruan <ruanjinjie@huawei.com>,
+	Lyude Paul <lyude@redhat.com>,	Thomas Huth <thuth@redhat.com>,
+	Sohil Mehta <sohil.mehta@intel.com>,	"Xin Li (Intel)" <xin@zytor.com>,
+	Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
+	Nikunj A Dadhania <nikunj@amd.com>,
+	Joel Fernandes <joelagnelf@nvidia.com>,
+	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+	Randy Dunlap <rdunlap@infradead.org>,	Yury Norov <ynorov@nvidia.com>,
+	Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+	linux-kernel@vger.kernel.org,	linux-openrisc@vger.kernel.org,
+	linux-s390@vger.kernel.org,	linux-arch@vger.kernel.org,
+	bpf@vger.kernel.org,	linux-kselftest@vger.kernel.org,
+	rust-for-linux@vger.kernel.org,
+	=?UTF-8?q?Onur=20=C3=96zkan?= <work@onurozkan.dev>,
+	Daniel Almeida <daniel.almeida@collabora.com>
+Subject: [PATCH v2 00/12] Refcounted interrupt disable and SpinLockIrq for rust (Part 1)
+Date: Tue, 26 May 2026 08:21:36 -0700
+Message-ID: <20260526152148.30514-1-boqun@kernel.org>
+X-Mailer: git-send-email 2.50.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DS0PR11MB8718:EE_|CH3PR11MB8237:EE_
-X-MS-Office365-Filtering-Correlation-Id: f9518722-98db-49dc-3e55-08debb37a072
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|376014|7416014|1800799024|366016|11063799006|3023799007|22082099003|18002099003|56012099003;
-X-Microsoft-Antispam-Message-Info: cdWzSIWs2E7FSDYq4MceXMqKjjxY6N+nJUOBNmat8oZPNoaD7pr16UIoLpkSs5ALR3a9V7s+xMBj0RVq5SGPcKoUQ9q+bfgmnuUKXuqetx+hhBwt9fd70m+ekecBYP7B/pese+8w2nrcMbq72SZqcN9LxzFRQ2bUBy7toh989bV9HKiyMmSknYkEGSEeSMTiqrQ4f7JEBJcV4DwWP+E2oZhROfCuGe2sUphH9hppJypAxIdpqGeFEXf3+ksaGSNOEPSpnbTjR9p7dHjoBKxDQQiD1vXjBpn+FqrHYgPOBuy5fZh8OumjUqcHimm+nEdRxx3M2WGSuafodSptz+xbCz3wlmYPWfv08wVWyov/TrSPxkjMbjesuiYID7dy+HtJYKy1DuGjlKw4dzq9Ecbz3hbiGyInsnQ7F0bnXL4edLPcNiK+DwwYd/B2SXoDKQK7FfwE9Q1X8VbR45P5EmYFWziEK4Ca3L/FiNKdBwWB4GSbtQtcijBPtxFpXvWKpIsijM0AKEbhQQLDaskXboGhM2QYWwUJz1BmJf6aDg33bDS1yZl1x98646ocY4Mj+6Cn7lPV576YXKmvF5v8of4ye2V6DF/czaQVFd3iLDeYTA0+C1teYc+xj6fXopIvjw4z/lJCB9cbMKNmKXY3VFolObF4jnDTGYvoxQqa3RmL0K3QGBAtLFmielpdTL1wkW8/
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS0PR11MB8718.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(7416014)(1800799024)(366016)(11063799006)(3023799007)(22082099003)(18002099003)(56012099003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?WlJNc1NvUVdrNzVWMU43ejlWR1FjUTNYVEUwZVlLQmtSMFJEWG5IWUpVUDB0?=
- =?utf-8?B?NTlNWnVuRGlqQlh1UUxKZVdFRVVyaGk1VnVRUEsvMzlUM3gweklUdlRCV3VF?=
- =?utf-8?B?L2FSay9WQ0lCMUkrVkNEVFhXUVV1TmdkNERqcDhxa0VyZS9NT1NhaktOKzd5?=
- =?utf-8?B?OTNpUytUSnBDVzFFVnozSlh2ZXZuMk1RcjdYMkhkYmFQQkt3UmlHZXNOVVdO?=
- =?utf-8?B?NFczdzA5YWtvSWN6cTBib01WOTkydStWaXJEdlM2RUtuUW1DOW50WWhSbDBa?=
- =?utf-8?B?SlZDYjRRMWpXY2lJei82c3BBbEtiTDg4VEI0K0xsYXZNby92dmFaT1J6VzRS?=
- =?utf-8?B?dSsxSWZWb05aSGxaSVJabzZZMGcyVThodWp6ZitOMEhUSTZkcnJQbGliM2FY?=
- =?utf-8?B?TWtuQXlvSlBLL2VEQTBHRjR3SnBlazU5anpadTVOVFVYS05DWGZNZHRpYjZz?=
- =?utf-8?B?UEQ3QzJsNFlBWUo5Tld4bmJ6SlV1N0c1eCtXckt3SWorOFUyUDNIUWxsR3hV?=
- =?utf-8?B?UXMyVVREMmtVYXhSanRna0hGclFPRFF3NldYV3VzWWJvb2xyR0Nkc1Bqb0da?=
- =?utf-8?B?NDJIRnRnYUpJUlFhdHhodkU1YXBmTy9sSGNyeW53TC93eUc4LzQ2cXBuTmt4?=
- =?utf-8?B?eEJSRDFER05ZMDYxYTcxcUVWYnJ0S3h2d0ozc1d6QXZWV09EUTNvQ1JOYTZo?=
- =?utf-8?B?Z0FRU1Zha01VelFvZjdiM0p2eWwvZDBvQk9ZYnZNUSsxVUNraHZUblN2a3ZS?=
- =?utf-8?B?NGczVkxLanU3cklOKzVyQTJHcjVQdEVNUmVkQWQrVEhTNm9sZTNEeFU3YWRN?=
- =?utf-8?B?ZEFseFVpbUF4WHlGbXlsRVc0TnV6ZEpKUnFGcFVHTXJOVHNKdTdISWFFdXlY?=
- =?utf-8?B?Vk1EUk5mNnhSWmhmZEhVbEFUSHNWOW5WV1RSM1pCZnRReHhTN2pJTEQvaUZz?=
- =?utf-8?B?QUZ6bi9sdmF3WjRkWkpjZXZCZEJQM3hUTzY1RWRsMU5pcVpyL1hTVHhZTHkx?=
- =?utf-8?B?elpPU2RSZlorN1hNT3Y4bnZ4UFMvMXV4c3VsMHV5dVA3aHB0VFhMa2hNNklE?=
- =?utf-8?B?V3JrNDE4Qm9ZeVNROEVMOHc5QTVWcDJKUG5FdzZKRUxFWUFGWEgwR3hvM3VO?=
- =?utf-8?B?dVNuS0lvbmhwV0hmTXBtcitmZHp4Mkl0bDVsQmtEREwrUVVYZ3VQNHhnenE5?=
- =?utf-8?B?c1pYRmF3UVdaTTV2TmhzNmVZVFg0U3JrVWpuWGJWcjhFcFllcjVPbUF3NkNl?=
- =?utf-8?B?RjVoQ3Nub3k0U3BkTTNaUllSSGNVMm15MkpxakNqaTNQNVZ5a2E1UjJvUHdp?=
- =?utf-8?B?TmpQREtQSlpMV1QzS3ZncklZU0JNM0RaZVMvUE5vcVhxenBvOFpyM1pGcE9Y?=
- =?utf-8?B?ekFvVzZQWkZHY1BHOVJFYzJWV3l6NG40cVNRZTVVcmRJYUxkT2N2T011QU0v?=
- =?utf-8?B?TkN1aGlacVhrbDlUQThuczZaNERvSVBkRlhNL253R2FmYkptR0tQaGJwTE5S?=
- =?utf-8?B?WHQxWnc0dUZDTVliK0Z5a05US3UxcHc0Q3dqTE44U1U5N0lGcE5FRld5SkhY?=
- =?utf-8?B?bVpxUU9WWlBJVDd3VzNNKzBSSFRwQ1MyaXl2czZSZ1BBV3d0Vlp6QmxhZ295?=
- =?utf-8?B?Vkc1KzZMNkIvcy9wdzZBU0k0dTViYXV6a0RzTFNib1JPemNEWWRlaW5rcHA3?=
- =?utf-8?B?dXEwb2UxdkZ5bnJOUjR1Ky8yZS9Wb3UySWo3TC9LQnd3MlM4amlkeWxLUEpr?=
- =?utf-8?B?OU1pcndqbC9sZnZ5NE5EUFdBWHBocmllNko2V2VFenhFczlZRGdvdFF3TVRo?=
- =?utf-8?B?clIzKzA1VWFnOTNGRnZnNG9BR2NydnRWYnRBcVdQQjZmU0l4TzQ0YTlwVUFt?=
- =?utf-8?B?amUzT2hzUVdHaVgxdlE4Z3hIZ1RGd0d4VTU1UklsUS92VktsdWphT0E3cHVl?=
- =?utf-8?B?WmZ1VmxwWHhzR0NkNk1tUVpuUGlXWlFyVUNlejczaUNrOXRsZlAvdEdqM2hv?=
- =?utf-8?B?bzNIOFZYUmg3NzM1c1A0Z2NLZ3BEbytRaldMZVYwbHdIaHJSYlhackNRWUsv?=
- =?utf-8?B?TGY1SVZEU0ZXNWtnQ0Z6R3cyaDU2SGJkUEZhbVE0SGx3R2pBM3EyMVRDa3hN?=
- =?utf-8?B?R1B6K0VYOWwrWTNoY0ZiaWVYamxmMDVvQVVueWZSWTg0MGJ2czBkZDlxcFZC?=
- =?utf-8?B?cUhhdFZmdXNNczgvTUQ1VzVvS2VwYmUxbUhzVEJteDY5L2RydnpqcmdERXlh?=
- =?utf-8?B?dElsdHgyai81dGlUL1k4clhvRFVDMHlzR1RHQnFFTHdtT1FnWU9GVWZ1L2M5?=
- =?utf-8?B?WHNqc2x2RkNHZXJ4enB3TmNVQytYdTJWb0tvdGdJckxJK3hQcFY0VFBmSlBw?=
- =?utf-8?Q?x7GbElLfc4LGks9I=3D?=
-X-Exchange-RoutingPolicyChecked: EQGOtAyxT7HNVpoGNlPivPd5nMlQrWncyMt8vZos+MB0yYbJlYKhiYSl8046gU+SzQPWolAlnJr4yTgtdnPkCsfh4SB3qXxO0j+CJluVUNI73q4GXWPz/N/W83USZdD0UzFiK/sVFlVEcJvvodA6wIR09nHi8f6kNzG2QAwhOZJFQ0ZHcPAOKLRYliShNFWkLdQWUD8BxYB9Etl5TRov7rjFUw0RkqEhE6BE6PJn8vSpLz1r7qCfyI0QHxOCR5mpvECwMYZ/jI9nGGjid6stFo8UR2yJbKmaSKTyu3QKWi/Bi+a9LiINhI31aK5X0A2yWJJNwyja3ubZpF2fFHkahg==
-X-MS-Exchange-CrossTenant-Network-Message-Id: f9518722-98db-49dc-3e55-08debb37a072
-X-MS-Exchange-CrossTenant-AuthSource: DS0PR11MB8718.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 26 May 2026 15:01:12.5678
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: T7Y3QEhbjOkG0Z3kA+iaN1qEIug+20iF9sOWiLNu75GZCsW/1uqUBCXHJnlZnW1lRTOV7LZVemepBAPIqJil92ywA5nkUd4rm6Hqbb8sSEg=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH3PR11MB8237
-X-OriginatorOrg: intel.com
+Content-Transfer-Encoding: 8bit
 
-From: Arnd Bergmann <arnd@kernel.org>
-Date: Tue, 26 May 2026 12:18:41 +0200
+Hi Peter,
 
-> From: Arnd Bergmann <arnd@arndb.de>
-> 
-> While testing randconfig builds on s390, I came across a
-> link failure with CONFIG_DMA_SHARED_BUFFER disabled:
-> 
-> ERROR: modpost: "dma_buf_put" [drivers/iommu/iommufd/iommufd.ko] undefined!
-> 
-> The problem here is that IS_ERR() is not inlined and dead code elimination
-> fails as a consequence.
-> 
-> The err.h helpers all turn into a trivial assignment ot a bit mask
+This is a follow-up for Lyude's work [1]. After learning the current
+preempt_count() usage and how ARM64 handle this, I came up with this
+series that could resolve your feedback [2]. The basic idea is based on:
 
-                                                       ^^
-                                                       or
+1) preempt_count() previously already masks our NEED_RESCHED bit, so the
+   effective bits is 31bits
+2) with a 64bit preempt count implementation (as in your PREEMPT_LONG
+   proposal), the effective bits that record "whether we CAN preempt or
+   not" still fit in 32bit (i.e. an int)
 
-(nit)
+as a result, I don't think we need to change the existing
+preempt_count() API, but rather keep "32bit vs 64bit" as an
+implementation detail. This saves us the need to change the printk code
+for preempt_count().
 
-> and should never result in a function call, so force them to always be
-> inline. This should generally result in better object code aside from
-> avoiding the link failure above.
+v1: https://lore.kernel.org/rust-for-linux/20260508042111.24358-1-boqun@kernel.org/
 
-bloat-o-meter would be nice to see but optional, it's obvious to me that
-these helpers should always get inlined.
+Changes since v1:
 
-Not sure why compilers sometimes decide to uninline a couple
-instructions (feels like there's sorta dumb logic "oh it's used more
-than X times -- uninline no matter what").
+* Rename PREEMPT_COUNT_64BIT to HAS_SEPARATE_PREEMPT_RESCHED_BITS per
+  Mark Rutland.
+* Add s390's support for HAS_SEPARATE_PREEMPT_RESCHED_BITS for Heiko
+  Carstens, thank you!
+* Reorder patch #1 and #2 per Steven Rostedt.
+* Keep the NMI count warning per Steven Rostedt and Joel Fernandes.
+* Fix an race between interrupt disabling and softirq reported by
+  sashiko (see the changes in __irq_exit_rcu()).
+* Add Context Analysis annotations for the newly introduced API.
+* Sync the preempt bits changes to BPF tests.
 
-> 
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Alexander Lobakin <aleksander.lobakin@intel.com>
+I would like to target this changes for 7.2 if possible.
 
-Thanks,
-Olek
+[1]: https://lore.kernel.org/all/20260121223933.1568682-1-lyude@redhat.com/
+[2]: https://lore.kernel.org/all/20260204111234.GA3031506@noisy.programming.kicks-ass.net/
+
+Regards,
+Boqun
+
+Boqun Feng (8):
+  preempt: Introduce HARDIRQ_DISABLE_BITS
+  preempt: Introduce __preempt_count_{sub, add}_return()
+  irq & spin_lock: Add counted interrupt disabling/enabling
+  locking: Switch to _irq_{disable,enable}() variants in cleanup guards
+  sched: Remove the unused preempt_offset parameter of __cant_sleep()
+  sched: Avoid signed comparison of preempt_count() in __cant_migrate()
+  preempt: Introduce HAS_SEPARATE_PREEMPT_RESCHED_BITS
+  arm64: sched/preempt: Enable HAS_SEPARATE_PREEMPT_RESCHED_BITS
+
+Heiko Carstens (1):
+  s390/preempt: Enable HAS_SEPARATE_PREEMPT_RESCHED_BITS
+
+Joel Fernandes (1):
+  preempt: Track NMI nesting to separate per-CPU counter
+
+Lyude Paul (2):
+  openrisc: Include <linux/cpumask.h> in smp.h
+  irq: Add KUnit test for refcounted interrupt enable/disable
+
+ arch/arm64/Kconfig                            |   1 +
+ arch/arm64/include/asm/preempt.h              |  18 +++
+ arch/openrisc/include/asm/smp.h               |   2 +
+ arch/s390/Kconfig                             |   1 +
+ arch/s390/include/asm/lowcore.h               |  13 ++-
+ arch/s390/include/asm/preempt.h               |  49 ++++----
+ arch/x86/Kconfig                              |   1 +
+ arch/x86/include/asm/preempt.h                |  61 +++++++---
+ arch/x86/kernel/cpu/common.c                  |   2 +-
+ include/asm-generic/preempt.h                 |  14 +++
+ include/linux/hardirq.h                       |  43 ++++++-
+ include/linux/interrupt_rc.h                  |  65 +++++++++++
+ include/linux/kernel.h                        |   4 +-
+ include/linux/preempt.h                       |  35 ++++--
+ include/linux/spinlock.h                      |  48 +++++---
+ include/linux/spinlock_api_smp.h              |  41 +++++++
+ include/linux/spinlock_api_up.h               |  16 +++
+ include/linux/spinlock_rt.h                   |  18 +++
+ kernel/Kconfig.preempt                        |   4 +
+ kernel/irq/Makefile                           |   1 +
+ kernel/irq/refcount_interrupt_test.c          | 109 ++++++++++++++++++
+ kernel/locking/spinlock.c                     |  29 +++++
+ kernel/sched/core.c                           |  18 ++-
+ kernel/softirq.c                              |  22 +++-
+ lib/locking-selftest.c                        |   2 +-
+ .../testing/selftests/bpf/bpf_experimental.h  |   7 +-
+ 26 files changed, 544 insertions(+), 80 deletions(-)
+ create mode 100644 include/linux/interrupt_rc.h
+ create mode 100644 kernel/irq/refcount_interrupt_test.c
+
+-- 
+2.50.1 (Apple Git-155)
+
