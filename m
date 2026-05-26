@@ -1,47 +1,52 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9990C3BB136;
-	Tue, 26 May 2026 10:18:58 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 290ED3148C2;
+	Tue, 26 May 2026 10:21:23 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779790739; cv=none; b=lTkiA7+t/XjBfWCbRGISS9MsJS635TLXHaqXEj2/SCUqmlBjQ4ETqb64OrGxFNy3A9xJ/ikhMnATWSuIX1AZlQF2gtshTl+oP+EnbxvH4C5rQR9CtywIZJxL/otx+6s2SA1GSuDFrkNa9I67TifQoCSqYQwUfS8T85U/bKADkPw=
+	t=1779790885; cv=none; b=anC6/VM54yPXI8Uww2igixz1eR2vWlO+hFNWaCQVyb0EuFAkRGMi89rkSkFTz9xjP+FckYPHcb1nYOMDeWXARSIj8E1VDpss624MVfHk8ESDv5xW73W1v0+2Bt7eMDCVFnOTaAEfrTZ1dwrvddHEd4MRP0iZfD3mtieJOXIbQe0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779790739; c=relaxed/simple;
-	bh=BkP4KfqvBcO8uvYrQ5+VyCzUTk5iDSsO4MtQo+ki9uc=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=FlydRG+NSPwd3pIgtRchM/Ekmh0CiTJBtvxum+JpnhJtwzgsz4nnRVMTb50XnwfMFGnmjzBLoUNReG32hKiRkKn2gRG6Vpt1h7j+IO1XH2t+AztMr/U/Jd7ze5CbPbP0vAE10edwMTksUtYEEvwHPGxgZw9oiVqdr2kCI96WqIo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SgImZ1cQ; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1779790885; c=relaxed/simple;
+	bh=EpQzeMV/x2ods87W99ZE1P9SHySUDX03MF+mltv4iSk=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=lkSQA7qWOvqhk+n4RNYv1gAo6SEG6fF3SHQmehDgY3cFnMDejYtSiqV1xBIgPUSeQuGTsoB2ZXCAXlnCFkadn+auYL3NesbFc4tw2Yz5bF8UQ5rkmzzs4puwSzQC2JI8PNmBxs2LU4LGrWrxtChT2OYvq0A8ynVoDNgR+XdyOAA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mhUZflDY; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SgImZ1cQ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7DF0C1F000E9;
-	Tue, 26 May 2026 10:18:55 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mhUZflDY"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C9F81F000E9;
+	Tue, 26 May 2026 10:21:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1779790738;
-	bh=Np20joqyiqZ4myd6HsLZYUk6od6eMUxfTV3gzTY2y1k=;
+	s=k20260515; t=1779790883;
+	bh=a39oOFKp/uc4IEjdrZ5F1Fb9xJpEGl0BsmYzQBNxpiI=;
 	h=From:To:Cc:Subject:Date;
-	b=SgImZ1cQ7tVCTVHh2tnuxZzMGtpaqJ4XDxrm9JJcPR2zUk/RuNyzSi0sLXXjBoJ5Z
-	 noudrmSPlAu8AUb/crgsnGuI8IPwJezxQfzGUkoR53Pl8m+LU8HZqy1fc1BUVpZMCt
-	 frWCfHMz7JKRwas/gfRH0uBxNeZtDP5PHNmenVclwPN91YIMqxNn2yHnqIb7gjMrM2
-	 KqApmvar19RN1gvtmbbgN+nGla78VFLRPQCqw5fnz6zo4oxW5853XAlholrGF5yZ4Y
-	 SwmPirRGhEurke9ZYQZTh+Z9XYBKEa5Ty6lTnwuSxDTP8PTCaMLMEVEz0X1EhYyDFo
-	 3nPFA2ceke/MA==
+	b=mhUZflDY5tbi1Xb88FHWIen2IUjZG7sjobZtf0v74pJyvXGbgiTO75pwtUzQAe0lb
+	 vuIaJkfuWtPfJBotz8Q8I8YI66tE9qdSzOFbO5vm8jpFAHCmSSIVQvqa0QTKDdW5JG
+	 cWFARbWzEMlKIXkhq5gwAqiFjGHTZq4z/2lyhJIf2qzvot+74sDt+ABnktn0ioQAsW
+	 FQWoJLjD4ypUIJj8l+Dau2qJnNQDAKuvysLyZa2JCn3s36M30+V/7k/vd/iCC5uzrr
+	 vuk6kMiyOdCYIM9uN+vRX/UmK7+IMq2hEo0SKI4bApG5FyUg9VpUiPJkRmBl+zdc/6
+	 ljTfX9L2zfDpw==
 From: Arnd Bergmann <arnd@kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: linux-kbuild@vger.kernel.org,
-	Nathan Chancellor <nathan@kernel.org>,
-	Nicolas Schier <nsc@kernel.org>,
-	linux-s390@vger.kernel.org,
+To: Alexander Gordeev <agordeev@linux.ibm.com>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
 	Heiko Carstens <hca@linux.ibm.com>,
 	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Bjorn Andersson <andersson@kernel.org>,
-	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-	Christian Marangi <ansuelsmth@gmail.com>,
+	"T.J. Mercier" <tjmercier@google.com>,
+	Sumit Semwal <sumit.semwal@linaro.org>,
+	Maxime Ripard <mripard@kernel.org>,
+	Andrew Davis <afd@ti.com>
+Cc: Arnd Bergmann <arnd@arndb.de>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	"Mike Rapoport (Microsoft)" <rppt@kernel.org>,
+	"David Hildenbrand (Arm)" <david@kernel.org>,
+	"Liam R. Howlett" <liam@infradead.org>,
+	Claudio Imbrenda <imbrenda@linux.ibm.com>,
+	linux-s390@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH] err.h: use __always_inline on all error pointer helpers
-Date: Tue, 26 May 2026 12:18:41 +0200
-Message-Id: <20260526101851.2495110-1-arnd@kernel.org>
+Subject: [PATCH 1/2] s390: export memory encryption helper functions
+Date: Tue, 26 May 2026 12:20:37 +0200
+Message-Id: <20260526102113.2594501-1-arnd@kernel.org>
 X-Mailer: git-send-email 2.39.5
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
@@ -53,82 +58,41 @@ Content-Transfer-Encoding: 8bit
 
 From: Arnd Bergmann <arnd@arndb.de>
 
-While testing randconfig builds on s390, I came across a
-link failure with CONFIG_DMA_SHARED_BUFFER disabled:
+The set_memory_encrypted/set_memory_decrypted functions are exported
+on x86 and arm64 but not on s390, which leads to a new build failure
+because they are now used in a loadable module:
 
-ERROR: modpost: "dma_buf_put" [drivers/iommu/iommufd/iommufd.ko] undefined!
+ERROR: modpost: "set_memory_encrypted" [drivers/dma-buf/heaps/system_heap.ko] undefined!
+ERROR: modpost: "set_memory_decrypted" [drivers/dma-buf/heaps/system_heap.ko] undefined!
 
-The problem here is that IS_ERR() is not inlined and dead code elimination
-fails as a consequence.
+Export these the same way we do on the other architectures.
 
-The err.h helpers all turn into a trivial assignment ot a bit mask
-and should never result in a function call, so force them to always be
-inline. This should generally result in better object code aside from
-avoiding the link failure above.
-
+Fixes: fd55edff8a0a ("dma-buf: heaps: system: Turn the heap into a module")
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- include/linux/err.h | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ arch/s390/mm/init.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/include/linux/err.h b/include/linux/err.h
-index 8c37be0620ab..d3e38d5b3a98 100644
---- a/include/linux/err.h
-+++ b/include/linux/err.h
-@@ -36,7 +36,7 @@
-  *
-  * Return: A pointer with @error encoded within its value.
-  */
--static inline void * __must_check ERR_PTR(long error)
-+static __always_inline void * __must_check ERR_PTR(long error)
- {
- 	return (void *) error;
+diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
+index f07168a0d3dd..d589c5e4d388 100644
+--- a/arch/s390/mm/init.c
++++ b/arch/s390/mm/init.c
+@@ -124,6 +124,7 @@ int set_memory_encrypted(unsigned long vaddr, int numpages)
+ 	}
+ 	return 0;
  }
-@@ -60,7 +60,7 @@ static inline void * __must_check ERR_PTR(long error)
-  * @ptr: An error pointer.
-  * Return: The error code within @ptr.
-  */
--static inline long __must_check PTR_ERR(__force const void *ptr)
-+static __always_inline long __must_check PTR_ERR(__force const void *ptr)
++EXPORT_SYMBOL_GPL(set_memory_encrypted);
+ 
+ int set_memory_decrypted(unsigned long vaddr, int numpages)
  {
- 	return (long) ptr;
+@@ -135,6 +136,7 @@ int set_memory_decrypted(unsigned long vaddr, int numpages)
+ 	}
+ 	return 0;
  }
-@@ -73,7 +73,7 @@ static inline long __must_check PTR_ERR(__force const void *ptr)
-  * @ptr: The pointer to check.
-  * Return: true if @ptr is an error pointer, false otherwise.
-  */
--static inline bool __must_check IS_ERR(__force const void *ptr)
-+static __always_inline bool __must_check IS_ERR(__force const void *ptr)
- {
- 	return IS_ERR_VALUE((unsigned long)ptr);
- }
-@@ -87,7 +87,7 @@ static inline bool __must_check IS_ERR(__force const void *ptr)
-  *
-  * Like IS_ERR(), but also returns true for a null pointer.
-  */
--static inline bool __must_check IS_ERR_OR_NULL(__force const void *ptr)
-+static __always_inline bool __must_check IS_ERR_OR_NULL(__force const void *ptr)
- {
- 	return unlikely(!ptr) || IS_ERR_VALUE((unsigned long)ptr);
- }
-@@ -99,7 +99,7 @@ static inline bool __must_check IS_ERR_OR_NULL(__force const void *ptr)
-  * Explicitly cast an error-valued pointer to another pointer type in such a
-  * way as to make it clear that's what's going on.
-  */
--static inline void * __must_check ERR_CAST(__force const void *ptr)
-+static __always_inline void * __must_check ERR_CAST(__force const void *ptr)
- {
- 	/* cast away the const */
- 	return (void *) ptr;
-@@ -122,7 +122,7 @@ static inline void * __must_check ERR_CAST(__force const void *ptr)
-  *
-  * Return: The error code within @ptr if it is an error pointer; 0 otherwise.
-  */
--static inline int __must_check PTR_ERR_OR_ZERO(__force const void *ptr)
-+static __always_inline int __must_check PTR_ERR_OR_ZERO(__force const void *ptr)
- {
- 	if (IS_ERR(ptr))
- 		return PTR_ERR(ptr);
++EXPORT_SYMBOL_GPL(set_memory_decrypted);
+ 
+ /* are we a protected virtualization guest? */
+ bool force_dma_unencrypted(struct device *dev)
 -- 
 2.39.5
 
