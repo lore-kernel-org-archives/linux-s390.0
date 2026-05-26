@@ -1,58 +1,58 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C263A34FF79;
-	Tue, 26 May 2026 15:22:13 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8931035E1B6;
+	Tue, 26 May 2026 15:22:17 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779808935; cv=none; b=GA2poyWofZmRWYgxtCb+LVH7yER0CNpH6L9M+WSoSdHhiM2dOMrHO3wwsEQydROGcva3tmshqdAzCQhkv9n0cHFQUCBE+aiS46j8Y5NegG9OXGnpVpM55ZI8x65bBa9/dn0zU/w6CMyAbW5VPoqLjlOOJ9Vnipxda8uMpwjX+ho=
+	t=1779808938; cv=none; b=OhqaSc8n5ORiv8QP/s+dxhjn82mpqcLKaKOVNrD+mo1XRhSEifUMOC+ApX9v3CBsUNbl6BFs5l1oBNiVaFT18/z5cu7AxELXbE8tKij61nXH+BjxSB9SF/RfVMw5jRsz3Dyi/XKfCCmA3tjC1VLnYESjaGJ9L1VhH5IPS4kuLvE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779808935; c=relaxed/simple;
-	bh=7EF6VDi6I+g5w0YgEi5eLmgKFfZXvhXnmFcHsn8i+lY=;
+	s=arc-20240116; t=1779808938; c=relaxed/simple;
+	bh=ojydZY/xJWBLbjMhhVliboBMhbb87iswhHxUUdAbCJ8=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=AaZgXVWW6MJTyxDFMJkew0N3DWgjZsR2XEtFNzlUSMWx5j65lWnxQiP2DGErMBVXhqcUhk5ETogY5ZGKIXc0B0DCA+iIUVYrnR9zGP5CJlvRJ3ykup2pcjC72snxbt/G92uMNJC87/oCIlaT02vCSuSHb2MnL6KmOHGZcmbP2xE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mNRncOtQ; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version; b=dDW5bMFtqZbtDypBUc6gFbXNHFdUJb4DmOZfxLf/8ttr4MyB4cgPdX7K7cQ5QBkoiFOS1y2FnSwQna295S4QlBjCbcm3nm/YoVoilBybfeNDkv2dK3TsmwJhnQTr7gY+aZh5/57twHH2BfYZumsnOCOQI8sqJhWNLQOw61aQknA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EVkrhOlh; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mNRncOtQ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF0751F00A3A;
-	Tue, 26 May 2026 15:22:11 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EVkrhOlh"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D67F91F00A3D;
+	Tue, 26 May 2026 15:22:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1779808933;
-	bh=nVURMapIQPY5wSLiaqlC8nqDIUgsA0MO+pQObO9t18c=;
+	s=k20260515; t=1779808937;
+	bh=4UV14d2V2OqZJ8JzFOmve9/BnIh5+l2yEacWnRAtXuo=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=mNRncOtQRPVl6d3oY6OGWGyn10MQj6TmvNSfFt2mbn2S7XyiiB0ExLGrpJHM1sPKz
-	 lsL4kgNIesS/CRgYR8GsBjM5sMKA012SZjjLHY5TdfS2EFKekHrzIQvyGUUidQwU/q
-	 M1umKnmQzKh5IJoujr+YASx2UhwE2K1xj0xbChnQpiIc30SlEOjunM+qTDpNeaurJ7
-	 IC63JgwfAGndzbmEsuCihn/b2tuBhakC0kP3I9e4aIV1ieGE6U9guEHFWZKA6ue+wp
-	 X2rI1m6Dz5Q3v7XZeE4ecEJQeXdxUrCTyahfEAxm56JrcE3A24Zek6KiOhVTKA7iD8
-	 HTKOkhOjb5xLA==
-Received: from phl-compute-01.internal (phl-compute-01.internal [10.202.2.41])
-	by mailfauth.phl.internal (Postfix) with ESMTP id 41468F4006B;
-	Tue, 26 May 2026 11:22:11 -0400 (EDT)
+	b=EVkrhOlhMzdD8r7B0DwpVDnJfVBv6mo5fa3cmV1p1OSkM2ofZHU5WZVYWxaTe81Yt
+	 JluPgRz5N1XMUJNTNF0E9kHV6zC5uZqy89YDQlkdr91s26FTB7nAT00T/b5n7JuAmP
+	 bKEimm0iACxTh7l6zI4O1RuwlsQiliah/s1gBlUNOiV82dOws+UYBARrUVzsrOvBkF
+	 Hh+nRgLAe7T9Q1gdQTOOuD88eT8VV9rvbRzJd2qMRTGMv4vBBsyOoSNH1PoEU+IkVO
+	 n9RyePwCNyTMTEFTC5TZ/JAHbOnRCQqNdRluGXyTjBoa4iNxYThaQELSj4BcS+rBA0
+	 NyN4pJCUGFw1Q==
+Received: from phl-compute-05.internal (phl-compute-05.internal [10.202.2.45])
+	by mailfauth.phl.internal (Postfix) with ESMTP id 37CA1F4006B;
+	Tue, 26 May 2026 11:22:14 -0400 (EDT)
 Received: from phl-frontend-03 ([10.202.2.162])
-  by phl-compute-01.internal (MEProxy); Tue, 26 May 2026 11:22:11 -0400
-X-ME-Sender: <xms:o7oVaiIRiwgKJCaH4QPeZ9IiSaSEdVw8Q5H-50K_bDFjWtlWo9q5-g>
-    <xme:o7oVaptfVOhm07egNDqJDzZBTSlXvaXB6-wLEzwFrWsnl4TJV54_9HivYpQGzbpmQ
-    VM567_ghvYWtBd9jLVZGe2TAPPfysxoEZEX_yXsByaBFhlG7Uq85Q>
-X-ME-Received: <xmr:o7oVamdx_l5zUd3RyYIijzPZG5rKj1bhNZy1Y4OQzNao_Zp1WtR1igYGWsl-vdeqEtRcwoegat1UO_RgGzltFJ45fuXpfSX8>
-X-ME-Proxy-Cause: dmFkZTF4jGPOhQTuH5Jv1Bu8qtAH+o7ONYfGYAQ/2V25E28snHxkD7IK3o93tbsfRiU/7a
-    wQXUgRfJEkkkejgl5eaEdssrvK9BEFErVeCBAF/P260V26+7gSLfAm4n6tGfCP+N/ttsRD
-    6QxJ2oZqzgQ6A2MUXSfvc2fqFHT+3ds0mqAmVk4Rm6zv0xJSgJu+HxwPFqLJtm5KboWFe3
-    YCCOEC+tC7qbDde3ths7nMiW1He0VMbFq1hd1nUrw8iWtJIcH1ptI6wJJJWDyojp15ZlLi
-    7quzpP55FVnVcHxjBLLIEmamqbVW8FZTAIKjjtzR++Rs6Yl9Nlons0ovgF4FHLpWu+ynoW
-    wcxM6i9guxGjiFaa/ZTNCi6hJPGpFSYyJo6P26QUeiF1NVpFL1Qk0E8joilkQaJLScd2ug
-    eV+W8nDzB2D6BScLq/COO/jkf2nevmZoPA4SYAa1gtTXbb7mhWvcTJm8fIspAhZbwrAWh1
-    QHE8BUF8TtqEsQZi8Zq8h03nPWsKTAlcf5CPxBDh+H8wvSqj/8Ly76YC8pLEEfqHdHQ171
-    to3m+j94RuR/gEe3t81pUThqryYfnBX7cuELmmCUDMIQd1uUHdru3mQzPT0gCDXXHnxHrY
-    akeF+LIWEj8po3G3mL+olQF7QfBPfzwrSW3BE/o2O7o9ZX+HV4KF6q7sgE/Q
-X-ME-Proxy: <xmx:o7oVar0JTuYaBT2cg3t-4JZbpP4nEf2knnjcc7pVNMKwQFrciOa7bg>
-    <xmx:o7oVah9qGKe1QgiIf7hT2Y4_SUjOOTyCWTy1dZLXcVNezCJZEYVijw>
-    <xmx:o7oVah0iwC7qseCdCSaba4fXrZTXUWbvG-1C8jE2z-gvuf0xcbfN0Q>
-    <xmx:o7oVakdzRPAhwtmo2148ZiHo6y5kGVs5umEa7zFALdD_obKX_-DuJw>
-    <xmx:o7oVakvMFOSycFyHjkwrxAyzlTZOvpgEE-E5X7DtHgsIfqtE2wIxi29H>
+  by phl-compute-05.internal (MEProxy); Tue, 26 May 2026 11:22:14 -0400
+X-ME-Sender: <xms:proVahaEXjV0jhKznqYl7XJtqGpXZEh_HicxXMKYwH-f9isMl-DHCg>
+    <xme:proVatSQpC80uCd8YtRBR66nF5w9rUNrUX1lTZcxORYVkTt8XloGORRd9wEXKYGWI
+    4YUrAP-FbsM9dqlyFD8pdfQUp4ITjsuzbhdGIHLUkRfL6AcbkAx6w>
+X-ME-Received: <xmr:proVap24Sf4-Z3lC7PFZu6F6S3D8YCqwHz7qlzaAxYQW1neIlerClbbOXGWAF3qXpQ_CoZTkvcWimBndkRQEZ9wgPRKEGk_w>
+X-ME-Proxy-Cause: dmFkZTFpmA1McbnqjIdDoCcC8/dKh9RDeYcaA/XB6dgQZoHsdisS7Rnte/RUY2pDCqsaCf
+    lYH/GXfkGRmzTYnB4S+g0DoIzy4KUSXH1v1hqWsXA4v5WIAvvT6c8zNgUsod23Kpq2+47O
+    yYMzbMVdimQJPpKCDvwUMQiSwLgkBGzQ1ckebHI5CwcU5PXtm0paPap1/zDmdG+vWcQc/M
+    pmWI2idDed0xMRSQV9XOsN/PBFcH6SBYELvyO/AtrMtpHg8r71AQlMzDlEp1H1iVazK3oS
+    DonyrliF9qRbQD87XBn6QOt2bC/09pqeijaNsBJFU0GwQ/sar+bEYdVoRVtkXuEiBwHIjv
+    ed+IpSYcEjKMbJGHQ50rASuPpU7mT2upFRbankV1vEt8Udx8iERnnoTH5NFb3Y5VY/8WL2
+    pEegsK9HBig2eJRAJqIg0jjeKPcLs1uNP0ZReNxmdY5zQzd3f1TJbk8K7y+TeGpfjFtQxI
+    2BpjE/mTLo0A1N9hfh5OwjZfGG+DZ+d5HOqVfzAW03mI/Rz0aQXx2WypcwCXKj/MEB+IgU
+    y0dRiJEMF0lPGI/vRxna//ZHzL40srGY8P0xEtX8Eo7r5hREOIXoDEo3xWpy2SUQJGT5C4
+    tz/NlTWZ+Dtk+UCW3324dEw1xixif2/TKAWXO1aLDHbE/reOEOCQKTIu9zvQ
+X-ME-Proxy: <xmx:proVaiFvmZsAYEeQ34UYS7v0FNA1LXhdVr6bJTpCxkAEGOnoJPy2Xg>
+    <xmx:proVaitOzOvpnSxkO7QjXOCOCeZlfwa9wBf21PlHr1FsPiHUsrSz6g>
+    <xmx:proVautWtQ_ddccY1lzJxgcp40reV2c_dNCOaiT7r4WRhDuylsP96g>
+    <xmx:proVatToULMTAsbrd2SWoQthm1d3REWOcn9QYv78XWui9AAPxMobUw>
+    <xmx:proVamUic5KXF6cwrWUQZ3rGq19F9zXKKJ9kF9A98OqFRZPxk8bF1FqT>
 Feedback-ID: i8dbe485b:Fastmail
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
- 26 May 2026 11:22:09 -0400 (EDT)
+ 26 May 2026 11:22:12 -0400 (EDT)
 From: Boqun Feng <boqun@kernel.org>
 To: Peter Zijlstra <peterz@infradead.org>
 Cc: Catalin Marinas <catalin.marinas@arm.com>,	Will Deacon <will@kernel.org>,
@@ -101,11 +101,10 @@ Cc: Catalin Marinas <catalin.marinas@arm.com>,	Will Deacon <will@kernel.org>,
 	bpf@vger.kernel.org,	linux-kselftest@vger.kernel.org,
 	rust-for-linux@vger.kernel.org,
 	=?UTF-8?q?Onur=20=C3=96zkan?= <work@onurozkan.dev>,
-	Daniel Almeida <daniel.almeida@collabora.com>,
-	Boqun Feng <boqun.feng@gmail.com>
-Subject: [PATCH v2 07/12] locking: Switch to _irq_{disable,enable}() variants in cleanup guards
-Date: Tue, 26 May 2026 08:21:43 -0700
-Message-ID: <20260526152148.30514-8-boqun@kernel.org>
+	Daniel Almeida <daniel.almeida@collabora.com>
+Subject: [PATCH v2 08/12] sched: Remove the unused preempt_offset parameter of __cant_sleep()
+Date: Tue, 26 May 2026 08:21:44 -0700
+Message-ID: <20260526152148.30514-9-boqun@kernel.org>
 X-Mailer: git-send-email 2.50.1
 In-Reply-To: <20260526152148.30514-1-boqun@kernel.org>
 References: <20260526152148.30514-1-boqun@kernel.org>
@@ -117,93 +116,60 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-From: Boqun Feng <boqun.feng@gmail.com>
+The preempt_offset is always 0 in all the callsites of __cant_sleep(),
+hence remove it. It also allows us to clear the code a bit by stopping
+using a "preempt_count() > .." comparison.
 
-The semantics of various irq disabling guards match what
-*_irq_{disable,enable}() provide, i.e. the interrupt disabling is
-properly nested, therefore it's OK to switch to use
-*_irq_{disable,enable}() primitives.
-
-Signed-off-by: Boqun Feng <boqun.feng@gmail.com>
 Signed-off-by: Boqun Feng <boqun@kernel.org>
-Link: https://patch.msgid.link/20260121223933.1568682-17-lyude@redhat.com
 ---
- include/linux/spinlock.h | 26 ++++++++++++--------------
- 1 file changed, 12 insertions(+), 14 deletions(-)
+ include/linux/kernel.h | 4 ++--
+ kernel/sched/core.c    | 4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/include/linux/spinlock.h b/include/linux/spinlock.h
-index 9d6012ac929d..0b4023b67f43 100644
---- a/include/linux/spinlock.h
-+++ b/include/linux/spinlock.h
-@@ -571,12 +571,12 @@ DECLARE_LOCK_GUARD_1_ATTRS(raw_spinlock_nested, __acquires(_T), __releases(*(raw
- #define class_raw_spinlock_nested_constructor(_T) WITH_LOCK_GUARD_1_ATTRS(raw_spinlock_nested, _T)
+diff --git a/include/linux/kernel.h b/include/linux/kernel.h
+index e5570a16cbb1..24414c79e59a 100644
+--- a/include/linux/kernel.h
++++ b/include/linux/kernel.h
+@@ -72,7 +72,7 @@ extern int dynamic_might_resched(void);
+ #ifdef CONFIG_DEBUG_ATOMIC_SLEEP
+ extern void __might_resched(const char *file, int line, unsigned int offsets);
+ extern void __might_sleep(const char *file, int line);
+-extern void __cant_sleep(const char *file, int line, int preempt_offset);
++extern void __cant_sleep(const char *file, int line);
+ extern void __cant_migrate(const char *file, int line);
  
- DEFINE_LOCK_GUARD_1(raw_spinlock_irq, raw_spinlock_t,
--		    raw_spin_lock_irq(_T->lock),
--		    raw_spin_unlock_irq(_T->lock))
-+		    raw_spin_lock_irq_disable(_T->lock),
-+		    raw_spin_unlock_irq_enable(_T->lock))
- DECLARE_LOCK_GUARD_1_ATTRS(raw_spinlock_irq, __acquires(_T), __releases(*(raw_spinlock_t **)_T))
- #define class_raw_spinlock_irq_constructor(_T) WITH_LOCK_GUARD_1_ATTRS(raw_spinlock_irq, _T)
+ /**
+@@ -95,7 +95,7 @@ extern void __cant_migrate(const char *file, int line);
+  * this macro will print a stack trace if it is executed with preemption enabled
+  */
+ # define cant_sleep() \
+-	do { __cant_sleep(__FILE__, __LINE__, 0); } while (0)
++	do { __cant_sleep(__FILE__, __LINE__); } while (0)
+ # define sched_annotate_sleep()	(current->task_state_change = 0)
  
--DEFINE_LOCK_GUARD_1_COND(raw_spinlock_irq, _try, raw_spin_trylock_irq(_T->lock))
-+DEFINE_LOCK_GUARD_1_COND(raw_spinlock_irq, _try, raw_spin_trylock_irq_disable(_T->lock))
- DECLARE_LOCK_GUARD_1_ATTRS(raw_spinlock_irq_try, __acquires(_T), __releases(*(raw_spinlock_t **)_T))
- #define class_raw_spinlock_irq_try_constructor(_T) WITH_LOCK_GUARD_1_ATTRS(raw_spinlock_irq_try, _T)
+ /**
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index b8871449d3c6..75dba7cc09bd 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -9165,7 +9165,7 @@ void __might_resched(const char *file, int line, unsigned int offsets)
+ }
+ EXPORT_SYMBOL(__might_resched);
  
-@@ -591,14 +591,13 @@ DECLARE_LOCK_GUARD_1_ATTRS(raw_spinlock_bh_try, __acquires(_T), __releases(*(raw
- #define class_raw_spinlock_bh_try_constructor(_T) WITH_LOCK_GUARD_1_ATTRS(raw_spinlock_bh_try, _T)
+-void __cant_sleep(const char *file, int line, int preempt_offset)
++void __cant_sleep(const char *file, int line)
+ {
+ 	static unsigned long prev_jiffy;
  
- DEFINE_LOCK_GUARD_1(raw_spinlock_irqsave, raw_spinlock_t,
--		    raw_spin_lock_irqsave(_T->lock, _T->flags),
--		    raw_spin_unlock_irqrestore(_T->lock, _T->flags),
--		    unsigned long flags)
-+		    raw_spin_lock_irq_disable(_T->lock),
-+		    raw_spin_unlock_irq_enable(_T->lock))
- DECLARE_LOCK_GUARD_1_ATTRS(raw_spinlock_irqsave, __acquires(_T), __releases(*(raw_spinlock_t **)_T))
- #define class_raw_spinlock_irqsave_constructor(_T) WITH_LOCK_GUARD_1_ATTRS(raw_spinlock_irqsave, _T)
+@@ -9175,7 +9175,7 @@ void __cant_sleep(const char *file, int line, int preempt_offset)
+ 	if (!IS_ENABLED(CONFIG_PREEMPT_COUNT))
+ 		return;
  
- DEFINE_LOCK_GUARD_1_COND(raw_spinlock_irqsave, _try,
--			 raw_spin_trylock_irqsave(_T->lock, _T->flags))
-+			 raw_spin_trylock_irq_disable(_T->lock))
- DECLARE_LOCK_GUARD_1_ATTRS(raw_spinlock_irqsave_try, __acquires(_T), __releases(*(raw_spinlock_t **)_T))
- #define class_raw_spinlock_irqsave_try_constructor(_T) WITH_LOCK_GUARD_1_ATTRS(raw_spinlock_irqsave_try, _T)
+-	if (preempt_count() > preempt_offset)
++	if (preempt_count())
+ 		return;
  
-@@ -617,13 +616,13 @@ DECLARE_LOCK_GUARD_1_ATTRS(spinlock_try, __acquires(_T), __releases(*(spinlock_t
- #define class_spinlock_try_constructor(_T) WITH_LOCK_GUARD_1_ATTRS(spinlock_try, _T)
- 
- DEFINE_LOCK_GUARD_1(spinlock_irq, spinlock_t,
--		    spin_lock_irq(_T->lock),
--		    spin_unlock_irq(_T->lock))
-+		    spin_lock_irq_disable(_T->lock),
-+		    spin_unlock_irq_enable(_T->lock))
- DECLARE_LOCK_GUARD_1_ATTRS(spinlock_irq, __acquires(_T), __releases(*(spinlock_t **)_T))
- #define class_spinlock_irq_constructor(_T) WITH_LOCK_GUARD_1_ATTRS(spinlock_irq, _T)
- 
- DEFINE_LOCK_GUARD_1_COND(spinlock_irq, _try,
--			 spin_trylock_irq(_T->lock))
-+			 spin_trylock_irq_disable(_T->lock))
- DECLARE_LOCK_GUARD_1_ATTRS(spinlock_irq_try, __acquires(_T), __releases(*(spinlock_t **)_T))
- #define class_spinlock_irq_try_constructor(_T) WITH_LOCK_GUARD_1_ATTRS(spinlock_irq_try, _T)
- 
-@@ -639,14 +638,13 @@ DECLARE_LOCK_GUARD_1_ATTRS(spinlock_bh_try, __acquires(_T), __releases(*(spinloc
- #define class_spinlock_bh_try_constructor(_T) WITH_LOCK_GUARD_1_ATTRS(spinlock_bh_try, _T)
- 
- DEFINE_LOCK_GUARD_1(spinlock_irqsave, spinlock_t,
--		    spin_lock_irqsave(_T->lock, _T->flags),
--		    spin_unlock_irqrestore(_T->lock, _T->flags),
--		    unsigned long flags)
-+		    spin_lock_irq_disable(_T->lock),
-+		    spin_unlock_irq_enable(_T->lock))
- DECLARE_LOCK_GUARD_1_ATTRS(spinlock_irqsave, __acquires(_T), __releases(*(spinlock_t **)_T))
- #define class_spinlock_irqsave_constructor(_T) WITH_LOCK_GUARD_1_ATTRS(spinlock_irqsave, _T)
- 
- DEFINE_LOCK_GUARD_1_COND(spinlock_irqsave, _try,
--			 spin_trylock_irqsave(_T->lock, _T->flags))
-+			 spin_trylock_irq_disable(_T->lock))
- DECLARE_LOCK_GUARD_1_ATTRS(spinlock_irqsave_try, __acquires(_T), __releases(*(spinlock_t **)_T))
- #define class_spinlock_irqsave_try_constructor(_T) WITH_LOCK_GUARD_1_ATTRS(spinlock_irqsave_try, _T)
- 
+ 	if (time_before(jiffies, prev_jiffy + HZ) && prev_jiffy)
 -- 
 2.50.1 (Apple Git-155)
 
