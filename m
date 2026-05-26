@@ -1,113 +1,118 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F228C3B19B7;
-	Tue, 26 May 2026 16:19:13 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB53F3B6C0E;
+	Tue, 26 May 2026 16:27:55 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779812357; cv=none; b=itxdztiWLroq5jADMuo3NCHnl6vGkc9bC3WNnuzhjmY2xfTfgW03rnyC7ldGzn6Ie4UABa/Hc0zZDUKP2unMPAOPAblpWfYhX9o5J/HPm7zkA9brxU5/eUHzc5gYooh2X4MuqQaYSTdCg9m6fDu6VP7/bTbDepp4Vl5C2qMWLeY=
+	t=1779812878; cv=none; b=gSvENQRsrnmu+ScIedX38lLwwjLuVN/MHavzN9v6vsV6zgCC2XLgtgRfDG9tLYmeysjPSv72kfg1BiHu333GNZW8JhK0L0YBevM0rArfjIe1pQ78oV2WRnvwUX2Ib136odM27NPh8nopuyna3oncaKFKYpvjQDccj4tDpbvUltA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779812357; c=relaxed/simple;
-	bh=dXTt1/BNFKEIsvObIYoVeEbSzI6qvqdsnRC5y7Qr5eI=;
-	h=Content-Type:MIME-Version:Message-Id:In-Reply-To:References:
-	 Subject:From:To:Cc:Date; b=HjxvNhv+wVNEcR6Kq8U9A0D2US6GIwBv1LQZ66VXaNEci5uhqX2jAO6qIpz8jtKgFLvxJqY3KjMzdNve5zihJGICCszRBAiBRtZvw4RKHmNp1xVQmS824wIW9lx5KdpAxHMJ1/2bi5l5Uc9zb4qx7/rEK41Q78aDNtJV0/LJRzg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=fail (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Sglml3+h reason="signature verification failed"; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1779812878; c=relaxed/simple;
+	bh=uyHF9eg1fNPkQ8bTIFguWMYCPZbh4kpcbqHZpzfY8Kw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=AziRrhsRir8YWeyz42HDuEP+8qUcuQZXagXkwHREyT6bphCInCt+boVrrY8r53bWLbD1giC89oRTsjRrwgzqDqSFPXtFcFAPTs4oXTj9qMhwpQ0vICtcd7j7bM+g+9M1BKQ25mi8XjytkgkI/ZUsnIRDNPUt9lvlQer72yt20cI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WCPBslFB; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Sglml3+h"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94C251F00A3A;
-	Tue, 26 May 2026 16:19:12 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WCPBslFB"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 289D31F000E9;
+	Tue, 26 May 2026 16:27:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1779812353;
-	bh=5SkN1TCAV3N8KFPanxpJeqssiy4h9kR0l/w2B37WK8E=;
-	h=In-Reply-To:References:Subject:From:To:Cc:Date;
-	b=Sglml3+haM8qJZ9vSTtJSlZa5SxfhKaBRf9IdPeA6oEpPtA8GEFOK5svfmw27mTab
-	 Gseoc94vtic5LZ6qdEiGdamwlxAUk4fpVI97K/xIvEisLoqM+K/NnAwg444GpVnOrC
-	 nXl/M0mOvYDTzFTLxvkbiqhGpv+PABEgVAyZW/bvBNKVH3D91649Vm/BaNneH8xOFX
-	 WOL84NTnT17Tp9MZSkbBCsUqV0xIj7jc0QiwRKHCTCUva2HNYUeS2rVWcJtu7r3YNw
-	 qkA+kGp4rxNWrEOdS6ogbef8ulrRKU7ORKjBjZD/h1fNxGsi3BRZpbOArGM5BcuaMM
-	 Lx70DZzjgyFYw==
-Content-Type: multipart/mixed; boundary="===============0782269710716244881=="
+	s=k20260515; t=1779812875;
+	bh=uX6weQ63PycMa+NiIwkaE0lKXtL5D7cf5slQyEH4uVQ=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=WCPBslFBHlD18xXQc3r4cfXRi6NRqMWZgpFMn1cIbrapYoU4c4gRwNK1+7uVsqGAy
+	 60v2BCHvTRcdS1tVvGPbqfVfdwwcJp1FHFNfktx1fkX0Wbx1RZrVm0KBNermhINrKf
+	 T9lX4lpoqb8ZTQ988HCILQXzmPKZjen7JnhZ0OVSRmfeZwap0kKaSy4gg8etm5udnf
+	 udcU0Sgi7luz1Cc1OPvSW+2ubz9qCszQO2AwKg/qp69fZ72CdWGJzB5e9f6nHF0uBd
+	 ldc80qXMC/DUvHJCNvAW1ArbfI1EfmFu9YdmZYAerVhlmQZOEcNqDEor/Ir+l9+s8j
+	 e4sx9r+STyxUg==
+Date: Tue, 26 May 2026 17:27:52 +0100
+From: Lorenzo Stoakes <ljs@kernel.org>
+To: Takahiro Itazuri <itazur@amazon.com>
+Cc: seanjc@google.com, Liam.Howlett@oracle.com, ackerleytng@google.com, 
+	agordeev@linux.ibm.com, ajones@ventanamicro.com, akpm@linux-foundation.org, 
+	alex@ghiti.fr, andrii@kernel.org, aou@eecs.berkeley.edu, ast@kernel.org, 
+	baolu.lu@linux.intel.com, borntraeger@linux.ibm.com, bp@alien8.de, bpf@vger.kernel.org, 
+	catalin.marinas@arm.com, chenhuacai@kernel.org, corbet@lwn.net, coxu@redhat.com, 
+	daniel@iogearbox.net, dave.hansen@linux.intel.com, david@kernel.org, 
+	derekmn@amazon.com, dev.jain@arm.com, eddyz87@gmail.com, 
+	gerald.schaefer@linux.ibm.com, gor@linux.ibm.com, haoluo@google.com, hca@linux.ibm.com, 
+	hpa@zytor.com, itazur@amazon.co.uk, jackabt@amazon.co.uk, jackmanb@google.com, 
+	jannh@google.com, jgg@ziepe.ca, jgross@suse.com, jhubbard@nvidia.com, 
+	jiayuan.chen@shopee.com, jmattson@google.com, joey.gouly@arm.com, 
+	john.fastabend@gmail.com, jolsa@kernel.org, jthoughton@google.com, kalyazin@amazon.co.uk, 
+	kas@kernel.org, kernel@xen0n.name, kpsingh@kernel.org, kvm@vger.kernel.org, 
+	kvmarm@lists.linux.dev, lenb@kernel.org, linux-arm-kernel@lists.infradead.org, 
+	linux-doc@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-kselftest@vger.kernel.org, linux-mm@kvack.org, linux-pm@vger.kernel.org, 
+	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, loongarch@lists.linux.dev, 
+	lorenzo.stoakes@oracle.com, luto@kernel.org, maobibo@loongson.cn, martin.lau@linux.dev, 
+	maz@kernel.org, mhocko@suse.com, mingo@redhat.com, mlevitsk@redhat.com, 
+	nikita.kalyazin@linux.dev, oupton@kernel.org, palmer@dabbelt.com, patrick.roy@linux.dev, 
+	pavel@kernel.org, pbonzini@redhat.com, peterx@redhat.com, peterz@infradead.org, 
+	pfalcato@suse.de, pjw@kernel.org, prsampat@amd.com, rafael@kernel.org, 
+	riel@surriel.com, rppt@kernel.org, ryan.roberts@arm.com, sdf@fomichev.me, 
+	shijie@os.amperecomputing.com, skhan@linuxfoundation.org, song@kernel.org, surenb@google.com, 
+	suzuki.poulose@arm.com, svens@linux.ibm.com, tabba@google.com, tglx@kernel.org, 
+	thuth@redhat.com, urezki@gmail.com, vannapurve@google.com, vbabka@kernel.org, 
+	will@kernel.org, willy@infradead.org, wu.fei9@sanechips.com.cn, x86@kernel.org, 
+	yang@os.amperecomputing.com, yangyicong@hisilicon.com, yonghong.song@linux.dev, 
+	yosry@kernel.org, yu-cheng.yu@intel.com, yuzenghui@huawei.com, 
+	zhengqi.arch@bytedance.com
+Subject: Re: [PATCH v12 00/16] Direct Map Removal Support for guest_memfd
+Message-ID: <ahXJoHNoeCcaupzN@lucifer>
+References: <aeennZlV60k81OBf@google.com>
+ <20260506080753.14517-1-itazur@amazon.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Message-Id: <7b24386ec0b31b63dc8c46477712fd4946306034ec9d17c461e59c2132e4f1bf@mail.kernel.org>
-In-Reply-To: <20260526152148.30514-6-boqun@kernel.org>
-References: <20260526152148.30514-6-boqun@kernel.org>
-Subject: Re: [PATCH v2 05/12] irq & spin_lock: Add counted interrupt disabling/enabling
-From: bot+bpf-ci@kernel.org
-To: boqun@kernel.org,peterz@infradead.org
-Cc: catalin.marinas@arm.com,will@kernel.org,jonas@southpole.se,stefan.kristiansson@saunalahti.fi,shorne@gmail.com,hca@linux.ibm.com,gor@linux.ibm.com,agordeev@linux.ibm.com,borntraeger@linux.ibm.com,svens@linux.ibm.com,tglx@kernel.org,mingo@redhat.com,bp@alien8.de,dave.hansen@linux.intel.com,x86@kernel.org,hpa@zytor.com,arnd@arndb.de,juri.lelli@redhat.com,vincent.guittot@linaro.org,dietmar.eggemann@arm.com,rostedt@goodmis.org,bsegall@google.com,mgorman@suse.de,vschneid@redhat.com,kprateek.nayak@amd.com,boqun@kernel.org,longman@redhat.com,akpm@linux-foundation.org,andrii@kernel.org,eddyz87@gmail.com,ast@kernel.org,daniel@iogearbox.net,martin.lau@linux.dev,memxor@gmail.com,song@kernel.org,yonghong.song@linux.dev,jolsa@kernel.org,shuah@kernel.org,ojeda@kernel.org,gary@garyguo.net,bjorn3_gh@protonmail.com,lossin@kernel.org,a.hindborg@kernel.org,aliceryhl@google.com,tmgross@umich.edu,dakr@kernel.org,ruanjinjie@huawei.com,lyude@redhat.com,thuth@redhat.com,sohil.mehta@intel.com,xin@zytor.co
- m,pawan.kumar.gupta@linux.intel.com,nikunj@amd.com,joelagnelf@nvidia.com,andriy.shevchenko@linux.intel.com,rdunlap@infradead.org,ynorov@nvidia.com,bigeasy@linutronix.de,linux-kernel@vger.kernel.org,linux-openrisc@vger.kernel.org,linux-s390@vger.kernel.org,linux-arch@vger.kernel.org,bpf@vger.kernel.org,linux-kselftest@vger.kernel.org,rust-for-linux@vger.kernel.org,work@onurozkan.dev,daniel.almeida@collabora.com,boqun.feng@gmail.com,ast@kernel.org,andrii@kernel.org,daniel@iogearbox.net,martin.lau@kernel.org,eddyz87@gmail.com,yonghong.song@linux.dev,clm@meta.com,ihor.solodrai@linux.dev
-Date: Tue, 26 May 2026 16:19:12 +0000 (UTC)
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260506080753.14517-1-itazur@amazon.com>
 
---===============0782269710716244881==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-
-> diff --git a/include/linux/spinlock.h b/include/linux/spinlock.h
-> index 241277cd34cf..9d6012ac929d 100644
-> --- a/include/linux/spinlock.h
-> +++ b/include/linux/spinlock.h
-
-[ ... ]
-
-> @@ -427,6 +444,11 @@ static __always_inline bool _spin_trylock_irqsave(spinlock_t *lock, unsigned lon
->  }
->  #define spin_trylock_irqsave(lock, flags) _spin_trylock_irqsave(lock, &(flags))
+On Wed, May 06, 2026 at 08:07:52AM +0000, Takahiro Itazuri wrote:
+> Hi Lorenzo and Sean,
 >
-> +static __always_inline int spin_trylock_irq_disable(spinlock_t *lock)
-> +{
-> +	return raw_spin_trylock_irq_disable(&lock->rlock);
-> +}
-> +
+> Apologies for the delayed reply — Nikita is leaving Amazon, and I'm
+> taking over this series going forward. Thanks for your patience.
 
-Should spin_trylock_irq_disable() include the sparse and clang
-context-analysis annotations that all other spin_trylock_* variants
-carry?
+Hey,
 
-Looking at the other trylock variants in the same file:
+Thanks for letting us know! And thanks to Nikita for all his work, will
+keep an eye out for the respin!
 
-spin_trylock():
-    static __always_inline int spin_trylock(spinlock_t *lock)
-        __cond_acquires(true, lock) __no_context_analysis
+Cheers, Lorenzo
 
-spin_trylock_bh():
-    static __always_inline int spin_trylock_bh(spinlock_t *lock)
-        __cond_acquires(true, lock) __no_context_analysis
-
-spin_trylock_irq():
-    static __always_inline int spin_trylock_irq(spinlock_t *lock)
-        __cond_acquires(true, lock) __no_context_analysis
-
-_spin_trylock_irqsave():
-    static __always_inline bool _spin_trylock_irqsave(spinlock_t *lock, unsigned long *flags)
-        __cond_acquires(true, lock) __no_context_analysis
-
-The RT counterpart in include/linux/spinlock_rt.h has the
-__cond_acquires(true, lock) annotation:
-
-    static __always_inline int spin_trylock_irq_disable(spinlock_t *lock)
-        __cond_acquires(true, lock)
-
-And the underlying _raw_spin_trylock_irq_disable() in spinlock_api_smp.h
-also has __cond_acquires(true, lock):
-
-    static __always_inline bool _raw_spin_trylock_irq_disable(raw_spinlock_t *lock)
-        __cond_acquires(true, lock)
-
-The wrapper spin_trylock_irq_disable() in spinlock.h is the only place
-where these annotations are missing. This would break sparse static
-analysis and clang's thread-safety analysis for this function, causing
-inconsistent static-checking behavior compared to all peer trylock APIs.
-
-
----
-AI reviewed your patch. Please fix the bug or email reply why it's not a bug.
-See: https://github.com/kernel-patches/vmtest/blob/master/ci/claude/README.md
-
-CI run summary: https://github.com/kernel-patches/bpf/actions/runs/26458754996
---===============0782269710716244881==--
+>
+> On Tue, Apr 21, 2026 at 01:40:00PM +0000, Lorenzo Stoakes wrote:
+> > Hm, given this touches a fair bit of mm, I wonder if we shouldn't try to do this
+> > through the mm tree?
+>
+> On Tue, Apr 21, 2026 at 04:36:00PM +0000, Sean Christopherson wrote:
+> > Yeah, when the time comes, the mm pieces definitely need to go through the mm
+> > tree.  Ideally, I think this would be merged in two separate parts, with all mm
+> > changes going through the mm tree, and then the KVM changes through the KVM tree
+> > using a stable topic branch/tag from Andrew.
+>
+> Thanks for the guidance. The split makes sense to me; I'm planning to
+> follow this approach with patches 1-6 (mm) going through the mm tree
+> and patches 7-16 (KVM) through the KVM tree on top of a stable
+> branch/tag from mm. I'll confirm the exact boundary and coordination
+> details as I prepare the repost.
+>
+> On Tue, Apr 21, 2026 at 01:40:00PM +0000, Lorenzo Stoakes wrote:
+> > In any case, we definitely need a rebase on something not-next :) if not mm then
+> > Linus's tree at least maybe?
+> >
+> > I'm seeing a lot of conflicts against mm-unstable, it can't b4 shazam even patch
+> > 1 and in Linus's tree it's failing at an mm patch (mm: introduce
+> > AS_NO_DIRECT_MAP).
+>
+> I'll rebase onto v7.1-rc1 and resolve the conflicts as part of the split.
+>
+> Takahiro
+>
