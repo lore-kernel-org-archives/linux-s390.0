@@ -1,907 +1,247 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from BN8PR05CU002.outbound.protection.outlook.com (mail-eastus2azolkn19011031.outbound.protection.outlook.com [52.103.12.31])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 09E8A2C21F1;
-	Tue, 26 May 2026 01:53:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779760421; cv=none; b=CGgDEI/Xqo0jFsrqT9de2S+eBR2V0WR0c6t8kZe03p2f3Yz2pQXORWfNbJVGArOhEhisYVPuA0GK0UN32oMCKOLx3ZPPKjV5dEeBqZbjDloLPEY7d7vWwLBrdmYJanyF2HApbh4kgTi5HTnotBj9sl5bSrtmzs4Kta48Ar8VUvc=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779760421; c=relaxed/simple;
-	bh=BMe3DPmZTY0HvDF/CH18LZ32uk/xXPF3mueVuUuP+Sw=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=ihD3M/PvENMdLAFO8QxNOZXlX6XS2ZfN7WXz/EgeFyIT+bbh5ojMM/cN8/fTKAZcDR3In2D+cIdqQ6sg7J3RXNBaKTjAqzeB2lhRHupRGzOzEZxAtr6OQcMcDhb9/M7H4FyFeHsahdyA+08E6kWRbU8yW4Nuuw20TmbMafMtjf0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=gLo57YU/; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3A59F35A39D;
+	Tue, 26 May 2026 02:57:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.103.12.31
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1779764221; cv=fail; b=JaEMRzdjQogXLPCQODJbv4IPLuMw2glGhoDYixc/V4+CPklpTYFNlczlgEov5Nri41awrOXY7+/PtGLvfW69qXAvzRzd8J6bkFjdL+lAXqkS04nVVtVVVSOVwZuuJG7sWGcu7L5qB2+2N+jjowaGR8S6l3i6jjCZ5OjiqO3BFFU=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1779764221; c=relaxed/simple;
+	bh=EfJ8AMt+P9PRBW+H1JqIi1Hqiy6XLFpikNIAOsqPPsE=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=M8CAAbZsYDcNpRlz97/uiUIrs6JoejY7whKvDqY/03i1/DMgt7wUktvlLGS8ZF0loMFJtMM5Tz4WZw0LDnLu45r7BIvzqt6p3IaiokgvU4TX8jpdMg5ZHLKt+DCsPpwf1ZyUgL+WZ4BInEYLLLSaMqK3Psx8SE+AfYZ8VJKZnXQ=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com; spf=pass smtp.mailfrom=outlook.com; dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b=XKW1tuip; arc=fail smtp.client-ip=52.103.12.31
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=outlook.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="gLo57YU/"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 64P8KxxP755043;
-	Tue, 26 May 2026 01:53:30 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=2Zb4aY5GQ/elDDc3T
-	QqhwcgkJRpyzckKRmDfYcGpn7E=; b=gLo57YU/57Cl5+AE5ezDKddRzsaCWBmt2
-	NLQNU9855teBbsOljOmeEWdHyfhgDnRriR606S8yjNYwGP4tOiqAxzwWoTkHZzdl
-	wq8WVZOK5c/0vKGxFvgbjrenHCcsXw8Qy7pQi2CZFqKpKW6M1O99kZifIEPgdDh2
-	yxrRaiuNAplS1EcS5XQNiS+BMD1+3CiO39PSfZGEKUovzzY8HlUNYQ42bdMfa+BP
-	hgRNPMu08Sy8UzU1dhe2vNe4MfSxn9gApBtzA/6An5xhOs4TbszKzNmada43vSpD
-	okK5fsxamNwDWb9xuKp6Uhb3b7Jqs7XP12NxcH33nbxoPoe32EOOw==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4eb4pd933q-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 26 May 2026 01:53:29 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 64Q1dKuH021883;
-	Tue, 26 May 2026 01:53:29 GMT
-Received: from smtprelay05.wdc07v.mail.ibm.com ([172.16.1.72])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4ebrsg73af-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 26 May 2026 01:53:29 +0000 (GMT)
-Received: from smtpav05.dal12v.mail.ibm.com (smtpav05.dal12v.mail.ibm.com [10.241.53.104])
-	by smtprelay05.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 64Q1rRAd34144996
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 26 May 2026 01:53:27 GMT
-Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 08A8558052;
-	Tue, 26 May 2026 01:53:27 +0000 (GMT)
-Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 45AFD58056;
-	Tue, 26 May 2026 01:53:26 +0000 (GMT)
-Received: from 9.60.13.83 (unknown [9.60.13.83])
-	by smtpav05.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 26 May 2026 01:53:26 +0000 (GMT)
-From: Douglas Freimuth <freimuth@linux.ibm.com>
-To: borntraeger@linux.ibm.com, imbrenda@linux.ibm.com, frankja@linux.ibm.com,
-        david@kernel.org, hca@linux.ibm.com, gor@linux.ibm.com,
-        agordeev@linux.ibm.com, svens@linux.ibm.com, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: mjrosato@linux.ibm.com, freimuth@linux.ibm.com
-Subject: [PATCH v8 3/3] KVM: s390: Introducing kvm_arch_set_irq_inatomic fast inject
-Date: Tue, 26 May 2026 03:53:20 +0200
-Message-ID: <20260526015323.207343-4-freimuth@linux.ibm.com>
-X-Mailer: git-send-email 2.54.0
-In-Reply-To: <20260526015323.207343-1-freimuth@linux.ibm.com>
-References: <20260526015323.207343-1-freimuth@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b="XKW1tuip"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=gG+HV4rBvsgaGFQFYvLTC8IymqY85LGwBCf9GhKyUBpEYT9rYgSmYQgPZRbQ17epxgc3O6BTZzXadwy3EEd65Sr1Jv9qZHvDqbQhp2wMyanTOgiA529L1qXtEXt8o93kTpnYv/ikWjI/UzRy4xdu/Dm2ub90fgRA0q17e+GOnffrNlS75kEQHBVjYnF0zLV1pQ4Y9KvXEAHUKOGaupfEouAnGyo5kG1da0uFM7SkO/ShSdCtvV0h/fzn+eqKPdIskzGq8Lc/v3BMtAbL7iW/AuYQWuDyEMQMtsJ2esj19yYCeHCXJxh06AYc2o+qWSU3iV6/A4je9efkpRfbB5wCKQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=yei1BelLDSnmx+IXXDFXNeTDPXNmUmksZlj66ZIIwrk=;
+ b=KG1DcY0r4gE9+s/e5/R5DM+ydpegUNmI6LQkciytGRJM0dmhdBWyaF8ScpMphwXl+dWpwEdjiGRuglxBz5mHiIdZK/rxz57W7vUNdAe2wL10sZElvEEhAgGnYNjIw25BwoLI3gU8G9Prn3Ab2uQgXtx9sCYCgbSL4bcaHPNfFz9BilueE5nv4T2vwA2AXA872ePWqp0XMoxXEizWWKsxTzBiE+oztWCI1xWM2g/9yHy9QKxHPGMTbEGEZH/fzW1oyB8nVToyfaKH1+nrSk8G+wmRVInekRTO01bNAqTR0gNir6OIr96zZSiXVAzHMwHMcw2/zqdq45eY0O6hoz5ipg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
+ dkim=none; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=outlook.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=yei1BelLDSnmx+IXXDFXNeTDPXNmUmksZlj66ZIIwrk=;
+ b=XKW1tuipNMOt7J/YR4p+r3x2p3lcvrLFx5MxpaKZ7YCjmQlZbFVioXJgUJu27iRkgx28LZwK2vjPIQF/SefBpJpv03C5l/6n8ZK0IgQzrM9u5K83uNtAKGWW8OXbUf7QTsFpEY4eY/WxVCtgLFbde0mCFK6ce/rii7hYgnDKispi336/Gbzzi5OaaJUhKoGA+l89fjaY0Olfvej/sj2utwi5mjOMAx0+E/oiOeIQQhRby8OVYWoUFVdXpSUv2cX/9XFa9izF19ux4shy0/JkFLyLGzD7bwrbJgTuCKk8xkW6KNYvcsC24NocAYSao3b+pWrw74L15Wmuq0dCfPubnQ==
+Received: from SN6PR02MB4157.namprd02.prod.outlook.com (2603:10b6:805:33::23)
+ by CH3PR02MB9515.namprd02.prod.outlook.com (2603:10b6:610:124::11) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.48.20; Tue, 26 May
+ 2026 02:56:57 +0000
+Received: from SN6PR02MB4157.namprd02.prod.outlook.com
+ ([fe80::900:1ccf:2b1e:52b6]) by SN6PR02MB4157.namprd02.prod.outlook.com
+ ([fe80::900:1ccf:2b1e:52b6%3]) with mapi id 15.21.0048.019; Tue, 26 May 2026
+ 02:56:57 +0000
+From: Michael Kelley <mhklinux@outlook.com>
+To: "Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org>,
+	"iommu@lists.linux.dev" <iommu@lists.linux.dev>,
+	"linux-arm-kernel@lists.infradead.org"
+	<linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org"
+	<linux-kernel@vger.kernel.org>, "linux-coco@lists.linux.dev"
+	<linux-coco@lists.linux.dev>
+CC: Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski
+	<m.szyprowski@samsung.com>, Will Deacon <will@kernel.org>, Marc Zyngier
+	<maz@kernel.org>, Steven Price <steven.price@arm.com>, Suzuki K Poulose
+	<Suzuki.Poulose@arm.com>, Catalin Marinas <catalin.marinas@arm.com>, Jiri
+ Pirko <jiri@resnulli.us>, Jason Gunthorpe <jgg@ziepe.ca>, Mostafa Saleh
+	<smostafa@google.com>, Petr Tesarik <ptesarik@suse.com>, Alexey Kardashevskiy
+	<aik@amd.com>, Dan Williams <dan.j.williams@intel.com>, Xu Yilun
+	<yilun.xu@linux.intel.com>, "linuxppc-dev@lists.ozlabs.org"
+	<linuxppc-dev@lists.ozlabs.org>, "linux-s390@vger.kernel.org"
+	<linux-s390@vger.kernel.org>, Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, Alexander Gordeev
+	<agordeev@linux.ibm.com>, Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle
+	<svens@linux.ibm.com>, "x86@kernel.org" <x86@kernel.org>, Jiri Pirko
+	<jiri@nvidia.com>
+Subject: RE: [PATCH v5 10/20] dma-direct: make dma_direct_map_phys() honor
+ DMA_ATTR_CC_SHARED
+Thread-Topic: [PATCH v5 10/20] dma-direct: make dma_direct_map_phys() honor
+ DMA_ATTR_CC_SHARED
+Thread-Index: AQHp6tfu5DGfxW+HBL9src0vNhss0QGHKPZ9tflmFZA=
+Date: Tue, 26 May 2026 02:56:57 +0000
+Message-ID:
+ <SN6PR02MB41574064D14D4A2734222C51D40B2@SN6PR02MB4157.namprd02.prod.outlook.com>
+References: <20260522042815.370873-1-aneesh.kumar@kernel.org>
+ <20260522042815.370873-11-aneesh.kumar@kernel.org>
+In-Reply-To: <20260522042815.370873-11-aneesh.kumar@kernel.org>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: SN6PR02MB4157:EE_|CH3PR02MB9515:EE_
+x-ms-office365-filtering-correlation-id: aed58040-491f-4983-3c2d-08debad27362
+x-ms-exchange-slblob-mailprops:
+ 9IecXKUgicAz80qrkIsT6kQ0LfhDX2IsWcHQciuYMUrut1JD3mUof57j+ZGnz3BDMJ33pcptrtsNfB1nR5NzG/s8HcaJ99skL679uM847K4aPKuukd9hq3M/QGNNUT+gWarbgXaFClQoghn7unFfS20gn9iH0a97AqGKT/G52fCZ1OUtc3JMcT9Eb8jp7tICa4ma69YE0khDkXYePCpbheB1p5sEZzPldLqSb5NOPNAoz5lScx9/CO58e+Rf6oY3s5klNgj0ws8BG+m6T+dum4SriqLLEOLE6LkHuocLzTQV8tUt8VQSKz8BiNNWgyWIjcUESY8CAPTUo9oNnmhp4EjC+gmA5VtQNVSEK+HJ+9C+ZyLpDioVNcQGZNYdMNTSdhAnsHMFNCZvYKw+f1EOUffAGlnCDI/8TYySm1gmjPN1M0o3Kz/iypldtmkd6Q1+umdZSw61CuMAPBj1Hxs2ZzgzmbyFWAA91YLq/tBdyKu8V8o6YnUDi0CJ4NEwyr1xwwU1ZiW2UTwwpB1cBMRiHMEYhioqnobRnI2CdpLC0UHQkdJ+RnvxU4QDcuhcl3vZwWsZeSy8i/W1Kfq8JjmmEIihMAyA1eeLLm1Me0XOSeBOm23XTLehBrWNjkHtBSIkDj6DNxFqq5qMhVhB3a94VlosU9U7b+kev4mPLh6nvQRTmllmLhdtkxr7sPfKMojxxMN0AHrOX37kF2UwpM/EXJZHdczFym/bGVhpl5pnmcpTyN2lUTKYDg==
+x-microsoft-antispam:
+ BCL:0;ARA:14566002|8062599012|13091999003|19110799012|15080799012|41001999006|8060799015|31061999003|19101099003|37011999003|440099028|3412199025|102099032|52005399003|41105399003|40105399003;
+x-microsoft-antispam-message-info:
+ =?us-ascii?Q?wWB0OS3byDqi33lC1+iWyKK/RZkm0JEYuQ9LJJtYNkAQ1C9reKc/yTlmbkjm?=
+ =?us-ascii?Q?Y80O5F6uJL4my0BPcvFejtwh7miiM8VIQd7tmWxZBljqM65D2MnYLC4kkKO9?=
+ =?us-ascii?Q?Aq1Mz+DVaIFM6vsedPIQ+dvFyouY4hljpCXyYW9Fy+Hcm7vVZWXp5k6beKMs?=
+ =?us-ascii?Q?Sx6jcGlcwSZWS8pK7MC4o7f+m7dNvP5bFSW3hVClYYseASlxUoiY1q/Swoj2?=
+ =?us-ascii?Q?r1pOp6JAivGauJWOG1Xe85wVZqy0OALOAcHBxcl8hSOYID3StdLFKy5Do6n0?=
+ =?us-ascii?Q?TeRP8W0FQR+kA6IRX4YeyzIedbWjzffOSHjIKBLq6Kij3M3MQ0V7xMHA+MC3?=
+ =?us-ascii?Q?oPTCLWsokBPJxmlHqkRCNKrD0xUIM5/hv7d+huGxrlgVKRwwfLktU3Hr3Njt?=
+ =?us-ascii?Q?Lt20zR/8VVItaHRpKoJut1fqu7LCHoNha6DrXmV0a69BsyktcHWwQJ5mOdGI?=
+ =?us-ascii?Q?ca46Rd4Ws9FJJ/q+Vdo54DwQX8gqM6oG5mFFXcrB+xMyR5kOAzJj8O3kgIHY?=
+ =?us-ascii?Q?yUb47U0LQp85Kj1SOO+xM2DfmZgOuWMAYuyeVm1RUNEGeMJmEPVytxN9GzcU?=
+ =?us-ascii?Q?B3zW5GnHYfmTtH/CjjwOwOERxEkYpspNIgXa8gGQEohevN9maOReIoq2P7af?=
+ =?us-ascii?Q?EuSga42HI4g27XigYdzvb/EGTErQiZZNx+ehkoi2db00W0Cwuf9BjJHXiyYm?=
+ =?us-ascii?Q?eaVumrmYoiaDvQIg0Cc8O2K1kP3VbU9c+weyMWNKKiGSL1FqZjcfBlORxwqp?=
+ =?us-ascii?Q?jZKOjPx4sz2tflbifeRBBIgFhLeADR2SwkGkmytt7mrx86ZP65UfJEJPut8M?=
+ =?us-ascii?Q?wzb6WNKswCbVsQ6bXrLcNSo7S9V5o3edvvg9G7UCn5k5EPOZaaEXCWyN3qwx?=
+ =?us-ascii?Q?5hxGLJE3w5X8/mVEvMncHAJCKnRedTkJdF2L4joMIBuFzbgkGbtuFsoR7dOE?=
+ =?us-ascii?Q?+J7MqvelWt2dwDT0MpPvsocw8k9PfkstPMEPuE8HgTHk213mOr/zdqONFfgL?=
+ =?us-ascii?Q?NEONvMup4eAqbbtVyeKU/CdUm0Xly+qrPv5XfO2GsRsk4+SwXA36qoEfAgnf?=
+ =?us-ascii?Q?1hwxUD4w?=
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?us-ascii?Q?+WL8doa3bPYcMGNLrhVm7RIh+tVU9VosFxep9HwWXQbVnNwQKLX3iDEP6glH?=
+ =?us-ascii?Q?UpBfxKevdgKE/FoCwKX7g+0q6mMCGeD8GUPJ/YS1V6rxF0Rbb+2iLDdJb85c?=
+ =?us-ascii?Q?7+PUj801lEqJU/7JSnXQZSV35RH8ejHSkRwZ3g5IDc8MEAdL627Kf2Ah0MPA?=
+ =?us-ascii?Q?YPvuTvfLGXtsjvDYCqK88PMMrL7iTAZiHGVCKjBtPiutHlMNg/Zw935r/hWR?=
+ =?us-ascii?Q?BarlghhAhEkAgqnKa0enIG3IeLNoDQK5Ry1VTk+xj27NhbSWPXzy/Hv252WF?=
+ =?us-ascii?Q?FClpVvpgJB1ka9+vMj4DaL33n2erj0Lee38N6LFwgJGmQJdqgpRMFDLjuSvU?=
+ =?us-ascii?Q?54VKzXklGcA4CZwYkr/zk4/n/sOHP+jhgX2vesKDAnPfawjuO6SR4/JdNxXC?=
+ =?us-ascii?Q?sEqmW6JhduUt8a5vYqXvTSsmS4ln1fzfY7DAVSXk0+GtFHvGcddUhvGg9zep?=
+ =?us-ascii?Q?qO03/WZq49Pr322ZB7keqiDRugIodaOV7V7WO+e6jn1b+xtShLpAjYSWDiVp?=
+ =?us-ascii?Q?RJPdz02DCHPH35oUn9k6oGjeUM9xLRTtoaZr18IwEs+HZvWMM4XJ/OSNB53w?=
+ =?us-ascii?Q?jK0a2uA45aouvhPzXDV7sd0B+Clf4XMLb0PBjkWq+7WF9gXdNp1jz5xKPb9/?=
+ =?us-ascii?Q?6ZFY42NtGv6G1nqZcQWbcZ+nmIDji2qCx0PoPxS+iHI7ykurtwYsmXhITDRX?=
+ =?us-ascii?Q?HIpMawfNvRMmj6MMKohpODli29ijx8CULyE5u7ifsmneYUYkiwx9P1k2w+LB?=
+ =?us-ascii?Q?eiQ3fksHNTBxE3ACB+HkUyvVHPJ9eUshIUMTMNiESQA+XO0QGNrLGXY52vA8?=
+ =?us-ascii?Q?5c767j2+9SEb8G7GitX6ZThhCTVni4vaZme0dJnqGG2FFo69hhb12BMC37dU?=
+ =?us-ascii?Q?zIJUsltdZfc+GogtTSW18YFK7qSmmjvl/Tq2RDtyhjVvGkc9So/nN2fz9fMj?=
+ =?us-ascii?Q?S5rbJn60emyuJ/cDuo6X6UztH2UNpGrzO9cW+AlypNHXRoK4FmqG8Z2hAJch?=
+ =?us-ascii?Q?cj1MWr4iS4K/pdVPinbfejsh0j1bQhB4ZZSyKOm+uUFG1tHYzNuFXnsROxWg?=
+ =?us-ascii?Q?B08Q77cj/myMc48JGdwMa8AVrnL/jir7Ukv20LIGBPFdi1+a8zpGumRVGFms?=
+ =?us-ascii?Q?ELnZ5DhQjWxuG/bDOWujcldLbqLOZX8rFW7FRULI52g84IYUItjMaMYiiUng?=
+ =?us-ascii?Q?wUb4QdOTywlbvhpawLmg5zmJp+PTgJK10RCmlAmzG7OH9D7MahMNwGm4pdoj?=
+ =?us-ascii?Q?hpvye+5wpmYodthV4KW7U96iX5u3nSRYN46aCYQUhb4vOHgLpcy1bUJRYxnj?=
+ =?us-ascii?Q?SdSavEY2PFUhe7+FJ5GvXX1rsIW32A2X/Fd25mkGi03cVUgLrPjttfQHLyiT?=
+ =?us-ascii?Q?2UjobOY=3D?=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=OdqoyBTY c=1 sm=1 tr=0 ts=6a14fd1a cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=NGcC8JguVDcA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8 a=xDNdzKvPSL2aGnhA7LQA:9
-X-Proofpoint-GUID: IRdwShRTZYHHxzLYRr3VZnlDKcuTRX9-
-X-Proofpoint-ORIG-GUID: IRdwShRTZYHHxzLYRr3VZnlDKcuTRX9-
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTI2MDAwOCBTYWx0ZWRfX3Q2V5zkCLqCa
- BiDvqGsC0wqAO8NTunlkFMHo4eTx8MNdz8h+1ffxHcVWeJVpDKvw6vY4UuKXiotSf1QjU5JPDgS
- 72Xc0FY/lGDtw22eQJHYDGMtPDawZA+RO2MFPylgwEMMuk3GiP6gAzqDATveY2clys5JdsDCDHQ
- LQH1+sD1+l1nNWuaDEEdHESayajKL4k4lrz2bzhFg1QGj2m2vSkxmIPa06sCj6kC97j6nzudvqd
- UVxqJboc2fWubhn/5Xx7NblX2sHDF96YwkbFexIHWM9FRNeOPZMvDEYGxG/z9tVygjTrfxs+rbq
- 55K4Zeni2wVy4ia8HR5o04I7ZY60UO2nK5Ao5CxsYsq0aXWEXEAnHEzdZdITiNxUBX64bNmwoYx
- ATof0+AnmD+NI6myeYZLrV48rnoo2NGwiWm+njNEIS6Rxx5SEnW7uG7z68/TVtb0AzqMsUxJ9tw
- UyYLezYlWxqFM62JAlQ==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-05-25_07,2026-05-18_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 impostorscore=0 clxscore=1015 malwarescore=0
- lowpriorityscore=0 bulkscore=0 suspectscore=0 adultscore=0 spamscore=0
- phishscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2605130000
- definitions=main-2605260008
+X-OriginatorOrg: outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: SN6PR02MB4157.namprd02.prod.outlook.com
+X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg: 00000000-0000-0000-0000-000000000000
+X-MS-Exchange-CrossTenant-Network-Message-Id: aed58040-491f-4983-3c2d-08debad27362
+X-MS-Exchange-CrossTenant-originalarrivaltime: 26 May 2026 02:56:57.4661
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
+X-MS-Exchange-CrossTenant-rms-persistedconsumerorg: 00000000-0000-0000-0000-000000000000
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH3PR02MB9515
 
-s390 needs a fast path for irq injection, and along those lines we
-introduce kvm_arch_set_irq_inatomic. Instead of placing all interrupts on
-the global work queue as it does today, this patch provides a fast path for
-irq injection.
+From: Aneesh Kumar K.V (Arm) <aneesh.kumar@kernel.org> Sent: Thursday, May =
+21, 2026 9:28 PM
+>=20
+> Teach dma_direct_map_phys() to select the DMA address encoding based on
+> DMA_ATTR_CC_SHARED.
+>=20
+> Use phys_to_dma_unencrypted() for decrypted mappings and
+> phys_to_dma_encrypted() otherwise. If a device requires unencrypted DMA
+> but the source physical address is still encrypted, force the mapping
+> through swiotlb so the DMA address and backing memory attributes remain
+> consistent.
+>=20
+> Update the arm64, x86, s390 and powerpc secure-guest setup to not use
+> swiotlb force option
+>=20
+> Tested-by: Jiri Pirko <jiri@nvidia.com>
+> Signed-off-by: Aneesh Kumar K.V (Arm) <aneesh.kumar@kernel.org>
+> ---
+> Changes from v3:
+> * Handle DMA_ATTR_MMIO
+> ---
+>  arch/arm64/mm/init.c                 |  4 +--
+>  arch/powerpc/platforms/pseries/svm.c |  2 +-
+>  arch/s390/mm/init.c                  |  2 +-
+>  arch/x86/kernel/pci-dma.c            |  4 +--
+>  kernel/dma/direct.c                  |  4 ++-
+>  kernel/dma/direct.h                  | 45 +++++++++++++++-------------
+>  6 files changed, 31 insertions(+), 30 deletions(-)
+>=20
+> diff --git a/arch/arm64/mm/init.c b/arch/arm64/mm/init.c
+> index c1b223e7cc8e..a087ac5b15f7 100644
+> --- a/arch/arm64/mm/init.c
+> +++ b/arch/arm64/mm/init.c
+> @@ -340,10 +340,8 @@ void __init arch_mm_preinit(void)
+>  	unsigned int flags =3D SWIOTLB_VERBOSE;
+>  	bool swiotlb =3D max_pfn > PFN_DOWN(arm64_dma_phys_limit);
+>=20
+> -	if (is_realm_world()) {
+> +	if (is_realm_world())
+>  		swiotlb =3D true;
+> -		flags |=3D SWIOTLB_FORCE;
+> -	}
+>=20
+>  	if (IS_ENABLED(CONFIG_DMA_BOUNCE_UNALIGNED_KMALLOC) && !swiotlb)
+> {
+>  		/*
+> diff --git a/arch/powerpc/platforms/pseries/svm.c
+> b/arch/powerpc/platforms/pseries/svm.c
+> index 384c9dc1899a..7a403dbd35ee 100644
+> --- a/arch/powerpc/platforms/pseries/svm.c
+> +++ b/arch/powerpc/platforms/pseries/svm.c
+> @@ -29,7 +29,7 @@ static int __init init_svm(void)
+>  	 * need to use the SWIOTLB buffer for DMA even if dma_capable() says
+>  	 * otherwise.
+>  	 */
+> -	ppc_swiotlb_flags |=3D SWIOTLB_ANY | SWIOTLB_FORCE;
+> +	ppc_swiotlb_flags |=3D SWIOTLB_ANY;
+>=20
+>  	/* Share the SWIOTLB buffer with the host. */
+>  	swiotlb_update_mem_attributes();
+> diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
+> index ad3c6d92b801..581af1483c42 100644
+> --- a/arch/s390/mm/init.c
+> +++ b/arch/s390/mm/init.c
+> @@ -163,7 +163,7 @@ static void __init pv_init(void)
+>  	virtio_set_mem_acc_cb(virtio_require_restricted_mem_acc);
+>=20
+>  	/* make sure bounce buffers are shared */
+> -	swiotlb_init(true, SWIOTLB_FORCE | SWIOTLB_VERBOSE);
+> +	swiotlb_init(true, SWIOTLB_VERBOSE);
+>  	swiotlb_update_mem_attributes();
+>  }
+>=20
+> diff --git a/arch/x86/kernel/pci-dma.c b/arch/x86/kernel/pci-dma.c
+> index 6267363e0189..75cf8f6ae8cd 100644
+> --- a/arch/x86/kernel/pci-dma.c
+> +++ b/arch/x86/kernel/pci-dma.c
+> @@ -59,10 +59,8 @@ static void __init pci_swiotlb_detect(void)
+>  	 * bounce buffers as the hypervisor can't access arbitrary VM memory
+>  	 * that is not explicitly shared with it.
+>  	 */
+> -	if (cc_platform_has(CC_ATTR_GUEST_MEM_ENCRYPT)) {
+> +	if (cc_platform_has(CC_ATTR_GUEST_MEM_ENCRYPT))
+>  		x86_swiotlb_enable =3D true;
+> -		x86_swiotlb_flags |=3D SWIOTLB_FORCE;
+> -	}
 
-The inatomic fast path cannot lose control since it is running with
-interrupts disabled. This meant making the following changes that exist on
-the slow path today. First, the adapter_indicators page needs to be mapped
-since it is accessed with interrupts disabled, so we added map/unmap
-functions. Second, access to shared resources between the fast and slow
-paths needed to be changed from mutex and semaphores to spin_lock's.
-Finally, the memory allocation on the slow path utilizes GFP_KERNEL_ACCOUNT
-but we had to implement the fast path with GFP_ATOMIC allocation. Each of
-these enhancements were required to prevent blocking on the fast inject
-path.
+With this patch removing SWIOTLB_FORCE from four places in
+kernel code, there are no remaining places where it is set.
+The test of SWIOTLB_FORCE could be removed from
+swiotlb_init_remap(), and its definition could be deleted
+from include/linux/swiotlb.h.
 
-Fencing of Fast Inject in Secure Execution environments is enabled in the
-patch series by not mapping adapter indicator pages. In Secure Execution
-environments the path of execution available before this patch is followed.
-
-Statistical counters have been added to enable analysis of irq injection on
-the fast path and slow path including io_390_inatomic, io_flic_inject_airq,
-io_set_adapter_int and io_390_inatomic_adapter_masked_or_coalesced.
-
-Signed-off-by: Douglas Freimuth <freimuth@linux.ibm.com>
----
- arch/s390/include/asm/kvm_host.h |   6 +-
- arch/s390/kvm/intercept.c        |   5 +-
- arch/s390/kvm/interrupt.c        | 264 ++++++++++++++++++++++++-------
- arch/s390/kvm/kvm-s390.c         |  27 +++-
- arch/s390/kvm/kvm-s390.h         |   3 +-
- 5 files changed, 240 insertions(+), 65 deletions(-)
-
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index 0056cc9414a0..f0b77cdbb52b 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -359,7 +359,7 @@ struct kvm_s390_float_interrupt {
- 	struct kvm_s390_mchk_info mchk;
- 	struct kvm_s390_ext_info srv_signal;
- 	int last_sleep_cpu;
--	struct mutex ais_lock;
-+	spinlock_t ais_lock;
- 	u8 simm;
- 	u8 nimm;
- };
-@@ -450,6 +450,10 @@ struct kvm_vm_stat {
- 	u64 inject_io;
- 	u64 io_390_adapter_map;
- 	u64 io_390_adapter_unmap;
-+	u64 io_390_inatomic;
-+	u64 io_flic_inject_airq;
-+	u64 io_set_adapter_int;
-+	u64 io_390_inatomic_adapter_masked_or_coalesced;
- 	u64 inject_float_mchk;
- 	u64 inject_pfault_done;
- 	u64 inject_service_signal;
-diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
-index 39aff324203e..1980df61ef30 100644
---- a/arch/s390/kvm/intercept.c
-+++ b/arch/s390/kvm/intercept.c
-@@ -517,8 +517,9 @@ static int handle_pv_spx(struct kvm_vcpu *vcpu)
- static int handle_pv_sclp(struct kvm_vcpu *vcpu)
- {
- 	struct kvm_s390_float_interrupt *fi = &vcpu->kvm->arch.float_int;
-+	unsigned long flags;
- 
--	spin_lock(&fi->lock);
-+	spin_lock_irqsave(&fi->lock, flags);
- 	/*
- 	 * 2 cases:
- 	 * a: an sccb answering interrupt was already pending or in flight.
-@@ -534,7 +535,7 @@ static int handle_pv_sclp(struct kvm_vcpu *vcpu)
- 	fi->srv_signal.ext_params |= 0x43000;
- 	set_bit(IRQ_PEND_EXT_SERVICE, &fi->pending_irqs);
- 	clear_bit(IRQ_PEND_EXT_SERVICE, &fi->masked_irqs);
--	spin_unlock(&fi->lock);
-+	spin_unlock_irqrestore(&fi->lock, flags);
- 	return 0;
- }
- 
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index 23f578e7b9dc..1aedeeeedf9e 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -624,8 +624,9 @@ static int __must_check __deliver_machine_check(struct kvm_vcpu *vcpu)
- 	struct kvm_s390_mchk_info mchk = {};
- 	int deliver = 0;
- 	int rc = 0;
-+	unsigned long flags;
- 
--	spin_lock(&fi->lock);
-+	spin_lock_irqsave(&fi->lock, flags);
- 	spin_lock(&li->lock);
- 	if (test_bit(IRQ_PEND_MCHK_EX, &li->pending_irqs) ||
- 	    test_bit(IRQ_PEND_MCHK_REP, &li->pending_irqs)) {
-@@ -654,7 +655,7 @@ static int __must_check __deliver_machine_check(struct kvm_vcpu *vcpu)
- 		deliver = 1;
- 	}
- 	spin_unlock(&li->lock);
--	spin_unlock(&fi->lock);
-+	spin_unlock_irqrestore(&fi->lock, flags);
- 
- 	if (deliver) {
- 		VCPU_EVENT(vcpu, 3, "deliver: machine check mcic 0x%llx",
-@@ -941,11 +942,12 @@ static int __must_check __deliver_service(struct kvm_vcpu *vcpu)
- {
- 	struct kvm_s390_float_interrupt *fi = &vcpu->kvm->arch.float_int;
- 	struct kvm_s390_ext_info ext;
-+	unsigned long flags;
- 
--	spin_lock(&fi->lock);
-+	spin_lock_irqsave(&fi->lock, flags);
- 	if (test_bit(IRQ_PEND_EXT_SERVICE, &fi->masked_irqs) ||
- 	    !(test_bit(IRQ_PEND_EXT_SERVICE, &fi->pending_irqs))) {
--		spin_unlock(&fi->lock);
-+		spin_unlock_irqrestore(&fi->lock, flags);
- 		return 0;
- 	}
- 	ext = fi->srv_signal;
-@@ -954,7 +956,7 @@ static int __must_check __deliver_service(struct kvm_vcpu *vcpu)
- 	clear_bit(IRQ_PEND_EXT_SERVICE_EV, &fi->pending_irqs);
- 	if (kvm_s390_pv_cpu_is_protected(vcpu))
- 		set_bit(IRQ_PEND_EXT_SERVICE, &fi->masked_irqs);
--	spin_unlock(&fi->lock);
-+	spin_unlock_irqrestore(&fi->lock, flags);
- 
- 	if (!ext.ext_params)
- 		return 0;
-@@ -972,17 +974,18 @@ static int __must_check __deliver_service_ev(struct kvm_vcpu *vcpu)
- {
- 	struct kvm_s390_float_interrupt *fi = &vcpu->kvm->arch.float_int;
- 	struct kvm_s390_ext_info ext;
-+	unsigned long flags;
- 
--	spin_lock(&fi->lock);
-+	spin_lock_irqsave(&fi->lock, flags);
- 	if (!(test_bit(IRQ_PEND_EXT_SERVICE_EV, &fi->pending_irqs))) {
--		spin_unlock(&fi->lock);
-+		spin_unlock_irqrestore(&fi->lock, flags);
- 		return 0;
- 	}
- 	ext = fi->srv_signal;
- 	/* only clear the event bits */
- 	fi->srv_signal.ext_params &= ~SCCB_EVENT_PENDING;
- 	clear_bit(IRQ_PEND_EXT_SERVICE_EV, &fi->pending_irqs);
--	spin_unlock(&fi->lock);
-+	spin_unlock_irqrestore(&fi->lock, flags);
- 
- 	VCPU_EVENT(vcpu, 4, "%s", "deliver: sclp parameter event");
- 	vcpu->stat.deliver_service_signal++;
-@@ -997,8 +1000,9 @@ static int __must_check __deliver_pfault_done(struct kvm_vcpu *vcpu)
- 	struct kvm_s390_float_interrupt *fi = &vcpu->kvm->arch.float_int;
- 	struct kvm_s390_interrupt_info *inti;
- 	int rc = 0;
-+	unsigned long flags;
- 
--	spin_lock(&fi->lock);
-+	spin_lock_irqsave(&fi->lock, flags);
- 	inti = list_first_entry_or_null(&fi->lists[FIRQ_LIST_PFAULT],
- 					struct kvm_s390_interrupt_info,
- 					list);
-@@ -1008,7 +1012,7 @@ static int __must_check __deliver_pfault_done(struct kvm_vcpu *vcpu)
- 	}
- 	if (list_empty(&fi->lists[FIRQ_LIST_PFAULT]))
- 		clear_bit(IRQ_PEND_PFAULT_DONE, &fi->pending_irqs);
--	spin_unlock(&fi->lock);
-+	spin_unlock_irqrestore(&fi->lock, flags);
- 
- 	if (inti) {
- 		trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id,
-@@ -1039,8 +1043,9 @@ static int __must_check __deliver_virtio(struct kvm_vcpu *vcpu)
- 	struct kvm_s390_float_interrupt *fi = &vcpu->kvm->arch.float_int;
- 	struct kvm_s390_interrupt_info *inti;
- 	int rc = 0;
-+	unsigned long flags;
- 
--	spin_lock(&fi->lock);
-+	spin_lock_irqsave(&fi->lock, flags);
- 	inti = list_first_entry_or_null(&fi->lists[FIRQ_LIST_VIRTIO],
- 					struct kvm_s390_interrupt_info,
- 					list);
-@@ -1058,7 +1063,7 @@ static int __must_check __deliver_virtio(struct kvm_vcpu *vcpu)
- 	}
- 	if (list_empty(&fi->lists[FIRQ_LIST_VIRTIO]))
- 		clear_bit(IRQ_PEND_VIRTIO, &fi->pending_irqs);
--	spin_unlock(&fi->lock);
-+	spin_unlock_irqrestore(&fi->lock, flags);
- 
- 	if (inti) {
- 		rc  = put_guest_lc(vcpu, EXT_IRQ_CP_SERVICE,
-@@ -1116,10 +1121,11 @@ static int __must_check __deliver_io(struct kvm_vcpu *vcpu,
- 	struct kvm_s390_io_info io;
- 	u32 isc;
- 	int rc = 0;
-+	unsigned long flags;
- 
- 	fi = &vcpu->kvm->arch.float_int;
- 
--	spin_lock(&fi->lock);
-+	spin_lock_irqsave(&fi->lock, flags);
- 	isc = irq_type_to_isc(irq_type);
- 	isc_list = &fi->lists[isc];
- 	inti = list_first_entry_or_null(isc_list,
-@@ -1146,7 +1152,7 @@ static int __must_check __deliver_io(struct kvm_vcpu *vcpu,
- 	}
- 	if (list_empty(isc_list))
- 		clear_bit(irq_type, &fi->pending_irqs);
--	spin_unlock(&fi->lock);
-+	spin_unlock_irqrestore(&fi->lock, flags);
- 
- 	if (inti) {
- 		rc = __do_deliver_io(vcpu, &(inti->io));
-@@ -1662,8 +1668,9 @@ static struct kvm_s390_interrupt_info *get_io_int(struct kvm *kvm,
- 	struct kvm_s390_interrupt_info *iter;
- 	u16 id = (schid & 0xffff0000U) >> 16;
- 	u16 nr = schid & 0x0000ffffU;
-+	unsigned long flags;
- 
--	spin_lock(&fi->lock);
-+	spin_lock_irqsave(&fi->lock, flags);
- 	list_for_each_entry(iter, isc_list, list) {
- 		if (schid && (id != iter->io.subchannel_id ||
- 			      nr != iter->io.subchannel_nr))
-@@ -1673,10 +1680,10 @@ static struct kvm_s390_interrupt_info *get_io_int(struct kvm *kvm,
- 		fi->counters[FIRQ_CNTR_IO] -= 1;
- 		if (list_empty(isc_list))
- 			clear_bit(isc_to_irq_type(isc), &fi->pending_irqs);
--		spin_unlock(&fi->lock);
-+		spin_unlock_irqrestore(&fi->lock, flags);
- 		return iter;
- 	}
--	spin_unlock(&fi->lock);
-+	spin_unlock_irqrestore(&fi->lock, flags);
- 	return NULL;
- }
- 
-@@ -1769,9 +1776,10 @@ static int __inject_service(struct kvm *kvm,
- 			     struct kvm_s390_interrupt_info *inti)
- {
- 	struct kvm_s390_float_interrupt *fi = &kvm->arch.float_int;
-+	unsigned long flags;
- 
- 	kvm->stat.inject_service_signal++;
--	spin_lock(&fi->lock);
-+	spin_lock_irqsave(&fi->lock, flags);
- 	fi->srv_signal.ext_params |= inti->ext.ext_params & SCCB_EVENT_PENDING;
- 
- 	/* We always allow events, track them separately from the sccb ints */
-@@ -1791,7 +1799,7 @@ static int __inject_service(struct kvm *kvm,
- 	fi->srv_signal.ext_params |= inti->ext.ext_params & SCCB_MASK;
- 	set_bit(IRQ_PEND_EXT_SERVICE, &fi->pending_irqs);
- out:
--	spin_unlock(&fi->lock);
-+	spin_unlock_irqrestore(&fi->lock, flags);
- 	kfree(inti);
- 	return 0;
- }
-@@ -1800,17 +1808,18 @@ static int __inject_virtio(struct kvm *kvm,
- 			    struct kvm_s390_interrupt_info *inti)
- {
- 	struct kvm_s390_float_interrupt *fi = &kvm->arch.float_int;
-+	unsigned long flags;
- 
- 	kvm->stat.inject_virtio++;
--	spin_lock(&fi->lock);
-+	spin_lock_irqsave(&fi->lock, flags);
- 	if (fi->counters[FIRQ_CNTR_VIRTIO] >= KVM_S390_MAX_VIRTIO_IRQS) {
--		spin_unlock(&fi->lock);
-+		spin_unlock_irqrestore(&fi->lock, flags);
- 		return -EBUSY;
- 	}
- 	fi->counters[FIRQ_CNTR_VIRTIO] += 1;
- 	list_add_tail(&inti->list, &fi->lists[FIRQ_LIST_VIRTIO]);
- 	set_bit(IRQ_PEND_VIRTIO, &fi->pending_irqs);
--	spin_unlock(&fi->lock);
-+	spin_unlock_irqrestore(&fi->lock, flags);
- 	return 0;
- }
- 
-@@ -1818,18 +1827,19 @@ static int __inject_pfault_done(struct kvm *kvm,
- 				 struct kvm_s390_interrupt_info *inti)
- {
- 	struct kvm_s390_float_interrupt *fi = &kvm->arch.float_int;
-+	unsigned long flags;
- 
- 	kvm->stat.inject_pfault_done++;
--	spin_lock(&fi->lock);
-+	spin_lock_irqsave(&fi->lock, flags);
- 	if (fi->counters[FIRQ_CNTR_PFAULT] >=
- 		(ASYNC_PF_PER_VCPU * KVM_MAX_VCPUS)) {
--		spin_unlock(&fi->lock);
-+		spin_unlock_irqrestore(&fi->lock, flags);
- 		return -EBUSY;
- 	}
- 	fi->counters[FIRQ_CNTR_PFAULT] += 1;
- 	list_add_tail(&inti->list, &fi->lists[FIRQ_LIST_PFAULT]);
- 	set_bit(IRQ_PEND_PFAULT_DONE, &fi->pending_irqs);
--	spin_unlock(&fi->lock);
-+	spin_unlock_irqrestore(&fi->lock, flags);
- 	return 0;
- }
- 
-@@ -1838,13 +1848,14 @@ static int __inject_float_mchk(struct kvm *kvm,
- 				struct kvm_s390_interrupt_info *inti)
- {
- 	struct kvm_s390_float_interrupt *fi = &kvm->arch.float_int;
-+	unsigned long flags;
- 
- 	kvm->stat.inject_float_mchk++;
--	spin_lock(&fi->lock);
-+	spin_lock_irqsave(&fi->lock, flags);
- 	fi->mchk.cr14 |= inti->mchk.cr14 & (1UL << CR_PENDING_SUBCLASS);
- 	fi->mchk.mcic |= inti->mchk.mcic;
- 	set_bit(IRQ_PEND_MCHK_REP, &fi->pending_irqs);
--	spin_unlock(&fi->lock);
-+	spin_unlock_irqrestore(&fi->lock, flags);
- 	kfree(inti);
- 	return 0;
- }
-@@ -1855,6 +1866,7 @@ static int __inject_io(struct kvm *kvm, struct kvm_s390_interrupt_info *inti)
- 	struct kvm_s390_float_interrupt *fi;
- 	struct list_head *list;
- 	int isc;
-+	unsigned long flags;
- 
- 	kvm->stat.inject_io++;
- 	isc = int_word_to_isc(inti->io.io_int_word);
-@@ -1873,9 +1885,9 @@ static int __inject_io(struct kvm *kvm, struct kvm_s390_interrupt_info *inti)
- 	}
- 
- 	fi = &kvm->arch.float_int;
--	spin_lock(&fi->lock);
-+	spin_lock_irqsave(&fi->lock, flags);
- 	if (fi->counters[FIRQ_CNTR_IO] >= KVM_S390_MAX_FLOAT_IRQS) {
--		spin_unlock(&fi->lock);
-+		spin_unlock_irqrestore(&fi->lock, flags);
- 		return -EBUSY;
- 	}
- 	fi->counters[FIRQ_CNTR_IO] += 1;
-@@ -1890,7 +1902,7 @@ static int __inject_io(struct kvm *kvm, struct kvm_s390_interrupt_info *inti)
- 	list = &fi->lists[FIRQ_LIST_IO_ISC_0 + isc];
- 	list_add_tail(&inti->list, list);
- 	set_bit(isc_to_irq_type(isc), &fi->pending_irqs);
--	spin_unlock(&fi->lock);
-+	spin_unlock_irqrestore(&fi->lock, flags);
- 	return 0;
- }
- 
-@@ -1966,15 +1978,10 @@ static int __inject_vm(struct kvm *kvm, struct kvm_s390_interrupt_info *inti)
- }
- 
- int kvm_s390_inject_vm(struct kvm *kvm,
--		       struct kvm_s390_interrupt *s390int)
-+		       struct kvm_s390_interrupt *s390int, struct kvm_s390_interrupt_info *inti)
- {
--	struct kvm_s390_interrupt_info *inti;
- 	int rc;
- 
--	inti = kzalloc_obj(*inti, GFP_KERNEL_ACCOUNT);
--	if (!inti)
--		return -ENOMEM;
--
- 	inti->type = s390int->type;
- 	switch (inti->type) {
- 	case KVM_S390_INT_VIRTIO:
-@@ -2003,15 +2010,13 @@ int kvm_s390_inject_vm(struct kvm *kvm,
- 		inti->io.io_int_word = s390int->parm64 & 0x00000000ffffffffull;
- 		break;
- 	default:
--		kfree(inti);
- 		return -EINVAL;
- 	}
- 	trace_kvm_s390_inject_vm(s390int->type, s390int->parm, s390int->parm64,
- 				 2);
- 
- 	rc = __inject_vm(kvm, inti);
--	if (rc)
--		kfree(inti);
-+
- 	return rc;
- }
- 
-@@ -2176,12 +2181,13 @@ void kvm_s390_clear_float_irqs(struct kvm *kvm)
- {
- 	struct kvm_s390_float_interrupt *fi = &kvm->arch.float_int;
- 	int i;
-+	unsigned long flags;
- 
- 	mutex_lock(&kvm->lock);
- 	if (!kvm_s390_pv_is_protected(kvm))
- 		fi->masked_irqs = 0;
- 	mutex_unlock(&kvm->lock);
--	spin_lock(&fi->lock);
-+	spin_lock_irqsave(&fi->lock, flags);
- 	fi->pending_irqs = 0;
- 	memset(&fi->srv_signal, 0, sizeof(fi->srv_signal));
- 	memset(&fi->mchk, 0, sizeof(fi->mchk));
-@@ -2189,7 +2195,7 @@ void kvm_s390_clear_float_irqs(struct kvm *kvm)
- 		clear_irq_list(&fi->lists[i]);
- 	for (i = 0; i < FIRQ_MAX_COUNT; i++)
- 		fi->counters[i] = 0;
--	spin_unlock(&fi->lock);
-+	spin_unlock_irqrestore(&fi->lock, flags);
- 	kvm_s390_gisa_clear(kvm);
- };
- 
-@@ -2204,6 +2210,7 @@ static int get_all_floating_irqs(struct kvm *kvm, u8 __user *usrbuf, u64 len)
- 	int ret = 0;
- 	int n = 0;
- 	int i;
-+	unsigned long flags;
- 
- 	if (len > KVM_S390_FLIC_MAX_BUFFER || len == 0)
- 		return -EINVAL;
-@@ -2235,7 +2242,7 @@ static int get_all_floating_irqs(struct kvm *kvm, u8 __user *usrbuf, u64 len)
- 		}
- 	}
- 	fi = &kvm->arch.float_int;
--	spin_lock(&fi->lock);
-+	spin_lock_irqsave(&fi->lock, flags);
- 	for (i = 0; i < FIRQ_LIST_COUNT; i++) {
- 		list_for_each_entry(inti, &fi->lists[i], list) {
- 			if (n == max_irqs) {
-@@ -2272,7 +2279,7 @@ static int get_all_floating_irqs(struct kvm *kvm, u8 __user *usrbuf, u64 len)
- }
- 
- out:
--	spin_unlock(&fi->lock);
-+	spin_unlock_irqrestore(&fi->lock, flags);
- out_nolock:
- 	if (!ret && n > 0) {
- 		if (copy_to_user(usrbuf, buf, sizeof(struct kvm_s390_irq) * n))
-@@ -2287,6 +2294,7 @@ static int flic_ais_mode_get_all(struct kvm *kvm, struct kvm_device_attr *attr)
- {
- 	struct kvm_s390_float_interrupt *fi = &kvm->arch.float_int;
- 	struct kvm_s390_ais_all ais;
-+	unsigned long flags;
- 
- 	if (attr->attr < sizeof(ais))
- 		return -EINVAL;
-@@ -2294,10 +2302,10 @@ static int flic_ais_mode_get_all(struct kvm *kvm, struct kvm_device_attr *attr)
- 	if (!test_kvm_facility(kvm, 72))
- 		return -EOPNOTSUPP;
- 
--	mutex_lock(&fi->ais_lock);
-+	spin_lock_irqsave(&fi->ais_lock, flags);
- 	ais.simm = fi->simm;
- 	ais.nimm = fi->nimm;
--	mutex_unlock(&fi->ais_lock);
-+	spin_unlock_irqrestore(&fi->ais_lock, flags);
- 
- 	if (copy_to_user((void __user *)attr->addr, &ais, sizeof(ais)))
- 		return -EFAULT;
-@@ -2676,6 +2684,7 @@ static int modify_ais_mode(struct kvm *kvm, struct kvm_device_attr *attr)
- 	struct kvm_s390_float_interrupt *fi = &kvm->arch.float_int;
- 	struct kvm_s390_ais_req req;
- 	int ret = 0;
-+	unsigned long flags;
- 
- 	if (!test_kvm_facility(kvm, 72))
- 		return -EOPNOTSUPP;
-@@ -2692,7 +2701,7 @@ static int modify_ais_mode(struct kvm *kvm, struct kvm_device_attr *attr)
- 				       2 : KVM_S390_AIS_MODE_SINGLE :
- 				       KVM_S390_AIS_MODE_ALL, req.mode);
- 
--	mutex_lock(&fi->ais_lock);
-+	spin_lock_irqsave(&fi->ais_lock, flags);
- 	switch (req.mode) {
- 	case KVM_S390_AIS_MODE_ALL:
- 		fi->simm &= ~AIS_MODE_MASK(req.isc);
-@@ -2705,7 +2714,7 @@ static int modify_ais_mode(struct kvm *kvm, struct kvm_device_attr *attr)
- 	default:
- 		ret = -EINVAL;
- 	}
--	mutex_unlock(&fi->ais_lock);
-+	spin_unlock_irqrestore(&fi->ais_lock, flags);
- 
- 	return ret;
- }
-@@ -2719,25 +2728,41 @@ static int kvm_s390_inject_airq(struct kvm *kvm,
- 		.parm = 0,
- 		.parm64 = isc_to_int_word(adapter->isc),
- 	};
-+	struct kvm_s390_interrupt_info *inti;
-+	unsigned long flags;
-+
- 	int ret = 0;
- 
--	if (!test_kvm_facility(kvm, 72) || !adapter->suppressible)
--		return kvm_s390_inject_vm(kvm, &s390int);
-+	inti = kzalloc_obj(*inti, GFP_KERNEL_ACCOUNT);
-+	if (!inti)
-+		return -ENOMEM;
- 
--	mutex_lock(&fi->ais_lock);
-+	if (!test_kvm_facility(kvm, 72) || !adapter->suppressible) {
-+		ret = kvm_s390_inject_vm(kvm, &s390int, inti);
-+		if (ret)
-+			kfree(inti);
-+		return ret;
-+	}
-+
-+	spin_lock_irqsave(&fi->ais_lock, flags);
- 	if (fi->nimm & AIS_MODE_MASK(adapter->isc)) {
- 		trace_kvm_s390_airq_suppressed(adapter->id, adapter->isc);
--		goto out;
-+		spin_unlock_irqrestore(&fi->ais_lock, flags);
-+		kfree(inti);
-+		return ret;
- 	}
- 
--	ret = kvm_s390_inject_vm(kvm, &s390int);
-+	ret = kvm_s390_inject_vm(kvm, &s390int, inti);
-+
- 	if (!ret && (fi->simm & AIS_MODE_MASK(adapter->isc))) {
- 		fi->nimm |= AIS_MODE_MASK(adapter->isc);
- 		trace_kvm_s390_modify_ais_mode(adapter->isc,
- 					       KVM_S390_AIS_MODE_SINGLE, 2);
- 	}
--out:
--	mutex_unlock(&fi->ais_lock);
-+
-+	spin_unlock_irqrestore(&fi->ais_lock, flags);
-+	if (ret)
-+		kfree(inti);
- 	return ret;
- }
- 
-@@ -2746,6 +2771,8 @@ static int flic_inject_airq(struct kvm *kvm, struct kvm_device_attr *attr)
- 	unsigned int id = attr->attr;
- 	struct s390_io_adapter *adapter = get_io_adapter(kvm, id);
- 
-+	kvm->stat.io_flic_inject_airq++;
-+
- 	if (!adapter)
- 		return -EINVAL;
- 
-@@ -2756,6 +2783,7 @@ static int flic_ais_mode_set_all(struct kvm *kvm, struct kvm_device_attr *attr)
- {
- 	struct kvm_s390_float_interrupt *fi = &kvm->arch.float_int;
- 	struct kvm_s390_ais_all ais;
-+	unsigned long flags;
- 
- 	if (!test_kvm_facility(kvm, 72))
- 		return -EOPNOTSUPP;
-@@ -2763,10 +2791,10 @@ static int flic_ais_mode_set_all(struct kvm *kvm, struct kvm_device_attr *attr)
- 	if (copy_from_user(&ais, (void __user *)attr->addr, sizeof(ais)))
- 		return -EFAULT;
- 
--	mutex_lock(&fi->ais_lock);
-+	spin_lock_irqsave(&fi->ais_lock, flags);
- 	fi->simm = ais.simm;
- 	fi->nimm = ais.nimm;
--	mutex_unlock(&fi->ais_lock);
-+	spin_unlock_irqrestore(&fi->ais_lock, flags);
- 
- 	return 0;
- }
-@@ -2935,6 +2963,7 @@ static int adapter_indicators_set(struct kvm *kvm,
- 		set_bit(bit, map);
- 		spin_unlock_irqrestore(&adapter->maps_lock, flags);
- 	}
-+
- 	spin_lock_irqsave(&adapter->maps_lock, flags);
- 	summary_info = get_map_info(adapter, adapter_int->summary_addr);
- 	if (!summary_info) {
-@@ -2962,6 +2991,44 @@ static int adapter_indicators_set(struct kvm *kvm,
- 	return summary_set ? 0 : 1;
- }
- 
-+static int adapter_indicators_set_fast(struct kvm *kvm,
-+				       struct s390_io_adapter *adapter,
-+				       struct kvm_s390_adapter_int *adapter_int,
-+				       int setbit)
-+{
-+	unsigned long bit;
-+	int summary_set;
-+	struct s390_map_info *ind_info, *summary_info;
-+	void *map;
-+
-+	spin_lock(&adapter->maps_lock);
-+	ind_info = get_map_info(adapter, adapter_int->ind_addr);
-+	if (!ind_info) {
-+		spin_unlock(&adapter->maps_lock);
-+		return -EWOULDBLOCK;
-+	}
-+	map = page_address(ind_info->page);
-+	bit = get_ind_bit(ind_info->addr, adapter_int->ind_offset, adapter->swap);
-+	if (setbit)
-+		set_bit(bit, map);
-+	summary_info = get_map_info(adapter, adapter_int->summary_addr);
-+	if (!summary_info) {
-+		spin_unlock(&adapter->maps_lock);
-+		return -EWOULDBLOCK;
-+	}
-+	map = page_address(summary_info->page);
-+	bit = get_ind_bit(summary_info->addr, adapter_int->summary_offset,
-+			  adapter->swap);
-+	/* If setbit then set summary bit. Else if falling back to the slow path */
-+	/* with setbit==0 then clear the summary bit so the slow path re-injects */
-+	if (setbit)
-+		summary_set = test_and_set_bit(bit, map);
-+	else
-+		summary_set = test_and_clear_bit(bit, map);
-+	spin_unlock(&adapter->maps_lock);
-+	return summary_set ? 0 : 1;
-+}
-+
- /*
-  * < 0 - not injected due to error
-  * = 0 - coalesced, summary indicator already active
-@@ -2974,6 +3041,8 @@ static int set_adapter_int(struct kvm_kernel_irq_routing_entry *e,
- 	int ret;
- 	struct s390_io_adapter *adapter;
- 
-+	kvm->stat.io_set_adapter_int++;
-+
- 	/* We're only interested in the 0->1 transition. */
- 	if (!level)
- 		return 0;
-@@ -3042,7 +3111,6 @@ int kvm_set_routing_entry(struct kvm *kvm,
- 	int idx;
- 
- 	switch (ue->type) {
--	/* we store the userspace addresses instead of the guest addresses */
- 	case KVM_IRQ_ROUTING_S390_ADAPTER:
- 		if (kvm_is_ucontrol(kvm))
- 			return -EINVAL;
-@@ -3632,3 +3700,85 @@ int __init kvm_s390_gib_init(u8 nisc)
- out:
- 	return rc;
- }
-+
-+/*
-+ * kvm_arch_set_irq_inatomic: fast-path for irqfd injection
-+ */
-+int kvm_arch_set_irq_inatomic(struct kvm_kernel_irq_routing_entry *e,
-+			      struct kvm *kvm, int irq_source_id, int level,
-+			      bool line_status)
-+{
-+	int ret, setbit;
-+	struct s390_io_adapter *adapter;
-+	struct kvm_s390_float_interrupt *fi = &kvm->arch.float_int;
-+	struct kvm_s390_interrupt_info *inti;
-+	struct kvm_s390_interrupt s390int = {
-+			.type = KVM_S390_INT_IO(1, 0, 0, 0),
-+			.parm = 0,
-+	};
-+
-+	kvm->stat.io_390_inatomic++;
-+
-+	/* We're only interested in the 0->1 transition. */
-+	if (!level)
-+		return 0;
-+	if (e->type != KVM_IRQ_ROUTING_S390_ADAPTER)
-+		return -EWOULDBLOCK;
-+
-+	adapter = get_io_adapter(kvm, e->adapter.adapter_id);
-+	if (!adapter)
-+		return -EWOULDBLOCK;
-+
-+	s390int.parm64 = isc_to_int_word(adapter->isc);
-+	setbit = 1;
-+	ret = adapter_indicators_set_fast(kvm, adapter, &e->adapter, setbit);
-+	if (ret < 0)
-+		return -EWOULDBLOCK;
-+	if (!ret || adapter->masked) {
-+		kvm->stat.io_390_inatomic_adapter_masked_or_coalesced++;
-+		return 0;
-+	}
-+
-+	inti = kzalloc_obj(*inti, GFP_ATOMIC);
-+	if (!inti) {
-+		setbit = 0;
-+		adapter_indicators_set_fast(kvm, adapter, &e->adapter, setbit);
-+		return -EWOULDBLOCK;
-+	}
-+
-+	if (!test_kvm_facility(kvm, 72) || !adapter->suppressible) {
-+		ret = kvm_s390_inject_vm(kvm, &s390int, inti);
-+		if (ret == 0) {
-+			return ret;
-+		} else {
-+			setbit = 0;
-+			adapter_indicators_set_fast(kvm, adapter, &e->adapter, setbit);
-+			kfree(inti);
-+			return -EWOULDBLOCK;
-+		}
-+	}
-+
-+	spin_lock(&fi->ais_lock);
-+	if (fi->nimm & AIS_MODE_MASK(adapter->isc)) {
-+		trace_kvm_s390_airq_suppressed(adapter->id, adapter->isc);
-+		spin_unlock(&fi->ais_lock);
-+		kfree(inti);
-+		return 0;
-+	}
-+
-+	ret = kvm_s390_inject_vm(kvm, &s390int, inti);
-+	if (!ret && (fi->simm & AIS_MODE_MASK(adapter->isc))) {
-+		fi->nimm |= AIS_MODE_MASK(adapter->isc);
-+		trace_kvm_s390_modify_ais_mode(adapter->isc,
-+					       KVM_S390_AIS_MODE_SINGLE, 2);
-+	} else if (ret) {
-+		spin_unlock(&fi->ais_lock);
-+		setbit = 0;
-+		adapter_indicators_set_fast(kvm, adapter, &e->adapter, setbit);
-+		kfree(inti);
-+		return -EWOULDBLOCK;
-+	}
-+
-+	spin_unlock(&fi->ais_lock);
-+	return 0;
-+}
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 0d39c1375de2..d64eaa572e30 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -70,6 +70,10 @@ const struct kvm_stats_desc kvm_vm_stats_desc[] = {
- 	STATS_DESC_COUNTER(VM, inject_io),
- 	STATS_DESC_COUNTER(VM, io_390_adapter_map),
- 	STATS_DESC_COUNTER(VM, io_390_adapter_unmap),
-+	STATS_DESC_COUNTER(VM, io_390_inatomic),
-+	STATS_DESC_COUNTER(VM, io_flic_inject_airq),
-+	STATS_DESC_COUNTER(VM, io_set_adapter_int),
-+	STATS_DESC_COUNTER(VM, io_390_inatomic_adapter_masked_or_coalesced),
- 	STATS_DESC_COUNTER(VM, inject_float_mchk),
- 	STATS_DESC_COUNTER(VM, inject_pfault_done),
- 	STATS_DESC_COUNTER(VM, inject_service_signal),
-@@ -2851,6 +2855,7 @@ int kvm_arch_vm_ioctl(struct file *filp, unsigned int ioctl, unsigned long arg)
- 	void __user *argp = (void __user *)arg;
- 	struct kvm_device_attr attr;
- 	int r;
-+	struct kvm_s390_interrupt_info *inti;
- 
- 	switch (ioctl) {
- 	case KVM_S390_INTERRUPT: {
-@@ -2859,7 +2864,12 @@ int kvm_arch_vm_ioctl(struct file *filp, unsigned int ioctl, unsigned long arg)
- 		r = -EFAULT;
- 		if (copy_from_user(&s390int, argp, sizeof(s390int)))
- 			break;
--		r = kvm_s390_inject_vm(kvm, &s390int);
-+		inti = kzalloc_obj(*inti, GFP_KERNEL_ACCOUNT);
-+		if (!inti)
-+			return -ENOMEM;
-+		r = kvm_s390_inject_vm(kvm, &s390int, inti);
-+		if (r)
-+			kfree(inti);
- 		break;
- 	}
- 	case KVM_CREATE_IRQCHIP: {
-@@ -3257,7 +3267,7 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
- 		mutex_unlock(&kvm->lock);
- 	}
- 
--	mutex_init(&kvm->arch.float_int.ais_lock);
-+	spin_lock_init(&kvm->arch.float_int.ais_lock);
- 	spin_lock_init(&kvm->arch.float_int.lock);
- 	for (i = 0; i < FIRQ_LIST_COUNT; i++)
- 		INIT_LIST_HEAD(&kvm->arch.float_int.lists[i]);
-@@ -4379,19 +4389,28 @@ int kvm_s390_try_set_tod_clock(struct kvm *kvm, const struct kvm_s390_vm_tod_clo
- }
- 
- static void __kvm_inject_pfault_token(struct kvm_vcpu *vcpu, bool start_token,
--				      unsigned long token)
-+				     unsigned long token)
- {
- 	struct kvm_s390_interrupt inti;
- 	struct kvm_s390_irq irq;
-+	struct kvm_s390_interrupt_info *inti_mem = NULL;
-+	int ret = 0;
- 
- 	if (start_token) {
- 		irq.u.ext.ext_params2 = token;
- 		irq.type = KVM_S390_INT_PFAULT_INIT;
- 		WARN_ON_ONCE(kvm_s390_inject_vcpu(vcpu, &irq));
- 	} else {
-+		inti_mem = kzalloc_obj(*inti_mem, GFP_KERNEL_ACCOUNT);
-+		if (WARN_ON_ONCE(!inti_mem))
-+			return;
-+
- 		inti.type = KVM_S390_INT_PFAULT_DONE;
- 		inti.parm64 = token;
--		WARN_ON_ONCE(kvm_s390_inject_vm(vcpu->kvm, &inti));
-+		ret = kvm_s390_inject_vm(vcpu->kvm, &inti, inti_mem);
-+		if (ret)
-+			kfree(inti_mem);
-+		WARN_ON_ONCE(ret);
- 	}
- }
- 
-diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
-index 7ba885cb6bd1..6d2842fb71a3 100644
---- a/arch/s390/kvm/kvm-s390.h
-+++ b/arch/s390/kvm/kvm-s390.h
-@@ -376,7 +376,8 @@ int __must_check kvm_s390_deliver_pending_interrupts(struct kvm_vcpu *vcpu);
- void kvm_s390_clear_local_irqs(struct kvm_vcpu *vcpu);
- void kvm_s390_clear_float_irqs(struct kvm *kvm);
- int __must_check kvm_s390_inject_vm(struct kvm *kvm,
--				    struct kvm_s390_interrupt *s390int);
-+				    struct kvm_s390_interrupt *s390int,
-+				    struct kvm_s390_interrupt_info *inti);
- int __must_check kvm_s390_inject_vcpu(struct kvm_vcpu *vcpu,
- 				      struct kvm_s390_irq *irq);
- static inline int kvm_s390_inject_prog_irq(struct kvm_vcpu *vcpu,
--- 
-2.54.0
-
+Michael
