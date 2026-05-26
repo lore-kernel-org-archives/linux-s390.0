@@ -1,58 +1,58 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A4DB53112BA;
-	Tue, 26 May 2026 15:22:00 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3FCCB311C1D;
+	Tue, 26 May 2026 15:22:03 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779808922; cv=none; b=FX5SmbdcJlvJQxv+rRE2xy/Y5G3P3F3W2yb/hD2DScEF+RZocRsM1DYEN3HIBzz/oI3nM90Vvp+o67p71YVPjjWS/xjajwbYi6qiIXqq9v0Sfjr7+k/vnKAJQLbFkSO1szIRj1+JsRyl9fBY5PZ7gwLWNh2yPefWmeQsZ7uzh/4=
+	t=1779808924; cv=none; b=iqKnhwNZAL8zNHmVVyCHaY6lPJinAh0vmD7FAIj/u2pIf7lkt/GAuG9AaV3d6ilPSbfvgPE3g3gS/YBQCHdpUSP3KpDLdoOmPKQwwBoEcxMkE316ocFqeMKhAi6AS82VUymjgyJxt+BBpXt3vEmfb0zLE3rqqoSn7RlcvyTB3c4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779808922; c=relaxed/simple;
-	bh=KDUPVVy4LWT4qXP3JW3S0BPesciZhFvkvvRNGKBgiVE=;
+	s=arc-20240116; t=1779808924; c=relaxed/simple;
+	bh=Vehb/t6SCVfzU1bT05V1SwVIcwnemQ6o+FGhRxk1pnM=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=KR+krMzhTo/ktwZTK5psKNrdAnqcyOYa8Y2YmrDt1maBdrjr1GP9/d9w/AVcIhmlFcteW6ahTWX7VaBad4QA0eArRlZ49MpCxkI8tQGdc0h3s6GTiCIQqxIqn8SeLrsz24QFtUkLKF2HiaOUIgeDOCFcKDMu4tsLo5Tihdw/CGk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=AohFGsNb; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version; b=l9Cl9ixoTagmPBcSdMOf2zoSXBchRihsRLDg6FGIOXGN7oI9/E+sV402EL2XZ1ZyY7UshRmXOB2Layi1xpzCwu2/JC7nudRfaRhuq7VAcqLENsfNviSFDadAE1pwl8OhZEDqhhw0R7oVkSyT24IgYLQ8OJTuIZVHNkcm9s7kVQs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Pyspl5Yr; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AohFGsNb"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D09D91F00ADE;
-	Tue, 26 May 2026 15:21:58 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Pyspl5Yr"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3A911F00A3A;
+	Tue, 26 May 2026 15:22:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1779808920;
-	bh=GSGWcrbKUqYCp9pV6zjmEzU+OdWTYrfKAxnLgC4CsfA=;
+	s=k20260515; t=1779808922;
+	bh=dtyam0hhN2xA27ITouHJzp9jxSe25UlhsLT0mi+B6dE=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=AohFGsNbNkhpAJCkx73CLE7JB9mRHjnLrMQkv5wzIccjEhuQ4DOXxoZSoOido6obw
-	 09nPCjsGF7+1wnCTfwXF/OdMfXfaQl94w/p4RJ3PzfGm5KWi/VZcklY3vu+DT/fEIn
-	 pJGh1Sraa+qNe18MNy/zvN6ZgvUZuFMc7uk1qJXWFSWKimxQN2qq3AAS2RMo+qwuc/
-	 v8jSkuW8vQeAReAm8empVzDz9YW4aSq934UqrExjZGqmqqstAwv6qcS3I6Cy3j/W87
-	 OGODHN5caLE/ueWJ8W7S/sl5uPVKoasNr7JTC0kFLr9mRIB5N3trRl/AuhwcQLGgUn
-	 ThQdqrVhx6BfQ==
-Received: from phl-compute-01.internal (phl-compute-01.internal [10.202.2.41])
-	by mailfauth.phl.internal (Postfix) with ESMTP id 3427BF4006B;
-	Tue, 26 May 2026 11:21:58 -0400 (EDT)
+	b=Pyspl5YrsdYhs1d1/72no/un+M8h/0hSzyxnuc/M+qYRGzRUPARxvBctMR8XE5pEQ
+	 hdcYisjmsLr3aiDgZU/qGhIz9btMo/8i47tOcaHkuOQbERhsTGVsIxgB+8SzdIMqed
+	 mqoERXapqquoEyjKXvXXg+NOlPhLfmXl46F+SKXTosxJQ/1I676Pxvtbqs+yDktBq1
+	 0WcHQVJVU+l/7QkfAgjCqp7t6qAxZAui4JDpMlAWLpcAlfcaMzr0S+b5pkiQYOxuNZ
+	 3tmrzkXSEWYgH3JEc0z7WbNcTbYiw+Y9uUsbEsrzMoegd5IU4tT2ekzqKfKge3Ucpk
+	 EGgtFP4UquLPA==
+Received: from phl-compute-06.internal (phl-compute-06.internal [10.202.2.46])
+	by mailfauth.phl.internal (Postfix) with ESMTP id 21ACAF40076;
+	Tue, 26 May 2026 11:22:00 -0400 (EDT)
 Received: from phl-frontend-03 ([10.202.2.162])
-  by phl-compute-01.internal (MEProxy); Tue, 26 May 2026 11:21:58 -0400
-X-ME-Sender: <xms:lroVaqFeNWnh8tL3TJJl2VqvkKpMwC68mOjivc3JrddrEwrMtB1gow>
-    <xme:lroVajNnDDR-qG4FaA9lteWPHomxdnNkNb_7a-UZYhEeD1f841LWdOUSQBFOBab8T
-    -mdw8sskflOqPMYjeotcgL767b2YabbfB35avbw1czXSvMMu2Qstw>
-X-ME-Received: <xmr:lroVaqHbcg4UAMPjFhc_wiCOZbzQAdQlB74XUu2FkkLYvgcZSzCWCrakvaaW2udd1U4Sz0R3M9ho2uXVl5YIcXmXxucXYo6J>
+  by phl-compute-06.internal (MEProxy); Tue, 26 May 2026 11:22:00 -0400
+X-ME-Sender: <xms:mLoVamSRk-bQJzpXsXFePxe1L7E1f_dNuQoQzB1-SwJQFNurPV5prQ>
+    <xme:mLoVavw57Zlgsq_PeyFnaZ_rWCDOHE0tfKDHI-nNEhxHVOlEautNtE0Ypc0qxmCet
+    s7iGQjQN2SR33TE6601Bahsxj8dnt36R3hbRgPfLUfHK77KqlztxAk>
+X-ME-Received: <xmr:mLoVai5Pi6VdnjEaZ7Yw07u3qNtfvUsiGATQ0fF3vy0t27iN2iWvjjllZdIj5TwafH9Twdxk4M6EH484wAilCkzNYT3ryDJv>
 X-ME-Proxy-Cause: dmFkZTGukvwILOOvmar/YpzpbGxcThya1huxzJh8wPsxZqy8c45YkWNCoU6I+5YwKn52tQ
     FimljOlgnke1vtXjpOlEIIzqmHsNns/ZJmR5LvOMJZ1ZAxr1Wodn13Yfg5DhdKPAFkkKdi
     S/I7TyNwTX0Y8RnSZ8QdIy1Jqo5XXbQ7RrhyzAa5WGdgm6MjwoUKqKh3Uy0nLCbaeSbo/A
     de7q+7hNeF+MaWmtgdzUE1cHx21KJc4LOZtluly95DY4Z5RWj4II3/QyKmUNnRJfzsX0RM
-    0qJoKWNtX92mkNHkt//vUyp2c9tsMyTX+3jK+p4XRlCmImR6eKHhgKraqRzLlyyuiALLW5
-    QFyFIqSAxJHnbrYToBKdzL82BpAr+8bWoD+3qMnuaWUYdSZfNxfvBAkYhp4C50O/cdPipd
-    /RZAkYynwWdENbzrnJZi4S479MMLK+LnzHe5Gc+LMlj8nlCNK/9V7QR15JInfnpR1DiRQw
-    GOEDzl5YSvOwpObus0rabT0wDZfJBPPw/ShrRKn1W9besTrVM9qgAhBUDsC8nQXWLeMIbW
-    nPFpkcttnGqTjGBT39WBm2ftjItRCj42y27aPxOHssdvwgifRgCi/IzR1gzc6a6/844oUy
-    wZ+qx5+E5tT9FEwMTk62Al/6uYHq1jX2IYD+F3NP5O1mOn+SSKb/haxtBKxQ
-X-ME-Proxy: <xmx:lroVansIuj_YiZiHU-iGTuF5HKiwGNVQbVScNywpxO_jew1TtxSrOw>
-    <xmx:lroVam8LIgHFvk7RerGv0LNQp-2e54rn9O9Pb3KVVVPUlK5BmeTeaw>
-    <xmx:lroVajKODkcoLeKvpbgtQcIBqUisBHKq4R6dZ6q7-Tg5PnzXZInrWQ>
-    <xmx:lroVaoCLTiZlWMS6nq_XZ-sLgwGD6pS2LlUnoTonRSXHy6S4hS_A_A>
-    <xmx:lroVav4QT22XLfF9lysn3Dq-fJForxzPsfzsdk3BQJOKPohlkvlb9VjT>
+    0qJoKWNtX92mkNHkt//vUyp2c9tsMyTX+3jK+p4XRlCmImR6eKHhgKraqRzLlyyuiALLDo
+    STtF9535pUY4wHIg6gpJ/rAGyCaiYTBD2ISq6To1jwGxQAVpTNMz84wZeOWfzMeQhQ2RQB
+    678BPBLOH2NMNsAN9ZHybV/Tjbykr/4yPX681FrlZ+mZimg1rXq+VxOFA8NVsAN97EKxep
+    hgvVX0pDucDb8cqVlpB+xiNkY4QAUqE2OFha9TLxGKhMcU8Rk1/cqMzB1NkztwFeSGWlrq
+    NTEiCLkpqtxCLiBuVQJmtJv07Wf7+KVuuL4jlS+x1hallNQC9+SFMk12SZaEyFmRp9SE0n
+    WTzleHY6WMhg4lX8Hrly3CUAc08r9ykPyyLadBnkMe3ETteo//FDSV2oNCrA
+X-ME-Proxy: <xmx:mLoVajyBviIAKS_wP7F8wzfoxsxFbBBAz8GniKV4XaRFDzk5tyhZUw>
+    <xmx:mLoVanYH-IEBVA7oviU2EMpEVO-Wvd7LPmCgpKQPxm0XBdEnEIqZPg>
+    <xmx:mLoVaiwQKzPlWUEeoo_D35OcI2pv6QRJ2YVMUDI5RbVBHXRB3B_Wpw>
+    <xmx:mLoVasxXV8ozipbdcJfPNB6b6l7DrIuk4ewA_eoRUQPW1VNscTC-hw>
+    <xmx:mLoVasufF-HeMFK2xu_QYiBiPMFxADCgBO65x_FdPN3NGQ638MeXbdNb>
 Feedback-ID: i8dbe485b:Fastmail
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
- 26 May 2026 11:21:57 -0400 (EDT)
+ 26 May 2026 11:21:59 -0400 (EDT)
 From: Boqun Feng <boqun@kernel.org>
 To: Peter Zijlstra <peterz@infradead.org>
 Cc: Catalin Marinas <catalin.marinas@arm.com>,	Will Deacon <will@kernel.org>,
@@ -103,9 +103,9 @@ Cc: Catalin Marinas <catalin.marinas@arm.com>,	Will Deacon <will@kernel.org>,
 	=?UTF-8?q?Onur=20=C3=96zkan?= <work@onurozkan.dev>,
 	Daniel Almeida <daniel.almeida@collabora.com>,
 	Boqun Feng <boqun.feng@gmail.com>
-Subject: [PATCH v2 02/12] preempt: Introduce HARDIRQ_DISABLE_BITS
-Date: Tue, 26 May 2026 08:21:38 -0700
-Message-ID: <20260526152148.30514-3-boqun@kernel.org>
+Subject: [PATCH v2 03/12] preempt: Introduce __preempt_count_{sub, add}_return()
+Date: Tue, 26 May 2026 08:21:39 -0700
+Message-ID: <20260526152148.30514-4-boqun@kernel.org>
 X-Mailer: git-send-email 2.50.1
 In-Reply-To: <20260526152148.30514-1-boqun@kernel.org>
 References: <20260526152148.30514-1-boqun@kernel.org>
@@ -119,100 +119,132 @@ Content-Transfer-Encoding: 8bit
 
 From: Boqun Feng <boqun.feng@gmail.com>
 
-In order to support preempt_disable()-like interrupt disabling, that is,
-using part of preempt_count() to track interrupt disabling nested level,
-change the preempt_count() layout to contain 8-bit HARDIRQ_DISABLE
-count.
+In order to use preempt_count() to tracking the interrupt disable
+nesting level, __preempt_count_{add,sub}_return() are introduced, as
+their name suggest, these primitives return the new value of the
+preempt_count() after changing it. The following example shows the usage
+of it in local_interrupt_disable():
+
+	// increase the HARDIRQ_DISABLE bit
+	new_count = __preempt_count_add_return(HARDIRQ_DISABLE_OFFSET);
+
+	// if it's the first-time increment, then disable the interrupt
+	// at hardware level.
+	if (new_count & HARDIRQ_DISABLE_MASK == HARDIRQ_DISABLE_OFFSET) {
+		local_irq_save(flags);
+		raw_cpu_write(local_interrupt_disable_state.flags, flags);
+	}
+
+Having these primitives will avoid a read of preempt_count() after
+changing preempt_count() on certain architectures.
 
 Signed-off-by: Boqun Feng <boqun.feng@gmail.com>
-Signed-off-by: Lyude Paul <lyude@redhat.com>
+Acked-by: Heiko Carstens <hca@linux.ibm.com> # s390
 Signed-off-by: Boqun Feng <boqun@kernel.org>
-Link: https://patch.msgid.link/20260121223933.1568682-2-lyude@redhat.com
+Link: https://patch.msgid.link/20260121223933.1568682-4-lyude@redhat.com
 ---
- include/linux/preempt.h                        | 16 +++++++++++-----
- tools/testing/selftests/bpf/bpf_experimental.h |  5 ++++-
- 2 files changed, 15 insertions(+), 6 deletions(-)
+ arch/arm64/include/asm/preempt.h | 18 ++++++++++++++++++
+ arch/s390/include/asm/preempt.h  | 10 ++++++++++
+ arch/x86/include/asm/preempt.h   | 10 ++++++++++
+ include/asm-generic/preempt.h    | 14 ++++++++++++++
+ 4 files changed, 52 insertions(+)
 
-diff --git a/include/linux/preempt.h b/include/linux/preempt.h
-index 586f96688325..e2d3079d3f5f 100644
---- a/include/linux/preempt.h
-+++ b/include/linux/preempt.h
-@@ -17,8 +17,9 @@
-  *
-  * - bits 0-7 are the preemption count (max preemption depth: 256)
-  * - bits 8-15 are the softirq count (max # of softirqs: 256)
-- * - bits 16-19 are the hardirq count (max # of hardirqs: 16)
-- * - bit 20 is the NMI flag (no nesting count, tracked separately)
-+ * - bits 16-23 are the hardirq disable count (max # of hardirq disable: 256)
-+ * - bits 24-27 are the hardirq count (max # of hardirqs: 16)
-+ * - bit 28 is the NMI flag (no nesting count, tracked separately)
-  *
-  * The hardirq count could in theory be the same as the number of
-  * interrupts in the system, but we run all interrupt handlers with
-@@ -31,29 +32,34 @@
-  *
-  *         PREEMPT_MASK:	0x000000ff
-  *         SOFTIRQ_MASK:	0x0000ff00
-- *         HARDIRQ_MASK:	0x000f0000
-- *             NMI_MASK:	0x00100000
-+ * HARDIRQ_DISABLE_MASK:	0x00ff0000
-+ *         HARDIRQ_MASK:	0x0f000000
-+ *             NMI_MASK:	0x10000000
-  * PREEMPT_NEED_RESCHED:	0x80000000
-  */
- #define PREEMPT_BITS	8
- #define SOFTIRQ_BITS	8
-+#define HARDIRQ_DISABLE_BITS	8
- #define HARDIRQ_BITS	4
- #define NMI_BITS	1
+diff --git a/arch/arm64/include/asm/preempt.h b/arch/arm64/include/asm/preempt.h
+index 932ea4b62042..0dd8221d1bef 100644
+--- a/arch/arm64/include/asm/preempt.h
++++ b/arch/arm64/include/asm/preempt.h
+@@ -55,6 +55,24 @@ static inline void __preempt_count_sub(int val)
+ 	WRITE_ONCE(current_thread_info()->preempt.count, pc);
+ }
  
- #define PREEMPT_SHIFT	0
- #define SOFTIRQ_SHIFT	(PREEMPT_SHIFT + PREEMPT_BITS)
--#define HARDIRQ_SHIFT	(SOFTIRQ_SHIFT + SOFTIRQ_BITS)
-+#define HARDIRQ_DISABLE_SHIFT	(SOFTIRQ_SHIFT + SOFTIRQ_BITS)
-+#define HARDIRQ_SHIFT	(HARDIRQ_DISABLE_SHIFT + HARDIRQ_DISABLE_BITS)
- #define NMI_SHIFT	(HARDIRQ_SHIFT + HARDIRQ_BITS)
++static inline int __preempt_count_add_return(int val)
++{
++	u32 pc = READ_ONCE(current_thread_info()->preempt.count);
++	pc += val;
++	WRITE_ONCE(current_thread_info()->preempt.count, pc);
++
++	return pc;
++}
++
++static inline int __preempt_count_sub_return(int val)
++{
++	u32 pc = READ_ONCE(current_thread_info()->preempt.count);
++	pc -= val;
++	WRITE_ONCE(current_thread_info()->preempt.count, pc);
++
++	return pc;
++}
++
+ static inline bool __preempt_count_dec_and_test(void)
+ {
+ 	struct thread_info *ti = current_thread_info();
+diff --git a/arch/s390/include/asm/preempt.h b/arch/s390/include/asm/preempt.h
+index 6e5821bb047e..0a25d4648b4c 100644
+--- a/arch/s390/include/asm/preempt.h
++++ b/arch/s390/include/asm/preempt.h
+@@ -139,6 +139,16 @@ static __always_inline bool should_resched(int preempt_offset)
+ 	return unlikely(READ_ONCE(get_lowcore()->preempt_count) == preempt_offset);
+ }
  
- #define __IRQ_MASK(x)	((1UL << (x))-1)
++static __always_inline int __preempt_count_add_return(int val)
++{
++	return val + __atomic_add(val, &get_lowcore()->preempt_count);
++}
++
++static __always_inline int __preempt_count_sub_return(int val)
++{
++	return __preempt_count_add_return(-val);
++}
++
+ #define init_task_preempt_count(p)	do { } while (0)
+ /* Deferred to CPU bringup time */
+ #define init_idle_preempt_count(p, cpu)	do { } while (0)
+diff --git a/arch/x86/include/asm/preempt.h b/arch/x86/include/asm/preempt.h
+index 578441db09f0..1220656f3370 100644
+--- a/arch/x86/include/asm/preempt.h
++++ b/arch/x86/include/asm/preempt.h
+@@ -85,6 +85,16 @@ static __always_inline void __preempt_count_sub(int val)
+ 	raw_cpu_add_4(__preempt_count, -val);
+ }
  
- #define PREEMPT_MASK	(__IRQ_MASK(PREEMPT_BITS) << PREEMPT_SHIFT)
- #define SOFTIRQ_MASK	(__IRQ_MASK(SOFTIRQ_BITS) << SOFTIRQ_SHIFT)
-+#define HARDIRQ_DISABLE_MASK	(__IRQ_MASK(HARDIRQ_DISABLE_BITS) << HARDIRQ_DISABLE_SHIFT)
- #define HARDIRQ_MASK	(__IRQ_MASK(HARDIRQ_BITS) << HARDIRQ_SHIFT)
- #define NMI_MASK	(__IRQ_MASK(NMI_BITS)     << NMI_SHIFT)
++static __always_inline int __preempt_count_add_return(int val)
++{
++	return raw_cpu_add_return_4(__preempt_count, val);
++}
++
++static __always_inline int __preempt_count_sub_return(int val)
++{
++	return raw_cpu_add_return_4(__preempt_count, -val);
++}
++
+ /*
+  * Because we keep PREEMPT_NEED_RESCHED set when we do _not_ need to reschedule
+  * a decrement which hits zero means we have no preempt_count and should
+diff --git a/include/asm-generic/preempt.h b/include/asm-generic/preempt.h
+index 51f8f3881523..c8683c046615 100644
+--- a/include/asm-generic/preempt.h
++++ b/include/asm-generic/preempt.h
+@@ -59,6 +59,20 @@ static __always_inline void __preempt_count_sub(int val)
+ 	*preempt_count_ptr() -= val;
+ }
  
- #define PREEMPT_OFFSET	(1UL << PREEMPT_SHIFT)
- #define SOFTIRQ_OFFSET	(1UL << SOFTIRQ_SHIFT)
-+#define HARDIRQ_DISABLE_OFFSET	(1UL << HARDIRQ_DISABLE_SHIFT)
- #define HARDIRQ_OFFSET	(1UL << HARDIRQ_SHIFT)
- #define NMI_OFFSET	(1UL << NMI_SHIFT)
- 
-diff --git a/tools/testing/selftests/bpf/bpf_experimental.h b/tools/testing/selftests/bpf/bpf_experimental.h
-index 2d4256ff471f..a811b080db02 100644
---- a/tools/testing/selftests/bpf/bpf_experimental.h
-+++ b/tools/testing/selftests/bpf/bpf_experimental.h
-@@ -448,17 +448,20 @@ extern int bpf_cgroup_read_xattr(struct cgroup *cgroup, const char *name__str,
- 
- #define PREEMPT_BITS	8
- #define SOFTIRQ_BITS	8
-+#define HARDIRQ_DISABLE_BITS	8
- #define HARDIRQ_BITS	4
- #define NMI_BITS	1
- 
- #define PREEMPT_SHIFT	0
- #define SOFTIRQ_SHIFT	(PREEMPT_SHIFT + PREEMPT_BITS)
--#define HARDIRQ_SHIFT	(SOFTIRQ_SHIFT + SOFTIRQ_BITS)
-+#define HARDIRQ_DISABLE_SHIFT	(SOFTIRQ_SHIFT + SOFTIRQ_BITS)
-+#define HARDIRQ_SHIFT	(HARDIRQ_DISABLE_SHIFT + HARDIRQ_DISABLE_BITS)
- #define NMI_SHIFT	(HARDIRQ_SHIFT + HARDIRQ_BITS)
- 
- #define __IRQ_MASK(x)	((1UL << (x))-1)
- 
- #define SOFTIRQ_MASK	(__IRQ_MASK(SOFTIRQ_BITS) << SOFTIRQ_SHIFT)
-+#define HARDIRQ_DISABLE_MASK	(__IRQ_MASK(HARDIRQ_DISABLE_BITS) << HARDIRQ_DISABLE_SHIFT)
- #define HARDIRQ_MASK	(__IRQ_MASK(HARDIRQ_BITS) << HARDIRQ_SHIFT)
- #define NMI_MASK	(__IRQ_MASK(NMI_BITS)     << NMI_SHIFT)
- 
++static __always_inline int __preempt_count_add_return(int val)
++{
++	*preempt_count_ptr() += val;
++
++	return *preempt_count_ptr();
++}
++
++static __always_inline int __preempt_count_sub_return(int val)
++{
++	*preempt_count_ptr() -= val;
++
++	return *preempt_count_ptr();
++}
++
+ static __always_inline bool __preempt_count_dec_and_test(void)
+ {
+ 	/*
 -- 
 2.50.1 (Apple Git-155)
 
