@@ -1,96 +1,86 @@
-Received: from mail.alien8.de (mail.alien8.de [65.109.113.108])
+Received: from gentwo.org (gentwo.org [62.72.0.81])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DDB4246AF25;
-	Wed, 27 May 2026 18:16:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=65.109.113.108
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A2A7B364044;
+	Wed, 27 May 2026 19:09:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=62.72.0.81
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779905787; cv=none; b=DueYXlfNBgC0uVDfzgfzwjxmwhG+fWo8R24N3p2RB00/2zR1XRPbU3oob8GqistCu9MzNGDz5WaQshPqs2+7VQ4HdEqF9N42ddt+Bs3x0N26RZShvXRvE/UZhHg26Wn4tgF4TBowtZb+p5AiSJooB8oMj0WkG6Gjyx8IX9N8XVA=
+	t=1779908988; cv=none; b=Rc9D6AIEx49fsc27V50SI2dEicdSvaAOvLKSeXGszHYVB6BcSnXJBOGf+LhkB3h8B9TqHYMvmnembyAeC7IAy1BFOrJkeJ9P6VmrHVUidGeH+xC5i9L2cjp+sHRtyym4xqbtrr5bWH7WshLkbWFxgUrLn8FX0pFiD2yTFmCrto0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779905787; c=relaxed/simple;
-	bh=1VT4vh1CF0YV6Dj6+BM41l9UxaTUWIN/MOLzryPXFf4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=prI0kI3MQVBY9G3yop7zRHU9nWnVHjT0GcUsiAXTJc8x9b1YoI5UTUSJKnp1gQSnyzKh8a+1ZLieEFvdxBb9isK4ZkY+bUPpPPoDJOUhbZegEjDTz/vat8dZRdWBelGfHVaMG4pIl8cKT1w9CSOKUtKEm0IocqKRIGtDc+bxXas=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=alien8.de; spf=pass smtp.mailfrom=alien8.de; dkim=pass (4096-bit key) header.d=alien8.de header.i=@alien8.de header.b=BSyfa/0G; arc=none smtp.client-ip=65.109.113.108
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=alien8.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=alien8.de
+	s=arc-20240116; t=1779908988; c=relaxed/simple;
+	bh=DSMCJR6Zd1R2Z0r8q8ps2jvA+/AS8t4dZSXSYBFqwo0=;
+	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
+	 MIME-Version:Content-Type; b=XAI7m/9Ht3YAayANI8AGsna1GAE1Toet4i4UL97Pi0Mk/ASOPgFc1GjMDFy7renQck5yb2hWSXTRyCXesM3aLP2ijxg2mIPFSCBPALdR1UlIgs1a7fE1ZMjp7QF+LHyoUMUp9mjY30JtirAJwctZYrsvzWHbC2nfJyxbYlUtvkc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=gentwo.org; spf=pass smtp.mailfrom=gentwo.org; dkim=pass (1024-bit key) header.d=gentwo.org header.i=@gentwo.org header.b=IRFmmZWI; arc=none smtp.client-ip=62.72.0.81
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=gentwo.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gentwo.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (4096-bit key) header.d=alien8.de header.i=@alien8.de header.b="BSyfa/0G"
-Received: from localhost (localhost.localdomain [127.0.0.1])
-	by mail.alien8.de (SuperMail on ZX Spectrum 128k) with ESMTP id AFB0B40E01B5;
-	Wed, 27 May 2026 18:16:22 +0000 (UTC)
-X-Virus-Scanned: Debian amavisd-new at mail.alien8.de
-Authentication-Results: mail.alien8.de (amavisd-new); dkim=pass (4096-bit key)
-	header.d=alien8.de
-Received: from mail.alien8.de ([127.0.0.1])
-	by localhost (mail.alien8.de [127.0.0.1]) (amavisd-new, port 10026)
-	with ESMTP id hOVssZXizJI1; Wed, 27 May 2026 18:16:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=alien8;
-	t=1779905772; bh=yKtFY4BBYMPRlzCIJJQtbW5x/y0DZW6pYUq+N5xMMmU=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=BSyfa/0GmQmX7Oe2vHTD+nbiGKxsP0fxObUh9NlRN+UHJXUPOJ3yd/0nydBIT9yCf
-	 pCR3EocFI14rWJT4k+n1HljCFvorak7nDVDyU2S7ucKOyUCPVd6jLVyfxZefXMz070
-	 a+mMn2YRegoVBuE7qbIb2qaquDBnDh5byKQvsLttgNE9xdAfhrg88R4UdIQVUaCSqg
-	 JfiCj3Jd+6AImBQHRBlIBx/52nnzWsU+3vzxtGW517fcKoh0DxEtqTd3STS3T1tykN
-	 j0pcE+Zcqc+r3gTkadjgJaWDYea6f/aUn+Fvw2vouAeS4CCT6+kGyKgv885YAr7dCd
-	 YxHlyYOzcDYSZVBwFJwotFPaNFJ6VTT/CJemzYjIgt7ZwHxqHaewpP/Jn1AYWSD2BI
-	 fSfdj1h1l2pSliLhyA183HiVEvtEz5zHuSawQ0NaaZP7S3tUNLzM0KBcZUpnhOwXGO
-	 uJwRhAn0sAI7G5JelmOgn4Txtqpkn2rXz66NBF3Nmg9vI5A/gcH0LdSsKv3yaY7dnT
-	 ds/fIx6K/yI0ABhJxtqbmJ4WxM47LUo0XAVLdeBxb8R65K/G3iCP4ZzTvEUUg4/UsB
-	 k9eWl+aoHEuKDH6sD0iPA7m41OQ1cbbfTjvZoGFC5aT4HS45feFtPF25igyXJRH7Es
-	 mjsWNqk1Q0OcuQoAKpE4LrZg=
-Received: from stx.tnic (unknown [IPv6:2600:1700:38ca:c00:b8a3:f58e:8829:9ca6])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (P-256) server-signature ECDSA (P-256) server-digest SHA256)
-	(No client certificate requested)
-	by mail.alien8.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id E9F3740E00BA;
-	Wed, 27 May 2026 18:15:51 +0000 (UTC)
-Date: Wed, 27 May 2026 11:15:49 -0700
-From: Borislav Petkov <bp@alien8.de>
-To: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: Christoph Hellwig <hch@infradead.org>,
-	"T.J. Mercier" <tjmercier@google.com>, maddy@linux.ibm.com,
-	mpe@ellerman.id.au, npiggin@gmail.com, chleroy@kernel.org,
-	linuxppc-dev@lists.ozlabs.org, mripard@kernel.org,
-	sumit.semwal@linaro.org, lkp@intel.com,
-	linux-kernel@vger.kernel.org, iommu@lists.linux.dev,
-	linux-mm@kvack.org, agordeev@linux.ibm.com,
-	gerald.schaefer@linux.ibm.com, linux-s390@vger.kernel.org,
-	Dan Williams <djbw@kernel.org>,
-	Tom Lendacky <thomas.lendacky@amd.com>, x86@kernel.org
-Subject: Re: [PATCH] powerpc: Export set_memory_encrypted and
- set_memory_decrypted
-Message-ID: <20260527181549.GBahc01Xflm2yo5OqI@fat_crate.local>
-References: <20260522225853.878411-1-tjmercier@google.com>
- <ahPqbfH54R3JJyaV@infradead.org>
- <20260527160716.GN2487554@ziepe.ca>
+	dkim=pass (1024-bit key) header.d=gentwo.org header.i=@gentwo.org header.b="IRFmmZWI"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gentwo.org;
+	s=default; t=1779908986;
+	bh=DSMCJR6Zd1R2Z0r8q8ps2jvA+/AS8t4dZSXSYBFqwo0=;
+	h=Date:From:To:cc:Subject:In-Reply-To:References:From;
+	b=IRFmmZWIoQUL6BbmuCTjfMXdOOk2y5dHLG0WS+H8XlTcTDGQk3ISmFkUmeRp0hf1K
+	 w5XZMdUG2gx263KojI4IX3345hmHwCMdxPLgWQrrL0K3xe2/zi/E9wfNz9FnhPuahA
+	 wtTg2FZiu6mtt0xwjDeZh4wjjioxeQ68F0C4tshU=
+Received: by gentwo.org (Postfix, from userid 1003)
+	id E3165402E4; Wed, 27 May 2026 12:09:46 -0700 (PDT)
+Received: from localhost (localhost [127.0.0.1])
+	by gentwo.org (Postfix) with ESMTP id E1E934014B;
+	Wed, 27 May 2026 12:09:46 -0700 (PDT)
+Date: Wed, 27 May 2026 12:09:46 -0700 (PDT)
+From: "Christoph Lameter (Ampere)" <cl@gentwo.org>
+To: Heiko Carstens <hca@linux.ibm.com>
+cc: Yang Shi <yang@os.amperecomputing.com>, 
+    David Laight <david.laight.linux@gmail.com>, 
+    Alexander Gordeev <agordeev@linux.ibm.com>, 
+    Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+    Christian Borntraeger <borntraeger@linux.ibm.com>, 
+    Juergen Christ <jchrist@linux.ibm.com>, 
+    Peter Zijlstra <peterz@infradead.org>, 
+    Shrikanth Hegde <sshegde@linux.ibm.com>, linux-kernel@vger.kernel.org, 
+    linux-s390@vger.kernel.org
+Subject: Re: [PATCH v3 0/9] s390: Improve this_cpu operations
+In-Reply-To: <20260522091805.18098A5c-hca@linux.ibm.com>
+Message-ID: <f417b97c-e321-6fe7-3a7b-a3a71b16f27b@gentwo.org>
+References: <20260520092243.264847-1-hca@linux.ibm.com> <9d503c6f-5641-4b28-998e-01e38b3622a9@os.amperecomputing.com> <20260520233409.0683f595@pumpkin> <d8e61923-2e0b-422c-b2f6-5ccedf3852bb@os.amperecomputing.com> <20260521103742.9603C8c-hca@linux.ibm.com>
+ <5158d4e8-19a7-4f60-b2fd-bc6bab22baf0@os.amperecomputing.com> <20260522091805.18098A5c-hca@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20260527160716.GN2487554@ziepe.ca>
+Content-Type: text/plain; charset=US-ASCII
 
-On Wed, May 27, 2026 at 01:07:16PM -0300, Jason Gunthorpe wrote:
-> > Setting memory decrypted is a dangerous operations and should only
-> > be available to core code.  We should have various allocators for
-> > decrypted code, but not export the functionality to random code.
-> 
-> At the very least an EXPORT_SYMBOL_NS.
-> 
-> Looks like there are about 3 modules using it already..
+On Fri, 22 May 2026, Heiko Carstens wrote:
 
-Looks like more to me...
+> Also with the current proposal I only did some quick micro benchmarks,
+> which resulted in 0-1% improvement, which is in the expected range.
+>
+> It is amazing to see the performance improvements you see on arm64, however
+> I believe that is mainly because of the large amount of code which is
+> generated by the arm64 implementations of the preempt primitives
+> __preempt_count_add() and __preempt_count_dec_and_test().
 
-In any case, we exported them back then for some framebuffer things:
+The code is generated if you have no arch specific per cpu mechanism and
+preemption must be supported. We have now the situation that we cannot
+switch off preemption support anymore.
 
-95cf9264d5f3 ("x86, drm, fbdev: Do not specify encrypted memory for video mappings")
+It seem that S390 has this mechanism in a small way and therefore can
+avoid the preempt enable/disable.
 
--- 
-Regards/Gruss,
-    Boris.
+It is not the quantity of code here. The preempt enable/disable can only
+be avoided if there is a single instruction doing the per cpu operation. A
+single instruction cannot be interupted and therefore is preemption safe.
 
-https://people.kernel.org/tglx/notes-about-netiquette
+
+> That's a big difference to s390: for both primitives the result is a single
+> instruction.
+
+Ok then you can already use single instructions like x86 and will not have
+preempt enable/disable overhead.
+
+I am not sure what David Laight's code is supposed to do. Seems weird to
+me.
+
