@@ -1,84 +1,96 @@
-Received: from mail-qk1-f173.google.com (mail-qk1-f173.google.com [209.85.222.173])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3F0D23E3DA4
-	for <linux-s390@vger.kernel.org>; Wed, 27 May 2026 16:07:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7591B3DD531;
+	Wed, 27 May 2026 16:18:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779898039; cv=none; b=akJl3l04xdKRV/mgkSHW7bJvwAeUZiUbj84lCJSCjNgohFYccp6sBLPqIH5PgdOwKpfwzUB1I7ReGBaxrKPQpwPxS4Ol90z5YrJuVTNn1N1QQNA4xYhxmIr+/iv4Dxxrc9lg53E4pH2+5s/KaWDIUbS6mXoMMvFgEqm7tJag0Gw=
+	t=1779898737; cv=none; b=HRtYHrudCKUbUvgb/XyjjzaipNFLEyFJAtlikFhJgENqXTM1Pf4XAGbzVFjCNNGPW9pS3dzUGLgaRDWW9sCuULtrCIHEpxO+gPeOfcS7cOo/r5RBGjPYx7HOr01eIgmOKIfGpzWPMA5AxwzIVeHvl1h7ozHd3TPzjz2jZOTu5R0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779898039; c=relaxed/simple;
-	bh=aval9P+49I+gSSuUWbQmWVLEEDNUMRnbLgYtSiXlBo4=;
+	s=arc-20240116; t=1779898737; c=relaxed/simple;
+	bh=4DAyd/GzqcemDK6zg4iwqVWuOPppTjZluFU8wqRNiKo=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Nk0QBJmDHqi+yx6/5CqxavXsR3Hww+uyABwRd39CP6THQJ6fTG7uWpwxNzY8JfnGGVfhjHLTl+MvJXNMmrOylyGfQSufpCwNNqPtsiO2K3FUv4Hk4uCjbIEACItOq5qBZFAZsS9K3RaBY8FxxNstCkPrwcsUSCa7crcV5Hw6+4k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca; spf=pass smtp.mailfrom=ziepe.ca; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=h2tiAGEq; arc=none smtp.client-ip=209.85.222.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
+	 Content-Type:Content-Disposition:In-Reply-To; b=kAR3ytot0AQ6QU2TMYuMFYNsKwT0loyIm+nC3KaL7GvCaf10jvicyDy0/FspqdALN4SUcwDUUe8AlB/vVX6Qj++/OcJxDCZjKjx6pCltJu85lmsx+B+mqvHijJCBvhD0ZKPiNqjVnXfEbrQaoBfdFflHjGmLxpuSnzXAFOD/CJo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=Zq4W9XPv; arc=none smtp.client-ip=90.155.50.34
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="h2tiAGEq"
-Received: by mail-qk1-f173.google.com with SMTP id af79cd13be357-914bf8abeaeso421532385a.0
-        for <linux-s390@vger.kernel.org>; Wed, 27 May 2026 09:07:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google; t=1779898037; x=1780502837; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=STKe203GtXAmunHIdMeMAq0fDblU9FAY1byc40VlLXM=;
-        b=h2tiAGEqPW7XLlmf+UIP2CsdaNxwpGao2hDvmsau6y9jbmQGLkss8lg2/iShGVrQ0V
-         CCbHsJ+Gl02H3YaEYuVAeMKKu4CYFPPZ4WHgdP3MyRvjtlSVBrfeSYVVISAcs64wjQrv
-         0ZMDQZvfcpI40i13Vy35drnRp/cTvGqTc/7OoW+57I8hUQRrwJN2o9B8pmH/LigyJqXh
-         RLGgLtW+SZnU3XQRRPkJ7lRyCP66TkhUgIN412F/PJ44fCRBQnYj+6tEOZu30ZLzelhX
-         C+uPQaT4h0xdOvcKo7fc3vfNGIMWPbFdEdBWNNv/Nrz86VHr4jNn4HagaZWRhH5pvN/b
-         xF3Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779898037; x=1780502837;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=STKe203GtXAmunHIdMeMAq0fDblU9FAY1byc40VlLXM=;
-        b=DPd7W5LTnCj6Jbr/wUZBS5UHohB1w9+V/QWUuS0oFxLWQZcgixMAkqyGwn0cY81shN
-         t68IGSKN95WWz+UUruJnwpRCC0dKlfzjCWuxcWpcm/wEhHOpQtrwjQ3W4pjmnPkT2tt8
-         JSAXX6VbioDGIhwHi2vUDSlW827q/ElafY8gk5YRNw/rI5LlPB8hVFj4E+/4RslclHM8
-         An09PhMInIM6hhy5VR6Jrquzy9LQjdaU0lEd8qLeiYHK590lS8W8ptkEFSHWbihZyMZM
-         LxnDfA7xjfZXSaMQfJCUqg6P/NRvVaJFYcmnCCDTRWb/lk2jWBZSjHbBidg+s42RBELh
-         Jw2A==
-X-Forwarded-Encrypted: i=1; AFNElJ/Fo873d6BnvU2VtrCbS8UMHvFUCEUyumNoFAqZ5UQ5fRQVfSDhbL1xGAMr18xwj0YFPptdSDcphwz4@vger.kernel.org
-X-Gm-Message-State: AOJu0Ywv2a0AuVYkXsTp1eNR8CWZd0qYdqEUqQn+L+AUvH8O1OSB4isk
-	il1o4N9ycLitbSYiA2SFuXEU9/stfPtkM8PAdM2O45qGBEuV368Qms59+SjQKlwW+lY=
-X-Gm-Gg: Acq92OGPZD+VKliPetDb2CpUFF2SY7+ddvPh5dPPvMG0/TrrRLCM148Wj+Pv3wQxwkJ
-	nL6E+rmCXGveObwfUfvJ6M/ulxqbWh/69ZFp5FT12F+h2roFhvBar/S/q64zMlwct/y74FgUZfu
-	ZQy4gNvlFXh5VCSMnl7Y6wnCo4cCeThHSJZtEugbrMxPUOFfuvOdi4kUt4aGj8RY5RUNWWp22HT
-	80Fegttip2rbQ9S4u0rkSTYSFh50lqwv1FIivwsVR7GpkFBst12JNXOA/3UdJo+UWzDwn4y7WZd
-	SNI3QbbG34JhpSYrye9I0sxEmNb2Kkd5v7Q21SUwc+Zjt/aUQmSCEA5Myv47Cjw5HMCJ4bysBZo
-	S7wK8NXnz+ifxjdDo40aZSpgpieD6k8MXbk+eyxQYOCEwL+wwX6GdqMYj1wHChuDnlUMuEWnAym
-	yWKoG6EpypGralnaBi1d7GAvI2ylEr/z0FlPD2UaM1ufaTTO5tULoNGIRz9yk75eiMB16qAM8xA
-	5GixQ==
-X-Received: by 2002:a05:620a:1b89:b0:914:c246:aca0 with SMTP id af79cd13be357-914c246b146mr2808635885a.36.1779898037030;
-        Wed, 27 May 2026 09:07:17 -0700 (PDT)
-Received: from ziepe.ca (crbknf0213w-47-54-130-67.pppoe-dynamic.high-speed.nl.bellaliant.net. [47.54.130.67])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-914f86e8e13sm505133685a.2.2026.05.27.09.07.16
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 27 May 2026 09:07:16 -0700 (PDT)
-Received: from jgg by wakko with local (Exim 4.97)
-	(envelope-from <jgg@ziepe.ca>)
-	id 1wSGmq-0000000FI8B-0NaX;
-	Wed, 27 May 2026 13:07:16 -0300
-Date: Wed, 27 May 2026 13:07:16 -0300
-From: Jason Gunthorpe <jgg@ziepe.ca>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: "T.J. Mercier" <tjmercier@google.com>, maddy@linux.ibm.com,
-	mpe@ellerman.id.au, npiggin@gmail.com, chleroy@kernel.org,
-	linuxppc-dev@lists.ozlabs.org, mripard@kernel.org,
-	sumit.semwal@linaro.org, lkp@intel.com,
-	linux-kernel@vger.kernel.org, iommu@lists.linux.dev,
-	linux-mm@kvack.org, agordeev@linux.ibm.com,
-	gerald.schaefer@linux.ibm.com, linux-s390@vger.kernel.org,
-	Dan Williams <djbw@kernel.org>,
-	Tom Lendacky <thomas.lendacky@amd.com>, x86@kernel.org
-Subject: Re: [PATCH] powerpc: Export set_memory_encrypted and
- set_memory_decrypted
-Message-ID: <20260527160716.GN2487554@ziepe.ca>
-References: <20260522225853.878411-1-tjmercier@google.com>
- <ahPqbfH54R3JJyaV@infradead.org>
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="Zq4W9XPv"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=hYaRrphnaRA6o4Jy4ywiOltVwIEnnSPRCMUmgPOwnaE=; b=Zq4W9XPvSOJBWtRlh+QNr3t9Di
+	bScgKAb5GnQzy0TlNiwt/IkFao9VfbDcVrCTRrQWiLP71G3DRXumxGczrZPzZ4D8ufaFzKZYduEwc
+	0ucZgyPjl+9avElWP3K5JsMRj7DMznF4wN1yTI9KxYIBWwiA6L2bK9/OeyAy5AQYW77hbkp4fZJES
+	GAxIYttaGMqrp4dvPTMquyZCNjdgIEumWJBBMXgevMBGKPn+8LD8TmTTzScMPBHsuDRPpqZ0vStSa
+	zOnBI10pnmBIR3fn0AQSKpShM3JR3DwuaS6z/zaXi4A/9QMrqJPs+9SPDnjU3jIySuU9gUr7a2Nik
+	xHNYlgtA==;
+Received: from 77-249-17-252.cable.dynamic.v4.ziggo.nl ([77.249.17.252] helo=noisy.programming.kicks-ass.net)
+	by casper.infradead.org with esmtpsa (Exim 4.99.1 #2 (Red Hat Linux))
+	id 1wSGxx-00000002wLj-2aWJ;
+	Wed, 27 May 2026 16:18:45 +0000
+Received: by noisy.programming.kicks-ass.net (Postfix, from userid 1000)
+	id 82A90300CB5; Wed, 27 May 2026 18:18:44 +0200 (CEST)
+Date: Wed, 27 May 2026 18:18:44 +0200
+From: Peter Zijlstra <peterz@infradead.org>
+To: Boqun Feng <boqun@kernel.org>
+Cc: Catalin Marinas <catalin.marinas@arm.com>,
+	Will Deacon <will@kernel.org>, Jonas Bonn <jonas@southpole.se>,
+	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
+	Stafford Horne <shorne@gmail.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+	Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+	"H. Peter Anvin" <hpa@zytor.com>, Arnd Bergmann <arnd@arndb.de>,
+	Juri Lelli <juri.lelli@redhat.com>,
+	Vincent Guittot <vincent.guittot@linaro.org>,
+	Dietmar Eggemann <dietmar.eggemann@arm.com>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
+	Valentin Schneider <vschneid@redhat.com>,
+	K Prateek Nayak <kprateek.nayak@amd.com>,
+	Waiman Long <longman@redhat.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Andrii Nakryiko <andrii@kernel.org>,
+	Eduard Zingerman <eddyz87@gmail.com>,
+	Alexei Starovoitov <ast@kernel.org>,
+	Daniel Borkmann <daniel@iogearbox.net>,
+	Martin KaFai Lau <martin.lau@linux.dev>,
+	Kumar Kartikeya Dwivedi <memxor@gmail.com>,
+	Song Liu <song@kernel.org>, Yonghong Song <yonghong.song@linux.dev>,
+	Jiri Olsa <jolsa@kernel.org>, Shuah Khan <shuah@kernel.org>,
+	Miguel Ojeda <ojeda@kernel.org>, Gary Guo <gary@garyguo.net>,
+	=?iso-8859-1?Q?Bj=F6rn?= Roy Baron <bjorn3_gh@protonmail.com>,
+	Benno Lossin <lossin@kernel.org>,
+	Andreas Hindborg <a.hindborg@kernel.org>,
+	Alice Ryhl <aliceryhl@google.com>, Trevor Gross <tmgross@umich.edu>,
+	Danilo Krummrich <dakr@kernel.org>,
+	Jinjie Ruan <ruanjinjie@huawei.com>, Lyude Paul <lyude@redhat.com>,
+	Thomas Huth <thuth@redhat.com>, Sohil Mehta <sohil.mehta@intel.com>,
+	"Xin Li (Intel)" <xin@zytor.com>,
+	Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
+	Nikunj A Dadhania <nikunj@amd.com>,
+	Joel Fernandes <joelagnelf@nvidia.com>,
+	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+	Randy Dunlap <rdunlap@infradead.org>,
+	Yury Norov <ynorov@nvidia.com>,
+	Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+	linux-kernel@vger.kernel.org, linux-openrisc@vger.kernel.org,
+	linux-s390@vger.kernel.org, linux-arch@vger.kernel.org,
+	bpf@vger.kernel.org, linux-kselftest@vger.kernel.org,
+	rust-for-linux@vger.kernel.org,
+	Onur =?iso-8859-1?Q?=D6zkan?= <work@onurozkan.dev>,
+	Daniel Almeida <daniel.almeida@collabora.com>
+Subject: Re: [PATCH v2 00/12] Refcounted interrupt disable and SpinLockIrq
+ for rust (Part 1)
+Message-ID: <20260527161844.GG3102624@noisy.programming.kicks-ass.net>
+References: <20260526152148.30514-1-boqun@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -87,26 +99,40 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <ahPqbfH54R3JJyaV@infradead.org>
+In-Reply-To: <20260526152148.30514-1-boqun@kernel.org>
 
-On Sun, May 24, 2026 at 11:21:33PM -0700, Christoph Hellwig wrote:
-> On Fri, May 22, 2026 at 03:58:53PM -0700, T.J. Mercier wrote:
-> > After commit fd55edff8a0a ("dma-buf: heaps: system: Turn the heap into a
-> > module") the system dma-buf heaps can be built as a module. The
-> > system_cc_shared heap uses set_memory_encrypted and set_memory_decrypted
-> > but those functions are not exported on powerpc. This can result in a
-> > build error like:
+On Tue, May 26, 2026 at 08:21:36AM -0700, Boqun Feng wrote:
+> Hi Peter,
 > 
-> I'd much rather revert the above commit.  Yes, x86 has exported these
-> since 2017, but that's a really bad idea, and we should fix it instead
-> of spreading the export.
+> This is a follow-up for Lyude's work [1]. After learning the current
+> preempt_count() usage and how ARM64 handle this, I came up with this
+> series that could resolve your feedback [2]. The basic idea is based on:
 > 
-> Setting memory decrypted is a dangerous operations and should only
-> be available to core code.  We should have various allocators for
-> decrypted code, but not export the functionality to random code.
+> 1) preempt_count() previously already masks our NEED_RESCHED bit, so the
+>    effective bits is 31bits
+> 2) with a 64bit preempt count implementation (as in your PREEMPT_LONG
+>    proposal), the effective bits that record "whether we CAN preempt or
+>    not" still fit in 32bit (i.e. an int)
+> 
+> as a result, I don't think we need to change the existing
+> preempt_count() API, but rather keep "32bit vs 64bit" as an
+> implementation detail. This saves us the need to change the printk code
+> for preempt_count().
 
-At the very least an EXPORT_SYMBOL_NS.
+> 
+> v1: https://lore.kernel.org/rust-for-linux/20260508042111.24358-1-boqun@kernel.org/
+> 
+> Changes since v1:
+> 
+> * Rename PREEMPT_COUNT_64BIT to HAS_SEPARATE_PREEMPT_RESCHED_BITS per
+>   Mark Rutland.
 
-Looks like there are about 3 modules using it already..
+Blergh, so I really don't like that new name. It isn't that
+PREEMPT_RESCHED is separate, it really is a 64bit preempt count.
 
-Jason
+Shashiko has a few fits, but its mostly being stupid. Although I think
+it might be useful to perhaps put a WARN_ON_ONCE(in_nmi()) in
+local_interrupt_disable().
+
+Anyway, I'll re-read things again tomorrow, but I suppose this will do.
+
