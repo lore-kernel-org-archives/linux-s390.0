@@ -1,190 +1,150 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D6722472A6;
-	Wed, 27 May 2026 06:17:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4DD823ACEF4;
+	Wed, 27 May 2026 06:53:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779862675; cv=none; b=QHKa2JJlp759kGEX4o9SOiAQgRH8aZKMgTDDX3iwXiNJa6XDhitvKobNMRuqFt4RH0gz1j9VgJDn2c+h0GiqDZQkq+OyJFSTopsXTd4iwD+w8udfLkov7ydXnPEhfojLvaHGkKAR5GxoIUa6zs8b0Nu8OsAsTJqox6KJGmcYG7Q=
+	t=1779864808; cv=none; b=FZ3BNdaX9SrlvNKxZkTJKm7ObAGCcLmv3Y5CL0X9EUbFmXcclAVcaDZiL+jpT6niBWMivdlL7cXDVeKiSfaI2QQNfFiLvXSRA07AehZstwGfhjEb8jJ1FGwsahVvgxR60TbELWCAmy82CJZ4X5/DWO73q4jupdUFRNBALEswwgU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779862675; c=relaxed/simple;
-	bh=ITZ89l8iv+tRojDGYDoM+u7LyJtEkE40gE1DUpCsepw=;
-	h=Date:From:To:Cc:Message-ID:In-Reply-To:References:Subject:
-	 Mime-Version:Content-Type; b=gza85TsePKaIThe2POTxVWWky4xztRZdyhrZNskYUWoReVoz56GG2nNjgOKhtgLeHnL+CAYXqhf2q8zIUNttl59L1y6Bviss2y1h0H7tw6xjujSBxwM0JWSdXIUCIBSla8JPC9WyBi3f7B+9/HUBobalmUCyZW01hU63T41a4Vc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZGF4HNU8; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1779864808; c=relaxed/simple;
+	bh=d2R1H91fNLkqSza84056w8qfZIvzeQx2hakQ9uJpA0o=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=fwS5mCaexYC3aCtCvrarWxpS4fjIViRwtvO9rwjWR1mOTHgo/ePEl8kk4fjgU1AWIUAmugK80bFL891MV/rBpFHHlpLboA2YSav//MQP4pq6Q+VS3pfBmPsJWn7fvcsyYDpJGIe52rVylKzXnDkcYfj1Zqr6unRFpaahPhLoSD4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=o4QLNWaj; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZGF4HNU8"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 482771F00A3A;
-	Wed, 27 May 2026 06:17:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1779862674;
-	bh=ZT/m8b1GGado2ObiguIe+nrJbFZcOjU/0firNep8ZZE=;
-	h=Date:From:To:Cc:In-Reply-To:References:Subject;
-	b=ZGF4HNU8vusMaJXqA36lg/7aCESZ5Yv1d7rXALegoxA85zBLw6Br4xR3MyNoMU3Ni
-	 SiWYsIidwkJGPSE/vxajnzuQ1m52HRM/8hJCkJr0R0q1CdpXr3/owbXTlUrzlXfpzk
-	 +ueF3LRS00o9zNfmsa38IFO0qVZTSWfydKbddr25y8veDTi5utOdXCWr40SqLyz6/a
-	 qA/2VJvMoD1mbU7w/Lha2PQsmAAgyq9/hTSoDLCRJqo0E+o3q7WDLmuL6VEVLyIXOj
-	 z4Box8YffdHjbIVkFk2VlH/Ae0rbxa3A83yAGYr99qRKVbxfkIu61SIS6W2q3P6Mu9
-	 GqrsHKTqjRWiQ==
-Received: from phl-compute-01.internal (phl-compute-01.internal [10.202.2.41])
-	by mailfauth.phl.internal (Postfix) with ESMTP id 7C4E5F4006F;
-	Wed, 27 May 2026 02:17:52 -0400 (EDT)
-Received: from phl-frontend-03 ([10.202.2.162])
-  by phl-compute-01.internal (MEProxy); Wed, 27 May 2026 02:17:52 -0400
-X-ME-Sender: <xms:kIwWak9u3bKh0PZ2-2vlwdaKDX0ZCjeQQW4X6eYYquRmxkQ4Fu-m6g>
-    <xme:kIwWaqn3C8WqyU5qOEDNf_DmCqdOLzBnjygiVtmKRp2pY_GZr7wcrix6XnN_XCByP
-    IlOTXfOCfu1JBEsOZfdkclougvvRHlY-R7EAS6xYCX0nzJitSDTVOZK>
-X-ME-Received: <xmr:kIwWajG9OzDDFVvY7_6eus_xqy0lfTjzvuZ7-vAixy8OkOUXn0G7nkR-7oAdTdfSB8jBuhI7fGKyVTJ4uWdt0E17WuVxZbllREo>
-X-ME-Proxy-Cause: dmFkZTGErg+1lWkmtnAfvZbPe16X0asbS04veNar5msmw1tkod5BOZqg7nEH99D5I9SUhQ
-    Eimi3Gtg2JkZkWINT7pEaY7Zsjx/vI51Vw+mc4IeFv+/0YLPvV9POut5KNXS7vXU43Y5uk
-    Z9b052jxbLf7zuQpq8Q4paiW6CrKpiXaldtdAONK+ChW4RAHl1HO8O6Vt0TSgo0SE0unyo
-    G1tRhBTXhQKQDvhIuDBZ6v3R/hp3x62c4Rid1K7J84JHjPGDmjW4GIQM7O1/0n1ZeXw3kj
-    OiTvOjHcFQHUqbztpMt2u9eqcsHopQ4s/NvDdELaBTL7VJYKNpaiZe0/UAi7fJne7y/EI7
-    punSI61BJxIPNVXx7CoOy1h+sR62KKfpO+1rmoJYZQnqZf/gJmvn8ds97hH4eO4OkGYRyJ
-    S4Fp+i+r+yw6Wv6dz4bUY61M64JlU1yWp7TtCTVqzfSAlkMAPVaaLHxHT9fBChJt36oEXO
-    IpgADbPyaiJYYuuhH42Z7ZJayw13wNccBsuTkW/rc0uI81u1udGkTrp71iecFnAuLiBbPS
-    XQG1qcqc/Oj/pgUai1p5J3qKNLc7gjAYhdeUC1kR0+92m4gJA4Ycv70MWW1ChODR+uwSCc
-    evBe4npgf2SOOq8tzPKQO77DseN9ja5jKaVZTZwpDLGEXjcde+FdI33ljEKg
-X-ME-Proxy: <xmx:kIwWalvxp7cN1jtHn7jncdePxeINa_iSeogoIjzrHpar30b5yHqwVQ>
-    <xmx:kIwWahmIYVLUxsIYTk7CRNY51sNcZp1ysLF4un7NYslksHgnDS2P-Q>
-    <xmx:kIwWamP6Gf1_00K6aZ5uD7i_ZayXa1uinrDp8gOb2V7TDhxYp_S3cw>
-    <xmx:kIwWagwNa9e0Ag4swqzy5VfwkyGODN486VW66o5z7R5012saglnZdw>
-    <xmx:kIwWakmEOpC0NQCNX7190PZ-wxsodSAmoCwVBux9nPU2s-7tWoGiv6tH>
-Feedback-ID: i67ae4b3e:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
- 27 May 2026 02:17:51 -0400 (EDT)
-Date: Tue, 26 May 2026 23:17:50 -0700
-From: "Dan Williams (nvidia)" <djbw@kernel.org>
-To: Alexey Kardashevskiy <aik@amd.com>, 
- "Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org>, 
- linux-coco@lists.linux.dev, 
- iommu@lists.linux.dev, 
- linux-kernel@vger.kernel.org, 
- kvm@vger.kernel.org
-Cc: Bjorn Helgaas <helgaas@kernel.org>,  Dan Williams <djbw@kernel.org>,
-  Jason Gunthorpe <jgg@ziepe.ca>,  Joerg Roedel <joro@8bytes.org>,
-  Jonathan Cameron <jic23@kernel.org>,  Kevin Tian <kevin.tian@intel.com>,
-  Nicolin Chen <nicolinc@nvidia.com>,  Samuel Ortiz <sameo@rivosinc.com>,
-  Steven Price <steven.price@arm.com>,
-  Suzuki K Poulose <Suzuki.Poulose@arm.com>,
-  Will Deacon <will@kernel.org>,  Xu Yilun <yilun.xu@linux.intel.com>,
-  Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>,
-  Paolo Bonzini <pbonzini@redhat.com>,
-  Tony Krowiak <akrowiak@linux.ibm.com>,
-  Halil Pasic <pasic@linux.ibm.com>,  Jason Herne <jjherne@linux.ibm.com>,
-  Harald Freudenberger <freude@linux.ibm.com>,
-  Holger Dengler <dengler@linux.ibm.com>,
-  Heiko Carstens <hca@linux.ibm.com>,  Vasily Gorbik <gor@linux.ibm.com>,
-  Alexander Gordeev <agordeev@linux.ibm.com>,
-  Christian Borntraeger <borntraeger@linux.ibm.com>,
-  Sven Schnelle <svens@linux.ibm.com>,
-  Alex Williamson <alex@shazbot.org>,
-  Matthew Rosato <mjrosato@linux.ibm.com>,
-  Farhan Ali <alifm@linux.ibm.com>,  Eric Farman <farman@linux.ibm.com>,
-  linux-s390@vger.kernel.org
-Message-ID: <6a168c8ea7d10_2129b2100e@djbw-dev.notmuch>
-In-Reply-To: <becd865d-09a4-4ac3-b719-4a0deae2692a@amd.com>
-References: <20260525154816.1029642-1-aneesh.kumar@kernel.org>
- <20260525154816.1029642-6-aneesh.kumar@kernel.org>
- <becd865d-09a4-4ac3-b719-4a0deae2692a@amd.com>
-Subject: Re: [PATCH v5 5/5] iommufd/vdevice: add TSM request ioctl
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="o4QLNWaj"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 64QL4Rfq3850810;
+	Wed, 27 May 2026 06:53:09 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=p5elBc1Qqt+iimqWQMPDYYjmJowPli
+	jbVxwIpfew0VA=; b=o4QLNWaj6Mcqe0Bj5cglMNORn1kk8AfeKZKIXdalZsmpb0
+	YhkOX7R2LC8kanRYgkRsCCjm9A+tI0uJ6UBGtsDKKpOawO82X/fgvgTeJs7/k/li
+	i5IchHX6qDGSHF/0dqcYo755A88bJiXKc4wRwjsoUZUdmQjDSOlbzbw3SOM3QpKa
+	0iWroEm59bMHACpqhmCEIrowEzoHrPdVWmMwAHUbXvZHyULG4Y1N5cN7t4VjYI+A
+	l8JkLUQ1qcBQECHkcZxqE9w7Bd0WT5tMVThxQaf6coWhNrDPBuLCh0Z4bCu+fl2K
+	c50tDdwwht+wodVPnkHrHu6YvA9GYPO6v4uv+adg==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4eb4pdevgj-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 27 May 2026 06:53:08 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 64R6dDFP010874;
+	Wed, 27 May 2026 06:53:08 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4edjrb1t88-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 27 May 2026 06:53:08 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 64R6r4CX30999242
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 27 May 2026 06:53:04 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 1ED892004B;
+	Wed, 27 May 2026 06:53:04 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C3F4D20040;
+	Wed, 27 May 2026 06:53:03 +0000 (GMT)
+Received: from osiris (unknown [9.52.214.206])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Wed, 27 May 2026 06:53:03 +0000 (GMT)
+Date: Wed, 27 May 2026 08:53:02 +0200
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Alice Ryhl <aliceryhl@google.com>
+Cc: Jan Polensky <japo@linux.ibm.com>, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, ojeda@kernel.org, peterz@infradead.org,
+        jpoimboe@kernel.org, jbaron@akamai.com, borntraeger@linux.ibm.com,
+        svens@linux.ibm.com, boqun@kernel.org, gary@garyguo.net,
+        bjorn3_gh@protonmail.com, lossin@kernel.org, a.hindborg@kernel.org,
+        tmgross@umich.edu, dakr@kernel.org, rostedt@goodmis.org,
+        ardb@kernel.org, linux-s390@vger.kernel.org,
+        rust-for-linux@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v3 4/4] s390: Enable Rust support
+Message-ID: <20260527065302.9471Af6-hca@linux.ibm.com>
+References: <20260521165622.279953-1-japo@linux.ibm.com>
+ <20260521165622.279953-5-japo@linux.ibm.com>
+ <ahaIT7BV-gMqcVh1@google.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
-Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ahaIT7BV-gMqcVh1@google.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Authority-Analysis: v=2.4 cv=OdqoyBTY c=1 sm=1 tr=0 ts=6a1694d5 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=kj9zAlcOel0A:10 a=NGcC8JguVDcA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8
+ a=n3c56lirc9divvENpjsA:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-GUID: LKrfGc19bWnG7Gcf7zc_awDQIMqxXQLp
+X-Proofpoint-ORIG-GUID: 173q5OFg9V13gkDF_9Q4_MbDxrtghJTe
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTI3MDA2MiBTYWx0ZWRfX3aLww1h0ZiLY
+ ItUxJOUjjO+BjXsFLAn5YXtem8JVoYLvcywyJz1/D8NQzarnDo5wIEHPVfz9cwRGFMQcPavMJTk
+ /5j93Jl5kl9xRXIRj97LWeHKuXG0OTLSudPeTlfUWrCIe14aZOtWZK3Yfg93T9QUDO5uR/Fmor5
+ 6BbBWh7mlY2JHElioxxpQaQ2UiQqVCjnWtNmBxAVW2XsMkjY4viaXoqsJxwDuRHUmpGPuQlMarP
+ 6ZJkxrLDj5I5MU5Z8YQDP55B3RLrG2pVhhymRzFwv+znNhvCNc5MVPw3RS3Kdea1uzgydR5kCzZ
+ FV3P0aDc208dh6BsKBBgjItRxdevcTofsUZaBq4p2GVyOXXi4DnD9W66EksACm9OO57Ev34q8CR
+ ZsWjsjtA4gwmK11Fg1qRG89us6ZgKyv2ZBlorH9HFzLs2ACFcBWEfZNf1OGpeUJlgl8sLIyuLHI
+ 7dd/JxtGXT3EF6Ms2bQ==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
+ definitions=2026-05-26_05,2026-05-26_03,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ priorityscore=1501 impostorscore=0 clxscore=1015 malwarescore=0
+ lowpriorityscore=0 bulkscore=0 suspectscore=0 adultscore=0 spamscore=0
+ phishscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2605130000
+ definitions=main-2605270062
 
-Alexey Kardashevskiy wrote:
-> 
-> 
-> On 26/5/26 01:48, Aneesh Kumar K.V (Arm) wrote:
-> > Add IOMMU_VDEVICE_TSM_REQUEST for issuing TSM guest request/response
-> > transactions against an iommufd vdevice.
+On Wed, May 27, 2026 at 05:59:43AM +0000, Alice Ryhl wrote:
+> On Thu, May 21, 2026 at 06:56:22PM +0200, Jan Polensky wrote:
+> > Enable building Rust code on s390 by wiring the architecture into the
+> > kernel Rust infrastructure.
 > > 
-> > The ioctl takes a vdevice_id plus request/response user buffers and length
-> > fields, and forwards the request through tsm_guest_req() to the PCI TSM
-> > backend. This provides the host-side passthrough path used by CoCo guests
-> > for TSM device attestation and acceptance flows after the device has been
-> > bound to TSM.
+> > Add s390 to the Rust arch support documentation, provide the s390 Rust
+> > target and required compiler flags, and set the bindgen target for
+> > arch/s390. Adjust the Rust target generation and minimum rustc version
+> > gating so the s390 setup is handled explicitly.
 > > 
-> > Also add the supporting tsm_guest_req() helper and associated TSM core
-> > interface definitions.
+> > The Rust toolchain uses the "s390x" triple naming for the 64 bit target.
 > > 
-> > Based on changes from: Alexey Kardashevskiy <aik@amd.com>
+> > Rust support is currently incompatible with CONFIG_EXPOLINE, which
+> > relies on compiler support for the -mindirect-branch= and
+> > -mfunction_return= options. Therefore, select HAVE_RUST only when
+> > EXPOLINE is disabled.
 > > 
-> > Signed-off-by: Aneesh Kumar K.V (Arm) <aneesh.kumar@kernel.org>
-> > ---
-> >   drivers/iommu/iommufd/iommufd_private.h |  6 ++
-> >   drivers/iommu/iommufd/main.c            |  3 +
-> >   drivers/iommu/iommufd/tsm.c             | 68 +++++++++++++++++++++
-> >   drivers/virt/coco/tsm-core.c            | 39 ++++++++++++
-> >   include/linux/pci-tsm.h                 |  9 +--
-> >   include/linux/tsm.h                     | 25 ++++++++
-> >   include/uapi/linux/iommufd.h            | 80 +++++++++++++++++++++++++
-> >   7 files changed, 226 insertions(+), 4 deletions(-)
-[..]
-> > diff --git a/drivers/iommu/iommufd/tsm.c b/drivers/iommu/iommufd/tsm.c
-> > index 09ee668dbed9..342fbdb6a6b9 100644
-> > --- a/drivers/iommu/iommufd/tsm.c
-> > +++ b/drivers/iommu/iommufd/tsm.c
-> > @@ -60,3 +60,71 @@ int iommufd_vdevice_tsm_op_ioctl(struct iommufd_ucmd *ucmd)
-> >   	iommufd_put_object(ucmd->ictx, &vdev->obj);
-> >   	return rc;
-> >   }
-> > +
-> > +static bool iommufd_vdevice_tsm_req_scope_valid(u32 scope)
-> > +{
-> > +	if (scope > IOMMU_VDEVICE_TSM_REQ_SCOPE_PCI_LAST)
-> > +		return false;
-> > +
-> > +	switch (scope) {
-> > +	case IOMMU_VDEVICE_TSM_REQ_PCI_INFO:
-> > +	case IOMMU_VDEVICE_TSM_REQ_PCI_STATE_CHANGE:
-> > +	case IOMMU_VDEVICE_TSM_REQ_PCI_DEBUG_READ:
-> > +	case IOMMU_VDEVICE_TSM_REQ_PCI_DEBUG_WRITE:
+> > Signed-off-by: Jan Polensky <japo@linux.ibm.com>
 > 
-> This scope thing still needs clarification.
+> > diff --git a/scripts/min-tool-version.sh b/scripts/min-tool-version.sh
+> > index b96ec2d379b6..296acf8f71aa 100755
+> > --- a/scripts/min-tool-version.sh
+> > +++ b/scripts/min-tool-version.sh
+> > @@ -31,7 +31,11 @@ llvm)
+> >  	fi
+> >  	;;
+> >  rustc)
+> > -	echo 1.85.0
+> > +	if [ "$SRCARCH" = "s390" ]; then
+> > +		echo 1.96.0
+> > +	else
+> > +		echo 1.85.0
+> > +	fi
 > 
-> I have 3 types of requests to fit here, all go via VM -> KVM -> QEMU -> IOMMUFD -> TSM.
-> 
-> 1) bind/unbind TDI <- moves to CONFIG_LOCKED, this is "OP";
-> 2) start/stop TDI <- moves to RUN, this is "GR"? Right now I route it via "OP";
-> 3) enable/disable MMIO/DMA <- no TDI state change, this is "GR" but which scope is it here?
+> For other version constraints we have listed them in the Kconfig file to
+> guard the select HAVE_RUST or similar annotations instead of here. Is
+> this the best place to add this constraint?
 
-The scope parameter was meant to enumerate a security model for classes
-of commands that are otherwise opaque to the kernel. However, none of
-the commands we are targeting are opaque (private specification with
-unknown effect). It now turns out there is no role for @scope for
-security.
+This is supposed to be the default location for such constraints.
 
-Now a command family that iommufd can validate seems useful. As it
-stands this implementation aliases command codes across TSMs. Do we
-proceed with creating an actual shared command uapi for the truly shared
-commands:
-
-TSM_REQ_TYPE_DEFAULT: Commands every arch needs
-TSM_REQ_READ_OBJECT
-TSM_REQ_REGEN_OBJECT
-TSM_REQ_OBJECT_INFO
-TSM_REQ_VALIDATE_MMIO
-TSM_REQ_SET_TDI_STATE
-
-TSM_REQ_TYPE_SEV: Commands only SEV needs
-TSM_REQ_SEV_ENABLE_DMA
-TSM_REQ_SEV_DISABLE_DMA
-
-...or just observe that per CC arch commands are needed to setup the VM
-so per CC arch commands are needed to marshal device assignment support
-requests.
-
-In that case pci_tsm_req_scope becomes tsm_req_type and is just:
-
-TSM_REQ_TYPE_CCA
-TSM_REQ_TYPE_SEV
-TSM_REQ_TYPE_TDX
-
-I am leaning towards the latter at this point.
+See also the current limitiations for gcc and llvm in the same file, or the
+previous limitations of llvm for x86 and s390, which have been removed with
+commit 20c098928356 ("kbuild: Bump minimum version of LLVM for building the
+kernel to 15.0.0").
