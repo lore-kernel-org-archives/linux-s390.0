@@ -1,86 +1,73 @@
-Received: from gentwo.org (gentwo.org [62.72.0.81])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A2A7B364044;
-	Wed, 27 May 2026 19:09:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=62.72.0.81
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD6453B19B1;
+	Wed, 27 May 2026 19:49:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779908988; cv=none; b=Rc9D6AIEx49fsc27V50SI2dEicdSvaAOvLKSeXGszHYVB6BcSnXJBOGf+LhkB3h8B9TqHYMvmnembyAeC7IAy1BFOrJkeJ9P6VmrHVUidGeH+xC5i9L2cjp+sHRtyym4xqbtrr5bWH7WshLkbWFxgUrLn8FX0pFiD2yTFmCrto0=
+	t=1779911361; cv=none; b=qr+V+g2Uyalbwkm/mKvx25JPNBOQHQ1G8Dn9OcY20VwUDZVHHflgJ7mmQQdnibWaue3AGds9YXsyO16s9ybgVLdHXdEmUw4dk5838q3QELgWAuY2hKSObXoyt5WdBXfp83jrxNceOYNIvvprvok4ntAi6/G9BvL4W/buTFHxjMk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779908988; c=relaxed/simple;
-	bh=DSMCJR6Zd1R2Z0r8q8ps2jvA+/AS8t4dZSXSYBFqwo0=;
-	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=XAI7m/9Ht3YAayANI8AGsna1GAE1Toet4i4UL97Pi0Mk/ASOPgFc1GjMDFy7renQck5yb2hWSXTRyCXesM3aLP2ijxg2mIPFSCBPALdR1UlIgs1a7fE1ZMjp7QF+LHyoUMUp9mjY30JtirAJwctZYrsvzWHbC2nfJyxbYlUtvkc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=gentwo.org; spf=pass smtp.mailfrom=gentwo.org; dkim=pass (1024-bit key) header.d=gentwo.org header.i=@gentwo.org header.b=IRFmmZWI; arc=none smtp.client-ip=62.72.0.81
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=gentwo.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gentwo.org
+	s=arc-20240116; t=1779911361; c=relaxed/simple;
+	bh=BOX6oxFNMVOGHWdWk7SOAtjBTLNjNCjT/ks26xjpu1E=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=R0auOEIRk/zMy4I1m2npNk7B9sKSTc7nXi6rvLWHmaxd4I8DWTDdjszpHVpDRckPBcbZ3WpUFHpL/WznD2jQS7XvUG8KhWuLJC9LQuFfrpy9WhcPUQk/77JTkjV2Vs/QVdBC74SCwd2trrdU5lH57B3ThQvhv32YML7g/i+Ihw8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MDXKKjBG; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=gentwo.org header.i=@gentwo.org header.b="IRFmmZWI"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gentwo.org;
-	s=default; t=1779908986;
-	bh=DSMCJR6Zd1R2Z0r8q8ps2jvA+/AS8t4dZSXSYBFqwo0=;
-	h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-	b=IRFmmZWIoQUL6BbmuCTjfMXdOOk2y5dHLG0WS+H8XlTcTDGQk3ISmFkUmeRp0hf1K
-	 w5XZMdUG2gx263KojI4IX3345hmHwCMdxPLgWQrrL0K3xe2/zi/E9wfNz9FnhPuahA
-	 wtTg2FZiu6mtt0xwjDeZh4wjjioxeQ68F0C4tshU=
-Received: by gentwo.org (Postfix, from userid 1003)
-	id E3165402E4; Wed, 27 May 2026 12:09:46 -0700 (PDT)
-Received: from localhost (localhost [127.0.0.1])
-	by gentwo.org (Postfix) with ESMTP id E1E934014B;
-	Wed, 27 May 2026 12:09:46 -0700 (PDT)
-Date: Wed, 27 May 2026 12:09:46 -0700 (PDT)
-From: "Christoph Lameter (Ampere)" <cl@gentwo.org>
-To: Heiko Carstens <hca@linux.ibm.com>
-cc: Yang Shi <yang@os.amperecomputing.com>, 
-    David Laight <david.laight.linux@gmail.com>, 
-    Alexander Gordeev <agordeev@linux.ibm.com>, 
-    Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
-    Christian Borntraeger <borntraeger@linux.ibm.com>, 
-    Juergen Christ <jchrist@linux.ibm.com>, 
-    Peter Zijlstra <peterz@infradead.org>, 
-    Shrikanth Hegde <sshegde@linux.ibm.com>, linux-kernel@vger.kernel.org, 
-    linux-s390@vger.kernel.org
-Subject: Re: [PATCH v3 0/9] s390: Improve this_cpu operations
-In-Reply-To: <20260522091805.18098A5c-hca@linux.ibm.com>
-Message-ID: <f417b97c-e321-6fe7-3a7b-a3a71b16f27b@gentwo.org>
-References: <20260520092243.264847-1-hca@linux.ibm.com> <9d503c6f-5641-4b28-998e-01e38b3622a9@os.amperecomputing.com> <20260520233409.0683f595@pumpkin> <d8e61923-2e0b-422c-b2f6-5ccedf3852bb@os.amperecomputing.com> <20260521103742.9603C8c-hca@linux.ibm.com>
- <5158d4e8-19a7-4f60-b2fd-bc6bab22baf0@os.amperecomputing.com> <20260522091805.18098A5c-hca@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MDXKKjBG"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 389B41F00A3E;
+	Wed, 27 May 2026 19:49:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1779911360;
+	bh=J2iEHJs+dlCLb9cMhei6nH0VvPn5UMkWOBOgpg/1DvM=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References;
+	b=MDXKKjBGTTL2bI5I9xNZXhC/HIW9nMcQptqnzF2lpJh5YFVKewR59CRV/0HerxJt9
+	 KLeRGck8gq1nXKagsG+ylI+5bcvEdQrlXYSuaqCBes1Ec9VOJYCIngdmPFTcSLAy/Y
+	 3ZTFMrHBk0zahdNuYbKzE87o2MDJa7pBjwFOOeoNVhbcLmJfKxonVfidV8kQscLNxe
+	 r6W3FG4n1mq9Nk6jNEKdakP2Ovz0oJJ8WKbioLDDaZwhZhVrVYrK9mrcdM9jbqL5Pi
+	 iGG+ttY+/VUkVXj5KTLYHranhV6FQqkX9H1GX2mJI93oQPKibzs4u1SCjxcUHAoBCW
+	 5iGUjfs1OXLhA==
+From: Sasha Levin <sashal@kernel.org>
+To: Natanael Copa <ncopa@alpinelinux.org>
+Cc: Sasha Levin <sashal@kernel.org>,
+	stable@vger.kernel.org,
+	regressions@lists.linux.dev,
+	linux-s390@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	vneethv@linux.ibm.com,
+	oberpar@linux.ibm.com,
+	hca@linux.ibm.com,
+	gor@linux.ibm.com,
+	agordeev@linux.ibm.com,
+	borntraeger@linux.ibm.com,
+	svens@linux.ibm.com
+Subject: Re: [REGRESSION] 6.6.141 s390x build failure in s390/cio due to missing driver_override infrastructure
+Date: Wed, 27 May 2026 15:48:59 -0400
+Message-ID: <20260527-agent5-item005-s390cio@kernel.org>
+X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20260526221254.183e23ef@ncopa-desktop.lan>
+References: <20260525101635.26090-1-ncopa@alpinelinux.org> <20260525231000.agent5-0002@kernel.org> <20260526221254.183e23ef@ncopa-desktop.lan>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
 
-On Fri, 22 May 2026, Heiko Carstens wrote:
-
-> Also with the current proposal I only did some quick micro benchmarks,
-> which resulted in 0-1% improvement, which is in the expected range.
+> FYI. We also needed this for the build to pass:
 >
-> It is amazing to see the performance improvements you see on arm64, however
-> I believe that is mainly because of the large amount of code which is
-> generated by the arm64 implementations of the preempt primitives
-> __preempt_count_add() and __preempt_count_dec_and_test().
+> diff --git a/drivers/s390/cio/device.c b/drivers/s390/cio/device.c
+> [...]
+> -       spin_lock_irq(sch->lock);
+> +       spin_lock_irq(&sch->lock);
 
-The code is generated if you have no arch specific per cpu mechanism and
-preemption must be supported. We have now the situation that we cannot
-switch off preemption support anymore.
+Thanks - this points at the backport of c34b09cbd6fc0 ("s390/cio: Update
+purge function to unregister the unused subchannels") which had its own
+issues on 6.6.y. I reverted c34b09cbd6fc0 on 6.6 so 6.6.142
+should build cleanly without the manual fix. If the upstream purge
+update is still wanted on 6.6, it can be re-submitted as a proper
+backport once the driver-core prerequisites are in 6.6.142.
 
-It seem that S390 has this mechanism in a small way and therefore can
-avoid the preempt enable/disable.
-
-It is not the quantity of code here. The preempt enable/disable can only
-be avoided if there is a single instruction doing the per cpu operation. A
-single instruction cannot be interupted and therefore is preemption safe.
-
-
-> That's a big difference to s390: for both primitives the result is a single
-> instruction.
-
-Ok then you can already use single instructions like x86 and will not have
-preempt enable/disable overhead.
-
-I am not sure what David Laight's code is supposed to do. Seems weird to
-me.
-
+--
+Thanks,
+Sasha
