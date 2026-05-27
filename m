@@ -1,151 +1,199 @@
-Received: from fhigh-a3-smtp.messagingengine.com (fhigh-a3-smtp.messagingengine.com [103.168.172.154])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.10])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2F09B413256;
-	Wed, 27 May 2026 14:26:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.154
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779892002; cv=none; b=kWt/vjhC0TxlBPf0ijcFxQ73KxDZV4xqwQEcckk/D+dqT8iqAu1WA6Q5qR+WrSFfkGy+K8zcrCLx/aOmqRM1Z7D3dKiGkTU41dD3Gv1S51ez8vN4NYNbzHhZ7e1IPe7ZjTymE1z7lLWCQezzTi22RZwyswcinzDPQjJM4SAkRJY=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779892002; c=relaxed/simple;
-	bh=OhcdtECHZLNfndhswLTlh0QREFCuYcNlHeP2kI2tq58=;
-	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
-	 Subject:Content-Type; b=laTqyYequhZHLawOtPjCchgAbaIWAq4B6EafanwyLd2F36a0R5xDEprnshL+ykDmdx6wqaJYmtHLqJoin3yCxBVYsRqjcgR0CrMPi7TdyxvuAbyLVoXDm3OPRKgUCoSkRWRYMyOaDQCbCFBno+z0il4XBtGXNl5ATiMW3E6hkBI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=SqqP4Yjk; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=ksXDgpwI; arc=none smtp.client-ip=103.168.172.154
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4CC2E1C695;
+	Wed, 27 May 2026 14:30:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=192.198.163.10
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1779892251; cv=fail; b=Sk51MFwHyVriAXLkNO+KwdKHzK0T5jTAJ4B9zDJhXobHqsj7p3RNJXA3Fep67q/F0rc4aFXLsoXPqx2IKmeaGQ7lCYp1nHG2++FWVpbBSMCXamV3V2Pyb7HHUKn7gWZz12TjCFSzk3hh2tpzNhwXWXqOAGjpXHHyvtNhbkIgaVw=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1779892251; c=relaxed/simple;
+	bh=Q5yhWnMSnkj+ocKRKAHLdVcSObOfbJGVSopUWg6GwJ4=;
+	h=Message-ID:Date:Subject:To:CC:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=pS7QdfvKAnVHCn+GBKTZHke8L180alme1ijV0NOmYt9TCgyzhPeuQ26JzPiqp+Z0uJqHCBqJ7fOgP57HiJ/JH3tdmsnbmhYGxl9FkgYzZPurdGq0XXe3a0PXvhSnOssUdcpI/Dbsb6DyLcpWwhcKUXFpNoPlb+Q3pGMX7POFD5A=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=lSX0zvDG; arc=fail smtp.client-ip=192.198.163.10
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="SqqP4Yjk";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="ksXDgpwI"
-Received: from phl-compute-04.internal (phl-compute-04.internal [10.202.2.44])
-	by mailfhigh.phl.internal (Postfix) with ESMTP id 6C0DE1400086;
-	Wed, 27 May 2026 10:26:36 -0400 (EDT)
-Received: from phl-imap-05 ([10.202.2.95])
-  by phl-compute-04.internal (MEProxy); Wed, 27 May 2026 10:26:36 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
-	:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm3; t=1779891996;
-	 x=1779978396; bh=yVrV+eG2Cdd8Z9o6gLUJZZWJZ89awpVCBEBkZBgWidc=; b=
-	SqqP4YjkvnrgzHWUi0hFLySu/YM1b/C/TAtInZ3hatKDGS2dye2oMaFYkx1hqxXp
-	ohZOyFiouCJQ+NjRUJb0A/GhRyq1nB7ZjutwdmlEDzYxQrbDYyHfow1ejdP7trJ9
-	/8TagUrWLF/Z8vlBj9ZuO0p2t0Nye6UosiQ+L8VVAkjB72ADCzDbP+tfT3fu0H/F
-	d3wL3PwCXLUfRaEJYq1cKxESNLgAZ+lGtNUPEsBPpxGjzAQLtS2cpVa96ewzcBwE
-	v6SPh1VNqoP5RK117GdPUOLRU14pSs8bDNdu0Hyx/R2IGdJkSRE/J6bnH4leoIxn
-	OKSaHvveya+bkxUUqGMjDQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1779891996; x=
-	1779978396; bh=yVrV+eG2Cdd8Z9o6gLUJZZWJZ89awpVCBEBkZBgWidc=; b=k
-	sXDgpwIX36vHZyjul8g2gZX7fVsi90DUPAskyHv+r3Sc5S1GEXaPLMsMvThGWWe1
-	+45SLp5u88MTH+QovEEkpRhoyfuWsw7QKoAFzVz6RSontDnhh3Ngvjz+o4VklOHe
-	vFlO73NzOh4Jc8Hbj9v5ydaIBIuEwj/P179CmPkzrlN8zieCpcIwKxWhcdaCqUKg
-	xycFsakNBS7N/N0Y95cUQpSLqmsVvHXNd3fD8m8kO+HIqG++E+QwnYTmIftJnz5/
-	xf3sD8K0SwUDfRVBuvlMiELJMeZy1k8h2ZbjmCwvovqHGhqGdwKMPWp7Oq3GEiG5
-	jmXNolNccsiiexA4RST7Q==
-X-ME-Sender: <xms:G_8Wak2tUVq5HmJRAx3sKRvYVVKEYHe6Gmq1PzNNQzhF9lEub1Rk1w>
-    <xme:G_8Wap7LBDuTqanM_5CIlCDRuwUqerPnLZZ8LuIgN1n8KTq-y2-oHYSkr4qO2Z7ny
-    AWQ6U3DyqAkAdfnKOitQop1DZnvTwrJJ4F8X6z-yu6HJc2BK6rvb00>
-X-ME-Proxy-Cause: dmFkZTGtTCeZdU2a317hFG8sYU78jUzI8GDDMFFaBbMTSa/tLHbKzVQAnQnXKMaHqd6KZn
-    vbK1aBAyKKts+Qt/DukkjmwqBQfLXj+ueAb3i+IzFckqlcFbSApQZ/g4XSHVdEbsmGSCmy
-    fPmzOHLHiyrSQEOKSoI7F2q40JoSqmiDuwmcKYm551MCw82P2wh1Xq/Evrcf/Ys9GMo+bG
-    nPOYJeYBgd5klNWn3cMqbWRHQCh6zTfyGzeDDoIeSaXZMi9MPz9dV3I2om566LyN1k0O9l
-    5BHtb7nZqEmdarD0GRx+TqkSw3SDo2C+A5VI3WXLxEOen22HGTDEJ8nfBtJGh/3IRjLfkq
-    o2Cqmrf5vfRDWEqruwsYY14fXYb5i7OgLOTq7OZK5wDcUvfCa8OKZ9t0jKwK1cwdVXAEEb
-    BATa+rG0Hzib66xcYEIj1tPCMLQ2tPcY72f+2VgaC+LNJCfbrk0aQrrvcKVpGxadrBIOnC
-    /dcq65axt+6I2CZN8R3OLT+eNV/zaEyJulDp4cB5bZ1qlmDBCdHwTVZTOSQxQVwyLa7YSF
-    BSh+JkTXmiRq2tWJEXlraMAg5jzUVGP8yjkz0mdmCuTlDVIm4lcsCfw+Uy3Tn7iI1RpI6+
-    ajVsciCRyU6M3em+pDXN9wdhf+eROzfrvpH+MKpqINix2bIqDLwRo9WrZ1cQ
-X-ME-Proxy: <xmx:G_8Wai4vE9-OeuV4Os4crMERLsvmFYP-RrssrpyuYRTBZnW5I1YpGw>
-    <xmx:G_8WalS2XGuPw3wD6Ix2BNxG6c8Y_cuK0mevpfOGRUdZgO8P6JX_qw>
-    <xmx:G_8Wap9XuL9f3WUgk6xWfS1Y0bZ2hRh65pOxq4eOun18D_xbIOv0uA>
-    <xmx:G_8WauqmAiViSS1fZSWdsoPKwXqSxQsAG1zIYHl9rsZQZya3WDEXjg>
-    <xmx:HP8WaoxhBJrVQkn-3c3YAh-YBhJSE9cG6weS-DKbN22q0kT_DAAa6grg>
-Feedback-ID: i56a14606:Fastmail
-Received: by mailuser.phl.internal (Postfix, from userid 501)
-	id 6C443182007A; Wed, 27 May 2026 10:26:35 -0400 (EDT)
-X-Mailer: MessagingEngine.com Webmail Interface
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="lSX0zvDG"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1779892249; x=1811428249;
+  h=message-id:date:subject:to:cc:references:from:
+   in-reply-to:content-transfer-encoding:mime-version;
+  bh=Q5yhWnMSnkj+ocKRKAHLdVcSObOfbJGVSopUWg6GwJ4=;
+  b=lSX0zvDGO95KPtAcd0X627oS1gjphzcAXZd7h0o4Uc+uds5KZcxQLnDP
+   NWsFkTa6PLoxqi9hLxDHXecRp6r1xvBsfJTo+Aft2RYtXfkr9gqYZcBzE
+   qF1OjGDtgCq+z7yoSlZrwfFPs1eMRFBWHEuTdi9zeZWbuz24ruJyE/F6i
+   Uvtqzov1C0nveO6lT6xnCqYKTHMf2qZr5f8Fefe/V7M0eQSAOAYJoTmZd
+   J1dqstMBa1r6yAlWD8ElgP6WtJjvtLPinqu/laryI/JClWE/ybpSHJHqv
+   pHroCyeP5SqSMiwfqx8LS+SXPrvZKNlTrPF1J/wGXJTOl+QNrlB9XFL0W
+   Q==;
+X-CSE-ConnectionGUID: qkGp1WYrREynkU5EBoLjKw==
+X-CSE-MsgGUID: Z/trgljKQa+vK5V8K9dGbg==
+X-IronPort-AV: E=McAfee;i="6800,10657,11799"; a="92109992"
+X-IronPort-AV: E=Sophos;i="6.24,171,1774335600"; 
+   d="scan'208";a="92109992"
+Received: from fmviesa002.fm.intel.com ([10.60.135.142])
+  by fmvoesa104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 May 2026 07:30:42 -0700
+X-CSE-ConnectionGUID: UPZ1arN5R16J8SXTTLok/A==
+X-CSE-MsgGUID: zjTNDB7tR96o/oa+joFaIg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.24,171,1774335600"; 
+   d="scan'208";a="265861585"
+Received: from fmsmsx903.amr.corp.intel.com ([10.18.126.92])
+  by fmviesa002.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 May 2026 07:30:40 -0700
+Received: from FMSMSX903.amr.corp.intel.com (10.18.126.92) by
+ fmsmsx903.amr.corp.intel.com (10.18.126.92) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.37; Wed, 27 May 2026 07:30:39 -0700
+Received: from fmsedg901.ED.cps.intel.com (10.1.192.143) by
+ FMSMSX903.amr.corp.intel.com (10.18.126.92) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.37 via Frontend Transport; Wed, 27 May 2026 07:30:39 -0700
+Received: from CH4PR04CU002.outbound.protection.outlook.com (40.107.201.55) by
+ edgegateway.intel.com (192.55.55.81) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.37; Wed, 27 May 2026 07:30:38 -0700
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=Ja/fjHjzV6uf35Z9xS8/zinKP8+MIcn07QziEfaKKhdSxfXwLoZZmQKLfaFGOy4MSoPD/EoUgD5/qB9MYVRBEOy/xSZoYYbLgfXwUsPyqSFIdtanP+CxHtxt4VN3SGO4Or2LWfjvezxr7mOa8eu7uMciQQ4Z1rK1l7/09jaDbtHv23iKVxF0S2AZXWUMP/IOK+nM6mckpF06p/VYzmkcZJXKHmx0k5N+2ItP1QgaLZjYExpFYTmVk0Dfw88HbNES7xp0s6zi/sN1s5OMGI+U9rIHfLVDSR6ogs3aSSSCIfSeKm0B+rvn3vwVlYIfi5uUQUEkgYQGPe5tvtwDmyKNow==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=jZlRMgEojmpF94ao60gpgt0aH3A2wSlG6Gj70rI9jvM=;
+ b=tZKxuIUfXH/NgtlG1FHqsPkcruEFcCN1TE4Z4rChccUzZzJg9jcXwmeXP6957C6dmmiKFRecWQya0EAXX8vW3EDu5n3Gd8+ZTgs3un+0qfdEE0MJNGgMOD0JMhsOVnY4bFZt/DOEDZyGVkqvhZU2EBHNgogenPuAF683Mgdfd2b3NCjK3V2XqdYulVY2mWuOpONK1tYW6/Y/bG9xdCTbVQw/Xz6Un45rhGVj3/t7pXkdNSlmWXgmOce56h6QXZvfIr9MBgz3fxNGy2uTzheyHXpCGSWbw1fpcjrXDwbFT1nmFhtnzOcxyEgKlTrEffa5xa6OTZx+4cEXfzjRI6OzTw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
+ dkim=pass header.d=intel.com; arc=none
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=intel.com;
+Received: from DS0PR11MB8718.namprd11.prod.outlook.com (2603:10b6:8:1b9::20)
+ by SA0PR11MB4589.namprd11.prod.outlook.com (2603:10b6:806:9a::12) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.71.11; Wed, 27 May
+ 2026 14:30:35 +0000
+Received: from DS0PR11MB8718.namprd11.prod.outlook.com
+ ([fe80::6aa:411d:4bfa:619c]) by DS0PR11MB8718.namprd11.prod.outlook.com
+ ([fe80::6aa:411d:4bfa:619c%5]) with mapi id 15.21.0071.011; Wed, 27 May 2026
+ 14:30:35 +0000
+Message-ID: <305fbfaf-a4a2-41e1-805d-5141fbfa8e57@intel.com>
+Date: Wed, 27 May 2026 16:30:28 +0200
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] err.h: use __always_inline on all error pointer helpers
+To: Arnd Bergmann <arnd@arndb.de>, Arnd Bergmann <arnd@kernel.org>
+CC: Andrew Morton <akpm@linux-foundation.org>, <linux-kbuild@vger.kernel.org>,
+	Nathan Chancellor <nathan@kernel.org>, Nicolas Schier <nsc@kernel.org>,
+	<linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, "Vasily
+ Gorbik" <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>,
+	"Bjorn Andersson" <andersson@kernel.org>, Andy Shevchenko
+	<andriy.shevchenko@linux.intel.com>, Christian Marangi
+	<ansuelsmth@gmail.com>, <linux-kernel@vger.kernel.org>, Steven Rostedt
+	<rostedt@goodmis.org>
+References: <20260526101851.2495110-1-arnd@kernel.org>
+ <b5e15330-ed64-4f31-bea2-bb877a24c1ce@intel.com>
+ <8e50449f-66f0-4e85-aefa-7016697fe722@app.fastmail.com>
+ <9398ee4c-3b51-4a00-a0d5-3674ce1b1081@intel.com>
+ <21f771b5-b8fe-4357-b081-ae83a39df485@app.fastmail.com>
+Content-Language: en-US
+From: Alexander Lobakin <aleksander.lobakin@intel.com>
+In-Reply-To: <21f771b5-b8fe-4357-b081-ae83a39df485@app.fastmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: VI4PEPF00000150.AUTP296.PROD.OUTLOOK.COM
+ (2603:10a6:808:1::868) To DS0PR11MB8718.namprd11.prod.outlook.com
+ (2603:10b6:8:1b9::20)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-ThreadId: A-HAwpsKkos7
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: DS0PR11MB8718:EE_|SA0PR11MB4589:EE_
+X-MS-Office365-Filtering-Correlation-Id: 66859cb6-9398-4c8b-e3fd-08debbfc8390
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;ARA:13230040|366016|1800799024|376014|7416014|22082099003|18002099003|6133799003|4143699003|11063799006|56012099006;
+X-Microsoft-Antispam-Message-Info: Z+n4P1tbs+WZ7rzw7lo0LPp4ORmm4K+aivpyFRtPk6jQV+hPM1nY+r7178p4svCf/wNk/UzjVZ9+9VKlrm8yafrVhPh5wUn26tHeGPIA29khxaFqGIvCGw4zgIi7mxcC1LHq3ahIHhKfHho/rEqcu1cJvBqII2hEvLgztCH7OGa829KzxS0dNdF2FPsxkCQogujRP/GGJsDOfQRCiGNhkrxcS4O9dlxobJl2rdo3paauzFSmtTDuKeL62LILLRdZgVC95miW1rCH8T8jodjx5EwlkjOYyooYGPp/2dKA0w/sriPb4xDHMIHBcrk4sq/O57RfShisWRX7rpsF7xTBVtjDcnb5l3isQ1Wd6uqyywEdMBP+kPXuI4p3v5gpa9okd1J8YcmhJCJaztw63lB+6Er92xMOZYgQhDrI6MxPejxKBcZI7Vx10Da26oRtqnWy3OrnJ/JmEB8vvKhj7WHvZWsaHnW0WPmtuz5H916Vdlu9EPHAcOzPjqFRs/yackKSVKAzKw0URxf+MPQMfL1hrb+e9qsdFrmPrs32A8lNXHJ2KujwOD0lcd+IctRKLJxpqbI/ExnCrijrs4i4p0/VKCOcxwNc7SO1Smi9HNuGaQVDYotRub0uDJbXWdFU3GRqTSzeL46HCLHkhaTtJI507SQDxMa6BAkxlmK69k0KNKTp9ldDD4KjxvIAgOn7cq9E
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS0PR11MB8718.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(376014)(7416014)(22082099003)(18002099003)(6133799003)(4143699003)(11063799006)(56012099006);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?ekVRb0lmMUhjVDkrOUFxaUsrOTNEb01sSllIekJVZnhQY1oxZDAzUnFQLzYw?=
+ =?utf-8?B?U2ZHK1J3RGI0SjUwSm42cm9mVU1yVGt6Q2xCZEx6OGQvVDY0OGxDOUY0cEhk?=
+ =?utf-8?B?K1pwSTBmcWpKQmEwMlBVaXg0M2Zic0pCRmx1VWV1N2R5UmN0VEF5RXBHMUdm?=
+ =?utf-8?B?NVdaMzdPK2x0Nk1oc3oydElaeTl1Z1JiMTl4eHF6Y0swYnlVRTNVYUVlcktT?=
+ =?utf-8?B?ZUdLU3FrQzdGdWsrajNVY243ODNmQkV5MkVtSjE4aE44VFFEdjRQaW5EYnVH?=
+ =?utf-8?B?S1QreUYwUHlvYmJvVGloOEZpR0V1QXdVbUN6S2dIVDJyeGNTZUVZVlBLRFc3?=
+ =?utf-8?B?QXlua2FBMVNnVklFSmdmRU1vK2VBUXNsVUh2TDUxSERJcFRqaHcwckZpa0xw?=
+ =?utf-8?B?NWF0MzhhMUkrQWphdklFdzdzN1hGVGlBRkJTaGtJVFRmMTJHT0NyV05jTHZm?=
+ =?utf-8?B?cmpMS3lzOXBjbXFWMVBNdFgxekpSUXNZZ2YzY0NRTWViNXNxNGNIOUJTVGZE?=
+ =?utf-8?B?ODlNalZYQUdxOHVjbzRNRTNHUVVvUG1NM2gvbERsdzl2NUZvaTF2dGFlMGx3?=
+ =?utf-8?B?VzlVZHdmMW9ST01LMlUzTnZNQlJjZisxRFlaQ0JRVFJrYmhtU0greHJvU3gz?=
+ =?utf-8?B?em5lWEYzK2ViMDdjdHN1bUlrUWQ5SG1MNTVrWW9FdjRLT1RwWHhrSlZKa3Rz?=
+ =?utf-8?B?TWl2UkE1dWlhbnRzVzU3NzN2bU45SXRyVi9sRFl4QVllUiszZ1lrek42b1dN?=
+ =?utf-8?B?cmpsVEFKZURuR3BxMDZoYlJ3dDdwRXdRMXNjckRvWjd4YVg2VUltTlhNcTho?=
+ =?utf-8?B?VnFWd2hySzdDYU1qalJxaHZKNUdXc3NhN3hGZkZNWllGeHFna2MzL3hRRG5o?=
+ =?utf-8?B?Rnp0R2FqMFpLbmxQdVRwT1d2TFJ4emQ5V0JZMGJpMkhHa1BUMVJtN3VoaHNk?=
+ =?utf-8?B?YlYxTFZHUlMweDQ4K1l2d2l3aU82OEhIcUQzYmptR085aDVWY2w4dUpmKys4?=
+ =?utf-8?B?cSt4QWZwa1pJa2R6dStLNFdmZ0M4alM0QTM2Y0RoeHp0eVpMVkg4RjY5enRl?=
+ =?utf-8?B?V2doc2d0UlhzRm42UXAramEvVUgyU3VXMDZMRy9MUzZZTTdjWmRoSzE0Tms4?=
+ =?utf-8?B?RDlLRitDWFcrdnB4RE1WVWZuME9ZRURtVlFMYythMzZ0TFlRaTF6ekEzeDkv?=
+ =?utf-8?B?WmFaMGdnaTVlbjdGLzh1WllhSW9TSWxqOGtrUWdOLzV3aUJtVVRuTkZOZDdz?=
+ =?utf-8?B?SU0vdThRTHBXUnppZXpYUXRjQUdzbWhEZ29oa3RKNFJmWXlseG5xVmJOdklB?=
+ =?utf-8?B?WmhJVFBQRTE2NS9yWDBMK1VXQjUxOE83TnhFUXBUQ0wwQ2RURTZuZkQvZmYw?=
+ =?utf-8?B?Mzd6WmIwTkNnUGQ4cW55RkhvbzBIcEdBTVFkb04zNy85V2ZvQUR4RWZyRlJ2?=
+ =?utf-8?B?MnoxYjBQeCsrTlJDU2RJclRWZ1R0NzdOWnpuOEtNVHY1dWV6WjlsZXV0LzFa?=
+ =?utf-8?B?MytDMlk0MWVZT2pxcVptelFDWHlQZXZJN0pnN1NBeWw0VTlwNEVLRnd2Qm10?=
+ =?utf-8?B?bHQ2aXBZQlFxNEE1U2JDVDlWQWp6dVRjQ2QrNjNDWWVJWWdNRDlYSGRxcVFa?=
+ =?utf-8?B?dkRReGZJOS9wdjJaclZSdWZySGlNT2JMMi9DYzk5SjNYdzhsb1FFUmZTSzkx?=
+ =?utf-8?B?TDB6djh4eVFuc3hoNTlab0xQR2dOVTJ3K0ppR0ZrdWRhOHpKVGUrMWdndm10?=
+ =?utf-8?B?Y0FuTi9pelVwd1RDK1VwcjR5bVAxRXgxeUNEWVZsdWxFY204bmU0Z0k3b1Nx?=
+ =?utf-8?B?bEUrT2ZhQS9QNjJld3JNM1VOandPVVU5SEFkRWVzZzhJc2U1ZHpSU04zN1Mx?=
+ =?utf-8?B?Y2dURzI0Uk9sWDEzemtqdnhaQVZFREd1aS91WVB2V0p0OUpFUTVRZVBjR0RZ?=
+ =?utf-8?B?TzJRMTFYUGlybmNYV2M3bVB5MVdvbmJHVXBVWFdlT29ha042czZSNS8wTHNr?=
+ =?utf-8?B?WXNHMmVnSVJiTVF5SnAyVVV0dTU1ZG9LYjJuNG5OVlFuMEVFR01MVHRoTjZN?=
+ =?utf-8?B?S3U1bE5jTFFpTmQ3ZTJWZEhFS2JVaVhpamlDUnA4VGwyV2RWOWlhSzlYY0E2?=
+ =?utf-8?B?bDBnUUx1eHdNT2hmRGtRRHZzWnpjcWV2N3RXT0ZQckFoWitoRi9KWjZLTzlQ?=
+ =?utf-8?B?TTBDRkErTkhta1RmOEZqNkltR0FkS1E1aHpEb1prYm83dEdEaFR4T3NsNk83?=
+ =?utf-8?B?bmJUZ3RaNitLZFhOL05id0xVZmhZaTVmNW5QMXh5R3FMRnl6RWY4N25idkM2?=
+ =?utf-8?B?a3hLdUx0bmVRVTdqVjgxL0xiZTk4NjNaSDFSY0Rzc1NKVFcralhDVitBL0Y0?=
+ =?utf-8?Q?RhGZVgaG7xUMF2Dk=3D?=
+X-Exchange-RoutingPolicyChecked: cDWQNnalSrRgNJp6dFQz9PTkQkjx/BXbhL6Q9TZasyNv8FfrOLSIuWyevVSeR4vlu3Qm2Jl+P5ShNNvivaLgTgfjeEAAbiU1Dtw/a7Egvztb+eNn0bqj2Fa9ABilW6Du7lsxKw2CBVEtQtX+X8FkUgg9bI9/BY+3mApRZBcyfczqD6bShmiXGe31Kojxl1b0uySfFv+CEuHvLYmFZtXwkpJFS6XQc578kpgsOYIF3rGTKl8mP9TkMXmizP8UYnuDTE1PA7NK3QMasK8JkHPjkqoXhRp7dzqcXRWdQcyJ+/tALK+DkbR5tekr21vC4QGyYRpg4ahMqoYVtrx8NXObQA==
+X-MS-Exchange-CrossTenant-Network-Message-Id: 66859cb6-9398-4c8b-e3fd-08debbfc8390
+X-MS-Exchange-CrossTenant-AuthSource: DS0PR11MB8718.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 27 May 2026 14:30:34.9167
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 46c98d88-e344-4ed4-8496-4ed7712e255d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: EON4FbvmlEailyhRqae5pmHG8LfOIDyE8tSG/cI4SMuehDWSGy3qZ99yS+Fzo8sXkLhgpXDm2P5PrhJ6KcoLHUO444WVpgMH27XGcdELByk=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA0PR11MB4589
+X-OriginatorOrg: intel.com
+
+From: Arnd Bergmann <arnd@arndb.de>
 Date: Wed, 27 May 2026 16:25:41 +0200
-From: "Arnd Bergmann" <arnd@arndb.de>
-To: "Alexander Lobakin" <aleksander.lobakin@intel.com>,
- "Arnd Bergmann" <arnd@kernel.org>
-Cc: "Andrew Morton" <akpm@linux-foundation.org>, linux-kbuild@vger.kernel.org,
- "Nathan Chancellor" <nathan@kernel.org>, "Nicolas Schier" <nsc@kernel.org>,
- linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>,
- "Vasily Gorbik" <gor@linux.ibm.com>,
- "Alexander Gordeev" <agordeev@linux.ibm.com>,
- "Bjorn Andersson" <andersson@kernel.org>,
- "Andy Shevchenko" <andriy.shevchenko@linux.intel.com>,
- "Christian Marangi" <ansuelsmth@gmail.com>, linux-kernel@vger.kernel.org,
- "Steven Rostedt" <rostedt@goodmis.org>
-Message-Id: <21f771b5-b8fe-4357-b081-ae83a39df485@app.fastmail.com>
-In-Reply-To: <9398ee4c-3b51-4a00-a0d5-3674ce1b1081@intel.com>
-References: <20260526101851.2495110-1-arnd@kernel.org>
- <b5e15330-ed64-4f31-bea2-bb877a24c1ce@intel.com>
- <8e50449f-66f0-4e85-aefa-7016697fe722@app.fastmail.com>
- <9398ee4c-3b51-4a00-a0d5-3674ce1b1081@intel.com>
-Subject: Re: [PATCH] err.h: use __always_inline on all error pointer helpers
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
 
-On Wed, May 27, 2026, at 16:06, Alexander Lobakin wrote:
-> From: Arnd Bergmann <arnd@arndb.de>
-> Date: Tue, 26 May 2026 23:03:50 +0200
->> 
->> Without CONFIG_PROFILE_ANNOTATED_BRANCHES, the changes are
->> very small, with around 100 functions growing or shrinking
->> by a few bytes.
->> 
->> I don't think we care much about the size increase when that
->> option is enabled, but I do wonder what behavior makes more
->
-> Yup, and even without this option, __always_inline is better here
-> regardless of how it affects the size. Such oneliners must be
-> transparent to the compiler
+> On Wed, May 27, 2026, at 16:06, Alexander Lobakin wrote:
+>> From: Arnd Bergmann <arnd@arndb.de>
+>> Date: Tue, 26 May 2026 23:03:50 +0200
+>>>
+>>> Without CONFIG_PROFILE_ANNOTATED_BRANCHES, the changes are
+>>> very small, with around 100 functions growing or shrinking
+>>> by a few bytes.
+>>>
+>>> I don't think we care much about the size increase when that
+>>> option is enabled, but I do wonder what behavior makes more
+>>
+>> Yup, and even without this option, __always_inline is better here
+>> regardless of how it affects the size. Such oneliners must be
+>> transparent to the compiler
+> 
+> In general I would trust the compiler to make the right
+> choices here, but as I have shown it makes very little difference.
 
-In general I would trust the compiler to make the right
-choices here, but as I have shown it makes very little difference.
+I would, but I had a couple moments when it was uninlining
+almost-oneliners resulting in several Mpps network throughput
+decrease =\
 
-I think one case where an out-of-line copy may legitimately
-be generated by the compiler would be when optimizing known
-cold code for size and the compiler can show that the
-out of line version is indeed shorter.
-
->> sense regarding the annotation for every single IS_ERR(). 
->> Does it make sense to have every instance get its own counter,
->> or would it make sense to actually try to reduce these
->> when profiling the annotations?
->
-> I'm not familiar with branch annotations, but from the stats above, it
-> really looks like it adds a lot of code bloat. Plenty of branches in
-> the kernel are sorta pointless to track (the ones which trigger once
-> in a thousand years, the unlikely() ones etc.), I guess.
-
-Yes, the CONFIG_PROFILE_ANNOTATED_BRANCHES option definitely
-adds a huge amount of bloat. The point here is to find
-incorrect annotations, either a branch that is marked unlikely()
-but taken most of the time or the reverse. I think
-Steven Rosted enables the option occasionally to
-see if there are any outliers, but nobody should use
-this in production environments.
-
-For IS_ERR(), it is fairly clear that unlikely() is the
-correct annotation in almost all cases, and it's helpful to
-mark all of the error handling as unlikely so the compiuler
-can move it away from hot code paths. With 35000 instances
-of IS_ERR() there are likely a few exceptions to this
-rule, but I don't know if any of them are important enough
-to require a code change. Steven might remember if he's
-ever seen one here.
-
-     Arnd
+Thanks,
+Olek
