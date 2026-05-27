@@ -1,73 +1,69 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mail.alien8.de (mail.alien8.de [65.109.113.108])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AEDA2453495;
-	Wed, 27 May 2026 17:49:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DDB4246AF25;
+	Wed, 27 May 2026 18:16:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=65.109.113.108
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779904172; cv=none; b=eOlyilXIuBwLuZyp5s2BsKu50xi9KYDFxivjl8ddib3b6/1MnpDmQuGmXkvq3CWncyzM9t/XD3gSdGuefpClYI6uQeGhLeRJq+Y/t5qCPdXGQuGPB+zO7NeUjQrKWRnGPTTyKgpAXiF0RahzWLDmeIf0C5z5SRpc0nq1YWw32j0=
+	t=1779905787; cv=none; b=DueYXlfNBgC0uVDfzgfzwjxmwhG+fWo8R24N3p2RB00/2zR1XRPbU3oob8GqistCu9MzNGDz5WaQshPqs2+7VQ4HdEqF9N42ddt+Bs3x0N26RZShvXRvE/UZhHg26Wn4tgF4TBowtZb+p5AiSJooB8oMj0WkG6Gjyx8IX9N8XVA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779904172; c=relaxed/simple;
-	bh=QHo4vfpTo+OuuUOJhK/ykgVt9OF28GCINhc8L0+DwLY=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=fiyJhb5cvnenwkyAJFA6taOBPqVNkVMNmqxcTHPR5Ov+mS3Os5368YxSY8A+uF6pgBFxeP7f21FXO3NT+MZ7T40S7l8ZohPDOWm3FF5r+8v65rgEAZWdWxNc1YiM3e5NEvz7iwaDG2YMAm6u75Ki5dRs2bQ8ypPelvZktMsmK3E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QmO3s03N; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1779905787; c=relaxed/simple;
+	bh=1VT4vh1CF0YV6Dj6+BM41l9UxaTUWIN/MOLzryPXFf4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=prI0kI3MQVBY9G3yop7zRHU9nWnVHjT0GcUsiAXTJc8x9b1YoI5UTUSJKnp1gQSnyzKh8a+1ZLieEFvdxBb9isK4ZkY+bUPpPPoDJOUhbZegEjDTz/vat8dZRdWBelGfHVaMG4pIl8cKT1w9CSOKUtKEm0IocqKRIGtDc+bxXas=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=alien8.de; spf=pass smtp.mailfrom=alien8.de; dkim=pass (4096-bit key) header.d=alien8.de header.i=@alien8.de header.b=BSyfa/0G; arc=none smtp.client-ip=65.109.113.108
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=alien8.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=alien8.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QmO3s03N"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4D841F000E9;
-	Wed, 27 May 2026 17:49:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1779904171;
-	bh=SGme9EGefoC4cL8s1RAk5wHcM5ST2icrcVT0s+6JiQc=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date;
-	b=QmO3s03NUjN2KFqtIUNtplCgcfaiu+Zcwi+mR9p0ChcHpkFSiBa0c8XOUU77YxoRC
-	 EC+3w96HLGEGLX4iD+1lIV1YJB2h6ncGaOV1DRryGf8wiB26VaRL2WTfu258Kmv5bR
-	 9tJMY3nZ/suiqDc9/rWUBVC85sqTB51FU27hoFmjA/mIY50pjtjg2DEyP+xmAhKoWi
-	 VylILIA7GlyRI9PuJlsSklRpORIYI4TWUAWhtTUvqOy6DyFkVqoQZCTx7cDZUbtGd+
-	 D3A+64reAFfrEt8eJ7xuksT7wzZdkmXU91SPyGB6Sq1fXqjNLqLp3x9pnD417T3vMq
-	 fRws0Ks1kio+g==
-X-Mailer: emacs 30.2 (via feedmail 11-beta-1 I)
-From: Aneesh Kumar K.V <aneesh.kumar@kernel.org>
-To: "Dan Williams (nvidia)" <djbw@kernel.org>,
-	Alexey Kardashevskiy <aik@amd.com>, linux-coco@lists.linux.dev,
-	iommu@lists.linux.dev, linux-kernel@vger.kernel.org,
-	kvm@vger.kernel.org
-Cc: Bjorn Helgaas <helgaas@kernel.org>,
+	dkim=pass (4096-bit key) header.d=alien8.de header.i=@alien8.de header.b="BSyfa/0G"
+Received: from localhost (localhost.localdomain [127.0.0.1])
+	by mail.alien8.de (SuperMail on ZX Spectrum 128k) with ESMTP id AFB0B40E01B5;
+	Wed, 27 May 2026 18:16:22 +0000 (UTC)
+X-Virus-Scanned: Debian amavisd-new at mail.alien8.de
+Authentication-Results: mail.alien8.de (amavisd-new); dkim=pass (4096-bit key)
+	header.d=alien8.de
+Received: from mail.alien8.de ([127.0.0.1])
+	by localhost (mail.alien8.de [127.0.0.1]) (amavisd-new, port 10026)
+	with ESMTP id hOVssZXizJI1; Wed, 27 May 2026 18:16:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=alien8;
+	t=1779905772; bh=yKtFY4BBYMPRlzCIJJQtbW5x/y0DZW6pYUq+N5xMMmU=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=BSyfa/0GmQmX7Oe2vHTD+nbiGKxsP0fxObUh9NlRN+UHJXUPOJ3yd/0nydBIT9yCf
+	 pCR3EocFI14rWJT4k+n1HljCFvorak7nDVDyU2S7ucKOyUCPVd6jLVyfxZefXMz070
+	 a+mMn2YRegoVBuE7qbIb2qaquDBnDh5byKQvsLttgNE9xdAfhrg88R4UdIQVUaCSqg
+	 JfiCj3Jd+6AImBQHRBlIBx/52nnzWsU+3vzxtGW517fcKoh0DxEtqTd3STS3T1tykN
+	 j0pcE+Zcqc+r3gTkadjgJaWDYea6f/aUn+Fvw2vouAeS4CCT6+kGyKgv885YAr7dCd
+	 YxHlyYOzcDYSZVBwFJwotFPaNFJ6VTT/CJemzYjIgt7ZwHxqHaewpP/Jn1AYWSD2BI
+	 fSfdj1h1l2pSliLhyA183HiVEvtEz5zHuSawQ0NaaZP7S3tUNLzM0KBcZUpnhOwXGO
+	 uJwRhAn0sAI7G5JelmOgn4Txtqpkn2rXz66NBF3Nmg9vI5A/gcH0LdSsKv3yaY7dnT
+	 ds/fIx6K/yI0ABhJxtqbmJ4WxM47LUo0XAVLdeBxb8R65K/G3iCP4ZzTvEUUg4/UsB
+	 k9eWl+aoHEuKDH6sD0iPA7m41OQ1cbbfTjvZoGFC5aT4HS45feFtPF25igyXJRH7Es
+	 mjsWNqk1Q0OcuQoAKpE4LrZg=
+Received: from stx.tnic (unknown [IPv6:2600:1700:38ca:c00:b8a3:f58e:8829:9ca6])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange ECDHE (P-256) server-signature ECDSA (P-256) server-digest SHA256)
+	(No client certificate requested)
+	by mail.alien8.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id E9F3740E00BA;
+	Wed, 27 May 2026 18:15:51 +0000 (UTC)
+Date: Wed, 27 May 2026 11:15:49 -0700
+From: Borislav Petkov <bp@alien8.de>
+To: Jason Gunthorpe <jgg@ziepe.ca>
+Cc: Christoph Hellwig <hch@infradead.org>,
+	"T.J. Mercier" <tjmercier@google.com>, maddy@linux.ibm.com,
+	mpe@ellerman.id.au, npiggin@gmail.com, chleroy@kernel.org,
+	linuxppc-dev@lists.ozlabs.org, mripard@kernel.org,
+	sumit.semwal@linaro.org, lkp@intel.com,
+	linux-kernel@vger.kernel.org, iommu@lists.linux.dev,
+	linux-mm@kvack.org, agordeev@linux.ibm.com,
+	gerald.schaefer@linux.ibm.com, linux-s390@vger.kernel.org,
 	Dan Williams <djbw@kernel.org>,
-	Jason Gunthorpe <jgg@ziepe.ca>,
-	Joerg Roedel <joro@8bytes.org>,
-	Jonathan Cameron <jic23@kernel.org>,
-	Kevin Tian <kevin.tian@intel.com>,
-	Nicolin Chen <nicolinc@nvidia.com>,
-	Samuel Ortiz <sameo@rivosinc.com>,
-	Steven Price <steven.price@arm.com>,
-	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
-	Will Deacon <will@kernel.org>,
-	Xu Yilun <yilun.xu@linux.intel.com>,
-	Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>,
-	Paolo Bonzini <pbonzini@redhat.com>,
-	Tony Krowiak <akrowiak@linux.ibm.com>,
-	Halil Pasic <pasic@linux.ibm.com>,
-	Jason Herne <jjherne@linux.ibm.com>,
-	Harald Freudenberger <freude@linux.ibm.com>,
-	Holger Dengler <dengler@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Alex Williamson <alex@shazbot.org>,
-	Matthew Rosato <mjrosato@linux.ibm.com>,
-	Farhan Ali <alifm@linux.ibm.com>,
-	Eric Farman <farman@linux.ibm.com>, linux-s390@vger.kernel.org
-Subject: Re: [PATCH v5 5/5] iommufd/vdevice: add TSM request ioctl
-In-Reply-To: <yq5apl2gsw6y.fsf@kernel.org>
-References: <20260525154816.1029642-1-aneesh.kumar@kernel.org>
- <20260525154816.1029642-6-aneesh.kumar@kernel.org>
- <becd865d-09a4-4ac3-b719-4a0deae2692a@amd.com>
- <6a168c8ea7d10_2129b2100e@djbw-dev.notmuch> <yq5apl2gsw6y.fsf@kernel.org>
-Date: Wed, 27 May 2026 23:19:15 +0530
-Message-ID: <yq5aldd4spyc.fsf@kernel.org>
+	Tom Lendacky <thomas.lendacky@amd.com>, x86@kernel.org
+Subject: Re: [PATCH] powerpc: Export set_memory_encrypted and
+ set_memory_decrypted
+Message-ID: <20260527181549.GBahc01Xflm2yo5OqI@fat_crate.local>
+References: <20260522225853.878411-1-tjmercier@google.com>
+ <ahPqbfH54R3JJyaV@infradead.org>
+ <20260527160716.GN2487554@ziepe.ca>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -75,107 +71,26 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+In-Reply-To: <20260527160716.GN2487554@ziepe.ca>
 
-Aneesh Kumar K.V <aneesh.kumar@kernel.org> writes:
+On Wed, May 27, 2026 at 01:07:16PM -0300, Jason Gunthorpe wrote:
+> > Setting memory decrypted is a dangerous operations and should only
+> > be available to core code.  We should have various allocators for
+> > decrypted code, but not export the functionality to random code.
+> 
+> At the very least an EXPORT_SYMBOL_NS.
+> 
+> Looks like there are about 3 modules using it already..
 
-> "Dan Williams (nvidia)" <djbw@kernel.org> writes:
->
->> Alexey Kardashevskiy wrote:
->>>
+Looks like more to me...
 
-......
+In any case, we exported them back then for some framebuffer things:
 
->>>=20
->>> I have 3 types of requests to fit here, all go via VM -> KVM -> QEMU ->=
- IOMMUFD -> TSM.
->>>=20
->>> 1) bind/unbind TDI <- moves to CONFIG_LOCKED, this is "OP";
->>> 2) start/stop TDI <- moves to RUN, this is "GR"? Right now I route it v=
-ia "OP";
->>> 3) enable/disable MMIO/DMA <- no TDI state change, this is "GR" but whi=
-ch scope is it here?
->>
->> The scope parameter was meant to enumerate a security model for classes
->> of commands that are otherwise opaque to the kernel. However, none of
->> the commands we are targeting are opaque (private specification with
->> unknown effect). It now turns out there is no role for @scope for
->> security.
->>
->> Now a command family that iommufd can validate seems useful. As it
->> stands this implementation aliases command codes across TSMs. Do we
->> proceed with creating an actual shared command uapi for the truly shared
->> commands:
->>
->> TSM_REQ_TYPE_DEFAULT: Commands every arch needs
->> TSM_REQ_READ_OBJECT
->> TSM_REQ_REGEN_OBJECT
->> TSM_REQ_OBJECT_INFO
->> TSM_REQ_VALIDATE_MMIO
->> TSM_REQ_SET_TDI_STATE
->>
->> TSM_REQ_TYPE_SEV: Commands only SEV needs
->> TSM_REQ_SEV_ENABLE_DMA
->> TSM_REQ_SEV_DISABLE_DMA
->>
->> ...or just observe that per CC arch commands are needed to setup the VM
->> so per CC arch commands are needed to marshal device assignment support
->> requests.
->>
->> In that case pci_tsm_req_scope becomes tsm_req_type and is just:
->>
->> TSM_REQ_TYPE_CCA
->> TSM_REQ_TYPE_SEV
->> TSM_REQ_TYPE_TDX
->>
->> I am leaning towards the latter at this point.
->
-> But we already have struct pci_tsm_ops::guest_req, which is specific to
-> the underlying CC architecture. From the above, pci_tsm_req_scope also
-> appears to carry the same information. Is that useful?
->
+95cf9264d5f3 ("x86, drm, fbdev: Do not specify encrypted memory for video mappings")
 
-I think there is value in having the VMM express the guest=E2=80=99s
-confidential computing architecture, so that the TSM backend can
-validate whether it should handle that guest request ?.
+-- 
+Regards/Gruss,
+    Boris.
 
-So it would not be the IOMMU validating the scope value, but rather
-pci_tsm_ops::guest_req.
-
-static ssize_t cca_tsm_guest_req(struct pci_tdi *tdi, enum pci_tsm_req_scop=
-e scope,
-		sockptr_t req, size_t req_len, sockptr_t resp,
-		size_t resp_len, u64 *tsm_code)
-{
-	struct pci_dev *pdev =3D tdi->pdev;
-
-	/* reject the guest request if VMM was using the link tsm wrongly. The gue=
-st
-	 * was using a wrong CC archiecture with this link tsm
-	 */
-	if (scope !=3D TSM_REQ_TYPE_CCA)
-		return -EINVAL;
-
-
-Jason Gunthorpe <jgg@ziepe.ca> writes:
-
-> On Tue, May 26, 2026 at 11:17:50PM -0700, Dan Williams (nvidia) wrote:
->
->> In that case pci_tsm_req_scope becomes tsm_req_type and is just:
->>=20
->> TSM_REQ_TYPE_CCA
->> TSM_REQ_TYPE_SEV
->> TSM_REQ_TYPE_TDX
->>=20
->> I am leaning towards the latter at this point.
->
-> Yeah, this sounds good. I would also include an common op field that
-> can be decoded by the TSM driver based on the TYPE above, and the
-> usual in/out message buffers.
-
-We already have iommufd_vdevice_tsm_op_ioctl() to handle common
-operations. Right now, it handles IOMMU_VDEVICE_TSM_BIND and
-IOMMU_VDEVICE_TSM_UNBIND. I guess we should move TSM_REQ_SET_TDI_STATE
-operations to that as well?
-
--aneesh
+https://people.kernel.org/tglx/notes-about-netiquette
