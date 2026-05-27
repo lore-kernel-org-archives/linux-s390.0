@@ -1,133 +1,234 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.13])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 73E8626158C;
-	Wed, 27 May 2026 13:44:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779889496; cv=none; b=T1J4Jd0URrBVWoyK2BntgqicWxN+3XqrKoQUfrYVBnBQ7k603/TJ9FHpli9xRS+Ma2Q81BTuq2rRGB79Q7O3FTV6L/jS07PGJMIw7NaNo5C/WJ01q6P3Wx9Z0ynnDHzRCMuQ+Z+YuNtsmGGWrOrM4CphBjxao3AjvKRvAbP4gaU=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779889496; c=relaxed/simple;
-	bh=KUfNdQOkceDdNDMG0UG1NCLwnmp9ILjympUpLk5ycFk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=mGpZh2BYHZyvcW6x1ac8uC+4WF7jMWvirD75X71k8mVy4uT2PYZCT8qu7SevrWHbQB3az0ZhBWmhVQmRSmnYmR0rP4zbaC2i1bcP1p4dwWxYtIH8hLtuQqqk88Czt5aOipSkaZol4H4NQGgBUSO1gD9K4lX0BWLCYHQLNwUewPI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=aWyrNEoP; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 01EB431F9A6;
+	Wed, 27 May 2026 14:06:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=192.198.163.13
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1779890793; cv=fail; b=YNxhyG6AkB4HtLE85q2iRm7vpY9Sgke4+vkV46LcELs+FCDDKlu3Mg4BteImLXMt2Y5ImFGj4y/XNn2UQ+OmDg1RRT/DgAddinjl1rNHYLsSuoEcIAKds8qe/HkxuJajPPp9UAkFPvQSGJyVc6jJJ2mX9XqGk5ue4rqBq4lyZfw=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1779890793; c=relaxed/simple;
+	bh=gToWz2EUPbWGHtmQVYsWIrjEnj5Xd06zyh/nvsukrL8=;
+	h=Message-ID:Date:Subject:To:CC:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=ZW6ni+D6vaYw1xouuD1JbGU8+aFHdv+XunTfXkvCodIwPJM8KVMcWTi0ukbxGHzHMto5gwkr1uPqSK61N+Lylem3WoSWoHD2GwETUkK6OWIERBonUxf/CvhlWIkRCHbkHhjg5+FrTMpHYSblK+pNTJCCHxFz2zarBZPb/2TQkEQ=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=DI9XWTW3; arc=fail smtp.client-ip=192.198.163.13
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="aWyrNEoP"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 64RCrG4F3810881;
-	Wed, 27 May 2026 13:44:35 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=rjAauv
-	CsE8RPbqqytqtDgAb4iUfIUSALqGqXBVUU4f0=; b=aWyrNEoPbdUmef84KWdxs0
-	FEo28kQ42iVq6gRL/hkDWV5WJ1aVCtphjNn0CQyTkNQySjTcS8zqe+8sintm49q7
-	fzzHFCCBAl2mgQGiESH2TE+UnUb+0AfFNsrn+95x5JzUkx9t68kNitVJtsg3tZ2m
-	xtWq8JToQPg9t3KIl9pycjv9sC3pPBSfVodBZra8VcQkp+Kh8uXFUhS4LjoSeEiZ
-	jsvxeKFsuMyQP/d6/FZaTZ7y9aHz3im4oy0uFJruYLrzmTGQ1R8R49pAuFtr49Tl
-	e+IKdbmWOS8Xks2B1e+2/EtUmRFz+PnrgtMc1DKbExJX1S3TbFGq1OPYfEMKH2Ww
-	==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4eb4qc1j31-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 27 May 2026 13:44:34 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 64RDdCsD000887;
-	Wed, 27 May 2026 13:44:33 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4edjrb37p5-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 27 May 2026 13:44:33 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 64RDiUo550594254
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 27 May 2026 13:44:30 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 09FF820043;
-	Wed, 27 May 2026 13:44:30 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 940FA2004B;
-	Wed, 27 May 2026 13:44:29 +0000 (GMT)
-Received: from osiris (unknown [9.52.214.206])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Wed, 27 May 2026 13:44:29 +0000 (GMT)
-Date: Wed, 27 May 2026 15:44:28 +0200
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
-Cc: Alice Ryhl <aliceryhl@google.com>, Boqun Feng <boqun@kernel.org>,
-        Jan Polensky <japo@linux.ibm.com>, gor@linux.ibm.com,
-        agordeev@linux.ibm.com, ojeda@kernel.org, peterz@infradead.org,
-        jpoimboe@kernel.org, jbaron@akamai.com, borntraeger@linux.ibm.com,
-        svens@linux.ibm.com, gary@garyguo.net, bjorn3_gh@protonmail.com,
-        lossin@kernel.org, a.hindborg@kernel.org, tmgross@umich.edu,
-        dakr@kernel.org, rostedt@goodmis.org, ardb@kernel.org,
-        linux-s390@vger.kernel.org, rust-for-linux@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3 0/4] s390: Enable Rust support and add required arch
- glue
-Message-ID: <20260527134428.9471C69-hca@linux.ibm.com>
-References: <20260521165622.279953-1-japo@linux.ibm.com>
- <CANiq72kT7YEuMaM7wkOtCz8ZqEXbPLniA-x4L7E=B+x0zXt_2Q@mail.gmail.com>
- <20260526161312.19291A8f-hca@linux.ibm.com>
- <CANiq72m4GVWFYqnxNtCHTPu7XcGewHB5LNwOoayTfnXs9pPbNg@mail.gmail.com>
- <ahbJtRzeJUqpj3Ux@google.com>
- <CANiq72nATtptB+hOHAgqg8Zn_mzUSPRZUCXxnL2j0_yNqrMgOw@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="DI9XWTW3"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1779890792; x=1811426792;
+  h=message-id:date:subject:to:cc:references:from:
+   in-reply-to:content-transfer-encoding:mime-version;
+  bh=gToWz2EUPbWGHtmQVYsWIrjEnj5Xd06zyh/nvsukrL8=;
+  b=DI9XWTW3Y3tfcBdaBmKSyXaCWDdJtZT/VGu5b/+sQD0Nc5PYLlmG3T4F
+   USMi/U3o0qX5C1W9j78DH4ADtl8gsK4N/ZmWzs71v1TW21gBnFs/HBp7F
+   ITP1DmYiXCptAau2PiaPsA7TIcFkfxH0rpEAXFlthSS9AVlyjSJbp1v55
+   StY3kY/wPRqLoxj04J+o9ghmNxIZPM/JUFbTisXxahGVx2ma8QMGqyHnZ
+   eXbu20rfwX1N36ozoZ3VWvtozwmc7P5aHhIaXrkhUbWxgZry69/q0p+UQ
+   nm6JcNqRUHjOstF0cFobh9enkMkggIrIGcDtwWiVRNQNfp37iqLJFPIbf
+   Q==;
+X-CSE-ConnectionGUID: bpEUxdfRTIOwfwowBtAyfg==
+X-CSE-MsgGUID: KvD4V+XOQxKOcM83qD9MHw==
+X-IronPort-AV: E=McAfee;i="6800,10657,11799"; a="83299310"
+X-IronPort-AV: E=Sophos;i="6.24,171,1774335600"; 
+   d="scan'208";a="83299310"
+Received: from fmviesa007.fm.intel.com ([10.60.135.147])
+  by fmvoesa107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 May 2026 07:06:31 -0700
+X-CSE-ConnectionGUID: hAyD1Z+BQcOxdqDgIw6PwA==
+X-CSE-MsgGUID: kTsHwlTSTfeVwzNVOws0IQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.24,171,1774335600"; 
+   d="scan'208";a="239250229"
+Received: from orsmsx901.amr.corp.intel.com ([10.22.229.23])
+  by fmviesa007.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 May 2026 07:06:31 -0700
+Received: from ORSMSX901.amr.corp.intel.com (10.22.229.23) by
+ ORSMSX901.amr.corp.intel.com (10.22.229.23) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.37; Wed, 27 May 2026 07:06:30 -0700
+Received: from ORSEDG903.ED.cps.intel.com (10.7.248.13) by
+ ORSMSX901.amr.corp.intel.com (10.22.229.23) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.37 via Frontend Transport; Wed, 27 May 2026 07:06:30 -0700
+Received: from PH7PR06CU001.outbound.protection.outlook.com (52.101.201.39) by
+ edgegateway.intel.com (134.134.137.113) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.37; Wed, 27 May 2026 07:06:29 -0700
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=yEz6Ec29zrgfJXiI3Hy/RXXOrtN4oCaiJ/2JyJt0WphaVrVTD++frHRQUnLY0ShjO452G8eHvzlQ5/YVV5500L5N1ruXWTBd9zISa2JiZVG83i6seraMR2IGRuf+DbeBxH3+Jlm4QqV57QOkT7dmGa2q5YEiXMyjmVR7IB1tJnPFVEDm5jkUpCp8xX9F4LyxGsg7/O+Bvi5yaNwLdZgJe8ooQplV2D0SRk55fuWvW7lOTLZVjmH8h8p54AE6LAb0zZ6Lz3OXJ3M64EVxMeVHsJB/fJ//upwJh/w3xNA4S7tTpNGc3NzFf5gIKDmEIP0D8B7kmdfV2IZRSsSzrRwdeQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=66hHKuAU07eFWIH6swXlHsTD2Z5x02Z6nz6/uMup44g=;
+ b=yUtBEktUApQ9ImDMJb92DnbIiDnkcCGXQq8lleWlL8aszeyY9MjF1ZV3rKtroyojofMA0Xd4xF4qrJl8Ee9G307WQTQ5iJnOA6iqjzOncQWqn+6lVzeK7/EpRgo7jMih+mxW9v5SrGaok4jPRkOlIa1zb0tfPWxNy9wZ3guecBov7AUf+0H99LiiZ8iWlHugvMHhX6xX5frIElD3qkz6jYF7qZrGp8GxrTb1t6VV5IOE9YYQx05wSLFrIsTxTGKe9ovG73wIOnxw6xPaJD0BGa+HbacGBvlhkMEujNzpJgFTY7XgqSS1Wc6BAQzZ/k0YBQO2rnyZ0cw/RY6HWqASaQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
+ dkim=pass header.d=intel.com; arc=none
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=intel.com;
+Received: from DS0PR11MB8718.namprd11.prod.outlook.com (2603:10b6:8:1b9::20)
+ by CY8PR11MB7084.namprd11.prod.outlook.com (2603:10b6:930:50::5) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.71.11; Wed, 27 May
+ 2026 14:06:26 +0000
+Received: from DS0PR11MB8718.namprd11.prod.outlook.com
+ ([fe80::6aa:411d:4bfa:619c]) by DS0PR11MB8718.namprd11.prod.outlook.com
+ ([fe80::6aa:411d:4bfa:619c%5]) with mapi id 15.21.0071.011; Wed, 27 May 2026
+ 14:06:26 +0000
+Message-ID: <9398ee4c-3b51-4a00-a0d5-3674ce1b1081@intel.com>
+Date: Wed, 27 May 2026 16:06:19 +0200
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] err.h: use __always_inline on all error pointer helpers
+To: Arnd Bergmann <arnd@arndb.de>, Arnd Bergmann <arnd@kernel.org>
+CC: Andrew Morton <akpm@linux-foundation.org>, <linux-kbuild@vger.kernel.org>,
+	Nathan Chancellor <nathan@kernel.org>, Nicolas Schier <nsc@kernel.org>,
+	<linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, "Vasily
+ Gorbik" <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>,
+	"Bjorn Andersson" <andersson@kernel.org>, Andy Shevchenko
+	<andriy.shevchenko@linux.intel.com>, Christian Marangi
+	<ansuelsmth@gmail.com>, <linux-kernel@vger.kernel.org>, Steven Rostedt
+	<rostedt@goodmis.org>
+References: <20260526101851.2495110-1-arnd@kernel.org>
+ <b5e15330-ed64-4f31-bea2-bb877a24c1ce@intel.com>
+ <8e50449f-66f0-4e85-aefa-7016697fe722@app.fastmail.com>
+Content-Language: en-US
+From: Alexander Lobakin <aleksander.lobakin@intel.com>
+In-Reply-To: <8e50449f-66f0-4e85-aefa-7016697fe722@app.fastmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: VI1PR06CA0149.eurprd06.prod.outlook.com
+ (2603:10a6:803:a0::42) To DS0PR11MB8718.namprd11.prod.outlook.com
+ (2603:10b6:8:1b9::20)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CANiq72nATtptB+hOHAgqg8Zn_mzUSPRZUCXxnL2j0_yNqrMgOw@mail.gmail.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTI3MDEzMyBTYWx0ZWRfXylGDjg00c0YN
- ZB4d6CSRojRKHAe4qUeqJzWJLzaiWixnzpKxKFaVweteCpdftO8HuUx8SoA/c6PSp0qs7DMabyr
- iwl8Ci0pnu49IeaMG1t7WDyyxcse0WtQsidync/dzqK1X469o0DtGBu3wAOJv0K/t8pnJLEEV3k
- R0Yu0fj9dwoPyQFas3gKVHZ0nAlSRzb5DZCqz1yoOiohHmn1FESsxPVWHq93HHllBDUZJIzuSEz
- 8mcAOkcIS6dpKCuK8PzNqIZUtH64A726CgGJGItb78xojPjHekS9MVJkvhhKn6nPZAbCr8la21S
- A+m15GIAhLPW5hQOBgRnqTSzkx7rh1tAgB80AImw3pvLxUDdVpXbOWU+Va1GlsgP+6unjIVvqsX
- Sg7Bqd4QS2e6QhWXkhpEp9yM+suSmGSd9VBzu/Rkvnb0l+gERXM6Sb9HkkOg6yE9VMv7okRoeEU
- 8CNfuVNB78cyxUnx9+g==
-X-Authority-Analysis: v=2.4 cv=KItqylFo c=1 sm=1 tr=0 ts=6a16f543 cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
- a=IkcTkHD0fZMA:10 a=NGcC8JguVDcA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=1XWaLZrsAAAA:8
- a=fd4IrLrsY76uiRLARL4A:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-Proofpoint-ORIG-GUID: Fn7Ujt3L4aHkdfhwG8Bm0N_PlSinXSNW
-X-Proofpoint-GUID: bXlCgpG-FPO0Ns6AHjczGMQjX7BKMdQK
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
- definitions=2026-05-27_02,2026-05-26_03,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- phishscore=0 malwarescore=0 lowpriorityscore=0 spamscore=0 priorityscore=1501
- clxscore=1015 adultscore=0 suspectscore=0 bulkscore=0 impostorscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2605130000 definitions=main-2605270133
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: DS0PR11MB8718:EE_|CY8PR11MB7084:EE_
+X-MS-Office365-Filtering-Correlation-Id: 625b978f-f09b-4023-96cc-08debbf9245f
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;ARA:13230040|366016|7416014|376014|1800799024|6133799003|3023799007|22082099003|56012099006|18002099003|4143699003|11063799006;
+X-Microsoft-Antispam-Message-Info: X099fd8iyIKOOkPtlVT1ahQ12txspSKMei+7gN4PtJ8wO9Dp01GhSGI2VH0F32bgnw4aC6M8UcZppOTt937+XKBR3MV+p4Vv3yi8/MvjYO9VVwiRV+MvdVdmUeS0fs6XYkG/94/86ikv7ViYLaS4j2dy4pL0M0MoNMN58Uc/BrOrzKx6jaXZy5UDljgxZm0fy/CU759v3mGVSP+3vBIUqcfb+rZ7iwhKf+IGncSBuaz1FlKfbjOaP1gy4moQhnTMVI1TZjJAXpjpsFUjsuA3rAJyzYvDJx1NEbZVJW24vNQMs6wSpDA5Erwlb4CgK+m0OeTmPN9zWz6QZYdhh5uOQYKYrbVBVq8S1XJQ0cuefu0169j560XtYICiuguev18gAbl3ovGjv6prQDiqtT1Jiu6Di/Hv91whrrhkj2wTHTTc13TmTgyjM8M6rfbPWnIiUNfHH9uHjTHWbDOL8GX1Xry/na8WXOhNB3aBAcmBA/z/k630agdZyN8NwCj1iON+XJxFCEKKETj6F2196wr20cWuu9FMgU2g42pfMf4GaHvi36fLusbfiFG9/FwSv3C3vVBi0yOemtSn408rc1obnk8cdqA6gpvrORCHtqJA+cR4hnscKW9Tdj4CRuRWAbi24GzB2AQhrcxcfe0pRLqErrdG3pbk3fgOrGcEYN5bLhgTjduUTJudZl9cMXCWnrPM
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS0PR11MB8718.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(7416014)(376014)(1800799024)(6133799003)(3023799007)(22082099003)(56012099006)(18002099003)(4143699003)(11063799006);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?WXJCeXIwTC9peVhXVVFkQUZESXYyeU9xcE9MK2lkVnJuY0x0T2xYaDh5ODls?=
+ =?utf-8?B?Z1Bldjk2OFpEY1ZtSDIwR3RQVUhpNFNSS1hHczFjdkFYUUVsN09TMzZtTFAr?=
+ =?utf-8?B?ZjZ1N0RuQnFkM3gyaDM5aG1sZDlSZllMWGhvRVdEMXQyaDcxQXFZREthMmhU?=
+ =?utf-8?B?UnBLemFQckZKM0pTMDJHUVNaZkxDRnFhYkI5L3BDZ0R6QTZGZXVPYWc2eVFG?=
+ =?utf-8?B?VGM4WUtyTDZtc2RySXZxbVZjMVRRMVZCVEY5N21ZWG1hcUtVV1Q1UXZCNGZR?=
+ =?utf-8?B?MEh4b3JwWDY0OE9VZWpnWGJsTy9QWFJvZUpoRVBOYjVwUWZJVGtmcjI3SHFy?=
+ =?utf-8?B?NnhvRU15QmVnZXY0WTc0OFQ1Mkx6NUdqRzk5QVVOTWdMZ0FvRlRabDhGV01N?=
+ =?utf-8?B?bG9CSFM5UWg4Y1pZdkhHRFhaUGVtL2NaZXB5RUpqRk9yZFVJNnRSYThyemxF?=
+ =?utf-8?B?MU03d1BsSGxzd2FjRHRDVWcxaGhMaGlCdEhsdEMwb2VvRnI3TWhLM2hnODZH?=
+ =?utf-8?B?RVVSeTVxVm5IT2tHT095TG5FOGp2VGJjUnorcERIVzM0WUVERjl0a0xaQXQv?=
+ =?utf-8?B?VnFpNnAxbHNTSlg3WVIwZkRiQ1Z5b2VrYm1NQ3ZXQ2RiRlVoSnU5UUxySDB2?=
+ =?utf-8?B?N2paSS9obVh4SjBCVWZDQml3TDVtaFFia1daQ3NYQktHSTM4dEliSFFVMVJL?=
+ =?utf-8?B?RzBYTWxFSTNPZlM4d2dSc1A2aDFteFQxK1FNcStlaTNhL2tXVXJ2UEs1S080?=
+ =?utf-8?B?RVB2Y21XUEJvRFF1a0sySytKcDdrcXV0ZXpPY3RIM3lKd2VwUi9nWXF6eWQ5?=
+ =?utf-8?B?YW5wc1d5bHN6VmJNTEdCQTNhL29yQjBybWdtQzYrQ1dpRnp0RlRQUXluV2wv?=
+ =?utf-8?B?RDlMRFFmUDQ3UDBGZ25obDZzVURNdUkvZE12OUs1RnAvWGFwT1ZqTVI5ZkIr?=
+ =?utf-8?B?dkJFMjJMeldwUzZzdE55TFIzNFBXZHJOKzczMkx3dmhvRTlkcXV4ZHM5R2Ew?=
+ =?utf-8?B?VTFQbERnTDhmQ215UnMybjVSdWFwd1lBaTloSEVCMmVWWG9WamJKNnZ4UTgr?=
+ =?utf-8?B?Mjd3cDlyNFYxTHhXME9Wems2dzgyTXF0a1RhdGdqM2I4a1dRSG5tQzlQSHow?=
+ =?utf-8?B?WlpNcHNzTlBXQzM5NS9XcEJ0NFJIWFljdktlaFBMR0c1TUlrOU8vUHYrd2Jz?=
+ =?utf-8?B?MmQ0akdLbE9Ydm9yQys0ZUpLTURHdGxDdEJIS1JzanNIenFCbE5iWmhmS1Fs?=
+ =?utf-8?B?dGpqQ3FVaGxWU0tVUjduVjJzazdicXJoLytMbmhvTjRsR1V3WFdGQ01ETmdK?=
+ =?utf-8?B?ampVWmZRaU1WOHNoN2F6UTRQS3BsUUsxM21waVFjcldUM3dqVjluWGtQdGRs?=
+ =?utf-8?B?ZyswaVdabWNXZ3gwUDV4RDdnamdTekJNTThtYUUvaWRPWWc5eGhEbmFpTy94?=
+ =?utf-8?B?MU9RbE1nN3B6dDg5RjJFQXpOMVMyU1pyYzFyaDlWSVBMU2FPYlFJWG90bmp3?=
+ =?utf-8?B?Rkx0RlVHcTRoRlJjbTF4d21qYjdOWkhFMFVLRnY0WlM2QWFJTERwOGZxWCs4?=
+ =?utf-8?B?R25JODlKT095QmVGNG02Kzd5eGFkbVo2eU1hZnlzamQyMmU4c3Y0UC9LUHU0?=
+ =?utf-8?B?UHp5bmlZSG53V2YvMENuQmpZTXV1NWZybTMyS2gxNlZUb1ZiSEtDTXJjYmVk?=
+ =?utf-8?B?VW1uYm9jUnJwZzRreEpNam9tR002MWRqcFcxc1g4ZnVzeFkxU25QeEdIRit0?=
+ =?utf-8?B?bTFjeG50T2d6bkRiSzVDcGxGS3RZVTl3OG1lWUk0THViT3kwdEJSK2FEa0Z6?=
+ =?utf-8?B?dVd3VEJwVnMySnJISTlIVk0yalMwS1FOQjQ3K0pNZFl3ZmQ1UHA5dWszWUVh?=
+ =?utf-8?B?OGJON2VSRms3Tk14VHl5eHE2am5yVXVIeGYxUmlzakV2MEVQYUlZV3I4Wmkw?=
+ =?utf-8?B?TkFOWWVOYlJ4TUlveWdnTXExVzN0MGUwa0dMdlozUXFKaWljSTlncC9sYlky?=
+ =?utf-8?B?bHY0WC9McUNzSC9qNUgwNWxObGdMTkJGRDFOakdHVG1vYkZpMXFHc1J0czNC?=
+ =?utf-8?B?K3k0NTZIVFJscWZsQ3RVZEw2by9aTWhqWWFub1A3S1E3SGFmbkIyLy9WcUV2?=
+ =?utf-8?B?VEVGajhGeXBUU3NLV3hhNjk0U1B6LzBFVzJiMTJiaHRVMzVIa1l4THhFOUsz?=
+ =?utf-8?B?OUEva3BDbW1yaFlJY0RpT1JZbXd3ZXppMnRuRWVzVk5aVThmSHJXQTY3cHY5?=
+ =?utf-8?B?ekhNRjZZYXNka1RUcVlteS83NFJxZVZkTUNiRFR4UGluaGVkN2laQ050SDBr?=
+ =?utf-8?B?cjFrcmdFM0M2T21TK3EvZ2N6Lzc0bWhYMmxMQU0yaDJKc1NkZnRhbVljSE92?=
+ =?utf-8?Q?m5m3akch7fOpC+7w=3D?=
+X-Exchange-RoutingPolicyChecked: nVSWLD9Pwd7LbOysSRYegHe0KlOaHX4y75dbH8qvBMsW0Sgqk1mtXvjEpLCMniEAQ/0LSzqzkluo8ZBFCCUBukCR7iPlLecTdvrNByX1iyiaSn7HN23X5fH3qVy4hKJdkiUsHXZTw5nrDPe/UqMonlnibg+W6Ofjns1Auyx4kdg5DxyFNmZ7TrOdYOaK/Nb6Dn2aloDu8k1YcntLxlKke+WJF1R+D2vQbyjCLEHq01SEn5igvwN/DMJ0D4oHW0UTk6uFDpjkGhdPnXhA1vn30YjdQyXE9edkDP+/6b44exnj1VWj7kQrkQjBS4Rp1MpY4ZfoWvYUY2DdWUHlPwYUcg==
+X-MS-Exchange-CrossTenant-Network-Message-Id: 625b978f-f09b-4023-96cc-08debbf9245f
+X-MS-Exchange-CrossTenant-AuthSource: DS0PR11MB8718.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 27 May 2026 14:06:26.7081
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 46c98d88-e344-4ed4-8496-4ed7712e255d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: puvPVeHFY6YFzNqXH7umiFTT4nmWLStqDPGNjdZUWKAnQ7pTQi5EVKme4cSkZZktviLGLPatXolsTMjCeY+HH7QPKQG/eSDO2nwj4zUBlo4=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY8PR11MB7084
+X-OriginatorOrg: intel.com
 
-On Wed, May 27, 2026 at 02:10:25PM +0200, Miguel Ojeda wrote:
-> On Wed, May 27, 2026 at 12:38 PM Alice Ryhl <aliceryhl@google.com> wrote:
-> >
-> > Based on some very quick research, it looks like enabling the backchain
-> > target feature does not affect the ABI in the sense that mixing together
-> > object files with and without this option will still work. If that's the
-> > case, we can add this to the list of known target features for this
-> > target in rustc, which will silence this warning.
-> >
-> > (If it affects the ABI in a breaking manner, it needs to be added as a
-> > separate flag rather than being added as part of the -Ctarget-feature
-> > flag.)
+From: Arnd Bergmann <arnd@arndb.de>
+Date: Tue, 26 May 2026 23:03:50 +0200
+
+> On Tue, May 26, 2026, at 17:01, Alexander Lobakin wrote:
+>> From: Arnd Bergmann <arnd@kernel.org>
+>> Date: Tue, 26 May 2026 12:18:41 +0200
+>>
+>>> From: Arnd Bergmann <arnd@arndb.de>
+>>>
+>>> While testing randconfig builds on s390, I came across a
+>>> link failure with CONFIG_DMA_SHARED_BUFFER disabled:
+>>>
+>>> ERROR: modpost: "dma_buf_put" [drivers/iommu/iommufd/iommufd.ko] undefined!
+>>>
+>>> The problem here is that IS_ERR() is not inlined and dead code elimination
+>>> fails as a consequence.
+>>>
+>>> The err.h helpers all turn into a trivial assignment ot a bit mask
+>>> and should never result in a function call, so force them to always be
+>>> inline. This should generally result in better object code aside from
+>>> avoiding the link failure above.
+>>
+>> bloat-o-meter would be nice to see but optional, it's obvious to me that
+>> these helpers should always get inlined.
+>>
+>> Not sure why compilers sometimes decide to uninline a couple
+>> instructions (feels like there's sorta dumb logic "oh it's used more
+>> than X times -- uninline no matter what").
 > 
-> Yes, from the different discussions what I saw is that the issue was
-> mixing it with `-Zpacked-struct`, but that is already rejected by the
-> compiler. They also discussed whether it should have been its own
-> flag, though.
+> I've run bloat-o-meter on the vmlinux.o file now and indeed it shows
+> what is going on: the configuration that triggered this has
+> CONFIG_PROFILE_ANNOTATED_BRANCHES, which turns the unlikely()
+> bit in IS_ERR() into two extra function calls, so my patch does
+> end up adding a bit of bloat (see output below):
+> 
+>    text	   data	    bss	    dec	    hex	filename
+> 20159943	5630468	16199728	41990139	280b7fb	build/s390/0xCED6EE04_defconfig/vmlinux-old.o
+> 20217607	5630404	16199728	42047739	28198fb	build/s390/0xCED6EE04_defconfig/vmlinux-new.o
+> 
+> Without CONFIG_PROFILE_ANNOTATED_BRANCHES, the changes are
+> very small, with around 100 functions growing or shrinking
+> by a few bytes.
+> 
+> I don't think we care much about the size increase when that
+> option is enabled, but I do wonder what behavior makes more
 
-I guess you meant `-Zpacked-stack`? We need both `-Zpacked-stack`, as
-well as `-Ctarget-feature=+backchain`. Otherwise the result would be
-incorrect code, due to different stack layouts.
+Yup, and even without this option, __always_inline is better here
+regardless of how it affects the size. Such oneliners must be
+transparent to the compiler
+
+> sense regarding the annotation for every single IS_ERR(). 
+> Does it make sense to have every instance get its own counter,
+> or would it make sense to actually try to reduce these
+> when profiling the annotations?
+
+I'm not familiar with branch annotations, but from the stats above, it
+really looks like it adds a lot of code bloat. Plenty of branches in
+the kernel are sorta pointless to track (the ones which trigger once
+in a thousand years, the unlikely() ones etc.), I guess.
+
+> 
+>        Arnd
+Thanks,
+Olek
