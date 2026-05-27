@@ -1,186 +1,387 @@
-Received: from BL0PR03CU003.outbound.protection.outlook.com (mail-eastusazon11022135.outbound.protection.outlook.com [52.101.53.135])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D0273C4574;
-	Wed, 27 May 2026 20:38:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.53.135
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779914294; cv=fail; b=gQ2B1z3nETjf8AYRxJM4os5i67lD9a5LZ57LGLpoqChTEVEN8wBYqKdwXAaDICfKG/22dUlq3XQML+oMOGkRN1liR6WBQvdbIUpUh2cugMD92HdJHnBwWqdvOfkPOuhNuPg2eeI2E429uwjvwz5au+Oql1LY+4WeoxhoNZCl1lU=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779914294; c=relaxed/simple;
-	bh=DsgTHUBvRcNPEUuKpVSb3aNESKYx+VkhDSjHsArF6OM=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=gI1bchyF3DtCMgx3q4BFxyJp+qkWOlfMXijuAsV8673VI71AQBlMS1tpAimzAY1zWwjlEpHedqFw26TPS5GlX+2Cu10aL/EFQUPt5g0vrrS9J/We+yWcs7PJPKw9z/tF18rt3beZFiwA8so/ti+200tCbHOpd1PHkwv/VUrNoC0=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=os.amperecomputing.com; spf=pass smtp.mailfrom=os.amperecomputing.com; dkim=pass (1024-bit key) header.d=os.amperecomputing.com header.i=@os.amperecomputing.com header.b=kzeiPviG; arc=fail smtp.client-ip=52.101.53.135
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=os.amperecomputing.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=os.amperecomputing.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F3A7264FBD;
+	Wed, 27 May 2026 21:30:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1779917443; cv=none; b=kkfuJHl0010YzdEMQuQ1COzs7tdmJ6XtJBDq4IdTMMSlRUNJr0aAyS5nQwp76sCt1p4uKYpY2KfBWvpwSNyC4cHsG06rL6UNWpE2H9GtSDwMW4Ebio9oZ+/XU8cyvkEc+Mp2kAIeZk72wOHlxswN+dN0/SQetBorPeQ4RI4mGsM=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1779917443; c=relaxed/simple;
+	bh=D5GFDrTp/CupsUZ3fV6a6tHaosPpCZ5vDA0L1xU/lM8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Om8ZqSu9h4JMqWqCkCINdkptOmHKnDmocxSPslYLnx9cHYe/DbI94xlCS4lOX1uHXalQaSj0tA0MhnuXoUBOuk3TXtuT2IUARArbVrQuKc9f9jkD4/huU0oZtrK4Z4AhyrRBkos9/hzyL7KD+kR81dhEd7kxWRzcQqovf7VCNls=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=oM1PAq1p; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=os.amperecomputing.com header.i=@os.amperecomputing.com header.b="kzeiPviG"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=Jy6msca9eCJVmrNfnYe4oJm4SB1E40o+YVlYk5Ex6Q0RSSveOIhWhlnon1/GujyCHkwAt7thLhalOw5KsoFB0fJMBOuJAEZwQyX0oKIK7TJNAXO/VMPZsjxvCG+c/+YXEDNuD66/fe45aKnDUkMHqqE9CGvBiztUFQrmTuIp0F73IiH4zgGNQgSpKVwTFg2BpOpnL2QsAbWPeHdWVBE8Mt/QAOa7Bvo22AGlsLLsi8vWde+cPg0mPVRCz7BZSk5dUls6VLZjW2E6+BuZB9Us8FQk75BvH23yaNRqZdQOQeGwYn5VCBRG0jKoCEqB0T1NB42vD/yQNQaE1PQfATXo3Q==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=IevcDDyujZADLp8PWPqUXiDNKrSCGa9wmX64oKm09Tg=;
- b=KOrTdnqQWWUzECsDeCNE/oUKe/AonSmHGy3JB6aQD08KFvziIwV8uCvlQilta8CThPcoJ5qTj4pxoqZiZdHR6yDhpVX02HpXEdhHo/Ilckc5s3gHeS/V+SQNVy1aHIa8DBubWJ0LFlNnIHtu9CS6/5E1+h8pS1M4w5v6mt4s/oHmMcpBzFF0DBNEzTHVCGxTMJ4L7VpSSW8H8XhTcPJ3yObu4gvs9C+U10xulNwTSiG8LH1kedxK3V3ttjcNaNVGQbDRFMG9uDkt26Z3SOubu/YUsqBOz41f3G7vggw+TSTZq+OA6Jq+/MpRj/dtZ1LDLc1rktrw82Eh8J50wgy1TA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=os.amperecomputing.com; dmarc=pass action=none
- header.from=os.amperecomputing.com; dkim=pass
- header.d=os.amperecomputing.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=os.amperecomputing.com; s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=IevcDDyujZADLp8PWPqUXiDNKrSCGa9wmX64oKm09Tg=;
- b=kzeiPviGjuJYAlh8+d/DbLgng1Jeuu14vn5osZBPmg9srTCXA0Vr465vXo2gHnSyq7q7gyJbErip0M4q0GzHFvXvyrfzPaNydyESsZgryjUzMs7qUJRnTgV/qoVjQXaCKvi4DdH3T8TnG84OLQpxYMg5QxokrzNYw9cTlz66sBI=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=os.amperecomputing.com;
-Received: from CH0PR01MB6873.prod.exchangelabs.com (2603:10b6:610:112::22) by
- EAYPR01MB994882.prod.exchangelabs.com (2603:10b6:303:2c8::5) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.21.71.12; Wed, 27 May 2026 20:38:09 +0000
-Received: from CH0PR01MB6873.prod.exchangelabs.com
- ([fe80::46eb:64a3:667c:c1a0]) by CH0PR01MB6873.prod.exchangelabs.com
- ([fe80::46eb:64a3:667c:c1a0%3]) with mapi id 15.21.0071.010; Wed, 27 May 2026
- 20:38:09 +0000
-Message-ID: <d362d0cc-cdfc-4916-b779-fba62b3fb38c@os.amperecomputing.com>
-Date: Wed, 27 May 2026 13:38:06 -0700
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 0/9] s390: Improve this_cpu operations
-To: "Christoph Lameter (Ampere)" <cl@gentwo.org>,
- Heiko Carstens <hca@linux.ibm.com>
-Cc: David Laight <david.laight.linux@gmail.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Juergen Christ <jchrist@linux.ibm.com>, Peter Zijlstra
- <peterz@infradead.org>, Shrikanth Hegde <sshegde@linux.ibm.com>,
- linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-References: <20260520092243.264847-1-hca@linux.ibm.com>
- <9d503c6f-5641-4b28-998e-01e38b3622a9@os.amperecomputing.com>
- <20260520233409.0683f595@pumpkin>
- <d8e61923-2e0b-422c-b2f6-5ccedf3852bb@os.amperecomputing.com>
- <20260521103742.9603C8c-hca@linux.ibm.com>
- <5158d4e8-19a7-4f60-b2fd-bc6bab22baf0@os.amperecomputing.com>
- <20260522091805.18098A5c-hca@linux.ibm.com>
- <f417b97c-e321-6fe7-3a7b-a3a71b16f27b@gentwo.org>
-Content-Language: en-US
-From: Yang Shi <yang@os.amperecomputing.com>
-In-Reply-To: <f417b97c-e321-6fe7-3a7b-a3a71b16f27b@gentwo.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: SJ0PR05CA0165.namprd05.prod.outlook.com
- (2603:10b6:a03:339::20) To CH0PR01MB6873.prod.exchangelabs.com
- (2603:10b6:610:112::22)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="oM1PAq1p"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 64RL6dYw3426749;
+	Wed, 27 May 2026 21:29:58 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=suyTKV
+	/1JgCUQjudqdAWst2BX/tKYPWoFylI4WBEvSU=; b=oM1PAq1pCajfe+PezGwUgU
+	KdndajHruuUMn83OuIoh52TcgG0I/aThh5XUorN6WzZk02D0QUmA+d7aaJW4jbeR
+	UkHUBbZJ8h8wnwYJYabSXtuhNZJIjPrVgUZJco8dkGZv6K9eyDdU/NPTPLQbpI2z
+	znMxoM+kcbSx6aAk19kWmT+62Pp/f3YAOv9RrfEsFDhhPPs19rb8Qg1TH8wX9TSL
+	9O20uUTULQ4+gt2tWoJnuY5fX59psLJPOzSF4A4TxPUW7/I6OiVWfqipJp1o6vit
+	BfWZ5ENYnXbIXiyiHH/Cq63U//8slg9BA6m4XUlO7ZbcW7hPXtw8fBornZmpEo3Q
+	==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ee884g25b-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 27 May 2026 21:29:57 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 64RKsDdJ029443;
+	Wed, 27 May 2026 21:06:13 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4edjrbw1ah-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 27 May 2026 21:06:13 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 64RL69Nc36897054
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 27 May 2026 21:06:09 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9711F20043;
+	Wed, 27 May 2026 21:06:09 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 446AC20040;
+	Wed, 27 May 2026 21:06:08 +0000 (GMT)
+Received: from li-276bd24c-2dcc-11b2-a85c-945b6f05615c.ibm.com (unknown [9.111.1.41])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Wed, 27 May 2026 21:06:08 +0000 (GMT)
+Date: Wed, 27 May 2026 23:06:06 +0200
+From: Jan Polensky <japo@linux.ibm.com>
+To: Alice Ryhl <aliceryhl@google.com>
+Cc: hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+        ojeda@kernel.org, peterz@infradead.org, jpoimboe@kernel.org,
+        jbaron@akamai.com, borntraeger@linux.ibm.com, svens@linux.ibm.com,
+        boqun@kernel.org, gary@garyguo.net, bjorn3_gh@protonmail.com,
+        lossin@kernel.org, a.hindborg@kernel.org, tmgross@umich.edu,
+        dakr@kernel.org, rostedt@goodmis.org, ardb@kernel.org,
+        linux-s390@vger.kernel.org, rust-for-linux@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v3 2/4] s390/jump_label: Implement
+ ARCH_STATIC_BRANCH_JUMP_ASM and ARCH_STATIC_BRANCH_ASM macros
+Message-ID: <ahdcvjZ7PTzlImEG@li-276bd24c-2dcc-11b2-a85c-945b6f05615c.ibm.com>
+References: <20260521165622.279953-1-japo@linux.ibm.com>
+ <20260521165622.279953-3-japo@linux.ibm.com>
+ <ahaH5k0yKi9IFvv8@google.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CH0PR01MB6873:EE_|EAYPR01MB994882:EE_
-X-MS-Office365-Filtering-Correlation-Id: c77c3757-716e-47f6-f901-08debc2fdceb
-X-MS-Exchange-AtpMessageProperties: SA
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|366016|376014|7416014|1800799024|22082099003|18002099003|55112099003|4143699003|3023799007|56012099006|11063799006;
-X-Microsoft-Antispam-Message-Info:
-	/3MX4t1cqYwIAd+/KBJAsSmv14nFy9aX4RPlNK/OAlIdOy5DygVIbl4zVEbApjIjW/u1LDnZDVT0GBPczYmgPEuHr7vdFb8T+19E1ldYlBbEsT1X+F3jM/aMxqB4pJevDmCBMNgPPBfXTaYqJdwwhKge2ugSQfpxj9Rsu4Cm1+Zq51FCgFNYaZifrzjET+S0r9trohFC7bNePCEB59jDkEadzAIDMOllxZyVW8b0ZT3K1LlgAbiujchpFKvve3PB1Y/KPrsIk2RjKF4i34nhLPt14yZt4ANpuIYV//i+1NeW4Nq/DczUS/5yGsFSulpj/xfT0FJVw96z7ZxS4SeTazbJzHqBpPa2fAaPkEu1LXiy8OqqngUO4CJX0Cyoto1QvYk6iBcq1ULIJhlKLyWorBg6WVZawwa+dLSR8boJvOEzpneBH1uVgEuLTZ9HkSEAUdhTOp55zLSDZmFY5gn4gklfq3SW9F1OwKCk0EJ13M1NsM+kHjN+IwG0NEgVGCPFyvi0aiKUyYsJL5FmF7WzOsL/3Hkav+y8/RDKAmEFlEZ16SQCUeD9N/90O3hLwzK0nlG+5sXJkhvwcdqH564aKAV4siCFW04o+X+NLyCnhg945ymxMQET1xjNkd4o/4gWWjqMMmnsQOU9vGa4+SnsgUy3rcgdHIRfKd6x9XitQFMQ263qo+tjHZpqn2itCUGr
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CH0PR01MB6873.prod.exchangelabs.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(376014)(7416014)(1800799024)(22082099003)(18002099003)(55112099003)(4143699003)(3023799007)(56012099006)(11063799006);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?L2w5YUJwWHdTa2xVekJIMkIreEYvVTl3WVYrSGNVSTB2Y1RQZDZkelhYbjVr?=
- =?utf-8?B?R25Za1FWOE9VT0lNT01XRkdKMGIrREw4NlczOG5EQ2JtYWpCVEEvL0llbXIy?=
- =?utf-8?B?N3d5UU1ic0FWRnpFcS92M0hSalFZZEN4TWFHN05ZeXBGaTZlVzRIWDRDNnhN?=
- =?utf-8?B?WnpPaFd4bDdIUEhDcmxzTWE5NVlqaERMNDgwN0lPVzVkYnhsUFBqak1KclV6?=
- =?utf-8?B?bTFvL1lKbGVMcU9rU2dVNVEvL2FUNjZ1SGlFckpiUkE1WXpROUhMQkNveTlW?=
- =?utf-8?B?bDIwN3plWUluRHFITksrbURFaWxNc1M0bEdkaVBuZ3VRd3hGd0JtRVFiYkh5?=
- =?utf-8?B?cGpBZXJPV1ovOE5tL0VoVDJ3UEhJTzdQZ3Vlb1c1M3llTzR1a2QyS3hIK3ZE?=
- =?utf-8?B?MFlMaitMemE2V2dyemw0dTFpenFhNTh0ZW9nbWlHUE1GNG80NmtmakJtc2FJ?=
- =?utf-8?B?clV6alR4Ry9DL3B3QzFBb1Q0SDRiRTJLckkyMW1rVlNyU3BqZ2VuUGhUUUxE?=
- =?utf-8?B?UjEvSkUrZjNmeHpxTWtWL1VIK3kzczQ5dlUwSEtFOW5ScjFVSTNQVDQrdzg3?=
- =?utf-8?B?NUN1TzliSUJNWVRVU1BmV1NES0d5TXJKckRMeDlOdEJjMU14eG5wK1BTSmd3?=
- =?utf-8?B?RFQxQkpiQlFpdU9TbjBvbkZ1MnloekZZa2VvalpOY085cE9uaWFVUVFKK2t4?=
- =?utf-8?B?RHlLT0NHSG13NlprWDczS1VSME92Q1g5VTRoNVZOck5EY3oxdmFTUkF0OFlk?=
- =?utf-8?B?bkt4all4WXNML2U5TUtuVEZxVWtId1JvSTNLcFRwVXhPeWlqWEcvMHhqbEE4?=
- =?utf-8?B?UEF2MHRCWUhYR0pvcVBGa2NCZFpLdGJ1RFZYSTlYV3h0VDkwM3ViRVJNQVo0?=
- =?utf-8?B?UFFUWHZhaVRWcHlKV3JxbXNJdjg0QWlSR0N2ejVuNXFLRnNjeEh3dURUSlFm?=
- =?utf-8?B?NVZROVVCRi96b0VoTGJkYUNBdkRZbjlTWFdibWE3YWtJY1paUTZ1SktLSnZy?=
- =?utf-8?B?bHYyYlFJRTE1dTQrTnZ0NGdJb2JMZ0JONjRlc1lINWtlU2pYNXVZN0lzQUly?=
- =?utf-8?B?WE00bkJ3Z3l0MXo1T08yK2pUdmtYSlhSQmd2NU1yekx3UnBSNG5Zd0RlVVp5?=
- =?utf-8?B?NUM1NE5ZQ0tsa0hIZnNCV2tXWW1mc1AzcGJ0QVVGUFBXK3BEYkMvL3k4TjdO?=
- =?utf-8?B?bzdZaTZRZW9uQ0IrWXJIZWIrcjNXdGZGcTJaZ3ZZODZvanJ0U3FsdzVoYVQ0?=
- =?utf-8?B?bmxjdis1WmxiN1lDZVIvVXRKYVBCSHVLZFlwQ1dycHBrK3JDdHVXWDB6T3Uv?=
- =?utf-8?B?UkZGRmcvS3YwVVVqY3JrZ1VOdXA4cVB5REdjZ2QyaUpQa2tXdnZ3UERGWktv?=
- =?utf-8?B?ZkRQY2FXMEg2SVRJamNibGpGMzVjTlRDK01OUCt6SmZ6WlBDWUlRQVQvVTV1?=
- =?utf-8?B?MEZvNm9ZQUIyMkdmWk9aM21rcURXZVk4YlhEdWZHYmxSY2V3NU5oQmNkenBr?=
- =?utf-8?B?UllXampSeVJLeE1RN0lUU3RiVFpndDRMLy9wTFZRMWpYOXdXbjJTb1VFVGtJ?=
- =?utf-8?B?MlY3RUJVaVJmMmpiQkl6ZndlU1dMb0hRb3BrTVdISWIzNlBpUEhIbXdOZ3l0?=
- =?utf-8?B?TFZpRlRXcDg4c0xESEU2WlFaUDZiTFRZMUxNV2lxbm9pY25xUDl6Q3hDTlFE?=
- =?utf-8?B?TTJTOUkyZ1N3TU9qZ3dOSTc5UC8rbDVGdk5WVWtscldDVlhaeEpMRUxSenFl?=
- =?utf-8?B?d1h6cUVXMVlFMzVabXBZcW9GRUJOVG1LM1pLVkJjeE5lNlZOMTJDYnQvaVNI?=
- =?utf-8?B?cE91QVhoenppK1Q3SEt6TkVOb01SS25nVzJTN3gxRUsyWHF2VCsxbjFwQ1BX?=
- =?utf-8?B?emxTQkR3TFhxS0hCZDU5V1FmeEVJVnlPUjUxekxia2dFYk1sNmFRNTJwYmlj?=
- =?utf-8?B?QzJxbjBCVlVLY0JWOXU2eVRsNksxUXg5LysrVjhtOEt6Ty96RUVUYnl2MURZ?=
- =?utf-8?B?TTlSZ0xPdUhNc2FVQ1NXT2NsTXpOTzhJT2w2TDhaVHBPTHI5OGdKc21aZ3I3?=
- =?utf-8?B?dDJ1NlgxekdLUU5qS29lZ1k3ekVSUXc1YzJZTlRZOWF3dy9iZ3B1ZWp6Q2NU?=
- =?utf-8?B?M0R2cmVpWFNiVU1OSWVadGpkMk90cW15aFBVUWFSWDRRMDJHblN3YU53K2JN?=
- =?utf-8?B?MEFONVY0MWJLRzNPa1cxTlZSd0dWREtRSkRjakJRRlhyWThJblUyRkcrUVpo?=
- =?utf-8?B?eGZZWGx2Wm1FbVpvL0dxUUQzU1UwLzNYbVpoYisvczBXOTl0eVVQYk0rbHBV?=
- =?utf-8?B?dmxuRHh0NG9SMWUzT0RZQjkyUk9UOVVlYTlTRXJyRlZVaEJycGZMYUtVUEdH?=
- =?utf-8?Q?jxR64GdL9Jqv2oY0=3D?=
-X-OriginatorOrg: os.amperecomputing.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: c77c3757-716e-47f6-f901-08debc2fdceb
-X-MS-Exchange-CrossTenant-AuthSource: CH0PR01MB6873.prod.exchangelabs.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 27 May 2026 20:38:09.3833
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3bc2b170-fd94-476d-b0ce-4229bdc904a7
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: osMY2zTscVzK+gVez/PEIoyJJqxwRPSsiDvp+9dmlgUhbeGhEBdTMFe3QsJ5+8QOMFYHR/Gn/F+kST64lSMdriJ4RZh77xP50lPNI//VtjI=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: EAYPR01MB994882
+Content-Type: multipart/mixed; boundary="67Ci9XMUDsiZd1k+"
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <ahaH5k0yKi9IFvv8@google.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Authority-Analysis: v=2.4 cv=L4MtheT8 c=1 sm=1 tr=0 ts=6a176255 cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=NGcC8JguVDcA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8 a=1XWaLZrsAAAA:8
+ a=fHLg4gE9CpxF8oULZlMA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+ a=DQyPrcOMFmQVaJx41_0A:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-ORIG-GUID: yZqWu2ESHyWKf5NhbrUWD3pulcZJsPxO
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTI3MDIxMSBTYWx0ZWRfX+41/0gW39kTL
+ dC3bD9D18V3ytAMeWXF0DXS2ImD24VowBDGD7iez83XFsFdd2H0fZYLZezGpaqBq70tKzFc29lF
+ s3uDzQ1nldUi0VIIhh9OVgyhNVGsE7WDgMYh13gYYf0Zp4MTKtaltRshv0Ji4r6Aj1of5OJq425
+ SwdjKF+BbJRStx/a9MX0lqj3qUD1jPHx+1LhwCsxtJz2InRrgbbfxICLNruC95RXxCm++nLvVgN
+ zoVIgGjuqKgCLDPVEIi0KT57+5zZ9/U8egOWqIgEWRHrwrUurjnrsi4ZjHLc9EKui6sNnSh4gKI
+ x1kzPsn7V/B14QSuZnTQZt835KTFebRFJbbZ7IAf8DUyyvEGeH/zgZLIIZZ0S17jdcbUwkzdGF8
+ NGT8ZXSQZoJfZQRHK4Rx7mbyllYvEnxvIlwAHNjEiYyfsfh4KUYyvHto9jEItC0EbWvSNSDG5G/
+ /vQmxyTjPdDpjPTlYdw==
+X-Proofpoint-GUID: _sZcBgsNEZGNZRTb79qEiHldlRdjFcaZ
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
+ definitions=2026-05-27_04,2026-05-26_03,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ phishscore=0 lowpriorityscore=0 suspectscore=0 clxscore=1015 malwarescore=0
+ bulkscore=0 impostorscore=0 adultscore=0 priorityscore=1501 spamscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2605210000 definitions=main-2605270211
 
 
+--67Ci9XMUDsiZd1k+
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-On 5/27/26 12:09 PM, Christoph Lameter (Ampere) wrote:
-> On Fri, 22 May 2026, Heiko Carstens wrote:
+On Wed, May 27, 2026 at 05:57:58AM +0000, Alice Ryhl wrote:
+> On Thu, May 21, 2026 at 06:56:20PM +0200, Jan Polensky wrote:
+> > Rust static branch support needs the s390 jump label instruction sequence
+> > and __jump_table emission in a reusable form. The current implementation
+> > embeds the sequence directly in the C asm goto blocks, which cannot be
+> > shared with Rust.
+> >
+> > Introduce ARCH_STATIC_BRANCH_ASM and ARCH_STATIC_BRANCH_JUMP_ASM to
+> > describe the brcl sequences for the likely-false and likely-true cases
+> > and to emit the same __jump_table entries as before. Switch the existing
+> > C helpers to use the new macros to avoid duplication without changing
+> > the generated code.
+> >
+> > Signed-off-by: Jan Polensky <japo@linux.ibm.com>
 >
->> Also with the current proposal I only did some quick micro benchmarks,
->> which resulted in 0-1% improvement, which is in the expected range.
->>
->> It is amazing to see the performance improvements you see on arm64, however
->> I believe that is mainly because of the large amount of code which is
->> generated by the arm64 implementations of the preempt primitives
->> __preempt_count_add() and __preempt_count_dec_and_test().
-> The code is generated if you have no arch specific per cpu mechanism and
-> preemption must be supported. We have now the situation that we cannot
-> switch off preemption support anymore.
+> This looks right.
 >
-> It seem that S390 has this mechanism in a small way and therefore can
-> avoid the preempt enable/disable.
+> Reviewed-by: Alice Ryhl <aliceryhl@google.com>
 >
-> It is not the quantity of code here. The preempt enable/disable can only
-> be avoided if there is a single instruction doing the per cpu operation. A
-> single instruction cannot be interupted and therefore is preemption safe.
+> Did you test it?
 >
->
->> That's a big difference to s390: for both primitives the result is a single
->> instruction.
-> Ok then you can already use single instructions like x86 and will not have
-> preempt enable/disable overhead.
+> Alice
 
-I don't think S390 can do it in one single instruction. IIUC, Heiko 
-means preempt_enable/disable is a single instruction on s390, but it is 
-RMW on ARM64 (3 instructions for each).
+Hi Alice,
 
-Thanks,
-Yang
+yes, I tested it.
 
->
-> I am not sure what David Laight's code is supposed to do. Seems weird to
-> me.
->
+I used a small Rust sample module to exercise and validate the
+behavior on s390. The patch is attached for reference. I did not
+include the sample in this series.
+
+It was not only rust I've used, my samples are not part of this series
+(attached):
+
+    ❯ readelf -SW samples/rust/rust_jump_label.ko | egrep '__jump_table|text|rela'
+      [ 2] .rela__ksymtab    RELA            0000000000000000 06c298 000048 18   I 46   1  8
+      [ 5] __jump_table      PROGBITS        0000000000000000 000060 000010 00  WA  0   0  8
+      [ 6] .rela__jump_table RELA            0000000000000000 06c2e0 000048 18   I 46   5  8
+      [ 7] .text             PROGBITS        0000000000000000 000070 0001bc 00  AX  0   0 16
+      [ 8] .rela.text        RELA            0000000000000000 06c328 000228 18   I 46   7  8
+      [ 9] .exit.text        PROGBITS        0000000000000000 000230 00003c 00  AX  0   0 16
+      [10] .rela.exit.text   RELA            0000000000000000 06c550 000060 18   I 46   9  8
+      [11] .init.text        PROGBITS        0000000000000000 000270 000026 00  AX  0   0 16
+      [12] .rela.init.text   RELA            0000000000000000 06c5b0 000018 18   I 46  11  8
+      [16] .rela.gnu.linkonce.this_module RELA            0000000000000000 06c5c8 000030 18   I 46  15  8
+      [20] .rela.init.data   RELA            0000000000000000 06c5f8 000018 18   I 46  19  8
+      [22] .rela.exit.data   RELA            0000000000000000 06c610 000018 18   I 46  21  8
+      [32] .rela.debug_aranges RELA            0000000000000000 06c628 000108 18   I 46  31  8
+      [34] .rela.debug_info  RELA            0000000000000000 06c730 0573f0 18   I 46  33  8
+      [37] .rela.debug_line  RELA            0000000000000000 0c3b20 000048 18   I 46  36  8
+      [39] .rela.debug_frame RELA            0000000000000000 0c3b68 000120 18   I 46  38  8
+      [42] .rela.debug_loc   RELA            0000000000000000 0c3c88 000150 18   I 46  41  8
+      [44] .rela.debug_ranges RELA            0000000000000000 0c3dd8 000300 18   I 46  43  8
+
+Best regards,
+Jan
+
+
+--67Ci9XMUDsiZd1k+
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment;
+	filename=0001-samples-rust-Add-jump_label-sample-demonstrating-sta.patch
+
+From 9703d2ff46c03ec8c006a9302c790c4103510718 Mon Sep 17 00:00:00 2001
+From: Jan Polensky <japo@linux.ibm.com>
+Date: Wed, 27 May 2026 21:28:26 +0200
+Subject: [PATCH 1/1] samples/rust: Add jump_label sample demonstrating static
+ branches on s390
+
+This sample demonstrates the use of static branches (jump labels) in Rust
+kernel modules on s390 architecture. It successfully generates __jump_table
+entries and uses s390-specific jgnop instructions for runtime code patching.
+
+Key components:
+- C helper defining DEFINE_STATIC_KEY_FALSE(rust_sample_key)
+- Rust module using kernel::jump_label::arch_static_branch! macro
+- Composite module build (C + Rust) with proper symbol binding
+- Generates real __jump_table section with relocations
+- Uses s390 jgnop instruction (6-byte NOP) for branch patching
+
+Verification shows:
+- __jump_table section present in compiled module
+- Three relocations: code location, target, and key pointer
+- s390 jgnop instruction at offset 0x102
+
+The module tests the static branch in a loop, demonstrating that Rust
+can leverage the kernel's jump label infrastructure for optimized
+conditional branches that can be patched at runtime.
+
+Signed-off-by: Jan Polensky <polensky@linux.ibm.com>
+Signed-off-by: Jan Polensky <japo@linux.ibm.com>
+---
+ rust/bindings/bindings_helper.h       |  5 ++
+ samples/rust/Kconfig                  | 15 +++++
+ samples/rust/Makefile                 |  4 +-
+ samples/rust/rust_jump_label_core.rs  | 79 +++++++++++++++++++++++++++
+ samples/rust/rust_jump_label_helper.c | 20 +++++++
+ 5 files changed, 122 insertions(+), 1 deletion(-)
+ create mode 100644 samples/rust/rust_jump_label_core.rs
+ create mode 100644 samples/rust/rust_jump_label_helper.c
+
+diff --git a/rust/bindings/bindings_helper.h b/rust/bindings/bindings_helper.h
+index 446dbeaf0866..539c8d18a72c 100644
+--- a/rust/bindings/bindings_helper.h
++++ b/rust/bindings/bindings_helper.h
+@@ -164,3 +164,8 @@ const unsigned long RUST_CONST_HELPER_GPU_BUDDY_TRIM_DISABLE = GPU_BUDDY_TRIM_DI
+ #include "../../drivers/android/binder/rust_binder.h"
+ #include "../../drivers/android/binder/rust_binder_events.h"
+ #endif
++
++/* Rust jump label sample - external static key */
++#if IS_ENABLED(CONFIG_SAMPLE_RUST_JUMP_LABEL)
++extern struct static_key_false rust_sample_key;
++#endif
+diff --git a/samples/rust/Kconfig b/samples/rust/Kconfig
+index 10364db13872..8c579d861988 100644
+--- a/samples/rust/Kconfig
++++ b/samples/rust/Kconfig
+@@ -203,4 +203,19 @@ config SAMPLE_RUST_TRIGGER
+ 
+ 	  If unsure, say N.
+ 
++config SAMPLE_RUST_JUMP_LABEL
++	tristate "Jump label (static branch)"
++	depends on JUMP_LABEL
++	help
++	  This option builds the Rust jump label sample module.
++
++	  It demonstrates the use of static branches (jump labels) in Rust
++	  kernel modules, particularly testing ARCH_STATIC_BRANCH_ASM
++	  implementation on s390 architecture.
++
++	  To compile this as a module, choose M here:
++	  the module will be called rust_jump_label.
++
++	  If unsure, say N.
++
+ endif # SAMPLES_RUST
+diff --git a/samples/rust/Makefile b/samples/rust/Makefile
+index 037fd43f9878..f91d8a29802a 100644
+--- a/samples/rust/Makefile
++++ b/samples/rust/Makefile
+@@ -18,8 +18,10 @@ obj-$(CONFIG_SAMPLE_RUST_CONFIGFS)		+= rust_configfs.o
+ obj-$(CONFIG_SAMPLE_RUST_SOC)			+= rust_soc.o
+ obj-$(CONFIG_SAMPLE_RUST_BUG)			+= rust_bug.o
+ obj-$(CONFIG_SAMPLE_RUST_TRIGGER)		+= rust_trigger.o
++obj-$(CONFIG_SAMPLE_RUST_JUMP_LABEL)		+= rust_jump_label.o
+ 
+ rust_print-y := rust_print_main.o rust_print_events.o
+ rust_trigger-y := rust_trigger_main.o rust_print_events.o
++rust_jump_label-y := rust_jump_label_helper.o rust_jump_label_core.o
+ 
+-subdir-$(CONFIG_SAMPLE_RUST_HOSTPROGS)		+= hostprogs
++subdir-$(CONFIG_SAMPLE_RUST_HOSTPROGS)		+= hostprogs
+\ No newline at end of file
+diff --git a/samples/rust/rust_jump_label_core.rs b/samples/rust/rust_jump_label_core.rs
+new file mode 100644
+index 000000000000..af3efeb3c2a3
+--- /dev/null
++++ b/samples/rust/rust_jump_label_core.rs
+@@ -0,0 +1,79 @@
++// SPDX-License-Identifier: GPL-2.0
++
++//! Rust jump label sample.
++//!
++//! Demonstrates static branches (jump labels) using a C-defined static_key.
++//! Generates __jump_table entries and architecture-specific branch instructions.
++
++use kernel::prelude::*;
++use kernel::sync::atomic::{Atomic, Relaxed};
++
++module! {
++    type: RustJumpLabel,
++    name: "rust_jump_label",
++    authors: ["Jan Polensky"],
++    description: "Rust jump label sample",
++    license: "GPL",
++}
++
++struct RustJumpLabel;
++
++impl kernel::Module for RustJumpLabel {
++    fn init(_module: &'static ThisModule) -> Result<Self> {
++        pr_info!("Rust jump label sample (init)\n");
++
++        let counter = Atomic::new(0);
++        Self::test_jump_label(&counter)?;
++
++        Ok(RustJumpLabel)
++    }
++}
++
++impl RustJumpLabel {
++    fn test_jump_label(counter: &Atomic<u64>) -> Result {
++        for i in 0..10 {
++            counter.fetch_add(1, Relaxed);
++
++            // SAFETY: rust_sample_key is defined in C helper and exported.
++            let branch_taken = unsafe {
++                #[cfg(not(CONFIG_JUMP_LABEL))]
++                {
++                    let key_ptr: *const kernel::bindings::static_key_false =
++                        core::ptr::addr_of!(kernel::bindings::rust_sample_key);
++                    let static_key_ptr: *const kernel::bindings::static_key =
++                        core::ptr::addr_of!((*key_ptr).key);
++                    kernel::bindings::static_key_count(static_key_ptr.cast_mut()) > 0
++                }
++
++                #[cfg(CONFIG_JUMP_LABEL)]
++                {
++                    kernel::jump_label::arch_static_branch!(
++                        kernel::bindings::rust_sample_key,
++                        kernel::bindings::static_key_false,
++                        key,
++                        false
++                    )
++                }
++            };
++
++            if branch_taken {
++                pr_info!("Branch taken at iteration {}\n", i);
++            }
++        }
++
++        let final_count = counter.load(Relaxed);
++        if final_count != 10 {
++            pr_err!("Counter mismatch! Expected 10, got {}\n", final_count);
++            return Err(EINVAL);
++        }
++
++        pr_info!("Test completed. Counter: {}\n", final_count);
++        Ok(())
++    }
++}
++
++impl Drop for RustJumpLabel {
++    fn drop(&mut self) {
++        pr_info!("Rust jump label sample (exit)\n");
++    }
++}
+diff --git a/samples/rust/rust_jump_label_helper.c b/samples/rust/rust_jump_label_helper.c
+new file mode 100644
+index 000000000000..a8e6ebb48846
+--- /dev/null
++++ b/samples/rust/rust_jump_label_helper.c
+@@ -0,0 +1,20 @@
++// SPDX-License-Identifier: GPL-2.0
++
++/*
++ * C helper for Rust jump label sample.
++ * Provides a static key that can be used from Rust code.
++ */
++
++#include <linux/module.h>
++#include <linux/jump_label.h>
++
++/*
++ * Define a static key for the Rust module.
++ * This creates the necessary C infrastructure for jump labels.
++ */
++DEFINE_STATIC_KEY_FALSE(rust_sample_key);
++EXPORT_SYMBOL_GPL(rust_sample_key);
++
++MODULE_LICENSE("GPL");
++MODULE_DESCRIPTION("C helper for Rust jump label sample");
++MODULE_AUTHOR("Jan Polensky");
+-- 
+2.51.0
+
+
+--67Ci9XMUDsiZd1k+--
 
