@@ -1,183 +1,240 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from DM1PR04CU001.outbound.protection.outlook.com (mail-centralusazon11020114.outbound.protection.outlook.com [52.101.61.114])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5DB6835F17D;
-	Wed, 27 May 2026 22:49:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779922146; cv=none; b=KmjBWRsY2yDFQSjifkEjFqy9HsySBOxejIrLkIM2MfUT89H9DQ7cnwJrjEfwluOT4+JuA6io/u7Xz2j9hBcFVdBL2fL1457McPt9V/bDNv735ga2CGJ/3BvEg88CPMNqZ7Gir/sWFfHT3ZBYxrSx2rRYVz8PHZQSkU7kYcvInhU=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779922146; c=relaxed/simple;
-	bh=XgCimAoT7hxbVKi27EM2uVlOhhGmrOb94/8bSorKk6o=;
-	h=Date:From:To:Cc:Message-ID:In-Reply-To:References:Subject:
-	 Mime-Version:Content-Type; b=lCveeWXPtIGs0CJQ8vPtldn0zHWmRRvxhDfSnoCT6hcPouLLzityAVbPe5+L54Gj0FH5fM7uVQVQRjdu2jBeRNrtSUSr4Bye9jagg8L+sodOrj4uxOwqeVTzBMUHlnWZaw6D4LsMuNm+ys2EpyeKZawNjbi33zH0o68iKxKniSA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZfXIZS1L; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E6FDA254AFF;
+	Wed, 27 May 2026 23:44:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.61.114
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1779925479; cv=fail; b=LYR1Ub7a4stt4uIAheI3c+CFUP421+GF5jICaY0df/K+gSVcxZE2koOLNhuD3VmgSDxAGl5hkt0+eHHElhYzPh38gv2vJSg7UcbXaCHxx+pzijcs7xPoeZMR74KTTU9L6nbpx0nOj/chjRfn/a0qwaxHADAMgR94LdwoeqCAx+k=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1779925479; c=relaxed/simple;
+	bh=q43iCPqtCUUo1JNh8RHTXaAHthmH0TbrHU5UX4FgHfw=;
+	h=Message-ID:Date:From:Subject:To:Cc:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=BIZmxHn6s3jMeP7AmcutvhooeAO09iVVAy5sePPPB2IPTkR797FkcGoi84sRfRDLDsm7/Zbv8v9bbtz/+m1zncrt0VTb+NNPNt5PVM6eT+KOFOBmhZufPf36jNUCQD/13v6CtGheuF3CYBjYwCAj91DiUhnhhJG8N3Jq77x67qU=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=os.amperecomputing.com; spf=pass smtp.mailfrom=os.amperecomputing.com; dkim=pass (1024-bit key) header.d=os.amperecomputing.com header.i=@os.amperecomputing.com header.b=MEd58msb; arc=fail smtp.client-ip=52.101.61.114
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=os.amperecomputing.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=os.amperecomputing.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZfXIZS1L"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 199341F00A3D;
-	Wed, 27 May 2026 22:49:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1779922145;
-	bh=kbwvCEgGUo53H1eMdHinsXodo5C04fK1nklZJsj/WrU=;
-	h=Date:From:To:Cc:In-Reply-To:References:Subject;
-	b=ZfXIZS1Ls2HEsX0SlQYoXjWfo4DV+yfsRZo6fAPXpYNLbaKANgvkILGMArld3S/zj
-	 Kl9L+PVwAM9iVCd6ayt1ecyj2PIFBa/HoxpcLq64RWXKA1kY+ckBHfdIsfvsmD6+AA
-	 q8Y7ok0dljyVyUi2HNrJ1ADSolklhHqzH12ygiwE724mSDofrSYq6Tnibrhq6Sqeji
-	 UhPU6Psy+RpY7uirQCbkmhhXCzd+TBsbPCrwfibePFDG3vKQJYp6Iet6oSJz3xpZTG
-	 NSS1V/Fq0n2+GkAB8++1mFf9rC5nCjtEdX7Fv38isZAUS/hzyIJVWvW5kCN5ikGLFI
-	 xSigt28Vy/gYA==
-Received: from phl-compute-04.internal (phl-compute-04.internal [10.202.2.44])
-	by mailfauth.phl.internal (Postfix) with ESMTP id 5353AF4006B;
-	Wed, 27 May 2026 18:49:03 -0400 (EDT)
-Received: from phl-frontend-04 ([10.202.2.163])
-  by phl-compute-04.internal (MEProxy); Wed, 27 May 2026 18:49:03 -0400
-X-ME-Sender: <xms:33QXampOgvj0FTxfrrqvIaE2WkPjN4ZzJPeT7HLRAO703M5bbVhwQg>
-    <xme:33QXak_Ng1KpK1W3mzSKlCKYUqCS3oTxMAXUt2FXME0GQjoHgFhMWxhLzn6CciYqD
-    9SsY4d-krsQC2UkWuE6VAvdEwKZ4ehCyL2BmduTVTzPq-B5N1cM7Bg>
-X-ME-Received: <xmr:33QXai1I8lAnYd5E04lWVxWavWDl5KTjJfgqWjQAvIVzWMRYHkSiABWI9DPINF-1Cd57hmWuX9cQcFB39p8RBMgv0YkN36Om1lU>
-X-ME-Proxy-Cause: dmFkZTEKosdjcGQ0fUzOjNmQ2DaCEkmXgDIgGtQ7CeozMDS1NKqLYgRoYzp4SrcRkoePGh
-    I3/0gP8U7PceQZ5VeBofkCCiqKdtXu/IVi1l7qzDRfWoqulRf4ZxWwe+5xsnELv45z+f/G
-    MaW/6HK6PZ9Po7ctNfm2S2K8YTLug1Wy65sJ4o5Ro+jeumn5uaFuZ85G3XiIiuz96lPvyJ
-    5fVFLuiNLia/ofcgArMi7jyfqb+AyocmjpvFTrvevVedErrFHWQvg4mrVFRK+7hxI8TP9M
-    mH1GI7EFK4AsYlNCrehRXq0VRcua8GPJN1WdVOwJgcw1qyxxLSJNDVONOXjRw9Ti6ErZO8
-    IrHD8LSA2YBfCifjnv7QIoH3nmTTq5UhqXrsa2xxfEYB5iGFJ+/B967wkejXSzOP9s9tkv
-    UziHZTPytzoznWs846mNcKteLWm5xtwTynhnjOrk5gw8NB5l1etb2x+/nrPDugBmnBBK/v
-    1D0lDSGZ10+FSjJsdy6DjVLLoKrjKk78XVjOo/5ByP2KjEIVJvPtPm0VVSuBJj4eR3Sjyv
-    V6VDIJElnseu4xowOBfRXXRYf2l5RdjZ7CSob4xY0gEA9sCwels/KxGLYUc6MfH6UAP10J
-    Ki7RBESOfd6GCyV5R5advgpW4KSHN05EtIQ+9TPuuk3AJBaPYbxgY5UdHtyA
-X-ME-Proxy: <xmx:33QXagjbrn0N50-mkQRVcaem9HyvUmPsqN33puowc7OUHE5Za155kQ>
-    <xmx:33QXaucHNUjz6CMg_eWGBI2GVA5a4BRjQ0__UGwjLXLtFONMDBhu8w>
-    <xmx:33QXas0GqdHzsaxMbrruKhhHapNJW6YuDhyVjV57fZSmFdQuhJRAPA>
-    <xmx:33QXaiN8g3Bd53M7QMBeTuH-AWTijtnsJaP1eq_qSAR8M3WMXLjMYA>
-    <xmx:33QXarTzdGYhkry-UZRJtm3zXrRdJgI-w69jvHYiJrkKw_kYebPLmtte>
-Feedback-ID: i67ae4b3e:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
- 27 May 2026 18:49:02 -0400 (EDT)
-Date: Wed, 27 May 2026 15:49:01 -0700
-From: "Dan Williams (nvidia)" <djbw@kernel.org>
-To: "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>, 
- "Dan Williams (nvidia)" <djbw@kernel.org>, 
- Alexey Kardashevskiy <aik@amd.com>, 
- linux-coco@lists.linux.dev, 
- iommu@lists.linux.dev, 
- linux-kernel@vger.kernel.org, 
- kvm@vger.kernel.org
-Cc: Bjorn Helgaas <helgaas@kernel.org>,  Dan Williams <djbw@kernel.org>,
-  Jason Gunthorpe <jgg@ziepe.ca>,  Joerg Roedel <joro@8bytes.org>,
-  Jonathan Cameron <jic23@kernel.org>,  Kevin Tian <kevin.tian@intel.com>,
-  Nicolin Chen <nicolinc@nvidia.com>,  Samuel Ortiz <sameo@rivosinc.com>,
-  Steven Price <steven.price@arm.com>,
-  Suzuki K Poulose <Suzuki.Poulose@arm.com>,
-  Will Deacon <will@kernel.org>,  Xu Yilun <yilun.xu@linux.intel.com>,
-  Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>,
-  Paolo Bonzini <pbonzini@redhat.com>,
-  Tony Krowiak <akrowiak@linux.ibm.com>,
-  Halil Pasic <pasic@linux.ibm.com>,  Jason Herne <jjherne@linux.ibm.com>,
-  Harald Freudenberger <freude@linux.ibm.com>,
-  Holger Dengler <dengler@linux.ibm.com>,
-  Heiko Carstens <hca@linux.ibm.com>,  Vasily Gorbik <gor@linux.ibm.com>,
-  Alexander Gordeev <agordeev@linux.ibm.com>,
-  Christian Borntraeger <borntraeger@linux.ibm.com>,
-  Sven Schnelle <svens@linux.ibm.com>,
-  Alex Williamson <alex@shazbot.org>,
-  Matthew Rosato <mjrosato@linux.ibm.com>,
-  Farhan Ali <alifm@linux.ibm.com>,  Eric Farman <farman@linux.ibm.com>,
-  linux-s390@vger.kernel.org
-Message-ID: <6a1774dd80f74_19737610095@djbw-dev.notmuch>
-In-Reply-To: <yq5aldd4spyc.fsf@kernel.org>
-References: <20260525154816.1029642-1-aneesh.kumar@kernel.org>
- <20260525154816.1029642-6-aneesh.kumar@kernel.org>
- <becd865d-09a4-4ac3-b719-4a0deae2692a@amd.com>
- <6a168c8ea7d10_2129b2100e@djbw-dev.notmuch>
- <yq5apl2gsw6y.fsf@kernel.org>
- <yq5aldd4spyc.fsf@kernel.org>
-Subject: Re: [PATCH v5 5/5] iommufd/vdevice: add TSM request ioctl
+	dkim=pass (1024-bit key) header.d=os.amperecomputing.com header.i=@os.amperecomputing.com header.b="MEd58msb"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=O9sDtvnbSFyZVtTAXvG9amvm8CG0yNlj8i9w6OsxSRJndsdxHeWa5CYZ8id7pg5haBi1MXx7QRLyDsJDxYtZ/4LruTnL60iXC6tBty3z45cGZMZfAOp02efXTI/idiUS0RYM1AL3tJOdWFYQKkE9JRTFKFPPXJB6X9lu1psgqRWjpBrPojWyJ+TYXKQiTGH3hoooOELpHdHT/8WyGfkYlKNK5LDHKb+YthzI1KSHiWDk4kDLC/ToAHIUFG3V1W2kAvilU/O1gsjaHHD4+EIpz7KB4SOtj+vglGGDEFs5f+NUfu9PfzodbulzZoiNmkzlkD24nEKGRAO7XU4DCnctfg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=zHe2llS2wJ7nGAZoJXraJW2loRg75Lcnp2zgd7YTccI=;
+ b=ozeXw0HmNpOfK0YoXtFhWUhrs+/G5ZnKaz4nZR/a0QpqSOvoOK9V9h7cGBUvBu+5J9SBc2hSJO/SH/CBEp7XHeM4NgkMm+geSAIdSMaWzsmQwOja2Tn40mo/acDA+OXVasaaj8cGdnu4Lm8tqrsScF+pciku649ge3lUXkB1Iyy5DWGeiVl5IYvFHjFscRu/zgmg0k/jccNEt20BSJYbEIbZDs3JgtQcx0toxZhA4lIsy6OUCpZy2DgLYh/5VO2+w3JvcesD+rFZmQCfiGIHqtf8Z3G5HqT7R8b5OSUMbkcqVzb0mxg/kw1wv1AkHPN8ki6YDSlaBlaIYJ3/Z8YUaA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=os.amperecomputing.com; dmarc=pass action=none
+ header.from=os.amperecomputing.com; dkim=pass
+ header.d=os.amperecomputing.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=os.amperecomputing.com; s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=zHe2llS2wJ7nGAZoJXraJW2loRg75Lcnp2zgd7YTccI=;
+ b=MEd58msb65rsf12Hu1QEctAuV9MwVExHTx0yTG4D+tOU//TlmbKS+81ra3OZgwVP+PSSe/8vjBLwPp44LiyOxPjtglWya9AOeD9yv8qDjg0XbBGv3Ti++rcWgH52JnVy2R69U4WKjDIgAihlvYLDJ0VIETDe+VMg4faRciX1w7Q=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=os.amperecomputing.com;
+Received: from CH0PR01MB6873.prod.exchangelabs.com (2603:10b6:610:112::22) by
+ DS2PR01MB9439.prod.exchangelabs.com (2603:10b6:8:2be::10) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.21.71.12; Wed, 27 May 2026 23:44:34 +0000
+Received: from CH0PR01MB6873.prod.exchangelabs.com
+ ([fe80::46eb:64a3:667c:c1a0]) by CH0PR01MB6873.prod.exchangelabs.com
+ ([fe80::46eb:64a3:667c:c1a0%3]) with mapi id 15.21.0071.010; Wed, 27 May 2026
+ 23:44:34 +0000
+Message-ID: <cfdb20a6-5621-417b-9202-d788ca34251b@os.amperecomputing.com>
+Date: Wed, 27 May 2026 16:44:31 -0700
+User-Agent: Mozilla Thunderbird
+From: Yang Shi <yang@os.amperecomputing.com>
+Subject: Re: [PATCH v3 0/9] s390: Improve this_cpu operations
+To: Heiko Carstens <hca@linux.ibm.com>
+Cc: David Laight <david.laight.linux@gmail.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Juergen Christ <jchrist@linux.ibm.com>,
+ "Christoph Lameter (Ampere)" <cl@gentwo.org>,
+ Peter Zijlstra <peterz@infradead.org>,
+ Shrikanth Hegde <sshegde@linux.ibm.com>, linux-kernel@vger.kernel.org,
+ linux-s390@vger.kernel.org
+References: <20260520092243.264847-1-hca@linux.ibm.com>
+ <9d503c6f-5641-4b28-998e-01e38b3622a9@os.amperecomputing.com>
+ <20260520233409.0683f595@pumpkin>
+ <d8e61923-2e0b-422c-b2f6-5ccedf3852bb@os.amperecomputing.com>
+ <20260521103742.9603C8c-hca@linux.ibm.com>
+ <5158d4e8-19a7-4f60-b2fd-bc6bab22baf0@os.amperecomputing.com>
+ <20260522091805.18098A5c-hca@linux.ibm.com>
+Content-Language: en-US
+In-Reply-To: <20260522091805.18098A5c-hca@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: BY1P220CA0025.NAMP220.PROD.OUTLOOK.COM
+ (2603:10b6:a03:5c3::12) To CH0PR01MB6873.prod.exchangelabs.com
+ (2603:10b6:610:112::22)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CH0PR01MB6873:EE_|DS2PR01MB9439:EE_
+X-MS-Office365-Filtering-Correlation-Id: bec450ac-3609-43fd-5685-08debc49e7b4
+X-MS-Exchange-AtpMessageProperties: SA
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|1800799024|7416014|376014|366016|55112099003|22082099003|18002099003|3023799007|11063799006|56012099006|4143699003;
+X-Microsoft-Antispam-Message-Info:
+	Ofe96Sc13kHr1pFFC5H2fTv1+nlFvraVY4Kk19jGoCgNOYL+iwoQUNMuznlb8lX5Fgr3Yr/vflkycohLM1Ui3/d1eQB8vuVFUOdqj4OYvpVUt/mhXs/27cyYMR6VK2iSaen63WgqSOQtDPQMVxY2gDfhmeYw4ZwKo34/oa9kXVTURidR/6DXgnN1SesCsEKzSrQ0l27rcTea3Zn4Mvu5+O20FllovIL/Jog24M9oUk3wmtUydl/x0Kmtym968j5LkTc9NRQre7eN5V4g1auFyKuQQk06cjxzmeHhvgfOhfXoo/GvZ+5tr9xHT+ILvaK9WuliWPXA0sPnPH9trvs++mg+R/I8lREtRESq87Xpwn/WqKUtMaUdpAGaXOx2LR6YwjGX8znov+uC65Cas/OsfOySMCObcxWsYvrrTtBsWGbBIi0xtQpDbBz52eCTqOubvb0GchQN8d1+bq5iLcNhQ5zzF12Bby3v0IAnNJwVwf2fewl255rLl0nUCK4FJal8fuZWA1D/jIJeA5s6Ig6uiBbUcm9nv9mBkXDUpkBhgd6BQyyiXn48DUXnrrpOYC2Z9riIj8myd8HmXPL/5E5s0S6AbS7E3Z2aoi4MIM2TuUcdEEhnL1BhLe2PhimLkuOcmDyuy58VGP6tXYty0xZJ0nqN//OT83f5aP2T64pPGmPr+tXFFsdBE/mOifKdvMMe
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CH0PR01MB6873.prod.exchangelabs.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(7416014)(376014)(366016)(55112099003)(22082099003)(18002099003)(3023799007)(11063799006)(56012099006)(4143699003);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?NCtXSWlLV0FsV0pYUFVUWDF2ZS9JTEM1WVpLUmNDL0NiOGJLVjdLSjg3SWdW?=
+ =?utf-8?B?cTkzQzB6WXM0bVRlbmR3Q1M1UGNpOWVUOC9QVDJVK2xGOTluaXVxUkwzZGY3?=
+ =?utf-8?B?QlJzcitNdUNCZkFGOHYyNmlSN1lndUwxUmhvT2IxSXVTd1Y4MlRMQzEvUUho?=
+ =?utf-8?B?bEp2UG0vS0FJTWRTajkvc0NJOHA1a0doUitYbkpYK2VodjkzMTVxNTgveEdJ?=
+ =?utf-8?B?VmJmOXFFRHV5RzlkWjkwYnE1QTRJdDlhNjl2WVkvL3VKZE9BUVV5Y2FVVjdi?=
+ =?utf-8?B?Z2xPaFFuenBaSFUzWnNJTGorQjdoMFZMdzNCY21LUXMrNUJIdWhFeEJZM2FX?=
+ =?utf-8?B?KzZiNHJKZHBlSENjc1BiRFp5YW1TeW93WEtjdTJzeTBGQTBsbFAwOThwdUtx?=
+ =?utf-8?B?bzIvelZXR05WU2lGbGRYMDY5M09CaWFBR2c3aVhCa1IxdGs5RTZVY0t2N3VJ?=
+ =?utf-8?B?OWVPYzN3NlZZdlBCMk43QktubmpKenJYRjVybWVObDBWMTYwR3VJQTM2WHZP?=
+ =?utf-8?B?Y29lTUVuZkRqRmVnV3FmQlZxVEZVUkovZURuWElFZlFSYWdKY3h6ZERBN2s1?=
+ =?utf-8?B?cytranhsZ0dwVUs3VkRYb2lVaEVadlBxazZydlJwbTA2N2Ivb1BDMTNxc3A3?=
+ =?utf-8?B?MnRNcUlOS0Y0WE0wcStWZEhkVXVLVVh1RE1razcxbjUxRmdteWVDL2dlL3BU?=
+ =?utf-8?B?cjZod1BkZTdpdGlHQXJydlhQSzdQWG04VENXWU1hTUV4RzBNZ2Ezdzd4RUor?=
+ =?utf-8?B?VkkwTUgvZ1ZYYkMyOG5yclFMSzFxQzhUK2hmclpVQnk3ZEVRdGV4TDV6WW4w?=
+ =?utf-8?B?eVVPVGRja0VHR09lVkY1SVVyV1NMVU5ZdnB2ZmVUbkdYWXpHMzdxZUFLM1BS?=
+ =?utf-8?B?eEo5bUtKUWdLSURtTXp3K2JNaUVxNGhnRFp0TlFQUzlpWVpYV1NOSnFoVmxj?=
+ =?utf-8?B?Qk5wdHh1SjUvYU9GS2FmQzdkZVJzWXJrUng2Mno3czBpYzJLZjYwTGNhbVV3?=
+ =?utf-8?B?TTJna1JrWFJneXdnaDZ4Yk5hSjlRT05UcXNjYkNBb3hJMjBCWmpGUzZ2YTM4?=
+ =?utf-8?B?S0JGazZUSCtuVEdzNU9kWng0YlBJeFJGL1VNaW93MFUvY2w3TkYvanordTRO?=
+ =?utf-8?B?anhIajBZQ0RmWHBWQllPczEyUm12Y0phbTF3ZnBrMzNWeGdZTXNIeDB5VFBx?=
+ =?utf-8?B?Ukw3RFZSclBLMFN5NDQ3RytrQ1FzUEltR1drUmhtMmY4YTFPMzRSNGE1b1Fn?=
+ =?utf-8?B?VWpURTNmVGY4eVI5SjZQNDRYV1Vaeit5R0lGa0pWUmVPTUEzd1dLQXFOM2FF?=
+ =?utf-8?B?bEVmckF0M3NHMk4yWi9ITkJkOTNqTldwZFFRUlh6aHFlcys3R2h4Vm02MUxD?=
+ =?utf-8?B?NUxWUG42WDZ4elZqbWMwdWh6QVRZWnVid1ZPaFlZemFLWklaaC83MUs0TXJ0?=
+ =?utf-8?B?dk9YbCswRERmbTltdk13N1BmODRWalgxVXpvdWdrcWRuK014UUYrNjd3QkF1?=
+ =?utf-8?B?OEY3RXFteFZXbmpUZHB6bXM5QkRFclpNR1BLMnVQNFlZaXVweUVoWE5MSUl3?=
+ =?utf-8?B?b1RYTXoxcFRvNFFDWE8zWjNPSDVZNmpXdzRTS2VmUERtaXQ5eWdJcTZ4NjNF?=
+ =?utf-8?B?QWdVcko3VTA5TUJOOFFxbEJPRVZseks2UFB0dmJyNzBSUzhXV2M2dWR4Vlli?=
+ =?utf-8?B?QzdxbE5BMDFpckQxdzBBaDgvaW9lNlJmWVhveTZTQm02UG1FcFNWZkNpN2tN?=
+ =?utf-8?B?ekdvUUJZcjJORjJLdGtwRG9jOGZDV3pQa2JBd2VPM0k3N3h6cDVoZWVCL21t?=
+ =?utf-8?B?eXU1RWFNVkFlUFIzcDg1cnA0ZG85TEU5TjdVcWtDd3JpeWF6V0M3VUJSMy9V?=
+ =?utf-8?B?QnpKeDZWNWFYWTh4WTRaaTgrdHBEUCtYcEVwRUpFLzZzaTZ1bmdENGV2RzQ4?=
+ =?utf-8?B?eGlJcVlCWHZCS0prejJPTmg0TEJWOExRY2xteHQ0R1IyTVN1MmVsSkRWd3V5?=
+ =?utf-8?B?Y2dMVEZXQm9TOTZtclJjbEJMa0Q0Zy9jOGNEZUk0T1NVTG5TT09hU2U0K3Ru?=
+ =?utf-8?B?Q1E1SXUySjZmOTk3RFhKaVdqUjExQlZJbGd0T1VWeVBkbk9mQ0xRWnV6ZnJh?=
+ =?utf-8?B?bHoyV1BzSFQ5VlNucmp0djZDS05mNjVXL1ozSXR6VWVaZVYvZWI5V1pOUnMy?=
+ =?utf-8?B?aVhFRE4rekl4N2E0WEpaM3NQdUJTdllQUk5rb21EYldJQSs0c0xlVUVLYkNa?=
+ =?utf-8?B?Z3cwS3lXSUpMK1VwZG5DaE11aENlaklmNmNEVFg5L2J4ZWFpZmFCeEpIMkFx?=
+ =?utf-8?B?b2ZTbzBhV1NGcG1UalV6dU5yTkxNVTNmVDYyZ0dKaFRjRk9DWUlGR0JVTWZh?=
+ =?utf-8?Q?LUtFQiI6cRHEWs50=3D?=
+X-OriginatorOrg: os.amperecomputing.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: bec450ac-3609-43fd-5685-08debc49e7b4
+X-MS-Exchange-CrossTenant-AuthSource: CH0PR01MB6873.prod.exchangelabs.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 27 May 2026 23:44:34.0375
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 3bc2b170-fd94-476d-b0ce-4229bdc904a7
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: P8ifgSc2i6F3FF487z0OLd9PSxCLFpwSOh+wu5jWcJFMXgi5FgDlUkPO3TqNADAXyIED+ky1LFfeTf60unKpX2Do9J5+insXF2PyyQneQG4=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS2PR01MB9439
 
-Aneesh Kumar K.V wrote:
-> >> I am leaning towards the latter at this point.
-> >
-> > But we already have struct pci_tsm_ops::guest_req, which is specific =
-to
-> > the underlying CC architecture. From the above, pci_tsm_req_scope als=
-o
-> > appears to carry the same information. Is that useful?
-> >
-> =
 
-> I think there is value in having the VMM express the guest=E2=80=99s
-> confidential computing architecture, so that the TSM backend can
-> validate whether it should handle that guest request ?.
 
-Yes, that is the idea.
+On 5/22/26 2:18 AM, Heiko Carstens wrote:
+> On Thu, May 21, 2026 at 10:47:49AM -0700, Yang Shi wrote:
+>>> As background: s390 has so called prefix pages; the first two pages of every
+>>> CPU are percpu, via a special prefixing mechanism. Parts of the pages can be
+>>> used by operating systems as percpu data area, which we use to have fast
+>>> access to e.g. the 'current' pointer, the pid, percpu_offset of the current
+>>> cpu, etc.
+>>>
+>>> Helpful is also that for instructions which access memory with a base register
+>>> zero, its contents are assumed to be zero for address generation by the
+>>> hardware, regardless of its real contents. That is, the above
+>>>
+>>>           ag %r4,952
+>>>
+>>> is the short version of
+>>>
+>>>           ag %r4,952(%r0)
+>>>
+>>> The eight bytes at offset 952 of the current CPU's prefix page are added to
+>>> register 4. Real contents of register 0 are irrelevant for such address
+>>> generations; reducing register pressure.
+>> Aha, I see. So the prefix pages are some special memory?
+> No, it is regular memory. The CPU has a special "prefix register". If
+> that is set to an address not equal to zero all memory accesses to the
+> first two pages will be transparently redirected to the 8k memory area
+> specified with that register.
+>
+> E.g. the prefix register contains the value 0x10000. If then a memory
+> access to address 0x400 happens the CPU will transparently turn that
+> into a memory access to address 0x10400. Or in other words, that is a
+> small per cpu memory area mechanism provided by the architecture.
 
-> So it would not be the IOMMU validating the scope value, but rather
-> pci_tsm_ops::guest_req.
-> =
+Got it.
 
-> static ssize_t cca_tsm_guest_req(struct pci_tdi *tdi, enum pci_tsm_req_=
-scope scope,
-> 		sockptr_t req, size_t req_len, sockptr_t resp,
-> 		size_t resp_len, u64 *tsm_code)
-> {
-> 	struct pci_dev *pdev =3D tdi->pdev;
-> =
+>>>>     11a8e6:       c0 30 00 d0 c5 0d       larl    %r3,1b33300
+>>>>     11a8ec:       b9 04 00 43             lgr     %r4,%r3
+>>>>     11a8f0:       eb 00 43 c0 00 52       mviy    960,4
+>>>>     11a8f6:       e3 40 03 b8 00 08       ag      %r4,952
+>>>>     11a8fc:       eb 52 40 00 00 e8       laag    %r5,%r2,0(%r4)
+>>>>     11a902:       eb 00 03 c0 00 52       mviy    960,0
+>>>>     11a908:       b9 08 00 25             agr     %r2,%r5
+>>>>     11a90c        07 fe                   br      %r14
+> ...
+>
+>>>> 11a920 loads 0 to the register to mark the percpu code section end, this is
+>>>> not needed with percpu page table.
+>>> I guess you meant 11a902. But yes, this marks the end of the percpu code
+>>> section. Just that this is not a register, but a memory location where is
+>>> written to.
+>> So both mviy instructions actually do memory store?
+> Yes.
+>
+>>>> It sounds a little bit hacky to me TBH and incur some extra overhead for
+>>>> "migration detection" and fixup.
+>>> Sure, it is hacky, and the small overhead part is of course true.
+>>>
+>>> Compared to the percpu page table proposal the two mviy instructions above
+>>> would go away, as well as the extra interrupt/exception overhead. Besides
+>>> that your proposal is way less hacky.
+>> It would be great if we can compare the performance number for the two
+>> approaches. rseq has been discussed for ARM64, but it seems too expensive
+>> and just move the overhead to somewhere else.
+> I tried to implement the proposed rseq/kseq, but the required inline
+> assemblies resulted in code which was larger than what we have now for
+> s390.
+>
+> Also with the current proposal I only did some quick micro benchmarks,
+> which resulted in 0-1% improvement, which is in the expected range.
+>
+> It is amazing to see the performance improvements you see on arm64, however
+> I believe that is mainly because of the large amount of code which is
+> generated by the arm64 implementations of the preempt primitives
+> __preempt_count_add() and __preempt_count_dec_and_test().
 
-> 	/* reject the guest request if VMM was using the link tsm wrongly. The=
- guest
-> 	 * was using a wrong CC archiecture with this link tsm
-> 	 */
-> 	if (scope !=3D TSM_REQ_TYPE_CCA)
-> 		return -EINVAL;
+Yes, we need 4 instructions on ARM64 for disabling/enabling preempt (one 
+instruction is used to load current pointer, the other 3 instructions 
+are used to RMW preempt_count). So I can remove 8 instructions in total 
+for a single this_cpu ops. That's a lot. Given this_cpu ops are heavily 
+used in kernel, we end up running fewer instructions and having better 
+icache hit rate, the better icache hit rate also helps reduce cross node 
+traffic for 2-socket system.
 
-Right, iommufd is tunneling TSM requests. The tunnel should have an
-envelope of TSM_REQ_TYPE_* and an @op field. The TSM driver gets those
-from iommufd, validates the envelope and then processes @req.
+> That's a big difference to s390: for both primitives the result is a single
+> instruction.
 
-This self-consistency and explicitness also buys some future-proofing.
-It allows for alternate command sets within an arch, cross TSM
-implementation shared commands, IOMMUFD-to-TSM requests outside of guest
-requests.
+Yeah, I see. S390 should have the similar benefits theoretically, but 
+may not have that significant gains.
 
-> Jason Gunthorpe <jgg@ziepe.ca> writes:
-> =
+Thanks,
+Yang
 
-> > On Tue, May 26, 2026 at 11:17:50PM -0700, Dan Williams (nvidia) wrote=
-:
-> >
-> >> In that case pci_tsm_req_scope becomes tsm_req_type and is just:
-> >> =
 
-> >> TSM_REQ_TYPE_CCA
-> >> TSM_REQ_TYPE_SEV
-> >> TSM_REQ_TYPE_TDX
-> >> =
 
-> >> I am leaning towards the latter at this point.
-> >
-> > Yeah, this sounds good. I would also include an common op field that
-> > can be decoded by the TSM driver based on the TYPE above, and the
-> > usual in/out message buffers.
-> =
-
-> We already have iommufd_vdevice_tsm_op_ioctl() to handle common
-> operations.
-
-Per above, I believe this is about an @op value in a common location
-that iommufd can forward to the backend for validation of guest
-requests.
-
-> Right now, it handles IOMMU_VDEVICE_TSM_BIND and
-> IOMMU_VDEVICE_TSM_UNBIND. I guess we should move TSM_REQ_SET_TDI_STATE
-> operations to that as well?
-
-I think we can wait to move it to its own IOMMU operation unless/until
-there is a need to set RUN outside of an explicit guest request, right?=
