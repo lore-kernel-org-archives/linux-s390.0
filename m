@@ -1,114 +1,147 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B6914326951
-	for <linux-s390@vger.kernel.org>; Thu, 28 May 2026 07:10:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8835F316905;
+	Thu, 28 May 2026 07:55:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779952226; cv=none; b=AuRwXUwX8ZkBjG8eGL4drXX3rF6Asegao3wUdAbgvYj4tAeAOXmpi64kpYx7ZZIvdBCuGnNtqNua5ee0h7EitMTZRhmBkyCmrw2dspAwbvRfQocjKqkYtS1XnBMRiAkbCFzorAMSeWyg+xSSta4enuVapEDQIAktOTBEH8ojSdk=
+	t=1779954931; cv=none; b=olZpMGHGt6Zz+xBpBa7AkGY9g5jrwdWjwYND80Uabklbv/FEXh+OU3pEgWn/+gF0kLEkJWskBNOVUvY5nXV2a4q7hb6RBJgcbCM9fTd7X2FnBdkAOSzuztRP0+zov6BgavmYJ7qgXfqIW31hiH7NABBsR0YXQgNGlpylRCPYmwA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779952226; c=relaxed/simple;
-	bh=zb7M7O0621Z/CS2NplopxtbPFom4ZI1LW17WtgMmm/8=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=XTu/dg6wfMPwWUauNzljJtuxoA+ZCHKdcEbbdn6iyP9PeAVVtrf2ERtIf2vc36xHvpzuKuqtLjhvlsqENX1abIBHxmIhcrZtgREH30vrTRi3WrVgbja8jo8mnAChbvGVNC789LVS0YUWfLPcQJcUnOiioXlsoJQkRGM8K5M1Sfo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Ca+BCHyv; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1779954931; c=relaxed/simple;
+	bh=J6GzWJUVHK61hfW1K5j+h4oXKB7B9XHPFqh0WNaR7ZQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=MUp/dX0iJ4jKO3yid0Jz7fsQ3UUvqmDfYMAygqMvDNlvRTu7wS2FSVC1NGKBoTlsHgCHHPCPtHL+taSJuDoAs6S1bNDzGiB/PH2bhI8WYgl4HvMZL27+mDMk4nfZi/ADyJNdV/oTNB+a3yQJq/uv3SrbHFLl5TpiobcGYSMPC0k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Hgng53K1; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Ca+BCHyv"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 641511F00A3D;
-	Thu, 28 May 2026 07:10:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1779952225;
-	bh=bABJS1IyOWLuKWruCwY6MEMCbWYv2Cp1ja2605kvLWU=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=Ca+BCHyvKvZ5dzcPL5vhPWS/6qUdx//YIc0S2jhpW7XAQ+hmdSYeK9O7rt1qSdp2a
-	 kEaU2oLq878VCzJSfp36VQ77imXIMtRly5d0goFevbyBo7rGa2UABWm9AkXNrGyvlo
-	 KCJ8MFwgjHTXvumnTLh64tvdj0V9jeeVXcXnU6WU+FBdbS7SlQRJ2o5xzb4si9erP9
-	 8GcaWIJBS9hjGXfIKOkupVJHAHuT94U8vPufQeMAZkWUBDMYM94/4ZN2XjJ649UE/A
-	 JQN/J3MjX5vVvXU0cWml5sXJuFK2wQe3p3PiI5tm2tkaWwYwpkf5/XLiCiNkW2Y5rA
-	 iIGIQKWTPwX1Q==
-From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
-Date: Thu, 28 May 2026 10:09:54 +0300
-Subject: [PATCH 6/6] s390/zcrypt: replace get_zeroed_page() with kzalloc()
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Hgng53K1"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 64RL7FJN2480393;
+	Thu, 28 May 2026 07:55:10 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=IfZQVgKAAwLvYFg3L5bnbvTsJtOephcrYlweJ87h5
+	Qk=; b=Hgng53K1AxQTylOYnZYiW9HdgAZY9ax/jmCLirMjcrlVHL0g4oma22+EQ
+	5PA5WFWWwwtc/rsgjl9FMOp1Qd98ZsF7YlH1PhJXi/mArg6YnX735A+OEMzcVql2
+	NO2wyXxzXmwhM8fs8vhR63QhIzn4j+aue++wBRAl5/P/l32+2hjZ8bK8NMeQ3+Fv
+	u5+RKSaZTSfG1Kinr/d/BoYIDp7JNk1pL/qPJAR/ztq/ZoU/V1EFFSTfSxPD9yOo
+	+5/Zx2BsA5VK2KyH7hitHMmutefrQ5VzLp0LRS3GOANkUK1HmU7I3MJSdfV22Dy2
+	n2LaR2sqaCbEenN4ojfg4cgSR/avg==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ee8869xj3-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 28 May 2026 07:55:10 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 64S7d9Ms030378;
+	Thu, 28 May 2026 07:55:09 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4edjrb72us-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 28 May 2026 07:55:09 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 64S7t7bO29688070
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 28 May 2026 07:55:07 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 974752004B;
+	Thu, 28 May 2026 07:55:07 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 7249320040;
+	Thu, 28 May 2026 07:55:07 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with SMTP;
+	Thu, 28 May 2026 07:55:07 +0000 (GMT)
+Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 55669)
+	id 5B3CEE0993; Thu, 28 May 2026 09:55:07 +0200 (CEST)
+From: Alexander Gordeev <agordeev@linux.ibm.com>
+To: Andrew Morton <akpm@linux-foundation.org>,
+        David Hildenbrand <david@redhat.com>, Lorenzo Stoakes <ljs@kernel.org>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        Oscar Salvador <osalvador@suse.de>,
+        Wei Yang <richard.weiyang@gmail.com>
+Cc: linux-s390@vger.kernel.org, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH v3] mm/page_vma_mapped_walk: Use ptep_get_lockless() for lockless access
+Date: Thu, 28 May 2026 09:55:07 +0200
+Message-ID: <20260528075507.1821939-1-agordeev@linux.ibm.com>
+X-Mailer: git-send-email 2.51.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260528-b4-s390-drivers-v1-6-b7108f54d722@kernel.org>
-References: <20260528-b4-s390-drivers-v1-0-b7108f54d722@kernel.org>
-In-Reply-To: <20260528-b4-s390-drivers-v1-0-b7108f54d722@kernel.org>
-To: Alexander Gordeev <agordeev@linux.ibm.com>, 
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>
-Cc: Alexandra Winter <wintera@linux.ibm.com>, 
- Aswin Karuvally <aswin@linux.ibm.com>, 
- Christian Borntraeger <borntraeger@linux.ibm.com>, 
- Harald Freudenberger <freude@linux.ibm.com>, 
- Holger Dengler <dengler@linux.ibm.com>, 
- Jan Hoeppner <hoeppner@linux.ibm.com>, Mike Rapoport <rppt@kernel.org>, 
- Stefan Haberland <sth@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, 
- linux-s390@vger.kernel.org
-X-Mailer: b4 0.15.2
+Content-Transfer-Encoding: quoted-printable
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-GUID: 1DMXsV5nP_67MuleWw1hhQC9cplM1fFf
+X-Authority-Analysis: v=2.4 cv=Z8Dc2nRA c=1 sm=1 tr=0 ts=6a17f4de cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+ a=NGcC8JguVDcA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8 a=r6uuodyqXXh6h6eviuwA:9
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTI4MDA3NSBTYWx0ZWRfX6dIXLh37xcZK
+ Ua+X3saVK/tPAfPj83UA+EfHYVLnJeVKaMIcVR2345xjN4e5LZmWkqkqVsCaDxwfHL9oJ2C/zOZ
+ zexwt9LlmxvW1nM1NQG3altOquqkIOM6jbn+L1WEI1t7u3ky56vyKU8J0Fyn+MW0NxKOQ1uPmCN
+ 2UVVADFpvMkDxQqZaKoCINas9IQWPEyGDi57EVlEqyubSDmdZxQWdFQGn1qCik9oZuVLKt3zrxU
+ T+cVrdkwy88GWtFOv7BpeHJgYYWsilwmnaVbvpE6ZSQvrzmaJjNZDkmVqhWnIDjj8nLG+E7VcE6
+ 66mCI3bgTRk+l7U0PauiHZyEzha5FbfkRAXVpp37IFAzIbz53eGMBYeS+uce6iupbWdhmTR9u1N
+ jq9sYrrRZWwxYVkErzC2bKWr7WAFGhQpM0IPlcIU8DiE3ZCsaYCg66vyLRQnf92/p+DuzjwiU3f
+ NtUFiJqrqkEHbC6h09Q==
+X-Proofpoint-ORIG-GUID: yz-3GX041ELtX3Cw9Wm6FzJMiqL9lp2G
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
+ definitions=2026-05-28_02,2026-05-26_03,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ clxscore=1015 spamscore=0 bulkscore=0 impostorscore=0 priorityscore=1501
+ malwarescore=0 phishscore=0 suspectscore=0 adultscore=0 lowpriorityscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2605210000 definitions=main-2605280075
 
-zcrypt_rng_device_add() allocates a buffer for the software random
-number generator data cache.
+Switch from ptep_get() to ptep_get_lockless() accessor for
+PTE reads when no lock is taken.
 
-This buffer can be allocated with kmalloc() as there's nothing special
-about it to go directly to the page allocator.
-
-kmalloc() provides a better API that does not require ugly casts and
-kfree() does not need to know the size of the freed object.
-
-Performance difference between kmalloc() and __get_free_pages() is not
-measurable as both allocators take an object/page from a per-CPU list for
-fast path allocations.
-
-For the slow path the performance is anyway determined by the amount of
-reclaim involved rather than by what allocator is used.
-
-Replace use of get_zeroed_page() with kzalloc() and free_page() with
-kfree().
-
-Link: https://lore.kernel.org/all/635405e4-9423-4a25-a6e7-e03c8ea0bcbe@redhat.com
-Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
+Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
 ---
- drivers/s390/crypto/zcrypt_api.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ mm/page_vma_mapped.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/s390/crypto/zcrypt_api.c b/drivers/s390/crypto/zcrypt_api.c
-index d6a455df228d..f57189c2b839 100644
---- a/drivers/s390/crypto/zcrypt_api.c
-+++ b/drivers/s390/crypto/zcrypt_api.c
-@@ -1782,7 +1782,7 @@ int zcrypt_rng_device_add(void)
- 
- 	mutex_lock(&zcrypt_rng_mutex);
- 	if (zcrypt_rng_device_count == 0) {
--		zcrypt_rng_buffer = (u32 *)get_zeroed_page(GFP_KERNEL);
-+		zcrypt_rng_buffer = kzalloc(PAGE_SIZE, GFP_KERNEL);
- 		if (!zcrypt_rng_buffer) {
- 			rc = -ENOMEM;
- 			goto out;
-@@ -1799,7 +1799,7 @@ int zcrypt_rng_device_add(void)
- 	return 0;
- 
- out_free:
--	free_page((unsigned long)zcrypt_rng_buffer);
-+	kfree(zcrypt_rng_buffer);
- out:
- 	mutex_unlock(&zcrypt_rng_mutex);
- 	return rc;
-@@ -1811,7 +1811,7 @@ void zcrypt_rng_device_remove(void)
- 	zcrypt_rng_device_count--;
- 	if (zcrypt_rng_device_count == 0) {
- 		hwrng_unregister(&zcrypt_rng_dev);
--		free_page((unsigned long)zcrypt_rng_buffer);
-+		kfree(zcrypt_rng_buffer);
- 	}
- 	mutex_unlock(&zcrypt_rng_mutex);
- }
-
--- 
-2.53.0
+diff --git a/mm/page_vma_mapped.c b/mm/page_vma_mapped.c
+index a4d52fdb3056..2ccbabfb2cc1 100644
+--- a/mm/page_vma_mapped.c
++++ b/mm/page_vma_mapped.c
+@@ -41,7 +41,7 @@ static bool map_pte(struct page_vma_mapped_walk *pvmw, =
+pmd_t *pmdvalp,
+ 	if (!pvmw->pte)
+ 		return false;
+=20
+-	ptent =3D ptep_get(pvmw->pte);
++	ptent =3D ptep_get_lockless(pvmw->pte);
+=20
+ 	if (pte_none(ptent)) {
+ 		return false;
+@@ -183,6 +183,7 @@ bool page_vma_mapped_walk(struct page_vma_mapped_walk=
+ *pvmw)
+ 	struct mm_struct *mm =3D vma->vm_mm;
+ 	unsigned long end;
+ 	spinlock_t *ptl;
++	pte_t pteval;
+ 	pgd_t *pgd;
+ 	p4d_t *p4d;
+ 	pud_t *pud;
+@@ -310,7 +311,11 @@ bool page_vma_mapped_walk(struct page_vma_mapped_wal=
+k *pvmw)
+ 				goto restart;
+ 			}
+ 			pvmw->pte++;
+-		} while (pte_none(ptep_get(pvmw->pte)));
++			if (!pvmw->ptl)
++				pteval =3D ptep_get_lockless(pvmw->pte);
++			else
++				pteval =3D ptep_get(pvmw->pte);
++		} while (pte_none(pteval));
+=20
+ 		if (!pvmw->ptl) {
+ 			spin_lock(ptl);
+--=20
+2.51.0
 
