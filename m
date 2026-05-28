@@ -1,142 +1,139 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 10FF12D97A6;
-	Thu, 28 May 2026 14:04:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6AE55278156;
+	Thu, 28 May 2026 14:08:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779977071; cv=none; b=jGSwc7xUcPY2fyD66CfL7GnhJ36fk1fBfWxu54Q+BAg2sZn82wVfJPpv7otywPUmAiRomrLIdgtTWfiyUTzx3aVyj+JSQJbWXDZ12gJcPph57xmGxmwpWjWiIH3/iermNRbADhP8lcz1ItXmvu1HlunOjC4mF27Z+7RsveXiqus=
+	t=1779977319; cv=none; b=riu4k6sWnNdLHsb9xUsY8ubQP/WnIvKocpbKDzqBZciQzXVir9lM0rrSmwJTiSCM1H+SPAYNTVHdqTTT79h3mJ79WcfNhRzjdr6xEFi4as7AQNO546LW2XGwerIjYrIysc5+2gjHPpc+Y6K+eIgAw7ZCFsKnLtMZHH8VjQyJrjU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779977071; c=relaxed/simple;
-	bh=GzEgE7aJn62jUxv5D+sWBVYasoRwbWFk+RpXT+lnbGk=;
+	s=arc-20240116; t=1779977319; c=relaxed/simple;
+	bh=md6trvY3vS9dxUZYF3oOtsRoTLA+AFDVxzIMaPzLv7s=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=LU2x0Ui5l2NXKSnw3Uy0l2rooW3mP+J0Sx81Ajh9/WClCIKLKKNGb5TqBspe5+m2WNUADPHsfpSXbMJgKOrRBIQMOJhCkqOdiSeamSrNaNmDPUr2b7cA54rl2C6pGCV/mRlyo4wE7RCbNCO5Jw9GjxuX7kkK2VzMvhFBG/sA+g8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=JNXWk1FA; arc=none smtp.client-ip=148.163.158.5
+	 Content-Type:Content-Disposition:In-Reply-To; b=FoJYlRMjPa4oIBdDQmRY/ZhLQviqoy0UdiEw+NwCLp5ta5ZAXxU5TC6V6L3ks7N9b12C+Iqo/HavdvGwkfEFpuDSgCuJRxegjrRo0HR4lvvYyYjveAkSIwadAXcgGQwRPrGT34f4u4KrhiN4Qr5Y985WoE+Zsaz3Z47hUg/wsZ0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=LceWR4Li; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="JNXWk1FA"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 64SCb67B035764;
-	Thu, 28 May 2026 14:04:08 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="LceWR4Li"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 64SDJn163426678;
+	Thu, 28 May 2026 14:08:36 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=xkAk38
-	irsJ8vUg9+GGroS/WDtXDtvSLQ57kPQkdfOyw=; b=JNXWk1FA2jpk/hUidSuY7/
-	c++lncOHVH3cAipjytvO/GLKdDtk/6sUHteeD6AJaloMOs8Izew5ANrFTlqWgVt7
-	sHKBWtlrAZqS6vEEdprnTDLwH9eyY+tMcWv51M2WqPt8iB+0PuF1887J7ZTB4Jj1
-	jTfEG9fKLyDgh1cxXaYT/b8G4UxULgSjdQDMBvO9fg/fyTTk3JjoYT9FumwU1FZm
-	l3qNzLBrr6mq+/kLhVHIPycIJDU7Z3bBLX4mCZgcri/Bz98EZTa7N5bFCKSCbMq1
-	xAl/A/csO7y5j0i2TakrclbIFDl78ZxRV/rKmLKucXDIleSWKw2JXy9kFdaCYyLg
-	==
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=3eExDAg2mYsYhxtjRFnVb1tUK6LwIe
+	CTON/cbEZ263c=; b=LceWR4Li/uk/spy2kAVEYJvIrbeZQjmz7y0Ie5EUdVk9fJ
+	vskySZLj5nfDYuIkpRa791UjJQiFH2O/kyEDptgiUf8c15d0IAg7agnfTiqVZGeB
+	b7hzT7yWgg6VS8c4yJwt3TM9s+9unx/5Sg5Hc3qTwbBFYpCqrikbrqSO6+3sjSwa
+	H1yQ74ubnO1wfVquDC/pTKWT3XoOohiw9BxtCRnmBJeNsIOZaPaCDffTftsmWHdf
+	zNXJv6jnkZktFIx+ji4y9U5Ug6TUXtBD1VizA1X3dZmevwbIKsSSfxNEZvFsiqot
+	c1RoIAGz8QZvqy6r+PoQTjjOv3XiV1bySKWrJPMQ==
 Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ee88bb6am-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ee884kcwc-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 28 May 2026 14:04:07 +0000 (GMT)
+	Thu, 28 May 2026 14:08:36 +0000 (GMT)
 Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 64SDs6F9022600;
-	Thu, 28 May 2026 14:04:06 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4edjrb8d9u-1
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 64SDs8kU022619;
+	Thu, 28 May 2026 14:08:35 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4edjrb8dyc-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 28 May 2026 14:04:06 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 64SE42uF51970442
+	Thu, 28 May 2026 14:08:35 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 64SE8VrZ30212520
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 28 May 2026 14:04:02 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A2C8720040;
-	Thu, 28 May 2026 14:04:02 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6DEC120043;
-	Thu, 28 May 2026 14:04:01 +0000 (GMT)
-Received: from li-276bd24c-2dcc-11b2-a85c-945b6f05615c.ibm.com (unknown [9.111.71.22])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Thu, 28 May 2026 14:04:01 +0000 (GMT)
-Date: Thu, 28 May 2026 16:03:59 +0200
-From: Jan Polensky <japo@linux.ibm.com>
-To: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>,
-        Heiko Carstens <hca@linux.ibm.com>, Boqun Feng <boqun@kernel.org>
-Cc: gor@linux.ibm.com, agordeev@linux.ibm.com, ojeda@kernel.org,
-        peterz@infradead.org, jpoimboe@kernel.org, jbaron@akamai.com,
-        aliceryhl@google.com, borntraeger@linux.ibm.com, svens@linux.ibm.com,
-        gary@garyguo.net, bjorn3_gh@protonmail.com, lossin@kernel.org,
-        a.hindborg@kernel.org, tmgross@umich.edu, dakr@kernel.org,
-        rostedt@goodmis.org, ardb@kernel.org, linux-s390@vger.kernel.org,
-        rust-for-linux@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3 0/4] s390: Enable Rust support and add required arch
- glue
-Message-ID: <ahhLT-fFx2lUi_FV@li-276bd24c-2dcc-11b2-a85c-945b6f05615c.ibm.com>
-References: <20260521165622.279953-1-japo@linux.ibm.com>
- <CANiq72kT7YEuMaM7wkOtCz8ZqEXbPLniA-x4L7E=B+x0zXt_2Q@mail.gmail.com>
- <20260526161312.19291A8f-hca@linux.ibm.com>
- <CANiq72m4GVWFYqnxNtCHTPu7XcGewHB5LNwOoayTfnXs9pPbNg@mail.gmail.com>
+	Thu, 28 May 2026 14:08:31 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 47E0520043;
+	Thu, 28 May 2026 14:08:31 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 202062004B;
+	Thu, 28 May 2026 14:08:31 +0000 (GMT)
+Received: from osiris (unknown [9.52.216.133])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Thu, 28 May 2026 14:08:31 +0000 (GMT)
+Date: Thu, 28 May 2026 16:08:29 +0200
+From: Steffen Eiden <seiden@linux.ibm.com>
+To: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, borntraeger@de.ibm.com,
+        frankja@linux.ibm.com, david@kernel.org, nrb@linux.ibm.com,
+        schlameuss@linux.ibm.com, gra@linux.ibm.com
+Subject: Re: [PATCH v1 4/7] KVM: s390: Fix fault-in code
+Message-ID: <20260528140829.405668-G-seiden@linux.ibm.com>
+References: <20260528114727.142178-1-imbrenda@linux.ibm.com>
+ <20260528114727.142178-5-imbrenda@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CANiq72m4GVWFYqnxNtCHTPu7XcGewHB5LNwOoayTfnXs9pPbNg@mail.gmail.com>
+In-Reply-To: <20260528114727.142178-5-imbrenda@linux.ibm.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTI4MDEzOCBTYWx0ZWRfX+qilrhiDv5t4
- y6ONZvqjmCDDr/LTX+72FXbPeoN5yCFCViJE8Ry5qBxxg+d3QJ8PhMlfSKunwkWwrWnOOA5eWIt
- TB7Q88kdADyvjD0PxiGi17pYiI0x1MfDaRQ68+yMXZbUygdRJA2xbBnaQEOJnQ9uAa8d5/aA4K1
- ZBw4DHwXS6Rn1W0DiLzZ0Wg4ho6j3Kwrxqd2jVUC7/hIqcvMpbFjde6KkdFYBGKbLxEUFajruyh
- 30vbIngBjp7gOX7sh/JGMmmfKYStHdaS2piCVfN8P2Pwa5GT0LtptKT41Syv/fU3OMaCzIGgx53
- c6fIlaVXz+tUkRMYtBROQt4wXjZp3Pg4uos5ZiVFbYLHwUMA9PRlQxYNeIFh+UWCtQYWrlldHAZ
- XmrUbnLwL/cMguKpGthXsb/K98VpE/mC9U/2dade8pgtx4Ybt2g0+WyjetHb9t/A/S3tsWpDkV3
- 0loSJtdGw2ksotUJeBA==
-X-Proofpoint-ORIG-GUID: VpA2yPYcvm_OwT0cPXdAYMgS3TqJMmZr
-X-Authority-Analysis: v=2.4 cv=IJEyzAvG c=1 sm=1 tr=0 ts=6a184b57 cx=c_pps
+X-Authority-Analysis: v=2.4 cv=L4MtheT8 c=1 sm=1 tr=0 ts=6a184c64 cx=c_pps
  a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=IkcTkHD0fZMA:10 a=NGcC8JguVDcA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8
- a=VwQbUJbxAAAA:8 a=_ZthinDZHpcC7BOMtskA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: iRkmDbNMCFvXkTGN_ZMNaxCGJYdwpN9W
+ a=kj9zAlcOel0A:10 a=NGcC8JguVDcA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8
+ a=yyblsrMLF2mYRii7pEUA:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-ORIG-GUID: cgXa2Gm0giiomvmSrANLPc1-uYIynKO4
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTI4MDE0MyBTYWx0ZWRfX0x79a0QaoxN7
+ D2PYAZnGsixvh8f/pWt64s8p6z7rnftHmnkDpqXShfwwiUbWUK0QE27TNVs/E4szwQ2XllGzhAk
+ rMZFUXiDnrx6nNN0di8PdaqDdrJ06ca1BsvcvojchzX6HMnELLPuYt4eRXG0NMCJd9a0K9Ia/tF
+ y+zoN9inoLjmGI2uCZl0cFaNst38usyZd4rTHL5nCahanO0cl8a7E27pJF0bwVrDeyXEtWX71Pb
+ qMMgd8xFj6OWDtRT5znwsDGK9wni2fJHO9LabuvKq6AhamCklwkcdT24WuXIovtmRFfx4M3jocd
+ IBTWoSxIt5qc82Pira7sVUBZQvtodrruOposQVgf/eN+6Q+GLPTcaD8daB3hLbbEhEi95pHnU5h
+ vrJHtCDOJS1OQwZugDSWpm3Fk3Zo7HnRd9WtK4oWLcdjQtwvR6hrQen1zR0zI3jA5P6b65g+7bF
+ GsqjFZN8U+VeChxrC/g==
+X-Proofpoint-GUID: cgXa2Gm0giiomvmSrANLPc1-uYIynKO4
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
  definitions=2026-05-28_03,2026-05-28_03,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 phishscore=0 clxscore=1015 spamscore=0 bulkscore=0
- adultscore=0 priorityscore=1501 malwarescore=0 lowpriorityscore=0
- impostorscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2605210000
- definitions=main-2605280138
+ phishscore=0 lowpriorityscore=0 suspectscore=0 clxscore=1015 malwarescore=0
+ bulkscore=0 impostorscore=0 adultscore=0 priorityscore=1501 spamscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2605210000 definitions=main-2605280143
 
-On Wed, May 27, 2026 at 12:08:38PM +0200, Miguel Ojeda wrote:
-> On Tue, May 26, 2026 at 6:13 PM Heiko Carstens <hca@linux.ibm.com> wrote:
-> >
-> > An Ack from you would be appreciated, even though you made it already
-> > clear that this series looks ok.
+On Thu, May 28, 2026 at 01:47:24PM +0200, Claudio Imbrenda wrote:
+> Fix the fault-in code so that it does not return success if a
+> concurrent unmap event invalidated the fault-in process between the
+> best-effort lockless check and the proper check with lock.
+> 
+> The new behaviour is to retry, like the best-effort lockless check
+> already did.
+> 
+> This prevents the fault-in handler from returning success without
+> having actually faulted in the requested page.
 >
-[snip]
-> similarly named function `memcmp` defined here
->         |
->
-> So we likely want a Rust helper here in `rust/helpers/`.
->
-> Up to you which configs you want to support initially and how clean
-> you want everything to be, of course, so:
->
-> Acked-by: Miguel Ojeda <ojeda@kernel.org>
->
-> I hope this helps!
->
-> Cheers,
-> Miguel
-Hi Miguel,
 
-thanks a lot for testing and for the Ack.
+One nit below.
 
-The backchain warning is known. The KASAN report around the 1/2-byte
-xchg emulation and the missing memchr in some configurations look like
-separate follow-up patches rather than issues in this series, and I
-plan to address them separately.
+Reviewed-by: Steffen Eiden <seiden@linux.ibm.com>
 
-Best regards,
-Jan
+
+> Fixes: e907ae530133 ("KVM: s390: Add helper functions for fault handling")
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> ---
+>  arch/s390/kvm/faultin.c | 13 ++++++-------
+>  1 file changed, 6 insertions(+), 7 deletions(-)
+> 
+> diff --git a/arch/s390/kvm/faultin.c b/arch/s390/kvm/faultin.c
+> index ddf0ca71f374..3047dfdc8be4 100644
+> --- a/arch/s390/kvm/faultin.c
+> +++ b/arch/s390/kvm/faultin.c
+> @@ -36,7 +36,7 @@ int kvm_s390_faultin_gfn(struct kvm_vcpu *vcpu, struct kvm *kvm, struct guest_fa
+>  	struct kvm_s390_mmu_cache *mc = NULL;
+>  	struct kvm_memory_slot *slot;
+>  	unsigned long inv_seq;
+> -	int foll, rc = 0;
+> +	int foll, rc = -EAGAIN;
+
+This is not in reverse Christmas tree anymore. 
+Split them into two lines.
+
+...
+
+	Steffen
