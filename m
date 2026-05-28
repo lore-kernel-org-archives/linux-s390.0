@@ -1,147 +1,153 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f53.google.com (mail-wm1-f53.google.com [209.85.128.53])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8835F316905;
-	Thu, 28 May 2026 07:55:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9FCC7370D7D
+	for <linux-s390@vger.kernel.org>; Thu, 28 May 2026 08:36:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779954931; cv=none; b=olZpMGHGt6Zz+xBpBa7AkGY9g5jrwdWjwYND80Uabklbv/FEXh+OU3pEgWn/+gF0kLEkJWskBNOVUvY5nXV2a4q7hb6RBJgcbCM9fTd7X2FnBdkAOSzuztRP0+zov6BgavmYJ7qgXfqIW31hiH7NABBsR0YXQgNGlpylRCPYmwA=
+	t=1779957401; cv=none; b=ZndstLwPX+t6sXukY6Nn3dZKhZqLKC21ki6Y6x9Ehj3098c533ykTAeetF/ZhDT8YyRyNo4iYfc2EjLgPlEFLjIYVT6AYecjgNbUiCrDgna93hp6BARSRI1ST4LVABBiQ+nUNKy2gg6KjnhMH/375/ld5R9tjLouRyoauqhksoY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779954931; c=relaxed/simple;
-	bh=J6GzWJUVHK61hfW1K5j+h4oXKB7B9XHPFqh0WNaR7ZQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=MUp/dX0iJ4jKO3yid0Jz7fsQ3UUvqmDfYMAygqMvDNlvRTu7wS2FSVC1NGKBoTlsHgCHHPCPtHL+taSJuDoAs6S1bNDzGiB/PH2bhI8WYgl4HvMZL27+mDMk4nfZi/ADyJNdV/oTNB+a3yQJq/uv3SrbHFLl5TpiobcGYSMPC0k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Hgng53K1; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1779957401; c=relaxed/simple;
+	bh=/L+6skxHoL6Cey8e8Vt3OwTrbnk5KIvRD61XNjxkfDA=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=dtPtBf98w9h55SEJnTGBkuKvX3E/d1lrrTxHfLrZRSB1UsheKh3o2WNvQuFTkDgxL6DK6Za6lCMSQPrOqF/HOgEwyXvO5R3QZWWLYg1gzszMyXPZX1cMzNOctW3WDezHMFDfYrdiD1Bygaz9KWfxCPlt81FLdaJqg4ZZ2WRH2t4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MCfaF4tC; arc=none smtp.client-ip=209.85.128.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Hgng53K1"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 64RL7FJN2480393;
-	Thu, 28 May 2026 07:55:10 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=IfZQVgKAAwLvYFg3L5bnbvTsJtOephcrYlweJ87h5
-	Qk=; b=Hgng53K1AxQTylOYnZYiW9HdgAZY9ax/jmCLirMjcrlVHL0g4oma22+EQ
-	5PA5WFWWwwtc/rsgjl9FMOp1Qd98ZsF7YlH1PhJXi/mArg6YnX735A+OEMzcVql2
-	NO2wyXxzXmwhM8fs8vhR63QhIzn4j+aue++wBRAl5/P/l32+2hjZ8bK8NMeQ3+Fv
-	u5+RKSaZTSfG1Kinr/d/BoYIDp7JNk1pL/qPJAR/ztq/ZoU/V1EFFSTfSxPD9yOo
-	+5/Zx2BsA5VK2KyH7hitHMmutefrQ5VzLp0LRS3GOANkUK1HmU7I3MJSdfV22Dy2
-	n2LaR2sqaCbEenN4ojfg4cgSR/avg==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ee8869xj3-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 28 May 2026 07:55:10 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 64S7d9Ms030378;
-	Thu, 28 May 2026 07:55:09 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4edjrb72us-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 28 May 2026 07:55:09 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 64S7t7bO29688070
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 28 May 2026 07:55:07 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 974752004B;
-	Thu, 28 May 2026 07:55:07 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7249320040;
-	Thu, 28 May 2026 07:55:07 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with SMTP;
-	Thu, 28 May 2026 07:55:07 +0000 (GMT)
-Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 55669)
-	id 5B3CEE0993; Thu, 28 May 2026 09:55:07 +0200 (CEST)
-From: Alexander Gordeev <agordeev@linux.ibm.com>
-To: Andrew Morton <akpm@linux-foundation.org>,
-        David Hildenbrand <david@redhat.com>, Lorenzo Stoakes <ljs@kernel.org>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Oscar Salvador <osalvador@suse.de>,
-        Wei Yang <richard.weiyang@gmail.com>
-Cc: linux-s390@vger.kernel.org, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH v3] mm/page_vma_mapped_walk: Use ptep_get_lockless() for lockless access
-Date: Thu, 28 May 2026 09:55:07 +0200
-Message-ID: <20260528075507.1821939-1-agordeev@linux.ibm.com>
-X-Mailer: git-send-email 2.51.0
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MCfaF4tC"
+Received: by mail-wm1-f53.google.com with SMTP id 5b1f17b1804b1-49068493267so29491425e9.1
+        for <linux-s390@vger.kernel.org>; Thu, 28 May 2026 01:36:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1779957398; x=1780562198; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=j1Y8/JdFuVL7cUrCqvVx1WRQXIYoBAEiRxJCQa2/Xas=;
+        b=MCfaF4tCjWzTOD5y30zML5PeiXTehiMSTmvTZIwIfDAbbx4kjq1W1QEqfq1ytq0Y25
+         F45iC/AfvD4ZaLrxuNXMSA5TEVSzkKNEij9TeGDstS9YTmkeSvKDdpTCocDNbcPkhivu
+         C4yG6eg6M/U8dtuyDWO7p3DIaWUXl5mgBi4Pz0LjBqDgzLrWZ5NzzVHCRhGmdkpUvd3j
+         VEGlKBlBOJAx+i8BdOH8whdFAegJN5VtQaXTqh2FyU2Uoct+WCGxVOAv19yJc0dKyRy2
+         IwXcv62rfIRaMOHgczAaGuzaPU6ShLB/RkNGn4ki0+oMzSaSBDNNVkcfqEil8nrhcEt8
+         uPew==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1779957398; x=1780562198;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=j1Y8/JdFuVL7cUrCqvVx1WRQXIYoBAEiRxJCQa2/Xas=;
+        b=kmT1Jf6Ki6iXdZd3Dwjj2kiaJXfpDZxUfoqZwxNiOXcbwE5qX0XsYjzwy7t1tCgg+U
+         1gcM6YAAWjaEKaF1ntchzc92GTXFHc4vuTDsFEium6mNNXtDETXOybCRFrswaJXFEKGf
+         C3Hn/mYuzdIORC9eVh67TaPY3dXhkrd8wNrRFmu7ftcecYFZpEw824lpoEqLQaitLj2E
+         GtH2VhWhTumIH7x5Gycq7V/yQJq6ZYnnEAJPbtfUk3plDoKDcn3zbR6OJ2u0B+7Lawc+
+         0Z4Sao+lGvkzBnADlEyVkrnKoueqk+aanO5aUDzvAWT1hyRxFy6O35TBjMQhJphuSfow
+         5Gsg==
+X-Forwarded-Encrypted: i=1; AFNElJ8ILjDleulMuAiieU0UhtlLghEI1JZcVSdF6KguG6185yz6xnMH0ybz5QUiIYslnvzRsleWHMMaeRuF@vger.kernel.org
+X-Gm-Message-State: AOJu0Yw7lJhWz3FF0sA2PTcw12etLJb9l8N65aMBSit6xTcYnRPewKfi
+	4dKjl8P1X83x3GLG03VHYjHoOu5x6YoFlw9E+rMBsAaSgkkBicQ/e3YJ5CTumvHC
+X-Gm-Gg: Acq92OGfVx7oTcBHoeatAgu/IBydQjBKf7YUw8ueOPwiIv/hXpNq3TmhShb7ctcFo8T
+	xQJh7WopGThzJmpgzPJHRpeMRNWUZd8LdglGvo88Bt3dX1p41Ct5UOj5v/neHkYnBsICsoXyGFN
+	25UMYfozExNJVNTTLOZ6MBxU42coAHOJ1yQTG+Js/HWskvGiu2WgIhbGZSq70iGAH9Mu7kLsLIB
+	5AbOj1jl4qygTrDeSq7vc+/bWcA/5ZXOmb/L9XCwcDFrclUkJu1eHdC82Z+EbbUuxQcOa6cjeDJ
+	3S4eLBUAtYDv0s/IdW+Lfpl7ZHppqi8dsjR4kausCafNcfOaDeuh/EMHdvniO5CEa1e8wAToyFj
+	fjL6oPUJ12PqaAmbZgTJCx+dtANeqp6Rkuq5oL3BTkeGa+KpR/hyqftwTyI8is6EXumuWFgtn2Z
+	YH6iRf17zl66+BehV4lvbXZigPlg/otw9RBpVPp50ny3SBug4/yMgnw08CqgypX+bVUMj86Jc=
+X-Received: by 2002:a05:600c:8484:b0:490:3b87:be0e with SMTP id 5b1f17b1804b1-490428e3362mr447893415e9.29.1779957397825;
+        Thu, 28 May 2026 01:36:37 -0700 (PDT)
+Received: from pumpkin (82-69-66-36.dsl.in-addr.zen.co.uk. [82.69.66.36])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49092a9cc5dsm22994225e9.15.2026.05.28.01.36.37
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 28 May 2026 01:36:37 -0700 (PDT)
+Date: Thu, 28 May 2026 09:36:35 +0100
+From: David Laight <david.laight.linux@gmail.com>
+To: Yang Shi <yang@os.amperecomputing.com>
+Cc: "Christoph Lameter (Ampere)" <cl@gentwo.org>, Heiko Carstens
+ <hca@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, Sven
+ Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>, Juergen Christ
+ <jchrist@linux.ibm.com>, Peter Zijlstra <peterz@infradead.org>, Shrikanth
+ Hegde <sshegde@linux.ibm.com>, linux-kernel@vger.kernel.org,
+ linux-s390@vger.kernel.org
+Subject: Re: [PATCH v3 0/9] s390: Improve this_cpu operations
+Message-ID: <20260528093635.314ebf58@pumpkin>
+In-Reply-To: <d362d0cc-cdfc-4916-b779-fba62b3fb38c@os.amperecomputing.com>
+References: <20260520092243.264847-1-hca@linux.ibm.com>
+	<9d503c6f-5641-4b28-998e-01e38b3622a9@os.amperecomputing.com>
+	<20260520233409.0683f595@pumpkin>
+	<d8e61923-2e0b-422c-b2f6-5ccedf3852bb@os.amperecomputing.com>
+	<20260521103742.9603C8c-hca@linux.ibm.com>
+	<5158d4e8-19a7-4f60-b2fd-bc6bab22baf0@os.amperecomputing.com>
+	<20260522091805.18098A5c-hca@linux.ibm.com>
+	<f417b97c-e321-6fe7-3a7b-a3a71b16f27b@gentwo.org>
+	<d362d0cc-cdfc-4916-b779-fba62b3fb38c@os.amperecomputing.com>
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; arm-unknown-linux-gnueabihf)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-GUID: 1DMXsV5nP_67MuleWw1hhQC9cplM1fFf
-X-Authority-Analysis: v=2.4 cv=Z8Dc2nRA c=1 sm=1 tr=0 ts=6a17f4de cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=NGcC8JguVDcA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8 a=r6uuodyqXXh6h6eviuwA:9
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTI4MDA3NSBTYWx0ZWRfX6dIXLh37xcZK
- Ua+X3saVK/tPAfPj83UA+EfHYVLnJeVKaMIcVR2345xjN4e5LZmWkqkqVsCaDxwfHL9oJ2C/zOZ
- zexwt9LlmxvW1nM1NQG3altOquqkIOM6jbn+L1WEI1t7u3ky56vyKU8J0Fyn+MW0NxKOQ1uPmCN
- 2UVVADFpvMkDxQqZaKoCINas9IQWPEyGDi57EVlEqyubSDmdZxQWdFQGn1qCik9oZuVLKt3zrxU
- T+cVrdkwy88GWtFOv7BpeHJgYYWsilwmnaVbvpE6ZSQvrzmaJjNZDkmVqhWnIDjj8nLG+E7VcE6
- 66mCI3bgTRk+l7U0PauiHZyEzha5FbfkRAXVpp37IFAzIbz53eGMBYeS+uce6iupbWdhmTR9u1N
- jq9sYrrRZWwxYVkErzC2bKWr7WAFGhQpM0IPlcIU8DiE3ZCsaYCg66vyLRQnf92/p+DuzjwiU3f
- NtUFiJqrqkEHbC6h09Q==
-X-Proofpoint-ORIG-GUID: yz-3GX041ELtX3Cw9Wm6FzJMiqL9lp2G
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
- definitions=2026-05-28_02,2026-05-26_03,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 spamscore=0 bulkscore=0 impostorscore=0 priorityscore=1501
- malwarescore=0 phishscore=0 suspectscore=0 adultscore=0 lowpriorityscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2605210000 definitions=main-2605280075
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Switch from ptep_get() to ptep_get_lockless() accessor for
-PTE reads when no lock is taken.
+On Wed, 27 May 2026 13:38:06 -0700
+Yang Shi <yang@os.amperecomputing.com> wrote:
 
-Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
----
- mm/page_vma_mapped.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+> On 5/27/26 12:09 PM, Christoph Lameter (Ampere) wrote:
+> > On Fri, 22 May 2026, Heiko Carstens wrote:
+> >  
+> >> Also with the current proposal I only did some quick micro benchmarks,
+> >> which resulted in 0-1% improvement, which is in the expected range.
+> >>
+> >> It is amazing to see the performance improvements you see on arm64, however
+> >> I believe that is mainly because of the large amount of code which is
+> >> generated by the arm64 implementations of the preempt primitives
+> >> __preempt_count_add() and __preempt_count_dec_and_test().  
+> > The code is generated if you have no arch specific per cpu mechanism and
+> > preemption must be supported. We have now the situation that we cannot
+> > switch off preemption support anymore.
+> >
+> > It seem that S390 has this mechanism in a small way and therefore can
+> > avoid the preempt enable/disable.
+> >
+> > It is not the quantity of code here. The preempt enable/disable can only
+> > be avoided if there is a single instruction doing the per cpu operation. A
+> > single instruction cannot be interupted and therefore is preemption safe.
+> >
+> >  
+> >> That's a big difference to s390: for both primitives the result is a single
+> >> instruction.  
+> > Ok then you can already use single instructions like x86 and will not have
+> > preempt enable/disable overhead.  
+> 
+> I don't think S390 can do it in one single instruction. IIUC, Heiko 
+> means preempt_enable/disable is a single instruction on s390, but it is 
+> RMW on ARM64 (3 instructions for each).
 
-diff --git a/mm/page_vma_mapped.c b/mm/page_vma_mapped.c
-index a4d52fdb3056..2ccbabfb2cc1 100644
---- a/mm/page_vma_mapped.c
-+++ b/mm/page_vma_mapped.c
-@@ -41,7 +41,7 @@ static bool map_pte(struct page_vma_mapped_walk *pvmw, =
-pmd_t *pmdvalp,
- 	if (!pvmw->pte)
- 		return false;
-=20
--	ptent =3D ptep_get(pvmw->pte);
-+	ptent =3D ptep_get_lockless(pvmw->pte);
-=20
- 	if (pte_none(ptent)) {
- 		return false;
-@@ -183,6 +183,7 @@ bool page_vma_mapped_walk(struct page_vma_mapped_walk=
- *pvmw)
- 	struct mm_struct *mm =3D vma->vm_mm;
- 	unsigned long end;
- 	spinlock_t *ptl;
-+	pte_t pteval;
- 	pgd_t *pgd;
- 	p4d_t *p4d;
- 	pud_t *pud;
-@@ -310,7 +311,11 @@ bool page_vma_mapped_walk(struct page_vma_mapped_wal=
-k *pvmw)
- 				goto restart;
- 			}
- 			pvmw->pte++;
--		} while (pte_none(ptep_get(pvmw->pte)));
-+			if (!pvmw->ptl)
-+				pteval =3D ptep_get_lockless(pvmw->pte);
-+			else
-+				pteval =3D ptep_get(pvmw->pte);
-+		} while (pte_none(pteval));
-=20
- 		if (!pvmw->ptl) {
- 			spin_lock(ptl);
---=20
-2.51.0
+The proposed 'trick' for s390 is a sort of a temporary global register
+that accesses the per-cpu data.
+s390 seems to have it relatively easy because of the 8k of per-cpu data
+and the atomic add/and/or with memory.
+x86 has two global registers (%fs and %gs) as well as atomic add.
+
+But AFAICT arm64 (and probably others) has nothing that helps.
+Allocating a global register for the per-cpu data has been suggested.
+Using the mmu to generate a page of cpu-private data would make
+the preempt primitives much cheaper without the difficulties of
+having two addresses for per-cpu data and any related cache issues.
+
+> 
+> Thanks,
+> Yang
+> 
+> >
+> > I am not sure what David Laight's code is supposed to do. Seems weird to
+> > me.
+
+I've forgotten what I suggested, was probably broken...
+
+-- David
+
+> >  
+> 
 
