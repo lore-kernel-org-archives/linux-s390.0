@@ -1,78 +1,98 @@
-Received: from mail-ej1-f47.google.com (mail-ej1-f47.google.com [209.85.218.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 38C1B3AFAF1
-	for <linux-s390@vger.kernel.org>; Thu, 28 May 2026 09:09:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A4F783B585F;
+	Thu, 28 May 2026 10:43:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.92.199
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779959391; cv=none; b=LvLYoBD/i9R4S06Uv/k395m4ncVIthoakeI1mjaGOR/kmNDkdPRND2op5swegg7cJtelbub0d9bumY/+YwxzXazfaPpwh6lB4hwjJ4oRnMIjF0mO0IqUlsSB/WSjmtRxcD7ZrkxRzEh044wj+CvP+qgxax7p+9KarB68Cvdf8KI=
+	t=1779965028; cv=none; b=MlhXJFwPtSjFxrk38yNPoTxOJggsYZNBx7xJXr8/QH3bKrD1qOyrOiASuZU5qoKPlzMDIXMbm9hQwZp9vf97wU9uKNATWugQNuo/mNFfxcUtzY1c3rZzvxDxBpuwkkstdR7jF4Wdn9123n3rALUXWj2XtnZLX8nI/jer9R/1L2E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779959391; c=relaxed/simple;
-	bh=1Jx6gZMf15EYm2jeUEobzURRlt9Mn5vHZtoIdOeLl0Y=;
+	s=arc-20240116; t=1779965028; c=relaxed/simple;
+	bh=u0aRxM6DUow2LEF0COnOp/ciM9e5CqyqG3ckcIj5TdQ=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=YKFUHDqi5yRpxxWWaiFC13a49erYBUr8m5tFQvZvAOTGwbbWog7WCObN9jvFk9zzdVwj8Bj30423t+INP/ME5xGU9pN/DqJfYup1qkLpTx8RmQSmFmaY9zwhhYxG9wHW/1Jsxf/xIVObp1YueXsU3wesL5+lQDce/ePchDN/Vas=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=rAvEehB4; arc=none smtp.client-ip=209.85.218.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=YO4kAQkoQlKihCMDwja/jkYJue/f36cckVFgKL+P4LEExVWKrA/W6POvJHzG377MOxI1NohesoYIkTKwzsVVNxDWd0+E9jUP1JxrvBu7L3W0tWATB7yIukWt71TtChsi3Q7JnaEYDvJTVXuAY/RxF17RPm6iBaoqdDYdLIwj+Jk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=RcLkjF7V; arc=none smtp.client-ip=90.155.92.199
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="rAvEehB4"
-Received: by mail-ej1-f47.google.com with SMTP id a640c23a62f3a-bd21ffaca79so2300743866b.0
-        for <linux-s390@vger.kernel.org>; Thu, 28 May 2026 02:09:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1779959387; x=1780564187; darn=vger.kernel.org;
-        h=user-agent:in-reply-to:content-disposition:mime-version:references
-         :reply-to:message-id:subject:cc:to:from:date:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=4oQKIQh1sPjJnNR31xrjNByxiIuwWJnJkv/ei6fL+Js=;
-        b=rAvEehB4CRyoSa6olkvZjE3/PVlfeJQMynsTYf3k7JA9avDpeCb5hy5XRkt5XhJcVj
-         0r/az/EY5y5JzNw4mRQbHBXR5i+rI8Z0Low804/zWzThJYDVpDxKTEqAVTp94pe4geHL
-         0Y80ZX/WhD7vKqzPUfO799jlrRF7yL06/Sk3jR0CK3cBQZdpZpY1tFtAdDWAAftRrhdx
-         oYwt/wS5qpReBfNW3UtDprnP9wrbjZXII+TDMBSKoaxrwllDZMosrk3AHmi6o/AeEy5e
-         CAwfp8Gn/pz4G/m4c/pwZhqG3a4T4J6KM7xglOdv4lqxG0FimRAzQJRinloD6S2ewHSF
-         NmRA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779959387; x=1780564187;
-        h=user-agent:in-reply-to:content-disposition:mime-version:references
-         :reply-to:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=4oQKIQh1sPjJnNR31xrjNByxiIuwWJnJkv/ei6fL+Js=;
-        b=IAeSob5XxjzlmkWG4g7JSgZZ9YCSID9ElY9O1w6Tkmfn9ADlsDp94CNAfMibKjLzni
-         pz6AUcgA9FplPSXinUelc1jKO4Ijc3qlqz/KY7zdH+0LmN171YQhglZdvM9uGWaHQ0hz
-         p4ZO9QmM/E2Wy15lAAIOvk1WVqU2HQqDitIHnGKmzSz4/w9gbxwDRyIzSiPvjG2M2q4D
-         7MNbq0rqMUNt/60aWV2K2ibiqyVfhv0rwRJ271YbIMHZACtD0uCxg8WbnBGt5rEytbrb
-         tGY66q45tSORTxswrWLsrTURswg2DSvhGKyoumNrkuHjnsSV/fh3rSuIyGYol3+UU8nL
-         KKWg==
-X-Forwarded-Encrypted: i=1; AFNElJ8rMMCos0K+hs/jU/9oDDkUZaEM2wxymTdZjudezS6GjNV7QW66pMvogmdTc6+AiLAgW1HLBfXAUksX@vger.kernel.org
-X-Gm-Message-State: AOJu0YzxuweeN8fXpoANkytmUbbYo0TZKs+5CHY/CZ1WHv67v1HbJutY
-	CUUoqQFsIDpQcVIb1NkrRzaFROrWSFGwgzdrvvekb/01expQx2xv5Vxk
-X-Gm-Gg: Acq92OG7F/Cp7IvwH/5PO2g7U2WWAGs8E2p4AxXGm1CQ8u8m0Ayo9oiNY0E9Rkk251+
-	DLgmkMfdW1c9qqiB0KnRbjlzmf50pAg39AxpH8uJgxf2xtPfGKQ2DMrdmwfPnZnyx45RLuJnYki
-	hDcV+cReES8FWuQAI2taPfviOSJ1v0loB/eZWdxY78H5EJXdQ6LQhYclhSIvlgkXDVZOsTNDt2+
-	uH1Miu/nga02CzehNti8v2fKxeckc6d3dUbkOnL2s/GBLMkBuAC81SzJnGTFnKphR0Sm613LxRv
-	SpTnSTL4Y3ib+x90IlE8nsohVnwTLtgz2UAcDIHCjrhNCdzRE1UMvaAJXS7cwH3N2YCrZoYnnwj
-	5nLXOTdBNS44TM4M0uIVYMq9S3aTnxfsywQZpCzxaAZ97ecl0FzCFog6QmYAJEnhxzOdCDrr6ph
-	Mo+HciDx9zW1faqb1YeG0TjwYWA/a62IWQ
-X-Received: by 2002:a17:907:d09:b0:bd2:44de:d698 with SMTP id a640c23a62f3a-be87bc2a556mr45218766b.17.1779959386947;
-        Thu, 28 May 2026 02:09:46 -0700 (PDT)
-Received: from localhost ([185.92.221.13])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-be1d4678920sm357239866b.31.2026.05.28.02.09.46
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Thu, 28 May 2026 02:09:46 -0700 (PDT)
-Date: Thu, 28 May 2026 09:09:45 +0000
-From: Wei Yang <richard.weiyang@gmail.com>
-To: Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
-	David Hildenbrand <david@redhat.com>,
-	Lorenzo Stoakes <ljs@kernel.org>,
-	Anshuman Khandual <anshuman.khandual@arm.com>,
-	Oscar Salvador <osalvador@suse.de>,
-	Wei Yang <richard.weiyang@gmail.com>, linux-s390@vger.kernel.org,
-	linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3] mm/page_vma_mapped_walk: Use ptep_get_lockless() for
- lockless access
-Message-ID: <20260528090945.xjnj5hmyox7sahhg@master>
-Reply-To: Wei Yang <richard.weiyang@gmail.com>
-References: <20260528075507.1821939-1-agordeev@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="RcLkjF7V"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=QNGyN387Cp9R9r4L3A3EkBe0+Z04BA1d59VcVSxY2qg=; b=RcLkjF7VAWEi/WJ42Gg3mP0vkN
+	e7YrUtYqNm8uy8PlEB50BEvOpn2kA6AGr3MDbry26s0J3mLybsXpqWKg+zfyt/3Dmjj60uAhiee/A
+	/4b5PyHJzcXRUHu5VXPnwJVwQRzMTs9lmt3f/Ij1oEpEb6DrC5yAANizMKcNGD2idE/k6HeNiAKbi
+	Zq/hQyT23mQGKm/MsesQKMmUw0AhXDh6gugvxiMh6g2XqzT6pJbP3dsHXd8IgwkowlO/7wDSIponU
+	KQlyeAE6B9XXHbM9PTLAFj5KFcoJntNHYFlziFHrNeSBxGc2HSfUy9wKVzBFH9MW85oH+jfLcIK7c
+	ktsVWEmw==;
+Received: from 2001-1c00-8d85-4b00-266e-96ff-fe07-7dcc.cable.dynamic.v6.ziggo.nl ([2001:1c00:8d85:4b00:266e:96ff:fe07:7dcc] helo=noisy.programming.kicks-ass.net)
+	by desiato.infradead.org with esmtpsa (Exim 4.99.1 #2 (Red Hat Linux))
+	id 1wSYCx-0000000GCDI-3Iqm;
+	Thu, 28 May 2026 10:43:24 +0000
+Received: by noisy.programming.kicks-ass.net (Postfix, from userid 1000)
+	id 9CB74300673; Thu, 28 May 2026 12:43:22 +0200 (CEST)
+Date: Thu, 28 May 2026 12:43:22 +0200
+From: Peter Zijlstra <peterz@infradead.org>
+To: Boqun Feng <boqun@kernel.org>
+Cc: Catalin Marinas <catalin.marinas@arm.com>,
+	Will Deacon <will@kernel.org>, Jonas Bonn <jonas@southpole.se>,
+	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
+	Stafford Horne <shorne@gmail.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+	Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+	"H. Peter Anvin" <hpa@zytor.com>, Arnd Bergmann <arnd@arndb.de>,
+	Juri Lelli <juri.lelli@redhat.com>,
+	Vincent Guittot <vincent.guittot@linaro.org>,
+	Dietmar Eggemann <dietmar.eggemann@arm.com>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
+	Valentin Schneider <vschneid@redhat.com>,
+	K Prateek Nayak <kprateek.nayak@amd.com>,
+	Waiman Long <longman@redhat.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Andrii Nakryiko <andrii@kernel.org>,
+	Eduard Zingerman <eddyz87@gmail.com>,
+	Alexei Starovoitov <ast@kernel.org>,
+	Daniel Borkmann <daniel@iogearbox.net>,
+	Martin KaFai Lau <martin.lau@linux.dev>,
+	Kumar Kartikeya Dwivedi <memxor@gmail.com>,
+	Song Liu <song@kernel.org>, Yonghong Song <yonghong.song@linux.dev>,
+	Jiri Olsa <jolsa@kernel.org>, Shuah Khan <shuah@kernel.org>,
+	Miguel Ojeda <ojeda@kernel.org>, Gary Guo <gary@garyguo.net>,
+	=?iso-8859-1?Q?Bj=F6rn?= Roy Baron <bjorn3_gh@protonmail.com>,
+	Benno Lossin <lossin@kernel.org>,
+	Andreas Hindborg <a.hindborg@kernel.org>,
+	Alice Ryhl <aliceryhl@google.com>, Trevor Gross <tmgross@umich.edu>,
+	Danilo Krummrich <dakr@kernel.org>,
+	Jinjie Ruan <ruanjinjie@huawei.com>, Lyude Paul <lyude@redhat.com>,
+	Thomas Huth <thuth@redhat.com>, Sohil Mehta <sohil.mehta@intel.com>,
+	"Xin Li (Intel)" <xin@zytor.com>,
+	Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
+	Nikunj A Dadhania <nikunj@amd.com>,
+	Joel Fernandes <joelagnelf@nvidia.com>,
+	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+	Randy Dunlap <rdunlap@infradead.org>,
+	Yury Norov <ynorov@nvidia.com>,
+	Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+	linux-kernel@vger.kernel.org, linux-openrisc@vger.kernel.org,
+	linux-s390@vger.kernel.org, linux-arch@vger.kernel.org,
+	bpf@vger.kernel.org, linux-kselftest@vger.kernel.org,
+	rust-for-linux@vger.kernel.org,
+	Onur =?iso-8859-1?Q?=D6zkan?= <work@onurozkan.dev>,
+	Daniel Almeida <daniel.almeida@collabora.com>,
+	Boqun Feng <boqun.feng@gmail.com>
+Subject: Re: [PATCH v2 05/12] irq & spin_lock: Add counted interrupt
+ disabling/enabling
+Message-ID: <20260528104322.GF343181@noisy.programming.kicks-ass.net>
+References: <20260526152148.30514-1-boqun@kernel.org>
+ <20260526152148.30514-6-boqun@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -81,62 +101,101 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260528075507.1821939-1-agordeev@linux.ibm.com>
-User-Agent: NeoMutt/20170113 (1.7.2)
+In-Reply-To: <20260526152148.30514-6-boqun@kernel.org>
 
-On Thu, May 28, 2026 at 09:55:07AM +0200, Alexander Gordeev wrote:
->Switch from ptep_get() to ptep_get_lockless() accessor for
->PTE reads when no lock is taken.
->
->Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
->---
-> mm/page_vma_mapped.c | 9 +++++++--
-> 1 file changed, 7 insertions(+), 2 deletions(-)
->
->diff --git a/mm/page_vma_mapped.c b/mm/page_vma_mapped.c
->index a4d52fdb3056..2ccbabfb2cc1 100644
->--- a/mm/page_vma_mapped.c
->+++ b/mm/page_vma_mapped.c
->@@ -41,7 +41,7 @@ static bool map_pte(struct page_vma_mapped_walk *pvmw, pmd_t *pmdvalp,
-> 	if (!pvmw->pte)
-> 		return false;
-> 
->-	ptent = ptep_get(pvmw->pte);
->+	ptent = ptep_get_lockless(pvmw->pte);
-> 
-> 	if (pte_none(ptent)) {
-> 		return false;
->@@ -183,6 +183,7 @@ bool page_vma_mapped_walk(struct page_vma_mapped_walk *pvmw)
-> 	struct mm_struct *mm = vma->vm_mm;
-> 	unsigned long end;
-> 	spinlock_t *ptl;
->+	pte_t pteval;
-> 	pgd_t *pgd;
-> 	p4d_t *p4d;
-> 	pud_t *pud;
->@@ -310,7 +311,11 @@ bool page_vma_mapped_walk(struct page_vma_mapped_walk *pvmw)
-> 				goto restart;
-> 			}
-> 			pvmw->pte++;
->-		} while (pte_none(ptep_get(pvmw->pte)));
->+			if (!pvmw->ptl)
->+				pteval = ptep_get_lockless(pvmw->pte);
->+			else
->+				pteval = ptep_get(pvmw->pte);
->+		} while (pte_none(pteval));
+On Tue, May 26, 2026 at 08:21:41AM -0700, Boqun Feng wrote:
 
-Use ptep_get_lockless() when lock is not taken.
+> diff --git a/include/linux/preempt.h b/include/linux/preempt.h
+> index e2d3079d3f5f..33fc4c814a9f 100644
+> --- a/include/linux/preempt.h
+> +++ b/include/linux/preempt.h
+> @@ -151,6 +151,10 @@ static __always_inline unsigned char interrupt_context_level(void)
+>  #define in_softirq()		(softirq_count())
+>  #define in_interrupt()		(irq_count())
+>  
+> +#define hardirq_disable_count()	((preempt_count() & HARDIRQ_DISABLE_MASK) >> HARDIRQ_DISABLE_SHIFT)
+> +#define hardirq_disable_enter()	__preempt_count_add_return(HARDIRQ_DISABLE_OFFSET)
+> +#define hardirq_disable_exit()	__preempt_count_sub_return(HARDIRQ_DISABLE_OFFSET)
+> +
+>  /*
+>   * The preempt_count offset after preempt_disable();
+>   */
 
-LGTM, thanks
+> diff --git a/include/linux/interrupt_rc.h b/include/linux/interrupt_rc.h
+> new file mode 100644
+> index 000000000000..868f32524a87
+> --- /dev/null
+> +++ b/include/linux/interrupt_rc.h
+> @@ -0,0 +1,65 @@
+> +/* SPDX-License-Identifier: GPL-2.0 */
+> +/*
+> + * include/linux/interrupt_rc.h - refcounted local processor interrupt
+> + * management.
+> + *
+> + * Since the implementation of this API currently depends on
+> + * local_irq_save()/local_irq_restore(), we split this into it's own header to
+> + * make it easier to include without hitting circular header dependencies.
+> + */
+> +
+> +#ifndef __LINUX_INTERRUPT_RC_H
+> +#define __LINUX_INTERRUPT_RC_H
+> +
+> +#include <linux/irqflags.h>
+> +#include <asm/processor.h>
+> +#ifdef CONFIG_SMP
+> +#include <asm/smp.h>
+> +#endif
+> +
+> +/* Per-cpu interrupt disabling state for local_interrupt_{disable,enable}() */
+> +struct interrupt_disable_state {
+> +	unsigned long flags;
+> +};
+> +
+> +DECLARE_PER_CPU(struct interrupt_disable_state, local_interrupt_disable_state);
+> +
+> +static inline void local_interrupt_disable(void)
+> +{
+> +	unsigned long flags;
+> +	int new_count;
+> +
+> +	new_count = hardirq_disable_enter();
+> +
+> +	/* Interrupts can happen here, but it's OK, see __irq_exit_rcu(). */
+> +
+> +	if ((new_count & HARDIRQ_DISABLE_MASK) == HARDIRQ_DISABLE_OFFSET) {
+> +		local_irq_save(flags);
+> +		raw_cpu_write(local_interrupt_disable_state.flags, flags);
+> +	}
+> +}
+> +
+> +static inline void local_interrupt_enable(void)
+> +{
+> +	int new_count;
+> +
+> +	new_count = hardirq_disable_exit();
+> +
+> +	if ((new_count & HARDIRQ_DISABLE_MASK) == 0) {
+> +		unsigned long flags;
+> +
+> +		flags = raw_cpu_read(local_interrupt_disable_state.flags);
+> +		local_irq_restore(flags);
+> +		/*
+> +		 * TODO: re-read preempt count can be avoided, but it needs
+> +		 * should_resched() taking another parameter as the current
+> +		 * preempt count
+> +		 */
+> +#ifdef CONFIG_PREEMPTION
+> +		if (should_resched(0))
+> +			__preempt_schedule();
 
-Reviewed-by: Wei Yang <richard.weiyang@gmail.com>
+I'm not sure why you bother with should_resched() at this point, can't
+you simply write:
 
-> 
-> 		if (!pvmw->ptl) {
-> 			spin_lock(ptl);
->-- 
->2.51.0
+		if (!new_count)
+			__preempt_schedule();
 
--- 
-Wei Yang
-Help you, Help me
+> +#endif
+> +	}
+> +}
+> +
+> +#endif /* !__LINUX_INTERRUPT_RC_H */
