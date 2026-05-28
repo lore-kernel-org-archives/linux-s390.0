@@ -1,73 +1,115 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F8523ED109;
-	Thu, 28 May 2026 14:30:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 52C9F2877F4
+	for <linux-s390@vger.kernel.org>; Thu, 28 May 2026 14:31:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779978656; cv=none; b=J/vKujPWZeyvKbXyydK7b1BMVn0KYtdc/qPUNWeSabeoMAn5yjaQcAxtyFrq81kuhWSTg+iqkk4KTdualsrax5XtYCjNujrhEZ65Dera8NAJcR3TOQManvQysmsjyUm725OKnHcvWm5wObp5roydKJHfcl0j7PuxysNmoEj/zXw=
+	t=1779978676; cv=none; b=IKGWEXMSM6oZvf7XeS9ngT9NNI8/QA4fjmyGi4z4qasEIOgUl3oR/s8HMf7dU/g+BHs1ybm71EXzAWy4s1yAxpU183NXdeBfJsmrUHKBRiC7CWpBRSmkk0Vckqg56eu31oeq+tVKbbrdF+FgljDt5YjcnEnziB1f0I5Xy8qdoRA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779978656; c=relaxed/simple;
-	bh=Oj3bsTvaRys66blZVuiEJr6+1+OJRLh+Q9fn7DUnUP0=;
+	s=arc-20240116; t=1779978676; c=relaxed/simple;
+	bh=HyG3NhA74udUzGo9m8hVndsOjCW8hLVkkXqs8g+WHWw=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Jt2SJRQfNskhBG6gjBOVSq7QsjNp0XlqYZ4QMVfUovQHPy8pOtZQSc4aYtF++YQdQ4v5UpSLamQHgk71Edw/UIINxT2RHLVtKnxG1KqO8lZI6ISn50mt9fzS1BhAJcmyjLcL+V6QZaq2e9aI9CqFxYh2U3qr7kO08wVqtV/W8z8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=H3AZPpwU; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=f5hRu9K+8RkpVAOb6H6YiKq87IrwN0IP6tZ/Y03YWgsqRKZPlr/nF3ds8W0lV5QNe/KRY6q41Mlq0OcAEK2ZderasUCMb0ydRUinXkW4ZB7CArqwT7FnqUSMieDk7XDSOYZvjJS4RRRyWRh53/HdhaQS2ytT5M7s1uIp3z4hNe4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=oin1mPok; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="H3AZPpwU"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 64SCROhn2479650;
-	Thu, 28 May 2026 14:30:42 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=QsqDsY1NrK7VRWFqbftBylBJ8QP1P2
-	YIVQ8OKMQC9Eg=; b=H3AZPpwUvdpBklLeXnVusk9BRo2KXBzTH+2CM64rgXsTg7
-	7or7eOWEh6v63juSc5gwlPXjs775JmD2O9vb+QrI+8JMl5UFEivg+slYzd9hrTpt
-	CtzjZMTCD2TBI/A9ecxazawomqWZ2vOBuXF0OED6TcHqML9Zr1toEtYrC1iW/vt9
-	If2UNPeFzy+NFheMOGX/ua1Ntxsfl+SuxoSQQ9BYgC5PNsj7ItyubWalifS4Vjql
-	p+mSjaadHGTbT75Ptqq/mcUzPKN/lTKAvz6UPCDNKPMAcSfvV+9hdMljivKU0TR5
-	RL+oLWXx+ksPrPcCVPDacG3WfnKvctg07VLqz/Fg==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ee886bgty-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 28 May 2026 14:30:41 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 64SEOQfX031571;
-	Thu, 28 May 2026 14:30:40 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4edjrb8gx4-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 28 May 2026 14:30:40 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 64SEUdmn29557002
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 28 May 2026 14:30:39 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id EE5D62004B;
-	Thu, 28 May 2026 14:30:38 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 18D5120049;
-	Thu, 28 May 2026 14:30:38 +0000 (GMT)
-Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.111.54.90])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Thu, 28 May 2026 14:30:37 +0000 (GMT)
-Date: Thu, 28 May 2026 16:30:36 +0200
-From: Alexander Gordeev <agordeev@linux.ibm.com>
-To: "Oscar Salvador (SUSE)" <osalvador@kernel.org>,
-        Lorenzo Stoakes <ljs@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
-        David Hildenbrand <david@redhat.com>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Oscar Salvador <osalvador@suse.de>,
-        Wei Yang <richard.weiyang@gmail.com>, linux-s390@vger.kernel.org,
-        linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3] mm/page_vma_mapped_walk: Use ptep_get_lockless() for
- lockless access
-Message-ID: <07baafe4-7d1c-42b0-9103-3e5666770061-agordeev@linux.ibm.com>
-References: <20260528075507.1821939-1-agordeev@linux.ibm.com>
- <ahglqif-I4TjFK9X@lucifer>
- <ahhNq0pFKvSKZQbR@localhost.localdomain>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="oin1mPok"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5E8B1F000E9;
+	Thu, 28 May 2026 14:31:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1779978675;
+	bh=1DVdNYWfBcGfeuR0GBfeFu8IJ/Pnixr7g+Fqa3nO+H0=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=oin1mPok6UGYJl/Etw15mrDHA3DQp8pKz3i7jzWvx3AfkQT8Zw5/N8ZyaSjRfPP25
+	 Sw4zgD3K+/tFZQI1gDr4+JQwOFufGd7mTmoM4vbiLF0y+vry8FuM8j1mMJdfdOM/1M
+	 Si6a6WlKSfSp7Tqq0T7Dow5ku1Bs6PYHQFpXCAzowhJ29xp0G6FgoG1fn8RK/p/VYa
+	 2qCfXQUN710eTVbmcveoo3/dLt9lQyF5tqNPmjX9+N8fCW5IL9k+O2Axe4aPBar1SR
+	 q5b16m8D4iaUFA5V4ORaTp8n1yGAJi/BbpWK8DCwN7ocj90RECiZOCrJ/HZJPTS2gf
+	 Qpt32kDD8pr/g==
+Received: from phl-compute-03.internal (phl-compute-03.internal [10.202.2.43])
+	by mailfauth.phl.internal (Postfix) with ESMTP id DF885F40070;
+	Thu, 28 May 2026 10:31:12 -0400 (EDT)
+Received: from phl-frontend-03 ([10.202.2.162])
+  by phl-compute-03.internal (MEProxy); Thu, 28 May 2026 10:31:12 -0400
+X-ME-Sender: <xms:sFEYas06c8fanc58SaynFXa_pbY32f8GTEwFKxp02B4BwGYuazBoBQ>
+    <xme:sFEYamq_QXoIbMw8Bd3vVSEn7b6nV-xiwt4AqnfTaz8GlDwKyYnz7yUQYXPzkZo48
+    HqXuWS0OlGSYg0yTFB2S4IqP3g9N5azi44-Rro61S64RrK86WpxZA>
+X-ME-Received: <xmr:sFEYaoo2-Jk9IpH8xu6ELasFPvQakM3lLfvkwkTwTZzBz2ikDTYpFdbBxDQhd31lRjXRjA_zlbHkgFIrIs7gOT43wVF573Ai>
+X-ME-Proxy-Cause: dmFkZTGmOu92/emQ6/8NtZxrb8FuF/kXoQFx4FVQajYdCwtwrfJNzuKxPiWQpBvD6lzT7m
+    u5kMCl+R3sw5frRhPe4eyROj7Ohh/pSoh5xUNqsY8aaPmxoqiDL1FvoZKkvizys5jRD7P1
+    YVFb7crsifvSyqsMmsbNzMiL3QulZpbP+zTU9yBNghgl4U89nlXECmGRd2skBS10v3HBI6
+    zoZTZ6Cj8CZJ8dP6EH8kjdUFN++7KJlzHgvyw3XD8g/LivVXd66XX27qMANKiUMOWBKqlz
+    k/6WBw5B7NC5SMyAxv3fmFVerHhVO8RbL7VasgSoEzxAOYOkLaY1zXQt5E41VyuVGgPGS/
+    U9k4HG09llWC3TKqt0uX+iNNHZqi6eYXlwY08ew1wkHPB26PjjtUaiGNZxhvXYUIO+ISfL
+    nXWnb+o7TmHyKz4QTOdNYxfye7/gMXfBtXwa54u5chLEBCuk7QtnZOblv0XXuTuEB438i8
+    93IFRdj0buZ1EQYXRj68KCw90y9Q3VwtcOuiUEwt2gU/aEghKVnFpzaYWTHscOwOq9X987
+    b0+KPVCpmCD6bstECL3QZrhomIXetmSaSy8sBWCllnh7c8lU/26XcziHKDSBgbFkndVOHH
+    qk0DrWzdsrEc7qU9hVqkUE+Jb53cnhpqm+P5V0TpVJnit+UUigQLQiz9hnzA
+X-ME-Proxy: <xmx:sFEYaqRrCIDGd1tRt-HAeAl46bpsjZz15oBDq4F8fZFGr2g40NRNrA>
+    <xmx:sFEYanqjXSKZAkHmiuGVrKDa6uCJu1atoJFQmE317ByC4StxQU4UTw>
+    <xmx:sFEYatxPpaYQgPbfpJ2MeDt3fOspMNWEJfA1HYj3E_MKuPcpubWrMQ>
+    <xmx:sFEYapqHBrKIiIrK8ERRwi1lGVodWYYycnmcVEKMmIvtJzi3b36qgQ>
+    <xmx:sFEYaqIFfnhMvOOGXpNQNCFV8b08j6au5VzeISO4JJT9YnSgkQdVjbS7>
+Feedback-ID: i8dbe485b:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Thu,
+ 28 May 2026 10:31:11 -0400 (EDT)
+Date: Thu, 28 May 2026 07:31:10 -0700
+From: Boqun Feng <boqun@kernel.org>
+To: Peter Zijlstra <peterz@infradead.org>
+Cc: Catalin Marinas <catalin.marinas@arm.com>,	Will Deacon <will@kernel.org>,
+ Jonas Bonn <jonas@southpole.se>,
+	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
+	Stafford Horne <shorne@gmail.com>,	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,	Thomas Gleixner <tglx@kernel.org>,
+ Ingo Molnar <mingo@redhat.com>,	Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+	"H. Peter Anvin" <hpa@zytor.com>, Arnd Bergmann <arnd@arndb.de>,
+	Juri Lelli <juri.lelli@redhat.com>,
+	Vincent Guittot <vincent.guittot@linaro.org>,
+	Dietmar Eggemann <dietmar.eggemann@arm.com>,
+	Steven Rostedt <rostedt@goodmis.org>,	Ben Segall <bsegall@google.com>,
+ Mel Gorman <mgorman@suse.de>,	Valentin Schneider <vschneid@redhat.com>,
+	K Prateek Nayak <kprateek.nayak@amd.com>,
+	Waiman Long <longman@redhat.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Andrii Nakryiko <andrii@kernel.org>,
+	Eduard Zingerman <eddyz87@gmail.com>,
+	Alexei Starovoitov <ast@kernel.org>,
+	Daniel Borkmann <daniel@iogearbox.net>,
+	Martin KaFai Lau <martin.lau@linux.dev>,
+	Kumar Kartikeya Dwivedi <memxor@gmail.com>,	Song Liu <song@kernel.org>,
+ Yonghong Song <yonghong.song@linux.dev>,	Jiri Olsa <jolsa@kernel.org>,
+ Shuah Khan <shuah@kernel.org>,	Miguel Ojeda <ojeda@kernel.org>,
+ Gary Guo <gary@garyguo.net>,
+	=?iso-8859-1?Q?Bj=F6rn?= Roy Baron <bjorn3_gh@protonmail.com>,
+	Benno Lossin <lossin@kernel.org>,
+	Andreas Hindborg <a.hindborg@kernel.org>,
+	Alice Ryhl <aliceryhl@google.com>, Trevor Gross <tmgross@umich.edu>,
+	Danilo Krummrich <dakr@kernel.org>,	Jinjie Ruan <ruanjinjie@huawei.com>,
+ Lyude Paul <lyude@redhat.com>,	Thomas Huth <thuth@redhat.com>,
+ Sohil Mehta <sohil.mehta@intel.com>,	"Xin Li (Intel)" <xin@zytor.com>,
+	Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
+	Nikunj A Dadhania <nikunj@amd.com>,
+	Joel Fernandes <joelagnelf@nvidia.com>,
+	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+	Randy Dunlap <rdunlap@infradead.org>,	Yury Norov <ynorov@nvidia.com>,
+	Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+	linux-kernel@vger.kernel.org, linux-openrisc@vger.kernel.org,
+	linux-s390@vger.kernel.org, linux-arch@vger.kernel.org,
+	bpf@vger.kernel.org, linux-kselftest@vger.kernel.org,
+	rust-for-linux@vger.kernel.org,
+	Onur =?iso-8859-1?Q?=D6zkan?= <work@onurozkan.dev>,
+	Daniel Almeida <daniel.almeida@collabora.com>,
+	Boqun Feng <boqun.feng@gmail.com>
+Subject: Re: [PATCH v2 05/12] irq & spin_lock: Add counted interrupt
+ disabling/enabling
+Message-ID: <ahhRrmxQvbe4E8sR@tardis.local>
+References: <20260526152148.30514-1-boqun@kernel.org>
+ <20260526152148.30514-6-boqun@kernel.org>
+ <20260528104322.GF343181@noisy.programming.kicks-ass.net>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -76,59 +118,112 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <ahhNq0pFKvSKZQbR@localhost.localdomain>
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-GUID: Kt87eysoh7DYALPhN2Lv2zuqdzePaw-c
-X-Authority-Analysis: v=2.4 cv=Z8Dc2nRA c=1 sm=1 tr=0 ts=6a185192 cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=kj9zAlcOel0A:10 a=NGcC8JguVDcA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=tabJ_l0G7vvt5ToZ1lAA:9
- a=CjuIK1q_8ugA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTI4MDE0MyBTYWx0ZWRfXwyKYNov82R+3
- ogg5Y/eFgIy2zeyn8OBaGpldKVycXmwhU037w6W7THqhh37mEKaNxEAxNHguMRe4E6PLe1yptak
- b9aePKjEWnQUDymYY40W3+lePCmAMXhjNp0ZKrcQ+yKFRADV6iVsj3/y/PUIAJVVvec5O3KmOk2
- dQMGoiMTg0ZYUvhyXf0zUKuOhBlVXR+kG5ltn0JzwfhbHzzTdASUurEAXSSWhpW6W9gU6uHGNHA
- PeQ/2pbZu89maTojBsnNramkA+b2Jq4YfkRVi8UnILW1UBVYHyhXlByljIDiyUz39/LOImBD7xa
- eO0RL+a+1sgj8Rbo5elCygEwyiR/rIgh6mjY0XXfSZkUdFtPM/JFGZJbqmFT14vHxxhvDFKzWaW
- dEtJEI1icDZq85Q+ICT66PtfXxx9KTRutpAM3ZnviNzESYoyQxP9NDUxHl7mZDZm7sHzsL9DS9k
- YOdAiJ6Kt1NRulFss5g==
-X-Proofpoint-ORIG-GUID: eoGu_O8F5vnm42UoxVe2EIZn9XCmxJp0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
- definitions=2026-05-28_03,2026-05-28_03,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1011 spamscore=0 bulkscore=0 impostorscore=0 priorityscore=1501
- malwarescore=0 phishscore=0 suspectscore=0 adultscore=0 lowpriorityscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2605210000 definitions=main-2605280143
+In-Reply-To: <20260528104322.GF343181@noisy.programming.kicks-ass.net>
 
-On Thu, May 28, 2026 at 04:14:03PM +0200, Oscar Salvador (SUSE) wrote:
-> On Thu, May 28, 2026 at 12:24:35PM +0100, Lorenzo Stoakes wrote:
-> > On Thu, May 28, 2026 at 09:55:07AM +0200, Alexander Gordeev wrote:
-> > > Switch from ptep_get() to ptep_get_lockless() accessor for
-> > > PTE reads when no lock is taken.
-> > 
-> > This is an insufficient commit message that's just saying what you're doing,
-> > which isn't very useful.
-> > 
-> > Please explain why you're doing this and what the benefit is please.
+On Thu, May 28, 2026 at 12:43:22PM +0200, Peter Zijlstra wrote:
+> On Tue, May 26, 2026 at 08:21:41AM -0700, Boqun Feng wrote:
 > 
-> Maybe something like
+> > diff --git a/include/linux/preempt.h b/include/linux/preempt.h
+> > index e2d3079d3f5f..33fc4c814a9f 100644
+> > --- a/include/linux/preempt.h
+> > +++ b/include/linux/preempt.h
+> > @@ -151,6 +151,10 @@ static __always_inline unsigned char interrupt_context_level(void)
+> >  #define in_softirq()		(softirq_count())
+> >  #define in_interrupt()		(irq_count())
+> >  
+> > +#define hardirq_disable_count()	((preempt_count() & HARDIRQ_DISABLE_MASK) >> HARDIRQ_DISABLE_SHIFT)
+> > +#define hardirq_disable_enter()	__preempt_count_add_return(HARDIRQ_DISABLE_OFFSET)
+> > +#define hardirq_disable_exit()	__preempt_count_sub_return(HARDIRQ_DISABLE_OFFSET)
+> > +
+> >  /*
+> >   * The preempt_count offset after preempt_disable();
+> >   */
 > 
-> "When not holding the lock, there is a chance that the pte gets modified
->  under our feet, so we need to use the lockless API to make sure that
->  the entries remain consistent during the read."
+> > diff --git a/include/linux/interrupt_rc.h b/include/linux/interrupt_rc.h
+> > new file mode 100644
+> > index 000000000000..868f32524a87
+> > --- /dev/null
+> > +++ b/include/linux/interrupt_rc.h
+> > @@ -0,0 +1,65 @@
+> > +/* SPDX-License-Identifier: GPL-2.0 */
+> > +/*
+> > + * include/linux/interrupt_rc.h - refcounted local processor interrupt
+> > + * management.
+> > + *
+> > + * Since the implementation of this API currently depends on
+> > + * local_irq_save()/local_irq_restore(), we split this into it's own header to
+> > + * make it easier to include without hitting circular header dependencies.
+> > + */
+> > +
+> > +#ifndef __LINUX_INTERRUPT_RC_H
+> > +#define __LINUX_INTERRUPT_RC_H
+> > +
+> > +#include <linux/irqflags.h>
+> > +#include <asm/processor.h>
+> > +#ifdef CONFIG_SMP
+> > +#include <asm/smp.h>
+> > +#endif
+> > +
+> > +/* Per-cpu interrupt disabling state for local_interrupt_{disable,enable}() */
+> > +struct interrupt_disable_state {
+> > +	unsigned long flags;
+> > +};
+> > +
+> > +DECLARE_PER_CPU(struct interrupt_disable_state, local_interrupt_disable_state);
+> > +
+> > +static inline void local_interrupt_disable(void)
+> > +{
+> > +	unsigned long flags;
+> > +	int new_count;
+> > +
+> > +	new_count = hardirq_disable_enter();
+> > +
+> > +	/* Interrupts can happen here, but it's OK, see __irq_exit_rcu(). */
+> > +
+> > +	if ((new_count & HARDIRQ_DISABLE_MASK) == HARDIRQ_DISABLE_OFFSET) {
+> > +		local_irq_save(flags);
+> > +		raw_cpu_write(local_interrupt_disable_state.flags, flags);
+> > +	}
+> > +}
+> > +
+> > +static inline void local_interrupt_enable(void)
+> > +{
+> > +	int new_count;
+> > +
+> > +	new_count = hardirq_disable_exit();
+> > +
+> > +	if ((new_count & HARDIRQ_DISABLE_MASK) == 0) {
+> > +		unsigned long flags;
+> > +
+> > +		flags = raw_cpu_read(local_interrupt_disable_state.flags);
+> > +		local_irq_restore(flags);
+> > +		/*
+> > +		 * TODO: re-read preempt count can be avoided, but it needs
+> > +		 * should_resched() taking another parameter as the current
+> > +		 * preempt count
+> > +		 */
+> > +#ifdef CONFIG_PREEMPTION
+> > +		if (should_resched(0))
+> > +			__preempt_schedule();
+> 
+> I'm not sure why you bother with should_resched() at this point, can't
+> you simply write:
+> 
+> 		if (!new_count)
+> 			__preempt_schedule();
+> 
 
-I would gladly use this, if it makes sense for everyone.
+I was trying to not re-invent the wheel for "checking whether we can
+preempt" (because the definition of preempt condition might be changed
+in the future?), but yes I think directly using new_count should be fine
+here. Although I think I need to check tif_need_resched() for other
+architectures?
 
-@Lorenzo?
+Regards,
+Boqun
 
-> Only arm64 makes use of it though, due to the contpte stuff and being
-> unable to do it atomically.
-
-Thanks!
-
-> -- 
-> Oscar Salvador
-> SUSE Labs
+> > +#endif
+> > +	}
+> > +}
+> > +
+> > +#endif /* !__LINUX_INTERRUPT_RC_H */
