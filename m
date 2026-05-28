@@ -1,171 +1,238 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A9409401485;
-	Thu, 28 May 2026 16:06:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D048B286419;
+	Thu, 28 May 2026 17:06:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779984411; cv=none; b=qnWEtklIfS5OwTABWlPBTy9YoxaBE1VAi4Vc6F8ktUmbV4iTZICoPtEwyLMZOK5KECkV/GDvE74xMS+Y7KmP7cSch0Zf95o7r2Vixy+pxhRJsaA0BBDvEalj8F4BKJab1zKKPXYKuLTOstoftCY+lsxO5taGrQS2CqBTf4rrrDY=
+	t=1779988007; cv=none; b=tRjmbjXBoIRsj/Y0GIqDutTpfiEQ6FL7DybXUzACuNv8szLincqhem41OdB/DJRIbjiw/VNrP4jys03IrrfSD+YXqWlWzjcjKPU0otZgRXcuMPhXP7HashiFpuVwOxuQEgEHuXdu0oPG7WDNVZKfNTeSJ+QtkK8ErU82l8WoAG0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779984411; c=relaxed/simple;
-	bh=3iyTnzSSZTtgJ2HfhSY0xOjo75mPW/4C2Z9xj+j8lGw=;
-	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=jENb4nwKT8HbCO0eo8stlPp6x7Kk+3/5ZhRNqwurE9xFBYs9pF7JRo7wemlkLHqpnCK0lj2yhbYzEzZArNQOXZ/Cj0m6rQe4XDQd5Ub5pOtWe6fIhOdw87dZdt6sTMGB2Wai8U3Uim/L88N7FQEd2uedsHcc1hca8F9sPY3gKk0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Vcsd9W8n; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1779988007; c=relaxed/simple;
+	bh=41/dLmJEH2sC0di1SbQ7jYTvOMQix98VFMRgefRq7e4=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=YqdctE7dbYCgZ1VSpPTWHbziLNFCQsltS74vmcaIAbGkxSjwnk7fsCuhFrAQf/600r7jjzipM/UqPW6ypVv9i4/B7Lwp8FHjyeJ3BTDcOxX4SbaoAjDwtntoGnbCYS/qPqNK3yvTQninHjLRFGN+M58VJJMDz4+tedmKO7zqYMw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=casper.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=N1QN1Q4w; arc=none smtp.client-ip=90.155.50.34
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=casper.srs.infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Vcsd9W8n"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 64SCQM3I3426445;
-	Thu, 28 May 2026 16:06:48 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=
-	content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=1RG36P
-	EC8YnNgTQR4tpfniTvNwAG5MV+u0IITs4pjw0=; b=Vcsd9W8ncccIBPeetdifrw
-	PWajpFMxcIemPXg7gbndH12Bv0n4SMQNbEvRly83FuSZH6jxtMvhw0DWG96WnP2w
-	r0Ph9u49Hay1ISxDWTL0VAkHRa6TAWV/hqEdbUkTwvFf9pT00n0EcQJASj0U2ju6
-	v8nZbhip2GIuTxMwy1SMw/MvQs3qhBWkaSFYymeTogwmRV+nZHeiC2zN4GnIJLFt
-	Bx9sTQ+6EvUXBS6AHWoq+JvjvqSb5yRnF1L9Es9qWd83k1L/1BLaltqYLcdVlK6K
-	PSa5FYHCiOySC3vAeMnEdbu89Fq7+o/IfUKPn2wdGe0lq7jZagjBF+m6rPvaikWg
-	==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ee884kxtt-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 28 May 2026 16:06:48 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 64SFs9du025213;
-	Thu, 28 May 2026 16:06:47 GMT
-Received: from smtprelay07.dal12v.mail.ibm.com ([172.16.1.9])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4edjrb8vhb-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 28 May 2026 16:06:47 +0000 (GMT)
-Received: from smtpav02.wdc07v.mail.ibm.com (smtpav02.wdc07v.mail.ibm.com [10.39.53.229])
-	by smtprelay07.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 64SG6kwD7930620
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 28 May 2026 16:06:46 GMT
-Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6E49958058;
-	Thu, 28 May 2026 16:06:46 +0000 (GMT)
-Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3B70F5805F;
-	Thu, 28 May 2026 16:06:45 +0000 (GMT)
-Received: from [9.61.144.185] (unknown [9.61.144.185])
-	by smtpav02.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 28 May 2026 16:06:45 +0000 (GMT)
-Message-ID: <47d4ec9f-ed26-4055-a78c-62be53d33d23@linux.ibm.com>
-Date: Thu, 28 May 2026 12:06:44 -0400
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="N1QN1Q4w"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=casper.20170209; h=MIME-Version:Content-Type:References:
+	In-Reply-To:Date:Cc:To:From:Subject:Message-ID:Sender:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=TOTMrnfyoy+juETvupFXdLQQUWoKyuhVKkkJrB66tQs=; b=N1QN1Q4wsNgEXYJ6obuHLI0eMy
+	WZjLQxRn49NiO45HN2eQ5pD6f2kCp9K46WgANuxnDKJiYxQU7yIL8v2QgyjbEkq+RZRyidAF/2tVY
+	EZ+nPsH0WwjI8IcPP5dfve1FjPavKcxcasMuFpxP/3RbwiPcoYfP6xeEFs/vgnV9DDcJXL2DSTbNk
+	8vCWvZXZSbATDEhMo/rhzajX660ALHDpqBtkGjCqBT2FoGLWYPyVjjgzqMG3JaTwOwEzmkRAoOOh/
+	wtC9JZ+4MfQ5xdAALLpMIDseCzPWcUeYXJ9GUkmY8S7q+jGq0wbFARFWoB+XtKBoV5bxeb0Vsguxj
+	L8rhzBHA==;
+Received: from 54-240-197-239.amazon.com ([54.240.197.239] helo=edge-cache-150.e-ind6.amazon.com)
+	by casper.infradead.org with esmtpsa (Exim 4.99.1 #2 (Red Hat Linux))
+	id 1wSeBm-00000004YVe-0zdi;
+	Thu, 28 May 2026 17:06:34 +0000
+Message-ID: <1088b07d760491deb461d6d01abca631e8f8d86c.camel@infradead.org>
+Subject: Re: [PATCH v2 2/2] MAINTAINERS: update PTP maintainer entries after
+ directory split
+From: David Woodhouse <dwmw2@infradead.org>
+To: Wen Gu <guwen@linux.alibaba.com>, Jakub Kicinski <kuba@kernel.org>
+Cc: tglx@kernel.org, richardcochran@gmail.com, andrew+netdev@lunn.ch, 
+ davem@davemloft.net, edumazet@google.com, pabeni@redhat.com, 
+ linux-kernel@vger.kernel.org, netdev@vger.kernel.org, jstultz@google.com, 
+ anna-maria@linutronix.de, frederic@kernel.org, daniel.lezcano@kernel.org, 
+ sboyd@kernel.org, vladimir.oltean@nxp.com, wei.fang@nxp.com,
+ xiaoning.wang@nxp.com,  jonathan.lemon@gmail.com,
+ vadim.fedorenko@linux.dev, yangbo.lu@nxp.com,  svens@linux.ibm.com,
+ nick.shi@broadcom.com, ajay.kaher@broadcom.com, 
+ alexey.makhalov@broadcom.com, bcm-kernel-feedback-list@broadcom.com, 
+ linux-fpga@vger.kernel.org, imx@lists.linux.dev,
+ linux-s390@vger.kernel.org,  dust.li@linux.alibaba.com,
+ xuanzhuo@linux.alibaba.com, mani@kernel.org,  imran.shaik@oss.qualcomm.com,
+ taniya.das@oss.qualcomm.com
+Date: Thu, 28 May 2026 18:06:32 +0100
+In-Reply-To: <ebf19246-91af-4887-b2aa-d9007921f7b2@linux.alibaba.com>
+References: <20260407104802.34429-1-guwen@linux.alibaba.com>
+	 <20260407104802.34429-3-guwen@linux.alibaba.com>
+	 <20260412084704.743482ad@kernel.org>
+	 <4B889ED5-D1F6-401D-B753-89AE2037F316@infradead.org>
+	 <20260412095301.4fe1fe65@kernel.org>
+	 <ebf19246-91af-4887-b2aa-d9007921f7b2@linux.alibaba.com>
+Content-Type: multipart/signed; micalg="sha-256"; protocol="application/pkcs7-signature";
+	boundary="=-Hz9IYXkICHkbRU6bPLDM"
+User-Agent: Evolution 3.52.3-0ubuntu1.1 
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v8 3/3] KVM: s390: Introducing kvm_arch_set_irq_inatomic
- fast inject
-To: Douglas Freimuth <freimuth@linux.ibm.com>, borntraeger@linux.ibm.com,
-        imbrenda@linux.ibm.com, frankja@linux.ibm.com, david@kernel.org,
-        hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
-        svens@linux.ibm.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <20260526015323.207343-1-freimuth@linux.ibm.com>
- <20260526015323.207343-4-freimuth@linux.ibm.com>
-From: Matthew Rosato <mjrosato@linux.ibm.com>
-Content-Language: en-US
-In-Reply-To: <20260526015323.207343-4-freimuth@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=L4MtheT8 c=1 sm=1 tr=0 ts=6a186818 cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
- a=IkcTkHD0fZMA:10 a=NGcC8JguVDcA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=1s4XCebHbYTDuaAw4AUA:9
- a=QEXdDO2ut3YA:10
-X-Proofpoint-ORIG-GUID: Qm5H16BK_8YabhLzNFPql1m-1k4V6pii
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTI4MDE2MyBTYWx0ZWRfX1oJRnpJgd0qa
- 0CufCAaQ0Zd/5MZMmY1GOrH2umAvrWZpOrIPCSPd72aRRu9I9NHRGZFHKzp3ZGXBE9SCaB1byRP
- /rrMW6p36MthotErDkqO5IGAWt/1bpNHnw1homoa9JwYHdmZDS3IZ9ZUlncG65eyjsI4Ideff7d
- ISsW7kGoFvJputu7IgUX5ImTXS/H/PDmQQhzXazEICV9BJTo4e6yYrtdCsaV0RalTrIyoYyerFS
- eeW4PMUXx++t4zvE0iKiq2AwidYO9ffStSlB6x3qDYo6OKq1eRmbB4zAsRQTQIFrbQOWR/vlhBS
- xLzGmd5j7CsYv7OygyE7YZZS7QPbq27g/vpKrb5MUDMF/PlsRcyMOvIcJmPkwemOTctd47U3ed6
- FnYtOTxEYq7e8u3WJUe1irGvxK+xks2r3swPVktHrVIgr2Iod7zg0/4NxihXXfq30ceRZi7Y6uV
- kiZt9mPi9juMZhtj8iQ==
-X-Proofpoint-GUID: Qm5H16BK_8YabhLzNFPql1m-1k4V6pii
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
- definitions=2026-05-28_04,2026-05-28_03,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- phishscore=0 lowpriorityscore=0 suspectscore=0 clxscore=1015 malwarescore=0
- bulkscore=0 impostorscore=0 adultscore=0 priorityscore=1501 spamscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2605210000 definitions=main-2605280163
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by casper.infradead.org. See http://www.infradead.org/rpr.html
 
-On 5/25/26 9:53 PM, Douglas Freimuth wrote:
-> s390 needs a fast path for irq injection, and along those lines we
-> introduce kvm_arch_set_irq_inatomic. Instead of placing all interrupts on
-> the global work queue as it does today, this patch provides a fast path for
-> irq injection.
-> 
-> The inatomic fast path cannot lose control since it is running with
-> interrupts disabled. This meant making the following changes that exist on
-> the slow path today. First, the adapter_indicators page needs to be mapped
-> since it is accessed with interrupts disabled, so we added map/unmap
-> functions. Second, access to shared resources between the fast and slow
-> paths needed to be changed from mutex and semaphores to spin_lock's.
-> Finally, the memory allocation on the slow path utilizes GFP_KERNEL_ACCOUNT
-> but we had to implement the fast path with GFP_ATOMIC allocation. Each of
-> these enhancements were required to prevent blocking on the fast inject
-> path.
-> 
-> Fencing of Fast Inject in Secure Execution environments is enabled in the
-> patch series by not mapping adapter indicator pages. In Secure Execution
-> environments the path of execution available before this patch is followed.
-> 
-> Statistical counters have been added to enable analysis of irq injection on
-> the fast path and slow path including io_390_inatomic, io_flic_inject_airq,
-> io_set_adapter_int and io_390_inatomic_adapter_masked_or_coalesced.
 
-That's a mouthful.  And it also doesn't include suppressed interrupts.
+--=-Hz9IYXkICHkbRU6bPLDM
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-How about something like _no_inject to imply that interrupt was
-delivered via the adapter interrupt bits without needing to inject the
-irq.
+On Mon, 2026-04-13 at 17:00 +0800, Wen Gu wrote:
+>=20
+> On 2026/4/13 00:53, Jakub Kicinski wrote:
+> > On Sun, 12 Apr 2026 17:32:22 +0100 David Woodhouse wrote:
+> > > On 12 April 2026 16:47:04 BST, Jakub Kicinski <kuba@kernel.org> wrote=
+:
+> > > > On Tue,=C2=A0 7 Apr 2026 18:48:02 +0800 Wen Gu wrote:
+> > > > > +PTP EMULATED CLOCK SUPPORT
+> > > > > +M:	David Woodhouse <dwmw2@infradead.org>
+> > > > > +M:	Wen Gu <guwen@linux.alibaba.com>
+> > > > > +M:	Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > > > > +L:	linux-kernel@vger.kernel.org
+> > > > > +S:	Maintained
+> > > > > +T:	git git://git.kernel.org/pub/scm/linux/kernel/git/tip/tip.git=
+ timers/core
+> > > >=20
+> > > > Hi David,
+> > > >=20
+> > > > Do you have a tree to route the patches thru? Or do you really have
+> > > > access to the tip tree?
+> > >=20
+> > > I do not have access to the tip tree. I can make a shared tree on
+> > > git.infradead.org if the other two maintainers would like to send me
+> > > a SSH pubkey and preferred username...
+> >=20
+> > Honestly I'd love for you to be the only M here, and the other two
+> > to be reviewers. Xuan Zhuo is currently at v40 trying to upstream
+> > an Ethernet driver. Some growth needed there to become a subsystem
+> > maintainer IMO.
+>=20
+> Hi Jakub, David,
+>=20
+> That works for us. We can act as reviewers.
+>=20
+> If David sets up a new tree, I will update the MAINTAINERS entry
+> accordingly in v3.
 
-[...]
+Apologies for the delay. I have set up
 
-> @@ -2719,25 +2728,41 @@ static int kvm_s390_inject_airq(struct kvm *kvm,
->  		.parm = 0,
->  		.parm64 = isc_to_int_word(adapter->isc),
->  	};
-> +	struct kvm_s390_interrupt_info *inti;
-> +	unsigned long flags;
-> +
->  	int ret = 0;
->  
-> -	if (!test_kvm_facility(kvm, 72) || !adapter->suppressible)
-> -		return kvm_s390_inject_vm(kvm, &s390int);
-> +	inti = kzalloc_obj(*inti, GFP_KERNEL_ACCOUNT);
-> +	if (!inti)
-> +		return -ENOMEM;
->  
-> -	mutex_lock(&fi->ais_lock);
-> +	if (!test_kvm_facility(kvm, 72) || !adapter->suppressible) {
-> +		ret = kvm_s390_inject_vm(kvm, &s390int, inti);
-> +		if (ret)
-> +			kfree(inti);
-> +		return ret;
-> +	}
-> +
-> +	spin_lock_irqsave(&fi->ais_lock, flags);
->  	if (fi->nimm & AIS_MODE_MASK(adapter->isc)) {
->  		trace_kvm_s390_airq_suppressed(adapter->id, adapter->isc);
-> -		goto out;
-> +		spin_unlock_irqrestore(&fi->ais_lock, flags);
-> +		kfree(inti);
+https://git.infradead.org/?p=3Dlinux-ptp.git
+git://git.infradead.org/linux-ptp.git
 
-I suggested adding this to the same counter as masked and coalesced, and
-I still think you should:  so add a _no_inject++ here
+But I'm not keen on using it without Richard's explicit approval and a
+clear understanding of who owns what, *and* the taxonomy we use...
 
-Otherwise, LGTM -- please send a v9 with this and the other small things
-I mentioned on the other 2 patches.
+I'm not entirely keen on 'emulated' as the directory name. I don't want
+to get too bogged down in bikeshedding, and I know we've done some
+already, but I think 'virt' is a better fit? Although when I get my
+hands on one of those PTM-capable TimeCards, vmclock won't *just* be
+virt... :)
+
+I'm not sure I agree that the drivers being left behind in drivers/ptp
+are "IEEE1588 / network-oriented clock drivers" as the commit message
+of patch 1 suggests, either. The only one that goes anywhere *near* a
+network is ptp_ines.c which has a mii_timestamper interface.
+
+Apart from that they are *all* just PHC clock drivers, aren't they? The
+actual network ones live in drivers/net.
+
+So maybe the better answer is to have a more conventional core/drivers
+split? Except maybe for ptp_ines is there anything that *network*
+maintainers care about, other than the core?
+
+If we do that, add an X: line to exclude the drivers subdir from the
+network section in MAINTAINERS, and leave all of drivers/ptp owned by
+Richard as it is... do we *need* a new tree?=20
+
+--=-Hz9IYXkICHkbRU6bPLDM
+Content-Type: application/pkcs7-signature; name="smime.p7s"
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Transfer-Encoding: base64
+
+MIAGCSqGSIb3DQEHAqCAMIACAQExDzANBglghkgBZQMEAgEFADCABgkqhkiG9w0BBwEAAKCCD9Aw
+ggSOMIIDdqADAgECAhAOmiw0ECVD4cWj5DqVrT9PMA0GCSqGSIb3DQEBCwUAMGUxCzAJBgNVBAYT
+AlVTMRUwEwYDVQQKEwxEaWdpQ2VydCBJbmMxGTAXBgNVBAsTEHd3dy5kaWdpY2VydC5jb20xJDAi
+BgNVBAMTG0RpZ2lDZXJ0IEFzc3VyZWQgSUQgUm9vdCBDQTAeFw0yNDAxMzAwMDAwMDBaFw0zMTEx
+MDkyMzU5NTlaMEExCzAJBgNVBAYTAkFVMRAwDgYDVQQKEwdWZXJva2V5MSAwHgYDVQQDExdWZXJv
+a2V5IFNlY3VyZSBFbWFpbCBHMjCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAMjvgLKj
+jfhCFqxYyRiW8g3cNFAvltDbK5AzcOaR7yVzVGadr4YcCVxjKrEJOgi7WEOH8rUgCNB5cTD8N/Et
+GfZI+LGqSv0YtNa54T9D1AWJy08ZKkWvfGGIXN9UFAPMJ6OLLH/UUEgFa+7KlrEvMUupDFGnnR06
+aDJAwtycb8yXtILj+TvfhLFhafxroXrflspavejQkEiHjNjtHnwbZ+o43g0/yxjwnarGI3kgcak7
+nnI9/8Lqpq79tLHYwLajotwLiGTB71AGN5xK+tzB+D4eN9lXayrjcszgbOv2ZCgzExQUAIt98mre
+8EggKs9mwtEuKAhYBIP/0K6WsoMnQCcCAwEAAaOCAVwwggFYMBIGA1UdEwEB/wQIMAYBAf8CAQAw
+HQYDVR0OBBYEFIlICOogTndrhuWByNfhjWSEf/xwMB8GA1UdIwQYMBaAFEXroq/0ksuCMS1Ri6en
+IZ3zbcgPMA4GA1UdDwEB/wQEAwIBhjAdBgNVHSUEFjAUBggrBgEFBQcDBAYIKwYBBQUHAwIweQYI
+KwYBBQUHAQEEbTBrMCQGCCsGAQUFBzABhhhodHRwOi8vb2NzcC5kaWdpY2VydC5jb20wQwYIKwYB
+BQUHMAKGN2h0dHA6Ly9jYWNlcnRzLmRpZ2ljZXJ0LmNvbS9EaWdpQ2VydEFzc3VyZWRJRFJvb3RD
+QS5jcnQwRQYDVR0fBD4wPDA6oDigNoY0aHR0cDovL2NybDMuZGlnaWNlcnQuY29tL0RpZ2lDZXJ0
+QXNzdXJlZElEUm9vdENBLmNybDARBgNVHSAECjAIMAYGBFUdIAAwDQYJKoZIhvcNAQELBQADggEB
+ACiagCqvNVxOfSd0uYfJMiZsOEBXAKIR/kpqRp2YCfrP4Tz7fJogYN4fxNAw7iy/bPZcvpVCfe/H
+/CCcp3alXL0I8M/rnEnRlv8ItY4MEF+2T/MkdXI3u1vHy3ua8SxBM8eT9LBQokHZxGUX51cE0kwa
+uEOZ+PonVIOnMjuLp29kcNOVnzf8DGKiek+cT51FvGRjV6LbaxXOm2P47/aiaXrDD5O0RF5SiPo6
+xD1/ClkCETyyEAE5LRJlXtx288R598koyFcwCSXijeVcRvBB1cNOLEbg7RMSw1AGq14fNe2cH1HG
+W7xyduY/ydQt6gv5r21mDOQ5SaZSWC/ZRfLDuEYwggWbMIIEg6ADAgECAhAH5JEPagNRXYDiRPdl
+c1vgMA0GCSqGSIb3DQEBCwUAMEExCzAJBgNVBAYTAkFVMRAwDgYDVQQKEwdWZXJva2V5MSAwHgYD
+VQQDExdWZXJva2V5IFNlY3VyZSBFbWFpbCBHMjAeFw0yNDEyMzAwMDAwMDBaFw0yODAxMDQyMzU5
+NTlaMB4xHDAaBgNVBAMME2R3bXcyQGluZnJhZGVhZC5vcmcwggIiMA0GCSqGSIb3DQEBAQUAA4IC
+DwAwggIKAoICAQDali7HveR1thexYXx/W7oMk/3Wpyppl62zJ8+RmTQH4yZeYAS/SRV6zmfXlXaZ
+sNOE6emg8WXLRS6BA70liot+u0O0oPnIvnx+CsMH0PD4tCKSCsdp+XphIJ2zkC9S7/yHDYnqegqt
+w4smkqUqf0WX/ggH1Dckh0vHlpoS1OoxqUg+ocU6WCsnuz5q5rzFsHxhD1qGpgFdZEk2/c//ZvUN
+i12vPWipk8TcJwHw9zoZ/ZrVNybpMCC0THsJ/UEVyuyszPtNYeYZAhOJ41vav1RhZJzYan4a1gU0
+kKBPQklcpQEhq48woEu15isvwWh9/+5jjh0L+YNaN0I//nHSp6U9COUG9Z0cvnO8FM6PTqsnSbcc
+0j+GchwOHRC7aP2t5v2stVx3KbptaYEzi4MQHxm/0+HQpMEVLLUiizJqS4PWPU6zfQTOMZ9uLQRR
+ci+c5xhtMEBszlQDOvEQcyEG+hc++fH47K+MmZz21bFNfoBxLP6bjR6xtPXtREF5lLXxp+CJ6KKS
+blPKeVRg/UtyJHeFKAZXO8Zeco7TZUMVHmK0ZZ1EpnZbnAhKE19Z+FJrQPQrlR0gO3lBzuyPPArV
+hvWxjlO7S4DmaEhLzarWi/ze7EGwWSuI2eEa/8zU0INUsGI4ywe7vepQz7IqaAovAX0d+f1YjbmC
+VsAwjhLmveFjNwIDAQABo4IBsDCCAawwHwYDVR0jBBgwFoAUiUgI6iBOd2uG5YHI1+GNZIR//HAw
+HQYDVR0OBBYEFFxiGptwbOfWOtMk5loHw7uqWUOnMDAGA1UdEQQpMCeBE2R3bXcyQGluZnJhZGVh
+ZC5vcmeBEGRhdmlkQHdvb2Rob3Uuc2UwFAYDVR0gBA0wCzAJBgdngQwBBQEBMA4GA1UdDwEB/wQE
+AwIF4DAdBgNVHSUEFjAUBggrBgEFBQcDAgYIKwYBBQUHAwQwewYDVR0fBHQwcjA3oDWgM4YxaHR0
+cDovL2NybDMuZGlnaWNlcnQuY29tL1Zlcm9rZXlTZWN1cmVFbWFpbEcyLmNybDA3oDWgM4YxaHR0
+cDovL2NybDQuZGlnaWNlcnQuY29tL1Zlcm9rZXlTZWN1cmVFbWFpbEcyLmNybDB2BggrBgEFBQcB
+AQRqMGgwJAYIKwYBBQUHMAGGGGh0dHA6Ly9vY3NwLmRpZ2ljZXJ0LmNvbTBABggrBgEFBQcwAoY0
+aHR0cDovL2NhY2VydHMuZGlnaWNlcnQuY29tL1Zlcm9rZXlTZWN1cmVFbWFpbEcyLmNydDANBgkq
+hkiG9w0BAQsFAAOCAQEAQXc4FPiPLRnTDvmOABEzkIumojfZAe5SlnuQoeFUfi+LsWCKiB8Uextv
+iBAvboKhLuN6eG/NC6WOzOCppn4mkQxRkOdLNThwMHW0d19jrZFEKtEG/epZ/hw/DdScTuZ2m7im
+8ppItAT6GXD3aPhXkXnJpC/zTs85uNSQR64cEcBFjjoQDuSsTeJ5DAWf8EMyhMuD8pcbqx5kRvyt
+JPsWBQzv1Dsdv2LDPLNd/JUKhHSgr7nbUr4+aAP2PHTXGcEBh8lTeYea9p4d5k969pe0OHYMV5aL
+xERqTagmSetuIwolkAuBCzA9vulg8Y49Nz2zrpUGfKGOD0FMqenYxdJHgDCCBZswggSDoAMCAQIC
+EAfkkQ9qA1FdgOJE92VzW+AwDQYJKoZIhvcNAQELBQAwQTELMAkGA1UEBhMCQVUxEDAOBgNVBAoT
+B1Zlcm9rZXkxIDAeBgNVBAMTF1Zlcm9rZXkgU2VjdXJlIEVtYWlsIEcyMB4XDTI0MTIzMDAwMDAw
+MFoXDTI4MDEwNDIzNTk1OVowHjEcMBoGA1UEAwwTZHdtdzJAaW5mcmFkZWFkLm9yZzCCAiIwDQYJ
+KoZIhvcNAQEBBQADggIPADCCAgoCggIBANqWLse95HW2F7FhfH9bugyT/danKmmXrbMnz5GZNAfj
+Jl5gBL9JFXrOZ9eVdpmw04Tp6aDxZctFLoEDvSWKi367Q7Sg+ci+fH4KwwfQ8Pi0IpIKx2n5emEg
+nbOQL1Lv/IcNiep6Cq3DiyaSpSp/RZf+CAfUNySHS8eWmhLU6jGpSD6hxTpYKye7PmrmvMWwfGEP
+WoamAV1kSTb9z/9m9Q2LXa89aKmTxNwnAfD3Ohn9mtU3JukwILRMewn9QRXK7KzM+01h5hkCE4nj
+W9q/VGFknNhqfhrWBTSQoE9CSVylASGrjzCgS7XmKy/BaH3/7mOOHQv5g1o3Qj/+cdKnpT0I5Qb1
+nRy+c7wUzo9OqydJtxzSP4ZyHA4dELto/a3m/ay1XHcpum1pgTOLgxAfGb/T4dCkwRUstSKLMmpL
+g9Y9TrN9BM4xn24tBFFyL5znGG0wQGzOVAM68RBzIQb6Fz758fjsr4yZnPbVsU1+gHEs/puNHrG0
+9e1EQXmUtfGn4InoopJuU8p5VGD9S3Ikd4UoBlc7xl5yjtNlQxUeYrRlnUSmdlucCEoTX1n4UmtA
+9CuVHSA7eUHO7I88CtWG9bGOU7tLgOZoSEvNqtaL/N7sQbBZK4jZ4Rr/zNTQg1SwYjjLB7u96lDP
+sipoCi8BfR35/ViNuYJWwDCOEua94WM3AgMBAAGjggGwMIIBrDAfBgNVHSMEGDAWgBSJSAjqIE53
+a4blgcjX4Y1khH/8cDAdBgNVHQ4EFgQUXGIam3Bs59Y60yTmWgfDu6pZQ6cwMAYDVR0RBCkwJ4ET
+ZHdtdzJAaW5mcmFkZWFkLm9yZ4EQZGF2aWRAd29vZGhvdS5zZTAUBgNVHSAEDTALMAkGB2eBDAEF
+AQEwDgYDVR0PAQH/BAQDAgXgMB0GA1UdJQQWMBQGCCsGAQUFBwMCBggrBgEFBQcDBDB7BgNVHR8E
+dDByMDegNaAzhjFodHRwOi8vY3JsMy5kaWdpY2VydC5jb20vVmVyb2tleVNlY3VyZUVtYWlsRzIu
+Y3JsMDegNaAzhjFodHRwOi8vY3JsNC5kaWdpY2VydC5jb20vVmVyb2tleVNlY3VyZUVtYWlsRzIu
+Y3JsMHYGCCsGAQUFBwEBBGowaDAkBggrBgEFBQcwAYYYaHR0cDovL29jc3AuZGlnaWNlcnQuY29t
+MEAGCCsGAQUFBzAChjRodHRwOi8vY2FjZXJ0cy5kaWdpY2VydC5jb20vVmVyb2tleVNlY3VyZUVt
+YWlsRzIuY3J0MA0GCSqGSIb3DQEBCwUAA4IBAQBBdzgU+I8tGdMO+Y4AETOQi6aiN9kB7lKWe5Ch
+4VR+L4uxYIqIHxR7G2+IEC9ugqEu43p4b80LpY7M4KmmfiaRDFGQ50s1OHAwdbR3X2OtkUQq0Qb9
+6ln+HD8N1JxO5nabuKbymki0BPoZcPdo+FeRecmkL/NOzzm41JBHrhwRwEWOOhAO5KxN4nkMBZ/w
+QzKEy4PylxurHmRG/K0k+xYFDO/UOx2/YsM8s138lQqEdKCvudtSvj5oA/Y8dNcZwQGHyVN5h5r2
+nh3mT3r2l7Q4dgxXlovERGpNqCZJ624jCiWQC4ELMD2+6WDxjj03PbOulQZ8oY4PQUyp6djF0keA
+MYIDuzCCA7cCAQEwVTBBMQswCQYDVQQGEwJBVTEQMA4GA1UEChMHVmVyb2tleTEgMB4GA1UEAxMX
+VmVyb2tleSBTZWN1cmUgRW1haWwgRzICEAfkkQ9qA1FdgOJE92VzW+AwDQYJYIZIAWUDBAIBBQCg
+ggE3MBgGCSqGSIb3DQEJAzELBgkqhkiG9w0BBwEwHAYJKoZIhvcNAQkFMQ8XDTI2MDUyODE3MDYz
+MlowLwYJKoZIhvcNAQkEMSIEIK1wfg9Fv2luMSVmR4Kx1ejNVAjdacEO1ogP0pQoCY3fMGQGCSsG
+AQQBgjcQBDFXMFUwQTELMAkGA1UEBhMCQVUxEDAOBgNVBAoTB1Zlcm9rZXkxIDAeBgNVBAMTF1Zl
+cm9rZXkgU2VjdXJlIEVtYWlsIEcyAhAH5JEPagNRXYDiRPdlc1vgMGYGCyqGSIb3DQEJEAILMVeg
+VTBBMQswCQYDVQQGEwJBVTEQMA4GA1UEChMHVmVyb2tleTEgMB4GA1UEAxMXVmVyb2tleSBTZWN1
+cmUgRW1haWwgRzICEAfkkQ9qA1FdgOJE92VzW+AwDQYJKoZIhvcNAQEBBQAEggIAH45zq4alGUdn
+hAUUUKytj4LXIU7vYtQvgpOvHi9oAjEILkhhdss7za+Yo7PIxrDkiHJwpwBB4Ks/eFrk90YghRA+
+6UlmiVmGhT688ZQQpDeWGMvK4TqBNJLfKIWuuC86h30ctsBpPYqDsv7zS43t7x6V07ZcuTg5T16s
+4BDJeqG90RrD0lXqlsTKba5e3WOtr/n1+NnrGawFFm4TauGtL6JR9dlrO0ej2CUdOHk7nzjVWxD+
+coB+/EYZFWrp8owD1buQKEEdFIm/RsK7qQznkfjO/WePLn3/w7DoyBIbkezP7zQcq4cC+Jcj0PQq
+RGFivOUdICXSE2wsDXm+Jx3d6YB3xDeCSCvEsW2DR1z3N0q1wwyIgdZz3r5UahMbMFuObYudqFa6
+NSS0yNQ269jZLJEwYAICe3kQLCfPPAEIq9yNXxef9Es0F0ji8NXnQrIKIGXJjy7QCHAmWky0SFxu
+WqVyo7SiLMfFNR741y8rHV+HbDD5/YojF1JTVHyLCSOL/6InEKZYRENHUokMU6jC7qU4xlG8aFv+
+RI69lDGwcmmJGM7bndCHvmOSMMAoFQBGxkn9xyIlOKNeE15blBRS0Hm+iGqsIJNmlbgFPgMy/3q0
+JJ/o19zxb4RkyKsdNxd92s1PgAJ1BXoyE2jS6uDRQdkwWOhpyroF4CaF6AAgr3gAAAAAAAA=
+
+
+--=-Hz9IYXkICHkbRU6bPLDM--
