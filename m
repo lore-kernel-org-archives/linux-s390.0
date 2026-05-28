@@ -1,38 +1,38 @@
 Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A4F783B585F;
-	Thu, 28 May 2026 10:43:35 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CC9D33C4545;
+	Thu, 28 May 2026 10:45:33 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.92.199
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779965028; cv=none; b=MlhXJFwPtSjFxrk38yNPoTxOJggsYZNBx7xJXr8/QH3bKrD1qOyrOiASuZU5qoKPlzMDIXMbm9hQwZp9vf97wU9uKNATWugQNuo/mNFfxcUtzY1c3rZzvxDxBpuwkkstdR7jF4Wdn9123n3rALUXWj2XtnZLX8nI/jer9R/1L2E=
+	t=1779965135; cv=none; b=Pya9iLbNL67A1V/PeYf4xTv+7LASuFVdUGHCgRQ1H5u1Dr2D2Uh9VdtcWjRTyIGOs+uzqinPBVgYOUT216SGtxaxN4t6OrE9hteU9p5WRcveXXFDz8yJAyFU5yZs1rDAA8Hrdq7IrXhB6R1Y4SmYTEr6uSkeatqZTweYsSrmvuw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779965028; c=relaxed/simple;
-	bh=u0aRxM6DUow2LEF0COnOp/ciM9e5CqyqG3ckcIj5TdQ=;
+	s=arc-20240116; t=1779965135; c=relaxed/simple;
+	bh=KZ5zJjod0pdwnIHb2DAiIP0b5ZwKt2aV+cqV0XTBoVk=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=YO4kAQkoQlKihCMDwja/jkYJue/f36cckVFgKL+P4LEExVWKrA/W6POvJHzG377MOxI1NohesoYIkTKwzsVVNxDWd0+E9jUP1JxrvBu7L3W0tWATB7yIukWt71TtChsi3Q7JnaEYDvJTVXuAY/RxF17RPm6iBaoqdDYdLIwj+Jk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=RcLkjF7V; arc=none smtp.client-ip=90.155.92.199
+	 Content-Type:Content-Disposition:In-Reply-To; b=FvLm6DC+WsMqt4jctAREN0+ib1YztHWFCz1MoE4uxvlNLzwiXNoYyqMOHNN90QS7dbKeF0U5JaAc5JlZwZ287AZ9H94IcJxK1+6ys3Y5Ua83GqqsJYNNXeWMtT4Ja2pg/FzyU87DXiXGb3f5DjppLgM+B+KFnptcArKJhbhuRJc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=UzSArhsl; arc=none smtp.client-ip=90.155.92.199
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="RcLkjF7V"
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="UzSArhsl"
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
 	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
 	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=QNGyN387Cp9R9r4L3A3EkBe0+Z04BA1d59VcVSxY2qg=; b=RcLkjF7VAWEi/WJ42Gg3mP0vkN
-	e7YrUtYqNm8uy8PlEB50BEvOpn2kA6AGr3MDbry26s0J3mLybsXpqWKg+zfyt/3Dmjj60uAhiee/A
-	/4b5PyHJzcXRUHu5VXPnwJVwQRzMTs9lmt3f/Ij1oEpEb6DrC5yAANizMKcNGD2idE/k6HeNiAKbi
-	Zq/hQyT23mQGKm/MsesQKMmUw0AhXDh6gugvxiMh6g2XqzT6pJbP3dsHXd8IgwkowlO/7wDSIponU
-	KQlyeAE6B9XXHbM9PTLAFj5KFcoJntNHYFlziFHrNeSBxGc2HSfUy9wKVzBFH9MW85oH+jfLcIK7c
-	ktsVWEmw==;
-Received: from 2001-1c00-8d85-4b00-266e-96ff-fe07-7dcc.cable.dynamic.v6.ziggo.nl ([2001:1c00:8d85:4b00:266e:96ff:fe07:7dcc] helo=noisy.programming.kicks-ass.net)
+	bh=YWN8ydJ9aNkFl/9gR6sbvxWg3Nwr1Jm+hdQmUobZG2g=; b=UzSArhsli6ZTpULMXT9jS2V8cw
+	c8iAh8AIjDKnxRvsipxKtHqggllfIweVL5EZS21OSCsTrOum8ZWWYusMz2aDd+IIP0G4Gq4Au7S7C
+	2iCHFebu1g00u+FKN62bjMjCC8J5KgliHLD6AALsEO8XvEaVB/RyOR+44CwJfCxXIYsVdEEhoN836
+	+h/SYC730ZEyExytREsqXVR4xuTVpNp9hBK19Yzv7DouQRIRm64vgKDY6vEJkDk9jnCxhsZynGoKT
+	+tEFXVExGelZR08+GBJ2xQf5L31QmATsiVEpBf48UhvnFg9S85wPCF8MOJ8wQ1gsiRlDe7s1pmxMY
+	hLuodulw==;
+Received: from 77-249-17-252.cable.dynamic.v4.ziggo.nl ([77.249.17.252] helo=noisy.programming.kicks-ass.net)
 	by desiato.infradead.org with esmtpsa (Exim 4.99.1 #2 (Red Hat Linux))
-	id 1wSYCx-0000000GCDI-3Iqm;
-	Thu, 28 May 2026 10:43:24 +0000
+	id 1wSYEz-0000000GCPr-1aam;
+	Thu, 28 May 2026 10:45:29 +0000
 Received: by noisy.programming.kicks-ass.net (Postfix, from userid 1000)
-	id 9CB74300673; Thu, 28 May 2026 12:43:22 +0200 (CEST)
-Date: Thu, 28 May 2026 12:43:22 +0200
+	id 1CBA9300673; Thu, 28 May 2026 12:45:29 +0200 (CEST)
+Date: Thu, 28 May 2026 12:45:29 +0200
 From: Peter Zijlstra <peterz@infradead.org>
 To: Boqun Feng <boqun@kernel.org>
 Cc: Catalin Marinas <catalin.marinas@arm.com>,
@@ -88,11 +88,11 @@ Cc: Catalin Marinas <catalin.marinas@arm.com>,
 	Onur =?iso-8859-1?Q?=D6zkan?= <work@onurozkan.dev>,
 	Daniel Almeida <daniel.almeida@collabora.com>,
 	Boqun Feng <boqun.feng@gmail.com>
-Subject: Re: [PATCH v2 05/12] irq & spin_lock: Add counted interrupt
- disabling/enabling
-Message-ID: <20260528104322.GF343181@noisy.programming.kicks-ass.net>
+Subject: Re: [PATCH v2 07/12] locking: Switch to _irq_{disable,enable}()
+ variants in cleanup guards
+Message-ID: <20260528104529.GG343181@noisy.programming.kicks-ass.net>
 References: <20260526152148.30514-1-boqun@kernel.org>
- <20260526152148.30514-6-boqun@kernel.org>
+ <20260526152148.30514-8-boqun@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -101,101 +101,17 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260526152148.30514-6-boqun@kernel.org>
+In-Reply-To: <20260526152148.30514-8-boqun@kernel.org>
 
-On Tue, May 26, 2026 at 08:21:41AM -0700, Boqun Feng wrote:
+On Tue, May 26, 2026 at 08:21:43AM -0700, Boqun Feng wrote:
+> From: Boqun Feng <boqun.feng@gmail.com>
+> 
+> The semantics of various irq disabling guards match what
+> *_irq_{disable,enable}() provide, i.e. the interrupt disabling is
+> properly nested, therefore it's OK to switch to use
+> *_irq_{disable,enable}() primitives.
+> 
+> Signed-off-by: Boqun Feng <boqun.feng@gmail.com>
+> Signed-off-by: Boqun Feng <boqun@kernel.org>
 
-> diff --git a/include/linux/preempt.h b/include/linux/preempt.h
-> index e2d3079d3f5f..33fc4c814a9f 100644
-> --- a/include/linux/preempt.h
-> +++ b/include/linux/preempt.h
-> @@ -151,6 +151,10 @@ static __always_inline unsigned char interrupt_context_level(void)
->  #define in_softirq()		(softirq_count())
->  #define in_interrupt()		(irq_count())
->  
-> +#define hardirq_disable_count()	((preempt_count() & HARDIRQ_DISABLE_MASK) >> HARDIRQ_DISABLE_SHIFT)
-> +#define hardirq_disable_enter()	__preempt_count_add_return(HARDIRQ_DISABLE_OFFSET)
-> +#define hardirq_disable_exit()	__preempt_count_sub_return(HARDIRQ_DISABLE_OFFSET)
-> +
->  /*
->   * The preempt_count offset after preempt_disable();
->   */
-
-> diff --git a/include/linux/interrupt_rc.h b/include/linux/interrupt_rc.h
-> new file mode 100644
-> index 000000000000..868f32524a87
-> --- /dev/null
-> +++ b/include/linux/interrupt_rc.h
-> @@ -0,0 +1,65 @@
-> +/* SPDX-License-Identifier: GPL-2.0 */
-> +/*
-> + * include/linux/interrupt_rc.h - refcounted local processor interrupt
-> + * management.
-> + *
-> + * Since the implementation of this API currently depends on
-> + * local_irq_save()/local_irq_restore(), we split this into it's own header to
-> + * make it easier to include without hitting circular header dependencies.
-> + */
-> +
-> +#ifndef __LINUX_INTERRUPT_RC_H
-> +#define __LINUX_INTERRUPT_RC_H
-> +
-> +#include <linux/irqflags.h>
-> +#include <asm/processor.h>
-> +#ifdef CONFIG_SMP
-> +#include <asm/smp.h>
-> +#endif
-> +
-> +/* Per-cpu interrupt disabling state for local_interrupt_{disable,enable}() */
-> +struct interrupt_disable_state {
-> +	unsigned long flags;
-> +};
-> +
-> +DECLARE_PER_CPU(struct interrupt_disable_state, local_interrupt_disable_state);
-> +
-> +static inline void local_interrupt_disable(void)
-> +{
-> +	unsigned long flags;
-> +	int new_count;
-> +
-> +	new_count = hardirq_disable_enter();
-> +
-> +	/* Interrupts can happen here, but it's OK, see __irq_exit_rcu(). */
-> +
-> +	if ((new_count & HARDIRQ_DISABLE_MASK) == HARDIRQ_DISABLE_OFFSET) {
-> +		local_irq_save(flags);
-> +		raw_cpu_write(local_interrupt_disable_state.flags, flags);
-> +	}
-> +}
-> +
-> +static inline void local_interrupt_enable(void)
-> +{
-> +	int new_count;
-> +
-> +	new_count = hardirq_disable_exit();
-> +
-> +	if ((new_count & HARDIRQ_DISABLE_MASK) == 0) {
-> +		unsigned long flags;
-> +
-> +		flags = raw_cpu_read(local_interrupt_disable_state.flags);
-> +		local_irq_restore(flags);
-> +		/*
-> +		 * TODO: re-read preempt count can be avoided, but it needs
-> +		 * should_resched() taking another parameter as the current
-> +		 * preempt count
-> +		 */
-> +#ifdef CONFIG_PREEMPTION
-> +		if (should_resched(0))
-> +			__preempt_schedule();
-
-I'm not sure why you bother with should_resched() at this point, can't
-you simply write:
-
-		if (!new_count)
-			__preempt_schedule();
-
-> +#endif
-> +	}
-> +}
-> +
-> +#endif /* !__LINUX_INTERRUPT_RC_H */
+You really need them both? ;-)
