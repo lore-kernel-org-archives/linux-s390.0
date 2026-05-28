@@ -1,114 +1,73 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC8CA282F31;
-	Thu, 28 May 2026 14:41:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C12FF3F6C55
+	for <linux-s390@vger.kernel.org>; Thu, 28 May 2026 14:48:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779979290; cv=none; b=mRB/+fzW8gC3bxZrJyDQ6l9vgE0qXaIQlTaIfzuu1T0sK91ffAcMCsoukavpbNURhlAm3Dfz98LuMzY46zH8Fgpc7VHYC4niNHckIlbJ/jptgUlL4VIobw4D98Ru9sHYA2C8VoJOJqLHog65d7pWeDT4Nk7Pwfh0TAOMCqXmNXU=
+	t=1779979760; cv=none; b=WGDJQ0VmiTtmfBMRGk8tWRRQyETmOLdm8cRHnUkJ7zT/jctIh7RwUtEGl+flqO+m2sugRXNx6ZWirGK7nW9IOYKBZnQJovfHPeTm6xa2/oe7N3MJl4DDH8lXkrRimSZZ3iWYohCyHTzv9bcXonv/jGnrAQRsgyRv3LXqx+k3fx8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779979290; c=relaxed/simple;
-	bh=TSVRTbiKtmsRChxTwZ4Nj9VubQsmhf9bW37T6B7ZmGE=;
+	s=arc-20240116; t=1779979760; c=relaxed/simple;
+	bh=TPOHVAcISAJ6rVDl4VKS+zjAnz2tpw8dmAALLVUExlY=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=WUZz2lDvtgB1s8cfS2fj7uVc7mZFl/e4117ZaGHCJ+Vl6Fvt3pls6rKtDpVuSh2yj0HgZZ8oiBoWykqXCPYUgBwhEAmq6ErpQWBe8E/5nVUdFcDz6awXF5rX5sA2AjzVIZD7Gq4hojWAtLDLE84hKH67if7mFNynuBlyDYNl0A4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lJCb4ol3; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=MGA/IfQkNso8I/vucEZ0IB2jK/2Rvi9nlXuRLpKYO9+mhRkPVGdU0UimMM5y4+GuIvNQYaXjxvs/1imrRwqqrRvLW80zuB+MVA6IxYzIQYb77CYxrmcb5AIJ8Sl8sage+CaVN/oetBLl7xIOzewQBOV86zOZIx3EwWSixw8ABis=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=QygChVkB; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lJCb4ol3"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABD221F00A3C;
-	Thu, 28 May 2026 14:41:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1779979288;
-	bh=mMLQXLFxxeMsfws9gx78dbexKuPC66BK1P4wL7v7ehg=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=lJCb4ol3Y/qYCJYc9E01QRP9NvycEYIutWnhCa21gS66LO6DlwtXZGqpozZCTWlSb
-	 5e7QbDhSjmw5KIvFpn7Cnp7XOLppxxD/RK8l9QRECFRtN17LwFpPuyBez3F6W1d475
-	 I9jOu6SRCTMhlJsp1/O/btLVf4wc2ERdwBd6E+/NpZOfKFWYm86bVIGb12oTqurgBs
-	 tv0GDIfw85Jd/kcHx/FfQvVeTJ8zMmYF1dmDTtvzo11sDEnDl8KzLx2eWpZdIGhezU
-	 2043gsee1UKkSZsC8mJChg+1FRvsY1ConFEvCKnff454y+t6VbvA/BSpy57YUwXVRQ
-	 0YNe+N4KUyUlA==
-Received: from phl-compute-03.internal (phl-compute-03.internal [10.202.2.43])
-	by mailfauth.phl.internal (Postfix) with ESMTP id EF45FF40068;
-	Thu, 28 May 2026 10:41:25 -0400 (EDT)
-Received: from phl-frontend-03 ([10.202.2.162])
-  by phl-compute-03.internal (MEProxy); Thu, 28 May 2026 10:41:26 -0400
-X-ME-Sender: <xms:FVQYatQW0YUFZGH1sVD0mFNeIvzAx3Dmzqu7oVi-EdSAJ7y9HB7Ckg>
-    <xme:FVQYarq_a2tfXU6jSn3if5_o4cr2wAWzQ2BjnJm1R1Uzlz9FyNLZqUUmySZeE8vvx
-    pY4rRKVKCRK0rjMXXj4SkZm6OwbGZWth3rw13VIHVQu7aJeWxP_>
-X-ME-Received: <xmr:FVQYaotUQxb7fbdarOi52k7_BR34cpJDE1z-1DT_sN2rNm5zvreZEQ8nSJkLv9dhm_Fg6Yni1ICIodu2kF0tK9EhhXZ1_6aY>
-X-ME-Proxy-Cause: dmFkZTGy8ARkHRG0Nylf8jhBh1OVk8M8OYpjlyP8E9UwASywA+L1PTRKHON1RaUy8t7cYc
-    PwGmcGrw3tYDchCND6HPzvaVJ+R+XPMPPxpt220k8uXm/Lg0XQJQVSoYBRcI/cGpSkNPyZ
-    1n1oysLjYI2Vh4CpS7Em0mKaFqIGFb5PHKOSsKm6sLscIQzvXADXCglBu+zvVg8oYyQ1yC
-    40TU5qUp5ijo8elvLd2b66pKWGAikHDutxq8cdEaJFP+yOhY4QcyFjpS9qFpSObqwc5UQ/
-    +DWatDmcSYLIIzQS7ZDGPJxrhD9mX2S7/xZ/J0YjzKDFA+djUt2M4yKzqnCO/8OarABmqj
-    ZEqqL8GRyVK3AavIr/mR2G3mv+gUCdSYOc68lqJ7kc1yZw7olF4QmWnK4pg3VIVFedR7FN
-    gDv1F3nG1yI3bhFDtoNFDErFfGG9a/qmVJd4xnYC5VaRMMOcqn0UPPQKBmYmIuJNrsC5H5
-    yuPwhVG58a3YVrCkjRnEHRoFQk7wck/1lLHatQJ+NafoDo6PBbU8wJzTJtopdDhWmhIIHV
-    ySazFtHliy3s8aULkHypwlcXhtAUjK+GXBjxsIA0n6DkBH8SapbhM2D0H2KyfeSVLzGvFK
-    KSYZh05J4G3UHwTwUDeGbo43fNJ/ZtNTftJSPrnPlG6xswe0EEsNiXyIIxTQ
-X-ME-Proxy: <xmx:FVQYanenYDaZ9vtlmxY1b5OyWE6t4B7ewBW-gqAyYqouXkyHS9_DkQ>
-    <xmx:FVQYasmOhFKtgCYj1FqVcx770u-k-AbIQKICkPku8ogr7lxEJQS5jw>
-    <xmx:FVQYajHO3ut9oXptJIKaarZrIGHwRLi3uhQmnFz29_u23yzwGFSmdg>
-    <xmx:FVQYaqKVqVreUQdYmmgH3wl6m7W91O1EJz2EvByotok1vmZZK7BPNw>
-    <xmx:FVQYahvKXXDjIxHHNG9X-lYJI7q5Sek_22S-Z44KDxMZvTONYgBwiI3e>
-Feedback-ID: i8dbe485b:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Thu,
- 28 May 2026 10:41:24 -0400 (EDT)
-Date: Thu, 28 May 2026 07:41:24 -0700
-From: Boqun Feng <boqun@kernel.org>
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: Catalin Marinas <catalin.marinas@arm.com>,	Will Deacon <will@kernel.org>,
- Jonas Bonn <jonas@southpole.se>,
-	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-	Stafford Horne <shorne@gmail.com>,	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,	Thomas Gleixner <tglx@kernel.org>,
- Ingo Molnar <mingo@redhat.com>,	Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-	"H. Peter Anvin" <hpa@zytor.com>, Arnd Bergmann <arnd@arndb.de>,
-	Juri Lelli <juri.lelli@redhat.com>,
-	Vincent Guittot <vincent.guittot@linaro.org>,
-	Dietmar Eggemann <dietmar.eggemann@arm.com>,
-	Steven Rostedt <rostedt@goodmis.org>,	Ben Segall <bsegall@google.com>,
- Mel Gorman <mgorman@suse.de>,	Valentin Schneider <vschneid@redhat.com>,
-	K Prateek Nayak <kprateek.nayak@amd.com>,
-	Waiman Long <longman@redhat.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Andrii Nakryiko <andrii@kernel.org>,
-	Eduard Zingerman <eddyz87@gmail.com>,
-	Alexei Starovoitov <ast@kernel.org>,
-	Daniel Borkmann <daniel@iogearbox.net>,
-	Martin KaFai Lau <martin.lau@linux.dev>,
-	Kumar Kartikeya Dwivedi <memxor@gmail.com>,	Song Liu <song@kernel.org>,
- Yonghong Song <yonghong.song@linux.dev>,	Jiri Olsa <jolsa@kernel.org>,
- Shuah Khan <shuah@kernel.org>,	Miguel Ojeda <ojeda@kernel.org>,
- Gary Guo <gary@garyguo.net>,
-	=?iso-8859-1?Q?Bj=F6rn?= Roy Baron <bjorn3_gh@protonmail.com>,
-	Benno Lossin <lossin@kernel.org>,
-	Andreas Hindborg <a.hindborg@kernel.org>,
-	Alice Ryhl <aliceryhl@google.com>, Trevor Gross <tmgross@umich.edu>,
-	Danilo Krummrich <dakr@kernel.org>,	Jinjie Ruan <ruanjinjie@huawei.com>,
- Lyude Paul <lyude@redhat.com>,	Thomas Huth <thuth@redhat.com>,
- Sohil Mehta <sohil.mehta@intel.com>,	"Xin Li (Intel)" <xin@zytor.com>,
-	Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
-	Nikunj A Dadhania <nikunj@amd.com>,
-	Joel Fernandes <joelagnelf@nvidia.com>,
-	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-	Randy Dunlap <rdunlap@infradead.org>,	Yury Norov <ynorov@nvidia.com>,
-	Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-	linux-kernel@vger.kernel.org, linux-openrisc@vger.kernel.org,
-	linux-s390@vger.kernel.org, linux-arch@vger.kernel.org,
-	bpf@vger.kernel.org, linux-kselftest@vger.kernel.org,
-	rust-for-linux@vger.kernel.org,
-	Onur =?iso-8859-1?Q?=D6zkan?= <work@onurozkan.dev>,
-	Daniel Almeida <daniel.almeida@collabora.com>
-Subject: Re: [PATCH v2 12/12] s390/preempt: Enable
- HAS_SEPARATE_PREEMPT_RESCHED_BITS
-Message-ID: <ahhUFPdzboMWbXjn@tardis.local>
-References: <20260526152148.30514-1-boqun@kernel.org>
- <20260526152148.30514-13-boqun@kernel.org>
- <20260528105325.GI343181@noisy.programming.kicks-ass.net>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="QygChVkB"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 64SChL363426455;
+	Thu, 28 May 2026 14:48:49 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=sOtkq9OrxCckqv56LtiU1CUtbcSfo0
+	idpV0RvNi4Fjg=; b=QygChVkBTItLhPOnC2PnHbHsRosuZNDhOXHg7mghKUMyOq
+	LxaVRS4DVeknYzLWkY28z7zpuJbRAHzIwz0HJJyFeD4m8XktMYMizPmmdJ56Ao3o
+	snLVBoTvm00Lh44XuKX+Q5HItSA6YlMnO2t0ebYM9IBDss2u2mmRdv2MWL14D2pt
+	c3e/AKRwClHw/rKF2pIA4Z9fCBxEBv7vnNLrecyyc/vD2ULwJkyTSs3T1FO8dLCF
+	Op9SEEiQT9bJNiUITOw89Tf0weMi+DPB1QuelFl8wxdGtynCGClj92uZaBpLUHgN
+	r0E8fOJMXUtKqT6SZYpzlgv631bkeegckQ8uQo2A==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ee884kkjq-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 28 May 2026 14:48:48 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 64SEdA1r005467;
+	Thu, 28 May 2026 14:48:47 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4edjrb8k96-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 28 May 2026 14:48:47 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 64SEmiPP48169302
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 28 May 2026 14:48:44 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 3D9B820043;
+	Thu, 28 May 2026 14:48:44 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 3B7FF20040;
+	Thu, 28 May 2026 14:48:43 +0000 (GMT)
+Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.111.54.90])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Thu, 28 May 2026 14:48:43 +0000 (GMT)
+Date: Thu, 28 May 2026 16:48:41 +0200
+From: Alexander Gordeev <agordeev@linux.ibm.com>
+To: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
+Cc: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexandra Winter <wintera@linux.ibm.com>,
+        Aswin Karuvally <aswin@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Holger Dengler <dengler@linux.ibm.com>,
+        Jan Hoeppner <hoeppner@linux.ibm.com>,
+        Stefan Haberland <sth@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org
+Subject: Re: [PATCH 0/6] s390/drivers: replace __get_free_pages() call with
+ kmalloc()
+Message-ID: <894c759b-fe6c-4dfe-8b60-3b74916498c6-agordeev@linux.ibm.com>
+References: <20260528-b4-s390-drivers-v1-0-b7108f54d722@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -117,62 +76,65 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260528105325.GI343181@noisy.programming.kicks-ass.net>
+In-Reply-To: <20260528-b4-s390-drivers-v1-0-b7108f54d722@kernel.org>
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=L4MtheT8 c=1 sm=1 tr=0 ts=6a1855d0 cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+ a=kj9zAlcOel0A:10 a=NGcC8JguVDcA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VwQbUJbxAAAA:8
+ a=_0kljoH3NqQINkRqSNAA:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-ORIG-GUID: BGORt5uo9OajWRykRkKtDSf8YpUJfl2D
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTI4MDE0OCBTYWx0ZWRfX8EOWP/s32i+O
+ jJFi6pP43BK532dKme8PoNmQioVG4EnXO/KY5adXBQYYYC+o7N0CLtqrq733XymTeXmXolLRcFT
+ Mzau1pbHeI5PX7ivVaz8qpnXHbw7fAQlueAnXRrLqyJoZi3rZk1+P87C5KjyIUvlRPrd6IVVzly
+ hQQXJgBqIB48SrTXHKKSkaiGizVjj3jIvNHwJjOoF+TSvddhYX+VQ6ct4cLBhfaVNNGjuQ7duIL
+ OCYV3f1DdNj+kSjiOafeRcxu4MFySiwoOKzINnOTrhSDf/FRY0y4f2IDKqxo0P+9TpoFYnunyyq
+ dPaEEY4TJJYJ71os0RvC1DrmG8gvYWYnzIVYNi0eVjPVu5ETsi99Cym6c0LGGwX+j5sETa0Mmjz
+ 2+e2ugE081Pp0HVmd1O2vGWpcsRNe0YohniVllXLyqTT5QAf0WGjmdAog0poV7/ikd46nWfiJck
+ fmSl07jdxTPYR/s17MQ==
+X-Proofpoint-GUID: BGORt5uo9OajWRykRkKtDSf8YpUJfl2D
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
+ definitions=2026-05-28_04,2026-05-28_03,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ phishscore=0 lowpriorityscore=0 suspectscore=0 clxscore=1015 malwarescore=0
+ bulkscore=0 impostorscore=0 adultscore=0 priorityscore=1501 spamscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2605210000 definitions=main-2605280148
 
-On Thu, May 28, 2026 at 12:53:25PM +0200, Peter Zijlstra wrote:
-> On Tue, May 26, 2026 at 08:21:48AM -0700, Boqun Feng wrote:
-> > From: Heiko Carstens <hca@linux.ibm.com>
-> > 
-> > Convert s390's preempt_count to 64 bit, and change the preempt
-> > primitives accordingly.
-> > 
-> > Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-> > Signed-off-by: Boqun Feng <boqun@kernel.org>
-> > Link: https://patch.msgid.link/20260509181249.16281C67-hca@linux.ibm.com
-> > ---
-> >  arch/s390/Kconfig               |  1 +
-> >  arch/s390/include/asm/lowcore.h | 13 +++++++----
-> >  arch/s390/include/asm/preempt.h | 41 +++++++++++++++------------------
-> >  3 files changed, 29 insertions(+), 26 deletions(-)
-> > 
-> > diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-> > index ecbcbb781e40..cbbca82f8443 100644
-> > --- a/arch/s390/Kconfig
-> > +++ b/arch/s390/Kconfig
-> > @@ -276,6 +276,7 @@ config S390
-> >  	select PCI_MSI			if PCI
-> >  	select PCI_MSI_ARCH_FALLBACKS	if PCI_MSI
-> >  	select PCI_QUIRKS		if PCI
-> > +	select HAS_SEPARATE_PREEMPT_RESCHED_BITS
-> >  	select SPARSE_IRQ
-> >  	select SWIOTLB
-> >  	select SYSCTL_EXCEPTION_TRACE
-> > diff --git a/arch/s390/include/asm/lowcore.h b/arch/s390/include/asm/lowcore.h
-> > index 50ffe75adeb4..0974ab278169 100644
-> > --- a/arch/s390/include/asm/lowcore.h
-> > +++ b/arch/s390/include/asm/lowcore.h
-> > @@ -160,10 +160,15 @@ struct lowcore {
-> >  	/* SMP info area */
-> >  	__u32	cpu_nr;				/* 0x03a0 */
-> >  	__u32	softirq_pending;		/* 0x03a4 */
-> > -	__s32	preempt_count;			/* 0x03a8 */
-> > -	__u32	spinlock_lockval;		/* 0x03ac */
-> > -	__u32	spinlock_index;			/* 0x03b0 */
-> > -	__u8	pad_0x03b4[0x03b8-0x03b4];	/* 0x03b4 */
-> > +	union {
-> > +		struct {
-> > +			__u32	need_resched;	/* 0x03a8 */
-> > +			__u32	count;		/* 0x03ac */
-> > +		} preempt;
-> > +		__u64	preempt_count;		/* 0x03a8 */
-> > +	};
+On Thu, May 28, 2026 at 10:09:48AM +0300, Mike Rapoport (Microsoft) wrote:
+
+Hi Mike,
+
+> This is a (tiny) part of larger work of replacing page allocator calls
+> with kmalloc.
 > 
-> I'm a little confused by this union; afaict it isn't actually used.
+> Nowadays the right way to say "I need a buffer" is kmalloc() rather than
+> ancient and ugly __get_free_pages().
+> 
+> Also in git:
+> https://git.kernel.org/pub/scm/linux/kernel/git/rppt/linux.git gfp-to-kmalloc/s390-drivers
+> 
+> ---
+> Mike Rapoport (Microsoft) (6):
+>       s390/con3270: replace __get_free_page() with kmalloc()
+>       s390/dasd: replace get_zeroed_page() with kzalloc()
+>       s390/hvc_iucv: replace get_zeroed_page() with kzalloc()
+>       s390/qeth: replace get_zeroed_page() with kzalloc()
+>       s390/trng: replace __get_free_page() with kmalloc()
+>       s390/zcrypt: replace get_zeroed_page() with kzalloc()
+> 
+>  drivers/char/hw_random/s390-trng.c |  5 +++--
+>  drivers/s390/block/dasd_eckd.c     | 12 ++++++------
+>  drivers/s390/block/dasd_eer.c      |  4 ++--
+>  drivers/s390/char/con3270.c        |  8 ++++----
+>  drivers/s390/crypto/zcrypt_api.c   |  6 +++---
+>  drivers/s390/net/qeth_core_main.c  |  4 ++--
+>  drivers/tty/hvc/hvc_iucv.c         |  6 +++---
+>  7 files changed, 23 insertions(+), 22 deletions(-)
 
-(TIL: s390 is big endian)
+Did you use a particular tool/script to identify these locations?
+The immediat question would by why these sources only and not the
+others that also use the old functions?
 
-In preempt_count() the union is used for reading the lower 32bits in an
-asm block.
-
-Regards,
-Boqun
+Thanks!
