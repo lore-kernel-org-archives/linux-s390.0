@@ -1,147 +1,81 @@
-Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
+Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 54CB738836F;
-	Thu, 28 May 2026 08:48:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 425E9367B78;
+	Thu, 28 May 2026 08:53:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779958111; cv=none; b=SAjW9fyDxDSly3ws5RNERK4VhTbAAQyStZfByTP62g9Qg7BcEyj2PRL3oN5iR8qVprnpr/W/Axu1odINbutLlB7hVNcKa7XUInrT5cp81Ana432E2Qy1e3pI8yaJQ5iTUhMVQIGlIIgKNIYyAuQH0fL2LCtlknVlv/eEGaPSgvA=
+	t=1779958408; cv=none; b=favUqeLE24Cb8dfYErVa9fcI4b+dIGz0Axti/luMRIwlqITeOlOjZ9Nc/xeY3a7ppJbzH/cV+ynNCot7j4zNS24PGE2riX6FGDEIGerZToZkk51Boac8C25RkeQQeTOZ9wdOGYfVbfMfR3OuQmITwxmuyj/zuQ0FksvcF6yMa3I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779958111; c=relaxed/simple;
-	bh=/PV1feKwDb0qcYPzsYNIp41CTdC7U6Oyx6mx/p9sOcA=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=pCKB/YLyaOvdhlgf5k6zlAMFeUm4m1zQ3ddMGY7WgPA/bFCq5Tao/P4+XS25FFgdeCAMH5pmvvPQYXrrT8tKJ1YuyWrATrKGLvO0PCI8PqDmuNAymKfWbLI/erVabMGuth1/qSLZzK76LjgoFCYLXkgLHVEMDVmc+nrHtsW6i6o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=vbxup1sI; arc=none smtp.client-ip=115.124.30.133
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1779958408; c=relaxed/simple;
+	bh=8fVVgfxlsOq9kNuGYzSy5h/dA7VryhFKl3t6JHkuogU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=eYjgpJoZP0bHS6TWuhO45jd/LfG2UnK0Oxe85evaD64d8soNcR6TjutInfl4vFZp+I1CuYpJkC/tt9Oy7z8WlbvuQ4Y7oRnlYNH6Tn0EmMJodT2VQ1eHlVBULQfHmZmzs9ftzKN9IsxkUBAAwzhn8rtnxgO0LPg+eNr5jOUAbhw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=bombadil.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=WMt+kwP4; arc=none smtp.client-ip=198.137.202.133
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=bombadil.srs.infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="vbxup1sI"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1779958106; h=From:To:Subject:Date:Message-ID:MIME-Version;
-	bh=6Cxnw59TSqv/EHwbhMjBJkoI3ie4xRbX7WmD/oO9zCc=;
-	b=vbxup1sIsOqPmNje0MGcTleT1F2i2Y9u9ECysCtlP1FQQwRlIQrzY+CSrDhNzbBDIEcUM+Bz8vj2NKOICSiHkRsAx4egScMvDPRdSCd3L6Hy+WTrnHl3LNhBKDPWHVPxLRB1gDdpDiuhmBDuPEVIz1ex51QVnZm0peRpc9Gs6o4=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R291e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037026112;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=17;SR=0;TI=SMTPD_---0X3lvM2S_1779958105;
-Received: from j66a10360.sqa.eu95.tbsite.net(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0X3lvM2S_1779958105 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Thu, 28 May 2026 16:48:25 +0800
-From: "D. Wythe" <alibuda@linux.alibaba.com>
-To: "David S. Miller" <davem@davemloft.net>,
-	Dust Li <dust.li@linux.alibaba.com>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	Sidraya Jayagond <sidraya@linux.ibm.com>,
-	Wenjia Zhang <wenjia@linux.ibm.com>
-Cc: Mahanta Jambigi <mjambigi@linux.ibm.com>,
-	Simon Horman <horms@kernel.org>,
-	Tony Lu <tonylu@linux.alibaba.com>,
-	Wen Gu <guwen@linux.alibaba.com>,
-	linux-kernel@vger.kernel.org,
-	linux-rdma@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	netdev@vger.kernel.org,
-	oliver.yang@linux.alibaba.com,
-	pasic@linux.ibm.com
-Subject: [PATCH net-next v2 2/2] net/smc: reduce TX slot contention with exclusive wait
-Date: Thu, 28 May 2026 16:48:19 +0800
-Message-ID: <20260528084819.6059-3-alibuda@linux.alibaba.com>
-X-Mailer: git-send-email 2.45.0
-In-Reply-To: <20260528084819.6059-1-alibuda@linux.alibaba.com>
-References: <20260528084819.6059-1-alibuda@linux.alibaba.com>
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="WMt+kwP4"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=bombadil.20210309; h=In-Reply-To:Content-Type:MIME-Version
+	:References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=Nu+2uJB0bWOahJZM395trqlBX9jrloGHIPyChDFiT4g=; b=WMt+kwP4HyNu4MxGTFi9A9bWL8
+	I2vaJGQoRhwDX6g/0qB7yDnua1YQSzPQrViv3x1dOgw/6NIGCo7mJd5eVL0Z+kChl+oL7hNbxm4+q
+	QKA+dCZ9jIJ9xP5nt5FvZkhvJH9HWs3Jr+bDnkv0cHQbPzHvs2nDIJK0lueoPxhJip9HsUmtceZJc
+	O8Dew8VdViDsT/VjNjWBFVK5IcdIaj7eQwmihQsAd9IU9B4aWaMTdW+Tj7fcuXOZvbyUoWCz7H7rN
+	zDBZczW/tM2JZZ4bpnCzeYHzJ21k5778f+4lirKrTNNFKjGkU+vtA+FH4ZWN1nwTpkVLBQply4LiT
+	YlfcTbfA==;
+Received: from hch by bombadil.infradead.org with local (Exim 4.99.1 #2 (Red Hat Linux))
+	id 1wSWUQ-00000005RNi-04pb;
+	Thu, 28 May 2026 08:53:18 +0000
+Date: Thu, 28 May 2026 01:53:17 -0700
+From: Christoph Hellwig <hch@infradead.org>
+To: Borislav Petkov <bp@alien8.de>
+Cc: Jason Gunthorpe <jgg@ziepe.ca>, Christoph Hellwig <hch@infradead.org>,
+	"T.J. Mercier" <tjmercier@google.com>, maddy@linux.ibm.com,
+	mpe@ellerman.id.au, npiggin@gmail.com, chleroy@kernel.org,
+	linuxppc-dev@lists.ozlabs.org, mripard@kernel.org,
+	sumit.semwal@linaro.org, lkp@intel.com,
+	linux-kernel@vger.kernel.org, iommu@lists.linux.dev,
+	linux-mm@kvack.org, agordeev@linux.ibm.com,
+	gerald.schaefer@linux.ibm.com, linux-s390@vger.kernel.org,
+	Dan Williams <djbw@kernel.org>,
+	Tom Lendacky <thomas.lendacky@amd.com>, x86@kernel.org
+Subject: Re: [PATCH] powerpc: Export set_memory_encrypted and
+ set_memory_decrypted
+Message-ID: <ahgCfazNTdk7Em-K@infradead.org>
+References: <20260522225853.878411-1-tjmercier@google.com>
+ <ahPqbfH54R3JJyaV@infradead.org>
+ <20260527160716.GN2487554@ziepe.ca>
+ <20260527181549.GBahc01Xflm2yo5OqI@fat_crate.local>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260527181549.GBahc01Xflm2yo5OqI@fat_crate.local>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
 
-smc_wr_tx_get_free_slot() waits for a free TX slot with
-wait_event_interruptible_timeout(). Since the wait_event family
-enqueues waiters as non-exclusive, wake_up() may wake multiple
-waiters even though only one can use the slot, causing
-thundering-herd contention when slots are scarce.
+On Wed, May 27, 2026 at 11:15:49AM -0700, Borislav Petkov wrote:
+> On Wed, May 27, 2026 at 01:07:16PM -0300, Jason Gunthorpe wrote:
+> > > Setting memory decrypted is a dangerous operations and should only
+> > > be available to core code.  We should have various allocators for
+> > > decrypted code, but not export the functionality to random code.
+> > 
+> > At the very least an EXPORT_SYMBOL_NS.
+> > 
+> > Looks like there are about 3 modules using it already..
+> 
+> Looks like more to me...
+> 
+> In any case, we exported them back then for some framebuffer things:
+> 
+> 95cf9264d5f3 ("x86, drm, fbdev: Do not specify encrypted memory for video mappings")
 
-Use an exclusive wait loop with prepare_to_wait_exclusive() so
-wake_up() wakes only one waiter per freed slot.
-smc_wr_wakeup_tx_wait() still uses wake_up_all() during link
-teardown, so teardown behavior is unchanged.
-
-Performance measured with netperf TCP_RR (63 flows, 200B write /
-1000B read, 60s duration):
-
-+-------------------------------+---------------+---------------+
-| smcr_max_conns_per_lgr        | 32            | 255           |
-|-------------------------------+---------------+---------------|
-| before                        | 4.85 Gb/s     | 657.95 Mb/s   |
-|-------------------------------+---------------+---------------|
-| after                         | 5.01 Gb/s     | 2.2 Gb/s      |
-+-------------------------------+---------------+---------------+
-
-Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
----
- net/smc/smc_wr.c | 36 ++++++++++++++++++++++++++----------
- 1 file changed, 26 insertions(+), 10 deletions(-)
-
-diff --git a/net/smc/smc_wr.c b/net/smc/smc_wr.c
-index 130bc6c26fb3..3cb47f77130e 100644
---- a/net/smc/smc_wr.c
-+++ b/net/smc/smc_wr.c
-@@ -153,9 +153,11 @@ int smc_wr_tx_get_free_slot(struct smc_link *link,
- 			    struct smc_rdma_wr **wr_rdma_buf,
- 			    struct smc_wr_tx_pend_priv **wr_pend_priv)
- {
-+	unsigned long timeout = SMC_WR_TX_WAIT_FREE_SLOT_TIME;
- 	struct smc_link_group *lgr = smc_get_lgr(link);
- 	struct smc_wr_tx_pend *wr_pend;
- 	u32 idx = link->wr_tx_cnt;
-+	DEFINE_WAIT(wait);
- 	int rc;
- 
- 	*wr_buf = NULL;
-@@ -165,17 +167,31 @@ int smc_wr_tx_get_free_slot(struct smc_link *link,
- 		if (rc)
- 			return rc;
- 	} else {
--		rc = wait_event_interruptible_timeout(
--			link->wr_tx_wait,
--			!smc_link_sendable(link) ||
--			lgr->terminating ||
--			(smc_wr_tx_get_free_slot_index(link, &idx) != -EBUSY),
--			SMC_WR_TX_WAIT_FREE_SLOT_TIME);
--		if (!rc) {
--			/* timeout - terminate link */
--			smcr_link_down_cond_sched(link);
--			return -EPIPE;
-+		rc = 0;
-+		for (;;) {
-+			prepare_to_wait_exclusive(&link->wr_tx_wait, &wait,
-+						  TASK_INTERRUPTIBLE);
-+			if (!smc_link_sendable(link) || lgr->terminating ||
-+			    smc_wr_tx_get_free_slot_index(link, &idx) != -EBUSY)
-+				break;
-+			timeout = schedule_timeout(timeout);
-+			/* re-check */
-+			if (!smc_link_sendable(link) || lgr->terminating ||
-+			    smc_wr_tx_get_free_slot_index(link, &idx) != -EBUSY)
-+				break;
-+			if (!timeout) {
-+				/* timeout - terminate link */
-+				smcr_link_down_cond_sched(link);
-+				break;
-+			}
-+			if (signal_pending(current)) {
-+				rc = -ERESTARTSYS;
-+				break;
-+			}
- 		}
-+		finish_wait(&link->wr_tx_wait, &wait);
-+		if (rc)
-+			return rc;
- 		if (idx == link->wr_tx_cnt)
- 			return -EPIPE;
- 	}
--- 
-2.45.0
+Which is exactly one of these things that should not happen - mapping
+random I/O memory without the proper helpers..
 
