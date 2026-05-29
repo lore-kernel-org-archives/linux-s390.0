@@ -1,57 +1,57 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B036136C9C2;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B03F73E5A2E;
 	Fri, 29 May 2026 14:58:18 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780066699; cv=none; b=tS8FcaSzLvfxMKOub9DZIXSIGaGBvOrV9d8Rk1bius8ICHWNoKLbpM2PR1wYrb2lJOpMtOce3eayy03zRQ5T3xo0dp5ghpg8GFKDqC9BaPW7YP/gexMqLT8bIaZEQmU5Z0TKIjK6xsBiDGrV1uiIlxZqZDomVZMcSg94pDsckBk=
+	t=1780066700; cv=none; b=QX9JNopTMp3pjQxcOd4tadQa0Pr7tUXd9HkhvRwANNtkPTm1s4xwATY4V+lKgN6WFAk+GOsRmJWXOatT74+cp7arCRJnHqF5B1GFrN4T9M8lHMzpxry+hhL3hwmK4Ck75xVxTU9BmPfxt8B1iYr7mvy5xf1LlsBVRx72pG9qmkc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780066699; c=relaxed/simple;
-	bh=UlEGYP8jSj19m7y5UJVI2ZyhNH8EIvLeJPip/Lv2Xuk=;
+	s=arc-20240116; t=1780066700; c=relaxed/simple;
+	bh=XXWBG0v/dCruQJ6/OLnskMnp6HMzg3Wt/R4URVKIf1s=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=c2eQ+H+laUxRtUVs9AAWf5/iFJo2mEuIJmuHiMYxmi7aTrbGw1vLx77Dvck5oHMeu9sJLMu0KeGHmvs8LhYTXu8zrKhTczLA/rsDyfo3R6zZ4DxWjz64QHqBkNIEuCjaOOWE3GA/fw/CHn1srqNxrjqUwbqoCXE9QhL8Q4QYPRo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=U4/nFoQv; arc=none smtp.client-ip=148.163.156.1
+	 MIME-Version; b=J9FHlJcSocE6DnY/We4Zhr3B53rkjbLLMJ3jZf7fsKL3m4iljU2bqkQxjdNK0KNZBNzUpi0L9y1db73/8DBNoC/yhDq6ih/EkiSHmCxw3MzLozngpsDjw1UrM73uktljAbzITWmLDwnBk7OBXk4cq5ava9hT9grthmyQlPSwtXU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ZrFKRlRr; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="U4/nFoQv"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 64TAosco1684644;
-	Fri, 29 May 2026 14:58:00 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ZrFKRlRr"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 64TEdjWU2418247;
+	Fri, 29 May 2026 14:58:01 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=ZbqJ94R3zv4TlxZ4l
-	Pc4zdJzKpGMXMz18Ox5ufJCyYU=; b=U4/nFoQvWtpnDPs5NgsviOC9xALQgm6ht
-	MnvJAEzEqiF409LHTXoo0Wn1FI4dEGETwT5OusV++kQhYmsY8RqPVEVOazPBVqdw
-	1Uv8EaaiddI6dSFBUQW2iD5evAyr+RbDSfSLPVJ3uLO7rsrg9smtYcJwRDKpY8ZF
-	bR1FOgLOblJKR6cOmaRlz/blB0vjxD2oIBP3jp0CTPu2rmJqvKMwfc6s52Rnwqlv
-	QRYnKs+q04vXn0WUdRaDwRZa7en2E/25GCKLc29HE5aokAGYJMmFUpVRErIjpJDs
-	e3pX1zwNJ5NLAzi30h2RrhzXwPTkTg5ytOgYlUsMvaDErpbktnIuQ==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ee884jkk2-1
+	:mime-version:references:subject:to; s=pp1; bh=kP9ndZg5wFaJoUa0B
+	3eCJsB4VeU9eiqBZ7cvmQx9k+s=; b=ZrFKRlRrPsf6p8giUVj5EbT9+DjIqzkNr
+	MY6XJaLqS/p7/0oc2ofYYVXRUQiveoAA3YBmmUHCE1YinshvMhEPdGgyFN4+ZZWE
+	D3lbLZQ6vvRO8oitFHiFgSPR7KpOkmpqvdI86MydX+kWJEYoEbKzQ4NLMHK4AyZ5
+	79tR/gNsx/cnTMcn2FYO5cdLylMyP4zbR8r+uy5aS6ndo8ce3UVxbCWTVGcZgkXY
+	dtnitUcCsvbgBQf/Q9vi56Iv9qK79XX7H9WbP9p+SpEIAJpAdYQHmnL5/XBUHBGi
+	HCRaEbqmHJSHh+NEHv0J3Q/AfQUlpHVDDv9TYP69px9RhhWCZkiZw==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ee884tnw6-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 29 May 2026 14:58:00 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 64TEs6Ao026544;
+	Fri, 29 May 2026 14:57:59 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4edjrbf4ax-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Fri, 29 May 2026 14:57:59 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 64TEs73q011911;
-	Fri, 29 May 2026 14:57:58 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4edjrbf5qq-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 29 May 2026 14:57:58 +0000 (GMT)
 Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 64TEvt5l15073756
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 64TEvujW44761512
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 29 May 2026 14:57:55 GMT
+	Fri, 29 May 2026 14:57:56 GMT
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E786420043;
-	Fri, 29 May 2026 14:57:54 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id E4E8020043;
+	Fri, 29 May 2026 14:57:55 +0000 (GMT)
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A19162004B;
-	Fri, 29 May 2026 14:57:54 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 9C28F2004D;
+	Fri, 29 May 2026 14:57:55 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
 	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 29 May 2026 14:57:54 +0000 (GMT)
+	Fri, 29 May 2026 14:57:55 +0000 (GMT)
 From: Jan Polensky <japo@linux.ibm.com>
 To: hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
         ojeda@kernel.org, peterz@infradead.org, jpoimboe@kernel.org,
@@ -61,9 +61,9 @@ Cc: borntraeger@linux.ibm.com, svens@linux.ibm.com, boqun@kernel.org,
         a.hindborg@kernel.org, tmgross@umich.edu, dakr@kernel.org,
         rostedt@goodmis.org, ardb@kernel.org, linux-s390@vger.kernel.org,
         rust-for-linux@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH v4 2/6] s390/jump_label: Implement ARCH_STATIC_BRANCH_JUMP_ASM and ARCH_STATIC_BRANCH_ASM macros
-Date: Fri, 29 May 2026 16:57:48 +0200
-Message-ID: <20260529145752.1209016-3-japo@linux.ibm.com>
+Subject: [PATCH v4 5/6] s390/cmpxchg: Fix KASAN stack-out-of-bounds in atomic helpers
+Date: Fri, 29 May 2026 16:57:51 +0200
+Message-ID: <20260529145752.1209016-6-japo@linux.ibm.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260529145752.1209016-1-japo@linux.ibm.com>
 References: <20260529145752.1209016-1-japo@linux.ibm.com>
@@ -76,107 +76,93 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
 X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Authority-Analysis: v=2.4 cv=fIYJG5ae c=1 sm=1 tr=0 ts=6a19a977 cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+X-Authority-Analysis: v=2.4 cv=L4MtheT8 c=1 sm=1 tr=0 ts=6a19a978 cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
  a=NGcC8JguVDcA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=uAbxVGIbfxUO_5tXvNgY:22 a=_2yia0w1AAAA:8 a=VwQbUJbxAAAA:8 a=1XWaLZrsAAAA:8
- a=VnNF1IyMAAAA:8 a=V3UG4Yqg79Bxd1UTefQA:9 a=4yAS8WwzZ1jAEY03B-5r:22
-X-Proofpoint-ORIG-GUID: R9eW0Qss0zsCCnEpJgtD5pbCm2A7AZMZ
-X-Proofpoint-GUID: dxxobNePvy5wUELnQsC9OtlomR9g9tqV
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTI5MDE0NiBTYWx0ZWRfX3BisU75UTUcD
- FyJkXJ8/DfRNZm2WWRqYmM+uOudw8RPpASoc4OE8sbchcXc4LeEKM0bAspMVowir3nkMpZWY5fb
- uCArFUjQZBRbcZC/7DRV34trPhTfS3jjOevsilk3pw9LAzrOeywedBPjuWbeuNPfsz3Qa7Obttv
- mVroY6jwrnsv+boz/FVcq5/0WspxiIimkesfXZ4lji97ajFH7mcz5cSY/RcrphTkx1sAfaSMgCJ
- Tez1KJ6nq3xetAVEXEtLpq1yK+luUYLkw6ZbyKYNyakkXh03/8ez5NZGVz4ibU/zzmvQdk4z3Yq
- vZqgwjC01tOWHH8WxA5kBUgdherdBPNwi9GlpA328S5lDP7lxLPTYyFbsYqyCjOVFsSSJJ+niZx
- 0kKPuRZkuvbT1yUAL0lrmUUWg20e+AU4+7LB6TA9/O2AXXzaY6GW82SohbkLkSU+wzVMLUR3qj3
- w03f6k9+3kB+nLbOfeQ==
+ a=iQ6ETzBq9ecOQQE5vZCe:22 a=pGLkceISAAAA:8 a=_2yia0w1AAAA:8 a=VnNF1IyMAAAA:8
+ a=9-FPAKYo-0jGICd3_CYA:9 a=4yAS8WwzZ1jAEY03B-5r:22
+X-Proofpoint-ORIG-GUID: egA_7cV0gytuu6FjtcJZOc0ympGv0M8T
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTI5MDE0NiBTYWx0ZWRfXwXzEVAzemXQ2
+ mckVK9nBDA8v82BQDtqQbc8tXKZpETBzhOOnMGqliSLSmNzBN3q4jGpiswBwdO6OmldDOtXozt+
+ DjVoI78k+vR2XcGbfk30VcFDttiBAK48bnjapUw1Xu1toGlWImMplGFxtJdZqFZ5ZlJguJIw9tQ
+ +bnz7NBGpJ2BAEnTc/JePiO89kpHCysCGDQPEPcqTzBXP6L+UWQYfzBukKiJp4iB2I7r0ZXrNbO
+ EMVpWzA0KnJc3ortD5+gzGc80+3fHryvYv+9o+CYkAXOVWZLpCsBVoVzdbXUaFzZmPkC+urYmbZ
+ EnDVpiPkaWLQIGYURQEOZT5ht9k6z0JpGtfumQpPCeAdRBuREtVltSrSLxjVgEUvX+4Y8NkNDco
+ l3Eql60nqTdJVLCWwwX0QCoWagmkCKHpXji343uX+Vn9RuIaLpyqyA/4HiypEJtKGy9X9NIIbBI
+ 2pDtqiWpFLGJElLnClA==
+X-Proofpoint-GUID: xY5V1Wui0CVgmO4f0LZkP54jbn2xx_k1
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
  definitions=2026-05-29_04,2026-05-28_03,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- phishscore=0 lowpriorityscore=0 suspectscore=0 impostorscore=0
- priorityscore=1501 malwarescore=0 clxscore=1015 adultscore=0 spamscore=0
- bulkscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
- adjust=0 reason=mlx scancount=1 engine=8.22.0-2605210000
- definitions=main-2605290146
+ phishscore=0 lowpriorityscore=0 suspectscore=0 clxscore=1015 malwarescore=0
+ bulkscore=0 impostorscore=0 adultscore=0 priorityscore=1501 spamscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2605210000 definitions=main-2605290146
 
-Rust static branch support needs the s390 jump label instruction sequence
-and __jump_table emission in a reusable form. The current implementation
-embeds the sequence directly in the C asm goto blocks, which cannot be
-shared with Rust.
+The __arch_cmpxchg1, __arch_cmpxchg2, __arch_xchg1, and __arch_xchg2
+functions emulate 1-byte and 2-byte atomic operations using 4-byte
+cmpxchg instructions, since s390 lacks native 1/2-byte cmpxchg support.
 
-Introduce ARCH_STATIC_BRANCH_ASM and ARCH_STATIC_BRANCH_JUMP_ASM to
-describe the brcl sequences for the likely-false and likely-true cases
-and to emit the same __jump_table entries as before. Switch the existing
-C helpers to use the new macros to avoid duplication without changing
-the generated code.
+When KASAN is enabled, the READ_ONCE() operations in these functions
+trigger stack-out-of-bounds warnings because they perform 4-byte reads
+when only 1 or 2 bytes should be accessed.
 
-Acked-by: Gary Guo <gary@garyguo.net>
-Acked-by: Miguel Ojeda <ojeda@kernel.org>
-Reviewed-by: Alice Ryhl <aliceryhl@google.com>
+Mark these functions as __no_sanitize_or_inline to prevent KASAN
+instrumentation while maintaining correct functionality.
+
+This resolves the following KASAN error during rust_atomics KUnit tests:
+
+  BUG: KASAN: stack-out-of-bounds in rust_helper_atomic_i8_xchg+0xb2/0xc0
+  Read of size 4 at addr 001bff7ffdbefcf0 by task kunit_try_catch/142
+
+Reported-by: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
+Suggested-by: Gary Guo <gary@garyguo.net>
 Signed-off-by: Jan Polensky <japo@linux.ibm.com>
 ---
- arch/s390/include/asm/jump_label.h | 33 +++++++++++++++++-------------
- 1 file changed, 19 insertions(+), 14 deletions(-)
+ arch/s390/include/asm/cmpxchg.h | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/arch/s390/include/asm/jump_label.h b/arch/s390/include/asm/jump_label.h
-index d9cbc18f6b2e..0e28c90dc242 100644
---- a/arch/s390/include/asm/jump_label.h
-+++ b/arch/s390/include/asm/jump_label.h
-@@ -19,19 +19,29 @@
- #define JUMP_LABEL_STATIC_KEY_CONSTRAINT "jdd"
- #endif
- 
-+#define ARCH_JUMP_TABLE_ENTRY(key, label, local_label)	\
-+	".pushsection __jump_table,\"aw\"\n"		\
-+	".balign	8\n"				\
-+	".long	" local_label "-.," label "-.\n"	\
-+	".quad	" key "-.\n"				\
-+	".popsection\n"
-+
- /*
-  * We use a brcl 0,<offset> instruction for jump labels so it
-  * can be easily distinguished from a hotpatch generated instruction.
-  */
-+#define ARCH_STATIC_BRANCH_ASM(key, label)	\
-+	"0:	brcl 0," label "\n"		\
-+	ARCH_JUMP_TABLE_ENTRY(key, label, "0b")
-+
-+#define ARCH_STATIC_BRANCH_JUMP_ASM(key, label)	\
-+	"0:	brcl 15," label "\n"		\
-+	ARCH_JUMP_TABLE_ENTRY(key, label, "0b")
-+
- static __always_inline bool arch_static_branch(struct static_key *key, bool branch)
+diff --git a/arch/s390/include/asm/cmpxchg.h b/arch/s390/include/asm/cmpxchg.h
+index 008357996262..e6ac55cf3c17 100644
+--- a/arch/s390/include/asm/cmpxchg.h
++++ b/arch/s390/include/asm/cmpxchg.h
+@@ -35,7 +35,7 @@ static __always_inline u64 __csg_asm(u64 ptr, u64 old, u64 new)
+ 	return old;
+ }
+
+-static inline u8 __arch_cmpxchg1(u64 ptr, u8 old, u8 new)
++static __no_sanitize_or_inline u8 __arch_cmpxchg1(u64 ptr, u8 old, u8 new)
  {
--	asm goto("0:	brcl 0,%l[label]\n"
--			  ".pushsection __jump_table,\"aw\"\n"
--			  ".balign	8\n"
--			  ".long	0b-.,%l[label]-.\n"
--			  ".quad	%0+%1-.\n"
--			  ".popsection\n"
--			  : : JUMP_LABEL_STATIC_KEY_CONSTRAINT (key), "i" (branch) : : label);
-+	asm goto(ARCH_STATIC_BRANCH_ASM("%0+%1", "%l[label]")
-+		: : JUMP_LABEL_STATIC_KEY_CONSTRAINT (key), "i" (branch) : : label);
- 	return false;
- label:
- 	return true;
-@@ -39,13 +49,8 @@ static __always_inline bool arch_static_branch(struct static_key *key, bool bran
- 
- static __always_inline bool arch_static_branch_jump(struct static_key *key, bool branch)
+ 	union {
+ 		u8 b[4];
+@@ -58,7 +58,7 @@ static inline u8 __arch_cmpxchg1(u64 ptr, u8 old, u8 new)
+ 	return old;
+ }
+
+-static inline u16 __arch_cmpxchg2(u64 ptr, u16 old, u16 new)
++static __no_sanitize_or_inline u16 __arch_cmpxchg2(u64 ptr, u16 old, u16 new)
  {
--	asm goto("0:	brcl 15,%l[label]\n"
--			  ".pushsection __jump_table,\"aw\"\n"
--			  ".balign	8\n"
--			  ".long	0b-.,%l[label]-.\n"
--			  ".quad	%0+%1-.\n"
--			  ".popsection\n"
--			  : : JUMP_LABEL_STATIC_KEY_CONSTRAINT (key), "i" (branch) : : label);
-+	asm goto(ARCH_STATIC_BRANCH_JUMP_ASM("%0+%1", "%l[label]")
-+		: : JUMP_LABEL_STATIC_KEY_CONSTRAINT (key), "i" (branch) : : label);
- 	return false;
- label:
- 	return true;
--- 
+ 	union {
+ 		u16 b[2];
+@@ -173,7 +173,7 @@ static __always_inline u64 __arch_cmpxchg(u64 ptr, u64 old, u64 new, int size)
+
+ void __xchg_called_with_bad_pointer(void);
+
+-static inline u8 __arch_xchg1(u64 ptr, u8 x)
++static __no_sanitize_or_inline u8 __arch_xchg1(u64 ptr, u8 x)
+ {
+ 	int shift = (3 ^ (ptr & 3)) << 3;
+ 	u32 mask, old, new;
+@@ -188,7 +188,7 @@ static inline u8 __arch_xchg1(u64 ptr, u8 x)
+ 	return old >> shift;
+ }
+
+-static inline u16 __arch_xchg2(u64 ptr, u16 x)
++static __no_sanitize_or_inline u16 __arch_xchg2(u64 ptr, u16 x)
+ {
+ 	int shift = (2 ^ (ptr & 2)) << 3;
+ 	u32 mask, old, new;
+--
 2.53.0
 
