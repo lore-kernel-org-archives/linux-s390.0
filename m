@@ -1,278 +1,119 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dy1-f173.google.com (mail-dy1-f173.google.com [74.125.82.173])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E9FEA3F7891;
-	Fri, 29 May 2026 16:01:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780070516; cv=none; b=LB+a4sgqIwxU4zUvaoByC7H3bVbpmGRwZgPE/bH4GSIaGVWPA7ldcjxXg2HOpX9w/AHkH7j+Of1sUHEUdFTT4kPuMLafq0NBOx8EYuqF3o7sitPTHA+2b3Ag0SDFWUOkJP11sGAcsXi0jBxK1z4NR100N5nmy1SWSuwNgoQvHfw=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780070516; c=relaxed/simple;
-	bh=2DnL581tiMP0xz3bQis3dMPdfTPq2gIL8VpTvpHoZ7s=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=CFoFwsXLcemLG6lWKYuOf6F0LzyufQoB1nenoz2SyU+oyprTPWCZ9eUWBamVTJWrSXWYmBCrsuRe8tZSlXgXnfa/5L11q8vuDZXjzDUjL7L5QZiqIo4E7vycWe5Y5ZBa0CC9AOjMVdDNZyHylTrT+bM0dFKjS+ixl8NIUE94In4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=kL1F6keG; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BE240239E7E
+	for <linux-s390@vger.kernel.org>; Fri, 29 May 2026 16:56:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.82.173
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1780073774; cv=pass; b=lDWWh/oxBa/4A8UaQLg7i87YRkcceBFi4r4qqorpjI6FZGk4Ww7uJ0FmFddhef9e/5k7xqcxxdgpyWTlXzObofKyrB4bCrWgGihszKBaF+TjLRlZnbYV/syGcNhqh8cUFo3V8fZr9YRVRaCB/Lz0XVK/8k16fBcWfz05Rpqaqp0=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1780073774; c=relaxed/simple;
+	bh=LwXLiadq6NIJd/o7a6tAEEQNg8tMcx+oj50jV/p/xJU=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=JefL7H+WrFbPjj6Wb3kptdu5JY7N7gaBcp4tnAOc3mNwq9q4T6l8HmP062MrnOTlRPZpOfWgUQKIecLMzeBVk0Uj1ckgyvdg5aHTVNN/CyIJylBJdW0nEH8e10rWPmkCXh4aT3QAJZfZhVI8B2QSVXVtvlfk36wiRHAyGEC6qW4=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=QRMQUC0K; arc=pass smtp.client-ip=74.125.82.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="kL1F6keG"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 64TFDh9g1467773;
-	Fri, 29 May 2026 15:56:14 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=J4lB+fU5DdjjQ/QpM
-	hV9CNZD0t3w/aRQR+zfaUlpeSE=; b=kL1F6keG/qqmfuhVM3ACxkRQ6/oAiceJA
-	usauQSDAeEvlYyJPXNOB9tq83YKMRAepuwx45XfYOHesOqkaduurvCnQ68Rm6p/o
-	Pmh4XrNhIr7prw8pkUaStUIP+PszaRgGorGNaaKz/yOAmXf1tYM3IiDp/veCKoWx
-	NDrOQAjC40HYlNKcqnojiRrI8CLR3wxFJV5cbn+/9nr38jcc2IL2r3xuRV42uv7x
-	B7f/Ii9I63US33AwVqNGbmNxgA7hpJhqIQflO+97uKcXzKlB2d/8qEqvyg/U7YA9
-	/deYZAC6GjNjYXnnQiixx8X4ttPoUI/8BtO+lTCwRnPOgiu2CStqw==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ee886mgg0-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 29 May 2026 15:56:13 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 64TFs7To027773;
-	Fri, 29 May 2026 15:56:12 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4edjrc8jmd-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 29 May 2026 15:56:12 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 64TFu6gp36700646
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 29 May 2026 15:56:06 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5DBF120040;
-	Fri, 29 May 2026 15:56:06 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 115E92004D;
-	Fri, 29 May 2026 15:56:06 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 29 May 2026 15:56:06 +0000 (GMT)
-From: Steffen Eiden <seiden@linux.ibm.com>
-To: kvm@vger.kernel.org, kvmarm@lists.linux.dev,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
-        Andreas Grapentin <gra@linux.ibm.com>, Arnd Bergmann <arnd@arndb.de>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@kernel.org>,
-        Friedrich Welter <fritz@linux.ibm.com>,
-        Gautam Gala <ggala@linux.ibm.com>,
-        Hariharan Mari <hari55@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Hendrik Brueckner <brueckner@linux.ibm.com>,
-        Ilya Leoshkevich <iii@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>, Joey Gouly <joey.gouly@arm.com>,
-        Marc Zyngier <maz@kernel.org>, Nico Boehr <nrb@linux.ibm.com>,
-        Nina Schoetterl-Glausch <oss@nina.schoetterlglausch.eu>,
-        Oliver Upton <oupton@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Ulrich Weigand <Ulrich.Weigand@de.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>,
-        Zenghui Yu <yuzenghui@huawei.com>
-Subject: [PATCH v1 11/26] KVM: arm64: Move definitions from sys_regs.c to sys_regs.h
-Date: Fri, 29 May 2026 17:55:44 +0200
-Message-ID: <20260529155601.2927240-12-seiden@linux.ibm.com>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20260529155601.2927240-1-seiden@linux.ibm.com>
-References: <20260529155601.2927240-1-seiden@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QRMQUC0K"
+Received: by mail-dy1-f173.google.com with SMTP id 5a478bee46e88-304e86ecebfso145328eec.0
+        for <linux-s390@vger.kernel.org>; Fri, 29 May 2026 09:56:13 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1780073773; cv=none;
+        d=google.com; s=arc-20240605;
+        b=M0Y3pgB8o2fdwRBHUutbfz0fvv8E/WkdVdyeZ0tjqwXLoZkTuiWuWu1gycrS7DGjN8
+         F7c0Nn6jPkjJGL7EVISI2+2v12+feui5ltZh34SgP3FLyhhGfYu3+fFEEIuZuxVge6z/
+         1smU3RuwITLhN0p4keeSEqIWtRshkfXePYbef+31gJy3e/zflaPLrDkGephSoduemXoT
+         IV0e/0iCUqFrPjt4nEZEQ6+nWcT/YLwH1p7307+b1UpHQC6p86FX0ZyyUgnidZdGJeAu
+         tAtzZ0y8HmDvyZ9uWPe6Gou7IQ+nUgysXkKNb2uQ5dwsm7FpbjzkD2ESvW9Mhr50sQQt
+         w0Ug==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=LwXLiadq6NIJd/o7a6tAEEQNg8tMcx+oj50jV/p/xJU=;
+        fh=Dvc5vUiLvd3NLjbjkzhe3gQUdJH8iPEiQf5hUpZG8jw=;
+        b=KlLX/EXEk8O8H/OlAdVTS/Mro0k2HSeQq8aCz+A0EN388Apdb2tvaaHGfTlwtjz7Gw
+         IHRGd6oOqePW0WYcAVbUJ670prc5DkUeoN55Gj7XXojE6mOOS/AqOm2bRlSm/75QbAUB
+         XAK5pK2oBksqHiLTG+JentyQeM3I16tRlGkKToeNC9a34iRIbinW/gGDlAJhP2wIUcNF
+         uz+JxPRv4glQ4+eSrvEFp3IKqV48G1TDgh8iOm36QG6prXs1DZ4Cx4EK1p4zqR5Eym78
+         La3uMRamPCyuIzJcs/nh7sa7snW5tMTUbWcoXKQWxZpw6czi608slUVKdDDdo5xVLFlY
+         2cIg==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1780073773; x=1780678573; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=LwXLiadq6NIJd/o7a6tAEEQNg8tMcx+oj50jV/p/xJU=;
+        b=QRMQUC0K4NYpQOpfVv05my6aOqg0UIKeDvxYmnUhgLdX+5/OpiH1yO6EFzNr8K2i7d
+         gV2chj0GP8LDA9ICMgJRmiUO/wFhrAhkWPGxzg8Pv5MeqoVy3oow3Rlple6ljfI8Uvq4
+         sEOvCOhfYwyG2orCVI3WrXnQO3kQ9bmYoIqde+3XiD+VHQQkiBAwrKC1uiIB5OMoWoRa
+         qNmWKlajk0/r3L0fvCbQFkBVpdgWtN4DIxAh99gtdfgjT7hGTQYt9jy+02ad+j4zJtbB
+         N8FXS0teleHaVexK74Ybi/chqYFh5gPpC4osiIYPAhOrGzsOyaLRdkoKSV4ScOAFA3dM
+         RCPw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1780073773; x=1780678573;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=LwXLiadq6NIJd/o7a6tAEEQNg8tMcx+oj50jV/p/xJU=;
+        b=Lnw0M79fItjAmNH2RmTsTTTLS55HAzoYNVv00yuTh4qte+mz2z95APt3p4x7ay95M3
+         9q0OtvHTyOJA5jzQCE2EjRJwSIB0r7i3sQ5b8dKlrHNXNCTLdqdM2oICOID/T938KEJu
+         tFT6FMpnqAcaNEblQPPQjdzFfGVwG/pnL7K93GhX817O/C4A11wzBtcSAhxCqFAUZW0+
+         r9o22dBx+zD/b/W88pRtCePPYJNCGrZP063cJNCYHcO+KIi/6sRTfoLRAU9sV4kGXni0
+         Ro8lf03eIxGS4xcyT2Gmz7fefeD19oIN8Jbjh2mkFVrhTXeqGX5XeZOzDt+/Y6HWDDWl
+         8TdA==
+X-Forwarded-Encrypted: i=1; AFNElJ/k5Hk7CSWbzNDOkskduVWgBwOw3weiK4QvoiAm2LZWOCiOpEFIeyPrkql5TpgY9jTaEqYRig9ciMzJ@vger.kernel.org
+X-Gm-Message-State: AOJu0YxlmeYCeRO5qC95UCNH+k8TCW/4Hm2dXRHxvNoyU7Gpd8TXyrpf
+	AOdERmRXk+ySaZtsnfAhoKJE0M/FzNSuDqSlcql9Stbkfy1fwP6EGzAconyzvJaa/u2dOZ/Xq2o
+	slnl4lGZFng694H8orKDmg1KIrRdLvJs=
+X-Gm-Gg: Acq92OGuz1mgr8Le4tFW1nbKllt/rA5hFUwqCHblsrfCiQTCbRJQU0fnnX6UQayGk5y
+	/F8mglUUDfaERvRch5A0T7VQYPWPsQo/sz5jzhfYBoV6hcqAxWgjVxp+wjGAMn9eEjqGI1WUi92
+	cz5XCugGSqshBiYzXGxXwMS+lXLhE+uxOwuMJlM5iojKTm1nbOEva9wsvlvAli6fFVHM28aKBpf
+	S9+gP+fTfm6kKfUSqj/ujHUdX55Op/I/Vab6joTTFj6mJyBPr6M0sDiZElaZLxWy/vbO6uM8g8i
+	YbdSWymILjC5KrzMZ6xTGX3YMn7FjZH5nhX+X/yNXINU6sC71u7m3C5uafOJk7R7beQ5QcT6e8p
+	Y3z2CP5ryTtcrGFDYNf8d0zpLhOjl1t4vBA==
+X-Received: by 2002:a05:7301:fa13:b0:304:9b4b:3b9 with SMTP id
+ 5a478bee46e88-304fa68ef3fmr160240eec.6.1780073772763; Fri, 29 May 2026
+ 09:56:12 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: UC2v4yac9XJv9onHFWDc9OYBfj2NePhe
-X-Authority-Analysis: v=2.4 cv=Z8Dc2nRA c=1 sm=1 tr=0 ts=6a19b71d cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=NGcC8JguVDcA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8 a=zJUOOSkNxElFdCtx_FUA:9
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTI5MDE1NiBTYWx0ZWRfX8/oZd7tugLX4
- VT1BjfXkRoZiX97FWd9xENgoBEOimXfjRSHnS4ASmTMGMpGduJ/02jpXxbpeEFwee07o2moF7s/
- 72lctKgbrzKFtic0CA7WNwrweU9zW+jO8B8kX8expd9rO6WoAANeefTVv67e9M7MnYTS3h0VRsQ
- RQE+HcfA1XHoInM25N7I4WEtz3MwMX8xnUzVF2AtdDSXE29RGOiob5glD3ByDwGAPwc9c/Ci5KK
- sJcJegVKO6vPsppxdRK6lzdVcZ0wcXLGleifHxJUS1DnRFMTiwQf/nIHxcmQbjrITwVrhNdEJLv
- XGu923W7/zKh6xVsNwn6dAt18w8VSyKWakOjgRUt8hAghGrzlHg4GftQiyb12Rf/l101U5ISOhi
- NxbmGF+asOiPRKI9ZTU8n9+ahODDZpICEDMKcEih6N212FCAm+z3qY9mPdRVyd3BrHY96fUEblZ
- jnObIFztGgWVZjFwmIw==
-X-Proofpoint-ORIG-GUID: UC2v4yac9XJv9onHFWDc9OYBfj2NePhe
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
- definitions=2026-05-29_04,2026-05-28_03,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 spamscore=0 bulkscore=0 impostorscore=0 priorityscore=1501
- malwarescore=0 phishscore=0 suspectscore=0 adultscore=0 lowpriorityscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2605210000 definitions=main-2605290156
+References: <20260529145752.1209016-1-japo@linux.ibm.com> <20260529145752.1209016-6-japo@linux.ibm.com>
+In-Reply-To: <20260529145752.1209016-6-japo@linux.ibm.com>
+From: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
+Date: Fri, 29 May 2026 18:55:59 +0200
+X-Gm-Features: AVHnY4JU5YFn3d0kQk2AtDd9dJRBK1vTMPr-jZMM53-wj8FgS3NYNL3mG8GTmBU
+Message-ID: <CANiq72mo1ysWRGskb61_ppZ0KZTuM8c0q9Ho6AhU0Kd8hyFoYg@mail.gmail.com>
+Subject: Re: [PATCH v4 5/6] s390/cmpxchg: Fix KASAN stack-out-of-bounds in
+ atomic helpers
+To: Jan Polensky <japo@linux.ibm.com>
+Cc: hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com, 
+	ojeda@kernel.org, peterz@infradead.org, jpoimboe@kernel.org, 
+	jbaron@akamai.com, aliceryhl@google.com, borntraeger@linux.ibm.com, 
+	svens@linux.ibm.com, boqun@kernel.org, gary@garyguo.net, 
+	bjorn3_gh@protonmail.com, lossin@kernel.org, a.hindborg@kernel.org, 
+	tmgross@umich.edu, dakr@kernel.org, rostedt@goodmis.org, ardb@kernel.org, 
+	linux-s390@vger.kernel.org, rust-for-linux@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Make kvm_sanitised_host_ftr_reg() and kvm_read_sanitised_id_reg()
-available to enable code sharing with s390. Move some helper and ID
-register macro definitions to the header file. No functional changes.
+On Fri, May 29, 2026 at 4:58=E2=80=AFPM Jan Polensky <japo@linux.ibm.com> w=
+rote:
+>
+> Reported-by: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
 
-Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
----
- arch/arm64/kvm/sys_regs.c | 12 ++----
- arch/arm64/kvm/sys_regs.h | 87 +++++++++++++++++++++++++++++++++++++++
- 2 files changed, 90 insertions(+), 9 deletions(-)
+Link: https://lore.kernel.org/rust-for-linux/CANiq72m4GVWFYqnxNtCHTPu7XcGew=
+HB5LNwOoayTfnXs9pPbNg@mail.gmail.com/
 
-diff --git a/arch/arm64/kvm/sys_regs.c b/arch/arm64/kvm/sys_regs.c
-index 6522f9302967..46b24529ec70 100644
---- a/arch/arm64/kvm/sys_regs.c
-+++ b/arch/arm64/kvm/sys_regs.c
-@@ -1852,7 +1852,7 @@ static u8 pmuver_to_perfmon(u8 pmuver)
- /*
-  * Sanitise based on the host implementation.
-  */
--static u64 kvm_sanitised_host_ftr_reg(u32 id)
-+u64 kvm_sanitised_host_ftr_reg(u32 id)
- {
- 	u64 val = read_sanitised_ftr_reg(id);
- 
-@@ -2039,8 +2039,8 @@ static u64 __kvm_read_sanitised_id_reg(const struct kvm_vcpu *vcpu,
- 	return val;
- }
- 
--static u64 kvm_read_sanitised_id_reg(struct kvm_vcpu *vcpu,
--				     const struct sys_reg_desc *r)
-+u64 kvm_read_sanitised_id_reg(struct kvm_vcpu *vcpu,
-+			      const struct sys_reg_desc *r)
- {
- 	return __kvm_read_sanitised_id_reg(vcpu, r);
- }
-@@ -2123,12 +2123,6 @@ static unsigned int aa32_id_visibility(const struct kvm_vcpu *vcpu,
- 	return id_visibility(vcpu, r);
- }
- 
--static unsigned int raz_visibility(const struct kvm_vcpu *vcpu,
--				   const struct sys_reg_desc *r)
--{
--	return REG_RAZ;
--}
--
- /* cpufeature ID register access trap handlers */
- 
- static bool access_id_reg(struct kvm_vcpu *vcpu,
-diff --git a/arch/arm64/kvm/sys_regs.h b/arch/arm64/kvm/sys_regs.h
-index 2a983664220c..75d581050b09 100644
---- a/arch/arm64/kvm/sys_regs.h
-+++ b/arch/arm64/kvm/sys_regs.h
-@@ -108,6 +108,12 @@ struct sys_reg_desc {
- #define REG_RAZ			(1 << 1) /* RAZ from userspace and guest */
- #define REG_USER_WI		(1 << 2) /* WI from userspace only */
- 
-+static inline unsigned int raz_visibility(const struct kvm_vcpu *vcpu,
-+				   const struct sys_reg_desc *r)
-+{
-+	return REG_RAZ;
-+}
-+
- static __printf(2, 3)
- inline void print_sys_reg_msg(const struct sys_reg_params *p,
- 				       char *fmt, ...)
-@@ -237,6 +243,12 @@ bool triage_sysreg_trap(struct kvm_vcpu *vcpu, int *sr_index);
- 
- int kvm_finalize_sys_regs(struct kvm_vcpu *vcpu);
- 
-+u64 kvm_read_sanitised_id_reg(struct kvm_vcpu *vcpu,
-+			      const struct sys_reg_desc *r);
-+
-+/* Implemented by each architecture */
-+u64 kvm_sanitised_host_ftr_reg(u32 id);
-+
- #define AA32(_x)	.aarch32_map = AA32_##_x
- #define Op0(_x) 	.Op0 = _x
- #define Op1(_x) 	.Op1 = _x
-@@ -257,6 +269,81 @@ int kvm_finalize_sys_regs(struct kvm_vcpu *vcpu);
- 	CRn(sys_reg_CRn(reg)), CRm(sys_reg_CRm(reg)),	\
- 	Op2(sys_reg_Op2(reg))
- 
-+/*
-+ * Since reset() callback and field val are not used for idregs, they will be
-+ * used for specific purposes for idregs.
-+ * The reset() would return KVM sanitised register value. The value would be the
-+ * same as the host kernel sanitised value if there is no KVM sanitisation.
-+ * The val would be used as a mask indicating writable fields for the idreg.
-+ * Only bits with 1 are writable from userspace. This mask might not be
-+ * necessary in the future whenever all ID registers are enabled as writable
-+ * from userspace.
-+ */
-+
-+#define ID_DESC_DEFAULT_CALLBACKS		\
-+	.access	= access_id_reg,		\
-+	.get_user = get_id_reg,			\
-+	.set_user = set_id_reg,			\
-+	.visibility = id_visibility,		\
-+	.reset = kvm_read_sanitised_id_reg
-+
-+#define ID_DESC(name)				\
-+	SYS_DESC(SYS_##name),			\
-+	ID_DESC_DEFAULT_CALLBACKS
-+
-+/* sys_reg_desc initialiser for known cpufeature ID registers */
-+#define ID_SANITISED(name) {			\
-+	ID_DESC(name),				\
-+	.val = 0,				\
-+}
-+
-+/* sys_reg_desc initialiser for writable ID registers */
-+#define ID_WRITABLE(name, mask) {		\
-+	ID_DESC(name),				\
-+	.val = mask,				\
-+}
-+
-+/*
-+ * 32bit ID regs are fully writable when the guest is 32bit
-+ * capable. Nothing in the KVM code should rely on 32bit features
-+ * anyway, only 64bit, so let the VMM do its worse.
-+ */
-+#define AA32_ID_WRITABLE(name) {		\
-+	ID_DESC(name),				\
-+	.visibility = aa32_id_visibility,	\
-+	.val = GENMASK(31, 0),			\
-+}
-+
-+/* sys_reg_desc initialiser for cpufeature ID registers that need filtering */
-+#define ID_FILTERED(sysreg, name, mask) {	\
-+	ID_DESC(sysreg),				\
-+	.set_user = set_##name,				\
-+	.val = (mask),					\
-+}
-+
-+/*
-+ * sys_reg_desc initialiser for architecturally unallocated cpufeature ID
-+ * register with encoding Op0=3, Op1=0, CRn=0, CRm=crm, Op2=op2
-+ * (1 <= crm < 8, 0 <= Op2 < 8).
-+ */
-+#define ID_UNALLOCATED(crm, op2) {			\
-+	.name = "S3_0_0_" #crm "_" #op2,		\
-+	Op0(3), Op1(0), CRn(0), CRm(crm), Op2(op2),	\
-+	ID_DESC_DEFAULT_CALLBACKS,			\
-+	.visibility = raz_visibility,			\
-+	.val = 0,					\
-+}
-+
-+/*
-+ * sys_reg_desc initialiser for known ID registers that we hide from guests.
-+ * For now, these are exposed just like unallocated ID regs: they appear
-+ * RAZ for the guest.
-+ */
-+#define ID_HIDDEN(name) {			\
-+	ID_DESC(name),				\
-+	.visibility = raz_visibility,		\
-+	.val = 0,				\
-+}
- #define ID_REG_LIMIT_FIELD_ENUM(val, reg, field, limit)			       \
- ({									       \
- 	u64 __f_val = FIELD_GET(reg##_##field##_MASK, val);		       \
--- 
-2.53.0
+> Suggested-by: Gary Guo <gary@garyguo.net>
 
+Link: https://lore.kernel.org/rust-for-linux/DITFTAVVHTNQ.380OHUHGTOI6M@gar=
+yguo.net/
+
+Cheers,
+Miguel
