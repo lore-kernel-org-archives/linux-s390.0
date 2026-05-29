@@ -1,57 +1,57 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 610E73F4DDE;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ADBE63F4DF2;
 	Fri, 29 May 2026 15:51:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780069912; cv=none; b=gCGzSoa+asDWNJxBbimcYU2bFUY4n79jOJP28Wo8+666fVfggP7pZ5fgpa/xi5v/G18y7oavtuK5zd3I40rjBmmQsdr4qdGIPwbgX487PsJgh6M8MKP0+Nx+KmfcGIDgoQb1CS34l/qnrLDGB83jlomhSu+RzlBN8WbDNkdaIC4=
+	t=1780069911; cv=none; b=bYzErZqAuXIsSrkXpab0+LcgeGzyrZDj+09ErHoZPP8A73oJHm1LEEAUk8phn0bUxUS7h1Kmi83Y5SpMYKD3rdiNPHGAvnpWmTX/Aiv9fSESejoD92uLPuEhyfBGzVFPrk7sc0d4hVToxK8vl9MfE4XnJJpMkNW92Gvi9b4zBQ8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780069912; c=relaxed/simple;
-	bh=b+H08MJk/tK+7usuFv7MqkKND39cNS7g0jlcvtY936w=;
+	s=arc-20240116; t=1780069911; c=relaxed/simple;
+	bh=xIkC/EGoox4EapI+n5FHDKN89nHGOwWXVWRnuaYFipI=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=hIsiQG41oqq6f7W7Tx55oueUja0fx/45wxJp/ub43xE/akUdTVZiFB7Ek7Bzjd4IgQfPG98EiMpDPbg7Xyxbxj9zy43KqBZPsotitraJSoTLIC0rafyF78KR5j9Rm+LfjRe7yp4XhH4FkLLxNw7YIMH53KlOMuHoAiJ2LDxG/m4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=QP2ho3vd; arc=none smtp.client-ip=148.163.156.1
+	 MIME-Version; b=h2jkFS+93hncPQoeCHdMO1jmRCyPO30gNcVrxY5znzNLT1mLdERa4r7OPbVaKEcCz2qzPkfmriZs0jVX1UlRjitA3kUPcMEAcH4xsAuyuoKQXfaLF8IdIT3VNkV8ldhx2KDunB58iISx4A1q9PD4QcYgeyMsT3+z4pX4xkZH9zA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=F7NANxc4; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="QP2ho3vd"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 64TFD4G11467855;
-	Fri, 29 May 2026 15:51:02 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="F7NANxc4"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 64TFEPUj2776290;
+	Fri, 29 May 2026 15:51:05 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=zHsYUQL54hNw2QROn
-	q3wPwSZgX1sTOMq/1V6++TLrJk=; b=QP2ho3vdVyXPpQYvxroKi3aAS7kcDyVJP
-	P7gBuyfogXNCYzkEcfD7xaUyP1hh86bRYDEhX4fciPn/A0SUoTyGZDYVLYWCnwRf
-	yAa2K5gqiW5GJFNWzHSWUde0XjrKDrGgtApU8MkDowdi7oqIgn58HJqdHUCd0huc
-	M2g4W9bRY9gOHDf0ztyXG4Ubt+tq3R9PtSdI6MJxATBoAXGsf6v8jJKHnuP9xkvc
-	ejccof0jO96FU3/WqbxYO+4DRpzrBl+/nZEgn+iei3XI5nQrgX3b1VrqYtYdaXNC
-	1p08gSDWcZuEjmkBAAGNsB6j1sKIfAvKbnO4CNZSm876SqD/sdvew==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ee886mb3a-1
+	:mime-version:references:subject:to; s=pp1; bh=GZM/VlrYedx5aAVYq
+	3tlSoktt/aKa43kRQCtJ2o6NN8=; b=F7NANxc4EsMliBb3uGjuGpiXeRpgMZKow
+	0+RTqZxFNdVIhzVLOtrLzABJA+N50Pte3dLZMlGIXVdvAkwfT1KgWrGLcl1P/PkX
+	mVo/aTgHp+O0uECKg8/l9CW1195gK39sHEBVHpVw5khtUz1T5JT/uO0LvoSTjOfU
+	A5kti9SDolNqMRbzfvPAbbMAqoV2PqF3vqRkH4i+DB9sExDaCoDlOKpHxDILUFHO
+	Zyfcf2cmwRg2CIGKOP2o+sj+86dBR47bTAe3gh+mBNRvWnpbOqMddbwJhUDQJ6iB
+	dGImNIQ9tgqGC9oO+Eb7YoV20IdD0Zpnx8n1KVhU21KAvr6Rr+Z/g==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ee889kw27-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 29 May 2026 15:51:02 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 64TFd6sR030521;
-	Fri, 29 May 2026 15:51:01 GMT
+	Fri, 29 May 2026 15:51:05 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 64TFd648024371;
+	Fri, 29 May 2026 15:51:05 GMT
 Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4edjrbggep-1
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4edjrbgft5-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 29 May 2026 15:51:01 +0000 (GMT)
+	Fri, 29 May 2026 15:51:04 +0000 (GMT)
 Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 64TFopBQ49807844
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 64TFow8q52494830
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 29 May 2026 15:50:51 GMT
+	Fri, 29 May 2026 15:50:58 GMT
 Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3182B2004F;
-	Fri, 29 May 2026 15:50:51 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 2DE5D2004B;
+	Fri, 29 May 2026 15:50:58 +0000 (GMT)
 Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D1EFD2004B;
-	Fri, 29 May 2026 15:50:50 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id D145B20043;
+	Fri, 29 May 2026 15:50:57 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
 	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 29 May 2026 15:50:50 +0000 (GMT)
+	Fri, 29 May 2026 15:50:57 +0000 (GMT)
 From: Steffen Eiden <seiden@linux.ibm.com>
 To: kvm@vger.kernel.org, kvmarm@lists.linux.dev,
         linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
@@ -77,9 +77,9 @@ Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
         Ulrich Weigand <Ulrich.Weigand@de.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>,
         Zenghui Yu <yuzenghui@huawei.com>
-Subject: [PATCH v3 01/27] VFIO: take reference to the KVM module
-Date: Fri, 29 May 2026 17:50:15 +0200
-Message-ID: <20260529155050.2902245-2-seiden@linux.ibm.com>
+Subject: [PATCH v3 20/27] KVM: s390: arm64: Introduce host definitions
+Date: Fri, 29 May 2026 17:50:34 +0200
+Message-ID: <20260529155050.2902245-21-seiden@linux.ibm.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260529155050.2902245-1-seiden@linux.ibm.com>
 References: <20260529155050.2902245-1-seiden@linux.ibm.com>
@@ -91,290 +91,300 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: htZPN-I11LORZlgl7bt_-_J9wX25Qkr0
-X-Authority-Analysis: v=2.4 cv=Z8Dc2nRA c=1 sm=1 tr=0 ts=6a19b5e6 cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+X-Proofpoint-ORIG-GUID: saKnF3P7neqNaemL9fDGp2gqpxlFTOCw
+X-Proofpoint-GUID: saKnF3P7neqNaemL9fDGp2gqpxlFTOCw
+X-Authority-Analysis: v=2.4 cv=XqfK/1F9 c=1 sm=1 tr=0 ts=6a19b5e9 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
  a=NGcC8JguVDcA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=U7nrCbtTmkRpXpFmAIza:22 a=20KFwNOVAAAA:8 a=VnNF1IyMAAAA:8 a=r1p2_3pzAAAA:8
- a=U3YOjIjXimIOwXAI40wA:9 a=r_pkcD-q9-ctt7trBg_g:22
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTI5MDE1NiBTYWx0ZWRfXz0+8PflztSON
- iE1DSm0ryF8ZC8LARuCfgvmvbpP/hX/BGMhHoq6fgXdvzvcgOD+dMWITnpsQDD9hUxmVfjw4uHY
- NMaCva3CRqQKm+s6FcQVKZCRI0FfG5//wm0YntxsHWOVEkvRQzPfJCl3Fc5J900Yc6PYEczF5zN
- CiTkqFZeqzbe2EHFbm/kScqUCVJgeSxgpMpW5EXGizD6Zqv1lpxk126RsVeWLu9DF+yQ3JoeCRm
- wXwAwPb3dAY+JKhsW/o48gRYCKGViK6WcSyb//OEreNJSBD8Z/1jU6GlxCt2ujFYHVInoDKPH46
- /maEx1Kl++FqW9jhWpfHZoaoPs30Va3rPYZ4IyjpYEdI6zQGUAeNr5Ph4LysCvCCIErKXqyduZ+
- rRRbYWkMkYIHxZ6xLEiFdvNAnAgjzU6k95Bb3K4KrwTCIppFLHpbNlvhhrSkMjSwxTP9iIwZ+QD
- sU3vu4PtiMKxh3yHlAA==
-X-Proofpoint-ORIG-GUID: htZPN-I11LORZlgl7bt_-_J9wX25Qkr0
+ a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8 a=DaSJ6kklOhazPQzp40AA:9
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTI5MDE1NiBTYWx0ZWRfX/tcWzOOGZQJ0
+ t7OanAK9fJFMlP8Qq5ahjHHqt5c2+GKljCpblMRKKW+pGYE+SmSWNIquYQexCcPn6n+vzTXO89i
+ Vmm8AM681jM15m50OYGyOmv7f4GJlZpSySMfYPvkWZfxivPd8DdKspDJIkeoCIwXrRcrlv7ik+i
+ 8af1ZiqAhYbcAn0wHORsAeLCZx+PnD6BglA2BvyxfnsXLdo4Ur1hpgf5N3lbfkDcCcSHBX8L8sY
+ tCdE4lRlY+GywKHVNuU/adQWBYl36wyr0vQm318TNOdqCSYW51pfJVXmeY3TnBOPKS4NLXWhX6p
+ x7Z8fNp8EptKcUOCTrpsDtFBhIMQ0H9OnOEHJy/i2cqkxa6ybzTmRsq5yUiK9Sw9f1xNPJvrUTo
+ Gmro/q2Y/A44AxkoPLMgr7WuK3csuC+ID3QVye4D2FMcVS+a/zerD2Sd/i7k0feubcw6bSym+du
+ FrKmvG3CZcbuu8fkQTQ==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
  definitions=2026-05-29_04,2026-05-28_03,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 spamscore=0 bulkscore=0 impostorscore=0 priorityscore=1501
- malwarescore=0 phishscore=0 suspectscore=0 adultscore=0 lowpriorityscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2605210000 definitions=main-2605290156
+ malwarescore=0 spamscore=0 impostorscore=0 adultscore=0 phishscore=0
+ priorityscore=1501 lowpriorityscore=0 bulkscore=0 suspectscore=0
+ clxscore=1015 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2605210000
+ definitions=main-2605290156
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+Add all basic definitions the arm on s390 KVM host requires.
+Including, but not limited to:
+	- struct kvm*arch definitions
+	- various functions (to be implemented in the following patches)
+	- various defines required to run arm64 guests
 
-VFIO is implicitly taking a reference to the KVM module between
-vfio_device_get_kvm_safe and vfio_device_put_kvm, thanks to
-symbol_get and symbol_put.
-
-In preparation for removing symbol_get and symbol_put themselves
-from VFIO, actually store a pointer to the KVM module and use
-module_get()/module_put() to keep KVM alive.
-
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Reviewed-by: Steffen Eiden <seiden@linux.ibm.com>
-Acked-by: Alex Williamson <alex@shazbot.org>
+Co-developed-by: Andreas Grapentin <gra@linux.ibm.com>
+Signed-off-by: Andreas Grapentin <gra@linux.ibm.com>
+Co-developed-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
 ---
- drivers/vfio/device_cdev.c |  2 +-
- drivers/vfio/group.c       |  5 +++--
- drivers/vfio/vfio.h        | 15 ++++++++++-----
- drivers/vfio/vfio_main.c   | 37 +++++++++++++++++++++++--------------
- include/linux/vfio.h       |  3 ++-
- virt/kvm/vfio.c            |  4 ++--
- 6 files changed, 41 insertions(+), 25 deletions(-)
+ arch/s390/include/asm/kvm.h            |   6 +
+ arch/s390/include/asm/kvm_host.h       |   9 ++
+ arch/s390/include/asm/kvm_host_arm64.h | 212 +++++++++++++++++++++++++
+ 3 files changed, 227 insertions(+)
+ create mode 100644 arch/s390/include/asm/kvm.h
+ create mode 100644 arch/s390/include/asm/kvm_host_arm64.h
 
-diff --git a/drivers/vfio/device_cdev.c b/drivers/vfio/device_cdev.c
-index 54abf312cf04..a729be99d06c 100644
---- a/drivers/vfio/device_cdev.c
-+++ b/drivers/vfio/device_cdev.c
-@@ -56,7 +56,7 @@ int vfio_device_fops_cdev_open(struct inode *inode, struct file *filep)
- static void vfio_df_get_kvm_safe(struct vfio_device_file *df)
- {
- 	spin_lock(&df->kvm_ref_lock);
--	vfio_device_get_kvm_safe(df->device, df->kvm);
-+	vfio_device_get_kvm_safe(df->device, df->kvm, df->kvm_module);
- 	spin_unlock(&df->kvm_ref_lock);
- }
+diff --git a/arch/s390/include/asm/kvm.h b/arch/s390/include/asm/kvm.h
+new file mode 100644
+index 000000000000..d9e727d2378c
+--- /dev/null
++++ b/arch/s390/include/asm/kvm.h
+@@ -0,0 +1,6 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifdef KVM_S390_ARM64
++#include <uapi/arch/arm64/asm/kvm.h>
++#else
++#include <uapi/asm/kvm.h>
++#endif
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index 1c20168a3ef5..0330d3e503d8 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -3,7 +3,16 @@
+ #ifndef ASM_KVM_HOST_H
+ #define ASM_KVM_HOST_H
  
-diff --git a/drivers/vfio/group.c b/drivers/vfio/group.c
-index b2299e5bc6df..fc24c0b2cc6f 100644
---- a/drivers/vfio/group.c
-+++ b/drivers/vfio/group.c
-@@ -163,7 +163,7 @@ static int vfio_group_ioctl_set_container(struct vfio_group *group,
- static void vfio_device_group_get_kvm_safe(struct vfio_device *device)
- {
- 	spin_lock(&device->group->kvm_ref_lock);
--	vfio_device_get_kvm_safe(device, device->group->kvm);
-+	vfio_device_get_kvm_safe(device, device->group->kvm, device->group->kvm_module);
- 	spin_unlock(&device->group->kvm_ref_lock);
- }
- 
-@@ -860,10 +860,11 @@ bool vfio_group_enforced_coherent(struct vfio_group *group)
- 	return ret;
- }
- 
--void vfio_group_set_kvm(struct vfio_group *group, struct kvm *kvm)
-+void vfio_group_set_kvm(struct vfio_group *group, struct kvm *kvm, struct module *kvm_module)
- {
- 	spin_lock(&group->kvm_ref_lock);
- 	group->kvm = kvm;
-+	group->kvm_module = kvm_module;
- 	spin_unlock(&group->kvm_ref_lock);
- }
- 
-diff --git a/drivers/vfio/vfio.h b/drivers/vfio/vfio.h
-index e4b72e79b7e3..8209da17246c 100644
---- a/drivers/vfio/vfio.h
-+++ b/drivers/vfio/vfio.h
-@@ -22,8 +22,9 @@ struct vfio_device_file {
- 
- 	u8 access_granted;
- 	u32 devid; /* only valid when iommufd is valid */
--	spinlock_t kvm_ref_lock; /* protect kvm field */
-+	spinlock_t kvm_ref_lock; /* protect kvm and kvm_module fields */
- 	struct kvm *kvm;
-+	struct module *kvm_module;
- 	struct iommufd_ctx *iommufd; /* protected by struct vfio_device_set::lock */
- };
- 
-@@ -89,6 +90,7 @@ struct vfio_group {
- 	enum vfio_group_type		type;
- 	struct mutex			group_lock;
- 	struct kvm			*kvm;
-+	struct module			*kvm_module;
- 	struct file			*opened_file;
- 	struct iommufd_ctx		*iommufd;
- 	spinlock_t			kvm_ref_lock;
-@@ -107,7 +109,7 @@ void vfio_device_group_unuse_iommu(struct vfio_device *device);
- void vfio_df_group_close(struct vfio_device_file *df);
- struct vfio_group *vfio_group_from_file(struct file *file);
- bool vfio_group_enforced_coherent(struct vfio_group *group);
--void vfio_group_set_kvm(struct vfio_group *group, struct kvm *kvm);
-+void vfio_group_set_kvm(struct vfio_group *group, struct kvm *kvm, struct module *kvm_module);
- bool vfio_device_has_container(struct vfio_device *device);
- int __init vfio_group_init(void);
- void vfio_group_cleanup(void);
-@@ -170,7 +172,8 @@ static inline bool vfio_group_enforced_coherent(struct vfio_group *group)
- 	return true;
- }
- 
--static inline void vfio_group_set_kvm(struct vfio_group *group, struct kvm *kvm)
-+static inline void vfio_group_set_kvm(struct vfio_group *group, struct kvm *kvm,
-+				      struct module *kvm_module)
- {
- }
- 
-@@ -434,11 +437,13 @@ static inline void vfio_virqfd_exit(void)
- #endif
- 
- #if IS_ENABLED(CONFIG_KVM)
--void vfio_device_get_kvm_safe(struct vfio_device *device, struct kvm *kvm);
-+void vfio_device_get_kvm_safe(struct vfio_device *device, struct kvm *kvm,
-+			      struct module *kvm_module);
- void vfio_device_put_kvm(struct vfio_device *device);
- #else
- static inline void vfio_device_get_kvm_safe(struct vfio_device *device,
--					    struct kvm *kvm)
-+					    struct kvm *kvm,
-+					    struct module *kvm_module)
- {
- }
- 
-diff --git a/drivers/vfio/vfio_main.c b/drivers/vfio/vfio_main.c
-index 6222376ab6ab..78b9cad348b1 100644
---- a/drivers/vfio/vfio_main.c
-+++ b/drivers/vfio/vfio_main.c
-@@ -442,7 +442,7 @@ void vfio_unregister_group_dev(struct vfio_device *device)
- EXPORT_SYMBOL_GPL(vfio_unregister_group_dev);
- 
- #if IS_ENABLED(CONFIG_KVM)
--void vfio_device_get_kvm_safe(struct vfio_device *device, struct kvm *kvm)
-+void vfio_device_get_kvm_safe(struct vfio_device *device, struct kvm *kvm, struct module *kvm_module)
- {
- 	void (*pfn)(struct kvm *kvm);
- 	bool (*fn)(struct kvm *kvm);
-@@ -453,25 +453,31 @@ void vfio_device_get_kvm_safe(struct vfio_device *device, struct kvm *kvm)
- 	if (!kvm)
- 		return;
- 
-+	if (!try_module_get(kvm_module))
-+		return;
++#ifdef KVM_S390_ARM64
++#include <asm/kvm_host_arm64.h>
++#else
+ #include <asm/kvm_host_s390.h>
++#endif
 +
- 	pfn = symbol_get(kvm_put_kvm);
- 	if (WARN_ON(!pfn))
--		return;
-+		goto out_put_mod;
++static inline  bool kvm_arch_pmi_in_guest(struct kvm_vcpu *vcpu)
++{
++	return false;
++}
  
- 	fn = symbol_get(kvm_get_kvm_safe);
--	if (WARN_ON(!fn)) {
--		symbol_put(kvm_put_kvm);
--		return;
--	}
-+	if (WARN_ON(!fn))
-+		goto out_put_sym;
- 
- 	ret = fn(kvm);
- 	symbol_put(kvm_get_kvm_safe);
--	if (!ret) {
--		symbol_put(kvm_put_kvm);
--		return;
--	}
-+	if (!ret)
-+		goto out_put_sym;
- 
- 	device->put_kvm = pfn;
- 	device->kvm = kvm;
-+	device->kvm_module = kvm_module;
-+	return;
+ #define PGM_PROTECTION			0x04
+ #define PGM_ADDRESSING			0x05
+diff --git a/arch/s390/include/asm/kvm_host_arm64.h b/arch/s390/include/asm/kvm_host_arm64.h
+new file mode 100644
+index 000000000000..8c3214c5b004
+--- /dev/null
++++ b/arch/s390/include/asm/kvm_host_arm64.h
+@@ -0,0 +1,212 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef ASM_KVM_HOST_ARM64_H
++#define ASM_KVM_HOST_ARM64_H
 +
-+out_put_sym:
-+	symbol_put(kvm_put_kvm);
-+out_put_mod:
-+	module_put(kvm_module);
- }
- 
- void vfio_device_put_kvm(struct vfio_device *device)
-@@ -490,6 +496,8 @@ void vfio_device_put_kvm(struct vfio_device *device)
- 
- clear:
- 	device->kvm = NULL;
-+	module_put(device->kvm_module);
-+	device->kvm_module = NULL;
- }
- #endif
- 
-@@ -1513,7 +1521,7 @@ bool vfio_file_enforced_coherent(struct file *file)
- }
- EXPORT_SYMBOL_GPL(vfio_file_enforced_coherent);
- 
--static void vfio_device_file_set_kvm(struct file *file, struct kvm *kvm)
-+static void vfio_device_file_set_kvm(struct file *file, struct kvm *kvm, struct module *kvm_module)
- {
- 	struct vfio_device_file *df = file->private_data;
- 
-@@ -1524,6 +1532,7 @@ static void vfio_device_file_set_kvm(struct file *file, struct kvm *kvm)
- 	 */
- 	spin_lock(&df->kvm_ref_lock);
- 	df->kvm = kvm;
-+	df->kvm_module = kvm_module;
- 	spin_unlock(&df->kvm_ref_lock);
- }
- 
-@@ -1535,16 +1544,16 @@ static void vfio_device_file_set_kvm(struct file *file, struct kvm *kvm)
-  * When a VFIO device is first opened the KVM will be available in
-  * device->kvm if one was associated with the file.
-  */
--void vfio_file_set_kvm(struct file *file, struct kvm *kvm)
-+void vfio_file_set_kvm(struct file *file, struct kvm *kvm, struct module *kvm_module)
- {
- 	struct vfio_group *group;
- 
- 	group = vfio_group_from_file(file);
- 	if (group)
--		vfio_group_set_kvm(group, kvm);
-+		vfio_group_set_kvm(group, kvm, kvm_module);
- 
- 	if (vfio_device_from_file(file))
--		vfio_device_file_set_kvm(file, kvm);
-+		vfio_device_file_set_kvm(file, kvm, kvm_module);
- }
- EXPORT_SYMBOL_GPL(vfio_file_set_kvm);
- 
-diff --git a/include/linux/vfio.h b/include/linux/vfio.h
-index 31b826efba00..5bfec0339804 100644
---- a/include/linux/vfio.h
-+++ b/include/linux/vfio.h
-@@ -55,6 +55,7 @@ struct vfio_device {
- 	unsigned int migration_flags;
- 	u8 precopy_info_v2;
- 	struct kvm *kvm;
-+	struct module *kvm_module;
- 
- 	/* Members below here are private, not for driver use */
- 	unsigned int index;
-@@ -377,7 +378,7 @@ static inline bool vfio_file_has_dev(struct file *file, struct vfio_device *devi
- #endif
- bool vfio_file_is_valid(struct file *file);
- bool vfio_file_enforced_coherent(struct file *file);
--void vfio_file_set_kvm(struct file *file, struct kvm *kvm);
-+void vfio_file_set_kvm(struct file *file, struct kvm *kvm, struct module *kvm_module);
- 
- #define VFIO_PIN_PAGES_MAX_ENTRIES	(PAGE_SIZE/sizeof(unsigned long))
- 
-diff --git a/virt/kvm/vfio.c b/virt/kvm/vfio.c
-index 9f9acb66cc1e..515ed445d8e1 100644
---- a/virt/kvm/vfio.c
-+++ b/virt/kvm/vfio.c
-@@ -37,13 +37,13 @@ struct kvm_vfio {
- 
- static void kvm_vfio_file_set_kvm(struct file *file, struct kvm *kvm)
- {
--	void (*fn)(struct file *file, struct kvm *kvm);
-+	void (*fn)(struct file *file, struct kvm *kvm, struct module *kvm_module);
- 
- 	fn = symbol_get(vfio_file_set_kvm);
- 	if (!fn)
- 		return;
- 
--	fn(file, kvm);
-+	fn(file, kvm, kvm ? THIS_MODULE : NULL);
- 
- 	symbol_put(vfio_file_set_kvm);
- }
++#include <linux/bug.h>
++
++#include <asm/kvm_host_arm64_types.h>
++#include <asm/debug.h>
++
++#define vcpu_gp_regs(v)		((v)->arch.sae_block.gpr)
++
++#define HAVE_KVM_MMIO
++
++#include <kvm/arm64/kvm_host.h>
++#include <asm/sae.h>
++
++#define KVM_HAVE_MMU_RWLOCK
++#define KVM_MAX_VCPUS 1
++
++#define KVM_VCPU_VALID_FEATURES 0
++
++#define KVM_HALT_POLL_NS_DEFAULT 50000
++
++/* Minimal (=no) vgic definitions */
++#define KVM_IRQCHIP_NUM_PINS 1
++#define irqchip_in_kernel(_v) false;
++
++#define __ctxt_sys_reg(ctx, reg) NULL
++struct kvm_cpu_context {
++	/*
++	 * These are just for 32 bit, which we don't have, making them RES0.
++	 * They are exposed to user space.
++	 */
++	u64	spsr_abt;
++	u64	spsr_und;
++	u64	spsr_irq;
++	u64	spsr_fiq;
++
++	__vector128 __aligned(16) vregs[32];
++};
++
++struct kvm_vcpu_arch {
++	struct kvm_sae_block sae_block;
++	struct kvm_sae_save_area save_area;
++	struct kvm_cpu_context ctxt;
++
++	u32 host_acrs[NUM_ACRS];
++
++	/* Hypervisor Configuration Register */
++	u64 hcr_elz;
++
++	/* Configuration flags, set once and for all before the vcpu can run */
++	u8 cflags;
++
++	/* Input flags to the hypervisor code, potentially cleared after use */
++	u8 iflags;
++
++	/* State flags for kernel bookkeeping, unused by the hypervisor code */
++	u8 sflags;
++
++	/*
++	 * Don't run the guest (internal implementation need).
++	 *
++	 * Contrary to the flags above, this is set/cleared outside of
++	 * a vcpu context, and thus cannot be mixed with the flags
++	 * themselves (or the flag accesses need to be made atomic).
++	 */
++	bool pause;
++
++	/* vcpu power state */
++	struct kvm_mp_state mp_state;
++	/* lock for mp_state & reset_state.reset */
++	spinlock_t mp_state_lock;
++
++	/* vcpu reset state */
++	struct vcpu_reset_state reset_state;
++
++	/* GMAP */
++	struct gmap *gmap;
++	struct kvm_s390_mmu_cache *mc;
++
++	void *debugfs_state_data;
++};
++
++struct kvm_vcpu_stat {
++	struct kvm_vcpu_stat_generic generic;
++	/* ARM64 stats */
++	u64 hvc_exit_stat;
++	u64 wfe_exit_stat;
++	u64 wfi_exit_stat;
++	u64 mmio_exit_user;
++	u64 mmio_exit_kernel;
++	u64 signal_exits;
++	u64 exits;
++	/* GMAP stats */
++	u64 pfault_sync;
++};
++
++#define kvm_vcpu_get_sp_el1(__vcpu) (&((__vcpu)->arch.sae_block.sp_el1))
++#define kvm_vcpu_get_vreg(__vcpu, _off) (&(__vcpu)->arch.ctxt.vregs[_off])
++#define kvm_vcpu_get_vregs(__vcpu) (&(__vcpu)->arch.ctxt.vregs)
++#define kvm_vcpu_get_fpsr(__vcpu) (&(__vcpu)->arch.sae_block.fpsr)
++#define kvm_vcpu_get_fpcr(__vcpu) (&(__vcpu)->arch.sae_block.fpcr)
++
++#define __vcpu_flags_preempt_disable()	preempt_disable()
++#define __vcpu_flags_preempt_enable()	preempt_enable()
++
++#define _vcpu_get_flag(v, flagset, ...)	\
++	__vcpu_get_flag(&(v)->arch.flagset, __VA_ARGS__)
++#define _vcpu_set_flag(v, flagset, ...)	\
++	__vcpu_set_flag(&(v)->arch.flagset, __VA_ARGS__)
++#define _vcpu_clear_flag(v, flagset, ...)	\
++	__vcpu_clear_flag(&(v)->arch.flagset, __VA_ARGS__)
++#define _vcpu_test_and_clear_flag(v, flagset, ...)	\
++	__vcpu_test_and_clear_flag(&(v)->arch.flagset, __VA_ARGS__)
++
++#define kvm_has_mte(_kvm) false
++#define vcpu_has_sve(_vcpu) false
++#define vcpu_has_ptrauth(_vcpu) false
++
++struct kvm_arch_memory_slot {
++};
++
++struct kvm_arch {
++	struct gmap *gmap;
++	u64 guest_phys_size;
++
++	/* VM-wide vCPU feature set */
++	unsigned long flags;
++
++	/* Protects VM-scoped configuration data */
++	struct mutex config_lock;
++
++	debug_info_t *dbf;
++
++	DECLARE_BITMAP(vcpu_features, KVM_VCPU_MAX_FEATURES);
++
++	unsigned long mem_limit;
++};
++
++static inline bool __vcpu_has_feature(const struct kvm_arch *ka, int feature)
++{
++	return test_bit(feature, ka->vcpu_features);
++}
++
++#define vcpu_has_feature(v, f)	__vcpu_has_feature(&(v)->kvm->arch, (f))
++
++struct kvm_vm_stat {
++	struct kvm_vm_stat_generic generic;
++};
++
++#define kvm_vm_is_protected(_kvm)	false
++
++#define vcpu_is_loaded(_vcpu) (_vcpu->cpu != -1)
++
++#define KVM_HVA_ERR_BAD		-1UL
++#define KVM_HVA_ERR_RO_BAD	-2UL
++
++#define kvm_phys_size(__kvm) ((__kvm)->arch.guest_phys_size)
++static inline bool kvm_is_error_hva(unsigned long addr)
++{
++	return IS_ERR_VALUE(addr);
++}
++
++u32 get_kvm_ipa_limit(void);
++
++static inline void kvm_arch_sync_events(struct kvm *kvm) {}
++static inline void kvm_arch_sched_in(struct kvm_vcpu *vcpu, int cpu) {}
++
++int kvm_handle_guest_abort(struct kvm_vcpu *vcpu);
++
++/* arm64 guests do not use async-pf. Defined because Kbuild requires it as s390 kvm turns it on. */
++#define ASYNC_PF_PER_VCPU 0
++struct kvm_arch_async_pf {
++	unsigned long pfault_token;
++};
++
++#define __unsupp_async_call(fn) WARN_ONCE(true, "async not supported on kvm-arm64 %s", fn)
++
++static inline bool kvm_arch_can_dequeue_async_page_present(struct kvm_vcpu *vcpu)
++{
++	__unsupp_async_call(__func__);
++	return false;
++};
++
++static inline void kvm_arch_async_page_ready(struct kvm_vcpu *vcpu,
++					     struct kvm_async_pf *work)
++{
++	__unsupp_async_call(__func__);
++};
++
++static inline bool kvm_arch_async_page_not_present(struct kvm_vcpu *vcpu,
++						   struct kvm_async_pf *work)
++{
++	__unsupp_async_call(__func__);
++	return false;
++};
++
++static inline void kvm_arch_async_page_present(struct kvm_vcpu *vcpu,
++					       struct kvm_async_pf *work)
++{
++	__unsupp_async_call(__func__);
++};
++
++static inline void kvm_arch_async_page_present_queued(struct kvm_vcpu *vcpu)
++{
++	__unsupp_async_call(__func__);
++};
++
++#define kvm_supports_32bit_el0() false
++
++#endif /* ASM_KVM_HOST_ARM64_H */
 -- 
 2.53.0
 
