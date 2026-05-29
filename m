@@ -1,57 +1,57 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0EA4C42188B;
-	Fri, 29 May 2026 15:56:47 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 03DCD428822;
+	Fri, 29 May 2026 15:56:50 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780070209; cv=none; b=be+EBhTbaXgLyVNr/V1qAVKVJbF9HZ+9/1QfXjyNUxmWFUMcuh+r9SL9gpDVMHXxhKTPWz+jmikhNv2bRGDFHKosa16wFLIQPm5md9phjl5XmHaK9TqUEYeawcF5ZmdKZGczAOEDHl7FwZCrRfPD3Y5RtL/o/sm5EUSxivyPUpA=
+	t=1780070212; cv=none; b=qPFS+HhNuKMiUT2YuXZohS2AvWTV+ePRwLMxbLE6TZUhn8BKKZHgtBTiLCrVRU+/vXSVO2jubAduKZ8UsX9QP554kYkLgPGpidmiQzKXvw5yL/BqFb+98zzkrpBGXw/nAaNb/5/PJAxyqZwYq/4Hs0hjpXQ25jDutigT4T31VtY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780070209; c=relaxed/simple;
-	bh=jRjbqJyRqBwC5B2OUsOJnMBk6r+2yw1RyoyjJ22uZyM=;
+	s=arc-20240116; t=1780070212; c=relaxed/simple;
+	bh=VdJ5D4pWhUMZiuLwpLwV45/dxvUbNQ3/d1sL6gUAPCo=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=IxOS4mi112FpWy/ijwNU3fTLZwaCWWukCF+gmjmtSm31WdXhY5VjIIEJuhpWiC33Blp7YWw1CXei+jpkajMqwj3J6c5q0Skc0slCOLuQGJwxHqBwxSSBCxijmefJ1p37/KPWeZFegahJKCg4sLIYuN5WH2bji4YjvYc8RqT+2M4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=KDxRUAlP; arc=none smtp.client-ip=148.163.156.1
+	 MIME-Version; b=jWjfA71Wsz/3cOZEr+6f8bnEKTF6Nh5Gl9XokJ93gRS4pLs9zB+1mAUwSrX4KaHgYkJr5eyCImPC0D+NqQbKYAA5+1B1RcFQh5bndbE0OFwd3YE5WCPlp16Ihee6l7lgxsSRrfCchjGqSx/Qnt4ZH0/cumMiphcY7++gn+mO4nk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ahvt5PEK; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="KDxRUAlP"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 64TFFnLY1467851;
-	Fri, 29 May 2026 15:56:12 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ahvt5PEK"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 64TFKGCK1685956;
+	Fri, 29 May 2026 15:56:17 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=X0+Z7dbvpvWAPkUoS
-	6IVhDw51hFtW/9CwXUKchMioEc=; b=KDxRUAlPx7Yjqz/LDTEZStq8jsvSrmdpH
-	Vtr5xYC1WZEewf6Wchl3YE7yMg0M0dhMVvjGZQVBhw7w8UFemqLy5p+WluNFIQnU
-	lfjbhGdfTeGRtS/YKVMh9HPkNd72oetlcXG/0Bslw0/5mNsunrNg46qmGSmZJxnT
-	+XELCyG9llzU8TTfvCF6ejLLGBLviAOGTLXdPWtR65rN7bSf+E6WDUYXLlKm/EGv
-	TRnUFh1jAFNL/vMugUdqLM4dFd8Ld0YzttX8J4qJWKAHoXPtngfApq86l8gnQzKE
-	8Iv8m8dLPzr3xkB5HMhBbwT48sVve/4jA5eHpK6ihAip3WmqP6BQA==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ee886mgew-1
+	:mime-version:references:subject:to; s=pp1; bh=OB54e0sJf0qPl31od
+	E4TOuJ++EZKctY7iEXbx4L5EuE=; b=ahvt5PEK3ue2LKPLeYZ0iiHkL/ub/q50A
+	xss/LlZNhg0Oclokhxgcab+IqqPYeYnkfi0VJtlmn8hUvz4A2xo5g2cyO5EDRt7c
+	Rv3qcSf6olqpanSAEsPiZ9s6g+egE1QtVmxtEYPq7bz8eG5vCrGoC1avcCdQrRbB
+	a4V19WHkkNHVGMRttXRnDAhGq11xAICMnfa2o4imN2w9Jep9zNfD/0605OmKkTbL
+	M96SV0ZtUrq/PPS535IygkfW5b/+qWjBZRsVXzz3cCDUaRBNdmgb1fiLzS02DQK1
+	+KwUBX92IfoDLobvr1G/z5tJ9TzoL6UL52ymzFeaemSG9WLxI42Xg==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ee884mh75-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 29 May 2026 15:56:11 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 64TFs56R016943;
-	Fri, 29 May 2026 15:56:10 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4edjrbgjn5-1
+	Fri, 29 May 2026 15:56:15 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 64TFs5GF003169;
+	Fri, 29 May 2026 15:56:14 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4edjrbgm8v-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 29 May 2026 15:56:10 +0000 (GMT)
+	Fri, 29 May 2026 15:56:14 +0000 (GMT)
 Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 64TFu2An50594186
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 64TFu6ac36700644
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 29 May 2026 15:56:02 GMT
+	Fri, 29 May 2026 15:56:06 GMT
 Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B3A7B20040;
-	Fri, 29 May 2026 15:56:02 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 0617F20040;
+	Fri, 29 May 2026 15:56:06 +0000 (GMT)
 Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 58E922004D;
-	Fri, 29 May 2026 15:56:02 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id ACE432004B;
+	Fri, 29 May 2026 15:56:05 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
 	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 29 May 2026 15:56:02 +0000 (GMT)
+	Fri, 29 May 2026 15:56:05 +0000 (GMT)
 From: Steffen Eiden <seiden@linux.ibm.com>
 To: kvm@vger.kernel.org, kvmarm@lists.linux.dev,
         linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
@@ -77,9 +77,9 @@ Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
         Ulrich Weigand <Ulrich.Weigand@de.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>,
         Zenghui Yu <yuzenghui@huawei.com>
-Subject: [PATCH v1 01/26] KVM: arm64: Extract some feature related changes to kvm_feature.h
-Date: Fri, 29 May 2026 17:55:34 +0200
-Message-ID: <20260529155601.2927240-2-seiden@linux.ibm.com>
+Subject: [PATCH v1 10/26] KVM: arm64: Fix set_oslsr_el1 to write to OSLAR_EL1
+Date: Fri, 29 May 2026 17:55:43 +0200
+Message-ID: <20260529155601.2927240-11-seiden@linux.ibm.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260529155601.2927240-1-seiden@linux.ibm.com>
 References: <20260529155601.2927240-1-seiden@linux.ibm.com>
@@ -91,340 +91,105 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: LLZt6BPdI1g8_R9pvTBACHosjuOMXjhE
-X-Authority-Analysis: v=2.4 cv=Z8Dc2nRA c=1 sm=1 tr=0 ts=6a19b71b cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+X-Authority-Analysis: v=2.4 cv=fIYJG5ae c=1 sm=1 tr=0 ts=6a19b71f cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
  a=NGcC8JguVDcA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8 a=WW8djTQXebi2HcFpRRMA:9
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTI5MDE1NiBTYWx0ZWRfX4Nw4TEKeU5LR
- KBe06HG4BiiVlWSlLIDC+aYTlG2OBA/SKAoKYlPYUbOo0cGzx95oNuh4xJ5XVoU2hQCoqaP/Yjm
- mX+sjQKI+B0c1xn7ZfU/3kDJXo5C64712dNzYfzTQd9H6MrkpMirSET4yQOxAF8MMp4D40QoSCT
- 5tfPfWN4KvJnUuGAdNfqwm520QUWS4GLnFxMJBz/K7bK5S5F3ciHrtvTw4N8BVg3g+xerRoaHm4
- Sjb6CwQVrdIRO3mH5t8XjC0AghZ5JzStpbSVI7b+YmE68hvPTsm7xYJ9eckwvhC9Jfd/vN6XPKL
- t0SfcMNdc8I5hCqYGTZKvb3b2ALwQt8qNqK/3QthYTFMagxWDIBoNhUMSoS4KuqHPQZq0BJX6XL
- yPCiWczFI7NWs4yfdlkvDFLVW8L8ZZHKikttR53U4UkvPd+iw8WRa3jqcfVbQ8hvGYhNpPoQWFq
- aReOYhaP0HDBMCViSkQ==
-X-Proofpoint-ORIG-GUID: LLZt6BPdI1g8_R9pvTBACHosjuOMXjhE
+ a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8 a=5EGiLxFwAr7VIT5rVV0A:9
+X-Proofpoint-ORIG-GUID: Wgd_CA6F3seeTvf6_fbULAQn4h0wRnvg
+X-Proofpoint-GUID: Wgd_CA6F3seeTvf6_fbULAQn4h0wRnvg
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTI5MDE1NiBTYWx0ZWRfX7ZbACSDx4jlO
+ UQ8aei+lNfw7u4H6u/iIeB1Xy96QCrJaCbwREAu9McKDcUINIf2UmHhnI5TuAAiumMN8Y9/w1GX
+ Hk/qtUUhPSeT9jfgzKJQtAfnoLpEsvsLLd+NBPP96SLXAcQ2jj+AhzNDaNNX293Lo8Tthn517BQ
+ F8ZWheskkNTW7Q+Z95kYw2Y+5Nr+it4XHSoSiF33H/vMPe7vPY+1efXtvR+TEDxiYp94lO/yUEn
+ ULyQ6JcxM6SfSfTg+kiieT00cw8rVAvCkR5CTo70JwqjEHmUpoyL+6/XnuPxBPaNbuK62tXj6JC
+ bTZIAfV8hKU1jOCmsxcTbRZtdqKOOpmaWSH/3OavNWDMtp7K6Ow4raap6+9SGxG+V9E4gzZTl59
+ f/fjIlkJxC599mmR8W1vXsEy5OiOiA1C3t3Qs14ahjvtPxsmBX8Kh+h36X745+1KZ0CmOqthDW9
+ ErfRFOZ5KsbMvdeBpow==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
  definitions=2026-05-29_04,2026-05-28_03,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 spamscore=0 bulkscore=0 impostorscore=0 priorityscore=1501
- malwarescore=0 phishscore=0 suspectscore=0 adultscore=0 lowpriorityscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2605210000 definitions=main-2605290156
+ phishscore=0 lowpriorityscore=0 suspectscore=0 impostorscore=0
+ priorityscore=1501 malwarescore=0 clxscore=1015 adultscore=0 spamscore=0
+ bulkscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
+ adjust=0 reason=mlx scancount=1 engine=8.22.0-2605210000
+ definitions=main-2605290156
 
-Move definitions related to kvm feature handling to a separate header.
-Add flexibility through separation of concerns and allow sharing those
-definitions in the future.
+From: Andreas Grapentin <gra@linux.ibm.com>
 
-Co-developed-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+The set_oslsr_el1() function was incorrectly writing directly to the
+OSLSR_EL1 register, which is architecturally a read-only status register
+that reflects the state of the OS Lock.
+
+Fix this by extracting the OSLK bit from the user-provided value and
+writing it to OSLAR_EL1 (OS Lock Access Register) instead, which is the
+proper control register for managing the OS Lock state. OSLSR_EL1 will
+then reflect this state when read.
+
+This ensures the implementation follows the ARM architecture
+specification where OSLAR_EL1 controls the lock and OSLSR_EL1 provides
+status information.
+
+Signed-off-by: Andreas Grapentin <gra@linux.ibm.com>
 Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
 ---
- arch/arm64/include/asm/kvm_emulate.h       |  1 +
- arch/arm64/include/asm/kvm_feature.h       | 93 ++++++++++++++++++++++
- arch/arm64/include/asm/kvm_host.h          | 84 -------------------
- arch/arm64/include/asm/kvm_nested.h        |  1 +
- arch/arm64/kvm/at.c                        |  1 +
- arch/arm64/kvm/config.c                    |  1 +
- arch/arm64/kvm/hyp/include/hyp/sysreg-sr.h |  1 +
- arch/arm64/kvm/hyp/nvhe/hyp-main.c         |  1 +
- arch/arm64/kvm/hyp/nvhe/sys_regs.c         |  1 +
- arch/arm64/kvm/vgic/vgic.h                 |  1 +
- 10 files changed, 101 insertions(+), 84 deletions(-)
- create mode 100644 arch/arm64/include/asm/kvm_feature.h
+ arch/arm64/include/asm/kvm_host.h    |  1 +
+ arch/arm64/kvm/sys_regs.c            | 10 +++++++++-
+ include/arch/arm64/asm/sysreg-defs.h |  1 +
+ 3 files changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/include/asm/kvm_emulate.h b/arch/arm64/include/asm/kvm_emulate.h
-index 41eac2b5de14..2cb8511baddc 100644
---- a/arch/arm64/include/asm/kvm_emulate.h
-+++ b/arch/arm64/include/asm/kvm_emulate.h
-@@ -16,6 +16,7 @@
- 
- #include <asm/debug-monitors.h>
- #include <asm/esr.h>
-+#include <asm/kvm_feature.h>
- #include <asm/kvm_hyp.h>
- #include <asm/kvm_nested.h>
- #include <asm/ptrace.h>
-diff --git a/arch/arm64/include/asm/kvm_feature.h b/arch/arm64/include/asm/kvm_feature.h
-new file mode 100644
-index 000000000000..8d0c65246aa0
---- /dev/null
-+++ b/arch/arm64/include/asm/kvm_feature.h
-@@ -0,0 +1,93 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+#ifndef __ARM64_KVM_FEATURE_H__
-+#define __ARM64_KVM_FEATURE_H__
-+
-+#include <linux/types.h>
-+#include <linux/bitfield.h>
-+#include <asm/sysreg-defs.h>
-+
-+#define __expand_field_sign_unsigned(id, fld, val)			\
-+	((u64)SYS_FIELD_VALUE(id, fld, val))
-+
-+#define __expand_field_sign_signed(id, fld, val)			\
-+	({								\
-+		u64 __val = SYS_FIELD_VALUE(id, fld, val);		\
-+		sign_extend64(__val, id##_##fld##_WIDTH - 1);		\
-+	})
-+
-+#define get_idreg_field_unsigned(kvm, id, fld)				\
-+	({								\
-+		u64 __val = kvm_read_vm_id_reg((kvm), SYS_##id);	\
-+		FIELD_GET(id##_##fld##_MASK, __val);			\
-+	})
-+
-+#define get_idreg_field_signed(kvm, id, fld)				\
-+	({								\
-+		u64 __val = get_idreg_field_unsigned(kvm, id, fld);	\
-+		sign_extend64(__val, id##_##fld##_WIDTH - 1);		\
-+	})
-+
-+#define get_idreg_field_enum(kvm, id, fld)				\
-+	get_idreg_field_unsigned(kvm, id, fld)
-+
-+#define kvm_cmp_feat_signed(kvm, id, fld, op, limit)			\
-+	(get_idreg_field_signed((kvm), id, fld) op __expand_field_sign_signed(id, fld, limit))
-+
-+#define kvm_cmp_feat_unsigned(kvm, id, fld, op, limit)			\
-+	(get_idreg_field_unsigned((kvm), id, fld) op __expand_field_sign_unsigned(id, fld, limit))
-+
-+#define kvm_cmp_feat(kvm, id, fld, op, limit)				\
-+	(id##_##fld##_SIGNED ?						\
-+	 kvm_cmp_feat_signed(kvm, id, fld, op, limit) :			\
-+	 kvm_cmp_feat_unsigned(kvm, id, fld, op, limit))
-+
-+#define __kvm_has_feat(kvm, id, fld, limit)				\
-+	kvm_cmp_feat(kvm, id, fld, >=, limit)
-+
-+#define kvm_has_feat(kvm, ...) __kvm_has_feat(kvm, __VA_ARGS__)
-+
-+#define __kvm_has_feat_enum(kvm, id, fld, val)				\
-+	kvm_cmp_feat_unsigned(kvm, id, fld, ==, val)
-+
-+#define kvm_has_feat_enum(kvm, ...) __kvm_has_feat_enum(kvm, __VA_ARGS__)
-+
-+#define kvm_has_feat_range(kvm, id, fld, min, max)			\
-+	(kvm_cmp_feat(kvm, id, fld, >=, min) &&				\
-+	kvm_cmp_feat(kvm, id, fld, <=, max))
-+
-+/* Check for a given level of PAuth support */
-+#define kvm_has_pauth(k, l)						\
-+	({								\
-+		bool pa, pi, pa3;					\
-+									\
-+		pa  = kvm_has_feat((k), ID_AA64ISAR1_EL1, APA, l);	\
-+		pa &= kvm_has_feat((k), ID_AA64ISAR1_EL1, GPA, IMP);	\
-+		pi  = kvm_has_feat((k), ID_AA64ISAR1_EL1, API, l);	\
-+		pi &= kvm_has_feat((k), ID_AA64ISAR1_EL1, GPI, IMP);	\
-+		pa3  = kvm_has_feat((k), ID_AA64ISAR2_EL1, APA3, l);	\
-+		pa3 &= kvm_has_feat((k), ID_AA64ISAR2_EL1, GPA3, IMP);	\
-+									\
-+		(pa + pi + pa3) == 1;					\
-+	})
-+
-+#define kvm_has_fpmr(k)					\
-+	(system_supports_fpmr() &&			\
-+	 kvm_has_feat((k), ID_AA64PFR2_EL1, FPMR, IMP))
-+
-+#define kvm_has_tcr2(k)				\
-+	(kvm_has_feat((k), ID_AA64MMFR3_EL1, TCRX, IMP))
-+
-+#define kvm_has_s1pie(k)				\
-+	(kvm_has_feat((k), ID_AA64MMFR3_EL1, S1PIE, IMP))
-+
-+#define kvm_has_s1poe(k)				\
-+	(system_supports_poe() &&			\
-+	 kvm_has_feat((k), ID_AA64MMFR3_EL1, S1POE, IMP))
-+
-+#define kvm_has_ras(k)					\
-+	(kvm_has_feat((k), ID_AA64PFR0_EL1, RAS, IMP))
-+
-+#define kvm_has_sctlr2(k)				\
-+	(kvm_has_feat((k), ID_AA64MMFR3_EL1, SCTLRX, IMP))
-+
-+#endif /* __ARM64_KVM_FEATURE_H__*/
 diff --git a/arch/arm64/include/asm/kvm_host.h b/arch/arm64/include/asm/kvm_host.h
-index 2db51746b4d8..4c2c62b8b506 100644
+index a8efff6ea01d..5734e93cad57 100644
 --- a/arch/arm64/include/asm/kvm_host.h
 +++ b/arch/arm64/include/asm/kvm_host.h
-@@ -1423,90 +1423,6 @@ static inline u64 *__vm_id_reg(struct kvm_arch *ka, u32 reg)
+@@ -408,6 +408,7 @@ enum vcpu_sysreg {
+ 	PAR_EL1,	/* Physical Address Register */
+ 	MDCCINT_EL1,	/* Monitor Debug Comms Channel Interrupt Enable Reg */
+ 	OSLSR_EL1,	/* OS Lock Status Register */
++	OSLAR_EL1,	/* OS Lock Access Register */
+ 	DISR_EL1,	/* Deferred Interrupt Status Register */
  
- void kvm_set_vm_id_reg(struct kvm *kvm, u32 reg, u64 val);
- 
--#define __expand_field_sign_unsigned(id, fld, val)			\
--	((u64)SYS_FIELD_VALUE(id, fld, val))
--
--#define __expand_field_sign_signed(id, fld, val)			\
--	({								\
--		u64 __val = SYS_FIELD_VALUE(id, fld, val);		\
--		sign_extend64(__val, id##_##fld##_WIDTH - 1);		\
--	})
--
--#define get_idreg_field_unsigned(kvm, id, fld)				\
--	({								\
--		u64 __val = kvm_read_vm_id_reg((kvm), SYS_##id);	\
--		FIELD_GET(id##_##fld##_MASK, __val);			\
--	})
--
--#define get_idreg_field_signed(kvm, id, fld)				\
--	({								\
--		u64 __val = get_idreg_field_unsigned(kvm, id, fld);	\
--		sign_extend64(__val, id##_##fld##_WIDTH - 1);		\
--	})
--
--#define get_idreg_field_enum(kvm, id, fld)				\
--	get_idreg_field_unsigned(kvm, id, fld)
--
--#define kvm_cmp_feat_signed(kvm, id, fld, op, limit)			\
--	(get_idreg_field_signed((kvm), id, fld) op __expand_field_sign_signed(id, fld, limit))
--
--#define kvm_cmp_feat_unsigned(kvm, id, fld, op, limit)			\
--	(get_idreg_field_unsigned((kvm), id, fld) op __expand_field_sign_unsigned(id, fld, limit))
--
--#define kvm_cmp_feat(kvm, id, fld, op, limit)				\
--	(id##_##fld##_SIGNED ?						\
--	 kvm_cmp_feat_signed(kvm, id, fld, op, limit) :			\
--	 kvm_cmp_feat_unsigned(kvm, id, fld, op, limit))
--
--#define __kvm_has_feat(kvm, id, fld, limit)				\
--	kvm_cmp_feat(kvm, id, fld, >=, limit)
--
--#define kvm_has_feat(kvm, ...) __kvm_has_feat(kvm, __VA_ARGS__)
--
--#define __kvm_has_feat_enum(kvm, id, fld, val)				\
--	kvm_cmp_feat_unsigned(kvm, id, fld, ==, val)
--
--#define kvm_has_feat_enum(kvm, ...) __kvm_has_feat_enum(kvm, __VA_ARGS__)
--
--#define kvm_has_feat_range(kvm, id, fld, min, max)			\
--	(kvm_cmp_feat(kvm, id, fld, >=, min) &&				\
--	kvm_cmp_feat(kvm, id, fld, <=, max))
--
--/* Check for a given level of PAuth support */
--#define kvm_has_pauth(k, l)						\
--	({								\
--		bool pa, pi, pa3;					\
--									\
--		pa  = kvm_has_feat((k), ID_AA64ISAR1_EL1, APA, l);	\
--		pa &= kvm_has_feat((k), ID_AA64ISAR1_EL1, GPA, IMP);	\
--		pi  = kvm_has_feat((k), ID_AA64ISAR1_EL1, API, l);	\
--		pi &= kvm_has_feat((k), ID_AA64ISAR1_EL1, GPI, IMP);	\
--		pa3  = kvm_has_feat((k), ID_AA64ISAR2_EL1, APA3, l);	\
--		pa3 &= kvm_has_feat((k), ID_AA64ISAR2_EL1, GPA3, IMP);	\
--									\
--		(pa + pi + pa3) == 1;					\
--	})
--
--#define kvm_has_fpmr(k)					\
--	(system_supports_fpmr() &&			\
--	 kvm_has_feat((k), ID_AA64PFR2_EL1, FPMR, IMP))
--
--#define kvm_has_tcr2(k)				\
--	(kvm_has_feat((k), ID_AA64MMFR3_EL1, TCRX, IMP))
--
--#define kvm_has_s1pie(k)				\
--	(kvm_has_feat((k), ID_AA64MMFR3_EL1, S1PIE, IMP))
--
--#define kvm_has_s1poe(k)				\
--	(system_supports_poe() &&			\
--	 kvm_has_feat((k), ID_AA64MMFR3_EL1, S1POE, IMP))
--
--#define kvm_has_ras(k)					\
--	(kvm_has_feat((k), ID_AA64PFR0_EL1, RAS, IMP))
--
--#define kvm_has_sctlr2(k)				\
--	(kvm_has_feat((k), ID_AA64MMFR3_EL1, SCTLRX, IMP))
--
- static inline bool kvm_arch_has_irq_bypass(void)
+ 	/* Performance Monitors Registers */
+diff --git a/arch/arm64/kvm/sys_regs.c b/arch/arm64/kvm/sys_regs.c
+index 195ecdac7bd6..6522f9302967 100644
+--- a/arch/arm64/kvm/sys_regs.c
++++ b/arch/arm64/kvm/sys_regs.c
+@@ -822,6 +822,8 @@ static bool trap_oslsr_el1(struct kvm_vcpu *vcpu,
+ static int set_oslsr_el1(struct kvm_vcpu *vcpu, const struct sys_reg_desc *rd,
+ 			 u64 val)
  {
- 	return true;
-diff --git a/arch/arm64/include/asm/kvm_nested.h b/arch/arm64/include/asm/kvm_nested.h
-index dc2957662ff2..5da9ffae4f73 100644
---- a/arch/arm64/include/asm/kvm_nested.h
-+++ b/arch/arm64/include/asm/kvm_nested.h
-@@ -5,6 +5,7 @@
- #include <linux/bitfield.h>
- #include <linux/kvm_host.h>
- #include <asm/kvm_emulate.h>
-+#include <asm/kvm_feature.h>
- #include <asm/kvm_pgtable.h>
++	u64 oslk;
++
+ 	/*
+ 	 * The only modifiable bit is the OSLK bit. Refuse the write if
+ 	 * userspace attempts to change any other bit in the register.
+@@ -829,7 +831,13 @@ static int set_oslsr_el1(struct kvm_vcpu *vcpu, const struct sys_reg_desc *rd,
+ 	if ((val ^ rd->val) & ~OSLSR_EL1_OSLK)
+ 		return -EINVAL;
  
- static inline bool vcpu_has_nv(const struct kvm_vcpu *vcpu)
-diff --git a/arch/arm64/kvm/at.c b/arch/arm64/kvm/at.c
-index 9f8f0ae8e86e..ae91734dde37 100644
---- a/arch/arm64/kvm/at.c
-+++ b/arch/arm64/kvm/at.c
-@@ -7,6 +7,7 @@
- #include <linux/kvm_host.h>
+-	__vcpu_assign_sys_reg(vcpu, rd->reg, val);
++	/*
++	 * Redirect the write to the proper control register.
++	 * OSLSR is read-only
++	 */
++	oslk = SYS_FIELD_GET(OSLSR_EL1, OSLK, val);
++	__vcpu_assign_sys_reg(vcpu, OSLAR_EL1,
++			      SYS_FIELD_PREP(OSLAR_EL1, OSLK, oslk));
+ 	return 0;
+ }
  
- #include <asm/esr.h>
-+#include <asm/kvm_feature.h>
- #include <asm/kvm_hyp.h>
- #include <asm/kvm_mmu.h>
- #include <asm/lsui.h>
-diff --git a/arch/arm64/kvm/config.c b/arch/arm64/kvm/config.c
-index 0622162b089e..014fe04daabf 100644
---- a/arch/arm64/kvm/config.c
-+++ b/arch/arm64/kvm/config.c
-@@ -6,6 +6,7 @@
+diff --git a/include/arch/arm64/asm/sysreg-defs.h b/include/arch/arm64/asm/sysreg-defs.h
+index 3e280d4156ce..c6bdb0f11e1b 100644
+--- a/include/arch/arm64/asm/sysreg-defs.h
++++ b/include/arch/arm64/asm/sysreg-defs.h
+@@ -129,6 +129,7 @@
+ #define OSLSR_EL1_OSLM_NI		0
+ #define OSLSR_EL1_OSLM_IMPLEMENTED	BIT(3)
+ #define OSLSR_EL1_OSLK			BIT(1)
++#define OSLSR_EL1_OSLK_MASK             BIT(1)
  
- #include <linux/kvm_host.h>
- #include <asm/kvm_emulate.h>
-+#include <asm/kvm_feature.h>
- #include <asm/kvm_nested.h>
- #include <asm/sysreg.h>
- 
-diff --git a/arch/arm64/kvm/hyp/include/hyp/sysreg-sr.h b/arch/arm64/kvm/hyp/include/hyp/sysreg-sr.h
-index a17cbe7582de..dd824096dfc1 100644
---- a/arch/arm64/kvm/hyp/include/hyp/sysreg-sr.h
-+++ b/arch/arm64/kvm/hyp/include/hyp/sysreg-sr.h
-@@ -13,6 +13,7 @@
- #include <asm/kprobes.h>
- #include <asm/kvm_asm.h>
- #include <asm/kvm_emulate.h>
-+#include <asm/kvm_feature.h>
- #include <asm/kvm_hyp.h>
- #include <asm/kvm_mmu.h>
- 
-diff --git a/arch/arm64/kvm/hyp/nvhe/hyp-main.c b/arch/arm64/kvm/hyp/nvhe/hyp-main.c
-index 06db299c37a8..3e5c9107d78f 100644
---- a/arch/arm64/kvm/hyp/nvhe/hyp-main.c
-+++ b/arch/arm64/kvm/hyp/nvhe/hyp-main.c
-@@ -10,6 +10,7 @@
- #include <asm/pgtable-types.h>
- #include <asm/kvm_asm.h>
- #include <asm/kvm_emulate.h>
-+#include <asm/kvm_feature.h>
- #include <asm/kvm_host.h>
- #include <asm/kvm_hyp.h>
- #include <asm/kvm_hypevents.h>
-diff --git a/arch/arm64/kvm/hyp/nvhe/sys_regs.c b/arch/arm64/kvm/hyp/nvhe/sys_regs.c
-index 8c3fbb413a06..b5a0de84ce01 100644
---- a/arch/arm64/kvm/hyp/nvhe/sys_regs.c
-+++ b/arch/arm64/kvm/hyp/nvhe/sys_regs.c
-@@ -7,6 +7,7 @@
- #include <linux/irqchip/arm-gic-v3.h>
- 
- #include <asm/kvm_asm.h>
-+#include <asm/kvm_feature.h>
- #include <asm/kvm_mmu.h>
- 
- #include <hyp/adjust_pc.h>
-diff --git a/arch/arm64/kvm/vgic/vgic.h b/arch/arm64/kvm/vgic/vgic.h
-index 9d941241c8a2..b275d3cabe21 100644
---- a/arch/arm64/kvm/vgic/vgic.h
-+++ b/arch/arm64/kvm/vgic/vgic.h
-@@ -6,6 +6,7 @@
- #define __KVM_ARM_VGIC_NEW_H__
- 
- #include <linux/irqchip/arm-gic-common.h>
-+#include <asm/kvm_feature.h>
- #include <asm/kvm_mmu.h>
- 
- #define PRODUCT_ID_KVM		0x4b	/* ASCII code K */
+ #define SYS_OSDLR_EL1			sys_reg(2, 0, 1, 3, 4)
+ #define SYS_DBGPRCR_EL1			sys_reg(2, 0, 1, 4, 4)
 -- 
 2.53.0
 
