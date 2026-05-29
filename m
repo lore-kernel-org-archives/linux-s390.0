@@ -1,57 +1,57 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3090F352001;
-	Fri, 29 May 2026 15:51:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3DE693CAA48;
+	Fri, 29 May 2026 15:51:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780069891; cv=none; b=ebUFankZh0DAEvqbRsSguiKrC2GtgfnnWo2wF0cuDQMEpfzuAQDyQu8K4O+9p0uKwirj0jUt/mm4Q7ZjQy84OHwW18epPCP2NDLAuVyMyf+e0hz3tovI6/98R33f0uuqX2xM7cDA9CAOEtTfwxwRgzTcfsi6mTs8bqr4LnBWnkM=
+	t=1780069892; cv=none; b=U4lbi5FAzAxhpsXdrn+4GWcEs0PgYjrtdZW34+nTB47Gwzqe3nxitMlYvzI4aQ8T/LzUaZiCpVk6dkHLaVkadjFd8elOqeBaK3SLXwBfuoA7QKEumDh7SwLEsFXp0YTQRd2gfREvW1c4g5KulccUY4h+IQbn7UNXjZWXno5Tmvw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780069891; c=relaxed/simple;
-	bh=RdP/oDEFQ3mVy+/dVq0igY6FEA6FJz6a5rN2eaPMZMs=;
+	s=arc-20240116; t=1780069892; c=relaxed/simple;
+	bh=IpSkmgltURiOixZ9J6VMSnCeDegPnSVABhBYhZdqopQ=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=QHPEpXGo08Tux0LWMD8f9CMZWd/Kn8x/dsnPL6FNQLITEZHeftT2xLi4IFOHVIO2maACHh61Y8tyhvMPdfcZpMRictAE2u/VnW5R/5AL3CrMhpAB3Fw5/NFXUC6QwTf2tvLc+GC2dFWGFJl/AdOJhGW6t16Yr3q3+Als2zcqm4w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=B1KEl0eH; arc=none smtp.client-ip=148.163.158.5
+	 MIME-Version; b=V3eIiX6C8jZ5ANPC08bdjX7ymBuILnpW2lsqmlw9sUyhAETWDk+2jEXJ611QmvzFC0TXx3iwcRMpwiHd4A9H8l80YOz7mly+er2XyS5KqQaQ6+3QWDpo0SgkGTyddaO6OsdtaguOZmti7kzSFyvUJK6ZyH40JH/CKE092ioX80U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=QEo0jr1b; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="B1KEl0eH"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 64TEwn2S3217825;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="QEo0jr1b"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 64TFHdxl1684851;
 	Fri, 29 May 2026 15:51:02 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=RZIkPhTZC2oMvi9+f
-	6VWxmXpDnP265bNgFIDE0JDsY8=; b=B1KEl0eHyn4rWzYe4Osr8YTHWQ3S8/drU
-	aYdU7vDu5sq7CVDDf2nHfBdBvb+J8mb13yLIJzXAShgpqRLEXrpMasS9B5dMjsnQ
-	cobSuFeE1uXlRKxerV73wsvHLJzCXgOUcfGbCWNb4ZGxSnx4cEDmltGpQ+CS8OyK
-	UFFD/ymfI1PBnFAxy1/QIntC5jgCYg9x5WhAwzYRGLtCTQTXwv+Q3i2LeG+2YHF8
-	2HjnLVwWehu9ldQbDq/5+BgTrBUp5+btUu93wWg8yELg0sCY6PlPcFTZOT7XKDs4
-	7xkLv8acQC9ouKrHyZ6zoUqEtb6Hk+SCu9CeUP8cAAZWHNc8HSdKg==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ee88bkw4t-1
+	:mime-version:references:subject:to; s=pp1; bh=EP11Cumj4nKaKd4Hx
+	AFU2oQnORGO9DvArObT4KChA6Q=; b=QEo0jr1bmzP3TLJkypLNqcynHC5/7cW1B
+	pSrZ/Y3ORctR8xu4QdUtxxUFrcZRtQXhrd4KXEwssuXXP1xJrlvnNnPLDeFa3pm3
+	bXacZb7VgQu1NBw0atIUTUE0qKWIHLoCC+PqGvp4nI5fcON7P4lXFOknMhQVJJOj
+	hbF9ZYf3oTyzYs9bxIOPlf5V2nPuJek6HI/gpuDOvrcZrVItuXBIgZlLkPjvEt7c
+	YVtPX5FbclbU7Q5LnRi4Gq52u+Ezh8LEeTN5/Z0PGhVgUEIPhuGmrI2PjgWZXdAo
+	eFyGCPITTh09T8+iFSoIBpBYQTomYFVe2joYtyXnoGBuj1+AVmZeA==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ee884mbqr-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Fri, 29 May 2026 15:51:01 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 64TFd6Ix022954;
-	Fri, 29 May 2026 15:51:01 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4edjrc8eum-1
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 64TFd6M8024385;
+	Fri, 29 May 2026 15:51:00 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4edjrbgfrq-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Fri, 29 May 2026 15:51:00 +0000 (GMT)
 Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 64TFottI50987368
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 64TForRl29950420
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 29 May 2026 15:50:55 GMT
+	Fri, 29 May 2026 15:50:53 GMT
 Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E926520063;
-	Fri, 29 May 2026 15:50:54 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 0D2A32004B;
+	Fri, 29 May 2026 15:50:53 +0000 (GMT)
 Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 98E152004D;
-	Fri, 29 May 2026 15:50:54 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id B1ADF2004E;
+	Fri, 29 May 2026 15:50:52 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
 	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 29 May 2026 15:50:54 +0000 (GMT)
+	Fri, 29 May 2026 15:50:52 +0000 (GMT)
 From: Steffen Eiden <seiden@linux.ibm.com>
 To: kvm@vger.kernel.org, kvmarm@lists.linux.dev,
         linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
@@ -77,9 +77,9 @@ Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
         Ulrich Weigand <Ulrich.Weigand@de.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>,
         Zenghui Yu <yuzenghui@huawei.com>
-Subject: [PATCH v3 11/27] KVM: arm64: Access elements of vcpu_gp_regs individually
-Date: Fri, 29 May 2026 17:50:25 +0200
-Message-ID: <20260529155050.2902245-12-seiden@linux.ibm.com>
+Subject: [PATCH v3 06/27] arm64: Provide arm64 API for non-native architectures
+Date: Fri, 29 May 2026 17:50:20 +0200
+Message-ID: <20260529155050.2902245-7-seiden@linux.ibm.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260529155050.2902245-1-seiden@linux.ibm.com>
 References: <20260529155050.2902245-1-seiden@linux.ibm.com>
@@ -91,233 +91,279 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTI5MDE1NiBTYWx0ZWRfX0N/+APJ3ImSN
- oxsg/IKpcm7kx2IsOmb0vfMGyG1f42SZPYeaO7hcROnyuu6fV3s/PFFBtZgb5zDUcVM6L8XdSkJ
- nqaVXlwE3KqfU6SAP0AZlui4YWjfrBAyG30xMcHupw6tL/LsxhsJ604BZ5H5XM74N35SZPksXvJ
- eRJ0zGaHw5DoUrSMMqUl1irELCFNFBj8xrZCzMi9QQ/hnT6mcWEcfrJV75s5AT2hKQi0+CTd+hs
- kV3JU6Q++xlMD70Vpn3+irwJPBLy8jsgByBeuMqw+baB8ooidw9fIMslygnfeR16iTqLoVaYFAT
- jvjB4H4OHRjte6rgiFF6bFwiOKg/ZaNonywFw8JnT8hC436n3Mczap64kF4r5b+cp+bntH2JiAn
- 3DCpGchSCko4Lgb973tjag6ZhdjW50gM/1jD64m4AEGnXiQLX5mcK48RAdM2cmIJz76aJ5U86jn
- o8nnPPU8uG5e5XbuWjw==
-X-Proofpoint-ORIG-GUID: hkQFqjs7xmUrZWW7OU3orVOR3xFiA1NG
-X-Authority-Analysis: v=2.4 cv=IJEyzAvG c=1 sm=1 tr=0 ts=6a19b5e5 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+X-Authority-Analysis: v=2.4 cv=fIYJG5ae c=1 sm=1 tr=0 ts=6a19b5e5 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
  a=NGcC8JguVDcA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8 a=MeYYmaBpUeygDV1_9ykA:9
-X-Proofpoint-GUID: hkQFqjs7xmUrZWW7OU3orVOR3xFiA1NG
+ a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8 a=VwQbUJbxAAAA:8 a=7CQSdrXTAAAA:8
+ a=dpC639kuH8ZWnzxCXqwA:9 a=a-qgeE7W1pNrGK8U0ZQC:22
+X-Proofpoint-ORIG-GUID: sSwyQJGarf1KBsO_6t_yv_wqo_G4Q5RU
+X-Proofpoint-GUID: sSwyQJGarf1KBsO_6t_yv_wqo_G4Q5RU
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTI5MDE1NiBTYWx0ZWRfX1/Uh4z0k/Yvb
+ 8c7kLCrM1X7eCmsFL42yQmWh5BAIaBL7SRwP3mxofP0UfqhDo+xFdt1rL6sl+q494mobj77obnP
+ VYfxWE/t2ZHHQ7BINa7Zxb9E6ZOpeJYxrD70GTdo9YMfQD62Flq/m6wZD/NgaC8vp8cwvJD6G1V
+ glCuPu0aej7lotLIq3gOHszWFNMiR/plTh/y3zIu+i3V1Lihp+VrfnXerG6/XfTn3OJjF88yAK5
+ jpbcE/ridLM5MFz7Yh0I2V5ePhL0ppaX0T138iUNOW1cK6lAstcwP4G3fyVmUpWfYGWsWPfL5w/
+ IblUUZ0Dq3xGHpPAIUNgP6NRHxY/HCmLkDnW+bUXnEVMEocNfitG8XcwdCiplS1TRV3a/dZzbAN
+ ORFSMey/Phb05Ljh9mm7TPy+DxIz4udQKzVtMvvXLxnlL6C0eezOMyuHgJHP0J+tgVNl2fzZ9ig
+ n4zBYKHeswUfNu8suKQ==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
  definitions=2026-05-29_04,2026-05-28_03,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 phishscore=0 clxscore=1015 spamscore=0 bulkscore=0
- adultscore=0 priorityscore=1501 malwarescore=0 lowpriorityscore=0
- impostorscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2605210000
+ phishscore=0 lowpriorityscore=0 suspectscore=0 impostorscore=0
+ priorityscore=1501 malwarescore=0 clxscore=1015 adultscore=0 spamscore=0
+ bulkscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
+ adjust=0 reason=mlx scancount=1 engine=8.22.0-2605210000
  definitions=main-2605290156
 
-While for arm64 the members of vcpu_gp_regs are allocated continuous
-this is not necessarily true for other architectures implementing ARM.
+Enable the usage of arm64 asm headers independent of the CPU
+architecture. Introduce a new directory, include/arch/arm64/asm to store
+(host) architecture- agnostic headers for arm64 implementors.
 
-Let vcpu_gp_regs() no longer return the address of the user_pt_regs in
-the vcpu context but the address of the gp-register array field in the
-user_pt_reg struct.
+The new path is added to the include patch of native arm64. Therefore,
+arm64 will continue to reference to those headers via include
+<asm/header.h> without any code change. This means that the header names
+should be unique for arm64 asm headers. For native arm64, headers at the
+new path take precedence over any other include path.
 
-Co-developed-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+For other architectures to use the esr string names, move *esr_class_str
+from traps.c to esr.h.
+
+For a seamless integration non-native architectures must also include the
+new path to the include path.
+
 Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
 ---
- arch/arm64/include/asm/kvm_emulate.h       | 9 +++++++--
- arch/arm64/include/asm/kvm_host.h          | 2 +-
- arch/arm64/kvm/hyp/exception.c             | 7 +++++--
- arch/arm64/kvm/hyp/include/hyp/adjust_pc.h | 4 ++--
- arch/arm64/kvm/hyp/include/hyp/switch.h    | 6 +++---
- arch/arm64/kvm/reset.c                     | 6 ++++--
- include/kvm/arm64/kvm_emulate.h            | 4 ++--
- virt/kvm/arm64/guest.c                     | 6 +++---
- 8 files changed, 27 insertions(+), 17 deletions(-)
+ MAINTAINERS                                   |  1 +
+ arch/arm64/Makefile                           |  2 +
+ arch/arm64/kernel/traps.c                     | 53 ----------------
+ .../arch/arm64}/asm/brk-imm.h                 |  6 +-
+ .../include => include/arch/arm64}/asm/esr.h  | 62 +++++++++++++++++--
+ .../arch/arm64}/asm/sysreg-defs.h             |  6 +-
+ 6 files changed, 65 insertions(+), 65 deletions(-)
+ rename {arch/arm64/include => include/arch/arm64}/asm/brk-imm.h (92%)
+ rename {arch/arm64/include => include/arch/arm64}/asm/esr.h (88%)
+ rename {arch/arm64/include => include/arch/arm64}/asm/sysreg-defs.h (99%)
 
-diff --git a/arch/arm64/include/asm/kvm_emulate.h b/arch/arm64/include/asm/kvm_emulate.h
-index 39fa3a12730c..41eac2b5de14 100644
---- a/arch/arm64/include/asm/kvm_emulate.h
-+++ b/arch/arm64/include/asm/kvm_emulate.h
-@@ -95,12 +95,17 @@ static inline void vcpu_set_vsesr(struct kvm_vcpu *vcpu, u64 vsesr)
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 52b66c8b97f4..f1903e4f0dcf 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -3838,6 +3838,7 @@ S:	Maintained
+ T:	git git://git.kernel.org/pub/scm/linux/kernel/git/arm64/linux.git
+ F:	Documentation/arch/arm64/
+ F:	arch/arm64/
++F:	include/arch/arm64/
+ F:	include/uapi/arch/arm64/
+ F:	drivers/virt/coco/arm-cca-guest/
+ F:	drivers/virt/coco/pkvm-guest/
+diff --git a/arch/arm64/Makefile b/arch/arm64/Makefile
+index 73a10f65ce8b..b244e837cedd 100644
+--- a/arch/arm64/Makefile
++++ b/arch/arm64/Makefile
+@@ -221,6 +221,8 @@ PHONY += virtconfig
+ virtconfig:
+ 	$(call merge_into_defconfig_override,defconfig,virt)
  
- static __always_inline unsigned long *vcpu_pc(const struct kvm_vcpu *vcpu)
- {
--	return (unsigned long *)&vcpu_gp_regs(vcpu)->pc;
-+	return (unsigned long *)&vcpu->arch.ctxt.regs.pc;
++LINUXINCLUDE := -I$(srctree)/include/arch/arm64/ $(LINUXINCLUDE)
++
+ define archhelp
+   echo  '* Image.gz      - Compressed kernel image (arch/$(ARCH)/boot/Image.gz)'
+   echo  '  Image         - Uncompressed kernel image (arch/$(ARCH)/boot/Image)'
+diff --git a/arch/arm64/kernel/traps.c b/arch/arm64/kernel/traps.c
+index 914282016069..ca679dcdf1c8 100644
+--- a/arch/arm64/kernel/traps.c
++++ b/arch/arm64/kernel/traps.c
+@@ -829,59 +829,6 @@ void do_el0_sys(unsigned long esr, struct pt_regs *regs)
+ 	do_el0_undef(regs, esr);
  }
  
- static __always_inline unsigned long *vcpu_cpsr(const struct kvm_vcpu *vcpu)
- {
--	return (unsigned long *)&vcpu_gp_regs(vcpu)->pstate;
-+	return (unsigned long *)&vcpu->arch.ctxt.regs.pstate;
-+}
-+
-+static __always_inline unsigned long *vcpu_sp_el0(const struct kvm_vcpu *vcpu)
+-static const char *esr_class_str[] = {
+-	[0 ... ESR_ELx_EC_MAX]		= "UNRECOGNIZED EC",
+-	[ESR_ELx_EC_UNKNOWN]		= "Unknown/Uncategorized",
+-	[ESR_ELx_EC_WFx]		= "WFI/WFE",
+-	[ESR_ELx_EC_CP15_32]		= "CP15 MCR/MRC",
+-	[ESR_ELx_EC_CP15_64]		= "CP15 MCRR/MRRC",
+-	[ESR_ELx_EC_CP14_MR]		= "CP14 MCR/MRC",
+-	[ESR_ELx_EC_CP14_LS]		= "CP14 LDC/STC",
+-	[ESR_ELx_EC_FP_ASIMD]		= "ASIMD",
+-	[ESR_ELx_EC_CP10_ID]		= "CP10 MRC/VMRS",
+-	[ESR_ELx_EC_PAC]		= "PAC",
+-	[ESR_ELx_EC_CP14_64]		= "CP14 MCRR/MRRC",
+-	[ESR_ELx_EC_BTI]		= "BTI",
+-	[ESR_ELx_EC_ILL]		= "PSTATE.IL",
+-	[ESR_ELx_EC_SVC32]		= "SVC (AArch32)",
+-	[ESR_ELx_EC_HVC32]		= "HVC (AArch32)",
+-	[ESR_ELx_EC_SMC32]		= "SMC (AArch32)",
+-	[ESR_ELx_EC_SVC64]		= "SVC (AArch64)",
+-	[ESR_ELx_EC_HVC64]		= "HVC (AArch64)",
+-	[ESR_ELx_EC_SMC64]		= "SMC (AArch64)",
+-	[ESR_ELx_EC_SYS64]		= "MSR/MRS (AArch64)",
+-	[ESR_ELx_EC_SVE]		= "SVE",
+-	[ESR_ELx_EC_ERET]		= "ERET/ERETAA/ERETAB",
+-	[ESR_ELx_EC_FPAC]		= "FPAC",
+-	[ESR_ELx_EC_SME]		= "SME",
+-	[ESR_ELx_EC_IMP_DEF]		= "EL3 IMP DEF",
+-	[ESR_ELx_EC_IABT_LOW]		= "IABT (lower EL)",
+-	[ESR_ELx_EC_IABT_CUR]		= "IABT (current EL)",
+-	[ESR_ELx_EC_PC_ALIGN]		= "PC Alignment",
+-	[ESR_ELx_EC_DABT_LOW]		= "DABT (lower EL)",
+-	[ESR_ELx_EC_DABT_CUR]		= "DABT (current EL)",
+-	[ESR_ELx_EC_SP_ALIGN]		= "SP Alignment",
+-	[ESR_ELx_EC_MOPS]		= "MOPS",
+-	[ESR_ELx_EC_FP_EXC32]		= "FP (AArch32)",
+-	[ESR_ELx_EC_FP_EXC64]		= "FP (AArch64)",
+-	[ESR_ELx_EC_GCS]		= "Guarded Control Stack",
+-	[ESR_ELx_EC_SERROR]		= "SError",
+-	[ESR_ELx_EC_BREAKPT_LOW]	= "Breakpoint (lower EL)",
+-	[ESR_ELx_EC_BREAKPT_CUR]	= "Breakpoint (current EL)",
+-	[ESR_ELx_EC_SOFTSTP_LOW]	= "Software Step (lower EL)",
+-	[ESR_ELx_EC_SOFTSTP_CUR]	= "Software Step (current EL)",
+-	[ESR_ELx_EC_WATCHPT_LOW]	= "Watchpoint (lower EL)",
+-	[ESR_ELx_EC_WATCHPT_CUR]	= "Watchpoint (current EL)",
+-	[ESR_ELx_EC_BKPT32]		= "BKPT (AArch32)",
+-	[ESR_ELx_EC_VECTOR32]		= "Vector catch (AArch32)",
+-	[ESR_ELx_EC_BRK64]		= "BRK (AArch64)",
+-};
+-
+-const char *esr_get_class_string(unsigned long esr)
+-{
+-	return esr_class_str[ESR_ELx_EC(esr)];
+-}
+-
+ /*
+  * bad_el0_sync handles unexpected, but potentially recoverable synchronous
+  * exceptions taken from EL0.
+diff --git a/arch/arm64/include/asm/brk-imm.h b/include/arch/arm64/asm/brk-imm.h
+similarity index 92%
+rename from arch/arm64/include/asm/brk-imm.h
+rename to include/arch/arm64/asm/brk-imm.h
+index beb42c62b6ac..c311085886f5 100644
+--- a/arch/arm64/include/asm/brk-imm.h
++++ b/include/arch/arm64/asm/brk-imm.h
+@@ -3,8 +3,8 @@
+  * Copyright (C) 2012 ARM Ltd.
+  */
+ 
+-#ifndef __ASM_BRK_IMM_H
+-#define __ASM_BRK_IMM_H
++#ifndef __ARM64_ASM_BRK_IMM_H
++#define __ARM64_ASM_BRK_IMM_H
+ 
+ /*
+  * #imm16 values used for BRK instruction generation
+@@ -39,4 +39,4 @@
+ #define CFI_BRK_IMM_BASE		0x8000
+ #define CFI_BRK_IMM_MASK		(CFI_BRK_IMM_TARGET | CFI_BRK_IMM_TYPE)
+ 
+-#endif
++#endif /* __ARM64_ASM_BRK_IMM_H */
+diff --git a/arch/arm64/include/asm/esr.h b/include/arch/arm64/asm/esr.h
+similarity index 88%
+rename from arch/arm64/include/asm/esr.h
+rename to include/arch/arm64/asm/esr.h
+index 7e86d400864e..a7421cc966f9 100644
+--- a/arch/arm64/include/asm/esr.h
++++ b/include/arch/arm64/asm/esr.h
+@@ -4,11 +4,12 @@
+  * Author: Marc Zyngier <marc.zyngier@arm.com>
+  */
+ 
+-#ifndef __ASM_ESR_H
+-#define __ASM_ESR_H
++#ifndef __ARM64_ASM_ESR_H
++#define __ARM64_ASM_ESR_H
+ 
+-#include <asm/memory.h>
+-#include <asm/sysreg.h>
++#include <linux/const.h>
++#include <asm/sysreg-defs.h>
++#include <asm/brk-imm.h>
+ 
+ #define ESR_ELx_EC_UNKNOWN	UL(0x00)
+ #define ESR_ELx_EC_WFx		UL(0x01)
+@@ -541,7 +542,56 @@ static inline bool esr_iss_is_eretab(unsigned long esr)
+ 	return esr & ESR_ELx_ERET_ISS_ERETA;
+ }
+ 
+-const char *esr_get_class_string(unsigned long esr);
++static inline const char *esr_get_class_string(unsigned long esr)
 +{
-+	return (unsigned long *)&vcpu->arch.ctxt.regs.sp;
- }
++	switch (ESR_ELx_EC(esr)) {
++	case ESR_ELx_EC_UNKNOWN:	return "Unknown/Uncategorized";
++	case ESR_ELx_EC_WFx:		return "WFI/WFE";
++	case ESR_ELx_EC_CP15_32:	return "CP15 MCR/MRC";
++	case ESR_ELx_EC_CP15_64:	return "CP15 MCRR/MRRC";
++	case ESR_ELx_EC_CP14_MR:	return "CP14 MCR/MRC";
++	case ESR_ELx_EC_CP14_LS:	return "CP14 LDC/STC";
++	case ESR_ELx_EC_FP_ASIMD:	return "ASIMD";
++	case ESR_ELx_EC_CP10_ID:	return "CP10 MRC/VMRS";
++	case ESR_ELx_EC_PAC:		return "PAC";
++	case ESR_ELx_EC_CP14_64:	return "CP14 MCRR/MRRC";
++	case ESR_ELx_EC_BTI:		return "BTI";
++	case ESR_ELx_EC_ILL:		return "PSTATE.IL";
++	case ESR_ELx_EC_SVC32:		return "SVC (AArch32)";
++	case ESR_ELx_EC_HVC32:		return "HVC (AArch32)";
++	case ESR_ELx_EC_SMC32:		return "SMC (AArch32)";
++	case ESR_ELx_EC_SVC64:		return "SVC (AArch64)";
++	case ESR_ELx_EC_HVC64:		return "HVC (AArch64)";
++	case ESR_ELx_EC_SMC64:		return "SMC (AArch64)";
++	case ESR_ELx_EC_SYS64:		return "MSR/MRS (AArch64)";
++	case ESR_ELx_EC_SVE:		return "SVE";
++	case ESR_ELx_EC_ERET:		return "ERET/ERETAA/ERETAB";
++	case ESR_ELx_EC_FPAC:		return "FPAC";
++	case ESR_ELx_EC_SME:		return "SME";
++	case ESR_ELx_EC_IMP_DEF:	return "EL3 IMP DEF";
++	case ESR_ELx_EC_IABT_LOW:	return "IABT (lower EL)";
++	case ESR_ELx_EC_IABT_CUR:	return "IABT (current EL)";
++	case ESR_ELx_EC_PC_ALIGN:	return "PC Alignment";
++	case ESR_ELx_EC_DABT_LOW:	return "DABT (lower EL)";
++	case ESR_ELx_EC_DABT_CUR:	return "DABT (current EL)";
++	case ESR_ELx_EC_SP_ALIGN:	return "SP Alignment";
++	case ESR_ELx_EC_MOPS:		return "MOPS";
++	case ESR_ELx_EC_FP_EXC32:	return "FP (AArch32)";
++	case ESR_ELx_EC_FP_EXC64:	return "FP (AArch64)";
++	case ESR_ELx_EC_GCS:		return "Guarded Control Stack";
++	case ESR_ELx_EC_SERROR:		return "SError";
++	case ESR_ELx_EC_BREAKPT_LOW:	return "Breakpoint (lower EL)";
++	case ESR_ELx_EC_BREAKPT_CUR:	return "Breakpoint (current EL)";
++	case ESR_ELx_EC_SOFTSTP_LOW:	return "Software Step (lower EL)";
++	case ESR_ELx_EC_SOFTSTP_CUR:	return "Software Step (current EL)";
++	case ESR_ELx_EC_WATCHPT_LOW:	return "Watchpoint (lower EL)";
++	case ESR_ELx_EC_WATCHPT_CUR:	return "Watchpoint (current EL)";
++	case ESR_ELx_EC_BKPT32:		return "BKPT (AArch32)";
++	case ESR_ELx_EC_VECTOR32:	return "Vector catch (AArch32)";
++	case ESR_ELx_EC_BRK64:		return "BRK (AArch64)";
++	default:			return "UNRECOGNIZED EC";
++	}
++}
+ #endif /* __ASSEMBLER__ */
  
- static __always_inline bool vcpu_mode_is_32bit(const struct kvm_vcpu *vcpu)
-diff --git a/arch/arm64/include/asm/kvm_host.h b/arch/arm64/include/asm/kvm_host.h
-index 549e9a6aa12c..6af4f5b39f41 100644
---- a/arch/arm64/include/asm/kvm_host.h
-+++ b/arch/arm64/include/asm/kvm_host.h
-@@ -1089,7 +1089,7 @@ struct kvm_vcpu_arch {
- #define vcpu_clear_on_unsupported_cpu(vcpu)				\
- 	vcpu_clear_flag(vcpu, ON_UNSUPPORTED_CPU)
+-#endif /* __ASM_ESR_H */
++#endif /* __ARM64_ASM_ESR_H */
+diff --git a/arch/arm64/include/asm/sysreg-defs.h b/include/arch/arm64/asm/sysreg-defs.h
+similarity index 99%
+rename from arch/arm64/include/asm/sysreg-defs.h
+rename to include/arch/arm64/asm/sysreg-defs.h
+index 06bfc8e65b8d..58cb7eb0bf4e 100644
+--- a/arch/arm64/include/asm/sysreg-defs.h
++++ b/include/arch/arm64/asm/sysreg-defs.h
+@@ -1,7 +1,7 @@
+ /* SPDX-License-Identifier: GPL-2.0-only */
  
--#define vcpu_gp_regs(v)		(&(v)->arch.ctxt.regs)
-+#define vcpu_gp_regs(v)		((v)->arch.ctxt.regs.regs)
+-#ifndef __ASM_SYSREG_DEFS_H
+-#define __ASM_SYSREG_DEFS_H
++#ifndef __ARM64_ASM_SYSREG_DEFS_H
++#define __ARM64_ASM_SYSREG_DEFS_H
  
- /*
-  * Only use __vcpu_sys_reg/ctxt_sys_reg if you know you want the
-diff --git a/arch/arm64/kvm/hyp/exception.c b/arch/arm64/kvm/hyp/exception.c
-index bef40ddb16db..82611442a2d1 100644
---- a/arch/arm64/kvm/hyp/exception.c
-+++ b/arch/arm64/kvm/hyp/exception.c
-@@ -277,6 +277,9 @@ static const u8 return_offsets[8][2] = {
- 	[7] = { 4, 4 },		/* FIQ, unused */
- };
+ #include <linux/bits.h>
  
-+#define OFFSETOF_PT_REG(__r) offsetof(struct user_pt_regs, __r)
-+#define COMPAT_IDX(__c) ((OFFSETOF_PT_REG(__c) - OFFSETOF_PT_REG(regs[0])) / sizeof(u64))
-+
- static void enter_exception32(struct kvm_vcpu *vcpu, u32 mode, u32 vect_offset)
- {
- 	unsigned long spsr = *vcpu_cpsr(vcpu);
-@@ -292,12 +295,12 @@ static void enter_exception32(struct kvm_vcpu *vcpu, u32 mode, u32 vect_offset)
- 	switch(mode) {
- 	case PSR_AA32_MODE_ABT:
- 		__vcpu_write_spsr_abt(vcpu, host_spsr_to_spsr32(spsr));
--		vcpu_gp_regs(vcpu)->compat_lr_abt = return_address;
-+		vcpu_gp_regs(vcpu)[COMPAT_IDX(compat_lr_abt)] = return_address;
- 		break;
- 
- 	case PSR_AA32_MODE_UND:
- 		__vcpu_write_spsr_und(vcpu, host_spsr_to_spsr32(spsr));
--		vcpu_gp_regs(vcpu)->compat_lr_und = return_address;
-+		vcpu_gp_regs(vcpu)[COMPAT_IDX(compat_lr_und)] = return_address;
- 		break;
- 	}
- 
-diff --git a/arch/arm64/kvm/hyp/include/hyp/adjust_pc.h b/arch/arm64/kvm/hyp/include/hyp/adjust_pc.h
-index 15e1e5db73e1..4e4cb67824c0 100644
---- a/arch/arm64/kvm/hyp/include/hyp/adjust_pc.h
-+++ b/arch/arm64/kvm/hyp/include/hyp/adjust_pc.h
-@@ -20,11 +20,11 @@
- static inline void __kvm_skip_instr(struct kvm_vcpu *vcpu)
- {
- 	*vcpu_pc(vcpu) = read_sysreg_el2(SYS_ELR);
--	vcpu_gp_regs(vcpu)->pstate = read_sysreg_el2(SYS_SPSR);
-+	*vcpu_cpsr(vcpu) = read_sysreg_el2(SYS_SPSR);
- 
- 	kvm_skip_instr(vcpu);
- 
--	write_sysreg_el2(vcpu_gp_regs(vcpu)->pstate, SYS_SPSR);
-+	write_sysreg_el2(*vcpu_cpsr(vcpu), SYS_SPSR);
- 	write_sysreg_el2(*vcpu_pc(vcpu), SYS_ELR);
- }
- 
-diff --git a/arch/arm64/kvm/hyp/include/hyp/switch.h b/arch/arm64/kvm/hyp/include/hyp/switch.h
-index bf0eb5e43427..29f638e4a55f 100644
---- a/arch/arm64/kvm/hyp/include/hyp/switch.h
-+++ b/arch/arm64/kvm/hyp/include/hyp/switch.h
-@@ -447,7 +447,7 @@ static inline bool __populate_fault_info(struct kvm_vcpu *vcpu)
- static inline bool kvm_hyp_handle_mops(struct kvm_vcpu *vcpu, u64 *exit_code)
- {
- 	*vcpu_pc(vcpu) = read_sysreg_el2(SYS_ELR);
--	arm64_mops_reset_regs(vcpu_gp_regs(vcpu), vcpu->arch.fault.esr_el2);
-+	arm64_mops_reset_regs(&vcpu->arch.ctxt.regs, vcpu->arch.fault.esr_el2);
- 	write_sysreg_el2(*vcpu_pc(vcpu), SYS_ELR);
- 
- 	/*
-@@ -888,7 +888,7 @@ static inline void synchronize_vcpu_pstate(struct kvm_vcpu *vcpu)
- 	/*
- 	 * Check for the conditions of Cortex-A510's #2077057. When these occur
- 	 * SPSR_EL2 can't be trusted, but isn't needed either as it is
--	 * unchanged from the value in vcpu_gp_regs(vcpu)->pstate.
-+	 * unchanged from the value in vcpu_cpsr(vcpu).
- 	 * Are we single-stepping the guest, and took a PAC exception from the
- 	 * active-not-pending state?
- 	 */
-@@ -898,7 +898,7 @@ static inline void synchronize_vcpu_pstate(struct kvm_vcpu *vcpu)
- 	    ESR_ELx_EC(read_sysreg_el2(SYS_ESR)) == ESR_ELx_EC_PAC)
- 		write_sysreg_el2(*vcpu_cpsr(vcpu), SYS_SPSR);
- 
--	vcpu->arch.ctxt.regs.pstate = read_sysreg_el2(SYS_SPSR);
-+	*vcpu_cpsr(vcpu) = read_sysreg_el2(SYS_SPSR);
- }
- 
- /*
-diff --git a/arch/arm64/kvm/reset.c b/arch/arm64/kvm/reset.c
-index 036bf2dff976..e952dec01d74 100644
---- a/arch/arm64/kvm/reset.c
-+++ b/arch/arm64/kvm/reset.c
-@@ -218,13 +218,15 @@ void kvm_reset_vcpu(struct kvm_vcpu *vcpu)
- 		pstate = VCPU_RESET_PSTATE_EL1;
- 
- 	/* Reset core registers */
--	memset(vcpu_gp_regs(vcpu), 0, sizeof(*vcpu_gp_regs(vcpu)));
-+	memset(vcpu_gp_regs(vcpu), 0, sizeof(vcpu_gp_regs(vcpu)));
-+	*vcpu_pc(vcpu) = 0;
-+	*vcpu_sp_el0(vcpu) = 0;
- 	memset(&vcpu->arch.ctxt.fp_regs, 0, sizeof(vcpu->arch.ctxt.fp_regs));
- 	vcpu->arch.ctxt.spsr_abt = 0;
- 	vcpu->arch.ctxt.spsr_und = 0;
- 	vcpu->arch.ctxt.spsr_irq = 0;
- 	vcpu->arch.ctxt.spsr_fiq = 0;
--	vcpu_gp_regs(vcpu)->pstate = pstate;
-+	*vcpu_cpsr(vcpu) = pstate;
- 
- 	/* Reset system registers */
- 	kvm_reset_sys_regs(vcpu);
-diff --git a/include/kvm/arm64/kvm_emulate.h b/include/kvm/arm64/kvm_emulate.h
-index 25322b95af21..0e16d18e53d2 100644
---- a/include/kvm/arm64/kvm_emulate.h
-+++ b/include/kvm/arm64/kvm_emulate.h
-@@ -77,14 +77,14 @@ static inline void kvm_skip_instr(struct kvm_vcpu *vcpu)
- static __always_inline unsigned long vcpu_get_reg(const struct kvm_vcpu *vcpu,
- 						  u8 reg_num)
- {
--	return (reg_num == 31) ? 0 : vcpu_gp_regs(vcpu)->regs[reg_num];
-+	return (reg_num == 31) ? 0 : vcpu_gp_regs(vcpu)[reg_num];
- }
- 
- static __always_inline void vcpu_set_reg(struct kvm_vcpu *vcpu, u8 reg_num,
- 					 unsigned long val)
- {
- 	if (reg_num != 31)
--		vcpu_gp_regs(vcpu)->regs[reg_num] = val;
-+		vcpu_gp_regs(vcpu)[reg_num] = val;
- }
- 
- static inline u32 kvm_vcpu_hvc_get_imm(const struct kvm_vcpu *vcpu)
-diff --git a/virt/kvm/arm64/guest.c b/virt/kvm/arm64/guest.c
-index 83e33e0143b9..e283a4456df8 100644
---- a/virt/kvm/arm64/guest.c
-+++ b/virt/kvm/arm64/guest.c
-@@ -81,16 +81,16 @@ static void *core_reg_addr(struct kvm_vcpu *vcpu, const struct kvm_one_reg *reg)
- 	     KVM_REG_ARM_CORE_REG(regs.regs[30]):
- 		off -= KVM_REG_ARM_CORE_REG(regs.regs[0]);
- 		off /= 2;
--		return &vcpu_gp_regs(vcpu)->regs[off];
-+		return &vcpu_gp_regs(vcpu)[off];
- 
- 	case KVM_REG_ARM_CORE_REG(regs.sp):
--		return &vcpu_gp_regs(vcpu)->sp;
-+		return vcpu_sp_el0(vcpu);
- 
- 	case KVM_REG_ARM_CORE_REG(regs.pc):
- 		return vcpu_pc(vcpu);
- 
- 	case KVM_REG_ARM_CORE_REG(regs.pstate):
--		return &vcpu_gp_regs(vcpu)->pstate;
-+		return vcpu_cpsr(vcpu);
- 
- 	case KVM_REG_ARM_CORE_REG(sp_el1):
- 		return __ctxt_sys_reg(&vcpu->arch.ctxt, SP_EL1);
+@@ -969,4 +969,4 @@
+ 		 FIELD_PREP(reg##_##field##_MASK,	\
+ 			    SYS_FIELD_VALUE(reg, field, val))
+ #endif /* __ASSEMBLER__ */
+-#endif	/* __ASM_SYSREG_DEFS_H */
++#endif /* __ARM64_ASM_SYSREG_DEFS_H */
 -- 
 2.53.0
 
