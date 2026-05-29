@@ -1,57 +1,57 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2BAEF3F0A82;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B8F93F0755;
 	Fri, 29 May 2026 15:51:38 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780069900; cv=none; b=sogqxZeYqnFdpZNWAcWnC6ZKkxDvSIQ2LEnweB0+04iWLNA5+PaxoyL+bCwU9JsscgIKPSP966GP3Jk5mB3mGpDWXueiV+CGrnWjf69t/6ygvPNgRJzmv5CE1jd26fkTKYosa8HE7SnmrfujkotvVEg/YJeuRFt8sYL2IwzLuaM=
+	t=1780069900; cv=none; b=KUH80VCiCajeG0CegpjIJ9QpPq7kRj532sgbZJ+ZipgDlmRx2KeGVrXCq+S4A9ZFjxVxmyJh5kblpz+awRhIoU5SIzPDSPvHzeGO+c46dboh/ESQjGBz08LLuvbiSjxbjFfpSbt4VDrQAJIXy1F5+KwRcCkqpffCgwavi9Z/jDU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1780069900; c=relaxed/simple;
-	bh=LqtOgVyEfeTGxsxmlm/e1kJpdL65uM9L8WZi7A64hcU=;
+	bh=345HmncotsV9pWQLZkzansMv4WWVEa6GK6TZ3rObZf0=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=smHaPG85iaKPG+hpraWpm0BJyz2HPTzIVPvjT5buSaTbhjhXIKKjsMJOmlJQvvz9RDqiN8vMYL24/ft1TdYNa+rMYRt9iebIxS4bW7CyHHZvlcv14lEVMwH2SYJF0ix11EG6tkoh1z34AeOXFH/yIa7teiet3OoO1YWF7vW+twU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ik243tM1; arc=none smtp.client-ip=148.163.156.1
+	 MIME-Version; b=LKHtdAP2bNKL8rUX3rifJW8rAPG2YddAD+GwhPUL8eQzrRlkQrNSt6W/4u6GzUcq26DzZIab9naskkSxTTCGWXSAfm+3BU8y3XHhn9g36R6PPmgg+YdjArfaTyQWsmpnyY0HnR/P4O88j9p0wzZeS0HVvXVlCyjTZZThTH//kzw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=k3d8vDic; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ik243tM1"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="k3d8vDic"
 Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 64TF9bDG2418009;
-	Fri, 29 May 2026 15:51:00 GMT
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 64TFGVBO2418177;
+	Fri, 29 May 2026 15:51:09 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=38JiNFeklbccFtH2p
-	h2/bPaFd8mrZsh9Ea0AawF0sQg=; b=ik243tM1UzJzROY1FZfm5i3fiWnPWK21c
-	p+jIRchW1JMM2Am/IrWQRK7rEEe5rbm53BK2PoILvm6Dlkf8/NjEuxP383gn2xds
-	Dd1qarTIthis0G8uHd8GOohDYtVYG/MA/TmFFyoa9j3ninygnSqrroyU1pQG418k
-	1Y/hrsdthdwg+IIqJKf4BLQd44ZaT75TMIAFqpHGTHR/VprcAmuvZZLI4Sg43n2K
-	59L7T5v57HEDM0Izt46sRhK/u5ffow1hmztCpBkRc9rJ/hAryOalMTnxYy64n3hw
-	IWV7Or7pFPSELNsWCAZuICgRClCVYSQ4udDrOfK8F/iZFFiqiMo7A==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ee884ve0r-1
+	:mime-version:references:subject:to; s=pp1; bh=Cg0ros1wPgTvf6bFu
+	zYmLK4U6oANOh/aWRatOLQjbbI=; b=k3d8vDicnGVnkYtHSagOzI8BStNgoM75d
+	QdgZilUFgwOayY9otF9XMuaD5FG+TBfh/c9woL68W0bO6m04C0ItzqlWAJNMolzg
+	jWo3Slv3LKs2KvImEiNsK3T+bPScmXzh+7p6uLhUoAbS7kwtQWaQ+9A8evp8YPE/
+	FDWjkb9CSxktIuRj8IUFApnli6+57LTByqWxrV0zH8hlZpOUxDSeU6/0GEwtoXnJ
+	DSe+WQnjBPbiU5AdlPTlOFrmJq0JSMhZ6axf0ETCVuAYRrWF7pKsF3NTcrZUReHz
+	vuTPrpJSI01JVIg9IKXoiG6C5xoqrAGIXKbkSEXGfXd58yc61oEWg==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ee884ve5n-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 29 May 2026 15:50:59 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 64TFd6h9005005;
-	Fri, 29 May 2026 15:50:58 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4edjrbgg1t-1
+	Fri, 29 May 2026 15:51:09 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 64TFd6JC022954;
+	Fri, 29 May 2026 15:51:07 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4edjrc8exg-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 29 May 2026 15:50:58 +0000 (GMT)
+	Fri, 29 May 2026 15:51:07 +0000 (GMT)
 Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 64TFopgi49807858
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 64TFp09629294930
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 29 May 2026 15:50:52 GMT
+	Fri, 29 May 2026 15:51:00 GMT
 Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id DCA5A20043;
-	Fri, 29 May 2026 15:50:51 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id A703720043;
+	Fri, 29 May 2026 15:51:00 +0000 (GMT)
 Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 904DC2004B;
-	Fri, 29 May 2026 15:50:51 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 563A220063;
+	Fri, 29 May 2026 15:51:00 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
 	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 29 May 2026 15:50:51 +0000 (GMT)
+	Fri, 29 May 2026 15:51:00 +0000 (GMT)
 From: Steffen Eiden <seiden@linux.ibm.com>
 To: kvm@vger.kernel.org, kvmarm@lists.linux.dev,
         linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
@@ -77,9 +77,9 @@ Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
         Ulrich Weigand <Ulrich.Weigand@de.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>,
         Zenghui Yu <yuzenghui@huawei.com>
-Subject: [PATCH v3 03/27] KVM, vfio: remove symbol_get(kvm_put_kvm) from vfio
-Date: Fri, 29 May 2026 17:50:17 +0200
-Message-ID: <20260529155050.2902245-4-seiden@linux.ibm.com>
+Subject: [PATCH v3 27/27] KVM: s390: arm64: Enable KVM_ARM64 config and Kbuild
+Date: Fri, 29 May 2026 17:50:41 +0200
+Message-ID: <20260529155050.2902245-28-seiden@linux.ibm.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260529155050.2902245-1-seiden@linux.ibm.com>
 References: <20260529155050.2902245-1-seiden@linux.ibm.com>
@@ -91,21 +91,20 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=L4MtheT8 c=1 sm=1 tr=0 ts=6a19b5e3 cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+X-Authority-Analysis: v=2.4 cv=L4MtheT8 c=1 sm=1 tr=0 ts=6a19b5ed cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
  a=NGcC8JguVDcA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=iQ6ETzBq9ecOQQE5vZCe:22 a=20KFwNOVAAAA:8 a=VnNF1IyMAAAA:8 a=r1p2_3pzAAAA:8
- a=Iid1VeoRPhL8jyw1u-UA:9 a=r_pkcD-q9-ctt7trBg_g:22
-X-Proofpoint-ORIG-GUID: NU_-Q4KFPUH2BieGYecsp8vJiPmwpRyi
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTI5MDE1NiBTYWx0ZWRfX/lyxJxEHtGhf
- mGvQZFpi+vfwZZSPBjJ0A3NJylhXgGL/ggCqSU+Sz93jxXP3090B3BpaIuYbO5x2IHlHITOC9xz
- ucsSw1PZ+W3u319F6D8hUKE5iWoqaE2yPbA2TzhP5amPuCL3467uPs4wjhb0uIyHuFyKJGknAyj
- ROOSvfIAn9Wb0F8/44ASvEfJVNYRKnzmvINLzkHXLPph+h3o/LgwweEtYErlXYUn0OHeb/AqseC
- 3BFGGwI6Cbx2ApOb3ZFBzHzVL/mbbsu/ZrqUhVEnFS7S9uca2Y0HOwmBcOaFo7gO0OgjGTf5c3f
- m0pzwqN9l1MSv4AoTNxJQm9NqX0GoSXjt8zogebGld5s9HpN6GmxwSVO3IW36VRL9wiLcRrQQVZ
- Ttdp9VbXx4IIesJj4OFlc4u+kGranpdnQwPN/0qeMuT8sLc3k8FzijE8lEeEQ8Bo5FLxnrwnULi
- oJxvXcnBDeTYwD9RTlw==
-X-Proofpoint-GUID: NU_-Q4KFPUH2BieGYecsp8vJiPmwpRyi
+ a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8 a=kekBd6hy71sv0FWHAtgA:9
+X-Proofpoint-ORIG-GUID: BGMmbF-YSmlvH2_1RWij-uvq5SOJ6fwS
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTI5MDE1NiBTYWx0ZWRfX/zELhmqRfDL1
+ mptV8d1f4BdrkSkC1Cvsj+Qfj+FI7CE+JbYjHXIgYVuQxqSznXE8XJerwIIPcrw+Ei5EyjCoqly
+ BhyVjMHxHTqNNJtTXE++f6+1SPWvY0gD9R2gEY+lHQmBpe47tgaRFn3HTQutVj3w2tRd3cmeL9F
+ Wix5e42mMuZdXmO5ZGZ1NUfzxFsTwPkKf5V5VeiO4I8Q/rkx44M34tEqJsvmnIDum/P5iwslyQx
+ CY7qDWVQp1k8mjRDLGH2P/I0e7hRi5X1xXcUOlGrCFQhuL79ei8WAAS1acVQWrth3jLm9/itDDX
+ O9x1B1FdtXz1Mj7P69PeCX2e+WlBDXFahnlMxZtrkkjXTWYEJ2TzJnxsYupWPYMnSonaS0fEwY0
+ 1pHAluMKrm80FwLCIQzF32Fec4jfZECkqT8qglGIX8T+8/kMNQ45NSZQREVmbLLEokJNMfCjkev
+ 5JvmkMdOGu+vEjC20NQ==
+X-Proofpoint-GUID: BGMmbF-YSmlvH2_1RWij-uvq5SOJ6fwS
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
  definitions=2026-05-29_04,2026-05-28_03,2025-10-01_01
@@ -115,177 +114,233 @@ X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2605210000 definitions=main-2605290156
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+Add all Kbuild/Makefile configurations to build a second KVM module on
+s390 implementing the arm64-KVM API. To prevent symbol conflicts with
+kvm-s390 all internal symbols in kvm-arm64 are mangled if compiled as
+built-in. The new module ins named kvm-arm64.
 
-Right now, KVM and VFIO are using symbol_get to access each other's
-symbols because of a circular reference between the modules, as well
-as to avoid loading them unnecessarily.
+As in this case the build does not go through the normal build process
+the module parameter handling would be messed up. By forcing
+KBUILD_MODNAME to kvm-arm64 all parameters are at the same location and
+not at object/basename of the object file the parameter is introduced.
 
-The remaining use in VFIO is for kvm_put_kvm, which is not inline
-because it needs to call kvm_destroy_vm.  However, storing the
-address of kvm_destroy_vm in the "struct kvm" is enough to remove
-the dependency from VFIO.
-
-This also makes it possible to direct kvm_put_kvm to either the arm64
-or the s390 implementation of kvm_destroy_vm.
-
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Reviewed-by: Steffen Eiden <seiden@linux.ibm.com>
-Acked-by: Alex Williamson <alex@shazbot.org>
+Co-developed-by: Andreas Grapentin <gra@linux.ibm.com>
+Signed-off-by: Andreas Grapentin <gra@linux.ibm.com>
+Co-developed-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+Co-developed-by: Gautam Gala <ggala@linux.ibm.com>
+Signed-off-by: Gautam Gala <ggala@linux.ibm.com>
+Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
 ---
- drivers/vfio/vfio_main.c  | 24 +++---------------------
- include/linux/kvm_host.h  |  1 -
- include/linux/kvm_types.h |  8 ++++++++
- include/linux/vfio.h      |  1 -
- virt/kvm/kvm_main.c       |  9 ++-------
- 5 files changed, 13 insertions(+), 30 deletions(-)
+ arch/s390/configs/defconfig  |   1 +
+ arch/s390/include/asm/Kbuild |   3 +
+ arch/s390/kvm/Kconfig        |   1 +
+ arch/s390/kvm/Makefile       |   1 +
+ arch/s390/kvm/arm64/Kconfig  |  22 +++++++
+ arch/s390/kvm/arm64/Makefile | 108 +++++++++++++++++++++++++++++++++++
+ arch/s390/tools/Makefile     |   2 +
+ 7 files changed, 138 insertions(+)
+ create mode 100644 arch/s390/kvm/arm64/Kconfig
+ create mode 100644 arch/s390/kvm/arm64/Makefile
 
-diff --git a/drivers/vfio/vfio_main.c b/drivers/vfio/vfio_main.c
-index e606db41ff3f..053559a8c7f3 100644
---- a/drivers/vfio/vfio_main.c
-+++ b/drivers/vfio/vfio_main.c
-@@ -17,7 +17,7 @@
- #include <linux/idr.h>
- #include <linux/iommu.h>
- #if IS_ENABLED(CONFIG_KVM)
--#include <linux/kvm_host.h>
-+#include <linux/kvm_types.h>
- #endif
- #include <linux/list.h>
- #include <linux/miscdevice.h>
-@@ -444,9 +444,6 @@ EXPORT_SYMBOL_GPL(vfio_unregister_group_dev);
- #if IS_ENABLED(CONFIG_KVM)
- void vfio_device_get_kvm_safe(struct vfio_device *device, struct kvm *kvm, struct module *kvm_module)
- {
--	void (*pfn)(struct kvm *kvm);
--	bool ret;
--
- 	lockdep_assert_held(&device->dev_set->lock);
- 
- 	if (!kvm)
-@@ -455,21 +452,13 @@ void vfio_device_get_kvm_safe(struct vfio_device *device, struct kvm *kvm, struc
- 	if (!try_module_get(kvm_module))
- 		return;
- 
--	pfn = symbol_get(kvm_put_kvm);
--	if (WARN_ON(!pfn))
-+	if (!kvm_get_kvm_safe(kvm))
- 		goto out_put_mod;
- 
--	ret = kvm_get_kvm_safe(kvm);
--	if (!ret)
--		goto out_put_sym;
--
--	device->put_kvm = pfn;
- 	device->kvm = kvm;
- 	device->kvm_module = kvm_module;
- 	return;
- 
--out_put_sym:
--	symbol_put(kvm_put_kvm);
- out_put_mod:
- 	module_put(kvm_module);
- }
-@@ -481,14 +470,7 @@ void vfio_device_put_kvm(struct vfio_device *device)
- 	if (!device->kvm)
- 		return;
- 
--	if (WARN_ON(!device->put_kvm))
--		goto clear;
--
--	device->put_kvm(device->kvm);
--	device->put_kvm = NULL;
--	symbol_put(kvm_put_kvm);
--
--clear:
-+	kvm_put_kvm(device->kvm);
- 	device->kvm = NULL;
- 	module_put(device->kvm_module);
- 	device->kvm_module = NULL;
-diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
-index 8a068cbf12ff..088986d0aca2 100644
---- a/include/linux/kvm_host.h
-+++ b/include/linux/kvm_host.h
-@@ -1072,7 +1072,6 @@ static inline void kvm_irqfd_exit(void)
- int kvm_init(unsigned vcpu_size, unsigned vcpu_align, struct module *module);
- void kvm_exit(void);
- 
--void kvm_put_kvm(struct kvm *kvm);
- bool file_is_kvm(struct file *file);
- void kvm_put_kvm_no_destroy(struct kvm *kvm);
- 
-diff --git a/include/linux/kvm_types.h b/include/linux/kvm_types.h
-index 4cb68c71a13c..8a9be07cb8dd 100644
---- a/include/linux/kvm_types.h
-+++ b/include/linux/kvm_types.h
-@@ -144,6 +144,7 @@ struct kvm_vcpu_stat_generic {
- 
- struct kvm_refcount {
- 	refcount_t users_count;
-+	void (*destroy)(struct kvm *kvm);
- };
- 
- static inline void kvm_get_kvm(struct kvm *kvm)
-@@ -162,6 +163,13 @@ static inline bool kvm_get_kvm_safe(struct kvm *kvm)
- 	return refcount_inc_not_zero(&rc->users_count);
- }
- 
-+static inline void kvm_put_kvm(struct kvm *kvm)
-+{
-+	struct kvm_refcount *rc = (struct kvm_refcount *)kvm;
-+	if (refcount_dec_and_test(&rc->users_count))
-+		rc->destroy(kvm);
-+}
+diff --git a/arch/s390/configs/defconfig b/arch/s390/configs/defconfig
+index 21e803354845..65d5e739539b 100644
+--- a/arch/s390/configs/defconfig
++++ b/arch/s390/configs/defconfig
+@@ -58,6 +58,7 @@ CONFIG_CMM=m
+ CONFIG_APPLDATA_BASE=y
+ CONFIG_S390_HYPFS_FS=y
+ CONFIG_KVM_S390=m
++CONFIG_KVM_ARM64=m
+ CONFIG_S390_UNWIND_SELFTEST=m
+ CONFIG_S390_KPROBES_SANITY_TEST=m
+ CONFIG_S390_MODULES_SANITY_TEST=m
+diff --git a/arch/s390/include/asm/Kbuild b/arch/s390/include/asm/Kbuild
+index 0c1fc47c3ba0..f6fd67d1c651 100644
+--- a/arch/s390/include/asm/Kbuild
++++ b/arch/s390/include/asm/Kbuild
+@@ -8,3 +8,6 @@ generic-y += asm-offsets.h
+ generic-y += mcs_spinlock.h
+ generic-y += mmzone.h
+ generic-y += ring_buffer.h
 +
- #endif /* !__ASSEMBLER__ */
++generated-y += sysreg-gen-defs.h
++generated-y += kvm_arm64_modname.h
+diff --git a/arch/s390/kvm/Kconfig b/arch/s390/kvm/Kconfig
+index f8d4a9a38dae..bbae58aa8bc4 100644
+--- a/arch/s390/kvm/Kconfig
++++ b/arch/s390/kvm/Kconfig
+@@ -20,5 +20,6 @@ config KVM
+ 	tristate
  
- #endif /* __KVM_TYPES_H__ */
-diff --git a/include/linux/vfio.h b/include/linux/vfio.h
-index 5bfec0339804..81f04e60ebfd 100644
---- a/include/linux/vfio.h
-+++ b/include/linux/vfio.h
-@@ -67,7 +67,6 @@ struct vfio_device {
- 	unsigned int open_count;
- 	struct completion comp;
- 	struct iommufd_access *iommufd_access;
--	void (*put_kvm)(struct kvm *kvm);
- 	struct inode *inode;
- #if IS_ENABLED(CONFIG_IOMMUFD)
- 	struct iommufd_device *iommufd_device;
-diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-index 3c08f640c996..2eca44a69a9a 100644
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -119,6 +119,7 @@ static struct dentry *kvm_debugfs_dir;
+ source "arch/s390/kvm/s390/Kconfig"
++source "arch/s390/kvm/arm64/Kconfig"
  
- static const struct file_operations stat_fops_per_vm;
+ endif # VIRTUALIZATION
+diff --git a/arch/s390/kvm/Makefile b/arch/s390/kvm/Makefile
+index c43d7dffca13..38bdd7c9b42d 100644
+--- a/arch/s390/kvm/Makefile
++++ b/arch/s390/kvm/Makefile
+@@ -4,3 +4,4 @@
+ # Copyright IBM Corp. 2008
  
-+static void kvm_destroy_vm(struct kvm *kvm);
- static long kvm_vcpu_ioctl(struct file *file, unsigned int ioctl,
- 			   unsigned long arg);
- #ifdef CONFIG_KVM_COMPAT
-@@ -1148,6 +1149,7 @@ static struct kvm *kvm_create_vm(unsigned long type, const char *fdname)
+ obj-$(CONFIG_KVM_S390) += s390/
++obj-$(CONFIG_KVM_ARM64) += arm64/
+diff --git a/arch/s390/kvm/arm64/Kconfig b/arch/s390/kvm/arm64/Kconfig
+new file mode 100644
+index 000000000000..65b9dc25fe62
+--- /dev/null
++++ b/arch/s390/kvm/arm64/Kconfig
+@@ -0,0 +1,22 @@
++# SPDX-License-Identifier: GPL-2.0
++
++config KVM_ARM64
++	def_tristate y
++	prompt "Kernel-based Virtual Machine (KVM) support for arm64 guests"
++	depends on HAS_IOMEM
++	select KVM
++	select KVM_VFIO
++	select IRQ_BYPASS_MANAGER
++	select SCHED_INFO
++	select XARRAY_MULTI
++	select KVM_COMMON
++	select HAVE_KVM_CPU_RELAX_INTERCEPT
++	select HAVE_KVM_MSI
++	select HAVE_KVM_IRQCHIP
++	select HAVE_KVM_IRQ_ROUTING
++	select HAVE_KVM_VCPU_RUN_PID_CHANGE
++	select GUEST_PERF_EVENTS if PERF_EVENTS
++	help
++	  Support hosting virtualized arm64 guest machines on s390 host machines.
++
++	  If unsure, say N.
+diff --git a/arch/s390/kvm/arm64/Makefile b/arch/s390/kvm/arm64/Makefile
+new file mode 100644
+index 000000000000..d0aac34b8d2f
+--- /dev/null
++++ b/arch/s390/kvm/arm64/Makefile
+@@ -0,0 +1,108 @@
++# SPDX-License-Identifier: GPL-2.0
++
++KVM := ../../../../virt/kvm
++include $(srctree)/virt/kvm/Makefile.kvm
++include $(srctree)/virt/kvm/arm64/Makefile.kvm
++include $(srctree)/arch/s390/kvm/gmap/Makefile
++
++ccflags-y += -I $(src) -I$(srctree)/arch/s390/kvm/gmap -DKVM_S390_ARM64
++
++kvm-arm64-obj := \
++	arm.o \
++	guest.o \
++	handle_exit.o \
++	inject_fault.o \
++	mmu.o \
++	reset.o \
++
++kvm-arm64-obj += $(patsubst %.o,%-arm64.o,$(shared-arm64-obj))
++kvm-arm64-obj += $(patsubst %.o,%-arm64.o,$(kvm-y))
++
++targets += $(kvm-arm64-obj)
++
++$(obj)/%-arm64.o: $(src)/%.c FORCE
++	@mkdir -p $(dir $@)
++	$(call if_changed_rule,cc_o_c)
++
++ifeq ($(CONFIG_KVM_ARM64),m)
++
++kvm-arm64-y = $(kvm-arm64-obj)
++
++else ifeq ($(CONFIG_KVM_ARM64),y)
++
++KVM_ARM64_GEN_DIR :=$(objtree)/arch/${SRCARCH}/include/generated/asm
++KVM_ARM64_MODNAME_H := $(KVM_ARM64_GEN_DIR)/kvm_arm64_modname.h
++ccflags-y += -include $(KVM_ARM64_MODNAME_H)
++
++targets += $(KVM_ARM64_MODNAME_H)
++
++quiet_cmd_kvm_arm64_modname_h = GEN     $@
++      cmd_kvm_arm64_modname_h = { \
++	echo '/* Automatically generated; do not edit. */'; \
++	echo '\#ifndef _KVM_ARM64_MODNAME_H'; \
++	echo '\#define _KVM_ARM64_MODNAME_H'; \
++	echo '\#undef KBUILD_MODNAME'; \
++	echo '\#define KBUILD_MODNAME "kvm_arm64"'; \
++	echo '\#endif /* _KVM_ARM64_MODNAME_H */'; \
++	} > $@
++
++$(addprefix $(obj)/,$(kvm-arm64-obj)): $(KVM_ARM64_MODNAME_H)
++
++$(KVM_ARM64_MODNAME_H):
++	@mkdir -p $(KVM_ARM64_GEN_DIR)
++	$(call cmd,kvm_arm64_modname_h)
++
++prereq-o-cmd = $(foreach o, $(filter %.o, $^), $(dir $(o)).$(notdir $(o)).cmd)
++cmd_gen_symversions_o = \
++	grep --no-filename "^\#SYMVER" $(prereq-o-cmd) >> $(dot-target).cmd || true
++
++define rule_ld_o_o
++	$(call cmd_and_savecmd,ld)
++	$(call cmd,gen_symversions_o)
++endef
++
++LDFLAGS_kvm-unnamespaced.o := -r
++$(obj)/kvm-unnamespaced.o: $(addprefix $(obj)/,$(kvm-arm64-obj)) FORCE
++	$(call if_changed_rule,ld_o_o)
++
++# Make list of symbols to localize.
++# Collect normal/exported symbols. Use dict as set for deduplication.
++quiet_cmd_nm_filter = NMFLTR  $@
++	cmd_nm_filter = \
++$(NM) -jU $< | awk '							\
++{	if (match($$0, /^__export_symbol_(.*)$$/, exp_sym)) {		\
++		exp_syms[exp_sym[1]] = 1;				\
++	} else {							\
++		normal_syms[$$0] = 1;					\
++	}								\
++}									\
++END {									\
++	for (sym in normal_syms) {					\
++		if (!(sym in exp_syms)) {				\
++			print sym;					\
++		}							\
++	}								\
++}' > $@
++
++$(obj)/kvm_symbol_list: $(obj)/kvm-unnamespaced.o FORCE
++	$(call if_changed,nm_filter)
++
++define rule_oc_o_o
++	$(call cmd_and_savecmd,objcopy)
++	$(call cmd,gen_objtooldep)
++	$(call cmd,gen_symversions_o)
++endef
++
++OBJCOPYFLAGS_kvm-namespaced.o := -O default --localize-symbols=$(obj)/kvm_symbol_list
++$(obj)/kvm-namespaced.o: $(obj)/kvm-unnamespaced.o $(obj)/kvm_symbol_list FORCE
++	$(call if_changed_rule,oc_o_o)
++
++kvm-arm64-y = kvm-namespaced.o
++
++targets += kvm-unnamespaced.o kvm_symbol_list kvm-namespaced.o
++
++endif
++
++obj-$(CONFIG_KVM_ARM64) += kvm-arm64.o
++
++LINUXINCLUDE := -I$(srctree)/include/arch/arm64/ $(LINUXINCLUDE)
+diff --git a/arch/s390/tools/Makefile b/arch/s390/tools/Makefile
+index f2862364fb42..921261dcde28 100644
+--- a/arch/s390/tools/Makefile
++++ b/arch/s390/tools/Makefile
+@@ -6,6 +6,8 @@
+ kapi := arch/$(ARCH)/include/generated/asm
+ kapi-hdrs-y := $(kapi)/facility-defs.h $(kapi)/dis-defs.h
  
- 	BUILD_BUG_ON(offsetof(struct kvm, rc) != 0);
- 	refcount_set(&kvm->rc.users_count, 1);
-+	kvm->rc.destroy = kvm_destroy_vm;
++include $(srctree)/arch/arm64/tools/Makefile.sysreg
++
+ PHONY += kapi
  
- 	for (i = 0; i < kvm_arch_nr_memslot_as_ids(kvm); i++) {
- 		for (j = 0; j < 2; j++) {
-@@ -1310,13 +1312,6 @@ static void kvm_destroy_vm(struct kvm *kvm)
- 	mmdrop(mm);
- }
- 
--void kvm_put_kvm(struct kvm *kvm)
--{
--	if (refcount_dec_and_test(&kvm->rc.users_count))
--		kvm_destroy_vm(kvm);
--}
--EXPORT_SYMBOL_GPL(kvm_put_kvm);
--
- /*
-  * Used to put a reference that was taken on behalf of an object associated
-  * with a user-visible file descriptor, e.g. a vcpu or device, if installation
+ kapi:	$(kapi-hdrs-y)
 -- 
 2.53.0
 
