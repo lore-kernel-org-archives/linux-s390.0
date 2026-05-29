@@ -1,58 +1,58 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A4B433C345F
-	for <linux-s390@vger.kernel.org>; Fri, 29 May 2026 10:15:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CC04F351C0D
+	for <linux-s390@vger.kernel.org>; Fri, 29 May 2026 10:23:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780049732; cv=none; b=W3t+s4YXf/l9MdRK4PF/L5ekH6NEl7I7hTb+BCGpQIIme19GgmO2NiTnGtsbzG1uuQAZQO2lrECfFAdKV6YhbPFEUdkN7AGrkhb0GGzX4xwFeFsODRL3w9rDeK/0FMumvmezqiW2f5Xts2Zf1vetcv6lRRFu7OThd/euASf8TiY=
+	t=1780050236; cv=none; b=azt+hUmBdLgdOr2AEyhKUFOWZFtnSZFE03NuPoUVqgXQ3DKrCiU5B0LEcnnveHKEg3m/zrb/k82FvKkR3EmVc3J3QIEA5GKZs0W9T1EVMmTZ0ZqDOxWLV7fCZsEruv2BE4znl5BRtx7Vu1zUi0XZsJtEJc5XtI1UuefE9BWSWPw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780049732; c=relaxed/simple;
-	bh=aMpF9drK51XEB+Jinus2b8lRDdXZNysanf+Tis+G0Tg=;
+	s=arc-20240116; t=1780050236; c=relaxed/simple;
+	bh=kbaEGlJF5sfTdWwBXuL5m/iGY6a5ZRG8FPYiHBpBIrc=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=oZbYaXvm+bmdtpJlBptVfyxLPqluUULifZLtp7GJB9XannNt7RRxowI52v8xoiYIJ8V395ciTRMlv1tRcDJ4/JZVKIO316bHG564h3MkLe/2ddeCHZXouz9yNVyxBSg6pAvcCPiNyAZNmhp9PeP2REPKnmJcg2ICQHBhvkBKbIo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Y1JC3QmX; arc=none smtp.client-ip=148.163.156.1
+	 Content-Type:Content-Disposition:In-Reply-To; b=cwVVwudfXOuRoJBCNhIMWkN/PO5N8l+ksCnZdPSHPPJ2HmvM4dHH0RD6ZfX7c2uztYTvMf8nyGluWJz9d+RPT32dx3GmT7YRwCxgg3JzTSzH9sI/SMX37UNAXGcdvS6+osPdm1N658eYCh+/KhMmMC38eVfqjBhOB9dWi059vNk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=QK1VGSRG; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Y1JC3QmX"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 64SLlgDp1467756;
-	Fri, 29 May 2026 10:15:28 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="QK1VGSRG"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 64SLmhis3218468;
+	Fri, 29 May 2026 10:23:52 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=F9WNWHvD9Hesn9QQalNBhtzkj6z6eb
-	aqojzNSXku5eo=; b=Y1JC3QmXTzZG3ohHEtFySG2HPb2NhOrgZiX2W+zMiZLtdU
-	qeWvygb3DxXnj/4pgvifaQTtI6y0u2xEPMrUwvUVQfR2FCCvgubSn+V6g/eB9Qtc
-	uZtBFji5DuCw6AbxlAE+XYl4RkJfSKqqXWs+n5luojegy5xwSfOszz3vzjceDnnu
-	ppj2OfbguQGxVvfGr1X0+ZwPug4vcFrJ/zbS+dFNn4/iTHTdm3AI0A7iSXcFlKFm
-	R6tFBd3mdjlSZwkLoreyoFcPckIUGNsBJYFhDNJrjalHmouDfpuDPusSfkn7oU4C
-	F655N45ykTXcQS3VeAl/VoKs26DgGrybFP5aALXw==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ee886g1md-1
+	:references:subject:to; s=pp1; bh=n5+1B20rrUVJEUpCaDLEg1uyNHf9SP
+	QcZyCTHLnqbbk=; b=QK1VGSRG5QuLnhHe/+TrfYmBKgkOawX33SSDF94A9fP7Ax
+	1oqU8giGbDwarQl3whbbwSDxMIGTdu/rCwkm0JGnStSHB45HGGu3ZtqQDYlT04xs
+	PdT2lRjQM8gx+AOt9nEZ4WirZW5PoKk+a4d0ah2XNciDxNZq0NfaMpWMLATwc9F/
+	gzBIf4BGsPzK7j7BWxGNg/tRNh+/tN/pT/0fToMiO6ZJMOI9cJAvx4FsNqA98fzB
+	M439JVPD+f1zwlvijObwDl2+AFJMRLD0GVv6V3ILtROzT96K8SzfKV4ulQGtZn5s
+	cQINBje8w/lopKfNi4jados+0tsfmpoVHU6njftA==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ee88bfqk3-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 29 May 2026 10:15:28 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 64TA9PDg029531;
-	Fri, 29 May 2026 10:15:27 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4edjrbd2t4-1
+	Fri, 29 May 2026 10:23:52 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 64TA9O42022777;
+	Fri, 29 May 2026 10:23:51 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4edjrc532q-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 29 May 2026 10:15:27 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 64TAFNrS48169216
+	Fri, 29 May 2026 10:23:51 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 64TANlIh53608922
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 29 May 2026 10:15:24 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D7F602004B;
-	Fri, 29 May 2026 10:15:23 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 67A572004E;
-	Fri, 29 May 2026 10:15:23 +0000 (GMT)
+	Fri, 29 May 2026 10:23:47 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 667A82004D;
+	Fri, 29 May 2026 10:23:47 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id CDED520043;
+	Fri, 29 May 2026 10:23:46 +0000 (GMT)
 Received: from osiris (unknown [9.111.13.205])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Fri, 29 May 2026 10:15:23 +0000 (GMT)
-Date: Fri, 29 May 2026 12:15:22 +0200
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Fri, 29 May 2026 10:23:46 +0000 (GMT)
+Date: Fri, 29 May 2026 12:23:45 +0200
 From: Heiko Carstens <hca@linux.ibm.com>
 To: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
 Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
@@ -65,10 +65,10 @@ Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
         Jan Hoeppner <hoeppner@linux.ibm.com>,
         Stefan Haberland <sth@linux.ibm.com>,
         Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org
-Subject: Re: [PATCH 2/6] s390/dasd: replace get_zeroed_page() with kzalloc()
-Message-ID: <20260529101522.26496Bbe-hca@linux.ibm.com>
+Subject: Re: [PATCH 4/6] s390/qeth: replace get_zeroed_page() with kzalloc()
+Message-ID: <20260529102345.26496C83-hca@linux.ibm.com>
 References: <20260528-b4-s390-drivers-v1-0-b7108f54d722@kernel.org>
- <20260528-b4-s390-drivers-v1-2-b7108f54d722@kernel.org>
+ <20260528-b4-s390-drivers-v1-4-b7108f54d722@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -77,38 +77,38 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260528-b4-s390-drivers-v1-2-b7108f54d722@kernel.org>
+In-Reply-To: <20260528-b4-s390-drivers-v1-4-b7108f54d722@kernel.org>
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: CLE_jMi_SPxoc5HQwFKFTgBsY1ZcUKtQ
-X-Authority-Analysis: v=2.4 cv=Z8Dc2nRA c=1 sm=1 tr=0 ts=6a196740 cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTI5MDEwMCBTYWx0ZWRfX1dhMZuW+3Kji
+ D7HQTpctdRCjCGZMCCZ96a1gQwiYXm97ks3A5OtZg2ofO7fcWVnBDlFIKQqlUOGEiaz4QbzPohK
+ P2ZO2Z3POV6VOW0IAlY13McPmucYmGK4prQEApfNgaH2mX3awICgi1ucWu85kNByrsemfO+RxSE
+ myeoEjVLw2vkmvbmDMtVJ4Dx+FlfwyC/vCZC9UBd3gv7ojrA++GZp+FipMIlv2BtwtdBpvx/xar
+ PqolOmQOkLXfMd8ZWDN1YbWmw8DH9mQBstj2b63t3tx4q5ERsWrsvQsth+hj6KNeQ7sqGvXb4CX
+ 31g2mH3MfrTIIar8deyOy4zwpHlReoDdZJtJk4DCa7gYaf9bg3+heRQpysfdpGaqNFhPmPqXyuW
+ UccX+GeqxcSBImGD2yB8hZ0QS6JRCsbBImNePbPLdvVf/iBr37O47Xdm7r4V3gC1ZnXd0/dSbW0
+ WN9ufZiD9M9VsjbwfzQ==
+X-Proofpoint-ORIG-GUID: 2oyUuyD03O_cBJvoV2qHUSwhURFGctvO
+X-Authority-Analysis: v=2.4 cv=IJEyzAvG c=1 sm=1 tr=0 ts=6a196938 cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
  a=kj9zAlcOel0A:10 a=NGcC8JguVDcA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=VwQbUJbxAAAA:8
- a=20KFwNOVAAAA:8 a=G4mMAKXYhPOcyb86gNIA:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTI5MDEwMCBTYWx0ZWRfX3BoRXQsCz1bE
- nFFaQ2qNcIY7P9qCfOuhaAS0rGccVMVxnhAedvvASJMWFPAQiGYlyd/f+Hun630t8j4k9xn5YPP
- gp7zDfhDAPG/oqHQ5JnM62bh7aq8ObNAHGzH5TxtsXG/MfRMAH4QoI0iIpWsR876V15Oj8XRTCl
- HpwNgC1yUKUflCc1VUbCaC5neQ/1M+TPe2xjs9+zZ9c7z5Ox1F3Jc1ZvxLCb6HJHPJZuoYOWQdo
- J6DNVrs4I4iQClbR0Cxhk6KYJpCtEWWtgm1YIUHsGReKJqbpYo7LFhxmWB20/3dF9a02P5wCMS0
- V4cCeCezWoYyCfq/HrIL1yvnLY8j4skX5bf81r99aLDqidOLjRWeixLlUoV0CKEDJLTLI86w+Qk
- FvBNT2wSVBD2aIpiJNdQ1OZB9h4O3NjmOXW0S5kzza1Me75cBxDlx03i0COQLl49vCXoBm0uWwL
- WZB1olJ49m2DviY3J7w==
-X-Proofpoint-ORIG-GUID: CLE_jMi_SPxoc5HQwFKFTgBsY1ZcUKtQ
+ a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VwQbUJbxAAAA:8
+ a=20KFwNOVAAAA:8 a=5SmsgU5nlSgK4sXYBFIA:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-GUID: 2oyUuyD03O_cBJvoV2qHUSwhURFGctvO
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
  definitions=2026-05-29_03,2026-05-28_03,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 spamscore=0 bulkscore=0 impostorscore=0 priorityscore=1501
- malwarescore=0 phishscore=0 suspectscore=0 adultscore=0 lowpriorityscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2605210000 definitions=main-2605290100
+ suspectscore=0 phishscore=0 clxscore=1015 spamscore=0 bulkscore=0
+ adultscore=0 priorityscore=1501 malwarescore=0 lowpriorityscore=0
+ impostorscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2605210000
+ definitions=main-2605290100
 
-On Thu, May 28, 2026 at 10:09:50AM +0300, Mike Rapoport (Microsoft) wrote:
-> DASD driver uses get_zeroed_page() to allocate pages for the Extended Error
-> Reporting software ring buffer and for a scratch buffer for formatting
-> sense dump diagnostic text.
+On Thu, May 28, 2026 at 10:09:52AM +0300, Mike Rapoport (Microsoft) wrote:
+> qeth_get_trap_id() allocates a temporary buffer for STSI system
+> information queries used to build trap identification strings.
 > 
-> These buffers can be allocated with kmalloc() as there's nothing special
+> This buffer can be allocated with kmalloc() as there's nothing special
 > about it to go directly to the page allocator.
 > 
 > kmalloc() provides a better API that does not require ugly casts and
@@ -127,35 +127,58 @@ On Thu, May 28, 2026 at 10:09:50AM +0300, Mike Rapoport (Microsoft) wrote:
 > Link: https://lore.kernel.org/all/635405e4-9423-4a25-a6e7-e03c8ea0bcbe@redhat.com
 > Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
 > ---
->  drivers/s390/block/dasd_eckd.c | 12 ++++++------
->  drivers/s390/block/dasd_eer.c  |  4 ++--
->  2 files changed, 8 insertions(+), 8 deletions(-)
-
-...
-
->  static void dasd_eckd_dump_sense(struct dasd_device *device,
-> @@ -6958,7 +6958,7 @@ dasd_eckd_init(void)
->  		kfree(pe_handler_worker);
->  		kfree(dasd_reserve_req);
->  		kfree(dasd_vol_info_req);
-> -		free_page((unsigned long)rawpadpage);
-> +		kfree(rawpadpage);
+>  drivers/s390/net/qeth_core_main.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+> index cf5f760d0e02..9274087557ec 100644
+> --- a/drivers/s390/net/qeth_core_main.c
+> +++ b/drivers/s390/net/qeth_core_main.c
+> @@ -3362,7 +3362,7 @@ static int qeth_query_setdiagass(struct qeth_card *card)
+>  
+>  static void qeth_get_trap_id(struct qeth_card *card, struct qeth_trap_id *tid)
+>  {
+> -	unsigned long info = get_zeroed_page(GFP_KERNEL);
+> +	unsigned long info = (unsigned long)kzalloc(PAGE_SIZE, GFP_KERNEL);
+>  	struct sysinfo_2_2_2 *info222 = (struct sysinfo_2_2_2 *)info;
+>  	struct sysinfo_3_2_2 *info322 = (struct sysinfo_3_2_2 *)info;
+>  	struct ccw_dev_id ccwid;
+> @@ -3381,7 +3381,7 @@ static void qeth_get_trap_id(struct qeth_card *card, struct qeth_trap_id *tid)
+>  		EBCASC(info322->vm[0].name, sizeof(info322->vm[0].name));
+>  		memcpy(tid->vmname, info322->vm[0].name, sizeof(tid->vmname));
 >  	}
->  	return ret;
->  }
-> @@ -6969,7 +6969,7 @@ dasd_eckd_cleanup(void)
->  	ccw_driver_unregister(&dasd_eckd_driver);
->  	kfree(pe_handler_worker);
->  	kfree(dasd_reserve_req);
-> -	free_page((unsigned long)rawpadpage);
-> +	kfree(rawpadpage);
->  }
+> -	free_page(info);
+> +	kfree((void *)info);
 
-This is not correct. The allocation is still done with __get_free_page().
+Speaking of ugly casts, which seems to be one of the main motivations
+of this approach: the above adds casts instead of removing them :)
 
-I'm not sure about the whole approach / effort, since this allows for subtle
-bugs where pages are allocated and freed at non-obvious locations. All of that
-works now, but these conversions may lead to subtle bugs (this particular one
-is not subtle and easy to spot).
+So I guess the below should be merged into your patch to get some
+improvement:
 
-Is the net gain of this conversion really worth it?
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index 9274087557ec..20fb0d2e02a9 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -3362,9 +3362,9 @@ static int qeth_query_setdiagass(struct qeth_card *card)
+ 
+ static void qeth_get_trap_id(struct qeth_card *card, struct qeth_trap_id *tid)
+ {
+-	unsigned long info = (unsigned long)kzalloc(PAGE_SIZE, GFP_KERNEL);
+-	struct sysinfo_2_2_2 *info222 = (struct sysinfo_2_2_2 *)info;
+-	struct sysinfo_3_2_2 *info322 = (struct sysinfo_3_2_2 *)info;
++	void *info = kzalloc(PAGE_SIZE, GFP_KERNEL);
++	struct sysinfo_2_2_2 *info222 = info;
++	struct sysinfo_3_2_2 *info322 = info;
+ 	struct ccw_dev_id ccwid;
+ 	int level;
+ 
+@@ -3381,7 +3381,7 @@ static void qeth_get_trap_id(struct qeth_card *card, struct qeth_trap_id *tid)
+ 		EBCASC(info322->vm[0].name, sizeof(info322->vm[0].name));
+ 		memcpy(tid->vmname, info322->vm[0].name, sizeof(tid->vmname));
+ 	}
+-	kfree((void *)info);
++	kfree(info);
+ }
+ 
+ static int qeth_hw_trap_cb(struct qeth_card *card,
