@@ -1,57 +1,57 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E9B6C356766;
-	Fri, 29 May 2026 15:51:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 32AEA3B635E;
+	Fri, 29 May 2026 15:51:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780069891; cv=none; b=Ui2FPEvuJlipH5DuUw061YIX9L30PyPCajutX3mFhP0tB7Y1h/8w12NM8a53CzIvts0bzuLn0bQ8gJEiH/ocAJ4boashuC8cBOw4WxnkJahr4Y76wW5ADHBkhhXX23323rc4XODcKlohi/dCiYz02vfPmhF4DT8FLrKMgiKY6wY=
+	t=1780069891; cv=none; b=lsN219lqLOEK1w6ME8Grq2AWuKst27QOOeh4lGDPm3uxVJAdIdC/KxLn7dvHApnnA2HF8C2kLAdtT+MlIxQkoqEiQC0ashGE1G3ODgIPAOLNEYeg6sjXimGYxnx9t8yhEScgrSrG1MjMNP/xpkKkbtSMHQXMEBpjOiAGXJq6m0E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1780069891; c=relaxed/simple;
-	bh=m1dfZQA5Dd70VW7R9UlUEtNADU+DSTpEuZ6CFhhOMGs=;
+	bh=YhXCVzNidDgSJYoGfiuMWkx4Y2yfY/FZ/1pOP5zBKsA=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=q5BxSsAzmjsNaQekbdPOTEc7V/QokuDQGumGonaA7oJ5rPt2XT2C/+IJgr1A8mNDJStALm9EyICkY1kElp4OxApCq383D26z4650pavlB6twr30JCxcfonky6FU2jeKf5yXjtcXQz9w26/YnONoj/1KX2V/TQGNBhEUNj1a4IKc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=R1tKZ/D7; arc=none smtp.client-ip=148.163.158.5
+	 MIME-Version; b=NTu+9HrLXw/rRqg8y9/VRVfZGL76V8rO2/hzh6G25dj9yoyco2lLtPV9Isj5GlRrxUwO1UY/7x93CLTqaYuPgr1ihZYDqvxj/nYYlUKMHvg/2JZi8baZoXuDXEPCGosrtP8nqhXr/wt1d8qtBwgQKvl0SUpDl6mh3RAAsx9Nt/4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Ebf6wqgJ; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="R1tKZ/D7"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 64TFBpm62133330;
-	Fri, 29 May 2026 15:51:02 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Ebf6wqgJ"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 64TF3eu52418298;
+	Fri, 29 May 2026 15:51:08 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=LVdCA853kbF/5ti7W
-	0oIJc7JmhR6xTQgk8c1qFoC35k=; b=R1tKZ/D7MRUhafRPs1sc8ZKPIOWjiURwm
-	tH8kfHjnKvDmVOGOw/ZLuz3xNaDnwUsVru3c+b9QCUyXyMQQXF9q7hWFLFxl7nH6
-	935JnCnk/XPpZn7+Z1potJdgc81It519h40TA03GNYfV4BkE+gFn9kkFUHWug5kq
-	xLsdNNhXvxwgbNL1M/eogN+30CdZyBQ+3JtcGDHxqcNO3TsjkXMPAWViQzcNXltS
-	qXsZGWOQRqluJXLXJAzh5OEhWaSAWXrnGLOEMyyxk74w7KSqS9+jG+EXmR1hqlua
-	n9qJRJf/LU5CHLvXyHI84hfBJEsIpbaqCSN6aT0e9500y8lv/XvTg==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ee887uxpb-1
+	:mime-version:references:subject:to; s=pp1; bh=KTnJ9N/khaLChkjou
+	0ysI/xLREdm3g3GAN5DKQ9K9Ng=; b=Ebf6wqgJCF4+LOEVBQLNCJD9g0fk2Xuji
+	pj49tLZzNZSlvVNwXvp4Ahr2b6yj+7HTgjnbSBF5jmLy9N8HVURsw4aLPwMmBDJ8
+	3aqA/BSIXtzGTNbG1gIY1KlI38eK81saa36l0XNaXsDvfw2ltrF+fXAwt3uNecE+
+	j3PMUj/nhBiH3LmZpD1Hk82POMyOd9phiwmE/cd03N9GPwz085ZDQQHAh9RUcmRm
+	oMWYGy8OHiyi7HXzpxfE2zEQRMA/nE53a1LGhAC8ASQn15NBakPoGnWxH2NdcuFJ
+	gDBraNX7CdJo0ip0GWImMNHLluv+Kx8y/APA1Z1nukBOMYc2GxoiA==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ee884ve4y-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 29 May 2026 15:51:01 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 64TFd6ce018480;
-	Fri, 29 May 2026 15:51:01 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4edjrc0faw-1
+	Fri, 29 May 2026 15:51:07 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 64TFd7cf022992;
+	Fri, 29 May 2026 15:51:06 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4edjrc8ex0-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 29 May 2026 15:51:01 +0000 (GMT)
+	Fri, 29 May 2026 15:51:06 +0000 (GMT)
 Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 64TFor1329950428
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 64TFoxrX41288042
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 29 May 2026 15:50:53 GMT
+	Fri, 29 May 2026 15:50:59 GMT
 Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C77342004F;
-	Fri, 29 May 2026 15:50:53 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 8CE0F2004F;
+	Fri, 29 May 2026 15:50:59 +0000 (GMT)
 Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 76A4C20065;
-	Fri, 29 May 2026 15:50:53 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 3C5702004B;
+	Fri, 29 May 2026 15:50:59 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
 	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 29 May 2026 15:50:53 +0000 (GMT)
+	Fri, 29 May 2026 15:50:59 +0000 (GMT)
 From: Steffen Eiden <seiden@linux.ibm.com>
 To: kvm@vger.kernel.org, kvmarm@lists.linux.dev,
         linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
@@ -77,9 +77,9 @@ Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
         Ulrich Weigand <Ulrich.Weigand@de.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>,
         Zenghui Yu <yuzenghui@huawei.com>
-Subject: [PATCH v3 08/27] arm64: Extract pstate definitions from ptrace
-Date: Fri, 29 May 2026 17:50:22 +0200
-Message-ID: <20260529155050.2902245-9-seiden@linux.ibm.com>
+Subject: [PATCH v3 24/27] KVM: s390: arm64: Implement vm/vcpu create destroy.
+Date: Fri, 29 May 2026 17:50:38 +0200
+Message-ID: <20260529155050.2902245-25-seiden@linux.ibm.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260529155050.2902245-1-seiden@linux.ibm.com>
 References: <20260529155050.2902245-1-seiden@linux.ibm.com>
@@ -91,347 +91,319 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=QLJYgALL c=1 sm=1 tr=0 ts=6a19b5e5 cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+X-Authority-Analysis: v=2.4 cv=L4MtheT8 c=1 sm=1 tr=0 ts=6a19b5eb cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
  a=NGcC8JguVDcA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8 a=i1ah5YvoNV5MJ1hGTMsA:9
-X-Proofpoint-GUID: k7iLlbha4RP5sQ5NhvwMiH7gx8HDYHuz
-X-Proofpoint-ORIG-GUID: k7iLlbha4RP5sQ5NhvwMiH7gx8HDYHuz
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTI5MDE1NiBTYWx0ZWRfX8A2AaQgcgruw
- FULirAMl+hFRAkpUlZAvHR54Xocl04rcqP8oPdtdOAC+wzixXlaaKUWMcT8QpRCzj+b8hMS+Dit
- HwgU7YnIccpqGVQo6ifL6dTClD80GYRnbMWC2LfcQOOt9Q6sAVjd5KDF4c5tOyWy1kOF2rji3V9
- 26Y38Bamy6qjFale3xScARf5P4ZHzHBYC1kgup5thtJ2iA+MdqThO/YqlM2gHb729Ln9jB3sXWW
- W+JYo0vm01nHUskQUYnrEnmdYAq+YZ0HUPtEYHZn1+lfl3wjurcsf5hbpeFpnYkJjQABo8QCYLt
- mfx0Vgeu8wdeREvpJOkc8E9ldpw/Nny2k92quQmwMcBIwFPgvrdz7YdI503wXTw7MpaLXNAZudX
- wi9hyFnRMhfllIkrRpx8z+dLF+3JL1ZdDTtTTdf57zfyAWG6kfpaEfzCRE2UKZ/IvqQBVbyzkjF
- JDbzzXYLWp0f3cghqEg==
+ a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8 a=RC2V8De_2s-pDU17uugA:9
+X-Proofpoint-ORIG-GUID: P3VgJIg4WDA-p59gxsSr96pYmcFn-IaH
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTI5MDE1NiBTYWx0ZWRfX8aJNScxZEIa8
+ /ICUMNxJf6SxB63z87Fzb80zZTdyfqmuSqlFWtajKfWWlzq1UZBJZGH/KdwToU/czUyBeQf36OX
+ g1voZn9wMbYnbfunHO0VPvYj98wij9bmYN4YDOE56biBnQ6kj9wAZz8cHO6vDocHTDJqY8Pb0XW
+ olBXddox42eMapUayQqPheX9NuQTb/w59uoUW3ymlOqjsUqp+C+/XRQeV2V23kPtIWABwdzosWg
+ TuUZ0yQ+tCmTigXWWmsrkEyKqSMnuljRwRsiaMPdftk8iICQU3sme01vAT0w+PGCdjnI2H3sA8o
+ zIbAPAhJm2jwqDZZOX+IK6m412bl3Rd4MTJzr+OfVLQcVzH6g2sMS3kJV9yqcmHLlbrpx2rgvtb
+ Zv50S+4GrRLzsVCFH2fV12bl4WlOp8EHbSx1+XUlzyCyzSrfbvHpkG+JhZY5RCnRs+4FkqVC4qS
+ 4d1iJVX8NErCpjUtLhA==
+X-Proofpoint-GUID: P3VgJIg4WDA-p59gxsSr96pYmcFn-IaH
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
  definitions=2026-05-29_04,2026-05-28_03,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 suspectscore=0 impostorscore=0 malwarescore=0 adultscore=0
- lowpriorityscore=0 phishscore=0 clxscore=1015 priorityscore=1501 bulkscore=0
+ phishscore=0 lowpriorityscore=0 suspectscore=0 clxscore=1015 malwarescore=0
+ bulkscore=0 impostorscore=0 adultscore=0 priorityscore=1501 spamscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2605210000 definitions=main-2605290156
 
-From: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+Implement init and destroy IOCTLS for vcpu and vm.
+Implement arch vm IOCTL. Use s390 gmap.
 
-Split all definitions that can be used by non-native architectures into a
-separate file pstate.h. This allows other architectures using
-the pstate definitions. While at it refactor SPSR related definitions
-to use the BIT(n) macro and move them into sysreg-defs.h
-
+Co-developed-by: Janosch Frank <frankja@linux.ibm.com>
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Co-developed-by: Andreas Grapentin <gra@linux.ibm.com>
+Signed-off-by: Andreas Grapentin <gra@linux.ibm.com>
+Co-developed-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
 Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
 Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
 ---
- arch/arm64/include/asm/ptrace.h      | 34 +-----------------
- arch/arm64/include/uapi/asm/pstate.h | 53 ++++++++++++++++++++++++++++
- arch/arm64/include/uapi/asm/ptrace.h | 49 +------------------------
- include/arch/arm64/asm/pstate.h      | 46 ++++++++++++++++++++++++
- include/arch/arm64/asm/sysreg-defs.h | 42 ++++++++++++++++++++++
- include/uapi/arch/arm64/asm/Kbuild   |  1 +
- 6 files changed, 144 insertions(+), 81 deletions(-)
- create mode 100644 arch/arm64/include/uapi/asm/pstate.h
- create mode 100644 include/arch/arm64/asm/pstate.h
+ arch/s390/kvm/arm64/arm.c | 161 ++++++++++++++++++++++++++++++++++++++
+ arch/s390/kvm/arm64/arm.h |  54 +++++++++++++
+ 2 files changed, 215 insertions(+)
 
-diff --git a/arch/arm64/include/asm/ptrace.h b/arch/arm64/include/asm/ptrace.h
-index 39582511ad72..72ea0a8af960 100644
---- a/arch/arm64/include/asm/ptrace.h
-+++ b/arch/arm64/include/asm/ptrace.h
-@@ -9,6 +9,7 @@
- #define __ASM_PTRACE_H
+diff --git a/arch/s390/kvm/arm64/arm.c b/arch/s390/kvm/arm64/arm.c
+index 591e2e874891..79ce6570fa03 100644
+--- a/arch/s390/kvm/arm64/arm.c
++++ b/arch/s390/kvm/arm64/arm.c
+@@ -8,7 +8,10 @@
+ #include <linux/kvm_types.h>
+ #include <linux/kvm_host.h>
  
- #include <asm/cpufeature.h>
-+#include <asm/pstate.h>
++#include <gmap.h>
++
+ #include "arm.h"
++#include "reset.h"
  
- #include <uapi/asm/ptrace.h>
+ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
+ {
+@@ -45,6 +48,61 @@ static u64 kvm_max_guest_address(void)
+ 	return ALIGN_DOWN(max_addr + 1, 1 << 30) - 1;
+ }
  
-@@ -28,10 +29,6 @@
++static int kvm_gmap_init(struct kvm *kvm)
++{
++	struct crst_table *table;
++
++	kvm->arch.gmap = gmap_new(kvm, gpa_to_gfn(kvm->arch.guest_phys_size));
++
++	if (!kvm->arch.gmap)
++		return -ENOMEM;
++
++	/* arm64 (on s390) do not have pfault */
++	clear_bit(GMAP_FLAG_PFAULT_ENABLED, &kvm->arch.gmap->flags);
++	set_bit(GMAP_FLAG_ALLOW_HPAGE_1M, &kvm->arch.gmap->flags);
++
++	table = dereference_asce(kvm->arch.gmap->asce);
++	crst_table_init((void *)table, _CRSTE_HOLE(table->crstes[0].h.tt).val);
++
++	return 0;
++}
++
++int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
++{
++	char debug_name[32];
++	int ret;
++
++	if (type & ~KVM_VM_TYPE_ARM_IPA_SIZE_MASK)
++		return -EINVAL;
++
++	ret = kvm_vm_type_ipa_size_shift(type);
++	if (ret < 0)
++		return ret;
++	kvm->arch.guest_phys_size = 1UL << ret;
++
++	mutex_init(&kvm->arch.config_lock);
++	bitmap_zero(kvm->arch.vcpu_features, KVM_VCPU_MAX_FEATURES);
++
++	snprintf(debug_name, sizeof(debug_name), "kvm-arm64-%u", current->pid);
++	kvm->arch.dbf = debug_register(debug_name, 32, 1, 7 * sizeof(long));
++	if (!kvm->arch.dbf)
++		return -ENOMEM;
++	debug_register_view(kvm->arch.dbf, &debug_sprintf_view);
++
++	ret = kvm_gmap_init(kvm);
++	if (ret)
++		goto out_err;
++	kvm->arch.mem_limit = kvm_max_guest_address();
++
++	VM_EVENT(kvm, 3, "vm created with type %lu", type);
++	return 0;
++
++out_err:
++	debug_unregister(kvm->arch.dbf);
++
++	return ret;
++}
++
+ vm_fault_t kvm_arch_vcpu_fault(struct kvm_vcpu *vcpu, struct vm_fault *vmf)
+ {
+ 	return VM_FAULT_SIGBUS;
+@@ -56,6 +114,13 @@ long kvm_arch_dev_ioctl(struct file *filp,
+ 	return -EINVAL;
+ }
  
- #define GIC_PRIO_PSR_I_SET	GICV3_PRIO_PSR_I_SET
++void kvm_arch_destroy_vm(struct kvm *kvm)
++{
++	kvm_destroy_vcpus(kvm);
++	debug_unregister(kvm->arch.dbf);
++	kvm->arch.gmap = gmap_put(kvm->arch.gmap);
++}
++
+ u32 get_kvm_ipa_limit(void)
+ {
+ 	return fls64(kvm_max_guest_address() + 1) - 1;
+@@ -66,10 +131,39 @@ int kvm_arch_vcpu_precreate(struct kvm *kvm, unsigned int id)
+ 	return 0;
+ }
  
--/* Additional SPSR bits not exposed in the UABI */
--#define PSR_MODE_THREAD_BIT	(1 << 0)
--#define PSR_IL_BIT		(1 << 20)
--
- /* AArch32-specific ptrace requests */
- #define COMPAT_PTRACE_GETREGS		12
- #define COMPAT_PTRACE_SETREGS		13
-@@ -42,41 +39,12 @@
- #define COMPAT_PTRACE_GETHBPREGS	29
- #define COMPAT_PTRACE_SETHBPREGS	30
++int kvm_arch_vcpu_create(struct kvm_vcpu *vcpu)
++{
++	struct kvm_sae_block *sae_block = &vcpu->arch.sae_block;
++
++	spin_lock_init(&vcpu->arch.mp_state_lock);
++
++	/* Force users to call KVM_ARM_VCPU_INIT */
++	vcpu_clear_flag(vcpu, VCPU_INITIALIZED);
++
++	vcpu->arch.mc = kvm_s390_new_mmu_cache();
++	if (!vcpu->arch.mc)
++		return -ENOMEM;
++
++	sae_block->hbasce = vcpu->kvm->arch.gmap->asce.val;
++	sae_block->mso = 0L;
++	sae_block->msl = kvm_max_guest_address();
++
++	VM_EVENT(vcpu->kvm, 3, "create cpu %d at 0x%p, sae block at 0x%p, satellite at 0x%p",
++		 vcpu->vcpu_id, vcpu, &vcpu->arch.sae_block, &vcpu->arch.save_area);
++	return 0;
++}
++
+ void kvm_arch_vcpu_postcreate(struct kvm_vcpu *vcpu)
+ {
+ }
  
--/* SPSR_ELx bits for exceptions taken from AArch32 */
--#define PSR_AA32_MODE_MASK	0x0000001f
--#define PSR_AA32_MODE_USR	0x00000010
--#define PSR_AA32_MODE_FIQ	0x00000011
--#define PSR_AA32_MODE_IRQ	0x00000012
--#define PSR_AA32_MODE_SVC	0x00000013
--#define PSR_AA32_MODE_ABT	0x00000017
--#define PSR_AA32_MODE_HYP	0x0000001a
--#define PSR_AA32_MODE_UND	0x0000001b
--#define PSR_AA32_MODE_SYS	0x0000001f
--#define PSR_AA32_T_BIT		0x00000020
--#define PSR_AA32_F_BIT		0x00000040
--#define PSR_AA32_I_BIT		0x00000080
--#define PSR_AA32_A_BIT		0x00000100
--#define PSR_AA32_E_BIT		0x00000200
--#define PSR_AA32_PAN_BIT	0x00400000
--#define PSR_AA32_SSBS_BIT	0x00800000
--#define PSR_AA32_DIT_BIT	0x01000000
--#define PSR_AA32_Q_BIT		0x08000000
--#define PSR_AA32_V_BIT		0x10000000
--#define PSR_AA32_C_BIT		0x20000000
--#define PSR_AA32_Z_BIT		0x40000000
--#define PSR_AA32_N_BIT		0x80000000
--#define PSR_AA32_IT_MASK	0x0600fc00	/* If-Then execution state mask */
--#define PSR_AA32_GE_MASK	0x000f0000
--
- #ifdef CONFIG_CPU_BIG_ENDIAN
- #define PSR_AA32_ENDSTATE	PSR_AA32_E_BIT
- #else
- #define PSR_AA32_ENDSTATE	0
- #endif
++void kvm_arch_vcpu_destroy(struct kvm_vcpu *vcpu)
++{
++	kvm_s390_free_mmu_cache(vcpu->arch.mc);
++
++	VCPU_EVENT(vcpu, 3, "%s", "free cpu");
++}
++
+ void kvm_arch_vcpu_blocking(struct kvm_vcpu *vcpu)
+ {
+ }
+@@ -107,6 +201,52 @@ int kvm_vm_ioctl_irq_line(struct kvm *kvm, struct kvm_irq_level *irq_level,
+ 	return 0;
+ }
  
--/* AArch32 CPSR bits, as seen in AArch32 */
--#define COMPAT_PSR_DIT_BIT	0x00200000
--
- /*
-  * These are 'magic' values for PTRACE_PEEKUSR that return info about where a
-  * process is located in memory.
-diff --git a/arch/arm64/include/uapi/asm/pstate.h b/arch/arm64/include/uapi/asm/pstate.h
-new file mode 100644
-index 000000000000..1fbbdb6e8a2b
---- /dev/null
-+++ b/arch/arm64/include/uapi/asm/pstate.h
-@@ -0,0 +1,53 @@
-+/* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
++int kvm_vm_ioctl_get_dirty_log(struct kvm *kvm,
++			       struct kvm_dirty_log *log)
++{
++	return gmap_get_dirty_log(kvm, log);
++}
 +
-+#ifndef _UAPI__ASM_PSTATE_SHARED_H
-+#define _UAPI__ASM_PSTATE_SHARED_H
++bool kvm_age_gfn(struct kvm *kvm, struct kvm_gfn_range *range)
++{
++	scoped_guard(read_lock, &kvm->mmu_lock)
++		return gmap_age_gfn(kvm->arch.gmap, range->start, range->end);
++}
 +
-+/*
-+ * PSR bits
-+ */
-+#define PSR_MODE_EL0t  0x00000000
-+#define PSR_MODE_EL1t  0x00000004
-+#define PSR_MODE_EL1h  0x00000005
-+#define PSR_MODE_EL2t  0x00000008
-+#define PSR_MODE_EL2h  0x00000009
-+#define PSR_MODE_EL3t  0x0000000c
-+#define PSR_MODE_EL3h  0x0000000d
-+#define PSR_MODE_MASK  0x0000000f
++void kvm_arch_sync_dirty_log(struct kvm *kvm, struct kvm_memory_slot *memslot)
++{
++	gfn_t last_gfn = memslot->base_gfn + memslot->npages;
 +
-+/* AArch32 CPSR bits */
-+#define PSR_MODE32_BIT         0x00000010
++	scoped_guard(read_lock, &kvm->mmu_lock)
++		gmap_sync_dirty_log(kvm->arch.gmap, memslot->base_gfn, last_gfn);
++}
 +
-+/* AArch64 SPSR bits */
-+#define PSR_F_BIT      0x00000040
-+#define PSR_I_BIT      0x00000080
-+#define PSR_A_BIT      0x00000100
-+#define PSR_D_BIT      0x00000200
-+#define PSR_BTYPE_MASK 0x00000c00
-+#define PSR_SSBS_BIT   0x00001000
-+#define PSR_PAN_BIT    0x00400000
-+#define PSR_UAO_BIT    0x00800000
-+#define PSR_DIT_BIT    0x01000000
-+#define PSR_TCO_BIT    0x02000000
-+#define PSR_V_BIT      0x10000000
-+#define PSR_C_BIT      0x20000000
-+#define PSR_Z_BIT      0x40000000
-+#define PSR_N_BIT      0x80000000
++int kvm_arch_prepare_memory_region(struct kvm *kvm,
++				   const struct kvm_memory_slot *old,
++				   struct kvm_memory_slot *new,
++				   enum kvm_mr_change change)
++{
++	return gmap_prepare_memory_region(kvm, old, new, change);
++}
 +
-+#define PSR_BTYPE_SHIFT                10
++void kvm_arch_commit_memory_region(struct kvm *kvm,
++				   struct kvm_memory_slot *old,
++				   const struct kvm_memory_slot *new,
++				   enum kvm_mr_change change)
++{
++	gmap_commit_memory_region(kvm, old, new, change);
++}
 +
-+/*
-+ * Groups of PSR bits
-+ */
-+#define PSR_f          0xff000000      /* Flags                */
-+#define PSR_s          0x00ff0000      /* Status               */
-+#define PSR_x          0x0000ff00      /* Extension            */
-+#define PSR_c          0x000000ff      /* Control              */
++bool kvm_unmap_gfn_range(struct kvm *kvm, struct kvm_gfn_range *range)
++{
++	return gmap_unmap_gfn_range(kvm->arch.gmap, range->slot, range->start, range->end);
++}
 +
-+/* Convenience names for the values of PSTATE.BTYPE */
-+#define PSR_BTYPE_NONE         (0b00 << PSR_BTYPE_SHIFT)
-+#define PSR_BTYPE_JC           (0b01 << PSR_BTYPE_SHIFT)
-+#define PSR_BTYPE_C            (0b10 << PSR_BTYPE_SHIFT)
-+#define PSR_BTYPE_J            (0b11 << PSR_BTYPE_SHIFT)
++bool kvm_test_age_gfn(struct kvm *kvm, struct kvm_gfn_range *range)
++{
++	return gmap_test_age_gfn(kvm, range);
++}
 +
-+#endif /* _UAPI__ASM_PSTATE_SHARED_H */
-diff --git a/arch/arm64/include/uapi/asm/ptrace.h b/arch/arm64/include/uapi/asm/ptrace.h
-index 6fed93fb2536..6e743eb021e8 100644
---- a/arch/arm64/include/uapi/asm/ptrace.h
-+++ b/arch/arm64/include/uapi/asm/ptrace.h
-@@ -24,54 +24,7 @@
+ void kvm_arch_mmu_enable_log_dirty_pt_masked(struct kvm *kvm,
+ 					     struct kvm_memory_slot *slot,
+ 					     gfn_t gfn_offset,
+@@ -114,6 +254,27 @@ void kvm_arch_mmu_enable_log_dirty_pt_masked(struct kvm *kvm,
+ {
+ }
  
- #include <asm/hwcap.h>
- #include <asm/sve_context.h>
--
--
--/*
-- * PSR bits
-- */
--#define PSR_MODE_EL0t	0x00000000
--#define PSR_MODE_EL1t	0x00000004
--#define PSR_MODE_EL1h	0x00000005
--#define PSR_MODE_EL2t	0x00000008
--#define PSR_MODE_EL2h	0x00000009
--#define PSR_MODE_EL3t	0x0000000c
--#define PSR_MODE_EL3h	0x0000000d
--#define PSR_MODE_MASK	0x0000000f
--
--/* AArch32 CPSR bits */
--#define PSR_MODE32_BIT		0x00000010
--
--/* AArch64 SPSR bits */
--#define PSR_F_BIT	0x00000040
--#define PSR_I_BIT	0x00000080
--#define PSR_A_BIT	0x00000100
--#define PSR_D_BIT	0x00000200
--#define PSR_BTYPE_MASK	0x00000c00
--#define PSR_SSBS_BIT	0x00001000
--#define PSR_PAN_BIT	0x00400000
--#define PSR_UAO_BIT	0x00800000
--#define PSR_DIT_BIT	0x01000000
--#define PSR_TCO_BIT	0x02000000
--#define PSR_V_BIT	0x10000000
--#define PSR_C_BIT	0x20000000
--#define PSR_Z_BIT	0x40000000
--#define PSR_N_BIT	0x80000000
--
--#define PSR_BTYPE_SHIFT		10
--
--/*
-- * Groups of PSR bits
-- */
--#define PSR_f		0xff000000	/* Flags		*/
--#define PSR_s		0x00ff0000	/* Status		*/
--#define PSR_x		0x0000ff00	/* Extension		*/
--#define PSR_c		0x000000ff	/* Control		*/
--
--/* Convenience names for the values of PSTATE.BTYPE */
--#define PSR_BTYPE_NONE		(0b00 << PSR_BTYPE_SHIFT)
--#define PSR_BTYPE_JC		(0b01 << PSR_BTYPE_SHIFT)
--#define PSR_BTYPE_C		(0b10 << PSR_BTYPE_SHIFT)
--#define PSR_BTYPE_J		(0b11 << PSR_BTYPE_SHIFT)
-+#include <asm/pstate.h>
++int kvm_arch_vm_ioctl(struct file *filp, unsigned int ioctl, unsigned long arg)
++{
++	void __user *argp = (void __user *)arg;
++
++	switch (ioctl) {
++	case KVM_ARM_PREFERRED_TARGET: {
++		struct kvm_vcpu_init init = {
++			.target = KVM_ARM_TARGET_GENERIC_V8,
++		};
++
++		if (copy_to_user(argp, &init, sizeof(init)))
++			return -EFAULT;
++
++		return 0;
++	}
++
++	default:
++		return -EINVAL;
++	}
++}
++
+ bool kvm_arch_irqchip_in_kernel(struct kvm *kvm)
+ {
+ 	return false;
+diff --git a/arch/s390/kvm/arm64/arm.h b/arch/s390/kvm/arm64/arm.h
+index a3db254462c0..df6a9099a864 100644
+--- a/arch/s390/kvm/arm64/arm.h
++++ b/arch/s390/kvm/arm64/arm.h
+@@ -4,4 +4,58 @@
  
- /* syscall emulation path in ptrace */
- #define PTRACE_SYSEMU		  31
-diff --git a/include/arch/arm64/asm/pstate.h b/include/arch/arm64/asm/pstate.h
-new file mode 100644
-index 000000000000..5a576ad94064
---- /dev/null
-+++ b/include/arch/arm64/asm/pstate.h
-@@ -0,0 +1,46 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+
-+#ifndef __ARM64_ASM_PSTATE_H
-+#define __ARM64_ASM_PSTATE_H
-+
-+#include <asm/sysreg-defs.h>
-+#ifdef __aarch64__
-+#include <uapi/asm/pstate.h>
-+#else
-+#include <uapi/arch/arm64/asm/pstate.h>
-+#endif /* __aarch64__ */
-+
-+/* Additional SPSR bits not exposed in the UABI */
-+#define PSR_MODE_THREAD_BIT	BIT(0)
-+#define PSR_IL_BIT		SPSR_IL
-+
-+/* SPSR_ELx bits for exceptions taken from AArch32 */
-+#define PSR_AA32_MODE_MASK	SPSR_MODE_MASK
-+#define PSR_AA32_MODE_USR	(SPSR_MODE_32BIT | SPSR32_MODE_USR)
-+#define PSR_AA32_MODE_FIQ	(SPSR_MODE_32BIT | SPSR32_MODE_FIQ)
-+#define PSR_AA32_MODE_IRQ	(SPSR_MODE_32BIT | SPSR32_MODE_IRQ)
-+#define PSR_AA32_MODE_SVC	(SPSR_MODE_32BIT | SPSR32_MODE_SVC)
-+#define PSR_AA32_MODE_ABT	(SPSR_MODE_32BIT | SPSR32_MODE_ABT)
-+#define PSR_AA32_MODE_HYP	(SPSR_MODE_32BIT | SPSR32_MODE_HYP)
-+#define PSR_AA32_MODE_UND	(SPSR_MODE_32BIT | SPSR32_MODE_UND)
-+#define PSR_AA32_MODE_SYS	(SPSR_MODE_32BIT | SPSR32_MODE_SYS)
-+#define PSR_AA32_T_BIT		SPSR32_T
-+#define PSR_AA32_F_BIT		SPSR_F
-+#define PSR_AA32_I_BIT		SPSR_I
-+#define PSR_AA32_A_BIT		SPSR_A
-+#define PSR_AA32_E_BIT		SPSR32_E
-+#define PSR_AA32_PAN_BIT	SPSR_PAN
-+#define PSR_AA32_SSBS_BIT	SPSR32_SSBS
-+#define PSR_AA32_DIT_BIT	SPSR_DIT
-+#define PSR_AA32_Q_BIT		SPSR32_Q
-+#define PSR_AA32_V_BIT		SPSR_V
-+#define PSR_AA32_C_BIT		SPSR_C
-+#define PSR_AA32_Z_BIT		SPSR_Z
-+#define PSR_AA32_N_BIT		SPSR_N
-+#define PSR_AA32_IT_MASK	SPSR32_IT_MASK	/* If-Then execution state mask */
-+#define PSR_AA32_GE_MASK	SPSR32_GE_MASK
-+
-+/* AArch32 CPSR bits, as seen in AArch32 */
-+#define COMPAT_PSR_DIT_BIT	0x00200000
-+
-+#endif /* __ARM64_ASM_PSTATE_H */
-diff --git a/include/arch/arm64/asm/sysreg-defs.h b/include/arch/arm64/asm/sysreg-defs.h
-index 58cb7eb0bf4e..27646c91e15c 100644
---- a/include/arch/arm64/asm/sysreg-defs.h
-+++ b/include/arch/arm64/asm/sysreg-defs.h
-@@ -468,6 +468,48 @@
- #define SYS_FPEXC32_EL2			sys_reg(3, 4, 5, 3, 0)
- #define SYS_TFSR_EL2			sys_reg(3, 4, 5, 6, 0)
+ #define KVM_DEV_NAME "kvm-arm64"
  
-+#define SPSR_PPEND			BIT(33)
-+#define SPSR_N				BIT(31)
-+#define SPSR_Z				BIT(30)
-+#define SPSR_C				BIT(29)
-+#define SPSR_V				BIT(28)
-+#define SPSR32_Q			BIT(27)
-+#define SPSR32_IT_MASK			(GENMASK(26, 25) | GENMASK(15, 10))
-+#define SPSR64_TCO			BIT(25)
-+#define SPSR_DIT			BIT(24)
-+#define SPSR64_UAO			BIT(23)
-+#define SPSR32_SSBS			BIT(23)
-+#define SPSR_PAN			BIT(22)
-+#define SPSR_SS				BIT(21)
-+#define SPSR_IL				BIT(20)
-+#define SPSR32_GE_MASK			GENMASK(19, 16)
-+#define SPSR64_SSBS			BIT(12)
-+#define SPSR64_BTYPE_SHIFT		10
-+#define SPSR64_BTYPE_MASK		(UL(3) << SPSR64_BTYPE_SHIFT)
-+#define SPSR64_D			BIT(9)
-+#define SPSR32_E			BIT(9)
-+#define SPSR_A				BIT(8)
-+#define SPSR_I				BIT(7)
-+#define SPSR_F				BIT(6)
-+#define SPSR32_T			BIT(5)
-+#define SPSR_MODE_MASK			UL(0x1f)
-+#define SPSR_MODE_32BIT			BIT(4)
-+#define SPSR64_MODE_EL0			UL(0x0)
-+#define SPSR64_MODE_EL1t		UL(0x4)
-+#define SPSR64_MODE_EL1h		UL(0x5)
-+#define SPSR64_MODE_EL2t		UL(0x8)
-+#define SPSR64_MODE_EL2h		UL(0x9)
-+#define SPSR64_MODE_EL3t		UL(0xc)
-+#define SPSR64_MODE_EL3h		UL(0xd)
-+#define SPSR32_MODE_USR			UL(0x0)
-+#define SPSR32_MODE_FIQ			UL(0x1)
-+#define SPSR32_MODE_IRQ			UL(0x2)
-+#define SPSR32_MODE_SVC			UL(0x3)
-+#define SPSR32_MODE_ABT			UL(0x7)
-+#define SPSR32_MODE_HYP			UL(0xa)
-+#define SPSR32_MODE_UND			UL(0xb)
-+#define SPSR32_MODE_SYS			UL(0xf)
++#define VM_EVENT(d_kvm, d_loglevel, d_string, d_args...)\
++do { \
++	debug_sprintf_event((d_kvm)->arch.dbf, d_loglevel, KVM_DEV_NAME ": " d_string "\n", d_args); \
++} while (0)
 +
- #define SYS_FAR_EL2			sys_reg(3, 4, 6, 0, 0)
- #define SYS_HPFAR_EL2			sys_reg(3, 4, 6, 0, 4)
- 
-diff --git a/include/uapi/arch/arm64/asm/Kbuild b/include/uapi/arch/arm64/asm/Kbuild
-index 73b69888ea28..f29b28d40e16 100644
---- a/include/uapi/arch/arm64/asm/Kbuild
-+++ b/include/uapi/arch/arm64/asm/Kbuild
-@@ -3,3 +3,4 @@ shared-uapi-src := arch/arm64/include/uapi/asm
- 
- shared-uapi-y += kvm.h
- shared-uapi-y += sve_context.h
-+shared-uapi-y += pstate.h
++#define VCPU_EVENT(d_vcpu, d_loglevel, d_string, d_args...)			\
++	do {									\
++		debug_sprintf_event(						\
++			(d_vcpu)->kvm->arch.dbf, d_loglevel,			\
++			KVM_DEV_NAME " %02d[%016llx-%016llx]: " d_string "\n",	\
++			(d_vcpu)->vcpu_id, (d_vcpu)->arch.sae_block.pstate,	\
++			(d_vcpu)->arch.sae_block.pc, d_args);			\
++	} while (0)
++
++static __always_inline bool kvm_s390_is_in_sie(struct kvm_vcpu *vcpu)
++{
++	return false;
++}
++
++static __always_inline int kvm_is_ucontrol(struct kvm *kvm)
++{
++	return 0;
++}
++
++static __always_inline int __kvm_s390_pv_destroy_page(struct page *page)
++{
++	return 0;
++}
++
++static __always_inline void kvm_s390_vsie_gmap_notifier(struct gmap *gmap, gpa_t start, gpa_t end)
++{
++}
++
++static __always_inline int kvm_s390_pv_get_handle(struct kvm *kvm)
++{
++	return 0;
++}
++
++static __always_inline int kvm_s390_is_migration_mode(struct kvm *kvm)
++{
++	return false;
++}
++
++static __always_inline bool kvm_arch_setup_async_pf(struct kvm_vcpu *vcpu)
++{
++	return false;
++}
++
++/* should never be called */
++static __always_inline int kvm_s390_vm_stop_migration(struct kvm *kvm)
++{
++	return -EINVAL;
++}
++
+ #endif /* ARCH_S390_KVM_ARM64_H */
 -- 
 2.53.0
 
