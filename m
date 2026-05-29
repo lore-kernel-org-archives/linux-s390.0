@@ -1,57 +1,57 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 56F39400E16;
-	Fri, 29 May 2026 15:56:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F1BE74028F5;
+	Fri, 29 May 2026 15:56:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780070203; cv=none; b=nGY30a7eZVJIN7WcSp6gxFCYqTvppk1JNxSbzG5rS8nzR5yUcVji3xAjeKxgcV/xedefvaWQSGWknM3xl1wJFxP5M53SDEfc3V8VJ6Qk9vCFzY9dfjVq7pwp7/q1A40DQs6eyx6iRepYwlmp26gzCAgPlRAp87M+rlGVd6DKpbQ=
+	t=1780070204; cv=none; b=uSyoIv77jzHuypXHQhFpDFYRhrWmuT4r+rR0ZkKUG9yRWDhjW+O7+A51pUK/5O07uHBFxSEhNyaKgK7yD5GliJVzbgblR7it6ZOPi0kD2geWhgRoComw/biBRwiDAIp69T1eSFpQdA0eGIQPeeDB31LagbiaG8+8wUFpcXqPOdk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780070203; c=relaxed/simple;
-	bh=GrNLXw87enQ8YyFIlPyIRnw07HBNMRfIhPiPbWEOzLM=;
+	s=arc-20240116; t=1780070204; c=relaxed/simple;
+	bh=O3yu8MIlfw8EI726kjrzX9JIr7MY1HrswifaiXGWrAo=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=u7MgaEQXz+FZf6QPq8qJokmc1Y6MvHOf5fakKwXFueTKl1qDhThG0ABdPYW2ngulHIP3NW/99BbNYphsMfCxk7ijjxwPRsRlrdcwx4c3FuVfZdia6gx9XyMl8DeSvXpoqHo0Aolk5zSPoVv2jQ2YBfMzXRKnOPqgiqerXXCEf+Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Evhp8Xjg; arc=none smtp.client-ip=148.163.156.1
+	 MIME-Version; b=Z+kQTuwH/KF3nVQEnW3eTruO79q/cImzLXuuYxD7CySS8u7dF8TPqfFi+/jTJhbFpFPOEMVPkC9tHVnf3Ztc4WtzE4ZK7LBNgESBbL6NPf5cgrEdbB9yFpyOjbNXhpjg/n5203rjRqvjrp2Kivv/43iG6XQqZgxG/jA34XtZ8OM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=MQJ+nAtm; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Evhp8Xjg"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 64TFFon92418293;
-	Fri, 29 May 2026 15:56:14 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="MQJ+nAtm"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 64TF7d2Z2776538;
+	Fri, 29 May 2026 15:56:15 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=dqKCCofcz0Zv74DPH
-	irPfzI3TpUJzfAENQhUkMK1kvo=; b=Evhp8XjgdpMwTUdSePXiqx8k31I/ekiRG
-	7mdbZwIjQAoQozZjlWvK4P7mSpYl8pBBUOmE5vDlUnpokXCPhghZV9M9H42BZldV
-	3VVS/qa19kj7EgEIUWExZCx4G+X1IAyp6i76u791S0qx6F0SJTwEPwUDui3a04Xw
-	/sNxOhUiu/CoIyny3AV7RV6Rv1UtJ+E0+OiYpZ1ZZVsi9IdK1rmm0PDayN5sVT5s
-	R16Qq4+XS1YCBl5KkKt//dgKnX5R0PkIjnN0IMV8SAKqXIo6J9a44c5ucaXu0Gj+
-	dSS+zaC9KAw37LHv9O56GImmqTAtFQ/cw5VlsgcAUTUD8cbAe2MrA==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ee884vkpj-1
+	:mime-version:references:subject:to; s=pp1; bh=IdSp5Vw7z+HR0yKWR
+	iC1T9INgcuPtWfpi9peZITRCZA=; b=MQJ+nAtm4uZZGXJsd46G+Kf+G/EjsLawB
+	OcDKG8qkZ+uIWALCdbhnTzXAlgJ1ih9HPkzQEgo+JWn/r5xbGolBrvsY2ZvxNw/n
+	VZ5e0mucOYOLQ6SROg5ySM09EvT7W8cCSLuIlFrdKSUSJpmC5e5ub2JEAWJg0+GA
+	qV7zp0exmd0tDgvpWvC2++HZ0jPOgo/f9wRaXnwnWuS1gHvZAio/Vf/zFSRaIZiV
+	B5x/YqmRX+FNDKzKIZhgm8ySAmRHBsYWllg+fSOw15W86tLMJPNwzwtOVA9QvojJ
+	Nlc4byPx4uJ/mWSFcH+SSbzPBxLyOBxJh7WxI0wi+ZJ/JmfbvSU+w==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ee889m2bq-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 29 May 2026 15:56:15 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 64TFs5pn016946;
+	Fri, 29 May 2026 15:56:14 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4edjrbgjpd-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Fri, 29 May 2026 15:56:14 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 64TFs8Dx027824;
-	Fri, 29 May 2026 15:56:13 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4edjrc8jmf-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 29 May 2026 15:56:13 +0000 (GMT)
 Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 64TFu5VT42205508
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 64TFu66P36700652
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 29 May 2026 15:56:05 GMT
+	Fri, 29 May 2026 15:56:06 GMT
 Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A0A1920040;
-	Fri, 29 May 2026 15:56:05 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id B274A2004D;
+	Fri, 29 May 2026 15:56:06 +0000 (GMT)
 Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4AC132004D;
-	Fri, 29 May 2026 15:56:05 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 655E82004B;
+	Fri, 29 May 2026 15:56:06 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
 	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 29 May 2026 15:56:05 +0000 (GMT)
+	Fri, 29 May 2026 15:56:06 +0000 (GMT)
 From: Steffen Eiden <seiden@linux.ibm.com>
 To: kvm@vger.kernel.org, kvmarm@lists.linux.dev,
         linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
@@ -77,9 +77,9 @@ Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
         Ulrich Weigand <Ulrich.Weigand@de.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>,
         Zenghui Yu <yuzenghui@huawei.com>
-Subject: [PATCH v1 09/26] KVM: arm64: Refactor idreg caching into dedicated structure
-Date: Fri, 29 May 2026 17:55:42 +0200
-Message-ID: <20260529155601.2927240-10-seiden@linux.ibm.com>
+Subject: [PATCH v1 12/26] KVM: arm64: Add PVM_ prefix to avoid name collisions
+Date: Fri, 29 May 2026 17:55:45 +0200
+Message-ID: <20260529155601.2927240-13-seiden@linux.ibm.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260529155601.2927240-1-seiden@linux.ibm.com>
 References: <20260529155601.2927240-1-seiden@linux.ibm.com>
@@ -91,206 +91,138 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=L4MtheT8 c=1 sm=1 tr=0 ts=6a19b71e cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+X-Proofpoint-ORIG-GUID: 7ACddOjvFerXD0E0lV_VSanFeKdPoAcn
+X-Proofpoint-GUID: 7ACddOjvFerXD0E0lV_VSanFeKdPoAcn
+X-Authority-Analysis: v=2.4 cv=XqfK/1F9 c=1 sm=1 tr=0 ts=6a19b71f cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
  a=NGcC8JguVDcA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8 a=ltnAkj20NlQT-AaSmW0A:9
-X-Proofpoint-ORIG-GUID: v-ZUWhFCxXBMvxuhjxXM0qLXz25xPYX1
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTI5MDE1NiBTYWx0ZWRfX0iwO/qKPo8HI
- EsmFXXeoaO6BoC57iqvezPM1uhFuhPoC+50C6SIL4NgZnyFHBltBqcd3fhpS5L/vp5Rp+8CxlHE
- 1zlUXAj6rb6gc7zmzaw/x9WSNNizz5GosWm7rGpKYxy1lywT5myMVBcE1JBOFsZKllYcy1GDa+y
- zAbl65QxnoAU/l1Ch/Pg8G6/5xm9yp8IxksBt/+dE1mRiIRytX0SYuZ3TPzsptyFGqOmjIkVlfE
- Bv8IIGogt2Vm7i0wBJAlcfCPPA8f0gjlbKPwM9KVdU08SgJDuqiXbdwrfLen06qI59A/6Eu82nD
- i6w/D6Vl8XzCAds5Yo316fqM4P1aw3J9/4Am5/u1jVRKcazRmVg0ZwNKkADg8rxeJsplFX5lY6h
- uoghT3iFZbj5PqYZtSDvtS9J0saERKDsw76IeE2N8VL3FRr5XRsQVmpdTspo/CZ/QpYmBt/tP6w
- ftoVeK6dxi6SWAMnUVA==
-X-Proofpoint-GUID: v-ZUWhFCxXBMvxuhjxXM0qLXz25xPYX1
+ a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8 a=UoxKMzVWMJxMEg80A50A:9
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTI5MDE1NiBTYWx0ZWRfX9wuS4D1QB6x1
+ kp1RpIFloqV+maUup3QiOVHUJTBohYC9JyukqiAlpFwt2M80rGHWPKEGm2hIJ5toBChgl0ZG0dv
+ OAkDND3dzxNORV4cj1txC4BXdwhR9whZ/VBcKf8FcLV0YJUUmfi3OgUZV1VNYhIB6iB2HnB7/J8
+ qtfwsAUkp7VAbkayOY6l+Yij/UKTuulsSTLeWEei59fRB2u9z3jIn5eX0QKMVeqUEo6fBaLlXJX
+ SE8Xbgsy3Nh5KKG2QJ4hdnK+9+g/RI42QavKBZzKJleoC6637LUPAxn1wGGl5N1wfrOEAEC+LbV
+ NAElljrdJHiYCsyIhvfJqoYFT1f0uazED/Bk4lFIXfQTkYVzyrXQHlztZOWzR77+FgbrOQ8WcBR
+ jw+J5J2MNda9llPb4Ecg0yQ7GwWFwax4w80a17pkucClopxVXnEqH/umBTqRSjt0jZmAYA4Uksu
+ eOsRi8bItdyq2i7Ckgg==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
  definitions=2026-05-29_04,2026-05-28_03,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- phishscore=0 lowpriorityscore=0 suspectscore=0 clxscore=1015 malwarescore=0
- bulkscore=0 impostorscore=0 adultscore=0 priorityscore=1501 spamscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2605210000 definitions=main-2605290156
+ malwarescore=0 spamscore=0 impostorscore=0 adultscore=0 phishscore=0
+ priorityscore=1501 lowpriorityscore=0 bulkscore=0 suspectscore=0
+ clxscore=1015 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2605210000
+ definitions=main-2605290156
 
-Move VM-wide ID register emulation fields from struct kvm_arch into a
-new struct kvm_vm_id_regs to prepare future sharing of these fields and
-functions using them. Update all users to use the new structure. No
-functional changes.
+Rename ID_UNALLOCATED to PVM_ID_UNALLOCATED and read_id_reg to
+pvm_read_id_reg to prevent future name collisions with other subsystems.
+While at it, fix whitespace issues in the macro invocations
 
-Co-developed-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
 Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
 ---
- arch/arm64/include/asm/kvm_host.h  | 50 ++++++++++++++++--------------
- arch/arm64/kvm/config.c            |  2 +-
- arch/arm64/kvm/hyp/nvhe/pkvm.c     |  7 +++--
- arch/arm64/kvm/hyp/nvhe/sys_regs.c |  4 +--
- arch/arm64/kvm/sys_regs.c          |  2 +-
- 5 files changed, 35 insertions(+), 30 deletions(-)
+ arch/arm64/kvm/hyp/nvhe/sys_regs.c | 48 +++++++++++++++---------------
+ 1 file changed, 24 insertions(+), 24 deletions(-)
 
-diff --git a/arch/arm64/include/asm/kvm_host.h b/arch/arm64/include/asm/kvm_host.h
-index 4c2c62b8b506..a8efff6ea01d 100644
---- a/arch/arm64/include/asm/kvm_host.h
-+++ b/arch/arm64/include/asm/kvm_host.h
-@@ -352,22 +352,7 @@ struct kvm_arch {
- 	struct kvm_smccc_features smccc_feat;
- 	struct maple_tree smccc_filter;
- 
--	/*
--	 * Emulated CPU ID registers per VM
--	 * (Op0, Op1, CRn, CRm, Op2) of the ID registers to be saved in it
--	 * is (3, 0, 0, crm, op2), where 1<=crm<8, 0<=op2<8.
--	 *
--	 * These emulated idregs are VM-wide, but accessed from the context of a vCPU.
--	 * Atomic access to multiple idregs are guarded by kvm_arch.config_lock.
--	 */
--#define IDREG_IDX(id)		(((sys_reg_CRm(id) - 1) << 3) | sys_reg_Op2(id))
--#define KVM_ARM_ID_REG_NUM	(IDREG_IDX(sys_reg(3, 0, 0, 7, 7)) + 1)
--	u64 id_regs[KVM_ARM_ID_REG_NUM];
--
--	u64 midr_el1;
--	u64 revidr_el1;
--	u64 aidr_el1;
--	u64 ctr_el0;
-+	struct kvm_vm_id_regs id_regs;
- 
- 	/* Masks for VNCR-backed and general EL2 sysregs */
- 	struct kvm_sysreg_masks	*sysreg_masks;
-@@ -1399,19 +1384,38 @@ static inline void kvm_hyp_reserve(void) { }
- void kvm_arm_vcpu_power_off(struct kvm_vcpu *vcpu);
- bool kvm_arm_vcpu_stopped(struct kvm_vcpu *vcpu);
- 
--static inline u64 *__vm_id_reg(struct kvm_arch *ka, u32 reg)
-+struct kvm_vm_id_regs {
-+	/*
-+	 * Emulated CPU ID registers per VM
-+	 * (Op0, Op1, CRn, CRm, Op2) of the ID registers to be saved in it
-+	 * is (3, 0, 0, crm, op2), where 1<=crm<8, 0<=op2<8.
-+	 *
-+	 * These emulated idregs are VM-wide, but accessed from the context of a vCPU.
-+	 * Atomic access to multiple idregs are guarded by kvm_arch.config_lock.
-+	 */
-+#define IDREG_IDX(id)		(((sys_reg_CRm(id) - 1) << 3) | sys_reg_Op2(id))
-+#define KVM_ARM_ID_REG_NUM	(IDREG_IDX(sys_reg(3, 0, 0, 7, 7)) + 1)
-+	u64 normal[KVM_ARM_ID_REG_NUM];
-+
-+	u64 midr_el1;
-+	u64 revidr_el1;
-+	u64 aidr_el1;
-+	u64 ctr_el0;
-+};
-+
-+static inline u64 *__vm_id_reg(struct kvm_vm_id_regs *id_regs, u32 reg)
- {
- 	switch (reg) {
- 	case sys_reg(3, 0, 0, 1, 0) ... sys_reg(3, 0, 0, 7, 7):
--		return &ka->id_regs[IDREG_IDX(reg)];
-+		return &id_regs->normal[IDREG_IDX(reg)];
- 	case SYS_CTR_EL0:
--		return &ka->ctr_el0;
-+		return &id_regs->ctr_el0;
- 	case SYS_MIDR_EL1:
--		return &ka->midr_el1;
-+		return &id_regs->midr_el1;
- 	case SYS_REVIDR_EL1:
--		return &ka->revidr_el1;
-+		return &id_regs->revidr_el1;
- 	case SYS_AIDR_EL1:
--		return &ka->aidr_el1;
-+		return &id_regs->aidr_el1;
- 	default:
- 		WARN_ON_ONCE(1);
- 		return NULL;
-@@ -1419,7 +1423,7 @@ static inline u64 *__vm_id_reg(struct kvm_arch *ka, u32 reg)
- }
- 
- #define kvm_read_vm_id_reg(kvm, reg)					\
--	({ u64 __val = *__vm_id_reg(&(kvm)->arch, reg); __val; })
-+	({ u64 __val = *__vm_id_reg(&(kvm)->arch.id_regs, reg); __val; })
- 
- void kvm_set_vm_id_reg(struct kvm *kvm, u32 reg, u64 val);
- 
-diff --git a/arch/arm64/kvm/config.c b/arch/arm64/kvm/config.c
-index 014fe04daabf..58a439c3ab9c 100644
---- a/arch/arm64/kvm/config.c
-+++ b/arch/arm64/kvm/config.c
-@@ -1398,7 +1398,7 @@ void __init check_feature_map(void)
- 
- static bool idreg_feat_match(struct kvm *kvm, const struct reg_bits_to_feat_map *map)
- {
--	u64 regval = kvm->arch.id_regs[map->regidx];
-+	u64 regval = kvm->arch.id_regs.normal[map->regidx];
- 	u64 regfld = (regval >> map->shift) & GENMASK(map->width - 1, 0);
- 
- 	if (map->sign) {
-diff --git a/arch/arm64/kvm/hyp/nvhe/pkvm.c b/arch/arm64/kvm/hyp/nvhe/pkvm.c
-index eb1c10120f9f..94620f142f42 100644
---- a/arch/arm64/kvm/hyp/nvhe/pkvm.c
-+++ b/arch/arm64/kvm/hyp/nvhe/pkvm.c
-@@ -343,7 +343,7 @@ static void pkvm_init_features_from_host(struct pkvm_hyp_vm *hyp_vm, const struc
- 	DECLARE_BITMAP(allowed_features, KVM_VCPU_MAX_FEATURES);
- 
- 	/* CTR_EL0 is always under host control, even for protected VMs. */
--	hyp_vm->kvm.arch.ctr_el0 = host_kvm->arch.ctr_el0;
-+	hyp_vm->kvm.arch.id_regs.ctr_el0 = host_kvm->arch.id_regs.ctr_el0;
- 
- 	/* Preserve the vgic model so that GICv3 emulation works */
- 	hyp_vm->kvm.arch.vgic.vgic_model = host_kvm->arch.vgic.vgic_model;
-@@ -358,7 +358,7 @@ static void pkvm_init_features_from_host(struct pkvm_hyp_vm *hyp_vm, const struc
- 			    KVM_VCPU_MAX_FEATURES);
- 
- 		if (test_bit(KVM_ARCH_FLAG_WRITABLE_IMP_ID_REGS, &host_arch_flags))
--			hyp_vm->kvm.arch.midr_el1 = host_kvm->arch.midr_el1;
-+			hyp_vm->kvm.arch.id_regs.midr_el1 = host_kvm->arch.id_regs.midr_el1;
- 
- 		return;
- 	}
-@@ -493,7 +493,8 @@ static int vm_copy_id_regs(struct pkvm_hyp_vcpu *hyp_vcpu)
- 	if (test_and_set_bit(KVM_ARCH_FLAG_ID_REGS_INITIALIZED, &kvm->arch.flags))
- 		return 0;
- 
--	memcpy(kvm->arch.id_regs, host_kvm->arch.id_regs, sizeof(kvm->arch.id_regs));
-+	memcpy(kvm->arch.id_regs.normal, host_kvm->arch.id_regs.normal,
-+	       sizeof(kvm->arch.id_regs.normal));
- 
- 	return 0;
- }
 diff --git a/arch/arm64/kvm/hyp/nvhe/sys_regs.c b/arch/arm64/kvm/hyp/nvhe/sys_regs.c
-index b5a0de84ce01..e8d773d38905 100644
+index e8d773d38905..08b14053568b 100644
 --- a/arch/arm64/kvm/hyp/nvhe/sys_regs.c
 +++ b/arch/arm64/kvm/hyp/nvhe/sys_regs.c
-@@ -292,7 +292,7 @@ static u64 read_id_reg(const struct kvm_vcpu *vcpu,
- 		return 0;
- 
- 	if (reg >= sys_reg(3, 0, 0, 1, 0) && reg <= sys_reg(3, 0, 0, 7, 7))
--		return kvm->arch.id_regs[IDREG_IDX(reg)];
-+		return kvm->arch.id_regs.normal[IDREG_IDX(reg)];
- 
- 	return 0;
+@@ -282,8 +282,8 @@ static void inject_undef64(struct kvm_vcpu *vcpu)
+ 	inject_sync64(vcpu, (ESR_ELx_EC_UNKNOWN << ESR_ELx_EC_SHIFT));
  }
-@@ -543,7 +543,7 @@ void kvm_init_pvm_id_regs(struct kvm_vcpu *vcpu)
- 	 * for protected VMs.
- 	 */
- 	for (r = sys_reg(3, 0, 0, 4, 0); r <= sys_reg(3, 0, 0, 7, 7); r += sys_reg(0, 0, 0, 0, 1))
--		ka->id_regs[IDREG_IDX(r)] = pvm_calc_id_reg(vcpu, r);
-+		ka->id_regs.normal[IDREG_IDX(r)] = pvm_calc_id_reg(vcpu, r);
  
- 	set_bit(KVM_ARCH_FLAG_ID_REGS_INITIALIZED, &kvm->arch.flags);
- }
-diff --git a/arch/arm64/kvm/sys_regs.c b/arch/arm64/kvm/sys_regs.c
-index b9aa892616ab..195ecdac7bd6 100644
---- a/arch/arm64/kvm/sys_regs.c
-+++ b/arch/arm64/kvm/sys_regs.c
-@@ -2477,7 +2477,7 @@ static int set_id_reg(struct kvm_vcpu *vcpu, const struct sys_reg_desc *rd,
- 
- void kvm_set_vm_id_reg(struct kvm *kvm, u32 reg, u64 val)
+-static u64 read_id_reg(const struct kvm_vcpu *vcpu,
+-		       struct sys_reg_desc const *r)
++static u64 pvm_read_id_reg(const struct kvm_vcpu *vcpu,
++			   struct sys_reg_desc const *r)
  {
--	u64 *p = __vm_id_reg(&kvm->arch, reg);
-+	u64 *p = __vm_id_reg(&kvm->arch.id_regs, reg);
+ 	struct kvm *kvm = vcpu->kvm;
+ 	u32 reg = reg_to_encoding(r);
+@@ -341,7 +341,7 @@ static bool pvm_access_id_aarch64(struct kvm_vcpu *vcpu,
+ 		return false;
+ 	}
  
- 	lockdep_assert_held(&kvm->arch.config_lock);
+-	p->regval = read_id_reg(vcpu, r);
++	p->regval = pvm_read_id_reg(vcpu, r);
+ 	return true;
+ }
+ 
+@@ -379,7 +379,7 @@ static bool pvm_idst_access(struct kvm_vcpu *vcpu,
+  * register with encoding Op0=3, Op1=0, CRn=0, CRm=crm, Op2=op2
+  * (1 <= crm < 8, 0 <= Op2 < 8).
+  */
+-#define ID_UNALLOCATED(crm, op2) {			\
++#define PVM_ID_UNALLOCATED(crm, op2) {			\
+ 	Op0(3), Op1(0), CRn(0), CRm(crm), Op2(op2),	\
+ 	.access = pvm_access_id_aarch64,		\
+ }
+@@ -438,46 +438,46 @@ static const struct sys_reg_desc pvm_sys_reg_descs[] = {
+ 	AARCH32(SYS_MVFR0_EL1),
+ 	AARCH32(SYS_MVFR1_EL1),
+ 	AARCH32(SYS_MVFR2_EL1),
+-	ID_UNALLOCATED(3,3),
++	PVM_ID_UNALLOCATED(3, 3),
+ 	AARCH32(SYS_ID_PFR2_EL1),
+ 	AARCH32(SYS_ID_DFR1_EL1),
+ 	AARCH32(SYS_ID_MMFR5_EL1),
+-	ID_UNALLOCATED(3,7),
++	PVM_ID_UNALLOCATED(3, 7),
+ 
+ 	/* AArch64 ID registers */
+ 	/* CRm=4 */
+ 	AARCH64(SYS_ID_AA64PFR0_EL1),
+ 	AARCH64(SYS_ID_AA64PFR1_EL1),
+ 	AARCH64(SYS_ID_AA64PFR2_EL1),
+-	ID_UNALLOCATED(4,3),
++	PVM_ID_UNALLOCATED(4, 3),
+ 	AARCH64(SYS_ID_AA64ZFR0_EL1),
+-	ID_UNALLOCATED(4,5),
+-	ID_UNALLOCATED(4,6),
+-	ID_UNALLOCATED(4,7),
++	PVM_ID_UNALLOCATED(4, 5),
++	PVM_ID_UNALLOCATED(4, 6),
++	PVM_ID_UNALLOCATED(4, 7),
+ 	AARCH64(SYS_ID_AA64DFR0_EL1),
+ 	AARCH64(SYS_ID_AA64DFR1_EL1),
+-	ID_UNALLOCATED(5,2),
+-	ID_UNALLOCATED(5,3),
++	PVM_ID_UNALLOCATED(5, 2),
++	PVM_ID_UNALLOCATED(5, 3),
+ 	AARCH64(SYS_ID_AA64AFR0_EL1),
+ 	AARCH64(SYS_ID_AA64AFR1_EL1),
+-	ID_UNALLOCATED(5,6),
+-	ID_UNALLOCATED(5,7),
++	PVM_ID_UNALLOCATED(5, 6),
++	PVM_ID_UNALLOCATED(5, 7),
+ 	AARCH64(SYS_ID_AA64ISAR0_EL1),
+ 	AARCH64(SYS_ID_AA64ISAR1_EL1),
+ 	AARCH64(SYS_ID_AA64ISAR2_EL1),
+-	ID_UNALLOCATED(6,3),
+-	ID_UNALLOCATED(6,4),
+-	ID_UNALLOCATED(6,5),
+-	ID_UNALLOCATED(6,6),
+-	ID_UNALLOCATED(6,7),
++	PVM_ID_UNALLOCATED(6, 3),
++	PVM_ID_UNALLOCATED(6, 4),
++	PVM_ID_UNALLOCATED(6, 5),
++	PVM_ID_UNALLOCATED(6, 6),
++	PVM_ID_UNALLOCATED(6, 7),
+ 	AARCH64(SYS_ID_AA64MMFR0_EL1),
+ 	AARCH64(SYS_ID_AA64MMFR1_EL1),
+ 	AARCH64(SYS_ID_AA64MMFR2_EL1),
+-	ID_UNALLOCATED(7,3),
+-	ID_UNALLOCATED(7,4),
+-	ID_UNALLOCATED(7,5),
+-	ID_UNALLOCATED(7,6),
+-	ID_UNALLOCATED(7,7),
++	PVM_ID_UNALLOCATED(7, 3),
++	PVM_ID_UNALLOCATED(7, 4),
++	PVM_ID_UNALLOCATED(7, 5),
++	PVM_ID_UNALLOCATED(7, 6),
++	PVM_ID_UNALLOCATED(7, 7),
+ 
+ 	/* Scalable Vector Registers are restricted. */
  
 -- 
 2.53.0
