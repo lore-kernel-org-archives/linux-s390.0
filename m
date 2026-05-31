@@ -1,147 +1,100 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A50FE3655E7
-	for <linux-s390@vger.kernel.org>; Sun, 31 May 2026 10:35:48 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C7A7314A6F
+	for <linux-s390@vger.kernel.org>; Sun, 31 May 2026 14:08:30 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780223749; cv=none; b=YCAdaLnhTUnz2xEjLt+4600i3XhUl7jWIcU1/pCPDOOy3FU4/k9il0EqUD0NK09RWX7E+bXlLCSDfQGzlx6CtO9owLAdBGaZG8PsLxRifVkkpoMVjsdL6bzNnyRw41poWlHsU6zvkA7o3APa+yzh6uAl5TlVINGsY9r1DHwfmm0=
+	t=1780236511; cv=none; b=SUKEYy40agy21Os5qcQUrFVUJ+pXZUnPUxek53QEL0tUfA0fhAhpG7SO7UHdXQg3NQUM0QCNa58xqsQ4+9AkJrKNpAnYy2lVJZuxmM+lO+y7x9MfsZDlV1vPMDmoOIuT7ex7fWa7E/XqS/GmgPal9GJVE+tZParPguJnL/PmN/c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780223749; c=relaxed/simple;
-	bh=NW4+2tiqPNneuK7lGmq70s/inYHVA2dgeKojZE9Nmxw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=G/FpB/3ntw9IJ4Bz8lflTUHYMhHa7QtXJisereSqNaRwoxiu2TAtpbJFTdBxhsWX3MAbadRxsJM2KUr/SXU+CbrhHBK4EY4bBfMV2XjS2EW+3lXL0cRwYHmkyWjMB90EMrfk/pZ4muylzIySo7SxtyfivfMam+62NT/9BARzr4s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MSZyimTZ; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1780236511; c=relaxed/simple;
+	bh=TMbl75biRN2tZcah2WMOVFdw/0ad6wDd8wn7go8elMs=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=rwVdzFG8//aNLRuP0in6D1wYg2F8focYQ0YD8CWbmAc0Or9eMpS/MqjXL2ZKFRAdK39XI2IT4e7rwuXuNnGssXJRUwAXhszTSUl/SDOstT1DaO5FlIJh4oFUZgV7Z5j+1vtdHYgdCy4rcL4RcAedxwPJoQDQiM9RXtM5Df1iXGs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QLVEPwqK; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MSZyimTZ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C405A1F00893;
-	Sun, 31 May 2026 10:35:44 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QLVEPwqK"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F02C21F00893;
+	Sun, 31 May 2026 14:08:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1780223748;
-	bh=uHtRHgcYEeRj3PWjqMvgDLNMDnbNSegb1NP4rcPiudY=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=MSZyimTZqoGqoxZ7BDCj6a1SbrDZ7FzH8ySQ2qZWiugAgVb4xkWuKlPit318yiddz
-	 wHNSaehMNsFPD6APeW8xUhmcJrRJFeypUQn6fcePCEqDxQb2/y3sqY+2664Mcvx3Uo
-	 eKRFt1aOzSjQRYQexIKVMkawU/xnRuEhc37L/XGS5Kr4RZ5UuPk59rVDs5PGZKkCdx
-	 0s0XWM+mYSxnAfOgCOGWewdoUYyb3ZxLGPe36nKZcqGEdZ0leXLOGM/wZWHmvBnTNQ
-	 P/a/A6uTismcqj/mIbBmoiO8oJqEVeLj3vWgZGvAd5shmcos6j3zuhf+WLbeu37lFM
-	 63/vxVIyQASFA==
-Date: Sun, 31 May 2026 13:35:41 +0300
-From: Mike Rapoport <rppt@kernel.org>
-To: Heiko Carstens <hca@linux.ibm.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexandra Winter <wintera@linux.ibm.com>,
-	Aswin Karuvally <aswin@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Harald Freudenberger <freude@linux.ibm.com>,
-	Holger Dengler <dengler@linux.ibm.com>,
-	Jan Hoeppner <hoeppner@linux.ibm.com>,
-	Stefan Haberland <sth@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org
-Subject: Re: [PATCH 2/6] s390/dasd: replace get_zeroed_page() with kzalloc()
-Message-ID: <ahwO_UCxePgb0SwL@kernel.org>
-References: <20260528-b4-s390-drivers-v1-0-b7108f54d722@kernel.org>
- <20260528-b4-s390-drivers-v1-2-b7108f54d722@kernel.org>
- <20260529101522.26496Bbe-hca@linux.ibm.com>
+	s=k20260515; t=1780236510;
+	bh=j0r0Wag0qC7W82/xkf7jiA0L1rqFPSq8jzMKxrnAGzY=;
+	h=From:Subject:Date:To:Cc;
+	b=QLVEPwqKktbGx6I/0s2e+6EDciqY3jfBinLc3C+ButeFLQ0/4g9pBD/KFp7dUbKoP
+	 Nq1Bp2mZPQJEDxtiL8uY0H5Y/avMmiLdQYPu60FIT3jE7U6S4y2XONh2uoTtkJI0/e
+	 2UeaGMWmXUqajyibfq6svDhp79ZmUZWCvz0eMs7hj/kuoEqS80e6Os0nVaL5tIhhJm
+	 rWblSXMIDvFPNUiij82e0XPsfVMji7DkuuS82/bWWtonBaAP+OmQY3Y486zLWh1yhh
+	 zSOAD6qlsOn4VFzJHUa1c3v9QpihYxKtvv51Lv3CXDc2b57SBHp9L+HXm6gkIc65tS
+	 31dmwbIjtv/gw==
+From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
+Subject: [PATCH v2 0/6] s390/drivers: replace __get_free_pages() call with
+ kmalloc()
+Date: Sun, 31 May 2026 17:08:21 +0300
+Message-Id: <20260531-b4-s390-drivers-v2-0-f7985308ed90@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260529101522.26496Bbe-hca@linux.ibm.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIANVAHGoC/3WOyw6CMBBFf4V07Zi2vFn5H4ZFCwNUTTEz2GgI/
+ y7Ftctzc1+rYCSHLJpkFYTBsZv9DvqUiG4yfkRw/c5CS13IXFdgM+C0ltCTC0gMRVbWuVVWmzo
+ Ve+pJOLj30Xhtf8wve8NuiTXRYQ0jWDK+m6IUMcqT42Wmz/EkqBj/PxoUSLClktWQZ32p9eWO5
+ PFxnmkU7bZtX5nwPgzYAAAA
+X-Change-ID: 20260528-b4-s390-drivers-64795b1b2a93
+To: Alexander Gordeev <agordeev@linux.ibm.com>, 
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>
+Cc: Alexandra Winter <wintera@linux.ibm.com>, 
+ Aswin Karuvally <aswin@linux.ibm.com>, 
+ Christian Borntraeger <borntraeger@linux.ibm.com>, 
+ Harald Freudenberger <freude@linux.ibm.com>, 
+ Holger Dengler <dengler@linux.ibm.com>, 
+ Jan Hoeppner <hoeppner@linux.ibm.com>, Mike Rapoport <rppt@kernel.org>, 
+ Stefan Haberland <sth@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, 
+ Vlastimil Babka <vbabka@kernel.org>, linux-s390@vger.kernel.org
+X-Mailer: b4 0.15.2
 
-On Fri, May 29, 2026 at 12:15:22PM +0200, Heiko Carstens wrote:
-> On Thu, May 28, 2026 at 10:09:50AM +0300, Mike Rapoport (Microsoft) wrote:
-> > DASD driver uses get_zeroed_page() to allocate pages for the Extended Error
-> > Reporting software ring buffer and for a scratch buffer for formatting
-> > sense dump diagnostic text.
-> > 
-> > These buffers can be allocated with kmalloc() as there's nothing special
-> > about it to go directly to the page allocator.
-> > 
-> > kmalloc() provides a better API that does not require ugly casts and
-> > kfree() does not need to know the size of the freed object.
-> > 
-> > Performance difference between kmalloc() and __get_free_pages() is not
-> > measurable as both allocators take an object/page from a per-CPU list for
-> > fast path allocations.
-> > 
-> > For the slow path the performance is anyway determined by the amount of
-> > reclaim involved rather than by what allocator is used.
-> > 
-> > Replace use of get_zeroed_page() with kzalloc() and free_page() with
-> > kfree().
-> > 
-> > Link: https://lore.kernel.org/all/635405e4-9423-4a25-a6e7-e03c8ea0bcbe@redhat.com
-> > Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
-> > ---
-> >  drivers/s390/block/dasd_eckd.c | 12 ++++++------
-> >  drivers/s390/block/dasd_eer.c  |  4 ++--
-> >  2 files changed, 8 insertions(+), 8 deletions(-)
-> 
-> ...
-> 
-> >  static void dasd_eckd_dump_sense(struct dasd_device *device,
-> > @@ -6958,7 +6958,7 @@ dasd_eckd_init(void)
-> >  		kfree(pe_handler_worker);
-> >  		kfree(dasd_reserve_req);
-> >  		kfree(dasd_vol_info_req);
-> > -		free_page((unsigned long)rawpadpage);
-> > +		kfree(rawpadpage);
-> >  	}
-> >  	return ret;
-> >  }
-> > @@ -6969,7 +6969,7 @@ dasd_eckd_cleanup(void)
-> >  	ccw_driver_unregister(&dasd_eckd_driver);
-> >  	kfree(pe_handler_worker);
-> >  	kfree(dasd_reserve_req);
-> > -	free_page((unsigned long)rawpadpage);
-> > +	kfree(rawpadpage);
-> >  }
-> 
-> This is not correct. The allocation is still done with __get_free_page().
+This is a (tiny) part of larger work of replacing page allocator calls
+with kmalloc.
 
-Right, I didn't mean to touch rawpadpage yet.
-cherry-pick from the large set went wrong :(
- 
-> I'm not sure about the whole approach / effort, since this allows for subtle
-> bugs where pages are allocated and freed at non-obvious locations. All of that
-> works now, but these conversions may lead to subtle bugs (this particular one
-> is not subtle and easy to spot).
-> 
-> Is the net gain of this conversion really worth it?
+Nowadays the right way to say "I need a buffer" is kmalloc() rather than
+ancient and ugly __get_free_pages().
 
-My initial intention a few month ago was to remove ugly casts [1], but then
-willy pointed out that Linus objected to something like this [2] and it
-looks like more than a decade old technical debt.
+Also in git:
+https://git.kernel.org/pub/scm/linux/kernel/git/rppt/linux.git gfp-to-kmalloc/s390-drivers
 
-Largely, anything that doesn't need struct page (or a memdesc in the
-future) should just use kmalloc() or kvmalloc() to allocate memory.
-kmalloc() guarantees alignment, physical contiguity and working
-virt_to_phys() and beside nicer API that returns void * on alloc and
-doesn't require to know the allocation size on free, kmalloc() provides
-better debugging capabilities than page allocator.
+---
+v2 changes:
+* dasd: fix wrongly converted freeing of rawpadpage
+* qeth: make 'info' void * to actually kill the castings
+* add tags, thanks everybody!
 
-Another thing is that touching these allocation sites gives the reviewers
-opportunity to see if a PAGE_SIZE buffer is actually needed or maybe
-another size is appropriate.
+v1: https://patch.msgid.link/20260528-b4-s390-drivers-v1-0-b7108f54d722@kernel.org
 
-For larger allocations that don't need physically contiguous memory
-kvmalloc() can be a better option that __get_free_pages() because under
-memory pressure it's is easier to allocate several order-0 pages than a
-physically contiguous chunk with the same number of pages.
+---
+Mike Rapoport (Microsoft) (6):
+      s390/con3270: replace __get_free_page() with kmalloc()
+      s390/dasd: replace get_zeroed_page() with kzalloc()
+      s390/hvc_iucv: replace get_zeroed_page() with kzalloc()
+      s390/qeth: replace get_zeroed_page() with kzalloc()
+      s390/trng: replace __get_free_page() with kmalloc()
+      s390/zcrypt: replace get_zeroed_page() with kzalloc()
 
-And last, but not least, removing needless calls to page allocator should
-help with memdesc (aka project folio) conversion. There will be way less
-places to audit to see if the user was actually using struct page.
+ drivers/char/hw_random/s390-trng.c | 5 +++--
+ drivers/s390/block/dasd_eckd.c     | 8 ++++----
+ drivers/s390/block/dasd_eer.c      | 4 ++--
+ drivers/s390/char/con3270.c        | 8 ++++----
+ drivers/s390/crypto/zcrypt_api.c   | 6 +++---
+ drivers/s390/net/qeth_core_main.c  | 8 ++++----
+ drivers/tty/hvc/hvc_iucv.c         | 6 +++---
+ 7 files changed, 23 insertions(+), 22 deletions(-)
+---
+base-commit: 5d6919055dec134de3c40167a490f33c74c12581
+change-id: 20260528-b4-s390-drivers-64795b1b2a93
 
-[1] https://lore.kernel.org/all/20251018093002.3660549-1-rppt@kernel.org/
-[2] https://lore.kernel.org/all/CA+55aFwp4iy4rtX2gE2WjBGFL=NxMVnoFeHqYa2j1dYOMMGqxg@mail.gmail.com/ 
-
--- 
+Best regards,
+--  
 Sincerely yours,
 Mike.
+
