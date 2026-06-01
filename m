@@ -1,32 +1,32 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3516037F006;
-	Mon,  1 Jun 2026 22:25:57 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E970351C2E;
+	Mon,  1 Jun 2026 22:28:17 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780352758; cv=none; b=cnC1Qtmc16QUji9onK+X8PFVe3wwpzCiN2levNbuRlp2SwEMZhNp9WSmvzip0szAYU3ZgMGG2KMHvhBDGaronxhspyTWtvs9wYNuVU/0rZjwFu86tcsEPGi72CGXrDD5HzDsr5Jov/5noAz8sWQZUWGVhmi+3O938FVjFoEkrxg=
+	t=1780352898; cv=none; b=UFYWSMOBv8njORGW+cMsLrJYelo5hq5vOmIiSTuhZ+Ec+TBB4cFz/RQYR/l0mGnQ8un2/ZBkjnUyEzo227awRx8VQ/G1qRq235jIiDpI+DAoVtBUVfoLQyqj50swGpJb6PWe9GdkNu+xxRZjNRu0Vglw7ZMWRuoQDzmLIJ3RxV8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780352758; c=relaxed/simple;
-	bh=fjobrbtuKYgCrdGYVlRFQncubNK6apBUCBI2STV6AzI=;
+	s=arc-20240116; t=1780352898; c=relaxed/simple;
+	bh=TLq5bbEJVkJ/P/Q3LayvuMZ/YUDrSOpczwq5R90epKM=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=BhIj/s9zXJ0mIWu5J7rXPhewlBbNvlEsRiXPiFTmfehXzBICcpzBtBAt04vbYxQ6cNdKPtglmtLtrBfh8yfMGh9idOJ2oXxtIhLwkeKPctnGOgtckY7IP6ZQVmcM+PhBz59ESYcSAxxn6XDuFadT0xxjfGay5Qt0aPuzSpL3IOg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gX1jJ9z9; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=s6OCCZb9DtQaCmBeDSEtlK+ptBrIdNEw21olxcAkaQHKQ3aE/d7bKOHvpM/zHu/8UCY3Wwio+r2MYRIMAsoQ04UwhUWdmvLHrDKVK+49jXmvX3yoam4fGEKAMyWnvYfJsDsX/DoRufQ/i6G4Bss/bzegrZL1aph0ZM8ypHZvGm4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kkEMaOzk; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gX1jJ9z9"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B1BE1F00893;
-	Mon,  1 Jun 2026 22:25:56 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kkEMaOzk"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F3D71F00893;
+	Mon,  1 Jun 2026 22:28:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1780352756;
-	bh=O2qKexwHvz3KRPtLvli9oqJZOU4toPFHhWC4yeROzbw=;
+	s=k20260515; t=1780352897;
+	bh=t9kW9wxmbYR0zK6wTk5cssPV12k29fXpKDHVyEt5l6g=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=gX1jJ9z91LC+/qmrlP8VPboWqw8SsdjZktFpR99yh5czC27sSEqQ68cUslcSwG13b
-	 BC2298F3sEps6D/HmGxaR7tc8J+24iEeDY2jd3faxV/fKM1VXzMWrVp88zYzPMJQ9Q
-	 tAd5fi5JCxIOGU51f8hcYDLA7myI9yh70R4in3HTua2s1nwLtx/U/D6wAZCrsuMbw6
-	 GYhjM83oUEYn3u3WGjFW9KVBv2fib1fqri0AMcTk0906OnqEvnC4KgpN0bYCPZ8vP7
-	 qeKjIHcIVx/pytLeKSV/RR95JDuM3s1FzE93jI+FUAugg+QDJI5WeHSSc3ZlhwqpHD
-	 je+ci9vVbbOeA==
-Date: Mon, 1 Jun 2026 15:25:55 -0700
+	b=kkEMaOzk11QJr+Q7Sr/AQBjqPi1yH/uZhUKLQJj1zni60iihNwEZy8zCtJ4CboOJd
+	 73A8dNgNWdmoZfGgoE6rFir6mtHM05eSZ5PPzyq4pRHkMzD584vIdBRn9Daain4l8i
+	 ntv/VxdH1CXhptzix/FwRz4d/+E138PMtZv3hDF+32WMbjomSSA+GvQo3YBOcnEbgP
+	 NWGp297AQqntrIqiUhSp9V5Gtd0xSBbnLcLHpbp1jtlgjk6EawzCHjM4lSIctypMAs
+	 gB49wFWNUQ6lDrObYrMIKmdybuUNUaanjBhBRFnAfhiP5Ir0Oyg2ULplrVZEb5qdf3
+	 oyPpwbAZshTgQ==
+Date: Mon, 1 Jun 2026 15:28:15 -0700
 From: Oliver Upton <oupton@kernel.org>
 To: Steffen Eiden <seiden@linux.ibm.com>
 Cc: kvm@vger.kernel.org, kvmarm@lists.linux.dev,
@@ -55,10 +55,11 @@ Cc: kvm@vger.kernel.org, kvmarm@lists.linux.dev,
 	Ulrich Weigand <Ulrich.Weigand@de.ibm.com>,
 	Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>,
 	Zenghui Yu <yuzenghui@huawei.com>
-Subject: Re: [PATCH v1 15/26] s390: Add functions to query arm guest time
-Message-ID: <ah4G847iT_pPRuQm@kernel.org>
+Subject: Re: [PATCH v1 09/26] KVM: arm64: Refactor idreg caching into
+ dedicated structure
+Message-ID: <ah4Hf7IiX77uiGfn@kernel.org>
 References: <20260529155601.2927240-1-seiden@linux.ibm.com>
- <20260529155601.2927240-16-seiden@linux.ibm.com>
+ <20260529155601.2927240-10-seiden@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -67,132 +68,143 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260529155601.2927240-16-seiden@linux.ibm.com>
+In-Reply-To: <20260529155601.2927240-10-seiden@linux.ibm.com>
 
-On Fri, May 29, 2026 at 05:55:48PM +0200, Steffen Eiden wrote:
-> Add functions to convert between ARM guest time (LSB0) and s390 host
-> time (MSB0) using new ptff function codes.
-> 
-> Co-developed-by: Nico Boehr <nrb@linux.ibm.com>
-> Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
-> Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
-> ---
->  arch/s390/include/asm/timex.h | 49 +++++++++++++++++++++++++++++++++++
->  arch/s390/kernel/time.c       |  1 +
->  arch/s390/kvm/arm64/arm.c     |  9 ++++++-
->  3 files changed, 58 insertions(+), 1 deletion(-)
-> 
-> diff --git a/arch/s390/include/asm/timex.h b/arch/s390/include/asm/timex.h
-> index 49447b40f038..9ec22a28bbda 100644
-> --- a/arch/s390/include/asm/timex.h
-> +++ b/arch/s390/include/asm/timex.h
-> @@ -99,6 +99,8 @@ extern unsigned char ptff_function_mask[16];
->  #define PTFF_QSI	0x02	/* query steering information */
->  #define PTFF_QPT	0x03	/* query physical clock */
->  #define PTFF_QUI	0x04	/* query UTC information */
-> +#define PTFF_QAGTO	0x10	/* query arm guest time offset */
-> +#define PTFF_QAGPT	0x11	/* query arm guest physical time offset */
+On Fri, May 29, 2026 at 05:55:42PM +0200, Steffen Eiden wrote:
+> +struct kvm_vm_id_regs {
+> +	/*
+> +	 * Emulated CPU ID registers per VM
+> +	 * (Op0, Op1, CRn, CRm, Op2) of the ID registers to be saved in it
+> +	 * is (3, 0, 0, crm, op2), where 1<=crm<8, 0<=op2<8.
+> +	 *
+> +	 * These emulated idregs are VM-wide, but accessed from the context of a vCPU.
+> +	 * Atomic access to multiple idregs are guarded by kvm_arch.config_lock.
+> +	 */
+> +#define IDREG_IDX(id)		(((sys_reg_CRm(id) - 1) << 3) | sys_reg_Op2(id))
+> +#define KVM_ARM_ID_REG_NUM	(IDREG_IDX(sys_reg(3, 0, 0, 7, 7)) + 1)
+> +	u64 normal[KVM_ARM_ID_REG_NUM];
 
-Are these analogous to CNTVOFF_EL2 and CNTPOFF_EL2?
+nit: ftr_reg would be slightly more clear.
 
 Thanks,
-Oliver 
+Oliver
 
->  #define PTFF_ATO	0x40	/* adjust tod offset */
->  #define PTFF_STO	0x41	/* set tod offset */
->  #define PTFF_SFS	0x42	/* set fine steering rate */
-> @@ -136,6 +138,17 @@ struct ptff_qui {
->  	unsigned int pad_0x5c[41];
->  } __packed;
->  
-> +/*
-> + * Query Arm Guest Time
-> + * used for:
-> + *	- Query Arm Guest Time Offset
-> + *	- Query Arm Guest Physical Time
-> + */
-> +struct ptff_qagt {
-> +	u64 in;
-> +	u64 out;
+> +	u64 midr_el1;
+> +	u64 revidr_el1;
+> +	u64 aidr_el1;
+> +	u64 ctr_el0;
 > +};
 > +
->  /*
->   * ptff - Perform timing facility function
->   * @ptff_block: Pointer to ptff parameter block
-> @@ -286,4 +299,40 @@ static inline int tod_after_eq(unsigned long a, unsigned long b)
->  	return a >= b;
+> +static inline u64 *__vm_id_reg(struct kvm_vm_id_regs *id_regs, u32 reg)
+>  {
+>  	switch (reg) {
+>  	case sys_reg(3, 0, 0, 1, 0) ... sys_reg(3, 0, 0, 7, 7):
+> -		return &ka->id_regs[IDREG_IDX(reg)];
+> +		return &id_regs->normal[IDREG_IDX(reg)];
+>  	case SYS_CTR_EL0:
+> -		return &ka->ctr_el0;
+> +		return &id_regs->ctr_el0;
+>  	case SYS_MIDR_EL1:
+> -		return &ka->midr_el1;
+> +		return &id_regs->midr_el1;
+>  	case SYS_REVIDR_EL1:
+> -		return &ka->revidr_el1;
+> +		return &id_regs->revidr_el1;
+>  	case SYS_AIDR_EL1:
+> -		return &ka->aidr_el1;
+> +		return &id_regs->aidr_el1;
+>  	default:
+>  		WARN_ON_ONCE(1);
+>  		return NULL;
+> @@ -1419,7 +1423,7 @@ static inline u64 *__vm_id_reg(struct kvm_arch *ka, u32 reg)
 >  }
 >  
-> +/*
-> + * ptff_qagto() -  Query Arm Guest Time Offset
-> + *
-> + * @physical_time: Arm guest physical time in MSb 0
-> + *
-> + * Converts Arm guest physical time in MSb 0 bit ordering
-> + * into the Arm guest offset in LSb 0 bit ordering.
-> + *
-> + * Return: Arm guest time offset in LSb 0
-> + */
-> +static inline u64 ptff_qagto(u64 physical_time)
-> +{
-> +	struct ptff_qagt qagto = { .in = physical_time };
-> +
-> +	ptff(&qagto, sizeof(qagto), PTFF_QAGTO);
-> +	return qagto.out;
-> +}
-> +
-> +/*
-> + * ptff_qagpt() - Query Arm Guest Physical Time
-> + *
-> + * @guest_time_offset: Arm guest time offset in MSb 0
-> + *
-> + * Converts Arm guest offset in MSb 0 bit ordering
-> + * into the Arm guest physical time in LSb 0 bit ordering.
-> + *
-> + * Return: Arm guest physical time in LSb 0
-> + * */
-> +static inline u64 ptff_qagpt(u64 guest_time_offset)
-> +{
-> +	struct ptff_qagt qagpt = { .in = guest_time_offset };
-> +
-> +	ptff(&qagpt, sizeof(qagpt), PTFF_QAGPT);
-> +	return qagpt.out;
-> +}
-> +
->  #endif
-> diff --git a/arch/s390/kernel/time.c b/arch/s390/kernel/time.c
-> index bd0df61d1907..2b989bebd220 100644
-> --- a/arch/s390/kernel/time.c
-> +++ b/arch/s390/kernel/time.c
-> @@ -65,6 +65,7 @@ ATOMIC_NOTIFIER_HEAD(s390_epoch_delta_notifier);
->  EXPORT_SYMBOL(s390_epoch_delta_notifier);
+>  #define kvm_read_vm_id_reg(kvm, reg)					\
+> -	({ u64 __val = *__vm_id_reg(&(kvm)->arch, reg); __val; })
+> +	({ u64 __val = *__vm_id_reg(&(kvm)->arch.id_regs, reg); __val; })
 >  
->  unsigned char ptff_function_mask[16];
-> +EXPORT_SYMBOL(ptff_function_mask);
+>  void kvm_set_vm_id_reg(struct kvm *kvm, u32 reg, u64 val);
 >  
->  static unsigned long lpar_offset;
->  static unsigned long initial_leap_seconds;
-> diff --git a/arch/s390/kvm/arm64/arm.c b/arch/s390/kvm/arm64/arm.c
-> index bf0866659421..636bbeda98a8 100644
-> --- a/arch/s390/kvm/arm64/arm.c
-> +++ b/arch/s390/kvm/arm64/arm.c
-> @@ -692,8 +692,15 @@ long kvm_arch_vcpu_unlocked_ioctl(struct file *filp, unsigned int ioctl,
+> diff --git a/arch/arm64/kvm/config.c b/arch/arm64/kvm/config.c
+> index 014fe04daabf..58a439c3ab9c 100644
+> --- a/arch/arm64/kvm/config.c
+> +++ b/arch/arm64/kvm/config.c
+> @@ -1398,7 +1398,7 @@ void __init check_feature_map(void)
 >  
->  static int __init kvm_s390_arm64_init(void)
+>  static bool idreg_feat_match(struct kvm *kvm, const struct reg_bits_to_feat_map *map)
 >  {
-> -	if (!sclp.has_aef)
-> +	if (!sclp.has_aef) {
-> +		pr_info("SAE is not available\n");
->  		return -ENXIO;
-> +	}
-> +
-> +	if (!(ptff_query(PTFF_QAGTO) && ptff_query(PTFF_QAGPT))) {
-> +		pr_info("PTFF for arm on s390 is not available\n");
-> +		return -ENXIO;
-> +	}
+> -	u64 regval = kvm->arch.id_regs[map->regidx];
+> +	u64 regval = kvm->arch.id_regs.normal[map->regidx];
+>  	u64 regfld = (regval >> map->shift) & GENMASK(map->width - 1, 0);
 >  
->  	return kvm_init_with_dev(sizeof(struct kvm_vcpu), 0, THIS_MODULE,
->  				 KVM_DEV_NAME, MISC_DYNAMIC_MINOR);
+>  	if (map->sign) {
+> diff --git a/arch/arm64/kvm/hyp/nvhe/pkvm.c b/arch/arm64/kvm/hyp/nvhe/pkvm.c
+> index eb1c10120f9f..94620f142f42 100644
+> --- a/arch/arm64/kvm/hyp/nvhe/pkvm.c
+> +++ b/arch/arm64/kvm/hyp/nvhe/pkvm.c
+> @@ -343,7 +343,7 @@ static void pkvm_init_features_from_host(struct pkvm_hyp_vm *hyp_vm, const struc
+>  	DECLARE_BITMAP(allowed_features, KVM_VCPU_MAX_FEATURES);
+>  
+>  	/* CTR_EL0 is always under host control, even for protected VMs. */
+> -	hyp_vm->kvm.arch.ctr_el0 = host_kvm->arch.ctr_el0;
+> +	hyp_vm->kvm.arch.id_regs.ctr_el0 = host_kvm->arch.id_regs.ctr_el0;
+>  
+>  	/* Preserve the vgic model so that GICv3 emulation works */
+>  	hyp_vm->kvm.arch.vgic.vgic_model = host_kvm->arch.vgic.vgic_model;
+> @@ -358,7 +358,7 @@ static void pkvm_init_features_from_host(struct pkvm_hyp_vm *hyp_vm, const struc
+>  			    KVM_VCPU_MAX_FEATURES);
+>  
+>  		if (test_bit(KVM_ARCH_FLAG_WRITABLE_IMP_ID_REGS, &host_arch_flags))
+> -			hyp_vm->kvm.arch.midr_el1 = host_kvm->arch.midr_el1;
+> +			hyp_vm->kvm.arch.id_regs.midr_el1 = host_kvm->arch.id_regs.midr_el1;
+>  
+>  		return;
+>  	}
+> @@ -493,7 +493,8 @@ static int vm_copy_id_regs(struct pkvm_hyp_vcpu *hyp_vcpu)
+>  	if (test_and_set_bit(KVM_ARCH_FLAG_ID_REGS_INITIALIZED, &kvm->arch.flags))
+>  		return 0;
+>  
+> -	memcpy(kvm->arch.id_regs, host_kvm->arch.id_regs, sizeof(kvm->arch.id_regs));
+> +	memcpy(kvm->arch.id_regs.normal, host_kvm->arch.id_regs.normal,
+> +	       sizeof(kvm->arch.id_regs.normal));
+>  
+>  	return 0;
+>  }
+> diff --git a/arch/arm64/kvm/hyp/nvhe/sys_regs.c b/arch/arm64/kvm/hyp/nvhe/sys_regs.c
+> index b5a0de84ce01..e8d773d38905 100644
+> --- a/arch/arm64/kvm/hyp/nvhe/sys_regs.c
+> +++ b/arch/arm64/kvm/hyp/nvhe/sys_regs.c
+> @@ -292,7 +292,7 @@ static u64 read_id_reg(const struct kvm_vcpu *vcpu,
+>  		return 0;
+>  
+>  	if (reg >= sys_reg(3, 0, 0, 1, 0) && reg <= sys_reg(3, 0, 0, 7, 7))
+> -		return kvm->arch.id_regs[IDREG_IDX(reg)];
+> +		return kvm->arch.id_regs.normal[IDREG_IDX(reg)];
+>  
+>  	return 0;
+>  }
+> @@ -543,7 +543,7 @@ void kvm_init_pvm_id_regs(struct kvm_vcpu *vcpu)
+>  	 * for protected VMs.
+>  	 */
+>  	for (r = sys_reg(3, 0, 0, 4, 0); r <= sys_reg(3, 0, 0, 7, 7); r += sys_reg(0, 0, 0, 0, 1))
+> -		ka->id_regs[IDREG_IDX(r)] = pvm_calc_id_reg(vcpu, r);
+> +		ka->id_regs.normal[IDREG_IDX(r)] = pvm_calc_id_reg(vcpu, r);
+>  
+>  	set_bit(KVM_ARCH_FLAG_ID_REGS_INITIALIZED, &kvm->arch.flags);
+>  }
+> diff --git a/arch/arm64/kvm/sys_regs.c b/arch/arm64/kvm/sys_regs.c
+> index b9aa892616ab..195ecdac7bd6 100644
+> --- a/arch/arm64/kvm/sys_regs.c
+> +++ b/arch/arm64/kvm/sys_regs.c
+> @@ -2477,7 +2477,7 @@ static int set_id_reg(struct kvm_vcpu *vcpu, const struct sys_reg_desc *rd,
+>  
+>  void kvm_set_vm_id_reg(struct kvm *kvm, u32 reg, u64 val)
+>  {
+> -	u64 *p = __vm_id_reg(&kvm->arch, reg);
+> +	u64 *p = __vm_id_reg(&kvm->arch.id_regs, reg);
+>  
+>  	lockdep_assert_held(&kvm->arch.config_lock);
+>  
 > -- 
 > 2.53.0
 > 
