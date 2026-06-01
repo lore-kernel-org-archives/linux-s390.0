@@ -1,136 +1,247 @@
-Received: from mail-pg1-f178.google.com (mail-pg1-f178.google.com [209.85.215.178])
+Received: from mail-dl1-f74.google.com (mail-dl1-f74.google.com [74.125.82.74])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F019B2737E0
-	for <linux-s390@vger.kernel.org>; Mon,  1 Jun 2026 04:08:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9638C345CD8
+	for <linux-s390@vger.kernel.org>; Mon,  1 Jun 2026 06:54:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.74
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780286905; cv=none; b=SRAMw9KI/al2qn9aL7ME0ky6zAUHnymOAHtsA/n2t84DB4KgLehO+WbABa0QZfUUChFYInP56Nj0hY+65omom4siXz28ao4mWTs+AGp+pmWBHQA2KGYGdRRmzoSEp97oZ8eXQppVt9BduH1CAO+ptj2zgaa+WUWZ4dsdh2DFK6w=
+	t=1780296856; cv=none; b=d8P7npnsaDIuwsrKeLexf+4/czy35Pk/0ep4lnEue2TpzrdSwRbZLB999Sxi88TwVjuub6kdkF15QPZh7YNZafCpMQqskDLYmqiadMrE0akPFrvYQBGsLb7FuPuV4UB87safiOenFQgi7OTG3OUz5atFn0j9BWwyOnFM129dkmU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780286905; c=relaxed/simple;
-	bh=oJimIsAjTwG5Dit/F6xdNVXfNM3aibFK0k8tDI7amWk=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=aMhxl3tQuwNVxN46/cJ2i5as98B6TsXMFJt6jOY4oB9U7SgZqsZfqkFaMo/Is27IEf+Kc/tqV0e8BKcL+Q7+1MzXBtFoscXTLxteCoFi1ofpcPOn5xkwq/71oVakmhUpXg1eqlgGNbCBjgBvij1ZlIRNvFuotKTNc0gHZmBuyPY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NDceongj; arc=none smtp.client-ip=209.85.215.178
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1780296856; c=relaxed/simple;
+	bh=FwHxGnDbziPy42LgFfGPImWYlGvqo9gh7tSXpzYkjgc=;
+	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
+	 To:Cc:Content-Type; b=lGqu2A6CXKTAY2PQxLdDYmFncklS3jgcRhcrcu1u0ZPbW+JiA4YiSeXn2uo+Hw1+7W08Ft25+yHOforM5Z+kE4951T4Vo9ZVYFbLfADhWrIwqqSv4XSiw0/sBnpaKP6OfZCJWD4ttorgkz5t15lEerbjHHbec4UiJrF0xGZLlYo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--irogers.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=A6PBIsTU; arc=none smtp.client-ip=74.125.82.74
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--irogers.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NDceongj"
-Received: by mail-pg1-f178.google.com with SMTP id 41be03b00d2f7-c85ba774551so97933a12.0
-        for <linux-s390@vger.kernel.org>; Sun, 31 May 2026 21:08:23 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="A6PBIsTU"
+Received: by mail-dl1-f74.google.com with SMTP id a92af1059eb24-137dd5171feso1577470c88.1
+        for <linux-s390@vger.kernel.org>; Sun, 31 May 2026 23:54:14 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780286903; x=1780891703; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=C8Fqls1Lkn4zrbHNsK46iIjuBoOprBS4OmT07ypRGlQ=;
-        b=NDceongjF586QFYe31ZFLS9da+ygryZWIguvnWGNbzct/DWllhxyAuRrC/pMlloZho
-         2/rwZiIN1r2Pezn6ilJyLjQHd4HrQoulIUuub2uGl+wfDcIuR3PDqf30AGdEQngJgRtd
-         gPEz0jyeztkE3CFtBD3QP96vGgv3NP9qreIA3GcmWabZYV83zOc8SjQ4CUNP6ALqkE1P
-         9TBVlRhdflwog9n/jeGQHGuuTQh3ejI5dWmfjq2w2ZFYnLmH72Ctaq84QJ9vPzfU3WBV
-         l7A9rQPYOxtUaAD4iXP05N7GK2n2zIWB2Nkm9LqlVYKKPnZPn6agPy5EQTtNfio+loBP
-         tRoA==
+        d=google.com; s=20251104; t=1780296854; x=1780901654; darn=vger.kernel.org;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:from:to:cc:subject:date:message-id:reply-to;
+        bh=2ETq/nZKmaaXSvCeX53sM97LlW7Wmwh6xei8MrSxj2M=;
+        b=A6PBIsTUC+NA467FIHJh/TlL+FIiFGSo8wYNTQ2bfihkF3ebQTp+h+VgLuYGJdlORa
+         rdQXAARdsbroMDVZZHLmQp7pHZyENEqpyCbqlbgt1kfOPyG0qQc6PcPjThT9qOHi217T
+         gZYObpXIM95lgYzJDPbesTxo+4pnYxzkdV2WWe7sZb+y9JiM9XHu6C72ChietL0BUu0E
+         k+S7zBmtLMHNtVlE0vBObInhkPbtrN+qoVzwLtUnfQNPpkEVdLglFwpuCVQlAeVPlsPp
+         YS213XCx8BbEyRfep+Jub0tQIbMSXXYz6B3NKnmhEeluSWy5BxNOsWo80m6Tc0kF1Q6U
+         7x0g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780286903; x=1780891703;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=C8Fqls1Lkn4zrbHNsK46iIjuBoOprBS4OmT07ypRGlQ=;
-        b=ZiGFGV7hNGQOS/O6pM/3FuOwc4GGj/32PgrJYvXOIurBPLZ4UoT31c8Wq14wAfvlpP
-         fheo5L369gBG3lFaqR9JJEFFnXh1S56LxCCW/hamnfDnlV8rr6j2CY9LV0V9EEePGySI
-         XxakPRhhDNdY1AV4F3+vFUzvD6hIFEI5HNpBIarh1NSnCaypfOSzlpco1gY58nY+ib1N
-         9WyENW6C2MaWm72MgjTvELRvmPVVR1MnXAiyvbis+tdmi6zA/nbhnfwrsf2ltgzNii4L
-         V6M+on4AbvIzI8QfTtxLu17IqhJxwFi2BP/1V5Csg5Yxgga88CNgiXRcdVY3V9PCvkHq
-         vwzQ==
-X-Forwarded-Encrypted: i=1; AFNElJ+SWiOv7a6EsKdlG5S98Vn9hL2JfnMD0eVZ4VHz5mEvGUViTOVSp7EL1adCtp45Naz5GZrL5akCYVs1@vger.kernel.org
-X-Gm-Message-State: AOJu0YwgrKoKOmx8QTpp5KuO6DNRC02O7Nh2U/4l+2WitUkfVBDvUlkI
-	F35Czrji+8W4Qv0zE+cbytgtukVSe0y9mBCrF3OaaB0ocdVtmjQnj2UG
-X-Gm-Gg: Acq92OFPNlDJ9RO8VfLRl1pqygxpADB3r3B3Zw/moJoRW9AuSHiz+bW6AjLRgptKL8x
-	ien647K0mFMxR1eyvBTQTDHB4ROgZfKeYvKQ69NFjuvlbe18Mt+PqccROM3i7ZMeinj6xfkIdKq
-	WtSP1jwaY69mi31mOv5xqDMj9UcMYQmspK8FSe0RlBbPQ1J1vu4HlIQmc3eFxM1SQZn7M9rzgdE
-	SIJNoyd/WaY2oAgc0KSw/6hmQw/cS2N94BupBU+S1i8al8i5vwTipA6IdK1F65PQSXksxXBSFwy
-	eNwMTFPvabkzyiZJV4KiFzSbBgmDYLjIRKFmxXkJ5N/zcDjwg9kdAqToXKuJzBKm1KIc92XDGkm
-	K7Ya1kO4LAlBGUIndO7o2shf5bii59aM+m42Hxnj6D3I4uSDBl3JkArW9pBExa1L1P1JMbbQGj9
-	EFbslP+TgeOIQWmfvdPkp8lFX0aRPse7fa4nlgu1+m1PAEl6hl0rWPNWCkiyA=
-X-Received: by 2002:a05:6a21:512:b0:3b2:86e8:a817 with SMTP id adf61e73a8af0-3b42806972amr9448023637.31.1780286903228;
-        Sun, 31 May 2026 21:08:23 -0700 (PDT)
-Received: from csl-conti-dell7858.ntu.edu.sg ([155.69.195.57])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-84237a41a3esm5017686b3a.22.2026.05.31.21.08.20
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 31 May 2026 21:08:22 -0700 (PDT)
-From: Maoyi Xie <maoyixie.tju@gmail.com>
-To: Jan Hoeppner <hoeppner@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	linux-s390@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Maoyi Xie <maoyixie.tju@gmail.com>
-Subject: [PATCH] s390/tape: avoid past-the-end iterator in tape_assign_minor()
-Date: Mon,  1 Jun 2026 12:08:18 +0800
-Message-Id: <20260601040818.1285976-1-maoyixie.tju@gmail.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20260519100026.1970224-1-maoyixie.tju@gmail.com>
-References: <20260519100026.1970224-1-maoyixie.tju@gmail.com>
+        d=1e100.net; s=20251104; t=1780296854; x=1780901654;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=2ETq/nZKmaaXSvCeX53sM97LlW7Wmwh6xei8MrSxj2M=;
+        b=tIHkRC2qg8SIpt03oa/agh+80CY2BVXalU1Bq6U+qIRCVtc5MheFtGEdxCltb8lwK5
+         vJ0A5qMmbHfBYyJkYPj2Mn9mygKcyaADTymIqgHxBBLAP+Xj5e2+r2c9FgcArKr239Bd
+         aYfQSWDSOGXp1si3l7UHokBVWaw1KcDdSQBHePhOi256OAqxeX/djqrS5gxKPGqE6Q39
+         HnSkH24VeDpFpMpkC/EAonXMiU34H2jcm0y0l5P0IZ0Efq5VstFakXNEpqAF/lmZAQC1
+         BsDnXhjfTtCmHkB98lZzk6ZeCMbucX/iwg/3ghQMD0yvuWTkAVNV6Ca4Jf4V582j2P5I
+         p86w==
+X-Forwarded-Encrypted: i=1; AFNElJ+OEmTk1ibK6UtV55AGtZB8VokJA6B6DsmHDLKJDuC6tUgL2aQhR91ANGjZmv9nDxKTdpTkIXXKDFwF@vger.kernel.org
+X-Gm-Message-State: AOJu0Yw5XTw3L+3nzjPrqwPzeYANm+WSxFm3PeIQMCnKoc+cQZhVpjc0
+	nsdaDno8HE0a7o5gTwjolTbjzMbXboToKLUR7w/FFo4a4g2SmHbXEkbsaKr+PMTOcwdLzn1dXDK
+	rX2KjX9Uukg==
+X-Received: from dlbrl28.prod.google.com ([2002:a05:7022:f51c:b0:136:f641:ccf5])
+ (user=irogers job=prod-delivery.src-stubby-dispatcher) by 2002:a05:7022:238c:b0:136:60e7:53b
+ with SMTP id a92af1059eb24-137d402694cmr3531604c88.1.1780296853157; Sun, 31
+ May 2026 23:54:13 -0700 (PDT)
+Date: Sun, 31 May 2026 23:53:49 -0700
+In-Reply-To: <20260503002248.1040791-1-irogers@google.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Mime-Version: 1.0
+References: <20260503002248.1040791-1-irogers@google.com>
+X-Mailer: git-send-email 2.54.0.823.g6e5bcc1fc9-goog
+Message-ID: <20260601065407.1597927-1-irogers@google.com>
+Subject: [PATCH v10 00/18] Add perf_env__e_machine and migrate arch string
+ comparisons to e_machine
+From: Ian Rogers <irogers@google.com>
+To: irogers@google.com, acme@kernel.org, namhyung@kernel.org
+Cc: agordeev@linux.ibm.com, gor@linux.ibm.com, hca@linux.ibm.com, 
+	jameshongleiwang@126.com, japo@linux.ibm.com, linux-kernel@vger.kernel.org, 
+	linux-perf-users@vger.kernel.org, linux-s390@vger.kernel.org, 
+	sumanthk@linux.ibm.com, tmricht@linux.ibm.com
+Content-Type: text/plain; charset="UTF-8"
 
-tape_assign_minor() walks tape_device_list to find the sorted
-insertion point, then does list_add_tail(&device->node, &tmp->node).
-When the loop runs to the end without break, tmp is past the end and
-&tmp->node aliases the list head via container_of. list_add_tail then
-appends at the tail, which is the intended result, but the iterator is
-dereferenced past the end, which is undefined per the C standard.
+Add a helper to perf_env to compute the e_machine if it is EM_NONE.
+Derive the value from the arch string if available. Similarly derive
+the arch string from the ELF machine if available, for
+consistency. This means perf's arch (machine type) is no longer
+determined by uname but set to match that of the perf ELF executable.
 
-Track the insertion point explicitly. insert_before starts at the list
-head and is set to &tmp->node only when the loop breaks early. The
-list_add_tail uses insert_before, so the behaviour is unchanged in
-every case including an empty list.
+Migrate code away from strcmp on env->arch to using the e_machine
+comparisons that are more accurate and not prone to uname and other
+naming differences. While cleaning this up, also clean up the capstone
+initialization code to cover more architectures and to set the big
+endian flag based on ELF header information.
 
-Signed-off-by: Maoyi Xie <maoyixie.tju@gmail.com>
----
- drivers/s390/char/tape_core.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+Switch the idle computation to the point of use and lazily compute it,
+rather than computing it for every symbol. The current only user is
+`perf top`. At the point of use the perf_env is available and this can
+be used to make sure the idle function computation is machine and
+kernel version dependent.
 
-diff --git a/drivers/s390/char/tape_core.c b/drivers/s390/char/tape_core.c
-index bd8e3deb1199..361184c05940 100644
---- a/drivers/s390/char/tape_core.c
-+++ b/drivers/s390/char/tape_core.c
-@@ -330,14 +330,17 @@ __tape_cancel_io(struct tape_device *device, struct tape_request *request)
- static int
- tape_assign_minor(struct tape_device *device)
- {
-+	struct list_head *insert_before = &tape_device_list;
- 	struct tape_device *tmp;
- 	int minor;
- 
- 	minor = 0;
- 	write_lock(&tape_device_lock);
- 	list_for_each_entry(tmp, &tape_device_list, node) {
--		if (minor < tmp->first_minor)
-+		if (minor < tmp->first_minor) {
-+			insert_before = &tmp->node;
- 			break;
-+		}
- 		minor += TAPE_MINORS_PER_DEV;
- 	}
- 	if (minor >= 256) {
-@@ -345,7 +348,7 @@ tape_assign_minor(struct tape_device *device)
- 		return -ENODEV;
- 	}
- 	device->first_minor = minor;
--	list_add_tail(&device->node, &tmp->node);
-+	list_add_tail(&device->node, insert_before);
- 	write_unlock(&tape_device_lock);
- 	return 0;
- }
+To avoid concurrent update issues with bitfields sharing a byte in
+`struct symbol` switch to using C11 atomics.
+
+v10:
+ - Key changes in v10:
+   - **Memory Safety & Robustness Hardening**: Added explicit `machine` NULL-pointer
+     checks in `dso__load()` and `thread` guards in `thread__e_machine_endian()`
+     to guarantee segmentation fault protection during out-of-tree Make builds, OOMs,
+     or orphaned map group trace loadings.
+   - **Mixed-Bitness Platform Resilience**: Fully overhauled `is_native_compatible()`
+     to be environment-bitness-aware. This ensures 32-bit hosts correctly utilize
+     cross-compiler objdump lookups when analyzing 64-bit traces sharing identical
+     ELF machine constants (`EM_RISCV`).
+   - **Live Session Architecture Mappings**: Redesigned `perf_env__init_kernel_mode()`
+     to query runtime `uname(&uts)` and map live `env->arch` states dynamically,
+     removing fragile hardcoded allowlists and guaranteeing correct 64-bit classifications
+     for `riscv64`, `mips64`, and `parisc64`. Integrated bitness-aware 64-bit string
+     overrides for these shared enums inside `perf_env__arch()`.
+   - **Compiler Optimization Suffix Support**: Replaced strict `strcmp()` logic with an
+     asymmetric compiler-suffix-aware prefix helper `match_x86_idle_routine()` to safely
+     allowlist hot idle run-loops containing `.constprop.*` or `.isra.*` extensions while
+     shielding against active hotplug/management functions dropping.
+   - **Spectre-mitigated Handler & Cross-Architecture Fallbacks**: Restored the missing
+     `intel_idle_ibrs` Spectre mitigation idle handler to the allowlist. Configured
+     `symbol__is_idle()` to safely fall back to reading `dso__e_machine()` if the environment
+     context is missing, preserving cross-architecture offline trace evaluations.
+   - **Out-of-tree (`O=`) Make Builds Compatibility**: Refactored generated API translation
+     units and Make Build dependency rules to eliminate `-Wunused-function` and
+     `-Wmissing-prototypes` errors under strict `WERROR=1` out-of-tree build parameters.
+
+v9:
+ - Key changes in v9:
+   - **C11 Atomics for `struct symbol`**: Dropped the global
+     `symbol_bits_lock` introduced in v7/v8. Replaced unsafe bitfields
+     with a thread-safe `_Atomic uint16_t flags` and lockless atomic
+     helpers (e.g., `symbol__type()`, `symbol__set_inlined()`).
+   - **Bi-endianness Support**: Added `*_endian` variants for `dso` and
+     `thread` helpers to ensure Capstone correctly disassembles cross-endian
+     binaries.
+   - **Architecture Hardening**:
+     - Fixed inverted SPARC logic in `perf_env__single_address_space()`.
+     - Prioritized DSO architecture over global environment in
+       `machine_or_dso_e_machine()`.
+     - Fixed an uninitialized memory leak in `perf_env__e_machine()`.
+     - Removed lossy `normalize_arch()` canonicalization in `process_arch()`.
+
+ - Review Feedback Status:
+   - **Addressed**: C11 atomics migration, bi-endianness, SPARC logic,
+     DSO prioritization, and uninitialized memory fixes.
+   - **Not Addressed / Dropped**:
+     - Patch 15 OS Release: The concern regarding the `uname()` fallback
+       during offline analysis was determined to be incorrect for these
+       uninitialized states; the original lazy assumption is retained.
+     - Patch 04/11: The `EM_AARCH64` fallbacks were dropped as the
+       definition should come from dwarf-regs.h when necessary.
+
+v8:
+ - Address Sashiko AI review feedback for Patch 1:
+   - Switch all code dependent on the arch string to use `e_machine`
+     instead.
+   - Update `machine__is` and `machine__normalized_is` to take
+     `e_machine` integers instead of strings.
+   - Refactor `arch_syscalls__strerrno_function` to take an `e_machine`.
+   - Avoid premature caching of the host architecture in
+     `perf_session__e_machine`.
+
+v7:
+ - Address better handling of strdup failures with arch in the
+   header/env.
+ - Address concurrent update issues in `struct symbol` bitfields by
+   introducing a global lock for writes.
+
+v6: Ensure arch is canonical by going to e_machine and back (Sashiko)
+v5: Add perf_env os_release helper (Namhyung/Sashiko)
+v4: Fix Sashiko issues where an array element wasn't sorted properly,
+    the e_flags weren't returned properly, the idle type is change to
+    a u8 rather than an enum value and the s390 version check for
+    psw_idle is slightly reordered and tweaked.
+v3: Properly set up the e_machine coming from the perf_env as reported
+    by Honglei Wang.
+v2: Some minor white space clean up.
+v1: Initial release.
+
+Ian Rogers (18):
+  perf env: Add perf_env__e_machine helper and use in perf_env__arch
+  perf tests topology: Switch env->arch use to env->e_machine
+  perf env, dso, thread: Add _endian variants for e_machine helpers
+  perf capstone: Determine architecture from e_machine
+  perf print_insn: Use e_machine for fallback IP length check
+  perf symbol: Avoid use of machine__is
+  perf machine: Use perf_env e_machine rather than arch
+  perf sample-raw: Use perf_env e_machine rather than arch
+  perf sort: Use perf_env e_machine rather than arch
+  perf arch common: Use perf_env e_machine rather than arch
+  perf header: In print_pmu_caps use perf_env e_machine
+  perf c2c: Use perf_env e_machine rather than arch
+  perf lock-contention: Use perf_env e_machine rather than arch
+  perf env: Refactor perf_env__arch_strerrno
+  perf env: Remove unused perf_env__raw_arch
+  perf env: Add helper to lazily compute the os_release
+  perf symbol: Add setters for bitfields sharing a byte to avoid
+    concurrent update issues
+  perf symbol: Lazily compute idle
+
+ tools/perf/arch/common.c                      |  92 +++--
+ tools/perf/builtin-c2c.c                      |  40 +-
+ tools/perf/builtin-inject.c                   |   2 +-
+ tools/perf/builtin-kwork.c                    |   2 +-
+ tools/perf/builtin-report.c                   |   2 +-
+ tools/perf/builtin-sched.c                    |   4 +-
+ tools/perf/builtin-top.c                      |   6 +-
+ tools/perf/builtin-trace.c                    |   7 +-
+ tools/perf/tests/symbols.c                    |   2 +-
+ tools/perf/tests/topology.c                   |   8 +-
+ tools/perf/tests/vmlinux-kallsyms.c           |   2 +-
+ tools/perf/trace/beauty/Build                 |   1 +
+ tools/perf/trace/beauty/arch_errno_names.sh   |  41 +-
+ tools/perf/ui/browsers/annotate.c             |   2 +-
+ tools/perf/ui/browsers/map.c                  |   4 +-
+ tools/perf/util/annotate.c                    |   5 +-
+ tools/perf/util/auxtrace.c                    |   6 +-
+ tools/perf/util/callchain.c                   |   4 +-
+ tools/perf/util/capstone.c                    | 132 ++++---
+ tools/perf/util/data-convert-bt.c             |   2 +-
+ tools/perf/util/data-convert-json.c           |   6 +-
+ tools/perf/util/dlfilter.c                    |   2 +-
+ tools/perf/util/dso.c                         |  19 +-
+ tools/perf/util/dso.h                         |  14 +-
+ tools/perf/util/env.c                         | 370 ++++++++++++++----
+ tools/perf/util/env.h                         |  13 +-
+ tools/perf/util/evsel_fprintf.c               |   6 +-
+ tools/perf/util/header.c                      |  55 ++-
+ tools/perf/util/intel-pt.c                    |   2 +-
+ tools/perf/util/libdw.c                       |   2 +-
+ tools/perf/util/lock-contention.c             |   6 +-
+ tools/perf/util/machine.c                     |  37 +-
+ tools/perf/util/machine.h                     |   2 -
+ tools/perf/util/print_insn.c                  |  23 +-
+ tools/perf/util/print_insn.h                  |   2 +
+ tools/perf/util/probe-event.c                 |   4 +-
+ tools/perf/util/sample-raw.c                  |  21 +-
+ tools/perf/util/sample-raw.h                  |   6 +-
+ .../util/scripting-engines/trace-event-perl.c |   2 +-
+ .../scripting-engines/trace-event-python.c    |   4 +-
+ tools/perf/util/session.c                     |  26 +-
+ tools/perf/util/sort.c                        |  66 ++--
+ tools/perf/util/srcline.c                     |  10 +-
+ tools/perf/util/symbol-elf.c                  |   5 +-
+ tools/perf/util/symbol.c                      | 235 ++++++++---
+ tools/perf/util/symbol.h                      |  80 +++-
+ tools/perf/util/symbol_fprintf.c              |   4 +-
+ tools/perf/util/thread.c                      |  54 ++-
+ tools/perf/util/thread.h                      |  23 +-
+ 49 files changed, 1048 insertions(+), 415 deletions(-)
+
 -- 
-2.34.1
+2.54.0.823.g6e5bcc1fc9-goog
 
