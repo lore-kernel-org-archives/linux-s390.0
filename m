@@ -1,54 +1,54 @@
 Received: from mail-dl1-f73.google.com (mail-dl1-f73.google.com [74.125.82.73])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F497383980
-	for <linux-s390@vger.kernel.org>; Mon,  1 Jun 2026 06:54:28 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 17C24383C86
+	for <linux-s390@vger.kernel.org>; Mon,  1 Jun 2026 06:54:31 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.73
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780296872; cv=none; b=d34TlNHInGeSMPOFJ1g79tVhENKILPqdDgEhcD4C/ih43VGgC72bKiPsJ5EAsqDodd5t3OSw2qYU3aPbkd1RVIe1rDNdJfuApPAt4l+tb3X1DfhmZ7GfH0krc1z1lZSecFR8s060L/P6KZoRp5G5SQlLOGtM5vh9bTnx6nGV0rk=
+	t=1780296874; cv=none; b=QCcIFTHWDjXYZH5sdMxoaaquA9ptDcWD/PDLhFHUOJDhX5siM330cajF3nCPvfVv/Hvb5gkyRMrcBjjWurM+TgV6cvFag4mfLymGrH81VhxbzudJSZuOGXGJhLIqZ0Tr/sWWpWKeR6BnsmeS6fse6qXPrKeX3/lSzE8yqTmYoYY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780296872; c=relaxed/simple;
-	bh=MFEe6LPphunpb6kkXYtvg8HS6T7M6CMwxT39S2tasIk=;
+	s=arc-20240116; t=1780296874; c=relaxed/simple;
+	bh=/QMmXJBKQNb4K6haqK+hePSPO4Dmf7jySR0tC2WlGiw=;
 	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=QGGdsj87u3D7cwK4Y74LJ5r23JV4C9q98Ee0M/BrnTLMQBdw97qmSAFB5epScHmbRBCHGIWmc/tVwyaaJ52C1j4FinI+kjX+X2mAUdH5axndoEwYyCRgvABBb4Hk86lsEXDcpeidtcgQRxOr/kohVuFkIJfnEACCHjQH2nguHtc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--irogers.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=KIB4vflA; arc=none smtp.client-ip=74.125.82.73
+	 To:Cc:Content-Type; b=gLK+nNRiD8LUcJo2Nxxs8Jm0vxK0cPMEn4XN3TRQCR0dmkVmhk2cLNCt7zE0dxDfiylxfQn9BdIlodclSdm/9wg71pKUuytmQTps1pIjGc9HgPAojlBT7Jhluukr9QtHD4XTCSUxsjyWrI5rkR0mJhWhxKzainG4SgFRvNuCbMg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--irogers.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=vK3h5V62; arc=none smtp.client-ip=74.125.82.73
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--irogers.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="KIB4vflA"
-Received: by mail-dl1-f73.google.com with SMTP id a92af1059eb24-137d003cf09so2041605c88.1
-        for <linux-s390@vger.kernel.org>; Sun, 31 May 2026 23:54:28 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="vK3h5V62"
+Received: by mail-dl1-f73.google.com with SMTP id a92af1059eb24-137e32a2facso2221780c88.1
+        for <linux-s390@vger.kernel.org>; Sun, 31 May 2026 23:54:31 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1780296868; x=1780901668; darn=vger.kernel.org;
+        d=google.com; s=20251104; t=1780296871; x=1780901671; darn=vger.kernel.org;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=TMPK/u4znZdID92cCsTtghz3RJZxs3ue0UuQgkEbF/o=;
-        b=KIB4vflAPJF26bbYF3f2nMtsxsjNRjUaIIGTYZxQ7YUCp6EKQtXUyDSIK/Z+Okvelg
-         JKj6Oe0j7zSWaVo3lXgAiZw340yAx0OEyTeSRAmKGZxFdXUVZV9ZlueoPSORnlV616Kx
-         fCOEfWiTWLbaZrTLoUcpb6B9heSGHsI69Mh6R9cBoxp5uNeJWqqYExdz8twNsSfFS+Pi
-         qWraTpjp6OkILcrJyO2kFQzvxqXlBZxHUUQBswHPYEV6MxmuD0kuFI0DJ7PmS/LSac8C
-         KXCrO2b1R3o5dcm5Gnu/RVNgOAWHCtfdc2TvyNLlV9M8hCBLkV70eMQO4um25Iw0Nyqh
-         E68g==
+        bh=HaYSSe7MrXhzop/WSi7SwbpLSKEaLKbhaDVaNUSRXpI=;
+        b=vK3h5V62BNA3uVNX2sXn7dvr3FdKsr7xv67UM3M+8R01bAVPxUYd29t4NYjXzboLsZ
+         uH4+swlrNWVAly9gCIvgj+tTOVwP5WYLMfRCSZjyTFQLexcdyc+fl866li3nbtou8ZBt
+         91FsPSgTl6ffKg1MEiSOVUjpCupqWEpFd1mQpF52LQBWW70zN/ojv7S+apUKK9ljNVsH
+         HPaqLvm9efIBX/Bms0AAPXwuVGi7cTqr9eqoqh2QBXUI+GWM/rSD1sqBHHxDvhrP6InJ
+         ODZOEQsXivFi0vetmS2cDqDeTREUy6rI4FQ1nMEsMs2Iwtpg10fDokTeNOnXmwMYgtJx
+         cRXQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780296868; x=1780901668;
+        d=1e100.net; s=20251104; t=1780296871; x=1780901671;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=TMPK/u4znZdID92cCsTtghz3RJZxs3ue0UuQgkEbF/o=;
-        b=pUg+GBr52IytWEftE0eByyfabajQWMejnfFYDo+fnoEls601WbNWAwGTHfKYsQmlFa
-         1Qj8EsQBn/Ndc0JS3JxYUduXo1AtrAGuuUVqhiPS0KEDqczHqFjTjq5FVeLUj7Mnv92Z
-         eq6gCbOhRjraX9yVjXsGTVBPFkdzu7g+EzGpLQMfziMUqnpdaKZf5AWATJCjKcG3icwz
-         h7REXmKewvO/qHvWXv7FxeM8cn8Fce/8XnZZkIvUsH/J/cS+7+RNRo02GN84BR5/dx2X
-         IdsLJLhfI0jyRXmNYU9GjqTii+pxAlQDSwIomnLsA6o0lcWl1khxLE8l8UPkEpH1d+CF
-         a4Zw==
-X-Forwarded-Encrypted: i=1; AFNElJ8vXHxNjhi3Av+4eOwnHLUmFREhgomOgG2/2KYarj6kKR5VuK/9PJNeK9LS0VhK9LanaycFvjV878Ob@vger.kernel.org
-X-Gm-Message-State: AOJu0YxQoflhdB3nIHieSAa1CdSl3WAf76sl+ZV5u44nBKKHRALsAJbv
-	aOCx3xscn20dbePFN9XOXCRxMwp8QLGTRxnqykjcUH6GwjoFmMghAVEu6CrkLtHANDCl7wplyei
-	SVbWVGFz8+g==
-X-Received: from dycnb7.prod.google.com ([2002:a05:7301:b07:b0:304:d169:68d5])
- (user=irogers job=prod-delivery.src-stubby-dispatcher) by 2002:a05:7301:100b:b0:304:d32e:65e5
- with SMTP id 5a478bee46e88-304fa4df7b1mr3917439eec.8.1780296867507; Sun, 31
- May 2026 23:54:27 -0700 (PDT)
-Date: Sun, 31 May 2026 23:53:56 -0700
+        bh=HaYSSe7MrXhzop/WSi7SwbpLSKEaLKbhaDVaNUSRXpI=;
+        b=EBYm969KKSfBCVZ698O9VRidAPF6XwGaAiui/P5n72CGmmANbYQcThQHBu4nbLM3WB
+         rDDwy0fay4fvufdpmKnfp+PTEUlljC81rHt3kJCvJz0sXRCYxwxyxsW49Kbq31O7/r4H
+         IAL3Gk+Aij04WQEzkF+9N1HYdkFy3aTc1h+dj38wnrLigiYAFwnntusjQsMjR6CeEDbm
+         s2Jy9UBHZUDz1NQyPc1XNYMTYbLUl9S9UgDTBdYYbPpelTfUfQc2rxm7YStSsGBTvjcY
+         qU/FZD1JJ7/FQZfSBmZ5q1Ljj1LPMSCRO1bWQw1v1fGKlnJh2xk4SAawI2SosoN+NBEd
+         dueA==
+X-Forwarded-Encrypted: i=1; AFNElJ9VsPGwE82agQ12rp+gqs41mLhTpGTCaEAQZrrSvrrCzVBg0Mx9rSqhzzoNPnJQGV0pEWwfNNbXiael@vger.kernel.org
+X-Gm-Message-State: AOJu0YwyK1D4oX0XAziSQInZtXr2YqfJYwAaTum9mn7jGn2/YmFljarC
+	qMyrzFYO+yvtrZuh2ODhzGovuXz1CbCHJSYcocbU3YxT/1XFcleEb0SW2SSiYXujwtRWoxMmBfv
+	Gintq/6So0w==
+X-Received: from dlbbo37.prod.google.com ([2002:a05:7022:43a5:b0:135:d0cf:93de])
+ (user=irogers job=prod-delivery.src-stubby-dispatcher) by 2002:a05:7022:117:b0:11a:e426:911a
+ with SMTP id a92af1059eb24-137d3f132bbmr5142893c88.15.1780296870856; Sun, 31
+ May 2026 23:54:30 -0700 (PDT)
+Date: Sun, 31 May 2026 23:53:58 -0700
 In-Reply-To: <20260601065407.1597927-1-irogers@google.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
@@ -58,8 +58,8 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 Mime-Version: 1.0
 References: <20260503002248.1040791-1-irogers@google.com> <20260601065407.1597927-1-irogers@google.com>
 X-Mailer: git-send-email 2.54.0.823.g6e5bcc1fc9-goog
-Message-ID: <20260601065407.1597927-8-irogers@google.com>
-Subject: [PATCH v10 07/18] perf machine: Use perf_env e_machine rather than arch
+Message-ID: <20260601065407.1597927-10-irogers@google.com>
+Subject: [PATCH v10 09/18] perf sort: Use perf_env e_machine rather than arch
 From: Ian Rogers <irogers@google.com>
 To: irogers@google.com, acme@kernel.org, namhyung@kernel.org
 Cc: agordeev@linux.ibm.com, gor@linux.ibm.com, hca@linux.ibm.com, 
@@ -68,108 +68,115 @@ Cc: agordeev@linux.ibm.com, gor@linux.ibm.com, hca@linux.ibm.com,
 	sumanthk@linux.ibm.com, tmricht@linux.ibm.com
 Content-Type: text/plain; charset="UTF-8"
 
-The arch string is derived from uname and may be normalized causing
-potential differences meaning the ELF machine can be more
-precise. Reduce the scope of machine__is as often it is better to use
-a thread for the e_machine rather than the machine. Switch from string
-to ELF machine constant comparisons.
+Use the e_machine rather than the arch to determine x86 or PPC types.
 
 Signed-off-by: Ian Rogers <irogers@google.com>
 ---
- tools/perf/util/machine.c | 35 ++++++++++++++++++-----------------
- tools/perf/util/machine.h |  2 --
- 2 files changed, 18 insertions(+), 19 deletions(-)
+ tools/perf/util/sort.c | 58 +++++++++++++++++++++++-------------------
+ 1 file changed, 32 insertions(+), 26 deletions(-)
 
-diff --git a/tools/perf/util/machine.c b/tools/perf/util/machine.c
-index e5d1e8b882a9..47be7a44a5f7 100644
---- a/tools/perf/util/machine.c
-+++ b/tools/perf/util/machine.c
-@@ -9,6 +9,7 @@
+diff --git a/tools/perf/util/sort.c b/tools/perf/util/sort.c
+index 0020089cb13c..90bc4a31bb55 100644
+--- a/tools/perf/util/sort.c
++++ b/tools/perf/util/sort.c
+@@ -1,40 +1,45 @@
+ // SPDX-License-Identifier: GPL-2.0
++#include "sort.h"
++
+ #include <ctype.h>
+ #include <errno.h>
+ #include <inttypes.h>
+-#include <regex.h>
+ #include <stdlib.h>
++
++#include <elf.h>
++#include <linux/kernel.h>
+ #include <linux/mman.h>
++#include <linux/string.h>
+ #include <linux/time64.h>
++
++#include <regex.h>
++
++#include "annotate-data.h"
++#include "annotate.h"
++#include "branch.h"
++#include "cacheline.h"
++#include "cgroup.h"
++#include "comm.h"
  #include "debug.h"
  #include "dso.h"
- #include "env.h"
-+#include "dwarf-regs.h"
- #include "event.h"
- #include "evsel.h"
+-#include "sort.h"
++#include "event.h"
++#include "evlist.h"
++#include "evsel.h"
  #include "hist.h"
-@@ -1627,10 +1628,24 @@ static bool machine__uses_kcore(struct machine *machine)
- 	return dsos__for_each_dso(&machine->dsos, machine__uses_kcore_cb, NULL) != 0 ? true : false;
- }
+-#include "cacheline.h"
+-#include "comm.h"
++#include "machine.h"
+ #include "map.h"
+-#include "maps.h"
+-#include "symbol.h"
+ #include "map_symbol.h"
+-#include "branch.h"
+-#include "thread.h"
+-#include "evsel.h"
+-#include "evlist.h"
+-#include "srcline.h"
+-#include "strlist.h"
+-#include "strbuf.h"
++#include "maps.h"
+ #include "mem-events.h"
+ #include "mem-info.h"
+-#include "annotate.h"
+-#include "annotate-data.h"
+-#include "event.h"
+-#include "time-utils.h"
+-#include "cgroup.h"
+-#include "machine.h"
+ #include "session.h"
++#include "srcline.h"
++#include "strbuf.h"
++#include "strlist.h"
++#include "symbol.h"
++#include "thread.h"
++#include "time-utils.h"
+ #include "trace-event.h"
+-#include <linux/kernel.h>
+-#include <linux/string.h>
  
-+static bool machine__is(struct machine *machine, uint16_t e_machine)
-+{
-+	if (!machine)
-+		return false;
-+
-+	if (!machine->env) {
-+		if (machine__is_host(machine))
-+			return e_machine == EM_HOST;
-+		return false;
-+	}
-+
-+	return perf_env__e_machine(machine->env, NULL) == e_machine;
-+}
-+
- static bool perf_event__is_extra_kernel_mmap(struct machine *machine,
- 					     struct extra_kernel_map *xm)
+ #ifdef HAVE_LIBTRACEEVENT
+ #include <event-parse.h>
+@@ -2673,9 +2678,10 @@ struct sort_dimension {
+ 
+ static int arch_support_sort_key(const char *sort_key, struct perf_env *env)
  {
--	return machine__is(machine, "x86_64") &&
-+	return machine__is(machine, EM_X86_64) &&
- 	       is_entry_trampoline(xm->name);
- }
+-	const char *arch = perf_env__arch(env);
++	uint16_t e_machine = perf_env__e_machine(env, /*e_eflags=*/NULL);
  
-@@ -2786,7 +2801,7 @@ static int find_prev_cpumode(struct ip_callchain *chain, struct thread *thread,
- static u64 get_leaf_frame_caller(struct perf_sample *sample,
- 		struct thread *thread, int usr_idx)
+-	if (!strcmp("x86", arch) || !strcmp("powerpc", arch)) {
++	if (e_machine == EM_X86_64 || e_machine == EM_386 || e_machine == EM_PPC64 ||
++	    e_machine == EM_PPC) {
+ 		if (!strcmp(sort_key, "p_stage_cyc"))
+ 			return 1;
+ 		if (!strcmp(sort_key, "local_p_stage_cyc"))
+@@ -2686,14 +2692,14 @@ static int arch_support_sort_key(const char *sort_key, struct perf_env *env)
+ 
+ static const char *arch_perf_header_entry(const char *se_header, struct perf_env *env)
  {
--	if (machine__normalized_is(maps__machine(thread__maps(thread)), "arm64"))
-+	if (thread__e_machine(thread, /*machine=*/NULL, /*e_flags=*/NULL) == EM_AARCH64)
- 		return get_leaf_frame_caller_aarch64(sample, thread, usr_idx);
- 	else
- 		return 0;
-@@ -3157,20 +3172,6 @@ int machine__set_current_tid(struct machine *machine, int cpu, pid_t pid,
- 	return 0;
- }
+-	const char *arch = perf_env__arch(env);
++	uint16_t e_machine = perf_env__e_machine(env, /*e_eflags=*/NULL);
  
--/*
-- * Compares the raw arch string. N.B. see instead perf_env__arch() or
-- * machine__normalized_is() if a normalized arch is needed.
-- */
--bool machine__is(struct machine *machine, const char *arch)
--{
--	return machine && !strcmp(perf_env__raw_arch(machine->env), arch);
--}
--
--bool machine__normalized_is(struct machine *machine, const char *arch)
--{
--	return machine && !strcmp(perf_env__arch(machine->env), arch);
--}
--
- int machine__nr_cpus_avail(struct machine *machine)
- {
- 	return machine ? perf_env__nr_cpus_avail(machine->env) : 0;
-@@ -3197,7 +3198,7 @@ int machine__get_kernel_start(struct machine *machine)
- 		 * start of kernel text, but still above 2^63. So leave
- 		 * kernel_start = 1ULL << 63 for x86_64.
- 		 */
--		if (!err && !machine__is(machine, "x86_64"))
-+		if (!err && !machine__is(machine, EM_X86_64))
- 			machine->kernel_start = map__start(map);
- 	}
- 	return err;
-diff --git a/tools/perf/util/machine.h b/tools/perf/util/machine.h
-index 048b24e9bd38..aaddfb70ea66 100644
---- a/tools/perf/util/machine.h
-+++ b/tools/perf/util/machine.h
-@@ -224,8 +224,6 @@ static inline bool machine__is_host(struct machine *machine)
- }
- 
- bool machine__is_lock_function(struct machine *machine, u64 addr);
--bool machine__is(struct machine *machine, const char *arch);
--bool machine__normalized_is(struct machine *machine, const char *arch);
- int machine__nr_cpus_avail(struct machine *machine);
- 
- struct thread *machine__findnew_thread(struct machine *machine, pid_t pid, pid_t tid);
+-	if (!strcmp("x86", arch)) {
++	if (e_machine == EM_X86_64 || e_machine == EM_386) {
+ 		if (!strcmp(se_header, "Local Pipeline Stage Cycle"))
+ 			return "Local Retire Latency";
+ 		else if (!strcmp(se_header, "Pipeline Stage Cycle"))
+ 			return "Retire Latency";
+-	} else if (!strcmp("powerpc", arch)) {
++	} else if (e_machine == EM_PPC64 || e_machine == EM_PPC) {
+ 		if (!strcmp(se_header, "Local INSTR Latency"))
+ 			return "Finish Cyc";
+ 		else if (!strcmp(se_header, "INSTR Latency"))
 -- 
 2.54.0.823.g6e5bcc1fc9-goog
 
