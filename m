@@ -1,823 +1,204 @@
-Received: from mail-dl1-f74.google.com (mail-dl1-f74.google.com [74.125.82.74])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B8506388E6B
-	for <linux-s390@vger.kernel.org>; Mon,  1 Jun 2026 06:54:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.74
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB8BA32B10A;
+	Mon,  1 Jun 2026 07:03:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780296891; cv=none; b=C4K89KjXXlVVta0cN+7s/SCw721TGdO5G13xOQhnfd1PFCzSeEUwu+0dYHnxGN+/NmgKSdhQKRKFqRweRTPtKVQ0IOuyuMBcVvMc/c5ksF9S5eSk+zsxYUm2pICDvbU8JEIAkxfdpJf0/+S2Lpq1oKn8Mj1UlLdNJzO+UumhzPk=
+	t=1780297426; cv=none; b=lb2/K7I+xSdKrtaL/FWSU8JYVukS00XYvSchuV6+OiZ/iaCiJuf6solNUXu/itk174H2IR3/zSXCA/r59fzEY2Kedkz5OZ5JkRSYLcE6i4LaYQ09wx7T+Dwke33bPBpMIKhBe7uI3q4ND1N2SJVvSqmy8xNyPx952Er1IHgQ3Eo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780296891; c=relaxed/simple;
-	bh=3tOWTkdIQ6y9A3AHCTUHvpXFj/hWjrWnaeuAAFXIj1E=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=Tm4pNDPifZF+mKuZleHfJCbCrnVqM5wuzvMgljS9YOVOZgU40+b17SyirMyzOo5EmsZeLvtXgrqnhUqGK4z/6NkMVfIH+hUsJZOHmPUzfTY3anZfQrtnnraNDtbPY2pDWmQkmT8Bk9zJJgKUHJJ6tR2gBtWXQiE7T7cFSmQGEtg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--irogers.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=Kk0m2Ejo; arc=none smtp.client-ip=74.125.82.74
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--irogers.bounces.google.com
+	s=arc-20240116; t=1780297426; c=relaxed/simple;
+	bh=NtQVsiKH16DAV/9ZkmA3RJBSxNGta1YvsGWIhrX7EJI=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=XT6U97RzAbXeuMbP46oAz4n7/qUM7snzqrKG3/yg3/EWnvIR+x5b58tStDauhKwCufkVORYLEp945C18nXNe7khAmdSDz+LYyyzrgT9dsCxwkkCGVdhUGPlsIhaxy8jw9WLRTdjEjwqUKUP2ELIcYr5O/wkk1yJ6qNIu6u/8SZk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=casper.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=FhV/e6rZ; arc=none smtp.client-ip=90.155.50.34
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=casper.srs.infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="Kk0m2Ejo"
-Received: by mail-dl1-f74.google.com with SMTP id a92af1059eb24-137276019cfso7806609c88.1
-        for <linux-s390@vger.kernel.org>; Sun, 31 May 2026 23:54:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1780296888; x=1780901688; darn=vger.kernel.org;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=9D9hZaJY7OUE6bHNXGDNMtwYbF4ppKbcP/Lazaf/1gw=;
-        b=Kk0m2EjoZrGAiJvz83ClExlwaY9F64bYUj1OLmdTw5NzQXOqT76DY9Let2eH6st+O9
-         KZuRaDUBkdgEBk+1MT0PEE3Uy0o/2c0mG4PXNY01ejOcy+zOU0s4HpXoX8Ax/lbNY8G3
-         Socbp4qKv8VhdUM6hbLOSl45sJL2870nczHid0tk3Cxr9l5cnJDr8YOfXLV8voNtIsXu
-         CrU/E/mRJkYx+LogTMsYwakwPOranbIOqNA4KozEUT//dksr2S6IZ4kc+NgUnqIb/mxK
-         W6jhMnwT2/igTcq9YxfYceLEk7Y8AXURuY1WuUNEu3KDy42r+nFz1+LOjeCnF1Urq832
-         Wg9A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780296888; x=1780901688;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=9D9hZaJY7OUE6bHNXGDNMtwYbF4ppKbcP/Lazaf/1gw=;
-        b=lEdS/wwHy8Clobz0q6Vb/Ru72JNJID2/zFl+yXxn3rgltHcrEVCw/KrQ7ZvpG3KSM3
-         m10flBXknM4dZWyTgM0hnj1LJObpeJk9RaW7ZppeonJqErgjYWY0sWySlfXXql0E/uxE
-         0ihuyPybytJ6FFG9Pmu+P/r/n9VebrVTKhiAyybYxBnyFPlY1IPp/oX75ShDaSRmNk44
-         LmGdgHRQnan9qBJmu3lkmLdeA89jbZn03N/zw0PVrrY+GzZ4UI7GTZvFyKyL3Lvrx+F8
-         +od5xFTQgCp+7/gyH519eUq7D6v7aDjr1d46hAX47230yCYq8jcAgiibyuPjZwC9ZQnh
-         moWA==
-X-Forwarded-Encrypted: i=1; AFNElJ8OMKPNHN8zN3lqj/aoKTIgf9PwV865j3JZiSvvn6aCmFcj8ZamD8R1FyMTqu0CPaTrmW74WMEW+mwr@vger.kernel.org
-X-Gm-Message-State: AOJu0Yzf8JkKOIAaTOiAIqEKth53yuk7E6pmOMawEmJ6Pe1Q2XKuGxws
-	bLUUzo17ZHzQ8Wvvn1MkJ2bPpKU2Bmcr45dTWmYAnTdDQXU9RgkV8hKP8h2LpBsUmTSFMdYuM3x
-	rtDZcY5JYTA==
-X-Received: from dlbut10.prod.google.com ([2002:a05:7022:7e0a:b0:135:b7ea:e2d3])
- (user=irogers job=prod-delivery.src-stubby-dispatcher) by 2002:a05:7022:e23:b0:12a:71ab:8235
- with SMTP id a92af1059eb24-137d3d09572mr3542855c88.6.1780296887343; Sun, 31
- May 2026 23:54:47 -0700 (PDT)
-Date: Sun, 31 May 2026 23:54:06 -0700
-In-Reply-To: <20260601065407.1597927-1-irogers@google.com>
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="FhV/e6rZ"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=casper.20170209; h=MIME-Version:Content-Type:References:
+	In-Reply-To:Date:Cc:To:From:Subject:Message-ID:Sender:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=NtQVsiKH16DAV/9ZkmA3RJBSxNGta1YvsGWIhrX7EJI=; b=FhV/e6rZz4hufSsR815Hm8V2iy
+	okvuCHG8AY/35rcQFieOacaZF8WHpVHVFC5uLxodIgrwOyPuUDLv7RlsNCKc8sPi9O6Q+EEM8wFG7
+	CQpoGYNs0ulaLcP5FPa9kigROvvcR10P4t1+ldQeJ+KD2vteW9sXf9QtEafkvoQ0BmkLjTZ4GE4mS
+	QdNnyP4AIsl2lrCKYA2kpCfy+SOohYopSk2GtcwyU50joCQM3055SgSwwOYb90PvXZSyuPVcasGz4
+	dsYmf1MggwmEESEgpfnQdWA524TwH7/rSI/XE+2RCuR5if9oIpsfk2DNyH9WZI3A4HLj1EXlVAsOc
+	YwgNHp2Q==;
+Received: from [2001:8b0:10b:5:a9ac:3853:5e3b:fafd] (helo=u09cd745991455d.ant.amazon.com)
+	by casper.infradead.org with esmtpsa (Exim 4.99.1 #2 (Red Hat Linux))
+	id 1wTwgJ-0000000Amtz-0rEm;
+	Mon, 01 Jun 2026 07:03:27 +0000
+Message-ID: <3908843460c4864eef79cced40d897f793c7ae2a.camel@infradead.org>
+Subject: Re: [PATCH v2 2/2] MAINTAINERS: update PTP maintainer entries after
+ directory split
+From: David Woodhouse <dwmw2@infradead.org>
+To: Richard Cochran <richardcochran@gmail.com>
+Cc: Wen Gu <guwen@linux.alibaba.com>, Jakub Kicinski <kuba@kernel.org>, 
+ tglx@kernel.org, andrew+netdev@lunn.ch, davem@davemloft.net,
+ edumazet@google.com,  pabeni@redhat.com, linux-kernel@vger.kernel.org,
+ netdev@vger.kernel.org,  jstultz@google.com, anna-maria@linutronix.de,
+ frederic@kernel.org,  daniel.lezcano@kernel.org, sboyd@kernel.org,
+ vladimir.oltean@nxp.com,  wei.fang@nxp.com, xiaoning.wang@nxp.com,
+ jonathan.lemon@gmail.com,  vadim.fedorenko@linux.dev, yangbo.lu@nxp.com,
+ svens@linux.ibm.com,  nick.shi@broadcom.com, ajay.kaher@broadcom.com,
+ alexey.makhalov@broadcom.com,  bcm-kernel-feedback-list@broadcom.com,
+ linux-fpga@vger.kernel.org,  imx@lists.linux.dev,
+ linux-s390@vger.kernel.org, dust.li@linux.alibaba.com, 
+ xuanzhuo@linux.alibaba.com, mani@kernel.org, imran.shaik@oss.qualcomm.com, 
+ taniya.das@oss.qualcomm.com
+Date: Mon, 01 Jun 2026 08:03:26 +0100
+In-Reply-To: <ahzQZg_v4bxFfGdj@hoboy.vegasvil.org>
+References: <20260407104802.34429-1-guwen@linux.alibaba.com>
+	 <20260407104802.34429-3-guwen@linux.alibaba.com>
+	 <20260412084704.743482ad@kernel.org>
+	 <4B889ED5-D1F6-401D-B753-89AE2037F316@infradead.org>
+	 <20260412095301.4fe1fe65@kernel.org>
+	 <ebf19246-91af-4887-b2aa-d9007921f7b2@linux.alibaba.com>
+	 <1088b07d760491deb461d6d01abca631e8f8d86c.camel@infradead.org>
+	 <ahzQZg_v4bxFfGdj@hoboy.vegasvil.org>
+Content-Type: multipart/signed; micalg="sha-256"; protocol="application/pkcs7-signature";
+	boundary="=-OVT/e97uyGyCRMXXx7pG"
+User-Agent: Evolution 3.52.3-0ubuntu1.1 
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-References: <20260503002248.1040791-1-irogers@google.com> <20260601065407.1597927-1-irogers@google.com>
-X-Mailer: git-send-email 2.54.0.823.g6e5bcc1fc9-goog
-Message-ID: <20260601065407.1597927-18-irogers@google.com>
-Subject: [PATCH v10 17/18] perf symbol: Add setters for bitfields sharing a
- byte to avoid concurrent update issues
-From: Ian Rogers <irogers@google.com>
-To: irogers@google.com, acme@kernel.org, namhyung@kernel.org
-Cc: agordeev@linux.ibm.com, gor@linux.ibm.com, hca@linux.ibm.com, 
-	jameshongleiwang@126.com, japo@linux.ibm.com, linux-kernel@vger.kernel.org, 
-	linux-perf-users@vger.kernel.org, linux-s390@vger.kernel.org, 
-	sumanthk@linux.ibm.com, tmricht@linux.ibm.com
+MIME-Version: 1.0
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by casper.infradead.org. See http://www.infradead.org/rpr.html
+
+
+--=-OVT/e97uyGyCRMXXx7pG
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-A problem with putting bitfields into struct symbol is that other bits in
-the symbol could be updated concurrently and only one update to the
-underlying storage unit happen, leading to lost updates.
+On Sun, 2026-05-31 at 17:20 -0700, Richard Cochran wrote:
+> On Thu, May 28, 2026 at 06:06:32PM +0100, David Woodhouse wrote:
+>=20
+> > Apologies for the delay. I have set up
+> >=20
+> > https://git.infradead.org/?p=3Dlinux-ptp.git
+> > git://git.infradead.org/linux-ptp.git
+> >=20
+> > But I'm not keen on using it without Richard's explicit approval and a
+> > clear understanding of who owns what, *and* the taxonomy we use...
+>=20
+> The name "linux-ptp" is very close to "linuxptp" which is the user
+> space PTP stack.=C2=A0 So it is a bit confusing.
 
-To avoid this, use atomics to atomically read or set part of 16-bits
-of flags in the symbol. Add accessors to simplify this.
+The *naming* was the least of the concerns I expressed :)
 
-The idle value has 3 values in preparation for a later change that
-will lazily update it.
+Before we bikeshed that too hard, we should understand what it would
+contain.
 
-Assisted-by: Gemini:gemini-3.1-pro-preview
-Signed-off-by: Ian Rogers <irogers@google.com>
----
- tools/perf/builtin-inject.c                   |  2 +-
- tools/perf/builtin-kwork.c                    |  2 +-
- tools/perf/builtin-report.c                   |  2 +-
- tools/perf/builtin-sched.c                    |  4 +-
- tools/perf/builtin-top.c                      |  6 +-
- tools/perf/tests/symbols.c                    |  2 +-
- tools/perf/tests/vmlinux-kallsyms.c           |  2 +-
- tools/perf/ui/browsers/annotate.c             |  2 +-
- tools/perf/ui/browsers/map.c                  |  4 +-
- tools/perf/util/annotate.c                    |  5 +-
- tools/perf/util/auxtrace.c                    |  6 +-
- tools/perf/util/callchain.c                   |  4 +-
- tools/perf/util/dlfilter.c                    |  2 +-
- tools/perf/util/evsel_fprintf.c               |  6 +-
- tools/perf/util/intel-pt.c                    |  2 +-
- tools/perf/util/machine.c                     |  2 +-
- tools/perf/util/probe-event.c                 |  4 +-
- .../util/scripting-engines/trace-event-perl.c |  2 +-
- .../scripting-engines/trace-event-python.c    |  4 +-
- tools/perf/util/sort.c                        |  8 +-
- tools/perf/util/srcline.c                     | 10 +--
- tools/perf/util/symbol-elf.c                  |  3 +-
- tools/perf/util/symbol.c                      | 84 +++++++++++++++----
- tools/perf/util/symbol.h                      | 76 +++++++++++++----
- tools/perf/util/symbol_fprintf.c              |  4 +-
- 25 files changed, 175 insertions(+), 73 deletions(-)
+If we move all the plain non-network PHC drivers (which, as noted, is
+basically *all* of them) into a drivers/ subdirectory, then perhaps we
+call it linux-ptp-drivers.git?
 
-diff --git a/tools/perf/builtin-inject.c b/tools/perf/builtin-inject.c
-index d8cb1f562f69..d65bea7d081a 100644
---- a/tools/perf/builtin-inject.c
-+++ b/tools/perf/builtin-inject.c
-@@ -552,7 +552,7 @@ static int perf_event__convert_sample_callchain(const struct perf_tool *tool,
- 		if (machine->single_address_space &&
- 		    machine__kernel_ip(machine, node->ip))
- 			/* kernel IPs were added already */;
--		else if (node->ms.sym && node->ms.sym->inlined)
-+		else if (node->ms.sym && symbol__inlined(node->ms.sym))
- 			/* we can't handle inlined callchains */;
- 		else
- 			inject->raw_callchain->ips[i++] = node->ip;
-diff --git a/tools/perf/builtin-kwork.c b/tools/perf/builtin-kwork.c
-index 99dc293a0744..77e87e75613d 100644
---- a/tools/perf/builtin-kwork.c
-+++ b/tools/perf/builtin-kwork.c
-@@ -769,7 +769,7 @@ static void timehist_save_callchain(struct perf_kwork *kwork,
- 		if (sym) {
- 			if (!strcmp(sym->name, "__softirqentry_text_start") ||
- 			    !strcmp(sym->name, "__do_softirq"))
--				sym->ignore = 1;
-+				symbol__set_ignore(sym, true);
- 		}
- 
- 		callchain_cursor_advance(cursor);
-diff --git a/tools/perf/builtin-report.c b/tools/perf/builtin-report.c
-index 973d97af8501..b79001529d01 100644
---- a/tools/perf/builtin-report.c
-+++ b/tools/perf/builtin-report.c
-@@ -749,7 +749,7 @@ static int hists__resort_cb(struct hist_entry *he, void *arg)
- 	struct report *rep = arg;
- 	struct symbol *sym = he->ms.sym;
- 
--	if (rep->symbol_ipc && sym && !sym->annotate2) {
-+	if (rep->symbol_ipc && sym && !symbol__is_annotate2(sym)) {
- 		struct evsel *evsel = hists_to_evsel(he->hists);
- 
- 		symbol__annotate2(&he->ms, evsel, NULL);
-diff --git a/tools/perf/builtin-sched.c b/tools/perf/builtin-sched.c
-index 812a1b0d56d6..b6da74c5befa 100644
---- a/tools/perf/builtin-sched.c
-+++ b/tools/perf/builtin-sched.c
-@@ -2367,7 +2367,7 @@ static void save_task_callchain(struct perf_sched *sched,
- 			if (!strcmp(sym->name, "schedule") ||
- 			    !strcmp(sym->name, "__schedule") ||
- 			    !strcmp(sym->name, "preempt_schedule"))
--				sym->ignore = 1;
-+				symbol__set_ignore(sym, true);
- 		}
- 
- 		callchain_cursor_advance(cursor);
-@@ -3025,7 +3025,7 @@ static size_t callchain__fprintf_folded(FILE *fp, struct callchain_node *node)
- 	list_for_each_entry(chain, &node->val, list) {
- 		if (chain->ip >= PERF_CONTEXT_MAX)
- 			continue;
--		if (chain->ms.sym && chain->ms.sym->ignore)
-+		if (chain->ms.sym && symbol__ignore(chain->ms.sym))
- 			continue;
- 		ret += fprintf(fp, "%s%s", first ? "" : sep,
- 			       callchain_list__sym_name(chain, bf, sizeof(bf),
-diff --git a/tools/perf/builtin-top.c b/tools/perf/builtin-top.c
-index c8474f7ac658..35b57a831362 100644
---- a/tools/perf/builtin-top.c
-+++ b/tools/perf/builtin-top.c
-@@ -186,8 +186,8 @@ static void ui__warn_map_erange(struct map *map, struct symbol *sym, u64 ip)
- 		    "Please report to linux-kernel@vger.kernel.org\n",
- 		    ip, dso__long_name(dso), dso__symtab_origin(dso),
- 		    map__start(map), map__end(map), sym->start, sym->end,
--		    sym->binding == STB_GLOBAL ? 'g' :
--		    sym->binding == STB_LOCAL  ? 'l' : 'w', sym->name,
-+		    symbol__binding(sym) == STB_GLOBAL ? 'g' :
-+		    symbol__binding(sym) == STB_LOCAL  ? 'l' : 'w', sym->name,
- 		    err ? "[unknown]" : uts.machine,
- 		    err ? "[unknown]" : uts.release, perf_version_string);
- 	if (use_browser <= 0)
-@@ -828,7 +828,7 @@ static void perf_event__process_sample(const struct perf_tool *tool,
- 		}
- 	}
- 
--	if (al.sym == NULL || !al.sym->idle) {
-+	if (al.sym == NULL || !symbol__is_idle(al.sym, al.map ? map__dso(al.map) : NULL, machine->env)) {
- 		struct hists *hists = evsel__hists(sample->evsel);
- 		struct hist_entry_iter iter = {
- 			.sample 	= sample,
-diff --git a/tools/perf/tests/symbols.c b/tools/perf/tests/symbols.c
-index f4ffe5804f40..c09e04f36035 100644
---- a/tools/perf/tests/symbols.c
-+++ b/tools/perf/tests/symbols.c
-@@ -125,7 +125,7 @@ static int test_dso(struct dso *dso)
- 	for (nd = rb_first_cached(dso__symbols(dso)); nd; nd = rb_next(nd)) {
- 		struct symbol *sym = rb_entry(nd, struct symbol, rb_node);
- 
--		if (sym->type != STT_FUNC && sym->type != STT_GNU_IFUNC)
-+		if (symbol__type(sym) != STT_FUNC && symbol__type(sym) != STT_GNU_IFUNC)
- 			continue;
- 
- 		/* Check for overlapping function symbols */
-diff --git a/tools/perf/tests/vmlinux-kallsyms.c b/tools/perf/tests/vmlinux-kallsyms.c
-index 524d46478364..7409abe4aa36 100644
---- a/tools/perf/tests/vmlinux-kallsyms.c
-+++ b/tools/perf/tests/vmlinux-kallsyms.c
-@@ -346,7 +346,7 @@ static int test__vmlinux_matches_kallsyms(struct test_suite *test __maybe_unused
- 			 * such as __indirect_thunk_end.
- 			 */
- 			continue;
--		} else if (is_ignored_symbol(sym->name, sym->type)) {
-+		} else if (is_ignored_symbol(sym->name, symbol__type(sym))) {
- 			/*
- 			 * Ignore hidden symbols, see scripts/kallsyms.c for the details
- 			 */
-diff --git a/tools/perf/ui/browsers/annotate.c b/tools/perf/ui/browsers/annotate.c
-index ea17e6d29a7e..e220c4dfc881 100644
---- a/tools/perf/ui/browsers/annotate.c
-+++ b/tools/perf/ui/browsers/annotate.c
-@@ -1185,7 +1185,7 @@ int __hist_entry__tui_annotate(struct hist_entry *he, struct map_symbol *ms,
- 	if (dso__annotate_warned(dso))
- 		return -1;
- 
--	if (not_annotated || !sym->annotate2) {
-+	if (not_annotated || !symbol__is_annotate2(sym)) {
- 		err = symbol__annotate2(ms, evsel, &browser.arch);
- 		if (err) {
- 			annotate_browser__symbol_annotate_error(&browser, err);
-diff --git a/tools/perf/ui/browsers/map.c b/tools/perf/ui/browsers/map.c
-index c61ba3174a24..075a575cdc5d 100644
---- a/tools/perf/ui/browsers/map.c
-+++ b/tools/perf/ui/browsers/map.c
-@@ -32,8 +32,8 @@ static void map_browser__write(struct ui_browser *browser, void *nd, int row)
- 	ui_browser__set_percent_color(browser, 0, current_entry);
- 	ui_browser__printf(browser, "%*" PRIx64 " %*" PRIx64 " %c ",
- 			   mb->addrlen, sym->start, mb->addrlen, sym->end,
--			   sym->binding == STB_GLOBAL ? 'g' :
--				sym->binding == STB_LOCAL  ? 'l' : 'w');
-+			   symbol__binding(sym) == STB_GLOBAL ? 'g' :
-+				symbol__binding(sym) == STB_LOCAL  ? 'l' : 'w');
- 	width = browser->width - ((mb->addrlen * 2) + 4);
- 	if (width > 0)
- 		ui_browser__write_nstring(browser, sym->name, width);
-diff --git a/tools/perf/util/annotate.c b/tools/perf/util/annotate.c
-index 470569745abe..02505222d8c2 100644
---- a/tools/perf/util/annotate.c
-+++ b/tools/perf/util/annotate.c
-@@ -236,7 +236,8 @@ static int __symbol__inc_addr_samples(struct map_symbol *ms,
- 	h = annotated_source__histogram(src, evsel);
- 	if (h == NULL) {
- 		pr_debug("%s(%d): ENOMEM! sym->name=%s, start=%#" PRIx64 ", addr=%#" PRIx64 ", end=%#" PRIx64 ", func: %d\n",
--			 __func__, __LINE__, sym->name, sym->start, addr, sym->end, sym->type == STT_FUNC);
-+			 __func__, __LINE__, sym->name, sym->start, addr, sym->end,
-+			 symbol__type(sym) == STT_FUNC);
- 		return -ENOMEM;
- 	}
- 
-@@ -2223,7 +2224,7 @@ int symbol__annotate2(struct map_symbol *ms, struct evsel *evsel,
- 
- 	annotation__init_column_widths(notes, sym);
- 	annotation__update_column_widths(notes);
--	sym->annotate2 = 1;
-+	symbol__set_annotate2(sym, true);
- 
- 	return 0;
- }
-diff --git a/tools/perf/util/auxtrace.c b/tools/perf/util/auxtrace.c
-index fcf564e0d777..5f4aa1701aef 100644
---- a/tools/perf/util/auxtrace.c
-+++ b/tools/perf/util/auxtrace.c
-@@ -2694,7 +2694,7 @@ static bool dso_sym_match(struct symbol *sym, const char *name, int *cnt,
- {
- 	/* Same name, and global or the n'th found or any */
- 	return !arch__compare_symbol_names(name, sym->name) &&
--	       ((!idx && sym->binding == STB_GLOBAL) ||
-+	       ((!idx && symbol__binding(sym) == STB_GLOBAL) ||
- 		(idx > 0 && ++*cnt == idx) ||
- 		idx < 0);
- }
-@@ -2712,8 +2712,8 @@ static void print_duplicate_syms(struct dso *dso, const char *sym_name)
- 		if (dso_sym_match(sym, sym_name, &cnt, -1)) {
- 			pr_err("#%d\t0x%"PRIx64"\t%c\t%s\n",
- 			       ++cnt, sym->start,
--			       sym->binding == STB_GLOBAL ? 'g' :
--			       sym->binding == STB_LOCAL  ? 'l' : 'w',
-+			       symbol__binding(sym) == STB_GLOBAL ? 'g' :
-+			       symbol__binding(sym) == STB_LOCAL  ? 'l' : 'w',
- 			       sym->name);
- 			near = true;
- 		} else if (near) {
-diff --git a/tools/perf/util/callchain.c b/tools/perf/util/callchain.c
-index 5c2282051e39..8981ae879ebb 100644
---- a/tools/perf/util/callchain.c
-+++ b/tools/perf/util/callchain.c
-@@ -801,7 +801,7 @@ static enum match_result match_chain(struct callchain_cursor_node *node,
- 			 * symbol start. Otherwise do a faster comparison based
- 			 * on the symbol start address.
- 			 */
--			if (cnode->ms.sym->inlined || node->ms.sym->inlined) {
-+			if (symbol__inlined(cnode->ms.sym) || symbol__inlined(node->ms.sym)) {
- 				match = match_chain_strings(cnode->ms.sym->name,
- 							    node->ms.sym->name);
- 				if (match != MATCH_ERROR)
-@@ -1245,7 +1245,7 @@ char *callchain_list__sym_name(struct callchain_list *cl,
- 	int printed;
- 
- 	if (cl->ms.sym) {
--		const char *inlined = cl->ms.sym->inlined ? " (inlined)" : "";
-+		const char *inlined = symbol__inlined(cl->ms.sym) ? " (inlined)" : "";
- 
- 		if (show_srcline && cl->srcline)
- 			printed = scnprintf(bf, bfsize, "%s %s%s",
-diff --git a/tools/perf/util/dlfilter.c b/tools/perf/util/dlfilter.c
-index dc31b5e7149e..e11e144af62b 100644
---- a/tools/perf/util/dlfilter.c
-+++ b/tools/perf/util/dlfilter.c
-@@ -56,7 +56,7 @@ static void al_to_d_al(struct addr_location *al, struct perf_dlfilter_al *d_al)
- 			d_al->symoff = al->addr - map__start(al->map) - sym->start;
- 		else
- 			d_al->symoff = 0;
--		d_al->sym_binding = sym->binding;
-+		d_al->sym_binding = symbol__binding(sym);
- 	} else {
- 		d_al->sym = NULL;
- 		d_al->sym_start = 0;
-diff --git a/tools/perf/util/evsel_fprintf.c b/tools/perf/util/evsel_fprintf.c
-index 5521d00bff2c..0f7a25500a44 100644
---- a/tools/perf/util/evsel_fprintf.c
-+++ b/tools/perf/util/evsel_fprintf.c
-@@ -146,7 +146,7 @@ int sample__fprintf_callchain(struct perf_sample *sample, int left_alignment,
- 			sym = node->ms.sym;
- 			map = node->ms.map;
- 
--			if (sym && sym->ignore && print_skip_ignored)
-+			if (sym && symbol__ignore(sym) && print_skip_ignored)
- 				goto next;
- 
- 			printed += fprintf(fp, "%-*.*s", left_alignment, left_alignment, " ");
-@@ -182,7 +182,7 @@ int sample__fprintf_callchain(struct perf_sample *sample, int left_alignment,
- 				addr_location__exit(&node_al);
- 			}
- 
--			if (print_dso && (!sym || !sym->inlined))
-+			if (print_dso && (!sym || !symbol__inlined(sym)))
- 				printed += map__fprintf_dsoname_dsoff(map, print_dsoff, addr, fp);
- 
- 			if (print_srcline) {
-@@ -192,7 +192,7 @@ int sample__fprintf_callchain(struct perf_sample *sample, int left_alignment,
- 					printed += map__fprintf_srcline(map, addr, "\n  ", fp);
- 			}
- 
--			if (sym && sym->inlined)
-+			if (sym && symbol__inlined(sym))
- 				printed += fprintf(fp, " (inlined)");
- 
- 			if (!print_oneline)
-diff --git a/tools/perf/util/intel-pt.c b/tools/perf/util/intel-pt.c
-index b8add2b20033..56a9e439f5f8 100644
---- a/tools/perf/util/intel-pt.c
-+++ b/tools/perf/util/intel-pt.c
-@@ -3000,7 +3000,7 @@ static u64 intel_pt_switch_ip(struct intel_pt *pt, u64 *ptss_ip)
- 	start = dso__first_symbol(map__dso(map));
- 
- 	for (sym = start; sym; sym = dso__next_symbol(sym)) {
--		if (sym->binding == STB_GLOBAL &&
-+		if (symbol__binding(sym) == STB_GLOBAL &&
- 		    !strcmp(sym->name, "__switch_to")) {
- 			ip = map__unmap_ip(map, sym->start);
- 			if (ip >= map__start(map) && ip < map__end(map)) {
-diff --git a/tools/perf/util/machine.c b/tools/perf/util/machine.c
-index 47be7a44a5f7..da1ad58758af 100644
---- a/tools/perf/util/machine.c
-+++ b/tools/perf/util/machine.c
-@@ -1095,7 +1095,7 @@ static u64 find_entry_trampoline(struct dso *dso)
- 	unsigned int i;
- 
- 	for (; sym; sym = dso__next_symbol(sym)) {
--		if (sym->binding != STB_GLOBAL)
-+		if (symbol__binding(sym) != STB_GLOBAL)
- 			continue;
- 		for (i = 0; i < ARRAY_SIZE(syms); i++) {
- 			if (!strcmp(sym->name, syms[i]))
-diff --git a/tools/perf/util/probe-event.c b/tools/perf/util/probe-event.c
-index 34b4badd2c14..11ae4a09412c 100644
---- a/tools/perf/util/probe-event.c
-+++ b/tools/perf/util/probe-event.c
-@@ -416,7 +416,7 @@ static int find_alternative_probe_point(struct debuginfo *dinfo,
- 	map__for_each_symbol_by_name(map, pp->function, sym, idx) {
- 		if (uprobes) {
- 			address = sym->start;
--			if (sym->type == STT_GNU_IFUNC)
-+			if (symbol__type(sym) == STT_GNU_IFUNC)
- 				pr_warning("Warning: The probe function (%s) is a GNU indirect function.\n"
- 					   "Consider identifying the final function used at run time and set the probe directly on that.\n",
- 					   pp->function);
-@@ -3189,7 +3189,7 @@ static int find_probe_trace_events_from_map(struct perf_probe_event *pev,
- 	for (j = 0; j < num_matched_functions; j++) {
- 		sym = syms[j];
- 
--		if (sym->type != STT_FUNC)
-+		if (symbol__type(sym) != STT_FUNC)
- 			continue;
- 
- 		/* There can be duplicated symbols in the map */
-diff --git a/tools/perf/util/scripting-engines/trace-event-perl.c b/tools/perf/util/scripting-engines/trace-event-perl.c
-index 7a18ea4b7d50..410dc4cd0600 100644
---- a/tools/perf/util/scripting-engines/trace-event-perl.c
-+++ b/tools/perf/util/scripting-engines/trace-event-perl.c
-@@ -303,7 +303,7 @@ static SV *perl_process_callchain(struct perf_sample *sample,
- 			}
- 			if (!hv_stores(sym, "start",   newSVuv(node->ms.sym->start)) ||
- 			    !hv_stores(sym, "end",     newSVuv(node->ms.sym->end)) ||
--			    !hv_stores(sym, "binding", newSVuv(node->ms.sym->binding)) ||
-+			    !hv_stores(sym, "binding", newSVuv(symbol__binding(node->ms.sym))) ||
- 			    !hv_stores(sym, "name",    newSVpvn(node->ms.sym->name,
- 								node->ms.sym->namelen)) ||
- 			    !hv_stores(elem, "sym",    newRV_noinc((SV*)sym))) {
-diff --git a/tools/perf/util/scripting-engines/trace-event-python.c b/tools/perf/util/scripting-engines/trace-event-python.c
-index cee1f32d7022..8f832ae316ca 100644
---- a/tools/perf/util/scripting-engines/trace-event-python.c
-+++ b/tools/perf/util/scripting-engines/trace-event-python.c
-@@ -436,7 +436,7 @@ static PyObject *python_process_callchain(struct perf_sample *sample,
- 			pydict_set_item_string_decref(pysym, "end",
- 					PyLong_FromUnsignedLongLong(node->ms.sym->end));
- 			pydict_set_item_string_decref(pysym, "binding",
--					_PyLong_FromLong(node->ms.sym->binding));
-+					_PyLong_FromLong(symbol__binding(node->ms.sym)));
- 			pydict_set_item_string_decref(pysym, "name",
- 					_PyUnicode_FromStringAndSize(node->ms.sym->name,
- 							node->ms.sym->namelen));
-@@ -1270,7 +1270,7 @@ static int python_export_symbol(struct db_export *dbe, struct symbol *sym,
- 	tuple_set_d64(t, 1, dso__db_id(dso));
- 	tuple_set_d64(t, 2, sym->start);
- 	tuple_set_d64(t, 3, sym->end);
--	tuple_set_s32(t, 4, sym->binding);
-+	tuple_set_s32(t, 4, symbol__binding(sym));
- 	tuple_set_string(t, 5, sym->name);
- 
- 	call_object(tables->symbol_handler, t, "symbol_table");
-diff --git a/tools/perf/util/sort.c b/tools/perf/util/sort.c
-index 90bc4a31bb55..005e7d85dc4a 100644
---- a/tools/perf/util/sort.c
-+++ b/tools/perf/util/sort.c
-@@ -469,7 +469,7 @@ int64_t _sort__sym_cmp(struct symbol *sym_l, struct symbol *sym_r)
- 	if (sym_l == sym_r)
- 		return 0;
- 
--	if (sym_l->inlined || sym_r->inlined) {
-+	if (symbol__inlined(sym_l) || symbol__inlined(sym_r)) {
- 		int ret = strcmp(sym_l->name, sym_r->name);
- 
- 		if (ret)
-@@ -536,7 +536,7 @@ static int _hist_entry__sym_snprintf(struct map_symbol *ms,
- 
- 	ret += repsep_snprintf(bf + ret, size - ret, "[%c] ", level);
- 	if (sym && map) {
--		if (sym->type == STT_OBJECT) {
-+		if (symbol__type(sym) == STT_OBJECT) {
- 			ret += repsep_snprintf(bf + ret, size - ret, "%s", sym->name);
- 			ret += repsep_snprintf(bf + ret, size - ret, "+0x%llx",
- 					ip - map__unmap_ip(map, sym->start));
-@@ -544,7 +544,7 @@ static int _hist_entry__sym_snprintf(struct map_symbol *ms,
- 			ret += repsep_snprintf(bf + ret, size - ret, "%.*s",
- 					       width - ret,
- 					       sym->name);
--			if (sym->inlined)
-+			if (symbol__inlined(sym))
- 				ret += repsep_snprintf(bf + ret, size - ret,
- 						       " (inlined)");
- 		}
-@@ -1483,7 +1483,7 @@ static int _hist_entry__addr_snprintf(struct map_symbol *ms,
- 
- 	ret += repsep_snprintf(bf + ret, size - ret, "[%c] ", level);
- 	if (sym && map) {
--		if (sym->type == STT_OBJECT) {
-+		if (symbol__type(sym) == STT_OBJECT) {
- 			ret += repsep_snprintf(bf + ret, size - ret, "%s", sym->name);
- 			ret += repsep_snprintf(bf + ret, size - ret, "+0x%llx",
- 					ip - map__unmap_ip(map, sym->start));
-diff --git a/tools/perf/util/srcline.c b/tools/perf/util/srcline.c
-index 62884428fb5a..b082178c279b 100644
---- a/tools/perf/util/srcline.c
-+++ b/tools/perf/util/srcline.c
-@@ -113,16 +113,16 @@ struct symbol *new_inline_sym(struct dso *dso,
- 		/* ensure that we don't alias an inlined symbol, which could
- 		 * lead to double frees in inline_node__delete
- 		 */
--		assert(!base_sym->inlined);
-+		assert(!symbol__inlined(base_sym));
- 	} else {
- 		/* create a fake symbol for the inline frame */
- 		inline_sym = symbol__new(base_sym ? base_sym->start : 0,
- 					 base_sym ? (base_sym->end - base_sym->start) : 0,
--					 base_sym ? base_sym->binding : 0,
--					 base_sym ? base_sym->type : 0,
-+					 base_sym ? symbol__binding(base_sym) : 0,
-+					 base_sym ? symbol__type(base_sym) : 0,
- 					 funcname);
- 		if (inline_sym)
--			inline_sym->inlined = 1;
-+			symbol__set_inlined(inline_sym, true);
- 	}
- 
- 	free(demangled);
-@@ -440,7 +440,7 @@ void inline_node__clear_frames(struct inline_node *node)
- 		list_del_init(&ilist->list);
- 		zfree_srcline(&ilist->srcline);
- 		/* only the inlined symbols are owned by the list */
--		if (ilist->symbol && ilist->symbol->inlined)
-+		if (ilist->symbol && symbol__inlined(ilist->symbol))
- 			symbol__delete(ilist->symbol);
- 		free(ilist);
- 	}
-diff --git a/tools/perf/util/symbol-elf.c b/tools/perf/util/symbol-elf.c
-index 77e6dcba8fda..c5ed5e051976 100644
---- a/tools/perf/util/symbol-elf.c
-+++ b/tools/perf/util/symbol-elf.c
-@@ -350,7 +350,8 @@ static bool get_ifunc_name(Elf *elf, struct dso *dso, GElf_Ehdr *ehdr,
- 	sym = dso__find_symbol_nocache(dso, addr);
- 
- 	/* Expecting the address to be an IFUNC or IFUNC alias */
--	if (!sym || sym->start != addr || (sym->type != STT_GNU_IFUNC && !sym->ifunc_alias))
-+	if (!sym || sym->start != addr ||
-+	    (symbol__type(sym) != STT_GNU_IFUNC && !symbol__ifunc_alias(sym)))
- 		return false;
- 
- 	snprintf(buf, buf_sz, "%s@plt", sym->name);
-diff --git a/tools/perf/util/symbol.c b/tools/perf/util/symbol.c
-index 077d19af5240..e38aee22fe5c 100644
---- a/tools/perf/util/symbol.c
-+++ b/tools/perf/util/symbol.c
-@@ -50,7 +50,7 @@
- 
- static int dso__load_kernel_sym(struct dso *dso, struct map *map);
- static int dso__load_guest_kernel_sym(struct dso *dso, struct map *map);
--static bool symbol__is_idle(const char *name);
-+static bool symbol__compute_is_idle(const char *name);
- 
- int vmlinux_path__nr_entries;
- char **vmlinux_path;
-@@ -163,24 +163,24 @@ static int choose_best_symbol(struct symbol *syma, struct symbol *symb)
- 	else if ((a == 0) && (b > 0))
- 		return SYMBOL_B;
- 
--	if (syma->type != symb->type) {
--		if (syma->type == STT_NOTYPE)
-+	if (symbol__type(syma) != symbol__type(symb)) {
-+		if (symbol__type(syma) == STT_NOTYPE)
- 			return SYMBOL_B;
--		if (symb->type == STT_NOTYPE)
-+		if (symbol__type(symb) == STT_NOTYPE)
- 			return SYMBOL_A;
- 	}
- 
- 	/* Prefer a non weak symbol over a weak one */
--	a = syma->binding == STB_WEAK;
--	b = symb->binding == STB_WEAK;
-+	a = symbol__binding(syma) == STB_WEAK;
-+	b = symbol__binding(symb) == STB_WEAK;
- 	if (b && !a)
- 		return SYMBOL_A;
- 	if (a && !b)
- 		return SYMBOL_B;
- 
- 	/* Prefer a global symbol over a non global one */
--	a = syma->binding == STB_GLOBAL;
--	b = symb->binding == STB_GLOBAL;
-+	a = symbol__binding(syma) == STB_GLOBAL;
-+	b = symbol__binding(symb) == STB_GLOBAL;
- 	if (a && !b)
- 		return SYMBOL_A;
- 	if (b && !a)
-@@ -227,14 +227,14 @@ void symbols__fixup_duplicate(struct rb_root_cached *symbols)
- 			continue;
- 
- 		if (choose_best_symbol(curr, next) == SYMBOL_A) {
--			if (next->type == STT_GNU_IFUNC)
--				curr->ifunc_alias = true;
-+			if (symbol__type(next) == STT_GNU_IFUNC)
-+				symbol__set_ifunc_alias(curr, true);
- 			rb_erase_cached(&next->rb_node, symbols);
- 			symbol__delete(next);
- 			goto again;
- 		} else {
--			if (curr->type == STT_GNU_IFUNC)
--				next->ifunc_alias = true;
-+			if (symbol__type(curr) == STT_GNU_IFUNC)
-+				symbol__set_ifunc_alias(next, true);
- 			nd = rb_next(&curr->rb_node);
- 			rb_erase_cached(&curr->rb_node, symbols);
- 			symbol__delete(curr);
-@@ -322,8 +322,8 @@ struct symbol *symbol__new(u64 start, u64 len, u8 binding, u8 type, const char *
- 
- 	sym->start   = start;
- 	sym->end     = len ? start + len : start;
--	sym->type    = type;
--	sym->binding = binding;
-+	atomic_init(&sym->flags, (type << SYMBOL_FLAG_TYPE_SHIFT) |
-+				 (binding << SYMBOL_FLAG_BINDING_SHIFT));
- 	sym->namelen = namelen - 1;
- 
- 	pr_debug4("%s: %s %#" PRIx64 "-%#" PRIx64 "\n",
-@@ -345,6 +345,49 @@ void symbol__delete(struct symbol *sym)
- 	free(((void *)sym) - symbol_conf.priv_size);
- }
- 
-+void symbol__set_ignore(struct symbol *sym, bool ignore)
-+{
-+	if (ignore)
-+		atomic_fetch_or(&sym->flags, SYMBOL_FLAG_IGNORE);
-+	else
-+		atomic_fetch_and(&sym->flags, ~SYMBOL_FLAG_IGNORE);
-+}
-+
-+void symbol__set_annotate2(struct symbol *sym, bool annotate2)
-+{
-+	if (annotate2)
-+		atomic_fetch_or(&sym->flags, SYMBOL_FLAG_ANNOTATE2);
-+	else
-+		atomic_fetch_and(&sym->flags, ~SYMBOL_FLAG_ANNOTATE2);
-+}
-+
-+void symbol__set_inlined(struct symbol *sym, bool inlined)
-+{
-+	if (inlined)
-+		atomic_fetch_or(&sym->flags, SYMBOL_FLAG_INLINED);
-+	else
-+		atomic_fetch_and(&sym->flags, ~SYMBOL_FLAG_INLINED);
-+}
-+
-+void symbol__set_ifunc_alias(struct symbol *sym, bool ifunc_alias)
-+{
-+	if (ifunc_alias)
-+		atomic_fetch_or(&sym->flags, SYMBOL_FLAG_IFUNC_ALIAS);
-+	else
-+		atomic_fetch_and(&sym->flags, ~SYMBOL_FLAG_IFUNC_ALIAS);
-+}
-+
-+static void symbol__set_idle(struct symbol *sym, bool idle)
-+{
-+	uint16_t old_flags = atomic_load(&sym->flags);
-+	uint16_t new_flags;
-+	uint16_t idle_val = idle ? SYMBOL_IDLE__IDLE : SYMBOL_IDLE__NOT_IDLE;
-+
-+	do {
-+		new_flags = old_flags & ~SYMBOL_FLAG_IDLE_MASK;
-+		new_flags |= (idle_val << SYMBOL_FLAG_IDLE_SHIFT);
-+	} while (!atomic_compare_exchange_weak(&sym->flags, &old_flags, new_flags));
-+}
- void symbols__delete(struct rb_root_cached *symbols)
- {
- 	struct symbol *pos;
-@@ -375,7 +418,7 @@ void __symbols__insert(struct rb_root_cached *symbols,
- 		 */
- 		if (name[0] == '.')
- 			name++;
--		sym->idle = symbol__is_idle(name);
-+		symbol__set_idle(sym, symbol__compute_is_idle(name));
- 	}
- 
- 	while (*p != NULL) {
-@@ -717,11 +760,19 @@ int modules__parse(const char *filename, void *arg,
- 	return err;
- }
- 
-+bool symbol__is_idle(const struct symbol *sym)
-+{
-+	uint16_t flags = atomic_load_explicit(&sym->flags, memory_order_relaxed);
-+	uint16_t idle_val = (flags & SYMBOL_FLAG_IDLE_MASK) >> SYMBOL_FLAG_IDLE_SHIFT;
-+
-+	return idle_val == SYMBOL_IDLE__IDLE;
-+}
-+
- /*
-  * These are symbols in the kernel image, so make sure that
-  * sym is from a kernel DSO.
-  */
--static bool symbol__is_idle(const char *name)
-+static bool symbol__compute_is_idle(const char *name)
- {
- 	const char * const idle_symbols[] = {
- 		"acpi_idle_do_entry",
-@@ -2492,6 +2543,7 @@ void symbol__exit(void)
- {
- 	if (!symbol_conf.initialized)
- 		return;
-+
- 	strlist__delete(symbol_conf.bt_stop_list);
- 	strlist__delete(symbol_conf.sym_list);
- 	strlist__delete(symbol_conf.dso_list);
-diff --git a/tools/perf/util/symbol.h b/tools/perf/util/symbol.h
-index 95592779eb77..cd760f40676a 100644
---- a/tools/perf/util/symbol.h
-+++ b/tools/perf/util/symbol.h
-@@ -6,6 +6,7 @@
- #include <linux/refcount.h>
- #include <stdbool.h>
- #include <stdint.h>
-+#include <stdatomic.h>
- #include <linux/list.h>
- #include <linux/rbtree.h>
- #include <stdio.h>
-@@ -58,6 +59,23 @@ Elf_Scn *elf_section_by_name(Elf *elf, GElf_Ehdr *ep,
- 			     GElf_Shdr *shp, const char *name, size_t *idx);
- #endif
- 
-+enum symbol_idle_kind {
-+	SYMBOL_IDLE__UNKNOWN = 0,
-+	SYMBOL_IDLE__NOT_IDLE = 1,
-+	SYMBOL_IDLE__IDLE = 2,
-+};
-+
-+#define SYMBOL_FLAG_TYPE_SHIFT      0
-+#define SYMBOL_FLAG_TYPE_MASK       (0xF << SYMBOL_FLAG_TYPE_SHIFT)
-+#define SYMBOL_FLAG_BINDING_SHIFT   4
-+#define SYMBOL_FLAG_BINDING_MASK    (0xF << SYMBOL_FLAG_BINDING_SHIFT)
-+#define SYMBOL_FLAG_IDLE_SHIFT      8
-+#define SYMBOL_FLAG_IDLE_MASK       (0x3 << SYMBOL_FLAG_IDLE_SHIFT)
-+#define SYMBOL_FLAG_IGNORE          (1 << 10)
-+#define SYMBOL_FLAG_INLINED         (1 << 11)
-+#define SYMBOL_FLAG_ANNOTATE2       (1 << 12)
-+#define SYMBOL_FLAG_IFUNC_ALIAS     (1 << 13)
-+
- /**
-  * A symtab entry. When allocated this may be preceded by an annotation (see
-  * symbol__annotation) and/or a browser_index (see symbol__browser_index).
-@@ -69,20 +87,7 @@ struct symbol {
- 	u64		end;
- 	/** Length of the string name. */
- 	u16		namelen;
--	/** ELF symbol type as defined for st_info. E.g STT_OBJECT or STT_FUNC. */
--	u8		type:4;
--	/** ELF binding type as defined for st_info. E.g. STB_WEAK or STB_GLOBAL. */
--	u8		binding:4;
--	/** Set true for kernel symbols of idle routines. */
--	u8		idle:1;
--	/** Resolvable but tools ignore it (e.g. idle routines). */
--	u8		ignore:1;
--	/** Symbol for an inlined function. */
--	u8		inlined:1;
--	/** Has symbol__annotate2 been performed. */
--	u8		annotate2:1;
--	/** Symbol is an alias of an STT_GNU_IFUNC */
--	u8		ifunc_alias:1;
-+	_Atomic uint16_t flags;
- 	/** Architecture specific. Unused except on PPC where it holds st_other. */
- 	u8		arch_sym;
- 	/** The name of length namelen associated with the symbol. */
-@@ -92,6 +97,49 @@ struct symbol {
- void symbol__delete(struct symbol *sym);
- void symbols__delete(struct rb_root_cached *symbols);
- 
-+static inline u8 symbol__type(const struct symbol *sym)
-+{
-+	return (atomic_load_explicit(&sym->flags, memory_order_relaxed) &
-+		SYMBOL_FLAG_TYPE_MASK) >> SYMBOL_FLAG_TYPE_SHIFT;
-+}
-+
-+static inline u8 symbol__binding(const struct symbol *sym)
-+{
-+	return (atomic_load_explicit(&sym->flags, memory_order_relaxed) &
-+		SYMBOL_FLAG_BINDING_MASK) >> SYMBOL_FLAG_BINDING_SHIFT;
-+}
-+
-+static inline bool symbol__ignore(const struct symbol *sym)
-+{
-+	return (atomic_load_explicit(&sym->flags, memory_order_relaxed) &
-+		SYMBOL_FLAG_IGNORE) != 0;
-+}
-+
-+static inline bool symbol__inlined(const struct symbol *sym)
-+{
-+	return (atomic_load_explicit(&sym->flags, memory_order_relaxed) &
-+		SYMBOL_FLAG_INLINED) != 0;
-+}
-+
-+static inline bool symbol__is_annotate2(const struct symbol *sym)
-+{
-+	return (atomic_load_explicit(&sym->flags, memory_order_relaxed) &
-+		SYMBOL_FLAG_ANNOTATE2) != 0;
-+}
-+
-+static inline bool symbol__ifunc_alias(const struct symbol *sym)
-+{
-+	return (atomic_load_explicit(&sym->flags, memory_order_relaxed) &
-+		SYMBOL_FLAG_IFUNC_ALIAS) != 0;
-+}
-+
-+bool symbol__is_idle(const struct symbol *sym);
-+
-+void symbol__set_ignore(struct symbol *sym, bool ignore);
-+void symbol__set_annotate2(struct symbol *sym, bool annotate2);
-+void symbol__set_inlined(struct symbol *sym, bool inlined);
-+void symbol__set_ifunc_alias(struct symbol *sym, bool ifunc_alias);
-+
- /* symbols__for_each_entry - iterate over symbols (rb_root)
-  *
-  * @symbols: the rb_root of symbols
-diff --git a/tools/perf/util/symbol_fprintf.c b/tools/perf/util/symbol_fprintf.c
-index 53e1af4ed9ac..4dc8d5761f52 100644
---- a/tools/perf/util/symbol_fprintf.c
-+++ b/tools/perf/util/symbol_fprintf.c
-@@ -11,8 +11,8 @@ size_t symbol__fprintf(struct symbol *sym, FILE *fp)
- {
- 	return fprintf(fp, " %" PRIx64 "-%" PRIx64 " %c %s\n",
- 		       sym->start, sym->end,
--		       sym->binding == STB_GLOBAL ? 'g' :
--		       sym->binding == STB_LOCAL  ? 'l' : 'w',
-+		       symbol__binding(sym) == STB_GLOBAL ? 'g' :
-+		       symbol__binding(sym) == STB_LOCAL  ? 'l' : 'w',
- 		       sym->name);
- }
- 
--- 
-2.54.0.823.g6e5bcc1fc9-goog
+I think that addresses Jakub's original complaint which brought us
+here, doesn't it?
 
+Although I would quite like to carry things like Arthur's new ioctls,
+once they have your blessing. Those will go on top of Thomas's
+ktime_get_snapshot series, once that has a stable commit ID.=20
+
+
+--=-OVT/e97uyGyCRMXXx7pG
+Content-Type: application/pkcs7-signature; name="smime.p7s"
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Transfer-Encoding: base64
+
+MIAGCSqGSIb3DQEHAqCAMIACAQExDzANBglghkgBZQMEAgEFADCABgkqhkiG9w0BBwEAAKCCD9Aw
+ggSOMIIDdqADAgECAhAOmiw0ECVD4cWj5DqVrT9PMA0GCSqGSIb3DQEBCwUAMGUxCzAJBgNVBAYT
+AlVTMRUwEwYDVQQKEwxEaWdpQ2VydCBJbmMxGTAXBgNVBAsTEHd3dy5kaWdpY2VydC5jb20xJDAi
+BgNVBAMTG0RpZ2lDZXJ0IEFzc3VyZWQgSUQgUm9vdCBDQTAeFw0yNDAxMzAwMDAwMDBaFw0zMTEx
+MDkyMzU5NTlaMEExCzAJBgNVBAYTAkFVMRAwDgYDVQQKEwdWZXJva2V5MSAwHgYDVQQDExdWZXJv
+a2V5IFNlY3VyZSBFbWFpbCBHMjCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAMjvgLKj
+jfhCFqxYyRiW8g3cNFAvltDbK5AzcOaR7yVzVGadr4YcCVxjKrEJOgi7WEOH8rUgCNB5cTD8N/Et
+GfZI+LGqSv0YtNa54T9D1AWJy08ZKkWvfGGIXN9UFAPMJ6OLLH/UUEgFa+7KlrEvMUupDFGnnR06
+aDJAwtycb8yXtILj+TvfhLFhafxroXrflspavejQkEiHjNjtHnwbZ+o43g0/yxjwnarGI3kgcak7
+nnI9/8Lqpq79tLHYwLajotwLiGTB71AGN5xK+tzB+D4eN9lXayrjcszgbOv2ZCgzExQUAIt98mre
+8EggKs9mwtEuKAhYBIP/0K6WsoMnQCcCAwEAAaOCAVwwggFYMBIGA1UdEwEB/wQIMAYBAf8CAQAw
+HQYDVR0OBBYEFIlICOogTndrhuWByNfhjWSEf/xwMB8GA1UdIwQYMBaAFEXroq/0ksuCMS1Ri6en
+IZ3zbcgPMA4GA1UdDwEB/wQEAwIBhjAdBgNVHSUEFjAUBggrBgEFBQcDBAYIKwYBBQUHAwIweQYI
+KwYBBQUHAQEEbTBrMCQGCCsGAQUFBzABhhhodHRwOi8vb2NzcC5kaWdpY2VydC5jb20wQwYIKwYB
+BQUHMAKGN2h0dHA6Ly9jYWNlcnRzLmRpZ2ljZXJ0LmNvbS9EaWdpQ2VydEFzc3VyZWRJRFJvb3RD
+QS5jcnQwRQYDVR0fBD4wPDA6oDigNoY0aHR0cDovL2NybDMuZGlnaWNlcnQuY29tL0RpZ2lDZXJ0
+QXNzdXJlZElEUm9vdENBLmNybDARBgNVHSAECjAIMAYGBFUdIAAwDQYJKoZIhvcNAQELBQADggEB
+ACiagCqvNVxOfSd0uYfJMiZsOEBXAKIR/kpqRp2YCfrP4Tz7fJogYN4fxNAw7iy/bPZcvpVCfe/H
+/CCcp3alXL0I8M/rnEnRlv8ItY4MEF+2T/MkdXI3u1vHy3ua8SxBM8eT9LBQokHZxGUX51cE0kwa
+uEOZ+PonVIOnMjuLp29kcNOVnzf8DGKiek+cT51FvGRjV6LbaxXOm2P47/aiaXrDD5O0RF5SiPo6
+xD1/ClkCETyyEAE5LRJlXtx288R598koyFcwCSXijeVcRvBB1cNOLEbg7RMSw1AGq14fNe2cH1HG
+W7xyduY/ydQt6gv5r21mDOQ5SaZSWC/ZRfLDuEYwggWbMIIEg6ADAgECAhAH5JEPagNRXYDiRPdl
+c1vgMA0GCSqGSIb3DQEBCwUAMEExCzAJBgNVBAYTAkFVMRAwDgYDVQQKEwdWZXJva2V5MSAwHgYD
+VQQDExdWZXJva2V5IFNlY3VyZSBFbWFpbCBHMjAeFw0yNDEyMzAwMDAwMDBaFw0yODAxMDQyMzU5
+NTlaMB4xHDAaBgNVBAMME2R3bXcyQGluZnJhZGVhZC5vcmcwggIiMA0GCSqGSIb3DQEBAQUAA4IC
+DwAwggIKAoICAQDali7HveR1thexYXx/W7oMk/3Wpyppl62zJ8+RmTQH4yZeYAS/SRV6zmfXlXaZ
+sNOE6emg8WXLRS6BA70liot+u0O0oPnIvnx+CsMH0PD4tCKSCsdp+XphIJ2zkC9S7/yHDYnqegqt
+w4smkqUqf0WX/ggH1Dckh0vHlpoS1OoxqUg+ocU6WCsnuz5q5rzFsHxhD1qGpgFdZEk2/c//ZvUN
+i12vPWipk8TcJwHw9zoZ/ZrVNybpMCC0THsJ/UEVyuyszPtNYeYZAhOJ41vav1RhZJzYan4a1gU0
+kKBPQklcpQEhq48woEu15isvwWh9/+5jjh0L+YNaN0I//nHSp6U9COUG9Z0cvnO8FM6PTqsnSbcc
+0j+GchwOHRC7aP2t5v2stVx3KbptaYEzi4MQHxm/0+HQpMEVLLUiizJqS4PWPU6zfQTOMZ9uLQRR
+ci+c5xhtMEBszlQDOvEQcyEG+hc++fH47K+MmZz21bFNfoBxLP6bjR6xtPXtREF5lLXxp+CJ6KKS
+blPKeVRg/UtyJHeFKAZXO8Zeco7TZUMVHmK0ZZ1EpnZbnAhKE19Z+FJrQPQrlR0gO3lBzuyPPArV
+hvWxjlO7S4DmaEhLzarWi/ze7EGwWSuI2eEa/8zU0INUsGI4ywe7vepQz7IqaAovAX0d+f1YjbmC
+VsAwjhLmveFjNwIDAQABo4IBsDCCAawwHwYDVR0jBBgwFoAUiUgI6iBOd2uG5YHI1+GNZIR//HAw
+HQYDVR0OBBYEFFxiGptwbOfWOtMk5loHw7uqWUOnMDAGA1UdEQQpMCeBE2R3bXcyQGluZnJhZGVh
+ZC5vcmeBEGRhdmlkQHdvb2Rob3Uuc2UwFAYDVR0gBA0wCzAJBgdngQwBBQEBMA4GA1UdDwEB/wQE
+AwIF4DAdBgNVHSUEFjAUBggrBgEFBQcDAgYIKwYBBQUHAwQwewYDVR0fBHQwcjA3oDWgM4YxaHR0
+cDovL2NybDMuZGlnaWNlcnQuY29tL1Zlcm9rZXlTZWN1cmVFbWFpbEcyLmNybDA3oDWgM4YxaHR0
+cDovL2NybDQuZGlnaWNlcnQuY29tL1Zlcm9rZXlTZWN1cmVFbWFpbEcyLmNybDB2BggrBgEFBQcB
+AQRqMGgwJAYIKwYBBQUHMAGGGGh0dHA6Ly9vY3NwLmRpZ2ljZXJ0LmNvbTBABggrBgEFBQcwAoY0
+aHR0cDovL2NhY2VydHMuZGlnaWNlcnQuY29tL1Zlcm9rZXlTZWN1cmVFbWFpbEcyLmNydDANBgkq
+hkiG9w0BAQsFAAOCAQEAQXc4FPiPLRnTDvmOABEzkIumojfZAe5SlnuQoeFUfi+LsWCKiB8Uextv
+iBAvboKhLuN6eG/NC6WOzOCppn4mkQxRkOdLNThwMHW0d19jrZFEKtEG/epZ/hw/DdScTuZ2m7im
+8ppItAT6GXD3aPhXkXnJpC/zTs85uNSQR64cEcBFjjoQDuSsTeJ5DAWf8EMyhMuD8pcbqx5kRvyt
+JPsWBQzv1Dsdv2LDPLNd/JUKhHSgr7nbUr4+aAP2PHTXGcEBh8lTeYea9p4d5k969pe0OHYMV5aL
+xERqTagmSetuIwolkAuBCzA9vulg8Y49Nz2zrpUGfKGOD0FMqenYxdJHgDCCBZswggSDoAMCAQIC
+EAfkkQ9qA1FdgOJE92VzW+AwDQYJKoZIhvcNAQELBQAwQTELMAkGA1UEBhMCQVUxEDAOBgNVBAoT
+B1Zlcm9rZXkxIDAeBgNVBAMTF1Zlcm9rZXkgU2VjdXJlIEVtYWlsIEcyMB4XDTI0MTIzMDAwMDAw
+MFoXDTI4MDEwNDIzNTk1OVowHjEcMBoGA1UEAwwTZHdtdzJAaW5mcmFkZWFkLm9yZzCCAiIwDQYJ
+KoZIhvcNAQEBBQADggIPADCCAgoCggIBANqWLse95HW2F7FhfH9bugyT/danKmmXrbMnz5GZNAfj
+Jl5gBL9JFXrOZ9eVdpmw04Tp6aDxZctFLoEDvSWKi367Q7Sg+ci+fH4KwwfQ8Pi0IpIKx2n5emEg
+nbOQL1Lv/IcNiep6Cq3DiyaSpSp/RZf+CAfUNySHS8eWmhLU6jGpSD6hxTpYKye7PmrmvMWwfGEP
+WoamAV1kSTb9z/9m9Q2LXa89aKmTxNwnAfD3Ohn9mtU3JukwILRMewn9QRXK7KzM+01h5hkCE4nj
+W9q/VGFknNhqfhrWBTSQoE9CSVylASGrjzCgS7XmKy/BaH3/7mOOHQv5g1o3Qj/+cdKnpT0I5Qb1
+nRy+c7wUzo9OqydJtxzSP4ZyHA4dELto/a3m/ay1XHcpum1pgTOLgxAfGb/T4dCkwRUstSKLMmpL
+g9Y9TrN9BM4xn24tBFFyL5znGG0wQGzOVAM68RBzIQb6Fz758fjsr4yZnPbVsU1+gHEs/puNHrG0
+9e1EQXmUtfGn4InoopJuU8p5VGD9S3Ikd4UoBlc7xl5yjtNlQxUeYrRlnUSmdlucCEoTX1n4UmtA
+9CuVHSA7eUHO7I88CtWG9bGOU7tLgOZoSEvNqtaL/N7sQbBZK4jZ4Rr/zNTQg1SwYjjLB7u96lDP
+sipoCi8BfR35/ViNuYJWwDCOEua94WM3AgMBAAGjggGwMIIBrDAfBgNVHSMEGDAWgBSJSAjqIE53
+a4blgcjX4Y1khH/8cDAdBgNVHQ4EFgQUXGIam3Bs59Y60yTmWgfDu6pZQ6cwMAYDVR0RBCkwJ4ET
+ZHdtdzJAaW5mcmFkZWFkLm9yZ4EQZGF2aWRAd29vZGhvdS5zZTAUBgNVHSAEDTALMAkGB2eBDAEF
+AQEwDgYDVR0PAQH/BAQDAgXgMB0GA1UdJQQWMBQGCCsGAQUFBwMCBggrBgEFBQcDBDB7BgNVHR8E
+dDByMDegNaAzhjFodHRwOi8vY3JsMy5kaWdpY2VydC5jb20vVmVyb2tleVNlY3VyZUVtYWlsRzIu
+Y3JsMDegNaAzhjFodHRwOi8vY3JsNC5kaWdpY2VydC5jb20vVmVyb2tleVNlY3VyZUVtYWlsRzIu
+Y3JsMHYGCCsGAQUFBwEBBGowaDAkBggrBgEFBQcwAYYYaHR0cDovL29jc3AuZGlnaWNlcnQuY29t
+MEAGCCsGAQUFBzAChjRodHRwOi8vY2FjZXJ0cy5kaWdpY2VydC5jb20vVmVyb2tleVNlY3VyZUVt
+YWlsRzIuY3J0MA0GCSqGSIb3DQEBCwUAA4IBAQBBdzgU+I8tGdMO+Y4AETOQi6aiN9kB7lKWe5Ch
+4VR+L4uxYIqIHxR7G2+IEC9ugqEu43p4b80LpY7M4KmmfiaRDFGQ50s1OHAwdbR3X2OtkUQq0Qb9
+6ln+HD8N1JxO5nabuKbymki0BPoZcPdo+FeRecmkL/NOzzm41JBHrhwRwEWOOhAO5KxN4nkMBZ/w
+QzKEy4PylxurHmRG/K0k+xYFDO/UOx2/YsM8s138lQqEdKCvudtSvj5oA/Y8dNcZwQGHyVN5h5r2
+nh3mT3r2l7Q4dgxXlovERGpNqCZJ624jCiWQC4ELMD2+6WDxjj03PbOulQZ8oY4PQUyp6djF0keA
+MYIDuzCCA7cCAQEwVTBBMQswCQYDVQQGEwJBVTEQMA4GA1UEChMHVmVyb2tleTEgMB4GA1UEAxMX
+VmVyb2tleSBTZWN1cmUgRW1haWwgRzICEAfkkQ9qA1FdgOJE92VzW+AwDQYJYIZIAWUDBAIBBQCg
+ggE3MBgGCSqGSIb3DQEJAzELBgkqhkiG9w0BBwEwHAYJKoZIhvcNAQkFMQ8XDTI2MDYwMTA3MDMy
+NlowLwYJKoZIhvcNAQkEMSIEIDiFDG19M7MEDudICIteh2kLzohn08ex748Ia4vKYbiPMGQGCSsG
+AQQBgjcQBDFXMFUwQTELMAkGA1UEBhMCQVUxEDAOBgNVBAoTB1Zlcm9rZXkxIDAeBgNVBAMTF1Zl
+cm9rZXkgU2VjdXJlIEVtYWlsIEcyAhAH5JEPagNRXYDiRPdlc1vgMGYGCyqGSIb3DQEJEAILMVeg
+VTBBMQswCQYDVQQGEwJBVTEQMA4GA1UEChMHVmVyb2tleTEgMB4GA1UEAxMXVmVyb2tleSBTZWN1
+cmUgRW1haWwgRzICEAfkkQ9qA1FdgOJE92VzW+AwDQYJKoZIhvcNAQEBBQAEggIAeTnrVnjiSzi6
+Ug0RQYdyXBitCE6b8QT7hckZYntnioE8DKQx+l5BLn11XYOFDd0qqHhSNIE5FBv3Hzs0UA8ZjCmz
+7Vtq60sqZXlQkFSCRM1HLEbef8YEvi7XBAodlJsRJgWkUNoa35HdiKfi9j144QoDtu9B8JhqOG0n
+ECB1GTHEtWf/85b23tX2hLluzBcQjwQwM7GJ3v4fFS+FfwToG/C+XInZVwbEvigrvyKk0vpbK7eE
+HdskMKwLNczFj4oi2bjKl5j2HYY0dYXplj+H59IVQZQyJezfuL+q6Y7uyt+2llXyp2GspbISsDEP
+dCb2Fl3kXnT6mYMQyJtCg6t0AuPPFlSzlWemzV3qpJ5v+YisIkrybC6EU4gkUPhZs46wpWXZmZF1
+3jQRfWXeXU/HMhjieFPRz0Jxa4sH8ykncYXWllO40W5QJqWz3EV2uB7BCGlRpIRnZvsDpWqUy8mo
+EnTuGHPv/XWYtapBzirNwWV6f64/fi9Fm+rXrecyTpUiPWI6PObbe3X0Us4QbyELHCudyvLlfc/6
+3G+IZ9ku0yQGm+3KTDTb4gQ6kkv9lSc4WgO+2rQgp0EGbqHLCyhflrfLdxRIF2OU2/70k/qIL1NY
+M9yb6BimXZw8LSVVq9OmbWJ51i94We30rbS6HNrO+K+7GOVh0xlD+jD33YQvtogAAAAAAAA=
+
+
+--=-OVT/e97uyGyCRMXXx7pG--
