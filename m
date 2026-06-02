@@ -1,267 +1,211 @@
-Received: from mail-pl1-f172.google.com (mail-pl1-f172.google.com [209.85.214.172])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 41740373C00
-	for <linux-s390@vger.kernel.org>; Tue,  2 Jun 2026 16:54:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.172
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780419254; cv=pass; b=aN2kZmuy5y/+eFBn9aQ+g+2BZzz2tJHhWZhHMBxq+oG9mjhPBimE9QKDYaHcyUM+4JvB52LZHFgoaIk6/oxV/pBIXjR5oZaY4Z1dKL9N2PuIr6jR6P6JcA1LFsNMXoaGzpp4yWHe19VQLcaFc3hsbJtpkJUeoFoZipB97Phrf8Y=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780419254; c=relaxed/simple;
-	bh=2w4NXTukq5ckCobRf/f5vq86E+/5WUfUOK2BJBCuErQ=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=lFysH5ixCLEEKtFsQnQPwvCDXaVpplJhIgujQABwVxpdFuMx5MGEDGSb5GlNoFu7470pWlmZl4q8uU4cgFHuF4+l7uFfeFVMBA+SKgEoW6rajHId6zKhnM+VfosTd/YAgyu2pXjnXAsr841dgYFOTRlxT7NHV47IkXMV43n4G3I=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=bQQeTUrj; arc=pass smtp.client-ip=209.85.214.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C34E3F7891;
+	Tue,  2 Jun 2026 17:15:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1780420540; cv=none; b=NzIsJ6Uiq7brsVW315ZSXBg4gzuv3shaSb6XkZ9vMI2Iie345gVw7tqt25Pm2qhuffnco0V2fLYLEENyxd3XRjV8dAoqZnGXseFehBpfy7B43PiKB38EtcgnPSwNEimd/VP14xdLg/zweONXUsWsUMUrCwvX1nAuYkPUpaFE6P4=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1780420540; c=relaxed/simple;
+	bh=kkyXPebYwJ/UpauPaOt24fg6+WUOD4Y08/xBiZarvsY=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=n6lDQeDpF51/cL/UfrUot+mbHaIQim0kt38esH0rEKFx9Iyc/x4HlMv/d7t8Cq0W6Ruf1a2LtIIvgjRs0j85+Mow2EH96cq6mOzxCrxwzCnuMug3Ryqgs1J7bKxzv02tagPMU0qLaVoevSoP6NiXwdkklXGlb9jMuk3+NAKvxqI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=casper.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=lGAMQcp1; arc=none smtp.client-ip=90.155.50.34
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=casper.srs.infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="bQQeTUrj"
-Received: by mail-pl1-f172.google.com with SMTP id d9443c01a7336-2bf2911f93cso5315ad.1
-        for <linux-s390@vger.kernel.org>; Tue, 02 Jun 2026 09:54:12 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1780419251; cv=none;
-        d=google.com; s=arc-20240605;
-        b=OYZ9lqCaA0Hg2leR9cVHdK1QCuDEfAcfMpaN/PdrWEJIB/3tT5BCrgskZmYlk+sZvH
-         LN7eBBIdhNFnUH19yfhcosmXOXHIWRQEZjAnnjcGV3TpAW6lDHJCjJfowo68oAzJBUhP
-         U+Qgqopv9wUfXP2/DPxR2QVZaTMG2tFQN+8s3f3ueJybkMDP13/ZNM2FFuD+hkjm8fR7
-         KnKsu4vaqldlN7ko7wGnoUig06dvJPtLbt8DdwYKtQSfvz8N9qxwu7ycycjAfGdGLXyY
-         tFlEcE5hqDNqPIFtnX0ODKa9Yu6ZOJXZmvncjZDY6/Gg6GvYxDQ00r6WG5j8xEviDJS7
-         jf+A==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=Immf037yMWY3bmYTlq+R68PCYR0rAVdJ40kWnGQwG8o=;
-        fh=xaWFlDb/qfC2aQtFCa9dgvZ71ZzrowNSyTzLhRyTzOo=;
-        b=IlNwGWXC1wCvKJ+ZLly7Bo4TcUhgo0x7lutjSktX0lGR0RrBGd7gFw1nCvVLc14Q1t
-         ZpEr/VCG6cExoC2YCZUoCyskd68c5FFCo/ED0FmPKqVAZ3qmexdvLKnRE9uQiIAo1zs7
-         fXl3vEvkdfkBmgv5uy00nyOnthFWqIZQrnLpZ8SOfxAYs3WMsbXae+vdgUC0k2Gmu74W
-         PLj0+TuLqUlzMJ+MSTxD2lTgqTAseLPF6nDeMxbWZ0K4FVFZ61ERCnvlwxqCGXpv+vVv
-         Xllk/l7gSz92nf57BrQerTZNmUn1GJ+aBYrz90wtohhkymLmNC8f7bVU5wG8mRQtCMJF
-         UENQ==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1780419251; x=1781024051; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Immf037yMWY3bmYTlq+R68PCYR0rAVdJ40kWnGQwG8o=;
-        b=bQQeTUrjCBukb77+2vnRXDS5+UTooJDR9O2CirSxLYhsQ/r0bPP1WU99vBSRMiTTke
-         n4RKdopl/HOyQdaXF9XwoSPwKMJvsrnKMXSesLR4S0EEAX9WZahImu/cXr5IEdpwIn91
-         8//Btvn/qOcaA1SZxfsS6cEOd+ZKhdaRmVfE8LdEKHTPz9Ra4oK2QUNeaiC7tr267IvW
-         HyRLKwcVRLDQCZnt3I/EmHgZCynZNym9QsmwCTMZR3XL59rszkidzX8+QqsRWDYDIRpe
-         zkjBU0yNOfRy33XVzew0tNpiuTknlrvx6Ok5Dnw6eUVsxiJvjZE0YP2LkrREI1fqhgjY
-         +1bQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780419251; x=1781024051;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=Immf037yMWY3bmYTlq+R68PCYR0rAVdJ40kWnGQwG8o=;
-        b=ncuZYZGBKMT3pggrfw8I5hCiK0sz1K/kzNwSOtXY82BnpBf+qtRb7ihZFoIEh1jKAy
-         3rhA1n0WHF7ziAkBB6JLs3/DcaSvsQtQ75i2VOfpBCTKG29N2qKKy+fZrf+zZ7aF5/FY
-         N+mUoIpqr40h+oEHdFej2v1MImSbcosVs3Kpg9XanutDHqaTfq+E/A+JqeCSRxLr2IWE
-         U4+NX8jKwzw6HBu8QPWUYyuygbTQOswkFKyS506ds7EzlivSZQn2l76P15KR8wkdO2xy
-         +8OLjO5LvktGAn5/TDNgYLrtpdArOGke5umRSmzImcG4A0hxaC7LtqILoNFTp9KVQPym
-         aL9w==
-X-Forwarded-Encrypted: i=1; AFNElJ/rE6ukCCUhWZ591R6cKM2toZvqrbZ9JHRtmeN7C3YialVg0gpPkWiMIm3wLsm2P2abP54h8iejqM7I@vger.kernel.org
-X-Gm-Message-State: AOJu0YxxPDDDgjzW6tRYZTJ0VdwJFjFHxJukVyUH9exKb8S3DFFCBXS0
-	HF2fQxMmCgsFUWZDpMqjAwvYszyDGIU2GI5/YJZmihnKcjathTXu7WYphwAEnTdX5wov+B8uJ2F
-	ZU0ZVgPoW/H7TCaVr17LqnUvWqevueX8indDU+sce
-X-Gm-Gg: Acq92OE8iy1Ej9mXapkq/4tiKOpYgVAj3KlWBb8f3ciF8mYwQJl/715ln3oRcyf4wKB
-	WR0MASK3w8YkuNPJ+6iW5icqusfiieagCI/PJr/unao6PvCZhYCauw+Q92J2eFSGQvwOO9o/HYC
-	QLj1ZUXIbW7GpRjp7EVYWugSJfXXgQ/JStuHgFw2nlXQYgYmzrFYW9SYnQ2lBENy8wowCU1lcqz
-	WG9Dfc40eXi/xAlsM4AG7dIWrih774P/5kO8ps0zsc4pC+Ne1/Bw2/rJc6FwlKgUeld/9Y9jI1d
-	BJoqSTDVfrfeibLuN8vHE6NRLX2D1M2UUnta60V5wxH8YRGGlDdyYQOI4yA=
-X-Received: by 2002:a17:902:ecc3:b0:2c0:bf57:8746 with SMTP id
- d9443c01a7336-2c10eb100e7mr3521915ad.18.1780419250852; Tue, 02 Jun 2026
- 09:54:10 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="lGAMQcp1"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=casper.20170209; h=MIME-Version:Content-Type:References:
+	In-Reply-To:Date:Cc:To:From:Subject:Message-ID:Sender:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=kkyXPebYwJ/UpauPaOt24fg6+WUOD4Y08/xBiZarvsY=; b=lGAMQcp1U6l4eDLhRrdmc+i+hK
+	+ykaJocmPqWV//dQk9GAoty1ZemGnXbTg16FLKBPlb155JpUD1l6wAniJ7Ozjc255EnI/cgQgNpDv
+	UjUUTmEEac9PmqABeWHGcK9SFBPqgO7GlqmtqYpNTlh1ZprBIHAhL9DRemdKL19Olpdvs/WOmre/7
+	WoH23nY0KAaQKL0I3bVkZ+9AvdfUBxb833nUrEQnr1ZsNXXIo+rvEiL8bvNx7b6QcTZqxl/P6Qz2r
+	Vgpgyn6PVj8hWYwDZrQljmiqqE5Eu2EhT/z4KoKBKJZsZxvAuFrc1DQ0twHmEm3I/7UopLyC5ub18
+	xdHfrh7A==;
+Received: from [2001:8b0:10b:5:c68:987:fac8:ab00] (helo=u09cd745991455d.ant.amazon.com)
+	by casper.infradead.org with esmtpsa (Exim 4.99.1 #2 (Red Hat Linux))
+	id 1wUSi7-00000002KiL-3HEV;
+	Tue, 02 Jun 2026 17:15:28 +0000
+Message-ID: <27ff3ab8ea24a80812c54d18a18bda65acce5c08.camel@infradead.org>
+Subject: Re: [PATCH v2 2/2] MAINTAINERS: update PTP maintainer entries after
+ directory split
+From: David Woodhouse <dwmw2@infradead.org>
+To: Wen Gu <guwen@linux.alibaba.com>, Richard Cochran
+ <richardcochran@gmail.com>,  Jakub Kicinski <kuba@kernel.org>
+Cc: tglx@kernel.org, andrew+netdev@lunn.ch, davem@davemloft.net, 
+ edumazet@google.com, pabeni@redhat.com, linux-kernel@vger.kernel.org, 
+ netdev@vger.kernel.org, jstultz@google.com, anna-maria@linutronix.de, 
+ frederic@kernel.org, daniel.lezcano@kernel.org, sboyd@kernel.org, 
+ vladimir.oltean@nxp.com, wei.fang@nxp.com, xiaoning.wang@nxp.com, 
+ jonathan.lemon@gmail.com, vadim.fedorenko@linux.dev, yangbo.lu@nxp.com, 
+ svens@linux.ibm.com, nick.shi@broadcom.com, ajay.kaher@broadcom.com, 
+ alexey.makhalov@broadcom.com, bcm-kernel-feedback-list@broadcom.com, 
+ linux-fpga@vger.kernel.org, imx@lists.linux.dev,
+ linux-s390@vger.kernel.org,  dust.li@linux.alibaba.com,
+ xuanzhuo@linux.alibaba.com, mani@kernel.org,  imran.shaik@oss.qualcomm.com,
+ taniya.das@oss.qualcomm.com
+Date: Tue, 02 Jun 2026 18:15:27 +0100
+In-Reply-To: <335ae01a-20aa-439e-996c-d35ffd8d476a@linux.alibaba.com>
+References: <20260412084704.743482ad@kernel.org>
+	 <4B889ED5-D1F6-401D-B753-89AE2037F316@infradead.org>
+	 <20260412095301.4fe1fe65@kernel.org>
+	 <ebf19246-91af-4887-b2aa-d9007921f7b2@linux.alibaba.com>
+	 <1088b07d760491deb461d6d01abca631e8f8d86c.camel@infradead.org>
+	 <ahzQZg_v4bxFfGdj@hoboy.vegasvil.org>
+	 <3908843460c4864eef79cced40d897f793c7ae2a.camel@infradead.org>
+	 <ah2jIt2DqI1ZZJx8@hoboy.vegasvil.org>
+	 <0e023f951c102fe2ee7070e490c579783b2817d5.camel@infradead.org>
+	 <20260601185226.7f43fa75@kernel.org> <ah5aGMIxA418sxoj@hoboy.vegasvil.org>
+	 <0b3f00bbfa6bcc3badb4d1bb7845326e2dbaa1d4.camel@infradead.org>
+	 <335ae01a-20aa-439e-996c-d35ffd8d476a@linux.alibaba.com>
+Content-Type: multipart/signed; micalg="sha-256"; protocol="application/pkcs7-signature";
+	boundary="=-bFbDCAYFbExy0zXwkgt3"
+User-Agent: Evolution 3.52.3-0ubuntu1.1 
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260602062452.2583619-1-irogers@google.com> <20260602152516.2831152-1-irogers@google.com>
-In-Reply-To: <20260602152516.2831152-1-irogers@google.com>
-From: Ian Rogers <irogers@google.com>
-Date: Tue, 2 Jun 2026 09:53:59 -0700
-X-Gm-Features: AVHnY4JxpTAWoaKW7TN9u2Gp-5-dknXBRdSSDax8MAQ6G8yz2ciVwr9NCHDqDt0
-Message-ID: <CAP-5=fWtc0xHfCeXfcPUkmWtHZO4EUriDrqovr5nXzb0GvSWxw@mail.gmail.com>
-Subject: Re: [PATCH v12 00/19] perf: Use e_machine and lazily compute symbols
-To: irogers@google.com, acme@kernel.org, namhyung@kernel.org
-Cc: agordeev@linux.ibm.com, gor@linux.ibm.com, hca@linux.ibm.com, 
-	jameshongleiwang@126.com, japo@linux.ibm.com, linux-kernel@vger.kernel.org, 
-	linux-perf-users@vger.kernel.org, linux-s390@vger.kernel.org, 
-	sumanthk@linux.ibm.com, tmricht@linux.ibm.com
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by casper.infradead.org. See http://www.infradead.org/rpr.html
+
+
+--=-bFbDCAYFbExy0zXwkgt3
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Jun 2, 2026 at 8:25=E2=80=AFAM Ian Rogers <irogers@google.com> wrot=
-e:
->
-> Add a helper to perf_env to compute the e_machine if it is EM_NONE.
-> Derive the value from the arch string if available. Similarly derive
-> the arch string from the ELF machine if available, for consistency.
-> This means perf's arch (machine type) is no longer determined by uname
-> but set to match that of the perf ELF executable.
->
-> Migrate code away from strcmp on env->arch to using the e_machine
-> comparisons that are more accurate and not prone to uname and other
-> naming differences. While cleaning this up, also clean up the
-> capstone initialization code to cover more architectures and to set
-> the big endian flag based on ELF header information.
->
-> Refactor perf_env__arch_strerrno to take an e_machine instead of an
-> architecture string, removing the HAVE_LIBTRACEEVENT dependency
-> entirely and making it unconditionally available. The generated errno
-> table includes fallback definitions for newer ELF machine constants to
-> ensure compatibility with older host glibc versions.
->
-> Introduce a mutex in perf_env to safely protect lazy metadata setup,
-> such as os_release or e_machine resolution, preventing concurrent
-> initialization data races and memory leaks during multi-threaded
-> profiling or symbol loading. Properly initialize stack-allocated
-> perf_env instances to ensure safe mutex destruction.
->
-> Switch the idle computation to the point of use and lazily compute it,
-> rather than computing it for every symbol. The current only user is
-> `perf top`. At the point of use the perf_env is available and this can
-> be used to make sure the idle function computation correctly accounts
-> for architecture-specific and kernel-version-specific patterns.
-> To prevent concurrent updates to shared symbol bitfield flags, migrate
-> bitfield variables in struct symbol to C11 atomic flags.
+On Tue, 2026-06-02 at 22:03 +0800, Wen Gu wrote:
+>=20
+> > There is some extra stuff we want to do for "Precision RTCs" or
+> > whatever we're going to call them. They might actually have a known TAI
+> > offset, they might convey leap second indications, we might want to set
+> > the kernel's CLOCK_REALTIME from them at boot. And in the case of
+> > VMClock, I'm working on being able to clamp the kernel's timekeeping to
+> > it directly=C2=B2.
+> >=20
+> > So maybe what we want is linux/drivers/phc, to host those read-only
+> > devices which know real time. They can provide a simplified
+> > implementation; maybe *only* a function like vmclock_get_crosststamp(),
+> > which is just called in various different permutations by the various
+> > different PTP methods.
+> >=20
+> > The core linux/drivers/phc code would then handle the interface to the
+> > kernel's core timekeeping *and* wrap them to register a PTP device that
+> > existing userspace can understand. And deal with the kvmclock/TSC
+> > awfulness where needed.
+> >=20
+> > How does that sound?
+> >=20
+>=20
+> I think a dedicated phc core would make the classification of read-only
+> clocks clearer, reducing ambiguity around where they belong. I assume
+> direct timekeeping integration would be optional, drivers providing
+> only a snapshot-based crosststamp would use /dev/ptpX alone, while the
+> timekeeping path would require additional capability (as vmclock provides=
+)?
 
-So I think this series is at the point where Sashiko [1] is giving
-warnings only for out-of-scope things and pre-existing conditions. I
-will give a detailed explanation below, but I'd appreciate help moving
-this forward with human review and submission. Thanks!
+Yeah. I think they might all want to be able to opt in to setting the
+time at boot? But actually setting the fine-tuning of the kernel's
+timekeeper is probably only something vmclock can do.
 
-> Ian Rogers (19):
->   perf env: Add perf_env__e_machine helper and use in perf_env__arch
+--=-bFbDCAYFbExy0zXwkgt3
+Content-Type: application/pkcs7-signature; name="smime.p7s"
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Transfer-Encoding: base64
 
-1 critical 2 high issues.
-The issues relate to existing data races, the inaccurate arch string,
-and normalizing the arch string stored in the data file. The existing
-data races don't bite us currently due to the single threaded nature
-of most of perf - multithreading is on the TODO list. The arch string
-is inaccurate and the e_machine in newer perf.data files resolves
-this. If we were using the arch string without the e_machine then the
-concerns over its use are valid, but this series is trying to remove
-the use of the arch string and strongly prefer the e_machine.
+MIAGCSqGSIb3DQEHAqCAMIACAQExDzANBglghkgBZQMEAgEFADCABgkqhkiG9w0BBwEAAKCCD9Aw
+ggSOMIIDdqADAgECAhAOmiw0ECVD4cWj5DqVrT9PMA0GCSqGSIb3DQEBCwUAMGUxCzAJBgNVBAYT
+AlVTMRUwEwYDVQQKEwxEaWdpQ2VydCBJbmMxGTAXBgNVBAsTEHd3dy5kaWdpY2VydC5jb20xJDAi
+BgNVBAMTG0RpZ2lDZXJ0IEFzc3VyZWQgSUQgUm9vdCBDQTAeFw0yNDAxMzAwMDAwMDBaFw0zMTEx
+MDkyMzU5NTlaMEExCzAJBgNVBAYTAkFVMRAwDgYDVQQKEwdWZXJva2V5MSAwHgYDVQQDExdWZXJv
+a2V5IFNlY3VyZSBFbWFpbCBHMjCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAMjvgLKj
+jfhCFqxYyRiW8g3cNFAvltDbK5AzcOaR7yVzVGadr4YcCVxjKrEJOgi7WEOH8rUgCNB5cTD8N/Et
+GfZI+LGqSv0YtNa54T9D1AWJy08ZKkWvfGGIXN9UFAPMJ6OLLH/UUEgFa+7KlrEvMUupDFGnnR06
+aDJAwtycb8yXtILj+TvfhLFhafxroXrflspavejQkEiHjNjtHnwbZ+o43g0/yxjwnarGI3kgcak7
+nnI9/8Lqpq79tLHYwLajotwLiGTB71AGN5xK+tzB+D4eN9lXayrjcszgbOv2ZCgzExQUAIt98mre
+8EggKs9mwtEuKAhYBIP/0K6WsoMnQCcCAwEAAaOCAVwwggFYMBIGA1UdEwEB/wQIMAYBAf8CAQAw
+HQYDVR0OBBYEFIlICOogTndrhuWByNfhjWSEf/xwMB8GA1UdIwQYMBaAFEXroq/0ksuCMS1Ri6en
+IZ3zbcgPMA4GA1UdDwEB/wQEAwIBhjAdBgNVHSUEFjAUBggrBgEFBQcDBAYIKwYBBQUHAwIweQYI
+KwYBBQUHAQEEbTBrMCQGCCsGAQUFBzABhhhodHRwOi8vb2NzcC5kaWdpY2VydC5jb20wQwYIKwYB
+BQUHMAKGN2h0dHA6Ly9jYWNlcnRzLmRpZ2ljZXJ0LmNvbS9EaWdpQ2VydEFzc3VyZWRJRFJvb3RD
+QS5jcnQwRQYDVR0fBD4wPDA6oDigNoY0aHR0cDovL2NybDMuZGlnaWNlcnQuY29tL0RpZ2lDZXJ0
+QXNzdXJlZElEUm9vdENBLmNybDARBgNVHSAECjAIMAYGBFUdIAAwDQYJKoZIhvcNAQELBQADggEB
+ACiagCqvNVxOfSd0uYfJMiZsOEBXAKIR/kpqRp2YCfrP4Tz7fJogYN4fxNAw7iy/bPZcvpVCfe/H
+/CCcp3alXL0I8M/rnEnRlv8ItY4MEF+2T/MkdXI3u1vHy3ua8SxBM8eT9LBQokHZxGUX51cE0kwa
+uEOZ+PonVIOnMjuLp29kcNOVnzf8DGKiek+cT51FvGRjV6LbaxXOm2P47/aiaXrDD5O0RF5SiPo6
+xD1/ClkCETyyEAE5LRJlXtx288R598koyFcwCSXijeVcRvBB1cNOLEbg7RMSw1AGq14fNe2cH1HG
+W7xyduY/ydQt6gv5r21mDOQ5SaZSWC/ZRfLDuEYwggWbMIIEg6ADAgECAhAH5JEPagNRXYDiRPdl
+c1vgMA0GCSqGSIb3DQEBCwUAMEExCzAJBgNVBAYTAkFVMRAwDgYDVQQKEwdWZXJva2V5MSAwHgYD
+VQQDExdWZXJva2V5IFNlY3VyZSBFbWFpbCBHMjAeFw0yNDEyMzAwMDAwMDBaFw0yODAxMDQyMzU5
+NTlaMB4xHDAaBgNVBAMME2R3bXcyQGluZnJhZGVhZC5vcmcwggIiMA0GCSqGSIb3DQEBAQUAA4IC
+DwAwggIKAoICAQDali7HveR1thexYXx/W7oMk/3Wpyppl62zJ8+RmTQH4yZeYAS/SRV6zmfXlXaZ
+sNOE6emg8WXLRS6BA70liot+u0O0oPnIvnx+CsMH0PD4tCKSCsdp+XphIJ2zkC9S7/yHDYnqegqt
+w4smkqUqf0WX/ggH1Dckh0vHlpoS1OoxqUg+ocU6WCsnuz5q5rzFsHxhD1qGpgFdZEk2/c//ZvUN
+i12vPWipk8TcJwHw9zoZ/ZrVNybpMCC0THsJ/UEVyuyszPtNYeYZAhOJ41vav1RhZJzYan4a1gU0
+kKBPQklcpQEhq48woEu15isvwWh9/+5jjh0L+YNaN0I//nHSp6U9COUG9Z0cvnO8FM6PTqsnSbcc
+0j+GchwOHRC7aP2t5v2stVx3KbptaYEzi4MQHxm/0+HQpMEVLLUiizJqS4PWPU6zfQTOMZ9uLQRR
+ci+c5xhtMEBszlQDOvEQcyEG+hc++fH47K+MmZz21bFNfoBxLP6bjR6xtPXtREF5lLXxp+CJ6KKS
+blPKeVRg/UtyJHeFKAZXO8Zeco7TZUMVHmK0ZZ1EpnZbnAhKE19Z+FJrQPQrlR0gO3lBzuyPPArV
+hvWxjlO7S4DmaEhLzarWi/ze7EGwWSuI2eEa/8zU0INUsGI4ywe7vepQz7IqaAovAX0d+f1YjbmC
+VsAwjhLmveFjNwIDAQABo4IBsDCCAawwHwYDVR0jBBgwFoAUiUgI6iBOd2uG5YHI1+GNZIR//HAw
+HQYDVR0OBBYEFFxiGptwbOfWOtMk5loHw7uqWUOnMDAGA1UdEQQpMCeBE2R3bXcyQGluZnJhZGVh
+ZC5vcmeBEGRhdmlkQHdvb2Rob3Uuc2UwFAYDVR0gBA0wCzAJBgdngQwBBQEBMA4GA1UdDwEB/wQE
+AwIF4DAdBgNVHSUEFjAUBggrBgEFBQcDAgYIKwYBBQUHAwQwewYDVR0fBHQwcjA3oDWgM4YxaHR0
+cDovL2NybDMuZGlnaWNlcnQuY29tL1Zlcm9rZXlTZWN1cmVFbWFpbEcyLmNybDA3oDWgM4YxaHR0
+cDovL2NybDQuZGlnaWNlcnQuY29tL1Zlcm9rZXlTZWN1cmVFbWFpbEcyLmNybDB2BggrBgEFBQcB
+AQRqMGgwJAYIKwYBBQUHMAGGGGh0dHA6Ly9vY3NwLmRpZ2ljZXJ0LmNvbTBABggrBgEFBQcwAoY0
+aHR0cDovL2NhY2VydHMuZGlnaWNlcnQuY29tL1Zlcm9rZXlTZWN1cmVFbWFpbEcyLmNydDANBgkq
+hkiG9w0BAQsFAAOCAQEAQXc4FPiPLRnTDvmOABEzkIumojfZAe5SlnuQoeFUfi+LsWCKiB8Uextv
+iBAvboKhLuN6eG/NC6WOzOCppn4mkQxRkOdLNThwMHW0d19jrZFEKtEG/epZ/hw/DdScTuZ2m7im
+8ppItAT6GXD3aPhXkXnJpC/zTs85uNSQR64cEcBFjjoQDuSsTeJ5DAWf8EMyhMuD8pcbqx5kRvyt
+JPsWBQzv1Dsdv2LDPLNd/JUKhHSgr7nbUr4+aAP2PHTXGcEBh8lTeYea9p4d5k969pe0OHYMV5aL
+xERqTagmSetuIwolkAuBCzA9vulg8Y49Nz2zrpUGfKGOD0FMqenYxdJHgDCCBZswggSDoAMCAQIC
+EAfkkQ9qA1FdgOJE92VzW+AwDQYJKoZIhvcNAQELBQAwQTELMAkGA1UEBhMCQVUxEDAOBgNVBAoT
+B1Zlcm9rZXkxIDAeBgNVBAMTF1Zlcm9rZXkgU2VjdXJlIEVtYWlsIEcyMB4XDTI0MTIzMDAwMDAw
+MFoXDTI4MDEwNDIzNTk1OVowHjEcMBoGA1UEAwwTZHdtdzJAaW5mcmFkZWFkLm9yZzCCAiIwDQYJ
+KoZIhvcNAQEBBQADggIPADCCAgoCggIBANqWLse95HW2F7FhfH9bugyT/danKmmXrbMnz5GZNAfj
+Jl5gBL9JFXrOZ9eVdpmw04Tp6aDxZctFLoEDvSWKi367Q7Sg+ci+fH4KwwfQ8Pi0IpIKx2n5emEg
+nbOQL1Lv/IcNiep6Cq3DiyaSpSp/RZf+CAfUNySHS8eWmhLU6jGpSD6hxTpYKye7PmrmvMWwfGEP
+WoamAV1kSTb9z/9m9Q2LXa89aKmTxNwnAfD3Ohn9mtU3JukwILRMewn9QRXK7KzM+01h5hkCE4nj
+W9q/VGFknNhqfhrWBTSQoE9CSVylASGrjzCgS7XmKy/BaH3/7mOOHQv5g1o3Qj/+cdKnpT0I5Qb1
+nRy+c7wUzo9OqydJtxzSP4ZyHA4dELto/a3m/ay1XHcpum1pgTOLgxAfGb/T4dCkwRUstSKLMmpL
+g9Y9TrN9BM4xn24tBFFyL5znGG0wQGzOVAM68RBzIQb6Fz758fjsr4yZnPbVsU1+gHEs/puNHrG0
+9e1EQXmUtfGn4InoopJuU8p5VGD9S3Ikd4UoBlc7xl5yjtNlQxUeYrRlnUSmdlucCEoTX1n4UmtA
+9CuVHSA7eUHO7I88CtWG9bGOU7tLgOZoSEvNqtaL/N7sQbBZK4jZ4Rr/zNTQg1SwYjjLB7u96lDP
+sipoCi8BfR35/ViNuYJWwDCOEua94WM3AgMBAAGjggGwMIIBrDAfBgNVHSMEGDAWgBSJSAjqIE53
+a4blgcjX4Y1khH/8cDAdBgNVHQ4EFgQUXGIam3Bs59Y60yTmWgfDu6pZQ6cwMAYDVR0RBCkwJ4ET
+ZHdtdzJAaW5mcmFkZWFkLm9yZ4EQZGF2aWRAd29vZGhvdS5zZTAUBgNVHSAEDTALMAkGB2eBDAEF
+AQEwDgYDVR0PAQH/BAQDAgXgMB0GA1UdJQQWMBQGCCsGAQUFBwMCBggrBgEFBQcDBDB7BgNVHR8E
+dDByMDegNaAzhjFodHRwOi8vY3JsMy5kaWdpY2VydC5jb20vVmVyb2tleVNlY3VyZUVtYWlsRzIu
+Y3JsMDegNaAzhjFodHRwOi8vY3JsNC5kaWdpY2VydC5jb20vVmVyb2tleVNlY3VyZUVtYWlsRzIu
+Y3JsMHYGCCsGAQUFBwEBBGowaDAkBggrBgEFBQcwAYYYaHR0cDovL29jc3AuZGlnaWNlcnQuY29t
+MEAGCCsGAQUFBzAChjRodHRwOi8vY2FjZXJ0cy5kaWdpY2VydC5jb20vVmVyb2tleVNlY3VyZUVt
+YWlsRzIuY3J0MA0GCSqGSIb3DQEBCwUAA4IBAQBBdzgU+I8tGdMO+Y4AETOQi6aiN9kB7lKWe5Ch
+4VR+L4uxYIqIHxR7G2+IEC9ugqEu43p4b80LpY7M4KmmfiaRDFGQ50s1OHAwdbR3X2OtkUQq0Qb9
+6ln+HD8N1JxO5nabuKbymki0BPoZcPdo+FeRecmkL/NOzzm41JBHrhwRwEWOOhAO5KxN4nkMBZ/w
+QzKEy4PylxurHmRG/K0k+xYFDO/UOx2/YsM8s138lQqEdKCvudtSvj5oA/Y8dNcZwQGHyVN5h5r2
+nh3mT3r2l7Q4dgxXlovERGpNqCZJ624jCiWQC4ELMD2+6WDxjj03PbOulQZ8oY4PQUyp6djF0keA
+MYIDuzCCA7cCAQEwVTBBMQswCQYDVQQGEwJBVTEQMA4GA1UEChMHVmVyb2tleTEgMB4GA1UEAxMX
+VmVyb2tleSBTZWN1cmUgRW1haWwgRzICEAfkkQ9qA1FdgOJE92VzW+AwDQYJYIZIAWUDBAIBBQCg
+ggE3MBgGCSqGSIb3DQEJAzELBgkqhkiG9w0BBwEwHAYJKoZIhvcNAQkFMQ8XDTI2MDYwMjE3MTUy
+N1owLwYJKoZIhvcNAQkEMSIEIBCzzc7M9R7ddx72OwI8EXMtb635v7dJ3qKQmvnHX0+hMGQGCSsG
+AQQBgjcQBDFXMFUwQTELMAkGA1UEBhMCQVUxEDAOBgNVBAoTB1Zlcm9rZXkxIDAeBgNVBAMTF1Zl
+cm9rZXkgU2VjdXJlIEVtYWlsIEcyAhAH5JEPagNRXYDiRPdlc1vgMGYGCyqGSIb3DQEJEAILMVeg
+VTBBMQswCQYDVQQGEwJBVTEQMA4GA1UEChMHVmVyb2tleTEgMB4GA1UEAxMXVmVyb2tleSBTZWN1
+cmUgRW1haWwgRzICEAfkkQ9qA1FdgOJE92VzW+AwDQYJKoZIhvcNAQEBBQAEggIAh4su4NqXBBAL
+aHTsW7EyeMpcQRMKb78TuM8WAk4NkPvx5dJsOhzEzV/DMj6XIaynKDsZjRvSKAugiT6y/dhEDwuf
+kVSaRvyzH/QWgwP4lKocnAiiY7vnqwcXzw2TUvGdpJVXeb2vDjvHdXTiAB53vlkdPx+CtSfPQ2/n
+0LEK1pen8t0BTAUcvaWq5b2en27Y02adLqunPwqzurr2f01ZmtxwF0PBfJ93VovKZ81Wcy4f0I8a
+syAxTNAJJl6ZBZ6G680kTBBWPLdZiTqVC+QTyMryvYddsdr1nX+YhstkFzVh40IYOkqhkYOOVYTk
+crncW3h2E+WTC2bSnS+N4VDbWHv1TWvdMCb+CG4zH5BPqGgA81K7yKs36G5Eq3AhxIFHczmOgck7
+zhvdm8oVW0lva+gPovaLxH/Ld3vw3xt5LCt1Lzti1JtLBIhnE8XB5bHsOZpwaXOJPPnicctM1Yxm
+4fZwt4z7AWX6VdN0LW0gyL5Cd13IMkv5f0cT0ewoUivofe9Lqc4dmATKwW1Ta0JonFbW/MUq3YcN
+0CrfrQ6X5y4ulbNZSFTPYw48B1WyiqD402+OrCyC2KqObRgi9Sv3frPTFufPSpEcEQLiAqsUu7o4
+Tnprnrk4mrHDw2Xj8PdXkF3en4sHyIwXLF6mXoxC7HxWRvPA0etzTwL98zAz9f0AAAAAAAA=
 
->   perf tests topology: Switch env->arch use to env->e_machine
 
-No regressions.
-
->   perf env, dso, thread: Add _endian variants for e_machine helpers
-
-1 high issue for a potential pre-existing SEGV if a thread lacks maps.
-Let's hope that doesn't happen, the example given assumes a
-multithreaded environment and multi-threading is on the TODO list.
-
->   perf capstone: Determine architecture from e_machine
-
-1 low issue. A flag only present in capstone 4.0 is used. As capstone
-4.0 was released in 2018, let's just assume the flag is there rather
-than adding yet more complexity.
-
->   perf print_insn: Use e_machine for fallback IP length check
-
-No regressions.
-
->   perf symbol: Avoid use of machine__is
-
-1 high issue. Concerns over pre-existing cross-platform analysis
-problems. Cross-platform analysis fully working is on the TODO list.
-
->   perf machine: Use perf_env e_machine rather than arch
->   perf sample-raw: Use perf_env e_machine rather than arch
->   perf sort: Use perf_env e_machine rather than arch
->   perf arch common: Use perf_env e_machine rather than arch
->   perf header: In print_pmu_caps use perf_env e_machine
->   perf c2c: Use perf_env e_machine rather than arch
->   perf lock-contention: Use perf_env e_machine rather than arch
->   perf env: Refactor perf_env__arch_strerrno
->   perf env: Remove unused perf_env__raw_arch
-
-No regressions x9.
-
->   perf env: Add mutex to protect lazy environment initialization
-
-1 medium issue requesting more locking on more bits of perf_env.
-Multi-threading is on the TODO list and let's stop the feature creep
-here.
-
->   perf env: Add helper to lazily compute the os_release
-
-1 high issue. Concern over a perf data issue in pipe mode. Addressing
-this would require a fairly major overhail of perf data, so let's add
-fixing to the TODO list.
-
->   perf symbol: Add setters for bitfields sharing a byte to avoid
->     concurrent update issues
->   perf symbol: Lazily compute idle
-
-No regressions x2.
-
-Thanks,
-Ian
-
-[1] https://sashiko.dev/#/patchset/20260602152516.2831152-1-irogers%40googl=
-e.com
-
->
->  tools/perf/arch/common.c                      |  92 +++--
->  tools/perf/builtin-c2c.c                      |  40 +-
->  tools/perf/builtin-inject.c                   |  10 +-
->  tools/perf/builtin-kwork.c                    |   2 +-
->  tools/perf/builtin-report.c                   |   2 +-
->  tools/perf/builtin-sched.c                    |   4 +-
->  tools/perf/builtin-top.c                      |   7 +-
->  tools/perf/builtin-trace.c                    |   7 +-
->  tools/perf/tests/symbols.c                    |   2 +-
->  tools/perf/tests/topology.c                   |   8 +-
->  tools/perf/tests/vmlinux-kallsyms.c           |   2 +-
->  tools/perf/trace/beauty/Build                 |   1 +
->  tools/perf/trace/beauty/arch_errno_names.sh   |  53 ++-
->  tools/perf/ui/browsers/annotate.c             |   2 +-
->  tools/perf/ui/browsers/map.c                  |   4 +-
->  tools/perf/util/annotate.c                    |   5 +-
->  tools/perf/util/auxtrace.c                    |   6 +-
->  tools/perf/util/callchain.c                   |   4 +-
->  tools/perf/util/capstone.c                    | 132 ++++--
->  tools/perf/util/data-convert-bt.c             |   2 +-
->  tools/perf/util/data-convert-json.c           |   6 +-
->  tools/perf/util/dlfilter.c                    |   2 +-
->  tools/perf/util/dso.c                         |  19 +-
->  tools/perf/util/dso.h                         |  14 +-
->  tools/perf/util/env.c                         | 376 ++++++++++++++----
->  tools/perf/util/env.h                         |  14 +-
->  tools/perf/util/evsel_fprintf.c               |   6 +-
->  tools/perf/util/header.c                      |  55 ++-
->  tools/perf/util/intel-pt.c                    |   2 +-
->  tools/perf/util/libdw.c                       |   2 +-
->  tools/perf/util/lock-contention.c             |   6 +-
->  tools/perf/util/machine.c                     |  37 +-
->  tools/perf/util/machine.h                     |   2 -
->  tools/perf/util/print_insn.c                  |  23 +-
->  tools/perf/util/print_insn.h                  |   2 +
->  tools/perf/util/probe-event.c                 |   4 +-
->  tools/perf/util/sample-raw.c                  |  21 +-
->  tools/perf/util/sample-raw.h                  |   6 +-
->  .../util/scripting-engines/trace-event-perl.c |   2 +-
->  .../scripting-engines/trace-event-python.c    |   4 +-
->  tools/perf/util/session.c                     |  26 +-
->  tools/perf/util/sort.c                        |  66 +--
->  tools/perf/util/srcline.c                     |  10 +-
->  tools/perf/util/symbol-elf.c                  |   5 +-
->  tools/perf/util/symbol.c                      | 238 ++++++++---
->  tools/perf/util/symbol.h                      |  80 +++-
->  tools/perf/util/symbol_fprintf.c              |   4 +-
->  tools/perf/util/thread.c                      |  58 ++-
->  tools/perf/util/thread.h                      |  23 +-
->  49 files changed, 1078 insertions(+), 420 deletions(-)
->
-> --
-> 2.54.0.929.g9b7fa37559-goog
->
+--=-bFbDCAYFbExy0zXwkgt3--
