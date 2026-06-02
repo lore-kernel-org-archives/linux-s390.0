@@ -1,150 +1,178 @@
-Received: from mail-wm1-f42.google.com (mail-wm1-f42.google.com [209.85.128.42])
+Received: from mail-dy1-f201.google.com (mail-dy1-f201.google.com [74.125.82.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A83B3BE144
-	for <linux-s390@vger.kernel.org>; Tue,  2 Jun 2026 14:36:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D451D3D524C
+	for <linux-s390@vger.kernel.org>; Tue,  2 Jun 2026 15:25:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780411017; cv=none; b=cfeSalZY9x7vfnaiTtFRXYX8O+nFkRE7r+d6J2pImet+jeEQA+bVXJrNWxineQhgKM25chztMWzyWWMZrSvDmASqSyL5qz3e5Doa0wjD8DqJQ+AaZX9BCxePMV5iigGEsgzgSZHQBNTbBYbo/ZSHVHw44Gu5aDmKrLoNpo8p0Sg=
+	t=1780413926; cv=none; b=J3g8F05T44tiRKNs2tuC0RWZXrJPIQO2e4H/DgNGGaHbl6azy705E6zW/rG6+IdEuTVL7ipYOLqsye0GxSBffzDk7iGv7eWwHKeoIlCOVm9yrIA26F2YeHfJ7bHL7lTfNF34MAP4YlnjoS1j7s8ArfyeCRpXlF3ThWDONSX7l8Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780411017; c=relaxed/simple;
-	bh=8TDuoVkcu9gdj2cfN4RmPownLIzXANuybmdd+isc9jU=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=b1k7FCIcJ4JktGW2t58bYlpRFrZuXTdxSQjTlBE5ufTDtQSTn1vSxcw2IwtUjHXO/dsgDNuHggguzPw+Z1Bi0oKqwHGRPe9LO8NqpGEkhha6JG8+SbVLVeJG7T3PtPn7nepsl9mvzlpVhw+bOjm9bRSrXHuE6bDn5mn8FD2cNKw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GUGlmAHr; arc=none smtp.client-ip=209.85.128.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1780413926; c=relaxed/simple;
+	bh=Tex6wSJ1ttT77SS74L03/2HwidCzgsEaoOXl0lQWIHc=;
+	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
+	 To:Cc:Content-Type; b=lzMEO4bSU8Nm3QiClB6+S+q5yGQIBbaMohfAtCo2vV08+gN5N2J3pcOX+o+y9J7J7Mm6UN3ousO1Z2YreuH6Zn6BDgjLwCYXErUNEYnL64KKM+or8rTXhWKkZOyQ1+I429Bzdp9/gmwW782B/9CAjZNqQCO6RzPZs/I8F1LFy9o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--irogers.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=JhZ6qfVo; arc=none smtp.client-ip=74.125.82.201
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--irogers.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GUGlmAHr"
-Received: by mail-wm1-f42.google.com with SMTP id 5b1f17b1804b1-490ac357c55so21377855e9.1
-        for <linux-s390@vger.kernel.org>; Tue, 02 Jun 2026 07:36:56 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="JhZ6qfVo"
+Received: by mail-dy1-f201.google.com with SMTP id 5a478bee46e88-304efad654dso6247609eec.1
+        for <linux-s390@vger.kernel.org>; Tue, 02 Jun 2026 08:25:24 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780411015; x=1781015815; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=oBKguW3D/kCt3h7s27Q2mTTVZ4PVa9W86O/GL4rWP8g=;
-        b=GUGlmAHrvVc3fq031mJgqqEIFJKfvtTXQETReE4nuRe/VFEp9bUzqc8WAob0z7YTZ7
-         vbRnAsManh3TzXC5eZluDDXcp/+DAIRI2y3CVSqyzXEcsAGpg6VYFMF5b5Oi4QSB0SQy
-         aCUg7lglQBpfA7x77KKiFngT9EfYyf7HLalVUKRIjwKEJTwg/9JaHbsAwehwS3VevPAt
-         l8RCk9z0PVLTNo91SfnKg7R13WN1yTOkBL/D/If+8ylOhIAZT/c+vvdHeam9G9Fw8+So
-         RVHT8fZI8OmEXhHwg4mIAPIW53EP96AjTjCIsXBpONtroGpYF5PASIilUv1pmH63xzh0
-         S45w==
+        d=google.com; s=20251104; t=1780413924; x=1781018724; darn=vger.kernel.org;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:from:to:cc:subject:date:message-id:reply-to;
+        bh=Zn6oBFiuaPluJCiGweFSRrSqGXwZ42XjhKUDVMlkfYw=;
+        b=JhZ6qfVoosVf7W34UjqcfWTvDvTg0w4C0rarzVj5Ng1dKlsrPEedB7dSicJJ0Xr7ZG
+         uA6VEivXQWVxPjpLe7o2n//sYtHXtYG8QDaOS+yyCyiqUjfMg21RNjADfayBJWVeCeC8
+         lAOxtU/S9frkTfra9WBQc6qlVUTSsc8HfyysTaRyDhsq2ju7X1MVzO2SuWSItX4DltER
+         Uu2CyFWEMv2n9sl/E1P8VHRpMSulWsK5j8e5rCor00AjQd1yVCjVCEvrMnnQHhkMQRDM
+         LMawMN6HVx9SA0yn1SJ4DxGiOAE7blzqqzItcg1w+f0DEFs6NsjblKmii/bk2CKCKoW5
+         sH+w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780411015; x=1781015815;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=oBKguW3D/kCt3h7s27Q2mTTVZ4PVa9W86O/GL4rWP8g=;
-        b=AUmqmdrpjzxpTYbDqhFPWlnqaCYmJOuqD41h9lnL3C2mAcc1BRox1z2jqy1hHKbt92
-         hh/MmwkUroT7kOjK+oo5pMv7n8AKL+RlV/EwQk/f9GzjdUrP5x1RGks4JIjdkaLw+61W
-         YkdaLtp+H26dCR2Adpmf071EuSsbW11fKqAyv/acsqVhP2to1OdFfF7yWl3gRM6a/134
-         tSyHdhxzVPFjEanyECMR/i8TaIzw47UZpiF2hKPDRohD7mwVXzRZj0hVR+nDRnMWuAoc
-         EjF8qJonkY8f7EHe9217Qh9TE5UvDtaQJw6ZQ4UWLePsBHgiz/K3Cs3TL3LJqH/JRk/9
-         cJ6A==
-X-Forwarded-Encrypted: i=1; AFNElJ+QxSmebv1lqffkzj/k3UcAfRHUEaVUtojRTfmcftfqRTloCzDWTZ4Z5Hu25ZUPmAmyUY9mw47WDiQG@vger.kernel.org
-X-Gm-Message-State: AOJu0YxZ/xNbMtglGkHdx4Hp9rF2dfJeD/VvQB6ggAMLH2/qTmjAgZqo
-	qHArzLlPVec24+D3fA1EnQsnUDbE+kdztCDTpruIDdZI2j32yqBQcEcC
-X-Gm-Gg: Acq92OHw3t+QOweXECkrZH5T4P1G2LuwtQjQbs87oMbKMjRRpoNtv5gCuRJCR2Vc2ag
-	VcnFLEObtTkhk1l8Ht72c8qY9/QjcMiHrcxNlFOUhb2wUnQ6zdFG/DVRXyCO9fFFV9HcfNLZfp5
-	gNG83qJJXuaMUgK/pd2pRkjNLC3YC/QtYIASPHdZ7TnVno39tlwUq03FEPx3Sku2/pN2KJlDONA
-	3CiRzwxns+x6Wd0v/teDAOVHW//RdgLeULwrtu6bb47pnlM/kkVuw8ucrCwwWR9Rv8fsK4+nGC1
-	DltepjKgLGBO4uHqUL1nN2WAiA0qSKUi3sze5L8t8kgc89EZ155aAbGHVJrjW2HKrPJVS7dD1Bm
-	YzcCU9Ro6T0ykTGIBvqX0xDX+/7PAQN4DzRQ1pwvVNcXH4WvaqdCJ5pKMd07Y9zppYFRKfb/X3m
-	sl2sfPGdVIv/75m2X8KXfomJvtdAAIctUnlEDK7NAF0EUkiSLVyjiILe437WNYXR0kaEbqWYY=
-X-Received: by 2002:a05:600c:190b:b0:48f:f64c:c2fe with SMTP id 5b1f17b1804b1-490a298f29bmr88226445e9.22.1780411014496;
-        Tue, 02 Jun 2026 07:36:54 -0700 (PDT)
-Received: from pumpkin (82-69-66-36.dsl.in-addr.zen.co.uk. [82.69.66.36])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4909c121d63sm101418795e9.29.2026.06.02.07.36.53
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 02 Jun 2026 07:36:54 -0700 (PDT)
-Date: Tue, 2 Jun 2026 15:36:52 +0100
-From: David Laight <david.laight.linux@gmail.com>
-To: Heiko Carstens <hca@linux.ibm.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>, Sven Schnelle
- <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian
- Borntraeger <borntraeger@linux.ibm.com>, Juergen Christ
- <jchrist@linux.ibm.com>, linux-kernel@vger.kernel.org,
- linux-s390@vger.kernel.org
-Subject: Re: [PATCH v5 1/7] s390/percpu: Infrastructure for more efficient
- this_cpu operations
-Message-ID: <20260602153652.6c2c02bc@pumpkin>
-In-Reply-To: <20260602135436.10415A71-hca@linux.ibm.com>
-References: <20260526055702.1429061-1-hca@linux.ibm.com>
-	<20260526055702.1429061-2-hca@linux.ibm.com>
-	<403de21c-957e-41ca-8c03-0bd110c49ec3-agordeev@linux.ibm.com>
-	<20260601132750.9109A3b-hca@linux.ibm.com>
-	<491a0085-9ba1-431b-9752-c1ac3fd602be-agordeev@linux.ibm.com>
-	<20260601150813.9109C90-hca@linux.ibm.com>
-	<20260602143209.1ce024e3@pumpkin>
-	<20260602135436.10415A71-hca@linux.ibm.com>
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; arm-unknown-linux-gnueabihf)
+        d=1e100.net; s=20251104; t=1780413924; x=1781018724;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=Zn6oBFiuaPluJCiGweFSRrSqGXwZ42XjhKUDVMlkfYw=;
+        b=PHQXnrzORbAiMWz44iszBIUgJ6dzOSsmj4XzLvWbF2kUIPYjjrv2y0q7/diJYi91Dh
+         B6uTDq3BDeEmtf/uX5ICwguhOMEs0OMGVBweH2XJgDm+LbIUtuZyul/4YxXj9z2gk1+d
+         hqtlleBrTNRPdkgkeVULXXrk8hBNzwwc2JH+LoUHJgmyYcKyoXABFTyiemDlFU/DacI+
+         kyH4PctSnbRjDLCcU1+juHUTS0eJfXgZ+GyeBgxzLsHaTujwq1KOxkkdSQ9Tok1iAL8r
+         t4FHw+ZQFpt0YW+tP2JIVrpXlR1EvE8mT93iO/xZJuY6NFI59uEdL72S3+wCQj1qjgwF
+         Mwiw==
+X-Forwarded-Encrypted: i=1; AFNElJ+Ryajt+9IKzfZlBaX5e0AnRVMxeiU22JQ1gDZp6R+6xBJq4lQ2HSal++FAwY5f42YLZnFZnXW3H5O5@vger.kernel.org
+X-Gm-Message-State: AOJu0Yx5De057YjadTvTjEPHJFlva5nW73s4cit4e0uqYQlFHA50FhQr
+	zdD3h7Gwzqtu6N9sTNtXV7ZwM18vJ+zzMC7d4hmEYqkXz7hfpZVRAogAs8Jgh/wIzs2kNMq7jsY
+	Uh3KakSs2UA==
+X-Received: from dyce13.prod.google.com ([2002:a05:7300:724d:b0:2d7:e13b:ef99])
+ (user=irogers job=prod-delivery.src-stubby-dispatcher) by 2002:a05:7301:1284:b0:2c5:50fe:c795
+ with SMTP id 5a478bee46e88-304fa722d9fmr7665240eec.29.1780413923763; Tue, 02
+ Jun 2026 08:25:23 -0700 (PDT)
+Date: Tue,  2 Jun 2026 08:24:57 -0700
+In-Reply-To: <20260602062452.2583619-1-irogers@google.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Mime-Version: 1.0
+References: <20260602062452.2583619-1-irogers@google.com>
+X-Mailer: git-send-email 2.54.0.929.g9b7fa37559-goog
+Message-ID: <20260602152516.2831152-1-irogers@google.com>
+Subject: [PATCH v12 00/19] perf: Use e_machine and lazily compute symbols
+From: Ian Rogers <irogers@google.com>
+To: irogers@google.com, acme@kernel.org, namhyung@kernel.org
+Cc: agordeev@linux.ibm.com, gor@linux.ibm.com, hca@linux.ibm.com, 
+	jameshongleiwang@126.com, japo@linux.ibm.com, linux-kernel@vger.kernel.org, 
+	linux-perf-users@vger.kernel.org, linux-s390@vger.kernel.org, 
+	sumanthk@linux.ibm.com, tmricht@linux.ibm.com
+Content-Type: text/plain; charset="UTF-8"
 
-On Tue, 2 Jun 2026 15:54:36 +0200
-Heiko Carstens <hca@linux.ibm.com> wrote:
+Add a helper to perf_env to compute the e_machine if it is EM_NONE.
+Derive the value from the arch string if available. Similarly derive
+the arch string from the ELF machine if available, for consistency.
+This means perf's arch (machine type) is no longer determined by uname
+but set to match that of the perf ELF executable.
 
-> On Tue, Jun 02, 2026 at 02:32:09PM +0100, David Laight wrote:
-> > On Mon, 1 Jun 2026 17:08:13 +0200
-> > Heiko Carstens <hca@linux.ibm.com> wrote:  
-> > > It is: the check makes sure this is an AG instruction, which adds the
-> > > percpu offset from lowcore - by checking that the displacement is
-> > > correct, as well as that the base register is zero.
-> > > 
-> > > There could be a different AG instruction within the inline assembly,
-> > > for whatever reason.  
-> > 
-> > Do you actually even need to check the instruction?
-> > 
-> > This sequence can only work for simple per-cpu accesses, so I don't
-> > see a reason to let the specified register point anywhere other than the
-> > base of the per-cpu data.
-> > 
-> > That means the process switch code can just load the register with the
-> > base of the per-cpu data for the new cpu.
-> > If that happens before the 'AG' is executed it won't matter.
-> > 
-> > The only reason would be to support non-offsettable memory accesses.
-> > But it looks like the 'laag    %r5,%r2,0(%r4)' in the example has an
-> > offset (of zero).
-> > Probably only stops you doing a direct access of an array.
-> > 
-> > That would mean that needs_fixup goes in the bin and percpu_exit() becomes:
-> > 	...
-> > 	reg = regs->percpu_register;
-> > 	if (likely(!reg))
-> > 		return;
-> > 	lc->percpu_register = reg;
-> > 	regs->gprs[reg] = lc->percpu_offset
-> > }
-> > 
-> > I guess I'm missing something?  
-> 
-> The percpu register (in the above example %r4) first contains the base address
-> of a percpu variable. To get the actual percpu address of the variable the
-> percpu_offset of the corresponding cpu has to be added to that address, which
-> is what the AG instruction is doing.
+Migrate code away from strcmp on env->arch to using the e_machine
+comparisons that are more accurate and not prone to uname and other
+naming differences. While cleaning this up, also clean up the
+capstone initialization code to cover more architectures and to set
+the big endian flag based on ELF header information.
 
-I knew my brain was fading.
-I'm sure it should be possible to get the linker to put the offset of
-the variable from the base on the per-cpu data area into the laag instruction.
-(Looks like it has a 20bit offset field.)
+Refactor perf_env__arch_strerrno to take an e_machine instead of an
+architecture string, removing the HAVE_LIBTRACEEVENT dependency
+entirely and making it unconditionally available. The generated errno
+table includes fallback definitions for newer ELF machine constants to
+ensure compatibility with older host glibc versions.
 
-Although I've no idea how per-cpu data works in loadable modules.
+Introduce a mutex in perf_env to safely protect lazy metadata setup,
+such as os_release or e_machine resolution, preventing concurrent
+initialization data races and memory leaks during multi-threaded
+profiling or symbol loading. Properly initialize stack-allocated
+perf_env instances to ensure safe mutex destruction.
 
-That might mean you need lc->percpu_address as well as lc->percpu_offset.
-(If it isn't there already.)
+Switch the idle computation to the point of use and lazily compute it,
+rather than computing it for every symbol. The current only user is
+`perf top`. At the point of use the perf_env is available and this can
+be used to make sure the idle function computation correctly accounts
+for architecture-specific and kernel-version-specific patterns.
+To prevent concurrent updates to shared symbol bitfield flags, migrate
+bitfield variables in struct symbol to C11 atomic flags.
 
--- David
+Ian Rogers (19):
+  perf env: Add perf_env__e_machine helper and use in perf_env__arch
+  perf tests topology: Switch env->arch use to env->e_machine
+  perf env, dso, thread: Add _endian variants for e_machine helpers
+  perf capstone: Determine architecture from e_machine
+  perf print_insn: Use e_machine for fallback IP length check
+  perf symbol: Avoid use of machine__is
+  perf machine: Use perf_env e_machine rather than arch
+  perf sample-raw: Use perf_env e_machine rather than arch
+  perf sort: Use perf_env e_machine rather than arch
+  perf arch common: Use perf_env e_machine rather than arch
+  perf header: In print_pmu_caps use perf_env e_machine
+  perf c2c: Use perf_env e_machine rather than arch
+  perf lock-contention: Use perf_env e_machine rather than arch
+  perf env: Refactor perf_env__arch_strerrno
+  perf env: Remove unused perf_env__raw_arch
+  perf env: Add mutex to protect lazy environment initialization
+  perf env: Add helper to lazily compute the os_release
+  perf symbol: Add setters for bitfields sharing a byte to avoid
+    concurrent update issues
+  perf symbol: Lazily compute idle
 
-> 
-> What you propose would make a CPU's percpu_offset the address of any percpu
-> variable, which most likely would result in a crash.
+ tools/perf/arch/common.c                      |  92 +++--
+ tools/perf/builtin-c2c.c                      |  40 +-
+ tools/perf/builtin-inject.c                   |  10 +-
+ tools/perf/builtin-kwork.c                    |   2 +-
+ tools/perf/builtin-report.c                   |   2 +-
+ tools/perf/builtin-sched.c                    |   4 +-
+ tools/perf/builtin-top.c                      |   7 +-
+ tools/perf/builtin-trace.c                    |   7 +-
+ tools/perf/tests/symbols.c                    |   2 +-
+ tools/perf/tests/topology.c                   |   8 +-
+ tools/perf/tests/vmlinux-kallsyms.c           |   2 +-
+ tools/perf/trace/beauty/Build                 |   1 +
+ tools/perf/trace/beauty/arch_errno_names.sh   |  53 ++-
+ tools/perf/ui/browsers/annotate.c             |   2 +-
+ tools/perf/ui/browsers/map.c                  |   4 +-
+ tools/perf/util/annotate.c                    |   5 +-
+ tools/perf/util/auxtrace.c                    |   6 +-
+ tools/perf/util/callchain.c                   |   4 +-
+ tools/perf/util/capstone.c                    | 132 ++++--
+ tools/perf/util/data-convert-bt.c             |   2 +-
+ tools/perf/util/data-convert-json.c           |   6 +-
+ tools/perf/util/dlfilter.c                    |   2 +-
+ tools/perf/util/dso.c                         |  19 +-
+ tools/perf/util/dso.h                         |  14 +-
+ tools/perf/util/env.c                         | 376 ++++++++++++++----
+ tools/perf/util/env.h                         |  14 +-
+ tools/perf/util/evsel_fprintf.c               |   6 +-
+ tools/perf/util/header.c                      |  55 ++-
+ tools/perf/util/intel-pt.c                    |   2 +-
+ tools/perf/util/libdw.c                       |   2 +-
+ tools/perf/util/lock-contention.c             |   6 +-
+ tools/perf/util/machine.c                     |  37 +-
+ tools/perf/util/machine.h                     |   2 -
+ tools/perf/util/print_insn.c                  |  23 +-
+ tools/perf/util/print_insn.h                  |   2 +
+ tools/perf/util/probe-event.c                 |   4 +-
+ tools/perf/util/sample-raw.c                  |  21 +-
+ tools/perf/util/sample-raw.h                  |   6 +-
+ .../util/scripting-engines/trace-event-perl.c |   2 +-
+ .../scripting-engines/trace-event-python.c    |   4 +-
+ tools/perf/util/session.c                     |  26 +-
+ tools/perf/util/sort.c                        |  66 +--
+ tools/perf/util/srcline.c                     |  10 +-
+ tools/perf/util/symbol-elf.c                  |   5 +-
+ tools/perf/util/symbol.c                      | 238 ++++++++---
+ tools/perf/util/symbol.h                      |  80 +++-
+ tools/perf/util/symbol_fprintf.c              |   4 +-
+ tools/perf/util/thread.c                      |  58 ++-
+ tools/perf/util/thread.h                      |  23 +-
+ 49 files changed, 1078 insertions(+), 420 deletions(-)
+
+-- 
+2.54.0.929.g9b7fa37559-goog
 
