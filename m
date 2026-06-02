@@ -1,175 +1,186 @@
-Received: from out-178.mta1.migadu.com (out-178.mta1.migadu.com [95.215.58.178])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ot1-f50.google.com (mail-ot1-f50.google.com [209.85.210.50])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D01F331A63
-	for <linux-s390@vger.kernel.org>; Tue,  2 Jun 2026 01:54:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 10F2938D403
+	for <linux-s390@vger.kernel.org>; Tue,  2 Jun 2026 04:20:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780365265; cv=none; b=bwuwPXtPAS++fdrUbeHMxAEWGjcq8QQC9JMKW0u5b/dUG2Yr/jFEciYQwqJyZss9JS/J+cWxUeAkj376xTts1DNgH+hM9qGU4iG1BWSh1O+mBeZnfTc3GsKlQyPgTbnvIK/zwQ2F7clfKJXOPAfVwYF/kWfALOGt4bndcKZ+qHA=
+	t=1780374049; cv=none; b=DAMV6os4ldvF3VIMoRYO20NsCbZgoD9CjFCwV0wu0DjaE5QZcdIT6bliVNQTYOsaXD+EAMoKH2LauMfulM2H4B0qIuelA3tQCylBUtgfV223ywpHEbj0W0AIKUcyu7xWDnl31ELMN+oJjCui/aPZSwj/N5/B9KdLpbJo/vYE5fg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780365265; c=relaxed/simple;
-	bh=56BEJYP4bUz2SiYFF+kqwByAFRNvZntXAg2/hSMophY=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=OL5LQu3m8Ebn8TrPnanhD8qVJBU1uLldRbJe3oxzgcbZVlFjjHz19pVA2aIoXNNVPbi5Fb9swkmsRlDksre2FqavtDyZvv23H3pZMdj5YWfV6PzD8JQ3MjoWCcDwsNhdUlsGCMCL4UgnEQGJBTkvuipqaycZaeOxE2hLZqf3syk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=DfHshTTh; arc=none smtp.client-ip=95.215.58.178
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1780374049; c=relaxed/simple;
+	bh=5Xm8IPwfY0dyellfnNLjdKdpNFj+MktK6q6JKPEvMiU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=gZsTsP9Wpf7Whn+vdLSbZOoZ92wQ8dA9UuQpDJRh3ku8iGxz8J1MvFwQ6vLEleLtXEHl9QBOksEE+gCaWRDorG1jIKadhn3S+3+9bysRyvgts0Ge98ePDmsNenVT7+rJhmWCwjJkN0iLYgOJyjxXZ6Q1MYlG4Ug61hT3b1Q6OG4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=II2P7NY7; arc=none smtp.client-ip=209.85.210.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="DfHshTTh"
-Message-ID: <153ba7fd-9121-4884-87c6-45822828545e@linux.dev>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1780365260;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=3geOnjsRONWcXlSKOxzkIj5UpI9VWDpsMbZFPdUbFI8=;
-	b=DfHshTThmN0u8H6tDLsF6dGp2es2w9XzCkuhwpmX+DnkF9p6hOpD3MXx1zkoegmfX7XMO7
-	OrcB7suUBTz7SBHHCE5K5GqGxTR0Ky7NWk5qtfYe0GWjr4mrqL40CDidu9DhSzC24WHznf
-	znn7d0hq+kSM6x0MorcOOwGZzS0DGVo=
-Date: Tue, 2 Jun 2026 09:53:54 +0800
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="II2P7NY7"
+Received: by mail-ot1-f50.google.com with SMTP id 46e09a7af769-7e6128bd9b3so5617911a34.1
+        for <linux-s390@vger.kernel.org>; Mon, 01 Jun 2026 21:20:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1780374047; x=1780978847; darn=vger.kernel.org;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=uT7QUUK+LXQxZ5prqCoLyUCjjU+3++St9mdBXfj/SbU=;
+        b=II2P7NY7whDL8gSXkA0nJrCaJP0nMQT94ZDscIeBT9DgwHU/V35pqK7uY6yYRa4op8
+         Pkriu1woUtnmCkf9dRhaKVkxTDJzkiptqF1cP7S7BEL01TOy353DSAjRyC12WQHMHkQZ
+         apk1coIgC8Z70VXwLZzGdVNJQYzrDqFmXnU/GyJDa7TJjr1fnmdXdaVfWID116A2fhDk
+         1K/Hg1foLg5ou1H9wOGFIktUQbWDygnupcRp7jXTPCti15nfqZNv5XQ1nO0QOgJO6Kce
+         T25RXUKAXg1qu4W9ersVT0vZd9lo8oB/vlmke+FRzkDgzA3jUdFHHG7btfiP9iZgcm6t
+         lfuQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1780374047; x=1780978847;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=uT7QUUK+LXQxZ5prqCoLyUCjjU+3++St9mdBXfj/SbU=;
+        b=cs1ENrT6bPUVb42DLiTEfaa1ka5Hch7cjPgOzukhIxmRpbjPabjd8flM7ts7Bjf6YI
+         Z9zq14UifOQL+PaAo1euFYOAH2pdF8zsg3Cm52/4u6q1daSTvvfOArAJ+ra0uIT5eeLh
+         wvpsKWJtmalxnH4UNbIyvxHMbt85LpYrMR2FXckGA5JCARnKLZ7OP05cdpSvQGZ/b2sC
+         4mHZ6UtQxW0gWCm/hZmDjor8ExI9z6f7FxGSrNOimx3zxMDKl21FgWXL7EnKlVs8WkKI
+         O9+gzSBCIJsdc/ScrlhskY9/JlL1axo8yu83H7/xZ4SsL4Rlnfn0iB51E3lR9KZ7MFY4
+         35Aw==
+X-Forwarded-Encrypted: i=1; AFNElJ8DzSmUzgL6V6S/rONuN1D9NVZdrkbrfdB3zBmIHL0wLB04IJX3iaTqbfaTOKaXTXVkW05bFVUj46Gd@vger.kernel.org
+X-Gm-Message-State: AOJu0Yw2a7YT5n5eahpJjgllBWKInx0HeH/SrWCEmY85gUj6o5vFN9Rw
+	iegThgwu7zEmy4ZyF5p4e8242+0FNCCyNfvZIXRPpHw3gClbDGWsj9Pv
+X-Gm-Gg: Acq92OGPVIoEDBmoY2bLFr2XRc1VktICAHThZ8ahJ+rbVkT7LIusvEwkYkbcTBDK3Hu
+	CVNt/nkchqPbaaP0ZOm6g1z74M8h034xEFVw5v9b4JpCiBgQoxkfbHZSCt4B844yNp2APCDRGkq
+	HpJmOXTueZMJBkLD3hOlk5sx7TbupkqzbGJyPQ/nV7U57IzHTl+j5OOSWmRxENx9dJQYRxIBOsi
+	+u6RjjIsPBM525+bXczATqG/1rlkQgXkAsK6onBu1uiyVn3CoYXNZqqhwIcuYTVNbxL/0WiwL/A
+	LvkIdZSNCGoY+Os6reiylxAg/tzWpiYypMKJAWLqcyCHN+40uSy9dVgMYZtKlHDZw2tcWqsu+Ia
+	G8rllyT+DZ7ULXdFjdURPl5+8UCQJHTKVdaTAIBstsnnojX4fcn7nO0c8pwgTWF1eaMoNgbZCdb
+	aR+9ejnP5U1eW/yAVd31X3r29+K8lXjUsItMS5Iq0PMrkqTXgDzxuk
+X-Received: by 2002:a05:6830:600d:b0:7d9:ad90:5670 with SMTP id 46e09a7af769-7e6a1db34c7mr10067817a34.18.1780374046933;
+        Mon, 01 Jun 2026 21:20:46 -0700 (PDT)
+Received: from hoboy.vegasvil.org ([2600:1700:2430:6f6f:e2d5:5eff:fea5:802f])
+        by smtp.gmail.com with ESMTPSA id 46e09a7af769-7e695d176dasm9333689a34.16.2026.06.01.21.20.42
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 01 Jun 2026 21:20:45 -0700 (PDT)
+Date: Mon, 1 Jun 2026 21:20:40 -0700
+From: Richard Cochran <richardcochran@gmail.com>
+To: Jakub Kicinski <kuba@kernel.org>
+Cc: David Woodhouse <dwmw2@infradead.org>, Wen Gu <guwen@linux.alibaba.com>,
+	tglx@kernel.org, andrew+netdev@lunn.ch, davem@davemloft.net,
+	edumazet@google.com, pabeni@redhat.com,
+	linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+	jstultz@google.com, anna-maria@linutronix.de, frederic@kernel.org,
+	daniel.lezcano@kernel.org, sboyd@kernel.org,
+	vladimir.oltean@nxp.com, wei.fang@nxp.com, xiaoning.wang@nxp.com,
+	jonathan.lemon@gmail.com, vadim.fedorenko@linux.dev,
+	yangbo.lu@nxp.com, svens@linux.ibm.com, nick.shi@broadcom.com,
+	ajay.kaher@broadcom.com, alexey.makhalov@broadcom.com,
+	bcm-kernel-feedback-list@broadcom.com, linux-fpga@vger.kernel.org,
+	imx@lists.linux.dev, linux-s390@vger.kernel.org,
+	dust.li@linux.alibaba.com, xuanzhuo@linux.alibaba.com,
+	mani@kernel.org, imran.shaik@oss.qualcomm.com,
+	taniya.das@oss.qualcomm.com
+Subject: Re: [PATCH v2 2/2] MAINTAINERS: update PTP maintainer entries after
+ directory split
+Message-ID: <ah5aGMIxA418sxoj@hoboy.vegasvil.org>
+References: <20260412084704.743482ad@kernel.org>
+ <4B889ED5-D1F6-401D-B753-89AE2037F316@infradead.org>
+ <20260412095301.4fe1fe65@kernel.org>
+ <ebf19246-91af-4887-b2aa-d9007921f7b2@linux.alibaba.com>
+ <1088b07d760491deb461d6d01abca631e8f8d86c.camel@infradead.org>
+ <ahzQZg_v4bxFfGdj@hoboy.vegasvil.org>
+ <3908843460c4864eef79cced40d897f793c7ae2a.camel@infradead.org>
+ <ah2jIt2DqI1ZZJx8@hoboy.vegasvil.org>
+ <0e023f951c102fe2ee7070e490c579783b2817d5.camel@infradead.org>
+ <20260601185226.7f43fa75@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Subject: Re: [PATCH mm-hotfixes-unstable v18 00/14] khugepaged: add mTHP
- collapse support
-To: Lorenzo Stoakes <ljs@kernel.org>,
- Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
- Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
- Nico Pache <npache@redhat.com>, linux-doc@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-mm@kvack.org,
- linux-trace-kernel@vger.kernel.org, aarcange@redhat.com,
- anshuman.khandual@arm.com, apopple@nvidia.com, baohua@kernel.org,
- baolin.wang@linux.alibaba.com, byungchul@sk.com, catalin.marinas@arm.com,
- cl@gentwo.org, corbet@lwn.net, dave.hansen@linux.intel.com,
- david@kernel.org, dev.jain@arm.com, gourry@gourry.net, hannes@cmpxchg.org,
- hughd@google.com, jack@suse.cz, jackmanb@google.com, jannh@google.com,
- jglisse@google.com, joshua.hahnjy@gmail.com, kas@kernel.org,
- liam@infradead.org, mathieu.desnoyers@efficios.com, matthew.brost@intel.com,
- mhiramat@kernel.org, mhocko@suse.com, peterx@redhat.com, pfalcato@suse.de,
- rakie.kim@sk.com, raquini@redhat.com, rdunlap@infradead.org,
- richard.weiyang@gmail.com, rientjes@google.com, rostedt@goodmis.org,
- rppt@kernel.org, ryan.roberts@arm.com, shivankg@amd.com,
- sunnanyong@huawei.com, surenb@google.com, thomas.hellstrom@linux.intel.com,
- tiwai@suse.de, usamaarif642@gmail.com, vbabka@suse.cz,
- vishal.moola@gmail.com, wangkefeng.wang@huawei.com, will@kernel.org,
- willy@infradead.org, yang@os.amperecomputing.com,
- ying.huang@linux.alibaba.com, ziy@nvidia.com, zokeefe@google.com,
- linux-s390@vger.kernel.org, linux-next@vger.kernel.org
-References: <20260522150009.121603-1-npache@redhat.com>
- <20260522134724.f4f11941a85ef18b307d16ae@linux-foundation.org>
- <20260601155808.2755103A59-agordeev@linux.ibm.com> <ah2z26OzPktchVeT@lucifer>
-Content-Language: en-US
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From: Lance Yang <lance.yang@linux.dev>
-In-Reply-To: <ah2z26OzPktchVeT@lucifer>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Migadu-Flow: FLOW_OUT
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260601185226.7f43fa75@kernel.org>
 
 
+Sorry for replying to David here via Jakub's message.  Somehow my
+brilliant Gmail doesn't have David's reply...
 
-On 2026/6/2 01:08, Lorenzo Stoakes wrote:
-> On Mon, Jun 01, 2026 at 05:58:08PM +0200, Alexander Gordeev wrote:
->> On Fri, May 22, 2026 at 01:47:24PM -0700, Andrew Morton wrote:
->>
->> Hi Andrew et al,
->>
->>> On Fri, 22 May 2026 08:59:55 -0600 Nico Pache <npache@redhat.com> wrote:
->>>
->>>> The following series provides khugepaged with the capability to collapse
->>>> anonymous memory regions to mTHPs.
->>>
->>> Thanks, I've update mm.git's mm-unstable branch to this version.
->>>
->>> It sounds like I might be dropping it soon, haven't started looking at
->>> that yet.  But let's at least eyeball the latest version at this time.
->>>
->>> Sashiko was able to apply this, so the base-it-on-hotfixes thing worked
->>> well, thanks.  The AI checking made a few allegations:
->>
->> This series appears to cause hangs on s390 in linux-next.
->> The issue is not easily reproducible, so it is not yet confirmed.
->> Any ideas for a reliable reproducer that exercises the code path below?
->>
->>      [ 2749.385719] sysrq: Show Blocked State
->>      [ 2749.385730] task:khugepaged      state:D stack:0     pid:209   tgid:209   ppid:2      task_flags:0x200040 flags:0x00000000
->>      [ 2749.385735] Call Trace:
->>      [ 2749.385736]  [<0000017f63c8b226>] __schedule+0x316/0x890
->>      [ 2749.385740]  [<0000017f63c8b7dc>] schedule+0x3c/0xc0
->>      [ 2749.385743]  [<0000017f63c8b888>] schedule_preempt_disabled+0x28/0x40
->>      [ 2749.385746]  [<0000017f63c902ea>] rwsem_down_write_slowpath+0x2fa/0x8b0
->>      [ 2749.385749]  [<0000017f63c90910>] down_write+0x70/0x80
->>      [ 2749.385752]  [<0000017f6313407a>] collapse_huge_page+0x2ea/0x9e0
->>      [ 2749.385755]  [<0000017f6313491e>] mthp_collapse+0x1ae/0x1f0
->>      [ 2749.385757]  [<0000017f63134fda>] collapse_scan_pmd+0x67a/0x8f0
->>      [ 2749.385760]  [<0000017f6313751a>] collapse_single_pmd+0x15a/0x260
->>      [ 2749.385762]  [<0000017f6313792c>] collapse_scan_mm_slot.constprop.0+0x30c/0x470
->>      [ 2749.385765]  [<0000017f63137cb6>] khugepaged+0x226/0x240
->>      [ 2749.385768]  [<0000017f62db3128>] kthread+0x148/0x170
->>      [ 2749.385770]  [<0000017f62d2c238>] __ret_from_fork+0x48/0x220
->>      [ 2749.385772]  [<0000017f63c95d0a>] ret_from_fork+0xa/0x30
->>
->> Thanks!
-> 
-> Hi Alexander,
-> 
-> Thanks for the report.
-> 
-> It's a pity it's non-repro, I had Claude have a look at it and it couldn't find
-> a definite issue with the code at v18, all the locks seem balanced internally.
-> 
-> Things it highlighted FWIW:
-> 
-> - Far more mmap_write_lock()'s being taken - the stack-based approach calls
->    colapse_huge_page() multiple times per-PMD each of which entails an mmap read
->    lock/unlock and mmap write lock.
-> 
-> - anon_vma write lock held for a much longer period over partial collapse.
-> 
-> So maybe these are triggering issues rather than being the cause of them per-se?
-> 
-> If you happen to see it again could you give the output for:
-> 
-> 'echo t > /proc/sysrq-trigger' so we can track who holds the contended lock and
-> get more details on it?
-> 
-> Also the .config would be useful.
-> 
-> I'm guessing you've also not enabled mTHP in any way on the system?
-> 
-> Repro-wise you could also:
-> 
-> # echo 1 > /sys/kernel/mm/transparent_hugepage/khugepaged/scan_sleep_millisecs
-> # echo 1 > /sys/kernel/mm/transparent_hugepage/khugepaged/alloc_sleep_millisecs
-> 
-> To get khugepaged going a more aggressively:
-> 
-> $ for f in /sys/kernel/mm/transparent_hugepage/hugepages-*; do echo always | sudo tee $f/enabled; done
-> 
-> Then maybe some stress-ng like sudo stress-ng --vm 4 --vm-bytes 2G --vm-method
-> all --timeout 5m (or maybe something more refined :)?
-> 
-> Maybe some of this will help repro more reliably?
-> 
+On Mon, Jun 01, 2026 at 06:52:26PM -0700, Jakub Kicinski wrote:
+> On Mon, 01 Jun 2026 17:53:49 +0100 David Woodhouse wrote:
+> > On Mon, 2026-06-01 at 08:20 -0700, Richard Cochran wrote:
+> > > Sorry, just catching up here, so the idea is to have
+> > > 
+> > >  linux/drivers/ptp/drivers  ?  
+> > 
+> > That is my current suggestion.
 
-Cool!
+drivers/../drivers seems a bit silly to me
 
-Maybe also worth trying with CONFIG_DETECT_HUNG_TASK=y and
-CONFIG_DETECT_HUNG_TASK_BLOCKER=y.
+> > It stems from Jakub's response in
+> > https://lore.kernel.org/all/20250815113814.5e135318@kernel.org/ that "I
+> > really wish someone stepped up and created a separate subsystem for all
+> > these cloud / vm clocks. They have nothing to do with PTP."
+> > 
+> > There was some further bikeshedding in
+> > https://lore.kernel.org/netdev/0afe19db-9c7f-4228-9fc2-f7b34c4bc227@linux.alibaba.com/
 
-# detect after 10s in D state instead of default 120s
-echo 10 > /proc/sys/kernel/hung_task_timeout_secs
+The idea of categorizing core, NIC-related, vm, and stand alone clock
+devices makes some sense to me.
 
-# optional: check more often; 0 means same as timeout
-echo 0 > /proc/sys/kernel/hung_task_check_interval_secs
+> > around how to split 'emulated' from other hardware drivers, but I don't
+> > much like that taxonomy. Some of these "virtual" clocks could just as
+> > easily exist in hardware with PTM too.
 
-With that enabled, the kernel should hopefully tell us which task likely
-owns the rwsem. If it is writer-owned, I would expect that to be fairly
-reliable.
+So the whole in-kernel API in ptp_clock_kernel.h with ptp_clock_info,
+etc, was poorly named (by me) back around Linux 3.0.  After all, the
+abbreviation, "PTP", stands for a network protocol.  At the time, Alan
+Cox pointed that out and complained, but somehow the code got merged
+anyhow.
 
-Cheers, Lance
+The term PHC is a better one, since PTP Hardware Clock means clock
+device whose purpose is to support network time keeping together with
+a NIC.
+
+> > My observation is that with the sole exception of ptp_inet.c, *all* of
+> > the actual PHC drivers that live in drivers/ptp instead of drivers/net
+> > are "pure clock" drivers,
+
+No, that is not quite right.  The clockmatrix, idt82p33, ines, and
+qoriq drivers wouldn't be very useful without an attached NIC.
+
+> > so perhaps we split those all out into
+> > drivers/ptp/drivers/ and exclude them from the netdev maintenance?
+
+Originally the idea was that the rate of patches would be low enough
+that netdev would be the place to post and review them, and that no
+separate tree or mailing list were needed. 
+
+Even though the "PTP" naming was an unfortunate choice way back when,
+still I'm not a big fan of moving stuff around "just because".
+
+But moving forward, I would suggest starting a new area for pure
+hardware clock devices.  
+
+   "Clock Devices" ?
+   linux/drivers/cd
+
+Too short!
+
+   "Time Keeping Devices" ?
+   linux/drivers/tkd
+
+Confuses core time keeping!
+
+   "Advanced Clock Devices" ?
+   linux/drivers/acd
+
+Let's come up with a fitting name.
+
+Still, I don't understand why these new (non-network related ) device
+drivers can't be implemented in their own class using posix_clock_register()
+etc.
+
+Any of the useful bits (like sysfs interfaces) can be refactored out
+of ptp_clock.c and shared as a common layer.
+
+Thanks,
+Richard
