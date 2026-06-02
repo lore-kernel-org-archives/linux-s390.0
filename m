@@ -1,53 +1,53 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB3F13BE144;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E18123ED3AF;
 	Tue,  2 Jun 2026 14:24:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780410249; cv=none; b=D/LBLc2gy+L7LqXZoCyGfgaALvItJn5o4A0sUIQ54PkA08uFYzXGBcPfO/Qk2OHWPgnTeT81k77KIQzgmwNW5KDXzkqJyG6iaEVWqO/w9y6vs/s1laDTML6WBfj3wzV+qvHcozZhZPMdKmexBka465f1pxtOOweIYQaB9DAesGU=
+	t=1780410249; cv=none; b=dq2YnKIAM0iH6qf9dCe0ditbwVjbV7StA/duDr5n4pqOiP/oaEwG/qpM7urJ8BbqlYdI1uIH9O4rdaZLnMfG0KkiQ2MWzaGhUmvWSkTmUfYknUlLizunZNBZK/U7noZ+QY3c5dZqDnHPoFS4/LKUtP93QF3h9Ejz3KQGp3uFV38=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1780410249; c=relaxed/simple;
-	bh=SRo5IBgPJeMhBd66Qkgvhd2/r+7I6kqyIzsB+7f9zvM=;
+	bh=1kycnoBb6zMW1dCK9pPTA3MFg+MKXjsWEBZ7O7MFldU=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=AIk5V4QCO27PLGG5niFWxgDT1s0dBbKZ8V919lwYloNFbZvrP824avWU6lD9Jfg0HVFzajp3XuyUiaVcCljWxKAvChAe4/rDNmn3AXdoSuOH0ZDhhC5kAcDQYFZCL91G52An01pArdx4JPzDBiYUl0DHoeAnGj3sgF0gnHj57c0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=oGzXJaUW; arc=none smtp.client-ip=148.163.158.5
+	 MIME-Version; b=VnFIRzJkr9euq2hW0I4AiCq08WwTWgsScXetu9q7ubFjdvJwJgRgaqQz9ZnMpk240RX8ETfWcLrbR8vh8+ZhCZe/8CHDg5rO0O/0/h7z27BADz651p2rJsKQlu1ploO3q3gD/xAQFeSRIeUYHmL5L7stP7a9V83iApxxHmT61L4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=FuK2K89Q; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="oGzXJaUW"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6520RDQ13642169;
-	Tue, 2 Jun 2026 14:24:05 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="FuK2K89Q"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65280HZg2118330;
+	Tue, 2 Jun 2026 14:24:06 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=FWfLyhJ6GGIDHWn6o
-	RZIqvW5vDDYDL2zoOflL5hy3jM=; b=oGzXJaUWGuA4qvHqOTYr2ys6dWvV8ThT6
-	UV9gJEboorQklpkB3FDeDN6iSGufWQa4QgBOh/QPVxkJrZL4FDTZXayxHC1AzeuI
-	js9myCbmVySCpJgLMxxOT+glgbiXNBrwb9+EyB+KoeQNTCBiLs8GxRrhAf0ySuGs
-	3LQEUPZCw9eeWjkbTImtNLChHtLcg6wXoGpbdKWnkjWvpAcJ3CKnS3dJOAKkWBJD
-	lHvQvBComoCZ7JjLMLfeYPLcZ+Lo8HgTQV3EdqvoFLqlgcXgjR5enteYUibNEgEH
-	4DXQdfCPVESEzrfFoHB+c3Kk6hHzMxBI+cvtD1drMwnTPX10lLlQw==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4efnahp4gr-1
+	:mime-version:references:subject:to; s=pp1; bh=3mFRcDIES0Wygdzgm
+	w9D1J32vRwcqdCkwOIUwOsy9Uk=; b=FuK2K89QJ+xvawHdivo+sMrTmZHt0x5Z8
+	V4vQgdpqI4Dcr6SP4wWGrm0qia5xEp0787XERvSQ7fOLgDeyvHApJzXDMqrtycA1
+	5UekVjRP2WPRbvK9yNc5BimVaRWfTSlYoqxY3Ezykl9eIi17IJ5w75wlUvYlH16c
+	eA0P5iSrfs+Kr88uaeuoYkPdlijsldFqmz0HDXdxR9LGNO1wPf7KepPMExAV2Kww
+	U3CmJs2MWMolEEvR26x6T56OvsPcuFXhkxZjcKCOJ0NysR4EMFhk6YwlEZMDqh48
+	tWVXZPDfCG1/iQ6DOhu34VZRgXFxYFGX+631O1J2QfqcXREOzy+9Q==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4efqd46drc-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 02 Jun 2026 14:24:04 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 652E9AjD014051;
+	Tue, 02 Jun 2026 14:24:05 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 652E967w026810;
 	Tue, 2 Jun 2026 14:24:04 GMT
 Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4egcegkcjw-1
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4egakvur47-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 02 Jun 2026 14:24:03 +0000 (GMT)
+	Tue, 02 Jun 2026 14:24:04 +0000 (GMT)
 Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 652ENwjM36962784
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 652ENwIv36962792
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 2 Jun 2026 14:23:58 GMT
+	Tue, 2 Jun 2026 14:23:59 GMT
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 405CF20040;
+	by IMSVA (Postfix) with ESMTP id CD3F320040;
 	Tue,  2 Jun 2026 14:23:58 +0000 (GMT)
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 17AA12004B;
+	by IMSVA (Postfix) with ESMTP id A48E420043;
 	Tue,  2 Jun 2026 14:23:58 +0000 (GMT)
 Received: from p-imbrenda.aag-de.ibm.com (unknown [9.52.223.175])
 	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
@@ -57,9 +57,9 @@ To: linux-kernel@vger.kernel.org
 Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, borntraeger@de.ibm.com,
         frankja@linux.ibm.com, david@kernel.org, seiden@linux.ibm.com,
         nrb@linux.ibm.com, schlameuss@linux.ibm.com, gra@linux.ibm.com
-Subject: [PATCH v3 07/10] KVM: s390: Lock pte when making page secure
-Date: Tue,  2 Jun 2026 16:23:53 +0200
-Message-ID: <20260602142356.169458-8-imbrenda@linux.ibm.com>
+Subject: [PATCH v3 10/10] KVM: s390: Remove ptep_zap_softleaf_entry()
+Date: Tue,  2 Jun 2026 16:23:56 +0200
+Message-ID: <20260602142356.169458-11-imbrenda@linux.ibm.com>
 X-Mailer: git-send-email 2.54.0
 In-Reply-To: <20260602142356.169458-1-imbrenda@linux.ibm.com>
 References: <20260602142356.169458-1-imbrenda@linux.ibm.com>
@@ -71,120 +71,95 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjAyMDEzNiBTYWx0ZWRfXwPWpkZJ8AQce
- bWbvSA5gIOeKRfhAioq8Vpup2fZ+8GiCrSrPyZyl8IPiMVHrSPmL7G/tvcKlWvtA6qfAn2ZBsHe
- kV1RY9mnzZ3lFf1o7pKUN2W9bgYzoasbFimCLe81upP+GpSEHLzWG4fpO7PGekuRg6Med8u/z9o
- xtLQxXzVwrfqHIpqGaC2J5SP1Yxv7iXGKa+5Z5UFtNzWLh7R+1E4PVfsBXWJf1FOad0g26jfRZk
- MiQ+yoxV5wFc6zhYeDm8BHHELV9FwfRuL47ysTSEw71kGu4MbypDtZ3kqfX5Vb7beXs1AC965Em
- 0jV2p+z8+3LNRA9ba853GuF8EQcBB3lPkYozviyaNOWps99pCxXvGLSq1VVNyZt/YLyguFwe7VM
- XQOlhb434IkqP6AYtXQ0pBSzGOQixBCMmNsMM7cMZBfUFKNYuSrnpu02FOKEE0eUCeOufE18izD
- WSsvkSHAW4GAnlxc2gA==
-X-Proofpoint-ORIG-GUID: Ql_3mSPYC-0-pvfUaRZ25xdQDXoKYPDE
-X-Authority-Analysis: v=2.4 cv=cOzQdFeN c=1 sm=1 tr=0 ts=6a1ee784 cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjAyMDEzNiBTYWx0ZWRfXyUgap/Gni44x
+ sLxukxw0AuxZxZ+DYs8T4M5arJ8TslOXlgZmtH8ejWdPb+sgAhfCKjQMXiMtANXEDE09E6nVZr9
+ sOsHhmD9moyeqI3FjccMciiB69FYy4PHQnvwj7fttRdCCTwbK4cmV1ex05B65wCGIskgKQyCbAB
+ 5yPqD+J9lz/cXxNkHhRQtVsDjbCcNVDLNaefWoF+ALQqziX3O9DZXTJWyiXRs+idEyQUfYsw3q1
+ KB5krv2H/pJuNe6c+S6aeNQIswBTlW3wU4J353waIB4nAqIK7rgLu/zveFRQUxhNbu07Kn0MVJE
+ VwK+mN0FOE+fWk2BibKba0gEUVv4LOLRLkmAZNnQomrjUBejic6wb7d4ImIe0OhEGaGC22ql6Ke
+ TC/5KORsMT26jVrDwUsp5tq1JlTsTMjbNB0cvCov0gfxTavptxThXhcaUGyjqEwBS9UBC5XsuD1
+ cBvpFTg//hTKlP3uKeQ==
+X-Proofpoint-GUID: i09K8kAfgNqkg2FBT86fn8elWGH2bAa_
+X-Proofpoint-ORIG-GUID: i09K8kAfgNqkg2FBT86fn8elWGH2bAa_
+X-Authority-Analysis: v=2.4 cv=DZknbPtW c=1 sm=1 tr=0 ts=6a1ee786 cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
  a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8 a=MmVNaJ3caS2uU_XaQsUA:9
-X-Proofpoint-GUID: Ql_3mSPYC-0-pvfUaRZ25xdQDXoKYPDE
+ a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8 a=LFT47s6f9hPNm4szaaUA:9
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
  definitions=2026-06-02_02,2026-05-28_03,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 impostorscore=0 lowpriorityscore=0 spamscore=0 bulkscore=0
- malwarescore=0 phishscore=0 suspectscore=0 priorityscore=1501 adultscore=0
+ spamscore=0 clxscore=1015 suspectscore=0 impostorscore=0 lowpriorityscore=0
+ phishscore=0 malwarescore=0 priorityscore=1501 bulkscore=0 adultscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2605210000 definitions=main-2606020136
 
-Make sure _kvm_s390_pv_make_secure() takes the pte lock for the given
-address when attempting to make the page secure.
+Migration entries do not need to be removed.
 
-One of the steps in making the page secure is freezing the folio using
-folio_ref_freeze(), which temporarily sets the reference count to 0.
-Any attempt to get such a folio while frozen will fail and cause a
-warning to be printed.
+The swap subsystem has been (and still is being) heavily reworked. The
+current implementation of ptep_zap_softleaf_entry() has been slowly
+modified and is now wrong, since it unconditionally calls
+swap_put_entries_direct() for both swap and migration entries.
 
-Other users of folio_ref_freeze() make sure that the page is not mapped
-while it's being frozen, thus preventing gup functions from being able
-to access it. For _kvm_s390_pv_make_secure(), this is not possible,
-because the page needs to be mapped in order for the import to succeed.
+Remove ptep_zap_softleaf_entry() altogether, merge the path for proper
+swap entries directly in the only caller, and ignore migration entries.
 
-By taking the pte lock, gup functions will be blocked until the import
-operation is done, thus avoiding the race.
-
-In theory this does not completely solve the issue: if a page is mapped
-through multiple mappings, locking one pte does not protect from
-calling gup on it through the other mapping. In practice this does not
-happen and it is a decent stopgap solution until a more correct
-solution is available.
-
+Fixes: 200197908dc4 ("KVM: s390: Refactor and split some gmap helpers")
 Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Fixes: e38c884df921 ("KVM: s390: Switch to new gmap")
 ---
- arch/s390/kvm/pv.c | 21 ++++++++++++++++++++-
- 1 file changed, 20 insertions(+), 1 deletion(-)
+ arch/s390/mm/gmap_helpers.c | 25 +++++--------------------
+ 1 file changed, 5 insertions(+), 20 deletions(-)
 
-diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
-index c2dafd812a3b..4b865e75351c 100644
---- a/arch/s390/kvm/pv.c
-+++ b/arch/s390/kvm/pv.c
-@@ -17,6 +17,7 @@
- #include <linux/pagewalk.h>
- #include <linux/sched/mm.h>
- #include <linux/mmu_notifier.h>
-+#include <asm/gmap_helpers.h>
- #include "kvm-s390.h"
- #include "dat.h"
- #include "gaccess.h"
-@@ -73,6 +74,7 @@ static bool should_export_before_import(struct uv_cb_header *uvcb, struct mm_str
- struct pv_make_secure {
- 	void *uvcb;
- 	struct folio *folio;
-+	struct kvm *kvm;
- 	int rc;
- 	bool needs_export;
- };
-@@ -103,9 +105,21 @@ static void _kvm_s390_pv_make_secure(struct guest_fault *f)
- {
- 	struct pv_make_secure *priv = f->priv;
- 	struct folio *folio;
-+	spinlock_t *ptl;	/* pte lock from try_get_locked_pte() */
-+	pte_t *ptep;
+diff --git a/arch/s390/mm/gmap_helpers.c b/arch/s390/mm/gmap_helpers.c
+index 396207163ca6..1cfe4724fbe2 100644
+--- a/arch/s390/mm/gmap_helpers.c
++++ b/arch/s390/mm/gmap_helpers.c
+@@ -16,24 +16,6 @@
+ #include <linux/ksm.h>
+ #include <asm/gmap_helpers.h>
  
- 	folio = pfn_folio(f->pfn);
- 	priv->rc = -EAGAIN;
-+
-+	if (!mmap_read_trylock(priv->kvm->mm))
-+		return;
-+
-+	ptep = try_get_locked_pte(priv->kvm->mm, gfn_to_hva(priv->kvm, f->gfn), &ptl);
-+	if (IS_ERR_VALUE(ptep)) {
-+		priv->rc = PTR_ERR(ptep);
-+		goto out;
-+	}
-+
- 	if (folio_trylock(folio)) {
- 		priv->rc = __kvm_s390_pv_make_secure(f, folio);
- 		if (priv->rc == -E2BIG || priv->rc == -EBUSY) {
-@@ -114,6 +128,11 @@ static void _kvm_s390_pv_make_secure(struct guest_fault *f)
- 		}
- 		folio_unlock(folio);
- 	}
-+
-+	if (ptep)
-+		pte_unmap_unlock(ptep, ptl);
-+out:
-+	mmap_read_unlock(priv->kvm->mm);
- }
- 
+-/**
+- * ptep_zap_softleaf_entry() - discard a software leaf entry.
+- * @mm: the mm
+- * @entry: the software leaf entry that needs to be zapped
+- *
+- * Discards the given software leaf entry. If the leaf entry was an actual
+- * swap entry (and not a migration entry, for example), the actual swapped
+- * page is also discarded from swap.
+- */
+-static void ptep_zap_softleaf_entry(struct mm_struct *mm, softleaf_t entry)
+-{
+-	if (softleaf_is_swap(entry))
+-		dec_mm_counter(mm, MM_SWAPENTS);
+-	else if (softleaf_is_migration(entry))
+-		dec_mm_counter(mm, mm_counter(softleaf_to_folio(entry)));
+-	swap_put_entries_direct(entry, 1);
+-}
+-
  /**
-@@ -127,7 +146,7 @@ static void _kvm_s390_pv_make_secure(struct guest_fault *f)
-  */
- int kvm_s390_pv_make_secure(struct kvm *kvm, unsigned long gaddr, void *uvcb)
+  * try_get_locked_pte() - like get_locked_pte(), but atomic and with trylock
+  * @mm: the mm
+@@ -111,6 +93,7 @@ void gmap_helper_zap_one_page(struct mm_struct *mm, unsigned long vmaddr)
  {
--	struct pv_make_secure priv = { .uvcb = uvcb };
-+	struct pv_make_secure priv = { .uvcb = uvcb, .kvm = kvm, };
- 	struct guest_fault f = {
- 		.write_attempt = true,
- 		.gfn = gpa_to_gfn(gaddr),
+ 	struct vm_area_struct *vma;
+ 	spinlock_t *ptl;	/* Lock for the host (userspace) page table */
++	softleaf_t sl;
+ 	pte_t *ptep;
+ 
+ 	mmap_assert_locked(mm);
+@@ -124,8 +107,10 @@ void gmap_helper_zap_one_page(struct mm_struct *mm, unsigned long vmaddr)
+ 	ptep = try_get_locked_pte(mm, vmaddr, &ptl);
+ 	if (IS_ERR_OR_NULL(ptep))
+ 		return;
+-	if (pte_swap(*ptep)) {
+-		ptep_zap_softleaf_entry(mm, softleaf_from_pte(*ptep));
++	sl = softleaf_from_pte(*ptep);
++	if (pte_swap(*ptep) && softleaf_is_swap(sl)) {
++		dec_mm_counter(mm, MM_SWAPENTS);
++		swap_put_entries_direct(sl, 1);
+ 		pte_clear(mm, vmaddr, ptep);
+ 	}
+ 	pte_unmap_unlock(ptep, ptl);
 -- 
 2.54.0
 
