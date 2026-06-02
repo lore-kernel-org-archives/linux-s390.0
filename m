@@ -1,363 +1,340 @@
-Received: from mail-dy1-f201.google.com (mail-dy1-f201.google.com [74.125.82.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ECDE03B19B4
-	for <linux-s390@vger.kernel.org>; Tue,  2 Jun 2026 06:25:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CCD5E3C0A1B;
+	Tue,  2 Jun 2026 08:04:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780381550; cv=none; b=EcDxbHh1JU1+SW9ue7/RTGCU6CRbiGaf25eoxbTgt2DNLwcJPK3HkgwD1gzKlpbnpCI7bZyPqFoLuQliw100W/ef61YZn92diRzLv1cf4u7aXwS7uU8GfOYsgCjc/wUisSw3aJl23D0ZrvVJuxAnVqdrYsOjHlOcLoaHC/3KuAY=
+	t=1780387487; cv=none; b=kkZ2vIvfDkki6dDbpQCVnuc4lcd7Sg0Ps1H4KFpBg4PrT1ZMwRqRX1q4NWQglPKoDqfCrkTisKF8x3C5LsPWX3u81iYuqbWKKlFIIsW0OjXstYMJB73U8sSFtPemQVfkC2ww6kAmJEfCSUdiliPxZAFcMNBmkwQFvx5UUvAR5ls=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780381550; c=relaxed/simple;
-	bh=gthxRtD5VEATbV+0nsoc/5x3IeZxemKQBzZozOhGM4M=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=Jo3BQTuEzCuHRlb2cHtTSLEsY9kc4pC294BRkaRsHGv0liYglUsk9RE/UA/h0lvAwTuRNM/tbSHke+8+w5FOI/q33CBdqnVbHaxAvV++cGQZw/iyuIMxI4l5o11WfZGwJUpToED5IFc6mQxSO8pzcsT55mwnuRWknwCgV3o1/t4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--irogers.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=DAknzgqW; arc=none smtp.client-ip=74.125.82.201
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--irogers.bounces.google.com
+	s=arc-20240116; t=1780387487; c=relaxed/simple;
+	bh=f4u9eepWT9EhiP3VPEm3hQVTwZ2X4AC4lmvrh96dahY=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=QWiGWwEZ8rrYg+UyZIRysxwzBu0DNQcnkLkcjuhGkJ44ADHcXItMhl/WT7WtyVcwYAbsvdjFMFZSkQpzrYJkncSsHpkiX8o2WQ6s7Q7iu52qf6HcRRCVR6kpO7gpE84GW+EQ72RTEJU41xydS/eiTiiDLLx4ukyhrrCVd3VKoUU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=casper.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=oTehBGre; arc=none smtp.client-ip=90.155.50.34
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=casper.srs.infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="DAknzgqW"
-Received: by mail-dy1-f201.google.com with SMTP id 5a478bee46e88-3041ab826ddso18573165eec.0
-        for <linux-s390@vger.kernel.org>; Mon, 01 Jun 2026 23:25:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1780381548; x=1780986348; darn=vger.kernel.org;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=AyqcFhrF9yKP3hkIxQRO9vNVLIIWlwktE1+hfye7zWw=;
-        b=DAknzgqWSc93/tz/eYHFOh8QL7OWqQCTh4LOagDl14HBGEzojVg2xhGhZl2KzoZY+8
-         9002L6FXMYL0dA+/0T5DdMM/uy3GoVGAhFSxiQ+gkqo0xb37ibjQrhW5mdOhVufGs79i
-         n3rwjrQeTPFyT3BHZZ853UWT+0FreUmU3yEZ8WpyYcUeT2UBrFLiyAMgO4QL9CHQG7dV
-         +3Aza3s1opK/O4iCA215AWSVNnn75aCNdHqS2ulQ3VZLjCS7wN6jjYDpfJ/4FsQSFaKR
-         VN+uWyIOk9qxm3Q1zYpIQsYF5EFLG5irGOInwtWXxJun14RE/OOpoMHe7fbVrC3yz6MP
-         49BA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780381548; x=1780986348;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=AyqcFhrF9yKP3hkIxQRO9vNVLIIWlwktE1+hfye7zWw=;
-        b=lVqvUlu5mqlEwclXeu3l0DHZVynsUKOjLsLZahzdW7lG2U1mhB1mH+Q5zRscnM2KDS
-         +la0O8p1nDviBFW14soH9u1DtuVl9wp9L2zIUnuIldwdyHpe2gh+vIA/j0LyiDKL5pjs
-         FQIjjwQRE/JWzJunBxzRZImNMwyQa6kKJnT4wAhjszlwTD/qQC0+qelce/Ib3ezPpNEI
-         zOotNsdqMhuF0nt/BCL6iQsYee2pPzzo7c/9TBbtkUcs4z04WshyPUIFRm5uwZnBHLkL
-         fwn5Iqkxp3+71zDRypsah3CxMxjN3O/KBGdhhuiWpkAXGKfvQ1u5T9XDrve3u3BnnTMT
-         P2kQ==
-X-Forwarded-Encrypted: i=1; AFNElJ9EycoOvI1PJ8B46DYDlooUfyOc3NsDFPIyU9MOlbjcYMpCX5AMuOm8jKiQrtQUkpuDXnIktuJG9x76@vger.kernel.org
-X-Gm-Message-State: AOJu0YxTneSkuzZurBGUuX0YXI/XHPLwezkzuGOBYw0nEK70W/hdAEkz
-	PjUpSvAAe/wg0s+OgKpeFVYDsm2OZNlpRIdLA9QB0wseAB8axYbC+RUUj0Uho4ihd/Tbwsrd+Ux
-	yd/Q4XqQfiQ==
-X-Received: from dyclw21.prod.google.com ([2002:a05:693c:2115:b0:304:3262:502a])
- (user=irogers job=prod-delivery.src-stubby-dispatcher) by 2002:a05:7300:6da3:b0:304:997c:d47a
- with SMTP id 5a478bee46e88-304fa4eded0mr6081789eec.10.1780381547885; Mon, 01
- Jun 2026 23:25:47 -0700 (PDT)
-Date: Mon,  1 Jun 2026 23:24:51 -0700
-In-Reply-To: <20260602062452.2583619-1-irogers@google.com>
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="oTehBGre"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=casper.20170209; h=MIME-Version:Content-Type:References:
+	In-Reply-To:Date:Cc:To:From:Subject:Message-ID:Sender:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=f4u9eepWT9EhiP3VPEm3hQVTwZ2X4AC4lmvrh96dahY=; b=oTehBGreEofBqSsOK74pBu8aZZ
+	Zt2Lq86bNImr0qcS+eg1kN2zXBRfcQVAJ4ksZtpgkYRAmYnk06/qNQjzBGFhHcgkH2yTyH8HpRHB+
+	sLV6WsyZjkdrmKp7PaoBqWt4yuLi+tN+MaRL9WYhDk8xOcK7kahHJUZM8FX5ZCmCUirvfTm5hKdrY
+	zZwojafRxk0ZsLN927/mu8UyU9dch1xSYvZbnTjmfCWNQHxwXnucJz6Mr9pWo+k7KEhpPxjDGH45W
+	+1yK0skFCXEsa/ofHlpVTFeG4EjFBQQylSF6fYFLZ61Rbn4Ciyk1rICWE0eAI3BsXO9Md4lAjpiRA
+	ZIYtlvBA==;
+Received: from [2001:8b0:10b:5:5b40:b57d:669c:36f4] (helo=2001-08b0-010b-0005-5b40-b57d-669c-36f4.ip6.reverse-dns.uk)
+	by casper.infradead.org with esmtpsa (Exim 4.99.1 #2 (Red Hat Linux))
+	id 1wUK6t-00000001ZaP-2w49;
+	Tue, 02 Jun 2026 08:04:28 +0000
+Message-ID: <0b3f00bbfa6bcc3badb4d1bb7845326e2dbaa1d4.camel@infradead.org>
+Subject: Re: [PATCH v2 2/2] MAINTAINERS: update PTP maintainer entries after
+ directory split
+From: David Woodhouse <dwmw2@infradead.org>
+To: Richard Cochran <richardcochran@gmail.com>, Jakub Kicinski
+ <kuba@kernel.org>
+Cc: Wen Gu <guwen@linux.alibaba.com>, tglx@kernel.org,
+ andrew+netdev@lunn.ch,  davem@davemloft.net, edumazet@google.com,
+ pabeni@redhat.com,  linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+ jstultz@google.com,  anna-maria@linutronix.de, frederic@kernel.org,
+ daniel.lezcano@kernel.org,  sboyd@kernel.org, vladimir.oltean@nxp.com,
+ wei.fang@nxp.com, xiaoning.wang@nxp.com,  jonathan.lemon@gmail.com,
+ vadim.fedorenko@linux.dev, yangbo.lu@nxp.com,  svens@linux.ibm.com,
+ nick.shi@broadcom.com, ajay.kaher@broadcom.com, 
+ alexey.makhalov@broadcom.com, bcm-kernel-feedback-list@broadcom.com, 
+ linux-fpga@vger.kernel.org, imx@lists.linux.dev,
+ linux-s390@vger.kernel.org,  dust.li@linux.alibaba.com,
+ xuanzhuo@linux.alibaba.com, mani@kernel.org,  imran.shaik@oss.qualcomm.com,
+ taniya.das@oss.qualcomm.com
+Date: Tue, 02 Jun 2026 09:04:27 +0100
+In-Reply-To: <ah5aGMIxA418sxoj@hoboy.vegasvil.org>
+References: <20260412084704.743482ad@kernel.org>
+	 <4B889ED5-D1F6-401D-B753-89AE2037F316@infradead.org>
+	 <20260412095301.4fe1fe65@kernel.org>
+	 <ebf19246-91af-4887-b2aa-d9007921f7b2@linux.alibaba.com>
+	 <1088b07d760491deb461d6d01abca631e8f8d86c.camel@infradead.org>
+	 <ahzQZg_v4bxFfGdj@hoboy.vegasvil.org>
+	 <3908843460c4864eef79cced40d897f793c7ae2a.camel@infradead.org>
+	 <ah2jIt2DqI1ZZJx8@hoboy.vegasvil.org>
+	 <0e023f951c102fe2ee7070e490c579783b2817d5.camel@infradead.org>
+	 <20260601185226.7f43fa75@kernel.org> <ah5aGMIxA418sxoj@hoboy.vegasvil.org>
+Content-Type: multipart/signed; micalg="sha-256"; protocol="application/pkcs7-signature";
+	boundary="=-RP0sFoYLKy91Bkl5IsXb"
+User-Agent: Evolution 3.52.3-0ubuntu1.1 
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-References: <20260601065407.1597927-1-irogers@google.com> <20260602062452.2583619-1-irogers@google.com>
-X-Mailer: git-send-email 2.54.0.929.g9b7fa37559-goog
-Message-ID: <20260602062452.2583619-20-irogers@google.com>
-Subject: [PATCH v11 19/19] perf symbol: Lazily compute idle
-From: Ian Rogers <irogers@google.com>
-To: irogers@google.com, acme@kernel.org, namhyung@kernel.org
-Cc: agordeev@linux.ibm.com, gor@linux.ibm.com, hca@linux.ibm.com, 
-	jameshongleiwang@126.com, japo@linux.ibm.com, linux-kernel@vger.kernel.org, 
-	linux-perf-users@vger.kernel.org, linux-s390@vger.kernel.org, 
-	sumanthk@linux.ibm.com, tmricht@linux.ibm.com
+MIME-Version: 1.0
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by casper.infradead.org. See http://www.infradead.org/rpr.html
+
+
+--=-RP0sFoYLKy91Bkl5IsXb
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Switch from an idle boolean to a helper symbol__is_idle function. In
-the function lazily compute whether a symbol is an idle function
-taking into consideration the kernel version and architecture of the
-machine. As symbols__insert no longer needs to know if a symbol is for
-the kernel, remove the argument.
+On Mon, 2026-06-01 at 21:20 -0700, Richard Cochran wrote:
+>=20
+> Sorry for replying to David here via Jakub's message.=C2=A0 Somehow my
+> brilliant Gmail doesn't have David's reply...
 
-To protect against drop-filtering of legitimate setup, online, or hotplug
-management functions (such as intel_idle_init), x86 matches are strictly
-constrained to exact known run-loops (intel_idle, intel_idle_irq,
-mwait_idle, mwait_idle_with_hints).
+Yeah, Gmail. Here's a nickel, kid... :)
 
-If the target environment OS release is unresolvable (such as on guest
-traces), default to treating psw_idle as idle to prevent false
-negatives and match legacy trace behavior safely.
+> On Mon, Jun 01, 2026 at 06:52:26PM -0700, Jakub Kicinski wrote:
+> > On Mon, 01 Jun 2026 17:53:49 +0100 David Woodhouse wrote:
+> > > On Mon, 2026-06-01 at 08:20 -0700, Richard Cochran wrote:
+> > > > Sorry, just catching up here, so the idea is to have
+> > > >=20
+> > > > =C2=A0linux/drivers/ptp/drivers=C2=A0 ?=C2=A0=20
+> > >=20
+> > > That is my current suggestion.
+>=20
+> drivers/../drivers seems a bit silly to me
 
-This change is inspired by mailing list discussion, particularly from
-Thomas Richter <tmricht@linux.ibm.com> and Heiko Carstens
-<hca@linux.ibm.com>:
-https://lore.kernel.org/lkml/20260219113850.354271-1-tmricht@linux.ibm.com/
+It wouldn't be the first, but yeah =E2=80=94 more conventional would be to =
+have
+the core elsewhere and the drivers under linux/drivers/.=20
 
-Assisted-by: Gemini:gemini-3.1-pro-preview
-Signed-off-by: Ian Rogers <irogers@google.com>
----
- tools/perf/util/symbol-elf.c |   2 +-
- tools/perf/util/symbol.c     | 146 +++++++++++++++++++++++------------
- tools/perf/util/symbol.h     |   4 +-
- 3 files changed, 100 insertions(+), 52 deletions(-)
+That maybe involves moving the PTP core to kernel/time/ptp[/*] while
+leaving the drivers where they are?
 
-diff --git a/tools/perf/util/symbol-elf.c b/tools/perf/util/symbol-elf.c
-index c5ed5e051976..186e6d92ac3d 100644
---- a/tools/perf/util/symbol-elf.c
-+++ b/tools/perf/util/symbol-elf.c
-@@ -1734,7 +1734,7 @@ dso__load_sym_internal(struct dso *dso, struct map *map, struct symsrc *syms_ss,
- 
- 		arch__sym_update(f, &sym);
- 
--		__symbols__insert(dso__symbols(curr_dso), f, dso__kernel(dso));
-+		__symbols__insert(dso__symbols(curr_dso), f);
- 		nr++;
- 	}
- 	dso__put(curr_dso);
-diff --git a/tools/perf/util/symbol.c b/tools/perf/util/symbol.c
-index ddd3106b03b1..0c46b24ee098 100644
---- a/tools/perf/util/symbol.c
-+++ b/tools/perf/util/symbol.c
-@@ -50,7 +50,6 @@
- 
- static int dso__load_kernel_sym(struct dso *dso, struct map *map);
- static int dso__load_guest_kernel_sym(struct dso *dso, struct map *map);
--static bool symbol__compute_is_idle(const char *name);
- 
- int vmlinux_path__nr_entries;
- char **vmlinux_path;
-@@ -379,7 +378,7 @@ void symbol__set_ifunc_alias(struct symbol *sym, bool ifunc_alias)
- 
- static void symbol__set_idle(struct symbol *sym, bool idle)
- {
--	uint16_t old_flags = atomic_load(&sym->flags);
-+	uint16_t old_flags = atomic_load_explicit(&sym->flags, memory_order_relaxed);
- 	uint16_t new_flags;
- 	uint16_t idle_val = idle ? SYMBOL_IDLE__IDLE : SYMBOL_IDLE__NOT_IDLE;
- 
-@@ -401,8 +400,7 @@ void symbols__delete(struct rb_root_cached *symbols)
- 	}
- }
- 
--void __symbols__insert(struct rb_root_cached *symbols,
--		       struct symbol *sym, bool kernel)
-+void __symbols__insert(struct rb_root_cached *symbols, struct symbol *sym)
- {
- 	struct rb_node **p = &symbols->rb_root.rb_node;
- 	struct rb_node *parent = NULL;
-@@ -410,17 +408,6 @@ void __symbols__insert(struct rb_root_cached *symbols,
- 	struct symbol *s;
- 	bool leftmost = true;
- 
--	if (kernel) {
--		const char *name = sym->name;
--		/*
--		 * ppc64 uses function descriptors and appends a '.' to the
--		 * start of every instruction address. Remove it.
--		 */
--		if (name[0] == '.')
--			name++;
--		symbol__set_idle(sym, symbol__compute_is_idle(name));
--	}
--
- 	while (*p != NULL) {
- 		parent = *p;
- 		s = rb_entry(parent, struct symbol, rb_node);
-@@ -437,7 +424,7 @@ void __symbols__insert(struct rb_root_cached *symbols,
- 
- void symbols__insert(struct rb_root_cached *symbols, struct symbol *sym)
- {
--	__symbols__insert(symbols, sym, false);
-+	__symbols__insert(symbols, sym);
- }
- 
- static struct symbol *symbols__find(struct rb_root_cached *symbols, u64 ip)
-@@ -598,7 +585,7 @@ void dso__reset_find_symbol_cache(struct dso *dso)
- 
- void dso__insert_symbol(struct dso *dso, struct symbol *sym)
- {
--	__symbols__insert(dso__symbols(dso), sym, dso__kernel(dso));
-+	__symbols__insert(dso__symbols(dso), sym);
- 
- 	/* update the symbol cache if necessary */
- 	if (dso__last_find_result_addr(dso) >= sym->start &&
-@@ -760,57 +747,120 @@ int modules__parse(const char *filename, void *arg,
- 	return err;
- }
- 
--bool symbol__is_idle(struct symbol *sym,
--		     const struct dso *dso __maybe_unused,
--		     struct perf_env *env __maybe_unused)
--{
--	uint16_t flags = atomic_load_explicit(&sym->flags, memory_order_relaxed);
--	uint16_t idle_val = (flags & SYMBOL_FLAG_IDLE_MASK) >> SYMBOL_FLAG_IDLE_SHIFT;
--
--	return idle_val == SYMBOL_IDLE__IDLE;
--}
- 
- /*
-  * These are symbols in the kernel image, so make sure that
-  * sym is from a kernel DSO.
-  */
--static bool symbol__compute_is_idle(const char *name)
-+static int sym_name_cmp(const void *a, const void *b)
-+{
-+	const char *name = a;
-+	const char *const *sym = b;
-+
-+	return strcmp(name, *sym);
-+}
-+
-+static bool match_x86_idle_routine(const char *name, const char *base)
- {
--	const char * const idle_symbols[] = {
-+	if (strstarts(name, base)) {
-+		size_t len = strlen(base);
-+
-+		if (name[len] == '\0' || name[len] == '.')
-+			return true;
-+	}
-+	return false;
-+}
-+
-+bool symbol__is_idle(struct symbol *sym, const struct dso *dso, struct perf_env *env)
-+{
-+	static const char * const idle_symbols[] = {
- 		"acpi_idle_do_entry",
- 		"acpi_processor_ffh_cstate_enter",
- 		"arch_cpu_idle",
- 		"cpu_idle",
- 		"cpu_startup_entry",
--		"idle_cpu",
--		"intel_idle",
--		"intel_idle_ibrs",
- 		"default_idle",
--		"native_safe_halt",
- 		"enter_idle",
- 		"exit_idle",
--		"mwait_idle",
--		"mwait_idle_with_hints",
--		"mwait_idle_with_hints.constprop.0",
-+		"idle_cpu",
-+		"native_safe_halt",
- 		"poll_idle",
--		"ppc64_runlatch_off",
- 		"pseries_dedicated_idle_sleep",
--		"psw_idle",
--		"psw_idle_exit",
--		NULL
- 	};
--	int i;
--	static struct strlist *idle_symbols_list;
-+	const char *name = sym->name;
-+	uint16_t e_machine;
- 
--	if (idle_symbols_list)
--		return strlist__has_entry(idle_symbols_list, name);
-+	{
-+		uint16_t flags = atomic_load_explicit(&sym->flags, memory_order_relaxed);
-+		uint16_t idle_val = (flags & SYMBOL_FLAG_IDLE_MASK) >> SYMBOL_FLAG_IDLE_SHIFT;
- 
--	idle_symbols_list = strlist__new(NULL, NULL);
-+		if (idle_val != SYMBOL_IDLE__UNKNOWN)
-+			return idle_val == SYMBOL_IDLE__IDLE;
-+	}
- 
--	for (i = 0; idle_symbols[i]; i++)
--		strlist__add(idle_symbols_list, idle_symbols[i]);
-+	if (!dso || dso__kernel(dso) == DSO_SPACE__USER) {
-+		symbol__set_idle(sym, /*idle=*/false);
-+		return false;
-+	}
-+
-+	/*
-+	 * ppc64 uses function descriptors and appends a '.' to the
-+	 * start of every instruction address. Remove it.
-+	 */
-+	if (name[0] == '.')
-+		name++;
-+
-+	if (bsearch(name, idle_symbols, ARRAY_SIZE(idle_symbols),
-+		    sizeof(idle_symbols[0]), sym_name_cmp)) {
-+		symbol__set_idle(sym, /*idle=*/true);
-+		return true;
-+	}
-+
-+	e_machine = (env && env->arch) ? perf_env__e_machine(env, NULL) : EM_NONE;
-+	if (e_machine == EM_NONE && dso)
-+		e_machine = dso__e_machine((struct dso *)dso, NULL, NULL);
-+	if (e_machine == EM_NONE && env)
-+		e_machine = perf_env__e_machine(env, NULL);
-+
-+	if (e_machine == EM_386 || e_machine == EM_X86_64) {
-+		if (match_x86_idle_routine(name, "intel_idle") ||
-+		    match_x86_idle_routine(name, "intel_idle_irq") ||
-+		    match_x86_idle_routine(name, "intel_idle_ibrs") ||
-+		    match_x86_idle_routine(name, "mwait_idle") ||
-+		    match_x86_idle_routine(name, "mwait_idle_with_hints")) {
-+			symbol__set_idle(sym, /*idle=*/true);
-+			return true;
-+		}
-+	}
-+
-+	if (e_machine == EM_PPC64 && !strcmp(name, "ppc64_runlatch_off")) {
-+		symbol__set_idle(sym, /*idle=*/true);
-+		return true;
-+	}
-+
-+	if (e_machine == EM_S390 && strstarts(name, "psw_idle")) {
-+		int major = 0, minor = 0;
-+		const char *release = env ? perf_env__os_release(env) : NULL;
- 
--	return strlist__has_entry(idle_symbols_list, name);
-+		/*
-+		 * If we can't determine the release (e.g. unpopulated guest traces),
-+		 * default to idle.
-+		 */
-+		if (!release) {
-+			symbol__set_idle(sym, /*idle=*/true);
-+			return true;
-+		}
-+
-+		/* Before v6.10, s390 used psw_idle. */
-+		if (sscanf(release, "%d.%d", &major, &minor) == 2 &&
-+		    (major < 6 || (major == 6 && minor < 10))) {
-+			symbol__set_idle(sym, /*idle=*/true);
-+			return true;
-+		}
-+	}
-+
-+	symbol__set_idle(sym, /*idle=*/false);
-+	return false;
- }
- 
- static int map__process_kallsym_symbol(void *arg, const char *name,
-@@ -839,7 +889,7 @@ static int map__process_kallsym_symbol(void *arg, const char *name,
- 	 * We will pass the symbols to the filter later, in
- 	 * map__split_kallsyms, when we have split the maps per module
- 	 */
--	__symbols__insert(root, sym, !strchr(name, '['));
-+	__symbols__insert(root, sym);
- 
- 	return 0;
- }
-diff --git a/tools/perf/util/symbol.h b/tools/perf/util/symbol.h
-index 16a27074a474..a71525335703 100644
---- a/tools/perf/util/symbol.h
-+++ b/tools/perf/util/symbol.h
-@@ -76,7 +76,6 @@ enum symbol_idle_kind {
- #define SYMBOL_FLAG_INLINED         (1 << 11)
- #define SYMBOL_FLAG_ANNOTATE2       (1 << 12)
- #define SYMBOL_FLAG_IFUNC_ALIAS     (1 << 13)
--
- /**
-  * A symtab entry. When allocated this may be preceded by an annotation (see
-  * symbol__annotation) and/or a browser_index (see symbol__browser_index).
-@@ -257,8 +256,7 @@ int dso__synthesize_plt_symbols(struct dso *dso, struct symsrc *ss);
- 
- char *dso__demangle_sym(struct dso *dso, int kmodule, const char *elf_name);
- 
--void __symbols__insert(struct rb_root_cached *symbols, struct symbol *sym,
--		       bool kernel);
-+void __symbols__insert(struct rb_root_cached *symbols, struct symbol *sym);
- void symbols__insert(struct rb_root_cached *symbols, struct symbol *sym);
- void symbols__fixup_duplicate(struct rb_root_cached *symbols);
- void symbols__fixup_end(struct rb_root_cached *symbols, bool is_kallsyms);
--- 
-2.54.0.929.g9b7fa37559-goog
+But first we have to know the problem we're trying to solve, and Jakub
+has just revised my understanding of what he was originally asking for.
 
+> > > It stems from Jakub's response in
+> > > https://lore.kernel.org/all/20250815113814.5e135318@kernel.org/=C2=A0=
+that "I
+> > > really wish someone stepped up and created a separate subsystem for a=
+ll
+> > > these cloud / vm clocks. They have nothing to do with PTP."
+> > >=20
+> > > There was some further bikeshedding in
+> > > https://lore.kernel.org/netdev/0afe19db-9c7f-4228-9fc2-f7b34c4bc227@l=
+inux.alibaba.com/
+>=20
+> The idea of categorizing core, NIC-related, vm, and stand alone clock
+> devices makes some sense to me.
+>=20
+> > > around how to split 'emulated' from other hardware drivers, but I don=
+'t
+> > > much like that taxonomy. Some of these "virtual" clocks could just as
+> > > easily exist in hardware with PTM too.
+>=20
+> So the whole in-kernel API in ptp_clock_kernel.h with ptp_clock_info,
+> etc, was poorly named (by me) back around Linux 3.0.=C2=A0 After all, the
+> abbreviation, "PTP", stands for a network protocol.=C2=A0 At the time, Al=
+an
+> Cox pointed that out and complained, but somehow the code got merged
+> anyhow.
+>=20
+> The term PHC is a better one, since PTP Hardware Clock means clock
+> device whose purpose is to support network time keeping together with
+> a NIC.
+>=20
+> > > My observation is that with the sole exception of ptp_inet.c, *all* o=
+f
+> > > the actual PHC drivers that live in drivers/ptp instead of drivers/ne=
+t
+> > > are "pure clock" drivers,
+>=20
+> No, that is not quite right.=C2=A0 The clockmatrix, idt82p33, ines, and
+> qoriq drivers wouldn't be very useful without an attached NIC.
+
+Ah, OK. Moderately confused because ines is the only one where I see
+any evidence of hwtstamp support, and the rest just seem to provide a
+PHC, but I'll take your word for it.
+
+> > > so perhaps we split those all out into
+> > > drivers/ptp/drivers/ and exclude them from the netdev maintenance?
+>=20
+> Originally the idea was that the rate of patches would be low enough
+> that netdev would be the place to post and review them, and that no
+> separate tree or mailing list were needed.=20
+
+I think that assumption about the rate of patches should still be true.
+If I end up owning a tree for the 'virt' drivers, I'd mostly be
+answering "no, use VMClock instead". There's a reason I found a home
+for that as a vendor-agnostic specification=C2=B9 and built the QEMU and
+guest kernel support before even pushing it out at $DAYJOB.
+
+=C2=B9 https://uapi-group.org/specifications/specs/vmclock/
+
+> Even though the "PTP" naming was an unfortunate choice way back when,
+> still I'm not a big fan of moving stuff around "just because".
+>=20
+> But moving forward, I would suggest starting a new area for pure
+> hardware clock devices.=C2=A0=20
+
+I think that ties relatively well to Jakub's "does it purport to know
+real time better than the host" criterion?
+
+Although... ENA *both* purports to know real time better than the host
+*and* does packet timestamping, and it looks like GVE is attempting to
+do the same?
+
+> =C2=A0=C2=A0 "Clock Devices" ?
+> =C2=A0=C2=A0 linux/drivers/cd
+>=20
+> Too short!
+>=20
+> =C2=A0=C2=A0 "Time Keeping Devices" ?
+> =C2=A0=C2=A0 linux/drivers/tkd
+>=20
+> Confuses core time keeping!
+
+That isn't necessarily a bad thing... (qv)
+
+> =C2=A0=C2=A0 "Advanced Clock Devices" ?
+> =C2=A0=C2=A0 linux/drivers/acd
+>=20
+> Let's come up with a fitting name.
+>=20
+> Still, I don't understand why these new (non-network related ) device
+> drivers can't be implemented in their own class using
+> posix_clock_register()
+> etc.
+>=20
+> Any of the useful bits (like sysfs interfaces) can be refactored out
+> of ptp_clock.c and shared as a common layer.
+
+The key is that userspace wants to get snapshots of the reference clock
+either precisely synchronized with the system clock where possible, or
+sandwiched as closely together as possible with ABA readings of the
+system, reference, system clock.
+
+Those *are* the PTP_SYS_OFFSET* ioctls, which tools like chrony already
+support with 'refclock PHC /dev/ptp=E2=80=A6'.
+
+I'm not sure how factoring those out into separate POSIX AUX clocks
+would help? I think they do want to present as /dev/ptp*.
+
+There is some extra stuff we want to do for "Precision RTCs" or
+whatever we're going to call them. They might actually have a known TAI
+offset, they might convey leap second indications, we might want to set
+the kernel's CLOCK_REALTIME from them at boot. And in the case of
+VMClock, I'm working on being able to clamp the kernel's timekeeping to
+it directly=C2=B2.
+
+So maybe what we want is linux/drivers/phc, to host those read-only
+devices which know real time. They can provide a simplified
+implementation; maybe *only* a function like vmclock_get_crosststamp(),
+which is just called in various different permutations by the various
+different PTP methods.
+
+The core linux/drivers/phc code would then handle the interface to the
+kernel's core timekeeping *and* wrap them to register a PTP device that
+existing userspace can understand. And deal with the kvmclock/TSC
+awfulness where needed.
+
+How does that sound?=20
+
+
+=C2=B2 https://lore.kernel.org/all/20260520135207.37826-9-dwmw2@infradead.o=
+rg/
+
+
+
+
+
+
+--=-RP0sFoYLKy91Bkl5IsXb
+Content-Type: application/pkcs7-signature; name="smime.p7s"
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Transfer-Encoding: base64
+
+MIAGCSqGSIb3DQEHAqCAMIACAQExDzANBglghkgBZQMEAgEFADCABgkqhkiG9w0BBwEAAKCCD9Aw
+ggSOMIIDdqADAgECAhAOmiw0ECVD4cWj5DqVrT9PMA0GCSqGSIb3DQEBCwUAMGUxCzAJBgNVBAYT
+AlVTMRUwEwYDVQQKEwxEaWdpQ2VydCBJbmMxGTAXBgNVBAsTEHd3dy5kaWdpY2VydC5jb20xJDAi
+BgNVBAMTG0RpZ2lDZXJ0IEFzc3VyZWQgSUQgUm9vdCBDQTAeFw0yNDAxMzAwMDAwMDBaFw0zMTEx
+MDkyMzU5NTlaMEExCzAJBgNVBAYTAkFVMRAwDgYDVQQKEwdWZXJva2V5MSAwHgYDVQQDExdWZXJv
+a2V5IFNlY3VyZSBFbWFpbCBHMjCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAMjvgLKj
+jfhCFqxYyRiW8g3cNFAvltDbK5AzcOaR7yVzVGadr4YcCVxjKrEJOgi7WEOH8rUgCNB5cTD8N/Et
+GfZI+LGqSv0YtNa54T9D1AWJy08ZKkWvfGGIXN9UFAPMJ6OLLH/UUEgFa+7KlrEvMUupDFGnnR06
+aDJAwtycb8yXtILj+TvfhLFhafxroXrflspavejQkEiHjNjtHnwbZ+o43g0/yxjwnarGI3kgcak7
+nnI9/8Lqpq79tLHYwLajotwLiGTB71AGN5xK+tzB+D4eN9lXayrjcszgbOv2ZCgzExQUAIt98mre
+8EggKs9mwtEuKAhYBIP/0K6WsoMnQCcCAwEAAaOCAVwwggFYMBIGA1UdEwEB/wQIMAYBAf8CAQAw
+HQYDVR0OBBYEFIlICOogTndrhuWByNfhjWSEf/xwMB8GA1UdIwQYMBaAFEXroq/0ksuCMS1Ri6en
+IZ3zbcgPMA4GA1UdDwEB/wQEAwIBhjAdBgNVHSUEFjAUBggrBgEFBQcDBAYIKwYBBQUHAwIweQYI
+KwYBBQUHAQEEbTBrMCQGCCsGAQUFBzABhhhodHRwOi8vb2NzcC5kaWdpY2VydC5jb20wQwYIKwYB
+BQUHMAKGN2h0dHA6Ly9jYWNlcnRzLmRpZ2ljZXJ0LmNvbS9EaWdpQ2VydEFzc3VyZWRJRFJvb3RD
+QS5jcnQwRQYDVR0fBD4wPDA6oDigNoY0aHR0cDovL2NybDMuZGlnaWNlcnQuY29tL0RpZ2lDZXJ0
+QXNzdXJlZElEUm9vdENBLmNybDARBgNVHSAECjAIMAYGBFUdIAAwDQYJKoZIhvcNAQELBQADggEB
+ACiagCqvNVxOfSd0uYfJMiZsOEBXAKIR/kpqRp2YCfrP4Tz7fJogYN4fxNAw7iy/bPZcvpVCfe/H
+/CCcp3alXL0I8M/rnEnRlv8ItY4MEF+2T/MkdXI3u1vHy3ua8SxBM8eT9LBQokHZxGUX51cE0kwa
+uEOZ+PonVIOnMjuLp29kcNOVnzf8DGKiek+cT51FvGRjV6LbaxXOm2P47/aiaXrDD5O0RF5SiPo6
+xD1/ClkCETyyEAE5LRJlXtx288R598koyFcwCSXijeVcRvBB1cNOLEbg7RMSw1AGq14fNe2cH1HG
+W7xyduY/ydQt6gv5r21mDOQ5SaZSWC/ZRfLDuEYwggWbMIIEg6ADAgECAhAH5JEPagNRXYDiRPdl
+c1vgMA0GCSqGSIb3DQEBCwUAMEExCzAJBgNVBAYTAkFVMRAwDgYDVQQKEwdWZXJva2V5MSAwHgYD
+VQQDExdWZXJva2V5IFNlY3VyZSBFbWFpbCBHMjAeFw0yNDEyMzAwMDAwMDBaFw0yODAxMDQyMzU5
+NTlaMB4xHDAaBgNVBAMME2R3bXcyQGluZnJhZGVhZC5vcmcwggIiMA0GCSqGSIb3DQEBAQUAA4IC
+DwAwggIKAoICAQDali7HveR1thexYXx/W7oMk/3Wpyppl62zJ8+RmTQH4yZeYAS/SRV6zmfXlXaZ
+sNOE6emg8WXLRS6BA70liot+u0O0oPnIvnx+CsMH0PD4tCKSCsdp+XphIJ2zkC9S7/yHDYnqegqt
+w4smkqUqf0WX/ggH1Dckh0vHlpoS1OoxqUg+ocU6WCsnuz5q5rzFsHxhD1qGpgFdZEk2/c//ZvUN
+i12vPWipk8TcJwHw9zoZ/ZrVNybpMCC0THsJ/UEVyuyszPtNYeYZAhOJ41vav1RhZJzYan4a1gU0
+kKBPQklcpQEhq48woEu15isvwWh9/+5jjh0L+YNaN0I//nHSp6U9COUG9Z0cvnO8FM6PTqsnSbcc
+0j+GchwOHRC7aP2t5v2stVx3KbptaYEzi4MQHxm/0+HQpMEVLLUiizJqS4PWPU6zfQTOMZ9uLQRR
+ci+c5xhtMEBszlQDOvEQcyEG+hc++fH47K+MmZz21bFNfoBxLP6bjR6xtPXtREF5lLXxp+CJ6KKS
+blPKeVRg/UtyJHeFKAZXO8Zeco7TZUMVHmK0ZZ1EpnZbnAhKE19Z+FJrQPQrlR0gO3lBzuyPPArV
+hvWxjlO7S4DmaEhLzarWi/ze7EGwWSuI2eEa/8zU0INUsGI4ywe7vepQz7IqaAovAX0d+f1YjbmC
+VsAwjhLmveFjNwIDAQABo4IBsDCCAawwHwYDVR0jBBgwFoAUiUgI6iBOd2uG5YHI1+GNZIR//HAw
+HQYDVR0OBBYEFFxiGptwbOfWOtMk5loHw7uqWUOnMDAGA1UdEQQpMCeBE2R3bXcyQGluZnJhZGVh
+ZC5vcmeBEGRhdmlkQHdvb2Rob3Uuc2UwFAYDVR0gBA0wCzAJBgdngQwBBQEBMA4GA1UdDwEB/wQE
+AwIF4DAdBgNVHSUEFjAUBggrBgEFBQcDAgYIKwYBBQUHAwQwewYDVR0fBHQwcjA3oDWgM4YxaHR0
+cDovL2NybDMuZGlnaWNlcnQuY29tL1Zlcm9rZXlTZWN1cmVFbWFpbEcyLmNybDA3oDWgM4YxaHR0
+cDovL2NybDQuZGlnaWNlcnQuY29tL1Zlcm9rZXlTZWN1cmVFbWFpbEcyLmNybDB2BggrBgEFBQcB
+AQRqMGgwJAYIKwYBBQUHMAGGGGh0dHA6Ly9vY3NwLmRpZ2ljZXJ0LmNvbTBABggrBgEFBQcwAoY0
+aHR0cDovL2NhY2VydHMuZGlnaWNlcnQuY29tL1Zlcm9rZXlTZWN1cmVFbWFpbEcyLmNydDANBgkq
+hkiG9w0BAQsFAAOCAQEAQXc4FPiPLRnTDvmOABEzkIumojfZAe5SlnuQoeFUfi+LsWCKiB8Uextv
+iBAvboKhLuN6eG/NC6WOzOCppn4mkQxRkOdLNThwMHW0d19jrZFEKtEG/epZ/hw/DdScTuZ2m7im
+8ppItAT6GXD3aPhXkXnJpC/zTs85uNSQR64cEcBFjjoQDuSsTeJ5DAWf8EMyhMuD8pcbqx5kRvyt
+JPsWBQzv1Dsdv2LDPLNd/JUKhHSgr7nbUr4+aAP2PHTXGcEBh8lTeYea9p4d5k969pe0OHYMV5aL
+xERqTagmSetuIwolkAuBCzA9vulg8Y49Nz2zrpUGfKGOD0FMqenYxdJHgDCCBZswggSDoAMCAQIC
+EAfkkQ9qA1FdgOJE92VzW+AwDQYJKoZIhvcNAQELBQAwQTELMAkGA1UEBhMCQVUxEDAOBgNVBAoT
+B1Zlcm9rZXkxIDAeBgNVBAMTF1Zlcm9rZXkgU2VjdXJlIEVtYWlsIEcyMB4XDTI0MTIzMDAwMDAw
+MFoXDTI4MDEwNDIzNTk1OVowHjEcMBoGA1UEAwwTZHdtdzJAaW5mcmFkZWFkLm9yZzCCAiIwDQYJ
+KoZIhvcNAQEBBQADggIPADCCAgoCggIBANqWLse95HW2F7FhfH9bugyT/danKmmXrbMnz5GZNAfj
+Jl5gBL9JFXrOZ9eVdpmw04Tp6aDxZctFLoEDvSWKi367Q7Sg+ci+fH4KwwfQ8Pi0IpIKx2n5emEg
+nbOQL1Lv/IcNiep6Cq3DiyaSpSp/RZf+CAfUNySHS8eWmhLU6jGpSD6hxTpYKye7PmrmvMWwfGEP
+WoamAV1kSTb9z/9m9Q2LXa89aKmTxNwnAfD3Ohn9mtU3JukwILRMewn9QRXK7KzM+01h5hkCE4nj
+W9q/VGFknNhqfhrWBTSQoE9CSVylASGrjzCgS7XmKy/BaH3/7mOOHQv5g1o3Qj/+cdKnpT0I5Qb1
+nRy+c7wUzo9OqydJtxzSP4ZyHA4dELto/a3m/ay1XHcpum1pgTOLgxAfGb/T4dCkwRUstSKLMmpL
+g9Y9TrN9BM4xn24tBFFyL5znGG0wQGzOVAM68RBzIQb6Fz758fjsr4yZnPbVsU1+gHEs/puNHrG0
+9e1EQXmUtfGn4InoopJuU8p5VGD9S3Ikd4UoBlc7xl5yjtNlQxUeYrRlnUSmdlucCEoTX1n4UmtA
+9CuVHSA7eUHO7I88CtWG9bGOU7tLgOZoSEvNqtaL/N7sQbBZK4jZ4Rr/zNTQg1SwYjjLB7u96lDP
+sipoCi8BfR35/ViNuYJWwDCOEua94WM3AgMBAAGjggGwMIIBrDAfBgNVHSMEGDAWgBSJSAjqIE53
+a4blgcjX4Y1khH/8cDAdBgNVHQ4EFgQUXGIam3Bs59Y60yTmWgfDu6pZQ6cwMAYDVR0RBCkwJ4ET
+ZHdtdzJAaW5mcmFkZWFkLm9yZ4EQZGF2aWRAd29vZGhvdS5zZTAUBgNVHSAEDTALMAkGB2eBDAEF
+AQEwDgYDVR0PAQH/BAQDAgXgMB0GA1UdJQQWMBQGCCsGAQUFBwMCBggrBgEFBQcDBDB7BgNVHR8E
+dDByMDegNaAzhjFodHRwOi8vY3JsMy5kaWdpY2VydC5jb20vVmVyb2tleVNlY3VyZUVtYWlsRzIu
+Y3JsMDegNaAzhjFodHRwOi8vY3JsNC5kaWdpY2VydC5jb20vVmVyb2tleVNlY3VyZUVtYWlsRzIu
+Y3JsMHYGCCsGAQUFBwEBBGowaDAkBggrBgEFBQcwAYYYaHR0cDovL29jc3AuZGlnaWNlcnQuY29t
+MEAGCCsGAQUFBzAChjRodHRwOi8vY2FjZXJ0cy5kaWdpY2VydC5jb20vVmVyb2tleVNlY3VyZUVt
+YWlsRzIuY3J0MA0GCSqGSIb3DQEBCwUAA4IBAQBBdzgU+I8tGdMO+Y4AETOQi6aiN9kB7lKWe5Ch
+4VR+L4uxYIqIHxR7G2+IEC9ugqEu43p4b80LpY7M4KmmfiaRDFGQ50s1OHAwdbR3X2OtkUQq0Qb9
+6ln+HD8N1JxO5nabuKbymki0BPoZcPdo+FeRecmkL/NOzzm41JBHrhwRwEWOOhAO5KxN4nkMBZ/w
+QzKEy4PylxurHmRG/K0k+xYFDO/UOx2/YsM8s138lQqEdKCvudtSvj5oA/Y8dNcZwQGHyVN5h5r2
+nh3mT3r2l7Q4dgxXlovERGpNqCZJ624jCiWQC4ELMD2+6WDxjj03PbOulQZ8oY4PQUyp6djF0keA
+MYIDuzCCA7cCAQEwVTBBMQswCQYDVQQGEwJBVTEQMA4GA1UEChMHVmVyb2tleTEgMB4GA1UEAxMX
+VmVyb2tleSBTZWN1cmUgRW1haWwgRzICEAfkkQ9qA1FdgOJE92VzW+AwDQYJYIZIAWUDBAIBBQCg
+ggE3MBgGCSqGSIb3DQEJAzELBgkqhkiG9w0BBwEwHAYJKoZIhvcNAQkFMQ8XDTI2MDYwMjA4MDQy
+N1owLwYJKoZIhvcNAQkEMSIEIIGcKIP2EPstYmZEUerRVfVfjJLflCgkwLcbjoG2nZCKMGQGCSsG
+AQQBgjcQBDFXMFUwQTELMAkGA1UEBhMCQVUxEDAOBgNVBAoTB1Zlcm9rZXkxIDAeBgNVBAMTF1Zl
+cm9rZXkgU2VjdXJlIEVtYWlsIEcyAhAH5JEPagNRXYDiRPdlc1vgMGYGCyqGSIb3DQEJEAILMVeg
+VTBBMQswCQYDVQQGEwJBVTEQMA4GA1UEChMHVmVyb2tleTEgMB4GA1UEAxMXVmVyb2tleSBTZWN1
+cmUgRW1haWwgRzICEAfkkQ9qA1FdgOJE92VzW+AwDQYJKoZIhvcNAQEBBQAEggIArByzGoa3JuPd
+rSLvIUVRy+Iu1AI3hFh/pZm5GW7hstctYsHMnVPBgy/L1X5g/Edz1/ylEMrftxsfTi8ctXwR5YoN
+BsAdVa+4imGrX+700zm/iLtUXqFPSxJ5H/RbKmioqqf3poQLHJIjHlzW9S6wZRaQOLjOctQwUC+8
+umC4SdZ5YyoM6NiFEtEtui5GemWcflX1ALtSE5Mtk2qCP1DOuFBOsciSjj8TU7ItjnHAmyInzsUk
+VdiFKdix0a9DbKR6bMyOFelC2Yh7TNlY4jgb1EWTMvEQTRl3vmMq0nv0JU+idUPrOtxq3GYouNGt
+OwngMK4h+Jg5alOEHCOiYXWsTbv5c+vZHxdENMttm/tWKGyfRtRtWKHSmBYtVUymkTm1jd84o12a
+uC2U5AEYyQcO6AvwitBt/KO30xi5ZJUzBbNOjz60nKO8hqaxqnVW1I28bmg737hIb1ItxiomgfDI
+NERZbsZEBBL5dIyAF1WK35KSVwhG8lcmMJX88PSE8+ajFQGZnWI7NVyn0LO8nSFtGBjA0JGxUnzC
+4l51keV8bgXIRF8xq4pFJ35zo6gp58BDbhqDCg18RpHx/3jDphJqSwUkSWYb42H8O9nzHJYJfBN2
+/guiO/bKQA8H7jjYVYyg2EbFTB7905J7i+mGZ/iurGTuPKQqBtZ1cNR58uw0QRQAAAAAAAA=
+
+
+--=-RP0sFoYLKy91Bkl5IsXb--
