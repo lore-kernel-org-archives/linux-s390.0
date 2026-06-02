@@ -1,211 +1,253 @@
-Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C34E3F7891;
-	Tue,  2 Jun 2026 17:15:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E7C723FB7F2;
+	Tue,  2 Jun 2026 17:28:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780420540; cv=none; b=NzIsJ6Uiq7brsVW315ZSXBg4gzuv3shaSb6XkZ9vMI2Iie345gVw7tqt25Pm2qhuffnco0V2fLYLEENyxd3XRjV8dAoqZnGXseFehBpfy7B43PiKB38EtcgnPSwNEimd/VP14xdLg/zweONXUsWsUMUrCwvX1nAuYkPUpaFE6P4=
+	t=1780421313; cv=none; b=NA/walP4OA6HZH+1xgWu8IwErx4UiASofwkdNqVXynvpRihcJcZlxleAtQ+F6IT7zjjyLxm2qJoq+mCYYZxhaGt3eoREWomIVsTM+xTtxXmlBndRKmqatvfqTB0IcO4+YaD0mPVwaPQm7h/AYtMdmxy5hCmlozxd6o+/dFPuNmo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780420540; c=relaxed/simple;
-	bh=kkyXPebYwJ/UpauPaOt24fg6+WUOD4Y08/xBiZarvsY=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=n6lDQeDpF51/cL/UfrUot+mbHaIQim0kt38esH0rEKFx9Iyc/x4HlMv/d7t8Cq0W6Ruf1a2LtIIvgjRs0j85+Mow2EH96cq6mOzxCrxwzCnuMug3Ryqgs1J7bKxzv02tagPMU0qLaVoevSoP6NiXwdkklXGlb9jMuk3+NAKvxqI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=casper.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=lGAMQcp1; arc=none smtp.client-ip=90.155.50.34
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=casper.srs.infradead.org
+	s=arc-20240116; t=1780421313; c=relaxed/simple;
+	bh=quTmk+yhgZDdP+VT7D9Ykx364Wfuxc3to/UYCtPawbI=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=ByQh1UCoafQXMYaCFECT+e7Dq5Bkc1dohkCkS32QD2Cs8CITGvloAQUmlOaqDEvR77iI+xKdFw4rm0NN6kSEBIMQ295Ew0Pzoz8R8WDAXmGmir+rVJBIPaWo55PBLrOKyqzlq38JkdIsppq8/2ovZ1sK3FMRmsWWyYbO6XeCVRU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=fsbh948j; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="lGAMQcp1"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=casper.20170209; h=MIME-Version:Content-Type:References:
-	In-Reply-To:Date:Cc:To:From:Subject:Message-ID:Sender:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=kkyXPebYwJ/UpauPaOt24fg6+WUOD4Y08/xBiZarvsY=; b=lGAMQcp1U6l4eDLhRrdmc+i+hK
-	+ykaJocmPqWV//dQk9GAoty1ZemGnXbTg16FLKBPlb155JpUD1l6wAniJ7Ozjc255EnI/cgQgNpDv
-	UjUUTmEEac9PmqABeWHGcK9SFBPqgO7GlqmtqYpNTlh1ZprBIHAhL9DRemdKL19Olpdvs/WOmre/7
-	WoH23nY0KAaQKL0I3bVkZ+9AvdfUBxb833nUrEQnr1ZsNXXIo+rvEiL8bvNx7b6QcTZqxl/P6Qz2r
-	Vgpgyn6PVj8hWYwDZrQljmiqqE5Eu2EhT/z4KoKBKJZsZxvAuFrc1DQ0twHmEm3I/7UopLyC5ub18
-	xdHfrh7A==;
-Received: from [2001:8b0:10b:5:c68:987:fac8:ab00] (helo=u09cd745991455d.ant.amazon.com)
-	by casper.infradead.org with esmtpsa (Exim 4.99.1 #2 (Red Hat Linux))
-	id 1wUSi7-00000002KiL-3HEV;
-	Tue, 02 Jun 2026 17:15:28 +0000
-Message-ID: <27ff3ab8ea24a80812c54d18a18bda65acce5c08.camel@infradead.org>
-Subject: Re: [PATCH v2 2/2] MAINTAINERS: update PTP maintainer entries after
- directory split
-From: David Woodhouse <dwmw2@infradead.org>
-To: Wen Gu <guwen@linux.alibaba.com>, Richard Cochran
- <richardcochran@gmail.com>,  Jakub Kicinski <kuba@kernel.org>
-Cc: tglx@kernel.org, andrew+netdev@lunn.ch, davem@davemloft.net, 
- edumazet@google.com, pabeni@redhat.com, linux-kernel@vger.kernel.org, 
- netdev@vger.kernel.org, jstultz@google.com, anna-maria@linutronix.de, 
- frederic@kernel.org, daniel.lezcano@kernel.org, sboyd@kernel.org, 
- vladimir.oltean@nxp.com, wei.fang@nxp.com, xiaoning.wang@nxp.com, 
- jonathan.lemon@gmail.com, vadim.fedorenko@linux.dev, yangbo.lu@nxp.com, 
- svens@linux.ibm.com, nick.shi@broadcom.com, ajay.kaher@broadcom.com, 
- alexey.makhalov@broadcom.com, bcm-kernel-feedback-list@broadcom.com, 
- linux-fpga@vger.kernel.org, imx@lists.linux.dev,
- linux-s390@vger.kernel.org,  dust.li@linux.alibaba.com,
- xuanzhuo@linux.alibaba.com, mani@kernel.org,  imran.shaik@oss.qualcomm.com,
- taniya.das@oss.qualcomm.com
-Date: Tue, 02 Jun 2026 18:15:27 +0100
-In-Reply-To: <335ae01a-20aa-439e-996c-d35ffd8d476a@linux.alibaba.com>
-References: <20260412084704.743482ad@kernel.org>
-	 <4B889ED5-D1F6-401D-B753-89AE2037F316@infradead.org>
-	 <20260412095301.4fe1fe65@kernel.org>
-	 <ebf19246-91af-4887-b2aa-d9007921f7b2@linux.alibaba.com>
-	 <1088b07d760491deb461d6d01abca631e8f8d86c.camel@infradead.org>
-	 <ahzQZg_v4bxFfGdj@hoboy.vegasvil.org>
-	 <3908843460c4864eef79cced40d897f793c7ae2a.camel@infradead.org>
-	 <ah2jIt2DqI1ZZJx8@hoboy.vegasvil.org>
-	 <0e023f951c102fe2ee7070e490c579783b2817d5.camel@infradead.org>
-	 <20260601185226.7f43fa75@kernel.org> <ah5aGMIxA418sxoj@hoboy.vegasvil.org>
-	 <0b3f00bbfa6bcc3badb4d1bb7845326e2dbaa1d4.camel@infradead.org>
-	 <335ae01a-20aa-439e-996c-d35ffd8d476a@linux.alibaba.com>
-Content-Type: multipart/signed; micalg="sha-256"; protocol="application/pkcs7-signature";
-	boundary="=-bFbDCAYFbExy0zXwkgt3"
-User-Agent: Evolution 3.52.3-0ubuntu1.1 
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="fsbh948j"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 652GCotu1958209;
+	Tue, 2 Jun 2026 17:28:24 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=Mw/ffO
+	vS18Jv183JyoXXjvFnCD03OjDxbWuvRHhCez8=; b=fsbh948jkeWKv8zdgqLkeC
+	eyqsweqXE5SkLEnOtpBKmkD7Gu2SDce0CXXB31ohg3y99JRt2iiadDgvd6roYhMQ
+	GO2Xb/h/j6weYo8yvha3ZlIIakNalegyRkhKtPAbDzHKymyjAb+CM62g3YlKjncE
+	E4Srgnuzk1D6YBCQFBWdleTusyyNT7N7VCkPpsnI+3hBoscMBGrxsKY8b4RSb6x7
+	zCNTbnQ6GMK5SDQxqziOW9wduNdzT0r7TgRlYRupEWLd7ZPVZjI05bmSi1drRvf2
+	EotVTV/i1Z57E+w5C9y9LkWJJJN2/U8cywXlRM3xxOtL5ZpspxcCbq2YTVl1haUQ
+	==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4efqm4y4qt-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 02 Jun 2026 17:28:24 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 652HOHEx003442;
+	Tue, 2 Jun 2026 17:28:23 GMT
+Received: from smtprelay04.wdc07v.mail.ibm.com ([172.16.1.71])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4egcwyc21y-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 02 Jun 2026 17:28:23 +0000 (GMT)
+Received: from smtpav06.wdc07v.mail.ibm.com (smtpav06.wdc07v.mail.ibm.com [10.39.53.233])
+	by smtprelay04.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 652HSL9c25625110
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 2 Jun 2026 17:28:22 GMT
+Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id DFD2C5803F;
+	Tue,  2 Jun 2026 17:28:21 +0000 (GMT)
+Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id AAF205804E;
+	Tue,  2 Jun 2026 17:28:20 +0000 (GMT)
+Received: from [9.61.245.94] (unknown [9.61.245.94])
+	by smtpav06.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Tue,  2 Jun 2026 17:28:20 +0000 (GMT)
+Message-ID: <c2b1e66c-49fe-485e-8a8f-a6c9767c7050@linux.ibm.com>
+Date: Tue, 2 Jun 2026 13:28:20 -0400
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by casper.infradead.org. See http://www.infradead.org/rpr.html
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v9 1/3] KVM: s390: Add map/unmap ioctl and clean mappings
+ post-guest
+To: Janosch Frank <frankja@linux.ibm.com>, borntraeger@linux.ibm.com,
+        imbrenda@linux.ibm.com, david@kernel.org, hca@linux.ibm.com,
+        gor@linux.ibm.com, agordeev@linux.ibm.com, svens@linux.ibm.com,
+        kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Cc: mjrosato@linux.ibm.com
+References: <20260531190353.204317-1-freimuth@linux.ibm.com>
+ <20260531190353.204317-2-freimuth@linux.ibm.com>
+ <0b750cc2-ec15-43b3-a891-8499a7ed3a8d@linux.ibm.com>
+Content-Language: en-US
+From: Douglas Freimuth <freimuth@linux.ibm.com>
+In-Reply-To: <0b750cc2-ec15-43b3-a891-8499a7ed3a8d@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: Fg-94Dl30YgHn8fUEsMqlc28Sp31Sq1a
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjAyMDE2NSBTYWx0ZWRfX05/5nkX8smG7
+ u4pbzHmQHbAMeuORSNfokIfqsfRJ2CI2Lv2FEO0T5YG2i+yxpeFvFubW2OI79+73bel6o8HVTue
+ mbeASqcf42MEfwjiPcPrHC87O3aSHKk04tejS+dhRx3hPZLM4BarTWZR2Ox/d1eiuFkj+LUYNuU
+ yOTjutfxYRJXle0cznEZDRTCJTsffQLAC+qH/t30mMAXsyK5bqzebmmLFanL5OTWcN1S5aL6hHX
+ fRPm4p5Fw0m8/Zu5tASlaxu9k2alrGaayzBdgARLHay8plNkchJ3+XqXl7d/usODbqCINO31mji
+ ZeF6brFxkVay9wV8cg8IOyHak9x/lcK5hnQJPx8iLlJadt5SSPzva6nnV+NI//ZG00mQQic4EmU
+ 8D/05yPRUHbbKxROa//uFXLcDP4vL/EX8gy8zO/hjNTYjsb26lsW0YTcSdz/NATbmS0fw+hEsdL
+ 458R+ODE2zVSLrJimOw==
+X-Proofpoint-ORIG-GUID: Fg-94Dl30YgHn8fUEsMqlc28Sp31Sq1a
+X-Authority-Analysis: v=2.4 cv=Vf3H+lp9 c=1 sm=1 tr=0 ts=6a1f12b8 cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=IkcTkHD0fZMA:10 a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8
+ a=MY7Ma9usa9UWor5y58cA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
+ definitions=2026-06-02_02,2026-05-28_03,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ priorityscore=1501 suspectscore=0 adultscore=0 bulkscore=0 impostorscore=0
+ phishscore=0 lowpriorityscore=0 malwarescore=0 clxscore=1015 spamscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2605210000 definitions=main-2606020165
 
 
---=-bFbDCAYFbExy0zXwkgt3
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Tue, 2026-06-02 at 22:03 +0800, Wen Gu wrote:
->=20
-> > There is some extra stuff we want to do for "Precision RTCs" or
-> > whatever we're going to call them. They might actually have a known TAI
-> > offset, they might convey leap second indications, we might want to set
-> > the kernel's CLOCK_REALTIME from them at boot. And in the case of
-> > VMClock, I'm working on being able to clamp the kernel's timekeeping to
-> > it directly=C2=B2.
-> >=20
-> > So maybe what we want is linux/drivers/phc, to host those read-only
-> > devices which know real time. They can provide a simplified
-> > implementation; maybe *only* a function like vmclock_get_crosststamp(),
-> > which is just called in various different permutations by the various
-> > different PTP methods.
-> >=20
-> > The core linux/drivers/phc code would then handle the interface to the
-> > kernel's core timekeeping *and* wrap them to register a PTP device that
-> > existing userspace can understand. And deal with the kvmclock/TSC
-> > awfulness where needed.
-> >=20
-> > How does that sound?
-> >=20
->=20
-> I think a dedicated phc core would make the classification of read-only
-> clocks clearer, reducing ambiguity around where they belong. I assume
-> direct timekeeping integration would be optional, drivers providing
-> only a snapshot-based crosststamp would use /dev/ptpX alone, while the
-> timekeeping path would require additional capability (as vmclock provides=
-)?
+On 6/1/26 9:14 AM, Janosch Frank wrote:
+> On 5/31/26 21:03, Douglas Freimuth wrote:
+>> s390 needs map/unmap ioctls, which map the adapter set
+>> indicator pages, so the pages can be accessed when interrupts are
+>> disabled. The mappings are cleaned up when the guest is removed.
+>> pin_user_pages_remote is used for both the ioctl as well
+>> as the pin-on-demand logic in adapter_indicators_set().
+>>
+>> Map/Unmap ioctls are fenced in order to avoid the longterm pinning
+>> in Secure Execution environments. In Secure Execution
+>> environments the path of execution available before this patch is 
+>> followed.
+>>
+>> Statistical counters to count map/unmap functions for adapter indicator
+>> pages are added. The counters can be used to analyze
+>> map/unmap functions in non-Secure Execution environments and similarly
+>> can be used to analyze Secure Execution environments where the counters
+>> will not be incremented as the adapter indicator pages are not mapped.
+>>
+>> Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
+>> Signed-off-by: Douglas Freimuth <freimuth@linux.ibm.com>
+>> ---
+>>   arch/s390/include/asm/kvm_host.h |   5 +
+>>   arch/s390/kvm/interrupt.c        | 226 +++++++++++++++++++++++++------
+>>   arch/s390/kvm/kvm-s390.c         |   3 +
+>>   arch/s390/kvm/kvm-s390.h         |   2 +
+>>   4 files changed, 195 insertions(+), 41 deletions(-)
+>>
+>> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/ 
+>> kvm_host.h
+>> index 8a4f4a39f7a2..0056cc9414a0 100644
+>> --- a/arch/s390/include/asm/kvm_host.h
+>> +++ b/arch/s390/include/asm/kvm_host.h
+>> @@ -448,6 +448,8 @@ struct kvm_vcpu_arch {
+>>   struct kvm_vm_stat {
+>>       struct kvm_vm_stat_generic generic;
+>>       u64 inject_io;
+>> +    u64 io_390_adapter_map;
+>> +    u64 io_390_adapter_unmap;
+>>       u64 inject_float_mchk;
+>>       u64 inject_pfault_done;
+>>       u64 inject_service_signal;
+>> @@ -479,6 +481,9 @@ struct s390_io_adapter {
+>>       bool masked;
+>>       bool swap;
+>>       bool suppressible;
+>> +    spinlock_t maps_lock;
+>> +    struct list_head maps;
+>> +    unsigned int nr_maps;
+>>   };
+>>   #define MAX_S390_IO_ADAPTERS ((MAX_ISC + 1) * 8)
+>> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+>> index 3bcdbbbb6891..5ad0b29c8c1b 100644
+>> --- a/arch/s390/kvm/interrupt.c
+>> +++ b/arch/s390/kvm/interrupt.c
+>> @@ -2411,24 +2411,34 @@ static int register_io_adapter(struct 
+>> kvm_device *dev,
+>>   {
+>>       struct s390_io_adapter *adapter;
+>>       struct kvm_s390_io_adapter adapter_info;
+>> +    int rc = 0;
+> 
+> Why do you even set it to 0 if you return 0 on the success case instead 
+> of return rc?
 
-Yeah. I think they might all want to be able to opt in to setting the
-time at boot? But actually setting the fine-tuning of the kernel's
-timekeeper is probably only something vmclock can do.
+Janosch, thanks for your input. Agreed, I intend to use rc.>
+>> +    mutex_lock(&dev->kvm->lock);
+>>       if (copy_from_user(&adapter_info,
+>> -               (void __user *)attr->addr, sizeof(adapter_info)))
+>> -        return -EFAULT;
+>> -
+>> -    if (adapter_info.id >= MAX_S390_IO_ADAPTERS)
+>> -        return -EINVAL;
+>> -
+>> +               (void __user *)attr->addr, sizeof(adapter_info))) {
+>> +        rc = -EFAULT;
+>> +        goto out;
+>> +    }
+>> +    if (adapter_info.id >= MAX_S390_IO_ADAPTERS) {
+>> +        rc = -EINVAL;
+>> +        goto out;
+>> +    }
+>>       adapter_info.id = array_index_nospec(adapter_info.id,
+>>                            MAX_S390_IO_ADAPTERS);
+>> -    if (dev->kvm->arch.adapters[adapter_info.id] != NULL)
+>> -        return -EINVAL;
+>> -
+>> +    if (dev->kvm->arch.adapters[adapter_info.id] != NULL) {
+>> +        rc = -EINVAL;
+> 
+> You could move the rc assignment outside of the braces and have one less 
+> assignment. But if you like it more this way then keep it, I'm still 
+> able to read it :)
 
---=-bFbDCAYFbExy0zXwkgt3
-Content-Type: application/pkcs7-signature; name="smime.p7s"
-Content-Disposition: attachment; filename="smime.p7s"
-Content-Transfer-Encoding: base64
+I will leave the assignments inside the braces which will rarely, if 
+ever, execute. And leave rc assigned as 0.
 
-MIAGCSqGSIb3DQEHAqCAMIACAQExDzANBglghkgBZQMEAgEFADCABgkqhkiG9w0BBwEAAKCCD9Aw
-ggSOMIIDdqADAgECAhAOmiw0ECVD4cWj5DqVrT9PMA0GCSqGSIb3DQEBCwUAMGUxCzAJBgNVBAYT
-AlVTMRUwEwYDVQQKEwxEaWdpQ2VydCBJbmMxGTAXBgNVBAsTEHd3dy5kaWdpY2VydC5jb20xJDAi
-BgNVBAMTG0RpZ2lDZXJ0IEFzc3VyZWQgSUQgUm9vdCBDQTAeFw0yNDAxMzAwMDAwMDBaFw0zMTEx
-MDkyMzU5NTlaMEExCzAJBgNVBAYTAkFVMRAwDgYDVQQKEwdWZXJva2V5MSAwHgYDVQQDExdWZXJv
-a2V5IFNlY3VyZSBFbWFpbCBHMjCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAMjvgLKj
-jfhCFqxYyRiW8g3cNFAvltDbK5AzcOaR7yVzVGadr4YcCVxjKrEJOgi7WEOH8rUgCNB5cTD8N/Et
-GfZI+LGqSv0YtNa54T9D1AWJy08ZKkWvfGGIXN9UFAPMJ6OLLH/UUEgFa+7KlrEvMUupDFGnnR06
-aDJAwtycb8yXtILj+TvfhLFhafxroXrflspavejQkEiHjNjtHnwbZ+o43g0/yxjwnarGI3kgcak7
-nnI9/8Lqpq79tLHYwLajotwLiGTB71AGN5xK+tzB+D4eN9lXayrjcszgbOv2ZCgzExQUAIt98mre
-8EggKs9mwtEuKAhYBIP/0K6WsoMnQCcCAwEAAaOCAVwwggFYMBIGA1UdEwEB/wQIMAYBAf8CAQAw
-HQYDVR0OBBYEFIlICOogTndrhuWByNfhjWSEf/xwMB8GA1UdIwQYMBaAFEXroq/0ksuCMS1Ri6en
-IZ3zbcgPMA4GA1UdDwEB/wQEAwIBhjAdBgNVHSUEFjAUBggrBgEFBQcDBAYIKwYBBQUHAwIweQYI
-KwYBBQUHAQEEbTBrMCQGCCsGAQUFBzABhhhodHRwOi8vb2NzcC5kaWdpY2VydC5jb20wQwYIKwYB
-BQUHMAKGN2h0dHA6Ly9jYWNlcnRzLmRpZ2ljZXJ0LmNvbS9EaWdpQ2VydEFzc3VyZWRJRFJvb3RD
-QS5jcnQwRQYDVR0fBD4wPDA6oDigNoY0aHR0cDovL2NybDMuZGlnaWNlcnQuY29tL0RpZ2lDZXJ0
-QXNzdXJlZElEUm9vdENBLmNybDARBgNVHSAECjAIMAYGBFUdIAAwDQYJKoZIhvcNAQELBQADggEB
-ACiagCqvNVxOfSd0uYfJMiZsOEBXAKIR/kpqRp2YCfrP4Tz7fJogYN4fxNAw7iy/bPZcvpVCfe/H
-/CCcp3alXL0I8M/rnEnRlv8ItY4MEF+2T/MkdXI3u1vHy3ua8SxBM8eT9LBQokHZxGUX51cE0kwa
-uEOZ+PonVIOnMjuLp29kcNOVnzf8DGKiek+cT51FvGRjV6LbaxXOm2P47/aiaXrDD5O0RF5SiPo6
-xD1/ClkCETyyEAE5LRJlXtx288R598koyFcwCSXijeVcRvBB1cNOLEbg7RMSw1AGq14fNe2cH1HG
-W7xyduY/ydQt6gv5r21mDOQ5SaZSWC/ZRfLDuEYwggWbMIIEg6ADAgECAhAH5JEPagNRXYDiRPdl
-c1vgMA0GCSqGSIb3DQEBCwUAMEExCzAJBgNVBAYTAkFVMRAwDgYDVQQKEwdWZXJva2V5MSAwHgYD
-VQQDExdWZXJva2V5IFNlY3VyZSBFbWFpbCBHMjAeFw0yNDEyMzAwMDAwMDBaFw0yODAxMDQyMzU5
-NTlaMB4xHDAaBgNVBAMME2R3bXcyQGluZnJhZGVhZC5vcmcwggIiMA0GCSqGSIb3DQEBAQUAA4IC
-DwAwggIKAoICAQDali7HveR1thexYXx/W7oMk/3Wpyppl62zJ8+RmTQH4yZeYAS/SRV6zmfXlXaZ
-sNOE6emg8WXLRS6BA70liot+u0O0oPnIvnx+CsMH0PD4tCKSCsdp+XphIJ2zkC9S7/yHDYnqegqt
-w4smkqUqf0WX/ggH1Dckh0vHlpoS1OoxqUg+ocU6WCsnuz5q5rzFsHxhD1qGpgFdZEk2/c//ZvUN
-i12vPWipk8TcJwHw9zoZ/ZrVNybpMCC0THsJ/UEVyuyszPtNYeYZAhOJ41vav1RhZJzYan4a1gU0
-kKBPQklcpQEhq48woEu15isvwWh9/+5jjh0L+YNaN0I//nHSp6U9COUG9Z0cvnO8FM6PTqsnSbcc
-0j+GchwOHRC7aP2t5v2stVx3KbptaYEzi4MQHxm/0+HQpMEVLLUiizJqS4PWPU6zfQTOMZ9uLQRR
-ci+c5xhtMEBszlQDOvEQcyEG+hc++fH47K+MmZz21bFNfoBxLP6bjR6xtPXtREF5lLXxp+CJ6KKS
-blPKeVRg/UtyJHeFKAZXO8Zeco7TZUMVHmK0ZZ1EpnZbnAhKE19Z+FJrQPQrlR0gO3lBzuyPPArV
-hvWxjlO7S4DmaEhLzarWi/ze7EGwWSuI2eEa/8zU0INUsGI4ywe7vepQz7IqaAovAX0d+f1YjbmC
-VsAwjhLmveFjNwIDAQABo4IBsDCCAawwHwYDVR0jBBgwFoAUiUgI6iBOd2uG5YHI1+GNZIR//HAw
-HQYDVR0OBBYEFFxiGptwbOfWOtMk5loHw7uqWUOnMDAGA1UdEQQpMCeBE2R3bXcyQGluZnJhZGVh
-ZC5vcmeBEGRhdmlkQHdvb2Rob3Uuc2UwFAYDVR0gBA0wCzAJBgdngQwBBQEBMA4GA1UdDwEB/wQE
-AwIF4DAdBgNVHSUEFjAUBggrBgEFBQcDAgYIKwYBBQUHAwQwewYDVR0fBHQwcjA3oDWgM4YxaHR0
-cDovL2NybDMuZGlnaWNlcnQuY29tL1Zlcm9rZXlTZWN1cmVFbWFpbEcyLmNybDA3oDWgM4YxaHR0
-cDovL2NybDQuZGlnaWNlcnQuY29tL1Zlcm9rZXlTZWN1cmVFbWFpbEcyLmNybDB2BggrBgEFBQcB
-AQRqMGgwJAYIKwYBBQUHMAGGGGh0dHA6Ly9vY3NwLmRpZ2ljZXJ0LmNvbTBABggrBgEFBQcwAoY0
-aHR0cDovL2NhY2VydHMuZGlnaWNlcnQuY29tL1Zlcm9rZXlTZWN1cmVFbWFpbEcyLmNydDANBgkq
-hkiG9w0BAQsFAAOCAQEAQXc4FPiPLRnTDvmOABEzkIumojfZAe5SlnuQoeFUfi+LsWCKiB8Uextv
-iBAvboKhLuN6eG/NC6WOzOCppn4mkQxRkOdLNThwMHW0d19jrZFEKtEG/epZ/hw/DdScTuZ2m7im
-8ppItAT6GXD3aPhXkXnJpC/zTs85uNSQR64cEcBFjjoQDuSsTeJ5DAWf8EMyhMuD8pcbqx5kRvyt
-JPsWBQzv1Dsdv2LDPLNd/JUKhHSgr7nbUr4+aAP2PHTXGcEBh8lTeYea9p4d5k969pe0OHYMV5aL
-xERqTagmSetuIwolkAuBCzA9vulg8Y49Nz2zrpUGfKGOD0FMqenYxdJHgDCCBZswggSDoAMCAQIC
-EAfkkQ9qA1FdgOJE92VzW+AwDQYJKoZIhvcNAQELBQAwQTELMAkGA1UEBhMCQVUxEDAOBgNVBAoT
-B1Zlcm9rZXkxIDAeBgNVBAMTF1Zlcm9rZXkgU2VjdXJlIEVtYWlsIEcyMB4XDTI0MTIzMDAwMDAw
-MFoXDTI4MDEwNDIzNTk1OVowHjEcMBoGA1UEAwwTZHdtdzJAaW5mcmFkZWFkLm9yZzCCAiIwDQYJ
-KoZIhvcNAQEBBQADggIPADCCAgoCggIBANqWLse95HW2F7FhfH9bugyT/danKmmXrbMnz5GZNAfj
-Jl5gBL9JFXrOZ9eVdpmw04Tp6aDxZctFLoEDvSWKi367Q7Sg+ci+fH4KwwfQ8Pi0IpIKx2n5emEg
-nbOQL1Lv/IcNiep6Cq3DiyaSpSp/RZf+CAfUNySHS8eWmhLU6jGpSD6hxTpYKye7PmrmvMWwfGEP
-WoamAV1kSTb9z/9m9Q2LXa89aKmTxNwnAfD3Ohn9mtU3JukwILRMewn9QRXK7KzM+01h5hkCE4nj
-W9q/VGFknNhqfhrWBTSQoE9CSVylASGrjzCgS7XmKy/BaH3/7mOOHQv5g1o3Qj/+cdKnpT0I5Qb1
-nRy+c7wUzo9OqydJtxzSP4ZyHA4dELto/a3m/ay1XHcpum1pgTOLgxAfGb/T4dCkwRUstSKLMmpL
-g9Y9TrN9BM4xn24tBFFyL5znGG0wQGzOVAM68RBzIQb6Fz758fjsr4yZnPbVsU1+gHEs/puNHrG0
-9e1EQXmUtfGn4InoopJuU8p5VGD9S3Ikd4UoBlc7xl5yjtNlQxUeYrRlnUSmdlucCEoTX1n4UmtA
-9CuVHSA7eUHO7I88CtWG9bGOU7tLgOZoSEvNqtaL/N7sQbBZK4jZ4Rr/zNTQg1SwYjjLB7u96lDP
-sipoCi8BfR35/ViNuYJWwDCOEua94WM3AgMBAAGjggGwMIIBrDAfBgNVHSMEGDAWgBSJSAjqIE53
-a4blgcjX4Y1khH/8cDAdBgNVHQ4EFgQUXGIam3Bs59Y60yTmWgfDu6pZQ6cwMAYDVR0RBCkwJ4ET
-ZHdtdzJAaW5mcmFkZWFkLm9yZ4EQZGF2aWRAd29vZGhvdS5zZTAUBgNVHSAEDTALMAkGB2eBDAEF
-AQEwDgYDVR0PAQH/BAQDAgXgMB0GA1UdJQQWMBQGCCsGAQUFBwMCBggrBgEFBQcDBDB7BgNVHR8E
-dDByMDegNaAzhjFodHRwOi8vY3JsMy5kaWdpY2VydC5jb20vVmVyb2tleVNlY3VyZUVtYWlsRzIu
-Y3JsMDegNaAzhjFodHRwOi8vY3JsNC5kaWdpY2VydC5jb20vVmVyb2tleVNlY3VyZUVtYWlsRzIu
-Y3JsMHYGCCsGAQUFBwEBBGowaDAkBggrBgEFBQcwAYYYaHR0cDovL29jc3AuZGlnaWNlcnQuY29t
-MEAGCCsGAQUFBzAChjRodHRwOi8vY2FjZXJ0cy5kaWdpY2VydC5jb20vVmVyb2tleVNlY3VyZUVt
-YWlsRzIuY3J0MA0GCSqGSIb3DQEBCwUAA4IBAQBBdzgU+I8tGdMO+Y4AETOQi6aiN9kB7lKWe5Ch
-4VR+L4uxYIqIHxR7G2+IEC9ugqEu43p4b80LpY7M4KmmfiaRDFGQ50s1OHAwdbR3X2OtkUQq0Qb9
-6ln+HD8N1JxO5nabuKbymki0BPoZcPdo+FeRecmkL/NOzzm41JBHrhwRwEWOOhAO5KxN4nkMBZ/w
-QzKEy4PylxurHmRG/K0k+xYFDO/UOx2/YsM8s138lQqEdKCvudtSvj5oA/Y8dNcZwQGHyVN5h5r2
-nh3mT3r2l7Q4dgxXlovERGpNqCZJ624jCiWQC4ELMD2+6WDxjj03PbOulQZ8oY4PQUyp6djF0keA
-MYIDuzCCA7cCAQEwVTBBMQswCQYDVQQGEwJBVTEQMA4GA1UEChMHVmVyb2tleTEgMB4GA1UEAxMX
-VmVyb2tleSBTZWN1cmUgRW1haWwgRzICEAfkkQ9qA1FdgOJE92VzW+AwDQYJYIZIAWUDBAIBBQCg
-ggE3MBgGCSqGSIb3DQEJAzELBgkqhkiG9w0BBwEwHAYJKoZIhvcNAQkFMQ8XDTI2MDYwMjE3MTUy
-N1owLwYJKoZIhvcNAQkEMSIEIBCzzc7M9R7ddx72OwI8EXMtb635v7dJ3qKQmvnHX0+hMGQGCSsG
-AQQBgjcQBDFXMFUwQTELMAkGA1UEBhMCQVUxEDAOBgNVBAoTB1Zlcm9rZXkxIDAeBgNVBAMTF1Zl
-cm9rZXkgU2VjdXJlIEVtYWlsIEcyAhAH5JEPagNRXYDiRPdlc1vgMGYGCyqGSIb3DQEJEAILMVeg
-VTBBMQswCQYDVQQGEwJBVTEQMA4GA1UEChMHVmVyb2tleTEgMB4GA1UEAxMXVmVyb2tleSBTZWN1
-cmUgRW1haWwgRzICEAfkkQ9qA1FdgOJE92VzW+AwDQYJKoZIhvcNAQEBBQAEggIAh4su4NqXBBAL
-aHTsW7EyeMpcQRMKb78TuM8WAk4NkPvx5dJsOhzEzV/DMj6XIaynKDsZjRvSKAugiT6y/dhEDwuf
-kVSaRvyzH/QWgwP4lKocnAiiY7vnqwcXzw2TUvGdpJVXeb2vDjvHdXTiAB53vlkdPx+CtSfPQ2/n
-0LEK1pen8t0BTAUcvaWq5b2en27Y02adLqunPwqzurr2f01ZmtxwF0PBfJ93VovKZ81Wcy4f0I8a
-syAxTNAJJl6ZBZ6G680kTBBWPLdZiTqVC+QTyMryvYddsdr1nX+YhstkFzVh40IYOkqhkYOOVYTk
-crncW3h2E+WTC2bSnS+N4VDbWHv1TWvdMCb+CG4zH5BPqGgA81K7yKs36G5Eq3AhxIFHczmOgck7
-zhvdm8oVW0lva+gPovaLxH/Ld3vw3xt5LCt1Lzti1JtLBIhnE8XB5bHsOZpwaXOJPPnicctM1Yxm
-4fZwt4z7AWX6VdN0LW0gyL5Cd13IMkv5f0cT0ewoUivofe9Lqc4dmATKwW1Ta0JonFbW/MUq3YcN
-0CrfrQ6X5y4ulbNZSFTPYw48B1WyiqD402+OrCyC2KqObRgi9Sv3frPTFufPSpEcEQLiAqsUu7o4
-Tnprnrk4mrHDw2Xj8PdXkF3en4sHyIwXLF6mXoxC7HxWRvPA0etzTwL98zAz9f0AAAAAAAA=
+> 
+>> +        goto out;
+>> +    }
+>>       adapter = kzalloc_obj(*adapter, GFP_KERNEL_ACCOUNT);
+>> -    if (!adapter)
+>> -        return -ENOMEM;
+>> +    if (!adapter) {
+>> +        rc = -ENOMEM;
+>> +        goto out;
+>> +    }
+>> +    INIT_LIST_HEAD(&adapter->maps);
+>> +    spin_lock_init(&adapter->maps_lock);
+>> +    adapter->nr_maps = 0;
+>>       adapter->id = adapter_info.id;
+>>       adapter->isc = adapter_info.isc;
+>>       adapter->maskable = adapter_info.maskable;
+>> @@ -2437,8 +2447,13 @@ static int register_io_adapter(struct 
+>> kvm_device *dev,
+>>       adapter->suppressible = (adapter_info.flags) &
+> 
+> Why the braces?
 
+That was existing code and not my change. But as a courtesy I will 
+remove the braces to set it free.
 
---=-bFbDCAYFbExy0zXwkgt3--
+> 
+>>                   KVM_S390_ADAPTER_SUPPRESSIBLE;
+>>       dev->kvm->arch.adapters[adapter->id] = adapter;
+>> +    mutex_unlock(&dev->kvm->lock);
+>>       return 0;
+>> +
+>> +out:
+>> +    mutex_unlock(&dev->kvm->lock);
+>> +    return rc;
+> 
+> If you set rc to 0 you can actually have one return for all cases.
+
+Agreed, I will remove two lines before the label and let it fall through 
+for one return for all cases.
+
+> 
+>>   }
+>>   int kvm_s390_mask_adapter(struct kvm *kvm, unsigned int id, bool 
+>> masked)
+>> @@ -2453,12 +2468,151 @@ int kvm_s390_mask_adapter(struct kvm *kvm, 
+>> unsigned int id, bool masked)
+>>       return ret;
+>>   }
+
