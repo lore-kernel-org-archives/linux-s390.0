@@ -1,136 +1,137 @@
-Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F913223DC6;
-	Tue,  2 Jun 2026 14:03:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.132
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4615E3AB5B2;
+	Tue,  2 Jun 2026 14:24:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780409024; cv=none; b=M1OOU5cVcxKUUo16rbyYVfVJCK4/pa7X0857nxCJNBfcCmBjDBD1y+OHLvaWB+e2XIUXcmtZ0MeO41nYAxb1pIuh/s+sjcdQOM/+hhzyffvzK8Pz2E/kzJ+jX0LK/Y7shv12PKtO//N0isrpXW18JAjPh+tj1gZNM/SOBCpl+/w=
+	t=1780410247; cv=none; b=dIcPMsrQSkfYbF6yX+5U6EnhwY3m+KFAt2uGR5AtK+3bihuIcU3mjeKvQZApz1/zcruzCTYmb1RolbxKZ7vDeemER/ceIhyZiOHB54Y3EYmHb9Eh9hI9uiGIZuPpRE1Mse7JLm5g4PYUXvXLdc8cRR+oUxG3hlWYzZ2ffJK3rFg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780409024; c=relaxed/simple;
-	bh=SJsTKp3UIReLNT2wF9nK0KalhCTuK35UU2f9TUqsEH8=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=TGeobLToAs8EabTPt8HAdyM0+HAyKEZMTeymsPyXgxwSSTr+BtkZ1swviHqouzLcJ5Chq8H0mRFwOR/fQvGxARuq7rXQ3BGvH6uEtzfLqk4+fv6pHtbF92MCJapoaX/vxcahjHEAPGHkd52XysRrTLY3ZDjlVL0mfGlwBQ5Z7zQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=njI9CGiB; arc=none smtp.client-ip=115.124.30.132
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1780410247; c=relaxed/simple;
+	bh=PFeMKJR8nR7wr+MoY/+dZNvE3wZJ8jFHROaaMChHhQo=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=H9KKCFzHZ21nwtAZBP8eES56+vVI0SmINEZpWQkovbQDDUgy5ZzNWC2NYb0Tcx0efio9HOxnUGW7A1ZrkzSMaLGGjgmGJNl2hNauov8MyBOBdNXnXk+rRR0tyhbWVPPka28Yns2CPRT/7NG06j/5ebCRYyCn+xMSYOrgA9AAWL0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=XwkZq1+M; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="njI9CGiB"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1780409018; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=Nvf37ttJYqmi2dkqkEls2w7tX2JxLi4QoRnmtPx2/ZE=;
-	b=njI9CGiBRnqdG8SdJQAjnW+nUutM/49n3scvxMMnGU3XifRPo92wD2OvG4NCeyGXO0jE/xfqgFjwfk2rmAn5KWm2ljIF5qNRrne8n7MqydZWp4meXGXSgRBvhnVvgBfhM2YKiHy2Rt91z4dG1DVgjJBT5FgzaPl8gi70YGLe660=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033045133197;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=34;SR=0;TI=SMTPD_---0X44kgbj_1780409015;
-Received: from 30.221.129.226(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0X44kgbj_1780409015 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Tue, 02 Jun 2026 22:03:36 +0800
-Message-ID: <335ae01a-20aa-439e-996c-d35ffd8d476a@linux.alibaba.com>
-Date: Tue, 2 Jun 2026 22:03:34 +0800
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="XwkZq1+M"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6524ZR0h798759;
+	Tue, 2 Jun 2026 14:24:04 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=pp1; bh=lmk3DeMg100OdUmml
+	UuLjTKMHcFnlbhpGWHXgUhCo4U=; b=XwkZq1+Md75p7OhIE2OYXhkSGdhP97brz
+	i7N7MyFhAAvqGgc9AqNUHHiUmY69N0WW21zjI8u1UL2Kue7NvkDZn1cMK8ceF71x
+	run+W0s5BKWiB04ledxqsIkI5Q5nhtTvGggnr2Brz2C7wPB8T4jeiqcsmpHustDc
+	2+L0pHnG1NbVy9WOvYUWZRqfnJAk/pFU/wpsaqTyRHbAo8ByFm5hIuD+rUk8EztO
+	I+i6vmpt9CIlZ/S385KRhWKOsopI5W2Q2/W81y869w91C2ghFU9Mkgyok27XW/Mt
+	wGq1Dr4V0xt1zI9/CKF3p1EfJsr2Jx1q4ZEoS63/ok/wOeZzyj00A==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4efqjq6auv-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 02 Jun 2026 14:24:03 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 652E9AjC014051;
+	Tue, 2 Jun 2026 14:24:03 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4egcegkcjv-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 02 Jun 2026 14:24:02 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 652ENvcX47776014
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 2 Jun 2026 14:23:57 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4639520040;
+	Tue,  2 Jun 2026 14:23:57 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 1C51620043;
+	Tue,  2 Jun 2026 14:23:57 +0000 (GMT)
+Received: from p-imbrenda.aag-de.ibm.com (unknown [9.52.223.175])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue,  2 Jun 2026 14:23:57 +0000 (GMT)
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, borntraeger@de.ibm.com,
+        frankja@linux.ibm.com, david@kernel.org, seiden@linux.ibm.com,
+        nrb@linux.ibm.com, schlameuss@linux.ibm.com, gra@linux.ibm.com
+Subject: [PATCH v3 02/10] KVM: s390: Fix _gmap_crstep_xchg_atomic()
+Date: Tue,  2 Jun 2026 16:23:48 +0200
+Message-ID: <20260602142356.169458-3-imbrenda@linux.ibm.com>
+X-Mailer: git-send-email 2.54.0
+In-Reply-To: <20260602142356.169458-1-imbrenda@linux.ibm.com>
+References: <20260602142356.169458-1-imbrenda@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 2/2] MAINTAINERS: update PTP maintainer entries after
- directory split
-To: David Woodhouse <dwmw2@infradead.org>,
- Richard Cochran <richardcochran@gmail.com>, Jakub Kicinski <kuba@kernel.org>
-Cc: tglx@kernel.org, andrew+netdev@lunn.ch, davem@davemloft.net,
- edumazet@google.com, pabeni@redhat.com, linux-kernel@vger.kernel.org,
- netdev@vger.kernel.org, jstultz@google.com, anna-maria@linutronix.de,
- frederic@kernel.org, daniel.lezcano@kernel.org, sboyd@kernel.org,
- vladimir.oltean@nxp.com, wei.fang@nxp.com, xiaoning.wang@nxp.com,
- jonathan.lemon@gmail.com, vadim.fedorenko@linux.dev, yangbo.lu@nxp.com,
- svens@linux.ibm.com, nick.shi@broadcom.com, ajay.kaher@broadcom.com,
- alexey.makhalov@broadcom.com, bcm-kernel-feedback-list@broadcom.com,
- linux-fpga@vger.kernel.org, imx@lists.linux.dev, linux-s390@vger.kernel.org,
- dust.li@linux.alibaba.com, xuanzhuo@linux.alibaba.com, mani@kernel.org,
- imran.shaik@oss.qualcomm.com, taniya.das@oss.qualcomm.com
-References: <20260412084704.743482ad@kernel.org>
- <4B889ED5-D1F6-401D-B753-89AE2037F316@infradead.org>
- <20260412095301.4fe1fe65@kernel.org>
- <ebf19246-91af-4887-b2aa-d9007921f7b2@linux.alibaba.com>
- <1088b07d760491deb461d6d01abca631e8f8d86c.camel@infradead.org>
- <ahzQZg_v4bxFfGdj@hoboy.vegasvil.org>
- <3908843460c4864eef79cced40d897f793c7ae2a.camel@infradead.org>
- <ah2jIt2DqI1ZZJx8@hoboy.vegasvil.org>
- <0e023f951c102fe2ee7070e490c579783b2817d5.camel@infradead.org>
- <20260601185226.7f43fa75@kernel.org> <ah5aGMIxA418sxoj@hoboy.vegasvil.org>
- <0b3f00bbfa6bcc3badb4d1bb7845326e2dbaa1d4.camel@infradead.org>
-From: Wen Gu <guwen@linux.alibaba.com>
-In-Reply-To: <0b3f00bbfa6bcc3badb4d1bb7845326e2dbaa1d4.camel@infradead.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: mK-E2199bP7qROiRrK1e9vVW50MfiwX4
+X-Proofpoint-GUID: mK-E2199bP7qROiRrK1e9vVW50MfiwX4
+X-Authority-Analysis: v=2.4 cv=bcVbluPB c=1 sm=1 tr=0 ts=6a1ee784 cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+ a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8 a=SMUcQ3FjFaoWpPRfvsEA:9
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjAyMDEzNiBTYWx0ZWRfX++PmWS8MxZfb
+ rNmPedLv85al9ieEw5VQZUCGm4kIcxeMM0N+8JmEl0SCjfnWLLMNqjZHwEb2xKlMyfkjhGpcvf4
+ hVGdFRnyXphBSbFpth8qWt2wnOYtxYO4fDjggZgGFz7H4LPRHo78Xnsxsp2w4eUTN8U+jJyJWnv
+ g4w/04gY/ThJjFWlv/wFAsbNx0yHXXlsEc5wbeFCpJ5QbYPxZYU1RHF7vnQlozcbL/OxSU3SkYV
+ pKwHEwgfXwAfEXRCx2+J6tZ+FYMrZWR3N/uUBXb/8Dq2iNytzxS542Ee3k95gsZXxPldpShqyfQ
+ RRoRPzDDwVvswq/q7N1sfnlBBSKyKBFlMmI9IJn3OtTd3pAdI19KS2/5x87AbEZwgKdZBQgFYxE
+ tPO+idcyU9rWoi76WToH3Fg+hk5MHLUZJuHjiuvVHt4IE2kVbF3ikAgcUzmpMMmgmYh1O7bx02g
+ ruLw+4t3Q8Axt+CJpkg==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
+ definitions=2026-06-02_02,2026-05-28_03,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ impostorscore=0 clxscore=1015 adultscore=0 priorityscore=1501 phishscore=0
+ lowpriorityscore=0 bulkscore=0 malwarescore=0 spamscore=0 suspectscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2605210000 definitions=main-2606020136
 
+The previous incorrect behaviour cleared the vsie_notif bit without
+returning false, which allowed shadow crstes to be installed without
+the vsie_notif bit.
 
+Return false and do not perform the operation if an unshadow event has
+been triggered, but still attempt to clear the vsie_notif bit from the
+existing crste.
 
-On 2026/6/2 16:04, David Woodhouse wrote:
-> On Mon, 2026-06-01 at 21:20 -0700, Richard Cochran wrote:
->>
->> Still, I don't understand why these new (non-network related ) device
->> drivers can't be implemented in their own class using
->> posix_clock_register()
->> etc.
->>
->> Any of the useful bits (like sysfs interfaces) can be refactored out
->> of ptp_clock.c and shared as a common layer.
-> 
-> The key is that userspace wants to get snapshots of the reference clock
-> either precisely synchronized with the system clock where possible, or
-> sandwiched as closely together as possible with ABA readings of the
-> system, reference, system clock.
-> 
-> Those *are* the PTP_SYS_OFFSET* ioctls, which tools like chrony already
-> support with 'refclock PHC /dev/ptp…'.
-> 
-> I'm not sure how factoring those out into separate POSIX AUX clocks
-> would help? I think they do want to present as /dev/ptp*.
-> 
+This will prevent the installation of shadow crstes without vsie_notif
+bit and will also prevent the caller from looping forever if it was
+not checking for the sg->invalidated flag.
 
-I agree. Both [1] and [2] independently support the same point:
-chrony's PHC refclock relies on ptp-specific ioctls (in sys_linux.c [3]),
-not just clock_gettime(), so the ioctl interface needs to stay.
-A posix_clock-based class wouldn't provide that.
+Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Fixes: b827ef02f409 ("KVM: s390: Remove non-atomic dat_crstep_xchg()")
+Fixes: a2c17f9270cc ("KVM: s390: New gmap code")
+---
+ arch/s390/kvm/gmap.h | 3 +++
+ 1 file changed, 3 insertions(+)
 
-[1] https://lore.kernel.org/netdev/2a4c9a00-45f5-4f6a-90c4-492ea1d50b79@linux.alibaba.com/
-[2] https://lore.kernel.org/all/vmwwnl3zv26lmmuqp2vqltg2fudalpc5jrw7k6ifg6l5cwlk3j@i7jm62zcsl67/
-[3] https://gitlab.com/chrony/chrony/-/blob/master/sys_linux.c
-
-> There is some extra stuff we want to do for "Precision RTCs" or
-> whatever we're going to call them. They might actually have a known TAI
-> offset, they might convey leap second indications, we might want to set
-> the kernel's CLOCK_REALTIME from them at boot. And in the case of
-> VMClock, I'm working on being able to clamp the kernel's timekeeping to
-> it directly².
-> 
-> So maybe what we want is linux/drivers/phc, to host those read-only
-> devices which know real time. They can provide a simplified
-> implementation; maybe *only* a function like vmclock_get_crosststamp(),
-> which is just called in various different permutations by the various
-> different PTP methods.
-> 
-> The core linux/drivers/phc code would then handle the interface to the
-> kernel's core timekeeping *and* wrap them to register a PTP device that
-> existing userspace can understand. And deal with the kvmclock/TSC
-> awfulness where needed.
-> 
-> How does that sound?
-> 
-
-I think a dedicated phc core would make the classification of read-only
-clocks clearer, reducing ambiguity around where they belong. I assume
-direct timekeeping integration would be optional, drivers providing
-only a snapshot-based crosststamp would use /dev/ptpX alone, while the
-timekeeping path would require additional capability (as vmclock provides)?
-
-> 
-> ² https://lore.kernel.org/all/20260520135207.37826-9-dwmw2@infradead.org/
-> 
-> 
-> 
-> 
-> 
+diff --git a/arch/s390/kvm/gmap.h b/arch/s390/kvm/gmap.h
+index 742e42a31744..5374f21aaf8d 100644
+--- a/arch/s390/kvm/gmap.h
++++ b/arch/s390/kvm/gmap.h
+@@ -273,11 +273,14 @@ static inline bool __must_check _gmap_crstep_xchg_atomic(struct gmap *gmap, unio
+ 		gmap_unmap_prefix(gmap, gfn, gfn + align);
+ 	}
+ 	if (crste_leaf(oldcrste) && crste_needs_unshadow(oldcrste, newcrste)) {
++		newcrste = oldcrste;
+ 		newcrste.s.fc1.vsie_notif = 0;
+ 		if (needs_lock)
+ 			gmap_handle_vsie_unshadow_event(gmap, gfn);
+ 		else
+ 			_gmap_handle_vsie_unshadow_event(gmap, gfn);
++		dat_crstep_xchg_atomic(crstep, oldcrste, newcrste, gfn, gmap->asce);
++		return false;
+ 	}
+ 	if (!oldcrste.s.fc1.d && newcrste.s.fc1.d && !newcrste.s.fc1.s)
+ 		SetPageDirty(phys_to_page(crste_origin_large(newcrste)));
+-- 
+2.54.0
 
