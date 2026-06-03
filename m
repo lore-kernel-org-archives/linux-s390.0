@@ -1,299 +1,188 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ED30F2F39B9;
-	Wed,  3 Jun 2026 13:33:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 40BA148032D;
+	Wed,  3 Jun 2026 13:57:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780493623; cv=none; b=QvKOMcuuRpHdUqmdVhJcs5kJCZlYrpOTW/a57q0R8WfNiTuJ+BBJ7r6moWvkoZ+alnlcdiA+TpTiLf/iIYvjrbWO4KFhXes+/w7LjzBi5nx4FQFBZMwxg+GCF2EKDH/J6cbYfgUZWG6jPtdh9rseN3hLAiABc2fp/SBcfYzBHLk=
+	t=1780495057; cv=none; b=iyZ1xDtwNYlljJLQ6QjNMV7VGEz9cguVo4Ab/+UtvptWcrOVvrhO5jRj3j8e+EVpJw7S9zwCDb015re2d+kX9r00KKgSni1kZziZLlfxJ2YJEas26Xjyl4C2w+jJE0XsFhDKUGSdg5apGQ9nwMRSKSfsjpr6VDImiKDAJEKaIfk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780493623; c=relaxed/simple;
-	bh=W7s7wxfcHO35roXSci+Uzh7bnfE9I9tNRRgIg6dlsf0=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=WzDKjEEAtpbUHaeRfXP/oQdh0xE/CTBJG9z/UuK+F8Ax0FzitFW2nYTCYqusoVTwYBv+cTxslMWEf9c60GPDcghM+ZxMuKfvayQCRYPyBX6ShSBaBva5zV3l2gDBr5NDBHv6ks/imEqZW0ZbpcFNHexRUcIohVZ+ijaQmivG720=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ehijjyYT; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1780495057; c=relaxed/simple;
+	bh=bCRQVktHcIH0SJjCH0LXAoTBtlZzs8lLEHtnDFHZhwc=;
+	h=Message-ID:Subject:From:To:Cc:In-Reply-To:References:Content-Type:
+	 Date:MIME-Version; b=RAb3jcMc1EfThSjW42nBT0UlpGYQYBvEZIi7/DpHo7GTgQAc/gEn8tcjDYLOdqdh95fkYci/8MHb8tH+b4JJ+Y3HW5CVmkCW4eGdq4i+pdJT/0w237PZ9UuKgq2SgvClF6dZsMpZPrnRzmwziaWOs4/GXMxPtt6OQ2bkIyGwrN0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=p0V+UDYU; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ehijjyYT"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6537UL8j845711;
-	Wed, 3 Jun 2026 13:33:17 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="p0V+UDYU"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6537t2n21445229;
+	Wed, 3 Jun 2026 13:57:27 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=PrPvpzfpwtOEes92N
-	NPIxU3eWl0EAkKMINiHdG31bwM=; b=ehijjyYT0OtJgPOS8Cgr5KGwC4af6PVSc
-	FFj0lD1uvvS280h9HXcvs1VyVuk7jwFuFYkPwXXhzrOAeziQCsM4QBuTGqivLKRe
-	Hq+Ba9dxy0eSeyd0qX0RzS+XiSlNLahLfhrwTMDb4IqNeW+4oib3k6w5rMEKxwSN
-	ZyKjymjttFjb586QX8z0gYfT6avGeMF2tegzGdw0pS1mH8WQOJ6QbyqCzMU/diAF
-	pGkfM4Lw/k+aDhsPeJfNLWTghCpD6IbRwPGlNicb53sAGFOjeWMq9Jj9R+mgTeJs
-	nmmsQP4FsVbMklvESdD0JR/YB42cPqm57ioZvvUY/D8mr/5yjQ90Q==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4efqjqb37m-1
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=bCRQVk
+	tHcIH0SJjCH0LXAoTBtlZzs8lLEHtnDFHZhwc=; b=p0V+UDYURoFuIIa9qvkRuR
+	IbfyoonVErWc4y9ELfTd03XFASdmMfTOwn5q4RBq+MDz4DfhKdROvk/RDM0cGeeY
+	2IoGzHYIqAs4QzofG0y95v3EbtDVa4iq9blg5Ihp+ClEJtil+v5fgLi8ydFc23Ij
+	1ltIsS3J46g0fO5XCslInV5TU9kaIjc50lY+z5VLJ2Vb9K2txV3DYDaOmiJJXsV9
+	YcFy541sOLC11PMDMfMty0dNquiw0RM4u01AoerRxNi3CxNyy0/3nj3snN87LfRR
+	9xsXldXoWXiWCGuo49bCH6b3o/rvgzswVN3ymFenJ7+Ut0K29y6x/b2BpRkBi6ew
+	==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4efqhtakyu-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 03 Jun 2026 13:33:16 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 653DO5r4011319;
-	Wed, 3 Jun 2026 13:33:15 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4ega7qgj0v-1
+	Wed, 03 Jun 2026 13:57:27 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 653Ds6dl011217;
+	Wed, 3 Jun 2026 13:57:26 GMT
+Received: from smtprelay06.dal12v.mail.ibm.com ([172.16.1.8])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4egbqhgbcn-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 03 Jun 2026 13:33:15 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 653DXDIO31064378
+	Wed, 03 Jun 2026 13:57:26 +0000 (GMT)
+Received: from smtpav01.wdc07v.mail.ibm.com (smtpav01.wdc07v.mail.ibm.com [10.39.53.228])
+	by smtprelay06.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 653DvPsR29164254
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 3 Jun 2026 13:33:13 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 63D4020043;
-	Wed,  3 Jun 2026 13:33:13 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 074E520040;
-	Wed,  3 Jun 2026 13:33:13 +0000 (GMT)
-Received: from funtu2.ibm.com (unknown [9.111.155.240])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed,  3 Jun 2026 13:33:12 +0000 (GMT)
-From: Harald Freudenberger <freude@linux.ibm.com>
-To: devnull+demiobenour.gmail.com@kernel.org
-Cc: acme@kernel.org, adrian.hunter@intel.com,
-        alexander.shishkin@linux.intel.com, ardb@kernel.org, axboe@kernel.dk,
-        corbet@lwn.net, davem@davemloft.net, demiobenour@gmail.com,
-        ebiggers@google.com, edumazet@google.com, herbert@gondor.apana.org.au,
-        horms@kernel.org, io-uring@vger.kernel.org, irogers@google.com,
-        james.clark@linaro.org, jolsa@kernel.org, kuba@kernel.org,
-        kuniyu@google.com, linux-crypto@vger.kernel.org,
-        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-perf-users@vger.kernel.org, mark.rutland@arm.com,
-        mingo@redhat.com, namhyung@kernel.org, netdev@vger.kernel.org,
-        pabeni@redhat.com, peterz@infradead.org, skhan@linuxfoundation.org,
-        willemb@google.com, linux-s390@vger.kernel.org
-Subject: Re: [PATCH 2/3] AF_ALG: Drop support for off-CPU cryptography
-Date: Wed,  3 Jun 2026 15:33:12 +0200
-Message-ID: <20260603133312.12848-1-freude@linux.ibm.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260523-af-alg-harden-v1-2-c76755c3a5c5@gmail.com>
-References: <20260523-af-alg-harden-v1-2-c76755c3a5c5@gmail.com>
+	Wed, 3 Jun 2026 13:57:25 GMT
+Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 13C625804B;
+	Wed,  3 Jun 2026 13:57:25 +0000 (GMT)
+Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4E68858059;
+	Wed,  3 Jun 2026 13:57:22 +0000 (GMT)
+Received: from [9.111.88.117] (unknown [9.111.88.117])
+	by smtpav01.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Wed,  3 Jun 2026 13:57:22 +0000 (GMT)
+Message-ID: <6b98483a46af0ce2550fed414dbc573a19448eb4.camel@linux.ibm.com>
+Subject: Re: [PATCH v2 2/3] vfio-pci/zdev: Add VFIO FMB device feature
+From: Niklas Schnelle <schnelle@linux.ibm.com>
+To: Omar Elghoul <oelghoul@linux.ibm.com>, Alex Williamson
+ <alex@shazbot.org>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org, hca@linux.ibm.com, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, borntraeger@linux.ibm.com, svens@linux.ibm.com,
+        mjrosato@linux.ibm.com, alifm@linux.ibm.com, farman@linux.ibm.com,
+        gbayer@linux.ibm.com
+In-Reply-To: <395b0d85-3057-4bd5-b8cc-10ceea2d978a@linux.ibm.com>
+References: <20260519224204.19154-1-oelghoul@linux.ibm.com>
+	 <20260519224204.19154-3-oelghoul@linux.ibm.com>
+	 <20260602162409.1ca3c765@shazbot.org>
+	 <395b0d85-3057-4bd5-b8cc-10ceea2d978a@linux.ibm.com>
+Autocrypt: addr=schnelle@linux.ibm.com; prefer-encrypt=mutual;
+ keydata=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
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+Date: Wed, 03 Jun 2026 15:56:21 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Evolution 3.58.3 (3.58.3-1.fc43) 
 X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-ORIG-GUID: iSjO_QN_WYH1Co56C1ey6R3URohRWB3y
-X-Proofpoint-GUID: s_kRT_T1wq9TI34aElrat1UiQutSsMDs
-X-Authority-Analysis: v=2.4 cv=bcVbluPB c=1 sm=1 tr=0 ts=6a202d1c cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
- a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=uAbxVGIbfxUO_5tXvNgY:22 a=pGLkceISAAAA:8 a=Qr0bbqx5VTdTA2CgjBkA:9
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjAzMDEyNSBTYWx0ZWRfX2hLLU66OhwOH
- xvtV2ecyk7GFvmfFoTnlUVD+KxsIQgROhU/m0nid/cngCgqbFihcochevVYCqnnSJ8cy6qW4kq3
- yFrNygcdoMGDngGQRotXcQiwuqJkTr+WT53EOCGMi3w9FJBGzBXAgleAu13LeOHe5/IX6nRWAT0
- tKQDQ8xO0M+0WXOCahK5aQ4d6QIwzGCRZRCr1oxbO7iQb+2SApRa/1QKmFZzSswz/T42AF1QH4R
- pmkaVPNOZNFwSCH2vgnFScUaH0Tpcq85tLz40jLCDoi3+We0gUGDjHW6iZ/Y9TLZUZILPXIAm1v
- OJvtx2GtaX7Nv8Wkfghlss8J2PcqlCOwDuXFpoMus5LGPM9ovjdox/GIdhAp+jxPxx0y6jDtwkS
- F55ZtIJNOu9EXHlOEe6/mATBDBgtSN0owu4PrkgGZ6i66f0wB0EGqfjncwTCTknkVEndicgKFJb
- 9pvpVurIUXD3vOK29Ig==
+X-Proofpoint-GUID: 61ypiBwc-9iF97TgCpArTQkiOwE7XrQK
+X-Authority-Analysis: v=2.4 cv=fv/sol4f c=1 sm=1 tr=0 ts=6a2032c7 cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=IkcTkHD0fZMA:10 a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VwQbUJbxAAAA:8
+ a=VnNF1IyMAAAA:8 a=9ISFhiGCT2kz0WMTdj0A:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjAzMDEzMSBTYWx0ZWRfX9cAYj6CUDyji
+ /2sgrdCGdpjpcUoyNhuuSg3bYqf0NfnnfoHCbpXRetviTWoTdowuvQkUOTfbObiQNo65Sk2EIZs
+ +sxIcDJHTagH8IDLDbBp4uS2DyiPhKg92VyzHb77OoKmpd46fR6HPrhXArE9l8PRS0MeS/EdDq0
+ 8WBHDAQJSuUEPzrz8eS4vAZDiGOIjf3R6YRQR1HKvoiMWtroscZcSFj1+4yjWt6uuWp4++TlSVX
+ mNOA4M83vAXLFpoJylpN4JCzEbG7COKx4MWxLjbzmhtRS5DMN6mRpna3kyjSzyguCLBWeLPkPg6
+ FVfGNFBLGdN7BKDDDRu7+jc//0QwXLk9mIYy1OtO+VYEJ1WxUwDuq7wkl7uWEk/wjjsWwInepGY
+ h/oVLNC/UmBqCK24ZXUmySnbfY4polCsXvagyAUNbJKqYPUzr7iBWYMhs8x4ZlB0cC8bwxXu4gD
+ mJD3VFjqhnHv/cE2Cwg==
+X-Proofpoint-ORIG-GUID: 61ypiBwc-9iF97TgCpArTQkiOwE7XrQK
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
  definitions=2026-06-03_04,2026-05-28_03,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- impostorscore=0 clxscore=1011 adultscore=0 priorityscore=1501 phishscore=0
- lowpriorityscore=0 bulkscore=0 malwarescore=0 spamscore=0 suspectscore=0
+ adultscore=0 priorityscore=1501 spamscore=0 phishscore=0 clxscore=1015
+ impostorscore=0 suspectscore=0 bulkscore=0 lowpriorityscore=0 malwarescore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2605210000 definitions=main-2606030125
+ reason=mlx scancount=1 engine=8.22.0-2605210000 definitions=main-2606030131
 
-> AF_ALG is deprecated and exposed to unprivileged userspace.  Only
-> use the least buggy algorithm implementations: the pure software ones.
+On Wed, 2026-06-03 at 08:35 -0400, Omar Elghoul wrote:
+> On 6/2/26 6:24 PM, Alex Williamson wrote:
+>=20
+> > On Tue, 19 May 2026 18:42:03 -0400
+> > Omar Elghoul <oelghoul@linux.ibm.com> wrote:
+> > >=20
+--- snip ---
+> >=20
+> > Since this is already provided via debugfs, why not make this a
+> > userspace problem to interact with the existing interface?
 >
+> It might be possible but it would undoubtedly be really ugly and harder t=
+o
+> maintain. I think what we'd dislike most about using debugfs is parsing
+> text data into the FMB structure. If any of the text representations of t=
+he
+> fields were to change, we would need to update them anywhere that uses th=
+em
+> (e.g., in QEMU or any other user driver). The ABI would be super fragile.
 
-I thought AF_ALG is marked as deprecated but still usable. This patch
-now actively disables groups of crypto implementations. Also it just
-assumes that all algorithms which are asynchronously implemented or
-do not have a fallback are to be disabled via AF_ALG.
+I agree with Omar. The documentation for debugfs ([0] first paragraph)
+even says that the files are not supposed to be treated as stable so
+I'd really like to avoid treating the statistics as stable ourselves.
 
-There are may reasons for not having a synchronous implementation. For
-example if you need to fetch (asynch) some information from a HSM before
-doing the job of the algorithm. Also all secure key operations can't
-by definition run directly on the CPU but need to be fed into some
-hardware. Same is true with just acceleration - and acceleration via
-special hardware (crypto hw, or AI hardware for example) is very common
-on platforms priced by CPU cycles.
+Thanks,
+Niklas
 
-I also can't find any arguments for the statement 'Hardware accelerator
-drivers are frequently buggy.' Does this mean that the linux kernel
-from now on will not accept any hardware accelerator drivers any more?
-Statements about code quality should be addressed to the driver
-maintainer but not lead to tagging of groups of drivers.
-
-I can understand that the AF_ALG shall be deprecated and fade away.
-But this patch out of the sudden disables the long standing AF_ALG
-interface at least for testing purpose and causes some failures in
-the s390 crypto test area without any chance to react at all.
-
-> This removes one of the main advantages of AF_ALG, which is the
-> ability to use it with off-CPU accelerators.  However, using off-CPU
-> accelerators has huge overheads, both in performance and attack surface.
-> I have yet to see real-world, performance-critical workloads where using
-> an accelerator via AF_ALG is actually a win over doing cryptography in
-> userspace.
->
-> If using an off-CPU accelerator really does turn out to be a win, a new
-> API should be developed that is actually a good fit for it.
->
-> Signed-off-by: Demi Marie Obenour <demiobenour@gmail.com>
-> ---
->  Documentation/crypto/userspace-if.rst |  7 ++++++-
->  crypto/af_alg.c                       |  2 +-
->  crypto/algif_aead.c                   |  4 ++--
->  crypto/algif_hash.c                   |  4 ++--
->  crypto/algif_rng.c                    |  4 ++--
->  crypto/algif_skcipher.c               |  4 ++--
->  include/crypto/if_alg.h               | 14 +++++++++++++-
->  7 files changed, 28 insertions(+), 11 deletions(-)
->
-> diff --git a/Documentation/crypto/userspace-if.rst b/Documentation/crypto/userspace-if.rst
-> index ea1b1b3f4049fd4673528dc2a6234f6376a3489f..b31117d4415dda6ad6ca36275e615bec7df9552e 100644
-> --- a/Documentation/crypto/userspace-if.rst
-> +++ b/Documentation/crypto/userspace-if.rst
-> @@ -9,7 +9,8 @@ symmetric cipher, AEAD, and RNG algorithms that are implemented in kernel-mode
->  code.
->
->  AF_ALG is insecure and is deprecated. Originally added to the kernel in 2010,
-> -most kernel developers now consider it to be a mistake.
-> +most kernel developers now consider it to be a mistake. Support for hardware
-> +accelerators, which was the original purpose of AF_ALG, has been removed.
->
->  AF_ALG continues to be supported only for backwards compatibility. On systems
->  where no programs using AF_ALG remain, the support for it should be disabled by
-> @@ -59,6 +60,10 @@ Some of the examples include:
->  - CVE-2013-7421
->  - CVE-2011-4081
->
-> +Hardware accelerator drivers are frequently buggy. To reduce attack surface,
-> +AF_ALG now only provides access to algorithms implemented in software. This
-> +means that AF_ALG no longer fulfills its original purpose.
-> +
->  It is recommended that, whenever possible, userspace programs be migrated to
->  userspace crypto code (which again, is what is normally used anyway) and
->  ``CONFIG_CRYPTO_USER_API_*`` be disabled.  On systems that use SELinux, SELinux
-> diff --git a/crypto/af_alg.c b/crypto/af_alg.c
-> index 8ccf7a737cd6ca9a5d5bf47050c9afea0dfd61bf..cce000e8590e469927b5a5a0ceccfdf0ef54633d 100644
-> --- a/crypto/af_alg.c
-> +++ b/crypto/af_alg.c
-> @@ -181,7 +181,7 @@ static int alg_bind(struct socket *sock, struct sockaddr_unsized *uaddr, int add
->	if (IS_ERR(type))
->		return PTR_ERR(type);
->
-> -	private = type->bind(sa->salg_name, sa->salg_feat, sa->salg_mask);
-> +	private = type->bind(sa->salg_name);
->	if (IS_ERR(private)) {
->		module_put(type->owner);
->		return PTR_ERR(private);
-> diff --git a/crypto/algif_aead.c b/crypto/algif_aead.c
-> index 60f06597cb0b13036bc975641a0b02ea8a41ad03..787aac8aeb24eed128f08345ba730478113919b3 100644
-> --- a/crypto/algif_aead.c
-> +++ b/crypto/algif_aead.c
-> @@ -342,9 +342,9 @@ static struct proto_ops algif_aead_ops_nokey = {
->	.poll		=	af_alg_poll,
->  };
->
-> -static void *aead_bind(const char *name, u32 type, u32 mask)
-> +static void *aead_bind(const char *name)
->  {
-> -	return crypto_alloc_aead(name, type, mask);
-> +	return crypto_alloc_aead(name, 0, AF_ALG_CRYPTOAPI_MASK);
->  }
->
->  static void aead_release(void *private)
-> diff --git a/crypto/algif_hash.c b/crypto/algif_hash.c
-> index 4d3dfc60a16a6d8b677d903d209df18d67202c98..5452ad6c15069c3cb0ff78fe58868fe7ce4b0fc3 100644
-> --- a/crypto/algif_hash.c
-> +++ b/crypto/algif_hash.c
-> @@ -380,9 +380,9 @@ static struct proto_ops algif_hash_ops_nokey = {
->	.accept		=	hash_accept_nokey,
->  };
->
-> -static void *hash_bind(const char *name, u32 type, u32 mask)
-> +static void *hash_bind(const char *name)
->  {
-> -	return crypto_alloc_ahash(name, type, mask);
-> +	return crypto_alloc_ahash(name, 0, AF_ALG_CRYPTOAPI_MASK);
->  }
->
->  static void hash_release(void *private)
-> diff --git a/crypto/algif_rng.c b/crypto/algif_rng.c
-> index a9fb492e929a70c94476f296f5f5e7c42f0313b7..4dfe7899f8fa4ce82d5f2236297230fb44bc35d6 100644
-> --- a/crypto/algif_rng.c
-> +++ b/crypto/algif_rng.c
-> @@ -197,7 +197,7 @@ static struct proto_ops __maybe_unused algif_rng_test_ops = {
->	.sendmsg	=	rng_test_sendmsg,
->  };
->
-> -static void *rng_bind(const char *name, u32 type, u32 mask)
-> +static void *rng_bind(const char *name)
->  {
->	struct rng_parent_ctx *pctx;
->	struct crypto_rng *rng;
-> @@ -206,7 +206,7 @@ static void *rng_bind(const char *name, u32 type, u32 mask)
->	if (!pctx)
->		return ERR_PTR(-ENOMEM);
->
-> -	rng = crypto_alloc_rng(name, type, mask);
-> +	rng = crypto_alloc_rng(name, 0, AF_ALG_CRYPTOAPI_MASK);
->	if (IS_ERR(rng)) {
->		kfree(pctx);
->		return ERR_CAST(rng);
-> diff --git a/crypto/algif_skcipher.c b/crypto/algif_skcipher.c
-> index 9dbccabd87b13920c27aff5a450a235cc6a27d59..df20bdfe1f1f4e453782dee3b743dd1939ab4c6c 100644
-> --- a/crypto/algif_skcipher.c
-> +++ b/crypto/algif_skcipher.c
-> @@ -307,9 +307,9 @@ static struct proto_ops algif_skcipher_ops_nokey = {
->	.poll		=	af_alg_poll,
->  };
->
-> -static void *skcipher_bind(const char *name, u32 type, u32 mask)
-> +static void *skcipher_bind(const char *name)
->  {
-> -	return crypto_alloc_skcipher(name, type, mask);
-> +	return crypto_alloc_skcipher(name, 0, AF_ALG_CRYPTOAPI_MASK);
->  }
->
->  static void skcipher_release(void *private)
-> diff --git a/include/crypto/if_alg.h b/include/crypto/if_alg.h
-> index 62867daca47d76c9ea1a7ed233188788c5f6c3c0..7643ba954125aba0c06aaf19de087985325885ad 100644
-> --- a/include/crypto/if_alg.h
-> +++ b/include/crypto/if_alg.h
-> @@ -41,7 +41,7 @@ struct af_alg_control {
->  };
->
->  struct af_alg_type {
-> -	void *(*bind)(const char *name, u32 type, u32 mask);
-> +	void *(*bind)(const char *name);
->	void (*release)(void *private);
->	int (*setkey)(void *private, const u8 *key, unsigned int keylen);
->	int (*setentropy)(void *private, sockptr_t entropy, unsigned int len);
-> @@ -243,4 +243,16 @@ int af_alg_get_rsgl(struct sock *sk, struct msghdr *msg, int flags,
->		    struct af_alg_async_req *areq, size_t maxsize,
->		    size_t *outlen);
->
-> +/*
-> + * Mask used to disable unsupported algorithm implementations.
-> + *
-> + * This is the same as FSCRYPT_CRYPTOAPI_MASK in fs/crypto/fscrypt_private.h.
-> + * In additions to the motivations there, this API is exposed to userspace
-> + * that might not be fully trusted.
-> + */
-> +#define AF_ALG_CRYPTOAPI_MASK                             \
-> +	(CRYPTO_ALG_ASYNC | CRYPTO_ALG_ALLOCATES_MEMORY | \
-> +	 CRYPTO_ALG_KERN_DRIVER_ONLY)
-> +
-> +
->  #endif	/* _CRYPTO_IF_ALG_H */
->
-> --
-> 2.54.0
->
-
-Harald Freudenberger
+[0] https://www.kernel.org/doc/Documentation/filesystems/debugfs.txt
