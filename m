@@ -1,138 +1,92 @@
-Received: from mail-qk1-f176.google.com (mail-qk1-f176.google.com [209.85.222.176])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9E7E525F988
-	for <linux-s390@vger.kernel.org>; Wed,  3 Jun 2026 00:54:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 457203D522C;
+	Wed,  3 Jun 2026 02:03:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780448098; cv=none; b=fFNPIzVFuBNxdRlmU1xM9ASZq3VbzwzWTmLOFE5gmVSRF4Ozj/yai2fan7O+S09xc7kVNlSY9J9hBtq4eK0inlCSlLbHZkx6nMHXOU9KHQm6AiDo39K8LPxafiHnaiTHgqIRG7b7xlVapemYQPDjdXAzs+2ZbmqinQnl6Pe5Ku4=
+	t=1780452241; cv=none; b=pQ4lkHi4ofGYp+0DiHWnEMeLPkScLQLfugK5jVWfODD20eulzspyFQoNOY+gRHfo94aGzmbzxTEV6XvOKrlO3fNxKfWK8CJLqLUgUGg48/jbcvI9plG7oPA5aXw4Y7rIq6h2kq1LWGIQnfyclYW++KRojE2sHCurzQu55be5/GE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780448098; c=relaxed/simple;
-	bh=W/c+ST5uf3ZVEZ/AWys6/pG+OcAIML9okmITgYiOjr0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=YDa3Fa2Rkpz5qVnlaGVX686Gnq1qvbP3paZTUh6crBIF0uErSv01lihDvkX+jjR2JNia/qdH1h6CDv0/vQrSvaRVkmnT4qghC02+uVcrso3elUFjzIhfR8uVQtsmq7bqdH13pVCcoL/VXdsA+RUZ9wtEBsRvH1VAlB0wwxqrEUc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca; spf=pass smtp.mailfrom=ziepe.ca; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=S1odct5j; arc=none smtp.client-ip=209.85.222.176
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
+	s=arc-20240116; t=1780452241; c=relaxed/simple;
+	bh=KP0ZGB7IpUZSalJwnA0ZZrHf07C+8tXSGgbchJmuOm4=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=I3w3pWW72Qnv3e+AS12BrLpgSRtVc0aRNpyXSN3IgLnc2qxTfYZbsifyvu0TZ2L291N9DZxbLPMzPinSBV6DhvZZJMdSg6SN/nNLZti80H00CSOxkyGKurjJ9OTK8HxO918hSdFFblEnIYMwVetSgfJZ6IWVOxjqattkp3I1sRQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ow/HBt89; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="S1odct5j"
-Received: by mail-qk1-f176.google.com with SMTP id af79cd13be357-9156b74006aso186924985a.0
-        for <linux-s390@vger.kernel.org>; Tue, 02 Jun 2026 17:54:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google; t=1780448097; x=1781052897; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=npyTF2LAztZXio21Bq8j0RB5zw9LU0pLQvjc7W7RzIc=;
-        b=S1odct5j2nfkl79Sv2FPAJ9SSk7u2EVjBUEYBP5n2vNzzZWrOMCYXYSS9KT6+9TTsW
-         4IAr6o784B59XB5ULJHK6589ZMKiurJZ/gxuFDuU4UaCbyE0vQZmkbBrkcHogHkGEN6y
-         kezoiRAFsHYCUNcvDdZapDx+j78Dtd38bG5TMtDPyXxLJU5wO5zHFEpjQLPIrdBCJXau
-         w8dkCUeffXbX80+OGLOryRzx8KtEg4Gae8smiuXPWtWy+UX3QXeSfa8s/puhYsu7Fz4L
-         uZfL1RmglYTGQKuc3Ihyiw2xNm0CDOkt4V0Hx6FRHSbCTpaq7QSd7WR+iMEtvGjtRHIK
-         1DKg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780448097; x=1781052897;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=npyTF2LAztZXio21Bq8j0RB5zw9LU0pLQvjc7W7RzIc=;
-        b=oMMCFaCtGz2AU4y7BXWjlgi0gSJXMXSDEw7jguav8F91V7A5ui0nnGE0TW+NGLOZmX
-         eWAJaIldNmjnSyLxA8fE0K6L9l0W11GXc1y5R4dKP0a9e0PnFe7i56qbul7HdL72VCfo
-         ycrzYA2KnVYuhOee+bQo1vlaQP6nzRo9YRN5ig6W11FPg9zTSDStPesLiTXSjd/Yhywo
-         6OvpY5UNAkyxl6GyXCgTLB1+eScULXvkXeph008dfGjWEL+gP9WolF90RUgkqEwagwDP
-         fUmKHkK8fJArwKQfyDkiXfQc8IZhmKRfi0o4wa4V/R2bsFclvFuX7cX0tG/NieZlcmDG
-         tAzg==
-X-Forwarded-Encrypted: i=1; AFNElJ8ddjpFQ7TYl85XParjAu9XAQTXiH9HUFV7l6rEqxVgDSaPbkspBtW7aYeblU9Tj6GJhfB4DxMOWdbp@vger.kernel.org
-X-Gm-Message-State: AOJu0YwrIXrsOco+PvmY0StKIERnZY4CxREsRQG5WD/jXetd59BZWPcY
-	SJEUPNsjwtf6qUDzX1q6ktOpk4tVuBF3xm7YF2R/8+W0vQhW74+ii5chsjiC5RknAug=
-X-Gm-Gg: Acq92OEo6mdumt6P2cF8fT/DyE9SDjStOYFoJX+wqxzHT64OfuL/m8KVX1CA+MOU4wT
-	+HmPtxoL+opf+0A/jSZ6fWBxr6z7cfaZD0439BkXx4k9VP+awMG6ORli/0YoHurvFHNBrPHoKOH
-	+g/Y9tla/5+yaTC4w82sqkaZJNwtA4w5d1Hg7MUgvp3r8u9jdPLXJSEPpxwGEeL8zILUstxpwF2
-	9nG3ZOTJNFuLefoUfkqXSxhahuL/PDeNxb/sqOUzgmNOWxxVgHw/YKxT1sP7glgqz1TI+Qu78Iz
-	6h40YmxwXq/ompJeJY+sSHImxWgve/e48vTbuUnFwTkwBOjPIguVNpWBTIvhabIaMXzBvX9vYKq
-	BfsFgiumWYdxssCRUvfB/RQWUPRGrCZIPcTGjQtxa7FS1OA5t5PayCHOMeHoiTcigFgEbzoGUEz
-	lo8QLTuUwDOO+VH+Ul83Zx6bNLu0QzLLkUogaAbKR/y+yiaxFrkHPPiT6OOC319MFMLvwAGFe7M
-	vv93V+DWJ+/WK34
-X-Received: by 2002:a05:620a:4409:b0:8d1:a75e:2f8c with SMTP id af79cd13be357-9158a86b6acmr242337785a.53.1780448096650;
-        Tue, 02 Jun 2026 17:54:56 -0700 (PDT)
-Received: from ziepe.ca (crbknf0213w-47-54-130-67.pppoe-dynamic.high-speed.nl.bellaliant.net. [47.54.130.67])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-9158a237330sm100630585a.16.2026.06.02.17.54.55
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 02 Jun 2026 17:54:55 -0700 (PDT)
-Received: from jgg by wakko with local (Exim 4.97)
-	(envelope-from <jgg@ziepe.ca>)
-	id 1wUZsk-00000004x1y-3mPP;
-	Tue, 02 Jun 2026 21:54:54 -0300
-Date: Tue, 2 Jun 2026 21:54:54 -0300
-From: Jason Gunthorpe <jgg@ziepe.ca>
-To: Michael Kelley <mhklinux@outlook.com>
-Cc: "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>,
-	"iommu@lists.linux.dev" <iommu@lists.linux.dev>,
-	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	"linux-coco@lists.linux.dev" <linux-coco@lists.linux.dev>,
-	Robin Murphy <robin.murphy@arm.com>,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
-	Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
-	Steven Price <steven.price@arm.com>,
-	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Jiri Pirko <jiri@resnulli.us>, Mostafa Saleh <smostafa@google.com>,
-	Petr Tesarik <ptesarik@suse.com>,
-	Alexey Kardashevskiy <aik@amd.com>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Xu Yilun <yilun.xu@linux.intel.com>,
-	"linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
-	"linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	"x86@kernel.org" <x86@kernel.org>, Jiri Pirko <jiri@nvidia.com>
-Subject: Re: [PATCH v5 05/20] dma-pool: track decrypted atomic pools and
- select them via attrs
-Message-ID: <20260603005454.GM2487554@ziepe.ca>
-References: <20260522042815.370873-1-aneesh.kumar@kernel.org>
- <20260522042815.370873-6-aneesh.kumar@kernel.org>
- <SN6PR02MB415754E94A9505C2B9739E4DD4092@SN6PR02MB4157.namprd02.prod.outlook.com>
- <yq5afr35sciu.fsf@kernel.org>
- <SN6PR02MB4157D9955A93244014AB7978D4122@SN6PR02MB4157.namprd02.prod.outlook.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ow/HBt89"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 413231F00893;
+	Wed,  3 Jun 2026 02:03:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1780452239;
+	bh=JVD2HhSDAP4ZcZUXZdAlOPPcrhtlTrNE8QjoL+hv+8c=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References;
+	b=ow/HBt893Avqrm8SmIushEptvkTiJjm6o/pfNjcbAc3QsIYCX0LUECTOoRwrzO3NE
+	 kBVnOfQeH3tTCY6n33gse6/jh2nvYTdnqE4Us3yNfvAqfbt86xZqIr0BqGMNpZd7GP
+	 Oaa9cTFdnKbV3xewQ6jRNxEQzPYhCW+FDtwf0ydrzmlxaQHQ2/6A1r5yF/sSRkMpbm
+	 4G/KcIRTuz/nIRd+hSnS8iqA94OQTAaC40B/zlNdJbOItQTtm1IT1aaBeSWKDJJOq0
+	 PlIqFfzVIUMZTuJfSxytuRXgmMpOdpk2ES+WdA9tnsIKzQm0NjxN/dfqEtiKxWspAw
+	 1W4+2LWMmpQmA==
+Date: Tue, 2 Jun 2026 19:03:57 -0700
+From: Jakub Kicinski <kuba@kernel.org>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Richard Cochran <richardcochran@gmail.com>, Wen Gu
+ <guwen@linux.alibaba.com>, tglx@kernel.org, andrew+netdev@lunn.ch,
+ davem@davemloft.net, edumazet@google.com, pabeni@redhat.com,
+ linux-kernel@vger.kernel.org, netdev@vger.kernel.org, jstultz@google.com,
+ anna-maria@linutronix.de, frederic@kernel.org, daniel.lezcano@kernel.org,
+ sboyd@kernel.org, vladimir.oltean@nxp.com, wei.fang@nxp.com,
+ xiaoning.wang@nxp.com, jonathan.lemon@gmail.com, vadim.fedorenko@linux.dev,
+ yangbo.lu@nxp.com, svens@linux.ibm.com, nick.shi@broadcom.com,
+ ajay.kaher@broadcom.com, alexey.makhalov@broadcom.com,
+ bcm-kernel-feedback-list@broadcom.com, linux-fpga@vger.kernel.org,
+ imx@lists.linux.dev, linux-s390@vger.kernel.org, dust.li@linux.alibaba.com,
+ xuanzhuo@linux.alibaba.com, mani@kernel.org, imran.shaik@oss.qualcomm.com,
+ taniya.das@oss.qualcomm.com
+Subject: Re: [PATCH v2 2/2] MAINTAINERS: update PTP maintainer entries after
+ directory split
+Message-ID: <20260602190357.62c04d40@kernel.org>
+In-Reply-To: <0b3f00bbfa6bcc3badb4d1bb7845326e2dbaa1d4.camel@infradead.org>
+References: <20260412084704.743482ad@kernel.org>
+	<4B889ED5-D1F6-401D-B753-89AE2037F316@infradead.org>
+	<20260412095301.4fe1fe65@kernel.org>
+	<ebf19246-91af-4887-b2aa-d9007921f7b2@linux.alibaba.com>
+	<1088b07d760491deb461d6d01abca631e8f8d86c.camel@infradead.org>
+	<ahzQZg_v4bxFfGdj@hoboy.vegasvil.org>
+	<3908843460c4864eef79cced40d897f793c7ae2a.camel@infradead.org>
+	<ah2jIt2DqI1ZZJx8@hoboy.vegasvil.org>
+	<0e023f951c102fe2ee7070e490c579783b2817d5.camel@infradead.org>
+	<20260601185226.7f43fa75@kernel.org>
+	<ah5aGMIxA418sxoj@hoboy.vegasvil.org>
+	<0b3f00bbfa6bcc3badb4d1bb7845326e2dbaa1d4.camel@infradead.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <SN6PR02MB4157D9955A93244014AB7978D4122@SN6PR02MB4157.namprd02.prod.outlook.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, Jun 02, 2026 at 02:24:40PM +0000, Michael Kelley wrote:
+On Tue, 02 Jun 2026 09:04:27 +0100 David Woodhouse wrote:
+> > Even though the "PTP" naming was an unfortunate choice way back when,
+> > still I'm not a big fan of moving stuff around "just because".
+> >=20
+> > But moving forward, I would suggest starting a new area for pure
+> > hardware clock devices.=C2=A0  =20
+>=20
+> I think that ties relatively well to Jakub's "does it purport to know
+> real time better than the host" criterion?
+>=20
+> Although... ENA *both* purports to know real time better than the host
+> *and* does packet timestamping, and it looks like GVE is attempting to
+> do the same?
 
-> Except that in a normal VM, the "unencrypted" pool attribute does *not*
-> describe the state of the memory itself.  In a normal VM, the memory is
-> unencrypted, but the "unencrypted" pool attribute is false. That
-> contradiction is the essence of my concern.
+FWIW the ENA driver as it exists upstream does not currently support
+packet timestamping. Or at least the usual terms for which I'm grepping
+do not hit anything in this driver. Only skb_tx_timestamp() which is SW
+timestamping
 
-I would argue no..
-
-When CC is enabled the default state of memory in a Linux environment
-is "encrypted". You have to take a special action to "decrypt" it.
- 
-Thus the default state of memory in a non-CC environment is also
-paradoxically "encrypted" too. "decryption" is impossible.
-
-Therefore the "unencrypted" state is a special state that only memory
-inside a CC VM can have. A normal VM can never have "unencrypted"
-memory at all, so having it be false in the pool is accurate as far as
-the APIs go.
-
-un-encrypted = true means "the memory in this pool was transformed with
-set_memory_decrypted()" - which is impossible on a normal VM.
-
-Jason
+Given various Google projects related to use of time / latency for
+networking I think you're right that GVE is likely the first driver
+that will straddle the boundary. For those drivers which are both NIC
+and virt we can stick to net-next, just always wait for your review?
