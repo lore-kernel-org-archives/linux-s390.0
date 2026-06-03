@@ -1,143 +1,144 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from fout-b3-smtp.messagingengine.com (fout-b3-smtp.messagingengine.com [202.12.124.146])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 70FFB31F984;
-	Wed,  3 Jun 2026 15:48:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 129C93D1AB9;
+	Wed,  3 Jun 2026 15:55:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.146
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780501690; cv=none; b=l7veN5U/Z0Wrau6W0Fs35CyhS/rNAKwNqGzKGhyl/9bAhteNHczGR71ZnChcKeICnlrH0f9O5IGgjRZ+N7x0OefS7tigJjb1rk+U/h9U6Rmi2hMu8TVl2D4L89NIDKVw64UAPLrPWvYTi8K2YwcQyOprovBUv29ydNtLJmi+5bI=
+	t=1780502146; cv=none; b=Btm79K403oFxeGE567Z+QbE3khkHacn35IcxPTW0tHSUTHEND0plWxyFvSQ/7JXucnLua4guOESr/5Y3RNwQE7ONPHjNsuYqiMOgc3GaTXwUB7Tsr3WOvsTEHYp57T4uyRY0/kVMiUABn9dPPQ1XSbQ9MLUhigcfMjLarLsXAfs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780501690; c=relaxed/simple;
-	bh=frB+SiLPLC2yAFk9xsb1e2zi0rXUJoOmpVmXtrUYtSE=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Os612pu2928x8lhfrzbsZ8vqmOhX0hP4n9jg5LoPLAVWHpOjy7218cRdHMxRtbEhyqu6EegNEnJhVM0KsXiLJW+6Swna/YwuOjYQyFCTWlpMAgkClyl/AiYpRyMcFu0d4f+UfvY5zZFzYsOEvKXjTvB+nc5YR5dfQUBv4hEmVu8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=CaxI6Iep; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1780502146; c=relaxed/simple;
+	bh=CpOEBci1S0yDrojRiu0x6Jvr78Xec38h1qPmQyLe6yk=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=WuHX/IqbZYrTuHrCHHYBcqhJ3XbnTIE2JSvmn6EnPtG6bMi0tvId3xd6uXGxfxCs6mZzCkadbfv6WJDSaQX9XAp4VupVdCdoF4g/F7YBav6QSKU9YbGFkTU40t07Moh+hg2t1s0uF+jtIP9SV2oSg+2fnj93A41+8Yy1J5jL/sM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shazbot.org; spf=pass smtp.mailfrom=shazbot.org; dkim=pass (2048-bit key) header.d=shazbot.org header.i=@shazbot.org header.b=CoBNdgNg; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=lKw5N7Ze; arc=none smtp.client-ip=202.12.124.146
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shazbot.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=shazbot.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="CaxI6Iep"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 653BZXWh1276410;
-	Wed, 3 Jun 2026 15:48:06 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=gHrtBs6vMW/pTCjCj
-	WmA20zYNGE81NgoCaBAwMk+9XQ=; b=CaxI6IepwW1nlfh+VJ+gaJskr5hAf5mFZ
-	iwKFEj+KzQEGpMVgLOn+dZPiuEJh1rN3cuCjd/JR1xRnQhfsUr+/os3jvCBLgTL7
-	ucW/FVcwP+ZeTqmFrC484HPHvZDhdC5oqLLmTrb7pdIwuz5gKxQdL+AhkYvcADv4
-	Pgg40C2zxl0PQEpHA4kgviDEK3+iL7odgw0vhMNv6AL0DWxEdI7vdkQUHTV9mP/g
-	LT3P2imFq06ChVWXV3wR2y84BX1E9gRoB5mg/UgXtrKBVl6Oh6ZL4cuXk/i7z+Ya
-	+C+ExY2JDcGbfBtkgt19Xx8TGJyLPMrZhAsk0W0irv8AYaTQt9fuw==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4efqm53qhk-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 03 Jun 2026 15:48:06 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 653FdORT020826;
-	Wed, 3 Jun 2026 15:48:05 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4egcegrng2-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 03 Jun 2026 15:48:05 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 653Flx5H51183904
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 3 Jun 2026 15:47:59 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7D8F020043;
-	Wed,  3 Jun 2026 15:47:59 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 56CF32004B;
-	Wed,  3 Jun 2026 15:47:59 +0000 (GMT)
-Received: from p-imbrenda.aag-de.ibm.com (unknown [9.52.223.175])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed,  3 Jun 2026 15:47:59 +0000 (GMT)
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-To: linux-kernel@vger.kernel.org
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, borntraeger@de.ibm.com,
-        frankja@linux.ibm.com, david@kernel.org, seiden@linux.ibm.com,
-        nrb@linux.ibm.com, schlameuss@linux.ibm.com, gra@linux.ibm.com
-Subject: [PATCH v1 3/3] KVM: s390: Allow for 2G hugepages
-Date: Wed,  3 Jun 2026 17:47:58 +0200
-Message-ID: <20260603154758.234768-4-imbrenda@linux.ibm.com>
-X-Mailer: git-send-email 2.54.0
-In-Reply-To: <20260603154758.234768-1-imbrenda@linux.ibm.com>
-References: <20260603154758.234768-1-imbrenda@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=shazbot.org header.i=@shazbot.org header.b="CoBNdgNg";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="lKw5N7Ze"
+Received: from phl-compute-02.internal (phl-compute-02.internal [10.202.2.42])
+	by mailfout.stl.internal (Postfix) with ESMTP id 8E8871D00123;
+	Wed,  3 Jun 2026 11:55:41 -0400 (EDT)
+Received: from phl-frontend-03 ([10.202.2.162])
+  by phl-compute-02.internal (MEProxy); Wed, 03 Jun 2026 11:55:42 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=shazbot.org; h=
+	cc:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm3; t=1780502141;
+	 x=1780588541; bh=7i/oZn53Y2C8KfYj1KoYmGPqJk2N5MSRWpMtA2+SDQQ=; b=
+	CoBNdgNgAh1QvX3EyL/ICs+I5hkD+ZJeyfXV4GKKJgMFkB7aIu7yRyYMRmEYNkrX
+	d4dNpHGGQtvf6nImu7mU5GC+pzG8FynYpS5E4kytmEQrPIyx4ykAutCmfQsZJePj
+	a7QeboC5wU7JbTU8F7S41XE96Xz4hpnHytYFOdHob1UltlRrKrV2XsaD+W22Pt6t
+	3oAP9EdAezZM9iQGGWIcsVgBM07nmXp3uO8B7icsLk1g16cq5J3IAbiEHhJWmFZw
+	D/yOtzN6n5hcFqri7c3UPM+YT/DvCWnp6WBYYXLM86P//OMK57JVv514XFw0MYH4
+	s10mFiZD+M58mcnN8uEKLQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1780502141; x=
+	1780588541; bh=7i/oZn53Y2C8KfYj1KoYmGPqJk2N5MSRWpMtA2+SDQQ=; b=l
+	Kw5N7ZelfiZZOI/D2AfXCaYslNlWa/aJWfPndlvanoX1zO8usi6n7lq3cR2b8Zn6
+	wnUOKe1Tv75KevfzromuOIcoP+DQasSrWRJFbqU0K76Gd5RrSRP32s3TrQR2EFqo
+	tILMG/OX7pqflE1P0m3YPnTSBabnlwngdR6hE+yYq9TDs8EJQFHhER818iddTFaZ
+	91DOeKsil9v0L6H6GrlK9yo/+TvQuLKjKnbG/y6NzlTeMff3/OVTk966OOPTa0tF
+	DAAYCrYNLSQ0hL0FluHekHc+49ZZXB05+rjJ5GcIs5ZyrFTaCPvE8UYYT5wmmww/
+	J/yMFC9WchJgNRLsohOSw==
+X-ME-Sender: <xms:fE4gaj8q0_iMz3fnYKNpxpbKtKWchFCyPb4GZB8g2hlI0X6MmDZc1Q>
+    <xme:fE4gahEuDKALcJ_5bJvg-5NBHYuqT7hI7LILyXlVPi00WpuViJtRus5-GivFELQpm
+    k4qiptW_Uppqr4u-kA5euPNSNch6qeWm5y2_Vz2sr8eKhUenNg2z2Q>
+X-ME-Received: <xmr:fE4gaqSi9ee5VTfrDisIwuWni_1Btq4s7THeqOEjI0Edap-b7z8mmd7d_gU>
+X-ME-Proxy-Cause: dmFkZTEn0rqgkoZnG7xgVdki9RX1mvKYhiMqjaAIJARt4dSwQn7SWdu68GYZQP2Ze72dgq
+    YdaFE2sjcWMsTbTibBWJljW/WqPFVQgNlDoscQ86enXckwmSz0jK29ukFFg201Ol8881mq
+    kOYAGvcsTUGWP50spnruXiWaeGduSsbGIffZZVa5e1tqY45+v+Qw7SJ4an8DBmNRMQ1JV5
+    m4XMogjV8RM6sa2Y5ByzD0EJTSmhiR26rf7IyNJXMZqd01ZsrEz5wx87bkXI7oXM/0IG+m
+    LGm6pDJ89Cf3VJy/F6F5xMRx+e/zW88ALUx5xxd8CTU3nCNtT48dOyzNyOdcTpHmyPy3VX
+    av21U09MuxCNRHriEHWM5I7eHm5Xgv41awjvgQob8lPYcGGOkLNdQ2KMyobYr3YsAx6Kk4
+    xzA+rYKPpoqi34oVGKLG/jezxax9xF51hqabCM9bzmD4Z8wMk8xkkkUy4VmbmHn4+lA3nE
+    KirxC3ssG2ngvKZc4rs+1QRgUVI0dh4BxvDaHeGTN0AE7ILbDUfBFmdtLSoAY5sP5WbpIB
+    RSVsLNe1BWpRqaoyPbWcqDF2k9Wu1yJJuBlc7f3/mP7buFq3SzRsmH3QYE4nsPcBVP1RLu
+    jAVYL6d39Y/i7z0yR+ZAdpZocwqQw1RxHProjhTJp4GKWfS1hWqmksLhSsLQ
+X-ME-Proxy: <xmx:fE4gantO3J5v6_Vunvdwi-qRWDIHm7-rgTyWgbgMiL_TyXa2YwCPeQ>
+    <xmx:fU4gavD1Watyn1_h0mXnMEUYnjGFAentRBPJT9DQnViOori22pzQzQ>
+    <xmx:fU4gase0ZrZ9Skj4HV8a_tFnXprd9xwssThz4flT6-sZqt28DUHIeg>
+    <xmx:fU4gavoUidthQKWrC2FUVHYQYbxRnebpOc_0wieQiaF5wEcnLKq7aw>
+    <xmx:fU4gat-MmJAQTubEKQ5W7Zk5eTThYxE122kNGw2gbGhFv0LL4FOu8Myy>
+Feedback-ID: i03f14258:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
+ 3 Jun 2026 11:55:39 -0400 (EDT)
+Date: Wed, 3 Jun 2026 09:55:38 -0600
+From: Alex Williamson <alex@shazbot.org>
+To: Omar Elghoul <oelghoul@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+ kvm@vger.kernel.org, hca@linux.ibm.com, gor@linux.ibm.com,
+ agordeev@linux.ibm.com, borntraeger@linux.ibm.com, svens@linux.ibm.com,
+ schnelle@linux.ibm.com, mjrosato@linux.ibm.com, alifm@linux.ibm.com,
+ farman@linux.ibm.com, gbayer@linux.ibm.com, alex@shazbot.org
+Subject: Re: [PATCH v2 2/3] vfio-pci/zdev: Add VFIO FMB device feature
+Message-ID: <20260603095538.65b07206@shazbot.org>
+In-Reply-To: <395b0d85-3057-4bd5-b8cc-10ceea2d978a@linux.ibm.com>
+References: <20260519224204.19154-1-oelghoul@linux.ibm.com>
+	<20260519224204.19154-3-oelghoul@linux.ibm.com>
+	<20260602162409.1ca3c765@shazbot.org>
+	<395b0d85-3057-4bd5-b8cc-10ceea2d978a@linux.ibm.com>
+X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: k_9dtEkIPGUfiEignEMcpIcfk7K3JO9F
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjAzMDE1MSBTYWx0ZWRfXxD9Ta4trSKYf
- NkpuxrV22q/YQLtc69auXJ2QB0Dw9jl9RpG0avutY+0CqX5f2B2zPb8txDoT8sJEYE8bZI5TGcm
- /MENmtish+pi9loyoAxXThn/khtjX7ixt8Ammd5ymgdI+Qe6uwfW4kA6ALnxpukqfXR+tJNYjkq
- KS2o+iZ/xg718ypmai9FbSLw26PNFOvj8CVL5UyGTIZoE6jyQQsFdLk673fSdlOvyQyI/gT+Khp
- t/j1RgDNC1JYXm97ZVohPOlLF0l1xNqXa78PL6pTrM0fNeXLfSKCpfaAcaB5Jg91zTJjEY8sN9x
- 4SXsHU6QAE2WWggIOcxOUVf2KzIzT3w1fnShAJclHgbHTE40AYR3bt1N6R3BxdZT9w+TeEMRKwQ
- u8E0RNz+4BezBYfSVPP25+FnjduDf0BxBIhdZGfC5ZtrTnIBmOpJRgLNMqQEo4cjZjVNao+tb3A
- Wo8K8hCqCH2RXX8ttuA==
-X-Proofpoint-ORIG-GUID: k_9dtEkIPGUfiEignEMcpIcfk7K3JO9F
-X-Authority-Analysis: v=2.4 cv=Vf3H+lp9 c=1 sm=1 tr=0 ts=6a204cb6 cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8 a=jBZgYMDF7q3Z6fg6dRgA:9
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
- definitions=2026-06-03_05,2026-05-28_03,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 suspectscore=0 adultscore=0 bulkscore=0 impostorscore=0
- phishscore=0 lowpriorityscore=0 malwarescore=0 clxscore=1015 spamscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2605210000 definitions=main-2606030151
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Change gmap_2g_allowed() to perform the necessary checks to allow for
-2G hugepages to be used, instead of returning false. The
-GMAP_FLAG_ALLOW_HPAGE_2G gmap flag is now taken into account.
+On Wed, 3 Jun 2026 08:35:43 -0400
+Omar Elghoul <oelghoul@linux.ibm.com> wrote:
 
-Also add appropriate kerneldoc comments.
+> On 6/2/26 6:24 PM, Alex Williamson wrote:
+> >
+> > Why does the user need to be able to control these?  
+> We want the user (e.g. QEMU) to be able to control these so that when a
+> guest enables or disables the FMB, this state gets cascaded to the host and
+> all the way to the firmware.
+> >
+> > Doesn't allowing the user to disable FMB remove guaranteed host-based
+> > monitoring?  
+> Yes it does, but this one isn't an oversight and is intentional behavior
+> to achieve the functionality mentioned above. The host-based monitoring is
+> not necessarily guaranteed and is treated as a device-specific state, so it
+> makes sense in the case of passthrough to have that state reflect the state
+> of the guest that is actually using the device.
 
-Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
----
- arch/s390/kvm/gmap.c | 19 ++++++++++++++++++-
- 1 file changed, 18 insertions(+), 1 deletion(-)
+If we really need a SET for enable/disable, I think it should be a
+separate feature.  It really makes no sense to pass a giant structure
+into a SET operation to look at the state of one flag bit.
 
-diff --git a/arch/s390/kvm/gmap.c b/arch/s390/kvm/gmap.c
-index c9e348149ba1..c5a8132eaa22 100644
---- a/arch/s390/kvm/gmap.c
-+++ b/arch/s390/kvm/gmap.c
-@@ -635,10 +635,27 @@ int gmap_try_fixup_minor(struct gmap *gmap, struct guest_fault *fault)
- 	return rc;
- }
- 
-+/**
-+ * gmap_2g_allowed() - Check whether a 2G hugepage is allowed.
-+ * @gmap: The gmap of the guest.
-+ * @f: Describes the fault that is being resolved.
-+ * @slot: The memslot the faulting address belongs to.
-+ *
-+ * The function checks whether the GMAP_FLAG_ALLOW_HPAGE_2G flag is set for
-+ * @gmap, whether the offset of the address in the 2G virtual frame is the
-+ * same as the offset in the physical 2G frame, and finally whether the whole
-+ * 2G page would fit in the given memslot.
-+ *
-+ * Return: true if a 2G hugepage is allowed to back the faulting address, false
-+ *         otherwise.
-+ */
- static inline bool gmap_2g_allowed(struct gmap *gmap, struct guest_fault *f,
- 				   struct kvm_memory_slot *slot)
- {
--	return false;
-+	return test_bit(GMAP_FLAG_ALLOW_HPAGE_2G, &gmap->flags) &&
-+	       !((f->gfn ^ f->pfn) & ~_REGION3_FR_MASK) &&
-+	       slot->base_gfn <= ALIGN_DOWN(f->gfn, _PAGES_PER_REGION3) &&
-+	       slot->base_gfn + slot->npages >= ALIGN(f->gfn + 1, _PAGES_PER_REGION3);
- }
- 
- /**
--- 
-2.54.0
+> > Since this is already provided via debugfs, why not make this a
+> > userspace problem to interact with the existing interface?  
+> It might be possible but it would undoubtedly be really ugly and harder to
+> maintain. I think what we'd dislike most about using debugfs is parsing
+> text data into the FMB structure. If any of the text representations of the
+> fields were to change, we would need to update them anywhere that uses them
+> (e.g., in QEMU or any other user driver). The ABI would be super fragile.
+> >
+> > Alternatively, couldn't the existing zpci mediation be extended to
+> > support the guest registering a fmb buffer to be written at regular
+> > intervals (the interface here seems to drop the reporting interval).  
+> The firmware only writes the FMB into one buffer every firmware-specified
+> interval. If we wanted to write the FMB directly into guest memory, we
+> would either 1) lose host access to the FMB or 2) have to run a periodic
+> worker in the kernel to copy the host FMB into the guest-provided buffer
+> every time the firmware does an update. I don't believe either of these
+> approaches are favorable.
+> 
+> WRT reporting interval, I intentionally dropped that one as it is already
+> provided by VFIO_DEVICE_INFO_CAP_ZPCI_GROUP.
 
+Hmm, I also see fmb_length in VFIO_DEVICE_INFO_CAP_ZPCI_BASE.  If we
+have that, do we really need structured data in the GET feature?  Maybe
+GET just provides a user pointer and the raw fmb data is copied to it.
+Thanks,
+
+Alex
