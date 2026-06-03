@@ -1,401 +1,258 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from fout-b1-smtp.messagingengine.com (fout-b1-smtp.messagingengine.com [202.12.124.144])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A2197391E60;
-	Wed,  3 Jun 2026 21:45:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 966934C9563;
+	Wed,  3 Jun 2026 22:20:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.144
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780523123; cv=none; b=Rhf1aZWvlLfu6w1pKMU0U3/lyrvKU4UefHA4w5nO6BNk8vLjLR2959k9t5ozia18/yN6OBd5kPssa9XRlK+aNB4xzUfWwUdoMumpU7oNYJdYAU8qjKRB/3T6OUf90JnsnPjNY5NqX/Bg9Y/BYog8nROkgXgSTaIy0i0TfqI8oGE=
+	t=1780525223; cv=none; b=Z5Fyiyr2wxzre+lka+9GWa3W/HEuEfTkI6ZKjttFgWP3nd8a4AsftrIz4adXYhnnH4TIZIySlfCQlF3UiyQOWCp23J6cfGE6QjlYD/44FHAzS99kPLw1g0CLpxm7uDa2yb1p89exASBqywgkQnOXKpdNw0NGt1EeRMQ33fdqPuQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780523123; c=relaxed/simple;
-	bh=lBTn7fI4Yzn14yVQX0QarRo44Y/JTxU16bmXY0i+qJw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Hb7TjCoK4eOLM3CxcWDgDP3IZPVKC5yFZwc0UfOsv8eARRm+bg4nHq0uA2ORXI52qZZOEfDYMdlqpQUR7fMpo2uyP1i9iJ4ytHRGS2beLvW4VPd+yvcoCS0T30wflmIvFfX58zz/LtQ8ozfQihvWf4Dd2yOMvzfRURN6/cwS3ug=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QHSfNbhL; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1780525223; c=relaxed/simple;
+	bh=EhlBlQFfgXncPqsu9f3zgRymJFfQVj5WLn7oHMFBbr4=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=MS5AeaYK4TIBmbeZWb2Kotj4PZwwSRbnzvI85i7g3R9z1nksq88YwJz6G6UVHBJgPuxxJFMtE2gpKLswt5R3LP+zDkKBpTj32Z7+0kXQOdUfFf06kKh18jJYC4FJ8B6X3zTD1Rcdw8HR5trF3zxwPUsvGQiGiTOR8R0Ybp/FwME=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shazbot.org; spf=pass smtp.mailfrom=shazbot.org; dkim=pass (2048-bit key) header.d=shazbot.org header.i=@shazbot.org header.b=YqS5V9JK; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=Nc6dHaN3; arc=none smtp.client-ip=202.12.124.144
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shazbot.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=shazbot.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QHSfNbhL"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDB231F00893;
-	Wed,  3 Jun 2026 21:45:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1780523121;
-	bh=Z9KVZCOeiVINqsCr43Acl+oQQpTBxewnuiH+zDnfm5g=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=QHSfNbhL+U7H6Z/uiB/lMrOSO+CQ9CcwqooDKy75nARdjWF/tL1Yf8zcjIXvGx50a
-	 LJoGYXsBTMmgkttVs9DdMxPNgOdj74gXba8Q/fxcszwL4qALf4Wtdrw9IpsI+IlHhL
-	 ZcKGwR9eyboR5upJebz1HjGH5Q/Rn4TEuKK247bCkw9nslrKDj0KZA84rrZrEqVXmy
-	 rhQa7bGi34v4TixYajZEg+xsuugITOc9I1JUhDlEZB33bC4VfoCEj9X0sXbYEWbVwa
-	 Ea39hISv6pjuxWSMcQ2nhFrbKcB/+79zN+XEIkMotttX+wxaTOOChDCbd177h0dMSl
-	 0tJqgLlUfv+lg==
-Date: Wed, 3 Jun 2026 18:45:18 -0300
-From: Arnaldo Carvalho de Melo <acme@kernel.org>
-To: Namhyung Kim <namhyung@kernel.org>
-Cc: Ian Rogers <irogers@google.com>, agordeev@linux.ibm.com,
-	gor@linux.ibm.com, hca@linux.ibm.com, jameshongleiwang@126.com,
-	japo@linux.ibm.com, linux-kernel@vger.kernel.org,
-	linux-perf-users@vger.kernel.org, linux-s390@vger.kernel.org,
-	sumanthk@linux.ibm.com, tmricht@linux.ibm.com
-Subject: Re: [PATCH v12 00/19] perf: Use e_machine and lazily compute symbols
-Message-ID: <aiCgbmUtlMCM4Xzt@x1>
-References: <20260602062452.2583619-1-irogers@google.com>
- <20260602152516.2831152-1-irogers@google.com>
- <CAP-5=fWtc0xHfCeXfcPUkmWtHZO4EUriDrqovr5nXzb0GvSWxw@mail.gmail.com>
- <ah--Jc0PMT7Y7Z18@z2>
- <aiCE6Gq7yE2T8ZoT@x1>
- <aiCfgup5q9H0t80_@x1>
+	dkim=pass (2048-bit key) header.d=shazbot.org header.i=@shazbot.org header.b="YqS5V9JK";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="Nc6dHaN3"
+Received: from phl-compute-02.internal (phl-compute-02.internal [10.202.2.42])
+	by mailfout.stl.internal (Postfix) with ESMTP id 8B12B1D000FB;
+	Wed,  3 Jun 2026 18:20:09 -0400 (EDT)
+Received: from phl-frontend-03 ([10.202.2.162])
+  by phl-compute-02.internal (MEProxy); Wed, 03 Jun 2026 18:20:09 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=shazbot.org; h=
+	cc:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm3; t=1780525209;
+	 x=1780611609; bh=9kZhKZGJz0v4KTv+sA6NCtH1KkRlsAFv9a7Yznk7BYU=; b=
+	YqS5V9JKO7OB67qFV127l7bRjJ0WMiiGfiwXvOejk+Hbz9ybMgWD4xGTB7g5Hqx2
+	OISg+eZS1GpKhH4+FVCxu2aKT786f2+kq2EX0trMDhnywnLaJ+F/FHHyYck0DFfE
+	AScsW6ZnDBqNopgVLSiXfYI9rIY3p1nOqrZhINefD6qkOGMCCuwrNYTGM5UEL+h7
+	m98jdqkBuL3Fjs7j/vkXGHPvyFsjioMFujBJ9c6hpmNn6hwZagJDWAA3joMMiJia
+	hF+05nlb/yx/JwFAItpKvs8hWQwmKtdUuc9m0eXs5z2DDuSF6eZQWvF50Cl2DeOE
+	6iDlw+nRaPo/lqxB8Ne+Ng==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1780525209; x=
+	1780611609; bh=9kZhKZGJz0v4KTv+sA6NCtH1KkRlsAFv9a7Yznk7BYU=; b=N
+	c6dHaN34QMQ+VQ2ivmgOiBdOAWYOzDX5fXZSXgRZzSTfRQaKqMJoGeGJ0k1IBVeX
+	lfsFJx5Q1Zl9RrQ2XxWGwG3y4nPv3gCxAgOJBL5bXK2xwyDC95ywgPvUPWtcPo13
+	RemqKormSyvM/LvM5AIQZ4DRNbfQmuhUJ/gGEY7FhaichIn5kNSNpZZHGrxuTTw0
+	OcUhrZ9gtW0/AyCAmcKSW/qVlP9hp0VCaFdy/s+nDSxxi5hS26ExGzt2ROzY20pN
+	CNYeKPv1vKhk88sXDiv+3AuucbfastkouMsHr367NBrVUF6iJPCvvLQtGRLip6z1
+	/gKcCcv3ONCQumrDRo9rA==
+X-ME-Sender: <xms:mKggapdImNWyI9Xl6LZdFDazKuLQFSbO2BIi04xDVzn4aST-2GhHhw>
+    <xme:mKgganpI5LGoYA8s0JhV6OEpdx-Z8PnLrww1KZQHO-aEVUJ4cB5fXdQrKBzJfnk4p
+    TpuuIRQZ2q8cLsW41oF9BLR_JZEEUSuJ5bb5NL9mOLFqx7nCBDB3g>
+X-ME-Received: <xmr:mKggajN0zzwoT4_mSGYbjp4Y5OZQ1Jxdacaya2z-x2SkfJDxm1ujUoidlkw>
+X-ME-Proxy-Cause: dmFkZTFl48SMsTNMd/jGCpgDHRd9W6JwBWzYhz/u5NgrllOUiKDSu/jLbzVVJxAxkxsy+H
+    WOGl97jH4VSfLNdbHN6iFYwqsSywnmLCPv5AHo7gSBanjdPXPDQDvhrgfkkRWmzxHbI5g6
+    LtZLq+K5UHmO8jNgjTSuquPSQXzTRQR35DRU5WI8X51j45RoTTEfnSchk5NLPMDo9BFdYU
+    hBgJMIQbCNdqV3Czu4JwC1b2yryst0rUIXeaGXWDBnhkm+hVi7hHPDHsOCBjVKWZ0/m5H6
+    y1nO+RF4lh2NIvr5ojdHyXCG6we4DVdzWuBcefasuOZHwByJ2qqyLy1ncsiPi8zj4I2zec
+    tsKD3WEBF6cfWfQvMD9vOcPcyxZwauiLEyGTF9YdEh0GlCTY+mPLyAJ0QctpJWtigOcQYw
+    fjUR9xB87HoPszJJuB3+7a4YlEpzdjrMjbiFvua/QNXHKngmSBn0324rpe6waYD15jng8f
+    g5bJXHi+eYaTF6oJsLkcgwkv4ka02ecjnntwmT4HCEeiz5qidpqxbv4hkqUmzJx0egdNCB
+    vwLheARx46jPgJupLG2hscG7pI1A8xi2oF20M8UcP6tGeM2wlrG7Gpbh1KqXppD/ysIhSt
+    HUlW2IV+1ZvGXoEWnpFMwmUILoce3mFFaTYemJvd+vipXhcRUtsxXd6rsGOQ
+X-ME-Proxy: <xmx:mKggaqgyihdncXwQ8sniFF1nAGXQq4d94WEqZG_GuxewBth5k6Fe8A>
+    <xmx:mKggamu64AW6LJHiuy3mC-2jB3z2kjRrbyJ2vANRn_owm5W1ke3zrw>
+    <xmx:mKggauiCRD1wSwtCQ5753LGVgF5Ggn_5d4TzCEMs-yV7gCnD9jay9g>
+    <xmx:mKggasYExt0pKvljDYA_kaddUzINOnDnO6Jkwj9__EN97AT_qKI0VA>
+    <xmx:maggalVLtb_xkm0VFr95t5nb92KYaArCPBNDQO4TUunO6qMtiqIiUBl5>
+Feedback-ID: i03f14258:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
+ 3 Jun 2026 18:20:07 -0400 (EDT)
+Date: Wed, 3 Jun 2026 16:20:06 -0600
+From: Alex Williamson <alex@shazbot.org>
+To: Farhan Ali <alifm@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-pci@vger.kernel.org, helgaas@kernel.org, schnelle@linux.ibm.com,
+ mjrosato@linux.ibm.com, alex@shazbot.org
+Subject: Re: [PATCH v18 1/4] s390/pci: Store PCI error information for
+ passthrough devices
+Message-ID: <20260603162006.27b78de5@shazbot.org>
+In-Reply-To: <20260603182415.2324-2-alifm@linux.ibm.com>
+References: <20260603182415.2324-1-alifm@linux.ibm.com>
+	<20260603182415.2324-2-alifm@linux.ibm.com>
+X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <aiCfgup5q9H0t80_@x1>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Wed, Jun 03, 2026 at 06:41:27PM -0300, Arnaldo Carvalho de Melo wrote:
-> On Wed, Jun 03, 2026 at 04:47:52PM -0300, Arnaldo Carvalho de Melo wrote:
-> > On Tue, Jun 02, 2026 at 10:39:49PM -0700, Namhyung Kim wrote:
-> > > On Tue, Jun 02, 2026 at 09:53:59AM -0700, Ian Rogers wrote:
-> > > > On Tue, Jun 2, 2026 at 8:25 AM Ian Rogers <irogers@google.com> wrote:
-> > > > 1 high issue. Concern over a perf data issue in pipe mode. Addressing
-> > > > this would require a fairly major overhail of perf data, so let's add
-> > > > fixing to the TODO list.
-> 
-> > > > >   perf symbol: Add setters for bitfields sharing a byte to avoid
-> > > > >     concurrent update issues
-> > > > >   perf symbol: Lazily compute idle
-> 
-> > > > No regressions x2.
-> 
-> > > Acked-by: Namhyung Kim <namhyung@kernel.org>
-> 
-> > Thanks, applied to perf-tools-next, for v7.2.
-> 
-> Now trying to fix this, all old distros, but if the fix is cheap
-> enough, lets not drop support for them:
+On Wed,  3 Jun 2026 11:24:12 -0700
+Farhan Ali <alifm@linux.ibm.com> wrote:
+> @@ -81,6 +52,47 @@ static bool is_driver_supported(struct pci_driver *driver)
+>  	return true;
+>  }
+>  
+> +static int zpci_store_pci_error(struct pci_dev *pdev,
+> +				 struct zpci_ccdf_err *ccdf)
+> +{
+> +	struct zpci_dev *zdev = to_zpci(pdev);
+> +	int i;
+> +
+> +	guard(mutex)(&zdev->pending_errs_lock);
+> +	if (!zdev->pending_errs.mediated_recovery)
+> +		return -EINVAL;
+> +
+> +	if (zdev->pending_errs.count >= ZPCI_ERR_PENDING_MAX) {
+> +		pr_err("%s: Maximum number (%d) of pending error events queued\n",
+> +		       pci_name(pdev), ZPCI_ERR_PENDING_MAX);
 
-It is an enum, so too much work to cope with that, I'll disable capstone
-build in these systems.
+Is this really an err condition or just a warn?  Nothing is
+fundamentally broken here, the queue is just full and we're losing
+errors.  Maybe this should be a warn?
 
-- Arnaldo
- 
-> toolsbuilder@five:~$ cat dm.log/summary
-> Subject: tools build test for http://192.168.86.5/perf/perf-7.1.0-rc5.tar.xz
-> 
->    1   127.96 almalinux:8                   : Ok   gcc (GCC) 8.5.0 20210514 (Red Hat 8.5.0-28) , clang version 21.1.8 ( 21.1.8-1.module_el8.10.0+4172+b6b13d75) flex 2.6.1
->    2    12.44 almalinux:9                   : FAIL gcc version 11.5.0 20240719 (Red Hat 11.5.0-14) (GCC)
->     util/capstone.c: In function 'e_machine_to_capstone':
->     util/capstone.c:186:25: error: 'CS_ARCH_RISCV' undeclared (first use in this function); did you mean 'CS_ARCH_SYSZ'?
->       186 |                 *arch = CS_ARCH_RISCV;
->           |                         ^~~~~~~~~~~~~
->           |                         CS_ARCH_SYSZ
->     util/capstone.c:186:25: note: each undeclared identifier is reported only once for each function it appears in
->     util/capstone.c:187:34: error: 'CS_MODE_RISCV64' undeclared (first use in this function); did you mean 'CS_MODE_MIPS64'?
->       187 |                 *mode |= (is64 ? CS_MODE_RISCV64 : CS_MODE_RISCV32) | CS_MODE_RISCVC;
->           |                                  ^~~~~~~~~~~~~~~
->           |                                  CS_MODE_MIPS64
->     util/capstone.c:187:52: error: 'CS_MODE_RISCV32' undeclared (first use in this function); did you mean 'CS_MODE_MIPS32'?
->       187 |                 *mode |= (is64 ? CS_MODE_RISCV64 : CS_MODE_RISCV32) | CS_MODE_RISCVC;
->           |                                                    ^~~~~~~~~~~~~~~
->           |                                                    CS_MODE_MIPS32
->     util/capstone.c:187:71: error: 'CS_MODE_RISCVC' undeclared (first use in this function); did you mean 'CS_MODE_MICRO'?
->       187 |                 *mode |= (is64 ? CS_MODE_RISCV64 : CS_MODE_RISCV32) | CS_MODE_RISCVC;
->           |                                                                       ^~~~~~~~~~~~~~
->           |                                                                       CS_MODE_MICRO
->    3    17.54 almalinux:9-i386              : FAIL gcc version 11.4.1 20231218 (Red Hat 11.4.1-3) (GCC)
->     util/capstone.c: In function ‘e_machine_to_capstone’:
->     util/capstone.c:186:25: error: ‘CS_ARCH_RISCV’ undeclared (first use in this function); did you mean ‘CS_ARCH_SYSZ’?
->       186 |                 *arch = CS_ARCH_RISCV;
->           |                         ^~~~~~~~~~~~~
->           |                         CS_ARCH_SYSZ
->     util/capstone.c:186:25: note: each undeclared identifier is reported only once for each function it appears in
->     util/capstone.c:187:34: error: ‘CS_MODE_RISCV64’ undeclared (first use in this function); did you mean ‘CS_MODE_MIPS64’?
->       187 |                 *mode |= (is64 ? CS_MODE_RISCV64 : CS_MODE_RISCV32) | CS_MODE_RISCVC;
->           |                                  ^~~~~~~~~~~~~~~
->           |                                  CS_MODE_MIPS64
->     util/capstone.c:187:52: error: ‘CS_MODE_RISCV32’ undeclared (first use in this function); did you mean ‘CS_MODE_MIPS32’?
->       187 |                 *mode |= (is64 ? CS_MODE_RISCV64 : CS_MODE_RISCV32) | CS_MODE_RISCVC;
->           |                                                    ^~~~~~~~~~~~~~~
->           |                                                    CS_MODE_MIPS32
->     util/capstone.c:187:71: error: ‘CS_MODE_RISCVC’ undeclared (first use in this function); did you mean ‘CS_MODE_MICRO’?
->       187 |                 *mode |= (is64 ? CS_MODE_RISCV64 : CS_MODE_RISCV32) | CS_MODE_RISCVC;
->           |                                                                       ^~~~~~~~~~~~~~
->           |                                                                       CS_MODE_MICRO
->    4   101.24 almalinux:10                  : Ok   gcc (GCC) 14.3.1 20251022 (Red Hat 14.3.1-4) , clang version 21.1.8 (AlmaLinux OS Foundation 21.1.8-1.el10.alma.1) flex 2.6.4
->    5    21.66 alpine:3.16                   : FAIL gcc version 11.2.1 20220219 (Alpine 11.2.1_git20220219)
->     util/capstone.c: In function 'e_machine_to_capstone':
->     util/capstone.c:186:25: error: 'CS_ARCH_RISCV' undeclared (first use in this function); did you mean 'CS_ARCH_SYSZ'?
->       186 |                 *arch = CS_ARCH_RISCV;
->           |                         ^~~~~~~~~~~~~
->           |                         CS_ARCH_SYSZ
->     util/capstone.c:186:25: note: each undeclared identifier is reported only once for each function it appears in
->     util/capstone.c:187:34: error: 'CS_MODE_RISCV64' undeclared (first use in this function); did you mean 'CS_MODE_MIPS64'?
->       187 |                 *mode |= (is64 ? CS_MODE_RISCV64 : CS_MODE_RISCV32) | CS_MODE_RISCVC;
->           |                                  ^~~~~~~~~~~~~~~
->           |                                  CS_MODE_MIPS64
->     util/capstone.c:187:52: error: 'CS_MODE_RISCV32' undeclared (first use in this function); did you mean 'CS_MODE_MIPS32'?
->       187 |                 *mode |= (is64 ? CS_MODE_RISCV64 : CS_MODE_RISCV32) | CS_MODE_RISCVC;
->           |                                                    ^~~~~~~~~~~~~~~
->           |                                                    CS_MODE_MIPS32
->     util/capstone.c:187:71: error: 'CS_MODE_RISCVC' undeclared (first use in this function); did you mean 'CS_MODE_MICRO'?
->       187 |                 *mode |= (is64 ? CS_MODE_RISCV64 : CS_MODE_RISCV32) | CS_MODE_RISCVC;
->           |                                                                       ^~~~~~~~~~~~~~
->           |                                                                       CS_MODE_MICRO
->     make[3]: *** [/git/perf-7.1.0-rc5/tools/build/Makefile.build:158: util] Error 2
->    6    14.57 alpine:3.17                   : FAIL gcc version 12.2.1 20220924 (Alpine 12.2.1_git20220924-r4)
->     util/capstone.c: In function 'e_machine_to_capstone':
->     util/capstone.c:186:25: error: 'CS_ARCH_RISCV' undeclared (first use in this function); did you mean 'CS_ARCH_SYSZ'?
->       186 |                 *arch = CS_ARCH_RISCV;
->           |                         ^~~~~~~~~~~~~
->           |                         CS_ARCH_SYSZ
->     util/capstone.c:186:25: note: each undeclared identifier is reported only once for each function it appears in
->     util/capstone.c:187:34: error: 'CS_MODE_RISCV64' undeclared (first use in this function); did you mean 'CS_MODE_MIPS64'?
->       187 |                 *mode |= (is64 ? CS_MODE_RISCV64 : CS_MODE_RISCV32) | CS_MODE_RISCVC;
->           |                                  ^~~~~~~~~~~~~~~
->           |                                  CS_MODE_MIPS64
->     util/capstone.c:187:52: error: 'CS_MODE_RISCV32' undeclared (first use in this function); did you mean 'CS_MODE_MIPS32'?
->       187 |                 *mode |= (is64 ? CS_MODE_RISCV64 : CS_MODE_RISCV32) | CS_MODE_RISCVC;
->           |                                                    ^~~~~~~~~~~~~~~
->           |                                                    CS_MODE_MIPS32
->     util/capstone.c:187:71: error: 'CS_MODE_RISCVC' undeclared (first use in this function); did you mean 'CS_MODE_MICRO'?
->       187 |                 *mode |= (is64 ? CS_MODE_RISCV64 : CS_MODE_RISCV32) | CS_MODE_RISCVC;
->           |                                                                       ^~~~~~~~~~~~~~
->           |                                                                       CS_MODE_MICRO
->     make[3]: *** [/git/perf-7.1.0-rc5/tools/build/Makefile.build:158: util] Error 2
->    7    13.58 alpine:3.18                   : FAIL gcc version 12.2.1 20220924 (Alpine 12.2.1_git20220924-r10)
->     util/capstone.c: In function 'e_machine_to_capstone':
->     util/capstone.c:186:25: error: 'CS_ARCH_RISCV' undeclared (first use in this function); did you mean 'CS_ARCH_SYSZ'?
->       186 |                 *arch = CS_ARCH_RISCV;
->           |                         ^~~~~~~~~~~~~
->           |                         CS_ARCH_SYSZ
->     util/capstone.c:186:25: note: each undeclared identifier is reported only once for each function it appears in
->     util/capstone.c:187:34: error: 'CS_MODE_RISCV64' undeclared (first use in this function); did you mean 'CS_MODE_MIPS64'?
->       187 |                 *mode |= (is64 ? CS_MODE_RISCV64 : CS_MODE_RISCV32) | CS_MODE_RISCVC;
->           |                                  ^~~~~~~~~~~~~~~
->           |                                  CS_MODE_MIPS64
->     util/capstone.c:187:52: error: 'CS_MODE_RISCV32' undeclared (first use in this function); did you mean 'CS_MODE_MIPS32'?
->       187 |                 *mode |= (is64 ? CS_MODE_RISCV64 : CS_MODE_RISCV32) | CS_MODE_RISCVC;
->           |                                                    ^~~~~~~~~~~~~~~
->           |                                                    CS_MODE_MIPS32
->     util/capstone.c:187:71: error: 'CS_MODE_RISCVC' undeclared (first use in this function); did you mean 'CS_MODE_MICRO'?
->       187 |                 *mode |= (is64 ? CS_MODE_RISCV64 : CS_MODE_RISCV32) | CS_MODE_RISCVC;
->           |                                                                       ^~~~~~~~~~~~~~
->           |                                                                       CS_MODE_MICRO
->    8   127.15 alpine:3.19                   : Ok   gcc (Alpine 13.2.1_git20231014) 13.2.1 20231014 , Alpine clang version 17.0.5 flex 2.6.4
->    9   124.98 alpine:3.20                   : Ok   gcc (Alpine 13.2.1_git20240309) 13.2.1 20240309 , Alpine clang version 17.0.6 flex 2.6.4
->   10   134.36 alpine:3.22                   : Ok   gcc (Alpine 14.2.0) 14.2.0 , Alpine clang version 20.1.8 flex 2.6.4
->   11   128.47 alpine:3.23                   : Ok   gcc (Alpine 15.2.0) 15.2.0 , Alpine clang version 21.1.2 flex 2.6.4
->   12   134.59 alpine:edge                   : Ok   gcc (Alpine 14.2.0) 14.2.0 , Alpine clang version 19.1.4 flex 2.6.4
->   13    13.41 amazonlinux:2023              : FAIL gcc version 11.5.0 20240719 (Red Hat 11.5.0-5) (GCC)
->     util/capstone.c: In function 'e_machine_to_capstone':
->     util/capstone.c:186:25: error: 'CS_ARCH_RISCV' undeclared (first use in this function); did you mean 'CS_ARCH_SYSZ'?
->       186 |                 *arch = CS_ARCH_RISCV;
->           |                         ^~~~~~~~~~~~~
->           |                         CS_ARCH_SYSZ
->     util/capstone.c:186:25: note: each undeclared identifier is reported only once for each function it appears in
->     util/capstone.c:187:34: error: 'CS_MODE_RISCV64' undeclared (first use in this function); did you mean 'CS_MODE_MIPS64'?
->       187 |                 *mode |= (is64 ? CS_MODE_RISCV64 : CS_MODE_RISCV32) | CS_MODE_RISCVC;
->           |                                  ^~~~~~~~~~~~~~~
->           |                                  CS_MODE_MIPS64
->     util/capstone.c:187:52: error: 'CS_MODE_RISCV32' undeclared (first use in this function); did you mean 'CS_MODE_MIPS32'?
->       187 |                 *mode |= (is64 ? CS_MODE_RISCV64 : CS_MODE_RISCV32) | CS_MODE_RISCVC;
->           |                                                    ^~~~~~~~~~~~~~~
->           |                                                    CS_MODE_MIPS32
->     util/capstone.c:187:71: error: 'CS_MODE_RISCVC' undeclared (first use in this function); did you mean 'CS_MODE_MICRO'?
->       187 |                 *mode |= (is64 ? CS_MODE_RISCV64 : CS_MODE_RISCV32) | CS_MODE_RISCVC;
->           |                                                                       ^~~~~~~~~~~~~~
->           |                                                                       CS_MODE_MICRO
->     make[3]: *** [/git/perf-7.1.0-rc5/tools/build/Makefile.build:158: util] Error 2
->   14    14.14 amazonlinux:devel             : FAIL gcc version 11.3.1 20221121 (Red Hat 11.3.1-4) (GCC)
->     util/capstone.c: In function 'e_machine_to_capstone':
->     util/capstone.c:186:25: error: 'CS_ARCH_RISCV' undeclared (first use in this function); did you mean 'CS_ARCH_SYSZ'?
->       186 |                 *arch = CS_ARCH_RISCV;
->           |                         ^~~~~~~~~~~~~
->           |                         CS_ARCH_SYSZ
->     util/capstone.c:186:25: note: each undeclared identifier is reported only once for each function it appears in
->     util/capstone.c:187:34: error: 'CS_MODE_RISCV64' undeclared (first use in this function); did you mean 'CS_MODE_MIPS64'?
->       187 |                 *mode |= (is64 ? CS_MODE_RISCV64 : CS_MODE_RISCV32) | CS_MODE_RISCVC;
->           |                                  ^~~~~~~~~~~~~~~
->           |                                  CS_MODE_MIPS64
->     util/capstone.c:187:52: error: 'CS_MODE_RISCV32' undeclared (first use in this function); did you mean 'CS_MODE_MIPS32'?
->       187 |                 *mode |= (is64 ? CS_MODE_RISCV64 : CS_MODE_RISCV32) | CS_MODE_RISCVC;
->           |                                                    ^~~~~~~~~~~~~~~
->           |                                                    CS_MODE_MIPS32
->     util/capstone.c:187:71: error: 'CS_MODE_RISCVC' undeclared (first use in this function); did you mean 'CS_MODE_MICRO'?
->       187 |                 *mode |= (is64 ? CS_MODE_RISCV64 : CS_MODE_RISCV32) | CS_MODE_RISCVC;
->           |                                                                       ^~~~~~~~~~~~~~
->           |                                                                       CS_MODE_MICRO
->     make[3]: *** [/git/perf-7.1.0-rc5/tools/build/Makefile.build:158: util] Error 2
->   15   116.53 archlinux:base                : Ok   gcc (GCC) 15.2.1 20250813 , clang version 20.1.8 flex 2.6.4
->   16   130.36 centos:stream                 : Ok   gcc (GCC) 8.5.0 20210514 (Red Hat 8.5.0-21) , clang version 17.0.6 (Red Hat 17.0.6-1.module_el8+767+9fa966b8) flex 2.6.1
->   17   123.85 clearlinux:latest             : Ok   gcc (Clear Linux OS for Intel Architecture) 15.1.1 20250602 releases/gcc-15.1.0-174-gc096341a08 , clang version 20.1.0 flex 2.6.4
->   18    12.15 debian:10                     : FAIL gcc version 8.3.0 (Debian 8.3.0-6)
->     util/capstone.c: In function 'e_machine_to_capstone':
->     util/capstone.c:186:11: error: 'CS_ARCH_RISCV' undeclared (first use in this function); did you mean 'CS_ARCH_SYSZ'?
->        *arch = CS_ARCH_RISCV;
->                ^~~~~~~~~~~~~
->                CS_ARCH_SYSZ
->     util/capstone.c:186:11: note: each undeclared identifier is reported only once for each function it appears in
->     util/capstone.c:187:20: error: 'CS_MODE_RISCV64' undeclared (first use in this function); did you mean 'CS_MODE_MIPS64'?
->        *mode |= (is64 ? CS_MODE_RISCV64 : CS_MODE_RISCV32) | CS_MODE_RISCVC;
->                         ^~~~~~~~~~~~~~~
->                         CS_MODE_MIPS64
->     util/capstone.c:187:38: error: 'CS_MODE_RISCV32' undeclared (first use in this function); did you mean 'CS_MODE_MIPS32'?
->        *mode |= (is64 ? CS_MODE_RISCV64 : CS_MODE_RISCV32) | CS_MODE_RISCVC;
->                                           ^~~~~~~~~~~~~~~
->                                           CS_MODE_MIPS32
->     util/capstone.c:187:57: error: 'CS_MODE_RISCVC' undeclared (first use in this function); did you mean 'CS_MODE_MICRO'?
->        *mode |= (is64 ? CS_MODE_RISCV64 : CS_MODE_RISCV32) | CS_MODE_RISCVC;
->                                                              ^~~~~~~~~~~~~~
->                                                              CS_MODE_MICRO
->   19    12.08 debian:11                     : FAIL gcc version 10.2.1 20210110 (Debian 10.2.1-6)
->     util/capstone.c: In function 'e_machine_to_capstone':
->     util/capstone.c:186:11: error: 'CS_ARCH_RISCV' undeclared (first use in this function); did you mean 'CS_ARCH_SYSZ'?
->       186 |   *arch = CS_ARCH_RISCV;
->           |           ^~~~~~~~~~~~~
->           |           CS_ARCH_SYSZ
->     util/capstone.c:186:11: note: each undeclared identifier is reported only once for each function it appears in
->     util/capstone.c:187:20: error: 'CS_MODE_RISCV64' undeclared (first use in this function); did you mean 'CS_MODE_MIPS64'?
->       187 |   *mode |= (is64 ? CS_MODE_RISCV64 : CS_MODE_RISCV32) | CS_MODE_RISCVC;
->           |                    ^~~~~~~~~~~~~~~
->           |                    CS_MODE_MIPS64
->     util/capstone.c:187:38: error: 'CS_MODE_RISCV32' undeclared (first use in this function); did you mean 'CS_MODE_MIPS32'?
->       187 |   *mode |= (is64 ? CS_MODE_RISCV64 : CS_MODE_RISCV32) | CS_MODE_RISCVC;
->           |                                      ^~~~~~~~~~~~~~~
->           |                                      CS_MODE_MIPS32
->     util/capstone.c:187:57: error: 'CS_MODE_RISCVC' undeclared (first use in this function); did you mean 'CS_MODE_MICRO'?
->       187 |   *mode |= (is64 ? CS_MODE_RISCV64 : CS_MODE_RISCV32) | CS_MODE_RISCVC;
->           |                                                         ^~~~~~~~~~~~~~
->           |                                                         CS_MODE_MICRO
->   20    12.30 debian:12                     : FAIL gcc version 12.2.0 (Debian 12.2.0-14+deb12u1)
->     util/capstone.c: In function 'e_machine_to_capstone':
->     util/capstone.c:186:25: error: 'CS_ARCH_RISCV' undeclared (first use in this function); did you mean 'CS_ARCH_SYSZ'?
->       186 |                 *arch = CS_ARCH_RISCV;
->           |                         ^~~~~~~~~~~~~
->           |                         CS_ARCH_SYSZ
->     util/capstone.c:186:25: note: each undeclared identifier is reported only once for each function it appears in
->     util/capstone.c:187:34: error: 'CS_MODE_RISCV64' undeclared (first use in this function); did you mean 'CS_MODE_MIPS64'?
->       187 |                 *mode |= (is64 ? CS_MODE_RISCV64 : CS_MODE_RISCV32) | CS_MODE_RISCVC;
->           |                                  ^~~~~~~~~~~~~~~
->           |                                  CS_MODE_MIPS64
->     util/capstone.c:187:52: error: 'CS_MODE_RISCV32' undeclared (first use in this function); did you mean 'CS_MODE_MIPS32'?
->       187 |                 *mode |= (is64 ? CS_MODE_RISCV64 : CS_MODE_RISCV32) | CS_MODE_RISCVC;
->           |                                                    ^~~~~~~~~~~~~~~
->           |                                                    CS_MODE_MIPS32
->     util/capstone.c:187:71: error: 'CS_MODE_RISCVC' undeclared (first use in this function); did you mean 'CS_MODE_MICRO'?
->       187 |                 *mode |= (is64 ? CS_MODE_RISCV64 : CS_MODE_RISCV32) | CS_MODE_RISCVC;
->           |                                                                       ^~~~~~~~~~~~~~
->           |                                                                       CS_MODE_MICRO
->   21    94.47 debian:13                     : Ok   gcc (Debian 14.2.0-19) 14.2.0 , Debian clang version 19.1.7 (3+b1) flex 2.6.4
->   22   104.26 debian:experimental           : Ok   gcc (Debian 15.2.0-17) 15.2.0 , Debian clang version 21.1.8 (7+b1) flex 2.6.4
->   23    26.18 debian:experimental-x-arm64   : Ok   aarch64-linux-gnu-gcc (Debian 15.2.0-17) 15.2.0  flex 2.6.4
->   24    19.18 debian:experimental-x-mips    : Ok   mips-linux-gnu-gcc (Debian 14.2.0-13) 14.2.0  flex 2.6.4
->   25    19.94 debian:experimental-x-mips64  : Ok   mips64-linux-gnuabi64-gcc (Debian 14.2.0-13) 14.2.0  flex 2.6.4
->   26    19.03 debian:experimental-x-mipsel  : Ok   mipsel-linux-gnu-gcc (Debian 14.2.0-13) 14.2.0  flex 2.6.4
->   27    14.16 fedora:35                     : FAIL gcc version 11.3.1 20220421 (Red Hat 11.3.1-3) (GCC)
->     util/capstone.c: In function 'e_machine_to_capstone':
->     util/capstone.c:186:25: error: 'CS_ARCH_RISCV' undeclared (first use in this function); did you mean 'CS_ARCH_SYSZ'?
->       186 |                 *arch = CS_ARCH_RISCV;
->           |                         ^~~~~~~~~~~~~
->           |                         CS_ARCH_SYSZ
->     util/capstone.c:186:25: note: each undeclared identifier is reported only once for each function it appears in
->     util/capstone.c:187:34: error: 'CS_MODE_RISCV64' undeclared (first use in this function); did you mean 'CS_MODE_MIPS64'?
->       187 |                 *mode |= (is64 ? CS_MODE_RISCV64 : CS_MODE_RISCV32) | CS_MODE_RISCVC;
->           |                                  ^~~~~~~~~~~~~~~
->           |                                  CS_MODE_MIPS64
->     util/capstone.c:187:52: error: 'CS_MODE_RISCV32' undeclared (first use in this function); did you mean 'CS_MODE_MIPS32'?
->       187 |                 *mode |= (is64 ? CS_MODE_RISCV64 : CS_MODE_RISCV32) | CS_MODE_RISCVC;
->           |                                                    ^~~~~~~~~~~~~~~
->           |                                                    CS_MODE_MIPS32
->     util/capstone.c:187:71: error: 'CS_MODE_RISCVC' undeclared (first use in this function); did you mean 'CS_MODE_MICRO'?
->       187 |                 *mode |= (is64 ? CS_MODE_RISCV64 : CS_MODE_RISCV32) | CS_MODE_RISCVC;
->           |                                                                       ^~~~~~~~~~~~~~
->           |                                                                       CS_MODE_MICRO
->   28    13.01 fedora:36                     : FAIL gcc version 12.2.1 20221121 (Red Hat 12.2.1-4) (GCC)
->     util/capstone.c: In function 'e_machine_to_capstone':
->     util/capstone.c:186:25: error: 'CS_ARCH_RISCV' undeclared (first use in this function); did you mean 'CS_ARCH_SYSZ'?
->       186 |                 *arch = CS_ARCH_RISCV;
->           |                         ^~~~~~~~~~~~~
->           |                         CS_ARCH_SYSZ
->     util/capstone.c:186:25: note: each undeclared identifier is reported only once for each function it appears in
->     util/capstone.c:187:34: error: 'CS_MODE_RISCV64' undeclared (first use in this function); did you mean 'CS_MODE_MIPS64'?
->       187 |                 *mode |= (is64 ? CS_MODE_RISCV64 : CS_MODE_RISCV32) | CS_MODE_RISCVC;
->           |                                  ^~~~~~~~~~~~~~~
->           |                                  CS_MODE_MIPS64
->     util/capstone.c:187:52: error: 'CS_MODE_RISCV32' undeclared (first use in this function); did you mean 'CS_MODE_MIPS32'?
->       187 |                 *mode |= (is64 ? CS_MODE_RISCV64 : CS_MODE_RISCV32) | CS_MODE_RISCVC;
->           |                                                    ^~~~~~~~~~~~~~~
->           |                                                    CS_MODE_MIPS32
->     util/capstone.c:187:71: error: 'CS_MODE_RISCVC' undeclared (first use in this function); did you mean 'CS_MODE_MICRO'?
->       187 |                 *mode |= (is64 ? CS_MODE_RISCV64 : CS_MODE_RISCV32) | CS_MODE_RISCVC;
->           |                                                                       ^~~~~~~~~~~~~~
->           |                                                                       CS_MODE_MICRO
->   29    11.56 fedora:37                     : FAIL gcc version 12.3.1 20230508 (Red Hat 12.3.1-1) (GCC)
->     util/capstone.c: In function 'e_machine_to_capstone':
->     util/capstone.c:186:25: error: 'CS_ARCH_RISCV' undeclared (first use in this function); did you mean 'CS_ARCH_SYSZ'?
->       186 |                 *arch = CS_ARCH_RISCV;
->           |                         ^~~~~~~~~~~~~
->           |                         CS_ARCH_SYSZ
->     util/capstone.c:186:25: note: each undeclared identifier is reported only once for each function it appears in
->     util/capstone.c:187:34: error: 'CS_MODE_RISCV64' undeclared (first use in this function); did you mean 'CS_MODE_MIPS64'?
->       187 |                 *mode |= (is64 ? CS_MODE_RISCV64 : CS_MODE_RISCV32) | CS_MODE_RISCVC;
->           |                                  ^~~~~~~~~~~~~~~
->           |                                  CS_MODE_MIPS64
->     util/capstone.c:187:52: error: 'CS_MODE_RISCV32' undeclared (first use in this function); did you mean 'CS_MODE_MIPS32'?
->       187 |                 *mode |= (is64 ? CS_MODE_RISCV64 : CS_MODE_RISCV32) | CS_MODE_RISCVC;
->           |                                                    ^~~~~~~~~~~~~~~
->           |                                                    CS_MODE_MIPS32
->     util/capstone.c:187:71: error: 'CS_MODE_RISCVC' undeclared (first use in this function); did you mean 'CS_MODE_MICRO'?
->       187 |                 *mode |= (is64 ? CS_MODE_RISCV64 : CS_MODE_RISCV32) | CS_MODE_RISCVC;
->           |                                                                       ^~~~~~~~~~~~~~
->           |                                                                       CS_MODE_MICRO
->   30    11.70 fedora:38                     : FAIL gcc version 13.2.1 20231011 (Red Hat 13.2.1-4) (GCC)
->     util/capstone.c: In function 'e_machine_to_capstone':
->     util/capstone.c:186:25: error: 'CS_ARCH_RISCV' undeclared (first use in this function); did you mean 'CS_ARCH_SYSZ'?
->       186 |                 *arch = CS_ARCH_RISCV;
->           |                         ^~~~~~~~~~~~~
->           |                         CS_ARCH_SYSZ
->     util/capstone.c:186:25: note: each undeclared identifier is reported only once for each function it appears in
->     util/capstone.c:187:34: error: 'CS_MODE_RISCV64' undeclared (first use in this function); did you mean 'CS_MODE_MIPS64'?
->       187 |                 *mode |= (is64 ? CS_MODE_RISCV64 : CS_MODE_RISCV32) | CS_MODE_RISCVC;
->           |                                  ^~~~~~~~~~~~~~~
->           |                                  CS_MODE_MIPS64
->     util/capstone.c:187:52: error: 'CS_MODE_RISCV32' undeclared (first use in this function); did you mean 'CS_MODE_MIPS32'?
->       187 |                 *mode |= (is64 ? CS_MODE_RISCV64 : CS_MODE_RISCV32) | CS_MODE_RISCVC;
->           |                                                    ^~~~~~~~~~~~~~~
->           |                                                    CS_MODE_MIPS32
->     util/capstone.c:187:71: error: 'CS_MODE_RISCVC' undeclared (first use in this function); did you mean 'CS_MODE_MICRO'?
->       187 |                 *mode |= (is64 ? CS_MODE_RISCV64 : CS_MODE_RISCV32) | CS_MODE_RISCVC;
->           |                                                                       ^~~~~~~~~~~~~~
->           |                                                                       CS_MODE_MICRO
->   31    12.18 fedora:39                     : FAIL gcc version 13.3.1 20240913 (Red Hat 13.3.1-3) (GCC)
->     util/capstone.c: In function 'e_machine_to_capstone':
->     util/capstone.c:186:25: error: 'CS_ARCH_RISCV' undeclared (first use in this function); did you mean 'CS_ARCH_SYSZ'?
->       186 |                 *arch = CS_ARCH_RISCV;
->           |                         ^~~~~~~~~~~~~
->           |                         CS_ARCH_SYSZ
->     util/capstone.c:186:25: note: each undeclared identifier is reported only once for each function it appears in
->     util/capstone.c:187:34: error: 'CS_MODE_RISCV64' undeclared (first use in this function); did you mean 'CS_MODE_MIPS64'?
->       187 |                 *mode |= (is64 ? CS_MODE_RISCV64 : CS_MODE_RISCV32) | CS_MODE_RISCVC;
->           |                                  ^~~~~~~~~~~~~~~
->           |                                  CS_MODE_MIPS64
->     util/capstone.c:187:52: error: 'CS_MODE_RISCV32' undeclared (first use in this function); did you mean 'CS_MODE_MIPS32'?
->       187 |                 *mode |= (is64 ? CS_MODE_RISCV64 : CS_MODE_RISCV32) | CS_MODE_RISCVC;
->           |                                                    ^~~~~~~~~~~~~~~
->           |                                                    CS_MODE_MIPS32
->     util/capstone.c:187:71: error: 'CS_MODE_RISCVC' undeclared (first use in this function); did you mean 'CS_MODE_MICRO'?
->       187 |                 *mode |= (is64 ? CS_MODE_RISCV64 : CS_MODE_RISCV32) | CS_MODE_RISCVC;
->           |                                                                       ^~~~~~~~~~~~~~
->           |                                                                       CS_MODE_MICRO
->   32   111.06 fedora:40                     : Ok   gcc (GCC) 14.2.1 20240912 (Red Hat 14.2.1-3) , clang version 18.1.8 (Fedora 18.1.8-2.fc40) flex 2.6.4
->   33   107.16 fedora:41                     : Ok   gcc (GCC) 14.3.1 20251022 (Red Hat 14.3.1-4) , clang version 19.1.7 (Fedora 19.1.7-5.fc41) flex 2.6.4
->   34   106.95 fedora:42                     : Ok   gcc (GCC) 15.2.1 20260123 (Red Hat 15.2.1-7) , clang version 20.1.8 (Fedora 20.1.8-4.fc42) flex 2.6.4
->   35   103.93 fedora:43                     : Ok   gcc (GCC) 15.2.1 20260123 (Red Hat 15.2.1-7) , clang version 21.1.8 (Fedora 21.1.8-4.fc43) flex 2.6.4
->   36   108.14 fedora:44                     : Ok   gcc (GCC) 16.1.1 20260515 (Red Hat 16.1.1-2) , clang version 22.1.6 (Fedora 22.1.6-1.fc44) flex 2.6.4
->   37   109.25 fedora:45                     : Ok   gcc (GCC) 16.1.1 20260515 (Red Hat 16.1.1-2) , clang version 22.1.6 (Fedora 22.1.6-1.fc45) flex 2.6.4
->   38   106.11 fedora:rawhide                : Ok   gcc (GCC) 16.1.1 20260515 (Red Hat 16.1.1-2) , clang version 22.1.6 (Fedora 22.1.6-1.fc45) flex 2.6.4
->   39    43.21 gentoo:stage3                 : Ok   gcc (Gentoo 13.3.1_p20240614 p17) 13.3.1 20240614  flex 2.6.4
-> toolsbuilder@five:~$
-> 
-> 
+Can this create a DoS if a device continues to generate errors and
+nobody is consuming them?  Userspace could ignore the error.  This
+should probably be _ratelimited.
+
+pr_err + pci_name suggests this should be a pci_ or dev_ call and since
+the pci variant doesn't exist, use dev_warn_ratelimited().
+
+> +		return -ENOMEM;
+> +	}
+> +
+> +	i = zdev->pending_errs.tail % ZPCI_ERR_PENDING_MAX;
+> +	memcpy(&zdev->pending_errs.err[i], ccdf, sizeof(struct zpci_ccdf_err));
+> +	zdev->pending_errs.tail++;
+> +	zdev->pending_errs.count++;
+> +	return 0;
+> +}
+> +
+> +void zpci_start_mediated_recovery(struct zpci_dev *zdev)
+> +{
+> +	guard(mutex)(&zdev->pending_errs_lock);
+> +	zdev->pending_errs.mediated_recovery = true;
+> +}
+> +EXPORT_SYMBOL_GPL(zpci_start_mediated_recovery);
+> +
+> +void zpci_stop_mediated_recovery(struct zpci_dev *zdev)
+> +{
+> +	guard(mutex)(&zdev->pending_errs_lock);
+> +	zdev->pending_errs.mediated_recovery = false;
+> +	if (zdev->pending_errs.count)
+> +		pr_info("Unhandled PCI error events count=%d for PCI function 0x%x\n",
+> +			zdev->pending_errs.count, zdev->fid);
+
+It seems like there's always a race that an error could occur as the
+user is closing the device.  Is this really worth logging at anything
+more than a dbg level, pci_dbg() in this case?
+
+> +	memset(&zdev->pending_errs, 0, sizeof(struct zpci_ccdf_pending));
+> +}
+> +EXPORT_SYMBOL_GPL(zpci_stop_mediated_recovery);
+> +
+>  static pci_ers_result_t zpci_event_notify_error_detected(struct pci_dev *pdev,
+>  							 struct pci_driver *driver)
+>  {
+> @@ -175,12 +187,15 @@ static pci_ers_result_t zpci_event_do_reset(struct pci_dev *pdev,
+>   * and the platform determines which functions are affected for
+>   * multi-function devices.
+>   */
+> -static pci_ers_result_t zpci_event_attempt_error_recovery(struct pci_dev *pdev)
+> +static pci_ers_result_t zpci_event_attempt_error_recovery(struct pci_dev *pdev,
+> +							  struct zpci_ccdf_err *ccdf)
+>  {
+>  	pci_ers_result_t ers_res = PCI_ERS_RESULT_DISCONNECT;
+>  	struct zpci_dev *zdev = to_zpci(pdev);
+> +	bool mediated_recovery = false;
+>  	char *status_str = "success";
+>  	struct pci_driver *driver;
+> +	int rc;
+>  
+>  	/*
+>  	 * Ensure that the PCI function is not removed concurrently, no driver
+> @@ -194,13 +209,6 @@ static pci_ers_result_t zpci_event_attempt_error_recovery(struct pci_dev *pdev)
+>  	}
+>  	pdev->error_state = pci_channel_io_frozen;
+>  
+> -	if (is_passed_through(pdev)) {
+> -		pr_info("%s: Cannot be recovered in the host because it is a pass-through device\n",
+> -			pci_name(pdev));
+> -		status_str = "failed (pass-through)";
+> -		goto out_unlock;
+> -	}
+> -
+>  	driver = to_pci_driver(pdev->dev.driver);
+>  	if (!is_driver_supported(driver)) {
+>  		if (!driver) {
+> @@ -216,12 +224,24 @@ static pci_ers_result_t zpci_event_attempt_error_recovery(struct pci_dev *pdev)
+>  		goto out_unlock;
+>  	}
+>  
+> +	rc = zpci_store_pci_error(pdev, ccdf);
+> +	if (!rc || rc == -ENOMEM)
+> +		mediated_recovery = true;
+
+This is a convoluted way to get the state of
+zdev->pending_errs.mediated_recovery, which becomes invalid out of
+pending_errs_lock anyway.
+
+> +
+>  	ers_res = zpci_event_notify_error_detected(pdev, driver);
+>  	if (ers_result_indicates_abort(ers_res)) {
+>  		status_str = "failed (abort on detection)";
+>  		goto out_unlock;
+>  	}
+>  
+> +	if (mediated_recovery) {
+> +		pr_info("%s: Leaving recovery of pass-through device to user-space\n",
+> +			pci_name(pdev));
+> +		ers_res = PCI_ERS_RESULT_RECOVERED;
+> +		status_str = "in progress";
+> +		goto out_unlock;
+> +	}
+
+Since zdev->pending_errs.mediated_recovery is only valid while holding
+pending_errs_lock, this is really no better than the
+is_passed_through() test.
+
+> +
+>  	if (ers_res != PCI_ERS_RESULT_NEED_RESET) {
+>  		ers_res = zpci_event_do_error_state_clear(pdev, driver);
+>  		if (ers_result_indicates_abort(ers_res)) {
+> @@ -266,25 +286,19 @@ static pci_ers_result_t zpci_event_attempt_error_recovery(struct pci_dev *pdev)
+>   * @pdev: PCI function for which to report
+>   * @es: PCI channel failure state to report
+>   */
+> -static void zpci_event_io_failure(struct pci_dev *pdev, pci_channel_state_t es)
+> +static void zpci_event_io_failure(struct pci_dev *pdev, pci_channel_state_t es,
+> +				  struct zpci_ccdf_err *ccdf)
+>  {
+>  	struct pci_driver *driver;
+>  
+>  	pci_dev_lock(pdev);
+>  	pdev->error_state = es;
+> -	/**
+> -	 * While vfio-pci's error_detected callback notifies user-space QEMU
+> -	 * reacts to this by freezing the guest. In an s390 environment PCI
+> -	 * errors are rarely fatal so this is overkill. Instead in the future
+> -	 * we will inject the error event and let the guest recover the device
+> -	 * itself.
+> -	 */
+> -	if (is_passed_through(pdev))
+> -		goto out;
+> +
+> +	zpci_store_pci_error(pdev, ccdf);
+>  	driver = to_pci_driver(pdev->dev.driver);
+>  	if (driver && driver->err_handler && driver->err_handler->error_detected)
+>  		driver->err_handler->error_detected(pdev, pdev->error_state);
+
+How do you intend to stage this versus QEMU changes?  This seems like a
+big regression if we're suddenly triggering the eventfd that causes
+QEMU to halt.  Do you need userspace to opt-in to mediated recovery
+rather than automatically enabling it on open?  Thanks,
+
+Alex
