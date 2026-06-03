@@ -1,144 +1,126 @@
-Received: from fout-b3-smtp.messagingengine.com (fout-b3-smtp.messagingengine.com [202.12.124.146])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 129C93D1AB9;
-	Wed,  3 Jun 2026 15:55:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.146
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 386E03E5ED1;
+	Wed,  3 Jun 2026 18:17:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780502146; cv=none; b=Btm79K403oFxeGE567Z+QbE3khkHacn35IcxPTW0tHSUTHEND0plWxyFvSQ/7JXucnLua4guOESr/5Y3RNwQE7ONPHjNsuYqiMOgc3GaTXwUB7Tsr3WOvsTEHYp57T4uyRY0/kVMiUABn9dPPQ1XSbQ9MLUhigcfMjLarLsXAfs=
+	t=1780510627; cv=none; b=Cuxn0ySRTgfA9SkRXNkkUsgkpitc2m9yu/XQ11gvyFcvVPZs49vJkE7PfWg6iAjHwNq+krLRuwl5ki3Hpfw4Xbb6leMTll3/oWYNIFtXd4XpvGyhUtProVCrb9tEF1JDIeUc+NpkwzF08+h/XhlsWGINocEYXYduyTzuAogJA+w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780502146; c=relaxed/simple;
-	bh=CpOEBci1S0yDrojRiu0x6Jvr78Xec38h1qPmQyLe6yk=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=WuHX/IqbZYrTuHrCHHYBcqhJ3XbnTIE2JSvmn6EnPtG6bMi0tvId3xd6uXGxfxCs6mZzCkadbfv6WJDSaQX9XAp4VupVdCdoF4g/F7YBav6QSKU9YbGFkTU40t07Moh+hg2t1s0uF+jtIP9SV2oSg+2fnj93A41+8Yy1J5jL/sM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shazbot.org; spf=pass smtp.mailfrom=shazbot.org; dkim=pass (2048-bit key) header.d=shazbot.org header.i=@shazbot.org header.b=CoBNdgNg; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=lKw5N7Ze; arc=none smtp.client-ip=202.12.124.146
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shazbot.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=shazbot.org
+	s=arc-20240116; t=1780510627; c=relaxed/simple;
+	bh=fpXkfZQXNzLCZ2LykkJctSOfOTToT/DpxY9prrVCwvk=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=bvN5eVQB6d0+X67/wRfAyqBPnPfrSG04l4X4Q9NTRo0sDQvR5im5Jj1ONXAshH9H7lRd/XGjFXHgQYRgsEG6bwvT60O7zGbaL1IxIICu7dlr2hSUSPw4CM27LcVmVlWvmu6h4Kr7Ect188LHvHK/BH2oskiUrZacjqCKxwDaNxQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=E858XnBm; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=shazbot.org header.i=@shazbot.org header.b="CoBNdgNg";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="lKw5N7Ze"
-Received: from phl-compute-02.internal (phl-compute-02.internal [10.202.2.42])
-	by mailfout.stl.internal (Postfix) with ESMTP id 8E8871D00123;
-	Wed,  3 Jun 2026 11:55:41 -0400 (EDT)
-Received: from phl-frontend-03 ([10.202.2.162])
-  by phl-compute-02.internal (MEProxy); Wed, 03 Jun 2026 11:55:42 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=shazbot.org; h=
-	cc:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm3; t=1780502141;
-	 x=1780588541; bh=7i/oZn53Y2C8KfYj1KoYmGPqJk2N5MSRWpMtA2+SDQQ=; b=
-	CoBNdgNgAh1QvX3EyL/ICs+I5hkD+ZJeyfXV4GKKJgMFkB7aIu7yRyYMRmEYNkrX
-	d4dNpHGGQtvf6nImu7mU5GC+pzG8FynYpS5E4kytmEQrPIyx4ykAutCmfQsZJePj
-	a7QeboC5wU7JbTU8F7S41XE96Xz4hpnHytYFOdHob1UltlRrKrV2XsaD+W22Pt6t
-	3oAP9EdAezZM9iQGGWIcsVgBM07nmXp3uO8B7icsLk1g16cq5J3IAbiEHhJWmFZw
-	D/yOtzN6n5hcFqri7c3UPM+YT/DvCWnp6WBYYXLM86P//OMK57JVv514XFw0MYH4
-	s10mFiZD+M58mcnN8uEKLQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1780502141; x=
-	1780588541; bh=7i/oZn53Y2C8KfYj1KoYmGPqJk2N5MSRWpMtA2+SDQQ=; b=l
-	Kw5N7ZelfiZZOI/D2AfXCaYslNlWa/aJWfPndlvanoX1zO8usi6n7lq3cR2b8Zn6
-	wnUOKe1Tv75KevfzromuOIcoP+DQasSrWRJFbqU0K76Gd5RrSRP32s3TrQR2EFqo
-	tILMG/OX7pqflE1P0m3YPnTSBabnlwngdR6hE+yYq9TDs8EJQFHhER818iddTFaZ
-	91DOeKsil9v0L6H6GrlK9yo/+TvQuLKjKnbG/y6NzlTeMff3/OVTk966OOPTa0tF
-	DAAYCrYNLSQ0hL0FluHekHc+49ZZXB05+rjJ5GcIs5ZyrFTaCPvE8UYYT5wmmww/
-	J/yMFC9WchJgNRLsohOSw==
-X-ME-Sender: <xms:fE4gaj8q0_iMz3fnYKNpxpbKtKWchFCyPb4GZB8g2hlI0X6MmDZc1Q>
-    <xme:fE4gahEuDKALcJ_5bJvg-5NBHYuqT7hI7LILyXlVPi00WpuViJtRus5-GivFELQpm
-    k4qiptW_Uppqr4u-kA5euPNSNch6qeWm5y2_Vz2sr8eKhUenNg2z2Q>
-X-ME-Received: <xmr:fE4gaqSi9ee5VTfrDisIwuWni_1Btq4s7THeqOEjI0Edap-b7z8mmd7d_gU>
-X-ME-Proxy-Cause: dmFkZTEn0rqgkoZnG7xgVdki9RX1mvKYhiMqjaAIJARt4dSwQn7SWdu68GYZQP2Ze72dgq
-    YdaFE2sjcWMsTbTibBWJljW/WqPFVQgNlDoscQ86enXckwmSz0jK29ukFFg201Ol8881mq
-    kOYAGvcsTUGWP50spnruXiWaeGduSsbGIffZZVa5e1tqY45+v+Qw7SJ4an8DBmNRMQ1JV5
-    m4XMogjV8RM6sa2Y5ByzD0EJTSmhiR26rf7IyNJXMZqd01ZsrEz5wx87bkXI7oXM/0IG+m
-    LGm6pDJ89Cf3VJy/F6F5xMRx+e/zW88ALUx5xxd8CTU3nCNtT48dOyzNyOdcTpHmyPy3VX
-    av21U09MuxCNRHriEHWM5I7eHm5Xgv41awjvgQob8lPYcGGOkLNdQ2KMyobYr3YsAx6Kk4
-    xzA+rYKPpoqi34oVGKLG/jezxax9xF51hqabCM9bzmD4Z8wMk8xkkkUy4VmbmHn4+lA3nE
-    KirxC3ssG2ngvKZc4rs+1QRgUVI0dh4BxvDaHeGTN0AE7ILbDUfBFmdtLSoAY5sP5WbpIB
-    RSVsLNe1BWpRqaoyPbWcqDF2k9Wu1yJJuBlc7f3/mP7buFq3SzRsmH3QYE4nsPcBVP1RLu
-    jAVYL6d39Y/i7z0yR+ZAdpZocwqQw1RxHProjhTJp4GKWfS1hWqmksLhSsLQ
-X-ME-Proxy: <xmx:fE4gantO3J5v6_Vunvdwi-qRWDIHm7-rgTyWgbgMiL_TyXa2YwCPeQ>
-    <xmx:fU4gavD1Watyn1_h0mXnMEUYnjGFAentRBPJT9DQnViOori22pzQzQ>
-    <xmx:fU4gase0ZrZ9Skj4HV8a_tFnXprd9xwssThz4flT6-sZqt28DUHIeg>
-    <xmx:fU4gavoUidthQKWrC2FUVHYQYbxRnebpOc_0wieQiaF5wEcnLKq7aw>
-    <xmx:fU4gat-MmJAQTubEKQ5W7Zk5eTThYxE122kNGw2gbGhFv0LL4FOu8Myy>
-Feedback-ID: i03f14258:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
- 3 Jun 2026 11:55:39 -0400 (EDT)
-Date: Wed, 3 Jun 2026 09:55:38 -0600
-From: Alex Williamson <alex@shazbot.org>
-To: Omar Elghoul <oelghoul@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
- kvm@vger.kernel.org, hca@linux.ibm.com, gor@linux.ibm.com,
- agordeev@linux.ibm.com, borntraeger@linux.ibm.com, svens@linux.ibm.com,
- schnelle@linux.ibm.com, mjrosato@linux.ibm.com, alifm@linux.ibm.com,
- farman@linux.ibm.com, gbayer@linux.ibm.com, alex@shazbot.org
-Subject: Re: [PATCH v2 2/3] vfio-pci/zdev: Add VFIO FMB device feature
-Message-ID: <20260603095538.65b07206@shazbot.org>
-In-Reply-To: <395b0d85-3057-4bd5-b8cc-10ceea2d978a@linux.ibm.com>
-References: <20260519224204.19154-1-oelghoul@linux.ibm.com>
-	<20260519224204.19154-3-oelghoul@linux.ibm.com>
-	<20260602162409.1ca3c765@shazbot.org>
-	<395b0d85-3057-4bd5-b8cc-10ceea2d978a@linux.ibm.com>
-X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-pc-linux-gnu)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="E858XnBm"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6537b5he1089524;
+	Wed, 3 Jun 2026 18:16:53 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=l2/X+5jTe4MP4IjTxuC/AIp3wqannANSoQewR3pww
+	Oc=; b=E858XnBmG/9/apJQ5ysumYBX8Q0Eqf3Ocwop2ywe/c4QeJHM7xM7sRtua
+	6RXdc8UwynYGQJ8yn7A0/ORV7BiGudt8WslG14PN5XH5SeeXs+Goz4YcO3g/14p7
+	YXu9lBHWxafuTx9GRvkUVsEhb3qxjzlv7h/CrzngC63XdIeb5Qt1iOVhw2urVQpa
+	dBBAMLchC6QlgZUUmqZcf0op71KjS9psl+1Mn5E60EeEpUifXX64WpmRnfFZTw4n
+	eBWhhFPdn6zfGmwUBxXqfkv5ScMRd6aEIiyg1r4a8v5A97/JGl9zGQYtLbAWS7Mj
+	yYns5MOwkpHpn8Ci3Wk/0i+hVlZmg==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4efqjqcbcm-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 03 Jun 2026 18:16:53 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 653I9AOA005431;
+	Wed, 3 Jun 2026 18:16:52 GMT
+Received: from smtprelay02.dal12v.mail.ibm.com ([172.16.1.4])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4egb7k9h9b-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 03 Jun 2026 18:16:52 +0000 (GMT)
+Received: from smtpav03.dal12v.mail.ibm.com (smtpav03.dal12v.mail.ibm.com [10.241.53.102])
+	by smtprelay02.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 653IGppR20972056
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 3 Jun 2026 18:16:51 GMT
+Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4E3AA5805A;
+	Wed,  3 Jun 2026 18:16:51 +0000 (GMT)
+Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9DD135803F;
+	Wed,  3 Jun 2026 18:16:50 +0000 (GMT)
+Received: from IBM-D32RQW3.ibm.com (unknown [9.61.254.14])
+	by smtpav03.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Wed,  3 Jun 2026 18:16:50 +0000 (GMT)
+From: Farhan Ali <alifm@linux.ibm.com>
+To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-pci@vger.kernel.org
+Cc: helgaas@kernel.org, alex@shazbot.org, alifm@linux.ibm.com,
+        schnelle@linux.ibm.com, mjrosato@linux.ibm.com
+Subject: [PATCH v18 0/3] [PCI] Error recovery for vfio-pci devices on s390x
+Date: Wed,  3 Jun 2026 11:16:44 -0700
+Message-ID: <20260603181647.2215-1-alifm@linux.ibm.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: G9cHJXAdcgystO30zZFn_uq0rS9mqwc7
+X-Proofpoint-GUID: G9cHJXAdcgystO30zZFn_uq0rS9mqwc7
+X-Authority-Analysis: v=2.4 cv=bcVbluPB c=1 sm=1 tr=0 ts=6a206f95 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=uAbxVGIbfxUO_5tXvNgY:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8 a=r1p2_3pzAAAA:8
+ a=DzepMB1HdUfOtg11wVAA:9 a=zZCYzV9kfG8A:10 a=r_pkcD-q9-ctt7trBg_g:22
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjAzMDE3NSBTYWx0ZWRfX8uxXqe2/wNWQ
+ 2dpGe7uy1ugT59N+TSVi1/aUehrXNMojfU2zVOmjkI918266wUBJHDp1qfZYlWBagNvqn3zj+oM
+ T1pGDA6zJvxBbUVEI3BV/khS7tpzhCzE76yXsolH03e27IWaXZgLSvFD4YypscdO7s3CH94bGBR
+ 7ZDWQEsW426qmQsfsf+2LLFeDkp8pW3JtxXwwNHQDLg09WrN6FiWZbwq5ibi3omKgKqzsIAxuua
+ k2cEovIt4gM0AiyMqn7qneT+kBluqtUm7+5yA7L+//dtq7Z+eQwzZrbmnHfhP5JBjaQ5IOzNj5R
+ yb4do/St+Ml73PccS4p2twNWqZnLMhC0hzf6ChXC8ljyMQawlldETprAwpjsZouASYTnuf6flG0
+ RPGEINdvkciMD2TrGcxSeSegswMm+Cdgndhv/+41buUho4eMLCJ/cOWldxnbW33Tlelq6bdmcGb
+ MocbES5pXXpzBvi/MQA==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
+ definitions=2026-06-03_05,2026-05-28_03,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ impostorscore=0 clxscore=1015 adultscore=0 priorityscore=1501 phishscore=0
+ lowpriorityscore=0 bulkscore=0 malwarescore=0 spamscore=0 suspectscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2605210000 definitions=main-2606030175
 
-On Wed, 3 Jun 2026 08:35:43 -0400
-Omar Elghoul <oelghoul@linux.ibm.com> wrote:
+Hi Bjorn,
 
-> On 6/2/26 6:24 PM, Alex Williamson wrote:
-> >
-> > Why does the user need to be able to control these?  
-> We want the user (e.g. QEMU) to be able to control these so that when a
-> guest enables or disables the FMB, this state gets cascaded to the host and
-> all the way to the firmware.
-> >
-> > Doesn't allowing the user to disable FMB remove guaranteed host-based
-> > monitoring?  
-> Yes it does, but this one isn't an oversight and is intentional behavior
-> to achieve the functionality mentioned above. The host-based monitoring is
-> not necessarily guaranteed and is treated as a device-specific state, so it
-> makes sense in the case of passthrough to have that state reflect the state
-> of the guest that is actually using the device.
+This patch set includes only the PCI patches of the original series for
+error recovery for vfio-pci devices on s390x [1]. Breaking up the patch
+series into PCI and VFIO only patches to make merging easier based on
+discussion with Alex [2].
 
-If we really need a SET for enable/disable, I think it should be a
-separate feature.  It really makes no sense to pass a giant structure
-into a SET operation to look at the state of one flag bit.
+Thanks
+Farhan
 
-> > Since this is already provided via debugfs, why not make this a
-> > userspace problem to interact with the existing interface?  
-> It might be possible but it would undoubtedly be really ugly and harder to
-> maintain. I think what we'd dislike most about using debugfs is parsing
-> text data into the FMB structure. If any of the text representations of the
-> fields were to change, we would need to update them anywhere that uses them
-> (e.g., in QEMU or any other user driver). The ABI would be super fragile.
-> >
-> > Alternatively, couldn't the existing zpci mediation be extended to
-> > support the guest registering a fmb buffer to be written at regular
-> > intervals (the interface here seems to drop the reporting interval).  
-> The firmware only writes the FMB into one buffer every firmware-specified
-> interval. If we wanted to write the FMB directly into guest memory, we
-> would either 1) lose host access to the FMB or 2) have to run a periodic
-> worker in the kernel to copy the host FMB into the guest-provided buffer
-> every time the firmware does an update. I don't believe either of these
-> approaches are favorable.
-> 
-> WRT reporting interval, I intentionally dropped that one as it is already
-> provided by VFIO_DEVICE_INFO_CAP_ZPCI_GROUP.
+[1] https://lore.kernel.org/all/20260520171113.1111-1-alifm@linux.ibm.com/
+[2] https://lore.kernel.org/all/20260602163344.1eda12d2@shazbot.org/
 
-Hmm, I also see fmb_length in VFIO_DEVICE_INFO_CAP_ZPCI_BASE.  If we
-have that, do we really need structured data in the GET feature?  Maybe
-GET just provides a user pointer and the raw fmb data is copied to it.
-Thanks,
+ChangeLog
+---------
+v17 -> v18
+  - Rebase on 7.1-rc6.
 
-Alex
+Farhan Ali (3):
+  PCI: Allow per function PCI slots to fix slot reset on s390
+  PCI: Avoid saving config space state if inaccessible
+  PCI: Fail FLR when config space is inaccessible
+
+ drivers/pci/hotplug/rpaphp_slot.c |  2 +-
+ drivers/pci/pci.c                 | 32 ++++++++++++++++++++++++++++--
+ drivers/pci/slot.c                | 33 +++++++++++++++++++++++--------
+ include/linux/pci.h               |  8 ++++++--
+ 4 files changed, 62 insertions(+), 13 deletions(-)
+
+-- 
+2.43.0
+
