@@ -1,135 +1,132 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qk1-f169.google.com (mail-qk1-f169.google.com [209.85.222.169])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A4F4C382289;
-	Thu,  4 Jun 2026 17:17:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1259033D6FA
+	for <linux-s390@vger.kernel.org>; Thu,  4 Jun 2026 18:20:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780593432; cv=none; b=b7g1lY5lWo/rbzJ1cPiTOPYOYsAlfFwu7Rk43+6Y8qHgkvhdNcFXgrgHKXgH7Qab4ydBp1P8oA1VeZCJcb1XgfoA4BUkR+OrCY4soK83IaYPGR9ShJkz+RtMX4Yr7AlTJzW9Snz0bAYWS82UTWPNLAF5M01HN7r7/rE/s3p2DQk=
+	t=1780597235; cv=none; b=f1T9N8IoTMEjM2V13O1g2IBQ+0M/php77/UmHWp6VyqjuVFGfjxRHjY6KYEA0vo5Zykxx00ppCgfPyCKD/BOxD7lfsFJsM8thiHxRYjuExdAMnm7t/YCk00VOnMWn4zDLxjlPbBohUgV8Pq7gW+ZdABgAeiCu5wB8muAmds2r2Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780593432; c=relaxed/simple;
-	bh=G/5hFcQ+iI6kB80fovuEBmcW+3jgEoVYBVAIlLQoYTY=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=sMUjhGcTURMUPx8tZbSIwn87XdqoAni7fPgHHvs+ZwcovkivYKUTbvBi0Bgx76cQDZGxSfmGOD5b6ZbdKFnD9frdbBOwSBgP3nYYU2TQp01AtUV2wN8i6+vNsiSoqNpgYyrJOyRNXRFNXHOWpXohWc0IW5qtRbTjcj9RpFgIeAs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=lUvRXMng; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1780597235; c=relaxed/simple;
+	bh=ouL5XvfeSLQ6GEaEsqJR0/FGgzHrau6qGhqQ/UmaVCg=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=hM2mrdLcw9SspWoTZuUPuM72utRbExIo0kSlwHZZVl/AhpyfO84AdYosDAs346FnVEH4IuDlkMA2qB5iIwu5XUKv9e+wOL0JHKcRfyBL8QFeBY+8LbOARkF2A361/LdF+bkLILKlKzhsEHyxtadQFxe0dxPXQ4WiyPrK3/JRtdo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca; spf=pass smtp.mailfrom=ziepe.ca; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=bZJM9Ddc; arc=none smtp.client-ip=209.85.222.169
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="lUvRXMng"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6548MhSX063649;
-	Thu, 4 Jun 2026 17:17:07 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=pqcN5E
-	Gn/1nb6LweImPhkhz6aq6Ht7La6VqiKryEs6M=; b=lUvRXMngk1PJAHKcQOp6Hb
-	6EIqGc2PTFvdipNbdIlG5w8JjHnxIJE0inxvr9dYWZ4KAxA1mWCXCrQV8dQEduv4
-	JQ1B1iKo/L/qMCW2VdcyO8/ICC8tauCkDsbP9DNtY9+9cUi9BJzls64gwPMs1JDv
-	0rowkkJRWqpr/tkmcLoPIO6mVnaRSTSLOZbfyj4epssryxgFSoQPlg19youQSuAE
-	N7TRyHJPuY/TQJqXHyeYfsVR0P718X9R6KXrLE+V6mlgvbTmemRAS57z1yzZ5uji
-	/JdSTauQtGBR/gBil3VODIPriHg8dD5L2g956lslkdFVxoXKxaSmLGR6S5m55KDQ
-	==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4efqm58wc2-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 04 Jun 2026 17:17:07 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 654H97Lp031093;
-	Thu, 4 Jun 2026 17:17:06 GMT
-Received: from smtprelay06.dal12v.mail.ibm.com ([172.16.1.8])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4egb7ke3y4-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 04 Jun 2026 17:17:06 +0000 (GMT)
-Received: from smtpav06.dal12v.mail.ibm.com (smtpav06.dal12v.mail.ibm.com [10.241.53.105])
-	by smtprelay06.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 654HH52A26673712
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 4 Jun 2026 17:17:05 GMT
-Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3530A58055;
-	Thu,  4 Jun 2026 17:17:05 +0000 (GMT)
-Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 936D258043;
-	Thu,  4 Jun 2026 17:17:04 +0000 (GMT)
-Received: from [9.61.245.98] (unknown [9.61.245.98])
-	by smtpav06.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Thu,  4 Jun 2026 17:17:04 +0000 (GMT)
-Message-ID: <d9ca420b-a1e6-4d12-bd42-3993e401d58b@linux.ibm.com>
-Date: Thu, 4 Jun 2026 10:17:04 -0700
+	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="bZJM9Ddc"
+Received: by mail-qk1-f169.google.com with SMTP id af79cd13be357-915906a4becso120866585a.2
+        for <linux-s390@vger.kernel.org>; Thu, 04 Jun 2026 11:20:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ziepe.ca; s=google; t=1780597233; x=1781202033; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=cznawapF5vO4PWrDdsZF/fc6qNY58JTcnmMkw1TddjY=;
+        b=bZJM9Ddc41JZholXg+7Xw13JitkdVXhfvJNIwp+n21XOpUUmaTsj56rV12lxw1bACa
+         bymQmIsGk+gklIpxidxBCI7znUxxwGpMRQbMhTQnhzVUhy4a4DhwG+9fldnC/DIENL2x
+         uyHazBvUC8NYMS4CL7jeZldX2326HMV292vG7eDsYZptXRoYUa+0cmvE/Zr4vZPGRTo/
+         OO4mmsXFif3eGzAvDgoJoHZ6LUculXktoVTDGLHRvotMoqXWb7e4yXv+3b5vw0dQuq1t
+         eUbZCTx69hQK5MlkjNHbS+EdHvo8JeBKWNLiTKQHTUmN+hh5PJQSAremU83+Aky1zY+1
+         70QA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1780597233; x=1781202033;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=cznawapF5vO4PWrDdsZF/fc6qNY58JTcnmMkw1TddjY=;
+        b=K/LC69+k7WMZPWdsKMlQ5rkHGkAEGwQ5TaDghsY+94fUBCTo19fjrgosbMN+rsEtWj
+         fcdEmMR3GRSOI3gOhPyMLV2BRCzBsVeXKyLRm5vbN6QUxLiPByxPQmqdFbcxmSjTEQCt
+         8qt9ps6/NjWqZ6TAgAi+q0sLatyMR5EqUuXM2KwlmkMF44kRbrSk0lAhOxbRq3RKvaju
+         3szAwEvFW3+/6H97AXKUoE8YhSoifFbxsJzBf2T+mzAMP/hsAfdm+6I6R77hXdmnHznO
+         2XPWYWeXkPze9NetWjANtvMjIbwtZtxnskC49fdEDN9WQ8KgVIxPkxPFSSP1xgSrhh4b
+         D/Kg==
+X-Forwarded-Encrypted: i=1; AFNElJ+GpGpIK9HBg6qTkfxzVEmduh6n5qnbJgutTAkwb3fwWoJoVeeXy0HpjVdXJa4bjFSiO3Z9AdHWJ5ca@vger.kernel.org
+X-Gm-Message-State: AOJu0YxtdKrQE41s3L7TqRHFDabHXtWdPMVatFaU7c6YnyQkf1uC3wUa
+	E7D/i61ylEManzRbMDIrEIMWsJfAivqxGnSPuMdkRMJNVftoTqh+RSX6ToQHVUyJQ4M=
+X-Gm-Gg: Acq92OEQf5C2zjMhWKiNhGBKP1zxHLF2GhIk9F0F+2aUToV3PIVMKKwCkMXgdKKKQRX
+	NbiBe9m8kBpk6jo5LMyOmTt/oSdzx5ZLb7HWmAtjfedNWbQ58U1y5cS2D1q5J7GRR3XzaUb2Hxj
+	x1JMowZS+Txgoo8z9J1Wa+xdVl47XGp20czzK4+UiDV2WUpQxMw8JQTM1Z2U4xmBOst+AHQhuyW
+	Mnr2YER3HBnz4WDuJd/aG36Cv1gwSEy6KnBOApllvkgMD9p0uRwmz18psunelnuwcHsPgrqtbv1
+	eNaNh//jz96UMGPvzl6HKuzUeq3HE5ovCtuIzy3qFxZOsxHmCQ2rnAOceZ5TU/5YB68ZLtLx8R6
+	+VIAEcL2cjkTU20vDXZzy4PYqtiStvUZ5IqywJn7ZuzHFRql2fFJ0STCVHQM21HjhY+NY2ZsKnU
+	HsCSIZj9FzeEtX51wgPY6DCvY3BXC5MVieb0UelPQDl8D5tQfW6sVLBUECjr6snR6u6ooKp/giQ
+	AAwqz2lTigi/JPs
+X-Received: by 2002:a05:620a:a414:20b0:914:afc1:c66d with SMTP id af79cd13be357-915a9c75c96mr40356185a.11.1780597232897;
+        Thu, 04 Jun 2026 11:20:32 -0700 (PDT)
+Received: from ziepe.ca (crbknf0213w-47-54-130-67.pppoe-dynamic.high-speed.nl.bellaliant.net. [47.54.130.67])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8cecd051d61sm58430626d6.29.2026.06.04.11.20.32
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 04 Jun 2026 11:20:32 -0700 (PDT)
+Received: from jgg by wakko with local (Exim 4.97)
+	(envelope-from <jgg@ziepe.ca>)
+	id 1wVCgB-00000008erz-2jW4;
+	Thu, 04 Jun 2026 15:20:31 -0300
+Date: Thu, 4 Jun 2026 15:20:31 -0300
+From: Jason Gunthorpe <jgg@ziepe.ca>
+To: Dimitri Daskalakis <dimitri.daskalakis1@gmail.com>
+Cc: Bjorn Helgaas <bhelgaas@google.com>, linux-pci@vger.kernel.org,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Christophe Leroy <chleroy@kernel.org>,
+	Mahesh J Salgaonkar <mahesh@linux.ibm.com>,
+	Oliver O'Halloran <oohall@gmail.com>,
+	Niklas Schnelle <schnelle@linux.ibm.com>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Alex Williamson <alex@shazbot.org>,
+	Kevin Tian <kevin.tian@intel.com>,
+	Ankit Agrawal <ankita@nvidia.com>,
+	Leon Romanovsky <leon@kernel.org>, Juergen Gross <jgross@suse.com>,
+	Stefano Stabellini <sstabellini@kernel.org>,
+	Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
+	Keith Busch <kbusch@kernel.org>,
+	Alexander Duyck <alexanderduyck@fb.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Dimitri Daskalakis <daskald@meta.com>,
+	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+	kvm@vger.kernel.org, xen-devel@lists.xenproject.org
+Subject: Re: [RFC 00/12] PCI: Add support for Scalable I/O Virtualization
+Message-ID: <20260604182031.GB2487554@ziepe.ca>
+References: <20260604150153.3619662-1-dimitri.daskalakis1@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v18 3/4] vfio/pci: Add a reset_done callback for vfio-pci
- driver
-To: Keith Busch <kbusch@kernel.org>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-pci@vger.kernel.org, alex@shazbot.org, helgaas@kernel.org,
-        schnelle@linux.ibm.com, mjrosato@linux.ibm.com,
-        Julian Ruess <julianr@linux.ibm.com>
-References: <20260603182415.2324-1-alifm@linux.ibm.com>
- <20260603182415.2324-4-alifm@linux.ibm.com> <aiE3I0bL0TX1nOec@kbusch-mbp>
-Content-Language: en-US
-From: Farhan Ali <alifm@linux.ibm.com>
-In-Reply-To: <aiE3I0bL0TX1nOec@kbusch-mbp>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: Z2mQN0OpXymqbJL7E5EIooNgYz3Jq6qO
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjA0MDE2NyBTYWx0ZWRfXwXCxfMvZ0Our
- gVj7KLgDnKsa7EnOU8c7zvy5ZACCKyU1Y122YxLYKbZ+JmPYeuf0LopbAED+A6hOyexw5unwf3c
- 9fGKr5vlpUU+70Esu7j8zQsz4g+CtShcqQcpleOxhC9euLEFqgamasahbr9mMNI5BZpLxTrdjOy
- 3HzHsF2kNwlX1+vPAdBodSwpNDWy2VG/XU5CrUFnje74pfQ4dYzhEHGCBGDG5v0Vl7Wv4fNffGF
- wuGplgaIHAR0zxzUOfXIbV4ShN8NampubQGoBeL+d7r9X8oln8/8h6zC4fmql+R+Kzmpv59Izbq
- /nAPGOoM+mwNtrrWN+KYebMzDdb4VUGaJLa6R+0fOvwslpb4A22KFIvZ4K0+0bqY11Bf3l4cQ7E
- UMsyBWAuici5nR5U9z5IjJCnRJLenrpPkdwYzDHjYidETfTWTAouw1VjYwlzvNLlEDOKuwzApnH
- PyrZgvyw7UjPuwRznnA==
-X-Proofpoint-ORIG-GUID: Z2mQN0OpXymqbJL7E5EIooNgYz3Jq6qO
-X-Authority-Analysis: v=2.4 cv=Vf3H+lp9 c=1 sm=1 tr=0 ts=6a21b313 cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=IkcTkHD0fZMA:10 a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=hQvOzGRgIoEI6FeQiHcA:9
- a=QEXdDO2ut3YA:10 a=O8hF6Hzn-FEA:10
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
- definitions=2026-06-04_05,2026-05-28_03,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 suspectscore=0 adultscore=0 bulkscore=0 impostorscore=0
- phishscore=0 lowpriorityscore=0 malwarescore=0 clxscore=1015 spamscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2605210000 definitions=main-2606040167
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260604150153.3619662-1-dimitri.daskalakis1@gmail.com>
 
+On Thu, Jun 04, 2026 at 08:01:41AM -0700, Dimitri Daskalakis wrote:
+> With this patchset core enumarates the SIOV capability and can identify
+> SIOV PFs. But there is no central mechanism to allocate/manage SIOV VFs.
+> To support device pass through, devices will need to add a vfio-mdev
+> driver with IOMMUFD support (or something similar).
 
-On 6/4/2026 1:28 AM, Keith Busch wrote:
-> On Wed, Jun 03, 2026 at 11:24:14AM -0700, Farhan Ali wrote:
->> +static void vfio_pci_core_aer_reset_done(struct pci_dev *pdev)
->> +{
->> +	struct vfio_pci_core_device *vdev = dev_get_drvdata(&pdev->dev);
->> +
->> +	if (!vdev->pci_saved_state)
->> +		return;
->> +
->> +	pci_load_saved_state(pdev, vdev->pci_saved_state);
->> +	pci_restore_state(pdev);
->> +}
-> Shouldn't there be a cooresponding user space notification that the
-> device has been restored? There's an eventfd on the error detected side
-> so user space can know the device needs recovery, but how does it come
-> to know that the reset is completed?
+There is an enormous amount of missing work to do something useful
+with the SIOVr2 stuff. IIRC there is even supposed to be BIOS
+components in this plan and there are some missing PCI SIG topics too
+IIRC.
 
-I think if the VFIO_DEVICE_RESET ioctl completes successfully it should 
-be an indication that the reset has completed? AFAIU the ioctl will 
-drive a reset via pci_try_reset_function(). If reset completes completes 
-successfully the reset_done() callback is called via pci_dev_restore(). 
-So I don't think we need an eventfd to notify on reset completion. 
-Otherwise we would have the same problem today, where userspace is 
-unaware that VFIO_DEVICE_RESET did indeed successfully reset the device, 
-no? Or am I missing something?
+So, I'm not sure how much value there is in merging just the cap
+discovery without a roadmap for the missing parts..
 
-Thanks
+Also, I'm quite surprised to see this out of the blue, there is an OCP
+workstream that was building out a standard that outlines how all the
+different components have to act to successfully implement it.  What
+is in PCI SIG was just some minor foundational adjustments without any
+context on how to form them into a solution.
 
-Farhan
+I think it is extremely premature to merge anything related to SIOV to
+the kernel. Join the OCP work stream if you are interested. I think
+the general feeling was there is not sufficient interest in the
+industry to do this and it has gone quiet.
 
-
+Jason
