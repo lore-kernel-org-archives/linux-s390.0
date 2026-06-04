@@ -1,31 +1,31 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 481033D6CB5;
-	Thu,  4 Jun 2026 08:42:22 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F1D963F0AA8;
+	Thu,  4 Jun 2026 08:42:31 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780562546; cv=none; b=NJc/FBmFyHoMt1XD+uvv2Iv5DDXD+JYI+HZxDewAJpo7XOPBXi9R96aMZJP7KPsvdimIGLgJPDIBZ4wtry5QvHQYs7rGKg3gW2uauD39QO97WfXtgBeFkuP93IQZqZ95MbNJhyek+WfvttlEXCdSzGsXjX+NMMZoH4ZDUUbFiJ8=
+	t=1780562554; cv=none; b=WwIVc5y/NCKVfSUmytd1ErDgvbj/pHUkvgs37Uvk8NXDhNhqZ6oLiUkIEG/EacnZtLXIzD6vY5K0PLbFpKWV0EbjXBhbe2m/dBdOzNlwmPQOkXMHtTG8GH7sBqePI9hiQLQjczYWuSg4fMd6XjklaGT6myS2G8eJOrdjJxU3k90=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780562546; c=relaxed/simple;
-	bh=rcg0Q+6+2FAtZMgWgfjQda2Drx/FcFQqdoAZCTdZ9wI=;
+	s=arc-20240116; t=1780562554; c=relaxed/simple;
+	bh=iczgo5wSbem2q/StVcpJPf4dCmkL4x7I0g8WRdVDUFQ=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=cs4qnHGVVCce5qPlQNe5gZqtI9GiXnAWJC4ZYOBy+vfpVdQQGaDP3tLnWXYHhmm3/ZEPBmpo9M2Ds+/JyTQmraHyaXQH2opYK1pAt+rXr9WZ7ziA+TLhVp0Kkq0nPCQSYNSUG2uL2lf01WKhjcZbBuWUFnXv16zEMK9AKYWF/Ew=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Yn5AXRgp; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version; b=h3qU2iKz0iV39dx26lN7zaBFNPRwpbb1OgfhKdm4Dm08oT6I98WfhkOG0Sur/Mp0A09fKxylyMWNJuCX8xZ5ODm5txUzNbaOVnOZzB/acxcLw/kDOJZIghEMGdV0olDVdj/RMdzyieRpGIo7hA0VjHp8G/Pp7igreWo9p4pUXnI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=IVwvBUGl; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Yn5AXRgp"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9C031F0089A;
-	Thu,  4 Jun 2026 08:42:13 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IVwvBUGl"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 361A01F00898;
+	Thu,  4 Jun 2026 08:42:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1780562542;
-	bh=na5iA7JJF5EbHB1DYhHq0zpzWxfHieUed4f5owflzmA=;
+	s=k20260515; t=1780562551;
+	bh=8RqOZoZWEO6SeOB2Dx6VDRiy1MZJt2V2zJgzbuqAzxg=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=Yn5AXRgpAXhRhafyxaaxRkC67nV6/1y/+hBVV4GhrE+hn6mZ914QVIlT0cp2sEANU
-	 31krwTQNaQEGArg+jE8pLIZkcV3lRKxHmCqg4rcunxn9SFCQnW57tpDUoTy0SNTkgu
-	 ug+9vIb5NLvIr86ZUT042mohsW/DLHJv+3rBczDVcJUdLS7DDks0QbxpRqZE4ibDtC
-	 HMKeGTAd4ndhTvuwabYB5tD3VDr6Dks37RULt/QS8FLqWMEA94m+73lteArVYW9JX2
-	 DrxMbFoSPumqXO6By77oyJZRIcyY7l+Csbe6fG6Z2+SORBo3XY6fEaYwqzhXw5lzKR
-	 xdLBKCIH+4CSQ==
+	b=IVwvBUGl4YDJfsvKSMOpRRLu9z169sOpVXGOlzsJjuX3Lja/6J7Ym0aDhuyJpk9q/
+	 Pwj8t+ZfHxry2X9UyTDAOecWvmygXTI7WYYPOORCoCIK6usXlD5ajDVD50sd+t2g+G
+	 ykNn9OVAw+Cb+87vzbKgAL4tCIA3er6EHBms9OADHr5V7I0Uzij2bpY6SVxY4xK5sn
+	 wnQwdH2eTCJpj0cdObPeW8Be7wcAxXJPicFwBeSmnY2tlfE7KhDJZ1ot5WB6r/UdHg
+	 UttmA0BLx44bicDZJj4IMIg9+YfMzqXZvrAYKDqaSKYLTTC9sW3wT1O46HhnUxY/im
+	 PKU7uTrrkRrKQ==
 From: "Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org>
 To: iommu@lists.linux.dev,
 	linux-arm-kernel@lists.infradead.org,
@@ -59,11 +59,10 @@ Cc: "Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org>,
 	Christian Borntraeger <borntraeger@linux.ibm.com>,
 	Sven Schnelle <svens@linux.ibm.com>,
 	x86@kernel.org,
-	stable@vger.kernel.org,
 	Michael Kelley <mhklinux@outlook.com>
-Subject: [PATCH v6 14/20] dma-direct: return struct page from dma_direct_alloc_from_pool()
-Date: Thu,  4 Jun 2026 14:09:53 +0530
-Message-ID: <20260604083959.1265923-15-aneesh.kumar@kernel.org>
+Subject: [PATCH v6 15/20] iommu/dma: Check atomic pool allocation result directly
+Date: Thu,  4 Jun 2026 14:09:54 +0530
+Message-ID: <20260604083959.1265923-16-aneesh.kumar@kernel.org>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20260604083959.1265923-1-aneesh.kumar@kernel.org>
 References: <20260604083959.1265923-1-aneesh.kumar@kernel.org>
@@ -75,84 +74,45 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Commit 5b138c534fda ("dma-direct: factor out a dma_direct_alloc_from_pool
-helper") changed dma_direct_alloc_from_pool() to return the CPU address
-from dma_alloc_from_pool(). That fits dma_direct_alloc(), but
-dma_direct_alloc_pages() also uses the helper and expects a struct page *.
+The non-blocking, non-coherent allocation path uses dma_alloc_from_pool(),
+which returns the allocated page and fills cpu_addr only on success.
 
-Fix this by making dma_direct_alloc_from_pool() return the struct page *
-again, and pass the CPU address back through an out-parameter for the
-dma_direct_alloc() caller.
+Do not rely on cpu_addr to detect allocation failure in this path. Check
+the returned page directly before using it for the IOMMU mapping.
 
-Fixes: 5b138c534fda ("dma-direct: factor out a dma_direct_alloc_from_pool helper")
-Cc: stable@vger.kernel.org
-
+Fixes: 9420139f516d ("dma-pool: fix coherent pool allocations for IOMMU mappings")
 Tested-by: Michael Kelley <mhklinux@outlook.com>
 Tested-by: Mostafa Saleh <smostafa@google.com>
 Signed-off-by: Aneesh Kumar K.V (Arm) <aneesh.kumar@kernel.org>
 ---
- kernel/dma/direct.c | 21 ++++++++++++---------
- 1 file changed, 12 insertions(+), 9 deletions(-)
+ drivers/iommu/dma-iommu.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/kernel/dma/direct.c b/kernel/dma/direct.c
-index 4e446aa4130e..e0ab9ff3f1d6 100644
---- a/kernel/dma/direct.c
-+++ b/kernel/dma/direct.c
-@@ -157,24 +157,24 @@ static bool dma_direct_use_pool(struct device *dev, gfp_t gfp)
- 	return !gfpflags_allow_blocking(gfp) && !is_swiotlb_for_alloc(dev);
- }
+diff --git a/drivers/iommu/dma-iommu.c b/drivers/iommu/dma-iommu.c
+index 725c7adb0a8d..52c599f4472c 100644
+--- a/drivers/iommu/dma-iommu.c
++++ b/drivers/iommu/dma-iommu.c
+@@ -1671,13 +1671,16 @@ void *iommu_dma_alloc(struct device *dev, size_t size, dma_addr_t *handle,
+ 	}
  
--static void *dma_direct_alloc_from_pool(struct device *dev, size_t size,
--		dma_addr_t *dma_handle, gfp_t gfp, unsigned long attrs)
-+static struct page *dma_direct_alloc_from_pool(struct device *dev, size_t size,
-+		dma_addr_t *dma_handle, void **cpu_addr, gfp_t gfp,
-+		unsigned long attrs)
- {
- 	struct page *page;
- 	u64 phys_limit;
--	void *ret;
- 
- 	if (WARN_ON_ONCE(!IS_ENABLED(CONFIG_DMA_COHERENT_POOL)))
- 		return NULL;
- 
- 	gfp |= dma_direct_optimal_gfp_mask(dev, &phys_limit);
--	page = dma_alloc_from_pool(dev, size, &ret, gfp, attrs,
-+	page = dma_alloc_from_pool(dev, size, cpu_addr, gfp, attrs,
- 				   dma_coherent_ok);
- 	if (!page)
- 		return NULL;
- 	*dma_handle = phys_to_dma_direct(dev, page_to_phys(page),
- 					 !!(attrs & DMA_ATTR_CC_SHARED));
--	return ret;
-+	return page;
- }
- 
- static void *dma_direct_alloc_no_mapping(struct device *dev, size_t size,
-@@ -270,9 +270,12 @@ void *dma_direct_alloc(struct device *dev, size_t size,
- 	 * the atomic pools instead if we aren't allowed block.
- 	 */
- 	if ((remap || (attrs & DMA_ATTR_CC_SHARED)) &&
--	    dma_direct_use_pool(dev, gfp))
--		return dma_direct_alloc_from_pool(dev, size, dma_handle,
--						  gfp, attrs);
-+	    dma_direct_use_pool(dev, gfp)) {
-+		page = dma_direct_alloc_from_pool(dev, size,
-+					dma_handle, &cpu_addr,
-+					gfp, attrs);
-+		return page ? cpu_addr : NULL;
+ 	if (IS_ENABLED(CONFIG_DMA_DIRECT_REMAP) &&
+-	    !gfpflags_allow_blocking(gfp) && !coherent)
++	    !gfpflags_allow_blocking(gfp) && !coherent) {
+ 		page = dma_alloc_from_pool(dev, PAGE_ALIGN(size), &cpu_addr,
+ 					   gfp, attrs, NULL);
+-	else
++		if (!page)
++			return NULL;
++	} else {
+ 		cpu_addr = iommu_dma_alloc_pages(dev, size, &page, gfp, attrs);
+-	if (!cpu_addr)
+-		return NULL;
++		if (!cpu_addr)
++			return NULL;
 +	}
  
- 	if (is_swiotlb_for_alloc(dev)) {
- 		page = dma_direct_alloc_swiotlb(dev, size, attrs);
-@@ -445,7 +448,7 @@ struct page *dma_direct_alloc_pages(struct device *dev, size_t size,
- 
- 	if ((attrs & DMA_ATTR_CC_SHARED) && dma_direct_use_pool(dev, gfp))
- 		return dma_direct_alloc_from_pool(dev, size, dma_handle,
--						  gfp, attrs);
-+						  &cpu_addr, gfp, attrs);
- 
- 	if (is_swiotlb_for_alloc(dev)) {
- 		page = dma_direct_alloc_swiotlb(dev, size, attrs);
+ 	*handle = __iommu_dma_map(dev, page_to_phys(page), size, ioprot,
+ 			dev->coherent_dma_mask);
 -- 
 2.43.0
 
