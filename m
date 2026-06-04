@@ -1,222 +1,135 @@
-Received: from BN8PR05CU002.outbound.protection.outlook.com (mail-eastus2azolkn19011028.outbound.protection.outlook.com [52.103.12.28])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 24C1C379ECD;
-	Thu,  4 Jun 2026 16:18:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.103.12.28
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780589923; cv=fail; b=pxEfsKcxS5rdTjRlWgnYYEen0S7a70QtY/rwq2qpaovnRH03C04jmeW4p8F8qiWIbzUcY3foaVgdinoshWGD+vmS0MsNpxVruJ77ImOD6eXEfT877XUzx+xvX1S3MRo6nmwufb/fjwclws3hV7xMZOw1b5msL0676OMq7fNDA58=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780589923; c=relaxed/simple;
-	bh=wUglpKPCiKvSwQM0dgI7bJkSUNH4Gxe0QSSxpsfHO4E=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=tIQawzZJUNtps38P5lOrNWYUvLZYZhgA9ScWP8ORUCWrlYXe/P5QDLSnl/fmcI46HWsgaOIWwZhkHRotflcDgnlB0x8aXiacpnhu8eKlo28zEOXautMb72wrAI1QpQdqcCEvBXC61K5kzdpfajFSrkqjaCdzE+OrK3Rb36z487U=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com; spf=pass smtp.mailfrom=outlook.com; dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b=QEsyy5ST; arc=fail smtp.client-ip=52.103.12.28
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=outlook.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A4F4C382289;
+	Thu,  4 Jun 2026 17:17:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1780593432; cv=none; b=b7g1lY5lWo/rbzJ1cPiTOPYOYsAlfFwu7Rk43+6Y8qHgkvhdNcFXgrgHKXgH7Qab4ydBp1P8oA1VeZCJcb1XgfoA4BUkR+OrCY4soK83IaYPGR9ShJkz+RtMX4Yr7AlTJzW9Snz0bAYWS82UTWPNLAF5M01HN7r7/rE/s3p2DQk=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1780593432; c=relaxed/simple;
+	bh=G/5hFcQ+iI6kB80fovuEBmcW+3jgEoVYBVAIlLQoYTY=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=sMUjhGcTURMUPx8tZbSIwn87XdqoAni7fPgHHvs+ZwcovkivYKUTbvBi0Bgx76cQDZGxSfmGOD5b6ZbdKFnD9frdbBOwSBgP3nYYU2TQp01AtUV2wN8i6+vNsiSoqNpgYyrJOyRNXRFNXHOWpXohWc0IW5qtRbTjcj9RpFgIeAs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=lUvRXMng; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b="QEsyy5ST"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=rWXZdQKo4hJMOTrXishfCKjc/nKF67nngFABsfQ7N8XbPWqiqZmLp1Q/XdOd7TjK1t2lHESCn6c9FfYuBDhr87nWzW4ERsID6Jt/uR1ZFMxv7g2nF4rMy0BTUXJa4nFNVRxk3ad+p6RHbKy+u6QSMAU5/9hgfHKEosS6Ryjql6zdzNGaWYX4csg9bFdLcnKAhy5fkNVjJ0mQk1/gNBQoZ6X/ShzkxDqXzrL097lqt5jFDcw1JWWUELLf7A6y7BV/p/p4JERdOe+BRRndOw1xbsU5hLjNEqPgxf/GHCTHTqKW2WjpoEeQZsnpNCsdiA9PIUI+4lM+AX+FssgiYFHbQQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=pezjpO9+d2P8Jxi67k+0WdnFKmVMdVIaxj9+26sZtmk=;
- b=pnQGPaSL2jvxVJ5UvCPtW1aUQCr6vJTsPJqexVA3qrCTD9UHrsGYMOSbc4Ht8TBgjVDUnzC2g4W1ySlxbYWinNoy0P5zxWtxOxEReHPGaPrE0RtN31thbMfQ1dl6n2n57e0MbL+y9KglbyOA3Ef4YkAAbj38t/6ndsOcWIjzk/c/aeNo3GjKUPNFA/CRD4i4+LqQKA4lkJ2gNHEXdFLqTgnomme0Wiq8IwV+bZ9wlfmZsWwc/88Tc2tzgdj5KoipiHIzsAJiDvu3dZ4u2QFtecYyRuqErkh5774wPCcyBQI5ICkqyf0OwxdzhScHSOXchzx58k95E4eS81BrxXF3Ow==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
- dkim=none; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=outlook.com;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=pezjpO9+d2P8Jxi67k+0WdnFKmVMdVIaxj9+26sZtmk=;
- b=QEsyy5STVBXHUTvkxS0Pkupr45Kjd1ydaf++Kt6bTb+30MAy7lKhAQzww7ZNUwagcJ1khnoKEf/IgZC40skCAZPtT22gxpbODnvziXkriodAGH6W4DDgvGHiwAzmztvgfad649P0IhKPC+nTwfZA9JEl+OGozhwP6qyXHZDXcr+ZMIRAbfUIzPppfQ3t4aq3PfCuEkAAvIxaXsnu35GjDtd2zNvMNs612UgS1xPWUc8CNkUM/u71Wu9JUTccwwd16HOBEw6+O2F2YhqFlFAcwkcYGBDzpgsTg5pu5dgZIl+F8baI0EH6z6Ba+phX16lUe1soLgY+Z2ni531vuRucOQ==
-Received: from SN6PR02MB4157.namprd02.prod.outlook.com (2603:10b6:805:33::23)
- by BN0PR02MB8223.namprd02.prod.outlook.com (2603:10b6:408:155::6) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.71.13; Thu, 4 Jun 2026
- 16:18:38 +0000
-Received: from SN6PR02MB4157.namprd02.prod.outlook.com
- ([fe80::900:1ccf:2b1e:52b6]) by SN6PR02MB4157.namprd02.prod.outlook.com
- ([fe80::900:1ccf:2b1e:52b6%3]) with mapi id 15.21.0092.006; Thu, 4 Jun 2026
- 16:18:38 +0000
-From: Michael Kelley <mhklinux@outlook.com>
-To: Aneesh Kumar K.V <aneesh.kumar@kernel.org>, Michael Kelley
-	<mhklinux@outlook.com>, Jason Gunthorpe <jgg@ziepe.ca>, Michael Kelley
-	<mhklinux@outlook.com>
-CC: "iommu@lists.linux.dev" <iommu@lists.linux.dev>,
-	"linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org"
-	<linux-kernel@vger.kernel.org>, "linux-coco@lists.linux.dev"
-	<linux-coco@lists.linux.dev>, Robin Murphy <robin.murphy@arm.com>, Marek
- Szyprowski <m.szyprowski@samsung.com>, Will Deacon <will@kernel.org>, Marc
- Zyngier <maz@kernel.org>, Steven Price <steven.price@arm.com>, Suzuki K
- Poulose <Suzuki.Poulose@arm.com>, Catalin Marinas <catalin.marinas@arm.com>,
-	Jiri Pirko <jiri@resnulli.us>, Mostafa Saleh <smostafa@google.com>, Petr
- Tesarik <ptesarik@suse.com>, Alexey Kardashevskiy <aik@amd.com>, Dan Williams
-	<dan.j.williams@intel.com>, Xu Yilun <yilun.xu@linux.intel.com>,
-	"linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
-	"linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Madhavan
- Srinivasan <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>, "Christophe Leroy (CS GROUP)"
-	<chleroy@kernel.org>, Alexander Gordeev <agordeev@linux.ibm.com>, Gerald
- Schaefer <gerald.schaefer@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger
-	<borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>,
-	"x86@kernel.org" <x86@kernel.org>, Jiri Pirko <jiri@nvidia.com>
-Subject: RE: [PATCH v5 05/20] dma-pool: track decrypted atomic pools and
- select them via attrs
-Thread-Topic: [PATCH v5 05/20] dma-pool: track decrypted atomic pools and
- select them via attrs
-Thread-Index:
- AQHp6tfu5DGfxW+HBL9src0vNhss0QGjMATQtfypCTCABxNTgIAAi4fggACwGwCAAm86IIAADo0AgAAWnpA=
-Date: Thu, 4 Jun 2026 16:18:38 +0000
-Message-ID:
- <SN6PR02MB4157BC5B3C824962F091996BD4102@SN6PR02MB4157.namprd02.prod.outlook.com>
-References: <20260522042815.370873-1-aneesh.kumar@kernel.org>
- <20260522042815.370873-6-aneesh.kumar@kernel.org>
- <SN6PR02MB415754E94A9505C2B9739E4DD4092@SN6PR02MB4157.namprd02.prod.outlook.com>
- <yq5afr35sciu.fsf@kernel.org>
- <SN6PR02MB4157D9955A93244014AB7978D4122@SN6PR02MB4157.namprd02.prod.outlook.com>
- <20260603005454.GM2487554@ziepe.ca>
- <SN6PR02MB4157F94C902B78E55E99372DD4102@SN6PR02MB4157.namprd02.prod.outlook.com>
- <yq5apl26qrof.fsf@kernel.org>
-In-Reply-To: <yq5apl26qrof.fsf@kernel.org>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: SN6PR02MB4157:EE_|BN0PR02MB8223:EE_
-x-ms-office365-filtering-correlation-id: 89785a9b-79f0-4673-b6e5-08dec254ef75
-x-microsoft-antispam:
- BCL:0;ARA:14566002|31061999003|15080799012|51005399006|41001999006|19101099003|37011999003|8062599012|8060799015|13091999003|19110799012|3412199025|440099028|102099032|40105399003|1710799026;
-x-microsoft-antispam-message-info:
- =?us-ascii?Q?D4uhAPljiDenAI7OEsqFIHYInh2zOm3D9PmrebIMbwbBc0+CqmmhJ1Q9OmiN?=
- =?us-ascii?Q?CeqMKQZwJOWl4dhAFEwKLvaBHTF0bzuOlb2rOQQnS/IFuCuPbs5HNNEyuPv4?=
- =?us-ascii?Q?/nTqiNnXwU6n4WFucwbkSlV1U7bj2o7pWdT5/P8d84Lst1rjAHPkaxeiGua/?=
- =?us-ascii?Q?iJaMl4+E5Vlh+xbwX5jpsWs+qvGMuRCSo83Q/0168CGEeVRIe2Cnv1/kmhQj?=
- =?us-ascii?Q?Ba+CkFMnIm28o2tGEpHl3LUTcW6JpD1p74dFRB67gIFZQycl9s3fU2XyCSY8?=
- =?us-ascii?Q?uO2wtvAyrvts6J5aXMug0KPI++/VZp+d5WPGRUchp0jK4JobiPy6ZPSQq3VM?=
- =?us-ascii?Q?GDVkBR3+o3mE0M1wGsRTTzTUolTwW2VVMAKRwukvIS+belcxtlSIfj25GLJc?=
- =?us-ascii?Q?APrSSoprgZfSJ68QDujTHNrMWzDBDsaBlhNB7jCJ4eGzn+MRDQEnC82vtMsJ?=
- =?us-ascii?Q?I+Sqjcuj1DiREgZbSTymIZ+OKUw3Py5pUEz/yBMkqvj3JJor/satBrIaDt6c?=
- =?us-ascii?Q?fx4lT+zZzWxiEj/KnPsWszbRqedcvevh3biWZLalxNZIO7mcRDqD82m6qqml?=
- =?us-ascii?Q?sO4Hd/4nWDEugqmO+j8vMbHKYLEzRqqZK8yNEg4g2Oo7RQsr/NY7GoXkIwuS?=
- =?us-ascii?Q?J80SV/7ZxVwSLLPUriXQIVR8y5MtVIbZHRZFsfMCh4lIaTpNpQ4Fhd/Nhr5h?=
- =?us-ascii?Q?RN6ZdV9HESu/K2J3C2X8L97k/IM48ZYnJ0Br/mXDdPQnCm2XPdl7gwC91PnC?=
- =?us-ascii?Q?qwEgM5jwZUCm68BvQ3tID6PbQL/X2LDxiY6SJphQSgToTSD3jUvDS1jxpkFy?=
- =?us-ascii?Q?FLtCa3MuNz3T5OGARxZQkDYWvuQAAUpZop/lR9zIHEsp6M1eR9P+L9dy0vnt?=
- =?us-ascii?Q?njL143WcxT2H9/F5YUDS5dLLvF4lUmz6zkb/p7+LEtE1N05KQXez4pxEO+48?=
- =?us-ascii?Q?E/+nXOlJjUpXOMsHoV598vtXe6Ok/pRr2yiqzYGg2u2FkdVnbW8zWh5B+LD7?=
- =?us-ascii?Q?5bj/i9SuOPcLE1XRoHtXV22AEy5sBxQpg5PipD3Bu29BbRfm1H5jPF9dbLaw?=
- =?us-ascii?Q?fw4pwnMs?=
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0:
- =?us-ascii?Q?o5CKLdFLdk7QdVeX2xmXhggqcLyDjfknKQUFld1YseSWQCBEcl4XbSnZhfj2?=
- =?us-ascii?Q?9OkiuV5HYdTOOE5GSAQKKRLkgl0mrnP3ZrGQ2ub1bElQlf30vQQjO0aD3C1s?=
- =?us-ascii?Q?seN3cEBjT2G/Yqo+yXjMq7JrFoeaWWFojyg9DCVMnUZEbsdJfp018XhMKSP0?=
- =?us-ascii?Q?EPcksS9UN1ESuBG0AToEQ92xf38l+dMBoYpd0ixLFpzAHZDXEigPWqyGQJmf?=
- =?us-ascii?Q?27kjzPKx6j25B7glpv5IgYFwwCbYs93/pQaNuQKUyIfk47zBfa+HdTPeGY25?=
- =?us-ascii?Q?BwO4SC+za/3lrBYcaFoN1E5G/Vv8AUugKBuOgNrz1LbxFaHn31nvJWckMyXr?=
- =?us-ascii?Q?y2smu5rmWLcbo6m7EDcZoNoAzqGTC+URWIq+kpq1/aSykzG1JWSGf05AR3w8?=
- =?us-ascii?Q?9AENSBShDTjHS6JNaTMEoklrRqY651ASrmQ+coQnMeIOYuqOR9wUvqxAw4W8?=
- =?us-ascii?Q?renNustQl/s543nMsxRKTl7XTCOf/PkNbiKfWGgch/UE114L6sAsuQOR+Lee?=
- =?us-ascii?Q?vsPQy4Hqjm5le/N3wjpoUOGkHAbHjc0kDm07c3T5VdKlXeQrpu8788lJ+o4K?=
- =?us-ascii?Q?UWkMWjb3VqSy+91kBOD4sOdCutCX6CiaHsGcJAsyUugEPUCHO1MfWwZAOGc/?=
- =?us-ascii?Q?C8MrQpm/BwUOaoqRuYJtQx7P/0AmBUNFjgC3oPwupoViyp08ZWv1lwMVDeLx?=
- =?us-ascii?Q?rtoBlogiI1SFbfvnPHkVMflzbSXt7LQvdOn/E1svrRTs/1g89Zh40WjjU1VL?=
- =?us-ascii?Q?dXGQo1baQC8YfEtxo+qJbbtTODhVQS2iQ1wTPJgcXG9AuP6YfAs1n/tO1+iM?=
- =?us-ascii?Q?cZa1ZSqv99evBDReHHgHMS/yMt5qVoZgGcrsU1RYotvH1oFebtu0mjvp5oCj?=
- =?us-ascii?Q?ErYhs4HaWnIw2FlXNr7iEQeujoKEjhUN2UXuZNjG6A+Lz3En8kLjkFazm6YQ?=
- =?us-ascii?Q?YYkSarDTC9F0AQtPb/fwzj5aVEhqx1T1dE2HGDbYrJ16gPsczvJwgE4iyq/X?=
- =?us-ascii?Q?LXsGnurr962YFwbba4XUZ6DI8QClUITrVermGug7BIqoMvQFZh6we3UoR2U2?=
- =?us-ascii?Q?LFJRk+d43/8j/j+2mvUttc9s6phfgW2LbYipOeNBTOtkWOHKgzR38mDz57y0?=
- =?us-ascii?Q?u8u73tdcis/tDR8ICcIbYRmNErEkBzZz00FLw4Wi//HcZPsKQ1ASHV9FSLgQ?=
- =?us-ascii?Q?vRH4xoqtjgsC5I/b2SCxEEnDaVR5nJ2rKx5jyCWaJFwNBWc8LW0N/wUjShmG?=
- =?us-ascii?Q?5YKsowxN64cquoC5mJe1Rz/Cda+bypoMHCKuVRqdWhDUt6jW7cJA9E1BwikP?=
- =?us-ascii?Q?GC/iganXydZvXVb/CGw26jZMHeQLVdLVWEW14cOvncQCjCRnSYnJ4ItbPhIi?=
- =?us-ascii?Q?wyFSIfJIDAbCFU7MByxDSbp6l0S5UPF/93KU+H2P0IJ2c6JjtnWXsvw/gbjI?=
- =?us-ascii?Q?GP42+vqRzKI=3D?=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="lUvRXMng"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6548MhSX063649;
+	Thu, 4 Jun 2026 17:17:07 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=pqcN5E
+	Gn/1nb6LweImPhkhz6aq6Ht7La6VqiKryEs6M=; b=lUvRXMngk1PJAHKcQOp6Hb
+	6EIqGc2PTFvdipNbdIlG5w8JjHnxIJE0inxvr9dYWZ4KAxA1mWCXCrQV8dQEduv4
+	JQ1B1iKo/L/qMCW2VdcyO8/ICC8tauCkDsbP9DNtY9+9cUi9BJzls64gwPMs1JDv
+	0rowkkJRWqpr/tkmcLoPIO6mVnaRSTSLOZbfyj4epssryxgFSoQPlg19youQSuAE
+	N7TRyHJPuY/TQJqXHyeYfsVR0P718X9R6KXrLE+V6mlgvbTmemRAS57z1yzZ5uji
+	/JdSTauQtGBR/gBil3VODIPriHg8dD5L2g956lslkdFVxoXKxaSmLGR6S5m55KDQ
+	==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4efqm58wc2-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 04 Jun 2026 17:17:07 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 654H97Lp031093;
+	Thu, 4 Jun 2026 17:17:06 GMT
+Received: from smtprelay06.dal12v.mail.ibm.com ([172.16.1.8])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4egb7ke3y4-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 04 Jun 2026 17:17:06 +0000 (GMT)
+Received: from smtpav06.dal12v.mail.ibm.com (smtpav06.dal12v.mail.ibm.com [10.241.53.105])
+	by smtprelay06.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 654HH52A26673712
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 4 Jun 2026 17:17:05 GMT
+Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 3530A58055;
+	Thu,  4 Jun 2026 17:17:05 +0000 (GMT)
+Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 936D258043;
+	Thu,  4 Jun 2026 17:17:04 +0000 (GMT)
+Received: from [9.61.245.98] (unknown [9.61.245.98])
+	by smtpav06.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Thu,  4 Jun 2026 17:17:04 +0000 (GMT)
+Message-ID: <d9ca420b-a1e6-4d12-bd42-3993e401d58b@linux.ibm.com>
+Date: Thu, 4 Jun 2026 10:17:04 -0700
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-OriginatorOrg: outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: SN6PR02MB4157.namprd02.prod.outlook.com
-X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg: 00000000-0000-0000-0000-000000000000
-X-MS-Exchange-CrossTenant-Network-Message-Id: 89785a9b-79f0-4673-b6e5-08dec254ef75
-X-MS-Exchange-CrossTenant-originalarrivaltime: 04 Jun 2026 16:18:38.3662
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
-X-MS-Exchange-CrossTenant-rms-persistedconsumerorg: 00000000-0000-0000-0000-000000000000
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN0PR02MB8223
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v18 3/4] vfio/pci: Add a reset_done callback for vfio-pci
+ driver
+To: Keith Busch <kbusch@kernel.org>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-pci@vger.kernel.org, alex@shazbot.org, helgaas@kernel.org,
+        schnelle@linux.ibm.com, mjrosato@linux.ibm.com,
+        Julian Ruess <julianr@linux.ibm.com>
+References: <20260603182415.2324-1-alifm@linux.ibm.com>
+ <20260603182415.2324-4-alifm@linux.ibm.com> <aiE3I0bL0TX1nOec@kbusch-mbp>
+Content-Language: en-US
+From: Farhan Ali <alifm@linux.ibm.com>
+In-Reply-To: <aiE3I0bL0TX1nOec@kbusch-mbp>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: Z2mQN0OpXymqbJL7E5EIooNgYz3Jq6qO
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjA0MDE2NyBTYWx0ZWRfXwXCxfMvZ0Our
+ gVj7KLgDnKsa7EnOU8c7zvy5ZACCKyU1Y122YxLYKbZ+JmPYeuf0LopbAED+A6hOyexw5unwf3c
+ 9fGKr5vlpUU+70Esu7j8zQsz4g+CtShcqQcpleOxhC9euLEFqgamasahbr9mMNI5BZpLxTrdjOy
+ 3HzHsF2kNwlX1+vPAdBodSwpNDWy2VG/XU5CrUFnje74pfQ4dYzhEHGCBGDG5v0Vl7Wv4fNffGF
+ wuGplgaIHAR0zxzUOfXIbV4ShN8NampubQGoBeL+d7r9X8oln8/8h6zC4fmql+R+Kzmpv59Izbq
+ /nAPGOoM+mwNtrrWN+KYebMzDdb4VUGaJLa6R+0fOvwslpb4A22KFIvZ4K0+0bqY11Bf3l4cQ7E
+ UMsyBWAuici5nR5U9z5IjJCnRJLenrpPkdwYzDHjYidETfTWTAouw1VjYwlzvNLlEDOKuwzApnH
+ PyrZgvyw7UjPuwRznnA==
+X-Proofpoint-ORIG-GUID: Z2mQN0OpXymqbJL7E5EIooNgYz3Jq6qO
+X-Authority-Analysis: v=2.4 cv=Vf3H+lp9 c=1 sm=1 tr=0 ts=6a21b313 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=IkcTkHD0fZMA:10 a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=hQvOzGRgIoEI6FeQiHcA:9
+ a=QEXdDO2ut3YA:10 a=O8hF6Hzn-FEA:10
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
+ definitions=2026-06-04_05,2026-05-28_03,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ priorityscore=1501 suspectscore=0 adultscore=0 bulkscore=0 impostorscore=0
+ phishscore=0 lowpriorityscore=0 malwarescore=0 clxscore=1015 spamscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2605210000 definitions=main-2606040167
 
-From: Aneesh Kumar K.V <aneesh.kumar@kernel.org> Sent: Thursday, June 4, 20=
-26 7:58 AM
->=20
-> Michael Kelley <mhklinux@outlook.com> writes:
->=20
-> > From: Jason Gunthorpe <jgg@ziepe.ca> Sent: Tuesday, June 2, 2026 5:55 P=
-M
-> >>
-> >> On Tue, Jun 02, 2026 at 02:24:40PM +0000, Michael Kelley wrote:
-> >>
-> >> > Except that in a normal VM, the "unencrypted" pool attribute does *n=
-ot*
-> >> > describe the state of the memory itself.  In a normal VM, the memory=
- is
-> >> > unencrypted, but the "unencrypted" pool attribute is false. That
-> >> > contradiction is the essence of my concern.
-> >>
-> >> I would argue no..
-> >>
-> >> When CC is enabled the default state of memory in a Linux environment
-> >> is "encrypted". You have to take a special action to "decrypt" it.
-> >>
-> >> Thus the default state of memory in a non-CC environment is also
-> >> paradoxically "encrypted" too.
-> >
-> > The need to have such an unnatural premise is usually an indication
-> > of a conceptual problem with the overall model, or perhaps just a
-> > terminology problem.
-> >
-> > Here's a proposal. The new DMA attribute is DMA_ATTR_CC_SHARED.
-> > Name the pool attribute "cc_shared" instead of "unencrypted". Having
-> > "cc_shared" set to false in a normal VM doesn't lead to the non-sensica=
-l
-> > situation of claiming that a normal VM is encrypted. The boolean
-> > "unencrypted" parameter that has been added to various calls also
-> > becomes "cc_shared".  If "CC_SHARED" is a suitable name for the DMA
-> > attribute, it ought to be suitable as the pool attribute. And everythin=
-g
-> > matches as well.
-> >
->=20
-> That is better. It would also simplify:
->=20
-> 	if (mem->unencrypted !=3D !!(attrs & DMA_ATTR_CC_SHARED))
-> 		return NULL;
->=20
-> to
-> 	if (mem->cc_shared !=3D !!(attrs & DMA_ATTR_CC_SHARED))
-> 		return NULL;
->=20
->=20
-> I already sent a v6 in the hope of getting this merged for the next
-> merge window. Should I send a v7, or would you prefer that I do the
-> rename on top of v6?
->=20
 
-I would advocate for a v7 with the rename, vs. a separate follow-on
-patch to do the rename, just to reduce churn. But I don't know what
-the tradeoffs are in trying to hit the next merge window. If a follow-on
-patch is more practical from a timing standpoint, I won't object.
+On 6/4/2026 1:28 AM, Keith Busch wrote:
+> On Wed, Jun 03, 2026 at 11:24:14AM -0700, Farhan Ali wrote:
+>> +static void vfio_pci_core_aer_reset_done(struct pci_dev *pdev)
+>> +{
+>> +	struct vfio_pci_core_device *vdev = dev_get_drvdata(&pdev->dev);
+>> +
+>> +	if (!vdev->pci_saved_state)
+>> +		return;
+>> +
+>> +	pci_load_saved_state(pdev, vdev->pci_saved_state);
+>> +	pci_restore_state(pdev);
+>> +}
+> Shouldn't there be a cooresponding user space notification that the
+> device has been restored? There's an eventfd on the error detected side
+> so user space can know the device needs recovery, but how does it come
+> to know that the reset is completed?
 
-Michael
+I think if the VFIO_DEVICE_RESET ioctl completes successfully it should 
+be an indication that the reset has completed? AFAIU the ioctl will 
+drive a reset via pci_try_reset_function(). If reset completes completes 
+successfully the reset_done() callback is called via pci_dev_restore(). 
+So I don't think we need an eventfd to notify on reset completion. 
+Otherwise we would have the same problem today, where userspace is 
+unaware that VFIO_DEVICE_RESET did indeed successfully reset the device, 
+no? Or am I missing something?
+
+Thanks
+
+Farhan
+
 
