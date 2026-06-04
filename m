@@ -1,63 +1,62 @@
-Received: from mail-pj1-f46.google.com (mail-pj1-f46.google.com [209.85.216.46])
+Received: from mail-pj1-f51.google.com (mail-pj1-f51.google.com [209.85.216.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C28EE33F598
-	for <linux-s390@vger.kernel.org>; Thu,  4 Jun 2026 15:02:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AAED833FE09
+	for <linux-s390@vger.kernel.org>; Thu,  4 Jun 2026 15:02:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780585329; cv=none; b=AOcFuZJFBESW1PTXLNADVe0/ltL3158cLetpwph44ymBot3P9ejfxw5AUtdmbmDWh9T8BzBkGEsovN3xTWag4v8agb1uOmey2IX7CRbcNP5SGnzOVLWRIyWGcWPqvdqjiktUsMr8aDHtvK8IXmj4Nk95dz3NfRr3W2qvXYoMe0M=
+	t=1780585331; cv=none; b=KplgGU1p94+a8v8nvNNnQjpjb+C8vQieJWboD5uuI3y1wmtO3k/cwcxSfBT722XYuHZ1H3BqFWuuIrq+5IDOjoC2cy7Kvg4tGcjYHQbzSozmVTGgwZ8t2okNRve3ZelCtj3oQoE71lXdmG8G3LyS3hEDZfHcUbqjVNbgq0hJXV4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780585329; c=relaxed/simple;
-	bh=nvFyjCT5ppH/Q/ZoWQSkEOugTOmlUlVEiME03kna43M=;
+	s=arc-20240116; t=1780585331; c=relaxed/simple;
+	bh=c87l4ayOOQdKWyV24U9yzvfPBhhJgg0gsW2q68ZSy7c=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=LEVvoWpb5IS6i49VsQ5e/sCKvb31htDZQAr3tLtCswlibwMTVwkU2hlNHPVCBZxMl1Tyk5Ec+Z00MQV+lB/KnZT6Zy9iBjSQysynXLhP7dKK/aBAq4BhYrkMuI8mvtyKcNJp9OfHs5ivPvO6gIgBGtYVnjUmLJdaESXkYJucFM4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=k+vqdimJ; arc=none smtp.client-ip=209.85.216.46
+	 MIME-Version; b=QapVrU7d1uPB4S2CidYRslW6WouXBQzhWMrdqPtrdxPHYqAFXZ93DY+j5JS9xEloXYwi6xeJ4NCbzwp6LdrvpplkghCtDm+gB9hBZxFetgdg79PCKf11ljoPyGcC4F2Cy8mqzC2cnhAaEpHbEHtOVpseEHqy0QSb/t+aHnrcHLw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jPHPTWre; arc=none smtp.client-ip=209.85.216.51
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="k+vqdimJ"
-Received: by mail-pj1-f46.google.com with SMTP id 98e67ed59e1d1-36bd175fdbaso570435a91.0
-        for <linux-s390@vger.kernel.org>; Thu, 04 Jun 2026 08:02:05 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jPHPTWre"
+Received: by mail-pj1-f51.google.com with SMTP id 98e67ed59e1d1-36baec934b6so1175759a91.0
+        for <linux-s390@vger.kernel.org>; Thu, 04 Jun 2026 08:02:06 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780585325; x=1781190125; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1780585326; x=1781190126; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=xaX3iBh5aQ6ieP4wRDACjZGRgQdbq9tB2uoE6aInkl8=;
-        b=k+vqdimJVhQIwiOXTPEluKSN82aPaYZbR4Wdh5bMJaYz0eaiTE1HpFogEkkGMJT2BD
-         3gyQ+jup4TDLoVawAMcBYrRea+CPYuRECpiJZoOY/DrQ9+2JxytLpLWqqgQ5BGpNMXrK
-         BLFR7IL5WEed7YFjr3o7l/qr6EHV+2ii2CWt1/8P+H1AGC1+0Z1yZSCS1isboTcLfg6s
-         MDtlobdbTD/WM1N4eTnmjIsNe1LwhrUyHpOrdIiBA3wvnbKl1t/FjadenOeo05sbdLqh
-         eKN9reiTA6fRBH4xEwQXJoqPYMbloI0xhQCJ9lVLAb3NZ9g2YB70gbcuVEpDSPePFWHl
-         3zGg==
+        bh=2hIFtvWihjq2T5uRD8ilA/smzXwEZg9tgf7CPYlO5lE=;
+        b=jPHPTWre22kf5Baj99FGEmgJdvS00aFptAyRiI5jvNH9sQchjnaezr2aTkCdScsdSp
+         tbaSD7JDpfn9a7xE68d+NJh/2ZdKvxd3ahoEhMd8B6utRmz1awK6rOi16hPfm4qN+nUy
+         rNPnk6O3bRvZp3DHu5yR49kAZdqSvxffOCSLhRTMFNEEj1D7iyEoCyGrtwJXTI96gwm5
+         rqAdCRQbhPUrD0hSJY+XncgOI4O91Vu5DriFoAqmvUTMV0VN7Qkf1BOn1kfAf9wtVo/b
+         LjSOEdkLpAZ47IBy1vlOo69idv4HFMXIbaHCYPecpM33rM22idcQYtEnmdwl1LnCYoHF
+         +x2Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780585325; x=1781190125;
+        d=1e100.net; s=20251104; t=1780585326; x=1781190126;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=xaX3iBh5aQ6ieP4wRDACjZGRgQdbq9tB2uoE6aInkl8=;
-        b=MOqEeG/MGs1wAgBKBwdyqilY34VEvrKSCfikCO5Ph136ckMU2NORqs+GxLJpvJr3iO
-         vqyPReTwXviJ7IlCrbymW83Z2ovcb9yh0TFJFKkwC8T2lLB4Yj89bKQygm1mq6DJal1o
-         rshzXs1Y4J2B1i+kr0Yg+aqHnoyuHB4Y3HHmLnYwvlISHRyZOyLUufC8EgFBs19qjcO+
-         JeRkb5MlxTnSdOVHR3dJHfP+pQmIoCKC8p4HLHVHdfOS0yNQhOafxIQ6eHxDlCgU7utd
-         ogEcKn7zzxE8v/lVXjw1bi0BSURfDh5LrghhQsrlcTIs1dVogn89hMCkM6EaDbDs1u/c
-         w7ew==
-X-Forwarded-Encrypted: i=1; AFNElJ+Hlyx0kDDHKMM72OcVC6nJLGAnu59p8kgumwyLgcKnAFfr3f5gv82NNQp3AMRi0kz5q97Xrm902PUs@vger.kernel.org
-X-Gm-Message-State: AOJu0YwbAOMQ9pOXF44im5t7W++XMkJYNhE3kGGcahWM8+gMTpAgnDA6
-	yWFm+jMDwqDCeLzsurcJYGuyXSbMPRRrm0p7mgZuSjnlqjmuDBPSvq0E
-X-Gm-Gg: Acq92OG3hi+PuVl1XVLX0TsFP7qlBJtlCz3LtNHD4hL2aMKQG9iPEoXscnmsGe+GvN1
-	wQwmoUswpYBVPVxom5rZPKZpMlzVQISN4xADt96P5VXrlPjhwC62h4kt9iRkZR79g5CLTYyYGMq
-	woJLluP0xJQvA1zMXBcHPZth70morHdWCTeZ69CkTeIJljXfaFhZCs8iURbLCXXTYwYUdSuUWb6
-	ICqqinJYh/dZ1f87xAkqa7dlhCwuvKhy5TsABhopik3Nbn84M9pgc5aqB013EMSCQ97b8noYnWv
-	eRMjt7nFycsrUt+d5VquyysGkU5Rh0Z8oROVWamkoDfJQIme3XJx3tIExnHMU+uX+nfswtjVWd+
-	CYv4KeuO0k4Qy5lbXT/9nMY/Mk4YrOHZRQXgFBOcesC2XgafRJdPLcdxIXi0XTCiUnM5ts7Mp+2
-	x6rTV3z7iy+uhk5FVlpsodBYYGju8fWpag22GU5dc=
-X-Received: by 2002:a17:90b:3bc4:b0:36a:1ed8:6fe6 with SMTP id 98e67ed59e1d1-36e332f7e45mr8166646a91.24.1780585324132;
-        Thu, 04 Jun 2026 08:02:04 -0700 (PDT)
-Received: from localhost ([2a03:2880:7ff:41::])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-36f6d109dcdsm4398717a91.9.2026.06.04.08.02.03
+        bh=2hIFtvWihjq2T5uRD8ilA/smzXwEZg9tgf7CPYlO5lE=;
+        b=GwsTM1GgDUhx1n/5Buo7otk/f9wjgLP7HPvVMiWyHjWAqzZ0GYWEtYGwvTxNT6vrQh
+         8pLX4he1gmgNPEjziTEm74gXUnjUKb/HlzpNoRqdRBdyQtOKyltLV3n/9K0517NL09ot
+         Y5CbCeyUMgMcOJnJhC7HibfYfD9vdWp3mdBApBVMr5IctWbEK4goknrirmZ0uEt3zk7s
+         6HgHiFgPf+vRBMCCGxA/fv0TzXOiFwv3QinYaXyEju2K9hxdtwoLf7dPBJflRH91CSTg
+         Ojd76+WLSHmn8wRRWs6ZK1UuHahmfnh/MncczjLg1sFVKOQ32qZWtV2XEXKGvbBx2Dm0
+         i/BA==
+X-Forwarded-Encrypted: i=1; AFNElJ+S6dpKA6Q5i4sC2/lxKfWHIEVHqzX5Pw+/+38FkHjgnkoja2iaZ8dk8Gnznd/XOUSC6xhKEyJl6yV2@vger.kernel.org
+X-Gm-Message-State: AOJu0YwYXd3abyxkW/5ko7wCzPHAyRAUwz7F6yVgeLW9gVfoSz3rIfB7
+	qA033YgwlEN/J0+gEzY5IMFro9ARauWEwGGm+pWX2tejaHd+WIFTfN25
+X-Gm-Gg: Acq92OEODlc//GlXnQYYbgyurl6ZwasQseu7yDG52LVl1AuVPQvAksz+5w4MgXPF+n9
+	BQMIexa4de8rFs/Zn06RetnH1BVkSWWz75vMVf6V5HJqh0p4k6iPPR3aqg7e5W/srE4HlBHoI5D
+	2cqrzBVPDFcjRTvS4eLPpAdp5kTD22sfC0K+nz7q+rZbnDvFBIFm2EDoy/z8t5SbyAqkxxwbDCT
+	w9H6mKlmZdegVBGkcgqSN8s8QgPT+bJzLjBjiU3+QTfHkxito1fXwas4ttICXgfSuUnHItecqJD
+	+vSemdhq4OAT1bRAhHAyREGohZHRipsGEcwB6laGg9ulrsqbBrhRK6bcvyUJA4fuA+r4HOd/eYO
+	qOR9wBTspMTc70RRIHPfjObdsLFVRi+9nDuN9WO8HG6G0Vy5gQkNd7q56KLimMZygoNPzLeiv
+X-Received: by 2002:a17:90b:2b8c:b0:36a:8519:a4e9 with SMTP id 98e67ed59e1d1-36f7898e08dmr3643368a91.18.1780585325710;
+        Thu, 04 Jun 2026 08:02:05 -0700 (PDT)
+Received: from localhost ([2a03:2880:7ff:55::])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-36f711e7b53sm3448820a91.14.2026.06.04.08.02.04
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 04 Jun 2026 08:02:03 -0700 (PDT)
+        Thu, 04 Jun 2026 08:02:05 -0700 (PDT)
 From: Dimitri Daskalakis <dimitri.daskalakis1@gmail.com>
 To: Bjorn Helgaas <bhelgaas@google.com>
 Cc: linux-pci@vger.kernel.org,
@@ -90,9 +89,9 @@ Cc: linux-pci@vger.kernel.org,
 	linux-s390@vger.kernel.org,
 	kvm@vger.kernel.org,
 	xen-devel@lists.xenproject.org
-Subject: [RFC 06/12] PCI: Convert vfio_pci_core.c to pci_is_sriov_* helpers
-Date: Thu,  4 Jun 2026 08:01:47 -0700
-Message-ID: <20260604150153.3619662-7-dimitri.daskalakis1@gmail.com>
+Subject: [RFC 07/12] PCI: Convert xen-pciback and pci-driver to pci_is_sriov_* helpers
+Date: Thu,  4 Jun 2026 08:01:48 -0700
+Message-ID: <20260604150153.3619662-8-dimitri.daskalakis1@gmail.com>
 X-Mailer: git-send-email 2.52.0
 In-Reply-To: <20260604150153.3619662-1-dimitri.daskalakis1@gmail.com>
 References: <20260604150153.3619662-1-dimitri.daskalakis1@gmail.com>
@@ -111,65 +110,45 @@ No functional changes.
 Assisted-by: Claude:claude-opus-4.7
 Signed-off-by: Dimitri Daskalakis <daskald@meta.com>
 ---
- drivers/vfio/pci/vfio_pci_core.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/pci/pci-driver.c           | 4 ++--
+ drivers/xen/xen-pciback/pci_stub.c | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/vfio/pci/vfio_pci_core.c b/drivers/vfio/pci/vfio_pci_core.c
-index 3f8d093aacf8..ad8069612cb2 100644
---- a/drivers/vfio/pci/vfio_pci_core.c
-+++ b/drivers/vfio/pci/vfio_pci_core.c
-@@ -1856,7 +1856,7 @@ int vfio_pci_core_match_token_uuid(struct vfio_device *core_vdev,
- 	 *
- 	 * If the VF token is provided but unused, an error is generated.
- 	 */
--	if (vdev->pdev->is_virtfn) {
-+	if (pci_is_sriov_virtfn(vdev->pdev)) {
- 		struct vfio_pci_core_device *pf_vdev = vdev->sriov_pf_core_dev;
- 		bool match;
+diff --git a/drivers/pci/pci-driver.c b/drivers/pci/pci-driver.c
+index d10ece0889f0..926f80bccd70 100644
+--- a/drivers/pci/pci-driver.c
++++ b/drivers/pci/pci-driver.c
+@@ -357,7 +357,7 @@ static void local_pci_probe_callback(struct work_struct *work)
+ static bool pci_physfn_is_probed(struct pci_dev *dev)
+ {
+ #ifdef CONFIG_PCI_IOV
+-	return dev->is_virtfn && dev->physfn->is_probed;
++	return pci_is_sriov_virtfn(dev) && dev->physfn->is_probed;
+ #else
+ 	return false;
+ #endif
+@@ -453,7 +453,7 @@ static int __pci_device_probe(struct pci_driver *drv, struct pci_dev *pci_dev)
+ #ifdef CONFIG_PCI_IOV
+ static inline bool pci_device_can_probe(struct pci_dev *pdev)
+ {
+-	return (!pdev->is_virtfn || pdev->physfn->sriov->drivers_autoprobe ||
++	return (!pci_is_sriov_virtfn(pdev) || pdev->physfn->sriov->drivers_autoprobe ||
+ 		device_has_driver_override(&pdev->dev));
+ }
+ #else
+diff --git a/drivers/xen/xen-pciback/pci_stub.c b/drivers/xen/xen-pciback/pci_stub.c
+index 79a2b5dfd694..fd5a13f79fcf 100644
+--- a/drivers/xen/xen-pciback/pci_stub.c
++++ b/drivers/xen/xen-pciback/pci_stub.c
+@@ -1695,7 +1695,7 @@ static int pci_stub_notifier(struct notifier_block *nb,
+ 	if (action != BUS_NOTIFY_UNBIND_DRIVER)
+ 		return NOTIFY_DONE;
  
-@@ -1979,13 +1979,13 @@ static int vfio_pci_bus_notifier(struct notifier_block *nb,
- 	struct pci_dev *physfn = pci_physfn(pdev);
- 
- 	if (action == BUS_NOTIFY_ADD_DEVICE &&
--	    pdev->is_virtfn && physfn == vdev->pdev) {
-+	    pci_is_sriov_virtfn(pdev) && physfn == vdev->pdev) {
- 		pci_info(vdev->pdev, "Captured SR-IOV VF %s driver_override\n",
- 			 pci_name(pdev));
- 		WARN_ON(device_set_driver_override(&pdev->dev,
- 						   vdev->vdev.ops->name));
- 	} else if (action == BUS_NOTIFY_BOUND_DRIVER &&
--		   pdev->is_virtfn && physfn == vdev->pdev) {
-+		   pci_is_sriov_virtfn(pdev) && physfn == vdev->pdev) {
- 		struct pci_driver *drv = pci_dev_driver(pdev);
- 
- 		if (drv && drv != pci_dev_driver(vdev->pdev))
-@@ -2005,7 +2005,7 @@ static int vfio_pci_vf_init(struct vfio_pci_core_device *vdev)
- 	struct pci_dev *physfn;
- 	int ret;
- 
--	if (pdev->is_virtfn) {
-+	if (pci_is_sriov_virtfn(pdev)) {
- 		/*
- 		 * If this VF was created by our vfio_pci_core_sriov_configure()
- 		 * then we can find the PF vfio_pci_core_device now, and due to
-@@ -2025,7 +2025,7 @@ static int vfio_pci_vf_init(struct vfio_pci_core_device *vdev)
- 	}
- 
- 	/* Not a SRIOV PF */
 -	if (!pdev->is_physfn)
 +	if (!pci_is_sriov_physfn(pdev))
- 		return 0;
+ 		return NOTIFY_DONE;
  
- 	vdev->vf_token = kzalloc_obj(*vdev->vf_token);
-@@ -2166,7 +2166,7 @@ int vfio_pci_core_register_device(struct vfio_pci_core_device *vdev)
- 		return -EBUSY;
- 	}
- 
--	if (pci_is_root_bus(pdev->bus) || pdev->is_virtfn) {
-+	if (pci_is_root_bus(pdev->bus) || pci_is_sriov_virtfn(pdev)) {
- 		ret = vfio_assign_device_set(&vdev->vdev, vdev);
- 	} else if (!pci_probe_reset_slot(pdev->slot)) {
- 		ret = vfio_assign_device_set(&vdev->vdev, pdev->slot);
+ 	for (;;) {
 -- 
 2.52.0
 
