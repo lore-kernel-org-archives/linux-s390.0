@@ -1,217 +1,139 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f51.google.com (mail-ej1-f51.google.com [209.85.218.51])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 746393C98B5;
-	Thu,  4 Jun 2026 06:44:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780555467; cv=none; b=geeQtn1T0BEXeWK11+Orq7Kz6vZHqZfBTS4YqzuLUqXLuBkY8+5PbUmEt/S9twdZzuzTwec4zuV2mvafIcbhDNXbZUgSBJLBjGArqKcSct1YK+pX0riN051nOrp4pAOrWcKI81+W4V71ZxNkp5bDXRdxCKY+RUGWqytK60xae7w=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780555467; c=relaxed/simple;
-	bh=yBMstDezzrlR+D2lnergApWsc+ZdIXr2Xo3Q1wb6mS0=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=bnUiuIbFa1IwJchpUxhUXHgNwqlYDi1kA6vYyGOl1TO7XK8omenyW26yTYWlPTl78qCDzjx6y+n7K+OIqLsa7t2h5X+xVNNq2o/HHXyElYIcDMT5kEXEvdkn0WZ+xIqgDYawlK4vWt9/dkWg9BZwqN+aT6MmiqENAMCo5dQRSdY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=M5LnWWdG; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 418F937CD39
+	for <linux-s390@vger.kernel.org>; Thu,  4 Jun 2026 07:22:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.218.51
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1780557724; cv=pass; b=i9U6vYEYa/9BNapwlPimXF34haPQqRghc2UCQBSS8xa1mcnBLzuTgxsS86apoIaaT19Brdx4jRtp8E6NT5mxAXqmwpfbG1NgL936hSJJi1OI01qlnPgos2yTn4x/5T4Qg6YlqReuhMQCrdgrNB97p59wHy01ufC+QGVeLrKr8XA=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1780557724; c=relaxed/simple;
+	bh=6meBRs5nEnzEznihvbKKzPhzXCt5ZLXtMWNzXDh/Pz0=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=MZ4SzgL2b1JbBca82TSfSeLnes4hALumgW2uNYNC5F2GloQGsobZFkt3Ll8BUisBAEbZQ2dAkVcsFfOeQpwtdDsPW7s949vKcIHzKd6Q0/Zxgq010XHzJUCBJKO/mqFRogmOZq6cl86ZPrbLUnKGPKwobvofjXksFi91ATGF3Sg=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=fMDhVnQM; arc=pass smtp.client-ip=209.85.218.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="M5LnWWdG"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 653GxmmJ103884;
-	Thu, 4 Jun 2026 06:44:23 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:message-id:mime-version:subject:to; s=
-	pp1; bh=zrCIQunoZ+c/i35w5VtcQeAsfJNvEQcnRv+93mI7wkE=; b=M5LnWWdG
-	MYR5U7RDN3WJFsQGJDzuCaECFmy5RN0pCRHET62C6FKgzsooMrC9D56+ZMtAKRKP
-	xTFUev5cU5vLwy+xtfvN39EoAOoT2Noo0eFpJCM1NclGj7crfmQHh/V7x9yE5Cxs
-	iP2LECOEq/9bRtT28xxZhL/lKislR5sASCduo0vv/6SYJcjyolPSa13e/+a0njxl
-	9Pw95W5ifOlH1MuDqh3oeOI4rUcLoEEpQaeHf7bERwRg/8uHkWdDisFJ5EFvbSB0
-	5Q6oetotZKsNFTTh9JGJgqxyjcPWeL+KiH3QtBwH/l6N51RJVq3iJRq+KUc3uMFw
-	LPRA4Vi/fhIFww==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4efpaedyu4-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 04 Jun 2026 06:44:22 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 6546d5xF011331;
-	Thu, 4 Jun 2026 06:44:22 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4egakw3yy7-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 04 Jun 2026 06:44:22 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6546iIUp60031354
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 4 Jun 2026 06:44:18 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 15E3C20043;
-	Thu,  4 Jun 2026 06:44:18 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id ED98C20040;
-	Thu,  4 Jun 2026 06:44:17 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Thu,  4 Jun 2026 06:44:17 +0000 (GMT)
-Date: Thu, 4 Jun 2026 08:44:16 +0200
-From: Alexander Gordeev <agordeev@linux.ibm.com>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: [GIT PULL] s390 updates for 7.1-rc7
-Message-ID: <20260604064416.1461269A9a-agordeev@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="fMDhVnQM"
+Received: by mail-ej1-f51.google.com with SMTP id a640c23a62f3a-beb7f26ed62so39760066b.0
+        for <linux-s390@vger.kernel.org>; Thu, 04 Jun 2026 00:22:03 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1780557722; cv=none;
+        d=google.com; s=arc-20240605;
+        b=gEYvhIUt0cPEzzbqY7tV+Zdrfefz96c+0Y31zvvEs5yWkg3MWButComzAMIwp9KrKh
+         wu8FKdfreNl2U47crQREdFzjl1OtsZIXDtxRJwM+feYcM6+SOn8XeXOOFcKWMtrzYgJN
+         cgmg0kBsE1+nJcDu9Els+l+0hao5RzzdyrWirfhyJ6NNidi0TGA4yREnJROMwCVfS3pu
+         tOgcl03alXu3/gTHBiRrixykdYI4DQUrpEdj/s8Z+BYao8rHJyMsfZHOqPMCURt3RpJg
+         pOX8USnDNH4m96SATtcBK8Ui6XPZ53CYjwDr1rQ4EYuQ7PH1qsIyxPCy2XJVRELeFptZ
+         m+pw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:dkim-signature;
+        bh=lrvkDQfBnoMGYCzLOCiivKkoiHfHm/OTQW0RCIfHRHg=;
+        fh=9GPhguT6jRVMkKXlymlx6MX4h6AdnNzdR+r6EoFWP5U=;
+        b=JIhCWHVNww1AJw3DXGpk5/ftDJqNapQvswcKp8/xANxGuEOuycDVdf56F/7k4dy5dy
+         CiOjGEWBpHorETTV4s6pBsWyS2/tBze+C2ha+9RVCDhdF1Jb9nQ/vrdKb6dFuvunnm0S
+         csPUa+PfqKBPRZY89rK5LXuS2yyzCTFGd0Z/OnB6y/1FctJ314bGN1Px74Vb7O795JMg
+         O3Zzevu0XxOY87QN21m75msxzH5AI+rU/lQOmWlAJNBy1yX5ACIVe0cjL+hymHQvGCUM
+         Cy3qfG6UchbN12xak6nRIsCkl0pnoIDNfg4hkIFtfVEc8Sl91AONE8keKJW9Ye1bJyxl
+         ydJw==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1780557722; x=1781162522; darn=vger.kernel.org;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=lrvkDQfBnoMGYCzLOCiivKkoiHfHm/OTQW0RCIfHRHg=;
+        b=fMDhVnQMcKxGvnaf1Y7Bj4SNxOsGGb1K+X10rbRISykHQV7XOK2+6otVL/Hs88eKaQ
+         du8IQgRES1UUvRDZ3Ed6/imEXR66+NiKDlM1uTHuHLa8YBxiOyOw2hIFXrSNTwpE3d4o
+         eysGZMNTVcj32swCsL0iK86aLPUsA1/IVUW4YxSIg5MItQXFXaDt9RDXYoSiuZa8pCwo
+         3R/g5H0iTnxuwW9t+d0AIJBsEKp+9C7mRvmW77AWcLOHksmuXPDyOR1AQxE1PNHu1EgH
+         kGoyNdcDudVWzi+nIihKlIFMQyFYyowp5QKVdo7V0aApn0KCcDiplz5/NEb285DAqgej
+         Imyg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1780557722; x=1781162522;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=lrvkDQfBnoMGYCzLOCiivKkoiHfHm/OTQW0RCIfHRHg=;
+        b=bOeyP0xDV8Lrc0ZPChKVNEugBOrjMC6NRQx6Gn+M0jLfQtR+HHJKh+4zWCcDC2vB62
+         dkdFUZYy0/5Ceep0A2hUEpZ4DDCOAT9WoG/Mm7Dkib0w06cin9choLZ7ON7FG2aXhpEJ
+         KRC+Rykde2I2f+ZxA5Z13jj4+WD2KwqFEKtgcDRnaiyZoEH707R4eC21p7iwUqfxALKP
+         XlarCTcUX0difGVgFmfCsfdWGkCuf0lQS4ryFHW6VUGBpYcpt8VZju1aZdK9WNnACtYY
+         Bi/VDTeVz8DaQX4jn+5ue/0RaqGSbHk8wZCSXzOXxSJ5sQoz0bw03BWVmupluW9bxN4k
+         6pgg==
+X-Forwarded-Encrypted: i=1; AFNElJ8kordy5bQO0Ps/HiEhLg7fZqb6RN1W2pss4DWRqV5IgXDmwCCWYQJOMo/p/LKB+L2c7DmWZm3LgjFt@vger.kernel.org
+X-Gm-Message-State: AOJu0YzTkrpuU0Q7PBAfm3QKmNqPYd1RPEKVBE7kVBgrRAM96eN3a0ZG
+	rWGC1BqtnrqbhokkQeYBdXOBdZFLjexN/cZWlWPpNSqJzuAM0eEKrDPwQja9AapFXtrE6NMam0G
+	Q81GFaTPj8jjGZ5jh4Qdrqt7vmNJL89o92mNeuoOVmw==
+X-Gm-Gg: Acq92OEefUrRBm12yFq1t4/LoQvjb7vKGAAmV8AO4aaBYfOkfNuqxcHEhwt7lUk/Mj8
+	rEt8oZHGVsNcwb2OYOdjxY4dU9SFLcd/QQd+v1RS1hTQ6Rdfu6BN7bmvSuqaAXWwNzIASXgfMtZ
+	WsvjlsjcyupCD73NIGrrgyrWOU5llY1gwajWeEvBbSpR9/UUaHMIDFe3GMtcYNoPlxMGUuSYTu2
+	4pykAsQPc6NJhpcoe49Fl4aNBRr3aMd0aCh8+ui4q2TLe+cDKXWGeFw2wL1KkLymME/10A/tjt2
+	djOdeuAQBAepFenKFHpuvYRxEjtdOMtXMuN5q0C/Q9UbK2UKzQ==
+X-Received: by 2002:a17:907:cb89:b0:bee:45f5:3e with SMTP id
+ a640c23a62f3a-bf0b4395beemr416640866b.47.1780557721718; Thu, 04 Jun 2026
+ 00:22:01 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=Zt3d7d7G c=1 sm=1 tr=0 ts=6a211ec6 cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
- a=kj9zAlcOel0A:10 a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VwQbUJbxAAAA:8
- a=UFhfJ5FeD3VIgVq7kfgA:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-GUID: bH_NRieXH8ndb5o1lv4JV3rlg2_OhiBc
-X-Proofpoint-ORIG-GUID: bH_NRieXH8ndb5o1lv4JV3rlg2_OhiBc
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjA0MDA2MiBTYWx0ZWRfX2v7MAURIxQdH
- jKP1o33sZ445sSPkyKsS9rvtblphFs5bk4O/0jNUjYUmhC9rhu4kl7eJgjbdG4vn+9w/v9zZh5P
- od/NiOphp7r2mYZoOYMsKaoDSNNt3FJDj7ytSmPhsbzB/KKS/kuMLTPbIPNqozgWLfw/Spl5t9h
- sh/SJXClWD7tX7bJRVcSkNLR/IqJovGsm89ihsktXGliKqSd11XiT2ut3pq8qh9pBIKoVMATMl+
- U45zrX2a3AKBhn5/U/xa6RbQ30T4MxtL58S+hO0BLb2bHakZb8/Ss5ZV6YXGV6p31YMJV2a5bFP
- jxMER/7KY4q80Jv3z7CRcXiKp20iugvNCtfOI4MOtuzeb2usfoWVrs/zGN9z+izHz3UTQCKvk+O
- 2LB4P5DQTHi9dPogwMrOcZ1vmqtQw7DTHI/sIcIFqyYnePi2brlFOt50A1w+nfBrj0MwAQcFJ0a
- z08XAdRqV60d3h5raxw==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
- definitions=2026-06-04_02,2026-05-28_03,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- impostorscore=0 suspectscore=0 priorityscore=1501 bulkscore=0 clxscore=1015
- phishscore=0 spamscore=0 malwarescore=0 adultscore=0 lowpriorityscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2605210000 definitions=main-2606040062
+References: <20260522225853.878411-1-tjmercier@google.com> <ahPqbfH54R3JJyaV@infradead.org>
+ <20260527160716.GN2487554@ziepe.ca> <20260604-dangerous-tuatara-of-sympathy-28e05e@houat>
+In-Reply-To: <20260604-dangerous-tuatara-of-sympathy-28e05e@houat>
+From: Sumit Semwal <sumit.semwal@linaro.org>
+Date: Thu, 4 Jun 2026 12:51:49 +0530
+X-Gm-Features: AVHnY4LN7rgVW4AsJ6ueOLy3-gj_m35-QjBHqySb09IN1JOBtBY4T1wqgFsSviE
+Message-ID: <CAO_48GEJsg4X7++zg-ztQgVibY_FjjManaA5_W3usjicGUQPdg@mail.gmail.com>
+Subject: Re: [PATCH] powerpc: Export set_memory_encrypted and set_memory_decrypted
+To: Maxime Ripard <mripard@kernel.org>, Jiri Pirko <jiri@resnulli.us>
+Cc: Jason Gunthorpe <jgg@ziepe.ca>, Christoph Hellwig <hch@infradead.org>, 
+	"T.J. Mercier" <tjmercier@google.com>, maddy@linux.ibm.com, mpe@ellerman.id.au, 
+	npiggin@gmail.com, chleroy@kernel.org, linuxppc-dev@lists.ozlabs.org, 
+	lkp@intel.com, linux-kernel@vger.kernel.org, iommu@lists.linux.dev, 
+	linux-mm@kvack.org, agordeev@linux.ibm.com, gerald.schaefer@linux.ibm.com, 
+	linux-s390@vger.kernel.org, Dan Williams <djbw@kernel.org>, 
+	Tom Lendacky <thomas.lendacky@amd.com>, x86@kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-Hi Linus,
+Hi All,
 
-please pull s390 updates for 7.1-rc7.
+On Thu, 4 Jun 2026 at 11:04, Maxime Ripard <mripard@kernel.org> wrote:
+>
+> On Wed, May 27, 2026 at 01:07:16PM -0300, Jason Gunthorpe wrote:
+> > On Sun, May 24, 2026 at 11:21:33PM -0700, Christoph Hellwig wrote:
+> > > On Fri, May 22, 2026 at 03:58:53PM -0700, T.J. Mercier wrote:
+> > > > After commit fd55edff8a0a ("dma-buf: heaps: system: Turn the heap into a
+> > > > module") the system dma-buf heaps can be built as a module. The
+> > > > system_cc_shared heap uses set_memory_encrypted and set_memory_decrypted
+> > > > but those functions are not exported on powerpc. This can result in a
+> > > > build error like:
+> > >
+> > > I'd much rather revert the above commit.  Yes, x86 has exported these
+> > > since 2017, but that's a really bad idea, and we should fix it instead
+> > > of spreading the export.
+> > >
+> > > Setting memory decrypted is a dangerous operations and should only
+> > > be available to core code.  We should have various allocators for
+> > > decrypted code, but not export the functionality to random code.
+> >
+> > At the very least an EXPORT_SYMBOL_NS.
+> >
+> > Looks like there are about 3 modules using it already..
+>
+> So, I'm not really sure how to fix this now. Should we revert the patch
+> making the system heap a module, or should we export the symbols for all
+> archs?
 
-Thanks,
-Alexander Gordeev
+Given that Christoph's objection is not really about the modules part,
+but that the set_memory_{encrypted,decrypted} should not be used here,
+one option is to revert 78b30c50a7ac until that issue is sorted out?
 
-The following changes since commit 540f4a4f6ef806a28e794001bb4beac4840a6090:
+Jiri, any thoughts from you?
+>
+> Maxime
 
-  s390/topology: Use zero-based numbering for containing entities (2026-05-20 09:39:24 +0200)
-
-are available in the Git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-7.1-4
-
-for you to fetch changes up to 7c6535c37dbc03c1c35926b7420d66fb122b513a:
-
-  s390: Implement _THIS_IP_ using inline asm (2026-05-30 11:33:32 +0200)
-
-----------------------------------------------------------------
-s390 updates for 7.1-rc7
-
-- Enable IOMMUFD and VFIO cdev such that PCI pass-through
-  to QEMU/KVM can optionally utilize native IOMMUFD
-
-- With HAVE_ARCH_BUG_FORMAT enabled the BUG infrastructure
-  might misinterpret flags or fault. Fix this by moving the
-  "format" field emission into __BUG_ENTRY()
-
-- The generic version of _THIS_IP_ is known to be brittle
-  and may break with current and future GCC and Clang
-  optimizations. Fix it by overriding _THIS_IP_
-
-----------------------------------------------------------------
-Jan Polensky (1):
-      s390/bug: Always emit format word in __BUG_ENTRY
-
-Marco Elver (1):
-      s390: Implement _THIS_IP_ using inline asm
-
-Niklas Schnelle (1):
-      s390/configs: Enable IOMMUFD and VFIO cdev in defconfigs
-
- arch/s390/configs/debug_defconfig |  4 ++++
- arch/s390/configs/defconfig       |  4 ++++
- arch/s390/include/asm/bug.h       | 12 ++++++------
- arch/s390/include/asm/linkage.h   |  2 ++
- 4 files changed, 16 insertions(+), 6 deletions(-)
-
-diff --git a/arch/s390/configs/debug_defconfig b/arch/s390/configs/debug_defconfig
-index c28f9a7d0bd8..730c90b4a876 100644
---- a/arch/s390/configs/debug_defconfig
-+++ b/arch/s390/configs/debug_defconfig
-@@ -56,6 +56,10 @@ CONFIG_EXPOLINE_AUTO=y
- CONFIG_CHSC_SCH=y
- CONFIG_VFIO_CCW=m
- CONFIG_VFIO_AP=m
-+CONFIG_VFIO_DEVICE_CDEV=y
-+CONFIG_IOMMUFD_DRIVER=y
-+CONFIG_IOMMUFD_DRIVER_CORE=y
-+CONFIG_IOMMUFD=y
- CONFIG_CMM=m
- CONFIG_APPLDATA_BASE=y
- CONFIG_S390_HYPFS_FS=y
-diff --git a/arch/s390/configs/defconfig b/arch/s390/configs/defconfig
-index d89c988f33ea..dd5fc1426c88 100644
---- a/arch/s390/configs/defconfig
-+++ b/arch/s390/configs/defconfig
-@@ -54,6 +54,10 @@ CONFIG_EXPOLINE_AUTO=y
- CONFIG_CHSC_SCH=y
- CONFIG_VFIO_CCW=m
- CONFIG_VFIO_AP=m
-+CONFIG_VFIO_DEVICE_CDEV=y
-+CONFIG_IOMMUFD_DRIVER=y
-+CONFIG_IOMMUFD_DRIVER_CORE=y
-+CONFIG_IOMMUFD=y
- CONFIG_CMM=m
- CONFIG_APPLDATA_BASE=y
- CONFIG_S390_HYPFS_FS=y
-diff --git a/arch/s390/include/asm/bug.h b/arch/s390/include/asm/bug.h
-index 59017fd3d935..50a270edb020 100644
---- a/arch/s390/include/asm/bug.h
-+++ b/arch/s390/include/asm/bug.h
-@@ -12,12 +12,11 @@
- #if defined(CONFIG_BUG) && defined(CONFIG_CC_HAS_ASM_IMMEDIATE_STRINGS)
- 
- #ifdef CONFIG_DEBUG_BUGVERBOSE
--#define __BUG_ENTRY_VERBOSE(format, file, line)				\
--	"	.long	" format " - .	# bug_entry::format\n"		\
-+#define __BUG_ENTRY_VERBOSE(file, line)					\
- 	"	.long	" file " - .	# bug_entry::file\n"		\
- 	"	.short	" line "	# bug_entry::line\n"
- #else
--#define __BUG_ENTRY_VERBOSE(format, file, line)
-+#define __BUG_ENTRY_VERBOSE(file, line)
- #endif
- 
- #ifdef CONFIG_DEBUG_BUGVERBOSE_DETAILED
-@@ -28,9 +27,10 @@
- 
- #define __BUG_ENTRY(format, file, line, flags, size)			\
- 		"	.section __bug_table,\"aw\"\n"			\
--		"1:	.long	0b - .	# bug_entry::bug_addr\n"	\
--		__BUG_ENTRY_VERBOSE(format, file, line)			\
--		"	.short	"flags"	# bug_entry::flags\n"		\
-+		"1:	.long	0b - .		# bug_entry::bug_addr\n"\
-+		"	.long	" format " - .	# bug_entry::format\n"	\
-+		__BUG_ENTRY_VERBOSE(file, line)				\
-+		"	.short	"flags"		# bug_entry::flags\n"	\
- 		"	.org	1b+"size"\n"				\
- 		"	.previous"
- 
-diff --git a/arch/s390/include/asm/linkage.h b/arch/s390/include/asm/linkage.h
-index df3fb7d8227b..1b3ac553a642 100644
---- a/arch/s390/include/asm/linkage.h
-+++ b/arch/s390/include/asm/linkage.h
-@@ -7,4 +7,6 @@
- #define __ALIGN .balign CONFIG_FUNCTION_ALIGNMENT, 0x07
- #define __ALIGN_STR __stringify(__ALIGN)
- 
-+#define _THIS_IP_ ({ unsigned long __ip; asm volatile("larl %0, ." : "=d" (__ip)); __ip; })
-+
- #endif
+Best,
+Sumit.
