@@ -1,72 +1,67 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC28D3E1221
-	for <linux-s390@vger.kernel.org>; Thu,  4 Jun 2026 08:36:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B9A6A3E51C1;
+	Thu,  4 Jun 2026 08:40:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780562218; cv=none; b=EZrOm1A8uanDJnZs2n7mGw0buckS2Qf7O26Nh6mqo7kVn91xc5OW9/mjvg5j/bkTSZHzOOALrh+a6i4GjWY+7YPtihgRh9euTz8YAtaW1VKknJm2HMfpbeg6NAm0Cn/iWeYkBXWPZWdB2uStLZ8ozM1wOqagKfM7rEhplEs7Wg8=
+	t=1780562420; cv=none; b=JpRDe7GsQ5ODBiE3cN8g8obaf6jrl0W53JycI2NuwdnVdQ+9Z4uGYLArRkpE53/UwSBp7ZGBBp7JhWLRAWaW8klYQnUwvmz7j1O8hNoP6pARq8z8DpgEqcPAQ7SNRZcStTCeg5p1naDg+dSkewNlH4BlpdbDh5fzokWRoBudBFI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780562218; c=relaxed/simple;
-	bh=nprcEBE1NGKw2i4OlDzdzgm0LU77LybYr+IdaJAH+j4=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=V2SpAnG7S4RBSXIIjNuI3WbqK3tV6XCgvWLkUd20yfMT9Gzlf+ePRyaBnJkwbS40IME/eu2Dm17LZfhpQ64MNDtB173ejXqj8LWrBeBDSVCF1Ge95Xdb1VtU2/Te3b0yF+FRCWU9a/TufESNXkhReDo/oAbPFVPti+omGjVrtLU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=CDkAw0nR; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1780562420; c=relaxed/simple;
+	bh=a5QZZCy9Wob3UPjjoQGUMvW9yB+7RmfM1eFovwyCltw=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ERY4RWkOXfJ8CXJt+4z5+ZmXBp0wt9wzABeZMjABm7i6pFZa8GpC9Ag89CDck4V4MY6aveZY7AagGnmrF/OPImNatN6z2HK6Jv43xc/gzXtwBCOn1nJ4P+WV8/syLXRuPJhVwG32lCI7j4GaffvybZjc8wtnqgb221P/ll7uVeU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=i77XriBT; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="CDkAw0nR"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1780562215;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=ahCppztDq6+HeauIzaJ6zc0IwFK9+tiuCYjSpFg9FQY=;
-	b=CDkAw0nRb56iJ3htqsJGQ/0KoBKUpBA8mauc4LM3JRra3v85pKo1KW/GUPz5QaT1FclL3G
-	sYrVmFgkpXghCYE8zMon9br4duF5NP5Jx2sEFQdClDehI2TEg4gCB+G1HNpAUybk2cY7Lz
-	3luWFkdHBxiYSPh0lj1jsZZa4SGwMZY=
-Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-635-AwHBzJWyOfCMpnNX2-oKBg-1; Thu,
- 04 Jun 2026 04:36:52 -0400
-X-MC-Unique: AwHBzJWyOfCMpnNX2-oKBg-1
-X-Mimecast-MFC-AGG-ID: AwHBzJWyOfCMpnNX2-oKBg_1780562210
-Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 8B17C18004BB;
-	Thu,  4 Jun 2026 08:36:49 +0000 (UTC)
-Received: from gerbillo.redhat.com (unknown [10.44.49.23])
-	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 670851800347;
-	Thu,  4 Jun 2026 08:36:42 +0000 (UTC)
-From: Paolo Abeni <pabeni@redhat.com>
-To: alibuda@linux.alibaba.com
-Cc: davem@davemloft.net,
-	dust.li@linux.alibaba.com,
-	edumazet@google.com,
-	kuba@kernel.org,
-	pabeni@redhat.com,
-	sidraya@linux.ibm.com,
-	wenjia@linux.ibm.com,
-	mjambigi@linux.ibm.com,
-	horms@kernel.org,
-	tonylu@linux.alibaba.com,
-	guwen@linux.alibaba.com,
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="i77XriBT"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFAAF1F00893;
+	Thu,  4 Jun 2026 08:40:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1780562413;
+	bh=wHOprMx7xR6nqpYaL4ej4AIk1kPiMId1xf+MLlCyuGM=;
+	h=From:To:Cc:Subject:Date;
+	b=i77XriBTPGuUv0oAi0lasSX+AaT58/2yrzJiwqs8PcjatYYDo4+fQKCPkQO+G4eRq
+	 Rrz2tQO+WMMJw0f77rRW3AtUh+Ki141ppS8hV+XcNxQQvg1DqkajOyOZpbbsD/qCKf
+	 N7wXVYitXtPftDibMPWQjUNNEsEjkbb++hBIWWrVnpM7xdqG6Ia+Onl+r2zFQZLkmD
+	 kWEvxJbxJLh/t8cv1bIQJlKeGkRZEBDTMrMm2fSMIc6dmVxjd4+TcXDoGrQGTdPOQU
+	 tvGGdcaSy+BEPnD2oQer5+hedm9s5j2s7XhvPu7oL6D5SULj6UwyMkzRMQI+CTDypR
+	 DIYG1PdxMhwRQ==
+From: "Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org>
+To: iommu@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org,
 	linux-kernel@vger.kernel.org,
-	linux-rdma@vger.kernel.org,
+	linux-coco@lists.linux.dev
+Cc: "Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org>,
+	Robin Murphy <robin.murphy@arm.com>,
+	Marek Szyprowski <m.szyprowski@samsung.com>,
+	Will Deacon <will@kernel.org>,
+	Marc Zyngier <maz@kernel.org>,
+	Steven Price <steven.price@arm.com>,
+	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Jiri Pirko <jiri@resnulli.us>,
+	Jason Gunthorpe <jgg@ziepe.ca>,
+	Mostafa Saleh <smostafa@google.com>,
+	Petr Tesarik <ptesarik@suse.com>,
+	Alexey Kardashevskiy <aik@amd.com>,
+	Dan Williams <dan.j.williams@intel.com>,
+	Xu Yilun <yilun.xu@linux.intel.com>,
+	linuxppc-dev@lists.ozlabs.org,
 	linux-s390@vger.kernel.org,
-	netdev@vger.kernel.org,
-	oliver.yang@linux.alibaba.com,
-	pasic@linux.ibm.com,
-	leonro@nvidia.com
-Subject: Re: [PATCH net-next v2 1/2] net/smc: transition to RDMA core CQ pooling
-Date: Thu,  4 Jun 2026 10:36:37 +0200
-Message-ID: <20260604083637.61737-1-pabeni@redhat.com>
-In-Reply-To: <20260528084819.6059-2-alibuda@linux.alibaba.com>
-References: <20260528084819.6059-2-alibuda@linux.alibaba.com>
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	x86@kernel.org
+Subject: [PATCH v6 00/20] dma-mapping: Use DMA_ATTR_CC_SHARED through direct, pool and swiotlb paths
+Date: Thu,  4 Jun 2026 14:09:39 +0530
+Message-ID: <20260604083959.1265923-1-aneesh.kumar@kernel.org>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -74,210 +69,160 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
 
-From: AI Reviewer <ai@example.com>
+This series propagates DMA_ATTR_CC_SHARED through the dma-direct,
+dma-pool, and swiotlb paths so that encrypted and decrypted DMA buffers
+are handled consistently.
 
-This is an AI-generated review of your patch. The human sending this
-email has considered the AI review valid, or at least plausible.
-Full review at: https://sashiko.dev/
----
-net/smc: transition to RDMA core CQ pooling
+Today, the direct DMA path mostly relies on force_dma_unencrypted() for
+shared/decrypted buffer handling. This series consolidates the
+force_dma_unencrypted() checks in the top-level functions and ensures
+that the remaining DMA interfaces use DMA attributes to make the correct
+decisions.
 
-The current SMC-R implementation relies on global per-device CQs
-and manual polling within tasklets, which introduces severe
-scalability bottlenecks due to global lock contention and tasklet
-scheduling overhead, resulting in poor performance as concurrency
-increases.
+The series:
+- moves swiotlb-backed allocations out of __dma_direct_alloc_pages(),
+- propagates DMA_ATTR_CC_SHARED through the dma-direct alloc/free
+  paths
+- teaches the atomic DMA pools to track encrypted versus decrypted
+  state
+- tracks swiotlb pool encryption state and enforces strict pool
+  selection
+- centralizes encrypted/decrypted pgprot handling in dma_pgprot() using
+  DMA attributes
+- passes DMA attributes down to dma_capable() so capability checks can
+  validate whether the selected DMA address encoding matches
+  DMA_ATTR_CC_SHARED
+- makes dma_direct_map_phys() choose the DMA address encoding from
+  DMA_ATTR_CC_SHARED and fall back to swiotlb when a shared DMA request
+  cannot use the direct mapping, which lets arm64 and x86 CCA guests stop
+  relying on SWIOTLB_FORCE for DMA mappings
+- use the selected swiotlb pool state to derive the returned DMA
+  address.
 
-Refactor the completion handling to utilize the ib_cqe API and
-standard RDMA core CQ pooling.
+Changes since v5:
+https://lore.kernel.org/all/20260522042815.370873-1-aneesh.kumar@kernel.org
+* Add Tested-by
+* Drop the pKVM patch, which has now been posted separately:
+  https://lore.kernel.org/all/20260603110522.3331819-1-smostafa@google.com
+* Remove the DO_NOT_MERGE tag from the s390 change.
+* Add a patch to drop the SWIOTLB_FORCE flag.
+* Rebase onto the latest kernel.
 
-> diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
-> index 9bb495707445e..a6d6b81830d38 100644
-> --- a/net/smc/smc_ib.c
-> +++ b/net/smc/smc_ib.c
+Changes since v4:
+https://lore.kernel.org/all/20260512090408.794195-1-aneesh.kumar@kernel.org
+* Add new patches based on Sashiko review:
+  swiotlb: Preserve allocation virtual address for dynamic pools
+  dma: free atomic pool pages by physical address
+  dma: swiotlb: handle set_memory_decrypted() failures
+  dma: swiotlb: free dynamic pools from process context
+  iommu/dma: Check atomic pool allocation result directly
+* Include pKVM and s390 changes as dependent patches. These are not yet
+  ready to merge and are waiting for subsystem testing feedback.
+* Drop the AMD GART patch because it requires wider testing.
+* Update swiotlb_tbl_map_single() to take attrs by reference.
+* Switch swiotlb_free() to use rcu_work.
+* Avoid calling swiotlb_find_pool() multiple times in the free path.
+* Make DMA_ATTR_MMIO imply DMA_ATTR_CC_SHARED for devices requiring unencrypted DMA.
 
-[ ... ]
+Changes from v3:
+https://lore.kernel.org/all/20260427055509.898190-1-aneesh.kumar@kernel.org
+* Handle DMA_ATTR_MMIO correctly in dma_direct_map_phys()
+* Address most of sashiko review
+* Rebase to latest kernel
+* drop SWIOTLB_FORCE for s390 and powerpc secure guest.
 
-> @@ -657,38 +645,59 @@ void smc_ib_destroy_queue_pair(struct smc_link *lnk)
->  	if (lnk->roce_qp)
->  		ib_destroy_qp(lnk->roce_qp);
->  	lnk->roce_qp = NULL;
-> +	if (lnk->ib_cq) {
-> +		ib_cq_pool_put(lnk->ib_cq, lnk->nr_cqe);
-> +		lnk->ib_cq = NULL;
-> +	}
->  }
->  
->  /* create a queue pair within the protection domain for a link */
->  int smc_ib_create_queue_pair(struct smc_link *lnk)
->  {
-> +	int max_send_wr, max_recv_wr, rc;
-> +	struct ib_cq *cq;
-> +
-> +	/* include unsolicited rdma_writes as well,
-> +	 * there are max. 2 RDMA_WRITE per 1 WR_SEND.
-> +	 */
-> +	max_send_wr = 3 * lnk->lgr->max_send_wr + 1;	/* +1 for ib_drain_sq() */
+Changes from v2:
+https://lore.kernel.org/all/20260420061415.3650870-1-aneesh.kumar@kernel.org
+* pass attrs to dma_capable() and update direct, swiotlb, Xen swiotlb, and
+  x86 GART paths so the capability checks see the DMA address attr value
+  DMA_ATTR_CC_SHARED.
+* rework dma_direct_map_phys() so DMA_ATTR_CC_SHARED selects
+  phys_to_dma_unencrypted() while the default path uses
+  phys_to_dma_encrypted(), with swiotlb fallback when the requested
+  shared/private state cannot be satisfied by a direct DMA address.
+* stop relying on SWIOTLB_FORCE for arm64 and x86 CC guest DMA mappings;
+  swiotlb is still enabled there, but shared mappings is now selected
+  through the generic dma_direct_map_phys()/dma_capable() decision instead
+  of a global force-bounce flag.
 
-[Severity: High]
-Does this calculation account for all possible work requests?
+Changes from v1:
+https://lore.kernel.org/all/20260417085900.3062416-1-aneesh.kumar@kernel.org
+* rebased to latest kernel (change from DMA_ATTR_CC_DECRYPTED -> DMA_ATTR_CC_SHARED)
+* update the alloc path so DMA_ATTR_CC_SHARED is not a caller-visible attribute.
 
-To support ib_drain_sq(), this patch increases SQ capacity by exactly 1,
-assuming standard data transmissions consume up to 3 WRs each. However, SMC
-also posts FastReg WRs (smc_wr_reg_send) and SMC-Rv2 LLC control messages
-(smc_wr_tx_v2_send) to the same SQ.
+Cc: Robin Murphy <robin.murphy@arm.com>
+Cc: Marek Szyprowski <m.szyprowski@samsung.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: Marc Zyngier <maz@kernel.org>
+Cc: Steven Price <steven.price@arm.com>
+Cc: Suzuki K Poulose <Suzuki.Poulose@arm.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Jiri Pirko <jiri@resnulli.us>
+Cc: Jason Gunthorpe <jgg@ziepe.ca>
+Cc: Mostafa Saleh <smostafa@google.com>
+Cc: Petr Tesarik <ptesarik@suse.com>
+Cc: Alexey Kardashevskiy <aik@amd.com>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Xu Yilun <yilun.xu@linux.intel.com>
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: linux-s390@vger.kernel.org
+Cc: Madhavan Srinivasan <maddy@linux.ibm.com>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Nicholas Piggin <npiggin@gmail.com>
+Cc: "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
+Cc: Sven Schnelle <svens@linux.ibm.com>
+Cc: x86@kernel.org
 
-If these independent WRs are posted while data TX slots are saturated, the
-total in-flight WRs will consume the remaining +1 slot reserved for the drain
-WR.
 
-When teardown occurs, ib_drain_sq() will attempt to post its dummy WR, but
-ib_post_send() will fail with -ENOMEM because the SQ is full. ib_drain_sq()
-responds to this failure by returning immediately without waiting for
-completions, unblocking teardown and freeing link structures while the
-hardware is still asynchronously flushing the SQ. When the softirq polls the
-flushed CQEs, it will access the freed ib_cqe pointers, leading to a
-use-after-free.
+Aneesh Kumar K.V (Arm) (20):
+  s390: Expose protected virtualization through cc_platform_has()
+  dma-direct: swiotlb: handle swiotlb alloc/free outside
+    __dma_direct_alloc_pages
+  dma-direct: use DMA_ATTR_CC_SHARED in alloc/free paths
+  dma-pool: track decrypted atomic pools and select them via attrs
+  dma: swiotlb: pass mapping attributes by reference
+  dma: swiotlb: track pool encryption state and honor DMA_ATTR_CC_SHARED
+  dma-mapping: make dma_pgprot() honor DMA_ATTR_CC_SHARED
+  dma-direct: pass attrs to dma_capable() for DMA_ATTR_CC_SHARED checks
+  dma-direct: make dma_direct_map_phys() honor DMA_ATTR_CC_SHARED
+  dma-direct: set decrypted flag for remapped DMA allocations
+  dma-direct: select DMA address encoding from DMA_ATTR_CC_SHARED
+  dma-pool: fix page leak in atomic_pool_expand() cleanup
+  dma-direct: rename ret to cpu_addr in alloc helpers
+  dma-direct: return struct page from dma_direct_alloc_from_pool()
+  iommu/dma: Check atomic pool allocation result directly
+  dma: swiotlb: free dynamic pools from process context
+  dma: swiotlb: handle set_memory_decrypted() failures
+  dma: free atomic pool pages by physical address
+  swiotlb: Preserve allocation virtual address for dynamic pools
+  swiotlb: remove unused SWIOTLB_FORCE flag
 
-> +	max_recv_wr = lnk->lgr->max_recv_wr + 1;	/* +1 for ib_drain_rq() */
-> +
-> +	cq = ib_cq_pool_get(lnk->smcibdev->ibdev, max_send_wr + max_recv_wr, -1,
-> +			    IB_POLL_SOFTIRQ);
+ arch/arm64/mm/init.c                 |   4 +-
+ arch/powerpc/platforms/pseries/svm.c |   2 +-
+ arch/s390/Kconfig                    |   1 +
+ arch/s390/mm/init.c                  |  16 +-
+ arch/x86/kernel/amd_gart_64.c        |  30 +--
+ arch/x86/kernel/pci-dma.c            |   4 +-
+ drivers/iommu/dma-iommu.c            |  15 +-
+ drivers/xen/swiotlb-xen.c            |   8 +-
+ include/linux/dma-direct.h           |  20 +-
+ include/linux/dma-map-ops.h          |   3 +-
+ include/linux/swiotlb.h              |  21 +-
+ kernel/dma/direct.c                  | 275 +++++++++++++++++++--------
+ kernel/dma/direct.h                  |  47 ++---
+ kernel/dma/mapping.c                 |  16 +-
+ kernel/dma/pool.c                    | 221 +++++++++++++++------
+ kernel/dma/swiotlb.c                 | 273 ++++++++++++++++++++------
+ 16 files changed, 692 insertions(+), 264 deletions(-)
 
-[ ... ]
 
-> diff --git a/net/smc/smc_wr.c b/net/smc/smc_wr.c
-> index 59c92b46945c5..130bc6c26fb31 100644
-> --- a/net/smc/smc_wr.c
-> +++ b/net/smc/smc_wr.c
-
-[ ... ]
-
-> @@ -63,109 +60,67 @@ void smc_wr_tx_wait_no_pending_sends(struct smc_link *link)
-
-[ ... ]
-
->  	if (pnd_snd_idx == link->wr_tx_cnt) {
-> -		if (link->lgr->smc_version != SMC_V2 ||
-> -		    link->wr_tx_v2_pend->wr_id != wc->wr_id)
-> -			return;
-> -		link->wr_tx_v2_pend->wc_status = wc->status;
-> -		memcpy(&pnd_snd, link->wr_tx_v2_pend, sizeof(pnd_snd));
-> -		/* clear the full struct smc_wr_tx_pend including .priv */
-> -		memset(link->wr_tx_v2_pend, 0,
-> -		       sizeof(*link->wr_tx_v2_pend));
->  		memset(link->lgr->wr_tx_buf_v2, 0,
->  		       sizeof(*link->lgr->wr_tx_buf_v2));
-
-[Severity: High]
-This is a pre-existing issue, but while reviewing this code I noticed a
-potential memory leak and NULL pointer dereference in smc_wr_tx_put_slot().
-
-In the error path of smc_wr_tx_put_slot(), the code attempts to clear the V2
-pending slots:
-
-net/smc/smc_wr.c:smc_wr_tx_put_slot() {
-    ...
-	} else if (link->lgr->smc_version == SMC_V2 &&
-		   pend->idx == link->wr_tx_cnt) {
-		/* Large v2 buffer */
-		memset(&link->wr_tx_v2_pend, 0,
-		       sizeof(link->wr_tx_v2_pend));
-		memset(&link->lgr->wr_tx_buf_v2, 0,
-		       sizeof(link->lgr->wr_tx_buf_v2));
-    ...
-}
-
-Because these target variables are pointers, sizeof evaluates to 8 bytes. The
-memset() call zeroes the pointer variable itself rather than clearing the
-underlying structure, which leaks the allocated memory.
-
-If smc_wr_tx_get_v2_slot() is called subsequently, it will attempt to
-dereference the now-NULL link->wr_tx_v2_pend, leading to a direct NULL pointer
-dereference.
-
-Could this be updated to use sizeof(*link->wr_tx_v2_pend) similar to the code
-removed above?
-
-[ ... ]
-
-> @@ -431,94 +367,74 @@ static inline void smc_wr_rx_demultiplex(struct ib_wc *wc)
->  {
-
-[ ... ]
-
->  }
->  
-> -static inline void smc_wr_rx_process_cqes(struct ib_wc wc[], int num)
-> +static void smc_wr_rx_process_cqe(struct ib_cq *cq, struct ib_wc *wc)
->  {
-> -	struct smc_link *link;
-> -	int i;
-> +	struct smc_link *link = wc->qp->qp_context;
->  
-> -	for (i = 0; i < num; i++) {
-> -		link = wc[i].qp->qp_context;
-> -		link->wr_rx_id_compl = wc[i].wr_id;
-> -		if (wc[i].status == IB_WC_SUCCESS) {
-> -			link->wr_rx_tstamp = jiffies;
-> -			smc_wr_rx_demultiplex(&wc[i]);
-> -			smc_wr_rx_post(link); /* refill WR RX */
-> -		} else {
-> -			/* handle status errors */
-> -			switch (wc[i].status) {
-> -			case IB_WC_RETRY_EXC_ERR:
-> -			case IB_WC_RNR_RETRY_EXC_ERR:
-> -			case IB_WC_WR_FLUSH_ERR:
-> -				smcr_link_down_cond_sched(link);
-> -				if (link->wr_rx_id_compl == link->wr_rx_id)
-> -					wake_up(&link->wr_rx_empty_wait);
-> -				break;
-> -			default:
-> -				smc_wr_rx_post(link); /* refill WR RX */
-> -				break;
-> -			}
-> +	if (wc->status == IB_WC_SUCCESS) {
-> +		link->wr_rx_tstamp = jiffies;
-> +		smc_wr_rx_demultiplex(wc);
-> +		smc_wr_rx_post(link, wc->wr_cqe); /* refill WR RX */
-
-[Severity: Critical]
-Can this cause a use-after-free when racing with queue teardown?
-
-The patch replaces smc_wr_drain_cq() with ib_drain_qp().
-ib_drain_rq() transitions the QP to IB_QPS_ERR and posts a dummy drain WR to
-wait for completions.
-
-However, smc_wr_rx_process_cqe() unconditionally reposts a new WR when
-processing a successful packet completion. If a valid RX completion is polled
-in the softirq concurrently with ib_drain_rq(), the softirq will post a new WR
-after the drain WR has been posted.
-
-Since the QP is in the ERR state, the new WR will be immediately completed
-with a flush error, but its CQE will be generated after the drain WR's CQE.
-This allows ib_drain_rq() to return and unblock link teardown, freeing
-link->wr_rx_ibs.
-
-When the softirq subsequently polls the flush CQE for the newly posted WR,
-it will dereference wc->wr_cqe->done. Since wc->wr_cqe points to the freed
-smc_ib_recv_wr, this results in a use-after-free.
-
-> +	} else {
-> +		/* handle status errors */
-> +		switch (wc->status) {
-> +		case IB_WC_RETRY_EXC_ERR:
-> +		case IB_WC_RNR_RETRY_EXC_ERR:
-> +		case IB_WC_WR_FLUSH_ERR:
-> +			smcr_link_down_cond_sched(link);
-> +			break;
-> +		default:
-> +			smc_wr_rx_post(link, wc->wr_cqe); /* refill WR RX */
-> +			break;
->  		}
->  	}
->  }
+base-commit: ba3e43a9e601636f5edb54e259a74f96ca3b8fd8
 -- 
-This is an AI-generated review.
+2.43.0
 
