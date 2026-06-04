@@ -1,259 +1,222 @@
-Received: from mail-ej1-f51.google.com (mail-ej1-f51.google.com [209.85.218.51])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from BN8PR05CU002.outbound.protection.outlook.com (mail-eastus2azolkn19011028.outbound.protection.outlook.com [52.103.12.28])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 49EB3317177
-	for <linux-s390@vger.kernel.org>; Thu,  4 Jun 2026 15:11:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.51
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780585911; cv=none; b=obhjIYQUnkTQ7uOoaIJtOogC2vI2Mx5iZ6eflFC27mRbDyBHpxHddytLuuYwevCJD/oFAKA4Cbpc6/RmsjuOWXaX3BghBKW6O7gkMiZC4tBylKnXzEyRt4R8dvqGtPP44nSVz8osbvqPzciUpKWQJ1qXoNCaI6UCG81/KgqMoz4=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780585911; c=relaxed/simple;
-	bh=SmKzBru82MXbWfMD6jBKCeYD6cZ596fFD1Rlxx5mYrs=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=dLzpR0c2VIq9YwOAomGcTfEnZHzqUWItCjm8NGBlpKD4TJXDZp+CzU14Ow80DrbdIszV80d1tKJCP5BljXyOZKs4ybvD3lMjXBYr3vMVMctkLaK2HwoxBnix5Ae17Ozc3I5nF6B6DS/DjlHEHH9s4QCUdvFjFz65k/GeWHJ91HA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=LvUS3Suu; arc=none smtp.client-ip=209.85.218.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 24C1C379ECD;
+	Thu,  4 Jun 2026 16:18:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.103.12.28
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1780589923; cv=fail; b=pxEfsKcxS5rdTjRlWgnYYEen0S7a70QtY/rwq2qpaovnRH03C04jmeW4p8F8qiWIbzUcY3foaVgdinoshWGD+vmS0MsNpxVruJ77ImOD6eXEfT877XUzx+xvX1S3MRo6nmwufb/fjwclws3hV7xMZOw1b5msL0676OMq7fNDA58=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1780589923; c=relaxed/simple;
+	bh=wUglpKPCiKvSwQM0dgI7bJkSUNH4Gxe0QSSxpsfHO4E=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=tIQawzZJUNtps38P5lOrNWYUvLZYZhgA9ScWP8ORUCWrlYXe/P5QDLSnl/fmcI46HWsgaOIWwZhkHRotflcDgnlB0x8aXiacpnhu8eKlo28zEOXautMb72wrAI1QpQdqcCEvBXC61K5kzdpfajFSrkqjaCdzE+OrK3Rb36z487U=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com; spf=pass smtp.mailfrom=outlook.com; dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b=QEsyy5ST; arc=fail smtp.client-ip=52.103.12.28
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=outlook.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="LvUS3Suu"
-Received: by mail-ej1-f51.google.com with SMTP id a640c23a62f3a-beeba001887so118407166b.3
-        for <linux-s390@vger.kernel.org>; Thu, 04 Jun 2026 08:11:50 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=suse.com; s=google; t=1780585909; x=1781190709; darn=vger.kernel.org;
-        h=in-reply-to:autocrypt:from:content-language:references:cc:to
-         :subject:user-agent:mime-version:date:message-id:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=SmKzBru82MXbWfMD6jBKCeYD6cZ596fFD1Rlxx5mYrs=;
-        b=LvUS3Suuuv0e2KCHhhMqKpy4KEvhc+F1ZjATbc5ZKoVbndy9I1swpIf/aeu6uTVxxK
-         OyjVz07D8KmUbXWoFamg0/jVbfO7FYt0TrScfpoRjYrROQyYsuLcCpNnbu3SY5vBrH/2
-         w1U34VnPKr/kvruiP/z6Is5Lf6cZ5s9RgFQSmvRrHiC+Q5FrspqgsfnMIp/AE/7SXudZ
-         pQhlnzSw4vA4/TYMSmIzGoqeXR+Bnt0bMo2tnQH5RxdB4fzBZtXXW8rTtk9eRDhj6/RN
-         Nqi0Nsa5e8AonDlqVELZp7b64ZBeuFL3wNO1ktCo1Ms2Av4YLCybFsXVb2xC8RbgFjrg
-         6tFA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780585909; x=1781190709;
-        h=in-reply-to:autocrypt:from:content-language:references:cc:to
-         :subject:user-agent:mime-version:date:message-id:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=SmKzBru82MXbWfMD6jBKCeYD6cZ596fFD1Rlxx5mYrs=;
-        b=bFfBKBiUSdKPipwkALFfXT+9JpsAv5iBnnYARENgticAVMJz/AZs7dzMNzalCchw8w
-         TbQ83XMIjs3gdyyde32gZQlVuFE7B4/RaJs/3J12t1+E5sfAlUDVUo8S3f4cDVcPSmfb
-         A8PYx9zUUDBLRxHjckLOd8D5TB/YGPJVeYAxstUZlh/frlMAoCbNcyFtHe2yRMe0E/cj
-         ilVfbVM6CelmtgNjeF+Ubl8CumY1PfYQPT27ZeBVtA+a4vKQm97nGd5GU+HnUObiS4M9
-         Npx+IELUucEAt8FmmBAEwpf7UGaFJOtQASu8MC30z+Ho3SxxTcv1t4uFyn/rb6tPt32c
-         mZ5A==
-X-Forwarded-Encrypted: i=1; AFNElJ8+tAlqIPd29oC0k8tAkQ9IL3rireGvvyVRxCoKDMjb/ou6gdF4rqv/UlE2uamooCjATHTc6XiAnLph@vger.kernel.org
-X-Gm-Message-State: AOJu0YyP0vqpL3A0eCPcXc0SPzl594mw+0jzBW/iO7iESNoJIv8uBWXE
-	uwWtpd32e2+8OQC3SsSLl7DWlMJa5AOBr7was1F8c96cr+lv3CC26BqdwpRCzK5F7eA=
-X-Gm-Gg: Acq92OEgsfLU14UzmYYMqwXITsSWDm5nfTMmQyQe0knPfFgAJ3X0UOs9xV/fFWbGmvW
-	brxDxgaRORlyBRcxVfsuuWRkLRvZ4xMmewfdKWHsuA1WS7Qj3jY0YCiYxaNUcWZdsISepoiBDWG
-	h1rIEKtWE0LPfT9M36t6Z4RCkNus/Q32VRLYziPnBOkg3/cK0plmLfpTpav3L71F33ZwnFQwb7v
-	L/GzxaNjF/Ixl+mQDsJ+QNVD4dwMN3oORbUJj244B/92Qe7PoyUzKJQwuFapVIO+1518VhUB/fq
-	sB0BoVnZOmdIhpVHepXsUgoWWZsaJeYyQ08rgLm0Wu3WgTGbcttVfyOZsghfP+owohW6O6PH2G2
-	pF+Vq0pknE+8/59AKkMwecI7dOv6uIkRaPfb/hUXTuud0Q3E8uw6nhwW9uQp3MZ45wKi1MJUghE
-	pzB2zHabgdPJGnuNOfmXGC9YlBJ2tu4on9CvSk3bwcJ223JT1e5kqqcG6IWaUXROZn24/vnxjrB
-	HYc46c4yO4KqOGoM/fnI8k8yo6G3J0eZFuXgaa5SoDMqtT8XX86AMLlTGn5o4cM
-X-Received: by 2002:a17:907:cbc5:b0:bd4:f3e2:f1b with SMTP id a640c23a62f3a-bf0b2bd07e2mr457906866b.32.1780585908739;
-        Thu, 04 Jun 2026 08:11:48 -0700 (PDT)
-Received: from ?IPV6:2a00:12d0:af5d:ad01:5d3f:14e6:9bcb:5112? (2a00-12d0-af5d-ad01-5d3f-14e6-9bcb-5112.ip.tng.de. [2a00:12d0:af5d:ad01:5d3f:14e6:9bcb:5112])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-bf051e9b1fasm324775966b.23.2026.06.04.08.11.47
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 04 Jun 2026 08:11:48 -0700 (PDT)
-Message-ID: <ce60e4dd-aedd-4376-9af1-cdae2f0d674b@suse.com>
-Date: Thu, 4 Jun 2026 17:11:47 +0200
+	dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b="QEsyy5ST"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=rWXZdQKo4hJMOTrXishfCKjc/nKF67nngFABsfQ7N8XbPWqiqZmLp1Q/XdOd7TjK1t2lHESCn6c9FfYuBDhr87nWzW4ERsID6Jt/uR1ZFMxv7g2nF4rMy0BTUXJa4nFNVRxk3ad+p6RHbKy+u6QSMAU5/9hgfHKEosS6Ryjql6zdzNGaWYX4csg9bFdLcnKAhy5fkNVjJ0mQk1/gNBQoZ6X/ShzkxDqXzrL097lqt5jFDcw1JWWUELLf7A6y7BV/p/p4JERdOe+BRRndOw1xbsU5hLjNEqPgxf/GHCTHTqKW2WjpoEeQZsnpNCsdiA9PIUI+4lM+AX+FssgiYFHbQQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=pezjpO9+d2P8Jxi67k+0WdnFKmVMdVIaxj9+26sZtmk=;
+ b=pnQGPaSL2jvxVJ5UvCPtW1aUQCr6vJTsPJqexVA3qrCTD9UHrsGYMOSbc4Ht8TBgjVDUnzC2g4W1ySlxbYWinNoy0P5zxWtxOxEReHPGaPrE0RtN31thbMfQ1dl6n2n57e0MbL+y9KglbyOA3Ef4YkAAbj38t/6ndsOcWIjzk/c/aeNo3GjKUPNFA/CRD4i4+LqQKA4lkJ2gNHEXdFLqTgnomme0Wiq8IwV+bZ9wlfmZsWwc/88Tc2tzgdj5KoipiHIzsAJiDvu3dZ4u2QFtecYyRuqErkh5774wPCcyBQI5ICkqyf0OwxdzhScHSOXchzx58k95E4eS81BrxXF3Ow==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
+ dkim=none; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=outlook.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=pezjpO9+d2P8Jxi67k+0WdnFKmVMdVIaxj9+26sZtmk=;
+ b=QEsyy5STVBXHUTvkxS0Pkupr45Kjd1ydaf++Kt6bTb+30MAy7lKhAQzww7ZNUwagcJ1khnoKEf/IgZC40skCAZPtT22gxpbODnvziXkriodAGH6W4DDgvGHiwAzmztvgfad649P0IhKPC+nTwfZA9JEl+OGozhwP6qyXHZDXcr+ZMIRAbfUIzPppfQ3t4aq3PfCuEkAAvIxaXsnu35GjDtd2zNvMNs612UgS1xPWUc8CNkUM/u71Wu9JUTccwwd16HOBEw6+O2F2YhqFlFAcwkcYGBDzpgsTg5pu5dgZIl+F8baI0EH6z6Ba+phX16lUe1soLgY+Z2ni531vuRucOQ==
+Received: from SN6PR02MB4157.namprd02.prod.outlook.com (2603:10b6:805:33::23)
+ by BN0PR02MB8223.namprd02.prod.outlook.com (2603:10b6:408:155::6) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.71.13; Thu, 4 Jun 2026
+ 16:18:38 +0000
+Received: from SN6PR02MB4157.namprd02.prod.outlook.com
+ ([fe80::900:1ccf:2b1e:52b6]) by SN6PR02MB4157.namprd02.prod.outlook.com
+ ([fe80::900:1ccf:2b1e:52b6%3]) with mapi id 15.21.0092.006; Thu, 4 Jun 2026
+ 16:18:38 +0000
+From: Michael Kelley <mhklinux@outlook.com>
+To: Aneesh Kumar K.V <aneesh.kumar@kernel.org>, Michael Kelley
+	<mhklinux@outlook.com>, Jason Gunthorpe <jgg@ziepe.ca>, Michael Kelley
+	<mhklinux@outlook.com>
+CC: "iommu@lists.linux.dev" <iommu@lists.linux.dev>,
+	"linux-arm-kernel@lists.infradead.org"
+	<linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org"
+	<linux-kernel@vger.kernel.org>, "linux-coco@lists.linux.dev"
+	<linux-coco@lists.linux.dev>, Robin Murphy <robin.murphy@arm.com>, Marek
+ Szyprowski <m.szyprowski@samsung.com>, Will Deacon <will@kernel.org>, Marc
+ Zyngier <maz@kernel.org>, Steven Price <steven.price@arm.com>, Suzuki K
+ Poulose <Suzuki.Poulose@arm.com>, Catalin Marinas <catalin.marinas@arm.com>,
+	Jiri Pirko <jiri@resnulli.us>, Mostafa Saleh <smostafa@google.com>, Petr
+ Tesarik <ptesarik@suse.com>, Alexey Kardashevskiy <aik@amd.com>, Dan Williams
+	<dan.j.williams@intel.com>, Xu Yilun <yilun.xu@linux.intel.com>,
+	"linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
+	"linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Madhavan
+ Srinivasan <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>, "Christophe Leroy (CS GROUP)"
+	<chleroy@kernel.org>, Alexander Gordeev <agordeev@linux.ibm.com>, Gerald
+ Schaefer <gerald.schaefer@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger
+	<borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>,
+	"x86@kernel.org" <x86@kernel.org>, Jiri Pirko <jiri@nvidia.com>
+Subject: RE: [PATCH v5 05/20] dma-pool: track decrypted atomic pools and
+ select them via attrs
+Thread-Topic: [PATCH v5 05/20] dma-pool: track decrypted atomic pools and
+ select them via attrs
+Thread-Index:
+ AQHp6tfu5DGfxW+HBL9src0vNhss0QGjMATQtfypCTCABxNTgIAAi4fggACwGwCAAm86IIAADo0AgAAWnpA=
+Date: Thu, 4 Jun 2026 16:18:38 +0000
+Message-ID:
+ <SN6PR02MB4157BC5B3C824962F091996BD4102@SN6PR02MB4157.namprd02.prod.outlook.com>
+References: <20260522042815.370873-1-aneesh.kumar@kernel.org>
+ <20260522042815.370873-6-aneesh.kumar@kernel.org>
+ <SN6PR02MB415754E94A9505C2B9739E4DD4092@SN6PR02MB4157.namprd02.prod.outlook.com>
+ <yq5afr35sciu.fsf@kernel.org>
+ <SN6PR02MB4157D9955A93244014AB7978D4122@SN6PR02MB4157.namprd02.prod.outlook.com>
+ <20260603005454.GM2487554@ziepe.ca>
+ <SN6PR02MB4157F94C902B78E55E99372DD4102@SN6PR02MB4157.namprd02.prod.outlook.com>
+ <yq5apl26qrof.fsf@kernel.org>
+In-Reply-To: <yq5apl26qrof.fsf@kernel.org>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: SN6PR02MB4157:EE_|BN0PR02MB8223:EE_
+x-ms-office365-filtering-correlation-id: 89785a9b-79f0-4673-b6e5-08dec254ef75
+x-microsoft-antispam:
+ BCL:0;ARA:14566002|31061999003|15080799012|51005399006|41001999006|19101099003|37011999003|8062599012|8060799015|13091999003|19110799012|3412199025|440099028|102099032|40105399003|1710799026;
+x-microsoft-antispam-message-info:
+ =?us-ascii?Q?D4uhAPljiDenAI7OEsqFIHYInh2zOm3D9PmrebIMbwbBc0+CqmmhJ1Q9OmiN?=
+ =?us-ascii?Q?CeqMKQZwJOWl4dhAFEwKLvaBHTF0bzuOlb2rOQQnS/IFuCuPbs5HNNEyuPv4?=
+ =?us-ascii?Q?/nTqiNnXwU6n4WFucwbkSlV1U7bj2o7pWdT5/P8d84Lst1rjAHPkaxeiGua/?=
+ =?us-ascii?Q?iJaMl4+E5Vlh+xbwX5jpsWs+qvGMuRCSo83Q/0168CGEeVRIe2Cnv1/kmhQj?=
+ =?us-ascii?Q?Ba+CkFMnIm28o2tGEpHl3LUTcW6JpD1p74dFRB67gIFZQycl9s3fU2XyCSY8?=
+ =?us-ascii?Q?uO2wtvAyrvts6J5aXMug0KPI++/VZp+d5WPGRUchp0jK4JobiPy6ZPSQq3VM?=
+ =?us-ascii?Q?GDVkBR3+o3mE0M1wGsRTTzTUolTwW2VVMAKRwukvIS+belcxtlSIfj25GLJc?=
+ =?us-ascii?Q?APrSSoprgZfSJ68QDujTHNrMWzDBDsaBlhNB7jCJ4eGzn+MRDQEnC82vtMsJ?=
+ =?us-ascii?Q?I+Sqjcuj1DiREgZbSTymIZ+OKUw3Py5pUEz/yBMkqvj3JJor/satBrIaDt6c?=
+ =?us-ascii?Q?fx4lT+zZzWxiEj/KnPsWszbRqedcvevh3biWZLalxNZIO7mcRDqD82m6qqml?=
+ =?us-ascii?Q?sO4Hd/4nWDEugqmO+j8vMbHKYLEzRqqZK8yNEg4g2Oo7RQsr/NY7GoXkIwuS?=
+ =?us-ascii?Q?J80SV/7ZxVwSLLPUriXQIVR8y5MtVIbZHRZFsfMCh4lIaTpNpQ4Fhd/Nhr5h?=
+ =?us-ascii?Q?RN6ZdV9HESu/K2J3C2X8L97k/IM48ZYnJ0Br/mXDdPQnCm2XPdl7gwC91PnC?=
+ =?us-ascii?Q?qwEgM5jwZUCm68BvQ3tID6PbQL/X2LDxiY6SJphQSgToTSD3jUvDS1jxpkFy?=
+ =?us-ascii?Q?FLtCa3MuNz3T5OGARxZQkDYWvuQAAUpZop/lR9zIHEsp6M1eR9P+L9dy0vnt?=
+ =?us-ascii?Q?njL143WcxT2H9/F5YUDS5dLLvF4lUmz6zkb/p7+LEtE1N05KQXez4pxEO+48?=
+ =?us-ascii?Q?E/+nXOlJjUpXOMsHoV598vtXe6Ok/pRr2yiqzYGg2u2FkdVnbW8zWh5B+LD7?=
+ =?us-ascii?Q?5bj/i9SuOPcLE1XRoHtXV22AEy5sBxQpg5PipD3Bu29BbRfm1H5jPF9dbLaw?=
+ =?us-ascii?Q?fw4pwnMs?=
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?us-ascii?Q?o5CKLdFLdk7QdVeX2xmXhggqcLyDjfknKQUFld1YseSWQCBEcl4XbSnZhfj2?=
+ =?us-ascii?Q?9OkiuV5HYdTOOE5GSAQKKRLkgl0mrnP3ZrGQ2ub1bElQlf30vQQjO0aD3C1s?=
+ =?us-ascii?Q?seN3cEBjT2G/Yqo+yXjMq7JrFoeaWWFojyg9DCVMnUZEbsdJfp018XhMKSP0?=
+ =?us-ascii?Q?EPcksS9UN1ESuBG0AToEQ92xf38l+dMBoYpd0ixLFpzAHZDXEigPWqyGQJmf?=
+ =?us-ascii?Q?27kjzPKx6j25B7glpv5IgYFwwCbYs93/pQaNuQKUyIfk47zBfa+HdTPeGY25?=
+ =?us-ascii?Q?BwO4SC+za/3lrBYcaFoN1E5G/Vv8AUugKBuOgNrz1LbxFaHn31nvJWckMyXr?=
+ =?us-ascii?Q?y2smu5rmWLcbo6m7EDcZoNoAzqGTC+URWIq+kpq1/aSykzG1JWSGf05AR3w8?=
+ =?us-ascii?Q?9AENSBShDTjHS6JNaTMEoklrRqY651ASrmQ+coQnMeIOYuqOR9wUvqxAw4W8?=
+ =?us-ascii?Q?renNustQl/s543nMsxRKTl7XTCOf/PkNbiKfWGgch/UE114L6sAsuQOR+Lee?=
+ =?us-ascii?Q?vsPQy4Hqjm5le/N3wjpoUOGkHAbHjc0kDm07c3T5VdKlXeQrpu8788lJ+o4K?=
+ =?us-ascii?Q?UWkMWjb3VqSy+91kBOD4sOdCutCX6CiaHsGcJAsyUugEPUCHO1MfWwZAOGc/?=
+ =?us-ascii?Q?C8MrQpm/BwUOaoqRuYJtQx7P/0AmBUNFjgC3oPwupoViyp08ZWv1lwMVDeLx?=
+ =?us-ascii?Q?rtoBlogiI1SFbfvnPHkVMflzbSXt7LQvdOn/E1svrRTs/1g89Zh40WjjU1VL?=
+ =?us-ascii?Q?dXGQo1baQC8YfEtxo+qJbbtTODhVQS2iQ1wTPJgcXG9AuP6YfAs1n/tO1+iM?=
+ =?us-ascii?Q?cZa1ZSqv99evBDReHHgHMS/yMt5qVoZgGcrsU1RYotvH1oFebtu0mjvp5oCj?=
+ =?us-ascii?Q?ErYhs4HaWnIw2FlXNr7iEQeujoKEjhUN2UXuZNjG6A+Lz3En8kLjkFazm6YQ?=
+ =?us-ascii?Q?YYkSarDTC9F0AQtPb/fwzj5aVEhqx1T1dE2HGDbYrJ16gPsczvJwgE4iyq/X?=
+ =?us-ascii?Q?LXsGnurr962YFwbba4XUZ6DI8QClUITrVermGug7BIqoMvQFZh6we3UoR2U2?=
+ =?us-ascii?Q?LFJRk+d43/8j/j+2mvUttc9s6phfgW2LbYipOeNBTOtkWOHKgzR38mDz57y0?=
+ =?us-ascii?Q?u8u73tdcis/tDR8ICcIbYRmNErEkBzZz00FLw4Wi//HcZPsKQ1ASHV9FSLgQ?=
+ =?us-ascii?Q?vRH4xoqtjgsC5I/b2SCxEEnDaVR5nJ2rKx5jyCWaJFwNBWc8LW0N/wUjShmG?=
+ =?us-ascii?Q?5YKsowxN64cquoC5mJe1Rz/Cda+bypoMHCKuVRqdWhDUt6jW7cJA9E1BwikP?=
+ =?us-ascii?Q?GC/iganXydZvXVb/CGw26jZMHeQLVdLVWEW14cOvncQCjCRnSYnJ4ItbPhIi?=
+ =?us-ascii?Q?wyFSIfJIDAbCFU7MByxDSbp6l0S5UPF/93KU+H2P0IJ2c6JjtnWXsvw/gbjI?=
+ =?us-ascii?Q?GP42+vqRzKI=3D?=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC 07/12] PCI: Convert xen-pciback and pci-driver to
- pci_is_sriov_* helpers
-To: Dimitri Daskalakis <dimitri.daskalakis1@gmail.com>,
- Bjorn Helgaas <bhelgaas@google.com>
-Cc: linux-pci@vger.kernel.org, Madhavan Srinivasan <maddy@linux.ibm.com>,
- Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
- Christophe Leroy <chleroy@kernel.org>,
- Mahesh J Salgaonkar <mahesh@linux.ibm.com>,
- Oliver O'Halloran <oohall@gmail.com>,
- Niklas Schnelle <schnelle@linux.ibm.com>,
- Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, Alex Williamson <alex@shazbot.org>,
- Jason Gunthorpe <jgg@ziepe.ca>, Kevin Tian <kevin.tian@intel.com>,
- Ankit Agrawal <ankita@nvidia.com>, Leon Romanovsky <leon@kernel.org>,
- Stefano Stabellini <sstabellini@kernel.org>,
- Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
- Keith Busch <kbusch@kernel.org>, Alexander Duyck <alexanderduyck@fb.com>,
- Jakub Kicinski <kuba@kernel.org>, Dimitri Daskalakis <daskald@meta.com>,
- linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
- kvm@vger.kernel.org, xen-devel@lists.xenproject.org
-References: <20260604150153.3619662-1-dimitri.daskalakis1@gmail.com>
- <20260604150153.3619662-8-dimitri.daskalakis1@gmail.com>
-Content-Language: en-US
-From: Juergen Gross <jgross@suse.com>
-Autocrypt: addr=jgross@suse.com; keydata=
- xsBNBFOMcBYBCACgGjqjoGvbEouQZw/ToiBg9W98AlM2QHV+iNHsEs7kxWhKMjrioyspZKOB
- ycWxw3ie3j9uvg9EOB3aN4xiTv4qbnGiTr3oJhkB1gsb6ToJQZ8uxGq2kaV2KL9650I1SJve
- dYm8Of8Zd621lSmoKOwlNClALZNew72NjJLEzTalU1OdT7/i1TXkH09XSSI8mEQ/ouNcMvIJ
- NwQpd369y9bfIhWUiVXEK7MlRgUG6MvIj6Y3Am/BBLUVbDa4+gmzDC9ezlZkTZG2t14zWPvx
- XP3FAp2pkW0xqG7/377qptDmrk42GlSKN4z76ELnLxussxc7I2hx18NUcbP8+uty4bMxABEB
- AAHNH0p1ZXJnZW4gR3Jvc3MgPGpncm9zc0BzdXNlLmNvbT7CwHkEEwECACMFAlOMcK8CGwMH
- CwkIBwMCAQYVCAIJCgsEFgIDAQIeAQIXgAAKCRCw3p3WKL8TL8eZB/9G0juS/kDY9LhEXseh
- mE9U+iA1VsLhgDqVbsOtZ/S14LRFHczNd/Lqkn7souCSoyWsBs3/wO+OjPvxf7m+Ef+sMtr0
- G5lCWEWa9wa0IXx5HRPW/ScL+e4AVUbL7rurYMfwCzco+7TfjhMEOkC+va5gzi1KrErgNRHH
- kg3PhlnRY0Udyqx++UYkAsN4TQuEhNN32MvN0Np3WlBJOgKcuXpIElmMM5f1BBzJSKBkW0Jc
- Wy3h2Wy912vHKpPV/Xv7ZwVJ27v7KcuZcErtptDevAljxJtE7aJG6WiBzm+v9EswyWxwMCIO
- RoVBYuiocc51872tRGywc03xaQydB+9R7BHPzsBNBFOMcBYBCADLMfoA44MwGOB9YT1V4KCy
- vAfd7E0BTfaAurbG+Olacciz3yd09QOmejFZC6AnoykydyvTFLAWYcSCdISMr88COmmCbJzn
- sHAogjexXiif6ANUUlHpjxlHCCcELmZUzomNDnEOTxZFeWMTFF9Rf2k2F0Tl4E5kmsNGgtSa
- aMO0rNZoOEiD/7UfPP3dfh8JCQ1VtUUsQtT1sxos8Eb/HmriJhnaTZ7Hp3jtgTVkV0ybpgFg
- w6WMaRkrBh17mV0z2ajjmabB7SJxcouSkR0hcpNl4oM74d2/VqoW4BxxxOD1FcNCObCELfIS
- auZx+XT6s+CE7Qi/c44ibBMR7hyjdzWbABEBAAHCwF8EGAECAAkFAlOMcBYCGwwACgkQsN6d
- 1ii/Ey9D+Af/WFr3q+bg/8v5tCknCtn92d5lyYTBNt7xgWzDZX8G6/pngzKyWfedArllp0Pn
- fgIXtMNV+3t8Li1Tg843EXkP7+2+CQ98MB8XvvPLYAfW8nNDV85TyVgWlldNcgdv7nn1Sq8g
- HwB2BHdIAkYce3hEoDQXt/mKlgEGsLpzJcnLKimtPXQQy9TxUaLBe9PInPd+Ohix0XOlY+Uk
- QFEx50Ki3rSDl2Zt2tnkNYKUCvTJq7jvOlaPd6d/W0tZqpyy7KVay+K4aMobDsodB3dvEAs6
- ScCnh03dDAFgIq5nsB11j3KPKdVoPlfucX2c7kGNH+LUMbzqV6beIENfNexkOfxHfw==
-In-Reply-To: <20260604150153.3619662-8-dimitri.daskalakis1@gmail.com>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="------------fDgbKYEUhquRvAN6UrfLuZuh"
+X-OriginatorOrg: outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: SN6PR02MB4157.namprd02.prod.outlook.com
+X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg: 00000000-0000-0000-0000-000000000000
+X-MS-Exchange-CrossTenant-Network-Message-Id: 89785a9b-79f0-4673-b6e5-08dec254ef75
+X-MS-Exchange-CrossTenant-originalarrivaltime: 04 Jun 2026 16:18:38.3662
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
+X-MS-Exchange-CrossTenant-rms-persistedconsumerorg: 00000000-0000-0000-0000-000000000000
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN0PR02MB8223
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---------------fDgbKYEUhquRvAN6UrfLuZuh
-Content-Type: multipart/mixed; boundary="------------30t203kwaL3N2wp8gES1yCvp";
- protected-headers="v1"
-From: Juergen Gross <jgross@suse.com>
-To: Dimitri Daskalakis <dimitri.daskalakis1@gmail.com>,
- Bjorn Helgaas <bhelgaas@google.com>
-Cc: linux-pci@vger.kernel.org, Madhavan Srinivasan <maddy@linux.ibm.com>,
- Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
- Christophe Leroy <chleroy@kernel.org>,
- Mahesh J Salgaonkar <mahesh@linux.ibm.com>,
- Oliver O'Halloran <oohall@gmail.com>,
- Niklas Schnelle <schnelle@linux.ibm.com>,
- Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, Alex Williamson <alex@shazbot.org>,
- Jason Gunthorpe <jgg@ziepe.ca>, Kevin Tian <kevin.tian@intel.com>,
- Ankit Agrawal <ankita@nvidia.com>, Leon Romanovsky <leon@kernel.org>,
- Stefano Stabellini <sstabellini@kernel.org>,
- Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
- Keith Busch <kbusch@kernel.org>, Alexander Duyck <alexanderduyck@fb.com>,
- Jakub Kicinski <kuba@kernel.org>, Dimitri Daskalakis <daskald@meta.com>,
- linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
- kvm@vger.kernel.org, xen-devel@lists.xenproject.org
-Message-ID: <ce60e4dd-aedd-4376-9af1-cdae2f0d674b@suse.com>
-Subject: Re: [RFC 07/12] PCI: Convert xen-pciback and pci-driver to
- pci_is_sriov_* helpers
-References: <20260604150153.3619662-1-dimitri.daskalakis1@gmail.com>
- <20260604150153.3619662-8-dimitri.daskalakis1@gmail.com>
-In-Reply-To: <20260604150153.3619662-8-dimitri.daskalakis1@gmail.com>
+From: Aneesh Kumar K.V <aneesh.kumar@kernel.org> Sent: Thursday, June 4, 20=
+26 7:58 AM
+>=20
+> Michael Kelley <mhklinux@outlook.com> writes:
+>=20
+> > From: Jason Gunthorpe <jgg@ziepe.ca> Sent: Tuesday, June 2, 2026 5:55 P=
+M
+> >>
+> >> On Tue, Jun 02, 2026 at 02:24:40PM +0000, Michael Kelley wrote:
+> >>
+> >> > Except that in a normal VM, the "unencrypted" pool attribute does *n=
+ot*
+> >> > describe the state of the memory itself.  In a normal VM, the memory=
+ is
+> >> > unencrypted, but the "unencrypted" pool attribute is false. That
+> >> > contradiction is the essence of my concern.
+> >>
+> >> I would argue no..
+> >>
+> >> When CC is enabled the default state of memory in a Linux environment
+> >> is "encrypted". You have to take a special action to "decrypt" it.
+> >>
+> >> Thus the default state of memory in a non-CC environment is also
+> >> paradoxically "encrypted" too.
+> >
+> > The need to have such an unnatural premise is usually an indication
+> > of a conceptual problem with the overall model, or perhaps just a
+> > terminology problem.
+> >
+> > Here's a proposal. The new DMA attribute is DMA_ATTR_CC_SHARED.
+> > Name the pool attribute "cc_shared" instead of "unencrypted". Having
+> > "cc_shared" set to false in a normal VM doesn't lead to the non-sensica=
+l
+> > situation of claiming that a normal VM is encrypted. The boolean
+> > "unencrypted" parameter that has been added to various calls also
+> > becomes "cc_shared".  If "CC_SHARED" is a suitable name for the DMA
+> > attribute, it ought to be suitable as the pool attribute. And everythin=
+g
+> > matches as well.
+> >
+>=20
+> That is better. It would also simplify:
+>=20
+> 	if (mem->unencrypted !=3D !!(attrs & DMA_ATTR_CC_SHARED))
+> 		return NULL;
+>=20
+> to
+> 	if (mem->cc_shared !=3D !!(attrs & DMA_ATTR_CC_SHARED))
+> 		return NULL;
+>=20
+>=20
+> I already sent a v6 in the hope of getting this merged for the next
+> merge window. Should I send a v7, or would you prefer that I do the
+> rename on top of v6?
+>=20
 
---------------30t203kwaL3N2wp8gES1yCvp
-Content-Type: multipart/mixed; boundary="------------3qkLssp3MHU7hgnhd2uP8TB0"
+I would advocate for a v7 with the rename, vs. a separate follow-on
+patch to do the rename, just to reduce churn. But I don't know what
+the tradeoffs are in trying to hit the next merge window. If a follow-on
+patch is more practical from a timing standpoint, I won't object.
 
---------------3qkLssp3MHU7hgnhd2uP8TB0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: base64
+Michael
 
-T24gMDQuMDYuMjYgMTc6MDEsIERpbWl0cmkgRGFza2FsYWtpcyB3cm90ZToNCj4gRnJvbTog
-RGltaXRyaSBEYXNrYWxha2lzIDxkYXNrYWxkQG1ldGEuY29tPg0KPiANCj4gTm8gZnVuY3Rp
-b25hbCBjaGFuZ2VzLg0KPiANCj4gQXNzaXN0ZWQtYnk6IENsYXVkZTpjbGF1ZGUtb3B1cy00
-LjcNCj4gU2lnbmVkLW9mZi1ieTogRGltaXRyaSBEYXNrYWxha2lzIDxkYXNrYWxkQG1ldGEu
-Y29tPg0KDQpSZXZpZXdlZC1ieTogSnVlcmdlbiBHcm9zcyA8amdyb3NzQHN1c2UuY29tPg0K
-DQoNCkp1ZXJnZW4NCg==
---------------3qkLssp3MHU7hgnhd2uP8TB0
-Content-Type: application/pgp-keys; name="OpenPGP_0xB0DE9DD628BF132F.asc"
-Content-Disposition: attachment; filename="OpenPGP_0xB0DE9DD628BF132F.asc"
-Content-Description: OpenPGP public key
-Content-Transfer-Encoding: quoted-printable
-
------BEGIN PGP PUBLIC KEY BLOCK-----
-
-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
-kt+z4drzFUyEjLM1vVvIMjkUoJs=3D
-=3DeeAB
------END PGP PUBLIC KEY BLOCK-----
-
---------------3qkLssp3MHU7hgnhd2uP8TB0--
-
---------------30t203kwaL3N2wp8gES1yCvp--
-
---------------fDgbKYEUhquRvAN6UrfLuZuh
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmohlbMFAwAAAAAACgkQsN6d1ii/Ey/z
-Gwf+I6PwL/5jb3ILq2SuV4tHfCxc0VmbrFbnMM5EOsQMcaWg2dP5NKldVbe/9YglVn5+Q5ye46vE
-XWXGZO9zQwiZMhRcifnpcvOVrr8qkwJP/VMylckq5xoql5M1BUAHjlOhZ4wjFz+Wvpxj/fAAXbNT
-KXh52eS0zX0nLAOf6ZRstfv/HHNQv2rvD7EnS6xApQMbKtzalH2DDHU9TNN4oTpLPwt4mhak+XqC
-kY9uwtTRokCL5nZ2en1gTbsheVKCe185MbBsv5lJlm3VovgSNFTtkeId1Vx10tBQ9H/hLcNCAToO
-ihpK541tDD5nYCbj+fTEuEG4sW+f2H735xkmbz4oyw==
-=ZQpm
------END PGP SIGNATURE-----
-
---------------fDgbKYEUhquRvAN6UrfLuZuh--
