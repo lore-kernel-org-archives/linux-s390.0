@@ -1,131 +1,189 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f51.google.com (mail-pj1-f51.google.com [209.85.216.51])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA961304976;
-	Thu,  4 Jun 2026 14:57:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1B758311C2C
+	for <linux-s390@vger.kernel.org>; Thu,  4 Jun 2026 15:01:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780585073; cv=none; b=dLIXsapRUswz5TncDYffzaMLOAleLxQEPm/5+udEAtJmQCCBSenXkUX+dXJmScef3NG+3CRgEdiqEA0NZr0NlRfrOz7eXkRmMNXqHyywrLLykwMf4JVEeINd3yD5RZkFP01jxNHAPQjPkQgp5cYjmVS4f9Y7GG+/itPYMBigvv4=
+	t=1780585318; cv=none; b=mmmFcIN0KnHIUXfe/xvR6vNEieUlulqwdOnCsXfBOWyWcUzLNnIvWDoqpT3rnNO2OM+LgjWWGMb/VJLFc9E9xFHzbYo/4q+zIVpJVn5oo+y+aXI19gfCT1K1wQYOOPG/kE3JBpOetZyWz2ZC6LAvv2truivTAbomng4YPBAJLEw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780585073; c=relaxed/simple;
-	bh=8cpjPIvztbnevrPtt4AvyqY6O2DjvwxefutWTr7MmSQ=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=to4jr29QO2f8v7SGTDPesh3mbfinuxRlkunrN1yR9rDPlMniciaBJS+P8Tu33e8jllk9QkI2JLk/A45pWYPDu52mULSRLL3XPVY+meqSlNJu31nhYq0yNWl19BSDKqkDXk52YUPHIftI7vjCO85nVnsrLEz4yFhFYkKj4Oruhck=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kPWVmrL8; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1780585318; c=relaxed/simple;
+	bh=HbyMcDJBxgMyD0bzqWOlRDkmSTFj0tM83CqcfOeBGYY=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Rft9WzlciONDv3kxkuwkE7IFQyJn3gMvMyyUuhkNJR87La2FE5c1Hpy0CEC4ny52uDcg3g4HyRyatgfN8wELlFo+rqIjTSimRZr+/XHi6aSgvbTB5B/+0wGLs3MIxOU8+c56tAj6hRe7+fBIc53mVGu9t1zru4XcJ5vzX/4+PPE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Yj1an7iZ; arc=none smtp.client-ip=209.85.216.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kPWVmrL8"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44FCF1F00898;
-	Thu,  4 Jun 2026 14:57:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1780585071;
-	bh=hYpE8ScA3WgBcN3vhg/AglZszMwb5uF85NWSIx0kbMQ=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date;
-	b=kPWVmrL8guiyc8M71azpVpri2D/uzclh6JoLyKNzyoo4OxN4agAWchTRxJjWIqJ2q
-	 UtcCBus1mVx0a/I8DtboPOq/GBjzm61oZmXhDyCjcmifakXbxSMF72Q9Vr5TzFoFkh
-	 Q8TOXNTKOqDXevhNGLhbxVb/6qqknzC5ebPnVeNlk37O5tQ+YjJ50srz4rcVPiOTCZ
-	 zoUWZTgYQ9VSABiBHxcdG4TxBCB9zKt/fo3E0ZZLIZoVDRDTTcOdIoi6vJKJ2Dg7L3
-	 j32qrNj5EkbQiih4TEEVu90fxL2Lx7UWE3w8deLFZ3bhMFmkT/hb4euyZAfcM9jKg8
-	 bkPIf1Pnb7Z4A==
-X-Mailer: emacs 30.2 (via feedmail 11-beta-1 I)
-From: Aneesh Kumar K.V <aneesh.kumar@kernel.org>
-To: Michael Kelley <mhklinux@outlook.com>,
-	Jason Gunthorpe <jgg@ziepe.ca>,
-	Michael Kelley <mhklinux@outlook.com>
-Cc: "iommu@lists.linux.dev" <iommu@lists.linux.dev>,
-	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	"linux-coco@lists.linux.dev" <linux-coco@lists.linux.dev>,
-	Robin Murphy <robin.murphy@arm.com>,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
-	Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
-	Steven Price <steven.price@arm.com>,
-	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Jiri Pirko <jiri@resnulli.us>,
-	Mostafa Saleh <smostafa@google.com>,
-	Petr Tesarik <ptesarik@suse.com>,
-	Alexey Kardashevskiy <aik@amd.com>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Xu Yilun <yilun.xu@linux.intel.com>,
-	"linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
-	"linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Yj1an7iZ"
+Received: by mail-pj1-f51.google.com with SMTP id 98e67ed59e1d1-36bd175fdbaso570141a91.0
+        for <linux-s390@vger.kernel.org>; Thu, 04 Jun 2026 08:01:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1780585316; x=1781190116; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=u02hzxNTDDgX0UOR1yiCb+UilA+qxlSoulScblTnv2M=;
+        b=Yj1an7iZbQ0joBr5jket5MeFeS+OhrVXqU4lX/spTT2xwFsiCRxhLFGNduO/EVbZVV
+         QoL+crZSitKQWlOJAsxgf5jfuiAaucs/Oif4mSzJu0EuV2uOkuotLlkKWLep2eaKz+2E
+         o/lXCKmkzsImUCSyXHu0c2f5PyzEA0uv9Lm4IulM+/c9cUZb7oXXTZJuzKVinCPyg+jc
+         DU5BlJW5/lj82NJCUncDq02cv3tuYUu7fUuh2+ehNlMwB4BAX9cgopQBnSseAcAzR4pi
+         gnrRUG3AUd5OczvgOWXC8fjD1MWYPi8lX7ClWYmDHwg9j8a7G3Z0k6WExfefdkBqnrj+
+         gy/w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1780585316; x=1781190116;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=u02hzxNTDDgX0UOR1yiCb+UilA+qxlSoulScblTnv2M=;
+        b=Wk69LwrHbVlIH+c8h0/aVZvh462OxlJDBi3/Tbb1dORwXjYCQ8KDINnamJVgkPKy1x
+         F9Dc45+YQjCC96qSVRa9FFoagbu+xCTAb7cEMasjnmmSKmzSYXEfp+yuyyxpNnAuFO0c
+         aH5qdbLsqv6d9xqgDmOq455F+ngPFXvOMSsgAO5Y3H6s2MZc61JmIeUFRDxI4W7GNWWw
+         tlItr4wXE74PyjJOCfeU/juCw7ibAeBoVxtaEoAZ1SRP6RgHrw4da5PwWYgqwok6F5wR
+         sdmp9rVLJ3LZHSWolJFRhcCCA2RN36ep5zrMHKRYlD/0MteszDzSLMnaAVRma8Wwzmo9
+         aT1A==
+X-Forwarded-Encrypted: i=1; AFNElJ9EKZHOhQNjiAY/YKpCOgpiBCbIVDCCWyNiBdiZ0EKaeW2/rH9vingeaznEX/cWVpeXIKNT/TpZ1W/X@vger.kernel.org
+X-Gm-Message-State: AOJu0Yyj/cUez4FLey+Lx8aT8DgWu5aqnTf3QnSP/CLZ7JDLyt8/c42j
+	DN5m+Yytns0XqBFXQnt0gvyMoMZST+j82/qn5OO9evdjoTENUktoaosE
+X-Gm-Gg: Acq92OHfzHYeGwTxVUVj8yVHmd/RCS9l+Td5R4N7U1jJ/CrM5eHqaPAgoMQD19nHadH
+	F+fNMoMmK5yCWW2YgpTKpPyUmi7wqAGkP38uMubdyMAECfEZleenVM8SQV+wT7+DVQbHwx6xk/6
+	S3XiUt3LKqlmSvsQEKU5HivDKBjO1R18LlNksJGDSNVZ5agSzK+g5mpxjbK/fdz3fSwOCYDz41T
+	lD9IcKBAtH8aX1kfdbTzB6CKMFxofn/KJxvb2FHJkODxQ3L5ws1+u+82xRg9IP77kN6gmDaehRJ
+	UtgA+AV1MTBmgFG/Uk21T6MECCLAr3hGCrd78WqvRo80Ogbil5WF1FFRKnrTn/qnEWTxZX9UPfu
+	LRVViMf6Tb0k7+FQBlVXLGl7QFjP0vyFFgYDuWTSZCEfgSzsvGAEAskHLyT71yTRdQzVRfS0pUK
+	7kCK5ZW+AYHJlgSfXVP0f6m6XsMaypKcOoVIcmsSaxEpXuxgh0
+X-Received: by 2002:a17:90b:2d8d:b0:36b:e8b9:46a4 with SMTP id 98e67ed59e1d1-36e32285cf3mr8241830a91.14.1780585315438;
+        Thu, 04 Jun 2026 08:01:55 -0700 (PDT)
+Received: from localhost ([2a03:2880:7ff:4f::])
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-c85df0be0f0sm5020782a12.30.2026.06.04.08.01.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 04 Jun 2026 08:01:54 -0700 (PDT)
+From: Dimitri Daskalakis <dimitri.daskalakis1@gmail.com>
+To: Bjorn Helgaas <bhelgaas@google.com>
+Cc: linux-pci@vger.kernel.org,
 	Madhavan Srinivasan <maddy@linux.ibm.com>,
 	Michael Ellerman <mpe@ellerman.id.au>,
 	Nicholas Piggin <npiggin@gmail.com>,
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christophe Leroy <chleroy@kernel.org>,
+	Mahesh J Salgaonkar <mahesh@linux.ibm.com>,
+	Oliver O'Halloran <oohall@gmail.com>,
+	Niklas Schnelle <schnelle@linux.ibm.com>,
 	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
 	Heiko Carstens <hca@linux.ibm.com>,
 	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
 	Christian Borntraeger <borntraeger@linux.ibm.com>,
 	Sven Schnelle <svens@linux.ibm.com>,
-	"x86@kernel.org" <x86@kernel.org>,
-	Jiri Pirko <jiri@nvidia.com>
-Subject: RE: [PATCH v5 05/20] dma-pool: track decrypted atomic pools and
- select them via attrs
-In-Reply-To: <SN6PR02MB4157F94C902B78E55E99372DD4102@SN6PR02MB4157.namprd02.prod.outlook.com>
-References: <20260522042815.370873-1-aneesh.kumar@kernel.org>
- <20260522042815.370873-6-aneesh.kumar@kernel.org>
- <SN6PR02MB415754E94A9505C2B9739E4DD4092@SN6PR02MB4157.namprd02.prod.outlook.com>
- <yq5afr35sciu.fsf@kernel.org>
- <SN6PR02MB4157D9955A93244014AB7978D4122@SN6PR02MB4157.namprd02.prod.outlook.com>
- <20260603005454.GM2487554@ziepe.ca>
- <SN6PR02MB4157F94C902B78E55E99372DD4102@SN6PR02MB4157.namprd02.prod.outlook.com>
-Date: Thu, 04 Jun 2026 20:27:36 +0530
-Message-ID: <yq5apl26qrof.fsf@kernel.org>
+	Alex Williamson <alex@shazbot.org>,
+	Jason Gunthorpe <jgg@ziepe.ca>,
+	Kevin Tian <kevin.tian@intel.com>,
+	Ankit Agrawal <ankita@nvidia.com>,
+	Leon Romanovsky <leon@kernel.org>,
+	Juergen Gross <jgross@suse.com>,
+	Stefano Stabellini <sstabellini@kernel.org>,
+	Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
+	Keith Busch <kbusch@kernel.org>,
+	Alexander Duyck <alexanderduyck@fb.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Dimitri Daskalakis <daskald@meta.com>,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-s390@vger.kernel.org,
+	kvm@vger.kernel.org,
+	xen-devel@lists.xenproject.org
+Subject: [RFC 00/12] PCI: Add support for Scalable I/O Virtualization
+Date: Thu,  4 Jun 2026 08:01:41 -0700
+Message-ID: <20260604150153.3619662-1-dimitri.daskalakis1@gmail.com>
+X-Mailer: git-send-email 2.52.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Transfer-Encoding: 8bit
 
-Michael Kelley <mhklinux@outlook.com> writes:
+From: Dimitri Daskalakis <daskald@meta.com>
 
-> From: Jason Gunthorpe <jgg@ziepe.ca> Sent: Tuesday, June 2, 2026 5:55 PM
->> 
->> On Tue, Jun 02, 2026 at 02:24:40PM +0000, Michael Kelley wrote:
->> 
->> > Except that in a normal VM, the "unencrypted" pool attribute does *not*
->> > describe the state of the memory itself.  In a normal VM, the memory is
->> > unencrypted, but the "unencrypted" pool attribute is false. That
->> > contradiction is the essence of my concern.
->> 
->> I would argue no..
->> 
->> When CC is enabled the default state of memory in a Linux environment
->> is "encrypted". You have to take a special action to "decrypt" it.
->> 
->> Thus the default state of memory in a non-CC environment is also
->> paradoxically "encrypted" too. 
->
-> The need to have such an unnatural premise is usually an indication
-> of a conceptual problem with the overall model, or perhaps just a
-> terminology problem. 
->
-> Here's a proposal. The new DMA attribute is DMA_ATTR_CC_SHARED.
-> Name the pool attribute "cc_shared" instead of "unencrypted". Having
-> "cc_shared" set to false in a normal VM doesn't lead to the non-sensical
-> situation of claiming that a normal VM is encrypted. The boolean
-> "unencrypted" parameter that has been added to various calls also
-> becomes "cc_shared".  If "CC_SHARED" is a suitable name for the DMA
-> attribute, it ought to be suitable as the pool attribute. And everything
-> matches as well.
->
+Scalable I/O Virtualization (SIOV) is the next-generation alternative
+to SR-IOV. The goal of SIOV is to support more virtual devices than SR-IOV
+can currently support, while relaxing many of the HW requirements of SR-IOV.
 
-That is better. It would also simplify:
+SIOV VFs are referred to as Scalable Device Interfaces (SDI). An SDI has
+a unique PCIe Routing ID (RID), but has no configuration space, BAR,
+or MSI-X table.
 
-	if (mem->unencrypted != !!(attrs & DMA_ATTR_CC_SHARED))
-		return NULL;
+An overview can be found here:
+https://pcisig.com/PCIExpress/ECN/Base/ScalableIOVirtualization
 
-to
-	if (mem->cc_shared != !!(attrs & DMA_ATTR_CC_SHARED))
-		return NULL;
+Since SDIs lack HW support, the complexity will fall on software
+(hypervisors, vmms, drivers, and/or firmware) to provide the same isolation
+guarantees for SIOV that SR-IOV has today.
 
+This patch series is one step in that direction, allowing the PCI subsystem
+to discover the SIOV capability during enumeration. This was the minimum set
+of changes needed so I could test the SIOV feature of developmental HW in
+emulation. I have not tested a device that supports both SR-IOV and SIOV,
+but this combination is allowed per the spec.
 
-I already sent a v6 in the hope of getting this merged for the next
-merge window. Should I send a v7, or would you prefer that I do the
-rename on top of v6?
+SIOV has two ways to assign RIDs, strided (like SR-IOV) or software assigned.
+To support software RID assignment, you need to compute the RID allowlist
+after all PCI devices have been enumerated. I've deferred this complexity
+for now and only implemented strided RID assignment.
 
--aneesh
+Patch 1 adds helpers to identify if a PF/VF is a SR-IOV PF/VF. The PF and
+VF bits within struct pci_dev should be agnostic of virtualization type.
+The helper uses the current logic which assumes any PF/VF is SR-IOV.
+
+Patch 2-7 uses the new helpers throughout core. I didn't convert certain
+device drivers (drivers/net, drivers/gpu) because the devices will not
+suddenly start advertising the SIOV capability. These can be updated in
+the future if desired.
+
+Patch 8 tightens the helpers introduced in patch 1 with a new is_sriov bit.
+
+Patch 9 is a small refactor for computing VF RID which can be shared
+between SR-IOV and SIOV.
+
+Patch 10-12 add SIOV definitions, capability detection, and bus reservation.
+
+With this patchset core enumarates the SIOV capability and can identify
+SIOV PFs. But there is no central mechanism to allocate/manage SIOV VFs.
+To support device pass through, devices will need to add a vfio-mdev
+driver with IOMMUFD support (or something similar).
+
+Dimitri Daskalakis (12):
+  PCI: Add helpers to identify SR-IOV PFs/VFs.
+  PCI: Convert iov.c to pci_is_sriov_* helpers
+  PCI: Convert pci.h to pci_is_sriov_* helpers
+  PCI: Convert arch/powerpc to pci_is_sriov_* helpers
+  PCI: Convert s390/pci/pci.c to pci_is_sriov_* helpers
+  PCI: Convert vfio_pci_core.c to pci_is_sriov_* helpers
+  PCI: Convert xen-pciback and pci-driver to pci_is_sriov_* helpers
+  PCI: Add is_sriov bit to struct pci_dev
+  PCI: Add helper to compute VF Routing ID to pci.h
+  PCI: Add Scalable I/O Virtualization data structure definitions
+  PCI: Initialize and release SIOV capability
+  PCI: Reserve bus range for SIOV devices
+
+ arch/powerpc/kernel/pci_dn.c                 |   4 +-
+ arch/powerpc/platforms/powernv/pci-ioda.c    |   6 +-
+ arch/powerpc/platforms/powernv/pci-sriov.c   |  10 +-
+ arch/powerpc/platforms/pseries/eeh_pseries.c |   8 +-
+ arch/powerpc/platforms/pseries/setup.c       |   4 +-
+ arch/s390/pci/pci.c                          |   2 +-
+ arch/s390/pci/pci_iov.c                      |   1 +
+ drivers/pci/Kconfig                          |  11 ++
+ drivers/pci/Makefile                         |   1 +
+ drivers/pci/iov.c                            |  58 ++++----
+ drivers/pci/pci-driver.c                     |   4 +-
+ drivers/pci/pci.h                            |  43 +++++-
+ drivers/pci/probe.c                          |   6 +-
+ drivers/pci/siov.c                           | 134 +++++++++++++++++++
+ drivers/vfio/pci/vfio_pci_core.c             |  12 +-
+ drivers/xen/xen-pciback/pci_stub.c           |   2 +-
+ include/linux/pci.h                          |  29 +++-
+ include/uapi/linux/pci_regs.h                |  12 +-
+ 18 files changed, 289 insertions(+), 58 deletions(-)
+ create mode 100644 drivers/pci/siov.c
+
+-- 
+2.52.0
+
