@@ -1,58 +1,58 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B57F3BB10D;
-	Fri,  5 Jun 2026 05:41:39 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C37E3F411E
+	for <linux-s390@vger.kernel.org>; Fri,  5 Jun 2026 05:41:44 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780638102; cv=none; b=lT8wm3SqeET6YkJ9tuXETIXsK40RFpAYG42D7psbEhu+I7OS52Z8wcAD/0532zoF/lxFl+sCrBm/k/vGakmi5T+FZFq13rLBaH1/kIX3qsmwjmr0aKEACSPHJMnZDFwh3FQeZTxuwk0oodf/bPJ+rACtASUc+gfVH4H2zNfFtlI=
+	t=1780638106; cv=none; b=jSXV+2dGWvdJzYexUPb+1actObSAvZwE7ZXn+z0Z8wIJdwxT5sm3AHJ4tIkwl9tk+soTe8CkQdKGM/lRJ96vCgkzw/JjR92AAJYosMjSQQv9+nyBFjeIrI+BlfvRmDk/iyAFso9yUmuVVzEY8aAQlNybTkZq9zycTdJSq97xx78=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780638102; c=relaxed/simple;
-	bh=OYMeV7jWag8jjr/SGJIJdoM4RRdbcgCBusx85a29JNQ=;
+	s=arc-20240116; t=1780638106; c=relaxed/simple;
+	bh=VxbsBjHdRvXTR0KV6QwpQV6PvkcezsCcgEhIoL++T/Y=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=GFXv91MMNSubPxG3cbDW8+qPfZGjb929u16/81852QNCsseDPyvILWO35v5Fs2DIrAOZ3i0z5s2v8IPoom22Djw/H5TlRykUuWWf6AAyBE3DqZuvt+vzHxXQRoFKSfAPWyG5eHgbLKmHJqHNLbEJEoNY+CR/f9iFG/wPm0+19q0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=aEVqsp4i; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version; b=BGW7HFZwMWwn+X4JxXeb7YdPWREffxHq0jrlrJNQ6QjlmqQLp1bc7RguB8FuLgNQOuYuGZ3n45ttC4+1tcrFYZzrneXpz3iZDvQ93Q3tr1+6saM+veci063n/j7520Kx6wJiwkwKcSGOkm08Y4rbkBmc2XyVFVpCr2EiOjOCfHc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=H4o6W8mD; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="aEVqsp4i"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F1001F00898;
-	Fri,  5 Jun 2026 05:41:38 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="H4o6W8mD"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E13F1F008A4;
+	Fri,  5 Jun 2026 05:41:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1780638099;
-	bh=q22StVZMYHsonhMzLNuiRfEYi7dvpll9rGA0FOoOgUM=;
+	s=k20260515; t=1780638104;
+	bh=rQENKqT9pyTIBLJdn4Wt5SoRtkTc7Vr1VCzymuIIqXI=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=aEVqsp4iYNJUhy8+//nV8kLacdG87jLd+Z9dGYCa0+TXk9qx8pSEvHMD8RGDS6pFi
-	 jgpvpl91arhoFUPeP5+BTLtC/YYlTB1AeOkMmDMr+AtfYzIKc4XpdP4plCI12NGT1u
-	 dxHJsVNmLhLHkqeOTCDnrvEbm0T1K+1ApWMxAmBY0AjVyqHYhtpVpof8EPvhmSWtM3
-	 yrLWO675IkFl5rR/dS7WrYzlPFTwLcAy8sGsm9kZYvcFv3s1SSU1dp5IVQ7lTf7vl6
-	 SqE+dl1QIhiVkM14c95c/0GOGGZW5Y9EvgMyrzTCUG7vpkZF0l17PIfnHt5yw9Mjqk
-	 KJGnDe8n2Ykig==
-Received: from phl-compute-01.internal (phl-compute-01.internal [10.202.2.41])
-	by mailfauth.phl.internal (Postfix) with ESMTP id AA5CAF40077;
-	Fri,  5 Jun 2026 01:41:37 -0400 (EDT)
+	b=H4o6W8mDH+lyp47obeZup9tDtWjCkHfHpNPIbQScK/JR9ykMnaVHTyVGFEcLwM7R1
+	 MZIkApDHhYEQgbvYMdmmmxI45Jy/cutam+IYnQw2T8CUtCHA08l5bYvViGcPDxAu5Q
+	 B9waOL5obx9U+ZM7On8lh09Dv+MlWaLX6m+CYl9H6xxaZmSchYM3N/H4Zz+2MXApv9
+	 JU2Qs3b+wr9qnmWT49sS2sbur8zbRDkuKiFEyRb6bicANv8y4sXydiSqIye1N0nmbH
+	 4+5pFNITC4FRdGCzbaI1DtAShK4Cg2nFjb3jMKZt34xP7OB32X6wbav+iLhbdx2Vw9
+	 1d60d69FGxXOA==
+Received: from phl-compute-02.internal (phl-compute-02.internal [10.202.2.42])
+	by mailfauth.phl.internal (Postfix) with ESMTP id 641FEF40072;
+	Fri,  5 Jun 2026 01:41:42 -0400 (EDT)
 Received: from phl-frontend-03 ([10.202.2.162])
-  by phl-compute-01.internal (MEProxy); Fri, 05 Jun 2026 01:41:37 -0400
-X-ME-Sender: <xms:kWEianm9Odxpr9h6xdaPwhDWDJ5YH7HqaUwKQxlp3j0r6dI8I90zMQ>
-    <xme:kWEiavvxzvFtzcUcv6abPoh-DBPv49w99o17uRdV1j-7P4IHprxyMAukE5PVUnDH3
-    pVSydazCmNDqaYSXUY3kcmxHfOB_raDnd7wsdT2_wlnqxKrNrgV>
-X-ME-Received: <xmr:kWEiajggkh-tASySkGZXu1iL_P9HENioaTqgteAX_tCamtGXa7VyVV3v8tE>
-X-ME-Proxy-Cause: dmFkZTFhOfDTFTb8fH37X+ASfp2vsHy1Fqb2Lywq6X3h5fMlxk7wW33nxe7aSTekseFO11
-    xBiB7Md3Dfg950zHftACRl4BCrZIGkOLORwuU667qK/t4b7uPTnvvrgSwCuAred6lniidQ
-    x6+o43dstQnrbqqi/v6Nl3jrEdQj/OnTFIkpkf7j4tfd81Pm1F4hDhUzK5vMKXR0zokP4K
-    KZGWpXQjfkPb9q0v8LW9bszX8CgnIWJLXLSKFiZe/Ul+6TINXLg1BnxiItQp/bB4zXvV+6
-    Qcp88FhWc5Q0N1TQTHx/VoF2pZ7nT3Uyapa4Doti8umM92UFgjuSWC48vH+lnu7P/MqXQy
-    5fmb7JXidSEtZ94DTq5AOqHkZS7B2jcW9RZpYNSTVsMl9756g7TyoyUAFQFdU+5zUF86JT
-    O36jgGKgvkCiI3g/Alv7jhIIamDTa/2iF9zV4B9PuQLxCfp9mSan8it3Ky4vGO0AzNa51w
-    vgVxfBvfzy2ytIVHsdR/uT05Yd6f2+ctUGK6dq5LzLXUloZnu6mrSspEjLUK874UUfCORI
-    FJccIc8RovUYWSz3K+Ftmeex7VWfnVHNcot6oL84ZpNZHdYPSiXSvNW+O2od2TihDsP6xV
-    St0xihM/B25nP3OR4yRm05xPXFUOB1ge+YKPKimm6RhFij7O/o/GIeT+R93g
-X-ME-Proxy: <xmx:kWEiaiDOZsHfPNWIaLqP-4_yMp9ZKXLRyU3MIY8Vo5mry8H2klWyTQ>
-    <xmx:kWEiar7aqjz1N348figYbayWOIYX4Af2r3tIqOC1b4hwUp7M-DnevA>
-    <xmx:kWEiaoJDR4KPW_08OV68VwuW9HU6BNbRd4VR3aaXIy0Jjk7LSccJzA>
-    <xmx:kWEiah9PNqNFR5Jm-Tdeh9sUpApNCPY-y8xlLkyVD9W8EZqFrq55nA>
-    <xmx:kWEialQSKyg28ndyK26UTqInfnkj-dfLao45xwK79Xar3-690K2wpn1e>
+  by phl-compute-02.internal (MEProxy); Fri, 05 Jun 2026 01:41:42 -0400
+X-ME-Sender: <xms:lmEias6sa1xX0LQqxf935Czyn7HwVyr0VYxk2s3kWeKzUM3PHJJF6A>
+    <xme:lmEianDVOWtbD32caQYbgZRmOJNHT6PdKQK_jw36J_8hTt94Hd30NCO9R3M_lAzph
+    o-YdoLU7N9RMP_5l9MrYBQQSGll0sVc-QsJgXhDtKpI1PkvXKnI0w>
+X-ME-Received: <xmr:lmEiakXzxhTvNMKrKVwCDPLzWMKGN94jNWmKYn02qDgDfFqEyanuPKgcM0I>
+X-ME-Proxy-Cause: dmFkZTFCwYGExB8+n21rrRlgZz2BZEPfw3mIE0bRNe76RMQAdH8f2KDaPLT52qZo7gxyWp
+    0wXQACdPWdspv4jN5UYFCpihH+vrJtJ5nM33JJDnQyPnqbA42Pv6gENFpmiA7vDUbZDCAC
+    N+ZmE7MklGAiGBNJA045y18Z9khhPwbxKZPuahNIwIz69+nOH0m/THs5eb4pu9rOFYQQI9
+    b1h3voWmc5QUasjwQpRDRo+W3jNrB4TeCrmSTmM73SZRB0LYstjQaA4JitE82TBWNXKOy5
+    NeQugQn5+UA17tSJ+MYIgsz9Sw+H8LaFdylvI7Cq2OhiaEqC4YLyUJJOJm9vOjE+2O1NIb
+    ifGBvOfA1bRvdD1rzC6dalPswwrstFlyf7Pap/tukclD4RSnOep05M0BoiV6vs7Bgu2EkN
+    p72ke8BUte3XkipOs/+CKWn/TsXg6p4p138xCLDsao5vi8Ksw7pMG7tzPlOYBuOqdg6z8c
+    MidLD+dCzBqmfkLMsHdOHLfs1Pt53AU/mth+xQxJ6Wnq5W1rjhMKkcb5wW6tQdd0P7matz
+    OCENDIVnfvIMJ8TC4oMgg+jtzeGeX2yW4wFkT7CuUw7nTNzjxH9wZghvZaZUbOwF7xfC59
+    Af1ZSoVdz9AYOcDTSgfAw9IS9LKJ+IE4V38tIidtjIBck5rDsCz/vk+vM9iQ
+X-ME-Proxy: <xmx:lmEiajyG_ECODsknMZaiWeI6lB4RM-vHCwzS-PLCp6k5bCe6EXIhlA>
+    <xmx:lmEianhqhWew4_M-RbHKXbUo9j7BJ6hB77uaIa51Ix-nkG3kmlephA>
+    <xmx:lmEiajnjrfVmMD59vAD_hOpEb1wCKtBMQwa4E2GJxkCuwW2EC6mW1Q>
+    <xmx:lmEiarKWbhlo4-3nQzXarPfEw3SXJQgaSWdfTsOLyo6L81tykc9_ww>
+    <xmx:lmEiakClBCsQNUnsD-35n_uhF0mJr-eTEXof0sHzFm3oZii2Z8rIPQfZ>
 Feedback-ID: i8dbe485b:Fastmail
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Fri,
- 5 Jun 2026 01:41:36 -0400 (EDT)
+ 5 Jun 2026 01:41:41 -0400 (EDT)
 From: Boqun Feng <boqun@kernel.org>
 To: Peter Zijlstra <peterz@infradead.org>
 Cc: Catalin Marinas <catalin.marinas@arm.com>,	Will Deacon <will@kernel.org>,
@@ -100,10 +100,10 @@ Cc: Catalin Marinas <catalin.marinas@arm.com>,	Will Deacon <will@kernel.org>,
 	linux-kernel@vger.kernel.org,	linux-openrisc@vger.kernel.org,
 	linux-s390@vger.kernel.org,	linux-arch@vger.kernel.org,
 	bpf@vger.kernel.org,	linux-kselftest@vger.kernel.org,
-	rust-for-linux@vger.kernel.org,	Boqun Feng <boqun.feng@gmail.com>
-Subject: [PATCH v3 03/13] preempt: Introduce __preempt_count_{sub, add}_return()
-Date: Thu,  4 Jun 2026 22:41:18 -0700
-Message-ID: <20260605054128.5925-4-boqun@kernel.org>
+	rust-for-linux@vger.kernel.org
+Subject: [PATCH v3 06/13] irq: Add KUnit test for refcounted interrupt enable/disable
+Date: Thu,  4 Jun 2026 22:41:21 -0700
+Message-ID: <20260605054128.5925-7-boqun@kernel.org>
 X-Mailer: git-send-email 2.51.0
 In-Reply-To: <20260605054128.5925-1-boqun@kernel.org>
 References: <20260605054128.5925-1-boqun@kernel.org>
@@ -115,133 +115,146 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-From: Boqun Feng <boqun.feng@gmail.com>
+From: Lyude Paul <lyude@redhat.com>
 
-In order to use preempt_count() to tracking the interrupt disable
-nesting level, __preempt_count_{add,sub}_return() are introduced, as
-their name suggest, these primitives return the new value of the
-preempt_count() after changing it. The following example shows the usage
-of it in local_interrupt_disable():
+While making changes to the refcounted interrupt patch series, at some
+point on my local branch I broke something and ended up writing some kunit
+tests for testing refcounted interrupts as a result. So, let's include
+these tests now that we have refcounted interrupts.
 
-	// increase the HARDIRQ_DISABLE bit
-	new_count = __preempt_count_add_return(HARDIRQ_DISABLE_OFFSET);
-
-	// if it's the first-time increment, then disable the interrupt
-	// at hardware level.
-	if (new_count & HARDIRQ_DISABLE_MASK == HARDIRQ_DISABLE_OFFSET) {
-		local_irq_save(flags);
-		raw_cpu_write(local_interrupt_disable_state.flags, flags);
-	}
-
-Having these primitives will avoid a read of preempt_count() after
-changing preempt_count() on certain architectures.
-
-Acked-by: Heiko Carstens <hca@linux.ibm.com> # s390
+Signed-off-by: Lyude Paul <lyude@redhat.com>
 Signed-off-by: Boqun Feng <boqun@kernel.org>
-Link: https://patch.msgid.link/20260121223933.1568682-4-lyude@redhat.com
+Link: https://patch.msgid.link/20260121223933.1568682-7-lyude@redhat.com
 ---
- arch/arm64/include/asm/preempt.h | 18 ++++++++++++++++++
- arch/s390/include/asm/preempt.h  | 10 ++++++++++
- arch/x86/include/asm/preempt.h   | 10 ++++++++++
- include/asm-generic/preempt.h    | 14 ++++++++++++++
- 4 files changed, 52 insertions(+)
+ kernel/irq/Makefile                  |   1 +
+ kernel/irq/refcount_interrupt_test.c | 109 +++++++++++++++++++++++++++
+ 2 files changed, 110 insertions(+)
+ create mode 100644 kernel/irq/refcount_interrupt_test.c
 
-diff --git a/arch/arm64/include/asm/preempt.h b/arch/arm64/include/asm/preempt.h
-index 932ea4b62042..0dd8221d1bef 100644
---- a/arch/arm64/include/asm/preempt.h
-+++ b/arch/arm64/include/asm/preempt.h
-@@ -55,6 +55,24 @@ static inline void __preempt_count_sub(int val)
- 	WRITE_ONCE(current_thread_info()->preempt.count, pc);
- }
- 
-+static inline int __preempt_count_add_return(int val)
-+{
-+	u32 pc = READ_ONCE(current_thread_info()->preempt.count);
-+	pc += val;
-+	WRITE_ONCE(current_thread_info()->preempt.count, pc);
+diff --git a/kernel/irq/Makefile b/kernel/irq/Makefile
+index 86a2e5ae08f9..44c4d6fc502a 100644
+--- a/kernel/irq/Makefile
++++ b/kernel/irq/Makefile
+@@ -16,3 +16,4 @@ obj-$(CONFIG_SMP) += affinity.o
+ obj-$(CONFIG_GENERIC_IRQ_DEBUGFS) += debugfs.o
+ obj-$(CONFIG_GENERIC_IRQ_MATRIX_ALLOCATOR) += matrix.o
+ obj-$(CONFIG_IRQ_KUNIT_TEST) += irq_test.o
++obj-$(CONFIG_KUNIT) += refcount_interrupt_test.o
+diff --git a/kernel/irq/refcount_interrupt_test.c b/kernel/irq/refcount_interrupt_test.c
+new file mode 100644
+index 000000000000..b4f224595f26
+--- /dev/null
++++ b/kernel/irq/refcount_interrupt_test.c
+@@ -0,0 +1,109 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * KUnit test for refcounted interrupt enable/disables.
++ */
 +
-+	return pc;
++#include <kunit/test.h>
++#include <linux/interrupt_rc.h>
++
++#define TEST_IRQ_ON() KUNIT_EXPECT_FALSE(test, irqs_disabled())
++#define TEST_IRQ_OFF() KUNIT_EXPECT_TRUE(test, irqs_disabled())
++
++/* ===== Test cases ===== */
++static void test_single_irq_change(struct kunit *test)
++{
++	local_interrupt_disable();
++	TEST_IRQ_OFF();
++	local_interrupt_enable();
 +}
 +
-+static inline int __preempt_count_sub_return(int val)
++static void test_nested_irq_change(struct kunit *test)
 +{
-+	u32 pc = READ_ONCE(current_thread_info()->preempt.count);
-+	pc -= val;
-+	WRITE_ONCE(current_thread_info()->preempt.count, pc);
++	local_interrupt_disable();
++	TEST_IRQ_OFF();
++	local_interrupt_disable();
++	TEST_IRQ_OFF();
++	local_interrupt_disable();
++	TEST_IRQ_OFF();
 +
-+	return pc;
++	local_interrupt_enable();
++	TEST_IRQ_OFF();
++	local_interrupt_enable();
++	TEST_IRQ_OFF();
++	local_interrupt_enable();
++	TEST_IRQ_ON();
 +}
 +
- static inline bool __preempt_count_dec_and_test(void)
- {
- 	struct thread_info *ti = current_thread_info();
-diff --git a/arch/s390/include/asm/preempt.h b/arch/s390/include/asm/preempt.h
-index 6e5821bb047e..0a25d4648b4c 100644
---- a/arch/s390/include/asm/preempt.h
-+++ b/arch/s390/include/asm/preempt.h
-@@ -139,6 +139,16 @@ static __always_inline bool should_resched(int preempt_offset)
- 	return unlikely(READ_ONCE(get_lowcore()->preempt_count) == preempt_offset);
- }
- 
-+static __always_inline int __preempt_count_add_return(int val)
++static void test_multiple_irq_change(struct kunit *test)
 +{
-+	return val + __atomic_add(val, &get_lowcore()->preempt_count);
++	local_interrupt_disable();
++	TEST_IRQ_OFF();
++	local_interrupt_disable();
++	TEST_IRQ_OFF();
++
++	local_interrupt_enable();
++	TEST_IRQ_OFF();
++	local_interrupt_enable();
++	TEST_IRQ_ON();
++
++	local_interrupt_disable();
++	TEST_IRQ_OFF();
++	local_interrupt_enable();
++	TEST_IRQ_ON();
 +}
 +
-+static __always_inline int __preempt_count_sub_return(int val)
++static void test_irq_save(struct kunit *test)
 +{
-+	return __preempt_count_add_return(-val);
++	unsigned long flags;
++
++	local_irq_save(flags);
++	TEST_IRQ_OFF();
++	local_interrupt_disable();
++	TEST_IRQ_OFF();
++	local_interrupt_enable();
++	TEST_IRQ_OFF();
++	local_irq_restore(flags);
++	TEST_IRQ_ON();
++
++	local_interrupt_disable();
++	TEST_IRQ_OFF();
++	local_irq_save(flags);
++	TEST_IRQ_OFF();
++	local_irq_restore(flags);
++	TEST_IRQ_OFF();
++	local_interrupt_enable();
++	TEST_IRQ_ON();
 +}
 +
- #define init_task_preempt_count(p)	do { } while (0)
- /* Deferred to CPU bringup time */
- #define init_idle_preempt_count(p, cpu)	do { } while (0)
-diff --git a/arch/x86/include/asm/preempt.h b/arch/x86/include/asm/preempt.h
-index 578441db09f0..1220656f3370 100644
---- a/arch/x86/include/asm/preempt.h
-+++ b/arch/x86/include/asm/preempt.h
-@@ -85,6 +85,16 @@ static __always_inline void __preempt_count_sub(int val)
- 	raw_cpu_add_4(__preempt_count, -val);
- }
- 
-+static __always_inline int __preempt_count_add_return(int val)
++static struct kunit_case test_cases[] = {
++	KUNIT_CASE(test_single_irq_change),
++	KUNIT_CASE(test_nested_irq_change),
++	KUNIT_CASE(test_multiple_irq_change),
++	KUNIT_CASE(test_irq_save),
++	{},
++};
++
++/* (init and exit are the same */
++static int test_init(struct kunit *test)
 +{
-+	return raw_cpu_add_return_4(__preempt_count, val);
++	TEST_IRQ_ON();
++
++	return 0;
 +}
 +
-+static __always_inline int __preempt_count_sub_return(int val)
++static void test_exit(struct kunit *test)
 +{
-+	return raw_cpu_add_return_4(__preempt_count, -val);
++	TEST_IRQ_ON();
 +}
 +
- /*
-  * Because we keep PREEMPT_NEED_RESCHED set when we do _not_ need to reschedule
-  * a decrement which hits zero means we have no preempt_count and should
-diff --git a/include/asm-generic/preempt.h b/include/asm-generic/preempt.h
-index 51f8f3881523..c8683c046615 100644
---- a/include/asm-generic/preempt.h
-+++ b/include/asm-generic/preempt.h
-@@ -59,6 +59,20 @@ static __always_inline void __preempt_count_sub(int val)
- 	*preempt_count_ptr() -= val;
- }
- 
-+static __always_inline int __preempt_count_add_return(int val)
-+{
-+	*preempt_count_ptr() += val;
++static struct kunit_suite refcount_interrupt_test_suite = {
++	.name = "refcount_interrupt",
++	.test_cases = test_cases,
++	.init = test_init,
++	.exit = test_exit,
++};
 +
-+	return *preempt_count_ptr();
-+}
-+
-+static __always_inline int __preempt_count_sub_return(int val)
-+{
-+	*preempt_count_ptr() -= val;
-+
-+	return *preempt_count_ptr();
-+}
-+
- static __always_inline bool __preempt_count_dec_and_test(void)
- {
- 	/*
++kunit_test_suite(refcount_interrupt_test_suite);
++MODULE_AUTHOR("Lyude Paul <lyude@redhat.com>");
++MODULE_DESCRIPTION("Refcounted interrupt unit test suite");
++MODULE_LICENSE("GPL");
 -- 
 2.51.0
 
