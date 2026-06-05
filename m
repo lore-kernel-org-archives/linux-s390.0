@@ -1,187 +1,129 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 69AB841B34C;
-	Fri,  5 Jun 2026 06:30:18 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6FC42408033;
+	Fri,  5 Jun 2026 06:30:20 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780641020; cv=none; b=qBz36o2WBgt5ESNYG2gdHjmB3+ManygJZjAkcOYsOzJGcp2nTTUJMKG4fgOiFPC2v4XlQ4w7YoBnY+RcBugNBLwTVK9XQwng4eBzXOZekXEL2GrEyRxqIiAYmZpzj0kTF8QJC/wTNOZRRWKnoeW1UTZTNeXuj5PCDK1eN0lCtqE=
+	t=1780641022; cv=none; b=qfTQ6/TLCO0QAFhPAwjeKzIrfTPHPp/u+hCaxJPz7zkej5mbudYvb2cH5XzuJWTNXVaVBfrNMXu30Z2ohDuH3QcMHTpXjwf+5Hvc9d34eP3pMVV8rS7uWSMsjhTJJH7iWjlzpwqdlDZk1s1QjmG67s6Jb2E/03RzqQXZuBVGWxE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780641020; c=relaxed/simple;
-	bh=fgCxOGHw8pCumGTDDYG9TIuZGQ69g3YHe0Qofz0UJoo=;
+	s=arc-20240116; t=1780641022; c=relaxed/simple;
+	bh=b7fyKzhjw4yx3OaqAa3FKuCwhuCp9NuXnczYKyFON00=;
 	h=Content-Type:MIME-Version:Message-Id:In-Reply-To:References:
-	 Subject:From:To:Cc:Date; b=kjqfPvTMDd3FWroWLcW4tbX+AHMMwmI3jwx7K3JB8SvHqsgQo1VL9PA3P1DuMdPLu5v7sMv8YXZ1a6Mfm5rjCUEAkU9vq95kHgzvkZWeWqkZLmBBxV0WSWDnzuqtQW4Bp62yDf1OH+247yR0ZUz0UeNC73i/wVxTBbgxGKWRmSY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=fail (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=eqw0eOWZ reason="signature verification failed"; arc=none smtp.client-ip=100.103.45.18
+	 Subject:From:To:Cc:Date; b=UhFftrMDU+4CLJl5lKP259bKhhkcuJ5Q/mwMw7DbDrwEpjhS1Rw2oG80F5jBWJLf+Ri3uIqZu8xiDYNUgH5qHXRgPuH5pbty7cnRchgRw8u7z8uMQps5LPaH9G1+1O/6fd1KaS/aIJuVQs5wQRnHZcP4EElDEFr30BtA0/fBtZs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=fail (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=H4dTp+wV reason="signature verification failed"; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="eqw0eOWZ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96C781F00898;
-	Fri,  5 Jun 2026 06:30:16 +0000 (UTC)
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="H4dTp+wV"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E53EC1F00893;
+	Fri,  5 Jun 2026 06:30:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1780641017;
-	bh=Tg6N9VgqQ+N58PL4b7nf1TqxKbx3G9h4ztBKPkW3UxQ=;
+	s=k20260515; t=1780641020;
+	bh=ZuCEbTdg7Jvg/3RTGozyLFZtT0FjVHWOOoiUv+zGjX8=;
 	h=In-Reply-To:References:Subject:From:To:Cc:Date;
-	b=eqw0eOWZ8MqaTod2pDQtLpG8PJJQ7HCjLXmOEKZqdJR8seEe68+qybsRKTorOQaNc
-	 sdTuQjgGnfzzzfa06NmIURh9NPtbGkcDIqoEPYYLIbk5XEXecbT6pMorj8Lsyd49wQ
-	 bPrK2btAbedAIOoCPHq/UCKKF2n+i5A9hr1krRuyovzixKNbE0AWgUpj+d5wpx20lz
-	 YXe0SdACeTtGLqAQ3ykaPdnGEvpzWo4kXGF3yR/k8cmkHssWZbYBzHYsI3llvVzN5V
-	 0qy9XTcJZmWZAQJSNhDXrvP85lAW0HLA9Egl/dQO0KvBpKsxBExusPg9Y923Rrw2OQ
-	 Fn7Sx8qcgl74Q==
-Content-Type: multipart/mixed; boundary="===============6478213323594853790=="
+	b=H4dTp+wVDiRNcUShgm1dL5dR6Tk83U4HJ3+rbGVRR2YEQt9BGsgO6w0jLtbvThZLx
+	 AyyU7p0Z/0eIMfhQQFZvPw4FjH/6jaKXWtQ1rFzkGeewQpukxF1bejycPV5P2pxt94
+	 4Z/a2iSiVNzHCgdYm3sDI/uPYEICv4kGu52Ya2Bh1CTftj0yqZp3A7D51TstjWB5AS
+	 DRSg8zbg4eTysQr4pKWQlt+Lrni9PITOiUg/HgOrBNoVk1WsWkR3ueAZuWQKjZtiXA
+	 umEJLRkkAN5OIbh6H0UdUQ4AM39TQ8rPBGytoRWDg0yTBchxBEEEgU/7e3LDF5Gy/X
+	 jDGbyjUG7DthA==
+Content-Type: multipart/mixed; boundary="===============2479707455285012343=="
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Message-Id: <cc4b5fb3f63b8b508334edd883765bf81c9ab1d2045f414a74c8712c6cc705e9@mail.kernel.org>
-In-Reply-To: <20260605054128.5925-6-boqun@kernel.org>
-References: <20260605054128.5925-6-boqun@kernel.org>
-Subject: Re: [PATCH v3 05/13] irq & spin_lock: Add counted interrupt disabling/enabling
+Message-Id: <ab3d42abe5ed92f3a7c40a961ed14ae1dbad4789f9d41b0c484a020e723e8ac4@mail.kernel.org>
+In-Reply-To: <20260605054128.5925-11-boqun@kernel.org>
+References: <20260605054128.5925-11-boqun@kernel.org>
+Subject: Re: [PATCH v3 10/13] preempt: Introduce HAS_SEPARATE_PREEMPT_RESCHED_BITS
 From: bot+bpf-ci@kernel.org
 To: boqun@kernel.org,peterz@infradead.org
 Cc: catalin.marinas@arm.com,will@kernel.org,jonas@southpole.se,stefan.kristiansson@saunalahti.fi,shorne@gmail.com,hca@linux.ibm.com,gor@linux.ibm.com,agordeev@linux.ibm.com,borntraeger@linux.ibm.com,svens@linux.ibm.com,tglx@kernel.org,mingo@redhat.com,bp@alien8.de,dave.hansen@linux.intel.com,x86@kernel.org,hpa@zytor.com,arnd@arndb.de,juri.lelli@redhat.com,vincent.guittot@linaro.org,dietmar.eggemann@arm.com,rostedt@goodmis.org,bsegall@google.com,mgorman@suse.de,vschneid@redhat.com,kprateek.nayak@amd.com,boqun@kernel.org,longman@redhat.com,akpm@linux-foundation.org,andrii@kernel.org,eddyz87@gmail.com,ast@kernel.org,daniel@iogearbox.net,martin.lau@linux.dev,memxor@gmail.com,song@kernel.org,yonghong.song@linux.dev,jolsa@kernel.org,shuah@kernel.org,ojeda@kernel.org,gary@garyguo.net,bjorn3_gh@protonmail.com,lossin@kernel.org,a.hindborg@kernel.org,aliceryhl@google.com,tmgross@umich.edu,dakr@kernel.org,ruanjinjie@huawei.com,lyude@redhat.com,thuth@redhat.com,sohil.mehta@intel.com,pawan.kumar.
- gupta@linux.intel.com,seanjc@google.com,nikunj@amd.com,xin@zytor.com,joelagnelf@nvidia.com,andriy.shevchenko@linux.intel.com,rdunlap@infradead.org,ynorov@nvidia.com,bigeasy@linutronix.de,linux-kernel@vger.kernel.org,linux-openrisc@vger.kernel.org,linux-s390@vger.kernel.org,linux-arch@vger.kernel.org,bpf@vger.kernel.org,linux-kselftest@vger.kernel.org,rust-for-linux@vger.kernel.org,boqun.feng@gmail.com,ast@kernel.org,andrii@kernel.org,daniel@iogearbox.net,martin.lau@kernel.org,eddyz87@gmail.com,yonghong.song@linux.dev,clm@meta.com,ihor.solodrai@linux.dev
-Date: Fri,  5 Jun 2026 06:30:16 +0000 (UTC)
+ gupta@linux.intel.com,seanjc@google.com,nikunj@amd.com,xin@zytor.com,joelagnelf@nvidia.com,andriy.shevchenko@linux.intel.com,rdunlap@infradead.org,ynorov@nvidia.com,bigeasy@linutronix.de,linux-kernel@vger.kernel.org,linux-openrisc@vger.kernel.org,linux-s390@vger.kernel.org,linux-arch@vger.kernel.org,bpf@vger.kernel.org,linux-kselftest@vger.kernel.org,rust-for-linux@vger.kernel.org,ast@kernel.org,andrii@kernel.org,daniel@iogearbox.net,martin.lau@kernel.org,eddyz87@gmail.com,yonghong.song@linux.dev,clm@meta.com,ihor.solodrai@linux.dev
+Date: Fri,  5 Jun 2026 06:30:18 +0000 (UTC)
 
---===============6478213323594853790==
+--===============2479707455285012343==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
 
-> diff --git a/include/linux/interrupt_rc.h b/include/linux/interrupt_rc.h
-> new file mode 100644
-> index 000000000000..dd4444c61330
-> --- /dev/null
-> +++ b/include/linux/interrupt_rc.h
-> @@ -0,0 +1,67 @@
-> +/* SPDX-License-Identifier: GPL-2.0 */
-> +/*
-> + * include/linux/interrupt_rc.h - refcounted local processor interrupt
-> + * management.
-> + *
-> + * Since the implementation of this API currently depends on
-> + * local_irq_save()/local_irq_restore(), we split this into it's own header to
-> + * make it easier to include without hitting circular header dependencies.
-> + */
-> +
-> +#ifndef __LINUX_INTERRUPT_RC_H
-> +#define __LINUX_INTERRUPT_RC_H
-> +
-> +#include <linux/irqflags.h>
-> +#include <asm/processor.h>
-> +#ifdef CONFIG_SMP
-> +#include <asm/smp.h>
-> +#endif
-> +
-> +/* Per-cpu interrupt disabling state for local_interrupt_{disable,enable}() */
-> +struct interrupt_disable_state {
-> +	unsigned long flags;
-> +};
-> +
-> +DECLARE_PER_CPU(struct interrupt_disable_state, local_interrupt_disable_state);
-> +
-> +static inline void local_interrupt_disable(void)
-> +{
-> +	unsigned long flags;
-> +	int new_count;
-> +
-> +	WARN_ON_ONCE(in_nmi());
-> +
-> +	new_count = hardirq_disable_enter();
-> +
-> +	/* Interrupts can happen here, but it's OK, see __irq_exit_rcu(). */
-> +
-> +	if ((new_count & HARDIRQ_DISABLE_MASK) == HARDIRQ_DISABLE_OFFSET) {
-> +		local_irq_save(flags);
-> +		raw_cpu_write(local_interrupt_disable_state.flags, flags);
-> +	}
-> +}
-> +
-> +static inline void local_interrupt_enable(void)
-> +{
-> +	int new_count;
-> +
-> +	new_count = hardirq_disable_exit();
-> +
-> +	if ((new_count & HARDIRQ_DISABLE_MASK) == 0) {
-> +		unsigned long flags;
-> +
-> +		flags = raw_cpu_read(local_interrupt_disable_state.flags);
-> +		local_irq_restore(flags);
+> diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+> index f3f7cb01d69d..bf8288b3d52b 100644
+> --- a/arch/x86/Kconfig
+> +++ b/arch/x86/Kconfig
+> @@ -327,6 +327,7 @@ config X86
+>  	select USER_STACKTRACE_SUPPORT
+>  	select HAVE_ARCH_KCSAN			if X86_64
+>  	select PROC_PID_ARCH_STATUS		if PROC_FS
+> +	select HAS_SEPARATE_PREEMPT_RESCHED_BITS		if X86_64
+>  	select HAVE_ARCH_NODE_DEV_GROUP		if X86_SGX
 
-Could this lead to indefinite softirq starvation? When __irq_exit_rcu()
-skips invoke_softirq() due to hardirq_disable_count() > 0, any scheduled
-softirqs (timers, RCU callbacks, networking) remain pending. When the
-outermost critical section ends and local_interrupt_enable() restores
-hardware interrupts, it doesn't check local_softirq_pending() to flush
-these deferred softirqs.
+A subsystem pattern flags this as potentially concerning: selecting
+HAS_SEPARATE_PREEMPT_RESCHED_BITS with only the X86_64 condition may
+bypass the PREEMPT_COUNT dependency.
 
-Will these pending softirqs stall until another unrelated hardware
-interrupt fires? In low-activity periods, this could potentially cause
-RCU stalls or network hangs. This concern was raised by the sashiko bot in
-both v2 and v3 but remains unaddressed:
+Looking at the definition in kernel/Kconfig.preempt, the config symbol
+HAS_SEPARATE_PREEMPT_RESCHED_BITS explicitly depends on both PREEMPT_COUNT
+and 64BIT:
 
-https://lore.kernel.org/all/20260526175409.7CFCC1F000E9@smtp.kernel.org/
+kernel/Kconfig.preempt:
+    config HAS_SEPARATE_PREEMPT_RESCHED_BITS
+        bool
+        depends on PREEMPT_COUNT && 64BIT
 
-> +		/*
-> +		 * TODO: re-read preempt count can be avoided, but it needs
-> +		 * should_resched() taking another parameter as the current
-> +		 * preempt count
-> +		 */
-> +#ifdef CONFIG_PREEMPTION
-> +		if (should_resched(0))
-> +			__preempt_schedule();
+PREEMPT_COUNT is not always enabled. It gets selected by PREEMPTION, and
+by a few debug configs (CONFIG_DEBUG_PREEMPT, DEBUG_ATOMIC_SLEEP,
+PREEMPT_TRACER, etc.), but a standard CONFIG_PREEMPT_NONE=y configuration
+without any of those debug options will have PREEMPT_COUNT=n.
 
-Peter Zijlstra suggested in v2 replacing should_resched(0) with a direct
-check of new_count for preemption. His suggestion was "can't you simply
-write: if (!new_count) __preempt_schedule();" The author acknowledged this
-in discussion but hasn't implemented it in v3:
+In such a configuration, the select statement (gated only by X86_64)
+will force HAS_SEPARATE_PREEMPT_RESCHED_BITS=y while its depends on
+PREEMPT_COUNT is unmet. This will produce a Kconfig unmet-dependency
+warning: "WARNING: unmet direct dependencies detected for
+HAS_SEPARATE_PREEMPT_RESCHED_BITS / Depends on [n]: PREEMPT_COUNT &&
+64BIT / Selected by [y]: - X86 [=y]".
 
-https://lore.kernel.org/all/20260528104322.GF343181@noisy.programming.kicks-ass.net/
+Sashiko-bot raised this concern in both v2 and v3 of this patch (message
+IDs <20260526195703.C90E31F000E9@smtp.kernel.org> and
+<20260605055956.46EC81F00893@smtp.kernel.org>), escalating it from Low to
+Medium severity:
 
-Is there a reason to keep the more complex should_resched(0) approach, or
-would the direct check be more appropriate here?
+https://lore.kernel.org/all/20260605055956.46EC81F00893@smtp.kernel.org/
 
-> +#endif
-> +	}
-> +}
-> +
-> +#endif /* !__LINUX_INTERRUPT_RC_H */
+Should this select be conditional on PREEMPT_COUNT? For example:
+
+    select HAS_SEPARATE_PREEMPT_RESCHED_BITS  if X86_64 && PREEMPT_COUNT
 
 [ ... ]
 
-> diff --git a/kernel/softirq.c b/kernel/softirq.c
-> index 10af5ed859e7..d1ab1799794c 100644
-> --- a/kernel/softirq.c
-> +++ b/kernel/softirq.c
-> @@ -88,6 +88,9 @@ EXPORT_PER_CPU_SYMBOL_GPL(hardirqs_enabled);
->  EXPORT_PER_CPU_SYMBOL_GPL(hardirq_context);
->  #endif
+> diff --git a/kernel/Kconfig.preempt b/kernel/Kconfig.preempt
+> index 88c594c6d7fc..35f546a042b1 100644
+> --- a/kernel/Kconfig.preempt
+> +++ b/kernel/Kconfig.preempt
+> @@ -122,6 +122,10 @@ config PREEMPT_RT_NEEDS_BH_LOCK
+>  config PREEMPT_COUNT
+>         bool
 >
-> +DEFINE_PER_CPU(struct interrupt_disable_state, local_interrupt_disable_state);
-> +EXPORT_PER_CPU_SYMBOL_GPL(local_interrupt_disable_state);
+> +config HAS_SEPARATE_PREEMPT_RESCHED_BITS
+> +	bool
+> +	depends on PREEMPT_COUNT && 64BIT
 > +
->  DEFINE_PER_CPU(unsigned int, nmi_nesting);
->
->  /*
-> @@ -728,7 +731,16 @@ static inline void __irq_exit_rcu(void)
->  #endif
->  	account_hardirq_exit(current);
->  	preempt_count_sub(HARDIRQ_OFFSET);
-> -	if (!in_interrupt() && local_softirq_pending()) {
-> +	/*
-> +	 * Interrupts may happen between hardirq_disable_enter() and
-> +	 * local_irq_save() in local_interrupt_disable(), if irq_exit() invokes
-> +	 * softirq here, we may have a softirq handler calling
-> +	 * local_interrupt_disable() but it won't disable the irq because
-> +	 * hardirq disabling count is already 1, hence we need to prevent
-> +	 * invoking softirq when a local_interrupt_disable() is ongoing.
-> +	 */
-> +	if (!in_interrupt() && !hardirq_disable_count() &&
-> +	    local_softirq_pending()) {
->  		/*
->  		 * If we left hrtimers unarmed, make sure to arm them now,
->  		 * before enabling interrupts to run SoftIRQ.
+
+This commit fixes a bug but lacks a Fixes: tag. The commit corrects
+underflow detection logic in preempt_count_sub() by changing from a signed
+comparison to unsigned wraparound detection. The bug was introduced when
+commit 7c346d37f86b expanded the preempt_count bit layout by adding 8-bit
+HARDIRQ_DISABLE_BITS, increasing total bit usage from 21 to 29 bits.
+
+This expansion highlighted the flaw in the existing signed comparison
+underflow check (val > preempt_count()), which doesn't correctly detect
+unsigned underflow. The fix properly uses unsigned arithmetic (pc - uval >
+pc) to detect wraparound.
+
+Should this include:
+
+  Fixes: 7c346d37f86b ("preempt: Introduce HARDIRQ_DISABLE_BITS")
 
 
 ---
@@ -189,4 +131,4 @@ AI reviewed your patch. Please fix the bug or email reply why it's not a bug.
 See: https://github.com/kernel-patches/vmtest/blob/master/ci/claude/README.md
 
 CI run summary: https://github.com/kernel-patches/bpf/actions/runs/26998319662
---===============6478213323594853790==--
+--===============2479707455285012343==--
