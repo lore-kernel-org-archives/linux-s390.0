@@ -1,58 +1,58 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6465F3F54C7;
-	Fri,  5 Jun 2026 05:41:53 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D5084014AA;
+	Fri,  5 Jun 2026 05:41:57 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780638120; cv=none; b=VkiwNSw63BEUa57QsCODsdyAbyxXv2kbNs/jp1PJCRT8f53b6FWiHz2vrtlXO+QON/YYWnVXIyfwm5hKNZ9DoZE0c8BQjlPC2+Z/oGkyJoUTkrz383cNbL4ZTKO9nnuOrY2ngBMisJU/xwy7yu4Ds5WvuURbX2ki2r2Hc5Yyt4I=
+	t=1780638120; cv=none; b=Ksn/Rvhnlp1h2gJfE1crIm91/kPyLIX49YNrcrwMiCPwWxD81se2Re01JX5BtABKqpqkxK+T90L5f6ynrBEIAKvFB0unuPejHDKkjim8l2Y5/s8fFyDvi7HQ0JcPomNtpv7WNzajLlg1UrzFCceloi9CA8JIvKrPwpwM8LDWQyM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1780638120; c=relaxed/simple;
-	bh=GQcB2irY+5fvbG7jypfJORHvkL0py2l9L68BR/+gH5k=;
+	bh=dLOHKW7WAr1j2ZaVPZw1AOGUtt3G5GCtMKdlXWtC1+g=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=n2C2pvH+6dzr0TLFcpE5QtOnbOA11nhai1DHXtUPni6xIxkSYTdWTd96f5PXfnW+86FgPMZ0Q4eTvJxUlEpW0eeEWx7dtbpiWdtC4k8GEQjnPV744Q5Ghcxlsj9mQyeksn7QsmrlnZg6MVYPVWfl7ScGZlcRnVHim0mbRckhsR4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Ikd0bBdk; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version; b=WY7oLUc1NI1X3luhjsQKlaGXQxlnycyvs+zI3FD908KbI0VqDN1TMbWYW9ipusrCM2uTbhRsRi5SgVu8X6/Lo+UKb4eWG5lIXoOcJSeDTiNpoD42oAsQe1bgkECBC4QpLImZGaD1Ma4m0ZEAq67ILRznZFOfVwlnNfTKs70zhJo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SRZfQ1Em; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Ikd0bBdk"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C3331F00898;
-	Fri,  5 Jun 2026 05:41:50 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SRZfQ1Em"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 291051F008A0;
+	Fri,  5 Jun 2026 05:41:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1780638113;
-	bh=0mPxrbBivbpzQrGwnMXtIl1/fg5S1RI4hpeS7qRM9AI=;
+	s=k20260515; t=1780638117;
+	bh=cte+3SORcsAa7eW9vZLxBcB/RUJa01gm+E+K6ToVCog=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=Ikd0bBdk69NP91MfJhlMrCO2IH6G4KXohWTL1J6xdWnrn19Or8EGUQ+jeqvGJUsL1
-	 w7KGao2dpPh/F98lxIMoCl+XDPAcxP+jYzxdiC1Fu8nhuoyJZfnGKt0MzbkNe52WNA
-	 iNG8CvvHi/9tSZLsgYtAkzqQK4lrYCtyw4kY89A0GugwcbL0xIc8EQYCbOknbrcPoj
-	 0Q9ehDGpIX2uhp0A8MAd6tyn7Stc1LfwDYBROo1LA5GEDpxy1NRI82yOxJ9KMyLm+K
-	 Yl1kFbTrNQjiW1UcMsb5voAaLuE6WVTrkvtYpX74ADTPYoGKes0K8MNSkDQ8Mo9mgG
-	 hmi17udHUqx7A==
-Received: from phl-compute-05.internal (phl-compute-05.internal [10.202.2.45])
-	by mailfauth.phl.internal (Postfix) with ESMTP id 536B5F4006D;
-	Fri,  5 Jun 2026 01:41:50 -0400 (EDT)
+	b=SRZfQ1EmhHh/fcOTKw4OmaKBk72iM6URnBfbl4OIYW3EsxD79F26PyzDv5DakTIKk
+	 0gazh2CEDaAOaWaWCJ8JVd8Bn+go1fER4lmBlZ+v/utn/XT/SDXBfu151UbTFnzlNg
+	 vA4/kcwzm+IfMRgOGGBdjBjyEIIKL8COuTwzJoxH/0FDY8d3DgMWLwgzId6XQ90ily
+	 0TVqxVBKmxgrojgAAoFF7Hk5PozoFp5EvVKSUjGHmd2hng9z6mUZpt/DaDD03HnvUD
+	 oyrH246/GqVTxxGMypjesyTV/StUgAjJy25GqmhsQbjsUyJBwS8Z8R6devg1dGrdUd
+	 Ed+uDFgESmGQw==
+Received: from phl-compute-04.internal (phl-compute-04.internal [10.202.2.44])
+	by mailfauth.phl.internal (Postfix) with ESMTP id 7094EF4006D;
+	Fri,  5 Jun 2026 01:41:54 -0400 (EDT)
 Received: from phl-frontend-03 ([10.202.2.162])
-  by phl-compute-05.internal (MEProxy); Fri, 05 Jun 2026 01:41:50 -0400
-X-ME-Sender: <xms:nmEiahFBpIzWP8IexyOYJdk9mknDk8HFjiPWK0ozT7qCEog6WQD-Nw>
-    <xme:nmEiavcnSZA-fECWRqTCeWbXzTvxp9KKBYvDLVLoFegUG5qIrn5ScgVreg-AlELYS
-    EszYraR65NZ2IhDXHzsqx0A6viWWHuHCXR2pNyKuzuEV1CJAhhuxg>
-X-ME-Received: <xmr:nmEiasBg5sZX_Bhglb9nW7zRQIOtwPfieF77nQ7lFAz0v7wtWTtT5ZFvNU4>
-X-ME-Proxy-Cause: dmFkZTFG0WJa+84B5ZLakFCJusLrHx60u/M2e4tgb8vvSWGQWHXMFZeKktHow9VrFaQhwL
-    60vkPLe/GHUXrF9uQjn9EtWhYCiYebO343SXKkauObGNd0gaHEDMGyAUdMEWI3xvV5+MXM
-    Y5XIGIH+RCj/YpjPsc3XHQUzqyjdf8JDGbXE7uRDsVlh2adsQWoVoEG+11Li6tmpxBjo+n
-    GbGHXxcMsG5BC+v/PWXz65OFiJmnJTn18gjrdwmPsAQA0I/XEj3HJhBv36WGSvCgORqSG4
-    pkDfFOinWXk05Px2n3ZYSDFusuNrnah7Cqk2jZsViR99U7a3ccatK3SGLf/zDxH9xSS8eP
-    evo1C1tdvdsW22rguSMiyGhb91vOPz1JMGy/dAC8+b57XEttl8KUCjqIV63p0YMoxNW6pk
-    NJRjB/fcA+k20epvbFfev+gbwksz8T6PzNVKqm0FCkxFAJGT6V7UWUiVT4yMenf2km2OBL
-    LIDGjit+Stvx8RgQ/+f1YlsO1xj4o5d3Dm9gw95alvhK0w35SrVU+y9Atd1IUrylyOkx57
-    RLeY4uqNNMkPi8PfhqmecwQo3Fbck1lHuoF3ee1JyAGbeX7v5G1uf/lv+0ODXAJXYI0Z8C
-    ByMgPqWEV3THt+bVqfddzh0sofM9ysG1wdnUAvOqu5AziUZTeSQ8i9v235dw
-X-ME-Proxy: <xmx:nmEiapulHuwRRWlD5ttpx9s64zfiqxfnjuGKFe-KsR6ypqS79UjW7A>
-    <xmx:nmEiausf0DrbrKICiqVNyRGrC9b3hZK-Wt9Sk-l0mNXie1-xQ-GYlw>
-    <xmx:nmEiajB3hguVuDji1q8Si-xa7wKqIsleIe3hPYUBeb2Na9Ny_plxUA>
-    <xmx:nmEiat2ASZV8qUiyi8KWzdXCGbARulExQRWPAvHf_LlOH4Ct3HQXBw>
-    <xmx:nmEiao_7QL8nX8hFze46BE0twVHoCvLtgwc6GbMzVz_fMulLdmWi4Z-w>
+  by phl-compute-04.internal (MEProxy); Fri, 05 Jun 2026 01:41:54 -0400
+X-ME-Sender: <xms:omEiakGP5XVXHljs8KMeu83vG8CW7KvyEkMObkH8eCeRilh9RIiYJQ>
+    <xme:omEiameSlkFLoE_C2fs9ms0g1T8CQbIfyViWI4hZrJPaR7SLUSImLIkEWJbNshSCM
+    qNsZodoj6cnUDNuAFrMF805juMt8XN_nICcp-6HCUZScvhV-ueTOQ>
+X-ME-Received: <xmr:omEianBSvRFrHZXLU7uIF9cLYVuVLaO1mDIA1KCZNnlTnyBWDpQBrtp1j3s>
+X-ME-Proxy-Cause: dmFkZTGNdErcnsY9nz6zZJNqzBGcFpZ3oCsZyVSAsXPEfKD6fiAd7MM8RW3ErpHOKO8vqP
+    y7FRxpXUBU5yb8Y73fmewycTgcYRdiPbEiXJpQaKxk1+aC6Vj3AAV2l/TRkhTd+1u+mIGl
+    dQfEAWycnSLZO+qO217j/GTm+GQxoHWyRwvdph+wtnOrnU/D7PvfaSdl50PQ+1o9QW7RYj
+    snzJFBhgLjSJ/jkZdib8Dc9ob5AHsrvEPqt2vef8Hmx2uDf0JqmoZZ+HexXrtwk5r0bry3
+    HVu0i63lg3nGwPLJ2r8Np94WJ6jG6+OWNN7TpxDaYMxO59AtKcBppdJ6IoJJH6Zm9jQmfy
+    d/M23rmFX/UEDMXUP5h4monMRjH3DBFbRBl3dq3TGCS9QG3xV5SjlbUSvMywVg8PIR6IFK
+    KXMTZHNWG50pa++o/LTrjqU+tS5L11u4ow7nYXPXlPIFaek05dqOtUwW/zxRhcsbtpEZSR
+    ISus0WT/tkwAGiTp3tz0+/6ZUWTvLgozaBgYkLZTwlbtRl/bPzm1sk3zU61ZBdP4XfrXtm
+    nk3D+iIL4bflhzo6zjYipul55NCqZP5sTBozuwFgumkeLXVXTq/GWN7Czth//d3jja9eh1
+    h/wjOwNzkRTyhq3JTkj4jSZ4w0vgmr38G80/zXvpjAFcVTP7qJZ/MeUZNobA
+X-ME-Proxy: <xmx:omEiaoutB1XNfyRFcycQLcyt3196gs6LPaLSsdN5DnIOW3jOGmj-jQ>
+    <xmx:omEiahsharQ5m502EbaXDzC0oOr8jyXpLBSL6tyJf-QAF74Szq47ag>
+    <xmx:omEiaqAYaufe5Xu1CDW8S0L7axxIvgdRm6Y71eGIY6fOOr4tRsMRTA>
+    <xmx:omEiao3df6szJBIycbcYKmDxC_IZWo1ekXvpKE8KizOigLvXK7hGtw>
+    <xmx:omEian-S7B0U97IhQmD3cgGQb7ttfVIb5Blx2faJjvbLe9fS1TAXzQz8>
 Feedback-ID: i8dbe485b:Fastmail
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Fri,
- 5 Jun 2026 01:41:48 -0400 (EDT)
+ 5 Jun 2026 01:41:53 -0400 (EDT)
 From: Boqun Feng <boqun@kernel.org>
 To: Peter Zijlstra <peterz@infradead.org>
 Cc: Catalin Marinas <catalin.marinas@arm.com>,	Will Deacon <will@kernel.org>,
@@ -101,9 +101,9 @@ Cc: Catalin Marinas <catalin.marinas@arm.com>,	Will Deacon <will@kernel.org>,
 	linux-s390@vger.kernel.org,	linux-arch@vger.kernel.org,
 	bpf@vger.kernel.org,	linux-kselftest@vger.kernel.org,
 	rust-for-linux@vger.kernel.org
-Subject: [PATCH v3 10/13] preempt: Introduce HAS_SEPARATE_PREEMPT_RESCHED_BITS
-Date: Thu,  4 Jun 2026 22:41:25 -0700
-Message-ID: <20260605054128.5925-11-boqun@kernel.org>
+Subject: [PATCH v3 12/13] s390/preempt: Enable HAS_SEPARATE_PREEMPT_RESCHED_BITS
+Date: Thu,  4 Jun 2026 22:41:27 -0700
+Message-ID: <20260605054128.5925-13-boqun@kernel.org>
 X-Mailer: git-send-email 2.51.0
 In-Reply-To: <20260605054128.5925-1-boqun@kernel.org>
 References: <20260605054128.5925-1-boqun@kernel.org>
@@ -115,406 +115,171 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-With the changes that enable preempt count to tracking irq disabling
-nesting, we don't have enough bits in 32bit preempt count
-implementation, as a result we move NMI nesting bits out of the 32bit
-preempt count. However on the architectures that can support 64bit
-preempt count implementation, we can keep the NMI nesting bits in the
-32bit preempt count and avoid maintaining NMI nesting bits out of the
-same cache line.
+From: Heiko Carstens <hca@linux.ibm.com>
 
-Therefore HAS_SEPARATE_PREEMPT_RESCHED_BITS is introduced to allow
-architectures to select this. Note that under this kconfig, preempt
-count is maintained in a 64bit word however preempt_count() still
-remains as an int because all the effective bits still fit in
-(previously we mask out NEED_RESCHED bit in preempt_count()). This
-should make no functional changes for existing preempt_count() users.
+Convert s390's preempt_count to 64 bit, and change the preempt
+primitives accordingly.
 
-Enable this for x86_64 along with the introduction of the Kconfig.
-
-[boqun: Undo the __preempt_count_{add,sub}() optimization in 32bit
-preempt count since it may introduce {over,under}flow]
-
-Originally-by: Peter Zijlstra <peterz@infradead.org>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Boqun Feng <boqun@kernel.org>
+Link: https://patch.msgid.link/20260509181249.16281C67-hca@linux.ibm.com
 ---
- arch/x86/Kconfig               |  1 +
- arch/x86/include/asm/preempt.h | 55 +++++++++++++++++++++++-----------
- arch/x86/kernel/cpu/common.c   |  2 +-
- include/linux/hardirq.h        | 48 +++++++++++++++++++++--------
- include/linux/preempt.h        | 20 +++++++------
- kernel/Kconfig.preempt         |  4 +++
- kernel/sched/core.c            | 12 ++++++--
- kernel/softirq.c               |  6 ++++
- lib/locking-selftest.c         |  2 +-
- 9 files changed, 107 insertions(+), 43 deletions(-)
+ arch/s390/Kconfig               |  1 +
+ arch/s390/include/asm/lowcore.h | 13 +++++++----
+ arch/s390/include/asm/preempt.h | 41 +++++++++++++++------------------
+ 3 files changed, 29 insertions(+), 26 deletions(-)
 
-diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
-index fdaef60b46d6..9a35c3a08757 100644
---- a/arch/x86/Kconfig
-+++ b/arch/x86/Kconfig
-@@ -329,6 +329,7 @@ config X86
- 	select USER_STACKTRACE_SUPPORT
- 	select HAVE_ARCH_KCSAN			if X86_64
- 	select PROC_PID_ARCH_STATUS		if PROC_FS
-+	select HAS_SEPARATE_PREEMPT_RESCHED_BITS		if X86_64
- 	select HAVE_ARCH_NODE_DEV_GROUP		if X86_SGX
- 	select FUNCTION_ALIGNMENT_16B		if X86_64 || X86_ALIGNMENT_16
- 	select FUNCTION_ALIGNMENT_4B
-diff --git a/arch/x86/include/asm/preempt.h b/arch/x86/include/asm/preempt.h
-index 1220656f3370..12353eeebc52 100644
---- a/arch/x86/include/asm/preempt.h
-+++ b/arch/x86/include/asm/preempt.h
-@@ -7,10 +7,20 @@
+diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+index ecbcbb781e40..cbbca82f8443 100644
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -276,6 +276,7 @@ config S390
+ 	select PCI_MSI			if PCI
+ 	select PCI_MSI_ARCH_FALLBACKS	if PCI_MSI
+ 	select PCI_QUIRKS		if PCI
++	select HAS_SEPARATE_PREEMPT_RESCHED_BITS
+ 	select SPARSE_IRQ
+ 	select SWIOTLB
+ 	select SYSCTL_EXCEPTION_TRACE
+diff --git a/arch/s390/include/asm/lowcore.h b/arch/s390/include/asm/lowcore.h
+index 50ffe75adeb4..0974ab278169 100644
+--- a/arch/s390/include/asm/lowcore.h
++++ b/arch/s390/include/asm/lowcore.h
+@@ -160,10 +160,15 @@ struct lowcore {
+ 	/* SMP info area */
+ 	__u32	cpu_nr;				/* 0x03a0 */
+ 	__u32	softirq_pending;		/* 0x03a4 */
+-	__s32	preempt_count;			/* 0x03a8 */
+-	__u32	spinlock_lockval;		/* 0x03ac */
+-	__u32	spinlock_index;			/* 0x03b0 */
+-	__u8	pad_0x03b4[0x03b8-0x03b4];	/* 0x03b4 */
++	union {
++		struct {
++			__u32	need_resched;	/* 0x03a8 */
++			__u32	count;		/* 0x03ac */
++		} preempt;
++		__u64	preempt_count;		/* 0x03a8 */
++	};
++	__u32	spinlock_lockval;		/* 0x03b0 */
++	__u32	spinlock_index;			/* 0x03b4 */
+ 	__u64	percpu_offset;			/* 0x03b8 */
+ 	__u8	pad_0x03c0[0x0400-0x03c0];	/* 0x03c0 */
  
- #include <linux/static_call_types.h>
+diff --git a/arch/s390/include/asm/preempt.h b/arch/s390/include/asm/preempt.h
+index 0a25d4648b4c..1d5e4d7e9e1b 100644
+--- a/arch/s390/include/asm/preempt.h
++++ b/arch/s390/include/asm/preempt.h
+@@ -8,11 +8,8 @@
+ #include <asm/cmpxchg.h>
+ #include <asm/march.h>
  
--DECLARE_PER_CPU_CACHE_HOT(int, __preempt_count);
-+DECLARE_PER_CPU_CACHE_HOT(unsigned long, __preempt_count);
- 
--/* We use the MSB mostly because its available */
+-/*
+- * Use MSB so it is possible to read preempt_count with LLGT which
+- * reads the least significant 31 bits with a single instruction.
+- */
 -#define PREEMPT_NEED_RESCHED	0x80000000
-+/*
-+ * We use the MSB for PREEMPT_NEED_RESCHED mostly because it is available.
-+ */
-+#define PREEMPT_NEED_RESCHED	(~(((unsigned long)-1L) >> 1))
-+
-+#ifdef CONFIG_HAS_SEPARATE_PREEMPT_RESCHED_BITS
-+#define __pc_dec		"decq"
-+#define __pc_op(op, ...)	raw_cpu_##op##_8(__VA_ARGS__)
-+#else
-+#define __pc_dec		"decl"
-+#define __pc_op(op, ...)	raw_cpu_##op##_4(__VA_ARGS__)
-+#endif
++/* Use MSB for PREEMPT_NEED_RESCHED mostly because it is available. */
++#define PREEMPT_NEED_RESCHED	0x8000000000000000UL
  
  /*
   * We use the PREEMPT_NEED_RESCHED bit as an inverted NEED_RESCHED such
-@@ -24,18 +34,26 @@ DECLARE_PER_CPU_CACHE_HOT(int, __preempt_count);
+@@ -26,25 +23,25 @@
   */
  static __always_inline int preempt_count(void)
  {
--	return raw_cpu_read_4(__preempt_count) & ~PREEMPT_NEED_RESCHED;
-+	return __pc_op(read, __preempt_count) & ~PREEMPT_NEED_RESCHED;
+-	unsigned long lc_preempt, count;
++	unsigned long lc_preempt;
++	int count;
+ 
+-	BUILD_BUG_ON(sizeof_field(struct lowcore, preempt_count) != sizeof(int));
+-	lc_preempt = offsetof(struct lowcore, preempt_count);
++	lc_preempt = offsetof(struct lowcore, preempt.count);
+ 	/* READ_ONCE(get_lowcore()->preempt_count) & ~PREEMPT_NEED_RESCHED */
+ 	asm_inline(
+-		ALTERNATIVE("llgt	%[count],%[offzero](%%r0)\n",
+-			    "llgt	%[count],%[offalt](%%r0)\n",
++		ALTERNATIVE("ly		%[count],%[offzero](%%r0)\n",
++			    "ly		%[count],%[offalt](%%r0)\n",
+ 			    ALT_FEATURE(MFEATURE_LOWCORE))
+ 		: [count] "=d" (count)
+ 		: [offzero] "i" (lc_preempt),
+ 		  [offalt] "i" (lc_preempt + LOWCORE_ALT_ADDRESS),
+-		  "m" (((struct lowcore *)0)->preempt_count));
++		  "m" (((struct lowcore *)0)->preempt.count));
+ 	return count;
  }
  
 -static __always_inline void preempt_count_set(int pc)
-+/*
-+ * unsigned long preempt count parameter works for both 32bit and 64bit cases:
-+ *
-+ * - For 32bit, "int" (the return of preempt_count()) and "unsigned long" have
-+ *   the same size.
-+ * - For 64bit, the effective bits of a preempt count sits in 32bit, and we
-+ *   reserve the NEED_RESCHED bit from the old count.
-+ */
 +static __always_inline void preempt_count_set(unsigned long pc)
  {
 -	int old, new;
 +	unsigned long old, new;
  
--	old = raw_cpu_read_4(__preempt_count);
-+	old = __pc_op(read, __preempt_count);
+ 	old = READ_ONCE(get_lowcore()->preempt_count);
  	do {
- 		new = (old & PREEMPT_NEED_RESCHED) |
- 			(pc & ~PREEMPT_NEED_RESCHED);
--	} while (!raw_cpu_try_cmpxchg_4(__preempt_count, &old, new));
-+	} while (!__pc_op(try_cmpxchg, __preempt_count, &old, new));
- }
- 
- /*
-@@ -58,17 +76,17 @@ static __always_inline void preempt_count_set(int pc)
+@@ -63,12 +60,12 @@ static __always_inline void preempt_count_set(int pc)
  
  static __always_inline void set_preempt_need_resched(void)
  {
--	raw_cpu_and_4(__preempt_count, ~PREEMPT_NEED_RESCHED);
-+	__pc_op(and, __preempt_count, ~PREEMPT_NEED_RESCHED);
+-	__atomic_and(~PREEMPT_NEED_RESCHED, &get_lowcore()->preempt_count);
++	__atomic64_and(~PREEMPT_NEED_RESCHED, (long *)&get_lowcore()->preempt_count);
  }
  
  static __always_inline void clear_preempt_need_resched(void)
  {
--	raw_cpu_or_4(__preempt_count, PREEMPT_NEED_RESCHED);
-+	__pc_op(or, __preempt_count, PREEMPT_NEED_RESCHED);
+-	__atomic_or(PREEMPT_NEED_RESCHED, &get_lowcore()->preempt_count);
++	__atomic64_or(PREEMPT_NEED_RESCHED, (long *)&get_lowcore()->preempt_count);
  }
  
  static __always_inline bool test_preempt_need_resched(void)
- {
--	return !(raw_cpu_read_4(__preempt_count) & PREEMPT_NEED_RESCHED);
-+	return !(__pc_op(read, __preempt_count) & PREEMPT_NEED_RESCHED);
- }
+@@ -88,8 +85,8 @@ static __always_inline void __preempt_count_add(int val)
  
- /*
-@@ -77,22 +95,22 @@ static __always_inline bool test_preempt_need_resched(void)
- 
- static __always_inline void __preempt_count_add(int val)
- {
--	raw_cpu_add_4(__preempt_count, val);
-+	__pc_op(add, __preempt_count, val);
+ 			lc_preempt = offsetof(struct lowcore, preempt_count);
+ 			asm_inline(
+-				ALTERNATIVE("asi	%[offzero](%%r0),%[val]\n",
+-					    "asi	%[offalt](%%r0),%[val]\n",
++				ALTERNATIVE("agsi	%[offzero](%%r0),%[val]\n",
++					    "agsi	%[offalt](%%r0),%[val]\n",
+ 					    ALT_FEATURE(MFEATURE_LOWCORE))
+ 				: "+m" (((struct lowcore *)0)->preempt_count)
+ 				: [offzero] "i" (lc_preempt), [val] "i" (val),
+@@ -98,7 +95,7 @@ static __always_inline void __preempt_count_add(int val)
+ 			return;
+ 		}
+ 	}
+-	__atomic_add(val, &get_lowcore()->preempt_count);
++	__atomic64_add(val, (long *)&get_lowcore()->preempt_count);
  }
  
  static __always_inline void __preempt_count_sub(int val)
- {
--	raw_cpu_add_4(__preempt_count, -val);
-+	__pc_op(add, __preempt_count, -val);
+@@ -119,15 +116,15 @@ static __always_inline bool __preempt_count_dec_and_test(void)
+ 
+ 	lc_preempt = offsetof(struct lowcore, preempt_count);
+ 	asm_inline(
+-		ALTERNATIVE("alsi	%[offzero](%%r0),%[val]\n",
+-			    "alsi	%[offalt](%%r0),%[val]\n",
++		ALTERNATIVE("algsi	%[offzero](%%r0),%[val]\n",
++			    "algsi	%[offalt](%%r0),%[val]\n",
+ 			    ALT_FEATURE(MFEATURE_LOWCORE))
+ 		: "=@cc" (cc), "+m" (((struct lowcore *)0)->preempt_count)
+ 		: [offzero] "i" (lc_preempt), [val] "i" (-1),
+ 		[offalt] "i" (lc_preempt + LOWCORE_ALT_ADDRESS));
+ 	return (cc == 0) || (cc == 2);
+ #else
+-	return __atomic_add_const_and_test(-1, &get_lowcore()->preempt_count);
++	return __atomic64_add_const_and_test(-1, (long *)&get_lowcore()->preempt_count);
+ #endif
  }
+ 
+@@ -141,7 +138,7 @@ static __always_inline bool should_resched(int preempt_offset)
  
  static __always_inline int __preempt_count_add_return(int val)
  {
--	return raw_cpu_add_return_4(__preempt_count, val);
-+	return __pc_op(add_return, __preempt_count, val);
+-	return val + __atomic_add(val, &get_lowcore()->preempt_count);
++	return val + __atomic64_add(val, (long *)&get_lowcore()->preempt_count);
  }
  
  static __always_inline int __preempt_count_sub_return(int val)
- {
--	return raw_cpu_add_return_4(__preempt_count, -val);
-+	return __pc_op(add_return, __preempt_count, -val);
- }
- 
- /*
-@@ -102,7 +120,7 @@ static __always_inline int __preempt_count_sub_return(int val)
-  */
- static __always_inline bool __preempt_count_dec_and_test(void)
- {
--	return GEN_UNARY_RMWcc("decl", __my_cpu_var(__preempt_count), e,
-+	return GEN_UNARY_RMWcc(__pc_dec, __my_cpu_var(__preempt_count), e,
- 			       __percpu_arg([var]));
- }
- 
-@@ -111,7 +129,7 @@ static __always_inline bool __preempt_count_dec_and_test(void)
-  */
- static __always_inline bool should_resched(int preempt_offset)
- {
--	return unlikely(raw_cpu_read_4(__preempt_count) == preempt_offset);
-+	return unlikely(__pc_op(read, __preempt_count) == preempt_offset);
- }
- 
- #ifdef CONFIG_PREEMPTION
-@@ -158,4 +176,7 @@ do { \
- 
- #endif /* PREEMPTION */
- 
-+#undef __pc_op
-+#undef __pc_dec
-+
- #endif /* __ASM_PREEMPT_H */
-diff --git a/arch/x86/kernel/cpu/common.c b/arch/x86/kernel/cpu/common.c
-index a4268c47f2bc..182772b6ad6d 100644
---- a/arch/x86/kernel/cpu/common.c
-+++ b/arch/x86/kernel/cpu/common.c
-@@ -2240,7 +2240,7 @@ DEFINE_PER_CPU_CACHE_HOT(struct task_struct *, current_task) = &init_task;
- EXPORT_PER_CPU_SYMBOL(current_task);
- EXPORT_PER_CPU_SYMBOL(const_current_task);
- 
--DEFINE_PER_CPU_CACHE_HOT(int, __preempt_count) = INIT_PREEMPT_COUNT;
-+DEFINE_PER_CPU_CACHE_HOT(unsigned long, __preempt_count) = INIT_PREEMPT_COUNT;
- EXPORT_PER_CPU_SYMBOL(__preempt_count);
- 
- DEFINE_PER_CPU_CACHE_HOT(unsigned long, cpu_current_top_of_stack) = TOP_OF_INIT_STACK;
-diff --git a/include/linux/hardirq.h b/include/linux/hardirq.h
-index 8d4895531a45..b5dc907274db 100644
---- a/include/linux/hardirq.h
-+++ b/include/linux/hardirq.h
-@@ -10,8 +10,6 @@
- #include <linux/vtime.h>
- #include <asm/hardirq.h>
- 
--DECLARE_PER_CPU(unsigned int, nmi_nesting);
--
- extern void synchronize_irq(unsigned int irq);
- extern bool synchronize_hardirq(unsigned int irq);
- 
-@@ -94,6 +92,38 @@ void irq_exit_rcu(void);
- #define arch_nmi_exit()		do { } while (0)
- #endif
- 
-+#ifdef CONFIG_HAS_SEPARATE_PREEMPT_RESCHED_BITS
-+static __always_inline void __preempt_count_nmi_enter(void)
-+{
-+	__preempt_count_add(NMI_OFFSET + HARDIRQ_OFFSET);
-+}
-+
-+static __always_inline void __preempt_count_nmi_exit(void)
-+{
-+	__preempt_count_sub(NMI_OFFSET + HARDIRQ_OFFSET);
-+}
-+#else
-+DECLARE_PER_CPU(unsigned int, nmi_nesting);
-+
-+#define __preempt_count_nmi_enter()				\
-+	do {							\
-+		__preempt_count_add(HARDIRQ_OFFSET);		\
-+		/* Maximum NMI nesting is 15. */		\
-+		BUG_ON(__this_cpu_read(nmi_nesting) >= 15);	\
-+		__this_cpu_inc(nmi_nesting);			\
-+		preempt_count_set(preempt_count() | NMI_MASK);  \
-+	} while (0)
-+
-+#define __preempt_count_nmi_exit()				\
-+	do {							\
-+		__preempt_count_sub(HARDIRQ_OFFSET);		\
-+		if (!__this_cpu_dec_return(nmi_nesting))	\
-+			preempt_count_set(preempt_count() & ~NMI_MASK); \
-+	} while (0)
-+
-+#endif
-+
-+
- /*
-  * NMI vs Tracing
-  * --------------
-@@ -110,18 +140,14 @@ void irq_exit_rcu(void);
- 	do {							\
- 		lockdep_off();					\
- 		arch_nmi_enter();				\
--		/* Maximum NMI nesting is 15. */		\
--		BUG_ON(__this_cpu_read(nmi_nesting) >= 15);	\
--		__this_cpu_inc(nmi_nesting);			\
--		__preempt_count_add(HARDIRQ_OFFSET);		\
--		preempt_count_set(preempt_count() | NMI_MASK);	\
-+		__preempt_count_nmi_enter();			\
- 	} while (0)
- 
- #define nmi_enter()						\
- 	do {							\
- 		__nmi_enter();					\
- 		lockdep_hardirq_enter();			\
--		ct_nmi_enter();				\
-+		ct_nmi_enter();					\
- 		instrumentation_begin();			\
- 		ftrace_nmi_enter();				\
- 		instrumentation_end();				\
-@@ -129,12 +155,8 @@ void irq_exit_rcu(void);
- 
- #define __nmi_exit()						\
- 	do {							\
--		unsigned int nesting;				\
- 		BUG_ON(!in_nmi());				\
--		__preempt_count_sub(HARDIRQ_OFFSET);		\
--		nesting = __this_cpu_dec_return(nmi_nesting);	\
--		if (!nesting)					\
--			preempt_count_set(preempt_count() & ~NMI_MASK);	\
-+		__preempt_count_nmi_exit();			\
- 		arch_nmi_exit();				\
- 		lockdep_on();					\
- 	} while (0)
-diff --git a/include/linux/preempt.h b/include/linux/preempt.h
-index 33fc4c814a9f..87d5367f986c 100644
---- a/include/linux/preempt.h
-+++ b/include/linux/preempt.h
-@@ -30,18 +30,20 @@
-  * NMI nesting depth is tracked in a separate per-CPU variable
-  * (nmi_nesting) to save bits in preempt_count.
-  *
-- *         PREEMPT_MASK:	0x000000ff
-- *         SOFTIRQ_MASK:	0x0000ff00
-- * HARDIRQ_DISABLE_MASK:	0x00ff0000
-- *         HARDIRQ_MASK:	0x0f000000
-- *             NMI_MASK:	0x10000000
-- * PREEMPT_NEED_RESCHED:	0x80000000
-+ *				32bit		HAS_SEPARATE_PREEMPT_RESCHED_BITS
-+ *
-+ *         PREEMPT_MASK:	0x000000ff	0x00000000000000ff
-+ *         SOFTIRQ_MASK:	0x0000ff00	0x000000000000ff00
-+ * HARDIRQ_DISABLE_MASK:	0x00ff0000	0x0000000000ff0000
-+ *         HARDIRQ_MASK:	0x0f000000	0x000000000f000000
-+ *             NMI_MASK:	0x10000000	0x00000000f0000000
-+ * PREEMPT_NEED_RESCHED:	0x80000000	0x8000000000000000
-  */
- #define PREEMPT_BITS	8
- #define SOFTIRQ_BITS	8
- #define HARDIRQ_DISABLE_BITS	8
- #define HARDIRQ_BITS	4
--#define NMI_BITS	1
-+#define NMI_BITS	(1 + 3*IS_ENABLED(CONFIG_HAS_SEPARATE_PREEMPT_RESCHED_BITS))
- 
- #define PREEMPT_SHIFT	0
- #define SOFTIRQ_SHIFT	(PREEMPT_SHIFT + PREEMPT_BITS)
-@@ -116,8 +118,8 @@ static __always_inline unsigned char interrupt_context_level(void)
-  * preempt_count() is commonly implemented with READ_ONCE().
-  */
- 
--#define nmi_count()	(preempt_count() & NMI_MASK)
--#define hardirq_count()	(preempt_count() & HARDIRQ_MASK)
-+#define nmi_count()		(preempt_count() & NMI_MASK)
-+#define hardirq_count()		(preempt_count() & HARDIRQ_MASK)
- #ifdef CONFIG_PREEMPT_RT
- # define softirq_count()	(current->softirq_disable_cnt & SOFTIRQ_MASK)
- # define irq_count()		((preempt_count() & (NMI_MASK | HARDIRQ_MASK)) | softirq_count())
-diff --git a/kernel/Kconfig.preempt b/kernel/Kconfig.preempt
-index 88c594c6d7fc..35f546a042b1 100644
---- a/kernel/Kconfig.preempt
-+++ b/kernel/Kconfig.preempt
-@@ -122,6 +122,10 @@ config PREEMPT_RT_NEEDS_BH_LOCK
- config PREEMPT_COUNT
-        bool
- 
-+config HAS_SEPARATE_PREEMPT_RESCHED_BITS
-+	bool
-+	depends on PREEMPT_COUNT && 64BIT
-+
- config PREEMPTION
-        bool
-        select PREEMPT_COUNT
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index 636e6a15f104..f4c944878516 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -5847,8 +5847,13 @@ void preempt_count_add(int val)
- #ifdef CONFIG_DEBUG_PREEMPT
- 	/*
- 	 * Underflow?
-+	 *
-+	 * Cannot detect underflow based on the current preempt_count() value
-+	 * if using HAS_SEPARATE_PREEMPT_RESCHED_BITS because preempt count takes all 32
-+	 * bits.
- 	 */
--	if (DEBUG_LOCKS_WARN_ON((preempt_count() < 0)))
-+	if (!IS_ENABLED(CONFIG_HAS_SEPARATE_PREEMPT_RESCHED_BITS) &&
-+	    DEBUG_LOCKS_WARN_ON((preempt_count() < 0)))
- 		return;
- #endif
- 	__preempt_count_add(val);
-@@ -5880,7 +5885,10 @@ void preempt_count_sub(int val)
- 	/*
- 	 * Underflow?
- 	 */
--	if (DEBUG_LOCKS_WARN_ON(val > preempt_count()))
-+	unsigned int uval = val;
-+	unsigned int pc = preempt_count();
-+
-+	if (DEBUG_LOCKS_WARN_ON(pc - uval > pc))
- 		return;
- 	/*
- 	 * Is the spinlock portion underflowing?
-diff --git a/kernel/softirq.c b/kernel/softirq.c
-index d1ab1799794c..491136a313db 100644
---- a/kernel/softirq.c
-+++ b/kernel/softirq.c
-@@ -91,7 +91,13 @@ EXPORT_PER_CPU_SYMBOL_GPL(hardirq_context);
- DEFINE_PER_CPU(struct interrupt_disable_state, local_interrupt_disable_state);
- EXPORT_PER_CPU_SYMBOL_GPL(local_interrupt_disable_state);
- 
-+#ifndef CONFIG_HAS_SEPARATE_PREEMPT_RESCHED_BITS
-+/*
-+ * Any 32bit architecture that still cares about performance should
-+ * probably ensure this is near preempt_count.
-+ */
- DEFINE_PER_CPU(unsigned int, nmi_nesting);
-+#endif
- 
- /*
-  * SOFTIRQ_OFFSET usage:
-diff --git a/lib/locking-selftest.c b/lib/locking-selftest.c
-index bfafe1204c7b..c3d976c801bb 100644
---- a/lib/locking-selftest.c
-+++ b/lib/locking-selftest.c
-@@ -1429,7 +1429,7 @@ static int unexpected_testcase_failures;
- 
- static void dotest(void (*testcase_fn)(void), int expected, int lockclass_mask)
- {
--	int saved_preempt_count = preempt_count();
-+	long saved_preempt_count = preempt_count();
- #ifdef CONFIG_PREEMPT_RT
- 	int saved_mgd_count = current->migration_disabled;
- 	int saved_rcu_count = current->rcu_read_lock_nesting;
 -- 
 2.51.0
 
