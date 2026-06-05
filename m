@@ -1,140 +1,139 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from stravinsky.debian.org (stravinsky.debian.org [82.195.75.108])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 712633E51D3;
-	Fri,  5 Jun 2026 11:02:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8EFF54D8D99;
+	Fri,  5 Jun 2026 12:13:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=82.195.75.108
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780657328; cv=none; b=nn8xRqivTIhBAx1fzZzLK/f9ENhYgRxCBRmfaFgNXaZHwcpm/siHMFWy14C9er6kmKFUTLNiY3fEl/M9kK3ysebrNf1Ivlew319eqf2xVSclnmm4Yycj2g1qlF0dQBzJ/72nMq4CK4oxeX6XEFxO6wP2RnBPEEPvG8jgH2+NnJ0=
+	t=1780661624; cv=none; b=PVBBBKDQovktw9M0v1sNY8BolW7T0VGtjVoJn+9WCWx+tUss6pkwR3n0TqUXNoJR33s4RSgLXQHMoXEamMuXyiuPaj74LDvQfjVvbgABRuyO8HyWqlEWxZ/MdGlXyRB6bG+RbQffMdeNAcBdgVXuisFKzlPD4fffxromNkaLx0I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780657328; c=relaxed/simple;
-	bh=9EHPs7SnjuoBA6rvdefrG2XYtJ6c/JCGYlMiwvf3YYs=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=sUsLppJuD6WbDv8/dfsUmgHGnEWHpGQe2uCf6Y2k+ow1iUxsC0+jZ1AzdjZKtoBsNVdd9AqDnGwCUgpjPHRcSZEGAL0ecKk9Z/Q/hPyDf16MiM/kXDj98H8E638tZyu3E1/6BMW+l+uYwb5D1s+UrBdIwqGg+gF/y2aezAeF2Fg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ZQ+no+Uj; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1780661624; c=relaxed/simple;
+	bh=wlGIJYU/dDzvU9MAE0TjTNh5imcqVaypnxxCgiS9lvU=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=JqN15x78oMR+2kvFq47aVTACD0cTtvLYjj6QQLEnLpuc2/Khi9KmyHajR07Byovr9df0zd8hIcuh35YnpBSFBDaV4Buk87PL1U15d6Y0UFQNPynMuJG730fbBKoyYGOdPFw5R2HRfN8XjGdPiCv5nsM7iH4qkKScZqCTIQbN1qM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=debian.org; spf=pass smtp.mailfrom=debian.org; dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.b=NiHLFiC0; arc=none smtp.client-ip=82.195.75.108
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=debian.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=debian.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ZQ+no+Uj"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 654NVrVw1640981;
-	Fri, 5 Jun 2026 11:01:44 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=/+TOBB
-	ktSdBVCNKtWg9fVO1y83PdPIgT7Shk0FfOPXw=; b=ZQ+no+UjCvQduZ8wG+vinw
-	mZIwAb7KJTr4nypONOs9zMZkGTXZuHEdnST5kAYuKVX+nNmQm9enaRGevExzVULl
-	x4h6VFu6LE4FtRhL4MDS0KZ5zHGH0KYZlxOeqsigpAwT5xZ1kHfRRmpevG6hFSEl
-	Q5Q1evemImWyi7AQNlDaGrzmh6uPIE6UNq9X6u6ILqCpsYtwG5tbvXuL80hSY8py
-	DqgaDYYuuNlhrbq+ywklHZGYJjRk/+fO2JJ04X0JM3c/CTowKCY6Iv3/k/evH1nG
-	J/0ZYKTkED0f2CYcOZZEG5PxZJ51wYaBvs/SLcUYKNpxmvsUmF1RqadxG92Y+JKg
-	==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4efnaj3k05-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 05 Jun 2026 11:01:44 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 655AsAXk017079;
-	Fri, 5 Jun 2026 11:01:43 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4egcwys0am-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 05 Jun 2026 11:01:43 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 655B1biJ61276644
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 5 Jun 2026 11:01:37 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6CFFC20040;
-	Fri,  5 Jun 2026 11:01:37 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1276620043;
-	Fri,  5 Jun 2026 11:01:36 +0000 (GMT)
-Received: from [9.111.29.71] (unknown [9.111.29.71])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri,  5 Jun 2026 11:01:35 +0000 (GMT)
-Message-ID: <078b0276-4458-4320-b35f-f8802720f886@linux.ibm.com>
-Date: Fri, 5 Jun 2026 12:01:35 +0100
+	dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.b="NiHLFiC0"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=debian.org;
+	s=smtpauto.stravinsky; h=X-Debian-User:Cc:To:Content-Transfer-Encoding:
+	Content-Type:MIME-Version:Message-Id:Date:Subject:From:Reply-To:Content-ID:
+	Content-Description:In-Reply-To:References;
+	bh=MByAqnkLEXLPVdCrzdTSFRkXWavhWm2hvRfXpDldUXA=; b=NiHLFiC0YnU2X2Q9D8HU8xS+k2
+	8DoJu4eyvuFQhwJPTNmYwGM9CjJcfexW8xEVjmwlHI5eA/SzVAo1LhZatqGlihPa+WQLHdB6PGyWw
+	CLF0nCa/48/1G3FYP5W7DOnKw7tLU4NYAqQPGULld0Cmcdl8WIGUNXrSAs8mh5P/QOl8LY2mhtJs0
+	ta9St5z8IOaa1l5+j5DqjFmARhytWcLOsXE86YCezyTEIYLtLcBxgxLmUF9MXjoQOIqADBKa2CQA1
+	qCjvlsVDgK8470irHDOHvQHLJ1WDDmamHLWUKuWHvJUNR6GsZhjW4iTGk4kZdqQR58h7aeyyeqjPD
+	izM33evg==;
+Received: from authenticated-user
+	by stravinsky.debian.org with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+	(Exim 4.96)
+	(envelope-from <leitao@debian.org>)
+	id 1wVTQc-005HW2-1Y;
+	Fri, 05 Jun 2026 12:13:34 +0000
+From: Breno Leitao <leitao@debian.org>
+Subject: [PATCH net-next 0/2] net/smc: convert getsockopt to
+ getsockopt_iter
+Date: Fri, 05 Jun 2026 05:13:24 -0700
+Message-Id: <20260605-getsockopt_smc-v1-0-65da62fa44c4@debian.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] sched: Further restrict the preemption modes
-To: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Cc: Peter Zijlstra <peterz@infradead.org>,
-        Douglas Freimuth <freimuth@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Ilya Leoshkevich <iii@linux.ibm.com>, mingo@kernel.org,
-        Thomas Gleixner <tglx@linutronix.de>, juri.lelli@redhat.com,
-        vincent.guittot@linaro.org, dietmar.eggemann@arm.com,
-        rostedt@goodmis.org, bsegall@google.com, mgorman@suse.de,
-        vschneid@redhat.com, clrkwllms@kernel.org,
-        linux-kernel@vger.kernel.org, linux-rt-devel@lists.linux.dev,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        linux-s390@vger.kernel.org, Matthew Rosato <mjrosato@linux.ibm.com>,
-        Hendrik Brueckner <brueckner@linux.ibm.com>,
-        Marco Crivellari <marco.crivellari@suse.com>
-References: <20251219101502.GB1132199@noisy.programming.kicks-ass.net>
- <182f110b-ac63-4db4-8b01-0e841639bc39@linux.ibm.com>
- <a7180379-04f5-4f61-b60a-0ff7cf85134d@linux.ibm.com>
- <ec3987e3-4eb7-4d07-be9e-bd8dc9ad176f@linux.ibm.com>
- <08307223-88ad-4550-963e-5d1ee315023c@linux.ibm.com>
- <a3bbf315-536f-429e-afb2-adcbf508a66f@linux.ibm.com>
- <20260303115235.GQ1282955@noisy.programming.kicks-ass.net>
- <6c3fbb6d-d4e1-4984-b584-c067be844098@linux.ibm.com>
- <20260605105211.rZ8x7Hd5@linutronix.de>
-Content-Language: en-GB
-From: Ciunas Bennett <ciunas@linux.ibm.com>
-In-Reply-To: <20260605105211.rZ8x7Hd5@linutronix.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjA1MDEwMyBTYWx0ZWRfXyayp2yInpsQY
- v6zWKD3bB28Gz9Epq0D/QiF22S9fSUd3OU9iF0vnT50dnRi0/oNMlSUr8qeH13tYJ9fk/U4b6dr
- PgJiUdLRl05xt0+bFQk/gLkBwBgSwk3J1pQxEep7JgTz9dRLc52MLqmL55rmSIBzMiq29hSERE/
- qA74QP1zaqNRkVAHo8T3wbhcusjrRI2LBGIIwwTThjlA+1z1z+ncwidvWNYAotRc3Zw+hpMPITN
- kd+vlgxhQx6kvYHhvZMVWXNu/20I5iTDEoSKy+hxbOOIE8CWq4IiT1XpAJ7vUu1gQwz7mGTpp0j
- gxKifsBE+9+BASzR8lnujIL9dEArMH+1AtQyg4PdWCIJmslpp19tllnhyeKzwBl9kAt8DXgaDvP
- yqNgPwpkO4n0t28OPWCB8LKRjAHqzsDtxPHA54uu0nzkxQ4iapjMD0/cZ7zhFZtkL+cCg3ME7Ld
- aMzyglPqs8enscpm4hg==
-X-Proofpoint-ORIG-GUID: pli3czyyzOmgaO2JdJ7PPgBFCp7pJ855
-X-Authority-Analysis: v=2.4 cv=cOzQdFeN c=1 sm=1 tr=0 ts=6a22ac98 cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=IkcTkHD0fZMA:10 a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=ACxPka3VRXSE_1752UsA:9
- a=QEXdDO2ut3YA:10 a=zZCYzV9kfG8A:10
-X-Proofpoint-GUID: 4BrJN-HU9S0WlB8qvKXpJJw11YyeJZhD
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
- definitions=2026-06-05_01,2026-05-28_03,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1011 impostorscore=0 lowpriorityscore=0 spamscore=0 bulkscore=0
- malwarescore=0 phishscore=0 suspectscore=0 priorityscore=1501 adultscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2605210000 definitions=main-2606050103
+X-B4-Tracking: v=1; b=H4sIAGS9ImoC/x3M4QqCMBQG0Fe5fL8dzCGz9ioRYfPLRrTJ7ghBf
+ PfA8wBnh7ImKoLsqPwlTSUjSN8J4nvKC02aEQTOOm+9HczCpiV+ytoe+o2GbprH/jpcPJ/oBGv
+ lK21neENmM5lbw/04/vmWExRqAAAA
+X-Change-ID: 20260604-getsockopt_smc-e2ad719486eb
+To: "D. Wythe" <alibuda@linux.alibaba.com>, 
+ Dust Li <dust.li@linux.alibaba.com>, 
+ Sidraya Jayagond <sidraya@linux.ibm.com>, 
+ Wenjia Zhang <wenjia@linux.ibm.com>, 
+ Mahanta Jambigi <mjambigi@linux.ibm.com>, 
+ Tony Lu <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>, 
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+ Simon Horman <horms@kernel.org>, Shuah Khan <shuah@kernel.org>
+Cc: linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, 
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ linux-kselftest@vger.kernel.org, Breno Leitao <leitao@debian.org>, 
+ kernel-team@meta.com
+X-Mailer: b4 0.14.3
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2665; i=leitao@debian.org;
+ h=from:subject:message-id; bh=wlGIJYU/dDzvU9MAE0TjTNh5imcqVaypnxxCgiS9lvU=;
+ b=owEBbQKS/ZANAwAIATWjk5/8eHdtAcsmYgBqIr1pIS/x43wPjjvzmWbNsm0G32tzbhQbfSiEm
+ PL7boVHQOOJAjMEAAEIAB0WIQSshTmm6PRnAspKQ5s1o5Of/Hh3bQUCaiK9aQAKCRA1o5Of/Hh3
+ bf4KD/90AFrq2jSuXAh/UBfgxKhd7Y2dGik959DyxgVa2mVHbHLRFXqw/eoVDuxa1EV2ftr/ClW
+ fRuMTe9bEETot5BDjsznnuuSxkbBCklvz4m5RLxeO/etQyBw+RZxm7WXU8GMFiPzXXre6WCUzS0
+ sRWLah6Xqp9W4/2SZ/Lm26JQg+/Kc8XZiwZ7Qc6tDWSATy9l1Tnurpb2/5eTr2yVmq0DMMKr9Fv
+ 5nQk8gp2hvJ/p66qv6jP1YQkqlf1OX3l1rdpbXTVnxGPi0JFcWmTvxr0Ezz4FvTTfwh9EjNPMBi
+ Z7aJ2BzSS1+XssFo9JkZEl8kxiDnhicsjJqWzs9XIaqccVcJFKzX6NKhzB97lW9Siuv77hsa/l3
+ CKwbDSEDYJVVSKCak5Bj+xxPAy93WI3my5r7nO0wFT2gGH2x051zcslspcBsoXN3bgqu16R4C7N
+ RF/WSGHab/MCjHkhRnw5Tw/yaUL1OG0bC9jIvaiTUTs10fQll1o6tzQ391kd7bGY7Sck41CU3qw
+ 57grUjoNhi40Fxvn+YrL8mvj3FZQPL/2XuMezLlY8BZH8VDwg6SyG14Cze2Ni2HaYK9Ll+yPtUy
+ D8DSSAr3Rskh5GK+G1KvAwXejNmlQxm+zcF62YLfOcCmswhx34I8yxnDlJhRZoCHmmSVdECa4Bx
+ gARgSCi81/xSsFg==
+X-Developer-Key: i=leitao@debian.org; a=openpgp;
+ fpr=AC8539A6E8F46702CA4A439B35A3939FFC78776D
+X-Debian-User: leitao
 
+SMC is the last protocol to be converted to getsockopt_iter(). As soon
+as this series lands, and all the other outstanding conversion patches
+land, getsockopt_iter() will be renamed back to getsockopt() and the
+first part of the conversion will be complete.
 
->> delayed significantly before it gets CPU time.
-> 
-> There is some work done by Marco to rework the API to explicitly state
-> if a per-CPU workqueue is mandatory _or_ if an CPU unbound workqueue can
-> be used instead. (Rather than having schedule_work() not knowing the
-> implications).
+This series converts SMC's getsockopt() to the new getsockopt_iter()
+callback, which hands protocols a sockopt_t that abstracts the optval
+buffer as an iov_iter and the option length as a plain int instead of
+raw (char __user *optval, int __user *optlen) pointers. This is part of
+the broader effort to move getsockopt() off __user pointers so that
+kernel-backed callers (e.g. io_uring) can issue socket options.
 
-Oh, that is good some work already being done here.
-I had a small patch ready to go, but possibly the solution needs to be more robust.
--            schedule_work(&irqfd->inject);
-+            queue_work(system_dfl_wq, &irqfd->inject);
+SMC is a proxy socket: only the SOL_SMC level is handled locally, while
+every other level is forwarded to the underlying CLC (TCP) socket. That
+sub-socket's getsockopt() still operates on __user buffers, so the
+pass-through cannot simply forward the sockopt_t. Instead it reconstructs
+optval from a user-backed iter_out, forwards the preserved user optlen
+pointer (kept in sockopt_t by the base patch), and mirrors the length
+reported by the clcsock back into opt->optlen.
 
+Because of that, the SOL_SMC level is fully converted and works with any
+iov_iter type, but the CLC pass-through is intentionally limited to
+user-backed iters (ubuf) and returns -EOPNOTSUPP otherwise. This is a
+deliberate, temporary restriction: SMC will continue to operate on ubuf
+only until the underlying protocols (TCP/IP) grow their own
+getsockopt_iter() callbacks. Once that generic callback path is enabled,
+the pass-through can forward the sockopt_t directly and drop the ubuf
+restriction, supporting all iov_iter types.
 
-> It seems that using an unbound worker would avoid the problem at hand,
-> correct?
-> 
-> Sebastian
+The series contains:
 
-Yeah, changing to an unbound kworker avoids the issue in any of the testing I have done.
-Ciunas
+  1) smc: convert getsockopt to getsockopt_iter / sockopt_t.
+
+  2) selftests: net: I've vibe coded a kselftest exercising both the
+     SOL_SMC path and the CLC pass-through, including the
+     oversized-buffer writeback.
+
+Signed-off-by: Breno Leitao <leitao@debian.org>
+---
+Breno Leitao (2):
+      smc: convert to getsockopt_iter
+      selftests: net: add SMC getsockopt_iter conversion test
+
+ net/smc/af_smc.c                             |  41 +++++--
+ net/smc/smc.h                                |   2 +-
+ net/smc/smc_inet.c                           |   4 +-
+ tools/testing/selftests/net/Makefile         |   1 +
+ tools/testing/selftests/net/getsockopt_smc.c | 175 +++++++++++++++++++++++++++
+ 5 files changed, 208 insertions(+), 15 deletions(-)
+---
+base-commit: 0a8b288e2248cb62a62f748bc095c2136acf22b2
+change-id: 20260604-getsockopt_smc-e2ad719486eb
+
+Best regards,
+-- 
+Breno Leitao <leitao@debian.org>
+
