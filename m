@@ -1,59 +1,59 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CDC1F406267;
-	Fri,  5 Jun 2026 06:40:05 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B75D33368A9;
+	Fri,  5 Jun 2026 06:45:34 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780641607; cv=none; b=Pk8kr1rYO78cOwylne1aV59kb964UVSB4/a1WFVVmCXk8MgR609Xqggp6IWMyz+uBdRdipm3q+JqSVIivgmIsRpeovPc9MgReGztZif64TBYFOjNZiZi2U2etySzVvwHxnk14XD0p8x3au57kinPxjZssIY+ma48L3eLMgeCF3o=
+	t=1780641938; cv=none; b=sQcvGFHEpS3j5Op0iwqSYSd6rom9gtOnhQaX8tlOuzcYxtcwNphOUJ9NsTRozPu8rC1Nxh52jq5XOngwsSC/DOFGGhC9Qbuga+Y+jRgUmKPM3DCCiNTRusz9tQChe9ijEooqZD28nTz6ygFrYEU8vMzyB0sRYslvBmBGClpwll8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780641607; c=relaxed/simple;
-	bh=Sqsktppb0Mid02mXFy7U5N2GOkZIVg+cj6qbUr9DEuE=;
+	s=arc-20240116; t=1780641938; c=relaxed/simple;
+	bh=ht0m413PEIPsvFhOM1o886ZRoLV1gC4nu/drcCsImqs=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=iT2aDKYVaxukbEx87bhTML+F7Ea9r8hncFHHengBrQJRFmnBRGj6+EiJHGm2lvoTO9jywf7KsqitX+2zVwjHjbyX+RegDYm0SJOXe2Rz1yybUEbIIQD2hUO/OEgxqaeR1MbImqNeWPlJCABoC/e5hyixA4hoyI6uY+zsVfBqX0k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bQKQhwzZ; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=n/3Rz8n1eqVSp0U9qbImkqF5AtnP/qbMA44dDOBNbiXn5kI6mqfnkcKV9wuesJmqs5cKTiib9K/K6Zu0WME3nISiCM7bzlOhOIgUVhiWlgrG+Gh0N0PupF/o1wlARpIk3+gOsAfOURQCsypCmEDij+FYKlmYIXzxkSWYxMPPtaQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=dK0zPN9m; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bQKQhwzZ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 278F81F00898;
-	Fri,  5 Jun 2026 06:40:03 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="dK0zPN9m"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45CEF1F00899;
+	Fri,  5 Jun 2026 06:45:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1780641605;
-	bh=DY5lQMmxnI3uPjy+HsvkNcAQVWz09l4bSQCGxX64lwQ=;
+	s=k20260515; t=1780641934;
+	bh=6AYsKMuIdTg8BFUNDzRsVuHiBD4UL7B2xke/AuEe1z0=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=bQKQhwzZhsESgpDlGmJY2uY+MxeGJjMlKbzfrZWIQoYlu6cvXt77E+qVqtVmHR9c/
-	 ofOzle1Q1lodxDC+HPpra+oubIaHibIcYWLCUQu7zy6zOA8NuDpk20MRw2E8M28vcH
-	 hStGxo8NbwntuHxQ161uflAGSa5yx3BsLqzKtXcW+T6glkIvXpoenl4Bymcaw8k3EQ
-	 l6IWmNG+MtIZ6a9s63Xx3zLEt7jD5VXb6ICa/vq/XDRh+Tev04xvgQzHRZloDz7fmw
-	 VOu6DoVKJhthlMaYxRpkiVA7L7FGnxo/+9vYRdN6/liFx6fMzoYC2c0AGRuUjdcWaS
-	 kbr+I3ksc29zw==
-Received: from phl-compute-03.internal (phl-compute-03.internal [10.202.2.43])
-	by mailfauth.phl.internal (Postfix) with ESMTP id B70ACF4006E;
-	Fri,  5 Jun 2026 02:40:01 -0400 (EDT)
+	b=dK0zPN9mxzfuHkm4hcM3IAZJDt3m85l7bTjDAVJ/aM9X33cVUMHMAIeUPL4LsDIhp
+	 k54xhzFHe2Q4W+KWJrjVRaG8F9zCXkYdJzie2Mh3vjAqFKr8u3F7D83v9wCnJ4oI9Z
+	 h6/0N6w+4jquG06meZl9RL8Ss7yCedqPfDMJcji3RR9XOF7gpPigVmQdf0Sk7AA9IN
+	 imdEVehSS8rQ+IBsAKH+QIFxrvmOpJukHhGwYYb+FZLJ64JEBQWmHTdTI/7jMPgQIk
+	 JpEUrUXdPdRlMb8IGt0nJqhb0gJu+ic0bU1SCxeZ/v03ODFmZRaPNHatt4/BPS7cB2
+	 p+W7TNNiZ8Z4g==
+Received: from phl-compute-05.internal (phl-compute-05.internal [10.202.2.45])
+	by mailfauth.phl.internal (Postfix) with ESMTP id 6A0B5F40069;
+	Fri,  5 Jun 2026 02:45:31 -0400 (EDT)
 Received: from phl-frontend-04 ([10.202.2.163])
-  by phl-compute-03.internal (MEProxy); Fri, 05 Jun 2026 02:40:01 -0400
-X-ME-Sender: <xms:QW8ial2TUUzWCAP6co1jWb7CI4x3g-5Pq9qQ4vuEp7Kwc9ZG8veMxA>
-    <xme:QW8iamfRUz2t9RKucbDpWrZaYjLiPUZ-GscI5nE9oQWkas_hye0rNGOl0pwzWNgOu
-    l9bdWbRFIHnZmF3fJP5okRghIOheZMuYov7Mfk0hHwHwKgk56tggg>
-X-ME-Received: <xmr:QW8iamruRw1zbvmPvqzV9_K6fZekyGN8AxGjTnQgk-qUFHMxb8km_Z5kybg>
-X-ME-Proxy-Cause: dmFkZTFLWWdWQ5yOtjyAoTSNdapbF5O9v5FYeP09oEn6GipmmCjtdlXjTTKTx73+TWqgNB
-    hwiGw8o0ugRfCGCDxQmnhTdVFJWduY/2eQrvWZWTBWilYm11fCIdENjkjGBcYlC42gMkJa
-    Ul38fP6hVwrZVZKF7vLXr1xSKtoSdJMHKAtCkY9OVF0RDdMMWjiQmlSvZMWy3Usn1OiL5I
-    3/WXi8wUNHyAzz1oSC4Cbsq2buM8fcqNt9OiPTSFj0mW6GYiLa8ZcCwN9tXicwVQ1BR8kI
-    gRdcfnleMO8dHQFRVCHs7DtVHFCRJmsbHqeoRG9M6nUCK/R/efMEvYDDKFTt9+8xvriaFO
-    isDgnP7yc93BZPEG/WDk+bvwFyqnW6qYvd3Cbm0YG9a37mTkpVqf7p/kaqQWM44PInd2yy
-    LWj4vD+1RxPdMlyAEpfNOjtsylpAFq9wWhNgPDroJlHU1q1RsiF/uH6A12ZBUWNc3qf5vF
-    ECxsWvtYgR4M9kUsE8LcPxBihBMJjgC9lIpNpeHGfVkdWkJj2bJXWsoNhipnbKVUMk0enV
-    gyoul5WryjKwF/cLIuHjwndZJMkDYbEmv1F8yysuSBUZaBYYYj5/mVrOZ21VldUf5woOI/
-    cr0j13cgqRGDBfIweTl8erPGSABDzKhcdpnHHYuip+Qai2KNMnJtyjg4DCnw
-X-ME-Proxy: <xmx:QW8iagXSJeiA0BpAOFMNNa_qhk3-kyfc5yFdU_disTgZJSRx5xGe-g>
-    <xmx:QW8iam3P0sldLLp_B5G68gif9eaRdOoDa1597cKkl96alRLVBt8xMw>
-    <xmx:QW8iaiCe_gKhV4eurA2AtcISGUX_4jIZEEo6IZdAPeN7rsP4SapfIg>
-    <xmx:QW8iasOBsi_D2XpdA3kLAVmylf2BVWrhgk-fCAJ4GbQIMPgLk12rEQ>
-    <xmx:QW8iargk-FdnGJ9uLyxfdgNMCTYL75Ao1DKpSAfM6hjeNFJFXWWKbyxv>
+  by phl-compute-05.internal (MEProxy); Fri, 05 Jun 2026 02:45:31 -0400
+X-ME-Sender: <xms:i3AiasdNhS_KlyqsumDnLI22Nji4lRgCBXcSawziHZ2KFg80dz_r4Q>
+    <xme:i3AiakojmIrUnzTRKqDHplwGdcPbZxtOaTFP6K98Vj0YJ24e4Yl6aUGtq9D9Nzmvn
+    dcMr-cG4jeurCmamtatymxfRXu8-9msdHJpL6xRRXmXxk5SNBRDTw>
+X-ME-Received: <xmr:i3AiamWVTVH3_IAljezw_p-QLVIZaFjSRdoyaHFhFkYxqxmTVE3j8bXmTY4>
+X-ME-Proxy-Cause: dmFkZTGlcVUQF+Wer3Y5GEVfzATn/deLTQvoklESl61u/rNXp18gne78kg+hRKjPmN+C95
+    +Y+rXOz/wSPynF1ZkSdI0xvnTDk3JzZaYZOwjqPAn5fQPB5z2a4kXq2VN3blLahI0YorC6
+    APEiTrZ02zYFXqZnZgAW76LEBfDjgETDW2APCndMnzlyLbZN8mPXZJRcW+BiZy/tT4XTI9
+    gorxxmEj99FWScGx0DkJim8WCCu/p+rSQEv5zsCk6uLz2qEy3UOrvzI1IH/P0syZmm1PjK
+    z1nsfspXhNfHZz9/FZPcRBYZZsf499hB7WRksmESyQj/3vQnvnMuEcLF8frbXbZ+jh3fYq
+    F9er7eAogPZABVgXL6W7BcIowtwwkYDNbmnE3IOgIUgj9NagEvWW20FlTpx1yL6strEj/Z
+    WJHbcOzvwEWsv8PV/fayj3VJ6keQBQfgmLk7QDi0JfAjld7LRft2EECvZe2ZYFD4zzOej9
+    Nxy8uaR71MAQJHZKEy6xZSdbys0s6JQU1Ij1OY/VhQ/GBrcZf9PmTcsSLHJ/eSfwDSfzbA
+    n0lCqO7VCrMBNcd8az+EodvJTqUDsl7rw3cGMPTDoCvxMwUOIZAoAT8nRABxxbcxFTW052
+    QhmDCDgRZCK7bhjDhoaTeT5bgah4eMxVV4uUgn9Jy+K/G1Mb+K3JD6lRF7gg
+X-ME-Proxy: <xmx:i3Aiak0_yaXo814KKvtjbSJLXyCjEkcH-jAjAUdSEKbjbfUGfoZPMw>
+    <xmx:i3AiaoCA73VJ_JuQ_aX7YVQOERTqb8jzs1LYgHeSIzJEnG1wIJS8wg>
+    <xmx:i3AiaqMkJXwDRZCfL3DNEZs0PCOCBrBagytlIIa-7N2B1_8f-BTGgQ>
+    <xmx:i3Aiahi-nEmDbpxiyOSDZbNGp3rTP8ngb1TRRq9n44dGNgvY0THPRQ>
+    <xmx:i3AiapA8TnDWJqClrosWAiqwxgG4UVI_aUwompfqr0Bbc312m9quGLuN>
 Feedback-ID: i8dbe485b:Fastmail
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Fri,
- 5 Jun 2026 02:40:00 -0400 (EDT)
-Date: Thu, 4 Jun 2026 23:40:00 -0700
+ 5 Jun 2026 02:45:30 -0400 (EDT)
+Date: Thu, 4 Jun 2026 23:45:29 -0700
 From: Boqun Feng <boqun@kernel.org>
 To: bot+bpf-ci@kernel.org
 Cc: peterz@infradead.org, catalin.marinas@arm.com, will@kernel.org,
@@ -81,11 +81,11 @@ Cc: peterz@infradead.org, catalin.marinas@arm.com, will@kernel.org,
  linux-kselftest@vger.kernel.org,	rust-for-linux@vger.kernel.org,
  boqun.feng@gmail.com,	martin.lau@kernel.org, clm@meta.com,
  ihor.solodrai@linux.dev
-Subject: Re: [PATCH v3 05/13] irq & spin_lock: Add counted interrupt
- disabling/enabling
-Message-ID: <aiJvQIiDiXvu5x01@tardis-2.local>
-References: <20260605054128.5925-6-boqun@kernel.org>
- <cc4b5fb3f63b8b508334edd883765bf81c9ab1d2045f414a74c8712c6cc705e9@mail.kernel.org>
+Subject: Re: [PATCH v3 03/13] preempt: Introduce __preempt_count_{sub,
+ add}_return()
+Message-ID: <aiJwieZoxCBEZ2ji@tardis-2.local>
+References: <20260605054128.5925-4-boqun@kernel.org>
+ <d3e91d227b0e1b777a85806e54b03d46581e4460f893e5b45baa9168f5319fbf@mail.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -94,153 +94,47 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <cc4b5fb3f63b8b508334edd883765bf81c9ab1d2045f414a74c8712c6cc705e9@mail.kernel.org>
+In-Reply-To: <d3e91d227b0e1b777a85806e54b03d46581e4460f893e5b45baa9168f5319fbf@mail.kernel.org>
 
-On Fri, Jun 05, 2026 at 06:30:16AM +0000, bot+bpf-ci@kernel.org wrote:
-> > diff --git a/include/linux/interrupt_rc.h b/include/linux/interrupt_rc.h
-> > new file mode 100644
-> > index 000000000000..dd4444c61330
-> > --- /dev/null
-> > +++ b/include/linux/interrupt_rc.h
-> > @@ -0,0 +1,67 @@
-> > +/* SPDX-License-Identifier: GPL-2.0 */
-> > +/*
-> > + * include/linux/interrupt_rc.h - refcounted local processor interrupt
-> > + * management.
-> > + *
-> > + * Since the implementation of this API currently depends on
-> > + * local_irq_save()/local_irq_restore(), we split this into it's own header to
-> > + * make it easier to include without hitting circular header dependencies.
-> > + */
-> > +
-> > +#ifndef __LINUX_INTERRUPT_RC_H
-> > +#define __LINUX_INTERRUPT_RC_H
-> > +
-> > +#include <linux/irqflags.h>
-> > +#include <asm/processor.h>
-> > +#ifdef CONFIG_SMP
-> > +#include <asm/smp.h>
-> > +#endif
-> > +
-> > +/* Per-cpu interrupt disabling state for local_interrupt_{disable,enable}() */
-> > +struct interrupt_disable_state {
-> > +	unsigned long flags;
-> > +};
-> > +
-> > +DECLARE_PER_CPU(struct interrupt_disable_state, local_interrupt_disable_state);
-> > +
-> > +static inline void local_interrupt_disable(void)
-> > +{
-> > +	unsigned long flags;
-> > +	int new_count;
-> > +
-> > +	WARN_ON_ONCE(in_nmi());
-> > +
-> > +	new_count = hardirq_disable_enter();
-> > +
-> > +	/* Interrupts can happen here, but it's OK, see __irq_exit_rcu(). */
-> > +
-> > +	if ((new_count & HARDIRQ_DISABLE_MASK) == HARDIRQ_DISABLE_OFFSET) {
-> > +		local_irq_save(flags);
-> > +		raw_cpu_write(local_interrupt_disable_state.flags, flags);
-> > +	}
-> > +}
-> > +
-> > +static inline void local_interrupt_enable(void)
-> > +{
-> > +	int new_count;
-> > +
-> > +	new_count = hardirq_disable_exit();
-> > +
-> > +	if ((new_count & HARDIRQ_DISABLE_MASK) == 0) {
-> > +		unsigned long flags;
-> > +
-> > +		flags = raw_cpu_read(local_interrupt_disable_state.flags);
-> > +		local_irq_restore(flags);
+On Fri, Jun 05, 2026 at 06:30:14AM +0000, bot+bpf-ci@kernel.org wrote:
+> >     preempt: Introduce __preempt_count_{sub, add}_return()
+> >
+> >     In order to use preempt_count() to tracking the interrupt disable
+> >     nesting level, __preempt_count_{add,sub}_return() are introduced, as
+> >     their name suggest, these primitives return the new value of the
+> >     preempt_count() after changing it. The following example shows the usage
+> >     of it in local_interrupt_disable():
+> >
+> >             // increase the HARDIRQ_DISABLE bit
+> >             new_count = __preempt_count_add_return(HARDIRQ_DISABLE_OFFSET);
+> >
+> >             // if it's the first-time increment, then disable the interrupt
+> >             // at hardware level.
+> >             if (new_count & HARDIRQ_DISABLE_MASK == HARDIRQ_DISABLE_OFFSET) {
+>                                                     ^^
 > 
-> Could this lead to indefinite softirq starvation? When __irq_exit_rcu()
-
-Yes and no. There is no behavioral difference between here and
-local_irq_enable(), neither will trigger softirqs.
-
-> skips invoke_softirq() due to hardirq_disable_count() > 0, any scheduled
-> softirqs (timers, RCU callbacks, networking) remain pending. When the
-> outermost critical section ends and local_interrupt_enable() restores
-> hardware interrupts, it doesn't check local_softirq_pending() to flush
-> these deferred softirqs.
+> The operator precedence in this example appears incorrect. In C, the equality
+> operator == has higher precedence than the bitwise AND operator &, so this
+> evaluates as:
 > 
-> Will these pending softirqs stall until another unrelated hardware
-> interrupt fires? In low-activity periods, this could potentially cause
-> RCU stalls or network hangs. This concern was raised by the sashiko bot in
-> both v2 and v3 but remains unaddressed:
+>     new_count & (HARDIRQ_DISABLE_MASK == HARDIRQ_DISABLE_OFFSET)
 > 
-> https://lore.kernel.org/all/20260526175409.7CFCC1F000E9@smtp.kernel.org/
+> Since the mask does not equal the offset, the equality evaluates to 0, making
+> the entire condition always false.
 > 
-> > +		/*
-> > +		 * TODO: re-read preempt count can be avoided, but it needs
-> > +		 * should_resched() taking another parameter as the current
-> > +		 * preempt count
-> > +		 */
-> > +#ifdef CONFIG_PREEMPTION
-> > +		if (should_resched(0))
-> > +			__preempt_schedule();
-> 
-> Peter Zijlstra suggested in v2 replacing should_resched(0) with a direct
-> check of new_count for preemption. His suggestion was "can't you simply
-> write: if (!new_count) __preempt_schedule();" The author acknowledged this
-> in discussion but hasn't implemented it in v3:
-> 
-> https://lore.kernel.org/all/20260528104322.GF343181@noisy.programming.kicks-ass.net/
-> 
-> Is there a reason to keep the more complex should_resched(0) approach, or
-> would the direct check be more appropriate here?
+> Should this be written with explicit parentheses to prevent readers from
+> copying flawed logic into downstream implementations?
 > 
 
-I have an optimization/cleanup patch in patch #13.
+Will fix this but this code is in commit log rather than real code.
 
 Regards,
 Boqun
 
-> > +#endif
-> > +	}
-> > +}
-> > +
-> > +#endif /* !__LINUX_INTERRUPT_RC_H */
+>     if ((new_count & HARDIRQ_DISABLE_MASK) == HARDIRQ_DISABLE_OFFSET) {
 > 
-> [ ... ]
-> 
-> > diff --git a/kernel/softirq.c b/kernel/softirq.c
-> > index 10af5ed859e7..d1ab1799794c 100644
-> > --- a/kernel/softirq.c
-> > +++ b/kernel/softirq.c
-> > @@ -88,6 +88,9 @@ EXPORT_PER_CPU_SYMBOL_GPL(hardirqs_enabled);
-> >  EXPORT_PER_CPU_SYMBOL_GPL(hardirq_context);
-> >  #endif
-> >
-> > +DEFINE_PER_CPU(struct interrupt_disable_state, local_interrupt_disable_state);
-> > +EXPORT_PER_CPU_SYMBOL_GPL(local_interrupt_disable_state);
-> > +
-> >  DEFINE_PER_CPU(unsigned int, nmi_nesting);
-> >
-> >  /*
-> > @@ -728,7 +731,16 @@ static inline void __irq_exit_rcu(void)
-> >  #endif
-> >  	account_hardirq_exit(current);
-> >  	preempt_count_sub(HARDIRQ_OFFSET);
-> > -	if (!in_interrupt() && local_softirq_pending()) {
-> > +	/*
-> > +	 * Interrupts may happen between hardirq_disable_enter() and
-> > +	 * local_irq_save() in local_interrupt_disable(), if irq_exit() invokes
-> > +	 * softirq here, we may have a softirq handler calling
-> > +	 * local_interrupt_disable() but it won't disable the irq because
-> > +	 * hardirq disabling count is already 1, hence we need to prevent
-> > +	 * invoking softirq when a local_interrupt_disable() is ongoing.
-> > +	 */
-> > +	if (!in_interrupt() && !hardirq_disable_count() &&
-> > +	    local_softirq_pending()) {
-> >  		/*
-> >  		 * If we left hrtimers unarmed, make sure to arm them now,
-> >  		 * before enabling interrupts to run SoftIRQ.
+> This was raised by sashiko-bot@kernel.org in v3 review:
+> https://lore.kernel.org/all/20260605055933.EDF3D1F00898@smtp.kernel.org/
 > 
 > 
 > ---
