@@ -1,304 +1,154 @@
-Received: from CWXP265CU008.outbound.protection.outlook.com (mail-ukwestazon11020093.outbound.protection.outlook.com [52.101.195.93])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C8CA3DD503;
-	Mon,  8 Jun 2026 18:25:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.195.93
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780943114; cv=fail; b=WigoNPmSU7KvyexWTvtIhdxQPMA6KAH3udR/b1nWH0omaEVIbJf5oXzQXMIW7/5EcSFQWvQM0diMZO3Hhcl408lfVs7laTNayTnx3DNokmqE8IOGzxgKjho2xP+uSrEF6Q07g6UAUl+1OmsdSVLZmYE9eAb1BZLVTz4aGqmNxhw=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780943114; c=relaxed/simple;
-	bh=8RYQsMriQKqMUF3BHPxWRBdOM8W1E4IKPkLyCZBqaag=;
-	h=Content-Type:Date:Message-Id:Cc:Subject:From:To:References:
-	 In-Reply-To:MIME-Version; b=Q3rIcZFid1A2J/+DNGDYzG68GpXEVTi/fKA23e/2GFa+psVKA56pKqbWHv7nh48g1v+z+qmWbC6Ze1WxAcJhvZQAjW7AfHB6oNPHWuT7l31BMkl/6mAwVHpnAAyXENDqvq92pgBxmzt8a33iNeKzOJDp3c7RtbId5REJkO/jChs=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=garyguo.net; spf=pass smtp.mailfrom=garyguo.net; dkim=pass (1024-bit key) header.d=garyguo.net header.i=@garyguo.net header.b=JSHQ7qwc; arc=fail smtp.client-ip=52.101.195.93
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=garyguo.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=garyguo.net
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D32BA3E3C73;
+	Mon,  8 Jun 2026 18:42:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1780944151; cv=none; b=lKQ12s2B6g2fQlm4+J0PVwSyu/sPK4zSJnDDNK/atVCuw26JzG/emcE7dPO3BxYMZ1z6fLpX53iXNXs0hIDKDLHFuXXMy42DdfvVuN4yuKlEWhzNtIG4eAhLKrcoWDuJ2lP4zJjlEVbdCCTrWJs6q/mzbUIJ95KWu8B/xxXiekY=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1780944151; c=relaxed/simple;
+	bh=Qn/8Hql1frodTukYIvzJEFhJnbdEad1dXeCLKcJl3hc=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=FGLnlMjpWJJiRkN8J9Trz9kjDBnYLMe8jNEYsJCnJ1Yl9ndaYI8wHMTQCAaXzuBrMxDiKv8O0SZBgJuajw4Y2rGM/5VYuraVmNkbM1QLR974V7ZCkWyDYtkaK6I4Z/yMcFvr900mtHZmlE8s5c3JWKf9PNORLL0XPZGU58nzENg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Z0HZKfaV; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=garyguo.net header.i=@garyguo.net header.b="JSHQ7qwc"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=fgw6CIrfu8yDJaXgNbGvVBpLVaB9r+G3w8wYl7BmVFyCWxD/Jp1w8X52gQ9ByWW7raqCesScSx4AzzkIKWQqBxGuLKfnQrhmXNrkkpPgz+Box/G4c8+P5/djybAzruWdom7CEK72/B4inn2TxyAbg+E59Pbdk3mpE77a7hjJcMjljzUqsCzIHqRnIuaaYBuXjsKDHNrBHMvTxTRqMo1XTdsHk4qiuhudyrKijaldq6IMh4xBEQVfUWAsvphhVMfxgoCmYL4Ar9r8n35g2B8HUbP/7H2JUMJjDjdP7UyiE2wvJJ5jDHCCcBSnVfgJ911aFni46O4FJvKzSiwOAt3ODg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=g+6v+XjrcoEZB0NjylXSMgAaMx5gYnzGgLms2GFViuo=;
- b=ohFkq9AnyonIAOqRMfGf6AoaMqhIfAZGRHK6sUDr99gdfGLkNO550OrmNh6eFWyNp7IwSGHnyTyiLCcMyJZm5lfEh9ORf6xKUxiyOHjYnx1amDl8RPmWxZRIbvbbHyoeqN1DY3QKBud7ZTCGeYL+aFS89rKvVBJc4MPAulxzOQjCckJPqpnLkUMQCkPclSqIjHNUVf8+GdgDYMPIjFa0VlSq1zXYB2IiLsQVrgUesZ8K02BN5zEpcFvPtSdQypYClmRsvZBA1RXvc9bgIeuWIe2dzrekE5s6uBuUg3H5Hq9+rXV0snaIjc8x9hXIo8qgYehi8uz5AqiEGm8ojnuWXA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=garyguo.net; dmarc=pass action=none header.from=garyguo.net;
- dkim=pass header.d=garyguo.net; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=garyguo.net;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=g+6v+XjrcoEZB0NjylXSMgAaMx5gYnzGgLms2GFViuo=;
- b=JSHQ7qwczQbRa3lDuB2OYvCEF0eI33DUzs5Ff4yeLWybUz0reFBArkEDhSeBr7S3F72+IyuM6usfjhyMiqLeERE0LqWf2UH3uQ/W2oDqH6vkU3oooclj9Kaj9km79MgihsOyQJTlR9MschkHFy93lBiOK1TfdnbUd6cHo6j5FIs=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=garyguo.net;
-Received: from LOVP265MB8871.GBRP265.PROD.OUTLOOK.COM (2603:10a6:600:488::16)
- by CWLP265MB5236.GBRP265.PROD.OUTLOOK.COM (2603:10a6:400:1c4::12) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.92.13; Mon, 8 Jun 2026
- 18:25:07 +0000
-Received: from LOVP265MB8871.GBRP265.PROD.OUTLOOK.COM
- ([fe80::1c3:ceba:21b4:9986]) by LOVP265MB8871.GBRP265.PROD.OUTLOOK.COM
- ([fe80::1c3:ceba:21b4:9986%4]) with mapi id 15.21.0092.011; Mon, 8 Jun 2026
- 18:25:07 +0000
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Mon, 08 Jun 2026 19:25:06 +0100
-Message-Id: <DJ3VN4EYXCUA.18YA9379UHT5Z@garyguo.net>
-Cc: <borntraeger@linux.ibm.com>, <svens@linux.ibm.com>, <boqun@kernel.org>,
- <gary@garyguo.net>, <bjorn3_gh@protonmail.com>, <lossin@kernel.org>,
- <a.hindborg@kernel.org>, <tmgross@umich.edu>, <dakr@kernel.org>,
- <rostedt@goodmis.org>, <ardb@kernel.org>, <linux-s390@vger.kernel.org>,
- <rust-for-linux@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v6 6/6] s390: Enable Rust support
-From: "Gary Guo" <gary@garyguo.net>
-To: "Jan Polensky" <japo@linux.ibm.com>, <hca@linux.ibm.com>,
- <gor@linux.ibm.com>, <agordeev@linux.ibm.com>, <ojeda@kernel.org>,
- <peterz@infradead.org>, <jpoimboe@kernel.org>, <jbaron@akamai.com>,
- <aliceryhl@google.com>
-X-Mailer: aerc 0.21.0
-References: <20260608181451.3734956-1-japo@linux.ibm.com>
- <20260608181451.3734956-7-japo@linux.ibm.com>
-In-Reply-To: <20260608181451.3734956-7-japo@linux.ibm.com>
-X-ClientProxiedBy: LO2P265CA0142.GBRP265.PROD.OUTLOOK.COM
- (2603:10a6:600:9f::34) To LOVP265MB8871.GBRP265.PROD.OUTLOOK.COM
- (2603:10a6:600:488::16)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Z0HZKfaV"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E01E01F00893;
+	Mon,  8 Jun 2026 18:42:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1780944150;
+	bh=QTurqwAonbHqex2EQ+XolDLMRIFlrC/dSa0htwEu82g=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=Z0HZKfaVAqzMbu2qFZkeUKh44K090vkZHhr2CreO4dU8mj5GgCXvKHTG7KXIGt93i
+	 RBGKr5AwaZ656gtjGUMPa1zrG09sZj9D7+00WSGAuTa62mfSlSFn008n5LgoEynZUV
+	 gO6DlohPsodQ7MCnG4Pu8vQrEbJZRt0J+VCPvcwiKk0Yl30jqnhE+LLQcXAqIp/9fV
+	 pTs+I6Hi8Ft1phAEeMZW8xdMiamy4aru//jt7fMVDpwSn6Gtyyce9pTg0u/8xm40bb
+	 g2ave37PYfMp9QvraQN7iN4kpvyx1Z5CCr0zwk2++i/A7FiIn86nyxOPs2AoLaDrQj
+	 xwTvnsa49ol4Q==
+Message-ID: <fa093778-d0fd-4c32-b229-74dd18796565@kernel.org>
+Date: Mon, 8 Jun 2026 20:42:24 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: LOVP265MB8871:EE_|CWLP265MB5236:EE_
-X-MS-Office365-Filtering-Correlation-Id: 4ab39baf-075c-482d-2b75-08dec58b4480
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|366016|1800799024|7416014|376014|10070799003|3023799007|18002099003|22082099003|56012099006|4143699003;
-X-Microsoft-Antispam-Message-Info:
-	UCwvwARbXNdTsAs9kmcjLWE3sis8xUFXxZj3LjWBp9t4+XCmKhIYKO97st89+eBFEUboev9L3RxgCWn40y8gw0PJM+nPHGudjALZ7t0yxlXMifvAMPaTOvCtyakI4aPEBhSsVvMu25tac2DbT6vMDtR1kuvZD6C+g5bTXeS2bVz1hcnoVeHR6AbGlDR6VQ7U+86nQCr5rFVP9XrFJEOJPCiC0enPNFnO8//VtAmxR5HvJPm7rgoFdtEmlFK1wEKO2M3430lLiHKl68JzWuJPmglAN6ZtNuobvj/wJ5ORTI/GMhKv6yyBfyf3/sdbNcN9dRj810h7p2uhHv6/hq1XKESYrL9tO2opHzYJp1YrnN8pEISld6wOQQo5sMGQT1OQ7AMod2mIuOEtBJUacpZ7AG6zwnANBrX/kEt0f+z13YZ1ObsQfy88MSfKoN+Rx2p2FBPiZbcFmWyWYDDIyool+22qZeQb7VnqaIOfYEjS/yjk5cnt7HSO3esLW4XoS21fFtPiQQeVzd1as1E4HIFrSLkdlaqeBDPfdxDskgHfNkNdlE/urmL7Jf/iJKbDiMoiOE6zRn0tLQnGPmphFU8co4RRdA8k8geHHn8fgmh3tY809W7sHYnlodkuMZ0QP/ummN/rJqR4n8ma9/e92bmjYeC+s/rNymDqIvmiK+TMSYmdp/do5HH6Sqik0/Zcaist
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LOVP265MB8871.GBRP265.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(7416014)(376014)(10070799003)(3023799007)(18002099003)(22082099003)(56012099006)(4143699003);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?STVjejdqRlF5WmtLaVhTZFM4V2t5dHFnL0RJeGdwam1sOW84bUhpM1p3cTVH?=
- =?utf-8?B?QnVlWndsS0J5ZjlFS1VmTHRRRWhzd0NBSmtPZzA5MG4zOC9EcjJEUEpKWk90?=
- =?utf-8?B?MzVZaHF6UmNFZ2FMdXFkRndiUEROc21wN2lpUW1iUC9vVW1idzRnU1UrTk5p?=
- =?utf-8?B?RG01OCtDTlFaTDB2QnNMYVlJYmo3Z3dRU2paQkl1UFhJRVN3TnljU2w0STJD?=
- =?utf-8?B?ckhRRHhYYWFNamp0NFZRbDlvYWQ4TU14U1R5TVh6eEFlRVRsT3B3NWhkbTBs?=
- =?utf-8?B?K3NYZG1NZTVtQ3l5VWY1djYwSUtrelJaS2NqSEFDNS9jaStwaWxTSFFsNHUy?=
- =?utf-8?B?WmFlUGVVVkVHdTVBbDRydmtQQmhJVjVGRE9EZzBQQTY4aUo1TmovQWdFYVIz?=
- =?utf-8?B?aHI2cXZ4akZkN1ZrZGZpRFJwdGVscjlWRmJ5NENwUkxCaHErcUJoRGRRQmE0?=
- =?utf-8?B?K2d0WEE5b0RyR21uYUpnOXhnQ2xXWEFGcGlOMGFHR0s1YXFOMlpxa2M5Z2gr?=
- =?utf-8?B?T21sUERXYkY2czhNNXh6cFE2QkJpKzBRMGRaQ1hrNGJKeUlqUm1uQTlqVVk3?=
- =?utf-8?B?aW9nL0dqZ1ZJTnJpRC81WnFXMTYxc21ZejJsV3F5aElmYXo1L2pkUUtZVTFE?=
- =?utf-8?B?UzlGREszYXJBWTFrb1dEMStpNFNNZlljbnVLS1NCRWJmOXQ1OXh2MkppQ3pX?=
- =?utf-8?B?SFN6MThXZ3UrRnQ1dDNSWlJRbFE1UnkwUm5mYjNoM2Z5bytsS1NERVFWMi9Z?=
- =?utf-8?B?UmdCRXRZRVhYWnUwRndvZWtLelkvTDZlUS9FcktoaEk2ZG9oVVE5QUozemp0?=
- =?utf-8?B?ZFg5a2pRV1dnZzdBL01lRUZOREZzckhtbDBrbkxlRDdDdUhxclFxazVWUDBu?=
- =?utf-8?B?UDhZeWRSbWVCbTNBenNuMHlvVzhyTFRBODNQb0pIS3Q3bmwyUXlXb0hJWTIr?=
- =?utf-8?B?Wm5xd0lHWERmWUdoSEZ6T2x6NzVoWmZrSW03UGtGM0J1dDZEMmFHamMzL00r?=
- =?utf-8?B?VzdYNy9hVHBrTmlVcDgzS1FPU1hiVmJZUGltT3pFUkFOYVp0anhZeFN6Uy9r?=
- =?utf-8?B?TGV3Z1NuNHg5VmsybUxjWkNmMC9rWm8ra1o3cWVQMTJTWWRQbnlJSm5DWW10?=
- =?utf-8?B?djkxQ040cm5TZ2tLSGdRait4NHh1dDNVQm9pNlgxd0ZuYWxPN2NBYldzV0ZW?=
- =?utf-8?B?K00rWjhyOEJjNXZEbVNaUkhZdlhBUWsvWjI3cG5IUWJtd1NTSWZmakxtczYx?=
- =?utf-8?B?U3FPYWRlQ0UvY2luOUZPdEMxdHE3QzRPNFdLYmdnRHFPZUs5WlJYSmdKVnAw?=
- =?utf-8?B?c2NCUXVmejVzNStpdGxVQlRVUWVVZ2tBSjhPK3A3Yko1T0ZjVFhnck9neGow?=
- =?utf-8?B?WDJPaWc3TktZSlYyWG83RnlPMWU0Q0lFUW5kR2JmMExYZlN4NlFpYUU4aUNr?=
- =?utf-8?B?Wm1LODZ5R3FBYWU5U1laT0pJR1R2enQ5SzdvWS9QQUo3VGxDa3lCQXo2SHBE?=
- =?utf-8?B?NHFleU4vK3oxZEl1NTBLaFArRDUyMEo1QlYvTlg3TEd3bUJueW1zYU1ZSHow?=
- =?utf-8?B?Skk1YnhDTkNZWUN3eG5TTmVJQzQzR3Z4YmNodzYzYXQ1ZnVkVnJUblBYQ2tl?=
- =?utf-8?B?elRGc21SaTQ3YWFYVUNrL2pPN1U3cUhtaFVhM0RiWFJDWlBnMTJ0d3FEbW9Y?=
- =?utf-8?B?YlJlUVpLNXBmTVd1WmFZTTRWdVFkRkN2TjV5dTFCRXYzNnkxSUNkZzFoV1JE?=
- =?utf-8?B?RnIrZVJHZlFVVGJIdjRnbkdHZ3VLUHF2UzBxVWxuOWpyamJLK0Z2cUdBc3Bk?=
- =?utf-8?B?dVNlSEJnYkYxOEpFTTdUWWl3Tzg5TXlCWnd1aGtORGtyNTBCc2lPRUFQeGRB?=
- =?utf-8?B?cVp3eDNiRzQ2Q3VNcldFcFczN3dmdXdHRnZnWmtQeWcvNHdyNmhiQUtJUnR1?=
- =?utf-8?B?dkR3YkhJVkdlMDUxdzJhYWg0Mlc2QkVaOHdMc3h6bEJIQVZvZDdxb09reWVI?=
- =?utf-8?B?WVJpeGtOcVlEd3ZIOE1MNHM5NS9ybmVrS1V3Rk9SUDBpdzdiMFg5RmNlRXA1?=
- =?utf-8?B?TEx4dXhNVE1YSVVLRTQwZkswK0Mrcllwa21wSkFkV0VOcVViNHVIY1BncGtk?=
- =?utf-8?B?Rkt5U29kdS9jbHo3aWpLdTdjWHRQcm12dXlYVktjb0R1WHFZWk5Xd1l1UU5R?=
- =?utf-8?B?Zy9ack91WUtsVnNsT0l4Y0E0dTR6bFFlSVdBbTRUeEFEZWNnc3o2Q1NIb2tx?=
- =?utf-8?B?MkJScHp4K3hWVyttUVRrN1lkcFVvOFY1eUNTandnaHdwUWdkTDczcG43dVhN?=
- =?utf-8?B?Q01NaWMwZXIxOVQrKzVRMUZFUEtNNnRGK1I4a1RuVFNTNUxkbHl1Zz09?=
-X-OriginatorOrg: garyguo.net
-X-MS-Exchange-CrossTenant-Network-Message-Id: 4ab39baf-075c-482d-2b75-08dec58b4480
-X-MS-Exchange-CrossTenant-AuthSource: LOVP265MB8871.GBRP265.PROD.OUTLOOK.COM
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 08 Jun 2026 18:25:07.4735
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: bbc898ad-b10f-4e10-8552-d9377b823d45
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: W90Qe9ZrvvFXtQkwwysLwKTDsLJQbUHoBTaClkETNQOQa5GAN7+tWpRz8k/AqOfeU6aMjr/LVJzB6ESj6c8asQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CWLP265MB5236
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 2/3] vmsplice: make vmsplice a trivial wrapper for
+ preadv2/pwritev2
+To: Alexander Gordeev <agordeev@linux.ibm.com>,
+ Askar Safin <safinaskar@gmail.com>
+Cc: linux-fsdevel@vger.kernel.org, Christian Brauner <brauner@kernel.org>,
+ Alexander Viro <viro@zeniv.linux.org.uk>, Jan Kara <jack@suse.cz>,
+ linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-api@vger.kernel.org,
+ netdev@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>,
+ Matthew Wilcox <willy@infradead.org>, Jens Axboe <axboe@kernel.dk>,
+ Christoph Hellwig <hch@infradead.org>, David Howells <dhowells@redhat.com>,
+ Andrew Morton <akpm@linux-foundation.org>, Pedro Falcato <pfalcato@suse.de>,
+ Miklos Szeredi <miklos@szeredi.hu>, patches@lists.linux.dev,
+ linux-s390@vger.kernel.org, linux-next@vger.kernel.org
+References: <20260531010107.1953702-1-safinaskar@gmail.com>
+ <20260531010107.1953702-3-safinaskar@gmail.com>
+ <20260608171917.3195488Afc-agordeev@linux.ibm.com>
+From: "David Hildenbrand (Arm)" <david@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=david@kernel.org; keydata=
+ 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
+ qIws/H2t
+In-Reply-To: <20260608171917.3195488Afc-agordeev@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Mon Jun 8, 2026 at 7:14 PM BST, Jan Polensky wrote:
-> Enable building Rust code on s390 by wiring the architecture into the
-> kernel Rust infrastructure.
->
-> Add s390 to the Rust arch support documentation, provide the s390 Rust
-> target and required compiler flags, and set the bindgen target for
-> arch/s390. Adjust the Rust target generation and minimum rustc version
-> gating so the s390 setup is handled explicitly.
->
-> The Rust toolchain uses the "s390x" triple naming for the 64 bit target.
->
-> Rust support is currently incompatible with CONFIG_EXPOLINE, which
-> relies on compiler support for the -mindirect-branch=3D and
-> -mfunction_return=3D options. Therefore, select HAVE_RUST only when
-> EXPOLINE is disabled.
+On 6/8/26 19:19, Alexander Gordeev wrote:
+> On Sun, May 31, 2026 at 01:01:06AM +0000, Askar Safin wrote:
+>> vmsplice behavior on writable pipe became equivalent to pwritev2.
+>> vmsplice behavior on readable pipe already was nearly
+>> equivalent to preadv2, but I made this explicit. I. e. I made it
+>> obvious from code that vmsplice now is equivalent to preadv2/pwritev2.
+>>
+>> Also I moved vmsplice to fs/read_write.c, because now it arguably
+>> belongs there.
+>>
+>> Note that SPLICE_F_NONBLOCK behavior slightly changed: previously
+>> vmsplice ignored whether the pipe was opened with O_NONBLOCK, and mode
+>> of operation depended on whether SPLICE_F_NONBLOCK was passed only.
+>> Now the operation will be non-blocking if O_NONBLOCK was passed when
+>> opening *or* SPLICE_F_NONBLOCK was passed to vmsplice. Previous
+>> behavior was arguably buggy, and new behavior is arguably better.
+>>
+>> Now SPLICE_F_GIFT is always ignored by all 3 syscalls: splice, tee
+>> and vmsplice.
+>>
+>> Signed-off-by: Askar Safin <safinaskar@gmail.com>
+>> ---
+>>  fs/read_write.c          |  23 +++++
+>>  fs/splice.c              | 192 +--------------------------------------
+>>  include/linux/skbuff.h   |   4 +-
+>>  include/linux/splice.h   |   2 +-
+>>  include/linux/syscalls.h |   4 +-
+>>  5 files changed, 29 insertions(+), 196 deletions(-)
+> 
+> Hi All,
+> 
+> This patch as commit e2c0b2368081b ("vmsplice: make vmsplice a trivial
+> wrapper for preadv2/pwritev2") in linux-next on s390 causes the selftest
+> tools/testing/selftests/mm/cow.c to hang:
+> 
+> # [RUN] vmsplice() + unmap in child ... with PTE-mapped THP (128 kB)
+> 
+> Recently there has been changes in THP area, so the problem is not
+> necessary linked to this patch per se.
 
-Does `-Zretpoline-external-thunk`/`-Zretpoline` not work for s390? Rust wil=
-l
-throw a warning saying that it doesn't recognize this for the target, but i=
-t
-looks like it does generate target features
-+retpoline-external-thunk,+retpoline-indirect-branches,+retpoline-indirect-=
-calls
-in LLVM IR.
+If we reach 128 kB, then 64 kB likely worked. Which might hint at a similar problem
+as found by the vmsplice01 ltp test case (blocking instead of returning once the
+pipe is full).
 
-Best,
-Gary
-
->
-> Acked-by: Miguel Ojeda <ojeda@kernel.org>
-> Acked-by: Heiko Carstens <hca@linux.ibm.com>
-> Signed-off-by: Jan Polensky <japo@linux.ibm.com>
-> ---
->  Documentation/rust/arch-support.rst |  1 +
->  arch/s390/Kconfig                   |  1 +
->  arch/s390/Makefile                  | 28 +++++++++++++++++-----------
->  rust/Makefile                       |  1 +
->  scripts/generate_rust_target.rs     |  2 ++
->  scripts/min-tool-version.sh         |  6 +++++-
->  6 files changed, 27 insertions(+), 12 deletions(-)
->
-> diff --git a/Documentation/rust/arch-support.rst b/Documentation/rust/arc=
-h-support.rst
-> index 6e6a515d0899..4f980815e92a 100644
-> --- a/Documentation/rust/arch-support.rst
-> +++ b/Documentation/rust/arch-support.rst
-> @@ -19,6 +19,7 @@ Architecture   Level of support  Constraints
->  ``arm64``      Maintained        Little Endian only.
->  ``loongarch``  Maintained        \-
->  ``riscv``      Maintained        ``riscv64`` and LLVM/Clang only.
-> +``s390``       Maintained        ``CONFIG_EXPOLINE`` must be disabled.
->  ``um``         Maintained        \-
->  ``x86``        Maintained        ``x86_64`` only.
->  =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D  =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D  =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D
-> diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-> index ecbcbb781e40..26951781d74d 100644
-> --- a/arch/s390/Kconfig
-> +++ b/arch/s390/Kconfig
-> @@ -248,6 +248,7 @@ config S390
->  	select HAVE_RELIABLE_STACKTRACE
->  	select HAVE_RETHOOK
->  	select HAVE_RSEQ
-> +	select HAVE_RUST if !EXPOLINE
->  	select HAVE_SAMPLE_FTRACE_DIRECT
->  	select HAVE_SAMPLE_FTRACE_DIRECT_MULTI
->  	select HAVE_SETUP_PER_CPU_AREA
-> diff --git a/arch/s390/Makefile b/arch/s390/Makefile
-> index 297976b41088..8b712cd85fcd 100644
-> --- a/arch/s390/Makefile
-> +++ b/arch/s390/Makefile
-> @@ -35,25 +35,31 @@ KBUILD_CFLAGS_DECOMPRESSOR +=3D $(if $(CONFIG_DEBUG_I=
-NFO),-g)
->  KBUILD_CFLAGS_DECOMPRESSOR +=3D $(if $(CONFIG_DEBUG_INFO_DWARF4), $(call=
- cc-option, -gdwarf-4,))
->  KBUILD_CFLAGS_DECOMPRESSOR +=3D $(if $(CONFIG_CC_NO_ARRAY_BOUNDS),-Wno-a=
-rray-bounds)
-> =20
-> +KBUILD_RUSTFLAGS +=3D --target=3Ds390x-unknown-none-softfloat -Zpacked-s=
-tack -Ctarget-feature=3D+backchain
-> +
->  UTS_MACHINE	:=3D s390x
->  STACK_SIZE	:=3D $(if $(CONFIG_KASAN),65536,$(if $(CONFIG_KMSAN),65536,16=
-384))
->  CHECKFLAGS	+=3D -D__s390__ -D__s390x__
-> =20
->  export LD_BFD
-> =20
-> -mflags-$(CONFIG_MARCH_Z10)    :=3D -march=3Dz10
-> -mflags-$(CONFIG_MARCH_Z196)   :=3D -march=3Dz196
-> -mflags-$(CONFIG_MARCH_ZEC12)  :=3D -march=3DzEC12
-> -mflags-$(CONFIG_MARCH_Z13)    :=3D -march=3Dz13
-> -mflags-$(CONFIG_MARCH_Z14)    :=3D -march=3Dz14
-> -mflags-$(CONFIG_MARCH_Z15)    :=3D -march=3Dz15
-> -mflags-$(CONFIG_MARCH_Z16)    :=3D -march=3Dz16
-> -mflags-$(CONFIG_MARCH_Z17)    :=3D -march=3Dz17
-> +march-name-$(CONFIG_MARCH_Z10)   :=3D z10
-> +march-name-$(CONFIG_MARCH_Z196)  :=3D z196
-> +march-name-$(CONFIG_MARCH_ZEC12) :=3D zEC12
-> +march-name-$(CONFIG_MARCH_Z13)   :=3D z13
-> +march-name-$(CONFIG_MARCH_Z14)   :=3D z14
-> +march-name-$(CONFIG_MARCH_Z15)   :=3D z15
-> +march-name-$(CONFIG_MARCH_Z16)   :=3D z16
-> +march-name-$(CONFIG_MARCH_Z17)   :=3D z17
-> =20
-> -export CC_FLAGS_MARCH :=3D $(mflags-y)
-> +mflags :=3D -march=3D$(march-name-y)
-> =20
-> -aflags-y +=3D $(mflags-y)
-> -cflags-y +=3D $(mflags-y)
-> +export CC_FLAGS_MARCH :=3D $(mflags)
-> +
-> +aflags-y +=3D $(mflags)
-> +cflags-y +=3D $(mflags)
-> +
-> +KBUILD_RUSTFLAGS +=3D -Ctarget-cpu=3D$(march-name-y)
-> =20
->  cflags-$(CONFIG_MARCH_Z10_TUNE)		+=3D -mtune=3Dz10
->  cflags-$(CONFIG_MARCH_Z196_TUNE)	+=3D -mtune=3Dz196
-> diff --git a/rust/Makefile b/rust/Makefile
-> index b9e9f512cec3..77460502f576 100644
-> --- a/rust/Makefile
-> +++ b/rust/Makefile
-> @@ -403,6 +403,7 @@ BINDGEN_TARGET_x86	:=3D x86_64-linux-gnu
->  BINDGEN_TARGET_arm64	:=3D aarch64-linux-gnu
->  BINDGEN_TARGET_arm	:=3D arm-linux-gnueabi
->  BINDGEN_TARGET_loongarch	:=3D loongarch64-linux-gnusf
-> +BINDGEN_TARGET_s390	:=3D s390x-linux-gnu
->  # This is only for i386 UM builds, which need the 32-bit target not -m32
->  BINDGEN_TARGET_i386	:=3D i386-linux-gnu
->  BINDGEN_TARGET_um	:=3D $(BINDGEN_TARGET_$(SUBARCH))
-> diff --git a/scripts/generate_rust_target.rs b/scripts/generate_rust_targ=
-et.rs
-> index 16f7e855e012..3bf296581a88 100644
-> --- a/scripts/generate_rust_target.rs
-> +++ b/scripts/generate_rust_target.rs
-> @@ -260,6 +260,8 @@ fn main() {
->          }
->      } else if cfg.has("LOONGARCH") {
->          panic!("loongarch uses the builtin rustc loongarch64-unknown-non=
-e-softfloat target");
-> +    } else if cfg.has("S390") {
-> +        panic!("s390 uses the builtin rustc s390x-unknown-none-softfloat=
- target");
->      } else {
->          panic!("Unsupported architecture");
->      }
-> diff --git a/scripts/min-tool-version.sh b/scripts/min-tool-version.sh
-> index b96ec2d379b6..296acf8f71aa 100755
-> --- a/scripts/min-tool-version.sh
-> +++ b/scripts/min-tool-version.sh
-> @@ -31,7 +31,11 @@ llvm)
->  	fi
->  	;;
->  rustc)
-> -	echo 1.85.0
-> +	if [ "$SRCARCH" =3D "s390" ]; then
-> +		echo 1.96.0
-> +	else
-> +		echo 1.85.0
-> +	fi
->  	;;
->  bindgen)
->  	echo 0.71.1
+https://lore.kernel.org/r/20260603-raumfahrt-unmerklich-ertrugen-c4ecae70d5f9@brauner
 
 
+-- 
+Cheers,
+
+David
