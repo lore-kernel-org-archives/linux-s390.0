@@ -1,155 +1,142 @@
-Received: from mail-wm1-f53.google.com (mail-wm1-f53.google.com [209.85.128.53])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F0AB3331221
-	for <linux-s390@vger.kernel.org>; Mon,  8 Jun 2026 16:04:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.128.53
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780934691; cv=pass; b=GVKthS4hRv8X/N78CYfov53cWrvaeiWlj3b/IN5ETd5/HtefJHmuI4NRSrza8TaSE24fLEfaiUieDQ0Pkgu+zxo4JZE+ylNewqGFnazsZpQHCAPoY0Bmm/E1qNeBmocEPC8q4uTLHDtj3etkI5AdAJPvxHvLqn6oWtiYg111jm0=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780934691; c=relaxed/simple;
-	bh=itDKg5VHTo1QlVDvtR/ptqkY/rb9iX9OeM5STd1MO0s=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=bdMjpOcJesz6rma+PZRzht+PkSE/iwqNWecb+X1qsIPBur5L2ntMQ0U7GCpMsJyG5QEZ1cL2Hitft0LXFmr4GafHeoWio1D81sCJLwWoAu5AgyHYR4Srb56QP4WrjJsjX4CstGqqfdv8qgB3FVHDKsYi85PNLIJEg6bI7e+1h/o=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=fcTHiuoZ; arc=pass smtp.client-ip=209.85.128.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 18C3E3246E8;
+	Mon,  8 Jun 2026 16:11:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1780935088; cv=none; b=Q1xpmiy6kwlxN7EXdQGPWyn2IHsfSaeqD0Q4OeBQ7r8dv6dA+w77zYH8KJkZdkI8ya1b85ZPPtTI2PeG97wpWtgjcT8wmQsfg6RHXXhRi5Y/F6i08fG8f6CWwWu92NLWW0luFHuEqgly0/jOHPBKe5uVXBszoVBnU3+bSFDOJGs=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1780935088; c=relaxed/simple;
+	bh=Zvo+f1ZSVqNgiIUI4BRRAmffKghL85/zNphanjUzYns=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=ZIgpT4OiSeJugBCpebbd/TjRsH0MrNrQDAzdbTSnIdH6W6z2znYMc3+OhYYCFi2pFPyi/xFWbQhqggHjQUsQblmBnKQZ1Q4SIKAq6i6D0O5iDdyQyrNdNTeVzlOjkDGrCkyQ8J+SWE0nWVic214dxC/mFxOcvEmmkazNWZYcwD0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=jbV2UoRb; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="fcTHiuoZ"
-Received: by mail-wm1-f53.google.com with SMTP id 5b1f17b1804b1-4891b4934ffso227685e9.0
-        for <linux-s390@vger.kernel.org>; Mon, 08 Jun 2026 09:04:49 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1780934688; cv=none;
-        d=google.com; s=arc-20240605;
-        b=ULOFMLlku7nQmJG3cz/vAfNZdfEd5IOgH3pXq0CeTcnvHmJ41m0XdzLeSa2hHYwcoM
-         piFDJDSuW1E4WBVXu+UM0pFX/GgagAKrV4fDhSjFgpzvzmcGgobCKjxdMe9pBDEbiqKu
-         vP4lo4JmhrKcG1pP1mGNb8WZeFkvHDmdK269bKaRVFpFRSjeSMck09OK5cC8XyU3zuuF
-         80dLcmwoWO94B5g+sGf82X4FHGhIkCWgwlHmfTw2vvRvzfu8bZerNmLJDYNYPrCorNhE
-         5iAIMEwbFuRVtMY99gMeusqX4xAfPcQ4uO1WHtaXG7dR7is/fdNfPfsVtZfzQ6kDu48U
-         Z4lg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=CDdhbWCx9VsAlPpkbZ7T/pVekmt8/mWg3u3kSPoOV2c=;
-        fh=RyJYGtXMivuL22W834ULjv5uO0ihFfK+BgvKFRn+HPQ=;
-        b=FSKH8WHxf5uDNzC0FWllBsBKbE1bj7ItyWk82iehIhgXbtFwXa6fTeYbH8uNErFMAN
-         kVVgG8snAjzUODkUqRQouqMTqjLXeY+rue7CxW20T/AUVni1Co3XSwqfWvjEkQA7H1ng
-         xscH0jAveO+r8LqqsIKeezpH274fT6sKLaVbIZXxcaE/VPeevPWVvwV9/BLzo+ODCv0h
-         yUkqLMKi7R05OX5ooOIuSluhp1oRdfZCHplImYOxIdXnPWuC3ZiHn7G6o6DiLWWhuifi
-         aJzBt73gtZTgfFb84i6RK5j7cblnX8tFtl9txA3MFhNL7SIESSD4Wfk8xrITRVw63Vak
-         7eHA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1780934688; x=1781539488; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=CDdhbWCx9VsAlPpkbZ7T/pVekmt8/mWg3u3kSPoOV2c=;
-        b=fcTHiuoZM/HzqVrsfTVcruUqqoDAGoZcNMOp0l2L5cn/1oJfG0LU0pMIY5GXRVKFCb
-         mUxWdmRlt7q3favv1wdHOm8qivQ+uBFnDjUqHGo0qWgkSoFFyptBGP4GPSQ6wNcFdWOG
-         zxV8QCQyyplwuBsBRHsJ+HZtwWTzvfMh7P6P6b0Dtq6Klhlj/29+GXXs91iP9eFeRAGe
-         bha6Wslr8feUvcargoVV4JKXCiyHoX+u3oyxflqfQlBDvHfdQVCpB0mscwDzSBN8ontd
-         dR/AufSqrThIxpxBgzkgzUSH2Sc0KwOp9ZwzE5DPXt2OYW+lnredLfguzhhHDJerwmhy
-         KYDQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780934688; x=1781539488;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=CDdhbWCx9VsAlPpkbZ7T/pVekmt8/mWg3u3kSPoOV2c=;
-        b=rXq0gq6qxFxFefWP/a/CcHNxocTz2GJ5hSp6xGPfSkrHSThwcSYtbEIxBh2Ccsx8AE
-         7nRG6hfecEx82AqTV3y8xLmy82fVEFvg15ShFt0zzMihUwg16tAcC005dwIB1wHhNMdw
-         x+lYgMsRZ6gdSfpaLBtQOc3hZcGcEum0/JfClfU9FBMIVogu9CPPzmos+bCAmkdteX7n
-         aZlLZL6TlC9X0wmQGZFD4v2Ffos/xYcbHpkXtRG13EupJOivAZ6UHnL9yNSH0rtua8Re
-         mvbBLK7d1htKjlSZbyFxGbheOuUm6A9W7AdBPFawyB6o6uZnu5cNZUqGwDTh+glQPXGK
-         Bd7A==
-X-Forwarded-Encrypted: i=1; AFNElJ9pyHol/Q2gOHY+uYPY/TNNHQ7bCwkah9PaCPTSCbDn118xqacSDIcEVZfcF5IrCnzrfLZgMdi+0Ch4@vger.kernel.org
-X-Gm-Message-State: AOJu0YwqcB6lqsVbOJiooaIrD7LFm0XbIVfe1pkePRlwel62OaLQ0GeH
-	sTc/q+fUgPOeztJ98+zcnz74fCcQrJyIXYnSgg1TCzMgmRPgyqFpJeJHmaT/tt5k9ETjwJ7AKcz
-	QhIf2Lk+LiaL1xUyKHjKjUlL6RSxK4s9bDLaZIf/P
-X-Gm-Gg: Acq92OFGDJzNZvoiE1OpeGgwMQ/oaPqZV5lrID7oMNfcK6qky0nPPg6nASKM98EIfJi
-	XfU80Z0urrJlDga3epFOOcuiOM4uQ9UFfq082cMBXYM6sg8Ser/chRa/28IBy+akSWVuh4AXIn9
-	mVPjYXNjHa/zj79QZWmGA9hBgacPoKlgNwUORoBXEuT5JWisZTmkc7AhhxR/0CeoRIooemQRkqt
-	Fp+FLkW5eem0PEaVsp7/DycvqsThcMbmA8/Aq/afClzwWKIH+z9eQ0bvkhQtOMzhRpyyriLlz4L
-	Z8tjzMZpdXJrIYfcBLjoxVGS7Tp5TW8qnrXbjzATZK0tQuhX
-X-Received: by 2002:a05:600c:3495:b0:490:b0f1:3422 with SMTP id
- 5b1f17b1804b1-490c2ca21f1mr5078185e9.10.1780934688036; Mon, 08 Jun 2026
- 09:04:48 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="jbV2UoRb"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 658AJA7H2240271;
+	Mon, 8 Jun 2026 16:11:18 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=wkBOABf1SALZVGZR/nj+fZqmKCLgOC
+	42UzYaER99zik=; b=jbV2UoRbFObag/5Iq+jNjr5KsHOuryRvM+jA9qZ96Z3gPh
+	bgEQGWHXoFCgB5okcD1RmM5Hpufh/e6OqA2EROZjR3CCabhKxKzHHt+BJY+WSbi/
+	42QROQseoONGOOmNtzz+4sXt+MIZ8aV0egj4Xa1FVEFThTwMhPCPjbHkjtCPm3wG
+	I7L3+94qy2HgmIRMZ/Y4ofEAe/nceyimV1DjCFFoI98PkA3Lz2wORPis60RaV48H
+	fNKOgFJ+9vsbkiZW2aDPi5umXLyv3kRGX5X0AvBYpZjlI2OyudX6g2dUReF9pYmK
+	nvJa0tqgcHCudYZ8RmWWBpJN2cgz7PMW8kobou8w==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4emb7qg5e3-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 08 Jun 2026 16:11:18 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 658G4gbm000504;
+	Mon, 8 Jun 2026 16:11:17 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4en0jy5uar-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 08 Jun 2026 16:11:17 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 658GBDPX16777550
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 8 Jun 2026 16:11:13 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8ACC320043;
+	Mon,  8 Jun 2026 16:11:13 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 5E37920040;
+	Mon,  8 Jun 2026 16:11:13 +0000 (GMT)
+Received: from tuxmaker.linux.ibm.com (unknown [9.87.85.9])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Mon,  8 Jun 2026 16:11:13 +0000 (GMT)
+From: Sven Schnelle <svens@linux.ibm.com>
+To: Heiko Carstens <hca@linux.ibm.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
+        Vasily Gorbik
+ <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Massimiliano Pellizzer <massimiliano.pellizzer@canonical.com>,
+        Peter
+ Zijlstra <peterz@infradead.org>, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: Re: [PATCH] s390: Remove GENERIC_LOCKBREAK Kconfig option
+In-Reply-To: <20260605153206.2397521-1-hca@linux.ibm.com>
+References: <20260605153206.2397521-1-hca@linux.ibm.com>
+Date: Mon, 08 Jun 2026 18:11:05 +0200
+Message-ID: <yt9dldcpt3l2.fsf@linux.ibm.com>
+User-Agent: Gnus/5.13 (Gnus v5.13)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260522225853.878411-1-tjmercier@google.com> <ahPqbfH54R3JJyaV@infradead.org>
- <20260527160716.GN2487554@ziepe.ca> <20260604-dangerous-tuatara-of-sympathy-28e05e@houat>
- <CAO_48GEJsg4X7++zg-ztQgVibY_FjjManaA5_W3usjicGUQPdg@mail.gmail.com>
- <20260604135712.GV2487554@ziepe.ca> <CAO_48GH3NP09U6TdB5drbKY0TpwvtBXwrf=Jajsr5ttNbC_u9g@mail.gmail.com>
- <20260608152743.GD2764304@ziepe.ca>
-In-Reply-To: <20260608152743.GD2764304@ziepe.ca>
-From: "T.J. Mercier" <tjmercier@google.com>
-Date: Mon, 8 Jun 2026 09:04:35 -0700
-X-Gm-Features: AVVi8CdkX2dlLd8iv_kbStMI93TXdDT01BqcU1-TGKHekXSJtH26ENHtm_IhVVA
-Message-ID: <CABdmKX18EXsL48Cv1Kxrp0g6bVndZfU9b5pfeGgQyvMREk5PSA@mail.gmail.com>
-Subject: Re: [PATCH] powerpc: Export set_memory_encrypted and set_memory_decrypted
-To: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: Sumit Semwal <sumit.semwal@linaro.org>, Jiri Pirko <jiri@resnulli.us>, 
-	Maxime Ripard <mripard@kernel.org>, Christoph Hellwig <hch@infradead.org>, maddy@linux.ibm.com, 
-	mpe@ellerman.id.au, npiggin@gmail.com, chleroy@kernel.org, 
-	linuxppc-dev@lists.ozlabs.org, lkp@intel.com, linux-kernel@vger.kernel.org, 
-	iommu@lists.linux.dev, linux-mm@kvack.org, agordeev@linux.ibm.com, 
-	gerald.schaefer@linux.ibm.com, linux-s390@vger.kernel.org, 
-	Dan Williams <djbw@kernel.org>, Tom Lendacky <thomas.lendacky@amd.com>, x86@kernel.org, 
-	Arnd Bergmann <arnd@linaro.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=HppG3UTS c=1 sm=1 tr=0 ts=6a26e9a6 cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8 a=VwQbUJbxAAAA:8 a=DfNHnWVPAAAA:8
+ a=otxGPKif3PPhFqwVwwAA:9 a=rjTVMONInIDnV1a_A2c_:22
+X-Proofpoint-GUID: M_JFT91W1Xzo7FlsQk-vTceUo04n7BP2
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjA4MDE1MyBTYWx0ZWRfX/IulBOrD5/Mu
+ zyBU3rklXHN3JVbBkbpkDt5CwdHaJX8n2k9a8+PNclNJ5L95GwTExRZcMSY0nQ+YtTyG6F0rQtb
+ bldHkbfBuccongR0u8XOaWigx+UzhXByRfiBKTWnJoTYSQESTPRahci+BZVwYbvQ52WoGi67Rje
+ 3vSp5/SVfRqv+WlPvfxI1rV8rYh+U6GA8r+OnEZyIlEOiznDKyrlljXaEUzmdSrR8QvwqZCnXuR
+ lqcSYC++9iKGUz2+rWdb1Z5EEpKPngO1Kq5xs50UrWi7oFK2hZHhr+B3HtLo/QdjmHK9WzEG+Hm
+ 3k8mf2KjWCdjTbq0p++sZaQDGyU82CMNtE377BjKR8YM5idLsUQ1gTU4jaUs3Pj6E0Pb7lycyRl
+ RvuYoESuaXijxiFO9upnYHlsAf7RNAEUWISxanQF+k1+ELCAiLzwXZJ+G6ZAQXs2J0Fq4DXUsMU
+ UtTFK3n1HTmo/xp2eZg==
+X-Proofpoint-ORIG-GUID: M_JFT91W1Xzo7FlsQk-vTceUo04n7BP2
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
+ definitions=2026-06-08_04,2026-06-05_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ lowpriorityscore=0 adultscore=0 phishscore=0 malwarescore=0 impostorscore=0
+ priorityscore=1501 clxscore=1011 bulkscore=0 spamscore=0 suspectscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2605210000 definitions=main-2606080153
 
-On Mon, Jun 8, 2026 at 8:27=E2=80=AFAM Jason Gunthorpe <jgg@ziepe.ca> wrote=
-:
->
-> On Mon, Jun 08, 2026 at 08:47:15PM +0530, Sumit Semwal wrote:
-> > Hi Jason,
-> >
-> > On Thu, 4 Jun 2026 at 19:27, Jason Gunthorpe <jgg@ziepe.ca> wrote:
-> > >
-> > > On Thu, Jun 04, 2026 at 12:51:49PM +0530, Sumit Semwal wrote:
-> > >
-> > > > Given that Christoph's objection is not really about the modules pa=
-rt,
-> > > > but that the set_memory_{encrypted,decrypted} should not be used he=
-re,
-> > > > one option is to revert 78b30c50a7ac until that issue is sorted out=
-?
-> > >
-> > > Please no, we have stuff already using this so it would be a
-> > > functional regression. Revert making heaps into a module since that
-> > > doesn't have a functional regression.
-> >
-> > Thanks for your comments.
-> >
-> > To me, it looks like while system and system_cc_shared heaps share a
-> > lot of code, their user bases have different needs. It's apparent that
-> > system_cc_heap users don't care about it being a module while system
-> > heap users would very much like so.
-> >
-> > I also discussed this with Arnd, and he suggested we could rearrange
-> > the code so that system_heap_cc_shared_priv depends on a new Kconfig
-> > symbol like
-> >
-> > config DMABUF_HEAPS_CC_SYSTEM
-> >         bool "DMA-BUF System Heap for memory encryption"
-> >         depends on ARCH_HAS_MEM_ENCRYPT && DMABUF_HEAPS_SYSTEM=3Dy
-> >
-> > This allows building both into the kernel or leave encryption choice
-> > up to the consumers of the system heap.
-> >
-> > If this is agreeable to everyone, I can post Arnd's patch.
->
-> Yeah, that's fine for me for now
->
-> Jason
+Heiko Carstens <hca@linux.ibm.com> writes:
 
-+1 SGTM
+> s390 selects GENERIC_LOCKBREAK if PREEMPT is enabled. Reason is a historic
+> 18 years old commit [1] which fixed a compile error for PREEMPT enabled
+> kernels. Back than only PREEMPT_NONE and PREEMPT_VOLUNTARY kernels were
+> considered to be important for s390. PREEMPT should "just work".
+>
+> However, since recently PREEMPT is always enabled [2], which also causes
+> GENERIC_LOCKBREAK to be always enabled. For some workloads this leads to
+> massive performance degradation; e.g. a simple kernel compile on machines
+> with many CPUs may take up to four times longer.
+>
+> To fix this just remove the GENERIC_LOCKBREAK from s390's Kconfig, since
+> the compile error from 18 years ago does not exist anymore.
+>
+> [1] commit b6b40c532a36 ("[S390] Define GENERIC_LOCKBREAK.")
+> [2] commit 7dadeaa6e851 ("sched: Further restrict the preemption modes")
+>
+> Cc: stable@vger.kernel.org
+> Reported-by: Massimiliano Pellizzer <massimiliano.pellizzer@canonical.com>
+> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+> ---
+>  arch/s390/Kconfig | 3 ---
+>  1 file changed, 3 deletions(-)
+>
+> diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+> index ecbcbb781e40..9921a3772bf7 100644
+> --- a/arch/s390/Kconfig
+> +++ b/arch/s390/Kconfig
+> @@ -29,9 +29,6 @@ config GENERIC_BUG
+>  config GENERIC_BUG_RELATIVE_POINTERS
+>  	def_bool y
+>  
+> -config GENERIC_LOCKBREAK
+> -	def_bool y if PREEMPTION
+> -
+>  config AUDIT_ARCH
+>  	def_bool y
 
-Thanks,
-T.J.
+Reviewed-by: Sven Schnelle <svens@linux.ibm.com>
