@@ -1,167 +1,155 @@
-Received: from LO3P265CU004.outbound.protection.outlook.com (mail-uksouthazon11020092.outbound.protection.outlook.com [52.101.196.92])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f53.google.com (mail-wm1-f53.google.com [209.85.128.53])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A68FD246781;
-	Mon,  8 Jun 2026 15:48:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.196.92
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F0AB3331221
+	for <linux-s390@vger.kernel.org>; Mon,  8 Jun 2026 16:04:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.128.53
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780933732; cv=fail; b=Zr/9oU+lrXmVcg60yzPoqXlCUDYhufQtQl6TEgZqrBe8E8T+Phcwcwwxg1DLYAZRIThyx+/UpHaVws6oOjSNm4dv6YMFuMclCpf4aTBUvQqwvoiymH2lnIi7MK2hyHKofuvLivWs+oxxb6R44nuhOCCYyTISFKHxY2aM3sNE9wI=
+	t=1780934691; cv=pass; b=GVKthS4hRv8X/N78CYfov53cWrvaeiWlj3b/IN5ETd5/HtefJHmuI4NRSrza8TaSE24fLEfaiUieDQ0Pkgu+zxo4JZE+ylNewqGFnazsZpQHCAPoY0Bmm/E1qNeBmocEPC8q4uTLHDtj3etkI5AdAJPvxHvLqn6oWtiYg111jm0=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780933732; c=relaxed/simple;
-	bh=NS6VKPzmpkotXRq/m7y+Lq3TW+aKIu0d7O5X2uUHtGw=;
-	h=Content-Type:Date:Message-Id:To:Cc:Subject:From:References:
-	 In-Reply-To:MIME-Version; b=EwAwVI75qckJXMwx8W78PahJ/adlqn6w9Llw/PaLeiR/B0P+dQomdEeXkFcGnB9ot768/1DfmK8sRoRaQZzE3M2U6b+9lcYq8c0mS+CGM215jSHlt8Iu/qR1/oRh04ldJ0LQNP+/te1SXfN2p0/X5pFWqYCUrJDPAKbBfwu5qhA=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=garyguo.net; spf=pass smtp.mailfrom=garyguo.net; dkim=pass (1024-bit key) header.d=garyguo.net header.i=@garyguo.net header.b=TscPS6Y1; arc=fail smtp.client-ip=52.101.196.92
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=garyguo.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=garyguo.net
+	s=arc-20240116; t=1780934691; c=relaxed/simple;
+	bh=itDKg5VHTo1QlVDvtR/ptqkY/rb9iX9OeM5STd1MO0s=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=bdMjpOcJesz6rma+PZRzht+PkSE/iwqNWecb+X1qsIPBur5L2ntMQ0U7GCpMsJyG5QEZ1cL2Hitft0LXFmr4GafHeoWio1D81sCJLwWoAu5AgyHYR4Srb56QP4WrjJsjX4CstGqqfdv8qgB3FVHDKsYi85PNLIJEg6bI7e+1h/o=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=fcTHiuoZ; arc=pass smtp.client-ip=209.85.128.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=garyguo.net header.i=@garyguo.net header.b="TscPS6Y1"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=ZDLzBSRbx2F0yLIYMgGvunoesri/QNbn8e4EBuSVMjWpy+g3wBjpU58ncw2awqcUZrLYj4TVEA/NvKl9qVKfLk+R/C9em7ebGM27mEF9N/MpXKnkFpqv0e8SQ1r+2mT9tBTIMCgnL1Z+bL6dhjDewj4ao7gxQoC2FNsmdgHyNGGPIyaqJKS7J6egL7clyz9lxovUvbFjuC86/HC6IJQ6iglAZC9cSaz3/N3iWTgIc/RFV/gfDTxlTQzWVeXB2OM4xWnsiST+VdlprMTHRIyZU6drRl4Pl+GG9oYIWO4UYU38ato3qqslI1KOmSFaCndlR7aZ72HxucZOp5vsClUOjA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=iJMLGAeGh7zYaEBCJ+xxZmSUh2SghSYT2vyukyeb/SI=;
- b=JGJKbZfSLc5xGkScS/oTQyWQQFuEA2kEItO/2Gh04mdZbGy4mHYMqGCCR0r1QGXC8cLtcE8Ib/Gec4FL6v5ztS4baWfsPIAAo3n6oXYCghN+sEeHhwUwuL+6dR+UUaw6X9YrDLZQ5NO027XJO9U6G7qV7LCCXo512RxS861FAPaXkNhDgWuNSQFdd0vidxeyl02+XrveLRIXn7YmcnrdmaA1ZIdyrWjOe9oFtIACdWQTxeHu4vvI8yGdBVdEhgKlaN0Nro6xEj9lMmssM44I6Wardu5HwFL2MYy+LmRmHFaRissDMarLoihkd0y7HnUfcCUljekweavIw4rNk1s5hQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=garyguo.net; dmarc=pass action=none header.from=garyguo.net;
- dkim=pass header.d=garyguo.net; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=garyguo.net;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=iJMLGAeGh7zYaEBCJ+xxZmSUh2SghSYT2vyukyeb/SI=;
- b=TscPS6Y1CS1Nu8K2vxd+0GpYE/RNoA9fLV87sgP6SeCUykgYPw92mu6YNuA6Yszno1qEj9zMNeOVolkUkjYBPms6NakFUGBFpR6XWMpdO8WbqvScYzv5KgWXHLa7kJDRno4TTG5/yyjSYBOGoPnxgPNMEb/kZ13f/K+o3HlUL0k=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=garyguo.net;
-Received: from LOVP265MB8871.GBRP265.PROD.OUTLOOK.COM (2603:10a6:600:488::16)
- by CW1P265MB8768.GBRP265.PROD.OUTLOOK.COM (2603:10a6:400:27a::9) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.92.13; Mon, 8 Jun 2026
- 15:48:46 +0000
-Received: from LOVP265MB8871.GBRP265.PROD.OUTLOOK.COM
- ([fe80::1c3:ceba:21b4:9986]) by LOVP265MB8871.GBRP265.PROD.OUTLOOK.COM
- ([fe80::1c3:ceba:21b4:9986%4]) with mapi id 15.21.0092.011; Mon, 8 Jun 2026
- 15:48:46 +0000
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Mon, 08 Jun 2026 16:48:45 +0100
-Message-Id: <DJ3SBEPW21J5.2GMLCYBAKF7PW@garyguo.net>
-To: "Alexander Gordeev" <agordeev@linux.ibm.com>, "Heiko Carstens"
- <hca@linux.ibm.com>
-Cc: "Jan Polensky" <japo@linux.ibm.com>, <gor@linux.ibm.com>,
- <ojeda@kernel.org>, <peterz@infradead.org>, <jpoimboe@kernel.org>,
- <jbaron@akamai.com>, <aliceryhl@google.com>, <borntraeger@linux.ibm.com>,
- <svens@linux.ibm.com>, <boqun@kernel.org>, <gary@garyguo.net>,
- <bjorn3_gh@protonmail.com>, <lossin@kernel.org>, <a.hindborg@kernel.org>,
- <tmgross@umich.edu>, <dakr@kernel.org>, <rostedt@goodmis.org>,
- <ardb@kernel.org>, <linux-s390@vger.kernel.org>,
- <rust-for-linux@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v5 0/6] s390: Enable Rust support and add required arch
- glue
-From: "Gary Guo" <gary@garyguo.net>
-X-Mailer: aerc 0.21.0
-References: <20260601174625.2910233-1-japo@linux.ibm.com>
- <20260608142122.34400J00-hca@linux.ibm.com>
- <8f3c0ffc-adc3-493f-8347-9e7579f3cf99-agordeev@linux.ibm.com>
-In-Reply-To: <8f3c0ffc-adc3-493f-8347-9e7579f3cf99-agordeev@linux.ibm.com>
-X-ClientProxiedBy: LO3P123CA0028.GBRP123.PROD.OUTLOOK.COM
- (2603:10a6:600:388::20) To LOVP265MB8871.GBRP265.PROD.OUTLOOK.COM
- (2603:10a6:600:488::16)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="fcTHiuoZ"
+Received: by mail-wm1-f53.google.com with SMTP id 5b1f17b1804b1-4891b4934ffso227685e9.0
+        for <linux-s390@vger.kernel.org>; Mon, 08 Jun 2026 09:04:49 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1780934688; cv=none;
+        d=google.com; s=arc-20240605;
+        b=ULOFMLlku7nQmJG3cz/vAfNZdfEd5IOgH3pXq0CeTcnvHmJ41m0XdzLeSa2hHYwcoM
+         piFDJDSuW1E4WBVXu+UM0pFX/GgagAKrV4fDhSjFgpzvzmcGgobCKjxdMe9pBDEbiqKu
+         vP4lo4JmhrKcG1pP1mGNb8WZeFkvHDmdK269bKaRVFpFRSjeSMck09OK5cC8XyU3zuuF
+         80dLcmwoWO94B5g+sGf82X4FHGhIkCWgwlHmfTw2vvRvzfu8bZerNmLJDYNYPrCorNhE
+         5iAIMEwbFuRVtMY99gMeusqX4xAfPcQ4uO1WHtaXG7dR7is/fdNfPfsVtZfzQ6kDu48U
+         Z4lg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=CDdhbWCx9VsAlPpkbZ7T/pVekmt8/mWg3u3kSPoOV2c=;
+        fh=RyJYGtXMivuL22W834ULjv5uO0ihFfK+BgvKFRn+HPQ=;
+        b=FSKH8WHxf5uDNzC0FWllBsBKbE1bj7ItyWk82iehIhgXbtFwXa6fTeYbH8uNErFMAN
+         kVVgG8snAjzUODkUqRQouqMTqjLXeY+rue7CxW20T/AUVni1Co3XSwqfWvjEkQA7H1ng
+         xscH0jAveO+r8LqqsIKeezpH274fT6sKLaVbIZXxcaE/VPeevPWVvwV9/BLzo+ODCv0h
+         yUkqLMKi7R05OX5ooOIuSluhp1oRdfZCHplImYOxIdXnPWuC3ZiHn7G6o6DiLWWhuifi
+         aJzBt73gtZTgfFb84i6RK5j7cblnX8tFtl9txA3MFhNL7SIESSD4Wfk8xrITRVw63Vak
+         7eHA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20251104; t=1780934688; x=1781539488; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=CDdhbWCx9VsAlPpkbZ7T/pVekmt8/mWg3u3kSPoOV2c=;
+        b=fcTHiuoZM/HzqVrsfTVcruUqqoDAGoZcNMOp0l2L5cn/1oJfG0LU0pMIY5GXRVKFCb
+         mUxWdmRlt7q3favv1wdHOm8qivQ+uBFnDjUqHGo0qWgkSoFFyptBGP4GPSQ6wNcFdWOG
+         zxV8QCQyyplwuBsBRHsJ+HZtwWTzvfMh7P6P6b0Dtq6Klhlj/29+GXXs91iP9eFeRAGe
+         bha6Wslr8feUvcargoVV4JKXCiyHoX+u3oyxflqfQlBDvHfdQVCpB0mscwDzSBN8ontd
+         dR/AufSqrThIxpxBgzkgzUSH2Sc0KwOp9ZwzE5DPXt2OYW+lnredLfguzhhHDJerwmhy
+         KYDQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1780934688; x=1781539488;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=CDdhbWCx9VsAlPpkbZ7T/pVekmt8/mWg3u3kSPoOV2c=;
+        b=rXq0gq6qxFxFefWP/a/CcHNxocTz2GJ5hSp6xGPfSkrHSThwcSYtbEIxBh2Ccsx8AE
+         7nRG6hfecEx82AqTV3y8xLmy82fVEFvg15ShFt0zzMihUwg16tAcC005dwIB1wHhNMdw
+         x+lYgMsRZ6gdSfpaLBtQOc3hZcGcEum0/JfClfU9FBMIVogu9CPPzmos+bCAmkdteX7n
+         aZlLZL6TlC9X0wmQGZFD4v2Ffos/xYcbHpkXtRG13EupJOivAZ6UHnL9yNSH0rtua8Re
+         mvbBLK7d1htKjlSZbyFxGbheOuUm6A9W7AdBPFawyB6o6uZnu5cNZUqGwDTh+glQPXGK
+         Bd7A==
+X-Forwarded-Encrypted: i=1; AFNElJ9pyHol/Q2gOHY+uYPY/TNNHQ7bCwkah9PaCPTSCbDn118xqacSDIcEVZfcF5IrCnzrfLZgMdi+0Ch4@vger.kernel.org
+X-Gm-Message-State: AOJu0YwqcB6lqsVbOJiooaIrD7LFm0XbIVfe1pkePRlwel62OaLQ0GeH
+	sTc/q+fUgPOeztJ98+zcnz74fCcQrJyIXYnSgg1TCzMgmRPgyqFpJeJHmaT/tt5k9ETjwJ7AKcz
+	QhIf2Lk+LiaL1xUyKHjKjUlL6RSxK4s9bDLaZIf/P
+X-Gm-Gg: Acq92OFGDJzNZvoiE1OpeGgwMQ/oaPqZV5lrID7oMNfcK6qky0nPPg6nASKM98EIfJi
+	XfU80Z0urrJlDga3epFOOcuiOM4uQ9UFfq082cMBXYM6sg8Ser/chRa/28IBy+akSWVuh4AXIn9
+	mVPjYXNjHa/zj79QZWmGA9hBgacPoKlgNwUORoBXEuT5JWisZTmkc7AhhxR/0CeoRIooemQRkqt
+	Fp+FLkW5eem0PEaVsp7/DycvqsThcMbmA8/Aq/afClzwWKIH+z9eQ0bvkhQtOMzhRpyyriLlz4L
+	Z8tjzMZpdXJrIYfcBLjoxVGS7Tp5TW8qnrXbjzATZK0tQuhX
+X-Received: by 2002:a05:600c:3495:b0:490:b0f1:3422 with SMTP id
+ 5b1f17b1804b1-490c2ca21f1mr5078185e9.10.1780934688036; Mon, 08 Jun 2026
+ 09:04:48 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: LOVP265MB8871:EE_|CW1P265MB8768:EE_
-X-MS-Office365-Filtering-Correlation-Id: 9833940a-bc5c-4950-9c98-08dec5756cb2
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|10070799003|366016|7416014|376014|1800799024|56012099006|4143699003|22082099003|18002099003;
-X-Microsoft-Antispam-Message-Info:
-	oOKSZdI2fe6UWsGPt0XlRYPMz5ZxMZnp8hzTh3OsMFh1e0RS7ZDckZrEmlT5MF5GDa44C8evprD7mKg+AlSQXFq6onPX50d/KL0HoWf4T+Pn2jWbZkdj2T6yRD3GG4MpxTUFqXbnJsWddz0gPMb1UL0FARD5s/9uA68aKFzVo2x999SzEvkqdi/MofGUgCZryY+M3BpBQ7mWsZZk0VoiW3ZJ0d8EI1HffmosYDeowTlA3xnj38c4qFmdxeWsKpg/cT6adT9M3CG5928Z5zIEIurghHZp2+3dWGMRcLjJb0rfUhtPoR2PScq2H2Ps0YRQglTf20LK8sY/NPAW0JeIpPB/F7CgKevqBlsO3tPAzKytZNz1XYVZ/OmJDxcjclekaxqO2IeYsoFvScxdTv/+m1lzHnlZNqdkmdgRefELTvVgT44PGhm4mDE+WdkfHm34DinTxpB3mfLkjnRQcngefPMUXOCJ+XnJo5uGL7hNzo3CLRg3o5E4PscyV4WaUBShNaELTwmwrmLBGyY7PumSN/0WHzCX1C+GhJT8AG2WuhCo6Vk4+FSC3Zy6DJR/HYpRx4RAsBNuAcm5XjjEJsvjDxmwMg9tqEsLVdrJwitXhFxAyWmOEzgI9v3jSbk1HC4WOxBCxQbB9HXM30OsB3a4ZQ==
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LOVP265MB8871.GBRP265.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(13230040)(10070799003)(366016)(7416014)(376014)(1800799024)(56012099006)(4143699003)(22082099003)(18002099003);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?RklZNE1IWjZsWkUrNC9UTmMrQ0o3b0U4SW9JdkhCc1VuZ25GTGFJQWs2T1pX?=
- =?utf-8?B?Q1JWMk14OXBmSThiKzRFcTBBN0FsNEY2YzNzMEJJOENwQk4xTzQ5cDR5eTZ3?=
- =?utf-8?B?SjkyZ05sbzdvL1Y2RW9RVmhoSjZDbTNJaU51c1V0cVFMdVlwSThLd0YrVzhV?=
- =?utf-8?B?VWxNVUt6OUZ4VHJsRTd5eE5yOTdWVitPSGxDQjhlWDA3dk1ITCs1Mk5UMld2?=
- =?utf-8?B?a1BUSHdJeGVxS1lKQTJNdlFWbktxZE5sdXhoVlhQcG9SUWdmT2hhVm1CeUZE?=
- =?utf-8?B?UDhGbjhaUm1zVDZ1UHczbU9vYlM5TDQrNDdqekQrR2E2S2x2T2xzNEZQdmZj?=
- =?utf-8?B?UHJieXh6NURsNE8wYURzSVlZc0dyWHFmblIvejFQcjJocHk2ZEp5enprU3Qw?=
- =?utf-8?B?Z0JvR1dFa0o4M0ZqWldvVlc3Y1hQSjJhRXpXRTBuY1p4RC91MER1bUl5YmlN?=
- =?utf-8?B?NUxNS1NubWZ6SWV5RFI3NkVWYzdhdjVGUWN6Y2lMa1lvckVCb3VXQ1JpQmRI?=
- =?utf-8?B?Ly9TN2hzTmVXNHBUemtiQnFkRlRrY2FBNENCblpoR0hydW1sWXc2YjBNVURq?=
- =?utf-8?B?VzBTN2YrcDhqa1BiZStpS0FUQ1ByQjZlUm9xZXlKaFlyNnFkZWEwNWFWVFJq?=
- =?utf-8?B?T3JBNGhrL294Z1pMSnkwcHFoRjZEWnRJcmh0Zys4WWo3UzkvTEUyUWFuUWp5?=
- =?utf-8?B?ejc1SlVJZWlxMm1VR2o1d3VaaXhGeCs4SXpnLzVJM1I1eFZqTkYvaFFkMC9B?=
- =?utf-8?B?NzBaU0x3aUY1bUFzdDNGM0xPQW9uTi9keHJqMnNXMndUL0NzQnl3YUZpa08z?=
- =?utf-8?B?cjJISmpXbWhuRDdLUFpiaUpzejR3YlhVa1FmSzJDSnBJbSsvaUtMMmdVNHh4?=
- =?utf-8?B?ZDdieTE5ZFkvOXBLbThUcmttMUViN1pMRTZEVGZ6ZDE1RTdjZmpaMmdJMmtw?=
- =?utf-8?B?RXNCYXJmbTMrNytTbjVaZVdNSWhRZXM3TXFXaWdDQnlwVFdlYmZBTFE3aFJo?=
- =?utf-8?B?dnVRSS94MnQrWDFMZGI5Q3AwdEhYTDNFbzBMeXRTUy9RM3NMVDlVazR4VUsy?=
- =?utf-8?B?bmJjVFNmaEE4akl6aGZVOVlJajFoYndzblZFdmZRemtUUVQ4dzVBblBlSzJn?=
- =?utf-8?B?NGJkWmcxQnJsdXlkTFdJZ2NVWDdDZ3JGMWtqZkdnb2phOHplRzlVQ0NkdzlJ?=
- =?utf-8?B?SmNzTFEwZCtUN25RUVFvdmVXbTAvY09kTnJBZW5rVHFTZ3BFUENkWVpGMzVj?=
- =?utf-8?B?K3hDWXdGTytndyt5VGpLMmM4dkJOdlEzaDJPY0h4R042cGhITGFWbUR3MkNz?=
- =?utf-8?B?aTJEaTF2NFRNaDMxWGJhYVpuMUVSNHE0OHdybWpyYnA0dWtSVFJBSGJyY3Jm?=
- =?utf-8?B?d29tQnVKKzNic0EvSVE3M0JEZm95UDdJdUtnRjFCSWVwdnIwM3Q1SlRucTMv?=
- =?utf-8?B?alVsL0ZhMVB4RHdlWlhEbG9ya1BzZDJUSS81M2hzaFhiSVcxVFZteGoyS2Vr?=
- =?utf-8?B?Mi9EK2pLdHdJRCtoQWQrZ2JVQk9sdzF2YjZmczlaWFlGYXRDSTFUbjJYekNk?=
- =?utf-8?B?bU01dnl4RVRFZnBQY3pKUDFvOVQzQ2tCM0dwWk9yYi82bUdZZlJQVUhHdm42?=
- =?utf-8?B?Ymk4Z2hPZkQ3WFBzZlQxOVRxU1c3YjNzaHdUZ0NjSERlSGM5MHU2MXZnSFk1?=
- =?utf-8?B?SDdZaU1oN29rZGJZL25jT3BVbDhMeitKcDUzeWN6OFBiTytSbTR4RXpRNFh5?=
- =?utf-8?B?RnlSaUY4SzJYbHY0eU4veS9kY3dqNXZETWZYNVF0YlhnVjh3ek5ZQjc1TXhv?=
- =?utf-8?B?enVDY0xtK3dXUnBOaktWWlVGM2RCcmxjNUJIWm94K1NpUlNaeVg5MmxndXZn?=
- =?utf-8?B?OGR6ZVY3N2Znei9QVTAwbmhGaUxGMENtUVpJc0p6eVdxb09QRFVnK3hLU3Ns?=
- =?utf-8?B?MTJSTFN2endGems1bEhXeUR6cURRL3VQaDcyNUgwQWluRHZwTzdOQXpUTXZB?=
- =?utf-8?B?QXFaQWdmdUxZWFRRSk1wQ3BIQjkzbWFFTU9zNFV6K1ZmUmVUK2tRMFhkTE1m?=
- =?utf-8?B?U0xtYUI0T2FiL0VFNWcvMThkem9YaXBMWWFVQkdHWVVDS2RtbS9lSzJlOUhK?=
- =?utf-8?B?Ukh3WEwvTHJISURWcjRzenQ2cjFST0RobFlTWUhHbzdKenVLZEgxdi9kRno4?=
- =?utf-8?B?S3pPZzBFOHIzcGlobmpyUWo2M2hqSmRvMXNzWFB2NURCcTNBY2JvMnBQMm5p?=
- =?utf-8?B?Ykg2blA4NHlpOFcyNkc3QjJvYjJwNW9Db2VXL0IzSDl4UUJEMnQ4L3NrSnNS?=
- =?utf-8?B?YnN4TEFxOWVxQlJDQmNMdEVmejVyQ0gyUzN1TnRQZi82M29sTWtEUT09?=
-X-OriginatorOrg: garyguo.net
-X-MS-Exchange-CrossTenant-Network-Message-Id: 9833940a-bc5c-4950-9c98-08dec5756cb2
-X-MS-Exchange-CrossTenant-AuthSource: LOVP265MB8871.GBRP265.PROD.OUTLOOK.COM
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 08 Jun 2026 15:48:46.0049
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: bbc898ad-b10f-4e10-8552-d9377b823d45
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: sZ/wP4dzHWrD79+UVRHFRHZZL4Fno1hVGJAY3BgKp48U8kXM5oMC5Cf0Q7uQpZg8imYqJI0nfH6iWsXwe0ipqw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CW1P265MB8768
+References: <20260522225853.878411-1-tjmercier@google.com> <ahPqbfH54R3JJyaV@infradead.org>
+ <20260527160716.GN2487554@ziepe.ca> <20260604-dangerous-tuatara-of-sympathy-28e05e@houat>
+ <CAO_48GEJsg4X7++zg-ztQgVibY_FjjManaA5_W3usjicGUQPdg@mail.gmail.com>
+ <20260604135712.GV2487554@ziepe.ca> <CAO_48GH3NP09U6TdB5drbKY0TpwvtBXwrf=Jajsr5ttNbC_u9g@mail.gmail.com>
+ <20260608152743.GD2764304@ziepe.ca>
+In-Reply-To: <20260608152743.GD2764304@ziepe.ca>
+From: "T.J. Mercier" <tjmercier@google.com>
+Date: Mon, 8 Jun 2026 09:04:35 -0700
+X-Gm-Features: AVVi8CdkX2dlLd8iv_kbStMI93TXdDT01BqcU1-TGKHekXSJtH26ENHtm_IhVVA
+Message-ID: <CABdmKX18EXsL48Cv1Kxrp0g6bVndZfU9b5pfeGgQyvMREk5PSA@mail.gmail.com>
+Subject: Re: [PATCH] powerpc: Export set_memory_encrypted and set_memory_decrypted
+To: Jason Gunthorpe <jgg@ziepe.ca>
+Cc: Sumit Semwal <sumit.semwal@linaro.org>, Jiri Pirko <jiri@resnulli.us>, 
+	Maxime Ripard <mripard@kernel.org>, Christoph Hellwig <hch@infradead.org>, maddy@linux.ibm.com, 
+	mpe@ellerman.id.au, npiggin@gmail.com, chleroy@kernel.org, 
+	linuxppc-dev@lists.ozlabs.org, lkp@intel.com, linux-kernel@vger.kernel.org, 
+	iommu@lists.linux.dev, linux-mm@kvack.org, agordeev@linux.ibm.com, 
+	gerald.schaefer@linux.ibm.com, linux-s390@vger.kernel.org, 
+	Dan Williams <djbw@kernel.org>, Tom Lendacky <thomas.lendacky@amd.com>, x86@kernel.org, 
+	Arnd Bergmann <arnd@linaro.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Mon Jun 8, 2026 at 3:36 PM BST, Alexander Gordeev wrote:
-> On Mon, Jun 08, 2026 at 04:21:22PM +0200, Heiko Carstens wrote:
->> I guess Alexander will pick this up and route this via s390.
+On Mon, Jun 8, 2026 at 8:27=E2=80=AFAM Jason Gunthorpe <jgg@ziepe.ca> wrote=
+:
 >
-> Yes, I applied and scheduled it for -rc7.
+> On Mon, Jun 08, 2026 at 08:47:15PM +0530, Sumit Semwal wrote:
+> > Hi Jason,
+> >
+> > On Thu, 4 Jun 2026 at 19:27, Jason Gunthorpe <jgg@ziepe.ca> wrote:
+> > >
+> > > On Thu, Jun 04, 2026 at 12:51:49PM +0530, Sumit Semwal wrote:
+> > >
+> > > > Given that Christoph's objection is not really about the modules pa=
+rt,
+> > > > but that the set_memory_{encrypted,decrypted} should not be used he=
+re,
+> > > > one option is to revert 78b30c50a7ac until that issue is sorted out=
+?
+> > >
+> > > Please no, we have stuff already using this so it would be a
+> > > functional regression. Revert making heaps into a module since that
+> > > doesn't have a functional regression.
+> >
+> > Thanks for your comments.
+> >
+> > To me, it looks like while system and system_cc_shared heaps share a
+> > lot of code, their user bases have different needs. It's apparent that
+> > system_cc_heap users don't care about it being a module while system
+> > heap users would very much like so.
+> >
+> > I also discussed this with Arnd, and he suggested we could rearrange
+> > the code so that system_heap_cc_shared_priv depends on a new Kconfig
+> > symbol like
+> >
+> > config DMABUF_HEAPS_CC_SYSTEM
+> >         bool "DMA-BUF System Heap for memory encryption"
+> >         depends on ARCH_HAS_MEM_ENCRYPT && DMABUF_HEAPS_SYSTEM=3Dy
+> >
+> > This allows building both into the kernel or leave encryption choice
+> > up to the consumers of the system heap.
+> >
+> > If this is agreeable to everyone, I can post Arnd's patch.
 >
-> Two new files fall under the Rust maintainers scope:
+> Yeah, that's fine for me for now
 >
->  rust/helpers/helpers.c | 1 +
->  rust/helpers/string.c  | 8 ++++++++
->
-> Please, let me know if someone is against it.
-> Otherwise, an ack would be ideal ;)
+> Jason
 
-Thes string.c is missing __rust_helper and it is also missing a trailing
-newline.
++1 SGTM
 
-Sashiko's report is accurate here:
-https://sashiko.dev/#/patchset/20260601174625.2910233-1-japo%40linux.ibm.co=
-m?part=3D4
-
-Best,
-Gary
-
->
-> Thanks!
-
-
+Thanks,
+T.J.
