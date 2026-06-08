@@ -1,119 +1,142 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f46.google.com (mail-ej1-f46.google.com [209.85.218.46])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E0BE23B638;
-	Mon,  8 Jun 2026 14:36:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780929414; cv=none; b=oJWzh7cDJhSil48gfwAWzJYETJrs+OuUob0Nrn9hP3bKLm2ji3QIbWkrtqOJgCFqsVds8U4L+KT4+Xpb8dlkNYRTMGGtSnE9sBF2Rqwtq5EdbQy3cjQBtJ5aDD5KnIaBr45MwZLnRIlbEy+FXk2M1aoM7YbFmqV0WGTshx/80Zc=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780929414; c=relaxed/simple;
-	bh=CsOSwVJoO+IU+PSkRq2oCO8fb85fXC0x4Xyf7QP74cA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=JMACQvwGkP29glwbA9WhlylpCF3J+fgcKRmVot97/eApZjj6Sbf87tm8twJTKz15Z8uuUg72Xgi7yOgZPljYywPO4m33iz0bPXuoO4qG0dUffAF/4NOPVCW7ShiU3VwMsnRwaH6vroLpS2DQZ7naPzVfNJooH0j8DNsD7k+VZrg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=RXwwG8MJ; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4B4723ED5DC
+	for <linux-s390@vger.kernel.org>; Mon,  8 Jun 2026 15:17:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.218.46
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1780931849; cv=pass; b=jecRqoNSCzl1uSK1rvX/jmmfM4dVvOyolZ4RY8/0p2MJO5d2YwOufbZcJgXIkHvdV5JvldBt+Q7A/v9730l7aetJLQ87N0oiOXPptrgSfjByDXshIiAWMQsW+7LpTot+DXrVNZHvlMmozsbiB+VytxwVzIpQfHGyGSZRTapn9tQ=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1780931849; c=relaxed/simple;
+	bh=xNi8/se+D6WaUt0MaPlNhEUr89OFCgbXcuKuMyyUBIY=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=WHdvxYb12KkVRYO9mP/guHFnkZRW3SUYUT4o0cX/9wilqWJb4ioxNyM0EJDV57Ic26q8gQnMnuRAn+pkeX7kAkxyuby+Hdslx15FoJZ0BU6CJ0NvmJEnKeRgINF9MuU03vqWOuG83yVl3T3usFlfZPCcnqdLs5s2jKmyfEtg4zg=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=Vn7eEnVn; arc=pass smtp.client-ip=209.85.218.46
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="RXwwG8MJ"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 658A4g2K3640226;
-	Mon, 8 Jun 2026 14:36:36 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=DeTPW0tTRTvjdjFWIe76eFP91hibte
-	iSt+HlIVJgQmY=; b=RXwwG8MJ2rXG+Zb7P6/wLfvLz62C/zk8xscAs9f7zkj6cY
-	UjsIH2L/h6UmYOhs6v4vwVrFeNyn9UEsr/OgyxEkWsMGtIu3CZizNeYeptZBmyK1
-	2fcnsPUqcyEQb3LZ62Pw886EF0dJNFymugynov19PvP0rpi8S4olEt16wkQtH5ov
-	wlub7KqzjGwBwFjXjLiP3zBs5jp9CmuH72M2TSOnCyQb3OZlOHnjNEOyeWaUqXME
-	j/YdTCjg7YdT1WvDzI8Hyh9phSXgx3Dv6ZEU34j7t93w9gvTVG/Ix4lBv07WvCcK
-	xJgOVm7vpnItAWpQfU3sL8WzTfhTDfJGwyrcysVg==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4em9ydyrjd-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 08 Jun 2026 14:36:35 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 658EZMLN004741;
-	Mon, 8 Jun 2026 14:36:34 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4emxvjnpvt-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 08 Jun 2026 14:36:34 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 658EaVRp50594084
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 8 Jun 2026 14:36:31 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1C94820043;
-	Mon,  8 Jun 2026 14:36:31 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id CD74420040;
-	Mon,  8 Jun 2026 14:36:30 +0000 (GMT)
-Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.224.92.206])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Mon,  8 Jun 2026 14:36:30 +0000 (GMT)
-Date: Mon, 8 Jun 2026 16:36:29 +0200
-From: Alexander Gordeev <agordeev@linux.ibm.com>
-To: Heiko Carstens <hca@linux.ibm.com>
-Cc: Jan Polensky <japo@linux.ibm.com>, gor@linux.ibm.com, ojeda@kernel.org,
-        peterz@infradead.org, jpoimboe@kernel.org, jbaron@akamai.com,
-        aliceryhl@google.com, borntraeger@linux.ibm.com, svens@linux.ibm.com,
-        boqun@kernel.org, gary@garyguo.net, bjorn3_gh@protonmail.com,
-        lossin@kernel.org, a.hindborg@kernel.org, tmgross@umich.edu,
-        dakr@kernel.org, rostedt@goodmis.org, ardb@kernel.org,
-        linux-s390@vger.kernel.org, rust-for-linux@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v5 0/6] s390: Enable Rust support and add required arch
- glue
-Message-ID: <8f3c0ffc-adc3-493f-8347-9e7579f3cf99-agordeev@linux.ibm.com>
-References: <20260601174625.2910233-1-japo@linux.ibm.com>
- <20260608142122.34400J00-hca@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="Vn7eEnVn"
+Received: by mail-ej1-f46.google.com with SMTP id a640c23a62f3a-bec449d0af2so501460266b.2
+        for <linux-s390@vger.kernel.org>; Mon, 08 Jun 2026 08:17:28 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1780931847; cv=none;
+        d=google.com; s=arc-20240605;
+        b=h6mglmK/CC1WkNPdL6F9JdtxuLmHcf00NKUaNSzc7V8EImzY87rRcheZF5PYETEoSP
+         EoGJXmt2OHCtp+RCu0GTYao9pTi3v/GJ2wk1lT/DP1ThQinzZRDM8oX40xKJBO0EerrZ
+         eWF+ja1+ZxaS42fZKC7DibYo1oc7OI7eHGhmehcUPZbZoILax41x3cfgqHLRanuuNGnt
+         7BybJUNmk0Vn5ac0aZYVq188d3UxTLk/DUxqbLgUmCDFd45vPUcQSBv8OAgTfTVjPJHX
+         YPzw8Qe9cc30yG3JyMarDtxsGWnuP65Gunxbn4qbvL6HaUNbVfvxwXYrRoyr/XgaOAOl
+         85FQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:dkim-signature;
+        bh=yOZ7AW/TQxNVQJPSlsPWX5PMQzNffbEW+fgTz/Ammvw=;
+        fh=C51frMQiCNk93GbbVFpeJ1kWMlW4n4aT0VYuV818D2M=;
+        b=Jn1jZywTQAQWvlmM6EvgktpXnkOURRfEh4BRlNtZLyZnTrozqep4ki6+TnqZSwTQPr
+         10DNZWGtAtrEhkChVuHqq005jCKiCN3NXIZm7DOSvgOrwffCpmUwA2u5pLPNJTS7YqO3
+         9jXeV+9pZkWfOo37QFlgGeYQgvKC68VOBzDuRDAws1EcGqM7JL2Gwa8bGwJ4S/v7bJ7Z
+         dbmVHN1TC9fWq9fu5HyDf5rLz9Npi5fTnsyer4vAVUXnrfWzWHk2VArmctXVb9yhgIIi
+         4UnmJ0vaCP383ZLzdGLzQRbfFhufW7WvzbTWJoB7pqkCe/JyxeomH3XfyP6+QCo9uTWl
+         3FUA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1780931847; x=1781536647; darn=vger.kernel.org;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=yOZ7AW/TQxNVQJPSlsPWX5PMQzNffbEW+fgTz/Ammvw=;
+        b=Vn7eEnVnVtZ0oi18uN8Pawmer4RkEBn/0eLXuw46rhajkOqtuK/bzEOkGZyEalScb/
+         GzeB9Tyl5aFJKCXXZ87myiaS/U6eYHhCdSuHb38hUF5+oHnrfucIU0Dbcdi4a68fFgYC
+         Y+WUVEiO2cq+KHmuFOtwMCrJV7nF75n3KJ31wqbrcTXq02IRwCYGMu1NOeIxfYJGqx7J
+         cdwpPDno+Hh1ipVRipqT0S5xietArPB86sdkx0vl/HGkDEtJ2YGDk4SB1DMFOoDWygM9
+         mFm9OPiQytvGdcp/5LiEbVzZq6wAhdUuiNtPnuXJMdQoM9I6yLCmegYr8NcdbJdYsSDw
+         yxFA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1780931847; x=1781536647;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=yOZ7AW/TQxNVQJPSlsPWX5PMQzNffbEW+fgTz/Ammvw=;
+        b=CgzCyft+XThoEgJkkPpHn1MQMzzcSORv8Bwdm8TcQjb7JXku5n29wftlk0HtFaUlFM
+         ljBNYZSOLlf0OM8Kv87ghMz5bkmCH9zRYsnTcbNSd0m6py/+R/JBkX072h2qGLWlVlks
+         Wurbek1h3vUyaGlVmjKwHamCuNFEa5kutzqjSi00Nm0konmEJnODLWKOd3NjQOi1VZ88
+         Fe02mY8ERLUmLtQAgQYUAp8WW5o3EOnGU1YW5KCOUCiGKo5hexaKhe1uT/jJuoJTzzfh
+         cNZ6UWSnSiMvoL8TXerHs5azM8ylSeCVBvOV++wYfhgsR33mfuaYRmKxKQDuEwldkkvQ
+         264g==
+X-Forwarded-Encrypted: i=1; AFNElJ+Vz7p6VUzU2LScz5VJaFcuzncupu6lWwFvAYTLWdya1MNXUeAvlHy5572ReYbIMXvbpWd7frKavZG4@vger.kernel.org
+X-Gm-Message-State: AOJu0YyHZPMVDbQ1ms/cBH5caDeyGdL4ktJygK+Peu9igqKC2JD9Vtxh
+	owsG8/q4CGnovmU/Sa21Z9P9xELE04llOv8XI1Z2BDxtMJDdmK5FU2d1jbrnElUzBcMJKqSz2jh
+	fjz9C+HazcrgIbaV9l5YScxb/AiHus6Cbu3/uOPfoRw==
+X-Gm-Gg: Acq92OFo2rO9gZnCmuL7aQDXeS1c735pRb4ZFg5vUzg9RhbfFGWdRHOjiOHZdKyOTQV
+	kzWnIBFp4VEJHQklh6MpglhaEuzZBOK+LHOKTuoWNOENec4wWOG3x1eXEPzz5eA8gKUAnIMAaaV
+	XsseFzsJi3IRQOPQYsY/W9aJvqdRbTb8M8MXCPocvCpZF9+H9J5Y4ONo4wQr5/EIOdBp9GsXT2i
+	kt4MMAFYWz9Tk3vIDWH6N2lz2voo9jcqj9IwDp16mDRrYyUB/OAJJRjB5dfoUHRRXObWw7pFku4
+	gD+8H6WQ7X8ztoRvfbDjCfPS1udGaPFeVvKyEg2QvVZooROqtzVJgunFFqM=
+X-Received: by 2002:a17:907:c22:b0:bec:d077:c4e1 with SMTP id
+ a640c23a62f3a-bf373ff1dbdmr731904466b.47.1780931846675; Mon, 08 Jun 2026
+ 08:17:26 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260608142122.34400J00-hca@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjA4MDEzNCBTYWx0ZWRfX4Cj+a/gt9Kpg
- fODyLhEu8kzqPkkmsUAON2PSn0SALrY0PdoxRkPfJqJkG2G64Te3GSKqaZRpws1GYLkh7RpwZOt
- KkQIwRTSHpqI7sNDaKYS69u+ymXv+Qn7WgytsnaiqMRubvlpSSaamdB5MOqF+LeB/04m59yqvrz
- KaHKMwIjno0lX9pj/3nb0CVyAh7tf2OFDMWbKkD0FGc0AH8tscaq8mFP0zfH9p+AJTOlqlJ1iQp
- A6NGV5k0Hn4knb/IeMBRdX9YC150lIEubJw3hMAvDtDtYlbEGmIQfVQ0LTuICl3j+FUE+SGQcCc
- diIHS0u6NiciYQQKvX2eePxs3t/KEBXLAmHYc7iw7axpy+nhEoDRsgS0pBY7rFzlbDSXTxqh2XQ
- 1gzZHh0F5J6V5Lh7I0vBgLU6rhfLZAjZqx6SeqK1WVPwB4cDvtzJX+IeavHK13Sag8vnsWnHg+H
- B8fkX2rST3/UCq8+ovQ==
-X-Authority-Analysis: v=2.4 cv=QKhYgALL c=1 sm=1 tr=0 ts=6a26d374 cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=kj9zAlcOel0A:10 a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=ramI4VpqOhEfsmJ3a8kA:9
- a=CjuIK1q_8ugA:10
-X-Proofpoint-GUID: Akk1_jBef2RE7_B_jQqziSrEGSjbj1Ef
-X-Proofpoint-ORIG-GUID: s6lfMA4kvQkUBfXVkfiMHa6hz5hjqckk
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
- definitions=2026-06-08_03,2026-06-05_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 lowpriorityscore=0 bulkscore=0 adultscore=0 phishscore=0
- malwarescore=0 impostorscore=0 suspectscore=0 spamscore=0 clxscore=1011
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2605210000 definitions=main-2606080134
+References: <20260522225853.878411-1-tjmercier@google.com> <ahPqbfH54R3JJyaV@infradead.org>
+ <20260527160716.GN2487554@ziepe.ca> <20260604-dangerous-tuatara-of-sympathy-28e05e@houat>
+ <CAO_48GEJsg4X7++zg-ztQgVibY_FjjManaA5_W3usjicGUQPdg@mail.gmail.com> <20260604135712.GV2487554@ziepe.ca>
+In-Reply-To: <20260604135712.GV2487554@ziepe.ca>
+From: Sumit Semwal <sumit.semwal@linaro.org>
+Date: Mon, 8 Jun 2026 20:47:15 +0530
+X-Gm-Features: AVVi8CdcrMng9NlewA5irjsXERkw9Ix0pSFdV0gf1_HiahCuxCNItaDbqkFH3sQ
+Message-ID: <CAO_48GH3NP09U6TdB5drbKY0TpwvtBXwrf=Jajsr5ttNbC_u9g@mail.gmail.com>
+Subject: Re: [PATCH] powerpc: Export set_memory_encrypted and set_memory_decrypted
+To: Jason Gunthorpe <jgg@ziepe.ca>
+Cc: Maxime Ripard <mripard@kernel.org>, Jiri Pirko <jiri@resnulli.us>, 
+	Christoph Hellwig <hch@infradead.org>, "T.J. Mercier" <tjmercier@google.com>, maddy@linux.ibm.com, 
+	mpe@ellerman.id.au, npiggin@gmail.com, chleroy@kernel.org, 
+	linuxppc-dev@lists.ozlabs.org, lkp@intel.com, linux-kernel@vger.kernel.org, 
+	iommu@lists.linux.dev, linux-mm@kvack.org, agordeev@linux.ibm.com, 
+	gerald.schaefer@linux.ibm.com, linux-s390@vger.kernel.org, 
+	Dan Williams <djbw@kernel.org>, Tom Lendacky <thomas.lendacky@amd.com>, x86@kernel.org, 
+	Arnd Bergmann <arnd@linaro.org>
+Content-Type: text/plain; charset="UTF-8"
 
-On Mon, Jun 08, 2026 at 04:21:22PM +0200, Heiko Carstens wrote:
-> I guess Alexander will pick this up and route this via s390.
+Hi Jason,
 
-Yes, I applied and scheduled it for -rc7.
+On Thu, 4 Jun 2026 at 19:27, Jason Gunthorpe <jgg@ziepe.ca> wrote:
+>
+> On Thu, Jun 04, 2026 at 12:51:49PM +0530, Sumit Semwal wrote:
+>
+> > Given that Christoph's objection is not really about the modules part,
+> > but that the set_memory_{encrypted,decrypted} should not be used here,
+> > one option is to revert 78b30c50a7ac until that issue is sorted out?
+>
+> Please no, we have stuff already using this so it would be a
+> functional regression. Revert making heaps into a module since that
+> doesn't have a functional regression.
 
-Two new files fall under the Rust maintainers scope:
+Thanks for your comments.
 
- rust/helpers/helpers.c | 1 +
- rust/helpers/string.c  | 8 ++++++++
+To me, it looks like while system and system_cc_shared heaps share a
+lot of code, their user bases have different needs. It's apparent that
+system_cc_heap users don't care about it being a module while system
+heap users would very much like so.
 
-Please, let me know if someone is against it.
-Otherwise, an ack would be ideal ;)
+I also discussed this with Arnd, and he suggested we could rearrange
+the code so that system_heap_cc_shared_priv depends on a new Kconfig
+symbol like
 
-Thanks!
+config DMABUF_HEAPS_CC_SYSTEM
+        bool "DMA-BUF System Heap for memory encryption"
+        depends on ARCH_HAS_MEM_ENCRYPT && DMABUF_HEAPS_SYSTEM=y
+
+This allows building both into the kernel or leave encryption choice
+up to the consumers of the system heap.
+
+If this is agreeable to everyone, I can post Arnd's patch.
+
+>
+> Jason
+
+
+Best,
+Sumit.
