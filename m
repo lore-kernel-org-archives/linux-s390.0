@@ -1,56 +1,57 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B321F3D902E;
-	Mon,  8 Jun 2026 18:15:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 176593D9027;
+	Mon,  8 Jun 2026 18:15:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780942523; cv=none; b=NcAQrwlBrld9a118AN5WSdr0glj+O3VK/3rWQb3CgxXWpd/SKrcWsgKHxV8lTk2nd8Qqz9DWgq+oCf90FmcJlXwDsoDNS603qk8VRirI1yKrhJ3VJ9jl18o5U9UP1o1PTKAYnHiRoFD2gbowJjPdmjzmPPvxIwriWwjIl7xY2zw=
+	t=1780942523; cv=none; b=bNHnXee4hDNbZ7Hap7ijAdz17ZSQdN1mHOSsdyC5gt9AwZFEf9j2jwPNuC6CjCzQhmgO9c1d2+WopMz9Ty3zpuGeJW5NEUbUikDFUZA1dyJcInMQon0Yae79geE8degcGXkY8NEa6ZCILZJ+LfkA9M/r7ccW/EOm5SbiEEyH3SY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1780942523; c=relaxed/simple;
-	bh=e/Y03LBy/L3QuoTNE39smIF2TehKkDH9+WKA6S3mVCI=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=EgKfK7nfCgLhrT/nE0jl78c4A+7jDc38LOnSLG/F2whZTyWcMGtsgcm4A2thSh4fmBMwRl3cKi50Axy73HyrixLcZCMQDGsYYcp+KOn5c+xQ06rvsA3Jv+e4uCgi57gHmLL6gJB0IeP06w3mCAdRdbusHGH5JB7gBv2kCfeHv1Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=SaucGNGA; arc=none smtp.client-ip=148.163.156.1
+	bh=z5aDbCkruTXiuZUIzSSdNkuEKChf6FJQ7I6csuaXjyA=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=O2ydUXSJGhvvKTDt0HfjTyrH15/7MKkRJwtWqQNsNdkonb3dlBtx073sbHSM86l3IwinfgJtK6iXxHPdah9aafGhfsOwMt/8R2vqkPugEdwU0s45JDn8hSDbGnr9/VICsffwERecU50IjlP92QZ83RCoKG9xgTpXAYTr0XsCnGg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=b/Qi19Dx; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="SaucGNGA"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 658ESm8N3068563;
-	Mon, 8 Jun 2026 18:15:00 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="b/Qi19Dx"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6589dX9t2494942;
+	Mon, 8 Jun 2026 18:15:03 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=ZqymuVZQ//aZVK2xqxkkI6bp6YdGSWtqhl0bhiMjT
-	pk=; b=SaucGNGAQwDw6Cvr124JTS4RRxHfcqhQJVA7XTcKyu0g6GjSw7n3sJmTU
-	dA/ogKTMBrcqXF/Mad7eb3VdtR76Y//ij3VUdLP0MyMKHkycaTR2XKQZlJ8HZCcG
-	NYn2vcppxnhLTDREI8pE+AuL0RJLFy9Of5bUU5U8h16PmjbO8y4/AHyzXooObkto
-	BXfFbweUOguPlSXXI2Z6wywvt6gknGwNvGv9OXKwU8Y5J/HIDGeb6y8dWUCDCoKG
-	ij+vUBcc5DQQeM6/X4XenGvIWt4MmBhpashl91lhdrf2jyT/eRwnE2Z3uUV7FsAu
-	NSEkzqn546MsDcPiV9jNE5zskaBnw==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4emb958nrf-1
+	:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=pp1; bh=tdPNMk18ImxNBGKmf
+	2uPkiF94pNknNIhO/Gpdrcft8E=; b=b/Qi19DxnOuPJZWD2D4d0VoLZOK4BnEoP
+	eVPtXYe7XI6QAySHXZJ+Du2Yir3MAb85WMruiL67yhUivKbmxhliSof1n3g9iR9I
+	UHD1QG0hRiyEGsyqIkEOD0p9mH9VRPQHd4bFa+t7vEnEySTsTqDf8MdiS9BWtJke
+	T1AqDfAUMojbm3oiHP5gYo8CL4CuWb1kU6IbGta7hjrxkTBkmelMcLxFHA+eE804
+	AMa5egdFDXzyHTmy6dqwTa3dr0O21pvWh0c0kj+oUJfmmS0PgZs9LAWOY6MId2lc
+	l3PhBcaynXDJiV10LvfoS61LhZ+kc7h0VMBwGznQxZRMsEs0z1J2g==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4emb6srgxh-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 08 Jun 2026 18:14:59 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 658I4cFW003171;
-	Mon, 8 Jun 2026 18:14:58 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4emycgxfhp-1
+	Mon, 08 Jun 2026 18:15:02 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 658I4dcC020169;
+	Mon, 8 Jun 2026 18:15:01 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4emx8vxngh-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 08 Jun 2026 18:14:58 +0000 (GMT)
+	Mon, 08 Jun 2026 18:15:01 +0000 (GMT)
 Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 658IEsWt40304924
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 658IEvfD50528534
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 8 Jun 2026 18:14:54 GMT
+	Mon, 8 Jun 2026 18:14:58 GMT
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C15F020043;
-	Mon,  8 Jun 2026 18:14:54 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id D69DE20040;
+	Mon,  8 Jun 2026 18:14:57 +0000 (GMT)
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7696820040;
-	Mon,  8 Jun 2026 18:14:54 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 84A642004E;
+	Mon,  8 Jun 2026 18:14:57 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
 	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon,  8 Jun 2026 18:14:54 +0000 (GMT)
+	Mon,  8 Jun 2026 18:14:57 +0000 (GMT)
 From: Jan Polensky <japo@linux.ibm.com>
 To: hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
         ojeda@kernel.org, peterz@infradead.org, jpoimboe@kernel.org,
@@ -61,10 +62,12 @@ Cc: borntraeger@linux.ibm.com, svens@linux.ibm.com, boqun@kernel.org,
         rostedt@goodmis.org, ardb@kernel.org, linux-s390@vger.kernel.org,
         rust-for-linux@vger.kernel.org, linux-kernel@vger.kernel.org,
         japo@linux.ibm.com (Jan Polensky)
-Subject: [PATCH v6 0/6] s390: Enable Rust support and add required arch glue
-Date: Mon,  8 Jun 2026 20:14:45 +0200
-Message-ID: <20260608181451.3734956-1-japo@linux.ibm.com>
+Subject: [PATCH v6 4/6] rust: helpers: Add memchr wrapper for string operations
+Date: Mon,  8 Jun 2026 20:14:49 +0200
+Message-ID: <20260608181451.3734956-5-japo@linux.ibm.com>
 X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20260608181451.3734956-1-japo@linux.ibm.com>
+References: <20260608181451.3734956-1-japo@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -74,94 +77,71 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
 X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Authority-Analysis: v=2.4 cv=N4UZ0W9B c=1 sm=1 tr=0 ts=6a2706a4 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+X-Proofpoint-ORIG-GUID: KgDHuFQWEO2b7jqeHFl5EHnbGbKMNcyv
+X-Proofpoint-GUID: 1aIC8G-_gv_EdTTuBMIHZB_S_R0gn0mO
+X-Authority-Analysis: v=2.4 cv=ZbEt8MVA c=1 sm=1 tr=0 ts=6a2706a6 cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
  a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=U7nrCbtTmkRpXpFmAIza:22 a=NEAV23lmAAAA:8 a=YnCZDFda9O9yJGHsuikA:9
-X-Proofpoint-ORIG-GUID: 01H1zZYYPU8nnj5ey-4FN3AYxcXHklLz
-X-Proofpoint-GUID: OCiFYHcYBNzq_QgprlJRqsDqBaHSDi9e
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjA4MDE3MCBTYWx0ZWRfX9Y3c39f9Eu+b
- IdvnmcDFXowae26XwkJMhSO6PJTMSU29BpJ6NCpF2EgYbl4Gwdb2t1tfMTFUO4yfYHYj1I1xyNE
- JP/S1OGSPmI0cPsQ1J49Go5JyL8Q6vluaCTE4qcV+fnNujn4qjsO2NePj8sgeh8Fx7FGGTeZcV4
- YJT1tRWue31yfce9dXTt6CbNh9yIEIcwJzeENyWnyFCt2+ukwkWts7s+R2HiC+VTuAAraFHuzaM
- WCpzGn7ft/JKMeWq3e53Dg03ghAc/SYy7go+6Dvk25671wOck16teL7OZYv1XK1WInJeA6+6NB6
- S79hHO85SPAHJfJB8AHTyqNau6fbNtLciP8HbfwuzkxjbjoFPRh/Mt94rylEi7IGSxwWSeVmI4f
- dv25GKEzRkhAm13609hbVr6HO/8MyK4ucORkPLuwvhs5caSYqUFsio85hH6ZYLsZ0v+4gTU2Mj4
- H+Nx8BUx4MoyJLB0OYw==
+ a=RzCfie-kr_QcCd8fBx8p:22 a=VwQbUJbxAAAA:8 a=pGLkceISAAAA:8 a=VnNF1IyMAAAA:8
+ a=0OX8x8mQKUGR4pMsIeoA:9
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjA4MDE3MCBTYWx0ZWRfX72ZFz/lDI8Uz
+ FW1UV0gC4jCyowrnujxMHlYQRL2r/gi6JxqbL0Jq3YxmAO8IaE4QRM0+1jiWsu5OKwg2xJ9+aRx
+ mXZRD6eacVxZrMZq3ubLvwufmZ6dIQ6nWunmordD71Nz7fZCAYkzTUS6wdkxuH5vW9KzkZiNQoX
+ jY8T50BXVWmgMaaxuImiRTuzr7EibZ1puqi0oyHmEta0wYw4I33+eiG1pS5puMM/6P1uukdXWCt
+ bjDdokwnPpXpnAKbfOGIbQKlBCyalesWHMuBZNrQZY4iOlnKXgCOFNBPB0fnBB6Lg81oPBMGcV6
+ XWMcnnHv4LGcM3KVeV/hKg5k+Seu8hbC60ZcjvW4oj8PL8Yp05nnAun9rZm0H1lhdaF3q+sZsqS
+ Sfj2BS0Hrvf6p9FLeQQ4O2WfdHkAY2mqCNlAk1q0f57crnljN9004xjsS46E3vw2DclGy0mULJf
+ dfV6nVDrJJD7rQJIIIQ==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
  definitions=2026-06-08_04,2026-06-05_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0 malwarescore=0 spamscore=0 clxscore=1015 lowpriorityscore=0
- phishscore=0 impostorscore=0 adultscore=0 priorityscore=1501 suspectscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2605210000 definitions=main-2606080170
+ suspectscore=0 impostorscore=0 malwarescore=0 lowpriorityscore=0
+ clxscore=1015 adultscore=0 spamscore=0 priorityscore=1501 bulkscore=0
+ phishscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2605210000
+ definitions=main-2606080170
 
-Rust support on s390 requires a small set of architecture-specific pieces
-before the generic Rust kernel infrastructure can be used.
+Add a dedicated string helper file with a memchr wrapper that uses the
+kernel's instrumented memchr() function to ensure KASAN and FORTIFY_SOURCE
+protections are preserved for Rust code.
 
-The series wires up s390 as a Rust-capable 64-bit architecture, adds the
-missing assembly interfaces needed by Rust for WARN/BUG reporting and for
-static branches, adjusts bindgen parameters to avoid repr layout conflicts
-caused by packed and aligned s390 structures, and fixes issues discovered
-during testing.
-
-s390 currently requires rustc with support for -Zpacked-stack, and the
-minimum tool version gating is adjusted accordingly.
-
-Link: https://github.com/Rust-for-Linux/linux/issues/2
-
-Tested against: rustc 1.96.0 (ac68faa20 2026-05-25)
-
-Changes since v5:
-- Fix indent in bug.h
-- Add __rust_helper to rust_helper_memchr() (thanks Gary)
-
-Changes since v4:
-- Patch 4/6: Use kernel's memchr() instead of __builtin_memchr (Sashiko AI)
-
-Changes since v3:
-- Added patch 4/6: Add memchr wrapper preserving KASAN/FORTIFY_SOURCE (reported by Sashiko AI)
-- Added patch 5/6: Fix KASAN stack-out-of-bounds in atomic helpers (reported by Miguel, suggested by Gary)
-- Patch 6/6: Document CONFIG_EXPOLINE constraint in arch-support.rst (Sashiko AI feedback)
-- Patch 6/6: Added Acked-by from Miguel Ojeda
-
-Changes since v2:
-- mflags: cleanup (thanks Gary)
-
-Changes since v1:
-- strip the -nightly suffix in min-tool-version.sh (thanks Miguel and Alice)
-- ARCH_JUMP_TABLE_ENTRY() moved up to align comments properly (thanks Gary)
-- removed MONCODE_BUG to prevent 0U in non-C context in assembler (noted by Sashiko - AI)
-- prevent environment pollution by explicit initialization mflag := (noted by Sashiko - AI)
-
-Jan Polensky (6):
-  s390/bug: Provide ARCH_WARN_ASM for Rust WARN/BUG support
-  s390/jump_label: Implement ARCH_STATIC_BRANCH_JUMP_ASM and
-    ARCH_STATIC_BRANCH_ASM macros
-  rust/bindgen_parameters: Mark s390 types as opaque to prevent repr
-    conflicts
-  rust: helpers: Add memchr wrapper for string operations
-  s390/cmpxchg: Fix KASAN stack-out-of-bounds in atomic helpers
-  s390: Enable Rust support
-
- Documentation/rust/arch-support.rst |  1 +
- arch/s390/Kconfig                   |  1 +
- arch/s390/Makefile                  | 28 ++++++++++++++----------
- arch/s390/include/asm/bug.h         | 12 +++++++++++
- arch/s390/include/asm/cmpxchg.h     |  8 +++----
- arch/s390/include/asm/jump_label.h  | 33 +++++++++++++++++------------
- rust/Makefile                       |  1 +
- rust/bindgen_parameters             |  7 ++++++
- rust/helpers/helpers.c              |  1 +
- rust/helpers/string.c               |  8 +++++++
- scripts/generate_rust_target.rs     |  2 ++
- scripts/min-tool-version.sh         |  6 +++++-
- 12 files changed, 78 insertions(+), 30 deletions(-)
+Reported-by: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
+Link: https://lore.kernel.org/rust-for-linux/CANiq72mXAZc0sNM7ShX8VDVs_7zJddawP-e=wt+ERr1YUCcWUw@mail.gmail.com/
+Acked-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Jan Polensky <japo@linux.ibm.com>
+---
+ rust/helpers/helpers.c | 1 +
+ rust/helpers/string.c  | 8 ++++++++
+ 2 files changed, 9 insertions(+)
  create mode 100644 rust/helpers/string.c
 
-
-base-commit: 2d3090a8aeb596a26935db0955d46c9a5db5c6ce
---
+diff --git a/rust/helpers/helpers.c b/rust/helpers/helpers.c
+index 625921e27dfb..592b9bdb4e4a 100644
+--- a/rust/helpers/helpers.c
++++ b/rust/helpers/helpers.c
+@@ -88,6 +88,7 @@
+ #include "signal.c"
+ #include "slab.c"
+ #include "spinlock.c"
++#include "string.c"
+ #include "sync.c"
+ #include "task.c"
+ #include "time.c"
+diff --git a/rust/helpers/string.c b/rust/helpers/string.c
+new file mode 100644
+index 000000000000..8ef30eb07a15
+--- /dev/null
++++ b/rust/helpers/string.c
+@@ -0,0 +1,8 @@
++// SPDX-License-Identifier: GPL-2.0
++
++#include <linux/string.h>
++
++__rust_helper void *rust_helper_memchr(const void *s, int c, size_t n)
++{
++	return memchr(s, c, n);
++}
+-- 
 2.53.0
 
