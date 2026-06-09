@@ -1,123 +1,83 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6074E425CCE;
-	Tue,  9 Jun 2026 13:52:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4BB631E1DE5;
+	Tue,  9 Jun 2026 13:56:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781013131; cv=none; b=ipKycOrDN0UTFxKvD61IQ8JDzPhIN1EiAMCDG37YneNhIlmNPJDtpk6hYI4onH0lTBYwFaA5drsjdIMPZvVWAijU6h/9ymGMsAbqnl4LH0TwMld7v4uhqZkMP1oVrKt9DkxBB/Snf/13YlqQjIYVCY2+34xk7AMlxP1tDkuyhzY=
+	t=1781013362; cv=none; b=lAhAxdAnfLOYtlHjS9g8YURUckZUfMy4uH0p4RH+m21EHKtVTbl6KBW20INlsiWW1GXGelpsauy8SrqFlvxPPg+70lvonf6GRbvSW9dEzVzYQeD6bdbSBFpm9YZk9Dm4J2i1LcUTI+qqVzvR1Ke4BGG5VFJARDCyL9Yi9KjWBN4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781013131; c=relaxed/simple;
-	bh=8RXyomckAuriW7xZC+DoJsoZGK2RK+2DMlXe4GX1CE0=;
+	s=arc-20240116; t=1781013362; c=relaxed/simple;
+	bh=1ArDJGDIm/6EtF9MOJN5eGVwYg4Y/oYySiTOgilaWss=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=XAHWbKCKcnP/gIad2pBh2U2V6e7aLyhFINxdpQYEoiEeyy+3FHS6Nt5x4pE41QWW65xG15Hcb0BPz/KNYGjwlSz5fhMT1MI1ktK7C6CgkZIDQs8iN87Ok1IvSNCIHNQ0D7ifDYGnkAwPsG4zTK8UpaDeaOqpjlBstTBGkntakiU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ftws1/Aq; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=cZhy42CnFtQ/HK6g6jMlK/KCtusZHf1wG099cye84NQom2nh/syzq5nY9mlh7iwUmR/dqF3YU2RKczBDQHpLUcUXIjIrPQGSvdOaYzOoh8UpObWMc9pQAl158JchqWeIn63jHpm5NmkHvwOfxwWvcAOD9hfkFw9j/1NAvuZKhQc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MrC54m7e; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ftws1/Aq"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 659DBWgr2465898;
-	Tue, 9 Jun 2026 13:51:54 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=8RXyomckAuriW7xZC+DoJsoZGK2RK+
-	2DMlXe4GX1CE0=; b=ftws1/AqS+yy+3XBC3HrSorlLkL2osMdXSmpcycTD6JhoO
-	FNRB+sBx1pkssKtJletIrOYDMLiyHkNZVhqtht+0tf+01HSOoTPr4BKczEPz17y/
-	DydNeYlz1CHiDjYnJ7uEahCWinmOAfjdrt6GP2t9EuS6AJjlNHiSRUQSvG3ybTF0
-	jc1WtUWuS1S3ta7g+UCs/MHq4McqmUqYSNjVNh0qsv4jcF61yHMl7l2SDWOFxWJm
-	Q/Lbn576alHPyCL6ioAHXYt8mNvdoNnxBRAI/NcVCbPsWMCg3FKgNIODNAjWR45J
-	no+L4+IbKPtCU/GK4FFGmPa5ajY/2iZymU9wYWaA==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4emb6sv596-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 09 Jun 2026 13:51:53 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 659Dnegf031082;
-	Tue, 9 Jun 2026 13:51:52 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4en0jy9ytx-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 09 Jun 2026 13:51:52 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 659Dpnnp18219294
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 9 Jun 2026 13:51:49 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id F395F2004D;
-	Tue,  9 Jun 2026 13:51:48 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id AA2C720040;
-	Tue,  9 Jun 2026 13:51:47 +0000 (GMT)
-Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.87.132.52])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Tue,  9 Jun 2026 13:51:47 +0000 (GMT)
-Date: Tue, 9 Jun 2026 15:51:46 +0200
-From: Alexander Gordeev <agordeev@linux.ibm.com>
-To: Jan Polensky <japo@linux.ibm.com>, Gary Guo <gary@garyguo.net>
-Cc: Gary Guo <gary@garyguo.net>, hca@linux.ibm.com, gor@linux.ibm.com,
-        ojeda@kernel.org, peterz@infradead.org, jpoimboe@kernel.org,
-        jbaron@akamai.com, aliceryhl@google.com, borntraeger@linux.ibm.com,
-        svens@linux.ibm.com, boqun@kernel.org, bjorn3_gh@protonmail.com,
-        lossin@kernel.org, a.hindborg@kernel.org, tmgross@umich.edu,
-        dakr@kernel.org, rostedt@goodmis.org, ardb@kernel.org,
-        linux-s390@vger.kernel.org, rust-for-linux@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v6 6/6] s390: Enable Rust support
-Message-ID: <6f4baa3d-07fe-417a-a46c-c7328e026bf1-agordeev@linux.ibm.com>
-References: <20260608181451.3734956-1-japo@linux.ibm.com>
- <20260608181451.3734956-7-japo@linux.ibm.com>
- <DJ3VN4EYXCUA.18YA9379UHT5Z@garyguo.net>
- <aicb5a1_SG5B_ByM@li-276bd24c-2dcc-11b2-a85c-945b6f05615c.ibm.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MrC54m7e"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F9EA1F00899;
+	Tue,  9 Jun 2026 13:56:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1781013360;
+	bh=oqTAZUeyCqqx5FAQ5sEAvNi2t9NKNHtG0Dkmr8SYqsw=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=MrC54m7eXwIWdp6+tb3IREB0TH9VBm4VCus07EFbTq3pwF1OCNJVLH+WJDjXX0O6t
+	 Z1fHo+fcc0nRu5C3oNMF0ZTJtYnrgzirnOpQJsNOzRYwS3hzYAE1Gc3sIKIMDiSb8/
+	 VzeahdaAqhMq3Wh9hvb6G2yDElYpXorzzYpqeBKfg0U3SRO7ZJkeUTfDaM5rxa3pMz
+	 iecRhWH1CjiHvIeT0BvW2giNs9qbafLWf10JdqzD2DlH2HJ2tWzCGZn+bI9jxxzAPu
+	 XzyB8TcUZxNO+IwOkrFax+w9Jfmeo25mtNtuCtf8uA3rtGcHMZ0dB/rNm6TL97VnZx
+	 mycd22tgnDcqQ==
+Date: Tue, 9 Jun 2026 15:55:57 +0200
+From: Frederic Weisbecker <frederic@kernel.org>
+To: Heiko Carstens <hca@linux.ibm.com>
+Cc: Thomas Gleixner <tglx@kernel.org>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: Re: [PATCH 0/4] s390: Idle time accounting improvements
+Message-ID: <aigbbZW9gah401Y9@localhost.localdomain>
+References: <20260513140129.4100822-1-hca@linux.ibm.com>
+ <20260608075500.34400A04-hca@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <aicb5a1_SG5B_ByM@li-276bd24c-2dcc-11b2-a85c-945b6f05615c.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-ORIG-GUID: U1Gtzt8uVWtcDC-0bUHIW8TxWx2BTvh5
-X-Proofpoint-GUID: XccGxzHHcQYfJxzdZPdI5l8-UTflw9jC
-X-Authority-Analysis: v=2.4 cv=ZbEt8MVA c=1 sm=1 tr=0 ts=6a281a79 cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=kj9zAlcOel0A:10 a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=0GDPdn7TV4dO_mzl1qoA:9
- a=CjuIK1q_8ugA:10 a=7jBqKnKQzRwA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjA5MDEyOSBTYWx0ZWRfX1JggMM1CR+Sg
- F+pBtKLSYN6Oco2fEKTVaUXWNdhnTq+0SmBoQ5gR0HdRDaSiZTk8QnQ7e3Sa5gxgNumzLfUZXxP
- 80M7YzJMtV8DY3rJl5C7JhP4yL37ClKmuWbkoTUm0dGdFbv8eyZIiuh4gLktfMqhvqjiKvtIqDt
- RfKXFHCZfvf0DAtRG74AztQWM2Ah6D5uhAYc2nUo7hR7Qr+QiC8hJ1w4bhmFrqVsCxs+fVZ0pu/
- aC4wuYP1ow4/doqD5aWxR1rszvu+HNNiWOFw4WI0gwirHYcuRlUB8e7HaCPLzMuO2+8Lki+7kPc
- Q7Tm/gv1CPCWlEXfIuDRystp+CVQEp3VcFgaROpqZSfTgPkhCSIpA0yoxmvYn6sKnxp/DbHM/KH
- drGAKreauPj/6NzAyqWbtHYP4yY5+tPhTqilRnwJxB9lJvWN/x9Rj2Ka0HyRb4kP8GAGgWs+dI8
- 3Q37HW0rt0Aj0Erd5kg==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
- definitions=2026-06-09_03,2026-06-09_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 impostorscore=0 malwarescore=0 lowpriorityscore=0
- clxscore=1015 adultscore=0 spamscore=0 priorityscore=1501 bulkscore=0
- phishscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2605210000
- definitions=main-2606090129
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260608075500.34400A04-hca@linux.ibm.com>
 
-On Mon, Jun 08, 2026 at 09:45:41PM +0200, Jan Polensky wrote:
+Le Mon, Jun 08, 2026 at 09:55:00AM +0200, Heiko Carstens a écrit :
+> On Wed, May 13, 2026 at 04:01:25PM +0200, Heiko Carstens wrote:
+> > This series is on top of Frederic Weisbecker's idle cpu time accounting
+> > refactor series [1][2].
+> > 
+> > This is supposed to improve s390 idle time accounting, and brings it
+> > back to the state it was before arch_cpu_idle_time() was removed from
+> > s390 [3].
+> > 
+> > In result all cpu time accounting is done by the s390 architecture backend
+> > again, instead of having a mix of architecure specific and common code
+> > accounting (common code: idle, s390 architecture: everything else).
+> 
+> Thomas, Peter, Frederic, any objections to this series? The third patch
+> touches common code, so I'd like to get an ACK for that.
+> 
+> If there is agreement, this could go either via tip tree's timers/nohz branch
+> (series applies cleanly), or via s390, after the nohz branch has been merged
+> upstream.
 
-Hi Gary!
+Looks all good to me, thanks!
 
-...
+Acked-by: Frederic Weisbecker <frederic@kernel.org>
 
-> Backend support is planned, but has not been implemented yet. Until then,
-> keeping Rust support gated behind !CONFIG_EXPOLINE is the intentional and
-> conservative choice for this series.
+I guess ideally it should go via s390. Any chance you can push this to this
+merge window right after tip:timers/nohz is merged?
 
-Is there anything in this series of concern to you?
-
-Thanks!
-
-> Best,
-> Jan
+-- 
+Frederic Weisbecker
+SUSE Labs
