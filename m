@@ -1,174 +1,167 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D21D53F1ADD;
-	Tue,  9 Jun 2026 09:00:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7DBC7315D33;
+	Tue,  9 Jun 2026 09:31:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780995604; cv=none; b=f80Fm2eABtYJ0g4b6TIWnVJlrAIIQUtOezGstwARukx/A/dUxLaEMSn+GhmQQnU75B3qxYeiWSRVXW2/dm1PqSYLvoNrczfyU9xY4gmyjXnvQ+zJc1n4JU0wbpdR88nzsWdYGsGkwN0swsVyWSttEhKaMmk30u6rk82/Jm7E4NY=
+	t=1780997497; cv=none; b=j6K1zsCIQcYhkkfm6YMTYnt10Somgve93g8HGP5a0M5LWyyu6VROXxiT3j61rUzhyZrXS1FyP9+N7cHEjL7MCGSfwIGrSGXTO6+CIYprSyvduDQ2aYfCoCCS7kMBY3KPXYK0YSOh0GKl4HyapU03X77dyq7HFzLCgjhPu23OMrY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780995604; c=relaxed/simple;
-	bh=2QEP28zLm/5WdjCEqhLpCisxt20Jp0JzixfLVYeCmP0=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=LkukA0a/jVwo5hCWWqpmOBXhnvnr2E9p0dUnQKU7UbdrMjtskccdvO7eQ/CrlIRGjaY4IfEm/AH5jF27m/ocaZBpp94L3qJ5xUGCOtAbHhsGG52wlMzNuEWS57GzO1aBM9HQHjv4RnH2cx1q/dGPR2i4nEaOAeuKq+c9z3UMBm8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=V/lD6ewV; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1780997497; c=relaxed/simple;
+	bh=GT3+dqbXFbAqSgbC/unJsdKfrRiAjlIj00/aWSpnCGg=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=oC3T5PqS6H1oU9SFidj79aGPBLQowlSAio0QurENCIHTUX21CsguNE8+pYGDcXAqhGxuuLGmprGXPC04TMdLWc03a8KxX84yZ+qB7jk1xy6Ns3h5bVIca8i5FmvmHstsncx7QBLZBAAgiQMpQ0wnKAOgONSTGlQ+Tqva9Q2WIB8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Rv1SqW92; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="V/lD6ewV"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0471B1F00893;
-	Tue,  9 Jun 2026 08:59:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1780995603;
-	bh=5PZ+LrewxpCuXLMvn3PnybJtDeV/69ic6D4NMS386sQ=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date;
-	b=V/lD6ewVP+EoDqUMcEVKI2sD1hyaOO3BkeKU6RSif2kdo5jrK/Pz3dGH+nKy0yiwl
-	 GkcFRWm1bfXDZ5G+6pXWLYyeUfJWm7+IZ0B9df71sjZwwF60I0iqK3CtHdpIwD+SvD
-	 18pe11K69nHGIbmpkB0Onj2R9KYyHN9PZUhNMsk8rdNJq+9c33Er41sVQJlVkBhvbX
-	 p7cjR5sypoB2y0AuL5w7gBsZAQUVbp0Fkizy+sRFRMauWGHF9nWPKvukIs6VPyCwk/
-	 qbJNUFrr28q96fsjSCKVnrZKa39ARSwnvxyBNlZFOWdhgDxqz6S8YASpiFX/604Ble
-	 GhuJ3zRxhL8+w==
-X-Mailer: emacs 30.2 (via feedmail 11-beta-1 I)
-From: Aneesh Kumar K.V <aneesh.kumar@kernel.org>
-To: "Dan Williams (nvidia)" <djbw@kernel.org>,
-	"Dan Williams (nvidia)" <djbw@kernel.org>,
-	"Dan Williams (nvidia)" <djbw@kernel.org>,
-	Alexey Kardashevskiy <aik@amd.com>, linux-coco@lists.linux.dev,
-	iommu@lists.linux.dev, linux-kernel@vger.kernel.org,
-	kvm@vger.kernel.org
-Cc: Bjorn Helgaas <helgaas@kernel.org>,
-	Dan Williams <djbw@kernel.org>,
-	Jason Gunthorpe <jgg@ziepe.ca>,
-	Joerg Roedel <joro@8bytes.org>,
-	Jonathan Cameron <jic23@kernel.org>,
-	Kevin Tian <kevin.tian@intel.com>,
-	Nicolin Chen <nicolinc@nvidia.com>,
-	Samuel Ortiz <sameo@rivosinc.com>,
-	Steven Price <steven.price@arm.com>,
-	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
-	Will Deacon <will@kernel.org>,
-	Xu Yilun <yilun.xu@linux.intel.com>,
-	Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>,
-	Paolo Bonzini <pbonzini@redhat.com>,
-	Tony Krowiak <akrowiak@linux.ibm.com>,
-	Halil Pasic <pasic@linux.ibm.com>,
-	Jason Herne <jjherne@linux.ibm.com>,
-	Harald Freudenberger <freude@linux.ibm.com>,
-	Holger Dengler <dengler@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Alex Williamson <alex@shazbot.org>,
-	Matthew Rosato <mjrosato@linux.ibm.com>,
-	Farhan Ali <alifm@linux.ibm.com>,
-	Eric Farman <farman@linux.ibm.com>, linux-s390@vger.kernel.org
-Subject: Re: [PATCH v5 5/5] iommufd/vdevice: add TSM request ioctl
-In-Reply-To: <6a272cebec4af_4fa7810048@djbw-dev.notmuch>
-References: <20260525154816.1029642-1-aneesh.kumar@kernel.org>
- <20260525154816.1029642-6-aneesh.kumar@kernel.org>
- <becd865d-09a4-4ac3-b719-4a0deae2692a@amd.com>
- <6a168c8ea7d10_2129b2100e@djbw-dev.notmuch> <yq5apl2gsw6y.fsf@kernel.org>
- <yq5aldd4spyc.fsf@kernel.org> <6a1774dd80f74_19737610095@djbw-dev.notmuch>
- <yq5aik81sf22.fsf@kernel.org> <6a272cebec4af_4fa7810048@djbw-dev.notmuch>
-Date: Tue, 09 Jun 2026 14:29:49 +0530
-Message-ID: <yq5aik7sytq2.fsf@kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Rv1SqW92"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6595sELv3405561;
+	Tue, 9 Jun 2026 09:31:28 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=DcYpp1
+	ct3ObgkHoonNx21KwKKSPG1GnFDUVyM7zG7mA=; b=Rv1SqW92oAmunkOeNMxbo4
+	MaLpW6Bo1bAXAc9MbB+5TMYhZO038fjj18IGuuIpWkbrYaGMOyL6qgpOUp9pqR+g
+	CXWN7thlFwxYzabY0jpQa5w6a4IGT++iFRe5KTZjvvuDTUlQR7k+vhTUGpO8UPfd
+	rs0IvA5l2R+0mVAR7uzUPG1S0C7CT5NSDCL6e/DYs1jccA0zqnfciHAiK1JPtapM
+	MHQjiWUCOYXbMtKVCtShhibm3gBwcoGZJm/IpHksk75+PhWYBd4EpN1HT25bcbxY
+	bwAF4g4w5l4Pk9smnZ7R9C+cnUkqL/M1QM6E6RuWUS7GuVkzouqhX/yDmRfvJxww
+	==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4emb7qkdmd-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 09 Jun 2026 09:31:28 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 6599JceG006204;
+	Tue, 9 Jun 2026 09:31:27 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4en03g15c0-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 09 Jun 2026 09:31:27 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6599VNMM18219276
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 9 Jun 2026 09:31:23 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B3B9320043;
+	Tue,  9 Jun 2026 09:31:23 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 7EDC12004D;
+	Tue,  9 Jun 2026 09:31:23 +0000 (GMT)
+Received: from [9.224.76.67] (unknown [9.224.76.67])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue,  9 Jun 2026 09:31:23 +0000 (GMT)
+Message-ID: <77a82533-2f1c-4bf2-925d-f48accf45951@linux.ibm.com>
+Date: Tue, 9 Jun 2026 11:31:22 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 4/5] s390/idle: Introduce cpuidle for s390
+To: Christian Loehle <christian.loehle@arm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        "Rafael J. Wysocki"
+ <rafael@kernel.org>,
+        Daniel Lezcano <daniel.lezcano@kernel.org>,
+        Anna-Maria Behnsen <anna-maria@linutronix.de>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        Ingo Molnar <mingo@kernel.org>, Thomas Gleixner <tglx@kernel.org>
+Cc: Ilya Leoshkevich <iii@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+References: <20260609075213.31094-1-meted@linux.ibm.com>
+ <20260609075213.31094-5-meted@linux.ibm.com>
+ <5d9a3d2e-f083-49d4-a311-7801e70ac1a2@arm.com>
+Content-Language: en-US
+From: Mete Durlu <meted@linux.ibm.com>
+In-Reply-To: <5d9a3d2e-f083-49d4-a311-7801e70ac1a2@arm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=HppG3UTS c=1 sm=1 tr=0 ts=6a27dd70 cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+ a=IkcTkHD0fZMA:10 a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8
+ a=JfrnYn6hAAAA:8 a=VwQbUJbxAAAA:8 a=KKAkSRfTAAAA:8 a=pGLkceISAAAA:8
+ a=ypV6uxKLhDquFfQIcXMA:9 a=QEXdDO2ut3YA:10 a=1CNFftbPRP8L7MoqJWF3:22
+ a=cvBusfyB2V15izCimMoJ:22
+X-Proofpoint-GUID: bVv7IztOJbrWpdhV6_3ZAvs9WqRqRFwh
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjA5MDA4NCBTYWx0ZWRfX+RTocZaIBDMd
+ XInB9udkxczvQ8t4edkgXKnic90bhwfQ8j3u1PaWYUjNgzj/QfuIcAAj8+jY++ViViQh1Pgi1QT
+ 6Y030miLmIu9qZAVlhd/WeuRzBreT3VkJePvCr4B8CXsv6/RAO3Pq6nl1WAs9rNSZx9Sy7eBMPt
+ 1eWOImUtU05SH4/JDauXgzRQRiupNAoawoC+GDMBA9n518AKF0qdRzxXnF5iZOepKwo1dXA/eqQ
+ fHPfNdBdSoa22pFFGoHUHZ2fyMSgvbVHJLsvia9fbwF198WFJv5laP+qSYMqWYocDpuBgenVjVT
+ JQ4BDQclDbPKVuSt6DqulKo2j+XiUr7t9IHtaY5SpLldYMJbYeSf+ecmNizUzlH5JgTZWLadWUA
+ WrqW17BX0Eq6OQ6gpXahBYQXrtaIa2ZtzA3F0nb/0JWZnPR9nVZocUWW8hNHDfFdHLX62yDRvDY
+ zi5uKA83eLltnv0SKLw==
+X-Proofpoint-ORIG-GUID: bVv7IztOJbrWpdhV6_3ZAvs9WqRqRFwh
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
+ definitions=2026-06-09_02,2026-06-09_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ lowpriorityscore=0 adultscore=0 phishscore=0 malwarescore=0 impostorscore=0
+ priorityscore=1501 clxscore=1015 bulkscore=0 spamscore=0 suspectscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2605210000 definitions=main-2606090084
 
-"Dan Williams (nvidia)" <djbw@kernel.org> writes:
+On 6/9/26 10:12, Christian Loehle wrote:
+> On 6/9/26 08:52, Mete Durlu wrote:
+>> Introduce generic cpuidle driver on s390. Use a two stage approach to
+>> handle idle scenarios and use TEO governor for idle stage selection.
+>> Two stages are, from shallow to deep, idle polling and enabled wait.
+>>
+>> Suggested-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+>> Suggested-by: Heiko Carstens <hca@linux.ibm.com>
+>> Signed-off-by: Mete Durlu <meted@linux.ibm.com>
+>> ---
+>>   arch/s390/Kconfig              |   5 ++
+>>   drivers/cpuidle/Kconfig        |   5 ++
+>>   drivers/cpuidle/Kconfig.s390   |  12 ++++
+>>   drivers/cpuidle/Makefile       |   4 ++
+>>   drivers/cpuidle/cpuidle-s390.c | 104 +++++++++++++++++++++++++++++++++
+>>   5 files changed, 130 insertions(+)
+>>   create mode 100644 drivers/cpuidle/Kconfig.s390
+>>   create mode 100644 drivers/cpuidle/cpuidle-s390.c
+> 
+> Since this will be hard for anybody without the hardware to maintain,
+> would you maintain it? Or the existing s390 maintainers?
+> If either then please also modify MAINTAINERS to reflect that.
 
-> Aneesh Kumar K.V wrote:
-> [..]
->> > I think we can wait to move it to its own IOMMU operation unless/until
->> > there is a need to set RUN outside of an explicit guest request, right?
->> 
->> Something like the below? (the diff against this series)
->> 
->> I have not yet integrated this into the full CCA patchset for testing,
->> but I wanted to make sure we are aligned on the UAPI.
-> [..]
->> -static bool iommufd_vdevice_tsm_req_scope_valid(u32 scope)
->> +static bool iommufd_vdevice_tsm_req_arch_valid(u32 tvm_arch)
->>  {
->> -	if (scope > IOMMU_VDEVICE_TSM_REQ_SCOPE_PCI_LAST)
->> +	switch (tvm_arch) {
->> +	case IOMMU_VDEVICE_TSM_TVM_ARCH_CCA:
->> +	case IOMMU_VDEVICE_TSM_TVM_ARCH_SEV:
->> +	case IOMMU_VDEVICE_TSM_TVM_ARCH_TDX:
->
-> Makes sense for any command that needs tunneling. However, see below, what is
-> that set, and do we need a IOMMU_VDEVICE_TSM_COMMON when architecture
-> differentiation is not required?
->
->> +		return true;
->> +	default:
->>  		return false;
->> +	}
->> +}
->>  
->> -	switch (scope) {
->> -	case IOMMU_VDEVICE_TSM_REQ_PCI_INFO:
->> -	case IOMMU_VDEVICE_TSM_REQ_PCI_STATE_CHANGE:
->> -	case IOMMU_VDEVICE_TSM_REQ_PCI_DEBUG_READ:
->> -	case IOMMU_VDEVICE_TSM_REQ_PCI_DEBUG_WRITE:
->> +static bool iommufd_vdevice_tsm_req_op_valid(u32 op, u32 tvm_arch)
->> +{
->> +	switch (op) {
->> +	case TSM_REQ_READ_OBJECT:
->> +	case TSM_REQ_REGEN_OBJECT:
->> +	case TSM_REQ_OBJECT_INFO:
->
-> The design goal of the netlink device-evidence interface is to be able
-> to respond to all shapes of requests for evidence. So netlink caches
-> objects that the hypercall handler can fill responses from.
->
-> It eliminates a class of commands that need tunneling.
->
 
-Sure, I can drop this from the iommufd ioctl and use netlink to read and
-regenerate the objects from the VMM.
+Yes, I'll be maintaining the driver. I am not sure if it should be part
+of the patch series but I'll add a new entry like below;
 
-Can I use netlink to find the cached object size? CCA supports
-RHI_DA_OBJECT_SIZE, which can be used to query the object size.
-If not should we have TSM_REQ_OBJECT_INFO? 
+diff --git a/MAINTAINERS b/MAINTAINERS
+index e035a3be797c..6b1eaa3abce7 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -6766,6 +6766,13 @@ L:       linux-riscv@lists.infradead.org
+  S:     Maintained
+  F:     drivers/cpuidle/cpuidle-riscv-sbi.c
 
->
->> +	case TSM_REQ_VALIDATE_MMIO:
->> +	case TSM_REQ_SET_TDI_STATE:
->
-> Are these potentially candidates for a IOMMU_VDEVICE_TSM_COMMON? The
-> handler knows how to do the arch-specific response from the common
-> iommufd result, or is there TSM-specific payload beyond @tsm_code for
-> these.
->
-> Make it the case that guest_req only needs non-common arch for
-> operations that are implementation unique, or where the response payload
-> exceeds what can be conveyed via @tsm_code.
->
++CPUIDLE DRIVER - S390
++M:     Mete Durlu <meted@linux.ibm.com>
++L:     linux-pm@vger.kernel.org
++L:     linux-s390@vger.kernel.org
++S:     Maintained
++F:     drivers/cpuidle/cpuidle-s390.c
++
+  CPUMASK API [RUST]
+  M:     Viresh Kumar <viresh.kumar@linaro.org>
+  R:     Yury Norov <yury.norov@gmail.com>
+@@ -23499,6 +23506,7 @@ F:      Documentation/arch/s390/
+  F:     arch/s390/
+  F:     drivers/s390/
+  F:     drivers/watchdog/diag288_wdt.c
++F:     drivers/cpuidle/cpuidle-s390.c
 
-I am not sure I follow the IOMMU_VDEVICE_TSM_COMMON feedback above.
-
-Earlier discussions around this concluded that we may want iommufd
-to validate all input commands, rather than making the guest request
-ioctl a passthrough interface.
-
-If we make the ops IOMMU_VDEVICE_TSM_COMMON, we would still need to add
-TSM_REQ_VALIDATE_MMIO and TSM_REQ_SET_TDI_STATE for the arch-specific
-handler. Why not expose those to the generic iommufd layer, so that we
-can add operation validation there and completely drop IOMMU_VDEVICE_TSM_COMMON?
-
->>  		return true;
->> +	case TSM_REQ_SEV_ENABLE_DMA:
->> +	case TSM_REQ_SEV_DISABLE_DMA:
->> +		return tvm_arch == IOMMU_VDEVICE_TSM_TVM_ARCH_SEV;
->
-> Right, this appears to be the only case where the command is
-> implementation unique. The handler can only ask iommufd to take
-> arch-specific action.
-
--aneesh
+  S390 COMMON I/O LAYER
+  M:     Vineeth Vijayan <vneethv@linux.ibm.com>
