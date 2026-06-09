@@ -1,216 +1,147 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from fout-a5-smtp.messagingengine.com (fout-a5-smtp.messagingengine.com [103.168.172.148])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 18D003E009B;
-	Tue,  9 Jun 2026 16:17:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D84FB4DB559;
+	Tue,  9 Jun 2026 19:16:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.148
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781021823; cv=none; b=fNTBYIsR5ePY1dDT8AkvsrJbQZuZtZXSwrGLhxQ/xEyy4XXg6UzyxUzRzmUiZxxS17rBzxHF4bkz/BWAyLxFdVFVjhjOAouRmcJh+QVraZHpEU3+TQxB2pcCuAT+6mGI8tekyYPBF+4/yN61aS7SWiQpl3YPPUTwjenp9ccHCQw=
+	t=1781032570; cv=none; b=FNXazdYf6xTgVyRs4p2qgSw9EoSiiKr3ac4NAVkQ24x6PdCJ5W7/Ru9cW12LAyIAOKv6J06MRG+fi7wk+sTYtYZq30XZ8WhQZ/0ZT4jQLsVM6sghVT6g3iIZ0jcxCTMxTdTk07l6mlsaFDyq3j4oxvfoWhKRGTxclK9RmQOw5es=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781021823; c=relaxed/simple;
-	bh=/m0kCb4H5ZRvx3+KwFCzamoiQDgIj8JHzOIXcUbu2mQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=DQmQPlG0I4s0iirMSBTq2GsRxn/LX/a6/6FGtJVsvEfSBgw+gxrqKVzOOpkM06rMPKTSbRA4rmGY2Z7tXSC6J6V/dKQRFq1LKuFNTXrElOIDnyqfCTejucZQ/VbwYXdqGiPyzBR9Lp2tBMkI9b4/tx942x0Pk54KSa327p8hs90=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=rIGJTrkk; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1781032570; c=relaxed/simple;
+	bh=2dXul6EpZQ3L1XNvuNJqNmx+Wvf31tYng7dRqPDdLsk=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=AzUsGS9G/wTnlz1prvTB4qEOpvR6tRfHE1NwETXN5FSovsa0vGaBKYG5P7E70jiVXURuLBeXSFOTjy74bN/RnX3SFS4UKCJJuxJJz8RufRTHsoVoKMkHka2pCZ11lszQROl6w3NzKRIJSehsuu7eJTSIJPm7kqCZg0Hn5Ke/GKY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shazbot.org; spf=pass smtp.mailfrom=shazbot.org; dkim=pass (2048-bit key) header.d=shazbot.org header.i=@shazbot.org header.b=L08ajDIL; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=cUWe2h4O; arc=none smtp.client-ip=103.168.172.148
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shazbot.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=shazbot.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="rIGJTrkk"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 659CwPOr1475403;
-	Tue, 9 Jun 2026 16:17:00 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=+kx6+VFAffAOX221N
-	9Sn4YC8rqVcjxUqvfEquMZYTeQ=; b=rIGJTrkkbbkwZUXuF7HgOkswCZDOeNetA
-	u5nQQBGuxqcDofe9ih1zYMZmBTVlBN+tuhCk1v33yAzi3bBBl7E1LuJsJ+LdYMAx
-	COkzM85zx6vuK4KuuoyaRmWLC2MYaAqDiuEIoJXgZUl9meiszK1ZW5hngfBwxq81
-	ZpTQsDKDOf6Euvn8CT1sqUSJD+WbXq+xgAejQaHEf/6aK/7nsEE5jMXMppY94W2r
-	U/vZAtzW5W+1m4Wf2plnsdHXV/ZKadENGcSXZAl60qH0bpb/EVsziwYSLjdaxYar
-	8j69E54qR1ZNDEVf37Kl/XiP4r/S0d+ob0LY+ztegkd+FX1tXGXag==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4emb7qn3kr-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 09 Jun 2026 16:17:00 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 659G4f3e017255;
-	Tue, 9 Jun 2026 16:16:59 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4emych2q9d-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 09 Jun 2026 16:16:58 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 659GGrbB7405902
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 9 Jun 2026 16:16:53 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 00BE420040;
-	Tue,  9 Jun 2026 16:16:53 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id BC4C02004D;
-	Tue,  9 Jun 2026 16:16:51 +0000 (GMT)
-Received: from p-imbrenda.ibmuc.com (unknown [9.111.28.58])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue,  9 Jun 2026 16:16:51 +0000 (GMT)
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-To: linux-kernel@vger.kernel.org
-Cc: stable@vger.kernel.org, kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        borntraeger@de.ibm.com, frankja@linux.ibm.com, david@kernel.org,
-        seiden@linux.ibm.com, nrb@linux.ibm.com, schlameuss@linux.ibm.com,
-        gra@linux.ibm.com
-Subject: [PATCH v1 3/3] KVM: s390: vsie: Use mmu cache to allocate rmap
-Date: Tue,  9 Jun 2026 18:16:46 +0200
-Message-ID: <20260609161646.695361-4-imbrenda@linux.ibm.com>
-X-Mailer: git-send-email 2.54.0
-In-Reply-To: <20260609161646.695361-1-imbrenda@linux.ibm.com>
-References: <20260609161646.695361-1-imbrenda@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=shazbot.org header.i=@shazbot.org header.b="L08ajDIL";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="cUWe2h4O"
+Received: from phl-compute-01.internal (phl-compute-01.internal [10.202.2.41])
+	by mailfout.phl.internal (Postfix) with ESMTP id EC7F2EC022A;
+	Tue,  9 Jun 2026 15:16:06 -0400 (EDT)
+Received: from phl-frontend-03 ([10.202.2.162])
+  by phl-compute-01.internal (MEProxy); Tue, 09 Jun 2026 15:16:06 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=shazbot.org; h=
+	cc:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm3; t=1781032566;
+	 x=1781118966; bh=rN3rdmRzxAU6hb2xvro1GlJdcdDmOfuaXwfPA/DRbbs=; b=
+	L08ajDILMl9TdrjtO2ZP3P39yrkZNQscPZmwiYryDck77kabbKLDWZ4/501v+OtD
+	81K324fknDtNerzdz7fXjxAk1yAurT1TM8+qLksgcRdS2UJAZTPvQNHjCm7Nl/90
+	XoqTFjvKiC0cf1oeCMWyPhkTNNb5AEG4cL4RzTYdOQPBU7z+D/1aotAYQTQGQktm
+	PG7tQldFU3nidZe0AEHB7NEbK/5mPrTp6mGh6IsdrBNlb2Na0bzPM0gUt+xjhmDK
+	5BjztfpjQfhUcmlO8JPcmda7SUfkLytWZKtTboTPRmJmaAsFEuEKRHKwzPD1I8hH
+	Q+wJ5jY9MTQbuZBiwTSvIA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1781032566; x=
+	1781118966; bh=rN3rdmRzxAU6hb2xvro1GlJdcdDmOfuaXwfPA/DRbbs=; b=c
+	UWe2h4OVQ0Eafr0nntwTJlWEBcfQM+xRDj78ILMpZSYOAGaQmjcEOjZvR1lM3vVR
+	ccUUWcnnqQLy9EoDDVNs8P/c29M5LX/A9W5hcBlTbGwtKoJb2twwUKuiy371CC5i
+	ln26nA1x/DBJruenM+bF+eJZzKDtsLOnKrJ8i1S2SIGpWvS5SUwmqCQdwxBRIX+O
+	GThZE4zF7MqALK1jgYZ/ECpNXP3EJqUVvmLgs7S3o+Dfs9htti19l7lTsosj9Su1
+	HEMZSG5aL9byYj5eGOvoJ0kFlLjgZnjkt0e/611piVHERJtXMUrufmzbsP6in1ti
+	IPvjtD1dXXFjPtro/r+Mg==
+X-ME-Sender: <xms:dmYoatEP4f1ewXbKgCZfOZuzPGfw8_0bU_A-dZytB4irB5IFzWkgQQ>
+    <xme:dmYoaosAIHJ8mUK5N6HWhkqFN0paf0ycCR9bJvevqaoABjtqt8sNv1djpII7lWlVW
+    afoqOS1qZAh0p7ROt1a3zvHyQ4CDX_apBMfxDI-OwEhqYLUSVzMBEo>
+X-ME-Received: <xmr:dmYoarY-Md94DrAbJ632tAimP0NJ_MW4BDBi2wSY9HSeejByH8y0JmeLkZw>
+X-ME-Proxy-Cause: dmFkZTFlC78n8oVY6BtWDnhxBMBGpkz2Mq4ap945DixZqO4SIR4z2ozKrwF+6ZeRVD9zWe
+    XpCjg/77uAgo7bj/JfC/ffad2QfN98gYTtkNsC3Ef8nSoOQcO8UO6h6zGgM5cJT0Q/l44r
+    B5frmpNAO3O93VbmJkZHdeE+X6Z90fupx2Kmu6r+jkQh3jC3GdIOEuJxtlmmqd97ZpHZ5V
+    nxS4e1AEfBYjYqoehStGIX+4Xiu9jIgALkvVcQo7ZXDFAkROl1WjvqyTG2xh4E/1O2wXu9
+    fD4EJFI55Yu78xBsUKgLGr5V/zHWTJ4xotrg7DGN3wS1vIbxTYm8+M2bPmL10FJJKSn3sR
+    jqlU3sMxjSTR1HgvqFS1AJ1Isz4iYmrCrJgZm2u+Wh/X+c2FK2RuXK5Kww+BWS8Kzvjc3E
+    0Pit/DqnIrEnZ4195w6vWK2x6mCx2OBZu1+2CCFaA6ouHjeuOsrKpdygYDVfIkamEOmb+m
+    imNX/vx3nEZcW2uaFWZlYfYEZN3grDr0WBd8n6fxsVz84LoVfw7Q1SrNyeyXp1lGodjFxC
+    vPYjxbWv2aQ2Ln8095F2KKBzpGoBtmQRXbVd2FqqUFBgUddAlZCxPmxu1WooEot3lkALhv
+    1NUUYz7W1+gOX7wmBzvJclEshG13ZLVKQ4R1vz0kwxBybmiwFj9/5RQy0Ipw
+X-ME-Proxy: <xmx:dmYoag7XhE9-vyYbcT_BM48PSZemQMIZBTG-LKVnI9Let5HVwlQKkw>
+    <xmx:dmYoar8vmDJq65kvIGQw_Ldb3l2oevvL_iBF9LdaicW_VpH2GI46nA>
+    <xmx:dmYoakY6cPm0ggu4pq7H51idNd0Bs6_9UsFWFpVOsDlX2Jf88uBDUg>
+    <xmx:dmYoas6Wme8YfOiWKY6K0X0sh3htEmQYfMjNJ3uRgF6p85vx3DFAGg>
+    <xmx:dmYoakymOxvEtNy4RQclknFmo0GHAHx4Uq1RMEUWyeY9XzA_sjTQGJ8L>
+Feedback-ID: i03f14258:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
+ 9 Jun 2026 15:16:05 -0400 (EDT)
+Date: Tue, 9 Jun 2026 13:16:04 -0600
+From: Alex Williamson <alex@shazbot.org>
+To: Farhan Ali <alifm@linux.ibm.com>
+Cc: Keith Busch <kbusch@kernel.org>, linux-s390@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org,
+ helgaas@kernel.org, schnelle@linux.ibm.com, mjrosato@linux.ibm.com, Julian
+ Ruess <julianr@linux.ibm.com>, Chengwen Feng <fengchengwen@huawei.com>,
+ alex@shazbot.org
+Subject: Re: [PATCH v18 3/4] vfio/pci: Add a reset_done callback for
+ vfio-pci driver
+Message-ID: <20260609131604.227218e8@shazbot.org>
+In-Reply-To: <96c749ba-1b42-425f-8767-a3fce4a4d30b@linux.ibm.com>
+References: <20260603182415.2324-1-alifm@linux.ibm.com>
+	<20260603182415.2324-4-alifm@linux.ibm.com>
+	<aiE3I0bL0TX1nOec@kbusch-mbp>
+	<d9ca420b-a1e6-4d12-bd42-3993e401d58b@linux.ibm.com>
+	<20260604135717.5dc69583@shazbot.org>
+	<96c749ba-1b42-425f-8767-a3fce4a4d30b@linux.ibm.com>
+X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=HppG3UTS c=1 sm=1 tr=0 ts=6a283c7c cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8 a=VwQbUJbxAAAA:8
- a=xGrK5rwyTb2P39Z5L3IA:9
-X-Proofpoint-GUID: Z7xQ8B31mSj0pXS6jdgIhnw6nQXaS9ln
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjA5MDE1MyBTYWx0ZWRfX1MoDzRxhsCzI
- YP6kzDhImYTbkEMjGS2CTys4wsLVu5QxDJ9b7F5qY/WPGic277gWTJrfTHE2b88zo3jQvz4SOgf
- GwpfJTIDHC12TJlAKhrBkhOEqAFbjQ+MUDtoMaI4CeO4j8JbY3S3vHNpSVpeZSJQHfu79SJBC/q
- gcKzUp6Sz+ruYS35P/7SEzHgQDVB2rcJAmdMrJa4/H/coo//0yecV3zRjoNHAO4boTgpT9SmKHP
- 2ZFvQi2/cl8/tH4lut7tVn8UgtvKI+13bIwGMWCA+RGq83R1ht9KzgDzg3syCDiNDeubzK+/hf3
- R6kZiiiV/yF3rs2a819ZUZ8G8QAPiAQZlJMTU4aGb2lF+IIg01ABQmZokGmKI5xNuHaQjOjq2Qq
- gsUU/LyG2pfx/RiCKqFPnE3CZnCpilCWK0N1gadt0OWVYRpOsPxiZML53Wj9laszbHp97iyqpGA
- dFvQ9Lsy5p5zSayYD7A==
-X-Proofpoint-ORIG-GUID: Z7xQ8B31mSj0pXS6jdgIhnw6nQXaS9ln
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
- definitions=2026-06-09_03,2026-06-09_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- lowpriorityscore=0 adultscore=0 phishscore=0 malwarescore=0 impostorscore=0
- priorityscore=1501 clxscore=1015 bulkscore=0 spamscore=0 suspectscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2605210000 definitions=main-2606090153
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Use kvm_s390_mmu_cache_alloc_rmap() to allocate the rmap in
-gmap_insert_rmap(), instead of a normal kzalloc_obj() with GFP_ATOMIC.
+On Mon, 8 Jun 2026 12:26:36 -0700
+Farhan Ali <alifm@linux.ibm.com> wrote:
+> On 6/4/2026 12:57 PM, Alex Williamson wrote:
+> > For things like MSI/X, SR-IOV, RE-BAR, etc. we're actually restoring
+> > from the kernel internal state rather than the save buffer state, so
+> > this is a no-op.  However, one thing in that list stands out, TPH.
+> >
+> > We don't yet support enabling TPH, but there are series on the list
+> > that propose to add this.  The TPH buffer space in the saved state is
+> > allocated just by the capability being present.  On open TPH is
+> > disabled and the saved state is untouched, zeros.  If TPH is then
+> > enabled and the device reset, the pre-reset save state populates the
+> > TPH save buffer and we restore that state post-reset.  With the change
+> > here, reset_done would then push the open saved state.  The live TPH
+> > state is enabled, therefore the restore pushes the original open state,
+> > zeros.
+> >
+> > This would result in a visible user change and maybe more importantly
+> > shows that we're relying on ad-hoc behavior, without really any specific
+> > policy to have this work reliably.  It actually seems like only in the
+> > close function, where we've disabled anything the user might have
+> > enabled, is it really valid to restore the original state.  Thanks,
+> >
+> > Alex  
+> 
+> I was trying to see if we can remove the callback and still restore the 
+> device. The original reason why we wanted the callback, was to restore 
+> the device state into something sane[1]. Since commit a2f1e22390ac 
+> ("PCI/ERR: Ensure error recoverability at all times"), which removed the 
+> saved_state check from pci_restore_state(), we will always restore from 
+> the last saved state. However, the last saved state in vfio can have the 
+> Command register Memory bit disabled (for example could be done through 
+> vfio_pci_pre_reset() in QEMU). This becomes problematic when we try to 
+> restore MSI-X from in kernel data and when MSI-X is enabled. AFAICT the 
+> msix restore path doesn't check if the Memory bit is enabled before 
+> writing the MSI-X message, which could cause an Unsupported Request 
+> error from the device. From my experiments, enabling Memory bit before 
+> restoring MSI-X state was sufficient to get the device in a sane state 
+> without this patch.
+> 
+> So we could remove this patch. But maybe there is a gap in MSI-X 
+> restoration path?
 
-This guarantees forward progress.
+I'd say yes, that's a gap in __pci_restore_msix_state() that it's
+writing to device MMIO space under the assumption that the device
+entered save/reset/restore with memory enabled.  It should really force
+memory enable to be set around the access and restored after.  Thanks,
 
-Fixes: a2c17f9270cc ("KVM: s390: New gmap code")
-Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-CC: stable@vger.kernel.org # 7.1
----
- arch/s390/kvm/gaccess.c | 16 ++++++++--------
- arch/s390/kvm/gmap.c    |  7 ++++---
- arch/s390/kvm/gmap.h    |  3 ++-
- 3 files changed, 14 insertions(+), 12 deletions(-)
-
-diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
-index 20e28b183c1a..022ea7736521 100644
---- a/arch/s390/kvm/gaccess.c
-+++ b/arch/s390/kvm/gaccess.c
-@@ -1419,8 +1419,8 @@ static int walk_guest_tables(struct gmap *sg, unsigned long saddr, struct pgtwal
- 	return kvm_s390_get_guest_page(kvm, entries + LEVEL_MEM, table.pte.pfra, wr);
- }
- 
--static int _do_shadow_pte(struct gmap *sg, gpa_t raddr, union pte *ptep_h, union pte *ptep,
--			  struct guest_fault *f, bool p)
-+static int _do_shadow_pte(struct kvm_s390_mmu_cache *mc, struct gmap *sg, gpa_t raddr,
-+			  union pte *ptep_h, union pte *ptep, struct guest_fault *f, bool p)
- {
- 	union pgste pgste;
- 	union pte newpte;
-@@ -1430,7 +1430,7 @@ static int _do_shadow_pte(struct gmap *sg, gpa_t raddr, union pte *ptep_h, union
- 	lockdep_assert_held(&sg->parent->children_lock);
- 
- 	scoped_guard(spinlock, &sg->host_to_rmap_lock)
--		rc = gmap_insert_rmap(sg, f->gfn, gpa_to_gfn(raddr), TABLE_TYPE_PAGE_TABLE);
-+		rc = gmap_insert_rmap(mc, sg, f->gfn, gpa_to_gfn(raddr), TABLE_TYPE_PAGE_TABLE);
- 	if (rc)
- 		return rc;
- 
-@@ -1462,8 +1462,8 @@ static int _do_shadow_pte(struct gmap *sg, gpa_t raddr, union pte *ptep_h, union
- 	return 0;
- }
- 
--static int _do_shadow_crste(struct gmap *sg, gpa_t raddr, union crste *host, union crste *table,
--			    struct guest_fault *f, bool p)
-+static int _do_shadow_crste(struct kvm_s390_mmu_cache *mc, struct gmap *sg, gpa_t raddr,
-+			    union crste *host, union crste *table, struct guest_fault *f, bool p)
- {
- 	union crste newcrste, oldcrste;
- 	unsigned long mask;
-@@ -1476,7 +1476,7 @@ static int _do_shadow_crste(struct gmap *sg, gpa_t raddr, union crste *host, uni
- 	mask = is_pmd(*table) ? _SEGMENT_FR_MASK : _REGION3_FR_MASK;
- 	r_gfn = gpa_to_gfn(raddr) & mask;
- 	scoped_guard(spinlock, &sg->host_to_rmap_lock)
--		rc = gmap_insert_rmap(sg, f->gfn & mask, r_gfn, host->h.tt);
-+		rc = gmap_insert_rmap(mc, sg, f->gfn & mask, r_gfn, host->h.tt);
- 	if (rc)
- 		return rc;
- 
-@@ -1578,8 +1578,8 @@ static int _gaccess_do_shadow(struct kvm_s390_mmu_cache *mc, struct gmap *sg,
- 	if (KVM_BUG_ON(l > TABLE_TYPE_REGION3, sg->kvm))
- 		return -EFAULT;
- 	if (l == TABLE_TYPE_PAGE_TABLE)
--		return _do_shadow_pte(sg, saddr, ptep_h, ptep, entries + LEVEL_MEM, w->p);
--	return _do_shadow_crste(sg, saddr, host, table, entries + LEVEL_MEM, w->p);
-+		return _do_shadow_pte(mc, sg, saddr, ptep_h, ptep, entries + LEVEL_MEM, w->p);
-+	return _do_shadow_crste(mc, sg, saddr, host, table, entries + LEVEL_MEM, w->p);
- }
- 
- static inline int _gaccess_shadow_fault(struct kvm_vcpu *vcpu, struct gmap *sg, gpa_t saddr,
-diff --git a/arch/s390/kvm/gmap.c b/arch/s390/kvm/gmap.c
-index 52d55ddea8d4..1d289f8fa3b2 100644
---- a/arch/s390/kvm/gmap.c
-+++ b/arch/s390/kvm/gmap.c
-@@ -1000,7 +1000,8 @@ int gmap_pv_destroy_range(struct gmap *gmap, gfn_t start, gfn_t end, bool interr
- 	return 0;
- }
- 
--int gmap_insert_rmap(struct gmap *sg, gfn_t p_gfn, gfn_t r_gfn, int level)
-+int gmap_insert_rmap(struct kvm_s390_mmu_cache *mc, struct gmap *sg, gfn_t p_gfn,
-+		     gfn_t r_gfn, int level)
- {
- 	struct vsie_rmap *rmap __free(kvfree) = NULL;
- 	struct vsie_rmap *temp;
-@@ -1010,7 +1011,7 @@ int gmap_insert_rmap(struct gmap *sg, gfn_t p_gfn, gfn_t r_gfn, int level)
- 	KVM_BUG_ON(!is_shadow(sg), sg->kvm);
- 	lockdep_assert_held(&sg->host_to_rmap_lock);
- 
--	rmap = kzalloc_obj(*rmap, GFP_ATOMIC);
-+	rmap = kvm_s390_mmu_cache_alloc_rmap(mc);
- 	if (!rmap)
- 		return -ENOMEM;
- 
-@@ -1057,7 +1058,7 @@ int gmap_protect_rmap(struct kvm_s390_mmu_cache *mc, struct gmap *sg, gfn_t p_gf
- 	if (level <= TABLE_TYPE_REGION1) {
- 		bitmask = -1UL << (8 + 11 * level);
- 		scoped_guard(spinlock, &sg->host_to_rmap_lock)
--			rc = gmap_insert_rmap(sg, p_gfn, r_gfn & bitmask, level);
-+			rc = gmap_insert_rmap(mc, sg, p_gfn, r_gfn & bitmask, level);
- 	}
- 	if (rc)
- 		return rc;
-diff --git a/arch/s390/kvm/gmap.h b/arch/s390/kvm/gmap.h
-index 4e6979783e16..75df5d39bd78 100644
---- a/arch/s390/kvm/gmap.h
-+++ b/arch/s390/kvm/gmap.h
-@@ -100,7 +100,8 @@ int gmap_ucas_map(struct gmap *gmap, gfn_t p_gfn, gfn_t c_gfn, unsigned long cou
- void gmap_ucas_unmap(struct gmap *gmap, gfn_t c_gfn, unsigned long count);
- int gmap_enable_skeys(struct gmap *gmap);
- int gmap_pv_destroy_range(struct gmap *gmap, gfn_t start, gfn_t end, bool interruptible);
--int gmap_insert_rmap(struct gmap *sg, gfn_t p_gfn, gfn_t r_gfn, int level);
-+int gmap_insert_rmap(struct kvm_s390_mmu_cache *mc, struct gmap *sg, gfn_t p_gfn,
-+		     gfn_t r_gfn, int level);
- int gmap_protect_rmap(struct kvm_s390_mmu_cache *mc, struct gmap *sg, gfn_t p_gfn, gfn_t r_gfn,
- 		      kvm_pfn_t pfn, int level, bool wr);
- void gmap_set_cmma_all_dirty(struct gmap *gmap);
--- 
-2.54.0
-
+Alex
