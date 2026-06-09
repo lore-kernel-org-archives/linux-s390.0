@@ -1,198 +1,218 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f44.google.com (mail-wm1-f44.google.com [209.85.128.44])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 916C32C21DD;
-	Tue,  9 Jun 2026 13:24:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BCA012BEC2E
+	for <linux-s390@vger.kernel.org>; Tue,  9 Jun 2026 13:25:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781011488; cv=none; b=fIiooXBkXxg4UltKrhIGTx2q4JLi++m9Rh/Y1rfnbAttzaUTYYe5DjXJGdaWGS4jbSYZWyWaQHowzO7Nc1LJ/3/9aOARPCpvyJhXmXaZqMCfSCJkQRrKUTLALNkN53jdjHJkDYa0g5Wg/kbXAM5lNJFO1X4ArjDyv5HAJu4Nw0I=
+	t=1781011522; cv=none; b=aW33WV9Bd6GVdw2ymRmmxhHD7vzyQZpbAM8TnDBZel4I4IgkYAOzznhgk6lDaagIcdHgaX937VZ0lOzXkVkPCJy3Z3oasJpu6qpO1mas4Yb7K4iCpevHuVGDq8W5GerAJ2fl7V4bgYMVG/rKLsJnLjGoAf2Judjec+ZBvTNjN+4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781011488; c=relaxed/simple;
-	bh=bvIFBzliHqNK7qwyI8NR89UtpUKlBq3yWXJ4PsLzUfg=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=NPvCS/azAgExADe2hb35AevEpXIpwHL9igjCkhtoxl52j2qrG9l81pjvuxJyIO88h0wLwFvFt6sDzfO6Jm2zJ5FooF1U90xVg8bktLwUSFXHPkvGW9YYlT1mx9lHU7E97OdmgiwnEAobNmrf6Ts/SHE6SZcTorO2gGaoVlomoLI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=HvMBTlo1; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1781011522; c=relaxed/simple;
+	bh=5ykcnLagaTLgxx9r2hXBNJ7fmnjaYdIjCpGctAQoeIc=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=Zcde/xWtTVMrLnOm/XBSq60XRfEI8nE3n+Jolzb3WsAKqwNDlUchn80SbkN0RjoyXd4ujO7xZWD2DsRdt+mICuSnWoD4oyJCOfjbLBhQWql8CAdjy5NrS3IiqI6wjk2rInhhe8c4ddv3mcuWJmmhSs4Iql6LrLbj964stPB8oFw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=Bn9Lswqw; arc=none smtp.client-ip=209.85.128.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="HvMBTlo1"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6592a8C6647384;
-	Tue, 9 Jun 2026 13:24:33 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=xfcZ6p
-	j6QAMbV8OXrzV3Yyjd+AWewXiQgnBFGL8o5GM=; b=HvMBTlo1C8E503YoRzryjd
-	ggrACCUdpm/hjjAv0vFCGf+0H5GUZYL96FMB7fRgPTjo6y+PbEdI2gh9q0t0qhkE
-	b23wn6+rIr1uDSCSJDLpLiwZXTdh78kDI7vdNzK58mntjdpAqVca7+UI7Cj5rCTQ
-	mSX8W46bRAxdGLYzwDvl5UV7vLIhUFYfta3HiB/L2SVVYKYRls0nY/cStDbGoB2X
-	PoEOEiFbeaZfNLz2wETZ9MzRGhF8rCKGCy4OloNHmUZW7F6Id4twZvc4FtWcCyWG
-	SGqzi00I9f7Fta1dj+ATzwCQC2RMDLP2u9ZXHFK1rde3ooKpvgYZzdSiJ65C/uag
-	==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4em9ye45ft-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 09 Jun 2026 13:24:32 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 659DJgbe032054;
-	Tue, 9 Jun 2026 13:24:32 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4emych221b-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 09 Jun 2026 13:24:32 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 659DOSBT39059780
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 9 Jun 2026 13:24:28 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5E7CD20040;
-	Tue,  9 Jun 2026 13:24:28 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2860620043;
-	Tue,  9 Jun 2026 13:24:28 +0000 (GMT)
-Received: from [9.224.76.67] (unknown [9.224.76.67])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue,  9 Jun 2026 13:24:28 +0000 (GMT)
-From: Mete Durlu <meted@linux.ibm.com>
-Date: Tue, 09 Jun 2026 15:24:21 +0200
-Subject: [PATCH v2 1/5] s390/tick: Remove CIF_NOHZ_DELAY flag
+	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="Bn9Lswqw"
+Received: by mail-wm1-f44.google.com with SMTP id 5b1f17b1804b1-490a7629453so4898785e9.0
+        for <linux-s390@vger.kernel.org>; Tue, 09 Jun 2026 06:25:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=suse.com; s=google; t=1781011519; x=1781616319; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=k7v0vfpWbXL2tO4K5nU3J31VniWsuUDENERYOQ4A7IA=;
+        b=Bn9LswqwemtU8Cm1YRRbrBjRNko7HkcH54vKwpklwvQul4E5/P3wMy9WEyuWZoqQNE
+         WnMq7OAdamuPpozJuDhGP4xhEEDhgwVJjwu8c/7J41kOeV3uKBbNu+UBPKLOrNR9M+vx
+         N5Pr3WxzmtQ8VYeyvALY2lfXtFjihisKgwb56zr2u1R/JaCoXovXSFf80bap5OIcGp3s
+         qoM8zGWd6HLh1UPVvSWell3iH1UFpqBT4KdTtBOhbUUuSfojN9MiGi3EEcnisQ7+3CuZ
+         PMo9lhugnsbp5BJAxwxASEKYGPyUXDx13SY/K2h+ltEZXmn2W5NAINGg2zGOA5Rh25x/
+         jlxg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1781011519; x=1781616319;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=k7v0vfpWbXL2tO4K5nU3J31VniWsuUDENERYOQ4A7IA=;
+        b=nn3Bx5OFeJ9Cp+ENzGUtB+0Xh9zOdKbZZYGn0VmV7emYo2G7/2RQyaqAoAVqf30PLV
+         6HjXH04vTyJhDLL3wfCjJmFQ50gF67Da5fOdOBYbnkbCbOZuxRxBKXa3PBR1a3abnsGI
+         nu3ak+VS4cansOlCJbQTcOj9FQNx/OmaoioXbK1z9Ece8D2x/X1etocUmD32SDMJoPPM
+         CKUFwYzxuJehGfS71lkelcsfx/4obMWMjz6r9z9Xn7inBOErikN5GjRyUpbI8bDQERvI
+         Y4W/gikGWbO9vt4rPV4Jtrd0t31FiqvCz/gtpCkfEvFlHvw4/lk2/GkoErGvjMA3qTch
+         tYiQ==
+X-Forwarded-Encrypted: i=1; AFNElJ8LAWWquakeJ+iDMIkYsTOZycQ9Kf1vfxxvDzlbC42Mlf+2wV1Sk1mCPqlRCOOnGVM7s/6RCH0UVJkO@vger.kernel.org
+X-Gm-Message-State: AOJu0Yz/xuxLmvq2jTn39AVqxHTWF9U8uh34wMDLDzf0XDp5rEGLOUgw
+	hqlk/H7gSYBvim82eJHLzkSr2RnlTVTZ+54INtq6uwcWkOGkjqMrv5nkIbE8LiJOEQs=
+X-Gm-Gg: Acq92OE8jdGTjumkToGRI3i6oz707UcANypj9opHylad6jaHjmHTsl9kiUwBikjW/vJ
+	+qTxoZV7N2u/F/2PGzDMmVuF57ZvQrbfqeY9Ih3kPVq7kwidu7Pm6JFI0J6C5u9B7DQ3GuwEoGE
+	Zl7O2xixjAPGelTKyuk1BrsFObNV6tDwlzQLc5i4pE4ZIcRHjnOJCT/NVETQXIC6GEVsOES7Ywo
+	ooloCN0cZq0GYsiHnBQ0FCB6CIU3i2raMmcgu3DPr6w0E9ZAd8YcS4ocmn7Au2kMA5GxCOC6epu
+	UiY55DThtyVxVSXxvkkvAYtoif4nGUjOIIAIP4xV9m2BY4TQQkPty7mlPZKGQ0GzDPkDaQaLLzX
+	i5NO42WhQ4vopjiS4sQyjzB9Ba/+razpundp0+ZPMYRCCHcbTZzxdmkdVA0oK2nGbTFsoImUJx3
+	DOKhLk+z5+Eu1FuBEDVw7XxMs=
+X-Received: by 2002:a05:600c:1c1e:b0:48a:56d4:7274 with SMTP id 5b1f17b1804b1-490c25e7e1amr167118665e9.3.1781011519006;
+        Tue, 09 Jun 2026 06:25:19 -0700 (PDT)
+Received: from mordecai ([62.77.90.70])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-490bc3cc140sm574197205e9.9.2026.06.09.06.25.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 09 Jun 2026 06:25:18 -0700 (PDT)
+Date: Tue, 9 Jun 2026 15:23:53 +0200
+From: Petr Tesarik <ptesarik@suse.com>
+To: "Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org>
+Cc: iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
+ linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev, Robin Murphy
+ <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Will
+ Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>, Steven Price
+ <steven.price@arm.com>, Suzuki K Poulose <Suzuki.Poulose@arm.com>, Catalin
+ Marinas <catalin.marinas@arm.com>, Jiri Pirko <jiri@resnulli.us>, Jason
+ Gunthorpe <jgg@ziepe.ca>, Mostafa Saleh <smostafa@google.com>, Alexey
+ Kardashevskiy <aik@amd.com>, Dan Williams <dan.j.williams@intel.com>, Xu
+ Yilun <yilun.xu@linux.intel.com>, linuxppc-dev@lists.ozlabs.org,
+ linux-s390@vger.kernel.org, Madhavan Srinivasan <maddy@linux.ibm.com>,
+ Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
+ "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, Alexander Gordeev
+ <agordeev@linux.ibm.com>, Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle
+ <svens@linux.ibm.com>, x86@kernel.org, Michael Kelley
+ <mhklinux@outlook.com>
+Subject: Re: [PATCH v6 16/20] dma: swiotlb: free dynamic pools from process
+ context
+Message-ID: <20260609152353.6a9f60f8@mordecai>
+In-Reply-To: <20260604083959.1265923-17-aneesh.kumar@kernel.org>
+References: <20260604083959.1265923-1-aneesh.kumar@kernel.org>
+	<20260604083959.1265923-17-aneesh.kumar@kernel.org>
+X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-suse-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260609-idledriver-v2-1-21c2f581d11f@linux.ibm.com>
-References: <20260609-idledriver-v2-0-21c2f581d11f@linux.ibm.com>
-In-Reply-To: <20260609-idledriver-v2-0-21c2f581d11f@linux.ibm.com>
-To: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Anna-Maria Behnsen <anna-maria@linutronix.de>,
-        Frederic Weisbecker <frederic@kernel.org>,
-        Ingo Molnar <mingo@kernel.org>, Thomas Gleixner <tglx@kernel.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Daniel Lezcano <daniel.lezcano@kernel.org>,
-        Christian Loehle <christian.loehle@arm.com>
-Cc: Mete Durlu <meted@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Ilya Leoshkevich <iii@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-pm@vger.kernel.org
-X-Mailer: b4 0.14.3
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjA5MDEyNCBTYWx0ZWRfX5CGVddOoCdFR
- qjmwS+lP6QcAb/SJPqnNAkSKevtq3cLFYJC3qALYNqSEKtNcbMJ4/L7qcrre7Dw2DHfM5hpO9G/
- hFsjz3Q1w64lnnzeVFRWsEJ/7TzEmJvAOksrSLAJ50I8D/ldNEDvXW1AG39lz70iWcPTofcN6Y2
- 00QR4fhby5/ODnIfuoCdpbb6VWwY3rm6qg9RaRzlcMzjkfH5VwLOJY9VphfBuQQIOw/zmoNdGA2
- 3T4lampC/yCfWqWyVU0+/X6JkhrLdRiGPFmyM6eORfNmLkI8gURd2g2swv3RDJgIRV+SvL6keWL
- bdTiXlllpThpC9cqRWNHm+JnyOTuAkGDyymfNYXTm/tQieXxjdPCh8YcOxxPde0MIW0OcTF51Z/
- q1SF/8QHLQJ79BeBMPuD8HADGxnIquKtgWs2DfTGMHRKrIKBLpSsx/omDoW8LvNkVFRRdydBCvc
- DTuXSbzFkZCLvpMWxDQ==
-X-Authority-Analysis: v=2.4 cv=QKhYgALL c=1 sm=1 tr=0 ts=6a281410 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=IkcTkHD0fZMA:10 a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VwQbUJbxAAAA:8
- a=VnNF1IyMAAAA:8 a=7PVU6fNTM30o4ork3uUA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: EQpIwNOwndqmv00SmQObbQUTur0Qb8MY
-X-Proofpoint-ORIG-GUID: EQpIwNOwndqmv00SmQObbQUTur0Qb8MY
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
- definitions=2026-06-09_03,2026-06-09_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 lowpriorityscore=0 bulkscore=0 adultscore=0 phishscore=0
- malwarescore=0 impostorscore=0 suspectscore=0 spamscore=0 clxscore=1011
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2605210000 definitions=main-2606090124
 
-Remove obsolete tick delay heuristic [1]. The upcoming cpuidle driver
-handles frequent sleep/wakeup cycles more effectively.
+On Thu,  4 Jun 2026 14:09:55 +0530
+"Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org> wrote:
 
-[1] https://lore.kernel.org/all/20090929122533.402715150@de.ibm.com/
+> swiotlb_dyn_free() is used after removing a dynamic swiotlb pool from
+> RCU-protected lists. It can call swiotlb_free_tlb(), which may need to
+> restore the encryption state of an unencrypted pool with
+> set_memory_encrypted() before freeing the pages.
+> 
+> RCU callbacks run in atomic context, but set_memory_encrypted() is not
+> guaranteed to be atomic-safe on all architectures. For example, page
+> attribute updates may allocate page tables or take sleeping locks.
 
-Suggested-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Mete Durlu <meted@linux.ibm.com>
----
- arch/s390/include/asm/processor.h | 4 ----
- arch/s390/kernel/idle.c           | 1 -
- arch/s390/kernel/irq.c            | 4 ----
- arch/s390/kernel/smp.c            | 1 -
- 4 files changed, 10 deletions(-)
+Good catch!
 
-diff --git a/arch/s390/include/asm/processor.h b/arch/s390/include/asm/processor.h
-index 78195ee5e99f..3666198cc364 100644
---- a/arch/s390/include/asm/processor.h
-+++ b/arch/s390/include/asm/processor.h
-@@ -14,12 +14,10 @@
- 
- #include <linux/bits.h>
- 
--#define CIF_NOHZ_DELAY		2	/* delay HZ disable for a tick */
- #define CIF_ENABLED_WAIT	5	/* in enabled wait state */
- #define CIF_MCCK_GUEST		6	/* machine check happening in guest */
- #define CIF_DEDICATED_CPU	7	/* this CPU is dedicated */
- 
--#define _CIF_NOHZ_DELAY		BIT(CIF_NOHZ_DELAY)
- #define _CIF_ENABLED_WAIT	BIT(CIF_ENABLED_WAIT)
- #define _CIF_MCCK_GUEST		BIT(CIF_MCCK_GUEST)
- #define _CIF_DEDICATED_CPU	BIT(CIF_DEDICATED_CPU)
-@@ -96,8 +94,6 @@ static __always_inline bool test_cpu_flag_of(int flag, int cpu)
- 	return test_bit(flag, &per_cpu(pcpu_devices, cpu).flags);
- }
- 
--#define arch_needs_cpu() test_cpu_flag(CIF_NOHZ_DELAY)
--
- static inline void get_cpu_id(struct cpuid *ptr)
- {
- 	asm volatile("stidp %0" : "=Q" (*ptr));
-diff --git a/arch/s390/kernel/idle.c b/arch/s390/kernel/idle.c
-index 1f1b06b6b4ef..8c63f440da2e 100644
---- a/arch/s390/kernel/idle.c
-+++ b/arch/s390/kernel/idle.c
-@@ -42,7 +42,6 @@ void noinstr arch_cpu_idle(void)
- 	/* Wait for external, I/O or machine check interrupt. */
- 	psw_mask = PSW_KERNEL_BITS | PSW_MASK_WAIT |
- 		   PSW_MASK_IO | PSW_MASK_EXT | PSW_MASK_MCHECK;
--	clear_cpu_flag(CIF_NOHZ_DELAY);
- 	set_cpu_flag(CIF_ENABLED_WAIT);
- 	if (smp_cpu_mtid)
- 		stcctm(MT_DIAG, smp_cpu_mtid, (u64 *)&idle->mt_cycles_enter);
-diff --git a/arch/s390/kernel/irq.c b/arch/s390/kernel/irq.c
-index d10a17e6531d..61d17954c34c 100644
---- a/arch/s390/kernel/irq.c
-+++ b/arch/s390/kernel/irq.c
-@@ -161,7 +161,6 @@ void noinstr do_io_irq(struct pt_regs *regs)
- 	if (from_idle)
- 		account_idle_time_irq();
- 
--	set_cpu_flag(CIF_NOHZ_DELAY);
- 	do {
- 		regs->tpi_info = get_lowcore()->tpi_info;
- 		if (get_lowcore()->tpi_info.adapter_IO)
-@@ -358,9 +357,6 @@ static irqreturn_t do_ext_interrupt(int irq, void *dummy)
- 	int index;
- 
- 	ext_code.int_code = regs->int_code;
--	if (ext_code.code != EXT_IRQ_CLK_COMP)
--		set_cpu_flag(CIF_NOHZ_DELAY);
--
- 	index = ext_hash(ext_code.code);
- 	rcu_read_lock();
- 	hlist_for_each_entry_rcu(p, &ext_int_hash[index], entry) {
-diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
-index 50bb499cf3e5..cd5ccbe3a18d 100644
---- a/arch/s390/kernel/smp.c
-+++ b/arch/s390/kernel/smp.c
-@@ -910,7 +910,6 @@ int __cpu_disable(void)
- 	cregs[6].val  &= ~0xff000000UL;	/* disable all I/O interrupts */
- 	cregs[14].val &= ~0x1f000000UL;	/* disable most machine checks */
- 	__local_ctl_load(0, 15, cregs);
--	clear_cpu_flag(CIF_NOHZ_DELAY);
- 	return 0;
- }
- 
+> Use queue_rcu_work() for dynamic pool freeing instead. This keeps the RCU
+> grace period before freeing a published pool, while running the actual pool
+> teardown from workqueue context. Use the same helper for the transient-pool
+> error path, since that path may also be reached from atomic DMA mapping
+> context.
 
--- 
-2.54.0
+Strictly speaking, it's not necessary, because this is in the error
+path just after allocating a transient pool. There are only two
+possible scenarios:
+
+a. The transient buffer was allocated from a sleeping context, and then
+   it's also OK to decrypt memory.
+
+b. The transient buffer was allocated in atomic context, but then it was
+   allocated from a coherent pool and it is returned to that pool
+   rather than decrypted.
+
+However, it's also fine to queue an RCU work. The logic is definitely
+cleaner and easier to maintain.
+
+> Tested-by: Michael Kelley <mhklinux@outlook.com>
+> Tested-by: Mostafa Saleh <smostafa@google.com>
+> Signed-off-by: Aneesh Kumar K.V (Arm) <aneesh.kumar@kernel.org>
+
+Reviewed-by: Petr Tesarik <ptesarik@suse.com>
+
+Petr T
+
+> ---
+>  include/linux/swiotlb.h |  4 ++--
+>  kernel/dma/swiotlb.c    | 19 +++++++++++--------
+>  2 files changed, 13 insertions(+), 10 deletions(-)
+> 
+> diff --git a/include/linux/swiotlb.h b/include/linux/swiotlb.h
+> index 4dcbf3931be1..526f82e9da45 100644
+> --- a/include/linux/swiotlb.h
+> +++ b/include/linux/swiotlb.h
+> @@ -64,7 +64,7 @@ extern void __init swiotlb_update_mem_attributes(void);
+>   * @areas:	Array of memory area descriptors.
+>   * @slots:	Array of slot descriptors.
+>   * @node:	Member of the IO TLB memory pool list.
+> - * @rcu:	RCU head for swiotlb_dyn_free().
+> + * @dyn_free:	RCU work item used to free the pool from process context.
+>   * @transient:  %true if transient memory pool.
+>   */
+>  struct io_tlb_pool {
+> @@ -79,7 +79,7 @@ struct io_tlb_pool {
+>  	struct io_tlb_slot *slots;
+>  #ifdef CONFIG_SWIOTLB_DYNAMIC
+>  	struct list_head node;
+> -	struct rcu_head rcu;
+> +	struct rcu_work dyn_free;
+>  	bool transient;
+>  	bool unencrypted;
+>  #endif
+> diff --git a/kernel/dma/swiotlb.c b/kernel/dma/swiotlb.c
+> index f4e8b241a1c4..4c56f64602ea 100644
+> --- a/kernel/dma/swiotlb.c
+> +++ b/kernel/dma/swiotlb.c
+> @@ -774,13 +774,10 @@ static void swiotlb_dyn_alloc(struct work_struct *work)
+>  	add_mem_pool(mem, pool);
+>  }
+>  
+> -/**
+> - * swiotlb_dyn_free() - RCU callback to free a memory pool
+> - * @rcu:	RCU head in the corresponding struct io_tlb_pool.
+> - */
+> -static void swiotlb_dyn_free(struct rcu_head *rcu)
+> +static void swiotlb_dyn_free_work(struct work_struct *work)
+>  {
+> -	struct io_tlb_pool *pool = container_of(rcu, struct io_tlb_pool, rcu);
+> +	struct io_tlb_pool *pool =
+> +		container_of(to_rcu_work(work), struct io_tlb_pool, dyn_free);
+>  	size_t slots_size = array_size(sizeof(*pool->slots), pool->nslabs);
+>  	size_t tlb_size = pool->end - pool->start;
+>  
+> @@ -789,6 +786,12 @@ static void swiotlb_dyn_free(struct rcu_head *rcu)
+>  	kfree(pool);
+>  }
+>  
+> +static void swiotlb_schedule_dyn_free(struct io_tlb_pool *pool)
+> +{
+> +	INIT_RCU_WORK(&pool->dyn_free, swiotlb_dyn_free_work);
+> +	queue_rcu_work(system_wq, &pool->dyn_free);
+> +}
+> +
+>  /**
+>   * __swiotlb_find_pool() - find the IO TLB pool for a physical address
+>   * @dev:        Device which has mapped the DMA buffer.
+> @@ -835,7 +838,7 @@ static void swiotlb_del_pool(struct device *dev, struct io_tlb_pool *pool)
+>  	list_del_rcu(&pool->node);
+>  	spin_unlock_irqrestore(&dev->dma_io_tlb_lock, flags);
+>  
+> -	call_rcu(&pool->rcu, swiotlb_dyn_free);
+> +	swiotlb_schedule_dyn_free(pool);
+>  }
+>  
+>  #endif	/* CONFIG_SWIOTLB_DYNAMIC */
+> @@ -1276,7 +1279,7 @@ static int swiotlb_find_slots(struct device *dev, phys_addr_t orig_addr,
+>  	index = swiotlb_search_pool_area(dev, pool, 0, orig_addr, tbl_dma_addr,
+>  					 alloc_size, alloc_align_mask);
+>  	if (index < 0) {
+> -		swiotlb_dyn_free(&pool->rcu);
+> +		swiotlb_schedule_dyn_free(pool);
+>  		return -1;
+>  	}
+>  
 
