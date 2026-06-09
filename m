@@ -1,66 +1,66 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 410DE3F44CB
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B051F3F4835
 	for <linux-s390@vger.kernel.org>; Tue,  9 Jun 2026 10:33:50 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781001232; cv=none; b=qspiSLqf9RuMKZ1L+7t4kKDmS/lyMEMKjlIyLBRFsPwSJpbJdLwfC6dO4oMc2SkedZt/w1yHtDTDfFIY1zR2aQZE57gEzqisH1S31P1tljjz3keNhGDlIAklaHLh1E8O5k5POhHIlRFdcUztECJtvsor/QxTHKI/KtVAgjYO7rc=
+	t=1781001232; cv=none; b=iO8mPo86W1YTi94s6C20m/iujxAriniDyY0Quldn6+FL5rs0JS5qaxTeOpniT32OaE0IPIZyK8f2T3KkGd60v+xSchruV43mjp0UCvRgYQbKsF1ed1G1BGg4jXAXbBNwvcEuFQD2GLqlJufmH5hrEB5Tl91EITwTxvHwpJWw/TU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1781001232; c=relaxed/simple;
-	bh=lysENYoHh3MDOQhpcDyEOx625vpujoEcq+P51XsBG9Q=;
+	bh=vAL73qFlESBEnrubi35Chez4+YUiHrp9bv7xoMRTSeY=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=YQhrYXl2rCSpHI3QNeGaOCao08EoJ8kbsFO987fvjPXL5blluok92ogTzlD/UBlOOfy+qi2YP/UOX4O1sWMpS0tk181d3fdtZ3FAQ5ExObi06NwUkDyJocUdRCEDZLp1Dfr/BqyvtiTD3MRzKF0DQ0H3bdEespv15U3GcA4VfI4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=TBlORvD4; arc=none smtp.client-ip=148.163.158.5
+	 MIME-Version; b=qxhyTl6K+IkPd5JHOmUueNXH9W/3zyZyS/hou550TgRj5SQz5Uw6VBQEz5Uy93YWZt76v49oJSQ9vV2ESxIaiBZCGmW4yAWK0PBvsdCRTkcLLj487I0AsxrCv/5I6sNhchZuOg5HWAYMp4mRhgI1GVsSyJ6Wng0CLRlTFe3wcMw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=srqyGx0Y; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="TBlORvD4"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="srqyGx0Y"
 Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 658LNG472714682
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6596F0am3945916
 	for <linux-s390@vger.kernel.org>; Tue, 9 Jun 2026 10:33:49 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=Rn4StBVck3XjzgdKE
-	ka/R4IpfeDJYyTBQkT1fO8junE=; b=TBlORvD4ODZBa1+g3QItExf6C5oO0Q9/v
-	I0Ypg7ghCJZ1JLMgxBO5tuvDym31lOlprk1OttotWiZC/B0hLMnUk9mnHMNTu8kZ
-	ssNt7ZEtD6xYB10QemxjSCw6w5Ubl6rJUNefIbocL2iazhxGp6SdCSJoolAW4mwB
-	0TuUqoSzLNAxfLi32nU0tVEQ9j0viXfXcrdSvCAZkLn5jjUsB8jiiTeCdhn4VaII
-	BbOI5dNckxztihjFDjHlj63j6I5WFzJjyAgnm3/4t8UEoNXGq6UXjHyy0c+5qISi
-	e57rMMzqVGYsF65sSp8nz950XOGtqBjpe7GAvY2xtSmvdACtelOYw==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4emb6sucmm-1
+	:mime-version:references:subject:to; s=pp1; bh=Y9ARsuaelIDj2zzdo
+	9ZI/sI4gnQtcgh1wJKok3NH/10=; b=srqyGx0YO+RDc4KNoFuA2www9U7JaeAlN
+	mJSDaAgWtXrgnwsMSJJ+rYVaj2gUmXe7auGcvc4Jqz1d7a41XPN/txMs0Uze3O8x
+	y1CmwzJmSN4AaEhR6oeD0zV8ptfhRwX9/xMNZYS4cpL9eHzlxyPcMKuOzjFHRqYO
+	+Cfs51Njbv7px6YNxC4U33HXkKCBH3VFMbhPqUi3tZfUz64tXej8fU89VZPXtJws
+	t7AzBFaMlpfUiOf73gB26jtPfUU+D9SYOzXTgCnm5TNl/AxzoFPvp0RgIkSjZKrm
+	n0QQ3+xpj2SkmbEAPYcphM+cDi5g6mwWDX6KzCXN+ug/oziy2lf1g==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4emb6sucmn-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
 	for <linux-s390@vger.kernel.org>; Tue, 09 Jun 2026 10:33:49 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 659AJcZs009192
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 659AJaCH009091
 	for <linux-s390@vger.kernel.org>; Tue, 9 Jun 2026 10:33:48 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4emxvjshfs-1
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4emwvq1q1a-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
 	for <linux-s390@vger.kernel.org>; Tue, 09 Jun 2026 10:33:48 +0000 (GMT)
 Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 659AXi6a47841744
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 659AXjGx23658958
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
 	Tue, 9 Jun 2026 10:33:45 GMT
 Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D0CDA20040;
-	Tue,  9 Jun 2026 10:33:44 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 44F5520040;
+	Tue,  9 Jun 2026 10:33:45 +0000 (GMT)
 Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B31E62004F;
-	Tue,  9 Jun 2026 10:33:44 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 277DB2005A;
+	Tue,  9 Jun 2026 10:33:45 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
 	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue,  9 Jun 2026 10:33:44 +0000 (GMT)
+	Tue,  9 Jun 2026 10:33:45 +0000 (GMT)
 From: Heiko Carstens <hca@linux.ibm.com>
 To: Alexander Gordeev <agordeev@linux.ibm.com>,
         Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
         Juergen Christ <jchrist@linux.ibm.com>
 Cc: linux-s390@vger.kernel.org
-Subject: [PATCH v3 4/9] s390/string: Convert memmove() to C
-Date: Tue,  9 Jun 2026 12:33:38 +0200
-Message-ID: <20260609103343.107325-5-hca@linux.ibm.com>
+Subject: [PATCH v3 7/9] s390/string: Convert memset(16|32|64)() to C
+Date: Tue,  9 Jun 2026 12:33:41 +0200
+Message-ID: <20260609103343.107325-8-hca@linux.ibm.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260609103343.107325-1-hca@linux.ibm.com>
 References: <20260609103343.107325-1-hca@linux.ibm.com>
@@ -72,20 +72,20 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 389j4_fwrfRk1SY6-jNmyG2MX8PhmV6Y
-X-Proofpoint-GUID: 389j4_fwrfRk1SY6-jNmyG2MX8PhmV6Y
+X-Proofpoint-ORIG-GUID: PIJT0Tmn8nL4kAD6cT-oDqXXaoN4Couy
+X-Proofpoint-GUID: PIJT0Tmn8nL4kAD6cT-oDqXXaoN4Couy
 X-Authority-Analysis: v=2.4 cv=ZbEt8MVA c=1 sm=1 tr=0 ts=6a27ec0d cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
  a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8 a=g10tabKwrLm7Pky2vL4A:9
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjA5MDA5NCBTYWx0ZWRfXxaOButX4Y+xE
- 3cshhmb1fMzQgI419x7xYHQQ6k3BECTgQVBuB4vevA70x08SLgkWORJB2Q24Z4bCpnh9fltVlFB
- ltZ1e/4qw36FE57HZMyEo1Z3D3rTQnPoBOxp7f2wrROQFAl1vdSQ7NiBPKQpHyWmAUrsVXpCljA
- U5q7cnMseoFmRJRSYP+528x2LQ0YCc1d8UgHcFUOpxs03yrS3UbjzRBPicswbPIenLLBvWuQfA6
- fonpQ1RFnPGLb4nHiP0RjAgcx23z9BN1ibdcZ1eMg2v9gvpdTDHMEh62oQt8O2qJBrQv9ngU/Fy
- Kj8UqBHGMswaq08AvRzLcOZm6TSQAVZGY9mPqNrVkEwk6AQLqrW7tvb3rnvesfQPYIYRaGu1AHa
- NE+Tejn/gyqCsalIw4cZCHVq4RDk5Kmeq5twki90QI+2m1VJ+bvgZXRVasKkWtrpTTeZdbzEgqe
- KKRpcL4AB9cO5Oz7EhQ==
+ a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8 a=Ln8ekJ6lhIK6O7RAWtwA:9
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjA5MDA5NCBTYWx0ZWRfXxDFOrQ99/fWG
+ 45GCfS0VNYKAW20gPwGoCBL8ubhiSqJF8MhGCPoBb9Wk4+vdGngqGFVTSpzwuG6ZpZrKeanhl+Q
+ chtbYpVol0VADWZd8b9vzM/xwdD90yjwCF1PRiuPHu1ZT0xIm3lfKhMILOB5R8bTE812VZ1+3WS
+ 4Hc/svVjLbSmo6NcQDfpygZpIHHvRyuSj6Ahs3t7Tzfu0gVbGtMISDUtCTShWhAs81R+BMn0vTJ
+ uaNfqd4ftVOfcy47IUxQeJsXRmLD5o4E3DjN1G6SMmZC+16MzX2BoG3jFfF5wq+uUSr9HIuBciP
+ t5EPWUHoa0TogR/gwlfc3cJuAcvLBoHgusvF4chA4hLnrj6bY3bzuopl+mgKR4V4p7/QPY/93ep
+ hXF3GqU6pGD2BlDQumeOcOtA5PnOT/SYDQq4zcXoB1YK4a+4DBEd/QbbYyI9Qt+MZD0fVdnKd6q
+ MGdbwSyVSG+U+RntlZA==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
  definitions=2026-06-09_02,2026-06-09_02,2025-10-01_01
@@ -96,127 +96,218 @@ X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
  route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2605210000
  definitions=main-2606090094
 
-Convert memmove() from assembler to C, which should make it easier to
-read and change, if required. And it allows the compiler to optimize
-the code, and use different instructions, except for the used inline
-assemblies.
+Convert memset(16|32|64)() from assembler to C, which should make it
+easier to read and change, if required. And it allows the compiler to
+optimize the code, and use different instructions, except for the used
+inline assemblies.
 
 Reviewed-by: Juergen Christ <jchrist@linux.ibm.com>
 Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 ---
- arch/s390/lib/mem.S    | 41 -------------------------------------
- arch/s390/lib/string.c | 46 ++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 46 insertions(+), 41 deletions(-)
+ arch/s390/boot/Makefile      |  2 +-
+ arch/s390/boot/mem.S         |  2 --
+ arch/s390/boot/string.c      |  6 +---
+ arch/s390/lib/Makefile       |  1 -
+ arch/s390/lib/mem.S          | 57 ------------------------------------
+ arch/s390/lib/string.c       | 47 +++++++++++++++++++++++++++++
+ arch/s390/purgatory/Makefile |  5 +---
+ 7 files changed, 50 insertions(+), 70 deletions(-)
+ delete mode 100644 arch/s390/boot/mem.S
+ delete mode 100644 arch/s390/lib/mem.S
 
+diff --git a/arch/s390/boot/Makefile b/arch/s390/boot/Makefile
+index e1f82d118bc9..10b75e053a6f 100644
+--- a/arch/s390/boot/Makefile
++++ b/arch/s390/boot/Makefile
+@@ -31,7 +31,7 @@ CFLAGS_sclp_early_core.o += -I$(srctree)/drivers/s390/char
+ CFLAGS_string.o = -ffreestanding
+ 
+ obj-y	:= head.o als.o startup.o physmem_info.o ipl_parm.o ipl_report.o vmem.o
+-obj-y	+= string.o ebcdic.o sclp_early_core.o mem.o ipl_vmparm.o cmdline.o
++obj-y	+= string.o ebcdic.o sclp_early_core.o ipl_vmparm.o cmdline.o
+ obj-y	+= version.o pgm_check.o ctype.o ipl_data.o relocs.o alternative.o
+ obj-y	+= uv.o printk.o trampoline.o
+ obj-$(CONFIG_RANDOMIZE_BASE)	+= kaslr.o
+diff --git a/arch/s390/boot/mem.S b/arch/s390/boot/mem.S
+deleted file mode 100644
+index b33463633f03..000000000000
+--- a/arch/s390/boot/mem.S
++++ /dev/null
+@@ -1,2 +0,0 @@
+-/* SPDX-License-Identifier: GPL-2.0 */
+-#include "../lib/mem.S"
+diff --git a/arch/s390/boot/string.c b/arch/s390/boot/string.c
+index bd68161434a6..e4ad196cb720 100644
+--- a/arch/s390/boot/string.c
++++ b/arch/s390/boot/string.c
+@@ -43,11 +43,7 @@ ssize_t sized_strscpy(char *dst, const char *src, size_t count)
+ 
+ void *memset64(uint64_t *s, uint64_t v, size_t count)
+ {
+-	uint64_t *xs = s;
+-
+-	while (count--)
+-		*xs++ = v;
+-	return s;
++	return __memset64(s, v, count * sizeof(v));
+ }
+ 
+ char *skip_spaces(const char *str)
+diff --git a/arch/s390/lib/Makefile b/arch/s390/lib/Makefile
+index c82aedef0272..aa6cc6a1fe88 100644
+--- a/arch/s390/lib/Makefile
++++ b/arch/s390/lib/Makefile
+@@ -10,7 +10,6 @@ CFLAGS_string.o = -ffreestanding
+ 
+ lib-y += delay.o string.o uaccess.o find.o spinlock.o tishift.o
+ lib-y += csum-partial.o
+-obj-y += mem.o
+ lib-$(CONFIG_KPROBES) += probes.o
+ lib-$(CONFIG_UPROBES) += probes.o
+ obj-$(CONFIG_S390_KPROBES_SANITY_TEST) += test_kprobes_s390.o
 diff --git a/arch/s390/lib/mem.S b/arch/s390/lib/mem.S
-index d026debf250c..712b955ea9b4 100644
+deleted file mode 100644
+index d2e1ca87a568..000000000000
 --- a/arch/s390/lib/mem.S
-+++ b/arch/s390/lib/mem.S
-@@ -11,47 +11,6 @@
- 
- 	GEN_BR_THUNK %r14
- 
++++ /dev/null
+@@ -1,57 +0,0 @@
+-/* SPDX-License-Identifier: GPL-2.0 */
 -/*
-- * void *memmove(void *dest, const void *src, size_t n)
+- * String handling functions.
+- *
+- * Copyright IBM Corp. 2012
 - */
--SYM_FUNC_START(__memmove)
+-
+-#include <linux/export.h>
+-#include <linux/linkage.h>
+-#include <asm/nospec-insn.h>
+-
+-	GEN_BR_THUNK %r14
+-
+-/*
+- * __memset16/32/64
+- *
+- * void *__memset16(uint16_t *s, uint16_t v, size_t count)
+- * void *__memset32(uint32_t *s, uint32_t v, size_t count)
+- * void *__memset64(uint64_t *s, uint64_t v, size_t count)
+- */
+-.macro __MEMSET bits,bytes,insn
+-SYM_FUNC_START(__memset\bits)
 -	ltgr	%r4,%r4
+-	jz	.L__memset_exit\bits
+-	cghi	%r4,\bytes
+-	je	.L__memset_store\bits
+-	aghi	%r4,-(\bytes+1)
+-	srlg	%r5,%r4,8
+-	ltgr	%r5,%r5
 -	lgr	%r1,%r2
--	jz	.Lmemmove_exit
--	aghi	%r4,-1
--	clgr	%r2,%r3
--	jnh	.Lmemmove_forward
--	la	%r5,1(%r4,%r3)
--	clgr	%r2,%r5
--	jl	.Lmemmove_reverse
--.Lmemmove_forward:
--	srlg	%r0,%r4,8
--	ltgr	%r0,%r0
--	jz	.Lmemmove_forward_remainder
--.Lmemmove_forward_loop:
--	mvc	0(256,%r1),0(%r3)
+-	jz	.L__memset_remainder\bits
+-.L__memset_loop\bits:
+-	\insn	%r3,0(%r1)
+-	mvc	\bytes(256-\bytes,%r1),0(%r1)
 -	la	%r1,256(%r1)
--	la	%r3,256(%r3)
--	brctg	%r0,.Lmemmove_forward_loop
--.Lmemmove_forward_remainder:
--	exrl	%r4,.Lmemmove_mvc
--.Lmemmove_exit:
+-	brctg	%r5,.L__memset_loop\bits
+-.L__memset_remainder\bits:
+-	\insn	%r3,0(%r1)
+-	exrl	%r4,.L__memset_mvc\bits
 -	BR_EX	%r14
--.Lmemmove_reverse:
--	ic	%r0,0(%r4,%r3)
--	stc	%r0,0(%r4,%r1)
--	brctg	%r4,.Lmemmove_reverse
--	ic	%r0,0(%r4,%r3)
--	stc	%r0,0(%r4,%r1)
+-.L__memset_store\bits:
+-	\insn	%r3,0(%r2)
+-.L__memset_exit\bits:
 -	BR_EX	%r14
--.Lmemmove_mvc:
--	mvc	0(1,%r1),0(%r3)
--SYM_FUNC_END(__memmove)
--EXPORT_SYMBOL(__memmove)
+-.L__memset_mvc\bits:
+-	mvc	\bytes(1,%r1),0(%r1)
+-SYM_FUNC_END(__memset\bits)
+-.endm
 -
--SYM_FUNC_ALIAS(memmove, __memmove)
--EXPORT_SYMBOL(memmove)
+-__MEMSET 16,2,sth
+-EXPORT_SYMBOL(__memset16)
 -
- /*
-  * memset implementation
-  *
+-__MEMSET 32,4,st
+-EXPORT_SYMBOL(__memset32)
+-
+-__MEMSET 64,8,stg
+-EXPORT_SYMBOL(__memset64)
 diff --git a/arch/s390/lib/string.c b/arch/s390/lib/string.c
-index 757f58960198..66286d486ef8 100644
+index 4dd524cdef5f..2f9e9e886016 100644
 --- a/arch/s390/lib/string.c
 +++ b/arch/s390/lib/string.c
-@@ -17,6 +17,52 @@
- #include <linux/export.h>
- #include <asm/asm.h>
+@@ -158,6 +158,53 @@ EXPORT_SYMBOL(__memcpy);
+ EXPORT_SYMBOL(memcpy);
+ #endif
  
-+#define SYMBOL_FUNCTION_ALIAS(alias, name)		\
-+asm(".globl " __stringify(alias) "\n\t"			\
-+    ".set   " __stringify(alias) "," __stringify(name))
++#define DEFINE_MEMSET(_bits, _bytes, _type)					\
++void *__memset##_bits(_type *s, _type v, size_t n)				\
++{										\
++	_type *xs = s;								\
++										\
++	if (!n)									\
++		return s;							\
++	while (n >= 256) {							\
++		*xs = v;							\
++		asm volatile(							\
++			"	mvc	%[_b](256-%[_b],%[xs]),0(%[xs])\n"	\
++			:							\
++			: [xs] "a" (xs), [_b] "i" (_bytes)			\
++			: "memory");						\
++		xs = (_type *)((char *)xs + 256);				\
++		n -= 256;							\
++	}									\
++	if (!n)									\
++		return s;							\
++	*xs = v;								\
++	if (n == _bytes)							\
++		return s;							\
++	n -= _bytes + 1;							\
++	asm volatile(								\
++		"	exrl	 %[n],1f\n"					\
++		"	j	 2f\n"						\
++		"1:	mvc	 %[_b](1,%[xs]),0(%[xs])\n"			\
++		"2:"								\
++		:								\
++		: [n] "a" (n), [xs] "a" (xs), [_b] "i" (_bytes)			\
++		: "memory");							\
++	return s;								\
++}										\
++EXPORT_SYMBOL(__memset##_bits)
 +
-+#ifdef __HAVE_ARCH_MEMMOVE
-+noinstr void *__memmove(void *dest, const void *src, size_t n)
-+{
-+	const char *s = src;
-+	char *d = dest;
++#ifdef __HAVE_ARCH_MEMSET16
++DEFINE_MEMSET(16, 2, uint16_t);
++#endif
 +
-+	if (!n)
-+		return dest;
-+	if ((d <= s || d >= s + n)) {
-+		/* Forward copy */
-+		while (n >= 256) {
-+			asm volatile(
-+				"	mvc	0(256,%[d]),0(%[s])\n"
-+				:
-+				: [d] "a" (d), [s] "a" (s)
-+				: "memory");
-+			d += 256;
-+			s += 256;
-+			n -= 256;
-+		}
-+		if (n) {
-+			asm volatile(
-+				"	exrl	%[n],0f\n"
-+				"	j	1f\n"
-+				"0:	mvc	0(1,%[d]),0(%[s])\n"
-+				"1:"
-+				:
-+				: [d] "a" (d), [s] "a" (s), [n] "a" (n - 1)
-+				: "memory");
-+		}
-+	} else {
-+		/* Backward copy */
-+		while (n--)
-+			d[n] = s[n];
-+	}
-+	return dest;
-+}
-+SYMBOL_FUNCTION_ALIAS(memmove, __memmove);
-+EXPORT_SYMBOL(__memmove);
-+EXPORT_SYMBOL(memmove);
++#ifdef __HAVE_ARCH_MEMSET32
++DEFINE_MEMSET(32, 4, uint32_t);
++#endif
++
++#ifdef __HAVE_ARCH_MEMSET64
++DEFINE_MEMSET(64, 8, uint64_t);
 +#endif
 +
  /*
   * Helper functions to find the end of a string
   */
+diff --git a/arch/s390/purgatory/Makefile b/arch/s390/purgatory/Makefile
+index f55764d0c49e..e74410bb1b88 100644
+--- a/arch/s390/purgatory/Makefile
++++ b/arch/s390/purgatory/Makefile
+@@ -1,6 +1,6 @@
+ # SPDX-License-Identifier: GPL-2.0
+ 
+-purgatory-y := head.o purgatory.o string.o sha256.o mem.o
++purgatory-y := head.o purgatory.o string.o sha256.o
+ 
+ targets += $(purgatory-y) purgatory.lds purgatory purgatory.chk purgatory.ro
+ PURGATORY_OBJS = $(addprefix $(obj)/,$(purgatory-y))
+@@ -10,9 +10,6 @@ $(obj)/sha256.o: $(srctree)/lib/crypto/sha256.c FORCE
+ 
+ CFLAGS_sha256.o := -D__NO_FORTIFY
+ 
+-$(obj)/mem.o: $(srctree)/arch/s390/lib/mem.S FORCE
+-	$(call if_changed_rule,as_o_S)
+-
+ CC_FLAGS_MARCH_MINIMUM := -march=z10
+ 
+ KBUILD_CFLAGS := $(CC_FLAGS_DIALECT) -fno-strict-aliasing -Wall -Wstrict-prototypes
 -- 
 2.53.0
 
