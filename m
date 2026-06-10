@@ -1,44 +1,43 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CCB5A3446CE;
-	Wed, 10 Jun 2026 17:07:44 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3FE36343889;
+	Wed, 10 Jun 2026 17:10:15 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781111265; cv=none; b=C24TTfIqcy7TW0iZyPJcn5/oZ9NB34o1Lx4H05OlRZauKu5aOjcfEwz800ynEY+sknbKHuDs1Gp44woLo6bBGtL4H/QMo6uY873Y8HCldFKw1ISo9VWEpcLgBkUZmU7A3R/cU3UVvdacG/EmXLfpCQce4q9hA2B7Xp3SR7u47Q8=
+	t=1781111417; cv=none; b=Hg9c1wDxIc1tbsSZ48hVWI/E/Q8hTll2920G1TYPjkbPhP3eHNgNFFnQkgn+f5h+I0SEZpHV1V5FQkGj2J5yMKxRQqw3pTqOaPZpKzz6AwDzWFAfWEFKDi2IHfr45JlAQVfgmECi7rvs/lwXefJqYhe78UuwDe7cHbaj+X5HfDI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781111265; c=relaxed/simple;
-	bh=+tMhV+20FS617hyKpZgdp2hdtDKpFKb6fohfN4lgg2A=;
+	s=arc-20240116; t=1781111417; c=relaxed/simple;
+	bh=Zs+/eKHR1G+oSZqQzMRrp9/82WEPdGRVgXXv/Oe8FFY=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=J5hDD7SMzmJCbhGFuglKNp9qk+zneCnyaLg6i1DEF/ZcacLHavTvhws6SgzlBFp+hBeebHPbqVlfswVlxFiklF+JKFB8rl86Ut+38aJnYoJjgiUNNC406w3j+LMg4gpwYCmITOK0I9TG7a/8mwqInTqc32Vi8a5LYe99Lb6X+0A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VRxhYtDD; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=a+ytQQnZ3dL8au8+Abr49kf/5HABHGKF/uA2BYLsr3PDrlGe+87AP8cy+kYdVuoH3aQbu9Ttusn1GP11j0fcrHAXXQnTk+Z210DR8EBD36V7NyD0Bxp2XE/KCA5ZHnelPWqd8OER28i6ZiZTZGmdGMSHOcnCP4lgdszvTKjjxYU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=myEVfyWb; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VRxhYtDD"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F0451F00893;
-	Wed, 10 Jun 2026 17:07:44 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="myEVfyWb"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AF171F00893;
+	Wed, 10 Jun 2026 17:10:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781111264;
-	bh=j2LeRrzOWY2yEBRaEePHoU9eXhpjcrsl79XG4wDvg9U=;
+	s=k20260515; t=1781111415;
+	bh=7ZAGKryEwvzrV+qPCmD0sNJ9Zooj1OIXWHwiSkPibXg=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=VRxhYtDDwrKQ4s2O/o0e3zLQ+VryLjlieE0yEZf+iXXkw/5jWCO0EH4bo9nbdTFYZ
-	 cafZzOJ3Pqj9mrcVagW4RdtAaq1SH3CRuacgM2yAA4iSTTU2nSeP9atQ+rDDmJ5RFd
-	 xWKBO3hu450b+nRqAqLm76z0wU9JZo7dYZZTh8LFAPGrTvUAOd1k60+L0+/U1t6WHZ
-	 A2CBNxlT6qF5OcM/xj4UdKx0Mrx9Bvq+r16d1EjSJkhsK78KrVUkJSPL52gthg/JJY
-	 B4BvtDkX+VuQg+JU6K2687nlDeCYihhqV4n2FOU+2KCU9B6zE9Ag51zW1N8e4/j+Th
-	 l+bYnKdMPw8iw==
+	b=myEVfyWbIgNXXBbf5fqK5BvVmgrK4ZMH1B5Qp+iBjRsoEtZreDMG8NAKrUYIWoq2n
+	 lPBquOKoldwAC30ntYGgsJEkXxLkJMECPr8JLUOwl9PYZ//3lETewQv05sUnK5IK+T
+	 US4Y9gpFwZiCkpyJ0aM0cCogeFv7x+i7bXnOZ7m+zFBSaEsKfGXV13kQWdMXU8CRgF
+	 mXSedS8ZXD79LoJMquYuqkV1AEktBqeCNmMBan+XNPYhLfQ5OrnJqogR1ttBrw8ii3
+	 UaAdc0McS/ccqp4taeMuTixe4+bBHMV0UJlMEi0zfPADDOjgl6tU2cjOgSLOxxGq++
+	 HRjBggAHJzQUg==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 3/5] KVM: s390: vsie: Fix allocation of struct
- vsie_rmap
+Subject: Re: [PATCH v2 5/5] KVM: s390: vsie: Use mmu cache to allocate rmap
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>
-Cc: "Vasily Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
- Carstens" <hca@linux.ibm.com>, kvm@vger.kernel.org, "Alexander Gordeev" <agordeev@linux.ibm.com>
-In-Reply-To: <20260610165247.238366-4-imbrenda@linux.ibm.com>
-References: <20260610165247.238366-4-imbrenda@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
+ Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, kvm@vger.kernel.org
+In-Reply-To: <20260610165247.238366-6-imbrenda@linux.ibm.com>
+References: <20260610165247.238366-6-imbrenda@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 10 Jun 2026 17:07:43 +0000
-Message-Id: <20260610170744.2F0451F00893@smtp.kernel.org>
+Date: Wed, 10 Jun 2026 17:10:14 +0000
+Message-Id: <20260610171015.2AF171F00893@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -47,67 +46,96 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-
-Pre-existing issues:
-- [High] Infinite loop on OOM in handle_sske() and handle_pfmf() due to ign=
-ored return value.
+- [High] Infinite loop under memory pressure due to MMU cache depletion dur=
+ing shadow fault retries.
 --
 
-commit 728611fa9ca52a1777f3dfd83064a923ef5d5bf7
+commit 3403f763f43a4ac3038b79807dbaad26fc1a966a
 Author: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-KVM: s390: vsie: Fix allocation of struct vsie_rmap
+KVM: s390: vsie: Use mmu cache to allocate rmap
 
-The allocation size for struct vsie_rmap in kvm_s390_mmu_cache_topup()
-was wrong due to a copy-paste error. This patch fixes it by using the
-correct size.
+The patch modifies gmap_insert_rmap() to allocate rmaps using
+kvm_s390_mmu_cache_alloc_rmap() rather than kzalloc_obj() with GFP_ATOMIC.
+This aims to ensure forward progress by leveraging pre-allocated cache item=
+s.
 
-> diff --git a/arch/s390/kvm/dat.c b/arch/s390/kvm/dat.c
-> index 4a41c0247ffa2..b3931e3592b52 100644
-> --- a/arch/s390/kvm/dat.c
-> +++ b/arch/s390/kvm/dat.c
-> @@ -45,7 +45,7 @@ int kvm_s390_mmu_cache_topup(struct kvm_s390_mmu_cache =
-*mc)
->  		mc->pts[mc->n_pts] =3D o;
->  	}
->  	for ( ; mc->n_rmaps < KVM_S390_MMU_CACHE_N_RMAPS; mc->n_rmaps++) {
-> -		o =3D kzalloc_obj(*mc->rmaps[0], GFP_KERNEL_ACCOUNT);
-> +		o =3D kzalloc(sizeof(struct vsie_rmap), GFP_KERNEL_ACCOUNT);
->  		if (!o)
->  			return -ENOMEM;
->  		mc->rmaps[mc->n_rmaps] =3D o;
+> diff --git a/arch/s390/kvm/gmap.c b/arch/s390/kvm/gmap.c
+> index 52d55ddea8d4f..1d289f8fa3b20 100644
+> --- a/arch/s390/kvm/gmap.c
+> +++ b/arch/s390/kvm/gmap.c
+> @@ -1000,7 +1000,8 @@ int gmap_pv_destroy_range(struct gmap *gmap, gfn_t =
+start, gfn_t end, bool interr
+>  	return 0;
+>  }
+> =20
+> -int gmap_insert_rmap(struct gmap *sg, gfn_t p_gfn, gfn_t r_gfn, int leve=
+l)
+> +int gmap_insert_rmap(struct kvm_s390_mmu_cache *mc, struct gmap *sg, gfn=
+_t p_gfn,
+> +		     gfn_t r_gfn, int level)
+>  {
+>  	struct vsie_rmap *rmap __free(kvfree) =3D NULL;
+>  	struct vsie_rmap *temp;
+> @@ -1010,7 +1011,7 @@ int gmap_insert_rmap(struct gmap *sg, gfn_t p_gfn, =
+gfn_t r_gfn, int level)
+>  	KVM_BUG_ON(!is_shadow(sg), sg->kvm);
+>  	lockdep_assert_held(&sg->host_to_rmap_lock);
+> =20
+> -	rmap =3D kzalloc_obj(*rmap, GFP_ATOMIC);
+> +	rmap =3D kvm_s390_mmu_cache_alloc_rmap(mc);
 
 [Severity: High]
-This isn't a bug introduced by this patch, but since we return -ENOMEM
-here on allocation failure, are the callers handling this correctly?
+Does this code leak the pre-allocated cache items during retries?
 
-Looking at handle_sske() in arch/s390/kvm/priv.c:
+If gmap_insert_rmap() finds a duplicate mapping, it returns 0 without retur=
+ning
+the allocated rmap to the MMU cache. Instead, the __free(kvfree) cleanup
+attribute returns it to the generic slab allocator:
 
-	while (start !=3D end) {
-		scoped_guard(read_lock, &vcpu->kvm->mmu_lock) {
-			rc =3D dat_cond_set_storage_key(...);
-		}
-		if (rc > 1)
-			return kvm_s390_inject_program_int(vcpu, PGM_ADDRESSING);
-		if (rc =3D=3D -ENOMEM) {
-			kvm_s390_mmu_cache_topup(vcpu->arch.mc);
-			continue;
-		}
-		if (rc < 0)
-			return rc;
-		start +=3D PAGE_SIZE;
-	}
+arch/s390/kvm/gmap.c:gmap_insert_rmap() {
+	...
+	rmap =3D kvm_s390_mmu_cache_alloc_rmap(mc);
+	if (!rmap)
+		return -ENOMEM;
 
-If dat_cond_set_storage_key() fails with -ENOMEM, we call
-kvm_s390_mmu_cache_topup() and then continue the loop. Since we ignore the
-return value of kvm_s390_mmu_cache_topup(), if it also fails with -ENOMEM
-(e.g., under severe memory pressure or with a pending SIGKILL), the loop
-will restart with an empty cache.
+	rmap->r_gfn =3D r_gfn;
+	...
+	if (slot) {
+		rmap->next =3D radix_tree_deref_slot_protected(slot, &sg->host_to_rmap_lo=
+ck);
+		for (temp =3D rmap->next; temp; temp =3D temp->next) {
+			if (temp->val =3D=3D rmap->val)
+				return 0; // rmap freed via __free(kvfree)
+	...
+}
 
-Can this result in an endless retry loop causing a CPU soft-lockup?
+In the retry loop inside _gaccess_shadow_fault(), memory allocation failures
+trigger a retry:
 
-The same pattern seems to exist in handle_pfmf() in the same file.
+	do {
+		radix_tree_preload(GFP_KERNEL);
+		scoped_guard(read_lock, &vcpu->kvm->mmu_lock)
+			rc =3D ___gaccess_shadow_fault(vcpu, sg, saddr, seq, walk);
+		radix_tree_preload_end();
+	} while (rc =3D=3D -ENOMEM);
+
+The MMU cache is only topped up outside of this loop. Because the pre-alloc=
+ated
+cache items can be quickly depleted across partial retries and freed to the=
+ slab
+allocator rather than the cache, kvm_s390_mmu_cache_alloc_rmap() will fall =
+back
+to kzalloc_obj() with GFP_ATOMIC.
+
+Under memory pressure, this atomic allocation will consistently fail, retur=
+ning
+-ENOMEM. Since the loop never yields, reclaims memory, or re-tops the cache,
+could this create a deterministic infinite loop, leading to a soft lockup?
+
+>  	if (!rmap)
+>  		return -ENOMEM;
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260610165247.2383=
-66-1-imbrenda@linux.ibm.com?part=3D3
+66-1-imbrenda@linux.ibm.com?part=3D5
