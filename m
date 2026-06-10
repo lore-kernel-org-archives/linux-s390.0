@@ -1,168 +1,148 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mail-24416.protonmail.ch (mail-24416.protonmail.ch [109.224.244.16])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6BB001DED5C;
-	Wed, 10 Jun 2026 08:46:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F5DF3AF643;
+	Wed, 10 Jun 2026 08:48:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=109.224.244.16
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781081192; cv=none; b=hkV9tEkfqisSol5X365Jexd+JqBE+AxTg22jX6shGda5ZLfaGvz0sO/JMLWzSIAOgsJ8Bp1x0EMftKMdKlSY2Sfy6keZcDQOcNl5caz1B8Z1np+pPCQRF8hj78X2Mtj53L/0vZT75TdY2gipxl80Zi/q511iJGcPCnCCMeroJWE=
+	t=1781081314; cv=none; b=Mwc2pem4k7+U8hcwFrwGuItl9eTmeEu8tJ3NdaOL4T83/FOSpI5U5JURQCuRuHZhzXcyV6eBC5x6OJQ2PPHXAl6cptI0vN5unAFoctsp8GHCe9QS+MnN7FgMd6OFCiiOXGAbQV6wvXrj6eURaFs6l/yM8I71MGJve5tANb56s0k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781081192; c=relaxed/simple;
-	bh=CW7D2KmFoUyODNxdFyyPKcB7Pvi/YhHuRsdONjhmuQg=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=YCyPkjD7pD7sZFif8nJ2b98vPpicJEJ/tSkbJ/aE6UJBsbAJic4szDwKVh1YoAA05kt+zAuu6trurHsLnCmHezciT0THVAwMFPd44J+PHGk9vbjbDQUolbN8OHxb3sqtnm9vq8toRGyrb54VnWTUlhs4qLxE12/c+H10OeH6qBM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gqceO5Wt; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1781081314; c=relaxed/simple;
+	bh=oSb3BjOGDrpzBuRwag4cIOkHeHtiFcIdTetZsHm+c4U=;
+	h=Date:To:From:Cc:Subject:Message-ID:MIME-Version:Content-Type; b=ahlErojzsiarwDjpxuy3wxbQNBxN9IfinifMI1JQzqO8qOz0uYXA/vaDyrAirwKKlSbbmgVWDEJIOP20YqZbNV72gYlkdy1G/6CuwW2jY3FQlGLH9KNVui8fEtF9s1lvPbCJOJMlMOYxfdJRuxcEnkLMHNGkMFnwsUs4ZFwXuvE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=proton.me; spf=pass smtp.mailfrom=proton.me; dkim=pass (2048-bit key) header.d=proton.me header.i=@proton.me header.b=KoEf9LrZ; arc=none smtp.client-ip=109.224.244.16
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=proton.me
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=proton.me
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gqceO5Wt"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 954211F00893;
-	Wed, 10 Jun 2026 08:46:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781081191;
-	bh=GIu5mk7+fDzBkFE8LUyyxyRKu1YjSQcW0/cQDtsXGSI=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date;
-	b=gqceO5WtU+8o4iRLg+54E8X01VwOX/Pcl7CIT39DQ0pqmrHHo/vBxeK7jsaOAcCaS
-	 YBgcKllYIQj1HWF/hPyROXVFlBBcsVf7biqD1SoLBFLlOCDPz2cSZKwrkPq2JjJeON
-	 Ktk7ZoQL/je6Tm7V0x4WHLl6FPfnSFgfRLowvXIjL0V6x/Z73L5zTuiKuUCUObt8VJ
-	 vIsqW9AMwRWNEkg0dDhmgKSYTJ0+WlZY+fHkDiYP/mNT/IAr5DJi+PSaHxr1QXu7ax
-	 U6yoqsWAiXT9wxpMsRUn8xlVD4N61bGUJO8A/UMw01rLgt/SDu1HpcZ4IbOjfgm+V1
-	 vidQTXP2nKKgg==
-X-Mailer: emacs 30.2 (via feedmail 11-beta-1 I)
-From: Aneesh Kumar K.V <aneesh.kumar@kernel.org>
-To: Petr Tesarik <ptesarik@suse.com>
-Cc: iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev,
-	Robin Murphy <robin.murphy@arm.com>,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
-	Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
-	Steven Price <steven.price@arm.com>,
-	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Jiri Pirko <jiri@resnulli.us>,
-	Jason Gunthorpe <jgg@ziepe.ca>,
-	Mostafa Saleh <smostafa@google.com>,
-	Alexey Kardashevskiy <aik@amd.com>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Xu Yilun <yilun.xu@linux.intel.com>,
-	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org,
-	Jiri Pirko <jiri@nvidia.com>,
-	Michael Kelley <mhklinux@outlook.com>
-Subject: Re: [PATCH v6 06/20] dma: swiotlb: track pool encryption state and
- honor DMA_ATTR_CC_SHARED
-In-Reply-To: <20260609144836.4ecea34e@mordecai>
-References: <20260604083959.1265923-1-aneesh.kumar@kernel.org>
- <20260604083959.1265923-7-aneesh.kumar@kernel.org>
- <20260609144836.4ecea34e@mordecai>
-Date: Wed, 10 Jun 2026 14:16:17 +0530
-Message-ID: <yq5acxxyzsti.fsf@kernel.org>
+	dkim=pass (2048-bit key) header.d=proton.me header.i=@proton.me header.b="KoEf9LrZ"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=proton.me;
+	s=6rcxnpf2zzez7flpf4ltxxhqgq.protonmail; t=1781081301; x=1781340501;
+	bh=CfVcEwBABCtgdPyDkYpsAiOBarZuyehRLdSudPytfdA=;
+	h=Date:To:From:Cc:Subject:Message-ID:Feedback-ID:From:To:Cc:Date:
+	 Subject:Reply-To:Feedback-ID:Message-ID:BIMI-Selector;
+	b=KoEf9LrZG6P6QnULGuMWCDZDfnxz6S50E14JtxRJYRIFKjbqWEhTjddsCgn91lvte
+	 28OPmDtR/cyls6a214m+18xcaM5uotWFlfTjHOGTMabhqaaxO6pbUYeeeytuxcemAm
+	 G/5ke57UcF4IUN8hGgfnSQEeqL8lOO666CEk5oaBGYQkVEfEn7fL/c3Xd0IYF5/t8a
+	 aql8pJ8tW8LbwKY8bEcQmcy25Hd8rQDRgXErBsFQBS5Uf3EmLLBcZy6lokvPqMf14O
+	 refda6lWpHrTRgMBQaClpwTPwXZSZSvPNfjVlYr1wA68Ko9DNE2PRgMlJGQCJR79fq
+	 dotmaQ98e4rPQ==
+Date: Wed, 10 Jun 2026 08:48:13 +0000
+To: "D . Wythe" <alibuda@linux.alibaba.com>, Dust Li <dust.li@linux.alibaba.com>, Sidraya Jayagond <sidraya@linux.ibm.com>, Wenjia Zhang <wenjia@linux.ibm.com>
+From: Bryam Vargas <hexlabsecurity@proton.me>
+Cc: Mahanta Jambigi <mjambigi@linux.ibm.com>, Tony Lu <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>, "David S . Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] net/smc: bound the peer producer cursor on SMC-D and SMC-R CDC receive
+Message-ID: <20260610084803.186516-1-hexlabsecurity@proton.me>
+Feedback-ID: 199661219:user:proton
+X-Pm-Message-ID: cc44dd5c1ee3ddfe483529e80be1c51ed93bd6d2
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-Petr Tesarik <ptesarik@suse.com> writes:
+The SMC CDC receive path copies the peer's producer cursor -- a
+wire-controlled value -- into the local connection cursor with no upper
+bound against the receive buffer (RMB). A malicious peer can advertise a
+producer cursor past rmb_desc->len, which is then used out of bounds:
 
-> On Thu,  4 Jun 2026 14:09:45 +0530
-> "Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org> wrote:
->
+ - the urgent path uses the cursor count as a raw index:
+   smc_cdc_handle_urg_data_arrival() dereferences
+   *(rmb_desc->cpu_addr + rx_off + urg_curs.count - 1);
 
-...
+ - the receive path turns the cursor into a length:
+   smc_cdc_msg_recv_action() feeds it to smc_curs_diff() and
+   atomic_add()s the result into conn->bytes_to_rcv. The differing-wrap
+   branch returns (len - old.count) + new.count, which exceeds len for a
+   forged cursor and accumulates across CDCs, so bytes_to_rcv grows past
+   rmb_desc->len even when the cursor count itself is bounded;
+   smc_rx_recvmsg() then copies the wrap-around second chunk past the RMB.
 
->>  /*
->>   * If memory encryption is supported, phys_to_dma will set the memory encryption
->>   * bit in the DMA address, and dma_to_phys will clear it.
->> diff --git a/include/linux/swiotlb.h b/include/linux/swiotlb.h
->> index 29187cec90d8..4dcbf3931be1 100644
->> --- a/include/linux/swiotlb.h
->> +++ b/include/linux/swiotlb.h
->> @@ -81,6 +81,7 @@ struct io_tlb_pool {
->>  	struct list_head node;
->>  	struct rcu_head rcu;
->>  	bool transient;
->> +	bool unencrypted;
->
-> IIUC this is a copy of the unencrypted member in the corresponding
-> struct io_tlb_mem. In other words, if pools are allocated dynamically,
-> all pools must have the same encryption state, correct?
->
+The RMB is a kernel allocation, so the reads disclose adjacent kernel
+memory, and a cursor pointing at an unmapped offset faults in the receive
+tasklet (softirq). Both transports are affected: SMC-D converts the
+cursor in smcd_cdc_msg_to_host() and SMC-R in smc_cdc_cursor_to_host(),
+and neither bounds the count.
 
-That is correct. The reason we have the unencrypted member in struct
-io_tlb_pool is that we need it in swiotlb_dyn_free().
+Bound the producer cursor count to the RMB at both conversion boundaries
+(this closes the urgent index on SMC-D and SMC-R) and enforce the
+documented "0 <=3D bytes_to_rcv <=3D rmb_desc->len" invariant in
+smc_cdc_msg_recv_action() (this closes the receive length, which the
+cursor-count clamp alone cannot because of the differing-wrap diff and
+the cumulative atomic_add).
 
-When freeing memory from an unencrypted pool, we need to convert the
-memory back to private/encrypted
+Fixes: de8474eb9d50 ("net/smc: urgent data support")
+Cc: stable@vger.kernel.org
+Signed-off-by: Bryam Vargas <hexlabsecurity@proton.me>
+---
+Reproduced under KASAN on 6.12.y. A forged producer cursor with
+prod.count =3D rmb_desc->len + 1 and prod_flags.urg_data_present set produc=
+es
+a 1-byte out-of-bounds read in smc_cdc_handle_urg_data_arrival()
+(slab-out-of-bounds Read of size 1); the cursor-count clamp makes the same
+input in-bounds. A wrap-flipped cursor drives bytes_to_rcv past
+rmb_desc->len across several CDCs so smc_rx_recvmsg() over-reads; the
+bytes_to_rcv invariant keeps it bounded. SMC-D was exercised over the
+in-kernel loopback-ism and the SMC-R converter (smc_cdc_cursor_to_host)
+over an emulated RDMA loopback. Clamping prod.count alone does not bound
+the recv length, hence the separate bytes_to_rcv hunk.
 
->
->>  #endif
->>  };
->>  
->> @@ -111,6 +112,7 @@ struct io_tlb_mem {
->>  	struct dentry *debugfs;
->>  	bool force_bounce;
->>  	bool for_alloc;
->> +	bool unencrypted;
->>  #ifdef CONFIG_SWIOTLB_DYNAMIC
->>  	bool can_grow;
->>  	u64 phys_limit;
->> @@ -282,7 +284,8 @@ static inline void swiotlb_sync_single_for_cpu(struct device *dev,
->>  extern void swiotlb_print_info(void);
+ net/smc/smc_cdc.c |  2 ++
+ net/smc/smc_cdc.h | 12 ++++++++++++
+ 2 files changed, 14 insertions(+)
 
-....
+diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
+index 619b3bab3824..738c45fd5cd0 100644
+--- a/net/smc/smc_cdc.c
++++ b/net/smc/smc_cdc.c
+@@ -382,6 +382,8 @@ static void smc_cdc_msg_recv_action(struct smc_sock *sm=
+c,
+ =09=09smp_mb__before_atomic();
+ =09=09atomic_add(diff_prod, &conn->bytes_to_rcv);
+ =09=09/* guarantee 0 <=3D bytes_to_rcv <=3D rmb_desc->len */
++=09=09if (atomic_read(&conn->bytes_to_rcv) > conn->rmb_desc->len)
++=09=09=09atomic_set(&conn->bytes_to_rcv, conn->rmb_desc->len);
+ =09=09smp_mb__after_atomic();
+ =09=09smc->sk.sk_data_ready(&smc->sk);
+ =09} else {
+diff --git a/net/smc/smc_cdc.h b/net/smc/smc_cdc.h
+index 696cc11f2303..7fa6e0d3817f 100644
+--- a/net/smc/smc_cdc.h
++++ b/net/smc/smc_cdc.h
+@@ -230,6 +230,12 @@ static inline void smc_cdc_cursor_to_host(union smc_ho=
+st_cursor *local,
+ =09smc_curs_copy_net(&net, peer, conn);
+ =09temp.count =3D ntohl(net.count);
+ =09temp.wrap =3D ntohs(net.wrap);
++=09/* the peer producer cursor is wire-controlled; bound the SMC-R count t=
+o
++=09 * our RMB before it is used as a raw index by the urgent path, mirrori=
+ng
++=09 * the SMC-D conversion in smcd_cdc_msg_to_host().
++=09 */
++=09if (temp.count > conn->rmb_desc->len)
++=09=09temp.count =3D conn->rmb_desc->len;
+ =09if ((old.wrap > temp.wrap) && temp.wrap)
+ =09=09return;
+ =09if ((old.wrap =3D=3D temp.wrap) &&
+@@ -260,6 +266,12 @@ static inline void smcd_cdc_msg_to_host(struct smc_hos=
+t_cdc_msg *local,
+=20
+ =09temp.wrap =3D peer->prod.wrap;
+ =09temp.count =3D peer->prod.count;
++=09/* the peer producer cursor is wire-controlled; a count past our RMB is
++=09 * used as a raw index by the urgent path (smc_cdc_handle_urg_data_arri=
+val)
++=09 * and as a length by the recv path.  Bound it to the RMB.
++=09 */
++=09if (temp.count > conn->rmb_desc->len)
++=09=09temp.count =3D conn->rmb_desc->len;
+ =09smc_curs_copy(&local->prod, &temp, conn);
+=20
+ =09temp.wrap =3D peer->cons.wrap;
+--=20
+2.43.0
 
->> @@ -604,30 +621,26 @@ static struct page *alloc_dma_pages(gfp_t gfp, size_t bytes, u64 phys_limit)
->>   * @dev:	Device for which a memory pool is allocated.
->>   * @bytes:	Size of the buffer.
->>   * @phys_limit:	Maximum allowed physical address of the buffer.
->> + * @attrs:	DMA attributes for the allocation.
->>   * @gfp:	GFP flags for the allocation.
->>   *
->>   * Return: Allocated pages, or %NULL on allocation failure.
->>   */
->>  static struct page *swiotlb_alloc_tlb(struct device *dev, size_t bytes,
->> -		u64 phys_limit, gfp_t gfp)
->> +		u64 phys_limit, unsigned long attrs, gfp_t gfp)
->
-> If my assumption above is correct, then I prefer to add a struct
-> io_tlb_mem *mem parameter here and calculate the allocation attributes
-> inside this function, so you don't have to repeat it in the callers.
->
 
-Will switch to that. That is, we will use struct io_tlb_mem->unencrypted
-to determine the pool attribute instead of using unsigned long attrs
-
->
->>  {
->>  	struct page *page;
->> -	unsigned long attrs = 0;
->>  
->>  	/*
->>  	 * Allocate from the atomic pools if memory is encrypted and
->>  	 * the allocation is atomic, because decrypting may block.
->>  	 */
->> -	if (!gfpflags_allow_blocking(gfp) && dev && force_dma_unencrypted(dev)) {
->> +	if (!gfpflags_allow_blocking(gfp) && (attrs & DMA_ATTR_CC_SHARED)) {
->
-> You're removing the check that dev is non-NULL. This is fine, because
-> the only call with dev == NULL is from swiotlb_dyn_alloc(), and that one
-> uses GFP_KERNEL (i.e. allows blocking). However, if this is an intended
-> optimization, I'd rather have it in a separate commit, with this
-> explanation why it's OK to do it.
->
-> The rest of the patch looks good to me.
->
-
-I'll add that back.
-
--aneesh
