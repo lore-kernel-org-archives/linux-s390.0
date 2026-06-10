@@ -1,222 +1,247 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 308FF213E9C;
-	Wed, 10 Jun 2026 08:56:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C32333B47DF;
+	Wed, 10 Jun 2026 09:08:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781081777; cv=none; b=rHzLVei7xmiv2YBkpyga6if/Xw9LC6zlRd6f/nTJ3IuNZVwUX5eCLbtoaubpizbbsp7VYqarlJwyPx5gzHnNqXcMVhJLd4KW0Vwy3S/hMQJZmx6FIRmSXuzGcIPwcHQ2ufW90HyMUj0vh3RHdA4PwtVxHym4PUNvDLppJOywzjA=
+	t=1781082521; cv=none; b=AWxReebkEzdy4shkJ6ysyeg+lP9WT9eAukmHTXBRhQJLqQpB907v73TFhj2Jc6ezXkbc8TBBzCh46kXESDmUwXwMi1KiIPOXo/IthcjAGNfw+d2zFaJl4llr47Ed55B7L7rk5zaStpg4P5kJcmF5iFUAuLTVyuKlcBHvJuvou/o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781081777; c=relaxed/simple;
-	bh=xQV2M8oQbfZDLyUs1ygzwzdgR63Jc+u+jdQtoQD9qLE=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=WU2wZ8DHOxZvUsXTzI5JjDMT8mtkUyqofYTEWEFErO3D0FmXgF3n1fjmXZGR2xKUauMCTs9of7tqbjdclbRWD8aq8kTdVtchjjs8MrvPAkPfdLq0KNZRW/iJmDCm3BeAUTUz/zhYULtfYs6TqZpFwmBx6Tfwh3yPsEEmtOS7eTA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=QdkUPCvw; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1781082521; c=relaxed/simple;
+	bh=P05h9S2io+6GoPNL5Pg2E9us+S6gnh8wuqJI7jj14V4=;
+	h=Message-ID:Subject:From:To:Cc:In-Reply-To:References:Content-Type:
+	 Date:MIME-Version; b=nTAki7plwt6qxCxZHju28J/fhULqGS0J0LENcr2wf7qQr3PzpPk1XsJDwCzfrjMSllsUVOcQKLG/YrrbuA968KA6w8gSC9Mz9GewEgPL/ARHtAJ6Yht5Xu/G8FpqR9nVCSKi/djzQtsIB2hVPzRVLTNs0khjPIn4KaPgCPkbbLw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=GrB6J+RN; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="QdkUPCvw"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 659HZ9iI3019572;
-	Wed, 10 Jun 2026 08:55:39 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="GrB6J+RN"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65A4qc9m4021298;
+	Wed, 10 Jun 2026 09:08:37 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=0cmI0N
-	YGBYOXzRBXqMx+l5aqqYfaSzz5pALu8SyC5VM=; b=QdkUPCvwXNIxCD87tMSFJW
-	V6JpnQGoYqrqo7m1vAdxSBx7pDp+sEmqjTappqcKBljU69Al+zJbTGiMw9Chdzfi
-	Miuo3xVddSk4gntJgeoPr2syHB7huVsG5CmfAILtepI1tmL5zQGEoGW85LPXCT20
-	Pa3t03uUbhDwvAhObvHz3uWgLLikJPfEweq62grG9w3OBlG9dnxf/TFNHPaxDZtv
-	aDKjo9fgwKLu0DYDMLqV43i8Gr28PnNrflsPqy3m5Umz4s/+YB/WBDdXx2WEnI+s
-	yCysk7BHB3plow8SY4/BZe8vk5Vr5JP3z2ZJhbesdBndUSO4iEh6CmouvATRM5Zw
+	:message-id:mime-version:references:subject:to; s=pp1; bh=prvyXa
+	DfP1DUZjWEW7FWjDUGrtYC67weEy+CvS8GTvo=; b=GrB6J+RNxI3MbYv4WcZTnP
+	JPe/EX8OqdbEg1GfDDwxb1PtxOpgGCNAEY7tlx3aBk8Oa9LO8ae6uNT/aBYFk2wm
+	UAUIU2lSgWYSKTdBag6vEeDB/iChCIM3HE1n7+oa3SMhgpAvPNzGEB/ot0sdCHXr
+	7Fl9cnLn+oyPTh3v/4XxeNqyRDmXUlQkRCU24e5hfRyEvevHdPsGnoVhFBuTPtEZ
+	JLCgX8SD5Cig/OI/A9ftcjW18U8+oUg4JeRiSo8veDiFjywdgik3QMFzu8OK5P95
+	O0qYbwwhEF/IF7xDV3mStUJQ2zKfs1Vn3FkUuc8eB7TMHw2BM7w0DQXs45jo5H6g
 	==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4emb7qr9mr-1
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4em9ye80ag-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 10 Jun 2026 08:55:39 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 65A8nd5G021647;
-	Wed, 10 Jun 2026 08:55:38 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4en03g5qm6-1
+	Wed, 10 Jun 2026 09:08:36 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 65A94bcn011073;
+	Wed, 10 Jun 2026 09:08:36 GMT
+Received: from smtprelay05.dal12v.mail.ibm.com ([172.16.1.7])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4emxvjwxua-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 10 Jun 2026 08:55:38 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 65A8tVbJ45023738
+	Wed, 10 Jun 2026 09:08:36 +0000 (GMT)
+Received: from smtpav05.dal12v.mail.ibm.com (smtpav05.dal12v.mail.ibm.com [10.241.53.104])
+	by smtprelay05.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 65A98ZYk33686036
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 10 Jun 2026 08:55:31 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8A30520043;
-	Wed, 10 Jun 2026 08:55:31 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 32A302004D;
-	Wed, 10 Jun 2026 08:55:30 +0000 (GMT)
-Received: from [9.111.52.177] (unknown [9.111.52.177])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 10 Jun 2026 08:55:30 +0000 (GMT)
-Message-ID: <8280da18-b0db-46c9-b6a7-5864fd945144@linux.ibm.com>
-Date: Wed, 10 Jun 2026 10:55:29 +0200
+	Wed, 10 Jun 2026 09:08:35 GMT
+Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 077125805D;
+	Wed, 10 Jun 2026 09:08:35 +0000 (GMT)
+Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 2243758052;
+	Wed, 10 Jun 2026 09:08:33 +0000 (GMT)
+Received: from [9.224.91.56] (unknown [9.224.91.56])
+	by smtpav05.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 10 Jun 2026 09:08:32 +0000 (GMT)
+Message-ID: <986385851fb30f53b8899d61bfeae81979d36d58.camel@linux.ibm.com>
+Subject: Re: [PATCH v3 4/4] s390/pci: Fence FMB enable/disable via sysfs
+ for passthrough devices
+From: Niklas Schnelle <schnelle@linux.ibm.com>
+To: Omar Elghoul <oelghoul@linux.ibm.com>, Alex Williamson
+ <alex@shazbot.org>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org, hca@linux.ibm.com, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, borntraeger@linux.ibm.com, svens@linux.ibm.com,
+        mjrosato@linux.ibm.com, alifm@linux.ibm.com, farman@linux.ibm.com,
+        gbayer@linux.ibm.com
+In-Reply-To: <7a230cd2-757e-449b-bb66-4daac5df6185@linux.ibm.com>
+References: <20260608171850.62829-1-oelghoul@linux.ibm.com>
+		 <20260608171850.62829-5-oelghoul@linux.ibm.com>
+		 <20260609165208.6aba1731@shazbot.org>
+		 <7a230cd2-757e-449b-bb66-4daac5df6185@linux.ibm.com>
+Autocrypt: addr=schnelle@linux.ibm.com; prefer-encrypt=mutual;
+ keydata=mQINBGHm3M8BEAC+MIQkfoPIAKdjjk84OSQ8erd2OICj98+GdhMQpIjHXn/RJdCZLa58k
+ /ay5x0xIHkWzx1JJOm4Lki7WEzRbYDexQEJP0xUia0U+4Yg7PJL4Dg/W4Ho28dRBROoJjgJSLSHwc
+ 3/1pjpNlSaX/qg3ZM8+/EiSGc7uEPklLYu3gRGxcWV/944HdUyLcnjrZwCn2+gg9ncVJjsimS0ro/
+ 2wU2RPE4ju6NMBn5Go26sAj1owdYQQv9t0d71CmZS9Bh+2+cLjC7HvyTHKFxVGOznUL+j1a45VrVS
+ XQ+nhTVjvgvXR84z10bOvLiwxJZ/00pwNi7uCdSYnZFLQ4S/JGMs4lhOiCGJhJ/9FR7JVw/1t1G9a
+ UlqVp23AXwzbcoV2fxyE/CsVpHcyOWGDahGLcH7QeitN6cjltf9ymw2spBzpRnfFn80nVxgSYVG1d
+ w75ksBAuQ/3e+oTQk4GAa2ShoNVsvR9GYn7rnsDN5pVILDhdPO3J2PGIXa5ipQnvwb3EHvPXyzakY
+ tK50fBUPKk3XnkRwRYEbbPEB7YT+ccF/HioCryqDPWUivXF8qf6Jw5T1mhwukUV1i+QyJzJxGPh19
+ /N2/GK7/yS5wrt0Lwxzevc5g+jX8RyjzywOZGHTVu9KIQiG8Pqx33UxZvykjaqTMjo7kaAdGEkrHZ
+ dVHqoPZwhCsgQARAQABtChOaWtsYXMgU2NobmVsbGUgPHNjaG5lbGxlQGxpbnV4LmlibS5jb20+iQ
+ JXBBMBCABBAhsBBQsJCAcCBhUKCQgLAgQWAgMBAh4BAheAAhkBFiEEnbAAstJ1IDCl9y3cr+Q/Fej
+ CYJAFAmmAWs8FCQl6sYAACgkQr+Q/FejCYJAn2g//UKzlXOgizdk0wudLooRbGzDo23ktGSPK5Oj9
+ 9o5z6v4Jz5+qOHo5835683cqkMLM9//udA1ZcKV88LVwyfmoHChPW24cWBmOEy7RJOWCR4WeEINaO
+ pZUGF5YOx7oKTkPs511ky2FR0Heg35754pgTuTMEpYzRXr5pNMPS8mHXcXSARFPDPaCF+uBJ9BafO
+ L7XbpSwKRttePsWAlPHbSbloeDApBfHUhcF/pbuM9GNs+c/8V9NK+SwwqNK214t7jaSq9k+19/hfE
+ jvU45nbiYQM4VqGCelxVFRWol93JnwPFp/JaMgxgV1VYFH9Ijtgh+qNVVBqO8bbTjioFKy1bHdprN
+ 9GyPLDxoaI/lBg+5CwKewzazUjFd0xaqZbTXSgNK4ev/IuNI3qZV8tpvZZWwIgZU1K0Bhplt8Sku+
+ O9Yl2H54erq9zuzwXjqBJtoW0+MaKbe+1gZ/v2/AVE2VeQMugPUWDg+2bpJaApRkeA4xQ9XfeW6Bp
+ It7xYrwwbVhQtWRC0sRh+QNlU9HI28wPSnLWn7HFBeWupaIrxSp4IEL3eHUn8xv4aA8lpdNsHXD/X
+ vqOSUwy5jlTPTlemvwaC9mNHagNdVXng8C6+hxiDLhZ6xH2P4qNHTKmjW61NsdF6Y/HfWP+lmbi8/
+ 474UNCltDt/fP01ajqogfWZKFymoH0O0KU5pa2xhcyBTY2huZWxsZSA8bmlrbGFzLnNjaG5lbGxlQ
+ GlibS5jb20+iQJUBBMBCAA+AhsBBQsJCAcCBhUKCQgLAgQWAgMBAh4BAheAFiEEnbAAstJ1IDCl9y
+ 3cr+Q/FejCYJAFAmmAWusFCQl6sYAACgkQr+Q/FejCYJAtIw//WmQW/Z+SLdfrlDH5J2bvixzFNnO
+ TOvp8uM8vcNZsxZwPXem4AeCXHayCqipxpa0iXWufEIvdMxkBxWvvM//V+rTUgQnJe6nhDxfLGklx
+ 5Mb2H+K/ndS73ElCuA30MPYq7mHr8i3gEmi2ZFX1W47JecJ8hno/DQxhHRG7bd+GFsiKCbsjLWXNq
+ s/VaAK9uyOTQx7m6/2nR8L+Mvl1BrRXwkj7Qp0qxfQSd4r+IVNBzNFOcrGagBqsyHrN7Is7IICktH
+ 9VFl/G8P+hfviHQLnlxw9ltzpM1Dy6N1+BM3kbqD59gX+L6wqiLJI42eh+SHCiy35FvD3AFlYx4jZ
+ MWE6qIgFnbwcL1kvcA7nnwfr3ZizCYPm8e334xXxslXBoRGsvjXSbAeAyZo2dvJXffNHdcDdUbJSl
+ CfOixNGGKiQvs00X9ekfq9WmmRFvmYHu/m3lg1OXnMjFFIO41O51ZdhbEYJiqZEki7jA8Hd9xuWwQ
+ nFDHhacU3xxivZ4BKQGQc+4XZ3yp/q6+7ux9prepRy/LeRyoaAmE67oxEsAgj+qyA3Tfy5nRTDdRQ
+ E//gpaIt9H1VEx+68dRWHroxBQeozpnFPi25AlX3k4/EtVZjcItPWgE9iru1qT4DH3BBrz7Kd1zUw
+ NnQC77zDJyZD2WUj1E+5bftO0aeE+7HZXj3tM/ea0K05pa2xhcyBTY2huZWxsZSA8bmlrbGFzLnNj
+ aG5lbGxlQGdtYWlsLmNvbT6JAlQEEwEIAD4CGwEFCwkIBwIGFQoJCAsCBBYCAwECHgECF4AWIQSds
+ ACy0nUgMKX3Ldyv5D8V6MJgkAUCaYBa6wUJCXqxgAAKCRCv5D8V6MJgkF/TEACOY2kL4NGFIbWeM5
+ TUhatxqe8c3RT6jvNjq32CkvaK/cSZzBkS0smddyOzxt2WnsvMgkr9cM7P+CevoMwhT3e0lgQbqBD
+ /vXZJjWKddC+iKXeqWkjMVcgCOsWNZ7PWEzRUT5X1AEFq2zzxQAQ/bCWEYNqIbHN4b6G1Wk+2Y598
+ +KypZ3FS0bwiItnPQOWzOOqJCGxDxaEUuXFx4ah8HtVdtIev8jPS/5uzQO9iG2vZQUWeMEYZtfMHW
+ sbFWqo2A3lxB+KPzNIYFhul4Lyx1CwvKUAGSHOx7FZuc2xI5DYt/Wdh2QyKFYr7xVzv3uwJjeS1+3
+ 6gvyB7DJaQuY+PziNPv4GPr5wy0cRkJ6Ps15fgC6y6wNwoNdNXKlwiuclIsBzJKa7A0pZMIfpCpIJ
+ bEHP7oy3drBRAhIrBx7Lx1lyqqodDqc+ok5IQ5WcKG/TOrH732mTmJX6fxYTiCVxcU4WLJSNZbrZ/
+ pjF0AWXs7E+onAkQy6RLg/XU1iiU5QdMvug+fTA6TpPSUMdujWtGWUt3/4nC+69AVc8tXtRQTZ7gP
+ t7uIcQFwPqUuJGS26vl0w/6dIABQAyU9acvE3adCZra+/PBKFZi/yxT1WgV1T2mexKSWwQgLcR57J
+ Yp5oWnQRgi/S6fAoskIWkp9UVcfAQPY0p45NwO5cZR9/g06JZmyrQhTmlrbGFzIFNjaG5lbGxlIDx
+ uaWtzQGtlcm5lbC5vcmc+iQJUBBMBCAA+AhsBBQsJCAcCBhUKCQgLAgQWAgMBAh4BAheAFiEEnbAA
+ stJ1IDCl9y3cr+Q/FejCYJAFAmmAWusFCQl6sYAACgkQr+Q/FejCYJAz4A/9F+dMhzu7YonagL4qh
+ WDz5IpRD4vzYKOBZ+qwYp1ugJz1BIUppN9i68HKoS4ARfgP97Sv9GpOy9g7L0lymH2MPF8hRPK0Yn
+ 7DKIkeu/r28YWEoWfoVm5reC+gpxMgmxBz4JScE4f6xfa7+Nw0bbTDl+nxftJD7lf/dTiruNJsXph
+ HQnZ5wPXmxeH6XVJikfpyrGe8iJZALbtHtjlx6Omu7NvRGikenB8trrWS5W0F60ZdbqH1HdmDDcrZ
+ pDq6LtAARHK5tGRm0SK6sZpKe3nULFeeCt7T/edk2FC6KVh4sL1jw1kyceX4DjiMffqYBPrhK5gz5
+ cDIixLBF9C6Wt1ObvuDBrIQf1/3q6EZrUrUuf6qtaXDMuC6cSlShm47qaPEvVYh67O9JZQ7vzvaea
+ UI74DJUb8Pjnz7mTOmMOzsS1gUhCue4n2YSSM6ythioCGb/3bgMGTpuer3JhvZG5s5uKD9yyj8s8x
+ 35qJkCFfjmjVx9s3vSUS48X+cUpYcMispErKzFu7C0YgKoxvJ4XTfXlDBiMFMPYcN67hsb2jeYHVJ
+ wzE+fIZiDx9JLh1oQW2krwjweisE+3glOaKXZKi0fBtkxyH41iemLtLNYZRJopv6ykdl3hiI+Nh+a
+ 3FZJPTo/OpqchMm8XIeDxC4NFFiPMpyLeYzIxO7eZpiGrAjVTE=
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+Date: Wed, 10 Jun 2026 11:07:32 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 13/26] s390: Introduce read/write ARM sysreg
- instructions
-To: Steffen Eiden <seiden@linux.ibm.com>
-Cc: kvm@vger.kernel.org, kvmarm@lists.linux.dev,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, Alexander Gordeev <agordeev@linux.ibm.com>,
-        Andreas Grapentin <gra@linux.ibm.com>, Arnd Bergmann <arnd@arndb.de>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@kernel.org>,
-        Friedrich Welter
- <fritz@linux.ibm.com>,
-        Gautam Gala <ggala@linux.ibm.com>,
-        Hariharan Mari <hari55@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Hendrik Brueckner <brueckner@linux.ibm.com>,
-        Ilya Leoshkevich <iii@linux.ibm.com>, Joey Gouly <joey.gouly@arm.com>,
-        Marc Zyngier <maz@kernel.org>, Nico Boehr <nrb@linux.ibm.com>,
-        Nina Schoetterl-Glausch <oss@nina.schoetterlglausch.eu>,
-        Oliver Upton <oupton@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Ulrich Weigand <Ulrich.Weigand@de.ibm.com>,
-        Vasily Gorbik
- <gor@linux.ibm.com>, Will Deacon <will@kernel.org>,
-        Zenghui Yu <yuzenghui@huawei.com>
-References: <20260529155601.2927240-1-seiden@linux.ibm.com>
- <20260529155601.2927240-14-seiden@linux.ibm.com>
- <2d73aca5-1858-4a7a-a304-0971e4789dc1@linux.ibm.com>
- <20260610083054.151573-A-seiden@linux.ibm.com>
-Content-Language: en-US
-From: Janosch Frank <frankja@linux.ibm.com>
-Autocrypt: addr=frankja@linux.ibm.com; keydata=
- xsFNBFubpD4BEADX0uhkRhkj2AVn7kI4IuPY3A8xKat0ihuPDXbynUC77mNox7yvK3X5QBO6
- qLqYr+qrG3buymJJRD9xkp4mqgasHdB5WR9MhXWKH08EvtvAMkEJLnqxgbqf8td3pCQ2cEpv
- 15mH49iKSmlTcJ+PvJpGZcq/jE42u9/0YFHhozm8GfQdb9SOI/wBSsOqcXcLTUeAvbdqSBZe
- zuMRBivJQQI1esD9HuADmxdE7c4AeMlap9MvxvUtWk4ZJ/1Z3swMVCGzZb2Xg/9jZpLsyQzb
- lDbbTlEeyBACeED7DYLZI3d0SFKeJZ1SUyMmSOcr9zeSh4S4h4w8xgDDGmeDVygBQZa1HaoL
- Esb8Y4avOYIgYDhgkCh0nol7XQ5i/yKLtnNThubAcxNyryw1xSstnKlxPRoxtqTsxMAiSekk
- 0m3WJwvwd1s878HrQNK0orWd8BzzlSswzjNfQYLF466JOjHPWFOok9pzRs+ucrs6MUwDJj0S
- cITWU9Rxb04XyigY4XmZ8dywaxwi2ZVTEg+MD+sPmRrTw+5F+sU83cUstuymF3w1GmyofgsU
- Z+/ldjToHnq21MNa1wx0lCEipCCyE/8K9B9bg9pUwy5lfx7yORP3JuAUfCYb8DVSHWBPHKNj
- HTOLb2g2UT65AjZEQE95U2AY9iYm5usMqaWD39pAHfhC09/7NQARAQABzSVKYW5vc2NoIEZy
- YW5rIDxmcmFua2phQGxpbnV4LmlibS5jb20+wsF3BBMBCAAhBQJbm6Q+AhsjBQsJCAcCBhUI
- CQoLAgQWAgMBAh4BAheAAAoJEONU5rjiOLn4p9gQALjkdj5euJVI2nNT3/IAxAhQSmRhPEt0
- AmnCYnuTcHRWPujNr5kqgtyER9+EMQ0ZkX44JU2q7OWxTdSNSAN/5Z7qmOR9JySvDOf4d3mS
- bMB5zxL9d8SbnSs1uW96H9ZBTlTQnmLfsiM9TetAjSrR8nUmjGhe2YUhJLR1v1LguME+YseT
- eXnLzIzqqpu311/eYiiIGcmaOjPCE+vFjcXL5oLnGUE73qSYiujwhfPCCUK0850o1fUAYq5p
- CNBCoKT4OddZR+0itKc/cT6NwEDwdokeg0+rAhxb4Rv5oFO70lziBplEjOxu3dqgIKbHbjza
- EXTb+mr7VI9O4tTdqrwJo2q9zLqqOfDBi7NDvZFLzaCewhbdEpDYVu6/WxprAY94hY3F4trT
- rQMHJKQENtF6ZTQc9fcT5I3gAmP+OEvDE5hcTALpWm6Z6SzxO7gEYCnF+qGXqp8sJVrweMub
- UscyLqHoqdZC2UG4LQ1OJ97nzDpIRe0g6oJ9ZIYHKmfw5jjwH6rASTld5MFWajWdNsqK15k/
- RZnHAGICKVIBOBsq26m4EsBlfCdt3b/6emuBjUXR1pyjHMz2awWzCq6/6OWs5eANZ0sdosNq
- dq2v0ULYTazJz2rlCXV89qRa7ukkNwdBSZNEwsD4eEMicj1LSrqWDZMAALw50L4jxaMD7lPL
- jJbazsFNBFubpD4BEADAcUTRqXF/aY53OSH7IwIK9lFKxIm0IoFkOEh7LMfp7FGzaP7ANrZd
- cIzhZi38xyOkcaFY+npGEWvko7rlIAn0JpBO4x3hfhmhBD/WSY8LQIFQNNjEm3vzrMo7b9Jb
- JAqQxfbURY3Dql3GUzeWTG9uaJ00u+EEPlY8zcVShDltIl5PLih20e8xgTnNzx5c110lQSu0
- iZv2lAE6DM+2bJQTsMSYiwKlwTuv9LI9Chnoo6+tsN55NqyMxYqJgElk3VzlTXSr3+rtSCwf
- tq2cinETbzxc1XuhIX6pu/aCGnNfuEkM34b7G1D6CPzDMqokNFbyoO6DQ1+fW6c5gctXg/lZ
- 602iEl4C4rgcr3+EpfoPUWzKeM8JXv5Kpq4YDxhvbitr8Dm8gr38+UKFZKlWLlwhQ56r/zAU
- v6LIsm11GmFs2/cmgD1bqBTNHHcTWwWtRTLgmnqJbVisMJuYJt4KNPqphTWsPY8SEtbufIlY
- HXOJ2lqUzOReTrie2u0qcSvGAbSfec9apTFl2Xko/ddqPcZMpKhBiXmY8tJzSPk3+G4tqur4
- 6TYAm5ouitJsgAR61Cu7s+PNuq/pTLDhK+6/Njmc94NGBcRA4qTuysEGE79vYWP2oIAU4Fv6
- gqaWHZ4MEI2XTqH8wiwzPdCQPYsSE0fXWiYu7ObeErT6iLSTZGx4rQARAQABwsFfBBgBCAAJ
- BQJbm6Q+AhsMAAoJEONU5rjiOLn4DDEP/RuyckW65SZcPG4cMfNgWxZF8rVjeVl/9PBfy01K
- 8R0hajU40bWtXSMiby7j0/dMjz99jN6L+AJHJvrLz4qYRzn2Ys843W+RfXj62Zde4YNBE5SL
- jJweRCbMWKaJLj6499fctxTyeb9+AMLQS4yRSwHuAZLmAb5AyCW1gBcTWZb8ON5BmWnRqeGm
- IgC1EvCnHy++aBnHTn0m+zV89BhTLTUal35tcjUFwluBY39R2ux/HNlBO1GY3Z+WYXhBvq7q
- katThLjaQSmnOrMhzqYmdShP1leFTVbzXUUIYv/GbynO/YrL2gaQpaP1bEUEi8lUAfXJbEWG
- dnHFkciryi092E8/9j89DJg4mmZqOau7TtUxjRMlBcIliXkzSLUk+QvD4LK1kWievJse4mte
- FBdkWHfP4BH/+8DxapRcG1UAheSnSRQ5LiO50annOB7oXF+vgKIaie2TBfZxQNGAs3RQ+bga
- DchCqFm5adiSP5+OT4NjkKUeGpBe/aRyQSle/RropTgCi85pje/juYEn2P9UAgkfBJrOHvQ9
- Z+2Sva8FRd61NJLkCJ4LFumRn9wQlX2icFbi8UDV3do0hXJRRYTWCxrHscMhkrFWLhYiPF4i
- phX7UNdOWBQ90qpHyAxHmDazdo27gEjfvsgYMdveKknEOTEb5phwxWgg7BcIDoJf9UMC
-In-Reply-To: <20260610083054.151573-A-seiden@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+User-Agent: Evolution 3.58.3 (3.58.3-1.fc43) 
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=HppG3UTS c=1 sm=1 tr=0 ts=6a29268b cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjEwMDA4NiBTYWx0ZWRfX4kW2E/l238cI
+ ohby+/K5yKAPy5g9gJhNgkcZ3/Ti/IgzSyfM7hc8vVMSB6BVhTzy4GIqd2dfMKtiq0/kdQJVodv
+ alfvnsxdPUFgZ3001vnUcUwjL/3J3ppWz91fochOu/VBlwS6FWPkus+8FWOJm7JMJhz25gMGMJ4
+ MFnuKJr9P5AyNagZtp33Lhsp1qPoGQj/L3nAu6CFFQ0XM4K1LenSjbOjH9tBuESiaTkiiOL84Kk
+ IIt3Ya6kTcn5X8AG7s8w2dZ9WQAQ6JLm5tTcjJZX32E0ztaiJz5EEhEboDsFfcSYH3GMuhUAryx
+ kNvVVmfmifi3FndU2C6qMYNpAN3oN5Vk0ZZzvE3znJxx20h6Hmy1EgFdR8tWIVGdvGJQru0O8B7
+ /zwo4a+xSvOIQeN5S6mFA2GZoTGWAmG9C6EOFOakVmWoaH5UClLwp+0gxNgEv0AZ5GIxzW7wj2F
+ /hRGM+4pbgNUUpLtV8A==
+X-Authority-Analysis: v=2.4 cv=QKhYgALL c=1 sm=1 tr=0 ts=6a292994 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
  a=IkcTkHD0fZMA:10 a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8
- a=gP38sU8B_-xW9SrUZJYA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: AGYVd7PxwhujTjbFY4JicdBUrg3CLnTg
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjEwMDA4MSBTYWx0ZWRfXySJu93HLwnzH
- I01zxkJjq1NQhKkifu+j4cN+yd5mXofIrWct5CdpozPcRCkWpDsQPhqo50T4U+Pyci/+U7hQmIe
- 7IQlw0zWWTsiUAyM+UWf9Md5RDDoTvVCZ2quuc3BUFB3ssx1lSmhNCgtd+r5ce/xx/DaYXGZ94L
- 10lktSz0Rxjia7CKhMZKL7pN33rQHOcF0AOlSIjr/WRN3eUQbT6WlQp+yg9DSuDC4OF/PXaW0/w
- Eus/8M9FNfVL9Vo7QDIWMR00BC4H7lh+PSw5NupuhB4FTkeK1INIhnOVJlKCP198ixRvs0HBV3d
- G8dFzzsYX5jC3Y+dH1SNHlevZ6LbBMVf897rE9hBIO5bWdiiZd+8t66KQveUItGWEMV+njT/zMh
- 9DdI6yLg2KB7FULz4Q6EX4GwGZWkihkVb3DhIWvn9aoLL0I+KiJqOA66F2x/VEefz+ycSgCvA1r
- 44a4P7ZqvYE3rxpu+vQ==
-X-Proofpoint-ORIG-GUID: AGYVd7PxwhujTjbFY4JicdBUrg3CLnTg
+ a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8
+ a=9wuqEY2A3Bjt7H9dH7oA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: PH89q0KC66-ZzqW6C2n6JDQU-F80MGCU
+X-Proofpoint-ORIG-GUID: PH89q0KC66-ZzqW6C2n6JDQU-F80MGCU
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
  definitions=2026-06-10_02,2026-06-09_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- lowpriorityscore=0 adultscore=0 phishscore=0 malwarescore=0 impostorscore=0
- priorityscore=1501 clxscore=1015 bulkscore=0 spamscore=0 suspectscore=0
+ priorityscore=1501 lowpriorityscore=0 bulkscore=0 adultscore=0 phishscore=0
+ malwarescore=0 impostorscore=0 suspectscore=0 spamscore=0 clxscore=1015
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2605210000 definitions=main-2606100081
+ reason=mlx scancount=1 engine=8.22.0-2605210000 definitions=main-2606100086
 
-On 6/10/26 10:30, Steffen Eiden wrote:
-> On Tue, Jun 09, 2026 at 05:04:10PM +0200, Janosch Frank wrote:
->> On 5/29/26 17:55, Steffen Eiden wrote:
->>> Introduce Extract Arm System Register and Store Arm System Register to
->>> enable s390 hosts to read and write system registers for arm64 guests.
->>> The new instructions use the new RIE_H instruction format. Add assembler
->>> macros to create instructions in RIE_H format manually. Add Support for
->>> disassembling the new instructions.
->>>
->>> Co-developed-by: Andreas Grapentin <gra@linux.ibm.com>
->>> Signed-off-by: Andreas Grapentin <gra@linux.ibm.com>
->>> Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
->>> ---
->>>    arch/s390/include/asm/sae-asm.h | 48 +++++++++++++++++++++++++++
->>>    arch/s390/include/asm/sae.h     | 58 +++++++++++++++++++++++++++++++++
->>>    arch/s390/kernel/dis.c          |  1 +
->>>    arch/s390/tools/opcodes.txt     |  2 ++
->>>    4 files changed, 109 insertions(+)
->>>    create mode 100644 arch/s390/include/asm/sae-asm.h
->>>
-> 
+On Tue, 2026-06-09 at 20:32 -0400, Omar Elghoul wrote:
+> On 6/9/26 6:52 PM, Alex Williamson wrote:
+> > On Mon,  8 Jun 2026 13:18:50 -0400
+> > Omar Elghoul <oelghoul@linux.ibm.com> wrote:
+> >=20
+> > > Introduce a fence over enabling or disabling FMB via sysfs when the z=
+PCI
+> > > device is associated with a KVM. This will allow a KVM guest to use F=
+MB
+> > > passthrough and avoid the edge-case where the host disables FMB while=
+ the
+> > > guest is still using it, which may cause partial counter resets and
+> > > inconsistent reads which have no parallel in the architecture.
+> > >=20
+> > > With this patch, the userspace driver, likely QEMU, is still able to =
+enable
+> > > or disable the FMB using the VFIO device feature introduced in the pr=
+evious
+> > > patch, effectively securing what is associated with the VM state and
+> > > isolating it from other processes on the host.
+> > >=20
+> > > For VFIO devices that are not associated with a KVM (i.e., for usersp=
+ace
+> > > drivers other than QEMU), this fence does not take effect.
+> > >=20
+> > > Signed-off-by: Omar Elghoul <oelghoul@linux.ibm.com>
+> > > Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> > > ---
+> > >   arch/s390/pci/pci_debug.c | 11 ++++++++++-
+> > >   1 file changed, 10 insertions(+), 1 deletion(-)
+> > >=20
+> > > diff --git a/arch/s390/pci/pci_debug.c b/arch/s390/pci/pci_debug.c
+> > > index c7ed7bf254b5..a2dc79418c21 100644
+> > > --- a/arch/s390/pci/pci_debug.c
+> > > +++ b/arch/s390/pci/pci_debug.c
+> > > @@ -149,9 +149,15 @@ static ssize_t pci_perf_seq_write(struct file *f=
+ile, const char __user *ubuf,
+> > >   	if (!zdev)
+> > >   		return 0;
+> > >  =20
+> > > +	mutex_lock(&zdev->kzdev_lock);
+> > > +	if (zdev->kzdev) {
+> > > +		rc =3D -EPERM;
+> > > +		goto out_unlock_kzdev;
+> > > +	}
+> > > +
+> > >   	rc =3D kstrtoul_from_user(ubuf, count, 10, &val);
+> > >   	if (rc)
+> > > -		return rc;
+> > > +		goto out_unlock_kzdev;
+> > >  =20
+> > >   	mutex_lock(&zdev->fmb_lock);
+> > >   	switch (val) {
+> > > @@ -163,6 +169,9 @@ static ssize_t pci_perf_seq_write(struct file *fi=
+le, const char __user *ubuf,
+> > >   		break;
+> > >   	}
+> > >   	mutex_unlock(&zdev->fmb_lock);
+> > > +
+> > > +out_unlock_kzdev:
+> > > +	mutex_unlock(&zdev->kzdev_lock);
+> > >   	return rc ? rc : count;
+> > >   }
+> > >  =20
+> >=20
+> > Why not also use a guard for the mutex here and avoid the goto
+> > unlock... also moving the guard below the kstrtoul_from_user()?
+> >=20
+> > The fmb_lock could switch to a guard too, but that's existing.
+>=20
+>  From where I'm standing I don't think there is any particular reason to
+> do it one way vs the other. Thanks.
 
-[...]
+I do prefer the guard(mutex) because it does remove the need for a goto
+exit in many places including the above. That said it should also take
+the surrounding code into account and definitely needs to be applied to
+the whole function. In this case pci_perf_seq_write() uses both the
+kzdev and fmb_lock so to use guard you'd have to convert both. That
+then feels out of scope for this patch so I'd prefer you stick with
+plain mutex here but use guard in cases where the whole function ends
+up using guards. So for patch 2 you can also go with guard, it's not a
+must for me though.
 
->>> + * sasr() - Set Arm System Register
->>> + * @arm_reg: ARM system register identifier; compile-time constant
->>> + * @val: Value to set
->>> + * @save_area: Pointer to SAE save area
->>> + * @flags: Operation flags; compile-time constant
->>> + *
->>> + * Sets an ARM system register value.
->>> + */
->>> +static __always_inline void sasr(unsigned int arm_reg, u64 val,
->>> +				 struct kvm_sae_save_area *save_area,
->>> +				 u64 flags)
->>
->> m4 is 4 bits in length, any reason why we use a u64 here?
->> Same for easr.
->>
-> 
-> No real reason beside my preference of using u64 by default.
-> 
-> Do you want me to change it to u8?
-
-Yes, that makes the potential problem a bit smaller but also:
-
-Since we go through our macro magic I'm not sure if the compiler would 
-complain about values over 4 bits. Did you check for that and if not 
-please do check now.
-
-If it does not complain we need a compile time check. Well maybe we 
-should have one either way until the instruction format is available in 
-compilers just to be safe.
-
-@Christian: Thoughts?
+Thanks,
+Niklas
+>=20
