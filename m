@@ -1,148 +1,222 @@
-Received: from mail-24416.protonmail.ch (mail-24416.protonmail.ch [109.224.244.16])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F5DF3AF643;
-	Wed, 10 Jun 2026 08:48:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=109.224.244.16
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 308FF213E9C;
+	Wed, 10 Jun 2026 08:56:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781081314; cv=none; b=Mwc2pem4k7+U8hcwFrwGuItl9eTmeEu8tJ3NdaOL4T83/FOSpI5U5JURQCuRuHZhzXcyV6eBC5x6OJQ2PPHXAl6cptI0vN5unAFoctsp8GHCe9QS+MnN7FgMd6OFCiiOXGAbQV6wvXrj6eURaFs6l/yM8I71MGJve5tANb56s0k=
+	t=1781081777; cv=none; b=rHzLVei7xmiv2YBkpyga6if/Xw9LC6zlRd6f/nTJ3IuNZVwUX5eCLbtoaubpizbbsp7VYqarlJwyPx5gzHnNqXcMVhJLd4KW0Vwy3S/hMQJZmx6FIRmSXuzGcIPwcHQ2ufW90HyMUj0vh3RHdA4PwtVxHym4PUNvDLppJOywzjA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781081314; c=relaxed/simple;
-	bh=oSb3BjOGDrpzBuRwag4cIOkHeHtiFcIdTetZsHm+c4U=;
-	h=Date:To:From:Cc:Subject:Message-ID:MIME-Version:Content-Type; b=ahlErojzsiarwDjpxuy3wxbQNBxN9IfinifMI1JQzqO8qOz0uYXA/vaDyrAirwKKlSbbmgVWDEJIOP20YqZbNV72gYlkdy1G/6CuwW2jY3FQlGLH9KNVui8fEtF9s1lvPbCJOJMlMOYxfdJRuxcEnkLMHNGkMFnwsUs4ZFwXuvE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=proton.me; spf=pass smtp.mailfrom=proton.me; dkim=pass (2048-bit key) header.d=proton.me header.i=@proton.me header.b=KoEf9LrZ; arc=none smtp.client-ip=109.224.244.16
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=proton.me
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=proton.me
+	s=arc-20240116; t=1781081777; c=relaxed/simple;
+	bh=xQV2M8oQbfZDLyUs1ygzwzdgR63Jc+u+jdQtoQD9qLE=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=WU2wZ8DHOxZvUsXTzI5JjDMT8mtkUyqofYTEWEFErO3D0FmXgF3n1fjmXZGR2xKUauMCTs9of7tqbjdclbRWD8aq8kTdVtchjjs8MrvPAkPfdLq0KNZRW/iJmDCm3BeAUTUz/zhYULtfYs6TqZpFwmBx6Tfwh3yPsEEmtOS7eTA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=QdkUPCvw; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=proton.me header.i=@proton.me header.b="KoEf9LrZ"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=proton.me;
-	s=6rcxnpf2zzez7flpf4ltxxhqgq.protonmail; t=1781081301; x=1781340501;
-	bh=CfVcEwBABCtgdPyDkYpsAiOBarZuyehRLdSudPytfdA=;
-	h=Date:To:From:Cc:Subject:Message-ID:Feedback-ID:From:To:Cc:Date:
-	 Subject:Reply-To:Feedback-ID:Message-ID:BIMI-Selector;
-	b=KoEf9LrZG6P6QnULGuMWCDZDfnxz6S50E14JtxRJYRIFKjbqWEhTjddsCgn91lvte
-	 28OPmDtR/cyls6a214m+18xcaM5uotWFlfTjHOGTMabhqaaxO6pbUYeeeytuxcemAm
-	 G/5ke57UcF4IUN8hGgfnSQEeqL8lOO666CEk5oaBGYQkVEfEn7fL/c3Xd0IYF5/t8a
-	 aql8pJ8tW8LbwKY8bEcQmcy25Hd8rQDRgXErBsFQBS5Uf3EmLLBcZy6lokvPqMf14O
-	 refda6lWpHrTRgMBQaClpwTPwXZSZSvPNfjVlYr1wA68Ko9DNE2PRgMlJGQCJR79fq
-	 dotmaQ98e4rPQ==
-Date: Wed, 10 Jun 2026 08:48:13 +0000
-To: "D . Wythe" <alibuda@linux.alibaba.com>, Dust Li <dust.li@linux.alibaba.com>, Sidraya Jayagond <sidraya@linux.ibm.com>, Wenjia Zhang <wenjia@linux.ibm.com>
-From: Bryam Vargas <hexlabsecurity@proton.me>
-Cc: Mahanta Jambigi <mjambigi@linux.ibm.com>, Tony Lu <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>, "David S . Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] net/smc: bound the peer producer cursor on SMC-D and SMC-R CDC receive
-Message-ID: <20260610084803.186516-1-hexlabsecurity@proton.me>
-Feedback-ID: 199661219:user:proton
-X-Pm-Message-ID: cc44dd5c1ee3ddfe483529e80be1c51ed93bd6d2
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="QdkUPCvw"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 659HZ9iI3019572;
+	Wed, 10 Jun 2026 08:55:39 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=0cmI0N
+	YGBYOXzRBXqMx+l5aqqYfaSzz5pALu8SyC5VM=; b=QdkUPCvwXNIxCD87tMSFJW
+	V6JpnQGoYqrqo7m1vAdxSBx7pDp+sEmqjTappqcKBljU69Al+zJbTGiMw9Chdzfi
+	Miuo3xVddSk4gntJgeoPr2syHB7huVsG5CmfAILtepI1tmL5zQGEoGW85LPXCT20
+	Pa3t03uUbhDwvAhObvHz3uWgLLikJPfEweq62grG9w3OBlG9dnxf/TFNHPaxDZtv
+	aDKjo9fgwKLu0DYDMLqV43i8Gr28PnNrflsPqy3m5Umz4s/+YB/WBDdXx2WEnI+s
+	yCysk7BHB3plow8SY4/BZe8vk5Vr5JP3z2ZJhbesdBndUSO4iEh6CmouvATRM5Zw
+	==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4emb7qr9mr-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 10 Jun 2026 08:55:39 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 65A8nd5G021647;
+	Wed, 10 Jun 2026 08:55:38 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4en03g5qm6-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 10 Jun 2026 08:55:38 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 65A8tVbJ45023738
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 10 Jun 2026 08:55:31 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8A30520043;
+	Wed, 10 Jun 2026 08:55:31 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 32A302004D;
+	Wed, 10 Jun 2026 08:55:30 +0000 (GMT)
+Received: from [9.111.52.177] (unknown [9.111.52.177])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 10 Jun 2026 08:55:30 +0000 (GMT)
+Message-ID: <8280da18-b0db-46c9-b6a7-5864fd945144@linux.ibm.com>
+Date: Wed, 10 Jun 2026 10:55:29 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v1 13/26] s390: Introduce read/write ARM sysreg
+ instructions
+To: Steffen Eiden <seiden@linux.ibm.com>
+Cc: kvm@vger.kernel.org, kvmarm@lists.linux.dev,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, Alexander Gordeev <agordeev@linux.ibm.com>,
+        Andreas Grapentin <gra@linux.ibm.com>, Arnd Bergmann <arnd@arndb.de>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@kernel.org>,
+        Friedrich Welter
+ <fritz@linux.ibm.com>,
+        Gautam Gala <ggala@linux.ibm.com>,
+        Hariharan Mari <hari55@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Hendrik Brueckner <brueckner@linux.ibm.com>,
+        Ilya Leoshkevich <iii@linux.ibm.com>, Joey Gouly <joey.gouly@arm.com>,
+        Marc Zyngier <maz@kernel.org>, Nico Boehr <nrb@linux.ibm.com>,
+        Nina Schoetterl-Glausch <oss@nina.schoetterlglausch.eu>,
+        Oliver Upton <oupton@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Ulrich Weigand <Ulrich.Weigand@de.ibm.com>,
+        Vasily Gorbik
+ <gor@linux.ibm.com>, Will Deacon <will@kernel.org>,
+        Zenghui Yu <yuzenghui@huawei.com>
+References: <20260529155601.2927240-1-seiden@linux.ibm.com>
+ <20260529155601.2927240-14-seiden@linux.ibm.com>
+ <2d73aca5-1858-4a7a-a304-0971e4789dc1@linux.ibm.com>
+ <20260610083054.151573-A-seiden@linux.ibm.com>
+Content-Language: en-US
+From: Janosch Frank <frankja@linux.ibm.com>
+Autocrypt: addr=frankja@linux.ibm.com; keydata=
+ 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
+In-Reply-To: <20260610083054.151573-A-seiden@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=HppG3UTS c=1 sm=1 tr=0 ts=6a29268b cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+ a=IkcTkHD0fZMA:10 a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8
+ a=gP38sU8B_-xW9SrUZJYA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: AGYVd7PxwhujTjbFY4JicdBUrg3CLnTg
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjEwMDA4MSBTYWx0ZWRfXySJu93HLwnzH
+ I01zxkJjq1NQhKkifu+j4cN+yd5mXofIrWct5CdpozPcRCkWpDsQPhqo50T4U+Pyci/+U7hQmIe
+ 7IQlw0zWWTsiUAyM+UWf9Md5RDDoTvVCZ2quuc3BUFB3ssx1lSmhNCgtd+r5ce/xx/DaYXGZ94L
+ 10lktSz0Rxjia7CKhMZKL7pN33rQHOcF0AOlSIjr/WRN3eUQbT6WlQp+yg9DSuDC4OF/PXaW0/w
+ Eus/8M9FNfVL9Vo7QDIWMR00BC4H7lh+PSw5NupuhB4FTkeK1INIhnOVJlKCP198ixRvs0HBV3d
+ G8dFzzsYX5jC3Y+dH1SNHlevZ6LbBMVf897rE9hBIO5bWdiiZd+8t66KQveUItGWEMV+njT/zMh
+ 9DdI6yLg2KB7FULz4Q6EX4GwGZWkihkVb3DhIWvn9aoLL0I+KiJqOA66F2x/VEefz+ycSgCvA1r
+ 44a4P7ZqvYE3rxpu+vQ==
+X-Proofpoint-ORIG-GUID: AGYVd7PxwhujTjbFY4JicdBUrg3CLnTg
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
+ definitions=2026-06-10_02,2026-06-09_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ lowpriorityscore=0 adultscore=0 phishscore=0 malwarescore=0 impostorscore=0
+ priorityscore=1501 clxscore=1015 bulkscore=0 spamscore=0 suspectscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2605210000 definitions=main-2606100081
 
-The SMC CDC receive path copies the peer's producer cursor -- a
-wire-controlled value -- into the local connection cursor with no upper
-bound against the receive buffer (RMB). A malicious peer can advertise a
-producer cursor past rmb_desc->len, which is then used out of bounds:
+On 6/10/26 10:30, Steffen Eiden wrote:
+> On Tue, Jun 09, 2026 at 05:04:10PM +0200, Janosch Frank wrote:
+>> On 5/29/26 17:55, Steffen Eiden wrote:
+>>> Introduce Extract Arm System Register and Store Arm System Register to
+>>> enable s390 hosts to read and write system registers for arm64 guests.
+>>> The new instructions use the new RIE_H instruction format. Add assembler
+>>> macros to create instructions in RIE_H format manually. Add Support for
+>>> disassembling the new instructions.
+>>>
+>>> Co-developed-by: Andreas Grapentin <gra@linux.ibm.com>
+>>> Signed-off-by: Andreas Grapentin <gra@linux.ibm.com>
+>>> Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
+>>> ---
+>>>    arch/s390/include/asm/sae-asm.h | 48 +++++++++++++++++++++++++++
+>>>    arch/s390/include/asm/sae.h     | 58 +++++++++++++++++++++++++++++++++
+>>>    arch/s390/kernel/dis.c          |  1 +
+>>>    arch/s390/tools/opcodes.txt     |  2 ++
+>>>    4 files changed, 109 insertions(+)
+>>>    create mode 100644 arch/s390/include/asm/sae-asm.h
+>>>
+> 
 
- - the urgent path uses the cursor count as a raw index:
-   smc_cdc_handle_urg_data_arrival() dereferences
-   *(rmb_desc->cpu_addr + rx_off + urg_curs.count - 1);
+[...]
 
- - the receive path turns the cursor into a length:
-   smc_cdc_msg_recv_action() feeds it to smc_curs_diff() and
-   atomic_add()s the result into conn->bytes_to_rcv. The differing-wrap
-   branch returns (len - old.count) + new.count, which exceeds len for a
-   forged cursor and accumulates across CDCs, so bytes_to_rcv grows past
-   rmb_desc->len even when the cursor count itself is bounded;
-   smc_rx_recvmsg() then copies the wrap-around second chunk past the RMB.
+>>> + * sasr() - Set Arm System Register
+>>> + * @arm_reg: ARM system register identifier; compile-time constant
+>>> + * @val: Value to set
+>>> + * @save_area: Pointer to SAE save area
+>>> + * @flags: Operation flags; compile-time constant
+>>> + *
+>>> + * Sets an ARM system register value.
+>>> + */
+>>> +static __always_inline void sasr(unsigned int arm_reg, u64 val,
+>>> +				 struct kvm_sae_save_area *save_area,
+>>> +				 u64 flags)
+>>
+>> m4 is 4 bits in length, any reason why we use a u64 here?
+>> Same for easr.
+>>
+> 
+> No real reason beside my preference of using u64 by default.
+> 
+> Do you want me to change it to u8?
 
-The RMB is a kernel allocation, so the reads disclose adjacent kernel
-memory, and a cursor pointing at an unmapped offset faults in the receive
-tasklet (softirq). Both transports are affected: SMC-D converts the
-cursor in smcd_cdc_msg_to_host() and SMC-R in smc_cdc_cursor_to_host(),
-and neither bounds the count.
+Yes, that makes the potential problem a bit smaller but also:
 
-Bound the producer cursor count to the RMB at both conversion boundaries
-(this closes the urgent index on SMC-D and SMC-R) and enforce the
-documented "0 <=3D bytes_to_rcv <=3D rmb_desc->len" invariant in
-smc_cdc_msg_recv_action() (this closes the receive length, which the
-cursor-count clamp alone cannot because of the differing-wrap diff and
-the cumulative atomic_add).
+Since we go through our macro magic I'm not sure if the compiler would 
+complain about values over 4 bits. Did you check for that and if not 
+please do check now.
 
-Fixes: de8474eb9d50 ("net/smc: urgent data support")
-Cc: stable@vger.kernel.org
-Signed-off-by: Bryam Vargas <hexlabsecurity@proton.me>
----
-Reproduced under KASAN on 6.12.y. A forged producer cursor with
-prod.count =3D rmb_desc->len + 1 and prod_flags.urg_data_present set produc=
-es
-a 1-byte out-of-bounds read in smc_cdc_handle_urg_data_arrival()
-(slab-out-of-bounds Read of size 1); the cursor-count clamp makes the same
-input in-bounds. A wrap-flipped cursor drives bytes_to_rcv past
-rmb_desc->len across several CDCs so smc_rx_recvmsg() over-reads; the
-bytes_to_rcv invariant keeps it bounded. SMC-D was exercised over the
-in-kernel loopback-ism and the SMC-R converter (smc_cdc_cursor_to_host)
-over an emulated RDMA loopback. Clamping prod.count alone does not bound
-the recv length, hence the separate bytes_to_rcv hunk.
+If it does not complain we need a compile time check. Well maybe we 
+should have one either way until the instruction format is available in 
+compilers just to be safe.
 
- net/smc/smc_cdc.c |  2 ++
- net/smc/smc_cdc.h | 12 ++++++++++++
- 2 files changed, 14 insertions(+)
-
-diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
-index 619b3bab3824..738c45fd5cd0 100644
---- a/net/smc/smc_cdc.c
-+++ b/net/smc/smc_cdc.c
-@@ -382,6 +382,8 @@ static void smc_cdc_msg_recv_action(struct smc_sock *sm=
-c,
- =09=09smp_mb__before_atomic();
- =09=09atomic_add(diff_prod, &conn->bytes_to_rcv);
- =09=09/* guarantee 0 <=3D bytes_to_rcv <=3D rmb_desc->len */
-+=09=09if (atomic_read(&conn->bytes_to_rcv) > conn->rmb_desc->len)
-+=09=09=09atomic_set(&conn->bytes_to_rcv, conn->rmb_desc->len);
- =09=09smp_mb__after_atomic();
- =09=09smc->sk.sk_data_ready(&smc->sk);
- =09} else {
-diff --git a/net/smc/smc_cdc.h b/net/smc/smc_cdc.h
-index 696cc11f2303..7fa6e0d3817f 100644
---- a/net/smc/smc_cdc.h
-+++ b/net/smc/smc_cdc.h
-@@ -230,6 +230,12 @@ static inline void smc_cdc_cursor_to_host(union smc_ho=
-st_cursor *local,
- =09smc_curs_copy_net(&net, peer, conn);
- =09temp.count =3D ntohl(net.count);
- =09temp.wrap =3D ntohs(net.wrap);
-+=09/* the peer producer cursor is wire-controlled; bound the SMC-R count t=
-o
-+=09 * our RMB before it is used as a raw index by the urgent path, mirrori=
-ng
-+=09 * the SMC-D conversion in smcd_cdc_msg_to_host().
-+=09 */
-+=09if (temp.count > conn->rmb_desc->len)
-+=09=09temp.count =3D conn->rmb_desc->len;
- =09if ((old.wrap > temp.wrap) && temp.wrap)
- =09=09return;
- =09if ((old.wrap =3D=3D temp.wrap) &&
-@@ -260,6 +266,12 @@ static inline void smcd_cdc_msg_to_host(struct smc_hos=
-t_cdc_msg *local,
-=20
- =09temp.wrap =3D peer->prod.wrap;
- =09temp.count =3D peer->prod.count;
-+=09/* the peer producer cursor is wire-controlled; a count past our RMB is
-+=09 * used as a raw index by the urgent path (smc_cdc_handle_urg_data_arri=
-val)
-+=09 * and as a length by the recv path.  Bound it to the RMB.
-+=09 */
-+=09if (temp.count > conn->rmb_desc->len)
-+=09=09temp.count =3D conn->rmb_desc->len;
- =09smc_curs_copy(&local->prod, &temp, conn);
-=20
- =09temp.wrap =3D peer->cons.wrap;
---=20
-2.43.0
-
-
+@Christian: Thoughts?
