@@ -1,140 +1,165 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f43.google.com (mail-ej1-f43.google.com [209.85.218.43])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F0E3122259F;
-	Wed, 10 Jun 2026 13:04:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BE8382D3750
+	for <linux-s390@vger.kernel.org>; Wed, 10 Jun 2026 13:38:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781096650; cv=none; b=GvZ7rTfy10YI9GfIxgb876u+l/vJDYRtAe9LzFxXefamQiW9k+o1E3NPgMJKFckcADqjIKWULUbkCaNwRQapQdCYmgtwYMauxREptwEwZx81OiIcvNurLUwVvODzrWSX7oWMkkX3Q8A85OFZ8JAthWtW4TnfCsm8bFtZ85G3s2E=
+	t=1781098709; cv=none; b=HsCxEhCkQpq+/2PHkEEZQgWY2OTow5ZkHhc8nN7uCrvhqbpbEMLsBQAp+eUCgQXdM6ywZAd3Z9u3Ha7F3Ju4Ue3OHhvAgIRX95DRvGPwCrBoNV3StUvegfrTAdo5NC/i4ESC5EKoyaxPB8tGHXQ62u+0q7EovLY27Z2asGlsxv0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781096650; c=relaxed/simple;
-	bh=oWOaaXlkCVv5uxt2sXh9GUnBE+6vcR158b8g2GOcbr4=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=e/AegVlhsK2eFLyZs+DEvHDmquT/bn29f9HwBjVLltTcantRLooTnat/X+XNXr2oij5IZBEHhvaaY4du0u+NaBWgcDCtc1Yjikw1HEa0piLd5a66I9nlLaChYWcTfHiIphwLpbObMB5JQjD87Vwu5fU9MmRQ/plutCM9OU5VQOc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=MFVyM728; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1781098709; c=relaxed/simple;
+	bh=f5xF23PvbD03zrgF6UzgwUbWasiF/s+dmaVBDDMQYnE=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=aiZIBNLtroKNidEZRullWqB0pY2jq120jxxI89pVe7GDyKutrRR2OzS1hhvS6Q/IfyaIrci7N14Ty0WnvpOVxOsdBX5FiPrXb8qonqWaJB073Mxj8lPEKZ7T1amFZ2ztF5AfTdfj7ZqYfD9rrZh0Z0fRxR25J2J/+uABcHqpwRw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=sM6IQSP3; arc=none smtp.client-ip=209.85.218.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="MFVyM728"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65ABs0Qg1266651;
-	Wed, 10 Jun 2026 13:03:34 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=oWOaaXlkCVv5uxt2sXh9GUnBE+6vcR
-	158b8g2GOcbr4=; b=MFVyM728aZZAtpk2mErN5JrJT/QJdYK1cVQA8/UH06QK2j
-	+RvCx3Q3B1zkN/+oMy6Wu9B/jIw+ZFJZrGRHObyzi0XZeCg5S94B4YRAVPARKlEo
-	RuFjUn7WBM5lEjkP7o+3bby/v5WcRVkMcDgMrJxhq9Tf4zGI0awEx5oG3exFJ4G7
-	724NS0r701ozxWfa4RTi9txzjXvukRCMGYOkAvZa7bO0QVIXqFfz6X59Swy5hc/u
-	GYo3b6y1obLVxj65M6v74y+o9ctrRopKUCMezoPdac+qJdavWLf6PMWuh6wMynga
-	zbqYdscad0BDxpuCYSapYLECFTLv21qXCsjBU4HQ==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4em9ye8thr-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 10 Jun 2026 13:03:34 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 65ACncNV018243;
-	Wed, 10 Jun 2026 13:03:33 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4emxvjxqjc-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 10 Jun 2026 13:03:33 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 65AD3T2F49086740
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 10 Jun 2026 13:03:29 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 816B72004E;
-	Wed, 10 Jun 2026 13:03:29 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2E7942004B;
-	Wed, 10 Jun 2026 13:03:29 +0000 (GMT)
-Received: from tuxmaker.linux.ibm.com (unknown [9.87.85.9])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Wed, 10 Jun 2026 13:03:29 +0000 (GMT)
-From: Sven Schnelle <svens@linux.ibm.com>
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
-        Ingo Molnar
- <mingo@redhat.com>, Juri Lelli <juri.lelli@redhat.com>,
-        Vincent Guittot
- <vincent.guittot@linaro.org>,
-        K Prateek Nayak <kprateek.nayak@amd.com>,
-        Mark Brown <broonie@kernel.org>,
-        Dietmar Eggemann
- <dietmar.eggemann@arm.com>,
-        Steven Rostedt <rostedt@goodmis.org>, Ben
- Segall <bsegall@google.com>,
-        Mel Gorman <mgorman@suse.de>,
-        Valentin
- Schneider <vschneid@redhat.com>,
-        John Stultz <jstultz@google.com>,
-        Vineeth Pillai <vineethrp@google.com>,
-        Joel Fernandes
- <joelagnelf@nvidia.com>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily
- Gorbik <gor@linux.ibm.com>,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-next@vger.kernel.org, "Aaron Lu"
- <ziqianlu@bytedance.com>
-Subject: Re: linux-next crashes in scheduler on s390
-In-Reply-To: <17e75ff4-cf90-4772-9965-92a7235ca806-agordeev@linux.ibm.com>
-References: <17e75ff4-cf90-4772-9965-92a7235ca806-agordeev@linux.ibm.com>
-Date: Wed, 10 Jun 2026 15:03:26 +0200
-Message-ID: <yt9dmrx2wns1.fsf@linux.ibm.com>
-User-Agent: Gnus/5.13 (Gnus v5.13)
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="sM6IQSP3"
+Received: by mail-ej1-f43.google.com with SMTP id a640c23a62f3a-bec43ee8ff0so978319466b.1
+        for <linux-s390@vger.kernel.org>; Wed, 10 Jun 2026 06:38:27 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1781098706; x=1781703506; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=5hHFAGJXeiT/y4W+FHHHiOJeeM3a7WGwNiF8ZLx2zfY=;
+        b=sM6IQSP3Ilo3vdosRXO5FKC5RotGlTj5bVscIgX/YaYKPpaYYg3j/GMuXNty/azgj5
+         ZLcNS+x4jsVRMOQ/2AzXcajPExAkVr9tL/XBpzH+tni8lWQwl/3CqGczXqM886MMZVvU
+         edN921MhTqOE85DtXepDtPC0Qe7ic0reD6kROyIxqm89G1in7FbfysunXW9/F7zPAHIf
+         P4v+XNA1YALPCzycexDU0M+2GdrQjMZEXP7jbIJxZAsWH0D0Ihv5Wtifis4Xr6UlNRrQ
+         k2A1d+AyZtrBScb3GBfujcRT7MCwyLI3yu6si1t60TzpsTEyOUY2woHeGQzPO0dFNKQh
+         cirA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1781098706; x=1781703506;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=5hHFAGJXeiT/y4W+FHHHiOJeeM3a7WGwNiF8ZLx2zfY=;
+        b=fNhrMXAyc/vR8ifi+ppeegREffdL4t7xX+reqRLJe2riQYw0KT9vJw4jm23kMuU34z
+         9YNfseNZ46k9ZpsKk1s19MSx+T8XTI0/kmekG7qSAQ55jMoxcqR04oCW1K4Sfr4cQiOF
+         qAyUgn6x89Jy5POANoyERCEuc995otmP6N4miN6l/ZdQ/OnDE0msmIzfKE+uPnmYS9D+
+         PJVTZCPwCmpevlYIG4XTUOOruimBYTMUzruzXLpVIY5lYSCDdQeLC6Z59Ioh5tt40gRO
+         9Rz6u1dkpGUoh3ERa2yOpXzysOcsmLQdf+KI0yuBX5iYwMBiWB/J9stmHybAdCYvmYMF
+         oCQw==
+X-Forwarded-Encrypted: i=1; AFNElJ8juWEJm3jyR/DMmVLGrGOhWHHdOlk4F1QHpGptN6FOQcHJbFo9Aioz4PEDWcKXED4yOaCQh0v+7Ao6@vger.kernel.org
+X-Gm-Message-State: AOJu0YxKjhNYGs4iQQy/qLwQJqAL/dSbrHAa2j/a1Zkduce7T/1EFPEA
+	KS8CszO38baTuKvPfvSWfWiILG9C7DyvgMyLcoxAAKyRMMS0T3rEB9wHUBdzxZOPIIU=
+X-Gm-Gg: Acq92OFD4oLmGNU5iDidevnVJyN9UzvV7wq4usU6FRflu/6WGvMrRhGm+B7DaDfHQaQ
+	ti7yvcr578yo2wCxvilRpDmNkmXmH5qChHEW8Ir3ZVnd3Wuw8tYur8JUqiqaNyAx6FcYE4XEdeN
+	vtUnBa6OHk0nj8ytAPU/2NWirVXS7ZDbv8j2sARhwnHGOlKsVDgAXxT5BMgRfUtPlDvnWkp9jSu
+	pX8P9MqLKBoA43EWB32/+94OyOsJCcTaTPlZVC6mKET3dlos7LvrBCCWdh/QcmTV/P6SnlGiDT9
+	4ThrxsLdWWD6oTeQfISy577ad57Jzcl3DKtqE75rFPeSwTeA7o5RRrcG2RnaFiJLS7/noEp9+Uy
+	DHUsOolEIgz5n+WYnBTbcRXPFfDjfDxAm719Gm/s+nfTB3UynwPSGCrBwzRPgyXSoWN23dvQTjh
+	+X+agMwp17m2RFjIoW/gN6i8wRSoc3dAgGyq4L5Eo=
+X-Received: by 2002:a17:906:518a:20b0:bf8:970f:e4d8 with SMTP id a640c23a62f3a-bf8970fe4f0mr317498166b.12.1781098706106;
+        Wed, 10 Jun 2026 06:38:26 -0700 (PDT)
+Received: from [192.168.1.3] ([185.48.77.170])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-bf05176fd07sm1203628966b.1.2026.06.10.06.38.25
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 10 Jun 2026 06:38:25 -0700 (PDT)
+Message-ID: <82e8f48d-50da-4010-9df2-82dfd436d85c@linaro.org>
+Date: Wed, 10 Jun 2026 14:38:24 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjEwMDEyMSBTYWx0ZWRfX8ztmBfnYQHXV
- Kraz8ggcYm/DAHWOnHgaXd/YMfstzjeNwl/Sy5ywFurq1VbbWHvEbOl675r9fa2myErT7f2inSN
- O9rjgk3I0g9yiw15Do6m0snJGGKbcL6tuBlkqzoQ2xDCXj1+TmVPYLpgnjbli1ziJ9egPUSY5l4
- cs93KciyF2JkduvZ1Q51xVAtO5u08UyvodvrlgBcesy+LXyi4h6lq8zvhz5Acz/E8aBmY3wAktF
- 8QnxLCh/PW8zPaAHZu55h8Daat6mNW5aXHvd6HjRm2/N6TFLvAoCWXV2I9lG8Z28RqxHy6EA38A
- inWwX3/TKa+IlxpdUbQTpXOo2Veys0kHyKQaxkzkNIWohLusOpkro5gLK4AXFTrAQ8e3RfBuRFL
- DP5bl/TM1BWM74VVLw/4w4gVUkOvAYtOMB65gHcAEQ7w9MLNY58BcT/Dmh8u9NYYkOAPtcHzywG
- rFIuK/+nFyu40sl7kmQ==
-X-Authority-Analysis: v=2.4 cv=QKhYgALL c=1 sm=1 tr=0 ts=6a2960a6 cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=V8glGbnc2Ofi9Qvn3v5h:22 a=VwQbUJbxAAAA:8 a=JfrnYn6hAAAA:8 a=968KyxNXAAAA:8
- a=VnNF1IyMAAAA:8 a=mU7hYW_smJ6EYCDG9gIA:9 a=1CNFftbPRP8L7MoqJWF3:22
-X-Proofpoint-GUID: ecjgZR-H8jpIbbvPGWj48Djxu-XVL_ca
-X-Proofpoint-ORIG-GUID: iSXWIMWjLyJg4_f2SAWCjpEEN3xb70Mi
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
- definitions=2026-06-10_03,2026-06-09_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 lowpriorityscore=0 bulkscore=0 adultscore=0 phishscore=0
- malwarescore=0 impostorscore=0 suspectscore=0 spamscore=0 clxscore=1011
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2605210000 definitions=main-2606100121
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] perf build: Do not duplicate CFLAGS in Python extension
+ builds
+To: Jens Remus <jremus@linux.ibm.com>
+Cc: Jan Polensky <japo@linux.ibm.com>, Thomas Richter
+ <tmricht@linux.ibm.com>, Hendrik Brueckner <brueckner@linux.ibm.com>,
+ Heiko Carstens <hca@linux.ibm.com>, linux-s390@vger.kernel.org,
+ Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>,
+ Arnaldo Carvalho de Melo <acme@kernel.org>,
+ Namhyung Kim <namhyung@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
+ Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+ Jiri Olsa <jolsa@kernel.org>, Ian Rogers <irogers@google.com>,
+ Adrian Hunter <adrian.hunter@intel.com>, linux-perf-users@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+References: <20260610112344.1550111-1-jremus@linux.ibm.com>
+Content-Language: en-US
+From: James Clark <james.clark@linaro.org>
+In-Reply-To: <20260610112344.1550111-1-jremus@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Alexander Gordeev <agordeev@linux.ibm.com> writes:
 
-> Hi All,
->
-> Since about June 1st we're getting strace test suite (make -j$(nproc) check)
-> crashes on s390 in linux-next. Those are pretty easy to reproduce, but I
-> have not been able to nail it down to the particular commit/merge.
->
-> I am going to bisect it, but since we are approaching v7.1 release, any
-> hint would be greatly appreciated!
-> [..]
 
-I bisected it to
-https://lore.kernel.org/all/20260511120627.944705718@infradead.org/
-("[PATCH v2 08/10] sched/fair: Add newidle balance to pick_task_fair()")
+On 10/06/2026 12:23 pm, Jens Remus wrote:
+> setuptools already uses CFLAGS.  Passing CFLAGS with additional flags as
+> extra compile arguments causes CFLAGS to effectively get passed twice:
+> 
+> $ make -C tools/perf V=1 JOBS=1
+> ...
+> building 'perf' extension
+> gcc [CFLAGS] -fPIC -Iutil/include -I/usr/include/python3.14 \
+>    -c /root/linux/tools/perf/util/python.c \
+>    -o python_ext_build/tmp/root/linux/tools/perf/util/python.o \
+>    [CFLAGS] \
+>    -fno-strict-aliasing -Wno-write-strings -Wno-unused-parameter \
+>    -Wno-redundant-decls -Wno-cast-function-type \
+>    -Wno-declaration-after-statement
+> 
+> Signed-off-by: Jens Remus <jremus@linux.ibm.com>
 
-Adding the patch proposed in
-https://lore.kernel.org/all/20260603095108.GA1684319@bytedance.com/
-fixes the issue for me.
+Reviewed-by: James Clark <james.clark@linaro.org>
 
-To reproduce, running the strace test suite seems enough. If required, I
-can try to figure out the exact test that crashes the kernel.
+> ---
+> 
+> Notes (jremus):
+>      This patch applies on top of the perf-tools-next tree:
+>      
+>        git://git.kernel.org/pub/scm/linux/kernel/git/perf/perf-tools-next.git  master
+>      
+>      Note that my "[PATCH v2] perf build: Respect V=1 for Python extension
+>      builds" [1] needs to be applied to actually observe the Python extension
+>      build command and output with V=1.
+>      
+>      [1]: https://lore.kernel.org/all/20260608160613.3153795-1-jremus@linux.ibm.com/
+> 
+>   tools/perf/util/setup.py | 13 ++++++-------
+>   1 file changed, 6 insertions(+), 7 deletions(-)
+> 
+> diff --git a/tools/perf/util/setup.py b/tools/perf/util/setup.py
+> index b65b1792ca05..a0ce76624a23 100644
+> --- a/tools/perf/util/setup.py
+> +++ b/tools/perf/util/setup.py
+> @@ -74,18 +74,17 @@ class install_lib(_install_lib):
+>           self.build_dir = build_lib
+>   
+>   
+> -cflags = getenv('CFLAGS', '').split()
+>   # switch off several checks (need to be at the end of cflags list)
+> -cflags += ['-fno-strict-aliasing', '-Wno-write-strings', '-Wno-unused-parameter', '-Wno-redundant-decls' ]
+> +extra_cflags = ['-fno-strict-aliasing', '-Wno-write-strings', '-Wno-unused-parameter', '-Wno-redundant-decls' ]
+>   if cc_is_clang:
+> -    cflags += ["-Wno-unused-command-line-argument" ]
+> +    extra_cflags += ["-Wno-unused-command-line-argument" ]
+>       if clang_has_option("-Wno-cast-function-type-mismatch"):
+> -        cflags += ["-Wno-cast-function-type-mismatch" ]
+> +        extra_cflags += ["-Wno-cast-function-type-mismatch" ]
+>   else:
+> -    cflags += ['-Wno-cast-function-type' ]
+> +    extra_cflags += ['-Wno-cast-function-type' ]
+>   
+>   # The python headers have mixed code with declarations (decls after asserts, for instance)
+> -cflags += [ "-Wno-declaration-after-statement" ]
+> +extra_cflags += [ "-Wno-declaration-after-statement" ]
+>   
+>   src_perf  = f'{srctree}/tools/perf'
+>   build_lib = getenv('PYTHON_EXTBUILD_LIB')
+> @@ -94,7 +93,7 @@ build_tmp = getenv('PYTHON_EXTBUILD_TMP')
+>   perf = Extension('perf',
+>                    sources = [ src_perf + '/util/python.c' ],
+>   		         include_dirs = ['util/include'],
+> -		         extra_compile_args = cflags,
+> +		         extra_compile_args = extra_cflags,
+>                    )
+>   
+>   setup(name='perf',
+
