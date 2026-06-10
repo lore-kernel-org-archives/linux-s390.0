@@ -1,173 +1,136 @@
-Received: from mail-qk1-f174.google.com (mail-qk1-f174.google.com [209.85.222.174])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C24D347BD7
-	for <linux-s390@vger.kernel.org>; Wed, 10 Jun 2026 16:41:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C05EE347532;
+	Wed, 10 Jun 2026 16:52:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781109719; cv=none; b=G6Z2aAGXAZXOMS7eskFpmSswzH1/kfhSKaoZsEGsDrak2WgQYDw0L/Kl864LO82SSM5DJyxePF6AKM82pvk/nK851QPxoT6hGp4siPLRgyv5y9eHtzpm5d/8+LJGnwxDGnlDOzGkMVn0JnAdSkuS+5bhJAGvpNgbPMsmqNAbpSc=
+	t=1781110378; cv=none; b=Klf4HLutOpEbn+YKS4ioeOvmLol7VHouiPSa2787wg/QZWBTId1EdIrRRm/0o+aYq7AxcboZ9+oO84OsZZJzaPivbdjq0/7Eud4jXz3n9XOTUsjoFbnz+ORq6VuFfOLtJj9Hx5t6t1SJVFeMid3oI5gQeNJFZpg9JLhs/PaXEk0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781109719; c=relaxed/simple;
-	bh=aoQpijLFpdT37b0Bpmvd//AN2Bj/cbJFhcJiveomuZs=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ljEyBSB1x4rLTt1h/RL4vZD8BFZxj63bRIZNUGHZbaVcfYYsa6OCpk7zQyd1gk31Am6qVAXMSsv4yNQB1Q7BdlHxFEW1GAVHzDhIynWp5wGjQv7CKc60nqA4sgHHuGjsDwqERkMQKrPFyMNHPyKKijnVD0ETRhtcb2LLCb800e4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca; spf=pass smtp.mailfrom=ziepe.ca; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=ePgZUVaw; arc=none smtp.client-ip=209.85.222.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
+	s=arc-20240116; t=1781110378; c=relaxed/simple;
+	bh=FDLy1BGQO+w9DStrNektS2alXBoWqeTa1GWUcs6Szow=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=M8DM866+4zUnkIeoEbqhAoLhbYv1gS0S+idtKvEQxMMU7fDSKyC6AATns6Xq8M2l8CCq0zxrEmxFjhTd8Xnu0LKKWtfS3e6kzQ+SizUuvQ8cnAjz7a5wSi8raFuOA7ushvmvX8GSW4nC2ffpWGhyyaEZO7b999Gfwl87AsiPBuw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ogW9Frp3; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="ePgZUVaw"
-Received: by mail-qk1-f174.google.com with SMTP id af79cd13be357-915c48e6ae2so353447185a.2
-        for <linux-s390@vger.kernel.org>; Wed, 10 Jun 2026 09:41:56 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google; t=1781109715; x=1781714515; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=DeYS8psnLhx+0nTbu07Q/N5cf93jt28LjVA9fcxz2cA=;
-        b=ePgZUVawYPbsrSBAs1+ufW/++SlkIwy9fb4yUF71wgYO+1AsAIgKBUk56YtYGkcB+l
-         dp1zbb2FS1RDOGyIIr0P6YA6+joWGD3iaKIgaS5ef6m6gszeds4O9Vo4IP8Cnn7Jj+6t
-         xCaMYX6UGj0hmLye1jAgp1FmLnOKYB9XFUiN/YOSN8purqtrC3W03JSVCbo58Hne9c11
-         mC5nspB211YrW3azqWMva1DIkHa9Pc2btZcQWzOII/HULAfWlbAsOcovwQo7xeEocfM2
-         pyY69FUbp4uY9rkbiFUVVYg29BeuEEmBurv0OTWrvZ/cCgs7O9KsypecEs66/emhiF5f
-         AXcg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781109715; x=1781714515;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=DeYS8psnLhx+0nTbu07Q/N5cf93jt28LjVA9fcxz2cA=;
-        b=CPQF7aEGc5uEQNLsCliGKwmeQr5fgbdFYS83HTtrGdGOUJ19pFFxnwgIG1gfadCv7+
-         2xZsfCofnY4W0sHkapPx/1NSFHQOvYnU3f5827ksB02EzFe2t4Uojof9+ApAfnrDjCYX
-         LYzalmU199pyeHVEibFbt6SGlpk4s/o6HL7IKIJhKsD4aeRBQxTtZOimAojhHS+Mzrb5
-         8GeZzqQ60QByjpcLJ/AXRVQI8Y8lG/gLxLjwQc+34KZTejJUFBkEKQ3GscavEijP3oH2
-         gn5feGtwuKosYh1TYbjCjTcrleUoh4RVflEnDj+0JqjrOw6pvnAi8PtShaBgYM8XqY7t
-         42ww==
-X-Forwarded-Encrypted: i=1; AFNElJ+flM4K9BUzE5E5hz0JmO4dW9Uq8WH+Wz2eNgQ0hPtlh5I2mrXRTKWfbQBMBdhmtZN3LDgGJ9/ShpW3@vger.kernel.org
-X-Gm-Message-State: AOJu0YytJFWW0TV4GVgfFNv0JtMhVKu2Xt7h0gSrJyUWaY5cxGQExqzZ
-	pHXNmh7qbhk3E/H8PsgP6ohDlLCycrmVivi0QNbDV6vjCTT2UbuGia1scbjUA6cVP5Q=
-X-Gm-Gg: Acq92OEuzT4gTwt2TNzjAZrUxHlVy9tgskgwWqluHV+IIipI4OFGJDHZyg++ivb6+9U
-	QAXW+Fym1G2DcG6jdAHv7aGiv1pkzDD05iSDSTTEqD75JrVa7y79ngYp+6B6b6EjyvM2xPH+quN
-	jkm+hnzKwcrWbDyAq46adt28uT702B/cL+dDAAeO7HR6hMAhcEZGuqay1JzC5afSmXSLUt90loA
-	Ly94JJMva1I24/7n3jzxE8QTg1IbYR7hmYKj4m86fF1MKdQLpOvsLNO+DG9A2tzvIn/yGsvVPf6
-	OyknaZj4w6jGRo85le4Gupys8oVtVAdVhStcTMFSUR5gumiOiJdEVGYJ9j3f587M2JbFdYPuszY
-	19rQvjwDmrtl9/X+nZ8mChECKnPL5Xl6MrRCRKe/9scrGPmByxxq8kwMc9y6bRPJ2tndfit9rDS
-	DDy8bNbjMhGHJUeylOKw0MELY0eQ0nnKCBeqzJNWpQ+vMUy0yAjlG6rP7It0VPJKtTphddkKLG8
-	+blGF0OEVRL7X5U
-X-Received: by 2002:a05:620a:a414:20b0:914:afc1:c66d with SMTP id af79cd13be357-915a9c75c96mr3039706285a.11.1781109715064;
-        Wed, 10 Jun 2026 09:41:55 -0700 (PDT)
-Received: from ziepe.ca (crbknf0213w-47-54-130-67.pppoe-dynamic.high-speed.nl.bellaliant.net. [47.54.130.67])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-9158a22dbbesm2438570085a.13.2026.06.10.09.41.54
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 10 Jun 2026 09:41:54 -0700 (PDT)
-Received: from jgg by wakko with local (Exim 4.97)
-	(envelope-from <jgg@ziepe.ca>)
-	id 1wXM01-000000048i4-3DtT;
-	Wed, 10 Jun 2026 13:41:53 -0300
-Date: Wed, 10 Jun 2026 13:41:53 -0300
-From: Jason Gunthorpe <jgg@ziepe.ca>
-To: "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>
-Cc: iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev,
-	Robin Murphy <robin.murphy@arm.com>,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
-	Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
-	Steven Price <steven.price@arm.com>,
-	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Jiri Pirko <jiri@resnulli.us>, Mostafa Saleh <smostafa@google.com>,
-	Petr Tesarik <ptesarik@suse.com>,
-	Alexey Kardashevskiy <aik@amd.com>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Xu Yilun <yilun.xu@linux.intel.com>, linuxppc-dev@lists.ozlabs.org,
-	linux-s390@vger.kernel.org,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org,
-	Jiri Pirko <jiri@nvidia.com>, Michael Kelley <mhklinux@outlook.com>
-Subject: Re: [PATCH v6 04/20] dma-pool: track decrypted atomic pools and
- select them via attrs
-Message-ID: <20260610164153.GQ2764304@ziepe.ca>
-References: <20260604083959.1265923-1-aneesh.kumar@kernel.org>
- <20260604083959.1265923-5-aneesh.kumar@kernel.org>
- <20260609143242.GK2764304@ziepe.ca>
- <yq5afr2uzum9.fsf@kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ogW9Frp3"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65AAm29f139779;
+	Wed, 10 Jun 2026 16:52:55 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=pp1; bh=b6mCg6pnc58br7ZYF
+	XzXHqfVSwYRPg2iIm7vCGixyXQ=; b=ogW9Frp3rqiru77o8ocxd13tgE7WO70mw
+	yzIVudaw80CYbxQlhmfDzyJTkh/0Mjf5ZBmoh/fZXz4gOCQ3r13I/cpabU4ZF94/
+	V1NNpMR6m51TSlUue4fbbD/k0qSzDUSDHCZA5oQORjYUci4297BvuWRx812HuT83
+	seAlIUE0bFJQWx1LToj+gg72wSUrn2vHZj7IUsqGZgPOeh/L6ClkKdcMOG9JLKDd
+	RSDrxO9egZi6DKLuriK7w3TbLWll+uDGgL2Z2vlY3Om1yjbu4UkYyTwdk8vXUiHx
+	n19O0ZDCuR4d3SilbdRkm0hSrbxFKROwun3luT+VJVRmdyVQNaAIA==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4emb2426xb-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 10 Jun 2026 16:52:54 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 65AGnZdU005253;
+	Wed, 10 Jun 2026 16:52:53 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4en03g7at8-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 10 Jun 2026 16:52:53 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 65AGqlXi49545712
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 10 Jun 2026 16:52:48 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id D933E20040;
+	Wed, 10 Jun 2026 16:52:47 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B31E12004E;
+	Wed, 10 Jun 2026 16:52:47 +0000 (GMT)
+Received: from p-imbrenda.ehn-de.ibm.com (unknown [9.224.75.30])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 10 Jun 2026 16:52:47 +0000 (GMT)
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: stable@vger.kernel.org, kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        borntraeger@de.ibm.com, frankja@linux.ibm.com, david@kernel.org,
+        seiden@linux.ibm.com, nrb@linux.ibm.com, schlameuss@linux.ibm.com,
+        gra@linux.ibm.com
+Subject: [PATCH v2 1/5] KVM: s390: Silence potential warnings in _gmap_crstep_xchg_atomic()
+Date: Wed, 10 Jun 2026 18:52:43 +0200
+Message-ID: <20260610165247.238366-2-imbrenda@linux.ibm.com>
+X-Mailer: git-send-email 2.54.0
+In-Reply-To: <20260610165247.238366-1-imbrenda@linux.ibm.com>
+References: <20260610165247.238366-1-imbrenda@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <yq5afr2uzum9.fsf@kernel.org>
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=b4uCJNGx c=1 sm=1 tr=0 ts=6a299666 cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+ a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8 a=VwQbUJbxAAAA:8
+ a=4xVTsJvn8g-7h_O1kUwA:9
+X-Proofpoint-ORIG-GUID: uBp-dXJYal7OgHg0irvFhcxjWAnEmyjU
+X-Proofpoint-GUID: uBp-dXJYal7OgHg0irvFhcxjWAnEmyjU
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjEwMDE1NiBTYWx0ZWRfX487m+DaG8ps8
+ A9EeAA2eaZxsvRYzpk+8KE9uMrVU3JfZzWAhxZ+KwFZ6KAvCMP7eSDDQgE5mH5IvxQLMGchxPmF
+ +sH7llaFbvlXk54JDBB/E7fIeCSC5OP872NSmkEg5ogn1DLE3OubOygsuyjKD+p7OGqGBmLT8O8
+ J2ombDsCEHxPpwNvgcyh42UWbVEBHgXnTgKaqs7/nbivPp4hP2HakAjeL3D/7jpyv8Unug+o+70
+ 1BpH1+18lAZ1B2XsYeMrYf/cFpJZUvbnoTzlu5V+jeFIpDNe8W3dpsQ/yUFevyzbrOp/FjrLZit
+ Yne4zQmX/dSF0+MJpYa0py0DJaDBos0QNSfYR/bTzhqGlRs1CE+6NI5AHCtvQIPmRclYRHQZ/Zy
+ T6dJsZYSXFqfE3WVOZkldqcxcEdPOVXdiLluklsOAWJ3G3IxTuq4RG1lB0mJCMApHpyLLnPG/JV
+ bWtd+ecFhkbqP1k6sAg==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
+ definitions=2026-06-10_03,2026-06-09_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ clxscore=1015 spamscore=0 bulkscore=0 phishscore=0 priorityscore=1501
+ lowpriorityscore=0 adultscore=0 malwarescore=0 impostorscore=0 suspectscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2605210000 definitions=main-2606100156
 
-On Wed, Jun 10, 2026 at 01:37:26PM +0530, Aneesh Kumar K.V wrote:
-> Jason Gunthorpe <jgg@ziepe.ca> writes:
-> 
-> > On Thu, Jun 04, 2026 at 02:09:43PM +0530, Aneesh Kumar K.V (Arm) wrote:
-> >>  struct page *dma_alloc_from_pool(struct device *dev, size_t size,
-> >> -		void **cpu_addr, gfp_t gfp,
-> >> +		void **cpu_addr, gfp_t gfp, unsigned long attrs,
-> >>  		bool (*phys_addr_ok)(struct device *, phys_addr_t, size_t))
-> >>  {
-> >> -	struct gen_pool *pool = NULL;
-> >> +	struct dma_gen_pool *dma_pool = NULL;
-> >>  	struct page *page;
-> >>  	bool pool_found = false;
-> >>  
-> >> -	while ((pool = dma_guess_pool(pool, gfp))) {
-> >> +	while ((dma_pool = dma_guess_pool(dma_pool, gfp))) {
-> >> +
-> >> +		if (dma_pool->unencrypted != !!(attrs & DMA_ATTR_CC_SHARED))
-> >> +			continue;
-> >
-> > I don't think you should be overloading DMA_ATTR_CC_SHARED like this.
-> >
-> > 	/*
-> > 	 * DMA_ATTR_CC_SHARED is not a caller-visible dma_alloc_*()
-> > 	 * attribute. The direct allocator uses it internally after it has
-> > 	 * decided that the backing pages must be shared/decrypted, so the
-> > 	 * rest of the allocation path can consistently select DMA addresses,
-> > 	 * choose compatible pools and restore encryption on free.
-> > 	 */
-> > 	if (attrs & DMA_ATTR_CC_SHARED)
-> > 		return NULL;
-> >
-> > 	if (force_dma_unencrypted(dev)) {
-> > 		attrs |= DMA_ATTR_CC_SHARED;
-> > 		mark_mem_decrypt = true;
-> > 	}
-> >
-> > It is fine to have a bit inside the attrs that is only used by the
-> > internal logic, but it needs to have a clearer name
-> > __DMA_ATTR_REQUIRE_CC_SHARED perhaps.
-> >
-> 
-> Are you suggesting adding another attribute in addition to
-> DMA_ATTR_CC_SHARED?
-> 
-> Is the idea that __DMA_ATTR_REQUIRE_CC_SHARED would be used in the
-> allocation path to request a CC_SHARED allocation, while
-> DMA_ATTR_CC_SHARED would be used in the mapping path to describe the
-> attribute of the address?
+While dat_crstep_xchg_atomic() is marked as __must_check, in this
+particular case the return value should be ignored.
 
-Yeah, it is a thought at least
+Silence potential compiler warnings with a pointless check, and add a
+comment to explain the situation.
 
-Maybe a comment is good enough.
+Fixes: d1adc098ce08 ("KVM: s390: Fix _gmap_crstep_xchg_atomic()")
+Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+CC: stable@vger.kernel.org # 7.1
+---
+ arch/s390/kvm/gmap.h | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-I just find it hard to follow when we have this dual usage. Like the
-code above for dma_pool->unencrypted is completely wrong if it is an
-"attribute of an address". Easy to cut & paste that into the wrong
-context.
+diff --git a/arch/s390/kvm/gmap.h b/arch/s390/kvm/gmap.h
+index 5374f21aaf8d..20881e3ce9d8 100644
+--- a/arch/s390/kvm/gmap.h
++++ b/arch/s390/kvm/gmap.h
+@@ -279,7 +279,16 @@ static inline bool __must_check _gmap_crstep_xchg_atomic(struct gmap *gmap, unio
+ 			gmap_handle_vsie_unshadow_event(gmap, gfn);
+ 		else
+ 			_gmap_handle_vsie_unshadow_event(gmap, gfn);
+-		dat_crstep_xchg_atomic(crstep, oldcrste, newcrste, gfn, gmap->asce);
++		if (!dat_crstep_xchg_atomic(crstep, oldcrste, newcrste, gfn, gmap->asce))
++			return false;
++		/*
++		 * Return false even if the swap was successful, as it only
++		 * indicates that the best effort clearing of the vsie_notif
++		 * bit was successful. The caller will have to try again
++		 * regardless, since the desired value has not been set.
++		 * This pointless check is needed to silence a potential
++		 * __must_check warning.
++		 */
+ 		return false;
+ 	}
+ 	if (!oldcrste.s.fc1.d && newcrste.s.fc1.d && !newcrste.s.fc1.s)
+-- 
+2.54.0
 
-Especially if you move things up higher.. having the alloc set both
-CC_SHARED and REQUIRE_CC_SHARED or maybe ALLOC_CC_SHARED would make it
-clearer that the alloc code lives under that callchain
-
-Jason
