@@ -1,66 +1,69 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EBE2834753F;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 23F10347BBD;
 	Wed, 10 Jun 2026 16:52:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781110378; cv=none; b=n47j7CriA8hkwDEOKHeZW7sOT7AXlyUkvyciimoEwTEuPZfuFBrPv3ofJQsfsqX6NVlIg8VBaX7uB0CE5f7FXF2ucBYjRdhXhFD5ByZWOMBwzQN76By+7AgWqK96WAjodWl3hhORjfSPBQEn4Yw++T51FGdXvQcNatU1235QlRA=
+	t=1781110378; cv=none; b=SBUUZ7eYmLwNAiYOvDktQCq518DOImIdHt0zZN7aUSV3nmZkErHsnaHsuXo/BylKkyQLxhAs86Hq3tmflpMuZNFMsGXbODaHS6fABo5Nha7GfpMK4ABzz0ZQf7Bdr4ZRMR7cwgwSSkUl4YcZbxZXPtQqbamY2mX0P7VLCD2s54E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1781110378; c=relaxed/simple;
-	bh=jbk6yBEdIz+siIk4AW7hcrswKcQ5IcPD/9629Hos0/k=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=cpqUSKuCvxBhaS2UM20gXzYVWfF5GEiZM2dyglO0Gbf8QcDriUH1aWPxeqF1S3vF3AMISUInEFsEjfsJagDCR3m744nhA6bRFlVN/bPo1ZTWzJUEt3pfhifoxjfIoCWujYtEhDkjSKwWvbO98fqQfxoNGHzZF3BdNU9BAjmD3QY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=geuYnpIl; arc=none smtp.client-ip=148.163.158.5
+	bh=OWadmFqyZRODz0Fym0mqfwhIB0zcxMsdWfYJdDm0stc=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=u12QnEcXK4xmTAPNTSBXzb4bCsd2btHdMxMKE4DPXyzOzbQyJvPTexeRz5sU1Us73dB7LTaUB53Z9FbmpgeZyqNLjYOkq0g0EG8keGTnUmkmjtKgPfkNtdtrqW05rlfw3QqtLFigtHBaRf0lprDEMB5C2Uf1S8+LB/lHMDxepbI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=dzZ/+a7A; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="geuYnpIl"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65A6Saof3739674;
-	Wed, 10 Jun 2026 16:52:54 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="dzZ/+a7A"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65AFaWZd1873690;
+	Wed, 10 Jun 2026 16:52:55 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=quHNC8xouJtRxjNmNIJvukXcwZ1ls4HZ0NJKzRWu6
-	iI=; b=geuYnpIlZK8RCRW+O3KkgSvZnosxECF0aAGka9nmpX6bNurqxa5lYyN5m
-	j8tymSZ7c4NW3cd3527+0cks/KC7rVaHb2C86O4WmYk0dBwuvq2KGfoe+RQBq2XS
-	6oXp4kpUx8Qo8tDPEgsfJxRzBHbA0Gk6CO/IESaBreuWEuHtqmeOEs8j2FZ1kRn7
-	3KoMsqKegfrj3oTg7V2UcpjMwGWgeRwvIDuQCa836Sykd7dg8O2XOgcnU/CYLKKk
-	GypDDaV16hoKg0AhLszSvL7Zs99ZjycjaI9BGKp1p6+CAEPNBjvMLUDItUQ3uMs7
-	pD/1tBPuoeFFbRPpZTHBdYHdCWZxQ==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4em8yj1xfg-1
+	:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=pp1; bh=VoIsrMdrT6RvSo4ei
+	FqAUh+nwO4mrI1+0UrcyElu4kk=; b=dzZ/+a7ACWs+0D7AS0el/LmLZMP2yXowf
+	1/lgME0v9lAfvwuKw1oZ8NLhaeRafQ6MuaJhw8bO+hCA5gsqxzOBssu4cg+lFSiL
+	UuePOO9Oe6EkjeFWfywa5QnnAWTFhZUVZFw1tJ7mMDNLVJx9x03a1bFSDmOPujTb
+	FIIO5KnXuMfHF93oI6t8XjsSdXtGsc8h0saT6gd4pKVsr0sJlWF5JNtxeydKzSUd
+	tsZOSVm+bg8KPgiO2qESg7KKXFRQ40lEApXDG5mP8gjOZaDyhozBnatk5XtshwXO
+	B0s5tKmjIqdon9h+vWRo/iZyKuzCUzCyzlWsStAHtbJDsQKaGuftw==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4emb7qt4gu-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Wed, 10 Jun 2026 16:52:54 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 65AGnar8010361;
-	Wed, 10 Jun 2026 16:52:53 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4emwvq7pe5-1
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 65AGnZdV005253;
+	Wed, 10 Jun 2026 16:52:54 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4en03g7at9-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Wed, 10 Jun 2026 16:52:53 +0000 (GMT)
 Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 65AGqlKD49545710
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 65AGqmfJ27263310
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 10 Jun 2026 16:52:47 GMT
+	Wed, 10 Jun 2026 16:52:48 GMT
 Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id AE3F52004B;
-	Wed, 10 Jun 2026 16:52:47 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 464062004E;
+	Wed, 10 Jun 2026 16:52:48 +0000 (GMT)
 Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7E78420040;
-	Wed, 10 Jun 2026 16:52:47 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 157BE20040;
+	Wed, 10 Jun 2026 16:52:48 +0000 (GMT)
 Received: from p-imbrenda.ehn-de.ibm.com (unknown [9.224.75.30])
 	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 10 Jun 2026 16:52:47 +0000 (GMT)
+	Wed, 10 Jun 2026 16:52:48 +0000 (GMT)
 From: Claudio Imbrenda <imbrenda@linux.ibm.com>
 To: linux-kernel@vger.kernel.org
 Cc: stable@vger.kernel.org, kvm@vger.kernel.org, linux-s390@vger.kernel.org,
         borntraeger@de.ibm.com, frankja@linux.ibm.com, david@kernel.org,
         seiden@linux.ibm.com, nrb@linux.ibm.com, schlameuss@linux.ibm.com,
         gra@linux.ibm.com
-Subject: [PATCH v2 0/5] KVM: s390: A few misc gmap fixes.
-Date: Wed, 10 Jun 2026 18:52:42 +0200
-Message-ID: <20260610165247.238366-1-imbrenda@linux.ibm.com>
+Subject: [PATCH v2 3/5] KVM: s390: vsie: Fix allocation of struct vsie_rmap
+Date: Wed, 10 Jun 2026 18:52:45 +0200
+Message-ID: <20260610165247.238366-4-imbrenda@linux.ibm.com>
 X-Mailer: git-send-email 2.54.0
+In-Reply-To: <20260610165247.238366-1-imbrenda@linux.ibm.com>
+References: <20260610165247.238366-1-imbrenda@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -69,52 +72,55 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjEwMDE1NiBTYWx0ZWRfX4d5SU0bndSkI
- DyjmBoyc3JqpC4JAy9JkERE/IWP1vfrQzcxnsoRBpUsKA0i2f1SDspYK+RfEnkZhXkeReJC02/X
- OTIM5cWW0psoqyiXqQNaQg4/mYj80/KbOuSR17JzmeBMf3Ko3c4RmGoV5DV9+jLOaA75lQ/+Oag
- qKgB8NrRt+RkLJp0dH7+1C24cyv5vrlyRe0gyz7+jsWSOqBAN3L+SpVvhBwkN++hGmt3nOwGJmw
- cektIHIx1zM0uNm+Kwoun/FQF4N9ogy7XnBdjWKdWIC0fo4RLyclcYE9oPwjbO9uiBFOSVEg9oX
- PDc0Gmb90CPNtV8Y+NNHyiBJXi09rwrKZF5LwDu2rjhM/Ak9XaCrmaHUDB7FhxNS99CeIAmEDee
- fAmtmbERvEX2a3deig3oDQbLeAFZCb0ELWiKSbgdRstKHahkkeAUTuIMK+nl3YTlYfpkwQZMCCc
- Dc65+koNTFEHm1Q8qAw==
-X-Authority-Analysis: v=2.4 cv=HvFG3UTS c=1 sm=1 tr=0 ts=6a299666 cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+X-Authority-Analysis: v=2.4 cv=HppG3UTS c=1 sm=1 tr=0 ts=6a299666 cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
  a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=Y2IxJ9c9Rs8Kov3niI8_:22 a=NwVYdQMMGb_YwOmgCikA:9
-X-Proofpoint-ORIG-GUID: 5y0QIONP62bslpwex0t_UFVzn-Uf0fVL
-X-Proofpoint-GUID: 5y0QIONP62bslpwex0t_UFVzn-Uf0fVL
+ a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8 a=VwQbUJbxAAAA:8
+ a=hYSCaGdr6WFvCWo5WKQA:9
+X-Proofpoint-GUID: YOUWNDiSHK87me0D5zURj9VQnlV8-fxu
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjEwMDE1NiBTYWx0ZWRfX3GqXiJxYv+3/
+ +UZSknQcG759wGPowBjP2g5oCQ3x441ilVBultfgtGpomqSKsqGW8zc/jr8rYUByIWsLn+6S8Y6
+ MYym2clUwrKKCy8g8EBUjqfX/x2E7US2rk96nb8wXgWIddoxzJUjHVRbuhZqDoE5sgiGtbRFlHU
+ 9NIKFs6lkz0gPccJOVJbe+XVvyKjshFgHdBPjk2v56OQ5/VaZ6IEh3C36XI8Pv+kbfr86IDcAwU
+ uwTCFhUhZkgYAGKVP7QfSQgmeMtIRc+d92xRnWe4/9icMbB9YMtlHVgY3R9fg7Jgb5YwM4DvAI1
+ /QgU5YI7bfcWsfLRlwLl3tQND12r7hTVPt8jMN0sQ3pUGi8/3EWPO/Xx3PxUrlDktGKgPuAA6Xq
+ f86XTprFKdbQ0tZYwEKaEsJuLD/vWvc3tTshlxzgmPCIrTLHS2fApbHaGSr5KV/SHulWla12N9O
+ Qv/ygp1sFhSgD9a/BMw==
+X-Proofpoint-ORIG-GUID: YOUWNDiSHK87me0D5zURj9VQnlV8-fxu
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
  definitions=2026-06-10_03,2026-06-09_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- impostorscore=0 clxscore=1015 lowpriorityscore=0 adultscore=0 suspectscore=0
- spamscore=0 priorityscore=1501 phishscore=0 malwarescore=0 bulkscore=0
+ lowpriorityscore=0 adultscore=0 phishscore=0 malwarescore=0 impostorscore=0
+ priorityscore=1501 clxscore=1015 bulkscore=0 spamscore=0 suspectscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2605210000 definitions=main-2606100156
 
-A few more minor gmap fixes.
+The allocation size for struct vsie_rmap in kvm_s390_mmu_cache_topup()
+was wrong due to a copy-paste error.
 
-v1->v2:
-* Improve suppression of __must_check, by using a pointless if instead
-  of casting to (void)
-* Fix allocation size for struct vsie_rmap in kvm_s390_mmu_cache_topup()
-* Add missing radix_tree_preload() in _gaccess_shadow_fault()
- 
-Claudio Imbrenda (5):
-  KVM: s390: Silence potential warnings in _gmap_crstep_xchg_atomic()
-  KVM: s390: Fix unlikely race in try_get_locked_pte()
-  KVM: s390: vsie: Fix allocation of struct vsie_rmap
-  KVM: s390: vsie: Add missing radix_tree_preload() in
-    _gaccess_shadow_fault()
-  KVM: s390: vsie: Use mmu cache to allocate rmap
+Fix it by using the correct size.
 
- arch/s390/kvm/dat.c         |  2 +-
- arch/s390/kvm/gaccess.c     | 65 ++++++++++++++++++++++---------------
- arch/s390/kvm/gmap.c        |  7 ++--
- arch/s390/kvm/gmap.h        | 14 ++++++--
- arch/s390/mm/gmap_helpers.c |  6 ++--
- 5 files changed, 58 insertions(+), 36 deletions(-)
+Fixes: 12f2f61a9e1a ("KVM: s390: KVM page table management functions: allocation")
+Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+CC: stable@vger.kernel.org # 7.1
+---
+ arch/s390/kvm/dat.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
+diff --git a/arch/s390/kvm/dat.c b/arch/s390/kvm/dat.c
+index 4a41c0247ffa..b3931e3592b5 100644
+--- a/arch/s390/kvm/dat.c
++++ b/arch/s390/kvm/dat.c
+@@ -45,7 +45,7 @@ int kvm_s390_mmu_cache_topup(struct kvm_s390_mmu_cache *mc)
+ 		mc->pts[mc->n_pts] = o;
+ 	}
+ 	for ( ; mc->n_rmaps < KVM_S390_MMU_CACHE_N_RMAPS; mc->n_rmaps++) {
+-		o = kzalloc_obj(*mc->rmaps[0], GFP_KERNEL_ACCOUNT);
++		o = kzalloc(sizeof(struct vsie_rmap), GFP_KERNEL_ACCOUNT);
+ 		if (!o)
+ 			return -ENOMEM;
+ 		mc->rmaps[mc->n_rmaps] = o;
 -- 
 2.54.0
 
