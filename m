@@ -1,108 +1,176 @@
-Received: from mail-4316.protonmail.ch (mail-4316.protonmail.ch [185.70.43.16])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 06B6B399358;
-	Wed, 10 Jun 2026 09:09:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.70.43.16
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC4C73FFD;
+	Wed, 10 Jun 2026 11:24:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781082594; cv=none; b=ZUSAUFInrjg/UlmKDsYSajyU4bSdTOs1FWNUaUNLXsXLjhMEVuFsi8P/ywX/OgE+kmy1B3ZZGZv3x08vcX+X5s4uohgsOMtzQw7B4fSqf2H8pN3DvWSV0YoM065W+901VxLomd/IgGblDZHw+ZCvthdL3PpJiwW1m5BQ1u53aQc=
+	t=1781090648; cv=none; b=XFAeDgFjkDWMW9rRplcF8BpP+VJkfqVaShOiTg2NpZoM14Se28mqqohuXMv/DFe+88avaKXmyUHZNydb81hv2TCNTO56GCflMZ3NI4W4aVd4+7CVsbuND0EbSY1KZnxgdq9nGUjwjfrkEEaOqcrZD8ZMh1Yv3bK3GBhQ+rKcFhY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781082594; c=relaxed/simple;
-	bh=Q3c0YkQ00Dg2+6RvLhcCD5TdYu6CuiF/GpPRUubdqnc=;
-	h=Date:To:From:Cc:Subject:Message-ID:MIME-Version:Content-Type; b=Mpo1FZSHNzOHex76oBIFIoGRgSrRYWzTj2jH12F1/ghY4vjR6KXMnPsBKW4lmjGtU+nBT2pJgQ32jBwKJnZ/fOjjNjBAyk6QgAydytsFDZvaY6qWcY/iysVwvelB24/MYkeZtA2B6YXe2ug388owIbObKlWfz7rRgXu+9dfzcC4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=proton.me; spf=pass smtp.mailfrom=proton.me; dkim=pass (2048-bit key) header.d=proton.me header.i=@proton.me header.b=BQaeTVJ9; arc=none smtp.client-ip=185.70.43.16
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=proton.me
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=proton.me
+	s=arc-20240116; t=1781090648; c=relaxed/simple;
+	bh=pUpRXCJeYDureFfDynMd3TzKzqYVMIXcM5TirXI1gp8=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=QT59qxTH1SpQ3ThnbbYyDL1zGkCQBdEtQ5TNRRvJUTh3nDVwPdacHN6UbU3kFY8eWN5jEunAusmyuyy/O661QfiOprUat/y+G2k0s0/G006uV4Lhdv+Rl5k8GHuYsD0kcdIGRGTeibaQ8ms2Lrn62hsM1bSonSSo8tD68+zfrVc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=sgf24A2f; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=proton.me header.i=@proton.me header.b="BQaeTVJ9"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=proton.me;
-	s=protonmail; t=1781082581; x=1781341781;
-	bh=fzpIdMYjk1mOVwb0koV+o6fWh0wxCF1fK7xFHu0BzR0=;
-	h=Date:To:From:Cc:Subject:Message-ID:Feedback-ID:From:To:Cc:Date:
-	 Subject:Reply-To:Feedback-ID:Message-ID:BIMI-Selector;
-	b=BQaeTVJ9jWeeb5d/3JeUV/n4qPYIpqXSZ/RBvD7kGdGJ9zge+ZxHDv5UKiouq/0ID
-	 TxwMpXnGPhOmcphfdSsKzNnwwosPhGsZG13UYwASSxEeNMd+0U38nhnbBg8OTGfAly
-	 DPP5a75nui99/Z2PuQPrLl1Y9n88xgvuwjej5ps9HmvkgKp5lskFKtgZpYwd0g9OYD
-	 XeucitQvziLXBFDKz1gj0fSljfal8WEX4F3ViY/zzFpNDjcAHnmETVEPR03uWxl1wg
-	 odamJsSRfOArlQwDzLbLgpf4CVYGmNxSf0gxDOip2urExcqTh3saPkrtevOVEQ4CSt
-	 2mkToif4B/u0Q==
-Date: Wed, 10 Jun 2026 09:09:36 +0000
-To: "D . Wythe" <alibuda@linux.alibaba.com>, Dust Li <dust.li@linux.alibaba.com>, Sidraya Jayagond <sidraya@linux.ibm.com>, Wenjia Zhang <wenjia@linux.ibm.com>
-From: Bryam Vargas <hexlabsecurity@proton.me>
-Cc: Mahanta Jambigi <mjambigi@linux.ibm.com>, Tony Lu <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>, "David S . Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] net/smc: bound sndbuf_space on the SMC-D DMB-merge receive path
-Message-ID: <20260610090928.192177-1-hexlabsecurity@proton.me>
-Feedback-ID: 199661219:user:proton
-X-Pm-Message-ID: 803145bfb8bf62d5bbca7acd9daaed6e63526b1b
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="sgf24A2f"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65A91q3t089638;
+	Wed, 10 Jun 2026 11:23:51 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=dBG+f+IsuyekbzMiS39ZCnJJO4H44X1SWNb6nWfT2
+	6A=; b=sgf24A2flu36vQjksGAMBl8WNcE+TkxDWNNlhXXS+KecF1Pyvbd3OPQYE
+	NEg+et2dzOCj2XyM6MrSHqWIMLwm4ExJX7F5UCgN4GMKJC+rr4NSVHuy6MOk2+dY
+	zIiLldicz6HvDE+TRPb+TWEfRpeEc25pjxz7ph3FIQvrC7h8/YHjhmEoZSirPf/j
+	AKlAqemDr4SsDXwf8+xUzhi74Qbxgx1GoyxkkR/90q2KWb2n/nC/oJYICV8aK9kM
+	fNvJC+7EnAwrdnv+hrnAeT8Z3P7xWWtyqHDk02B+b4enlbqlaLv4FfTITy80tjrR
+	7cOhJA1KO4AcJrsk1xxkzqvBwmSQA==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4em8yj0kmc-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 10 Jun 2026 11:23:51 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 65ABJgCL030290;
+	Wed, 10 Jun 2026 11:23:50 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4emx8w6g9j-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 10 Jun 2026 11:23:50 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 65ABNkbC45941022
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 10 Jun 2026 11:23:46 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 959C420040;
+	Wed, 10 Jun 2026 11:23:46 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 62E5020043;
+	Wed, 10 Jun 2026 11:23:46 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 10 Jun 2026 11:23:46 +0000 (GMT)
+From: Jens Remus <jremus@linux.ibm.com>
+To: linux-s390@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Arnaldo Carvalho de Melo <acme@kernel.org>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Jiri Olsa <jolsa@kernel.org>, Ian Rogers <irogers@google.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        James Clark <james.clark@linaro.org>, linux-perf-users@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Cc: Jens Remus <jremus@linux.ibm.com>, Jan Polensky <japo@linux.ibm.com>,
+        Thomas Richter <tmricht@linux.ibm.com>,
+        Hendrik Brueckner <brueckner@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>
+Subject: [PATCH] perf build: Do not duplicate CFLAGS in Python extension builds
+Date: Wed, 10 Jun 2026 13:23:43 +0200
+Message-ID: <20260610112344.1550111-1-jremus@linux.ibm.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjEwMDEwNiBTYWx0ZWRfX9Mbs9daEhf+q
+ bL9DUbLLaQD+cLDyo1Hz5NYpksjOa7AWD5+4EZwDAe5Mm48Q3rN3tZKtvrVjksh+WRSvXYQUHqD
+ Dwq3O/lqdGljwsvKHMIJJJb+6h8A6rdrcl5YQB2V5M4uB1xgidN7qTVn4QXkc9J43ujpIslj5pz
+ lzFZlXJV9BCg62FftfIBClG4YHpi7y1AckoBYw0Td493F95iK5Tf3L3DDDdLXdzZyREiSt16cPN
+ 28uPiA73xFXdOoxDV0/O8U3tqnuLDz7R/CACKBOrSSffprIzLSUwF5bWnxZMwK25e4BTKQdKYIa
+ cd7I9NF/2euX/jkMZIpz+G+UATgjqmxdHTP+FCicimh8OSThY4R9gbKBmDE2ZtKsBbEuN77mxDh
+ FApNd3Xceh6BFDQFIUBlQZY/kDQAUyYEz74IjaY/RwxoR8RLeBx1h1pp/jtkq7IXqS/hO0BQo7K
+ Ms0qinW8a+DQPh+RyYw==
+X-Authority-Analysis: v=2.4 cv=HvFG3UTS c=1 sm=1 tr=0 ts=6a294947 cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
+ a=kE5x8IjORJKvRFKnvmUA:9
+X-Proofpoint-ORIG-GUID: SCwZbRCyN-P3QowVNWjgEM4eBZA67Mst
+X-Proofpoint-GUID: DV0mwfYpUEAxSJViffKDNAl9PFvLosqR
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
+ definitions=2026-06-10_02,2026-06-09_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ impostorscore=0 clxscore=1011 lowpriorityscore=0 adultscore=0 suspectscore=0
+ spamscore=0 priorityscore=1501 phishscore=0 malwarescore=0 bulkscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2605210000 definitions=main-2606100106
 
-When the SMC-D send buffer is merged with the peer's DMB (the nocopy
-DMB-merge path), smc_cdc_msg_recv_action() advances the local send-buffer
-free space from the peer's consumer cursor:
+setuptools already uses CFLAGS.  Passing CFLAGS with additional flags as
+extra compile arguments causes CFLAGS to effectively get passed twice:
 
-=09diff_tx =3D smc_curs_diff(conn->sndbuf_desc->len,
-=09=09=09=09&conn->tx_curs_fin,
-=09=09=09=09&conn->local_rx_ctrl.cons);
-=09atomic_add(diff_tx, &conn->sndbuf_space);
+$ make -C tools/perf V=1 JOBS=1
+...
+building 'perf' extension
+gcc [CFLAGS] -fPIC -Iutil/include -I/usr/include/python3.14 \
+  -c /root/linux/tools/perf/util/python.c \
+  -o python_ext_build/tmp/root/linux/tools/perf/util/python.o \
+  [CFLAGS] \
+  -fno-strict-aliasing -Wno-write-strings -Wno-unused-parameter \
+  -Wno-redundant-decls -Wno-cast-function-type \
+  -Wno-declaration-after-statement
 
-conn->local_rx_ctrl.cons is the peer's consumer cursor, copied verbatim
-from the wire by smcd_cdc_msg_to_host() with no validation.
-smc_curs_diff()'s differing-wrap branch returns
-(size - old.count) + new.count, which exceeds size for a forged cursor,
-so a malicious peer can drive sndbuf_space past sndbuf_desc->len. The
-"guarantee 0 <=3D sndbuf_space <=3D sndbuf_desc->len" comment on the
-atomic_add() is not enforced.
-
-smc_tx_sendmsg() then reads the inflated sndbuf_space as the available
-write space and copies that many user bytes into the send buffer; its
-two-chunk wrap-around copy bounds only the first chunk to
-sndbuf_desc->len, so the second chunk (copylen - first_chunk, written at
-offset 0) runs past the send buffer -- a heap out-of-bounds write of
-attacker-influenced length with user-controlled content.
-
-Enforce the documented invariant after the cursor-driven atomic_add(), as
-the SMC-D receive path already does for bytes_to_rcv.
-
-Fixes: cc0ab806fc52 ("net/smc: adapt cursor update when sndbuf and peer DMB=
- are merged")
-Cc: stable@vger.kernel.org
-Signed-off-by: Bryam Vargas <hexlabsecurity@proton.me>
+Signed-off-by: Jens Remus <jremus@linux.ibm.com>
 ---
-The out-of-bounds write was reproduced under KASAN by driving
-smc_tx_sendmsg()'s two-chunk send-ring copy with an inflated sndbuf_space
-(slab-out-of-bounds Write); with the clamp the same input keeps the copy
-within sndbuf_desc->len. The DMB-merge/nocopy path that lets a peer
-consumer cursor inflate sndbuf_space is reachable with the in-kernel
-loopback-ism (CONFIG_SMC_LO), which advertises dmb_nocopy, on commodity
-x86 -- no special hardware is required to exercise it.
 
- net/smc/smc_cdc.c | 4 ++++
- 1 file changed, 4 insertions(+)
+Notes (jremus):
+    This patch applies on top of the perf-tools-next tree:
+    
+      git://git.kernel.org/pub/scm/linux/kernel/git/perf/perf-tools-next.git  master
+    
+    Note that my "[PATCH v2] perf build: Respect V=1 for Python extension
+    builds" [1] needs to be applied to actually observe the Python extension
+    build command and output with V=1.
+    
+    [1]: https://lore.kernel.org/all/20260608160613.3153795-1-jremus@linux.ibm.com/
 
-diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
-index 619b3bab3824..cf8d65407ea5 100644
---- a/net/smc/smc_cdc.c
-+++ b/net/smc/smc_cdc.c
-@@ -365,6 +365,10 @@ static void smc_cdc_msg_recv_action(struct smc_sock *s=
-mc,
- =09=09=09smp_mb__before_atomic();
- =09=09=09atomic_add(diff_tx, &conn->sndbuf_space);
- =09=09=09/* guarantee 0 <=3D sndbuf_space <=3D sndbuf_desc->len */
-+=09=09=09if (atomic_read(&conn->sndbuf_space) >
-+=09=09=09    conn->sndbuf_desc->len)
-+=09=09=09=09atomic_set(&conn->sndbuf_space,
-+=09=09=09=09=09   conn->sndbuf_desc->len);
- =09=09=09smp_mb__after_atomic();
- =09=09=09smc_curs_copy(&conn->tx_curs_fin,
- =09=09=09=09      &conn->local_rx_ctrl.cons, conn);
---=20
-2.43.0
+ tools/perf/util/setup.py | 13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
 
+diff --git a/tools/perf/util/setup.py b/tools/perf/util/setup.py
+index b65b1792ca05..a0ce76624a23 100644
+--- a/tools/perf/util/setup.py
++++ b/tools/perf/util/setup.py
+@@ -74,18 +74,17 @@ class install_lib(_install_lib):
+         self.build_dir = build_lib
+ 
+ 
+-cflags = getenv('CFLAGS', '').split()
+ # switch off several checks (need to be at the end of cflags list)
+-cflags += ['-fno-strict-aliasing', '-Wno-write-strings', '-Wno-unused-parameter', '-Wno-redundant-decls' ]
++extra_cflags = ['-fno-strict-aliasing', '-Wno-write-strings', '-Wno-unused-parameter', '-Wno-redundant-decls' ]
+ if cc_is_clang:
+-    cflags += ["-Wno-unused-command-line-argument" ]
++    extra_cflags += ["-Wno-unused-command-line-argument" ]
+     if clang_has_option("-Wno-cast-function-type-mismatch"):
+-        cflags += ["-Wno-cast-function-type-mismatch" ]
++        extra_cflags += ["-Wno-cast-function-type-mismatch" ]
+ else:
+-    cflags += ['-Wno-cast-function-type' ]
++    extra_cflags += ['-Wno-cast-function-type' ]
+ 
+ # The python headers have mixed code with declarations (decls after asserts, for instance)
+-cflags += [ "-Wno-declaration-after-statement" ]
++extra_cflags += [ "-Wno-declaration-after-statement" ]
+ 
+ src_perf  = f'{srctree}/tools/perf'
+ build_lib = getenv('PYTHON_EXTBUILD_LIB')
+@@ -94,7 +93,7 @@ build_tmp = getenv('PYTHON_EXTBUILD_TMP')
+ perf = Extension('perf',
+                  sources = [ src_perf + '/util/python.c' ],
+ 		         include_dirs = ['util/include'],
+-		         extra_compile_args = cflags,
++		         extra_compile_args = extra_cflags,
+                  )
+ 
+ setup(name='perf',
+-- 
+2.53.0
 
