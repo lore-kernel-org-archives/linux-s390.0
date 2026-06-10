@@ -1,175 +1,173 @@
-Received: from mail-pl1-f179.google.com (mail-pl1-f179.google.com [209.85.214.179])
+Received: from mail-qk1-f174.google.com (mail-qk1-f174.google.com [209.85.222.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE86131A7E2
-	for <linux-s390@vger.kernel.org>; Wed, 10 Jun 2026 16:19:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.179
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781108368; cv=pass; b=kBoCX4RT7aI4q52RZ9m9IdV4rB3wnHlWpCp6hBOCM1VGHMCTlroFTD2P9DypY1XL6iLTxwwMK3YqujHvCa4s75gdODs4kQBaKcn+6KbXusS1++LU/C0jKVU6R63OcMxO4qXGSC4KOHqY9zSxac0ugKMn5n9spAQ6Qy6dQVPT1pA=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781108368; c=relaxed/simple;
-	bh=tEcBow2gdBp+/voVp/g9x+g9NV2I+Be2aTB/lbhkaHs=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=LUYe6uO4kRO0XYNT90Bw0oE4Ckepj3AvTpMpo2vVVdXNFvXZx3gtegl2rtJIZvE8oNcAezRijd5NypYjPeoUpgPy63ZmoGpXMVvJoxYuKOevv2nbkBrb0Uy22dtMEGWLKGww8r3Z/YJn2rYokuo0g3sv4OALGCJwP4Ds7AhI+tM=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=hL2pYXdr; arc=pass smtp.client-ip=209.85.214.179
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C24D347BD7
+	for <linux-s390@vger.kernel.org>; Wed, 10 Jun 2026 16:41:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.174
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1781109719; cv=none; b=G6Z2aAGXAZXOMS7eskFpmSswzH1/kfhSKaoZsEGsDrak2WgQYDw0L/Kl864LO82SSM5DJyxePF6AKM82pvk/nK851QPxoT6hGp4siPLRgyv5y9eHtzpm5d/8+LJGnwxDGnlDOzGkMVn0JnAdSkuS+5bhJAGvpNgbPMsmqNAbpSc=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1781109719; c=relaxed/simple;
+	bh=aoQpijLFpdT37b0Bpmvd//AN2Bj/cbJFhcJiveomuZs=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=ljEyBSB1x4rLTt1h/RL4vZD8BFZxj63bRIZNUGHZbaVcfYYsa6OCpk7zQyd1gk31Am6qVAXMSsv4yNQB1Q7BdlHxFEW1GAVHzDhIynWp5wGjQv7CKc60nqA4sgHHuGjsDwqERkMQKrPFyMNHPyKKijnVD0ETRhtcb2LLCb800e4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca; spf=pass smtp.mailfrom=ziepe.ca; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=ePgZUVaw; arc=none smtp.client-ip=209.85.222.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="hL2pYXdr"
-Received: by mail-pl1-f179.google.com with SMTP id d9443c01a7336-2bf22c18ad3so111745ad.0
-        for <linux-s390@vger.kernel.org>; Wed, 10 Jun 2026 09:19:26 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1781108366; cv=none;
-        d=google.com; s=arc-20240605;
-        b=ACLrzRhEg9+ZpTqu/3odHkdr2IoW4WwHj3ceqea/Rint0Iz601GBJ/VEUHHIkb3Ylx
-         +s3vUPr5tdQsnwTRCdrOnaFzrAwKC5hi0AsQo3QnpRa6IRNlYa+moiFyjlGQ1dyexV6f
-         1WZrxxsijxs04W4g1PpSmcltFxEUamL54JjGdpFG2h2xjLZ58iTrlAtXSXVSe5hed7AK
-         hPu2UNQthv/ZU72Z2iQYB+TfWDaO5R4JH7aHAIHLWuZeMldJPire6ZbRvZjTVTAbCjEz
-         6aOm9PaCpauJCk+vvB0GnCWjBCRPm33lKNvUbPwYV2KskX+e0G9UhWgaTxhTRCcs3fEY
-         0+rA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=Vi11/rohvLJyMxroWGqfziqvFq44cunGgPMb0wuOPpg=;
-        fh=YesW50SZoSeKHSw9I/HzIclXxXFfJN5+Lxk4C1yiI3c=;
-        b=WOmsyfsZuTI3MhOFZMYrp7i7cxGXdtd2SQY1VMxqaR/dp9NZsTeUQpW77xI/xdDhxg
-         lHJVqtB4hbGOuXBR19fQ0qCtqTCOaOvRCdjYwyTRQX8trzZhtGGAZcgj0qSU1k7YX6Lj
-         j+VIA98I/I1BEPRaf/ivpMIaA0WRUaBiXxiEy19G2mCCBBDACZl9q7s4OBNFOzDVg0gy
-         TuKhVavfUi77fIBNqfJ0DPe4BEmTyAcpZIiiL3sAsoSxbwSo859/IZreayHhJDgB3vfY
-         XHmiZMyu6tXC3paim9rReF09L78Idgt2dBKa/hEWYPL+OnLxpzcscJoqMz3e66onR4Se
-         laLQ==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="ePgZUVaw"
+Received: by mail-qk1-f174.google.com with SMTP id af79cd13be357-915c48e6ae2so353447185a.2
+        for <linux-s390@vger.kernel.org>; Wed, 10 Jun 2026 09:41:56 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1781108366; x=1781713166; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Vi11/rohvLJyMxroWGqfziqvFq44cunGgPMb0wuOPpg=;
-        b=hL2pYXdr4CwfLvTKLanwttjQywdcSG7O/Bm/S0nWjezyo/Ts6qjPR8SpufhVM/BHtf
-         426VJB2T2c74DaE43o3Be4qS/SKUuVNrCA3ybUzH8DQ0Bl6WIPudOtfmJy/s7917O0VP
-         gY7IL5e1UqKI+m/57hlg8LED4EugLzNFbgpRTv6bqX7YAlr3yIb68xGjs7Rda7AIeDYE
-         pqq1pxkkgE7zyaH3A/YmZunylYJfgQIqMyNkonklrmtA7szN37jzdTN9sG5/hWHw5wNK
-         ZbGaEx8MasU5cfl/VunIbccgAaZwk/YfOW6UDUeljotoLOmKsuIghsQxfqzmKxqxropL
-         +/uw==
+        d=ziepe.ca; s=google; t=1781109715; x=1781714515; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=DeYS8psnLhx+0nTbu07Q/N5cf93jt28LjVA9fcxz2cA=;
+        b=ePgZUVawYPbsrSBAs1+ufW/++SlkIwy9fb4yUF71wgYO+1AsAIgKBUk56YtYGkcB+l
+         dp1zbb2FS1RDOGyIIr0P6YA6+joWGD3iaKIgaS5ef6m6gszeds4O9Vo4IP8Cnn7Jj+6t
+         xCaMYX6UGj0hmLye1jAgp1FmLnOKYB9XFUiN/YOSN8purqtrC3W03JSVCbo58Hne9c11
+         mC5nspB211YrW3azqWMva1DIkHa9Pc2btZcQWzOII/HULAfWlbAsOcovwQo7xeEocfM2
+         pyY69FUbp4uY9rkbiFUVVYg29BeuEEmBurv0OTWrvZ/cCgs7O9KsypecEs66/emhiF5f
+         AXcg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781108366; x=1781713166;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=Vi11/rohvLJyMxroWGqfziqvFq44cunGgPMb0wuOPpg=;
-        b=eB6N6DcBt0HEvz/2Je0SEIXYRJ6Bnw8E2nt6yx38EOCGwcDRf5jPRzNBEPiUrE7PJQ
-         qbsHxFAn74iP2HUDdNcLk3zhrldANcl4UqzavNiZF6+VS7MJbF32Whiw7cx0VP1OU9xQ
-         9cCSQcWfb4EEDTVtrf/PWhD9aMBSQK21xVP8eycytIxF3zaAGRhWnU0heVG+Ngm7rgZo
-         segWxLp3rQ5WTuBBNGFgmS1pWuyeENrprmvmV+JbMZi5Tj/N9nIlu5gHFlV6m4klu/pb
-         sCWCuCcruUZRwEPqu8V+iwxvIb3AljTMxQuGWzNrBznVtJELA3SqC8tLR1vtYgnIeAtp
-         tqmg==
-X-Forwarded-Encrypted: i=1; AFNElJ9pp1jqucCQNplmOfdqtUx6yLQ5DrSSYbiB4myLZtRIBioM91Vaya2yYRqXPvG1JBpSby9B02XjO0PR@vger.kernel.org
-X-Gm-Message-State: AOJu0Yz62pr8+ppT2P77TdAK4EKQw1Fhb58PPeQsrlsgqf49POpwwOGu
-	xqChtBz4UMMbEL6p+ddRb7gpuUfBOSy8MDqtLXEqRsdcxg8oo1/3GEyRGcKT/1yDeCFaa/lSqne
-	0PlEybJpq73gNoRChj053u8FKWjF17XURLtMjk41C
-X-Gm-Gg: Acq92OFG1nZ2Bd3NPUoDrEbOwhYkYRsS5wWkLGug/obZN/vwQfOlV7l0870TDq32hqK
-	fcJRBCZEl7BqNfohVtlR7IF9yud2kX7mKbIYHxmmPAbTwo/2jH3WJNtlnlyv2YSeW+Cv25PDZfb
-	F4chzRW98tvJMtlmmv0UK69G9WF47ILeZ4DxLmvZ6mI7yIv2Fvi5lDJ1MVR9Yl4C3OzcaaBHMkN
-	Xl75EVAdNFuBEvde28ohO4PUJrbCBwn7i39eqqVp/6Mo6Vezf6ebk0LxWJ8a8YFABPB0Dg5o7La
-	NIkuhtqtEePshxDtclI9axZly4uJG5PeGHeOe3mRNEcY+2gUAh5pZdPZ24M=
-X-Received: by 2002:a17:903:3c25:b0:2c1:ee6e:4e4a with SMTP id
- d9443c01a7336-2c2d942700amr238395ad.27.1781108365793; Wed, 10 Jun 2026
- 09:19:25 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1781109715; x=1781714515;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=DeYS8psnLhx+0nTbu07Q/N5cf93jt28LjVA9fcxz2cA=;
+        b=CPQF7aEGc5uEQNLsCliGKwmeQr5fgbdFYS83HTtrGdGOUJ19pFFxnwgIG1gfadCv7+
+         2xZsfCofnY4W0sHkapPx/1NSFHQOvYnU3f5827ksB02EzFe2t4Uojof9+ApAfnrDjCYX
+         LYzalmU199pyeHVEibFbt6SGlpk4s/o6HL7IKIJhKsD4aeRBQxTtZOimAojhHS+Mzrb5
+         8GeZzqQ60QByjpcLJ/AXRVQI8Y8lG/gLxLjwQc+34KZTejJUFBkEKQ3GscavEijP3oH2
+         gn5feGtwuKosYh1TYbjCjTcrleUoh4RVflEnDj+0JqjrOw6pvnAi8PtShaBgYM8XqY7t
+         42ww==
+X-Forwarded-Encrypted: i=1; AFNElJ+flM4K9BUzE5E5hz0JmO4dW9Uq8WH+Wz2eNgQ0hPtlh5I2mrXRTKWfbQBMBdhmtZN3LDgGJ9/ShpW3@vger.kernel.org
+X-Gm-Message-State: AOJu0YytJFWW0TV4GVgfFNv0JtMhVKu2Xt7h0gSrJyUWaY5cxGQExqzZ
+	pHXNmh7qbhk3E/H8PsgP6ohDlLCycrmVivi0QNbDV6vjCTT2UbuGia1scbjUA6cVP5Q=
+X-Gm-Gg: Acq92OEuzT4gTwt2TNzjAZrUxHlVy9tgskgwWqluHV+IIipI4OFGJDHZyg++ivb6+9U
+	QAXW+Fym1G2DcG6jdAHv7aGiv1pkzDD05iSDSTTEqD75JrVa7y79ngYp+6B6b6EjyvM2xPH+quN
+	jkm+hnzKwcrWbDyAq46adt28uT702B/cL+dDAAeO7HR6hMAhcEZGuqay1JzC5afSmXSLUt90loA
+	Ly94JJMva1I24/7n3jzxE8QTg1IbYR7hmYKj4m86fF1MKdQLpOvsLNO+DG9A2tzvIn/yGsvVPf6
+	OyknaZj4w6jGRo85le4Gupys8oVtVAdVhStcTMFSUR5gumiOiJdEVGYJ9j3f587M2JbFdYPuszY
+	19rQvjwDmrtl9/X+nZ8mChECKnPL5Xl6MrRCRKe/9scrGPmByxxq8kwMc9y6bRPJ2tndfit9rDS
+	DDy8bNbjMhGHJUeylOKw0MELY0eQ0nnKCBeqzJNWpQ+vMUy0yAjlG6rP7It0VPJKtTphddkKLG8
+	+blGF0OEVRL7X5U
+X-Received: by 2002:a05:620a:a414:20b0:914:afc1:c66d with SMTP id af79cd13be357-915a9c75c96mr3039706285a.11.1781109715064;
+        Wed, 10 Jun 2026 09:41:55 -0700 (PDT)
+Received: from ziepe.ca (crbknf0213w-47-54-130-67.pppoe-dynamic.high-speed.nl.bellaliant.net. [47.54.130.67])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-9158a22dbbesm2438570085a.13.2026.06.10.09.41.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 10 Jun 2026 09:41:54 -0700 (PDT)
+Received: from jgg by wakko with local (Exim 4.97)
+	(envelope-from <jgg@ziepe.ca>)
+	id 1wXM01-000000048i4-3DtT;
+	Wed, 10 Jun 2026 13:41:53 -0300
+Date: Wed, 10 Jun 2026 13:41:53 -0300
+From: Jason Gunthorpe <jgg@ziepe.ca>
+To: "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>
+Cc: iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev,
+	Robin Murphy <robin.murphy@arm.com>,
+	Marek Szyprowski <m.szyprowski@samsung.com>,
+	Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
+	Steven Price <steven.price@arm.com>,
+	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Jiri Pirko <jiri@resnulli.us>, Mostafa Saleh <smostafa@google.com>,
+	Petr Tesarik <ptesarik@suse.com>,
+	Alexey Kardashevskiy <aik@amd.com>,
+	Dan Williams <dan.j.williams@intel.com>,
+	Xu Yilun <yilun.xu@linux.intel.com>, linuxppc-dev@lists.ozlabs.org,
+	linux-s390@vger.kernel.org,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org,
+	Jiri Pirko <jiri@nvidia.com>, Michael Kelley <mhklinux@outlook.com>
+Subject: Re: [PATCH v6 04/20] dma-pool: track decrypted atomic pools and
+ select them via attrs
+Message-ID: <20260610164153.GQ2764304@ziepe.ca>
+References: <20260604083959.1265923-1-aneesh.kumar@kernel.org>
+ <20260604083959.1265923-5-aneesh.kumar@kernel.org>
+ <20260609143242.GK2764304@ziepe.ca>
+ <yq5afr2uzum9.fsf@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260610112451.1553054-1-jremus@linux.ibm.com> <a76b93d7-89bb-483a-80dd-59e3dbf921a3@linaro.org>
-In-Reply-To: <a76b93d7-89bb-483a-80dd-59e3dbf921a3@linaro.org>
-From: Ian Rogers <irogers@google.com>
-Date: Wed, 10 Jun 2026 09:19:14 -0700
-X-Gm-Features: AVVi8CeML9xOHpqDi-kOipKhEhSw8qM5oNh-G4lar_licy0sI8HoLNL-mbAU5DU
-Message-ID: <CAP-5=fUowmCCdfAOoPimduZ53GTfRPp1qPLMUfXU6R80=x88Eg@mail.gmail.com>
-Subject: Re: [PATCH] perf s390: Fix TEXTREL in Python extension by compiling
- as PIC
-To: James Clark <james.clark@linaro.org>
-Cc: Jens Remus <jremus@linux.ibm.com>, Jan Polensky <japo@linux.ibm.com>, 
-	Thomas Richter <tmricht@linux.ibm.com>, Hendrik Brueckner <brueckner@linux.ibm.com>, 
-	Heiko Carstens <hca@linux.ibm.com>, linux-s390@vger.kernel.org, 
-	Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, 
-	Arnaldo Carvalho de Melo <acme@kernel.org>, Namhyung Kim <namhyung@kernel.org>, 
-	Mark Rutland <mark.rutland@arm.com>, 
-	Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@kernel.org>, 
-	Adrian Hunter <adrian.hunter@intel.com>, Nathan Chancellor <nathan@kernel.org>, 
-	Nick Desaulniers <nick.desaulniers+lkml@gmail.com>, Bill Wendling <morbo@google.com>, 
-	Justin Stitt <justinstitt@google.com>, linux-perf-users@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, llvm@lists.linux.dev
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <yq5afr2uzum9.fsf@kernel.org>
 
-On Wed, Jun 10, 2026 at 6:39=E2=80=AFAM James Clark <james.clark@linaro.org=
-> wrote:
->
->
->
-> On 10/06/2026 12:24 pm, Jens Remus wrote:
-> > On s390 the Python extension build fails as follows when using a linker
-> > that is configured to treat text relocations (TEXTREL) in shared
-> > libraries as error by default:
+On Wed, Jun 10, 2026 at 01:37:26PM +0530, Aneesh Kumar K.V wrote:
+> Jason Gunthorpe <jgg@ziepe.ca> writes:
+> 
+> > On Thu, Jun 04, 2026 at 02:09:43PM +0530, Aneesh Kumar K.V (Arm) wrote:
+> >>  struct page *dma_alloc_from_pool(struct device *dev, size_t size,
+> >> -		void **cpu_addr, gfp_t gfp,
+> >> +		void **cpu_addr, gfp_t gfp, unsigned long attrs,
+> >>  		bool (*phys_addr_ok)(struct device *, phys_addr_t, size_t))
+> >>  {
+> >> -	struct gen_pool *pool = NULL;
+> >> +	struct dma_gen_pool *dma_pool = NULL;
+> >>  	struct page *page;
+> >>  	bool pool_found = false;
+> >>  
+> >> -	while ((pool = dma_guess_pool(pool, gfp))) {
+> >> +	while ((dma_pool = dma_guess_pool(dma_pool, gfp))) {
+> >> +
+> >> +		if (dma_pool->unencrypted != !!(attrs & DMA_ATTR_CC_SHARED))
+> >> +			continue;
 > >
-> >    GEN     python/perf.cpython-314-s390x-linux-gnu.so
-> > /usr/bin/ld.bfd: error: read-only segment has dynamic relocations
+> > I don't think you should be overloading DMA_ATTR_CC_SHARED like this.
 > >
-> > This occurrs because util/llvm-c-helpers.o is erroneously built from
-> > util/llvm-c-helpers.cpp without compiler option -fPIC but linked into
-> > the shared library (via libperf-util.a(perf-util-in.o)).
+> > 	/*
+> > 	 * DMA_ATTR_CC_SHARED is not a caller-visible dma_alloc_*()
+> > 	 * attribute. The direct allocator uses it internally after it has
+> > 	 * decided that the backing pages must be shared/decrypted, so the
+> > 	 * rest of the allocation path can consistently select DMA addresses,
+> > 	 * choose compatible pools and restore encryption on free.
+> > 	 */
+> > 	if (attrs & DMA_ATTR_CC_SHARED)
+> > 		return NULL;
 > >
-> > On s390, object files must be compiled as position-indepedent code (PIC=
-)
-> > in order to be linked into shared libraries.  Commit a9a3f1d18a6c ("per=
-f
-> > s390: Always build with -fPIC") added compiler option -fPIC to CFLAGS
-> > for s390, which is used in C compiles.  Add -fPIC to CXXFLAGS for s390
-> > as well, so that it is also used in C++ compiles.
+> > 	if (force_dma_unencrypted(dev)) {
+> > 		attrs |= DMA_ATTR_CC_SHARED;
+> > 		mark_mem_decrypt = true;
+> > 	}
 > >
-> > Reported-by: Thomas Richter <tmricht@linux.ibm.com>
-> > Signed-off-by: Jens Remus <jremus@linux.ibm.com>
+> > It is fine to have a bit inside the attrs that is only used by the
+> > internal logic, but it needs to have a clearer name
+> > __DMA_ATTR_REQUIRE_CC_SHARED perhaps.
+> >
+> 
+> Are you suggesting adding another attribute in addition to
+> DMA_ATTR_CC_SHARED?
+> 
+> Is the idea that __DMA_ATTR_REQUIRE_CC_SHARED would be used in the
+> allocation path to request a CC_SHARED allocation, while
+> DMA_ATTR_CC_SHARED would be used in the mapping path to describe the
+> attribute of the address?
 
-Great! Perhaps we should add a fixes tag for backports. Perhaps:
+Yeah, it is a thought at least
 
-Fixes: a9a3f1d18a6c ("perf s390: Always build with -fPIC")
+Maybe a comment is good enough.
 
-Reviewed-by: Ian Rogers <irogers@google.com>
+I just find it hard to follow when we have this dual usage. Like the
+code above for dma_pool->unencrypted is completely wrong if it is an
+"attribute of an address". Easy to cut & paste that into the wrong
+context.
 
-Thanks,
-Ian
+Especially if you move things up higher.. having the alloc set both
+CC_SHARED and REQUIRE_CC_SHARED or maybe ALLOC_CC_SHARED would make it
+clearer that the alloc code lives under that callchain
 
-> > ---
-> >
-> > Notes (jremus):
-> >      This patch applies on top of the perf-tools-next tree:
-> >
-> >        git://git.kernel.org/pub/scm/linux/kernel/git/perf/perf-tools-ne=
-xt.git  master
-> >
-> >      Note that this resolves the issue discussed in thread "[PATCH 1/1]=
- perf
-> >      build: Fix Python extension build with GCC 16 hardening":
-> >      https://lore.kernel.org/all/ahV2XGx_6h7upuc3@li-276bd24c-2dcc-11b2=
--a85c-945b6f05615c.ibm.com/T/
-> >
-> >   tools/perf/Makefile.config | 1 +
-> >   1 file changed, 1 insertion(+)
-> >
-> > diff --git a/tools/perf/Makefile.config b/tools/perf/Makefile.config
-> > index 333ddd0e4bd8..33f90968c8a9 100644
-> > --- a/tools/perf/Makefile.config
-> > +++ b/tools/perf/Makefile.config
-> > @@ -109,6 +109,7 @@ endif
-> >
-> >   ifeq ($(ARCH),s390)
-> >     CFLAGS +=3D -fPIC
-> > +  CXXFLAGS +=3D -fPIC
-> >   endif
-> >
-> >   ifeq ($(ARCH),mips)
->
-> Reviewed-by: James Clark <james.clark@linaro.org>
->
+Jason
