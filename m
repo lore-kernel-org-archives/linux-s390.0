@@ -1,99 +1,123 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EAF45356758;
-	Thu, 11 Jun 2026 05:24:38 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 101463451D6;
+	Thu, 11 Jun 2026 05:26:01 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781155483; cv=none; b=MMy4qknuc3vf2o/AsNuytpujO0+q+8MbB3eKE9W4XimTmlspsqSqQzVcG18CVaZUlFSh3NESJ8C3SIwjSohQT+EzPF/JfecRyZXi34Y68Epf0MUvjZbSGnmKqRJhWAJaS5Q7rj8q1IEsnypBW4SxALM6RF7r+XK5AouDULA/R84=
+	t=1781155567; cv=none; b=uTIjMLs2ealykMoxo1Zifv3Z3dObDJdvuGssZhw3m/ipOHlzmg5k6VCnuU4ustG5OkOzPUfJdpfK/gOTefNFnZgqkiy30YRTiDHxM2RT7vIl9MSQRCJvDl3KsxEpZkobRXOeXtFUYcki4TPdWmBCPsr2oOPAP76wl3BVSuqwxv8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781155483; c=relaxed/simple;
-	bh=2HfYUlEVwvi11DexqkZ9u8rB8kDyMXVmY5S5bkIGQHQ=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=D4rcCEKfFvFP5niFEIxkmTQ+z1q5LMvzna/LF+4bX5O+etcXtvlRvLwiS/tbi65LjNNichNhyP4fpLWav/PRt6jhftvPOP2IpoRx1dIYSzdc5x3OlxayoIa8SqRol0W5u6LfqZq602n8f04/RteaRJjGU+3/iapG/P4d/UyFL/w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Ln2lwGn8; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1781155567; c=relaxed/simple;
+	bh=imkPUyYTVSioyf8vEp8Zh2hmaQy0gN3sW4E9CRMe47w=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=oN4xBKSOLNNyPHTSp/owIW5AETDAVrHP22bWPFm9oSO9pTJECu/5NZNI9O11rcySHR4uOEL9nFr2p1uDtT5BtQepP09AKOJSO8WS3MdZDhybpy5hEeWEPXOUaeAQLEpGn+3cszSMrEsn4jvPQrbbxruLHBI4tP7Wfb96yvLSUA4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=G3lWXQ1e; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Ln2lwGn8"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C7161F00893;
-	Thu, 11 Jun 2026 05:24:38 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="G3lWXQ1e"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A794D1F00893;
+	Thu, 11 Jun 2026 05:25:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781155478;
-	bh=Buhkmxb3ZNMrPMUtF32QejzkZs38v+9romIh8ssMWMk=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Ln2lwGn8ebV0wVeZZc38175s7vjKk61wJ6PsM0anQfDAdcqF4wzs+q3AUa/Z3YEdb
-	 jCDteE19K5SqF7r6BhdWxW2b4E2cATzp2hGdZkJIt21MCCBBvsbmasRnW05XbFNtFi
-	 +c31oybkunZnbFB++eAR7q5278EpUqNvchUqVkAU51ae6EJ2KJSm3iQmmp32KGELOg
-	 /TUhPob0t9IxoS5PatV60dK7RTpQP6x2mP9M9Q7Hj086qahgUBdgfVWRpPV/uXOTVK
-	 /DnhE7wnzNaEKwLcP5oEn4y/DIsORv7zW+uo3ikQ5AAxMoi936lYeclRT8a4TzGogJ
-	 s1akCT6Z+aIeA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 2/3] zfcp: Trace plogi and prli within open port
- response as payload
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Nihar Panda" <niharp@linux.ibm.com>
-Cc: "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, "Heiko
- Carstens" <hca@linux.ibm.com>
-In-Reply-To: <20260611050550.796772-4-niharp@linux.ibm.com>
-References: <20260611050550.796772-4-niharp@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 11 Jun 2026 05:24:37 +0000
-Message-Id: <20260611052438.0C7161F00893@smtp.kernel.org>
+	s=k20260515; t=1781155561;
+	bh=XDuIn3y/rCO4r9DXHWsg+1RIZVo9GqzNtV1PP4apQRs=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date;
+	b=G3lWXQ1eDa81mBrJCkA/PCQooKDKZDvbt48avgp0O6fw29Xx6sKxbhO5qZnkxZ4u9
+	 OxKbgbkMquVdngJ8SPiyWyre/tflzFPwaxG9vTOH79OGqlciuGssBF34DWyso1CHZw
+	 aDVLXDoti3JcbI9D0Oi2cQfQuhj+pJ3kbX4EYy4Xe2MEKUwpaADT61w7nEgRm3kwLM
+	 tSP+LAKWvEyh/ut0Dg4osfZsHaat6KgXBk/q1moX91KKeOfFQmsmWMabYftzxu7D6x
+	 6RhvniODTNH6y39Z5sFE58ao01nIDFW6k3pW4yaiik4r+mgNv+m7xs7Nex2pRFVN0z
+	 TxODrAxyW9DsA==
+X-Mailer: emacs 30.2 (via feedmail 11-beta-1 I)
+From: Aneesh Kumar K.V <aneesh.kumar@kernel.org>
+To: Jason Gunthorpe <jgg@ziepe.ca>
+Cc: iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev,
+	Robin Murphy <robin.murphy@arm.com>,
+	Marek Szyprowski <m.szyprowski@samsung.com>,
+	Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
+	Steven Price <steven.price@arm.com>,
+	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Jiri Pirko <jiri@resnulli.us>,
+	Mostafa Saleh <smostafa@google.com>,
+	Petr Tesarik <ptesarik@suse.com>,
+	Alexey Kardashevskiy <aik@amd.com>,
+	Dan Williams <dan.j.williams@intel.com>,
+	Xu Yilun <yilun.xu@linux.intel.com>,
+	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org,
+	Jiri Pirko <jiri@nvidia.com>,
+	Michael Kelley <mhklinux@outlook.com>
+Subject: Re: [PATCH v6 04/20] dma-pool: track decrypted atomic pools and
+ select them via attrs
+In-Reply-To: <20260609143242.GK2764304@ziepe.ca>
+References: <20260604083959.1265923-1-aneesh.kumar@kernel.org>
+ <20260604083959.1265923-5-aneesh.kumar@kernel.org>
+ <20260609143242.GK2764304@ziepe.ca>
+Date: Thu, 11 Jun 2026 10:55:47 +0530
+Message-ID: <yq5aa4t1myw4.fsf@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
+Jason Gunthorpe <jgg@ziepe.ca> writes:
 
-Pre-existing issues:
-- [High] Preexisting out-of-bounds read of kernel memory due to unvalidated=
- `log_start` and `log_length` fields from the FCP adapter response.
---
+> The sashiko note does look legit though:
+>
+> 	if (IS_ENABLED(CONFIG_DMA_DIRECT_REMAP) &&
+> 	    !gfpflags_allow_blocking(gfp) && !coherent) {
+> 		page = dma_alloc_from_pool(dev, PAGE_ALIGN(size), &cpu_addr,
+> 					   gfp, attrs, NULL);
+> 		if (!page)
+> 			return NULL;
+>
+> I don't see anything doing the force_dma_unencrypted test along this
+> callchain..
+>
+> I guess it should be done one step up in dma_alloc_attrs() instead of
+> in dma_direct_alloc()?
+>
 
-commit 9e601763da63b3c0c65512bab46a16c131e45614
-Author: Steffen Maier <maier@linux.ibm.com>
+I think we should do something similar to what dma_map_phys() does here,
+considering that we only support DMA direct with DMA_ATTR_CC_SHARED/DMA_ATTR_ALLOC_CC_SHARED.
 
-zfcp: Trace plogi and prli within open port response as payload
+@@ -637,6 +637,7 @@ void *dma_alloc_attrs(struct device *dev, size_t size, dma_addr_t *dma_handle,
+ {
+ 	const struct dma_map_ops *ops = get_dma_ops(dev);
+ 	void *cpu_addr;
++	bool is_cc_shared;
+ 
+ 	WARN_ON_ONCE(!dev->coherent_dma_mask);
+ 
+@@ -657,8 +658,17 @@ void *dma_alloc_attrs(struct device *dev, size_t size, dma_addr_t *dma_handle,
+ 	/* let the implementation decide on the zone to allocate from: */
+ 	flag &= ~(__GFP_DMA | __GFP_DMA32 | __GFP_HIGHMEM);
+ 
++	if (force_dma_unencrypted(dev))
++		attrs |= DMA_ATTR_ALLOC_CC_SHARED;
++
++	is_cc_shared = attrs & DMA_ATTR_CC_SHARED;
++
+ 	if (dma_alloc_direct(dev, ops) || arch_dma_alloc_direct(dev)) {
+ 		cpu_addr = dma_direct_alloc(dev, size, dma_handle, flag, attrs);
++	} else if (is_cc_shared) {
++		trace_dma_alloc(dev, NULL, 0, size, DMA_BIDIRECTIONAL, flag,
++				attrs);
++		return NULL;
+ 	} else if (use_dma_iommu(dev)) {
+ 		cpu_addr = iommu_dma_alloc(dev, size, dma_handle, flag, attrs);
+ 	} else if (ops->alloc) {
 
-This commit updates the zfcp debug trace to include PLOGI and PRLI content
-from open port responses back-to-back in the payload trace record. It also
-introduces a level argument to zfcp_dbf_pl_write() to control trace
-verbosity and avoid flooding the log.
-
-> diff --git a/drivers/s390/scsi/zfcp_dbf.c b/drivers/s390/scsi/zfcp_dbf.c
-> index 89b859176b8bd..4217b74baa380 100644
-> --- a/drivers/s390/scsi/zfcp_dbf.c
-> +++ b/drivers/s390/scsi/zfcp_dbf.c
-
-[ ... ]
-
-> @@ -96,7 +101,27 @@ void zfcp_dbf_hba_fsf_res(char *tag, int level, struc=
-t zfcp_fsf_req *req)
-> =20
->  	rec->pl_len =3D q_head->log_length;
->  	zfcp_dbf_pl_write(dbf, (char *)q_pref + q_head->log_start,
-> -			  rec->pl_len, "fsf_res", req->req_id);
-> +			  rec->pl_len, "fsf_res", req->req_id,
-> +			  ZFCP_DBF_PAY_LEVEL);
-
-[Severity: High]
-This is a pre-existing issue, but I noticed it while looking at this
-modified call to zfcp_dbf_pl_write().
-
-Are q_head->log_start and q_head->log_length validated before being used
-to compute the source pointer and length here?
-
-Since these fields are retrieved from the FCP adapter's response header,
-could a malfunctioning or malicious adapter return arbitrarily large
-values? If log_start + log_length exceeds the bounds of the req->qtcb
-allocation, could this result in an out-of-bounds read of kernel memory
-when copying into the trace buffer?
-
-[ ... ]
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260611050550.7967=
-72-1-niharp@linux.ibm.com?part=3D2
+-aneesh
