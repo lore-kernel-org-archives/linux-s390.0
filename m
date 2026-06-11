@@ -1,145 +1,153 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f47.google.com (mail-ej1-f47.google.com [209.85.218.47])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2F6CD2DCBE3;
-	Thu, 11 Jun 2026 14:23:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781187783; cv=none; b=ie4ObtRHmUaksdxUt4XRQmACPMjvlQuHmBoolx1ZHNSuGXsaEY7tB29Wzc9ivwbTQyz3cAV/J1G2CljOiT3Qkv1Wppa8OVn0vHpJ5NJ2bkJLntUlXIWo/cx2Mr1Y3VGWRzJWfk4GYwvD82znII4YCpIaLr7CAn14UAGd3y3zw/Q=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781187783; c=relaxed/simple;
-	bh=tX/92/tU4cFpVcEqtp/jLPvhIPgb44+MQAXza0iNHW8=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=BhL8emKpUyeX0n0JCeO33stdJaGFa1wyxnX0I02miVb3CBE/roqB8z2i6qIIOS+GjoKmCuMHmIpf9qzRaq2vrmbVozovZbXUIDxnBFPLUG3msvbXLzsIZDQ7iWCzYP270TbSf0jbeFh4AvVAvYTr4BOIyN0xPGDsAI0LKhEFVv0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=YLGFEYQ6; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1B7392D0C89
+	for <linux-s390@vger.kernel.org>; Thu, 11 Jun 2026 14:45:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.218.47
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1781189147; cv=pass; b=ROeBsI6DGH4S158Ly6wjnCIfHEgRx/XMMniVklR3AvcNmFVWTvz8Cfls/q+coM4GbyFXD0Z1Dv2iwPfI4Z5eNtAyv2GYtWP0uuaZAiSLU4sNZ4Fb+f1hQroYQfFMEJFf49sB7pz45lT9EHzXlDAuy/RVok6AY+9Ebj3gbsLckfI=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1781189147; c=relaxed/simple;
+	bh=ZwBSIB66d1tL230+mKEjlH+JNTqmf3KSiuoOfRL20sg=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=DEOehORnhbjFeb65AtBtKULI6hi07E02OAVb91j9hgcJz+xa5zKfcJqfpHHxxaO8kjWSIdSJ8xz6Dgkg2aOigPEL7A9Z1F33zyac6/M/g59HpsMI02lW9/OQtyXAcpxNN33I5trzh2MBnOI9fD1VDd3qZxI8QHsNDgtgSc/foDc=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=oKTF1xRk; arc=pass smtp.client-ip=209.85.218.47
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="YLGFEYQ6"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65BCLuap722324;
-	Thu, 11 Jun 2026 14:23:00 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:message-id:mime-version:subject:to; s=
-	pp1; bh=K6BLSpzmC1KdDD7E4BPhh1BxT1XHUsi34R0+4pJ+7xk=; b=YLGFEYQ6
-	MVJkoronwdmO7RTohTMmxyuSP9STXIssTEq+2CtJ5NbzhGOx0NEl4zF74aV5YAFE
-	NGVpBewFLdtKluBzxJ55Cqd4x5BmTVOChX+8JLePpONQYHgx+KR/VPCr1VXAn77U
-	sTLAPjbke21xLMWDGdtSBLp0PXWsBnp+G2YftrrQT+skMCGbIv5ilqjBO34OozQo
-	XvhFKjKvQCRhbBDTxeHY5WB3hNJZzTbujqjWTTFw2m9mBQMg5+bh2HaGdlpttbwZ
-	/vOqVGL5xkbFbnWNp7j7VD4Eh2iJsqiyBI7BVkwvXldVJTTmDqGX8WYjIKnvbsGA
-	NXazzY2iKpFdog==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4eqe8dc4xu-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 11 Jun 2026 14:23:00 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 65BEJadm020634;
-	Thu, 11 Jun 2026 14:22:59 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4eqe09kh1f-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 11 Jun 2026 14:22:59 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 65BEMtvi44499432
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 11 Jun 2026 14:22:55 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8BB9820049;
-	Thu, 11 Jun 2026 14:22:55 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 72E8C20040;
-	Thu, 11 Jun 2026 14:22:55 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Thu, 11 Jun 2026 14:22:55 +0000 (GMT)
-Date: Thu, 11 Jun 2026 16:22:54 +0200
-From: Alexander Gordeev <agordeev@linux.ibm.com>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: [GIT PULL] s390 updates for final 7.1
-Message-ID: <20260611142254.3501080A79-agordeev@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="oKTF1xRk"
+Received: by mail-ej1-f47.google.com with SMTP id a640c23a62f3a-bec43ee8ff0so150142566b.1
+        for <linux-s390@vger.kernel.org>; Thu, 11 Jun 2026 07:45:45 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1781189144; cv=none;
+        d=google.com; s=arc-20240605;
+        b=EClK5EFGDO8a05juxdjwtRSgsooMMyqvQcH/BeY/VmNKLVylYp415Kd6CU+i8uzCRy
+         DRgCP5Km08XsowXF/xLxYNYDSCd/5C++kSbQyEhPEcg6/mS+EqUOyJpOjZrqgoz96MVf
+         1jguu1T9cjXBn3/X23LM1CW4D4ezjL3w4llQGVKKrwLmkRMhbuIIEE2SVgaoSYtsfqn7
+         +OqJa6++bKao1Otj5r12ac/sG2f5e1xN9G36SUfXVAYVq+lalqkOEKBCtfslFipsFfq/
+         HzQK+Y0FLg35KLd7eyipOA/5aZUaEwAarCL7s/505ZSytz34PZK1UlWtXd9GxWgXBDoM
+         XzvA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:dkim-signature;
+        bh=d1Q6VrmJUx+o7NgXdFZxExU41NgoiFIjQElz0CF6684=;
+        fh=pXIxXJQKFcxHGCPpLtNQW4FInC89NlfTPo5EURrzsM0=;
+        b=NrDWi78r4ACasjMY5yYDzg5CfvcnaFOmlbb1mmCuDBgCCEj4RR/yo1s9otIB27ietN
+         8Ct5UoJd2gZoWPw+I9GNIwSomK20SYdQDFUKup/jexvKVp9YTyb9I6qEbeLVjS6NdejP
+         jwJBjPuIU6M9zlYRhIO8KyO+MMXHTXm+/btias+8CU3gueOF67wrpUOhr0MR6n3W1WG0
+         A8q88/cN8lkuQxcVzseQhc3gPVKQTaufRNvGeI1cS513CaB23hDDttE7YVKZLHGQtiT0
+         wvzAs0PuYW6CF7GElyMuAzQJFlf3lyIPgTl1uJ2g9XuJMGxqGT4toATfFqIV5P0XfevR
+         4xFA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1781189144; x=1781793944; darn=vger.kernel.org;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=d1Q6VrmJUx+o7NgXdFZxExU41NgoiFIjQElz0CF6684=;
+        b=oKTF1xRkGsnpLk64bMT7Of1ScwuLfP2HoSZUImbFDHaOIM7jrZ3vAxGbuIORM6uAQe
+         kE5Swb551sovL0ik3GX5PbqyoHeNc//xeY5idvrcdwvf6gSeYeUiqgCNT6yemDqW0qBE
+         tjI+kIWj+xE4NWVxrFmqjpINnAtTsgnD5odgG38Z5WFtpmwv9fkrgdp2Xr+gyIMUAQnk
+         EOceaM8DLDcCj3u9saT4LWxrhPNU/NA5c1NIT9TIOIh4STIR1yC54AwV00ugBcrhnpHk
+         XIg3NBWZhE8ZxGgLQ3p0BGadefN2Mc3HaP3k1ZDGFeoDbI6UfwGqLlI5KWHK5gleEI5i
+         X9Bw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1781189144; x=1781793944;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=d1Q6VrmJUx+o7NgXdFZxExU41NgoiFIjQElz0CF6684=;
+        b=OdXaBtqg0v2gQTBQYYp5BY4twc9axK9s86wIjLx9fihNNmlPQoUyvXNEaL0idsy2AG
+         /dKrZPcGkeh4vEwJy4jr9V72USsr82AlTD/WWOfSmrEeAC0gh9SSTYq2OiRijCPCDGDf
+         1D/M0nw9a1AF5G2/nulVYlT4CkJKuA1/T8AWnifAqR1DjSvvYLrwA3aK6fwHxdrkZz81
+         kDtW6kFolUWtcCTfOvdFHNeS3Cq6ufvFoadgyiTKQRqClB0zo/cgRmnvhLVjT6j9PSH7
+         exMnpq3jy7lSRaT3G1tGxFmf3D3KosO22B5FrolukkpN6FlWGuJ3Nqfbi/wYwtrWjxO2
+         7Utg==
+X-Forwarded-Encrypted: i=1; AFNElJ+avUVlLKbXyB7uj0VaLwjLCnXen4vNzBMxUgKbXLC7oIy/AeYvO+Pfqkw5+e44/DPu8QoMlpxdGpHg@vger.kernel.org
+X-Gm-Message-State: AOJu0Yx+bTrWEqYN6acQeZjBHlb+xPcKJrkw3ykf9a1zmfIGZf4GOGei
+	EHL/YcqhKIbp/uAlANXskZGJzPq+TA/P3ctcqqKBd9uFHlTsGu9BdAP9HGJgAY7dlTEriiUtJqh
+	Bu/It2LRpgMilnn+V9Oyd7dlXggQFIWMmeUsgBP7FlA==
+X-Gm-Gg: Acq92OHI2nGZqdUICm/Fwx54LtqqJZszJqP5Q0cDWSudOZODbzunntvFLk5b4YaDDBG
+	pw+TkIV+e98N29Bszn/tTXz6RUJ+jPA/1jphQRNGoBSRUoPha9YRAu5yU1yRyfG0fBrCGr447pu
+	t1wGgnqXW0PbVFSSgXM8WzQ0u6rjTVrfBOs8B/sQpOMliHMqdK+mF+hbRcCu9s+bjYj3Svqe1re
+	LtvxsxpBhT3EXavq7u8rJyHIDdwW+QmN7qn9rZQsrMN/feB29z2MkT/Es6F1gmLFjBBn8wvnVy3
+	5caOeTmtehvlEeGPaplU1HN+T/joBpmb7OIFrWUM07LWtt9lvMHcQmzKMA==
+X-Received: by 2002:a17:906:4fd1:b0:bee:a39b:ab7b with SMTP id
+ a640c23a62f3a-bfc78ed6c4fmr158181366b.31.1781189144237; Thu, 11 Jun 2026
+ 07:45:44 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNjExMDE0MiBTYWx0ZWRfX4SGXcwLPvjHf
- 7EUgNBbUCFQN6/CXb5qWorj0lCpocMqYM6oX8LD6e5UEZVByRy55POvGDur/NIjEpLWaZtAGiO9
- 19uTAvKHNMHM+Qo09FnxI/3rGNZd0CA=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjExMDE0MiBTYWx0ZWRfX+m/oYGH5ANjd
- F3pA6PEnMV4h+h+SjFLkt/zV/qs7PH0Csb7s9pYyQY3kKZtexfPqgh1gN0hO1G9AJpJsrIE9/RO
- XTBkhpgvZ056OZLbCxn2XHEYklNBosYZHEfpsiPqoQN6YXIvAzUX+IBXLEiJlyxCyH2oOROifN4
- i/41hfM53tC5vpF/9u2aSARjlVMazYs+mBrTejEvcGzYWCrvljEClo/JBosgKMmRqcrRG8R7xLm
- uq2SFSFxVbJYQGQIHsRwh1rZ+Eacr+w4tkiiYrQ9pq2s/jhe7lQkuC7T9fyo0ZUw4SaDoJi8jBg
- K7jj8ACYlTwMePEax1A91G4/+jzVr0ZNtzp1YmztTX4n7p0Nlo9TtkHLU7wEkPqkPaQlBpyIbO0
- yOaqK60KwANYBSqet9a0pws0K/09dn9RBY6iaJkPNpfRSKLdjsLT0KCZUjU3JFEzYo9KyZc/ROy
- bLmzKVYk7DZFupnwc+Q==
-X-Proofpoint-ORIG-GUID: ltwuWWmGr9KfraIPjzsdIJqnWEW-VPEV
-X-Authority-Analysis: v=2.4 cv=GIM41ONK c=1 sm=1 tr=0 ts=6a2ac4c4 cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
- a=kj9zAlcOel0A:10 a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VwQbUJbxAAAA:8
- a=GBxfbr-ptimD81uaDc0A:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-GUID: ltwuWWmGr9KfraIPjzsdIJqnWEW-VPEV
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
- definitions=2026-06-11_02,2026-06-11_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 suspectscore=0 impostorscore=0 spamscore=0 phishscore=0
- adultscore=0 lowpriorityscore=0 bulkscore=0 priorityscore=1501 malwarescore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606040000 definitions=main-2606110142
+References: <20260610142329.3836808-1-sumit.semwal@linaro.org> <aiqLJUrJ1dnKhsJn@FV6GYCPJ69>
+In-Reply-To: <aiqLJUrJ1dnKhsJn@FV6GYCPJ69>
+From: Sumit Semwal <sumit.semwal@linaro.org>
+Date: Thu, 11 Jun 2026 20:15:32 +0530
+X-Gm-Features: AVVi8CeA1CWJ3Tf7y-K-ZwxKVWTsZOKhQeXrR2LoMbjQ-zl-nOkzKd4bOJvB8OA
+Message-ID: <CAO_48GHEfq7wpvM_4OXcMhgdASgH9J96nhEd0QFh2Rg8aPxpfw@mail.gmail.com>
+Subject: Re: [PATCH] dma-buf: move system_cc_shared heap under separate Kconfig
+To: Jiri Pirko <jiri@resnulli.us>
+Cc: christian.koenig@amd.com, jgg@ziepe.ca, hch@infradead.org, 
+	maddy@linux.ibm.com, mpe@ellerman.id.au, npiggin@gmail.com, 
+	chleroy@kernel.org, linuxppc-dev@lists.ozlabs.org, lkp@intel.com, 
+	agordeev@linux.ibm.com, gerald.schaefer@linux.ibm.com, 
+	linux-s390@vger.kernel.org, djbw@kernel.org, thomas.lendacky@amd.com, 
+	x86@kernel.org, arnd@linaro.org, benjamin.gaignard@collabora.com, 
+	Brian.Starkey@arm.com, jstultz@google.com, tjmercier@google.com, 
+	mripard@kernel.org, afd@ti.com, linux-media@vger.kernel.org, 
+	dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org, 
+	linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>
+Content-Type: text/plain; charset="UTF-8"
 
-Hi Linus,
+Hi Jiri,
 
-please pull s390 updates for final 7.1.
+On Thu, 11 Jun 2026 at 15:51, Jiri Pirko <jiri@resnulli.us> wrote:
+>
+> Wed, Jun 10, 2026 at 04:23:29PM +0200, sumit.semwal@linaro.org wrote:
+> >From: Arnd Bergmann <arnd@arndb.de>
+> >
+> >While system heap and system_cc_shared heap share a lot of code
+> >and hence the same source file, their users have different needs.
+> >
+> >system heap users need it to be a loadable module, while
+> >system_cc_shared heap users don't.
+> >
+> >Building as a loadable module breaks system_cc_shared heap on
+> >powerpc and s390 due to un-exported set_memory_encrypted /
+> >set_memory_decrypted functions.
+> >
+> >Fix these by reorganising code to put the system_cc_shared heap
+> >under a new Kconfig symbol, which allows either building both
+> >into the kernel, or leave encryption up to the consumers of the
+> >system heap.
+> >
+> >Fixes: fd55edff8a0a ("dma-buf: heaps: system: Turn the heap into a module")
+> >Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> >Signed-off-by: Sumit Semwal <sumit.semwal@linaro.org>
+> >---
+> > drivers/dma-buf/heaps/Kconfig       |  8 ++++++++
+> > drivers/dma-buf/heaps/system_heap.c | 16 ++++++++++------
+> > 2 files changed, 18 insertions(+), 6 deletions(-)
+> >
+> >diff --git a/drivers/dma-buf/heaps/Kconfig b/drivers/dma-buf/heaps/Kconfig
+> >index e273fb18feca..a39decdcf067 100644
+> >--- a/drivers/dma-buf/heaps/Kconfig
+> >+++ b/drivers/dma-buf/heaps/Kconfig
+> >@@ -5,6 +5,14 @@ config DMABUF_HEAPS_SYSTEM
+> >         Choose this option to enable the system dmabuf heap. The system heap
+> >         is backed by pages from the buddy allocator. If in doubt, say Y.
+> >
+> >+config DMABUF_HEAPS_CC_SYSTEM
+>
+> Nit: "DMABUF_HEAPS_SYSTEM_CC_SHARED" to be consistent with the heap
+> name?
+>
+> With or without it:
+> Reviewed-by: Jiri Pirko <jiri@nvidia.com>
+>
+Thanks for catching this; I'll fix this while pushing to
+drm-misc-next-fixes in a few minutes.
 
-Thanks,
-Alexander Gordeev
-
-The following changes since commit 7c6535c37dbc03c1c35926b7420d66fb122b513a:
-
-  s390: Implement _THIS_IP_ using inline asm (2026-05-30 11:33:32 +0200)
-
-are available in the Git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-7.1-5
-
-for you to fetch changes up to 1f57f68c4dd101e5e8ffc9ffa6428f45bcdd776a:
-
-  s390: Remove GENERIC_LOCKBREAK Kconfig option (2026-06-08 18:59:07 +0200)
-
-----------------------------------------------------------------
-s390 fixes for final 7.1
-
-- s390 selects GENERIC_LOCKBREAK when PREEMPT is enabled to tackle
-  an old compile error that no longer exists. Since recently PREEMPT
-  is always enabled, which causes massive performance regressions.
-  Remove GENERIC_LOCKBREAK from s390 Kconfig to fix the degradation.
-
-----------------------------------------------------------------
-Heiko Carstens (1):
-      s390: Remove GENERIC_LOCKBREAK Kconfig option
-
- arch/s390/Kconfig | 3 ---
- 1 file changed, 3 deletions(-)
-
-diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index ecbcbb781e40..9921a3772bf7 100644
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -29,9 +29,6 @@ config GENERIC_BUG
- config GENERIC_BUG_RELATIVE_POINTERS
- 	def_bool y
- 
--config GENERIC_LOCKBREAK
--	def_bool y if PREEMPTION
--
- config AUDIT_ARCH
- 	def_bool y
- 
+Best,
+Sumit.
