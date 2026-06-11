@@ -1,66 +1,66 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3FC7F3624C3;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B6F0D3CB2D5;
 	Thu, 11 Jun 2026 10:49:01 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781174942; cv=none; b=Up1O4GVW4azaNV1P/IyIHkADh/hqdfLGDby1wHnKcsCBUebfSeKDNdqVD/uIQ5ivCq3qDwrJ/vC8HbDbosjQMQYsexf54r56oHP8BPL03lzrwrgNQpMmqwyrrtOH94wI67ceZjDeLnkh106y7FrFpYRzJGgpmWNjjiwUalC5ZBU=
+	t=1781174943; cv=none; b=D1fC3MeZm5kLdJw3FmeOmYWtbYe78IA+W4xc3UZXYfcMNZ4Wrhfo4wHFMZR758929cGmONxWrpzLnCB2wwb0LUnuTsHoOMxhQ9rVr7l3SQmmmkLrGb6aYd5QNk2RoLoV6CVuWdS9D7KRBsNOHKCcda8S0QQ6Ha8YWF/WSJZKSA8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781174942; c=relaxed/simple;
-	bh=pq2weFFFXR0imduvB1J6gWHXqZXSanej91AXMrH+M0k=;
+	s=arc-20240116; t=1781174943; c=relaxed/simple;
+	bh=tXG0+mqg5sJ4Zn7ZnB0GvucWeNp+63i+w5EsYCspTmc=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=fk4WP3IKqXeqaiZEow1tlyLjz5GKoHYR12ypopAWPxAjX4e2F6IFYa5CbKICADmsVDvjjkGWKtNUVagc0+L9LuwqYjvY4YXvingM4awkYNBjFQgR5oBaRX0rK3bS63xtX0n57d2XPH56RSbNAkzZ4rqDGUJYEVxNTQ7Y50Ux4Lw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=bzUVRisr; arc=none smtp.client-ip=148.163.158.5
+	 MIME-Version; b=BHokd/5y4Q2gLPd2q0HfLz/J2yT0CiWyhKp8FEVgZA6+jehLgTVaPcn0SU5i2+ATtxl3EFFJoyFtrJAgbK5MGf5iWc8R/T+IDbY5eCujuayDbf8KbDBHv55AETnUcDQcYgVBeSZHEpeUjVLNegPS9QHMlevSFsMJWrePjQPFdSk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=qJHU9azy; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="bzUVRisr"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65AJu4YR677347;
-	Thu, 11 Jun 2026 10:48:58 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="qJHU9azy"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65AJu3PN1741909;
+	Thu, 11 Jun 2026 10:48:59 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=4dOFa94RBYoM9TJHJ
-	JkbtRumrIfhrFK9YD+IH6jEh8w=; b=bzUVRisrrNOm51jMsFDztsi9FmhYPP629
-	FDqtK5w1yLJVY+LcQ9wUAc4O7EGwi22hNCa1mdhvYrh1EnqwDjCoRuWJSWXs6nKo
-	NyYnzxzoznw7pdgImiRl9hxMaoNzk60mTA1MvGJwOS6RBILHjFOMOGJwqeV9QbEY
-	dSKUTJOoX0F5FNPs/vtKQzprxBNWnl6Te3Badfa+hlQdUo0XNyBk0mMECvz90nY3
-	VxxTKh9k4LYSGH6Ild5CaKMkJE+4BY8TfJFs5gmBTNWNp70SMDYxWZB0gXTkuzjJ
-	OGOyyHObIsrkQpFGyxrtcr1q24CcTgynqBtU/mnycZGC2V9KjZudw==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4eqe8ajv9t-1
+	:mime-version:references:subject:to; s=pp1; bh=m5H2QiSFk5Jw3i0KF
+	aNohXPCvQvKQGSbW+pzR6w/djU=; b=qJHU9azyXvIdlS3ECPCDIU1EC3mPKRgAi
+	rVNUojuby8C1sB8wEOWqHOLPU37PGx8fJXeWeFzIG1OoaTyX6Jae12ygGlVNFfek
+	KBI5mXlheWuqk7d+R6ti/lMJzJWs7nj13Vcz7/XCXSvxCvklwgMsL5xm1NWQ16gu
+	myffHTeTFRtc+qDC+hA7IGj5D8JN48vdIJM1c6pFScGfA0MBTlYyvmckxZ85c1CQ
+	5DeNmnnwGWHB6x+MLeIEf87ULrf+4gOnXXoQhJXwgd3UGiG59WK+0/jJYRu/MBR0
+	HuPYHh9ktZxajfNPm+6+nsjNlDLvuSw1KV1xbuLG9/spX+r1E7Mtw==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4eqe8bjuqt-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Thu, 11 Jun 2026 10:48:58 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 65BAYfNl012920;
-	Thu, 11 Jun 2026 10:48:57 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4eqe09jthf-1
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 65BAYZxE008737;
+	Thu, 11 Jun 2026 10:48:58 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4eqe09ttft-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 11 Jun 2026 10:48:57 +0000 (GMT)
+	Thu, 11 Jun 2026 10:48:58 +0000 (GMT)
 Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 65BAmpS042009084
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 65BAmq4813894030
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
 	Thu, 11 Jun 2026 10:48:52 GMT
 Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D7C7F20040;
-	Thu, 11 Jun 2026 10:48:51 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 389662004B;
+	Thu, 11 Jun 2026 10:48:52 +0000 (GMT)
 Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id AA37F20043;
-	Thu, 11 Jun 2026 10:48:51 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 12DCE20043;
+	Thu, 11 Jun 2026 10:48:52 +0000 (GMT)
 Received: from p-imbrenda.ehn-de.ibm.com (unknown [9.224.75.30])
 	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 11 Jun 2026 10:48:51 +0000 (GMT)
+	Thu, 11 Jun 2026 10:48:52 +0000 (GMT)
 From: Claudio Imbrenda <imbrenda@linux.ibm.com>
 To: linux-kernel@vger.kernel.org
 Cc: stable@vger.kernel.org, kvm@vger.kernel.org, linux-s390@vger.kernel.org,
         borntraeger@de.ibm.com, frankja@linux.ibm.com, david@kernel.org,
         seiden@linux.ibm.com, nrb@linux.ibm.com, schlameuss@linux.ibm.com,
         gra@linux.ibm.com
-Subject: [PATCH v3 3/5] KVM: s390: vsie: Fix allocation of struct vsie_rmap
-Date: Thu, 11 Jun 2026 12:48:48 +0200
-Message-ID: <20260611104850.110313-4-imbrenda@linux.ibm.com>
+Subject: [PATCH v3 5/5] KVM: s390: vsie: Use mmu cache to allocate rmap
+Date: Thu, 11 Jun 2026 12:48:50 +0200
+Message-ID: <20260611104850.110313-6-imbrenda@linux.ibm.com>
 X-Mailer: git-send-email 2.54.0
 In-Reply-To: <20260611104850.110313-1-imbrenda@linux.ibm.com>
 References: <20260611104850.110313-1-imbrenda@linux.ibm.com>
@@ -72,58 +72,148 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: COVb8--pWL_BJ9uYxHZhaNihd8QCx-sV
-X-Authority-Analysis: v=2.4 cv=TdKmcxQh c=1 sm=1 tr=0 ts=6a2a929a cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+X-Authority-Analysis: v=2.4 cv=Xfa5Co55 c=1 sm=1 tr=0 ts=6a2a929a cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
  a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8 a=VwQbUJbxAAAA:8
- a=hYSCaGdr6WFvCWo5WKQA:9
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjExMDEwNiBTYWx0ZWRfXyND1AYdSKeqI
- lJixkDIhJuDi0FDzSsKTkisyDdFioEfTapuKEOqSUUf/Hi08rnwT7N+06Za4C93QBh6PWl0zL3e
- Gnk84VLf7gwkkNsKjLNG/cXsJ7KY7aRsLmnHV5jX3gLxJPps6Bq4dYAjPvL8TF8CPwnX5ETwNy5
- NkakNzTTFJk0kZbVUeeW5ZnP2CbwRau8C4gv9g62sD4oq5e0ma+zNKO0AuEcHZnxFYL0Gl4k1DO
- iQjJK0GPdS5yM4D0rl19QZXJr0gwZhheD4d+Pt6YxbJuSFxoXzTmof948IuNj9aayF0++5sPl1D
- RpvemcwVMwgNE/h+ElEeR8bXV2G0GYZhKRviJ/SG1a5BVBzMwpunvgJfewANLjcBl8enQHX4huG
- v77/SmyxrzVWTCl6CnmFb4epNdb+Ubxc9hZa20G6lr9+wZVTubNW7IqHCx8pPGz03LMwlZjPiBv
- fcLGtl0pAUZL/QOUClQ==
-X-Proofpoint-GUID: COVb8--pWL_BJ9uYxHZhaNihd8QCx-sV
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNjExMDEwNiBTYWx0ZWRfX9Bfz6UeivVH9
- cXXSbIb8yt/N22VUV/qevT971BMaOmCs3c2YNpHQEwNeiIyZtDyGwug4MzOXw/USroxO99hizMu
- +ipEPh84aHZpJjCQLfi0I0Crdq0NTms=
+ a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8 a=VwQbUJbxAAAA:8
+ a=xGrK5rwyTb2P39Z5L3IA:9
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjExMDEwNiBTYWx0ZWRfX+HoEdj/CBiqd
+ mfxS87LsPIRweE07LD1FQ+k+kn8zPpJ7xmdVNfH6Lh57Jk+KJcqSKw7I9YpummdL6TcMLSG7sND
+ yr6OTpl9ulx1/yCCvXS9lBKdoHId2aV3M0+5Thu44pzXgF3WtyX3JTDvj0VB5obfLPacKgb/yhY
+ MXUC4PKLu2y7g99tfDjWk/a2wpu1kbZGhBJb4VmqnaCwuZKmswwqMCQTrGBp+27vVmYlYCYC0Lk
+ sWoqyOLBKOGvP+0qgIumluEqvzAmoeJQhB+vfvqfCCHnqkHx0GNMmIX/RYMIUR97jNg3UK5r/+9
+ PTm5sh78XPKz8/MwNgEioMyLqvT3xufMdDjPvUV2vFAjFO6ezvEXaSR/xtaVFxMr8fzaLUpskkn
+ yQv+B1QgiwUZ//GBG/0qicUfA+13V7hXlZaNwF9kVq9vBpkTeudYn9bvOn9bLzsv6w/Ilu4w9w6
+ kdo6AKyFRe4h8PQcJiQ==
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNjExMDEwNiBTYWx0ZWRfX7yBiadbNlWZW
+ aMj6mSmfpywuXiOeCf0A8rLmxA6OIZwMOTuXgeRLlNNoYfwwdi4UcO5ELgpNvAIPekhVka7PMxW
+ BmZj/yxrzBpfWMrZbTjm8RgyI1LYdDM=
+X-Proofpoint-ORIG-GUID: A4EBukHXsYGBMdqSc32i-PIFnpXFKsSA
+X-Proofpoint-GUID: A4EBukHXsYGBMdqSc32i-PIFnpXFKsSA
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
  definitions=2026-06-11_02,2026-06-09_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- phishscore=0 malwarescore=0 clxscore=1015 impostorscore=0 adultscore=0
- bulkscore=0 priorityscore=1501 lowpriorityscore=0 spamscore=0 suspectscore=0
+ malwarescore=0 spamscore=0 bulkscore=0 priorityscore=1501 lowpriorityscore=0
+ impostorscore=0 suspectscore=0 clxscore=1015 phishscore=0 adultscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2606040000 definitions=main-2606110106
 
-The allocation size for struct vsie_rmap in kvm_s390_mmu_cache_topup()
-was wrong due to a copy-paste error.
+Use kvm_s390_mmu_cache_alloc_rmap() to allocate the rmap in
+gmap_insert_rmap(), instead of a normal kzalloc_obj() with GFP_ATOMIC.
 
-Fix it by using the type name.
+This guarantees forward progress.
 
-Fixes: 12f2f61a9e1a ("KVM: s390: KVM page table management functions: allocation")
+Fixes: a2c17f9270cc ("KVM: s390: New gmap code")
 Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 CC: stable@vger.kernel.org # 7.1
 ---
- arch/s390/kvm/dat.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/s390/kvm/gaccess.c | 16 ++++++++--------
+ arch/s390/kvm/gmap.c    |  7 ++++---
+ arch/s390/kvm/gmap.h    |  3 ++-
+ 3 files changed, 14 insertions(+), 12 deletions(-)
 
-diff --git a/arch/s390/kvm/dat.c b/arch/s390/kvm/dat.c
-index 4a41c0247ffa..a4fe664f65ee 100644
---- a/arch/s390/kvm/dat.c
-+++ b/arch/s390/kvm/dat.c
-@@ -45,7 +45,7 @@ int kvm_s390_mmu_cache_topup(struct kvm_s390_mmu_cache *mc)
- 		mc->pts[mc->n_pts] = o;
+diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
+index 0584fc91606f..36102b2727fb 100644
+--- a/arch/s390/kvm/gaccess.c
++++ b/arch/s390/kvm/gaccess.c
+@@ -1419,8 +1419,8 @@ static int walk_guest_tables(struct gmap *sg, unsigned long saddr, struct pgtwal
+ 	return kvm_s390_get_guest_page(kvm, entries + LEVEL_MEM, table.pte.pfra, wr);
+ }
+ 
+-static int _do_shadow_pte(struct gmap *sg, gpa_t raddr, union pte *ptep_h, union pte *ptep,
+-			  struct guest_fault *f, bool p)
++static int _do_shadow_pte(struct kvm_s390_mmu_cache *mc, struct gmap *sg, gpa_t raddr,
++			  union pte *ptep_h, union pte *ptep, struct guest_fault *f, bool p)
+ {
+ 	union pgste pgste;
+ 	union pte newpte;
+@@ -1430,7 +1430,7 @@ static int _do_shadow_pte(struct gmap *sg, gpa_t raddr, union pte *ptep_h, union
+ 	lockdep_assert_held(&sg->parent->children_lock);
+ 
+ 	scoped_guard(spinlock, &sg->host_to_rmap_lock)
+-		rc = gmap_insert_rmap(sg, f->gfn, gpa_to_gfn(raddr), TABLE_TYPE_PAGE_TABLE);
++		rc = gmap_insert_rmap(mc, sg, f->gfn, gpa_to_gfn(raddr), TABLE_TYPE_PAGE_TABLE);
+ 	if (rc)
+ 		return rc;
+ 
+@@ -1462,8 +1462,8 @@ static int _do_shadow_pte(struct gmap *sg, gpa_t raddr, union pte *ptep_h, union
+ 	return 0;
+ }
+ 
+-static int _do_shadow_crste(struct gmap *sg, gpa_t raddr, union crste *host, union crste *table,
+-			    struct guest_fault *f, bool p)
++static int _do_shadow_crste(struct kvm_s390_mmu_cache *mc, struct gmap *sg, gpa_t raddr,
++			    union crste *host, union crste *table, struct guest_fault *f, bool p)
+ {
+ 	union crste newcrste, oldcrste;
+ 	unsigned long mask;
+@@ -1476,7 +1476,7 @@ static int _do_shadow_crste(struct gmap *sg, gpa_t raddr, union crste *host, uni
+ 	mask = is_pmd(*table) ? _SEGMENT_FR_MASK : _REGION3_FR_MASK;
+ 	r_gfn = gpa_to_gfn(raddr) & mask;
+ 	scoped_guard(spinlock, &sg->host_to_rmap_lock)
+-		rc = gmap_insert_rmap(sg, f->gfn & mask, r_gfn, host->h.tt);
++		rc = gmap_insert_rmap(mc, sg, f->gfn & mask, r_gfn, host->h.tt);
+ 	if (rc)
+ 		return rc;
+ 
+@@ -1578,8 +1578,8 @@ static int _gaccess_do_shadow(struct kvm_s390_mmu_cache *mc, struct gmap *sg,
+ 	if (KVM_BUG_ON(l > TABLE_TYPE_REGION3, sg->kvm))
+ 		return -EFAULT;
+ 	if (l == TABLE_TYPE_PAGE_TABLE)
+-		return _do_shadow_pte(sg, saddr, ptep_h, ptep, entries + LEVEL_MEM, w->p);
+-	return _do_shadow_crste(sg, saddr, host, table, entries + LEVEL_MEM, w->p);
++		return _do_shadow_pte(mc, sg, saddr, ptep_h, ptep, entries + LEVEL_MEM, w->p);
++	return _do_shadow_crste(mc, sg, saddr, host, table, entries + LEVEL_MEM, w->p);
+ }
+ 
+ static inline int ___gaccess_shadow_fault(struct kvm_vcpu *vcpu, struct gmap *sg, gpa_t saddr,
+diff --git a/arch/s390/kvm/gmap.c b/arch/s390/kvm/gmap.c
+index 52d55ddea8d4..1d289f8fa3b2 100644
+--- a/arch/s390/kvm/gmap.c
++++ b/arch/s390/kvm/gmap.c
+@@ -1000,7 +1000,8 @@ int gmap_pv_destroy_range(struct gmap *gmap, gfn_t start, gfn_t end, bool interr
+ 	return 0;
+ }
+ 
+-int gmap_insert_rmap(struct gmap *sg, gfn_t p_gfn, gfn_t r_gfn, int level)
++int gmap_insert_rmap(struct kvm_s390_mmu_cache *mc, struct gmap *sg, gfn_t p_gfn,
++		     gfn_t r_gfn, int level)
+ {
+ 	struct vsie_rmap *rmap __free(kvfree) = NULL;
+ 	struct vsie_rmap *temp;
+@@ -1010,7 +1011,7 @@ int gmap_insert_rmap(struct gmap *sg, gfn_t p_gfn, gfn_t r_gfn, int level)
+ 	KVM_BUG_ON(!is_shadow(sg), sg->kvm);
+ 	lockdep_assert_held(&sg->host_to_rmap_lock);
+ 
+-	rmap = kzalloc_obj(*rmap, GFP_ATOMIC);
++	rmap = kvm_s390_mmu_cache_alloc_rmap(mc);
+ 	if (!rmap)
+ 		return -ENOMEM;
+ 
+@@ -1057,7 +1058,7 @@ int gmap_protect_rmap(struct kvm_s390_mmu_cache *mc, struct gmap *sg, gfn_t p_gf
+ 	if (level <= TABLE_TYPE_REGION1) {
+ 		bitmask = -1UL << (8 + 11 * level);
+ 		scoped_guard(spinlock, &sg->host_to_rmap_lock)
+-			rc = gmap_insert_rmap(sg, p_gfn, r_gfn & bitmask, level);
++			rc = gmap_insert_rmap(mc, sg, p_gfn, r_gfn & bitmask, level);
  	}
- 	for ( ; mc->n_rmaps < KVM_S390_MMU_CACHE_N_RMAPS; mc->n_rmaps++) {
--		o = kzalloc_obj(*mc->rmaps[0], GFP_KERNEL_ACCOUNT);
-+		o = kzalloc_obj(struct vsie_rmap, GFP_KERNEL_ACCOUNT);
- 		if (!o)
- 			return -ENOMEM;
- 		mc->rmaps[mc->n_rmaps] = o;
+ 	if (rc)
+ 		return rc;
+diff --git a/arch/s390/kvm/gmap.h b/arch/s390/kvm/gmap.h
+index 20881e3ce9d8..1c040472f56d 100644
+--- a/arch/s390/kvm/gmap.h
++++ b/arch/s390/kvm/gmap.h
+@@ -100,7 +100,8 @@ int gmap_ucas_map(struct gmap *gmap, gfn_t p_gfn, gfn_t c_gfn, unsigned long cou
+ void gmap_ucas_unmap(struct gmap *gmap, gfn_t c_gfn, unsigned long count);
+ int gmap_enable_skeys(struct gmap *gmap);
+ int gmap_pv_destroy_range(struct gmap *gmap, gfn_t start, gfn_t end, bool interruptible);
+-int gmap_insert_rmap(struct gmap *sg, gfn_t p_gfn, gfn_t r_gfn, int level);
++int gmap_insert_rmap(struct kvm_s390_mmu_cache *mc, struct gmap *sg, gfn_t p_gfn,
++		     gfn_t r_gfn, int level);
+ int gmap_protect_rmap(struct kvm_s390_mmu_cache *mc, struct gmap *sg, gfn_t p_gfn, gfn_t r_gfn,
+ 		      kvm_pfn_t pfn, int level, bool wr);
+ void gmap_set_cmma_all_dirty(struct gmap *gmap);
 -- 
 2.54.0
 
