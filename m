@@ -1,150 +1,145 @@
-Received: from mail-wr1-f47.google.com (mail-wr1-f47.google.com [209.85.221.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 97A983BB67F
-	for <linux-s390@vger.kernel.org>; Thu, 11 Jun 2026 11:50:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2F6CD2DCBE3;
+	Thu, 11 Jun 2026 14:23:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781178618; cv=none; b=Tj6/ch5wC3bS5a31hO3YBm7Oa7avFRnSQSchrtlT6phlZfEy9ZAw8Qfso5jseJYPy+ManacHpFBp3wf3/O5MjolkuAUfyTA0XMkS8uMycnBZwWNs20UINQmTH97Udbg6acWltH2RueJFY0LibXPM+l2HbtXqlmxyN6gr94bygus=
+	t=1781187783; cv=none; b=ie4ObtRHmUaksdxUt4XRQmACPMjvlQuHmBoolx1ZHNSuGXsaEY7tB29Wzc9ivwbTQyz3cAV/J1G2CljOiT3Qkv1Wppa8OVn0vHpJ5NJ2bkJLntUlXIWo/cx2Mr1Y3VGWRzJWfk4GYwvD82znII4YCpIaLr7CAn14UAGd3y3zw/Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781178618; c=relaxed/simple;
-	bh=UmW9Vbd3ZtejVIzFUGtLzNmEE0KC+mhPuzfVyC+exsY=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=HwbJIz3yzh/QYpZRqlnRgso4BPhsPWJVCnZ9ZErGtufEPIrx3crFXSE8Godh0Nq1c3SBHt4KTJDirZT08N0Hx6Na3BfKh5x9E0SUsjG5FsOTS1zC9FidIjEHKZIhv5UwZOiQ0hhuF7443Si3fDBtL+xO4Q4VpSMWpXxakumtdYw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=ePbyMgN4; arc=none smtp.client-ip=209.85.221.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
+	s=arc-20240116; t=1781187783; c=relaxed/simple;
+	bh=tX/92/tU4cFpVcEqtp/jLPvhIPgb44+MQAXza0iNHW8=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=BhL8emKpUyeX0n0JCeO33stdJaGFa1wyxnX0I02miVb3CBE/roqB8z2i6qIIOS+GjoKmCuMHmIpf9qzRaq2vrmbVozovZbXUIDxnBFPLUG3msvbXLzsIZDQ7iWCzYP270TbSf0jbeFh4AvVAvYTr4BOIyN0xPGDsAI0LKhEFVv0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=YLGFEYQ6; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="ePbyMgN4"
-Received: by mail-wr1-f47.google.com with SMTP id ffacd0b85a97d-45ee224f5fdso837650f8f.0
-        for <linux-s390@vger.kernel.org>; Thu, 11 Jun 2026 04:50:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=suse.com; s=google; t=1781178615; x=1781783415; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=By5jxDRfMhWNJ3zdMqbqgKEuQjBAiR2dgY0SOpXrO1o=;
-        b=ePbyMgN4/p5PmK4IrIrPgzeiRfypzzATrVlfJ+nvzVpSaugbxCQZkx6vHGGa/yZgll
-         D/JOvh+ALQCbHa8WN+inI1G8BWJcJTKFHFz9+MxCvGW8DIWsRWUANJVk0erULeetbZFD
-         Lfz9hW6TVZT6X80ompDUwrPS4WBO6pdTFrDvjfYBDjVo6sehCDp+Ze63D32pTcRqy/eK
-         wMrhxmzz2GHte1+G9srCHpK/60BN039JF1KLjHi2ZBLhhSPTM2BRrQa3At3erAlnPDjv
-         C4timz3+B/wKzV2iwo1cwg2H0YLapiBBCzcN+mqHj7W8MClFjY3pUv+u03rEmXyZzH3/
-         tD0A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781178615; x=1781783415;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=By5jxDRfMhWNJ3zdMqbqgKEuQjBAiR2dgY0SOpXrO1o=;
-        b=ozOFhyct689htOA4NaC7sOB5NFlxWZ08AR2jwgUYvg6S6gVQo9jP+Gr4o2rXrUXi02
-         KGEN24vJ0IOngavvcFBheySMFFQrYl/Qt2uvhMgirrSCIha6olr8rQ2yKEAJdx04E6Ut
-         MGKckA3J5MA8B0Mbc9hHslyIpZdoNJTt294H5OBjKzq43YNqM7NwB/LZYUSjCV/BHNeZ
-         itFVTnrmEpielXxcBZkmhQcZv0hc0OTfBTEpKnovTAFeOlcTICT6K14W6hub/1z5pU1H
-         NJC+D9kTaX9gqp3Lts9xAviuWSVi6cTDsBnlxDUcTi1Ut1+mWjU51l5rbgC7rTzpzVXw
-         hFJw==
-X-Forwarded-Encrypted: i=1; AFNElJ9cH3T/vC1cr36gw+9n+BCRZbJdZ9bh/IVXOxuUKi5YhAkP4vLjMg8RRGeG0atbWjKQLpXi5dUhmyBn@vger.kernel.org
-X-Gm-Message-State: AOJu0YzyeLTPtSVStEoBwVw7TgZUqmGtMFpGNygrVigobgExqt359BRK
-	K6yQ+YqCovTvDLg8gTST3M7JXmCmILP5+E2zsI2iVps4xAzxilkVKzvaGAzM+c2vn+g=
-X-Gm-Gg: Acq92OGRGhSq8AHehwr+lFn0LXkvadVNOxPT38xz2QFszQLVk1m/ChcI0esxAPPkMG3
-	EqKq4iLOkvqfTEbIbLjYpfQVuX6ZTuvUVMVoRrFDzVUrnQSN2LRMllwIRIGfvzYDWKHpsHP8BwQ
-	c6nMle6OegokiHEjvKnWneWrpZ0kQSfZw6Q4ncdSz/deczrZ4gu4ZA/UhdGwAEEijsH6U4WHd+b
-	sP5RpxgdFu8s2A3gpMeQnV2EJmnTyGvrSdwzIlCvMA1hCnagDF+6IX+SwigjG7bvyy+wwq7z9PW
-	8MCIsHTWa2uUHDONvXtj0wiE2hfwgpbSLuMNnSy5cf2dXoK2KnivejlsVuSlcmt00YF3N1RlyFG
-	N6aaQ/jJuHKnwxmygn9h3sg4O/3a0pnNGM5++hdW5847EBvW/PONJkEn4QMLIS4McHlovMH05TT
-	t9gqhYsbGs18T2OALJ8SvH8mXJEDc+FDr2wV7hYypDirrOHSlhuwh/+3CJmIdj7IqNQx1mb2vlA
-	RBp22cUQxrQmEibmhcfgFqzpgPowLmEABzt4Q==
-X-Received: by 2002:a05:6000:2508:b0:460:1bf8:c959 with SMTP id ffacd0b85a97d-460673e3ae5mr1690022f8f.0.1781178614930;
-        Thu, 11 Jun 2026 04:50:14 -0700 (PDT)
-Received: from mordecai (dynamic-2a00-1028-83b8-1e7a-3010-3bd6-8521-caf1.ipv6.o2.cz. [2a00:1028:83b8:1e7a:3010:3bd6:8521:caf1])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4601f2ed944sm83042430f8f.13.2026.06.11.04.50.12
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 11 Jun 2026 04:50:14 -0700 (PDT)
-Date: Thu, 11 Jun 2026 13:50:04 +0200
-From: Petr Tesarik <ptesarik@suse.com>
-To: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>, iommu@lists.linux.dev,
- linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
- linux-coco@lists.linux.dev, Robin Murphy <robin.murphy@arm.com>, Marek
- Szyprowski <m.szyprowski@samsung.com>, Will Deacon <will@kernel.org>, Marc
- Zyngier <maz@kernel.org>, Steven Price <steven.price@arm.com>, Suzuki K
- Poulose <Suzuki.Poulose@arm.com>, Catalin Marinas
- <catalin.marinas@arm.com>, Jiri Pirko <jiri@resnulli.us>, Mostafa Saleh
- <smostafa@google.com>, Alexey Kardashevskiy <aik@amd.com>, Dan Williams
- <dan.j.williams@intel.com>, Xu Yilun <yilun.xu@linux.intel.com>,
- linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Madhavan
- Srinivasan <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>,
- Nicholas Piggin <npiggin@gmail.com>, "Christophe Leroy (CS GROUP)"
- <chleroy@kernel.org>, Alexander Gordeev <agordeev@linux.ibm.com>, Gerald
- Schaefer <gerald.schaefer@linux.ibm.com>, Heiko Carstens
- <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian
- Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle
- <svens@linux.ibm.com>, x86@kernel.org, Jiri Pirko <jiri@nvidia.com>,
- Michael Kelley <mhklinux@outlook.com>
-Subject: Re: [PATCH v6 04/20] dma-pool: track decrypted atomic pools and
- select them via attrs
-Message-ID: <20260611135004.70d48daa@mordecai>
-In-Reply-To: <20260611113740.GB1066031@ziepe.ca>
-References: <20260604083959.1265923-1-aneesh.kumar@kernel.org>
-	<20260604083959.1265923-5-aneesh.kumar@kernel.org>
-	<20260609143242.GK2764304@ziepe.ca>
-	<yq5aa4t1myw4.fsf@kernel.org>
-	<20260611113740.GB1066031@ziepe.ca>
-X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-suse-linux-gnu)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="YLGFEYQ6"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65BCLuap722324;
+	Thu, 11 Jun 2026 14:23:00 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:message-id:mime-version:subject:to; s=
+	pp1; bh=K6BLSpzmC1KdDD7E4BPhh1BxT1XHUsi34R0+4pJ+7xk=; b=YLGFEYQ6
+	MVJkoronwdmO7RTohTMmxyuSP9STXIssTEq+2CtJ5NbzhGOx0NEl4zF74aV5YAFE
+	NGVpBewFLdtKluBzxJ55Cqd4x5BmTVOChX+8JLePpONQYHgx+KR/VPCr1VXAn77U
+	sTLAPjbke21xLMWDGdtSBLp0PXWsBnp+G2YftrrQT+skMCGbIv5ilqjBO34OozQo
+	XvhFKjKvQCRhbBDTxeHY5WB3hNJZzTbujqjWTTFw2m9mBQMg5+bh2HaGdlpttbwZ
+	/vOqVGL5xkbFbnWNp7j7VD4Eh2iJsqiyBI7BVkwvXldVJTTmDqGX8WYjIKnvbsGA
+	NXazzY2iKpFdog==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4eqe8dc4xu-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 11 Jun 2026 14:23:00 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 65BEJadm020634;
+	Thu, 11 Jun 2026 14:22:59 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4eqe09kh1f-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 11 Jun 2026 14:22:59 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 65BEMtvi44499432
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 11 Jun 2026 14:22:55 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8BB9820049;
+	Thu, 11 Jun 2026 14:22:55 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 72E8C20040;
+	Thu, 11 Jun 2026 14:22:55 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Thu, 11 Jun 2026 14:22:55 +0000 (GMT)
+Date: Thu, 11 Jun 2026 16:22:54 +0200
+From: Alexander Gordeev <agordeev@linux.ibm.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: [GIT PULL] s390 updates for final 7.1
+Message-ID: <20260611142254.3501080A79-agordeev@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNjExMDE0MiBTYWx0ZWRfX4SGXcwLPvjHf
+ 7EUgNBbUCFQN6/CXb5qWorj0lCpocMqYM6oX8LD6e5UEZVByRy55POvGDur/NIjEpLWaZtAGiO9
+ 19uTAvKHNMHM+Qo09FnxI/3rGNZd0CA=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjExMDE0MiBTYWx0ZWRfX+m/oYGH5ANjd
+ F3pA6PEnMV4h+h+SjFLkt/zV/qs7PH0Csb7s9pYyQY3kKZtexfPqgh1gN0hO1G9AJpJsrIE9/RO
+ XTBkhpgvZ056OZLbCxn2XHEYklNBosYZHEfpsiPqoQN6YXIvAzUX+IBXLEiJlyxCyH2oOROifN4
+ i/41hfM53tC5vpF/9u2aSARjlVMazYs+mBrTejEvcGzYWCrvljEClo/JBosgKMmRqcrRG8R7xLm
+ uq2SFSFxVbJYQGQIHsRwh1rZ+Eacr+w4tkiiYrQ9pq2s/jhe7lQkuC7T9fyo0ZUw4SaDoJi8jBg
+ K7jj8ACYlTwMePEax1A91G4/+jzVr0ZNtzp1YmztTX4n7p0Nlo9TtkHLU7wEkPqkPaQlBpyIbO0
+ yOaqK60KwANYBSqet9a0pws0K/09dn9RBY6iaJkPNpfRSKLdjsLT0KCZUjU3JFEzYo9KyZc/ROy
+ bLmzKVYk7DZFupnwc+Q==
+X-Proofpoint-ORIG-GUID: ltwuWWmGr9KfraIPjzsdIJqnWEW-VPEV
+X-Authority-Analysis: v=2.4 cv=GIM41ONK c=1 sm=1 tr=0 ts=6a2ac4c4 cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+ a=kj9zAlcOel0A:10 a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VwQbUJbxAAAA:8
+ a=GBxfbr-ptimD81uaDc0A:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-GUID: ltwuWWmGr9KfraIPjzsdIJqnWEW-VPEV
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
+ definitions=2026-06-11_02,2026-06-11_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ clxscore=1015 suspectscore=0 impostorscore=0 spamscore=0 phishscore=0
+ adultscore=0 lowpriorityscore=0 bulkscore=0 priorityscore=1501 malwarescore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606040000 definitions=main-2606110142
 
-On Thu, 11 Jun 2026 08:37:40 -0300
-Jason Gunthorpe <jgg@ziepe.ca> wrote:
+Hi Linus,
 
-> On Thu, Jun 11, 2026 at 10:55:47AM +0530, Aneesh Kumar K.V wrote:
-> > Jason Gunthorpe <jgg@ziepe.ca> writes:
-> >   
-> > > The sashiko note does look legit though:
-> > >
-> > > 	if (IS_ENABLED(CONFIG_DMA_DIRECT_REMAP) &&
-> > > 	    !gfpflags_allow_blocking(gfp) && !coherent) {
-> > > 		page = dma_alloc_from_pool(dev, PAGE_ALIGN(size), &cpu_addr,
-> > > 					   gfp, attrs, NULL);
-> > > 		if (!page)
-> > > 			return NULL;
-> > >
-> > > I don't see anything doing the force_dma_unencrypted test along this
-> > > callchain..
-> > >
-> > > I guess it should be done one step up in dma_alloc_attrs() instead of
-> > > in dma_direct_alloc()?
-> > >  
-> > 
-> > I think we should do something similar to what dma_map_phys() does here,
-> > considering that we only support DMA direct with DMA_ATTR_CC_SHARED/DMA_ATTR_ALLOC_CC_SHARED.  
-> 
-> Yeah, I think that's the right idea for now..
-> 
-> > +	if (force_dma_unencrypted(dev))
-> > +		attrs |= DMA_ATTR_ALLOC_CC_SHARED;
-> > +
-> > +	is_cc_shared = attrs & DMA_ATTR_CC_SHARED;
-> > +
-> >  	if (dma_alloc_direct(dev, ops) || arch_dma_alloc_direct(dev)) {
-> >  		cpu_addr = dma_direct_alloc(dev, size, dma_handle, flag, attrs);
-> > +	} else if (is_cc_shared) {
-> > +		trace_dma_alloc(dev, NULL, 0, size, DMA_BIDIRECTIONAL, flag,
-> > +				attrs);  
-> 
-> But it would be clearer to put the test in the iommu_ functions I
-> think, since they are the ones that have the issue. We will need to
-> fix it someday..
-> 
-> I think we can ignore the op-> functions, arches cannot support CC and
-> still use dma_map_ops..
+please pull s390 updates for final 7.1.
 
-Hm, sounds reasonable. Should we probably enforce this at configure or
-build time?
+Thanks,
+Alexander Gordeev
 
-Petr T
+The following changes since commit 7c6535c37dbc03c1c35926b7420d66fb122b513a:
+
+  s390: Implement _THIS_IP_ using inline asm (2026-05-30 11:33:32 +0200)
+
+are available in the Git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-7.1-5
+
+for you to fetch changes up to 1f57f68c4dd101e5e8ffc9ffa6428f45bcdd776a:
+
+  s390: Remove GENERIC_LOCKBREAK Kconfig option (2026-06-08 18:59:07 +0200)
+
+----------------------------------------------------------------
+s390 fixes for final 7.1
+
+- s390 selects GENERIC_LOCKBREAK when PREEMPT is enabled to tackle
+  an old compile error that no longer exists. Since recently PREEMPT
+  is always enabled, which causes massive performance regressions.
+  Remove GENERIC_LOCKBREAK from s390 Kconfig to fix the degradation.
+
+----------------------------------------------------------------
+Heiko Carstens (1):
+      s390: Remove GENERIC_LOCKBREAK Kconfig option
+
+ arch/s390/Kconfig | 3 ---
+ 1 file changed, 3 deletions(-)
+
+diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+index ecbcbb781e40..9921a3772bf7 100644
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -29,9 +29,6 @@ config GENERIC_BUG
+ config GENERIC_BUG_RELATIVE_POINTERS
+ 	def_bool y
+ 
+-config GENERIC_LOCKBREAK
+-	def_bool y if PREEMPTION
+-
+ config AUDIT_ARCH
+ 	def_bool y
+ 
