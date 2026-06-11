@@ -1,114 +1,152 @@
-Received: from mail-yx1-f44.google.com (mail-yx1-f44.google.com [74.125.224.44])
+Received: from mail-qv1-f48.google.com (mail-qv1-f48.google.com [209.85.219.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8560D3E451A
-	for <linux-s390@vger.kernel.org>; Thu, 11 Jun 2026 11:31:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.44
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781177486; cv=pass; b=l+R4sQWuGClDnkyBNRmBzHf4zMwoUb1RhrSJzavpf0g4b2cncJI468m03oUYTxsfkYaK7O5Pb35AtO+guD/hQ+zbRKOzK7b2LlpqsFOVSxNwEFHrqDt230YhUPCmbgvK7OPEQ4SrxsE2VzYgrJmWg3vNRbTBSDd5FEEkUSw9fSU=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781177486; c=relaxed/simple;
-	bh=rkPyzTcsuTtCf2t2tLha6H3hi23Cy4jWEal7QvWBuvc=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=WmmLAmonAjNlwfAqwxHwh1CByD4diqUp7oa43/hAtekmSIgQmcFlThAU50YRqPotc3DNZzKvA9E/6HJhBS+VU5yq1/TVDREVUgbNewGSfvrEo3AJ9jLQhcczcwHi8HlUEMl1fwXcwfkMLQ15GbMvzFW9dqwqlWs+LAYutGPOV4M=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=IrhV8ok0; arc=pass smtp.client-ip=74.125.224.44
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C53B53E7176
+	for <linux-s390@vger.kernel.org>; Thu, 11 Jun 2026 11:37:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.48
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1781177864; cv=none; b=Op/eIYotgAuSiVv67hEWW6yuN5AWn6smBfKWCNKbMtsxeoJA3taRoisT9FbeoshYXCZbo/XWNUL7OVDeVhW0QTvX1XdjyhmM4Xf8VU2aVbGqIhDo7kSJUMpgBN1P5XYCbW4boOUh/Xr1pR2PQ8u6EGigKvCY1V5YCJFwFTiB57k=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1781177864; c=relaxed/simple;
+	bh=orxD3R+xslULBC2Qa+4Si7LAvHUVQFpXJKWY1Fr3wjE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=uPfNSKGbkdvMBjLvK/YHchzA3cJN6qQuIQyGWClF9gDFJ0uLo9NdhACb6SMI26XTNPgqIeb7uGYM1l9tRMzTSiMBzOgVn8ETloqRvraxR5FPZ/innA0BtS4fxTANGRaObK1MWyBvghiE5Z4V+8p9L1A14lIgwksmZjgmTSsFouU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca; spf=pass smtp.mailfrom=ziepe.ca; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=jSSrQ/R2; arc=none smtp.client-ip=209.85.219.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="IrhV8ok0"
-Received: by mail-yx1-f44.google.com with SMTP id 956f58d0204a3-66077f6c438so7055979d50.2
-        for <linux-s390@vger.kernel.org>; Thu, 11 Jun 2026 04:31:22 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1781177481; cv=none;
-        d=google.com; s=arc-20240605;
-        b=Qhv9dluPUJYlOAo6p/nCf7yG+FzzBMoMHM5+jNFkDFvA1ZwrP5MXGozAIcisn+FTxz
-         XLzI1n9kp3QTiVB9RwnzI+bJzx9iGZE+6ctG7Vrm6TA6zR6TKz8akWARfiIC9ICaKmS1
-         kBRcRFyd9XKXRK3/QdBRLUJz5sR0r53Sk2VJ7RNnIhgoTayiuJ0fFNS9L2ZK7LpgPBq2
-         mAyhIU0QDDJACKRDJVuXX6HOGgiXlyqLF2zDH0cUM7d08T9119duCfgtSVmHZ+JdaNQm
-         gdd5y0J4BhWhRdPF++ls/aF5/cAXJ8ZhCOI4aMfpHL5eXFkXdzidltUp7Bbj9SyyWoiu
-         uWhA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=rkPyzTcsuTtCf2t2tLha6H3hi23Cy4jWEal7QvWBuvc=;
-        fh=n6T/i9YucgKcE30ThlbiFth/JvkfHLCSTa82EC2jUp8=;
-        b=kFJBmqsd3i07r+NjFtfIT5stbJNOB6em6SqaGHyk6MY31Per/llNC1AFyk0pRDIxHK
-         Sl8rXlD6jiwOLk494UT6scBSGH3PUuFs8zFT4s5N0yceHc6TVRl3HaCAH8cRE6cNt4sO
-         k3Bz27SuYLdLpvHce+JsWP6J+AhGWK2QTtCdtAtbR4lM3v877jxirhR7e2Hz2f7AejZt
-         elrcDFodPLOJ3U5yLXkqIkP1LX4ycU3vxHTh1ViqtzhCr48ZV7aIMDJrNYfcjraSp1Fj
-         ltYpm2Bx9VXXMRvdaQzUREMP+/rA3ar94yQbXxBh1H6ZlMXyCZ4qW7Kjqy4L1IRe+qkX
-         D+cA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="jSSrQ/R2"
+Received: by mail-qv1-f48.google.com with SMTP id 6a1803df08f44-8ce3876a50cso80032026d6.0
+        for <linux-s390@vger.kernel.org>; Thu, 11 Jun 2026 04:37:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1781177481; x=1781782281; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=rkPyzTcsuTtCf2t2tLha6H3hi23Cy4jWEal7QvWBuvc=;
-        b=IrhV8ok0IO0xal5YyWlaN+uyFvn4g0G0vtuiQyqReESLHAs+CrhaTXBmpUjMMu0knS
-         0M9+tGBb7/PEAJpUgKGDTkn9n0mIc0HGNFo5WXZUTPvv+E0yyfCdItRwY7TRx8zh6T/n
-         IF0glyElm3TbMfAiA0C0B4JEsolzL8svMcBIbKcbsU2F2vX6vBxCMHB0ofgUCg9TDq4m
-         HKQZ2QT+AXdc+9/uSt7iBQZdXt9R54QDtj1eSeeymUDmKWZJSh2MYouumwj1HOL2r5DE
-         pgi9OAijpq9n415cAh3azqjlgJ/akaAAx1vjx19glLuR7zYhE7RvxmeyviQ7XRHRgFqR
-         wcAQ==
+        d=ziepe.ca; s=google; t=1781177862; x=1781782662; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=4CsqKJTBvj+SobIiLXzFxApwnBR8BVsF1yARBI6K1lw=;
+        b=jSSrQ/R2vKn6AUzSYTH3h3LeC0O0C8znEXHi2HolbDUI5lH2AUaQB+aLH+tCmOmjwn
+         U6LW/r5qnXzB6DbBJOSsB/JXvZ5RcHmVGpLg9GdwuiDhNGioac7I1S5JjImJxE4WcoLW
+         Bgmuf2vAKiJfh5ysJGoCFwzUeiQ21Pb5kOgtMdb4lKjnhajv2yv1xvEYPDgkPyFr9T2K
+         OmkArXxJzgD9GFfkvgA8J49weQcIyn0DYdku2inQ0lHcE8EL4+TId4Yih8DI2r6v71jx
+         DylioDM7bI7RpeYoMcdMOmDYCXVROiLTIcwYi9ZMhjnHRmflB6caw+Pe2kLcElK/sr8m
+         yyLQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781177481; x=1781782281;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=rkPyzTcsuTtCf2t2tLha6H3hi23Cy4jWEal7QvWBuvc=;
-        b=YHsIMkyIPW/e1/5/Ooq8QR3gq29cPEii6mBeH37NmB8mq9E17i05iVnWYDFEbEGOLy
-         //EmQ6fvuQCDPp9hN8FX4rdH1d8gY6mbgOgS7xDCD3+jRsv+pYBlO/iGJJf2xpbAdyqt
-         kh0kYgcO+F+x+DaAeXPLXQxfxT8QUkyIYaucvMNfNDe7hzO9rrrdDqkyG+QwMUGm1Tbi
-         sv6U9BZEi4QQaTLEiUJMEIctSAHneplSqZRmOdEYXw0YXf4/jR8bYsqLC8VDCr/vuEUh
-         syH9IOytQAXnnWLM+HhBTLFdsdxRldDUxooZX5m6HoUSwOrlF3/4VnC9IE0RJ2EBbpYE
-         PzkA==
-X-Forwarded-Encrypted: i=1; AFNElJ+EBTFW9i0iZIph+Rk+rZWq7V9cAT++ByRs1mlBKf7yUERPALTEHmDy13LcFfU/jPBTqMC0AAZSKJry@vger.kernel.org
-X-Gm-Message-State: AOJu0YxRjHxN7gn7DWAkhTskTDok5mYQlEooifAlBk4qB8Ga+GVW2hGe
-	uSAa6LbDAeHST+fw2NK06eqa26pvbCrLVU8DdlNbX5eRrZR2WiDHLUolK37+sIS3hQEpRahqriA
-	leN9XtD7f3BtbMvBAuzsr+4tPgVYPLgovkVoLJNax
-X-Gm-Gg: Acq92OGCY9oGjuRgPTeB+265Zcdph7u0FEY/+s0ZDYY9UffM5mbiMc4rDsruJchEreS
-	lENVp344ZVpmvJb7Ll11UGYf6fHe4P6sWQ/lY2BYl6gC7zKKx64IZVERX6xQlKyCo9f5qch02rr
-	uCaeWt4cH087yxVo39fQLGsfmGvTPH5+jDg+t2UkZUqYI07EAgLX4CBcofKdR1yMxgdH2VJXT82
-	oYfIimj6zSkWu7WLPt+46ri4Rp0AA0W/r1mLf/CJy9YKYcic1lrktDJw/GSxiKG/uqcdzu72Qy2
-	bfuR65j7pV9f6WBzXNhWpCnNPMbnLP1S3nDR9NELCE/9CmVGivbe/AGVwPH6FzY/VFpo8Hjzo/5
-	UgI7W10gw5vDuUaN/8cDBKyA/A8tL
-X-Received: by 2002:a05:690e:400d:b0:660:4b21:6ca9 with SMTP id
- 956f58d0204a3-662696bef78mr1797434d50.26.1781177480983; Thu, 11 Jun 2026
- 04:31:20 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1781177862; x=1781782662;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=4CsqKJTBvj+SobIiLXzFxApwnBR8BVsF1yARBI6K1lw=;
+        b=BpE5PTngEJSKgm4sIwOiAAbnS8drx04h8YFR6G0IW8Tg36uNI9v4F2DPoQvJ5C+8Ul
+         K8AxInksPYw0rdb/mJGKqrlElSdUIwhUuYOz0883dOHGpUDTYxRgVwEqrQKxaDCm0Bkk
+         R0Nz25DGP3nKIhFpussQJm55xmPutgHMVA8sEQA8SWsQOFbDq6a8ORbCS/VkHSHEbLn1
+         WWK1wBxwf2er11ZDTRDGjnH02z1CZ93Vq0Wr0y3TC9lvfrQZx2Gxlkvw9OgTAwoSDH4v
+         PWFFh9bOwXyv0wQMx9cJz1tBxgqrGpPMIQFOJfyFGpwVMB9uMlyq5wD1MMdKAQv8P8mE
+         noJQ==
+X-Forwarded-Encrypted: i=1; AFNElJ88FSzVcsORp5P9oMUhzFL9l1MvLqqMrIkyQYxdTX1W3hsU4yEu6HHnDFsYTttB5R+3z7eEurGFYQIV@vger.kernel.org
+X-Gm-Message-State: AOJu0YxZJ6G64+pr5zMgU7N0nzEQm2NmRnN2+hBOCey+jhAZulpmBm5G
+	GZ7AZx8veMlehroD6uCfAOO0jLbTftkRltBHuCDUdoNCYcHT4NMlWpGGUh7JbutVh6k=
+X-Gm-Gg: Acq92OHRM+M48t1gyzeKtiLcp5QFfrxktpRYNBKpcZWljyWzzwJ1b/vN9u2FiwCH02L
+	E1zZC2b9XbodTLyUOCgchWxbsRMJYGiiyWO08nOMMazpVyRf62YNKX2Zq3Y9YDOg91RBTBxsOVI
+	kWKRNH7QLxU0jxEJv5Ng8hUgOY6x1+pRhR1t02kyTetFM3qrr914gB/1d4Eee7wU/z8fOGl38M0
+	9jm9NJKIRyB5ewoMdfW9qPIUpC5vBIkZ22X/ZsFgrf955Jembm71PKAghw/XT7E/WS42Sw5OcZO
+	9KFMbOVoJ9k99hjUQVEQ7AW3aI2C3MgCIarWUjfT0dkxCI+nEEDQ8z3WJGQRVDN6uJvjTgAs+Hj
+	V66//L/zKf6yZkI4I9K3qH3/5UwQKaH+C5m/s5XJgMQDCLVTtU1bEpVB4Jga60wIVtO/3viCnAV
+	S/7tsNGKSuVQwm6vYzHUOX/kTIE3W4xMTPmI6EkavgqMi9nMfr5cHLxWNp/6XsKXpnceML61p6S
+	mFhz57FggHTPTf+
+X-Received: by 2002:a05:6214:410b:b0:8ce:b2e9:a4c1 with SMTP id 6a1803df08f44-8d1d8cfbdc0mr38674016d6.14.1781177861623;
+        Thu, 11 Jun 2026 04:37:41 -0700 (PDT)
+Received: from ziepe.ca (crbknf0213w-47-54-130-67.pppoe-dynamic.high-speed.nl.bellaliant.net. [47.54.130.67])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8d1e838f586sm15478786d6.20.2026.06.11.04.37.40
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 11 Jun 2026 04:37:40 -0700 (PDT)
+Received: from jgg by wakko with local (Exim 4.97)
+	(envelope-from <jgg@ziepe.ca>)
+	id 1wXdjA-00000005ezW-0ftx;
+	Thu, 11 Jun 2026 08:37:40 -0300
+Date: Thu, 11 Jun 2026 08:37:40 -0300
+From: Jason Gunthorpe <jgg@ziepe.ca>
+To: "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>
+Cc: iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev,
+	Robin Murphy <robin.murphy@arm.com>,
+	Marek Szyprowski <m.szyprowski@samsung.com>,
+	Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
+	Steven Price <steven.price@arm.com>,
+	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Jiri Pirko <jiri@resnulli.us>, Mostafa Saleh <smostafa@google.com>,
+	Petr Tesarik <ptesarik@suse.com>,
+	Alexey Kardashevskiy <aik@amd.com>,
+	Dan Williams <dan.j.williams@intel.com>,
+	Xu Yilun <yilun.xu@linux.intel.com>, linuxppc-dev@lists.ozlabs.org,
+	linux-s390@vger.kernel.org,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org,
+	Jiri Pirko <jiri@nvidia.com>, Michael Kelley <mhklinux@outlook.com>
+Subject: Re: [PATCH v6 04/20] dma-pool: track decrypted atomic pools and
+ select them via attrs
+Message-ID: <20260611113740.GB1066031@ziepe.ca>
+References: <20260604083959.1265923-1-aneesh.kumar@kernel.org>
+ <20260604083959.1265923-5-aneesh.kumar@kernel.org>
+ <20260609143242.GK2764304@ziepe.ca>
+ <yq5aa4t1myw4.fsf@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <cover.1781165969.git.sd@queasysnail.net> <1f30e73275c07bf879f547589872d0916025a52e.1781165969.git.sd@queasysnail.net>
-In-Reply-To: <1f30e73275c07bf879f547589872d0916025a52e.1781165969.git.sd@queasysnail.net>
-From: Eric Dumazet <edumazet@google.com>
-Date: Thu, 11 Jun 2026 04:31:08 -0700
-X-Gm-Features: AVVi8Cd1uuBY7qU7bTgjxyQo8MaoMPQFFwULSrOFCaHbtgyAmu9gW5waSPUt1q4
-Message-ID: <CANn89iLhV+rJqZK7_A84VagVApz_D8GNU=0Y3NRVF7A=PhJy-A@mail.gmail.com>
-Subject: Re: [PATCH net-next v2 1/2] tls: remove tls_toe and the related driver
-To: Sabrina Dubroca <sd@queasysnail.net>
-Cc: netdev@vger.kernel.org, Ayush Sawal <ayush.sawal@chelsio.com>, 
-	John Fastabend <john.fastabend@gmail.com>, Jakub Kicinski <kuba@kernel.org>, 
-	"David S. Miller" <davem@davemloft.net>, Alexander Gordeev <agordeev@linux.ibm.com>, 
-	Andrew Lunn <andrew+netdev@lunn.ch>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
-	Heiko Carstens <hca@linux.ibm.com>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
-	Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org, 
-	linux-doc@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, 
-	Shuah Khan <skhan@linuxfoundation.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <yq5aa4t1myw4.fsf@kernel.org>
 
-On Thu, Jun 11, 2026 at 3:21=E2=80=AFAM Sabrina Dubroca <sd@queasysnail.net=
-> wrote:
->
-> The tls_toe feature and its single user (chelsio chtls) have been
-> unmaintained for multiple years. It also hooks into the core of the
-> TCP implementation, and bypasses most of the networking stack.
->
-> Signed-off-by: Sabrina Dubroca <sd@queasysnail.net>
-> ---
+On Thu, Jun 11, 2026 at 10:55:47AM +0530, Aneesh Kumar K.V wrote:
+> Jason Gunthorpe <jgg@ziepe.ca> writes:
+> 
+> > The sashiko note does look legit though:
+> >
+> > 	if (IS_ENABLED(CONFIG_DMA_DIRECT_REMAP) &&
+> > 	    !gfpflags_allow_blocking(gfp) && !coherent) {
+> > 		page = dma_alloc_from_pool(dev, PAGE_ALIGN(size), &cpu_addr,
+> > 					   gfp, attrs, NULL);
+> > 		if (!page)
+> > 			return NULL;
+> >
+> > I don't see anything doing the force_dma_unencrypted test along this
+> > callchain..
+> >
+> > I guess it should be done one step up in dma_alloc_attrs() instead of
+> > in dma_direct_alloc()?
+> >
+> 
+> I think we should do something similar to what dma_map_phys() does here,
+> considering that we only support DMA direct with DMA_ATTR_CC_SHARED/DMA_ATTR_ALLOC_CC_SHARED.
 
-Reviewed-by: Eric Dumazet <edumazet@google.com>
+Yeah, I think that's the right idea for now..
+
+> +	if (force_dma_unencrypted(dev))
+> +		attrs |= DMA_ATTR_ALLOC_CC_SHARED;
+> +
+> +	is_cc_shared = attrs & DMA_ATTR_CC_SHARED;
+> +
+>  	if (dma_alloc_direct(dev, ops) || arch_dma_alloc_direct(dev)) {
+>  		cpu_addr = dma_direct_alloc(dev, size, dma_handle, flag, attrs);
+> +	} else if (is_cc_shared) {
+> +		trace_dma_alloc(dev, NULL, 0, size, DMA_BIDIRECTIONAL, flag,
+> +				attrs);
+
+But it would be clearer to put the test in the iommu_ functions I
+think, since they are the ones that have the issue. We will need to
+fix it someday..
+
+I think we can ignore the op-> functions, arches cannot support CC and
+still use dma_map_ops..
+
+Jason
