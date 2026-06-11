@@ -1,159 +1,114 @@
-Received: from mail-qt1-f182.google.com (mail-qt1-f182.google.com [209.85.160.182])
+Received: from mail-yx1-f44.google.com (mail-yx1-f44.google.com [74.125.224.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 659B33E8338
-	for <linux-s390@vger.kernel.org>; Thu, 11 Jun 2026 11:30:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.182
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781177448; cv=none; b=UzyCSyKGilb2OiEvkZ16Sw7BLRDq47CjMxiHoywBG3yNKrQpoql4rcZ5aiR261LOC9hXSMAWaZLiPKI3WzCGAMgsFnJaT6Q1jDU5c0baVzAaE4i/Q7FQau338W4nOLZE0WAzZ8f7p30RLT82EsPJNRQ36NbxASfQ9dmULgJjfS0=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781177448; c=relaxed/simple;
-	bh=haH/H6OcYua3Z5rTl0sktjLmKVSLqKAqacU21OYuo/8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=tvYN/uswfFQdBG+u7Kt9qrfhWPbT73angRNNJhZalg5CdJMWO/JAaA30qTqjbeRkuMK/a/EbfTnKN8hw8zWSKfv+Jo3OeEIaZafW3EsqY0y0MX7RXbwOGD4c4cgUkFKYV4kkIlzYEu21RD72G1uAJ6h50ZyxXTDhg/CeQIKQAGk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca; spf=pass smtp.mailfrom=ziepe.ca; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=XGJBL5os; arc=none smtp.client-ip=209.85.160.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8560D3E451A
+	for <linux-s390@vger.kernel.org>; Thu, 11 Jun 2026 11:31:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.44
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1781177486; cv=pass; b=l+R4sQWuGClDnkyBNRmBzHf4zMwoUb1RhrSJzavpf0g4b2cncJI468m03oUYTxsfkYaK7O5Pb35AtO+guD/hQ+zbRKOzK7b2LlpqsFOVSxNwEFHrqDt230YhUPCmbgvK7OPEQ4SrxsE2VzYgrJmWg3vNRbTBSDd5FEEkUSw9fSU=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1781177486; c=relaxed/simple;
+	bh=rkPyzTcsuTtCf2t2tLha6H3hi23Cy4jWEal7QvWBuvc=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=WmmLAmonAjNlwfAqwxHwh1CByD4diqUp7oa43/hAtekmSIgQmcFlThAU50YRqPotc3DNZzKvA9E/6HJhBS+VU5yq1/TVDREVUgbNewGSfvrEo3AJ9jLQhcczcwHi8HlUEMl1fwXcwfkMLQ15GbMvzFW9dqwqlWs+LAYutGPOV4M=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=IrhV8ok0; arc=pass smtp.client-ip=74.125.224.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="XGJBL5os"
-Received: by mail-qt1-f182.google.com with SMTP id d75a77b69052e-5177b9a02bdso108925171cf.1
-        for <linux-s390@vger.kernel.org>; Thu, 11 Jun 2026 04:30:46 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="IrhV8ok0"
+Received: by mail-yx1-f44.google.com with SMTP id 956f58d0204a3-66077f6c438so7055979d50.2
+        for <linux-s390@vger.kernel.org>; Thu, 11 Jun 2026 04:31:22 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1781177481; cv=none;
+        d=google.com; s=arc-20240605;
+        b=Qhv9dluPUJYlOAo6p/nCf7yG+FzzBMoMHM5+jNFkDFvA1ZwrP5MXGozAIcisn+FTxz
+         XLzI1n9kp3QTiVB9RwnzI+bJzx9iGZE+6ctG7Vrm6TA6zR6TKz8akWARfiIC9ICaKmS1
+         kBRcRFyd9XKXRK3/QdBRLUJz5sR0r53Sk2VJ7RNnIhgoTayiuJ0fFNS9L2ZK7LpgPBq2
+         mAyhIU0QDDJACKRDJVuXX6HOGgiXlyqLF2zDH0cUM7d08T9119duCfgtSVmHZ+JdaNQm
+         gdd5y0J4BhWhRdPF++ls/aF5/cAXJ8ZhCOI4aMfpHL5eXFkXdzidltUp7Bbj9SyyWoiu
+         uWhA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=rkPyzTcsuTtCf2t2tLha6H3hi23Cy4jWEal7QvWBuvc=;
+        fh=n6T/i9YucgKcE30ThlbiFth/JvkfHLCSTa82EC2jUp8=;
+        b=kFJBmqsd3i07r+NjFtfIT5stbJNOB6em6SqaGHyk6MY31Per/llNC1AFyk0pRDIxHK
+         Sl8rXlD6jiwOLk494UT6scBSGH3PUuFs8zFT4s5N0yceHc6TVRl3HaCAH8cRE6cNt4sO
+         k3Bz27SuYLdLpvHce+JsWP6J+AhGWK2QTtCdtAtbR4lM3v877jxirhR7e2Hz2f7AejZt
+         elrcDFodPLOJ3U5yLXkqIkP1LX4ycU3vxHTh1ViqtzhCr48ZV7aIMDJrNYfcjraSp1Fj
+         ltYpm2Bx9VXXMRvdaQzUREMP+/rA3ar94yQbXxBh1H6ZlMXyCZ4qW7Kjqy4L1IRe+qkX
+         D+cA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google; t=1781177445; x=1781782245; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=haH/H6OcYua3Z5rTl0sktjLmKVSLqKAqacU21OYuo/8=;
-        b=XGJBL5os4DVaFiv5GV9/V+Nwn4AKPOoWgMshjsoi+NGc7cMK/XQVGbgXSTf25QFDbI
-         qvarjcNpPZK+kxSgp7f03EM6mDGDGyoe/MpgvPrna3Y9PfSKPEOOtXb9ultWWqce95uX
-         0RYZ3zaWBf4eOGsmHvnUhPPilQaNdNSZ/xm22crBgupbgw+xh3VOLDcd1caDssogAwKv
-         Ef3ppoKRFs/yO4CRP5wFJ6z2eipTnGTNlGq1vIZIE+EbAK9Cmvwh/rVwt1VzHVT+r2Jp
-         1az+m5WOE4NCUXdQ2Fvcr30Kqp9Dscn636V6YHa2gZEM1PzK6f5l2ZA0Ac5Xi7if/PkL
-         vyLw==
+        d=google.com; s=20251104; t=1781177481; x=1781782281; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=rkPyzTcsuTtCf2t2tLha6H3hi23Cy4jWEal7QvWBuvc=;
+        b=IrhV8ok0IO0xal5YyWlaN+uyFvn4g0G0vtuiQyqReESLHAs+CrhaTXBmpUjMMu0knS
+         0M9+tGBb7/PEAJpUgKGDTkn9n0mIc0HGNFo5WXZUTPvv+E0yyfCdItRwY7TRx8zh6T/n
+         IF0glyElm3TbMfAiA0C0B4JEsolzL8svMcBIbKcbsU2F2vX6vBxCMHB0ofgUCg9TDq4m
+         HKQZ2QT+AXdc+9/uSt7iBQZdXt9R54QDtj1eSeeymUDmKWZJSh2MYouumwj1HOL2r5DE
+         pgi9OAijpq9n415cAh3azqjlgJ/akaAAx1vjx19glLuR7zYhE7RvxmeyviQ7XRHRgFqR
+         wcAQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781177445; x=1781782245;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=haH/H6OcYua3Z5rTl0sktjLmKVSLqKAqacU21OYuo/8=;
-        b=KZslu3lvU4x1J1i7+JvpnCOFPPtsJWZuvprK260GimthRzYB5hhWOH9U7g/egTKfkI
-         m0+cfntelO+oqpKVvVpwLeJhEYC1JdSRxXaYN7jOmkME+qBBOC2zZQOv8KVpQ6HQo9Gb
-         wGjv+38pfN6FiMCYH1vqcLx2IABz+RbZ0SgDkbWH78pIZauFRQCg5mwv2X3KD07ShdKH
-         rn5bk/xLElbDzIokWH9A/Z62KaV2onXAvIX0UMTC2HFAzH8KZgx/CXSV6Cp6YsDoF1YZ
-         rEfYLKFxUKJL7pF8S1EJpI6mv3JP7rMyEMhilugZB4Bc4gwxweKl4KRqFHlAjSF4Ouxk
-         FqzQ==
-X-Forwarded-Encrypted: i=1; AFNElJ9oq9Y3+U3LKGXq28ggzXikyu9He/Z3ig2XEP5dYWLWZsWfO4dXXFGhj2M7YmvkRxl8px5KQi5xFwit@vger.kernel.org
-X-Gm-Message-State: AOJu0YwzW9gCONViJbTF2Wwc/r7iqpPQgQrI93Rqx8ecitdloXjQyLxu
-	IcoMophsVG1V/nhM8Ng3pd3EqdVBjy4Y9u5OnjaYhAOd+LYwLea8k4L+G36o7PFoAQ8=
-X-Gm-Gg: Acq92OHCgn4ALZMbXcyFE+UzXZCtH7ksPOXTIi+KdhWxS9UWj9OkCjLzSDABqX4hP27
-	z3kbM9l7eJ6OLb8+gZRf9on6LRXJX3Luiw7RqP8AY8khq6x6+eFbby5PlQ7EvXnzQUvD0I50bJj
-	UD7zJhcFTcqJpoCQXw/LMMEGCBQEVu7HBlPdY/jMY1zHcq8XiNAoYbSR8bDC/Z4mcXpqv8UxGd5
-	03md0QAEWxkzmtsQaB+E39GHtnFEXK9HqX90IR/LcRrkXbJU3SjS4A/xhhXARSXy3EQfauLrez0
-	uZJlEul22jiaNglP5qSPg+QtDcrP5cTza0d0wCYo0xnQhFvJze5sYuoukEEJj/qlf/EMKLueI5U
-	MKPgc75KaGBzTApOejOduQTsijeLwBHhhLQDkGX4FCSUb9ajccHPbgGaHnfXMKWR7e27tV7NdiO
-	I3C6ohGUkI+B1GKmrDtzBhUGK/3RQ5WwzaghQtnuM+mwDtUsRIi6xQp4aik0OQ/biPc7IylZGx4
-	MsNRrV9VB/RTjQJ
-X-Received: by 2002:a05:622a:354:b0:517:875a:d619 with SMTP id d75a77b69052e-517ede4125cmr35159281cf.6.1781177440327;
-        Thu, 11 Jun 2026 04:30:40 -0700 (PDT)
-Received: from ziepe.ca (crbknf0213w-47-54-130-67.pppoe-dynamic.high-speed.nl.bellaliant.net. [47.54.130.67])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-517ef61dfeasm14521801cf.24.2026.06.11.04.30.38
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 11 Jun 2026 04:30:39 -0700 (PDT)
-Received: from jgg by wakko with local (Exim 4.97)
-	(envelope-from <jgg@ziepe.ca>)
-	id 1wXdcM-00000005deq-1WZO;
-	Thu, 11 Jun 2026 08:30:38 -0300
-Date: Thu, 11 Jun 2026 08:30:38 -0300
-From: Jason Gunthorpe <jgg@ziepe.ca>
-To: "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>
-Cc: iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev,
-	Robin Murphy <robin.murphy@arm.com>,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
-	Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
-	Steven Price <steven.price@arm.com>,
-	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Jiri Pirko <jiri@resnulli.us>, Mostafa Saleh <smostafa@google.com>,
-	Petr Tesarik <ptesarik@suse.com>,
-	Alexey Kardashevskiy <aik@amd.com>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Xu Yilun <yilun.xu@linux.intel.com>, linuxppc-dev@lists.ozlabs.org,
-	linux-s390@vger.kernel.org,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org,
-	Jiri Pirko <jiri@nvidia.com>, Michael Kelley <mhklinux@outlook.com>
-Subject: Re: [PATCH v6 04/20] dma-pool: track decrypted atomic pools and
- select them via attrs
-Message-ID: <20260611113038.GA1066031@ziepe.ca>
-References: <20260604083959.1265923-1-aneesh.kumar@kernel.org>
- <20260604083959.1265923-5-aneesh.kumar@kernel.org>
- <20260609143242.GK2764304@ziepe.ca>
- <yq5afr2uzum9.fsf@kernel.org>
- <20260610164153.GQ2764304@ziepe.ca>
- <yq5acxxxn0gp.fsf@kernel.org>
+        d=1e100.net; s=20251104; t=1781177481; x=1781782281;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=rkPyzTcsuTtCf2t2tLha6H3hi23Cy4jWEal7QvWBuvc=;
+        b=YHsIMkyIPW/e1/5/Ooq8QR3gq29cPEii6mBeH37NmB8mq9E17i05iVnWYDFEbEGOLy
+         //EmQ6fvuQCDPp9hN8FX4rdH1d8gY6mbgOgS7xDCD3+jRsv+pYBlO/iGJJf2xpbAdyqt
+         kh0kYgcO+F+x+DaAeXPLXQxfxT8QUkyIYaucvMNfNDe7hzO9rrrdDqkyG+QwMUGm1Tbi
+         sv6U9BZEi4QQaTLEiUJMEIctSAHneplSqZRmOdEYXw0YXf4/jR8bYsqLC8VDCr/vuEUh
+         syH9IOytQAXnnWLM+HhBTLFdsdxRldDUxooZX5m6HoUSwOrlF3/4VnC9IE0RJ2EBbpYE
+         PzkA==
+X-Forwarded-Encrypted: i=1; AFNElJ+EBTFW9i0iZIph+Rk+rZWq7V9cAT++ByRs1mlBKf7yUERPALTEHmDy13LcFfU/jPBTqMC0AAZSKJry@vger.kernel.org
+X-Gm-Message-State: AOJu0YxRjHxN7gn7DWAkhTskTDok5mYQlEooifAlBk4qB8Ga+GVW2hGe
+	uSAa6LbDAeHST+fw2NK06eqa26pvbCrLVU8DdlNbX5eRrZR2WiDHLUolK37+sIS3hQEpRahqriA
+	leN9XtD7f3BtbMvBAuzsr+4tPgVYPLgovkVoLJNax
+X-Gm-Gg: Acq92OGCY9oGjuRgPTeB+265Zcdph7u0FEY/+s0ZDYY9UffM5mbiMc4rDsruJchEreS
+	lENVp344ZVpmvJb7Ll11UGYf6fHe4P6sWQ/lY2BYl6gC7zKKx64IZVERX6xQlKyCo9f5qch02rr
+	uCaeWt4cH087yxVo39fQLGsfmGvTPH5+jDg+t2UkZUqYI07EAgLX4CBcofKdR1yMxgdH2VJXT82
+	oYfIimj6zSkWu7WLPt+46ri4Rp0AA0W/r1mLf/CJy9YKYcic1lrktDJw/GSxiKG/uqcdzu72Qy2
+	bfuR65j7pV9f6WBzXNhWpCnNPMbnLP1S3nDR9NELCE/9CmVGivbe/AGVwPH6FzY/VFpo8Hjzo/5
+	UgI7W10gw5vDuUaN/8cDBKyA/A8tL
+X-Received: by 2002:a05:690e:400d:b0:660:4b21:6ca9 with SMTP id
+ 956f58d0204a3-662696bef78mr1797434d50.26.1781177480983; Thu, 11 Jun 2026
+ 04:31:20 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <yq5acxxxn0gp.fsf@kernel.org>
+References: <cover.1781165969.git.sd@queasysnail.net> <1f30e73275c07bf879f547589872d0916025a52e.1781165969.git.sd@queasysnail.net>
+In-Reply-To: <1f30e73275c07bf879f547589872d0916025a52e.1781165969.git.sd@queasysnail.net>
+From: Eric Dumazet <edumazet@google.com>
+Date: Thu, 11 Jun 2026 04:31:08 -0700
+X-Gm-Features: AVVi8Cd1uuBY7qU7bTgjxyQo8MaoMPQFFwULSrOFCaHbtgyAmu9gW5waSPUt1q4
+Message-ID: <CANn89iLhV+rJqZK7_A84VagVApz_D8GNU=0Y3NRVF7A=PhJy-A@mail.gmail.com>
+Subject: Re: [PATCH net-next v2 1/2] tls: remove tls_toe and the related driver
+To: Sabrina Dubroca <sd@queasysnail.net>
+Cc: netdev@vger.kernel.org, Ayush Sawal <ayush.sawal@chelsio.com>, 
+	John Fastabend <john.fastabend@gmail.com>, Jakub Kicinski <kuba@kernel.org>, 
+	"David S. Miller" <davem@davemloft.net>, Alexander Gordeev <agordeev@linux.ibm.com>, 
+	Andrew Lunn <andrew+netdev@lunn.ch>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
+	Heiko Carstens <hca@linux.ibm.com>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
+	Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org, 
+	linux-doc@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, 
+	Shuah Khan <skhan@linuxfoundation.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jun 11, 2026 at 10:21:50AM +0530, Aneesh Kumar K.V wrote:
+On Thu, Jun 11, 2026 at 3:21=E2=80=AFAM Sabrina Dubroca <sd@queasysnail.net=
+> wrote:
+>
+> The tls_toe feature and its single user (chelsio chtls) have been
+> unmaintained for multiple years. It also hooks into the core of the
+> TCP implementation, and bypasses most of the networking stack.
+>
+> Signed-off-by: Sabrina Dubroca <sd@queasysnail.net>
+> ---
 
-> If we are adding DMA_ATTR_ALLOC_SHARED, should we also allow
-> dma_alloc_attrs() to take that attribute value?
-
-I don't think we should..
-
-It is hard to see any reason to allocate shared memory through the DMA
-API. The way the DMA API works only the device that it is allocated
-for can access that memory, so it is effectively private to the
-device. Thus what purpose is shared device private memory?
-
-> +DMA_ATTR_CC_SHARED
-> +------------------
-> +
-> +This attribute indicates that a DMA mapping is shared, or decrypted, for
-> +confidential computing guests. For normal system memory, the caller must
-> +already have marked the memory decrypted with set_memory_decrypted(). CPU
-> +PTEs for the mapping must use pgprot_decrypted(), and the same shared
-> +semantic may be passed to a vIOMMU when it sets up the IOPTE.
-> +
-> +This attribute describes an existing mapping. It does not allocate shared
-> +backing pages and must not be passed to dma_alloc_attrs(). For MMIO, use
-> +this together with DMA_ATTR_MMIO to indicate shared MMIO. Unless
-> +DMA_ATTR_MMIO is provided, the mapping requires a struct page.
-
-Yes, though we need to fix a few ATTR_MMIO users to make this
-statement true
-
-> +DMA_ATTR_ALLOC_CC_SHARED
-> +------------------------
-> +
-> +This attribute indicates that a dma_alloc_attrs() allocation must use
-> +shared, or decrypted, backing pages for confidential computing guests.
-> +Allocation paths use this request when they select shared DMA pools,
-> +decrypt newly allocated pages or restore encryption on free.
-> +
-> +DMA_ATTR_ALLOC_CC_SHARED differs from DMA_ATTR_CC_SHARED in that it
-> +requests shared backing memory from the allocation path. DMA_ATTR_CC_SHARED
-> +describes an already-shared mapping and requires the caller to have
-> +prepared normal system memory before mapping it. Callers that need shared
-> +memory from dma_alloc_attrs() should request DMA_ATTR_ALLOC_CC_SHARED
-> +instead of DMA_ATTR_CC_SHARED.
-
-The semantic is right, but I would make it a private attribute since
-no driver should use it.
-
-Jason
+Reviewed-by: Eric Dumazet <edumazet@google.com>
