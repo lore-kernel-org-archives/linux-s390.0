@@ -1,153 +1,138 @@
-Received: from mail-ej1-f47.google.com (mail-ej1-f47.google.com [209.85.218.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1B7392D0C89
-	for <linux-s390@vger.kernel.org>; Thu, 11 Jun 2026 14:45:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.218.47
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781189147; cv=pass; b=ROeBsI6DGH4S158Ly6wjnCIfHEgRx/XMMniVklR3AvcNmFVWTvz8Cfls/q+coM4GbyFXD0Z1Dv2iwPfI4Z5eNtAyv2GYtWP0uuaZAiSLU4sNZ4Fb+f1hQroYQfFMEJFf49sB7pz45lT9EHzXlDAuy/RVok6AY+9Ebj3gbsLckfI=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781189147; c=relaxed/simple;
-	bh=ZwBSIB66d1tL230+mKEjlH+JNTqmf3KSiuoOfRL20sg=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=DEOehORnhbjFeb65AtBtKULI6hi07E02OAVb91j9hgcJz+xa5zKfcJqfpHHxxaO8kjWSIdSJ8xz6Dgkg2aOigPEL7A9Z1F33zyac6/M/g59HpsMI02lW9/OQtyXAcpxNN33I5trzh2MBnOI9fD1VDd3qZxI8QHsNDgtgSc/foDc=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=oKTF1xRk; arc=pass smtp.client-ip=209.85.218.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 82D3E3FBA7;
+	Thu, 11 Jun 2026 15:01:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1781190086; cv=none; b=hwhdBLU3PqCkPUccTEGwVrGmiNSOp75I0Vs37QywyHGm2Og1VDmgIoWeH18sxnp4SIXKVcN1UclxsDJ4bo7MGBx3DdA4PdYcBbWXtlhS968RvSrXrVcxKtYLoKEVIbRVjFf+NiDZJV+WsD/oPXM62fB7XJhPMXFofCjuB6KlfuA=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1781190086; c=relaxed/simple;
+	bh=VA5KVvwur9iWnMNNWccE9qYh6ULqQoRyTKFgLMCx0oI=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=BF1gNSQOb7MjYGEl93G4NBFuXmF8IN+k5TpHkJvvrlxTY7ZmPQAgYE/nOjZkEgiblEu0bYdeneWxrJR93S4XkymDzEI6U2J9xAAUlT+rfuVbhBMV1+GEMcphItN8w4G7uhdoctlZ0Hhzj7w3jXZpoMng5MjpkBrMVIJcEZ9Qxis=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Vp5xuhIr; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="oKTF1xRk"
-Received: by mail-ej1-f47.google.com with SMTP id a640c23a62f3a-bec43ee8ff0so150142566b.1
-        for <linux-s390@vger.kernel.org>; Thu, 11 Jun 2026 07:45:45 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1781189144; cv=none;
-        d=google.com; s=arc-20240605;
-        b=EClK5EFGDO8a05juxdjwtRSgsooMMyqvQcH/BeY/VmNKLVylYp415Kd6CU+i8uzCRy
-         DRgCP5Km08XsowXF/xLxYNYDSCd/5C++kSbQyEhPEcg6/mS+EqUOyJpOjZrqgoz96MVf
-         1jguu1T9cjXBn3/X23LM1CW4D4ezjL3w4llQGVKKrwLmkRMhbuIIEE2SVgaoSYtsfqn7
-         +OqJa6++bKao1Otj5r12ac/sG2f5e1xN9G36SUfXVAYVq+lalqkOEKBCtfslFipsFfq/
-         HzQK+Y0FLg35KLd7eyipOA/5aZUaEwAarCL7s/505ZSytz34PZK1UlWtXd9GxWgXBDoM
-         XzvA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:dkim-signature;
-        bh=d1Q6VrmJUx+o7NgXdFZxExU41NgoiFIjQElz0CF6684=;
-        fh=pXIxXJQKFcxHGCPpLtNQW4FInC89NlfTPo5EURrzsM0=;
-        b=NrDWi78r4ACasjMY5yYDzg5CfvcnaFOmlbb1mmCuDBgCCEj4RR/yo1s9otIB27ietN
-         8Ct5UoJd2gZoWPw+I9GNIwSomK20SYdQDFUKup/jexvKVp9YTyb9I6qEbeLVjS6NdejP
-         jwJBjPuIU6M9zlYRhIO8KyO+MMXHTXm+/btias+8CU3gueOF67wrpUOhr0MR6n3W1WG0
-         A8q88/cN8lkuQxcVzseQhc3gPVKQTaufRNvGeI1cS513CaB23hDDttE7YVKZLHGQtiT0
-         wvzAs0PuYW6CF7GElyMuAzQJFlf3lyIPgTl1uJ2g9XuJMGxqGT4toATfFqIV5P0XfevR
-         4xFA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1781189144; x=1781793944; darn=vger.kernel.org;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=d1Q6VrmJUx+o7NgXdFZxExU41NgoiFIjQElz0CF6684=;
-        b=oKTF1xRkGsnpLk64bMT7Of1ScwuLfP2HoSZUImbFDHaOIM7jrZ3vAxGbuIORM6uAQe
-         kE5Swb551sovL0ik3GX5PbqyoHeNc//xeY5idvrcdwvf6gSeYeUiqgCNT6yemDqW0qBE
-         tjI+kIWj+xE4NWVxrFmqjpINnAtTsgnD5odgG38Z5WFtpmwv9fkrgdp2Xr+gyIMUAQnk
-         EOceaM8DLDcCj3u9saT4LWxrhPNU/NA5c1NIT9TIOIh4STIR1yC54AwV00ugBcrhnpHk
-         XIg3NBWZhE8ZxGgLQ3p0BGadefN2Mc3HaP3k1ZDGFeoDbI6UfwGqLlI5KWHK5gleEI5i
-         X9Bw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781189144; x=1781793944;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=d1Q6VrmJUx+o7NgXdFZxExU41NgoiFIjQElz0CF6684=;
-        b=OdXaBtqg0v2gQTBQYYp5BY4twc9axK9s86wIjLx9fihNNmlPQoUyvXNEaL0idsy2AG
-         /dKrZPcGkeh4vEwJy4jr9V72USsr82AlTD/WWOfSmrEeAC0gh9SSTYq2OiRijCPCDGDf
-         1D/M0nw9a1AF5G2/nulVYlT4CkJKuA1/T8AWnifAqR1DjSvvYLrwA3aK6fwHxdrkZz81
-         kDtW6kFolUWtcCTfOvdFHNeS3Cq6ufvFoadgyiTKQRqClB0zo/cgRmnvhLVjT6j9PSH7
-         exMnpq3jy7lSRaT3G1tGxFmf3D3KosO22B5FrolukkpN6FlWGuJ3Nqfbi/wYwtrWjxO2
-         7Utg==
-X-Forwarded-Encrypted: i=1; AFNElJ+avUVlLKbXyB7uj0VaLwjLCnXen4vNzBMxUgKbXLC7oIy/AeYvO+Pfqkw5+e44/DPu8QoMlpxdGpHg@vger.kernel.org
-X-Gm-Message-State: AOJu0Yx+bTrWEqYN6acQeZjBHlb+xPcKJrkw3ykf9a1zmfIGZf4GOGei
-	EHL/YcqhKIbp/uAlANXskZGJzPq+TA/P3ctcqqKBd9uFHlTsGu9BdAP9HGJgAY7dlTEriiUtJqh
-	Bu/It2LRpgMilnn+V9Oyd7dlXggQFIWMmeUsgBP7FlA==
-X-Gm-Gg: Acq92OHI2nGZqdUICm/Fwx54LtqqJZszJqP5Q0cDWSudOZODbzunntvFLk5b4YaDDBG
-	pw+TkIV+e98N29Bszn/tTXz6RUJ+jPA/1jphQRNGoBSRUoPha9YRAu5yU1yRyfG0fBrCGr447pu
-	t1wGgnqXW0PbVFSSgXM8WzQ0u6rjTVrfBOs8B/sQpOMliHMqdK+mF+hbRcCu9s+bjYj3Svqe1re
-	LtvxsxpBhT3EXavq7u8rJyHIDdwW+QmN7qn9rZQsrMN/feB29z2MkT/Es6F1gmLFjBBn8wvnVy3
-	5caOeTmtehvlEeGPaplU1HN+T/joBpmb7OIFrWUM07LWtt9lvMHcQmzKMA==
-X-Received: by 2002:a17:906:4fd1:b0:bee:a39b:ab7b with SMTP id
- a640c23a62f3a-bfc78ed6c4fmr158181366b.31.1781189144237; Thu, 11 Jun 2026
- 07:45:44 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Vp5xuhIr"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65BBtUrs677336;
+	Thu, 11 Jun 2026 15:01:23 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=pp1; bh=ctq1i4SApRSGZCzF1
+	VjufqyCL6LaGmr0M2fU2G1W9M0=; b=Vp5xuhIrZqfr4KAffUusqdn8kKVUynd+d
+	55sEDQslXjfBF3v3vQKsi/rcxsvpmWhUYeAZCc0kfG1QgWYaExVqtkpgpNXDsLxx
+	TYlLtfUieE7miT6wOJG6xhawWDihtZ6NUpCJuvUv45H2JEpvPYbmxQhkntBKgBEA
+	gIaWgVDPjv3plnY2uSs7CLAioZiPvWZnaztdqeXt96BxBIgytGtM+ydQr2ZBraep
+	v8TZT3aQFx1sfY2hgICu55iyiGcUKs8h1Ubk2+aG7pYiYuMHl9pThvgz+iPoleH/
+	zr2WQ55RCS9igVCmnTNt/wiJFOfecLaa8HIGFOtuBZ+8tiT7JIqog==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4eqe8am91t-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 11 Jun 2026 15:01:23 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 65BEnetp019811;
+	Thu, 11 Jun 2026 15:01:22 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4eqe09knah-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 11 Jun 2026 15:01:22 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 65BF1GIp48628028
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 11 Jun 2026 15:01:17 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id DAF0B20040;
+	Thu, 11 Jun 2026 15:01:16 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C25692004B;
+	Thu, 11 Jun 2026 15:01:16 +0000 (GMT)
+Received: from p-imbrenda.ehn-de.ibm.com (unknown [9.224.75.30])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 11 Jun 2026 15:01:16 +0000 (GMT)
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+To: pbonzini@redhat.com
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, frankja@linux.ibm.com,
+        borntraeger@de.ibm.com
+Subject: [GIT PULL v1 1/5] KVM: s390: Silence potential warnings in _gmap_crstep_xchg_atomic()
+Date: Thu, 11 Jun 2026 17:01:12 +0200
+Message-ID: <20260611150116.218162-2-imbrenda@linux.ibm.com>
+X-Mailer: git-send-email 2.54.0
+In-Reply-To: <20260611150116.218162-1-imbrenda@linux.ibm.com>
+References: <20260611150116.218162-1-imbrenda@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260610142329.3836808-1-sumit.semwal@linaro.org> <aiqLJUrJ1dnKhsJn@FV6GYCPJ69>
-In-Reply-To: <aiqLJUrJ1dnKhsJn@FV6GYCPJ69>
-From: Sumit Semwal <sumit.semwal@linaro.org>
-Date: Thu, 11 Jun 2026 20:15:32 +0530
-X-Gm-Features: AVVi8CeA1CWJ3Tf7y-K-ZwxKVWTsZOKhQeXrR2LoMbjQ-zl-nOkzKd4bOJvB8OA
-Message-ID: <CAO_48GHEfq7wpvM_4OXcMhgdASgH9J96nhEd0QFh2Rg8aPxpfw@mail.gmail.com>
-Subject: Re: [PATCH] dma-buf: move system_cc_shared heap under separate Kconfig
-To: Jiri Pirko <jiri@resnulli.us>
-Cc: christian.koenig@amd.com, jgg@ziepe.ca, hch@infradead.org, 
-	maddy@linux.ibm.com, mpe@ellerman.id.au, npiggin@gmail.com, 
-	chleroy@kernel.org, linuxppc-dev@lists.ozlabs.org, lkp@intel.com, 
-	agordeev@linux.ibm.com, gerald.schaefer@linux.ibm.com, 
-	linux-s390@vger.kernel.org, djbw@kernel.org, thomas.lendacky@amd.com, 
-	x86@kernel.org, arnd@linaro.org, benjamin.gaignard@collabora.com, 
-	Brian.Starkey@arm.com, jstultz@google.com, tjmercier@google.com, 
-	mripard@kernel.org, afd@ti.com, linux-media@vger.kernel.org, 
-	dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org, 
-	linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: rLnPVC6Iz4pKM23HUKkaCBrIwN9F9JpR
+X-Authority-Analysis: v=2.4 cv=TdKmcxQh c=1 sm=1 tr=0 ts=6a2acdc3 cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=RzCfie-kr_QcCd8fBx8p:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
+ a=4xVTsJvn8g-7h_O1kUwA:9
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjExMDE0NyBTYWx0ZWRfX0Ko994dFfoN1
+ YGE/L1m/Pa0XkqI03YzfRNOkOssJxrduSyXppGzp+czQ92MfoQUcGBrBpCJZCTZmwqCPpa8OFo9
+ /ul8tebN6WaxhdfyPjlim6ao5cyt3zV5sDmrimTAEPEl04oRTER8hVaC5M72JYlKBAFF6Gm37Tq
+ KpfKHcCvohuZDTNTJEF10jCWtUapygSoKuWIOXIH7Zm+IIHtm2JJPrehn1UgCNILxgEBmMLx5Uy
+ qVSNEE+Wf+16K4SkZCm+L+ndUW0jH0D31xIJm07PEGeRpW0etGftY1wqD7Md5vZQWOn8cX+502h
+ qpxDwTCmqu5ipUrnAlhI4DwJQsvtyZZudc38T/uC/NsPTtFfDgO5LBI+E8Su8FyWKzhOwvcL/9J
+ YD1FrOhH9XaTwMbE4S2S2MSpCDrF0KDseYv1Tn+wXujCPthWACjLQvi4CtnkcoWQsqnWCiwRM0y
+ gglRyaj2E2d829iebEQ==
+X-Proofpoint-GUID: rLnPVC6Iz4pKM23HUKkaCBrIwN9F9JpR
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNjExMDE0NyBTYWx0ZWRfX+CHPaMpPGG+x
+ eoxlwj+5b3xhdVx1SOv+0+D2YYrOvWvat62OXkuUlkfotX3HIHKiDHCkdcq1T/4/cswbmLhFwgi
+ Uqd/cgC+jngougaSazP2atrfBg2evnU=
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
+ definitions=2026-06-11_02,2026-06-11_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ phishscore=0 malwarescore=0 clxscore=1015 impostorscore=0 adultscore=0
+ bulkscore=0 priorityscore=1501 lowpriorityscore=0 spamscore=0 suspectscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606040000 definitions=main-2606110147
 
-Hi Jiri,
+While dat_crstep_xchg_atomic() is marked as __must_check, in this
+particular case the return value should be ignored.
 
-On Thu, 11 Jun 2026 at 15:51, Jiri Pirko <jiri@resnulli.us> wrote:
->
-> Wed, Jun 10, 2026 at 04:23:29PM +0200, sumit.semwal@linaro.org wrote:
-> >From: Arnd Bergmann <arnd@arndb.de>
-> >
-> >While system heap and system_cc_shared heap share a lot of code
-> >and hence the same source file, their users have different needs.
-> >
-> >system heap users need it to be a loadable module, while
-> >system_cc_shared heap users don't.
-> >
-> >Building as a loadable module breaks system_cc_shared heap on
-> >powerpc and s390 due to un-exported set_memory_encrypted /
-> >set_memory_decrypted functions.
-> >
-> >Fix these by reorganising code to put the system_cc_shared heap
-> >under a new Kconfig symbol, which allows either building both
-> >into the kernel, or leave encryption up to the consumers of the
-> >system heap.
-> >
-> >Fixes: fd55edff8a0a ("dma-buf: heaps: system: Turn the heap into a module")
-> >Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> >Signed-off-by: Sumit Semwal <sumit.semwal@linaro.org>
-> >---
-> > drivers/dma-buf/heaps/Kconfig       |  8 ++++++++
-> > drivers/dma-buf/heaps/system_heap.c | 16 ++++++++++------
-> > 2 files changed, 18 insertions(+), 6 deletions(-)
-> >
-> >diff --git a/drivers/dma-buf/heaps/Kconfig b/drivers/dma-buf/heaps/Kconfig
-> >index e273fb18feca..a39decdcf067 100644
-> >--- a/drivers/dma-buf/heaps/Kconfig
-> >+++ b/drivers/dma-buf/heaps/Kconfig
-> >@@ -5,6 +5,14 @@ config DMABUF_HEAPS_SYSTEM
-> >         Choose this option to enable the system dmabuf heap. The system heap
-> >         is backed by pages from the buddy allocator. If in doubt, say Y.
-> >
-> >+config DMABUF_HEAPS_CC_SYSTEM
->
-> Nit: "DMABUF_HEAPS_SYSTEM_CC_SHARED" to be consistent with the heap
-> name?
->
-> With or without it:
-> Reviewed-by: Jiri Pirko <jiri@nvidia.com>
->
-Thanks for catching this; I'll fix this while pushing to
-drm-misc-next-fixes in a few minutes.
+Silence potential compiler warnings with a pointless check, and add a
+comment to explain the situation.
 
-Best,
-Sumit.
+Fixes: d1adc098ce08 ("KVM: s390: Fix _gmap_crstep_xchg_atomic()")
+CC: stable@vger.kernel.org # 7.1
+Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Message-ID: <20260611104850.110313-2-imbrenda@linux.ibm.com>
+---
+ arch/s390/kvm/gmap.h | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
+
+diff --git a/arch/s390/kvm/gmap.h b/arch/s390/kvm/gmap.h
+index 5374f21aaf8d..20881e3ce9d8 100644
+--- a/arch/s390/kvm/gmap.h
++++ b/arch/s390/kvm/gmap.h
+@@ -279,7 +279,16 @@ static inline bool __must_check _gmap_crstep_xchg_atomic(struct gmap *gmap, unio
+ 			gmap_handle_vsie_unshadow_event(gmap, gfn);
+ 		else
+ 			_gmap_handle_vsie_unshadow_event(gmap, gfn);
+-		dat_crstep_xchg_atomic(crstep, oldcrste, newcrste, gfn, gmap->asce);
++		if (!dat_crstep_xchg_atomic(crstep, oldcrste, newcrste, gfn, gmap->asce))
++			return false;
++		/*
++		 * Return false even if the swap was successful, as it only
++		 * indicates that the best effort clearing of the vsie_notif
++		 * bit was successful. The caller will have to try again
++		 * regardless, since the desired value has not been set.
++		 * This pointless check is needed to silence a potential
++		 * __must_check warning.
++		 */
+ 		return false;
+ 	}
+ 	if (!oldcrste.s.fc1.d && newcrste.s.fc1.d && !newcrste.s.fc1.s)
+-- 
+2.54.0
+
