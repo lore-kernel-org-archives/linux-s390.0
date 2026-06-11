@@ -1,123 +1,111 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 101463451D6;
-	Thu, 11 Jun 2026 05:26:01 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EFF093033FC;
+	Thu, 11 Jun 2026 05:26:47 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781155567; cv=none; b=uTIjMLs2ealykMoxo1Zifv3Z3dObDJdvuGssZhw3m/ipOHlzmg5k6VCnuU4ustG5OkOzPUfJdpfK/gOTefNFnZgqkiy30YRTiDHxM2RT7vIl9MSQRCJvDl3KsxEpZkobRXOeXtFUYcki4TPdWmBCPsr2oOPAP76wl3BVSuqwxv8=
+	t=1781155613; cv=none; b=tkGlFt7P+7cj7tJVr4VULby7/7PI4ibRyhX4MgSszn2Blrrq7pNkFjjWzkqCBT2ID2tIsK1ELfsdzGxQy1ITUBLckhWG8JFVyEgDCYvlO7igl52P1hwiQnSVNKzYPqGqOcsPhgMFwFzyb9vnfTgkLeFmhJ4Fjs8zSR2KMsjYmtU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781155567; c=relaxed/simple;
-	bh=imkPUyYTVSioyf8vEp8Zh2hmaQy0gN3sW4E9CRMe47w=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=oN4xBKSOLNNyPHTSp/owIW5AETDAVrHP22bWPFm9oSO9pTJECu/5NZNI9O11rcySHR4uOEL9nFr2p1uDtT5BtQepP09AKOJSO8WS3MdZDhybpy5hEeWEPXOUaeAQLEpGn+3cszSMrEsn4jvPQrbbxruLHBI4tP7Wfb96yvLSUA4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=G3lWXQ1e; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1781155613; c=relaxed/simple;
+	bh=ekYEWjS9N64LOzaEzqlLT+Hj9id9sJVlAKHXYtt/Rug=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=o+uvOS4ExP6m7/otl19z4wcqswNFpLaKzja1tdoacSZDVdX4S/1cxxc7mhweWXFCKHQguIbwIdtH26QrtC1cveu4Fb8//Y49cajAs261n9MxugVJU3gkb6u4Qrl+s9HfT5OcHC6vGYy1FOc3lOkq4qQJquqEKD5YTgdWXmIGvFA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DRxQjrWA; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="G3lWXQ1e"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A794D1F00893;
-	Thu, 11 Jun 2026 05:25:50 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DRxQjrWA"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D9411F00893;
+	Thu, 11 Jun 2026 05:26:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781155561;
-	bh=XDuIn3y/rCO4r9DXHWsg+1RIZVo9GqzNtV1PP4apQRs=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date;
-	b=G3lWXQ1eDa81mBrJCkA/PCQooKDKZDvbt48avgp0O6fw29Xx6sKxbhO5qZnkxZ4u9
-	 OxKbgbkMquVdngJ8SPiyWyre/tflzFPwaxG9vTOH79OGqlciuGssBF34DWyso1CHZw
-	 aDVLXDoti3JcbI9D0Oi2cQfQuhj+pJ3kbX4EYy4Xe2MEKUwpaADT61w7nEgRm3kwLM
-	 tSP+LAKWvEyh/ut0Dg4osfZsHaat6KgXBk/q1moX91KKeOfFQmsmWMabYftzxu7D6x
-	 6RhvniODTNH6y39Z5sFE58ao01nIDFW6k3pW4yaiik4r+mgNv+m7xs7Nex2pRFVN0z
-	 TxODrAxyW9DsA==
-X-Mailer: emacs 30.2 (via feedmail 11-beta-1 I)
-From: Aneesh Kumar K.V <aneesh.kumar@kernel.org>
-To: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev,
-	Robin Murphy <robin.murphy@arm.com>,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
-	Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
-	Steven Price <steven.price@arm.com>,
-	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Jiri Pirko <jiri@resnulli.us>,
-	Mostafa Saleh <smostafa@google.com>,
-	Petr Tesarik <ptesarik@suse.com>,
-	Alexey Kardashevskiy <aik@amd.com>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Xu Yilun <yilun.xu@linux.intel.com>,
-	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org,
-	Jiri Pirko <jiri@nvidia.com>,
-	Michael Kelley <mhklinux@outlook.com>
-Subject: Re: [PATCH v6 04/20] dma-pool: track decrypted atomic pools and
- select them via attrs
-In-Reply-To: <20260609143242.GK2764304@ziepe.ca>
-References: <20260604083959.1265923-1-aneesh.kumar@kernel.org>
- <20260604083959.1265923-5-aneesh.kumar@kernel.org>
- <20260609143242.GK2764304@ziepe.ca>
-Date: Thu, 11 Jun 2026 10:55:47 +0530
-Message-ID: <yq5aa4t1myw4.fsf@kernel.org>
+	s=k20260515; t=1781155607;
+	bh=TobHS9ksDe3FfyUDcXlxzxb+i1S5VgerDw+M5X2BPyA=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=DRxQjrWA1vSBFElzNAW83mA91tc2HGuF6mWu+WJ3tm1Cmbo8A6nkUkixpUl/iDFCL
+	 DO0Qz9VcdO4n2W5BJUFxXghmDkU2GPMU9xRx1RbbrWKVYSPm100pQaxFjVpFJHGgLu
+	 YwHLDdTnPFOFAGcW2U/19j9D9C/5bt9SBgwowKQkTAjjSNBl3eQ1kkUxcR6bL53OgZ
+	 h8wbVu4wKYe4P0lxgIYkjHyyumG/KPO0IAwF3o0Z3eqi+DYtw89Of2ibu0L3dfvwKI
+	 YgAJnpO3z+wOSYNTL82J7k1GNmGY9+VgufMRi6EvqrOyLWYiKvtD8oGQUHadHPEmcH
+	 CqRDBAJ5FUYJA==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 1/3] zfcp: Enhance fsf status read buffer tracing
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Nihar Panda" <niharp@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, linux-scsi@vger.kernel.org
+In-Reply-To: <20260611050550.796772-3-niharp@linux.ibm.com>
+References: <20260611050550.796772-3-niharp@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 11 Jun 2026 05:26:46 +0000
+Message-Id: <20260611052646.5D9411F00893@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain
 
-Jason Gunthorpe <jgg@ziepe.ca> writes:
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
 
-> The sashiko note does look legit though:
->
-> 	if (IS_ENABLED(CONFIG_DMA_DIRECT_REMAP) &&
-> 	    !gfpflags_allow_blocking(gfp) && !coherent) {
-> 		page = dma_alloc_from_pool(dev, PAGE_ALIGN(size), &cpu_addr,
-> 					   gfp, attrs, NULL);
-> 		if (!page)
-> 			return NULL;
->
-> I don't see anything doing the force_dma_unencrypted test along this
-> callchain..
->
-> I guess it should be done one step up in dma_alloc_attrs() instead of
-> in dma_direct_alloc()?
->
+Pre-existing issues:
+- [High] Potential out-of-bounds read and information leak due to an unvali=
+dated hardware-provided payload length causing an integer underflow.
+--
 
-I think we should do something similar to what dma_map_phys() does here,
-considering that we only support DMA direct with DMA_ATTR_CC_SHARED/DMA_ATTR_ALLOC_CC_SHARED.
+commit 2a80a7c2006e6e0fd3b5316bfecd4d7662992064
+Author: Chinmaya Kajagar <chinmayk@linux.ibm.com>
 
-@@ -637,6 +637,7 @@ void *dma_alloc_attrs(struct device *dev, size_t size, dma_addr_t *dma_handle,
- {
- 	const struct dma_map_ops *ops = get_dma_ops(dev);
- 	void *cpu_addr;
-+	bool is_cc_shared;
- 
- 	WARN_ON_ONCE(!dev->coherent_dma_mask);
- 
-@@ -657,8 +658,17 @@ void *dma_alloc_attrs(struct device *dev, size_t size, dma_addr_t *dma_handle,
- 	/* let the implementation decide on the zone to allocate from: */
- 	flag &= ~(__GFP_DMA | __GFP_DMA32 | __GFP_HIGHMEM);
- 
-+	if (force_dma_unencrypted(dev))
-+		attrs |= DMA_ATTR_ALLOC_CC_SHARED;
-+
-+	is_cc_shared = attrs & DMA_ATTR_CC_SHARED;
-+
- 	if (dma_alloc_direct(dev, ops) || arch_dma_alloc_direct(dev)) {
- 		cpu_addr = dma_direct_alloc(dev, size, dma_handle, flag, attrs);
-+	} else if (is_cc_shared) {
-+		trace_dma_alloc(dev, NULL, 0, size, DMA_BIDIRECTIONAL, flag,
-+				attrs);
-+		return NULL;
- 	} else if (use_dma_iommu(dev)) {
- 		cpu_addr = iommu_dma_alloc(dev, size, dma_handle, flag, attrs);
- 	} else if (ops->alloc) {
+zfcp: Enhance fsf status read buffer tracing
 
--aneesh
+This commit enhances the status read buffer trace records by appending the
+remaining FSF status read buffer fields to the trace structure and extracti=
+ng
+the 3-byte source ID.
+
+> diff --git a/drivers/s390/scsi/zfcp_dbf.c b/drivers/s390/scsi/zfcp_dbf.c
+> index 71f625926ae19..89b859176b8bd 100644
+> --- a/drivers/s390/scsi/zfcp_dbf.c
+> +++ b/drivers/s390/scsi/zfcp_dbf.c
+> @@ -220,6 +220,13 @@ void zfcp_dbf_hba_fsf_uss(char *tag, struct zfcp_fsf=
+_req *req)
+>  	rec->u.uss.lun =3D srb->fcp_lun;
+>  	memcpy(&rec->u.uss.queue_designator, &srb->queue_designator,
+>  	       sizeof(rec->u.uss.queue_designator));
+> +	rec->u.uss.length =3D srb->length;
+> +	rec->u.uss.res1 =3D srb->res1;
+> +	rec->u.uss.res2 =3D srb->res2;
+> +	rec->u.uss.class =3D srb->class;
+> +	rec->u.uss.res3 =3D srb->res3;
+> +	rec->u.uss.s_id =3D ntoh24(srb->s_id);
+> +	memcpy(&rec->u.uss.res4, &srb->res4, sizeof(rec->u.uss.res4));
+> =20
+>  	/* status read buffer payload length */
+>  	rec->pl_len =3D (!srb->length) ? 0 : srb->length -
+>  			offsetof(struct fsf_status_read_buffer, payload);
+
+[Severity: High]
+This isn't a bug introduced by this patch, but is there a risk of an integer
+underflow here that could cause an out-of-bounds read?
+
+In zfcp_dbf_hba_fsf_uss(), srb->length is an unsigned 32-bit integer read
+from the hardware DMA buffer without validation. If the adapter provides a
+non-zero length that is smaller than the offset of the payload (which is 64
+bytes), the subtraction will underflow.
+
+Because rec->pl_len is a 16-bit integer, the massively underflowed value ge=
+ts
+truncated. For example, a length of 32 would yield 65504. When this length =
+is
+passed to zfcp_dbf_pl_write(), it will read that many bytes from
+srb->payload.data into the trace.
+
+Since the memory backing srb is allocated as a single 4KB page, could this
+copy read tens of thousands of bytes out-of-bounds, potentially leading to a
+page fault or exposing adjacent kernel memory in the debugfs traces? It see=
+ms
+like a similar out-of-bounds read might also happen if srb->length is simply
+larger than the 4KB allocated size.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260611050550.7967=
+72-1-niharp@linux.ibm.com?part=3D1
