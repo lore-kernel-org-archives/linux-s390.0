@@ -1,198 +1,103 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 30D74313545;
-	Thu, 11 Jun 2026 04:52:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E0E735675C;
+	Thu, 11 Jun 2026 05:06:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781153526; cv=none; b=FuQOHC6m5/rkeHh47AqmQ4emVCz2tsqWzejJXQuvzdBdvpPuu76hMuJJ1avKgveWVvgG95XhCUj2LJBXrXEbhQj/zhRdNEPWoIRQZkRnkjuyIr2E1E+Dgcg9Ue/8CQ5XQoqh0nekzWZAmZ36H/Q1J+DUY6r+bE7XlHTnN4fogrw=
+	t=1781154374; cv=none; b=SfqLzclws5GcoXMAGxacECSXSr1e/Qz61ItCu5DpOIbQN3eSFTqvEiNXXA+2bUB9uaEJCoMyvam6vkKR0+VozHEO2A/9ewX/setSleUGiR/xbf4RNJGhS+6XmG2qOpv5MLtUS8hZPXVcKjJ0fujL3jCsmVHiQKl18XQCgWaeqJE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781153526; c=relaxed/simple;
-	bh=TQqRWe0+FozeEzR6uKVYnrV5UOI3yegwRRbHf1TS3FA=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=X6kfdFE6npJJXamM5xNn0aOL2oYwPLkkoY+FmfpcYSJTEmhUkUbWs+Sidfo6Xc1EEeO3HjMhF78T4R8bsy3l9r5MKj1UwsZ8px1vV5phBnPZI/VU8xVSwbzMRJ/3VcFa3w+0EwJJIAvWzCUrv/pwEeI+N9gR+a+CPgZSZw1Xe0s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Ts3BC0lk; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1781154374; c=relaxed/simple;
+	bh=zlq703AWH0pL8jns88jx/Nj7RX5XZv6W2AVOphMEHGk=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=e26uaFrvPvRcy1ZzkqE4iU4rW1K11tfJ9U1KID4RQiDQJWBkDoGoO5ljLSAUhYcbIBfFzvAMXLbjjU9l6oKzUGPJ1vvDmvl4sqhuEY6mTU49cCPF/nCy/UMCxr+JV0VNvwyTwIaOe+jiOXkraVLc3d7jilvm6PJoKBzxp8sOKIE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=BkvPH+++; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Ts3BC0lk"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E7F91F00893;
-	Thu, 11 Jun 2026 04:51:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781153524;
-	bh=wBiy+4NJTiyF3LHnq3yC4vQA0dZTq2HR/NSC6xodkWE=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date;
-	b=Ts3BC0lkCTucNM5739E2sZWz64sGR4ecSh89snHNUabM8DL3qL/i5Kq+0zSdhZxPE
-	 3IZAI7m2ZKxzRkXYvD0cOOn1kHucsWMKFDN2YQCOWL2HCAGBQJRJYdYgdhuXgQDoB0
-	 xS76QAA6BADLXCd8Uk9rx8RDBZWdltgbcZD/G/g9NCSJg3YPNIf09a1hOZb5YsaWNW
-	 cTHImEPPmMXXBur/QKqsc2TV1/RXePiFHwN1KlK7PzRnOpzDixMzwOgpz7B2Xc9BNt
-	 b2S6KKPd/v/Y8W+d40YF35LmJhBqAvMdRQd3T+uCEhgOq+dTseOnBJ3ptzf22P8UiP
-	 EzBsszicXXFaA==
-X-Mailer: emacs 30.2 (via feedmail 11-beta-1 I)
-From: Aneesh Kumar K.V <aneesh.kumar@kernel.org>
-To: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev,
-	Robin Murphy <robin.murphy@arm.com>,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
-	Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
-	Steven Price <steven.price@arm.com>,
-	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Jiri Pirko <jiri@resnulli.us>,
-	Mostafa Saleh <smostafa@google.com>,
-	Petr Tesarik <ptesarik@suse.com>,
-	Alexey Kardashevskiy <aik@amd.com>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Xu Yilun <yilun.xu@linux.intel.com>,
-	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org,
-	Jiri Pirko <jiri@nvidia.com>,
-	Michael Kelley <mhklinux@outlook.com>
-Subject: Re: [PATCH v6 04/20] dma-pool: track decrypted atomic pools and
- select them via attrs
-In-Reply-To: <20260610164153.GQ2764304@ziepe.ca>
-References: <20260604083959.1265923-1-aneesh.kumar@kernel.org>
- <20260604083959.1265923-5-aneesh.kumar@kernel.org>
- <20260609143242.GK2764304@ziepe.ca> <yq5afr2uzum9.fsf@kernel.org>
- <20260610164153.GQ2764304@ziepe.ca>
-Date: Thu, 11 Jun 2026 10:21:50 +0530
-Message-ID: <yq5acxxxn0gp.fsf@kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="BkvPH+++"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65AJucbQ4147541;
+	Thu, 11 Jun 2026 05:06:06 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=Rpq9TYLbjOcnZhuLIU3/B/VXC6nUthLa9CgTcfV3z
+	GA=; b=BkvPH+++OcVTZ81QJB21T5KUfsNyFc1db6FdY22bHJovPeBZZuSY0Tx5e
+	5pu0Dno08j4edrLbt2iireg/J2Q9qF5eOHn4SPjEBLSjlheTtJzNnJu86jQvfxd2
+	FQu0mIL6NpaqX4fTLVz3WrAHmLze+ayMqppd4EMVJIAsGo689QkDQX983bLnhot/
+	RXPXKrCij30Of5SlJCQVPJELAIItphhXoFOZxZUS1vAeDrBV+lvB+zRBjCPMuFsm
+	uX93aKov3nWqFv3g5H2mJxe2+uIHeJB123CWFa6jIe98V4ghUnzfWPVMVERXbA3k
+	wkA91hJ05ymsTSX9chozdBrhadT1A==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4eqe8c1gyj-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 11 Jun 2026 05:06:05 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 65B54dro024651;
+	Thu, 11 Jun 2026 05:06:04 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4eqe09hqck-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 11 Jun 2026 05:06:04 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 65B55wZT55640430
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 11 Jun 2026 05:05:58 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id AE4A920040;
+	Thu, 11 Jun 2026 05:05:58 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 7DFB92004D;
+	Thu, 11 Jun 2026 05:05:58 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 11 Jun 2026 05:05:58 +0000 (GMT)
+From: Nihar Panda <niharp@linux.ibm.com>
+To: "James E . J . Bottomley" <James.Bottomley@HansenPartnership.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>
+Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Nihar Panda <nihar.panda@ibm.com>
+Subject: 
+Date: Thu, 11 Jun 2026 07:05:21 +0200
+Message-ID: <20260611050550.796772-1-niharp@linux.ibm.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNjExMDA0NyBTYWx0ZWRfX8K5R7y5hdr3H
+ JZBLtpuseUoRL6lALyW+ZMYEO8ft4yUhECpkvjNyRBhYH1f3D4D5kiZUYWLdWjNfz4uz9iuILWt
+ rn9UeaZ+9hBC1Zmsj/NkDFHFjCBXgeA=
+X-Authority-Analysis: v=2.4 cv=AYCB2XXG c=1 sm=1 tr=0 ts=6a2a423d cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=uAbxVGIbfxUO_5tXvNgY:22 a=Z_OdQcjUOodbFZUBGIsA:9 a=xo5jKAKm-U-Zyk2_beg_:22
+X-Proofpoint-GUID: jK65PDlbIekitPlE_jQl04UiFCiz2V4S
+X-Proofpoint-ORIG-GUID: jK65PDlbIekitPlE_jQl04UiFCiz2V4S
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjExMDA0NyBTYWx0ZWRfXy6xFgVBSs7+W
+ c22SzJTCO73aySik6Jitu/KWTBzM0Jj1dElAuluHypccw4Lo8TTEDgCx2XT20xpSsH3emwAErX6
+ fUNHuEg0u0O/dg6mVDTN60Wx7Im3mkrFbKHH/9qCUgiWlbWzlfvJA1hkVelWnm3tEmAO5iqh8gp
+ 3zx1H/ZMRzTmORAeZ2xlbUb5enWuHF3SPJvnWDnLz4zuAZm3XjGscalgn1Lzxt7EYf9wz3Y25BG
+ HooP+Mx3NnrV44bBkxj/Z0u8hl8Kd4GcezYw/AT6FNOcjx48ZbBesi1iIC/M+K+yoFfxksff8Xs
+ APaFjZ4G5UbUDVnpNc9j9Cgzx8WYqIgioketf9yyJAXmc0uhlsBqExgedFAmi0weCm252Su8Xl0
+ H4wkNOjeQjo47umdjG3ARrmg8+rZYHkpjWcbgYta96kC11o+g1WkDLHod0nGNP8zXD1I9FXuB8I
+ D/o8meJSBH0vewJSP4Q==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
+ definitions=2026-06-11_01,2026-06-09_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ impostorscore=0 suspectscore=0 malwarescore=0 spamscore=0 phishscore=0
+ lowpriorityscore=0 bulkscore=0 adultscore=0 priorityscore=1501 clxscore=1011
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606040000 definitions=main-2606110047
 
-Jason Gunthorpe <jgg@ziepe.ca> writes:
+Subject: Request to queue zfcp enhancements for upstream v7.2 merge window
 
-> On Wed, Jun 10, 2026 at 01:37:26PM +0530, Aneesh Kumar K.V wrote:
->> Jason Gunthorpe <jgg@ziepe.ca> writes:
->> 
->> > On Thu, Jun 04, 2026 at 02:09:43PM +0530, Aneesh Kumar K.V (Arm) wrote:
->> >>  struct page *dma_alloc_from_pool(struct device *dev, size_t size,
->> >> -		void **cpu_addr, gfp_t gfp,
->> >> +		void **cpu_addr, gfp_t gfp, unsigned long attrs,
->> >>  		bool (*phys_addr_ok)(struct device *, phys_addr_t, size_t))
->> >>  {
->> >> -	struct gen_pool *pool = NULL;
->> >> +	struct dma_gen_pool *dma_pool = NULL;
->> >>  	struct page *page;
->> >>  	bool pool_found = false;
->> >>  
->> >> -	while ((pool = dma_guess_pool(pool, gfp))) {
->> >> +	while ((dma_pool = dma_guess_pool(dma_pool, gfp))) {
->> >> +
->> >> +		if (dma_pool->unencrypted != !!(attrs & DMA_ATTR_CC_SHARED))
->> >> +			continue;
->> >
->> > I don't think you should be overloading DMA_ATTR_CC_SHARED like this.
->> >
->> > 	/*
->> > 	 * DMA_ATTR_CC_SHARED is not a caller-visible dma_alloc_*()
->> > 	 * attribute. The direct allocator uses it internally after it has
->> > 	 * decided that the backing pages must be shared/decrypted, so the
->> > 	 * rest of the allocation path can consistently select DMA addresses,
->> > 	 * choose compatible pools and restore encryption on free.
->> > 	 */
->> > 	if (attrs & DMA_ATTR_CC_SHARED)
->> > 		return NULL;
->> >
->> > 	if (force_dma_unencrypted(dev)) {
->> > 		attrs |= DMA_ATTR_CC_SHARED;
->> > 		mark_mem_decrypt = true;
->> > 	}
->> >
->> > It is fine to have a bit inside the attrs that is only used by the
->> > internal logic, but it needs to have a clearer name
->> > __DMA_ATTR_REQUIRE_CC_SHARED perhaps.
->> >
->> 
->> Are you suggesting adding another attribute in addition to
->> DMA_ATTR_CC_SHARED?
->> 
->> Is the idea that __DMA_ATTR_REQUIRE_CC_SHARED would be used in the
->> allocation path to request a CC_SHARED allocation, while
->> DMA_ATTR_CC_SHARED would be used in the mapping path to describe the
->> attribute of the address?
->
-> Yeah, it is a thought at least
->
-> Maybe a comment is good enough.
->
-> I just find it hard to follow when we have this dual usage. Like the
-> code above for dma_pool->unencrypted is completely wrong if it is an
-> "attribute of an address". Easy to cut & paste that into the wrong
-> context.
->
-> Especially if you move things up higher.. having the alloc set both
-> CC_SHARED and REQUIRE_CC_SHARED or maybe ALLOC_CC_SHARED would make it
-> clearer that the alloc code lives under that callchain
->
-> Jason
->
+Hi Martin and James, we have a small zfcp enhancement that improves the zfcp trace logging. It would be great if this could be included in the v7.2 release.  
 
-If we are adding DMA_ATTR_ALLOC_SHARED, should we also allow
-dma_alloc_attrs() to take that attribute value?
-
-Does this look okay? 
-(Note: Parts of the documentation text were updated using Codex.)
-
-modified   Documentation/core-api/dma-attributes.rst
-@@ -179,3 +179,32 @@ interface when building their uAPIs, when possible.
- 
- It must never be used in an in-kernel driver that only works with
- kernel memory.
-+
-+DMA_ATTR_CC_SHARED
-+------------------
-+
-+This attribute indicates that a DMA mapping is shared, or decrypted, for
-+confidential computing guests. For normal system memory, the caller must
-+already have marked the memory decrypted with set_memory_decrypted(). CPU
-+PTEs for the mapping must use pgprot_decrypted(), and the same shared
-+semantic may be passed to a vIOMMU when it sets up the IOPTE.
-+
-+This attribute describes an existing mapping. It does not allocate shared
-+backing pages and must not be passed to dma_alloc_attrs(). For MMIO, use
-+this together with DMA_ATTR_MMIO to indicate shared MMIO. Unless
-+DMA_ATTR_MMIO is provided, the mapping requires a struct page.
-+
-+DMA_ATTR_ALLOC_CC_SHARED
-+------------------------
-+
-+This attribute indicates that a dma_alloc_attrs() allocation must use
-+shared, or decrypted, backing pages for confidential computing guests.
-+Allocation paths use this request when they select shared DMA pools,
-+decrypt newly allocated pages or restore encryption on free.
-+
-+DMA_ATTR_ALLOC_CC_SHARED differs from DMA_ATTR_CC_SHARED in that it
-+requests shared backing memory from the allocation path. DMA_ATTR_CC_SHARED
-+describes an already-shared mapping and requires the caller to have
-+prepared normal system memory before mapping it. Callers that need shared
-+memory from dma_alloc_attrs() should request DMA_ATTR_ALLOC_CC_SHARED
-+instead of DMA_ATTR_CC_SHARED.
-modified   include/linux/dma-mapping.h
-@@ -103,6 +103,13 @@
-  */
- #define DMA_ATTR_CC_SHARED	(1UL << 13)
- 
-+/*
-+ * DMA_ATTR_ALLOC_CC_SHARED: Allocates DMA memory as shared (decrypted) for
-+ * confidential computing guests. Unlike DMA_ATTR_CC_SHARED, this attribute
-+ * is used by dma_alloc_attrs() paths that create shared backing pages;
-+ * DMA_ATTR_CC_SHARED describes an already-shared mapping.
-+ */
-+#define DMA_ATTR_ALLOC_CC_SHARED	(1UL << 14)
- /*
-  * A dma_addr_t can hold any valid DMA or bus address for the platform.  It can
-  * be given to a device to use as a DMA source or target.  It is specific to a
