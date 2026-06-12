@@ -1,66 +1,67 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EDEE53596F8;
-	Fri, 12 Jun 2026 14:50:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C1279390239;
+	Fri, 12 Jun 2026 15:54:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781275823; cv=none; b=BC9d2rP42TU1XBNZUiL8WaREkzfUPVMheyMoUZEwty1EQf5xST6tTyD/N0092Y/FSScn9jLB7cneTCltwh4pIBfrgsplV1k47u64R9ux0QXCJfxCDjrKuLE1BH8JqmQ5T61KtIYzxG4/zPskG6FtMMpn5QRtd2tEv9JkcyZiaiY=
+	t=1781279655; cv=none; b=ZjiUwaBHcmlFKZb9JK7LyQ/xm7zp3ixaYgJLSA3vLO8Owgf1oN5zvsqrcUDLPlfqo7lr1oV2VJyVAdeGIqaJRyUBQd6AUMDO2wSiH1o2tVE68x9op7iqYJGmQLDw77UqtbMGb2mhRCJXl16qecSvLW2qSHhDymjlT5wphQuzPtA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781275823; c=relaxed/simple;
-	bh=4GNULYf7soNlcGRLtPUwODeu5MO6effIyaAJAufYvZw=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=o0gOUBztS3D7/9m9PuikTqD6ZSq/7X7z62/VWP7FWdbEVlWfoUe2ulAt9UwbtM1VUOxvrMWwLaDV5Tzk8xxCRwE6GIuw70lVwKArQuFD1OaBgTNctJTgWqLporjP5Crf9VmsJyR8h5Yd8o/ejj6gqQZUdOzHwdrZmzojyrurIME=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=EjtZj422; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1781279655; c=relaxed/simple;
+	bh=TYPADI2wSzNZ5rQcatAjxaP2wfMLbqWd4tER1VUC9l8=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=CIEzOsgJ9q0Bc9yUG6UbqBnr8weF2oEs9y47g1LRD2zoqhFzg5enAXqozTbcdyoqIjjgqiNe16vlbZ6xWDbAJSUzkMCE0gLeVLsYXu3wy9Z6lVafQKWMgtBe8BIdpVzfu4BXh8Ax+tIUA4UBa6PnmBCrXdKDy3eJAior5VL+f6A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=V3/xZqDg; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="EjtZj422"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65BNeN3C1742452;
-	Fri, 12 Jun 2026 14:50:19 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="V3/xZqDg"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65CF4euA4146525;
+	Fri, 12 Jun 2026 15:54:11 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=OMRe7iXTc2UBI4hEL2hLgPP0iCU9HsNxLvO9Vxb4D
-	8o=; b=EjtZj4227bqvdH8M1nnEFLNSilolcx7Jc7JwOAATBnkWwW4lrsreXLqHm
-	nTSLoa4pbJsU+lMGyviXqGTyO/MhcAgj668LpWjnFopVlfEIxYivic0oW0DlprQV
-	nHdSoGwn20Toty3wsKtovOgDI0ozJ97ueH4qxdiRlCDgrOrxQNSct1jWzm3X9X6z
-	8I5PYyigASfFi2v1sUQPfPjPtDgf0UPCHAaSu4Sqe4S79snSFkfhq5ckmBPz8X9R
-	8Lsw3SqXpsqWFxE6lblVpZJnOIjjoNUd46NjIjONrK+vpTHtNQ7/2753B7Fe7HdO
-	hGIKu0No/o/m3uu7z7JSU9xaOfOIQ==
+	:subject:to; s=pp1; bh=8cfcrF0M4Zks/sCASUrqWn7SLeFQo6Rv8BTTz6ixj
+	GU=; b=V3/xZqDg/m4qulbXQqfYo0JNKsTVurvWSIbk1svZ6etggTbBBSa91girh
+	FJYmNfbZd33MGxZIp+ZgfSvLUBNUqdGwCwTrBXLRFCBvT2bMfxZ4w7U3HS9qtnAV
+	Wj768DP2UWIRJJUGtCRKq/EDIvzOHykYswlWXLpC9QjLllc2BAeHzR95iexEsNUq
+	93US9DGOYHD5ymXgHNXfFWwxHdBaYt0mWeUVZLpvm+/r6V6ZPVBnH2v/ngffi1VF
+	P2lJsTcm33PHzyTOfy2Cl+xQJDHO0LUowQ3tFbWebmeTDHbZ88SVLPTEIUGmrCG6
+	rVHBuseCIvAQRt0FHUgXDJgABvJHw==
 Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4eqe8bs42h-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4eqe8c9t9e-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 12 Jun 2026 14:50:18 +0000 (GMT)
+	Fri, 12 Jun 2026 15:54:10 +0000 (GMT)
 Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 65CEnh0c027214;
-	Fri, 12 Jun 2026 14:50:18 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4eqe0a8a1g-1
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 65CFYjxI010140;
+	Fri, 12 Jun 2026 15:54:09 GMT
+Received: from smtprelay03.dal12v.mail.ibm.com ([172.16.1.5])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4eqe0a8h50-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 12 Jun 2026 14:50:18 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 65CEoEkR10748230
+	Fri, 12 Jun 2026 15:54:09 +0000 (GMT)
+Received: from smtpav03.dal12v.mail.ibm.com (smtpav03.dal12v.mail.ibm.com [10.241.53.102])
+	by smtprelay03.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 65CFs83P22807168
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 12 Jun 2026 14:50:14 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7159F20049;
-	Fri, 12 Jun 2026 14:50:14 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 36DD220040;
-	Fri, 12 Jun 2026 14:50:14 +0000 (GMT)
-Received: from p-imbrenda.ehn-de.ibm.com (unknown [9.224.75.30])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 12 Jun 2026 14:50:14 +0000 (GMT)
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-To: linux-kernel@vger.kernel.org
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, borntraeger@de.ibm.com,
-        frankja@linux.ibm.com, david@kernel.org, seiden@linux.ibm.com,
-        nrb@linux.ibm.com, schlameuss@linux.ibm.com, gra@linux.ibm.com,
-        hca@linux.ibm.com, gerald.schaefer@linux.ibm.com, gor@linux.ibm.com,
-        agordeev@linux.ibm.com, svens@linux.ibm.com
-Subject: [PATCH v1 1/1] s390/pgtable: Unconditionally clear _PAGE_UNUSED
-Date: Fri, 12 Jun 2026 16:50:14 +0200
-Message-ID: <20260612145014.217102-1-imbrenda@linux.ibm.com>
+	Fri, 12 Jun 2026 15:54:08 GMT
+Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4AF7A5805A;
+	Fri, 12 Jun 2026 15:54:08 +0000 (GMT)
+Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 7D08E5803F;
+	Fri, 12 Jun 2026 15:54:07 +0000 (GMT)
+Received: from 9.60.13.85 (unknown [9.60.13.85])
+	by smtpav03.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Fri, 12 Jun 2026 15:54:07 +0000 (GMT)
+From: William Bezenah <wbezenah@linux.ibm.com>
+To: linux-s390@vger.kernel.org
+Cc: cohuck@redhat.com, pasic@linux.ibm.com, farman@linux.ibm.com,
+        hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+        borntraeger@linux.ibm.com, svens@linux.ibm.com, mjrosato@linux.ibm.com,
+        vneethv@linux.ibm.com, oberpar@linux.ibm.com,
+        virtualization@lists.linux.dev, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH v1] s390/virtio_ccw: Also suppress -EINVAL on device detach
+Date: Fri, 12 Jun 2026 17:54:07 +0200
+Message-ID: <20260612155407.199218-1-wbezenah@linux.ibm.com>
 X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
@@ -70,59 +71,87 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=Xfa5Co55 c=1 sm=1 tr=0 ts=6a2c1cab cx=c_pps
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNjEyMDE0NCBTYWx0ZWRfXylMrBsZ7zizQ
+ 2u+V8hWLap3Z82z8Xaf9qwIkCf+WktsxMgBTXAzm1Aow8FiCvntHPJO5o/4xSFouYmmWx5wyVJt
+ nPsDybAs4qayPjLCELCso0+h99kM0cw=
+X-Authority-Analysis: v=2.4 cv=AYCB2XXG c=1 sm=1 tr=0 ts=6a2c2ba2 cx=c_pps
  a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
  a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8 a=mOJq8Y0DGHbhJsF8cz8A:9
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjEyMDEzNCBTYWx0ZWRfXyAaEpsgXyTmh
- rDBHEZ5wwn2lppdBNAhxsdcoLgk+gAMpyUFmFFKU0SC8eEqXq1ONuWIj5UKhaSoGmrM3CieRZRE
- QvFz2jU4uFG3/Iv9ZIivV19JoZ3yUn7gl4yGrErnIWAGkhGtRTVQ1w9tHKYv/nwWWTHth+w7egq
- 6F9laM+E5V7tXXDUC2h36SvVrylb2sHSK0lZo65p73RDd0MDb3oqcij/ls62asmj12rfZnmasL6
- zng3L2MLwskuKWEmL8PaJXtGADgkWP8n0LxDvOMTLVLjQzTq2XLeEoUrOu1t42J8FJIL6HJNZXC
- lx/4ygF9R4shF01nT34DcpKCM91J9Rumjg6GdIjcGXMTR2UJt8ma/0xDMVWgEMs8sk8Bi8X/Htc
- lo48ITi2iigtrXYiomQtz+2gZ6sNkXBVkbF7V/pmxIIP0ZFME2i71Ndv4UdJAIVuqvNDWqd/h3W
- b+mRNZpj5R2uG4luj1A==
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNjEyMDEzNCBTYWx0ZWRfX3J0SZN8/Qtda
- oZDsItUf1D+G+kfLmWO0wSNbwqGE2R+qWpmD3EEWEjUqfeefRZfoeBsCGTYeKtrdjANRxMiJKnh
- t1MwfA4nIz91YMgakCJk23LW8m/xQ4w=
-X-Proofpoint-ORIG-GUID: USSBqugVIMzo3YqHtHIvtRg9HLh9wnbE
-X-Proofpoint-GUID: USSBqugVIMzo3YqHtHIvtRg9HLh9wnbE
+ a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8 a=uYiYJ5MKk1sDHHHSvssA:9
+X-Proofpoint-GUID: RQsPodU4gnULLxzS7kl5j-qxwXuvt2Xm
+X-Proofpoint-ORIG-GUID: RQsPodU4gnULLxzS7kl5j-qxwXuvt2Xm
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjEyMDE0NCBTYWx0ZWRfXxot5xToY7tMI
+ +pNPctVX6+rT+5r0ewT+t4NMmUT467owfyB3JvzLGcwcYtsxNMIjF5Y9UyQAsV7G3Ta+iLnwLrF
+ PbjrUGJ6JKHnMx8f7fof8qFBqZuq9H538lMPa3hMdJ1wZx7rFLMcnXj9ealVfJd2GcB/LDGq8pM
+ WB+NBaGZZ76Acs3tqrz6j5aTeAqeManOJGIdv45o8c7rDZ1t+tRAi2CAFe7XS6XyTU+3ZQn9oB4
+ BWVG78zeU1fFTj9bsEIHBmAShxyb5yc1Itj8Zzu8wwuawcoVWBXjz/9WFtWy+YOHnl7/jA/9JN4
+ B8kLIV+exLCcJjWJM3ndarPEoathUKems5bJ3wK9ZUiSg7uBNq7iwlnjQ1WfOknawxSvGLrtWCT
+ v3/B4uaSGtDw9RXwfrTA4GwVI/HW4j3qZrsedSkIlD/KvwxVAazjuss3YO48NxuCJfLXmh/9n/b
+ qr0mnXwFiee3Zwxcwug==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
  definitions=2026-06-12_01,2026-06-12_03,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 spamscore=0 bulkscore=0 priorityscore=1501 lowpriorityscore=0
- impostorscore=0 suspectscore=0 clxscore=1015 phishscore=0 adultscore=0
+ impostorscore=0 suspectscore=0 malwarescore=0 spamscore=0 phishscore=0
+ lowpriorityscore=0 bulkscore=0 adultscore=0 priorityscore=1501 clxscore=1011
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606040000 definitions=main-2606120134
+ reason=mlx scancount=1 engine=8.22.0-2606040000 definitions=main-2606120144
 
-When setting ptes with set_ptes(), unconditionally clear the
-_PAGE_UNUSED flag.
+When detaching virtio devices with multiple queues, spurious and
+non-fatal error messages appear in the guest kernel log. While
+virtio-net devices have multiple queues by default, this issue can
+also be reproduced with other virtio device types (e.g., virtio-blk)
+when configured with multiple queues:
 
-The flag has only sense when the pte is being unmapped to be swapped,
-it will be set by KVM when unmapping unused pages.  Setting it in any
-other way does not make sense and can lead to guest corruption.
+[   33.820621] virtio_ccw 0.0.0001: Failed to deregister indicators (-22)
+[   33.820628] virtio_net virtio2: Error -22 while deleting queue 0
+[   33.820632] virtio_net virtio2: Error -22 while deleting queue 1
+[   33.820634] virtio_net virtio2: Error -22 while deleting queue 2
 
-Fixes: c98175b7917f ("KVM: s390: Add gmap_helper_set_unused()")
-Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Since commit 8c58a229688c ("s390/cio: Do not unregister the
+subchannel based on DNV"), subchannel behavior following a device
+detach has been updated and results in -EINVAL being propagated
+rather than -ENODEV, originating from ccw_device_start_timeout_key()
+in cio/device_ops. In the end, the virtio driver has no ability to
+react to the difference between device and subchannel states here,
+and during detach, both -ENODEV and -EINVAL indicate the device
+cannot be used and should not be treated as errors requiring
+attention. Update error handling in virtio_ccw_del_vq() and
+virtio_ccw_drop_indicator() to suppress -EINVAL in addition to
+-ENODEV.
+
+Fixes: 8c58a229688c ("s390/cio: Do not unregister the subchannel based on DNV")
+Signed-off-by: William Bezenah <wbezenah@linux.ibm.com>
 ---
- arch/s390/include/asm/pgtable.h | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/s390/virtio/virtio_ccw.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
-index 2c6cee8241e0..9174aa02b699 100644
---- a/arch/s390/include/asm/pgtable.h
-+++ b/arch/s390/include/asm/pgtable.h
-@@ -1332,8 +1332,7 @@ pgprot_t pgprot_writecombine(pgprot_t prot);
- static inline void set_ptes(struct mm_struct *mm, unsigned long addr,
- 			      pte_t *ptep, pte_t entry, unsigned int nr)
- {
--	if (pte_present(entry))
--		entry = clear_pte_bit(entry, __pgprot(_PAGE_UNUSED));
-+	entry = clear_pte_bit(entry, __pgprot(_PAGE_UNUSED));
- 	page_table_check_ptes_set(mm, addr, ptep, entry, nr);
- 	for (;;) {
- 		set_pte(ptep, entry);
+diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
+index bab6cad3fd5c..02fd8bf7e469 100644
+--- a/drivers/s390/virtio/virtio_ccw.c
++++ b/drivers/s390/virtio/virtio_ccw.c
+@@ -429,7 +429,7 @@ static void virtio_ccw_drop_indicator(struct virtio_ccw_device *vcdev,
+ 			    vcdev->is_thinint ?
+ 			    VIRTIO_CCW_DOING_SET_IND_ADAPTER :
+ 			    VIRTIO_CCW_DOING_SET_IND);
+-	if (ret && (ret != -ENODEV))
++	if (ret && (ret != -ENODEV) && (ret != -EINVAL))
+ 		dev_info(&vcdev->cdev->dev,
+ 			 "Failed to deregister indicators (%d)\n", ret);
+ 	else if (vcdev->is_thinint)
+@@ -515,10 +515,10 @@ static void virtio_ccw_del_vq(struct virtqueue *vq, struct ccw1 *ccw)
+ 	ret = ccw_io_helper(vcdev, ccw,
+ 			    VIRTIO_CCW_DOING_SET_VQ | index);
+ 	/*
+-	 * -ENODEV isn't considered an error: The device is gone anyway.
++	 * -ENODEV and -EINVAL aren't considered errors: The device is gone anyway.
+ 	 * This may happen on device detach.
+ 	 */
+-	if (ret && (ret != -ENODEV))
++	if (ret && (ret != -ENODEV) && (ret != -EINVAL))
+ 		dev_warn(&vq->vdev->dev, "Error %d while deleting queue %d\n",
+ 			 ret, index);
+ 
 -- 
 2.54.0
 
