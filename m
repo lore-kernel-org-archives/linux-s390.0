@@ -1,160 +1,147 @@
-Received: from mail-pj1-f51.google.com (mail-pj1-f51.google.com [209.85.216.51])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B9E0F23AE9B
-	for <linux-s390@vger.kernel.org>; Sun, 14 Jun 2026 12:09:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6FC501E1C11;
+	Sun, 14 Jun 2026 22:05:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781438994; cv=none; b=gXL0xizh5aZEQLjHs4Ixtdui30YcpnPSpazHK/HHd98whXspM0dNNqy6u6CwsWUuB38gm9Q/TezdrXG0B4Vt9FDtaczYnIFNZ3lrC54lo/6Kdibk/8Wx5RIGuCCI1jEDvLDcKCg/8QCug1lB5U8qSzNIEZy3tmd0o9MyNLGFk/s=
+	t=1781474712; cv=none; b=oS1U0tjs6RgoMVqaMWSgDAJHpnrFYHfQCUgg/XwaARuteRFyfwcjgg2wb58Ms50v02RQMhuvDcXPC8NhiWxMIZTnDgQP4j6EKwS4nAzqEyl8G/3SQ2d66eqxG3bYtjUJmZmKCf8UBlC3gkfTxoBHVIN+VPwGWLYvz4Ot3IWruGA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781438994; c=relaxed/simple;
-	bh=ENl8qycC4hOgV9OJcdWSk1WCzOza6yzUWtNtzRZMFY4=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=J2KC5MuRTGgoV5zyMF77/LdHXTI9rVMLcGoOOURrUmaqzLmkOG10KXunWNTxcJcix7e7WuhAAsKiQ7ZwOVSFxKtYlftcFSbohCtvL31Q+bR//syVXtYbRriCcIOA0ORfRfUnHSdpmNBngC/WeVoI5zdWhDHbWvlNRtkwqIHkbho=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=iAicbphZ; arc=none smtp.client-ip=209.85.216.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1781474712; c=relaxed/simple;
+	bh=VBm9DnDHSTb4bfUmhcKZ1bi5Hx5Q5HFHlWxoQDzdEF0=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=ExUeimIxj+wzQk4QYGcRI+vfaVWYMv7RZvdFFM3YErEyYwjkfU7PQ01NCBwzfgnz3kzSi2SoSL/YJSwMeXioKAGeZySaCe5ZJtRIgVmSv2lRD9oCTnUffuuaryYwhV+05J0t3GmEsierrw/szarQtOSTY3VBZYtY6CqHhiayidU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=UDGJl78Z; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="iAicbphZ"
-Received: by mail-pj1-f51.google.com with SMTP id 98e67ed59e1d1-36ba285e98bso2444908a91.2
-        for <linux-s390@vger.kernel.org>; Sun, 14 Jun 2026 05:09:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781438992; x=1782043792; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=IBz8xwezxj1aIuO0db8vVWpBd4FeH4XlQcs+DSABQC8=;
-        b=iAicbphZEk3Mmjed3KjMcjmUGU1Uv6F8ceO9iTIurE7KFL6E1n5BQlBw5laN71ubJz
-         VGQeANWZFOFIs3PAdkOH47kqzFubfa0idjt6IdKOt4ubP2I8CabGL4UiiZcApfx1x1QS
-         1D0c3XLsN+cUbRWYzydlvDeHNl8yt8s5fY9tnixWqZglCyRveVcHZ8o2youENAEBbTB0
-         Zp3o+H9Rib3vQ61aLhXAhtoS3XSKxqKm2PWP3pJs8Gk/AwYacvpFf8eBQzF2gvCAsbZO
-         0JVyEXc2mey14jLnRDHL98gBJnHNOTKiBMyiL0GTkVYUpjvZJj4Qkemgs+0R/3Xm51U3
-         cJPw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781438992; x=1782043792;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=IBz8xwezxj1aIuO0db8vVWpBd4FeH4XlQcs+DSABQC8=;
-        b=hYudltb/PS2sQVLpfANwCh0A5HMYg9a+mBa5SnJf8mKxMl2qHeaOiHaj4eZ2noLbQb
-         O7C2tCC3AzH7SOeRqlQ2A7s0Fi1Y9gn/FeC5U1nuuz92xIr4UgoJPBMMnPOZoxYsiORY
-         SuyvKnf9M+XbziYIN/tIiWSeJpOFUmYHOBM2uijYM/5Yp1zEHeKJvwdpvmJYKSeStmJK
-         SyfIAzZKDChPWJNs183Ge6eS5Nnak5K6pV+AydkDfAJf5IDfCkkIf3jxzNKes4RL+hob
-         ZfUcZM0+vt3XmAk47FzRhLfMdWsRke2q3wwF2rE5drdxc3soaoLaUYUH007lTFBZnkz8
-         MBiw==
-X-Forwarded-Encrypted: i=1; AFNElJ/0XQwrYJhW4ltJHewfv1vyw6evTclXgC55ZLtX7Wz7JcB6R08jbXvaKtr6kdvPNJAmS5+N6kTOQ52p@vger.kernel.org
-X-Gm-Message-State: AOJu0YzlHmbIBNK31OV12Gcxbq+EN6RZxMCFpEQlE2KmsIZN6HTQ95dj
-	bVGadX0184OZihWt8Gw5jyaTqaEduFtX0QJHOWqNxqcBv44vb19w1tT9
-X-Gm-Gg: Acq92OGZejXwOisNE50KcZtDl+i8WxaPeUNLS9xpJG8Qp+jHbkjHEtM+DgbU8Ptd1Kq
-	FFcjPwPwNwnEbMHfni1Diof8AxWn43QFzKWNsqAa1x07kf+o2pAirkZJQu5C4Hib1zzJcp9DkQm
-	nYOeqH8NFLmQKNMc3FPiRUkMSscXCN+loRzCeX6saitu4BOviDU5is9EUgbfn8BH7xTkPV5j8Xn
-	HDW8APpwQ0+fhqZbp7AISfchstW48tS3ifHdaGLNcGp6P2Ik8qTgPiGUhH/0tNBHFqdsoNejHKJ
-	QUSxSWW6qJqvbkXeYLX6oHiYtKfSe1vQs9EKxrF/Gbgw+geAYxAkaxawylv2yzLR1dTLoNiy3Q3
-	YWVZO3YrVqWEVdWa8d4+Wc3domk9/RIx0M/wyVJqpHABlgnzr2bb5PUVqy9G3b2h9mKFdO50Dta
-	YdhfSdFKRXFNCaBzkK842uIUMQYuFak1R2P1eAOUWOEvyQzoFfi5pO0LU0LTKIpSgBQpYyXy2s
-X-Received: by 2002:a17:90b:2884:b0:36d:635a:ac1b with SMTP id 98e67ed59e1d1-37a03ccdeadmr11438677a91.22.1781438992123;
-        Sun, 14 Jun 2026 05:09:52 -0700 (PDT)
-Received: from cps-manycore-1.. ([147.46.174.222])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-37a20dbc386sm7260143a91.11.2026.06.14.05.09.46
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 14 Jun 2026 05:09:51 -0700 (PDT)
-From: Sechang Lim <rhkrqnwk98@gmail.com>
-To: "D . Wythe" <alibuda@linux.alibaba.com>,
-	Dust Li <dust.li@linux.alibaba.com>,
-	Sidraya Jayagond <sidraya@linux.ibm.com>,
-	Wenjia Zhang <wenjia@linux.ibm.com>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	"David S . Miller" <davem@davemloft.net>
-Cc: Mahanta Jambigi <mjambigi@linux.ibm.com>,
-	Tony Lu <tonylu@linux.alibaba.com>,
-	Wen Gu <guwen@linux.alibaba.com>,
-	Simon Horman <horms@kernel.org>,
-	Ursula Braun <ubraun@linux.ibm.com>,
-	Karsten Graul <kgraul@linux.ibm.com>,
-	Guvenc Gulce <guvenc@linux.ibm.com>,
-	netdev@vger.kernel.org,
-	linux-rdma@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	bpf@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH net] net/smc: fix out-of-bounds read in smc_clcsock_data_ready()
-Date: Sun, 14 Jun 2026 12:09:30 +0000
-Message-ID: <20260614120931.4041687-1-rhkrqnwk98@gmail.com>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="UDGJl78Z"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65ELKCNM458433;
+	Sun, 14 Jun 2026 22:05:08 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=EYuXAF
+	bo8+BBsKwXs9oxT+D/EgFTk0yvLKlZxnhUsY4=; b=UDGJl78Z137a53UlE9Vv7n
+	P2Pn9RWyeTqWOVtk6Lww3N6B9tN9R2mk2BKM3va3t1YRQ+mIVJWp5GIzVCQ/H7kf
+	3/3MIzLJOJ0GYB7YSH7GenacWi1pnzd7cRCdkafNOsocsQ/0/83CQvMODhrJaAKP
+	nGO+uDZbE9SSK/f9LEep46IjGun9srFfkhpcvqQhZVt76HFD9DtUKAmSUnRxsjYo
+	tV1zAFp/AAAtF/eJtYtvNdD9nkLblTGdrY0Yi742Mx7oRI4wV0HaBMeLs+w+QNmj
+	2ycTZbDhw7wBgbBpgw3sWRawKTle8KEUCnxr+DExoHwBvXdnOu0Q595/kvruHfmA
+	==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4es1efwet4-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Sun, 14 Jun 2026 22:05:08 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 65EM4ieQ003359;
+	Sun, 14 Jun 2026 22:05:07 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4eskrg3qam-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Sun, 14 Jun 2026 22:05:07 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 65EM53Du43516274
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Sun, 14 Jun 2026 22:05:03 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B903B2005A;
+	Sun, 14 Jun 2026 22:05:03 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 16ECD2004E;
+	Sun, 14 Jun 2026 22:05:03 +0000 (GMT)
+Received: from li-ce58cfcc-320b-11b2-a85c-85e19b5285e0 (unknown [9.111.26.108])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with SMTP;
+	Sun, 14 Jun 2026 22:05:02 +0000 (GMT)
+Date: Mon, 15 Jun 2026 00:05:01 +0200
+From: Halil Pasic <pasic@linux.ibm.com>
+To: sashiko-bot@kernel.org
+Cc: sashiko-reviews@lists.linux.dev,
+        "William Bezenah"
+ <wbezenah@linux.ibm.com>,
+        "Alexander Gordeev" <agordeev@linux.ibm.com>,
+        "Vasily Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org,
+        "Heiko
+ Carstens" <hca@linux.ibm.com>, kvm@vger.kernel.org,
+        Halil Pasic
+ <pasic@linux.ibm.com>
+Subject: Re: [PATCH v1] s390/virtio_ccw: Also suppress -EINVAL on device
+ detach
+Message-ID: <20260615000501.627610c9.pasic@linux.ibm.com>
+In-Reply-To: <20260612160511.1B5101F00A3D@smtp.kernel.org>
+References: <20260612155407.199218-1-wbezenah@linux.ibm.com>
+	<20260612160511.1B5101F00A3D@smtp.kernel.org>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNjE0MDIzMiBTYWx0ZWRfXw7ockxRxEApK
+ lrej/XZYX/qN6t3ThF/sVhH9XqV0FzdKqFL0UOYEfx5RjmtlM9dP3mFncMBMY5uTELeRhff4dUw
+ 4H4fzS52/NWMiElrlG0yl+uhrMP0CSM=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjE0MDIzMiBTYWx0ZWRfX5wkVrEkYYvjf
+ d7fBeLcm9+JhiGEKqChGXuQohe9Swc8szunCqrzfDbnO37WllyRAAtn8vn+R4EuRwDFRnoi9oPD
+ ToRHMgkBaqns1T2j8vrTUzmC1j68PLSAdGaMefB0u6Zb2StW9rcNiALlfWSP/vLnN+8ZJ/BiH1w
+ IMG2fwQfy7uJTgc0+9M7eR01ozoqzJ7oYOzcxlVk2J54qZ5ZVoo0sMvmm88o2658gbT1kl2bMnL
+ 848TJDRd75fvzdAu1eWe1fENQ+mn0SmkYdCVkhiw6twKTzpzCkb51muY001pS0NqneBOVgC6qUD
+ vveEz0/sChL3v8zWkBqA05GsvzizS9IJnJgFyEoQdL2Hy/Sl1pWgn26g+teNt1TxsHFuQGMXrBv
+ V9qyntFEqVWQ5BQXbOPzkWP0w84I9/p+IVZMvOki79rg2ATSJ9kRxfiaKMT6Bm+lu9LINDRafmE
+ tIwGmi3ZilLqcysaUyA==
+X-Proofpoint-GUID: ZN4yvgCE5jLeATZZgp5b7StzIW8Gu7gB
+X-Authority-Analysis: v=2.4 cv=NuDhtcdJ c=1 sm=1 tr=0 ts=6a2f2594 cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+ a=kj9zAlcOel0A:10 a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VwQbUJbxAAAA:8
+ a=VuOb_12H9V4q57O5eRsA:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-ORIG-GUID: ZN4yvgCE5jLeATZZgp5b7StzIW8Gu7gB
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
+ definitions=2026-06-14_05,2026-06-12_03,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ spamscore=0 adultscore=0 suspectscore=0 impostorscore=0 clxscore=1011
+ phishscore=0 bulkscore=0 malwarescore=0 priorityscore=1501 lowpriorityscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606040000 definitions=main-2606140232
 
-smc_clcsock_data_ready() is installed on the listen socket and reads its
-sk_user_data as an smc_sock. A passive-open child inherits this callback,
-but sk_clone_lock() clears the child's sk_user_data because it is tagged
-SK_USER_DATA_NOCOPY. smc_tcp_syn_recv_sock() restores the child's af_ops,
-but the inherited sk_data_ready() is left in place until accept.
+On Fri, 12 Jun 2026 16:05:10 +0000
+sashiko-bot@kernel.org wrote:
 
-In that window the child is established. A cgroup sock_ops program can run
-bpf_sock_hash_update() on it from tcp_init_transfer(); sk_psock_init()
-stores a sk_psock in the NULL sk_user_data. The inherited callback then
-reads sk_user_data via smc_clcsock_user_data(), which masks only
-SK_USER_DATA_NOCOPY, mistakes the sk_psock for an smc_sock, and reads a
-callback pointer past the end of the sk_psock:
+> [Severity: Critical]
+> This is a pre-existing issue, but does this if/else structure create a
+> use-after-free risk during virtqueue deletion?
+> 
+> If ccw_io_helper() fails with an error other than -ENODEV or -EINVAL
+> (for example, -EIO), the first branch executes and logs the warning, but
+> the 'else if' branch is entirely skipped.
+> 
+> This means virtio_ccw_drop_indicators() is never called, failing to clear
+> the virtqueue pointers in the shared airq_info->aiv array.
+> 
+> Because virtio_ccw_del_vqs() subsequently proceeds to free these virtqueues
+> via vring_del_virtqueue(), the uncleared pointers in the shared airq_info
+> will point to freed memory.
+> 
+> If an adapter interrupt arrives later for this leaked bit, could
+> virtio_airq_handler() retrieve the dangling pointer and trigger a
+> use-after-free by calling vring_interrupt() on the freed queue?
 
-  BUG: KASAN: slab-out-of-bounds in smc_clcsock_data_ready+0x84/0x200 net/smc/af_smc.c:2637
-  Read of size 8 at addr ffff8880013b8674 by task syz.6.12484/67930
-   <IRQ>
-   smc_clcsock_data_ready+0x84/0x200 net/smc/af_smc.c:2637
-   tcp_urg+0x24d/0x360 net/ipv4/tcp_input.c:6264
-   tcp_rcv_state_process+0x280d/0x4940 net/ipv4/tcp_input.c:7336
-   tcp_child_process+0x371/0xa50 net/ipv4/tcp_minisocks.c:1002
-   tcp_v4_rcv+0x1eaa/0x2a00 net/ipv4/tcp_ipv4.c:2186
-   ip_protocol_deliver_rcu+0x226/0x420 net/ipv4/ip_input.c:207
-   ip_local_deliver_finish+0x35a/0x5f0 net/ipv4/ip_input.c:241
-   __netif_receive_skb_one_core+0x1e5/0x210 net/core/dev.c:6216
-   process_backlog+0x631/0x1470 net/core/dev.c:6682
-   __napi_poll+0xb3/0x320 net/core/dev.c:7749
-   net_rx_action+0x4fa/0xcb0 net/core/dev.c:7969
-   handle_softirqs+0x236/0x800 kernel/softirq.c:622
-   </IRQ>
+Looks like this could be more robust against scenarios where we fail
+to execute the channel program that is supposed to deregister the
+indicators from the device.
 
-  Allocated by task 67930:
-   sk_psock_init+0x142/0x740 net/core/skmsg.c:766
-   sock_map_link+0x646/0xdf0 net/core/sock_map.c:279
-   sock_hash_update_common+0xd3/0x990 net/core/sock_map.c:1010
-   bpf_sock_hash_update+0x114/0x170 net/core/sock_map.c:1229
-   __cgroup_bpf_run_filter_sock_ops+0x74/0xa0 kernel/bpf/cgroup.c:1727
-   tcp_init_transfer+0x1085/0x1100 net/ipv4/tcp_input.c:6693
-   tcp_rcv_state_process+0x241e/0x4940 net/ipv4/tcp_input.c:7231
-   tcp_child_process+0x371/0xa50 net/ipv4/tcp_minisocks.c:1002
+The key question here is, at what point, can we consider adpter
+interruption and event notification quiesced. I will have to do some
+reading on that, I'm afraid. 
 
-Restore the inherited sk_data_ready() in smc_tcp_syn_recv_sock(), where the
-child's sk_user_data is already cleared, rather than only at accept.
+To me, it looks like just setting the virtqueue pointers in
+airq_info->aiv would not do the trick either, because I don't see
+a corresponding null pointer check.
 
-Fixes: a60a2b1e0af1 ("net/smc: reduce active tcp_listen workers")
-Signed-off-by: Sechang Lim <rhkrqnwk98@gmail.com>
----
- net/smc/af_smc.c | 6 ++++++
- 1 file changed, 6 insertions(+)
-
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index b5db69073e20..152971e8ad17 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -156,6 +156,12 @@ static struct sock *smc_tcp_syn_recv_sock(const struct sock *sk,
- 	if (child) {
- 		rcu_assign_sk_user_data(child, NULL);
- 
-+		/*
-+		 * the child inherited the listen-specific sk_data_ready();
-+		 * restore it here, as sk_user_data may be reused before accept
-+		 */
-+		child->sk_data_ready = smc->clcsk_data_ready;
-+
- 		/* v4-mapped sockets don't inherit parent ops. Don't restore. */
- 		if (inet_csk(child)->icsk_af_ops == inet_csk(sk)->icsk_af_ops)
- 			inet_csk(child)->icsk_af_ops = smc->ori_af_ops;
--- 
-2.43.0
-
+Regards,
+Halil
