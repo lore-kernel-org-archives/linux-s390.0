@@ -1,76 +1,72 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6FC501E1C11;
-	Sun, 14 Jun 2026 22:05:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9CF8D33CEA5;
+	Sun, 14 Jun 2026 22:23:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781474712; cv=none; b=oS1U0tjs6RgoMVqaMWSgDAJHpnrFYHfQCUgg/XwaARuteRFyfwcjgg2wb58Ms50v02RQMhuvDcXPC8NhiWxMIZTnDgQP4j6EKwS4nAzqEyl8G/3SQ2d66eqxG3bYtjUJmZmKCf8UBlC3gkfTxoBHVIN+VPwGWLYvz4Ot3IWruGA=
+	t=1781475801; cv=none; b=BDCJzQgngN7Nfp9JVw3m12L3o9C/wrg0c7yhcDuErm7ZvGwH5WtqBesbs/F/Ff9LUj40p+7d7dYn6UzA6keHnRWZzhUvuY6yoMnYm2A7sdw9gDsYbGIglzgioaQ83MNee52fssg5fcKRhIq8V/iovKjDtrlKh2f0zmtJoD8Ppc8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781474712; c=relaxed/simple;
-	bh=VBm9DnDHSTb4bfUmhcKZ1bi5Hx5Q5HFHlWxoQDzdEF0=;
+	s=arc-20240116; t=1781475801; c=relaxed/simple;
+	bh=1aBWUx4L/o7ljcU7j2WP15Mknm20m9APEp3SipKIOrg=;
 	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=ExUeimIxj+wzQk4QYGcRI+vfaVWYMv7RZvdFFM3YErEyYwjkfU7PQ01NCBwzfgnz3kzSi2SoSL/YJSwMeXioKAGeZySaCe5ZJtRIgVmSv2lRD9oCTnUffuuaryYwhV+05J0t3GmEsierrw/szarQtOSTY3VBZYtY6CqHhiayidU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=UDGJl78Z; arc=none smtp.client-ip=148.163.158.5
+	 MIME-Version:Content-Type; b=i4S4ra/XeBPM1ykiaipctWSGWAJ9HaVU+cN3OslvK8PZilwLyUZ0Mfmi32NL9gXqfvMvl5BTi127oi24BITNyAKR4G6EyPCSAn05zjUo2gfgaTwfUJL74NQcQSh7xz42F65qcl191N3swAK//K5lrGKAB6z1to8ioZe3H7QuQ/A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=qEsQcGlR; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="UDGJl78Z"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65ELKCNM458433;
-	Sun, 14 Jun 2026 22:05:08 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="qEsQcGlR"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65ELISpw449574;
+	Sun, 14 Jun 2026 22:23:17 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=EYuXAF
-	bo8+BBsKwXs9oxT+D/EgFTk0yvLKlZxnhUsY4=; b=UDGJl78Z137a53UlE9Vv7n
-	P2Pn9RWyeTqWOVtk6Lww3N6B9tN9R2mk2BKM3va3t1YRQ+mIVJWp5GIzVCQ/H7kf
-	3/3MIzLJOJ0GYB7YSH7GenacWi1pnzd7cRCdkafNOsocsQ/0/83CQvMODhrJaAKP
-	nGO+uDZbE9SSK/f9LEep46IjGun9srFfkhpcvqQhZVt76HFD9DtUKAmSUnRxsjYo
-	tV1zAFp/AAAtF/eJtYtvNdD9nkLblTGdrY0Yi742Mx7oRI4wV0HaBMeLs+w+QNmj
-	2ycTZbDhw7wBgbBpgw3sWRawKTle8KEUCnxr+DExoHwBvXdnOu0Q595/kvruHfmA
+	:message-id:mime-version:references:subject:to; s=pp1; bh=ATaeA6
+	DaGzSwKN1SckKkty4l46yl3n1YxiAWRAmMwtk=; b=qEsQcGlR+yFAcRimuvc0nf
+	gJd7dwCL08kPVzcqWUIKhkMOw0V8+phh4Qanh97oM75v5cuVplLF7opc0+1k1iTG
+	nADoJFpl6BqTH3ODFKQp1s4YhOkYuqIHm165S20dL9qGFHRLRgvVakpllOS92Bh/
+	LpELET1C8hGTrd59fP7nxYyOQ4GZYLz7KBF7pemU74eB0BX0HFcoYiv8yMXoWGkb
+	GczIjHanSIeWed1vJXlgX1+lVdANctABOv+TTUncp1su4JZcdDQmEMs0oOhiaUvR
+	JRLoysg76HP27H8M8CE9+VrDxD3WSzAaBHgCxgQAr7Q1/xmUSxilM+1JjOTvnjrw
 	==
 Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4es1efwet4-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4es1h7x0f3-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Sun, 14 Jun 2026 22:05:08 +0000 (GMT)
+	Sun, 14 Jun 2026 22:23:16 +0000 (GMT)
 Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 65EM4ieQ003359;
-	Sun, 14 Jun 2026 22:05:07 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4eskrg3qam-1
+	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 65EMJZEn017794;
+	Sun, 14 Jun 2026 22:23:15 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4eskrg3ruc-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Sun, 14 Jun 2026 22:05:07 +0000 (GMT)
+	Sun, 14 Jun 2026 22:23:15 +0000 (GMT)
 Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 65EM53Du43516274
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 65EMNCXM61210880
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Sun, 14 Jun 2026 22:05:03 GMT
+	Sun, 14 Jun 2026 22:23:12 GMT
 Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B903B2005A;
-	Sun, 14 Jun 2026 22:05:03 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 13F3D20043;
+	Sun, 14 Jun 2026 22:23:12 +0000 (GMT)
 Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 16ECD2004E;
-	Sun, 14 Jun 2026 22:05:03 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 0FD4D20040;
+	Sun, 14 Jun 2026 22:23:11 +0000 (GMT)
 Received: from li-ce58cfcc-320b-11b2-a85c-85e19b5285e0 (unknown [9.111.26.108])
 	by smtpav02.fra02v.mail.ibm.com (Postfix) with SMTP;
-	Sun, 14 Jun 2026 22:05:02 +0000 (GMT)
-Date: Mon, 15 Jun 2026 00:05:01 +0200
+	Sun, 14 Jun 2026 22:23:10 +0000 (GMT)
+Date: Mon, 15 Jun 2026 00:23:09 +0200
 From: Halil Pasic <pasic@linux.ibm.com>
-To: sashiko-bot@kernel.org
-Cc: sashiko-reviews@lists.linux.dev,
-        "William Bezenah"
- <wbezenah@linux.ibm.com>,
-        "Alexander Gordeev" <agordeev@linux.ibm.com>,
-        "Vasily Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org,
-        "Heiko
- Carstens" <hca@linux.ibm.com>, kvm@vger.kernel.org,
-        Halil Pasic
- <pasic@linux.ibm.com>
+To: William Bezenah <wbezenah@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, cohuck@redhat.com, farman@linux.ibm.com,
+        hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+        borntraeger@linux.ibm.com, svens@linux.ibm.com, mjrosato@linux.ibm.com,
+        vneethv@linux.ibm.com, oberpar@linux.ibm.com,
+        virtualization@lists.linux.dev, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>
 Subject: Re: [PATCH v1] s390/virtio_ccw: Also suppress -EINVAL on device
  detach
-Message-ID: <20260615000501.627610c9.pasic@linux.ibm.com>
-In-Reply-To: <20260612160511.1B5101F00A3D@smtp.kernel.org>
+Message-ID: <20260615002309.052e0614.pasic@linux.ibm.com>
+In-Reply-To: <20260612155407.199218-1-wbezenah@linux.ibm.com>
 References: <20260612155407.199218-1-wbezenah@linux.ibm.com>
-	<20260612160511.1B5101F00A3D@smtp.kernel.org>
 Organization: IBM
 X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 Precedence: bulk
@@ -82,66 +78,63 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNjE0MDIzMiBTYWx0ZWRfXw7ockxRxEApK
- lrej/XZYX/qN6t3ThF/sVhH9XqV0FzdKqFL0UOYEfx5RjmtlM9dP3mFncMBMY5uTELeRhff4dUw
- 4H4fzS52/NWMiElrlG0yl+uhrMP0CSM=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjE0MDIzMiBTYWx0ZWRfX5wkVrEkYYvjf
- d7fBeLcm9+JhiGEKqChGXuQohe9Swc8szunCqrzfDbnO37WllyRAAtn8vn+R4EuRwDFRnoi9oPD
- ToRHMgkBaqns1T2j8vrTUzmC1j68PLSAdGaMefB0u6Zb2StW9rcNiALlfWSP/vLnN+8ZJ/BiH1w
- IMG2fwQfy7uJTgc0+9M7eR01ozoqzJ7oYOzcxlVk2J54qZ5ZVoo0sMvmm88o2658gbT1kl2bMnL
- 848TJDRd75fvzdAu1eWe1fENQ+mn0SmkYdCVkhiw6twKTzpzCkb51muY001pS0NqneBOVgC6qUD
- vveEz0/sChL3v8zWkBqA05GsvzizS9IJnJgFyEoQdL2Hy/Sl1pWgn26g+teNt1TxsHFuQGMXrBv
- V9qyntFEqVWQ5BQXbOPzkWP0w84I9/p+IVZMvOki79rg2ATSJ9kRxfiaKMT6Bm+lu9LINDRafmE
- tIwGmi3ZilLqcysaUyA==
-X-Proofpoint-GUID: ZN4yvgCE5jLeATZZgp5b7StzIW8Gu7gB
-X-Authority-Analysis: v=2.4 cv=NuDhtcdJ c=1 sm=1 tr=0 ts=6a2f2594 cx=c_pps
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNjE0MDIzNyBTYWx0ZWRfX6TVi57UkFMQc
+ KBOKm60tR0i6hxs+YW6vcdv5XAiJmWPf1jyjZ4snhmUPNxhd14L2jK34v6FAXMSGwF1EI53x/j9
+ z61GUXwKfmOJ+A92f3YIzvJoQbGRXks=
+X-Proofpoint-ORIG-GUID: xLc9ZGdJBNDdQsnwXVC9u7ExuU0fd0ub
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjE0MDIzNyBTYWx0ZWRfX6gOVlN+jbc3h
+ tyJElbOZMed3VFZ2yOX8hogFn9WoxLEFw4nxcXCAeqzK+7CWXAE983A9memtYPM5Qux5l10h7ul
+ hMHK3Ap7SvgvBvHf6AOi/Ez4JIlyVryfZd4ekNCm6tzJpEo0msaq6apc8y5kKH0sQsBRqlhx8BX
+ E16QER05I6TwiDofixmfT0XdBWi6HPk9tlfKw40l728HxvJGlRR7iSeNDDdPEs707mhEG9cc8Z5
+ oElQ0+uwahuCfm8bwkPYAOYai6gm5tNkFDUBmuNhG3ZsDSLjKUHz5c8k7R4JHHCF5JwKJ/9rvZD
+ AfCnreG56yPE9WNHa8NEPWK1mWHEx86ppN8FVnW4DTrZwI1IQF7vINSA1IbOkXsAnhEA5IpcLwh
+ qrDBs1eKKKf9DsDQZ8nat84bDOU4v4zgia9cHCbT7apmPrv5JRx2ZynTlcw3a5s9T0tb/ceb730
+ jm/apoluBGcJX85zHlQ==
+X-Authority-Analysis: v=2.4 cv=U9uiy+ru c=1 sm=1 tr=0 ts=6a2f29d4 cx=c_pps
  a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
  a=kj9zAlcOel0A:10 a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VwQbUJbxAAAA:8
- a=VuOb_12H9V4q57O5eRsA:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-ORIG-GUID: ZN4yvgCE5jLeATZZgp5b7StzIW8Gu7gB
+ a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8
+ a=XgNADJiZk9AC71OXotwA:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-GUID: xLc9ZGdJBNDdQsnwXVC9u7ExuU0fd0ub
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
  definitions=2026-06-14_05,2026-06-12_03,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 adultscore=0 suspectscore=0 impostorscore=0 clxscore=1011
- phishscore=0 bulkscore=0 malwarescore=0 priorityscore=1501 lowpriorityscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606040000 definitions=main-2606140232
+ lowpriorityscore=0 impostorscore=0 bulkscore=0 phishscore=0
+ priorityscore=1501 clxscore=1011 adultscore=0 malwarescore=0 suspectscore=0
+ spamscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
+ adjust=0 reason=mlx scancount=1 engine=8.22.0-2606040000
+ definitions=main-2606140237
 
-On Fri, 12 Jun 2026 16:05:10 +0000
-sashiko-bot@kernel.org wrote:
+On Fri, 12 Jun 2026 17:54:07 +0200
+William Bezenah <wbezenah@linux.ibm.com> wrote:
 
-> [Severity: Critical]
-> This is a pre-existing issue, but does this if/else structure create a
-> use-after-free risk during virtqueue deletion?
-> 
-> If ccw_io_helper() fails with an error other than -ENODEV or -EINVAL
-> (for example, -EIO), the first branch executes and logs the warning, but
-> the 'else if' branch is entirely skipped.
-> 
-> This means virtio_ccw_drop_indicators() is never called, failing to clear
-> the virtqueue pointers in the shared airq_info->aiv array.
-> 
-> Because virtio_ccw_del_vqs() subsequently proceeds to free these virtqueues
-> via vring_del_virtqueue(), the uncleared pointers in the shared airq_info
-> will point to freed memory.
-> 
-> If an adapter interrupt arrives later for this leaked bit, could
-> virtio_airq_handler() retrieve the dangling pointer and trigger a
-> use-after-free by calling vring_interrupt() on the freed queue?
+> Since commit 8c58a229688c ("s390/cio: Do not unregister the
+> subchannel based on DNV"), subchannel behavior following a device
+> detach has been updated and results in -EINVAL being propagated
+> rather than -ENODEV, originating from ccw_device_start_timeout_key()
+> in cio/device_ops. In the end, the virtio driver has no ability to
+> react to the difference between device and subchannel states here,
+> and during detach, both -ENODEV and -EINVAL indicate the device
+> cannot be used and should not be treated as errors requiring
+> attention. Update error handling in virtio_ccw_del_vq() and
+> virtio_ccw_drop_indicator() to suppress -EINVAL in addition to
+> -ENODEV.
 
-Looks like this could be more robust against scenarios where we fail
-to execute the channel program that is supposed to deregister the
-indicators from the device.
+Hi William!
 
-The key question here is, at what point, can we consider adpter
-interruption and event notification quiesced. I will have to do some
-reading on that, I'm afraid. 
+Are you saying that ccw_device_start() started returning -EINVAL
+since 8c58a229688c ("s390/cio: Do not unregister the subchannel based on
+DNV")? Or did I somehow read the paragraph wrong?
 
-To me, it looks like just setting the virtqueue pointers in
-airq_info->aiv would not do the trick either, because I don't see
-a corresponding null pointer check.
+The funcition ccw_device_start is documented to return:
+ * Returns:                                                                     
+ *  %0, if the operation was successful;                                        
+ *  -%EBUSY, if the device is busy, or status pending;                          
+ *  -%EACCES, if no path specified in @lpm is operational;                      
+ *  -%ENODEV, if the device is not operational. 
+and the commit message does not say a thing about introducing -EINVAL to
+the mix.
 
 Regards,
-Halil
+Halil 
