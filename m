@@ -1,64 +1,67 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 93ECD3E63A1;
-	Mon, 15 Jun 2026 12:42:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 320723E832A;
+	Mon, 15 Jun 2026 12:42:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781527374; cv=none; b=TWzwp/UXwC25fXbfcQ+keFYq/jRp0sBSC1oKlR+MUGH24aWn5Gj4nuQDo9LD9x/89nWs7BVb9yrebWTQsNL0SZ3kaKD9fkA8nKDPhDu++JWxj2ztgreY/yKF0GE/AQcNqmi950HMIikloAaN9cQO6EQ9xZSshiIZqtvePFvHMzI=
+	t=1781527375; cv=none; b=G34oSWS05heXDcqiso9EnhBmcHL8/wRwN9OCSChyROhuw65amkLrnIFJ6VXc4RypGHU50NkwpcuXicSsd/nPQklNi9pHWR5Af3eC+nBiyJ7z16CHkkkZMYeRAwpxOMpFPQQw5/mNXR18e6uuC4ONiUvszfuxlu7fUmE6l3TKC2w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781527374; c=relaxed/simple;
-	bh=uGCWRcg7nkvCF9cmJmjyO6b2W5aX0FZKBrsVdMPrELA=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=XoumrdbNU5/Tsy22GwXBxfnwlb/8bpqZcw00IWROArNktXRon1ovLwUTFj615Wv/f8UDGbYl/CutEZSxkUYKFIjyag5eS5nW93vYo+0ZoQrgE8zY8U6PGbY3bz0kclhlj75dnlZzAIC0PkSXEgslITPM+9I7OYjYnkfVmvoQfNc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=lMs3ixBx; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1781527375; c=relaxed/simple;
+	bh=oJlS2mz4O1/YtvtEpkHhV0auNodeEi0NGeFJ3xNxKHc=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=aG7+K4tlFlt2RGN5EHOXOUt6auRT6eAiZkxqNH6QHYzk4vmdXmlNZJutb3VRHPp4jLmcuDPHcSSyepulEpOg1eO69RUmnvgumvnW5Gp8Qc51SSrj7yE6KiGeX1ioa9m2oSxX9/6xv1RzqMNdqswWyPIO3eYFQfIX7CNZ1WndcGQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=YNA24/82; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="lMs3ixBx"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65FAoBrM2209054;
-	Mon, 15 Jun 2026 12:42:51 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="YNA24/82"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65FApvHK2247527;
+	Mon, 15 Jun 2026 12:42:52 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=9obSTjJ0egB3uAoQTsk16GuBIZw605sA8erwx2BpO
-	OM=; b=lMs3ixBxP3Iaym/gWpTUiMx1XUntBeDuTSRMWAP8hNTU2suluuRBo0JBr
-	BMtnr1X6WfbY9Veugb0+hafZAYcm1h7v0zU426BXb1T2/PNBhvz01qqP6QWWLOZA
-	8FwoBprrGgXFG71JHXNMtu0OcC1yfNWtjW1cbrLuNl5O43CltIsc+DcZBtCX92Hg
-	9TGfo8expMV9jwUbXo1Pkjh79xjwCkgkxeQWxaqMFBKDK5PWa/crPOMO3MqwH9uj
-	dr4Yw1YhMrWwhT5mLqcAVd3Y7kLsUvd+im6H3ufa44zFJJ/feSN2g4TkGIPA72kW
-	O1DaI5bxML2KkPLmXLOMXjgfM/ppw==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4es1wm0g75-1
+	:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=pp1; bh=xcabFGR+Dym4W+g+V
+	tJPS2dWUdSteh1rV0z+PzI20ag=; b=YNA24/82JHszqH0KPqkEulxPg7WBjfVU5
+	pI39uhKYphxeb+3ONTWh3pyjBWHOg0Nbem1jJtfnUGpP6pk82/5X3i8NTaBFEVe9
+	4sBshwPEK+OAnf238c7ftzW4/Ta838kWwXFZ9VvGBp/ANTEIM7kI0q6pcz0QwD3v
+	AjYhjKn0YxJGyo0sDR9GMMue6nDH3sU9+8KtU4QEP/4yYtYQj+jcZBAfyJlHk897
+	P/2lGZZ8lUYAABkLBqPreCkbEfBaIzGlNWfsf9P6M38DmXBAIEVQqGSYWX6jbqYB
+	qREEnWKcZ+6qobbnxw9fUB+xlPLku8P3Wn8LRumv1n1qYMvgypEIw==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4es1u0g2cp-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 15 Jun 2026 12:42:52 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 65FCYgR5027596;
+	Mon, 15 Jun 2026 12:42:51 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4esjhjxj1g-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Mon, 15 Jun 2026 12:42:51 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 65FCYglY004883;
-	Mon, 15 Jun 2026 12:42:49 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4eshwvxnsu-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 15 Jun 2026 12:42:49 +0000 (GMT)
 Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 65FCgh8I45089104
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 65FCgjTp15597856
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 15 Jun 2026 12:42:44 GMT
+	Mon, 15 Jun 2026 12:42:45 GMT
 Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D875A20040;
-	Mon, 15 Jun 2026 12:42:43 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 79EEB20043;
+	Mon, 15 Jun 2026 12:42:45 +0000 (GMT)
 Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 704B220043;
-	Mon, 15 Jun 2026 12:42:43 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 119062004F;
+	Mon, 15 Jun 2026 12:42:45 +0000 (GMT)
 Received: from p-imbrenda.ibmuc.com (unknown [9.111.31.49])
 	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 15 Jun 2026 12:42:43 +0000 (GMT)
+	Mon, 15 Jun 2026 12:42:44 +0000 (GMT)
 From: Claudio Imbrenda <imbrenda@linux.ibm.com>
 To: pbonzini@redhat.com
 Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, frankja@linux.ibm.com,
         borntraeger@de.ibm.com
-Subject: [GIT PULL v1 00/17] KVM: s390: New features for 7.2
-Date: Mon, 15 Jun 2026 14:42:26 +0200
-Message-ID: <20260615124243.187614-1-imbrenda@linux.ibm.com>
+Subject: [GIT PULL v1 03/17] KVM: s390: Update KVM_PRE_FAULT_MEMORY API documentation
+Date: Mon, 15 Jun 2026 14:42:29 +0200
+Message-ID: <20260615124243.187614-4-imbrenda@linux.ibm.com>
 X-Mailer: git-send-email 2.54.0
+In-Reply-To: <20260615124243.187614-1-imbrenda@linux.ibm.com>
+References: <20260615124243.187614-1-imbrenda@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -67,106 +70,65 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNjE1MDEzMCBTYWx0ZWRfX49arDwsD5uug
- E1wsQLSf9YCqkWKDHXJorIEWN2e8nqCANH7mHit9o+tbQT9t1ToTGuQ9XcnEKm/GNcF6bA+hqYP
- chbNJnt1/2QJpy3gdmXEF5QnbBE/Toc=
-X-Proofpoint-GUID: 143TfodQBOwytgDWpjzdS3vJNC2japXt
-X-Authority-Analysis: v=2.4 cv=SY/HsPRu c=1 sm=1 tr=0 ts=6a2ff34b cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+X-Proofpoint-GUID: JLHPsMpsj3spMb8kefXTovtmvcfX1o2K
+X-Authority-Analysis: v=2.4 cv=XdK5Co55 c=1 sm=1 tr=0 ts=6a2ff34c cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
  a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=U7nrCbtTmkRpXpFmAIza:22 a=VwQbUJbxAAAA:8 a=ikCc7hGnDeZ8pAfFNToA:9
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjE1MDEzMCBTYWx0ZWRfXwxc2tuRbtyu3
- 3QXcdKjG2i/t+raZpF62SpGobr5IwdHEm/zIKyg4okUwb8iEHfCATgvAWB21coGDAjJ55JOqW9X
- g0yUj9NngGe2SluTSXs4OG8X97RqZxYHkP2N/3I/AFYp2jxTpD31Au0vgDI4UTV+VvjEh3zdP8p
- RwoL4jNVdw2JWh1m+iPoD2FYd7P5zXGg3oejtxwnF34jf12ToagxBKvXZxKKP2qnlLqQDK4vHW/
- ouq5M6WBh8NkBGyPhPwpIWJWoQWO8wOywPntucJmwYyD4Kp8Jvu+QtxeqoF7krccvx4XZKx9ddf
- 41ZcepaUxKyxhUZO2J2kszYqqcqWMjo9wP780Ohn50+bFLYbzrfGgtFAgnLndC9qjkj/P64Thxo
- QGsrqwH6AxsIQoMZlTr8uS2gmg2QuxIMSF6AFoeDPSk2gWDFUzU8Au1UR8rToWMGXe43PP3Ge93
- p8SIowfYF+dDksfjQ2w==
-X-Proofpoint-ORIG-GUID: 143TfodQBOwytgDWpjzdS3vJNC2japXt
+ a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8 a=p5bRbc-Dsex6zWGIe5sA:9
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjE1MDEzMCBTYWx0ZWRfXzkV0NHC6fZKF
+ yJBHc74PAUuq1Ex8je8wzC7dxwBAsCm8eqsCCzqULYO/qhWDk7vVFRfKxFsVCi9e6U0MsCMt79o
+ D6RAoxfKcSYker28LRAaBGNU74vlRjXs+a38LovT/+MFlInKUsIoBiGSUIks9NBn7JUInw4co+2
+ czRsWykxTF3yK17DbFRQoGs2NELnGGXNxyMJHkkz7PDIiqbAPU5oEHaXatEJocKzfb5iiNM8lvZ
+ EVaF/1d6dasae9Y1KrwL5ukgc65lqaDmmjOI5bJosOizh6nHbEeJT2MxN52YFzJzWrozn0rkLR6
+ BvW8PbffkfM6HO8ggZ7q87beYz+ICsZVu9oPcoX+PY4IResi9TzhBB4r+69yqWuvJsBCus8Ysan
+ PXC7harfFa7HJ8I0DtzrlGXr1Wp4/oNx5Y9Cb/K8vzw/9nCahgtxU+/m+zB4ejPtAWDIPVloDA5
+ xz+WSILIFXHdyqD/FGw==
+X-Proofpoint-ORIG-GUID: JLHPsMpsj3spMb8kefXTovtmvcfX1o2K
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNjE1MDEzMCBTYWx0ZWRfX8ToqlVE/JhIp
+ OUtdeD2vVQwOH526LXPs/czcKqpDIKehcfLkYIviU6QfwvOKISVrXEiziyzlHc3JpqXzT+IHc80
+ sVmEI+i4lV/2JKkfoq9AYKMYEqIWltM=
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
  definitions=2026-06-15_03,2026-06-15_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- adultscore=0 phishscore=0 suspectscore=0 spamscore=0 impostorscore=0
- malwarescore=0 bulkscore=0 lowpriorityscore=0 clxscore=1015
- priorityscore=1501 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606040000
- definitions=main-2606150130
+ suspectscore=0 lowpriorityscore=0 clxscore=1015 bulkscore=0 malwarescore=0
+ spamscore=0 phishscore=0 priorityscore=1501 impostorscore=0 adultscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606040000 definitions=main-2606150130
 
-Ciao Paolo,
+Update the API documentation for KVM_PRE_FAULT_MEMORY to account for
+its s390 implementation.
 
-Here are some new features for 7.2 for KVM/s390:
-* KVM_PRE_FAULT_MEMORY support
-* Support for 2G hugepages
-* Support for the ASTFLEIE 2 facility
-* kvm_arch_set_irq_inatomic Fast Inject
-* Fix potential leak of uninitialized bytes
+Reviewed-by: Steffen Eiden <seiden@linux.ibm.com>
+Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Message-ID: <20260527144358.186359-4-imbrenda@linux.ibm.com>
+---
+ Documentation/virt/kvm/api.rst | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
+diff --git a/Documentation/virt/kvm/api.rst b/Documentation/virt/kvm/api.rst
+index 52bbbb553ce1..e7998feaa940 100644
+--- a/Documentation/virt/kvm/api.rst
++++ b/Documentation/virt/kvm/api.rst
+@@ -6471,7 +6471,8 @@ Errors:
+ 
+   ========== ===============================================================
+   EINVAL     The specified `gpa` and `size` were invalid (e.g. not
+-             page aligned, causes an overflow, or size is zero).
++             page aligned, causes an overflow, or size is zero), or the VM
++             is UCONTROL (s390).
+   ENOENT     The specified `gpa` is outside defined memslots.
+   EINTR      An unmasked signal is pending and no page was processed.
+   EFAULT     The parameter address was invalid.
+@@ -6494,7 +6495,7 @@ Errors:
+ KVM_PRE_FAULT_MEMORY populates KVM's stage-2 page tables used to map memory
+ for the current vCPU state.  KVM maps memory as if the vCPU generated a
+ stage-2 read page fault, e.g. faults in memory as needed, but doesn't break
+-CoW.  However, KVM does not mark any newly created stage-2 PTE as Accessed.
++CoW.  On x86, KVM does not mark any newly created stage-2 PTE as Accessed.
+ 
+ In the case of confidential VM types where there is an initial set up of
+ private guest memory before the guest is 'finalized'/measured, this ioctl
+-- 
+2.54.0
 
-The following changes since commit 7fd2df204f342fc17d1a0bfcd474b24232fb0f32:
-
-  Linux 7.1-rc2 (2026-05-03 14:21:25 -0700)
-
-are available in the Git repository at:
-
-  https://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git tags/kvm-s390-next-7.2-1
-
-for you to fetch changes up to a868b30492c59f398359b7891293bbde8d126a51:
-
-  KVM: s390: Introducing kvm_arch_set_irq_inatomic fast inject (2026-06-15 14:18:37 +0200)
-
-----------------------------------------------------------------
-KVM: s390: New features for 7.2
-
-New features for 7.2 for KVM/s390:
-* KVM_PRE_FAULT_MEMORY support
-* Support for 2G hugepages
-* Support for the ASTFLEIE 2 facility
-* kvm_arch_set_irq_inatomic Fast Inject
-* Fix potential leak of uninitialized bytes
-
-----------------------------------------------------------------
-Christian Borntraeger (1):
-      KVM: s390: Initialize KVM_S390_GET_CMMA_BITS memory
-
-Claudio Imbrenda (9):
-      KVM: s390: Track page size in struct guest_fault
-      KVM: s390: Implement KVM_PRE_FAULT_MEMORY
-      KVM: s390: Update KVM_PRE_FAULT_MEMORY API documentation
-      KVM: selftests: Fix pre_fault_memory_test to run on s390
-      KVM: selftests: Enable pre_fault_memory_test for s390
-      KVM: s390: Add module parameter to fence 2G hugepages
-      KVM: s390: Add capability to support 2G hugepages
-      KVM: s390: Allow for 2G hugepages
-      KVM: s390: Document the KVM_CAP_S390_HPAGE_2G capability
-
-Douglas Freimuth (3):
-      KVM: s390: Add map/unmap ioctl and clean mappings post-guest
-      KVM: s390: Enable adapter_indicators_set to use mapped pages
-      KVM: s390: Introducing kvm_arch_set_irq_inatomic fast inject
-
-Nina Schoetterl-Glausch (4):
-      KVM: s390: Minor refactor of base/ext facility lists
-      s390/sclp: Detect ASTFLEIE 2 facility
-      KVM: s390: vsie: Refactor handle_stfle
-      KVM: s390: vsie: Implement ASTFLEIE facility 2
-
- Documentation/virt/kvm/api.rst                     |  20 +-
- arch/s390/include/asm/kvm_host.h                   |  23 +-
- arch/s390/include/asm/sclp.h                       |   1 +
- arch/s390/include/uapi/asm/kvm.h                   |   1 +
- arch/s390/kvm/Kconfig                              |   1 +
- arch/s390/kvm/dat.h                                |   1 +
- arch/s390/kvm/gmap.c                               |  26 +-
- arch/s390/kvm/intercept.c                          |   5 +-
- arch/s390/kvm/interrupt.c                          | 559 ++++++++++++++++-----
- arch/s390/kvm/kvm-s390.c                           | 161 ++++--
- arch/s390/kvm/kvm-s390.h                           |   5 +-
- arch/s390/kvm/pv.c                                 |   5 +-
- arch/s390/kvm/vsie.c                               |  85 +++-
- drivers/s390/char/sclp_early.c                     |   4 +-
- include/uapi/linux/kvm.h                           |   1 +
- tools/testing/selftests/kvm/Makefile.kvm           |   1 +
- .../testing/selftests/kvm/pre_fault_memory_test.c  |   7 +-
- 17 files changed, 727 insertions(+), 179 deletions(-)
