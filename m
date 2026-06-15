@@ -1,44 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3434831E841;
-	Mon, 15 Jun 2026 13:03:56 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AABEA3ECBEA;
+	Mon, 15 Jun 2026 13:05:24 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781528638; cv=none; b=Qbvd2TuS/VcQf+C/RQ3m5xIGoOEP6wBitvrA7+KV2oC4lq2hme2pcdZ9IbT8JKSXWVHrb48jdjW1Tn1mCMIPdyQfFSWGfwEkrcNi/mn908vWTOxaP9MaXW5mSv3vVkWhKzbXzSRCZGlWviRNmiVJIOS81jfc7b1d19LD4wWBBsM=
+	t=1781528725; cv=none; b=MsfdBfWZDD5jDrPt2WFZb3nLTfUlYMY/JT2Ty1BIm1TYRAR6S6gFfTvzN/vlyMIYXkX2A1Ck0InOjmeICTj12ic9USBgw7ORwS7c4aXp0a21iizdPG0HRNaKZBwBBAckFe5up1sICmTLkXC5pfzLxBC5Ks09tvhbhni7bMqjRHs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781528638; c=relaxed/simple;
-	bh=5bx8pvcHeH0yZUDG/oQAjHVDFjW7NkD5zKCPn6FM5QE=;
+	s=arc-20240116; t=1781528725; c=relaxed/simple;
+	bh=tCHNsusSp8NhTYMBilkODGANQcZ89jbCK7Wb5eQYQ3g=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=iryY54w4xyp7kZccSd2VYw/DdZwOivEL6BUYYtOtoiVHIil9+1BniwTu9n74dRa5uH3+on0WS/c2VerwWDmgHM7q5cmVqfuDX2hmSRLELzXDZ2+0JllrUyxeIU8k3isaTpiUHc2q6fnRTpPIf84sBZRUkGAcFPUeMMFNIyXA5nI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=a/j/lTxw; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=u960GWTDE6X0ACw+pmmBRntRNI1aNKlQQBAokV4wF4eLhHxIIXuZ2/4BZZo2ZPmMGK7QrkgHmtF+QqdGBzjIpbiOwp2fhZUaJio6shRg9HtPev7RknKHRXS6fx3qKNCS2Tnf7RarglbGLJptnxsOPVUCrrCChsi5oiL03iLUeg4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=I5KBypGA; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="a/j/lTxw"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80F611F000E9;
-	Mon, 15 Jun 2026 13:03:56 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="I5KBypGA"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E00D21F00A3A;
+	Mon, 15 Jun 2026 13:05:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781528636;
-	bh=TUfnVdWZXDovioRWDkr1Oyxk6rRwKB+DPj19oraSopo=;
+	s=k20260515; t=1781528724;
+	bh=ZozzbB0cPdVmT1WKgILVIrojf5AgjvK8zIaHhlsybUI=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=a/j/lTxwAQHrShw0nIPgUPUbBWek03Hnaw3NsVMfrJTe8VWKj1TkorkC2E0uqKypm
-	 tJyDPuHPEeDU2dn7cJrmtNjtA6Ge3uZ9Gkgv+GiO9THLYSpzrjHs7INtxdx9ceVS49
-	 um+g9ye5nQojINYN4lx6qHMLCrbCRpl4JVYolvM3QOg1RdSBK3qGXe+XsxOz9NbTGW
-	 RjSoZPtj5sdFevmr+J2bzw8rvrZI1e6vY3rvfWmrgVD8yPKHiJ5kxf2X+kogTPAS9v
-	 mOPVOV7oyhEV1ZDyFCPWwP4gLFte8T+Ww+9om2W00GJgrnYBNwtydPtMdNh8rlQdbX
-	 AVyBCbyyBs+GQ==
+	b=I5KBypGAkPRAjT3iafNeHVTptKPXwoDhSSHItIpZWVhoTkNn7FEOk0R9LuRBt7rwj
+	 Zrx4XRVU1dUvBoHoN5ZDWuKyrry+r6LOFtWovXcykYL/w6CiYSsSNTOxCeszCabVDv
+	 39rgKhPX6LhgN4qYOucOO6KweE/TiOMohbWBzyuNyPS98cRRNHZdybgatjnsmrFdu2
+	 M5ghlvMGNdawsL5JOn3NmzFns4zFLRNsYcOCW3xMlz8JiGALkIqOjDjfJK8vu8bZ0n
+	 aG1NFXOJLtZIxO1EaP8WA6QLvQo7k6eNixQd61EFjwYAR3p5VN5UuKge/feZd02dDO
+	 omFiB3ldtdbKQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [GIT PULL v1 09/17] KVM: s390: Document the
- KVM_CAP_S390_HPAGE_2G capability
+Subject: Re: [GIT PULL v1 07/17] KVM: s390: Add capability to support 2G
+ hugepages
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>
-Cc: "Heiko Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, kvm@vger.kernel.org
-In-Reply-To: <20260615124243.187614-10-imbrenda@linux.ibm.com>
-References: <20260615124243.187614-10-imbrenda@linux.ibm.com>
+Cc: "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Heiko
+ Carstens" <hca@linux.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org
+In-Reply-To: <20260615124243.187614-8-imbrenda@linux.ibm.com>
+References: <20260615124243.187614-8-imbrenda@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 15 Jun 2026 13:03:56 +0000
-Message-Id: <20260615130356.80F611F000E9@smtp.kernel.org>
+Date: Mon, 15 Jun 2026 13:05:23 +0000
+Message-Id: <20260615130523.E00D21F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -49,75 +49,85 @@ Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [High] Missing mutual exclusivity check between KVM_CAP_S390_HPAGE_2G and=
- KVM_S390_VM_MEM_ENABLE_CMMA allows conflicting features, leading to silent=
- loss of CMMA state.
+- [High] Userspace can simultaneously enable both CMMA and huge pages (1M a=
+nd 2G), bypassing mutual exclusivity, because KVM_S390_VM_MEM_ENABLE_CMMA d=
+oes not check if huge pages are already enabled.
 --
 
-commit d788facb209d12a096219ba2f554a3019dcb380e
+commit 98eba733f54412a163121c369883f11ed5ca35db
 Author: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-KVM: s390: Document the KVM_CAP_S390_HPAGE_2G capability
-   =20
-Document the KVM_CAP_S390_HPAGE_2G capability, which behaves very
-similarly to the existing KVM_CAP_S390_HPAGE_1M.
+KVM: s390: Add capability to support 2G hugepages
 
-> diff --git a/Documentation/virt/kvm/api.rst b/Documentation/virt/kvm/api.=
-rst
-> index e7998feaa940b..dfde0bfcbce61 100644
-> --- a/Documentation/virt/kvm/api.rst
-> +++ b/Documentation/virt/kvm/api.rst
+This commit adds the KVM_CAP_S390_HPAGE_2G capability to signal to userspace
+that 2G hugepages may be used to back the guest. It also implements the
+necessary gmap flag enablement and propagation for the new hugepage size.
+
+> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> index 49c330580dc88..35e5971a474f6 100644
+> --- a/arch/s390/kvm/kvm-s390.c
+> +++ b/arch/s390/kvm/kvm-s390.c
 [ ... ]
-> @@ -8905,6 +8905,21 @@ helpful if user space wants to emulate instruction=
-s which are not
->  This capability can be enabled dynamically even if VCPUs were already
->  created and are running.
-> =20
-> +7.47 KVM_CAP_S390_HPAGE_2G
-> +--------------------------
-> +
-> +:Architectures: s390
-> +:Parameters: none
-> +:Returns: 0 on success; -EINVAL if hpage_2g module parameter was not set,
-> +          cmma is enabled, or the VM has the KVM_VM_S390_UCONTROL
-> +          flag set; -EBUSY if vCPUs were already created for the VM.
-> +
-> +With this capability the KVM support for memory backing with 2g pages
-> +through hugetlbfs can be enabled for a VM. After the capability is
-> +enabled, cmma can't be enabled anymore and pfmfi and the storage key
+> @@ -902,6 +907,27 @@ int kvm_vm_ioctl_enable_cap(struct kvm *kvm, struct =
+kvm_enable_cap *cap)
+>  		VM_EVENT(kvm, 3, "ENABLE: CAP_S390_HPAGE %s",
+>  			 r ? "(not available)" : "(success)");
+>  		break;
+> +	case KVM_CAP_S390_HPAGE_2G:
+> +		mutex_lock(&kvm->lock);
+> +		if (kvm->created_vcpus) {
+> +			r =3D -EBUSY;
+> +		} else if (!hpage_2g || kvm->arch.use_cmma || kvm_is_ucontrol(kvm)) {
 
 [Severity: High]
-This is a pre-existing issue, but does the implementation actually enforce
-this restriction when enabling CMMA?
+This is a pre-existing issue, but could userspace bypass this mutual
+exclusivity check between CMMA and huge pages?
 
-Looking at arch/s390/kvm/kvm-s390.c:kvm_s390_set_mem_control(), when
-KVM_S390_VM_MEM_ENABLE_CMMA is called:
+When enabling huge pages via KVM_CAP_S390_HPAGE_1M or KVM_CAP_S390_HPAGE_2G,
+KVM correctly rejects the operation if kvm->arch.use_cmma is already set.
 
-	else {
-		kvm->arch.use_cmma =3D 1;
-		/* Not compatible with cmma. */
-		kvm->arch.use_pfmfi =3D 0;
-		ret =3D 0;
-	}
+However, if userspace enables huge pages first, and then enables CMMA,
+kvm_s390_set_mem_control() does not appear to verify if huge pages are
+already active:
 
-It appears it sets kvm->arch.use_cmma =3D 1 without verifying if
-GMAP_FLAG_ALLOW_HPAGE_2G (or 1M) has already been enabled in the gmap flags.
-If userspace enables the 2G hugepage capability first and subsequently calls
-the KVM_S390_VM_MEM_ENABLE_CMMA ioctl, could this allow conflicting feature=
-s?
+arch/s390/kvm/kvm-s390.c:kvm_s390_set_mem_control() {
+    ...
+    case KVM_S390_VM_MEM_ENABLE_CMMA:
+        ...
+        mutex_lock(&kvm->lock);
+        if (kvm->created_vcpus)
+            ret =3D -EBUSY;
+        else {
+            kvm->arch.use_cmma =3D 1;
+            /* Not compatible with cmma. */
+            kvm->arch.use_pfmfi =3D 0;
+            ret =3D 0;
+        }
+        mutex_unlock(&kvm->lock);
+    ...
+}
 
-When both are enabled, the MMU table walker (_dat_walk_gfn_range) skips over
-huge pages during CMMA operations, which might lead to CMMA state for
-hugepages being silently lost. Could this cause guest memory corruption or
-incorrect functional behavior during live migration?
+Does this sequence allow the guest to run with both kvm->arch.use_cmma
+and GMAP_FLAG_ALLOW_HPAGE_2G (or 1M) enabled simultaneously?
 
-> +interpretation are disabled. If cmma has already been enabled or the
-> +hpage_2g module parameter is not set to 1, -EINVAL is returned.
-> +
->  8. Other capabilities.
->  =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
->
+If so, and the guest executes the ESSA instruction on a huge page, would
+this lead to KVM entering an infinite intercept loop that stalls the vCPU,
+or cause undefined hardware behavior if migration mode is inactive?
+
+> +			r =3D -EINVAL;
+> +		} else {
+> +			r =3D 0;
+> +			set_bit(GMAP_FLAG_ALLOW_HPAGE_2G, &kvm->arch.gmap->flags);
+> +			/*
+> +			 * We might have to create fake 4k page
+> +			 * tables. To avoid that the hardware works on
+> +			 * stale PGSTEs, we emulate these instructions.
+> +			 */
+> +			kvm->arch.use_skf =3D 0;
+> +			kvm->arch.use_pfmfi =3D 0;
+> +		}
+> +		mutex_unlock(&kvm->lock);
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260615124243.1876=
-14-1-imbrenda@linux.ibm.com?part=3D9
+14-1-imbrenda@linux.ibm.com?part=3D7
