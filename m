@@ -1,157 +1,155 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 692613E5A35;
-	Mon, 15 Jun 2026 12:09:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 629673E5A35;
+	Mon, 15 Jun 2026 12:09:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781525391; cv=none; b=X1bfiRKGilAN3sROI2uAizEPVz7Bw+N0XuYHP5rhBr7TLqjQrdQfRB+nhsi0MhZRZvmy+GO2SRgBkBNwi+UfIouzhtxPzlmiRH8/oB7gmJrCMJp+XqE/Z/BZadaj1bN0nZLMwXzyqaiN4hkt+5O5xK/T4VNwnf+KLNjXenzecEo=
+	t=1781525396; cv=none; b=okUnlUxIaMVp+uNVP/VekUPcS7t/hTEUaTLi6KcuIW8lqcOQAQ2CsbYCeO5uVWOHmKLHKgqS2nTk3NWkt0bUdlfgy0vHd51PZ/x6iZZvPan4XaNurADfoqosa1GQPei9pFYkDSiDUcYkWwc3NpWpe3qdHWYFxj3VknsLArs48dA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781525391; c=relaxed/simple;
-	bh=I+7zMw/VQBRB5Ny0GaAiRVMkJrtar/Iq0dTJJ5p4Two=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=Qugyb7di2DlJ9MRWtRrISiirOHhGrKFx7RYBriaHg5c5LdSumITl9RZoxvquJbpXRCk2tc+NDpxH1A54mwMD0v8w/Hd0aF5PiqL/gxopzIt+zDHkt+mg9AcHL6l8WhN3fqZDIwLWWyCPChCFHhcO2bmlX5C/gYTbFHoT1mufukg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=hH2SQpQh; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1781525396; c=relaxed/simple;
+	bh=y79DKARTRp3ByzlsQ9zaQTiO3Mofc2bj4NCvmUXvhQU=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=ihophNpMfBZShkDv0nm6RNBvpsVRnWqsRzb3SLJykvAhvqh98NQcBKNZ2ySVr7oCA4wsQ55Yq50GO3Aq4vFpRlcaKk9yVtiuuFLDuv/uILU9D+uiQE4vMi8XcM7PPlM/CzMUy6tIAU45zxX6ZV+VwDlIQ8y+uM4zyaZOMAY+tT0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TE+ps8XH; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="hH2SQpQh"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65FAoO1a2256088;
-	Mon, 15 Jun 2026 12:09:48 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=jDVz+2
-	0ctJhiAnjmyFpAJFmtExYdla1ebcMSf08pfoQ=; b=hH2SQpQhMS0xGIiBUTXV7i
-	m7ojZ8GtKxjJhTH8Y/wTalA/UJCgh1+zlIqHMFYMN6irKDcBBrI0wIxC2BIChxnS
-	4+0TzfYVfZdZ9rDMj7bGruUFbRZuswCJ9cl9cD5BL7AJBQL4L2DjcEXPQdEDyrbE
-	EbnCv6gmgBZbIGhzkdxjMXW2BRpFFgnOK68OHcT8m9akYoLvyvUXQvLYVVsI5Bfm
-	p64TfY8MQisjwJHiL5DGg3o2RxhspOlBfpl6K5VVqV/cHXt3KiHT2uC9sL1DJC9Q
-	Ls0QVLrbHFITQCetvftQPy6+mXQ4qOKdS/gqpbOFLDhbVFxqUoESYyna97foFP4w
-	==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4es1h80f5y-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 15 Jun 2026 12:09:48 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 65FC4cQm005551;
-	Mon, 15 Jun 2026 12:09:47 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4eshwvxhyc-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 15 Jun 2026 12:09:47 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 65FC9hQV27984156
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 15 Jun 2026 12:09:43 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 44BE72004D;
-	Mon, 15 Jun 2026 12:09:43 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5419920040;
-	Mon, 15 Jun 2026 12:09:42 +0000 (GMT)
-Received: from thinkpad-T15 (unknown [9.111.70.232])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with SMTP;
-	Mon, 15 Jun 2026 12:09:42 +0000 (GMT)
-Date: Mon, 15 Jun 2026 14:09:39 +0200
-From: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-To: Heiko Carstens <hca@linux.ibm.com>
-Cc: Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        borntraeger@de.ibm.com, frankja@linux.ibm.com, david@kernel.org,
-        seiden@linux.ibm.com, nrb@linux.ibm.com, schlameuss@linux.ibm.com,
-        gra@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
-        svens@linux.ibm.com
-Subject: Re: [PATCH v2 1/1] s390/mm: Fix handling of _PAGE_UNUSED pte bit
-Message-ID: <20260615140939.417dcb53@thinkpad-T15>
-In-Reply-To: <20260615115000.31370Ef1-hca@linux.ibm.com>
-References: <20260615091741.76724-1-imbrenda@linux.ibm.com>
-	<20260615091741.76724-2-imbrenda@linux.ibm.com>
-	<20260615094300.31370D7a-hca@linux.ibm.com>
-	<20260615123103.118af04a@p-imbrenda>
-	<20260615115000.31370Ef1-hca@linux.ibm.com>
-X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-redhat-linux-gnu)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TE+ps8XH"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99EA21F000E9;
+	Mon, 15 Jun 2026 12:09:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1781525395;
+	bh=tjqdHbY15oVIxfVv0cACnUVqN/cL5lJGeUfwDUXAu3k=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=TE+ps8XHBvpIURiOLbINBKwAYAeIgqIuoSBhTld0ahZyxG9jCabqyYxpGXTWG+wYK
+	 nWTL24WQoOC7l/v7p6l8IWliQnXbFHgdp4LM9ca20GHF4fWjK65wG0zLroxdAIC6e+
+	 whs7SNcF0BoB8rrlN5AhqRf8kaSKuPEhc4yQwTiApe/UobZbMkDxuRW8TRTJNTs3Jg
+	 q7XnP/jIzdM4PAPIY0ykAdIQFxUJJ99gSvAB690fuM8AIYf5DOj+CyemCk3qlLj+TA
+	 DID3wNbSGuzhpiRlNG/gb2XP+0yjWJtb13QsKceDLGrV0Mqth8aSm1AFEXrH5A+SON
+	 3ZesSsbmEmFDw==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH net] net/smc: fix out-of-bounds read in
+ smc_clcsock_data_ready()
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Sechang Lim" <rhkrqnwk98@gmail.com>
+Cc: "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, bpf@vger.kernel.org, "Heiko
+ Carstens" <hca@linux.ibm.com>
+In-Reply-To: <20260614120931.4041687-1-rhkrqnwk98@gmail.com>
+References: <20260614120931.4041687-1-rhkrqnwk98@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Mon, 15 Jun 2026 12:09:54 +0000
+Message-Id: <20260615120954.99EA21F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNjE1MDEyNSBTYWx0ZWRfXyeWpgJZISb0J
- xjwvzVJeiojb7kW97wHJ9nd/xLGiG3gqLaxg8iLuWTuwxEAtEyy8VitvXGu74RIzwP95Pbubwlj
- /mQFVgxTewTtYaLCSmym+JS1nD45HME=
-X-Proofpoint-ORIG-GUID: JGhFEVBocsT56kfI0JBcWN-EUMx3vjj9
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjE1MDEyNSBTYWx0ZWRfX22ngjSzVketu
- hjuW4GniyMnS5YP+aqblp57vgJ5ZdgngcWKT2egG6Yni4aPvf4eDsIIrpODa9gRC1FSrE0Qc5QH
- ICEC6WPG9f7Qg7PHAGXVVD9dZeUrxASnoXTM0HlVNtE3e/1C0+u4RAKcyLbf2DUikkZvdWWy7c7
- vsVRiuCLhwBpS6YxFq4UsNtOMKRuEwXTgq6mAVBfCsSPgE8ckPJ4YMS8gcVFNDvfPh9k2PBBlEX
- 6vezBONr7ekcvBZFcZTxdC0k056xY9ytHoi8tzx18Cf7ox5wzGoituK/D9yWhfWXqQTM7/K5VVL
- 5QvC7LVYIKaBrNHSpo7Wh5EXds5nvRPb8WAIpuSvt3NDsO+Z350Qfo8gK3Yv+mQabnPJRj1yZt+
- zZVfiWeOA4/d97TBKWrb4TRjPdZwpFdrvLGiFl4fQXj4qDGm46zQgULHl/MKFABLGdqrVVZ0xAW
- SQyCdndCnGMQ9IW94AQ==
-X-Authority-Analysis: v=2.4 cv=U9uiy+ru c=1 sm=1 tr=0 ts=6a2feb8c cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
- a=kj9zAlcOel0A:10 a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8
- a=cMrbAMyVcAHaeXL1GCgA:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-GUID: JGhFEVBocsT56kfI0JBcWN-EUMx3vjj9
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
- definitions=2026-06-15_03,2026-06-15_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- lowpriorityscore=0 impostorscore=0 bulkscore=0 phishscore=0
- priorityscore=1501 clxscore=1011 adultscore=0 malwarescore=0 suspectscore=0
- spamscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
- adjust=0 reason=mlx scancount=1 engine=8.22.0-2606040000
- definitions=main-2606150125
 
-On Mon, 15 Jun 2026 13:50:00 +0200
-Heiko Carstens <hca@linux.ibm.com> wrote:
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
 
-> On Mon, Jun 15, 2026 at 12:31:03PM +0200, Claudio Imbrenda wrote:
-> > On Mon, 15 Jun 2026 11:43:00 +0200
-> > Heiko Carstens <hca@linux.ibm.com> wrote:
-> > 
-> > [...]
-> > 
-> > > > @@ -175,6 +179,8 @@ pte_t ptep_modify_prot_start(struct
-> > vm_area_struct *vma, unsigned long addr,
-> > > >  void ptep_modify_prot_commit(struct vm_area_struct *vma, unsigned long addr,
-> > > >  			     pte_t *ptep, pte_t old_pte, pte_t pte)
-> > > >  {
-> > > > +	if (pte_present(pte))
-> > > > +		pte = clear_pte_bit(pte, __pgprot(_PAGE_UNUSED));
-> > > >  	set_pte(ptep, pte);  
-> > > 
-> > > Can't we move the logic from set_ptes() to set_pte() instead? The above
-> > 
-> > set_pte() is also used for things that are not ptes, and in those cases
-> > we probably don't want to touch that bit, although technically it is
-> > currently unused for present large pmds and puds.
-> 
-> I can only see huge_pte_clear() for this.
-> 
-> If that's the only user I'd rather add a BUG_ON() there instead of starting to
-> sprinkle the logic around. This _will_ break sooner or later.
+Pre-existing issues:
+- [Critical] Incomplete fix leaves inherited fallback callbacks vulnerable,=
+ leading to KASAN slab-out-of-bounds read and control-flow hijack.
+- [High] Silent hang of accepted child sockets when a listener is attached =
+to a BPF sockmap.
+--
 
-There is also __set_huge_pte_at(), and there it could also be called for
-swap PMDs/PUDs, where bit 56 is used. But they would not be present, and
-ATM we use the same present bit for PTEs and PMDs/PUDs, so it should work.
+commit 155a3b6116a31fce47421ad7bb5710d26c0e0b82
+Author: Sechang Lim <rhkrqnwk98@gmail.com>
 
-Still feels a bit shaky, but in general I agree that it would be better
-to have this logic in a single place, like set_pte().
+net/smc: fix out-of-bounds read in smc_clcsock_data_ready()
 
-Also wonder now why we use set_pte() an not set_pmd() / set_pud() for the
-hugetlbfs "fake" PTEs. I think at least in s390 code we could switch to
-the pmd/pud variants, and then be safe against modifications from set_pte().
+This patch fixes an out-of-bounds read when smc_clcsock_data_ready() is
+called on a passive-open child socket that has had its sk_user_data cleared
+by sk_clone_lock() and subsequently populated by a BPF sock_ops program. It
+restores the inherited sk_data_ready in smc_tcp_syn_recv_sock() before
+sk_user_data can be reused.
 
-BTW, wrt Sashiko report that just dropped in, I also wondered first about
-ptep_reset_dat_prot() using set_pte(). Not 100% sure about the exact scenario
-where/how the _PAGE_UNUSED bit gets mixed in, where it shouldn't. Maybe
-the answer to that question might even show another fix option. But when
-changing set_pte(), it should also be fine for ptep_reset_dat_prot(),
-which requires that the PROTECT bit is the only HW bit getting changed,
-and _PAGE_UNUSED is a SW bit.
+> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+> index b5db69073e20f..152971e8ad179 100644
+> --- a/net/smc/af_smc.c
+> +++ b/net/smc/af_smc.c
+> @@ -156,6 +156,12 @@ static struct sock *smc_tcp_syn_recv_sock(const stru=
+ct sock *sk,
+>  	if (child) {
+>  		rcu_assign_sk_user_data(child, NULL);
+> =20
+> +		/*
+> +		 * the child inherited the listen-specific sk_data_ready();
+> +		 * restore it here, as sk_user_data may be reused before accept
+> +		 */
+> +		child->sk_data_ready =3D smc->clcsk_data_ready;
+
+[Severity: Critical]
+This isn't a bug introduced by this patch, but does restoring only
+child->sk_data_ready leave the other inherited fallback callbacks vulnerabl=
+e?
+
+If an SMC socket is forced into fallback mode before listen() is called,
+such as via setsockopt(TCP_FASTOPEN), smc_fback_replace_callbacks() replaces
+all four socket callbacks (sk_state_change, sk_data_ready, sk_write_space,
+and sk_error_report) with fallback handlers.
+
+When a connection is accepted, sk_clone_lock() copies all four fallback
+callbacks to the child TCP socket and zeroes sk_user_data.
+
+If a BPF cgroup hook runs bpf_sock_hash_update() on the child socket,
+sk_user_data is populated with a sk_psock.
+
+Could a subsequent socket event trigger the inherited smc_fback_state_chang=
+e()
+and cause an out-of-bounds read?
+
+net/smc/af_smc.c:smc_fback_state_change() {
+    read_lock_bh(&clcsk->sk_callback_lock);
+    smc =3D smc_clcsock_user_data(clcsk);
+    if (smc)
+        smc_fback_forward_wakeup(smc, clcsk,
+                                 smc->clcsk_state_change);
+    read_unlock_bh(&clcsk->sk_callback_lock);
+}
+
+smc_clcsock_user_data() would mistakenly cast the sk_psock to a struct
+smc_sock, and dereference smc->clcsk_state_change past the end of the
+sk_psock object.
+
+Should child->sk_state_change, child->sk_write_space, and
+child->sk_error_report also be restored here?
+
+[ ... ]
+
+[Severity: High]
+This is a pre-existing issue, but does a similar inheritance problem exist
+in the BPF sockmap subsystem itself?
+
+When a listener socket is added to a BPF sockmap, its sk_data_ready callback
+is replaced with sk_psock_strp_data_ready(), and its sk_user_data is marked
+with the SK_USER_DATA_NOCOPY flag.
+
+When an incoming connection is accepted, sk_clone_lock() copies the
+listener's sk_data_ready pointer to the new child socket but zeroes out
+sk_user_data.
+
+The TCP BPF cloning hook (tcp_bpf_clone()) restores the child's sk_prot but
+does not restore its sk_data_ready callback.
+
+When the child socket receives data, it invokes the inherited callback:
+
+net/core/skmsg.c:sk_psock_strp_data_ready() {
+    struct sk_psock *psock;
+
+    rcu_read_lock();
+    psock =3D sk_psock(sk);
+    if (likely(psock)) {
+        ...
+}
+
+Since sk_user_data is NULL, sk_psock(sk) evaluates to NULL. Does this cause
+sk_psock_strp_data_ready() to return immediately without invoking
+sock_def_readable(), permanently depriving the child socket of readiness
+notifications and silently hanging applications waiting in epoll_wait()?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260614120931.4041=
+687-1-rhkrqnwk98@gmail.com?part=3D1
