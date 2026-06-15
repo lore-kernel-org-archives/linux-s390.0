@@ -1,133 +1,108 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BABC437E314;
-	Mon, 15 Jun 2026 13:23:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1697B3FE669
+	for <linux-s390@vger.kernel.org>; Mon, 15 Jun 2026 14:58:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781529782; cv=none; b=t9TZ3tue9yQiZmTyX/wwMeBalMrh+V+1JgmoO35sUpQh997e81hEoYzzbqkOTzXx6cJtheYX7AOd9E0O8XB5QgtdSp2/V36/imRyS9qni9mnI/XoGiULy1mybo92T5t08wat4HYq4IR7TqKtqWH8o2hKW2mjf6wUC4RpTuaIUXY=
+	t=1781535506; cv=none; b=WdKwGXEn0u02NGpTTSdkYCSTJuCLJA3Am2XiedAb0tFxD+b6mj9WBeUlI6wSRhQRa8hkBqEkXdpjaihcxT8qDHbfXBrP37v1UG3SjWQJRDSClQdrOQKz1SYaHouz/6LAcn1PM2tXp0094QMOwBTMug6+N7CeAK49Utr/M9WGX+E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781529782; c=relaxed/simple;
-	bh=Mrsyf2pWQiTMy185MnWe6LkM9Lbf9D057xx4pfW7LPk=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=jpEa3+yFG9mIlGkYibHMlyV4TljQw0tB20oQpamo0Dwtt6BZgnuQvabps8aEJ/MzXpY+vVI4tkwvqB1YvnUodOnN1yYKrPbf7oQb0dNN1SXLW+tR625c1SY+EJFYjeTm6C4gcNkU4MdppM/iAe3HVPET+DVvX+qSJsIk8buO2qE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=caqo+Pqp; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1781535506; c=relaxed/simple;
+	bh=WeiO/kvXd28sVryXwcleJRKLGxigXtK192g6LDV52ik=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=cBf4pcJr+1UdRn/ZdzF/lnrdfyi0Jsi3yMPxwAJeFgtc45jLYQLG8YdTAuu6qn1ycA7l3oLQiFCnbGxDz8Uc9KryrBFraD6JJrXsUXRcdTzVD/CWl+ZHJfb58SDi1x56mwTJHYv4ZGVXxvQz8cHV+JwlV/K4KBkY5DpQNW/8SDg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=hJ7kI1Kb; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="caqo+Pqp"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 583DE1F000E9;
-	Mon, 15 Jun 2026 13:23:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781529781;
-	bh=Z19ibZVkMSu/453YekQIQm3hgNHpanv4Kta00IuUMqs=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=caqo+PqpafcjVnVzsv/tySf4s2K6AMO+mvNiZg1+WKY2C3wq74RKZ9+jrgA8Wxh1O
-	 W4yA8gt8AO76mZ4enZX40yrgJJerL0xVMZ/5+8wwB4sVkDa8m9QhQNEOZwxg58kLO8
-	 mvPLI3KEJ0aLX4hgUSNqN5Arvn+9YQQ9s5zgWg9iOjryA9LoNQ+raxkNBj2NfUF1Z7
-	 j5jxI1mBQkNFRk0nbVwuvHd1ZMEL+D37JOMNaxRTPQnatKlDTqrPfqTC51ZTHCaG7K
-	 jqwlqaev1wck0ptnHZH7B46lxuakrOHGS2TpWzEnIevHSSSm5Q87LUl+hqWGAjpXwS
-	 rAq62zPThrOMg==
-From: sashiko-bot@kernel.org
-Subject: Re: [GIT PULL v1 17/17] KVM: s390: Introducing
- kvm_arch_set_irq_inatomic fast inject
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>
-Cc: "Heiko Carstens" <hca@linux.ibm.com>, kvm@vger.kernel.org, "Vasily
- Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org, "Alexander Gordeev" <agordeev@linux.ibm.com>
-In-Reply-To: <20260615124243.187614-18-imbrenda@linux.ibm.com>
-References: <20260615124243.187614-18-imbrenda@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 15 Jun 2026 13:23:00 +0000
-Message-Id: <20260615132301.583DE1F000E9@smtp.kernel.org>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="hJ7kI1Kb"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1781535504;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=AxLpH9j4tyUwflqQc435PknR0znSRfDU7Gw9S0v0YMQ=;
+	b=hJ7kI1KbUgJ+e3LDdsLe61fr1EHAjo1unYzjd+UoRKwb4Y1i4rE5AnUicNQz96aOvP502o
+	5nm53+6DxanT2jIP9bdrN2z+0DTR01xdG4tNLKwyozEEAr4GW5dBJ8jSwEyiCYxZ1bJ8Nx
+	/lB7E1Vj+IsHgc2Dk9h+rMq+CpGZUIM=
+Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-314-_BAas8q1MpeI8JVeulqbkg-1; Mon,
+ 15 Jun 2026 10:58:18 -0400
+X-MC-Unique: _BAas8q1MpeI8JVeulqbkg-1
+X-Mimecast-MFC-AGG-ID: _BAas8q1MpeI8JVeulqbkg_1781535495
+Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 63F8E19560A5;
+	Mon, 15 Jun 2026 14:58:15 +0000 (UTC)
+Received: from localhost (unknown [10.44.34.1])
+	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id AB60D19541B2;
+	Mon, 15 Jun 2026 14:58:14 +0000 (UTC)
+From: Cornelia Huck <cohuck@redhat.com>
+To: Halil Pasic <pasic@linux.ibm.com>, William Bezenah <wbezenah@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, farman@linux.ibm.com, hca@linux.ibm.com,
+ gor@linux.ibm.com, agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
+ svens@linux.ibm.com, mjrosato@linux.ibm.com, vneethv@linux.ibm.com,
+ oberpar@linux.ibm.com, virtualization@lists.linux.dev,
+ kvm@vger.kernel.org, linux-kernel@vger.kernel.org, Halil Pasic
+ <pasic@linux.ibm.com>
+Subject: Re: [PATCH v1] s390/virtio_ccw: Also suppress -EINVAL on device detach
+In-Reply-To: <20260615002309.052e0614.pasic@linux.ibm.com>
+Organization: "Red Hat GmbH, Sitz: Werner-von-Siemens-Ring 12, D-85630
+ Grasbrunn, Handelsregister: Amtsgericht =?utf-8?Q?M=C3=BCnchen=2C?= HRB
+ 153243,
+ =?utf-8?Q?Gesch=C3=A4ftsf=C3=BChrer=3A?= Ryan Barnhart, Charles Cachera,
+ Avril Crosse O'Flaherty"
+References: <20260612155407.199218-1-wbezenah@linux.ibm.com>
+ <20260615002309.052e0614.pasic@linux.ibm.com>
+User-Agent: Notmuch/0.40 (https://notmuchmail.org)
+Date: Mon, 15 Jun 2026 16:58:12 +0200
+Message-ID: <875x3jn94r.fsf@redhat.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
+On Mon, Jun 15 2026, Halil Pasic <pasic@linux.ibm.com> wrote:
 
-Pre-existing issues:
-- [High] Guest-reachable WARN_ON_ONCE during memory allocation failure in `=
-__kvm_inject_pfault_token`
-- [High] Preexisting guest-triggerable WARN_ON_ONCE on interrupt queue full
---
+> On Fri, 12 Jun 2026 17:54:07 +0200
+> William Bezenah <wbezenah@linux.ibm.com> wrote:
+>
+>> Since commit 8c58a229688c ("s390/cio: Do not unregister the
+>> subchannel based on DNV"), subchannel behavior following a device
+>> detach has been updated and results in -EINVAL being propagated
+>> rather than -ENODEV, originating from ccw_device_start_timeout_key()
+>> in cio/device_ops. In the end, the virtio driver has no ability to
+>> react to the difference between device and subchannel states here,
+>> and during detach, both -ENODEV and -EINVAL indicate the device
+>> cannot be used and should not be treated as errors requiring
+>> attention. Update error handling in virtio_ccw_del_vq() and
+>> virtio_ccw_drop_indicator() to suppress -EINVAL in addition to
+>> -ENODEV.
+>
+> Hi William!
+>
+> Are you saying that ccw_device_start() started returning -EINVAL
+> since 8c58a229688c ("s390/cio: Do not unregister the subchannel based on
+> DNV")? Or did I somehow read the paragraph wrong?
+>
+> The funcition ccw_device_start is documented to return:
+>  * Returns:                                                                     
+>  *  %0, if the operation was successful;                                        
+>  *  -%EBUSY, if the device is busy, or status pending;                          
+>  *  -%EACCES, if no path specified in @lpm is operational;                      
+>  *  -%ENODEV, if the device is not operational. 
+> and the commit message does not say a thing about introducing -EINVAL to
+> the mix.
 
-commit 4b098d22649d526ad54d46d65ab883c23baf1ae2
-Author: Douglas Freimuth <freimuth@linux.ibm.com>
+The function may return -EINVAL for non-enabled subchannels
+(i.e. pmcw.ena == 0), maybe we get an all-zeroes schib with dnv == 0?
+I'd expect it not to be enabled in that case anyway.
 
-KVM: s390: Introducing kvm_arch_set_irq_inatomic fast inject
-
-This commit introduces a fast path for irq injection to prevent blocking on
-the global work queue. It also converts shared resources between the fast a=
-nd
-slow paths to spinlocks and adds statistical counters for analysis.
-
-Message-ID: <20260604192755.203143-4-freimuth@linux.ibm.com>
-
-> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index 9265bc73cd938..dc9c7451fe979 100644
-> --- a/arch/s390/kvm/kvm-s390.c
-> +++ b/arch/s390/kvm/kvm-s390.c
-
-[ ... ]
-
-> @@ -4429,19 +4439,28 @@ int kvm_s390_try_set_tod_clock(struct kvm *kvm, c=
-onst struct kvm_s390_vm_tod_clo
->  }
-> =20
->  static void __kvm_inject_pfault_token(struct kvm_vcpu *vcpu, bool start_=
-token,
-> -				      unsigned long token)
-> +				     unsigned long token)
->  {
->  	struct kvm_s390_interrupt inti;
->  	struct kvm_s390_irq irq;
-> +	struct kvm_s390_interrupt_info *inti_mem =3D NULL;
-> +	int ret =3D 0;
-> =20
->  	if (start_token) {
->  		irq.u.ext.ext_params2 =3D token;
->  		irq.type =3D KVM_S390_INT_PFAULT_INIT;
->  		WARN_ON_ONCE(kvm_s390_inject_vcpu(vcpu, &irq));
->  	} else {
-> +		inti_mem =3D kzalloc_obj(*inti_mem, GFP_KERNEL_ACCOUNT);
-> +		if (WARN_ON_ONCE(!inti_mem))
-> +			return;
-
-[Severity: High]
-This isn't a bug introduced by this patch, but does this guest-reachable
-assertion pose a denial of service risk? Under host memory pressure, this
-allocation can fail. Since a guest can trigger async page faults (and thus
-host memory allocations) by accessing swapped-out memory, an unprivileged
-guest could exhaust memory limits to force this allocation to fail. This
-would intentionally hit the WARN_ON_ONCE, potentially crashing the host if
-panic_on_warn is enabled.
-
-> +
->  		inti.type =3D KVM_S390_INT_PFAULT_DONE;
->  		inti.parm64 =3D token;
-> -		WARN_ON_ONCE(kvm_s390_inject_vm(vcpu->kvm, &inti));
-> +		ret =3D kvm_s390_inject_vm(vcpu->kvm, &inti, inti_mem);
-> +		if (ret)
-> +			kfree(inti_mem);
-> +		WARN_ON_ONCE(ret);
-
-[Severity: High]
-This is a pre-existing issue, but could this assertion also be driven by a
-malicious guest? A guest can trigger up to ASYNC_PF_PER_VCPU * KVM_MAX_VCPUS
-async page faults by continuously accessing unmapped pages and intentionally
-masking floating interrupts.
-
-This would cause the host's floating interrupt list to hit its maximum
-capacity limit, causing kvm_s390_inject_vm() to return -EBUSY and triggering
-this WARN_ON_ONCE. Could this be converted to a pr_warn_once() or similar
-to avoid host denial of service?
-
->  	}
->  }
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260615124243.1876=
-14-1-imbrenda@linux.ibm.com?part=3D17
