@@ -1,116 +1,99 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 97D4040913C;
-	Mon, 15 Jun 2026 16:10:49 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F35E240BCD8;
+	Mon, 15 Jun 2026 16:40:20 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781539850; cv=none; b=QMwoYsw5L/VEAn2wG2Qa2c/JrmD1sJZe3eR+wkRKjXzgupyTT7TQGWsODSalK++8QragiKtfuUauh58D9wLDcMyUNuyGyuwsr9qPPAqAaIzplkGNR2kaA+pZ95P9tFfP1jZj0AL7qbwZPvx5HBpwY3J2zd8kYhwbWMVh9qJBDLc=
+	t=1781541621; cv=none; b=MeQ6bKoyLGat43FTYZPsXLhjIfhzu3DmPsvmq4eYgEymmIgNyNHpU2Mz6BRYVjo+RsQ0I6eEGq1ttR5J9rFUEAWIkliogPQGjGdHNkW9B8QkWDAl4aKgqmmIwfrVGjgkT/DiyEivMyh92SvWkRwBaBI7F82lYTJBduRAM1T0rZQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781539850; c=relaxed/simple;
-	bh=pGGyh2TRFwNAqUaNVPHy3MdxdEXBcZz1ASOfsY2J0hU=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=mnoZsD+hJXzsM1uAshQae2d/X557syBVA0pF/2p6W95WGG4DxGJZCuM0crqu7G1uSOEGQQX8gz9ESJdJfOlj70pLHEbwfmDJxy/NEy0y6WkyB+z7I1jfFzP0CKQ0xQCVM5CggAOUER6IFW7k6BY7tcVEFaDzoRfo4dlgea+ZGAM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ncLsD/vW; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1781541621; c=relaxed/simple;
+	bh=fMataVjVawB4LuTgNwBuwtbEgT0ewSM13MLu+YUD/ZU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=eWfRLvEuxHQxODs+QdN2mxMP1s1VWprHRR1jviXKwqvyekUsPMAqymg5uJlrGZVd+iOIU1Ts2EeRFqteJqjqpA64lEeUERG39Gp/p1/dsYK2L4AiDmZxcFlLq3AsGkeex4yOXwnqri4OmzDA2yDaCyaT4ivR4UQ1JNfn+vKP1Mc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WGci6GuM; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ncLsD/vW"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0A971F000E9;
-	Mon, 15 Jun 2026 16:10:45 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WGci6GuM"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53B691F000E9;
+	Mon, 15 Jun 2026 16:40:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781539849;
-	bh=lFxkCMBfVV3FCRRMIo+bBBEG8tTSxaqkdb7xuvcsV4E=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=ncLsD/vWptoJUo1ITW0lSHHZTP2t1jFEPCgv+CTUd42u/OmeM6lJ2bvGv/O2cguq/
-	 CGRVS+fQrV+ar2Dep2OqgxJGfaZb/u8VsZa3u3S1sYb5LxUDRAYgkk9yHZ3HbgLW8D
-	 hN7dHzVTxwwfwBmjSo2anFbJEMEw/z9vnC7/1IMQl8nlKuJJFyCsq5uKANHsNyPr82
-	 g3RuFX94bHb3kaiXw2kU3R+KxyuSepsnY8gGVuuMfvQsnZHtU3+XkENGhZiuDGSfWI
-	 Pmc3cW0zvvtQqyxSc6OuWgej1RK+iBlO7UmLdgN8dwmIPLTZA155+Fg8KmHxQA13T5
-	 ltKQBxyPSAsLg==
-From: Vincent Mailhol <mailhol@kernel.org>
-Date: Mon, 15 Jun 2026 18:09:07 +0200
-Subject: [PATCH 11/19] s390: define DPS root partition type UUIDs
+	s=k20260515; t=1781541620;
+	bh=vHty5W1wLqvhVA3NeN6Yxjt6mgiQU3qRuLgqXzcXCXU=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=WGci6GuMdB0mo+nUhnNFMwQrhgskGSaFTvcoQLVPEZJJW73YRzmg7gIFIRLY0S8po
+	 99tFzKc05fpHL/jgia6n2n9qZiymdXvJCVHpIQxcywP7m7CfWu1XSeVQVIugIUXQ3f
+	 tlSAJMjKeEAHbdbHUzd1T1E9p05hepObfQfc6WBcqtkdD9fcu5pMB3IjSOB4dqJSVU
+	 8I2DuxyL9rdZOuWkXAujxIAREGV2OorauQfkMfcCbgMK7lskRRTVgzDY+8LrJXa5QN
+	 ttveTzCA5x8akcW40vqsv0JuullEh7MchJhB0hK9v7xR6/NAotAxakaZyON0f9phSu
+	 ValGSIoNExDSg==
+Date: Mon, 15 Jun 2026 12:40:13 -0400
+From: Nathan Chancellor <nathan@kernel.org>
+To: Jan Polensky <japo@linux.ibm.com>
+Cc: hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+	ojeda@kernel.org, peterz@infradead.org, jpoimboe@kernel.org,
+	jbaron@akamai.com, aliceryhl@google.com, borntraeger@linux.ibm.com,
+	svens@linux.ibm.com, boqun@kernel.org, gary@garyguo.net,
+	bjorn3_gh@protonmail.com, lossin@kernel.org, a.hindborg@kernel.org,
+	tmgross@umich.edu, dakr@kernel.org, rostedt@goodmis.org,
+	ardb@kernel.org, linux-s390@vger.kernel.org,
+	rust-for-linux@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v6 6/6] s390: Enable Rust support
+Message-ID: <20260615164013.GA249489@ax162>
+References: <20260608181451.3734956-1-japo@linux.ibm.com>
+ <20260608181451.3734956-7-japo@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260615-discoverable-root_partitions-v1-11-39c78fac42e2@kernel.org>
-References: <20260615-discoverable-root_partitions-v1-0-39c78fac42e2@kernel.org>
-In-Reply-To: <20260615-discoverable-root_partitions-v1-0-39c78fac42e2@kernel.org>
-To: Jens Axboe <axboe@kernel.dk>, Davidlohr Bueso <dave@stgolabs.net>, 
- Alexander Viro <viro@zeniv.linux.org.uk>, 
- Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>
-Cc: linux-kernel@vger.kernel.org, linux-block@vger.kernel.org, 
- linux-efi@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
- Vincent Mailhol <mailhol@kernel.org>, Heiko Carstens <hca@linux.ibm.com>, 
- Vasily Gorbik <gor@linux.ibm.com>, 
- Alexander Gordeev <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org
-X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1915; i=mailhol@kernel.org;
- h=from:subject:message-id; bh=pGGyh2TRFwNAqUaNVPHy3MdxdEXBcZz1ASOfsY2J0hU=;
- b=owGbwMvMwCV2McXO4Xp97WbG02pJDFkGylfLshtvnHJ7dCT+Qb6LaOoZ2cSaSGWeDZO36e04H
- lG3IYSzYyILgxgXg6WYIsuyck5uhY5C77BDfy1h5rAygQyRFmlgAAIWBr7cxLxSIx0jPVNtQz1D
- IEPHiIGLUwCmWp2PkWHe/f23jm29Zx09SfrVUYHpPHJnpG+4W3zP3do6a7mA0V5LRobOPc+Z101
- rrNpbYNj6z6D1wbdnXgFyX5UVrU71F3Hc3MYKAA==
-X-Developer-Key: i=mailhol@kernel.org; a=openpgp;
- fpr=ED8F700574E67F20E574E8E2AB5FEB886DBB99C2
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260608181451.3734956-7-japo@linux.ibm.com>
 
-DPS [1] assigns GPT partition type UUIDs to operating system partitions.
-Root partitions use architecture-specific type UUIDs so the OS can
-discover the intended root filesystem without relying on a root= cmdline
-option.
+Hi all,
 
-Define DPS_ROOT_PARTITION_TYPE_UUID in asm/dps_root.h for the s390
-(32-bit) and s390x (64-bit) variants described by the specification and
-select ARCH_HAS_DPS_ROOT_PARTITION_TYPE_UUID.
+On Mon, Jun 08, 2026 at 08:14:51PM +0200, Jan Polensky wrote:
+> Enable building Rust code on s390 by wiring the architecture into the
+> kernel Rust infrastructure.
+> 
+> Add s390 to the Rust arch support documentation, provide the s390 Rust
+> target and required compiler flags, and set the bindgen target for
+> arch/s390. Adjust the Rust target generation and minimum rustc version
+> gating so the s390 setup is handled explicitly.
+> 
+> The Rust toolchain uses the "s390x" triple naming for the 64 bit target.
+> 
+> Rust support is currently incompatible with CONFIG_EXPOLINE, which
+> relies on compiler support for the -mindirect-branch= and
+> -mfunction_return= options. Therefore, select HAVE_RUST only when
+> EXPOLINE is disabled.
+> 
+> Acked-by: Miguel Ojeda <ojeda@kernel.org>
+> Acked-by: Heiko Carstens <hca@linux.ibm.com>
+> Signed-off-by: Jan Polensky <japo@linux.ibm.com>
+...
+> diff --git a/arch/s390/Makefile b/arch/s390/Makefile
+> index 297976b41088..8b712cd85fcd 100644
+> --- a/arch/s390/Makefile
+> +++ b/arch/s390/Makefile
+> @@ -35,25 +35,31 @@ KBUILD_CFLAGS_DECOMPRESSOR += $(if $(CONFIG_DEBUG_INFO),-g)
+>  KBUILD_CFLAGS_DECOMPRESSOR += $(if $(CONFIG_DEBUG_INFO_DWARF4), $(call cc-option, -gdwarf-4,))
+>  KBUILD_CFLAGS_DECOMPRESSOR += $(if $(CONFIG_CC_NO_ARRAY_BOUNDS),-Wno-array-bounds)
+>  
+> +KBUILD_RUSTFLAGS += --target=s390x-unknown-none-softfloat -Zpacked-stack -Ctarget-feature=+backchain
 
-[1] The Discoverable Partitions Specification (DPS)
-Link: https://uapi-group.org/specifications/specs/discoverable_partitions_specification/
+With Rust 1.96.0, I see the following warning several times when
+building Rust code in -next:
 
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org
-Signed-off-by: Vincent Mailhol <mailhol@kernel.org>
----
- arch/s390/Kconfig                |  1 +
- arch/s390/include/asm/dps_root.h | 12 ++++++++++++
- 2 files changed, 13 insertions(+)
+  warning: unstable feature specified for `-Ctarget-feature`: `backchain`
+    |
+    = note: this feature is not stably supported; its behavior can change in the future
 
-diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index 9921a3772bf7..af2cf67fffd7 100644
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -91,6 +91,7 @@ config S390
- 	select ARCH_HAS_DEBUG_WX
- 	select ARCH_HAS_DEVMEM_IS_ALLOWED
- 	select ARCH_HAS_DMA_OPS if PCI
-+	select ARCH_HAS_DPS_ROOT_PARTITION_TYPE_UUID
- 	select ARCH_HAS_ELF_RANDOMIZE
- 	select ARCH_HAS_FORCE_DMA_UNENCRYPTED
- 	select ARCH_HAS_FORTIFY_SOURCE
-diff --git a/arch/s390/include/asm/dps_root.h b/arch/s390/include/asm/dps_root.h
-new file mode 100644
-index 000000000000..e72e44a66097
---- /dev/null
-+++ b/arch/s390/include/asm/dps_root.h
-@@ -0,0 +1,12 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+
-+#ifndef _ASM_S390_DPS_ROOT_H
-+#define _ASM_S390_DPS_ROOT_H
-+
-+#ifdef CONFIG_64BIT
-+#define DPS_ROOT_PARTITION_TYPE_UUID "5eead9a9-fe09-4a1e-a1d7-520d00531306"
-+#else
-+#define DPS_ROOT_PARTITION_TYPE_UUID "08a7acea-624c-4a20-91e8-6e0fa67d23f9"
-+#endif
-+
-+#endif /* _ASM_S390_DPS_ROOT_H */
+  warning: 1 warning emitted
+
+I assume this is expected? If so, is there a way to silence this warning?
 
 -- 
-2.53.0
-
+Cheers,
+Nathan
