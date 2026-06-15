@@ -1,44 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AABEA3ECBEA;
-	Mon, 15 Jun 2026 13:05:24 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 95F403EB0F2;
+	Mon, 15 Jun 2026 13:07:27 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781528725; cv=none; b=MsfdBfWZDD5jDrPt2WFZb3nLTfUlYMY/JT2Ty1BIm1TYRAR6S6gFfTvzN/vlyMIYXkX2A1Ck0InOjmeICTj12ic9USBgw7ORwS7c4aXp0a21iizdPG0HRNaKZBwBBAckFe5up1sICmTLkXC5pfzLxBC5Ks09tvhbhni7bMqjRHs=
+	t=1781528848; cv=none; b=JmE7IlbbUmbaM7XmmooxMhs3k+baJlj8sSRE6mTLbOKXhxqa94sv5qpWUWBCI08jLNhFFrdAoCiTv6ykpwyIzekT9rxxQgKnEr4NoMr0gxbXLE9u5Uv71OWyPVwineUodMQzScFEO43BdTc3c33NtRXfgHQUTFlmAq2gCGMveIA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781528725; c=relaxed/simple;
-	bh=tCHNsusSp8NhTYMBilkODGANQcZ89jbCK7Wb5eQYQ3g=;
+	s=arc-20240116; t=1781528848; c=relaxed/simple;
+	bh=e+9J+xR3ilcFt1flWZK/6j8o2++oWVoMYiJTu4vdrrE=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=u960GWTDE6X0ACw+pmmBRntRNI1aNKlQQBAokV4wF4eLhHxIIXuZ2/4BZZo2ZPmMGK7QrkgHmtF+QqdGBzjIpbiOwp2fhZUaJio6shRg9HtPev7RknKHRXS6fx3qKNCS2Tnf7RarglbGLJptnxsOPVUCrrCChsi5oiL03iLUeg4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=I5KBypGA; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=dyRSUyd78E2MjDnZrVGH98pVFk4rOwMN9i4aVbpYM1/qp7+XXvJC4fvH80Zl+pAQfCI8PZfIk2ONMlwbA5WtmFbSLQa6etyfOMOC7JNQX8pbXF48kZtG+TQJSCcI2e3zvChzaKzKUu5qJMqD4WjtwWs+B2ItyvEliEBXCeqCgUw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=a82XwiHS; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="I5KBypGA"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E00D21F00A3A;
-	Mon, 15 Jun 2026 13:05:23 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="a82XwiHS"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3BDFA1F00A3A;
+	Mon, 15 Jun 2026 13:07:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781528724;
-	bh=ZozzbB0cPdVmT1WKgILVIrojf5AgjvK8zIaHhlsybUI=;
+	s=k20260515; t=1781528847;
+	bh=+6l0Dacb9ahm6att4v+pTLyr9UPV4fIHFd6mdDyl5mA=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=I5KBypGAkPRAjT3iafNeHVTptKPXwoDhSSHItIpZWVhoTkNn7FEOk0R9LuRBt7rwj
-	 Zrx4XRVU1dUvBoHoN5ZDWuKyrry+r6LOFtWovXcykYL/w6CiYSsSNTOxCeszCabVDv
-	 39rgKhPX6LhgN4qYOucOO6KweE/TiOMohbWBzyuNyPS98cRRNHZdybgatjnsmrFdu2
-	 M5ghlvMGNdawsL5JOn3NmzFns4zFLRNsYcOCW3xMlz8JiGALkIqOjDjfJK8vu8bZ0n
-	 aG1NFXOJLtZIxO1EaP8WA6QLvQo7k6eNixQd61EFjwYAR3p5VN5UuKge/feZd02dDO
-	 omFiB3ldtdbKQ==
+	b=a82XwiHSOVTmoand7pMLVaifI80JeG8Am1b6ybcUD7u+SDavWGd2Cq6hCPhlExrzT
+	 s/PNTLk/kqyxTJrRXccyMuiW/qIXSZHS20q6RML6TzgRIKKqlZS/CNXhHQlIp+x3di
+	 ydUMyn0IV2WBzt8jOac9IpC2r90HwRIEWOSr+Fx4luwCx0A572qZysHWivC1/7BGEj
+	 jIAz6fSrZlzD/JZT+TVqyvZonScmkuAvkmMKfrRqSpbDAWytpWAI8soxYC8qEkgRza
+	 39NBGuLYmZX7nmb1G50u4l8HTtRV8qzTODk5QQKDSyT7+Fe6/+m5otcmlLSU269RMw
+	 CwlEX4jW0uzpA==
 From: sashiko-bot@kernel.org
-Subject: Re: [GIT PULL v1 07/17] KVM: s390: Add capability to support 2G
- hugepages
+Subject: Re: [GIT PULL v1 10/17] KVM: s390: Initialize
+ KVM_S390_GET_CMMA_BITS memory
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>
-Cc: "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Heiko
- Carstens" <hca@linux.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org
-In-Reply-To: <20260615124243.187614-8-imbrenda@linux.ibm.com>
-References: <20260615124243.187614-8-imbrenda@linux.ibm.com>
+Cc: "Heiko Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, "Vasily
+ Gorbik" <gor@linux.ibm.com>
+In-Reply-To: <20260615124243.187614-11-imbrenda@linux.ibm.com>
+References: <20260615124243.187614-11-imbrenda@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 15 Jun 2026 13:05:23 +0000
-Message-Id: <20260615130523.E00D21F00A3A@smtp.kernel.org>
+Date: Mon, 15 Jun 2026 13:07:26 +0000
+Message-Id: <20260615130727.3BDFA1F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -49,85 +49,70 @@ Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [High] Userspace can simultaneously enable both CMMA and huge pages (1M a=
-nd 2G), bypassing mutual exclusivity, because KVM_S390_VM_MEM_ENABLE_CMMA d=
-oes not check if huge pages are already enabled.
+- [Critical] In `dat_peek_cmma()`, if the provided `start` guest frame numb=
+er (GFN) is out of bounds, `_dat_walk_gfn_range()` immediately returns `-EF=
+AULT` without executing any callbacks. Consequently, `state.end` remains `0=
+`. The function then computes `*count =3D state.end - start`, which underfl=
+ows into a large unsigned integer. This underflow bypasses the error check =
+and causes `kvm_s390_get_cmma_bits()` to perform a massive out-of-bounds re=
+ad and copy kernel memory to userspace.
 --
 
-commit 98eba733f54412a163121c369883f11ed5ca35db
-Author: Claudio Imbrenda <imbrenda@linux.ibm.com>
+commit d8e920ce2bbd8785a01a3239ce6dc856e44c18b4
+Author: Christian Borntraeger <borntraeger@linux.ibm.com>
+KVM: s390: Initialize KVM_S390_GET_CMMA_BITS memory
 
-KVM: s390: Add capability to support 2G hugepages
+This commit changes the output buffer allocation in kvm_s390_get_cmma_bits()
+from vmalloc to vzalloc. This prevents unmapped or clean pages from exposing
+uninitialized kernel memory to userspace during migration.
 
-This commit adds the KVM_CAP_S390_HPAGE_2G capability to signal to userspace
-that 2G hugepages may be used to back the guest. It also implements the
-necessary gmap flag enablement and propagation for the new hugepage size.
+Message-ID: <20260611105036.11491-1-borntraeger@linux.ibm.com>
 
 > diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index 49c330580dc88..35e5971a474f6 100644
+> index 35e5971a474f6..f643cf512f127 100644
 > --- a/arch/s390/kvm/kvm-s390.c
 > +++ b/arch/s390/kvm/kvm-s390.c
-[ ... ]
-> @@ -902,6 +907,27 @@ int kvm_vm_ioctl_enable_cap(struct kvm *kvm, struct =
-kvm_enable_cap *cap)
->  		VM_EVENT(kvm, 3, "ENABLE: CAP_S390_HPAGE %s",
->  			 r ? "(not available)" : "(success)");
->  		break;
-> +	case KVM_CAP_S390_HPAGE_2G:
-> +		mutex_lock(&kvm->lock);
-> +		if (kvm->created_vcpus) {
-> +			r =3D -EBUSY;
-> +		} else if (!hpage_2g || kvm->arch.use_cmma || kvm_is_ucontrol(kvm)) {
+> @@ -2284,7 +2284,7 @@ static int kvm_s390_get_cmma_bits(struct kvm *kvm,
+>  		return 0;
+>  	}
+> =20
+> -	values =3D vmalloc(args->count);
+> +	values =3D vzalloc(args->count);
 
-[Severity: High]
-This is a pre-existing issue, but could userspace bypass this mutual
-exclusivity check between CMMA and huge pages?
+[Severity: Critical]
+This is a pre-existing issue, but does the error handling in the peek path
+allow an underflow of args->count that leads to an out-of-bounds read later?
 
-When enabling huge pages via KVM_CAP_S390_HPAGE_1M or KVM_CAP_S390_HPAGE_2G,
-KVM correctly rejects the operation if kvm->arch.use_cmma is already set.
+If an out-of-bounds start_gfn is passed, dat_peek_cmma() calls
+_dat_walk_gfn_range() which returns -EFAULT immediately, leaving state.end
+at 0:
 
-However, if userspace enables huge pages first, and then enables CMMA,
-kvm_s390_set_mem_control() does not appear to verify if huge pages are
-already active:
-
-arch/s390/kvm/kvm-s390.c:kvm_s390_set_mem_control() {
+arch/s390/kvm/dat.c:dat_peek_cmma() {
     ...
-    case KVM_S390_VM_MEM_ENABLE_CMMA:
-        ...
-        mutex_lock(&kvm->lock);
-        if (kvm->created_vcpus)
-            ret =3D -EBUSY;
-        else {
-            kvm->arch.use_cmma =3D 1;
-            /* Not compatible with cmma. */
-            kvm->arch.use_pfmfi =3D 0;
-            ret =3D 0;
-        }
-        mutex_unlock(&kvm->lock);
-    ...
+	rc =3D _dat_walk_gfn_range(start, start + *count, asce, &ops, DAT_WALK_DEF=
+AULT, &state);
+	*count =3D state.end - start;
+	/* Return success if at least one value was saved, otherwise an error. */
+	return (rc =3D=3D -EFAULT && *count > 0) ? 0 : rc;
 }
 
-Does this sequence allow the guest to run with both kvm->arch.use_cmma
-and GMAP_FLAG_ALLOW_HPAGE_2G (or 1M) enabled simultaneously?
+If start is greater than 0 and state.end is 0, *count will underflow to a
+large unsigned integer. Because this underflowed *count is greater than 0,
+dat_peek_cmma() masks the -EFAULT and incorrectly returns 0 for success.
 
-If so, and the guest executes the ESSA instruction on a huge page, would
-this lead to KVM entering an infinite intercept loop that stalls the vCPU,
-or cause undefined hardware behavior if migration mode is inactive?
+When execution continues in kvm_s390_get_cmma_bits(), this underflowed
+args->count is passed directly to copy_to_user():
 
-> +			r =3D -EINVAL;
-> +		} else {
-> +			r =3D 0;
-> +			set_bit(GMAP_FLAG_ALLOW_HPAGE_2G, &kvm->arch.gmap->flags);
-> +			/*
-> +			 * We might have to create fake 4k page
-> +			 * tables. To avoid that the hardware works on
-> +			 * stale PGSTEs, we emulate these instructions.
-> +			 */
-> +			kvm->arch.use_skf =3D 0;
-> +			kvm->arch.use_pfmfi =3D 0;
-> +		}
-> +		mutex_unlock(&kvm->lock);
+	if (copy_to_user((void __user *)args->values, values, args->count))
+		ret =3D -EFAULT;
+
+Can this allow a user to craft a start_gfn that triggers this underflow and
+copies memory beyond the vzalloc buffer to userspace?
+
+>  	if (!values)
+>  		return -ENOMEM;
+>
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260615124243.1876=
-14-1-imbrenda@linux.ibm.com?part=3D7
+14-1-imbrenda@linux.ibm.com?part=3D10
