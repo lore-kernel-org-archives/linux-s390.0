@@ -1,64 +1,64 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 936683E557F;
-	Mon, 15 Jun 2026 12:42:54 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 221BA219301;
+	Mon, 15 Jun 2026 12:42:55 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781527375; cv=none; b=r10bGkjlzlL5hZ1lOH9h/fdgkW2NMXCZNDuZUHRYo4Lbg4DwP24IJTjY9eY3jjhz3OfCbWomHGNN+9oEzVXz/8a2eqSChRRNTD5MXWksD+xe7lvqnKhjJjyUPu0RNTjSjdh1oGuEtEBs8y+AbJb2obkOQWzT7wSs0AdoaDqMY4U=
+	t=1781527376; cv=none; b=npiogsZmRlBpjxSeA94uPL7GOBXzXleyCunF34xt1rdccG14wINNNZEKtUHesp4ua1ztpmseJno7nqfu4z+YbhqL3lvaJZl99sy/ezQBbTmXMkRZ+qJfGOGuPRPOcBi5VhT74Xp3UGi22zSlv/bWe0IsMs7CDCnWqCmJDPGwTNU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781527375; c=relaxed/simple;
-	bh=PsYqllWnfberHB/5SW5F+vVd7sKL5TcWTl+LDfdlCrY=;
+	s=arc-20240116; t=1781527376; c=relaxed/simple;
+	bh=//51zd7vctwwUhBm92wjwifjP7CUSgJkDUl0VyrxYYk=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=u4UhZSh/n37G3NDjVMQuTin1/Kk//zbKKSrY1gxjv3egCS/+hQj0AghggZl7WrFvB7eRrhYIJSPsailW7G68le8BF5fiYFiIR88K3Ubs3JNlHhWW1s1MsjE7u3Uv9+r5tlob+QFoA2njFPJ6ra0+16aasi1bLHXQqz4SYP2a5RU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=sAPS73AM; arc=none smtp.client-ip=148.163.156.1
+	 MIME-Version; b=ZgRBvwVvZ69+B0Mq0QiylwfI46aiunh4HA65JTjeVx7uTFdy+1kpbrs9u/t0TX3BQhOSal4+glXP2wzXtUGKodVX2+KGE5P9mDPBbugReuiP5YXWvzpHsB6RjZC1ZTbd4mMatvJ165/nRmRwU7WLcm+9pb1Ntco7ENv2mD7W8Eg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=NrnAn0mP; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="sAPS73AM"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="NrnAn0mP"
 Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65FAo0M52208714;
-	Mon, 15 Jun 2026 12:42:51 GMT
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65FAo2w42208901;
+	Mon, 15 Jun 2026 12:42:53 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=usOe955sna4HfzTga
-	6g5XrsjQW9LZ4agDuivEpbntkI=; b=sAPS73AM9YJ0WfVzgMcd6saMPlBfv13WZ
-	OZ6XPQSCu9lTPELfli1qNpxdyGYcsTkEs0pqPk4KkOMBXDmjPG1fpQlLb0DxEQsh
-	PbSABY4+XX62UMhuFb+vWg8HyyBMsw8fBfvo5XbDVbgYE+vbbiEABPiw56wTZ41e
-	WAY87siKX6TG0QtA+MlZ6Lp35LMz9Q/O9EqVLj3qzxP4W/2/kBmSYWahOzNYNTFo
-	bwuLVSGSq/NVSa/VlTmPameIOxkrjbZyt6+2QyKSg2Boa/yLclheLV0Tde0ssYHg
-	Y+aXa+H3RKK83GPVtdvpreEUkOtGt9BZQGvvAyboFc0c1D95hCFWw==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4es1wm0g77-1
+	:mime-version:references:subject:to; s=pp1; bh=l2WVwzok1dkxISG2m
+	rV2clWaIfmcJ4BZ9HPJI6m819c=; b=NrnAn0mPpzyUrxl8CkSDevaauJoSP48M9
+	GWm8cE2KttFMk8zYiPrIvJEdBbGpgy162OO867MuHe9ium8zsQgYkbPU6ZPYKMWm
+	ngYdnc1JBvVeLZvP58D4ypXMX4paIomKXp4YHd04SUUG2SnObGOEOhU+km3x7hJX
+	p4z40jI30YcjyBHNdRGu25fhYnUEol1HnfifzuYzWdyJGOmhXUgs9veORGtSHC3c
+	IHBEpBMKxOHUZVAhLrJcWVJMNX1oybIvXdhP3LvUuW3og8F9T7PJTFF6EGoHFpMV
+	y5soDuWgvSlWUW3sTMv9ELzLWXXfZvw4Muv40fZ6ldeBxqg8qaX2A==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4es1wm0g7d-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 15 Jun 2026 12:42:52 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 65FCYgPV025510;
+	Mon, 15 Jun 2026 12:42:51 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4esk1gxgmt-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Mon, 15 Jun 2026 12:42:51 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 65FCYmvq017189;
-	Mon, 15 Jun 2026 12:42:50 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4eskrg6cpt-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 15 Jun 2026 12:42:50 +0000 (GMT)
 Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 65FCgi9c58720716
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 65FCgkXO43647240
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 15 Jun 2026 12:42:44 GMT
+	Mon, 15 Jun 2026 12:42:46 GMT
 Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 675E420040;
-	Mon, 15 Jun 2026 12:42:44 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 0966A20040;
+	Mon, 15 Jun 2026 12:42:46 +0000 (GMT)
 Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id F31B820067;
-	Mon, 15 Jun 2026 12:42:43 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 94A282004B;
+	Mon, 15 Jun 2026 12:42:45 +0000 (GMT)
 Received: from p-imbrenda.ibmuc.com (unknown [9.111.31.49])
 	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 15 Jun 2026 12:42:43 +0000 (GMT)
+	Mon, 15 Jun 2026 12:42:45 +0000 (GMT)
 From: Claudio Imbrenda <imbrenda@linux.ibm.com>
 To: pbonzini@redhat.com
 Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, frankja@linux.ibm.com,
         borntraeger@de.ibm.com
-Subject: [GIT PULL v1 01/17] KVM: s390: Track page size in struct guest_fault
-Date: Mon, 15 Jun 2026 14:42:27 +0200
-Message-ID: <20260615124243.187614-2-imbrenda@linux.ibm.com>
+Subject: [GIT PULL v1 04/17] KVM: selftests: Fix pre_fault_memory_test to run on s390
+Date: Mon, 15 Jun 2026 14:42:30 +0200
+Message-ID: <20260615124243.187614-5-imbrenda@linux.ibm.com>
 X-Mailer: git-send-email 2.54.0
 In-Reply-To: <20260615124243.187614-1-imbrenda@linux.ibm.com>
 References: <20260615124243.187614-1-imbrenda@linux.ibm.com>
@@ -70,23 +70,24 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNjE1MDEzMCBTYWx0ZWRfX2ZGPrSG+sZo7
- T/oR9aXYYhsgP0M6VROB8PPV2MDftikXN4usugKTr/TgoB7fmUx8RAh8q5vh+dddA47glorvciX
- +8cGUGJkcImfXbOFLb31vGFY4aatOKI=
-X-Proofpoint-GUID: EOdsVSsSpBYrIiXGm0OYyQ6VlNHzr6Pc
-X-Authority-Analysis: v=2.4 cv=SY/HsPRu c=1 sm=1 tr=0 ts=6a2ff34b cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNjE1MDEzMCBTYWx0ZWRfX+QukukjtYPvH
+ KPZxS1tCBnA+9KZ+u4hUtZiqAbTvclBVQatCXghHkO7iH4cp3CAAAHEP1JX4XiljN6AXJAgUsWL
+ Dg1wro2Uk4vRSR8KEFA0uPjKn30bJoU=
+X-Proofpoint-GUID: fXBTnPRmESC9onvD8lvvtPA9BX_u8Fl1
+X-Authority-Analysis: v=2.4 cv=SY/HsPRu c=1 sm=1 tr=0 ts=6a2ff34c cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
  a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8 a=HydwJh4hHmF5zmZ3e14A:9
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjE1MDEzMCBTYWx0ZWRfX/S9Iz5VoDVbZ
- JJpbXLNHuIomPGsye9NPKRsW44TMd7RJ9fSAc6/rfsZqVVRjcCDHq0H4Fr8dauybxI8xLd1ORy3
- SiEmrS/zpvX3gbVfiHuXriwNLTKonxH5TDi0m4IY1KF4TXdEV138Rv+yhVxPU9IjzFOv6Nh710d
- SS22FQczFEwZrjEwtL4MmZrawT7514Ra8Qwe9tVgl++vr0VwUj11oQzLBCjPN5lw2y7JcgOomCb
- puXjpiQ86gKDlVB4RiJIlCEhLIYn8lWzOBwCaAkYMU2pgdlkKJJ00buGb2BOEsx94eBWVnkjae4
- Svb7pRbvImQS4YI4qy+j2DL6ICYPvr/yjbrwC6dBAxX3WQGpnWdcEqa3seEEte5DvsleCiOHsKq
- emH6Aw8S6uiDFz4Y1v9+CXep56EIEqk9Sb3Ay8uyHzSLWtFj5KcGbpv4qMLpdsHBKtl7Konuufa
- JpEuRmHiCL+BKTdtANw==
-X-Proofpoint-ORIG-GUID: EOdsVSsSpBYrIiXGm0OYyQ6VlNHzr6Pc
+ a=U7nrCbtTmkRpXpFmAIza:22 a=1XWaLZrsAAAA:8 a=VnNF1IyMAAAA:8
+ a=gJwFvwdI_JxUXFNrYgUA:9
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjE1MDEzMCBTYWx0ZWRfXylEqBcZsMz26
+ F0rtXg7cBZVuIalv7rqdCNp7/afX73Qip6Pl7ea0gBijkcFTCMVr5QGbamWcOngq4/LyiAgECvz
+ hg2Q4DqcL9kTZSkzl/FKKp3OiSPKJ6PzFvKTX+pIZNtuzt1JA60ban/Mdbs85QV8Rq38JdKdaDz
+ nRWb4cbMbaWxnp6FmRUKDH0a5qjtJjsRXSTRpx30FgF/azLZkdVxgbvFZHt8gTwXM/35v3aswAb
+ 6SL7xjeqVA35ZQ9ZKiQo/2y/89vA4jHthPRdjBM2J8l0KGffrXkOv2tfGk9xshOZWdytZRLoKH1
+ KlvuDYkuWuyGaen0auxp8YpmUfEU+pllEt9AZh5VoTClskDNZECmTfW15L0NknvEUlHgcrfSaL1
+ /zoGctFZc8BzgIC/L0OT0S8O6ZNZareN/wNS+LuQ/SaMCaJJM9sePue5V97kQBeAqZHamlw4MXs
+ XBWERiz/JbgUqT+r53Q==
+X-Proofpoint-ORIG-GUID: fXBTnPRmESC9onvD8lvvtPA9BX_u8Fl1
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
  definitions=2026-06-15_03,2026-06-15_01,2025-10-01_01
@@ -97,66 +98,52 @@ X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
  route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606040000
  definitions=main-2606150130
 
-Until now, the members of struct guest_fault are always accessed while
-holding the required locks, and thus the ptep and crstep pointers can
-be dereferenced safely.
+Add a missing #include <ucall_common.h> which is needed and otherwise
+not included on s390.
 
-There will be some new cases where callers of kvm_s390_faultin_gfn()
-need to know the size of the page used to solve the fault, at which
-point no locks are held anymore, and dereferencing the crstep field
-is not possible.
+Remove the assertion  vcpu->run->exit_reason == KVM_EXIT_IO  since it
+is x86-specific and redundant anyway.
 
-Introduce a new crste_region3 flag for struct guest_fault to indicate
-whether the crstep used to solve the fault was a region 3 entry with FC=1
-(large pud).
-
-This allows to disambiguate all three possible scenarios:
-* If ptep is not NULL, the fault was solved with a pte.
-* If ptep is NULL and crste_region3 is 0, a segment entry with FC=1
-  (large pmd) was used.
-* If ptep is NULL and crste_region3 is 1, a region 3 entry with FC=1
-  (large pud) was used.
-
+Acked-by: Sean Christopherson <seanjc@google.com>
 Reviewed-by: Steffen Eiden <seiden@linux.ibm.com>
 Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Message-ID: <20260527144358.186359-2-imbrenda@linux.ibm.com>
+Message-ID: <20260527144358.186359-5-imbrenda@linux.ibm.com>
 ---
- arch/s390/kvm/dat.h  | 1 +
- arch/s390/kvm/gmap.c | 2 ++
- 2 files changed, 3 insertions(+)
+ tools/testing/selftests/kvm/pre_fault_memory_test.c | 7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
 
-diff --git a/arch/s390/kvm/dat.h b/arch/s390/kvm/dat.h
-index 8f8278c44879..5d848e74e382 100644
---- a/arch/s390/kvm/dat.h
-+++ b/arch/s390/kvm/dat.h
-@@ -500,6 +500,7 @@ struct guest_fault {
- 	bool write_attempt;	/* Write access attempted */
- 	bool attempt_pfault;	/* Attempt a pfault first */
- 	bool valid;		/* This entry contains valid data */
-+	bool crste_region3;     /* Whether crstep refers to a region3 entry */
- 	void (*callback)(struct guest_fault *f);
- 	void *priv;
- };
-diff --git a/arch/s390/kvm/gmap.c b/arch/s390/kvm/gmap.c
-index 3c26e35af0ef..fe138d17caaf 100644
---- a/arch/s390/kvm/gmap.c
-+++ b/arch/s390/kvm/gmap.c
-@@ -531,6 +531,7 @@ static int gmap_handle_minor_crste_fault(struct gmap *gmap, struct guest_fault *
- 	f->pfn = PHYS_PFN(large_crste_to_phys(oldcrste, f->gfn));
- 	f->writable = oldcrste.s.fc1.w;
+diff --git a/tools/testing/selftests/kvm/pre_fault_memory_test.c b/tools/testing/selftests/kvm/pre_fault_memory_test.c
+index fcb57fd034e6..a0fcae3cb7a8 100644
+--- a/tools/testing/selftests/kvm/pre_fault_memory_test.c
++++ b/tools/testing/selftests/kvm/pre_fault_memory_test.c
+@@ -11,6 +11,7 @@
+ #include <kvm_util.h>
+ #include <processor.h>
+ #include <pthread.h>
++#include <ucall_common.h>
  
-+	f->crste_region3 = is_pud(oldcrste);
- 	/* Appropriate permissions already (race with another handler), nothing to do. */
- 	if (!oldcrste.h.i && !(f->write_attempt && oldcrste.h.p))
- 		return 0;
-@@ -690,6 +691,7 @@ static int _gmap_link(struct kvm_s390_mmu_cache *mc, struct gmap *gmap, int leve
- 			if (oldval.val != _CRSTE_EMPTY(oldval.h.tt).val &&
- 			    crste_origin_large(oldval) != crste_origin_large(newval))
- 				return -EAGAIN;
-+			f->crste_region3 = is_pud(newval);
- 		} while (!gmap_crstep_xchg_atomic(gmap, f->crstep, oldval, newval, f->gfn));
- 		if (f->callback)
- 			f->callback(f);
+ /* Arbitrarily chosen values */
+ #define TEST_SIZE		(SZ_2M + PAGE_SIZE)
+@@ -167,7 +168,6 @@ static void __test_pre_fault_memory(unsigned long vm_type, bool private)
+ 		.type = vm_type,
+ 	};
+ 	struct kvm_vcpu *vcpu;
+-	struct kvm_run *run;
+ 	struct kvm_vm *vm;
+ 	struct ucall uc;
+ 
+@@ -193,11 +193,6 @@ static void __test_pre_fault_memory(unsigned long vm_type, bool private)
+ 	vcpu_args_set(vcpu, 1, gva);
+ 	vcpu_run(vcpu);
+ 
+-	run = vcpu->run;
+-	TEST_ASSERT(run->exit_reason == KVM_EXIT_IO,
+-		    "Wanted KVM_EXIT_IO, got exit reason: %u (%s)",
+-		    run->exit_reason, exit_reason_str(run->exit_reason));
+-
+ 	switch (get_ucall(vcpu, &uc)) {
+ 	case UCALL_ABORT:
+ 		REPORT_GUEST_ASSERT(uc);
 -- 
 2.54.0
 
