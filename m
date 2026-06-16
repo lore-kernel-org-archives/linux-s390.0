@@ -1,60 +1,60 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 962163A1E69;
-	Tue, 16 Jun 2026 14:27:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B22523C063F;
+	Tue, 16 Jun 2026 14:54:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781620047; cv=none; b=BpOK4rvl1xVDwTC/8EIuN7XTjqjvyLkbnq9tMJcRVQms3WsSztbpfNmJMbQKMBJh+XZf+LZ5AMTQScQtBnwLoP6pKmWw0z0nVWJyhfjsXFaTdoTXabmlkZdncQ2bU8MDTgg0BgXWiXPkN9jeV7GiA+igk1y2tfEJyCkQcdLsitU=
+	t=1781621649; cv=none; b=gNRTtSHyQckFQKSARNgG82iTOkpeoDfu8r2IWlhy8B4pnNJWV0bu2aTkkJ6EaQREEq9MC0jyynLnaq2UUlsImKzsBp6uQV98baf/vKJZzEpUYY2F8BsD76TlK2zez7sZYQrglnk6/tZ6n9quSu9BL2msk//K9ZG95+C+vWJ5x0w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781620047; c=relaxed/simple;
-	bh=1TEa1AEWrpo5vlROCNgvTad5PWUPE/qQn8wASMr7nCI=;
+	s=arc-20240116; t=1781621649; c=relaxed/simple;
+	bh=+KcgMYMMD+KuHhREcBgmyUVl+Dnk/gARVOdMr6X+olI=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=rYFlxNNljk3OgAb7QSfXwHQsEnK8NOzoBm9Mffvs1wKCnzBXvzLYzZnlbgkNnrnYVtc90cYZhrVnI7ULvtkRHeqyqLq/Zm6NktxUAlXfDhBAQZUBGK0tkizThOcEqnx2N9AJzu2UU4kqUfw70KZUOObfbQRa4RfRSDdtXX/g8TY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=aRI6qfEo; arc=none smtp.client-ip=148.163.156.1
+	 In-Reply-To:Content-Type; b=IAE4Gcznh4VkW0i8hXStFNLEfuxkaVIbkRebtUucwqZAQQSHxtsgijzu7VEcgsoxwOuTiHu79+g6IEZL9QTi1BnACKz4hQl3J+fKjDZk3yGdZUELy63DnnsOMhWMcvlC8ltmY6w3FQ/HB9Tm/lAfcS0FqltW0nLGMGcdmDhSfTM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=hFMeVlfr; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="aRI6qfEo"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65GEICjj1763843;
-	Tue, 16 Jun 2026 14:27:13 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="hFMeVlfr"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65GEIeAH1673457;
+	Tue, 16 Jun 2026 14:54:04 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=IjuEIJ
-	SriwuP01r/+rNqGP9V1B2LCAw9Xpaog56O+38=; b=aRI6qfEoXL+uBKVIlvR1P+
-	DUjnck+WtmfRzEYpFdxNSPPozP25iDNI9i13sKCum7JQbawWmYMynlD0LY3VgFHn
-	/gIWOHDgzEzjXATGUcaePVXKCOxaXSyqmOAF6T7S4qSoZ2irSv49lHGlWi+VygOe
-	VcB9jBZdFUxz1uYJ78unQtBJz/z5abIgfMSv9/kopVLFUsSGonR+pyxn8CRKBbxr
-	CS7J8Lw2uFqokAegqewYMOo1XFHJS1Twfik4nvGw1L1eSPdUsgTppXtu/ruCT6rE
-	MQ5McqFS34VBh3qh3dbheMvlr/6um28nY7GXzxf0lV61jGD59LURWoVRCnmKIGdw
+	:message-id:mime-version:references:subject:to; s=pp1; bh=DRdxeZ
+	5SshvjWgEvhuzvZReA8eXY9OnUcM5NT73ix/0=; b=hFMeVlfrZIlTBjK9gQKMP+
+	F+lJJpZ2xxZ/Cj8i8Po+0sDYNEem6/EbOpZYLFKISRmi0jYUsNxFn7sIJAFL6TVx
+	9uG4urwzjj6cBxFESPLSiT71x26ZLH/4kPBY4N384jYKYgb1XirJwKUhU0vGPWDI
+	kBC+CnoyhsGGaQFqknQi0aAcDXP2q3uVXEidMx82SG8YFdXBFthovYF7vSVKxO8l
+	btYIVpRS+CSYHRUEa8oKeojftFr9lZgFhZL/YMxnxqMP1qfU7diD7k8E1JGOoHgw
+	mHpySRxaK8X562AB9Rqsc0fGNfRvEsJH22c1YKRjD5rbsPH0cLR+GNSe1YYbt4bg
 	==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4es23np4ef-1
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4es1eg5sh0-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 16 Jun 2026 14:27:12 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 65GEJd7C032673;
-	Tue, 16 Jun 2026 14:27:11 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4eshhq3x7n-1
+	Tue, 16 Jun 2026 14:54:03 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 65GEncYN011261;
+	Tue, 16 Jun 2026 14:54:03 GMT
+Received: from smtprelay02.wdc07v.mail.ibm.com ([172.16.1.69])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4eshww404w-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 16 Jun 2026 14:27:11 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 65GER6OE23593388
+	Tue, 16 Jun 2026 14:54:03 +0000 (GMT)
+Received: from smtpav04.wdc07v.mail.ibm.com (smtpav04.wdc07v.mail.ibm.com [10.39.53.231])
+	by smtprelay02.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 65GEs1M026280582
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 16 Jun 2026 14:27:06 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 04EFA20043;
-	Tue, 16 Jun 2026 14:27:06 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0205F20040;
-	Tue, 16 Jun 2026 14:27:02 +0000 (GMT)
-Received: from [9.39.16.33] (unknown [9.39.16.33])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 16 Jun 2026 14:27:01 +0000 (GMT)
-Message-ID: <430a9dd9-ecfb-4465-9eeb-f854fbbc2e61@linux.ibm.com>
-Date: Tue, 16 Jun 2026 19:57:00 +0530
+	Tue, 16 Jun 2026 14:54:02 GMT
+Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id D27835805E;
+	Tue, 16 Jun 2026 14:54:01 +0000 (GMT)
+Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4CAC458054;
+	Tue, 16 Jun 2026 14:53:59 +0000 (GMT)
+Received: from [9.111.180.184] (unknown [9.111.180.184])
+	by smtpav04.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 16 Jun 2026 14:53:59 +0000 (GMT)
+Message-ID: <6356a2be-a49b-4ac4-b52e-dd84bd4ff7b5@linux.ibm.com>
+Date: Tue, 16 Jun 2026 16:53:14 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -62,148 +62,172 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net 1/1] net: smc: fix splice entry lifetime imbalance in
- smc_rx_splice
-To: Ren Wei <n05ec@lzu.edu.cn>, linux-rdma@vger.kernel.org,
-        linux-s390@vger.kernel.org, netdev@vger.kernel.org
-Cc: alibuda@linux.alibaba.com, dust.li@linux.alibaba.com, wenjia@linux.ibm.com,
-        mjambigi@linux.ibm.com, tonylu@linux.alibaba.com,
-        guwen@linux.alibaba.com, ubraun@linux.ibm.com,
-        stefan.raspl@linux.ibm.com, davem@davemloft.net, yuantan098@gmail.com,
-        zcliangcn@gmail.com, bird@lzu.edu.cn, lx24@stu.ynu.edu.cn,
-        d4n.for.sec@gmail.com
-References: <cover.1781097957.git.d4n.for.sec@gmail.com>
- <192d1b44ed358ca143f44ef167d14153bccc51e9.1781097957.git.d4n.for.sec@gmail.com>
+Subject: Re: [PATCH v1] s390/virtio_ccw: Also suppress -EINVAL on device
+ detach
+To: Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>,
+        William Bezenah <wbezenah@linux.ibm.com>, vneethv@linux.ibm.com
+Cc: linux-s390@vger.kernel.org, farman@linux.ibm.com, hca@linux.ibm.com,
+        gor@linux.ibm.com, agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
+        svens@linux.ibm.com, mjrosato@linux.ibm.com,
+        virtualization@lists.linux.dev, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20260612155407.199218-1-wbezenah@linux.ibm.com>
+ <20260615002309.052e0614.pasic@linux.ibm.com> <875x3jn94r.fsf@redhat.com>
+ <4d7fc371-4357-496f-9774-1f7a7c1a3091@linux.ibm.com>
+ <20260615234246.0ec5d947.pasic@linux.ibm.com>
+ <2e543ef5-1aa8-4ddc-a68a-103c7bdfe58d@linux.ibm.com>
+ <8733ymn8vd.fsf@redhat.com>
+From: Peter Oberparleiter <oberpar@linux.ibm.com>
 Content-Language: en-US
-From: Sidraya Jayagond <sidraya@linux.ibm.com>
-In-Reply-To: <192d1b44ed358ca143f44ef167d14153bccc51e9.1781097957.git.d4n.for.sec@gmail.com>
+In-Reply-To: <8733ymn8vd.fsf@redhat.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Authority-Analysis: v=2.4 cv=XtnK/1F9 c=1 sm=1 tr=0 ts=6a315d41 cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNjE2MDE1MSBTYWx0ZWRfXwiuz08QPyjMJ
+ uD65jRN4d48c+AmwN3IYvE7jMA/qD8sDMhPu3PIkEWnCH4Cb30myb4N0glqloNl55xE/zkbZbj6
+ duvk/aon0yLzHioHPb/hRYKmVJyhKMY=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjE2MDE1MSBTYWx0ZWRfX5c44wfQ927zr
+ aeOwCyS5xzerauj/b2eMDvpMUzbW095fXaMdHTyG+21ffxddv/ayqdJVTm9+Sw9yQRk+inHfIOF
+ IHG+lnR4Cp39UUZzaMs7r71fgC6TZnmMxEq1Ees//f3HBedxP+tVuHRkoZ6k8MdWk2MKwkD0LOD
+ voXr8OpZiTkMJjwyLWztbFadMMU0aSe5ScC7iC73A67Aq9syS7Lvgeq1GgNGK1KJD+N1fG+8PrQ
+ dYGHVBmiVQLDMjAYaSKwoiw8o0bJL7gb9gEFbeLxpMDz/o9+grkBFo8PR5DfunttEiHOchuiVLF
+ 2iOLXbXiz/pbDvakCssQHbEPoGYVlZTbPZOj0llpvAryqaZJ3Qn8dtz6i4Ina4P+xPEDBkhm/5J
+ 1vyyBlC1Ihs7hMAWPccCUrAuDvnsPVTA1Qi80tZvATj6CRrYQOhc+Rs6Srnw8ZVRwrWW7MjrHVf
+ 7ZIfJzlgGFzIqVbegcQ==
+X-Proofpoint-GUID: wItAubSkpMPvEUNx-xdSOmOJyHuZd8Tn
+X-Authority-Analysis: v=2.4 cv=NuDhtcdJ c=1 sm=1 tr=0 ts=6a31638b cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
  a=IkcTkHD0fZMA:10 a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=pGLkceISAAAA:8
- a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8 a=lELoO6ydEwu01aG-FtUA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjE2MDE0NSBTYWx0ZWRfX3aLGkuxzoGY9
- nQ8con6vPfodRZHjAhAtq7B5aqdrNqZ/zW0qc9cTwUNyO7feqwS+u93GPdt1URw8RBaxXpOj7Fr
- X5L5sNG0uOvsEdMNpEHhj4AM9/jzwfR9FqMoCMa9ERnTStuqGDTDH2qa7X9zK/rSmMeKuqeG+Yd
- 5SjnfYqRcbTsjn45nFVFAKULD9xAYG2xLe1yS27cjqDHy69YatG5RNatTXs0/hrgChj4oITUF6w
- 3v8FqzTVHQ8nRpMef9lvHqBBN2Y9y4s7PqsC42x0eUwWBLZqAZkV8YHKsnTKmgqHtKMZ+LglcxH
- tYXEtfqj1XiWDUbv0+K8bhv7FK/k6gAVU3Y9lttrfrAVjrDaCvd2fWmUa8lb5o6u58vVSQM5jCb
- OLw6EhPzkZfPh35xxOAWH0+U+fxRN+1Nt0SahssZRagPtrnSjWWHgpdQrMsIIaxURF1Qq46iasi
- zfnpjx4SqoLS2ZfwKjA==
-X-Proofpoint-GUID: c0J0dIn_JX-poNTUfy1y4PPQMiLBYcKK
-X-Proofpoint-ORIG-GUID: 34lRAMndiN_j3wEzws5yH02GX2zEQfeh
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNjE2MDE0NSBTYWx0ZWRfX3rX96ezEwEg0
- ilxy5r6FKDjUmNWIbHrN5zKu99LrCKOY6GjYuY4WsN1epbalw0P14BA6EP8OBjj7uUIFPdQ2Bsk
- hwc90HB8XsyAYAYu3aOpu4NKPTAtOgo=
+ a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8
+ a=JxTIInlSnpDs0fHktd0A:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-ORIG-GUID: wItAubSkpMPvEUNx-xdSOmOJyHuZd8Tn
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
  definitions=2026-06-16_04,2026-06-15_04,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0 adultscore=0 phishscore=0 lowpriorityscore=0 priorityscore=1501
- suspectscore=0 clxscore=1011 malwarescore=0 spamscore=0 impostorscore=0
+ spamscore=0 adultscore=0 suspectscore=0 impostorscore=0 clxscore=1015
+ phishscore=0 bulkscore=0 malwarescore=0 priorityscore=1501 lowpriorityscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606040000 definitions=main-2606160145
+ reason=mlx scancount=1 engine=8.22.0-2606040000 definitions=main-2606160151
+
+On 16.06.2026 11:16, Cornelia Huck wrote:
+> On Tue, Jun 16 2026, Peter Oberparleiter <oberpar@linux.ibm.com> wrote:
+> 
+>> On 15.06.2026 23:42, Halil Pasic wrote:
+>>> On Mon, 15 Jun 2026 16:01:55 -0400
+>>> William Bezenah <wbezenah@linux.ibm.com> wrote:
+>>>
+>>>> On 6/15/2026 10:58 AM, Cornelia Huck wrote:
+>>>>> On Mon, Jun 15 2026, Halil Pasic <pasic@linux.ibm.com> wrote:
+>>>>>  
+>>>>>> On Fri, 12 Jun 2026 17:54:07 +0200
+>>>>>> William Bezenah <wbezenah@linux.ibm.com> wrote:
+>>>>>>  
+>>>>>>> Since commit 8c58a229688c ("s390/cio: Do not unregister the
+>>>>>>> subchannel based on DNV"), subchannel behavior following a device
+>>>>>>> detach has been updated and results in -EINVAL being propagated
+>>>>>>> rather than -ENODEV, originating from ccw_device_start_timeout_key()
+>>>>>>> in cio/device_ops. In the end, the virtio driver has no ability to
+>>>>>>> react to the difference between device and subchannel states here,
+>>>>>>> and during detach, both -ENODEV and -EINVAL indicate the device
+>>>>>>> cannot be used and should not be treated as errors requiring
+>>>>>>> attention. Update error handling in virtio_ccw_del_vq() and
+>>>>>>> virtio_ccw_drop_indicator() to suppress -EINVAL in addition to
+>>>>>>> -ENODEV.  
+>>>>>> Hi William!
+>>>>>>
+>>>>>> Are you saying that ccw_device_start() started returning -EINVAL
+>>>>>> since 8c58a229688c ("s390/cio: Do not unregister the subchannel based on
+>>>>>> DNV")? Or did I somehow read the paragraph wrong?
+>>>>>>
+>>>>>> The funcition ccw_device_start is documented to return:
+>>>>>>  * Returns:                                                                     
+>>>>>>  *  %0, if the operation was successful;                                        
+>>>>>>  *  -%EBUSY, if the device is busy, or status pending;                          
+>>>>>>  *  -%EACCES, if no path specified in @lpm is operational;                      
+>>>>>>  *  -%ENODEV, if the device is not operational. 
+>>>>>> and the commit message does not say a thing about introducing -EINVAL to
+>>>>>> the mix.  
+>>>>> The function may return -EINVAL for non-enabled subchannels
+>>>>> (i.e. pmcw.ena == 0), maybe we get an all-zeroes schib with dnv == 0?
+>>>>> I'd expect it not to be enabled in that case anyway.  
+>>>>
+>>>> Yep, that's at least how I've come to understand what changed. The
+>>>> function ccw_device_start_timeout_key() has always returned -EINVAL
+>>>> for non-enabled subchannels (pmcw.ena == 0), though it's not
+>>>> documented in the header.
+>>>
+>>> Wasn't his -EINVAL actually introduced by commit:
+>>> 823d494ac111 ("[S390] pm: ccw bus power management callbacks")?
+>>
+>> In the context of virtio-ccw added in 2012, an EINVAL return code
+>> introduced in 2009 might be considered "always" :)
+> 
+> :)
+> 
+> I'm wondering whether we should still expect to hit the "ssch with
+> ena==0" situation, given that pm support has been removed again in the
+> meanwhile. (Well, other than in situations like this, where it is a
+> follow-up to other problems.) IOW, can callers expect not to see
+> -EINVAL, unless they are doing something really stupid?
+
+As Halil also pointed out, this would be a programming error, either on
+the side of the driver that starts I/O without setting the device
+properly online, or in the common I/O layer (hopefully not, but you
+never know). Having a dedicated return code to identify this situation
+is definitely useful, and we'll also consider documenting it accordingly
+in the function comment.
+
+>>>> What changed with commit 8c58a229688c is that cio_update_schib() now
+>>>> updates the schib even when DNV=0, rather than returning early as it
+>>>> did previously. Somehow this update results in pmcw.ena == 0 in
+>>>> ccw_device_start_timeout_key(). Previously, it saw pmcw.ena == 1 and
+>>>> moved to the condition (cdev->private->state == DEV_STATE_NOT_OPER)
+>>>> where it returned -ENODEV.
+>>>
+>>> Sounds fishy to me. As far as I understand the DNV takes precedence over
+>>> all other pieces of PMCW.
+>>
+>> And you're right about that! The Principles of Operation states (p. 15-4
+>> in SA22-7832-14 [1]) that the contents of all other fields in the PMCW
+>> are unpredictable when DNV is 0, therefore 8c58a229688c is in error.
+>>
+>> I'll work with Vineeth to determine how to fix this issue, potentially
+>> via manually clearing some relevant SCHIB fields instead of copying the
+>> unpredictable results of the STSCH instruction.
+> 
+> Can't you zero the whole SCHIB, or do you still need some of the
+> measurement block things for cleanup?
+
+I faintly remember that there WAS a reason to use the remainder of the
+SCHIB contents because of some unwanted effect that occurred if we
+didn't, but I don't recall the details. We'll need to dig up the
+associated bug report to understand it and determine if we can simply
+clear all of the SCHIB, or need to keep some of the information intact.
+
+>>>> So the commit didn't introduce -EINVAL as a new return value, rather,
+>>>> it changed the subchannel lifecycle such that existing paths now
+>>>> propagate -EINVAL rather than -ENODEV during the device detach
+>>>> scenario.
+>>>
+>>> I'm not convinced returning -EINVAL in the given situation is the
+>>> right thing to do. Peter, would you mind to chime in?
+>>
+>> I tend to agree that an attempt to start I/O for a subchannel that has
+>> DNV 0 should result in ENODEV rather than EINVAL, though the latter is
+>> still valid when a driver tries to start I/O on a subchannel that is not
+>> enabled for I/O.
+>>
+>> We'll make sure to design the fix for 8c58a229688c in away that ENODEV
+>> will be returned when DNV is 0. Assuming that this is the only situation
+>> where virtio-ccw's ccw_io_helper() receives -EINVAL from
+>> ccw_device_start__timeout_key() during detach, the subject patch should
+>> no longer be necessary.
+> 
+> I agree, I'd not expect to get -EINVAL in ccw_io_helper().
+Yeah, this was definitely an unexpected side effect of the DNV commit.
 
 
-
-On 10/06/26 11:24 pm, Ren Wei wrote:
-> From: Daming Li <d4n.for.sec@gmail.com>
-> 
-> smc_rx_splice() hands candidate pages to splice_to_pipe() without taking
-> references for the lifetime of each splice entry first. That breaks the
-> splice ownership contract in the VM-backed RMB path.
-> 
-> splice_to_pipe() drops unqueued entries through spd_release(), while
-> queued entries are later dropped through the pipe buffer release
-> callback. The current code only tries to take page references after the
-> splice succeeds, and it derives the number of queued VM pages from a
-> mutated offset value. This can underflow page refcounts and trigger a
-> use-after-free. It also leaves the socket lifetime imbalanced in the
-> multi-page VM case, where one sock_hold() can be followed by multiple
-> sock_put() calls.
-> 
-> Fix this by taking the page and socket references for every candidate
-> splice entry before calling splice_to_pipe(), and by releasing the
-> matching private state, page reference, and socket reference from
-> smc_rx_spd_release() for entries that never get queued. This makes the
-> SMC splice path follow the normal splice lifetime rules and removes the
-> broken post-splice VM page counting entirely.
-> 
-> Fixes: 9014db202cb7 ("smc: add support for splice()")
-> Cc: stable@vger.kernel.org
-> Reported-by: Yuan Tan <yuantan098@gmail.com>
-> Reported-by: Zhengchuan Liang <zcliangcn@gmail.com>
-> Reported-by: Xin Liu <bird@lzu.edu.cn>
-> Assisted-by: Codex:GPT-5.4
-> Co-developed-by: Liu Xiao <lx24@stu.ynu.edu.cn>
-> Signed-off-by: Liu Xiao <lx24@stu.ynu.edu.cn>
-> Signed-off-by: Daming Li <d4n.for.sec@gmail.com>
-> Signed-off-by: Ren Wei <n05ec@lzu.edu.cn>
-> ---
->  net/smc/smc_rx.c | 21 +++++++++++----------
->  1 file changed, 11 insertions(+), 10 deletions(-)
-> 
-> diff --git a/net/smc/smc_rx.c b/net/smc/smc_rx.c
-> index c1d9b923938d..88aee0d93597 100644
-> --- a/net/smc/smc_rx.c
-> +++ b/net/smc/smc_rx.c
-> @@ -150,18 +150,23 @@ static const struct pipe_buf_operations smc_pipe_ops = {
->  static void smc_rx_spd_release(struct splice_pipe_desc *spd,
->  			       unsigned int i)
->  {
-> +	struct smc_spd_priv *priv = (struct smc_spd_priv *)spd->partial[i].private;
-> +	struct sock *sk = &priv->smc->sk;
-> +
-> +	kfree(priv);
->  	put_page(spd->pages[i]);
-> +	sock_put(sk);
->  }
->  
->  static int smc_rx_splice(struct pipe_inode_info *pipe, char *src, size_t len,
->  			 struct smc_sock *smc)
->  {
->  	struct smc_link_group *lgr = smc->conn.lgr;
-> -	int offset = offset_in_page(src);
->  	struct partial_page *partial;
->  	struct splice_pipe_desc spd;
->  	struct smc_spd_priv **priv;
->  	struct page **pages;
-> +	int offset = offset_in_page(src);
->  	int bytes, nr_pages;
->  	int i;
->  
-> @@ -209,6 +214,10 @@ static int smc_rx_splice(struct pipe_inode_info *pipe, char *src, size_t len,
->  			offset = 0;
->  		}
->  	}
-> +	for (i = 0; i < nr_pages; i++) {
-> +		get_page(pages[i]);
-> +		sock_hold(&smc->sk);
-> +	}
->  	spd.nr_pages_max = nr_pages;
->  	spd.nr_pages = nr_pages;
->  	spd.pages = pages;
-> @@ -217,16 +226,8 @@ static int smc_rx_splice(struct pipe_inode_info *pipe, char *src, size_t len,
->  	spd.spd_release = smc_rx_spd_release;
->  
->  	bytes = splice_to_pipe(pipe, &spd);
-> -	if (bytes > 0) {
-> -		sock_hold(&smc->sk);
-> -		if (!lgr->is_smcd && smc->conn.rmb_desc->is_vm) {
-> -			for (i = 0; i < PAGE_ALIGN(bytes + offset) / PAGE_SIZE; i++)
-> -				get_page(pages[i]);
-> -		} else {
-> -			get_page(smc->conn.rmb_desc->pages);
-> -		}
-> +	if (bytes > 0)
->  		atomic_add(bytes, &smc->conn.splice_pending);
-> -	}
->  	kfree(priv);
->  	kfree(partial);
->  	kfree(pages);
-Code changes looks good to me.
-Reviewed-by: Sidraya Jayagond <sidraya@linux.ibm.com>
+-- 
+Peter Oberparleiter
+Linux on IBM Z Development - IBM Germany R&D
