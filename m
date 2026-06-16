@@ -1,124 +1,180 @@
-Received: from mail-dy1-f173.google.com (mail-dy1-f173.google.com [74.125.82.173])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DAA1835E940
-	for <linux-s390@vger.kernel.org>; Tue, 16 Jun 2026 08:45:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.82.173
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781599525; cv=pass; b=WaqKySDHR7ZLIgIg9YmAgTF8hpdz/EjwG+Lw+vwpPIXXKTCE9f3fw7DWSoLGRG+WbiGUT++SmbJJwV+S5gKx4fWHXTQcNc3wGGIDJhi5DJzTXAXW+y62NMQwrG7JVVyRh88W8MQD8QvcflHhZpu92mUa0/peDm/NUlW5LCBYQh0=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781599525; c=relaxed/simple;
-	bh=0Saf9Ku0AdbaZ27kploZ5WAYm1wQnaE0aLpGzNXq2UQ=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=uFQrktO/KLkvcY1YDEeu9kRG43x8P/zc+K8vMaC07uXmBq373kBxfmU73SB9GrwA7R/pB7XVbJ+0rETCI1UoWrLPB6OeD0EcNxWc8lug+qLMZAQs0cO2pcJaVBToNRzL9uy8QGVEMZoPGRehzDvZ4efuKsFvvYgXoOQH7urshVY=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=HS8GLNx5; arc=pass smtp.client-ip=74.125.82.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5A980366055
+	for <linux-s390@vger.kernel.org>; Tue, 16 Jun 2026 09:16:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1781601377; cv=none; b=KM8kWBtcEVYaS/N01n0ZcsqnxNTeDUEsZt3uRF3NIsqZ6q/0ZFlrK/FL2w89DcbQeHzSIq9Myi2oa2p2CAVwtSZI7eFfARQmmfO3vX+U0WjJ+NrTTohv2OafORsGfpG6N9PJSEcQQxFbXfuXl4O8gHkKf21Lf5u/mXB0KIfzqzQ=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1781601377; c=relaxed/simple;
+	bh=TznTWtEsTXwfynno4JjQTZakvprLhmN+qNqGOjoQhVQ=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=CYZwrhLwVjQuGcTQQC0dFfm0gGTryHyh/m2vKDrlpjEdCedealHB5np/kpaWq/Fyp9Wa9tnL34kJFJzZdQho9WDQSp4NRjNypIFgyk47tTzLTaGI+C1ks1D9V3o6j9N1mxVuDCVBrv2tyKiPLX4PwiLU2ryUgGBVuqmG/+mdg0c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=e2I6gJNB; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="HS8GLNx5"
-Received: by mail-dy1-f173.google.com with SMTP id 5a478bee46e88-3042a99f0ceso534816eec.0
-        for <linux-s390@vger.kernel.org>; Tue, 16 Jun 2026 01:45:23 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1781599523; cv=none;
-        d=google.com; s=arc-20240605;
-        b=W9VgrovkngBc4jzeS+wsG6uvzcqZbfzO7et0QWVSFjpPFvl7b+n7MNYdyhNBZVZh3x
-         Vcmqif9teqJze5Zd4vNCPYrZQHUdKffSVqTwYoN7KHFnt0GNfpRZ8Kqbe+b5MyRaLBqZ
-         liFJqCSLfT+qOJJYZC5yTPdpMvxUraYGVEc3EWc2c391E3dOxzlaDeukEvD6T4rbh+RE
-         XJwQobe4+KYhOs9Q5TNPFnuSvI7a00Wvp6bDhoKu2ixV6RCw9WN+FyQrbv5N1++EVS4w
-         AKNoLSS8YeZJJTUJoQPwjMs+RyZp9VI/Efy7t71ekI6KmGoKCzmH10djFb6SlhU6OtEe
-         m/Pg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=0Saf9Ku0AdbaZ27kploZ5WAYm1wQnaE0aLpGzNXq2UQ=;
-        fh=T3I+9M8TrHzcNAjF1avKJViNuGeeIImS92TJAcheeDY=;
-        b=EDnq0AOaleBZvS0jLczpa0YevLye7wDFK9wCJR8hBAS/IbeDp2ZrQgl+F/3SJ8vOiJ
-         B9Lj/XvSlbOcYFUzAAacCbc+UPtvni/WB/HhMPxm9DGYw8pzwIUrrSNGzjd+06g5u3vy
-         l3zoMB4bOplD6HUK/6LmgQ1EOMPvqa639NrgOnhUGFu9CgqCOgfkG/5yue4RAwvM6JVk
-         hJkQLn3iXXPUoRKl4tE081VcNYvvUVYaBBkIAJldmQvrO1RoZ8oTDNaV4jcZoAE0KSaK
-         gek4RLdW0pxmHq8ikk5CP6K0PTR/HNRXAyQN14Yfd1K4XzPkw+8RpDg7SZlffV1CMgfr
-         RGMA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781599523; x=1782204323; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=0Saf9Ku0AdbaZ27kploZ5WAYm1wQnaE0aLpGzNXq2UQ=;
-        b=HS8GLNx5+l0If7AsxApYNwiXrhwwzsaCruPWPZyiEfLXo4Kl4R60uzKkyevd06JoC8
-         UtHa2InpaPlZMYMbimnJ+o2/7djBQusFoGGKAOv49VIOOboEvyuA79bGY5diD4sgWOaj
-         Bc36NaAd3TJHYf51xmHQCMFtjniVd2Gobcks2GT0Nx/7Wxp28yvH+NgBh+du1grpXc6v
-         NNuuVL9WbTdKWnTIha/xgTKF5VeYXpcUfQ4KAhv0zj3DzZkrbu7+Kw8IHxacX0rKAWyN
-         RYFulNcbPMd2d4qm3x/hcFS17YbL9tAqhDEpUBwoC2sC3UkPkRvT8ODuOKTcBrOfgx7+
-         OVcw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781599523; x=1782204323;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=0Saf9Ku0AdbaZ27kploZ5WAYm1wQnaE0aLpGzNXq2UQ=;
-        b=PGMsGGD8MQs/HxKOOIYxvMKrZOiwDeYCmQgi+FUi9eEXduXM4cJVoCUNzgTK8TkSXP
-         zlK8oFcKVio51G8fvr5WYOd26+XfyZds/XPXsnAUQBNroCro5rvaRiZukA/N+3OSRX/x
-         xMzTts8QeShgtKGS2lS7imFGUjCJQJ5/zsKUddL0fXokEzTvA/wq3JWGntLMh7pw4yUj
-         hlCWtmweE7FoIdEyXDVNsYcW7zbYOjo7hb0kgy2aQ9+ORsE6vI2eVF+xFNR4vXo6jnfR
-         yHVYLILCBUa+G7IDmCoH+17y2O5fr777mdTOYKWUY2tX6eE284lQ6S6FS/vrC0lFQMtJ
-         /XVg==
-X-Forwarded-Encrypted: i=1; AFNElJ9HoQSBbWHI0l3TPsyiYcVyvZ/09muPxph/BSS79iqAVp4HcvoF3b8mEtBZ373/Gkw59v9IO3oSR8Fk@vger.kernel.org
-X-Gm-Message-State: AOJu0YywXiwWFMPi8+xwraIcIbJQTCZhecRCKA2A3Qp/WaD9vPYQUs3i
-	NfZu2L06wNqftYRmogHhOBs6/U6C/5o1KkyFUXNw8PdoABYMBtocg6NSHzxbdBEWbLctgSCmzjJ
-	ojtIQCk+Q7oYiXlNwGkE4+LMwtj/R8u8=
-X-Gm-Gg: Acq92OH6fvZN5rSZSV7dfOCL/0Y9XCGnsRTpUSybaoB75trlI/Bj4iZ01GpzUJSUULc
-	GjNIjmLRaMAVanZ3gkjugWAq0vQhi8XSQ1sVkzb4w0EzMVw8xsmxTGCIDuIFrXp/iTJeI0RVCTI
-	+6GTTe0BzuElsHCWvB+5qxVBVeRQX+jISsuGnIpZLqvN1t4Z9o00uyDH7FE4sl0ef5+nmgwKiMs
-	iD1caMKr63WKNh4OwS8b/7RqNxR2FTEdnJLnwRLxC1ulsVhFzRLVgOGpvoGCcgD5dsnweqeA6ix
-	mMzADGy/OKnVQX9v5PaIprd76rY1naTFAgRqPCx0okTtfdkvJOYsVL/cHziOOluIUBG9jlvzh0n
-	0bHEM5Nh5HnZoIc2K10tyFOBtiD3nqCL6/g==
-X-Received: by 2002:a05:7300:2318:b0:307:d4e7:b178 with SMTP id
- 5a478bee46e88-30820054649mr4116001eec.4.1781599522964; Tue, 16 Jun 2026
- 01:45:22 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="e2I6gJNB"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1781601375;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=KcaNbqZ+folpc8zogdsUetTn5R2c9+8hBEKj5VOQTrg=;
+	b=e2I6gJNB1j06VuqZMHz1u6U3NcXu4FUNmCH0f7RK0ORdj2DikTiQLzacDtKqdT8AWU3X5W
+	/Lq8+JBRi1lMKBjHN6eqzEOKNAeR/HjR2D5aU8h7/FSL1Vl/+UL5jS7kx0WIAnZ/CKkWyp
+	xHaMYjHpu5pPW3H3mzMohzVTCjiDfDc=
+Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-63-m4e4fe0-OUW6PMPrmhMxJA-1; Tue,
+ 16 Jun 2026 05:16:11 -0400
+X-MC-Unique: m4e4fe0-OUW6PMPrmhMxJA-1
+X-Mimecast-MFC-AGG-ID: m4e4fe0-OUW6PMPrmhMxJA_1781601369
+Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 7038E1955E75;
+	Tue, 16 Jun 2026 09:16:09 +0000 (UTC)
+Received: from localhost (unknown [10.44.49.40])
+	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id AFD75195410A;
+	Tue, 16 Jun 2026 09:16:08 +0000 (UTC)
+From: Cornelia Huck <cohuck@redhat.com>
+To: Peter Oberparleiter <oberpar@linux.ibm.com>, Halil Pasic
+ <pasic@linux.ibm.com>, William Bezenah <wbezenah@linux.ibm.com>,
+ vneethv@linux.ibm.com
+Cc: linux-s390@vger.kernel.org, farman@linux.ibm.com, hca@linux.ibm.com,
+ gor@linux.ibm.com, agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
+ svens@linux.ibm.com, mjrosato@linux.ibm.com,
+ virtualization@lists.linux.dev, kvm@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v1] s390/virtio_ccw: Also suppress -EINVAL on device detach
+In-Reply-To: <2e543ef5-1aa8-4ddc-a68a-103c7bdfe58d@linux.ibm.com>
+Organization: "Red Hat GmbH, Sitz: Werner-von-Siemens-Ring 12, D-85630
+ Grasbrunn, Handelsregister: Amtsgericht =?utf-8?Q?M=C3=BCnchen=2C?= HRB
+ 153243,
+ =?utf-8?Q?Gesch=C3=A4ftsf=C3=BChrer=3A?= Ryan Barnhart, Charles Cachera,
+ Avril Crosse O'Flaherty"
+References: <20260612155407.199218-1-wbezenah@linux.ibm.com>
+ <20260615002309.052e0614.pasic@linux.ibm.com> <875x3jn94r.fsf@redhat.com>
+ <4d7fc371-4357-496f-9774-1f7a7c1a3091@linux.ibm.com>
+ <20260615234246.0ec5d947.pasic@linux.ibm.com>
+ <2e543ef5-1aa8-4ddc-a68a-103c7bdfe58d@linux.ibm.com>
+User-Agent: Notmuch/0.40 (https://notmuchmail.org)
+Date: Tue, 16 Jun 2026 11:16:06 +0200
+Message-ID: <8733ymn8vd.fsf@redhat.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260608181451.3734956-1-japo@linux.ibm.com> <20260608181451.3734956-7-japo@linux.ibm.com>
- <20260615164013.GA249489@ax162> <CANiq72nkm2YwxcV+vwDj+v0svd6e1dro-W_0ybVms3pG_oJiXg@mail.gmail.com>
- <ajD9uw7MhsisxdzY@google.com>
-In-Reply-To: <ajD9uw7MhsisxdzY@google.com>
-From: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
-Date: Tue, 16 Jun 2026 10:45:10 +0200
-X-Gm-Features: AVVi8Ce8ppVywZIY_ATJ3pLfGr5qRJIh-p7Powg4rirApr2Mm_Us5rATobeRnQI
-Message-ID: <CANiq72=Dv8wUrMz7jbsHOwAyd2GtgnRxvXzZeER91KvPcULzhQ@mail.gmail.com>
-Subject: Re: [PATCH v6 6/6] s390: Enable Rust support
-To: Alice Ryhl <aliceryhl@google.com>, Jan Polensky <japo@linux.ibm.com>
-Cc: Nathan Chancellor <nathan@kernel.org>, hca@linux.ibm.com, gor@linux.ibm.com, 
-	agordeev@linux.ibm.com, ojeda@kernel.org, peterz@infradead.org, 
-	jpoimboe@kernel.org, jbaron@akamai.com, borntraeger@linux.ibm.com, 
-	svens@linux.ibm.com, boqun@kernel.org, gary@garyguo.net, 
-	bjorn3_gh@protonmail.com, lossin@kernel.org, a.hindborg@kernel.org, 
-	tmgross@umich.edu, dakr@kernel.org, rostedt@goodmis.org, ardb@kernel.org, 
-	linux-s390@vger.kernel.org, rust-for-linux@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
 
-On Tue, Jun 16, 2026 at 9:39=E2=80=AFAM Alice Ryhl <aliceryhl@google.com> w=
-rote:
+On Tue, Jun 16 2026, Peter Oberparleiter <oberpar@linux.ibm.com> wrote:
+
+> On 15.06.2026 23:42, Halil Pasic wrote:
+>> On Mon, 15 Jun 2026 16:01:55 -0400
+>> William Bezenah <wbezenah@linux.ibm.com> wrote:
+>> 
+>>> On 6/15/2026 10:58 AM, Cornelia Huck wrote:
+>>>> On Mon, Jun 15 2026, Halil Pasic <pasic@linux.ibm.com> wrote:
+>>>>  
+>>>>> On Fri, 12 Jun 2026 17:54:07 +0200
+>>>>> William Bezenah <wbezenah@linux.ibm.com> wrote:
+>>>>>  
+>>>>>> Since commit 8c58a229688c ("s390/cio: Do not unregister the
+>>>>>> subchannel based on DNV"), subchannel behavior following a device
+>>>>>> detach has been updated and results in -EINVAL being propagated
+>>>>>> rather than -ENODEV, originating from ccw_device_start_timeout_key()
+>>>>>> in cio/device_ops. In the end, the virtio driver has no ability to
+>>>>>> react to the difference between device and subchannel states here,
+>>>>>> and during detach, both -ENODEV and -EINVAL indicate the device
+>>>>>> cannot be used and should not be treated as errors requiring
+>>>>>> attention. Update error handling in virtio_ccw_del_vq() and
+>>>>>> virtio_ccw_drop_indicator() to suppress -EINVAL in addition to
+>>>>>> -ENODEV.  
+>>>>> Hi William!
+>>>>>
+>>>>> Are you saying that ccw_device_start() started returning -EINVAL
+>>>>> since 8c58a229688c ("s390/cio: Do not unregister the subchannel based on
+>>>>> DNV")? Or did I somehow read the paragraph wrong?
+>>>>>
+>>>>> The funcition ccw_device_start is documented to return:
+>>>>>  * Returns:                                                                     
+>>>>>  *  %0, if the operation was successful;                                        
+>>>>>  *  -%EBUSY, if the device is busy, or status pending;                          
+>>>>>  *  -%EACCES, if no path specified in @lpm is operational;                      
+>>>>>  *  -%ENODEV, if the device is not operational. 
+>>>>> and the commit message does not say a thing about introducing -EINVAL to
+>>>>> the mix.  
+>>>> The function may return -EINVAL for non-enabled subchannels
+>>>> (i.e. pmcw.ena == 0), maybe we get an all-zeroes schib with dnv == 0?
+>>>> I'd expect it not to be enabled in that case anyway.  
+>>>
+>>> Yep, that's at least how I've come to understand what changed. The
+>>> function ccw_device_start_timeout_key() has always returned -EINVAL
+>>> for non-enabled subchannels (pmcw.ena == 0), though it's not
+>>> documented in the header.
+>> 
+>> Wasn't his -EINVAL actually introduced by commit:
+>> 823d494ac111 ("[S390] pm: ccw bus power management callbacks")?
 >
-> Since fixing this requires a change in rustc to recognize the backchain
-> target feature, has this work been started? I think that for stuff like
-> this, we should make to at least start working on fixing the warning so
-> that we don't emit a warning forever.
+> In the context of virtio-ccw added in 2012, an EINVAL return code
+> introduced in 2009 might be considered "always" :)
 
-That is the expectation, yeah.
+:)
 
-Jan et al.: for powerpc I have been accumulating the links etc. in
-https://github.com/Rust-for-Linux/linux/issues/105 -- do you have
-similar links to the ongoing work for s390 so that I can fill the
-equivalent https://github.com/Rust-for-Linux/linux/issues/106?
+I'm wondering whether we should still expect to hit the "ssch with
+ena==0" situation, given that pm support has been removed again in the
+meanwhile. (Well, other than in situations like this, where it is a
+follow-up to other problems.) IOW, can callers expect not to see
+-EINVAL, unless they are doing something really stupid?
 
-Thanks!
+>
+>>> What changed with commit 8c58a229688c is that cio_update_schib() now
+>>> updates the schib even when DNV=0, rather than returning early as it
+>>> did previously. Somehow this update results in pmcw.ena == 0 in
+>>> ccw_device_start_timeout_key(). Previously, it saw pmcw.ena == 1 and
+>>> moved to the condition (cdev->private->state == DEV_STATE_NOT_OPER)
+>>> where it returned -ENODEV.
+>> 
+>> Sounds fishy to me. As far as I understand the DNV takes precedence over
+>> all other pieces of PMCW.
+>
+> And you're right about that! The Principles of Operation states (p. 15-4
+> in SA22-7832-14 [1]) that the contents of all other fields in the PMCW
+> are unpredictable when DNV is 0, therefore 8c58a229688c is in error.
+>
+> I'll work with Vineeth to determine how to fix this issue, potentially
+> via manually clearing some relevant SCHIB fields instead of copying the
+> unpredictable results of the STSCH instruction.
 
-Cheers,
-Miguel
+Can't you zero the whole SCHIB, or do you still need some of the
+measurement block things for cleanup?
+
+>
+>>> So the commit didn't introduce -EINVAL as a new return value, rather,
+>>> it changed the subchannel lifecycle such that existing paths now
+>>> propagate -EINVAL rather than -ENODEV during the device detach
+>>> scenario.
+>> 
+>> I'm not convinced returning -EINVAL in the given situation is the
+>> right thing to do. Peter, would you mind to chime in?
+>
+> I tend to agree that an attempt to start I/O for a subchannel that has
+> DNV 0 should result in ENODEV rather than EINVAL, though the latter is
+> still valid when a driver tries to start I/O on a subchannel that is not
+> enabled for I/O.
+>
+> We'll make sure to design the fix for 8c58a229688c in away that ENODEV
+> will be returned when DNV is 0. Assuming that this is the only situation
+> where virtio-ccw's ccw_io_helper() receives -EINVAL from
+> ccw_device_start__timeout_key() during detach, the subject patch should
+> no longer be necessary.
+
+I agree, I'd not expect to get -EINVAL in ccw_io_helper().
+
