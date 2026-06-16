@@ -1,266 +1,229 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0BF4144D686;
-	Tue, 16 Jun 2026 15:41:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F0AE4534B9;
+	Tue, 16 Jun 2026 16:28:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781624489; cv=none; b=J++tiYW1dmgKz0I9Z/AcQU9ncafZYu4i92CtBeojV9sQ/pcoD2DQNa/qfM1oqShUgH0nnZ1iqmRyrNaFffuX3BueJwjgq4zPkXY48be27xJw2Gd/DxLW61Uu9dT1aHuMAIqzArSUTB7Xz1SMhkJs9rpoCMTciDUQSspXHwy62rw=
+	t=1781627281; cv=none; b=kTdLNOb1e8TH5as7+31qYYEwNfK/qF3qqPLRI8dwh+UeCYo5oZe0MeRRq2srLqhfFXePdodXOWkjTB1Js0zfmw452okN8yvi9tqUzxSWMSX8Iahx7tpR8wdKGvhyMeTiVI2bsh7XMqlL6YuzyHzvJP7vSeWBG4OKV9cdideDVQI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781624489; c=relaxed/simple;
-	bh=ci+UPfHl9w2sbjgJBM6U0uH9tN6siWTlTRuJj7ZSB6Q=;
-	h=Message-ID:Subject:From:To:Cc:In-Reply-To:References:Content-Type:
-	 Date:MIME-Version; b=BQ9aS0wa8zy16iLSMKAEkkVQ4dV8e3zTIwGkRwn2RgLonCN28jI8+7v1YM//nwW9zhM8ie5XPY4gjrLPO2UeSMFhrlj2vMABkC/nLVVYky43WfjG0zrJ8QPmugO0MkFRI/q4v0VjcWY9898gvfJR+PZ5xFUlsBB0+56SnxYHa4M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=OD/XtXIi; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1781627281; c=relaxed/simple;
+	bh=Z842xy6HRRqB4Li/xdveIcOj5VPTonatiB28s4fN5Vg=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=gf/uWW3mE6qFUhqAyKCn+KtKeyRC/f2DUED54NqADG8ZIaUGSvaJTXF/zv++5HdrsSlSKa8j0OCja6VREjmHM2HezrovrkvIPZqoSj3Kxdn/q5+NrUCu6lEeI1QeOSYHS+BKUiRXXFYLmrWAbi0EYV8bMtmRgva9+GhzpmmoE0E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=qnSIssfS; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="OD/XtXIi"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65GEIFfG1652767;
-	Tue, 16 Jun 2026 15:41:23 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="qnSIssfS"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65GFmM2j2118489;
+	Tue, 16 Jun 2026 16:27:51 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=VqTSkW
-	MDhPtujS8jrLfubZSY4AjyzSzuRprOifqz6bY=; b=OD/XtXIi0C8uIHoiqmUtMO
-	5iDwekcKeFRpccAdZpfcb6gkJLaXqV2WZHicUPt83QjlYM2mPL4VnjrW8JCnIlBh
-	Zr/j0ro9Ggqs3kSv+Qm0QMp0z7P6FFMV19S/vPghTawZUU7rAPIrMH0UqIBE4lBW
-	h6eZKAhkyfEZ9O2lVHzOS/ou2IeUiUmNTdj/ri+7LIy0LeI+wo3JZHxW5EHFwpkE
-	WlKJMu+Q2/+mM9QzYA3TuKpIBPufuy0jyRCk+w+UEGxjY9ASghNlsVL5oT7A/7GJ
-	QpeZsyx+w/j8nnP+2T+OiNk+zHTqqxv+rv6lW586+/LG8FZUWAtnUoSQLgSfFEvg
+	:message-id:mime-version:references:subject:to; s=pp1; bh=3bglgY
+	9HrvwXvl2OI8eYxb7OAlNo74Go+VcXaOKliuI=; b=qnSIssfS2+dgx0xFdo/djN
+	V0fFzYj7durgPK3AZ3E0Ved/ovRwxt+7qjC9S/9zesH8+TzF+KszMqj2sWT4T7+w
+	91DLR3Ae3FLgxGVAP2+0WT3e63pWyMnnTRJZ6hmMYEhxksSbztnUKT4EXQqzPXug
+	YUoxfFYRo/skxCRwv+HQ3R7NapvTnERUWiYiQpgo3TnvhicMHg9IedxA09m9fOxt
+	U99aTNWKn1vcYrBfX92itkj3R/ZDPvpPiIhX2nmEDDjP1nxYvS0LJHrTWBl8Fx0K
+	76JC7csMRAntwZ+uT3FWxtnGNxw/nhhdDdifAqqhWvXlavkD+XeCEBj4CaZuva2A
 	==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4es1u0p367-1
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4es1h86wku-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 16 Jun 2026 15:41:22 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 65GFYbZh021961;
-	Tue, 16 Jun 2026 15:41:22 GMT
-Received: from smtprelay06.dal12v.mail.ibm.com ([172.16.1.8])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4eshhq492p-1
+	Tue, 16 Jun 2026 16:27:51 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 65GGJaTG017262;
+	Tue, 16 Jun 2026 16:27:50 GMT
+Received: from smtprelay07.dal12v.mail.ibm.com ([172.16.1.9])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4eshww4dny-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 16 Jun 2026 15:41:22 +0000 (GMT)
-Received: from smtpav03.dal12v.mail.ibm.com (smtpav03.dal12v.mail.ibm.com [10.241.53.102])
-	by smtprelay06.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 65GFfLIH14222042
+	Tue, 16 Jun 2026 16:27:50 +0000 (GMT)
+Received: from smtpav06.wdc07v.mail.ibm.com (smtpav06.wdc07v.mail.ibm.com [10.39.53.233])
+	by smtprelay07.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 65GGRmdU63046138
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 16 Jun 2026 15:41:21 GMT
-Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2BC4F5803F;
-	Tue, 16 Jun 2026 15:41:21 +0000 (GMT)
-Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5121B58060;
-	Tue, 16 Jun 2026 15:41:18 +0000 (GMT)
-Received: from [9.224.91.56] (unknown [9.224.91.56])
-	by smtpav03.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 16 Jun 2026 15:41:18 +0000 (GMT)
-Message-ID: <ec9d383ff4881945a6b242a37e4024cacc406261.camel@linux.ibm.com>
-Subject: Re: [PATCH v4] PCI: hotplug: Add 'uevent' sysfs attribute to
- trigger slot events
-From: Niklas Schnelle <schnelle@linux.ibm.com>
-To: Bjorn Helgaas <helgaas@kernel.org>,
-        Ramesh Errabolu
- <ramesh@linux.ibm.com>
-Cc: linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>,
-        Lukas
- Wunner	 <lukas@wunner.de>,
-        Krzysztof =?UTF-8?Q?Wilczy=C5=84ski?=
- <kw@linux.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Matthew
- Rosato <mjrosato@linux.ibm.com>,
-        Gerd Bayer <gbayer@linux.ibm.com>, Heiko
- Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander
- Gordeev <agordeev@linux.ibm.com>,
-        Farhan Ali <alifm@linux.ibm.com>, Leon
- Romanovsky <leon@kernel.org>,
-        driver-core@lists.linux.dev
-In-Reply-To: <20260521144853.GA163149@bhelgaas>
-References: <20260521144853.GA163149@bhelgaas>
-Autocrypt: addr=schnelle@linux.ibm.com; prefer-encrypt=mutual;
- keydata=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
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 16 Jun 2026 17:40:16 +0200
+	Tue, 16 Jun 2026 16:27:49 GMT
+Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B52795804E;
+	Tue, 16 Jun 2026 16:27:48 +0000 (GMT)
+Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 7855058056;
+	Tue, 16 Jun 2026 16:27:47 +0000 (GMT)
+Received: from [9.12.65.99] (unknown [9.12.65.99])
+	by smtpav06.wdc07v.mail.ibm.com (Postfix) with ESMTPS;
+	Tue, 16 Jun 2026 16:27:47 +0000 (GMT)
+Message-ID: <39dc5534-d7f7-4bf3-9473-459789d75fe2@linux.ibm.com>
+Date: Tue, 16 Jun 2026 12:27:46 -0400
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Evolution 3.60.2 (3.60.2-1.fc44) 
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v1] s390/virtio_ccw: Also suppress -EINVAL on device
+ detach
+To: Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>,
+        vneethv@linux.ibm.com
+Cc: linux-s390@vger.kernel.org, farman@linux.ibm.com, hca@linux.ibm.com,
+        gor@linux.ibm.com, agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
+        svens@linux.ibm.com, mjrosato@linux.ibm.com,
+        virtualization@lists.linux.dev, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20260612155407.199218-1-wbezenah@linux.ibm.com>
+ <20260615002309.052e0614.pasic@linux.ibm.com> <875x3jn94r.fsf@redhat.com>
+ <4d7fc371-4357-496f-9774-1f7a7c1a3091@linux.ibm.com>
+ <20260615234246.0ec5d947.pasic@linux.ibm.com>
+ <2e543ef5-1aa8-4ddc-a68a-103c7bdfe58d@linux.ibm.com>
+ <8733ymn8vd.fsf@redhat.com>
+ <6356a2be-a49b-4ac4-b52e-dd84bd4ff7b5@linux.ibm.com>
+Content-Language: en-US
+From: William Bezenah <wbezenah@linux.ibm.com>
+In-Reply-To: <6356a2be-a49b-4ac4-b52e-dd84bd4ff7b5@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-GUID: 0bs4HoeCo7b3Q4cWp070UfjONMV3zP0x
-X-Authority-Analysis: v=2.4 cv=XdK5Co55 c=1 sm=1 tr=0 ts=6a316ea3 cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNjE2MDE2NyBTYWx0ZWRfX/nScWKdITqm0
+ jvMP+8+HNId0/RuuSr0rlUxKY6gqoCOcyMTQ+6CQ2TJMc/gmlOS+H7uoPmNkE0LnfGjrC6VPNUm
+ YKKjGxHrbfCUfFFHr58MYNofmXgSA1g=
+X-Proofpoint-ORIG-GUID: HRDun65IYLcmtUFB-5NspX9rImKAhEn3
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjE2MDE2NyBTYWx0ZWRfX3PAcj86yPznX
+ isK1LHR0dPsFWAyirVp+zs6GCYXcL0q1N0lAYD7Aqc8ZE2Yl+gI7fkGI4OhgsOwSXDuhq8gkyez
+ smYabm29Pmh7Q86CbNPgmrO3F+K7PoLuDawFXXMLdavYCZwPbKRb3PNt5vPEzipcoc3wJO2rzQ8
+ lClh7v0MczfI/N04Bc4xTgqwyXCTmpTKhOPHd8MzbDFlNHJtgWoGsWecC4gxpT9d70WpqdqBquT
+ /64pTExx4TLMJY6O7+1crqv3jDjXRBsyAwCI6tWlcsn/FXfqmvDPh4P3s4IJhppXi5qsUo0Kuy0
+ +ZcGi31p5s7GExQNrkEsGJddGllk/mZdwjq5Ep/BCovz9rYNexyLz98t0XJcNZ+hwyhTSK5InwO
+ fcpihoZ/9i2b+Ky+HVsT8Lv17ksRHZ5RUcrKtlVbN+OuIqxeDV8T+o/wdrzz+0kogF3SC0LLtH9
+ jndwrle+ysBt3pWj1Hw==
+X-Authority-Analysis: v=2.4 cv=U9uiy+ru c=1 sm=1 tr=0 ts=6a317987 cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
  a=IkcTkHD0fZMA:10 a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VwQbUJbxAAAA:8
- a=VnNF1IyMAAAA:8 a=8bvjBKMlFFBRua3M5rcA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjE2MDE1NyBTYWx0ZWRfXzJMTSqPvmT3l
- 5qEbGnRY3AFfcrbIchHfE2YSNj7zMbtZjpd6sPzCOPtRdThHWYsRQ3jigb/N97fWKuXYikCCFnA
- KulnugO89jrxX1bZ0OZ0owIwCqwn6jl4qy7qrANos+QYfi+pCykV4wGIL/+PcUdaS9uHMyW9CIK
- dYS2lqZiJPdHPDJQvpYOuHM27Dsp51MLAUkKjrt7wC5nHYqE2kdL3csLSEh2jUCfctITyZtgVxN
- /93ahSWFlnXAXVjN7uDQNLj83fi0qOtNcjM7ZyYwi/1tyzd7DXlHiOOxurtrfk8NHp7/t8ym67v
- TQ3V1P/P5dJ+KHP6R8BWL2nGsvQhGq8M+2chVudg/pKTNrzPvOV0PysHnZCn7FxIwd8cFamYtX7
- eCgTbwJHIFgWPh/Js/pSUqwsBqqaip+198BNxxMS6KQjr4x+GEdbdByDbFl7Jh4ejTF0jZY4aBL
- IvR4GPIKQLh7LEBN3VQ==
-X-Proofpoint-ORIG-GUID: ssdctJVrL45gDjVG8uRjJP6sQsBeU9GK
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNjE2MDE1NyBTYWx0ZWRfXxJvr+k4o8m/K
- mePr1e0HK79uGiXtM839OF2Cd0MJL6AvdVVRjI6dRu2nHBgRMq1XyzSxr4Rg6TktSz9Zq4LMtoh
- vZAlmWteSiD/oAYuPY+o0keKWqUrDr8=
+ a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8
+ a=o2sATeYeeQMYJeoXCqkA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: HRDun65IYLcmtUFB-5NspX9rImKAhEn3
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
- definitions=2026-06-16_04,2026-06-15_04,2025-10-01_01
+ definitions=2026-06-16_05,2026-06-15_04,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 lowpriorityscore=0 clxscore=1011 bulkscore=0 malwarescore=0
- spamscore=0 phishscore=0 priorityscore=1501 impostorscore=0 adultscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606040000 definitions=main-2606160157
+ lowpriorityscore=0 impostorscore=0 bulkscore=0 phishscore=0
+ priorityscore=1501 clxscore=1015 adultscore=0 malwarescore=0 suspectscore=0
+ spamscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
+ adjust=0 reason=mlx scancount=1 engine=8.22.0-2606040000
+ definitions=main-2606160167
 
-On Thu, 2026-05-21 at 09:48 -0500, Bjorn Helgaas wrote:
-> [+cc Leon, driver-core]
->=20
-> (Ramesh, when you post new versions of a series, please cc anybody who
-> responded to earlier versions.  Also, v2, v3, and v4 are identical, so
-> there's no need to post them as new "versions"; you can just ping the
-> original thread or label them as "RESEND")
->=20
-> On Wed, May 20, 2026 at 05:13:20PM -0500, Ramesh Errabolu wrote:
-> > Add a write-only 'uevent' sysfs attribute for synthesizing
-> > uevents for a PCI slot. This extends the existing uevent
-> > support which emits a KOBJ_ADD uevent in pci_hp_add() with
-> > the ability to replay such uevents for cold plugged devices.
-> > As such events are only emitted by hotplug capable PCI slots
-> > so is the support for synthesizing them.
-> >=20
-> > The change was validated by manually triggering 'add' uevent
-> > for a specific hotplug PCI slot:
-> >=20
-> >     $ echo "add $(uuidgen)" | sudo tee   \
-> >                 /sys/bus/pci/slots/<slot-id>/uevent
-> >=20
-> > Signed-off-by: Ramesh Errabolu <ramesh@linux.ibm.com>
-> > Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
-> > Tested-by: Niklas Schnelle <schnelle@linux.ibm.com>
-> > ---
-> >  drivers/pci/hotplug/pci_hotplug_core.c | 25 +++++++++++++++++++++++++
-> >  1 file changed, 25 insertions(+)
-> >=20
-> > diff --git a/drivers/pci/hotplug/pci_hotplug_core.c b/drivers/pci/hotpl=
-ug/pci_hotplug_core.c
-> > index fadcf98a8a66..c3634b1cc7a8 100644
-> > --- a/drivers/pci/hotplug/pci_hotplug_core.c
-> > +++ b/drivers/pci/hotplug/pci_hotplug_core.c
-> > @@ -173,12 +173,27 @@ static ssize_t presence_read_file(struct pci_slot=
- *pci_slot, char *buf)
-> > =20
-> >  static struct pci_slot_attribute hotplug_slot_attr_presence =3D {
-> >  	.attr =3D {.name =3D "adapter", .mode =3D S_IFREG | S_IRUGO},
-> >  	.show =3D presence_read_file,
-> >  };
-> > =20
-> > +static ssize_t uevent_write_file(struct pci_slot *slot,
-> > +				 const char *buf, size_t len)
-> > +{
-> > +	int rc;
-> > +
-> > +	rc =3D kobject_synth_uevent(&slot->kobj, buf, len);
->=20
-> I haven't followed the discussion closely, but I'm skeptical because
-> this would be the only use of kobject_synth_uevent() outside the
-> driver core.  That means a change like this should include a
-> description of something unique about this PCI slot situation that is
-> different from all other buses.
->=20
-> For driver-core, the preceding discussion is here:
-> https://lore.kernel.org/linux-pci/20260225150815.81268-1-ramesh@linux.ibm=
-.com/t/#m57bf51ce1c073b685b391867d4a9932e5f9dccc9
+On 6/16/2026 10:53 AM, Peter Oberparleiter wrote:
 
-Sorry for the late reply. In the previous discussion we decided to move
-this here because this is the same file where the existing add uevent,
-which we're trying to synthesize for cold plug, is handled in
-pci_hp_add().=C2=A0So from our point of view this is really a missing part
-to that existing uevent support that is causing real issues for us. In
-particular we need to be able to create udev rules that react on
-plugging of an s390 hotplug slot. On s390 a hotplug slot being plugged
-is how the (machine) hypervisor makes a PCI function available to the
-system where the function may first appear as powered off to multiple
-Linux instances and only gets actually attached once one instances
-powers it on. For example such a rule would be used to automatically
-power on the function in cases where we know that we're the only
-instance that will see it. Of course we'd like to have the same rule
-handle hotplug (works already) and cold plug during boot (needs
-synthesized uevents).
+> On 16.06.2026 11:16, Cornelia Huck wrote:
+>> On Tue, Jun 16 2026, Peter Oberparleiter <oberpar@linux.ibm.com> wrote:
+>>
+>>> On 15.06.2026 23:42, Halil Pasic wrote:
+>>>> On Mon, 15 Jun 2026 16:01:55 -0400
+>>>> William Bezenah <wbezenah@linux.ibm.com> wrote:
+>>>>
+>>>>> On 6/15/2026 10:58 AM, Cornelia Huck wrote:
+>>>>>> On Mon, Jun 15 2026, Halil Pasic <pasic@linux.ibm.com> wrote:
+>>>>>>  
+>>>>>>> On Fri, 12 Jun 2026 17:54:07 +0200
+>>>>>>> William Bezenah <wbezenah@linux.ibm.com> wrote:
+>>>>>>>  
+>>>>>>>> Since commit 8c58a229688c ("s390/cio: Do not unregister the
+>>>>>>>> subchannel based on DNV"), subchannel behavior following a device
+>>>>>>>> detach has been updated and results in -EINVAL being propagated
+>>>>>>>> rather than -ENODEV, originating from ccw_device_start_timeout_key()
+>>>>>>>> in cio/device_ops. In the end, the virtio driver has no ability to
+>>>>>>>> react to the difference between device and subchannel states here,
+>>>>>>>> and during detach, both -ENODEV and -EINVAL indicate the device
+>>>>>>>> cannot be used and should not be treated as errors requiring
+>>>>>>>> attention. Update error handling in virtio_ccw_del_vq() and
+>>>>>>>> virtio_ccw_drop_indicator() to suppress -EINVAL in addition to
+>>>>>>>> -ENODEV.  
+>>>>>>> Hi William!
+>>>>>>>
+>>>>>>> Are you saying that ccw_device_start() started returning -EINVAL
+>>>>>>> since 8c58a229688c ("s390/cio: Do not unregister the subchannel based on
+>>>>>>> DNV")? Or did I somehow read the paragraph wrong?
+>>>>>>>
+>>>>>>> The funcition ccw_device_start is documented to return:
+>>>>>>>  * Returns:                                                                     
+>>>>>>>  *  %0, if the operation was successful;                                        
+>>>>>>>  *  -%EBUSY, if the device is busy, or status pending;                          
+>>>>>>>  *  -%EACCES, if no path specified in @lpm is operational;                      
+>>>>>>>  *  -%ENODEV, if the device is not operational. 
+>>>>>>> and the commit message does not say a thing about introducing -EINVAL to
+>>>>>>> the mix.  
+>>>>>> The function may return -EINVAL for non-enabled subchannels
+>>>>>> (i.e. pmcw.ena == 0), maybe we get an all-zeroes schib with dnv == 0?
+>>>>>> I'd expect it not to be enabled in that case anyway.  
+>>>>> Yep, that's at least how I've come to understand what changed. The
+>>>>> function ccw_device_start_timeout_key() has always returned -EINVAL
+>>>>> for non-enabled subchannels (pmcw.ena == 0), though it's not
+>>>>> documented in the header.
+>>>> Wasn't his -EINVAL actually introduced by commit:
+>>>> 823d494ac111 ("[S390] pm: ccw bus power management callbacks")?
+>>> In the context of virtio-ccw added in 2012, an EINVAL return code
+>>> introduced in 2009 might be considered "always" :)
+>> :)
+>>
+>> I'm wondering whether we should still expect to hit the "ssch with
+>> ena==0" situation, given that pm support has been removed again in the
+>> meanwhile. (Well, other than in situations like this, where it is a
+>> follow-up to other problems.) IOW, can callers expect not to see
+>> -EINVAL, unless they are doing something really stupid?
+> As Halil also pointed out, this would be a programming error, either on
+> the side of the driver that starts I/O without setting the device
+> properly online, or in the common I/O layer (hopefully not, but you
+> never know). Having a dedicated return code to identify this situation
+> is definitely useful, and we'll also consider documenting it accordingly
+> in the function comment.
+>
+>>>>> What changed with commit 8c58a229688c is that cio_update_schib() now
+>>>>> updates the schib even when DNV=0, rather than returning early as it
+>>>>> did previously. Somehow this update results in pmcw.ena == 0 in
+>>>>> ccw_device_start_timeout_key(). Previously, it saw pmcw.ena == 1 and
+>>>>> moved to the condition (cdev->private->state == DEV_STATE_NOT_OPER)
+>>>>> where it returned -ENODEV.
+>>>> Sounds fishy to me. As far as I understand the DNV takes precedence over
+>>>> all other pieces of PMCW.
+>>> And you're right about that! The Principles of Operation states (p. 15-4
+>>> in SA22-7832-14 [1]) that the contents of all other fields in the PMCW
+>>> are unpredictable when DNV is 0, therefore 8c58a229688c is in error.
+>>>
+>>> I'll work with Vineeth to determine how to fix this issue, potentially
+>>> via manually clearing some relevant SCHIB fields instead of copying the
+>>> unpredictable results of the STSCH instruction.
+>> Can't you zero the whole SCHIB, or do you still need some of the
+>> measurement block things for cleanup?
+> I faintly remember that there WAS a reason to use the remainder of the
+> SCHIB contents because of some unwanted effect that occurred if we
+> didn't, but I don't recall the details. We'll need to dig up the
+> associated bug report to understand it and determine if we can simply
+> clear all of the SCHIB, or need to keep some of the information intact.
+>
+>>>>> So the commit didn't introduce -EINVAL as a new return value, rather,
+>>>>> it changed the subchannel lifecycle such that existing paths now
+>>>>> propagate -EINVAL rather than -ENODEV during the device detach
+>>>>> scenario.
+>>>> I'm not convinced returning -EINVAL in the given situation is the
+>>>> right thing to do. Peter, would you mind to chime in?
+>>> I tend to agree that an attempt to start I/O for a subchannel that has
+>>> DNV 0 should result in ENODEV rather than EINVAL, though the latter is
+>>> still valid when a driver tries to start I/O on a subchannel that is not
+>>> enabled for I/O.
+>>>
+>>> We'll make sure to design the fix for 8c58a229688c in away that ENODEV
+>>> will be returned when DNV is 0. Assuming that this is the only situation
+>>> where virtio-ccw's ccw_io_helper() receives -EINVAL from
+>>> ccw_device_start__timeout_key() during detach, the subject patch should
+>>> no longer be necessary.
+>> I agree, I'd not expect to get -EINVAL in ccw_io_helper().
+> Yeah, this was definitely an unexpected side effect of the DNV commit.
+>
+FWIW, during my testing, that was indeed the only situation in which
+I saw -EINVAL during the detach process. So assuming the right fix
+would correctly return ENODEV, I agree this patch is likely
+unnecessary.
 
-As for what's special, I think it is that as far as I understand the
-PCI hotplug slot "drivers" don't seem to be well integrated with the
-driver model. For example neither our s390_pci_hpc nor the acpiphp
-hotplug driver seem to actually have an associated struct device_driver
-nor do these hotplug slots appear on a bus which I guess would allow
-using the bus's uevent.=C2=A0Fixing that does seem like a much bigger effor=
-t
-though.
+Thanks all.
 
-There is also the call to kobject_synth_uevent() in
-kernel/module/main.c which looks at least somewhat similar. But yeah I
-do see your point that basically all other drivers and devices get
-their uevent syfs file from the driver core.
-
-Thanks,
-Niklas
