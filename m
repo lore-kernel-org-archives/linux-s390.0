@@ -1,46 +1,74 @@
-Received: from out30-112.freemail.mail.aliyun.com (out30-112.freemail.mail.aliyun.com [115.124.30.112])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 428063043C8;
-	Tue, 16 Jun 2026 09:30:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.112
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 71C973624D4;
+	Tue, 16 Jun 2026 11:06:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781602216; cv=none; b=s9MDrc6jUX9k9qRHpJVZzqbWDN47Tcm0kCDohqgZxuQ+4HzcWZPUXfaQ8HdIFQSc1MOG9WQkTPVFtWXLCXnce5qDRnKHDvI3nlAAKobUE3W8110RKUbJljcxZ7mFlKlk/WFeiZ/2+o4iT+qqpzCTsYCTjZXTOUhADrfZRJmUNrs=
+	t=1781608012; cv=none; b=pQU8P6Tn6/SQ+iC30cqpJAfIVCZai2np/ZzpT7lN+roZ9tjxjnVi3n3CG5fS1SNWdi5NBzoOCKni8Ee3RapmW1pzlI58xqmqcpvAmsqm3tjrrEo6mVOEtrPwSGVUwB1KCBWRzTbEI7TdEdu0AtcYjqrJ3XWsBNIQOAt7iaEL8DA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781602216; c=relaxed/simple;
-	bh=BZd1+7kFgWteNht00h5YxHdkTi83EI5MB+Ho523Bqnk=;
+	s=arc-20240116; t=1781608012; c=relaxed/simple;
+	bh=6UVOu5e9C3oQ8jl11IlPgRgXFfBewjCTq88laiGf0NE=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Sj7B0JPJ3ShqaG2+yxQbklWbkEfGS6WvJU2/+N7yLyBUKOr7osWqEPP3X6a9EE56XG1E7wqvKMfh3LCqjZMAAj8qtHXU3AJ3n/IOLIJvYI0+H6OY2IbqEyTDvm2HZGng3Ej0M54d3nyt7ZxQn8UcMtt9Btnn/8tI8pFQWCkG3jg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=TW7cUI5N; arc=none smtp.client-ip=115.124.30.112
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=OC/Pi6HVLHtr8eYWzq0/+LRFG76ov5uhOhn+RE9/cDbwvNr7LMErp8gPDHBzIFvz+xBtnD5CiasOrLxh9/zxEynrxB4E0k/9z6Iy/3Uxr7ZMSgOC+KH/uZmGsWSnXksNrRsp2QbbjkjjZNV76QEVvPiuoV4rV8CHRzzvENLOTAI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=jiIfjCWE; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="TW7cUI5N"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1781602205; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
-	bh=081T06/+yJZlOpVrqr9xmO+pHUgrPiz3emTfwHp8+wc=;
-	b=TW7cUI5N1kG5CSyANNG2gMx2Bfr9mCgrjynH9crlZJKA+WtJHwDkGR+UweGq8Rqei32w2fwFu2cJ4xgexmrSCB3OZdvLdzOfUYpfg5MpOhvZ4fm0Zcbxw1bhtUMxXU+ugH1AYkSvVVDVLY4NxIAgN3UDLwXjAxitkTZHIh12X/E=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037033178;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=18;SR=0;TI=SMTPD_---0X5.0WJf_1781602204;
-Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0X5.0WJf_1781602204 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Tue, 16 Jun 2026 17:30:04 +0800
-Date: Tue, 16 Jun 2026 17:30:03 +0800
-From: Dust Li <dust.li@linux.alibaba.com>
-To: Ren Wei <n05ec@lzu.edu.cn>, linux-rdma@vger.kernel.org,
-	linux-s390@vger.kernel.org, netdev@vger.kernel.org
-Cc: alibuda@linux.alibaba.com, sidraya@linux.ibm.com, wenjia@linux.ibm.com,
-	mjambigi@linux.ibm.com, tonylu@linux.alibaba.com,
-	guwen@linux.alibaba.com, ubraun@linux.ibm.com,
-	stefan.raspl@linux.ibm.com, davem@davemloft.net,
-	yuantan098@gmail.com, zcliangcn@gmail.com, bird@lzu.edu.cn,
-	lx24@stu.ynu.edu.cn, d4n.for.sec@gmail.com
-Subject: Re: [PATCH net 1/1] net: smc: fix splice entry lifetime imbalance in
- smc_rx_splice
-Message-ID: <ajEXm3PDY8Wv8Ohh@linux.alibaba.com>
-Reply-To: dust.li@linux.alibaba.com
-References: <cover.1781097957.git.d4n.for.sec@gmail.com>
- <192d1b44ed358ca143f44ef167d14153bccc51e9.1781097957.git.d4n.for.sec@gmail.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="jiIfjCWE"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65GAIC0t1245114;
+	Tue, 16 Jun 2026 11:06:49 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=6BSdilM6r2d/L2aMX47ZtgTz3VP9BW
+	XOz1FnW+lwlAE=; b=jiIfjCWEokia3aw9Zm9Q+NLIvkirgVjPCq0MepfhuuBaNa
+	t7YQ1BsALMuFbZS3IcFbpTdcGHL3njH5ZNsVYRnPCeDp1x6RtHdavgTeBUumfHX8
+	65nstFCTQs8i3YSCg5cg15cSHzhN4ShEiutou83yv4dW6OABkmTBjdkoWnsmlqyG
+	6ghrhreXzrqYQKxY6DEPakQ4UmnhLcTPlX7Qyh5WmDUY5ABzZFgAr1fY6IjJCYK1
+	Q8QEU1yQ+n2u6cVfBodjSGNQ7373Zbww9yRKDZzGJob9PP/rtn06oE+I83KwAe0r
+	7x7gh3/fS2N+I4x2/0B+748t7eWjjv3NHiQjIeCA==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4es23nn6h9-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 16 Jun 2026 11:06:49 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 65GB4htP025160;
+	Tue, 16 Jun 2026 11:06:48 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4esm7y2rg1-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 16 Jun 2026 11:06:48 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 65GB6ip238732162
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 16 Jun 2026 11:06:45 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id DCFEA20043;
+	Tue, 16 Jun 2026 11:06:44 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 1BFF320040;
+	Tue, 16 Jun 2026 11:06:44 +0000 (GMT)
+Received: from osiris (unknown [9.87.157.31])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Tue, 16 Jun 2026 11:06:44 +0000 (GMT)
+Date: Tue, 16 Jun 2026 13:06:42 +0200
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Cc: Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        borntraeger@de.ibm.com, frankja@linux.ibm.com, david@kernel.org,
+        seiden@linux.ibm.com, nrb@linux.ibm.com, schlameuss@linux.ibm.com,
+        gra@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+        svens@linux.ibm.com
+Subject: Re: [PATCH v2 1/1] s390/mm: Fix handling of _PAGE_UNUSED pte bit
+Message-ID: <20260616110642.19835G94-hca@linux.ibm.com>
+References: <20260615091741.76724-1-imbrenda@linux.ibm.com>
+ <20260615091741.76724-2-imbrenda@linux.ibm.com>
+ <20260615094300.31370D7a-hca@linux.ibm.com>
+ <20260615123103.118af04a@p-imbrenda>
+ <20260615115000.31370Ef1-hca@linux.ibm.com>
+ <20260615140939.417dcb53@thinkpad-T15>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -49,82 +77,59 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <192d1b44ed358ca143f44ef167d14153bccc51e9.1781097957.git.d4n.for.sec@gmail.com>
+In-Reply-To: <20260615140939.417dcb53@thinkpad-T15>
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=XtnK/1F9 c=1 sm=1 tr=0 ts=6a312e49 cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=kj9zAlcOel0A:10 a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8
+ a=CQ8FOgcp9ve-HgYGo4YA:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjE2MDEwOSBTYWx0ZWRfX7B0s3E15y9D2
+ XzQX1fhIO0agM2OFPswrwG6gMV24evi0p5x1untCR0LlqpFxQu2PxZ2JyhsRNh8PPD6V1cKfWu7
+ qMJvW4nPDs9gpARKcZDBtajOv2gJp9rn7VFKTTGuCCdHj1msZvRDAWRzP3FMJJTmf8g7Yq0Na3n
+ l/F6T7SXUQhdh9Xre4C/qZf/QayEWy1G7U0xjrq9vkKT+KxcsIWzrel9mB1wjLPh7odAHqdjcZ6
+ XT1Px+wFi/broFk8WSUtFMlvAin14du8tn4Z02Gi1Epo2ecr1XP8f1Ljpxo7Yc6/iway+UvuD6a
+ Dn7Ui3/FKvHihpJbhlSw3Lj43WEZOHX8ub+LDtnO1FAfhmSqIR3fefU3eb7BUSnC1sdm0r5zGSQ
+ AylSeQOAoFHQBxZrn5IT+U2Qq719VuvynMNx1VHh78BuLjZrBNO7A4AnGMGxVmTNkAs8jpN+POK
+ REjNNKcZGu9SOTQOAHw==
+X-Proofpoint-GUID: Yq7gcidqltZheSU_LmaukKEZmfGMyFdi
+X-Proofpoint-ORIG-GUID: Yq7gcidqltZheSU_LmaukKEZmfGMyFdi
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNjE2MDEwOSBTYWx0ZWRfX4nynyZXCVFBQ
+ 7j7+vZdRv7xqbswXP6ihsyHLBEiUlSWjIMcPR1i6zZkafTp41MiCoUMegUSxgFUD/M3ssSGiHMz
+ gfaV4HC8QGrcoPvnk9f80suN7NFPXz4=
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
+ definitions=2026-06-16_03,2026-06-15_04,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ bulkscore=0 adultscore=0 phishscore=0 lowpriorityscore=0 priorityscore=1501
+ suspectscore=0 clxscore=1015 malwarescore=0 spamscore=0 impostorscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606040000 definitions=main-2606160109
 
-On 2026-06-11 01:54:11, Ren Wei wrote:
->From: Daming Li <d4n.for.sec@gmail.com>
->
->smc_rx_splice() hands candidate pages to splice_to_pipe() without taking
->references for the lifetime of each splice entry first. That breaks the
->splice ownership contract in the VM-backed RMB path.
->
->splice_to_pipe() drops unqueued entries through spd_release(), while
->queued entries are later dropped through the pipe buffer release
->callback. The current code only tries to take page references after the
->splice succeeds, and it derives the number of queued VM pages from a
->mutated offset value. This can underflow page refcounts and trigger a
->use-after-free. It also leaves the socket lifetime imbalanced in the
->multi-page VM case, where one sock_hold() can be followed by multiple
->sock_put() calls.
->
->Fix this by taking the page and socket references for every candidate
->splice entry before calling splice_to_pipe(), and by releasing the
->matching private state, page reference, and socket reference from
->smc_rx_spd_release() for entries that never get queued. This makes the
->SMC splice path follow the normal splice lifetime rules and removes the
->broken post-splice VM page counting entirely.
->
->Fixes: 9014db202cb7 ("smc: add support for splice()")
->Cc: stable@vger.kernel.org
->Reported-by: Yuan Tan <yuantan098@gmail.com>
->Reported-by: Zhengchuan Liang <zcliangcn@gmail.com>
->Reported-by: Xin Liu <bird@lzu.edu.cn>
->Assisted-by: Codex:GPT-5.4
->Co-developed-by: Liu Xiao <lx24@stu.ynu.edu.cn>
->Signed-off-by: Liu Xiao <lx24@stu.ynu.edu.cn>
->Signed-off-by: Daming Li <d4n.for.sec@gmail.com>
->Signed-off-by: Ren Wei <n05ec@lzu.edu.cn>
-
-The patch looks good to me, a minor nit below
-
-Reviewed-by: Dust Li <dust.li@linux.alibaba.com>
-
-
->---
-> net/smc/smc_rx.c | 21 +++++++++++----------
-> 1 file changed, 11 insertions(+), 10 deletions(-)
->
->diff --git a/net/smc/smc_rx.c b/net/smc/smc_rx.c
->index c1d9b923938d..88aee0d93597 100644
->--- a/net/smc/smc_rx.c
->+++ b/net/smc/smc_rx.c
->@@ -150,18 +150,23 @@ static const struct pipe_buf_operations smc_pipe_ops = {
-> static void smc_rx_spd_release(struct splice_pipe_desc *spd,
-> 			       unsigned int i)
-> {
->+	struct smc_spd_priv *priv = (struct smc_spd_priv *)spd->partial[i].private;
->+	struct sock *sk = &priv->smc->sk;
->+
->+	kfree(priv);
-> 	put_page(spd->pages[i]);
->+	sock_put(sk);
-> }
+On Mon, Jun 15, 2026 at 02:09:39PM +0200, Gerald Schaefer wrote:
+> On Mon, 15 Jun 2026 13:50:00 +0200
+> Heiko Carstens <hca@linux.ibm.com> wrote:
+> > > set_pte() is also used for things that are not ptes, and in those cases
+> > > we probably don't want to touch that bit, although technically it is
+> > > currently unused for present large pmds and puds.
+> > 
+> > I can only see huge_pte_clear() for this.
+> > 
+> > If that's the only user I'd rather add a BUG_ON() there instead of starting to
+> > sprinkle the logic around. This _will_ break sooner or later.
 > 
-> static int smc_rx_splice(struct pipe_inode_info *pipe, char *src, size_t len,
-> 			 struct smc_sock *smc)
-> {
-> 	struct smc_link_group *lgr = smc->conn.lgr;
->-	int offset = offset_in_page(src);
-> 	struct partial_page *partial;
-> 	struct splice_pipe_desc spd;
-> 	struct smc_spd_priv **priv;
-> 	struct page **pages;
->+	int offset = offset_in_page(src);
+> There is also __set_huge_pte_at(), and there it could also be called for
+> swap PMDs/PUDs, where bit 56 is used. But they would not be present, and
+> ATM we use the same present bit for PTEs and PMDs/PUDs, so it should work.
+> 
+> Still feels a bit shaky, but in general I agree that it would be better
+> to have this logic in a single place, like set_pte().
 
-Minor nit:
-moving int offset = offset_in_page(src) down breaks the existing
-reverse-xmas-tree declaration ordering. We keep this style in SMC.
+Yes, let's do that please.
 
-Best regards,
-Dust
+> Also wonder now why we use set_pte() an not set_pmd() / set_pud() for the
+> hugetlbfs "fake" PTEs. I think at least in s390 code we could switch to
+> the pmd/pud variants, and then be safe against modifications from set_pte().
 
+I guess that would be nice cleanup. Could you provide a patch for
+that, please?
