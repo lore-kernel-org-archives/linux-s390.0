@@ -1,86 +1,146 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from out30-124.freemail.mail.aliyun.com (out30-124.freemail.mail.aliyun.com [115.124.30.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D560E3769F6;
-	Tue, 16 Jun 2026 03:04:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C75F314A98;
+	Tue, 16 Jun 2026 07:16:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781579078; cv=none; b=ZoU6xTQm+U2Zgd1QFKjCGMIfse7cojBDNFT/ZqH+RxGQgLJVf6+C+hfgazV4MVq315JRQ8kj5zGzsZGG8Xjn+Yjqx6xx+0pKL69j0ytsiblWSIqw5JqpXWiQgUyJs/yZ0o7Ksrssj8oHNasUHerVtgJrZnOwwUbm7XGYyzbEg/c=
+	t=1781594213; cv=none; b=W1eh2XdfTNq79h4T5sr/I/ueUtz+sBM/WEqou5SjXMXW4imU0AbsggDDYTe8YzjCMLxFgmoEvPBRGztcHTQnJSTt/RFx8XM/hagSUGaYMZuwDr88Jz83EnRL1/LZ8pWPbzCQvBrO8AjEqfwt75g17Htic8S5qksOUDrdgTtHt08=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781579078; c=relaxed/simple;
-	bh=C1dL1K0prG3fQPpJnD/+ZHKOzTyQugyZG8Gk1LycBbc=;
+	s=arc-20240116; t=1781594213; c=relaxed/simple;
+	bh=JJvclFFT4XihspyYQV8fTcvSA19V8bdOxJ7beK7bQ/8=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=JDuBobVtp0/lBTekkyR1V8gcJbClab1Bu6sGAu0T6eIzUZ7U6lw7lwYwiRGHX9zVmZF7IOqnK0UgE5DDvCXRbqXxuCc13ozZVd7a/ghZG9lhDKhxk0bbeoxq7d6uYgn6Pql8qTo1R0f6BC6aIu6bcNeJMEO7gEAbDJqu+V4cdoU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WOYCw4l6; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=aPRXGgVDtzKrBSGtmDeg+PpO0Jg+y4We01sd/9A1KPAkjGNw6Ob7nmUHnFnrKooGeediL79Eb9oblqOZLZiXE9VnNFfzK/9QiPUOQKkpmet+LWpIh5lxccoUrXOWGV9ROXREss/bq1gM/IDTHa7YYUdHEiuLhHsWMqWdygQz5Ng=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=Ikzt/GbZ; arc=none smtp.client-ip=115.124.30.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WOYCw4l6"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E44501F000E9;
-	Tue, 16 Jun 2026 03:04:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781579077;
-	bh=n5HAW6YBJHZ7HyEQX9BmLx1ZIXSXhME0+yooX8MvTjY=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=WOYCw4l6MbiX/uUiM8aHxQMNddneICe5qJAEDKJ3JIHMpQU6S9Lqb8PMaodf2uJoX
-	 Ht2SbSxRwJ7lX1qxhX5dMzhO+CZFRubYkt+mq2y3QIyJgqTPhntufdml8WQsiRJ+WX
-	 ATtw8myBhJyMTs/Q7CWTdmBB/CLpBd9+DDc6OF9Qi9mXWmPVJLEdCwU1K3g91Gi3rh
-	 VT6EJ0+UDBmSCZdOw1YW5Mw6oRxdSUCqospQ6FACF+V7hmYTPpWVFQLGW/xB6PO730
-	 3r3GJCwzHa8xcXUL2i3U/YCBmYnbLtyWtNlZckeLgf7poKQI9uSI+3ktHDAULkLapo
-	 uTx46clCvsM5w==
-Date: Mon, 15 Jun 2026 20:04:30 -0700
-From: Nathan Chancellor <nathan@kernel.org>
-To: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
-Cc: Jan Polensky <japo@linux.ibm.com>, hca@linux.ibm.com, gor@linux.ibm.com,
-	agordeev@linux.ibm.com, ojeda@kernel.org, peterz@infradead.org,
-	jpoimboe@kernel.org, jbaron@akamai.com, aliceryhl@google.com,
-	borntraeger@linux.ibm.com, svens@linux.ibm.com, boqun@kernel.org,
-	gary@garyguo.net, bjorn3_gh@protonmail.com, lossin@kernel.org,
-	a.hindborg@kernel.org, tmgross@umich.edu, dakr@kernel.org,
-	rostedt@goodmis.org, ardb@kernel.org, linux-s390@vger.kernel.org,
-	rust-for-linux@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v6 6/6] s390: Enable Rust support
-Message-ID: <20260616030430.GA3415270@ax162>
-References: <20260608181451.3734956-1-japo@linux.ibm.com>
- <20260608181451.3734956-7-japo@linux.ibm.com>
- <20260615164013.GA249489@ax162>
- <CANiq72nkm2YwxcV+vwDj+v0svd6e1dro-W_0ybVms3pG_oJiXg@mail.gmail.com>
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="Ikzt/GbZ"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1781594200; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
+	bh=UeT/ZGSsk/AdS30HaVQrJg6VIQfwE5v65FXMb4s19jA=;
+	b=Ikzt/GbZABA3D2yhujb/zZPwx8GoRfKs3og4PtERj1Sn0JrcDApfU7gLaDBCm3GVl08xBLFts3DFbl3PnAlFYJpzAnuPlhwLQdvwehAOxXgqHQdrMPt+XPO6ETEtgz6Q7E97Vz7Ihj7Rol219od9fuYs8lnmEHbqR/6bGZ5OaGs=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R911e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033045098064;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=21;SR=0;TI=SMTPD_---0X5-RGDy_1781594199;
+Received: from localhost(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0X5-RGDy_1781594199 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Tue, 16 Jun 2026 15:16:39 +0800
+Date: Tue, 16 Jun 2026 15:16:39 +0800
+From: "D. Wythe" <alibuda@linux.alibaba.com    >
+To: Sechang Lim <rhkrqnwk98@gmail.com>
+Cc: "D . Wythe" <alibuda@linux.alibaba.com>,
+	Dust Li <dust.li@linux.alibaba.com>,
+	Sidraya Jayagond <sidraya@linux.ibm.com>,
+	Wenjia Zhang <wenjia@linux.ibm.com>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	"David S . Miller" <davem@davemloft.net>,
+	Mahanta Jambigi <mjambigi@linux.ibm.com>,
+	Tony Lu <tonylu@linux.alibaba.com>,
+	Wen Gu <guwen@linux.alibaba.com>, Simon Horman <horms@kernel.org>,
+	Ursula Braun <ubraun@linux.ibm.com>,
+	Karsten Graul <kgraul@linux.ibm.com>,
+	Guvenc Gulce <guvenc@linux.ibm.com>, netdev@vger.kernel.org,
+	linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
+	bpf@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH net] net/smc: fix out-of-bounds read in
+ smc_clcsock_data_ready()
+Message-ID: <20260616071639.GA104390@j66a10360.sqa.eu95>
+References: <20260614120931.4041687-1-rhkrqnwk98@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CANiq72nkm2YwxcV+vwDj+v0svd6e1dro-W_0ybVms3pG_oJiXg@mail.gmail.com>
+In-Reply-To: <20260614120931.4041687-1-rhkrqnwk98@gmail.com>
+User-Agent: Mutt/1.5.21 (2010-09-15)
 
-On Mon, Jun 15, 2026 at 06:45:26PM +0200, Miguel Ojeda wrote:
-> On Mon, Jun 15, 2026 at 6:40 PM Nathan Chancellor <nathan@kernel.org> wrote:
-> >
-> > With Rust 1.96.0, I see the following warning several times when
-> > building Rust code in -next:
-> >
-> >   warning: unstable feature specified for `-Ctarget-feature`: `backchain`
-> >     |
-> >     = note: this feature is not stably supported; its behavior can change in the future
-> >
-> >   warning: 1 warning emitted
-> >
-> > I assume this is expected? If so, is there a way to silence this warning?
+On Sun, Jun 14, 2026 at 12:09:30PM +0000, Sechang Lim wrote:
+> smc_clcsock_data_ready() is installed on the listen socket and reads its
+> sk_user_data as an smc_sock. A passive-open child inherits this callback,
+> but sk_clone_lock() clears the child's sk_user_data because it is tagged
+> SK_USER_DATA_NOCOPY. smc_tcp_syn_recv_sock() restores the child's af_ops,
+> but the inherited sk_data_ready() is left in place until accept.
 > 
-> Yes, it seems so -- please see this thread:
+> In that window the child is established. A cgroup sock_ops program can run
+> bpf_sock_hash_update() on it from tcp_init_transfer(); sk_psock_init()
+> stores a sk_psock in the NULL sk_user_data. The inherited callback then
+> reads sk_user_data via smc_clcsock_user_data(), which masks only
+> SK_USER_DATA_NOCOPY, mistakes the sk_psock for an smc_sock, and reads a
+> callback pointer past the end of the sk_psock:
 > 
->   https://lore.kernel.org/rust-for-linux/CANiq72m4GVWFYqnxNtCHTPu7XcGewHB5LNwOoayTfnXs9pPbNg@mail.gmail.com/
+>   BUG: KASAN: slab-out-of-bounds in smc_clcsock_data_ready+0x84/0x200 net/smc/af_smc.c:2637
+>   Read of size 8 at addr ffff8880013b8674 by task syz.6.12484/67930
+>    <IRQ>
+>    smc_clcsock_data_ready+0x84/0x200 net/smc/af_smc.c:2637
+>    tcp_urg+0x24d/0x360 net/ipv4/tcp_input.c:6264
+>    tcp_rcv_state_process+0x280d/0x4940 net/ipv4/tcp_input.c:7336
+>    tcp_child_process+0x371/0xa50 net/ipv4/tcp_minisocks.c:1002
+>    tcp_v4_rcv+0x1eaa/0x2a00 net/ipv4/tcp_ipv4.c:2186
+>    ip_protocol_deliver_rcu+0x226/0x420 net/ipv4/ip_input.c:207
+>    ip_local_deliver_finish+0x35a/0x5f0 net/ipv4/ip_input.c:241
+>    __netif_receive_skb_one_core+0x1e5/0x210 net/core/dev.c:6216
+>    process_backlog+0x631/0x1470 net/core/dev.c:6682
+>    __napi_poll+0xb3/0x320 net/core/dev.c:7749
+>    net_rx_action+0x4fa/0xcb0 net/core/dev.c:7969
+>    handle_softirqs+0x236/0x800 kernel/softirq.c:622
+>    </IRQ>
 > 
-> If they are OK with it, then I guess it is fine, but it does mean CIs
-> can suffer a bit from it.
+>   Allocated by task 67930:
+>    sk_psock_init+0x142/0x740 net/core/skmsg.c:766
+>    sock_map_link+0x646/0xdf0 net/core/sock_map.c:279
+>    sock_hash_update_common+0xd3/0x990 net/core/sock_map.c:1010
+>    bpf_sock_hash_update+0x114/0x170 net/core/sock_map.c:1229
+>    __cgroup_bpf_run_filter_sock_ops+0x74/0xa0 kernel/bpf/cgroup.c:1727
+>    tcp_init_transfer+0x1085/0x1100 net/ipv4/tcp_input.c:6693
+>    tcp_rcv_state_process+0x241e/0x4940 net/ipv4/tcp_input.c:7231
+>    tcp_child_process+0x371/0xa50 net/ipv4/tcp_minisocks.c:1002
 > 
-> I hope that helps.
+> Restore the inherited sk_data_ready() in smc_tcp_syn_recv_sock(), where the
+> child's sk_user_data is already cleared, rather than only at accept.
+> 
+> Fixes: a60a2b1e0af1 ("net/smc: reduce active tcp_listen workers")
+> Signed-off-by: Sechang Lim <rhkrqnwk98@gmail.com>
+> ---
+>  net/smc/af_smc.c | 6 ++++++
+>  1 file changed, 6 insertions(+)
+> 
+> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+> index b5db69073e20..152971e8ad17 100644
+> --- a/net/smc/af_smc.c
+> +++ b/net/smc/af_smc.c
+> @@ -156,6 +156,12 @@ static struct sock *smc_tcp_syn_recv_sock(const struct sock *sk,
+>  	if (child) {
+>  		rcu_assign_sk_user_data(child, NULL);
+>  
+> +		/*
+> +		 * the child inherited the listen-specific sk_data_ready();
+> +		 * restore it here, as sk_user_data may be reused before accept
+> +		 */
+> +		child->sk_data_ready = smc->clcsk_data_ready;
 
-Ah, thanks for the pointer and sorry for the duplicate report. I have
-gone ahead and ignored this warning in my build reports for the time
-being.
+One concern:
 
--- 
-Cheers,
-Nathan
+smc_clcsock_user_data_rcu() together with refcount_inc_not_zero() only
+pins the smc_sock; it does not guarantee anything about the lifetime or
+consistency of smc->clcsk_data_ready. In the listen-close path,
+smc_clcsock_restore_cb() clears that field under sk_callback_lock,
+while smc_tcp_syn_recv_sock() reads it without any lock. These are
+independent protection domains. If close wins the race,
+child->sk_data_ready can end up NULL and the next data arrival will
+crash.
+
+Also, I don't object to this fix, but I'd rather see the underlying cause
+addressed directly. The real issue seems to be the conflict between
+SMC's sk_user_data and sk_psock. Maybe there is a cleaner solution, e.g.
+always setting user_data.
+
+> +
+>  		/* v4-mapped sockets don't inherit parent ops. Don't restore. */
+>  		if (inet_csk(child)->icsk_af_ops == inet_csk(sk)->icsk_af_ops)
+>  			inet_csk(child)->icsk_af_ops = smc->ori_af_ops;
+> -- 
+> 2.43.0
