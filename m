@@ -1,141 +1,165 @@
-Received: from mail-qt1-f175.google.com (mail-qt1-f175.google.com [209.85.160.175])
+Received: from mail-wm1-f41.google.com (mail-wm1-f41.google.com [209.85.128.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1DB4B477E52
-	for <linux-s390@vger.kernel.org>; Wed, 17 Jun 2026 15:41:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1478D480979
+	for <linux-s390@vger.kernel.org>; Wed, 17 Jun 2026 16:25:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781710878; cv=none; b=MlUV5gipENKXa1EiLwxTLOmuqrr1WjgomVK87Gi6CMsSMlj96nIHZ9fovsON8wktt+qYvRBti/K+9qlo8Y1ECvuNtlJipJqb6+B1f1VJMy7135qP5DRS2vmxkgAKm+oWnoxOtPKbYL1YZZvphFpFlBRzY9y6s1t2tJ3cGVBhrIg=
+	t=1781713519; cv=none; b=MybSQV9qMoSOQeWMbh7vlGzh6qrPbAKNpG+8g748QqFEQhcSqhEjvJz6igCFAS6l4ox0M17Zj65F380jXKmX2/6cOMVit1Wye7zz3gpblpmScXeqiJkGHbodOU59iAUnv0wT/GSHqECwM+1LJI3MLqFO/BmzRuLa9lAdbTITcas=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781710878; c=relaxed/simple;
-	bh=9QIEPp5EWbcjDNMKHBFL5JldJkQ5+OL5Nn42Ql7e+rM=;
+	s=arc-20240116; t=1781713519; c=relaxed/simple;
+	bh=/9NPWbMNzZXq+O3b6ASCEDQ+/f52t/hPpsflezqlgkY=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=VUNDtQfFA6ILi8lKmvjrwdKJ101/hMgJkRclQBvojzyF63mNrrwmWBWjhkCDbXDPA8liD8fZa6oSlqOHJz/4Z2MD38vAcuGVgHqHdK/T9lezRwyKNbfZgqHpm5z0Ae0YxowXl2IyBVhVyPrbYo0IBoumZPhXATrAFVYDoO3L1tA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca; spf=pass smtp.mailfrom=ziepe.ca; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=BNaxItY/; arc=none smtp.client-ip=209.85.160.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
+	 Content-Type:Content-Disposition:In-Reply-To; b=hQNikyUzwIPfwESYCAutDzCMYlBegrlyUwpZamPzWSdnsCZe2Yd/QGqfTfiRpjnHuCCGMoYaglaQZnytVEGTGJyn1x4OF95mutewQ1TffTOLXaGiSY6V/WHnqZ44VW6kb1seMci8/zc8q3qdeFyqSQwnkLsw+pugbV6aAaaapmo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b=Qsbec5d6; arc=none smtp.client-ip=209.85.128.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="BNaxItY/"
-Received: by mail-qt1-f175.google.com with SMTP id d75a77b69052e-51758478240so32773561cf.2
-        for <linux-s390@vger.kernel.org>; Wed, 17 Jun 2026 08:41:04 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b="Qsbec5d6"
+Received: by mail-wm1-f41.google.com with SMTP id 5b1f17b1804b1-4908b92904fso74188115e9.0
+        for <linux-s390@vger.kernel.org>; Wed, 17 Jun 2026 09:25:11 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google; t=1781710864; x=1782315664; darn=vger.kernel.org;
+        d=baylibre.com; s=google; t=1781713510; x=1782318310; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=ElWjBVhbO2IQzO43OlPWnTyijSop9myiCxf+4rjWyeA=;
-        b=BNaxItY/Nm3pO+SwE/+o2MlZBzHaWgJpo7MzlvPnaJQNym2Hhs45Ll2TS2NIVxJKV0
-         WHOrQv4H68aelwt7jHzHWBzlbdiAF7gs98RbwPKX+mRiztm8w53KKerlz9GSLV1up8LG
-         bmOQ9mrrParstns0khNNkLFXV6TNlug+U53Gz7inX6SUpiN9+nkl9Pi2Ljvz7sWNpxDn
-         YMS3uTRo71SKzAoL2uYVyb2blcGBrOaIlzAGhygX6ozdHMigdhRyk36MjUhXX2WUuyS2
-         6dXoB37uRHL97D4ONuc/aRoRTHfO8gMCbZaZrZDBV/nvrqieROGN1Z4vHordHBGQuj/3
-         Xr3Q==
+        bh=70RiYle3YxOXMcsIHWzatMalj2xZ5VUKc+rRMNWk5WQ=;
+        b=Qsbec5d6kn+nlELz25aIjEK0sK+BVhqMvMRQg+ImOo/MDhCY0WSf0tEjylVZmbgVtw
+         jCioTupMAhXqVrsk9i9pnW943toGOX/AbpWtTWBTf6XVWKDYBYUvh18f/Oh4Dnud2A80
+         aIN1wQ6CRiVXH97HegjBU3mhRdOPZiC39VX9KOyuDTwE9wE09/nfObsJUs51eNnZIvrQ
+         MgxIleiL05aX7UTMY5qVS/X2dGO9I6naqCLxM3EQgM1ua1K7+NUjIgnkAYRlBjT6wHih
+         Z2v/2zbihAozbf5peVr+LlzADG9XO9YFvxaF8gUuRGiAW7l3AxD7Iz4aYWAUtsFkP8ui
+         Ga+A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781710864; x=1782315664;
+        d=1e100.net; s=20251104; t=1781713510; x=1782318310;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=ElWjBVhbO2IQzO43OlPWnTyijSop9myiCxf+4rjWyeA=;
-        b=luBsrjdjw9TRommZlfg6vaI1NYHVi0h2yKJMoXM+OlgYwWQPB504pfWVVeqda2oza6
-         i6H0SLvPhk6V8mx8q83mjxwwG3pG8lq5uu+UnS//0ZicHh3WKtUrmRlseD5q4UmBmv/Z
-         V0H8PVsZEJOctPWXLksiCbw8a5m8Igl4JpjqHXDbCxIpD+HTdXu/hQXWn8wPxNoLxeat
-         M1xcl7hEE5DKThsTt6IN/wMJL/aGI0VoXyGvUVZJDiNKb8pLx73KnFONMapsslhbeL/L
-         /RFi5a9zECTXx0YJcndCb9fC4pZYGB7n/6oS0ix3Kvoz+zwnOS4/7Z8ah9H1+e78aidS
-         2PsQ==
-X-Forwarded-Encrypted: i=1; AFNElJ++6rNUOnIrY5ZcvL4Xlk2UyTkp6noE7kOrLQ5MCJOx1nksFDSDyF5Wv4zE9aVN7zOJa+CCwaJIvWKO@vger.kernel.org
-X-Gm-Message-State: AOJu0YzB3sCjNhx7d6Vm5T0nmlBOe+P3Y1wMriXB/6vHLBDZuIFaNte3
-	3TB7eHIrjbSWqwpicK6/hnquQocnhF+3pyShcoDGpLN+0C9yHP1Q4PMtnnaf9aR9hgg=
-X-Gm-Gg: Acq92OFWA0Mgev/cmNmcZcNCUt/6lgPIfhVbMAN46Sm+AQtAuv9jwGecXNtjwcMb1zf
-	xBGoLfucwjzt4/PGDeDe3vAfaWoziya4d4Vabjo0AwCpzDvTPibEFV3TmYSHpmRGNJ+1E9Uvasq
-	re8MH6Q0rwbqslcLFdJ+cLaTypoMI9aa/WTMm4SfAZDMMe+WLE+0szmdiUiWpa8KsCPNtnVOH7r
-	DswhusQcItHRPvCR79klStWjJ59PFk4fHVqYYmqWdcxQbOp/y+gTI4nOD3NKZIZkZ//FSzRRAy1
-	UDj4So56kb3kLG4wBqbtHKa9P/ETxfOBoctytxS5LizutIkFwaqhwgIK9CGLvkY266LZlBHaxFt
-	BmqbX+QlkLUhyBPUPmVGt+qzWL53kJxS5uL2HZtPAwYa3dsZl5UNjsTBb0gOAIcr2D355WSXi2y
-	h1s0dqz70Ot1eKbSTyPSYbMWQCjcSzmLD+fpyot2DHFaL6lEMLx5m2k6zReywunqyuIvf0qwZPP
-	ov9Ng==
-X-Received: by 2002:ac8:638b:0:b0:517:7620:20f9 with SMTP id d75a77b69052e-519a8e01895mr53967651cf.19.1781710863733;
-        Wed, 17 Jun 2026 08:41:03 -0700 (PDT)
-Received: from ziepe.ca (crbknf0213w-47-54-130-67.pppoe-dynamic.high-speed.nl.bellaliant.net. [47.54.130.67])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-517fb7a3c4asm171544001cf.14.2026.06.17.08.41.02
+        bh=70RiYle3YxOXMcsIHWzatMalj2xZ5VUKc+rRMNWk5WQ=;
+        b=FsdZnDs8/8/oZHRoHaqqgcnuXPGxhh0dYDrWFAOkdGFxzVAxcoF5+hWnghPJC0rKNo
+         IwO725kF1RKH+Cfv7OsH/rPcViPJpqYbbwZotJoRQol83aaR5EH3mcWSSEUVJbck/urA
+         oqR5eHgqyhWqlh2usTu2ccZUv72zF9/15ZYvYY87ycJ7GJSuugZBJ6fJlSacyCdKcsww
+         CX4lt4x1I8a77dZRbHj04vqADAYMKXoaVu2ReML1CG3MGWQZAuO3GksKWGb7SSPm2WpX
+         I82S7Ho3PyFhNp/wYOzL8YswXrTp5wNdd/fpd82A1K7HLjFSZhNQ57r/UJm51V94iruL
+         Sm7g==
+X-Forwarded-Encrypted: i=1; AFNElJ/hyssZiMFUoY4U6G/zdRvwwrq914ruLFQiLzrstNqhCxVhzLqSTbqS4gdUXH5JxcaC43tPh4yAaifU@vger.kernel.org
+X-Gm-Message-State: AOJu0Yw7l+sHCtMaZvMCX6ls9FKxrnTRAkHWgf3snpwC6DUg5anY11Tc
+	Vp74iJpeE48i7qI+DNvwYMF7Vg4uZwJLAzfuXoSrzZ0By/AuZpIrUjuDljDeVBXWMl4=
+X-Gm-Gg: Acq92OGVZSfNnKEpAvk79gociW0tn0Qm3dr0K/wAKl4nvbS6hNqS9Yf5UC8ku1dyA3j
+	AeVOKQv4VFfzXRwxZGtRJ/RSvqNnH5NFeG9Lf2++dMxLDqrFBLODXKWFxVJ7qSiqWjVm6xNBJbJ
+	sPEuPofpR+xnZbI0N48U5Cd21htFlmQr2i55YhWmyX187DJlvYahATElVPK2aPzh0fH80YD/fqN
+	ZIDKofP2IGenSq8IajNAVOGesXMejZb9D6hwDrHSGRKVm9MnSlQrn8YsTdIc8mCdgUjhEJfrEAs
+	c83EpQd2MM2i0VZcPb5IZX+EJAYL3aFntT/cPl9FRZY3wpZXNo/ojnDWSXfwHRtp3qWqdgFXpn6
+	/XZ9a0p1HnoYo8sjEX74UcLMJDsAUAZcuLD5HpgbNTzn7Fs9OUabDjJBgq3iDMXxySKsVuEJLBA
+	/+Fk3xDQ4+MGiwiLVpIR3/znc29/R0lI0II0wcoMXbAaIqBlKzRGWsObeFiNbZgNQsFKNCHlq81
+	48g
+X-Received: by 2002:a05:600c:8b52:b0:490:e281:287d with SMTP id 5b1f17b1804b1-492340ff916mr81518995e9.1.1781713509911;
+        Wed, 17 Jun 2026 09:25:09 -0700 (PDT)
+Received: from localhost (p200300f65f47db043b42891e8adbe9a5.dip0.t-ipconnect.de. [2003:f6:5f47:db04:3b42:891e:8adb:e9a5])
+        by smtp.gmail.com with UTF8SMTPSA id 5b1f17b1804b1-4923685fe90sm18982865e9.1.2026.06.17.09.25.08
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 17 Jun 2026 08:41:02 -0700 (PDT)
-Received: from jgg by wakko with local (Exim 4.97)
-	(envelope-from <jgg@ziepe.ca>)
-	id 1wZsNx-00000000iiO-3Q8i;
-	Wed, 17 Jun 2026 12:41:01 -0300
-Date: Wed, 17 Jun 2026 12:41:01 -0300
-From: Jason Gunthorpe <jgg@ziepe.ca>
-To: Alexey Kardashevskiy <aik@amd.com>
-Cc: "Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org>,
-	iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev,
-	Robin Murphy <robin.murphy@arm.com>,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
-	Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
-	Steven Price <steven.price@arm.com>,
-	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Jiri Pirko <jiri@resnulli.us>, Mostafa Saleh <smostafa@google.com>,
-	Petr Tesarik <ptesarik@suse.com>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Xu Yilun <yilun.xu@linux.intel.com>, linuxppc-dev@lists.ozlabs.org,
-	linux-s390@vger.kernel.org,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org,
-	Jiri Pirko <jiri@nvidia.com>, Michael Kelley <mhklinux@outlook.com>,
-	"Cheloha, Scott" <Scott.Cheloha@amd.com>
-Subject: Re: [PATCH v6 03/20] dma-direct: use DMA_ATTR_CC_SHARED in
- alloc/free paths
-Message-ID: <20260617154101.GE3577091@ziepe.ca>
-References: <20260604083959.1265923-1-aneesh.kumar@kernel.org>
- <20260604083959.1265923-4-aneesh.kumar@kernel.org>
- <845d0c8a-6d51-47aa-8e0b-8381e733444a@amd.com>
+        Wed, 17 Jun 2026 09:25:09 -0700 (PDT)
+Date: Wed, 17 Jun 2026 18:25:07 +0200
+From: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>
+To: Heiko Carstens <hca@linux.ibm.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>, 
+	Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Christian Borntraeger <borntraeger@linux.ibm.com>, linux-s390@vger.kernel.org
+Subject: Re: [PATCH -next] s390/idle: Add missing EXPORT_SYMBOL()
+Message-ID: <ajLJhMC9SDjeSQtR@monoceros>
+References: <20260617145313.3910957-1-hca@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="52b5dsi3hsppeau2"
 Content-Disposition: inline
-In-Reply-To: <845d0c8a-6d51-47aa-8e0b-8381e733444a@amd.com>
+In-Reply-To: <20260617145313.3910957-1-hca@linux.ibm.com>
 
-On Wed, Jun 17, 2026 at 10:50:39AM +1000, Alexey Kardashevskiy wrote:
-> > @@ -193,16 +193,31 @@ void *dma_direct_alloc(struct device *dev, size_t size,
-> >   		dma_addr_t *dma_handle, gfp_t gfp, unsigned long attrs)
-> >   {
-> >   	bool remap = false, set_uncached = false;
-> > -	bool mark_mem_decrypt = true;
-> > +	bool mark_mem_decrypt = false;
-> >   	struct page *page;
-> >   	void *ret;
-> > +	/*
-> > +	 * DMA_ATTR_CC_SHARED is not a caller-visible dma_alloc_*()
-> > +	 * attribute. The direct allocator uses it internally after it has
-> > +	 * decided that the backing pages must be shared/decrypted, so the
-> > +	 * rest of the allocation path can consistently select DMA addresses,
-> > +	 * choose compatible pools and restore encryption on free.
-> 
-> Why this limit?
-> 
-> Context: I am looking for a memory pool for a few shared pages (to
-> do some guest<->host communication), SWIOTLB seems like the right
-> fit but swiotlb_alloc() is not exported and
-> dma_direct_alloc(DMA_ATTR_CC_SHARED) is not allowed.  Thanks,
 
-Then setup your struct device so that the DMA API knows the
-guest<->host channel requires unecrypted and it will work correctly.
+--52b5dsi3hsppeau2
+Content-Type: text/plain; protected-headers=v1; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [PATCH -next] s390/idle: Add missing EXPORT_SYMBOL()
+MIME-Version: 1.0
 
-I think this is a reasonable API to use for that, and I was just
-advocating that hyperv should be using it too.
+On Wed, Jun 17, 2026 at 04:53:13PM +0200, Heiko Carstens wrote:
+> Uwe Kleine-K=F6nig reported this build breakage caused by a recent commit
+> which provides arch specific kcpustat_field_idle()/kcpustat_field_iowait()
+> functions:
+>=20
+> ERROR: modpost: "arch_kcpustat_field_idle" [drivers/leds/trigger/ledtrig-=
+activity.ko] undefined!
+> ERROR: modpost: "arch_kcpustat_field_iowait" [drivers/leds/trigger/ledtri=
+g-activity.ko] undefined!
+>=20
+> Fix this by adding the missing EXPORT_SYMBOL().
 
-But it all relies on a properly setup struct device.
+Did you consider EXPORT_SYMBOL_GPL() which AFAIK is prefered over the
+non-GPL one?
 
-Jason
+> Fixes: 670e057744e0 ("s390/idle: Provide arch specific kcpustat_field_idl=
+e()/kcpustat_field_iowait()")
+> Reported-by: Uwe Kleine-K=F6nig <u.kleine-koenig@baylibre.com>
+> Closes: https://lore.kernel.org/r/ajKsG0JP6qTssQBX@monoceros
+> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+> ---
+>  arch/s390/kernel/idle.c | 3 +++
+>  1 file changed, 3 insertions(+)
+>=20
+> diff --git a/arch/s390/kernel/idle.c b/arch/s390/kernel/idle.c
+> index 7f7851c001e0..6da8ee22a1d5 100644
+> --- a/arch/s390/kernel/idle.c
+> +++ b/arch/s390/kernel/idle.c
+> @@ -14,6 +14,7 @@
+>  #include <linux/init.h>
+>  #include <linux/cpu.h>
+>  #include <trace/events/power.h>
+> +#include <linux/export.h>
+>  #include <asm/cpu_mf.h>
+>  #include <asm/cputime.h>
+>  #include <asm/idle.h>
+
+When I fixed up the reported issue in my local tree, I didn't add that
+include, so it seems to be included already implicitly. But I guess
+adding that explicitly is a good idea.
+
+> @@ -83,11 +84,13 @@ u64 arch_kcpustat_field_idle(int cpu)
+>  {
+>  	return arch_cpu_idle_time(cpu, CPUTIME_IDLE, !nr_iowait_cpu(cpu));
+>  }
+> +EXPORT_SYMBOL(arch_kcpustat_field_idle);
+> =20
+>  u64 arch_kcpustat_field_iowait(int cpu)
+>  {
+>  	return arch_cpu_idle_time(cpu, CPUTIME_IOWAIT, nr_iowait_cpu(cpu));
+>  }
+> +EXPORT_SYMBOL(arch_kcpustat_field_iowait);
+> =20
+>  void account_idle_time_irq(void)
+>  {
+
+Tested-by: Uwe Kleine-K=F6nig <u.kleine-koenig@baylibre.com>
+
+Best regards
+Uwe
+
+--52b5dsi3hsppeau2
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEP4GsaTp6HlmJrf7Tj4D7WH0S/k4FAmoyymEACgkQj4D7WH0S
+/k5KOgf/bZeIcTAY6mttkQVJXFhsJZzZL3MSFWHX5sqUkcqk0e9rIQIlyQBMWLf6
+Ij9Xskp8Z7g31RAkE+ebiPDX4Ewr4Z43SP+LmZpYKyAwjWXPP42eulC6WSIm9WXK
+mRTZjHutUb+jdlNHb8X2DcRf1Th2jUKJreeP009WCsanY7F8O84erkl841z13nNO
+VUvdf+/pp5QozGII0Ey/74FkoTKz+i7rkyF0C/btXGAJ66grULa1Oj8O/tnwGcuV
+TUCWL2pBD3o2sGlG4jCvyROT6bGD3EHGr6xGakg/oy0Zq+mHd4BJUzC35FAccWsV
+KlJeHVnyYzStzD//ndZOqiWOIcZv8Q==
+=XCYh
+-----END PGP SIGNATURE-----
+
+--52b5dsi3hsppeau2--
