@@ -1,53 +1,53 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D1D6C3CE4A3
-	for <linux-s390@vger.kernel.org>; Wed, 17 Jun 2026 09:48:39 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7BA4F3A168C
+	for <linux-s390@vger.kernel.org>; Wed, 17 Jun 2026 09:48:40 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781689721; cv=none; b=qmEfd/hFxg9bB2XkQrwmRym/auCz5v6H5oEXQ4u27OVDDoeLPTBNWp9Thwh4cpFJXIVomf8qKyRIUviIQN2HQiFZt9hDkTB+E7EpTUaTD8CnNBZcfmfzvAIRSrB1laAaiVuhCXu2aWaJXe5EDCmmJgQsnTwAX0VwjkSXKQKXhuw=
+	t=1781689721; cv=none; b=nsKUlb4hdDKSQyotiPPoDpBPDChQn87uzN/3KulPIi1SpAK35br1H0u3fcdNXJStyMiKE1g0m/yikSJB99WJreTTxkl1Pb8HzoPB5GxKI+1KRr7LvR6awUQbYNsBxCUO3LG4/xuU/NmacxprhaASlhs+vMASUpjMA3Z1NqCJNC0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1781689721; c=relaxed/simple;
-	bh=ClylkZHefvMPM5gGR0qFln8gS2f3T/M9Z70XvVE3L0w=;
+	bh=sL+CwSZxbPdgFoaOSHI/7tTAWk/JdxwigDS6GTxNZDk=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=YEF2IcWyIoSD20mUx6Vgp9JkeRmmf/ZJOnRp+MXGAVPRnifTgJ4IABEGIft/MT1gi5HCpw2UcJEnnQsFnm+uBRlB/aODP/GTJoDkphUmgqLRuek/xq5bx6zgZ0+98ng9DhCFzwkDGx5Wfdx1g6BtCBSw+OWF6BMau7qRJ4GMMb8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=p1+knW8r; arc=none smtp.client-ip=148.163.158.5
+	 MIME-Version; b=USBt5e1wX0OuQic+aaNh3r4Rfrtkf3CIK/AmgwRzTm4Vv4nByn2u9J/xrGdzErRApyrwCKIbu8cItQqBJlXyC4k7ZamURJbJrIsQWkvIRIk7VPv9YHZJb3r+ZNKZHBYDBTZF6y5u6yGUZv+pQsuQezHJatAQY+/RW4cBZroAekA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=SsWK/QkY; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="p1+knW8r"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65H8mToO4003130;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="SsWK/QkY"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65H8mti04042154;
 	Wed, 17 Jun 2026 09:48:29 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=xhf4zyh8REkyXlzHg
-	Cgt2vTzhO6jP+fD3+QUkpYT8mU=; b=p1+knW8rmCwxoIvKBxXk3VmmRAB5AANMV
-	Fp5+gtnyP4wsuKEbqiN4b+i4WiQGMRcY4+ziFAePx6BeR1r2NOiIBMLmrJ5wfs+O
-	57F2PocB98lLIzAq91AaxEmJcYhMO4qWGYYVAPe64Aq9dnujZ1pquzkVw5JVB/Br
-	+Zw28n/F/lCc5Y7sllVy43a7W9SV0LsGqXyvpkz89cWqLPSU+M7WFlOvV+vtU8GZ
-	RoCFf6A9bzufoDV732RsqoNoTaBkT8KnYyHiMgaGxI3ix2NLI7Z563VM28DwzJpE
-	JmrLo/0/7IkduS+v+rrLNNaTwozt/kR25B8ZSj1vL+ewkHgcwCenw==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4eueqx28bq-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 17 Jun 2026 09:48:29 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 65H9YaTR028270;
-	Wed, 17 Jun 2026 09:48:28 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4eudvaahdv-1
+	:mime-version:references:subject:to; s=pp1; bh=tun5NYFOsftXK46/U
+	RD4ae+acA1hTWaly0US/HOM/R4=; b=SsWK/QkYcCB67K5g2ihsDHxDHuftAvi31
+	oK6UMN5vo2UtCqcNmFCzWllwuR2W1e/hH+gl3mXYRIWodEfTZVuOzhlyS7n+eqzS
+	/halcCXbJr4OVBpcY8S19eGfSI1al7E1+EMI49AFwOUvF9+C0kY4sYdUQGv4EgwB
+	9zR1ZOAvZTc8EvXmwlLb67rMaMw0z7XZ/mZ7aY6wUW8NmrL2xMzDd2Ii6GcFkuZt
+	uiZj0qfsqSvYgIVmukKwQjx7r6RlkdZ1mWZQhWKAXlUOz7DGVry8X8WlBfGyg6Wa
+	vjqNPggN/Cm5jwR4SVaGX5Rr5o/b2FI8uoE0wAK3EwJXBqX/VMGqg==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4eueqxa7xm-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Wed, 17 Jun 2026 09:48:28 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 65H9Ye2x022006;
+	Wed, 17 Jun 2026 09:48:27 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4eudva2h5v-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 17 Jun 2026 09:48:27 +0000 (GMT)
 Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 65H9mODf48300380
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 65H9mO6L46465512
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 17 Jun 2026 09:48:25 GMT
+	Wed, 17 Jun 2026 09:48:24 GMT
 Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id CCFA620040;
+	by IMSVA (Postfix) with ESMTP id 5F57920043;
 	Wed, 17 Jun 2026 09:48:24 +0000 (GMT)
 Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 94E0B2004E;
+	by IMSVA (Postfix) with ESMTP id 33F162004E;
 	Wed, 17 Jun 2026 09:48:24 +0000 (GMT)
 Received: from funtu2.ehn-de.ibm.com (unknown [9.224.92.54])
 	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
@@ -59,9 +59,9 @@ Cc: qemu-s390x@nongnu.org, qemu-devel@nongnu.org,
         linux390-list@tuxmaker.boeblingen.de.ibm.com,
         linux-s390@vger.kernel.org, dengler@linux.ibm.com,
         borntraeger@linux.ibm.com, fcallies@linux.ibm.com, cohuck@redhat.com
-Subject: [PATCH v7 17/17] target/s390x: Use generic AES helper functions
-Date: Wed, 17 Jun 2026 11:48:20 +0200
-Message-ID: <20260617094820.34402-18-freude@linux.ibm.com>
+Subject: [PATCH v7 15/17] docs/s390: Document CPACF instructions support
+Date: Wed, 17 Jun 2026 11:48:18 +0200
+Message-ID: <20260617094820.34402-16-freude@linux.ibm.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20260617094820.34402-1-freude@linux.ibm.com>
 References: <20260617094820.34402-1-freude@linux.ibm.com>
@@ -73,284 +73,174 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: Uw7SZeYd5012zPXZPq2m0q_3ZKF4nnFV
-X-Authority-Analysis: v=2.4 cv=Le0MLDfi c=1 sm=1 tr=0 ts=6a326d6d cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+X-Authority-Analysis: v=2.4 cv=OcSoyBTY c=1 sm=1 tr=0 ts=6a326d6c cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
  a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8 a=g6vVTg3iDwn42Crx3gMA:9
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNjE3MDA5MiBTYWx0ZWRfX0W/pULkyliH9
- YgXotheddvXTIEJW3J3sqtNrN4CEEb1YJkIsVZM5rnfWQPkknCNBI/4I6pRIgiIwJks/CkGQPW0
- IdKS/sCHJLC1myEU7DsqyNTMtenH2Ks=
-X-Proofpoint-ORIG-GUID: Uw7SZeYd5012zPXZPq2m0q_3ZKF4nnFV
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjE3MDA5MiBTYWx0ZWRfX3imXPVVmmbXa
- 8RNdyJbpu/DbKGtgSxQjAepfknioo1m4dnQKf+ADdC6fYAZeH8CGiIZmUwFX2xjJSL/34SDZm8X
- 7zmDpci6Myq1L6m3Cb/YgKMg11Y6GByOwUixPtwEOdxJg+ssbgweUc63Sv0YR8UkwngaGRUXo8B
- H3jLBSt1FpoUZ5Xbxb9aHIrkSu1+f0MnvkXDT5jHx0MDcHHu+Qm8f3K/xuRDA2hh2zno0oVSCAE
- IRqBHrTtnUz7bSAauIqTZ/n6nc1FAXOeNYUZD1Ys18lu8EoN3jEIrJ6kDNSWUTCmJEaQkHOTQGP
- GRn7KeCoIjoY7LYPc79giAqDytu7W7m0mrSxfq1cqR8/HoCqP2I5Gm819/ug8Uy4lpzJqhVqoWH
- pkHSQabwmp3AYpxQkTqO3fh0jdnet5vmzswq35m1GHXuCtgezaTcoO1dSPTf3ZnUw47VL10vdBK
- yXO9OvSo7W3FpxSRSZg==
+ a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8 a=yFZ0Su8qAlDFIkEhSqQA:9
+ a=5wi_FRADO1KgGG3s:21 a=O8hF6Hzn-FEA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjE3MDA5MiBTYWx0ZWRfX0QC0dd0Lq6q0
+ e1ppgAnRcldp4AbSRbiDmuwstsSR1TkrT0ShshIe/3d2f1cGK1DztySTdILfCgnecKTh6v4BMmX
+ wqlPXeMJYMz9tlPSjQeDv4My/Ps/uYsJlMW9vfA80qRz1Tm6AncSK9n+TUc5iqmg55VlOFrcgqZ
+ AZquevEcKQ7/oBlTM4rngyTdJV3bK755S14go1jNq4T+84fFcS4NCdj3UCF27EUTulSmlxtqhE8
+ RXzUJZ14SRtYwmxwPcJzIL1wMWn8UGuVuplKbGi8FZlHWOdDz/YIrJKqCwI7JstNAa6BkyyWSi3
+ eZa6bT+0asxtdGYnk0woueMGs4R0D/AWFylLMmSX1T1099i0XbRjODf6IHNaX4D//BnOKjZYUen
+ KxFHDtRBApCnGo96LRjj5t9zWAoMYtWP2JaRtH2S+Ppk6ZTDykipEUlwVk0yzFa8Z9xKa5ROCYT
+ Hw73OSIloU0HsD+xjEg==
+X-Proofpoint-GUID: sa6fKmT46F8-35g2JtmvgmU5mEdVMk3N
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNjE3MDA5MiBTYWx0ZWRfX8u6t4g1Vt6GC
+ +VPSskN63vHHcTKvIYH4judjW1OuW0le1LgxC4AjrnwdqtgQm1ZP7wC3NU9bOqnqfHN/U0w6ENF
+ L0faWsaHrOi5kbOQZuUAivtjaL6/Lw4=
+X-Proofpoint-ORIG-GUID: sa6fKmT46F8-35g2JtmvgmU5mEdVMk3N
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
  definitions=2026-06-17_01,2026-06-16_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 priorityscore=1501 malwarescore=0 spamscore=0 suspectscore=0
- impostorscore=0 phishscore=0 lowpriorityscore=0 bulkscore=0 adultscore=0
+ priorityscore=1501 phishscore=0 bulkscore=0 suspectscore=0 lowpriorityscore=0
+ impostorscore=0 malwarescore=0 spamscore=0 adultscore=0 clxscore=1015
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2606170092
 
-Rewrite the cpacf implementations to use the generic
-AES helper functions from crypto/aes-helpers.c
+Add a first document covering the Qemu s390 CPACF instructions
+and functions supported.
 
 Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
 ---
- target/s390x/tcg/cpacf_aes.c | 124 ++++++++++-------------------------
- 1 file changed, 36 insertions(+), 88 deletions(-)
+ docs/system/s390x/cpacf.rst  | 116 +++++++++++++++++++++++++++++++++++
+ docs/system/target-s390x.rst |   1 +
+ 2 files changed, 117 insertions(+)
+ create mode 100644 docs/system/s390x/cpacf.rst
 
-diff --git a/target/s390x/tcg/cpacf_aes.c b/target/s390x/tcg/cpacf_aes.c
-index 98d5134d5f..9935b6b39c 100644
---- a/target/s390x/tcg/cpacf_aes.c
-+++ b/target/s390x/tcg/cpacf_aes.c
-@@ -119,20 +119,13 @@ int cpacf_aes_ecb(CPUS390XState *env, const int mmu_idx, uintptr_t ra,
-     return !len ? 0 : 3;
- }
- 
--static void aes_xor(const uint8_t *src1, const uint8_t *src2, uint8_t *dst)
--{
--    for (int i = 0; i < AES_BLOCK_SIZE; i++) {
--        dst[i] = src1[i] ^ src2[i];
--    }
--}
--
- int cpacf_aes_cbc(CPUS390XState *env, const int mmu_idx, uintptr_t ra,
-                   uint64_t param_addr, uint64_t *dst_ptr_reg,
-                   uint64_t *src_ptr_reg, uint64_t *src_len_reg,
-                   uint32_t type, uint8_t fc, uint8_t mod)
- {
-     enum { MAX_BLOCKS_PER_RUN = 8192 / AES_BLOCK_SIZE };
--    uint8_t in[AES_BLOCK_SIZE], out[AES_BLOCK_SIZE], buf[AES_BLOCK_SIZE];
-+    uint8_t in[AES_BLOCK_SIZE], out[AES_BLOCK_SIZE];
-     const MemOpIdx oi = make_memop_idx(MO_8, mmu_idx);
-     uint64_t addr, len = *src_len_reg, done = 0;
-     int i, keysize, addr_reg_size = 64;
-@@ -188,19 +181,11 @@ int cpacf_aes_cbc(CPUS390XState *env, const int mmu_idx, uintptr_t ra,
-     for (i = 0; i < MAX_BLOCKS_PER_RUN && len >= AES_BLOCK_SIZE; i++) {
-         aes_read_block(env, mmu_idx, *src_ptr_reg + done, in, ra);
-         if (mod) {
--            /* decrypt in => buf */
--            AES_decrypt(in, buf, &exkey);
--            /* buf xor iv => out */
--            aes_xor(buf, iv, out);
--            /* prep iv for next round */
--            memcpy(iv, in, AES_BLOCK_SIZE);
-+            /* decrypt in => out */
-+            AES_cbc_decrypt(in, out, iv, &exkey);
-         } else {
--            /* in xor iv => buf */
--            aes_xor(in, iv, buf);
--            /* encrypt buf => out */
--            AES_encrypt(buf, out, &exkey);
--            /* prep iv for next round */
--            memcpy(iv, out, AES_BLOCK_SIZE);
-+            /* encrypt in => out */
-+            AES_cbc_encrypt(in, out, iv, &exkey);
-         }
-         aes_write_block(env, mmu_idx, *dst_ptr_reg + done, out, ra);
-         len -= AES_BLOCK_SIZE, done += AES_BLOCK_SIZE;
-@@ -229,11 +214,10 @@ int cpacf_aes_ctr(CPUS390XState *env, const int mmu_idx, uintptr_t ra,
- {
-     enum { MAX_BLOCKS_PER_RUN = 8192 / AES_BLOCK_SIZE };
-     const MemOpIdx oi = make_memop_idx(MO_8, mmu_idx);
--    uint8_t ctr[AES_BLOCK_SIZE], buf[AES_BLOCK_SIZE];
-     uint8_t in[AES_BLOCK_SIZE], out[AES_BLOCK_SIZE];
-     uint64_t addr, len = *src_len_reg, done = 0;
-+    uint8_t ctr[AES_BLOCK_SIZE], key[32];
-     int i, keysize, addr_reg_size = 64;
--    uint8_t key[32];
-     AES_KEY exkey;
- 
-     g_assert(type == S390_FEAT_TYPE_KMCTR);
-@@ -275,12 +259,10 @@ int cpacf_aes_ctr(CPUS390XState *env, const int mmu_idx, uintptr_t ra,
-     for (i = 0; i < MAX_BLOCKS_PER_RUN && len >= AES_BLOCK_SIZE; i++) {
-         /* read in nonce/ctr => ctr */
-         aes_read_block(env, mmu_idx, *ctr_ptr_reg + done, ctr, ra);
--        /* encrypt ctr => buf */
--        AES_encrypt(ctr, buf, &exkey);
-         /* read in one block of input data => in */
-         aes_read_block(env, mmu_idx, *src_ptr_reg + done, in, ra);
--        /* exor input data with encrypted ctr => out */
--        aes_xor(in, buf, out);
-+        /* encrypt ctr and xor with in => out */
-+        AES_ctr_encrypt(in, out, ctr, &exkey);
-         /* write out the processed block */
-         aes_write_block(env, mmu_idx, *dst_ptr_reg + done, out, ra);
-         len -= AES_BLOCK_SIZE, done += AES_BLOCK_SIZE;
-@@ -361,28 +343,13 @@ int cpacf_aes_pcc(CPUS390XState *env, const int mmu_idx, uintptr_t ra,
-     return 0;
- }
- 
--static void aes_xts_prep_next_tweak(uint8_t tweak[AES_BLOCK_SIZE])
--{
--    uint8_t carry;
--    int i;
--
--    carry = tweak[AES_BLOCK_SIZE - 1] >> 7;
--
--    for (i = AES_BLOCK_SIZE - 1; i > 0; i--) {
--        tweak[i] = (uint8_t)((tweak[i] << 1) | (tweak[i - 1] >> 7));
--    }
--
--    tweak[i] = (uint8_t)(tweak[i] << 1);
--    tweak[i] ^= (uint8_t)(0x87 & (uint8_t)(-(int8_t)carry));
--}
--
- int cpacf_aes_xts(CPUS390XState *env, const int mmu_idx, uintptr_t ra,
-                   uint64_t param_addr, uint64_t *dst_ptr_reg,
-                   uint64_t *src_ptr_reg, uint64_t *src_len_reg,
-                   uint32_t type, uint8_t fc, uint8_t mod)
- {
-     enum { MAX_BLOCKS_PER_RUN = 8192 / AES_BLOCK_SIZE };
--    uint8_t buf1[AES_BLOCK_SIZE], buf2[AES_BLOCK_SIZE];
-+    uint8_t in[AES_BLOCK_SIZE], out[AES_BLOCK_SIZE];
-     const MemOpIdx oi = make_memop_idx(MO_8, mmu_idx);
-     uint64_t addr, len = *src_len_reg, done = 0;
-     uint8_t key[32], tweak[AES_BLOCK_SIZE];
-@@ -433,23 +400,19 @@ int cpacf_aes_xts(CPUS390XState *env, const int mmu_idx, uintptr_t ra,
- 
-     /* process up to MAX_BLOCKS_PER_RUN aes blocks */
-     for (i = 0; i < MAX_BLOCKS_PER_RUN && len >= AES_BLOCK_SIZE; i++) {
--        /* fetch one AES block into buf1  */
--        aes_read_block(env, mmu_idx, *src_ptr_reg + done, buf1, ra);
--        /* buf1 xor tweak => buf2 */
--        aes_xor(buf1, tweak, buf2);
-+        /* fetch one AES block into in  */
-+        aes_read_block(env, mmu_idx, *src_ptr_reg + done, in, ra);
-         if (mod) {
--            /* decrypt buf2 => buf1 */
--            AES_decrypt(buf2, buf1, &exkey);
-+            /* decrypt in => out */
-+            AES_xts_decrypt(in, out, tweak, &exkey);
-         } else {
--            /* encrypt buf2 => buf1 */
--            AES_encrypt(buf2, buf1, &exkey);
-+            /* encrypt in => out */
-+            AES_xts_encrypt(in, out, tweak, &exkey);
-         }
--        /* buf1 xor tweak => buf2 */
--        aes_xor(buf1, tweak, buf2);
-         /* prep tweak for next round */
--        aes_xts_prep_next_tweak(tweak);
--        /* write out this processed block from buf2 */
--        aes_write_block(env, mmu_idx, *dst_ptr_reg + done, buf2, ra);
-+        AES_xts_prep_next_tweak(tweak);
-+        /* write out this processed block from out */
-+        aes_write_block(env, mmu_idx, *dst_ptr_reg + done, out, ra);
-         len -= AES_BLOCK_SIZE, done += AES_BLOCK_SIZE;
-     }
- 
-@@ -627,7 +590,7 @@ int cpacf_paes_cbc(CPUS390XState *env, const int mmu_idx, uintptr_t ra,
-                    uint32_t type, uint8_t fc, uint8_t mod)
- {
-     enum { MAX_BLOCKS_PER_RUN = 8192 / AES_BLOCK_SIZE };
--    uint8_t in[AES_BLOCK_SIZE], out[AES_BLOCK_SIZE], buf[AES_BLOCK_SIZE];
-+    uint8_t in[AES_BLOCK_SIZE], out[AES_BLOCK_SIZE];
-     const MemOpIdx oi = make_memop_idx(MO_8, mmu_idx);
-     uint8_t key[32], wkvp[32], iv[AES_BLOCK_SIZE];
-     uint64_t addr, len = *src_len_reg, done = 0;
-@@ -697,19 +660,11 @@ int cpacf_paes_cbc(CPUS390XState *env, const int mmu_idx, uintptr_t ra,
-     for (i = 0; i < MAX_BLOCKS_PER_RUN && len >= AES_BLOCK_SIZE; i++) {
-         aes_read_block(env, mmu_idx, *src_ptr_reg + done, in, ra);
-         if (mod) {
--            /* decrypt in => buf */
--            AES_decrypt(in, buf, &exkey);
--            /* buf xor iv => out */
--            aes_xor(buf, iv, out);
--            /* prep iv for next round */
--            memcpy(iv, in, AES_BLOCK_SIZE);
-+            /* decrypt in => out */
-+            AES_cbc_decrypt(in, out, iv, &exkey);
-         } else {
--            /* in xor iv => buf */
--            aes_xor(in, iv, buf);
--            /* encrypt buf => out */
--            AES_encrypt(buf, out, &exkey);
--            /* prep iv for next round */
--            memcpy(iv, out, AES_BLOCK_SIZE);
-+            /* encrypt in => out */
-+            AES_cbc_encrypt(in, out, iv, &exkey);
-         }
-         aes_write_block(env, mmu_idx, *dst_ptr_reg + done, out, ra);
-         len -= AES_BLOCK_SIZE, done += AES_BLOCK_SIZE;
-@@ -738,11 +693,10 @@ int cpacf_paes_ctr(CPUS390XState *env, const int mmu_idx, uintptr_t ra,
- {
-     enum { MAX_BLOCKS_PER_RUN = 8192 / AES_BLOCK_SIZE };
-     const MemOpIdx oi = make_memop_idx(MO_8, mmu_idx);
--    uint8_t ctr[AES_BLOCK_SIZE], buf[AES_BLOCK_SIZE];
-     uint8_t in[AES_BLOCK_SIZE], out[AES_BLOCK_SIZE];
-+    uint8_t ctr[AES_BLOCK_SIZE], key[32], wkvp[32];
-     uint64_t addr, len = *src_len_reg, done = 0;
-     int i, keysize, addr_reg_size = 64;
--    uint8_t key[32], wkvp[32];
-     AES_KEY exkey;
- 
-     g_assert(type == S390_FEAT_TYPE_KMCTR);
-@@ -798,12 +752,10 @@ int cpacf_paes_ctr(CPUS390XState *env, const int mmu_idx, uintptr_t ra,
-     for (i = 0; i < MAX_BLOCKS_PER_RUN && len >= AES_BLOCK_SIZE; i++) {
-         /* read in nonce/ctr => ctr */
-         aes_read_block(env, mmu_idx, *ctr_ptr_reg + done, ctr, ra);
--        /* encrypt ctr => buf */
--        AES_encrypt(ctr, buf, &exkey);
-         /* read in one block of input data => in */
-         aes_read_block(env, mmu_idx, *src_ptr_reg + done, in, ra);
--        /* exor input data with encrypted ctr => out */
--        aes_xor(in, buf, out);
-+        /* encrypt ctr and xor with in => out */
-+        AES_ctr_encrypt(in, out, ctr, &exkey);
-         /* write out the processed block */
-         aes_write_block(env, mmu_idx, *dst_ptr_reg + done, out, ra);
-         len -= AES_BLOCK_SIZE, done += AES_BLOCK_SIZE;
-@@ -906,7 +858,7 @@ int cpacf_paes_xts(CPUS390XState *env, const int mmu_idx, uintptr_t ra,
-                    uint32_t type, uint8_t fc, uint8_t mod)
- {
-     enum { MAX_BLOCKS_PER_RUN = 8192 / AES_BLOCK_SIZE };
--    uint8_t buf1[AES_BLOCK_SIZE], buf2[AES_BLOCK_SIZE];
-+    uint8_t in[AES_BLOCK_SIZE], out[AES_BLOCK_SIZE];
-     const MemOpIdx oi = make_memop_idx(MO_8, mmu_idx);
-     uint8_t key[32], wkvp[32], tweak[AES_BLOCK_SIZE];
-     uint64_t addr, len = *src_len_reg, done = 0;
-@@ -971,23 +923,19 @@ int cpacf_paes_xts(CPUS390XState *env, const int mmu_idx, uintptr_t ra,
- 
-     /* process up to MAX_BLOCKS_PER_RUN aes blocks */
-     for (i = 0; i < MAX_BLOCKS_PER_RUN && len >= AES_BLOCK_SIZE; i++) {
--        /* fetch one AES block into buf1  */
--        aes_read_block(env, mmu_idx, *src_ptr_reg + done, buf1, ra);
--        /* buf1 xor tweak => buf2 */
--        aes_xor(buf1, tweak, buf2);
-+        /* fetch one AES block into in */
-+        aes_read_block(env, mmu_idx, *src_ptr_reg + done, in, ra);
-         if (mod) {
--            /* decrypt buf2 => buf1 */
--            AES_decrypt(buf2, buf1, &exkey);
-+            /* decrypt in => out */
-+            AES_xts_decrypt(in, out, tweak, &exkey);
-         } else {
--            /* encrypt buf2 => buf1 */
--            AES_encrypt(buf2, buf1, &exkey);
-+            /* encrypt in => out */
-+            AES_xts_encrypt(in, out, tweak, &exkey);
-         }
--        /* buf1 xor tweak => buf2 */
--        aes_xor(buf1, tweak, buf2);
-         /* prep tweak for next round */
--        aes_xts_prep_next_tweak(tweak);
--        /* write out this processed block from buf2 */
--        aes_write_block(env, mmu_idx, *dst_ptr_reg + done, buf2, ra);
-+        AES_xts_prep_next_tweak(tweak);
-+        /* write out this processed block from out */
-+        aes_write_block(env, mmu_idx, *dst_ptr_reg + done, out, ra);
-         len -= AES_BLOCK_SIZE, done += AES_BLOCK_SIZE;
-     }
- 
+diff --git a/docs/system/s390x/cpacf.rst b/docs/system/s390x/cpacf.rst
+new file mode 100644
+index 0000000000..85f35b4e9c
+--- /dev/null
++++ b/docs/system/s390x/cpacf.rst
+@@ -0,0 +1,116 @@
++CPACF Support
++=============
++
++CPACF
++-----
++
++CP Assist for Cryptographic Function (CPACF) is a hardware-integrated
++coprocessor feature built into every  processor core of IBM Z and
++LinuxONE mainframes (s390x architecture). It provides high-speed,
++hardware-accelerated encryption and hashing directly on the CPU.
++
++CPACF provides a set of z/Architecture instructions (known as Message
++Security Assist or MSA) that execute cryptographic operations
++synchronously with the main processor.
++
++- Symmetric Encryption: Support for AES (128, 192, 256-bit), DES, and
++  Triple-DES (TDES).
++- Hashing: Acceleration for SHA-1, SHA-2 (up to SHA-512), SHA-3 and
++  SHAKE.
++- Random Number Generation: Pseudo Random Number Generator (PRNG) and
++  a hardware-based True Random Number Generator (TRNG).
++- Asymmetric Support: Elliptic Curve Cryptography (ECC) primitives
++  P-256, P-384, P-521, Montgomery/Edwards curves (e.g., Ed25519).
++
++Documentation about CPACF instructions is public available and
++can be found in the "z/Architecture Principles of Operation"
++accessible at the IBM documentation hub https://www.ibm.com/docs/en.
++For example the latest version as a pdf is available here:
++https://www.ibm.com/support/pages/zvm/library/other/22783214.pdf
++
++
++CPACF instructions
++------------------
++
++Here is a list of implemented CPACF instructions and the supported
++functions for each instruction:
++
++KDSA (COMPUTE DIGITAL SIGNATURE AUTHENTICATION)
++- Function code 0x00 - Function Query
++
++KIMD (COMPUTE INTERMEDIATE MESSAGE DIGEST)
++- Function code 0x00 - Function Query
++- Function code 0x02 - CPACF_KIMD_SHA_256
++- Function code 0x03 - CPACF_KIMD_SHA_512
++
++KLMD (COMPUTE LAST MESSAGE DIGEST)
++- Function code 0x00 - Function Query
++- Function code 0x02 - CPACF_KLMD_SHA_256
++- Function code 0x03 - CPACF_KLMD_SHA_512
++
++KM (CIPHER MESSAGE)
++- Function code 0x00 - Function Query
++- Function code 0x12 - CPACF_KM_AES_128
++- Function code 0x13 - CPACF_KM_AES_192
++- Function code 0x14 - CPACF_KM_AES_256
++- Function code 0x1a - CPACF_KM_PAES_128
++- Function code 0x1b - CPACF_KM_PAES_192
++- Function code 0x1c - CPACF_KM_PAES_256
++- Function code 0x32 - CPACF_KM_XTS_128
++- Function code 0x34 - CPACF_KM_XTS_256
++- Function code 0x3a - CPACF_KM_PXTS_128
++- Function code 0x3c - CPACF_KM_PXTS_256
++
++KMAC (COMPUTE MESSAGE AUTHENTICATION CODE)
++- Function code 0x00 - Function Query
++
++KMC (CIPHER MESSAGE WITH CHAINING)
++- Function code 0x00 - Function Query
++- Function code 0x12 - CPACF_KMC_AES_128
++- Function code 0x13 - CPACF_KMC_AES_192
++- Function code 0x14 - CPACF_KMC_AES_256
++- Function code 0x1a - CPACF_KMC_PAES_128
++- Function code 0x1b - CPACF_KMC_PAES_192
++- Function code 0x1c - CPACF_KMC_PAES_256
++
++KMCTR (CIPHER MESSAGE WITH COUNTER)
++- Function code 0x00 - Function Query
++- Function code 0x12 - CPACF_KMCTR_AES_128
++- Function code 0x13 - CPACF_KMCTR_AES_192
++- Function code 0x14 - CPACF_KMCTR_AES_256
++- Function code 0x1a - CPACF_KMCTR_PAES_128
++- Function code 0x1b - CPACF_KMCTR_PAES_192
++- Function code 0x1c - CPACF_KMCTR_PAES_256
++
++KMF (CIPHER MESSAGE WITH CIPHER FEEDBACK)
++- not supported
++
++KMO (CIPHER MESSAGE WITH OUTPUT FEEDBACK)
++- not supported
++
++PCC (PERFORM CRYPTOGRAPHIC COMPUTATION)
++- Function code 0x00 - Function Query
++- Function code 0x32 - compute XTS param AES-128
++- Function code 0x34 - compute XTS param AES-256
++- Function code 0x3a - compute XTS param Encrypted AES-128
++- Function code 0x3c - compute XTS param Encrypted AES-256
++
++PCKMO (PERFORM CRYPTOGRAPHIC KEY MANAGEMENT OPERATION)
++- Function code 0x00 - Function Query
++- Function code 0x12 - CPACF_PCKMO_ENC_AES_128_KEY
++- Function code 0x13 - CPACF_PCKMO_ENC_AES_192_KEY
++- Function code 0x14 - CPACF_PCKMO_ENC_AES_256_KEY
++
++PRNO (PERFORM RANDOM NUMBER OPERATION)
++- Function code 0x00 - Function Query
++- Function code 0x72 - CPACF_PRNO_TRNG
++
++Note that the use of a not supported CPACF instruction (KMF and KMO)
++or invocation of a not listed function will result in a Specification
++Exception.
++
++Not listed CPACF instructions (KMF, KMO) cause an Operation Exception
++when used. Not listed functions cause a Specification Exception when
++called. If only the query function is listed (KDSA), then the query
++function will return a function status word with all but the query
++function bit set to 0.
+diff --git a/docs/system/target-s390x.rst b/docs/system/target-s390x.rst
+index 94c981e732..49159826eb 100644
+--- a/docs/system/target-s390x.rst
++++ b/docs/system/target-s390x.rst
+@@ -35,3 +35,4 @@ Architectural features
+    s390x/bootdevices
+    s390x/protvirt
+    s390x/cpu-topology
++   s390x/cpacf
 -- 
 2.43.0
 
