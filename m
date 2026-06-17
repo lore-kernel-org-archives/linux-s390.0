@@ -1,172 +1,271 @@
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id A163C347503;
-	Wed, 17 Jun 2026 07:15:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA17A3CF21C
+	for <linux-s390@vger.kernel.org>; Wed, 17 Jun 2026 09:48:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781680545; cv=none; b=MGyKe8g/1lAfaS/3XbWHi1nGN5DLHrzCAyuvXXSiAfuNjiNnbyc/KQwKM5Ep7bEA7Jjtez+w66FAS2dw9nhakduLlcD6wgAGVo+q2z7sQMsjWDzq/NTYMOhJ0yqGpD3zYhh3Q8ylMEBe6oO3eGVpB0TLr93/LF9xb1aoN+tbHc4=
+	t=1781689716; cv=none; b=migqj+P7bX2kKXZQtu5T2pjdy2MvqI7Mo4surZdlGZVHUrE3T/1+F89IxGeQoGmEdkXeth9gk3j1zjrUSAhgS/osqj38u6AZh6l3/+z9XiNe75wsRGV51OEtyl/eszI3NsAfVIXqOrX0MJOG7cPQZVIDTuxISCbQfH2DD7O7VMs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781680545; c=relaxed/simple;
-	bh=uWOLKC73XAcqNC2asyzbDC2LmPMSYlm0M9c2sUQ/3Wg=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=fG9pFy1FoYkIMLxv1wcw504kp6Xjk3rpoQcrhY+2CXSbYA43iyGw5T/aIwmUSBzunm8138fKQQg4MioBaL6oj+XH0SN0Z9dlBSjM0flnDo0W8wTJEXkPTRbvDl+3YFR2ubyCDESd2m2pIzSATb6v3AkulxwN4dD74cl6H9STLhc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=e1btydOr; arc=none smtp.client-ip=217.140.110.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+	s=arc-20240116; t=1781689716; c=relaxed/simple;
+	bh=6MZLkz3pvkcbzNrZQEH7CxVXFNCzWKOO92QspVWB9R0=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=g61/hZDx1q2W6EjHJUUysJ5Bpc92nBLKQlTcbriW4RdOwiTojTtC6+RLXKNhWk0u5qMX6x5zaPtkSB+WdUKPyaTejfu0O+Lu1bHc5ZAJEKZqFRt2DpRaHjVmsYkruKolXtNreYeX3PV+2D/NH8nUfF3LxLgnV0xBCzNfiKnovXk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=BIVp09eG; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="e1btydOr"
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id E1F84483F;
-	Wed, 17 Jun 2026 00:15:36 -0700 (PDT)
-Received: from [10.1.27.69] (e127648.arm.com [10.1.27.69])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 66F003F915;
-	Wed, 17 Jun 2026 00:15:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=arm.com; s=foss;
-	t=1781680541; bh=uWOLKC73XAcqNC2asyzbDC2LmPMSYlm0M9c2sUQ/3Wg=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=e1btydOrBoulh5hrB8lrsdCYaAbaVveBaJCE1h3pSY6iEEIsHOzcY0XR3DXv3UjYI
-	 sXQXdNgztwk4n1UHgoX2GOxqIkCKVREawbisbBChcWhmOiuz5JOhbFQPfF3NT67qWG
-	 R50KTx5b2dsF5rgUZpAVUpkuujA8eNrswkADY5WA=
-Message-ID: <445a6ab5-3574-4493-9187-701ee7ea7c28@arm.com>
-Date: Wed, 17 Jun 2026 08:15:37 +0100
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="BIVp09eG"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65H8mXMC4003191;
+	Wed, 17 Jun 2026 09:48:26 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=pp1; bh=sieWYaykj5ryM52Pm
+	gpfk4hwLcr93k/YDn5QDFV187k=; b=BIVp09eGL/gVAk5p+t+W3bXLzQh7IQCSw
+	/400jQjIOtjhYt6tBCaozFKl3YthxjQ/6c7+DF/92xekAVu6iv9+/K3uFJf73vwb
+	x5ICtRe8HRFTjGdegUdCiHgLJSmX6S+/2XQZYMEVxzzZ5WzlUii5m9qK0IH9yG7n
+	qq3EigdyGbm3psymomfuKsT7J+jYKi8M3F0j98torhUXn2vp/9/Zghp3cdrJcyFF
+	EAfgwH9GyEm4sN841jz/e3lbJOVQIPOx1khTbeKZfLMn9EB4NCBHMCX1yuannq/N
+	qpDfDrwEbxll8pHWBD2bdJhAuFITO7mzHqBQ8rMU76LeBVEEjxJPw==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4eueqx28bf-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 17 Jun 2026 09:48:25 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 65H9Ycfh016263;
+	Wed, 17 Jun 2026 09:48:25 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4eudvaahg1-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 17 Jun 2026 09:48:25 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 65H9mLUs14483794
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 17 Jun 2026 09:48:21 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 503AF20043;
+	Wed, 17 Jun 2026 09:48:21 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 229FD2004E;
+	Wed, 17 Jun 2026 09:48:21 +0000 (GMT)
+Received: from funtu2.ehn-de.ibm.com (unknown [9.224.92.54])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 17 Jun 2026 09:48:21 +0000 (GMT)
+From: Harald Freudenberger <freude@linux.ibm.com>
+To: richard.henderson@linaro.org, iii@linux.ibm.com, david@kernel.org,
+        thuth@redhat.com, berrange@redhat.com
+Cc: qemu-s390x@nongnu.org, qemu-devel@nongnu.org,
+        linux390-list@tuxmaker.boeblingen.de.ibm.com,
+        linux-s390@vger.kernel.org, dengler@linux.ibm.com,
+        borntraeger@linux.ibm.com, fcallies@linux.ibm.com, cohuck@redhat.com
+Subject: [PATCH v7 01/17] target/s390x: Rework s390 cpacf implementations
+Date: Wed, 17 Jun 2026 11:48:04 +0200
+Message-ID: <20260617094820.34402-2-freude@linux.ibm.com>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20260617094820.34402-1-freude@linux.ibm.com>
+References: <20260617094820.34402-1-freude@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 0/5] s390/idle: CPU idle driver
-To: Mete Durlu <meted@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
- Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
- <agordeev@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>,
- Anna-Maria Behnsen <anna-maria@linutronix.de>,
- Frederic Weisbecker <frederic@kernel.org>, Ingo Molnar <mingo@kernel.org>,
- Thomas Gleixner <tglx@kernel.org>, "Rafael J. Wysocki" <rafael@kernel.org>,
- Daniel Lezcano <daniel.lezcano@kernel.org>
-Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
- Ilya Leoshkevich <iii@linux.ibm.com>, linux-s390@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-pm@vger.kernel.org
-References: <20260609-idledriver-v2-0-21c2f581d11f@linux.ibm.com>
- <0e6ff23c-b509-40eb-87f3-7b04fb066edf@arm.com>
- <93743121-2f6f-441b-8675-4eaa92647b4d@linux.ibm.com>
-Content-Language: en-US
-From: Christian Loehle <christian.loehle@arm.com>
-In-Reply-To: <93743121-2f6f-441b-8675-4eaa92647b4d@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: sXMtuuxBO8xy0VGZYz3t_uPeQimFtnei
+X-Authority-Analysis: v=2.4 cv=Le0MLDfi c=1 sm=1 tr=0 ts=6a326d6a cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8 a=v0hsMmXGSI8d9nQ1oYgA:9
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNjE3MDA5MiBTYWx0ZWRfX2w8JlCkZO83O
+ ouHxSSzbRuvlIKQeTcGpZSTN06aFO9IIkKGHaB70we/GQji/PIfJXhvPqjlIslOKFYkec5iIoEj
+ kpw2LhIQ0ll4r9O7ZVG7edv/rRslbIE=
+X-Proofpoint-ORIG-GUID: sXMtuuxBO8xy0VGZYz3t_uPeQimFtnei
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjE3MDA5MiBTYWx0ZWRfX713EZJPZn65L
+ PGcEHb2k+uZy8JAja9oIUOvIiHHkynQaV1kJeeMJGWgN6DLXyZ7vLXh23ma0MKGUf0sB/8oxdzr
+ I7dDa2Zck9eLlljAD02KRwT8v8QD9bFVbdOkvX8S/QwwANbp/tWJiSPoRU3g4sq1Gxw0SM7QQ4J
+ GeO9sj5kfu4Q3XIlo7h+nYLNDLvAtBHWfvr6ZssDjB0Os0dPKIsbZsZGbP3D01mN7rBQbo/gXC9
+ 0T4Dtl1UVtja0bD+eH27GxTNmr51FdDvzsZPKZY3MNZecXQkQ+iSs8WXLn1Wd7dEj1BM5HShJdL
+ r7BrIsQPqWWp2Nx+603A0ssRBOzakC+JfYlA3ze+bA5bCc3iB2x+e2xOFgymnXGGbka/u/5iL6Q
+ dfvSoRgb8xlFKw+jHHd9/16X7eENJW0rqeu9CymiXvRhmiqJ9uvYDEvYAeYNMz5YlQilm6k8Zfz
+ fy2EuFLRKoVdtTzbXSQ==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
+ definitions=2026-06-17_01,2026-06-16_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ clxscore=1015 priorityscore=1501 malwarescore=0 spamscore=0 suspectscore=0
+ impostorscore=0 phishscore=0 lowpriorityscore=0 bulkscore=0 adultscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2606170092
 
-On 6/10/26 21:23, Mete Durlu wrote:
-> On 6/9/26 5:47 PM, Christian Loehle wrote:
->> On 6/9/26 14:24, Mete Durlu wrote:
->>> v1 -> v2:
->>>
->>> * Add idle driver enteries to MAINTAINERS file (Christian Loehle)
->>> * Remove extra line break left in drivers/cpuidle/Kconfig.s390
->>>    (Christian Loehle)
->>>
->>> This patch series introduces a CPU idle driver for s390
->>> architecture that leverages the existing cpu idle infrastructure and
->>> TEO (Timer Events Oriented) governor to optimize idle state selection
->>> based on timer events and interrupt patterns.
->>
->> So if (according to v1) there's no data (yet) that teo is much preferred,
->> I would remove all mentions of it in code and patch descriptions?
->> A cpuidle driver requiring a specific governor sort-of violates the
->> abstraction.
-> 
-> True, s/TEO governor/idle governor/g + s/TEO/idle governor/g should
-> be good enough.
-> 
->> In case teo does work much better for you, which I wouldn't doubt for
->> a second from what your system looks like, it would be nice to present
->> some data on it. Additionally I think setting it in the defconfig alone
->> is probably enough?
->>
-> 
-> I ran a quick menu vs teo run on an LPAR.
-> There was no significant change between the results of the benchmarks
-> except for slightly higher cpu utilization when using menu governor. I
-> can put it down to the cover letter. The only noticeable change is on my
-> micro benchmark where I use epoll_wait() to make two threads on
-> different cores ping each other.
-> 
-> micro-benchmark |   teo    |   menu
-> -------------------------------------
-> avg time        | ~21.6sec | ~24.3sec
-> 
-> Idle framework tries to find the specified governor in the driver struct
-> but if it can't find it or no governor was specified it uses the next
-> available one, so setting teo on defconfig and disabling rest of the
-> governors can be good enough to pick teo.
-> 
+Fix missing parts for MSA 9 kdsa and rework the cpacf
+handling code so that further extensions can be made in
+a clean and structured way.
 
-Thanks for testing!
+Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
+Reviewed-by: Holger Dengler <dengler@linux.ibm.com>
+Tested-by: Holger Dengler <dengler@linux.ibm.com>
+---
+ target/s390x/tcg/crypto_helper.c | 84 +++++++++++++++++++++++++++-----
+ target/s390x/tcg/insn-data.h.inc |  1 +
+ target/s390x/tcg/translate.c     |  2 +
+ 3 files changed, 74 insertions(+), 13 deletions(-)
 
-> 
->>> - Configuration
->>> -----------------------------------------------------------------------
->>>
->>> Idle state parameters are tuned per hypervisor type after benchmarks:
->>>
->>> **LPAR:**
->>> - Polling: 5us target residency, 0us exit latency
->>> - EW: 5us target residency, 5us exit latency
->>>
->>> **KVM/z/VM:**
->>> - Polling: 1us target residency, 0us exit latency
->>> - EW: 1us target residency, 1us exit latency
->>>
->> I think this would also be useful in cpuidle-s390.c in particular the
->> different residency+latency values for LPAR and KVM/z/VM and what they aim
->> to achieve for you.
-> 
-> We can put down a comment like below;
-> 
-> /*
->  * After various benchmark runs the tuneables for idle driver has shown
->  * the best performance with the following values;
->  * for LPAR:
->  * - Polling: 5us target residency, 0us exit latency
->  * - EW: 5us target residency, 5us exit latency
->  *
->  * for KVM/z/VM:
->  * - Polling: 1us target residency, 0us exit latency
->  * - EW: 1us target residency, 1us exit latency
->  */
-> 
-> Is that what you are looking for or something more extensive to cover
-> what sort of behavior it causes and why it benefits the performance?
-> I wouldn't really like to put down lengthy comments here to be honest.
+diff --git a/target/s390x/tcg/crypto_helper.c b/target/s390x/tcg/crypto_helper.c
+index ae392bce0e..35f0cc26a4 100644
+--- a/target/s390x/tcg/crypto_helper.c
++++ b/target/s390x/tcg/crypto_helper.c
+@@ -272,6 +272,57 @@ static void fill_buf_random(CPUS390XState *env, const int mmu_idx, uintptr_t ra,
+     }
+ }
+ 
++static int cpacf_kimd(CPUS390XState *env, const int mmu_idx, const uintptr_t ra,
++                      uint32_t r1, uint32_t r2, uint32_t r3, uint8_t fc)
++{
++    int rc = 0;
++
++    switch (fc) {
++    case 0x03: /* CPACF_KIMD_SHA_512 */
++        rc = cpacf_sha512(env, mmu_idx, ra, env->regs[1], &env->regs[r2],
++                          &env->regs[r2 + 1], S390_FEAT_TYPE_KIMD);
++        break;
++    default:
++        g_assert_not_reached();
++    }
++
++    return rc;
++}
++
++static int cpacf_klmd(CPUS390XState *env, const int mmu_idx, const uintptr_t ra,
++                      uint32_t r1, uint32_t r2, uint32_t r3, uint8_t fc)
++{
++    int rc = 0;
++
++    switch (fc) {
++    case 0x03: /* CPACF_KLMD_SHA_512 */
++        rc = cpacf_sha512(env, mmu_idx, ra, env->regs[1], &env->regs[r2],
++                          &env->regs[r2 + 1], S390_FEAT_TYPE_KLMD);
++        break;
++    default:
++        g_assert_not_reached();
++    }
++
++    return rc;
++}
++
++static int cpacf_ppno(CPUS390XState *env, const int mmu_idx, uintptr_t ra,
++                      uint32_t r1, uint32_t r2, uint32_t r3, uint8_t fc)
++{
++    int rc = 0;
++
++    switch (fc) {
++    case 0x72: /* CPACF_PRNO_TRNG */
++        fill_buf_random(env, mmu_idx, ra, &env->regs[r1], &env->regs[r1 + 1]);
++        fill_buf_random(env, mmu_idx, ra, &env->regs[r2], &env->regs[r2 + 1]);
++        break;
++    default:
++        g_assert_not_reached();
++    }
++
++    return rc;
++}
++
+ uint32_t HELPER(msa)(CPUS390XState *env, uint32_t r1, uint32_t r2, uint32_t r3,
+                      uint32_t type)
+ {
+@@ -282,13 +333,15 @@ uint32_t HELPER(msa)(CPUS390XState *env, uint32_t r1, uint32_t r2, uint32_t r3,
+     uint8_t subfunc[16] = { 0 };
+     uint64_t param_addr;
+     MemOpIdx oi;
++    int rc = 0;
+ 
+     switch (type) {
+-    case S390_FEAT_TYPE_KMAC:
++    case S390_FEAT_TYPE_KDSA:
+     case S390_FEAT_TYPE_KIMD:
+     case S390_FEAT_TYPE_KLMD:
+-    case S390_FEAT_TYPE_PCKMO:
++    case S390_FEAT_TYPE_KMAC:
+     case S390_FEAT_TYPE_PCC:
++    case S390_FEAT_TYPE_PCKMO:
+         if (mod) {
+             tcg_s390_program_interrupt(env, PGM_SPECIFICATION, ra);
+         }
+@@ -300,25 +353,30 @@ uint32_t HELPER(msa)(CPUS390XState *env, uint32_t r1, uint32_t r2, uint32_t r3,
+         tcg_s390_program_interrupt(env, PGM_SPECIFICATION, ra);
+     }
+ 
+-    switch (fc) {
+-    case 0: /* query subfunction */
++    /* handle query subfunction */
++    if (fc == 0) {
+         oi = make_memop_idx(MO_8, mmu_idx);
+-        for (int i = 0; i < 16; i++) {
++        for (int i = 0; i < sizeof(subfunc); i++) {
+             param_addr = wrap_address(env, env->regs[1] + i);
+             cpu_stb_mmu(env, param_addr, subfunc[i], oi, ra);
+         }
++        goto out;
++    }
++
++    switch (type) {
++    case S390_FEAT_TYPE_KIMD:
++        rc = cpacf_kimd(env, mmu_idx, ra, r1, r2, r3, fc);
+         break;
+-    case 3: /* CPACF_*_SHA_512 */
+-        return cpacf_sha512(env, mmu_idx, ra, env->regs[1], &env->regs[r2],
+-                            &env->regs[r2 + 1], type);
+-    case 114: /* CPACF_PRNO_TRNG */
+-        fill_buf_random(env, mmu_idx, ra, &env->regs[r1], &env->regs[r1 + 1]);
+-        fill_buf_random(env, mmu_idx, ra, &env->regs[r2], &env->regs[r2 + 1]);
++    case S390_FEAT_TYPE_KLMD:
++        rc = cpacf_klmd(env, mmu_idx, ra, r1, r2, r3, fc);
++        break;
++    case S390_FEAT_TYPE_PPNO:
++        rc = cpacf_ppno(env, mmu_idx, ra, r1, r2, r3, fc);
+         break;
+     default:
+-        /* we don't implement any other subfunction yet */
+         g_assert_not_reached();
+     }
+ 
+-    return 0;
++out:
++    return rc;
+ }
+diff --git a/target/s390x/tcg/insn-data.h.inc b/target/s390x/tcg/insn-data.h.inc
+index 0d5392eac5..6a0a7aacda 100644
+--- a/target/s390x/tcg/insn-data.h.inc
++++ b/target/s390x/tcg/insn-data.h.inc
+@@ -1015,6 +1015,7 @@
+     D(0xb92e, KM,      RRE,   MSA,  0, 0, 0, 0, msa, 0, S390_FEAT_TYPE_KM)
+     D(0xb92f, KMC,     RRE,   MSA,  0, 0, 0, 0, msa, 0, S390_FEAT_TYPE_KMC)
+     D(0xb929, KMA,     RRF_b, MSA8, 0, 0, 0, 0, msa, 0, S390_FEAT_TYPE_KMA)
++    D(0xb93a, KDSA,    RRE,   MSA9, 0, 0, 0, 0, msa, 0, S390_FEAT_TYPE_KDSA)
+     E(0xb93c, PPNO,    RRE,   MSA5, 0, 0, 0, 0, msa, 0, S390_FEAT_TYPE_PPNO, IF_IO)
+     D(0xb93e, KIMD,    RRE,   MSA,  0, 0, 0, 0, msa, 0, S390_FEAT_TYPE_KIMD)
+     D(0xb93f, KLMD,    RRE,   MSA,  0, 0, 0, 0, msa, 0, S390_FEAT_TYPE_KLMD)
+diff --git a/target/s390x/tcg/translate.c b/target/s390x/tcg/translate.c
+index 82165ac1ec..cef1b55149 100644
+--- a/target/s390x/tcg/translate.c
++++ b/target/s390x/tcg/translate.c
+@@ -2592,6 +2592,7 @@ static DisasJumpType op_msa(DisasContext *s, DisasOps *o)
+         /* FALL THROUGH */
+     case S390_FEAT_TYPE_PCKMO:
+     case S390_FEAT_TYPE_PCC:
++    case S390_FEAT_TYPE_KDSA:
+         break;
+     default:
+         g_assert_not_reached();
+@@ -6046,6 +6047,7 @@ enum DisasInsnEnum {
+ #define FAC_MSA4        S390_FEAT_MSA_EXT_4 /* msa-extension-4 facility */
+ #define FAC_MSA5        S390_FEAT_MSA_EXT_5 /* msa-extension-5 facility */
+ #define FAC_MSA8        S390_FEAT_MSA_EXT_8 /* msa-extension-8 facility */
++#define FAC_MSA9        S390_FEAT_MSA_EXT_9 /* msa-extension-9 facility */
+ #define FAC_ECT         S390_FEAT_EXTRACT_CPU_TIME
+ #define FAC_PCI         S390_FEAT_ZPCI /* z/PCI facility */
+ #define FAC_AIS         S390_FEAT_ADAPTER_INT_SUPPRESSION
+-- 
+2.43.0
 
-Why not?
-At least to me the values are hard to follow and without knowing what they
-represent.
-For example is this actually the worst case exit latency for these systems?
-Also from a cpuidle perspective residency == latency isn't outright wrong
-but certainly always a little suspicious.
-
-> 
->> Additionally polling is initialised to 0/0 by poll_state.c, so I don't know
->> where you're taking these values from?
-> 
-> Having a look at the implementation of poll_idle() in poll_state.c.
-> The polling time limit (target_residency) is acquired from
-> cpuidle_poll_time(), which tries to find an enabled state deeper than
-> polling state and returns its target_residency. Since we only have two
-> states, it automatically means EW state's target_residency, or
-> IDLE_POLL_MAX if it is disabled.
-
-I agree that cpuidle_poll_time() can derive the polling time limit from a
-deeper enabled state, but it only does that for states with
-target_residency_ns >= CPUIDLE_POLL_MIN (10us). With the proposed s390 EW
-values of 1us/5us, that state is skipped and the poll limit falls
-back to CPUIDLE_POLL_MAX (TICK_NSEC / 16).
-
-
-> 
-> If I am not mistaken governor also uses the next enabled state
-> to calculate the target_residency of the polling state.
-> 
-
-With just two state that is practically what happens in the selection
-algorithm anyway, yes.
