@@ -1,96 +1,154 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f44.google.com (mail-wr1-f44.google.com [209.85.221.44])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C63BA1CAA68;
-	Wed, 17 Jun 2026 12:42:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1403A43E483
+	for <linux-s390@vger.kernel.org>; Wed, 17 Jun 2026 14:18:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781700129; cv=none; b=KD5Iye3XJNVDDHr5xdDpjhpT+RY16oaSlBr8GTHMZeDYOCX31ySDxF1niCe2kFcxxokG4N3Ky6UUvwtj5OefrpvRdzNurE3WHGcOKNRsrLJqZKgtkWA+oFCorgve90/CowcgnQF8JTq4dHdQHVbeW+0ffPFWzN+XidsUdxwgwO8=
+	t=1781705900; cv=none; b=jTMB8iQccNt4gPLNhOpkZsFrGYn6lvcPzhyQE/7ZCFWfQRv8Qp2+R2+CldRquqarqi+sRm4ALtKxwFzKHpQqZs5Wgt9J2fQ1Ywbt4bqgX4rushVMw+T3ZY62LYxjfGpM0/qIxgaew2k75BiUq0JeHpt23Iu73CP4FNp2J6H9C+o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781700129; c=relaxed/simple;
-	bh=sv9bDDMyUOTluObut285uOPrMWsldCYsk9y2aD3AE+Q=;
+	s=arc-20240116; t=1781705900; c=relaxed/simple;
+	bh=WHIjWC5ozPZyVPh6RzHlV/WOMQlM+Vnvv7J0ZkBt8Gk=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=HkBMVBwxtn4HuUBUOqcweDvrDlMK0dSq/UjGb3tZF16rGwiCG9l/JzxqwvOoIdFu4Y44Qtb7LU+kWlckLmAM8bMqSnhILHMzy2Lmj7Btr+wB6bXZpnp97GhK+v4PvS4iH+xxF9aS6Xa3l9RxveaoJ6C7dyw1lbxzKE0G3Pjhjxc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Im0bG8Am; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=lMEw5sA8lpz5e9c12xigsQzlKyxYDECtEkA/rAwkkRmN8QjKdOK5iWsaIhpSVPBBaz/ZE9ncb5/JeDdXaXhlQxngQh1x+UmX7gX+fHfBjXltQTFhtZcA6hEGOlU4qnP+klTEA0tKe1pmQKw0X3SxA11dgSlJCgip9qTVfPV1Im0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b=QQJs8zG4; arc=none smtp.client-ip=209.85.221.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Im0bG8Am"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 643E41F000E9;
-	Wed, 17 Jun 2026 12:41:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781700128;
-	bh=shMcTxpz7Iae4CMErv9/x2nY1BGPOVWbdpSfFAc09vY=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=Im0bG8AmD3bgsJUqZdYGdopEe5rvENwOqhRGA6LfcbikFOn2YUPQXBJWxsK3aAa3F
-	 IKOG49MBRGBJ1Mar6LZ2Kju1FxOKtyMrE//+MnE4N9/Z71fGW3gauigkbzrv2V1kZP
-	 1FNp162R2Z9QvBsI+njynVaaI0fNfgYS5ai3uG8OmNg5itH6o2+k7segaCwH+SbOb5
-	 zOcIdHYuAFv7ORTp8+4nDfybUyv7DTPv3xm7a9kUQ+vj1V5p2XZfw7CYh7IqwWcWUs
-	 ypezZIGEaKxUJ1MkpzhGlNdEe4jZuo9Q/Bc1arqIHR5rd7H/I68vBRL6fPgiqclkJT
-	 0u72NIrlwde9g==
-Date: Wed, 17 Jun 2026 14:41:54 +0200
-From: Christian Brauner <brauner@kernel.org>
-To: Vincent Mailhol <mailhol@kernel.org>
-Cc: Jens Axboe <axboe@kernel.dk>, Davidlohr Bueso <dave@stgolabs.net>, 
-	Alexander Viro <viro@zeniv.linux.org.uk>, Jan Kara <jack@suse.cz>, linux-kernel@vger.kernel.org, 
-	linux-block@vger.kernel.org, linux-efi@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
-	Richard Henderson <richard.henderson@linaro.org>, Matt Turner <mattst88@gmail.com>, 
-	Magnus Lindholm <linmag7@gmail.com>, linux-alpha@vger.kernel.org, Vineet Gupta <vgupta@kernel.org>, 
-	linux-snps-arc@lists.infradead.org, Russell King <linux@armlinux.org.uk>, 
-	linux-arm-kernel@lists.infradead.org, Catalin Marinas <catalin.marinas@arm.com>, 
-	Will Deacon <will@kernel.org>, Huacai Chen <chenhuacai@kernel.org>, 
-	WANG Xuerui <kernel@xen0n.name>, loongarch@lists.linux.dev, 
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>, linux-mips@vger.kernel.org, 
-	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, Helge Deller <deller@gmx.de>, linux-parisc@vger.kernel.org, 
-	Madhavan Srinivasan <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, 
-	linuxppc-dev@lists.ozlabs.org, Paul Walmsley <pjw@kernel.org>, 
-	Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, 
-	linux-riscv@lists.infradead.org, Heiko Carstens <hca@linux.ibm.com>, 
-	Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
-	linux-s390@vger.kernel.org, Thomas Gleixner <tglx@kernel.org>, 
-	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, Jonathan Corbet <corbet@lwn.net>, 
-	Shuah Khan <skhan@linuxfoundation.org>, linux-doc@vger.kernel.org
-Subject: Re: [PATCH 00/19] init: discoverable root partitions, a.k.a. an
- omittable "root=" cmdline option
-Message-ID: <20260617-irritation-rollen-wirst-7d636cbfec92@brauner>
-References: <20260615-discoverable-root_partitions-v1-0-39c78fac42e2@kernel.org>
+	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b="QQJs8zG4"
+Received: by mail-wr1-f44.google.com with SMTP id ffacd0b85a97d-4624a44e152so877206f8f.2
+        for <linux-s390@vger.kernel.org>; Wed, 17 Jun 2026 07:18:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=baylibre.com; s=google; t=1781705896; x=1782310696; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=WHIjWC5ozPZyVPh6RzHlV/WOMQlM+Vnvv7J0ZkBt8Gk=;
+        b=QQJs8zG4Tt1Ie2XtxSgVOeEqDFj5LSLBYg3/BJHKh/dyNvnFFLHz/+niH+e2cVKv/u
+         aolZEBenidIWDZIsatXDfQ94jydUjqwk6lnrjO4t67pSW9d8GeGatUKQuLwro2mbk61O
+         6Ib9H/imGHacnI0V1upp1Esqg6InsfHKaT4KuE2VmhXnJQQYMiebw/T47qqJKQxj2ZHW
+         slHYkqjZLtjImn4fRqC5Fda6vJCKyMVbZVzYoGeFGQOG//H6tWavgCzE/cYlwVz3/5WK
+         cx0+btiRImfOY5Sb7rUwU/umMzbDRMRTZGUZ3eXp9EkgffyNFEKbFS8SukAM4X+sHRHD
+         XI+g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1781705896; x=1782310696;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=WHIjWC5ozPZyVPh6RzHlV/WOMQlM+Vnvv7J0ZkBt8Gk=;
+        b=ed1ydo06QG+x7t+QSU8AJ2JSKQOcN8i5qd/UA8tTX4IhGj3uFZQ9/3dHPpXNL1KkRX
+         ysw2Xbh7l4yl201FJxvM9xz5GNnznqNSIgVnQ0ou5ESLRqZ+3+r0il92T02gaDy4J/oG
+         EAvhOI5yZcrPn1vULaFPGaqKItUyRB0T7TUxzJ8fD+gixVitQpnvHBSt2oUWhkvL294m
+         f04QZ2y6rvW1KIb09VD3isKfP4T8UPuse9qDWMIClgftD8S4dWvs7Tlm0w1ZrqBia4XJ
+         Duc0WK79oflo3lG9LqPhiX+HwgyxgYj5dflGWd80YcY+66AdR3OoHKaNvJUgnELudgB4
+         Osug==
+X-Forwarded-Encrypted: i=1; AFNElJ8PpF82Hp0MonPCrTGNeQFLbkcWZtfWSAv4kcygQze/xAEwdLgozt3eCMTo1TdLkhvgtgxw66ObjVVi@vger.kernel.org
+X-Gm-Message-State: AOJu0Yx0aehaEHsxaLizS1jc1gXAf4x/qTZr9dO+4HzvEn3F/dC4SgXy
+	ac9Bsfg2Zbovhyu7w26u4BP9dr0SzKQM1R3I6wVX0kwie4OZpX4He3cGCfvtjgdywQg=
+X-Gm-Gg: Acq92OFFP0B84/xcfAjTi/4ppyfL322bej9TOfFkvVBzd+MjQwaZSOaN9zRX5XV03g+
+	TDAm9fWkx6glZgIp82TMKOXgQ4r+wH4+gxzA0L6uHSnsJefZB9X9sBYu2qVR8XsBfHLUxaaPF6W
+	gbL6nBzVRM4V/yi/qb+l/ruPIEXqTyrrJERdP+jJkj3252mW1JKjkbk+zIlsTMioMWpCiGHt/8t
+	pot0jrf/QFMRFgnandzjPa6waF9fPyRTIzFW5JTMNVqdebpRep8h/Mg36yu9c3RwNB/Lb74qVhv
+	BCGReJv2/yynxSjt/wp+PEmTu+CSAx6E7pw9SaHhD8cENfPZtOUv04IR5ZUYgKUSKclkciDACh/
+	2tyMWXLfZycpMFAQa05dV9Oy1GLhEwpItX912CNEviwRm1GG2Zwg7T+ehvZ31F+A5N+WmtBi7BA
+	FjlZEA/DsjQ+Haus+32q1vrEj0qGl8wmy8tX0djFLjAntbbLqkI1brvcFtJ9/+JMkcCZff8isCE
+	N6B0qpgvdJ5oKo=
+X-Received: by 2002:a05:600c:a142:b0:490:b8d3:5dcc with SMTP id 5b1f17b1804b1-492333ca3b7mr55578185e9.19.1781705896184;
+        Wed, 17 Jun 2026 07:18:16 -0700 (PDT)
+Received: from localhost (p200300f65f47db043b42891e8adbe9a5.dip0.t-ipconnect.de. [2003:f6:5f47:db04:3b42:891e:8adb:e9a5])
+        by smtp.gmail.com with UTF8SMTPSA id 5b1f17b1804b1-49230a4f8d7sm161306245e9.5.2026.06.17.07.18.15
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 17 Jun 2026 07:18:15 -0700 (PDT)
+Date: Wed, 17 Jun 2026 16:18:14 +0200
+From: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>
+To: Heiko Carstens <hca@linux.ibm.com>
+Cc: Frederic Weisbecker <frederic@kernel.org>, 
+	Peter Zijlstra <peterz@infradead.org>, Thomas Gleixner <tglx@kernel.org>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, 
+	Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
+	linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: Re: [PATCH 3/4] s390/idle: Provide arch specific
+ kcpustat_field_idle()/kcpustat_field_iowait()
+Message-ID: <ajKsG0JP6qTssQBX@monoceros>
+References: <20260513140129.4100822-1-hca@linux.ibm.com>
+ <20260513140129.4100822-4-hca@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="zk3crrqd7auhigwn"
 Content-Disposition: inline
-In-Reply-To: <20260615-discoverable-root_partitions-v1-0-39c78fac42e2@kernel.org>
+In-Reply-To: <20260513140129.4100822-4-hca@linux.ibm.com>
 
-On Mon, Jun 15, 2026 at 06:08:56PM +0200, Vincent Mailhol wrote:
-> DPS [1] defines GPT partition type UUIDs for OS partitions and
-> attributes that control whether such partitions should be
-> automatically discovered. The specification states that:
-> 
->   The OS can discover and mount the necessary file systems with a
->   non-existent or incomplete /etc/fstab file and without the root=
->   kernel command line option.
-> 
-> DPS is already implemented in systemd-gpt-auto-generator [2], which,
-> when embedded in an initrd, indeed allows automatic detection of the
-> root filesystem through its partition type UUID.
-> 
-> This series adds this discovery feature directly into the kernel so
-> that people who are not using systemd or not using an initrd can still
-> benefit from it. The implementation follows the same model as
-> systemd-gpt-auto-generator:
 
-I happen to co-maintain the DPS. It is userspace policy and complex
-userspace policy at that and does not belong into the kernel.
+--zk3crrqd7auhigwn
+Content-Type: text/plain; protected-headers=v1; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [PATCH 3/4] s390/idle: Provide arch specific
+ kcpustat_field_idle()/kcpustat_field_iowait()
+MIME-Version: 1.0
 
-This also implements a really tiny portion of the spec. It deals with a
-lot more complex concepts such as automatic partitioning during
-installation, verity, LUKS, containers. This is really not intended for
-the kernel at all. I mean, it's great that this spec is being used but I
-do not want this in the kernel just for the sake of auto-discovery.
+Hello,
 
-The DPS is completely generic and can be implemented by tooling other
-than systemd (util-linux implements it and so does refind iirc). I think
-not wanting to use or build alternative userspace tooling for this is a
-really weak argument for pushing this into the kernel.
+On Wed, May 13, 2026 at 04:01:28PM +0200, Heiko Carstens wrote:
+> The former s390 specific arch_cpu_idle_time() implementation was
+> removed, since its implementation was racy and reported idle time
+> could go backwards [1].
+>=20
+> However this removal was not necessary, since independently of the s390
+> architecture specific races there exists the iowait counter update race,
+> which can also lead to reported idle time going backwards [2].
+>=20
+> With Frederic Weisbecker's recent cpu idle time accounting refactoring
+> kernel_cpustat got a sequence counter. Use this to implement s390 specific
+> variants of kcpustat_field_idle() and kcpustat_field_iowait(). This is
+> logically a revert of [1] and moves cpu idle time accounting back into s3=
+90
+> architecture code, which is also more precise than the dyntick idle time
+> accounting by nohz/scheduler.
+>=20
+> For comparing cross cpu time stamps it is necessary to use the stcke
+> instead of the stckf instruction in irq entry path. Furthermore this
+> open-codes a sequence lock in assembler and C code, which is required to
+> update the irq entry time stamp to the per cpu idle_data structure in a
+> race free manner.
+>=20
+> [1] commit be76ea614460 ("s390/idle: remove arch_cpu_idle_time() and corr=
+esponding code")
+> [2] commit ead70b752373 ("timers/nohz: Add a comment about broken iowait =
+counter update race")
+>=20
+> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+
+This patch became 670e057744e0cc8047bf96d15d18c46e16ae2e93 and is
+included in next-20260616.
+
+s390 allmodconfig fails to build with:
+
+ERROR: modpost: "arch_kcpustat_field_idle" [drivers/leds/trigger/ledtrig-ac=
+tivity.ko] undefined!
+ERROR: modpost: "arch_kcpustat_field_iowait" [drivers/leds/trigger/ledtrig-=
+activity.ko] undefined!
+
+Best regards
+Uwe
+
+--zk3crrqd7auhigwn
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEP4GsaTp6HlmJrf7Tj4D7WH0S/k4FAmoyrKMACgkQj4D7WH0S
+/k43bwf/QzXmrb/duiKGtFmbklmC98PTRIaw7K7Y5X1bV8n8FAn1ePG8mSd8/Pum
+YUlXK2v7C2RmWoAmQo71tlu+6hpAaflWmHAsx0LRcMomfh5lB4A/0Xi/5EMbnow9
+EnV82YxGFjys12dkxNvnHWkHNmbLzJ9aB+z+V3WReL1m2BW5kuf2nwJeZK1Unzgy
+NXNNT/KfkXGGrIkKSXC4ksqfVQynI+1HU8C4U3+pJGhiO5pSKcqswdWyEMs0Zosq
+KUC7UnB0eKhczrmKRteTc3SH1794+FjJW+VFwesspt+plQ1Gw+1XVJzR3RchZ/IX
+4mZxe1/1C/dW0xI4oIMYYAngpcFZoQ==
+=QK6n
+-----END PGP SIGNATURE-----
+
+--zk3crrqd7auhigwn--
