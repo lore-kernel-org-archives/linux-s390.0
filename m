@@ -1,98 +1,122 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mail-m83193.xmail.ntesmail.com (mail-m83193.xmail.ntesmail.com [156.224.83.193])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 29B7D48094A
-	for <linux-s390@vger.kernel.org>; Wed, 17 Jun 2026 15:01:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5AF5748AE06;
+	Wed, 17 Jun 2026 15:29:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=156.224.83.193
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781708466; cv=none; b=f+GaVKhqYd0+mmQfdmH5tfEYyRB6gqm1G3FRWyFAY3MGYPdltY//tgkBYvDEas5I3vNW/mfLp+oIOXNdUhl8mfRPkLCu+53AJ9tIFi64LzSWUStbwoXxX9eo1mfa5q3FfsRRTRuLK75cjFkWKZCiR55E9gwSQbO1UpQccHn2ifo=
+	t=1781710163; cv=none; b=B+XfRDi+YNBZwWme6owNpTOA1yp3A5RWaTbXN2GQi6V9CRQyrLbFmRWZ70K0pmX55TjAg2MAvW6yHQ0detCfTzFiaYknP7PsHJ6vfkDX4BzA4mtYuYVaZJlhCeR/bqeB8awbS4ARoL13D+nFCFM4FHnmJ9D9Bz81p1Af/Z4EqzM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781708466; c=relaxed/simple;
-	bh=60tCguXfasSLnq2qNjGSqHclzlUluPht/NjMIlRSn4s=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=m8njVo1lA60pNWoXRaJbbYjkUW+oE06nqVSQjcFCkFhXRDSaY7/NYSP5AlYRp7uoRekxuF+8iAAy6FKSxnwvFO44EXZx4Tf1eZxCrmOx+kk0t9Kjyy+fAsA7+ZuWuyxRtsFaj0hRQXAM1QKd6PkjFfbEwlG8LczOvqdWn8pHrz4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bh/9IYXR; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1781710163; c=relaxed/simple;
+	bh=kwmBT4nlb7xVQUXAzhMyhS0dyDCrP8EroEcr4VEcUHA=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=tr72B2aa+V0AgeO+x50tMPjutT4l0CqrsKpEsI07QlPBnDSMzA4X8lTcjK6Kp1CvYkyyAT6xakI2xRCMH9zew2Mm2efB0vO97O3Jj+TZXits/VBnQuO93c92ab0FJjPNp9M0TiUodXvvUJxY/o+vemVPH5sMcfXLSmIrchtZrqk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=seu.edu.cn; spf=pass smtp.mailfrom=seu.edu.cn; dkim=pass (1024-bit key) header.d=seu.edu.cn header.i=@seu.edu.cn header.b=cWjoZHjJ; arc=none smtp.client-ip=156.224.83.193
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=seu.edu.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seu.edu.cn
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bh/9IYXR"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5EE991F00A3E;
-	Wed, 17 Jun 2026 15:01:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781708460;
-	bh=oFkjVM33Vy9NnhfoQ1NeNoAO/5xQa6vpy034gOemXjc=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=bh/9IYXR8eUQ1lD8BPddc3Q2xqTc26Ia3bXOFu1AV4sA/hug6v+jCj2vOoJtQfhCO
-	 qWoUeUne42gjv34SbEHCGyec+qWjKlJeAZ7AJSzC34NwKsfwyo9FdiC+IH2cLQkqjY
-	 gMNJNm9as7DpVLvi1X2JN6EJblYIW3CeB+JmXECOeklbggCrHWTLRsktBI32QSGD3Z
-	 g4sPCuYYobKuBVojdDbWb04dSdiuOjidAto2fP9CzgxVnJ/gLwlFvINFSlULEZO27E
-	 6zolxWqOcP1v6M4sX0zLXJoZeecgDEAHGT9Jlx2iFs33/SN3LG/ZQ7VTsJEx00oKEO
-	 EkRwBcuLkgeBA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH -next] s390/idle: Add missing EXPORT_SYMBOL()
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Heiko Carstens" <hca@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Vasily
- Gorbik" <gor@linux.ibm.com>
-In-Reply-To: <20260617145313.3910957-1-hca@linux.ibm.com>
-References: <20260617145313.3910957-1-hca@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 17 Jun 2026 15:00:59 +0000
-Message-Id: <20260617150100.5EE991F00A3E@smtp.kernel.org>
+	dkim=pass (1024-bit key) header.d=seu.edu.cn header.i=@seu.edu.cn header.b="cWjoZHjJ"
+Received: from PC-202605011814.localdomain (unknown [221.228.238.82])
+	by smtp.qiye.163.com (Hmail) with ESMTP id 42c703f2d;
+	Wed, 17 Jun 2026 23:29:04 +0800 (GMT+08:00)
+From: Runyu Xiao <runyu.xiao@seu.edu.cn>
+To: "D. Wythe" <alibuda@linux.alibaba.com>,
+	Dust Li <dust.li@linux.alibaba.com>,
+	Sidraya Jayagond <sidraya@linux.ibm.com>,
+	Wenjia Zhang <wenjia@linux.ibm.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>
+Cc: Mahanta Jambigi <mjambigi@linux.ibm.com>,
+	Tony Lu <tonylu@linux.alibaba.com>,
+	Wen Gu <guwen@linux.alibaba.com>,
+	Simon Horman <horms@kernel.org>,
+	Karsten Graul <kgraul@linux.ibm.com>,
+	linux-rdma@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	jianhao.xu@seu.edu.cn,
+	runyu.xiao@seu.edu.cn,
+	stable@vger.kernel.org
+Subject: [PATCH net] net/smc: avoid recursive sk_callback_lock in listen data_ready
+Date: Wed, 17 Jun 2026 23:28:55 +0800
+Message-Id: <20260617152855.1039151-1-runyu.xiao@seu.edu.cn>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-HM-Tid: 0a9ed633453d03a1kunm157301bb72f1b
+X-HM-MType: 10
+X-HM-Spam-Status: e1kfGhgUHx5ZQUpXWQgPGg8OCBgUHx5ZQUlOS1dZFg8aDwILHllBWSg2Ly
+	tZV1koWUFITzdXWRgWCB1ZQUpXWS1ZQUlXWQ8JGhUIEh9ZQVkaH0MeVhhNGEgeTU5JGU5DGVYeHw
+	5VEwETFhoSFyQUDg9ZV1kYEgtZQVlJSUpVSUlDVUlIQ1VDSVlXWRYaDxIVHRRZQVlPS0hVSktISk
+	9ITFVKS0tVSkJLS1kG
+DKIM-Signature: a=rsa-sha256;
+	b=cWjoZHjJZsgwMC8U+BcHZI9LO51sXKUkUPkOKBMogisrVHRqcwEuwt10tnF2WshNirD57HqR1FoKd/eVhnGznFf28BI6oktfN/WIRG4TybMGPxlz+XBEqtqIXx1Z+VS/TzhdzFoK7PyDVC6v33KfxYEDkB+HmrgHdRnyDeMd/xc=; s=default; c=relaxed/relaxed; d=seu.edu.cn; v=1;
+	bh=rMc5Y78GK3F3OqxRtJU+Ti2byo39bkwyB99aa0f2KMs=;
+	h=date:mime-version:subject:message-id:from;
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [Low] Export License Discrepancy: arch_kcpustat_field_idle and arch_kcpus=
-tat_field_iowait are exported via EXPORT_SYMBOL instead of EXPORT_SYMBOL_GP=
-L.
---
+smc_listen() installs smc_clcsock_data_ready() as the underlying TCP
+listen socket's sk_data_ready callback.  smc_clcsock_data_ready() then
+immediately takes sk_callback_lock before looking up the SMC listener and
+queuing smc_tcp_listen_work().
 
-commit 53dd63a70164da468386d3191eb1e7e24af1b440
-Author: Heiko Carstens <hca@linux.ibm.com>
+That is unsafe once the TCP listen socket is leaving TCP_LISTEN.  The TCP
+close/flush path can run the installed sk_data_ready callback with
+sk_callback_lock already held, so entering smc_clcsock_data_ready() again
+tries to take the same rwlock recursively in the same thread.  The nvmet
+TCP listener had to make the same state check before taking
+sk_callback_lock for this reason.
 
-s390/idle: Add missing EXPORT_SYMBOL()
-   =20
-This commit fixes a build breakage for the ledtrig-activity module by
-exporting the newly introduced arch_kcpustat_field_idle and
-arch_kcpustat_field_iowait functions.
+This issue was found by our static analysis tool and then manually
+reviewed against the current tree.
 
-Closes: https://lore.kernel.org/r/ajKsG0JP6qTssQBX@monoceros
+The grounded PoC kept the SMC listen callback installation path:
 
-> diff --git a/arch/s390/kernel/idle.c b/arch/s390/kernel/idle.c
-> index 7f7851c001e0a..6da8ee22a1d53 100644
-> --- a/arch/s390/kernel/idle.c
-> +++ b/arch/s390/kernel/idle.c
+  smc_listen()
+  smc_clcsock_replace_cb()
+  sk_data_ready = smc_clcsock_data_ready()
 
-[ ... ]
+It then modeled the close/flush carrier that invokes the installed
+sk_data_ready callback while sk_callback_lock is already held.  Lockdep
+reported the same-thread recursive acquisition:
 
-> @@ -83,11 +84,13 @@ u64 arch_kcpustat_field_idle(int cpu)
->  {
->  	return arch_cpu_idle_time(cpu, CPUTIME_IDLE, !nr_iowait_cpu(cpu));
->  }
-> +EXPORT_SYMBOL(arch_kcpustat_field_idle);
+  WARNING: possible recursive locking detected
+  smc_clcsock_data_ready+0xa/0x4d [vuln_msv]
+  smc_close_flush_work+0x1f/0x30 [vuln_msv]
+  *** DEADLOCK ***
 
-[Severity: Low]
-Should this use EXPORT_SYMBOL_GPL() instead? The generic implementations of=
-=20
-kcpustat_field_idle() in kernel/sched/cputime.c are exported as GPL-only.
-Using a standard export here circumvents the GPL symbol restriction imposed
-by the core scheduler.
+Return before taking sk_callback_lock when the underlying TCP socket is no
+longer in TCP_LISTEN.  In that state there is no listen accept work to
+queue for SMC, and avoiding the callback lock mirrors the fix used by the
+TCP nvmet listener.
 
-> =20
->  u64 arch_kcpustat_field_iowait(int cpu)
->  {
->  	return arch_cpu_idle_time(cpu, CPUTIME_IOWAIT, nr_iowait_cpu(cpu));
->  }
-> +EXPORT_SYMBOL(arch_kcpustat_field_iowait);
+Fixes: 0558226cebee ("net/smc: Fix slab-out-of-bounds issue in fallback")
+Cc: stable@vger.kernel.org
+Signed-off-by: Runyu Xiao <runyu.xiao@seu.edu.cn>
+---
+ net/smc/af_smc.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-[Severity: Low]
-Similarly, does this need to be EXPORT_SYMBOL_GPL() to match the generic
-kcpustat_field_iowait() counterpart?
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index 6421c2e1c84d..1af4e3c333ff 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -2631,6 +2631,9 @@ static void smc_clcsock_data_ready(struct sock *listen_clcsock)
+ {
+ 	struct smc_sock *lsmc;
+ 
++	if (READ_ONCE(listen_clcsock->sk_state) != TCP_LISTEN)
++		return;
++
+ 	read_lock_bh(&listen_clcsock->sk_callback_lock);
+ 	lsmc = smc_clcsock_user_data(listen_clcsock);
+ 	if (!lsmc)
+-- 
+2.34.1
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260617145313.3910=
-957-1-hca@linux.ibm.com?part=3D1
