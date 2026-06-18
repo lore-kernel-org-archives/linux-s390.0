@@ -1,100 +1,50 @@
-Received: from mail-qk1-f171.google.com (mail-qk1-f171.google.com [209.85.222.171])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 495FD32B134
-	for <linux-s390@vger.kernel.org>; Thu, 18 Jun 2026 15:37:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C90783446C9;
+	Thu, 18 Jun 2026 16:03:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.118
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781797029; cv=none; b=CzJJk0AYaBxYp8Bppjt08QwBPKcivRPHJQ3uSSf8YifrXhgWiPcw1/llftI4qZIjYCxe8LDlcLTLqmptHGqivT5WShAMyZ1pYlCa78F0W9UdCABX01iRNwA9yPsXaI3mtHRRrAAp5mY/HDRG+y9eedtPgKUl9HoZ8fT0Nx8NrQM=
+	t=1781798604; cv=none; b=FYhyZ+HAtGxmUYO0zU7ivOGY64Fpydo5ogDm+cGrvEXhhSSqvlYxXBIIOatU8cgnVretE46PmULva6baeyPxtEy/l/8LKZ29MxwfMGaZWyU/DtEZ0nT7fe0Xz9+kJFgkfS0xANnhqn3Ii/KdyU7EiNPkewSuflq349/WY5nLxkk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781797029; c=relaxed/simple;
-	bh=HppPOGKgKIoggGCewCbUbyU4i7DooaPcpXs3DkDXKHI=;
+	s=arc-20240116; t=1781798604; c=relaxed/simple;
+	bh=2fKCewmHDraKBYdD2hFnuHNGMxtXSmQnBm6eLyC1XOQ=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=KaGC+ar9i3ZaivU6Su4s0FCSci93UoXbV4RuMrNcilfDF+LFBZVtPBA9KMvbRUK21/c67gxAczlVEuIqJY11Vm83fMmrp5RdBMcrTN9icLYjd9Ga2EGvNGv8+Zxp11oFN5MLIZ4PI7cPCbhVdRPC5KhtTIEEv7Lhao7Rlr0Uz/Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca; spf=pass smtp.mailfrom=ziepe.ca; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=G+TcTu/Z; arc=none smtp.client-ip=209.85.222.171
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
+	 Content-Type:Content-Disposition:In-Reply-To; b=SOvB4DyjrpYLA+NPUAdNQ2s+1woFBi9tfQUQx0zvCoa4StfdguNs/ilry4V/qpMds8YQFQooQFsuILpLIvb20vtazua/jhVEb4r2eEgwLVEh7/vgXVwQK0Nd4J8H+3B4PIzKeRAhSe+SLw4+X5iiGy2deeAaX1HEBLLRA2U/rzs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=IHojqSEF; arc=none smtp.client-ip=115.124.30.118
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="G+TcTu/Z"
-Received: by mail-qk1-f171.google.com with SMTP id af79cd13be357-915aa0a9293so241746785a.1
-        for <linux-s390@vger.kernel.org>; Thu, 18 Jun 2026 08:37:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google; t=1781797027; x=1782401827; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=Tm+jP+3WfoLtXaL6gn2l0sQY+Wj2XqJdxBBXikZyHQE=;
-        b=G+TcTu/ZhrHoc9wpAmEr51Y3+GW/8PyEppBS2TYDtbHgaAUxUMJnxPUvc4NPC9cDad
-         Gg5NBBVuuh1+oobmh1OsqMU62CMsp0k8IxJ8lYehE8stMxsATv1SYaJvcuWtkShKxP/j
-         un9RR4j7G/7WXG6WQ1FFgEL56b/3NoSMiR1TE8uPy9U51VCcZhCzzZQgM1dUak/nT2SB
-         jv3zjnbDUXnjloIwrrUPGXutVc6B2NrSGuCoOkiovagtkjVPHVdTxf/lHFFpKsuds0j0
-         Nly2bdVSu8Zm6iXuIooKZDzGdSQSMw9k8W+X+HVyswQ0B1e8GNYdbItyT86LqV8q2E+n
-         sc2g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781797027; x=1782401827;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=Tm+jP+3WfoLtXaL6gn2l0sQY+Wj2XqJdxBBXikZyHQE=;
-        b=ceOn3OQTJnKr0B2Km8uslKXaQhWQGCnM6QuLp9FYHTrZlwEphViq/JNcCcNmP9iZlz
-         Cp9BtJYlF9Ov98Pq5hCfws84fLteA+E9AVS8XyF0ZOx4ntzL2fgGIv24vaFQf3ONtqvb
-         sPThIBOaOIdMtEVV/9++2brEVlREtN7j13wWWYMQGognEON1WONDBcxMad2BJJlacUNR
-         569YrxzbhM+q/D5Rluu4CkYr1RCegICxxLqiJ5qm0g0OGYmu7Oy+6Q89yNA2aeCxaY51
-         LdDGFYHRKFEk+I3t8h9O+UAGAhWvzoxEvqDQMzeo8IrS/wEvQDhHsCEs3Iqp5VEA3MJd
-         82kg==
-X-Forwarded-Encrypted: i=1; AFNElJ+5HaOTpPIpqE0gm1NgYd8Etyz6LRFcNeCw3rRcqKLaSHsSSYVR8yMzh/V6mlV6HnanyuwzTthhh4K9@vger.kernel.org
-X-Gm-Message-State: AOJu0YwL9lU9MBXsbrISkuO3MgBjpF/+OTXNcdqAx9pTiWAOQC9CjtJ1
-	eY1XR4mwKjUAkEWQ2QQL/PALZM45lxs7ELKbt0JnFp1tjlhf8vuBmYVxPMbWrMDZsVk=
-X-Gm-Gg: AfdE7cl+tgVTxcSK/cvQ9er6KSsRBSn95LuUS++V1iPCaxKc/VuCWvIfjUHJef2AtMO
-	0JPcMmnoNqNk5iBUWqIIbwZFvAHR98i7YSou6ta6chJM+rfSx119fbo/ZvT5gQW5kFurdJqSt+6
-	4DFIOFmw52QxdPu54OPOvhm3BWVfr1bzbGDWh0yiSCq5zIHH3Os5ShiWfyAMI4T6pGmxYJtNFX9
-	tYE2FCak2M0vvrSuKDteR9JJrc0DP2ScMHb4hqCrm5FpuZJ9uapADH4GozqRdCuMkIxjLoFT0wu
-	qzYvDo8nhGI4CqC/v8MFUrkziESvtjYqk/n5m2WhY67qfN6KrcOuVExZaIN2Bvk5AecDDH4sQj8
-	OuNJRYEtc9k6KF+gEJS+QEt+h0/p1xuG6HwAvQ4x8IPynqArAiZyGjUeVqpyLmbezOppVqgxnK6
-	En1UG6nyHxTOEVLO/GVCbTUQ6+M8uqLqCixrGoxVv5QW+ge43Dieg7oAzC7aHkY3nA5OI=
-X-Received: by 2002:a05:620a:469e:b0:915:8f64:604c with SMTP id af79cd13be357-91f082ff425mr678605385a.15.1781797026718;
-        Thu, 18 Jun 2026 08:37:06 -0700 (PDT)
-Received: from ziepe.ca (crbknf0213w-47-54-130-67.pppoe-dynamic.high-speed.nl.bellaliant.net. [47.54.130.67])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-91619f3c324sm2104263685a.21.2026.06.18.08.37.05
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 18 Jun 2026 08:37:06 -0700 (PDT)
-Received: from jgg by wakko with local (Exim 4.97)
-	(envelope-from <jgg@ziepe.ca>)
-	id 1waEnh-00000002tSw-24HO;
-	Thu, 18 Jun 2026 12:37:05 -0300
-Date: Thu, 18 Jun 2026 12:37:05 -0300
-From: Jason Gunthorpe <jgg@ziepe.ca>
-To: "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>
-Cc: Alexey Kardashevskiy <aik@amd.com>,
-	Catalin Marinas <catalin.marinas@arm.com>, iommu@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	linux-coco@lists.linux.dev, Robin Murphy <robin.murphy@arm.com>,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
-	Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
-	Steven Price <steven.price@arm.com>,
-	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
-	Jiri Pirko <jiri@resnulli.us>, Mostafa Saleh <smostafa@google.com>,
-	Petr Tesarik <ptesarik@suse.com>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Xu Yilun <yilun.xu@linux.intel.com>, linuxppc-dev@lists.ozlabs.org,
-	linux-s390@vger.kernel.org,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org
-Subject: Re: [PATCH v6 00/20] dma-mapping: Use DMA_ATTR_CC_SHARED through
- direct, pool and swiotlb paths
-Message-ID: <20260618153705.GH231643@ziepe.ca>
-References: <20260604083959.1265923-1-aneesh.kumar@kernel.org>
- <aigYbK12D8uKQvJF@arm.com>
- <20260609144746.GL2764304@ziepe.ca>
- <2ecfa1a8-6202-4319-9692-a6ffeb5a3dbf@amd.com>
- <yq5aqzm4dz25.fsf@kernel.org>
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="IHojqSEF"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1781798598; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
+	bh=gkqxdjTyrjDufw0wAGal9WNmShdcAlZ9wp5Pmo/sHyE=;
+	b=IHojqSEFw9VNBvSPnGx4S5k6h0UAbjV5s3Xb7zTFZsFHBz3LEr5y6T0kNe8lSveaeiDo2BnoorM/O1xn6fNyyS8x/NH+EnmAJOiqVL/dGAyK0zYVkd3IlDBgGCLT3AEfvt6/6docOG6BxSXa1cZYI7HAA73P3HYA0OoqJ+s4Des=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R811e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam011083073210;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=18;SR=0;TI=SMTPD_---0X57Pyhp_1781798597;
+Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0X57Pyhp_1781798597 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Fri, 19 Jun 2026 00:03:17 +0800
+Date: Fri, 19 Jun 2026 00:03:17 +0800
+From: Dust Li <dust.li@linux.alibaba.com>
+To: hexlabsecurity@proton.me, Wenjia Zhang <wenjia@linux.ibm.com>,
+	"D. Wythe" <alibuda@linux.alibaba.com>,
+	Sidraya Jayagond <sidraya@linux.ibm.com>
+Cc: Eric Dumazet <edumazet@google.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Mahanta Jambigi <mjambigi@linux.ibm.com>,
+	Wen Gu <guwen@linux.alibaba.com>, Simon Horman <horms@kernel.org>,
+	netdev@vger.kernel.org, Ursula Braun <ubraun@linux.ibm.com>,
+	Stefan Raspl <raspl@linux.ibm.com>, linux-s390@vger.kernel.org,
+	Paolo Abeni <pabeni@redhat.com>, linux-kernel@vger.kernel.org,
+	linux-rdma@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
+	Tony Lu <tonylu@linux.alibaba.com>
+Subject: Re: [PATCH v3 2/3] net/smc: bound the receive length to the RMB in
+ smc_rx_recvmsg()
+Message-ID: <ajQWxQZXzM2J8kaZ@linux.alibaba.com>
+Reply-To: dust.li@linux.alibaba.com
+References: <20260614-b4-disp-edd64be9-v3-0-551fa514257e@proton.me>
+ <20260614-b4-disp-edd64be9-v3-2-551fa514257e@proton.me>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -103,65 +53,75 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <yq5aqzm4dz25.fsf@kernel.org>
+In-Reply-To: <20260614-b4-disp-edd64be9-v3-2-551fa514257e@proton.me>
 
-On Thu, Jun 18, 2026 at 09:37:22AM +0100, Aneesh Kumar K.V wrote:
-> Alexey Kardashevskiy <aik@amd.com> writes:
-> 
-> > On 10/6/26 00:47, Jason Gunthorpe wrote:
-> >> On Tue, Jun 09, 2026 at 02:43:08PM +0100, Catalin Marinas wrote:
-> >>> On Thu, Jun 04, 2026 at 02:09:39PM +0530, Aneesh Kumar K.V (Arm) wrote:
-> >>>> This series propagates DMA_ATTR_CC_SHARED through the dma-direct,
-> >>>> dma-pool, and swiotlb paths so that encrypted and decrypted DMA buffers
-> >>>> are handled consistently.
-> >>>>
-> >>>> Today, the direct DMA path mostly relies on force_dma_unencrypted() for
-> >>>> shared/decrypted buffer handling. This series consolidates the
-> >>>> force_dma_unencrypted() checks in the top-level functions and ensures
-> >>>> that the remaining DMA interfaces use DMA attributes to make the correct
-> >>>> decisions.
-> >>>
-> >>> Please check Sashiko's reports, it has some good points:
-> >>>
-> >>> https://sashiko.dev/#/patchset/20260604083959.1265923-1-aneesh.kumar@kernel.org
-> >>>
-> >>> I think the main one is the swiotlb_tbl_map_single() changes which break
-> >>> AMD SME host support. There cc_platform_has(CC_ATTR_MEM_ENCRYPT) is true
-> >>> but force_dma_unencrypted() is false. Normally you'd not end up on this
-> >>> path but you can have swiotlb=force.
-> >> 
-> >> IMHO that's an AMD issue, not with the design of this series..
-> >> 
-> >> The series is right, a device that is !force_dma_decrypted() must be
-> >> considerd to be a trusted device and we must never place any DMA
-> >> mappings for a trusted device into shared memory.
-> >
-> > swiotlb=force forces swiotlb, not decryption.
+On 2026-06-14 03:23:31, Bryam Vargas via B4 Relay wrote:
+>From: Bryam Vargas <hexlabsecurity@proton.me>
+>
+>conn->bytes_to_rcv is accumulated in the receive tasklet from the peer's
+>producer cursor:
+>
+>	diff_prod = smc_curs_diff(rmb_desc->len, &prod_old, &prod_new);
+>	atomic_add(diff_prod, &conn->bytes_to_rcv);
+>
+>smc_curs_diff()'s differing-wrap branch returns (size - old.count) +
+>new.count, which exceeds rmb_desc->len for a forged producer cursor and
+>accumulates across CDC messages, so bytes_to_rcv can grow past the RMB
+>(and across many messages can overflow the signed counter negative).
+>smc_rx_recvmsg() reads it as the number of readable bytes and performs a
+>wrap-around copy whose second chunk (copylen - first_chunk, read from
+>ring offset 0) is never re-bounded to rmb_desc->len, reading past the
+>RMB into adjacent kernel memory and disclosing it to the peer.
 
-If force_dma_decrypted() == true then swiotlb must allocate from a
-decrypted memory pool. It is right there in the name!
+Hi Bryam,
 
-The hypervisor environment should *never* set force_dma_decrypted()
-because all devices can access all hypervisor memory, up to their IOVA
-limits.
+Once we validate the CDC message at the input boundary (as in the
+previous patch), bytes_to_rcv can never exceed rmb_desc->len, so
+this check becomes unreachable. So I don't think this patch is needed.
 
-> > So when I try "mem_encrypt=on iommu=pt swiotlb=force" with this
-> > patchset, it fails to boot. But it boots with a hack like this:
+Best regards,
+Dust
 
-On the host side I expect this to cause swiotlb to allocate encrypted
-memory and bounce to it.
 
->  		u64 dma_enc_mask = DMA_BIT_MASK(__ffs64(sme_me_mask));
->  		u64 dma_dev_mask = min_not_zero(dev->coherent_dma_mask,
->  						dev->bus_dma_limit);
-> +		/*
-> +		 * With memory encryption enabled, SWIOTLB is marked decrypted.
-> +		 * If SWIOTLB bouncing is forced, treat the device as requiring
-> +		 * decrypted DMA.
-> +		 */
-
-And this is more insane logic. The right fix is to allocate the
-swiotlb bounce from the *encrypted* pools when running on the
-hypervisor which requires undoing this abuse of force_dma_decrypted().
-
-Jason
+>
+>Bound the readable count to rmb_desc->len where it is consumed, treating
+>a negative (sign-overflowed) value as out of range too, so the copy
+>length can never exceed the ring.  This enforces the documented
+>0 <= bytes_to_rcv <= rmb_desc->len invariant at the consumer, where it
+>is race-free against the producer update that runs in the receive
+>tasklet.
+>
+>Fixes: 952310ccf2d8 ("smc: receive data from RMBE")
+>Cc: stable@vger.kernel.org
+>Signed-off-by: Bryam Vargas <hexlabsecurity@proton.me>
+>---
+> net/smc/smc_rx.c | 12 ++++++++++++
+> 1 file changed, 12 insertions(+)
+>
+>diff --git a/net/smc/smc_rx.c b/net/smc/smc_rx.c
+>index c1d9b923938d..f461cf10b085 100644
+>--- a/net/smc/smc_rx.c
+>+++ b/net/smc/smc_rx.c
+>@@ -442,6 +442,18 @@ int smc_rx_recvmsg(struct smc_sock *smc, struct msghdr *msg,
+> 		/* initialize variables for 1st iteration of subsequent loop */
+> 		/* could be just 1 byte, even after waiting on data above */
+> 		readable = smc_rx_data_available(conn, peeked_bytes);
+>+		/* bytes_to_rcv is accumulated from the peer's wire-controlled
+>+		 * producer cursor; a forged cursor can drive it past the RMB,
+>+		 * or overflow the signed accumulator to a negative value across
+>+		 * many CDC messages (which a plain "> len" check would miss
+>+		 * before the size_t cast below turns it huge).  Bound it to the
+>+		 * RMB in either case so the wrap-around copy cannot run past
+>+		 * rmb_desc->len.  This enforces the documented
+>+		 * 0 <= bytes_to_rcv <= rmb_desc->len invariant at the consumer,
+>+		 * race-free against the producer update in the receive tasklet.
+>+		 */
+>+		if (readable < 0 || readable > conn->rmb_desc->len)
+>+			readable = conn->rmb_desc->len;
+> 		splbytes = atomic_read(&conn->splice_pending);
+> 		if (!readable || (msg && splbytes)) {
+> 			if (splbytes)
+>
+>-- 
+>2.43.0
+>
