@@ -1,166 +1,215 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 18BBF276049;
-	Thu, 18 Jun 2026 08:37:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ED905314D26;
+	Thu, 18 Jun 2026 12:01:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781771853; cv=none; b=LIeyk/IBtu4oqA3VzJL74bUPduqWYLeJfwAjIRgZkFq5fdSH8n32Xwm8bDWd608BF9LZ77J1dpRxAODkiCYQ5I4F2CWELDEmjXCpNdGAbCQZQcjGSIp7IXhUQUkBtY8wv1H/KmwaPBOPnZA2mp+m8oa/EXuY8j6MWqIoDpmZmm4=
+	t=1781784068; cv=none; b=tKGmCdG1/kI7bqwkc7oZFXRfRzy+xzAo+qsIMNPSo1DzEwzNdxFjnuxP9AhrwG3n2n1HvZyUzLcl7tx7hH5WI+bJvqz3wRMroraB5D/8oY+e3PO4NEhmNTuuY6k+XDGAc4Dhe6U30e8dcKSXacup6tNjkv6tgjtcscxhaNFVPgk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781771853; c=relaxed/simple;
-	bh=2p8Tyh/UWigSfVM1Alp/U1v3F1IYe71ZRicsBMgPa0w=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=LpvhNLDfo3FDN0+JKJjC48n5JsK6BAIfOpLcdxFq0fTicyPamqrCAZxcrA4i62ihh/3GTcfjx3YBEq6BDzWcCpJUyzO6UnCVtD6MBF0xXZZcthlpvvmV0RLQzBDj+dq9K9ad4zp50/N7eglFl/B6IRz4mgHDsMjsRcc1ZpAX42Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bJYmurEU; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1781784068; c=relaxed/simple;
+	bh=huTBdupjxY4y8gRnPwVE81r1uh0z48z7tfaPCgadeTo=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=e5EreWFcPFTok95zD2kz4Kn2Kt5sv0Kagp11T+SE81sgzQIzli4S5OWjkrvaP5b8sS1mQfcknaXL8eoeSr2dar6QEPGUiYS4fNFWYQB36MVebA6+IvUfHGwDyWG1KQCONO0jfUh2vNhxYM2Phda2AaAYyX7D4I+QMrC5JutD9Zk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=nJQECdLQ; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bJYmurEU"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 334ED1F000E9;
-	Thu, 18 Jun 2026 08:37:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781771851;
-	bh=Tjfp3FF0f+SxzpFBuG9E9B1amsn/loCXBkKBhFITWIo=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date;
-	b=bJYmurEUTf4p9ddXp1VSCskBHjygy+xD/oNjB9s2Ep/Uu73ZeAFn3grah/ZH/26bC
-	 Z2IKNbkJrX3SQyniq2V3c43nApViK8ptRc8Gz9vZ5aBx3WYWws6jmsSQ1n8wC/ZhsC
-	 aPXbP4vBO9+s7L7Gu2B1QTaU30Q3lwF3YsxuWM4vVa7T2kphUxDrfVTBh2RPbtKviM
-	 f3h5f4VrWfNGB2xgQRFYm9r1q8fBv53E49ns83ljI6VaL3Opsq3DE6buX9d8xYbXtu
-	 r9HlAXaeEfYUQ5HKSssJFRAz7y8WVKnEyAfSl5fBP2P87RedjDBY2R+S227cOm339+
-	 HGR07rvOMXPTg==
-X-Mailer: emacs 30.2 (via feedmail 11-beta-1 I)
-From: Aneesh Kumar K.V <aneesh.kumar@kernel.org>
-To: Alexey Kardashevskiy <aik@amd.com>,
-	Jason Gunthorpe <jgg@ziepe.ca>,
-	Catalin Marinas <catalin.marinas@arm.com>
-Cc: iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev,
-	Robin Murphy <robin.murphy@arm.com>,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
-	Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
-	Steven Price <steven.price@arm.com>,
-	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
-	Jiri Pirko <jiri@resnulli.us>,
-	Mostafa Saleh <smostafa@google.com>,
-	Petr Tesarik <ptesarik@suse.com>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Xu Yilun <yilun.xu@linux.intel.com>,
-	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org
-Subject: Re: [PATCH v6 00/20] dma-mapping: Use DMA_ATTR_CC_SHARED through
- direct, pool and swiotlb paths
-In-Reply-To: <2ecfa1a8-6202-4319-9692-a6ffeb5a3dbf@amd.com>
-References: <20260604083959.1265923-1-aneesh.kumar@kernel.org>
- <aigYbK12D8uKQvJF@arm.com> <20260609144746.GL2764304@ziepe.ca>
- <2ecfa1a8-6202-4319-9692-a6ffeb5a3dbf@amd.com>
-Date: Thu, 18 Jun 2026 09:37:22 +0100
-Message-ID: <yq5aqzm4dz25.fsf@kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="nJQECdLQ"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65IBIQLo3263217;
+	Thu, 18 Jun 2026 12:00:50 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:message-id
+	:mime-version:subject:to; s=pp1; bh=sTcMnqscS11RT9F+rjXSO66h2mVY
+	O4MiAL4ZzAxtr0c=; b=nJQECdLQO8oHeKPrv/2yuuozYaP7S2buoBQMQqjF1cy9
+	qtrdKrIuvK9HCk+9KetTNQurIHQLFQALGpa1NGhVrZXZiaKR/hOlpi9l8jVFHBzV
+	l8aJuX0hmUH8rWsoo+8p5xCirwTaJqrqMi1EQkxA5mDnIKPuEARCyJ/PUaqxG+DE
+	Cb330eejMhE7HumaozNdqnAUrq8n4xJZ6YJWOEBxNLqaYtXBsu33DmXqHmBzZbgN
+	DNPYkog1hHQaoFME0q8X36Vc90ppvTnRrTPpnH0+IMeRvpTd4N0DZAlKy5Pwwq/W
+	skyy52Mp/JgJSWLLMaoTjsWa4+EgfkqwkGX5ipxrgw==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4eueqvywqf-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 18 Jun 2026 12:00:49 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 65IBnjAG024636;
+	Thu, 18 Jun 2026 12:00:48 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4ev1723jdr-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 18 Jun 2026 12:00:48 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 65IC0jTa48234968
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 18 Jun 2026 12:00:45 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 3792C20040;
+	Thu, 18 Jun 2026 12:00:45 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6374F20043;
+	Thu, 18 Jun 2026 12:00:44 +0000 (GMT)
+Received: from [192.168.2.127] (unknown [9.111.73.152])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 18 Jun 2026 12:00:44 +0000 (GMT)
+From: Mete Durlu <meted@linux.ibm.com>
+Subject: [PATCH v3 0/5] s390/idle: CPU idle driver
+Date: Thu, 18 Jun 2026 14:00:14 +0200
+Message-Id: <20260618-idledriver-v3-0-684061eecbcb@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/23OQQ6CMBCF4auQri1ppwLiynsYFkCnMgmlpsUGQ
+ 7i7hZ3G5b94X97KAnrCwK7ZyjxGCuSmFOqUsX5opwdy0qkZCChFKeqUI2pPET0HWSF0UEloFUu
+ Dp0dDy4Hdm9TGO8vnwWP7RYiqAKlyJUV95pJbnFHfRppeS06dzXtnd2ygMDv/Po5F2Mm/HyJwk
+ Y70YIqL1FKaH6nZtu0DoqbYUeUAAAA=
+X-Change-ID: 20260609-idledriver-217e2b2712a3
+To: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Anna-Maria Behnsen <anna-maria@linutronix.de>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        Ingo Molnar <mingo@kernel.org>, Thomas Gleixner <tglx@kernel.org>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Daniel Lezcano <daniel.lezcano@kernel.org>,
+        Christian Loehle <christian.loehle@arm.com>
+Cc: Mete Durlu <meted@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Ilya Leoshkevich <iii@linux.ibm.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-pm@vger.kernel.org
+X-Mailer: b4 0.14.3
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNjE4MDExMCBTYWx0ZWRfX6Z3gG+fkLLVB
+ wdHf43xddbStv6schn5UUSONSuuetPS9wD7mugGxjO7BY9ZwZ2hAEKPClLp6qYw54BBGZP0M3Rd
+ TZITE0HJsSm3MpuRiIJZch0sNyAw/xI=
+X-Proofpoint-GUID: SooQhMfVIkXr0d4gRZUOmDzdksPWLeCe
+X-Authority-Analysis: v=2.4 cv=bMgm5v+Z c=1 sm=1 tr=0 ts=6a33ddf1 cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=IkcTkHD0fZMA:10 a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=VwQbUJbxAAAA:8
+ a=VnNF1IyMAAAA:8 a=n8XGycmV1CrEpJvqQmUA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-ORIG-GUID: SooQhMfVIkXr0d4gRZUOmDzdksPWLeCe
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjE4MDExMCBTYWx0ZWRfX6StbYFdezFGV
+ pB8Nv5+VH9Sbp2mQnGyCc8zwfwsbIcJd9tcWJrs78Sve3dC/RqRp/J6jprAay/kWSs5JMPQ0LQZ
+ net/srrngU0xA1PdIfLYEnCH2JkSjS3j4UHB5LkAOh9mWMy1QVGBOy669TZJrBbBzpFBI5bWsnE
+ eT+MNOMU0DFh3oR6tC8x5dfNmo+nro0TEtRCwNqZ1zASSRW17eLKj1rNtXsHIbOdYhgv9PlCVdr
+ Xwd7HGcqfxTGVz6gvIEiSWmCqciIuUMXuTkSqRGm3vPodg4iyrQHqJtCqj6hAZSr0PLo1KSvsS+
+ B6zGFjPXsn+bcidVV95bfKBqy0yVg8YUCvJnfPYeCtXklmVUuBs+8caXHvO48Ig+Z40iWcK4gc7
+ TIDZepXqFKloPfX5oBjaiGt3n9NeeyiYOYAs6QUtPbAmX7CN8KwRGuMuu9U3WCoukZC+TlOhr+u
+ CHZI6kb7LDJVX33TH3g==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
+ definitions=2026-06-18_01,2026-06-18_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ suspectscore=0 impostorscore=0 malwarescore=0 adultscore=0 spamscore=0
+ bulkscore=0 priorityscore=1501 phishscore=0 clxscore=1015 lowpriorityscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2606180110
 
-Alexey Kardashevskiy <aik@amd.com> writes:
+v2 -> v3:
+* Link to v2: https://lore.kernel.org/r/20260609-idledriver-v2-0-21c2f581d11f@linux.ibm.com
+* Remove any mentions of idle governor since the driver is not tied to
+  any specific governor. TEO is just the default pick for s390
+  (Christian Loehle)
+* Add a comment to reflect how the values for idle driver tuneables are
+  picked (Christian Loehle)
 
-> On 10/6/26 00:47, Jason Gunthorpe wrote:
->> On Tue, Jun 09, 2026 at 02:43:08PM +0100, Catalin Marinas wrote:
->>> On Thu, Jun 04, 2026 at 02:09:39PM +0530, Aneesh Kumar K.V (Arm) wrote:
->>>> This series propagates DMA_ATTR_CC_SHARED through the dma-direct,
->>>> dma-pool, and swiotlb paths so that encrypted and decrypted DMA buffers
->>>> are handled consistently.
->>>>
->>>> Today, the direct DMA path mostly relies on force_dma_unencrypted() for
->>>> shared/decrypted buffer handling. This series consolidates the
->>>> force_dma_unencrypted() checks in the top-level functions and ensures
->>>> that the remaining DMA interfaces use DMA attributes to make the correct
->>>> decisions.
->>>
->>> Please check Sashiko's reports, it has some good points:
->>>
->>> https://sashiko.dev/#/patchset/20260604083959.1265923-1-aneesh.kumar@kernel.org
->>>
->>> I think the main one is the swiotlb_tbl_map_single() changes which break
->>> AMD SME host support. There cc_platform_has(CC_ATTR_MEM_ENCRYPT) is true
->>> but force_dma_unencrypted() is false. Normally you'd not end up on this
->>> path but you can have swiotlb=force.
->> 
->> IMHO that's an AMD issue, not with the design of this series..
->> 
->> The series is right, a device that is !force_dma_decrypted() must be
->> considerd to be a trusted device and we must never place any DMA
->> mappings for a trusted device into shared memory.
->
->
-> swiotlb=force forces swiotlb, not decryption.
->
->> That AMD has done somethine insane:
->> 
->> bool force_dma_unencrypted(struct device *dev)
->> {
->> 	/*
->> 	 * For SEV, all DMA must be to unencrypted addresses.
->> 	 */
->> 	if (cc_platform_has(CC_ATTR_GUEST_MEM_ENCRYPT))
->> 		return true;
->> 
->> 	/*
->> 	 * For SME, all DMA must be to unencrypted addresses if the
->> 	 * device does not support DMA to addresses that include the
->> 	 * encryption mask.
->> 	 */
->> 	if (cc_platform_has(CC_ATTR_HOST_MEM_ENCRYPT)) {
->> 		u64 dma_enc_mask = DMA_BIT_MASK(__ffs64(sme_me_mask));
->> 		u64 dma_dev_mask = min_not_zero(dev->coherent_dma_mask,
->> 						dev->bus_dma_limit);
->> 
->> 		if (dma_dev_mask <= dma_enc_mask)
->> 			return true;
->> 	}
->
->
-> So when I try "mem_encrypt=on iommu=pt swiotlb=force" with this patchset, it fails to boot. But it boots with a hack like this:
->
-> ===
-> @@ -39,7 +41,7 @@ bool force_dma_unencrypted(struct device *dev)
->                          return true;
->          }
->   
-> -       return false;
-> +       return swiotlb_force_bounce;
->   }
-> ===
->
-> Or we say "mem_encrypt=on iommu=pt swiotlb=force" combo is just weird and we won't be supporting which bit in this? Thanks,
->
+v1 -> v2:
 
-Something like?
+* Add idle driver enteries to MAINTAINERS file (Christian Loehle)
+* Remove extra line break left in drivers/cpuidle/Kconfig.s390
+  (Christian Loehle)
 
-modified   arch/x86/mm/mem_encrypt.c
-@@ -34,6 +34,13 @@ bool force_dma_unencrypted(struct device *dev)
- 		u64 dma_enc_mask = DMA_BIT_MASK(__ffs64(sme_me_mask));
- 		u64 dma_dev_mask = min_not_zero(dev->coherent_dma_mask,
- 						dev->bus_dma_limit);
-+		/*
-+		 * With memory encryption enabled, SWIOTLB is marked decrypted.
-+		 * If SWIOTLB bouncing is forced, treat the device as requiring
-+		 * decrypted DMA.
-+		 */
-+		if (is_swiotlb_force_bounce(dev))
-+			return true;
- 
- 		if (dma_dev_mask <= dma_enc_mask)
- 			return true;
+This patch series introduces a CPU idle driver for s390 architecture
+that leverages the existing cpu idle infrastructure and idle governor
+to optimize idle state selection based on timer events and interrupt
+patterns.
 
+- Implementation Overview
+-----------------------------------------------------------------------
 
+The driver implements two idle states;
 
--aneesh
+**Polling Idle (shallow state)**
+- Busy-loop implementation that prevents SIE-exit during short idle periods
+- Zero exit latency, optimized for latency-sensitive workloads
+- Maintains CPU with the guest, improving response times
+
+**Enabled Wait (deep state)**
+- Traditional EW state that signals hypervisor availability
+- Higher exit latency but more efficient for longer idle periods
+
+The idle governor dynamically selects between these states by monitoring
+next timer interrupts and system interrupt frequency, choosing the most
+appropriate idle state for each situation.
+
+- Performance Benefits
+-----------------------------------------------------------------------
+
+Benchmark results across LPAR, KVM, and z/VM guests demonstrate significant
+improvements for latency-sensitive and scheduler-intensive workloads:
+
+```
+Benchmark    | LPAR  | z/VM  | KVM   |
+-----------------------------------------
+cyclictest   | +45%  | +50%  | +30%  |
+hackbench    | +5%   | +12%  | -     |
+pgbench      | +2%   | +15%  | +2%   |
+uperf        | +50%* | +-5%  | +-5%  |
+```
+
+*Single-threaded uperf scenarios show 50-70% improvements on LPAR.
+Multi-threaded results show slight improvements overall.
+
+Additionally, fio and ioping tests show latency distribution shifts toward
+lower values with reduced minimum and average latencies.
+
+- Configuration
+-----------------------------------------------------------------------
+
+Target residency and exit latency values are benchmark estimates. Due to
+s390's virtualized architecture, these values are non-deterministic.
+Idle state parameters are tuned per hypervisor type after benchmarks:
+
+**LPAR:**
+- EW: 5us target residency, 5us exit latency
+
+**KVM/z/VM:**
+- EW: 1us target residency, 1us exit latency
+
+---
+Mete Durlu (5):
+      s390/tick: Remove CIF_NOHZ_DELAY flag
+      tick: Remove arch_needs_cpu
+      s390: Enable TIF_POLLING_NRFLAG
+      s390/idle: Introduce cpuidle for s390
+      s390/configs: Enable cpuidle driver on s390
+
+ MAINTAINERS                         |   8 +++
+ arch/s390/Kconfig                   |   5 ++
+ arch/s390/configs/debug_defconfig   |   2 +
+ arch/s390/configs/defconfig         |   2 +
+ arch/s390/include/asm/processor.h   |   4 --
+ arch/s390/include/asm/thread_info.h |   1 +
+ arch/s390/kernel/idle.c             |   1 -
+ arch/s390/kernel/irq.c              |   4 --
+ arch/s390/kernel/smp.c              |   1 -
+ drivers/cpuidle/Kconfig             |   5 ++
+ drivers/cpuidle/Kconfig.s390        |  11 ++++
+ drivers/cpuidle/Makefile            |   4 ++
+ drivers/cpuidle/cpuidle-s390.c      | 115 ++++++++++++++++++++++++++++++++++++
+ include/linux/tick.h                |   3 -
+ kernel/time/tick-sched.c            |   7 +--
+ 15 files changed, 156 insertions(+), 17 deletions(-)
+---
+base-commit: 2d3090a8aeb596a26935db0955d46c9a5db5c6ce
+change-id: 20260609-idledriver-217e2b2712a3
+
+Best regards,
+-- 
+Mete Durlu <meted@linux.ibm.com>
+
