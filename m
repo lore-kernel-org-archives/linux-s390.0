@@ -1,179 +1,131 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8D7EC1C3BFC
-	for <linux-s390@vger.kernel.org>; Thu, 18 Jun 2026 15:10:48 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B515F2459EA
+	for <linux-s390@vger.kernel.org>; Thu, 18 Jun 2026 15:29:25 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781795449; cv=none; b=hzgJo/I3DXOVLJf/pxYuV1cEkvAuNr59rAygRVMZGNlv4Zcjta5/iHNE9BKKOmM1x7LW5ku35nl0NqtNQF4T6gxHF5HFmH9UA24Ws9BwAqgK/3vuFcZrDBDtlc8XrrFmnk4C/UU6L+aqF4w+QqpRFtNTSzAEs//TzMNkeRtB1DA=
+	t=1781796566; cv=none; b=GihzOF2s6wDomTNxlZMkPTn0JwwaZ9N9idRvl/6g7NlY6O1x46G8NLM/nbSVi2E+nuuRLWsRB1PZPXbgdZDXP0KYe3GsmHpslQln4bNrkWaGu7aM/te+Rc+FBpmF4v3mqyAPRiD/0+5qUr0nG8eXQ8Qopz57t3NGp6FyXYmpJr4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781795449; c=relaxed/simple;
-	bh=DaMEyzJte5E7wdGtpMpplPaC7uYintnRlwN+wY90eBI=;
+	s=arc-20240116; t=1781796566; c=relaxed/simple;
+	bh=P3pC/6jPGmU5weIMaxvVzTmC+ntWQwLEup5XZfVu6WA=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=TPslwSG14BYEMUBRWXcATjMW7RDZPXToqQbhhDJ+VwsBXDToSW9Oshz7UfndeCunfZeVVMuJypyzjpq2iPEwDFOgdtI7f+RVLqSg7lZgNWjpNat3+YKXBq7m5wni3N2TBDJXKtHN17MxYMp3XRVR1megZKZsUiEIJYzSGfy+FzA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bRV47cGo; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=bvdmAT8m3VLu+5mnGcXl0gijvLqPftzAA5UCV1XaDoC9D3A4Rr6R0H6ttpNlvJn+akE1BI2J/a93XuXTMSJeQigsdSOkZInQaD9dM+wwc3Q89N+flXcUtgDnInaZlgfVY645WmZu+uVbr8I/Uu2njlA1aYQ5V54Z59kuzU/YCdY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JP3eeBSm; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bRV47cGo"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 063661F000E9;
-	Thu, 18 Jun 2026 15:10:47 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JP3eeBSm"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16F6B1F000E9;
+	Thu, 18 Jun 2026 15:29:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781795448;
-	bh=BDfOv6Z9L5c4Wbjuw4xAGcEDmevB0FSlB9lPj1gs270=;
+	s=k20260515; t=1781796565;
+	bh=WyvJ1wV7BJiwjBLMOKLajPMIz0p/MqSLXMTv2j7k1bA=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=bRV47cGo2ReNt9TjJZN8bZIK/VbxGLMFRqemR4mDAJtVlo+9OESy+r4fmP/vhZaQI
-	 qrMoTJwRxAjJv67H0n6lDM/bBcbXn8WZKKKvqiZslXRdHvdVhGK+SpcR7qqe23Pq+L
-	 sj3i6YQst1VeU+lCEVMhsmy/p9YUydYHAIHQhWKR7UKi6oUYtqTO2GZNY50Kt30oEZ
-	 4YTQTrXLdcOd8PaHKROBUULu2vI26qnWcZxwoIkvycXSbkLajHALgmuicJoWcSo/Ho
-	 lzFCSTNt0UT+P/SNP/VfqBvTAmW5R7SfdBh1u+asi1mLIPRghpPVIQxQUx5TCNJq9i
-	 eNlCwElbJkKOw==
+	b=JP3eeBSmHhLskxGq/97e4onTanmBM/mD/+Pc/DDj/dmkDMhgJrgWPpNY4hk9jMewy
+	 APwGZj9j+Pep0RNL39eSXuQIAuZDvDsyPB0DBk64QZf2gQgdZZ/tmoE3bZQLt/stfi
+	 vei4wVX2+ZZFKvo/3Xnv265E9tcD4ys3yReKrre14DVPranSHcNWwtcao10uAtOfq6
+	 okivUctSYZFcS6aYHG/tuT3/trMYUML0vg1VXzTkcdZW9lWZJnp0lQf2x7wmpcCCSE
+	 jSn59HkRMYb0TbgOmUtdhKef2PfDOWszGET9tLfXZa2OyzqMdF0mZtcNNldXKqQRbT
+	 AQ9JwW1B+FH7A==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH -next v4 2/4] s390/mm: Batch PTE updates in lazy MMU
- mode
+Subject: Re: [PATCH net] net/smc: avoid recursive sk_callback_lock in listen
+ data_ready
 Reply-To: sashiko-reviews@lists.linux.dev
-To: "Alexander Gordeev" <agordeev@linux.ibm.com>
-Cc: "Vasily Gorbik" <gor@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, linux-s390@vger.kernel.org
-In-Reply-To: <e50680152fc7d99215d53758fab4b87280d25c20.1781789772.git.agordeev@linux.ibm.com>
-References: <cover.1781789772.git.agordeev@linux.ibm.com>
- <e50680152fc7d99215d53758fab4b87280d25c20.1781789772.git.agordeev@linux.ibm.com>
+To: "Runyu Xiao" <runyu.xiao@seu.edu.cn>
+Cc: "Heiko Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Vasily
+ Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org
+In-Reply-To: <20260617152855.1039151-1-runyu.xiao@seu.edu.cn>
+References: <20260617152855.1039151-1-runyu.xiao@seu.edu.cn>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 18 Jun 2026 15:10:47 +0000
-Message-Id: <20260618151048.063661F000E9@smtp.kernel.org>
+Date: Thu, 18 Jun 2026 15:29:24 +0000
+Message-Id: <20260618152925.16F6B1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [Critical] Deferred PTE updates to a per-CPU cache break synchronization =
-with lockless page table walkers like GUP-fast, allowing them to pin pages =
-being concurrently write-protected for COW.
-- [High] The lazy MMU cache bypasses the `full=3D1` TLB flush optimization =
-during process teardown, causing an O(N) IPTE storm.
+
+Pre-existing issues:
+- [High] The error path in smc_listen() fails to restore icsk_af_ops, which=
+ leads to infinite recursion if listen() is retried.
 --
 
-commit 38614c455538c6b6144011b070bbbf41513506e6
-Author: Alexander Gordeev <agordeev@linux.ibm.com>
+commit e36405ff19adb1bf696672be6024d5801fec608d
+Author: Runyu Xiao <runyu.xiao@seu.edu.cn>
 
-s390/mm: Batch PTE updates in lazy MMU mode
+net/smc: avoid recursive sk_callback_lock in listen data_ready
 
-This commit introduces a per-CPU cache to batch PTE updates while in lazy
-MMU mode. By caching PTE changes and applying them simultaneously with the
-IPTE instruction's "Additional Entries" feature, it reduces overall IPTE
-traffic.
+smc_listen() installs smc_clcsock_data_ready() as the TCP listen
+socket's sk_data_ready callback. This patch adds a state check
+to smc_clcsock_data_ready() to avoid acquiring sk_callback_lock
+recursively when the TCP socket is leaving TCP_LISTEN.
 
-> diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgta=
-ble.h
-> --- a/arch/s390/include/asm/pgtable.h
-> +++ b/arch/s390/include/asm/pgtable.h
-
-[ ... ]
-
-> @@ -1259,11 +1373,13 @@ static inline pte_t ptep_get_and_clear_full(struc=
-t mm_struct *mm,
+> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+> index b5db69073e20f..4c638765611ce 100644
+> --- a/net/smc/af_smc.c
+> +++ b/net/smc/af_smc.c
+> @@ -2630,6 +2630,9 @@ static void smc_clcsock_data_ready(struct sock *lis=
+ten_clcsock)
 >  {
->  	pte_t res;
+>  	struct smc_sock *lsmc;
 > =20
-> -	if (full) {
-> -		res =3D ptep_get(ptep);
-> -		set_pte(ptep, __pte(_PAGE_INVALID));
-> -	} else {
-> -		res =3D ptep_xchg_lazy(mm, addr, ptep, __pte(_PAGE_INVALID));
-> +	if (!lazy_mmu_ptep_get_and_clear(addr, ptep, &res)) {
+> +	if (READ_ONCE(listen_clcsock->sk_state) !=3D TCP_LISTEN)
+> +		return;
+> +
+>  	read_lock_bh(&listen_clcsock->sk_callback_lock);
+>  	lsmc =3D smc_clcsock_user_data(listen_clcsock);
 
 [Severity: High]
-Does checking lazy_mmu_ptep_get_and_clear() before the 'full' flag bypass
-the teardown optimization and cause an IPTE storm?
+This isn't a bug introduced by this patch, but while reviewing the changes
+around the listen callback, I noticed a potential infinite recursion issue
+in the error path of smc_listen().
 
-During process teardown, exit_mmap() and zap_pte_range() use
-ptep_get_and_clear_full(..., full=3D1) to clear PTEs without issuing indivi=
-dual
-TLB invalidations, deferring the flush to a global teardown at the end.
-If lazy_mmu_mode_enable_with_ptes() is active, this intercepts the call,
-writes _PAGE_INVALID to the cache, and bypasses the if (full) path.
+When kernel_listen() fails (e.g., due to port exhaustion), the error path
+rolls back the callback hooks but omits the restoration of icsk_af_ops:
 
-Later, when lazy_mmu_mode_disable() flushes the cache, it calls
-__invalidate_pte_range() in arch/s390/mm/lazy_mmu.c:
+net/smc/af_smc.c:smc_listen() {
+    ...
+	/* save original ops */
+	smc->ori_af_ops =3D inet_csk(smc->clcsock->sk)->icsk_af_ops;
 
-static void __invalidate_pte_range(...)
-{
-	...
-	if (cpu_has_tlb_lc() && ...)
-		__ptep_ipte_range(addr, nr_ptes - 1, ptep, IPTE_LOCAL);
-	else
-		__ptep_ipte_range(addr, nr_ptes - 1, ptep, IPTE_GLOBAL);
-	...
-}
+	smc->af_ops =3D *smc->ori_af_ops;
+	smc->af_ops.syn_recv_sock =3D smc_tcp_syn_recv_sock;
 
-This unconditionally executes batched IPTE instructions for all cached PTEs.
-For multi-threaded processes, does this turn an O(1) TLB flush operation
-into an O(N) global IPTE broadcast, causing a regression in system
-performance during process termination?
+	inet_csk(smc->clcsock->sk)->icsk_af_ops =3D &smc->af_ops;
 
-> +		if (full) {
-> +			res =3D __ptep_get(ptep);
-> +			__set_pte(ptep, __pte(_PAGE_INVALID));
-> +		} else {
-> +			res =3D ptep_xchg_lazy(mm, addr, ptep, __pte(_PAGE_INVALID));
-> +		}
->  	}
->  	page_table_check_pte_clear(mm, addr, res);
+	if (smc->limit_smc_hs)
+		tcp_sk(smc->clcsock->sk)->smc_hs_congested =3D smc_hs_congested;
 
-[ ... ]
-
-> @@ -1289,10 +1405,15 @@ static inline pte_t ptep_get_and_clear_full(struc=
-t mm_struct *mm,
->  static inline void ptep_set_wrprotect(struct mm_struct *mm,
->  				      unsigned long addr, pte_t *ptep)
->  {
-> -	pte_t pte =3D ptep_get(ptep);
-> +	pte_t pte;
-> =20
-> -	if (pte_write(pte))
-> -		ptep_xchg_lazy(mm, addr, ptep, pte_wrprotect(pte));
-> +	if (!lazy_mmu_ptep_set_wrprotect(addr, ptep)) {
-
-[Severity: Critical]
-Can intercepting the write-protect operation here break synchronization with
-lockless page table walkers like GUP-fast?
-
-During fork(), copy_pte_range() calls lazy_mmu_mode_enable_with_ptes().
-When copy_present_pte() attempts to write-protect the parent's PTE by
-calling ptep_set_wrprotect(), the lazy MMU mode intercepts the call via
-__lazy_mmu_ptep_set_wrprotect() in arch/s390/mm/lazy_mmu.c:
-
-bool __lazy_mmu_ptep_set_wrprotect(...)
-{
-	...
-	pte =3D __ipte_range_ptep_get(range, ptep);
-	if (pte_write(pte)) {
-		pte =3D pte_wrprotect(pte);
-		__ipte_range_set_pte(range, ptep, pte);
+	rc =3D kernel_listen(smc->clcsock, backlog);
+	if (rc) {
+		write_lock_bh(&smc->clcsock->sk->sk_callback_lock);
+		smc_clcsock_restore_cb(&smc->clcsock->sk->sk_data_ready,
+				       &smc->clcsk_data_ready);
+		rcu_assign_sk_user_data(smc->clcsock->sk, NULL);
+		write_unlock_bh(&smc->clcsock->sk->sk_callback_lock);
+		goto out;
 	}
-	return true;
+    ...
 }
 
-This updates the per-CPU cache but leaves the physical PTE completely valid
-and writable until the cache is flushed at the end of the PMD range. Because
-GUP-fast operates locklessly, a concurrent thread in the parent process can
-read the physical PTE, observe that it is still writable, and successfully
-take a FOLL_WRITE pin on the page.
+Does this leave the internal socket with a corrupted state?=20
 
-Meanwhile, fork() proceeds, sees no pins, and shares the page with the
-child. Does this create a regression where the parent retains a writable
-GUP pin to a page shared with the child, allowing writes to corrupt the
-child's memory and break COW isolation?
+If userspace retries the listen() call on the same socket after a failure,
+smc_listen() reads the currently active icsk_af_ops into smc->ori_af_ops.
+Since the previous cleanup was missed, wouldn't smc->ori_af_ops become a
+pointer to its own wrapper structure (&smc->af_ops)?
 
-> +		pte =3D __ptep_get(ptep);
-> +		if (pte_write(pte)) {
-> +			pte =3D pte_wrprotect(pte);
-> +			ptep_xchg_lazy(mm, addr, ptep, pte);
-> +		}
-> +	}
->  }
+If the socket eventually successfully listens and accepts a connection,
+when smc_tcp_syn_recv_sock() is invoked, it calls:
+
+smc->ori_af_ops->syn_recv_sock(...)
+
+Could this result in smc_tcp_syn_recv_sock() calling itself infinitely and
+causing a stack overflow?
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/cover.1781789772.gi=
-t.agordeev@linux.ibm.com?part=3D2
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260617152855.1039=
+151-1-runyu.xiao@seu.edu.cn?part=3D1
