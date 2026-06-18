@@ -1,61 +1,61 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0DF193A4520;
-	Thu, 18 Jun 2026 12:01:17 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2CB8F3F483C;
+	Thu, 18 Jun 2026 12:01:19 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781784079; cv=none; b=Z/yuZnxxw8P/DCSTP0lsDPkKPrEH2R86CbQTBlnL1JQGtvF03RPW1mtpihum1eoHkoQaOrMrZo5otJI82X8Ed//HPP7VyE3HUhR6H5+R/dMNGiqzUrWIUwBv6hrgiokAIoCiC/BbOZ8zKcRcHDBQ1iCq37bMX48VQ968pnB44Ic=
+	t=1781784081; cv=none; b=Ak3xv1LEonw3qTZdm5LmaZ++B2oFy5DW44lH78xg3VxlcGwdoyMHGlp5lZYMTphliTDdthbjurpHJJlWaMXnrvlqeJPEHvJIpuisU/GJZBjdKrNSw8xyM1vJEOpQcCN/0GtpD4LW4QXH8XYhVbLK7aNqN+ZmD55RgBXO7UKmkwo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781784079; c=relaxed/simple;
-	bh=yYfY5SElGZ5gTCAcLjVoI1cPsqSVA28EH0TneFGbR2M=;
+	s=arc-20240116; t=1781784081; c=relaxed/simple;
+	bh=fdBmw70s3kUMBVdD1OgmpTx3I3PJuookdTDXjmw4JhY=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=LZ7kCJyLwjTg5oO0PuxkN5Re2GQ2HqAyaeP73BLQtfRrQe3+4xxTpVRJHupFbIBPyJudCGc/4WX1QmCp1oypYFkFCkrW2jwSFeQxwx+qG3HOOQTg5PDmdnTlibNWcuXfBrWcoHZ6pufA/OjxRcXjQgcPCz3FMThVGzgYSsShu14=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=jPtspq8v; arc=none smtp.client-ip=148.163.158.5
+	 In-Reply-To:To:Cc; b=p+/iCbNz1nc9an1GrI7MnnGfztwTtF0Kby0vMzErxEwxhNBXT5jRqJ+oa/1thsAvL7X8o0XfhIpATAb8KEfjEunFddkMTOzIkHSjY2qMLGDBoPcldW4Ssx+WL8yo5hQnwCDTbprOOLVSOdCEEGmDa0m6nJcJyYMl9NAfW/J95Z0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=tOZYAkL9; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="jPtspq8v"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65IBINYb3203668;
-	Thu, 18 Jun 2026 12:00:53 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="tOZYAkL9"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65IBIXRp3163459;
+	Thu, 18 Jun 2026 12:00:54 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=wFdG8V
-	PU1+1EjZdIP6f37Hh8+Y0VJi6A02g4lfbpL/M=; b=jPtspq8vspWpBJqW7Mc4HT
-	TPcubN6UY0jBgCopuG+GFAdGSBI/7au312cryYVONQtJ9Xt1/RRE/X65/pY+pUji
-	12tYtYwRZQkiwHcUTaZzcuTMTrFLnTckTaHySo7w9n4FhJdNfhU5ORzBiTxRg4GY
-	uuBDKOp2r60LwRkdGBRsF9i1IV8Ya0UKcD5P5ZmomCdxlXpyW4n+BWewgFZ6k3qi
-	QX1306NBogfKOYQ4Rv+3yGvjaswP/jjGvpKwJabpou1WpZI0yG0eH2nu0o8pekEX
-	t9Dxbcsai3MbGLgsh7plJ2WQJH9VBULLJ/R3CUZOCOLZzrkgDdSgyrMYyfB3OVfg
+	:message-id:mime-version:references:subject:to; s=pp1; bh=S9tp1+
+	tZ/h+q+pntemom4CWeZzb+/Loq3zzbPve1seA=; b=tOZYAkL9gY+p9pP87B3eTj
+	0iWgSJcBcLaGD+XR5R9I4Y5i3ntTf1aWoN4vl/V/Wxlha75Tx0IzPFWyG9FpMFKG
+	fow51X75qk7fvs7zg51ZJJRTIz/BZIJQQUpa6rWA3FW1gEQzquQHFKMfbX+VoP52
+	ib+gR1H4O3OmHeZE6Xkno2Uvcxt0fyPypZ3uuLt2AvyLoLHnAHiYGtcjAOKjr0AV
+	nj/so2vkaoAogHUQ8Ivc3B2xQWcHVUts1JmWTATynPq71peX+Gg5zB5LSiIA5Y6P
+	YwIVvb3WHveTApnS5YtYAJgtnQPLLnQxVW8svlcW0z+MbNY117o7xKsGkQ+yRbvw
 	==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4eueqxfsjh-1
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4eueqx7td7-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 18 Jun 2026 12:00:54 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 65IBngEZ011349;
+	Thu, 18 Jun 2026 12:00:53 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4ev172bhhf-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Thu, 18 Jun 2026 12:00:53 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 65IBnnTg024862;
-	Thu, 18 Jun 2026 12:00:52 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4ev1723jea-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 18 Jun 2026 12:00:52 +0000 (GMT)
 Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 65IC0lS651184010
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 65IC0naH21955028
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
 	Thu, 18 Jun 2026 12:00:49 GMT
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C56E32004D;
-	Thu, 18 Jun 2026 12:00:47 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 7FA1B20040;
+	Thu, 18 Jun 2026 12:00:49 +0000 (GMT)
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0734020043;
-	Thu, 18 Jun 2026 12:00:47 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id B7CBC20043;
+	Thu, 18 Jun 2026 12:00:48 +0000 (GMT)
 Received: from [192.168.2.127] (unknown [9.111.73.152])
 	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 18 Jun 2026 12:00:46 +0000 (GMT)
+	Thu, 18 Jun 2026 12:00:48 +0000 (GMT)
 From: Mete Durlu <meted@linux.ibm.com>
-Date: Thu, 18 Jun 2026 14:00:17 +0200
-Subject: [PATCH v3 3/5] s390: Enable TIF_POLLING_NRFLAG
+Date: Thu, 18 Jun 2026 14:00:19 +0200
+Subject: [PATCH v3 5/5] s390/configs: Enable cpuidle driver on s390
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -64,7 +64,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260618-idledriver-v3-3-684061eecbcb@linux.ibm.com>
+Message-Id: <20260618-idledriver-v3-5-684061eecbcb@linux.ibm.com>
 References: <20260618-idledriver-v3-0-684061eecbcb@linux.ibm.com>
 In-Reply-To: <20260618-idledriver-v3-0-684061eecbcb@linux.ibm.com>
 To: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
@@ -82,54 +82,78 @@ Cc: Mete Durlu <meted@linux.ibm.com>,
         linux-kernel@vger.kernel.org, linux-pm@vger.kernel.org
 X-Mailer: b4 0.14.3
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=OcSoyBTY c=1 sm=1 tr=0 ts=6a33ddf5 cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+X-Proofpoint-GUID: cu_PEPS5gl0jdGqf1b0SZZkqDKNQFJ-D
+X-Authority-Analysis: v=2.4 cv=Le0MLDfi c=1 sm=1 tr=0 ts=6a33ddf6 cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
  a=IkcTkHD0fZMA:10 a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8
- a=c5jR2BqudvT-Uhvel0MA:9 a=QEXdDO2ut3YA:10 a=O8hF6Hzn-FEA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjE4MDExMCBTYWx0ZWRfXzuayLMepXa4D
- dgBFNm+iFGXruoZVCTjkQKxbXAZEpDO8iBSGzhL3tbUt+4OtPFJhfbbhNpz7kwtiBUAPkEYMKwd
- xaocMRmPFursrtUKJk+C+K3+edbxCqHFbUKD33Qx8boQCD+inr32flII2aKqpEHbnoAZykCMFUB
- SbGsjK+WIgTfdL9yuPsiojjCvia0MuudhcYtAyJM6tphnIq8BJvjtMlOTymQUgq+cVXeg0e41NI
- vWPpcrwczxIKtMflJWt4f3R0dMslDuf8bfWXy9ND7B/NSoIEhdn0Kht8qeEgY0w68NKUW94P/WD
- 3vwOdrAhDnp3LLDD6U0mMkbb5haDCfzuupg8floHWspZIYCu08b1vg6WWKIiL6S9DCmXfwjJTJr
- 1K/LODOxZj5jWCDT5lpFVsRNziD1UIAk+3I6hfX9YeK4z0vUC008xiXg/O23uYTLqfGIdFiJTmw
- m0v3NlMzgYI+uAZa+cQ==
-X-Proofpoint-GUID: advZQeY9NkTPkaVvS0NV60j2swkTYC7P
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNjE4MDExMCBTYWx0ZWRfX9x7CwjwLzfXX
- CinKLejTKD0uGuxeE0che/sdkql0d0Zm2zx8Z757At+1mS9/uc0Q7XAOnY9ky1A1h541/5HMTLY
- AQNYqDBN6fS/uFDLVIbpESyhiLN29NI=
-X-Proofpoint-ORIG-GUID: advZQeY9NkTPkaVvS0NV60j2swkTYC7P
+ a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8
+ a=IOilmRhWZAFgXRNZ7poA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNjE4MDExMCBTYWx0ZWRfX/fnaFkZeP2Mz
+ 8IDfxDprwq1CQhclpNmgbzAoIbijZhQSF1MO/sEheEnM4EB2tWvxLRxR6YeL00REDQQH8S+op6d
+ ewavzjkM5hhcKHDVHshYP2njnra1Ng8=
+X-Proofpoint-ORIG-GUID: cu_PEPS5gl0jdGqf1b0SZZkqDKNQFJ-D
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjE4MDExMCBTYWx0ZWRfX8+Com29q9ITg
+ s37r4abVWZYXUfbcFZQRGEAypSySf1lZg9PX2QYxeHO6bITBSAszpspL8Wn+CBYXwmDWAdcJULW
+ zQt5msa1v+QWxEX4OsMIa1A10C7gj6ekfY1Ev2jM0kvoQAe185rq5Mje0sJDOFNg/K8LilrXBdS
+ a7Ha8WP4siU8y5tpOjkpdIWfvLUqEipsbmwGQeygkpvkdqkiW0WU5Am91lafvk7zqNBY1sZRJZH
+ mgl5Lqj45ohBvWA6IA4EfFA96cD1WdKjIMUiNO0Jqm8DQkmlZ4DDGalWQVI3cfhKOmcurVD3Kno
+ xKXXdMlMRFUgHtlZZTdXMugp92yDZ2z2tPrCqbWJsi9orIA6KFFFLCwJ4omuGBm4Eh+F2ZVA0u6
+ VtesUJjsbFpRTmkpCPuWZnVNG4ZaE01ubmYj/pjClLlnaWnsL1QIuRbyZZEtaf4WQVOpsf8U1Un
+ OgzM8MnUPKGvmDTQyqw==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
  definitions=2026-06-18_01,2026-06-18_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 phishscore=0 bulkscore=0 suspectscore=0 lowpriorityscore=0
- impostorscore=0 malwarescore=0 spamscore=0 adultscore=0 clxscore=1015
+ clxscore=1015 priorityscore=1501 malwarescore=0 spamscore=0 suspectscore=0
+ impostorscore=0 phishscore=0 lowpriorityscore=0 bulkscore=0 adultscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2606180110
 
-Enable TIF_POLLING_NRFLAG to support idle polling state in the
-upcoming cpuidle driver.
+Enable cpuidle infrastructure, idle governor and s390 cpuidle driver by
+default. They can be disabled via config options before compile or via
+setting cpuidle.off kernel commandline option. When cpuidle.off=1 set,
+given architecture's specific implementation is used as a fallback without
+any governor or idle state support.
+
+During runtime individual states of cpuidle driver can also be disabled
+via sysfs attributes.
+
+Ex:
+echo 1 > /sys/devices/system/cpu<N>/cpuidle/state<M>/disable
 
 Signed-off-by: Mete Durlu <meted@linux.ibm.com>
 Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
 ---
- arch/s390/include/asm/thread_info.h | 1 +
- 1 file changed, 1 insertion(+)
+ arch/s390/configs/debug_defconfig | 2 ++
+ arch/s390/configs/defconfig       | 2 ++
+ 2 files changed, 4 insertions(+)
 
-diff --git a/arch/s390/include/asm/thread_info.h b/arch/s390/include/asm/thread_info.h
-index 6a548a819400..2554cef3a6a5 100644
---- a/arch/s390/include/asm/thread_info.h
-+++ b/arch/s390/include/asm/thread_info.h
-@@ -61,6 +61,7 @@ void arch_setup_new_exec(void);
-  */
- #define HAVE_TIF_NEED_RESCHED_LAZY
- #define HAVE_TIF_RESTORE_SIGMASK
-+#define HAVE_TIF_POLLING_NRFLAG
- 
- #include <asm-generic/thread_info_tif.h>
- 
+diff --git a/arch/s390/configs/debug_defconfig b/arch/s390/configs/debug_defconfig
+index 730c90b4a876..39f2c56bd29d 100644
+--- a/arch/s390/configs/debug_defconfig
++++ b/arch/s390/configs/debug_defconfig
+@@ -29,6 +29,8 @@ CONFIG_CGROUP_PIDS=y
+ CONFIG_CGROUP_RDMA=y
+ CONFIG_CGROUP_FREEZER=y
+ CONFIG_CGROUP_HUGETLB=y
++CONFIG_CPU_IDLE=y
++CONFIG_CPU_IDLE_GOV_TEO=y
+ CONFIG_CPUSETS=y
+ CONFIG_CGROUP_DEVICE=y
+ CONFIG_CGROUP_CPUACCT=y
+diff --git a/arch/s390/configs/defconfig b/arch/s390/configs/defconfig
+index dd5fc1426c88..723ce48ce8d1 100644
+--- a/arch/s390/configs/defconfig
++++ b/arch/s390/configs/defconfig
+@@ -27,6 +27,8 @@ CONFIG_CGROUP_PIDS=y
+ CONFIG_CGROUP_RDMA=y
+ CONFIG_CGROUP_FREEZER=y
+ CONFIG_CGROUP_HUGETLB=y
++CONFIG_CPU_IDLE=y
++CONFIG_CPU_IDLE_GOV_TEO=y
+ CONFIG_CPUSETS=y
+ CONFIG_CGROUP_DEVICE=y
+ CONFIG_CGROUP_CPUACCT=y
 
 -- 
 2.54.0
