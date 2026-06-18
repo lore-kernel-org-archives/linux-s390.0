@@ -1,127 +1,109 @@
-Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C90783446C9;
-	Thu, 18 Jun 2026 16:03:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.118
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 3770A32B128;
+	Thu, 18 Jun 2026 16:06:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781798604; cv=none; b=FYhyZ+HAtGxmUYO0zU7ivOGY64Fpydo5ogDm+cGrvEXhhSSqvlYxXBIIOatU8cgnVretE46PmULva6baeyPxtEy/l/8LKZ29MxwfMGaZWyU/DtEZ0nT7fe0Xz9+kJFgkfS0xANnhqn3Ii/KdyU7EiNPkewSuflq349/WY5nLxkk=
+	t=1781798796; cv=none; b=K2gVGI4H04Mo5/s8+I9lClNAjdXeQKXdRPkphR3/MEwYx71PpxYylLBRhhYbcadkAwhJf5QmzLYHBw2qKcp6dO9hMxQpq8X/dX+V8rOt8Pc21+75nKJmNdPPOhWuzmd+qBQH2zAMv5zdSENfwgvoEBZmYWx2TkrQ9cdY0g1VvXk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781798604; c=relaxed/simple;
-	bh=2fKCewmHDraKBYdD2hFnuHNGMxtXSmQnBm6eLyC1XOQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=SOvB4DyjrpYLA+NPUAdNQ2s+1woFBi9tfQUQx0zvCoa4StfdguNs/ilry4V/qpMds8YQFQooQFsuILpLIvb20vtazua/jhVEb4r2eEgwLVEh7/vgXVwQK0Nd4J8H+3B4PIzKeRAhSe+SLw4+X5iiGy2deeAaX1HEBLLRA2U/rzs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=IHojqSEF; arc=none smtp.client-ip=115.124.30.118
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1781798796; c=relaxed/simple;
+	bh=S7/atp7qhCI/LBkPov1K1NfiCLzklLsUfrZnQ8z2FJA=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=ijP1R9qBAiP+0tgK8cQHpSaNbz4FS8hytmx0QPT9mxNfKBzyCR5A45AHDA/HWs5dNoGgv3kpx8qAecg0Oiy1RuBTONcWVb0jX1ONZJP6yKscdJ1ulBQ66tjeVANTMwxFWgbU/pY6NRNz6YuCOW2NGdtg0sPkMaNEfUE6ucqdCS0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=aDf8Re86; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="IHojqSEF"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1781798598; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
-	bh=gkqxdjTyrjDufw0wAGal9WNmShdcAlZ9wp5Pmo/sHyE=;
-	b=IHojqSEFw9VNBvSPnGx4S5k6h0UAbjV5s3Xb7zTFZsFHBz3LEr5y6T0kNe8lSveaeiDo2BnoorM/O1xn6fNyyS8x/NH+EnmAJOiqVL/dGAyK0zYVkd3IlDBgGCLT3AEfvt6/6docOG6BxSXa1cZYI7HAA73P3HYA0OoqJ+s4Des=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R811e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam011083073210;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=18;SR=0;TI=SMTPD_---0X57Pyhp_1781798597;
-Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0X57Pyhp_1781798597 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Fri, 19 Jun 2026 00:03:17 +0800
-Date: Fri, 19 Jun 2026 00:03:17 +0800
-From: Dust Li <dust.li@linux.alibaba.com>
-To: hexlabsecurity@proton.me, Wenjia Zhang <wenjia@linux.ibm.com>,
-	"D. Wythe" <alibuda@linux.alibaba.com>,
-	Sidraya Jayagond <sidraya@linux.ibm.com>
-Cc: Eric Dumazet <edumazet@google.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Mahanta Jambigi <mjambigi@linux.ibm.com>,
-	Wen Gu <guwen@linux.alibaba.com>, Simon Horman <horms@kernel.org>,
-	netdev@vger.kernel.org, Ursula Braun <ubraun@linux.ibm.com>,
-	Stefan Raspl <raspl@linux.ibm.com>, linux-s390@vger.kernel.org,
-	Paolo Abeni <pabeni@redhat.com>, linux-kernel@vger.kernel.org,
-	linux-rdma@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-	Tony Lu <tonylu@linux.alibaba.com>
-Subject: Re: [PATCH v3 2/3] net/smc: bound the receive length to the RMB in
- smc_rx_recvmsg()
-Message-ID: <ajQWxQZXzM2J8kaZ@linux.alibaba.com>
-Reply-To: dust.li@linux.alibaba.com
-References: <20260614-b4-disp-edd64be9-v3-0-551fa514257e@proton.me>
- <20260614-b4-disp-edd64be9-v3-2-551fa514257e@proton.me>
+	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="aDf8Re86"
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id BF044493F;
+	Thu, 18 Jun 2026 09:06:29 -0700 (PDT)
+Received: from [10.57.24.180] (unknown [10.57.24.180])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id EE2143F632;
+	Thu, 18 Jun 2026 09:06:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=arm.com; s=foss;
+	t=1781798794; bh=S7/atp7qhCI/LBkPov1K1NfiCLzklLsUfrZnQ8z2FJA=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=aDf8Re86s92xSZizM8Uf0vxbf54v4hQwugiO0mbDN1+4dPUU2j8zKDqLuov8bLBiI
+	 3CRiqjECQ46Xm1IQjJwM1nYPWKby+1bvSNGID0zZt8vGa95TRAJqkboktiqlRUE14F
+	 9I7Fj3hbz0KJZbKK90ikSbzhAbZPpNo9UI/SSd8Q=
+Message-ID: <e6723ea1-2400-4edc-aee8-8be7d9cb7945@arm.com>
+Date: Thu, 18 Jun 2026 17:06:30 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260614-b4-disp-edd64be9-v3-2-551fa514257e@proton.me>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 4/5] s390/idle: Introduce cpuidle for s390
+To: Mete Durlu <meted@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
+ Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
+ <agordeev@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>,
+ Anna-Maria Behnsen <anna-maria@linutronix.de>,
+ Frederic Weisbecker <frederic@kernel.org>, Ingo Molnar <mingo@kernel.org>,
+ Thomas Gleixner <tglx@kernel.org>, "Rafael J. Wysocki" <rafael@kernel.org>,
+ Daniel Lezcano <daniel.lezcano@kernel.org>
+Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Ilya Leoshkevich <iii@linux.ibm.com>, linux-s390@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-pm@vger.kernel.org
+References: <20260618-idledriver-v3-0-684061eecbcb@linux.ibm.com>
+ <20260618-idledriver-v3-4-684061eecbcb@linux.ibm.com>
+ <464e277c-40f8-4812-85f6-67b470436692@arm.com>
+ <f280ac2a-7690-42eb-aca2-3cef711d71c9@linux.ibm.com>
+Content-Language: en-US
+From: Christian Loehle <christian.loehle@arm.com>
+In-Reply-To: <f280ac2a-7690-42eb-aca2-3cef711d71c9@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On 2026-06-14 03:23:31, Bryam Vargas via B4 Relay wrote:
->From: Bryam Vargas <hexlabsecurity@proton.me>
->
->conn->bytes_to_rcv is accumulated in the receive tasklet from the peer's
->producer cursor:
->
->	diff_prod = smc_curs_diff(rmb_desc->len, &prod_old, &prod_new);
->	atomic_add(diff_prod, &conn->bytes_to_rcv);
->
->smc_curs_diff()'s differing-wrap branch returns (size - old.count) +
->new.count, which exceeds rmb_desc->len for a forged producer cursor and
->accumulates across CDC messages, so bytes_to_rcv can grow past the RMB
->(and across many messages can overflow the signed counter negative).
->smc_rx_recvmsg() reads it as the number of readable bytes and performs a
->wrap-around copy whose second chunk (copylen - first_chunk, read from
->ring offset 0) is never re-bounded to rmb_desc->len, reading past the
->RMB into adjacent kernel memory and disclosing it to the peer.
+On 6/18/26 15:47, Mete Durlu wrote:
+> On 6/18/26 4:41 PM, Christian Loehle wrote:
+>> On 6/18/26 13:00, Mete Durlu wrote:
+>>> Introduce generic cpuidle driver on s390. Use a two stage approach to
+>>> handle idle scenarios and use idle governor for idle stage selection.
+>>> Two stages are, from shallow to deep, idle polling and enabled wait.
+>>>
+>>> Suggested-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+>>> Suggested-by: Heiko Carstens <hca@linux.ibm.com>
+>>> Signed-off-by: Mete Durlu <meted@linux.ibm.com>
+>>> ---
+> 
+> [..snip..]
+> 
+> 
+>>> +static int s390_cpuidle_cpu_online(unsigned int cpu)
+>>> +{
+>>> +    struct cpuidle_device *dev = &per_cpu(cpuidle_dev, cpu);
+>>> +    int rc;
+>>> +
+>>> +    if (dev->registered) {
+>>> +        cpuidle_pause_and_lock();
+>>> +        rc = cpuidle_enable_device(dev);
+>>> +        cpuidle_resume_and_unlock();
+>>> +        if (rc)
+>>> +            pr_err("Failed to enable cpuidle device on cpu %u\n", cpu);
+>>> +    } else {
+>>> +        dev->cpu = cpu;
+>>> +        rc = cpuidle_register_device(dev);
+>>> +        if (rc)
+>>> +            pr_err("Failed to register cpuidle driver on cpu %u\n", cpu);
+>>> +    }
+>>> +    return rc;
+>>
+>> Most other drivers allow for hotplug cpu_online to succeed even if cpuidle doesn't, is
+>> this intentionally done otherwise here?
+> 
+> Yes it is by design. Users would not be aware that something went wrong
+> if we don't fail here (unless they check dmesg regularly which we don't
+> expect). By failing here driver communicates that there is a problem
+> and allows users to resolve that instead of letting a cpu run with
+> degraded performance.
+> 
 
-Hi Bryam,
+Okay, thanks!
+So FWIW this looks reasonable to me now, can't really comment much
+on the s390 specifics, in particular as a guest, but from a purely
+cpuidle perspective this looks okay, so good to see that this seems
+to be working for you!
 
-Once we validate the CDC message at the input boundary (as in the
-previous patch), bytes_to_rcv can never exceed rmb_desc->len, so
-this check becomes unreachable. So I don't think this patch is needed.
-
-Best regards,
-Dust
-
-
->
->Bound the readable count to rmb_desc->len where it is consumed, treating
->a negative (sign-overflowed) value as out of range too, so the copy
->length can never exceed the ring.  This enforces the documented
->0 <= bytes_to_rcv <= rmb_desc->len invariant at the consumer, where it
->is race-free against the producer update that runs in the receive
->tasklet.
->
->Fixes: 952310ccf2d8 ("smc: receive data from RMBE")
->Cc: stable@vger.kernel.org
->Signed-off-by: Bryam Vargas <hexlabsecurity@proton.me>
->---
-> net/smc/smc_rx.c | 12 ++++++++++++
-> 1 file changed, 12 insertions(+)
->
->diff --git a/net/smc/smc_rx.c b/net/smc/smc_rx.c
->index c1d9b923938d..f461cf10b085 100644
->--- a/net/smc/smc_rx.c
->+++ b/net/smc/smc_rx.c
->@@ -442,6 +442,18 @@ int smc_rx_recvmsg(struct smc_sock *smc, struct msghdr *msg,
-> 		/* initialize variables for 1st iteration of subsequent loop */
-> 		/* could be just 1 byte, even after waiting on data above */
-> 		readable = smc_rx_data_available(conn, peeked_bytes);
->+		/* bytes_to_rcv is accumulated from the peer's wire-controlled
->+		 * producer cursor; a forged cursor can drive it past the RMB,
->+		 * or overflow the signed accumulator to a negative value across
->+		 * many CDC messages (which a plain "> len" check would miss
->+		 * before the size_t cast below turns it huge).  Bound it to the
->+		 * RMB in either case so the wrap-around copy cannot run past
->+		 * rmb_desc->len.  This enforces the documented
->+		 * 0 <= bytes_to_rcv <= rmb_desc->len invariant at the consumer,
->+		 * race-free against the producer update in the receive tasklet.
->+		 */
->+		if (readable < 0 || readable > conn->rmb_desc->len)
->+			readable = conn->rmb_desc->len;
-> 		splbytes = atomic_read(&conn->splice_pending);
-> 		if (!readable || (msg && splbytes)) {
-> 			if (splbytes)
->
->-- 
->2.43.0
->
+Reviewed-by: Christian Loehle <christian.loehle@arm.com>
