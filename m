@@ -1,127 +1,87 @@
-Received: from out30-113.freemail.mail.aliyun.com (out30-113.freemail.mail.aliyun.com [115.124.30.113])
+Received: from mail.thinkmo.de (s3.thinkmo.de [162.55.237.202])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C74B431079B;
-	Thu, 18 Jun 2026 16:08:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.113
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 18324318B9D;
+	Thu, 18 Jun 2026 16:12:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=162.55.237.202
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781798901; cv=none; b=YbT0xHU+lGXLN/9v2zz61bt6xaXraMj1SepNs8iq2StvGSijkuqLPRdd+WU7dTsT0GENh+6/iKA0Y4+Ddya0PxAC4LnbK9f54mxb4Tq4CJbsX0zcUVI67kjOgS1VTZgqcI69CMQhkKemkzM7LnPKKJF4d49eSLuVZwx08r644KY=
+	t=1781799169; cv=none; b=jTgOVVFeL5lE+hCIpH526W0PKJUlSYAlwd7+xFS3nB+tvdHBNoZQp8BS6LEzju94jkh2g+ZBlYTz7ghQbH3KUfPf8N4ccFcUMs+vOjUyYBbcoO0Xp/XBemV9c/oAsjPxz88/2TosbThbZ5/m2B/Rt9fiN+puCIIx6/G7+sdZTV0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781798901; c=relaxed/simple;
-	bh=U3qWfoZwH93moURapndx/9QhZN9IoCT8X330pTMepdo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=sLqB2n+PCkNexwWi3FyBrjeIWdS6HGrNbtBIrnLQGVvtkypewZWlK79chBZ4LUzMkoqUynPnxyT9IosGOHQHj9Pl9sxBHLD6L8/ONaDiVpewD+9qhfNI7eJf5OfOMVLfT8APrsZ/BGaNRG0DVs7b8VGKN4VMFIQG5G0GuivpTRY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=xEJh8oEs; arc=none smtp.client-ip=115.124.30.113
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1781799169; c=relaxed/simple;
+	bh=Y0hSU5Muuu27iLtzI4T2A81FmRdd/1ugKrH06zB+cXU=;
+	h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=peRcdw4EirqyAz+VGypcvDlkdbCY+zbGbZNQJISoaoJxuxLf3ZrAZuBDWqesJ/saPQ//GGNPhiuvGmxy3xavFgp3b+D33/JESkZ2YzpzyIGlee/5XaugPZZZPdoUPnGKJi2QgMjJL8CgbLvIpgV5DX7KJ4N8uWDtdnjqhSxEB0A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=debian.org; spf=fail smtp.mailfrom=debian.org; dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.b=auN3NXQu; arc=none smtp.client-ip=162.55.237.202
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=debian.org
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=debian.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="xEJh8oEs"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1781798896; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
-	bh=L0VQtyLFwV0ddYoeCQeOA/TDAT1P2OPF2e8FFINakkM=;
-	b=xEJh8oEs2c6uaaG9mqwOoiwtieSVKg/vMgVmDl5mTtmNROiw2lUMAV5UFa48mGkLFGoY1Aue05+DwrzfqWlCK41vMHzgmg1qKCg+wScS11aMI8oNjl9OpdE6AXi/+me/Cf9KOQJhw07m7wJTay/EOGFCydTDHxBVSl4okaqZiD4=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037033178;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=18;SR=0;TI=SMTPD_---0X57TGq3_1781798895;
-Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0X57TGq3_1781798895 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Fri, 19 Jun 2026 00:08:15 +0800
-Date: Fri, 19 Jun 2026 00:08:15 +0800
-From: Dust Li <dust.li@linux.alibaba.com>
-To: hexlabsecurity@proton.me, Wenjia Zhang <wenjia@linux.ibm.com>,
-	"D. Wythe" <alibuda@linux.alibaba.com>,
-	Sidraya Jayagond <sidraya@linux.ibm.com>
-Cc: Eric Dumazet <edumazet@google.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Mahanta Jambigi <mjambigi@linux.ibm.com>,
-	Wen Gu <guwen@linux.alibaba.com>, Simon Horman <horms@kernel.org>,
-	netdev@vger.kernel.org, Ursula Braun <ubraun@linux.ibm.com>,
-	Stefan Raspl <raspl@linux.ibm.com>, linux-s390@vger.kernel.org,
-	Paolo Abeni <pabeni@redhat.com>, linux-kernel@vger.kernel.org,
-	linux-rdma@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-	Tony Lu <tonylu@linux.alibaba.com>
-Subject: Re: [PATCH v3 3/3] net/smc: bound the send length to the send buffer
- in smc_tx_sendmsg()
-Message-ID: <ajQX7_9xFI9GSaq5@linux.alibaba.com>
-Reply-To: dust.li@linux.alibaba.com
-References: <20260614-b4-disp-edd64be9-v3-0-551fa514257e@proton.me>
- <20260614-b4-disp-edd64be9-v3-3-551fa514257e@proton.me>
+	dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.b="auN3NXQu"
+Received: from localhost (localhost [127.0.0.1])
+	by mail.thinkmo.de (Postfix) with ESMTP id 4gh5NW3SCyz10BB;
+	Thu, 18 Jun 2026 16:12:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=debian.org; h=
+	content-disposition:content-type:content-type:mime-version
+	:message-id:subject:subject:from:from:date:date:received
+	:received; s=mail202007.waldi.user; t=1781799163; bh=/spts2B9BTl
+	Ek2Y6sRR5rYVYukzdj80Tm20y/wRt3mU=; b=auN3NXQuifNtoHAOCDVd4mZytw+
+	MQksd1uAWSD1Uh6OeVX4TssXA6/26C1hSTe/sOu/iwHMLn0yljXRt8HlWSEbapYf
+	/urgq3r3nZ5RAfhpMd4mk7eOqdpYaVrO1X3Vj48J9H5AGOoiU/MqqQJxnreccgdA
+	ixEQpHDkSdC+0pHtI4KXJjy5z49dJNmbRuBtfCvvr3wMHyUvfr4yn4Td0vRa7bvW
+	8DwzKuq5keVCJD3QeE2p6hjbiXcrPOjoGTmsupyD4GzrBvF9cYT1h6hkG2Zh8PqI
+	rX0RZTX/tDTqcVpV5FOAzHvSxn7hLaCdmeMs4KlmGCFBznUnu1+FaZXaWmw==
+X-Virus-Scanned: Debian amavis at 
+Received: from mail.thinkmo.de ([127.0.0.1])
+ by localhost (mail.thinkmo.de [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id VqpjMkekZKFS; Thu, 18 Jun 2026 16:12:43 +0000 (UTC)
+Received: from steamhammer.waldi.eu.org (unknown [IPv6:2a02:8071:5af1:6518:ad11:fa76:980a:620e])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange ECDHE (prime256v1) server-signature ECDSA (secp384r1) server-digest SHA384)
+	(No client certificate requested)
+	by mail.thinkmo.de (Postfix) with ESMTPSA id 4gh5NW24cnzyqB;
+	Thu, 18 Jun 2026 16:12:43 +0000 (UTC)
+Date: Thu, 18 Jun 2026 18:12:42 +0200
+From: Bastian Blank <waldi@debian.org>
+To: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+	linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] s390: Add build salt to the vDSO
+Message-ID: <ajQY-s7Y4mNPQfgy@steamhammer.waldi.eu.org>
+Mail-Followup-To: Bastian Blank <waldi@debian.org>, 
+	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20260614-b4-disp-edd64be9-v3-3-551fa514257e@proton.me>
 
-On 2026-06-14 03:23:32, Bryam Vargas via B4 Relay wrote:
->From: Bryam Vargas <hexlabsecurity@proton.me>
->
->On the SMC-D DMB-merge (nocopy) path, smc_cdc_msg_recv_action() advances
->conn->sndbuf_space from the peer's consumer cursor:
->
->	diff_tx = smc_curs_diff(sndbuf_desc->len, &tx_curs_fin,
->				&local_rx_ctrl.cons);
->	atomic_add(diff_tx, &conn->sndbuf_space);
->
->The consumer cursor is wire-controlled and unvalidated, and
->smc_curs_diff()'s differing-wrap branch can return more than
->sndbuf_desc->len, so a forged cursor drives sndbuf_space past the send
->buffer (and across many CDC messages can overflow the signed counter
->negative).  smc_tx_sendmsg() reads it as the available write space and
->performs a wrap-around copy whose second chunk (copylen - first_chunk,
->written at ring offset 0) is never re-bounded to sndbuf_desc->len,
->writing user data past the send buffer -- a heap out-of-bounds write of
->attacker-influenced length and content.
+The vDSO needs to have a unique build id in a similar manner
+to the kernel and modules. Use the build salt macro.
 
-Hi Bryam,
+Signed-off-by: Bastian Blank <waldi@debian.org>
+---
+ arch/s390/kernel/vdso/note.S | 3 +++
+ 1 file changed, 3 insertions(+)
 
-I think this is the same as patch #2.
-
-Best regards,
-Dust
-
-
->
->Bound the write space to sndbuf_desc->len where it is consumed, treating
->a negative (sign-overflowed) value as out of range too, so the copy
->length can never exceed the ring.  This enforces the documented
->0 <= sndbuf_space <= sndbuf_desc->len invariant at the producer,
->race-free against the CDC tasklet that advances sndbuf_space.
->
->Fixes: cc0ab806fc52 ("net/smc: adapt cursor update when sndbuf and peer DMB are merged")
->Cc: stable@vger.kernel.org
->Signed-off-by: Bryam Vargas <hexlabsecurity@proton.me>
->---
-> net/smc/smc_tx.c | 13 +++++++++++++
-> 1 file changed, 13 insertions(+)
->
->diff --git a/net/smc/smc_tx.c b/net/smc/smc_tx.c
->index 3144b4b1fe29..5916f02060fb 100644
->--- a/net/smc/smc_tx.c
->+++ b/net/smc/smc_tx.c
->@@ -233,6 +233,19 @@ int smc_tx_sendmsg(struct smc_sock *smc, struct msghdr *msg, size_t len)
-> 		/* initialize variables for 1st iteration of subsequent loop */
-> 		/* could be just 1 byte, even after smc_tx_wait above */
-> 		writespace = atomic_read(&conn->sndbuf_space);
->+		/* sndbuf_space is advanced from the peer's wire-controlled
->+		 * consumer cursor on the SMC-D DMB-merge path; a forged cursor
->+		 * can inflate it past the send buffer, or overflow the signed
->+		 * accumulator to a negative value across many CDC messages
->+		 * (which a plain "> len" check would miss before the size_t
->+		 * cast below turns it huge).  Bound it to the send buffer in
->+		 * either case so the wrap-around write cannot run past
->+		 * sndbuf_desc->len.  This enforces the documented
->+		 * 0 <= sndbuf_space <= sndbuf_desc->len invariant at the
->+		 * producer, race-free against the CDC tasklet.
->+		 */
->+		if (writespace < 0 || writespace > conn->sndbuf_desc->len)
->+			writespace = conn->sndbuf_desc->len;
-> 		/* not more than what user space asked for */
-> 		copylen = min_t(size_t, send_remaining, writespace);
-> 		/* determine start of sndbuf */
->
->-- 
->2.43.0
->
+diff --git a/arch/s390/kernel/vdso/note.S b/arch/s390/kernel/vdso/note.S
+index db19d0680a0a..d215781f26b5 100644
+--- a/arch/s390/kernel/vdso/note.S
++++ b/arch/s390/kernel/vdso/note.S
+@@ -4,6 +4,7 @@
+  * Here we can supply some information useful to userland.
+  */
+ 
++#include <linux/build-salt.h>
+ #include <linux/uts.h>
+ #include <linux/version.h>
+ #include <linux/elfnote.h>
+@@ -11,3 +12,5 @@
+ ELFNOTE_START(Linux, 0, "a")
+ 	.long LINUX_VERSION_CODE
+ ELFNOTE_END
++
++BUILD_SALT
+-- 
+2.53.0
