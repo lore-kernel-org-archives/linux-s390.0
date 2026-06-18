@@ -1,60 +1,60 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8BEBD32D0FC
-	for <linux-s390@vger.kernel.org>; Thu, 18 Jun 2026 06:22:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0A57A32E141;
+	Thu, 18 Jun 2026 06:24:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781763760; cv=none; b=N49JaizuAoT69XkkCMDR5Ofd6PbyrjPSZvsQyMlQLizILDH07SpD2L9+NFBvRkaPtUkZL4aK7uWECuoMxQoATBtL+JBgUTbRChu4b21XQRm6s3GLfngNSD0Z9aG8m5PJPcF3gOK5EMX0xvLnA3ZE2KzRO9z4uDGoEL9rTqy1zI0=
+	t=1781763893; cv=none; b=Tp3mgwUSsBacikv1FUOra0xehc3CGE8RnHlriFY72W2wCnH9Jm0zdslb/dGjut6AEHH0UrgzOrQI5AgoDFHSANvR7kk8XmCYg7LfY6pIu6B+TZVM5qe0gGdEx2k7dFr6OCxV/NXgHQBTvDJgvLvF7in9oQM/mGpUbaWLpR6mH3Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781763760; c=relaxed/simple;
-	bh=FxTNpzPLKonraMwaJWtJmwtb2yNfTeQQgnCuAfTzfLk=;
+	s=arc-20240116; t=1781763893; c=relaxed/simple;
+	bh=fU92GMEy94puy6aftgC8ArZCNvwPYf2OXVYqyMr3tXY=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=gTQS4uMWGKQmKOZDCN3KvgkGa2iSJtwvPjBbjIfnmh+O0KIMmgYsMMp97dPvn5yyl5GNGsh/et/Zk68WnOXjlqCA9vob+DWxWykMeJsE/L6OEuGV+oA0zTf2KVAd+Rls45dBvK9+QHNA0PrnoyHyc+mkA3XTYfeeSnfQulLIeiQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=o1jImDmQ; arc=none smtp.client-ip=148.163.158.5
+	 In-Reply-To:Content-Type; b=ohhbM4r1Sl+Zxx0D7FrzLAVdBRu37kvgDwCc5SlCWX0BmuZysmHhf/v8W8VSL+s4rxA0f2xEFX0VEVQXctt6417wlg00iEi88c+rWv16iiC6OXAayUIOxZ0V7pQvCw6Rv+UnSPpZGKWVDsaKvCa6MI1b8VFxlRofSasNIwdqtK0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=M9ESVOjq; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="o1jImDmQ"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65HHmLU51000465;
-	Thu, 18 Jun 2026 06:22:32 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="M9ESVOjq"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65HHmDQp1082472;
+	Thu, 18 Jun 2026 06:24:44 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=gV//1P
-	75ml38jIptNxNh5NONBRIzlZeGAsd1+h6GlHI=; b=o1jImDmQBJk/7dJyatcLSR
-	WnJeNyG/N5WnZPMvSOY8lv6GTLCn4v3Wc+nRoE8ibFL8ukJBw+9uxA7W7z9sKrCv
-	UpkZbQe6W7q3tLBJsOfG/4pBXZY3VuqJJEkNa2b3ygHROHJp61gBqQSOagItdqh7
-	fLred9Q6aIoTGFQbduyPsNzNVjq2/4/j5QcS+5v0v9jyzK56mHXpaOqmH4FckTbj
-	GRAQ9xVAR6tlxI6pvwUwIDEexObLLmIEBpE01s1tqpqE/qG3nhyZQ1OTDUquVAtu
-	mplGr4ppJZXHh8iPslhcXlc+Mj0z3gssBGxHcjlrDThEu0FKISgNlzadIzQeaRPg
+	:message-id:mime-version:references:subject:to; s=pp1; bh=w5iCOT
+	LeFlPziDmdzdpbGIsNU4Hrv3HjrGqIGTNX7SI=; b=M9ESVOjqAKXAp3JH2sJGzY
+	xNmBvmECtC8el80aqjyxbVVxKRLOV+1kDJ/aM+aRJX5e7XUuExI/9rYMofrd9sJ0
+	mAO1L1o17+MDNPL79gbSyU1M11twscVrsuyKWEPfSeTSjNNLg8RLYAVbvD6eEX6I
+	qGQ99kj8fMEajr6wgdG2fP7ZYkm5sILC1sld7h0jVqInpQ98BW60WgyF4o+e9xr0
+	HfQff2WwAbVbabdjeVJONb4ongP9dPma7xtPtNsOxgKYDVwtYQfMmhtJ6K1VX/rX
+	tsuFC3y2st+B4Qce64vAPL4BBEBoGvUo7OCI8Bl8VGwTtRfaGb8uXdaXaGyX+zLQ
 	==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4eueqx6k1d-1
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4eueqvxnxh-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 18 Jun 2026 06:22:32 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 65I6Jb2e029758;
-	Thu, 18 Jun 2026 06:22:31 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4ev1722bh3-1
+	Thu, 18 Jun 2026 06:24:43 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 65I64a7K019496;
+	Thu, 18 Jun 2026 06:24:42 GMT
+Received: from smtprelay05.dal12v.mail.ibm.com ([172.16.1.7])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4ev1722bjh-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 18 Jun 2026 06:22:31 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 65I6MSYu30999034
+	Thu, 18 Jun 2026 06:24:42 +0000 (GMT)
+Received: from smtpav01.wdc07v.mail.ibm.com (smtpav01.wdc07v.mail.ibm.com [10.39.53.228])
+	by smtprelay05.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 65I6OflB7078428
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 18 Jun 2026 06:22:28 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 04A6A2004D;
-	Thu, 18 Jun 2026 06:22:28 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C700C2004B;
-	Thu, 18 Jun 2026 06:22:27 +0000 (GMT)
-Received: from [9.224.89.241] (unknown [9.224.89.241])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 18 Jun 2026 06:22:27 +0000 (GMT)
-Message-ID: <66653376-f6d7-4370-b963-201053d7e903@linux.ibm.com>
-Date: Thu, 18 Jun 2026 08:22:27 +0200
+	Thu, 18 Jun 2026 06:24:41 GMT
+Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 7631A58059;
+	Thu, 18 Jun 2026 06:24:41 +0000 (GMT)
+Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 1E99B58055;
+	Thu, 18 Jun 2026 06:24:35 +0000 (GMT)
+Received: from [9.123.3.51] (unknown [9.123.3.51])
+	by smtpav01.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 18 Jun 2026 06:24:34 +0000 (GMT)
+Message-ID: <f7e36176-d00a-4471-94ed-d385e579b43d@linux.ibm.com>
+Date: Thu, 18 Jun 2026 11:54:33 +0530
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -62,86 +62,123 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v7 14/17] target/s390x: Support protected key AES XTS for
- cpacf km instruction
-Content-Language: en-GB
-To: Harald Freudenberger <freude@linux.ibm.com>, richard.henderson@linaro.org,
-        iii@linux.ibm.com, david@kernel.org, thuth@redhat.com,
-        berrange@redhat.com
-Cc: qemu-s390x@nongnu.org, qemu-devel@nongnu.org,
-        linux390-list@tuxmaker.boeblingen.de.ibm.com,
-        linux-s390@vger.kernel.org, dengler@linux.ibm.com,
-        borntraeger@linux.ibm.com, cohuck@redhat.com
-References: <20260617094820.34402-1-freude@linux.ibm.com>
- <20260617094820.34402-15-freude@linux.ibm.com>
-From: Finn Callies <fcallies@linux.ibm.com>
-In-Reply-To: <20260617094820.34402-15-freude@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Subject: Re: [PATCH net] net/smc: avoid recursive sk_callback_lock in listen
+ data_ready
+To: Runyu Xiao <runyu.xiao@seu.edu.cn>,
+        "D. Wythe"
+ <alibuda@linux.alibaba.com>,
+        Dust Li <dust.li@linux.alibaba.com>,
+        Sidraya Jayagond <sidraya@linux.ibm.com>,
+        Wenjia Zhang
+ <wenjia@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>
+Cc: Tony Lu <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>,
+        Simon Horman <horms@kernel.org>, Karsten Graul <kgraul@linux.ibm.com>,
+        linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        jianhao.xu@seu.edu.cn, stable@vger.kernel.org
+References: <20260617152855.1039151-1-runyu.xiao@seu.edu.cn>
+Content-Language: en-US
+From: Mahanta Jambigi <mjambigi@linux.ibm.com>
+In-Reply-To: <20260617152855.1039151-1-runyu.xiao@seu.edu.cn>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjE4MDA1NSBTYWx0ZWRfX19xD6v7dZ7pb
- 9SSU23ciCHMOJAVVA5JY58fT8TYdL57Uf0phcyUZ38REtn9zi0C0dkbAqeOb9KQb0UK1+h4m9+9
- 1oCSs5ktSDGfgG0TXSEPMcQdBdIe9rC8j9hf+O0ukLC1e4PGcLJ0Q8vpNpa//i0Rao4sqQ7hcQA
- 5uu83QlEos+y45g6WIaDg0unr79EJCTRbP73CXcwsy9T5wbd0Vtm9IKMxZoEGl0fxSql/CRrG3l
- OOgmq1p8iaBeFu0qSX98O8++p/hfO8km24Ir401yK3aATFQ+vfrsl7EreNTbGQZo40OKsx40mcL
- wMqrvNJakow+Kvvye/EubHVHiEamThFmIK8sJwnAUDeAqixkDkMn/h8LkNNKifXaWc/BHFssG70
- M/NRQWu6rPd3RZCTHGHZsjobjL6MHSrMVNTXy+YR3i/U7E3PjLAsZVXNKzXZUTo6vr0oFIRQz11
- djAHLhgKKh3P0AvxVqw==
-X-Proofpoint-GUID: uZoQv_U0PZDcUSfNBVdM7Xe1c2BqSb-G
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNjE4MDA1NSBTYWx0ZWRfX5ZPgLpqFbf44
- b2I8wOV6DYel3e07Y75m8ZH62rSXRjjNc4nFazDbkFEUzzFHVq4nmVAiZHO8Tp5ZqTs2SoZAWt8
- yyZQuhNlzqqdl0VcNA1ufa/ZVthgRzc=
-X-Proofpoint-ORIG-GUID: uZoQv_U0PZDcUSfNBVdM7Xe1c2BqSb-G
-X-Authority-Analysis: v=2.4 cv=auGCzyZV c=1 sm=1 tr=0 ts=6a338ea8 cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNjE4MDA1NSBTYWx0ZWRfX2L2sHyTFkNXz
+ cgPpmSml3WVnfQWmx4c6t969+S8JCdEqIDVcEgwOebr71VkfV0LfLZtaA4P2qjPt6M7AuTHXzSA
+ kPIO9hQExNDjWjBe/Lb/nANpqlotuYg=
+X-Proofpoint-GUID: liwEqstN0ZKnBz11G2-EcQm106fEI4_N
+X-Authority-Analysis: v=2.4 cv=bMgm5v+Z c=1 sm=1 tr=0 ts=6a338f2c cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
  a=IkcTkHD0fZMA:10 a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8
- a=bjhKnsnRy4Y7tZLOtR4A:9 a=QEXdDO2ut3YA:10
+ a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=VwQbUJbxAAAA:8
+ a=PYtvbb3SF9k8UUea3okA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-ORIG-GUID: t97zkeMdGAsHZSG3QM5SYZQEAHZ7Pggh
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjE4MDA1NSBTYWx0ZWRfX6Q7swimiwksD
+ Yi62MZ4Zyv+WsZ8m+Il8ACg04+ric+8VjZ921Fc8JojWtRj1HSnQsFiapwHUxAvsGfoQo7UWw4J
+ YGhSwnzErLM4sYl0nrcDVn72SNMvVnSw13+FdPech3XrbV6Pz5gLFBJ+X62OtOdkTybOk9I6QxV
+ Tu5FIoepLKhw0HN7L/gLYBIelxOLd3/JUId5hv5GE3gcF14yLXC/zvXbE1kpW5neC8aWo3DN4Dd
+ Ca4+JsrYL5EIkJVkq8pSl//f9PicWzFaIwKGPlWQNUI89+tgl/ZCtpzd6jARb6sxab3As+l9ENw
+ hIO+g+jxSAVVMcOju7FoXWEJVM0knEVWn2hRExCjOUriTX/6lglSah3Pg84oH/KtePNmvvjeAWq
+ uLMc0xFSTZ5uIQwSpha14pv/T+gaNFuF7MD+vRsGne0cciNTs/dqYiktdQdAXXhhmcJSo43FC/s
+ 1scEi/JCS9KEBMy6ESA==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
  definitions=2026-06-17_02,2026-06-17_03,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- phishscore=0 clxscore=1015 priorityscore=1501 suspectscore=0 impostorscore=0
- spamscore=0 lowpriorityscore=0 adultscore=0 malwarescore=0 bulkscore=0
+ suspectscore=0 impostorscore=0 malwarescore=0 adultscore=0 spamscore=0
+ bulkscore=0 priorityscore=1501 phishscore=0 clxscore=1011 lowpriorityscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2606180055
 
 
 
-On 17.06.26 11:48, Harald Freudenberger wrote:
-> Support the subfunctions CPACF_KM_PXTS_128 and CPACF_KM_PAES_256
-> for the cpacf km instruction.
+On 17/06/26 8:58 pm, Runyu Xiao wrote:
+> smc_listen() installs smc_clcsock_data_ready() as the underlying TCP
+> listen socket's sk_data_ready callback.  smc_clcsock_data_ready() then
+> immediately takes sk_callback_lock before looking up the SMC listener and
+> queuing smc_tcp_listen_work().
 > 
-> Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
-> Tested-by: Holger Dengler <dengler@linux.ibm.com>
+> That is unsafe once the TCP listen socket is leaving TCP_LISTEN.  The TCP
+> close/flush path can run the installed sk_data_ready callback with
+> sk_callback_lock already held, so entering smc_clcsock_data_ready() again
+> tries to take the same rwlock recursively in the same thread.  The nvmet
 
-With the suggestion:
+Could you provide me the exact call stack showing recursive lock? Also
+help me with the nvmet commit details.
 
-Reviewed-by: Finn Callies <fcallies@linux.ibm.com>
-
+> TCP listener had to make the same state check before taking
+> sk_callback_lock for this reason.
+> 
+> This issue was found by our static analysis tool and then manually
+> reviewed against the current tree.
+> 
+> The grounded PoC kept the SMC listen callback installation path:
+> 
+>   smc_listen()
+>   smc_clcsock_replace_cb()
+>   sk_data_ready = smc_clcsock_data_ready()
+> 
+> It then modeled the close/flush carrier that invokes the installed
+> sk_data_ready callback while sk_callback_lock is already held.  Lockdep
+> reported the same-thread recursive acquisition:
+> 
+>   WARNING: possible recursive locking detected
+>   smc_clcsock_data_ready+0xa/0x4d [vuln_msv]
+>   smc_close_flush_work+0x1f/0x30 [vuln_msv]
+>   *** DEADLOCK ***
+> 
+> Return before taking sk_callback_lock when the underlying TCP socket is no
+> longer in TCP_LISTEN.  In that state there is no listen accept work to
+> queue for SMC, and avoiding the callback lock mirrors the fix used by the
+> TCP nvmet listener.
+> 
+> Fixes: 0558226cebee ("net/smc: Fix slab-out-of-bounds issue in fallback")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Runyu Xiao <runyu.xiao@seu.edu.cn>
 > ---
->   target/s390x/gen-features.c      |   2 +
->   target/s390x/tcg/cpacf.h         |   4 ++
->   target/s390x/tcg/cpacf_aes.c     | 106 +++++++++++++++++++++++++++++++
->   target/s390x/tcg/crypto_helper.c |   6 ++
->   4 files changed, 118 insertions(+)
+>  net/smc/af_smc.c | 3 +++
+>  1 file changed, 3 insertions(+)
 > 
-> diff --git a/target/s390x/gen-features.c b/target/s390x/gen-features.c
-> index 126bacb281..c4c59c3504 100644
-> --- a/target/s390x/gen-features.c
-> +++ b/target/s390x/gen-features.c
-> @@ -929,6 +929,8 @@ static uint16_t qemu_MAX[] = {
->       S390_FEAT_KM_EAES_256,
->       S390_FEAT_KM_XTS_AES_128,
->       S390_FEAT_KM_XTS_AES_256,
-> +    S390_FEAT_KM_XTS_EAES_128,
-> +    S390_FEAT_KM_XTS_EAES_256,
+> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+> index 6421c2e1c84d..1af4e3c333ff 100644
+> --- a/net/smc/af_smc.c
+> +++ b/net/smc/af_smc.c
+> @@ -2631,6 +2631,9 @@ static void smc_clcsock_data_ready(struct sock *listen_clcsock)
+>  {
+>  	struct smc_sock *lsmc;
+>  
+> +	if (READ_ONCE(listen_clcsock->sk_state) != TCP_LISTEN)
 
-PAES or ENCRYPTED_AES
+Is *TCP_LISTEN* check sufficient? What about *TCP_SYN_RECV* or
+*TCP_ESTABLISHED*?
 
->       S390_FEAT_KMC_AES_128,
->       S390_FEAT_KMC_AES_192,
->       S390_FEAT_KMC_AES_256,
-
-[ snip ]
+> +		return;
+> +
+>  	read_lock_bh(&listen_clcsock->sk_callback_lock);
+>  	lsmc = smc_clcsock_user_data(listen_clcsock);
+>  	if (!lsmc)
 
