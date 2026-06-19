@@ -1,109 +1,114 @@
-Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 74FAA23ED5B;
-	Fri, 19 Jun 2026 06:35:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 13411283C93
+	for <linux-s390@vger.kernel.org>; Fri, 19 Jun 2026 07:45:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781850921; cv=none; b=S1PQ1BVo0yN4wep/C+6bl9Wu/DYSh7tSLP2wlEOGNI+/QsYkyLccljPk7XolExe7W5NF5LJxvvQiEbNtRJIzCcyNhsvaEb2qpgLjOFu8OYjTxngkLZ5WksW8TJ88eTIzzuSW+Cu/XBhf1EHGWZ4VeS5e5kwm8g66VvyYEpJtrrM=
+	t=1781855149; cv=none; b=fQ0VVUXZ+bqZ8BZfsvRm4UEeSJIiLFZzArrAzfT2OBDj26RPHAyV8x+xdn8a/Ix1cu1xgjOnvQG62d4x8DSPcfxmA/tmvtpvMhN6tim2/LGPHvDP/2FG/weVMsK5S9i9+y0p+JnSGoWYXantCCXUDgBeMf5SdYv/dPf8V/KEqgw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781850921; c=relaxed/simple;
-	bh=44fmCjC9fVUGPXXrd3HwQxzlSiz4jyFTZqz1jkBeNqk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=oHXXFqGDo70l6t6eogrn71dFGVu1lcHkOdGNT41snbNan3bbj31z18RrCbxafi6KG2+9KI6JmT6MmAyb9dZJyWEsYWFcnxLmqBRN3ESjGSfyZQLiMFRppldyrtNoPH4oWx8vpAgXHjlRqF35+re0cRV1oRzfdPO9pr+Z6KAcjgI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=wlhaCKT9; arc=none smtp.client-ip=115.124.30.133
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1781855149; c=relaxed/simple;
+	bh=vUGaapOMlyFCFkRofut58hqriJVRBiRb0HTqAqTfdUg=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=anra7tLCdAhnXM4Mel3bLouuO/kVIrufFZpJDSzxTZTAcF5toU5EuX8QorMrs9OZGZZkyZMNwlRUjBNqzFk1/8iwSOD3sUsmH0Er9RJ+2ofBIEM2GvMK878uaf+UcxgLwR4lsi31EcXSaWm0dMFFlffj11S++jtMDwPYviuEQ4o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=niytXHSL; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="wlhaCKT9"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1781850915; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
-	bh=45U6L2scHXerIc02dhZiR8csZdzJQqHBYsy1D50eKBQ=;
-	b=wlhaCKT9qF3NlKFKM8/m+0WjD3sfpC6AgxJTnV12LmdMWpwrNC0V3ChYSRa6bfl6MZU7137C29rniDiN8+WuoFiGeEtFV/6LVYQmlWv3e0q190UFAeXaLXse00mebh5wj4oh1kdrQ16KM+mArnfCeJJjJ5EtIEACTIQAs6FvgVU=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R191e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037009110;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=19;SR=0;TI=SMTPD_---0X58zH3Z_1781850913;
-Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0X58zH3Z_1781850913 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Fri, 19 Jun 2026 14:35:14 +0800
-Date: Fri, 19 Jun 2026 14:35:13 +0800
-From: Dust Li <dust.li@linux.alibaba.com>
-To: Runyu Xiao <runyu.xiao@seu.edu.cn>,
-	"D. Wythe" <alibuda@linux.alibaba.com>,
-	Sidraya Jayagond <sidraya@linux.ibm.com>,
-	Wenjia Zhang <wenjia@linux.ibm.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>
-Cc: Mahanta Jambigi <mjambigi@linux.ibm.com>,
-	Tony Lu <tonylu@linux.alibaba.com>,
-	Wen Gu <guwen@linux.alibaba.com>, Simon Horman <horms@kernel.org>,
-	Karsten Graul <kgraul@linux.ibm.com>, linux-rdma@vger.kernel.org,
-	linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org, jianhao.xu@seu.edu.cn,
-	stable@vger.kernel.org
-Subject: Re: [PATCH net] net/smc: avoid recursive sk_callback_lock in listen
- data_ready
-Message-ID: <ajTjIbm4qPvukJzr@linux.alibaba.com>
-Reply-To: dust.li@linux.alibaba.com
-References: <20260617152855.1039151-1-runyu.xiao@seu.edu.cn>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="niytXHSL"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65J3ICN91283250
+	for <linux-s390@vger.kernel.org>; Fri, 19 Jun 2026 07:45:47 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=OdE2mEWfowseThKTX0LCAdKCfJ6bNYlihSjtwxa5Q
+	Gk=; b=niytXHSLv6ovOi3l933C7BI18otWtJItSu40TuAKCwdaDkMtvBflEAMBt
+	rPU+qEhtCIpeQGhrRkv/GwZV7wN9K6LjWFtJH84Tvk9Vod1s3tWYLHYP9EbjF/MF
+	clH3b0GCyqYWbKE83WfcfsI+4xzVA27E/GMO5rKSwYsY49S7om2rGZ6ymEiT+Ixi
+	CH04k5OhgmXe/QKQKpA6fUe5ZL6v3KkaQVjgJk+JfqWnhA7ieeqEhUzaBomHyzmY
+	cjpRmHuoray7cSGkigrbL83WzPeYzC4J7Lvw7cqoIvoeeQQ0bvK+tFqus+6dxWmw
+	rNhwi3pPPvZiPjpjiMR+dOg9tBPGg==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4euequcces-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Fri, 19 Jun 2026 07:45:47 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 65J7YwZQ015456
+	for <linux-s390@vger.kernel.org>; Fri, 19 Jun 2026 07:45:46 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4ev1727sfe-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Fri, 19 Jun 2026 07:45:46 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 65J7jg4O50266438
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 19 Jun 2026 07:45:42 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B3A6120043;
+	Fri, 19 Jun 2026 07:45:42 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 3867520040;
+	Fri, 19 Jun 2026 07:45:42 +0000 (GMT)
+Received: from ibm.com (unknown [9.111.75.212])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Fri, 19 Jun 2026 07:45:42 +0000 (GMT)
+From: Holger Dengler <dengler@linux.ibm.com>
+To: Harald Freudenberger <freude@linux.ibm.com>,
+        Ingo Franzki <ifranzki@linux.ibm.com>
+Cc: dengler@linux.ibm.com, linux-s390@vger.kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>
+Subject: [PATCH v1 0/1] pkey: Fix for PKEY_VERIFYPROTK ioctl
+Date: Fri, 19 Jun 2026 09:45:40 +0200
+Message-ID: <20260619074541.1710716-1-dengler@linux.ibm.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260617152855.1039151-1-runyu.xiao@seu.edu.cn>
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNjE5MDA2NiBTYWx0ZWRfX38CgoJfyjK04
+ AdqIV1aP5+ThQjFgl9ads9yQ5ZQEQisQX0jQ3gX9u8wzTkAe0CFX3rfM1KXBGNNeP0LB7mHR+wW
+ IKmlxRKm2FY59aXrf7s7JVaoP9myQYA=
+X-Proofpoint-ORIG-GUID: -7ENX2GHIdYySIgBKCJQ0VbDt3djLSEE
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjE5MDA2NiBTYWx0ZWRfX5OMYU5U+zvC+
+ VHEIzKLyw+AH9sD42YouJjcYnep3yoQRclW889yrIAEiS26RPsraux/KUpwXRYd53fej4bL3jG/
+ z+HJXMGtS7McuYLFAaqx/wrqP4s1ivXuMKqisaUxd3QSuLLxbUmiChtZvzo9CyMEyoU3fsLnco+
+ S4+FpGn9j9mcypxkwBHKhYG2ipu2fVZmYRtxNtenRx73DTLauqAzJsgPbZIl+y9usLCnYS2vMwb
+ YaoucJ3ssi3ryf2yVTjdQSRG69w5H69oXMulVUHj+W/tHZDdkBWosJwjWRxBsg91UPHH6iqi3IZ
+ kQbzaKGkoR3nDnypjNYDZuNOeEyOYwZeJFTmuoR+ZsYQqabG9FL9Y6pA0u74/PvFOuERwrhqItD
+ 5fwq8Q5+dPFndkkkFlAzqgLp72xr/ZzTTwdkMHCma2VFxI80+4roCazlmNycML4vahxjNNxR48d
+ pcFjHBIJOxpIouN+NYA==
+X-Proofpoint-GUID: -7ENX2GHIdYySIgBKCJQ0VbDt3djLSEE
+X-Authority-Analysis: v=2.4 cv=L9gtheT8 c=1 sm=1 tr=0 ts=6a34f3ab cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+ a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=uAbxVGIbfxUO_5tXvNgY:22 a=riL-3Q2HSPCSva3yo0gA:9 a=zZCYzV9kfG8A:10
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
+ definitions=2026-06-19_01,2026-06-18_03,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ bulkscore=0 impostorscore=0 malwarescore=0 clxscore=1015 adultscore=0
+ phishscore=0 lowpriorityscore=0 suspectscore=0 priorityscore=1501 spamscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2606190066
 
-On 2026-06-17 23:28:55, Runyu Xiao wrote:
->smc_listen() installs smc_clcsock_data_ready() as the underlying TCP
->listen socket's sk_data_ready callback.  smc_clcsock_data_ready() then
->immediately takes sk_callback_lock before looking up the SMC listener and
->queuing smc_tcp_listen_work().
->
->That is unsafe once the TCP listen socket is leaving TCP_LISTEN.  The TCP
->close/flush path can run the installed sk_data_ready callback with
->sk_callback_lock already held, so entering smc_clcsock_data_ready() again
->tries to take the same rwlock recursively in the same thread.  The nvmet
->TCP listener had to make the same state check before taking
->sk_callback_lock for this reason.
->
->This issue was found by our static analysis tool and then manually
->reviewed against the current tree.
->
->The grounded PoC kept the SMC listen callback installation path:
->
->  smc_listen()
->  smc_clcsock_replace_cb()
->  sk_data_ready = smc_clcsock_data_ready()
->
->It then modeled the close/flush carrier that invokes the installed
->sk_data_ready callback while sk_callback_lock is already held.  Lockdep
->reported the same-thread recursive acquisition:
->
->  WARNING: possible recursive locking detected
->  smc_clcsock_data_ready+0xa/0x4d [vuln_msv]
->  smc_close_flush_work+0x1f/0x30 [vuln_msv]
->  *** DEADLOCK ***
->
->Return before taking sk_callback_lock when the underlying TCP socket is no
->longer in TCP_LISTEN.  In that state there is no listen accept work to
->queue for SMC, and avoiding the callback lock mirrors the fix used by the
->TCP nvmet listener.
+The PKEY_VERIFYPROTK ioctl is used to verify protected key blobs. Part of
+the verification is the check for supported keytypes. The following patch
+1/1 fixes the keytype check in this ioctl.
 
-Hi Runyu,
+The patch applies to Linus' master branch.
 
-I noticed the lockdep splat comes from your own kernel module
-([vuln_msv]) that models the condition, rather than from a real
-TCP code path.
+Holger Dengler (1):
+  pkey: Fix bitsize check in PKEY_VERIFYPROTK ioctl
 
-Could you point me to the specific mainline TCP code path that calls
-sk_data_ready() while holding sk_callback_lock? If such a path
-exists, I'm happy to take this patch. But if this is based solely on
-static analysis without a confirmed real call chain, I'd prefer to
-focus our review bandwidth on issues that have demonstrated impact.
+ drivers/s390/crypto/pkey_api.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-Thanks,
-Dust
+
+base-commit: 9ecfb2f7287a967b418ba69f10d45ead0d360593
+-- 
+2.54.0
 
