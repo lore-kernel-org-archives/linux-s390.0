@@ -1,86 +1,70 @@
-Received: from mail-pf1-f177.google.com (mail-pf1-f177.google.com [209.85.210.177])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B4E6E2853F3
-	for <linux-s390@vger.kernel.org>; Fri, 19 Jun 2026 15:03:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B9013B9D98;
+	Fri, 19 Jun 2026 15:52:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781881437; cv=none; b=gu3UX1t9OypaFQaBavFgaP5xIwlnaQWrGm/M01pVmFkS82nxetij4cRvyF5cI7ktKQW8Ni2NY7cSNs8xoNP1ioeHSDk5A+M60ZGa8aSl3gY4V+pSlW7h64OteJv8qKybQPpWtugKRo349CCyxF+tK3AoJoOMgoiKbibWHn7C8pg=
+	t=1781884332; cv=none; b=gig1YqsCeRRnW+jEJd87RQ9y50viwqFd885fU9gH0+vrOoQDLytsLf1X0Isf23i4Mh3sZAywIGD53zId5EvnC6BiBcaTApIcon9oEoQ6C6ut7ax9IQ8uA+xvHqp7vZawYiYu8Jh/hOZVW2VseYnMiMoW7X/mv7NVcHdh9hhHnak=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781881437; c=relaxed/simple;
-	bh=n0TaIFU2dlUiY6Vzb+eElnBvXKO/Y+F2CeNOmOSDEpc=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=UrEdBl/jiaR/i8kv/rypc0wSP7951wn5m9+4Yeak3OXfNFCzux8xUAzLRFLRFeij8hO3qSep1xdLaAJBBCz+erg5Owe8eXq/JtU5PVk/P6IGJmXsKmbAmPPGltZoFMlALjQZsXWDNtOrBFe1Ju/4lk0JkcbE612gAowQ/X0DjTo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=icaPiIDi; arc=none smtp.client-ip=209.85.210.177
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1781884332; c=relaxed/simple;
+	bh=okAOvLQ4y0eY/fwgkvGuuxb8NOEPB30eyMm9tizr6DQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=t6xDwFQAAIFPa0iC5M3maDqSw8oNw9vJ1bOAdSu5H0STMcuiFTUtS5HvhxLGrPCu581/yKjm2u8EW33mCB6R1oYrEEYM5MK7x7zh5wEcJL9yZF8z6zC1EklMFa1RqcLfSlQg87OrF+eRjec8m21yJFoYUHXrhsWdKJzmQw4+BWo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=pC53+zR8; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="icaPiIDi"
-Received: by mail-pf1-f177.google.com with SMTP id d2e1a72fcca58-84347ad88edso1857389b3a.1
-        for <linux-s390@vger.kernel.org>; Fri, 19 Jun 2026 08:03:56 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781881436; x=1782486236; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=p5fF29AhKZUYQkqmksxc4GcdOoLjfu8vsoNrkddfAwM=;
-        b=icaPiIDia+iWmEFhB2Z748fn+YVVv6PPRnGMgZMay8iUtTkG7gu1SsqMAw7Skq6vFo
-         Aij2rIUYIY5Ft41A0gg2hN0XapAOQGCSm18cZOvew193TwvFWFpbVnPph7wBqub0Q2p4
-         Scy1nT3lyVvtRb3bVrddCUwlYbM8K+sT1hdyLtpsjHi/70Ro9zaP3T4AVhhtny0DTdnC
-         67LXG+zPFF4ZGoP4zz+3V3M0gFWkKlmdRfKif61AeWvLVLkpgXokbEN6zejedbmUlcoU
-         wcBQKVfRezT3RJV52pp/0ptJ6lzVx8rxxSpJssrV7K+G2OpIDj6uYs4sjJPd+Mxa1Gt4
-         nlbg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781881436; x=1782486236;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=p5fF29AhKZUYQkqmksxc4GcdOoLjfu8vsoNrkddfAwM=;
-        b=sHd9WFDTIXmn98nA59ARPbcnLUKvVInFzf8qB9CNfY1D8U2mPZkYDt7BfsFwU1Go/3
-         +MnCPZpTMaLl14t/fHkMGkNYZ1hjR0l33tdnVMBAXvHAe+S2Sancdk6THKqLOOTeLDUg
-         iDzaXw8ovUMcAtqC+YbO3UGceKUWk1As++3NhHV4XkP+Ds6bH1f3gF60yySvpIxQaPnZ
-         slk1YvPeZ4i/5YMGt7COASjdQnlhfg5KYYYHSzegduW8DB3G8GlV02G17cBvTkIM+b9N
-         CLdq9seq/6gB2eZTJs98wPPlTINttjkPFu7Vyh7+XOOu59xw3JXjZWiIY9AiO/EAuraq
-         0Sbg==
-X-Forwarded-Encrypted: i=1; AFNElJ88SaXMP9qHIYWOh9SerC2FmtnVbq0fYCKxHfzYdUTK15WoaGyt+pbjNOPSc2txfEqp3B7VVYVpbTu6@vger.kernel.org
-X-Gm-Message-State: AOJu0Yylsbv+NeK5S5TVfPkmCKqoI4l4qDJ4cv0ofnDo18JV6DAWsavU
-	L8F/eT43F2PLQjSSByYyaFnXktf9EvCp2JjjRAs74oIRmZQIkCvnhksT
-X-Gm-Gg: AfdE7ckOkZ+GE0iV/L8HYaLXT1AcfMM6MJktn786jjCYezTD06PuvVluL0f/kRt8wUZ
-	e18YlMGgTGC7fF+CWvSVwYMuMFlbfdJNZDi4XIzRXtlajAzchwGIjDZs37aj/WCtM13S5MJHpxI
-	mzSGv7rPtnprlAm2LBW7xYwU6YQ4tjXUAQe5aSgCZ53G0RuqnBJiJMYRwdN9UTabZi9eDu7YFkE
-	vN4cI4O+l2hNG8Dy0MsmbwfyCZJ+EmSBYmdqpbxghSOMr+1sPz9UU79KxT/IrdjB1G0PEkgGcXK
-	Em4CC/SI94TMMEgDyu7ROBuV1M3MTWSw/EmyPdxn6Z/1VGjaE1XhxeWJvaNkWeDGEkX26AiBXoN
-	IuZ8rxELb5YPBsjwA9oZHP6MsJjx+PxKZCV5dT0R88+PpJ6NTkJG6oOSKiK2Pby5aawowa5B39V
-	VWcHSbi16I2hejPkx3njS7T1ljc/TAFF4RCjrz5yyuTeI0eG+oyR0=
-X-Received: by 2002:aa7:8882:0:b0:842:7e7f:2914 with SMTP id d2e1a72fcca58-8455078a5a4mr4177673b3a.4.1781881435832;
-        Fri, 19 Jun 2026 08:03:55 -0700 (PDT)
-Received: from cps-manycore-1.. ([147.46.174.222])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-8455366ec53sm2844747b3a.13.2026.06.19.08.03.48
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 19 Jun 2026 08:03:55 -0700 (PDT)
-From: Sechang Lim <rhkrqnwk98@gmail.com>
-To: "D . Wythe" <alibuda@linux.alibaba.com>,
-	Dust Li <dust.li@linux.alibaba.com>,
-	Sidraya Jayagond <sidraya@linux.ibm.com>,
-	Wenjia Zhang <wenjia@linux.ibm.com>,
-	"David S . Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>
-Cc: Mahanta Jambigi <mjambigi@linux.ibm.com>,
-	Tony Lu <tonylu@linux.alibaba.com>,
-	Wen Gu <guwen@linux.alibaba.com>,
-	Simon Horman <horms@kernel.org>,
-	Ursula Braun <ubraun@linux.ibm.com>,
-	Karsten Graul <kgraul@linux.ibm.com>,
-	Guvenc Gulce <guvenc@linux.ibm.com>,
-	linux-rdma@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	bpf@vger.kernel.org
-Subject: [PATCH net v2] net/smc: fix out-of-bounds read when sk_user_data holds a sk_psock
-Date: Fri, 19 Jun 2026 15:03:41 +0000
-Message-ID: <20260619150342.3626224-1-rhkrqnwk98@gmail.com>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="pC53+zR8"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65JDIDOn2415582;
+	Fri, 19 Jun 2026 15:52:02 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=pp1; bh=VlM7qhGlAWkChpNhk
+	2d/9oqxLbUmFTK4zaaRixCZd1I=; b=pC53+zR8XTr/Bbek9tUM1Id2dEWHLmvB7
+	mTxADXNL9T+phd9eAA9gQLrJaEQImjpSG2HWsOMdxh4gCOO4DUsrxwPDmy3ka3Wk
+	q/T7acEp1iSEbHCdf1qwIOpQOf7rRCnfIaCBcj2dvz9/zhlFxEB+sCrvYYlTKgWl
+	PIXnKq+7gzymoNUPyZsvcEp/kZLSvWD2I3hRcFqYzrfuzjbAbAhB/kSqseA8gEb/
+	5D3MG1S3Blw3aSkfszzIeqctXdCA5MdgS9cdSVwY3wK+zsATT1j/AokbvU/PsabE
+	CxUT6usWjGZWU+XZPztLVg0ILkBwTwLGo+92XgQQiScDjikKQM7DQ==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4eueqtxgxp-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 19 Jun 2026 15:52:01 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 65JFnipa003405;
+	Fri, 19 Jun 2026 15:52:01 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4ev1729hky-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 19 Jun 2026 15:52:00 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 65JFpvT013763030
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 19 Jun 2026 15:51:57 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 501622004E;
+	Fri, 19 Jun 2026 15:51:57 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 437BA20040;
+	Fri, 19 Jun 2026 15:51:56 +0000 (GMT)
+Received: from p-imbrenda.ibmuc.com (unknown [9.111.54.29])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Fri, 19 Jun 2026 15:51:56 +0000 (GMT)
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, borntraeger@de.ibm.com,
+        frankja@linux.ibm.com, david@kernel.org, seiden@linux.ibm.com,
+        nrb@linux.ibm.com, schlameuss@linux.ibm.com, gra@linux.ibm.com,
+        hca@linux.ibm.com, gerald.schaefer@linux.ibm.com, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, svens@linux.ibm.com
+Subject: [PATCH v4 1/7] s390/mm: Fix handling of _PAGE_UNUSED pte bit
+Date: Fri, 19 Jun 2026 17:51:48 +0200
+Message-ID: <20260619155154.307572-2-imbrenda@linux.ibm.com>
+X-Mailer: git-send-email 2.54.0
+In-Reply-To: <20260619155154.307572-1-imbrenda@linux.ibm.com>
+References: <20260619155154.307572-1-imbrenda@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -88,83 +72,99 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: FxIqyg3UJ2kIe7IKkqa2R05lpDziVXcR
+X-Proofpoint-GUID: FxIqyg3UJ2kIe7IKkqa2R05lpDziVXcR
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjE5MDE1MCBTYWx0ZWRfX+AW9NYVkRX/R
+ 9a+aNvp+civd9VKURag+/4fg5NdkbJOqA1DYiXtSfXkVyeOx1jT9Gb6W1U6IYw0zp/kHck3j9ZV
+ 6MfjiP8wBCalNCNZ1CyOI5QTKIDv07PaFexeIFupgJ3y9OHe/B7iG1/hHJF5OK6OxhAtnG7IYsX
+ yNk9AWdYqW3EAcLezc/9hUn9a2m6u593A4A8bRKwarrvzRm6dgqZSXAEjrvdCm+frYWLxeY4b7a
+ ePz2jsESHTEzfYyjnnIH7IdYRYUU56cn0Mml6Lilr3SwRIPFcpOX6Uqvwu7EFaXdth2ta4zoAy3
+ z8ptaQrOnSgV/37wEfuMnPLlz+yormxyab2WbHqCUF+TxpMdaDwZbhKCfmw/SvZYXI4JNaoJI0Y
+ oGuEcJSqt8d+SwQU7mg8zx1fcG1G9RFXcgtrVY/QvKq1Rj4G1bjEoAoZzxFEk8nwj+i1FS0fBwX
+ MhXxLSgJPuLsvSO6eAw==
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNjE5MDE1MCBTYWx0ZWRfX9ew9tWmDbHO9
+ LPjPaTgx45c4m7yJ7ilZ6SQNtfQCGbZMjKTdm5gcpovheCbtMBV+NofIEpH4UFz+l7YqxGaMWgd
+ 3ZGuhg2tDa+oohkL1Ur4zSBXYmvEano=
+X-Authority-Analysis: v=2.4 cv=B4KJFutM c=1 sm=1 tr=0 ts=6a3565a1 cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8 a=BXoTXrUDSLvzEcKRN5AA:9
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
+ definitions=2026-06-19_03,2026-06-18_03,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ malwarescore=0 adultscore=0 lowpriorityscore=0 suspectscore=0
+ priorityscore=1501 clxscore=1015 phishscore=0 spamscore=0 bulkscore=0
+ impostorscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2606190150
 
-SMC stores its smc_sock in the clcsock's sk_user_data tagged
-SK_USER_DATA_NOCOPY and reads it back with smc_clcsock_user_data(), which
-only strips that flag. sockmap stores a sk_psock in the same field tagged
-SK_USER_DATA_NOCOPY | SK_USER_DATA_PSOCK. Nothing keeps both off one
-socket, and SMC then casts the sk_psock to an smc_sock.
+The _PAGE_UNUSED softbit should not really be lying around. Its sole
+purpose is to signal to try_to_unmap_one() and try_to_migrate_one()
+that the page can be discarded instead of being moved / swapped.
 
-A passive-open child hits this. It inherits the listener's
-smc_clcsock_data_ready(), but sk_clone_lock() clears its NOCOPY
-sk_user_data, and a BPF sock_ops program then adds the child to a sockmap,
-installing a sk_psock in that field. The inherited callback reads it as an
-smc_sock and dereferences a clcsk_* pointer past the end of the sk_psock:
+KVM has no way to know why a page is being unmapped, so it sets the bit
+on userspace ptes corresponding to unused guest pages every time they
+get unmapped. KVM has no reasonable way to clear the bit once the page
+is in use again.
 
-  BUG: KASAN: slab-out-of-bounds in smc_clcsock_data_ready+0x84/0x200 net/smc/af_smc.c:2637
-  Read of size 8 at addr ffff8880013b8674 by task syz.6.12484/67930
-   <IRQ>
-   smc_clcsock_data_ready+0x84/0x200 net/smc/af_smc.c:2637
-   tcp_urg+0x24d/0x360 net/ipv4/tcp_input.c:6264
-   tcp_rcv_state_process+0x280d/0x4940 net/ipv4/tcp_input.c:7336
-   tcp_child_process+0x371/0xa50 net/ipv4/tcp_minisocks.c:1002
-   tcp_v4_rcv+0x1eaa/0x2a00 net/ipv4/tcp_ipv4.c:2186
-   [...]
-   </IRQ>
+While set_ptes() checks and clears the bit, other paths that set new
+ptes did not. This led to used pages being thrown out as if they were
+unused, causing guest corruption.
 
-  Allocated by task 67930:
-   sk_psock_init+0x142/0x740 net/core/skmsg.c:766
-   sock_hash_update_common+0xd3/0x990 net/core/sock_map.c:1010
-   bpf_sock_hash_update+0x114/0x170 net/core/sock_map.c:1229
-   __cgroup_bpf_run_filter_sock_ops+0x74/0xa0 kernel/bpf/cgroup.c:1727
-   tcp_init_transfer+0x1085/0x1100 net/ipv4/tcp_input.c:6693
-   [...]
+Fix the issue by clearing the _PAGE_UNUSED bit for present ptes in
+set_pte(), i.e. whenever a present pte is getting set. The check in
+set_ptes() is then redundant and can be removed.
 
-sk_psock() already guards the other side, returning NULL unless
-SK_USER_DATA_PSOCK is set. Make smc_clcsock_user_data() and its RCU
-variant return the smc_sock only when sk_user_data carries SMC's tag
-alone. A sk_psock then reads back as NULL, which the data_ready and
-fallback callbacks already handle.
+Also fix gmap_helper_try_set_pte_unused() to only set the bit if the
+pte is present; the _PAGE_UNUSED bit is only defined for present ptes
+and thus should not be set for non-present ptes.
 
-Fixes: a60a2b1e0af1 ("net/smc: reduce active tcp_listen workers")
-Signed-off-by: Sechang Lim <rhkrqnwk98@gmail.com>
+Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Fixes: c98175b7917f ("KVM: s390: Add gmap_helper_set_unused()")
+Acked-by: Heiko Carstens <hca@linux.ibm.com>
 ---
- net/smc/smc.h | 18 +++++++++++++++---
- 1 file changed, 15 insertions(+), 3 deletions(-)
+ arch/s390/include/asm/pgtable.h | 4 ++--
+ arch/s390/mm/gmap_helpers.c     | 3 ++-
+ 2 files changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/net/smc/smc.h b/net/smc/smc.h
-index 52145df83f6e..88dfb459b7cc 100644
---- a/net/smc/smc.h
-+++ b/net/smc/smc.h
-@@ -342,13 +342,25 @@ static inline void smc_init_saved_callbacks(struct smc_sock *smc)
+diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
+index ca376a9b8e41..d03663483f76 100644
+--- a/arch/s390/include/asm/pgtable.h
++++ b/arch/s390/include/asm/pgtable.h
+@@ -980,6 +980,8 @@ static inline void set_pmd(pmd_t *pmdp, pmd_t pmd)
  
- static inline struct smc_sock *smc_clcsock_user_data(const struct sock *clcsk)
+ static inline void set_pte(pte_t *ptep, pte_t pte)
  {
--	return (struct smc_sock *)
--	       ((uintptr_t)clcsk->sk_user_data & ~SK_USER_DATA_NOCOPY);
-+	uintptr_t data = (uintptr_t)clcsk->sk_user_data;
-+
-+	/*
-+	 * Return the smc_sock only if the slot carries SMC's tag alone.
-+	 * sockmap stores a sk_psock here tagged SK_USER_DATA_PSOCK; it is
-+	 * not an smc_sock and must not be dereferenced as one.
-+	 */
-+	if ((data & ~SK_USER_DATA_PTRMASK) != SK_USER_DATA_NOCOPY)
-+		return NULL;
-+	return (struct smc_sock *)(data & SK_USER_DATA_PTRMASK);
++	if (pte_present(pte))
++		pte = clear_pte_bit(pte, __pgprot(_PAGE_UNUSED));
+ 	WRITE_ONCE(*ptep, pte);
  }
  
- static inline struct smc_sock *smc_clcsock_user_data_rcu(const struct sock *clcsk)
+@@ -1332,8 +1334,6 @@ pgprot_t pgprot_writecombine(pgprot_t prot);
+ static inline void set_ptes(struct mm_struct *mm, unsigned long addr,
+ 			      pte_t *ptep, pte_t entry, unsigned int nr)
  {
--	return (struct smc_sock *)rcu_dereference_sk_user_data(clcsk);
-+	uintptr_t data = (uintptr_t)rcu_dereference(__sk_user_data(clcsk));
-+
-+	if ((data & ~SK_USER_DATA_PTRMASK) != SK_USER_DATA_NOCOPY)
-+		return NULL;
-+	return (struct smc_sock *)(data & SK_USER_DATA_PTRMASK);
- }
+-	if (pte_present(entry))
+-		entry = clear_pte_bit(entry, __pgprot(_PAGE_UNUSED));
+ 	page_table_check_ptes_set(mm, addr, ptep, entry, nr);
+ 	for (;;) {
+ 		set_pte(ptep, entry);
+diff --git a/arch/s390/mm/gmap_helpers.c b/arch/s390/mm/gmap_helpers.c
+index 1cfe4724fbe2..60023b6fdcb1 100644
+--- a/arch/s390/mm/gmap_helpers.c
++++ b/arch/s390/mm/gmap_helpers.c
+@@ -181,7 +181,8 @@ void gmap_helper_try_set_pte_unused(struct mm_struct *mm, unsigned long vmaddr)
+ 	if (IS_ERR_OR_NULL(ptep))
+ 		return;
  
- /* save target_cb in saved_cb, and replace target_cb with new_cb */
+-	__atomic64_or(_PAGE_UNUSED, (long *)ptep);
++	if (pte_present(*ptep))
++		__atomic64_or(_PAGE_UNUSED, (long *)ptep);
+ 	pte_unmap_unlock(ptep, ptl);
+ }
+ EXPORT_SYMBOL_GPL(gmap_helper_try_set_pte_unused);
 -- 
-2.43.0
+2.54.0
 
