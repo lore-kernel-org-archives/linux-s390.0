@@ -1,44 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0AE602D5408;
-	Fri, 19 Jun 2026 16:09:02 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 123C528506C;
+	Fri, 19 Jun 2026 16:13:30 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781885344; cv=none; b=UPhDEYdEyvRxXcI/sP3h3nAdUjSlfBhOHBZFYXPEaukSaa6fUyGNUipCYxrojbpdvDkUNIa3KgSQEy9yW1WDXW/eZ57tpm5Rr2y67fFA6554VtpKQQBqx4WWy+wvAlYSzhuDafcA4t9rQWyoauJbxIb2MEK78YmaLD/iHJa0B9U=
+	t=1781885612; cv=none; b=OBbG5oCCppqc79l9GZBednIuAAoWM1KgDLH0Du/vNK6dtNKTQ5XZ8f3zrHei/n56GiKCfs1n7q/XmjQRtbMJpPnPS/ByF7jJP7oFL5B/rSvqM3fkPoI8FG45EueZptfourhWXg2sY4tBYHeDXEW7T2IXJLy3pLhpwvcT15Uo/uQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781885344; c=relaxed/simple;
-	bh=sl+FDzeatLjYpy9So+USFb/AyemfnvBp/ka+IoYwY4s=;
+	s=arc-20240116; t=1781885612; c=relaxed/simple;
+	bh=cOgZu3rrqVtChnX3vD9dCExO8/2SnJk1uqq6qfTf1QA=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=AFzs128OKYKiba8fJNAaHzhW/bOaqoxZ3MI30Ic3BSJD6yYxP89KsFiqyrpJ+zj5r0xdGRvpMaNwI/7HZyXDB6QG12fSi97pP75Ngh0vANxRMNuKrbsl8q/8ShwtfTnDlRh3srs3TUBc+IJ/3wMUjSwl/yCD9e/+w4pbxXWTAdw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BeDWeEFG; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=YWserY/pN4d5vJyP+2R+FYSEcM0u6zIUjx2V6CCalaWKzApd0AApKKQnGZVNNdXEG02/DtmMJkcKkrDpjzwFry5qEugRg2jtGyRAhLUCm7nIsd8ir5p/J5BXsnVIu2Siz7T7LWwYRRDHHlUJwiqJ0xXbP3wSWUR76DFo4x2xAAk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KcHyKdja; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BeDWeEFG"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 681931F000E9;
-	Fri, 19 Jun 2026 16:09:02 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KcHyKdja"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 663051F000E9;
+	Fri, 19 Jun 2026 16:13:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781885342;
-	bh=fgxm1jPcGnTkHP020R5hNsLkAD/POh03wHSJ/D9uPbE=;
+	s=k20260515; t=1781885610;
+	bh=fcM6SB8vHLGttAk6ZR3dHrbm2oeC4Sbrx6m2kXNRZqE=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=BeDWeEFGYIJyRafUocfY3UD4p07+8FrlPh1sCyDKn9UcS0NvP26Xh4Ua42Yj2UDjO
-	 EgfWyeLPZn1TbBP9aus5pRQYMQpOAh+l2tfs9ncvZICiWl482UUJcbARlyOMQR95w7
-	 OtTJ0lxmF/0ArShg0kTPh04hk/l92xIfDpXvd7gnp+SIs6VAocpzNSFUr3GVWkBcGP
-	 3/LBMMMGXXp5MSg9x45WGXOZJnfMAw3A3s8OqOr/gRBjB4epfLTOsRLs3m9EosdF4m
-	 +VkUiXwR2XFna/AfMRjCkfuG/QZce8+tuhQZFxrgW4OfeC9TyEQLqIcgjsppdkvOrT
-	 atwaHJ9YxRnaQ==
+	b=KcHyKdjanYsTrDe0n+gd2Bc4y5yUREwXYYIARkVqI+gtD9VqRgk6DL40Dy1L6G2US
+	 mVzGtvdzes5FqaDX3ZgH1Fq6sH1K7iRmj61i/uRTkVWsywL/X0g03V71HIcmQueoFb
+	 UNiq3Q6jzRQiLBOEeeYkOkdGDJ8RkgsiMIOtqwDVS5J7oKbJJ8nklgr9xUipHsSleb
+	 XolOW9Q2mxlKCHCao2g+nRPDAtFy3Yqwjxxeg2fu/WmA7MAkHaLNAseaN4B0BaBUji
+	 B2xVLhgeKxK50DTzf0/eTFgHqQtJueIzXOZH9/omO1MomMVO9qv1TCifgswsEjKH8V
+	 Ywh/1rQDjyZFg==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 6/7] KVM: s390: cmma: Fix cmma dirty tracking
+Subject: Re: [PATCH v4 3/7] KVM: s390: Do not set special large pages dirty
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>
 Cc: "Vasily Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, kvm@vger.kernel.org
-In-Reply-To: <20260619155154.307572-7-imbrenda@linux.ibm.com>
+ Gordeev" <agordeev@linux.ibm.com>, kvm@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>
+In-Reply-To: <20260619155154.307572-4-imbrenda@linux.ibm.com>
 References: <20260619155154.307572-1-imbrenda@linux.ibm.com>
- <20260619155154.307572-7-imbrenda@linux.ibm.com>
+ <20260619155154.307572-4-imbrenda@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 19 Jun 2026 16:09:02 +0000
-Message-Id: <20260619160902.681931F000E9@smtp.kernel.org>
+Date: Fri, 19 Jun 2026 16:13:29 +0000
+Message-Id: <20260619161330.663051F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -48,156 +48,107 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
 
-New issues:
-- [High] The `cmma_dirty_pages` counter permanently leaks and becomes artif=
-icially inflated across VM CMMA resets or memslot removals, leading to an i=
-nfinite polling loop in userspace during the final migration phase.
-
 Pre-existing issues:
-- [High] `kvm_s390_get_cmma_bits` leaks uninitialized kernel memory to user=
-space because the `values` buffer is allocated with `vmalloc` and gaps corr=
-esponding to non-dirty pages are never initialized.
+- [Critical] Missing Special Page Validations in PV / Unmap Paths
+- [Critical] Unsafe SSKE Execution on Special Pages
 --
 
-commit ae0c1471cfdb2824a403c917222645798560f3c1
+commit 2d60ecc18379805e67b3a6ad94ddb8516f4d4167
 Author: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-KVM: s390: cmma: Fix cmma dirty tracking
-   =20
-It is possible that some guest memory areas have not been touched yet
-when starting migration mode, and thus have no ptes allocated. Only
-existing and allocated ptes should count toward the total of dirty cmma
-entries.
+KVM: s390: Do not set special large pages dirty
 
-> diff --git a/arch/s390/kvm/dat.c b/arch/s390/kvm/dat.c
-> index cffac7782c4bf..0ad4ebc80ebaf 100644
-> --- a/arch/s390/kvm/dat.c
-> +++ b/arch/s390/kvm/dat.c
-> @@ -1253,6 +1253,9 @@ int dat_get_cmma(union asce asce, gfn_t *start, uns=
-igned int *count, u8 *values,
->  	};
-> =20
->  	_dat_walk_gfn_range(*start, asce_end(asce), asce, &ops, DAT_WALK_IGN_HO=
-LES, &state);
+This commit prevents setting special large pages dirty. It adds a missing
+check in gmap_clear_young_crste() to ensure the large page is not a
+special page before setting it dirty.
 
-[Severity: High]
-This is a pre-existing issue, but does kvm_s390_get_cmma_bits() leak
-uninitialized kernel memory to userspace?
+> diff --git a/arch/s390/kvm/gmap.c b/arch/s390/kvm/gmap.c
+> --- a/arch/s390/kvm/gmap.c
+> +++ b/arch/s390/kvm/gmap.c
+> @@ -327,7 +327,7 @@ static long gmap_clear_young_crste(union crste *crste=
+p, gfn_t gfn, gfn_t end, st
+>  		new.h.i =3D 1;
+>  		new.s.fc1.y =3D 0;
+>  		new.s.fc1.prefix_notif =3D 0;
+> -		if (new.s.fc1.d || !new.h.p)
+> +		if ((new.s.fc1.d || !new.h.p) && !new.s.fc1.s)
+>  			folio_set_dirty(phys_to_folio(crste_origin_large(crste)));
 
-In kvm_s390_get_cmma_bits(), the values array is allocated using vmalloc()
-which does not clear the memory:
+[Severity: Critical]
+This is a pre-existing issue, but I noticed there are other places where
+special page validation seems to be missing in PV and unmap paths.
 
-kvm_s390_get_cmma_bits() {
+If a malicious userspace maps device memory (VM_PFNMAP) to a PV guest,
+special shadow page table entries are created. When KVM unmaps these pages,
+_gmap_unmap_crste() calls phys_to_folio() on the physical frame number:
+
+arch/s390/kvm/gmap.c:_gmap_unmap_crste() {
     ...
-    values =3D vmalloc(args->count);
-    if (!values)
-        return -ENOMEM;
-    ...
-}
-
-When dat_get_cmma() populates this array via __dat_get_cmma_pte(), it itera=
-tes
-over the guest's page tables and only writes to indices corresponding to pa=
-ges
-where cmma_d =3D=3D 1.
-
-For pages where cmma_d =3D=3D 0, the callback simply returns and skips them,
-leaving those intermediate array indices untouched:
-
-arch/s390/kvm/dat.c:__dat_get_cmma_pte() {
-    ...
-    if (!READ_ONCE(*pgste_of(ptep)).cmma_d)
-        return 0;
+    if (old.s.fc1.pr && test_bit(GMAP_FLAG_EXPORT_ON_UNMAP, &priv->gmap->fl=
+ags))
+        folio =3D phys_to_folio(crste_origin_large(old));
     ...
 }
 
-The total count returned is calculated as state.end - state.start,
-encompassing the entire span from the first to the last dirty page found,
-including the skipped uninitialized gaps.
+Could this result in a garbage pointer if the entry is a special page,
+leading to a host panic when passed to uv_convert_from_secure_folio()
+which immediately calls folio_get()?
 
-This array is then copied to userspace via copy_to_user(), leaking
-uninitialized kernel memory.
+A similar pattern appears in _gmap_unmap_pte() without checking ptep->s.s:
 
-> +	/* If no dirty pages were found, wrap around and continue searching */
-> +	if (*start && state.start =3D=3D -1)
-> +		_dat_walk_gfn_range(0, *start, asce, &ops, DAT_WALK_IGN_HOLES, &state);
-> =20
->  	if (state.start =3D=3D -1) {
->  		*count =3D 0;
-
-[ ... ]
-
-> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index ffb20a64d328f..907d2ca9951da 100644
-> --- a/arch/s390/kvm/kvm-s390.c
-> +++ b/arch/s390/kvm/kvm-s390.c
-> @@ -1191,7 +1191,6 @@ static int kvm_s390_vm_start_migration(struct kvm *=
-kvm)
->  {
->  	struct kvm_memory_slot *ms;
->  	struct kvm_memslots *slots;
-> -	unsigned long ram_pages =3D 0;
->  	int bkt;
-> =20
->  	/* migration mode already enabled */
-> @@ -1208,12 +1207,10 @@ static int kvm_s390_vm_start_migration(struct kvm=
- *kvm)
->  	kvm_for_each_memslot(ms, bkt, slots) {
->  		if (!ms->dirty_bitmap)
->  			return -EINVAL;
-> -		ram_pages +=3D ms->npages;
->  	}
-> +	kvm->arch.migration_mode =3D 1;
->  	/* mark all the pages as dirty */
->  	gmap_set_cmma_all_dirty(kvm->arch.gmap);
-> -	atomic64_set(&kvm->arch.cmma_dirty_pages, ram_pages);
-
-[Severity: High]
-Does removing this reset of cmma_dirty_pages cause the counter to permanent=
-ly
-leak and become artificially inflated?
-
-The cmma_dirty_pages counter tracks the number of pages with the cmma_d bit
-set.
-
-However, when CMMA states are cleared (e.g., via the KVM_S390_VM_MEM_CLR_CM=
-MA
-ioctl) or when memory is unmapped, the cmma_d bits are cleared but the
-cmma_dirty_pages counter is never decremented:
-
-arch/s390/kvm/dat.c:dat_reset_cmma_pte() {
+arch/s390/kvm/gmap.c:_gmap_unmap_pte() {
     ...
-    pgste.cmma_d =3D 0;
+    if (ptep->s.pr && test_bit(GMAP_FLAG_EXPORT_ON_UNMAP, &priv->gmap->flag=
+s))
+        folio =3D pfn_folio(ptep->h.pfra);
     ...
 }
 
-When migration is started again, __set_cmma_dirty_pte() unconditionally
-increments cmma_dirty_pages for every page that has its cmma_d bit flipped
-from 0 to 1, compounding the leaked counter:
+And in _destroy_pages_crste():
 
-arch/s390/kvm/gmap.c:__set_cmma_dirty_pte() {
+arch/s390/kvm/gmap.c:_destroy_pages_crste() {
     ...
-    if (!pgste.cmma_d) {
-        pgste.cmma_d =3D 1;
-        atomic64_inc(walk->priv);
-    }
+    for ( ; cur < end; cur +=3D PAGE_SIZE)
+        __kvm_s390_pv_destroy_page(phys_to_page(cur));
     ...
 }
 
-During migration, KVM reports this artificially inflated counter to userspa=
-ce
-via args->remaining.
+As well as _destroy_pages_pte() and _kvm_s390_pv_make_secure() in
+arch/s390/kvm/pv.c. Do these paths also need special bit checks to
+prevent panics from malicious userspace or guests?
 
-Once QEMU successfully retrieves all actual dirty pages, KVM will return
-count =3D=3D 0 but remaining > 0 (due to the leak). Could this trap QEMU in=
- an
-infinite migration polling loop waiting for pages that do not exist?
 
-> -	kvm->arch.migration_mode =3D 1;
->  	kvm_s390_sync_request_broadcast(kvm, KVM_REQ_START_MIGRATION);
->  	return 0;
->  }
+[Severity: Critical]
+This is also a pre-existing issue, but does KVM_S390_RESET_SKEYS safely
+handle special pages?
+
+When userspace triggers the KVM_S390_RESET_SKEYS ioctl, dat_reset_skeys_pte=
+()
+and dat_reset_skeys_crste() walk the gmap and invoke page_set_storage_key()
+without checking if the page is special. For example:
+
+arch/s390/kvm/dat.c:dat_reset_skeys_pte() {
+    ...
+    if (ptep->s.pr)
+        page_set_storage_key(pte_origin(*ptep), PAGE_DEFAULT_KEY, 1);
+    ...
+}
+
+arch/s390/kvm/dat.c:dat_reset_skeys_crste() {
+    ...
+    for ( ; addr < end; addr +=3D PAGE_SIZE)
+        page_set_storage_key(addr, PAGE_DEFAULT_KEY, 1);
+    ...
+}
+
+If page_set_storage_key() executes the hardware sske instruction on a physi=
+cal
+address not backed by valid system RAM, could this cause an s390 Addressing
+Exception and panic the host?
+
+>  		new.s.fc1.d =3D 0;
+>  		new.h.p =3D 1;
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260619155154.3075=
-72-1-imbrenda@linux.ibm.com?part=3D6
+72-1-imbrenda@linux.ibm.com?part=3D3
