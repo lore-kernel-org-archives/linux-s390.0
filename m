@@ -1,60 +1,60 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2445D18FDBD
-	for <linux-s390@vger.kernel.org>; Fri, 19 Jun 2026 08:55:30 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B736533291F
+	for <linux-s390@vger.kernel.org>; Fri, 19 Jun 2026 09:17:15 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781859332; cv=none; b=FZj3KyMVtQvbSFM6hlLSftp+d017Tkd2aefc4fdfBz0m7ICxNnZFYF9ybcaTdN2JBWE3vCJKf+dh698wU10/Z3Jd/lQV12/wv44CzMBW8po3byfvZWuygVNw2RBEkChrsimrSQK1/sC0SB1fs2hl2AyUpC+Ke8j2X/dntXLrufo=
+	t=1781860639; cv=none; b=HNw7OuxwzfPVWdWxpZ+bzJ2lXi9wZYx1WZsUPtokbwA9f5/Z7A/AY8M3EeU6v8K7WVIgUVROO1eas6apvVaVHER+9sdrG5nSD18ahJyZ4lU2l9C+fr+SHUPZKS4RSz1zyxs6aA2DM44bg9p09uDeKVasIloQRAVs0oY4vRWnINQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781859332; c=relaxed/simple;
-	bh=+3r6R8FIj+CMvLjKxjhR7zwKH2cV1zCKiJwgCGcfSqs=;
+	s=arc-20240116; t=1781860639; c=relaxed/simple;
+	bh=4cRSrGLYcWTPNCTsEIQHbPwVG4TqOHyj7G3eAaBhcmo=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=JwQoaGxTbr863Hjf2s+YEGK2YpojFfTK249HREfOsui0LugjpVCJHpTfMtK8B+JGoAXb5Jd9iIKLJY230LJd03Xo2iXVeItfnKKUxl3+HxHzRy0SRTU8ITYPPYDoQUCntu+tFvrVpthLf0eNQqhatznlOA9CDn1ILcbImf+n1q0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=IJqAL2d0; arc=none smtp.client-ip=148.163.156.1
+	 In-Reply-To:Content-Type; b=kyB7snmaXXsGDKrCM+PstDMj3s1HaLRmiWeYnzaeEV1LBrZe64UfYUVq6NtaUQN3xBPo7SwqcFxikcPG4a/eb8ZxiAeodKjY9VgY6BB/hCVq+dNwQe2DNsxwHhc8J4dzei80HAY+o0GCZ6zDolOhcJ+KDkMjGZcrE5P3XZbVywU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=K3Af1OEM; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="IJqAL2d0"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="K3Af1OEM"
 Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65J7mcmp1840616
-	for <linux-s390@vger.kernel.org>; Fri, 19 Jun 2026 08:55:30 GMT
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65J7mHjP1840372
+	for <linux-s390@vger.kernel.org>; Fri, 19 Jun 2026 09:17:15 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=doPYjD
-	wkGT0oU6p0KrrDi9HrssBcgWsxKNf/QwZeW+k=; b=IJqAL2d0eoMYmj5LMNmGx6
-	f/7J4ZK/ID6PBP81TVWbkQHRYpbzrwh09uvD/UZNnucr5AZeIFfMGBZU1nqF4QSn
-	4wQ8arnFrlbqWmccSOnhNNHzE6yfVPSNy8Bp34X1dTXRwcAVInmP+UTFHC/mfi6I
-	YXsQ1rEXfezHGzluA7Y4iMxXpNa7c4I/oBHq3o6XYSPkSiPHL4aBF47PhJvYhWw+
-	/VtJuNhsfzOPQLe5IjfNaJ6prUgKcCS/k2qYy/gF1QgRLIPcm6ioIu5h0mqi+bgP
-	T2ocaqEu5UEqHNciqs7vbSzqW6yqAQLY1fkVwpe62y3Qq5bCJzqjxSBgTIhMsVXg
+	:message-id:mime-version:references:subject:to; s=pp1; bh=bMwGir
+	IPigwljS07dhOxaKyl/gkkqqi9I/VK98Il+Lc=; b=K3Af1OEMCJ/C6ZEG/crdjz
+	MJETB0bYRe1vNYGIE6qrxC8qlYmZtG+1Az3uYlgmrcR31M06svu1GXIPqzdXzqLb
+	JGKaxTwKvgy9SR4J/EwiMH8T2XU//8uVlebpOphSwUbsRLwyO4T3OQyeucmUvBWB
+	66U+RZfG65T+ZnUC/zVVt9e9ZMJlAYyzgzcxz9UVBGT6+48LEftl0WAKxTPnslnL
+	+/lAN//UBzr3Y5CuZksHFKL41lBFHh/nuQI4mnluLwLZnHRWoqSiyayUL3JFD9b+
+	7l/hQZ2gaQmHz5zs+7fieG7vgGphb2yX0HptSqthQL92xW6S8fcpeQo3OAEf2rqg
 	==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4euequcndh-1
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4euequcrge-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Fri, 19 Jun 2026 08:55:30 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 65J8naBj023548
-	for <linux-s390@vger.kernel.org>; Fri, 19 Jun 2026 08:55:28 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4ev172g0xr-1
+	for <linux-s390@vger.kernel.org>; Fri, 19 Jun 2026 09:17:14 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 65J94aaV015532
+	for <linux-s390@vger.kernel.org>; Fri, 19 Jun 2026 09:17:13 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4ev172g3w6-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Fri, 19 Jun 2026 08:55:28 +0000 (GMT)
+	for <linux-s390@vger.kernel.org>; Fri, 19 Jun 2026 09:17:13 +0000 (GMT)
 Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 65J8tPX748431402
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 65J9H9dO51184104
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 19 Jun 2026 08:55:25 GMT
+	Fri, 19 Jun 2026 09:17:09 GMT
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 010242004E;
-	Fri, 19 Jun 2026 08:55:24 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id CE3C12004D;
+	Fri, 19 Jun 2026 09:17:09 +0000 (GMT)
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C75E620040;
-	Fri, 19 Jun 2026 08:55:24 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id A74D820049;
+	Fri, 19 Jun 2026 09:17:09 +0000 (GMT)
 Received: from [9.111.159.204] (unknown [9.111.159.204])
 	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 19 Jun 2026 08:55:24 +0000 (GMT)
-Message-ID: <a548db54-6b9c-4edd-917d-5ed7a967fb66@linux.ibm.com>
-Date: Fri, 19 Jun 2026 10:55:24 +0200
+	Fri, 19 Jun 2026 09:17:09 +0000 (GMT)
+Message-ID: <5cf08341-acf3-497a-859f-65889ab294d9@linux.ibm.com>
+Date: Fri, 19 Jun 2026 11:17:09 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -63,35 +63,35 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH v1 1/1] pkey: Fix bitsize check in PKEY_VERIFYPROTK ioctl
-To: Holger Dengler <dengler@linux.ibm.com>
-Cc: Harald Freudenberger <freude@linux.ibm.com>, linux-s390@vger.kernel.org,
+To: freude@linux.ibm.com
+Cc: Holger Dengler <dengler@linux.ibm.com>, linux-s390@vger.kernel.org,
         Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>
 References: <20260619074541.1710716-1-dengler@linux.ibm.com>
  <20260619074541.1710716-2-dengler@linux.ibm.com>
  <a4234cb9-5d92-4b97-979d-2b0be9cbeb1e@linux.ibm.com>
- <ba6122f2-c4a3-48f1-8272-f5b9de453442@linux.ibm.com>
+ <c701bc8554683dab75d5fcd95f01175b@linux.ibm.com>
 Content-Language: en-US, de-DE
 From: Ingo Franzki <ifranzki@linux.ibm.com>
-In-Reply-To: <ba6122f2-c4a3-48f1-8272-f5b9de453442@linux.ibm.com>
+In-Reply-To: <c701bc8554683dab75d5fcd95f01175b@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNjE5MDA4MSBTYWx0ZWRfX8++tWt/po1+k
- Mu0zjVxuSxfR7J7KexSUxuNhgyAWE9keP3y4ipnlj1aJ8HZnli5zR2bsKahHN97mg5ESnP6Mq0R
- LHxgGzDZDlkldCYZb9pLeRqUHnRISQg=
-X-Proofpoint-ORIG-GUID: 94iocXZD7Ov8mcWpkubqUfwYq8XzL4-F
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjE5MDA4MSBTYWx0ZWRfX8lBYMeJvNp+V
- UMbPubjHoeGm2QF4MQ3xmKP8UL1K1eDdXmkZKzTxoKpwIOQ80wWZI6x3YTofBR+WGlLgBjn++42
- T+J7TnJ9sccsf/EIGB/4hr+FCOhbjp+lnCfginUcxTNYbfcY2eXja7jB3myqB+Nrt5N5LgpSavC
- iPEOKxLAbjDe8mek0w3R3D7DxeK018Ixn+uBcTIR+EAv+TQjjPNYvZZPDpQk9ZjVaEMpvAEfexj
- KRUUOmZOYT5C+U1KJP4NtdlkOSPL6kX2lWcLlj99s5cYYEwLSqNig1GbWWl3UlGCCQ3s+cuhbyC
- EOu2jMoTY8BulVg2zNpJpzZzsbNzgh7bdQIl2J3BEz2efqIOqxtESYP5G8U7dTMym0QolDj6EIg
- uQUc/OO93KbDnNKxZ9izMtO/OlSBbKKBp7cBI3uGdrpwrILwVGrYe8j6E8fRth+cEfnyAHU/ZWg
- TwC1R8bmDdB9eYdwTVg==
-X-Proofpoint-GUID: 94iocXZD7Ov8mcWpkubqUfwYq8XzL4-F
-X-Authority-Analysis: v=2.4 cv=L9gtheT8 c=1 sm=1 tr=0 ts=6a350402 cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNjE5MDA4MSBTYWx0ZWRfXyyj5HJncD7rg
+ /7kaUIpQoR3Jfn9mw3sAx5+eEMTe6bRG6D5gS529GIBhztLC4YWzDrZkgZ/pjDwT9PkiOSN/BAd
+ 0/W+S91hrtJgNr1GvCipkS/1AtKlauQ=
+X-Proofpoint-ORIG-GUID: Qt6O8APUp1nXgU11AbFZjGdi9mwPRsFi
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjE5MDA4MSBTYWx0ZWRfX6uf86xgJRW/t
+ gcoJcgW8kenOcTu/uA1yVG7hsRtUIwUkcIBXAq4HBpMfJWJHwiTAxiysKLmQhTbfWRofwq1lf34
+ dQC0cgmq7YikbEJ40yAfnMd+WGkR81lKvXPa/9Ml7ryMxNIvguxzoQCLXQp5V1V5TtAP/ku+sa6
+ aorfIKOE1RauXhLWS1ZqExBaCOszi1T8kev/legl5d0dBSTT0xLCH2U8ZIz/XLrVs6ui1Temogm
+ uJwQL8QQkgAAJx3Z9pKvFiKdzFslHwbf0fmD8WHpnyZeUigLodmcL7Vw3egJYs3IZVK2Anag63X
+ /mo020WYBZe3ZrZJ1YYjyYL7vXtmaju6zZewZDexkGYLkW04jVmDWF2xuO9bSZVqq28u5vNuKie
+ ThBIjsF2ATgcs0PPotWP/5VsIyAAIhRBIw5f8T5JXCr7b0Kz/bI/pUE7wNK05Fr7q6JJ6i51zE5
+ 9rWyo+9fFsAtEhGTf5w==
+X-Proofpoint-GUID: Qt6O8APUp1nXgU11AbFZjGdi9mwPRsFi
+X-Authority-Analysis: v=2.4 cv=L9gtheT8 c=1 sm=1 tr=0 ts=6a35091a cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
  a=IkcTkHD0fZMA:10 a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22
  a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8
  a=qttPAmirWCgBvoJqxUAA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
@@ -104,8 +104,8 @@ X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2606190081
 
-On 19.06.2026 10:45, Holger Dengler wrote:
-> On 6/19/26 10:32, Ingo Franzki wrote:
+On 19.06.2026 10:43, Harald Freudenberger wrote:
+> On 2026-06-19 10:32, Ingo Franzki wrote:
 >> On 19.06.2026 09:45, Holger Dengler wrote:
 >>> As part of the verification, the PKEY_VERIFYPROTK ioctl checks for
 >>> supported keytype, which are derived from the bit-size of the key. The
@@ -118,47 +118,45 @@ On 19.06.2026 10:45, Holger Dengler wrote:
 >>> Fixes: 8fcc231ce3be ("s390/pkey: Introduce pkey base with handler registry and handler modules")
 >>> Signed-off-by: Holger Dengler <dengler@linux.ibm.com>
 >>> ---
->>>   drivers/s390/crypto/pkey_api.c | 3 ++-
->>>   1 file changed, 2 insertions(+), 1 deletion(-)
+>>>  drivers/s390/crypto/pkey_api.c | 3 ++-
+>>>  1 file changed, 2 insertions(+), 1 deletion(-)
 >>>
 >>> diff --git a/drivers/s390/crypto/pkey_api.c b/drivers/s390/crypto/pkey_api.c
 >>> index d6b595eb3370..2160e1de3014 100644
 >>> --- a/drivers/s390/crypto/pkey_api.c
 >>> +++ b/drivers/s390/crypto/pkey_api.c
 >>> @@ -334,7 +334,8 @@ static int pkey_ioctl_verifyprotk(struct pkey_verifyprotk __user *uvp)
->>>       if (copy_from_user(&kvp, uvp, sizeof(kvp)))
->>>           return -EFAULT;
->>>   -    keytype = pkey_aes_bitsize_to_keytype(8 * kvp.protkey.len);
+>>>      if (copy_from_user(&kvp, uvp, sizeof(kvp)))
+>>>          return -EFAULT;
+>>>
+>>> -    keytype = pkey_aes_bitsize_to_keytype(8 * kvp.protkey.len);
 >>> +    keytype = pkey_aes_bitsize_to_keytype(8 * (kvp.protkey.len -
 >>> +                           AES_WK_VP_SIZE));
->>>       if (!keytype) {
->>>           PKEY_DBF_ERR("%s unknown/unsupported protkey length %u\n",
->>>                    __func__, kvp.protkey.len);
+>>>      if (!keytype) {
+>>>          PKEY_DBF_ERR("%s unknown/unsupported protkey length %u\n",
+>>>                   __func__, kvp.protkey.len);
 >>
 >> Why not simply use
 >>
->>       t->keytype = kvp.protkey.type;
+>>      t->keytype = kvp.protkey.type;
 >>
 >> and remove the whole 'keytype = pkey_aes_bitsize_to_keytype(....)' thing ?
->> The type of the protected key is already contained in the protected key structure, so why trying to guess it from the size again?
+>> The type of the protected key is already contained in the protected
+>> key structure, so why trying to guess it from the size again?
+> 
+> Not sure how this comes from. However, as this function anyway is only
+> valid to be called for protected AES keys I would stay with the guessing
+> from the length.
+
+The problem with guessing the type from the length is that there are non-AES protected key types that have the same size as AES keys, e.g. PKEY_KEYTYPE_ECC_P256 and PKEY_KEYTYPE_ECC_ED25519 are both 64 (32+32) bytes in size and would be treated as AES-256 bit key with the current guessing....
+
+> 
 >>
->> You will need a length check for the 'memcpy(t->protkey, kvp.protkey.protkey, kvp.protkey.len);' (regardless of how you determine the type).
+>> You will need a length check for the 'memcpy(t->protkey,
+>> kvp.protkey.protkey, kvp.protkey.len);' (regardless of how you
+>> determine the type).
 > 
-> I think, we need to check both: the derived keytype from the keysize AND the the keytype in the struct. The ioctl gets a struct which can contain any random data. So, we should first derive the keytype from the keysize and compare it with the keytype in the struct. Any mismatch should result in an error. I'll add this check in the v2.
-
-Well, you finally call pkey_handler_verify_key() which calls pckmo_verify_key() and this has the following already:
-
-		keysize = pkey_keytype_to_size(t->keytype);
-		if (!keysize || t->len != keysize + AES_WK_VP_SIZE)
-			goto out;
-
-So you basically do the same here again. 
-
-You might have to limit the type to AES keys though. 
-
-> 
-> And, as I already mentioned: the length-check before the memcpy() is mandatory in any way and a fix for this is already on its way.
-> 
+> As you wrote, the length still needs to be checked here for <= sizeof(t->protkey).
 
 
 -- 
