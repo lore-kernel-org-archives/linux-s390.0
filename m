@@ -1,57 +1,57 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B9013B9D98;
-	Fri, 19 Jun 2026 15:52:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E1CE33BBFC9;
+	Fri, 19 Jun 2026 15:52:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781884332; cv=none; b=gig1YqsCeRRnW+jEJd87RQ9y50viwqFd885fU9gH0+vrOoQDLytsLf1X0Isf23i4Mh3sZAywIGD53zId5EvnC6BiBcaTApIcon9oEoQ6C6ut7ax9IQ8uA+xvHqp7vZawYiYu8Jh/hOZVW2VseYnMiMoW7X/mv7NVcHdh9hhHnak=
+	t=1781884336; cv=none; b=lCX+RHeeeu48y6lRJzrBjSwBFUoPYcD7Unly3nVLIly1i9kJ5mSAIwiauY1/AHc3J1Da3DZwkcIf4C9EdLFCEEdQtY0i7j+osXQvBcSbF6v+p7QFiGYQYY9PH4PdFmvXHzqgTgyICgb29ShsZKOWzNPUBrNmNETMH/CnaSonIBk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781884332; c=relaxed/simple;
-	bh=okAOvLQ4y0eY/fwgkvGuuxb8NOEPB30eyMm9tizr6DQ=;
+	s=arc-20240116; t=1781884336; c=relaxed/simple;
+	bh=hxJlohSZhxk2e3l4YWgw1gpyQXL+9HMKNrlV8Vg49Jg=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=t6xDwFQAAIFPa0iC5M3maDqSw8oNw9vJ1bOAdSu5H0STMcuiFTUtS5HvhxLGrPCu581/yKjm2u8EW33mCB6R1oYrEEYM5MK7x7zh5wEcJL9yZF8z6zC1EklMFa1RqcLfSlQg87OrF+eRjec8m21yJFoYUHXrhsWdKJzmQw4+BWo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=pC53+zR8; arc=none smtp.client-ip=148.163.156.1
+	 MIME-Version; b=eQ5mBIgyuNMo2HXn3EaU9F+2PK2JyAMFUl9daLCmXQk3/PuTf6mIgSJj0IrU/UV96Zw0JORuaLwtL2DjZ2X/3WAjK1ZVr0722JZMEkiq32iG3IbpSnOnCovW6mD3gBX+OnzJyjGIKvktk+4gH5bJrrVMw1e9QZK75hUQN/Jwkto=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=EXfdsgtV; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="pC53+zR8"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65JDIDOn2415582;
-	Fri, 19 Jun 2026 15:52:02 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="EXfdsgtV"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65JDIVbB2320928;
+	Fri, 19 Jun 2026 15:52:08 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=VlM7qhGlAWkChpNhk
-	2d/9oqxLbUmFTK4zaaRixCZd1I=; b=pC53+zR8XTr/Bbek9tUM1Id2dEWHLmvB7
-	mTxADXNL9T+phd9eAA9gQLrJaEQImjpSG2HWsOMdxh4gCOO4DUsrxwPDmy3ka3Wk
-	q/T7acEp1iSEbHCdf1qwIOpQOf7rRCnfIaCBcj2dvz9/zhlFxEB+sCrvYYlTKgWl
-	PIXnKq+7gzymoNUPyZsvcEp/kZLSvWD2I3hRcFqYzrfuzjbAbAhB/kSqseA8gEb/
-	5D3MG1S3Blw3aSkfszzIeqctXdCA5MdgS9cdSVwY3wK+zsATT1j/AokbvU/PsabE
-	CxUT6usWjGZWU+XZPztLVg0ILkBwTwLGo+92XgQQiScDjikKQM7DQ==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4eueqtxgxp-1
+	:mime-version:references:subject:to; s=pp1; bh=Uxan4MqSAHmyV3Qxf
+	eM/l8JC0t/V+KuyjCfyeWrMWXU=; b=EXfdsgtVTf1qKlbVrIVtLu3MPGIt5LCN9
+	wNnobIrqpRCQsuVoRiZQt8ps34ZJGadC8Q5E2P6weJMu0IcxJoTB/b9nqQtpobC5
+	p97tbYtw1FgSdbE3uH4Mv8SM2Q3B3UMhUcid92tpQKBtaPfyg0J5ijMqspc5gU9/
+	bOEQZolkD5U+7gqtByS8itY6ajAe1U8nSfaKAZILl17pfAtCVKiDOUh1t16PnhHr
+	Nl3pIlnwcbzgwBaZJkvFRIj6yx/7pw055vtYwzbcAOpvWAdPVHpH8gv6ltyDhaif
+	23WnPIKF7LQnuRMOv6B7YVotZ+1b2kqcXJ7gMRUSSARkn2aO6zLuw==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4eueqxp6cv-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 19 Jun 2026 15:52:01 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 65JFnipa003405;
-	Fri, 19 Jun 2026 15:52:01 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4ev1729hky-1
+	Fri, 19 Jun 2026 15:52:07 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 65JFnxn2026562;
+	Fri, 19 Jun 2026 15:52:07 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4ev172hh6f-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 19 Jun 2026 15:52:00 +0000 (GMT)
+	Fri, 19 Jun 2026 15:52:07 +0000 (GMT)
 Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 65JFpvT013763030
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 65JFq3L433882464
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 19 Jun 2026 15:51:57 GMT
+	Fri, 19 Jun 2026 15:52:03 GMT
 Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 501622004E;
-	Fri, 19 Jun 2026 15:51:57 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 5994620043;
+	Fri, 19 Jun 2026 15:52:03 +0000 (GMT)
 Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 437BA20040;
-	Fri, 19 Jun 2026 15:51:56 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 4817520040;
+	Fri, 19 Jun 2026 15:52:02 +0000 (GMT)
 Received: from p-imbrenda.ibmuc.com (unknown [9.111.54.29])
 	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 19 Jun 2026 15:51:56 +0000 (GMT)
+	Fri, 19 Jun 2026 15:52:02 +0000 (GMT)
 From: Claudio Imbrenda <imbrenda@linux.ibm.com>
 To: linux-kernel@vger.kernel.org
 Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, borntraeger@de.ibm.com,
@@ -59,9 +59,9 @@ Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, borntraeger@de.ibm.com,
         nrb@linux.ibm.com, schlameuss@linux.ibm.com, gra@linux.ibm.com,
         hca@linux.ibm.com, gerald.schaefer@linux.ibm.com, gor@linux.ibm.com,
         agordeev@linux.ibm.com, svens@linux.ibm.com
-Subject: [PATCH v4 1/7] s390/mm: Fix handling of _PAGE_UNUSED pte bit
-Date: Fri, 19 Jun 2026 17:51:48 +0200
-Message-ID: <20260619155154.307572-2-imbrenda@linux.ibm.com>
+Subject: [PATCH v4 6/7] KVM: s390: cmma: Fix cmma dirty tracking
+Date: Fri, 19 Jun 2026 17:51:53 +0200
+Message-ID: <20260619155154.307572-7-imbrenda@linux.ibm.com>
 X-Mailer: git-send-email 2.54.0
 In-Reply-To: <20260619155154.307572-1-imbrenda@linux.ibm.com>
 References: <20260619155154.307572-1-imbrenda@linux.ibm.com>
@@ -73,98 +73,125 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: FxIqyg3UJ2kIe7IKkqa2R05lpDziVXcR
-X-Proofpoint-GUID: FxIqyg3UJ2kIe7IKkqa2R05lpDziVXcR
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjE5MDE1MCBTYWx0ZWRfX+AW9NYVkRX/R
- 9a+aNvp+civd9VKURag+/4fg5NdkbJOqA1DYiXtSfXkVyeOx1jT9Gb6W1U6IYw0zp/kHck3j9ZV
- 6MfjiP8wBCalNCNZ1CyOI5QTKIDv07PaFexeIFupgJ3y9OHe/B7iG1/hHJF5OK6OxhAtnG7IYsX
- yNk9AWdYqW3EAcLezc/9hUn9a2m6u593A4A8bRKwarrvzRm6dgqZSXAEjrvdCm+frYWLxeY4b7a
- ePz2jsESHTEzfYyjnnIH7IdYRYUU56cn0Mml6Lilr3SwRIPFcpOX6Uqvwu7EFaXdth2ta4zoAy3
- z8ptaQrOnSgV/37wEfuMnPLlz+yormxyab2WbHqCUF+TxpMdaDwZbhKCfmw/SvZYXI4JNaoJI0Y
- oGuEcJSqt8d+SwQU7mg8zx1fcG1G9RFXcgtrVY/QvKq1Rj4G1bjEoAoZzxFEk8nwj+i1FS0fBwX
- MhXxLSgJPuLsvSO6eAw==
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNjE5MDE1MCBTYWx0ZWRfX9ew9tWmDbHO9
- LPjPaTgx45c4m7yJ7ilZ6SQNtfQCGbZMjKTdm5gcpovheCbtMBV+NofIEpH4UFz+l7YqxGaMWgd
- 3ZGuhg2tDa+oohkL1Ur4zSBXYmvEano=
-X-Authority-Analysis: v=2.4 cv=B4KJFutM c=1 sm=1 tr=0 ts=6a3565a1 cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+X-Authority-Analysis: v=2.4 cv=OcSoyBTY c=1 sm=1 tr=0 ts=6a3565a7 cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
  a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8 a=BXoTXrUDSLvzEcKRN5AA:9
+ a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8 a=Y1bJqYFpAtDwCtoAyV8A:9
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjE5MDE1MCBTYWx0ZWRfX4PLysUdg3L6D
+ 77R/9u47cOtJXvAdKZKMcu12SD/VOVv9sW/EAYKgxhPTY3bGcNbirA/120kl7IZRPaJzdP9Mb65
+ 9L3WoE5bqYlfxSN8q9KwdxAYdu1sNUeGUuU33lr68eqUMNo+42Jqv/BFpV/wWKpe9Rd3H2rwwLk
+ FeLWzjXK/xM+tTyjdm1WXcmNpl//JtJR9oJlYrwcXvV1u3ebuhkjCrTE22vtVj1VnsBOHd4ur1U
+ 2FzP4ubtg5w+HMrq9S5+mGOPcoVEyu65Jiv59r3tv6wmhaJejCNSSO1P/Up/2f6iS/cxPvuL1g1
+ Ax7lgnyV0rrO/LW8TpI0b0NsaElbO3pT4XeKZGB1FI2PHw7TsfQ9BTyGohEA3+QPe/OY7bOZLsC
+ UR1fz8rPX9HD70p8I8SavKTtfrOL2vtn2YJkGUM5B6xlg7u87SCCCWcMgyT5+W5+JuDfA3xrl9C
+ baVUoq8lBHJ3Vz5fy7A==
+X-Proofpoint-GUID: XeXbK-JGZEn8J0wQkpIEX5PPpmm_P7Y2
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNjE5MDE1MCBTYWx0ZWRfX77TBKS97rR0o
+ dxxwGL+6sfQe7fm4UnqXwnAnGeI/jF/qCky2FCjLV230izsl6AGIg+tzSlOQFKC2b/CWvgozsHL
+ Cwr8Mv+u1sNS0ohl+RrFQ/21s++HjH4=
+X-Proofpoint-ORIG-GUID: XeXbK-JGZEn8J0wQkpIEX5PPpmm_P7Y2
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
  definitions=2026-06-19_03,2026-06-18_03,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 adultscore=0 lowpriorityscore=0 suspectscore=0
- priorityscore=1501 clxscore=1015 phishscore=0 spamscore=0 bulkscore=0
- impostorscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2606190150
+ priorityscore=1501 phishscore=0 bulkscore=0 suspectscore=0 lowpriorityscore=0
+ impostorscore=0 malwarescore=0 spamscore=0 adultscore=0 clxscore=1015
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2606190150
 
-The _PAGE_UNUSED softbit should not really be lying around. Its sole
-purpose is to signal to try_to_unmap_one() and try_to_migrate_one()
-that the page can be discarded instead of being moved / swapped.
+It is possible that some guest memory areas have not been touched yet
+when starting migration mode, and thus have no ptes allocated. Only
+existing and allocated ptes should count toward the total of dirty cmma
+entries.
 
-KVM has no way to know why a page is being unmapped, so it sets the bit
-on userspace ptes corresponding to unused guest pages every time they
-get unmapped. KVM has no reasonable way to clear the bit once the page
-is in use again.
+When starting migration mode, count how many pages actually have a pte
+(and PGSTE), instead of blindly counting the number of pages in all
+memslots. Avoid double-counting pages whose cmma information has been
+updated concurrently.
 
-While set_ptes() checks and clears the bit, other paths that set new
-ptes did not. This led to used pages being thrown out as if they were
-unused, causing guest corruption.
+Also fix dat_get_cmma() to properly wrap around if the first attempt
+reached the end of guest memory without finding cmma-dirty pages.
 
-Fix the issue by clearing the _PAGE_UNUSED bit for present ptes in
-set_pte(), i.e. whenever a present pte is getting set. The check in
-set_ptes() is then redundant and can be removed.
-
-Also fix gmap_helper_try_set_pte_unused() to only set the bit if the
-pte is present; the _PAGE_UNUSED bit is only defined for present ptes
-and thus should not be set for non-present ptes.
-
+Fixes: e38c884df921 ("KVM: s390: Switch to new gmap")
 Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Fixes: c98175b7917f ("KVM: s390: Add gmap_helper_set_unused()")
-Acked-by: Heiko Carstens <hca@linux.ibm.com>
 ---
- arch/s390/include/asm/pgtable.h | 4 ++--
- arch/s390/mm/gmap_helpers.c     | 3 ++-
- 2 files changed, 4 insertions(+), 3 deletions(-)
+ arch/s390/kvm/dat.c      |  3 +++
+ arch/s390/kvm/gmap.c     | 14 ++++++++++++--
+ arch/s390/kvm/kvm-s390.c |  5 +----
+ 3 files changed, 16 insertions(+), 6 deletions(-)
 
-diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
-index ca376a9b8e41..d03663483f76 100644
---- a/arch/s390/include/asm/pgtable.h
-+++ b/arch/s390/include/asm/pgtable.h
-@@ -980,6 +980,8 @@ static inline void set_pmd(pmd_t *pmdp, pmd_t pmd)
+diff --git a/arch/s390/kvm/dat.c b/arch/s390/kvm/dat.c
+index cffac7782c4b..0ad4ebc80eba 100644
+--- a/arch/s390/kvm/dat.c
++++ b/arch/s390/kvm/dat.c
+@@ -1253,6 +1253,9 @@ int dat_get_cmma(union asce asce, gfn_t *start, unsigned int *count, u8 *values,
+ 	};
  
- static inline void set_pte(pte_t *ptep, pte_t pte)
+ 	_dat_walk_gfn_range(*start, asce_end(asce), asce, &ops, DAT_WALK_IGN_HOLES, &state);
++	/* If no dirty pages were found, wrap around and continue searching */
++	if (*start && state.start == -1)
++		_dat_walk_gfn_range(0, *start, asce, &ops, DAT_WALK_IGN_HOLES, &state);
+ 
+ 	if (state.start == -1) {
+ 		*count = 0;
+diff --git a/arch/s390/kvm/gmap.c b/arch/s390/kvm/gmap.c
+index e6e786811db8..e3d620af8a85 100644
+--- a/arch/s390/kvm/gmap.c
++++ b/arch/s390/kvm/gmap.c
+@@ -1075,7 +1075,16 @@ int gmap_protect_rmap(struct kvm_s390_mmu_cache *mc, struct gmap *sg, gfn_t p_gf
+ 
+ static long __set_cmma_dirty_pte(union pte *ptep, gfn_t gfn, gfn_t next, struct dat_walk *walk)
  {
-+	if (pte_present(pte))
-+		pte = clear_pte_bit(pte, __pgprot(_PAGE_UNUSED));
- 	WRITE_ONCE(*ptep, pte);
+-	__atomic64_or(PGSTE_CMMA_D_BIT, &pgste_of(ptep)->val);
++	union pgste pgste;
++
++	pgste = pgste_get_lock(ptep);
++	/* Avoid double-counting when concurrent updates happen */
++	if (!pgste.cmma_d) {
++		pgste.cmma_d = 1;
++		atomic64_inc(walk->priv);
++	}
++	pgste_set_unlock(ptep, pgste);
++
+ 	if (need_resched())
+ 		return next;
+ 	return 0;
+@@ -1089,7 +1098,8 @@ void gmap_set_cmma_all_dirty(struct gmap *gmap)
+ 	do {
+ 		scoped_guard(read_lock, &gmap->kvm->mmu_lock)
+ 			gfn = _dat_walk_gfn_range(gfn, asce_end(gmap->asce), gmap->asce, &ops,
+-						  DAT_WALK_IGN_HOLES, NULL);
++						  DAT_WALK_IGN_HOLES,
++						  &gmap->kvm->arch.cmma_dirty_pages);
+ 		cond_resched();
+ 	} while (gfn);
  }
- 
-@@ -1332,8 +1334,6 @@ pgprot_t pgprot_writecombine(pgprot_t prot);
- static inline void set_ptes(struct mm_struct *mm, unsigned long addr,
- 			      pte_t *ptep, pte_t entry, unsigned int nr)
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index ffb20a64d328..907d2ca9951d 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -1191,7 +1191,6 @@ static int kvm_s390_vm_start_migration(struct kvm *kvm)
  {
--	if (pte_present(entry))
--		entry = clear_pte_bit(entry, __pgprot(_PAGE_UNUSED));
- 	page_table_check_ptes_set(mm, addr, ptep, entry, nr);
- 	for (;;) {
- 		set_pte(ptep, entry);
-diff --git a/arch/s390/mm/gmap_helpers.c b/arch/s390/mm/gmap_helpers.c
-index 1cfe4724fbe2..60023b6fdcb1 100644
---- a/arch/s390/mm/gmap_helpers.c
-+++ b/arch/s390/mm/gmap_helpers.c
-@@ -181,7 +181,8 @@ void gmap_helper_try_set_pte_unused(struct mm_struct *mm, unsigned long vmaddr)
- 	if (IS_ERR_OR_NULL(ptep))
- 		return;
+ 	struct kvm_memory_slot *ms;
+ 	struct kvm_memslots *slots;
+-	unsigned long ram_pages = 0;
+ 	int bkt;
  
--	__atomic64_or(_PAGE_UNUSED, (long *)ptep);
-+	if (pte_present(*ptep))
-+		__atomic64_or(_PAGE_UNUSED, (long *)ptep);
- 	pte_unmap_unlock(ptep, ptl);
+ 	/* migration mode already enabled */
+@@ -1208,12 +1207,10 @@ static int kvm_s390_vm_start_migration(struct kvm *kvm)
+ 	kvm_for_each_memslot(ms, bkt, slots) {
+ 		if (!ms->dirty_bitmap)
+ 			return -EINVAL;
+-		ram_pages += ms->npages;
+ 	}
++	kvm->arch.migration_mode = 1;
+ 	/* mark all the pages as dirty */
+ 	gmap_set_cmma_all_dirty(kvm->arch.gmap);
+-	atomic64_set(&kvm->arch.cmma_dirty_pages, ram_pages);
+-	kvm->arch.migration_mode = 1;
+ 	kvm_s390_sync_request_broadcast(kvm, KVM_REQ_START_MIGRATION);
+ 	return 0;
  }
- EXPORT_SYMBOL_GPL(gmap_helper_try_set_pte_unused);
 -- 
 2.54.0
 
