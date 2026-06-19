@@ -1,65 +1,66 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C276721CC5C;
-	Fri, 19 Jun 2026 13:51:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D2AE17745
+	for <linux-s390@vger.kernel.org>; Fri, 19 Jun 2026 13:57:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781877117; cv=none; b=bFFEYUd59gkDM4qjgNuZ4MjobPQ+jRJvA7dIQodhfkhoOG/3tdYTHBzAS37LHsOhFlUt0OUUwYLxZK6lR6LUxdN7XTW2+XzvWU7GQ3mQctRHzG+ZRxmcfVg1WOO1K6Owil8xojdgMYMFHV0SeyV1l0yfGQaOIXLS5K6cz3rM2LI=
+	t=1781877469; cv=none; b=H7GVySIqYkbHtfA4cZq7LGhRQrjk5S7DSlVNVZjCCfbtJlJI6FpDwJHi5e06MuR6DROj9VykU/MfmgYRa0bURUi1koRr9NgwLQFvXtZrAQ70w4pAcgprJZCapZf9b1ON450eEPKN5jhkuKshOWAZgcGKAMCxKokVami8kLCxirA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781877117; c=relaxed/simple;
-	bh=EzBZJ9qeG1H+CBmwDylZnbgn0rtwsHQTYrzQKYU5w/M=;
-	h=Date:From:To:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=HPDL9mZuKZFSEvGh1xPkYCr4DBjIV5QkrwkIBC7cmYuzu/1Zo6E0XeElWatiIwUhLhnZTke8dZFMlX00Ryfs0ygYyNmJLp2GFQzscBTY9yf2TnnhuHRK2raDNwdWcc7EmGM71OcBzKqIix13OscL0LFyQswa+TDOJEjXBNEspxM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=EPW2HbIZ; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1781877469; c=relaxed/simple;
+	bh=73sEqT/hDY4BleJLLM6JJwHwar5B80Hn0zCBkmLW5go=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=J1Jg4zBwtKn8sYklslKkv4SPebVfvJBFqaWda3Euc7cGi0Gf0D3OAGis1a9u+oKPrDWA9kJ094cGllfIaql1eHqguj7JbNJU1uvnGazjLQz+DTDvz/0+n6iJ7stmK930CLTEtricXutTwWu5WIYoCH31JU7tLxEtuvZ+ZfhFJNU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=MJPm3X30; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="EPW2HbIZ"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65JDIWHn2543348;
-	Fri, 19 Jun 2026 13:51:45 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=
-	content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=7keAmD47ngSgb4sNFEUjcZe2pBbMNw
-	OoZa+mFQjvSnY=; b=EPW2HbIZor1lobXzrcHOi3UJN5UbUvIoAEI9caKT+owGWK
-	j/jiF9ZGeXGab5Y9qekQM8e9G8KqbNo+5C9SMs8hUyymyYZI0mgu2/YtH+1Pc78v
-	pAJlFkdr8LOXE59yCI+V0JtAj02a34bN/HTEmpuf/EHE2UbrHn35OLlRQNgJ8TrO
-	pLbRsGhMltptsC4BpIJRAcDFJcQSbqeVU5KPGLeWgDHzU9lV1GK8kdjX9Wles1jH
-	Kzcw4gt+RLbwvKk3b8VoRn3zWtJDzo+4z9pQwdyBJPqs/SY0/2lsOs6CymURaw5U
-	N7FWrwB6rR+x1J1xViovZS0Zo6d/sYPbH+24XI0g==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4euequdwhx-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 19 Jun 2026 13:51:45 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 65JDnawA011481;
-	Fri, 19 Jun 2026 13:51:44 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4ev17293w5-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 19 Jun 2026 13:51:44 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 65JDpeao49873244
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="MJPm3X30"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65JDIbJi2321176
+	for <linux-s390@vger.kernel.org>; Fri, 19 Jun 2026 13:57:41 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=XbLhiHski/5gKUzcPshlSMs2VXPZDS
+	CMJ/7dhQobU58=; b=MJPm3X30Z3JCB5ocIIrRe7vsAW1RuXshi2YTBwznvEU+Nq
+	YRocBrc4pRlZtjxQDV9iE/ow5QpmxtlL4igMTt+sNr2BoGxSxxYMSb7lI1paNTYY
+	DgVuSQNnAe0kMNS1ja5PuzD1kTLisxjvrTROrQ8yRPvutQTwemY0KyxPfC31P6Gc
+	JL10fvBM5gL/IJ/b11HFZ3r6mJZG4fmi26lqWm+GHjDI/0f/AqvLJ+gI1GDGTTcR
+	91voX29028qPdfqbepJ5h2hziZUyolKTeF73mj8ti8avzMitABEHWfaQwJQxsx5x
+	kivlYWWo4EDl1IZaQxcfWkq3CGXXXrjxmWLu2nVg==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4eueqxnp72-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Fri, 19 Jun 2026 13:57:41 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 65JDnbMo020658
+	for <linux-s390@vger.kernel.org>; Fri, 19 Jun 2026 13:57:41 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4ev172h3st-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Fri, 19 Jun 2026 13:57:40 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 65JDvbWR45482468
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 19 Jun 2026 13:51:41 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D37BE2004B;
-	Fri, 19 Jun 2026 13:51:40 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B8B6920043;
-	Fri, 19 Jun 2026 13:51:40 +0000 (GMT)
+	Fri, 19 Jun 2026 13:57:37 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 192762004B;
+	Fri, 19 Jun 2026 13:57:37 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id F0EC720040;
+	Fri, 19 Jun 2026 13:57:36 +0000 (GMT)
 Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.224.92.206])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Fri, 19 Jun 2026 13:51:40 +0000 (GMT)
-Date: Fri, 19 Jun 2026 15:51:39 +0200
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Fri, 19 Jun 2026 13:57:36 +0000 (GMT)
+Date: Fri, 19 Jun 2026 15:57:35 +0200
 From: Alexander Gordeev <agordeev@linux.ibm.com>
-To: Bastian Blank <waldi@debian.org>, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] s390: Add build salt to the vDSO
-Message-ID: <341438b5-e46f-492e-833a-04b59f41275f-agordeev@linux.ibm.com>
-References: <ajQY-s7Y4mNPQfgy@steamhammer.waldi.eu.org>
+To: Christian Borntraeger <borntraeger@linux.ibm.com>
+Cc: Heiko Carstens <hca@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org
+Subject: Re: [PATCH v2] s390/traps: Add exception statistics
+Message-ID: <bafaf879-74b9-4f64-82aa-2cc1ad7dd9d8-agordeev@linux.ibm.com>
+References: <20260617123350.3220729-1-hca@linux.ibm.com>
+ <36ffea91-aacc-4687-8a25-7c4ebe7c9b74@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -68,61 +69,46 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <ajQY-s7Y4mNPQfgy@steamhammer.waldi.eu.org>
+In-Reply-To: <36ffea91-aacc-4687-8a25-7c4ebe7c9b74@linux.ibm.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNjE5MDEzMCBTYWx0ZWRfXyM85bi5Bo0vN
- TC/6RSHXj3vVOTlQLwEavhtwL8O9dKpLSFGt5KZKpHSOFdXBDPTxZf7WWXph/EXvcEHOaTfcE/b
- q/Y4tTWg8rgkOQkxoP7qWil+FjHTPW8=
-X-Proofpoint-ORIG-GUID: O01hcQcae6FviaSHSesZEXPi6XTBKu65
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjE5MDEzMCBTYWx0ZWRfX/MkvI1q28dHx
- VGRuVDu60wdECcpU4GP279deGna5EU4oKrl0cRXEQj1Ooh9R3jwIYcxjcGGHVPNfT7Cbb6RTxmE
- 31+5TdZPYJWGzN4ydAcJgj9gk3qavQgRF1l4QAH1IqD29PE0Z4wctakqF2ievs3Q53VcH+QRYUg
- vIIMM7cUvUI8+hR8FZCBuISpEO/YBrjwKRR7U+9hTxs02Qb0IVR8I0gMmpT4WplySQlr/PzgM0m
- BZfADK3h/YSX010ev5oDVpPGx8aHteUAXKqi2tlN/BfeDzgntgSeb4nGhXZ/OS+fwUFd0mdvFdV
- /tqidx4zvlqSK86qyZv+AJ1VtELnfeA/Jo8A4n8tHAfOVHUuZIexBaUPjXSG6/VAEjhhqhMkvt6
- lkxdly3WsEDRFy/XwlrXyk9abAMBWW/0tHY7JsOpGWpKqEnlqqFRUD28nAbF/FQdoy7qM2WG5NC
- Z1GzQZaYAVNQjm0/GrQ==
-X-Proofpoint-GUID: O01hcQcae6FviaSHSesZEXPi6XTBKu65
-X-Authority-Analysis: v=2.4 cv=L9gtheT8 c=1 sm=1 tr=0 ts=6a354971 cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+X-Authority-Analysis: v=2.4 cv=OcSoyBTY c=1 sm=1 tr=0 ts=6a354ad5 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
  a=kj9zAlcOel0A:10 a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=xNf9USuDAAAA:8
- a=HUiFJdqAhgTVA64Inx0A:9 a=CjuIK1q_8ugA:10
+ a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8
+ a=0lWeeNi243URCxY7aJ8A:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjE5MDEzMCBTYWx0ZWRfX3cNsTD2lgudo
+ akwFeyyf/eO5MyOeRrM+uSODN87z6bRUYAGfM6454CTwlc++BHHY/64JS3B1k3CMw6M5DF3sJew
+ 1ruGHIEaVN03Eplf80hBB+pP74U6XlbuZHDisqMkC4H4jlB+TkrDGM8PWCF8XLuTQ1nWmSnJWiw
+ yi1V+izL7YNy0+jkZMoS2aTlgb8kNmI4sTR8dJwA9oBpZ32ZvQ37ien4VwqOIOV0bzTVv3AJ7Uo
+ nrpKY+sA6MW1LMYzOK7knQNWfZwQo8xMJPPwF7RCLc82qsS2ACLH6BeuykWxi5pFHCsuVfSKbLr
+ VfWObXcp4f+sap4sKeIaM9DX149Ye1E4pJBoo44t88pyAuiPKfhVqvmHwswSec9DiLgm4eXwyp7
+ yKqBY8WSDtNvJT2NEaEDlo6aYAStQ7nzq3awbYK4fSL1ekA6xCHNa/eyDbnFEa2ZJmiI/CIYD1i
+ jazxA79QrLPx0N1HyLg==
+X-Proofpoint-GUID: XBEnnOQR55M-y-uS0zT-cTbRNL7VU7lS
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNjE5MDEzMCBTYWx0ZWRfXwknhYh8M3dDq
+ YA7roYjmlL3+EJALwrOdZpDKNY5SPiYb25qfVLZj6wSKu5H179Ny9G1JLc1hlaV9l2oJZ7s8YmO
+ 3oHjQ6deVdDrDK7ARGvxRErC2JZwrrA=
+X-Proofpoint-ORIG-GUID: XBEnnOQR55M-y-uS0zT-cTbRNL7VU7lS
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
  definitions=2026-06-19_03,2026-06-18_03,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0 impostorscore=0 malwarescore=0 clxscore=1011 adultscore=0
- phishscore=0 lowpriorityscore=0 suspectscore=0 priorityscore=1501 spamscore=0
+ priorityscore=1501 phishscore=0 bulkscore=0 suspectscore=0 lowpriorityscore=0
+ impostorscore=0 malwarescore=0 spamscore=0 adultscore=0 clxscore=1015
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2606190130
 
-On Thu, Jun 18, 2026 at 06:12:42PM +0200, Bastian Blank wrote:
-> The vDSO needs to have a unique build id in a similar manner
-> to the kernel and modules. Use the build salt macro.
+On Wed, Jun 17, 2026 at 04:37:56PM +0200, Christian Borntraeger wrote:
+> Am 17.06.26 um 14:33 schrieb Heiko Carstens:
+...
+> > Suggested-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+> > Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
+> > Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 > 
-> Signed-off-by: Bastian Blank <waldi@debian.org>
-> ---
->  arch/s390/kernel/vdso/note.S | 3 +++
->  1 file changed, 3 insertions(+)
-> 
-> diff --git a/arch/s390/kernel/vdso/note.S b/arch/s390/kernel/vdso/note.S
-> index db19d0680a0a..d215781f26b5 100644
-> --- a/arch/s390/kernel/vdso/note.S
-> +++ b/arch/s390/kernel/vdso/note.S
-> @@ -4,6 +4,7 @@
->   * Here we can supply some information useful to userland.
->   */
->  
-> +#include <linux/build-salt.h>
->  #include <linux/uts.h>
->  #include <linux/version.h>
->  #include <linux/elfnote.h>
-> @@ -11,3 +12,5 @@
->  ELFNOTE_START(Linux, 0, "a")
->  	.long LINUX_VERSION_CODE
->  ELFNOTE_END
-> +
-> +BUILD_SALT
+> Looks good to me
 
-Applied, thanks!
+Does it also translate to Acked-by or Reviewed-by?
+
+> Tested-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+
+Thanks!
