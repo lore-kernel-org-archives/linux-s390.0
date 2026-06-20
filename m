@@ -1,202 +1,129 @@
-Received: from mail-106119.protonmail.ch (mail-106119.protonmail.ch [79.135.106.119])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C502F146A66
-	for <linux-s390@vger.kernel.org>; Fri, 19 Jun 2026 22:17:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=79.135.106.119
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1A4894A33;
+	Sat, 20 Jun 2026 15:04:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781907442; cv=none; b=I1f9YFM18zLKm331bMa7VtksSuPBuY7mOV0p8tkB8BaTmH9IQycheBsk9BFeHMAp10o2qGnltV7VMXxSxz904kMXHX20pfRYXSE9E+lqZN+NFJczb1qwBM8kwdU5Vq1v2dH9wuBeo8mkcotd2ewcC9TTfrw+cfqLvbB32SgGr1c=
+	t=1781967843; cv=none; b=NgP2rAlG6eoAO2sXchYB/RBavmXL4UDp/pAGHwi9fW3q70ou397K1lse5//9iGZ8tIFxtBeVFu00jK1znGKQ7MilYZX106IsXsVZ37+JiZg1tWDWOksx5uRJimyke/ESBdJuy4QzASXPQoGUHGj2jAu99oCsxugYnxkedup6maM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781907442; c=relaxed/simple;
-	bh=j2c0IxMiFReviB5vLMVBslvgMK+ny6MI6LdQm5bfSvA=;
-	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=r7EN5epo9095TxVquo/ZyLNAOWXErpMJiiKKhz0USBMRqfwrsE9aoIwBYxVrVbfPqG/4XOet1JL4JAVuSUCilD83jaEvEPGVea0a5USWmfHhSrz7oGco8gCcNEyRWfJ3sG0I0FTTycajOCyFTYiNJwI/pHQjsYt0C0ulHYu2Q8U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=proton.me; spf=pass smtp.mailfrom=proton.me; dkim=pass (2048-bit key) header.d=proton.me header.i=@proton.me header.b=Bt9PL8sl; arc=none smtp.client-ip=79.135.106.119
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=proton.me
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=proton.me
+	s=arc-20240116; t=1781967843; c=relaxed/simple;
+	bh=1Fb2V5n37y0TpUPKkRa3aIW+N2BFKNzCFpC+CnDdOOQ=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=bk7C+Z2qWDhOeGiQarWhZ8Rbi8wf7Pr0sQtkA9QYiYJIqnAV6WW/OM+ecu/d/SiAH1ZvDb3SpfJa94s13Kiqa9ltqAN/jW5quhieQxrRJhV/+an2l0SlRXxp20T72vtGhrAsRKzXZC6l6NvIwEvJ0uVjFyEaCmckpr1/C0lj+P0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OHFqepYO; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=proton.me header.i=@proton.me header.b="Bt9PL8sl"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=proton.me;
-	s=protonmail; t=1781907430; x=1782166630;
-	bh=omSAXEDPBpL+hdOmk3W9RC/tv0AZX4Q/MqWzlQn06zI=;
-	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
-	 Feedback-ID:From:To:Cc:Date:Subject:Reply-To:Feedback-ID:
-	 Message-ID:BIMI-Selector;
-	b=Bt9PL8slXTyk3KKuSD2+RRfhZW1i5aHA9fNlzIiqqm2Ce53EF28gFIwlKnLDKKMIH
-	 OcOlUiLOXKAVRf0CM9/u9GVvnBcGhg/4DmA5g4a8qva6qulUrL6wCiAj1eL0VJPiJl
-	 WwCS3hdD4sCVUBhS3kHdl8wJK9gQFKfOPhgah+37X3ujqozpL9c38vsnF3gCHd+wbD
-	 lVwZ9Tt48hAENxVahsmHKTWQRAWQi6JQWjMlxZ22bJCa15Slezk4vT5Lvtv5GoM871
-	 Jk76G2zBRm2WwMqtrTROhMXYSvaYrl+xlIEPgc+HVu8KBc2diMihYaXFdPnQ2GttZf
-	 E3a8vA/gG7vWw==
-Date: Fri, 19 Jun 2026 22:17:05 +0000
-To: Dust Li <dust.li@linux.alibaba.com>
-From: Bryam Vargas <hexlabsecurity@proton.me>
-Cc: Wenjia Zhang <wenjia@linux.ibm.com>, "D . Wythe" <alibuda@linux.alibaba.com>, Sidraya Jayagond <sidraya@linux.ibm.com>, Eric Dumazet <edumazet@google.com>, "David S . Miller" <davem@davemloft.net>, Mahanta Jambigi <mjambigi@linux.ibm.com>, Wen Gu <guwen@linux.alibaba.com>, Simon Horman <horms@kernel.org>, Ursula Braun <ubraun@linux.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Tony Lu <tonylu@linux.alibaba.com>, Paolo Abeni <pabeni@redhat.com>, Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org, linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3 2/3] net/smc: bound the receive length to the RMB in smc_rx_recvmsg()
-Message-ID: <20260619221656.568510-1-hexlabsecurity@proton.me>
-In-Reply-To: <ajS4BgnyzRsa7HVm@linux.alibaba.com>
-References: <20260614-b4-disp-edd64be9-v3-0-551fa514257e@proton.me> <20260614-b4-disp-edd64be9-v3-2-551fa514257e@proton.me> <ajQWxQZXzM2J8kaZ@linux.alibaba.com> <20260618221106.236699-1-hexlabsecurity@proton.me> <ajS4BgnyzRsa7HVm@linux.alibaba.com>
-Feedback-ID: 199661219:user:proton
-X-Pm-Message-ID: 1a91e35b3cd3701ded8a0776683ec236139347e5
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OHFqepYO"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 716451F000E9;
+	Sat, 20 Jun 2026 15:04:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1781967841;
+	bh=NMNxP7dFFt/5T3vnJmpDKH4x27qF05pdQQn6o6Hpwxg=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=OHFqepYOxHYYXszdhMU9TUywOpMqYf7ZyyEsq+DhYwxKFrXUZcXWLAZGSEQoXuUc+
+	 LKsnti6F4bFh3aPDkwmHx4cpo2YxJfGtPsUH/HRJDhI3VU6uO6N1U+Mo2TAdwrSn3s
+	 TbHAIO6t3Zp9jnJNn9IqvIbitXgHHPb0ynKqodNoqy+1gtUgSlXIDe70OEfecDC0oE
+	 31HBf2IYEULWlyxeG7+1sYZ9X3E+ZQBbKiHrhQRxLXOXIsCtT9iI2T+Y+BLLSEQ6qQ
+	 Mejhlwceian65HqHlnKeyjiHvAwMwjKdhW44AQD10xo30upypDGPK2bT0fJd2NQLHW
+	 ie+W379/vSF5Q==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH net v2] net/smc: fix out-of-bounds read when
+ sk_user_data holds a sk_psock
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Sechang Lim" <rhkrqnwk98@gmail.com>
+Cc: "Heiko Carstens" <hca@linux.ibm.com>, bpf@vger.kernel.org, linux-s390@vger.kernel.org, "Vasily
+ Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
+In-Reply-To: <20260619150342.3626224-1-rhkrqnwk98@gmail.com>
+References: <20260619150342.3626224-1-rhkrqnwk98@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Sat, 20 Jun 2026 15:04:01 +0000
+Message-Id: <20260620150401.716451F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
 
-On Fri, 19 Jun 2026 11:31:18 +0800, Dust Li wrote:
-> I think we can decide after we see the real issue.
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
 
-Here it is, as a truth table over the real smc_curs_diff. cons is fixed (th=
-e app
-isn't reading), bytes_to_rcv is the running sum of per-CDC smc_curs_diff(pr=
-od_old,
-prod_new), len =3D 65504:
+Pre-existing issues:
+- [Critical] Overwriting `sk_user_data` during SMC fallback destroys BPF `p=
+sock` tags, leading to an infinite loop in `sock_map_close`.
+--
 
-  scenario                     b2r       count>=3Dlen  diff>len  occ>len  O=
-OB no-clamp  OOB clamp
-  honest steady / full / wrap  <=3D len    no          no        no       n=
-o            no
-  attack single big diff       131007    no          yes       yes      yes=
-           no
-  attack count=3Dlen-1 wrapflip  327519    no          yes       yes      y=
-es           no
-  attack wrap++ count=3D0        327520    no          no        no       y=
-es           no
+commit cfd1a0bff0746ee614e26837804e04bb4e94ae6c
+Author: Sechang Lim <rhkrqnwk98@gmail.com>
 
-Every attack row has count < len, so an input count check accepts it. The l=
-ast
-row is the one that matters: a peer that just increments prod.wrap with cou=
-nt=3D0
-adds len to bytes_to_rcv every CDC, unbounded, and no cursor-level check se=
-es it.
-The per-CDC diff is exactly len, and smc_curs_diff(cons, prod) stays at len
-because it can't see the wrap accumulation. The only thing that bounds it i=
-s
-clamping bytes_to_rcv at the consumer. So #2 isn't subsumed by validating c=
-ursors
-at the input -- the cursor view can't see the accumulator.
+net/smc: fix out-of-bounds read when sk_user_data holds a sk_psock
 
-> should we also abort the connection like what we did in patch #1 ?
+This commit modifies smc_clcsock_user_data() and its RCU variant to
+only return the smc_sock when the sk_user_data field carries SMC's tag
+alone. This prevents SMC from interpreting a sk_psock structure placed
+in sk_user_data by sockmap as an smc_sock, which was leading to
+out-of-bounds reads.
 
-Yes for net-next. Two caveats: First, the detection
-has to be on bytes_to_rcv itself, not on a cursor recompute -- the wrap++ r=
-ow
-walks past every cursor check, so an occupancy gate at the input wouldn't c=
-atch
-it. Second, the abort supplements the clamp, it doesn't replace it: the cla=
-mp is
-synchronous, the abort via queue_work isn't. The producer add runs in the t=
-asklet
-under bh_lock_sock, the consumer sub runs in smc_recvmsg under lock_sock wh=
-ich
-drops the spinlock, so they race; between queue_work and abort_work running
-smc_conn_kill, smc_recvmsg can read the inflated bytes_to_rcv and copy past=
- the
-RMB. The clamp at the consumer is what closes that window.
+> diff --git a/net/smc/smc.h b/net/smc/smc.h
+> index 52145df83f6e7..88dfb459b7cc4 100644
+> --- a/net/smc/smc.h
+> +++ b/net/smc/smc.h
+> @@ -342,13 +342,25 @@ static inline void smc_init_saved_callbacks(struct =
+smc_sock *smc)
+> =20
+>  static inline struct smc_sock *smc_clcsock_user_data(const struct sock *=
+clcsk)
+>  {
+> -	return (struct smc_sock *)
+> -	       ((uintptr_t)clcsk->sk_user_data & ~SK_USER_DATA_NOCOPY);
+> +	uintptr_t data =3D (uintptr_t)clcsk->sk_user_data;
+> +
+> +	/*
+> +	 * Return the smc_sock only if the slot carries SMC's tag alone.
+> +	 * sockmap stores a sk_psock here tagged SK_USER_DATA_PSOCK; it is
+> +	 * not an smc_sock and must not be dereferenced as one.
+> +	 */
+> +	if ((data & ~SK_USER_DATA_PTRMASK) !=3D SK_USER_DATA_NOCOPY)
+> +		return NULL;
+> +	return (struct smc_sock *)(data & SK_USER_DATA_PTRMASK);
+>  }
 
-So v4: -stable keeps the consumer-side clamp on #2, and the same shape on #=
-3 for
-sndbuf_space and peer_rmbe_space -- no control-flow change. net-next keeps =
-the
-clamp and, when bytes_to_rcv goes over len (which an honest peer never does=
-),
-queues the abort the way patch #1 does. Patch #1 keeps its count-based abor=
-t for
-the urgent index.
+[Severity: Critical]
+This isn't a bug introduced by this patch, but the patch fails to address
+the interaction between SMC and sockmap during fallback.
 
-Bryam
+When an SMC socket falls back to TCP, smc_fback_replace_callbacks()
+unconditionally overwrites the inner TCP socket's sk_user_data:
 
-The table above is this program (gcc -O2 -Wall -Wextra -fwrapv; self-checks=
-, exit 0):
+net/smc/af_smc.c:smc_fback_replace_callbacks() {
+    ...
+    __rcu_assign_sk_user_data_with_flags(clcsk, smc, SK_USER_DATA_NOCOPY);
+    ...
+}
 
-  #include <stdio.h>
-  #include <stdint.h>
-  typedef uint16_t u16; typedef uint32_t u32;
-  union hc { struct { u16 reserved; u16 wrap; u32 count; }; };
+If a BPF sock_ops program had previously attached the inner TCP socket to a
+sockmap, this overwrite erases the SK_USER_DATA_PSOCK tag and leaks the
+psock pointer.
 
-  /* verbatim net/smc/smc_cdc.h:149-158 */
-  static int smc_curs_diff(unsigned int size, const union hc *old, const un=
-ion hc *new)
-  {
-          if (old->wrap !=3D new->wrap) {
-                  int v =3D (int)((size - old->count) + new->count);
-                  return v > 0 ? v : 0;
-          }
-          { int v =3D (int)(new->count - old->count); return v > 0 ? v : 0;=
- }
-  }
+Later, when the inner TCP socket is closed, its sk_prot->close function
+(modified by BPF to sock_map_close) is executed. Inside sock_map_close(),
+sk_psock_get(sk) returns NULL because the tag is missing, and the function
+evaluates saved_close =3D READ_ONCE(sk->sk_prot)->close:
 
-  #define LEN 65504
-  struct cur { u16 w; u32 c; };
+net/core/sock_map.c:sock_map_close() {
+    ...
+    if (unlikely(saved_close =3D=3D sock_map_close))
+        goto retry;
+    ...
+}
 
-  /* prod[]/cons[]: cursor positions after each CDC. honest=3Dapp drains so
-   * occupancy stays <=3D len; attack=3Dcons stuck. */
-  static int run(const char *name, int honest, int n,
-                 const struct cur *prod, const struct cur *cons)
-  {
-          union hc po =3D {0}, co =3D {0};
-          long b2r =3D 0; int i, cnt_rej =3D 0, raw_rej =3D 0, occ_rej =3D =
-0, fail =3D 0;
-          for (i =3D 0; i < n; i++) {
-                  union hc p =3D { .wrap =3D prod[i].w, .count =3D prod[i].=
-c };
-                  union hc c =3D { .wrap =3D cons[i].w, .count =3D cons[i].=
-c };
-                  int dp =3D smc_curs_diff(LEN, &po, &p);
-                  if (prod[i].c >=3D (u32)LEN) cnt_rej =3D 1;
-                  if (dp > LEN) raw_rej =3D 1;
-                  if (smc_curs_diff(LEN, &c, &p) > LEN) occ_rej =3D 1;
-                  b2r +=3D dp; b2r -=3D smc_curs_diff(LEN, &co, &c);
-                  po =3D p; co =3D c;
-          }
-          int oob_noclamp =3D b2r > LEN;
-          int oob_clamp   =3D (b2r > LEN ? LEN : b2r) > LEN;   /* always 0 =
-*/
-          printf("  %-30s b2r=3D%-8ld cnt_rej=3D%d raw_rej=3D%d occ_rej=3D%=
-d oob_noclamp=3D%d oob_clamp=3D%d\n",
-                 name, b2r, cnt_rej, raw_rej, occ_rej, oob_noclamp, oob_cla=
-mp);
-          if (honest) fail =3D (cnt_rej || raw_rej || occ_rej || oob_noclam=
-p);
-          else        fail =3D (oob_clamp || !oob_noclamp);
-          return fail;
-  }
+Since the protocol was never restored via sk_psock_drop, saved_close
+evaluates to sock_map_close.
 
-  int main(void)
-  {
-          struct cur ps[][5] =3D {
-                  {{0,5000}}, {{1,0}}, {{0,30000},{0,60000},{1,10000}},
-                  {{1,LEN-1}},
-                  {{1,LEN-1},{0,LEN-1},{1,LEN-1},{0,LEN-1}},
-                  {{1,0},{2,0},{3,0},{4,0},{5,0}},
-          };
-          struct cur cs[][5] =3D {
-                  {{0,4000}}, {{0,0}}, {{0,0},{0,30000},{0,50000}},
-                  {{0,0}},
-                  {{0,0},{0,0},{0,0},{0,0}},
-                  {{0,0},{0,0},{0,0},{0,0},{0,0}},
-          };
-          const char *nm[] =3D { "honest: steady", "honest: full ring",
-                  "honest: wrapping", "attack: single big diff",
-                  "attack: count=3Dlen-1 wrapflip", "attack: wrap++ count=
-=3D0" };
-          int hon[] =3D { 1,1,1,0,0,0 };
-          int nc[]  =3D { 1,1,3,1,4,5 };
-          int i, fails =3D 0;
-          for (i =3D 0; i < 6; i++)
-                  fails +=3D run(nm[i], hon[i], nc[i], ps[i], cs[i]);
-          printf("RESULT: %s\n", fails ? "FAIL" : "PASS");
-          return fails ? 1 : 0;
-  }
+Could this cause an infinite goto retry loop and a lockup if triggered by
+userspace? Is there a way to handle the fallback case without dropping the
+existing psock tag?
 
-(In-kernel KASAN confirming the over-read at count=3D65503 is available on =
-request;
-a small out-of-tree module driving the same smc_curs_diff over a real
-rmb_desc->len allocation -- bytes_to_rcv 131007 -> 327519, slab-out-of-boun=
-ds in
-the recv copy, clean with the clamp.)
-
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260619150342.3626=
+224-1-rhkrqnwk98@gmail.com?part=3D1
