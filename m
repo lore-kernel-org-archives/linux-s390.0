@@ -1,199 +1,224 @@
-Received: from mail-pl1-f174.google.com (mail-pl1-f174.google.com [209.85.214.174])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E3A18312807
-	for <linux-s390@vger.kernel.org>; Mon, 22 Jun 2026 18:17:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.174
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782152276; cv=pass; b=CYEZ8TvExSCVq9fbwToHIFmEeAHv91a5+5vq7LlxjacrzNbAC7XzixRwmm1M3I3vuaxYASV3PyTILtkBPX55lAHq5OmDYZS8mfCbb3bUmSpUuCGDq091zC6CUjHAjYruyVxdAnvmFcWkUlUg2b7jIQZnsEwq5eQ2xFcm1CKRreI=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782152276; c=relaxed/simple;
-	bh=m11RxMrybFbYq1aegOwyhpbXAUpIQLIK+I74ptbAttQ=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=bVazkOXTIn8gyXdoyXj4eBOLtPW8ROrSyl6EW4QIQJSIgQrtzsOwylGclD74wNgOMtCC/cczttstaz/VNEMcMiabNgNU3h6ElOGNpwaT9BPP14TAeIc/Y2L6ro+DzK7QuqMf4cptYRwt4MnRB7JV8w154TAdpUfb14d+cWUr1V8=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=rFC+8vU4; arc=pass smtp.client-ip=209.85.214.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AFC36346E60;
+	Mon, 22 Jun 2026 18:55:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1782154511; cv=none; b=KSUH6aKXyedohPHBt1894NK3nzCLBea+QcUyn7lUT0TlYtX8UvpDIYrhpxdf+pt/5xP2iSCdBU6rrRXq0ZCIid2x0RRQc5jWYbE6/poVtydgN0ZN0pDAVTp0anMd700GeMgD0S+1FcuaUVQqrdE5dQGUQ23auB+HLp+5H3JOoC0=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1782154511; c=relaxed/simple;
+	bh=zvlCw3tZuy0SG/wcS6CygaURfeRY+BHovhisK+pc1cM=;
+	h=Message-ID:Subject:From:To:Cc:In-Reply-To:References:Content-Type:
+	 Date:MIME-Version; b=jHkldDyQ0imH3+iiCRq7nH+tK9Z+4llCmOq4MRifkaY4vPz3yT67oqDBThW5u0RdorNNeY2VTBvlcz6amLtgh9dD/2gUej+vginQhadC0Vc759ZUI6UbEL1EjFqFQbJlSNDWTR2x1gTD3A+ME63OfAMVyREmbpJltUB+GLw+h4s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=QZAw4dUR; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="rFC+8vU4"
-Received: by mail-pl1-f174.google.com with SMTP id d9443c01a7336-2c6b7bd4e8dso5935ad.0
-        for <linux-s390@vger.kernel.org>; Mon, 22 Jun 2026 11:17:54 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1782152274; cv=none;
-        d=google.com; s=arc-20260327;
-        b=VW0m5tQ4fjUZqy0Ja0ZnnJRaZoXmPJBvkY/UZXQBZCENJTecllL3BprUnVK5OTZO1v
-         aMO5pcgZCwUq4kQVomz0vHbBG73w3MC71aOQTmed53KCg3PkNZTCHX08/UN9v4iKP5/k
-         +P0EZ+QzuC4aPrfe1BiFF219tsJPCddlTGtUayte6bsqR472G5kRnlPLy8ooVwYjSmBj
-         eyC8JsxXBET6dOD8Xhu1iOanyY9nuFSCgykhrii3bwKBP0OhZkGP+l9FvKr2z9NJjz+A
-         5A8Rb6k3hBdiqw09ULLBas4IzHjG4NYP7Rsht+w7i/m1nPpRSDFzJ2rnaRcJHMS8ZISg
-         FzPg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=xtFt0nsYRVxh9pjtBHg13JFYnpuDwE2MjabpRY6kgzQ=;
-        fh=/K9/DGuSXcxp4vOsgz7nzPMnI34jbZy2gxBjw1WGITs=;
-        b=EmY2MNCs/iwC6EPrlbc9GTxzneMQuRdFzrZ3vABLnDQNPodxXQr10AaAtjBehOJwp4
-         mBi9PvSOA+u+MnBwvtuYEkDOfHCUO5Exkid7xO2c4PFtLF8GznlCVjQ/sTUVQWS3IClU
-         Nn1a1p7+GWpW5sBOX4XHgE5UKURgzgNN/KAY+0b6DUCq0+dcs2M5MgQJA48cLOCAbzpG
-         btXaU4PmEYCVAv5GY6M7wUAWtY8heMHdQBSCilHUk3v0getQbECRU592IHDMw5dLTxRg
-         dvZLoUlDXeCJg7UiS54OUUsPbdETQ6n0R+WrxGtvTdngazk27Z8moBWkVLVHRyqAZAIA
-         1U+w==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1782152274; x=1782757074; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=xtFt0nsYRVxh9pjtBHg13JFYnpuDwE2MjabpRY6kgzQ=;
-        b=rFC+8vU46fBJHk9Al1hIp1OoWQ0dZf0zu0KH5BcwuwahChM35DhaGEhl6eF33pCkoa
-         wLhSrKmBj+QZxJE8yhj3xLIhDW9etj7v7ASkkCeR2l+QVJ5IEvvReyHKImAaL8AYP+Bs
-         TMWtngENOkmoDJPnIMrh/sDwxV1ZObK2Z/7auwv2sKRYV3mw5FYVjrDoTzfB0tw2f3vz
-         r2LgYHQ0Iw3dj0NYA9s30mk2YOuwlQwQl4I87wJWQi0g6IJ7rhIdUWGvble5FZrGU4Ds
-         h529j+uXs92BB/Sa+Zx1CJ8K72B2K/pXZfdHwJwLOkcPwElJeliAmDwCkDBymB7+O7QZ
-         c0QQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782152274; x=1782757074;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=xtFt0nsYRVxh9pjtBHg13JFYnpuDwE2MjabpRY6kgzQ=;
-        b=Qfv+bqsUeyqcmX8vH3Sm/Y0rM9M64ILU3eHcDtOxuqtVeI1hnGja6tKILs/JoZUFvD
-         kjwQt1iQmkD8ZUoji/rxIanWIRndU72FTvhXk6TtBAVmCXtLphaC5OJpCD7mm3Op5QiK
-         AfiSDwPfSL9cLiMYZTewlRE5H5D7wq2p6U/W1oeOsWsiSDtLl3CYckkWBWqkZMYRmcjF
-         23nfwPfdCw9o2f2N1CyheqPYTkMFs7uE2bks30jMJC8YF5/7qxY5torqpVHf7Q+iPjUV
-         X/1jDSp4M4MMm6l6zrVI1a/OheetVd/UkASW6cbnsUiYFkIAV0/PSwO0aTLo+lQj+bVK
-         fzmw==
-X-Forwarded-Encrypted: i=1; AHgh+RqliH6Rxv8fHbNTTW+7bkTnA/JOJaWo/OTFTfvEmERh4fhB1LgCR26/XwwSczwgxKBVogNz08FDBk4x@vger.kernel.org
-X-Gm-Message-State: AOJu0YyKFOfZzifM0oxWqRNxRDtMuIHKG1oW0R2ZOVmflo27NIAfpI4g
-	7wzzMtsxhCsRXdxrf8FMerkWp9RnumktQPsUlZMCkIcW2wrvFd23PULiPSVLgBIlFs7JfPRLecW
-	Po6mE0EFuaeu3jE7qJaSpgsKR/rJz145V62STkbtJ
-X-Gm-Gg: AfdE7ck6hIYHG0+W9ua2OhcYFXFSipqSUSpVm5dzhwPVSCAYh7gqGpIJ7lUuvCG1qoF
-	H5KkAp/wSMSrl82EhsShhyUwFtVvYv6cTMakvNnba6S1vsRL9XoBflBtfc9u33dZEsuFXZ/PdeO
-	wuU8wd8PmZjPY1IQrvjxWIjQv2mI8WVVpz6p0fgZL+IaF/NsKk0ITYRcHSLLVVkrNtr6iC01wyf
-	sZAgVzcfbMyRr+M2vLvEV2PVQnDpSyyQPLpjeKL9jN6WiaMMwcQaO9zSysB+suaJuk6TuE1Lg==
-X-Received: by 2002:a17:902:e842:b0:2c1:ee6e:4e4e with SMTP id
- d9443c01a7336-2c7c55c4688mr220605ad.31.1782152273465; Mon, 22 Jun 2026
- 11:17:53 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="QZAw4dUR"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65MFmbq73332303;
+	Mon, 22 Jun 2026 18:55:06 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=RtVyPH
+	2cHVMdOt23BqW7CzFRDjbVWlk6orRr+QokKOs=; b=QZAw4dURVGpv84+QoOArA9
+	VdIvon51rfnUIQiERiTyzxorOn5TkqKYx1+QPJ2m9W0FADeNhAPl/kdEmHCK1L0X
+	JT1TzJ4Zxujpx1Zkq9kljQaZyDTMIljmtJtglAgFJ2MeIoXfnGhyoDnTzsoqtmfo
+	Qy0eX5hSsQ8XVHhV8zSxp/fKqG+fqs0fGN2V3a5W3Hdc5LuuEEJ8BQsFCyEcZEUJ
+	JXsqH+UOK7XjI2XNf0fmO8QNDjZshrDWFXIiN2kmlONJ3vL1arlB2x5Tt7xVTbOa
+	hOr9iSQouoV+T4c0xfji1BRwo+x7MTGXxcqUQzR7SE80iMqojj18T6jVV1e/qXAA
+	==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ewjgsjt2b-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 22 Jun 2026 18:55:06 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 65MInbQp030824;
+	Mon, 22 Jun 2026 18:55:05 GMT
+Received: from smtprelay07.wdc07v.mail.ibm.com ([172.16.1.74])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4ex7vyfc7x-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 22 Jun 2026 18:55:05 +0000 (GMT)
+Received: from smtpav04.dal12v.mail.ibm.com (smtpav04.dal12v.mail.ibm.com [10.241.53.103])
+	by smtprelay07.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 65MIt3cf33489608
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 22 Jun 2026 18:55:04 GMT
+Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9ACDF5805A;
+	Mon, 22 Jun 2026 18:55:03 +0000 (GMT)
+Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 3C47858052;
+	Mon, 22 Jun 2026 18:55:02 +0000 (GMT)
+Received: from [9.111.64.222] (unknown [9.111.64.222])
+	by smtpav04.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Mon, 22 Jun 2026 18:55:02 +0000 (GMT)
+Message-ID: <8e0cdec1d92eaadaf0739c7175e2bb78783d4524.camel@linux.ibm.com>
+Subject: Re: [PATCH v20 4/4] PCI/MSI: Enable memory decoding before
+ restoring MSI-X messages
+From: Niklas Schnelle <schnelle@linux.ibm.com>
+To: Farhan Ali <alifm@linux.ibm.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org
+Cc: helgaas@kernel.org, alex@shazbot.org, mjrosato@linux.ibm.com
+In-Reply-To: <20260622171840.1618-5-alifm@linux.ibm.com>
+References: <20260622171840.1618-1-alifm@linux.ibm.com>
+	 <20260622171840.1618-5-alifm@linux.ibm.com>
+Autocrypt: addr=schnelle@linux.ibm.com; prefer-encrypt=mutual;
+ keydata=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
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+Date: Mon, 22 Jun 2026 20:54:00 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260619093531.4038655-1-tmricht@linux.ibm.com> <20260619094233.CBA9B1F000E9@smtp.kernel.org>
-In-Reply-To: <20260619094233.CBA9B1F000E9@smtp.kernel.org>
-From: Ian Rogers <irogers@google.com>
-Date: Mon, 22 Jun 2026 11:17:41 -0700
-X-Gm-Features: AVVi8CffVrqrwBpGjIxgkJVAl6Ad7IfgqkmawX297zMXF4nP1v65i27NURFYVVM
-Message-ID: <CAP-5=fUJbh=dXiadCJJ4d_prCxox1G0WW_WODwSHC4DvwWuQag@mail.gmail.com>
-Subject: Re: [PATCH linux-next] perf test: Skip failing 'perf test aslr' test case
-To: sashiko-reviews@lists.linux.dev, Thomas Richter <tmricht@linux.ibm.com>, 
-	Arnaldo Carvalho de Melo <acme@kernel.org>
-Cc: linux-perf-users@vger.kernel.org, linux-s390@vger.kernel.org, 
-	Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, 
-	Alexander Gordeev <agordeev@linux.ibm.com>, Namhyung Kim <namhyung@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.60.2 (3.60.2-1.fc44) 
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjIyMDE4MyBTYWx0ZWRfX/Ab0WOWCIMRF
+ xKSPb6hHxZIo7if8Rvz73C8nhCjSgDlzKxqgqS+9gqgLJ/XTjLBb5D2L+FBn/CFZtPKI+mzzBr7
+ TmpqPQ9VpTGA8Ebsy7DuLMwlXIgd9pGiVF/J9EjCSO0dLiihgEk4Pxt6a26uNv1AgJC7gyq8R7A
+ dIlnygM+9/CeqZCJ/WSCxy2w/N3DmQOdQIItW+j6zlY33/73DmSwGbyBWeoC81MxauxCq6eaZ/q
+ WUrJNaNa1GASjrerfBPWP4+AOAuZatejeByW0rDiaNk2eJ4zPIxyxNFRdlGVP5vjpOBq/fZmuem
+ 74iFNz+wrdBtu4MLbjzpbj7nv0JK9aK3AoI7906QSRiXmtqtP3d/JHsmdvPmHJnx4aSrks7qe2A
+ tqH0Q+sLoVmUiYmeV9s6TPdGa8RixaMloS2/lEhE+EZGZIewFKKFBKUdW4ZAKWM53ebYvQKQg7/
+ h9krnBE5K3wbRG4oRzQ==
+X-Proofpoint-GUID: 6iFd2jrksA3ygvB0LqZBMoXdvRdXjb61
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNjIyMDE4MyBTYWx0ZWRfXx+xyDBTcAPRC
+ f0llpjB+lojbvpsZT/N/8BNehpjrReFW7CtGZ/FWLYv9/El4xCcXYLknQwPjqgXCA6JEbRsXAjB
+ lilLOMfRKJuLQELHqe2yhUq9yMGm/xg=
+X-Authority-Analysis: v=2.4 cv=I/lVgtgg c=1 sm=1 tr=0 ts=6a39850a cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=IkcTkHD0fZMA:10 a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8
+ a=AWd1BeZrjBnSaHBDTCkA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-ORIG-GUID: 6iFd2jrksA3ygvB0LqZBMoXdvRdXjb61
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
+ definitions=2026-06-22_03,2026-06-22_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ lowpriorityscore=0 spamscore=0 phishscore=0 clxscore=1015 priorityscore=1501
+ adultscore=0 impostorscore=0 bulkscore=0 suspectscore=0 malwarescore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2606220183
 
-On Fri, Jun 19, 2026 at 2:42=E2=80=AFAM <sashiko-bot@kernel.org> wrote:
->
-> Thank you for your contribution! Sashiko AI review found 2 potential issu=
-e(s) to consider:
-> - [Medium] Unconditionally setting `err=3D2` when skipping `test_callchai=
-n_aslr` masks prior test failures.
-> - [Medium] Skipping the test incorrectly triggers the test failure cleanu=
-p path, leaking the temporary directory in `/tmp/`.
-> --
->
-> commit d772895777a1677561d1802ac157c32ce73e1379
-> Author: Thomas Richter <tmricht@linux.ibm.com>
->
-> perf test: Skip failing 'perf test aslr' test case
->
-> The test case 'perf test aslr' fails on s390. This commit fixes the failu=
-re
-> by skipping the subtest test_callchain_aslr and emitting a hint when the
-> --call-graph dwarf option is selected.
->
-> Fixes: 60bc9fbc0589 ("perf test: Add inject ASLR test")
->
-> > diff --git a/tools/perf/tests/shell/inject_aslr.sh b/tools/perf/tests/s=
-hell/inject_aslr.sh
-> > index c00461828ea79..7fdb43679dc84 100755
-> > --- a/tools/perf/tests/shell/inject_aslr.sh
-> > +++ b/tools/perf/tests/shell/inject_aslr.sh
-> > @@ -135,8 +135,15 @@ test_callchain_aslr() {
-> >      echo "Callchain ASLR test [Failed - no noploop samples in original=
- file]"
-> >      err=3D1
-> >    elif [ -z "$new_addr" ]; then
-> > -    echo "Callchain ASLR test [Failed - could not find remapped addres=
-s]"
-> > -    err=3D1
-> > +    if perf evlist -v -i "${data}" | grep -q 'sample_type:.*STACK_USER=
-'; then
-> > +      echo "Dropping stack user sample as possible ASLR leak"
-> > +      echo "Call-graph dwarf not supported with 'perf inject --aslr'"
-> > +      echo "Callchain ASLR test [Skip]"
-> > +      err=3D2
->
-> [Severity: Medium]
-> Does unconditionally setting err=3D2 here mask prior test failures?
->
-> If an earlier subtest fails, the global err variable is set to 1. When
-> test_callchain_aslr() decides to skip and assigns err=3D2, it overwrites
-> this previous failure state.
->
-> Since the perf test framework treats an exit code of 2 as a SKIP, the tes=
+On Mon, 2026-06-22 at 10:18 -0700, Farhan Ali wrote:
+> The current MSI-X restoration path assumes the Command register Memory bi=
 t
-> suite will report the entire script as skipped, completely hiding the
-> actual failure from the prior subtest.
->
-> [Severity: Medium]
-> Will skipping this test inadvertently trigger the test failure cleanup pa=
-th
-> and leak the temporary directory?
->
-> The cleanup() function in tools/perf/tests/shell/inject_aslr.sh explicitl=
-y
-> aborts deletion if the exit code or err is non-zero:
->
-> cleanup() {
->   if [ "${exit_code}" -ne 0 ] || [ "${err}" -ne 0 ]; then
+> is enabled when writing MSI-X messages. But its possible the last saved a=
+nd
+
+SpellingL "it's"
+
+> restored state of device may not have the Memory bit enabled, even if a
+
+Missing "a" in "of a device"
 
 
-Thanks for the fix Thomas! I completely agree with what you've done,
-but it exposed this latent issue that we should make the exit_code/err
-comparison -eq 1 rather than -ne 0. Perhaps Arnaldo can fix this, or
-we can address it as a follow-up.
+> device driver later enables Memory bit and MSI-X. Attempting to access
+> Memory space without Memory bit enabled can lead to Unsupported Request
+> (UR) from the device. Fix this by enabling Memory bit and restore
+> it afterwards.
 
-Reviewed-by: Ian Rogers <irogers@google.com>
+The official spec term is "Memory Space Enable" and I think "can lead
+to" is actually underselling it, as the PCIe spec says that accesses
+are "caused to be handled as Unsupported Requests". Also as I
+understand you did see this in practice. Maybe we even want a Fixes
+tag?
+
+>=20
+> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+> ---
+>  drivers/pci/msi/msi.c | 4 ++++
+>  1 file changed, 4 insertions(+)
+>=20
+> diff --git a/drivers/pci/msi/msi.c b/drivers/pci/msi/msi.c
+> index 81d24a270a79..46a0d9f68a57 100644
+> --- a/drivers/pci/msi/msi.c
+> +++ b/drivers/pci/msi/msi.c
+> @@ -874,6 +874,7 @@ void __pci_restore_msix_state(struct pci_dev *dev)
+>  {
+>  	struct msi_desc *entry;
+>  	bool write_msg;
+> +	u16 cmd;
+> =20
+>  	if (!dev->msix_enabled)
+>  		return;
+> @@ -882,6 +883,8 @@ void __pci_restore_msix_state(struct pci_dev *dev)
+>  	pci_intx_for_msi(dev, 0);
+>  	pci_msix_clear_and_set_ctrl(dev, 0,
+>  				PCI_MSIX_FLAGS_ENABLE | PCI_MSIX_FLAGS_MASKALL);
+> +	pci_read_config_word(dev, PCI_COMMAND, &cmd);
+> +	pci_write_config_word(dev, PCI_COMMAND, cmd | PCI_COMMAND_MEMORY);
+> =20
+>  	write_msg =3D arch_restore_msi_irqs(dev);
+> =20
+> @@ -893,6 +896,7 @@ void __pci_restore_msix_state(struct pci_dev *dev)
+>  		}
+>  	}
+> =20
+> +	pci_write_config_word(dev, PCI_COMMAND, cmd);
+>  	pci_msix_clear_and_set_ctrl(dev, PCI_MSIX_FLAGS_MASKALL, 0);
+>  }
+> =20
+
+Code wise this all looks good to me so feel free to add.
+
+Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
 
 Thanks,
-Ian
-
->     echo "Test failed! Preserving temp directory: ${temp_dir}"
->     return
->   fi
->   ...
-> }
->
-> Because cleanup() was not updated to handle the new skip state, it
-> mistakenly treats err=3D2 as a test failure. This unconditionally leaves
-> behind the /tmp/perf-test-aslr.XXXXXX directory every time the test skips=
-.
->
-> > +    else
-> > +      echo "Callchain ASLR test [Failed - could not find remapped addr=
-ess]"
-> > +      err=3D1
-> > +    fi
-> >    elif [ "$orig_addr" =3D "$new_addr" ]; then
-> >      echo "Callchain ASLR test [Failed - addresses are not remapped]"
-> >      err=3D1
->
-> --
-> Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260619093531.40=
-38655-1-tmricht@linux.ibm.com?part=3D1
->
+Niklas
