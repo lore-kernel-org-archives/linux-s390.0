@@ -1,45 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B68DF2C21F2;
-	Mon, 22 Jun 2026 16:19:40 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C8A6F18FDBD;
+	Mon, 22 Jun 2026 16:23:48 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782145181; cv=none; b=Dntfd8URyf8OYeyz2ijhs5DBzQtdm7ExjDMLXvOFe91xR88LpdK3giUqY5cNB8xwNnHAS/XdPxWyAUA18pKcHis7L0U/pIErRPuhnHjOYV4K77Czq4SfsPWA6rdbASSYibObwBrVANff0eIYyFWD+27gsO8QceUIxJHkv6xhby8=
+	t=1782145429; cv=none; b=C1jgcoQsKrvUD88MKR4mOWnfUOdVLAx7JTk5pYq8IrEhBirL1EiUKFQIvhSGttaT7/D7+1rijo2FaREhRP4s+LZ+K5eCND2V9uGO+x1hNQ3g//q48f9OlyhCGy9AY7Bcqmukul+LTTDo/hLxjt7SQbpW3XdlwzKFkG4kGr5EtHw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782145181; c=relaxed/simple;
-	bh=sLbT6th8HNg4rw7taDUBIKUHUP4m7hQQ/0/9Wou64+E=;
+	s=arc-20240116; t=1782145429; c=relaxed/simple;
+	bh=RgdaPvhkpmS7WhDbF5RgP7GJAT9Pv3FYk3udCe3PYNU=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=BBOEnfqGoIRjA+ubzlq91HLpngGARhF1HQIi+Dx7C6gbVwzrH8cYI38lxrzpqI1ltGlSPvOfYBLQYlpT2+Htc4aNSZXumX7vCR0NzipJTGsIPSd7sxe6tblzvYgTSPEW2sgaODc6ZwpcuKYgPd36BNOyOZpDOYq5gms5vPSdZfw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lohE3Uq9; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=XYmw1lCMAnURPACFzYRlMDVxMy718/nmmmZVOp+Cd2NH1yJthphYcg01p176Lxrw/7voXgKlGnCKnEtS5JPsK7DxavOso2t7XGmZ4tClunZwIe1Jy4VZ8Q9Ds8XB47MeeOqnvZWred53qB33qa8ajGf1GDHNpoGU3LovDeqNT8M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=n3lSje7S; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lohE3Uq9"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C2E71F00AC4;
-	Mon, 22 Jun 2026 16:19:40 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="n3lSje7S"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33B201F000E9;
+	Mon, 22 Jun 2026 16:23:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782145180;
-	bh=fjuiD63wezbHUx9p4+c9r+Ww1S8hjQmzlPuLPFA6HZE=;
+	s=k20260515; t=1782145428;
+	bh=u2P1UN6ALKMG8Dc29rymykvnJlNOEfojmFJcCZvfIUY=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=lohE3Uq9YEgBbt0PZ3G3M575C4gQEYg74cMXnKJ5bjNjW6+bHEQ6+aD6Hkq2R+hvW
-	 JcPTQbws5soiL6jRfDF0KPZ0e0uscZrXb1D8yAHEWeyyqt54dmfC3Hj1u6+xEGDvfL
-	 S7/EICITzOxK7YZfKR4UE/8z/PBfxRLvwUE04+5E7KQKZ3s0o8YS+YsuCheW+Yz/LJ
-	 UXZs97NErVj2rH374yIwvZgjlP6MKDxFYrTfEVwS7xDV62rOn5FglnAndGFruk+TYN
-	 EPzx37o8EBCY15imODAHnNo/2xhAGAANWhKzmdUUKwEvVUKpy4u7Q9Gqry9c6sFbvR
-	 NuhLZbrjy9enw==
+	b=n3lSje7SNjUVI0mHhpeTq71FgVgDvGeCcwJ6n/dlZ39CUtmake9PV1DHvWg+9ec2v
+	 i3VlODSYzUn0/SKevdzq+r0Zxid8tsC4rpiEXE+2wEtSXRmlkV10Yxg6RPkXlXYvKP
+	 ggOppfW1C3CGK48e2noVNdhbL7zZPVID1J5dGxJF5Xq6zgqoaa2ot3zv5DeyNXrKfr
+	 uVNEkSKVzavmNg42vhQi1LmKzNPGYSfu98nJft8G5lg3huvlhTKCyoAHjpBvc2PHAj
+	 EjinZ3vKSt8WOgJJ/hLovz/DqpdQg0KSzIj7+jevYSY2Q3pWsLAfnnblHDUjlra4/7
+	 xBgFesYdArkQA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 6/9] KVM: s390: Fix locking in
- kvm_s390_set_mem_control()
+Subject: Re: [PATCH v5 2/9] KVM: s390: Fix dat_peek_cmma() overflow
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>
-Cc: "Vasily Gorbik" <gor@linux.ibm.com>, kvm@vger.kernel.org, "Heiko
- Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org
-In-Reply-To: <20260622160739.202044-7-imbrenda@linux.ibm.com>
+Cc: "Heiko Carstens" <hca@linux.ibm.com>, kvm@vger.kernel.org, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org
+In-Reply-To: <20260622160739.202044-3-imbrenda@linux.ibm.com>
 References: <20260622160739.202044-1-imbrenda@linux.ibm.com>
- <20260622160739.202044-7-imbrenda@linux.ibm.com>
+ <20260622160739.202044-3-imbrenda@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 22 Jun 2026 16:19:39 +0000
-Message-Id: <20260622161940.4C2E71F00AC4@smtp.kernel.org>
+Date: Mon, 22 Jun 2026 16:23:47 +0000
+Message-Id: <20260622162348.33B201F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -48,64 +47,90 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [High] Holding `kvm->lock` across `get_user()` introduces a userfaultfd d=
-eadlock risk and denial of service vector.
+
+Pre-existing issues:
+- [High] Uninitialized kernel memory is leaked to userspace during CMMA pee=
+k and get operations due to gaps left in the vmalloc'd buffer.
 --
 
-commit 86b3447d27dc01346bae78704ae167d2c9133c5c
+commit 7a3f41eb2c82217db779d886fe0375b646e0440a
 Author: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-KVM: s390: Fix locking in kvm_s390_set_mem_control()
+KVM: s390: Fix dat_peek_cmma() overflow
 
-This commit refactors kvm_s390_set_mem_control() by moving the kvm->lock
-acquisition to the top of the function using a scope-based guard, and adds
-missing locking around dat_reset_cmma().
+This commit addresses an integer underflow in dat_peek_cmma() where an
+out-of-bounds start address returns -EFAULT but leaves state.end at 0. It
+corrects the behavior by ensuring the returned count is only updated if
+the end address is greater than or equal to the starting address.
 
-> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> --- a/arch/s390/kvm/kvm-s390.c
-> +++ b/arch/s390/kvm/kvm-s390.c
-> @@ -962,6 +962,8 @@ static int kvm_s390_set_mem_control(struct kvm *kvm, =
-struct kvm_device_attr *att
->  {
->  	int ret;
+> diff --git a/arch/s390/kvm/dat.c b/arch/s390/kvm/dat.c
+> index 4a41c0247ffa2..cffac7782c4bf 100644
+> --- a/arch/s390/kvm/dat.c
+> +++ b/arch/s390/kvm/dat.c
+> @@ -1209,7 +1209,7 @@ int dat_peek_cmma(gfn_t start, union asce asce, uns=
+igned int *count, u8 *values)
+>  	int rc;
 > =20
-> +	guard(mutex)(&kvm->lock);
-> +
->  	switch (attr->attr) {
-
-[ ... ]
-
->  	case KVM_S390_VM_MEM_LIMIT_SIZE: {
->  		struct kvm_memslots *slots;
->  		struct kvm_memory_slot *ms;
->  		unsigned long new_limit;
->  		int bkt;
-> =20
->  		if (kvm_is_ucontrol(kvm))
->  			return -EINVAL;
-> =20
->  		if (get_user(new_limit, (u64 __user *)attr->addr))
->  			return -EFAULT;
-> =20
-> -		guard(mutex)(&kvm->lock);
-> -
+>  	rc =3D _dat_walk_gfn_range(start, start + *count, asce, &ops, DAT_WALK_=
+DEFAULT, &state);
+> -	*count =3D state.end - start;
+> +	*count =3D state.end >=3D start ? state.end - start : 0;
 
 [Severity: High]
-Does this new lock placement introduce a userfaultfd deadlock risk?
+This is a pre-existing issue and was not introduced by this patch, but does
+this leave uninitialized kernel memory in the values array that gets copied
+to userspace?
 
-By moving the guard(mutex)(&kvm->lock) to the top of the function, the lock
-is now held during the get_user() call in the KVM_S390_VM_MEM_LIMIT_SIZE ca=
-se.
+Looking at kvm_s390_get_cmma_bits() in arch/s390/kvm/kvm-s390.c, the values
+buffer is allocated with vmalloc() instead of vzalloc():
 
-If a userspace application backs the attr->addr pointer with a userfaultfd
-region, the kernel page fault triggered by get_user() will block waiting for
-the userspace handler to resolve it.
+kvm_s390_get_cmma_bits() {
+    ...
+    values =3D vmalloc(args->count);
+    ...
+}
 
-If that userspace handler then attempts to execute another KVM ioctl that
-acquires kvm->lock (such as KVM_SET_USER_MEMORY_REGION), could this result
-in an ABBA deadlock that hangs the kernel thread and permanently locks the
-KVM instance?
+During the page table walk, if __dat_peek_cmma_crste() encounters an
+invalid PMD, it advances state->end without populating state->values:
+
+__dat_peek_cmma_crste() {
+    ...
+    state->end =3D min(walk->end, next);
+    ...
+}
+
+Similarly, in __dat_get_cmma_pte(), clean pages are skipped without writing
+to the values buffer:
+
+__dat_get_cmma_pte() {
+    ...
+    if (!READ_ONCE(*pgste_of(ptep)).cmma_d)
+        return 0;
+    ...
+}
+
+Because the count returned by dat_peek_cmma() and dat_get_cmma() represents
+the span from the start to state.end, any unpopulated gaps in the values
+array will contain whatever uninitialized kernel heap memory vmalloc()
+provided.
+
+When kvm_s390_get_cmma_bits() later copies this buffer:
+
+kvm_s390_get_cmma_bits() {
+    ...
+    if (copy_to_user((void __user *)args->values, values, args->count))
+    ...
+}
+
+Can these gaps leak uninitialized memory to userspace? Should the buffer be
+allocated with vzalloc() to ensure any gaps left by the walk are safely
+zeroed out?
+
+>  	/* Return success if at least one value was saved, otherwise an error. =
+*/
+>  	return (rc =3D=3D -EFAULT && *count > 0) ? 0 : rc;
+>  }
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260622160739.2020=
-44-1-imbrenda@linux.ibm.com?part=3D6
+44-1-imbrenda@linux.ibm.com?part=3D2
