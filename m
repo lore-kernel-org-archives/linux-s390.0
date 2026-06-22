@@ -1,193 +1,181 @@
-Received: from fout-b7-smtp.messagingengine.com (fout-b7-smtp.messagingengine.com [202.12.124.150])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E11FF34BA49;
-	Mon, 22 Jun 2026 20:22:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.150
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DBF7634CFCA;
+	Mon, 22 Jun 2026 20:22:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782159740; cv=none; b=WG+QltCsL7aQOlV+wRWtSWhbR82FBhXYgjGEyNkK+D09cVqg9LD+57wBziiMKR/75a995vsrwJHwaqt5UZLinP6Wz3DqEfdHXO/bH2z2HB69kO2P0XkoyouoOaMMseaStFeP8VFkWrzmPK08A9b5SUSdnIh4c2dT66TzQ8deyKA=
+	t=1782159749; cv=none; b=dZigftHyy6ppcFjnItgreHTfloOIEtt03iXaNZ5/PNi+8MJI+uWdDTxzxzCAajmUZ1cbLNtOo0ZnWflIbrXl1ZAPwowi1vBks/Y7dDcWWA65x+g0HuECckCkCgYCPoi7LZf0IqcxAKg73jNgWPVmdaQyVUfgFYswwjhupKu/9wk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782159740; c=relaxed/simple;
-	bh=mBh4tOjGf3YdcuVaSsP/xt8FVXO1dJq9vXwmsdJ/K78=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=DS8MzZaHrxyAnUFQOzDWSTa0BaOg0bM9GfghUoZ6RtkGZXtIDplRnkoWdlG4Jd76kuu4r2rrj+hgfNEX6QQd0ORUxMOXOfn24v2+1jSQX5cq2K3kPx5tuKGR8QrsPA45Rj5rLAwrsB2LXkS796Vip4whC1VQsVyAZWLIEONrtMg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shazbot.org; spf=pass smtp.mailfrom=shazbot.org; dkim=pass (2048-bit key) header.d=shazbot.org header.i=@shazbot.org header.b=OFXdMoes; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=ILCCOKJb; arc=none smtp.client-ip=202.12.124.150
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shazbot.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=shazbot.org
+	s=arc-20240116; t=1782159749; c=relaxed/simple;
+	bh=M3wtrweJdmBcZVDxHVsN76I7887nNMu5D9CDoVznSNI=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=ibZQmdsE929v70yauSQ1qiz2lqEYyn0Ja0njuRz/CiWqjbf70rnm81EadkRKkO6ELTkodZv6zLfclBbgJ+w49kBb5/0uQvq5gxrANaYuBp32hmeLVrHfLilJGxsc0HmcfC1vckXTYgDKodEA+Ni0yj6Jlr1hxeZrjxZ8B9wlloo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=eXHf3qnY; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=shazbot.org header.i=@shazbot.org header.b="OFXdMoes";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="ILCCOKJb"
-Received: from phl-compute-01.internal (phl-compute-01.internal [10.202.2.41])
-	by mailfout.stl.internal (Postfix) with ESMTP id E869D1D00023;
-	Mon, 22 Jun 2026 16:22:17 -0400 (EDT)
-Received: from phl-frontend-03 ([10.202.2.162])
-  by phl-compute-01.internal (MEProxy); Mon, 22 Jun 2026 16:22:18 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=shazbot.org; h=
-	cc:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm3; t=1782159737;
-	 x=1782246137; bh=FAL8dhxtWWHEyHTTSbbz9HNANOHRDrNII3W7xSFk9a4=; b=
-	OFXdMoes4RR63io6xlt1HkGQLTn8w6O/FPS5OObUBWP9fQKmEJuKRVAfL5Sf/8Sk
-	3sUhEuPwqhAekbzYMrTRd6jEK3DS2wVYd6KTuj5A1Y5eJqRwhuT1yBMEURMvSqEC
-	JUGyZoXVBKrNRBupd35AIaGV8xEmhdrzveedNmSXTimwFcH9dDDNo+0mq7fUmOqy
-	C4SDOE3HCzwx46pLhNrMcZBV5BEaCNfX9QCXc/0/7rf8Q9de/1HnQsgZQ86SAta1
-	FZHzcd9leeYeWh1pKheQxY3wYg0cF8S0bzM8VWvATOJeNTthY0Io5IO7uGEKSGcF
-	q9GiwCN11/R3jDSsMr+1Dw==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1782159737; x=
-	1782246137; bh=FAL8dhxtWWHEyHTTSbbz9HNANOHRDrNII3W7xSFk9a4=; b=I
-	LCCOKJbOHIeBhU7pgDL4uSS2TaOrPd32Ql6PW4fQZKarbqKNK+otPnCo65xRDuN2
-	UCp96cMa0xf6bGMkqUV8eSue+7jhrqPnm+sXqY2lb811hQidaydLIpAJ/wP8kx2O
-	4ny/h4uWdbPjUzBJTLxorwcgDt0bJ/QUmJkid/SRZBRjMvCgYGjcq5ABLzO6HwnR
-	jrM43HGBMyBpKbm8DXwYpJM8ysHNrE9/8A7KcxVZd7fgc3EHSkfskX8fD2NTKefu
-	2GI22d3FMMxnk/5fENWB93hTFE2X/AflAAafQCe6nZZDFDwWmhIAkr/H19Dv/nMv
-	BRSFgy5QmP2tGjspMATlw==
-X-ME-Sender: <xms:eZk5at-YDSTmkH203cI6bsL2nfdH7SRSMI8IakVAQb17W-vwI2GFLg>
-    <xme:eZk5ajEI0UIN92rsdMwKNbQSfQrV-E6HyrvnBbZmikfpiz4gh00YXS8TWfsddM1IO
-    mj2oz08axE72R1IgTSwySG6F-RjCBn49GcK_2CZNO5lJ41EytkC2Q>
-X-ME-Received: <xmr:eZk5akRCP-fyJyYRP3IrLwD-Oo_2EbXxoe2cQ7AW-bgO2hc-q4Y2HHFdXKE>
-X-ME-Proxy-Cause: dmFkZTGkjo92nJiVUshrgMAFTRCUY1gJfONNyQjyZ0s04zPW9OqQKj2Iug6vqz7+57aCzP
-    3bmGyjaFS5OlkQsJdJFM7bwyGbDqdt0WdUy+o7YVTy2btnhAztQASYt/5DD2uqG+FKp496
-    jMoV4vOKbym2mPzzwENlMy26X+CW6zh9WCnwghsPL57VHHWIixAT+DbaTxJX7YYa148vqO
-    jsvaIbj0wIdrceWmFeTOJdor1DXP6ywxIrcDhbkErBLpUX40qlykvhByxl7fXzBhiphYT2
-    Oz46MbsdJuyfE5UPPazsR2LEJM082U9DJiL2h6CzFDLNcaJHK0a5oaNnZ3cSyrleSihtHK
-    9IGIurn4csbYmPw6IHgWs1XjrKMayL/fyvcp1YC3ps4nFk6/zbZhkC/IQyFOAXBIcKarXQ
-    hu4JwQ7ZfEQPLey50H8uWcXZ9usC0ycu/07ipmI+vdum7rrnxo1u5iFtAvy3irE5t5arok
-    tPQ0964oMZq5oKPFCrDk45l6NbNjSncXRfANLfh7WcvXcT+wxL8r5rDPhPB9l7JGWkpt0c
-    748mX9MhuNR7E0z+fHZCOEUZt7wCzCJmnGpK05AJ5vQIqjssD6o6IjDu5DStsxIifcXPEz
-    WzhzhT5OcNFotqXtWPJgX0+pZvbTdhHpO7rD2547vr82g/QVfRrlzFW7iTFg
-X-ME-Proxy: <xmx:eZk5apsFH16KpNHSvW0YeTlkVrds--ZOYNMtUTVPLJy89f2XebPoZA>
-    <xmx:eZk5apCuyJzklTvXOB4t-v6TEBJxQkV5RQ4dsWpbSb7WlEuaxthWwQ>
-    <xmx:eZk5aucQ6--a_I0_jCvWpJjOufHWMU01UFcH_4q_F5t5CmjRTrUJnQ>
-    <xmx:eZk5apoOKfHU8R7KrA088h_kCYlPVF3UB6WS3zsrplhSB2ZYymV5Dg>
-    <xmx:eZk5arM_uwvpf0HlGsLnTlR_o6sWWKaNJgTt_RZ8deLMQ49bufO4wbK2>
-Feedback-ID: i03f14258:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
- 22 Jun 2026 16:22:16 -0400 (EDT)
-Date: Mon, 22 Jun 2026 14:22:15 -0600
-From: Alex Williamson <alex@shazbot.org>
-To: Omar Elghoul <oelghoul@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
- kvm@vger.kernel.org, hca@linux.ibm.com, gor@linux.ibm.com,
- agordeev@linux.ibm.com, borntraeger@linux.ibm.com, svens@linux.ibm.com,
- schnelle@linux.ibm.com, mjrosato@linux.ibm.com, alifm@linux.ibm.com,
- farman@linux.ibm.com, gbayer@linux.ibm.com, alex@shazbot.org
-Subject: Re: [PATCH v4 3/4] vfio-pci/zdev: Add VFIO FMB device features
-Message-ID: <20260622142215.2446486e@shazbot.org>
-In-Reply-To: <20260612181048.91548-4-oelghoul@linux.ibm.com>
-References: <20260612181048.91548-1-oelghoul@linux.ibm.com>
-	<20260612181048.91548-4-oelghoul@linux.ibm.com>
-X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-pc-linux-gnu)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="eXHf3qnY"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65MJmP9r3871094;
+	Mon, 22 Jun 2026 20:22:17 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=B5vVAt
+	IDbzaSNkktW0bHKA15zOY7ML5rD0GHaITYyZ4=; b=eXHf3qnYh7BYZPvBnb9Qrl
+	ch3v5rztS1CYroOVAOmoT2aGKviodqQsFWxdU1nmpaCbnoOVIAhtldkJwfUiomWg
+	2+RlYDDT4S4qPI47aG6MqIPz4YJ5f6RoippJI2TjvracfQUB51Vt4n6O8vWKOFrF
+	/QLct0H8hrXNxlg2bOaLU1CsLVbXjdvBgGBazhgtZ+Z+BkUSVda0CJebusCjACgk
+	DBKYmbnQBcixo7pmKuuSKFeUWtVCznZl5PfIrfAhHY9GP58lQydolZuhxh/p9z1n
+	5FAjPdw3m4klDfF02kePTpdWiNZAI+zLg7GbwsQjIq/XvtJVy5/iToDK4yM2/dBQ
+	==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ewjgsk3st-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 22 Jun 2026 20:22:17 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 65MK4eLR031892;
+	Mon, 22 Jun 2026 20:22:16 GMT
+Received: from smtprelay04.wdc07v.mail.ibm.com ([172.16.1.71])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4ex5jw83mn-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 22 Jun 2026 20:22:16 +0000 (GMT)
+Received: from smtpav05.dal12v.mail.ibm.com (smtpav05.dal12v.mail.ibm.com [10.241.53.104])
+	by smtprelay04.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 65MKMFt739060174
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 22 Jun 2026 20:22:15 GMT
+Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 63D305805D;
+	Mon, 22 Jun 2026 20:22:15 +0000 (GMT)
+Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id CC05C58052;
+	Mon, 22 Jun 2026 20:22:14 +0000 (GMT)
+Received: from [9.61.251.231] (unknown [9.61.251.231])
+	by smtpav05.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Mon, 22 Jun 2026 20:22:14 +0000 (GMT)
+Message-ID: <5761d5ab-abaf-468c-a931-73c16bdfc7f3@linux.ibm.com>
+Date: Mon, 22 Jun 2026 13:22:14 -0700
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v20 4/4] PCI/MSI: Enable memory decoding before restoring
+ MSI-X messages
+To: Niklas Schnelle <schnelle@linux.ibm.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org
+Cc: helgaas@kernel.org, alex@shazbot.org, mjrosato@linux.ibm.com
+References: <20260622171840.1618-1-alifm@linux.ibm.com>
+ <20260622171840.1618-5-alifm@linux.ibm.com>
+ <8e0cdec1d92eaadaf0739c7175e2bb78783d4524.camel@linux.ibm.com>
+Content-Language: en-US
+From: Farhan Ali <alifm@linux.ibm.com>
+In-Reply-To: <8e0cdec1d92eaadaf0739c7175e2bb78783d4524.camel@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjIyMDE5NyBTYWx0ZWRfX9BZH4xkFH+Jc
+ hsevkW8HmnMkZiMbq/rBOkPtOTtKg3JpHYfFivG63M24X7d4AgDm3BOwhnYIl7CJd5/F9rIELbM
+ dsHKRSlU7Xq15NFiAFKG3qg/S4BZ6DFNNVtNy1jkcOqdwquVjVIoJdMP75FRaGexZvDifOtSHfG
+ VTTgFknq7isYxFKh4LsEuBz+2u87anucf5P5t5lkCWpXs8HFXttmTD7RSDrIfKNbY0szgB592nW
+ rG+P2y59jz9q7guGWZvGkGJs7zxNGy/BM0XP0jyC36TGHJUa6QLtLgkhEnjW+LbuNM4zxAGv+ro
+ UQP358OWXbdApTuutfAcOGjfCUcPFbloWinsvYDQoiyD7HMwxBOdXV0L5IL6lGKQXq31JseMrAf
+ ddwxpyyfUYCTC/pajBe5EQDVE2skkJ/Ajj0Y9gUkhqDQhJRTb/Yyq26TbuqTtPg7hHJ2Jr7bSKq
+ updwTFva0hYCUaGm6WA==
+X-Proofpoint-GUID: XID1W1wuUY-veoNt-_R3fMH6t6zdl6Z2
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNjIyMDE5NyBTYWx0ZWRfX8MkXHHD9E2+S
+ Bz1/b3EJ4q8ZsxRm4AYqMryBEnoGAMwEKvF9mJAM3vk110Uk446aesAO+99xa8jWPE0ZbFECKDd
+ bgaf+ajWBAl0FNTBnff+6oHJffbxSvY=
+X-Authority-Analysis: v=2.4 cv=I/lVgtgg c=1 sm=1 tr=0 ts=6a399979 cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=IkcTkHD0fZMA:10 a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8
+ a=41MKBYwao-ZyPmYOq8wA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+X-Proofpoint-ORIG-GUID: XID1W1wuUY-veoNt-_R3fMH6t6zdl6Z2
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
+ definitions=2026-06-22_04,2026-06-22_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ lowpriorityscore=0 spamscore=0 phishscore=0 clxscore=1015 priorityscore=1501
+ adultscore=0 impostorscore=0 bulkscore=0 suspectscore=0 malwarescore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2606220197
 
-On Fri, 12 Jun 2026 14:10:47 -0400
-Omar Elghoul <oelghoul@linux.ibm.com> wrote:
-> +int vfio_pci_zdev_feature_fmb_read(struct vfio_pci_core_device *vdev, u32 flags,
-> +				   void __user *arg, size_t argsz)
-> +{
-> +	struct zpci_dev *zdev;
-> +	struct vfio_device_feature_zpci_fmb_read fmb_read;
-> +	int ret;
-> +
-> +	ret = vfio_check_feature(flags, argsz, VFIO_DEVICE_FEATURE_GET, sizeof(fmb_read));
-> +	if (ret != 1)
-> +		return ret;
-> +
-> +	zdev = to_zpci(vdev->pdev);
-> +	if (!zdev)
-> +		return -ENODEV;
-> +
-> +	guard(mutex)(&zdev->fmb_lock);
-> +
-> +	if (!zdev->fmb)
-> +		return -ENOMSG;
-> +	if (copy_from_user(&fmb_read, arg, sizeof(fmb_read)))
 
-No need to do this or the test below under mutex.
+On 6/22/2026 11:54 AM, Niklas Schnelle wrote:
+> On Mon, 2026-06-22 at 10:18 -0700, Farhan Ali wrote:
+>> The current MSI-X restoration path assumes the Command register Memory bit
+>> is enabled when writing MSI-X messages. But its possible the last saved and
+> SpellingL "it's"
+>
+>> restored state of device may not have the Memory bit enabled, even if a
+> Missing "a" in "of a device"
 
-> +		return -EFAULT;
-> +	if (!fmb_read.data)
-> +		return -EINVAL;
-> +
-> +	if (copy_to_user((struct zpci_fmb __user *) fmb_read.data, zdev->fmb, zdev->fmb_length))
+Ah I missed correcting these.
 
-The v3 comment noted we could do this, but really keeping the buffer
-and doing the copy_to_user after dropping the mutex is really the
-better option.  Sashiko also notes[1] this as a high severity issue.
 
-Should also use a u64_to_user_ptr() on the user data pointer.
+>
+>> device driver later enables Memory bit and MSI-X. Attempting to access
+>> Memory space without Memory bit enabled can lead to Unsupported Request
+>> (UR) from the device. Fix this by enabling Memory bit and restore
+>> it afterwards.
+> The official spec term is "Memory Space Enable" and I think "can lead
+> to" is actually underselling it, as the PCIe spec says that accesses
+> are "caused to be handled as Unsupported Requests". Also as I
+> understand you did see this in practice. Maybe we even want a Fixes
+> tag?
 
-[1]https://sashiko.dev/#/message/20260612182854.97E641F000E9%40smtp.kernel.org
+This behavior has been present since 41017f0cac92 ("[PATCH] PCI: MSI(X) 
+save/restore for suspend/resume"), so I am not sure a fixes tag makes sense?
 
-> +		return -EFAULT;
-> +
-> +	return 0;
-> +}
-> diff --git a/include/uapi/linux/vfio.h b/include/uapi/linux/vfio.h
-> index 5de618a3a5ee..97e0f857fe4f 100644
-> --- a/include/uapi/linux/vfio.h
-> +++ b/include/uapi/linux/vfio.h
-> @@ -1534,6 +1534,35 @@ struct vfio_device_feature_dma_buf {
->   */
->  #define VFIO_DEVICE_FEATURE_MIG_PRECOPY_INFOv2  12
->  
 
-These next feature indexes are in contention, so we need to think about
-how this gets merged; the whole thing through the vfio tree, the s390
-bits through s390 tree with a branch exposed for me to merge to vfio
-before applying this change, or the whole series applied to a clean
-branch and merged into both the s390 and vfio next branches.  The first
-two options give me the most leniency in adjusting feature indexes
-based on what's already been merged at the time.
+>> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+>> ---
+>>   drivers/pci/msi/msi.c | 4 ++++
+>>   1 file changed, 4 insertions(+)
+>>
+>> diff --git a/drivers/pci/msi/msi.c b/drivers/pci/msi/msi.c
+>> index 81d24a270a79..46a0d9f68a57 100644
+>> --- a/drivers/pci/msi/msi.c
+>> +++ b/drivers/pci/msi/msi.c
+>> @@ -874,6 +874,7 @@ void __pci_restore_msix_state(struct pci_dev *dev)
+>>   {
+>>   	struct msi_desc *entry;
+>>   	bool write_msg;
+>> +	u16 cmd;
+>>   
+>>   	if (!dev->msix_enabled)
+>>   		return;
+>> @@ -882,6 +883,8 @@ void __pci_restore_msix_state(struct pci_dev *dev)
+>>   	pci_intx_for_msi(dev, 0);
+>>   	pci_msix_clear_and_set_ctrl(dev, 0,
+>>   				PCI_MSIX_FLAGS_ENABLE | PCI_MSIX_FLAGS_MASKALL);
+>> +	pci_read_config_word(dev, PCI_COMMAND, &cmd);
+>> +	pci_write_config_word(dev, PCI_COMMAND, cmd | PCI_COMMAND_MEMORY);
+>>   
+>>   	write_msg = arch_restore_msi_irqs(dev);
+>>   
+>> @@ -893,6 +896,7 @@ void __pci_restore_msix_state(struct pci_dev *dev)
+>>   		}
+>>   	}
+>>   
+>> +	pci_write_config_word(dev, PCI_COMMAND, cmd);
+>>   	pci_msix_clear_and_set_ctrl(dev, PCI_MSIX_FLAGS_MASKALL, 0);
+>>   }
+>>   
+> Code wise this all looks good to me so feel free to add.
+>
+> Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
+>
+> Thanks,
+> Niklas
 
-> +/**
-> + * Upon VFIO_DEVICE_FEATURE_SET, enable or disable FMB for the VFIO zPCI device.
-> + *
-> + * enabled is treated as a bool, so any non-zero value evaluates to true. This
-> + * feature fails on attempt to double enable/disable.
+Thanks for reviewing!
 
-Same inconsistency noted on patch 2, it seems that it starts out
-enabled.
+Thanks
 
-> + *
-> + * Returns: 0 on success, -1 and errno set appropriately on error.
-> + */
-> +#define VFIO_DEVICE_FEATURE_ZPCI_FMB_ENABLE 13
-> +
-> +struct vfio_device_feature_zpci_fmb_enable {
-> +	__u8 enabled;
-> +};
-> +
-> +/**
-> + * Upon VFIO_DEVICE_FEATURE_GET, provide FMB passthrough for VFIO zPCI devices.
-> + *
-> + * The user-provided buffer must be at least fmb_length large, where fmb_length
-> + * is reported in VFIO_DEVICE_INFO_CAP_ZPCI_BASE.
+Farhan
 
-Is there a spec reference for the opaque data blob provided, or at
-least reference to kernel structure documenting the layout defined by
-some firmware reference?
 
-> + *
-> + * Returns: 0 on success, -1 and errno set appropriately on error. errno==ENOMSG
-> + * when the FMB is not enabled.
-
-This sounds like a user sequencing error, so should it simply be EINVAL
-or ENXIO?  ENOMSG almost sounds like we're tracking the samples field
-to make sure the user hasn't already read the current sample.  Along
-those same lines, should this document some mechanism for dealing with
-torn samples since we might be relaying the sample structure mid-update?
-Thanks,
-
-Alex
