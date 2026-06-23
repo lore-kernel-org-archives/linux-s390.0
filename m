@@ -1,134 +1,151 @@
-Received: from mail-dy1-f169.google.com (mail-dy1-f169.google.com [74.125.82.169])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out30-97.freemail.mail.aliyun.com (out30-97.freemail.mail.aliyun.com [115.124.30.97])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A05193A9013
-	for <linux-s390@vger.kernel.org>; Tue, 23 Jun 2026 05:26:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 49D4C331EB8;
+	Tue, 23 Jun 2026 06:02:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.97
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782192372; cv=none; b=i83E3wLqbXk5e7ncfK4ScFowvuPi0U9QNuFjQcd8h7w/wyUcwQdfwjAhsCTCCbsdQAolQVxlYkrk2HJH7NaikDj6EqmllZFqxbQnjbz5BWRJRk4tYiMVkO15nlIFRBeXyHBlByE4hCH/bWI4SG/veSZ6y1Nk22LZZRF43droAJM=
+	t=1782194551; cv=none; b=GPnnoC+Gp4ucLnPAmh7NgQf0fx6ygvjrruuwPa4QEWLcZn4ceGzWTVO6pc+ubZEoQB7EgxVJ2CrOE1UQrag8JdWVgKFkUltLbPaYvtSMxPMXS1PTy5Ngc4lACYCuefnUhyJ8/MOJGDwlhKPhe7Nbu4hIhl5N7aQcDIpzSa0Zjqw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782192372; c=relaxed/simple;
-	bh=DjSs5oRw9rccbhTB4m6pdAGiet3QtdAO5qUM5zvUvsg=;
-	h=MIME-Version:Content-Type:Subject:From:To:Cc:In-Reply-To:
-	 References:Date:Message-Id; b=tuaeY3qd14JZ/BH6u6sBC6av/rTXEFR131ay7kB/TqAnGgJW8iDG1FzZASUie7vhmHY9rBGntnCJzZVvB1GfPSQtY3zSxjV3Cs5oMF60cAvwCmLSfLMdy7MU39RPIV0Zu+V3fJYm+NYgejY2Md+wPcUeqgW2RRq13c0U/xeVx8A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=quAcfAc+; arc=none smtp.client-ip=74.125.82.169
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1782194551; c=relaxed/simple;
+	bh=Ohl8H5CIdVJ0LZVBp5/kkC99ycMWv9vhyOY2FRSkPyc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=M5NJdIBsjhoREWewXt3UKF+B+4o2Y7VYdAzmw6q9SyF1TLn5Rrwyl6YcTHS16L7ffFUDs6x9SnKeYLMgCA7d5Yp23A9h3YLF2kgo82/oi1bhimGRwOp+8n923FWLfOnDKwIBtEN5jmWQyviHDZxFq6Tk7qLSn9Eydzs8JmU1bIQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=Y9vekp61; arc=none smtp.client-ip=115.124.30.97
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="quAcfAc+"
-Received: by mail-dy1-f169.google.com with SMTP id 5a478bee46e88-30bf132969bso6540343eec.0
-        for <linux-s390@vger.kernel.org>; Mon, 22 Jun 2026 22:26:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1782192368; x=1782797168; darn=vger.kernel.org;
-        h=message-id:date:references:in-reply-to:cc:to:from:subject
-         :content-transfer-encoding:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=FPvEzMllSbsUeGZyzSL2DVJCIDjlLydKz1PcX2CIArY=;
-        b=quAcfAc+KwRbKomjlQ7OiNMV8QEi8jSn8Odt68rJIlULORthSyjOAwkegrYPyPZSq6
-         hNf6IqAhMz0fcANJgjvfSnSAHnhgceyvvWnf7wyuKmSMgYyaHH2YqWX6ZhmbbHLRmqvr
-         aKmBZTdtD/BANMu+hZghsaifUFfnGNhwX1TFrGRHih3MZ6O3P1qtDUlMx8FVFmHIe281
-         rq9bqMojGlaogwe74714ZbAlhp7SST1U6jGkMiqC6ewdBTcDmASN8y/KV9NxUntnM+eb
-         ShjHnLIYvBPb+SQP29yOuOOd4R7m9xXygN+EYVHWb8QHnjKIY+2iD5pB749zZcQeR2GA
-         DJuA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782192368; x=1782797168;
-        h=message-id:date:references:in-reply-to:cc:to:from:subject
-         :content-transfer-encoding:mime-version:x-gm-gg:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=FPvEzMllSbsUeGZyzSL2DVJCIDjlLydKz1PcX2CIArY=;
-        b=ECO3/jr9u5Lw/nyCiVLZHjKSE0CTA9U9k2tfDwjXevDOWqpwQzXQhKZuj6K1YBu90I
-         ojb1430WqjTWq3P7T0Tt1zRUUvqsGKu97+NAiUvWz88R8upKzxJO1FlwbxNFCkr6Vmm8
-         i7vQ/9G/CqdfS499cw90c0YAyT7DkSnA4wCKTvOd5vxqwa+0Qzi6CWwStM1FIh+GHs3n
-         H09eQsU+lclWK4lgIV2TABAcnzZyrc1W7TEy3rmPxjL2fUEUE81jQ79mHu9vywsNYC9m
-         QiS1+UJvVGAZ9hzW31JNF+Ll3loC04zsjFflY1T/Iv6cvaP6r3pSxDW5H8TjwHVsQZ3d
-         qntg==
-X-Forwarded-Encrypted: i=1; AHgh+RpYzPpsG8XAUIWzJyC6UvtS1uvHUTrfb4z84psxC+ZtEOkPTtQzbjwFgDd8LRpahpCcD6LDrpKzF1K5@vger.kernel.org
-X-Gm-Message-State: AOJu0Yz803QWn+PlEVJGxFNg9jh7Lm/9CQj2s6YvkTYhzll1LqIkVV6U
-	Rq6VWNv9rt1iNPAClqVB07QUWgcvwcflw1gWEfy1U18OL21Gsc8oMLyF
-X-Gm-Gg: AfdE7cll/V3o2BK3mn7gEBHAYHizpkM+HSvZESafDL4Tsg4RQri/iunZR1EACdHIp8N
-	mbfDRLr+B6NIW4DHunk0KpXt0pkyi3ESIom7wqRMM9pZ6bGrPU7pyWBwgjGcuo5PXjKtghbPsM7
-	Y6tpSAS91NvY6A60k+4B+hjmAluHOrzaTSVTUdurPAtfaM1tKRRrmtSqC40ZXxGpDTCRhsmxBKH
-	opahidK9o4Q88loswAb6aeon5NK/+aKC7BQYcoyqtTrstTdM64A/tu5PwBtl12RRhgdi+XQMYis
-	EE0UZF+eByJUsHCJY8m7XLNCEFKqxhi0ptD8U8NUdgUB9HWCJW1XY4pR0GUboUEwBTwvU0uqCMg
-	h29cEp/9lvs3zb4QdTZ+KDzg+L2pQmQyTczsB9/N568CAhj6cTAE53LIN4/DMZGi1rs1I+a57jq
-	yFldeIo8w=
-X-Received: by 2002:a05:7300:d507:b0:30c:1276:cdf7 with SMTP id 5a478bee46e88-30c5bc78138mr708393eec.25.1782192367703;
-        Mon, 22 Jun 2026 22:26:07 -0700 (PDT)
-Received: from [10.0.0.65] ([2601:647:6700:64d0::92d1])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-30c1be4967fsm13102455eec.26.2026.06.22.22.26.06
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 22 Jun 2026 22:26:07 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="Y9vekp61"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1782194539; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
+	bh=5D6qSgcvkXY5fZhgXS+3C6PguwJ4UnErXlSfTf6hK/0=;
+	b=Y9vekp61xn2XhxSvykk9bYtq5TyJ6bTyOa86OlMAzzOKGVp7HLoKyayz+2iRlV0yUWUgJ0rpjkJJiltf4J4gpnu6HSfSAtR+g96UMf83HyOIfEEbjwR2ogbGhYzTS5E+NVe9Cx/IVg0vVDkKqVHGhMd9/lRUH+wK+EgmWBuHjjc=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033045098064;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=21;SR=0;TI=SMTPD_---0X5SwrVe_1782194538;
+Received: from localhost(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0X5SwrVe_1782194538 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Tue, 23 Jun 2026 14:02:18 +0800
+Date: Tue, 23 Jun 2026 14:02:18 +0800
+From: "D. Wythe" <alibuda@linux.alibaba.com    >
+To: Sechang Lim <rhkrqnwk98@gmail.com>
+Cc: "D . Wythe" <alibuda@linux.alibaba.com>,
+	Dust Li <dust.li@linux.alibaba.com>,
+	Sidraya Jayagond <sidraya@linux.ibm.com>,
+	Wenjia Zhang <wenjia@linux.ibm.com>,
+	"David S . Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Mahanta Jambigi <mjambigi@linux.ibm.com>,
+	Tony Lu <tonylu@linux.alibaba.com>,
+	Wen Gu <guwen@linux.alibaba.com>, Simon Horman <horms@kernel.org>,
+	Ursula Braun <ubraun@linux.ibm.com>,
+	Karsten Graul <kgraul@linux.ibm.com>,
+	Guvenc Gulce <guvenc@linux.ibm.com>, linux-rdma@vger.kernel.org,
+	linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org, bpf@vger.kernel.org
+Subject: Re: [PATCH net v2] net/smc: fix out-of-bounds read when sk_user_data
+ holds a sk_psock
+Message-ID: <20260623060218.GA29925@j66a10360.sqa.eu95>
+References: <20260619150342.3626224-1-rhkrqnwk98@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Subject: Re: [PATCH v4 5/8] riscv/runtime-const: Introduce
- runtime_const_mask_32()
-From: Charlie Jenkins <thecharlesjenkins@gmail.com>
-To: K Prateek Nayak <kprateek.nayak@amd.com>
-Cc: Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, 
- Peter Zijlstra <peterz@infradead.org>, 
- Sebastian Andrzej Siewior <bigeasy@linutronix.de>, 
- Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, 
- Albert Ou <aou@eecs.berkeley.edu>, Guo Ren <guoren@kernel.org>, 
- Darren Hart <dvhart@infradead.org>, Davidlohr Bueso <dave@stgolabs.net>, 
- =?utf-8?q?Andr=C3=A9_Almeida?= <andrealmeid@igalia.com>, 
- linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org, 
- linux-s390@vger.kernel.org, linux-riscv@lists.infradead.org, 
- linux-arm-kernel@lists.infradead.org, Alexandre Ghiti <alex@ghiti.fr>, 
- Charlie Jenkins <charlie@rivosinc.com>, Jisheng Zhang <jszhang@kernel.org>, 
- Charles Mirabile <cmirabil@redhat.com>
-In-Reply-To: <20260430094730.31624-6-kprateek.nayak@amd.com>
-References: <20260430094730.31624-1-kprateek.nayak@amd.com>
- <20260430094730.31624-6-kprateek.nayak@amd.com>
-Date: Mon, 22 Jun 2026 22:24:56 -0700
-Message-Id: <178219229643.10927.7189200920480581019.b4-review@b4>
-X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1782192362; l=1456;
- i=thecharlesjenkins@gmail.com; s=20260605; h=from:subject:message-id;
- bh=DjSs5oRw9rccbhTB4m6pdAGiet3QtdAO5qUM5zvUvsg=;
- b=Q7gZYCRpUNaR0P6LCnsW2BKyT1zjAR9X/QtNq425aoOkO4GWUw2wE2DMsLI9hCenc1NtUPLh0
- LKuQabhh/3jCnBFxJDuU/QtOQWYl5v1MrRasvhVADGKiAdB5C5B53hi
-X-Developer-Key: i=thecharlesjenkins@gmail.com; a=ed25519;
- pk=ajnnRQ98PIdwKp4HeMkq9U32okYbnh6Zb4G3o5XXvkg=
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260619150342.3626224-1-rhkrqnwk98@gmail.com>
+User-Agent: Mutt/1.5.21 (2010-09-15)
 
-On Thu, 30 Apr 2026 09:47:27 +0000, K Prateek Nayak <kprateek.nayak@amd.com> wrote:
-> Futex hash computation requires a mask operation with read-only after
-> init data that will be converted to a runtime constant in the subsequent
-> commit.
+On Fri, Jun 19, 2026 at 03:03:41PM +0000, Sechang Lim wrote:
+> SMC stores its smc_sock in the clcsock's sk_user_data tagged
+> SK_USER_DATA_NOCOPY and reads it back with smc_clcsock_user_data(), which
+> only strips that flag. sockmap stores a sk_psock in the same field tagged
+> SK_USER_DATA_NOCOPY | SK_USER_DATA_PSOCK. Nothing keeps both off one
+> socket, and SMC then casts the sk_psock to an smc_sock.
 > 
-> Introduce runtime_const_mask_32 to further optimize the mask operation
-> in the futex hash computation hot path. GCC generates a:
+> A passive-open child hits this. It inherits the listener's
+> smc_clcsock_data_ready(), but sk_clone_lock() clears its NOCOPY
+> sk_user_data, and a BPF sock_ops program then adds the child to a sockmap,
+> installing a sk_psock in that field. The inherited callback reads it as an
+> smc_sock and dereferences a clcsk_* pointer past the end of the sk_psock:
 > 
->   lui   a0, 0x12346       # upper; +0x800 then >>12 for correct rounding
->   addi  a0, a0, 0x678     # lower 12 bits
->   and   a1, a1, a0        # a1 = a1 & a0
+>   BUG: KASAN: slab-out-of-bounds in smc_clcsock_data_ready+0x84/0x200 net/smc/af_smc.c:2637
+>   Read of size 8 at addr ffff8880013b8674 by task syz.6.12484/67930
+>    <IRQ>
+>    smc_clcsock_data_ready+0x84/0x200 net/smc/af_smc.c:2637
+>    tcp_urg+0x24d/0x360 net/ipv4/tcp_input.c:6264
+>    tcp_rcv_state_process+0x280d/0x4940 net/ipv4/tcp_input.c:7336
+>    tcp_child_process+0x371/0xa50 net/ipv4/tcp_minisocks.c:1002
+>    tcp_v4_rcv+0x1eaa/0x2a00 net/ipv4/tcp_ipv4.c:2186
+>    [...]
+>    </IRQ>
 > 
-> pattern to tackle arbitrary 32-bit masks and the same was also suggested
-> by Claude which is implemented here. The final (__ret & val) operation
-> is intentionally placed outside of asm block to allow compilers to
-> further optimize it if possible.
+>   Allocated by task 67930:
+>    sk_psock_init+0x142/0x740 net/core/skmsg.c:766
+>    sock_hash_update_common+0xd3/0x990 net/core/sock_map.c:1010
+>    bpf_sock_hash_update+0x114/0x170 net/core/sock_map.c:1229
+>    __cgroup_bpf_run_filter_sock_ops+0x74/0xa0 kernel/bpf/cgroup.c:1727
+>    tcp_init_transfer+0x1085/0x1100 net/ipv4/tcp_input.c:6693
+>    [...]
+> 
+> sk_psock() already guards the other side, returning NULL unless
+> SK_USER_DATA_PSOCK is set. Make smc_clcsock_user_data() and its RCU
+> variant return the smc_sock only when sk_user_data carries SMC's tag
+> alone. A sk_psock then reads back as NULL, which the data_ready and
+> fallback callbacks already handle.
+> 
+> Fixes: a60a2b1e0af1 ("net/smc: reduce active tcp_listen workers")
+> Signed-off-by: Sechang Lim <rhkrqnwk98@gmail.com>
+> ---
+>  net/smc/smc.h | 18 +++++++++++++++---
+>  1 file changed, 15 insertions(+), 3 deletions(-)
+> 
+> diff --git a/net/smc/smc.h b/net/smc/smc.h
+> index 52145df83f6e..88dfb459b7cc 100644
+> --- a/net/smc/smc.h
+> +++ b/net/smc/smc.h
+> @@ -342,13 +342,25 @@ static inline void smc_init_saved_callbacks(struct smc_sock *smc)
+>  
+>  static inline struct smc_sock *smc_clcsock_user_data(const struct sock *clcsk)
+>  {
+> -	return (struct smc_sock *)
+> -	       ((uintptr_t)clcsk->sk_user_data & ~SK_USER_DATA_NOCOPY);
+> +	uintptr_t data = (uintptr_t)clcsk->sk_user_data;
+> +
+> +	/*
+> +	 * Return the smc_sock only if the slot carries SMC's tag alone.
+> +	 * sockmap stores a sk_psock here tagged SK_USER_DATA_PSOCK; it is
+> +	 * not an smc_sock and must not be dereferenced as one.
+> +	 */
+> +	if ((data & ~SK_USER_DATA_PTRMASK) != SK_USER_DATA_NOCOPY)
+> +		return NULL;
+> +	return (struct smc_sock *)(data & SK_USER_DATA_PTRMASK);
+>  }
+>  
+>  static inline struct smc_sock *smc_clcsock_user_data_rcu(const struct sock *clcsk)
+>  {
+> -	return (struct smc_sock *)rcu_dereference_sk_user_data(clcsk);
+> +	uintptr_t data = (uintptr_t)rcu_dereference(__sk_user_data(clcsk));
+> +
+> +	if ((data & ~SK_USER_DATA_PTRMASK) != SK_USER_DATA_NOCOPY)
+> +		return NULL;
+> +	return (struct smc_sock *)(data & SK_USER_DATA_PTRMASK);
+>  }
+>  
+>  /* save target_cb in saved_cb, and replace target_cb with new_cb */
 
-If the mask fits in 12 bits, we can nop the lui and the addi and just
-patch an "andi" instruction with the 12 bits of the mask. We already do
-this with the lui+addi block and nop the lui if val fits in 12 bits. I
-would be happy to help draft that optimization. 
+No. The core issue is how to resolve the ownership conflict between
+sockmap and SMC over sk_user_data, which can by no means be solved by
+adding runtime checks on the read path.
 
-But I think the better solution would be to take the power of 2
-assumption since that will also benefit arm. We should still only emit
-an andi if val fits in 12 bits, but if it doesn't we can patch in
-shifts:
+Following sk_psock_init(), the simplest approach would be to always
+explicitly set sk_user_data or ulp_ops during the active/passive
+creation of smc->clcsock, thereby avoiding the conflict at its root.
 
-slli    a0,a0,x
-srli    a0,a0,x
+Additionally, compatibility with sockmap in the fallback path needs to
+be considered, though that can be addressed later.
 
-Where x is the constant (arch_size - _futex_shift - 1)
-
-- Charlie
-
--- 
-Charlie Jenkins <thecharlesjenkins@gmail.com>
+> -- 
+> 2.43.0
