@@ -1,147 +1,100 @@
-Received: from mail-dy1-f180.google.com (mail-dy1-f180.google.com [74.125.82.180])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from m16.mail.163.com (m16.mail.163.com [220.197.31.3])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 001C8299929
-	for <linux-s390@vger.kernel.org>; Tue, 23 Jun 2026 07:01:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 61F39359A81;
+	Tue, 23 Jun 2026 07:53:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.197.31.3
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782198074; cv=none; b=NZMCpd/VoHWMMUqHWXZ8wnFGBhdZOPcz9zk4Uji0xwRxoEwIkO276lJFegq2YFx8qR+Dc9FOVT0O+SVywCo6/0EsVtNN3nPo0urLy4yFaL3Z402UlD4zpNhuQM+/9TjL3fiisHu3N7Voz8SsQAvgCNi2srgoMx+UCoglT3S+oG0=
+	t=1782201188; cv=none; b=foQi8WeclozSKNxBGZ2K4+VuopjMy72gPnP8byLrFON2PaKq8YgoTTUf0STNxWOkIDs6LY77KXS8/wfVq/cELTLplE7e6pudB18AeTatLCFFo1yKEFgeC5vLbFAdoNB6HUv55qX1HJo14expWwtVGKHDP0orWnndbbYLMmVCYXA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782198074; c=relaxed/simple;
-	bh=7eTid/Y/ZrFuJ9aQUGHjb+pKuO0yMAyOl/AKL5G3obA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=rWzdliIZ8gUtob/u84d4oK957IcnDTYJPUyJZHhwToHEGGz036NcDtImAIlnEgcIGM1ai1VsUF6c7idoQcPBsIUWJEOJLhTVQH0f9m6UmGG8coq8ObraVJ4IAjlq+Z9aA1/V4q99mQxeT2IYIYLECzcMp1TOB1Te6JDwYMwEvMo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=WQTOqSUb; arc=none smtp.client-ip=74.125.82.180
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1782201188; c=relaxed/simple;
+	bh=Z8nPTGOELiNpLext6XY/7JueKxLoEarzlsGzHgZZNBc=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=MqedVo4VCyZiDtO/KU56UtMwoKdthVX+wnHNNYAlt+lrZNGl24ChxtO+bMH1eymxfGnbSzcf6W6z+t9iMQnXj/XIPs0+r/cMsZR8UObF343mNcRhdIYqtTYK4esmNM4WWOQuaFOILQNvTKR2fGl9kRO1q6OqtUJCKaFs4usIjXs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=KoA63PjL; arc=none smtp.client-ip=220.197.31.3
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WQTOqSUb"
-Received: by mail-dy1-f180.google.com with SMTP id 5a478bee46e88-30c6040aa54so133052eec.1
-        for <linux-s390@vger.kernel.org>; Tue, 23 Jun 2026 00:01:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1782198072; x=1782802872; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=d6Ap3YJUEuoJTFxCbawQ11i/jSYqTs+DIopPqv2NeZw=;
-        b=WQTOqSUbPsS4Vsh+KdBzDd+sE2ej5BekmKaD9l7AJosNCGdtJgxo+yA4mZekkxkejw
-         YghzOpaIzh9j8x2afrIWN7pizwCIL3QQ5amED4IPwYUaF3Kp+CkBroDbaldOqapwu0Em
-         6LNwZYKaUdju0AJZW3YiFzj2exOJf++VRcoeQhTPb71oEgCmonMcjI+tNYFtPBZgX2/L
-         HDSBR6fJTXyIeJkBztDBkcByUnF7vAZm6oENh83T5sXAG3ysaVmxhLjbP7iMAaj6wOlW
-         OXGkrRvT9+Do5+GB9h7Qq2PXg4zfLG79m4Y7lJm//QYO8iQABtVbZ5mOr6LCXEzgsz0N
-         ZPWQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782198072; x=1782802872;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=d6Ap3YJUEuoJTFxCbawQ11i/jSYqTs+DIopPqv2NeZw=;
-        b=fxaXFibjD5xuUrzVrrso93PumPEzSG3JSkt7VSrYV+hbLKNCgHIYPNADAkr9LUNxnB
-         4dszdMTOzIPSwxGbESRiQcGZDu3ICXsFl4g5hhBb//fuo8a1JBOLLtC1y0ZbT0CtQlw0
-         IE8eF/NH63vfOQZCu6VrIsUkuubOCe+9hEwGVcztRZ5TbP761fKNctUYL/CWxvloVGur
-         /oQu29EZPHJZeBNT3gmrBl6zeQEUqaLkzgBUPKahZ7rFi5icKt1xgwn37kAlfcBNmPiH
-         32A2+k7ueOP1PUpal2JkRrQHvTWLfWHwiyqTPhN63SBeOotfotN6P4rf+xVcUIPxyL5g
-         9NyA==
-X-Forwarded-Encrypted: i=1; AHgh+RqXnJRMDu7UHjlqEkr2dwikwTWiy2f0HAjeMKfujtFmea6La8UuaWhi8cGU3nz+O6MswUXQbHtrRpTO@vger.kernel.org
-X-Gm-Message-State: AOJu0YziJ+8Oz5x9IehOkIqiEC5UT5itf3dlc5nTBZub0PJrycQUK4o0
-	GvUPaFvOOaUNDDdoN5rNOdnrtIbigqkXbHOz+e21rO9RYU84WAxXyJKa
-X-Gm-Gg: AfdE7cnKEo09QEWbAgtnpPEqPLdvmgpcX039Z7+j7GqAPtgFdHyi8EWUGFMuadkEH+Y
-	8dJvFUtwU/B5+pOoDKBp0jKA6AESM2YGul1Ef+G34mL9tZDPowaNZ5nq45n93nM/pLmH7ef0C3A
-	f3bwY5ORrDRwuWDO+tYLkxOjXYkbpl3O5vgbhk1Hc4n/KXmVpv+qtLEGmOh4g4nOCSytylNnJF/
-	9GWUK+SNkgvX0r3a3c/ay/SqnJepCLTciH9sy/JpZKpjwnbtg5Odhf9rtgVFkqmFEQSf3H4xdJt
-	XPicJ7OPa5jw1vpxgHkvW2GWY6THtqA9nqM7uPD7wp57X6rQs1HduVI9li9RC1Voi37t+Z6Pcwx
-	46xaLewcf8sTxtpmNg6SxVsBJnOZ6oNpXFs3Xv06HykguNo7aVfF0vPstBZgo+G6Dz8mhbj7O65
-	EP
-X-Received: by 2002:a05:7301:3f09:b0:30a:e52f:9bcf with SMTP id 5a478bee46e88-30c06e2e675mr12844078eec.10.1782198071896;
-        Tue, 23 Jun 2026 00:01:11 -0700 (PDT)
-Received: from blinky ([2601:647:6700:64d0::92d1])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-30c1bdffa83sm18003870eec.23.2026.06.23.00.01.10
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 23 Jun 2026 00:01:11 -0700 (PDT)
-Date: Tue, 23 Jun 2026 00:01:08 -0700
-From: Charlie Jenkins <thecharlesjenkins@gmail.com>
-To: K Prateek Nayak <kprateek.nayak@amd.com>
-Cc: Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-	Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
-	Albert Ou <aou@eecs.berkeley.edu>, Guo Ren <guoren@kernel.org>,
-	Darren Hart <dvhart@infradead.org>,
-	Davidlohr Bueso <dave@stgolabs.net>,
-	=?iso-8859-1?Q?Andr=E9?= Almeida <andrealmeid@igalia.com>,
-	linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-s390@vger.kernel.org, linux-riscv@lists.infradead.org,
-	linux-arm-kernel@lists.infradead.org,
-	Alexandre Ghiti <alex@ghiti.fr>,
-	Charlie Jenkins <charlie@rivosinc.com>,
-	Jisheng Zhang <jszhang@kernel.org>,
-	Charles Mirabile <cmirabil@redhat.com>
-Subject: Re: [PATCH v4 5/8] riscv/runtime-const: Introduce
- runtime_const_mask_32()
-Message-ID: <ajovNDH2uo6V4NJx@blinky>
-References: <20260430094730.31624-1-kprateek.nayak@amd.com>
- <20260430094730.31624-6-kprateek.nayak@amd.com>
- <178219229643.10927.7189200920480581019.b4-review@b4>
- <ff9678fb-4cca-4849-8ffb-7cb76db60e1a@amd.com>
+	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="KoA63PjL"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
+	s=s110527; h=From:To:Subject:Date:Message-Id:MIME-Version; bh=Cc
+	rcH5t6ZYGuhJDVVH+tDRtjwGRf2id6dqNPTyNJhlc=; b=KoA63PjLb96hByd0Qb
+	BOK9IX9Cu7IViYzaNf219D2sTTo9+8GbLV5gS5fzBIVVS3yMUH2VkKKTIqnJa8rN
+	QAEPtRL9Jz+tg2YoJI2IA70VJkcB6XRXahIswdqzmnhKNCpR45OM3b000dtZJVqs
+	tOogSP6Du+UGR/9zxjbJ8DJ44=
+Received: from localhost.localdomain (unknown [])
+	by gzsmtp4 (Coremail) with SMTP id PygvCgDnOeA1OzpqI+i9Dg--.16449S2;
+	Tue, 23 Jun 2026 15:52:28 +0800 (CST)
+From: Haoxiang Li <haoxiang_li2024@163.com>
+To: mjrosato@linux.ibm.com,
+	alifm@linux.ibm.com,
+	farman@linux.ibm.com,
+	borntraeger@linux.ibm.com,
+	frankja@linux.ibm.com,
+	imbrenda@linux.ibm.com,
+	david@kernel.org,
+	hca@linux.ibm.com,
+	gor@linux.ibm.com,
+	svens@linux.ibm.com,
+	schnelle@linux.ibm.com
+Cc: linux-s390@vger.kernel.org,
+	kvm@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Haoxiang Li <haoxiang_li2024@163.com>,
+	stable@vger.kernel.org
+Subject: [PATCH] KVM: s390: pci: Fix GISC refcount leak on AIF enable failure
+Date: Tue, 23 Jun 2026 15:52:20 +0800
+Message-Id: <20260623075220.2022613-1-haoxiang_li2024@163.com>
+X-Mailer: git-send-email 2.25.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ff9678fb-4cca-4849-8ffb-7cb76db60e1a@amd.com>
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:PygvCgDnOeA1OzpqI+i9Dg--.16449S2
+X-Coremail-Antispam: 1Uf129KBjvJXoW7CFyUtFWkZr4rJFyxJF1kZrb_yoW8Gr15pa
+	4UC3Z8G3sYqFW0yF47ta1v9FyUuayUGr4xCF18J3y2qr1aqFyvyFZ5AFyUZr45GrW8u3Wr
+	AFZYkF1DuF98CaUanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x0JU5GYdUUUUU=
+X-CM-SenderInfo: xkdr5xpdqjszblsqjki6rwjhhfrp/xtbC7h0HdWo6Oz2DEwAA3H
 
-On Tue, Jun 23, 2026 at 11:43:39AM +0530, K Prateek Nayak wrote:
-> Hello Charlie,
-> 
-> On 6/23/2026 10:54 AM, Charlie Jenkins wrote:
-> > On Thu, 30 Apr 2026 09:47:27 +0000, K Prateek Nayak <kprateek.nayak@amd.com> wrote:
-> >> Futex hash computation requires a mask operation with read-only after
-> >> init data that will be converted to a runtime constant in the subsequent
-> >> commit.
-> >>
-> >> Introduce runtime_const_mask_32 to further optimize the mask operation
-> >> in the futex hash computation hot path. GCC generates a:
-> >>
-> >>   lui   a0, 0x12346       # upper; +0x800 then >>12 for correct rounding
-> >>   addi  a0, a0, 0x678     # lower 12 bits
-> >>   and   a1, a1, a0        # a1 = a1 & a0
-> >>
-> >> pattern to tackle arbitrary 32-bit masks and the same was also suggested
-> >> by Claude which is implemented here. The final (__ret & val) operation
-> >> is intentionally placed outside of asm block to allow compilers to
-> >> further optimize it if possible.
-> > 
-> > If the mask fits in 12 bits, we can nop the lui and the addi and just
-> > patch an "andi" instruction with the 12 bits of the mask. We already do
-> > this with the lui+addi block and nop the lui if val fits in 12 bits. I
-> > would be happy to help draft that optimization.
-> > 
-> > But I think the better solution would be to take the power of 2
-> > assumption since that will also benefit arm. We should still only emit
-> > an andi if val fits in 12 bits, but if it doesn't we can patch in
-> > shifts:
-> > 
-> > slli    a0,a0,x
-> > srli    a0,a0,x
-> > 
-> > Where x is the constant (arch_size - _futex_shift - 1)
-> 
-> I can do that for the next version and use ubfx for ARM. I can just put
-> in a BUG_ON() at the arch/ specific __runtime_fixup_mask() and if a
-> new use case arises which hits that, we can perhaps move on the dynamic
-> nop patching scheme that you mentioned earlier.
-> 
-> Let me know if that works and I can pivot to that scheme in v5 and send
-> it out post -rc1 after some testing.
+kvm_s390_gisc_register() registers the guest ISC before pinning
+the guest interrupt forwarding pages and allocating the AISB bit.
+If any of the later setup steps fails, the function unwinds the
+pinned pages and other local state, but does not unregister the
+GISC reference. Add the missing kvm_s390_gisc_unregister() to the
+error unwind path.
 
-That sounds like a great plan :)
+Fixes: 3c5a1b6f0a18 ("KVM: s390: pci: provide routines for enabling/disabling interrupt forwarding")
+Cc: stable@vger.kernel.org
+Signed-off-by: Haoxiang Li <haoxiang_li2024@163.com>
+---
+ arch/s390/kvm/pci.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-- Charlie
+diff --git a/arch/s390/kvm/pci.c b/arch/s390/kvm/pci.c
+index 5b075c38998e..a9d5996590e7 100644
+--- a/arch/s390/kvm/pci.c
++++ b/arch/s390/kvm/pci.c
+@@ -252,7 +252,7 @@ static int kvm_s390_pci_aif_enable(struct zpci_dev *zdev, struct zpci_fib *fib,
+ 	srcu_read_unlock(&kvm->srcu, idx);
+ 	if (npages < 1) {
+ 		rc = -EIO;
+-		goto out;
++		goto out_unregister_gisc;
+ 	}
+ 	aibv_page = pages[0];
+ 	pcount++;
+@@ -327,6 +327,8 @@ static int kvm_s390_pci_aif_enable(struct zpci_dev *zdev, struct zpci_fib *fib,
+ 		unpin_user_page(aisb_page);
+ unpin1:
+ 	unpin_user_page(aibv_page);
++out_unregister_gisc:
++	kvm_s390_gisc_unregister(kvm, fib->fmt0.isc);
+ out:
+ 	return rc;
+ }
+-- 
+2.25.1
 
-> 
-> -- 
-> Thanks and Regards,
-> Prateek
-> 
