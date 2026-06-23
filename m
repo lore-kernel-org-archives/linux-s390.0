@@ -1,151 +1,162 @@
-Received: from out30-97.freemail.mail.aliyun.com (out30-97.freemail.mail.aliyun.com [115.124.30.97])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 49D4C331EB8;
-	Tue, 23 Jun 2026 06:02:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.97
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C68D3290A6;
+	Tue, 23 Jun 2026 06:13:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782194551; cv=none; b=GPnnoC+Gp4ucLnPAmh7NgQf0fx6ygvjrruuwPa4QEWLcZn4ceGzWTVO6pc+ubZEoQB7EgxVJ2CrOE1UQrag8JdWVgKFkUltLbPaYvtSMxPMXS1PTy5Ngc4lACYCuefnUhyJ8/MOJGDwlhKPhe7Nbu4hIhl5N7aQcDIpzSa0Zjqw=
+	t=1782195209; cv=none; b=UTJoWu2EBUqMJvlNbknISyhm6kRRwEqii5uDriJFHJ0r5nQZvxOoNwwdJuIcLfm4ofx4z307PRq8bwL/DznW4LSafpj9EiqKGXc7Bnv/FHu3w3DvCC0kRJ7tDw71ekdn+DiShz2k3iwTkyZ+vUaOo6Pv2wo5R3zH5xMYmeyacfw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782194551; c=relaxed/simple;
-	bh=Ohl8H5CIdVJ0LZVBp5/kkC99ycMWv9vhyOY2FRSkPyc=;
+	s=arc-20240116; t=1782195209; c=relaxed/simple;
+	bh=hm17CdDoztPhhS9+7uWhsrGqONsu33qxq7m9Rq2AaSw=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=M5NJdIBsjhoREWewXt3UKF+B+4o2Y7VYdAzmw6q9SyF1TLn5Rrwyl6YcTHS16L7ffFUDs6x9SnKeYLMgCA7d5Yp23A9h3YLF2kgo82/oi1bhimGRwOp+8n923FWLfOnDKwIBtEN5jmWQyviHDZxFq6Tk7qLSn9Eydzs8JmU1bIQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=Y9vekp61; arc=none smtp.client-ip=115.124.30.97
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=jkpM0Pi9p1eiuFriq+ph6IaTwHn47E4H1XP2Y3LP2sVh99knGDkYY4WB8SSNydqjbF+7qDGVu04eOk6tS9MATUKO3UEe8YGJEZA7YjisQMdek+Iz6mmxrPP3EjL0pUdUlOLD8Ciss4bFxxkgHjcELYd7yjttZh+32sSV2Nhfc2A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ovJdySfu; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="Y9vekp61"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1782194539; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
-	bh=5D6qSgcvkXY5fZhgXS+3C6PguwJ4UnErXlSfTf6hK/0=;
-	b=Y9vekp61xn2XhxSvykk9bYtq5TyJ6bTyOa86OlMAzzOKGVp7HLoKyayz+2iRlV0yUWUgJ0rpjkJJiltf4J4gpnu6HSfSAtR+g96UMf83HyOIfEEbjwR2ogbGhYzTS5E+NVe9Cx/IVg0vVDkKqVHGhMd9/lRUH+wK+EgmWBuHjjc=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033045098064;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=21;SR=0;TI=SMTPD_---0X5SwrVe_1782194538;
-Received: from localhost(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0X5SwrVe_1782194538 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Tue, 23 Jun 2026 14:02:18 +0800
-Date: Tue, 23 Jun 2026 14:02:18 +0800
-From: "D. Wythe" <alibuda@linux.alibaba.com    >
-To: Sechang Lim <rhkrqnwk98@gmail.com>
-Cc: "D . Wythe" <alibuda@linux.alibaba.com>,
-	Dust Li <dust.li@linux.alibaba.com>,
-	Sidraya Jayagond <sidraya@linux.ibm.com>,
-	Wenjia Zhang <wenjia@linux.ibm.com>,
-	"David S . Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Mahanta Jambigi <mjambigi@linux.ibm.com>,
-	Tony Lu <tonylu@linux.alibaba.com>,
-	Wen Gu <guwen@linux.alibaba.com>, Simon Horman <horms@kernel.org>,
-	Ursula Braun <ubraun@linux.ibm.com>,
-	Karsten Graul <kgraul@linux.ibm.com>,
-	Guvenc Gulce <guvenc@linux.ibm.com>, linux-rdma@vger.kernel.org,
-	linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org, bpf@vger.kernel.org
-Subject: Re: [PATCH net v2] net/smc: fix out-of-bounds read when sk_user_data
- holds a sk_psock
-Message-ID: <20260623060218.GA29925@j66a10360.sqa.eu95>
-References: <20260619150342.3626224-1-rhkrqnwk98@gmail.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ovJdySfu"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65N0mXE4352283;
+	Tue, 23 Jun 2026 06:13:27 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=vp+Cbi
+	lTka8QUgJ8jBBtinfc+r4aAndzPjmuhbG4LoU=; b=ovJdySfus5P1wH+xVD34hK
+	TjhX2ZsgRKcufeg3cSJYfon1einVZeaNHRPtI2+um2Jen/12vpDtwTZxj09bR53n
+	412ap/k+d/ozTzrI0f4efrkX8W7rYicrqimS9Ev4Zw9xlGZfMnt/6k/ElHyUWq/t
+	htBsGBLseJmZYMuN+Jivfy17EQ2vFsTwVpljwuE/UZfc76LvlI49NIo3LXGojNJP
+	MzWq+/HY/P4o2V142IhBP9FWCReXtvSF28jLo1xen64OqTeGpuBi0RFo4BSfo31a
+	FfTwi5Kg30JSDgfRG8gssEkBoJfED0kMldH7Gpi6tAzr2dBPmqTAloaGdVE/2YZw
+	==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ewjk4cwkc-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 23 Jun 2026 06:13:27 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 65N64rCD003576;
+	Tue, 23 Jun 2026 06:13:26 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4ex56qa1qy-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 23 Jun 2026 06:13:26 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 65N6DNk443385164
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 23 Jun 2026 06:13:23 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E6D4E2004B;
+	Tue, 23 Jun 2026 06:13:22 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id D06C720043;
+	Tue, 23 Jun 2026 06:13:22 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Tue, 23 Jun 2026 06:13:22 +0000 (GMT)
+Date: Tue, 23 Jun 2026 08:13:21 +0200
+From: Alexander Gordeev <agordeev@linux.ibm.com>
+To: sashiko-reviews@lists.linux.dev
+Cc: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        linux-s390@vger.kernel.org
+Subject: Re: [PATCH -next v4 3/4] mm/kasan: Introduce helpers for lazy MMU
+ mode sanitizer
+Message-ID: <20260623061321.269982A64-agordeev@linux.ibm.com>
+References: <cover.1781789772.git.agordeev@linux.ibm.com>
+ <0d76139923a280617a21839b7e3f3e7735b58fdf.1781789772.git.agordeev@linux.ibm.com>
+ <20260618150048.F396A1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20260619150342.3626224-1-rhkrqnwk98@gmail.com>
-User-Agent: Mutt/1.5.21 (2010-09-15)
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260618150048.F396A1F000E9@smtp.kernel.org>
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNjIzMDA0NCBTYWx0ZWRfX7FSXNz+X4G9v
+ JmPk/OSyGK/NtLCS/IYq3u8Ue/LJe4wv2uic666ZxDKYXw2o3osiyYC7/bNqyV+3nGlI8K9vVIP
+ oyT0uuJIPvgtvG/RrJ6eKoopmfBgOdE=
+X-Proofpoint-ORIG-GUID: 6KIgL9L5teJxi2xUwyx0wBCH3RcJ_uga
+X-Authority-Analysis: v=2.4 cv=Oph/DS/t c=1 sm=1 tr=0 ts=6a3a2407 cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+ a=8nJEP1OIZ-IA:10 a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=c92rfblmAAAA:8
+ a=VnNF1IyMAAAA:8 a=VwQbUJbxAAAA:8 a=V0YPiZzyHSctQc0-2CwA:9 a=3ZKOabzyN94A:10
+ a=wPNLvfGTeEIA:10 a=GvGzcOZaWPEFPQC_NcjD:22
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjIzMDA0NCBTYWx0ZWRfX/kfwYAweLXrB
+ zbxkto18TPoc2YJH2avElIwFyl1EeT817XN6nYc5/cYmF9eYjrtsJwsK0L8WkM6fRMsWfmImQ5+
+ eqJvJlHXhB3BqY8EfoZRw549S/4MKZ7KFeKqYPgzq1F9uTRJ+0/kH+x6apFeHFqf/PpmgkdTRy3
+ HOUDhxvoWm3TUJ2c4/k6DZyCFNM02wB0hGcOXB2YBy+hXa/q6Eqgswl9VaHPBANZjtzcz7U703m
+ 58J7KDJJlfUuOgvqSQZvkTH8HwFtIMrULCuoeI1uoheJFeS3daXrebXQSHUE6AjdhDENsK+ETnt
+ 9YyXz6BSFuGls6YPicZb8MAbE/iud7X7oBqNtFIktWxLVsAKTi0rH/gcNd1bTgs/k6PF9pe0Kxb
+ okGxTxAMUBieKQ7xsJT+Pk5WdYV9+ccVwgMbKy7ZYnnOW3tiO+hHIb+q6Stmm6TpUB2C6cVI6Xm
+ XFeXs/MCr4ckqOtPl6g==
+X-Proofpoint-GUID: 6KIgL9L5teJxi2xUwyx0wBCH3RcJ_uga
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
+ definitions=2026-06-23_01,2026-06-22_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ phishscore=0 lowpriorityscore=0 bulkscore=0 spamscore=0 priorityscore=1501
+ clxscore=1015 impostorscore=0 malwarescore=0 adultscore=0 suspectscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2606230044
 
-On Fri, Jun 19, 2026 at 03:03:41PM +0000, Sechang Lim wrote:
-> SMC stores its smc_sock in the clcsock's sk_user_data tagged
-> SK_USER_DATA_NOCOPY and reads it back with smc_clcsock_user_data(), which
-> only strips that flag. sockmap stores a sk_psock in the same field tagged
-> SK_USER_DATA_NOCOPY | SK_USER_DATA_PSOCK. Nothing keeps both off one
-> socket, and SMC then casts the sk_psock to an smc_sock.
+On Thu, Jun 18, 2026 at 03:00:48PM +0000, sashiko-bot@kernel.org wrote:
+> Thank you for your contribution! Sashiko AI review found 1 potential issue(s) to consider:
+> - [Medium] The new KASAN_LAZY_MMU_PTE shadow value is not mapped to a bug type in the KASAN reporting logic, resulting in uninformative "unknown-crash" reports.
+> --
 > 
-> A passive-open child hits this. It inherits the listener's
-> smc_clcsock_data_ready(), but sk_clone_lock() clears its NOCOPY
-> sk_user_data, and a BPF sock_ops program then adds the child to a sockmap,
-> installing a sk_psock in that field. The inherited callback reads it as an
-> smc_sock and dereferences a clcsk_* pointer past the end of the sk_psock:
+> commit 7d8731323b7762279e28d0aef3b1b3c457449b81
+> Author: Alexander Gordeev <agordeev@linux.ibm.com>
 > 
->   BUG: KASAN: slab-out-of-bounds in smc_clcsock_data_ready+0x84/0x200 net/smc/af_smc.c:2637
->   Read of size 8 at addr ffff8880013b8674 by task syz.6.12484/67930
->    <IRQ>
->    smc_clcsock_data_ready+0x84/0x200 net/smc/af_smc.c:2637
->    tcp_urg+0x24d/0x360 net/ipv4/tcp_input.c:6264
->    tcp_rcv_state_process+0x280d/0x4940 net/ipv4/tcp_input.c:7336
->    tcp_child_process+0x371/0xa50 net/ipv4/tcp_minisocks.c:1002
->    tcp_v4_rcv+0x1eaa/0x2a00 net/ipv4/tcp_ipv4.c:2186
->    [...]
->    </IRQ>
+> mm/kasan: Introduce helpers for lazy MMU mode sanitizer
 > 
->   Allocated by task 67930:
->    sk_psock_init+0x142/0x740 net/core/skmsg.c:766
->    sock_hash_update_common+0xd3/0x990 net/core/sock_map.c:1010
->    bpf_sock_hash_update+0x114/0x170 net/core/sock_map.c:1229
->    __cgroup_bpf_run_filter_sock_ops+0x74/0xa0 kernel/bpf/cgroup.c:1727
->    tcp_init_transfer+0x1085/0x1100 net/ipv4/tcp_input.c:6693
->    [...]
+> This commit provides helpers to allow architectures to poison and unpoison
+> PTEs during lazy MMU mode. It introduces a new KASAN shadow tag to track
+> and catch direct PTE manipulations that improperly bypass the correct
+> accessors.
 > 
-> sk_psock() already guards the other side, returning NULL unless
-> SK_USER_DATA_PSOCK is set. Make smc_clcsock_user_data() and its RCU
-> variant return the smc_sock only when sk_user_data carries SMC's tag
-> alone. A sk_psock then reads back as NULL, which the data_ready and
-> fallback callbacks already handle.
+> > diff --git a/mm/kasan/kasan.h b/mm/kasan/kasan.h
+> > index fc9169a547662..8ba0fbabd75b2 100644
+> > --- a/mm/kasan/kasan.h
+> > +++ b/mm/kasan/kasan.h
+> [ ... ]
+> > @@ -144,12 +144,14 @@ static inline bool kasan_requires_meta(void)
+> >  #define KASAN_PAGE_REDZONE	0xFE  /* redzone for kmalloc_large allocation */
+> >  #define KASAN_SLAB_REDZONE	0xFC  /* redzone for slab object */
+> >  #define KASAN_SLAB_FREE		0xFB  /* freed slab object */
+> > +#define KASAN_LAZY_MMU_PTE	0xFD
 > 
-> Fixes: a60a2b1e0af1 ("net/smc: reduce active tcp_listen workers")
-> Signed-off-by: Sechang Lim <rhkrqnwk98@gmail.com>
-> ---
->  net/smc/smc.h | 18 +++++++++++++++---
->  1 file changed, 15 insertions(+), 3 deletions(-)
+> [Severity: Medium]
+> Since this adds a new shadow tag value, does get_shadow_bug_type() in
+> mm/kasan/report_generic.c also need to be updated to handle it?
 > 
-> diff --git a/net/smc/smc.h b/net/smc/smc.h
-> index 52145df83f6e..88dfb459b7cc 100644
-> --- a/net/smc/smc.h
-> +++ b/net/smc/smc.h
-> @@ -342,13 +342,25 @@ static inline void smc_init_saved_callbacks(struct smc_sock *smc)
->  
->  static inline struct smc_sock *smc_clcsock_user_data(const struct sock *clcsk)
->  {
-> -	return (struct smc_sock *)
-> -	       ((uintptr_t)clcsk->sk_user_data & ~SK_USER_DATA_NOCOPY);
-> +	uintptr_t data = (uintptr_t)clcsk->sk_user_data;
-> +
-> +	/*
-> +	 * Return the smc_sock only if the slot carries SMC's tag alone.
-> +	 * sockmap stores a sk_psock here tagged SK_USER_DATA_PSOCK; it is
-> +	 * not an smc_sock and must not be dereferenced as one.
-> +	 */
-> +	if ((data & ~SK_USER_DATA_PTRMASK) != SK_USER_DATA_NOCOPY)
-> +		return NULL;
-> +	return (struct smc_sock *)(data & SK_USER_DATA_PTRMASK);
->  }
->  
->  static inline struct smc_sock *smc_clcsock_user_data_rcu(const struct sock *clcsk)
->  {
-> -	return (struct smc_sock *)rcu_dereference_sk_user_data(clcsk);
-> +	uintptr_t data = (uintptr_t)rcu_dereference(__sk_user_data(clcsk));
-> +
-> +	if ((data & ~SK_USER_DATA_PTRMASK) != SK_USER_DATA_NOCOPY)
-> +		return NULL;
-> +	return (struct smc_sock *)(data & SK_USER_DATA_PTRMASK);
->  }
->  
->  /* save target_cb in saved_cb, and replace target_cb with new_cb */
+> Currently, if KASAN catches a direct PTE access and reads this shadow
+> value, it looks like it will fall through the switch statement in
+> get_shadow_bug_type() and default to reporting an "unknown-crash".
+> 
+> Would adding KASAN_LAZY_MMU_PTE to the switch cases ensure we get a
+> more descriptive bug type instead?
 
-No. The core issue is how to resolve the ownership conflict between
-sockmap and SMC over sk_user_data, which can by no means be solved by
-adding runtime checks on the read path.
+This is a valid point and the fixup would be:
 
-Following sk_psock_init(), the simplest approach would be to always
-explicitly set sk_user_data or ulp_ops during the active/passive
-creation of smc->clcsock, thereby avoiding the conflict at its root.
+diff --git a/mm/kasan/report_generic.c b/mm/kasan/report_generic.c
+index f5b8e37b3805c..0100e4354a44a 100644
+--- a/mm/kasan/report_generic.c
++++ b/mm/kasan/report_generic.c
+@@ -113,6 +113,9 @@ static const char *get_shadow_bug_type(struct kasan_report_info *info)
+ 	case KASAN_SLAB_FREE_META:
+ 		bug_type = "slab-use-after-free";
+ 		break;
++	case KASAN_LAZY_MMU_PTE:
++		bug_type = "direct-pte-access";
++		break;
+ 	case KASAN_ALLOCA_LEFT:
+ 	case KASAN_ALLOCA_RIGHT:
+ 		bug_type = "alloca-out-of-bounds";
 
-Additionally, compatibility with sockmap in the fallback path needs to
-be considered, though that can be addressed later.
+> Sashiko AI review · https://sashiko.dev/#/patchset/cover.1781789772.git.agordeev@linux.ibm.com?part=3
 
-> -- 
-> 2.43.0
+Thanks!
