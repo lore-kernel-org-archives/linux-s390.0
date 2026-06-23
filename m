@@ -1,100 +1,184 @@
-Received: from m16.mail.163.com (m16.mail.163.com [220.197.31.3])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f193.google.com (mail-pf1-f193.google.com [209.85.210.193])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 61F39359A81;
-	Tue, 23 Jun 2026 07:53:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.197.31.3
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5A5DF3C661A
+	for <linux-s390@vger.kernel.org>; Tue, 23 Jun 2026 07:58:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.193
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782201188; cv=none; b=foQi8WeclozSKNxBGZ2K4+VuopjMy72gPnP8byLrFON2PaKq8YgoTTUf0STNxWOkIDs6LY77KXS8/wfVq/cELTLplE7e6pudB18AeTatLCFFo1yKEFgeC5vLbFAdoNB6HUv55qX1HJo14expWwtVGKHDP0orWnndbbYLMmVCYXA=
+	t=1782201517; cv=none; b=C7CQF+98a84DsjLkK/t9Ew8SM5uIKpXJsJquSlOM0tO1NeXpCGhQJV7Tx0oLebbpcODBO4dL2ItzsUkHmDqsgkPpgvr9SffF6GQr6hRExlRs1p2ot6FFDgLi09/hfn/b04np6ysQVgfiEqr2tHV6RhkT+63jeuXPMuBHBDYX3oQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782201188; c=relaxed/simple;
-	bh=Z8nPTGOELiNpLext6XY/7JueKxLoEarzlsGzHgZZNBc=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=MqedVo4VCyZiDtO/KU56UtMwoKdthVX+wnHNNYAlt+lrZNGl24ChxtO+bMH1eymxfGnbSzcf6W6z+t9iMQnXj/XIPs0+r/cMsZR8UObF343mNcRhdIYqtTYK4esmNM4WWOQuaFOILQNvTKR2fGl9kRO1q6OqtUJCKaFs4usIjXs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=KoA63PjL; arc=none smtp.client-ip=220.197.31.3
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
+	s=arc-20240116; t=1782201517; c=relaxed/simple;
+	bh=khSZG1eYL9cJlphxXcESKKq9MlcJFe3CM8UDVhNeGyk=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=Dql88D2MGrQKp8JBEz0RYeSBS7+SMOTO8r7BAh7WBuu6yK9onBvtW3Gw0sFwe15DdSglgqyndrR9wQaPO8OWIUNZoBCj9XilPkucFgMJpzBCtVXMxSKQ98U85MwIyye5BLfEjS3AgUEy9OcrwfoCpzrohJRGDzjkQWnsb7jU8s0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ockCs3Q+; arc=none smtp.client-ip=209.85.210.193
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="KoA63PjL"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-	s=s110527; h=From:To:Subject:Date:Message-Id:MIME-Version; bh=Cc
-	rcH5t6ZYGuhJDVVH+tDRtjwGRf2id6dqNPTyNJhlc=; b=KoA63PjLb96hByd0Qb
-	BOK9IX9Cu7IViYzaNf219D2sTTo9+8GbLV5gS5fzBIVVS3yMUH2VkKKTIqnJa8rN
-	QAEPtRL9Jz+tg2YoJI2IA70VJkcB6XRXahIswdqzmnhKNCpR45OM3b000dtZJVqs
-	tOogSP6Du+UGR/9zxjbJ8DJ44=
-Received: from localhost.localdomain (unknown [])
-	by gzsmtp4 (Coremail) with SMTP id PygvCgDnOeA1OzpqI+i9Dg--.16449S2;
-	Tue, 23 Jun 2026 15:52:28 +0800 (CST)
-From: Haoxiang Li <haoxiang_li2024@163.com>
-To: mjrosato@linux.ibm.com,
-	alifm@linux.ibm.com,
-	farman@linux.ibm.com,
-	borntraeger@linux.ibm.com,
-	frankja@linux.ibm.com,
-	imbrenda@linux.ibm.com,
-	david@kernel.org,
-	hca@linux.ibm.com,
-	gor@linux.ibm.com,
-	svens@linux.ibm.com,
-	schnelle@linux.ibm.com
-Cc: linux-s390@vger.kernel.org,
-	kvm@vger.kernel.org,
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ockCs3Q+"
+Received: by mail-pf1-f193.google.com with SMTP id d2e1a72fcca58-8453bcf7276so2982329b3a.2
+        for <linux-s390@vger.kernel.org>; Tue, 23 Jun 2026 00:58:36 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1782201516; x=1782806316; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Ek6r0TkIKR0tiCQ28suwzM5bkNpctpIQyqr76NBcjWs=;
+        b=ockCs3Q+aMA8uzhH5LD8cLCE6KXvf1EUrreZAYFBV3EZ3T5JPivJ3xpQZ/PlOZKsW2
+         FVH8CWj7kmYanzIuxn13/NiQplJhWO0kTOB3mMMYjieqqW3syh/K3JPHJ4vTOOhIozNh
+         3JTvZ4MWoK1I6coENEFiXhJShnNuW51Pbve4WeS1dB4fdewmWWrkLpizX7Cblv+DVjXp
+         Q8/DKjSAcUKBZDQyz5s5LNmfvve2Tgg9h1yVnTiU0cmUVUZ9vTsor59jFzMFgWCPA/4V
+         K04JyByV0Ilixe7t53EMfiCyrIDSPrQGXk/SiFMs3/KJaCXOXdgLKT2HS0wS6y2GIaAa
+         iAnA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1782201516; x=1782806316;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=Ek6r0TkIKR0tiCQ28suwzM5bkNpctpIQyqr76NBcjWs=;
+        b=F9xrUS5N7u2uheCDqNSTtqEZF9SLhd4g8VQRUcy7gpLDGFFtmPVJF1k71cyah5wi2o
+         Nq0ZX16mYECs6+gN+HvbdJ14vNlpu8z7mxD3gY8Fuqwmj12j0C6BkQkT9YLK5g0wXuE2
+         gOC3vBI3qCK475Kgg8JWEvt4HLrHlKuboz7UJKr87eywhp/kxLIpLt3yfC8gz7kybcqu
+         uNZjbw8x+Mb5e/wrVDr2O9zP1Ps+pOiKze+bxIpkGu3aOBPQbBaO4ZzgK0Mmu1PvtNRA
+         IDcCjDiKdWjtFN7zisD/bWiFlFVAcFJmYSGiUisifc1tITKclLQjXUM3b9hS8gM/IR36
+         myLQ==
+X-Forwarded-Encrypted: i=1; AHgh+RpbemMyi3rUdoAOi2TXUQs02dPLvKQnGU7JDG6AbO7Ql+UESdlZY1WDRAniaSD/kYWg5hjCO7Sbj9eL@vger.kernel.org
+X-Gm-Message-State: AOJu0Yym4UCYM2JpqnS12FIrDVWoal0V4xdeMPDXgKAIGofCvljEGrkH
+	rXAuej+y0EidLaWOOdOdtDcN31YzVbCh4lN71FmBOh+o+cqQNikNKmKq
+X-Gm-Gg: AfdE7cl0DHrJTVMGBkMN63zNbx31w7Fj9A3nxPjCdJDMvz0LVcC7Cl1y5Olz9LNZUPR
+	ryZb7pF63pN42sogt9UL9u+if/zxvKabf1VYbjMLQ3yD/CWTNyomb6Bu21rHriNOUGQQF1PSm7Z
+	2ew1Z5bWlnJBtDqVOlFYmQiGAI5gmMAVYTLnEHcAbBmLmWZuXqDXMLIl0PQRtCu9C75oUzHnh6a
+	F9Tu9bZKFHfsTaZa7DlMgt7OgGPuKT1Cd4/Dw7gveYQQimkUnlVvvzv4sQzR6jrJdFSB+4aO7L1
+	/b3Xwu/5NuTIbu0kXeMRzHzF3U3nDtOve49FrqtbmiCbucgiNVq/7dbxc6K+4ugKLIgfMqzjJu1
+	taD7e1kA1He2yEaGmhLKXxwihH7xKF6RKPSICZbsu1nWLdgfuzsZtaBCK0Q/XcgBgQBvd7Pm+7e
+	859ZXkSpz33fyCbMKGKFbQ9tvWL0RxLIUZfGu007RF
+X-Received: by 2002:a05:6a00:1707:b0:838:29b3:9ed1 with SMTP id d2e1a72fcca58-84550900333mr19117203b3a.41.1782201515623;
+        Tue, 23 Jun 2026 00:58:35 -0700 (PDT)
+Received: from zhr-ThinkStation-K.mioffice.cn ([2408:8607:1b00:8:ede9:3e72:37cf:55a2])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-84564e745besm9355930b3a.28.2026.06.23.00.58.16
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 23 Jun 2026 00:58:35 -0700 (PDT)
+From: Hongru Zhang <zhanghongru06@gmail.com>
+X-Google-Original-From: Hongru Zhang <zhanghongru@xiaomi.com>
+To: david@kernel.org
+Cc: akpm@linux-foundation.org,
+	baohua@kernel.org,
+	bhe@redhat.com,
+	chentao@kylinos.cn,
+	chrisl@kernel.org,
+	jack@suse.cz,
+	kasong@tencent.com,
+	kunwu.chan@gmail.com,
+	liam@infradead.org,
+	lianux.mm@gmail.com,
+	linux-arm-kernel@lists.infradead.org,
 	linux-kernel@vger.kernel.org,
-	Haoxiang Li <haoxiang_li2024@163.com>,
-	stable@vger.kernel.org
-Subject: [PATCH] KVM: s390: pci: Fix GISC refcount leak on AIF enable failure
-Date: Tue, 23 Jun 2026 15:52:20 +0800
-Message-Id: <20260623075220.2022613-1-haoxiang_li2024@163.com>
-X-Mailer: git-send-email 2.25.1
+	linux-mm@kvack.org,
+	linux-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org,
+	liyangouwen1@oppo.com,
+	ljs@kernel.org,
+	loongarch@lists.linux.dev,
+	mhocko@suse.com,
+	nphamcs@gmail.com,
+	nzzhao@126.com,
+	pfalcato@suse.de,
+	rppt@kernel.org,
+	shikemeng@huaweicloud.com,
+	surenb@google.com,
+	vbabka@kernel.org,
+	wanglian@kylinos.cn,
+	willy@infradead.org,
+	youngjun.park@lge.com,
+	zhanghongru06@gmail.com
+Subject: Re: [PATCH v2 0/5] mm: reduce mmap_lock contention and improve page fault performance
+Date: Tue, 23 Jun 2026 15:58:05 +0800
+Message-ID: <20260623075805.466317-1-zhanghongru@xiaomi.com>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <3be9475b-0e8a-4df8-a130-4262f993973d@kernel.org>
+References: <3be9475b-0e8a-4df8-a130-4262f993973d@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:PygvCgDnOeA1OzpqI+i9Dg--.16449S2
-X-Coremail-Antispam: 1Uf129KBjvJXoW7CFyUtFWkZr4rJFyxJF1kZrb_yoW8Gr15pa
-	4UC3Z8G3sYqFW0yF47ta1v9FyUuayUGr4xCF18J3y2qr1aqFyvyFZ5AFyUZr45GrW8u3Wr
-	AFZYkF1DuF98CaUanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x0JU5GYdUUUUU=
-X-CM-SenderInfo: xkdr5xpdqjszblsqjki6rwjhhfrp/xtbC7h0HdWo6Oz2DEwAA3H
+Content-Transfer-Encoding: quoted-printable
 
-kvm_s390_gisc_register() registers the guest ISC before pinning
-the guest interrupt forwarding pages and allocating the AISB bit.
-If any of the later setup steps fails, the function unwinds the
-pinned pages and other local state, but does not unregister the
-GISC reference. Add the missing kvm_s390_gisc_unregister() to the
-error unwind path.
-
-Fixes: 3c5a1b6f0a18 ("KVM: s390: pci: provide routines for enabling/disabling interrupt forwarding")
-Cc: stable@vger.kernel.org
-Signed-off-by: Haoxiang Li <haoxiang_li2024@163.com>
----
- arch/s390/kvm/pci.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
-
-diff --git a/arch/s390/kvm/pci.c b/arch/s390/kvm/pci.c
-index 5b075c38998e..a9d5996590e7 100644
---- a/arch/s390/kvm/pci.c
-+++ b/arch/s390/kvm/pci.c
-@@ -252,7 +252,7 @@ static int kvm_s390_pci_aif_enable(struct zpci_dev *zdev, struct zpci_fib *fib,
- 	srcu_read_unlock(&kvm->srcu, idx);
- 	if (npages < 1) {
- 		rc = -EIO;
--		goto out;
-+		goto out_unregister_gisc;
- 	}
- 	aibv_page = pages[0];
- 	pcount++;
-@@ -327,6 +327,8 @@ static int kvm_s390_pci_aif_enable(struct zpci_dev *zdev, struct zpci_fib *fib,
- 		unpin_user_page(aisb_page);
- unpin1:
- 	unpin_user_page(aibv_page);
-+out_unregister_gisc:
-+	kvm_s390_gisc_unregister(kvm, fib->fmt0.isc);
- out:
- 	return rc;
- }
--- 
-2.25.1
-
+> On 5/20/26 23:15, Matthew Wilcox wrote:=0D
+> > On Thu, May 21, 2026 at 05:14:20AM +0800, Barry Song wrote:=0D
+> >> My understanding is that we should not blame applications here. This i=
+s 2026:=0D
+> >> there are basically only two kinds of applications =E2=80=94 single-th=
+readed and=0D
+> >> multi-threaded =E2=80=94 and single-threaded applications are nearly e=
+xtinct.=0D
+> > =0D
+> > all of the applications i run are either single threaded or don't fork.=
+=0D
+> > what multithreaded applications call fork?=0D
+>=0D
+> Traditionally the problem was random libraries using fork+execve to launc=
+h other=0D
+> programs ... instead of using alternatives like posix_spwan (some use cas=
+es=0D
+> require more work done before execve and cannot yet switch to that). I'd =
+hope=0D
+> that that is less of a problem on Android.=0D
+>=0D
+> I assume Android zygote might be multi threaded? Maybe sshd as well? Syst=
+emd?=0D
+> But I'd be surprised if there are really performance implications.=0D
+>=0D
+> Not sure about webbroswers .... I think most of them switched to fork ser=
+vers,=0D
+> where I would assume fork servers would be single-threaded.=0D
+>=0D
+> So, yeah, getting a clear understanding how this ends up being a problem =
+on=0D
+> Android would be great.=0D
+=0D
+Barry asked me to share observations on fork() usage across Android=0D
+applications.=0D
+=0D
+I wrote a BPF-based tracing tool (kprobe on copy_process, checking=0D
+CLONE_VM to distinguish process creation from thread creation) and ran=0D
+it against the top 200 Android applications in the China market during=0D
+normal usage scenarios.=0D
+=0D
+Results:=0D
+- 82 out of 200 apps (41%) call fork() during normal operation=0D
+- Among these, some call fork() from multiple threads=0D
+=0D
+These are not zygote forks =E2=80=94 they are fork() calls initiated by app=
+=0D
+threads at runtime. Examples by category:=0D
+=0D
+  Browsers:     com.quark.browser, com.UCMobile, com.xunlei.browser=0D
+  Shopping:     com.taobao.taobao, com.tmall.wireless, com.achievo.vipshop=
+=0D
+  Video:        com.youku.phone, com.qiyi.video, com.hunantv.imgo.activity=
+=0D
+  Social/IM:    com.alibaba.android.rimet, com.ss.android.lark=0D
+  News:         com.ss.android.article.news, com.ss.android.article.lite=0D
+  Navigation:   com.autonavi.minimap, com.sdu.didi.psnger=0D
+  Finance:      com.eg.android.AlipayGphone, com.chinamworld.main=0D
+=0D
+This confirms that fork() is widely used in real-world multi-threaded=0D
+Android applications. Since dup_mmap() needs to acquire=0D
+vma_start_write() for every VMA, holding the VMA lock across I/O=0D
+would risk blocking fork() for unpredictable durations in these 82=0D
+applications.=0D
+=0D
+Tracing tool (two equivalent implementations):=0D
+  bpftrace:         https://gist.github.com/zhr250/bf4384202d598bb4cda71cb9=
+902f15ab=0D
+  libbpf-bootstrap: https://gist.github.com/zhr250/76189bdf51bdc8818500e4c8=
+917c6493=0D
+=0D
+Analysis results (top 200 apps):=0D
+  https://gist.github.com/zhr250/06f51092c84a49c602a55ac3d186e9ce=0D
+=0D
+Hongru=0D
+=0D
