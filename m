@@ -1,170 +1,121 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dy1-f170.google.com (mail-dy1-f170.google.com [74.125.82.170])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 07584257452;
-	Mon, 22 Jun 2026 21:40:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 036303A8758
+	for <linux-s390@vger.kernel.org>; Tue, 23 Jun 2026 05:26:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782164438; cv=none; b=quw9snPKHGYpAZ3wSRpgnulURPA5tCPdZxKZJZ6iPp6HPXDsnobQpW8MgJJ62nNsiyqm372h+4+J6m/RJG/Wtv7HYB1c6jj9iarIFrdyBoQ30IZj/1SpNI0F2Ocuxnbh1A3q/2jmRpsZFPE/qheiYhi/UCTXBnq/OP4T6Q0sthA=
+	t=1782192366; cv=none; b=qlQ1ORb80UMcAMnEf4ymPXrby+Ig1V0ncUhhVPyX6BqVsfmLdeV6cYFRnxY8M1RnDe0GHWOPm5FRjORcSzrSFpdKhjJwaQJjxIs9rM55uPKuVLUY5HO22LYs7l6JyFm0YpljJUIE/nYwPzSQ/K1tCoFCLKEOWrQrC2HWDF7Jcok=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782164438; c=relaxed/simple;
-	bh=rDWtP3bGK4Fnje+sic/3jtEsWBKankZeUAPn39oq3rY=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=fpaQr/qQvmbLz4pwyzU6lMZLdXbzaAGfBvIaVMNi1ivaQr4BKzcv9evlnNVnhjOWPxHPg6Wyj+OaC48vDl0PeuljJDmpQe2m/uIozQOSKbkN4lyq6LgqqmwpI6zcnwnWFo8mQYzreDTjYd5pxK9xQypCbMJfb1X2RwfEYbg9JaM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=NNxzdyDG; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1782192366; c=relaxed/simple;
+	bh=zWdKKKHIRtfVkf/fFEjrVdv3jvJPJQtdRvuIlBkFkhk=;
+	h=MIME-Version:Content-Type:Subject:From:To:Cc:In-Reply-To:
+	 References:Date:Message-Id; b=Gs1Y7Tqp4lD/bAn52KgX6bOFy37s7Ve/t1DE2bk1FOa/PcbKkViVLq+/oZPwgpktcam36XJvOk8saFr4r1zADLOJ4Ab40kPPC1M669GygmStpm2JFcWXf5NbxlWBcchctLnvL5O41o48ghCIQ3idt25APk+NnPN0wjkFhGdro08=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=fpkGsgiY; arc=none smtp.client-ip=74.125.82.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="NNxzdyDG"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65MJmH183990964;
-	Mon, 22 Jun 2026 21:40:34 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=vUIRkw
-	bJQamY2k/A+9tlqzaJ9s6MG/ps6a6DlqApoBY=; b=NNxzdyDGZg1zuan6LY4q1B
-	dHhOSIXd6TfMNzZd5qHqTmd0E/3Ax5sztxsMh6FTvREHU1fO7RC+8Eh1sGuKt6sB
-	nE9CPZIdVNuV8RB7L2k4Va/9m4G589LQUKLsXuWobHAJDJ9MzDyRuuBqXvWF40B7
-	99P3ShAyKjx6b2Jwre3V9955Ca5AAE1qa7QttTYw4VLVLHGwFSMx/4SUSXvjOxTv
-	P7BvMHRHrCrsW74ne4lcaz8iQOfGYY7b9grK6lX7kaHpa+2i1b5l/Ix7vue/r+/t
-	Mxkzhl+FhTJhYkOwX7kvtX07TiikTlRlUpRxBlRfo/cBIoJS7GcAiKNpexsTHOew
-	==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ewjc3bgs5-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 22 Jun 2026 21:40:33 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 65MLYgWX028835;
-	Mon, 22 Jun 2026 21:40:32 GMT
-Received: from smtprelay07.wdc07v.mail.ibm.com ([172.16.1.74])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4ex5jw8bsp-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 22 Jun 2026 21:40:32 +0000 (GMT)
-Received: from smtpav05.dal12v.mail.ibm.com (smtpav05.dal12v.mail.ibm.com [10.241.53.104])
-	by smtprelay07.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 65MLeVnR27918862
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 22 Jun 2026 21:40:31 GMT
-Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 504FF58056;
-	Mon, 22 Jun 2026 21:40:31 +0000 (GMT)
-Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 61CB958052;
-	Mon, 22 Jun 2026 21:40:30 +0000 (GMT)
-Received: from [9.61.253.34] (unknown [9.61.253.34])
-	by smtpav05.dal12v.mail.ibm.com (Postfix) with ESMTPS;
-	Mon, 22 Jun 2026 21:40:30 +0000 (GMT)
-Message-ID: <c83fdbc0-c01e-43c7-abca-33273b821f73@linux.ibm.com>
-Date: Mon, 22 Jun 2026 17:40:29 -0400
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fpkGsgiY"
+Received: by mail-dy1-f170.google.com with SMTP id 5a478bee46e88-30bc871ecdfso6164231eec.1
+        for <linux-s390@vger.kernel.org>; Mon, 22 Jun 2026 22:26:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1782192364; x=1782797164; darn=vger.kernel.org;
+        h=message-id:date:references:in-reply-to:cc:to:from:subject
+         :content-transfer-encoding:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=9P+/X0AgS9w9pvMplF3SoP81B1eDd+b9FueSg0/UkAs=;
+        b=fpkGsgiYTuT33XwJK6vBndFtBq3BnK+gYXsqdqkQ5M5Dmtzb//vqRW+nLE+VVLax0z
+         GSf/RdVDwMujApK6MQb7bBKhurWXk9EwBoburqVSvPCcQqZMf/EI0BNCJeKZRj8z8OHr
+         F8PafNHCVMkFrje/cEYMU1elBDXJaW5yprLLf5QsCNt1en6NgoTrrpWhIZuIVIZyFTAc
+         0eShmLfxF5JZ+SOJyVko+LXLQvcGpre+hsbilB9bKwBsBi9b3AGOgM0omkIJCID91K5l
+         5MF5VkRnlVKt7XUP7eTP1n5RpCaPv222/T2d5BeX8BFZCETr1aS9iPWoKdwlpiZbuIWH
+         i2Lw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1782192364; x=1782797164;
+        h=message-id:date:references:in-reply-to:cc:to:from:subject
+         :content-transfer-encoding:mime-version:x-gm-gg:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=9P+/X0AgS9w9pvMplF3SoP81B1eDd+b9FueSg0/UkAs=;
+        b=SWlQLuRzkk4npFicWUvZO1buVaYfnbK3t7rYMhffqcoGgSaoZCdqj59JYQBzJ3ksPt
+         bsqHH4ztBOdEBjEN0ebsfnrGgF8xtAVGhGObjgbpWAAmWvYyxGqOWkjvyvpBDPmOP2kv
+         Cj2jTpFTKiXZMYc2suYWwrRgDjOpb75fJAvEV04PThqDteR9FqsGdsftX9kvk7NJEUhD
+         1rJmiloOAPE4t/U96Q3LpoJbpvgXIH+O3H8QuUEG5fFPPH7LAGEccW3Yn8KC6a9axQrG
+         Qb8iVsKcoJjcswAPknD72BC0nWImMMjkZQEW1F0qUiR/D+N2Fm5zFFPuPh6bydEBm0uU
+         g+ug==
+X-Forwarded-Encrypted: i=1; AHgh+Rpp8Gz9ghkYaOwPRg9z/t0AeQQHYzfcH7RVv7b8xsbGi1syWceEdG9z2uHqXnpPjrbhUrqtMhFixBHz@vger.kernel.org
+X-Gm-Message-State: AOJu0Yyvtepswcov1XzprjDZSg3hQTYGzmYZtjr48apmiZm4vtGyorC8
+	z+IE7ss3mX1dY1DdbIULsOduAXtUYn8rEXYthXMwBtJ0PuGZXWugXzeM
+X-Gm-Gg: AfdE7clUJCqV0Ba+VEqzHRH4jZn62icBJOHAgKcVaB09eEr4iAcdfxPEnUm9rMUZOhG
+	9nr8JeuxzyXMphlKr0wti+G4gPYFlrOBz3RJpIywD7O61o9TUnJ68GunWe0jyPNwmB3mjh/QdLi
+	cOgRB628VCEu4mpxQw0wbgYD7FyRUVLIXvhjhY0Diiw66MNbApdT1s1E0oOy19JQAwjkIaa+l88
+	eEgGli5k6oI/Y9eBHa14UANliRQ7QKcUjjZKRQnrA9hjBSGHVWVdaGn4KdhC6uGLNOUy4OEZ9eZ
+	kFAT83AXqk+HVLKMXcywZnDgrQ6UpM+Cd+pZz/8Llf3y2CigbVs3YkpgwWvWe4STmY4zA3uuoU+
+	Ii0bVrnwMoKlesGUpRQlIDzlTaYGPfu9sLG5AsXTrWqK1SPH3RIFyIPxHVs1DsD3asGiebPIziK
+	OKkBzedOnx8byn/gwYRQ==
+X-Received: by 2002:a05:7301:3c8d:b0:2ef:83d4:647f with SMTP id 5a478bee46e88-30c07035e2fmr11143910eec.25.1782192363998;
+        Mon, 22 Jun 2026 22:26:03 -0700 (PDT)
+Received: from [10.0.0.65] ([2601:647:6700:64d0::92d1])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-30c1be4967fsm13102455eec.26.2026.06.22.22.26.02
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 22 Jun 2026 22:26:03 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4 2/4] s390/pci: Preserve FMB state in device
- re-enablement
-To: Alex Williamson <alex@shazbot.org>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org, hca@linux.ibm.com, gor@linux.ibm.com,
-        agordeev@linux.ibm.com, borntraeger@linux.ibm.com, svens@linux.ibm.com,
-        schnelle@linux.ibm.com, mjrosato@linux.ibm.com, alifm@linux.ibm.com,
-        farman@linux.ibm.com, gbayer@linux.ibm.com
-References: <20260612181048.91548-1-oelghoul@linux.ibm.com>
- <20260612181048.91548-3-oelghoul@linux.ibm.com>
- <20260622142201.3d5da194@shazbot.org>
-Content-Language: en-US
-From: Omar Elghoul <oelghoul@linux.ibm.com>
-In-Reply-To: <20260622142201.3d5da194@shazbot.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=X4Ni7mTe c=1 sm=1 tr=0 ts=6a39abd1 cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
- a=IkcTkHD0fZMA:10 a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=c92rfblmAAAA:8
- a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8 a=uE0uBCXfT79MI8kg7AIA:9 a=QEXdDO2ut3YA:10
- a=GvGzcOZaWPEFPQC_NcjD:22
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNjIyMDIwNiBTYWx0ZWRfX137pso0YUQVv
- rDrKYt9b8GB1GtRAnXDtrBHF5DbYEQivlhRJUtvTqQxTAm7tWlLmKeSf4NwnfDFbwmJ6RRaNszQ
- h5RIHxzOYNG3zuoZcgHn5Q6AEe8BHLc=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjIyMDIwNiBTYWx0ZWRfX14hnu8+iufNx
- 3wts/VxG/AGErIfORp7YtMGNQ7ngrj6Luy63jeMRv5wiqWjUiWjx6nYwV9IkxpiF36l2ENe6eyl
- 5w52PsmAO5pOGHkzGdsB1vX8TWBxEU5MO2Iu7b/6yUNnyhRGY470SEBRzy6uN/jRQlTQJ+l6uAs
- 5cErLz/lwA6eMaW3AWnXxVvNGg9xIfwETEAjkuaZC+lXbjep3KHs3Z+pef7qDRBCRCMXvIE0xK5
- 0s0hnibdjUN9X6hFiLLvIgC5ho+f7UeGdVgHzdOOvV9qT4TDkJMPgU7hqdkpsV/K/GaBsamI885
- gue0soYII/Y5bfWROZn/a29iHWKMV/U2lerzOGaDMpxgqO1Dajsgjw0rxkGVEh97Z/EdoHtiIqa
- oc2g0tp9u5Np/AChXjE8e97QzH0r5iEy/rrnp+xdY/yrzmVvnNLP+gn5gWoRlq3+6tyLhGl278C
- 3n0f3YOPuZzhFupt30Q==
-X-Proofpoint-ORIG-GUID: rOf5j66sI9tZ0HtSofagCpYsA40btL9e
-X-Proofpoint-GUID: rOf5j66sI9tZ0HtSofagCpYsA40btL9e
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
- definitions=2026-06-22_04,2026-06-22_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- phishscore=0 bulkscore=0 suspectscore=0 spamscore=0 priorityscore=1501
- impostorscore=0 malwarescore=0 clxscore=1015 adultscore=0 lowpriorityscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2606220206
+Subject: Re: [PATCH v4 3/8] arm64/runtime-const: Introduce
+ runtime_const_mask_32()
+From: Charlie Jenkins <thecharlesjenkins@gmail.com>
+To: K Prateek Nayak <kprateek.nayak@amd.com>
+Cc: Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, 
+ Peter Zijlstra <peterz@infradead.org>, 
+ Sebastian Andrzej Siewior <bigeasy@linutronix.de>, 
+ Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, 
+ Darren Hart <dvhart@infradead.org>, Davidlohr Bueso <dave@stgolabs.net>, 
+ =?utf-8?q?Andr=C3=A9_Almeida?= <andrealmeid@igalia.com>, 
+ linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ linux-s390@vger.kernel.org, linux-riscv@lists.infradead.org, 
+ linux-arm-kernel@lists.infradead.org, Jisheng Zhang <jszhang@kernel.org>
+In-Reply-To: <20260430094730.31624-4-kprateek.nayak@amd.com>
+References: <20260430094730.31624-1-kprateek.nayak@amd.com>
+ <20260430094730.31624-4-kprateek.nayak@amd.com>
+Date: Mon, 22 Jun 2026 22:24:56 -0700
+Message-Id: <178219229641.10927.2049980053557313152.b4-review@b4>
+X-Mailer: b4 0.15.2
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1782192362; l=1037;
+ i=thecharlesjenkins@gmail.com; s=20260605; h=from:subject:message-id;
+ bh=zWdKKKHIRtfVkf/fFEjrVdv3jvJPJQtdRvuIlBkFkhk=;
+ b=khN498z1aQ+psInrw6bQE5qRH/XIMR5tlYyp2iaj4Ympn7B3JrTIKQzNY2a80lC+XUaqLeiEQ
+ hj75XonHxMsDBmZroa63UpdTmgS+Vn0VIF2BvLYDbWtudqioAYh6PlP
+X-Developer-Key: i=thecharlesjenkins@gmail.com; a=ed25519;
+ pk=ajnnRQ98PIdwKp4HeMkq9U32okYbnh6Zb4G3o5XXvkg=
 
-On 6/22/26 4:22 PM, Alex Williamson wrote:
-> On Fri, 12 Jun 2026 14:10:46 -0400
-> Omar Elghoul <oelghoul@linux.ibm.com> wrote:
->> +int zpci_fmb_reenable_device(struct zpci_dev *zdev)
->> +{
->> +	u64 req = ZPCI_CREATE_REQ(zdev->fh, 0, ZPCI_MOD_FC_SET_MEASURE);
->> +	struct zpci_fib fib = {0};
->> +	u8 cc, status;
->> +	int rc;
->> +
->> +	lockdep_assert_held(&zdev->fmb_lock);
->> +
->> +	if (!zdev->fmb)
->> +		return zpci_fmb_enable_device(zdev);
->> +
->> +	fib.gd = zdev->gisa;
->> +	cc = zpci_mod_fc(req, &fib, &status); /* Disable function measurement */
->> +
->> +	/* Unlike in zpci_fmb_disable_device(), cc == 3 is not a valid state here
->> +	 * because we are re-enabling function measurement for the same function
->> +	 * handle.
->> +	 */
->> +	if (cc)
->> +		return -EIO;
->> +
->> +	zpci_fmb_clear_iommu_ctrs(zdev);
->> +
->> +	rc = zpci_fmb_do_enable(zdev);
->> +	if (rc) {
->> +		kmem_cache_free(zdev_fmb_cache, zdev->fmb);
->> +		zdev->fmb = NULL;
->> +	}
->> +
->> +	return rc;
->> +}
->> +EXPORT_SYMBOL_GPL(zpci_fmb_reenable_device);
+On Thu, 30 Apr 2026 09:47:25 +0000, K Prateek Nayak <kprateek.nayak@amd.com> wrote:
+> [...]
+> is intentiaonally placed outside of asm block to allow compilers to
+> further optimize it if possible.
 > 
-> Why is this exported?  Maybe this is leftover from the previous version
-> where it was noted that the API claimed a failure on double enable that
-> didn't actually occur because if used reenable.  Now we seem to have
-> the alternate inconsistency, that FMB is automatically enabled as part
-> of the standard PCI enable path, so the only initial operation
-> available to userspace is to first disable FMB, which is an awkward
-> API.  The v3 problem could have been solved in documentation, noting
-> that a nested enable resets counters[1], while a nested disable
-> generates an errno.  Thanks,
+> __runtime_fixup_ptr() already patches a "movz, + movk lsl #16" sequence
+> which has been reused to patch the same sequence for
+> __runtime_fixup_mask().
 
-Acked in my reply to patch 3/4
+I think we should opt to do power of 2 masks instead of arbitrary masks
+since that is what the usecase is and we can reduce these three
+instructions into a single instruction for arm (and benefit riscv as
+well). It is convenient to have this function as arbitrary masks, but
+since we are going down the route of hyper optimizations already with
+runtime constants here (and we can always add an arbitrary mask later if
+there becomes a usecase), I feel like we should go all the way :)
 
-> 
-> Alex
-> 
-> [1] Also note the sashiko question whether reenable actually zeros the
-> current fmb buffer or only the internal counters
-> https://sashiko.dev/#/message/20260612182632.E4EE71F000E9%40smtp.kernel.org
+The and immediate instruction for arm supports all power of 2 masks so
+you can do:
 
-This question may not be applicable because firmware resets them in
-practice, but I will discuss it further with my team.
+and     w0, w0, #0xMASK
 
-Thanks.
+- Charlie
 
+-- 
+Charlie Jenkins <thecharlesjenkins@gmail.com>
