@@ -1,122 +1,247 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E59D021255A;
-	Tue, 23 Jun 2026 15:49:54 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 480892609EE;
+	Tue, 23 Jun 2026 15:50:29 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782229796; cv=none; b=SOwtveusPERv5ij3naMWGUnGtdxip0qVXIfUbVEnpgmBBf1elfp2g9+2SQpD4VIvqL6fwj2nutLysIiShTbOPbDrIqeUH8s2OosPB2mcNjrLcsUg+8wX0LBtIXcMPwGWShv2SvIzEx/IOiuMhJFZfaaUJA5Tti4nBxIBwTR03rk=
+	t=1782229831; cv=none; b=q/qECSvxfwKtH4maVU6bHWauLrretwXIIKu7ufbbLsUkwttk6axlSKp5sAUh4iMNFCaQBlyedb9plrGNpQxTrH2HHydv4U2rZEgFI2yS/wp8Tk3N6j+wc8Xt66se3DuZ22Ix6WAmoZ7VYWteaidbFPCdUL/TrEW0ij6c4Sixw24=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782229796; c=relaxed/simple;
-	bh=1MeT1/fiQ6GlIguBnnTJtg/ndB8VWT+HE3GVJMM/LUY=;
+	s=arc-20240116; t=1782229831; c=relaxed/simple;
+	bh=G/812yDKdvmXIJir7h0KuwGy9+sjbLWdpZen064kkS0=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=Rcsv0DpP2OPTeSgDMrj/uxvzntycNlapDDWKRTpr3NqhK/6sGAk+0giEo5JuaOLAkvHyGGmuC/ri6geDcjc6ulE9aHXXJ4ifXBUDReXQirvza74lLxSfi0rUsXgoqONtDXPQE/YcHkKpiNBTtTVriX7P3D26qtrcEN5eQKqgIQg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mRwO2y3R; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=tSu2MnUHj1A0FHck5x2tRsG/FVWRlPaGVJwd27WHAnEEdmuhtUWSLCLNCpJh+ivoKEiydbjixbq/+gbmn7iI1XaVH+ZnJS0WwTujb+t8sHeD+adCa0dUw9neoukfKxi9yEX1tKOGBjLeBLsO6ctEA+VY7V6UUNPLEX0CXvgPtUc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OqZkQjj1; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mRwO2y3R"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 614DD1F000E9;
-	Tue, 23 Jun 2026 15:49:54 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OqZkQjj1"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF4821F000E9;
+	Tue, 23 Jun 2026 15:50:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782229794;
-	bh=F47HPVewEyALefWieJqv0LzI11OsiwNpaCmfgWRtFVQ=;
+	s=k20260515; t=1782229829;
+	bh=vc0/9cYfvVTGZXx4FD3o8CYnGDU+MV1yLnEvlwW3kl0=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=mRwO2y3RLYhkTRgEd/DuYqsnlTIyb5kKRdhME7DqOBnybRi1nAqbaPpV2nbPE0A4i
-	 rrJhfTe6BpEtI1KI2b7LS1/gqRBZG4BBKRyaUd4NJu/HyEt91t55h1887A75aMnYE4
-	 cHcENxCT0mpZ55W5PylC6FHHGXqeaKTF5rImCvqe64H8yG0RPcI2S/3gZiJshFTog7
-	 ub5mkCt+XWVAXYAhSeSGZ9vAMmaiCRbCOvSbgIONmHQwcb+3rv6A8zGQcm8dk6G00Y
-	 7M3mnHa7CTT0+/M2jQIBucyv97eDklqTW20xBoMoiKvdvMCCbAWjJVTFXHs7WIykZb
-	 TjQu0bGfjdiBg==
+	b=OqZkQjj1wo87oBraw9PLcT5zF3es58+XBam32Go4X8asGP+JVT2rAnRzyQBG0o9fb
+	 fD5K1DQuW0M1HZu/+zzomAg8czjU0bmPQd1DsrFBsnY6+AtuID95T8QHc7myI/iNmW
+	 tAivE+JAlvs/XOjKGEOyr77JM0hJndHKgGblW8HXyIyjbdaWX9RLoMbvo9lPdI20Xl
+	 huBKAGxfuR06NlJLPSc08ozFyGUPyzGvikWwVAEpM/YOUdNK3uF8Z3iInFluFw7+Zz
+	 zGb08UFLZcrEjc9kIfDqGIJqwHo4KzXgyAzcNGqs72Kd3/hvWA3su09F6thbsvtc7j
+	 qSyA9JKnQTPBw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v6 06/10] KVM: s390: Fix locking in
- kvm_s390_set_mem_control()
+Subject: Re: [PATCH v6 07/10] KVM: s390: Fix cmma dirty tracking
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>
 Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
  Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, kvm@vger.kernel.org
-In-Reply-To: <20260623153331.233784-7-imbrenda@linux.ibm.com>
+In-Reply-To: <20260623153331.233784-8-imbrenda@linux.ibm.com>
 References: <20260623153331.233784-1-imbrenda@linux.ibm.com>
- <20260623153331.233784-7-imbrenda@linux.ibm.com>
+ <20260623153331.233784-8-imbrenda@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 23 Jun 2026 15:49:54 +0000
-Message-Id: <20260623154954.614DD1F000E9@smtp.kernel.org>
+Date: Tue, 23 Jun 2026 15:50:27 +0000
+Message-Id: <20260623155028.CF4821F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+Thank you for your contribution! Sashiko AI review found 5 potential issue(=
 s) to consider:
 
+New issues:
+- [High] Race condition between kvm_s390_vm_stop_migration() and handle_ess=
+a() causes cmma_dirty_pages undercounting and data loss.
+- [Medium] Missing curly braces around the kvm->arch.use_cmma condition in =
+kvm_s390_vm_stop_migration() causes an unconditional, highly expensive gues=
+t page table walk.
+
 Pre-existing issues:
-- [High] Lost early-exit return codes in `dat_crste_walk_range` leads to so=
-ft lockups and aging logic failures.
+- [High] Page table walk skips pages and silently overwrites return values =
+in dat_crste_walk_range(), breaking dat_test_age_gfn() and dat_reset_skeys(=
+).
+- [High] Uninitialized vmalloc memory is copied to user space in kvm_s390_g=
+et_cmma_bits(), leaking kernel memory.
+- [High] The CMMA dirty tracking allows native hardware execution of ESSA i=
+nstructions during the full memory walk, potentially causing dirty CMMA sta=
+te to be missed during live migration.
 --
 
-commit b7c3f62b3078686b2bddd109edeee90c43ecceb5
+commit 9bad94601846b4f7b13bcf1ade41fc1b47e4dedf
 Author: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-KVM: s390: Fix locking in kvm_s390_set_mem_control()
+KVM: s390: Fix cmma dirty tracking
 
-Add the missing locking around dat_reset_cmma().
+This commit modifies the CMMA dirty tracking to set the migration_mode flag
+before marking all existing PGSTEs as cmma-dirty. It also attempts to clear
+the cmma_d bit and reset the dirty page count when stopping migration, and
+addresses a wrap-around case in dat_get_cmma() when searching for pages.
 
-> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index ffb20a64d328f..fe0ae15e5ad07 100644
-> --- a/arch/s390/kvm/kvm-s390.c
-> +++ b/arch/s390/kvm/kvm-s390.c
-> @@ -990,9 +990,11 @@ static int kvm_s390_set_mem_control(struct kvm *kvm,=
- struct kvm_device_attr *att
->  		if (!kvm->arch.use_cmma)
->  			break;
+> diff --git a/arch/s390/kvm/dat.c b/arch/s390/kvm/dat.c
+> index cffac7782c4bf..0ad4ebc80ebaf 100644
+> --- a/arch/s390/kvm/dat.c
+> +++ b/arch/s390/kvm/dat.c
+> @@ -1253,6 +1253,9 @@ int dat_get_cmma(union asce asce, gfn_t *start, uns=
+igned int *count, u8 *values,
+>  	};
 > =20
-> +		guard(mutex)(&kvm->lock);
->  		VM_EVENT(kvm, 3, "%s", "RESET: CMMA states");
->  		do {
-> -			start_gfn =3D dat_reset_cmma(kvm->arch.gmap->asce, start_gfn);
-> +			scoped_guard(read_lock, &kvm->mmu_lock)
-> +				start_gfn =3D dat_reset_cmma(kvm->arch.gmap->asce, start_gfn);
+>  	_dat_walk_gfn_range(*start, asce_end(asce), asce, &ops, DAT_WALK_IGN_HO=
+LES, &state);
 
 [Severity: High]
-This is a pre-existing issue, but looking at how dat_reset_cmma() and other
-DAT walk operations use _dat_walk_gfn_range() under the hood, is there a bug
-in arch/s390/kvm/dat.c:dat_crste_walk_range() where we can silently lose
-early-exit return codes?
+This is a pre-existing issue, but does dat_get_cmma() leave memory uninitia=
+lized
+when skipping clean pages?
 
-When dat_crste_walk_range() performs lower-level walks, it assigns the resu=
-lt
-to 'rc', but lacks an immediate check to break the loop:
+Looking at kvm_s390_get_cmma_bits(), the values array is allocated using
+vmalloc(args->count), which leaves the memory uninitialized. When
+dat_get_cmma() writes the dirty states, it skips clean pages (cmma_d =3D=3D=
+ 0)
+and unmapped holes without writing to those indices. Does the subsequent
+copy_to_user() in kvm_s390_get_cmma_bits() then leak this uninitialized
+kernel memory to user space?
+
+[Severity: High]
+This is also a pre-existing issue, but does the page table walk in
+dat_crste_walk_range() silently overwrite return values?
+
+When _dat_walk_gfn_range() calls dat_crste_walk_range(), the loop logic
+places the if (rc) break; condition before the child walk is checked:
 
 arch/s390/kvm/dat.c:dat_crste_walk_range() {
-	...
-		if (!crste.h.i && !crste.h.fc) {
-			if (!is_pmd(crste))
-				rc =3D dat_crste_walk_range(max(start, cur), min(end, next),
-							  _dereference_crste(crste), walk);
-			else if (walk->ops->pte_entry)
-				rc =3D dat_pte_walk_range(max(start, cur), min(end, next),
-							dereference_pmd(crste.pmd), walk);
-		}
-	}
-	return rc;
+    ...
+    the_op =3D walk->ops->crste_ops[crste.h.tt];
+    if (the_op) {
+        rc =3D the_op(walk->last, cur, next, walk);
+        ...
+    }
+    if (rc)
+        break;
+    if (!crste.h.i && !crste.h.fc) {
+        if (!is_pmd(crste))
+            rc =3D dat_crste_walk_range(...);
+        else if (walk->ops->pte_entry)
+            rc =3D dat_pte_walk_range(...);
+    }
 }
 
-If a walk operation defines both crste_ops and pte_entry (such as
-dat_reset_skeys or test_age_ops) and dat_pte_walk_range() returns a non-zero
-code (like a gfn for a reschedule request or 1 for finding a young page),
-the loop continues to the next iteration.
+When dat_pte_walk_range() returns a positive rc, the loop proceeds to the
+next iteration. If the_op executes (for example, _dat_test_young_crste
+returning 0), does it overwrite the previous positive rc, causing the loop
+to fail to break and ignoring yield requests or young-page hits?
 
-In the next iteration, if the upper-level crste_op evaluates to 0, could it
-silently overwrite 'rc' and allow the walk to incorrectly continue?
+[ ... ]
 
-Can this cause soft lockups on the host for guests with large memory due to
-lost reschedule requests, or incorrect page aging data causing performance
-degradation?
+> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> index fe0ae15e5ad07..91cf7a3c55c79 100644
+> --- a/arch/s390/kvm/kvm-s390.c
+> +++ b/arch/s390/kvm/kvm-s390.c
+> @@ -1210,28 +1210,54 @@ static int kvm_s390_vm_start_migration(struct kvm=
+ *kvm)
+>  	kvm_for_each_memslot(ms, bkt, slots) {
+>  		if (!ms->dirty_bitmap)
+>  			return -EINVAL;
+> -		ram_pages +=3D ms->npages;
+>  	}
+> -	/* mark all the pages as dirty */
+> +	/*
+> +	 * Set the flag and let KVM handle ESSA manually, potentially setting
+> +	 * the cmma_d bit in some PGSTEs and increasing cmma_dirty_pages.
+> +	 * At this point cmma_dirty_pages is still 0, and all existing PGSTEs
+> +	 * have their cmma_d bit set to 0.
+> +	 * Any newly allocated page table has its entries marked as cmma-clean,
+> +	 * which is fine because the CMMA values are not dirty.
+> +	 */
+> +	WRITE_ONCE(kvm->arch.migration_mode, 1);
+> +	/*
+> +	 * Mark all PGSTEs as cmma-dirty, increasing cmma_dirty_pages as needed,
+> +	 * but without double-counting pages that have become dirty on their own
+> +	 * in the meantime.
+> +	 * At this point some pages might have become dirty on their own already
+> +	 * and cmma_dirty_pages might therefore be non-zero.
+> +	 */
+>  	gmap_set_cmma_all_dirty(kvm->arch.gmap);
+> -	atomic64_set(&kvm->arch.cmma_dirty_pages, ram_pages);
+> -	kvm->arch.migration_mode =3D 1;
+>  	kvm_s390_sync_request_broadcast(kvm, KVM_REQ_START_MIGRATION);
 
->  			cond_resched();
->  		} while (start_gfn);
->  		ret =3D 0;
+[Severity: High]
+This is a pre-existing issue, but does this sequence allow native hardware
+execution of ESSA instructions during the full memory walk?
+
+Since the KVM_REQ_START_MIGRATION broadcast (which clears ECB2_CMMA to
+disable hardware ESSA execution) is issued after gmap_set_cmma_all_dirty()
+completes, a vCPU could execute ESSA natively on a newly allocated page
+that lies behind the current walk pointer. Since newly allocated PGSTEs
+start with cmma_d =3D 0 and the walk has already passed them, could this
+cause dirty CMMA state to be missed during live migration?
+
+>  	return 0;
+>  }
+> =20
+>  /*
+> - * Must be called with kvm->slots_lock to avoid races with ourselves and
+> - * kvm_s390_vm_start_migration.
+> + * Must be called with kvm->slots_lock to avoid races with ourselves,
+> + * kvm_s390_vm_start_migration() and kvm_s390_get_cmma_bits().
+>   */
+>  static int kvm_s390_vm_stop_migration(struct kvm *kvm)
+>  {
+>  	/* migration mode already disabled */
+>  	if (!kvm->arch.migration_mode)
+>  		return 0;
+> -	kvm->arch.migration_mode =3D 0;
+> +	/*
+> +	 * Unset the flag and propagate to all vCPUs. From now on the cmma_d
+> +	 * bit will not be touched on any PGSTE.
+> +	 * At this point cmma_dirty_pages is possibly non-zero, and thus some
+> +	 * PGSTEs might have cmma_d set.
+> +	 */
+> +	WRITE_ONCE(kvm->arch.migration_mode, 0);
+>  	if (kvm->arch.use_cmma)
+>  		kvm_s390_sync_request_broadcast(kvm, KVM_REQ_STOP_MIGRATION);
+> +	/* Clear cmma_d on all existing PGSTEs and set cmma_dirty_pages to 0. */
+> +	gmap_set_cmma_all_clean(kvm->arch.gmap);
+> +	atomic64_set(&kvm->arch.cmma_dirty_pages, 0);
+
+[Severity: Medium]
+Are curly braces missing around the kvm->arch.use_cmma condition?
+
+Because they are absent, gmap_set_cmma_all_clean() and atomic64_set()
+execute unconditionally. For VMs where use_cmma is false, this seems to for=
+ce
+an unnecessary full walk of the entire guest page table under mmu_lock to
+clear bits that were never set, which could stall the host and VM.
+
+[Severity: High]
+Can a race condition between kvm_s390_vm_stop_migration() and handle_essa()
+cause cmma_dirty_pages to undercount?
+
+If handle_essa() reads migration_mode locklessly and enters __do_essa()
+concurrently with kvm_s390_vm_stop_migration():
+
+CPU1 (kvm_s390_vm_stop_migration):
+    gmap_set_cmma_all_clean(kvm->arch.gmap);
+
+CPU2 (handle_essa -> __do_essa):
+    Sets cmma_d =3D 1 on a PTE that CPU1 already cleaned
+    atomic64_inc(&kvm->arch.cmma_dirty_pages);
+
+CPU1 (kvm_s390_vm_stop_migration):
+    atomic64_set(&kvm->arch.cmma_dirty_pages, 0);
+
+Would this unconditional reset to 0 overwrite CPU2's increment, leaving a
+PTE with cmma_d =3D=3D 1 but cmma_dirty_pages =3D=3D 0, leading to prematur=
+e stops
+in dat_get_cmma() and data loss during the next migration?
+
+> +	/*
+> +	 * At this point the system has the expected state: migration_mode is 0,
+> +	 * cmma_dirty_pages is 0, and all existing PGSTEs have their cmma_d bit
+> +	 * set to 0.
+> +	 */
+>  	return 0;
+>  }
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260623153331.2337=
-84-1-imbrenda@linux.ibm.com?part=3D6
+84-1-imbrenda@linux.ibm.com?part=3D7
