@@ -1,236 +1,151 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1EA02276028;
-	Wed, 24 Jun 2026 11:46:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 45EC22F39AB
+	for <linux-s390@vger.kernel.org>; Wed, 24 Jun 2026 12:56:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782301603; cv=none; b=VttboS8hKce+fKoW8vNIfGrmk5EuQVSSqf9TZkyCyiZIwEI1uxyYJ79ctHKWjjqwHPEhd6DVMTDnDKDmd8CSzw/6o2n8Kpj79OqC2sUsCl9xmAow5U6hyg/V+IAvhiGmd/ss8KKjExWwKqpCI9yjayP2TZd+dqphvet2fnvFJGY=
+	t=1782305801; cv=none; b=WxUqFO4KTwg1pkeiNkydQ9rxUB5l1MNg7n5IneJorhn4KgwyT7ZBHpX79HUStideGb+DVbLScMmTEaHBupYp4Iiltr4MEpVfzWCal+naPI5RxIuTXqY8CwtTdL3LIdSPBXqO6Ic+y7yXJGQummSDw4voQqEVyeM8IcFp/owq/rA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782301603; c=relaxed/simple;
-	bh=qB9PnJVkGw6eEA78IDRJwJwnOI6FPp/ukh1lSysauGI=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=fTwJ3MnWwDrISzJtf0uo7coPV//JboTGu+h44Y/Q/Gp6UCss6EERo2XaZrj0freSniX8hbyyHQSWY0CFxQ6AQdsEmwXKWxk8S3XS6oXSAOUml2J5Znzb6DwIqySFxqo1TZxJ9zZkoP3fzc3pCasrZOwx9TXXSKssh8Y7SCzoJ/c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CXX+Og4s; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1782305801; c=relaxed/simple;
+	bh=bhoXb5RTRVAVLmKt5V8ywfGvXPrQuWWDUG2x5h2MZ4o=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=m+zeCh2p4VAs0jS9Es/7IovRXqRsf3+oCk4RTZv7oSgqRnKqgOsUbx48l36LK1RPU4EJo1gsGI2kwVpAz/tvKmbmI16i1OcrIo8153EZnz/LuXf3Vhof/j1TPdLn7tC6FcmupFDvV6JVFUxezuHelnW2Kn4h8H3bkFsw2ggL7sQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=bOxhBONH; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CXX+Og4s"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7EBF1F000E9;
-	Wed, 24 Jun 2026 11:46:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782301601;
-	bh=ZWalexuGIlzEP798rVE7Iuws0w42f5Xncge/3f5W4fk=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=CXX+Og4sUo9HXV8sJeBmmf+hIT/aLRGvVuEtCefv0XMPP3ia8UWuiMThRERcZMtY2
-	 NKdxTBC/Nt9guO6HQ9Trm79lNeEplvJpnT5DtJSUN1fFXfmdZq0i1ojVwyNeQ6uL4g
-	 d6veqAj8Pnxc9cBmGz7iLsrb/TSU9fn508af7yPRNJ0lS++3tkaHasWxI5g7EMrrX6
-	 JFx9ZiPt9N/etP8mixMbebCzP1VcFVcJ/r6A4xG76baOn8nbLwusDNPbXdKcup6Kmj
-	 beLSLMY7mOXYNtedW3YnQd1LOCNjzpGB9G74Yyd7w7ZGuhlLegtKXy5U6aLfEz6Fq2
-	 3qOZHO/pCYORg==
-From: sashiko-bot@kernel.org
-Subject: Re: [GIT PULL v1 10/12] KVM: s390: Fix cmma dirty tracking
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>
-Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, "Heiko
- Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>
-In-Reply-To: <20260624111928.144283-11-imbrenda@linux.ibm.com>
-References: <20260624111928.144283-1-imbrenda@linux.ibm.com>
- <20260624111928.144283-11-imbrenda@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 24 Jun 2026 11:46:40 +0000
-Message-Id: <20260624114640.C7EBF1F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="bOxhBONH"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65OAn2oM562336;
+	Wed, 24 Jun 2026 12:56:25 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=L0Tf7p
+	Th20Nh40eQ/2RakmStbSdoVnFscjmsQrWoQ7o=; b=bOxhBONHzVz9oJ2F5s2hLY
+	ebj/fboggtnQ5f9+cqquXygO+5UUr5Oc078kWkueE+lIb/svY59bzVCkXEVUNCHo
+	zcZBoEP/a3ViIbbsIP0inEl8MknT47BPjnYSlPQ/QqIJEp/mQa52iF27SMEH+sZt
+	vaSAiSNM+d7IzdMyk/9EyUzZM9z89La2o0f+5flhx6BXvg2FmK+dG0G9HcUVJbsu
+	pra+Di4un3yCDxwzKP3fay4fjjplSOS3VBm8sg2RT6Gb81wq+92HuzVdJx8aqMs8
+	kBijfcI70WzCdAhrMrvT3hA51avtKzxqCrj2akvF1s/78sIc7f6TQ0QJWxsxZWBQ
+	==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ewjgsuw2v-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 24 Jun 2026 12:56:23 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 65OCnkGd002546;
+	Wed, 24 Jun 2026 12:56:23 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4ex7dg8bxe-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 24 Jun 2026 12:56:22 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 65OCuJiQ43057440
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 24 Jun 2026 12:56:19 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 0BF3720043;
+	Wed, 24 Jun 2026 12:56:19 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9EB8720040;
+	Wed, 24 Jun 2026 12:56:18 +0000 (GMT)
+Received: from [0.0.0.0] (unknown [9.111.35.104])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 24 Jun 2026 12:56:18 +0000 (GMT)
+Message-ID: <e516de9c-e9fb-45af-aa5e-8cb9dbf1e3f3@linux.ibm.com>
+Date: Wed, 24 Jun 2026 14:56:18 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v8 01/18] target/s390x: Fix wrong address handling in
+ address loops
+To: Harald Freudenberger <freude@linux.ibm.com>, richard.henderson@linaro.org,
+        david@kernel.org, thuth@redhat.com, berrange@redhat.com
+Cc: qemu-s390x@nongnu.org, qemu-devel@nongnu.org,
+        linux390-list@tuxmaker.boeblingen.de.ibm.com,
+        linux-s390@vger.kernel.org, dengler@linux.ibm.com,
+        borntraeger@linux.ibm.com, fcallies@linux.ibm.com, cohuck@redhat.com
+References: <20260624081029.23815-1-freude@linux.ibm.com>
+ <20260624081029.23815-2-freude@linux.ibm.com>
+Content-Language: en-US
+From: Ilya Leoshkevich <iii@linux.ibm.com>
+In-Reply-To: <20260624081029.23815-2-freude@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjI0MDEwNiBTYWx0ZWRfXzyiPplXsq14D
+ NMuf2UjkTZU7sdEWTGKvzTZhjHYPk9YIk5CxU6ENNtqrgsY4L1BqOyVFSvMTcjUzOmqXIldMg02
+ CamBSjLqQm2rr9gZ6lMijPZS3GFnKgSl3u4r3v0TpcvYBQrKf4Ik7+lPkxzFYw9IIXWHBaswPtV
+ smLPCtvSTrCwxSblf0MOgDQub1yn9o8iHM5bv9yBW6cgcUC7jegeeaNEwAaOox/jj3sOVjJ0bsA
+ mVAHuQfIDc0KInUGYVmEzVLEPnA7182pvW0UMScY6Hw4VqdT3tXQB/ZOuT1aZtz6RvyiXTGewbg
+ FDoIxZzDNQvh+YuasZs8G8GjkSCJkV5DOIfv6Ub0FxDQnsBmfNUnb7nMhsrEAHvkI8rYAFuAxaC
+ UeRkxIO/hbWRUH7r7cM/izuwgX9nSg==
+X-Proofpoint-GUID: y3bp4mlRxJcW5cmzwMn-AoblMJWYWv6o
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNjI0MDEwNiBTYWx0ZWRfX7h6+BZcSH7J/
+ reLQOY2p1gO6OOR4x61q2GJUb44srojYY0e7J5dYqnUpVs/dZGcQZnLeJfxi2KNGuyi383tCunF
+ 5GGhyaS/rRtoSIyFqq6fBSTgUFZhi/s=
+X-Authority-Analysis: v=2.4 cv=I/lVgtgg c=1 sm=1 tr=0 ts=6a3bd3f8 cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+ a=IkcTkHD0fZMA:10 a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8
+ a=KHZQTp77v83W7mwugnYA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-ORIG-GUID: y3bp4mlRxJcW5cmzwMn-AoblMJWYWv6o
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
+ definitions=2026-06-24_03,2026-06-23_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ lowpriorityscore=0 phishscore=0 spamscore=0 adultscore=0 bulkscore=0
+ suspectscore=0 malwarescore=0 classifier=typeunknown authscore=0 authtc=
+ authcc= route=outbound adjust=0 reason=mlx scancount=1
+ engine=8.22.0-2606150000 definitions=main-2606240106
 
-Thank you for your contribution! Sashiko AI review found 5 potential issue(=
-s) to consider:
 
-New issues:
-- [High] Race between `kvm_s390_vm_stop_migration()` and `handle_essa()` ca=
-uses permanent corruption of the `cmma_dirty_pages` counter.
-- [High] Unbounded guest address space scan in `dat_get_cmma()` while holdi=
-ng the `mmu_lock` read lock causes soft lockups.
-- [High] The `cmma_dirty_pages` counter is not decremented when PGSTEs are =
-zapped, leading to a permanent counter leak.
 
-Pre-existing issues:
-- [High] Decoupled locking in `__do_essa()` causes `cmma_dirty_pages` to te=
-mporarily underflow, exposing a massive `remaining` value to userspace.
-- [High] `KVM_S390_GET_CMMA_BITS` leaks uninitialized kernel heap memory to=
- userspace due to unpopulated array elements.
---
+On 6/24/26 10:09, Harald Freudenberger wrote:
+> With the introduction of the address wrapping function
+> wrap_address() the result can't be used to walk the
+> source address any more. So introduce a new local variable
+> to hold the wrapped address to avoid mixing source and
+> wrapped address value.
+> 
+> Fixes: fcc2699d41 ("target/s390x: Have MSA helper pass a mmu_idx argument")
+> Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
+> ---
+>   target/s390x/tcg/crypto_helper.c | 16 ++++++++--------
+>   1 file changed, 8 insertions(+), 8 deletions(-)
 
-commit f98e5de8f917aa1f013fc20f1b092133a210644d
-Author: Claudio Imbrenda <imbrenda@linux.ibm.com>
+If I take as an example AMODE 24 and look at the third loop iteration,
+with the current code in master I would get:
 
-KVM: s390: Fix cmma dirty tracking
+     ((((addr & 0xffffff) + 8) & 0xffffff) + 8) & 0xffffff
 
-It is possible that some guest memory areas have not been touched yet
-when starting migration mode, and thus have no ptes allocated. Only
-existing and allocated ptes should count toward the total of dirty cmma
-entries.
+and with your patch it would be:
 
-[ ... ]
+     (addr + 8 + 8) & 0xffffff
 
-> diff --git a/arch/s390/kvm/dat.c b/arch/s390/kvm/dat.c
-> index cffac7782c4bf..0ad4ebc80ebaf 100644
-> --- a/arch/s390/kvm/dat.c
-> +++ b/arch/s390/kvm/dat.c
-> @@ -1253,6 +1253,9 @@ int dat_get_cmma(union asce asce, gfn_t *start, uns=
-igned int *count, u8 *values,
->  	};
-> =20
->  	_dat_walk_gfn_range(*start, asce_end(asce), asce, &ops, DAT_WALK_IGN_HO=
-LES, &state);
-> +	/* If no dirty pages were found, wrap around and continue searching */
-> +	if (*start && state.start =3D=3D -1)
-> +		_dat_walk_gfn_range(0, *start, asce, &ops, DAT_WALK_IGN_HOLES, &state);
+which is undeniably more elegant, but otherwise looks equivalent to me.
 
-[Severity: High]
-Can this wrap-around scan trigger a host soft lockup?
+What is the functional issue here?
 
-Since both the initial and wrap-around scans execute entirely under the
-mmu_lock read lock, preemption is disabled. If a guest has a massive
-memory address space that is fully populated but contains no dirty CMMA
-pages, dat_get_cmma could iterate over millions of page table entries in
-a tight loop without ever checking need_resched or yielding.
+> diff --git a/target/s390x/tcg/crypto_helper.c b/target/s390x/tcg/crypto_helper.c
+> index ae392bce0e..29ad2aff43 100644
+> --- a/target/s390x/tcg/crypto_helper.c
+> +++ b/target/s390x/tcg/crypto_helper.c
+> @@ -126,8 +126,8 @@ static void sha512_read_icv(CPUS390XState *env, const int mmu_idx,
+>       const MemOpIdx oi = make_memop_idx(MO_BE | MO_64 | MO_UNALN, mmu_idx);
+>   
+>       for (int i = 0; i < 8; i++, addr += 8) {
+> -        addr = wrap_address(env, addr);
+> -        a[i] = cpu_ldq_mmu(env, addr, oi, ra);
+> +        uint64_t _addr = wrap_address(env, addr);
+> +        a[i] = cpu_ldq_mmu(env, _addr, oi, ra);
+>       }
+>   }
 
-[Severity: High]
-This is a pre-existing issue, but does dat_get_cmma leak uninitialized
-kernel heap memory to userspace here?
+[...]
 
-When KVM_S390_GET_CMMA_BITS is invoked, the values array is allocated using
-vmalloc without zero-initialization. If dat_get_cmma encounters clean pages
-or unpopulated holes interleaved with dirty pages, __dat_get_cmma_pte skips
-those array indices. The subsequent copy_to_user in kvm_s390_get_cmma_bits
-then copies the entire contiguous array back to userspace, taking those
-uninitialized vmalloc bytes with it.
-
->  	if (state.start =3D=3D -1) {
->  		*count =3D 0;
-
-[ ... ]
-
-> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index 221b2fb199d4e..9ad6bd4edbce3 100644
-> --- a/arch/s390/kvm/kvm-s390.c
-> +++ b/arch/s390/kvm/kvm-s390.c
-[ ... ]
-> @@ -1210,28 +1210,54 @@ static int kvm_s390_vm_start_migration(struct kvm=
- *kvm)
->  	kvm_for_each_memslot(ms, bkt, slots) {
->  		if (!ms->dirty_bitmap)
->  			return -EINVAL;
-> -		ram_pages +=3D ms->npages;
->  	}
-> -	/* mark all the pages as dirty */
-> -	gmap_set_cmma_all_dirty(kvm->arch.gmap);
-> -	atomic64_set(&kvm->arch.cmma_dirty_pages, ram_pages);
-> -	kvm->arch.migration_mode =3D 1;
-> +	/*
-> +	 * Set the flag and let KVM handle ESSA manually, potentially setting
-> +	 * the cmma_d bit in some PGSTEs and increasing cmma_dirty_pages.
-> +	 * At this point cmma_dirty_pages is still 0, and all existing PGSTEs
-> +	 * have their cmma_d bit set to 0.
-> +	 * Any newly allocated page table has its entries marked as cmma-clean,
-> +	 * which is fine because the CMMA values are not dirty.
-> +	 */
-> +	WRITE_ONCE(kvm->arch.migration_mode, 1);
->  	kvm_s390_sync_request_broadcast(kvm, KVM_REQ_START_MIGRATION);
-> +	/*
-> +	 * Mark all PGSTEs as cmma-dirty, increasing cmma_dirty_pages as needed,
-> +	 * but without double-counting pages that have become dirty on their own
-> +	 * in the meantime.
-> +	 * At this point some pages might have become dirty on their own already
-> +	 * and cmma_dirty_pages might therefore be non-zero.
-> +	 */
-> +	gmap_set_cmma_all_dirty(kvm->arch.gmap);
-
-[Severity: High]
-Could this lead to a permanent leak in the cmma_dirty_pages counter?
-
-This establishes an invariant that the cmma_dirty_pages counter mirrors the
-global number of PGSTEs with the cmma_d bit set. However, if host userspace
-unmaps memory or deletes a memslot while migration mode is active,
-dat_free_pt destroys the page tables and associated PGSTEs without
-decrementing cmma_dirty_pages. This leaves the counter artificially inflate=
-d,
-potentially trapping the VMM in an infinite migration loop.
-
->  	return 0;
->  }
-> =20
->  /*
-> - * Must be called with kvm->slots_lock to avoid races with ourselves and
-> - * kvm_s390_vm_start_migration.
-> + * Must be called with kvm->slots_lock to avoid races with ourselves,
-> + * kvm_s390_vm_start_migration() and kvm_s390_get_cmma_bits().
->   */
->  static int kvm_s390_vm_stop_migration(struct kvm *kvm)
->  {
->  	/* migration mode already disabled */
->  	if (!kvm->arch.migration_mode)
->  		return 0;
-> -	kvm->arch.migration_mode =3D 0;
-> +	/*
-> +	 * Unset the flag and propagate to all vCPUs. From now on the cmma_d
-> +	 * bit will not be touched on any PGSTE.
-> +	 * At this point cmma_dirty_pages is possibly non-zero, and thus some
-> +	 * PGSTEs might have cmma_d set.
-> +	 */
-> +	WRITE_ONCE(kvm->arch.migration_mode, 0);
->  	if (kvm->arch.use_cmma)
->  		kvm_s390_sync_request_broadcast(kvm, KVM_REQ_STOP_MIGRATION);
-> +	/* Clear cmma_d on all existing PGSTEs and set cmma_dirty_pages to 0. */
-> +	gmap_set_cmma_all_clean(kvm->arch.gmap);
-> +	atomic64_set(&kvm->arch.cmma_dirty_pages, 0);
-
-[Severity: High]
-Is there a race condition here with concurrent ESSA instructions?
-
-kvm_s390_sync_request_broadcast does not wait for vCPUs currently executing
-host code. If a vCPU executing handle_essa reads migration_mode as 1, it
-will proceed to __do_essa. Because gmap_set_cmma_all_clean and __do_essa
-can overlap, the stop-migration thread might clear cmma_dirty_pages to 0
-right before __do_essa calls atomic64_inc. This would leave the counter at
-1 with no actual dirty PGSTEs, breaking migration invariants.
-
-> +	/*
-> +	 * At this point the system has the expected state: migration_mode is 0,
-> +	 * cmma_dirty_pages is 0, and all existing PGSTEs have their cmma_d bit
-> +	 * set to 0.
-> +	 */
->  	return 0;
->  }
-
-[ ... ]
-
-> diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
-> index 9bc6fd02ff777..ad0ddc433a73c 100644
-> --- a/arch/s390/kvm/priv.c
-> +++ b/arch/s390/kvm/priv.c
-> @@ -1236,7 +1236,7 @@ static int handle_essa(struct kvm_vcpu *vcpu)
->  						: ESSA_SET_STABLE_IF_RESIDENT))
->  		return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
-> =20
-> -	if (!vcpu->kvm->arch.migration_mode) {
-> +	if (!READ_ONCE(vcpu->kvm->arch.migration_mode)) {
-
-[Severity: High]
-This is a pre-existing issue, but does the decoupling of the PGSTE lock
-and the global counter increment in __do_essa open a race window?
-
-In __do_essa, dat_perform_essa sets the cmma_d bit under the PGSTE lock,
-but the global cmma_dirty_pages counter is incremented outside of that
-critical section. Concurrently, dat_get_cmma could acquire the same PGSTE
-lock, see the bit set, clear it, and decrement cmma_dirty_pages before
-__do_essa has incremented it. If the counter starts at 0, it temporarily
-underflows to -1. If kvm_s390_get_cmma_bits reads it at that moment, it
-exposes ULLONG_MAX to userspace as the remaining count.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260624111928.1442=
-83-1-imbrenda@linux.ibm.com?part=3D10
