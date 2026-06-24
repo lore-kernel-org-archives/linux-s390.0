@@ -1,131 +1,94 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from m16.mail.163.com (m16.mail.163.com [220.197.31.4])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 31A483812E4;
-	Wed, 24 Jun 2026 06:14:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3714A1C5F27;
+	Wed, 24 Jun 2026 06:19:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.197.31.4
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782281697; cv=none; b=E9znhJpQNUVfDDnJilgRBsMZoftWKUJyONXWiVRKPACzmuZbnNULqbuP5pmNRnNphSQ/SfFGQEyL9o+vU8f7jnNggbFC5t2oXLVpFD5FEWJNG4IcBonltFefutHEAzuCsGv3L+jed0gg0f4JS7+HZ/DE6bnUFZlCZmtXa8oYv3w=
+	t=1782281996; cv=none; b=Rgvecc94SAuL4Oz64nqphUzzzVTOqimRbDsx3w+p26HPGPBVAsDeyaKKs+ujfk0Haj0jqWJH21Mpl4ba677hQnuFzjm7dFaq/9ecr3I3tA9gcEXiDlXHdwtrpU7/I5HgostcvBYZ29McJEmEBZqA19o3AMNFZPrAO8yk3txYkCU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782281697; c=relaxed/simple;
-	bh=gt9JQW4adQN1JapWb+d2+uSABeDsB+A2SXWV7dr6128=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=HGjP2QPOlmsx9fSha46PvfJepOK9wZ6Yr5NduVqe6BlSGt0LnoAdKgbeumq6DLySlWDCBsv5YJzz/68P8QwVVEPHOMdrYMn6VEL0J54QVGAAAyHo8FaZp5HX9JorFH5ldG8/wNFt1QrE7wS1qAfl1VAD4qgsmADAiCAr2SrKBs0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=pgTLVcnz; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1782281996; c=relaxed/simple;
+	bh=Cm8uxm8lEwj/kLkx5WD6HgrQFavrQweJc59P3wASls8=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=aeIGS0lsRgda5KOsVt0mlhlWvsvexsCybQitOVFTzq7uBGTPPf5JyNPZm6fUsGMBIDY0VHndrh2OfxH1SV6lQ1wRF0DAjBAXtWxVqgtPR72XT7I1lU/LMTLhFhKehNN6T5wnXpXinKWZf7/4zPckf/mRDUbHTIMhrfTQCtbuP1U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=We4dDDJu; arc=none smtp.client-ip=220.197.31.4
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="pgTLVcnz"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65O1mZFl3671388;
-	Wed, 24 Jun 2026 06:14:49 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=MsRELk
-	/CS1xzk+PAko3I6kg+AhHBmZcfDeT4wLZTtCM=; b=pgTLVcnz7KB6/FzC4uXzeZ
-	7XlQ8lunTFTvVE0cpoKtztMHfAn1+NTXv+y7RjMLphA2fUvlid89jLQPdmZwFcnd
-	J6c/Tgb603r81bbTuSxTfpYmSGS/AeGixJY12oEBD8LRGYSHhGIbiMpbC3M6fExY
-	VyZA2skME1aVyT+utRFJggf3D0SBWiV9PCQ+NoK5IUXqdu5gtWkXSUy0xVVti7p4
-	HBl7UjKTvBWNGGg1cpxw64OcH5EZoVoOldbf5Ug26TqFNcIARX16s5wSHYFnYiEi
-	etqgwyLvZ5xBsqOLLNU/F85qnS2HDOpFkcFVVRx0+Fj7xv9VlkxBROkujmqsYquQ
-	==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ewg9htrrp-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 24 Jun 2026 06:14:48 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 65O653VL021547;
-	Wed, 24 Jun 2026 06:14:47 GMT
-Received: from smtprelay02.wdc07v.mail.ibm.com ([172.16.1.69])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4ex6phf4fp-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 24 Jun 2026 06:14:47 +0000 (GMT)
-Received: from smtpav01.dal12v.mail.ibm.com (smtpav01.dal12v.mail.ibm.com [10.241.53.100])
-	by smtprelay02.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 65O6EkEx18088626
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 24 Jun 2026 06:14:46 GMT
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id DF44958058;
-	Wed, 24 Jun 2026 06:14:45 +0000 (GMT)
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C243F58063;
-	Wed, 24 Jun 2026 06:14:40 +0000 (GMT)
-Received: from [9.123.3.51] (unknown [9.123.3.51])
-	by smtpav01.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 24 Jun 2026 06:14:40 +0000 (GMT)
-Message-ID: <3a77aeb8-f2f1-4cc9-b5c1-2cc71e569602@linux.ibm.com>
-Date: Wed, 24 Jun 2026 11:44:39 +0530
+	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="We4dDDJu"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
+	s=s110527; h=From:To:Subject:Date:Message-Id:MIME-Version; bh=yl
+	e0Kqd88zaVEflBPBDE3K9lYXnitx52ifkJn5SKETE=; b=We4dDDJueapUQ2UchF
+	xCRY8IHkbysKOWewwKRaqDMudfZhxP+cZFzNoY5+qxU0m6OkCu6Hh/RCBQmi8/I1
+	9HfxSNnhSLAj8HArHVezdIhNN1GQQ+GwWT4/USEacbKshDY22XPcnIkd9/QOxvVl
+	lBDv3o6Xi5G3+VMIGwcze5XYY=
+Received: from localhost.localdomain (unknown [])
+	by gzga-smtp-mtada-g1-3 (Coremail) with SMTP id _____wDn8xDfdjtq3ideEw--.60S2;
+	Wed, 24 Jun 2026 14:19:15 +0800 (CST)
+From: Haoxiang Li <haoxiang_li2024@163.com>
+To: mjrosato@linux.ibm.com,
+	alifm@linux.ibm.com,
+	farman@linux.ibm.com,
+	borntraeger@linux.ibm.com,
+	frankja@linux.ibm.com,
+	imbrenda@linux.ibm.com,
+	david@kernel.org,
+	hca@linux.ibm.com,
+	gor@linux.ibm.com,
+	agordeev@linux.ibm.com,
+	svens@linux.ibm.com,
+	schnelle@linux.ibm.com
+Cc: linux-s390@vger.kernel.org,
+	kvm@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Haoxiang Li <haoxiang_li2024@163.com>,
+	stable@vger.kernel.org
+Subject: [PATCH v2] KVM: s390: pci: Fix GISC refcount leak on AIF enable failure
+Date: Wed, 24 Jun 2026 14:19:10 +0800
+Message-Id: <20260624061910.2794734-1-haoxiang_li2024@163.com>
+X-Mailer: git-send-email 2.25.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v2] Documentation: net/smc: correct old value of
- smcr_max_recv_wr
-To: Breno Leitao <leitao@debian.org>
-Cc: andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
-        kuba@kernel.org, pabeni@redhat.com, alibuda@linux.alibaba.com,
-        dust.li@linux.alibaba.com, sidraya@linux.ibm.com, wenjia@linux.ibm.com,
-        wintera@linux.ibm.com, pasic@linux.ibm.com, horms@kernel.org,
-        tonylu@linux.alibaba.com, guwen@linux.alibaba.com,
-        netdev@vger.kernel.org, linux-s390@vger.kernel.org
-References: <20260424052336.3262350-1-mjambigi@linux.ibm.com>
- <ajqh_3YDwz9q5Aiz@gmail.com>
-Content-Language: en-US
-From: Mahanta Jambigi <mjambigi@linux.ibm.com>
-In-Reply-To: <ajqh_3YDwz9q5Aiz@gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-ORIG-GUID: FewBYyPVJEnfWm8Royst2Iny7p7iGRHm
-X-Proofpoint-GUID: qkOC-oHEJTwkI4vdonJOqdjr5jreoF4u
-X-Authority-Analysis: v=2.4 cv=Y4XIdBeN c=1 sm=1 tr=0 ts=6a3b75d8 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=IkcTkHD0fZMA:10 a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=_QdjCJnycWTIf79EoOgA:9
- a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjI0MDA0NSBTYWx0ZWRfX+TQoaTxENRr3
- INNoLWUGNKNoa66ofextEcRna74/mzf3set7ffXC89vHg2Q5H+xBocioXJm+didwFjybIZoyO1i
- D68A7/+HgOcyUPq92FJ5srd3SbilH7FSXlQBEXdJO2PplPMkdgvJOyWcHJ0eUcgqjj50UDv56Yi
- roDUr4uVOk1szNyhaFXbVU25k9ES3GVr68V2o7t2G1x2P0ybyz5GnQm4bPWVUUtp186CxXaDEG0
- u+NJ8wbmgQzsFXDG8SC8ymxqltpE6dR8CXVlyxTm+dejha9gF5FB3c3r3yBtRTssaR/fcRnRUe1
- bp768RLsW/z3wCp435dSa+w+2ffVxab/SdwEcZYZjMm4GaFHIROY2TiiDrDAu7hNEFwPB3Omu1+
- NbUAXsQ4FMXPN+L9Z3TZm8klnmZObw==
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNjI0MDA0NSBTYWx0ZWRfX2S41vXoatTBr
- 0yWHDsG3/Umtwj5mcNizLynMH7FizyajIJY77Tn/3lmYwqnZIqEXtJalZOyRKtwgbcLNqeZ+5ho
- yBEKAk6hl57Lj7ebOltPDkapj58jH2s=
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
- definitions=2026-06-24_01,2026-06-23_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- adultscore=0 lowpriorityscore=0 malwarescore=0 spamscore=0 suspectscore=0
- phishscore=0 bulkscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2606240045
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:_____wDn8xDfdjtq3ideEw--.60S2
+X-Coremail-Antispam: 1Uf129KBjvdXoW7JFWfZw1kAFyUWr17tw43Jrb_yoWDKFbEvw
+	1Iy340q395ZrsrCryqkFs7ZF1Fka48WF4fAr10qrn8JF95ZrsrW3y8Zr43u3s7Wr4SyrWx
+	X392ywn3Z34IkjkaLaAFLSUrUUUUjb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
+	9fnUUvcSsGvfC2KfnxnUUI43ZEXa7sRu0PfDUUUUU==
+X-CM-SenderInfo: xkdr5xpdqjszblsqjki6rwjhhfrp/xtbCxQM-rWo7duO5pwAA3O
 
+kvm_s390_gisc_register() registers the guest ISC before pinning
+the guest interrupt forwarding pages and allocating the AISB bit.
+If any of the later setup steps fails, the function unwinds the
+pinned pages and other local state, but does not unregister the
+GISC reference. Add the missing kvm_s390_gisc_unregister() to the
+error unwind path.
 
+Fixes: 3c5a1b6f0a18 ("KVM: s390: pci: provide routines for enabling/disabling interrupt forwarding")
+Cc: stable@vger.kernel.org
+Signed-off-by: Haoxiang Li <haoxiang_li2024@163.com>
+---
+Changes in v2:
+ - Move unregister call after "out" label. Thanks, Matt!
+---
+ arch/s390/kvm/pci.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-On 23/06/26 8:42 pm, Breno Leitao wrote:
-> On Fri, Apr 24, 2026 at 07:23:36AM +0200, Mahanta Jambigi wrote:
->> The smc-sysctl.rst documentation incorrectly stated that the previous
->> hardcoded maximum number of WR buffers on the receive path (smcr_max_recv_wr)
->> was 16. The correct historical value used before the introduction of the sysctl
->> control was 48. Update the documentation to reflect the accurate historical
->> value. Also fix a couple of minor typos.
->>
->> Fixes: aef3cdb47bbb net/smc: make wr buffer count configurable
-> 
-> This Fixes tag is broken. You probably want:
-> 
-> 	Fixes: aef3cdb47bbb ("net/smc: make wr buffer count configurable")
-
-I believe you are talking about the missing parenthesis & double quotes
-around the commit subject line? I verified the 12-character commit hash
-points to the correct commit.
-
-> 
-> Other than that, it looks good, the corrected value checks out.
+diff --git a/arch/s390/kvm/pci.c b/arch/s390/kvm/pci.c
+index 5b075c38998e..686113be0530 100644
+--- a/arch/s390/kvm/pci.c
++++ b/arch/s390/kvm/pci.c
+@@ -328,6 +328,7 @@ static int kvm_s390_pci_aif_enable(struct zpci_dev *zdev, struct zpci_fib *fib,
+ unpin1:
+ 	unpin_user_page(aibv_page);
+ out:
++	kvm_s390_gisc_unregister(kvm, fib->fmt0.isc);
+ 	return rc;
+ }
+ 
+-- 
+2.25.1
 
