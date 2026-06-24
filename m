@@ -1,44 +1,45 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A6E25364953;
-	Wed, 24 Jun 2026 11:38:59 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7AA512EC57C;
+	Wed, 24 Jun 2026 11:40:51 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782301140; cv=none; b=qg7+p71AL16QR+N+NCl2SpR+muekPi1iVaGkGgsHFVD81q9IV5OXuvHpdI73sRMVojB8r92QyCOe5k0ZGFed/2q1o8OApUDmbs38vCUz9QyIqcTjy76q3oCnt7Y3tdS3jQ0iAGABaY8TCGphfNyCHbxDw8GDl1r3qJpLm43q2Rc=
+	t=1782301252; cv=none; b=hVgkhzKd+7kEZRwJNacQ61kjQBEd2lHQBdL0nnLkor4KflS001/DJH9u1Rre46P8k6yguIZeIvuBaW2CQXEwRPXYueTTK+XA823KpzCziXDH4utGxsJX5m+lJz85G5pF9IOkGZenYqOcPc0w4VBq3AI1iQsJSvrBG1mN25DuSEk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782301140; c=relaxed/simple;
-	bh=utmBZsHIZwLBnjnfDYpd+jfnHwiZ4uZgZhVqtuh/afs=;
+	s=arc-20240116; t=1782301252; c=relaxed/simple;
+	bh=F/IAXX4dwkECDuMAkY3e6tX7nGAz2NAI8u8D+tgS2+c=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=eGo6fNiM+GwN6k2fuWaai4UKlVSYHmIlC5ZOyVK50OYF+hYoFQFs9umaK6sznA04/R/hEHaU+4IPIjlGkpIs1Lu8M6BXbtpi2bK6n2O+20GaBMV0ABvfHVoB6XAA2tnhAW4uRUy9xAwmD7zS42OuFkoW0o0cV7g+jl0yFTGbQQI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=S7PXvJ0B; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=b/54sJgd+qufK8lmHMI2UOTcA9LpLgR3rWXzF3RCVV+jQ8n1kH9NyUOwTCj0Zsqk4DEEI9LN6PLTyjMy7mnrwXIYl1QviZi+uDLhpOHDgbvGztKIalkrIIwA/x89YpVUsLThhWcV0FI+JLXWrsLeAMo5jwCOMQ0XpaAvfmKSkgk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TOOdDLTf; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="S7PXvJ0B"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09D741F000E9;
-	Wed, 24 Jun 2026 11:38:59 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TOOdDLTf"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BEDD91F000E9;
+	Wed, 24 Jun 2026 11:40:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782301139;
-	bh=s7MsNZFoH8x09HVwzFA00QDgOEPRObsv2QWCTBIoib8=;
+	s=k20260515; t=1782301251;
+	bh=fo60fryRAHrjhVR2+t5KBGtLNiRjD7P/KEfF02Be6Zo=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=S7PXvJ0BYIy/EIuA1TpL+9cUE4igL/dWPRbQWLpDSGqeMLiYTmpz+O/qwpg9zUgvU
-	 FAc2d94pQjKnmZ7mBPXj7qEWNaqFGQzgY5HZg05SF9TRDmiXNKkIupvxCy+la6XSek
-	 phaGLPN1X1xvq5zuKfQlG+v1VWFaEoSm/C5RApAOiHl7IIvgoz1Ir9zVzYN4rS6UOY
-	 PThP8Le7UL+MV8d77y9gMdRLzVOrL1STIbNojSe3SrJfDYO2C67ScENz1ds2a1wJEC
-	 deQgaV17ND4iEMBI8pxy0AVuv23arXotAFlIKOeQkcBO95NrYVTXPLTHMFnZSKXw3r
-	 9Wr1IKO7UygYg==
+	b=TOOdDLTfE5zQ3hmPypXpjCCchroJeTLsCqltEJ3VwQ/aMzqeTY3ydnZQFfn7yYrL9
+	 FW2hYdh4y0JFDU2T9FZziii7vDa0mkqpMtMa+9ypDL/euYnbsEvUK+xA4lDddvtJTM
+	 btPSbKLaKjXApbsOvpXxuhz9tjc4s+TVrTdgoRC/inSZdASp0uxgpW+arCGoSWLSKa
+	 H5UalEvq1y6CskBMyVXm2+Bv1uDGjQ9iytKHiNmzfk21HABK6hxUG3aeksXXzR4Elx
+	 KDwDh92g7jNiSkIpIkm3A0EIa5JgYs7NawMDtIC6ga0Q+XJLgTSV97YuVWPxUmqdP7
+	 ItkgTeWRtduag==
 From: sashiko-bot@kernel.org
-Subject: Re: [GIT PULL v1 05/12] KVM: s390: Fix dat_peek_cmma() overflow
+Subject: Re: [GIT PULL v1 01/12] KVM: s390: Fix S390_USER_OPEREXEC
+ enablement without STFLE 74
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, kvm@vger.kernel.org
-In-Reply-To: <20260624111928.144283-6-imbrenda@linux.ibm.com>
+Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
+ Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org
+In-Reply-To: <20260624111928.144283-2-imbrenda@linux.ibm.com>
 References: <20260624111928.144283-1-imbrenda@linux.ibm.com>
- <20260624111928.144283-6-imbrenda@linux.ibm.com>
+ <20260624111928.144283-2-imbrenda@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 24 Jun 2026 11:38:58 +0000
-Message-Id: <20260624113859.09D741F000E9@smtp.kernel.org>
+Date: Wed, 24 Jun 2026 11:40:50 +0000
+Message-Id: <20260624114050.BEDD91F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -48,120 +49,84 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
 
+New issues:
+- [Medium] A lockless data race between concurrent KVM_ENABLE_CAP and KVM_C=
+REATE_VCPU can result in a vCPU silently missing the operation exception in=
+tercept.
+
 Pre-existing issues:
-- [High] Uninitialized kernel memory from `vmalloc` is copied to userspace =
-when CMMA attributes are retrieved because skipped pages or unmapped CRSTEs=
- leave uninitialized gaps in the buffer.
-- [Medium] The `KVM_S390_SET_CMMA_BITS` ioctl incorrectly returns a positiv=
-e program exception code (`PGM_ADDRESSING` =3D 5) on out-of-bounds access i=
-nstead of a standard negative errno.
+- [Critical] Missing `vcpu->mutex` in `kvm_arch_vcpu_postcreate` allows a c=
+oncurrent `KVM_RUN` ioctl to trigger a host kernel panic via a NULL pointer=
+ dereference on `vcpu->arch.gmap`.
 --
 
-commit 8344f31bea75084c2603931b9dc4f97ab83d6263
-Author: Claudio Imbrenda <imbrenda@linux.ibm.com>
+commit 40c6c07119e484ffc2bb8e5fccec2d6c44c1df03
+Author: Eric Farman <farman@linux.ibm.com>
 
-KVM: s390: Fix dat_peek_cmma() overflow
+KVM: s390: Fix S390_USER_OPEREXEC enablement without STFLE 74
 
-This commit fixes an underflow issue in dat_peek_cmma() when userspace
-provides an out-of-bounds start address. It ensures the count is correctly
-zeroed out instead of underflowing, so the function correctly returns an er=
-ror
-instead of erroneously reporting success.
+This commit ensures the USER_OPEREXEC capability is properly enabled
+in kvm_arch_vcpu_postcreate() even if the guest disables STFLE.74.
+It adds a check for vcpu->kvm->arch.user_operexec alongside the
+existing checks for STFLE.74 and user_instr0.
 
-Message-ID: <20260623153331.233784-3-imbrenda@linux.ibm.com>
+> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> --- a/arch/s390/kvm/kvm-s390.c
+> +++ b/arch/s390/kvm/kvm-s390.c
+> @@ -3542,7 +3542,8 @@ void kvm_arch_vcpu_postcreate(struct kvm_vcpu *vcpu)
+>  		vcpu->arch.gmap =3D vcpu->kvm->arch.gmap;
 
-> diff --git a/arch/s390/kvm/dat.c b/arch/s390/kvm/dat.c
-> index 4a41c0247ffa2..cffac7782c4bf 100644
-> --- a/arch/s390/kvm/dat.c
-> +++ b/arch/s390/kvm/dat.c
-> @@ -1209,7 +1209,7 @@ int dat_peek_cmma(gfn_t start, union asce asce, uns=
-igned int *count, u8 *values)
->  	int rc;
-> =20
->  	rc =3D _dat_walk_gfn_range(start, start + *count, asce, &ops, DAT_WALK_=
-DEFAULT, &state);
-> -	*count =3D state.end - start;
-> +	*count =3D state.end >=3D start ? state.end - start : 0;
+[Severity: Critical]
+This is a pre-existing issue, but does this function need to hold
+vcpu->mutex while initializing vcpu->arch.gmap?
 
-[Severity: High]
-This is a pre-existing issue, but since we are modifying how count is
-calculated for the values array, does this code leak uninitialized kernel
-memory to userspace?
+When kvm_vm_ioctl_create_vcpu() executes, it unlocks vcpu->mutex and
+increments kvm->online_vcpus before calling kvm_arch_vcpu_postcreate():
 
-If KVM_S390_GET_CMMA_BITS is called on a memory range containing clean pages
-or unmapped holes, it allocates the values buffer using vmalloc() which does
-not zero-initialize memory:
+virt/kvm/kvm_main.c:kvm_vm_ioctl_create_vcpu()
+    atomic_inc(&kvm->online_vcpus);
+    mutex_unlock(&vcpu->mutex);
+    mutex_unlock(&kvm->lock);
+    kvm_arch_vcpu_postcreate(vcpu);
 
-arch/s390/kvm/kvm-s390.c:kvm_s390_get_cmma_bits() {
-    ...
-	values =3D vmalloc(args->count);
-	if (!values)
-		return -ENOMEM;
-    ...
-	if (copy_to_user((void __user *)args->values, values, args->count))
-    ...
-}
+If a second thread immediately calls the KVM_RUN ioctl on the new vCPU,
+it can acquire vcpu->mutex and proceed to __vcpu_run() before
+kvm_arch_vcpu_postcreate() finishes.  Could this result in a NULL pointer
+dereference when __vcpu_run() accesses vcpu->arch.gmap->asce.val?
 
-During the walk, dat_peek_cmma() and dat_get_cmma() can skip clean PTEs and
-empty CRSTEs without writing to the values array. For example:
+arch/s390/kvm/kvm-s390.c:__vcpu_run()
+    sie_return =3D kvm_s390_enter_exit_sie(vcpu->arch.sie_block,
+                                         vcpu->run->s.regs.gprs,
+                                         vcpu->arch.gmap->asce.val);
 
-arch/s390/kvm/dat.c:__dat_peek_cmma_crste() {
-    ...
-	if (crstep->h.i)
-		state->end =3D min(walk->end, next);
-    ...
-}
-
-arch/s390/kvm/dat.c:__dat_get_cmma_pte() {
-    ...
-	if (!READ_ONCE(*pgste_of(ptep)).cmma_d)
-		return 0;
-    ...
-}
-
-Since the gap in GFNs is included in the returned count, does the
-copy_to_user() call in kvm_s390_get_cmma_bits() end up copying the entire
-length and leaking those uninitialized vmalloc gaps to userspace?
+>  		sca_add_vcpu(vcpu);
+>  	}
+> -	if (test_kvm_facility(vcpu->kvm, 74) || vcpu->kvm->arch.user_instr0)
+> +	if (test_kvm_facility(vcpu->kvm, 74) || vcpu->kvm->arch.user_instr0 ||
+> +	    vcpu->kvm->arch.user_operexec)
 
 [Severity: Medium]
-This isn't a bug introduced by this patch, but while looking at the CMMA
-addressing failure paths, is there an issue with how out-of-bounds accesses
-are reported by KVM_S390_SET_CMMA_BITS?
+Does the lockless read of user_operexec introduce a data race with
+KVM_ENABLE_CAP?
 
-If an invalid start_gfn is provided, dat_entry_walk() returns a positive
-program exception code:
+If a thread enables KVM_CAP_S390_USER_OPEREXEC concurrently with vCPU
+creation, kvm_vm_ioctl_enable_cap() writes to kvm->arch.user_operexec and
+iterates over online vCPUs without a full memory barrier:
 
-arch/s390/kvm/dat.c:dat_entry_walk() {
-    ...
-	if (!asce_contains_gfn(asce, gfn))
-		return PGM_ADDRESSING;
-    ...
-}
+arch/s390/kvm/kvm-s390.c:kvm_vm_ioctl_enable_cap()
+    kvm->arch.user_operexec =3D 1;
+    icpt_operexc_on_all_vcpus(kvm);
 
-This positive value (5) appears to be propagated directly back to the ioctl
-result in kvm_s390_set_cmma_bits():
+Meanwhile, kvm_vm_ioctl_create_vcpu() increments online_vcpus before
+calling kvm_arch_vcpu_postcreate().
 
-arch/s390/kvm/kvm-s390.c:kvm_s390_set_cmma_bits() {
-    ...
-			r =3D dat_set_cmma_bits(mc, kvm->arch.gmap->asce, args->start_gfn,
-					      args->count, args->mask, bits);
-		}
-	} while (r =3D=3D -ENOMEM);
+Because of this sequence, is it possible for both threads to observe the
+older state of the other's variables? If so, could this cause the newly
+created vCPU to silently miss setting the ICTL_OPEREXC bit?
 
-	set_bit(GMAP_FLAG_USES_CMM, &kvm->arch.gmap->flags);
-
-	return r;
-}
-
-Could this cause userspace checking for standard Linux error codes
-(ioctl() < 0) to incorrectly assume the KVM_S390_SET_CMMA_BITS ioctl
-succeeded when it actually failed?
-
->  	/* Return success if at least one value was saved, otherwise an error. =
-*/
->  	return (rc =3D=3D -EFAULT && *count > 0) ? 0 : rc;
+>  		vcpu->arch.sie_block->ictl |=3D ICTL_OPEREXC;
 >  }
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260624111928.1442=
-83-1-imbrenda@linux.ibm.com?part=3D5
+83-1-imbrenda@linux.ibm.com?part=3D1
