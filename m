@@ -1,126 +1,186 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7BA7E3CF698;
-	Thu, 25 Jun 2026 10:42:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BBC97374E45;
+	Thu, 25 Jun 2026 11:17:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782384135; cv=none; b=b2apzqAY0f6aG830TVbVKoB2UoKWPM/q2FeZTK0dT6dGFk35Chr1Jk7zJOTWtoyezSGld09DSekvysbbpQk9pQwLXNWMrD09r2aHChk2Os6p7aINAfnBCZYRjEDnSDZMc5h4nmZFez+xtvAhdTR4IKxbIbzw2SO5nLGFOR1/Keo=
+	t=1782386230; cv=none; b=ZaKKisIOADaUDQWkBfllyDoS6y9+SqYqZ2Ro7f1iwKnRuphCUO2PO5zBQ6OTkeDADbE/m8wfcmmqLFNxDA9y6OU0aFwRj6CSRlj4YPZwrH752HwNjrevAJQJdS/Ck/WFcqGy9WQxGcDDfnYQjB993DTciDCxCtq7PXvu3hVzuRs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782384135; c=relaxed/simple;
-	bh=173lQ7jzJnbBLvffNLCqIOWQQGAchmqsaB7zv7/I9ww=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=O0VIWstFnj+pS6h4uMg5RaZhk4jEGmdabF38Ez0Bz6vZbjqAOi3+BgTNQLlr8AkSr+4ykyPdn2Z2Xbc8rdvKNJ3SLqLStF3MMNtLTtaYXKe1lsHA/Ico+kCRFWIpFVSzWWpJ4R6Ak9QDKVvby7pQmJuVVVM7lqsP/JoV4bl6608=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=sqCPT31B; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1782386230; c=relaxed/simple;
+	bh=idtMv2Eq1C72KO6kRFAlCQ6+RFlUyE+Jk9yJYlDc8nE=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=bxoFN63DQ+aMCFVyE4A1Ne66LIPSRo/ILGdNB/xUJYCo7XZasOmNMpqdRn0Kpqwh/S2oTbOk0ClfNX7QOmRuRTohErN1fU9UI0CVePh0LxoparlQBt+zs4b0eqdESzBT+2+YXM722VAZFVPr1iYaPpj2mfHs745bWPDnEI/sTkc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=b/D7kVsB; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="sqCPT31B"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65P3nsih3188232;
-	Thu, 25 Jun 2026 10:42:10 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="b/D7kVsB"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65P3mdZ32927895;
+	Thu, 25 Jun 2026 11:17:05 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=PPxrq8
-	Mq/VZpa22VlH3o9x7wplaq6waAQx3XOI0U4Zs=; b=sqCPT31B4hnuP8UVwFvpyj
-	qvDhd0wai3xHDNBOyTnLqg1VwWA/KilXk0dDeWuweJAIigoj5GS5cNEjgKbgyyYp
-	GrY+2wRemn7pqVyAq7MYOdVikkb0v3zquUrQUelaqBxUl2nblZ+Nybzxk2w8VkMK
-	8bobw8sXXidwaf+ZxOrTqnNmXlC18gKMqvKALZo7JMJKIXCvW/1QzfenM4Q2NuZA
-	lbpT8+T8dobQB2L07XY1BVGfmzDEAbSLFvr05hhRsfonbGWHyM7pEk5PXwl7wopo
-	VVs9pCN0johp/FJMhq8UAOfavmo/aXm5o7+Lx/JvhR683rPEKBYDWEaQbXYo3zhQ
+	:message-id:mime-version:references:subject:to; s=pp1; bh=vbRN7s
+	krigppb++watalKcUrgs+8azDym0kBgJgAsTo=; b=b/D7kVsBuxSk8T0xOO1a39
+	Dk+2BkatuqrGZRwFSksQC4lk92AzlI0JKFWECuGAyBBIei7iWc2dH3vrk20nU1Gr
+	QJoneMHsPa9yBgF6y7lqftSMPHlEK3mE634zzkiGkhu6lKj7+yraYvUft25kFta/
+	ddC5qkGPF40gxwchahkK46wZM0W9LX5JRQ2kH74VkDpEJn0pj8yw9yHOvvy+Yy/0
+	l6PSqLaG9xsIzdDWFa9aVQJlBZ4EsdrbG7MOKq786pP9JTeP7tpIB9ZmP7J7/xto
+	wwrkw3S6rxWfwa3q81OWEh+PebAz//jxjaycDYQgArbjjWP5TYZ18mPqB0FTDI3w
 	==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ewjhr15xa-1
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ewh9gs5e6-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 25 Jun 2026 10:42:09 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 65PAYpIF003558;
-	Thu, 25 Jun 2026 10:42:08 GMT
+	Thu, 25 Jun 2026 11:17:05 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 65PB4fr3014622;
+	Thu, 25 Jun 2026 11:17:04 GMT
 Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4ex7dgdf2m-1
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4ex5jwnxxw-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 25 Jun 2026 10:42:08 +0000 (GMT)
+	Thu, 25 Jun 2026 11:17:04 +0000 (GMT)
 Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 65PAg50a31392166
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 65PBGwod37355994
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 25 Jun 2026 10:42:05 GMT
+	Thu, 25 Jun 2026 11:16:58 GMT
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2DB9820040;
-	Thu, 25 Jun 2026 10:42:05 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 338FF20049;
+	Thu, 25 Jun 2026 11:16:58 +0000 (GMT)
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D29BC2004B;
-	Thu, 25 Jun 2026 10:42:04 +0000 (GMT)
-Received: from [9.224.77.173] (unknown [9.224.77.173])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 25 Jun 2026 10:42:04 +0000 (GMT)
-Message-ID: <9b05627e-abb8-447b-afd6-994045ccedcd@linux.ibm.com>
-Date: Thu, 25 Jun 2026 12:42:04 +0200
+	by IMSVA (Postfix) with ESMTP id 0870E20040;
+	Thu, 25 Jun 2026 11:16:58 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.224.75.30])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with SMTP;
+	Thu, 25 Jun 2026 11:16:57 +0000 (GMT)
+Date: Thu, 25 Jun 2026 13:16:56 +0200
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, frankja@linux.ibm.com,
+        borntraeger@de.ibm.com
+Subject: Re: [GIT PULL v1 00/12] KVM: s390: Fix S390_USER_OPEREXEC and more
+ gmap fixes
+Message-ID: <20260625131656.664389a5@p-imbrenda>
+In-Reply-To: <1fad4b9d-ca9b-4766-bbe0-46fd5a3d91ae@redhat.com>
+References: <20260624111928.144283-1-imbrenda@linux.ibm.com>
+	<1fad4b9d-ca9b-4766-bbe0-46fd5a3d91ae@redhat.com>
+Organization: IBM
+X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2] KVM: s390: pci: Fix GISC refcount leak on AIF enable
- failure
-To: Haoxiang Li <haoxiang_li2024@163.com>, mjrosato@linux.ibm.com,
-        alifm@linux.ibm.com, farman@linux.ibm.com, frankja@linux.ibm.com,
-        imbrenda@linux.ibm.com, david@kernel.org, hca@linux.ibm.com,
-        gor@linux.ibm.com, agordeev@linux.ibm.com, svens@linux.ibm.com,
-        schnelle@linux.ibm.com
-Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-References: <20260624061910.2794734-1-haoxiang_li2024@163.com>
-Content-Language: en-US
-From: Christian Borntraeger <borntraeger@linux.ibm.com>
-In-Reply-To: <20260624061910.2794734-1-haoxiang_li2024@163.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Authority-Analysis: v=2.4 cv=I4VVgtgg c=1 sm=1 tr=0 ts=6a3d0602 cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=IkcTkHD0fZMA:10 a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VwQbUJbxAAAA:8
- a=Byx-y9mGAAAA:8 a=VnNF1IyMAAAA:8 a=5fjQyjqO7ItlhYJTiW4A:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjI1MDA4OCBTYWx0ZWRfX+lEBWXtDF8RP
- iy+Kl2hBQSR6SZa7E4vGA0UvkKxvYXca5XBm7jdvV3RHTmYf1Pzi+T2Nw8EK0TwtBqi0Wf4i53z
- 9a4f4+dTunkUXCbsS6HdSsUWhUx1PkwZ4lRfs+CA8aQeplaZWmPgSVKGCuTGI9K+1AOj9S0cGTj
- 5XkkgD55Lfp/gxNB2Ze48MKxlcUU53My6Rp3II3EYQ2aT1CkR+kB1y66nQ3thpuwTeSa9Ao4Vm3
- E7W3m1T6zPkgz9ZlhEAwGtPPMxnZ50XFFDR9w5OKNykSWw3cpAgRcZmxI30BuvFEToJrO6KMpAz
- Y1Y1puBQ2at2SknYFvHsRzqUs7llWJOWBt+jUXlM2R06C2jVej9z/gZUdSUGk0XOADNmVCtOQbg
- NU1BW8o1Z4CIY0xiq0ja+MqHog84MTDoi8fuyy3iS9CtwlV79B0sBapvOjoZAOSD+K5fEpxMaWw
- tezoo9pnh2nFWIvUZng==
-X-Proofpoint-GUID: 2ZY1oorcYXfgmBh7E2HeWMMeHiSJwrU4
-X-Proofpoint-ORIG-GUID: DC6bkh7qS0SbxJMK13wVUfykDy0GfR4_
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNjI1MDA4OCBTYWx0ZWRfX2flGIkIQamr7
- oxwae893OWC2w3olmEux6PP5BnRXhuZ9Fq908kTwByJ8vtAu1cvoPq9SzPycfKA8oFs/F9Qd7nk
- rc0KikYs0jlBQwsyygArsVy0EhB8gSQ=
+X-Proofpoint-GUID: xYSSxbw4Scl-yqQFAtIsS0Nzd448p__R
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNjI1MDA5MiBTYWx0ZWRfX/V3PI7q0/oQH
+ YVQiWTPA9FbOphmgK6qmMuZHiHxcUykpuzHCSRHg21JI3XqPzw7qN9+0IIdgt0mbSnaVoWiOHLe
+ nKmOzVoeQuK2vnu7BhaBHUmSOVCMVic=
+X-Authority-Analysis: v=2.4 cv=c62bhx9l c=1 sm=1 tr=0 ts=6a3d0e31 cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=kj9zAlcOel0A:10 a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VwQbUJbxAAAA:8
+ a=20KFwNOVAAAA:8 a=95AKu5hJyJmswmW4WEsA:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjI1MDA5MiBTYWx0ZWRfX9fXte/j8jMNw
+ 3ey4pQCJP/h8EiElBiZBGupLmK8trTxqnbjGKq6iZNBQlUJob9UUNDLk5BJp6zSnTbXqdpFtlgO
+ IwbkYmv608/6L0kSCJKGQLSjdnmzsaMXn5TdVJGwvYi+EdL+9ZX872twA1lTm9hNjKNmUaVHcvm
+ EQ907VWt7dvupEbxg61UskYDxxS/r3115I7v8gmeVkY0xT4K4GgwKFCBsEuXggSXymDKGnssNzQ
+ er+Vj3/8r5d+ghDTKqWDSPIrkRULhV0WZCkPCL7/zqRVPXsp9nCrwDXXhD95HT9D/+TRvJqQ+3N
+ WBkNLZNW8+PpKrnZnydXPRcFodhgILZok3duDRatcqPVMpoMQkpKZPKx9ag0JFRD1oQQc62H+x+
+ OGy+S1f+0Q1TRxTF84USMtQuQwQ3SrnildtaEvcYVQeYCV/66edQmZavaVhOhmP12M6fUOvczWG
+ xmAL2fgbomVboCPVvRw==
+X-Proofpoint-ORIG-GUID: xYSSxbw4Scl-yqQFAtIsS0Nzd448p__R
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
  definitions=2026-06-25_01,2026-06-24_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- lowpriorityscore=0 malwarescore=0 clxscore=1011 impostorscore=0
- suspectscore=0 phishscore=0 bulkscore=0 spamscore=0 priorityscore=1501
- adultscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2606250088
+ lowpriorityscore=0 impostorscore=0 adultscore=0 clxscore=1015 suspectscore=0
+ priorityscore=1501 phishscore=0 spamscore=0 bulkscore=0 malwarescore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2606250092
 
-Am 24.06.26 um 08:19 schrieb Haoxiang Li:
-> kvm_s390_gisc_register() registers the guest ISC before pinning
-> the guest interrupt forwarding pages and allocating the AISB bit.
-> If any of the later setup steps fails, the function unwinds the
-> pinned pages and other local state, but does not unregister the
-> GISC reference. Add the missing kvm_s390_gisc_unregister() to the
-> error unwind path.
+On Wed, 24 Jun 2026 18:56:12 +0200
+Paolo Bonzini <pbonzini@redhat.com> wrote:
+
+> On 6/24/26 13:19, Claudio Imbrenda wrote:
+> > Ciao Paolo,
+> > 
+> > here are some fixes for the second half of the merge window:
+> > 
+> > * Fix S390_USER_OPEREXEC so it can now be enabled regardless of other
+> >    unrelated capabilities
+> > * Fix handling of the _PAGE_UNUSED pte bit that could lead to guest
+> >    memory corruption in some scenarios
+> > * A bunch of misc gmap fixes (locking, behaviour under memory pressure)
+> > * Fix CMMA dirty tracking
+> > 
+> > The following changes since commit 8cd9520d35a6c38db6567e97dd93b1f11f185dc6:
+> > 
+> >    Linux 7.1 (2026-06-14 15:58:38 +0100)
+> > 
+> > are available in the Git repository at:
+> > 
+> >    https://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git tags/kvm-s390-next-7.2-2
+> > 
+> > for you to fetch changes up to babe08404e1993697a523e60bc0f9d096ffe1ef8:
+> > 
+> >    KVM: s390: Return failure in case of failure in kvm_s390_set_cmma_bits() (2026-06-24 10:08:57 +0200)  
 > 
-> Fixes: 3c5a1b6f0a18 ("KVM: s390: pci: provide routines for enabling/disabling interrupt forwarding")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Haoxiang Li <haoxiang_li2024@163.com>
-> ---
-> Changes in v2:
->   - Move unregister call after "out" label. Thanks, Matt!
-Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+> Looks like either you onboard kvm-s390 to sashiko, or just send patches 
+> to kvm@vger.kernel.org.
 
-applied.
+yes, we already do that, in fact most of the patches in this pull
+request are fixes to "pre-existing issues" sashiko found in previous
+series.
+
+Most of the "issues" sashiko raised about the pull request are either:
+* small things we didn't notice, that sashiko also did not notice
+  previously -- we will fix those
+* actual issues... that have already been fixed in previous pull
+  requests
+* complete nonsense, due to sashiko not understanding how the hardware
+  works
+
+> 
+> Anyhow I've pulled it, there's time to fix up things.
+> 
+> Paolo
+> 
+> > ----------------------------------------------------------------
+> > KVM: s390: Fix S390_USER_OPEREXEC and more gmap fixes
+> > 
+> > ----------------------------------------------------------------
+> > Claudio Imbrenda (9):
+> >        s390/mm: Fix handling of _PAGE_UNUSED pte bit
+> >        KVM: s390: Fix dat_peek_cmma() overflow
+> >        KVM: s390: Do not set special large pages dirty
+> >        KVM: s390: Fix code typo in gmap_protect_asce_top_level()
+> >        KVM: s390: Fix handle_{sske,pfmf} under memory pressure
+> >        KVM: s390: Fix locking in kvm_s390_set_mem_control()
+> >        KVM: s390: Fix cmma dirty tracking
+> >        KVM: s390: selftests: Fix cmma selftest
+> >        KVM: s390: Return failure in case of failure in kvm_s390_set_cmma_bits()
+> > 
+> > Eric Farman (3):
+> >        KVM: s390: Fix S390_USER_OPEREXEC enablement without STFLE 74
+> >        KVM: s390: selftests: Extended user_operexec tests
+> >        KVM: s390: Fix typo in UCONTROL documentation
+> > 
+> >   Documentation/virt/kvm/api.rst                     |   2 +-
+> >   arch/s390/include/asm/pgtable.h                    |   4 +-
+> >   arch/s390/kvm/dat.c                                |   5 +-
+> >   arch/s390/kvm/gmap.c                               |  35 +++++--
+> >   arch/s390/kvm/gmap.h                               |  12 ++-
+> >   arch/s390/kvm/kvm-s390.c                           |  71 ++++++++-----
+> >   arch/s390/kvm/priv.c                               |  10 +-
+> >   arch/s390/mm/gmap_helpers.c                        |   3 +-
+> >   .../testing/selftests/kvm/include/s390/facility.h  |   6 ++
+> >   tools/testing/selftests/kvm/s390/cmma_test.c       |   6 ++
+> >   tools/testing/selftests/kvm/s390/user_operexec.c   | 110 +++++++++++++++++++++
+> >   11 files changed, 226 insertions(+), 38 deletions(-)
+> >   
+> 
+
