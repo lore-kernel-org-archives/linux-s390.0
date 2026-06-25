@@ -1,60 +1,86 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 95EB735DA5B;
-	Thu, 25 Jun 2026 08:32:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3729D1CAA78
+	for <linux-s390@vger.kernel.org>; Thu, 25 Jun 2026 10:37:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782376376; cv=none; b=GtQr4ZbJAOxfq5B7VQoUfLKClrfHk5HqvFWklYEyySJ/ezVm4f/yETst7HVv8QeVwwP2beywiU5fCp0Xj/CxBlhEuHk28/AEOuuz04OwwxNphq7HG/jsR7pVVKOJi/PwRQyDAGui9djIdwe2FDFgkX4HtpgVMWQyw8OOf0Y6yDI=
+	t=1782383826; cv=none; b=RNhjtXc87osTOd/7Fj2Mu63kd6jL2pZ/kjmKfvQqBTc49bjPvGfANVVeFqolBahvFTLyxGUtxmDGzMZkLog+u9gjnM470IOH1DlvNmEUfB+cnsGhzOUGVLUGRDg+WWrBA2HebQABok1aQ0XXWZUjvyE17OoPqBNRuvx4xSbvS80=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782376376; c=relaxed/simple;
-	bh=vxAqKqHaGz7NXLdQ1go42ReEIBp782jSBRm+6F6iGz4=;
+	s=arc-20240116; t=1782383826; c=relaxed/simple;
+	bh=z1a25HOzfC1n+VSSRSUp8krFMaY0uh1KOw95MlqAuhs=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Dq5SYxT4m/meCxKmGa9c5ZHjvKgUNthDkj6huVxFlV5keZw25VhPnbpJ7kE+VGZqvoGQlC4ACIb794Fc5jT04S0LhijuzfUO5x2j1wJn1ibH3H8eeHxC5OEx3VTRWxMlln5tdQqwj0EVHgUAIMmDyZ1mdIpyAA+n0Zbf/gLQ0U0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=OiDXltOr; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	 In-Reply-To:Content-Type; b=ByZ6ifCLUyNVYIexmFzaC25KIOkjOwFyyn+NMUWADwXakAFY4s8LQtfSz6Dc6QQZ68SQXAVQcuxe5PRfw7Ob092/K2q0k+GTrT5v8Z4wOk0R7g9MMlaAwuxOfvqiolY6SBgbSKt/jpFHWAW1YrL4TiEU5WdFNhYMp6Ax1hUejTo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=BzpQRSXk; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=GT/nkb8l; arc=none smtp.client-ip=205.220.180.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="OiDXltOr"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65P3mMxb3185507;
-	Thu, 25 Jun 2026 08:32:35 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=mCrR8I
-	urneLBowxIgFvA95tQoKFx9He7WISMZo2sX7I=; b=OiDXltOrOyJZpMzpvB4q2y
-	gnoXGkfxlfj7vCYnNeTnjzdHlwmaBC8XQhH66pcm6Aa8kUSvftIJ9Gt68SSAmh1Q
-	KOkE3g1b+gI2x39uh87Ugh3lTJSyQYVu2PeCvb2Dbbe4BRLd8DmXdLmR9xPI69iO
-	zzyL5Q8ayFGj4ODWuMDp5sdeuOhzmx1bt7nE2AIojXq+v1KxMwXmzThMr4tCya7p
-	WFaeH2Pt0EYgDgcCYpGZlJhJeFtwXK/x7CG1XFpRm20MHJ4in3ykPF6GnsHmAAYd
-	+nBrJbQ0wgbS+acl+Ktq+sMFIAZOn1bdXNoyvwao38jSkUljwFsn3RAJRO5l9rSQ
-	==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ewjhr0pbp-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 25 Jun 2026 08:32:34 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 65P8JeM8007543;
-	Thu, 25 Jun 2026 08:32:34 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4ex56qneng-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 25 Jun 2026 08:32:33 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 65P8WUb256230202
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 25 Jun 2026 08:32:30 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 60D102004D;
-	Thu, 25 Jun 2026 08:32:30 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8A5A920040;
-	Thu, 25 Jun 2026 08:32:26 +0000 (GMT)
-Received: from [9.123.14.166] (unknown [9.123.14.166])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 25 Jun 2026 08:32:26 +0000 (GMT)
-Message-ID: <17c1cbac-de30-4372-8c24-2acd755f503e@linux.ibm.com>
-Date: Thu, 25 Jun 2026 14:02:25 +0530
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="BzpQRSXk";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="GT/nkb8l"
+Received: from pps.filterd (m0279869.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65P9k4CE2048176
+	for <linux-s390@vger.kernel.org>; Thu, 25 Jun 2026 10:37:04 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
+	MZUMH+vxSZcEObYxO4IpOT2cwzk2xrnGaFHrz5b8v60=; b=BzpQRSXkeLQMZrci
+	3zfkpUZ08awnUtU2vKHCBR89XvqSK+DVYlwsjM73GFvNRiksWTzkeIErhub5Pcnf
+	Sf5ud5i2kPJxcYQXD33oIrBKW93Q8+AjpA8wvuqr3GLeBhmT/VwAxRLp/RZjSWHD
+	MJDqAIaRfJCvJ/FtT/YkOBovn2ZnWmICMgQ9bzyTXnyKW8K3kzxwGvcUs8zYmvB4
+	a/O4WdBSTv/zs96ezJTXr5/aStuDtGRmqS3LqooyEFTqW64z4rYVHMhweZWXPgWK
+	E8E4pRM/XLtkbl6XrYqXqZEJB/4e+IsvOLS5SgZPUA0/YaLUko6fXyTJGO7BNDuj
+	ktUc1Q==
+Received: from mail-qv1-f70.google.com (mail-qv1-f70.google.com [209.85.219.70])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4f0uyqhn9q-1
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Thu, 25 Jun 2026 10:37:03 +0000 (GMT)
+Received: by mail-qv1-f70.google.com with SMTP id 6a1803df08f44-8e06f4680bbso39511846d6.2
+        for <linux-s390@vger.kernel.org>; Thu, 25 Jun 2026 03:37:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=oss.qualcomm.com; s=google; t=1782383823; x=1782988623; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=MZUMH+vxSZcEObYxO4IpOT2cwzk2xrnGaFHrz5b8v60=;
+        b=GT/nkb8lWzHNJ8ZXicuqzLQnGX+2ccvrSeENcMo6iaa7lC+NLs36DOkS3LQqFlt9/z
+         EnEAnXu58E9je8/+DHvJv5a/6Ljr7rUsZjBapIX/lbOB2VstVu2vL7pCBJ0T0u+PgVq0
+         1Hv7kgKYTw5gQ7DJzo8Iu4mBQSnfsf3KoMnxKe+AuXcN3RthheSfX2h6nlK52lJOKmSl
+         A32uNZeCBJZGWGifwiUeODG91aVsajYVO0/McfwK/yy0cpuj9zXM17P0xA4F2m/jOUkw
+         rfR3+Ug4EI6nhStyd9WANi4+CFDghhQe9jV+tE13Q8AGV2Bd12fbRr0Mzqd7d2rmkf23
+         15dw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1782383823; x=1782988623;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=MZUMH+vxSZcEObYxO4IpOT2cwzk2xrnGaFHrz5b8v60=;
+        b=Lm0moPlIQhqZPQvoxfYw7fZ2gTzShi7asHupnRb5lUXQONJ96Gtwr5pqq5JVJKeWT1
+         leGBEW4QTsvWd562lDTZtjkCAgGGEJeyxNeBm4ddNcL4hhXMQuzOvMFyb47W+ReEtHvZ
+         +RChzttj090GieUT1G6IIIiWlsLyA7b/LWhjbpQ40P1cVANFTyLPfwqf3Gid519vj513
+         FvFkagGqxioFgzZJEWiZchZCTaJPRGdw4OJWSGRM2/49p0zqIgOhPu3LORaQi5h23oxt
+         cwpuoGor/rz5xsqtShHGCYepwRxzvKq5SPdWMceENS2RjzyK/pzunbWIvFlaKFnOO0pQ
+         xZ/A==
+X-Forwarded-Encrypted: i=1; AFNElJ92FJJcASzVl6gXnOz1ABp/zmcYwby9z/DVZysrZytKKuXywY7F75IZOgDr+9B/iTccsBJAC6cxZGEb@vger.kernel.org
+X-Gm-Message-State: AOJu0YyyMYlBOGB6c/9+T48DW50Ntb7qjB50aruDpeZ1okdPcsFfO/r4
+	1ilBT4BwUloEYxTQNnwIu5+8KQdMYVsL6EmZn4o/FNPa/qMmS6RzIEQ/57ILiMJuCFsZdW4gUUE
+	mltzvoEiYyQr8EUO10Md0cr2xjKyNuYh+yyH6eQb9bxrumakvWraO5kVeadKM9Ubk
+X-Gm-Gg: AfdE7cksXx8TR/5K3lhlmpJvXHpvOS9gQ3TNopO46jwMIcqEbnaVB1G3WepceEFTbVR
+	gbKPQgrGR/LNx8DpHIPFuwXl+Kzymf9f2Sl7zmiBdItXVNqp1olZGPNkEZGI9Hq9CBpPS5yM1eQ
+	Lg4ocoi1GIxfJsJouXrUstCcCo5jbHFT7BLb9/N6FzvKcaSVK28pkveyHCg1reSxwGtALzXq0Fr
+	V0RZuCg0YJWDX/TBoFokDq59YYamK1ByyZRABvhWRPM31m0epeTPJ7jIBUCrYAJoVx96MtFgqGj
+	LYPr9rsWnKXFf2JWe6T0uzuFgy07ADDC6gz9Wnjh9f6p5yFPpU/RhLgDMkI6jk71c2Frr6FGsBS
+	oiReJs58D0dIofMnE1Rc1fZg66GNG7cmQFfs7fn+5AdeJ4CHq0knVYtjVQZADnQ==
+X-Received: by 2002:a05:620a:46a0:b0:914:7e9a:2716 with SMTP id af79cd13be357-9293c506503mr270635185a.38.1782383823309;
+        Thu, 25 Jun 2026 03:37:03 -0700 (PDT)
+X-Received: by 2002:a05:620a:46a0:b0:914:7e9a:2716 with SMTP id af79cd13be357-9293c506503mr270631085a.38.1782383822848;
+        Thu, 25 Jun 2026 03:37:02 -0700 (PDT)
+Received: from [192.168.69.212] (88-187-86-199.subs.proxad.net. [88.187.86.199])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-46c2279b7d7sm14073249f8f.31.2026.06.25.03.37.01
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 25 Jun 2026 03:37:02 -0700 (PDT)
+Message-ID: <e217579b-50be-431d-8703-a19b3058f90b@oss.qualcomm.com>
+Date: Thu, 25 Jun 2026 12:37:00 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -62,127 +88,128 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net] net/smc: avoid recursive sk_callback_lock in listen
- data_ready
-To: Runyu Xiao <runyu.xiao@seu.edu.cn>,
-        "D. Wythe"
- <alibuda@linux.alibaba.com>,
-        Dust Li <dust.li@linux.alibaba.com>,
-        Wenjia Zhang <wenjia@linux.ibm.com>,
-        "David S. Miller"
- <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>
-Cc: Mahanta Jambigi <mjambigi@linux.ibm.com>,
-        Tony Lu <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>,
-        Simon Horman <horms@kernel.org>, Karsten Graul <kgraul@linux.ibm.com>,
-        linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        jianhao.xu@seu.edu.cn, stable@vger.kernel.org
-References: <20260617152855.1039151-1-runyu.xiao@seu.edu.cn>
+Subject: Re: [PATCH v8 01/18] target/s390x: Fix wrong address handling in
+ address loops
 Content-Language: en-US
-From: Sidraya Jayagond <sidraya@linux.ibm.com>
-In-Reply-To: <20260617152855.1039151-1-runyu.xiao@seu.edu.cn>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Authority-Analysis: v=2.4 cv=I4VVgtgg c=1 sm=1 tr=0 ts=6a3ce7a3 cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
- a=IkcTkHD0fZMA:10 a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VwQbUJbxAAAA:8
- a=51JgxwwAL-zXi2UjDcgA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjI1MDA3MSBTYWx0ZWRfXyEcLcEW349B2
- k8Sc5c6yGobuuxdwMbCKN0pmwLsXMT5k6IraB4ZNqXSVgIzBwDLIZGtrsA0AVmEvaEBKVlB9iQc
- xRQkXGodzOLxqNHaY10jDHl0yPXyZxJOSQIJiIzQO/vva0helg9BPpoGFi69PtyE4zRBHLtjq6/
- ljZsm//hlr6hRAOQcxGfWuDCpfkt3eiAYrS3QZ29ABXJcFX5glHBjVgph+ZzwS95CWCUG1aipMO
- Grf5zBAbRVS5MeqBNHF5aeHrHDel0I9alRLfZcQBZgVUgUvtGe0zPKJNBFz+k1aqvacU+pVb5lf
- Y0l3DV/DjX0cLbgolFxVebdkVcnIC4YSIR54gZHCy5xOe7dBRcRitib2BlrHqGg7gg7V2nq0NjL
- S24JiwDI3gsYnNC+8BDD3QoYmTwn41iRtE67TyfZvRiNVmeC9cOpp2mPBZWyiQAOHjhatOURB+i
- IQNo/1RxlYQGk/nQD8g==
-X-Proofpoint-GUID: 5rbcDbwbMeYSIbrFeDOqZ8cZZrPr0N_U
-X-Proofpoint-ORIG-GUID: tacv5n88DyUZAzK4jWQzlIHZ0bBwgxVI
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNjI1MDA3MSBTYWx0ZWRfXxhI+PZVfK5Yr
- yxi61okkU5RTcO0gnPynvcTGS7uF8D0iSqHmBVxcjz7rgxzRc0SaJUyAGSs6bBPLBSF0ISZrmRD
- ggvggaSdwbMKMe3pdquAUvPrrxHr19w=
+To: freude@linux.ibm.com
+Cc: richard.henderson@linaro.org, iii@linux.ibm.com, david@kernel.org,
+        thuth@redhat.com, berrange@redhat.com, qemu-s390x@nongnu.org,
+        qemu-devel@nongnu.org, linux390-list@tuxmaker.boeblingen.de.ibm.com,
+        linux-s390@vger.kernel.org, dengler@linux.ibm.com,
+        borntraeger@linux.ibm.com, fcallies@linux.ibm.com, cohuck@redhat.com
+References: <20260624081029.23815-1-freude@linux.ibm.com>
+ <20260624081029.23815-2-freude@linux.ibm.com>
+ <29ecbee8-2452-47cc-89cb-7d7a26abb685@oss.qualcomm.com>
+ <1fdb2816ac1592b4d08bc0060927bfeb@linux.ibm.com>
+From: =?UTF-8?Q?Philippe_Mathieu-Daud=C3=A9?= <philmd@oss.qualcomm.com>
+In-Reply-To: <1fdb2816ac1592b4d08bc0060927bfeb@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-GUID: ZzMZMlCQ9BDy3p32djHRqKMr8_hFheP9
+X-Proofpoint-ORIG-GUID: ZzMZMlCQ9BDy3p32djHRqKMr8_hFheP9
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNjI1MDA5MCBTYWx0ZWRfXy6GquWweL98y
+ XdBhCNhZ5awtZl6UAuLzk0tK7u5bgsyM+2S/L+a6RgD8FqWQz7WxC+Gz0a55rbkmqwL7htgcwCx
+ yfrz0mtKt5XpEMXm+3fVGTxD9qkqSdA=
+X-Authority-Analysis: v=2.4 cv=EsLiaycA c=1 sm=1 tr=0 ts=6a3d04cf cx=c_pps
+ a=oc9J++0uMp73DTRD5QyR2A==:117 a=4s3hRJSeHn4rkQlkrse1kQ==:17
+ a=IkcTkHD0fZMA:10 a=FelO9ux0wxsA:10 a=M51BFTxLslgA:10 a=s4-Qcg_JpJYA:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=_glEPmIy2e8OvE2BGh3C:22
+ a=VnNF1IyMAAAA:8 a=yFRDIQdNgmOVVyJK8FYA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+ a=iYH6xdkBrDN1Jqds4HTS:22
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjI1MDA5MCBTYWx0ZWRfX6ZUFksai+cyS
+ OqdbKwUgtWnefYKWcJ7jyUzJKpIk9qxTv6Ir5m6uGz4j1xsKBQ/smmWf//buyrWW/C5HAZWNy5J
+ SwaBRRW+tPchRWHJH4Ft4K9fPdR/0NNdolPgbTU58ZsRO9r9fR/297JBo42jE6cSp2SJxTfa3rd
+ HETwfSMkYbki5TntOz1RBmH05xg29tT+VwOMHSE+QUJUg5VmcxBrIrJOupbnd1klLDn7/vrk6Nw
+ 7csGy81dZYdizvRXeA/PLFBFEWhYEfqrN0bk/XwSi9AMCtPA8AVX+bUd8G3dJr0/QMYNiDBWAiX
+ Zwx/4DhbKjfWbKCha7KJBh3XAozEvNZ1/H8I2jAp+BVpKPQfpobQLdUD/mFTaaVx3W4PiYEIdIR
+ 2lkUbXAnunqeqtlz3xQyFgczGBZVbx0uNMTCvlwsWyQOdT6+fgD6OZ8gTcC9iUxI6NTn2iXF/yK
+ KlWPYKUfyr3Ut5eYOPA==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
  definitions=2026-06-25_01,2026-06-24_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- lowpriorityscore=0 malwarescore=0 clxscore=1011 impostorscore=0
- suspectscore=0 phishscore=0 bulkscore=0 spamscore=0 priorityscore=1501
- adultscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2606250071
+ suspectscore=0 bulkscore=0 clxscore=1015 priorityscore=1501 impostorscore=0
+ adultscore=0 spamscore=0 malwarescore=0 lowpriorityscore=0 phishscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2606250090
 
+On 25/6/26 09:31, Harald Freudenberger wrote:
+> On 2026-06-24 12:05, Philippe Mathieu-Daudé wrote:
+>> Hi Harald,
+>>
+>> On 24/6/26 10:09, Harald Freudenberger wrote:
+>>> With the introduction of the address wrapping function
+>>> wrap_address() the result can't be used to walk the
+>>> source address any more. So introduce a new local variable
+>>> to hold the wrapped address to avoid mixing source and
+>>> wrapped address value.
+>>>
+>>> Fixes: fcc2699d41 ("target/s390x: Have MSA helper pass a mmu_idx 
+>>> argument")
+>>
+>> This commit merely added an argument. I suppose you meant
+>> 9f17bfdab42 ("target/s390x: support SHA-512 extensions").
+>>
+> 
+> No. Commit fcc2699d41 ("target/s390x: Have MSA helper pass a mmu_idx 
+> argument")
+> introduces the mmu_idx with the wrap_address() function or macro.
 
+You are saying the same, not really explaining, I'm not following...
 
-On 17/06/26 8:58 pm, Runyu Xiao wrote:
-> smc_listen() installs smc_clcsock_data_ready() as the underlying TCP
-> listen socket's sk_data_ready callback.  smc_clcsock_data_ready() then
-> immediately takes sk_callback_lock before looking up the SMC listener and
-> queuing smc_tcp_listen_work().
+> And the result was something like this:
 > 
-> That is unsafe once the TCP listen socket is leaving TCP_LISTEN.  The TCP
-> close/flush path can run the installed sk_data_ready callback with
-> sk_callback_lock already held, so entering smc_clcsock_data_ready() again
-> tries to take the same rwlock recursively in the same thread.  The nvmet
-> TCP listener had to make the same state check before taking
-> sk_callback_lock for this reason.
+>    for (int i = 0; i < 8; i++, addr += 8) {
+>      addr = wrap_address(env, addr);
+>      a[i] = cpu_ldq_mmu(env, addr, oi, ra);
+>    }
 > 
-> This issue was found by our static analysis tool and then manually
-> reviewed against the current tree.
+> This code reuses the addr variable in the loop
+> by setting addr to the wrapped address but after
+> that the loop adds +8 to this wrapped address.
+> This code only works as long as the wrapped address
+> is equal to the address put put in.
+> Thus introduce another intermediate variable which
+> holds the wrapped address:
 > 
-> The grounded PoC kept the SMC listen callback installation path:
+>    for (int i = 0; i < 8; i++, addr += 8) {
+>      uint64_t _addr = wrap_address(env, addr);
+>      a[i] = cpu_ldq_mmu(env, _addr, oi, ra);
+>    }
 > 
->   smc_listen()
->   smc_clcsock_replace_cb()
->   sk_data_ready = smc_clcsock_data_ready()
+> Of course it would also work with a direct replacement:
 > 
-> It then modeled the close/flush carrier that invokes the installed
-> sk_data_ready callback while sk_callback_lock is already held.  Lockdep
-> reported the same-thread recursive acquisition:
+>    for (int i = 0; i < 8; i++, addr += 8) {
+>      a[i] = cpu_ldq_mmu(env, wrap_address(env, addr), oi, ra);
+>    }
 > 
->   WARNING: possible recursive locking detected
->   smc_clcsock_data_ready+0xa/0x4d [vuln_msv]
->   smc_close_flush_work+0x1f/0x30 [vuln_msv]
->   *** DEADLOCK ***
+> but this isn't that readable.
 > 
-> Return before taking sk_callback_lock when the underlying TCP socket is no
-> longer in TCP_LISTEN.  In that state there is no listen accept work to
-> queue for SMC, and avoiding the callback lock mirrors the fix used by the
-> TCP nvmet listener.
+>>> Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
+>>> ---
+>>>   target/s390x/tcg/crypto_helper.c | 16 ++++++++--------
+>>>   1 file changed, 8 insertions(+), 8 deletions(-)
+>>>
+>>> diff --git a/target/s390x/tcg/crypto_helper.c b/target/s390x/tcg/ 
+>>> crypto_helper.c
+>>> index ae392bce0e..29ad2aff43 100644
+>>> --- a/target/s390x/tcg/crypto_helper.c
+>>> +++ b/target/s390x/tcg/crypto_helper.c
+>>> @@ -126,8 +126,8 @@ static void sha512_read_icv(CPUS390XState *env, 
+>>> const int mmu_idx,
+>>>       const MemOpIdx oi = make_memop_idx(MO_BE | MO_64 | MO_UNALN, 
+>>> mmu_idx);
+>>>         for (int i = 0; i < 8; i++, addr += 8) {
+>>> -        addr = wrap_address(env, addr);
+>>> -        a[i] = cpu_ldq_mmu(env, addr, oi, ra);
+>>> +        uint64_t _addr = wrap_address(env, addr);
+>>
+>> s/_addr/wa/ or even directly inline?
+>>
+>>            a[i] = cpu_ldq_mmu(env, wrap_address(env, addr), oi, ra);
+>>
+>>> +        a[i] = cpu_ldq_mmu(env, _addr, oi, ra);
+>>>       }
+>>>   }
 > 
-> Fixes: 0558226cebee ("net/smc: Fix slab-out-of-bounds issue in fallback")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Runyu Xiao <runyu.xiao@seu.edu.cn>
-> ---
->  net/smc/af_smc.c | 3 +++
->  1 file changed, 3 insertions(+)
-> 
-> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-> index 6421c2e1c84d..1af4e3c333ff 100644
-> --- a/net/smc/af_smc.c
-> +++ b/net/smc/af_smc.c
-> @@ -2631,6 +2631,9 @@ static void smc_clcsock_data_ready(struct sock *listen_clcsock)
->  {
->  	struct smc_sock *lsmc;
->  
-> +	if (READ_ONCE(listen_clcsock->sk_state) != TCP_LISTEN)
-> +		return;
-> +
-
-In smc_close_active(), the TCP socket remains in TCP_LISTEN state while
-holding write_lock_bh(&smc->clcsock->sk->sk_callback_lock);. The patch's
-state check would pass during this window, not preventing the recursive
-lock scenario.
-It's unclear whether it fully prevents the recursive locking scenario
-described in the commit message for the specific code path in
-smc_close_active().
-Could you come up with exact deadlock scenario and how the patch
-addresses it?
-
->  	read_lock_bh(&listen_clcsock->sk_callback_lock);
->  	lsmc = smc_clcsock_user_data(listen_clcsock);
->  	if (!lsmc)
 
