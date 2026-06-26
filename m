@@ -1,104 +1,125 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B7F2B79CD
-	for <linux-s390@vger.kernel.org>; Fri, 26 Jun 2026 06:13:17 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 08EA827FD51;
+	Fri, 26 Jun 2026 08:21:11 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782454398; cv=none; b=LlxTgzlKmnZFxJFZ0yKPpv+HZde/I5C3km1Q492FfuJtZu199lmnie9iOaNKILPabMgyN9SUG3yY/cReVu91TcJqmSSq+Bkq3i8qLBE1u9d8q0Mh8aDDSxeiRAaWI9qZke3EBKvqp1JOiDoz7EZ0C02NgimAXzMzrarUAOsRJ8E=
+	t=1782462073; cv=none; b=F0nQZFnDiQhTt9c5MjvSYbcn/uk62jD2Gk9PNSKTtbTHLBWBe2udgowp4WO8xnzZamhn19B6KzeG7vmxtoBFmR6q6rF7h/HJSILrX3ZTeK5yWo1Umx9zHU5ULsgac/E0OtTOhD9zVrySRTk9rqS69Xpb/vl3bBcs1sf1TkrzmAw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782454398; c=relaxed/simple;
-	bh=q/yZLEULRJ2ItsNKZfVl32MEQiQJl4UP6Q8dRtWQsBM=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=K6UykjLCFzY/UBsHmw/4iSPjhUkMa3M70GA0XOBuYzPYeQ3/aqszc54DmEazJKqYnbv3XET8JS9TKwWVGVhM8a5JYXzITaOM1UG6L5WT9aw5BMO8nOyJOMoVj0ROFxcRVIhn70PLgqL01oAW79FXqPiwQiMPpDfn3/l+G93PdzA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NfLycTYN; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1782462073; c=relaxed/simple;
+	bh=1LBlkTheA3kClbGdWMDAwKTnWvFnD+kxP8XV/azEEVg=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=hNldIJRmg1YLI2lNnat3lM+BlTlQhYkqEOeQQykeSZOXQ2aP5BFVrRqDL1OyVrToi1bWX6CNoMMdpEk8hns3PxNA1EVxLbiN57yIqGt+5QVjMWgN4Hn3A/juXhS+XqPzCIZzY6H4FzD1nleohLGjFkIdfoQKfL0jPHOUtTdbzyQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VRNylShy; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NfLycTYN"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13BF91F000E9;
-	Fri, 26 Jun 2026 06:13:17 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VRNylShy"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97F631F000E9;
+	Fri, 26 Jun 2026 08:21:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782454397;
-	bh=hlixBa+c+vjqCRSjgogsXB7pJHWBWQ159ph8trOOqpk=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=NfLycTYN2Z2/W5+GeE37ZC8ksRuL5b4Zl6+p2Cfx1zebVsWzp6C3kZuv28vp2gRma
-	 jQ+nT4Bc9WZiagYKl/mk5/nVzBGOj2l6i72hAYZVef1upUO0K4Tt6yht7ICmzq1Mo5
-	 8q+uVmP9LBHbaZoBCrP75IJ0PwTuPbfBYpjt2l7lUD+eC+XfMFBdwUzRnSsvWdR7NC
-	 w8GZXWqr5fWaCgQ022lwfsbIY0vzg/FNC0hgM/7PrPDYU60O6DqR+yj3LpXh2fptnk
-	 UTOXHSWJtW0cq6KmmRnPNb70UX9vR5pXzuhtZKwa4Lyh+Md6z0+xp+LpuZjEN/KUqk
-	 CPXwUrGvEUe7g==
-From: sashiko-bot@kernel.org
-Subject: Re: [RFC PATCH] net/iucv: Descend into net/iucv when AFIUCV is
- enabled
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Pengpeng Hou" <pengpeng@iscas.ac.cn>
-Cc: "Vasily Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
- Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
-In-Reply-To: <20260625061303.36326-1-pengpeng@iscas.ac.cn>
-References: <20260625061303.36326-1-pengpeng@iscas.ac.cn>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 26 Jun 2026 06:13:16 +0000
-Message-Id: <20260626061317.13BF91F000E9@smtp.kernel.org>
+	s=k20260515; t=1782462071;
+	bh=iV8Y1qpbWig8yFM44HizyDZ9SD78GLMuCnUipxKToIg=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc;
+	b=VRNylShyN+OO0dqReJbUBK5qFI1f6x5ouAiqFCYrkYYUy8b1gMx/LM0S+wdPJVGQF
+	 jJ/q0NoPAVrPkfBKALquiLSi66MRTNQPndo+znqjmDQLg1xvBKHoopICntwZGcuu8X
+	 ikLcRHzizfC+yRm+bZ7OqmquLsXsx3wcYGymB8+hC4hw6j6FB7rvlCxdjjIDW9i03i
+	 E/eIBYBNSh2a2AMpC34HSlEWm0jMor1n5uqlth3PC9c/0gDQf2WRm6QHi6eYZoWMYY
+	 DrTngTHNnd66HVz+Vov38qbQvIoPF2E9rhyCjS5TazDwiUUoPzl699cy+/S32kavM1
+	 FKdrOosJGm0+w==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id D0C0B39389E8;
+	Fri, 26 Jun 2026 08:20:59 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH 01/18] raid6: turn the userspace test harness into a kunit
+ test
+From: patchwork-bot+linux-riscv@kernel.org
+Message-Id: 
+ <178246205852.3816447.1024923704586855592.git-patchwork-notify@kernel.org>
+Date: Fri, 26 Jun 2026 08:20:58 +0000
+References: <20260518051804.462141-2-hch@lst.de>
+In-Reply-To: <20260518051804.462141-2-hch@lst.de>
+To: Christoph Hellwig <hch@lst.de>
+Cc: linux-riscv@lists.infradead.org, akpm@linux-foundation.org,
+ catalin.marinas@arm.com, will@kernel.org, ardb@kernel.org,
+ chenhuacai@kernel.org, kernel@xen0n.name, maddy@linux.ibm.com,
+ mpe@ellerman.id.au, npiggin@gmail.com, chleroy@kernel.org, pjw@kernel.org,
+ palmer@dabbelt.com, aou@eecs.berkeley.edu, alex@ghiti.fr, hca@linux.ibm.com,
+ gor@linux.ibm.com, agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
+ svens@linux.ibm.com, tglx@kernel.org, mingo@redhat.com, bp@alien8.de,
+ dave.hansen@linux.intel.com, x86@kernel.org, hpa@zytor.com,
+ herbert@gondor.apana.org.au, dan.j.williams@intel.com, clm@fb.com,
+ dsterba@suse.com, arnd@arndb.de, song@kernel.org, yukuai@fnnas.com,
+ linan122@huawei.com, linux-kernel@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
+ linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+ linux-crypto@vger.kernel.org, linux-btrfs@vger.kernel.org,
+ linux-arch@vger.kernel.org, linux-raid@vger.kernel.org
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [Low] Undefined reference to `iucv_if` when linking `vmlinux` if `CONFIG_=
-AFIUCV=3Dy` and `CONFIG_IUCV=3Dm`.
---
+Hello:
 
-commit f5dfba2251234de82ea8d770ca96db4b3b823733
-Author: Pengpeng Hou <pengpeng@iscas.ac.cn>
-net/iucv: Descend into net/iucv when AFIUCV is enabled
+This series was applied to riscv/linux.git (fixes)
+by Andrew Morton <akpm@linux-foundation.org>:
 
-This commit modifies the top-level network Makefile to unconditionally desc=
-end
-into the net/iucv directory. It allows af_iucv.o to be evaluated when
-CONFIG_AFIUCV is selected without the base IUCV object.
+On Mon, 18 May 2026 07:17:44 +0200 you wrote:
+> Currently the raid6 code can be compiled as userspace code to run the
+> test suite.  Convert that to be a kunit case with minimal changes to
+> avoid mutating global state so that we can drop this requirement.
+> 
+> Note that this is not a good kunit test case yet and will need a lot more
+> work, but that is deferred until the raid6 code is moved to it's new
+> place, which is easier if the userspace makefile doesn't need adjustments
+> for the new location first.
+> 
+> [...]
 
-> diff --git a/net/Makefile b/net/Makefile
-> index 5b2dd7f07a85e..c0da946b281e1 100644
-> --- a/net/Makefile
-> +++ b/net/Makefile
-> @@ -45,7 +45,7 @@ obj-$(CONFIG_WIRELESS)		+=3D wireless/
->  obj-$(CONFIG_MAC80211)		+=3D mac80211/
->  obj-$(CONFIG_TIPC)		+=3D tipc/
->  obj-$(CONFIG_NETLABEL)		+=3D netlabel/
-> -obj-$(CONFIG_IUCV)		+=3D iucv/
-> +obj-y				+=3D iucv/
+Here is the summary with links:
+  - [01/18] raid6: turn the userspace test harness into a kunit test
+    https://git.kernel.org/riscv/c/c4697486fc23
+  - [02/18] raid6: remove __KERNEL__ ifdefs
+    https://git.kernel.org/riscv/c/3d6beb659ddf
+  - [03/18] raid6: move to lib/raid/
+    https://git.kernel.org/riscv/c/3626738bc714
+  - [04/18] raid6: remove unused defines in pq.h
+    https://git.kernel.org/riscv/c/06d2a66fb7c0
+  - [05/18] raid6: remove raid6_get_zero_page
+    https://git.kernel.org/riscv/c/885d31423183
+  - [06/18] raid6: use named initializers for struct raid6_calls
+    https://git.kernel.org/riscv/c/7e91f76a9668
+  - [07/18] raid6: improve the public interface
+    https://git.kernel.org/riscv/c/35472bc6f31b
+  - [08/18] raid6: warn when using less than four devices
+    https://git.kernel.org/riscv/c/2790045a62eb
+  - [09/18] raid6: hide internals
+    (no matching commit)
+  - [10/18] raid6: rework registration of optimized algorithms
+    (no matching commit)
+  - [11/18] raid6: use static_call for gen_syndrom and xor_syndrom
+    https://git.kernel.org/riscv/c/10f4b8e2a164
+  - [12/18] raid6: use static_call for raid6_recov_2data and raid6_recov_datap
+    https://git.kernel.org/riscv/c/dd83de0341da
+  - [13/18] raid6: update top of file comments
+    https://git.kernel.org/riscv/c/30bf04bd13a5
+  - [14/18] raid6_kunit: use KUNIT_CASE_PARAM
+    https://git.kernel.org/riscv/c/2175395f76c3
+  - [15/18] raid6_kunit: dynamically allocate data buffers using vmalloc
+    https://git.kernel.org/riscv/c/d67c25712fe3
+  - [16/18] raid6_kunit: cleanup dataptr handling
+    https://git.kernel.org/riscv/c/562bcbfcb99b
+  - [17/18] raid6_kunit: randomize parameters and increase limits
+    https://git.kernel.org/riscv/c/fa0c812c0aa5
+  - [18/18] raid6_kunit: randomize buffer alignment
+    https://git.kernel.org/riscv/c/8cf0a6c4bb9e
 
-[Severity: Low]
-Does this create a linker error when CONFIG_AFIUCV=3Dy and CONFIG_IUCV=3Dm?
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
 
-Because of this unconditional descent, af_iucv.o can be evaluated and built
-into vmlinux even when IUCV is configured as a module.
 
-In afiucv_init(), if CONFIG_IUCV=3Dm, IS_ENABLED(CONFIG_IUCV) evaluates to =
-1:
-
-net/iucv/af_iucv.c:afiucv_init() {
-	...
-	if (machine_is_vm() && IS_ENABLED(CONFIG_IUCV)) {
-		cpcmd("QUERY USERID", iucv_userid, sizeof(iucv_userid), &err);
-		if (unlikely(err)) {
-			WARN_ON(err);
-			err =3D -EPROTONOSUPPORT;
-			goto out;
-		}
-
-		pr_iucv =3D &iucv_if;
-	} else {
-	...
-}
-
-Will this cause an undefined reference to the module-bound iucv_if symbol w=
-hen
-linking vmlinux?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260625061303.3632=
-6-1-pengpeng@iscas.ac.cn?part=3D1
