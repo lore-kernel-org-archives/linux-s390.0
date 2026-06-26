@@ -1,84 +1,104 @@
-Received: from m16.mail.163.com (m16.mail.163.com [220.197.31.2])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D1AB2C0261
-	for <linux-s390@vger.kernel.org>; Fri, 26 Jun 2026 05:58:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.197.31.2
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B7F2B79CD
+	for <linux-s390@vger.kernel.org>; Fri, 26 Jun 2026 06:13:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782453531; cv=none; b=SkKO4jcAz7htRdpBg8dYvN1qNPr2VTlr2GJhpzM8XQ1IsKZg5vcH0pW6cPQKjLL7OjU0OrxkOSzfDRMFRLebTIwEk7qDI57nxdrm0owwqoq2+EvBqemwrGI1xv9oII43ucm/TnhXCEvgjNQvZHYq4kaVfcf3p7S3GRLt7oSfd9Q=
+	t=1782454398; cv=none; b=LlxTgzlKmnZFxJFZ0yKPpv+HZde/I5C3km1Q492FfuJtZu199lmnie9iOaNKILPabMgyN9SUG3yY/cReVu91TcJqmSSq+Bkq3i8qLBE1u9d8q0Mh8aDDSxeiRAaWI9qZke3EBKvqp1JOiDoz7EZ0C02NgimAXzMzrarUAOsRJ8E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782453531; c=relaxed/simple;
-	bh=DNrspax3iIAkSClTzH1TA10APl48SnlgR6gYOLka8ec=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=e0iUt9QXDN9+td8C9u7L9JfrObvZde+QmUaiCoWmxSLST20lrmuBmGmMMO4KonHvCEpwE7pd+4CmdR/SkLw2b+HA6FUheDpKjcfNwjumTUAnWSx7/6DYpTmQPsgY0CJ53KibeMkDtZCtSfDhCiYRZZqakGSh0g2oRcAq61AUCQM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=NDcC2ALq; arc=none smtp.client-ip=220.197.31.2
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
+	s=arc-20240116; t=1782454398; c=relaxed/simple;
+	bh=q/yZLEULRJ2ItsNKZfVl32MEQiQJl4UP6Q8dRtWQsBM=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=K6UykjLCFzY/UBsHmw/4iSPjhUkMa3M70GA0XOBuYzPYeQ3/aqszc54DmEazJKqYnbv3XET8JS9TKwWVGVhM8a5JYXzITaOM1UG6L5WT9aw5BMO8nOyJOMoVj0ROFxcRVIhn70PLgqL01oAW79FXqPiwQiMPpDfn3/l+G93PdzA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NfLycTYN; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="NDcC2ALq"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-	s=s110527; h=From:To:Subject:Date:Message-Id:MIME-Version; bh=DY
-	9eL2NCQVehO2ZX0x693cWjcVuKYuBwgetqkSxQGzc=; b=NDcC2ALq6fWlLOdLCu
-	uFEbAjmCrfWqDjJYKho9UDNzEb5II1KIx9q76BY8k/cdMkTMKbInj4VauN6kAYNm
-	nEpLkEXSq8t5ElvxXBdERIEoygDLmD2P1r2XIGNFezlzVbrpq9yqL4Accj4O9Od7
-	0kAKoi0p36ae11y0zd7YXA1ec=
-Received: from localhost.localdomain (unknown [])
-	by gzga-smtp-mtada-g1-0 (Coremail) with SMTP id _____wDXrxAJFT5qcFmBFg--.48887S2;
-	Fri, 26 Jun 2026 13:58:34 +0800 (CST)
-From: Rongguang Wei <clementwei90@163.com>
-To: linux-s390@vger.kernel.org
-Cc: freude@linux.ibm.com,
-	hca@linux.ibm.com,
-	dengler@linux.ibm.com,
-	svens@linux.ibm.com,
-	Rongguang Wei <weirongguang@kylinos.cn>
-Subject: [PATCH v1] s390/zcrypt: Remove the empty file
-Date: Fri, 26 Jun 2026 13:58:20 +0800
-Message-Id: <20260626055820.376212-1-clementwei90@163.com>
-X-Mailer: git-send-email 2.25.1
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NfLycTYN"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13BF91F000E9;
+	Fri, 26 Jun 2026 06:13:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1782454397;
+	bh=hlixBa+c+vjqCRSjgogsXB7pJHWBWQ159ph8trOOqpk=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=NfLycTYN2Z2/W5+GeE37ZC8ksRuL5b4Zl6+p2Cfx1zebVsWzp6C3kZuv28vp2gRma
+	 jQ+nT4Bc9WZiagYKl/mk5/nVzBGOj2l6i72hAYZVef1upUO0K4Tt6yht7ICmzq1Mo5
+	 8q+uVmP9LBHbaZoBCrP75IJ0PwTuPbfBYpjt2l7lUD+eC+XfMFBdwUzRnSsvWdR7NC
+	 w8GZXWqr5fWaCgQ022lwfsbIY0vzg/FNC0hgM/7PrPDYU60O6DqR+yj3LpXh2fptnk
+	 UTOXHSWJtW0cq6KmmRnPNb70UX9vR5pXzuhtZKwa4Lyh+Md6z0+xp+LpuZjEN/KUqk
+	 CPXwUrGvEUe7g==
+From: sashiko-bot@kernel.org
+Subject: Re: [RFC PATCH] net/iucv: Descend into net/iucv when AFIUCV is
+ enabled
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Pengpeng Hou" <pengpeng@iscas.ac.cn>
+Cc: "Vasily Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
+ Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
+In-Reply-To: <20260625061303.36326-1-pengpeng@iscas.ac.cn>
+References: <20260625061303.36326-1-pengpeng@iscas.ac.cn>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 26 Jun 2026 06:13:16 +0000
+Message-Id: <20260626061317.13BF91F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:_____wDXrxAJFT5qcFmBFg--.48887S2
-X-Coremail-Antispam: 1Uf129KBjvJXoW7tF43tr43ZFyUXFW7GFWDCFg_yoW8GFWxpa
-	1FkrW5uw4xG3yjk34fJr1rJFyrJay7CFWYgay7Xwn0v34xJry8JayIyay2yFy7XayrJF43
-	JrZ5JFyDt3W7WaDanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x07jnhL8UUUUU=
-X-CM-SenderInfo: 5fohzv5qwzvxizq6il2tof0z/xtbC4gpx3Go+FQoeQgAA3S
 
-From: Rongguang Wei <weirongguang@kylinos.cn>
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [Low] Undefined reference to `iucv_if` when linking `vmlinux` if `CONFIG_=
+AFIUCV=3Dy` and `CONFIG_IUCV=3Dm`.
+--
 
-The files has no real user because CEX2 and CEX3 device drivers
-are removed, also remove these empty files.
+commit f5dfba2251234de82ea8d770ca96db4b3b823733
+Author: Pengpeng Hou <pengpeng@iscas.ac.cn>
+net/iucv: Descend into net/iucv when AFIUCV is enabled
 
-Fixes: 5ac8c72462cd ("s390/zcrypt: remove CEX2 and CEX3 device drivers")
-Signed-off-by: Rongguang Wei <weirongguang@kylinos.cn>
----
- drivers/s390/crypto/zcrypt_cex2a.c | 0
- drivers/s390/crypto/zcrypt_cex2a.h | 0
- drivers/s390/crypto/zcrypt_cex2c.c | 0
- drivers/s390/crypto/zcrypt_cex2c.h | 0
- 4 files changed, 0 insertions(+), 0 deletions(-)
- delete mode 100644 drivers/s390/crypto/zcrypt_cex2a.c
- delete mode 100644 drivers/s390/crypto/zcrypt_cex2a.h
- delete mode 100644 drivers/s390/crypto/zcrypt_cex2c.c
- delete mode 100644 drivers/s390/crypto/zcrypt_cex2c.h
+This commit modifies the top-level network Makefile to unconditionally desc=
+end
+into the net/iucv directory. It allows af_iucv.o to be evaluated when
+CONFIG_AFIUCV is selected without the base IUCV object.
 
-diff --git a/drivers/s390/crypto/zcrypt_cex2a.c b/drivers/s390/crypto/zcrypt_cex2a.c
-deleted file mode 100644
-index e69de29bb2d1..000000000000
-diff --git a/drivers/s390/crypto/zcrypt_cex2a.h b/drivers/s390/crypto/zcrypt_cex2a.h
-deleted file mode 100644
-index e69de29bb2d1..000000000000
-diff --git a/drivers/s390/crypto/zcrypt_cex2c.c b/drivers/s390/crypto/zcrypt_cex2c.c
-deleted file mode 100644
-index e69de29bb2d1..000000000000
-diff --git a/drivers/s390/crypto/zcrypt_cex2c.h b/drivers/s390/crypto/zcrypt_cex2c.h
-deleted file mode 100644
-index e69de29bb2d1..000000000000
--- 
-2.25.1
+> diff --git a/net/Makefile b/net/Makefile
+> index 5b2dd7f07a85e..c0da946b281e1 100644
+> --- a/net/Makefile
+> +++ b/net/Makefile
+> @@ -45,7 +45,7 @@ obj-$(CONFIG_WIRELESS)		+=3D wireless/
+>  obj-$(CONFIG_MAC80211)		+=3D mac80211/
+>  obj-$(CONFIG_TIPC)		+=3D tipc/
+>  obj-$(CONFIG_NETLABEL)		+=3D netlabel/
+> -obj-$(CONFIG_IUCV)		+=3D iucv/
+> +obj-y				+=3D iucv/
 
+[Severity: Low]
+Does this create a linker error when CONFIG_AFIUCV=3Dy and CONFIG_IUCV=3Dm?
+
+Because of this unconditional descent, af_iucv.o can be evaluated and built
+into vmlinux even when IUCV is configured as a module.
+
+In afiucv_init(), if CONFIG_IUCV=3Dm, IS_ENABLED(CONFIG_IUCV) evaluates to =
+1:
+
+net/iucv/af_iucv.c:afiucv_init() {
+	...
+	if (machine_is_vm() && IS_ENABLED(CONFIG_IUCV)) {
+		cpcmd("QUERY USERID", iucv_userid, sizeof(iucv_userid), &err);
+		if (unlikely(err)) {
+			WARN_ON(err);
+			err =3D -EPROTONOSUPPORT;
+			goto out;
+		}
+
+		pr_iucv =3D &iucv_if;
+	} else {
+	...
+}
+
+Will this cause an undefined reference to the module-bound iucv_if symbol w=
+hen
+linking vmlinux?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260625061303.3632=
+6-1-pengpeng@iscas.ac.cn?part=3D1
