@@ -1,153 +1,96 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mail.zytor.com (terminus.zytor.com [198.137.202.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E74730BB94;
-	Fri, 26 Jun 2026 18:12:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A1C57146D5A;
+	Sat, 27 Jun 2026 01:36:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782497531; cv=none; b=LveWfWXG75jjz1lIyM31INLUb/hSaV147sfqbUiWeUEY+zmytBVHh0Sqsl6gqpyTRvuHCOfXmt6fmUIg8VqiDGEMlGP1Aah1wPgQesDs66DKcAzRhpjMiCNBXezFXsl8O2eRXrYd1O+GQzhuZRFyZslzg3OeSrkgGdQvZHyd99Y=
+	t=1782524217; cv=none; b=GG3z24Y8jgsaEmL9lYxfbBnRYAZD4n4SQRWf8IYId9y5KnjeR7XAwCxAugYOix5PKG7+2kD7fK2emsExyso5+NN8DNDEKnUURHaOtezhINYZSpFWf1sB+eZCBmIov3A9VzpO/Zx5mu6T4M+A2U2BKrl+1U2i/6PHFTXG9YN0Qgk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782497531; c=relaxed/simple;
-	bh=ndPvzs91bbp5afyCIkhTMgFjTWprb0xWsxX3bqgUUf4=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=WlkqS+UhOG0gGxftkaglTHGLhKW9HG2C70OR36g0RBVZxI5exLxs9QV0gXRQfpuPz7vhGz/gJHBsOWM993Ll22ve0GPJRsqNx+4o2wvi3N47tUI+AS1Y0iXcXMcgAQ5vVnKg5+IUIFFOfsMGP6Vi2DFGG7bqRnshE0NwIagCZ5c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GltDbKi8; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1782524217; c=relaxed/simple;
+	bh=vlFmuIXNikKGJcM/rV+RwQGeISv45Ze+30sLXQvpSug=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=szZyCKuy/+bRIchGnwD3bXDx7kkZ4Y4QSSXOTc2F+K7GA7xscXv0EVxgIMIh1APr7aBDTmwpzRlAETlSak9PqVgwXLzV9UNJfNB4l10yBKHCC6POVMGoCqj6ime4K2WtlAZrIsHj4E3i9yBShpAEI5DJOoB+1C+JUoUzqZ3k1w4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=qMyBFc1g; arc=none smtp.client-ip=198.137.202.136
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zytor.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GltDbKi8"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A70541F000E9;
-	Fri, 26 Jun 2026 18:12:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782497530;
-	bh=q1x6FnWHbOYR7+PG1PZ+f4YkWvMajyukbNDrUd67hws=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=GltDbKi8o2AK54R6cd+DIdNeztD8/SqL5EmbDjXveyL0mfLtVc3xgK68rkfSdphjJ
-	 Z4K1L2y0MKH5XFtpfy4TOVRgQfTu8G/dx4zKDvim9XRBQfyP5siC95Pm4G8pxTsvXH
-	 Fw5lW5pue0CGGzIhnkClOVmq5NC3JfXDiV54JWr/mRjJefm9xWgsavhrqwh5PrfGAj
-	 pF9kZBuFb8HflWs3d9uTb24cSa6k74Q+6WTnQTchBG8wcsArVKOEZ+2dh9DkufsR52
-	 6BP60VPx+GtJ/fwAPu1LdlB7paeiGE6gmdkuLAQlyx+bOc1hdLIcKfuS3TbPBXHn/6
-	 2Eo8Ehw11Y5Eg==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 1/4] s390/pci: Hold fmb_lock when enabling or
- disabling PCI devices
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Omar Elghoul" <oelghoul@linux.ibm.com>
-Cc: "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
- Carstens" <hca@linux.ibm.com>, kvm@vger.kernel.org
-In-Reply-To: <20260626175525.37370-2-oelghoul@linux.ibm.com>
-References: <20260626175525.37370-1-oelghoul@linux.ibm.com>
- <20260626175525.37370-2-oelghoul@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 26 Jun 2026 18:12:09 +0000
-Message-Id: <20260626181209.A70541F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="qMyBFc1g"
+Received: from [IPV6:2601:646:8081:7da1:dcd4:e1f8:5d79:bdb4] ([IPv6:2601:646:8081:7da1:dcd4:e1f8:5d79:bdb4])
+	(authenticated bits=0)
+	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 65R0qN0N2285168
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NO);
+	Fri, 26 Jun 2026 17:52:24 -0700
+DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 65R0qN0N2285168
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
+	s=2026052701; t=1782521550;
+	bh=CoKSivJMaQDV2sSkRTRw7olGkcZfQ72Xwmih/Aa0td0=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=qMyBFc1gnGXRksBwsJ1/rUznZgiE7lPuLPv/lWpmOM+5Q3Fqu1GkBtPV/i01hTsmm
+	 FyrrwODPBIMXlAoyCpEVfCiClmUhwPWsNagz78j3LDMf+Ut0XXJAAidVe9l1aTOAut
+	 7WQuEQASgzET2NWeiLHKYC5brvZfsPACaGhvlYNW5X1iG8c+02aTJiS4yaJSFbtRty
+	 RzVpKhz70FSqCBKm8TK2gLW8sDPukFdgs1lqJ60AGqtpglwDIA/PnerR6f0L+dvu0f
+	 tzL0aZnBm0Ed9q+Fj1E4zhVGr5LPAVMhZk4GFV4YP0Rst/9nwzTfe9CuWNPpW58FjU
+	 Q8Foj51/YA5sw==
+Message-ID: <7d8efc7c-65e3-49f8-9381-910de7affef2@zytor.com>
+Date: Fri, 26 Jun 2026 17:52:18 -0700
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: cleanup the RAID6 P/Q library v3
+To: Christoph Hellwig <hch@lst.de>, Andrew Morton <akpm@linux-foundation.org>
+Cc: Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
+        Ard Biesheuvel <ardb@kernel.org>, Huacai Chen <chenhuacai@kernel.org>,
+        WANG Xuerui <kernel@xen0n.name>,
+        Madhavan Srinivasan <maddy@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+        Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, Thomas Gleixner <tglx@kernel.org>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Dan Williams <dan.j.williams@intel.com>, Chris Mason <clm@fb.com>,
+        David Sterba <dsterba@suse.com>, Arnd Bergmann <arnd@arndb.de>,
+        Song Liu <song@kernel.org>,
+        Yu Kuai <yukuai@alb-78bjiv52429oh8qptp.cn-shenzhen.alb.aliyuncs.com>,
+        Li Nan <linan122@huawei.com>, linux-kernel@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-crypto@vger.kernel.org,
+        linux-btrfs@vger.kernel.org, linux-arch@vger.kernel.org,
+        linux-raid@vger.kernel.org
+References: <20260518051804.462141-1-hch@lst.de>
+ <20260518141205.c100f76eec5f58e78bbbf7af@linux-foundation.org>
+ <20260519082432.GA14956@lst.de>
+Content-Language: en-US, sv-SE
+From: "H. Peter Anvin" <hpa@zytor.com>
+In-Reply-To: <20260519082432.GA14956@lst.de>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
+On 2026-05-19 01:24, Christoph Hellwig wrote:
+> 
+> raid6: rework registration of optimized algorithms
+> 
+>  - avx2 instead of avx512 is probably the right thing for no
+>    benchmarking, but if it was intentional (it wasn't), that should
+>    be document.  So I'll just switch back to the previous version to
+>    keep the state of the art
 
-Pre-existing issues:
-- [High] Missing cleanup in pcibios_enable_device() on pci_enable_resources=
-() failure leads to FMB memory leak and Use-After-Free.
-- [Medium] Race condition between pcibios_disable_device() and pci_perf_seq=
-_write() allows FMB to be re-enabled on a disabled device, causing a memory=
- leak.
---
+It is unlikely to be the right thing *going forward*, though.
 
-commit 2e2fca3d1e089622d5f93c6cb6a886a708c7c22d
-Author: Omar Elghoul <oelghoul@linux.ibm.com>
+The very unfortunate performance inversion is likely model-specific. It is one
+of those things where you largely would have to have a list of quirks :(
 
-s390/pci: Hold fmb_lock when enabling or disabling PCI devices
+	-hpa
 
-This commit ensures fmb_lock is held in pcibios_enable_device() and
-pcibios_disable_device() before calling the zpci fmb enable/disable
-functions. It also adds lockdep assertions to prevent future races.
-
-Cc: stable@vger.kernel.org
-
-> diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
-> index 39bd2adfc240f..2910d4038d39c 100644
-> --- a/arch/s390/pci/pci.c
-> +++ b/arch/s390/pci/pci.c
-
-[ ... ]
-
-> @@ -639,7 +643,9 @@ int pcibios_enable_device(struct pci_dev *pdev, int m=
-ask)
->  	struct zpci_dev *zdev =3D to_zpci(pdev);
-> =20
->  	zpci_debug_init_device(zdev, dev_name(&pdev->dev));
-> +	mutex_lock(&zdev->fmb_lock);
->  	zpci_fmb_enable_device(zdev);
-> +	mutex_unlock(&zdev->fmb_lock);
-> =20
->  	return pci_enable_resources(pdev, mask);
->  }
-
-[Severity: High]
-This is a pre-existing issue, but does this lack of cleanup on failure lead
-to a use-after-free?
-
-If pci_enable_resources() fails, the function returns an error without roll=
-ing
-back the debugfs initialization or the FMB allocations. Because the PCI core
-considers the device disabled, pcibios_disable_device() is never called to
-clean these up.
-
-When the device is eventually released, pcibios_release_device() will drop
-the zdev references without destroying the debugfs entries:
-
-arch/s390/pci/pci.c:pcibios_release_device() {
-    ...
-    zpci_unmap_resources(pdev);
-    zpci_zdev_put(zdev);
-}
-
-Can a subsequent userspace access to the orphaned debugfs files dereference
-the freed zdev pointer and trigger a use-after-free?
-
-> @@ -648,7 +654,9 @@ void pcibios_disable_device(struct pci_dev *pdev)
->  {
->  	struct zpci_dev *zdev =3D to_zpci(pdev);
-> =20
-> +	mutex_lock(&zdev->fmb_lock);
->  	zpci_fmb_disable_device(zdev);
-> +	mutex_unlock(&zdev->fmb_lock);
->  	zpci_debug_exit_device(zdev);
->  }
-
-[Severity: Medium]
-This isn't a bug introduced by this patch, but does unlocking fmb_lock befo=
-re
-zpci_debug_exit_device() create a race condition with debugfs writes?
-
-A concurrent write to the debugfs statistics file could potentially execute=
- in
-the window between mutex_unlock() and zpci_debug_exit_device() removing the
-files:
-
-arch/s390/pci/pci_debug.c:pci_perf_seq_write() {
-    ...
-    mutex_lock(&zdev->fmb_lock);
-    switch (val) {
-    ...
-    case 1:
-        rc =3D zpci_fmb_enable_device(zdev);
-        break;
-    }
-    mutex_unlock(&zdev->fmb_lock);
-}
-
-If pci_perf_seq_write() acquires the lock in this window, could it successf=
-ully
-re-enable the FMB in hardware right before zpci_debug_exit_device() destroys
-the debug entries, leaving the FMB enabled but permanently leaking the memo=
-ry
-upon device release?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260626175525.3737=
-0-1-oelghoul@linux.ibm.com?part=3D1
