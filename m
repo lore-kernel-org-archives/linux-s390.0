@@ -1,87 +1,67 @@
-Received: from mail-pj1-f42.google.com (mail-pj1-f42.google.com [209.85.216.42])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C84893B71A9
-	for <linux-s390@vger.kernel.org>; Mon, 29 Jun 2026 09:51:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 19BC614884C;
+	Mon, 29 Jun 2026 11:06:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782726717; cv=none; b=ZG2FzjKcFuY0zEptsu1+nWr65SXPlOO4btIkv3hSOtyI83hIiel5zsgZGTgXxAaGjrGzMVDSy/Mgha4Xfpj4GXPfpB2IiRVwoIiQEM7Bvn3Eu8RHDTPfQp/E1DLJHuOUfZSXDsDML/I+d3eIUV02dhn082GQkg5AldPX2OOzDZM=
+	t=1782731193; cv=none; b=CMVeHwNPBTUVlae0r76okSGAOeL2lRn9NneScpS9+xQfCaD6866KwlLmWjmchCi3Tw2NkgpEw/EWhCxdshg7Rp9/RCOqMVT/B81hwD/b6XgADuCbBEX28DlB3LIfne5crYkd7cxNPe7eQfIbgiUktN5t0bJRh0GgEW6if5YG+wE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782726717; c=relaxed/simple;
-	bh=jT/07ZjnEljCDkg1Sui4v5JLloAdoehB4ms4+KILrac=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=IHZXvs0SdxqH+zrAHON/khp8NtO2AGfFan3v0G6bwG+nok59X0zXx/vtAhb4P+dk54B8l3E6xKegUhTgFFZrb7ekpg8hS8EFgv+PdJl98irhSs7LmYl38Awcs+psuGjjJaTyZZiCfRpElKiBCvkXB1kGE/C1EVE99wD5uh+UbmU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bCfx8ehP; arc=none smtp.client-ip=209.85.216.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1782731193; c=relaxed/simple;
+	bh=SUpFdr2UrRS7r/EQXwliEeGOvlThQjJpw0ORxBE8I/w=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=it0Q6Efnatn0B/Bs9HE4igejIO6qjo1r89sgvLdZI1W0K2Eqc2GzT4dSQvQyXL80LZfPI05ISqdJG1ZiYlXgKzjGMq08Glb9IHlB7f6In23sKLSHyUQ+Q7Ko9lt54ZLAJD80rQ24kewfUM9O092tOOjFG4YJg3Cb8BO+SXn5x5A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=su7UyIuq; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bCfx8ehP"
-Received: by mail-pj1-f42.google.com with SMTP id 98e67ed59e1d1-37fb17e1435so770089a91.1
-        for <linux-s390@vger.kernel.org>; Mon, 29 Jun 2026 02:51:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1782726714; x=1783331514; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=ZntHgB1VK83jSGRR6wDqH2TYAXRNVfVNGYQkueQtUtc=;
-        b=bCfx8ehPCTE0J0Qca0r+V0+q7TfDPfuak5II0H7mxn+smEAzEY+0pJvzq8I5eNkFF2
-         1IzzHgjqF9JCYXPrNS2ZtkER/jwbBZe4wN68YCckYXt5mCu7tAepva9B5xak5nErdWz9
-         cdFrAowT+PsxCf5WYoMUUMNTjlhVppRtUcqbVsqJ73b7U4Gfk8ZF8tJ/U/T6eX5uTiQn
-         wjUYrB+pDM+Dx1T0XNwvcLmNBHYMN7CEYMR1eljfAs0n+B12E3whZzjxbRr5mdOvmrdp
-         8TWzfW4X4DrsSGNgZsA3/Qta6OyNUZgp4MctoRqwLlMalP2Uyhi/gmjraCl6TLKKyd/7
-         t9RA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782726714; x=1783331514;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=ZntHgB1VK83jSGRR6wDqH2TYAXRNVfVNGYQkueQtUtc=;
-        b=WW2hcv1vNOQC3vbm69CSjqva84o8fMmWwyYpujmN6O3ju/qbh/Uzm+jMf7sn3UFj6L
-         3mSVqmsOKAEzRZ0yFMnV0mmU/IodjPEdvG4zoBOiOxC0Zvo32jYqwj8Lmuk03C4JrsRn
-         c4qS8fKkzM54xkRgxSn7YQgNucdsq8jlbjOzs4igbKiZN5e+/xYKs2hWD/e/TLEI1yrX
-         2jZyC2PoAGui98knt2coR8iqoWQbDBZEn1gXK+IBXDdeDKEnkUmCPAcmKSixLHyRfMqq
-         acvJ5S8ciwGLm2xNh0rBOYDPi9JivxfyvRxb418fHMrxAg597wqelO8HZSCHLsGv4ZQP
-         oR3g==
-X-Forwarded-Encrypted: i=1; AHgh+Ro9GtzwwCmZlAbFqJsBOREqcDlEodFxU8DEwddlAkW3KZ6Gf++6Gv2gXhT30D4Z0impZDIepROtYxVc@vger.kernel.org
-X-Gm-Message-State: AOJu0YwCflHrkOqabszWb+aMc2gwHRf352kneiR0xMUNlRbrm8yODLos
-	GEioIj8bZC6DdRMKrNFQLm+1mPFGpvkvOhztB6Zrf5hJOH1u2aDpD/dO
-X-Gm-Gg: AfdE7cmzxseaLxJbtgvXxu9D0T+YaDR/ccj0plphfN1XvMSGa6/c2mT9hiW2aAI+phZ
-	cuOmiR3jaRlSDsczfBJ0md0Ptuq9DSmJxIkQf73+/+xf1XTvi3BaHghy8QPx+mQN5+ymEYWcVJi
-	1/ZZWuCHsOx6YUcn34qfGP297TGkF9xtNRcw7OPvvgZEacC6YEsn9nHqcmCnZ9FWFdsBroQgiv9
-	fLzfLQ18Yi8sHomXGp4jBnpBVdpd61MbddwwmrxN72gc9IcZW2613h37bZaDqZtYXJ4eq2co4+B
-	fXiFybsBVtVMVJk83WmI0cZ1GoSX86eB9Q4BVjaVQy7EkynnGb6Pfz3Ua6mDqjRH8TYBtiE0J4u
-	pWIVcw1/oz+CjchLNLob6DFkDFsU64Ol+cdvlQpRQR+jI9suGpWM1bPp1TqsXkGW+spe/LYipaX
-	g+j9w3+LcMjdsJEMKplmT/4ML2zSfp48oXqEfdMH3srI/oqJmO/f0=
-X-Received: by 2002:a17:90b:57cc:b0:37d:85cd:1367 with SMTP id 98e67ed59e1d1-37dfa2363cbmr14496003a91.15.1782726713861;
-        Mon, 29 Jun 2026 02:51:53 -0700 (PDT)
-Received: from cps-manycore-1.. ([147.46.174.222])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-37e1c93272fsm5550432a91.14.2026.06.29.02.51.48
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 29 Jun 2026 02:51:53 -0700 (PDT)
-From: Sechang Lim <rhkrqnwk98@gmail.com>
-To: "D . Wythe" <alibuda@linux.alibaba.com>,
-	Dust Li <dust.li@linux.alibaba.com>,
-	Sidraya Jayagond <sidraya@linux.ibm.com>,
-	Wenjia Zhang <wenjia@linux.ibm.com>,
-	"David S . Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>
-Cc: Jiayuan Chen <jiayuan.chen@linux.dev>,
-	Mahanta Jambigi <mjambigi@linux.ibm.com>,
-	Tony Lu <tonylu@linux.alibaba.com>,
-	Wen Gu <guwen@linux.alibaba.com>,
-	Simon Horman <horms@kernel.org>,
-	Karsten Graul <kgraul@linux.ibm.com>,
-	Guvenc Gulce <guvenc@linux.ibm.com>,
-	Ursula Braun <ubraun@linux.ibm.com>,
-	linux-rdma@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	bpf@vger.kernel.org
-Subject: [PATCH net v3] net/smc: fix out-of-bounds read when sk_user_data holds a sk_psock
-Date: Mon, 29 Jun 2026 09:51:33 +0000
-Message-ID: <20260629095140.679754-1-rhkrqnwk98@gmail.com>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="su7UyIuq"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65TAmgga3182164;
+	Mon, 29 Jun 2026 11:06:30 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=osNV81Cf+qoUqivRpWhl87Sjtkk2rTLNSEGwDsoMJ
+	7E=; b=su7UyIuq0EKMLiyCPiEW7MYEZpqdFGJDR2oysccWNbTFmLX1Klj0HKo+E
+	Wbz3KxDAuSGgg00wAJHHPSbX1ud9MJkdujEHae2HZiO5eFUTs9tuFstVTRexbBIb
+	OhKn7J2QNaUC4I+HcSzIYfRGbRrM+mm8YxWoZRlQnaPTUL/TkKgGwVz34gJbo/2B
+	UCiS1qXSeyRh8H8Eh5GWNwa8m8SZ1z8SJGua0aRM9nOpeKWYhA6BLrY+gvn/D2Wu
+	pkEfl+qUmlO+3UtAIkg7I56TNaM6PlhWuXTYvcv9QCvgQPFf11VF5NQ98v1Aop01
+	BVo1d6IEHxksdccAqpQMCwD8nuTWw==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4f26qfrw2y-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 29 Jun 2026 11:06:29 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 65TB4i9V001024;
+	Mon, 29 Jun 2026 11:06:28 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4f2s7vw6dd-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 29 Jun 2026 11:06:28 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 65TB6Nac11338226
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 29 Jun 2026 11:06:23 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8A8DB20043;
+	Mon, 29 Jun 2026 11:06:23 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 5B28320040;
+	Mon, 29 Jun 2026 11:06:23 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Mon, 29 Jun 2026 11:06:23 +0000 (GMT)
+From: Thomas Richter <tmricht@linux.ibm.com>
+To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-perf-users@vger.kernel.org, acme@kernel.org, namhyung@kernel.org,
+        irogers@google.com
+Cc: agordeev@linux.ibm.com, gor@linux.ibm.com, sumanthk@linux.ibm.com,
+        hca@linux.ibm.com, japo@linux.ibm.com,
+        Thomas Richter <tmricht@linux.ibm.com>
+Subject: [PATCH V2 linux-next] perf test: Skip failing 'perf test aslr' test case
+Date: Mon, 29 Jun 2026 13:05:59 +0200
+Message-ID: <20260629110559.1283453-1-tmricht@linux.ibm.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -89,90 +69,111 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Authority-Analysis: v=2.4 cv=RYqgzVtv c=1 sm=1 tr=0 ts=6a4251b6 cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8 a=1XWaLZrsAAAA:8
+ a=j8SYJSOdr0Np5z0DVMAA:9
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNjI5MDA4OCBTYWx0ZWRfX3iLHSj/0ftgq
+ A7Ml+KZ/QaMDoyDDM34jgB9NedPkbDmJpoYKfu5sVN9RoEGxvakAk9lAl+c33wVlkh3TJY9nbca
+ LYIVBeL/ABPSHHz9vsNHuueAiwrU0l8=
+X-Proofpoint-GUID: 25ahuPyf_DlhMRWgsz1OnPqnAEIkS40G
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjI5MDA4OCBTYWx0ZWRfXw6s8H+jTlHL9
+ 5n70k4YmOFOtn5KSX36UjaESY9ZbvEKqESR90vSEcvfptNp5Of4Dkz/u30Hjho7c+k38Ofrdnx9
+ 1TdNf0OFE/9Cc8DXtUdVWEKEInLk3VFEHOUir/Fjzjm7Ky5KiSmhzd1f/SpHcIWFGy4ywLzNJvM
+ wT3+iUqPdOYoUSoYhWNCownkNinxCTFTgnkD5Pi3jFER+KXFrjPIvtGXyA1lRlN2365uyzdnzhE
+ 58GgQ7gvRiphRRDraoMsToseJtYAnGvg9QFQkqMouWCulXKBxbSpoeSVJXFCBWtaw25tuRF7fqf
+ aOKeCSzIBBd484timETs8jcPHYJ/DtJU3JOYvsmqBxXIbaFzetAIol64z9CiQ5PTjEEwXNsILqU
+ RXg3IQD6iIVAXBPkKWJBr6FosXJ7O1N63WeqD7ijGnBh5s1xppQfmMpIiLCmM2Z4aidU/Sc+01z
+ 40yBNxh5PXkBho90dwg==
+X-Proofpoint-ORIG-GUID: _18UJoo5VyKUh_s6iao3IyZLLRVgForc
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
+ definitions=2026-06-29_03,2026-06-26_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ phishscore=0 impostorscore=0 malwarescore=0 spamscore=0 lowpriorityscore=0
+ adultscore=0 priorityscore=1501 suspectscore=0 bulkscore=0 clxscore=1015
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2606290088
 
-A passive-open child inherits the listener's smc_clcsock_data_ready().
-sk_clone_lock() clears its sk_user_data to NULL because the listener tagged
-it SK_USER_DATA_NOCOPY. Until accept restores the callback, a BPF sock_ops
-program can add the established child to a sockmap, and sk_psock_init()
-installs a sk_psock into the NULL sk_user_data. The inherited callback then
-reads it back through smc_clcsock_user_data(), which strips only NOCOPY,
-takes the sk_psock for an smc_sock, and dereferences a clcsk_* field past
-its end:
+V2: In response to sashiko:
+  > [Severity: Medium]
+  > Does unconditionally setting err=2 here mask prior test failures?
+  >
+  Do not change the return code when skipping the test. The failure
+  is printed on stdout anyway and does not hide any previouly
+  failed tests.
 
-  BUG: KASAN: slab-out-of-bounds in smc_clcsock_data_ready+0x84/0x200 net/smc/af_smc.c:2637
-  Read of size 8 at addr ffff8880013b8674 by task syz.6.12484/67930
-   <IRQ>
-   smc_clcsock_data_ready+0x84/0x200 net/smc/af_smc.c:2637
-   tcp_urg+0x24d/0x360 net/ipv4/tcp_input.c:6264
-   tcp_rcv_state_process+0x280d/0x4940 net/ipv4/tcp_input.c:7336
-   tcp_child_process+0x371/0xa50 net/ipv4/tcp_minisocks.c:1002
-   tcp_v4_rcv+0x1eaa/0x2a00 net/ipv4/tcp_ipv4.c:2186
-   [...]
-   </IRQ>
+  Added correct commit-id as suggested by Namhyung Kim
 
-  Allocated by task 67930:
-   sk_psock_init+0x142/0x740 net/core/skmsg.c:766
-   sock_hash_update_common+0xd3/0x990 net/core/sock_map.c:1010
-   bpf_sock_hash_update+0x114/0x170 net/core/sock_map.c:1229
-   __cgroup_bpf_run_filter_sock_ops+0x74/0xa0 kernel/bpf/cgroup.c:1727
-   tcp_init_transfer+0x1085/0x1100 net/ipv4/tcp_input.c:6693
-   [...]
+The test case 'perf test aslr' fails on s390. The root cause of the
+failure is subtest test_callchain_aslr. This test invokes command
 
-Resolve the conflict on the write path. Reserve the child's sk_user_data
-with a NULL pointer tagged SK_USER_DATA_NOCOPY so sk_psock_init() returns
--EBUSY, and release it at accept. smc_clcsock_user_data() still strips the
-tag to NULL, so the inherited callback stays a no-op.
+ # ./perf record -g -e task-clock:u -o /tmp/perf-test-aslr \
+	-- perf test -w noploop 3
 
-Fixes: a60a2b1e0af1 ("net/smc: reduce active tcp_listen workers")
-Signed-off-by: Sechang Lim <rhkrqnwk98@gmail.com>
+to generate a call stack using event task-clock:u. On s390 this defaults
+to '--call-graph dwarf' whereas on x86_64 this defaults to framepointer
+(fp) format. The command
+
+ # ./perf inject --aslr -i /tmp/perf-test-aslr
+
+now scans all SAMPLE entries recorded in the perf.data file to convert
+possible addresses. This is done in aslr_tool__process_sample() looking
+at sample_type bits PERF_SAMPLE_IP, PERF_SAMPLE_TID,
+PERF_SAMPLE_TIME, PERF_SAMPLE_PERIOD, PERF_SAMPLE_CALLCHAIN,
+PERF_SAMPLE_REGS_USER and PERF_SAMPLE_STACK_USER.
+On s390 the samples do not contain FP entries
+of type PERF_SAMPLE_CALLCHAIN (the bit is set in sample_type, but the
+number of FP entries is 0).
+The processing enters the PERF_SAMPLE_STACK_USER portion where the
+data is copied to the newly constructed sample and then aborted with
+this warning:
+
+ /* TODO: can this be less conservative? */
+ pr_debug("Dropping stack user sample as possible ASLR leak\n");
+
+With command line option '--call-graph dwarf' the new output file
+does not contain any samples at all. This leads to a missing $new_addr
+value in the shell script and a failure.
+
+Fix this and skip this subtest. Emit a hint that this subtest is
+currently unsupported on all platform when option --call-graph dwarf
+is selected.
+Since one subtest is skipped, the complete test is reported as
+skipped.
+
+Fixes: 190c45463844 ("perf test: Add inject ASLR test")
+Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+Reviewed-by: Ian Rogers <irogers@google.com>
+Suggusted-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
 ---
-v3:
- - reserve sk_user_data on the write path instead of the read-side check (D. Wythe)
+ tools/perf/tests/shell/inject_aslr.sh | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-v2:
- - https://lore.kernel.org/netdev/20260619150342.3626224-1-rhkrqnwk98@gmail.com/
-
-v1:
- - https://lore.kernel.org/netdev/20260614120931.4041687-1-rhkrqnwk98@gmail.com/
-
- net/smc/af_smc.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
-
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index b5db69073e20..78f162344fe3 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -154,7 +154,11 @@ static struct sock *smc_tcp_syn_recv_sock(const struct sock *sk,
- 					       own_req, opt_child_init);
- 	/* child must not inherit smc or its ops */
- 	if (child) {
--		rcu_assign_sk_user_data(child, NULL);
-+		/* reserve sk_user_data so sockmap cannot claim the slot */
-+		write_lock_bh(&child->sk_callback_lock);
-+		__rcu_assign_sk_user_data_with_flags(child, NULL,
-+						     SK_USER_DATA_NOCOPY);
-+		write_unlock_bh(&child->sk_callback_lock);
- 
- 		/* v4-mapped sockets don't inherit parent ops. Don't restore. */
- 		if (inet_csk(child)->icsk_af_ops == inet_csk(sk)->icsk_af_ops)
-@@ -1773,6 +1777,7 @@ static int smc_clcsock_accept(struct smc_sock *lsmc, struct smc_sock **new_smc)
- 	/* new clcsock has inherited the smc listen-specific sk_data_ready
- 	 * function; switch it back to the original sk_data_ready function
- 	 */
-+	write_lock_bh(&new_clcsock->sk->sk_callback_lock);
- 	new_clcsock->sk->sk_data_ready = lsmc->clcsk_data_ready;
- 
- 	/* if new clcsock has also inherited the fallback-specific callback
-@@ -1786,6 +1791,9 @@ static int smc_clcsock_accept(struct smc_sock *lsmc, struct smc_sock **new_smc)
- 		if (lsmc->clcsk_error_report)
- 			new_clcsock->sk->sk_error_report = lsmc->clcsk_error_report;
- 	}
-+	/* release the slot reserved in smc_tcp_syn_recv_sock() */
-+	rcu_assign_sk_user_data(new_clcsock->sk, NULL);
-+	write_unlock_bh(&new_clcsock->sk->sk_callback_lock);
- 
- 	(*new_smc)->clcsock = new_clcsock;
- out:
+diff --git a/tools/perf/tests/shell/inject_aslr.sh b/tools/perf/tests/shell/inject_aslr.sh
+index c00461828ea7..d83c2591db8f 100755
+--- a/tools/perf/tests/shell/inject_aslr.sh
++++ b/tools/perf/tests/shell/inject_aslr.sh
+@@ -135,8 +135,14 @@ test_callchain_aslr() {
+     echo "Callchain ASLR test [Failed - no noploop samples in original file]"
+     err=1
+   elif [ -z "$new_addr" ]; then
+-    echo "Callchain ASLR test [Failed - could not find remapped address]"
+-    err=1
++    if perf evlist -v -i "${data}" | grep -q 'sample_type:.*STACK_USER'; then
++      echo "Dropping stack user sample as possible ASLR leak"
++      echo "Call-graph dwarf not supported with 'perf inject --aslr'"
++      echo "Callchain ASLR test [Skip]"
++    else
++      echo "Callchain ASLR test [Failed - could not find remapped address]"
++      err=1
++    fi
+   elif [ "$orig_addr" = "$new_addr" ]; then
+     echo "Callchain ASLR test [Failed - addresses are not remapped]"
+     err=1
 -- 
-2.43.0
+2.54.0
 
