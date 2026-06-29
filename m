@@ -1,38 +1,38 @@
-Received: from canpmsgout06.his.huawei.com (canpmsgout06.his.huawei.com [113.46.200.221])
+Received: from canpmsgout09.his.huawei.com (canpmsgout09.his.huawei.com [113.46.200.224])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 166EC40F8C6;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 764B440F8D0;
 	Mon, 29 Jun 2026 13:07:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=113.46.200.221
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=113.46.200.224
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782738465; cv=none; b=EkuWrGyvRzXhhS+yHl+J5/X91q6pHtRtprXtmN+GaudkxW2icRdFbegE1dq4Q1BTgYnH7G/zawWRfIEMg8ikSjqDP0zsgfKJUZMemFwBG9aYE5BFfplv/mmT+lnlrfIbXUNyUw8DRya3jvTpFSk1xQ5i7dX+Mp9w4hwTPoTlDMY=
+	t=1782738466; cv=none; b=JX9TzoodZjqACXF4tdXuHQmxPcQV1VXIfX8izyvMEyGFbbgWicWo+lllcQRL0dkI+NaSorh10C2RvUw43mXplT65IkEYeJ/sVUu4czql4hXLCB2TJ89Z0LFcoS6bNLiGU0b/fldEwx1xFaqv93zYuo6dTFFdkVmU2MjYKyxff/Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782738465; c=relaxed/simple;
-	bh=ySAsj83T/1WDh2V538JnVp6J1xq0Ok2Ysx27i32p98U=;
+	s=arc-20240116; t=1782738466; c=relaxed/simple;
+	bh=HKFxWtuc8J4gfARdHGcp46/nQytxzscq7HpYchzo6b8=;
 	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=btIQUXxYqmbN0Ld9q0GaeH5nmC8AQ9WiVHKivzBOKnjmAPTR9/cDq7iK2d5fk4Eck/f9a9KgRvJIKDvtd9CA4qbond5w1HZAR5DJH3FD/0qMx2ohs8O0BSnCAt6kOXxdM0zMefVggJ4IpDXMZ5Oui+TPG8uOqfVvaBfSa/3BhHk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b=RYtyy34k; arc=none smtp.client-ip=113.46.200.221
+	 MIME-Version:Content-Type; b=ZM/5dbmhoBJGGiLRtXgPGWzKe5aQAaB3AMtPb5A6DC1SkFREWHzVh5PxefCGteCxN8W0K8w5YS4FhKmvMqLkBKucYBKrbkxd5OUDMplXAbmpeFObxADdpA9xSyVeu8qHP+sZblvq0d2/7wYgEOAtNKSC3GszUBtWaKTzV3EuAAc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b=rEU9ZwrN; arc=none smtp.client-ip=113.46.200.224
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b="RYtyy34k"
+	dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b="rEU9ZwrN"
 dkim-signature: v=1; a=rsa-sha256; d=huawei.com; s=dkim;
 	c=relaxed/relaxed; q=dns/txt;
 	h=From;
-	bh=FRrvuMXzaYK6HUR0cuKvFuvToTthZqw4duYY3VtWyyU=;
-	b=RYtyy34kDkosU1+WmQBuulXKUnMrfVd8npdPpPN9UHFmGzxLygei2ZZYz4n8eWcB5VbipDq32
-	s14zl1Nyg8PgRu7X/8Ui0YmbSgThw4mzNWZRTa94HP6JR4MMibMzO6/d6RcJG+/xJQyd6dqq92m
-	YFIE8NhHSho8g4AhoiG7huc=
-Received: from mail.maildlp.com (unknown [172.19.162.223])
-	by canpmsgout06.his.huawei.com (SkyGuard) with ESMTPS id 4gpmYP5JfKzRhV6;
-	Mon, 29 Jun 2026 20:58:33 +0800 (CST)
+	bh=KbCpjFZF6greSjBN49CIhy259uMcOGgcGwhOlbQVct8=;
+	b=rEU9ZwrNTUHPPgTu1tePw2vP4nYtQBZo5Qm4Vtevq+N9IfFkvW8HvPX7ogKbzu0wMOOY1x9ko
+	HxJl+IvMii9vzmWoQM/mHLlSm4aN6qWgjuxRfEcPJDUsWXwQAKYXmSQ2v9drGHZOx/KuvkLzylE
+	ww3TwdXayptVRzczxsKwNvI=
+Received: from mail.maildlp.com (unknown [172.19.163.127])
+	by canpmsgout09.his.huawei.com (SkyGuard) with ESMTPS id 4gpmYF4C9qz1cySh;
+	Mon, 29 Jun 2026 20:58:25 +0800 (CST)
 Received: from dggpemf500011.china.huawei.com (unknown [7.185.36.131])
-	by mail.maildlp.com (Postfix) with ESMTPS id EE15E40575;
-	Mon, 29 Jun 2026 21:07:40 +0800 (CST)
+	by mail.maildlp.com (Postfix) with ESMTPS id AAE4040572;
+	Mon, 29 Jun 2026 21:07:32 +0800 (CST)
 Received: from huawei.com (10.90.53.73) by dggpemf500011.china.huawei.com
  (7.185.36.131) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.11; Mon, 29 Jun
- 2026 21:07:36 +0800
+ 2026 21:07:28 +0800
 From: Jinjie Ruan <ruanjinjie@huawei.com>
 To: <oleg@redhat.com>, <richard.henderson@linaro.org>, <mattst88@gmail.com>,
 	<linmag7@gmail.com>, <linux@armlinux.org.uk>, <catalin.marinas@arm.com>,
@@ -66,9 +66,9 @@ To: <oleg@redhat.com>, <richard.henderson@linaro.org>, <mattst88@gmail.com>,
 	<linuxppc-dev@lists.ozlabs.org>, <linux-riscv@lists.infradead.org>,
 	<linux-s390@vger.kernel.org>, <linux-sh@vger.kernel.org>,
 	<linux-um@lists.infradead.org>
-Subject: [PATCH v16 15/18] arm64: ptrace: Skip syscall exit reporting for PTRACE_SYSEMU_SINGLESTEP
-Date: Mon, 29 Jun 2026 21:06:13 +0800
-Message-ID: <20260629130616.642022-16-ruanjinjie@huawei.com>
+Subject: [PATCH v16 13/18] arm64: syscall: Simplify el0_svc_common() syscall exit path
+Date: Mon, 29 Jun 2026 21:06:11 +0800
+Message-ID: <20260629130616.642022-14-ruanjinjie@huawei.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20260629130616.642022-1-ruanjinjie@huawei.com>
 References: <20260629130616.642022-1-ruanjinjie@huawei.com>
@@ -83,85 +83,41 @@ Content-Type: text/plain
 X-ClientProxiedBy: kwepems500001.china.huawei.com (7.221.188.70) To
  dggpemf500011.china.huawei.com (7.185.36.131)
 
-Align the syscall exit reporting logic with the generic entry
-framework by skipping the exit stop when PTRACE_SYSEMU_SINGLESTEP is
-in effect.
+Remove the redundant nested conditional check within the system call
+exit path of el0_svc_common() to streamline the exit sequence.
 
-[Rationale]
-When a tracer uses PTRACE_SYSEMU_SINGLESTEP, both _TIF_SYSCALL_EMU
-and _TIF_SINGLESTEP flags are set. Currently, arm64 reports a syscall
-exit stop whenever _TIF_SINGLESTEP is set, regardless of the
-emulation state.
+When entering this fast-path block, CONFIG_DEBUG_RSEQ is guaranteed to be
+disabled. Under this constraint, the code logic inside the block becomes
+completely identical to the evaluation performed within
+syscall_exit_to_user_mode_work(). Therefore, invoking the inline helper
+directly achieves full logical equivalence while eliminating duplicate
+code nesting.
 
-However, as per the generic entry implementation (see
-include/linux/entry-common.h):
-"If SYSCALL_EMU is set, then the only reason to report is when SINGLESTEP
-is set (i.e. PTRACE_SYSEMU_SINGLESTEP). This syscall instruction has been
-already reported in syscall_trace_enter()."
-
-Since PTRACE_SYSEMU intercepts and skips the actual syscall
-execution, reporting a subsequent exit stop is redundant and
-inconsistent with the expected behavior of emulated system calls.
-
-[Changes]
-- Introduce report_single_step(): Add a helper to encapsulate the
-  logic for deciding whether to report a single-step stop at syscall
-  exit. It returns false if _TIF_SYSCALL_EMU is set, ensuring the
-  emulated syscall does not trigger a duplicate report.
-
-- Update syscall_exit_work(): Use the new helper to determine
-  the stepping state instead of directly checking _TIF_SINGLESTEP.
-
-[Impact]
-- PTRACE_SINGLESTEP: Continues to report exit stops for actual
-  instructions.
-
-- PTRACE_SYSEMU: Continues to skip exit stops.
-
-- PTRACE_SYSEMU_SINGLESTEP: Now correctly skips the redundant exit
-  stop, aligning arm64 with the generic entry infrastructure.
+No functional changes.
 
 Cc: Mark Rutland <mark.rutland@arm.com>
 Cc: Will Deacon <will@kernel.org>
 Cc: Catalin Marinas <catalin.marinas@arm.com>
-Reviewed-by: Ada Couprie Diaz <ada.coupriediaz@arm.com>
-Reviewed-by: Linus Walleij <linusw@kernel.org>
-Reviewed-by: Yeoreum Yun <yeoreum.yun@arm.com>
+Cc: Ada Couprie Diaz <ada.coupriediaz@arm.com>
 Signed-off-by: Jinjie Ruan <ruanjinjie@huawei.com>
 ---
- arch/arm64/kernel/ptrace.c | 13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+ arch/arm64/kernel/syscall.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/arch/arm64/kernel/ptrace.c b/arch/arm64/kernel/ptrace.c
-index 05ceb9f2d038..650db9b47373 100644
---- a/arch/arm64/kernel/ptrace.c
-+++ b/arch/arm64/kernel/ptrace.c
-@@ -2452,14 +2452,25 @@ int syscall_trace_enter(struct pt_regs *regs, unsigned long flags)
- 	return syscall;
- }
- 
-+static inline bool report_single_step(unsigned long flags)
-+{
-+	if (flags & _TIF_SYSCALL_EMU)
-+		return false;
-+
-+	return flags & _TIF_SINGLESTEP;
-+}
-+
- void syscall_exit_work(struct pt_regs *regs, unsigned long flags)
- {
-+	bool step;
-+
- 	audit_syscall_exit(regs);
- 
- 	if (flags & _TIF_SYSCALL_TRACEPOINT)
- 		trace_sys_exit(regs, syscall_get_return_value(current, regs));
- 
--	if (flags & (_TIF_SYSCALL_TRACE | _TIF_SINGLESTEP))
-+	step = report_single_step(flags);
-+	if (step || flags & _TIF_SYSCALL_TRACE)
- 		report_syscall_exit(regs);
- }
+diff --git a/arch/arm64/kernel/syscall.c b/arch/arm64/kernel/syscall.c
+index 5dd94bece929..74308b6df43b 100644
+--- a/arch/arm64/kernel/syscall.c
++++ b/arch/arm64/kernel/syscall.c
+@@ -121,9 +121,7 @@ static void el0_svc_common(struct pt_regs *regs, int scno, int sc_nr,
+ 	 * exit regardless, as the old entry assembly did.
+ 	 */
+ 	if (!(unlikely(flags & _TIF_SYSCALL_WORK)) && !IS_ENABLED(CONFIG_DEBUG_RSEQ)) {
+-		flags = read_thread_flags();
+-		if (unlikely(flags & _TIF_SYSCALL_EXIT_WORK) || flags & _TIF_SINGLESTEP)
+-			syscall_exit_to_user_mode_work(regs);
++		syscall_exit_to_user_mode_work(regs);
+ 		return;
+ 	}
  
 -- 
 2.34.1
