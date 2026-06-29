@@ -1,167 +1,118 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.21])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EFBE833BBC6
-	for <linux-s390@vger.kernel.org>; Mon, 29 Jun 2026 07:35:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 87169347BDC;
+	Mon, 29 Jun 2026 07:35:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.21
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782718513; cv=none; b=Yw7PgtSSrnFN50qbfTnuMCxz+kV94nvY/wh+kiEh5cYAE2Uke/6e7R3qzQNp9rVjW42IKwSuZGKD+PF1pqYHV0US8YwMDkPQ0sJ+4tLixI6V5kYJ6Ltb0kWq9WnyiGVGjFDH/3DzGJEcAZ1WJMvsJeuBVpXOjZeeONGvcGPsGb4=
+	t=1782718557; cv=none; b=YUjI5jyyyMHyY/eOh7IEpB5IL+5WGMZysmj9FNmq/a4VMqEmxCE3kFstyZz5JgShT0rGsZG0t+aXQHgvjjQTaQPor0D/3aiPiADd643CBqVaUZvCLoTAsuARPZFhZhQrkozD0RkTJUSPjXvL6ZT1zbUXudxD8pSJzaJzqhW7wbU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782718513; c=relaxed/simple;
-	bh=7FpVBSRGDERu/2ePlikwnOVX+nZ2MoPdYMxppcdIsk4=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=cJ4kePIc2gEcLWh8ypyJfqiMOHFmLI6IztL5Dy3+TWpJ2NWgDTV9Us/XceVHO2NDqdD835XEerFiq/J9iH/KrnkEFEKhFU7B7IRAvbtbOB6EY5yN5ynQkeiZ75IALO3zV82CY+JtShSzUXutegpVLPJeUG/zZnHbpmpw/KEA/XE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Se1WP/tZ; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1782718557; c=relaxed/simple;
+	bh=2zatEBFdK9tskA5xMCuwhriCR8d/k+4Lgiw5vm1QE50=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=X+HDKN4jikqnbIia3P9LXCKkAfcmlq5xvHw2YCacox3s+bynk7tlbulfF7nYpCDkCghjNnxzdL2KryqZ+E+kATPcEhWvqP0QVQ7JiGUevorIvoDRcT5NmEQ8wgjMFchAIOrvFh4vSjdyr04bgjzn2rvaCj3Z8d/ZjKvUwOo9qh4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=FM7oxT9Z; arc=none smtp.client-ip=198.175.65.21
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Se1WP/tZ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0CB5B1F00A3D;
-	Mon, 29 Jun 2026 07:35:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782718509;
-	bh=MK8+UjtS3BEmu48m47WR7eMdAGq1rlYyt5qvFXDAmT4=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Se1WP/tZVlgVIGpeIIkm4xK8TJ4XperRVQZXgqf7upppFCDslrpr+Uyl3yjQ8/LPA
-	 PP+odxHfoS3FeYqi//DrAMp/8hQNlLedSP5K/YQ64iNQ7bztH+Mm7wSJ86BlUPhg19
-	 fJxJln00g2gqNHxNokXA6rNJ7X1xZ8mPdN7Qw4Hd3mxpQ0VF92BM1eKLPifej/xLu8
-	 qq0CaXgN3/oT7A/p4714vAgkgmsoUc7HIsQHf66vTY9BzJYohibm9LxKKstIfVRUsv
-	 P4J8ScmMedV8YPRbqn0t37rCIrUymjmRifpar28TaNpFIuUh9GiZ91VK/RfdU9bGPH
-	 5up7IF48ZJzTA==
-From: sashiko-bot@kernel.org
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="FM7oxT9Z"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1782718553; x=1814254553;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=2zatEBFdK9tskA5xMCuwhriCR8d/k+4Lgiw5vm1QE50=;
+  b=FM7oxT9Z00r0Jia8D4c6tgFm1iEbwfgohqbVZx1Ui1tE1Ehebbq2VpAd
+   mqW827tsiti+qYgEhJaZSY3uFZ2Rfe/WyHOlVHw12dMYFd9K119nwNvWm
+   XHRwjHtyIeM1pg9SvuF9iwE2hZ+5qUziUCBVCqO06balM/gMy793rAGd4
+   5qfm0ymGXw+6K/r/+JLusWd2A/z8ydjTlhMkPW3azH6FOIxMRBvQWRnYn
+   hCSKBbjEuiUEGX5vlwwqWmDERYpf5U3+xnIMFiKWCfh4r/aDwAe51DwBb
+   CREvSRxQU2cVV44JYpYE3SBBdI8Dt/DtQ6HrGC8F1gk7dMdx68AYW3YDv
+   w==;
+X-CSE-ConnectionGUID: ju54942sTPC0980juBxX2Q==
+X-CSE-MsgGUID: qbpfCqX3Qiue6pgJpTg4KA==
+X-IronPort-AV: E=McAfee;i="6800,10657,11831"; a="83276365"
+X-IronPort-AV: E=Sophos;i="6.24,231,1774335600"; 
+   d="scan'208";a="83276365"
+Received: from orviesa006.jf.intel.com ([10.64.159.146])
+  by orvoesa113.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Jun 2026 00:35:51 -0700
+X-CSE-ConnectionGUID: LA/j0INTRCeqBSkQMZkB5w==
+X-CSE-MsgGUID: SxLdSLYtT0OyqBtaePGndw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.24,231,1774335600"; 
+   d="scan'208";a="250189857"
+Received: from kniemiec-mobl1.ger.corp.intel.com (HELO localhost) ([10.245.244.207])
+  by orviesa006-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Jun 2026 00:35:47 -0700
+Date: Mon, 29 Jun 2026 10:35:40 +0300
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Markus Elfring <Markus.Elfring@web.de>
+Cc: linux-block@vger.kernel.org, linux-efi@vger.kernel.org,
+	linux-ntfs-dev@lists.sourceforge.net, linux-s390@vger.kernel.org,
+	Christophe Jaillet <christophe.jaillet@wanadoo.fr>,
+	Davidlohr Bueso <dave@stgolabs.net>,
+	Jan =?iso-8859-1?Q?H=F6ppner?= <hoeppner@linux.ibm.com>,
+	Jens Axboe <axboe@kernel.dk>, Josh Law <objecting@objecting.org>,
+	Kees Cook <kees@kernel.org>, Md Haris Iqbal <haris.iqbal@linux.dev>,
+	Richard Russon <ldm@flatcap.org>,
+	Stefan Haberland <sth@linux.ibm.com>,
+	Thorsten Blum <thorsten.blum@linux.dev>, vulab@iscas.ac.cn,
+	LKML <linux-kernel@vger.kernel.org>,
+	kernel-janitors@vger.kernel.org,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Woradorn Laodhanadhaworn <woradorn.laon@gmail.com>
 Subject: Re: [PATCH v2] block: partitions: Use seq_buf_putc() at 24 places
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Markus Elfring" <Markus.Elfring@web.de>
-Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
- Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
-In-Reply-To: <7360cab3-7a2f-4903-85f1-0f03387b0d88@web.de>
+Message-ID: <akIgTBcvrZLfY2iL@ashevche-desk.local>
 References: <59dfd2ef-2fda-4dd0-a288-52c35613e778@web.de>
  <ajzkRM_RFKBpp0i5@ashevche-desk.local>
  <7de415a7-457d-4dd2-aebb-8e179fa0bbcd@web.de>
  <aj061omzs5WN5ar6@ashevche-desk.local>
  <7360cab3-7a2f-4903-85f1-0f03387b0d88@web.de>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 29 Jun 2026 07:35:08 +0000
-Message-Id: <20260629073509.0CB5B1F00A3D@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <7360cab3-7a2f-4903-85f1-0f03387b0d88@web.de>
+Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
+ krs, Bertel Jungin Aukio 5, 02600 Espoo
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
+On Mon, Jun 29, 2026 at 09:16:09AM +0200, Markus Elfring wrote:
+> From: Markus Elfring <elfring@users.sourceforge.net>
+> Date: Mon, 29 Jun 2026 08:10:24 +0200
+> 
+> Single line breaks should occasionally be put into a sequence buffer.
+> Thus use the seq_buf_putc() function in these implementations.
+> 
+> The source code was transformed by using the Coccinelle software.
+> 
+> Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
+> ---
+> 
+> v2:
+> * Andy Shevchenko requested to preserve two blank lines.
 
-Pre-existing issues:
-- [High] Out-of-bounds read in sysv68 partition parser leading to a kernel =
-memory leak.
-- [Medium] Uninitialized variable 'len' may lead to a NULL pointer derefere=
-nce or undefined behavior.
---
+This comment in the context of the given commit message may be odd.
+The blank lines mentioned were in the code that previous coccinelle
+script removed, id est the code
 
-commit 350b3ea7021ee2238b49cf91963fe54906868307
-Author: Markus Elfring <elfring@users.sourceforge.net>
+	...blank line...
+	seq_buf_puts()
+	...blank line...
 
-block: partitions: Use seq_buf_putc() at 24 places
+the script transformed to a single line
 
-Single line breaks should occasionally be put into a sequence buffer.
-Thus use the seq_buf_putc() function in these implementations.
+	seq_buf_putc()
 
-The source code was transformed by using the Coccinelle software.
+So my request is to keep the original blank line(s) as is.
 
-[ ... ]
+> * The source code transformation was extended to all affected places
+>   for this software area.
 
-> diff --git a/block/partitions/of.c b/block/partitions/of.c
-> index 53664ea06b654..7803e6f4ecdd9 100644
-> --- a/block/partitions/of.c
-> +++ b/block/partitions/of.c
-> @@ -104,7 +104,7 @@ int of_partition(struct parsed_partitions *state)
->  		slot++;
->  	}
-> =20
-> -	seq_buf_puts(&state->pp_buf, "\n");
-> +	seq_buf_putc(&state->pp_buf, '\n');
+-- 
+With Best Regards,
+Andy Shevchenko
 
-[Severity: Medium]
-This is a pre-existing issue, but I noticed a potential uninitialized
-variable bug when looking at the partition validation called just before
-this in of_partition().
 
-If a device tree partition node is missing the 'reg' property:
-
-block/partitions/of.c:validate_of_partition() {
-    ...
-	int len;
-
-	const __be32 *reg =3D of_get_property(np, "reg", &len);
-	int a_cells =3D of_n_addr_cells(np);
-	int s_cells =3D of_n_size_cells(np);
-
-	/* Make sure reg len match the expected addr and size cells */
-	if (len / sizeof(*reg) !=3D a_cells + s_cells)
-    ...
-}
-
-of_get_property() returns NULL and leaves len uninitialized. The code then
-divides this uninitialized len by 4 and compares it to expected cell counts.
-
-If the uninitialized stack garbage happens to match, could this proceed to
-add_of_partition() where it directly passes the NULL reg pointer to
-of_read_number(), unconditionally dereferencing it?
-
-block/partitions/of.c:add_of_partition() {
-    ...
-	int len;
-
-	const __be32 *reg =3D of_get_property(np, "reg", &len);
-	int a_cells =3D of_n_addr_cells(np);
-	int s_cells =3D of_n_size_cells(np);
-
-	/* Convert bytes to sector size */
-	u64 offset =3D of_read_number(reg, a_cells) / SECTOR_SIZE;
-    ...
-}
-
-[ ... ]
-
-> diff --git a/block/partitions/sysv68.c b/block/partitions/sysv68.c
-> index 470e0f9de7be3..31d348ac2dfb3 100644
-> --- a/block/partitions/sysv68.c
-> +++ b/block/partitions/sysv68.c
-> @@ -86,7 +86,7 @@ int sysv68_partition(struct parsed_partitions *state)
->  		}
->  		slot++;
->  	}
-> -	seq_buf_puts(&state->pp_buf, "\n");
-> +	seq_buf_putc(&state->pp_buf, '\n');
-
-[Severity: High]
-This isn't a bug introduced by this patch, but does the loop immediately
-preceding this code have an out-of-bounds read issue?
-
-sysv68_partition() reads the number of slices from the untrusted disk
-label without validating it against the 512-byte sector buffer bounds:
-
-block/partitions/sysv68.c:sysv68_partition() {
-    ...
-	slice =3D (struct slice *)data;
-	for (i =3D 0; i < slices; i++, slice++) {
-		if (slot =3D=3D state->limit)
-			break;
-		if (be32_to_cpu(slice->nblocks)) {
-			put_partition(state, slot,
-				be32_to_cpu(slice->blkoff),
-				be32_to_cpu(slice->nblocks));
-    ...
-}
-
-It then iterates up to state->limit (typically 256) times, advancing the
-slice pointer. Reading 256 struct slice entries takes 2048 bytes out of a
-guaranteed 512-byte sector buffer.
-
-If the 512-byte sector is located near the end of a mapped page, could
-reading beyond 512 bytes cross into adjacent physical kernel memory and
-leak it via the partition table?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/7360cab3-7a2f-4903-=
-85f1-0f03387b0d88@web.de?part=3D1
