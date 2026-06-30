@@ -1,248 +1,291 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A385940DFBD
-	for <linux-s390@vger.kernel.org>; Tue, 30 Jun 2026 13:59:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 41FE6423A65
+	for <linux-s390@vger.kernel.org>; Tue, 30 Jun 2026 14:19:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782827998; cv=none; b=g6zdx4Qx8/uLR6KpKIDvfHPMUpuy14x9ydY8KvPUhHYeToKHcTQrX3/p6GkjP6NKaUTcrLuJCG8DOTNaZNqDWhpnxnXy0gFx/jswgoFhw5m0qh9rZFIZ6aLulTnsLVtKhL0E62XW3NIQ1Etw9Cg6sBDkqBU7dWw/UQHsHma0PZk=
+	t=1782829200; cv=none; b=tdxIh9kIXcBKQgpzoFsxMsL/EybR5WXQzFFSHcUK9C1H0LW34Ies6nOECRDj0veB2Ji8BhTwzM24iD8Vbzq49WSrg4HWQYX/9h87bOU6/4BR9Gmt9g/87TPrbxdqPTIf7dPp0LXHS+h3gpz7oanN2nzVPhI37LujS8nAZ6nyzvg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782827998; c=relaxed/simple;
-	bh=PQyeajGdi8AQhZGpaeHSRdwCctOJcLuqy4UuzkxlJGA=;
-	h=MIME-Version:Date:From:To:Cc:Subject:In-Reply-To:References:
-	 Message-ID:Content-Type; b=rlxEF4lslYYRdYb7qnZJN/y5Lu2tEUws93Z22d0gOIMgeBURgdE8e94HhKH2VqKDOmbFgyiJ3AfiC7Ft3uAT6DKzU+hcZLGpWLiVj2/6MJivgOOjHGi0wKmiYJG0TIdiiaUyhXAasHDGlW3IxtoPX/sFbVHn3Pdg70Omg5vF4MM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=b5srNAfO; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1782829200; c=relaxed/simple;
+	bh=E2a04pJmYntFu5QsDZoTAc6chS0/RiLFnAagEXxd1KA=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Oq+0XEdjJebYvW5nyod/bbV9iOLglsBv6xQ69mEWVYLkMC7dzeYnKPyDSRbh9c6gHuCsJPn8v9pzKQDnLhS3CxtuLmcoaeq5Xx1Olz9Vs3vpSTYvUhQtrT4zazrCiaJLg2QATv/m/aPtvITVNi8v6tR4tMzmgFz9amTpavZr5Ok=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=HdjvmUAZ; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=ceU9nQcb; arc=none smtp.client-ip=205.220.180.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="b5srNAfO"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65U9nJvE1535058;
-	Tue, 30 Jun 2026 13:59:49 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:reply-to:subject:to; s=pp1;
-	 bh=DwbGV7+T1Yrf9/3wO3J1YAxHmEC6q/0qNJY7UW7WU1s=; b=b5srNAfODP58
-	lhmIhiCRNWsV23hUVni/pqaBEu+vKp1idSqCX4z00QxgkZBpDiM3+f2f2StAhtbR
-	RoRl3CsDpjP1/7oxeHsjrHnuNy/PlOAWgRXinFbotRScvC+ziPCOy5b503EmRUWL
-	aOi3S35BLGGBkZ3wzLqpDUchSDEGt5ssq6fmznUbbxtGSBztGA2C82nRgcc9xX/n
-	q2kH9l6OykZd7uXCphtFFhmPpYdQEsVN076vpODCQxqoWSnK1vBpRu4BUJUikpx5
-	/u/rcpiX6lZsc0CWDAHS9irENR5rGBkCAgR6GioXmLNFEMG57aOdbH2Uv4GnJ40B
-	rt1gJi+QtA==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4f26mjpvw1-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 30 Jun 2026 13:59:49 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 65UDnvd3032252;
-	Tue, 30 Jun 2026 13:59:48 GMT
-Received: from smtprelay07.dal12v.mail.ibm.com ([172.16.1.9])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4f2tbhafat-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 30 Jun 2026 13:59:48 +0000 (GMT)
-Received: from smtpav05.dal12v.mail.ibm.com (smtpav05.dal12v.mail.ibm.com [10.241.53.104])
-	by smtprelay07.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 65UDxlwL26018506
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 30 Jun 2026 13:59:47 GMT
-Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6E3D858056;
-	Tue, 30 Jun 2026 13:59:47 +0000 (GMT)
-Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 503A65805D;
-	Tue, 30 Jun 2026 13:59:46 +0000 (GMT)
-Received: from ltc.linux.ibm.com (unknown [9.5.196.140])
-	by smtpav05.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 30 Jun 2026 13:59:46 +0000 (GMT)
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="HdjvmUAZ";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="ceU9nQcb"
+Received: from pps.filterd (m0279872.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65UEDSTf2129051
+	for <linux-s390@vger.kernel.org>; Tue, 30 Jun 2026 14:19:57 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
+	fgKVOZpMEaY04mD/9g7XL4KyaNHYwKpuiKtrgadyHAk=; b=HdjvmUAZk2HvPFO7
+	2fop/8j/kX9mHOAMytXR2AmMebUVnxuC+zr46WfD0jLdD3UXVslqDy+tA1OCbvjO
+	hlDFXVwfgWTMXTbaR/h/KcqKkitTlBWJZuf1r3bQwIw3wo9rGTw3y5wzJ7FsQSj6
+	ODADvxnxDxnFI9rM0XoeQJUgkWGDruSa5iIHYBf72e0Sl3l+kJsZ3/cjJBKjeH8Y
+	Y6Ryob3SdCaSIH7fVge+v8dl92S8apbr/tbDO+ldkJ6NHohEytkmuB2LZKhDx39D
+	TVvnb9Y7zmZGsq0qoRgNpOJu4faqpBCj3k/McZTvUY8KkblsZqm50Vza/vrU12Gy
+	hGhF0A==
+Received: from mail-vs1-f72.google.com (mail-vs1-f72.google.com [209.85.217.72])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4f3yw93tfr-1
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Tue, 30 Jun 2026 14:19:56 +0000 (GMT)
+Received: by mail-vs1-f72.google.com with SMTP id ada2fe7eead31-737d352d3b0so2896565137.1
+        for <linux-s390@vger.kernel.org>; Tue, 30 Jun 2026 07:19:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=oss.qualcomm.com; s=google; t=1782829196; x=1783433996; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=fgKVOZpMEaY04mD/9g7XL4KyaNHYwKpuiKtrgadyHAk=;
+        b=ceU9nQcb167kxCM+E/F+MAvshDWgzDeuUklfTyoMR+xxi5xHKJRzCv3w1gYKnLIaWE
+         ZQCx9TKuonhh3r4UbocIhDUXzIPny2tHoFlAeVUHnIR8pBMLga4hL8V85yLdMD91017V
+         d39vNUuokng6z06UCSgJWhLvcNdZpA7cS4zwuqMC0uK4YTqsGARnM2DJsR2vvtZITQpJ
+         KwdBUQShoRqHVOnzZr9heRiu+tolrDaSnZ0jVXshpGxKeN6aehEwZNgCg8zmPRYLGE6h
+         qRauOArLAIhqTFzcZEDWNaiO5PPlGO3DHl1AxNdipoJ0SJ7jiUlsftfR0jTgtucvf79Z
+         xUrA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1782829196; x=1783433996;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=fgKVOZpMEaY04mD/9g7XL4KyaNHYwKpuiKtrgadyHAk=;
+        b=AFTbv/xIjsR5ic7+cdHgjLgtmGWyn5Et7GH9FlslP481KK17JZyB/3i2FWGs2O0608
+         FiAgBOF2AUHZwTQFFkHnrhpksrxYAFq9VKEaxBnUkvY7pTHewg23xxREWiaW3Ly2yq5H
+         R4itLxeUzmkxKOTNjayQjYEJ194szWUv4+7aAaH3W6Kq3x58xZQl7YjHtsOcE+Zq+/mJ
+         Gkco+KpWTH2fGTo3Mr7dkATwG9o3vm6X7I8mYcPv6Kl2IAFoxvKqStP99g5+arM5vF5C
+         9+x7oyF6n/PElPM5tst+3v4/0iwTLH5JHVZoXOn0CQryelMBoYpTcCAK8K5sqm4ILyis
+         gqQg==
+X-Forwarded-Encrypted: i=1; AHgh+Rqa3XHRmpXRZ9hmaVdQpuFYliv1RZRX7W1+gwLhIHqvdW1VcG23Q08LJl3tzZ1UDu/VoqbTFNWdr5XR@vger.kernel.org
+X-Gm-Message-State: AOJu0YzRkGa/kvqyWgTQja0sy6kBR/TgKtEZQNde/pjIPpQlqo44OHs0
+	1Q9llFyhv3TMG2x1U5nFL6hLWPP+8XXwLd7NHEhpTmuRrWI//bHK3renNQt36KY2d5cgMNOKAYu
+	omp3pz+BEhZHkq+wFKpqvCGb08SIsVChe/ZOystOWWVUlrR7wmYdPisRGDdG/fszp
+X-Gm-Gg: AfdE7clAJgWU+n5a/Td54sJxRg24VJBGW5Lll21xEJQxTaZfjepv9/IpLRZCRO51Uqx
+	kGS1Sj1yb83icjSlqbZJJ6P9eegDV+wfUGrA/5Rqxdfk0hUwAEXQ8hKXTUa/E/C6ERMxEzGWYEO
+	KF6v35RTKSUde14q9SBcxjpEOvgDFjI9neeC5AUgPO+kKb/ZKzSi4Lhxl+YWJJ4VmY5rMvwLZ9S
+	9D4kjfMMNGufkIG2zwH0BtzDdtemWBSHbAbhnU3CCo+/5Phu38QZhjeruGJ00WqEOH43bDf5Kb0
+	967BDvAiRG9/zP1TXlJXR+434DuIrHh1rhoRoO5xqmFKr6C/B8VNQ/FM7BnPapAEA196KG6gEmG
+	tX9+HLnNVqg/cdKA03bCWECDz3woaqxnOBPC8zK99bKzD5Uv66mnEwZJcUfvXTw==
+X-Received: by 2002:a05:6102:f89:b0:650:94b2:b209 with SMTP id ada2fe7eead31-73a365e0f3amr2099740137.4.1782829196211;
+        Tue, 30 Jun 2026 07:19:56 -0700 (PDT)
+X-Received: by 2002:a05:6102:f89:b0:650:94b2:b209 with SMTP id ada2fe7eead31-73a365e0f3amr2099710137.4.1782829195541;
+        Tue, 30 Jun 2026 07:19:55 -0700 (PDT)
+Received: from [192.168.69.212] (88-187-86-199.subs.proxad.net. [88.187.86.199])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-493be383819sm875845e9.1.2026.06.30.07.19.53
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 30 Jun 2026 07:19:54 -0700 (PDT)
+Message-ID: <b13c7644-83aa-48c8-9045-550a436b57ad@oss.qualcomm.com>
+Date: Tue, 30 Jun 2026 16:19:52 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Date: Tue, 30 Jun 2026 15:59:45 +0200
-From: Harald Freudenberger <freude@linux.ibm.com>
-To: Ilya Leoshkevich <iii@linux.ibm.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v8 01/18] target/s390x: Fix wrong address handling in
+ address loops
+Content-Language: en-US
+To: Ilya Leoshkevich <iii@linux.ibm.com>, freude@linux.ibm.com
 Cc: richard.henderson@linaro.org, david@kernel.org, thuth@redhat.com,
         berrange@redhat.com, qemu-s390x@nongnu.org, qemu-devel@nongnu.org,
         linux390-list@tuxmaker.boeblingen.de.ibm.com,
         linux-s390@vger.kernel.org, dengler@linux.ibm.com,
         borntraeger@linux.ibm.com, fcallies@linux.ibm.com, cohuck@redhat.com
-Subject: Re: [PATCH v8 06/18] target/s390x: Support AES CBC for cpacf kmc
- instruction
-Reply-To: freude@linux.ibm.com
-Mail-Reply-To: freude@linux.ibm.com
-In-Reply-To: <193565c3-6215-4dd7-bb99-4410ed48196f@linux.ibm.com>
 References: <20260624081029.23815-1-freude@linux.ibm.com>
- <20260624081029.23815-7-freude@linux.ibm.com>
- <193565c3-6215-4dd7-bb99-4410ed48196f@linux.ibm.com>
-Message-ID: <81ddd4d2d7c3912704c41db6bd2bf453@linux.ibm.com>
-X-Sender: freude@linux.ibm.com
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjMwMDEyOSBTYWx0ZWRfX52ctn0xxmTQy
- 7re+EvqxVXnrJoOKrh043Q5Q3BcRZnrweCEytXwi+ppvJ833rasG47F3pkAQJ8OwDoePrCDyUy3
- 2/8ltBKS2oV0oYAjOKuiC4P4blcQfFW+tTXEXEfFv8eEf6CpknkDEcQuE4emkkKfUyPzXjxQsVM
- V5RP5OhnSqehn8PkkWW3wWJo29a2+gbRPm6ut0V4s4JrpH5DgySoZxiW9y3Ih9UnXllCkfONAyS
- Of54e+T2IBPHfzSVy1ADz7IIjw9xOmGZ2CYg1SSUKtBQySC14Ljff1E6JEtYdEz39F0daLRuvHW
- F8jlE7nLXcOKYayR7XOFgThxaW1D++j8WT3WQmYPnY7muy8uaFkaC+iCGQfRarZNeH9+N1hYjxe
- jscnGXwlQw7tX3iVwtJzIafC9J0ff4ZvRdwu1sBZHOO8u1FmQwYWxFXIk9Irzj6xI0j/NI0zEt3
- 5m/adFX8au8VZpdrESg==
-X-Proofpoint-GUID: 19iLcD2_3rvNgPqS3-K03qt3fjAeAvJs
-X-Authority-Analysis: v=2.4 cv=Z8bc2nRA c=1 sm=1 tr=0 ts=6a43cbd5 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=kj9zAlcOel0A:10 a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8
- a=SFrgTpVYP7yuAwOcGMEA:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNjMwMDEyOSBTYWx0ZWRfXx79Mi0z/yyTC
- Sml/B6tCFDPnzhQqVtVuk+bruyYXIxJvTeBEbwvM1RvlN6wGfoF7gU4S3+kXv+Ua6w2KDmOEhRv
- gyOoLqSUr1JPRqJpJF84gQqDgsGTJ8E=
-X-Proofpoint-ORIG-GUID: 19iLcD2_3rvNgPqS3-K03qt3fjAeAvJs
+ <20260624081029.23815-2-freude@linux.ibm.com>
+ <e516de9c-e9fb-45af-aa5e-8cb9dbf1e3f3@linux.ibm.com>
+ <d55a9d7e7759251c1e75050a9a9ccd6f@linux.ibm.com>
+ <6e7ce946-1128-4b2c-9520-a171bca3ceb7@linux.ibm.com>
+ <a6e637d07024e0ff8a457500110e225f@linux.ibm.com>
+ <9cbb2f6f-c80e-4ba8-a307-4f640f64a8a5@linux.ibm.com>
+From: =?UTF-8?Q?Philippe_Mathieu-Daud=C3=A9?= <philmd@oss.qualcomm.com>
+In-Reply-To: <9cbb2f6f-c80e-4ba8-a307-4f640f64a8a5@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNjMwMDEzMyBTYWx0ZWRfX5yfZh7fX3dS3
+ yogiNfi3uYtM7woeilUKsAKpzUpNgqvJcwy9SaqraA2WNDTcv8NGsxD3rBXE9PelpWqYD86gs1+
+ 3VVsICfcV8dZAQi3a8r8qAOABRmLItc=
+X-Authority-Analysis: v=2.4 cv=KfDidwYD c=1 sm=1 tr=0 ts=6a43d08c cx=c_pps
+ a=DUEm7b3gzWu7BqY5nP7+9g==:117 a=4s3hRJSeHn4rkQlkrse1kQ==:17
+ a=IkcTkHD0fZMA:10 a=FelO9ux0wxsA:10 a=M51BFTxLslgA:10 a=s4-Qcg_JpJYA:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=yx91gb_oNiZeI1HMLzn7:22
+ a=VnNF1IyMAAAA:8 a=lMLw8EYMNNNL7W2twHAA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+ a=-aSRE8QhW-JAV6biHavz:22
+X-Proofpoint-GUID: SlTGpNeNNznrpbZoNaEcdxQmi7rYJsST
+X-Proofpoint-ORIG-GUID: SlTGpNeNNznrpbZoNaEcdxQmi7rYJsST
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjMwMDEzMyBTYWx0ZWRfX0kZZY6NySNmP
+ C01fy12VbT4yASsMEv7AjQAczppPJ2O7viEVOksZfbDxls/Jc3sonECRcHHPjC06Dn+6uZrTUjQ
+ Wqn8ZdHZv8HDhx9c+yksi6iguldzvrDBzaQa4gXNbqpbnUUyp5q18khOdOljIv+Cx6SBN1QNIuQ
+ eWEpUufekCd9xMCRhhC/Mlp9JPHQzpBRmHoJ5o8F9AMbrdwsbflvA6V5BU+YJVmWsL82TUKopMt
+ yvfGxcaVFwHe5KaNLTiimtLeaDKXnKEev0LTrAVcm1VVThYipwVtxJtPfIFUX9Fwchb69dF/Ycg
+ dh6BN/OUjoCuzqZSsrCtk/tf/sUokTs0A1kFxrafEKPvc2jYaGhurAgHxjmHut/5dNpDgLbfJDP
+ gIUnz8503kNdxNHLOtcXOJ7m9TRlQDq+AqxsW6gVqAUeqCQGmqxgbEfq06yFZ1ST0s/anrWdzAU
+ Wfa2oo8BGJfK3I/q8ZA==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
- definitions=2026-06-30_03,2026-06-26_01,2025-10-01_01
+ definitions=2026-06-30_04,2026-06-26_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 adultscore=0 spamscore=0 priorityscore=1501 impostorscore=0
- malwarescore=0 phishscore=0 bulkscore=0 lowpriorityscore=0 suspectscore=0
+ suspectscore=0 phishscore=0 impostorscore=0 bulkscore=0 clxscore=1015
+ spamscore=0 priorityscore=1501 lowpriorityscore=0 malwarescore=0 adultscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2606300129
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2606300133
 
-On 2026-06-24 19:22, Ilya Leoshkevich wrote:
-> On 6/24/26 10:10, Harald Freudenberger wrote:
->> Support the subfunctions CPACF_KMC_AES_128, CPACF_KMC_AES_192
->> and CPACF_KMC_AES_256 for the cpacf kmc instruction.
->> 
->> Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
->> Tested-by: Holger Dengler <dengler@linux.ibm.com>
->> Reviewed-by: Finn Callies <fcallies@linux.ibm.com>
->> ---
->>   target/s390x/gen-features.c      |   3 +
->>   target/s390x/tcg/cpacf.h         |   4 ++
->>   target/s390x/tcg/cpacf_aes.c     | 102 
->> +++++++++++++++++++++++++++++++
->>   target/s390x/tcg/crypto_helper.c |  24 ++++++++
->>   4 files changed, 133 insertions(+)
+On 30/6/26 12:54, Ilya Leoshkevich wrote:
 > 
-> [...]
 > 
->> diff --git a/target/s390x/tcg/cpacf_aes.c 
->> b/target/s390x/tcg/cpacf_aes.c
->> index ba836f1473..6412cc187d 100644
->> --- a/target/s390x/tcg/cpacf_aes.c
->> +++ b/target/s390x/tcg/cpacf_aes.c
->> @@ -111,3 +111,105 @@ int cpacf_aes_ecb(CPUS390XState *env, const int 
->> mmu_idx, uintptr_t ra,
->>         return !len ? 0 : 3;
->>   }
->> +
->> +static void aes_xor(const uint8_t *src1, const uint8_t *src2, uint8_t 
->> *dst)
->> +{
->> +    for (int i = 0; i < AES_BLOCK_SIZE; i++) {
->> +        dst[i] = src1[i] ^ src2[i];
->> +    }
->> +}
->> +
->> +int cpacf_aes_cbc(CPUS390XState *env, const int mmu_idx, uintptr_t 
->> ra,
->> +                  uint64_t param_addr, uint64_t *dst_ptr_reg,
->> +                  uint64_t *src_ptr_reg, uint64_t *src_len_reg,
->> +                  uint32_t type, uint8_t fc, uint8_t mod)
->> +{
->> +    enum { MAX_BLOCKS_PER_RUN = 8192 / AES_BLOCK_SIZE };
->> +    uint8_t in[AES_BLOCK_SIZE], out[AES_BLOCK_SIZE], 
->> buf[AES_BLOCK_SIZE];
->> +    const MemOpIdx oi = make_memop_idx(MO_8, mmu_idx);
->> +    uint64_t addr, len = *src_len_reg, done = 0;
->> +    int i, keysize, addr_reg_size = 64;
->> +    uint8_t key[32], iv[AES_BLOCK_SIZE];
->> +    AES_KEY exkey;
->> +
->> +    g_assert(type == S390_FEAT_TYPE_KMC);
->> +
->> +    switch (fc) {
->> +    case 0x12: /* CPACF_KMC_AES_128 */
->> +        keysize = 16;
->> +        break;
->> +    case 0x13: /* CPACF_KMC_AES_192 */
->> +        keysize = 24;
->> +        break;
->> +    case 0x14: /* CPACF_KMC_AES_256 */
->> +        keysize = 32;
->> +        break;
->> +    default:
->> +        g_assert_not_reached();
->> +    }
->> +
->> +    if (!(env->psw.mask & PSW_MASK_64)) {
->> +        len = (uint32_t)len;
->> +        addr_reg_size = (env->psw.mask & PSW_MASK_32) ? 32 : 24;
->> +    }
->> +
->> +    /* length has to be properly aligned. */
->> +    if (!QEMU_IS_ALIGNED(len, AES_BLOCK_SIZE)) {
->> +        tcg_s390_program_interrupt(env, PGM_SPECIFICATION, ra);
->> +    }
->> +
->> +    /* fetch iv from param block */
->> +    for (i = 0; i < AES_BLOCK_SIZE; i++) {
->> +        addr = wrap_address(env, param_addr + i);
->> +        iv[i] = cpu_ldb_mmu(env, addr, oi, ra);
->> +    }
->> +
->> +    /* fetch key from param block */
->> +    for (i = 0; i < keysize; i++) {
->> +        addr = wrap_address(env, param_addr + AES_BLOCK_SIZE + i);
->> +        key[i] = cpu_ldb_mmu(env, addr, oi, ra);
->> +    }
+> On 6/30/26 12:23, Harald Freudenberger wrote:
+>> On 2026-06-30 11:33, Ilya Leoshkevich wrote:
+>>> On 6/29/26 14:57, Harald Freudenberger wrote:
+>>>> On 2026-06-24 14:56, Ilya Leoshkevich wrote:
+>>>>> On 6/24/26 10:09, Harald Freudenberger wrote:
+>>>>>> With the introduction of the address wrapping function
+>>>>>> wrap_address() the result can't be used to walk the
+>>>>>> source address any more. So introduce a new local variable
+>>>>>> to hold the wrapped address to avoid mixing source and
+>>>>>> wrapped address value.
+>>>>>>
+>>>>>> Fixes: fcc2699d41 ("target/s390x: Have MSA helper pass a mmu_idx 
+>>>>>> argument")
+>>>>>> Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
+>>>>>> ---
+>>>>>>   target/s390x/tcg/crypto_helper.c | 16 ++++++++--------
+>>>>>>   1 file changed, 8 insertions(+), 8 deletions(-)
+>>>>>
+>>>>> If I take as an example AMODE 24 and look at the third loop iteration,
+>>>>> with the current code in master I would get:
+>>>>>
+>>>>>     ((((addr & 0xffffff) + 8) & 0xffffff) + 8) & 0xffffff
+>>>>>
+>>>>> and with your patch it would be:
+>>>>>
+>>>>>     (addr + 8 + 8) & 0xffffff
+>>>>>
+>>>>> which is undeniably more elegant, but otherwise looks equivalent to 
+>>>>> me.
+>>>>>
+>>>>> What is the functional issue here?
+>>>>>
+>>>>>> diff --git a/target/s390x/tcg/crypto_helper.c b/target/s390x/tcg/ 
+>>>>>> crypto_helper.c
+>>>>>> index ae392bce0e..29ad2aff43 100644
+>>>>>> --- a/target/s390x/tcg/crypto_helper.c
+>>>>>> +++ b/target/s390x/tcg/crypto_helper.c
+>>>>>> @@ -126,8 +126,8 @@ static void sha512_read_icv(CPUS390XState 
+>>>>>> *env, const int mmu_idx,
+>>>>>>       const MemOpIdx oi = make_memop_idx(MO_BE | MO_64 | MO_UNALN, 
+>>>>>> mmu_idx);
+>>>>>>         for (int i = 0; i < 8; i++, addr += 8) {
+>>>>>> -        addr = wrap_address(env, addr);
+>>>>>> -        a[i] = cpu_ldq_mmu(env, addr, oi, ra);
+>>>>>> +        uint64_t _addr = wrap_address(env, addr);
+>>>>>> +        a[i] = cpu_ldq_mmu(env, _addr, oi, ra);
+>>>>>>       }
+>>>>>>   }
+>>>>>
+>>>>> [...]
+>>>>
+>>>> It is a fix, not an improvement. The original code
+>>>> used the addr variable to hold the wrapped address.
+>>>> But as addr is also used as the loop variable there
+>>>> is a mixing between unwrapped and wrapped address here
+>>>> and the unfixed code only works when wrap_address does
+>>>> return the very same address as output as it became as
+>>>> input. My fix corrects this.
+>>>
+>>> What does the patch change w.r.t. wrapping?
+>>> Suppose we have amode 24 and addr = 0xfffff0:
+>>>
+>>> Before:
+>>>
+>>>   i = 0; addr = wrap(0xfffff0) = 0xfffff0;
+>>>          a[0] = ldq(0xfffff0);
+>>>   i = 1; addr = wrap(0xfffff0 + 8) = 0xfffff8;
+>>>          a[1] = ldq(0xfffff8);
+>>>   i = 2; addr = wrap(0xfffff8 + 8) = 0;
+>>>          a[2] = ldq(0);
+>>>   i = 3; addr = wrap(0 + 8) = 8;
+>>>          a[3] = ldq(8);
+>>>
+>>> After:
+>>>
+>>>   i = 0; addr = 0xfffff0;
+>>>          _addr = wrap(0xfffff0) = 0xfffff0;
+>>>          a[0] = ldq(0xfffff0)
+>>>   i = 1; addr = 0xfffff0 + 8;
+>>>          _addr = wrap(0xfffff8) = 0xfffff8;
+>>>          a[1] = ldq(0xfffff8);
+>>>   i = 2; addr = 0xfffff8 + 8 = 0x1000000
+>>>          _addr = wrap(0x1000000) = 0;
+>>>          a[2] = ldq(0);
+>>>   i = 3; addr = 0x1000000 + 8 = 0x1000008;
+>>>          _addr = wrap(0x1000008) = 8;
+>>>          a[3] = ldq(8);
+>>>
+>>> The behavior look identical to me.
+>>> What am I missing?
+>>
+>> Lets assume addr is some 0x1000 and wrap does just add some offset, 
+>> e.g. 0x8000
+>>
+>> for (int i = 0; i < 8; i++, addr += 8) {
+>>      addr = wrap_address(env, addr);
+>>      fetch or write something at the wrapped address addr;
+>> }
+>>
+>> Then the idea of this loop is to run through addr 0x1000 ... 0x103F.
+>> 1. loop with i=0 and addr 0x1000
+>> 2. loop with i=1 and addr 0x1000 + 8
+>> 3. loop with i=2 and addr 0x1000 + 8 + 8
+>> 4. loop with i=3 and addr 0x1000 + 8 + 8 + 8
+>> 5. loop with i=4 and addr 0x1000 + 8 + 8 + 8 + 8
+>> 6. loop with i=5 and addr 0x1000 + 8 + 8 + 8 + 8 + 8
+>> 7. loop with i=6 and addr 0x1000 + 8 + 8 + 8 + 8 + 8 + 8
+>> 8. loop with i=7 and addr 0x1000 + 8 + 8 + 8 + 8 + 8 + 8 + 8
+>>
+>> BUT the given code does something different. As the addr is used in 
+>> the loop
+>> to hold the wrapped address this loop in fact does:
+>> 1. loop with i=0 and addr 0x1000 - all fine, but as addr = 
+>> wrap_address() at the
+>>     end of the loop now addr is 0x1000 + 0x8000 = 0x9000, so next loop 
+>> starts with
+>> 2. loop with i=1 and addr 0x9000 + 8
+>>     and at the end of the loop addr is 0x9008 + 0x8000 = 0x11008 and 
+>> next loop starts
+>> 3. loop with i=2 and addr 0x11008 + 8
+>>     ...
+>>
+>> So introducing an intermediate variable which holds the wrapped address
+>> makes sure the surrounding addr walk in the loop does as intended.
 > 
-> Another couple of candidates for copy_from_guest_wrap().
+> Ah, now I see where we were talking past each other, thanks for the
+> clarification. You assume that wrap_address() may do arbitrary
+> transformations, like addition in your example above. But today it does
+> only bitwise "and", as defined by the architecture:
+> 
+> static inline uint64_t wrap_address(CPUS390XState *env, uint64_t a)
+> {
+>      if (!(env->psw.mask & PSW_MASK_64)) {
+>          if (!(env->psw.mask & PSW_MASK_32)) {
+>              /* 24-Bit mode */
+>              a &= 0x00ffffff;
+>          } else {
+>              /* 31-Bit mode */
+>              a &= 0x7fffffff;
+>          }
+
+            bool wrap32 = env->psw.mask & PSW_MASK_32;
+            a = extract64(a, 0, wrap32 ? 31 : 24);
+>      }
+>      return a;
+> }
+> 
+> and I believe in this specific case the order doesn't matter.
 > 
 
-Yes, makes sense to have some (inline) function. I think I will add
-something to cpacf.h.
-
->> +
->> +    /* expand key */
->> +    if (mod) {
->> +        AES_set_decrypt_key(key, keysize * 8, &exkey);
->> +    } else {
->> +        AES_set_encrypt_key(key, keysize * 8, &exkey);
->> +    }
->> +
->> +    /* process up to MAX_BLOCKS_PER_RUN aes blocks */
->> +    for (i = 0; i < MAX_BLOCKS_PER_RUN && len >= AES_BLOCK_SIZE; i++) 
->> {
->> +        aes_read_block(env, mmu_idx, *src_ptr_reg + done, in, ra);
->> +        if (mod) {
->> +            /* decrypt in => buf */
->> +            AES_decrypt(in, buf, &exkey);
->> +            /* buf xor iv => out */
->> +            aes_xor(buf, iv, out);
->> +            /* prep iv for next round */
->> +            memcpy(iv, in, AES_BLOCK_SIZE);
->> +        } else {
->> +            /* in xor iv => buf */
->> +            aes_xor(in, iv, buf);
->> +            /* encrypt buf => out */
->> +            AES_encrypt(buf, out, &exkey);
->> +            /* prep iv for next round */
->> +            memcpy(iv, out, AES_BLOCK_SIZE);
->> +        }
->> +        aes_write_block(env, mmu_idx, *dst_ptr_reg + done, out, ra);
->> +        len -= AES_BLOCK_SIZE, done += AES_BLOCK_SIZE;
-> 
-> I think
-> 
->     len -= AES_BLOCK_SIZE;
->     done += AES_BLOCK_SIZE;
-> 
-> would be clearer.
-> 
-> 
-> Other than that:
-> 
-> Reviewed-by: Ilya Leoshkevich <iii@linux.ibm.com>
-> 
-> [...]
