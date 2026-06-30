@@ -1,78 +1,77 @@
-Received: from mail-qk1-f182.google.com (mail-qk1-f182.google.com [209.85.222.182])
+Received: from mail-qv1-f43.google.com (mail-qv1-f43.google.com [209.85.219.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B67546AF3B
-	for <linux-s390@vger.kernel.org>; Tue, 30 Jun 2026 16:02:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 00C8C477984
+	for <linux-s390@vger.kernel.org>; Tue, 30 Jun 2026 16:18:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782835370; cv=none; b=qQTrA/n7+Gh/6QWWBdvLwKZyB8RIDIoWD4MjEQF4ejjAeJYIEmePdMB9Q0y5B1vZwMHTDqHQqjxc0w2/cIBuMx6XKDpw13wWvojLDFK7dRVCisigTG2aA5av/k3727zvnm1h9qWL1qiebjrHs9TfqDqr9iCUdpv6YxvSjnfrM2c=
+	t=1782836296; cv=none; b=CjN6CGWl9gkvgGIwW6AytXUvNmdqGsNuENuW9PgWx3WYpr75awAmmwZ5jlmCvftuoFXzCLtgu9/BZKsKTeNM69Ru5icSJZmmnbBoajq7kN4809Fd6LGZ14ESH7ahu7Kf9ghXrzZ+fN8FWKFcNu6QOzegt2QmAr7DK78YBA5X0xg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782835370; c=relaxed/simple;
-	bh=kHw7DLrL4QjCK55x79lTHIkq15rpEE6+NeVSt2Lz+08=;
+	s=arc-20240116; t=1782836296; c=relaxed/simple;
+	bh=bEJ6UV/Ig3Wnd5uyEVVm52U1d7GhtJ5Yxfqjfeq0uC8=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=mzp5GWfhxVyiphoe4SR8dIxFeG3C1UbsQl7Tc4RYYozidXXi76ywgMPgdCunPfd3YDCGVi5+r6BG3i9/ScJikEuaeJSq7YwSy23ExAT54neX0up1SrIcw3rPggUd0m99ec2eqIEaiF9KTLiqyMQmJyksAfsRMvz9HC33nksV8sQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca; spf=pass smtp.mailfrom=ziepe.ca; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=oAv3KPde; arc=none smtp.client-ip=209.85.222.182
+	 Content-Type:Content-Disposition:In-Reply-To; b=iE1ea8W8vbQqBO9M2vJqJrl2DGNDctpq69tsMnr9vs4c+CpgBMe8iGj3GpXZn3HIThCtWeKfL0qmgTAFPm3BU8gYXaodhmDbluN+KBo/Nq2nE1lUygP3V43q9mlM0BNQsUM8VJj/hqfM719l6Ord5a4gYX037T3mHZeMmh+bbV0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca; spf=pass smtp.mailfrom=ziepe.ca; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=afzeKXuP; arc=none smtp.client-ip=209.85.219.43
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="oAv3KPde"
-Received: by mail-qk1-f182.google.com with SMTP id af79cd13be357-92e50c5d14cso153612185a.2
-        for <linux-s390@vger.kernel.org>; Tue, 30 Jun 2026 09:02:47 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="afzeKXuP"
+Received: by mail-qv1-f43.google.com with SMTP id 6a1803df08f44-8f1e274ccb9so7743956d6.2
+        for <linux-s390@vger.kernel.org>; Tue, 30 Jun 2026 09:18:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google; t=1782835366; x=1783440166; darn=vger.kernel.org;
+        d=ziepe.ca; s=google; t=1782836288; x=1783441088; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=GI+sDv/bw0RypxsaDxkfRwNjpEKuAX+hIc2iRD1v3+Q=;
-        b=oAv3KPdedZiBYPAKOd3BNJKidX7yI83EZrsgIkAgm39IxaWkcZuYJXws6zuK+gcm+u
-         SHxUl2bZI7AaZ7AdKTj3jb1T1fwFI6nzhGZuaaisVNMH28BEpw/SIZBgtIB5Z1cKYBB3
-         WLMROfmOT1z6zUF4re3Jl83MIVhUDNm0opyKa0EACC69EMj0uGmFWg8UGuV2iVf1wYNI
-         u9hJIYvLTvmMkFa/ndCCDe3APfD6EBXlyQF+J6chHpbCOZmWx8Ljz+MTgS2ljwji1hbf
-         3KezeC/uRqIrWm31u/sPUHugaZ8Q9vQArwRzgNSwB/zbJqne/uMSFPhgk4lLKyPRX2QD
-         APag==
+        bh=rGel1rvdm2vqYO1DEls9OmTRzPQ+QRBZhk43D5aDGso=;
+        b=afzeKXuPEL5MF/w4iuOxuvt+HTUG7B9psrloX4S07LK7AiuiZkWvXpaupLLyL02n1h
+         tmL9SuRzvk7drdwt7MlngGlY+9GEgdXgrMoI0u1uPXkd+F7/43CXUUyaHRDk8x81ZHdy
+         MmJJ3VbKuuEywMyTbinGZPx6FNf8eETUOYSiWfIyA24tQcdiwLhdFdUutoNDTz6Ts8RR
+         q32DOuiv0H5maUGKWs9CjHvBCcXNufETr3eJ9W5iA7flTmoaq6A48KdNyP/9XE8uZddP
+         WTqlh84P3U+1A/830+rqf3+oI/yKIE6l4C51j4yvjYPys1TJeQEscRYuGWU2RIMrJrND
+         Somw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782835366; x=1783440166;
+        d=1e100.net; s=20251104; t=1782836288; x=1783441088;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=GI+sDv/bw0RypxsaDxkfRwNjpEKuAX+hIc2iRD1v3+Q=;
-        b=ECfL+CRGsPlnXQXnqXoPDJ0qpME8ZYu3xOYfm6u4YXjtposEzLkeCFtq29UCDTPXpa
-         4r1J+cGE/Bml4o1LPHkI11NMdsc0RWA6fCLS/wPdyIGd2CGezMgvEHZ49342YO4dkuDB
-         W9bzFWguPWeF+/7htNkXseG+KR3nEXXBoneCLAT3RKmFIFTg0W5x4uAO9+DTYUABrqmX
-         FwL+cnNhM71K9QcQccPyClO6JQh7PnaXRtxgvLg+Rgt5w+XNZmzlaMj7lvgeRVcSfkkD
-         1zdujDU6AdmWy+EHvRUqq+HkkYtYY/B1J3Buj7l/qXKq0a+vJqQ3QLUKzu9U8IDsaVG9
-         mbYg==
-X-Forwarded-Encrypted: i=1; AFNElJ9jw2kAW1BZoKwKF8tmfDkdxQipjs8fMCcqr9OZX60B6VTiZui9QgVoUEqN7gCfjrnj9NM8+6OF056G@vger.kernel.org
-X-Gm-Message-State: AOJu0YzOneDdxC/LW7JrdlzC6nI4QJWdUWUUXgLjSB8zsWSgNiw3Rocy
-	rTCQcIQ+L91RtQqI0NhpgtsQEHyJzeOQoVXgbId7Bxpj4HWI3tV9rI7rLORckg7Md3Y=
-X-Gm-Gg: AfdE7clSwusg4T5f5nT0ZfqZru694L5AvTeHqcJnd6FqC+7UClGpBRDkgBMQtwOfBuy
-	6AzcuF3fNj9nzsNR5josn7KskTqUlmrZTnARsNmsrlX72InfV4Poa56gM6+9OPfy1uodHibqCvx
-	ZvyUrhh3ieZt+tjgqlO/BWY7IODX35L2/TDZsa9kANvcMeuCoZ0HmBOGsa4UWfOEzXUWS9Ot1E1
-	sr427PC1Tt/Tp5Wznn18Aveig+hk9dku3HAxvChoPbiuxsby7d5I/BxfftioaoKoA3hGZpkUK0W
-	EtuiTXLx0lCWS6cI+Q+T32EuJhYSlkazKrJG9ISF3UbfHsV3LZ2zswR7N1olpzw0++PsZElzzbg
-	iPHu+OxB5Curtviyf8WBSEejGasG4n1eKU62miWUQF6qn9hpfmTrljrralY1D6puSGD0MMcH4tO
-	ZKPxVcT/ur44UL08MdB1pn27rNhEFpl27gR50iBzf2emUIqIn/sZOYFceiD0GtTM7bNds=
-X-Received: by 2002:a05:620a:839b:b0:915:c4de:7ac0 with SMTP id af79cd13be357-92e6278d80fmr646181785a.31.1782835365891;
-        Tue, 30 Jun 2026 09:02:45 -0700 (PDT)
+        bh=rGel1rvdm2vqYO1DEls9OmTRzPQ+QRBZhk43D5aDGso=;
+        b=WLYSD0gOyDxxIy+SyHMKV12ezvJTq2QFJBUsxPxNohc2l5Vg1ajbJ8iMmAIxw9n0tI
+         wXonQM7HW8vg0vdPOItsWCHcDkTM0EHbbHFjbH/2GfTRkfA3WF8EbwaUn7PWhTRslMuw
+         zwQ5fSejNVZsEJBnmBrEECo79NhnfAEpxkIH/pNKfHcpkTVroQ762sUZMPCS2LuDc1ay
+         8K53Op+q8wxxFMYTaFG22DJ4gKu2gLtlHEjDMT+M5qR2j1AuEdK4ZIiAhFYwSuevaV/u
+         v5o35UQw3SgkhoOZ4efcIU21sxqivWzFKwVVy7iGLMobnJpPTqIbt61Nwm23oBH8a0sR
+         qUrA==
+X-Forwarded-Encrypted: i=1; AHgh+RrSqLevC6HDQTmWabT6VsIsOBGhCzZVA+Kta/po6NgvY3FAHjkgwl5HLHttI+B3+XusfYxo4znvysW2@vger.kernel.org
+X-Gm-Message-State: AOJu0YzZ3UZCa/N7xrJsScJTbpEFE79+JNhTKYe85INiki8zoZXPvzfB
+	n5WfUGWSQTZVjIQE3g2d09iacNIf7A34/T+M8+gBfTDaWjyUT+X7MqygQUVjBnSySE4=
+X-Gm-Gg: AfdE7cmZobbnfocEZ6QqiFtPqD/q2B7tqNv1PjsMMy7rD3luOy6s0jCjZA9+IeQ6nO5
+	YQyXwLQ6W/VeU/vU2osijcb2KzRNfsej/7ow60lBblsdb6TbQy7QJWSQKjblJ2NM03tzNERj7Cn
+	hkDJgZ5RszfsPlpLJz4QKrcuVXtxk+A7Cj3PbS54WQWYcYrUovmlz13JsciUviq4YT2UYIirwTh
+	sqtEphKjfl0jVgQsQ7SyBYfNVF6BnGHkCByvSQV1rMbOp23l+3sS9RMdnBCX98+Mruw4GruR78X
+	m/87OggHxUMuBbX2hPSghJaBpveWEYufNlyf5klt1CYfTIKtcRTqdaYQwahsYjuYTHmm9ABhYTu
+	plZqtMINDqTeUwRkDY4r+VItfTn1QEZwRazQP7ipO84Dmzjt/KnRdCDdp2a/okCKXTMEdMxLRdN
+	1SeWGcMSQi+w2UxYptbl+esLq69D5mEvd6xt/JJXRwC+3AdUH/tskvRBJuhic7CQucHc8=
+X-Received: by 2002:ad4:4a6e:0:b0:8f0:1b69:25d2 with SMTP id 6a1803df08f44-8f1ba1b1e7bmr44221716d6.23.1782836288213;
+        Tue, 30 Jun 2026 09:18:08 -0700 (PDT)
 Received: from ziepe.ca (crbknf0213w-47-54-130-67.pppoe-dynamic.high-speed.nl.bellaliant.net. [47.54.130.67])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-92e6236b9fcsm262102385a.41.2026.06.30.09.02.43
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8f24723defcsm15060566d6.49.2026.06.30.09.18.05
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 30 Jun 2026 09:02:44 -0700 (PDT)
+        Tue, 30 Jun 2026 09:18:06 -0700 (PDT)
 Received: from jgg by wakko with local (Exim 4.97)
 	(envelope-from <jgg@ziepe.ca>)
-	id 1weav4-000000027Ay-3dT0;
-	Tue, 30 Jun 2026 13:02:42 -0300
-Date: Tue, 30 Jun 2026 13:02:42 -0300
+	id 1web9x-000000028Ii-0dcm;
+	Tue, 30 Jun 2026 13:18:05 -0300
+Date: Tue, 30 Jun 2026 13:18:05 -0300
 From: Jason Gunthorpe <jgg@ziepe.ca>
 To: Alexey Kardashevskiy <aik@amd.com>
-Cc: "Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org>,
-	iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev,
-	Robin Murphy <robin.murphy@arm.com>,
+Cc: "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>,
+	Catalin Marinas <catalin.marinas@arm.com>, iommu@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	linux-coco@lists.linux.dev, Robin Murphy <robin.murphy@arm.com>,
 	Marek Szyprowski <m.szyprowski@samsung.com>,
 	Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
 	Steven Price <steven.price@arm.com>,
 	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
 	Jiri Pirko <jiri@resnulli.us>, Mostafa Saleh <smostafa@google.com>,
 	Petr Tesarik <ptesarik@suse.com>,
 	Dan Williams <dan.j.williams@intel.com>,
@@ -87,17 +86,19 @@ Cc: "Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org>,
 	Heiko Carstens <hca@linux.ibm.com>,
 	Vasily Gorbik <gor@linux.ibm.com>,
 	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org,
-	Jiri Pirko <jiri@nvidia.com>, Michael Kelley <mhklinux@outlook.com>,
-	"Cheloha, Scott" <Scott.Cheloha@amd.com>
-Subject: Re: [PATCH v6 03/20] dma-direct: use DMA_ATTR_CC_SHARED in
- alloc/free paths
-Message-ID: <20260630160242.GI7525@ziepe.ca>
+	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org
+Subject: Re: [PATCH v6 00/20] dma-mapping: Use DMA_ATTR_CC_SHARED through
+ direct, pool and swiotlb paths
+Message-ID: <20260630161805.GJ7525@ziepe.ca>
 References: <20260604083959.1265923-1-aneesh.kumar@kernel.org>
- <20260604083959.1265923-4-aneesh.kumar@kernel.org>
- <845d0c8a-6d51-47aa-8e0b-8381e733444a@amd.com>
- <20260617154101.GE3577091@ziepe.ca>
- <25155bd6-4348-4aa8-ba70-0a882fc84db9@amd.com>
+ <aigYbK12D8uKQvJF@arm.com>
+ <20260609144746.GL2764304@ziepe.ca>
+ <2ecfa1a8-6202-4319-9692-a6ffeb5a3dbf@amd.com>
+ <yq5aqzm4dz25.fsf@kernel.org>
+ <20260618153705.GH231643@ziepe.ca>
+ <d4ef9a9f-18d9-40e1-9d02-87aeb9cb6540@amd.com>
+ <20260619120309.GI231643@ziepe.ca>
+ <9f20ce61-1edd-411e-a7c3-be541fb89cb4@amd.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -106,59 +107,125 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <25155bd6-4348-4aa8-ba70-0a882fc84db9@amd.com>
+In-Reply-To: <9f20ce61-1edd-411e-a7c3-be541fb89cb4@amd.com>
 
-On Thu, Jun 18, 2026 at 12:39:21PM +1000, Alexey Kardashevskiy wrote:
+On Mon, Jun 22, 2026 at 10:58:23AM +1000, Alexey Kardashevskiy wrote:
+
+> > I think it was a big mistake for the AMD SME stuff to overload the
+> > decrypted/encrypted CC stuff which should mean shared/private in a
+> > guest context to also mean things about physical memory encryption in
+> > the host. It is really confusing.
+>
+> It is a bit in the PTE which says "encrypted", what do you mean by overloaded?...
+
+Encrypted meaning I'm using DRAM encryption on the host and Encrypted
+meaning this page is private and inaccessible to the hypervisor are
+very different things with very different requirements and is
+confusing they have been overloaded in Linux :(
+
+
+> > The SME side is just a bad arch choice, the real world doesn't work
+> > well if you set high address bits in your dma_addr_t. I think AMD
+> > needs to use those restricted swiotlb pool where it allocates this
+> > very special "SME Disabled" memory that will have a low
+> > dma_addr_t.
 > 
+> The generic __init iommu_subsys_init(void) calls
+> iommu_set_default_translated() if CC_ATTR_MEM_ENCRYPT (==force the
+> use of IOMMU) and eliminates the bouncing by default, pretty
+> much.
+
+Sure, I know, it is a gross solution to a self inflict error.
+
+> We (AMD) do not really want to force Cbit in DMA handles and
+> it is not happening unless "iommu=pt".
+
+Lots of real HW won't work will because of this, so yeah you pretty
+much have to. But also there is HW that is fine, like you can use a
+mlx5 device and it will handle the C bit just fine.
+
+It is pretty hacky to globally force the iommu mode because some
+devices end up not working.
+
+> > Then alloc and bouncing will get memory with a suitable
+> > dma_addr_t. This has nothing to do with force_dma_unencrypted() which
+> > is only a CC guest concept and nothing else in the OS should ever
+> > touch decrypted memory.
 > 
-> On 18/6/26 01:41, Jason Gunthorpe wrote:
-> > On Wed, Jun 17, 2026 at 10:50:39AM +1000, Alexey Kardashevskiy wrote:
-> > > > @@ -193,16 +193,31 @@ void *dma_direct_alloc(struct device *dev, size_t size,
-> > > >    		dma_addr_t *dma_handle, gfp_t gfp, unsigned long attrs)
-> > > >    {
-> > > >    	bool remap = false, set_uncached = false;
-> > > > -	bool mark_mem_decrypt = true;
-> > > > +	bool mark_mem_decrypt = false;
-> > > >    	struct page *page;
-> > > >    	void *ret;
-> > > > +	/*
-> > > > +	 * DMA_ATTR_CC_SHARED is not a caller-visible dma_alloc_*()
-> > > > +	 * attribute. The direct allocator uses it internally after it has
-> > > > +	 * decided that the backing pages must be shared/decrypted, so the
-> > > > +	 * rest of the allocation path can consistently select DMA addresses,
-> > > > +	 * choose compatible pools and restore encryption on free.
-> > > 
-> > > Why this limit?
-> > > 
-> > > Context: I am looking for a memory pool for a few shared pages (to
-> > > do some guest<->host communication), SWIOTLB seems like the right
-> > > fit but swiotlb_alloc() is not exported and
-> > > dma_direct_alloc(DMA_ATTR_CC_SHARED) is not allowed.  Thanks,
-> > 
-> > Then setup your struct device so that the DMA API knows the
-> > guest<->host channel requires unecrypted and it will work correctly.
-> > 
-> > I think this is a reasonable API to use for that, and I was just
-> > advocating that hyperv should be using it too.
-> > 
-> > But it all relies on a properly setup struct device.
+> True.
 > 
-> Sounds good but how do I do that in practice? 
+> Although, with "iommu=pt" enabled, dma handles from swiotlb should
+> not have Cbit so these swiotlb pages have to be unencrypted.
 
-I think we haven't got there yet, I understood Dan's plan was to add a
-bit in the struct device that signals if the device must be
-unencrypted or can support all memory.
+That is how it should ideall work, in this case the purpose of the
+swiotlb pool is to provide low dma address memory because the device
+cannot reach the normal linux dram addresses.
 
-Currently the dma api assumes all devices must have unencrypted by
-default so it should be fine already, shouldn't it?
+> As you mentioned in another mail in the thread, DMAing to
+> unencrypted memory with mem_encrypt=on make no sense security
+> wise. 
 
-> not externally available so I'll have to trick the DMA layer into
-> using SWIOTLB (which is still all shared, right?) as I specifically
-> want to skip page conversions. Setting low DMA mask won't guarantee
-> that the DMA layer won't allocate a page outside of SWIOTLB and
-> convert it. Manually do
+Yes, pretty much.
 
-Why so particular? Any address that satisifies the constraints should
-be good enough?
+> May be enforce either mem_encrypt=on or iommu=pt is allowed at
+> the same time but not both? I am worried though that some weirdo
+> still has a use case for it.
+
+Arguably it should be done per device. The problem is the iommu layer
+doesn't know what the dma mask is until the driver binds so it can't
+detect a device that is unable to reach any dram and switch away from
+identity automatically. That would be much cleaner.
+
+> > > I am looking for a way to set up my "sev-guest" device such as when
+> > 
+> > Whats a "sev-guest" device?
+> 
+> It is a platform device, presented in SNP VMs as /dev/sev-guest and
+> the guest userspace calls ioctls on it when it needs VM attestation
+> report/certificates/etc.
+> 
+> The sev-guest driver makes calls to the HV (GHCB protocol) to:
+
+> 1) get report/certificates/measurements from the HV <- this is done
+> via shared memory as the HV writes to it;
+
+> 2) asks the HV to get the digests from the PSP <- this is done via
+> encrypted memory (buuuut it is software encrypted and as far as the
+> hw is concerned - it is shared - no Cbit, no RMP - these buffers
+> contain plaintext headers of the PSP requests and cyphertext of the
+> request/response body).
+
+Ok, but here you have overloaded the word encrypted again :( Decrypted
+memory containing ciphertext I think you mean
+
+> > > dma_alloc_attrs(snp_dev->dev,...) happens, it allocates a page from
+> > > the shared swiotlb pool (with no actual bouncing) and there is no
+> > > obvious way to trick the DMA layer into doing that.
+> > 
+> > Why do you need this?
+> 
+> /dev/sev-guest uses only shared memory (from the HW standpoint), and
+> it is normally lot less than 1MB. If hugepages are used, then today
+> it allocates 4K pages (they come encrypted and likely backed with a
+> 2M page), the driver converts them to shared to make that GHCB
+> call. The conversion smashes backing 2M page to 4K pages (+RMP
+> +IOPDE as there is possible ongoing DMA), which is a problem (I have
+> mentioned it as "TMPM" before - a hw/fw helper to do the smashing).
+
+Okay, but this has nothing to do with sev-guest at all, and should not
+be solved uniquely for it.
+
+The DMA API in general has a problem spraying allocations all over
+system memory and fragmenting the RMP/GPT/etc and yes it needs a
+solution, but it should be entirely in the DMA API and have no
+special involvment with sev-guest. sev-guest should just make coherent
+allocations and use them in the normal way.
+
+> The idea here is that if swiotlb is already shared, the sev-guest
+> could use that memory pool.
+
+dma_alloc_coherent using the swiotlb pool instead of allocating and
+converting in general is a reasonable proposal, IMHO. Again, nothing
+to do with sev-guest.
 
 Jason
