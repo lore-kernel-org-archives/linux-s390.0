@@ -1,69 +1,60 @@
-Received: from CH5PR02CU005.outbound.protection.outlook.com (mail-northcentralusazon11012057.outbound.protection.outlook.com [40.107.200.57])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 962E329D266
-	for <linux-s390@vger.kernel.org>; Tue, 30 Jun 2026 08:16:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.200.57
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782807399; cv=fail; b=MKq+Pk8Y9QjWzrNze/8WANN12c422LBaJ3TCkemxwZbByU+X8BNQThllYkVPS3g9rrO/fqXnJJucq0LNzV7HkbwFRWn7i3vUpM24addt14Ka6QLgzlPCMDYj6PPL299uPTA0A5Gsh99/EL2SCyhsY64o2F6k7qL3ZnnBznKPoqA=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782807399; c=relaxed/simple;
-	bh=8ixM2KX9HVuryp+Nx5pqh6K7SW5d1y01mqwaWRS/kY0=;
-	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=OCb8ensQgPWGiWIOMkpMeDWOhlta92tQwChQDUXwzXrNjaSdJZM27bR8SwZYJxucagUg2T1vNcG6eYOJ5XoKY1CjiXR3+JpjGE9vLllt/oPawRMPYAcWwmUNrBCwFeFE1Bd181LkDb/rzw++5OxE+tkqR4MRNhKUl9WbyRhqOeE=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=LaHGuXnB; arc=fail smtp.client-ip=40.107.200.57
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 698753E3D85
+	for <linux-s390@vger.kernel.org>; Tue, 30 Jun 2026 09:33:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1782811999; cv=none; b=Y6oHVDMKHOMXz989Cryx9nVdOqw13Z+45Y3NqNHJjQw4tyjJk1LAou6YqlKhaskJtANkq8RlpPxI0VXiUWM4fGTBH/QvHdAGb16ljBCTueTGdXAZShfosM6k12s1divNLPy0S5vhHLoU1QTlDQM1HcZ9D1VtEuPrCpT1YsovyO0=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1782811999; c=relaxed/simple;
+	bh=ic8SgWsq4uYR3/8A5unicmmbRvDxN4HWU3hq6mdrU+o=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=tRvHN7/07jx91P0dOZVdJ6wtRmV/aar3l8cNepbN7XZKjQnug3CIWib4O//8rYPbipBv501MHePbA5GHs3a4LTi3yF+3O9lCiJBcv2uf0qfv+EDpZwul90XDsAzjYKL35CEL1XQX7ITc8aF8asUfE2AKL/+8DUg1IBjE72qMWbM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=QsdskB4n; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="LaHGuXnB"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=B3H8NHCw/RmXfezQGXMztvrCiztN96osyvf9HFEtyO6RUuK5eeLj90CUygqLeiI2nj1Ohgk0R4d4LXZnX3H7d9aWSp4Uj+hJEGByPDlVSOEahJC4ccZBNbaquRjqKx10G18BRoGUcBGapDUgAEnVkO5TO2K7SebypPFsZZ0mrb2EpnaIg8tQggIlPsD/AV0P5fCAXY1Wu/EU9gADztLQrliY4Rc6TLkeeDeKpWO1yECbgPuOUCSbGRtQ+/9GgSrlRg5RfRWT9ucQrnPmd8x6q3IhBIhb+j+eS05cjI5UOZTKu6iTZLQr5MPsw0q76RvgNyLga0zchZBMDx+mAjeZ9A==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=rKQWl+l2XaVOwegCSWCoBKhTPM0pH0mvM38FRdnJxKQ=;
- b=t75vjp2rz+/9WaiWjxoytPDYD5i0Viy/AA9Y9N374vqJ94xxLdlLAJuKiwksEvm+WrjGlVCRAwBkd3rp5D+yecuwwZevX7F9eVC8r2QEsqpBZWBDIzyHX2NRAfPZOnkTiieik+LDCnGuEbAh4rleA2O4XJi0ByPSYlhyiA/fFDl6gDqDCiE10Qi14Tfzur8Lwx+ChyDyYiCT4/Een5YaQ6KYK+ff+D2jvpZ37IlxwFOBktsy8zPhUq2SLCuf+ZUiHX6fNYpsUUxoXdBpJceASprCPgBWCNOopX9p0Ov68g/drnjx/qA/UXqoPKokiNeVW7AOumQHGZ0hBB83251x/w==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 165.204.84.17) smtp.rcpttodomain=lists.linux.dev smtp.mailfrom=amd.com;
- dmarc=pass (p=quarantine sp=quarantine pct=100) action=none
- header.from=amd.com; dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=rKQWl+l2XaVOwegCSWCoBKhTPM0pH0mvM38FRdnJxKQ=;
- b=LaHGuXnByKf+JDTNiav5E+Xizq0akIvvb1rRu2X6HPLUpDsfNLJApXhRAb5BKX41QxzE/74H7o0mt9XiZegbi7YcH5U2Pu3qslN67NptO3kvURwJQvjx3CtoeHtLv216PRTW/buUmXQgxJGJQSSLv5Klsr9i+DyqRK8NwgcV/rw=
-Received: from SJ0PR13CA0154.namprd13.prod.outlook.com (2603:10b6:a03:2c7::9)
- by SJ0PR12MB6927.namprd12.prod.outlook.com (2603:10b6:a03:483::12) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.181.8; Tue, 30 Jun
- 2026 08:16:32 +0000
-Received: from SJ5PEPF000001F5.namprd05.prod.outlook.com
- (2603:10b6:a03:2c7:cafe::9e) by SJ0PR13CA0154.outlook.office365.com
- (2603:10b6:a03:2c7::9) with Microsoft SMTP Server (version=TLS1_3,
- cipher=TLS_AES_256_GCM_SHA384) id 15.21.181.8 via Frontend Transport; Tue, 30
- Jun 2026 08:16:32 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
- smtp.mailfrom=amd.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=amd.com;
-Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
- 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
- client-ip=165.204.84.17; helo=satlexmb07.amd.com; pr=C
-Received: from satlexmb07.amd.com (165.204.84.17) by
- SJ5PEPF000001F5.mail.protection.outlook.com (10.167.242.73) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.21.181.6 via Frontend Transport; Tue, 30 Jun 2026 08:16:32 +0000
-Received: from Satlexmb09.amd.com (10.181.42.218) by satlexmb07.amd.com
- (10.181.42.216) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.41; Tue, 30 Jun
- 2026 03:16:31 -0500
-Received: from satlexmb07.amd.com (10.181.42.216) by satlexmb09.amd.com
- (10.181.42.218) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.41; Tue, 30 Jun
- 2026 01:16:31 -0700
-Received: from [10.136.39.208] (10.180.168.240) by satlexmb07.amd.com
- (10.181.42.216) with Microsoft SMTP Server id 15.2.2562.41 via Frontend
- Transport; Tue, 30 Jun 2026 03:16:30 -0500
-Message-ID: <45be33f3-0853-44e8-834b-ce52bf241fb5@amd.com>
-Date: Tue, 30 Jun 2026 13:46:29 +0530
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="QsdskB4n"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65U5ndoi1071904;
+	Tue, 30 Jun 2026 09:33:08 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=qrEJqj
+	0TLCZMbzewbrRYZCimi7vEuo8/7qvBQj3GoPc=; b=QsdskB4n/1tXPCbjpbOFdO
+	NoeLsJpAPgfegXXFdGFlKth64YsVNYPxUon9mBceF6c9zKXSODYL9Np2MOLJHmt1
+	4qpFiWgZwwkbrl+JJnRS5YJrij7vu4Rzncjb114K+P2LUWE5yc1yP8C3ZqSZjDWD
+	XSZIo4ZQD5FKQUyE5meKpZpx2LUJOEw0jDnCOeVwukaMyTeQ5HmN7uQIt3go2Yx6
+	Rp2A5rl0WH+eR6cnCw7/iAtUzwYOCpPKC2NUGEocDxzfZTfywgrk4zugSZGI4Yrd
+	WWKtjoDN71WACkfoY72huynjJhbZjMQDlrf+YHNMFMxMDxyjMzINa4fyPCarA3gQ
+	==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4f26rewkr4-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 30 Jun 2026 09:33:08 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 65U9JioM021467;
+	Tue, 30 Jun 2026 09:33:07 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4f2uhy97ew-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 30 Jun 2026 09:33:07 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 65U9X3Ga31326534
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 30 Jun 2026 09:33:03 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 82F722004E;
+	Tue, 30 Jun 2026 09:33:03 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id EAD6720043;
+	Tue, 30 Jun 2026 09:33:02 +0000 (GMT)
+Received: from [0.0.0.0] (unknown [9.111.74.190])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 30 Jun 2026 09:33:02 +0000 (GMT)
+Message-ID: <6e7ce946-1128-4b2c-9520-a171bca3ceb7@linux.ibm.com>
+Date: Tue, 30 Jun 2026 11:33:02 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -71,125 +62,137 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v5 3/8] arm64/runtime-const: Introduce
- runtime_const_mask_32()
-To: <sashiko-reviews@lists.linux.dev>
-CC: Alexander Gordeev <agordeev@linux.ibm.com>, Heiko Carstens
-	<hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-	<linux-s390@vger.kernel.org>
-References: <20260630045531.3939-1-kprateek.nayak@amd.com>
- <20260630045531.3939-4-kprateek.nayak@amd.com>
- <20260630050742.0BBB21F000E9@smtp.kernel.org>
+Subject: Re: [PATCH v8 01/18] target/s390x: Fix wrong address handling in
+ address loops
+To: freude@linux.ibm.com
+Cc: richard.henderson@linaro.org, david@kernel.org, thuth@redhat.com,
+        berrange@redhat.com, qemu-s390x@nongnu.org, qemu-devel@nongnu.org,
+        linux390-list@tuxmaker.boeblingen.de.ibm.com,
+        linux-s390@vger.kernel.org, dengler@linux.ibm.com,
+        borntraeger@linux.ibm.com, fcallies@linux.ibm.com, cohuck@redhat.com
+References: <20260624081029.23815-1-freude@linux.ibm.com>
+ <20260624081029.23815-2-freude@linux.ibm.com>
+ <e516de9c-e9fb-45af-aa5e-8cb9dbf1e3f3@linux.ibm.com>
+ <d55a9d7e7759251c1e75050a9a9ccd6f@linux.ibm.com>
 Content-Language: en-US
-From: K Prateek Nayak <kprateek.nayak@amd.com>
-In-Reply-To: <20260630050742.0BBB21F000E9@smtp.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SJ5PEPF000001F5:EE_|SJ0PR12MB6927:EE_
-X-MS-Office365-Filtering-Correlation-Id: 8646c670-239a-4296-a0af-08ded67fe4fa
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|23010399003|82310400026|36860700016|376014|1800799024|13003099007|18002099003|22082099003|3023799007|56012099006|11063799006|5023799004|4143699003|6133799003;
-X-Microsoft-Antispam-Message-Info:
-	QjVQMLtzJdyqIYDEREDljdXHKIAQ8ixNGUp6+3HNqGo2ZRBYD7VTPR3oB66S+4ShSmUNmfgCCzmtx+3wiwkBOgJbWSiqllejakJWe1o46v3LdRNfWm/CAHmnRRzUh/nLC6jYwUJfDheHQwIISt2lPrQMIQw1XPGa3KzleJzl1CvQxiGSbVHFAXrELz6mTthiQRwvh9YIvPQmEs7zlkc52VCvAR2vsqr4GUwyn+W7NhvKWTx4+6gb/QmgrjQPMFRN9+JrcKvZGm7IzPB8p03fHe9dY+32xCFEvyeDk8jozK6h8jbvL02Aleuu3hBL/QM2O6dATdK4McRQqyDhvi1wabkrjldd7Fk8JXDT85SgXwWoPUFKCGZQLx0IFLV4yiIy0TcUeZV/nQwAUMwBhbrOhyi6lhuaifUvAsP3a2ZfQlzY8FXGSoV9jCthV07vvVrymWQxBgkKCUjELHjjB+kGJRRd1OIY1Xfyt74y0qjkHkbmWgKUH5myGKYz6YBYSU+rucYixvczk5nTQlXL/CbnbflXfX8JxIZcqpfM+fYozr/g82OSTzMwEi4t7o8UxgOpN8k30G+wYxyjG8EguAjJLAxjhQG/YZOtP8KB4tTpED79dwAsyec3KCVmgD8YJtwgx2lfTBN+PQXMT75lYeKibQy4vaOen2JkJt+dK5SGjKYcghDOwboOH79yuRQJTxYGNbjRD9kkCf18Ez5v8Wy0OA==
-X-Forefront-Antispam-Report:
-	CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:satlexmb07.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(23010399003)(82310400026)(36860700016)(376014)(1800799024)(13003099007)(18002099003)(22082099003)(3023799007)(56012099006)(11063799006)(5023799004)(4143699003)(6133799003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	IsyDmfF9vFc687suBupwGhp9caQxLx7dOwUpdamgphKTdTSy3cC2ObrwtR6QNCewqaRv5fPe90CDJEWtVYclA2dIDXS3z2nlHnXccFQwQcFpTD1dwtLmwscLDg7ilt7PCPKha2Kf+o1Ob/jRyPUS5Nc8ODb84p3zt6cIIk3KtizpF37gmXr/oUCK4XGQDrBgjXMY57OChisO3DCRyRVls+5ejyfj8gA8ZCpRZGjJlMJF0J1qlQusTTWV3cXOlLtMQueLllkV0MQ6Xhc3FjdJNG7nPS3mQ0EWUTUJZoI4x5pj9368oYytFAGl6fs+Z9hrvs6c7zJGHIFBUhLNZCMd210FYHFxJ/8VBxQr99XSCAXiWe/8cW8FKv/BlhgC5PM/PKh+h/PsxIXHPMfo8ufqPVzAfdf5NMBzGnSae7buJJylgt5NNu9zEjlbWJyT+g//
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 30 Jun 2026 08:16:32.3244
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 8646c670-239a-4296-a0af-08ded67fe4fa
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[satlexmb07.amd.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	SJ5PEPF000001F5.namprd05.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ0PR12MB6927
+From: Ilya Leoshkevich <iii@linux.ibm.com>
+In-Reply-To: <d55a9d7e7759251c1e75050a9a9ccd6f@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=a4kAM0SF c=1 sm=1 tr=0 ts=6a438d54 cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=IkcTkHD0fZMA:10 a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8
+ a=ds73FjZ_ZaksN5JMifAA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+X-Proofpoint-ORIG-GUID: 9U76Rn7OBdubWxNVaiOUEU3B83wxl4LV
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjMwMDA4MyBTYWx0ZWRfX+LDBa16FSNQh
+ Bv2VOX+/h5wd4TvBnc0513ivbmhpTLUlVHWFyUD6DEjmgBoTLORHi/JkUQv3Kyqen1isWC5Nx54
+ 0rNJBL+hrnzSxYSSNwyT9POCPzFFqhJgR2W2sH4BqqhD/SiWnbOvCoj6GfSgZLTFRTGsbywaJYg
+ 5mX2qTlPevXm99Q/XVHuVyBshWGzte2xAIWCVeWRDM7/lMrYq9XJPXmKPlrEj3TNAEcER1cw4GL
+ zqYxD0tXFmT/rokNWKG7QJMWtUozORiPPTamvM1DH9/++TOuIwdYnIjP6lD915KtDVVX+nLbykf
+ N6j98VY7JNxh+8c5IqV4jMVuMC9Vr7C4B0Bh/skuntiip7yQKJkBBwK64CMlefRcxtORmVBRlWM
+ zHb9SurYc3/IZbxtON6qY+p/Nmt/LKvOEBnw6cniRpkMRNkJ6A7OxS5fljdXPEqhydWLNtUamva
+ WQOBlLUvnSYhEACIaVA==
+X-Proofpoint-GUID: 9U76Rn7OBdubWxNVaiOUEU3B83wxl4LV
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNjMwMDA4MyBTYWx0ZWRfXwOTfKkqPuqFc
+ 44wnujJ2dUtxFoMvabogRjYqVU8xcG9XOl1lIAEN02JGrNbO6IzSlEqpIc1l6IcYO42uSnfy9kh
+ uvIw/8x0Nde8ZR/GDYSxrmsZF6+lI/w=
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
+ definitions=2026-06-30_02,2026-06-26_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ clxscore=1015 bulkscore=0 suspectscore=0 lowpriorityscore=0 impostorscore=0
+ spamscore=0 priorityscore=1501 adultscore=0 malwarescore=0 phishscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2606300083
 
-Hello,
 
-On 6/30/2026 10:37 AM, sashiko-bot@kernel.org wrote:
-> [You don't often get email from sashiko-bot@kernel.org. Learn why this is important at https://aka.ms/LearnAboutSenderIdentification ]
-> 
-> Thank you for your contribution! Sashiko AI review found 2 potential issue(s) to consider:
-> - [Medium] Calling `__fls(val)` before `BUG_ON(!val)` invokes undefined behavior for `val == 0`, potentially allowing the compiler to optimize away the safety check.
-> - [Low] The commit message incorrectly references `amd64` instead of `arm64` and misspells `density`.
-> --
-> 
-> commit e9b79c78d336baf757f7578713831df9b1c4c1b9
-> Author: K Prateek Nayak <kprateek.nayak@amd.com>
-> 
-> arm64/runtime-const: Introduce runtime_const_mask_32()
-> 
-> This patch introduces runtime_const_mask_32 to optimize the mask operation
-> in the futex hash computation hot path using the UBFX instruction. It also
-> adds __runtime_fixup_mask to patch the 32-bit mask in the asm block once
-> the mask is known.
-> 
-> Link: https://developer.arm.com/documentation/ddi0602/2026-03/Base-Instructions/ [1]
-> Link: https://lore.kernel.org/lkml/20260430094730.31624-4-kprateek.nayak@amd.com/ [2]
-> 
->> instruction is used for amd64 to improve instruction dinsity and
->> performance.
-> 
-> [Severity: Low]
-> This isn't a bug, but there are a couple of typos here. Should "amd64" be
-> "arm64", and "dinsity" be "density"?
 
-Ah! Yes. Sorry about that. I'll wait for a while for more comments and
-spin a v5.1 if necessary to fix those typos.
-
+On 6/29/26 14:57, Harald Freudenberger wrote:
+> On 2026-06-24 14:56, Ilya Leoshkevich wrote:
+>> On 6/24/26 10:09, Harald Freudenberger wrote:
+>>> With the introduction of the address wrapping function
+>>> wrap_address() the result can't be used to walk the
+>>> source address any more. So introduce a new local variable
+>>> to hold the wrapped address to avoid mixing source and
+>>> wrapped address value.
+>>>
+>>> Fixes: fcc2699d41 ("target/s390x: Have MSA helper pass a mmu_idx 
+>>> argument")
+>>> Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
+>>> ---
+>>>   target/s390x/tcg/crypto_helper.c | 16 ++++++++--------
+>>>   1 file changed, 8 insertions(+), 8 deletions(-)
+>>
+>> If I take as an example AMODE 24 and look at the third loop iteration,
+>> with the current code in master I would get:
+>>
+>>     ((((addr & 0xffffff) + 8) & 0xffffff) + 8) & 0xffffff
+>>
+>> and with your patch it would be:
+>>
+>>     (addr + 8 + 8) & 0xffffff
+>>
+>> which is undeniably more elegant, but otherwise looks equivalent to me.
+>>
+>> What is the functional issue here?
+>>
+>>> diff --git a/target/s390x/tcg/crypto_helper.c b/target/s390x/tcg/ 
+>>> crypto_helper.c
+>>> index ae392bce0e..29ad2aff43 100644
+>>> --- a/target/s390x/tcg/crypto_helper.c
+>>> +++ b/target/s390x/tcg/crypto_helper.c
+>>> @@ -126,8 +126,8 @@ static void sha512_read_icv(CPUS390XState *env, 
+>>> const int mmu_idx,
+>>>       const MemOpIdx oi = make_memop_idx(MO_BE | MO_64 | MO_UNALN, 
+>>> mmu_idx);
+>>>         for (int i = 0; i < 8; i++, addr += 8) {
+>>> -        addr = wrap_address(env, addr);
+>>> -        a[i] = cpu_ldq_mmu(env, addr, oi, ra);
+>>> +        uint64_t _addr = wrap_address(env, addr);
+>>> +        a[i] = cpu_ldq_mmu(env, _addr, oi, ra);
+>>>       }
+>>>   }
+>>
+>> [...]
 > 
->> diff --git a/arch/arm64/include/asm/runtime-const.h b/arch/arm64/include/asm/runtime-const.h
->> index 838145bc289d2..371c9a4bc2d4b 100644
->> --- a/arch/arm64/include/asm/runtime-const.h
->> +++ b/arch/arm64/include/asm/runtime-const.h
-> [ ... ]
->> +static inline void __runtime_fixup_mask(void *where, unsigned long val)
->> +{
->> +     unsigned int width = __fls(val) + 1;
->> +     __le32 *p = where;
->> +     u32 insn;
->> +
->> +     /*
-> [ ... ]
->> +      */
->> +     BUG_ON(!val || width > 32 || (GENMASK(width - 1, 0) != val));
-> 
-> [Severity: Medium]
-> Does evaluating __fls(val) before the BUG_ON(!val) check invoke undefined
-> behavior if val is 0?
-> 
-> Looking at __fls(), it uses __builtin_clzl(word) which is undefined when
-> the argument is 0:
-> 
-> include/asm-generic/bitops/builtin-__fls.h:__fls() {
->     return (sizeof(word) * 8) - 1 - __builtin_clzl(word);
-> }
-> 
-> Could the compiler use Value Range Propagation to assume val is non-zero
-> due to the __fls() call, and silently optimize away the !val safety guard?
+> It is a fix, not an improvement. The original code
+> used the addr variable to hold the wrapped address.
+> But as addr is also used as the loop variable there
+> is a mixing between unwrapped and wrapped address here
+> and the unfixed code only works when wrap_address does
+> return the very same address as output as it became as
+> input. My fix corrects this.
 
-How does that work? "width" is calculated as __fls(val) so why would the
-compiler make assumption on the possible values of "val" based on that call
-alone?
+What does the patch change w.r.t. wrapping?
+Suppose we have amode 24 and addr = 0xfffff0:
 
-I suppose you are referring to an issue like
-https://gcc.gnu.org/pipermail/gcc/2023-November/242808.html but that is
--O3 and under normal circumstances, the propagation is stopped if the
-compiler believes there is possibility of undefined behavior:
-https://github.com/gcc-mirror/gcc/blob/7ebc766bdbc8584699acb3f8fd30b2c393923c06/gcc/gimple-range-op.cc#L937-L944
+Before:
 
-That said, I can fix it in the next version to always check for 0 before
-__fls().
+   i = 0; addr = wrap(0xfffff0) = 0xfffff0;
+          a[0] = ldq(0xfffff0);
+   i = 1; addr = wrap(0xfffff0 + 8) = 0xfffff8;
+          a[1] = ldq(0xfffff8);
+   i = 2; addr = wrap(0xfffff8 + 8) = 0;
+          a[2] = ldq(0);
+   i = 3; addr = wrap(0 + 8) = 8;
+          a[3] = ldq(8);
 
--- 
-Thanks and Regards,
-Prateek
+After:
 
+   i = 0; addr = 0xfffff0;
+          _addr = wrap(0xfffff0) = 0xfffff0;
+          a[0] = ldq(0xfffff0)
+   i = 1; addr = 0xfffff0 + 8;
+          _addr = wrap(0xfffff8) = 0xfffff8;
+          a[1] = ldq(0xfffff8);
+   i = 2; addr = 0xfffff8 + 8 = 0x1000000
+          _addr = wrap(0x1000000) = 0;
+          a[2] = ldq(0);
+   i = 3; addr = 0x1000000 + 8 = 0x1000008;
+          _addr = wrap(0x1000008) = 8;
+          a[3] = ldq(8);
+
+The behavior look identical to me.
+What am I missing?
