@@ -1,72 +1,103 @@
-Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qk1-f182.google.com (mail-qk1-f182.google.com [209.85.222.182])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A6A9143E49A;
-	Tue, 30 Jun 2026 15:32:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B67546AF3B
+	for <linux-s390@vger.kernel.org>; Tue, 30 Jun 2026 16:02:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782833530; cv=none; b=i62AOpdES65e/I3nxZHlPhRpdtUEDKOePF2HcnLZ/z3gG4D5YCqPuU+pquv+g6BehL/Vqc1EMjjrUg053BOXOiK+U8YGuGvxDJN6T4AgWEHOsqjm+KcateTjcmPoz3TezW7edFLD0zDhiTrr4Bqm/n+0vOWFtuQgb6kjd5xTAsk=
+	t=1782835370; cv=none; b=qQTrA/n7+Gh/6QWWBdvLwKZyB8RIDIoWD4MjEQF4ejjAeJYIEmePdMB9Q0y5B1vZwMHTDqHQqjxc0w2/cIBuMx6XKDpw13wWvojLDFK7dRVCisigTG2aA5av/k3727zvnm1h9qWL1qiebjrHs9TfqDqr9iCUdpv6YxvSjnfrM2c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782833530; c=relaxed/simple;
-	bh=xVA+WbEs3JYKQUWaIl/ijOJ73egy9kjACamyC88+dUI=;
+	s=arc-20240116; t=1782835370; c=relaxed/simple;
+	bh=kHw7DLrL4QjCK55x79lTHIkq15rpEE6+NeVSt2Lz+08=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=K5Cs3SibS7SFeUa68bUGC6bZu7MFSWYzEd4Q7nXuHXbSOmUX2HG9R3LPm2puexUNFlzljZu3muOUN5o7VVZ6P7NrDnD2jehRPCYNC8jydkH6tSLliFcVECQpt4dk+abA//uV5QOuag+vu+LOjK2q+YH4kTQMaeLubZUt3bsMFJM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=qu/1s0nH; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=vVSU3b5g; arc=none smtp.client-ip=193.142.43.55
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
+	 Content-Type:Content-Disposition:In-Reply-To; b=mzp5GWfhxVyiphoe4SR8dIxFeG3C1UbsQl7Tc4RYYozidXXi76ywgMPgdCunPfd3YDCGVi5+r6BG3i9/ScJikEuaeJSq7YwSy23ExAT54neX0up1SrIcw3rPggUd0m99ec2eqIEaiF9KTLiqyMQmJyksAfsRMvz9HC33nksV8sQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca; spf=pass smtp.mailfrom=ziepe.ca; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=oAv3KPde; arc=none smtp.client-ip=209.85.222.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="qu/1s0nH";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="vVSU3b5g"
-Date: Tue, 30 Jun 2026 17:32:04 +0200
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020; t=1782833526;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=RdsRgNbVkI3Xb/bXMSfj+yw5lewzrynD2xqGGnGzV8Y=;
-	b=qu/1s0nHQC6KFpDGuKrxXJLqBTdl1FoH/4yCYl34ohT2guoTuARwKQEULMNqdYWydigyrj
-	UQsxj+D6QvmsMUbHcM7u3rM86IjWKPJT39xqCzzGIvsLgqe2Hz4HBOvbz7iysNXKPy5W/u
-	R/GUuEzOAf1ZZdsDdNL4Jr6q/bCrdt9+3kstOwvKETmQg7hIqCfC8XESzPiKTthZJ9Oc09
-	xpBcumA8KxG/PCdAqz4l1iGj82SI/tB9ALWL8NP8tofOtWsr179TrHBkKBYCmCED0scKGL
-	24UnriDqIvgBJ16vM4xBQFbAgoL54zsV+WuM26JgtD+5w8qeomuxalv2Kqf/NA==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020e; t=1782833526;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=RdsRgNbVkI3Xb/bXMSfj+yw5lewzrynD2xqGGnGzV8Y=;
-	b=vVSU3b5gGX9pyXfPgfu3YTbbfDnrmDCkQKRUwm+vxUCIXLFG0mbsTHQglZDx4c5OUPi7Tu
-	n00gEBCaZoE4kFBg==
-From: Thomas =?utf-8?Q?Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
-To: Jinjie Ruan <ruanjinjie@huawei.com>
-Cc: oleg@redhat.com, richard.henderson@linaro.org, mattst88@gmail.com, 
-	linmag7@gmail.com, linux@armlinux.org.uk, catalin.marinas@arm.com, will@kernel.org, 
-	kees@kernel.org, guoren@kernel.org, chenhuacai@kernel.org, kernel@xen0n.name, 
-	geert@linux-m68k.org, tsbogend@alpha.franken.de, James.Bottomley@hansenpartnership.com, 
-	deller@gmx.de, maddy@linux.ibm.com, mpe@ellerman.id.au, npiggin@gmail.com, 
-	chleroy@kernel.org, pjw@kernel.org, palmer@dabbelt.com, aou@eecs.berkeley.edu, 
-	alex@ghiti.fr, hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com, 
-	borntraeger@linux.ibm.com, svens@linux.ibm.com, ysato@users.sourceforge.jp, dalias@libc.org, 
-	glaubitz@physik.fu-berlin.de, richard@nod.at, anton.ivanov@cambridgegreys.com, 
-	johannes@sipsolutions.net, luto@kernel.org, tglx@kernel.org, mingo@redhat.com, bp@alien8.de, 
-	dave.hansen@linux.intel.com, hpa@zytor.com, chris@zankel.net, jcmvbkbc@gmail.com, 
-	peterz@infradead.org, wad@chromium.org, thuth@redhat.com, mark.rutland@arm.com, 
-	ada.coupriediaz@arm.com, kevin.brodsky@arm.com, linusw@kernel.org, yeoreum.yun@arm.com, 
-	song@kernel.org, james.morse@arm.com, anshuman.khandual@arm.com, 
-	broonie@kernel.org, liqiang01@kylinos.cn, pengcan@kylinos.cn, ryan.roberts@arm.com, 
-	yangtiezhu@loongson.cn, sshegde@linux.ibm.com, mchauras@linux.ibm.com, 
-	austin.kim@lge.com, jchrist@linux.ibm.com, arnd@arndb.de, sohil.mehta@intel.com, 
-	andrew.cooper3@citrix.com, jgross@suse.com, kas@kernel.org, x86@kernel.org, 
-	linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, linux-mm@kvack.org, linux-csky@vger.kernel.org, 
-	loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, 
-	linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, 
-	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-um@lists.infradead.org
-Subject: Re: [PATCH v16 18/18] arm64: vdso: Expose sigreturn address on vdso
- to the kernel
-Message-ID: <20260630172619-6c78c2e2-c2d3-44be-88e6-6c82de12baf4@linutronix.de>
-References: <20260629130616.642022-1-ruanjinjie@huawei.com>
- <20260629130616.642022-19-ruanjinjie@huawei.com>
+	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="oAv3KPde"
+Received: by mail-qk1-f182.google.com with SMTP id af79cd13be357-92e50c5d14cso153612185a.2
+        for <linux-s390@vger.kernel.org>; Tue, 30 Jun 2026 09:02:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ziepe.ca; s=google; t=1782835366; x=1783440166; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=GI+sDv/bw0RypxsaDxkfRwNjpEKuAX+hIc2iRD1v3+Q=;
+        b=oAv3KPdedZiBYPAKOd3BNJKidX7yI83EZrsgIkAgm39IxaWkcZuYJXws6zuK+gcm+u
+         SHxUl2bZI7AaZ7AdKTj3jb1T1fwFI6nzhGZuaaisVNMH28BEpw/SIZBgtIB5Z1cKYBB3
+         WLMROfmOT1z6zUF4re3Jl83MIVhUDNm0opyKa0EACC69EMj0uGmFWg8UGuV2iVf1wYNI
+         u9hJIYvLTvmMkFa/ndCCDe3APfD6EBXlyQF+J6chHpbCOZmWx8Ljz+MTgS2ljwji1hbf
+         3KezeC/uRqIrWm31u/sPUHugaZ8Q9vQArwRzgNSwB/zbJqne/uMSFPhgk4lLKyPRX2QD
+         APag==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1782835366; x=1783440166;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=GI+sDv/bw0RypxsaDxkfRwNjpEKuAX+hIc2iRD1v3+Q=;
+        b=ECfL+CRGsPlnXQXnqXoPDJ0qpME8ZYu3xOYfm6u4YXjtposEzLkeCFtq29UCDTPXpa
+         4r1J+cGE/Bml4o1LPHkI11NMdsc0RWA6fCLS/wPdyIGd2CGezMgvEHZ49342YO4dkuDB
+         W9bzFWguPWeF+/7htNkXseG+KR3nEXXBoneCLAT3RKmFIFTg0W5x4uAO9+DTYUABrqmX
+         FwL+cnNhM71K9QcQccPyClO6JQh7PnaXRtxgvLg+Rgt5w+XNZmzlaMj7lvgeRVcSfkkD
+         1zdujDU6AdmWy+EHvRUqq+HkkYtYY/B1J3Buj7l/qXKq0a+vJqQ3QLUKzu9U8IDsaVG9
+         mbYg==
+X-Forwarded-Encrypted: i=1; AFNElJ9jw2kAW1BZoKwKF8tmfDkdxQipjs8fMCcqr9OZX60B6VTiZui9QgVoUEqN7gCfjrnj9NM8+6OF056G@vger.kernel.org
+X-Gm-Message-State: AOJu0YzOneDdxC/LW7JrdlzC6nI4QJWdUWUUXgLjSB8zsWSgNiw3Rocy
+	rTCQcIQ+L91RtQqI0NhpgtsQEHyJzeOQoVXgbId7Bxpj4HWI3tV9rI7rLORckg7Md3Y=
+X-Gm-Gg: AfdE7clSwusg4T5f5nT0ZfqZru694L5AvTeHqcJnd6FqC+7UClGpBRDkgBMQtwOfBuy
+	6AzcuF3fNj9nzsNR5josn7KskTqUlmrZTnARsNmsrlX72InfV4Poa56gM6+9OPfy1uodHibqCvx
+	ZvyUrhh3ieZt+tjgqlO/BWY7IODX35L2/TDZsa9kANvcMeuCoZ0HmBOGsa4UWfOEzXUWS9Ot1E1
+	sr427PC1Tt/Tp5Wznn18Aveig+hk9dku3HAxvChoPbiuxsby7d5I/BxfftioaoKoA3hGZpkUK0W
+	EtuiTXLx0lCWS6cI+Q+T32EuJhYSlkazKrJG9ISF3UbfHsV3LZ2zswR7N1olpzw0++PsZElzzbg
+	iPHu+OxB5Curtviyf8WBSEejGasG4n1eKU62miWUQF6qn9hpfmTrljrralY1D6puSGD0MMcH4tO
+	ZKPxVcT/ur44UL08MdB1pn27rNhEFpl27gR50iBzf2emUIqIn/sZOYFceiD0GtTM7bNds=
+X-Received: by 2002:a05:620a:839b:b0:915:c4de:7ac0 with SMTP id af79cd13be357-92e6278d80fmr646181785a.31.1782835365891;
+        Tue, 30 Jun 2026 09:02:45 -0700 (PDT)
+Received: from ziepe.ca (crbknf0213w-47-54-130-67.pppoe-dynamic.high-speed.nl.bellaliant.net. [47.54.130.67])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-92e6236b9fcsm262102385a.41.2026.06.30.09.02.43
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 30 Jun 2026 09:02:44 -0700 (PDT)
+Received: from jgg by wakko with local (Exim 4.97)
+	(envelope-from <jgg@ziepe.ca>)
+	id 1weav4-000000027Ay-3dT0;
+	Tue, 30 Jun 2026 13:02:42 -0300
+Date: Tue, 30 Jun 2026 13:02:42 -0300
+From: Jason Gunthorpe <jgg@ziepe.ca>
+To: Alexey Kardashevskiy <aik@amd.com>
+Cc: "Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org>,
+	iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev,
+	Robin Murphy <robin.murphy@arm.com>,
+	Marek Szyprowski <m.szyprowski@samsung.com>,
+	Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
+	Steven Price <steven.price@arm.com>,
+	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Jiri Pirko <jiri@resnulli.us>, Mostafa Saleh <smostafa@google.com>,
+	Petr Tesarik <ptesarik@suse.com>,
+	Dan Williams <dan.j.williams@intel.com>,
+	Xu Yilun <yilun.xu@linux.intel.com>, linuxppc-dev@lists.ozlabs.org,
+	linux-s390@vger.kernel.org,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org,
+	Jiri Pirko <jiri@nvidia.com>, Michael Kelley <mhklinux@outlook.com>,
+	"Cheloha, Scott" <Scott.Cheloha@amd.com>
+Subject: Re: [PATCH v6 03/20] dma-direct: use DMA_ATTR_CC_SHARED in
+ alloc/free paths
+Message-ID: <20260630160242.GI7525@ziepe.ca>
+References: <20260604083959.1265923-1-aneesh.kumar@kernel.org>
+ <20260604083959.1265923-4-aneesh.kumar@kernel.org>
+ <845d0c8a-6d51-47aa-8e0b-8381e733444a@amd.com>
+ <20260617154101.GE3577091@ziepe.ca>
+ <25155bd6-4348-4aa8-ba70-0a882fc84db9@amd.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -75,74 +106,59 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260629130616.642022-19-ruanjinjie@huawei.com>
+In-Reply-To: <25155bd6-4348-4aa8-ba70-0a882fc84db9@amd.com>
 
-On Mon, Jun 29, 2026 at 09:06:16PM +0800, Jinjie Ruan wrote:
-> Syscall User Dispatch (SUD) requires the signal trampoline code to not be
-> intercepted. This is necessary to support returning with a locked selector
-> while avoiding infinite recursion back into the signal handler.
+On Thu, Jun 18, 2026 at 12:39:21PM +1000, Alexey Kardashevskiy wrote:
 > 
-> Implement arch_syscall_is_vdso_sigreturn() for arm64 to support this
-> exclusion mechanism. For native 64-bit tasks, it checks whether the current
-> PC matches the 'svc #0' instruction inside the vDSO sigreturn trampoline.
 > 
-> 	SYM_CODE_START(__kernel_rt_sigreturn)
-> 	        mov     x8, #__NR_rt_sigreturn
-> 	        svc     #0
-> 	SYM_CODE_END(__kernel_rt_sigreturn)
+> On 18/6/26 01:41, Jason Gunthorpe wrote:
+> > On Wed, Jun 17, 2026 at 10:50:39AM +1000, Alexey Kardashevskiy wrote:
+> > > > @@ -193,16 +193,31 @@ void *dma_direct_alloc(struct device *dev, size_t size,
+> > > >    		dma_addr_t *dma_handle, gfp_t gfp, unsigned long attrs)
+> > > >    {
+> > > >    	bool remap = false, set_uncached = false;
+> > > > -	bool mark_mem_decrypt = true;
+> > > > +	bool mark_mem_decrypt = false;
+> > > >    	struct page *page;
+> > > >    	void *ret;
+> > > > +	/*
+> > > > +	 * DMA_ATTR_CC_SHARED is not a caller-visible dma_alloc_*()
+> > > > +	 * attribute. The direct allocator uses it internally after it has
+> > > > +	 * decided that the backing pages must be shared/decrypted, so the
+> > > > +	 * rest of the allocation path can consistently select DMA addresses,
+> > > > +	 * choose compatible pools and restore encryption on free.
+> > > 
+> > > Why this limit?
+> > > 
+> > > Context: I am looking for a memory pool for a few shared pages (to
+> > > do some guest<->host communication), SWIOTLB seems like the right
+> > > fit but swiotlb_alloc() is not exported and
+> > > dma_direct_alloc(DMA_ATTR_CC_SHARED) is not allowed.  Thanks,
+> > 
+> > Then setup your struct device so that the DMA API knows the
+> > guest<->host channel requires unecrypted and it will work correctly.
+> > 
+> > I think this is a reasonable API to use for that, and I was just
+> > advocating that hyperv should be using it too.
+> > 
+> > But it all relies on a properly setup struct device.
 > 
-> For COMPAT tasks, it verifies if the instruction falls within
-> the architecture's 'sigpage' range, allowing the kernel to safely bypass
-> dispatching syscalls originating from these areas back to userspace.
-> 
-> Suggested-by: Kevin Brodsky <kevin.brodsky@arm.com>
-> Suggested-by: kemal <kmal@cock.li>
-> Signed-off-by: Jinjie Ruan <ruanjinjie@huawei.com>
-> ---
->  arch/arm64/include/asm/elf.h |  1 +
->  arch/arm64/kernel/vdso.c     | 16 ++++++++++++++++
->  2 files changed, 17 insertions(+)
-> 
-> diff --git a/arch/arm64/include/asm/elf.h b/arch/arm64/include/asm/elf.h
-> index d2779d604c7b..f43d4dea916a 100644
-> --- a/arch/arm64/include/asm/elf.h
-> +++ b/arch/arm64/include/asm/elf.h
-> @@ -185,6 +185,7 @@ do {									\
->  struct linux_binprm;
->  extern int arch_setup_additional_pages(struct linux_binprm *bprm,
->  				       int uses_interp);
-> +extern bool arch_syscall_is_vdso_sigreturn(struct pt_regs *regs);
+> Sounds good but how do I do that in practice? 
 
-A header for that?
+I think we haven't got there yet, I understood Dan's plan was to add a
+bit in the struct device that signals if the device must be
+unencrypted or can support all memory.
 
->  /* 1GB of VA */
->  #ifdef CONFIG_COMPAT
-> diff --git a/arch/arm64/kernel/vdso.c b/arch/arm64/kernel/vdso.c
-> index 592dd8668de4..5a0314a3c26e 100644
-> --- a/arch/arm64/kernel/vdso.c
-> +++ b/arch/arm64/kernel/vdso.c
-> @@ -343,3 +343,19 @@ int arch_setup_additional_pages(struct linux_binprm *bprm, int uses_interp)
->  
->  	return ret;
->  }
-> +
-> +bool arch_syscall_is_vdso_sigreturn(struct pt_regs *regs)
-> +{
-> +	unsigned long sigtramp;
-> +
-> +#ifdef CONFIG_COMPAT
-> +	if (is_compat_task()) {
-> +		unsigned long sigpage = (unsigned long)current->mm->context.sigpage;
-> +
-> +		return regs->pc >= sigpage && regs->pc < (sigpage + PAGE_SIZE);
-> +	}
-> +#endif
-> +	sigtramp = (unsigned long)VDSO_SYMBOL(current->mm->context.vdso, sigtramp);
-> +
-> +	return regs->pc == (sigtramp + 8);
+Currently the dma api assumes all devices must have unencrypted by
+default so it should be fine already, shouldn't it?
 
-Instead of hardcoding 'sigtramp + 8' you could add a new label to the 'svc #0'
-instruction and use that with VDSO_SYMBOL().
+> not externally available so I'll have to trick the DMA layer into
+> using SWIOTLB (which is still all shared, right?) as I specifically
+> want to skip page conversions. Setting low DMA mask won't guarantee
+> that the DMA layer won't allocate a page outside of SWIOTLB and
+> convert it. Manually do
 
+Why so particular? Any address that satisifies the constraints should
+be good enough?
 
-Thomas
+Jason
