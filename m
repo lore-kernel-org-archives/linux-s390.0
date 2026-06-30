@@ -1,70 +1,69 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1AC533E0234;
-	Tue, 30 Jun 2026 17:23:26 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 23FE13AA1B5;
+	Tue, 30 Jun 2026 17:27:16 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782840210; cv=none; b=LBnmjj+2g5MaNMs76+fpi+4SqUJPg15MvtSfdMK64JMWhrSSO7fJVANOmHVJg9z1iNJ4QSftNPK9yJhc6k7hbn3ZtQqbrIhIiWKQV5pyEiqFRJs9uE0hN+fvOr4Bjo0zxOniFMKtX9+vlsFV/JkNvx76YwLP5i4Ub/ydAREZ/fE=
+	t=1782840438; cv=none; b=iBN7vjuaxvrGxebDpDOBResQixp4wHdMbCnfXcJQSXI4ThY5R14UmiZRShwHRJmd3gsg+xqXOCGMrGD+8ROElh3HLvaHHDw9Gt91pjVpFGm7HjKCxKGMWof6AQg+mfOSo0MZJ+2xn6qe8Ec+kyQHG+C4ByNaNukgOSiXnmjgNIw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782840210; c=relaxed/simple;
-	bh=2/PLOMBW0BkEjg72GdqLIJB72ETbgMgHbDTZU0aPQoI=;
+	s=arc-20240116; t=1782840438; c=relaxed/simple;
+	bh=ss2fGP3mjT1OY+/VMSawSf8lqidO9w0vy7lhQdI3bMI=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=paKAGhncBsd9/s2itupMD2CRn/KOqN0Hx+MOL6I7AB7dXvS7mviD7zCWnbdT0SUpw/m0w2GC1O2zBBNx/ndHm1Owgl+4uP8m1h5fYAfYlIUdKCymEN3ye9ANpodOmKyK62Asqej2B4a8OIhlqsi8kxKUXWx5Mlz2Exke98mIrQw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ECQAGwOJ; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=DAuo4Pe9PoQsG0qJHJ5AMWRj9t74G9eSAMNsyymM3mWPIccVEgrWF891B9Wk61u7KkotBjMhor+W89mrTeda9hEb1AInrRpY5KAikImuw5E6oTxoaYsdrS6yz4qZRTw0B6QVMl5FkI2ph6uFT69hKS46biUqwdj8w4asxARZfvU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=IQY3qv43; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ECQAGwOJ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 565E71F000E9;
-	Tue, 30 Jun 2026 17:23:25 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IQY3qv43"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6C2B1F000E9;
+	Tue, 30 Jun 2026 17:27:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782840206;
-	bh=2/PLOMBW0BkEjg72GdqLIJB72ETbgMgHbDTZU0aPQoI=;
+	s=k20260515; t=1782840436;
+	bh=ss2fGP3mjT1OY+/VMSawSf8lqidO9w0vy7lhQdI3bMI=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=ECQAGwOJoXCCuBrl7wvcjdp/wN7d7FRkxmc17LXc7ByQ0dRKAbZtHwThP8H1UEnoJ
-	 NUfsPV6gwpTOC27avqUEVHZOzgWtyOg4QNn5KQl3rO3qZUiMTgv/yCYtSj6Bg6tgtl
-	 KyL/Lu1nawbEMofZwfWjyiXkLMZKslS3W6vhrs6OwjLe+GoMKRTCaiQXcbc5qjPlHQ
-	 1TIayRb4vSD5ckCYrXhIKTfepirlSzuYv4S1gy2FHDwdTOU+YgS+X0wx3d5bF52Fkn
-	 KiKpy2C5HRydWIaeH5JNztym2efjwxVRdo0pfar/BWeAjlA9U4mc54VMjvJt+1Q1Ns
-	 8fRAIcubizIzQ==
+	b=IQY3qv4378O0uHaGupWP3DTvLJS+0eQgmrR4EuoIXIWInxqiKznJnKY31qa15AUHc
+	 pJ+Ine66RssE5WFv/xgNN50H9PcwCHQPgpJ8ztYPyN3/G0pZliW87oKJ1O0KibjF4r
+	 es6AuoEv8PbvMqSV6eNLo/n64WLArGGTMgQAfTjm2hWzK56No1pOyzUQlJxXEUpa5l
+	 ze9BW3Ai0M00qV2fcRCvWA+DX62V8Pk2RrlY+XtNJJF6AObcf46MpObZcgtX+dzM3p
+	 +OF9WgTuiepVzCnzo/qXCE1ZnYjb0fm0iVydJOXgLwqWu30buPZXN+X8yVAl1BrcL6
+	 74zUisvJiNGoA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v20 2/3] vfio-pci/zdev: Add a device feature for error
- information
+Subject: Re: [PATCH v20 3/3] vfio/pci: Remove the pcie check for
+ VFIO_PCI_ERR_IRQ_INDEX
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Farhan Ali" <alifm@linux.ibm.com>
-Cc: linux-pci@vger.kernel.org, linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
- Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
-In-Reply-To: <20260630165553.725-3-alifm@linux.ibm.com>
+Cc: "Vasily Gorbik" <gor@linux.ibm.com>, linux-pci@vger.kernel.org, "Heiko
+ Carstens" <hca@linux.ibm.com>, linux-s390@vger.kernel.org, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>
+In-Reply-To: <20260630165553.725-4-alifm@linux.ibm.com>
 References: <20260630165553.725-1-alifm@linux.ibm.com>
- <20260630165553.725-3-alifm@linux.ibm.com>
+ <20260630165553.725-4-alifm@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 30 Jun 2026 17:23:24 +0000
-Message-Id: <20260630172325.565E71F000E9@smtp.kernel.org>
+Date: Tue, 30 Jun 2026 17:27:15 +0000
+Message-Id: <20260630172715.E6C2B1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-> For zPCI devices, we have platform specific error information. The platfo=
-rm
-> firmware provides this error information to the operating system in an
-> architecture specific mechanism. To enable recovery from userspace for
-> these devices, we want to expose this error information to userspace. Add=
- a
-> new device feature to expose this information.
+> The error signaling is configured for the vast majority of devices and it=
+'s
+> extremely rare that it fires anyway. Removing the pcie check will allow
+> userspace to be notified on errors for legacy PCI devices. The Internal
+> Shared Memory (ISM) device on s390 is one such device. For PCI devices on
+> IBM s390 error recovery involves platform firmware and notification to
+> operating system is done by architecture specific way. So the ISM device
+> can still be recovered when notified of an error.
 >=20
-> Userspace needs to be provide a buffer of fixed size. This size is provid=
-ed
-> to userspace via the VFIO_DEVICE_INFO_CAP_ZPCI_BASE capability.
->=20
-> Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
+> Reviewed-by: Julian Ruess <julianr@linux.ibm.com>
 > Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> Reviewed-by: Alex Williamson <alex@shazbot.org>
 > Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
 
 Sashiko has reviewed this patch and found no issues. It looks great!
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260630165553.725-=
-1-alifm@linux.ibm.com?part=3D2
+1-alifm@linux.ibm.com?part=3D3
 
