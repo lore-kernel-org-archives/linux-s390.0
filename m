@@ -1,29 +1,30 @@
-Received: from out30-97.freemail.mail.aliyun.com (out30-97.freemail.mail.aliyun.com [115.124.30.97])
+Received: from out30-99.freemail.mail.aliyun.com (out30-99.freemail.mail.aliyun.com [115.124.30.99])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E5902690D5;
-	Tue, 30 Jun 2026 03:15:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.97
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 549FC25782A;
+	Tue, 30 Jun 2026 03:15:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.99
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782789335; cv=none; b=VlzmhgSo+kf2TC9xYi+vj8UaYtXYtxKc99+4AqrEfYIWxvIb09Kc/MqXPMTQk7BFFvkyt8cczau7rxHygBZqK/v83QBxFiF0WsVs3ayRkw0G2MNbrbLB4iWfchAxASL9a7Iho0srvhrzR1QGnMcaX9Cb/BRAOjU+0DWXKFEFlsQ=
+	t=1782789336; cv=none; b=s8okfADo+aQddb0SPJ149wVluGSy6KlocA7GGcJjxbrag35LkIuxZlZQkXsSRovueqZHSZPswTYHMAjSCM5RuPa0UWZmdzKrnP5h6+67yz0LeapVa6vwKUHmXEkJv5QKcyXMdMsUpe9lOq2F//JZNcJLv61hB72rjgg5HGkLIZ8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782789335; c=relaxed/simple;
-	bh=rlPcbuDju8eHLm7pwmya3VnZKoG1GXFDKuiyvAZppxw=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=rmVq0GGxoCaCH/Ge7YSlJAsjTtjpVcZvcRfrhdxTBXjMBHkHYuB3k0RkWoK/ZzGTo0X5ILPjtDvJBPSQ7tZghkGkVe91L2p+VFgB9MwrlQxLh7ANVn3d5TC5WfkGBaIawurl8vx6s28mO5fZmdJgv8QOF8g80PE7l4XArnH/23A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=Uy0OPvjc; arc=none smtp.client-ip=115.124.30.97
+	s=arc-20240116; t=1782789336; c=relaxed/simple;
+	bh=NIXE57ffnuMMcLG97CIYTh+9V84PZUJ7bSblNEk/BzY=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=RAF1fGSGqx14RAY71HBdqXUEJVzXjltYslIm6cBizk87Q6EWUO2iPIXLAt1XNNp5NzsbiPGTR/yGrcBtYwpD6ykTtdSuhhd2/CQecN0PTpwA9lleGRbMdOqfgL18795Uuvg2tfscOZQedePO9PmcMnf8Dh+NCDjhwE6rFl6Wcrs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=jl66eXqw; arc=none smtp.client-ip=115.124.30.99
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="Uy0OPvjc"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="jl66eXqw"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1782789330; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=1vNycxCuhzcuJXMoTNLp2cYo3/8A9ikPwob8Yjq0Vq0=;
-	b=Uy0OPvjc/0HNeJz669SBQGOEbwhQeZqxEXjOyzxVvCG+UR824Dv8aTC6wYLbmkUG0wxm2tQAK6veu+96iqgS03pNuPHfLma6dvtN7rogBKToNMyLUpvLu0H/1gXruKsxEq6rkZ8aFLStKR6JmP8na81O97CV1jP/d11SZlyDi8k=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R161e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam011083073210;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=19;SR=0;TI=SMTPD_---0X5zdNCi_1782789320;
-Received: from localhost(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0X5zdNCi_1782789320 cluster:ay36)
+	t=1782789332; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=h4cvvdYNdUTFVSwKliLOrRpdL1HZQLjA5KzRaVdKv6Q=;
+	b=jl66eXqwevxsJ6a2mmogzOc1K26DmZLYs4swe53PJ3+coTtaJKUTMoExDHP9fgz+6ztlPU9mC8kH5UJ1gukNBbDoTWRdmX4jSyBtOdA9J911dJjz1REsrtoz07jFQgvDD5Ggm43e2wlHPFsOCG4LQVSNmznSmnHy/PCwE2o1DWM=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R221e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037033178;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=19;SR=0;TI=SMTPD_---0X5zUONW_1782789329;
+Received: from localhost(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0X5zUONW_1782789329 cluster:ay36)
           by smtp.aliyun-inc.com;
-          Tue, 30 Jun 2026 11:15:29 +0800
+          Tue, 30 Jun 2026 11:15:31 +0800
 From: Wen Gu <guwen@linux.alibaba.com>
 To: richardcochran@gmail.com,
 	dwmw2@infradead.org,
@@ -44,10 +45,12 @@ Cc: svens@linux.ibm.com,
 	dust.li@linux.alibaba.com,
 	mani@kernel.org,
 	imran.shaik@oss.qualcomm.com
-Subject: [PATCH v3 0/2] ptp: split non-host-disciplined PHC drivers into a dedicated subdirectory
-Date: Tue, 30 Jun 2026 11:15:17 +0800
-Message-Id: <20260630031519.23072-1-guwen@linux.alibaba.com>
+Subject: [PATCH v3 1/2] ptp: move non-host-disciplined clock drivers into a dedicated subdirectory
+Date: Tue, 30 Jun 2026 11:15:18 +0800
+Message-Id: <20260630031519.23072-2-guwen@linux.alibaba.com>
 X-Mailer: git-send-email 2.32.0.3.g01195cf9f
+In-Reply-To: <20260630031519.23072-1-guwen@linux.alibaba.com>
+References: <20260630031519.23072-1-guwen@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -56,103 +59,25 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Hi all,
+The PTP subsystem today contains both host-disciplined PHC drivers and
+various clock implementations that expose external precision time
+sources via the PTP interface but are not disciplined by the host.
 
-This series follows the discussion in RFC [1-2], v1 [3] and v2 [4].
-
-
-# Background
-
-The PTP Hardware Clock (PHC) interface (/dev/ptpX and the standard PTP_*
-ioctls) is used by two distinct classes of drivers in drivers/ptp/:
-host-disciplined PHC drivers whose frequency and phase are adjusted by
-the host's time synchronization stack, and non-host-disciplined PHC
-drivers that expose an external precision time reference and are
-read-only. Several non-host-disciplined PHC drivers already exist in
-the kernel [5-9], and more are expected to appear [10-11].
-
-During review of incoming non-host-disciplined PHC drivers, concerns
-were raised that they may not be a good fit for the netdev maintainership
-model [12], where all PTP/PHC drivers are currently maintained. This
-leaves an unclear upstream home and maintainership model for this class
-of drivers.
-
-
-# Proposal
-
-This series makes the separation explicit by reorganizing the drivers/ptp/
-layout into the following groups:
+Move the latter into a dedicated subdirectory to prepare for clearer
+ownership and maintenance boundaries:
 
   - drivers/ptp/          : PTP core infrastructure and host-disciplined
                             PHC drivers.
 
-  - drivers/ptp/emulated/ : non-host-disciplined PHC drivers that expose
-                            precision time from hypervisors, platforms,
-                            or firmware. These clocks are read-only and
-                            not adjusted by the host.
+  - drivers/ptp/emulated/ : PHC drivers that expose precision time from
+                            hypervisors, platforms, or firmware. These
+                            clocks are read-only and not host-disciplined.
 
-Patch 1 performs the directory reorganization: move drivers and split
-Kconfig/Makefiles accordingly, without intended functional changes.
+No functional changes are intended; this is a directory reorganization
+only.
 
-Patch 2 updates MAINTAINERS to match the new layout and adds a
-dedicated entry for drivers/ptp/emulated/.
-
-No userspace ABI changes are intended; this is a refactor and maintenance
-metadata update only.
-
-
-# Changes since v2:
-
-- List David Woodhouse as the sole maintainer (M:) of emulated PTP
-  drivers as suggested by Jakub. Wen Gu and Xuan Zhuo are listed as
-  reviewers (R:).
-
-- Updated the T: field to use David's tree:
-  git://git.infradead.org/linux-ptp.git
-
-- Reworded commit messages to clarify the distinction between the two
-  groups as host-disciplined vs. read-only (devices that purport to know
-  real time better than the host).
-
-
-# Changes since v1:
-
-- List David Woodhouse as the maintainer of emulated PTP drivers.
-
-- Adjust the directory layout: instead of creating both ieee1588/ and
-  emulated/ subdirectories, keep the network-oriented drivers in the
-  main drivers/ptp/ directory and only split out the emulated drivers.
-
-
-# Changes since RFC v2:
-
-- Keep ptp_ocp under the network-oriented PTP drivers as suggested
-  by Jakub.
-
-
-Thanks for any input.
-
-Regards.
-
-[1] https://lore.kernel.org/all/0afe19db-9c7f-4228-9fc2-f7b34c4bc227@linux.alibaba.com/
-[2] https://lore.kernel.org/all/20260227081934.96865-1-guwen@linux.alibaba.com/
-[3] https://lore.kernel.org/all/20260318073330.115808-1-guwen@linux.alibaba.com/
-[4] https://lore.kernel.org/all/20260407104802.34429-1-guwen@linux.alibaba.com/
-[5] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=a0e136d436ded817c0aade72efdefa56a00b4e5e
-[6] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=7d10001e20e46ad6ad95622164686bc2cbfc9802
-[7] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=2d7de7a3010d713fb89b7ba99e6fdc14475ad106
-[8] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=3716a49a81ba19dda7202633a68b28564ba95eb5
-[9] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=9a17125a18f9ae1e1233a8e2d919059445b9d6fd
-[10] https://lore.kernel.org/netdev/20251030121314.56729-1-guwen@linux.alibaba.com/
-[11] https://lore.kernel.org/mhi/20250818-tsc_time_sync-v1-0-2747710693ba@oss.qualcomm.com/
-[12] https://lore.kernel.org/netdev/20251127083610.6b66a728@kernel.org/
-
-Wen Gu (2):
-  ptp: move non-host-disciplined clock drivers into a dedicated
-    subdirectory
-  MAINTAINERS: update PTP maintainer entries after directory split
-
- MAINTAINERS                                 | 21 +++++--
+Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
+---
  drivers/ptp/Kconfig                         | 55 +------------------
  drivers/ptp/Makefile                        | 11 ++--
  drivers/ptp/emulated/Kconfig                | 61 +++++++++++++++++++++
@@ -163,7 +88,7 @@ Wen Gu (2):
  drivers/ptp/{ => emulated}/ptp_s390.c       |  0
  drivers/ptp/{ => emulated}/ptp_vmclock.c    |  0
  drivers/ptp/{ => emulated}/ptp_vmw.c        |  0
- 11 files changed, 94 insertions(+), 65 deletions(-)
+ 10 files changed, 78 insertions(+), 60 deletions(-)
  create mode 100644 drivers/ptp/emulated/Kconfig
  create mode 100644 drivers/ptp/emulated/Makefile
  rename drivers/ptp/{ => emulated}/ptp_kvm_arm.c (100%)
@@ -173,6 +98,232 @@ Wen Gu (2):
  rename drivers/ptp/{ => emulated}/ptp_vmclock.c (100%)
  rename drivers/ptp/{ => emulated}/ptp_vmw.c (100%)
 
+diff --git a/drivers/ptp/Kconfig b/drivers/ptp/Kconfig
+index b93640ca08b7..19ec509cb365 100644
+--- a/drivers/ptp/Kconfig
++++ b/drivers/ptp/Kconfig
+@@ -119,35 +119,6 @@ config PTP_1588_CLOCK_PCH
+ 	  To compile this driver as a module, choose M here: the module
+ 	  will be called ptp_pch.
+ 
+-config PTP_1588_CLOCK_KVM
+-	tristate "KVM virtual PTP clock"
+-	depends on PTP_1588_CLOCK
+-	depends on (KVM_GUEST && X86) || (HAVE_ARM_SMCCC_DISCOVERY && ARM_ARCH_TIMER)
+-	default y
+-	help
+-	  This driver adds support for using kvm infrastructure as a PTP
+-	  clock. This clock is only useful if you are using KVM guests.
+-
+-	  To compile this driver as a module, choose M here: the module
+-	  will be called ptp_kvm.
+-
+-config PTP_1588_CLOCK_VMCLOCK
+-	tristate "Virtual machine PTP clock"
+-	depends on X86_TSC || ARM_ARCH_TIMER
+-	depends on PTP_1588_CLOCK && ARCH_SUPPORTS_INT128
+-	default PTP_1588_CLOCK_KVM
+-	help
+-	  This driver adds support for using a virtual precision clock
+-	  advertised by the hypervisor. This clock is only useful in virtual
+-	  machines where such a device is present.
+-
+-	  Unlike the KVM virtual PTP clock, the VMCLOCK device offers support
+-	  for reliable timekeeping even across live migration. So this driver
+-	  is enabled by default whenever the KVM PTP clock is.
+-
+-	  To compile this driver as a module, choose M here: the module
+-	  will be called ptp_vmclock.
+-
+ config PTP_1588_CLOCK_IDT82P33
+ 	tristate "IDT 82P33xxx PTP clock"
+ 	depends on PTP_1588_CLOCK && I2C
+@@ -195,18 +166,6 @@ config PTP_1588_CLOCK_MOCK
+ 	  To compile this driver as a module, choose M here: the module
+ 	  will be called ptp_mock.
+ 
+-config PTP_1588_CLOCK_VMW
+-	tristate "VMware virtual PTP clock"
+-	depends on ACPI && HYPERVISOR_GUEST && X86
+-	depends on PTP_1588_CLOCK
+-	help
+-	  This driver adds support for using VMware virtual precision
+-	  clock device as a PTP clock. This is only useful in virtual
+-	  machines running on VMware virtual infrastructure.
+-
+-	  To compile this driver as a module, choose M here: the module
+-	  will be called ptp_vmw.
+-
+ config PTP_1588_CLOCK_OCP
+ 	tristate "OpenCompute TimeCard as PTP clock"
+ 	depends on PTP_1588_CLOCK
+@@ -241,18 +200,6 @@ config PTP_DFL_TOD
+ 	  To compile this driver as a module, choose M here: the module
+ 	  will be called ptp_dfl_tod.
+ 
+-config PTP_S390
+-	tristate "S390 PTP driver"
+-	depends on PTP_1588_CLOCK
+-	depends on S390
+-	help
+-	  This driver adds support for S390 time steering via the PtP
+-	  interface. This works by adding a in-kernel clock delta value,
+-	  which is always added to time values used in the kernel. The PtP
+-	  driver provides the raw clock value without the delta to
+-	  userspace. That way userspace programs like chrony could steer
+-	  the kernel clock.
+-
+ config PTP_NETC_V4_TIMER
+ 	tristate "NXP NETC V4 Timer PTP Driver"
+ 	depends on PTP_1588_CLOCK
+@@ -263,4 +210,6 @@ config PTP_NETC_V4_TIMER
+ 	  synchronization. It also supports periodic output signal (e.g. PPS)
+ 	  and external trigger timestamping.
+ 
++source "drivers/ptp/emulated/Kconfig"
++
+ endmenu
+diff --git a/drivers/ptp/Makefile b/drivers/ptp/Makefile
+index bdc47e284f14..bcea2d3d4efd 100644
+--- a/drivers/ptp/Makefile
++++ b/drivers/ptp/Makefile
+@@ -1,24 +1,21 @@
+ # SPDX-License-Identifier: GPL-2.0
+ #
+-# Makefile for PTP 1588 clock support.
++# Makefile for PTP clock support.
+ #
+ 
++subdir-ccflags-y += -I$(srctree)/drivers/ptp
++
+ ptp-y					:= ptp_clock.o ptp_chardev.o ptp_sysfs.o ptp_vclock.o
+-ptp_kvm-$(CONFIG_X86)			:= ptp_kvm_x86.o ptp_kvm_common.o
+-ptp_kvm-$(CONFIG_HAVE_ARM_SMCCC)	:= ptp_kvm_arm.o ptp_kvm_common.o
+ obj-$(CONFIG_PTP_1588_CLOCK)		+= ptp.o
+ obj-$(CONFIG_PTP_1588_CLOCK_DTE)	+= ptp_dte.o
+ obj-$(CONFIG_PTP_1588_CLOCK_INES)	+= ptp_ines.o
+ obj-$(CONFIG_PTP_1588_CLOCK_PCH)	+= ptp_pch.o
+-obj-$(CONFIG_PTP_1588_CLOCK_KVM)	+= ptp_kvm.o
+-obj-$(CONFIG_PTP_1588_CLOCK_VMCLOCK)	+= ptp_vmclock.o
+ obj-$(CONFIG_PTP_1588_CLOCK_QORIQ)	+= ptp_qoriq.o
+ obj-$(CONFIG_PTP_1588_CLOCK_IDTCM)	+= ptp_clockmatrix.o
+ obj-$(CONFIG_PTP_1588_CLOCK_FC3W)	+= ptp_fc3.o
+ obj-$(CONFIG_PTP_1588_CLOCK_IDT82P33)	+= ptp_idt82p33.o
+ obj-$(CONFIG_PTP_1588_CLOCK_MOCK)	+= ptp_mock.o
+-obj-$(CONFIG_PTP_1588_CLOCK_VMW)	+= ptp_vmw.o
+ obj-$(CONFIG_PTP_1588_CLOCK_OCP)	+= ptp_ocp.o
+ obj-$(CONFIG_PTP_DFL_TOD)		+= ptp_dfl_tod.o
+-obj-$(CONFIG_PTP_S390)			+= ptp_s390.o
+ obj-$(CONFIG_PTP_NETC_V4_TIMER)		+= ptp_netc.o
++obj-$(CONFIG_PTP_1588_CLOCK)		+= emulated/
+diff --git a/drivers/ptp/emulated/Kconfig b/drivers/ptp/emulated/Kconfig
+new file mode 100644
+index 000000000000..3e11f78dfbd8
+--- /dev/null
++++ b/drivers/ptp/emulated/Kconfig
+@@ -0,0 +1,61 @@
++# SPDX-License-Identifier: GPL-2.0-only
++#
++# Emulated PTP clock drivers configuration
++#
++
++menu "Emulated PTP clock drivers"
++
++config PTP_1588_CLOCK_KVM
++	tristate "KVM virtual PTP clock"
++	depends on PTP_1588_CLOCK
++	depends on (KVM_GUEST && X86) || (HAVE_ARM_SMCCC_DISCOVERY && ARM_ARCH_TIMER)
++	default y
++	help
++	  This driver adds support for using kvm infrastructure as a PTP
++	  clock. This clock is only useful if you are using KVM guests.
++
++	  To compile this driver as a module, choose M here: the module
++	  will be called ptp_kvm.
++
++config PTP_1588_CLOCK_VMCLOCK
++	tristate "Virtual machine PTP clock"
++	depends on X86_TSC || ARM_ARCH_TIMER
++	depends on PTP_1588_CLOCK && ARCH_SUPPORTS_INT128
++	default PTP_1588_CLOCK_KVM
++	help
++	  This driver adds support for using a virtual precision clock
++	  advertised by the hypervisor. This clock is only useful in virtual
++	  machines where such a device is present.
++
++	  Unlike the KVM virtual PTP clock, the VMCLOCK device offers support
++	  for reliable timekeeping even across live migration. So this driver
++	  is enabled by default whenever the KVM PTP clock is.
++
++	  To compile this driver as a module, choose M here: the module
++	  will be called ptp_vmclock.
++
++config PTP_1588_CLOCK_VMW
++	tristate "VMware virtual PTP clock"
++	depends on ACPI && HYPERVISOR_GUEST && X86
++	depends on PTP_1588_CLOCK
++	help
++	  This driver adds support for using VMware virtual precision
++	  clock device as a PTP clock. This is only useful in virtual
++	  machines running on VMware virtual infrastructure.
++
++	  To compile this driver as a module, choose M here: the module
++	  will be called ptp_vmw.
++
++config PTP_S390
++	tristate "S390 PTP driver"
++	depends on PTP_1588_CLOCK
++	depends on S390
++	help
++	  This driver adds support for S390 time steering via the PtP
++	  interface. This works by adding a in-kernel clock delta value,
++	  which is always added to time values used in the kernel. The PtP
++	  driver provides the raw clock value without the delta to
++	  userspace. That way userspace programs like chrony could steer
++	  the kernel clock.
++
++endmenu
+diff --git a/drivers/ptp/emulated/Makefile b/drivers/ptp/emulated/Makefile
+new file mode 100644
+index 000000000000..577917df3dc9
+--- /dev/null
++++ b/drivers/ptp/emulated/Makefile
+@@ -0,0 +1,11 @@
++# SPDX-License-Identifier: GPL-2.0
++#
++# Makefile for emulated PTP clocks.
++#
++
++ptp_kvm-$(CONFIG_X86)			:= ptp_kvm_x86.o ptp_kvm_common.o
++ptp_kvm-$(CONFIG_HAVE_ARM_SMCCC)	:= ptp_kvm_arm.o ptp_kvm_common.o
++obj-$(CONFIG_PTP_1588_CLOCK_KVM)	+= ptp_kvm.o
++obj-$(CONFIG_PTP_1588_CLOCK_VMCLOCK)	+= ptp_vmclock.o
++obj-$(CONFIG_PTP_1588_CLOCK_VMW)	+= ptp_vmw.o
++obj-$(CONFIG_PTP_S390)			+= ptp_s390.o
+diff --git a/drivers/ptp/ptp_kvm_arm.c b/drivers/ptp/emulated/ptp_kvm_arm.c
+similarity index 100%
+rename from drivers/ptp/ptp_kvm_arm.c
+rename to drivers/ptp/emulated/ptp_kvm_arm.c
+diff --git a/drivers/ptp/ptp_kvm_common.c b/drivers/ptp/emulated/ptp_kvm_common.c
+similarity index 100%
+rename from drivers/ptp/ptp_kvm_common.c
+rename to drivers/ptp/emulated/ptp_kvm_common.c
+diff --git a/drivers/ptp/ptp_kvm_x86.c b/drivers/ptp/emulated/ptp_kvm_x86.c
+similarity index 100%
+rename from drivers/ptp/ptp_kvm_x86.c
+rename to drivers/ptp/emulated/ptp_kvm_x86.c
+diff --git a/drivers/ptp/ptp_s390.c b/drivers/ptp/emulated/ptp_s390.c
+similarity index 100%
+rename from drivers/ptp/ptp_s390.c
+rename to drivers/ptp/emulated/ptp_s390.c
+diff --git a/drivers/ptp/ptp_vmclock.c b/drivers/ptp/emulated/ptp_vmclock.c
+similarity index 100%
+rename from drivers/ptp/ptp_vmclock.c
+rename to drivers/ptp/emulated/ptp_vmclock.c
+diff --git a/drivers/ptp/ptp_vmw.c b/drivers/ptp/emulated/ptp_vmw.c
+similarity index 100%
+rename from drivers/ptp/ptp_vmw.c
+rename to drivers/ptp/emulated/ptp_vmw.c
 -- 
 2.43.5
 
