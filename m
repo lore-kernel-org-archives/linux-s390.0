@@ -1,667 +1,257 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 76B5635CB7F;
-	Tue, 30 Jun 2026 10:41:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 66DC23FF1B1
+	for <linux-s390@vger.kernel.org>; Tue, 30 Jun 2026 10:54:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782816121; cv=none; b=Bdiv2zfCshH6uajHakCi1WvaOrqbURbsbDLiv08FRhv+5jtz5JD55xm3xLxRSzxnp4ZYetmaqF+Pc6/OorxNSlJLQPwDl3fiCdZ3B2H56FW9elL1jro6KNfSyIVqf0zpMsa9QDq1uVe3r5+uQcZlWyeIXEKyxsJABq1tkGY8l5I=
+	t=1782816892; cv=none; b=kGL5U1tGuYYKa9EG5S1D+vvVCRwIqSHtcduoPi2Tgjc0f+W/JSwRHd4CXJ3tikJonnYnx+o/vx9HfSgPVgPwJTi9Mt06j2hBWeBwOo2IXoxegYJnjqJzpXjqC3ykehWhVbf0b/4+N1ORZzSjGch1y5bf+HWCeN5nPVZ5MHGfRfs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782816121; c=relaxed/simple;
-	bh=lcV3Ic2b4jaFPFCtKj8W3bZy1Jo60enz6IUbFLabiVE=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=CKrKDYq8qXacWiaN3Gux9uLulQ48FnDRbQ35LhT5kjqjPnbP7dwYaaICCuGrbHeB1nW2BTCRNzttzBYNPhz8pBtjqYqjdEqHIujDroVvBMn34x9sPuqLtZShCYsdj/GtFtx+LxnC/zAQ1IjibuzCXMGQeGPSunEW185hktZ/ucY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=coMwHprk; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1782816892; c=relaxed/simple;
+	bh=E8EahJDvPAF4YNz8qwUiqjlfr2BkB4p68tS2KHq5a6Q=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=semZeg2OCfOH1xSti/aO3JH+Rnp9FKmecjKcyO50J7PqvEemHdbafFOsW/kEpXPoBU44enB+VQIA5YH9OHC6ttTB2giOaeMM6trTptoM8bPomItqQO2vuRQ3aQ3Q1UuzcRpd3MYFuh/oi/qZ8ORspXdbEbaNsQEFg7H/Vp5AAIc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=SBTiaqcc; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="coMwHprk"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65U9nXUt1582511;
-	Tue, 30 Jun 2026 10:41:54 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="SBTiaqcc"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65U9n4sx1647794;
+	Tue, 30 Jun 2026 10:54:43 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=cUH+69wbHcBsiZack
-	sRalunVut/JqF3ZiaM+xBaEqdQ=; b=coMwHprkv9DoDjaFbM2za1Hbo8gr1B8Fl
-	xtIPWQkSxe0H6ItP6C1yyJtUqOX79xZCVAThwI46bUNFU9PrCrxfeljzZirwDtKy
-	eqgCfpCINHCcSlFXn+FS3PanDeUHjJX8bG9/g5Ye27rMDv0DdrFgAGAvJ4G5Sr8C
-	aBmyqwIztn2MqR9lSLGlYwLj5e5F3b/FyD1G54HNTwjgLNOPb5ONb4QfMeDxuy4U
-	zDkYGcDJvRhysniWHsdt/QxCoeoYqGWiXsa9vivaRFJg9oTAzdHnOzfzHaeZGUJM
-	rujz0TdVHtovSxaARWTidMKdgq96qq4aJHFDfGT8MvosYycEfY7Og==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4f26q9wwwn-1
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=Im+B37
+	/SL9oA94Sy66pOLWN1+mjEkNkV4Bpkm4TMsck=; b=SBTiaqccJhtw4uRiZKWPP1
+	4kpl67e8q4PK1hlPn2+G7Y1MkXiplASeBVA07ghGZAmJ2mK4KTN8KmOv+/5IBqX9
+	H1+z7e6FUMUHJYPyn4DkupQN7VxDaHJ6QzErCVO5w1wF4CJLLM5nbIvJyfjHEKqs
+	A21oaENB4MlKr2ntdmdOH1WZ5TZ6XsDLPlUbZF6EWKmFLjfu3AO6pqlD2vKIpfWh
+	/2xAm4tX6EOFh7UpDnhfJongaLQerLjwZKPJHEja2R0S3zSrYlJ6hOgRTYNZgcAm
+	3eZ4MXoTzRUdpIKainu9WnCDhWiFAlr/ff4ySiq+hSqz6xZVr84sgEFVR/Forzpw
+	==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4f26n5p8hk-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 30 Jun 2026 10:41:54 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 65UAYcTr024042;
-	Tue, 30 Jun 2026 10:41:53 GMT
-Received: from smtprelay06.wdc07v.mail.ibm.com ([172.16.1.73])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4f2ruq9wdq-1
+	Tue, 30 Jun 2026 10:54:42 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 65UAnfLB014922;
+	Tue, 30 Jun 2026 10:54:41 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4f2suk1s6r-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 30 Jun 2026 10:41:53 +0000 (GMT)
-Received: from smtpav05.dal12v.mail.ibm.com (smtpav05.dal12v.mail.ibm.com [10.241.53.104])
-	by smtprelay06.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 65UAfp5123003684
+	Tue, 30 Jun 2026 10:54:41 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 65UAsbaL48234814
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 30 Jun 2026 10:41:51 GMT
-Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 43B1558065;
-	Tue, 30 Jun 2026 10:41:51 +0000 (GMT)
-Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3B5EB58052;
-	Tue, 30 Jun 2026 10:41:50 +0000 (GMT)
-Received: from li-4c4c4544-004d-4810-8043-b7c04f423534.ibm.com.com (unknown [9.61.135.84])
-	by smtpav05.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 30 Jun 2026 10:41:50 +0000 (GMT)
-From: Anthony Krowiak <akrowiak@linux.ibm.com>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org
-Cc: jjherne@linux.ibm.com, borntraeger@de.ibm.com, mjrosato@linux.ibm.com,
-        pasic@linux.ibm.com, alex@shazbot.org, kwankhede@nvidia.com,
-        fiuczy@linux.ibm.com, pbonzini@redhat.com, frankja@linux.ibm.com,
-        imbrenda@linux.ibm.com, agordeev@linux.ibm.com, hca@linux.ibm.com,
-        gor@linux.ibm.com
-Subject: [PATCH v3 15/15] s390/vfio-ap: Add live guest migration chapter to vfio-ap.rst
-Date: Tue, 30 Jun 2026 06:41:25 -0400
-Message-ID: <20260630104132.1598851-16-akrowiak@linux.ibm.com>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20260630104132.1598851-1-akrowiak@linux.ibm.com>
-References: <20260630104132.1598851-1-akrowiak@linux.ibm.com>
+	Tue, 30 Jun 2026 10:54:37 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 899EA2004B;
+	Tue, 30 Jun 2026 10:54:37 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id DA5EB20040;
+	Tue, 30 Jun 2026 10:54:36 +0000 (GMT)
+Received: from [0.0.0.0] (unknown [9.111.74.190])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 30 Jun 2026 10:54:36 +0000 (GMT)
+Message-ID: <9cbb2f6f-c80e-4ba8-a307-4f640f64a8a5@linux.ibm.com>
+Date: Tue, 30 Jun 2026 12:54:36 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v8 01/18] target/s390x: Fix wrong address handling in
+ address loops
+To: freude@linux.ibm.com
+Cc: richard.henderson@linaro.org, david@kernel.org, thuth@redhat.com,
+        berrange@redhat.com, qemu-s390x@nongnu.org, qemu-devel@nongnu.org,
+        linux390-list@tuxmaker.boeblingen.de.ibm.com,
+        linux-s390@vger.kernel.org, dengler@linux.ibm.com,
+        borntraeger@linux.ibm.com, fcallies@linux.ibm.com, cohuck@redhat.com
+References: <20260624081029.23815-1-freude@linux.ibm.com>
+ <20260624081029.23815-2-freude@linux.ibm.com>
+ <e516de9c-e9fb-45af-aa5e-8cb9dbf1e3f3@linux.ibm.com>
+ <d55a9d7e7759251c1e75050a9a9ccd6f@linux.ibm.com>
+ <6e7ce946-1128-4b2c-9520-a171bca3ceb7@linux.ibm.com>
+ <a6e637d07024e0ff8a457500110e225f@linux.ibm.com>
+Content-Language: en-US
+From: Ilya Leoshkevich <iii@linux.ibm.com>
+In-Reply-To: <a6e637d07024e0ff8a457500110e225f@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjMwMDA5MyBTYWx0ZWRfX+IF2UcS2Bj23
- 8Q+jMzEuJZOVeGD2Nw1t/KyHFgwcWAf0IgF0ovDJ/1A7dMWF0ZyUTq6CWHsOAaMlLBNGsyA1eI/
- iKJTVHVK35Ph/wW013WzqISHgo8Myc0GdyqBQtzSERnDSD/A0gG+5xGKS6m3FJ1xGV4kygD1t9V
- W5oPDobfqQht0jtp+6SRqUzcnGwMM45F1iCfK7y5fWIMqYyizARfkQ+lyZ8uWht7wvefoXiLt2i
- rJP57WkVqoApr9XrioRVieTD+0y5lVO9DSFS8oxM0YjQKTtmzhzRUhC0UYrclziAmhrFK7TveaV
- RtuBh3Qun+vaMeY9DaKubNPUeBHpYZzULTq7saQNUM5ClwuCvc0uWed2gvZId1k8PivFzDyDcBd
- El7NpvmzOHA7MevJqD9Yo6zHaU+sRKKD3ZnSIFtfSY7YXrdLsLFYf1ZLAwZeGcMbfc56v+i+Cez
- zFPeVhXhkMpyLRzNeUA==
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNjMwMDA5MyBTYWx0ZWRfXyQSeEV5tGdEt
- 9EcEqMxms1L1ke0VwI3uOPxtRPFr2fyfi5Kj52na1iWx2lmiIjh+QAPah6lLeTPZofGWEBl/PQ4
- wPBFRbiZJ+E/7GcBSqXKyQTAfoLj+Do=
-X-Proofpoint-GUID: oHrDFGRgEF1tGnZBaT6cdYX0sUbzcWt9
-X-Proofpoint-ORIG-GUID: oHrDFGRgEF1tGnZBaT6cdYX0sUbzcWt9
-X-Authority-Analysis: v=2.4 cv=WZ88rUhX c=1 sm=1 tr=0 ts=6a439d72 cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
- a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8 a=5d5J1M8IJ0-sLZaSyWMA:9
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjMwMDA5OCBTYWx0ZWRfX4ZgeIXc8DGH7
+ K35j8LgT+FW1eINpA3LjECbRV8qZZHSWcAbNovqo0KkMw4kBH9N6v2dtEgXKM1Znu/AVywUe63+
+ PcIrIraxhW15dmxgCNHOWDeqmwW5Vub3SswMb0nc/Oc6/UHJ1EQ4To6Gya38dIxTT88R784zZFD
+ rLXMAUdZEwECl7hogddka74OEGZ+4FaRpJq9czwwE0mYrjkx+3DW9SmkF/Uf2bYDNq4qnJ4S1Kb
+ DxScbCUl8Tzf2GQWZgwOoUnuD3CcrD6YS7M9Zam9JIjAmZoDEs5o1UhRfJRuveKl5BC9oDqFpdO
+ 3aUaU7hCJhss6opsz0F1J1f01DonvU1MGMQG6na/weKGb8wEx+9dS/57yadoyyVOx26HuVCKhFn
+ a1IIi910z8pb81RLQ5jWQs7bAWHlDtGhPLRh4Wv/U7T4mwHrGWGIAaZGHIoDl8a3K4y+sv9dWgA
+ 6Bqxq5Y+zUWC+F7mFXg==
+X-Authority-Analysis: v=2.4 cv=V45NF+ni c=1 sm=1 tr=0 ts=6a43a073 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=IkcTkHD0fZMA:10 a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8
+ a=0qfM-hUmz0_4sP66ULwA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+X-Proofpoint-ORIG-GUID: 9KN980UPFeBcI_xoQe3G--psREiQeajr
+X-Proofpoint-GUID: 9KN980UPFeBcI_xoQe3G--psREiQeajr
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNjMwMDA5OCBTYWx0ZWRfXyRl/DIQJq8la
+ OtMKbXbfVKA4x0iy19EW8v5U298SlWb85c/pTjtue11fkJjrunclvVHTva/YUNpG8Lpyq93pfP3
+ ow5a5AIIHaGbK7isSmEdR/fVH3/5nlw=
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
  definitions=2026-06-30_03,2026-06-26_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 adultscore=0 phishscore=0 clxscore=1015 bulkscore=0
- impostorscore=0 priorityscore=1501 lowpriorityscore=0 suspectscore=0
- malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2606300093
+ phishscore=0 spamscore=0 suspectscore=0 lowpriorityscore=0 priorityscore=1501
+ adultscore=0 clxscore=1015 impostorscore=0 malwarescore=0 bulkscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2606300098
 
-Add a 'Live Guest Migration' chapter to the
-Documentation/arch/s390/vfio-ap.rst document to describe the details for
-initiating live guest migration for a guest to which AP adapters, domains
-and control domains have been passed through.
 
-Signed-off-by: Anthony Krowiak <akrowiak@linux.ibm.com>
----
- Documentation/arch/s390/vfio-ap.rst | 514 +++++++++++++++++++++++-----
- 1 file changed, 433 insertions(+), 81 deletions(-)
 
-diff --git a/Documentation/arch/s390/vfio-ap.rst b/Documentation/arch/s390/vfio-ap.rst
-index ac0c07f76ddd..fc0707c0dffd 100644
---- a/Documentation/arch/s390/vfio-ap.rst
-+++ b/Documentation/arch/s390/vfio-ap.rst
-@@ -1012,7 +1012,7 @@ guest_matrix dyn ap_config
- 
- the following features are advertised:
- 
-----------------+---------------------------------------------------------------+
-++--------------+---------------------------------------------------------------+
- | Flag         | Description                                                   |
- +==============+===============================================================+
- | guest_matrix | guest_matrix attribute exists. It reports the matrix of       |
-@@ -1021,105 +1021,457 @@ the following features are advertised:
- +--------------+---------------------------------------------------------------+
- | dyn          | Indicates hot plug/unplug of AP adapters, domains and control |
- |              | domains for a guest to which the mdev is attached.            |
--+------------+-----------------------------------------------------------------+
-++--------------+---------------------------------------------------------------+
- | ap_config    | ap_config interface for one-shot modifications to mdev config |
- +--------------+---------------------------------------------------------------+
-+| migratable   | Indicates that live guest migration is supported for guests   |
-+|              | to which crypto devices are passed through                    |
-++--------------+---------------------------------------------------------------+
- 
--Limitations
--===========
--Live guest migration is not supported for guests using AP devices without
--intervention by a system administrator. Before a KVM guest can be migrated,
--the vfio_ap mediated device must be removed. Unfortunately, it can not be
--removed manually (i.e., echo 1 > /sys/devices/vfio_ap/matrix/$UUID/remove) while
--the mdev is in use by a KVM guest. If the guest is being emulated by QEMU,
--its mdev can be hot unplugged from the guest in one of two ways:
--
--1. If the KVM guest was started with libvirt, you can hot unplug the mdev via
--   the following commands:
--
--      virsh detach-device <guestname> <path-to-device-xml>
--
--      For example, to hot unplug mdev 62177883-f1bb-47f0-914d-32a22e3a8804 from
--      the guest named 'my-guest':
--
--         virsh detach-device my-guest ~/config/my-guest-hostdev.xml
--
--            The contents of my-guest-hostdev.xml:
--
--.. code-block:: xml
--
--            <hostdev mode='subsystem' type='mdev' managed='no' model='vfio-ap'>
--              <source>
--                <address uuid='62177883-f1bb-47f0-914d-32a22e3a8804'/>
--              </source>
--            </hostdev>
--
--
--      virsh qemu-monitor-command <guest-name> --hmp "device-del <device-id>"
--
--      For example, to hot unplug the vfio_ap mediated device identified on the
--      qemu command line with 'id=hostdev0' from the guest named 'my-guest':
--
--.. code-block:: sh
--
--         virsh qemu-monitor-command my-guest --hmp "device_del hostdev0"
--
--2. A vfio_ap mediated device can be hot unplugged by attaching the qemu monitor
--   to the guest and using the following qemu monitor command:
-+Live Guest Migration
-+====================
-+The VFIO AP mediated device is not used to provide userspace with direct
-+access to a device as is the case with other devices that use the VFIO
-+framework for device pass-through. Instead, it manages AP
-+configuration metadata identifying the adapters, domains, and control
-+domains to which a guest will be granted access. These AP resources are
-+configured by assigning them to a vfio-ap mediated device via its sysfs
-+assignment interfaces. When the guest is started, the vfio_ap device driver
-+sets the guest's AP configuration from the metadata stored with the mediated
-+device. The AP devices are not accessed directly through the vfio_ap driver,
-+so the driver does not migrate the state of the AP devices themselves.
-+Instead, it migrates the AP configuration metadata. The vfio_ap device
-+driver on the destination host will then ensure that the AP configuration
-+metadata migrated from the source host is compatible with the AP
-+configuration available on the destination host and if
-+so, will set the destination guest's AP configuration accordingly.
- 
--      (QEMU) device-del id=<device-id>
-+To be considered compatible, the AP configuration for the destination host must
-+meet these requirements:
- 
--      For example, to hot unplug the vfio_ap mediated device that was specified
--      on the qemu command line with 'id=hostdev0' when the guest was started:
-+* Each AP adapter, domain and control domain number assigned to the source
-+  guest's AP configuration must be in the destination host's AP
-+  configuration. This can be verified as follows:
- 
--         (QEMU) device-del id=hostdev0
-+  * On the source host, display the AP configuration of the source guest:
- 
--After live migration of the KVM guest completes, an AP configuration can be
--restored to the KVM guest by hot plugging a vfio_ap mediated device on the target
--system into the guest in one of two ways:
-+    .. code-block:: bash
- 
--1. If the KVM guest was started with libvirt, you can hot plug a matrix mediated
--   device into the guest via the following virsh commands:
-+       cat /sys/devices/vfio_ap/matrix/$UUID/guest_matrix
-+       cat /sys/devices/vfio_ap/matrix/$UUID/control_domains
- 
--   virsh attach-device <guestname> <path-to-device-xml>
-+    .. note::
-+       Replace ``$UUID`` with the actual UUID of your mediated device.
- 
--      For example, to hot plug mdev 62177883-f1bb-47f0-914d-32a22e3a8804 into
--      the guest named 'my-guest':
-+  * Display the AP configuration of the destination host:
- 
--         virsh attach-device my-guest ~/config/my-guest-hostdev.xml
-+    .. code-block:: bash
- 
--            The contents of my-guest-hostdev.xml:
-+       lszcrypt -V
-+       cat /sys/bus/ap/ap_control_domain_mask
- 
--.. code-block:: xml
-+    Note that each bit in the ap_control_domain_mask corresponds to
-+    correspond to domain numbers 0-255. If a bit is set to one, then
-+    the control domain is available on the destination host. For
-+    example:
- 
--            <hostdev mode='subsystem' type='mdev' managed='no' model='vfio-ap'>
--              <source>
--                <address uuid='62177883-f1bb-47f0-914d-32a22e3a8804'/>
--              </source>
--            </hostdev>
-+    .. code-block:: bash
- 
-+       0x0000000000001020000000000000000000000000000000000000000000000000
- 
--   virsh qemu-monitor-command <guest-name> --hmp \
--   "device_add vfio-ap,sysfsdev=<path-to-mdev>,id=<device-id>"
-+       This mask indicates that AP adapters 51 (0x33) and 58 (0x58) are
-+       available on the host system.
- 
--      For example, to hot plug the vfio_ap mediated device
--      62177883-f1bb-47f0-914d-32a22e3a8804 into the guest named 'my-guest' with
--      device-id hostdev0:
-+  * Verify the configurations:
- 
--      virsh qemu-monitor-command my-guest --hmp \
--      "device_add vfio-ap,\
--      sysfsdev=/sys/devices/vfio_ap/matrix/62177883-f1bb-47f0-914d-32a22e3a8804,\
--      id=hostdev0"
-+    * Each APQN in the guest's sysfs ``guest_matrix`` file must match an
-+      APQN returned from the lszcrypt command on the destination host. It
-+      is important to note the driver to which the queue is bound which
-+      is displayed in the ``driver`` column. Queues not bound to the vfio_ap
-+      driver are not available to the destination guest. That, however, does
-+      not guarantee they can be used by the guest being migrated; for example,
-+      migration will fail if any of these APQNs are assigned to a mediated
-+      device other than the one being migrated.
- 
--2. A vfio_ap mediated device can be hot plugged by attaching the qemu monitor
--   to the guest and using the following qemu monitor command:
-+    * Each domain number from the source guest's sysfs
-+      ``control_domains`` attribute must correspond to a bit set to one in
-+      the destination host's ``ap_control_domain_mask``.
- 
--      (qemu) device_add "vfio-ap,sysfsdev=<path-to-mdev>,id=<device-id>"
-+* Each APQN assigned to the source guest and destination guest must
-+  reference a queue device with compatible hardware capabilities:
- 
--      For example, to plug the vfio_ap mediated device
--      62177883-f1bb-47f0-914d-32a22e3a8804 into the guest with the device-id
--      hostdev0:
-++--------------+---------------------------------------------------------------+
-+| Hardware     | Description                                                   |
-+| Capabilities |                                                               |
-++==============+===============================================================+
-+| [1]          | * AP special command facility (APSC)                          |
-+| Facilities   | * AP 4096-bit ME PKU commands facility (AP4KM)                |
-+|              | * AP 4096-bit CRT PKU commands (AP4KC)                        |
-++--------------+---------------------------------------------------------------+
-+| [1] Mode     | * CCA-mode                                                    |
-+|              | * Accelerator-mode                                            |
-+|              | * XCP-mode (EP11)                                             |
-++--------------+---------------------------------------------------------------+
-+| [1] AP       |   APXA installed                                              |
-+| extended     |                                                               |
-+| addressing   |                                                               |
-++--------------+---------------------------------------------------------------+
-+| [1] Command  |   Command filtering available                                 |
-+| filtering    |                                                               |
-++--------------+---------------------------------------------------------------+
-+| [2]          | * Full native card function                                   |
-+| Functional   | * Only stateless functions                                    |
-+| capabilities |                                                               |
-++--------------+---------------------------------------------------------------+
-+| [3] AP type  | * 10 (0x0a): CEX4                                             |
-+|              | * 11 (0x0b): CEX5                                             |
-+|              | * 12 (0x0c)  CEX6                                             |
-+|              | * 13 (0x0d)  CEX7                                             |
-+|              | * 14 (0x0e)  CEX8                                             |
-++--------------+---------------------------------------------------------------+
- 
--         (QEMU) device-add "vfio-ap,\
--         sysfsdev=/sys/devices/vfio_ap/matrix/62177883-f1bb-47f0-914d-32a22e3a8804,\
--         id=hostdev0"
-++-----------------------------------------------------------------------------+
-+| Table Keys                                                                  |
-++=============================================================================+
-+|                                                                             |
-+| [1]        The hardware capability must be the same for both the source     |
-+|            and destination queue device.                                    |
-+|                                                                             |
-+| [2]        The source and destination queues must either both have          |
-+|            full native card function or both have stateless functions.      |
-+|            If the functional capabilities don't match, then the source      |
-+|            queue can have stateless capabilities since full native card     |
-+|            function can handle stateless functions; otherwise, migration    |
-+|            will fail.                                                       |
-+|                                                                             |
-+| [3]        The AP type on the source and destination guests can             |
-+|            differ if the queue passed through to the target guest is a      |
-+|            newer model (backwards compatible)                               |
-++--------------+--------------------------------------------------------------+
-+
-+* To verify the hardware capabilities are compatible:
-+
-+  * On both the source and destination hosts, display the hardware capabilities
-+    for each AP adapter in the AP configuration for that host::
-+
-+       cat /sys/bus/ap/devices/card$APID/ap_functions
-+
-+    .. note::
-+       The ``$APID`` is the two-character adapter number in hexidecimal format;
-+       for example, card02 or card1f. The ``/sys/bus/ap/devices`` directory
-+       also lists the APQNs of the queue devices installed in the respective
-+       host system with the first two characters being the APID.
-+
-+  * Verify the hardware capabilities for each AP adapter device on the source
-+    and destination host are compatible. The ``ap_functions`` attribute is a
-+    bitmask. The bits in the mask read from left to right starting with bit 0.
-+    Each bit that is set to one indicates the corresponding hardware capability
-+    is installed:
-+
-+    * Bits 0-3 are the facilities bits. Each bit value must match for the AP
-+      devices on the source and destination systems. The values indicate the
-+      following:
-+      * bit-0: APSC is installed
-+      * bit-1: AP4KM is installed
-+      * bit-2: AP4KC is installed
-+
-+    * Bits 3-5 specify the adapter Modes. Only one of these bits will be set to
-+      one and must be the same for both the source and destination adapter
-+      devices:
-+      * bit-3: CCA-mode
-+      * bit-4: Accelerator-mode
-+      * bit-5: XCP-mode (EP11)
-+
-+    * Bit 6 specifies whether APXA is installed and must be the same for both
-+      the source and destination adapter devices.
-+
-+    * Bit 7 specifies command whether command filtering is installed
-+      and must be the same for both the source and destination adapter devices.
-+
-+    * Bits 8-15 are the classification bits. There are only two relevant
-+      bits and only one of them will be set to one. For the source and destination
-+      adapter devices to be considered compatible:
-+
-+      * Bit 8 may be set to 1 on both hosts (full native card function)
-+      * Bit 9 may be set to 1 on both hosts (only stateless functions available)
-+      * Bit 9 may be set to 1 on the source host and bit 8 may be set to 1 on
-+        the destination host
-+
-+    * Bits 16-17 are the binding state bits which must be 00
-+
-+* To verify the AP types are compatible:
-+
-+  * On both the source and destination hosts, display the hardware type
-+    for each AP adapter in the AP configuration for that host to ensure the
-+    source and destination adapter types are the same, or the source type is
-+    less than the destination type::
-+
-+       cat /sys/bus/ap/devices/card$APID/hwtype
-+
-+    .. note::
-+       The ``$APID`` is the two-character adapter number in hexidecimal format;
-+       for example, card02 or card1f.
-+
-+Setting up for live guest migration on the destination host
-+-----------------------------------------------------------
-+To set up a host as the destination for live guest migration, do the
-+following:
-+
-+Create a mediated device
-+~~~~~~~~~~~~~~~~~~~~~~~~
-+Create a mediated device with the same name (UUID) as the mediated device
-+used to supply the AP configuration to the source guest. For example, if
-+the mediated device on the source guest is named
-+62177883-f1bb-47f0-914d-32a22e3a8804:
-+
-+.. code-block:: bash
-+
-+   echo 62177883-f1bb-47f0-914d-32a22e3a8804 > \
-+     /sys/devices/vfio_ap/matrix/mdev_supported_types/vfio_ap-passthrough/create
-+
-+Reserve adapters and domains for the vfio_ap device driver's use
-+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-+Reserve the same adapters and domains passed through to the source guest
-+for the vfio_ap device driver on the destination host by clearing the
-+adapter numbers from the ``/sys/bus/ap/ap_mask`` and/or the domain numbers
-+from the ``/sys/bus/ap/aqmask`` files.
-+
-+For example, suppose adapters 0, 20 (0x14) and 22 (0x16) as well as
-+domains 51 (0x33) and 58 (0x3a) are passed through to the source guest. To
-+ensure they can be passed through to the destination guest, they must be
-+made available to the vfio_ap device driver. To make them available, do one
-+or both of the following on the destination host:
-+
-+.. code-block:: bash
-+
-+   echo -0,-0x14,-22 > /sys/bus/ap/apmask
-+   echo -0,-0x33,-0x3a > /sys/bus/ap/aqmask
-+
-+.. note::
-+
-+    * It is not necessary to reserve both the adapters and domains.
-+      Reserving an adapter implicitly allows the vfio_ap driver to assign
-+      each of the domains available on the system along with the reserved
-+      adapters to a guest's AP configuration and vice versa.
-+
-+    * Reserving adapters and/or domains will result in binding the queue
-+      devices referenced by the APQNs derived from the Cartesian product of
-+      the adapters and domains made available to the vfio_ap device driver
-+      with one caveat; an APQN does not necessarily have to reference a
-+      queue device installed in the system in order to reserve it for the
-+      vfio_ap device driver; however, if the APQN does not reference a
-+      queue device installed on the destination host, migration will fail.
-+
-+    * It is not necessary to configure the destination mediated device with
-+      adapters, domains and control domains because the source guest's AP
-+      configuration will overlay the destination guest's during migration.
-+
-+    * To verify that the queue devices are reserved for the vfio_ap
-+      device driver, issue the ``lszcrypt -V`` command and you should
-+      see ``vfio_ap`` in the ``driver`` column of the output.
-+
-+Live guest migration failures due to AP configuration errors
-+------------------------------------------------------------
-+This section describes the errors that may occur during live guest migration
-+when the AP configuration of the source guest and destination host are not
-+compatible and where to look for problem determination.
-+
-+The destination host is missing the mediated device
-+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-+
-+This error occurs when a mediated device with the same name (UUID) as the
-+mediated device being migrated has not been created on the destination host.
-+
-+**Source host**
-+
-++--------------+----------------------------------------------------------------+
-+| Log          | Message                                                        |
-++==============+================================================================+
-+| Console log: | error: device not found: mediated device '$UUID' not           |
-+|              | found                                                          |
-++--------------+----------------------------------------------------------------+
-+| QEMU log:    | initiating migration                                           |
-+|              | qemu-system-s390x: Sibling indicated error 1                   |
-++--------------+----------------------------------------------------------------+
-+
-+.. note::
-+   $UUID is the UUID of the mediated device being migrated from the source host.
-+
-+
-+One or more queues are not bound to the vfio_ap driver on the destination host
-+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-+The queue devices passed through to the source guest are not installed in the
-+destination host or are not bound to its vfio_ap device driver.
-+
-+**Source host**
-+
-++--------------+----------------------------------------------------------------+
-+| Log          | Message                                                        |
-++==============+================================================================+
-+| Console log: | error: operation failed: migration failed. Message from the    |
-+|              | source host: operation failed: job 'migration out' failed:     |
-+|              | Sibling indicated error 1. Message from the destination host:  |
-+|              | operation failed: job 'migration in' failed: load of migration |
-+|              | failed: No such device: Failed to load vmstate version_id: 1,  |
-+|              | ret: -19                                                       |
-++--------------+----------------------------------------------------------------+
-+
-+**Destinaton host**
-+
-++--------------+----------------------------------------------------------------+
-+| Kernel log:  | vfio_ap_mdev $UUID: Queue $APID.$APQI not available to         |
-+|              | vfio_ap driver on target host                                  |
-++--------------+----------------------------------------------------------------+
-+| QEMU log:    | shutting down, reason=failed                                   |
-+|              | qemu-system-s390x: terminating on signal $SIGNAL_NUM from      |
-+|              | pid $PID $DAEMON                                               |
-++--------------+----------------------------------------------------------------+
-+
-+
-+.. note::
-+   * $UUID is the UUID of the mediated device being migrated from the source host.
-+   * $APID.$APQI is adapter number and queue index (domain number) comprising the
-+     $APQN (for example, 00.0033) of the queue device that is not available.
-+   * $SIGNAL_NUM is the signal number that caused the QEMU process to terminate.
-+   * $PID is the process ID of the QEMU process on the destination host.
-+   * $DAEMON is the name of the QEMU daemon process.
-+   * This message will be logged for each queue for which this error is detected.
-+
-+Failure to get hardware information for a queue device on destination host
-+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-+The vfio_ap device driver on the destination host will execute an AP instruction
-+to get the hardware information for a queue device to perform queue compatibility
-+checks. The instruction can fail for a number of reasons in which case the
-+migration will be terminated.
-+
-+**Source host**
-+
-++--------------+----------------------------------------------------------------+
-+| Log          | Message                                                        |
-++==============+================================================================+
-+| Console log: | error: operation failed: migration failed. Message from the    |
-+|              | source host: operation failed: job 'migration out' failed:     |
-+|              | Sibling indicated error 1. Message from the destination host:  |
-+|              | operation failed: job 'migration in' failed: load of migration |
-+|              | failed: failed to get hardware information for queue device    |
-+|              | $APQN                                                          |
-++--------------+----------------------------------------------------------------+
-+
-+**Destination host**
-+
-++--------------+----------------------------------------------------------------+
-+| Log          | Message                                                        |
-++==============+================================================================+
-+| Console log: | vfio_ap_mdev $UUID: migration failed: Failed to get hwinfo for |
-+|              | queue $APQN on target host: rc=$RESPONSE-CODE"                 |
-++--------------+----------------------------------------------------------------+
-+| QEMU log:    | shutting down, reason=failed                                   |
-+|              | qemu-system-s390x: terminating on signal $SIGNAL-ID from pid   |
-+|              | $PID $DAEMON                                                   |
-++--------------+----------------------------------------------------------------+
-+
-+.. note::
-+   * $UUID is the UUID of the mediated device being migrated from the source host.
-+   * $APQN (for example, 00.0033) of the queue device that is not compatible.
-+   * $RESPONSE_CODE is the response code from the AP instruction.
-+   * $SIGNAL_NUM is the signal number of the signal that caused the QEMU process
-+     to terminate.
-+   * $PID is the process ID of the QEMU process on the destination host.
-+   * $DAEMON is the name of the QEMU daemon process.
-+   * This message will be logged for each queue for which this error is detected.
-+
-+The AP configurations of the source guest and destination host not incompatible
-+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-+The functional capabilities or facilities available on one or more of the queues
-+passed through to the source guest are not compatible with the queue device with
-+the same APQN on the destination system (see the Hardware Capabilities table above)
-+
-+**Source host**
-+
-++--------------+----------------------------------------------------------------+
-+| Log          | Message                                                        |
-++==============+================================================================+
-+| Console log: | error: operation failed: migration failed. Message from the    |
-+|              | source host: operation failed: job 'migration out' failed:     |
-+|              | Sibling indicated error 1. Message from the destination host:  |
-+|              | operation failed: job 'migration in' failed: load of migration |
-+|              | failed: No such device: Failed to load vmstate version_id: 1,  |
-+|              | ret: -19                                                       |
-++--------------+----------------------------------------------------------------+
-+| Kernel log:  | N/A                                                            |
-++--------------+----------------------------------------------------------------+
-+| QEMU log:    | *initiating migration*                                         |
-+|              |                                                                |
-+|              | *qemu-system-s390x: Sibling indicated error 1*                 |
-++--------------+----------------------------------------------------------------+
-+
-+**Destination host**
-+
-++--------------+----------------------------------------------------------------+
-+| Log          | Message                                                        |
-++==============+================================================================+
-+| Console log: | N/A                                                            |
-++--------------+----------------------------------------------------------------+
-+| Kernel log:  | *vfio_ap_mdev $UUID: Migration failed: Source and target       |
-+|              | queue ($APQN) not compatible*                                  |
-+|              |                                                                |
-+|              | The message above will be followed by one or more messages     |
-+|              | enumerating the incompatible features; for example:            |
-+|              |                                                                |
-+|              | ``vfio_ap_mdev $UUID: APSC facility installed in source queue  |
-+|              | $APQN``                                                        |
-+|              | ``vfio_ap_mdev $UUID: APSC facility not installed in target    |
-+|              | queue $APQN``                                                  |
-+|              |                                                                |
-+|              | ``AP type of source ($APTYPE1) not compatible with target      |
-+|              | ($APTYPE2)`` ...                                               |
-++--------------+----------------------------------------------------------------+
-+| QEMU log:    | *initiating migration*                                         |
-+|              |                                                                |
-+|              | *qemu-system-s390x: error while loading state section id ...*  |
-+|              |                                                                |
-+|              | *shutting down, reason=failed*                                 |
-+|              |                                                                |
-+|              | *terminating on signal $SIGNAL-ID from pid $PID $DAEMON*       |
-++--------------+----------------------------------------------------------------+
-+
-+.. note::
-+   * $UUID is the UUID of the mediated device being migrated from the source host.
-+   * $APQN (for example, 00.0033) of the queue device that is incompatible.
-+   * $APTYPE1 is the type of the source queue device.
-+   * $APTYPE2 is the type of the target queue device.
-+   * $SIGNAL-ID is the signal number of the signal that caused the QEMU process
-+     to terminate.
-+   * $PROCESS-ID is the process ID of the QEMU process on the source host.
-+   * $PID is the process ID of the QEMU process on the destination host.
-+   * $DAEMON is the name of the QEMU daemon process.
-+   * Each follow-on message logging the incompatibility will be logged for each
-+     error detected for the specified queue device.
-+
-+AP Configuration Management
-+---------------------------
-+The AP configurations of the source guest and destination host must be kept
-+in synchronization or live guest migration will likely fail due to potential
-+incompatibilities introduced by such changes. In particular, changing adapter
-+or domain reservations via the sysfs ``apmask`` or ``aqmask`` attributes on
-+either the source or destination host without coordinating such changes between
-+the two hosts -especially while a migration is taking place - can result in
-+migration failures.
-+
-+Configuration stability is an orchestration-layer or system administrator
-+responsibility, which is consistent with other VFIO device types. The vfio_ap
-+device driver will validate source and destination configurations and provide
-+clear diagnostics when incompatibilities are detected, enabling orchestration
-+tools to implement appropriate policies; for example, blocking migration when
-+such changes are to be made.
-+
-+Master Key administration
-+--------------------------
-+It is imperative that s390 Common Cryptographic Architecture (CCA) master key
-+administration be performed on both the source and destination AP
-+devices to synchronize the key values prior to allowing live guest
-+migration. If the master keys do not match, then crypto applications that
-+rely on secure keys wrapped by a CCA master key will fail when the guest on
-+which they are running is migrated to the destination host. Again, this is
-+an orchestration-layer or system administrator responsibility and migration must
-+be blocked while master key administration is being performed.
--- 
-2.53.0
+On 6/30/26 12:23, Harald Freudenberger wrote:
+> On 2026-06-30 11:33, Ilya Leoshkevich wrote:
+>> On 6/29/26 14:57, Harald Freudenberger wrote:
+>>> On 2026-06-24 14:56, Ilya Leoshkevich wrote:
+>>>> On 6/24/26 10:09, Harald Freudenberger wrote:
+>>>>> With the introduction of the address wrapping function
+>>>>> wrap_address() the result can't be used to walk the
+>>>>> source address any more. So introduce a new local variable
+>>>>> to hold the wrapped address to avoid mixing source and
+>>>>> wrapped address value.
+>>>>>
+>>>>> Fixes: fcc2699d41 ("target/s390x: Have MSA helper pass a mmu_idx 
+>>>>> argument")
+>>>>> Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
+>>>>> ---
+>>>>>   target/s390x/tcg/crypto_helper.c | 16 ++++++++--------
+>>>>>   1 file changed, 8 insertions(+), 8 deletions(-)
+>>>>
+>>>> If I take as an example AMODE 24 and look at the third loop iteration,
+>>>> with the current code in master I would get:
+>>>>
+>>>>     ((((addr & 0xffffff) + 8) & 0xffffff) + 8) & 0xffffff
+>>>>
+>>>> and with your patch it would be:
+>>>>
+>>>>     (addr + 8 + 8) & 0xffffff
+>>>>
+>>>> which is undeniably more elegant, but otherwise looks equivalent to me.
+>>>>
+>>>> What is the functional issue here?
+>>>>
+>>>>> diff --git a/target/s390x/tcg/crypto_helper.c b/target/s390x/tcg/ 
+>>>>> crypto_helper.c
+>>>>> index ae392bce0e..29ad2aff43 100644
+>>>>> --- a/target/s390x/tcg/crypto_helper.c
+>>>>> +++ b/target/s390x/tcg/crypto_helper.c
+>>>>> @@ -126,8 +126,8 @@ static void sha512_read_icv(CPUS390XState *env, 
+>>>>> const int mmu_idx,
+>>>>>       const MemOpIdx oi = make_memop_idx(MO_BE | MO_64 | MO_UNALN, 
+>>>>> mmu_idx);
+>>>>>         for (int i = 0; i < 8; i++, addr += 8) {
+>>>>> -        addr = wrap_address(env, addr);
+>>>>> -        a[i] = cpu_ldq_mmu(env, addr, oi, ra);
+>>>>> +        uint64_t _addr = wrap_address(env, addr);
+>>>>> +        a[i] = cpu_ldq_mmu(env, _addr, oi, ra);
+>>>>>       }
+>>>>>   }
+>>>>
+>>>> [...]
+>>>
+>>> It is a fix, not an improvement. The original code
+>>> used the addr variable to hold the wrapped address.
+>>> But as addr is also used as the loop variable there
+>>> is a mixing between unwrapped and wrapped address here
+>>> and the unfixed code only works when wrap_address does
+>>> return the very same address as output as it became as
+>>> input. My fix corrects this.
+>>
+>> What does the patch change w.r.t. wrapping?
+>> Suppose we have amode 24 and addr = 0xfffff0:
+>>
+>> Before:
+>>
+>>   i = 0; addr = wrap(0xfffff0) = 0xfffff0;
+>>          a[0] = ldq(0xfffff0);
+>>   i = 1; addr = wrap(0xfffff0 + 8) = 0xfffff8;
+>>          a[1] = ldq(0xfffff8);
+>>   i = 2; addr = wrap(0xfffff8 + 8) = 0;
+>>          a[2] = ldq(0);
+>>   i = 3; addr = wrap(0 + 8) = 8;
+>>          a[3] = ldq(8);
+>>
+>> After:
+>>
+>>   i = 0; addr = 0xfffff0;
+>>          _addr = wrap(0xfffff0) = 0xfffff0;
+>>          a[0] = ldq(0xfffff0)
+>>   i = 1; addr = 0xfffff0 + 8;
+>>          _addr = wrap(0xfffff8) = 0xfffff8;
+>>          a[1] = ldq(0xfffff8);
+>>   i = 2; addr = 0xfffff8 + 8 = 0x1000000
+>>          _addr = wrap(0x1000000) = 0;
+>>          a[2] = ldq(0);
+>>   i = 3; addr = 0x1000000 + 8 = 0x1000008;
+>>          _addr = wrap(0x1000008) = 8;
+>>          a[3] = ldq(8);
+>>
+>> The behavior look identical to me.
+>> What am I missing?
+> 
+> Lets assume addr is some 0x1000 and wrap does just add some offset, e.g. 
+> 0x8000
+> 
+> for (int i = 0; i < 8; i++, addr += 8) {
+>      addr = wrap_address(env, addr);
+>      fetch or write something at the wrapped address addr;
+> }
+> 
+> Then the idea of this loop is to run through addr 0x1000 ... 0x103F.
+> 1. loop with i=0 and addr 0x1000
+> 2. loop with i=1 and addr 0x1000 + 8
+> 3. loop with i=2 and addr 0x1000 + 8 + 8
+> 4. loop with i=3 and addr 0x1000 + 8 + 8 + 8
+> 5. loop with i=4 and addr 0x1000 + 8 + 8 + 8 + 8
+> 6. loop with i=5 and addr 0x1000 + 8 + 8 + 8 + 8 + 8
+> 7. loop with i=6 and addr 0x1000 + 8 + 8 + 8 + 8 + 8 + 8
+> 8. loop with i=7 and addr 0x1000 + 8 + 8 + 8 + 8 + 8 + 8 + 8
+> 
+> BUT the given code does something different. As the addr is used in the 
+> loop
+> to hold the wrapped address this loop in fact does:
+> 1. loop with i=0 and addr 0x1000 - all fine, but as addr = 
+> wrap_address() at the
+>     end of the loop now addr is 0x1000 + 0x8000 = 0x9000, so next loop 
+> starts with
+> 2. loop with i=1 and addr 0x9000 + 8
+>     and at the end of the loop addr is 0x9008 + 0x8000 = 0x11008 and 
+> next loop starts
+> 3. loop with i=2 and addr 0x11008 + 8
+>     ...
+> 
+> So introducing an intermediate variable which holds the wrapped address
+> makes sure the surrounding addr walk in the loop does as intended.
 
+Ah, now I see where we were talking past each other, thanks for the
+clarification. You assume that wrap_address() may do arbitrary
+transformations, like addition in your example above. But today it does
+only bitwise "and", as defined by the architecture:
+
+static inline uint64_t wrap_address(CPUS390XState *env, uint64_t a)
+{
+     if (!(env->psw.mask & PSW_MASK_64)) {
+         if (!(env->psw.mask & PSW_MASK_32)) {
+             /* 24-Bit mode */
+             a &= 0x00ffffff;
+         } else {
+             /* 31-Bit mode */
+             a &= 0x7fffffff;
+         }
+     }
+     return a;
+}
+
+and I believe in this specific case the order doesn't matter.
