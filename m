@@ -1,115 +1,233 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4E29F3FE645;
-	Tue, 30 Jun 2026 11:10:25 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9EFC1409610;
+	Tue, 30 Jun 2026 11:11:42 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782817826; cv=none; b=O/6GVx3vfnAfQ0eKRi832rgk6emNjpEXuxqvRI6dIxEis+IoyZEiGO+jj9cW3mHcsGTEaC2qOa2etmR4PC/pDxrkwYs6mUCgqDMXKJFQY4/0TEt45IEJPdPvgDOpGp96U4sOLKKGuR34yl3Eauhy31q/cR2GYPqDBaY3ms4Tvzk=
+	t=1782817903; cv=none; b=Lp6wYadu29aAg/+s6Ly676edv5EZVj/OOCsFNptmpmZZH1Zf0AxO/eOHmYPYyvvpISOKqWAQ50hLmPUIPP7GHx/PVJjtme4c7TeQ15Cpv3Ywlz9xKoRh7HL2fW3KNv4veeGHmnbjTMij/vIaSe6YULel0NROEnfBQFroSGKOabM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782817826; c=relaxed/simple;
-	bh=Brs1ox8+gLMkZqZvlD/HEtRpUJHuQOucwwSeSNs23+c=;
+	s=arc-20240116; t=1782817903; c=relaxed/simple;
+	bh=v8emd0+iJg73lla8cZKdlKAEjPum1TXArUvYoWrvMgg=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=NNpOCK0lfhh4pLKm36Yul5NAMlfCfq/TF/wk2OoVwD4MGD5S2+OhF3sG0AWfi+JGAPsWO1p5k0Gw+wnJxWOEf+Fa6UUjgt4QSkPluRTg28tLFMOj9nOagscT0usousjZLE/R68G5LHVLa9g8oo+TxDOYwdnlanZncZObZVfMdYo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=AqFtdIbZ; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=BTH6rVhV0nusuJw+F3dsFkIbEIVCoIOgWn6rDBZ3bo9vKjarechuZ2ULLTEKpTswQzU7f2ao7xa15SRsyvhNSgOTT9hIlzjdBz4qDE5xUnQF70uyp21uAj67N8Kf2y3WKktR56mSdaos/BaHEhZ4z4M1H/FiOJcZBp+mQZURd5E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OqSLLoIV; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AqFtdIbZ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91C1E1F00A3A;
-	Tue, 30 Jun 2026 11:10:24 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OqSLLoIV"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08F0A1F00A3A;
+	Tue, 30 Jun 2026 11:11:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782817824;
-	bh=FHaLKww1u+vU5lAE4gSX6v2ohi/k7OQp5WQAOpJkOeU=;
+	s=k20260515; t=1782817902;
+	bh=tzicFelJ83Aw1XQxph/oLJq5DnR+vyQ2AWf/pH5gfKk=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=AqFtdIbZM2BckLvX/+0LuH7ajHslJJZR8HvVVdMdMJ7AvpPku6RoOPUk7YjAWIHXX
-	 4cM/lGGbXJ+7Tgu5WAfeEVXJivFieBYM03mwuGIp86Zm3gSr3qKxVtWQBbfLnbQSr5
-	 XWasw9kR+rN0y4Znrxa2L2Ya75RoKwIRMy4J1s4yenTr8aIgA2grnJ9gmOX4/DcqEu
-	 83W6A9o195HnQjsUtoRoP5bgy+grXwk/8hg+2k+BTa+rbVhoJVMLqjTsPpyhVo4ASq
-	 XnucmZ2hdUpDROsQeS/eB1S2jo0M/R8G8rcf/UXTA3zBRc+Gth1XPfjXW2IYthpEu1
-	 MRdKTz4YpmEdw==
+	b=OqSLLoIVMAas1myasolyFvK8Yl5dBDVZf32u/ZbDGGKE+uQdpx3lgQKpWDEeBRV/g
+	 W16wxOFIJ0Hnae5uVAykSI2kLOxE6UgvMTI7LN6z0FYhRXWng4kneuisOQ/xTGRYIO
+	 6LuZLMqlhQHqgAZFt1mbXgXHZJH8bIOw7ugxtuf8kJhlbDTG/uCZy9oZlhN1Miqp1A
+	 MWA193gJs5f7+ZipTTd7kzBlVBT65Cq37Adw2y8wxZ5bey5x1Z0gXkjzF52p8ZHPAe
+	 kJSptIZeJOEBJm0crU1Fw/Mt5Yn9wFwifN0MNOR5axe8NoAD74JNwbIK2eAOL3XEDs
+	 CB9N9aC69i0Wg==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 04/15] s390/vfio-ap: Reset migration state in
- VFIO_DEVICE_RESET ioctl handler
+Subject: Re: [PATCH v3 05/15] s390-vfio-ap: Callback to get/set vfio device
+ mig state during guest migration
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Anthony Krowiak" <akrowiak@linux.ibm.com>
-Cc: "Vasily Gorbik" <gor@linux.ibm.com>, kvm@vger.kernel.org, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, linux-s390@vger.kernel.org
-In-Reply-To: <20260630104132.1598851-5-akrowiak@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>
+In-Reply-To: <20260630104132.1598851-6-akrowiak@linux.ibm.com>
 References: <20260630104132.1598851-1-akrowiak@linux.ibm.com>
- <20260630104132.1598851-5-akrowiak@linux.ibm.com>
+ <20260630104132.1598851-6-akrowiak@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 30 Jun 2026 11:10:23 +0000
-Message-Id: <20260630111024.91C1E1F00A3A@smtp.kernel.org>
+Date: Tue, 30 Jun 2026 11:11:41 +0000
+Message-Id: <20260630111142.08F0A1F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 5 potential issue(=
 s) to consider:
-
-New issues:
-- [Low] Typo in the function comment block for `vfio_ap_reset_migration_sta=
-te`.
-
-Pre-existing issues:
-- [High] Preexisting memory leak of `ap_config` in `vfio_ap_release_migrati=
-on_data`.
+- [Critical] Race condition in `vfio_ap_release_mig_file` accessing `mig_da=
+ta` without locking, resulting in Use-After-Free and memory leak.
+- [High] Removal of migration file cleanup logic from vfio_ap_reset_migrati=
+on_state leaves stale file pointers, causing resource leaks.
+- [High] The device state is not updated to VFIO_DEVICE_STATE_ERROR when a =
+state transition fails.
+- [Medium] Unratelimited dev_err allows unprivileged users to flood the ker=
+nel log.
+- [Medium] Use of global mutex for device-specific state operations allows =
+cross-VM interference.
 --
 
-commit 814157f788ce7725968457dca0dde1e8bb23d18c
+commit d82cbc8a070306f90cbac1743dbb46ba5b58d080
 Author: Anthony Krowiak <akrowiak@linux.ibm.com>
 
-s390/vfio-ap: Reset migration state in VFIO_DEVICE_RESET ioctl handler
+s390-vfio-ap: Callback to get/set vfio device mig state during guest migrat=
+ion
 
-This patch adds a handler to reset the vfio-ap migration state during a
-VFIO_DEVICE_RESET ioctl. It releases migration files and frees the storage
-allocated for maintaining the migration state to return it to RUNNING.
+Implements two callbacks related to the current state of a vfio-ap device:
+* The callback that sets a new migration state of a vfio-ap device during
+  live migration of guests with pass-through access to AP devices. This
+  callback is mandatory for VFIO_DEVICE_FEATURE_MIGRATION support.
+
+  The function pointer for this callback is specified via the
+  'migration_set_state' field of the 'vfio_migration_ops' structure
+  which is stored with the VFIO device when the 'vfio_device'
+  structure representing the mediated device is initialized.
+
+* The callback that returns the current vfio device migration state during
+  live migration of guests with pass-through access to AP devices.
+
+  The function pointer for this callback is specified via the
+  'migration_get_state' field of the 'vfio_migration_ops' structure
+  which is stored with the VFIO device when the 'vfio_device'
+  structure representing the mediated device is initialized.
 
 > diff --git a/drivers/s390/crypto/vfio_ap_migration.c b/drivers/s390/crypt=
 o/vfio_ap_migration.c
-> index 5b6d48ccf332c..c7c71980bdbb8 100644
+> index c7c71980bdbb8..8274e7b65eea4 100644
 > --- a/drivers/s390/crypto/vfio_ap_migration.c
 > +++ b/drivers/s390/crypto/vfio_ap_migration.c
-> @@ -129,3 +129,23 @@ void vfio_ap_release_migration_data(struct ap_matrix=
-_mdev *matrix_mdev)
->  	kfree(matrix_mdev->mig_data);
->  	matrix_mdev->mig_data =3D NULL;
+[ ... ]
+> @@ -56,16 +57,140 @@ struct vfio_ap_config {
+>  	struct vfio_ap_queue_info	qinfo[] __counted_by(num_queues);
+>  };
+> =20
+[ ... ]
+> +static struct file *vfio_ap_set_state(struct vfio_device *vdev,
+> +				      enum vfio_device_mig_state  new_state)
+>  {
+> -	return NULL;
+> +	int ret;
+> +	struct file *filp =3D NULL;
+> +	struct ap_matrix_mdev *matrix_mdev;
+> +	enum vfio_device_mig_state next_state;
+> +	struct vfio_ap_migration_data *mig_data;
+> +
+> +	matrix_mdev =3D container_of(vdev, struct ap_matrix_mdev, vdev);
+> +
+> +	mutex_lock(&matrix_dev->mdevs_lock);
+
+[Severity: Medium]
+Does using the global mdevs_lock here allow an attacker controlling a guest=
+=20
+to heavily contend the lock by repeatedly calling the migration ioctl? Woul=
+d=20
+it be better to use a per-device lock to prevent potential cross-VM=20
+interference?
+
+> +	if (ap_is_se_guest()) {
+> +		dev_err(matrix_mdev->vdev.dev,
+> +			"Migration not allowed from or to a Secure Execution guest\n");
+
+[Severity: Medium]
+Could this unratelimited error message allow an unprivileged user program t=
+o=20
+flood the kernel log by calling the ioctl in a tight loop?
+
+> +		mutex_unlock(&matrix_dev->mdevs_lock);
+> +		return ERR_PTR(-EPERM);
+> +	}
+> +
+> +	mig_data =3D matrix_mdev->mig_data;
+> +
+[ ... ]
+> +	while (mig_data->mig_state !=3D new_state) {
+> +		ret =3D vfio_mig_get_next_state(vdev, mig_data->mig_state,
+> +					      new_state, &next_state);
+> +		if (ret) {
+> +			filp =3D ERR_PTR(ret);
+> +			break;
+> +		}
+> +
+> +		filp =3D vfio_ap_transition_to_state(matrix_mdev, next_state);
+> +		if (IS_ERR(filp))
+> +			break;
+
+[Severity: High]
+If a state transition fails here, should the device be placed into=20
+VFIO_DEVICE_STATE_ERROR? The current logic seems to break the loop and=20
+return the error, but mig_data->mig_state is left unmodified, so subsequent=
+=20
+calls might report the old valid state instead of the required error state.
+
+> +
+> +		mig_data->mig_state =3D next_state;
+> +
+> +		if (WARN_ON(filp && new_state !=3D next_state)) {
+> +			fput(filp);
+> +			filp =3D ERR_PTR(-EINVAL);
+> +			break;
+> +		}
+> +	}
+> +
+> +	mutex_unlock(&matrix_dev->mdevs_lock);
+> +
+> +	return filp;
+>  }
+> =20
+>  static int vfio_ap_get_state(struct vfio_device *vdev,
+>  			     enum vfio_device_mig_state  *current_state)
+>  {
+> -	return -EOPNOTSUPP;
+> +	struct ap_matrix_mdev *matrix_mdev;
+> +	struct vfio_ap_migration_data *mig_data;
+> +
+> +	mutex_lock(&matrix_dev->mdevs_lock);
+
+[Severity: Medium]
+Similar to the concern in vfio_ap_set_state(), could acquiring the global=20
+mdevs_lock just to read the device-specific state lead to cross-VM lock=20
+contention?
+
+> +
+> +	matrix_mdev =3D container_of(vdev, struct ap_matrix_mdev, vdev);
+> +	mig_data =3D  matrix_mdev->mig_data;
+> +
+[ ... ]
+> @@ -146,6 +271,5 @@ void vfio_ap_reset_migration_state(struct ap_matrix_m=
+dev *matrix_mdev)
+>  	if (!matrix_mdev->mig_data)
+>  		return;
+> =20
+> -	vfio_ap_release_mig_files(matrix_mdev);
+>  	matrix_mdev->mig_data->mig_state =3D VFIO_DEVICE_STATE_RUNNING;
 >  }
 
 [Severity: High]
-This isn't a bug introduced by this patch, but does this function leak the
-dynamically allocated ap_config pointer stored within mig_data?
+Is it safe to remove the call to vfio_ap_release_mig_files() here? If=20
+userspace starts a new migration, won't the new file pointers overwrite the=
+=20
+old ones in mig_data? When the old file descriptors are closed later, the=20
+driver's release callback won't find a match in mig_data, which appears to=
+=20
+result in a permanent memory leak of the associated allocations.
 
-If the VFIO device file descriptor is closed before the migration file
-descriptor, vfio_ap_mdev_close_device() calls this function which frees
-matrix_mdev->mig_data without first freeing
-mig_data->resuming_mig_state.ap_config.
+[Severity: Critical]
+Are there also race conditions related to accessing mig_data without locks=
+=20
+during release? Looking at vfio_ap_release_mig_file():
 
-When the migration file descriptor is subsequently closed, its release
-callback vfio_ap_release_mig_file() checks matrix_mdev->mig_data. Since it
-is now NULL, it returns -ENODEV and skips cleanup, which seems to permanent=
-ly
-leak the ap_config memory. Could this be triggered repeatedly by userspace?
+    struct ap_matrix_mdev *matrix_mdev =3D filp->private_data;
 
-> +
-> +/**
-> + * vfio_ap_reset_migration_state - Reset the vfio-ap migration state
-> + *
-> + * @matrix_mdev: pointer to the object maintaining the vfio-ap device st=
-ate
-> + *
-> + * Called during VFIO_DEVICE_RESET to clean up any active migration
-> + * stte and reset the device to RUNNING state as required by the VFIO
+    if (!matrix_mdev || !matrix_mdev->mig_data)
+        return -ENODEV;
 
-[Severity: Low]
-This isn't a bug, but there is a typo in the comment block. Did you mean
-"state" instead of "stte"?
+    if (filp =3D=3D matrix_mdev->mig_data->stop_copy_mig_file)
 
-> + * migration specification.
-> + */
+Could an unprivileged process cause a use-after-free by closing the VFIO=20
+device file descriptor while keeping the migration file descriptor open,=20
+and then closing the migration file descriptor? Since mig_data is accessed=
+=20
+locklessly here, it seems it could be freed concurrently during device=20
+closure, leading to a dereference of freed memory.
+
+Additionally, if vfio_ap_release_migration_data() is called concurrently,=20
+does it properly free internal allocations like resuming_mig_state.ap_confi=
+g,=20
+or are those leaked when the parent mig_data is freed?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260630104132.1598=
-851-1-akrowiak@linux.ibm.com?part=3D4
+851-1-akrowiak@linux.ibm.com?part=3D5
