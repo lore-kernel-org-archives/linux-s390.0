@@ -1,190 +1,376 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A12B73F20E7;
-	Tue, 30 Jun 2026 11:49:35 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A1F83988F9;
+	Tue, 30 Jun 2026 11:54:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782820176; cv=none; b=ed7zRsPKqbR0hy5jCL3rzcUF1f46ls/7TRyuZP9wU7AlV4GHjQAoSpYg/4S7L7LUvN4WKN/5brr+zifUxdEs+zpJpAIdY1nXCCw1tetVX6r1q0cKp3sUXbPDRaNxzdsIH9HQPCc5FRaf4xUUDpyQpMrUFTit44L2SPUtp1IElUc=
+	t=1782820462; cv=none; b=TmKNudG9UUuWjqMRAVCQEPci6EfYXOOJS83XQ9E196H3ATrdq+IEWWEG3UdoMYyU09V9XWKsJp+wmmj1AVxUfWBeUSQxwzCKhRh5RN0NO7kjWHf2fSP+pYbSXFPLv337rU9xCUIMuDotwfLVvNA+4xCMTIbrtvljyF/+0ryDU4w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782820176; c=relaxed/simple;
-	bh=4JADe2P92Rb3cOEVZWXblRdvcy38Nz0uPOylDyxxuAA=;
+	s=arc-20240116; t=1782820462; c=relaxed/simple;
+	bh=DibPbFIxxi9nBLUrPdm+SjNp8uKtA4niqUO3GL49to4=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=PLsvAaZ8I6PfhVER3JpAyaT1wqlaUL2QsqK4WLXvqyaSLF1d6UczXPB/iMWkXwGI/JCrRbQ9uV3dGaeGJnC5erJFTIgyuQSBENl3T6cNLYcWWiPaYnIpGmZZjRpXJv8xxVpyIFiDqbRNtniXDAfqsOFm8p0NoZfuV06JoKjLLzs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=il7bJ5X7; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=VFZl9fJ0K6/7gKW/Z98HoN9dPln2l/A+5CC/WEiFYadTOu94lxOxxeBCXOiz66Ba5Wo7mLmnFC9b9vLNzzeS+89rkE1F94qVpDfU+9gK0GwXrvt/3fdio9YiNGeKPP2XC2F+Lsyg95yXzEemdNuJX/G/rBS1MlPUFl0aLNroj0U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Xwrs1HbV; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="il7bJ5X7"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 012BD1F000E9;
-	Tue, 30 Jun 2026 11:49:34 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Xwrs1HbV"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF07A1F000E9;
+	Tue, 30 Jun 2026 11:54:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782820175;
-	bh=yfgI+4xQU7j0dBWMpZqnu+GvOQTVLtHEklk3BeeWjmc=;
+	s=k20260515; t=1782820460;
+	bh=XCe0JeB8T+Na5yilUwWe7+hNYcs1hjxUMt9lG7WIRBM=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=il7bJ5X7qIv/0qNvQO42Aw7VK9g2hD2Z/x/CbF28DB0Wjvyb7TzocA26/cFxMyoz0
-	 OUE3yviAcHBWmHv/xZPlDt3667N/Z7oX0EM/xvZIkt0+NbRYYXxx9kgyCcCcefamI8
-	 7n9KdFpXUx3WnLAzdaTs8mqL0SeqOv8SRDaoiJaklmJ9KbvcE5bpLvzjWRmgCwOP+w
-	 WT8Te4FXI8uNo3+8eHEFIZdhDzYBycoG133q7Y5KB2ybeVwWCF84VdjqPypXTZGGlB
-	 n4onYrAsIbyf9NOt26ozOJiq6MMZuYsMov1ngazC+4hsXOMZAqbjdd/MEIzoAexzNX
-	 36CBw029GL7XQ==
+	b=Xwrs1HbV0JsZOsoY18A/Y5F1NVpGQN1SXqoNAMB2wYD9wPO9tA692TvP0pTfhTTuI
+	 +yunVdybeG+xOmHrHD0FDxWprmw6l2TgKucbZbVBHuswQVVTCnPTsseV934rbIKS8V
+	 7c9oVEL+swR1izh5brc+hVlbe6omEeJw4ymFX3akSeGX6xWiGAPjy9FQn37Ho0sVUg
+	 4cuSK7C+L8kbffE3TgpMXGGj2ZbJNkP1KttA3wZhxPO3bmTII0/f+dLkq7KOMbeSVi
+	 FhgpEzmeXblY4lP4aPBRcLA/+rLzm74qsdBh5+9tpP1H1yhyWUB/Czi2QPfuTO3M24
+	 zql2isdrDrkNA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 13/15] s390/vfio-ap: Callback to get the size of data
- to be migrated during guest migration
+Subject: Re: [PATCH v3 15/15] s390/vfio-ap: Add live guest migration chapter
+ to vfio-ap.rst
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Anthony Krowiak" <akrowiak@linux.ibm.com>
-Cc: kvm@vger.kernel.org, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Vasily
- Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>
-In-Reply-To: <20260630104132.1598851-14-akrowiak@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Vasily
+ Gorbik" <gor@linux.ibm.com>, kvm@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>
+In-Reply-To: <20260630104132.1598851-16-akrowiak@linux.ibm.com>
 References: <20260630104132.1598851-1-akrowiak@linux.ibm.com>
- <20260630104132.1598851-14-akrowiak@linux.ibm.com>
+ <20260630104132.1598851-16-akrowiak@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 30 Jun 2026 11:49:34 +0000
-Message-Id: <20260630114935.012BD1F000E9@smtp.kernel.org>
+Date: Tue, 30 Jun 2026 11:54:19 +0000
+Message-Id: <20260630115419.DF07A1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
 s) to consider:
-
-Pre-existing issues:
-- [Critical] Chunked writes to the resuming migration file descriptor cause=
- a memory leak and subsequent NULL pointer dereference.
-- [High] Migration config size is uninitialized on the source, breaking chu=
-nked reallocation on the destination.
+- [Low] Malformed reStructuredText syntax leading to potential build warnin=
+gs (grid table and nested lists).
+- [Low] Multiple typographical, grammatical errors, and inconsistent variab=
+le names in the newly added text.
+- [Low] Logical contradiction in section heading.
 --
 
-commit 267d5567c135fa27576ba7a999b70cfabea69848
+commit 5afeaef82632a184153d66843b7e2a58e98d0cdd
 Author: Anthony Krowiak <akrowiak@linux.ibm.com>
 
-s390/vfio-ap: Callback to get the size of data to be migrated during guest =
-migration
+s390/vfio-ap: Add live guest migration chapter to vfio-ap.rst
    =20
-Callback to get the estimated data length of the data that will be required
-to complete reading of the vfio device's internal state. It's mandatory for
-VFIO_DEVICE_FEATURE_MIGRATION migration support.
+This commit adds a 'Live Guest Migration' chapter to the vfio-ap.rst
+documentation. It describes the details for initiating live guest migration
+for a guest to which AP adapters, domains and control domains have been
+passed through.
 
-> diff --git a/drivers/s390/crypto/vfio_ap_migration.c b/drivers/s390/crypt=
-o/vfio_ap_migration.c
-> index 572db04c4ac15..83e1ce2c40c0c 100644
-> --- a/drivers/s390/crypto/vfio_ap_migration.c
-> +++ b/drivers/s390/crypto/vfio_ap_migration.c
-> @@ -1283,7 +1283,18 @@ static int vfio_ap_get_state(struct vfio_device *v=
-dev,
->  static int vfio_ap_get_data_size(struct vfio_device *vdev,
->  				 unsigned long *stop_copy_length)
->  {
-> -	return -EOPNOTSUPP;
-> +	struct ap_matrix_mdev *matrix_mdev;
-> +	size_t qinfo_sz;
-> +	int num_queues;
-> +
-> +	mutex_lock(&matrix_dev->mdevs_lock);
-> +	matrix_mdev =3D container_of(vdev, struct ap_matrix_mdev, vdev);
-> +	num_queues =3D vfio_ap_mdev_get_num_queues(&matrix_mdev->shadow_apcb);
-> +	qinfo_sz =3D num_queues * sizeof(struct vfio_ap_queue_info);
-> +	*stop_copy_length =3D qinfo_sz + sizeof(struct vfio_ap_config);
-> +	mutex_unlock(&matrix_dev->mdevs_lock);
-> +
-> +	return 0;
->  }
+> diff --git a/Documentation/arch/s390/vfio-ap.rst b/Documentation/arch/s39=
+0/vfio-ap.rst
+> index ac0c07f76ddd7..fc0707c0dffd6 100644
+> --- a/Documentation/arch/s390/vfio-ap.rst
+> +++ b/Documentation/arch/s390/vfio-ap.rst
+
+[ ... ]
+
+> +To be considered compatible, the AP configuration for the destination ho=
+st must
+> +meet these requirements:
 > =20
->  static const struct vfio_migration_ops vfio_ap_migration_ops =3D {
+> -      (QEMU) device-del id=3D<device-id>
+> +* Each AP adapter, domain and control domain number assigned to the sour=
+ce
+> +  guest's AP configuration must be in the destination host's AP
+> +  configuration. This can be verified as follows:
+> =20
+> -      For example, to hot unplug the vfio_ap mediated device that was sp=
+ecified
+> -      on the qemu command line with 'id=3Dhostdev0' when the guest was s=
+tarted:
+> +  * On the source host, display the AP configuration of the source guest:
+> =20
+> -         (QEMU) device-del id=3Dhostdev0
+> +    .. code-block:: bash
+> =20
+> -After live migration of the KVM guest completes, an AP configuration can=
+ be
+> -restored to the KVM guest by hot plugging a vfio_ap mediated device on t=
+he target
+> -system into the guest in one of two ways:
+> +       cat /sys/devices/vfio_ap/matrix/$UUID/guest_matrix
+> +       cat /sys/devices/vfio_ap/matrix/$UUID/control_domains
+> =20
+> -1. If the KVM guest was started with libvirt, you can hot plug a matrix =
+mediated
+> -   device into the guest via the following virsh commands:
+> +    .. note::
+> +       Replace ``$UUID`` with the actual UUID of your mediated device.
+> =20
+> -   virsh attach-device <guestname> <path-to-device-xml>
+> +  * Display the AP configuration of the destination host:
+> =20
+> -      For example, to hot plug mdev 62177883-f1bb-47f0-914d-32a22e3a8804=
+ into
+> -      the guest named 'my-guest':
+> +    .. code-block:: bash
+> =20
+> -         virsh attach-device my-guest ~/config/my-guest-hostdev.xml
+> +       lszcrypt -V
+> +       cat /sys/bus/ap/ap_control_domain_mask
+> =20
+> -            The contents of my-guest-hostdev.xml:
+> +    Note that each bit in the ap_control_domain_mask corresponds to
+> +    correspond to domain numbers 0-255. If a bit is set to one, then
 
-[Severity: Critical]
-This is a pre-existing issue, but chunked writes to the resuming migration
-file descriptor can cause a memory leak and subsequent NULL pointer
-dereference.
+[Severity: Low]
+This isn't a bug, but the phrase "corresponds to correspond to" appears
+to be duplicated.
 
-When userspace writes resuming migration data in chunks (a write where
-*pos + len < cfg_sz), vfio_ap_resuming_write() successfully processes the
-chunk but bypasses saving the newly allocated ap_config to mig_data, and
-fails to free it:
+> +    the control domain is available on the destination host. For
+> +    example:
 
-drivers/s390/crypto/vfio_ap_migration.c:vfio_ap_resuming_write() {
-...
-	if (*pos =3D=3D 0) {
-		ret =3D allocate_ap_config(&ap_config, buf, len);
-...
-	} else {
-...
-	}
-...
-	/* Check if we've completed writing the entire configuration */
-	if (*pos + len =3D=3D cfg_sz) {
-...
-		if (!ret) {
-			mig_data->resuming_mig_state.ap_config =3D ap_config;
-			mig_data->resuming_mig_state.config_sz =3D cfg_sz;
-		}
-...
-	}
+[ ... ]
 
-	ret =3D len;
-	*pos +=3D len;
-	goto done;
+> ++-----------------------------------------------------------------------=
+------+
+> +| Table Keys                                                            =
+      |
+> ++=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D+
+> +|                                                                       =
+      |
+> +| [1]        The hardware capability must be the same for both the sourc=
+e     |
+> +|            and destination queue device.                              =
+      |
+> +|                                                                       =
+      |
+> +| [2]        The source and destination queues must either both have    =
+      |
+> +|            full native card function or both have stateless functions.=
+      |
+> +|            If the functional capabilities don't match, then the source=
+      |
+> +|            queue can have stateless capabilities since full native car=
+d     |
+> +|            function can handle stateless functions; otherwise, migrati=
+on    |
+> +|            will fail.                                                 =
+      |
+> +|                                                                       =
+      |
+> +| [3]        The AP type on the source and destination guests can       =
+      |
+> +|            differ if the queue passed through to the target guest is a=
+      |
+> +|            newer model (backwards compatible)                         =
+      |
+> ++--------------+--------------------------------------------------------=
+------+
 
-cleanup:
-	kfree(ap_config);
-done:
-...
-}
+[Severity: Low]
+Will this malformed table bottom border cause sphinx build warnings?
 
-If the first write is a partial chunk, ap_config is allocated but the
-function skips assigning it to mig_data->resuming_mig_state.ap_config and
-jumps to done, leaking ap_config.
+The table body defines a single column, but the bottom border is split
+into two columns by the + character, which violates reStructuredText grid=20
+table syntax.
 
-On the next chunk write (*pos > 0), the else branch reads
-mig_data->resuming_mig_state.ap_config which is still NULL. It passes it to
-reallocate_ap_config(), where it is unconditionally dereferenced:
+> +
+> +* To verify the hardware capabilities are compatible:
+> +
+> +  * On both the source and destination hosts, display the hardware capab=
+ilities
+> +    for each AP adapter in the AP configuration for that host::
+> +
+> +       cat /sys/bus/ap/devices/card$APID/ap_functions
+> +
+> +    .. note::
+> +       The ``$APID`` is the two-character adapter number in hexidecimal =
+format;
 
-drivers/s390/crypto/vfio_ap_migration.c:reallocate_ap_config() {
-	struct vfio_ap_config *ap_config =3D *mig_ap_config;
-...
-	cur_cfg_sz =3D ap_config->config_sz;
+[Severity: Low]
+This isn't a bug, but there is a typo in the word "hexidecimal".
 
-Can this sequence cause a memory leak on partial writes, followed by a NULL
-pointer dereference on the next chunk write?
+> +       for example, card02 or card1f. The ``/sys/bus/ap/devices`` direct=
+ory
+> +       also lists the APQNs of the queue devices installed in the respec=
+tive
+> +       host system with the first two characters being the APID.
+> +
+> +  * Verify the hardware capabilities for each AP adapter device on the s=
+ource
+> +    and destination host are compatible. The ``ap_functions`` attribute =
+is a
+> +    bitmask. The bits in the mask read from left to right starting with =
+bit 0.
+> +    Each bit that is set to one indicates the corresponding hardware cap=
+ability
+> +    is installed:
+> +
+> +    * Bits 0-3 are the facilities bits. Each bit value must match for th=
+e AP
+> +      devices on the source and destination systems. The values indicate=
+ the
+> +      following:
+> +      * bit-0: APSC is installed
+> +      * bit-1: AP4KM is installed
+> +      * bit-2: AP4KC is installed
 
-[Severity: High]
-This is a pre-existing issue, but the migration config size appears to be
-left uninitialized on the source, which can break chunked reallocation on
-the destination.
+[Severity: Low]
+Is a blank line needed before the nested list items (starting with bit-0)
+to avoid reStructuredText parsing warnings?
 
-In vfio_ap_get_config(), ap_configuration is allocated via kzalloc but the
-config_sz field is never populated:
+> +
+> +    * Bits 3-5 specify the adapter Modes. Only one of these bits will be=
+ set to
+> +      one and must be the same for both the source and destination adapt=
+er
+> +      devices:
+> +      * bit-3: CCA-mode
+> +      * bit-4: Accelerator-mode
+> +      * bit-5: XCP-mode (EP11)
+> +
+> +    * Bit 6 specifies whether APXA is installed and must be the same for=
+ both
+> +      the source and destination adapter devices.
+> +
+> +    * Bit 7 specifies command whether command filtering is installed
 
-drivers/s390/crypto/vfio_ap_migration.c:vfio_ap_get_config() {
-...
-	*ap_config_size =3D vfio_ap_config_size(matrix_mdev, &num_queues);
+[Severity: Low]
+This isn't a bug, but the phrase "command whether command filtering" has
+duplicated words.
 
-	ap_configuration =3D kzalloc(*ap_config_size, GFP_KERNEL_ACCOUNT);
-	if (!ap_configuration)
-		return -ENOMEM;
+> +      and must be the same for both the source and destination adapter d=
+evices.
 
-	ap_configuration->num_queues =3D num_queues;
-...
-}
+[ ... ]
 
-Because config_sz remains 0, the source sends a zeroed config_sz to
-userspace. On the destination, vfio_ap_resuming_write() copies this
-structure from userspace. If a subsequent chunk triggers
-reallocate_ap_config(), it reads the 0 size and reallocates the buffer to
-merely len. This causes the subsequent validation:
+> +One or more queues are not bound to the vfio_ap driver on the destinatio=
+n host
+> +~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~=
+~~~~~~
+> +The queue devices passed through to the source guest are not installed i=
+n the
+> +destination host or are not bound to its vfio_ap device driver.
+> +
+> +**Source host**
+> +
+> ++--------------+--------------------------------------------------------=
+--------+
+> +| Log          | Message                                                =
+        |
+> ++=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D+=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D+
+> +| Console log: | error: operation failed: migration failed. Message from=
+ the    |
+> +|              | source host: operation failed: job 'migration out' fail=
+ed:     |
+> +|              | Sibling indicated error 1. Message from the destination=
+ host:  |
+> +|              | operation failed: job 'migration in' failed: load of mi=
+gration |
+> +|              | failed: No such device: Failed to load vmstate version_=
+id: 1,  |
+> +|              | ret: -19                                               =
+        |
+> ++--------------+--------------------------------------------------------=
+--------+
+> +
+> +**Destinaton host**
 
-	if (*pos + len > cfg_sz) {
-		ret =3D -EIO;
-		goto cleanup;
-	}
+[Severity: Low]
+This isn't a bug, but there is a typo in the word "Destinaton".
 
-to evaluate as true (since *pos + len > len is true when *pos > 0),
-aborting the migration with -EIO.
+> +
+> ++--------------+--------------------------------------------------------=
+--------+
+> +| Kernel log:  | vfio_ap_mdev $UUID: Queue $APID.$APQI not available to =
+        |
+> +|              | vfio_ap driver on target host                          =
+        |
+> ++--------------+--------------------------------------------------------=
+--------+
+> +| QEMU log:    | shutting down, reason=3Dfailed                         =
+          |
+> +|              | qemu-system-s390x: terminating on signal $SIGNAL_NUM fr=
+om      |
+> +|              | pid $PID $DAEMON                                       =
+        |
+> ++--------------+--------------------------------------------------------=
+--------+
 
-Should config_sz be initialized in vfio_ap_get_config() before it is sent
-to the destination?
+[ ... ]
+
+> +**Destination host**
+> +
+> ++--------------+--------------------------------------------------------=
+--------+
+> +| Log          | Message                                                =
+        |
+> ++=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D+=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D+
+> +| Console log: | vfio_ap_mdev $UUID: migration failed: Failed to get hwi=
+nfo for |
+> +|              | queue $APQN on target host: rc=3D$RESPONSE-CODE"       =
+          |
+
+[Severity: Low]
+This isn't a bug, but there appears to be an unmatched trailing quote=20
+character at the end of the rc=3D$RESPONSE-CODE string.
+
+> ++--------------+--------------------------------------------------------=
+--------+
+> +| QEMU log:    | shutting down, reason=3Dfailed                         =
+          |
+> +|              | qemu-system-s390x: terminating on signal $SIGNAL-ID fro=
+m pid   |
+> +|              | $PID $DAEMON                                           =
+        |
+> ++--------------+--------------------------------------------------------=
+--------+
+> +
+> +.. note::
+> +   * $UUID is the UUID of the mediated device being migrated from the so=
+urce host.
+> +   * $APQN (for example, 00.0033) of the queue device that is not compat=
+ible.
+> +   * $RESPONSE_CODE is the response code from the AP instruction.
+> +   * $SIGNAL_NUM is the signal number of the signal that caused the QEMU=
+ process
+> +     to terminate.
+> +   * $PID is the process ID of the QEMU process on the destination host.
+> +   * $DAEMON is the name of the QEMU daemon process.
+> +   * This message will be logged for each queue for which this error is =
+detected.
+> +
+> +The AP configurations of the source guest and destination host not incom=
+patible
+> +~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~=
+~~~~~~~
+
+[Severity: Low]
+Does this heading have a double negative?=20
+
+The text below it enumerates failures when the configurations are not=20
+compatible, but the heading says "not incompatible" which logically means
+they are compatible.
+
+> +The functional capabilities or facilities available on one or more of th=
+e queues
+> +passed through to the source guest are not compatible with the queue dev=
+ice with
+> +the same APQN on the destination system (see the Hardware Capabilities t=
+able above)
+> +
+
+[ ... ]
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260630104132.1598=
-851-1-akrowiak@linux.ibm.com?part=3D13
+851-1-akrowiak@linux.ibm.com?part=3D15
