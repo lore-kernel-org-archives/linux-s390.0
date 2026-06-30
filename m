@@ -1,46 +1,46 @@
-Received: from PH7PR06CU001.outbound.protection.outlook.com (mail-westus3azon11010020.outbound.protection.outlook.com [52.101.201.20])
+Received: from SA9PR02CU001.outbound.protection.outlook.com (mail-southcentralusazon11013011.outbound.protection.outlook.com [40.93.196.11])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C7943E1CF0;
-	Tue, 30 Jun 2026 04:57:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.201.20
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 792A53E170E;
+	Tue, 30 Jun 2026 04:57:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.93.196.11
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782795421; cv=fail; b=p8I1CxJcLflxpTUQDt9QMb770ImOnha6QKPn6MlVtvu5RKruhTuQs7ypNgZRr9dm190aSQ8IS7xtyxMYTYEfqMkhukCWaq74AnioEdrwuNkUTVnCuZXXWZ0MA+7MHJgPAXf96hTf4s1/Tdz6ZvtXkxFRrBvLZOL+tCr3pyerhGc=
+	t=1782795440; cv=fail; b=dP1teCgckWi+BzxspgZQNFJB2S05UHK69gINl7PJKu9wX9eDGUVYD19IR3K+XRqe6sbMaQe1Ve01dfbBrwNH9agu8yNnxg0mtsDCEbrwjY3CepxHD7ryLrFCCjhQHxFgewrGlLNJbdsmSQaA17cjQFmJedkbt19Wl+zefxdV8PM=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782795421; c=relaxed/simple;
-	bh=4CsjeFSmcvpWjxXf0DIMQHYaG1AliJwaU+JIYjpA7R8=;
+	s=arc-20240116; t=1782795440; c=relaxed/simple;
+	bh=/GsxXjQU1StnJTUZk7lH/x5gTP94XiCFzqsixm/kgHI=;
 	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=HPkV4y7PnJlkRRaALITs7da29iGzVlxIGaMxfVDuwXTtyVmnNku7dbOT3f5UBIOh9J+ycdSlS25+pyMuWOGK9Knjcu82Gxx2+/biTYSeR43DF6Mwi4dJJTty3smP65w1nbJ4gQAozLeZpwBBZVH3TLwOMIFIRyYE6dOtg1UyTyg=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=dtXvjPUg; arc=fail smtp.client-ip=52.101.201.20
+	 MIME-Version:Content-Type; b=Uw02KRrwLzGw1lrlBBLHp1JzMt6RQ1HL1QPDnuj5AGHdK093UFi+H/hgzw6lkTXIl/xFNyoDGsrmhcLzMzWOfxLOKGQ7BGEFZ068Le1771VBMMQRKhiQmyaQwgW90gxGJg87aGGeNsksjJ9qEzaGy1hHa6ATpZ53W4ooWQ/LitU=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=Nrp+r0HR; arc=fail smtp.client-ip=40.93.196.11
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="dtXvjPUg"
+	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="Nrp+r0HR"
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=l66zFbY9P89ZjMT6GhNxkO3JvO+eWOPrBYBb2D7N63VeqTuK8agGKjI4l7nF4fbr5I1RHlVnSVE1IMHZcyt3v9dXYnt2mDHeMJQF4Z2P7OZE2l+KMJ/QoLpw4LurhHgbKY5A3SeI0mjNZgUMmPt/Wn/zBKb05QtAhEvnDsih0kgf9I496CUzAQ0UdQltxcZ99946EkRzIRZxOp1Ozm6RkHaL54LZSA6NL9MzgyJruY5rq8r/AGq+2XTG00EjIuaz1mOQm5P269/vTV/zoiqGpb+9h5ebmhsAnC65vz19XINh9uc1Mfrnj/maqQ+H16NF5bHu4kT4HFAwlrICx0fgVw==
+ b=WAnkPsNPWSXywQNvekZ/tyGvY4CThKBdoTwxCtd4qoKCH0/mBCcqGo0/h7y8DJH+kf3/PKzRW3Qgsj5EcbSgPNmqXCPiw2TgiYqIOgStPgXItWetwkIzRvtY5xPaXtuudQO2V/2cTOnAWtp9hvBeTuqkd0zQsGVfyvGwEiLWasCi4p0Tx5yv/fDv+ODHTV4kYBUU8ZlaJpszhI9PH70oS45uT2B+kGOgbXav0vqnp4IeNFQGBifGWrCcQyDrIFaZzCjQb4uW/ilMLa3QMBZyL9/n9mhFXCakGZmLZI+pEF31QEh0gPw8r5Qit3i8VJ3/hgALT30U44yhgD5ocaZGdw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=dUF7uwZtz0KZ94cCUpC+w1MMbJqikQF60rR8A4vED/0=;
- b=nYUslO5dipiJ3TcRAswGT3qGTHH9q+PiVGijKOvjG+U0r1xV3gpZ0oo23aKCBgVy7KJOaSA5yqRDb95AmQMnCAm7hYVJB1o6ZNCdQ2SvGAKf+JdkkU3Q85FmQQYqyedz6QspKFU3/17jvGCmChgWnkvMKhWy0h2kTR7E3h0WcyHDLUhW80ttBPUBSk2Uz7vlDy+z8tTFjM9IVSUFMDBa8myk6GaM0D1fWCg4ayLofOQR8C9vmFZp8qAc25MFFrQcWlD8q9XOufQZUAOxo9+P7+hvXj/mKSLWEzzquSzApYnAFcmyXl6qir2iwH3XyPe+1MxhqRezV7K+WhQNGwnStw==
+ bh=zWi27rL/ynoU5XQsG7zLWFkCthmVh9RCjQsLQEzVp4Y=;
+ b=LR77jdfmyz5b4+j6+gp8Ak41nX3enc+FXQdoK1IKlxlC35YOUaPRCmnpbShbl7YZLgP5jh6v3vLP1An9GvMoUABtuUCIO1j4YC1IQdPVDe7P7kuqcZcVnYe411vigRY8NQoRxa6t4KjeZwz/Y/urFpLZVsxvI+4povV9oFYoXKQ1pOzEw1hw6MGD3Q41d7eER+9on6QGIGAYISKOGjEWy6kzDlXBJqq7PwNntD/EUZIxT6Kuo4TfVJ/nuB7ZNwIPb2ABRDj4aDI1aumAhpqtRB3qAbv9pDQdTrP0LCkrhY053R+JsHrT+VfIduuZXpHH4KYhL3KUGqo1M9Vr6CCBdw==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
  165.204.84.17) smtp.rcpttodomain=arndb.de smtp.mailfrom=amd.com; dmarc=pass
  (p=quarantine sp=quarantine pct=100) action=none header.from=amd.com;
  dkim=none (message not signed); arc=none (0)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=dUF7uwZtz0KZ94cCUpC+w1MMbJqikQF60rR8A4vED/0=;
- b=dtXvjPUgFs1ms3COPTYHCRQrnU9UamPnfn4MjWrws40JspSTP8TETeE8wizi+CCIM/YziIynyiUCfLT2M4QMYEkjWTbQsCLRuYf8u2Id9mUMp8/ri2u05isyBvxjHpMxpnglSeoZYFapQsGsf8JC1ynWhs1h8Nfq6EugmGakN3I=
-Received: from SA9PR11CA0018.namprd11.prod.outlook.com (2603:10b6:806:6e::23)
- by SJ2PR12MB8061.namprd12.prod.outlook.com (2603:10b6:a03:4cb::13) with
+ bh=zWi27rL/ynoU5XQsG7zLWFkCthmVh9RCjQsLQEzVp4Y=;
+ b=Nrp+r0HR1+K9kaMChB5MxADnWxgfTyCpD2j2/NQr9A47Vv8rhD9EiMszA6X0Pm8Bmt86BDvlChN4Aw9deauDt11tfIl8XF8hdA6vOcMmrP7NIeLrXoYSCLGL30JTjtbTR0K9/AQupu9ee3bec5YOeo+PtByWgfedsYWIRX6ANa4=
+Received: from SN7PR04CA0062.namprd04.prod.outlook.com (2603:10b6:806:121::7)
+ by MN0PR12MB5714.namprd12.prod.outlook.com (2603:10b6:208:371::7) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.159.19; Tue, 30 Jun
- 2026 04:56:56 +0000
-Received: from SN1PEPF0002636D.namprd02.prod.outlook.com
- (2603:10b6:806:6e:cafe::2d) by SA9PR11CA0018.outlook.office365.com
- (2603:10b6:806:6e::23) with Microsoft SMTP Server (version=TLS1_3,
+ 2026 04:57:14 +0000
+Received: from SN1PEPF0002636A.namprd02.prod.outlook.com
+ (2603:10b6:806:121:cafe::99) by SN7PR04CA0062.outlook.office365.com
+ (2603:10b6:806:121::7) with Microsoft SMTP Server (version=TLS1_3,
  cipher=TLS_AES_256_GCM_SHA384) id 15.21.159.19 via Frontend Transport; Tue,
- 30 Jun 2026 04:56:56 +0000
+ 30 Jun 2026 04:57:14 +0000
 X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
  smtp.mailfrom=amd.com; dkim=none (message not signed)
  header.d=none;dmarc=pass action=none header.from=amd.com;
@@ -48,28 +48,29 @@ Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
  165.204.84.17 as permitted sender) receiver=protection.outlook.com;
  client-ip=165.204.84.17; helo=satlexmb07.amd.com; pr=C
 Received: from satlexmb07.amd.com (165.204.84.17) by
- SN1PEPF0002636D.mail.protection.outlook.com (10.167.241.138) with Microsoft
+ SN1PEPF0002636A.mail.protection.outlook.com (10.167.241.135) with Microsoft
  SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.21.181.6 via Frontend Transport; Tue, 30 Jun 2026 04:56:56 +0000
+ 15.21.181.6 via Frontend Transport; Tue, 30 Jun 2026 04:57:14 +0000
 Received: from BLRKPRNAYAK.amd.com (10.180.168.240) by satlexmb07.amd.com
  (10.181.42.216) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.41; Mon, 29 Jun
- 2026 23:56:50 -0500
+ 2026 23:57:08 -0500
 From: K Prateek Nayak <kprateek.nayak@amd.com>
 To: Arnd Bergmann <arnd@arndb.de>, Thomas Gleixner <tglx@kernel.org>, "Ingo
  Molnar" <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, "Sebastian
- Andrzej Siewior" <bigeasy@linutronix.de>, Catalin Marinas
-	<catalin.marinas@arm.com>, Will Deacon <will@kernel.org>
+ Andrzej Siewior" <bigeasy@linutronix.de>, Paul Walmsley <pjw@kernel.org>,
+	Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>
 CC: Darren Hart <dvhart@infradead.org>, Davidlohr Bueso <dave@stgolabs.net>,
 	=?UTF-8?q?Andr=C3=A9=20Almeida?= <andrealmeid@igalia.com>,
 	<linux-arch@vger.kernel.org>, <linux-kernel@vger.kernel.org>, Samuel Holland
 	<samuel.holland@sifive.com>, Charlie Jenkins <thecharlesjenkins@gmail.com>,
 	"K Prateek Nayak" <kprateek.nayak@amd.com>,
 	<linux-arm-kernel@lists.infradead.org>, <linux-riscv@lists.infradead.org>,
-	<linux-s390@vger.kernel.org>, Jisheng Zhang <jszhang@kernel.org>
-Subject: [PATCH v5 3/8] arm64/runtime-const: Introduce runtime_const_mask_32()
-Date: Tue, 30 Jun 2026 04:55:26 +0000
-Message-ID: <20260630045531.3939-4-kprateek.nayak@amd.com>
+	<linux-s390@vger.kernel.org>, Alexandre Ghiti <alex@ghiti.fr>, Jisheng Zhang
+	<jszhang@kernel.org>, Guo Ren <guoren@kernel.org>
+Subject: [PATCH v5 4/8] riscv/runtime-const: Replace open-coded placeholder with RUNTIME_MAGIC
+Date: Tue, 30 Jun 2026 04:55:27 +0000
+Message-ID: <20260630045531.3939-5-kprateek.nayak@amd.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20260630045531.3939-1-kprateek.nayak@amd.com>
 References: <20260630045531.3939-1-kprateek.nayak@amd.com>
@@ -85,146 +86,106 @@ X-ClientProxiedBy: satlexmb07.amd.com (10.181.42.216) To satlexmb07.amd.com
  (10.181.42.216)
 X-EOPAttributedMessage: 0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SN1PEPF0002636D:EE_|SJ2PR12MB8061:EE_
-X-MS-Office365-Filtering-Correlation-Id: 465e43d2-2412-49a4-1e7c-08ded66402a0
+X-MS-TrafficTypeDiagnostic: SN1PEPF0002636A:EE_|MN0PR12MB5714:EE_
+X-MS-Office365-Filtering-Correlation-Id: e49da55f-89fc-4165-b08d-08ded6640d46
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|376014|36860700016|82310400026|7416014|23010399003|1800799024|3023799007|6133799003|56012099006|11063799006|13003099007|22082099003|18002099003;
+	BCL:0;ARA:13230040|82310400026|1800799024|23010399003|36860700016|376014|7416014|11063799006|56012099006|22082099003|18002099003;
 X-Microsoft-Antispam-Message-Info:
-	CU1J2mXMNd619W5PSJrqDF0iEqDmQw2wN2IUdRtyou/qrr51NmzQVyASgGoABLYUquwbn5k/Q5rK1ROK0Df0uDGgLZssIeF2YDv9hnyWh3UE2gqrGwe8lItfpDHEBvWkQhZXXosLFPvjViyVPnlz496VFKrvNHsmYhS7h68Lf2ZiWgwsqT0faY6i2XbHaXNIqEmfVWia1Pb5lZyyIixyXPGuj5JeA0/UHOZ4BRlts1XRXUhvDCtUa/FsbMGWZTtNo1bzyHXefZ3O94s1XU6nzgkJOp5mfj7BIuBxh5LyrUm3iTuaDX2uH2kg2V3Gdme0GITgB2D7RYHuM7sfuijkJVEWP8Z9JYWRRTV/DTU/2ig8BBE9NxYps/MCxn7LP+89NbJ6WXrcc2DuSTZISeg78Tt6jWbV9I4X6L+nlkGyVtCvFZmh67BYF4TJ57hCO/dW9hoAQsOZfs/+UcN1hkFtEomwYTJqq0PaCdcI9NUfhsmMTgK5KHe0DfawFJcDPNTKk/0BYOLBLadr9Tc37Yhqw5iP9hnO0MPwrstOqagniXhp59Bve04lV0rMbVt02fPQTYltDNsRNA3gdUJuOz3+YKhro7vux9psby73E/LFWZMXrx1nuYqP1nvy4KFVwN631QBYDaeR8QQInEs6tyNMI/MAygGQWePYyEDAVFiEsUPj2uOg2zZ1vxbRSrelRcJgmf0GL4FUJ0ZfBX9imiClgQ==
+	diMA7giAKj+uyF/9X3o0t1XqmxXDpKsrCpFa68lAEsyq/rlVPgFbiKRGXnd4f0Y3Sv3oanxE4PCUexxc7QeURQ88IVitubKOxBo5UCPMqr8DjcEyqa6mp61gyJ5L6J7UQdQ9J7M4obWc2WKXy8eTLCaw5J22SThS4hU4wIjD5oNFBRmn7pE6biSIX2pL6zpd9f/e7/wPFf566ffOJFyTuP6SjcVFgX6qwunCSz8DA7fwFOrcnCC68KfJ+NwIMeE6d0d1CEGeNbLGK/dRoS29nxA44zXHxeV2pNFPnB70MdVjWI2U4N05DxWrxcHCPE8v9hq0y1EpBItNbOEqCjiIcKMC3pg4dnrCtSBGrjPieqeha1w9xFT/nWm9nWl5DPq90Ge/0g4dPgSV8RaOeF4uQYXmchT631OQ9XCpqr9ru4cQ22fkVDCXxGVBn4E+tr+4ceW4GfmrZAJq90GbxvVn70h4H8MdkpLoQTEA/yMoNqCvGbf80xIHfwTZPTXAwG23RxX+7R76fUAPd8p/kCJ+nEXFtvRW/gkLv8QemTdaXLxjKooaMWtvjDf/OR0mYM5fL2W8YpJijPEOzKDpfAyarL9Y2yckRSychqWAzHJSbCxR7nwzU9VQd9xcr+g4jK+RgxVxrW88chKKLV8oSfMfTmWQOWakXITthAaZsMcY/yH1BoeMzP8kuS4ic0C7M+PhrdAypBPlewWnFIQKIXywug==
 X-Forefront-Antispam-Report:
-	CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:satlexmb07.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(376014)(36860700016)(82310400026)(7416014)(23010399003)(1800799024)(3023799007)(6133799003)(56012099006)(11063799006)(13003099007)(22082099003)(18002099003);DIR:OUT;SFP:1101;
+	CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:satlexmb07.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(82310400026)(1800799024)(23010399003)(36860700016)(376014)(7416014)(11063799006)(56012099006)(22082099003)(18002099003);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
 X-MS-Exchange-AntiSpam-MessageData-0:
-	tiAvd51zvr+0Du+widjlElD7vE2rKcdoQiw+Wr9AdU9cwnaCPhyRw8HjTUNy3FWXSBJkskZWJDladZ9b9QU9IAAp/fbWhCB+hL7YQIM9OytB66H//tHYT0o5vKMSda4SOQP4B8ePqS1hCcbShackGF/wXZnJLkFg2clzPezfA5nVHq6aw32AFVjqzIwz2PXrLt4OJMw6TUB8ZxgisEQktGE08YeMd7i3qNZimWJppPM//I5/cfRWLqRJOvdiz1yJ3cPadfaHU4bZ1jSa94S0g/0GtXLYckragF481YBRBWbUDFCsv9lGmVyHVkYDxR9w+YYes7Cb6oVnHdYfBfUE4SlKquS8rIgzTEvy556SFBSmCo2Fokb4ik1OnrAn8iRbJDQr0yYQPv75LtJniNLI4jQ4msCq3vcgfNQcjv9ebUoREe6VEDloDu7ZNARiKDLb
+	F7DZH8cGKi00P+OmJmuOKdGd4tyWHGY5Ooe84anMNzvuD3mP5Eg1/YIe0hnmzFhM0/PR7Brs0Cr3LvocJcJIkF1ESpphE4nMLcOlXPKb+1zmCx3wHFDxDMCjwugxjKNhEPN0nUvyL1yGXpmy/KSm746CHETyMaJtZKpjkAEb91YQ7F/Jkg3gpZBnUA9cpjA8qI8zFAnCrU9Hv0h3wAyyvKQ9cM27RdeVw5ytO70xO4EiSxKw7ztdVZWa0W8gLU8ty/5pwZJSxs51qjy1zjh5G04CficiVdhgcGZUoLGIOOSjIt0uvQWWnbfculBiXYLtBqPHJF/XIJMO2JcqEZ6B1Czda+Khe+tksMJOgzZpJoznPqLG4Qz3MCojGTfw4KIcBQ6xXSF2XLCfUlN8Oz9fMGTLGqHHVWl7TgvI+Pe/ckEfacZZYmTRBkYDCb0/kOfg
 X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 30 Jun 2026 04:56:56.1682
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 30 Jun 2026 04:57:14.0655
  (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 465e43d2-2412-49a4-1e7c-08ded66402a0
+X-MS-Exchange-CrossTenant-Network-Message-Id: e49da55f-89fc-4165-b08d-08ded6640d46
 X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
 X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[satlexmb07.amd.com]
 X-MS-Exchange-CrossTenant-AuthSource:
-	SN1PEPF0002636D.namprd02.prod.outlook.com
+	SN1PEPF0002636A.namprd02.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Anonymous
 X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ2PR12MB8061
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN0PR12MB5714
 
-Futex hash computation requires a mask operation with read-only after
-init data that will be converted to a runtime constant in the subsequent
-commit.
+Define the placeholder used for lui + addi[w] patching sequence as
+RUNTIME_MAGIC and use that instead of open coding the constants in the
+inline assembly.
 
-Introduce runtime_const_mask_32 to further optimize the mask operation
-in the futex hash computation hot path. Since all the current use-cases
-are of the form GENMASK(n, 0), with n > 0, a single:
+No functional changes intended.
 
-  ubfx  w0, w0, #0, #widthm1     // w0 = w0 [widthm1:0]
-
-instruction is used for amd64 to improve instruction dinsity and
-performance.
-
-"Arm A-profile A64 Instruction Set Architecture" manual, Sec.
-"A64 -- Base Instructions" [1] for UBFX instruction highlights the
-immediate "width" is encoded as width minus 1 in imms (Bits [15:10])
-which is patched by __runtime_fixup_mask() once the mask is known.
-
-If a future use case arises that needs to tackle arbitrary mask,
-consider using:
-
-  movz  w1, #lo16, lsl #0
-  movk  w1, #hi16, lsl #16
-
-to patch the 32-bit mask in the asm block and return "__ret & (val)"
-from runtime_const_mask_32() which allows compiler to further optimize
-the logical and operation. __runtime_fixup_ptr() already patches a
-"movz, + movk lsl #16" sequence which can be reused when the need
-arises.
-
-A possible implementation for this alternate scheme can be found at [2].
-
-Assisted-by: Claude:claude-sonnet-4-6
-Suggested-by: Samuel Holland <samuel.holland@sifive.com>
-Suggested-by: Charlie Jenkins <thecharlesjenkins@gmail.com>
-Link: https://developer.arm.com/documentation/ddi0602/2026-03/Base-Instructions/ [1]
-Link: https://lore.kernel.org/lkml/20260430094730.31624-4-kprateek.nayak@amd.com/ [2]
+Suggested-by: Guo Ren <guoren@kernel.org>
+Reviewed-by: Charlie Jenkins <thecharlesjenkins@gmail.com>
+Tested-by: Charlie Jenkins <thecharlesjenkins@gmail.com>
 Signed-off-by: K Prateek Nayak <kprateek.nayak@amd.com>
 ---
 changelog v4..v5:
 
-o Pivoted to using the UBFX instruction for masking since the futex
-  use-case use masks of form 2^n - 1 (n > 1) since there was enough
-  interest to improve instruction density for ARM64 and RISC-V.
-  (Charlie, Samuel on v2)
-
-o Dropped Catalin's tag as a result of changed approach.
+o Collected tags from Charlie (Thanks a ton!)
 ---
- arch/arm64/include/asm/runtime-const.h | 46 ++++++++++++++++++++++++++
- 1 file changed, 46 insertions(+)
+ arch/riscv/include/asm/runtime-const.h | 38 ++++++++++++++------------
+ 1 file changed, 20 insertions(+), 18 deletions(-)
 
-diff --git a/arch/arm64/include/asm/runtime-const.h b/arch/arm64/include/asm/runtime-const.h
-index 838145bc289d2..371c9a4bc2d4b 100644
---- a/arch/arm64/include/asm/runtime-const.h
-+++ b/arch/arm64/include/asm/runtime-const.h
-@@ -36,6 +36,17 @@
- 		:"r" (0u+(val)));				\
- 	__ret; })
+diff --git a/arch/riscv/include/asm/runtime-const.h b/arch/riscv/include/asm/runtime-const.h
+index 900db0a103d05..1ce02605d2e43 100644
+--- a/arch/riscv/include/asm/runtime-const.h
++++ b/arch/riscv/include/asm/runtime-const.h
+@@ -15,21 +15,23 @@
  
-+#define runtime_const_mask_32(val, sym) ({			\
-+	unsigned long __ret;					\
-+	asm_inline("1:\t"					\
-+		"ubfx %w0, %w1, #0, #32\n\t"			\
-+		".pushsection runtime_mask_" #sym ",\"a\"\n\t"	\
-+		".long 1b - .\n\t"				\
-+		".popsection"					\
-+		:"=r" (__ret)					\
-+		:"r" (0u+(val)));				\
-+	__ret; })
-+
- #define runtime_const_init(type, sym) do {		\
- 	extern s32 __start_runtime_##type##_##sym[];	\
- 	extern s32 __stop_runtime_##type##_##sym[];	\
-@@ -73,6 +84,41 @@ static inline void __runtime_fixup_shift(void *where, unsigned long val)
- 	aarch64_insn_patch_text_nosync(p, insn);
- }
+ #include <linux/uaccess.h>
  
-+static inline void __runtime_fixup_mask(void *where, unsigned long val)
-+{
-+	unsigned int width = __fls(val) + 1;
-+	__le32 *p = where;
-+	u32 insn;
++#define RUNTIME_MAGIC __ASM_STR(0x89ABCDEF)
 +
-+	/*
-+	 * XXX: Current implementation only supports patching masks of
-+	 * form GENMASK(n, 0) (n >= 0) using a single UBFX instruction
-+	 * to improve performance, density, and covers all the current
-+	 * use-cases.
-+	 *
-+	 * When the need arises to support any generic mask, and this
-+	 * BUG_ON() is tripped, consider using a:
-+	 *
-+	 *   movz %w0, #imm16
-+	 *   movk %w0, #imm16, lsl #16
-+	 *
-+	 * sequence to load the 32bit const mask, and perform a logical
-+	 * and outside the asm block before returning the result. Fixup
-+	 * can simply reuse the existing __runtime_fixup_16() to patch
-+	 * the individual mov instructions.
-+	 */
-+	BUG_ON(!val || width > 32 || (GENMASK(width - 1, 0) != val));
-+
-+	/*
-+	 * The width of the mask is encoded as (width - 1) in imms
-+	 * which is 6 bits starting at bit #10.
-+	 */
-+	insn = le32_to_cpu(*p);
-+	insn &= 0xffff03ff;
-+	insn |= ((width - 1) & 0x1f) << 10;
-+	aarch64_insn_patch_text_nosync(p, insn);
-+}
-+
- static inline void runtime_const_fixup(void (*fn)(void *, unsigned long),
- 	unsigned long val, s32 *start, s32 *end)
- {
+ #ifdef CONFIG_32BIT
+-#define runtime_const_ptr(sym)					\
+-({								\
+-	typeof(sym) __ret;					\
+-	asm_inline(".option push\n\t"				\
+-		".option norvc\n\t"				\
+-		"1:\t"						\
+-		"lui	%[__ret],0x89abd\n\t"			\
+-		"addi	%[__ret],%[__ret],-0x211\n\t"		\
+-		".option pop\n\t"				\
+-		".pushsection runtime_ptr_" #sym ",\"a\"\n\t"	\
+-		".long 1b - .\n\t"				\
+-		".popsection"					\
+-		: [__ret] "=r" (__ret));			\
+-	__ret;							\
++#define runtime_const_ptr(sym)						\
++({									\
++	typeof(sym) __ret;						\
++	asm_inline(".option push\n\t"					\
++		".option norvc\n\t"					\
++		"1:\t"							\
++		"lui	%[__ret], %%hi(" RUNTIME_MAGIC ")\n\t"		\
++		"addi	%[__ret],%[__ret], %%lo(" RUNTIME_MAGIC ")\n\t"	\
++		".option pop\n\t"					\
++		".pushsection runtime_ptr_" #sym ",\"a\"\n\t"		\
++		".long 1b - .\n\t"					\
++		".popsection"						\
++		: [__ret] "=r" (__ret));				\
++	__ret;								\
+ })
+ #else
+ /*
+@@ -46,10 +48,10 @@
+ 	".option push\n\t"					\
+ 	".option norvc\n\t"					\
+ 	"1:\t"							\
+-	"lui	%[__ret],0x89abd\n\t"				\
+-	"lui	%[__tmp],0x1234\n\t"				\
+-	"addiw	%[__ret],%[__ret],-0x211\n\t"			\
+-	"addiw	%[__tmp],%[__tmp],0x567\n\t"			\
++	"lui	%[__ret], %%hi(" RUNTIME_MAGIC ")\n\t"		\
++	"lui	%[__tmp], %%hi(" RUNTIME_MAGIC ")\n\t"		\
++	"addiw	%[__ret],%[__ret], %%lo(" RUNTIME_MAGIC ")\n\t"	\
++	"addiw	%[__tmp],%[__tmp], %%lo(" RUNTIME_MAGIC ")\n\t"	\
+ 
+ #define RISCV_RUNTIME_CONST_64_BASE				\
+ 	"slli	%[__tmp],%[__tmp],32\n\t"			\
 -- 
 2.34.1
 
