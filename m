@@ -1,57 +1,57 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 63F783F6C59;
-	Tue, 30 Jun 2026 10:41:51 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA3B73F871E;
+	Tue, 30 Jun 2026 10:41:50 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782816113; cv=none; b=GwDqzqFfPPEhoUlCt5wJCKjqDw/g3rgZpQqFAGTBPzbP+uKaGdLm0fl/Y+2iTUd9jIT9G3+SZ/OsmxD1HQKWFqNiIDdDdHRNl54/PxnWAXYHAYnECuAQNWPulGpA3pgOnvQQvrND5t0HkqNV5MyCL0t64Ay7z/QDfIsaAKWULMw=
+	t=1782816113; cv=none; b=dNS736a3Lhr4f8X3eEpIxqCKsmtqopaRsBFssdoKYos/nVosRc2j07JYf2AsMScgDYqFquTtWGodJrUcsAzWioCkP5sKj/awaKO6NwdLGtQ8kq+lZhSI+3xMrBDLnMTUdSLAylRzbBmAkB1xG+wYMyysMwrkHJQKBmnICT5QntI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1782816113; c=relaxed/simple;
-	bh=L6ewYYYdIUOwiuGs2CUnGCUMwDYSDYcO61cgu0YzYv4=;
+	bh=cTvxNdRENoI02EuTBjg3LX/dulmeDGRScLsrvRXDOb8=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=OBaAKLByMIP4Q7sGWYqsOdAYsLwLqhtuKvoKs697qfc6gqjqZCxEFUVU7YH7+Vzr2utAN/DSGAyf83oWTQfiQQ4TjtXquYVrBnqFi5MordK//2oFw7TV0dKP0n9VxppXodQZBX/l7HqfSmMW652Du5zVOFcFGUtzH7qBjsn+8A8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=DbvJIwLl; arc=none smtp.client-ip=148.163.158.5
+	 MIME-Version; b=S2QwB2Ah9lZNc6yb8oap24izAubljUc4uU0Qpcnyy+lRjSG3xe2eB9oQNviLgyyv3wFtdESfj7gzlXCq7equGs1JRO/k+XRcVaekqPcP5Skf0B+ok15FzcV0JDPSDUkeumZOpOp1VbtSg3a1gxMeZ0riOWh0P+mFAfGo+/zatH4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=hME50HVp; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="DbvJIwLl"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65U9n4lO1578134;
-	Tue, 30 Jun 2026 10:41:44 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="hME50HVp"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65U9nKcM1581962;
+	Tue, 30 Jun 2026 10:41:46 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=HqPKVOwswm7bRfi4f
-	HTChHkvQ5alY5VxVXGK4viJJj4=; b=DbvJIwLlvO3KDdyFsEicUgubstwg6cRRd
-	iSBEQTSWqZPVWOM9M2bt6vhkfpmvNeXtOtQctceoGPTaiS0dhCXfvyZaxVhmjnZO
-	6GiIolPgAYl2BE0yLkWGgQ3RV+XtNLrV0pd8W2bJXX5id2oy1rYQObwauYCT+TAz
-	0BK6PMLMlm6DLyEMURR7J3MWNzvZ3l7wMywzNuXJiNqLE5WRn0/6Bdz83gtJJCyK
-	ARJePKBiNKTBU/J8P6hEVUVYxliCmUiD2kVPGUkxAc6ujKVL7wKj2AziKwlr/peB
-	au+7AQKncWhq8WVsLH814oBu5SgZweJ0XlDDbstr+9hkfmzXGrYdg==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4f26rewur4-1
+	:mime-version:references:subject:to; s=pp1; bh=7j015TQ5Gz1L5SnND
+	g8cAnB2AFhGb4YuNyN0xBjZ63o=; b=hME50HVp/qKw0ZxbdhaLRE7VkQqw5C5jm
+	jybmG0w42Ab40VpPPrquVoHgdUjKgxmVar0cza4AEB3HjA0vBqhx1eKEy7Q3bOaX
+	kHTJni6xKHsij7cyeIk2AVO6SyODJFGJi0O3OcRKhOmP5njkCq9/89+hHW8Vi6GV
+	g2pnqDLb9LSX9EiAwe8fMy1tZLKEUfOBJpuhpoYVvxLa3VNgVTdwezT5u21YY3sH
+	XK2TsaUoWPIqOgmUkhgY9rICXFnzvSNDxC+9BC34WMQVP9WP6T9KrUzHVuWPPzQT
+	a1HA8QyxS4h8SWCVMQpzcTHodGlgZZC241yI/9yDBKGhkFT3+5HQQ==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4f26q9wwvy-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 30 Jun 2026 10:41:44 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 65UA4ZZK005970;
-	Tue, 30 Jun 2026 10:41:43 GMT
-Received: from smtprelay02.dal12v.mail.ibm.com ([172.16.1.4])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4f2uhy9f61-1
+	Tue, 30 Jun 2026 10:41:46 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 65UAYjUe024831;
+	Tue, 30 Jun 2026 10:41:45 GMT
+Received: from smtprelay06.dal12v.mail.ibm.com ([172.16.1.8])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4f2ruq9wdb-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 30 Jun 2026 10:41:43 +0000 (GMT)
+	Tue, 30 Jun 2026 10:41:45 +0000 (GMT)
 Received: from smtpav05.dal12v.mail.ibm.com (smtpav05.dal12v.mail.ibm.com [10.241.53.104])
-	by smtprelay02.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 65UAfgd94653638
+	by smtprelay06.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 65UAfiGj14746234
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 30 Jun 2026 10:41:42 GMT
+	Tue, 30 Jun 2026 10:41:44 GMT
 Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3780D5805D;
-	Tue, 30 Jun 2026 10:41:42 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 7315058052;
+	Tue, 30 Jun 2026 10:41:44 +0000 (GMT)
 Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2FED258052;
-	Tue, 30 Jun 2026 10:41:41 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 6F25158065;
+	Tue, 30 Jun 2026 10:41:43 +0000 (GMT)
 Received: from li-4c4c4544-004d-4810-8043-b7c04f423534.ibm.com.com (unknown [9.61.135.84])
 	by smtpav05.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 30 Jun 2026 10:41:41 +0000 (GMT)
+	Tue, 30 Jun 2026 10:41:43 +0000 (GMT)
 From: Anthony Krowiak <akrowiak@linux.ibm.com>
 To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
         kvm@vger.kernel.org
@@ -60,9 +60,9 @@ Cc: jjherne@linux.ibm.com, borntraeger@de.ibm.com, mjrosato@linux.ibm.com,
         fiuczy@linux.ibm.com, pbonzini@redhat.com, frankja@linux.ibm.com,
         imbrenda@linux.ibm.com, agordeev@linux.ibm.com, hca@linux.ibm.com,
         gor@linux.ibm.com
-Subject: [PATCH v3 07/15] s390/vfio-ap: File ops called to save the vfio device migration state
-Date: Tue, 30 Jun 2026 06:41:17 -0400
-Message-ID: <20260630104132.1598851-8-akrowiak@linux.ibm.com>
+Subject: [PATCH v3 09/15] s390/vfio-ap: Add method to set a new guest AP configuration
+Date: Tue, 30 Jun 2026 06:41:19 -0400
+Message-ID: <20260630104132.1598851-10-akrowiak@linux.ibm.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260630104132.1598851-1-akrowiak@linux.ibm.com>
 References: <20260630104132.1598851-1-akrowiak@linux.ibm.com>
@@ -74,282 +74,502 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=a4kAM0SF c=1 sm=1 tr=0 ts=6a439d68 cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8 a=PIKS6xDsdQn-MxsHYgQA:9
-X-Proofpoint-ORIG-GUID: X_I6jSvEqBXiFgbXE_zxXN_pxI6NrqUq
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjMwMDA5MyBTYWx0ZWRfXy6MoU1k3VwZ2
- 5KFfJDd1auITIhHa+BmQ8HmZhHCYX9vgpjnpC0llvdWSn3MKL5sThfoAnCLqKevIl71HllbcDEm
- OlB/H3sYY1JdnNVaUwu387yLhcNsk7eGRfbxlIosYJAmkgWfYe4BQK0D4UjfAiUYZPoUhyIrZJN
- 4RFpzCaIfWmWo7eOeDWe2oNLcbBk0gLAInwF92MW3fDfmQJS1KCrPxhKJAQDWVcAqyGjaD331kP
- KMCqb8NW/GiWz36RYLibMmqQkGXYhtUl8JXXynQ2QSkJIrZ0O1bUH2Y13OGqslz94iUu6ik0eVg
- +DR4H9qT5Hslr+Pm3WY8XERNMbBGhtSVaCh2le+nCL60fxthL219+iT1XwX0UibTZTngyhhQC6t
- Lct6Jmwv6HL1hENGn3cW30AGL5ASJUGpZmtRzyQnCQwNqUjpnx3WvDzMHXxyU+E8Wq1vglAm5rk
- v+d+izwhxS+rogOFLBg==
-X-Proofpoint-GUID: X_I6jSvEqBXiFgbXE_zxXN_pxI6NrqUq
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNjMwMDA5MyBTYWx0ZWRfXzwAyh1QX/S8+
- bRlnnTY1Z52ckDbhCAknmz4R2K3pcMp+q+dM6wfKkorESg7ynSsXn7EkAJioucIzOOwgcgVdUCp
- 0K1ESqphtDFpMxY44y1oazoZRVXGB4A=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjMwMDA5MyBTYWx0ZWRfX5Osv923px7wQ
+ 4mtEVNjqwVi3wDYaqv4W+qP1iAVrBvmA1MrRyMaoWzAHkvhi+85+stfPgo8aCGFPbNDJVLWTmzF
+ vg/ecR3FFRf06ag88ReoKKZwc3N+FEDA+ysb7vTNpi1m1UdF3NqkhLFpvqZF0OUe1/Zz4RwPf1F
+ lovCy3sZosMIipkriiwf2m4ht5YC216vXThRefcDbLxWhlVjK/oF+Skft4js2AtPacMZHfHu2pb
+ qz5VvbP6ya314xpJotULZi4vDek0n+SNlORJLMooYRgSIXpvPsalKTGo4uYqLeBDqCEweMwy3XI
+ BkgfHHAOjpB9jkqQIeZAAK6RYCgscREsZXvuYM9peAmIMZLo2DRPzLCxMk0j3f3QE5EG9FyKEKM
+ b2kr1imdtu5P7GrPpHkDgeG/8tXietjMUZE0u6JytAbgQGBsMSECrqN1892rheko19eOhPbcon0
+ yDlTcXtyNVcaLkJGhng==
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNjMwMDA5MyBTYWx0ZWRfXwXyzvqYxn9m6
+ URBg5CU6fH1psCMEgIEAr2je2RTvTBwmU5uWZqVMEu33FHjTBRss75tC6EXlG+A43F+f4efAJyX
+ BhMbSVEGHtcnwXuep0nJJ3Y9fJtiiFU=
+X-Proofpoint-GUID: 3rrGGE1M6gNnB0bWpRSdIDnlDPy51R_z
+X-Proofpoint-ORIG-GUID: 3rrGGE1M6gNnB0bWpRSdIDnlDPy51R_z
+X-Authority-Analysis: v=2.4 cv=WZ88rUhX c=1 sm=1 tr=0 ts=6a439d6a cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+ a=7yNgoilTr2P9NN8D:21 a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8
+ a=ZcgK3RE9OFBsU1M5gScA:9
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
  definitions=2026-06-30_03,2026-06-26_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 bulkscore=0 suspectscore=0 lowpriorityscore=0 impostorscore=0
- spamscore=0 priorityscore=1501 adultscore=0 malwarescore=0 phishscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2606300093
+ spamscore=0 adultscore=0 phishscore=0 clxscore=1015 bulkscore=0
+ impostorscore=0 priorityscore=1501 lowpriorityscore=0 suspectscore=0
+ malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2606300093
 
-Implements the read callback function that was added to the
-file_operations structure for the file created to save the state of the
-vfio-ap device when the migration state transitioned from STOP to
-to the STOP_COPY state.
+Add a new vfio_ap_set_new_config function to set a guest's AP
+configuration. This is needed in order to set the state of the mdev when
+it is migrated from a remote host system during the RESUMING phase.
 
-This function copies the guest's AP configuration information to
-userspace. The information copied is comprised of the APQN of each queue
-device passed through to the guest along with its hardware information.
-This state data will be transferred to the vfio_ap device driver on the
-destination host when the state is transitioned to RESUMING.
+Key changes:
+* Refactored code from the ap_config_store function - handles changes to
+  the sysfs ap_config attribute - into a new, non-static function which
+  is callable from the ap_config_store function as well as the live guest
+  migration code.
+
+* A flag parameter indicating whether the update to the guest's AP
+  configuration can proceed if APIDs must be filtered out because one or
+  more of the queues are not bound to the vfio_ap device driver. This is
+  primarily for calls from the migration code because we don't want code
+  that is running in the guest to lose access. The ap_config_store function
+  will continue to operate as it did before and allow filtering.
 
 Signed-off-by: Anthony Krowiak <akrowiak@linux.ibm.com>
 ---
- drivers/s390/crypto/vfio_ap_migration.c | 216 +++++++++++++++++++++++-
- 1 file changed, 209 insertions(+), 7 deletions(-)
+ drivers/s390/crypto/vfio_ap_ops.c     | 358 +++++++++++++++++++++-----
+ drivers/s390/crypto/vfio_ap_private.h |   4 +
+ 2 files changed, 298 insertions(+), 64 deletions(-)
 
-diff --git a/drivers/s390/crypto/vfio_ap_migration.c b/drivers/s390/crypto/vfio_ap_migration.c
-index 76e06abe5a9e..5ef7127b697a 100644
---- a/drivers/s390/crypto/vfio_ap_migration.c
-+++ b/drivers/s390/crypto/vfio_ap_migration.c
-@@ -65,13 +65,6 @@ vfio_ap_release_stop_copy_file(struct vfio_ap_migration_data *mig_data)
- 		mig_data->stop_copy_mig_file = NULL;
- }
- 
--static ssize_t
--vfio_ap_stop_copy_read(struct file *, char __user *, size_t, loff_t *)
--{
--	/* TODO */
--	return -EOPNOTSUPP;
--}
--
- static int vfio_ap_release_mig_file(struct inode *file_inode, struct file *filp)
- {
- 	struct ap_matrix_mdev *matrix_mdev = filp->private_data;
-@@ -87,6 +80,215 @@ static int vfio_ap_release_mig_file(struct inode *file_inode, struct file *filp)
- 	return 0;
+diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+index 8a9e83921f74..c5eb9e4aa85c 100644
+--- a/drivers/s390/crypto/vfio_ap_ops.c
++++ b/drivers/s390/crypto/vfio_ap_ops.c
+@@ -105,6 +105,27 @@ static inline void get_update_locks_for_mdev(struct ap_matrix_mdev *matrix_mdev)
+ 	mutex_lock(&matrix_dev->mdevs_lock);
  }
  
 +/**
-+ * validate_stop_copy_read_parms: Validate the input parameters to the
-+ *                                vfio_ap_stop_copy_read function
++ * assert_has_update_locks_for_mdev:
 + *
-+ * @matrix_mdev: The object device containing the state to be read
-+ * @filp: Pointer to the file stream used to read the vfio-ap device state
-+ * @pos:  The file offset from which to start reading data
-+ * @len:  The length of the data to be read
++ * Assert the locks required to dynamically update a KVM guest's APCB are
++ * currently held.
 + *
-+ * Verify the following:
-+ * - @filp private data is an ap_matrix_mdev instance
-+ * - @filp is the instance opened when state transitioned from STOP to STOP_COPY
-+ * - @pos + @len does not cause integer overflow
++ * @matrix_mdev: a pointer to a struct ap_matrix_mdev object containing the AP
++ *		 configuration data to use to update a KVM guest's APCB.
 + *
-+ * Returns: 0 if the parameters pass validation; otherwise returns an error
++ * Note: If @matrix_mdev is NULL or is not attached to a KVM guest, the KVM
++ *		 lock will not be taken.
 + */
-+static int validate_stop_copy_read_parms(struct file *filp, loff_t *pos,
-+					 size_t len)
++static inline void
++assert_has_update_locks_for_mdev(struct ap_matrix_mdev *matrix_mdev)
 +{
-+	struct vfio_ap_migration_data *mig_data;
-+	struct ap_matrix_mdev *matrix_mdev;
-+	loff_t total_len;
-+
++	lockdep_assert_held(&matrix_dev->guests_lock);
++	if (matrix_mdev && matrix_mdev->kvm)
++		lockdep_assert_held(&matrix_mdev->kvm->lock);
 +	lockdep_assert_held(&matrix_dev->mdevs_lock);
-+
-+	if (check_add_overflow((loff_t)len, *pos, &total_len))
-+		return -EIO;
-+
-+	matrix_mdev = filp->private_data;
-+
-+	if (!matrix_mdev || !matrix_mdev->mig_data)
-+		return -ENODEV;
-+
-+	mig_data = matrix_mdev->mig_data;
-+
-+	if (mig_data->stop_copy_mig_file != filp)
-+		return -EINVAL;
-+
-+	return 0;
 +}
 +
-+static size_t vfio_ap_config_size(struct ap_matrix_mdev *matrix_mdev,
-+				  int *num_queues)
-+{
-+	size_t qinfo_size;
-+
-+	lockdep_assert_held(&matrix_dev->mdevs_lock);
-+
-+	*num_queues = vfio_ap_mdev_get_num_queues(&matrix_mdev->shadow_apcb);
-+	qinfo_size = *num_queues * sizeof(struct vfio_ap_queue_info);
-+
-+	return qinfo_size + sizeof(struct vfio_ap_config);
-+}
-+
-+static int get_hardware_info_for_queue(struct ap_matrix_mdev *matrix_mdev,
-+				       struct ap_tapq_hwinfo *hwinfo,
-+				       unsigned long apqn)
-+{
-+	struct ap_queue_status status;
-+
-+	status = ap_tapq(apqn, hwinfo);
-+
-+	switch (status.response_code) {
-+	case AP_RESPONSE_NORMAL:
-+	case AP_RESPONSE_RESET_IN_PROGRESS:
-+	case AP_RESPONSE_DECONFIGURED:
-+	case AP_RESPONSE_CHECKSTOPPED:
-+	case AP_RESPONSE_BUSY:
-+		/* For all these RCs the tapq info should be available */
-+		return 0;
-+	case AP_RESPONSE_Q_NOT_AVAIL:
-+		dev_err(matrix_mdev->vdev.dev,
-+			"migration failed: Failed to get hwinfo for queue %02lx.%04lx on target host: TAPQ rc=%d",
-+			AP_QID_CARD(apqn), AP_QID_QUEUE(apqn), status.response_code);
-+		return -ENODEV;
-+	default:
-+		/* On a pending async error the tapq info should be available */
-+		if (!status.async)
-+			return 0;
-+
-+		dev_err(matrix_mdev->vdev.dev,
-+			"Failed to get hwinfo for queue %02lx.%04lx: TAPQ rc=%d",
-+			AP_QID_CARD(apqn), AP_QID_QUEUE(apqn), status.response_code);
-+		return -EIO;
-+	}
-+
-+	return -EINVAL;
-+}
-+
-+static int vfio_ap_store_queue_info(struct ap_matrix_mdev *matrix_mdev,
-+				    struct vfio_ap_config *ap_config)
-+{
-+	unsigned long *apm, *aqm, num_queues, apid, apqi, apqn;
-+	struct ap_tapq_hwinfo source_hwinfo;
-+	int ret;
-+
-+	lockdep_assert_held(&matrix_dev->mdevs_lock);
-+
-+	apm = matrix_mdev->shadow_apcb.apm;
-+	aqm = matrix_mdev->shadow_apcb.aqm;
-+	num_queues = 0;
-+
-+	for_each_set_bit_inv(apid, apm, AP_DEVICES) {
-+		for_each_set_bit_inv(apqi, aqm, AP_DOMAINS) {
-+			apqn = AP_MKQID(apid, apqi);
-+
-+			ret = get_hardware_info_for_queue(matrix_mdev,
-+							  &source_hwinfo, apqn);
-+			if (ret)
-+				return ret;
-+
-+			ap_config->qinfo[num_queues].apqn = apqn;
-+			ap_config->qinfo[num_queues].data = source_hwinfo.value;
-+			num_queues += 1;
+ /**
+  * release_update_locks_for_mdev: Release the locks used to dynamically update a
+  *				  KVM guest's APCB in the proper order.
+@@ -875,7 +896,40 @@ static void vfio_ap_mdev_unlink_fr_queues(struct ap_matrix_mdev *matrix_mdev)
+ 			q = vfio_ap_mdev_get_queue(matrix_mdev,
+ 						   AP_MKQID(apid, apqi));
+ 			if (q)
+-				q->matrix_mdev = NULL;
++				vfio_ap_mdev_link_queue(matrix_mdev, q);
 +		}
 +	}
-+
-+	return (num_queues != ap_config->num_queues) ? -EINVAL : 0;
 +}
 +
-+static int
-+vfio_ap_get_config(struct ap_matrix_mdev *matrix_mdev,
-+		   struct vfio_ap_config **ap_config, size_t *ap_config_size)
++static void vfio_ap_unlink_queues(struct ap_matrix_mdev *matrix_mdev)
 +{
-+	struct vfio_ap_config *ap_configuration;
-+	int num_queues, ret;
++	struct vfio_ap_queue *q;
++	unsigned long apid, apqi;
 +
-+	*ap_config_size = vfio_ap_config_size(matrix_mdev, &num_queues);
++	for_each_set_bit_inv(apid, matrix_mdev->matrix.apm, AP_DEVICES) {
++		for_each_set_bit_inv(apqi, matrix_mdev->matrix.aqm,
++				     AP_DOMAINS) {
++			q = vfio_ap_mdev_get_queue(matrix_mdev,
++						   AP_MKQID(apid, apqi));
++			if (q) {
++				vfio_ap_unlink_queue_fr_mdev(q);
++				vfio_ap_unlink_mdev_fr_queue(q);
++			}
++		}
++	}
++}
 +
-+	ap_configuration = kzalloc(*ap_config_size, GFP_KERNEL_ACCOUNT);
-+	if (!ap_configuration)
-+		return -ENOMEM;
++static void vfio_ap_link_queues(struct ap_matrix_mdev *matrix_mdev)
++{
++	struct vfio_ap_queue *q;
++	unsigned long apid, apqi;
 +
-+	ap_configuration->num_queues = num_queues;
++	for_each_set_bit_inv(apid, matrix_mdev->matrix.apm, AP_DEVICES) {
++		for_each_set_bit_inv(apqi, matrix_mdev->matrix.aqm,
++				     AP_DOMAINS) {
++			q = vfio_ap_find_queue(AP_MKQID(apid, apqi));
++			if (q)
++				vfio_ap_mdev_link_queue(matrix_mdev, q);
+ 		}
+ 	}
+ }
+@@ -1014,19 +1068,36 @@ static void vfio_ap_mdev_link_adapter(struct ap_matrix_mdev *matrix_mdev,
+ 	unsigned long apqi;
+ 
+ 	for_each_set_bit_inv(apqi, matrix_mdev->matrix.aqm, AP_DOMAINS)
+-		vfio_ap_mdev_link_apqn(matrix_mdev,
+-				       AP_MKQID(apid, apqi));
++		vfio_ap_mdev_link_apqn(matrix_mdev, AP_MKQID(apid, apqi));
+ }
+ 
+-static void collect_queues_to_reset(struct ap_matrix_mdev *matrix_mdev,
+-				    unsigned long apid,
+-				    struct list_head *qlist)
++static void collect_queues_by_apid(struct ap_matrix_mdev *matrix_mdev,
++				   unsigned long apid,
++				   struct list_head *qlist)
+ {
+ 	struct vfio_ap_queue *q;
+ 	unsigned long  apqi;
+ 
+ 	for_each_set_bit_inv(apqi, matrix_mdev->shadow_apcb.aqm, AP_DOMAINS) {
+-		q = vfio_ap_mdev_get_queue(matrix_mdev, AP_MKQID(apid, apqi));
++		q = matrix_mdev ?
++				vfio_ap_mdev_get_queue(matrix_mdev, AP_MKQID(apid, apqi)) :
++				vfio_ap_find_queue(AP_MKQID(apid, apqi));
++		if (q)
++			list_add_tail(&q->reset_qnode, qlist);
++	}
++}
 +
-+	ret = vfio_ap_store_queue_info(matrix_mdev, ap_configuration);
-+	if (ret) {
-+		kfree(ap_configuration);
-+		return ret;
++static void collect_queues_by_apqi(struct ap_matrix_mdev *matrix_mdev,
++				   unsigned long apqi,
++				   struct list_head *qlist)
++{
++	struct vfio_ap_queue *q;
++	unsigned long  apid;
++
++	for_each_set_bit_inv(apid, matrix_mdev->shadow_apcb.apm, AP_DEVICES) {
++		q = matrix_mdev ?
++			vfio_ap_mdev_get_queue(matrix_mdev, AP_MKQID(apid, apqi)) :
++			vfio_ap_find_queue(AP_MKQID(apid, apqi));
+ 		if (q)
+ 			list_add_tail(&q->reset_qnode, qlist);
+ 	}
+@@ -1038,7 +1109,7 @@ static void reset_queues_for_apid(struct ap_matrix_mdev *matrix_mdev,
+ 	struct list_head qlist;
+ 
+ 	INIT_LIST_HEAD(&qlist);
+-	collect_queues_to_reset(matrix_mdev, apid, &qlist);
++	collect_queues_by_apid(matrix_mdev, apid, &qlist);
+ 	vfio_ap_mdev_reset_qlist(&qlist);
+ }
+ 
+@@ -1054,7 +1125,7 @@ static int reset_queues_for_apids(struct ap_matrix_mdev *matrix_mdev,
+ 	INIT_LIST_HEAD(&qlist);
+ 
+ 	for_each_set_bit_inv(apid, apm_reset, AP_DEVICES)
+-		collect_queues_to_reset(matrix_mdev, apid, &qlist);
++		collect_queues_by_apid(matrix_mdev, apid, &qlist);
+ 
+ 	return vfio_ap_mdev_reset_qlist(&qlist);
+ }
+@@ -1725,82 +1796,241 @@ static void ap_matrix_copy(struct ap_matrix *dst, struct ap_matrix *src)
+ 	bitmap_copy(dst->adm, src->adm, AP_DOMAINS);
+ }
+ 
+-static ssize_t ap_config_store(struct device *dev, struct device_attribute *attr,
+-			       const char *buf, size_t count)
++static int validate_ap_matrix(struct ap_matrix_mdev *matrix_mdev)
+ {
+-	struct ap_matrix_mdev *matrix_mdev = dev_get_drvdata(dev);
+-	struct ap_matrix m_new, m_old, m_added, m_removed;
+-	DECLARE_BITMAP(apm_filtered, AP_DEVICES);
+-	unsigned long newbit;
+-	char *newbuf, *rest;
+-	int rc = count;
+-	bool do_update;
++	int rc;
+ 
+-	newbuf = kstrndup(buf, AP_CONFIG_STRLEN, GFP_KERNEL);
+-	if (!newbuf)
+-		return -ENOMEM;
+-	rest = newbuf;
++	lockdep_assert_held(&ap_attr_mutex);
++	lockdep_assert_held(&matrix_dev->mdevs_lock);
+ 
+-	mutex_lock(&ap_attr_mutex);
+-	get_update_locks_for_mdev(matrix_mdev);
++	rc = vfio_ap_mdev_validate_masks(matrix_mdev);
++	if (rc)
++		return rc;
++	rc = ap_matrix_overflow_check(matrix_mdev);
++	if (rc)
++		return rc;
+ 
+-	/* Save old state */
+-	ap_matrix_copy(&m_old, &matrix_mdev->matrix);
+-	if (parse_bitmap(&rest, m_new.apm, AP_DEVICES) ||
+-	    parse_bitmap(&rest, m_new.aqm, AP_DOMAINS) ||
+-	    parse_bitmap(&rest, m_new.adm, AP_DOMAINS)) {
+-		rc = -EINVAL;
+-		goto out;
++	return 0;
++}
++
++static void get_removed_matrixes(struct ap_matrix *m_removed,
++				 struct ap_matrix *m_old,
++				 struct ap_matrix *m_new)
++{
++	bitmap_andnot(m_removed->apm, m_old->apm, m_new->apm, AP_DEVICES);
++	bitmap_andnot(m_removed->aqm, m_old->aqm, m_new->aqm, AP_DOMAINS);
++	bitmap_andnot(m_removed->adm, m_old->adm, m_new->adm, AP_DOMAINS);
++}
++
++static void reset_removed_queues_by_apid(unsigned long *apm_removed,
++					 unsigned long *apm_filtered,
++					 struct list_head *qlist)
++{
++	DECLARE_BITMAP(apids_removed, AP_DEVICES);
++	unsigned long apid;
++
++	for_each_set_bit_inv(apid, apm_filtered, AP_DEVICES)
++		set_bit_inv(apid, apids_removed);
++
++	for_each_set_bit_inv(apid, apm_removed, AP_DEVICES) {
++		if (!test_bit_inv(apid, apids_removed))
++			set_bit_inv(apid, apids_removed);
+ 	}
+ 
+-	bitmap_andnot(m_removed.apm, m_old.apm, m_new.apm, AP_DEVICES);
+-	bitmap_andnot(m_removed.aqm, m_old.aqm, m_new.aqm, AP_DOMAINS);
+-	bitmap_andnot(m_added.apm, m_new.apm, m_old.apm, AP_DEVICES);
+-	bitmap_andnot(m_added.aqm, m_new.aqm, m_old.aqm, AP_DOMAINS);
++	if (!bitmap_empty(apids_removed, AP_DEVICES)) {
++		for_each_set_bit_inv(apid, apids_removed, AP_DEVICES)
++			collect_queues_by_apid(NULL, apid, qlist);
++	}
+ 
+-	/* Need new bitmaps in matrix_mdev for validation */
+-	ap_matrix_copy(&matrix_mdev->matrix, &m_new);
++	if (!list_empty(qlist))
++		vfio_ap_mdev_reset_qlist(qlist);
++}
+ 
+-	/* Ensure new state is valid, else undo new state */
+-	rc = vfio_ap_mdev_validate_masks(matrix_mdev);
+-	if (rc) {
+-		ap_matrix_copy(&matrix_mdev->matrix, &m_old);
+-		goto out;
++/**
++ * remove_queues_already_reset:
++ *
++ * Remove the queues that have already beeen reset from a list of queues that
++ * have yet to be reset.
++ *
++ * @qlist_rst:	A list of queues that have already been reset
++ * @qlist_rem:	A list of queues from which already reset queues are to be
++ *		removed.
++ */
++static void remove_queues_already_reset(struct list_head *qlist_rst,
++					struct list_head *qlist_rem)
++{
++	struct vfio_ap_queue *rq, *qr, *trq, *tqr;
++
++	if (list_empty(qlist_rst))
++		return;
++
++	/*
++	 * Each queue in qlist_reset has already been reset, so remove the
++	 * matching queues from qlist_reset so they don't get reset again
++	 */
++	list_for_each_entry_safe(qr, tqr, qlist_rem, reset_qnode) {
++		list_for_each_entry_safe(rq, trq, qlist_rst, reset_qnode) {
++			if (qr->apqn == rq->apqn)
++				list_del(&qr->reset_qnode);
++		}
+ 	}
+-	rc = ap_matrix_overflow_check(matrix_mdev);
+-	if (rc) {
+-		ap_matrix_copy(&matrix_mdev->matrix, &m_old);
+-		goto out;
++}
++
++static void reset_removed_queues(struct ap_matrix *m_removed,
++				 unsigned long *apm_filtered)
++{
++	struct list_head qlist_by_apid, qlist_by_apqi;
++	DECLARE_BITMAP(apqis, AP_DOMAINS);
++	unsigned long apqi;
++
++	INIT_LIST_HEAD(&qlist_by_apid);
++	INIT_LIST_HEAD(&qlist_by_apqi);
++	bitmap_clear(apqis, 0, AP_DOMAINS);
++
++	reset_removed_queues_by_apid(m_removed->apm, apm_filtered, &qlist_by_apid);
++
++	for_each_set_bit_inv(apqi, m_removed->aqm, AP_DEVICES) {
++		set_bit_inv(apqi, apqis);
++		collect_queues_by_apqi(NULL, apqi, &qlist_by_apqi);
+ 	}
+-	rc = count;
+ 
+-	/* Need old bitmaps in matrix_mdev for unplug/unlink */
+-	ap_matrix_copy(&matrix_mdev->matrix, &m_old);
++	if (list_empty(&qlist_by_apqi))
++		return;
+ 
+-	/* Unlink removed adapters/domains */
+-	vfio_ap_mdev_hot_unplug_adapters(matrix_mdev, m_removed.apm);
+-	vfio_ap_mdev_hot_unplug_domains(matrix_mdev, m_removed.aqm);
++	remove_queues_already_reset(&qlist_by_apid, &qlist_by_apqi);
+ 
+-	/* Need new bitmaps in matrix_mdev for linking new adapters/domains */
+-	ap_matrix_copy(&matrix_mdev->matrix, &m_new);
++	if (!list_empty(&qlist_by_apqi))
++		vfio_ap_mdev_reset_qlist(&qlist_by_apid);
++}
+ 
+-	/* Link newly added adapters */
+-	for_each_set_bit_inv(newbit, m_added.apm, AP_DEVICES)
+-		vfio_ap_mdev_link_adapter(matrix_mdev, newbit);
++/**
++ * restore_mdev_state:
++ *
++ * Restore the mdev to its previous state:
++ * - Unlink the queues from the updated mdev
++ * - Copy the previous matrix and shadow_apcb to the mdev
++ * - Re-link the original queues to the mdev
++ *
++ * @matrix_mdev:	The object that maintains the AP configuration for a guest
++ * @m_old:		The object containing the bitmaps specifying the guest AP
++ *			configuration profile as it was prior to the attempt to set
++ *			a new one
++ * @m_old_shadow:	The object containing the bitmaps specifying the guest AP
++ *			configuration as it was prior to the attempt to set a new
++ *			one
++ */
++static void restore_mdev_state(struct ap_matrix_mdev *matrix_mdev,
++			       struct ap_matrix *m_old,
++			       struct ap_matrix *m_old_shadow)
++{
++	vfio_ap_unlink_queues(matrix_mdev);
++	ap_matrix_copy(&matrix_mdev->matrix, m_old);
++	ap_matrix_copy(&matrix_mdev->shadow_apcb, m_old_shadow);
++	vfio_ap_link_queues(matrix_mdev);
++}
+ 
+-	for_each_set_bit_inv(newbit, m_added.aqm, AP_DOMAINS)
+-		vfio_ap_mdev_link_domain(matrix_mdev, newbit);
++/**
++ * vfio_ap_set_new_guest_config:
++ *
++ * Set a new AP configuration for a guest.
++ *
++ * @matrix_mdev: Object used to maintain the AP configuration for a guest
++ * @m_new:		 Object used to set the new AP configuration
++ * @filtering_allowable: A boolean value indicating whether any filtering of
++ *			 new AP configuration is acceptable. If the configuration
++ *			 needs to be filtered before it can be passed through to
++ *			 the guest and this flag is set to false, then
++ *			 the operation shall be terminated with an error.
++ *
++ * Returns: zero (0) if the new AP configuration is successfully set; otherwise,
++ *	    returns an error:
++ *
++ *	    ~ EADDRNOTAVAIL One or more APQNs are reserved for host use
++ *	    ~ EADDRINUSE    One or more APQNs are assigned to another mdev
++ *	    ~ ENODEV	    An adapter, domain or control domain in the new
++ *			    AP configuration exceeds the max architected value
++ *	    ~ ECANCELED	    @filtering_allowed was specified as false and the
++ *			    AP configuration needs to be filtered.
++ */
++int vfio_ap_set_new_guest_config(struct ap_matrix_mdev *matrix_mdev,
++				 struct ap_matrix *m_new,
++				 bool filtering_allowable)
++{
++	DECLARE_BITMAP(apm_filtered, AP_DEVICES);
++	struct ap_matrix m_old, m_old_shadow, m_removed;
++	bool do_update;
++	int rc;
+ 
+-	/* filter resources not bound to vfio-ap */
++	lockdep_assert_held(&ap_attr_mutex);
++	assert_has_update_locks_for_mdev(matrix_mdev);
++
++	/* Save old state */
++	ap_matrix_copy(&m_old, &matrix_mdev->matrix);
++	ap_matrix_copy(&m_old_shadow, &matrix_mdev->shadow_apcb);
++
++	/* Reset mdev state */
++	vfio_ap_unlink_queues(matrix_mdev);
++	ap_matrix_copy(&matrix_mdev->matrix, m_new);
++	vfio_ap_link_queues(matrix_mdev);
++
++	rc = validate_ap_matrix(matrix_mdev);
++	if (rc) {
++		restore_mdev_state(matrix_mdev, &m_old, &m_old_shadow);
++		return rc;
 +	}
 +
-+	*ap_config = ap_configuration;
++	/*
++	 * If APIDs need to be filtered from the guest AP config and filtering
++	 * is not allowable according to the caller, then terminate the operation.
++	 */
+ 	do_update = vfio_ap_mdev_filter_matrix(matrix_mdev, apm_filtered);
++	if (!bitmap_empty(apm_filtered, AP_DEVICES) && !filtering_allowable) {
++		restore_mdev_state(matrix_mdev, &m_old, &m_old_shadow);
++		return -ECANCELED;
++	}
++
+ 	do_update |= vfio_ap_mdev_filter_cdoms(matrix_mdev);
+ 
+-	/* Apply changes to shadow apbc if things changed */
+-	if (do_update) {
++	if (do_update)
+ 		vfio_ap_mdev_update_guest_apcb(matrix_mdev);
+-		reset_queues_for_apids(matrix_mdev, apm_filtered);
++
++	get_removed_matrixes(&m_removed, &m_old, m_new);
++	if (!bitmap_empty(m_removed.apm, AP_DEVICES) ||
++	    !bitmap_empty(apm_filtered, AP_DEVICES))
++		reset_removed_queues(&m_removed, apm_filtered);
 +
 +	return 0;
 +}
 +
-+static ssize_t vfio_ap_stop_copy_read(struct file *filp, char __user *buf,
-+				      size_t len, loff_t *pos)
++static ssize_t ap_config_store(struct device *dev, struct device_attribute *attr,
++			       const char *buf, size_t count)
 +{
-+	struct ap_matrix_mdev *matrix_mdev;
-+	size_t ret = 0, ap_config_size;
-+	struct vfio_ap_config *ap_config;
++	struct ap_matrix_mdev *matrix_mdev = dev_get_drvdata(dev);
++	struct ap_matrix m_new;
++	char *newbuf, *rest;
++	ssize_t rc;
 +
-+	/*
-+	 * When userspace calls read() with an explicit offset (pread), pos is
-+	 * non-NULL and the function rejects it with -ESPIPE (illegal seek). For
-+	 * normal read() calls, pos is NULL, so we'll use the file's internal
-+	 * position filp->f_pos
-+	 */
-+	if (pos)
-+		return -ESPIPE;
++	newbuf = kstrndup(buf, AP_CONFIG_STRLEN, GFP_KERNEL);
++	if (!newbuf)
++		return -ENOMEM;
++	rest = newbuf;
 +
-+	mutex_lock(&matrix_dev->mdevs_lock);
++	mutex_lock(&ap_attr_mutex);
++	get_update_locks_for_mdev(matrix_mdev);
 +
-+	pos = &filp->f_pos;
++	if (parse_bitmap(&rest, m_new.apm, AP_DEVICES) ||
++	    parse_bitmap(&rest, m_new.aqm, AP_DOMAINS) ||
++	    parse_bitmap(&rest, m_new.adm, AP_DOMAINS)) {
++		kfree(newbuf);
++		release_update_locks_for_mdev(matrix_mdev);
++		mutex_unlock(&ap_attr_mutex);
++		return -EINVAL;
+ 	}
+-out:
 +
-+	ret = validate_stop_copy_read_parms(filp, pos, len);
-+	if (ret) {
-+		mutex_unlock(&matrix_dev->mdevs_lock);
-+		return ret;
-+	}
++	rc = vfio_ap_set_new_guest_config(matrix_mdev, &m_new, true);
++	if (!rc)
++		rc = count;
 +
-+	matrix_mdev = filp->private_data;
+ 	release_update_locks_for_mdev(matrix_mdev);
+ 	mutex_unlock(&ap_attr_mutex);
+ 	kfree(newbuf);
+diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
+index 1fbdfcce5a11..7ae48729cafa 100644
+--- a/drivers/s390/crypto/vfio_ap_private.h
++++ b/drivers/s390/crypto/vfio_ap_private.h
+@@ -177,4 +177,8 @@ int vfio_ap_init_migration_data(struct ap_matrix_mdev *matrix_mdev);
+ void vfio_ap_release_migration_data(struct ap_matrix_mdev *matrix_mdev);
+ void vfio_ap_reset_migration_state(struct ap_matrix_mdev *matrix_mdev);
+ 
++int vfio_ap_set_new_guest_config(struct ap_matrix_mdev *matrix_mdev,
++				 struct ap_matrix *m_new,
++				 bool filtering_allowable);
 +
-+	ret = vfio_ap_get_config(matrix_mdev, &ap_config, &ap_config_size);
-+	if (ret) {
-+		mutex_unlock(&matrix_dev->mdevs_lock);
-+		return ret;
-+	}
-+
-+	/*
-+	 * If the position exceeds the size of the AP configuration data,
-+	 * then indicate EOF; otherwise calculate the length of the data to
-+	 * read such that a buffer overrun is prevented.
-+	 */
-+	if (*pos >= ap_config_size)
-+		len = 0;
-+	else
-+		len = min_t(size_t, ap_config_size - *pos, len);
-+
-+	/* If we've reached an EOF condition, let the caller know */
-+	if (len == 0) {
-+		kfree(ap_config);
-+		mutex_unlock(&matrix_dev->mdevs_lock);
-+		return 0;
-+	}
-+
-+	mutex_unlock(&matrix_dev->mdevs_lock);
-+
-+	if (copy_to_user(buf, (char *)ap_config + *pos, len)) {
-+		kfree(ap_config);
-+		return -EFAULT;
-+	}
-+
-+	kfree(ap_config);
-+	*pos += len;
-+	return len;
-+}
-+
- static const struct file_operations vfio_ap_stop_copy_fops = {
- 	.owner = THIS_MODULE,
- 	.read = vfio_ap_stop_copy_read,
+ #endif /* _VFIO_AP_PRIVATE_H_ */
 -- 
 2.53.0
 
