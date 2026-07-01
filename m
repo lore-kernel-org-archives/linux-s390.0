@@ -1,31 +1,31 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6CC3C35F607;
-	Wed,  1 Jul 2026 05:50:39 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D02093921D6;
+	Wed,  1 Jul 2026 05:50:50 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782885040; cv=none; b=Cl1MGQRsDwdYpX9hxuHf5cSoVs9up9ZoX59VoAmZsybMshv2hHwRe2OlNwizs/y1klPAeYoNZvTmX/d79RjjeWTh+HgIFvTHSeAnuo2WNwpWNSSS0VOBH/urk02P6GgB4O3GF6rLJ5fgqA3KKokeUUdnP5mVAz4kk66Wt9TNzEs=
+	t=1782885051; cv=none; b=MNoHjse01c7xWitPugE2QlzbM25PpkKulKBlxuOPtWXHn9W763N9zaaVvJcWs4yipuTnVqrKA5219d+gWWP/NZKuytiQQFm1iSBGOOHdldb/h5MerGlb3MGRqJdzRMzVMeV73269R4mPbvwSJK2P4R97csU/7nGbNA0uKqV6Wmw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782885040; c=relaxed/simple;
-	bh=VtRVjCH9ybLzpj+UhmbRmobCf1QSVb2glVnZRJJfiCg=;
+	s=arc-20240116; t=1782885051; c=relaxed/simple;
+	bh=j1TDEzVVIIA8q2Uvy+R53B4H2W7vI89z2yjA/W5mds4=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Swn0e+vuYEUVl28KhXuF2X3gjeAf6NtyFxw9DHdV5bBdhMx/YDmGj+Z2e1yGOpr5RPNvMpHsTC8iJsZzkj0CwqqFix/CH2BderzGRxJLjpB/SzYjwEWHHb37j7Ffa/wqAj9ZgKvvQGMxqpLNGgz1cishjzMI9gEZlL3/xYe++Ds=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lrpzhKzp; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version; b=r2JD3jAI6owjY7aaLHkpMJX+ts6wflD6LE3aFT2ZlWy5kKmbPCuNIp9uz7tCcanoVxt/Pqgtfwdvb/5LfWHP0bt8zRlO11I73iYlniZd1ucGXphEQDESLvbIXrj9jBKOcfQbbTZi7Pu+nrWmSFNnddpNB2vRLT/jbTmiVWhLgwE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LAVOzFxK; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lrpzhKzp"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D76A31F000E9;
-	Wed,  1 Jul 2026 05:50:28 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LAVOzFxK"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B406B1F00A3A;
+	Wed,  1 Jul 2026 05:50:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782885039;
-	bh=V++32Hlsnd8O+X1YUo+9sR9sIHbF/3S8/BVLjSm/2JQ=;
+	s=k20260515; t=1782885050;
+	bh=Rrxw0zEy8zZMWEqkMIDa1FzZShUbfKRclWdKlq0ShMQ=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=lrpzhKzp4HI5tfxkYxVQ3ns7bG8LYR6RVnKA6aAuGTU7zQx3MAoty8cBzZ7jghNoA
-	 wzseSDlRarYZ59upi/QWWhq7HGQZKGND4M7LOxmIirJxN/G2aPkgkqNEUN4BVGM9BZ
-	 RhhUQEAtHYamoVUyKS+RhHsP4KxXauXOebSz34f7DysA92DeqePMT+7C1gHs7zt7tu
-	 KyxH7lsQR2yWIC83PuFbZlG7r2mm/IOBixRDjsqfit+tgvThg25J8ilkUuCcnTdH+y
-	 D4zTP66UYSbLfY3j1UtBXSjwzlQJg/hSDDVzNKbxiZ88m11p7UAbyPYuCaoNM4agIl
-	 gw1JE6ji3VcHQ==
+	b=LAVOzFxKcoBDvcIA/cL8+8v7XY/9P5ba4CrqnsrbqlhfEZ5g4MK5OQ74GAghLavvj
+	 o+JLad1Wg9OinqXokjs/3hytR6AywooUcXw+wjcaN/F5Np2i2Yy+gvQI+kaGBm3VRK
+	 l/W42WUmQzsFbFYjHOJrYnQO9q33t4cB9Cl+BcgwhN05+UwImbPdZZkdY7FTk0gNXF
+	 FVAC/vZRvHTO3Dp+mcbdGNZrgKugW5uEdQ7bVByHuY2QanpiPo3CjFP1m/h98/9Q0i
+	 1IiXs7eRvC4AhfagR2rw6tY1gFdou4tKw+G+PtNggm5tV9wna0xvQxKWFmudBnp/gW
+	 1Rx06Eda1YzDw==
 From: "Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org>
 To: iommu@lists.linux.dev,
 	linux-arm-kernel@lists.infradead.org,
@@ -59,10 +59,12 @@ Cc: "Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org>,
 	Christian Borntraeger <borntraeger@linux.ibm.com>,
 	Sven Schnelle <svens@linux.ibm.com>,
 	x86@kernel.org,
-	Michael Kelley <mhklinux@outlook.com>
-Subject: [PATCH v7 05/22] swiotlb: Preserve allocation virtual address for dynamic pools
-Date: Wed,  1 Jul 2026 11:19:09 +0530
-Message-ID: <20260701054926.825925-6-aneesh.kumar@kernel.org>
+	Halil Pasic <pasic@linux.ibm.com>,
+	Matthew Rosato <mjrosato@linux.ibm.com>,
+	Jaehoon Kim <jhkim@linux.ibm.com>
+Subject: [PATCH v7 06/22] s390: Expose protected virtualization through cc_platform_has()
+Date: Wed,  1 Jul 2026 11:19:10 +0530
+Message-ID: <20260701054926.825925-7-aneesh.kumar@kernel.org>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20260701054926.825925-1-aneesh.kumar@kernel.org>
 References: <20260701054926.825925-1-aneesh.kumar@kernel.org>
@@ -74,147 +76,68 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-swiotlb_alloc_tlb() can allocate from the DMA atomic pool when a decrypted
-pool is needed from atomic context. With CONFIG_DMA_DIRECT_REMAP, the
-atomic pool is backed by remapped virtual addresses, which are not the same
-as the direct-map addresses returned by phys_to_virt().
+Protected virtualization guests use memory encryption, so advertise that to
+the rest of the kernel through cc_platform_has(CC_ATTR_MEM_ENCRYPT).
 
-swiotlb_init_io_tlb_pool() currently reconstructs the pool virtual address
-from the physical start address. For atomic-pool backed allocations this
-stores the wrong address in pool->vaddr. Later, swiotlb_free_tlb() passes
-that address to dma_free_from_pool(), which will fail to recognize the
-chunk
+s390 already forces DMA mappings to be unencrypted for protected
+virtualization guests through force_dma_unencrypted(). Add
+ARCH_HAS_CC_PLATFORM and provide the matching cc_platform_has()
+implementation
 
-Pass the virtual address returned by the allocation path into
-swiotlb_init_io_tlb_pool(), and store that address in pool->vaddr. This
-keeps the pool free path using the same virtual address as the allocator.
-
-Fixes: 79636caad361 ("swiotlb: if swiotlb is full, fall back to a transient memory pool")
-Tested-by: Michael Kelley <mhklinux@outlook.com>
-Tested-by: Mostafa Saleh <smostafa@google.com>
-Reviewed-by: Petr Tesarik <ptesarik@suse.com>
+Cc: Halil Pasic <pasic@linux.ibm.com>
+Cc: Matthew Rosato <mjrosato@linux.ibm.com>
+Cc: Jaehoon  Kim <jhkim@linux.ibm.com>
+Tested-by: Jaehoon Kim <jhkim@linux.ibm.com>
 Signed-off-by: Aneesh Kumar K.V (Arm) <aneesh.kumar@kernel.org>
 ---
- kernel/dma/swiotlb.c | 31 +++++++++++++++++++------------
- 1 file changed, 19 insertions(+), 12 deletions(-)
+ arch/s390/Kconfig   |  1 +
+ arch/s390/mm/init.c | 14 ++++++++++++++
+ 2 files changed, 15 insertions(+)
 
-diff --git a/kernel/dma/swiotlb.c b/kernel/dma/swiotlb.c
-index 1abd3e6146f4..6e8db52866bf 100644
---- a/kernel/dma/swiotlb.c
-+++ b/kernel/dma/swiotlb.c
-@@ -266,9 +266,9 @@ void __init swiotlb_update_mem_attributes(void)
+diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+index 84404e6778d5..ab1bf55d197a 100644
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -84,6 +84,7 @@ config S390
+ 	select ARCH_ENABLE_SPLIT_PMD_PTLOCK if PGTABLE_LEVELS > 2
+ 	select ARCH_ENABLE_THP_MIGRATION if TRANSPARENT_HUGEPAGE
+ 	select ARCH_HAS_CC_CAN_LINK
++	select ARCH_HAS_CC_PLATFORM
+ 	select ARCH_HAS_CPU_FINALIZE_INIT
+ 	select ARCH_HAS_CURRENT_STACK_POINTER
+ 	select ARCH_HAS_DEBUG_VIRTUAL
+diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
+index f07168a0d3dd..c29326c44af0 100644
+--- a/arch/s390/mm/init.c
++++ b/arch/s390/mm/init.c
+@@ -50,6 +50,7 @@
+ #include <linux/virtio_anchor.h>
+ #include <linux/virtio_config.h>
+ #include <linux/execmem.h>
++#include <linux/cc_platform.h>
+ 
+ pgd_t swapper_pg_dir[PTRS_PER_PGD] __section(".bss..swapper_pg_dir");
+ pgd_t invalid_pg_dir[PTRS_PER_PGD] __section(".bss..invalid_pg_dir");
+@@ -142,6 +143,19 @@ bool force_dma_unencrypted(struct device *dev)
+ 	return is_prot_virt_guest();
  }
  
- static void swiotlb_init_io_tlb_pool(struct io_tlb_pool *mem, phys_addr_t start,
--		unsigned long nslabs, bool late_alloc, unsigned int nareas)
-+		void *vaddr, unsigned long nslabs, bool late_alloc,
-+		unsigned int nareas)
- {
--	void *vaddr = phys_to_virt(start);
- 	unsigned long bytes = nslabs << IO_TLB_SHIFT, i;
- 
- 	mem->nslabs = nslabs;
-@@ -409,7 +409,7 @@ void __init swiotlb_init_remap(bool addressing_limit, unsigned int flags,
- 		return;
- 	}
- 
--	swiotlb_init_io_tlb_pool(mem, __pa(tlb), nslabs, false, nareas);
-+	swiotlb_init_io_tlb_pool(mem, __pa(tlb), tlb, nslabs, false, nareas);
- 	add_mem_pool(&io_tlb_default_mem, mem);
- 
- 	if (flags & SWIOTLB_VERBOSE)
-@@ -507,7 +507,7 @@ int swiotlb_init_late(size_t size, gfp_t gfp_mask,
- 
- 	set_memory_decrypted((unsigned long)vstart,
- 			     (nslabs << IO_TLB_SHIFT) >> PAGE_SHIFT);
--	swiotlb_init_io_tlb_pool(mem, virt_to_phys(vstart), nslabs, true,
-+	swiotlb_init_io_tlb_pool(mem, virt_to_phys(vstart), vstart, nslabs, true,
- 				 nareas);
- 	add_mem_pool(&io_tlb_default_mem, mem);
- 
-@@ -605,25 +605,26 @@ static struct page *alloc_dma_pages(gfp_t gfp, size_t bytes, u64 phys_limit)
-  * @bytes:	Size of the buffer.
-  * @phys_limit:	Maximum allowed physical address of the buffer.
-  * @gfp:	GFP flags for the allocation.
-+ * @vaddr:	Receives the virtual address for the allocated buffer.
-  *
-  * Return: Allocated pages, or %NULL on allocation failure.
-  */
- static struct page *swiotlb_alloc_tlb(struct device *dev, size_t bytes,
--		u64 phys_limit, gfp_t gfp)
-+		u64 phys_limit, gfp_t gfp, void **vaddr)
- {
- 	struct page *page;
- 
-+	*vaddr = NULL;
 +
- 	/*
- 	 * Allocate from the atomic pools if memory is encrypted and
- 	 * the allocation is atomic, because decrypting may block.
- 	 */
- 	if (!gfpflags_allow_blocking(gfp) && dev && force_dma_unencrypted(dev)) {
--		void *vaddr;
--
- 		if (!IS_ENABLED(CONFIG_DMA_COHERENT_POOL))
- 			return NULL;
- 
--		return dma_alloc_from_pool(dev, bytes, &vaddr, gfp,
-+		return dma_alloc_from_pool(dev, bytes, vaddr, gfp,
- 					   dma_coherent_ok);
- 	}
- 
-@@ -645,6 +646,8 @@ static struct page *swiotlb_alloc_tlb(struct device *dev, size_t bytes,
- 			return NULL;
- 	}
- 
-+	if (page)
-+		*vaddr = phys_to_virt(page_to_phys(page));
- 	return page;
- }
- 
-@@ -685,6 +688,7 @@ static struct io_tlb_pool *swiotlb_alloc_pool(struct device *dev,
++bool cc_platform_has(enum cc_attr attr)
++{
++	switch (attr) {
++	case CC_ATTR_MEM_ENCRYPT:
++		return is_prot_virt_guest();
++
++	default:
++		return false;
++	}
++}
++EXPORT_SYMBOL_GPL(cc_platform_has);
++
+ /* protected virtualization */
+ static void __init pv_init(void)
  {
- 	struct io_tlb_pool *pool;
- 	unsigned int slot_order;
-+	void *tlb_vaddr;
- 	struct page *tlb;
- 	size_t pool_size;
- 	size_t tlb_size;
-@@ -701,7 +705,8 @@ static struct io_tlb_pool *swiotlb_alloc_pool(struct device *dev,
- 	pool->areas = (void *)pool + sizeof(*pool);
- 
- 	tlb_size = nslabs << IO_TLB_SHIFT;
--	while (!(tlb = swiotlb_alloc_tlb(dev, tlb_size, phys_limit, gfp))) {
-+	while (!(tlb = swiotlb_alloc_tlb(dev, tlb_size, phys_limit, gfp,
-+					 &tlb_vaddr))) {
- 		if (nslabs <= minslabs)
- 			goto error_tlb;
- 		nslabs = ALIGN(nslabs >> 1, IO_TLB_SEGSIZE);
-@@ -715,11 +720,12 @@ static struct io_tlb_pool *swiotlb_alloc_pool(struct device *dev,
- 	if (!pool->slots)
- 		goto error_slots;
- 
--	swiotlb_init_io_tlb_pool(pool, page_to_phys(tlb), nslabs, true, nareas);
-+	swiotlb_init_io_tlb_pool(pool, page_to_phys(tlb), tlb_vaddr, nslabs,
-+				 true, nareas);
- 	return pool;
- 
- error_slots:
--	swiotlb_free_tlb(page_address(tlb), tlb_size);
-+	swiotlb_free_tlb(tlb_vaddr, tlb_size);
- error_tlb:
- 	kfree(pool);
- error:
-@@ -1851,7 +1857,8 @@ static int rmem_swiotlb_device_init(struct reserved_mem *rmem,
- 
- 		set_memory_decrypted((unsigned long)phys_to_virt(rmem->base),
- 				     rmem->size >> PAGE_SHIFT);
--		swiotlb_init_io_tlb_pool(pool, rmem->base, nslabs,
-+		swiotlb_init_io_tlb_pool(pool, rmem->base, phys_to_virt(rmem->base),
-+					 nslabs,
- 					 false, nareas);
- 		mem->force_bounce = true;
- 		mem->for_alloc = true;
 -- 
 2.43.0
 
