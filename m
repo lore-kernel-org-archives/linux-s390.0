@@ -1,176 +1,111 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EC206368D71;
-	Wed,  1 Jul 2026 16:27:29 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 674A1372052;
+	Wed,  1 Jul 2026 16:32:08 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782923251; cv=none; b=ii8fXe8hHJ7DOuhLAkCCPlCqAN4mEJw8ToF/GUzsTHeS+GwrvW0/txrQMwUUPS0gIOhgsz4ARg19VVOiDp1R/nDHiV0RWKAp+VTvvPUTMsvkoYWeXZgplol6hZik5ZKv7ZE3SmqzCM6MlD4EJUPbWPmG4Qj9+C8bWu5/dDB1Aes=
+	t=1782923529; cv=none; b=piPptcM9mhTUBMej0d1OViU+0Q92p3RAFrIP+VNnC+YsYWI5Y5/tWPs1uAduAM2GK7dvmV2DGIdzpECFu3DTxrA0tZ9IP3dsUXTcr3hIt663Yp72oh+61C9JMLrZP9zlvH2sSjSEc3h6rf6qu/6O00mTmUH5Sqt/335h80DtziE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782923251; c=relaxed/simple;
-	bh=oUNt8kraS7RbX9oNGjSy8d+EHCoQYobAjd1iZhVjGBA=;
+	s=arc-20240116; t=1782923529; c=relaxed/simple;
+	bh=w2Tvuq1hvmbraq0z4o07hP/YzuQsmlX+W3w4zWdOyCw=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=aqSlA/TYsIr5eAITsnYSgB/5vC0LRd4cKIMew1JhNUimLIp6dgYNRgZTwBXSG5VCjuL8owVudYbubRDhG5ENBr0nt51Xjzqsg3G3ke19rsE1G598kkG8IoyWY6e2xopmWY6TzRKXB2fwu8MyAcadaUmEoepN/CXxKREdTlsx3dg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PcDH3ssh; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=uXIf32R3gYMew+C1QQScgD7cNDE0Tlzfq6fZKP9SyhFtiGXs30bsh0YSDdkPv9pp6OGCXs3kOKGFMaGm04dRvR6Y3MIMkxxBoj5925d0zrs9hEuwNXw2Y32ijgF31Cum82olDvuqxXa8XzCZiSMSdXh9CPtfeYlP3FslZT9/V8c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lHs0bjiF; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PcDH3ssh"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F132C1F000E9;
-	Wed,  1 Jul 2026 16:27:28 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lHs0bjiF"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AE3A1F00A3A;
+	Wed,  1 Jul 2026 16:32:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782923249;
-	bh=C71zmEENUUiDRRoYW052MW6KSTKMKDP4q3Wwg+f/qT0=;
+	s=k20260515; t=1782923528;
+	bh=MuqZMoa1DRV8V04R88+JlOJHWAnC/DrOvyHPNDXDFRY=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=PcDH3sshnIKB1nOl15CKxBrQaDGKTvXUeZs4vJ3Wet58t661luZDNYqdCg31Jt+Yv
-	 kHtqE8JjxsstmBaYsAFH/WhmZNv3AML+DGXxuBIl8YAYgu/YQpZYOwmoiIVFylso6M
-	 MwZLG6QIfVNq0YvcO9P9AuY4SKXXaUk6+QwN/RGBVowHCidmevGSxfEirXTXn4HEOM
-	 9mIgmfUDbyL8Z+C1+ksSd2ypqfyuYnBIYTt8sry1N7+kw061PRbLVYehF4KgvC7c+9
-	 LvfkbVH+5q7f/9b11a75PcOpa6MekU1t2JavKepjsTZTc96A+grkoClJtd95Zt1gzB
-	 3/JswJ9P7i8bg==
+	b=lHs0bjiF5qowFn7aKTZ4RGWT5WmbGHebcCBoXqiC6cITYCmbc1jsnyTlmJ+HfK4HB
+	 u3LAf+y1oOGAKtbvMDI276jG4zzAn9IfXME6fACxBewWlIg+kjWJ1EPts1QLWP+yUT
+	 uSMefZqRgacBf3XfPUpNNslZyH1ZG/ZPO1gvYok9yhGHlQwYjtBxg7R0/k5wmxfzrH
+	 MYQh6FY1k3Drl1LoPPUi9xHgeaTlTuPU7w10gkQSd6FXPb/I5sSI92mloQidOYoq8t
+	 ZBNNPS1Rtt8zcXwR1JJ4747nBFyI4c8+VOe+sXd3A0iDKBS3KMOscb+DI/77xLybuv
+	 r8fQjTHjrYpzA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 07/11] dma-buf: heaps: Add debugfs support
+Subject: Re: [PATCH v3 11/11] arm64: tegra: Add VPR placeholder node on
+ Tegra264
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Thierry Reding" <thierry.reding@kernel.org>
-Cc: "Heiko Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, conor+dt@kernel.org, "Vasily
- Gorbik" <gor@linux.ibm.com>, dri-devel@lists.freedesktop.org, devicetree@vger.kernel.org, robh@kernel.org
-In-Reply-To: <20260701-tegra-vpr-v3-7-d80f7b871bb4@nvidia.com>
+Cc: robh@kernel.org, conor+dt@kernel.org, devicetree@vger.kernel.org, "Vasily
+ Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Heiko
+ Carstens" <hca@linux.ibm.com>, dri-devel@lists.freedesktop.org, linux-s390@vger.kernel.org
+In-Reply-To: <20260701-tegra-vpr-v3-11-d80f7b871bb4@nvidia.com>
 References: <20260701-tegra-vpr-v3-0-d80f7b871bb4@nvidia.com>
- <20260701-tegra-vpr-v3-7-d80f7b871bb4@nvidia.com>
+ <20260701-tegra-vpr-v3-11-d80f7b871bb4@nvidia.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 01 Jul 2026 16:27:28 +0000
-Message-Id: <20260701162728.F132C1F000E9@smtp.kernel.org>
+Date: Wed, 01 Jul 2026 16:32:06 +0000
+Message-Id: <20260701163207.2AE3A1F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-
-New issues:
-- [Low] debugfs_create_dir failure handling causes namespace pollution.
-- [Low] Incomplete resource teardown in newly added dma_heap_exit() functio=
-n.
-
-Pre-existing issues:
-- [High] Use-After-Free due to character device exposure before uniqueness =
-validation completes.
+- [Medium] Meaningful contradiction between the commit message and the actu=
+al device tree source regarding the "reg" property for resizable VPR. The c=
+ommit message states that 'if the VPR is resizable, the firmware should rem=
+ove the "reg" property', implying it is present by default. However, the de=
+vice tree node explicitly comments out the `reg` property, and its comment =
+states that it 'assumes resizable VPR by default' and that fixed VPR must '=
+add the missing "reg" property'.
 --
 
-commit be3535d09b01d53c055d9d5fb7c60f03232a5ac7
+commit 6b6b37b0bf4380a0dd429f1a01402c6ffedb5c1f
 Author: Thierry Reding <treding@nvidia.com>
 
-dma-buf: heaps: Add debugfs support
+arm64: tegra: Add VPR placeholder node on Tegra264
 
-Add a callback to struct dma_heap_ops that heap providers can implement
-to show information about the state of the heap in debugfs. A top-level
-directory named "dma_heap" is created in debugfs and individual files
-will be named after the heaps.
+This commit adds a placeholder VPR (Video Protection Region) node for Tegra=
+264
+in the device tree. It includes default properties for a resizable VPR, alo=
+ng
+with comments indicating how firmware should update the node for either fix=
+ed
+or resizable VPR scenarios.
 
-> diff --git a/drivers/dma-buf/dma-heap.c b/drivers/dma-buf/dma-heap.c
-> index a76bf3f8b071a..1ceb6ee8c05a2 100644
-> --- a/drivers/dma-buf/dma-heap.c
-> +++ b/drivers/dma-buf/dma-heap.c
-> @@ -224,6 +225,46 @@ const char *dma_heap_get_name(struct dma_heap *heap)
+> Similarly, if the VPR is
+> resizable, the firmware should remove the "reg" property since it is no
+> longer needed.
 
+[Severity: Medium]
+Is this description in the commit message accurate? The device tree source
+node comments out the "reg" property by default, so firmware wouldn't be ab=
+le
+to remove it for a resizable VPR. The inline comments in the implementation
+also state that firmware should add the missing "reg" property for fixed VP=
+R:
+
+> diff --git a/arch/arm64/boot/dts/nvidia/tegra264.dtsi b/arch/arm64/boot/d=
+ts/nvidia/tegra264.dtsi
+> --- a/arch/arm64/boot/dts/nvidia/tegra264.dtsi
+> +++ b/arch/arm64/boot/dts/nvidia/tegra264.dtsi
 [ ... ]
-
-> +static struct dentry *dma_heap_debugfs_dir;
+> +			/*
+> +			 * The below assumes resizable VPR by default. If the
+> +			 * firmwares sets up fixed VPR, it is responsible for
+> +			 * adding the missing "reg" property, removing any of
+> +			 * the unused properties, as well as adding a unit-
+> +			 * address matching the "reg" property.
+> +			 */
 > +
-> +static void dma_heap_init_debugfs(void)
-> +{
-> +	struct dentry *dir;
-> +
-> +	dir =3D debugfs_create_dir("dma_heap", NULL);
-> +	if (IS_ERR(dir))
-> +		return;
-> +
-> +	dma_heap_debugfs_dir =3D dir;
-> +}
+> +			/* fixed VPR */
+> +			/*
+> +			reg =3D <0x0 0x0 0x0 0x0>;
+> +			no-map;
+> +			*/
 
-[Severity: Low]
-If debugfs_create_dir() returns an error, this early return leaves
-dma_heap_debugfs_dir as NULL.
-
-Later, when dma_heap_add() calls debugfs_create_file() with this NULL paren=
-t,
-won't it create the heap files directly in the debugfs root directory inste=
-ad
-of failing safely?
-
-[ ... ]
-
-> @@ -298,6 +339,13 @@ struct dma_heap *dma_heap_add(const struct dma_heap_=
-export_info *exp_info)
-> =20
->  	/* Add heap to the list */
->  	list_add(&heap->list, &heap_list);
-> +
-> +#ifdef CONFIG_DEBUG_FS
-> +	if (heap->ops && heap->ops->show)
-> +		debugfs_create_file(heap->name, 0444, dma_heap_debugfs_dir,
-> +				    heap, &dma_heap_debug_fops);
-> +#endif
-> +
->  	mutex_unlock(&heap_list_lock);
-> =20
->  	return heap;
-
-[Severity: High]
-This is a pre-existing issue, but doesn't the current design of
-dma_heap_add() allow a use-after-free?
-
-The character device is made live and exposed to userspace early:
-
-	cdev_init(&heap->heap_cdev, &dma_heap_fops);
-	ret =3D cdev_add(&heap->heap_cdev, heap->heap_devt, 1);
-
-But then, if the uniqueness check fails:
-
-	list_for_each_entry(h, &heap_list, list) {
-		if (!strcmp(h->name, exp_info->name)) {
-			...
-			goto err3;
-		}
-
-The error path frees the heap without revoking the live character device:
-
-err0:
-	kfree(heap);
-
-If userspace opens the device concurrently before the uniqueness check fail=
-s,
-could it access the freed heap object?
-
-[ ... ]
-
-> @@ -334,6 +382,14 @@ static int dma_heap_init(void)
->  	}
->  	dma_heap_class->devnode =3D dma_heap_devnode;
-> =20
-> +	dma_heap_init_debugfs();
-> +
->  	return 0;
->  }
->  subsys_initcall(dma_heap_init);
-> +
-> +static void __exit dma_heap_exit(void)
-> +{
-> +	dma_heap_exit_debugfs();
-> +}
-> +__exitcall(dma_heap_exit);
-
-[Severity: Low]
-Does this exit function omit teardown steps?
-
-It cleans up debugfs but seems to be missing calls to
-unregister_chrdev_region() and class_destroy() that were set up in
-dma_heap_init().
-
-If this subsystem is ever built as a loadable module, won't this leak those
-resources on unload?
+Could the commit message be updated to match the implementation, or should =
+the
+"reg" property be uncommented in the dtsi file?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260701-tegra-vpr-=
-v3-0-d80f7b871bb4@nvidia.com?part=3D7
+v3-0-d80f7b871bb4@nvidia.com?part=3D11
