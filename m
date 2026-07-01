@@ -1,31 +1,31 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7D000248873;
-	Wed,  1 Jul 2026 05:50:28 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6CC3C35F607;
+	Wed,  1 Jul 2026 05:50:39 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782885029; cv=none; b=Jx1RLIZIBCIcWfHp1bgAtQhP6IK3F8ePtzfnXfmb9kq0kXs+MSX2dC9Wg0vMom4BycZ/Er9o5KooctGSHnJHVBXu/y0W0ITHHbScyQa6rUyDNDjA2ccSYfY7u6RMWZ/V7UnwnKBwXN5ukXuddl3/OYa97BvGVmIUhP5RcVwOqhg=
+	t=1782885040; cv=none; b=Cl1MGQRsDwdYpX9hxuHf5cSoVs9up9ZoX59VoAmZsybMshv2hHwRe2OlNwizs/y1klPAeYoNZvTmX/d79RjjeWTh+HgIFvTHSeAnuo2WNwpWNSSS0VOBH/urk02P6GgB4O3GF6rLJ5fgqA3KKokeUUdnP5mVAz4kk66Wt9TNzEs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782885029; c=relaxed/simple;
-	bh=X/IJalMGGaBJCayVYUvb+I0lXrJ5dlVSSroBOo2VoIY=;
+	s=arc-20240116; t=1782885040; c=relaxed/simple;
+	bh=VtRVjCH9ybLzpj+UhmbRmobCf1QSVb2glVnZRJJfiCg=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=WydCeBkulf2GfGF8TiCbZRbjYCDC3+lO5Sd04uhBhqIHb0e8nbsqVlCKx4jMaJMElRW5NT8IemzOeHOXTyA1loWz/VwYNap0O8yulb/LNzWKzkgkRDYEo7ObPKlcXgJDDn1ZoB81hLI8YcLncHnn4hulh4I+y9+TI07NTq1VuF4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YDmtGiFg; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version; b=Swn0e+vuYEUVl28KhXuF2X3gjeAf6NtyFxw9DHdV5bBdhMx/YDmGj+Z2e1yGOpr5RPNvMpHsTC8iJsZzkj0CwqqFix/CH2BderzGRxJLjpB/SzYjwEWHHb37j7Ffa/wqAj9ZgKvvQGMxqpLNGgz1cishjzMI9gEZlL3/xYe++Ds=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lrpzhKzp; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YDmtGiFg"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0DCA41F00A3D;
-	Wed,  1 Jul 2026 05:50:17 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lrpzhKzp"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D76A31F000E9;
+	Wed,  1 Jul 2026 05:50:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782885028;
-	bh=uK0F/gWRwNVcExGs/aIxWo/TgoVvALCb4U1mwxZD1ms=;
+	s=k20260515; t=1782885039;
+	bh=V++32Hlsnd8O+X1YUo+9sR9sIHbF/3S8/BVLjSm/2JQ=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=YDmtGiFgLXr0WvkfFZn8uSPkzcA16GAjnn54jLRiDJpcMm62Wz2J7FHoT9OU7pfGo
-	 aDW41YlDlTKR8+ZZGuRsC1//sxp2nz1/HVYRRxTr2/mn55kX2HHdueW/2aPCQw73dd
-	 uknDJVv5tDQVWK1jy4yvq0OSU3mljNcp2JqFC1vzWzFXgwTFHO1Cnc7rdv3suftGeb
-	 56Bhk8NUZbwqfuSpui5K4uxQd3Gi3Vc4KSnZeNE0H+YnKtLxxlCYRmOKhBFrG2onhk
-	 IdaiHcoPjuKXuagfPUmyJrGnMq2HdCTamC6HjH5u/F9/oj9pV/jtblD+gsXk3cfGLE
-	 RsUhRYNWtvoVA==
+	b=lrpzhKzp4HI5tfxkYxVQ3ns7bG8LYR6RVnKA6aAuGTU7zQx3MAoty8cBzZ7jghNoA
+	 wzseSDlRarYZ59upi/QWWhq7HGQZKGND4M7LOxmIirJxN/G2aPkgkqNEUN4BVGM9BZ
+	 RhhUQEAtHYamoVUyKS+RhHsP4KxXauXOebSz34f7DysA92DeqePMT+7C1gHs7zt7tu
+	 KyxH7lsQR2yWIC83PuFbZlG7r2mm/IOBixRDjsqfit+tgvThg25J8ilkUuCcnTdH+y
+	 D4zTP66UYSbLfY3j1UtBXSjwzlQJg/hSDDVzNKbxiZ88m11p7UAbyPYuCaoNM4agIl
+	 gw1JE6ji3VcHQ==
 From: "Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org>
 To: iommu@lists.linux.dev,
 	linux-arm-kernel@lists.infradead.org,
@@ -60,9 +60,9 @@ Cc: "Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org>,
 	Sven Schnelle <svens@linux.ibm.com>,
 	x86@kernel.org,
 	Michael Kelley <mhklinux@outlook.com>
-Subject: [PATCH v7 04/22] dma: free atomic pool pages by physical address
-Date: Wed,  1 Jul 2026 11:19:08 +0530
-Message-ID: <20260701054926.825925-5-aneesh.kumar@kernel.org>
+Subject: [PATCH v7 05/22] swiotlb: Preserve allocation virtual address for dynamic pools
+Date: Wed,  1 Jul 2026 11:19:09 +0530
+Message-ID: <20260701054926.825925-6-aneesh.kumar@kernel.org>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20260701054926.825925-1-aneesh.kumar@kernel.org>
 References: <20260701054926.825925-1-aneesh.kumar@kernel.org>
@@ -74,122 +74,147 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-dma_direct_alloc_pages() may satisfy atomic allocations from the coherent
-atomic pools. The pool allocation is keyed by the virtual address stored in
-the gen_pool, but the pages API returns only the backing struct page.
+swiotlb_alloc_tlb() can allocate from the DMA atomic pool when a decrypted
+pool is needed from atomic context. With CONFIG_DMA_DIRECT_REMAP, the
+atomic pool is backed by remapped virtual addresses, which are not the same
+as the direct-map addresses returned by phys_to_virt().
 
-On architectures with CONFIG_DMA_DIRECT_REMAP, atomic pool chunks are added
-to the gen_pool using their remapped virtual address.
-dma_direct_free_pages() reconstructs a linear-map address with
-page_address(page) and passes that to dma_free_from_pool(). That address
-does not match the gen_pool virtual range, so the pool lookup can fail and
-the code can fall through to freeing a pool-owned page through the normal
-page allocator path.
+swiotlb_init_io_tlb_pool() currently reconstructs the pool virtual address
+from the physical start address. For atomic-pool backed allocations this
+stores the wrong address in pool->vaddr. Later, swiotlb_free_tlb() passes
+that address to dma_free_from_pool(), which will fail to recognize the
+chunk
 
-Add a page-based pool free helper that looks up the owning pool chunk by
-physical address, translates it back to the gen_pool virtual address, and
-frees that address to the pool. Use it from dma_direct_free_pages() while
-keeping the existing virtual-address helper for coherent allocation frees.
+Pass the virtual address returned by the allocation path into
+swiotlb_init_io_tlb_pool(), and store that address in pool->vaddr. This
+keeps the pool free path using the same virtual address as the allocator.
 
+Fixes: 79636caad361 ("swiotlb: if swiotlb is full, fall back to a transient memory pool")
 Tested-by: Michael Kelley <mhklinux@outlook.com>
 Tested-by: Mostafa Saleh <smostafa@google.com>
+Reviewed-by: Petr Tesarik <ptesarik@suse.com>
 Signed-off-by: Aneesh Kumar K.V (Arm) <aneesh.kumar@kernel.org>
 ---
- include/linux/dma-map-ops.h |  1 +
- kernel/dma/direct.c         |  4 +--
- kernel/dma/pool.c           | 54 +++++++++++++++++++++++++++++++++++++
- 3 files changed, 57 insertions(+), 2 deletions(-)
+ kernel/dma/swiotlb.c | 31 +++++++++++++++++++------------
+ 1 file changed, 19 insertions(+), 12 deletions(-)
 
-diff --git a/include/linux/dma-map-ops.h b/include/linux/dma-map-ops.h
-index bcb5b5428aea..137e015c1750 100644
---- a/include/linux/dma-map-ops.h
-+++ b/include/linux/dma-map-ops.h
-@@ -215,6 +215,7 @@ struct page *dma_alloc_from_pool(struct device *dev, size_t size,
- 		void **cpu_addr, gfp_t flags,
- 		bool (*phys_addr_ok)(struct device *, phys_addr_t, size_t));
- bool dma_free_from_pool(struct device *dev, void *start, size_t size);
-+bool dma_free_from_pool_page(struct device *dev, struct page *page, size_t size);
- 
- int dma_direct_set_offset(struct device *dev, phys_addr_t cpu_start,
- 		dma_addr_t dma_start, u64 size);
-diff --git a/kernel/dma/direct.c b/kernel/dma/direct.c
-index b4cb2c03e5d7..17f1e097499e 100644
---- a/kernel/dma/direct.c
-+++ b/kernel/dma/direct.c
-@@ -381,9 +381,9 @@ void dma_direct_free_pages(struct device *dev, size_t size,
- {
- 	void *vaddr = page_address(page);
- 
--	/* If cpu_addr is not from an atomic pool, dma_free_from_pool() fails */
-+	/* If page is not from an atomic pool, dma_free_from_pool_page() fails */
- 	if (IS_ENABLED(CONFIG_DMA_COHERENT_POOL) &&
--	    dma_free_from_pool(dev, vaddr, size))
-+	    dma_free_from_pool_page(dev, page, size))
- 		return;
- 
- 	if (dma_set_encrypted(dev, vaddr, size))
-diff --git a/kernel/dma/pool.c b/kernel/dma/pool.c
-index b0303efbc153..76bcafe03e44 100644
---- a/kernel/dma/pool.c
-+++ b/kernel/dma/pool.c
-@@ -311,3 +311,57 @@ bool dma_free_from_pool(struct device *dev, void *start, size_t size)
- 
- 	return false;
+diff --git a/kernel/dma/swiotlb.c b/kernel/dma/swiotlb.c
+index 1abd3e6146f4..6e8db52866bf 100644
+--- a/kernel/dma/swiotlb.c
++++ b/kernel/dma/swiotlb.c
+@@ -266,9 +266,9 @@ void __init swiotlb_update_mem_attributes(void)
  }
+ 
+ static void swiotlb_init_io_tlb_pool(struct io_tlb_pool *mem, phys_addr_t start,
+-		unsigned long nslabs, bool late_alloc, unsigned int nareas)
++		void *vaddr, unsigned long nslabs, bool late_alloc,
++		unsigned int nareas)
+ {
+-	void *vaddr = phys_to_virt(start);
+ 	unsigned long bytes = nslabs << IO_TLB_SHIFT, i;
+ 
+ 	mem->nslabs = nslabs;
+@@ -409,7 +409,7 @@ void __init swiotlb_init_remap(bool addressing_limit, unsigned int flags,
+ 		return;
+ 	}
+ 
+-	swiotlb_init_io_tlb_pool(mem, __pa(tlb), nslabs, false, nareas);
++	swiotlb_init_io_tlb_pool(mem, __pa(tlb), tlb, nslabs, false, nareas);
+ 	add_mem_pool(&io_tlb_default_mem, mem);
+ 
+ 	if (flags & SWIOTLB_VERBOSE)
+@@ -507,7 +507,7 @@ int swiotlb_init_late(size_t size, gfp_t gfp_mask,
+ 
+ 	set_memory_decrypted((unsigned long)vstart,
+ 			     (nslabs << IO_TLB_SHIFT) >> PAGE_SHIFT);
+-	swiotlb_init_io_tlb_pool(mem, virt_to_phys(vstart), nslabs, true,
++	swiotlb_init_io_tlb_pool(mem, virt_to_phys(vstart), vstart, nslabs, true,
+ 				 nareas);
+ 	add_mem_pool(&io_tlb_default_mem, mem);
+ 
+@@ -605,25 +605,26 @@ static struct page *alloc_dma_pages(gfp_t gfp, size_t bytes, u64 phys_limit)
+  * @bytes:	Size of the buffer.
+  * @phys_limit:	Maximum allowed physical address of the buffer.
+  * @gfp:	GFP flags for the allocation.
++ * @vaddr:	Receives the virtual address for the allocated buffer.
+  *
+  * Return: Allocated pages, or %NULL on allocation failure.
+  */
+ static struct page *swiotlb_alloc_tlb(struct device *dev, size_t bytes,
+-		u64 phys_limit, gfp_t gfp)
++		u64 phys_limit, gfp_t gfp, void **vaddr)
+ {
+ 	struct page *page;
+ 
++	*vaddr = NULL;
 +
-+struct dma_pool_phys_match {
-+	phys_addr_t phys;
-+	size_t size;
-+	unsigned long addr;
-+	bool found;
-+};
-+
-+static void dma_pool_find_phys(struct gen_pool *pool, struct gen_pool_chunk *chunk,
-+			       void *data)
-+{
-+	struct dma_pool_phys_match *match = data;
-+	phys_addr_t end = match->phys + match->size - 1;
-+	phys_addr_t chunk_end;
-+
-+	if (match->found)
-+		return;
-+
-+	chunk_end = chunk->phys_addr + (chunk->end_addr - chunk->start_addr);
-+	if (match->phys < chunk->phys_addr || end > chunk_end)
-+		return;
-+
-+	match->addr = chunk->start_addr + (match->phys - chunk->phys_addr);
-+	match->found = true;
-+}
-+
-+static bool dma_free_from_pool_phys(struct gen_pool *pool, phys_addr_t phys,
-+				    size_t size)
-+{
-+	struct dma_pool_phys_match match = {
-+		.phys = phys,
-+		.size = size,
-+	};
-+
-+	gen_pool_for_each_chunk(pool, dma_pool_find_phys, &match);
-+	if (!match.found)
-+		return false;
-+
-+	gen_pool_free(pool, match.addr, size);
-+	return true;
-+}
-+
-+bool dma_free_from_pool_page(struct device *dev, struct page *page, size_t size)
-+{
-+	struct gen_pool *pool = NULL;
-+	phys_addr_t phys = page_to_phys(page);
-+
-+	while ((pool = dma_guess_pool(pool, 0))) {
-+		if (dma_free_from_pool_phys(pool, phys, size))
-+			return true;
-+	}
-+
-+	return false;
-+}
+ 	/*
+ 	 * Allocate from the atomic pools if memory is encrypted and
+ 	 * the allocation is atomic, because decrypting may block.
+ 	 */
+ 	if (!gfpflags_allow_blocking(gfp) && dev && force_dma_unencrypted(dev)) {
+-		void *vaddr;
+-
+ 		if (!IS_ENABLED(CONFIG_DMA_COHERENT_POOL))
+ 			return NULL;
+ 
+-		return dma_alloc_from_pool(dev, bytes, &vaddr, gfp,
++		return dma_alloc_from_pool(dev, bytes, vaddr, gfp,
+ 					   dma_coherent_ok);
+ 	}
+ 
+@@ -645,6 +646,8 @@ static struct page *swiotlb_alloc_tlb(struct device *dev, size_t bytes,
+ 			return NULL;
+ 	}
+ 
++	if (page)
++		*vaddr = phys_to_virt(page_to_phys(page));
+ 	return page;
+ }
+ 
+@@ -685,6 +688,7 @@ static struct io_tlb_pool *swiotlb_alloc_pool(struct device *dev,
+ {
+ 	struct io_tlb_pool *pool;
+ 	unsigned int slot_order;
++	void *tlb_vaddr;
+ 	struct page *tlb;
+ 	size_t pool_size;
+ 	size_t tlb_size;
+@@ -701,7 +705,8 @@ static struct io_tlb_pool *swiotlb_alloc_pool(struct device *dev,
+ 	pool->areas = (void *)pool + sizeof(*pool);
+ 
+ 	tlb_size = nslabs << IO_TLB_SHIFT;
+-	while (!(tlb = swiotlb_alloc_tlb(dev, tlb_size, phys_limit, gfp))) {
++	while (!(tlb = swiotlb_alloc_tlb(dev, tlb_size, phys_limit, gfp,
++					 &tlb_vaddr))) {
+ 		if (nslabs <= minslabs)
+ 			goto error_tlb;
+ 		nslabs = ALIGN(nslabs >> 1, IO_TLB_SEGSIZE);
+@@ -715,11 +720,12 @@ static struct io_tlb_pool *swiotlb_alloc_pool(struct device *dev,
+ 	if (!pool->slots)
+ 		goto error_slots;
+ 
+-	swiotlb_init_io_tlb_pool(pool, page_to_phys(tlb), nslabs, true, nareas);
++	swiotlb_init_io_tlb_pool(pool, page_to_phys(tlb), tlb_vaddr, nslabs,
++				 true, nareas);
+ 	return pool;
+ 
+ error_slots:
+-	swiotlb_free_tlb(page_address(tlb), tlb_size);
++	swiotlb_free_tlb(tlb_vaddr, tlb_size);
+ error_tlb:
+ 	kfree(pool);
+ error:
+@@ -1851,7 +1857,8 @@ static int rmem_swiotlb_device_init(struct reserved_mem *rmem,
+ 
+ 		set_memory_decrypted((unsigned long)phys_to_virt(rmem->base),
+ 				     rmem->size >> PAGE_SHIFT);
+-		swiotlb_init_io_tlb_pool(pool, rmem->base, nslabs,
++		swiotlb_init_io_tlb_pool(pool, rmem->base, phys_to_virt(rmem->base),
++					 nslabs,
+ 					 false, nareas);
+ 		mem->force_bounce = true;
+ 		mem->for_alloc = true;
 -- 
 2.43.0
 
