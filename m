@@ -1,168 +1,103 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2F7294A2E16;
-	Wed,  1 Jul 2026 16:09:12 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C6443A254D;
+	Wed,  1 Jul 2026 16:13:05 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782922154; cv=none; b=Rz3IjR2OkcakXG+hBPLWBNmu/51UDdQZKE4FtqPhjQRhIaw6WItIzb7+/tnEpXmsXBzdCx/ZirHxxWtMyyuSCnhgA5gjI6GSaAgEwmXb7n2+P3CNw0z7iDgm5gS3svMlQifYZcH5kQiQeSk0ATFzYzl9E7AtXEyVoj3R7rW9df8=
+	t=1782922386; cv=none; b=CAJagZAoe9xOpDa6D6RMLlmPBPw+nG4D+CigW3VQ6nZRYltBUUuFnqI4O87WQtL3F0RUO2oSS732agbKNBuJMxjK2h4On8oWSuhdUlYXUCVAL8HaEVez7eIyXfDXp1UF3BhYdkKn+ZlVD8s6XVdtubTdu7cQqw06Bb3TM9y6flc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782922154; c=relaxed/simple;
-	bh=/PegpBh702nD/rEthDcQMo3aYTkbs90ol1VkbGRzl04=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=sBw43N1KPdX+vXalsB+nqGpKJqCp/ad6HAqXbE+pE6C9NBlbHahD4pxUf/agWE4le0+NNhTTwXcLWTaGcx4IW75VeVZ/WVU8NO4ONYNYeC+drZcfXa1fL68FfVMxbLs/Noysm3ssMpulyln6Q0yfZog8A6NB3veXuV0D4gJQ1Dc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MRqxn+xA; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1782922386; c=relaxed/simple;
+	bh=RFxwnJCNmFFejncNb8yOXGvdCf42UMKO2XwPObGpl/M=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=gHzHZqnYoa7wqIs5kQ5qB3//J/u5+SNRdQhCKZPz4OYIBr8MCiWxdlR4JPh2QGHN2uux7aNtcv1yMx5ojZby942Y2xQg5I5EJ5qwLR5QYqkwfjIjE2Z1zLq5DDUVxgTZGtPthPPKAMLCKRRZyzD+4MjTdEDytP+LdLZkRU8jMK8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mcMsC1fC; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MRqxn+xA"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 135A41F00A3E;
-	Wed,  1 Jul 2026 16:09:12 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mcMsC1fC"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00EDD1F000E9;
+	Wed,  1 Jul 2026 16:13:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782922152;
-	bh=NZ1ua092sFPJbERnBLwgyQPXHI/AIXZthh7+PsUJfz0=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=MRqxn+xAkXOJJLLhdGBoaVL0dEVa/CDsnQMn9qp9ZF1Oujk8XW+LUtpt68psqUmu4
-	 oZWoT7wSka6UJCE6aAuTR36fM9bmBCjZECh3RENSfvxEpKTaYpfZ66aJp7RGiQh7pS
-	 o6b8e7u0SpgKxF6jINcLov7ZVqNcrDrycMit6hs33UvOKY2ILCzwpQhm74Fw5YGNNf
-	 VUwKeQeL2qtN7xY11U8I3dePTm6oxTceB5XCBD6bLgiKYHyvBCo0hVdGXzyYVFLKyH
-	 f8voI1pinD/fjU4aEO5A6KaxA9PeQKuCDylB75Nn0J0dmTxTRql8V2lPTv+7B9ACEV
-	 cojxbCS4VzmrA==
-From: Thierry Reding <thierry.reding@kernel.org>
-Date: Wed, 01 Jul 2026 18:08:22 +0200
-Subject: [PATCH v3 11/11] arm64: tegra: Add VPR placeholder node on
- Tegra264
+	s=k20260515; t=1782922385;
+	bh=gVZdtQapB6tTMhtZxOuhDl+RYUu/A/XFkT3BmKPLcPw=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=mcMsC1fCnP4PxULGmbzJPQDuvU3L472fDB0yH8pWrq/mCO48OqnuOs6C5GxCpvqdx
+	 PKY1eddFEouqD6fsc3F+OdousoZJJ1wHyO6PcVoAFMI/AhUoBXDB2j26Bw2ymKdXmU
+	 2QHwvOJDplobgG/jjH64ywiOp+cfvS2JqqUKnzJA/FmwJAqa0rmP9gVGPi0XMemKeW
+	 RBmcs9PP9MET9CyeB68ypx25Ufiipfs7bX31CqWqwswmJ3/rZ75ayw8RD9rC59L4M5
+	 wN8LWh60jCeI12fWhosBMaN6nUcDNZ5yL+G4fDF8a0fQydB3bDbSgHh9Ga2NncE48S
+	 bmE1AUJAWBgAA==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v3 02/11] dt-bindings: display: tegra: Document memory
+ regions
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Thierry Reding" <thierry.reding@kernel.org>
+Cc: devicetree@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, "Vasily
+ Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Heiko
+ Carstens" <hca@linux.ibm.com>, linux-s390@vger.kernel.org, dri-devel@lists.freedesktop.org
+In-Reply-To: <20260701-tegra-vpr-v3-2-d80f7b871bb4@nvidia.com>
+References: <20260701-tegra-vpr-v3-0-d80f7b871bb4@nvidia.com>
+ <20260701-tegra-vpr-v3-2-d80f7b871bb4@nvidia.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Wed, 01 Jul 2026 16:13:04 +0000
+Message-Id: <20260701161305.00EDD1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260701-tegra-vpr-v3-11-d80f7b871bb4@nvidia.com>
-References: <20260701-tegra-vpr-v3-0-d80f7b871bb4@nvidia.com>
-In-Reply-To: <20260701-tegra-vpr-v3-0-d80f7b871bb4@nvidia.com>
-To: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>, 
- Thierry Reding <thierry.reding@kernel.org>, 
- Jonathan Hunter <jonathanh@nvidia.com>, David Airlie <airlied@gmail.com>, 
- Simona Vetter <simona@ffwll.ch>, 
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
- Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
- Sowjanya Komatineni <skomatineni@nvidia.com>, 
- Luca Ceresoli <luca.ceresoli@bootlin.com>, 
- Mikko Perttunen <mperttunen@nvidia.com>, Yury Norov <yury.norov@gmail.com>, 
- Rasmus Villemoes <linux@rasmusvillemoes.dk>, 
- Russell King <linux@armlinux.org.uk>, 
- Alexander Gordeev <agordeev@linux.ibm.com>, 
- Gerald Schaefer <gerald.schaefer@linux.ibm.com>, 
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
- Christian Borntraeger <borntraeger@linux.ibm.com>, 
- Sven Schnelle <svens@linux.ibm.com>, 
- Andrew Morton <akpm@linux-foundation.org>, 
- David Hildenbrand <david@kernel.org>, Lorenzo Stoakes <ljs@kernel.org>, 
- "Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>, 
- Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>, 
- Michal Hocko <mhocko@suse.com>, Marek Szyprowski <m.szyprowski@samsung.com>, 
- Robin Murphy <robin.murphy@arm.com>, Sumit Semwal <sumit.semwal@linaro.org>, 
- Benjamin Gaignard <benjamin.gaignard@collabora.com>, 
- Brian Starkey <Brian.Starkey@arm.com>, John Stultz <jstultz@google.com>, 
- "T.J. Mercier" <tjmercier@google.com>, 
- =?utf-8?q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>, 
- Steven Rostedt <rostedt@goodmis.org>, 
- Masami Hiramatsu <mhiramat@kernel.org>, 
- Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, 
- Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>
-Cc: Thierry Reding <thierry.reding@gmail.com>, devicetree@vger.kernel.org, 
- linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, 
- dri-devel@lists.freedesktop.org, linux-media@vger.kernel.org, 
- linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, 
- linux-mm@kvack.org, iommu@lists.linux.dev, linaro-mm-sig@lists.linaro.org, 
- linux-trace-kernel@vger.kernel.org, Thierry Reding <treding@nvidia.com>
-X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2208; i=treding@nvidia.com;
- h=from:subject:message-id; bh=UDPMoi7c/r2YYc7KMYasNvRmmrFnb+/8WQEYBHJoT9o=;
- b=owEBbQKS/ZANAwAKAd0jrNd/PrOhAcsmYgBqRTuGsc2UqwsB18Ps0JNikBH538NWGoIW6yQyT
- jBWP077JiKJAjMEAAEKAB0WIQSI6sMIAUnM98CNyJ/dI6zXfz6zoQUCakU7hgAKCRDdI6zXfz6z
- oWYQD/4zNJzhF0ziH/cfp++YEWF2QzkCBtNhxlib5GS0I1XV2iIewgNdcCwyxmX5iJepLKIfpTF
- MI8uKdvbIH/rmjtfgZhLdieCQdJqxJjnUWpEPpHNDezJRFN5KAGFBa0JyDU8TwgpPWetpMpVjoi
- JtOdfDqoTulUptfcs2SnD464Cc7ULfNYO9pqD/zJ1inq5qNZeBpC/WV29fMPwNgyTk33TcYZgTh
- JQMlIV9KsjBq9UGt3g5as6AyxLkK4n870/MrIjOTAlIlG0s3dMb3TuRSRseoAZzMatNsLKoBfDv
- 3LqE29PjChBqoRhBF+74YxKk1M6vUz1Xk6hntBgcKMnATrZrXQTm9RCgqSx+E0sFxBbO5wkwl4A
- HQWbmwu0/nCUYjnSHWE7QqKWaoDnl7RvUNNkfxKA/JMlXG6qtNpGC0NsOfOBKauSfg/4MVcKd7v
- x3kBNBh+1yJMVNl5dD9HFy3hOs7EDlz5B8wD3o7taIbseFcbfLfuneSlHkB9Ar8bWAqnMQDdNZf
- qvh5iEwypLCoSYFLV96TaHcV80M8qqmGoU7nPSjhbaGLuqtx2VOyK4Lg68R3+G3zfF7XOHOzpGM
- nLfJbw6vtU4JZFhzyD3NXUzQ/3xSUuHcS7uGJf6i4/ph51+s+Zh4Ik7+mTAn6T48fzuMV/Vq6km
- 8q9G/imB3ixEDzQ==
-X-Developer-Key: i=treding@nvidia.com; a=openpgp;
- fpr=88EAC3080149CCF7C08DC89FDD23ACD77F3EB3A1
 
-From: Thierry Reding <treding@nvidia.com>
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [Low] The JSON Schema keyword `maxItems` is misspelled as `maxitems` in t=
+he `memory-region-names` property definition.
+--
 
-This node contains two sets of properties, one for the case where the
-VPR is resizable (in which case the VPR region will be dynamically
-allocated at boot time) and another case where the VPR is fixed in size
-and initialized by early firmware.
+commit ee391cd788a9c41587882f086abaab0871d4967e
+Author: Thierry Reding <treding@nvidia.com>
 
-The firmware running on the device is responsible for updating the node
-with the real physical address for the fixed VPR case and remove the
-properties needed only for resizable VPR. Similarly, if the VPR is
-resizable, the firmware should remove the "reg" property since it is no
-longer needed.
+dt-bindings: display: tegra: Document memory regions
 
-Signed-off-by: Thierry Reding <treding@nvidia.com>
----
-Changes in v3:
-- comment out fixed VPR properties, assume resizable by default
-- rename node to "protected"
----
- arch/arm64/boot/dts/nvidia/tegra264.dtsi | 33 ++++++++++++++++++++++++++++++++
- 1 file changed, 33 insertions(+)
+This commit adds memory-region and memory-region-names properties to the
+display controllers and host1x engine bindings for Tegra generations. These
+regions allow access to firmware-provided framebuffer memory and the video
+protection region.
 
-diff --git a/arch/arm64/boot/dts/nvidia/tegra264.dtsi b/arch/arm64/boot/dts/nvidia/tegra264.dtsi
-index 4c701abd25a8..85a18d99d643 100644
---- a/arch/arm64/boot/dts/nvidia/tegra264.dtsi
-+++ b/arch/arm64/boot/dts/nvidia/tegra264.dtsi
-@@ -24,6 +24,39 @@ shmem_bpmp: shmem@86070000 {
- 			reg = <0x0 0x86070000 0x0 0x2000>;
- 			no-map;
- 		};
-+
-+		vpr: protected {
-+			compatible = "nvidia,tegra-video-protection-region";
-+			status = "disabled";
-+
-+			/*
-+			 * Two variants exist for this. For fixed VPR, the
-+			 * firmware is supposed to update the "reg" property
-+			 * with the fixed memory region configured as VPR.
-+			 *
-+			 * For resizable VPR we don't care about the exact
-+			 * address and instead want a reserved region to be
-+			 * allocated with a certain size and alignment at
-+			 * boot time.
-+			 *
-+			 * The below assumes resizable VPR by default. If the
-+			 * firmwares sets up fixed VPR, it is responsible for
-+			 * adding the missing "reg" property, removing any of
-+			 * the unused properties, as well as adding a unit-
-+			 * address matching the "reg" property.
-+			 */
-+
-+			/* fixed VPR */
-+			/*
-+			reg = <0x0 0x0 0x0 0x0>;
-+			no-map;
-+			*/
-+
-+			/* resizable VPR */
-+			size = <0x0 0x70000000>;
-+			alignment = <0x0 0x100000>;
-+			reusable;
-+		};
- 	};
- 
- 	/* SYSTEM MMIO */
+> diff --git a/Documentation/devicetree/bindings/display/tegra/nvidia,tegra=
+20-dc.yaml b/Documentation/devicetree/bindings/display/tegra/nvidia,tegra20=
+-dc.yaml
+> index 69be95afd5627..a012644eeb7d7 100644
+> --- a/Documentation/devicetree/bindings/display/tegra/nvidia,tegra20-dc.y=
+aml
+> +++ b/Documentation/devicetree/bindings/display/tegra/nvidia,tegra20-dc.y=
+aml
+[ ... ]
+> @@ -65,7 +65,15 @@ properties:
+>      items:
+>        - description: phandle to the core power domain
+> =20
+> -  memory-region: true
+> +  memory-region:
+> +    minItems: 1
+> +    maxItems: 2
+> +
+> +  memory-region-names:
+> +    items:
+> +      enum: [ framebuffer, protected ]
+> +    minItems: 1
+> +    maxitems: 2
 
--- 
-2.54.0
+[Severity: Low]
+Is this meant to be maxItems? The lowercase spelling maxitems might be igno=
+red
+by the JSON schema validator, which would fail to enforce the upper array
+bound limit or cause a meta-schema validation error when running
+make dt_binding_check.
 
+> =20
+>    nvidia,head:
+>      $ref: /schemas/types.yaml#/definitions/uint32
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260701-tegra-vpr-=
+v3-0-d80f7b871bb4@nvidia.com?part=3D2
