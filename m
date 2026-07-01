@@ -1,593 +1,161 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1FA8F2D1303;
-	Wed,  1 Jul 2026 16:34:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F1A536B07C
+	for <linux-s390@vger.kernel.org>; Wed,  1 Jul 2026 16:47:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782923675; cv=none; b=bXlu1R6Eaf6HycG3i+TRNPdl2VrxjpVp2s/i3EjhYJpNZasDwX8DyVJF09UfQEXPupgDowzn5eyZz3knk2m0EFRNP8FPt9ayCJVDPqvFC2fg77qytG2w+dk2B7T/fvOqVra2flJkiy5YIIzSYzJXjJaM8YDhhCq2o2AP4zUJonk=
+	t=1782924433; cv=none; b=VL6duEmEtnf7Eu0Ddr32aw/qHfOsaMmLTxCi8FX7PSjJgbwvqzM7EUNdqJf3V6i2mW4k3UtawEUz85s71SevY//qATRk3kPUVFu+zy6MS6ioJejMJaUBwNbOYZx0WrUod1I7oQ1OkIIixW80oXfkhRfevgnaS9+NPudSPHBoOMc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782923675; c=relaxed/simple;
-	bh=6OR0VXzaHKHsel8gwWPY05AGPVQJ1I33PeXfbGN5Tc0=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=h8wvgXqu/oczEY8JX08+XMKc7b5bBJUnWUVdWhRd76RKYtn71+J62HsVAesNSIR15A2KDq0t+uQEcLu8/787OoRP61D5JgBAkAtsm4GFxvX2zJYTzsrODqTP9neVCDYy5Q/zZeKhlng8gxywdAHGCmpzWt/4tA7bt55fGH+NH2M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TAATed9H; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1782924433; c=relaxed/simple;
+	bh=+gkOl6Jma5OdYt9EGfZHA5frhFKAnc1cMPLw/iRwn1U=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=htGksQw7LwB9Jkd9if3301D1HiUCqHsyaVmXWolzAvnpOk8/3XOodsztJG7qc1fRlGLIMWr30zY6iXEkxo/paWxcpGDTHGXfRNGu7/6Zu5+eGNlQNR6a/KU1naiubveL3C8X+6MIV6PaGL21NzPIzr/Ky36/v0OLbHV1PFf9WX0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=N7URT1cA; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TAATed9H"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 084CE1F000E9;
-	Wed,  1 Jul 2026 16:34:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782923668;
-	bh=BRqenpLcnH+SH1EZEEX1HXHyYR/vz5aIKTkkI+ynyRQ=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=TAATed9H8cwK7oUiY/weZZMUSQXnaJkwb/YE88hpWVIhj1McCbWGrWoJ4PUPI26nv
-	 +uxaGXuPQUKvSwM4Dg9Z8L0ffu7pTXy0nlu33xAixJQhi2ZKTf38SISQk+8CD5QYlq
-	 lDB6FrJHvUI0D/rqDfPlvrxhifxc4aFLK1l/EamdlDVyq9+jnCMeSMIqHBqeM23hXK
-	 xt2vJO1+Fg7AF2+yPhXmlAn+Bev2xSzcnMlW4PdQKI4FqDOMz5G67k0U+q4svdakF9
-	 nymWQomOCjl2sNlA+VsecH1Rn0sNh560qU+JLsHverJaYXHNXP+wC5NHCLnkpoQhZX
-	 h7djtweWiQBTA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 08/11] dma-buf: heaps: Add support for Tegra VPR
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Thierry Reding" <thierry.reding@kernel.org>
-Cc: devicetree@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, conor+dt@kernel.org, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, robh@kernel.org, dri-devel@lists.freedesktop.org, linux-s390@vger.kernel.org, "Vasily
- Gorbik" <gor@linux.ibm.com>
-In-Reply-To: <20260701-tegra-vpr-v3-8-d80f7b871bb4@nvidia.com>
-References: <20260701-tegra-vpr-v3-0-d80f7b871bb4@nvidia.com>
- <20260701-tegra-vpr-v3-8-d80f7b871bb4@nvidia.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 01 Jul 2026 16:34:27 +0000
-Message-Id: <20260701163428.084CE1F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="N7URT1cA"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 661AIoow495301;
+	Wed, 1 Jul 2026 16:46:57 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=pp1; bh=7HeIz0x3Vg4GqOBlZ
+	v/iGgOTB+uhuxBJfASbtqqOY7o=; b=N7URT1cAu1psOodMHEQCKrSclIBRZCxYQ
+	/FGHelWGTfVpHyLk1TxuvVgBWWPR3hlU5vuXzhfxR570WnXCLAr+Qpgm7bae88MU
+	fz8XFiEaUeQ36kyK0A2cpxAFGAthD9Gudq4ztI50EPM7Tv9aK66cGhTZowaFYinX
+	dgL2Ke5DR3gi9SexKyCKqs6w3JAZTwtT3wcnQnCmbg4MzFH0/zMJzVjfENHIHsTZ
+	hjr/+6uFTKz8Pc5Pebu/mSGFV9M7cc1Zh4EzFQcpLqjpbDIS7u9ogcejiblROBrQ
+	Dy+K4yDfomrvUAZcBa311o+ULa1/kqkCsCnuj+x7gI4LvxuZL+ExA==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4f26rf56f3-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 01 Jul 2026 16:46:57 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 661GYbPY023119;
+	Wed, 1 Jul 2026 16:46:56 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4f2tbhg3wg-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 01 Jul 2026 16:46:56 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 661GkqAN27132286
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 1 Jul 2026 16:46:52 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id F37A720043;
+	Wed,  1 Jul 2026 16:46:51 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id CB5A72004B;
+	Wed,  1 Jul 2026 16:46:51 +0000 (GMT)
+Received: from funtu2.ibm.com (unknown [9.111.187.249])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed,  1 Jul 2026 16:46:51 +0000 (GMT)
+From: Harald Freudenberger <freude@linux.ibm.com>
+To: richard.henderson@linaro.org, iii@linux.ibm.com, david@kernel.org,
+        thuth@redhat.com, berrange@redhat.com
+Cc: qemu-s390x@nongnu.org, qemu-devel@nongnu.org,
+        linux390-list@tuxmaker.boeblingen.de.ibm.com,
+        linux-s390@vger.kernel.org, dengler@linux.ibm.com,
+        borntraeger@linux.ibm.com, fcallies@linux.ibm.com, cohuck@redhat.com
+Subject: [PATCH v9 01/21] target/s390x: Fix wrong address handling in address loops
+Date: Wed,  1 Jul 2026 18:46:24 +0200
+Message-ID: <20260701164650.95760-2-freude@linux.ibm.com>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20260701164650.95760-1-freude@linux.ibm.com>
+References: <20260701164650.95760-1-freude@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=a4kAM0SF c=1 sm=1 tr=0 ts=6a454481 cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8 a=JcvBkDReJmzHsdK6FyIA:9
+X-Proofpoint-ORIG-GUID: rmq90IjdDyk1ha73vrcGhEkSXQYzOxko
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzAxMDE3MyBTYWx0ZWRfXykzZCLdUQJjd
+ vVzaBvUMlZRmY/vYT75KNBW7SRvz87TTLqXjctwMQo+qxYr3F9+EimjsUdOE2cL2QloZqGxg9xM
+ +1fG8+0AUWmu9QemopGWQFWZGPy7s2HIJrqOkgdXmNbchgVqIkGh2UFT93h0rQ91RALvl2I8WH2
+ F3vx5vQp6w7ozMauACRyo5/wA87w/ZmvyS3AsV/QwoVGw8lp3lnfcePvXEjmlun48xUMVZsU8Uc
+ 1ggPH4AuQ67Azxo/FRrNg35ZVlMfuJo5c/3+w50CCKHPFjafI1v46AqRUgKfKSehvQdYfm6zzzb
+ OulflBqrAKLJuOHeRQJU1zJwUtMzC6gChlTK37BG2HOX0iM8CKEEm7D+YQtp8bbmOw/qfBSL8q5
+ 2HUZPH8E0rVPNVp4BRwJ/PSxRDIFR3Xcd+ImV+m+TA3TRHT98wXK9xc7vSTuMnmwx0BBotKcSNI
+ X2EEPWOfGptIuAg1wog==
+X-Proofpoint-GUID: rmq90IjdDyk1ha73vrcGhEkSXQYzOxko
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzAxMDE3MyBTYWx0ZWRfX+Us5Fz3ZHRzg
+ atHKzHQDf7zyb0jbQU9i4cD/PnjwVVIkHJG+sysfSpo62WhQfA6hw9ScSHkN11Av8GxYZXFo1jB
+ 838By/Ap+TFkVloQ03FIZSgdHup4Cc8=
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
+ definitions=2026-07-01_03,2026-06-26_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ clxscore=1015 bulkscore=0 suspectscore=0 lowpriorityscore=0 impostorscore=0
+ spamscore=0 priorityscore=1501 adultscore=0 malwarescore=0 phishscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607010173
+
+The loop increments addr by the element stride (+= 4) before calling
+wrap_address, but then overwrites the loop addr with the wrapped
+value. On the next iteration the stride is applied to the wrapped
+address of the previous element, not to the original unwrapped
+address. This results in every element after the first is read from a
+wrong (wrapped) address.
+
+Fixes: 9f17bfdab4 ("target/s390x: support SHA-512 extensions")
+Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
+---
+ target/s390x/tcg/crypto_helper.c | 12 ++++--------
+ 1 file changed, 4 insertions(+), 8 deletions(-)
+
+diff --git a/target/s390x/tcg/crypto_helper.c b/target/s390x/tcg/crypto_helper.c
+index ae392bce0e..8fe0a22219 100644
+--- a/target/s390x/tcg/crypto_helper.c
++++ b/target/s390x/tcg/crypto_helper.c
+@@ -126,8 +126,7 @@ static void sha512_read_icv(CPUS390XState *env, const int mmu_idx,
+     const MemOpIdx oi = make_memop_idx(MO_BE | MO_64 | MO_UNALN, mmu_idx);
+ 
+     for (int i = 0; i < 8; i++, addr += 8) {
+-        addr = wrap_address(env, addr);
+-        a[i] = cpu_ldq_mmu(env, addr, oi, ra);
++        a[i] = cpu_ldq_mmu(env, wrap_address(env, addr), oi, ra);
+     }
+ }
+ 
+@@ -137,8 +136,7 @@ static void sha512_write_ocv(CPUS390XState *env, const int mmu_idx,
+     const MemOpIdx oi = make_memop_idx(MO_BE | MO_64 | MO_UNALN, mmu_idx);
+ 
+     for (int i = 0; i < 8; i++, addr += 8) {
+-        addr = wrap_address(env, addr);
+-        cpu_stq_mmu(env, addr, a[i], oi, ra);
++        cpu_stq_mmu(env, wrap_address(env, addr), a[i], oi, ra);
+     }
+ }
+ 
+@@ -148,8 +146,7 @@ static void sha512_read_block(CPUS390XState *env, const int mmu_idx,
+     const MemOpIdx oi = make_memop_idx(MO_BE | MO_64 | MO_UNALN, mmu_idx);
+ 
+     for (int i = 0; i < 16; i++, addr += 8) {
+-        addr = wrap_address(env, addr);
+-        a[i] = cpu_ldq_mmu(env, addr, oi, ra);
++        a[i] = cpu_ldq_mmu(env, wrap_address(env, addr), oi, ra);
+     }
+ }
+ 
+@@ -159,8 +156,7 @@ static void sha512_read_mbl_be64(CPUS390XState *env, const int mmu_idx,
+     const MemOpIdx oi = make_memop_idx(MO_8, mmu_idx);
+ 
+     for (int i = 0; i < 16; i++, addr += 1) {
+-        addr = wrap_address(env, addr);
+-        a[i] = cpu_ldb_mmu(env, addr, oi, ra);
++        a[i] = cpu_ldb_mmu(env, wrap_address(env, addr), oi, ra);
+     }
+ }
+ 
+-- 
+2.43.0
 
-Thank you for your contribution! Sashiko AI review found 20 potential issue=
-(s) to consider:
-- [High] The driver hijacks global system suspend primitives to implement a=
- hardware-specific memory resize operation, causing race conditions and dea=
-dlocks.
-- [High] Allocated pages are freed using an excessively large size calculat=
-ed via `get_order(size)`, leading to adjacent active memory being mistakenl=
-y cleared.
-- [High] The `vpr->lock` mutex is dynamically allocated but never initializ=
-ed.
-- [High] In the chunk recycle loop, the driver uses the wrong loop variable=
- to clear active and dirty bits, corrupting the chunk bitmap state.
-- [High] Unchecked access to `dev->driver->pm->freeze` causes a kernel pani=
-c if a device has no PM ops.
-- [High] Concurrent modification and traversal of the `vpr->devices` list.
-- [High] Using `phys_to_page()` on `no-map` reserved memory yields invalid =
-page pointers.
-- [High] A race between module initialization and device probing can cause =
-a NULL pointer dereference in `tegra_vpr_device_init`.
-- [High] `tegra_vpr_resize` returns success (0) even if freezing a device f=
-ails and the hardware VPR is never resized, bypassing memory protections.
-- [High] Integer truncation in the `num_pages` calculation allows massive D=
-MA-BUF sizes to be allocated with 0 backing pages, leading to immediate ker=
-nel panics when mapped.
-- [High] CMA memory is released before the VPR hardware firewall is removed.
-- [Medium] The error recovery path in `tegra_vpr_recycle()` fails to restor=
-e the `vpr->active` bitmap.
-- [Medium] Device node pointers are saved without taking reference counts, =
-leading to UAF and a memory leak of the `/reserved-memory` node.
-- [Medium] `tegra_vpr_find_free_region` passes `vpr->num_pages - 1` as the =
-`end_page` boundary, preventing allocation of the last page of the VPR.
-- [Medium] `kmalloc_array` is used to allocate an excessively large page po=
-inter array.
-- [Medium] Active VPR chunks are not deactivated if `dma_buf_export` fails.
-- [Medium] `tegra_vpr_resize` calls `freeze_processes()` but the driver lac=
-ks a `CONFIG_FREEZER` or `CONFIG_PM_SLEEP` dependency.
-- [Medium] Lockless iteration of `vpr->buffers` in debugfs exposes a TOCTOU=
- list corruption race.
-- [Medium] Negative bit shift when `vpr->size` is small, and chunk setup ca=
-n create 0-sized chunks.
-- [Low] Typo in `attach->dev` initialization results in self-assignment of =
-a zero-initialized field.
---
-
-commit 4c286d7ffd5b9cd569447863a311213170bdfb04
-Author: Thierry Reding <treding@nvidia.com>
-Subject: dma-buf: heaps: Add support for Tegra VPR
-
-This commit exposes the Tegra Video-Protection-Region (VPR) as a DMA heap.
-The memory region is dynamically resized by freezing userspace processes and
-allocating/freeing chunks via CMA.
-
-> diff --git a/drivers/dma-buf/heaps/Kconfig b/drivers/dma-buf/heaps/Kconfig
-> index bb729e91545c4..dd6035598d028 100644
-> --- a/drivers/dma-buf/heaps/Kconfig
-> +++ b/drivers/dma-buf/heaps/Kconfig
-[ ... ]
-> @@ -20,3 +20,10 @@ config DMABUF_HEAPS_CMA
->  	  Choose this option to enable dma-buf CMA heap. This heap is backed
->  	  by the Contiguous Memory Allocator (CMA). If your system has these
->  	  regions, you should say Y here.
-> +
-> +config DMABUF_HEAPS_TEGRA_VPR
-> +	bool "NVIDIA Tegra Video-Protected-Region DMA-BUF Heap"
-> +	depends on DMABUF_HEAPS && DMA_CMA
-
-[Severity: Medium]
-Should DMABUF_HEAPS_TEGRA_VPR depend on CONFIG_FREEZER or CONFIG_PM_SLEEP?
-
-Since vpr->use_freezer is true, if CONFIG_FREEZER is disabled,
-freeze_processes() evaluates to a static inline function returning -ENOSYS.
-This will cause the VPR resize operations to unconditionally fail.
-
-> +	help
-> +	  Choose this option to enable Video-Protected-Region (VPR) support on
-> +	  a range of NVIDIA Tegra devices.
-> diff --git a/drivers/dma-buf/heaps/tegra-vpr.c b/drivers/dma-buf/heaps/te=
-gra-vpr.c
-> new file mode 100644
-> index 0000000000000..918cf66ec222c
-> --- /dev/null
-> +++ b/drivers/dma-buf/heaps/tegra-vpr.c
-[ ... ]
-> +static int tegra_vpr_resize(struct tegra_vpr *vpr)
-> +{
-> +	struct tegra_vpr_device *node;
-> +	phys_addr_t base, size;
-> +	int err, status =3D 0;
-> +
-> +	err =3D tegra_vpr_get_extents(vpr, &base, &size);
-> +	if (err < 0) {
-> +		pr_err("%s(): failed to get VPR extents: %d\n", __func__, err);
-> +		return err;
-> +	}
-> +
-> +	if (vpr->use_freezer) {
-> +		err =3D freeze_processes();
-
-[Severity: High]
-Is it safe to invoke the global task freezer from within a device driver's
-allocation path?
-
-In tegra_vpr_allocate(), mutex_lock(&vpr->lock) is held, which places the
-current task in TASK_UNINTERRUPTIBLE. tegra_vpr_resize() then conditionally
-calls freeze_processes(). If another userspace task is concurrently waiting
-for vpr->lock, it cannot be frozen because it is in an uninterruptible sleep
-state, and the freeze operation will time out and fail.
-
-> +		if (err < 0) {
-> +			pr_err("%s(): failed to freeze processes: %d\n",
-> +			       __func__, err);
-> +			return err;
-> +		}
-> +	}
-> +
-> +	list_for_each_entry(node, &vpr->devices, node) {
-
-[Severity: High]
-Are the vpr->devices list modifications protected against concurrent
-traversal?
-
-tegra_vpr_device_init() and tegra_vpr_device_release() modify the list
-without holding vpr->lock, while this traversal relies on the lock. If a
-device binds or unbinds while a VPR resize is active, the list pointers
-could become corrupted during the traversal.
-
-> +		err =3D pm_generic_freeze(node->dev);
-> +		if (err < 0) {
-> +			pr_err("failed to runtime suspend %s: %d\n",
-> +			       dev_name(node->dev), err);
-> +			goto thaw;
-
-[Severity: High]
-Does this error path inadvertently return success?
-
-The status variable is initialized to 0, and if pm_generic_freeze() fails,
-the code jumps to the thaw label without updating status. The function then
-returns 0, falsely indicating that the hardware VPR was successfully resize=
-d,
-potentially compromising memory protections.
-
-> +		}
-> +	}
-[ ... ]
-> +static int tegra_vpr_find_free_region_in_range(struct tegra_vpr *vpr,
-> +					       unsigned int start_page,
-> +					       unsigned int end_page,
-> +					       unsigned int num_pages,
-> +					       unsigned int align)
-> +{
-> +	unsigned int pos, next =3D ALIGN(start_page, align);
-> +
-> +	/* Scan through aligned positions, trying to allocate at each one */
-> +	for (pos =3D next; pos + num_pages <=3D end_page; pos =3D next) {
-
-[Severity: Medium]
-Could this prevent the allocation of the final page of the VPR?
-
-tegra_vpr_find_free_region() passes vpr->num_pages - 1 as the end_page
-parameter. This loop condition treats end_page as an exclusive boundary.
-If attempting to allocate a buffer right at the end of the VPR, this
-boundary check will evaluate to false and fail the allocation.
-
-> +		next =3D find_next_bit(vpr->bitmap, pos + num_pages, pos);
-[ ... ]
-> +static struct tegra_vpr_buffer *
-> +tegra_vpr_buffer_allocate(struct tegra_vpr *vpr, size_t size)
-> +{
-> +	unsigned int num_pages =3D size >> PAGE_SHIFT;
-
-[Severity: High]
-Can the 64-bit size parameter overflow the 32-bit unsigned int num_pages?
-
-Shifting a massive size by PAGE_SHIFT could result in a value that truncates
-to 0 in num_pages. This would cause kmalloc_array(0) to return ZERO_SIZE_PT=
-R,
-which could lead to an immediate kernel panic when the buffer is later mapp=
-ed.
-
-> +	unsigned int order =3D get_order(size);
-> +	struct tegra_vpr_buffer *buffer;
-> +	unsigned long first, last;
-> +	int pageno, err;
-> +	pgoff_t i;
-[ ... ]
-> +	buffer->pages =3D kmalloc_array(buffer->num_pages,
-> +				      sizeof(*buffer->pages),
-> +				      GFP_KERNEL);
-
-[Severity: Medium]
-Will this order-10 contiguous allocation reliably succeed on a heavily
-utilized system?
-
-If the VPR is sized for multi-gigabyte video frames (e.g., a 2 GiB allocati=
-on
-requires 524,288 pages), kmalloc_array() will require multiple megabytes of
-contiguous physical memory. This is highly likely to fail due to fragmentat=
-ion.
-Would kvmalloc_array() be more appropriate here?
-
-> +	if (!buffer->pages) {
-> +		err =3D -ENOMEM;
-> +		goto free;
-> +	}
-[ ... ]
-> +static void tegra_vpr_buffer_release(struct tegra_vpr_buffer *buffer)
-> +{
-> +	struct tegra_vpr *vpr =3D buffer->vpr;
-> +	struct tegra_vpr_buffer *entry;
-> +	unsigned long first, last;
-> +	unsigned int i;
-[ ... ]
-> +	bitmap_release_region(vpr->bitmap, buffer->pageno, buffer->order);
-
-[Severity: High]
-Does this logic mistakenly clear adjacent active memory?
-
-In tegra_vpr_buffer_allocate(), the allocation sets exactly num_pages bits
-in vpr->bitmap. However, here it clears bits using buffer->order which is
-calculated as get_order(size). Since get_order() rounds up to the next power
-of two, non-power-of-two sizes will cause too many bits to be released
-(e.g., a 5-page allocation sets 5 bits but order 3 clears 8 bits). This cou=
-ld
-mark adjacent pages belonging to other active allocations as free, leading
-to reallocation and data corruption.
-
-> +	list_del(&buffer->list);
-> +	kfree(buffer->pages);
-> +	kfree(buffer);
-[ ... ]
-> +static int tegra_vpr_attach(struct dma_buf *buf,
-> +			    struct dma_buf_attachment *attachment)
-> +{
-> +	struct tegra_vpr_buffer *buffer =3D buf->priv;
-> +	struct tegra_vpr_attachment *attach;
-> +	int err;
-> +
-> +	attach =3D kzalloc_obj(*attach, GFP_KERNEL);
-> +	if (!attach)
-> +		return -ENOMEM;
-> +
-> +	err =3D sg_alloc_table_from_pages(&attach->sgt, buffer->pages,
-> +					buffer->num_pages, 0, buffer->size,
-> +					GFP_KERNEL);
-> +	if (err < 0)
-> +		goto free;
-> +
-> +	attach->dev =3D attach->dev;
-
-[Severity: Low]
-Is this field meant to be initialized from attachment->dev?
-
-As written, it assigns the zero-allocated field back to itself, leaving
-attach->dev uninitialized.
-
-> +	INIT_LIST_HEAD(&attach->list);
-> +	attachment->priv =3D attach;
-[ ... ]
-> +static void tegra_vpr_recycle(struct tegra_vpr *vpr)
-> +{
-> +	DECLARE_BITMAP(dirty, vpr->num_chunks);
-> +	unsigned int i;
-> +	int err;
-> +
-> +	bitmap_zero(dirty, vpr->num_chunks);
-> +
-> +	/*
-> +	 * Deactivate any unused chunks from the bottom...
-> +	 */
-> +	for (i =3D 0; i < vpr->num_chunks; i++) {
-> +		struct tegra_vpr_chunk *chunk =3D &vpr->chunks[i];
-> +
-> +		if (!chunk->active)
-> +			continue;
-> +
-> +		if (chunk->num_buffers > 0)
-> +			break;
-> +
-> +		err =3D tegra_vpr_chunk_deactivate(chunk);
-
-[Severity: High]
-Is the CMA memory released back to the general pool before the VPR hardware
-firewall is removed?
-
-tegra_vpr_chunk_deactivate() immediately calls cma_release(), making the
-memory available to other subsystems. The firewall isn't removed until
-tegra_vpr_resize() is called afterward. Any CPU access to the newly
-re-allocated memory before the firewall is disabled could cause a hardware
-bus error or CPU crash.
-
-> +		if (err < 0)
-> +			pr_err("failed to deactivate chunk #%u\n", i);
-> +		else {
-> +			clear_bit(i, vpr->active);
-> +			set_bit(i, dirty);
-> +		}
-> +	}
-> +
-> +	/*
-> +	 * ... and the top.
-> +	 */
-> +	for (i =3D 0; i < vpr->num_chunks; i++) {
-> +		unsigned int index =3D vpr->num_chunks - i - 1;
-> +		struct tegra_vpr_chunk *chunk =3D &vpr->chunks[index];
-> +
-> +		if (!chunk->active)
-> +			continue;
-> +
-> +		if (chunk->num_buffers > 0)
-> +			break;
-> +
-> +		err =3D tegra_vpr_chunk_deactivate(chunk);
-> +		if (err < 0)
-> +			pr_err("failed to deactivate chunk #%u\n", index);
-> +		else {
-> +			clear_bit(i, vpr->active);
-
-[Severity: High]
-Could this loop corrupt the chunk bitmap state?
-
-The top chunk loop iterates over the chunks from the top down using the
-calculated index (vpr->num_chunks - i - 1), but when modifying the bitmap,
-it clears bit i instead of the calculated index. This could deactivate the
-top chunk in hardware but mark the bottom chunk as inactive in the software
-bitmap.
-
-> +			set_bit(i, dirty);
-> +		}
-> +	}
-[ ... ]
-> +activate:
-> +	for_each_set_bit(i, dirty, vpr->num_chunks) {
-> +		err =3D tegra_vpr_chunk_activate(&vpr->chunks[i]);
-
-[Severity: Medium]
-Should this error recovery path also restore the bit in vpr->active?
-
-If tegra_vpr_resize() fails, the code jumps here and successfully calls
-tegra_vpr_chunk_activate(), but it doesn't set the bit in vpr->active.
-Since the bit was cleared in the deactivation loop, the software state
-will indicate the chunk is free, breaking internal tracking.
-
-> +		if (WARN_ON(err < 0))
-> +			pr_err("failed to activate chunk #%u: %d\n", i, err);
-> +	}
-> +}
-[ ... ]
-> +static struct dma_buf *tegra_vpr_allocate(struct dma_heap *heap,
-> +					  unsigned long len, u32 fd_flags,
-> +					  u64 heap_flags)
-> +{
-> +	struct tegra_vpr *vpr =3D dma_heap_get_drvdata(heap);
-> +	struct tegra_vpr_buffer *buffer, *entry;
-> +	size_t size =3D ALIGN(len, vpr->align);
-> +	DEFINE_DMA_BUF_EXPORT_INFO(export);
-> +	struct dma_buf *buf;
-> +
-> +	mutex_lock(&vpr->lock);
-
-[Severity: High]
-Could the uninitialized vpr->lock cause a system crash?
-
-The tegra_vpr structure is allocated using kzalloc_obj(), which
-zero-initializes the memory, but mutex_init(&vpr->lock) is never called.
-When this function attempts to acquire the lock, it interacts with an
-uninitialized mutex, which can trigger warnings or a kernel panic.
-
-> +
-> +	buffer =3D tegra_vpr_buffer_allocate(vpr, size);
-[ ... ]
-> +	buf =3D dma_buf_export(&export);
-> +	if (IS_ERR(buf))
-> +		tegra_vpr_buffer_release(buffer);
-
-[Severity: Medium]
-Should the active VPR chunks be deactivated if dma_buf_export() fails?
-
-tegra_vpr_buffer_release() decrements the chunk use counts but does not
-deactivate the chunks. A missing call to tegra_vpr_recycle() could mean
-chunks successfully activated during this allocation attempt remain pinned
-in CMA indefinitely.
-
-> +
-> +	mutex_unlock(&vpr->lock);
-> +	return buf;
-> +}
-> +
-> +static void tegra_vpr_debugfs_show_buffers(struct tegra_vpr *vpr,
-> +					   struct seq_file *s)
-> +{
-> +	struct tegra_vpr_buffer *buffer;
-> +	char buf[16];
-> +
-> +	list_for_each_entry(buffer, &vpr->buffers, list) {
-
-[Severity: Medium]
-Is it safe to traverse the shared vpr->buffers list without holding vpr->lo=
-ck?
-
-Concurrent buffer allocations or releases could modify the list pointers
-mid-traversal, potentially causing a kernel panic when reading the debugfs
-node.
-
-> +		string_get_size(buffer->size, 1, STRING_UNITS_2, buf,
-> +				sizeof(buf));
-> +		seq_printf(s, "  %pap-%pap (%s)\n", &buffer->start,
-> +			   &buffer->limit, buf);
-> +
-> +	}
-> +}
-[ ... ]
-> +static int tegra_vpr_setup_chunks(struct tegra_vpr *vpr, const char *nam=
-e)
-> +{
-> +	phys_addr_t start, limit;
-> +	unsigned int order, i;
-> +	size_t max_size;
-> +	int err;
-> +
-> +	/* This seems a reasonable value, so hard-code this for now. */
-> +	vpr->num_chunks =3D 4;
-> +
-> +	vpr->chunks =3D kcalloc(vpr->num_chunks, sizeof(*vpr->chunks),
-> +			      GFP_KERNEL);
-> +	if (!vpr->chunks)
-> +		return -ENOMEM;
-> +
-> +	max_size =3D PAGE_SIZE << (get_order(vpr->size) - ilog2(vpr->num_chunks=
-));
-
-[Severity: Medium]
-Could this bit shift result in a negative shift amount?
-
-If the device tree specifies a small VPR size, get_order(vpr->size) might
-be 0, and subtracting ilog2(vpr->num_chunks) (e.g., 2) would result in -2.
-Shifting PAGE_SIZE by a negative amount causes undefined behavior.
-
-> +	order =3D get_order(vpr->align);
-[ ... ]
-> +static int __init tegra_vpr_add_heap(struct reserved_mem *rmem,
-> +				     struct device_node *np)
-> +{
-> +	struct dma_heap_export_info info =3D {};
-> +	unsigned long first, last;
-> +	struct dma_heap *heap;
-> +	struct tegra_vpr *vpr;
-> +	int err;
-> +
-> +	vpr =3D kzalloc_obj(*vpr, GFP_KERNEL);
-> +	if (!vpr)
-> +		return -ENOMEM;
-> +
-> +	INIT_LIST_HEAD(&vpr->buffers);
-> +	INIT_LIST_HEAD(&vpr->devices);
-> +	vpr->resizable =3D !of_property_read_bool(np, "no-map");
-> +	vpr->use_freezer =3D true;
-> +	vpr->dev_node =3D np;
-
-[Severity: Medium]
-Does this code leak the device node reference?
-
-When storing the child node pointer in vpr->dev_node, should it be acquiring
-a reference with of_node_get()? The scoped loop in tegra_vpr_init() will dr=
-op
-its reference when it finishes, which could leave a dangling pointer here.
-
-> +	vpr->align =3D PAGE_SIZE;
-> +	vpr->base =3D rmem->base;
-> +	vpr->size =3D rmem->size;
-> +
-> +	/* common setup */
-> +	vpr->start_page =3D phys_to_page(vpr->base);
-
-[Severity: High]
-Can phys_to_page() safely be used if the VPR device tree node specifies no-=
-map?
-
-If the memory is removed from the direct mapping, there is no valid struct
-page array associated with it. Calling phys_to_page() here and later
-dereferencing these page pointers in tegra_vpr_attach() via
-sg_alloc_table_from_pages() could cause a system crash.
-
-> +	vpr->num_pages =3D vpr->size >> PAGE_SHIFT;
-[ ... ]
-> +static int __init tegra_vpr_init(void)
-> +{
-> +	const char *compatible =3D "nvidia,tegra-video-protection-region";
-> +	struct device_node *parent;
-> +	struct reserved_mem *rmem;
-> +	int err;
-> +
-> +	parent =3D of_find_node_by_path("/reserved-memory");
-
-[Severity: Medium]
-Does this code leak the device node reference?
-
-of_find_node_by_path() increments the reference count for the
-/reserved-memory node, but there doesn't seem to be a matching of_node_put()
-call.
-
-> +	if (!parent)
-> +		return 0;
-[ ... ]
-> +static int tegra_vpr_device_init(struct reserved_mem *rmem, struct devic=
-e *dev)
-> +{
-> +	struct dma_heap *heap =3D rmem->priv;
-> +	struct tegra_vpr *vpr =3D dma_heap_get_drvdata(heap);
-
-[Severity: High]
-Could a hardware device probing before the module initialization runs cause
-a NULL pointer dereference?
-
-tegra_vpr_rmem_ops is registered early via RESERVEDMEM_OF_DECLARE. If a
-device probes before tegra_vpr_init() executes, tegra_vpr_device_init() will
-be called while rmem->priv is still NULL, causing dma_heap_get_drvdata() to
-dereference a NULL pointer.
-
-> +	struct tegra_vpr_device *node;
-> +
-> +	if (!dev->driver->pm->freeze || !dev->driver->pm->thaw)
-
-[Severity: High]
-Can this unconditionally dereference a NULL pointer?
-
-If the device's driver does not provide PM operations (dev->driver->pm is
-NULL), this check will cause a kernel panic during device probe.
-
-> +		return -EINVAL;
-> +
-> +	node =3D kzalloc_obj(*node, GFP_KERNEL);
-> +	if (!node)
-> +		return -ENOMEM;
-> +
-> +	INIT_LIST_HEAD(&node->node);
-> +	node->dev =3D dev;
-> +
-> +	list_add_tail(&node->node, &vpr->devices);
-> +
-> +	return 0;
-> +}
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260701-tegra-vpr-=
-v3-0-d80f7b871bb4@nvidia.com?part=3D8
