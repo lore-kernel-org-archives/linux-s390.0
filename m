@@ -1,135 +1,132 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9AD2E3939A4
-	for <linux-s390@vger.kernel.org>; Wed,  1 Jul 2026 18:32:41 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 368B3431E7A;
+	Wed,  1 Jul 2026 19:53:11 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782930762; cv=none; b=AFtx0VtmUizxBuBhH55ZrfmQu2SaVeCHma47i7tk+pB9uShwJzlLxS2ziqqq0IFhAZChcbnhV5lgVsTc7vVNSqCKRG4Oqb/iJCEWO4ls1yp+p12w/kpBzjWfuvbTLb/sDKdaCq/6+VjRXc8hW6MQrz69OtkI+P4+HcIfA9rjt6I=
+	t=1782935593; cv=none; b=GgMF8YKHZ/JJBVMjPZNG2BtnfUkoACVEJDba3QGYt58xPDP99gp1i7O5xnrXSqqQxjAs8HBtI/WuYl4zrO7o1wP08rC+dhFWZBN/59sdzc6QBkB79mIOjaGb7ChOyJkNhM5UUbKYfyZqloUD7Z2rCk7tsd2p/8z1fyJS+14V9Cc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782930762; c=relaxed/simple;
-	bh=nnOdkZ839dTacMtunbH9M8x9gx+2wPdTaFrQO+KdrBA=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=DLKvWKLp8ZLzgAxhw9Fwkub+a80nmYADSv+vrbgASBL9yyMwyRQvblCOgerHlT1NF/zjxElpkABBGx88l7Qz2Y3HLCWYwjglc9indpn0YEDwP3PfheQ6eR2p1Iv1rIRHByylBMlvdkOIJqzbpPMccl9QC4SGe1Vu5EoZrpOmRLw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OqXlL7D9; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1782935593; c=relaxed/simple;
+	bh=dls7ew1+DYfJVASM/Ls/ff51kSQcSlGjKUlKVbrcrxs=;
+	h=Date:Content-Type:MIME-Version:From:Cc:To:In-Reply-To:References:
+	 Message-Id:Subject; b=PQM8Cy2Za1lzz7+ocF7hZYvBGH90Aa80frF0+sojwZW8IL0OS4sfo+g0gKzpmROMTjGxsbY23CEAlURzwK0h80P3BA0MKV8Fgck8WZt9+0Io41aRtn2ehu35zEOUl69iiVc+Gm91QRM13+0Hnh/Sxet6gmoY5Buq2rJEUPHuunM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SW5Xw1L4; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OqXlL7D9"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED0B71F000E9;
-	Wed,  1 Jul 2026 18:32:40 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SW5Xw1L4"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9DA4B1F000E9;
+	Wed,  1 Jul 2026 19:53:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782930761;
-	bh=xWWWlyGl3Y17NCTySDqt+jHXocWWL1S5+Th8aqT2C8U=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=OqXlL7D9BB9makq9uVuIDw886CLx6yAX3g/cvWEsBsiAj15kiWhQbZK8ifEtn2hha
-	 H1IGdruqCjnRQvXFoGt4S7lo6miVBP+CWqBWlHDqP7o3yobbshuxzUidk7+Ud8weUL
-	 FuiZaxJwUdYWRo43NTf9SmZEiBcK0Dw8nxuGE3LnyAGkMMx+ojcjNFUNXWMnEcMHSP
-	 RJZq3QwviO3SwTQb7fNMN+FBYyzbyBitYwAFYrfxepU03a1e3iVpfnK/EWuUHezHjw
-	 iuhDuyiyKvycgQc/gx75Vqj9Ro3gfM2BD7A9SmHF/yRn8UBLZmam0YDGZwZW6qmGvH
-	 PHB8VHZra/5+Q==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH net v2] net/smc: fix UAF in smc_cdc_rx_handler() by
- pinning the socket
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Xiang Mei" <xmei5@asu.edu>
-Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
- Carstens" <hca@linux.ibm.com>
-In-Reply-To: <20260630183227.2044998-1-xmei5@asu.edu>
-References: <20260630183227.2044998-1-xmei5@asu.edu>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 01 Jul 2026 18:32:40 +0000
-Message-Id: <20260701183240.ED0B71F000E9@smtp.kernel.org>
+	s=k20260515; t=1782935591;
+	bh=Btp8Coh0/YDoX5eWIBILnB6rkqO9aOJKzbTAJEfWmYk=;
+	h=Date:From:Cc:To:In-Reply-To:References:Subject;
+	b=SW5Xw1L4n6km0go7iiQIUMhYp6NAfj0RV6eYQqCVHodCALEB8dTOYsfQaNULAMbqI
+	 xB7nUW5AdUfmj/kfqGM0ge94GbUCCvRDC/EQnSopZqdpLC3YWJPU3hhxzoB7TiuMXK
+	 rgwksGyFQDkLQ4L1Zv//reedGipqwPdRgCwYfIYn7SUowcW/xIaoKQgA7tLYyowF21
+	 vtZqvsjUt5lA/qYPA9GV1RiCdmGczJhLUDM+otUG+k4cTl/W4Sjha1gMK6icACBU9B
+	 4gKGJaZ253aNPnE8hxuMfX5mHW4TnINK1IFn2iP7EiwQlNNuW7HvzKuCaOFexbJrlV
+	 u/4ONeNo3HSXg==
+Date: Wed, 01 Jul 2026 14:53:10 -0500
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+From: "Rob Herring (Arm)" <robh@kernel.org>
+Cc: Christian Borntraeger <borntraeger@linux.ibm.com>, 
+ Rasmus Villemoes <linux@rasmusvillemoes.dk>, 
+ dri-devel@lists.freedesktop.org, David Hildenbrand <david@kernel.org>, 
+ Yury Norov <yury.norov@gmail.com>, linux-media@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, Robin Murphy <robin.murphy@arm.com>, 
+ Simona Vetter <simona@ffwll.ch>, linux-trace-kernel@vger.kernel.org, 
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ =?utf-8?q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>, 
+ linux-mm@kvack.org, Russell King <linux@armlinux.org.uk>, 
+ Will Deacon <will@kernel.org>, Masami Hiramatsu <mhiramat@kernel.org>, 
+ David Airlie <airlied@gmail.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+ Benjamin Gaignard <benjamin.gaignard@collabora.com>, 
+ linaro-mm-sig@lists.linaro.org, Heiko Carstens <hca@linux.ibm.com>, 
+ Sumit Semwal <sumit.semwal@linaro.org>, Thierry Reding <treding@nvidia.com>, 
+ Maxime Ripard <mripard@kernel.org>, 
+ Thierry Reding <thierry.reding@gmail.com>, John Stultz <jstultz@google.com>, 
+ Luca Ceresoli <luca.ceresoli@bootlin.com>, 
+ Vlastimil Babka <vbabka@kernel.org>, Brian Starkey <Brian.Starkey@arm.com>, 
+ Mikko Perttunen <mperttunen@nvidia.com>, Michal Hocko <mhocko@suse.com>, 
+ Steven Rostedt <rostedt@goodmis.org>, 
+ Jonathan Hunter <jonathanh@nvidia.com>, 
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
+ Sowjanya Komatineni <skomatineni@nvidia.com>, 
+ Suren Baghdasaryan <surenb@google.com>, 
+ linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, 
+ devicetree@vger.kernel.org, "Liam R. Howlett" <liam@infradead.org>, 
+ linux-tegra@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>, 
+ Marek Szyprowski <m.szyprowski@samsung.com>, 
+ Conor Dooley <conor+dt@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
+ Andrew Morton <akpm@linux-foundation.org>, 
+ Gerald Schaefer <gerald.schaefer@linux.ibm.com>, 
+ Alexander Gordeev <agordeev@linux.ibm.com>, 
+ Lorenzo Stoakes <ljs@kernel.org>, "T.J. Mercier" <tjmercier@google.com>, 
+ Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, iommu@lists.linux.dev, 
+ Mike Rapoport <rppt@kernel.org>, Sven Schnelle <svens@linux.ibm.com>
+To: Thierry Reding <thierry.reding@kernel.org>
+In-Reply-To: <20260701-tegra-vpr-v3-1-d80f7b871bb4@nvidia.com>
+References: <20260701-tegra-vpr-v3-0-d80f7b871bb4@nvidia.com>
+ <20260701-tegra-vpr-v3-1-d80f7b871bb4@nvidia.com>
+Message-Id: <178293558945.1610040.13281502080616690110.robh@kernel.org>
+Subject: Re: [PATCH v3 01/11] dt-bindings: reserved-memory: Document Tegra
+ VPR
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
 
-Pre-existing issues:
-- [Critical] Concurrent unprotected bitfield modifications in `struct smc_c=
-onnection` can lead to lost updates for `freed`, `killed`, or `out_of_sync`=
- flags, causing reference count underflows and Use-After-Free.
---
+On Wed, 01 Jul 2026 18:08:12 +0200, Thierry Reding wrote:
+> From: Thierry Reding <treding@nvidia.com>
+> 
+> The Video Protection Region (VPR) found on NVIDIA Tegra chips is a
+> region of memory that is protected from CPU accesses. It is used to
+> decode and play back DRM protected content.
+> 
+> It is a standard reserved memory region that can exist in two forms:
+> static VPR where the base address and size are fixed (uses the "reg"
+> property to describe the memory) and a resizable VPR where only the
+> size is known upfront and the OS can allocate it wherever it can be
+> accomodated.
+> 
+> Reviewed-by: Rob Herring (Arm) <robh@kernel.org>
+> Signed-off-by: Thierry Reding <treding@nvidia.com>
+> ---
+> Changes in v2:
+> - add examples for fixed and resizable VPR
+> ---
+>  .../nvidia,tegra-video-protection-region.yaml      | 76 ++++++++++++++++++++++
+>  1 file changed, 76 insertions(+)
+> 
 
-commit 2f1e95dfacd6a1bad8a756fc60b2dadb865fcaac
-Author: Xiang Mei <xmei5@asu.edu>
+My bot found errors running 'make dt_binding_check' on your patch:
 
-net/smc: fix UAF in smc_cdc_rx_handler() by pinning the socket
+yamllint warnings/errors:
 
-This commit fixes a use-after-free in smc_cdc_rx_handler() by taking a sock=
-et
-reference while holding conns_lock. This ensures the connection and socket
-remain valid while the receive handler runs.
+dtschema/dtc warnings/errors:
+/builds/robherring/dt-review-ci/linux/Documentation/devicetree/bindings/reserved-memory/nvidia,tegra-video-protection-region.example.dtb: protected@2a8000000 (nvidia,tegra-video-protection-region): reg: [[2, 2818572288], [0, 1879048192]] is too long
+	from schema $id: http://devicetree.org/schemas/reserved-memory/nvidia,tegra-video-protection-region.yaml
+/builds/robherring/dt-review-ci/linux/Documentation/devicetree/bindings/reserved-memory/nvidia,tegra-video-protection-region.example.dtb: protected@2a8000000 (nvidia,tegra-video-protection-region): Unevaluated properties are not allowed ('no-map', 'reg' were unexpected)
+	from schema $id: http://devicetree.org/schemas/reserved-memory/nvidia,tegra-video-protection-region.yaml
 
-> diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
-> index 619b3bab38248..32d6d03df3214 100644
-> --- a/net/smc/smc_cdc.c
-> +++ b/net/smc/smc_cdc.c
+doc reference errors (make refcheckdocs):
 
-[ ... ]
+See https://patchwork.kernel.org/project/devicetree/patch/20260701-tegra-vpr-v3-1-d80f7b871bb4@nvidia.com
 
-> @@ -483,21 +483,26 @@ static void smc_cdc_rx_handler(struct ib_wc *wc, vo=
-id *buf)
->  	lgr =3D smc_get_lgr(link);
->  	read_lock_bh(&lgr->conns_lock);
->  	conn =3D smc_lgr_find_conn(ntohl(cdc->token), lgr);
-> -	read_unlock_bh(&lgr->conns_lock);
-> -	if (!conn || conn->out_of_sync)
-> +	if (!conn || conn->out_of_sync) {
-> +		read_unlock_bh(&lgr->conns_lock);
->  		return;
-> +	}
->  	smc =3D container_of(conn, struct smc_sock, conn);
-> +	sock_hold(&smc->sk);
-> +	read_unlock_bh(&lgr->conns_lock);
-> =20
->  	if (cdc->prod_flags.failover_validation) {
->  		smc_cdc_msg_validate(smc, cdc, link);
-> -		return;
-> +		goto out;
+The base for the series is generally the latest rc1. A different dependency
+should be noted in *this* patch.
 
-[Severity: Critical]
-This is a pre-existing issue, but can concurrent bitfield modifications in
-struct smc_connection lead to lost updates and a use-after-free?
+If you already ran 'make dt_binding_check' and didn't see the above
+error(s), then make sure 'yamllint' is installed and dt-schema is up to
+date:
 
-In net/smc/smc.h, we have:
+pip3 install dtschema --upgrade
 
-struct smc_connection {
-	...
-	u8			killed : 1;	/* abnormal termination */
-	u8			freed : 1;	/* normal termination */
-	u8			out_of_sync : 1; /* out of sync with peer */
-};
+Please check and re-submit after running the above command yourself. Note
+that DT_SCHEMA_FILES can be set to your schema file to speed up checking
+your schema. However, it must be unset to test all examples with your schema.
 
-When smc_cdc_msg_validate() is called from softirq (tasklet) context here,
-it sets conn->out_of_sync =3D 1 locklessly.
-
-If a softirq interrupts a process context that is simultaneously setting
-conn->freed =3D 1 in smc_conn_free(), or if they execute concurrently on
-different CPUs, the compiler's read-modify-write on the shared byte could
-cause one update to overwrite the other.
-
-If the update to conn->freed =3D 1 is lost, could smc_conn_free() be execut=
-ed
-multiple times on the same connection, bypassing an early if (conn->freed)
-check? This seems like it could underflow the link and link-group reference
-counts, leading to a use-after-free of those structures.
-
->  	}
->  	if (smc_cdc_before(ntohs(cdc->seqno),
->  			   conn->local_rx_ctrl.seqno))
->  		/* received seqno is old */
-> -		return;
-> +		goto out;
-> =20
->  	smc_cdc_msg_recv(smc, cdc);
-> +out:
-> +	sock_put(&smc->sk);
->  }
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260630183227.2044=
-998-1-xmei5@asu.edu?part=3D1
