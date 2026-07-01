@@ -1,204 +1,197 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BED3E43E49B
-	for <linux-s390@vger.kernel.org>; Wed,  1 Jul 2026 15:27:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CCC47342514;
+	Wed,  1 Jul 2026 16:08:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782919640; cv=none; b=EeAXVnlRXvKyhJaCd6we7t8jmr5q9QlXrqQxX7ABLTVIM9WgfqwHYbFvKxQno+NY3n8cLh9g5NgYb2UIka4oecDFOF8C0W3gtklanlnVDzuvIOPImUR9+OG67IFuYfK4XoFpcTNKnaIKCqccsRI21DRAplDHn29m0/i4Q+N7hPM=
+	t=1782922122; cv=none; b=NbzNWgXl2E3Vmf4k1WlTtMl53q1zvN+LBZe7ffuCRo4OUqnue2IVJ8O6Nsg9feM68qfzG3Lg+zS3ncoFPJkP1BeIGd79DygToOLyWGkIRrlr6W9KNuV16ZJhC5d2OaoXVUiExGHLhZ+hTaNdHM0O1EBbVvlJ5nbcet6eA4xfbkQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782919640; c=relaxed/simple;
-	bh=HYrbqswVMwTk4kuKtL5hvsLl3UN33eSIAa6Clnw68Po=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=KweYHvhI+uuebBhCQqxURvCQ/H6VDf5XHukCWZUmwUIWXQsEQc5kmd0Ve9yjWQsKLB7A7oGUzz/OmM0z5gW1BEokL6r4Y59mx67UFX9xpaNQQczvQsYaQpHaHYKMurTc051DJsjGZPCH+eiu358qNS2XCJlobkLfqTVUrovzFtM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=WNX4/XOX; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=EiIoxfZ4; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1782922122; c=relaxed/simple;
+	bh=mcbAkcbsEVWURkcAPa5vFsKErSyQeSmcgEUMd7efj+4=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=WRSDeZbUa7Xv9LfB8I1rd8nbJAzihhd2HFNvI0zB9omtPUvwaxeiCu8GeL/aJuiOzQc1nJB7jzarLx7p6tTpJmChlBTf49BuqNQdPB0PLgwFKsCpiUvLz976HPoVfYLYJ2w8LH7YtRm3LEGvvcdfnYVa3MspKJKtllHnlcFQBEc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DGttkpt2; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="WNX4/XOX";
-	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="EiIoxfZ4"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1782919637;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=auHUwjD5Zohk1V2S34LD+3/BNdV8kbrNPDmWnQVZGEc=;
-	b=WNX4/XOXs+g2OEJiTh3jtK0qqAEVhgHUW5d+A4NwWWOB9nFUk/6RDmswY3IzFoj1YC7Ya8
-	7o98bQlrOCrmhCjVBVvp4pFsSaxPgq3F58CDce+6d0sAhR2v7byZsE2Q34HQi/HN6/5eqQ
-	3+GR8Xk7lJenA7/QpmeaDmrIGW93p3Y=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-516-nmpHEsslPEqCUiTKq90mTQ-1; Wed, 01 Jul 2026 11:27:16 -0400
-X-MC-Unique: nmpHEsslPEqCUiTKq90mTQ-1
-X-Mimecast-MFC-AGG-ID: nmpHEsslPEqCUiTKq90mTQ_1782919635
-Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-47485fde05aso559947f8f.0
-        for <linux-s390@vger.kernel.org>; Wed, 01 Jul 2026 08:27:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=redhat.com; s=google; t=1782919635; x=1783524435; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:content-language:from
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=auHUwjD5Zohk1V2S34LD+3/BNdV8kbrNPDmWnQVZGEc=;
-        b=EiIoxfZ4lh/9INR/6hgveLmGNx7YWbe5NVlWp8IvDO8iR81V/ayYyfsTSPdD85tNO4
-         BzdaXuxPtgD7RoYJilDg/naaK3VpDOKqomf51rYfgB0OcAwopCpD9Pd9nOutvP3N5RH1
-         aObLch26Bd4SDlSEVmcXN6D++2DH8/yJ+CNSPGKogq4rgAmYaafKd6NDdUjksS+cwtyl
-         sa8vnmBlphvg1HIt+q5kW0U27S8pcra0L4qOIBZO8MIWcgaqHbTx6Rifm/VkBPTg0qLm
-         Xw7z/tDpohszQzhGpKPf3XzBMESAsA2GG2ZTK3MuKTPOac3ehd6MxCdiKd9iQOyOEcQW
-         3t0w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782919635; x=1783524435;
-        h=content-transfer-encoding:in-reply-to:content-language:from
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=auHUwjD5Zohk1V2S34LD+3/BNdV8kbrNPDmWnQVZGEc=;
-        b=gb6fbVioHbbR8vvbrkMyIsder4rcIjuXIEmEywpb58Fl+0+q8kU3LptMzcmPmOKTth
-         1m1QpJIlq9N38gblS+7FlWImwPye8MDgWzUed/qi2WWbBuRfJBaDYweKzZY/4yIxR9VJ
-         +GAecbu+3TrMmPOKP6kocGF73vHqACSo7fS9IiszWNyUxw2Qx4+A1rz7uefGafWICOE+
-         XLLXrH1NDKdTcV1rBJ9gNauTynTk47Pzvh/rWnJnEdL71j8Fj7m2BHQI058bEyj1v29n
-         uzkGR1h7dq2PLk4IPmh4NB20Hebz1/7cIVDVYdgzqf/1P1Km9XJhGvzGuT80T3BYFUu7
-         6ANg==
-X-Forwarded-Encrypted: i=1; AHgh+RoKK8pX+McVFtU3DmKV22p1Rc6Y9C3YNzp4Z7/G2aV87Rqii7vfiJNcO/d+JEMy7hRm7iNr8GkVij3O@vger.kernel.org
-X-Gm-Message-State: AOJu0YzXp7Uj/ej1eV/6dwTaZ1AxG0Miz5bmAVcZp5B9meVm8utA7PYo
-	xtvvY7Bi8rOPL3p1nVrprgUEu9c49Ray3QbZLviP5/L588ioPi277/jcIhOiVOXc0gr501WY57X
-	CFiL2DGFkNgoiCG21FjYxQ2LWf+G/DueKgQAX0dunr8DoOBCGmfa2D1fOMA1IgtI=
-X-Gm-Gg: AfdE7cmmUzT6fvcTtrvPaPj0yMpUE5iCBnESc9i32mKnxf4lB0k8uVLuM4vKqlUmMgO
-	EThtCXFOdbtfivTw386cmKXvkdk1dlrJ9peavOPbk1lcUmWka+FTDVG7Wcld8rwY3RzlvrLmAFx
-	f39dpga+QmHLScnJ16kRgc/jfadyrzQtX5BCWlT54uqtTwBJBxXyJ+8xA8Lnzz25xM5TPo1wZnD
-	WG6ggqtoIIX0xB23kxbNRj9OW8Yxyg9y6AOeHjZvjy0ZILiEnpcOsXrHo1FCsI9iCIqbTYz1QXW
-	NqdHZ7A0Thh4UhteGbLdTtL0yFxrtIjDfV/f0GaIzUsYBDATEggnGxSNC1attBlNxLbvg9KJFI1
-	NqGpN40Rmd+g3TD3Q7zfAp6TNUK0QkKaipQJ//ZI+WYTxs4FhFTlPvfSOdRNlYkjTm4lrXYonbR
-	cMBubBVATqzw==
-X-Received: by 2002:a05:6000:186f:b0:475:cd6f:720a with SMTP id ffacd0b85a97d-477571cb959mr3680958f8f.1.1782919635222;
-        Wed, 01 Jul 2026 08:27:15 -0700 (PDT)
-X-Received: by 2002:a05:6000:186f:b0:475:cd6f:720a with SMTP id ffacd0b85a97d-477571cb959mr3680896f8f.1.1782919634784;
-        Wed, 01 Jul 2026 08:27:14 -0700 (PDT)
-Received: from ?IPV6:2a0d:3344:5521:6b10:2eb7:f61a:75:4534? ([2a0d:3344:5521:6b10:2eb7:f61a:75:4534])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-477dd94ce4csm706993f8f.17.2026.07.01.08.27.12
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 01 Jul 2026 08:27:13 -0700 (PDT)
-Message-ID: <c222390f-96c7-4dc3-8f33-f4dd277c3639@redhat.com>
-Date: Wed, 1 Jul 2026 17:27:11 +0200
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DGttkpt2"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD4031F000E9;
+	Wed,  1 Jul 2026 16:08:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1782922121;
+	bh=yhKbdhzWpnCFtUyKxv59KV9t7EFGFM4f9xMCP7qFEVc=;
+	h=From:Subject:Date:To:Cc;
+	b=DGttkpt2Q8nKCRV6vNcCihSl2s2P3sXQXJneb2lgwIMp0raQkYNBn0B1iX9JZDkVQ
+	 k4dG+eTP0xET6M0xHtUZMmPygZeNasR7NNqEs8Ao4tGxxBHVQT0dN0j35xqWlq9F3D
+	 7TsLhvMtgoml/volx9enNoXRvNhfnq/UzStbhMITnm9bZ/xCkB/ptpFu6MST6Do92a
+	 Bo7rV46eIb+rv+nHPcgdEpykB73R3FFnK2I3Ad0Q6npJcf291MYux1yByzq3FPIUbv
+	 xnwNoo5N03lozMT4svu7Zev3XAoIVv3pMjNXbAUDMNWq26FygDt4YyuolIWjGdjhAx
+	 3kDaMQyK3Hasw==
+From: Thierry Reding <thierry.reding@kernel.org>
+Subject: [PATCH v3 00/11] dma-buf: heaps: Add support for Tegra VPR
+Date: Wed, 01 Jul 2026 18:08:11 +0200
+Message-Id: <20260701-tegra-vpr-v3-0-d80f7b871bb4@nvidia.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net v3] net/smc: fix out-of-bounds read when sk_user_data
- holds a sk_psock
-To: Sechang Lim <rhkrqnwk98@gmail.com>, "D . Wythe"
- <alibuda@linux.alibaba.com>, Dust Li <dust.li@linux.alibaba.com>,
- Sidraya Jayagond <sidraya@linux.ibm.com>, Wenjia Zhang
- <wenjia@linux.ibm.com>, "David S . Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>
-Cc: Jiayuan Chen <jiayuan.chen@linux.dev>,
- Mahanta Jambigi <mjambigi@linux.ibm.com>, Tony Lu
- <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>,
- Simon Horman <horms@kernel.org>, Karsten Graul <kgraul@linux.ibm.com>,
- Guvenc Gulce <guvenc@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>,
- linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org, bpf@vger.kernel.org
-References: <20260629095140.679754-1-rhkrqnwk98@gmail.com>
-From: Paolo Abeni <pabeni@redhat.com>
-Content-Language: en-US
-In-Reply-To: <20260629095140.679754-1-rhkrqnwk98@gmail.com>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/2WNQQ6CMBBFr2K6ts20lFpceQ/jAstYRgXMFInGc
+ HepxpXLl7z//kskZMIktquXYJwo0dAvUKxXIrR1H1FSs7AwYByUsJEjRq7ldGMZGnsMpoQq2CA
+ W/8Z4osentT98Od2PZwxjDmSjpTQO/PycTTp7ubsUwOjSugKUhcJU3kotx5aQ+akYG+rjLnY1X
+ VUYOpHTk/mNHWhjtNMAlSq8K733/+MLco9XNXAUh3me32psPPb1AAAA
+X-Change-ID: 20260507-tegra-vpr-cd4bc2509c4c
+To: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, 
+ Thierry Reding <thierry.reding@kernel.org>, 
+ Jonathan Hunter <jonathanh@nvidia.com>, David Airlie <airlied@gmail.com>, 
+ Simona Vetter <simona@ffwll.ch>, 
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
+ Sowjanya Komatineni <skomatineni@nvidia.com>, 
+ Luca Ceresoli <luca.ceresoli@bootlin.com>, 
+ Mikko Perttunen <mperttunen@nvidia.com>, Yury Norov <yury.norov@gmail.com>, 
+ Rasmus Villemoes <linux@rasmusvillemoes.dk>, 
+ Russell King <linux@armlinux.org.uk>, 
+ Alexander Gordeev <agordeev@linux.ibm.com>, 
+ Gerald Schaefer <gerald.schaefer@linux.ibm.com>, 
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+ Christian Borntraeger <borntraeger@linux.ibm.com>, 
+ Sven Schnelle <svens@linux.ibm.com>, 
+ Andrew Morton <akpm@linux-foundation.org>, 
+ David Hildenbrand <david@kernel.org>, Lorenzo Stoakes <ljs@kernel.org>, 
+ "Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>, 
+ Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>, 
+ Michal Hocko <mhocko@suse.com>, Marek Szyprowski <m.szyprowski@samsung.com>, 
+ Robin Murphy <robin.murphy@arm.com>, Sumit Semwal <sumit.semwal@linaro.org>, 
+ Benjamin Gaignard <benjamin.gaignard@collabora.com>, 
+ Brian Starkey <Brian.Starkey@arm.com>, John Stultz <jstultz@google.com>, 
+ "T.J. Mercier" <tjmercier@google.com>, 
+ =?utf-8?q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>, 
+ Steven Rostedt <rostedt@goodmis.org>, 
+ Masami Hiramatsu <mhiramat@kernel.org>, 
+ Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, 
+ Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>
+Cc: Thierry Reding <thierry.reding@gmail.com>, devicetree@vger.kernel.org, 
+ linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ dri-devel@lists.freedesktop.org, linux-media@vger.kernel.org, 
+ linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, 
+ linux-mm@kvack.org, iommu@lists.linux.dev, linaro-mm-sig@lists.linaro.org, 
+ linux-trace-kernel@vger.kernel.org, Thierry Reding <treding@nvidia.com>, 
+ Chun Ng <chunn@nvidia.com>
+X-Mailer: b4 0.15.2
+X-Developer-Signature: v=1; a=openpgp-sha256; l=4551; i=treding@nvidia.com;
+ h=from:subject:message-id; bh=mcbAkcbsEVWURkcAPa5vFsKErSyQeSmcgEUMd7efj+4=;
+ b=owEBbQKS/ZANAwAKAd0jrNd/PrOhAcsmYgBqRTuFxsKTwjOCtR5nhntJn2yLMnMlfh6zt+LAH
+ 7ky+Ynu4rmJAjMEAAEKAB0WIQSI6sMIAUnM98CNyJ/dI6zXfz6zoQUCakU7hQAKCRDdI6zXfz6z
+ oQwoD/0TQ8Z6/cD6v/Zn3dSTI8WYQWxtO0vPJo49co9ceBSk7rvwa7sDWVnkq/aSR1DWCnjdTxy
+ MLbFDy8d42e7a8WASPwcb+qxk6A2DE+rORTT8tNXAHjZazxr1zUSNcD7bWpsgKSCx5aPWC1mqKr
+ Qd/jKd8UnMS98mbljjkzPqeLPL+YhkPEpJJP8DVT1i9YQMwxmEaGSZCLxuhhgKgyc30NbeIG/3q
+ RvqF9uzJW+aC+WeXK7CXK/zLuEYuBQWl2Q/o0khZFV5ky9mLOsc/5WLPo1OnbyRnV/MRyFgKLu0
+ 9bgqlw4SvKJ8pCjuf23uADlEoQG7f/dJiiftMDDtoEU8bv0k0MY18tWKYDhHo25E4op4WnnWmTY
+ dT8fZaVl4l76093yChzqBXvDxzh2Z1ScWIvcKyJ7rXameRAxhIOBNUH1fKZSvMHxnwLiu6sz6L+
+ jMDvSC6DYoDG3PkaCo5EHIRC4VLIEaDzOx4W9++lDj28rsNMbaxrT7E4/eaxGxaTxs+GSyK9OuH
+ 75g4ungRoFK/zaOhqHYK6clVpUjduhNhuGaqldgN40zWkEDO5NdGEghVx/3uGHLT0L8XOaUpm1c
+ jYi+cqYAfuQpQnJQ8c3JrVv3P4AeO1rlBm5cvphmRxQRD23EP0kUoWFgxy+eVF+WUSDoRjnyb4X
+ wTi/+K/io8cd7EQ==
+X-Developer-Key: i=treding@nvidia.com; a=openpgp;
+ fpr=88EAC3080149CCF7C08DC89FDD23ACD77F3EB3A1
 
-On 6/29/26 11:51 AM, Sechang Lim wrote:
-> A passive-open child inherits the listener's smc_clcsock_data_ready().
-> sk_clone_lock() clears its sk_user_data to NULL because the listener tagged
-> it SK_USER_DATA_NOCOPY. Until accept restores the callback, a BPF sock_ops
-> program can add the established child to a sockmap, and sk_psock_init()
-> installs a sk_psock into the NULL sk_user_data. The inherited callback then
-> reads it back through smc_clcsock_user_data(), which strips only NOCOPY,
-> takes the sk_psock for an smc_sock, and dereferences a clcsk_* field past
-> its end:
-> 
->   BUG: KASAN: slab-out-of-bounds in smc_clcsock_data_ready+0x84/0x200 net/smc/af_smc.c:2637
->   Read of size 8 at addr ffff8880013b8674 by task syz.6.12484/67930
->    <IRQ>
->    smc_clcsock_data_ready+0x84/0x200 net/smc/af_smc.c:2637
->    tcp_urg+0x24d/0x360 net/ipv4/tcp_input.c:6264
->    tcp_rcv_state_process+0x280d/0x4940 net/ipv4/tcp_input.c:7336
->    tcp_child_process+0x371/0xa50 net/ipv4/tcp_minisocks.c:1002
->    tcp_v4_rcv+0x1eaa/0x2a00 net/ipv4/tcp_ipv4.c:2186
->    [...]
->    </IRQ>
-> 
->   Allocated by task 67930:
->    sk_psock_init+0x142/0x740 net/core/skmsg.c:766
->    sock_hash_update_common+0xd3/0x990 net/core/sock_map.c:1010
->    bpf_sock_hash_update+0x114/0x170 net/core/sock_map.c:1229
->    __cgroup_bpf_run_filter_sock_ops+0x74/0xa0 kernel/bpf/cgroup.c:1727
->    tcp_init_transfer+0x1085/0x1100 net/ipv4/tcp_input.c:6693
->    [...]
-> 
-> Resolve the conflict on the write path. Reserve the child's sk_user_data
-> with a NULL pointer tagged SK_USER_DATA_NOCOPY so sk_psock_init() returns
-> -EBUSY, and release it at accept. smc_clcsock_user_data() still strips the
-> tag to NULL, so the inherited callback stays a no-op.
-> 
-> Fixes: a60a2b1e0af1 ("net/smc: reduce active tcp_listen workers")
-> Signed-off-by: Sechang Lim <rhkrqnwk98@gmail.com>
-> ---
-> v3:
->  - reserve sk_user_data on the write path instead of the read-side check (D. Wythe)
-> 
-> v2:
->  - https://lore.kernel.org/netdev/20260619150342.3626224-1-rhkrqnwk98@gmail.com/
-> 
-> v1:
->  - https://lore.kernel.org/netdev/20260614120931.4041687-1-rhkrqnwk98@gmail.com/
-> 
->  net/smc/af_smc.c | 10 +++++++++-
->  1 file changed, 9 insertions(+), 1 deletion(-)
-> 
-> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-> index b5db69073e20..78f162344fe3 100644
-> --- a/net/smc/af_smc.c
-> +++ b/net/smc/af_smc.c
-> @@ -154,7 +154,11 @@ static struct sock *smc_tcp_syn_recv_sock(const struct sock *sk,
->  					       own_req, opt_child_init);
->  	/* child must not inherit smc or its ops */
->  	if (child) {
-> -		rcu_assign_sk_user_data(child, NULL);
-> +		/* reserve sk_user_data so sockmap cannot claim the slot */
-> +		write_lock_bh(&child->sk_callback_lock);
-> +		__rcu_assign_sk_user_data_with_flags(child, NULL,
-> +						     SK_USER_DATA_NOCOPY);
-> +		write_unlock_bh(&child->sk_callback_lock);
->  
->  		/* v4-mapped sockets don't inherit parent ops. Don't restore. */
->  		if (inet_csk(child)->icsk_af_ops == inet_csk(sk)->icsk_af_ops)
-> @@ -1773,6 +1777,7 @@ static int smc_clcsock_accept(struct smc_sock *lsmc, struct smc_sock **new_smc)
->  	/* new clcsock has inherited the smc listen-specific sk_data_ready
->  	 * function; switch it back to the original sk_data_ready function
->  	 */
-> +	write_lock_bh(&new_clcsock->sk->sk_callback_lock);
->  	new_clcsock->sk->sk_data_ready = lsmc->clcsk_data_ready;
->  
->  	/* if new clcsock has also inherited the fallback-specific callback
-> @@ -1786,6 +1791,9 @@ static int smc_clcsock_accept(struct smc_sock *lsmc, struct smc_sock **new_smc)
->  		if (lsmc->clcsk_error_report)
->  			new_clcsock->sk->sk_error_report = lsmc->clcsk_error_report;
->  	}
-> +	/* release the slot reserved in smc_tcp_syn_recv_sock() */
-> +	rcu_assign_sk_user_data(new_clcsock->sk, NULL);
-> +	write_unlock_bh(&new_clcsock->sk->sk_callback_lock);
+This series adds support for the video protection region (VPR) used on
+Tegra SoC devices. It's a special region of memory that is protected
+from accesses by the CPU and used to store DRM protected content (both
+decrypted stream data as well as decoded video frames).
 
-Sashiko reports that this still cause problem on fallback.
+Patches 1 through 3 add DT binding documentation for the VPR and add the
+VPR to the list of memory-region items for display, host1x and NVDEC.
 
-@Wythe, I understand from previous discussion that you would prefer to
-address such issues separately (and thus you are fine with the patch in
-the current form). Could you please confirm?
+New set_memory_device() and set_memory_normal() helpers are defined in
+patch 4 and will subsequently be used to set the memory type of the VPR
+to make sure it won't be accessed by the CPU once it's made part of the
+protected region.
 
-/P
->  
->  	(*new_smc)->clcsock = new_clcsock;
->  out:
+Patch 5 adds bitmap_allocate(), which is like bitmap_allocate_region()
+but works on sizes that are not a power of two.
+
+Patch 6 introduces new APIs needed by the Tegra VPR implementation that
+allow CMA areas to be dynamically created at runtime rather than using
+the fixed, system-wide list. This is used in this driver specifically
+because it can use an arbitrary number of these areas (though they are
+currently limited to 4).
+
+Patch 7 adds some infrastructure for DMA heap implementations to provide
+information through debugfs.
+
+The Tegra VPR implementation is added in patch 8. See its commit message
+for more details about the specifics of this implementation.
+
+Finally, patches 9-11 add the VPR placeholder node on Tegra234 and
+Tegra264 and hook it up to the host1x node so that it can make use of
+this region.
+
+Changes in v3:
+- Link to v2: https://patch.msgid.link/20260122161009.3865888-1-thierry.reding@kernel.org
+- introduce set_memory_device() and set_memory_normal()
+- rename VPR nodes to "protected"
+- add Tegra264 placeholder nodes
+
+Changes in v2:
+- Link to v1: https://patch.msgid.link/20250902154630.4032984-1-thierry.reding@gmail.com
+- Tegra VPR implementation is now more optimized to reduce the number of
+  (very slow) resize operations, and allows cross-chunk allocations
+- dynamic CMA areas are now trackd separately from static ones, but the
+  global number of CMA pages accounts for all areas
+
+Thierry
+
+Signed-off-by: Thierry Reding <treding@nvidia.com>
+---
+Chun Ng (1):
+      arm64/mm: Add set_memory_device() and set_memory_normal()
+
+Thierry Reding (10):
+      dt-bindings: reserved-memory: Document Tegra VPR
+      dt-bindings: display: tegra: Document memory regions
+      dt-bindings: gpu: host1x: Document memory-regions for NVDEC
+      bitmap: Add bitmap_allocate() function
+      mm/cma: Allow dynamically creating CMA areas
+      dma-buf: heaps: Add debugfs support
+      dma-buf: heaps: Add support for Tegra VPR
+      arm64: tegra: Add VPR placeholder node on Tegra234
+      arm64: tegra: Hook up VPR to host1x
+      arm64: tegra: Add VPR placeholder node on Tegra264
+
+ .../display/tegra/nvidia,tegra124-vic.yaml         |    8 +
+ .../bindings/display/tegra/nvidia,tegra186-dc.yaml |   10 +
+ .../bindings/display/tegra/nvidia,tegra20-dc.yaml  |   10 +-
+ .../display/tegra/nvidia,tegra20-host1x.yaml       |    7 +
+ .../bindings/gpu/host1x/nvidia,tegra234-nvdec.yaml |    8 +
+ .../nvidia,tegra-video-protection-region.yaml      |   76 ++
+ arch/arm/mm/dma-mapping.c                          |    2 +-
+ arch/arm64/boot/dts/nvidia/tegra234.dtsi           |   45 +
+ arch/arm64/boot/dts/nvidia/tegra264.dtsi           |   33 +
+ arch/arm64/include/asm/set_memory.h                |    2 +
+ arch/arm64/mm/pageattr.c                           |   16 +
+ arch/s390/mm/init.c                                |    2 +-
+ drivers/dma-buf/dma-heap.c                         |   56 +
+ drivers/dma-buf/heaps/Kconfig                      |    7 +
+ drivers/dma-buf/heaps/Makefile                     |    1 +
+ drivers/dma-buf/heaps/tegra-vpr.c                  | 1242 ++++++++++++++++++++
+ include/linux/bitmap.h                             |   25 +-
+ include/linux/cma.h                                |    8 +-
+ include/linux/dma-heap.h                           |    2 +
+ include/linux/set_memory.h                         |   11 +
+ include/trace/events/tegra_vpr.h                   |   57 +
+ kernel/dma/contiguous.c                            |    2 +-
+ mm/cma.c                                           |  187 ++-
+ mm/cma.h                                           |    5 +-
+ 24 files changed, 1775 insertions(+), 47 deletions(-)
+---
+base-commit: 703daa6d046136affd69f2a2e08f36ac4a7d5b2c
+change-id: 20260507-tegra-vpr-cd4bc2509c4c
+
+Best regards,
+--  
+Thierry Reding <treding@nvidia.com>
 
