@@ -1,121 +1,141 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5A38139B971
-	for <linux-s390@vger.kernel.org>; Wed,  1 Jul 2026 06:08:27 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 418B4386C24
+	for <linux-s390@vger.kernel.org>; Wed,  1 Jul 2026 06:14:09 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782886110; cv=none; b=ax13iN27DuEvYCuzmB1ZWe7tZ4CVYxlxsgf+p6h7Pq0ZHrFTJYc3pi4RTbGrOEXOf9hIr0xwDqgE2gxvjxVYOSNczWwbA9ekBUSG4SLQ3aMrOZWe2kydA5l/PeWy/GgVOMBopIEH9KdeJiJker7v6sHOCoMPHlaj6YwK3V42Xdg=
+	t=1782886452; cv=none; b=cZtEepGSk+4NqxIthjUgX4z1VEeW5HlNGI0zrhbp39+es7KQTAjl+XSXqO0H9w7/tB3YDG6kGkDaCrtYpdkWjoPq+XBKt2XOSXK9CtVzl17x47I6Tdiqj+OE6T0sXYaUjNPcR+aIumtErm0MiEdPAFVVTkF4DdJp6pgxZnGJUkc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782886110; c=relaxed/simple;
-	bh=VJTmhXg4INSWQ0/7I4yMkzw1CxEX2e6uvgietfjmvxU=;
+	s=arc-20240116; t=1782886452; c=relaxed/simple;
+	bh=TJtk39p9GeF3lodWbyOKS3asKYOKwCFMa1cAsTccJP4=;
 	h=From:Subject:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=Ce/PDO2s3N7M77LZCS4M6z1WNvST8N4KUtggCo0nHrj3Wsglq8RhvrHECtxw/WIg21z2lOpOxf03whGLMWM6+JHrqt+9ueBCPnDLEdDCsvpXJL/6z38b2Uu1fvAdcw0CUHoGUqV2AfK2mIfgQbxyvnPCX6q9TT/JKPjTLFUhSlY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=h67EzNXw; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=abRWVBM0frASP7gSKTuFwSvAVcx0X5vZkyLMsJyMfjEW5peOoBPyYFsHXc0ganvS66MEEnYcKK2szqSTEePf7kECK/SA5hkJmSlSetFvxvUoDmYqwQDjCs4yOKXkE7j/eJhJ/P22u4kATExd7ub49rTMEzxYP0auoZGwk9DM2jw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Otpl3XCv; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="h67EzNXw"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5755F1F000E9;
-	Wed,  1 Jul 2026 06:08:26 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Otpl3XCv"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56B4A1F000E9;
+	Wed,  1 Jul 2026 06:14:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782886106;
-	bh=45KvLBH7bb1F28kzAQgGf31dZ2NOl2XhStMl5XUA1PE=;
+	s=k20260515; t=1782886449;
+	bh=Ebanz5j1FnGHj+79A2OIMWDR9YSWGglOoGwyt+5OjeA=;
 	h=From:Subject:Reply-To:Cc:In-Reply-To:References:Date;
-	b=h67EzNXwUK+Ms7q0sV1lG8pcUgEuZAcVYr3sy0KMTTNX8lVJZ4N4DTowwGaQkd/xJ
-	 dNo4xt7+gGOAw583dvMJ6oJlH70PjMMsHlEARWP2oB651cLcSC073o9dderfpk9yEW
-	 zPFS2oMOO6xqCs7sNUE2MVCLZAfvXXhZrf3WdHsZf4rvf8miEw5ZZ7PTumCTW6tlpu
-	 cl0xy4imvX0z+as/bXnXufvH1j3o5kh+sx4WKHh3G/OUDmcD0mYxKt7lbMNCvRdSOU
-	 5W86WueGw1z3XKXfAcvypcDuIAYHDjSs6youck6JiP9Px57PeHOFhiDp5AItx9gV/v
-	 k5AO9M0T0LyMg==
+	b=Otpl3XCvF8RRsmVyX3iZ3EZziP2C2N7Is1XsnKTAjdAc+ZDQghrdKHewDahgeLYKN
+	 +g25oQIWzHV6ycEMzrI2ViO8XTy9JJkvhzXkavvoi5XHebxsAN89uSZK/L4uVMknLJ
+	 oTX+l/6rK7qsw/75HAhlja6U6Cvo34s3c361W4oJGYj0vO6k6Qa8QBtbDvFnnWipco
+	 qhdblb/R1M2KXBL6BDVy5oyiZE479iF4v+Fn5eRjqhb8N09VNOQTOY2V0prhQoEw5k
+	 amnehE7vyVgpYMo2o6PC14PwWLQkh2ifUpyoufP0vvlR3rggtWZRg9bMVPKcI6RpzJ
+	 Y2V0p0DxSZ+qQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v7 02/22] dma-pool: fix page leak in
- atomic_pool_expand() cleanup
+Subject: Re: [PATCH v7 16/22] dma-direct: make dma_direct_map_phys() honor
+ DMA_ATTR_CC_SHARED
 Reply-To: sashiko-reviews@lists.linux.dev
-Cc: "Heiko Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org, "Alexander
- Gordeev" <agordeev@linux.ibm.com>
-In-Reply-To: <20260701054926.825925-3-aneesh.kumar@kernel.org>
+Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
+ Carstens" <hca@linux.ibm.com>
+In-Reply-To: <20260701054926.825925-17-aneesh.kumar@kernel.org>
 References: <20260701054926.825925-1-aneesh.kumar@kernel.org>
- <20260701054926.825925-3-aneesh.kumar@kernel.org>
+ <20260701054926.825925-17-aneesh.kumar@kernel.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 01 Jul 2026 06:08:25 +0000
-Message-Id: <20260701060826.5755F1F000E9@smtp.kernel.org>
+Date: Wed, 01 Jul 2026 06:14:08 +0000
+Message-Id: <20260701061409.56B4A1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
-
-Pre-existing issues:
-- [Medium] Pages allocated from CMA are incorrectly freed using `__free_pag=
-es()` instead of `dma_release_from_contiguous()`, permanently leaking CMA t=
-racking capacity.
+- [High] dma_map_resource() fails for devices using a dma_range_map that do=
+es not cover MMIO regions, as DMA_ATTR_MMIO mappings are now unconditionall=
+y subjected to phys_to_dma() translation.
+- [High] Peer-to-Peer DMA (MMIO) breaks on AMD SME systems because the memo=
+ry encryption mask (C-bit) is erroneously applied to MMIO addresses, potent=
+ially causing memory corruption.
 --
 
-commit ede353d82bd6f31cd894661b3fa06b014104f3cc
+commit 5904e27516915147560df0a4dd16561a829eaf9e
 Author: Aneesh Kumar K.V (Arm) <aneesh.kumar@kernel.org>
 
-dma-pool: fix page leak in atomic_pool_expand() cleanup
-   =20
-atomic_pool_expand() frees the allocated pages from the remove_mapping
-error path only when CONFIG_DMA_DIRECT_REMAP is enabled. This patch ensures
-the pages are always freed on failure paths by moving the __free_pages() ca=
-ll
-outside the CONFIG_DMA_DIRECT_REMAP block.
+dma-direct: make dma_direct_map_phys() honor DMA_ATTR_CC_SHARED
 
-> diff --git a/kernel/dma/pool.c b/kernel/dma/pool.c
-> index 2b2fbb7092429..b0303efbc1532 100644
-> --- a/kernel/dma/pool.c
-> +++ b/kernel/dma/pool.c
+This commit modifies dma_direct_map_phys() to select the DMA address
+encoding based on DMA_ATTR_CC_SHARED. It uses phys_to_dma_unencrypted() for
+decrypted mappings and phys_to_dma_encrypted() otherwise, while preventing
+the swiotlb force option for several architectures' secure-guest setups.
 
-[ ... ]
-
-> @@ -130,14 +133,15 @@ static int atomic_pool_expand(struct gen_pool *pool=
-, size_t pool_size,
->  				   1 << order);
->  	if (WARN_ON_ONCE(ret)) {
->  		/* Decrypt succeeded but encrypt failed, purposely leak */
-> -		goto out;
-> +		leak_pages =3D true;
+> diff --git a/kernel/dma/direct.h b/kernel/dma/direct.h
+> index e05dc7649366a..f3fc28f352ba1 100644
+> --- a/kernel/dma/direct.h
+> +++ b/kernel/dma/direct.h
+> @@ -88,37 +88,40 @@ static inline dma_addr_t dma_direct_map_phys(struct d=
+evice *dev,
+>  {
+>  	dma_addr_t dma_addr;
+> =20
+> +	/*
+> +	 * For a device requiring unencrypted DMA, MMIO memory is treated
+> +	 * as shared by default.
+> +	 */
+> +	if (force_dma_unencrypted(dev) && (attrs & DMA_ATTR_MMIO))
+> +		attrs |=3D DMA_ATTR_CC_SHARED;
+> +
+>  	if (is_swiotlb_force_bounce(dev)) {
+> -		if (!(attrs & DMA_ATTR_CC_SHARED)) {
+> -			if (attrs & (DMA_ATTR_MMIO | DMA_ATTR_REQUIRE_COHERENT))
+> -				return DMA_MAPPING_ERROR;
+> +		if (attrs & (DMA_ATTR_MMIO | DMA_ATTR_REQUIRE_COHERENT))
+> +			return DMA_MAPPING_ERROR;
+> =20
+> -			return swiotlb_map(dev, phys, size, dir, attrs);
+> -		}
+> -	} else if (attrs & DMA_ATTR_CC_SHARED) {
+> -		return DMA_MAPPING_ERROR;
 >  	}
->  remove_mapping:
->  #ifdef CONFIG_DMA_DIRECT_REMAP
->  	dma_common_free_remap(addr, pool_size);
->  free_page:
-> -	__free_pages(page, order);
->  #endif
-> +	if (!leak_pages)
-> +		__free_pages(page, order);
-                ^^^^^^^^^^^^^^^^^^^^^^^^^
-[Severity: Medium]
-This is a pre-existing issue, but does this cleanup path correctly handle
-pages allocated from CMA?
+> =20
+> -	if (attrs & DMA_ATTR_MMIO) {
+> -		dma_addr =3D phys;
+> -		if (unlikely(!dma_capable(dev, dma_addr, size, false, attrs)))
+> -			goto err_overflow;
+> -	} else if (attrs & DMA_ATTR_CC_SHARED) {
+> +	if (attrs & DMA_ATTR_CC_SHARED)
+>  		dma_addr =3D phys_to_dma_unencrypted(dev, phys);
+> +	else
+> +		dma_addr =3D phys_to_dma_encrypted(dev, phys);
+> +
+> +	if (attrs & DMA_ATTR_MMIO) {
 
-Looking at the allocation logic earlier in atomic_pool_expand():
+[Severity: High]
+Will this break dma_map_resource() for devices that use a dma_range_map?
 
-	do {
-		pool_size =3D 1 << (PAGE_SHIFT + order);
-		if (cma_in_zone(gfp))
-			page =3D dma_alloc_from_contiguous(NULL, 1 << order,
-							 order, false);
-		if (!page)
-			page =3D alloc_pages(gfp | __GFP_NOWARN, order);
-	} while (!page && order-- > 0);
+Previously, DMA_ATTR_MMIO addresses bypassed translation and directly used
+dma_addr =3D phys. By routing MMIO addresses through phys_to_dma_encrypted()
+or phys_to_dma_unencrypted(), they now pass through __phys_to_dma().
 
-If the page was allocated via dma_alloc_from_contiguous(), freeing it
-directly with __free_pages() bypasses the CMA bitmap cleanup. This returns
-the page to the buddy allocator but permanently reduces the memory available
-for contiguous allocations.
+Since MMIO addresses do not reside in system RAM, they will be absent from
+the device's dma_range_map. Doesn't this cause translate_phys_to_dma() to
+return DMA_MAPPING_ERROR and fail the mapping?
 
-Should this instead check if the page came from CMA and call
-dma_release_from_contiguous() accordingly?
+[Severity: High]
+On AMD SME systems, does this inadvertently apply the memory encryption
+mask (C-bit) to MMIO addresses?
 
->  out:
->  	return ret;
->  }
+If a capable device performs Peer-to-Peer DMA, force_dma_unencrypted(dev)
+returns false, so DMA_ATTR_CC_SHARED is not set. The MMIO address then
+passes through phys_to_dma_encrypted(), which injects the C-bit via
+__sme_set().
+
+If the PCIe Root Complex receives an MMIO address with the C-bit set,
+will it misroute the transaction to system RAM instead of the target PCI
+BAR, potentially causing memory corruption?
+
+>  		if (unlikely(!dma_capable(dev, dma_addr, size, false, attrs)))
+>  			goto err_overflow;
+> -	} else {
+> -		dma_addr =3D phys_to_dma(dev, phys);
+[ ... ]
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260701054926.8259=
-25-1-aneesh.kumar@kernel.org?part=3D2
+25-1-aneesh.kumar@kernel.org?part=3D16
