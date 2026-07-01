@@ -1,176 +1,134 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 03037191
-	for <linux-s390@vger.kernel.org>; Wed,  1 Jul 2026 06:14:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 330BE3A3809
+	for <linux-s390@vger.kernel.org>; Wed,  1 Jul 2026 06:25:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782886477; cv=none; b=EuCRIZYSISb9RQWMCrL0GX9cznAqyj1kngn1JxhMz7cc0C+K0mjDhngbv40Ei9zF6Q2PqKI1F/Xe8nem0RfKUNw0MohVx9S93YJuJKf99oHSkq7hl6fZt18TrsitEQGVtOH6kxCUvgXM/SCicUZj20I/5LuUd6XxF0ctL/Y+6rw=
+	t=1782887120; cv=none; b=C42tg7kH3piZEksuIep/dKAll4x6cYDJFZokswQYG2cKLzPhTVHHYYSo6pG72uGsZvjSnLmaEfD/9Q93SPT4wbOaBqnNkc31ijfN9ZuigaM34iT42ikw+sAiYoqNskYAda5UG8yKZQ8RS1jWWO37jh0fjyBdz0FlSOcvqc80Pgc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782886477; c=relaxed/simple;
-	bh=2MzbYZdIr8VROPTxeS7g/TGapFOf5+d4ECn6256ja5o=;
-	h=From:Subject:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=lK9RUzxo8qfX+uYimv2T4ysSVD9Yf16XEPD80tpSZFY2nh4NNM2Zlx38PEPp7xyfPwOyapakInaXx6Pta4ITKfNbEojykNj8K1rlwQ0HjbDiCfhTzI1nM6xSQvNzIGDcj9MrYjp7tYoXXXDDrtSl3Wg6PG1v/MeP2tS5bW2l60w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=UHvnjmEp; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1782887120; c=relaxed/simple;
+	bh=0Acwrlwd/Ekza37SGzI8LgP1k8EyWXbg+BalsUObww4=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=SXF9EARI47GcnsX/iigMT03kH6s7hqEt6Mp+UEIVZYpkX7RLg3A4Ob5djBW0+mqwE+kl1c50DHzoK/NB9kazgxE+LK+uQcbrH08FzBc3TM9NosRWFaJV/1VyTG/chQ5imFK4vC+bhgSscIvxX5BA6jBDxMfWq7EEniQb2dxmies=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=O3Grfu4l; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="UHvnjmEp"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16E3C1F000E9;
-	Wed,  1 Jul 2026 06:14:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782886472;
-	bh=il8gdoZhwZNuejqkHHrWP1x1LZeovQ1aHxnK5+zggZU=;
-	h=From:Subject:Reply-To:Cc:In-Reply-To:References:Date;
-	b=UHvnjmEpL4JAeaQFhQOjiNPaDpXBmbhN5sxfefk11G0g0onYIlDuvLYh41mlBWus9
-	 nYsIThzxYj6rbGCwgSGxVRKkU/9TFTZZrRb8auDJFhjv27GX0tEqrsT3tYojWiz/Yy
-	 OoCqk588ykr1nPJS3s8ddAErWyiUBAiBxOWq3A1omZ6zsKCfHwoo+a4sL8SzkG4ci/
-	 ztGCgcPa3igjLuXYAeDCa12I8/54JYAG9DKTISPinZJXL1ROdLbehmyMgfV/adVnuU
-	 K9509i0fLwcPKo6od0sxJ7KW4t4gO5/ucnunYH1CJgF69WcvTrT10b4PE/08eoEpKf
-	 pPs64o5+LVz7w==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v7 15/22] dma-direct: pass attrs to dma_capable() for
- DMA_ATTR_CC_SHARED checks
-Reply-To: sashiko-reviews@lists.linux.dev
-Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, linux-s390@vger.kernel.org, "Vasily
- Gorbik" <gor@linux.ibm.com>
-In-Reply-To: <20260701054926.825925-16-aneesh.kumar@kernel.org>
-References: <20260701054926.825925-1-aneesh.kumar@kernel.org>
- <20260701054926.825925-16-aneesh.kumar@kernel.org>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 01 Jul 2026 06:14:31 +0000
-Message-Id: <20260701061432.16E3C1F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="O3Grfu4l"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6613IXZB4062050
+	for <linux-s390@vger.kernel.org>; Wed, 1 Jul 2026 06:25:18 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=TPNm0BPjc372iG6so2J089H+Lwq0Mc
+	xxq9zamDqQzGk=; b=O3Grfu4l6+oH8yK3DMqvICzJ2sqmwI4Jr0cTWidetn9PG+
+	e6ii/uCPIxVRXL7re7F8n/B3fyk4X1XjYDkW3pzxm9xhcv8mQdop3BAAHOjWrXzv
+	YiKlT3ppDR8clcq+3KvzAGkPgNDXsbKSYZvNiaIoYw+qMnsbCVMCEOXwX43T++oY
+	W4KvsvKtpaf6Mfg7e699C0TsRcOk83nRFLSAQfso9vPT40IGshaKBZOg206wgD/9
+	vMX4jyc29l/qMnlZgenLIs2Uw0rAw8ugLtSNg7FzqpczYNa+wptFeK7xG1JY7DI7
+	q4y6yp0JkOnGVYFRaTS8eUXzeLM1/VT6O/O5LllA==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4f26qg2u40-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Wed, 01 Jul 2026 06:25:18 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 6616Jgqa019352
+	for <linux-s390@vger.kernel.org>; Wed, 1 Jul 2026 06:25:17 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4f2uhydqd1-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Wed, 01 Jul 2026 06:25:17 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6616PDNN60883324
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 1 Jul 2026 06:25:13 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 890E120067;
+	Wed,  1 Jul 2026 06:25:13 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 705AE2004F;
+	Wed,  1 Jul 2026 06:25:13 +0000 (GMT)
+Received: from tuxmaker.linux.ibm.com (unknown [9.87.85.9])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Wed,  1 Jul 2026 06:25:13 +0000 (GMT)
+From: Sven Schnelle <svens@linux.ibm.com>
+To: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Cc: linux-s390 <linux-s390@vger.kernel.org>,
+        Alexander Gordeev
+ <agordeev@linux.ibm.com>
+Subject: Re: [PATCH] s390/mm: Fix type mismatch in get_align_mask().
+In-Reply-To: <20260630173214.3114408-1-gerald.schaefer@linux.ibm.com>
+References: <20260630173214.3114408-1-gerald.schaefer@linux.ibm.com>
+Date: Wed, 01 Jul 2026 08:25:13 +0200
+Message-ID: <yt9dv7az8bw6.fsf@linux.ibm.com>
+User-Agent: Gnus/5.13 (Gnus v5.13)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=RYqgzVtv c=1 sm=1 tr=0 ts=6a44b2ce cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8 a=VwQbUJbxAAAA:8
+ a=gf1-7XqKsu7sE-FiRg0A:9
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzAxMDA2MyBTYWx0ZWRfXywe4jG5FHi6b
+ WiMgt8v4jT+g/LK/AE2ce2bNWbckk08wgo2undcVAO55tzXGkvIm7yvVUo4cDfeDFRfqOdPGFeP
+ k3il+IavK+tynRegO9HiycMmZZQY47I=
+X-Proofpoint-GUID: rMRBmfhbx606rPJefRb6qA0fgEXRXBwe
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzAxMDA2MyBTYWx0ZWRfX9Kl/+2Uq2ZOg
+ DNrnIrq1o2FYNbaWrl/RwvV18Ws3ICJ/0aNmD5oD1Q74OzarpeamZEQK9RPRUaDtw7eR80ntsFg
+ UtDvMCGVMdxTCQuVeMtbb3clvsUisWjcFz/Hcvgj3gZmNL4sddTmSh8nfwh6dPlqY/Ve0Jr03DZ
+ /8FyGXtvqlGQx8IbNPshij+LBSZupiL52j1GkuL1FanHw6CR5lDbAvi91UZwvqA0tKHzvghZsNp
+ Ybd074BGvEsvricj/yLrBfpcCnHyH28ac+dUOrFomyJnTZ0McALtlH/JrElZOZyN9jMymQwwdG1
+ 6R6bI1VNAEN3U7iCEsNxD07KbtbNLkcixDrIiCMk7R/+aBF6lnzBjVHy5hPXK55CVW19XLOSqTJ
+ Gn3fyVYaLq924hLv+2rfIE8ZmqhY3sxqE7znAELxpm6cONBDIuZScUHl6S4lpedRzOXLx6TwGyB
+ 5RJxL/pDsq9I+ZX6LRA==
+X-Proofpoint-ORIG-GUID: rMRBmfhbx606rPJefRb6qA0fgEXRXBwe
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
+ definitions=2026-07-01_01,2026-06-26_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ phishscore=0 impostorscore=0 malwarescore=0 spamscore=0 lowpriorityscore=0
+ adultscore=0 priorityscore=1501 suspectscore=0 bulkscore=0 clxscore=1015
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607010063
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
-s) to consider:
+Gerald Schaefer <gerald.schaefer@linux.ibm.com> writes:
 
-New issues:
-- [High] xen_swiotlb_map_phys() unconditionally rejects valid MMIO DMA mapp=
-ings for devices requiring unencrypted DMA, breaking peer-to-peer DMA.
-- [High] xen_swiotlb_map_phys() fails to strip the encryption bit from boun=
-ce buffer DMA addresses.
+> Commit 86f48f922ba79 ("s390/mmap: disable mmap alignment when
+> randomize_va_space = 0") introduced get_align_mask() with return type of
+> 'int', while the target field 'info.align_mask' in struct
+> vm_unmapped_area_info is 'unsigned long'.
+>
+> With currently used masks, this should not cause truncation issues, but
+> fix it and return 'unsigned long' to avoid future problems.
+>
+> Fixes: 86f48f922ba79 ("s390/mmap: disable mmap alignment when randomize_va_space = 0")
+> Cc: stable@vger.kernel.org # v6.9+
+> Signed-off-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+> ---
+>  arch/s390/mm/mmap.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/arch/s390/mm/mmap.c b/arch/s390/mm/mmap.c
+> index 2a222a7e14f4..ef7bfc87758c 100644
+> --- a/arch/s390/mm/mmap.c
+> +++ b/arch/s390/mm/mmap.c
+> @@ -64,7 +64,7 @@ static inline unsigned long mmap_base(unsigned long rnd,
+>  	return PAGE_ALIGN(STACK_TOP - gap - rnd);
+>  }
+>  
+> -static int get_align_mask(struct file *filp, unsigned long flags)
+> +static unsigned long get_align_mask(struct file *filp, unsigned long flags)
+>  {
+>  	if (filp && is_file_hugepages(filp))
+>  		return huge_page_mask_align(filp);
+>
+> base-commit: dc59e4fea9d83f03bad6bddf3fa2e52491777482
 
-Pre-existing issues:
-- [Critical] gart_alloc_coherent() and gart_free_coherent() pass an invalid=
- dma_addr to dma_direct_free(), causing severe page allocator corruption an=
-d physical memory leaks.
---
-
-commit d278e823d2c8033c6a6105a3f51b2763931c565f
-Author: Aneesh Kumar K.V (Arm) <aneesh.kumar@kernel.org>
-
-dma-direct: pass attrs to dma_capable() for DMA_ATTR_CC_SHARED checks
-   =20
-Teach dma_capable() about DMA_ATTR_CC_SHARED so the capability
-check can reject encrypted DMA addresses for devices that require
-unencrypted/shared DMA.
-
-Also propagate DMA_ATTR_CC_SHARED in swiotlb_map() when the selected
-SWIOTLB pool is decrypted so the capability check sees the correct DMA
-address attribute.
-
-Tested-by: Jiri Pirko <jiri@nvidia.com>
-Tested-by: Michael Kelley <mhklinux@outlook.com>
-Tested-by: Mostafa Saleh <smostafa@google.com>
-Reviewed-by: Petr Tesarik <ptesarik@suse.com>
-Signed-off-by: Aneesh Kumar K.V (Arm) <aneesh.kumar@kernel.org>
-
-> diff --git a/arch/x86/kernel/amd_gart_64.c b/arch/x86/kernel/amd_gart_64.c
-> index e8000a56732e4..b5f1f031d45b8 100644
-> --- a/arch/x86/kernel/amd_gart_64.c
-> +++ b/arch/x86/kernel/amd_gart_64.c
-[ ... ]
-> @@ -473,7 +474,8 @@ gart_alloc_coherent(struct device *dev, size_t size, =
-dma_addr_t *dma_addr,
->  		return vaddr;
-> =20
->  	*dma_addr =3D dma_map_area(dev, virt_to_phys(vaddr), size,
-> -			DMA_BIDIRECTIONAL, (1UL << get_order(size)) - 1);
-> +				 DMA_BIDIRECTIONAL,
-> +				 (1UL << get_order(size)) - 1, attrs);
->  	flush_gart();
->  	if (unlikely(*dma_addr =3D=3D DMA_MAPPING_ERROR))
->  		goto out_free;
-
-[Severity: Critical]
-This is a pre-existing issue, but does the error path in gart_alloc_coheren=
-t()
-and gart_free_coherent() pass an invalid dma_addr to dma_direct_free()?
-
-If dma_map_area() fails, *dma_addr becomes DMA_MAPPING_ERROR, and the error
-path at out_free passes it to dma_direct_free(). On success,
-gart_free_coherent() later passes the GART-mapped dma_addr to
-dma_direct_free().
-
-Because dma_direct_free() uses the provided dma_addr to locate the backing
-struct page (when dma_free_from_pool() is false), passing a GART aperture
-address or DMA_MAPPING_ERROR instead of the physical DMA address causes it
-to operate on bogus page structures, leading to severe memory corruption and
-physical page leaks.
-
-> diff --git a/drivers/xen/swiotlb-xen.c b/drivers/xen/swiotlb-xen.c
-> index 8c4abe65cd49f..e2538824ef52e 100644
-> --- a/drivers/xen/swiotlb-xen.c
-> +++ b/drivers/xen/swiotlb-xen.c
-> @@ -212,7 +212,7 @@ static dma_addr_t xen_swiotlb_map_phys(struct device =
-*dev, phys_addr_t phys,
->  	BUG_ON(dir =3D=3D DMA_NONE);
-> =20
->  	if (attrs & DMA_ATTR_MMIO) {
-> -		if (unlikely(!dma_capable(dev, phys, size, false))) {
-> +		if (unlikely(!dma_capable(dev, phys, size, false, attrs))) {
-
-[Severity: High]
-Does this unconditionally reject valid MMIO DMA mappings for devices requir=
-ing
-unencrypted DMA, breaking peer-to-peer DMA?
-
-When mapping MMIO memory, attrs typically lacks DMA_ATTR_CC_SHARED. For CoCo
-guests under Xen, force_dma_unencrypted(dev) is true, so dma_capable() will
-evaluate !(attrs & DMA_ATTR_CC_SHARED) && force_dma_unencrypted(dev) as tru=
-e,
-thus rejecting the mapping.
-
-While dma_direct_map_phys() was fixed elsewhere in this series to append
-DMA_ATTR_CC_SHARED for MMIO, it appears xen_swiotlb_map_phys() was missed.
-
->  			dev_err_once(
->  				dev,
->  				"DMA addr %pa+%zu overflow (mask %llx, bus limit %llx).\n",
-[ ... ]
-> @@ -253,7 +253,7 @@ static dma_addr_t xen_swiotlb_map_phys(struct device =
-*dev, phys_addr_t phys,
->  	/*
->  	 * Ensure that the address returned is DMA'ble
->  	 */
-> -	if (unlikely(!dma_capable(dev, dev_addr, size, true))) {
-> +	if (unlikely(!dma_capable(dev, dev_addr, size, true, attrs))) {
-
-[Severity: High]
-Does this fail to strip the encryption bit from bounce buffer DMA addresses?
-
-When a DMA mapping requires a bounce buffer, swiotlb_tbl_map_single() alloc=
-ates
-an unencrypted buffer and injects DMA_ATTR_CC_SHARED into attrs. However,
-dev_addr was set via xen_phys_to_dma(dev, map) right above this check, which
-relies on phys_to_dma() and unconditionally applies the physical encryption=
- bit
-to the DMA address.
-
-Because attrs now contains DMA_ATTR_CC_SHARED, dma_capable() will approve t=
-he
-address. As a result, the device erroneously receives an encrypted DMA addr=
-ess
-for decrypted memory.
-
->  		__swiotlb_tbl_unmap_single(dev, map, size, dir,
->  				attrs | DMA_ATTR_SKIP_CPU_SYNC,
->  				swiotlb_find_pool(dev, map));
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260701054926.8259=
-25-1-aneesh.kumar@kernel.org?part=3D15
+Reviewed-by: Sven Schnelle <svens@linux.ibm.com>
