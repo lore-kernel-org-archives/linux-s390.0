@@ -1,162 +1,79 @@
-Received: from out30-112.freemail.mail.aliyun.com (out30-112.freemail.mail.aliyun.com [115.124.30.112])
+Received: from mail-m49212.qiye.163.com (mail-m49212.qiye.163.com [45.254.49.212])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F3BD4181334;
-	Thu,  2 Jul 2026 03:18:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.112
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 58CAC29B200
+	for <linux-s390@vger.kernel.org>; Thu,  2 Jul 2026 07:57:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.254.49.212
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782962287; cv=none; b=YZG/xCK87lwHLzrRK9Qos7uPaRZ6E1m414oyo045a8VYJb3ETq2WzIVhnqUCiBh9rX2SWFoNBdKXf7ecsRpbEeUWDq0ar+6gPNpdTkPVK0rGv1pAY92NDf/LhLENR/7WmccxPEhqO2Q8D7YnVBOZNWZN1x55sweWg1hAUNPK5Bs=
+	t=1782979025; cv=none; b=rgQxwv/6EvJNuUFj8eiGpMvTag9chP85ezxqpaftNnvSrDsGuf/mMhe9u8j+OUbtYmDW/H+S8+WdjZRKy38EWOYa4yH+p0gUzgeQHQ+rXCpmyxyngsO2CkCyWrwccczq/hV8N9DPF1rd3B81Ltj/n32NLlPtst6AhadJhOU68Ts=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782962287; c=relaxed/simple;
-	bh=3BcLJWhoWFgV9slK/ItxBb1txl9oDXdEKTXeS5guuzY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=aJ2+CwAPEtbqjPQwGBpfCOy56Ohcia0d5ai1B6ljg3tzaLAxROOCO88HnZgMKOAF0g31orMZFHTbmb9psoKrugnfAKdF4jAaG6MWgs+Wd47zkniFOeCsNRcksiJzE7dLnOLJWCLAv9O+1GaRYvDpEeKzpdM8ITfHkVYF25ZqKv4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=Vmua5xOI; arc=none smtp.client-ip=115.124.30.112
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1782979025; c=relaxed/simple;
+	bh=bPYyaPMVGXJ6fi2007K/Cro/FnneDqwZ1yi13CzKCrw=;
+	h=Content-Type:Message-ID:To:Cc:Subject:References:MIME-Version:
+	 From:Date; b=WDdpn7aN+QoTTB/oo7JygdfMEq3OKqwqG5YLVRd0IZrhDFSc3j5IP3HK/rhq9NxXAApejCzpQIkROzX/1T/HC/vZ2Yqu9WkH+2PcOm4sRGsv9MTtkuDjk4Msomx6EsXQMFcTwbe73UdakinawfI/65uAxs3Vdv7PtJdNCYmQ8Wk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=seu.edu.cn; spf=pass smtp.mailfrom=seu.edu.cn; dkim=pass (1024-bit key) header.d=seu.edu.cn header.i=@seu.edu.cn header.b=gqP9UK8s; arc=none smtp.client-ip=45.254.49.212
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=seu.edu.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seu.edu.cn
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="Vmua5xOI"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1782962277; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
-	bh=qRFiwz274BAI0tGfuVu7HAAEPreWRlpaAR/BIu4h8tk=;
-	b=Vmua5xOIn0pQxAoY4HSGskLC67IkQmApMngqhYqLpCjnBtZma6lpHk1g+CyYLProUQyX1RTj1xJjQuXTN/rBkev6b24BIWJqHZvT9tRFOzDEsn0E5HKKyjpARtBpvCek+dMaZsvASyIhab+73Ub/HX6L78H/oZYERI69ft+z5DA=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R701e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam011083073210;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=22;SR=0;TI=SMTPD_---0X6CQ0f9_1782962275;
-Received: from localhost(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0X6CQ0f9_1782962275 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Thu, 02 Jul 2026 11:17:56 +0800
-Date: Thu, 2 Jul 2026 11:17:55 +0800
-From: "D. Wythe" <alibuda@linux.alibaba.com    >
-To: Paolo Abeni <pabeni@redhat.com>
-Cc: Sechang Lim <rhkrqnwk98@gmail.com>,
-	"D . Wythe" <alibuda@linux.alibaba.com>,
-	Dust Li <dust.li@linux.alibaba.com>,
-	Sidraya Jayagond <sidraya@linux.ibm.com>,
-	Wenjia Zhang <wenjia@linux.ibm.com>,
-	"David S . Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Jiayuan Chen <jiayuan.chen@linux.dev>,
-	Mahanta Jambigi <mjambigi@linux.ibm.com>,
-	Tony Lu <tonylu@linux.alibaba.com>,
-	Wen Gu <guwen@linux.alibaba.com>, Simon Horman <horms@kernel.org>,
-	Karsten Graul <kgraul@linux.ibm.com>,
-	Guvenc Gulce <guvenc@linux.ibm.com>,
-	Ursula Braun <ubraun@linux.ibm.com>, linux-rdma@vger.kernel.org,
-	linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org, bpf@vger.kernel.org
-Subject: Re: [PATCH net v3] net/smc: fix out-of-bounds read when sk_user_data
- holds a sk_psock
-Message-ID: <20260702031755.GA70283@j66a10360.sqa.eu95>
-References: <20260629095140.679754-1-rhkrqnwk98@gmail.com>
- <c222390f-96c7-4dc3-8f33-f4dd277c3639@redhat.com>
+	dkim=pass (1024-bit key) header.d=seu.edu.cn header.i=@seu.edu.cn header.b="gqP9UK8s"
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: base64
+Message-ID: <AIIAMAAiKrVMQaBAPYx42arb.3.1782978704726.Hmail.220255722@seu.edu.cn>
+To: Sidraya Jayagond  <sidraya@linux.ibm.com>
+Cc: "D. Wythe" <alibuda@linux.alibaba.com>, Dust Li <dust.li@linux.alibaba.com>, 
+	Wenjia Zhang <wenjia@linux.ibm.com>, 
+	"David S. Miller" <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
+	Paolo Abeni <pabeni@redhat.com>, 
+	Mahanta Jambigi <mjambigi@linux.ibm.com>, 
+	Tony Lu <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>, 
+	Simon Horman <horms@kernel.org>, 
+	Karsten Graul <kgraul@linux.ibm.com>, 
+	linux-rdma <linux-rdma@vger.kernel.org>, 
+	linux-s390 <linux-s390@vger.kernel.org>, 
+	netdev <netdev@vger.kernel.org>, 
+	linux-kernel <linux-kernel@vger.kernel.org>, 
+	"jianhao.xu" <jianhao.xu@seu.edu.cn>
+Subject: =?UTF-8?B?UmU6IFtQQVRDSCBuZXRdIG5ldC9zbWM6IGF2b2lkIHJlY3Vyc2l2ZSBza19jYWxsYmFja19sb2NrIGluIGxpc3RlbiBkYXRhX3JlYWR5?=
+X-Priority: 3
+X-Mailer: HMail Webmail Server V2.0 Copyright (c) 2016-163.com Sirius_WEB_WIN_1.64.1
+References: <20260617152855.1039151-1-runyu.xiao@seu.edu.cn> <17c1cbac-de30-4372-8c24-2acd755f503e@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <c222390f-96c7-4dc3-8f33-f4dd277c3639@redhat.com>
-User-Agent: Mutt/1.5.21 (2010-09-15)
+Received: from 220255722@seu.edu.cn( [223.112.146.162] ) by ajax-webmail ( [127.0.0.1] ) ; Thu, 2 Jul 2026 15:51:44 +0800 (GMT+08:00)
+From: Runyu Xiao <runyu.xiao@seu.edu.cn>
+Date: Thu, 2 Jul 2026 15:51:44 +0800 (GMT+08:00)
+X-HM-Tid: 0a9f21cf9b6e02f2kunmd5c2bf791f8cd
+X-HM-MType: 1
+X-HM-NTES-SC: AL0_4z5B86Wr4Tz9jdMF+bhXMTUS6Y2fHkyPT6dc03QDwVaZPGiA09TnwhbhTj
+	hLfuFZO94YXwX6xgvkjGVFFRKj5ODenkkczLo6qxkp6YADE5oPA+xgWdLLpCC0H84TwWSeGl6Gxd
+	wNb5mLKCAhELViFYBc6UsltRrkd4duOKE4a1o=
+X-HM-Spam-Status: e1kfGhgUHx5ZQUpXWQgPGg8OCBgUHx5ZQUlOS1dZFg8aDwILHllBWSg2Ly
+	tZV1koWUFITzdXWRgWCB1ZQUpXWS1ZQUlXWQ8JGhUIEh9ZQVlCTB5LVh0aSUofSkkeSkIaTlYVFA
+	kWGhdVEwETFhoSFyQUDg9ZV1kYEgtZQVlJSUhVSkpJVUpPTVVKTUlZV1kWGg8SFR0UWUFZT0tIVU
+	pLSEpOT0xVSktLVUpCS0tZBg++
+DKIM-Signature: a=rsa-sha256;
+	b=gqP9UK8sz6mSaQSXwWUvX5IW1dCvOoLuzHheLSdx278rR0VZCmzeKQ+tZi/RiuVNKIzYmjvsiiKh3E2yVV1wA+FSjJRGHDbuUfYllhYz2Q+GWTO0qCqt/NhfA/mCQxFWWVdm+uvaLslyTHTIUaWGAPHcSoatnnArMxAxOhY6g+s=; c=relaxed/relaxed; s=default; d=seu.edu.cn; v=1;
+	bh=bPYyaPMVGXJ6fi2007K/Cro/FnneDqwZ1yi13CzKCrw=;
+	h=date:mime-version:subject:message-id:from;
 
-On Wed, Jul 01, 2026 at 05:27:11PM +0200, Paolo Abeni wrote:
-> On 6/29/26 11:51 AM, Sechang Lim wrote:
-> > A passive-open child inherits the listener's smc_clcsock_data_ready().
-> > sk_clone_lock() clears its sk_user_data to NULL because the listener tagged
-> > it SK_USER_DATA_NOCOPY. Until accept restores the callback, a BPF sock_ops
-> > program can add the established child to a sockmap, and sk_psock_init()
-> > installs a sk_psock into the NULL sk_user_data. The inherited callback then
-> > reads it back through smc_clcsock_user_data(), which strips only NOCOPY,
-> > takes the sk_psock for an smc_sock, and dereferences a clcsk_* field past
-> > its end:
-> > 
-> >   BUG: KASAN: slab-out-of-bounds in smc_clcsock_data_ready+0x84/0x200 net/smc/af_smc.c:2637
-> >   Read of size 8 at addr ffff8880013b8674 by task syz.6.12484/67930
-> >    <IRQ>
-> >    smc_clcsock_data_ready+0x84/0x200 net/smc/af_smc.c:2637
-> >    tcp_urg+0x24d/0x360 net/ipv4/tcp_input.c:6264
-> >    tcp_rcv_state_process+0x280d/0x4940 net/ipv4/tcp_input.c:7336
-> >    tcp_child_process+0x371/0xa50 net/ipv4/tcp_minisocks.c:1002
-> >    tcp_v4_rcv+0x1eaa/0x2a00 net/ipv4/tcp_ipv4.c:2186
-> >    [...]
-> >    </IRQ>
-> > 
-> >   Allocated by task 67930:
-> >    sk_psock_init+0x142/0x740 net/core/skmsg.c:766
-> >    sock_hash_update_common+0xd3/0x990 net/core/sock_map.c:1010
-> >    bpf_sock_hash_update+0x114/0x170 net/core/sock_map.c:1229
-> >    __cgroup_bpf_run_filter_sock_ops+0x74/0xa0 kernel/bpf/cgroup.c:1727
-> >    tcp_init_transfer+0x1085/0x1100 net/ipv4/tcp_input.c:6693
-> >    [...]
-> > 
-> > Resolve the conflict on the write path. Reserve the child's sk_user_data
-> > with a NULL pointer tagged SK_USER_DATA_NOCOPY so sk_psock_init() returns
-> > -EBUSY, and release it at accept. smc_clcsock_user_data() still strips the
-> > tag to NULL, so the inherited callback stays a no-op.
-> > 
-> > Fixes: a60a2b1e0af1 ("net/smc: reduce active tcp_listen workers")
-> > Signed-off-by: Sechang Lim <rhkrqnwk98@gmail.com>
-> > ---
-> > v3:
-> >  - reserve sk_user_data on the write path instead of the read-side check (D. Wythe)
-> > 
-> > v2:
-> >  - https://lore.kernel.org/netdev/20260619150342.3626224-1-rhkrqnwk98@gmail.com/
-> > 
-> > v1:
-> >  - https://lore.kernel.org/netdev/20260614120931.4041687-1-rhkrqnwk98@gmail.com/
-> > 
-> >  net/smc/af_smc.c | 10 +++++++++-
-> >  1 file changed, 9 insertions(+), 1 deletion(-)
-> > 
-> > diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-> > index b5db69073e20..78f162344fe3 100644
-> > --- a/net/smc/af_smc.c
-> > +++ b/net/smc/af_smc.c
-> > @@ -154,7 +154,11 @@ static struct sock *smc_tcp_syn_recv_sock(const struct sock *sk,
-> >  					       own_req, opt_child_init);
-> >  	/* child must not inherit smc or its ops */
-> >  	if (child) {
-> > -		rcu_assign_sk_user_data(child, NULL);
-> > +		/* reserve sk_user_data so sockmap cannot claim the slot */
-> > +		write_lock_bh(&child->sk_callback_lock);
-> > +		__rcu_assign_sk_user_data_with_flags(child, NULL,
-> > +						     SK_USER_DATA_NOCOPY);
-> > +		write_unlock_bh(&child->sk_callback_lock);
-> >  
-> >  		/* v4-mapped sockets don't inherit parent ops. Don't restore. */
-> >  		if (inet_csk(child)->icsk_af_ops == inet_csk(sk)->icsk_af_ops)
-> > @@ -1773,6 +1777,7 @@ static int smc_clcsock_accept(struct smc_sock *lsmc, struct smc_sock **new_smc)
-> >  	/* new clcsock has inherited the smc listen-specific sk_data_ready
-> >  	 * function; switch it back to the original sk_data_ready function
-> >  	 */
-> > +	write_lock_bh(&new_clcsock->sk->sk_callback_lock);
-> >  	new_clcsock->sk->sk_data_ready = lsmc->clcsk_data_ready;
-> >  
-> >  	/* if new clcsock has also inherited the fallback-specific callback
-> > @@ -1786,6 +1791,9 @@ static int smc_clcsock_accept(struct smc_sock *lsmc, struct smc_sock **new_smc)
-> >  		if (lsmc->clcsk_error_report)
-> >  			new_clcsock->sk->sk_error_report = lsmc->clcsk_error_report;
-> >  	}
-> > +	/* release the slot reserved in smc_tcp_syn_recv_sock() */
-> > +	rcu_assign_sk_user_data(new_clcsock->sk, NULL);
-> > +	write_unlock_bh(&new_clcsock->sk->sk_callback_lock);
-> 
-> Sashiko reports that this still cause problem on fallback.
-> 
-> @Wythe, I understand from previous discussion that you would prefer to
-> address such issues separately (and thus you are fine with the patch in
-> the current form). Could you please confirm?
-
-No, I do not agree with this patch in any form. As I replied to it, I do
-not think this is the right direction.
-
-D. Wythe
-
-> 
-> /P
-> >  
-> >  	(*new_smc)->clcsock = new_clcsock;
-> >  out:
+SGkgU2lkcmF5YSwKCk9uIFRodSwgSnVuIDI1LCAyMDI2IGF0IDAyOjAyOjI1UE0gKzA1MzAsIFNp
+ZHJheWEgSmF5YWdvbmQgd3JvdGU6CiZndDsgSW4gc21jX2Nsb3NlX2FjdGl2ZSgpLCB0aGUgVENQ
+IHNvY2tldCByZW1haW5zIGluIFRDUF9MSVNURU4gc3RhdGUgd2hpbGUKJmd0OyBob2xkaW5nIHdy
+aXRlX2xvY2tfYmgoJmFtcDtzbWMtJmd0O2NsY3NvY2stJmd0O3NrLSZndDtza19jYWxsYmFja19s
+b2NrKTsuIFRoZSBwYXRjaCdzCiZndDsgc3RhdGUgY2hlY2sgd291bGQgcGFzcyBkdXJpbmcgdGhp
+cyB3aW5kb3csIG5vdCBwcmV2ZW50aW5nIHRoZSByZWN1cnNpdmUKJmd0OyBsb2NrIHNjZW5hcmlv
+LgomZ3Q7IEl0J3MgdW5jbGVhciB3aGV0aGVyIGl0IGZ1bGx5IHByZXZlbnRzIHRoZSByZWN1cnNp
+dmUgbG9ja2luZyBzY2VuYXJpbwomZ3Q7IGRlc2NyaWJlZCBpbiB0aGUgY29tbWl0IG1lc3NhZ2Ug
+Zm9yIHRoZSBzcGVjaWZpYyBjb2RlIHBhdGggaW4KJmd0OyBzbWNfY2xvc2VfYWN0aXZlKCkuCiZn
+dDsgQ291bGQgeW91IGNvbWUgdXAgd2l0aCBleGFjdCBkZWFkbG9jayBzY2VuYXJpbyBhbmQgaG93
+IHRoZSBwYXRjaAomZ3Q7IGFkZHJlc3NlcyBpdD8KCllvdSBhcmUgcmlnaHQuIEkgZG8gbm90IGhh
+dmUgYSBjb25maXJtZWQgY3VycmVudCBtYWlubGluZSBjYWxsIGNoYWluIHdoZXJlCnRoZSBjYWxs
+YmFjayBpcyBpbnZva2VkIHVuZGVyIHNrX2NhbGxiYWNrX2xvY2ssIGFuZCB0aGUgVENQX0xJU1RF
+TiBjaGVjawpkb2VzIG5vdCBjb3ZlciB0aGUgc21jX2Nsb3NlX2FjdGl2ZSgpIHdpbmRvdyB5b3Ug
+cG9pbnRlZCBvdXQuCgpJIHdpbGwgZHJvcCB0aGlzIHBhdGNoIGZvciBub3cuIFRoYW5rcyBmb3Ig
+cmV2aWV3aW5nIGl0LgoKUnVueXU=
