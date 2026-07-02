@@ -1,129 +1,144 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D159133AD8B;
-	Thu,  2 Jul 2026 15:37:22 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B781423EAAD;
+	Thu,  2 Jul 2026 15:42:40 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783006643; cv=none; b=SExp7j6HYKtl1BM+JTeESUqm835ODqfSErK4vb1NtpOa4KJnv5q/7fUVQwZyVoUMqMobe9yYC/b/G0iEp4laCNwu/1YrxpPTZhkm2Bs7dyuuIHdDRYa8NGhBXN0+b8zj2qO+sV1T8vnstb6LIKwsgS6PL6TrMuZMrynUbsX3GWU=
+	t=1783006961; cv=none; b=ZmmJWpZuUGJSTQPXV6xdoHjbZIqqcoJ/mPHgHqdcg773qeucGawjgnQiQSEgupgDkUr4+gF1IKD3kOYZGb4LsOMEMqQY+rhsT+qr3UVvOOvrFZni9fUosV5CsSKScYSxD3fYwLS4sXStwqFIlILijDbZcLctk6XcxPWtfqmLP98=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783006643; c=relaxed/simple;
-	bh=fJVyZh0pvJag5lWYALfj+g9cKsqC+eiPscvf5q6mzR8=;
+	s=arc-20240116; t=1783006961; c=relaxed/simple;
+	bh=fv8QKjjNUYkRFKY1rXprhyqajYSrSAEh/XgyvF6PyhE=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=eA92TrXmOXAHekfO+pq0XtoSvFowUKOaNpRP4jwiAF+BViruhftRi7KVAFd/h1pxhgeo+GOGFGPKNutykTjEY0VDb0mxG4OuNay0TdS2x67mKmqmSu/eyKNy+mvs5kYwsNf+EjTHVMhrlb9QdkU9Ad8z5IX/LYz7YuQJWtiJ4QY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QdxIb0dX; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=M0Xn2mXEPzjusGeCNtWeC4fhScLeQImrUEIZVa4lzTsuQprju+x6MGbWFzY9Qhbc7lsjy0xE2OHI2uyV29NmvkdmKPcBDMMh1ZtCNVQ/DgWIqEmu19PmjMiayGt2tfX69b8UKER69j/Dnwn12JEEkKw1/OJ4qhbArB1MseMAlxY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XeDapC4W; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QdxIb0dX"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4320C1F00A3A;
-	Thu,  2 Jul 2026 15:37:22 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XeDapC4W"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B8771F000E9;
+	Thu,  2 Jul 2026 15:42:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783006642;
-	bh=GXmDdv4L21lQ3apq/yJWEsYwmxeG2HVUovxgQkU0bjY=;
+	s=k20260515; t=1783006960;
+	bh=EIGbTe1EaJ/Lhm6nKYxTHi3qCLndVlOvs3TvoSkkWMU=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=QdxIb0dXdn3J1eKJQJTFks9q+DCwlPHr8xA7/ybLXwp5lHttgeeb6hvMaSkzbQc/h
-	 jbEAPC1tnM5MAvhLHDcE/6/NOmRAZwUaj7cGCvLEBR41JcumqVurtRVpKBTgpwiPwd
-	 dp2yL0v37bx6VXYAK6k93t+PYLw/uLdvVz6T8jELb1PilLoIEsWzgyG7gf+C0HOVrc
-	 XnEzt918lrh94Pxs0LRR/wAi9Lqr8BZ0fkVVpt5efeHlpFBfMFVae1rjwK9zlYmWTh
-	 FPQjBZAD9ZXz4luL9a7ER+DXGFdPC7qH07eKYmuajLYwJ73LrClJdXDhjA5Y321ACS
-	 4T7UpOXKTzixg==
+	b=XeDapC4WVKeF9fkXZgyQnJjv/t+zty7ZMIbyvJe+h0dfPWUcqBilbKY62jwDc6tOL
+	 qrw7le2tLld3f7Q93TAvsk5gK4pAwZs89DT6N2lBJxH28Hl2Yta1hazCaCM9gDmRpn
+	 /O/+cS14zabMWtKn2q9zGK/l2SKy+3Z+UREjdMBz/tcllMGbku4Q++zJ8E0UYASin0
+	 rKacIlwJ+3sqk1nYvH5kBpMGBBy+jhg82u83brMLUFGZtjLzD8vJBmHb4ZIex3VoWJ
+	 +MRchNgM/ALnTb/kibKa1JZY1t96rUskU3WNHQOTmy0njyKkjrBSyvpuKVX2/V8qEd
+	 fbskv14S/cOXw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v1 4/8] KVM: s390: Fix return value of
- kvm_s390_set_cmma_bits()
+Subject: Re: [PATCH v1 3/8] KVM: s390: Fix unlikely race with
+ KVM_CAP_S390_USER_OPEREXEC
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>
-Cc: kvm@vger.kernel.org, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Heiko
- Carstens" <hca@linux.ibm.com>, linux-s390@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>
-In-Reply-To: <20260702152406.204782-5-imbrenda@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
+ Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
+In-Reply-To: <20260702152406.204782-4-imbrenda@linux.ibm.com>
 References: <20260702152406.204782-1-imbrenda@linux.ibm.com>
- <20260702152406.204782-5-imbrenda@linux.ibm.com>
+ <20260702152406.204782-4-imbrenda@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 02 Jul 2026 15:37:21 +0000
-Message-Id: <20260702153722.4320C1F00A3A@smtp.kernel.org>
+Date: Thu, 02 Jul 2026 15:42:39 +0000
+Message-Id: <20260702154240.0B8771F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [High] Leaked positive error codes (e.g., PGM_ADDRESSING) to userspace in=
- KVM storage key ioctls.
+- [High] The WRITE_ONCE() fix for KVM_CAP_S390_USER_OPEREXEC is architectur=
+ally insufficient to prevent hardware Store-Load reordering, leaving the co=
+ncurrency race exploitable.
+- [High] KVM_CAP_S390_USER_INSTR0 suffers from the identical concurrency vu=
+lnerability as USER_OPEREXEC, but was completely missed by the patch.
 --
 
-commit 9e2ad138adcf0c89db7df7095fa7b5199afab279
+commit d2c961d1e461c8babbad1df33fbe8ed3bddfddba
 Author: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-KVM: s390: Fix return value of kvm_s390_set_cmma_bits()
+KVM: s390: Fix unlikely race with KVM_CAP_S390_USER_OPEREXEC
 
-If kvm_s390_set_cmma_bits() is asked to set CMMA values outside of a
-memslot, PGM_ADDRESSING (5) is returned, instead of a negative error
-value. Fix by returning -EFAULT whenever the return value would be > 0.
+This commit attempts to fix a race condition when enabling
+KVM_CAP_S390_USER_OPEREXEC concurrently with vCPU creation. It uses
+WRITE_ONCE() to ensure the capability flag is set before updating all
+vCPUs.
 
 > diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> index 4a6d903e35231..784f7d9c79c74 100644
 > --- a/arch/s390/kvm/kvm-s390.c
 > +++ b/arch/s390/kvm/kvm-s390.c
-> @@ -2384,7 +2384,7 @@ static int kvm_s390_set_cmma_bits(struct kvm *kvm,
-> =20
->  	set_bit(GMAP_FLAG_USES_CMM, &kvm->arch.gmap->flags);
-> =20
-> -	return r;
-> +	return r <=3D 0 ? r : -EFAULT;
+
+[ ... ]
+
+> @@ -955,7 +955,7 @@ int kvm_vm_ioctl_enable_cap(struct kvm *kvm, struct k=
+vm_enable_cap *cap)
+>  		break;
+>  	case KVM_CAP_S390_USER_OPEREXEC:
+>  		VM_EVENT(kvm, 3, "%s", "ENABLE: CAP_S390_USER_OPEREXEC");
+> -		kvm->arch.user_operexec =3D 1;
+> +		WRITE_ONCE(kvm->arch.user_operexec, 1);
+>  		icpt_operexc_on_all_vcpus(kvm);
 
 [Severity: High]
-This isn't a bug introduced by this patch, but since you are fixing the
-leaked PGM_ADDRESSING error code here, should we also fix the same issue
-in the storage key ioctls?
+This isn't a bug introduced by this patch, but is WRITE_ONCE() sufficient h=
+ere
+to prevent hardware Store-Load reordering?
 
-If userspace calls KVM_S390_GET_SKEYS or KVM_S390_SET_SKEYS with an
-out-of-bounds guest address, do they also return the positive error code
-directly?
+On s390x, hardware Store-Load reordering is permitted. When Thread A enables
+the capability, it stores to user_operexec and then loads online_vcpus insi=
+de
+icpt_operexc_on_all_vcpus():
 
-arch/s390/kvm/kvm-s390.c:kvm_s390_get_skeys() {
-    ...
-    r =3D dat_get_storage_key(kvm->arch.gmap->asce, args->start_gfn + i, ke=
-ys + i);
-    if (r)
-        break;
-    ...
-    return r;
-}
+Thread A:
+    WRITE_ONCE(kvm->arch.user_operexec, 1);
+    // icpt_operexc_on_all_vcpus()
+    kvm_for_each_vcpu(i, vcpu, kvm) { ... }=20
 
-arch/s390/kvm/kvm-s390.c:kvm_s390_set_skeys() {
-    ...
-    r =3D dat_set_storage_key(mc, kvm->arch.gmap->asce, args->start_gfn + i=
-, keys[i], 0);
-    if (r)
-        break;
-    ...
-    return r;
-}
+Thread B concurrently creates a vCPU, incrementing online_vcpus and then
+loading user_operexec in kvm_arch_vcpu_postcreate():
 
-Furthermore, for KVM_S390_KEYOP, does it falsely report success and assign
-the error code to the output key?
+Thread B:
+    atomic_inc(&kvm->online_vcpus);
+    if (... || vcpu->kvm->arch.user_operexec)
+        vcpu->arch.sie_block->ictl |=3D ICTL_OPEREXC;
 
-arch/s390/kvm/kvm-s390.c:kvm_arch_vm_ioctl() {
-    case KVM_S390_KEYOP: {
-        ...
-        r =3D kvm_s390_keyop(mc, kvm, kop.operation, kop.guest_addr, skey);
-        ...
-        if (r < 0)
-            break;
+Without a full memory barrier (smp_mb()), Thread A's CPU can execute the lo=
+ad
+of online_vcpus before the store to user_operexec is globally visible. Thre=
+ad
+A might miss the new vCPU, and Thread B might read user_operexec =3D=3D 0. =
+Does
+this require an explicit smp_mb() between the store and the loop?
 
-        kop.key =3D r;
-        r =3D 0;
-        ...
-}
+[Severity: High]
+This is a pre-existing issue, but does KVM_CAP_S390_USER_INSTR0 suffer from=
+ the
+exact same concurrency vulnerability?
 
-Should these functions also be updated to return -EFAULT for positive error=
-s,
-just like kvm_s390_set_cmma_bits() does here?
+In the same kvm_vm_ioctl_enable_cap() function, KVM_CAP_S390_USER_INSTR0 us=
+es
+the identical pattern:
 
->  }
+    kvm->arch.user_instr0 =3D 1;
+    icpt_operexc_on_all_vcpus(kvm);
+
+Since kvm_arch_vcpu_postcreate() also reads user_instr0:
+
+    if (test_kvm_facility(vcpu->kvm, 74) || vcpu->kvm->arch.user_instr0 ||
+        vcpu->kvm->arch.user_operexec)
+        vcpu->arch.sie_block->ictl |=3D ICTL_OPEREXC;
+
+Could a concurrent vCPU creation fail to enable the ICTL_OPEREXC intercept =
+if
+it reads user_instr0 =3D=3D 0 while the enablement loop misses the new vCPU?
+
+>  		r =3D 0;
+>  		break;
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260702152406.2047=
-82-1-imbrenda@linux.ibm.com?part=3D4
+82-1-imbrenda@linux.ibm.com?part=3D3
