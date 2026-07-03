@@ -1,140 +1,139 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E44203B776D
-	for <linux-s390@vger.kernel.org>; Fri,  3 Jul 2026 10:27:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B56837883D;
+	Fri,  3 Jul 2026 10:57:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.92.199
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783074451; cv=none; b=t/q8eA5F5fuM1d/OE0lCzYzD8A+eiqjfawWtePXgu9HoAZEZ8TkBVbWuU4sVIwkYO/oKNWJ1hCxp+fX5u9jC/FfN9iNP4bGdoobK6tnSkAAYKympR2t6WNaE0Bqf8L5bE42ujrbHp0RbGOYuyo5U2YTJWug7KOsdBffqM6Un0Xo=
+	t=1783076282; cv=none; b=obJth3D/gKJo6EBAoe29uNyALew/AHi5RNVJF98xV+j1g+91smvcMeW1bZY5Wv3BLsfqXrc8mYKMYsgi1NHXhkvEQMCEsH8ZLcxrj5r0M3nqOOVaZf/Ro/d5CderF6pXDxQsvajzbo1/8Y0OXvNZb4QikRCU0+I57GGrR7XPIyg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783074451; c=relaxed/simple;
-	bh=qX3mh1ZmKRwgtJ/XXa2YTIP+rQRpYl70DOmHi35hP9U=;
+	s=arc-20240116; t=1783076282; c=relaxed/simple;
+	bh=nRHNYLc6Nfg7xB81wwkKAxbrOF3ZO6qacFFscCrn6Xk=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=C3YV4KfTbz57oWTezl6ThOfcVnXmgvThMAFmEqICmrdqKZUmETD9+qMwrDwJZIMBnQq1IyYVCK/d60XmsjR+Utb0hsXdauq95FSVzUIq46tawUve9iTuXpDaDiqVIIXJxHz6QPS1u3UUOksbpNJEuqhjUBBbWyeF6jNrCKpwAOA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; arc=none smtp.client-ip=195.135.223.130
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
-Received: from kunlun.suse.cz (unknown [IPv6:2a07:de40:b306:2000::2])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (prime256v1) server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id 8F70A74890;
-	Fri,  3 Jul 2026 10:27:27 +0000 (UTC)
-Authentication-Results: smtp-out1.suse.de;
-	none
-Date: Fri, 3 Jul 2026 12:27:26 +0200
-From: Michal =?iso-8859-1?Q?Such=E1nek?= <msuchanek@suse.de>
-To: Mark Rutland <mark.rutland@arm.com>
-Cc: Thomas Gleixner <tglx@kernel.org>, Jinjie Ruan <ruanjinjie@huawei.com>,
-	oleg@redhat.com, richard.henderson@linaro.org, mattst88@gmail.com,
-	linmag7@gmail.com, linux@armlinux.org.uk, catalin.marinas@arm.com,
-	will@kernel.org, kees@kernel.org, guoren@kernel.org,
-	chenhuacai@kernel.org, kernel@xen0n.name, geert@linux-m68k.org,
-	tsbogend@alpha.franken.de, James.Bottomley@hansenpartnership.com,
-	deller@gmx.de, maddy@linux.ibm.com, mpe@ellerman.id.au,
-	npiggin@gmail.com, chleroy@kernel.org, pjw@kernel.org,
-	palmer@dabbelt.com, aou@eecs.berkeley.edu, alex@ghiti.fr,
-	hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
-	borntraeger@linux.ibm.com, svens@linux.ibm.com,
-	ysato@users.sourceforge.jp, dalias@libc.org,
-	glaubitz@physik.fu-berlin.de, richard@nod.at,
-	anton.ivanov@cambridgegreys.com, johannes@sipsolutions.net,
-	luto@kernel.org, mingo@redhat.com, bp@alien8.de,
-	dave.hansen@linux.intel.com, hpa@zytor.com, chris@zankel.net,
-	jcmvbkbc@gmail.com, peterz@infradead.org, wad@chromium.org,
-	thuth@redhat.com, ada.coupriediaz@arm.com, kevin.brodsky@arm.com,
-	linusw@kernel.org, yeoreum.yun@arm.com, song@kernel.org,
-	james.morse@arm.com, anshuman.khandual@arm.com, broonie@kernel.org,
-	liqiang01@kylinos.cn, pengcan@kylinos.cn, ryan.roberts@arm.com,
-	yangtiezhu@loongson.cn, sshegde@linux.ibm.com,
-	mchauras@linux.ibm.com, austin.kim@lge.com, jchrist@linux.ibm.com,
-	arnd@arndb.de, thomas.weissschuh@linutronix.de,
-	sohil.mehta@intel.com, andrew.cooper3@citrix.com, jgross@suse.com,
-	kas@kernel.org, x86@kernel.org, linux-alpha@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-mm@kvack.org, linux-csky@vger.kernel.org,
-	loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
-	linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-	linux-um@lists.infradead.org
-Subject: Re: [PATCH v16 01/18] seccomp: Convert __secure_computing() to
- return boolean
-Message-ID: <akeOjqMy7HVgRRCr@kunlun.suse.cz>
-References: <20260629130616.642022-1-ruanjinjie@huawei.com>
- <20260629130616.642022-2-ruanjinjie@huawei.com>
- <akdp6GAu77-ipsXA@kunlun.suse.cz>
- <87cxx4mmim.ffs@fw13>
- <akeIK5TRCjlKbzbp@J2N7QTR9R3>
+	 Content-Type:Content-Disposition:In-Reply-To; b=bORCw2cvcylJLn5U15eigolmv1awkLEnBoh1n1ijMVZ4+8WmiU9h7DfL9rO0/NALtW8MBcAb/WtfdIlz09G9pjJmE+fxo5IghlamAARR8eokRDkYZVPn6CawZD7032xg+fy5dWDCZbp6lUB38XqZB1a+F1Uwi7l/iEtc9sH0vXI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=pass smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=m8iiOBj9; arc=none smtp.client-ip=90.155.92.199
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=infradead.org
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="m8iiOBj9"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=z9mfhe8NL5p/8FnxdJEUK4N0owxOfETS9bDtYqAhEkY=; b=m8iiOBj9h+vogWkfy1Cne5Qkvv
+	rZ158rJbURZ9yw3QpqOT4NqpPFzMnxZg+4eUX3xqtzNTT7MXwtCo7fTZvtLEzyvgbM3WQzmM6uTmA
+	fyH+gCWqn0r5WOQUm2gUCOWz3zmvr2fGMZVU5VQqlUQMKmX2dldYOi9SaBfvk1ZMqRvDE2vQjoEV5
+	aQK5s98fiZZh79Dzjqt+p8BEwfsnr4UgGmDUrd30tzwpr0WaU759DWCAcBzBuay9OD3rDaY58EYaj
+	6QIZcBfJjwyEjtSpP75/J7O3osN1paoow9q7momriwcMe+vS0b83x4BnSwtjZaRQUaA0GvgJQBDW+
+	00qcBIcA==;
+Received: from 77-249-17-252.cable.dynamic.v4.ziggo.nl ([77.249.17.252] helo=noisy.programming.kicks-ass.net)
+	by desiato.infradead.org with esmtpsa (Exim 4.99.2 #2 (Red Hat Linux))
+	id 1wfbaC-00000004jKJ-3HEk;
+	Fri, 03 Jul 2026 10:57:21 +0000
+Received: by noisy.programming.kicks-ass.net (Postfix, from userid 1000)
+	id 95062300220; Fri, 03 Jul 2026 12:57:18 +0200 (CEST)
+Date: Fri, 3 Jul 2026 12:57:18 +0200
+From: Peter Zijlstra <peterz@infradead.org>
+To: Sven Schnelle <svens@linux.ibm.com>
+Cc: Thomas Gleixner <tglx@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>,
+	Michal =?iso-8859-1?Q?Such=E1nek?= <msuchanek@suse.de>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Shuah Khan <skhan@linuxfoundation.org>,
+	Huacai Chen <chenhuacai@kernel.org>,
+	WANG Xuerui <kernel@xen0n.name>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+	Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
+	Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Andy Lutomirski <luto@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+	Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+	Andrew Donnellan <andrew+kernel@donnellan.id.au>,
+	Mark Rutland <mark.rutland@arm.com>, Arnd Bergmann <arnd@arndb.de>,
+	Jiaxun Yang <jiaxun.yang@flygoat.com>,
+	Ryan Roberts <ryan.roberts@arm.com>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Mukesh Kumar Chaurasiya <mkchauras@linux.ibm.com>,
+	Shrikanth Hegde <sshegde@linux.ibm.com>,
+	Zong Li <zong.li@sifive.com>, Nam Cao <namcao@linutronix.de>,
+	Deepak Gupta <debug@rivosinc.com>,
+	Lukas Gerlach <lukas.gerlach@cispa.de>,
+	Rui Qi <qirui.001@bytedance.com>, Kees Cook <kees@kernel.org>,
+	linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+	loongarch@lists.linux.dev, linuxppc-dev@lists.ozlabs.org,
+	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org
+Subject: Re: [RFC] entry: Untangle the return value of
+ syscall_enter_from_user_mode from syscall NR
+Message-ID: <20260703105718.GO751831@noisy.programming.kicks-ass.net>
+References: <akVRcPsD_R_CE1qW@kunlun.suse.cz>
+ <BA7CD91D-C0E5-47A1-B49C-BC6AF6604182@zytor.com>
+ <87h5mhnjsr.ffs@fw13>
+ <yt9dwlvca8rn.fsf@linux.ibm.com>
+ <87ldbsmnie.ffs@fw13>
+ <yt9d5x2w5r84.fsf@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <akeIK5TRCjlKbzbp@J2N7QTR9R3>
-X-Rspamd-Pre-Result: action=no action;
-	module=replies;
-	Message is reply to one we originated
-X-Rspamd-Queue-Id: 8F70A74890
-X-Spam-Flag: NO
-X-Spam-Score: -2.00
-X-Spam-Level: 
-X-Rspamd-Action: no action
-X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
-X-Rspamd-Pre-Result: action=no action;
-	module=replies;
-	Message is reply to one we originated
-X-Spamd-Result: default: False [-2.00 / 50.00];
-	REPLY(-4.00)[];
-	RDNS_NONE(2.00)[];
-	R_RATELIMIT(0.00)[to_ip_from(RL1f5ktcu9q8c5toc5bju644qd)]
+In-Reply-To: <yt9d5x2w5r84.fsf@linux.ibm.com>
 
-On Fri, Jul 03, 2026 at 11:00:11AM +0100, Mark Rutland wrote:
-> On Fri, Jul 03, 2026 at 11:48:49AM +0200, Thomas Gleixner wrote:
-> > On Fri, Jul 03 2026 at 09:51, Michal Suchánek wrote:
-> > > On Mon, Jun 29, 2026 at 09:05:59PM +0800, Jinjie Ruan wrote:
-> > >> -	if (secure_computing())
-> > >> +	if (!secure_computing())
-> > >>  		return -1;
-> > >
-> > > Hello,
-> > >
-> > > I am not fond of this logic inversion. The boolean is meaningless in
-> > > itself.
-> > >
-> > > Previously -1 was used to indicate that the syscall was filtered but you
-> > > chose to invert the logic choosing true to mean syscall was not filtered.
-> > >
-> > > You could choose true to mean that syscall was fitered avoiding this
-> > > inversion.
-> > 
-> > That's just wrong. Boolean logic makes more sense with having
-> > (!condition()). Just because the old 0/-1 nonsense had it the other way
-> > round does not mean it has to stay that way.
+On Fri, Jul 03, 2026 at 11:59:07AM +0200, Sven Schnelle wrote:
+> Thomas Gleixner <tglx@kernel.org> writes:
 > 
-> 100% agreed!
+> > On Fri, Jul 03 2026 at 08:26, Sven Schnelle wrote:
+> >> Thomas Gleixner <tglx@kernel.org> writes:
+> >>> It's less than obvious and I have no objections to clean that up and
+> >>> make it more intuitive, but I still fail to see what Michal is actually
+> >>> trying to solve and what the magic flag is for. If s390 requires it,
+> >>> then that's an s390 problem, but definitely x86 does not.
+> >>
+> >> The difference between x86 and s390 is that on s390, regs->gprs[2] is
+> >> used for both the syscall number and the syscall return value.
+> >> That was a design mistake early in the begin about 25 years ago, but
+> >> it's ABI now, so it cannot be changed.
+> >
+> > Cute.
+> >
+> >> When seccomp decides to skip a syscall, it write a return value into
+> >> regs->gprs[2]. When syscall_enter_from_user_mode_work() returns, it
+> >> returns this number. If it's negative all is good - the 'if (likely(nr <
+> >> NR_syscalls))' conditiion would just catch it and skip the syscall.
+> >>
+> >> But if it's a positive number, the code cannot distinguish whether
+> >> that's a return value or a syscall number.
+> >>
+> >> So I introduced PIF_SYSCALL_RET_SET when converting s390 to generic
+> >> entry. This flag tells the syscall code that a return value was set in
+> >> ptregs and the syscall should be skipped.
+> >
+> > You also could have added a 'syscall_ret' member to pt_regs, operate
+> > on that for the return values (seccomp, syscall...) and swap it into
+> > gprs[2] right before returning to user space.
 > 
-> Bikeshedding below; sorry.
-> 
-> I think the bigger problem is just that secure_computing() is a terrible
-> name that does not express the intended semantic -- it's not clear
-> whether "secure computing" means "seccomp permit the syscall" or
-> "seccomp is enabled and some special rules now apply" or something else
-> entirely.
-> 
-> If we're changing the return type, it might be worth renaming the
-> function something like:
-> 
-> 	seccomp_permits_syscall()
+> That would likely also work, but I found it easier to read and
+> understand to have an additional flag with a descriptive name than having
+> yet another 'somehow-related-to-gpr2' member in ptregs.
 
-Then not only it is clear which way the boolean value should be
-interpreted, it also pervents the accidental inversion of existing
-calls. Overall great.
+I find this very odd; I would think that having both syscall-nr and
+syscall-ret in separate (virtual) registers for most of the normal cycle
+would be most obvious and less surprising -- given that this is what all
+other architectures do.
 
-Thanks
+Entry either grabs a copy of gpr2 and preserves it in orig_gpr2 as the
+syscall nr, or as Thomas suggests, you keep syscall_ret and copy that
+into gpr2 on return to userspace (and ptrace and signal and whatever
+other surface bits are affected).
 
-Michal
+Either way around you then have separate values for the entire range of
+at least the C part of the kernel syscall handling -- just like every
+other arch. How is munging things in a single value and a flag easier?
