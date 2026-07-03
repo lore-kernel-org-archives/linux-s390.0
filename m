@@ -1,127 +1,150 @@
-Received: from out-179.mta0.migadu.com (out-179.mta0.migadu.com [91.218.175.179])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F18C82367D3
-	for <linux-s390@vger.kernel.org>; Fri,  3 Jul 2026 14:54:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1B6762E2DF2
+	for <linux-s390@vger.kernel.org>; Fri,  3 Jul 2026 17:12:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783090500; cv=none; b=pljVZhFFZI7ljcq6GnLlkiWujrsuPpaU3kqt0Ag4r4osNpeu2JHD4fcCpgrNQko9b7mgBrDu9cAiOYYro+tjv/9BzIeHIpfTZssMvRCKqfBW50xU0Vb1MO7unGbhzJzxd5Ku483kiogAp8XvHHLYayVQQGIoghLNGjQ3rUa/paI=
+	t=1783098761; cv=none; b=Swqw/lymHVHzwUWuk9jzxKnQQOHdLSf3lC6TtPRPo5/lQj4itoX47bLDRSJ/Y3jFW0wBs5vMMMkQCLQ7zX3k90qidt/kVRYXFCl/q/iqNox04De+6QK5PLAtR3vsS6b5edCZce6Fkd+W9sKkqfPxPVqqOx9CnnLKorc6s4GXm60=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783090500; c=relaxed/simple;
-	bh=SbPuoxe9/8K5nDiss1P1G+SXa5cD6+BbCbutJ10O3gA=;
-	h=Mime-Version:Content-Type:Date:Message-Id:Cc:Subject:From:To:
-	 References:In-Reply-To; b=aEYthiScmjqUuGUIQI+318CQxUtDxTTcAFgbC+J4x8PUqD6uNMIxTYDBLdMq86jsEp9eM/fNRnAayQaOqQCyuv4ExydXTXYUTErHXCL4DAr0DYfn3HNss2mjuOsPkGH8zMYah6KzDcRnm3JULODtBG92sSzFErp3BPf86w9b/5E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=GoqgUdNe; arc=none smtp.client-ip=91.218.175.179
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1783098761; c=relaxed/simple;
+	bh=ueV0dCW35Ji2Vz4+gzOMTmZxSMs9jupI4igg695g/7w=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=e7C6+gzmvNnzBXGVFI7LqiyWnN/96MrAQtpZSxD4cHmR9H13pSRtp8FR4iRH/RnHe6NPKdGhGlv/mMlDf49fg2rQ/5xQHEwQ/FAYZ+8atchubgov2O/utC5Pdqwm6SLwFWUcU19cqrBn42Au581+EkCEIV8wpqs9/M/dMZj5h9A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mOjKazNT; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="GoqgUdNe"
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mOjKazNT"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 625D21F000E9;
+	Fri,  3 Jul 2026 17:12:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1783098759;
+	bh=ilJAS6P336tJgldnt72tum2bTrBIl+GKzUTK2Txvyeg=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=mOjKazNTcitAKRZ5RrnLBkj3U/NYkNYUzoBtXcvM9jiteSqjwtRMeha3+aM1naTZ9
+	 fCCDTvfIYzMmonAoXZPfuDHd3DaZPo0c6vIdND3c1gjQ63jhGHfHYfLMA6C5rQqBMG
+	 E7CLtUhcAdTekPRpN74MpWwRkXVnSn1akdLBkMBInd4ZGqyNUOV+xzfEG288f0ZnN0
+	 xH/fofAtYBoluIxxmlFG/9BxlBDV17i03nzUpDpyjlC2fN/aeookX05FKI+8JOpGL+
+	 aYpNSYXanlmCQASq/z5go/KF1BsnKnXd+tKQpi2UW+LkIhSYdlJnwkC84rN65WQwXj
+	 G6Og+52wc2lSg==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH net] net/smc: ignore peer-supplied rmbe_idx and dmbe_idx
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Dust Li" <dust.li@linux.alibaba.com>
+Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
+ Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
+In-Reply-To: <20260702171137.1099051-2-dust.li@linux.alibaba.com>
+References: <20260702171137.1099051-2-dust.li@linux.alibaba.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 03 Jul 2026 17:12:38 +0000
+Message-Id: <20260703171239.625D21F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1783090495;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=SbPuoxe9/8K5nDiss1P1G+SXa5cD6+BbCbutJ10O3gA=;
-	b=GoqgUdNey9WibpT4bCWElWCK/Q8ZarEulgJnOwtH8yUYJA68i9+SGQflaQqhfntmLTLqoe
-	eB23ClEBpn2xCd2QuZuRlpe/F6BVVRjYG8MpJKtoXNNPTsnfkNo24Jc6bEsuCimTjf2nDr
-	Gtk6mCa7gTMDQeIwZl5Jn3GGSudvZ6Y=
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Fri, 03 Jul 2026 14:54:45 +0000
-Message-Id: <DJP0TON6OW7J.EPYIYFFA5ZOZ@linux.dev>
-Cc: "Kalyazin, Nikita" <kalyazin@amazon.co.uk>, "kvm@vger.kernel.org"
- <kvm@vger.kernel.org>, "linux-doc@vger.kernel.org"
- <linux-doc@vger.kernel.org>, "linux-kernel@vger.kernel.org"
- <linux-kernel@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org"
- <linux-arm-kernel@lists.infradead.org>, "kvmarm@lists.linux.dev"
- <kvmarm@lists.linux.dev>, "linux-fsdevel@vger.kernel.org"
- <linux-fsdevel@vger.kernel.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>,
- "bpf@vger.kernel.org" <bpf@vger.kernel.org>,
- "linux-kselftest@vger.kernel.org" <linux-kselftest@vger.kernel.org>,
- "kernel@xen0n.name" <kernel@xen0n.name>, "linux-riscv@lists.infradead.org"
- <linux-riscv@lists.infradead.org>, "linux-s390@vger.kernel.org"
- <linux-s390@vger.kernel.org>, "loongarch@lists.linux.dev"
- <loongarch@lists.linux.dev>, "linux-pm@vger.kernel.org"
- <linux-pm@vger.kernel.org>, "pbonzini@redhat.com" <pbonzini@redhat.com>,
- "corbet@lwn.net" <corbet@lwn.net>, "suzuki.poulose@arm.com"
- <suzuki.poulose@arm.com>, "yuzenghui@huawei.com" <yuzenghui@huawei.com>,
- "will@kernel.org" <will@kernel.org>, "seanjc@google.com"
- <seanjc@google.com>, "tglx@kernel.org" <tglx@kernel.org>,
- "mingo@redhat.com" <mingo@redhat.com>, "bp@alien8.de" <bp@alien8.de>,
- "dave.hansen@linux.intel.com" <dave.hansen@linux.intel.com>,
- "x86@kernel.org" <x86@kernel.org>, "hpa@zytor.com" <hpa@zytor.com>,
- "luto@kernel.org" <luto@kernel.org>, "peterz@infradead.org"
- <peterz@infradead.org>, "willy@infradead.org" <willy@infradead.org>,
- "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "david@kernel.org"
- <david@kernel.org>, "lorenzo.stoakes@oracle.com"
- <lorenzo.stoakes@oracle.com>, "vbabka@kernel.org" <vbabka@kernel.org>,
- "surenb@google.com" <surenb@google.com>, "mhocko@suse.com"
- <mhocko@suse.com>, "ast@kernel.org" <ast@kernel.org>,
- "martin.lau@linux.dev" <martin.lau@linux.dev>, "eddyz87@gmail.com"
- <eddyz87@gmail.com>, "song@kernel.org" <song@kernel.org>,
- "yonghong.song@linux.dev" <yonghong.song@linux.dev>,
- "john.fastabend@gmail.com" <john.fastabend@gmail.com>, "kpsingh@kernel.org"
- <kpsingh@kernel.org>, "sdf@fomichev.me" <sdf@fomichev.me>,
- "haoluo@google.com" <haoluo@google.com>, "jolsa@kernel.org"
- <jolsa@kernel.org>, "jgg@ziepe.ca" <jgg@ziepe.ca>, "jhubbard@nvidia.com"
- <jhubbard@nvidia.com>, "peterx@redhat.com" <peterx@redhat.com>,
- "jannh@google.com" <jannh@google.com>, "pfalcato@suse.de"
- <pfalcato@suse.de>, "skhan@linuxfoundation.org"
- <skhan@linuxfoundation.org>, "riel@surriel.com" <riel@surriel.com>,
- "ryan.roberts@arm.com" <ryan.roberts@arm.com>, "jgross@suse.com"
- <jgross@suse.com>, "yu-cheng.yu@intel.com" <yu-cheng.yu@intel.com>,
- "kas@kernel.org" <kas@kernel.org>, "coxu@redhat.com" <coxu@redhat.com>,
- "ackerleytng@google.com" <ackerleytng@google.com>, "yosry@kernel.org"
- <yosry@kernel.org>, "maobibo@loongson.cn" <maobibo@loongson.cn>,
- "tabba@google.com" <tabba@google.com>, "prsampat@amd.com"
- <prsampat@amd.com>, "jthoughton@google.com" <jthoughton@google.com>,
- "agordeev@linux.ibm.com" <agordeev@linux.ibm.com>, "aou@eecs.berkeley.edu"
- <aou@eecs.berkeley.edu>, "borntraeger@linux.ibm.com"
- <borntraeger@linux.ibm.com>, "chenhuacai@kernel.org"
- <chenhuacai@kernel.org>, "baolu.lu@linux.intel.com"
- <baolu.lu@linux.intel.com>, "dev.jain@arm.com" <dev.jain@arm.com>,
- "gor@linux.ibm.com" <gor@linux.ibm.com>, "hca@linux.ibm.com"
- <hca@linux.ibm.com>, "palmer@dabbelt.com" <palmer@dabbelt.com>,
- "pjw@kernel.org" <pjw@kernel.org>, "shijie@os.amperecomputing.com"
- <shijie@os.amperecomputing.com>, "svens@linux.ibm.com"
- <svens@linux.ibm.com>, "thuth@redhat.com" <thuth@redhat.com>,
- "yang@os.amperecomputing.com" <yang@os.amperecomputing.com>,
- "Liam.Howlett@oracle.com" <Liam.Howlett@oracle.com>, "urezki@gmail.com"
- <urezki@gmail.com>, "zhengqi.arch@bytedance.com"
- <zhengqi.arch@bytedance.com>, "gerald.schaefer@linux.ibm.com"
- <gerald.schaefer@linux.ibm.com>, "jiayuan.chen@shopee.com"
- <jiayuan.chen@shopee.com>, "rafael@kernel.org" <rafael@kernel.org>,
- "yangyicong@hisilicon.com" <yangyicong@hisilicon.com>,
- "vannapurve@google.com" <vannapurve@google.com>, "jackmanb@google.com"
- <jackmanb@google.com>, "patrick.roy@linux.dev" <patrick.roy@linux.dev>,
- "Itazuri, Takahiro" <itazur@amazon.co.uk>, "Manwaring, Derek"
- <derekmn@amazon.com>
-Subject: Re: [PATCH v12 02/16] set_memory: add
- folio_{zap,restore}_direct_map helpers
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From: "Brendan Jackman" <brendan.jackman@linux.dev>
-To: "Mike Rapoport" <rppt@kernel.org>, "Brendan Jackman"
- <brendan.jackman@linux.dev>
-References: <20260410151746.61150-1-kalyazin@amazon.com>
- <20260410151746.61150-3-kalyazin@amazon.com>
- <DJOUYOKL6N3R.BFIO8HEL03OA@linux.dev> <ake7aPB2O_-dAXhI@kernel.org>
-In-Reply-To: <ake7aPB2O_-dAXhI@kernel.org>
-X-Migadu-Flow: FLOW_OUT
 
-On Fri Jul 3, 2026 at 1:38 PM UTC, Mike Rapoport wrote:
-> On Fri, Jul 03, 2026 at 10:19:10AM +0000, Brendan Jackman wrote:
-...
->> Alternatively, we maybe should disable secretmem for highmem systems
->> since it evidently doesn't have any users.
->
-> Yes, please :)=20
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
 
-https://lore.kernel.org/all/20260703-secretmem-highmem-v1-1-30d5ff944664@go=
-ogle.com/
+New issues:
+- [High] Hardcoding `peer_rmbe_idx` and `tx_off` violates the SMC protocol =
+and breaks interoperability by ignoring the peer-supplied buffer index.
+
+Pre-existing issues:
+- [Critical] Missing bounds check in `dibs_lo_move_data` allows an arbitrar=
+y out-of-bounds write in the kernel.
+--
+
+commit 60af5c80d503d1904779918ca5eeba8800e8bbe9
+Author: Dust Li <dust.li@linux.alibaba.com>
+
+net/smc: ignore peer-supplied rmbe_idx and dmbe_idx
+
+This commit modifies the smc connection setup to ignore the peer-supplied
+rmbe and dmbe indices from the clc accept/confirm messages. It hardcodes
+the peer_rmbe_idx to 1 for smc-r and 0 for smc-d, and unconditionally sets
+tx_off to 0, assuming the peer allocates exactly one buffer.
+
+> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+> --- a/net/smc/af_smc.c
+> +++ b/net/smc/af_smc.c
+> @@ -729,11 +729,15 @@ static void smcr_conn_save_peer_info(struct smc_soc=
+k *smc,
+>  {
+>  	int bufsize =3D smc_uncompress_bufsize(clc->r0.rmbe_size);
+> =20
+> -	smc->conn.peer_rmbe_idx =3D clc->r0.rmbe_idx;
+> +	/* Linux uses exactly one RMBE per RMB (always index 1); ignore the
+> +	 * peer-supplied rmbe_idx to prevent a malicious peer from setting an
+> +	 * out-of-bounds tx_off.
+> +	 */
+> +	smc->conn.peer_rmbe_idx =3D 1;
+>  	smc->conn.local_tx_ctrl.token =3D ntohl(clc->r0.rmbe_alert_token);
+>  	smc->conn.peer_rmbe_size =3D bufsize;
+>  	atomic_set(&smc->conn.peer_rmbe_space, smc->conn.peer_rmbe_size);
+> -	smc->conn.tx_off =3D bufsize * (smc->conn.peer_rmbe_idx - 1);
+> +	smc->conn.tx_off =3D 0;
+
+[Severity: High]
+Does hardcoding the peer_rmbe_idx and tx_off violate the smc protocol and
+break interoperability with standard-compliant peers?
+
+If a remote peer multiplexes multiple connections into a single registered
+memory buffer and assigns an index greater than 1, ignoring this index could
+cause the Linux client to write its rdma payloads to the wrong remote offse=
+t.
+
+Could this corrupt the memory of other connections on the remote peer?
+
+>  }
+> =20
+>  static void smcd_conn_save_peer_info(struct smc_sock *smc,
+> @@ -741,12 +745,16 @@ static void smcd_conn_save_peer_info(struct smc_soc=
+k *smc,
+>  {
+>  	int bufsize =3D smc_uncompress_bufsize(clc->d0.dmbe_size);
+> =20
+> -	smc->conn.peer_rmbe_idx =3D clc->d0.dmbe_idx;
+> +	/* Linux uses exactly one DMBE per DMB (always index 0); ignore the
+> +	 * peer-supplied dmbe_idx to prevent a malicious peer from deriving an
+> +	 * out-of-bounds tx_off that causes an OOB write.
+> +	 */
+> +	smc->conn.peer_rmbe_idx =3D 0;
+>  	smc->conn.peer_token =3D ntohll(clc->d0.token);
+>  	/* msg header takes up space in the buffer */
+>  	smc->conn.peer_rmbe_size =3D bufsize - sizeof(struct smcd_cdc_msg);
+>  	atomic_set(&smc->conn.peer_rmbe_space, smc->conn.peer_rmbe_size);
+> -	smc->conn.tx_off =3D bufsize * smc->conn.peer_rmbe_idx;
+> +	smc->conn.tx_off =3D 0;
+
+[Severity: High]
+Similarly for smc-d, does discarding the peer-supplied dmbe_idx cause ism
+writes to target the wrong remote offset if the remote peer uses an index
+other than 0?
+
+[Severity: Critical]
+This isn't a bug introduced by this patch, but there appears to be a missing
+bounds check in the smc loopback driver:
+
+drivers/dibs/dibs_loopback.c:dibs_lo_move_data() {
+    ...
+    memcpy((char *)rmb_node->cpu_addr + offset, data, size);
+    ...
+}
+
+If a malicious local process acting as an smc loopback peer allocates a
+small dmb buffer but sends a forged clc accept message over the tcp socket
+with a deceptively large dmbe_size, could this trigger an out-of-bounds
+write?
+
+The local smc client would compute a massive peer_rmbe_size and pass a large
+size and offset to smcd->ops->move_data() when transmitting data. Without
+verifying that the requested offset + size fits within the actually
+allocated rmb_node->len, it seems this might overwrite kernel memory.
+
+>  }
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260702171137.1099=
+051-2-dust.li@linux.alibaba.com?part=3D1
