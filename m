@@ -1,66 +1,72 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 52A1A3793AD
-	for <linux-s390@vger.kernel.org>; Fri,  3 Jul 2026 09:47:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 694BC30F526;
+	Fri,  3 Jul 2026 09:48:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783072045; cv=none; b=jju1NxrS7+MCyv90QyjlBJcc8hFRIBMgDJHBeUTlVDxQ5XstIbz9NoFXdmwpGsfn2VdDg8oCn8aHHKE3iO2KJnuPp6Vq1jMmY2AvkSirVu/D8SM5s6h42Xe0cG9C9VXDKBe3UvkndZmmdNBgp7M/8ODd+5kccGsYvemdErlSWxw=
+	t=1783072135; cv=none; b=BX9VmHTZQ0RzPychKaQyMzLJsUgM+avTi34bAgaMqrC5x5+aMrTFmWtKUUyF7SwdUeu/UsiOuX53xSI4m7QkbNMAAyzHoeji9XZ9ASyFsyN7jXAwDRSFqer31JTXCECom49VYhBPFPssS5GY+8+ke21+jIRTixt1UJbcih9OzjQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783072045; c=relaxed/simple;
-	bh=/GORDimmEhsfYLWU46RczHNue5xilvycY+t/lsSGoVg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=BObzgz8NhuJZJR3k4PMD4VgOJpTXm1P2jmj9tDX12ZZ2blFTDoVO15JHYSGJS4SVJ1E6e0hQNbvd/c3STxHtTsjJSnz9VkZjt4Cll1jOiCUQcvPXQf7GcBhPwWVkAxX4wI99Ry0nhBi/t+9p5UAW8IQa2V9+yskIkwWxFAHZHNU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=sMn9uilF; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1783072135; c=relaxed/simple;
+	bh=8kejrO9LhiPEpTZKQPYpACtGP4GHxTIPVgx0h5k5Qx8=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=q7QUcNabgRH5O8JFasFQnD4OiMpqEzI7GXx524v57KWVSR2FzZnzAI1w6Jg4JVZa83R4XrXLmHO+jiPveRrdrcMdcxzVvkzNBZUfbZfP35GY5KoPKHYKv+KZi62TWX/oPhoUHSgc4DTwc11WQm6VZEiomm1WDBG8AU4QREiajn8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kTHi5+aa; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="sMn9uilF"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6636IR851814107
-	for <linux-s390@vger.kernel.org>; Fri, 3 Jul 2026 09:47:23 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=9N+Q8ziZfXvhH/aM4GhFGWt6hJJEVX
-	N4QjpK3PecBp8=; b=sMn9uilF8qHe85L43eW/4NNlOu1RNK5iW65chyF284R/Vg
-	MH88HugF7RAu+Y/MU9cw9gL0HHFL+86YmdBhxxl4cvrWbnoBLb/odeI/fO2mxDXh
-	AavhFXSQUMUXawvaMp8uEi/f7harHt9VfrdzW4FM0enFjxBIQv4WYUDWmI4YDL+S
-	9WIoJUclsKyUjplUlvKn1ji7OV7mF6r8h46j3/woRyUIZM+zGt3TKuCp6avPUlQU
-	QdauGtfP2Esj6Eg0PmTLphde80+37ODkZqFmpqpSmvVStqdPwsbMI0w0ZSUvTbum
-	jnnMmHl1OvZsWOr5FOXvzqJZvIL3KDDnKT3Iyc/Q==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4f26rfdxbu-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Fri, 03 Jul 2026 09:47:22 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 6639YZDW013669
-	for <linux-s390@vger.kernel.org>; Fri, 3 Jul 2026 09:47:22 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4f2u2gr289-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Fri, 03 Jul 2026 09:47:22 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6639lI1c48234896
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 3 Jul 2026 09:47:18 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8AF5820043;
-	Fri,  3 Jul 2026 09:47:18 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5468A20040;
-	Fri,  3 Jul 2026 09:47:18 +0000 (GMT)
-Received: from localhost (unknown [9.111.9.151])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Fri,  3 Jul 2026 09:47:18 +0000 (GMT)
-Date: Fri, 3 Jul 2026 11:47:16 +0200
-From: Vasily Gorbik <gor@linux.ibm.com>
-To: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-Cc: linux-s390 <linux-s390@vger.kernel.org>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>
-Subject: Re: [PATCH] s390/mm: Fix type mismatch in get_align_mask().
-Message-ID: <t@ub.hpns>
-References: <20260630173214.3114408-1-gerald.schaefer@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kTHi5+aa"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6F641F000E9;
+	Fri,  3 Jul 2026 09:48:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1783072132;
+	bh=GU2sQW+BHbRyl8stT+ES8Av3G6KBfsKpnc1VSiXAaH8=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date;
+	b=kTHi5+aaAp/rX4HTakkhjR3bFvlbbboB2hx19Nen/OQCynsTw3x/WIdUXu+frxwFV
+	 89SbG0+Shaxd2FOCH4dmgKGnOQNd95ufhEkEGXGpT/32v4K6RPBMgJaLR03++i0XQv
+	 HLnWwMqbhfMA9VGMcYWioEN6EpIjQeekAAIeSA8n3p4PU3sGcDhY+SXTEkDi6qWsvN
+	 N6ri66YT0BOjRUFOiXivtMgrlnMXxRLN30aljrlnw5thKW/fQEv2TszzuBrW0Uq2oE
+	 Hw8BoXQe/baC4Oi3LETFSwEwu7qrQBQfRHShyZgwSnxBg2nijHTJWdtguxJWbMqGZ5
+	 OSuwx+53eId9w==
+From: Thomas Gleixner <tglx@kernel.org>
+To: Michal =?utf-8?Q?Such=C3=A1nek?= <msuchanek@suse.de>, Jinjie Ruan
+ <ruanjinjie@huawei.com>
+Cc: oleg@redhat.com, richard.henderson@linaro.org, mattst88@gmail.com,
+ linmag7@gmail.com, linux@armlinux.org.uk, catalin.marinas@arm.com,
+ will@kernel.org, kees@kernel.org, guoren@kernel.org,
+ chenhuacai@kernel.org, kernel@xen0n.name, geert@linux-m68k.org,
+ tsbogend@alpha.franken.de, James.Bottomley@hansenpartnership.com,
+ deller@gmx.de, maddy@linux.ibm.com, mpe@ellerman.id.au, npiggin@gmail.com,
+ chleroy@kernel.org, pjw@kernel.org, palmer@dabbelt.com,
+ aou@eecs.berkeley.edu, alex@ghiti.fr, hca@linux.ibm.com,
+ gor@linux.ibm.com, agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
+ svens@linux.ibm.com, ysato@users.sourceforge.jp, dalias@libc.org,
+ glaubitz@physik.fu-berlin.de, richard@nod.at,
+ anton.ivanov@cambridgegreys.com, johannes@sipsolutions.net,
+ luto@kernel.org, mingo@redhat.com, bp@alien8.de,
+ dave.hansen@linux.intel.com, hpa@zytor.com, chris@zankel.net,
+ jcmvbkbc@gmail.com, peterz@infradead.org, wad@chromium.org,
+ thuth@redhat.com, mark.rutland@arm.com, ada.coupriediaz@arm.com,
+ kevin.brodsky@arm.com, linusw@kernel.org, yeoreum.yun@arm.com,
+ song@kernel.org, james.morse@arm.com, anshuman.khandual@arm.com,
+ broonie@kernel.org, liqiang01@kylinos.cn, pengcan@kylinos.cn,
+ ryan.roberts@arm.com, yangtiezhu@loongson.cn, sshegde@linux.ibm.com,
+ mchauras@linux.ibm.com, austin.kim@lge.com, jchrist@linux.ibm.com,
+ arnd@arndb.de, thomas.weissschuh@linutronix.de, sohil.mehta@intel.com,
+ andrew.cooper3@citrix.com, jgross@suse.com, kas@kernel.org,
+ x86@kernel.org, linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, linux-mm@kvack.org,
+ linux-csky@vger.kernel.org, loongarch@lists.linux.dev,
+ linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+ linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+ linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+ linux-sh@vger.kernel.org, linux-um@lists.infradead.org
+Subject: Re: [PATCH v16 01/18] seccomp: Convert __secure_computing() to
+ return boolean
+In-Reply-To: <akdp6GAu77-ipsXA@kunlun.suse.cz>
+References: <20260629130616.642022-1-ruanjinjie@huawei.com>
+ <20260629130616.642022-2-ruanjinjie@huawei.com>
+ <akdp6GAu77-ipsXA@kunlun.suse.cz>
+Date: Fri, 03 Jul 2026 11:48:49 +0200
+Message-ID: <87cxx4mmim.ffs@fw13>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -68,50 +74,40 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20260630173214.3114408-1-gerald.schaefer@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=a4kAM0SF c=1 sm=1 tr=0 ts=6a47852b cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VwQbUJbxAAAA:8
- a=VnNF1IyMAAAA:8 a=1fKKc4b2T8MJKYKtYEAA:9 a=QEXdDO2ut3YA:10 a=zZCYzV9kfG8A:10
-X-Proofpoint-ORIG-GUID: H67DEjYF2ltv6xOHXT_p10VqRmpaVSLF
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzAzMDA4OCBTYWx0ZWRfXwWKk5z+wHm+1
- w4SW7wF1SxavgGuk5JBZNIarmj8m1NelPiNKafDM8XVOWME/bHMbxNSrm6MIkwyFZ/lY5DiLfrB
- ZAhVHWZjl6ItvgRNk1PTLSdiIy/BktB1yCmqZBm3BPw7OA1qq+Q0bsBZnu242zLANKmZ9gLYRoC
- 1442aYKAIzNuov+lexOGgRXY9V9YWuOlZsZoGhnLNoUeJrlMlk/y+iBRjkkcpwQ8HwpFYh6OgJr
- Pv3uzu0paRcbtwt3HFb95DRKMddJfVcmWq4gG5tIEeBpCPOijoOxb3dkuHMqFWRSj5P14V6JUB7
- D0HWNzn1zQBm3qw/pCl9MN0qZiLQObRAN/HimoE5VOoWUjmNA8GASkCt0BDp+SM10Q8W4qcuKGM
- neQwGNDRlwzJgU06UJLLYGU0G8QBZ15yM02NQIc//7HyQWBEMOYdNoOOHfqkJ/3XZ9+DhVxwcEx
- csSZzNDrTHChVOOOPvg==
-X-Proofpoint-GUID: H67DEjYF2ltv6xOHXT_p10VqRmpaVSLF
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzAzMDA4OCBTYWx0ZWRfX4eSwRBKEvmW8
- WFxIt9i05LA/Wm+zfGUGcd4GQZ7Ac3vyeX4KueZxRFEZJge36iTyXMS/bBJdiLAFGUbrAWnv5MB
- PY9dK81WrEM8xrsZm+bQFuDhuDj7G3Q=
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
- definitions=2026-07-03_02,2026-06-26_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 bulkscore=0 suspectscore=0 lowpriorityscore=0 impostorscore=0
- spamscore=0 priorityscore=1501 adultscore=0 malwarescore=0 phishscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607030088
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, Jun 30, 2026 at 07:32:14PM +0200, Gerald Schaefer wrote:
-> Commit 86f48f922ba79 ("s390/mmap: disable mmap alignment when
-> randomize_va_space = 0") introduced get_align_mask() with return type of
-> 'int', while the target field 'info.align_mask' in struct
-> vm_unmapped_area_info is 'unsigned long'.
-> 
-> With currently used masks, this should not cause truncation issues, but
-> fix it and return 'unsigned long' to avoid future problems.
-> 
-> Fixes: 86f48f922ba79 ("s390/mmap: disable mmap alignment when randomize_va_space = 0")
-> Cc: stable@vger.kernel.org # v6.9+
-> Signed-off-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-> ---
->  arch/s390/mm/mmap.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+On Fri, Jul 03 2026 at 09:51, Michal Such=C3=A1nek wrote:
+> On Mon, Jun 29, 2026 at 09:05:59PM +0800, Jinjie Ruan wrote:
+>> -	if (secure_computing())
+>> +	if (!secure_computing())
+>>  		return -1;
+>
+> Hello,
+>
+> I am not fond of this logic inversion. The boolean is meaningless in
+> itself.
+>
+> Previously -1 was used to indicate that the syscall was filtered but you
+> chose to invert the logic choosing true to mean syscall was not filtered.
+>
+> You could choose true to mean that syscall was fitered avoiding this
+> inversion.
 
-Applied, thank you!
+That's just wrong. Boolean logic makes more sense with having
+(!condition()). Just because the old 0/-1 nonsense had it the other way
+round does not mean it has to stay that way.
+
+> Sashiko points out some places in existing code where it supposedly
+> explodes which might or might not be true
+
+The vsyscall one is correct, but that's a bug like any other one and should
+be caught in review.
+
+The blurb about bypass is AI halluzination nonsense.
+
+> but any in-flight patches that use secure_computing would also be
+> affected.
+
+Maintainers know how to deal with collisions of that kind. Stop making
+problems up.
+
