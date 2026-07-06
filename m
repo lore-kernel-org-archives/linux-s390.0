@@ -1,131 +1,214 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D8F839DBFC
-	for <linux-s390@vger.kernel.org>; Mon,  6 Jul 2026 07:21:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 43174389100
+	for <linux-s390@vger.kernel.org>; Mon,  6 Jul 2026 07:54:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783322508; cv=none; b=GVmOrdkpGGJ+gxJ7u925zDqBTC+p7HhAKMQ59DxSFeNtLXOnV42cZyeyvamEMRmvkkXyOLX7sHfjJKKmvE5cZsXsMb1lgiZBH4ocWBj/l4/e6OjUaf688qimdTrd+1umNMZ4K8aCL7TQbubANbcGXUdaw7qYhO5j8hFFSAKtOh0=
+	t=1783324466; cv=none; b=fx4dZuLTQltl6llv6J8MCiSCsOfASgSixwTNdl1ogBcj4NOUxSCumXXds7rZANGw/TGQdZ0d77OqUNAEGGwUt0X75dLrlN6pRvesHkmPXgKqMHjcXBJgTnwJLp4YUCYvgOobk2TvcezkByRAVLlZuQx021np6OeCJ8uRAUKIx+k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783322508; c=relaxed/simple;
-	bh=hRa6QBQcxg9NM0qbrY911cF+4X8xwNxA6ZU9+zgQcYE=;
-	h=MIME-Version:Date:From:To:Cc:Subject:In-Reply-To:References:
-	 Message-ID:Content-Type; b=Exk10UTw5wdVHEsE6rd4BcGmACf5RPksXeLkHjHLH2LZzE+0oIpoZ+bFfs8Nyl2zx3+SmIXA5m17Gbg1B36s4KYfwNkkK24xV8+7IOLUbBhNqKWtiOhNPwHLodCcEKnDlmWjeAugdWn61sBxO8nV1LSnmeWWDboKJ0RW0gbJPh8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=sSi1mX4P; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1783324466; c=relaxed/simple;
+	bh=OE+dNlJ7G6NpmYSpI35KOmLkfmnDzHo0hYWfWwjR9Vo=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=RuEScR3YjKnx59+41lgNa7HHRY9qpzXiqeaAeSSqT5aylJM4rO9Kn3xn4n3F5jeaTPY7z1LUZwuWUw62ucq7xbSkSRM9coQSqn49FDzNLIYJMYi6ICHKFeU32yG11+nAlJm5orGJYdnFL1As6DVplDHar/Ltc1w1gRR20FjQql0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TXrdESbV; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="sSi1mX4P"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 665MIQCm2250692;
-	Mon, 6 Jul 2026 07:21:33 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:reply-to:subject:to; s=pp1;
-	 bh=opUwRaj7aOIzKyyI6t6AvNTZ0+NEJHYINFDT082qZLY=; b=sSi1mX4PG9uC
-	Opkh2Kj0Tx4+p1IA0RXKiiSp/Ii9oj5g1Ut8GkwLOgKJnPoFwWZ0F+/4ULDMm6gC
-	J4P56XMh6tRjM5f6jEkwv2GDBmlGyT4qh9z/fhBsuI/4GpaL4VqWRS0KI34rNIXi
-	0Ze/6/yOrXueL73P6M84yAXDZjjI5OVKCDFbD57IxRm84VtSVou0T3qRgylNkHZb
-	+az6SXcvv7VmBPqsMmJO8ech35K6HTlF/WakZ3BK/ir/ZRHC+PCoakEry+M4l6Yn
-	kkvIr4NGwawWF2373FNItpq99gpDzRqfQaggCDgjDSg0+6CDfUI28bBMmM1sfVXJ
-	8UgSG8h2Ug==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4f6qkn8awe-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 06 Jul 2026 07:21:33 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 6667K0F3026810;
-	Mon, 6 Jul 2026 07:21:32 GMT
-Received: from smtprelay04.wdc07v.mail.ibm.com ([172.16.1.71])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4f7e0h4e4q-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 06 Jul 2026 07:21:32 +0000 (GMT)
-Received: from smtpav05.dal12v.mail.ibm.com (smtpav05.dal12v.mail.ibm.com [10.241.53.104])
-	by smtprelay04.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6667LV4j64094608
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 6 Jul 2026 07:21:31 GMT
-Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 516C658056;
-	Mon,  6 Jul 2026 07:21:31 +0000 (GMT)
-Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A5C1E58052;
-	Mon,  6 Jul 2026 07:21:30 +0000 (GMT)
-Received: from ltc.linux.ibm.com (unknown [9.5.196.140])
-	by smtpav05.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Mon,  6 Jul 2026 07:21:30 +0000 (GMT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TXrdESbV"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24E1B1F000E9;
+	Mon,  6 Jul 2026 07:54:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1783324458;
+	bh=LsbcRb/91Tgkz/WFEYPJMHFfq9/72GXaX6o6kCrZIzU=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=TXrdESbVINt1qGyBL2w6mGmocUyj1+mZvrHpdT69bHdu2vs6cEtWe7Rwuzjq1pHvN
+	 T851zYQyRShu5S6MdRcA2zDlPzvm36PwY2z/J4C3SMNR8+yU7dpqpjbDzyFH7HQYTo
+	 Ew7nx55VTyYzICGNebFxKjOmyHT8aHneDkV76AvJS9K8FWgo0O7huPEiWjr6P3Pqcd
+	 wtRkOnlSX68TfmuI6wSi96FlI22xQnGKclDYu4zv4Sn5Rn9bljudwYEGJfVsTwftbc
+	 /q9FoMB0gp+gkneGu5tKjzwts+wVn3RAvqkouaMQSJGg7YAgecNuDs7l+57qUTd20X
+	 05EbbkR3zesbQ==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH net v4 2/3] net/smc: bound the receive length to the RMB
+ in smc_rx_recvmsg()
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Bryam Vargas" <hexlabsecurity@proton.me>
+Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
+ Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
+In-Reply-To: <20260705-b4-disp-28a1bbca-v4-2-be089b98acc6@proton.me>
+References: <20260705-b4-disp-28a1bbca-v4-0-be089b98acc6@proton.me>
+ <20260705-b4-disp-28a1bbca-v4-2-be089b98acc6@proton.me>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Mon, 06 Jul 2026 07:54:17 +0000
+Message-Id: <20260706075418.24E1B1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Date: Mon, 06 Jul 2026 09:21:30 +0200
-From: Harald Freudenberger <freude@linux.ibm.com>
-To: Cornelia Huck <cohuck@redhat.com>
-Cc: richard.henderson@linaro.org, iii@linux.ibm.com, david@kernel.org,
-        thuth@redhat.com, berrange@redhat.com, qemu-s390x@nongnu.org,
-        qemu-devel@nongnu.org, linux-s390@vger.kernel.org,
-        dengler@linux.ibm.com, borntraeger@linux.ibm.com,
-        fcallies@linux.ibm.com
-Subject: Re: [PATCH v9 03/21] target/s390x: Move cpacf sha512 code into a new
- file
-Reply-To: freude@linux.ibm.com
-Mail-Reply-To: freude@linux.ibm.com
-In-Reply-To: <877bnckuuk.fsf@redhat.com>
-References: <20260701164650.95760-1-freude@linux.ibm.com>
- <20260701164650.95760-4-freude@linux.ibm.com> <877bnckuuk.fsf@redhat.com>
-Message-ID: <3ea0066d4b1f2e1e4a604286e49ef12b@linux.ibm.com>
-X-Sender: freude@linux.ibm.com
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=Q/XiJY2a c=1 sm=1 tr=0 ts=6a4b577d cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=kj9zAlcOel0A:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8
- a=0eez0NfR2cIk6WOmlF4A:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-GUID: jn5-VCa8DSmlqjxVeLl1sO_-k4tGEP2c
-X-Proofpoint-ORIG-GUID: jn5-VCa8DSmlqjxVeLl1sO_-k4tGEP2c
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzA2MDA3MSBTYWx0ZWRfX8/eHzDuYoLyy
- hhvw6ZI5iZZ8oEt/mi/ctLDGuecZpXN08PlZROJG9fmkkx6y+Hl+J1oLKebQF5/hJFwiJgQXqd0
- AjSGC3V0EzAf8n9xaaMV630HMMq6v8I=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzA2MDA3MSBTYWx0ZWRfX9ik1Fus7YcA7
- 7lk5tGBr3WnK27T0OM2aBLnDahGUnnKg3/AIlDbKB/ka63mvtopoZggtpUnqzlSu8RsAqT7RMfZ
- VqR9m9GjSceDw1QSSDzVvrIZYIGdyFBb561wrPAGh3mR0GKsoH/5cATr1Rzs5PJSup0WpB2GJZ+
- iB/bjTmVKTIxNVkKE/DxLv33t34E+ukeVxj5jAEoRg6Htuhz1s+Tb+Qgp1c80wTCAlwt0WnYrlf
- /ndVZTpvcG9aLaLDfcDF8rKLbcjJ4XRBMNNbl33gc/B09yJ8iyysGcN32pQvY57iWdqfWGR4wWh
- ZQuJ7but2scbar2VqwDQ7Eiq77BANnVSberzhwbXf6HI2cJ32MU4Pi3R9cHrpA5tMV1VHGnIYeD
- OGdVsKlX5Hl3tS1JGTQd+ZP8URFii+uA1yn36KabhKKYVCHbcTyFzNuspF2ZrvjiePpaocJ0m5D
- 0XOctMfNrkMl40TrxCw==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
- definitions=2026-07-05_02,2026-07-03_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- adultscore=0 impostorscore=0 spamscore=0 phishscore=0 priorityscore=1501
- bulkscore=0 clxscore=1015 lowpriorityscore=0 suspectscore=0 malwarescore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607060071
 
-On 2026-07-03 16:31, Cornelia Huck wrote:
-> On Wed, Jul 01 2026, Harald Freudenberger <freude@linux.ibm.com> wrote:
-> 
->> Move the cpacf sha512 implementation into a new file
->> cpacf_sha512.c. Add this new file to the build and use the cpacf.h
->> header file storing function the prototypes.
->> 
->> Tested-by: Holger Dengler <dengler@linux.ibm.com>
->> Reviewed-by: Finn Callies <fcallies@linux.ibm.com>
->> Reviewed-by: Ilya Leoshkevich <iii@linux.ibm.com>
->> Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
->> ---
->>  target/s390x/tcg/cpacf.h         |   5 +
->>  target/s390x/tcg/crypto_helper.c | 222 
->> -------------------------------
->>  target/s390x/tcg/meson.build     |   1 +
->>  3 files changed, 6 insertions(+), 222 deletions(-)
-> 
-> Forgot to commit the new cpacf_sha512.c file?
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+s) to consider:
 
-Yes - the last rework ...
-Shall I send out v10 with only this missing file fixed ?
+Pre-existing issues:
+- [Critical] Concurrent `MSG_PEEK` and `recvmsg` calls can cause `readable`=
+ to become negative, which the patch incorrectly clamps to the ring buffer =
+size (`rmb_desc->len`). This transforms a temporary race condition into a m=
+assive read of stale data. Furthermore, because the loop continues without =
+correctly bounding `peeked_bytes`, `smc_curs_add` is eventually called with=
+ a `peeked_bytes` value exceeding `2 * rmb_desc->len`. This triggers an und=
+erflow in `smc_curs_add()`'s wrap-around logic, causing the consumer cursor=
+ count to exceed the buffer length. The subsequent subtraction `conn->rmb_d=
+esc->len - cons.count` produces a negative integer that is cast to a huge `=
+size_t` value, entirely bypassing bounds checks and allowing an unprivilege=
+d local user to read contiguous adjacent kernel memory.
+- [Critical] Socket reference count underflow in `smc_rx_splice()` on succe=
+ssful multi-page splice. When a virtually contiguous RMB is used, `smc_rx_s=
+plice()` can push multiple pages into the pipe in a single `splice_to_pipe(=
+)` call. It increments the socket reference count (`sock_hold()`) exactly o=
+nce. However, the pipe mechanism will eventually call the release callback =
+`smc_rx_pipe_buf_release()` individually for each pipe buffer (page) that w=
+as pushed. `smc_rx_pipe_buf_release()` unconditionally calls `sock_put(sk)`=
+ on the socket. If `N` pages are spliced, `sock_hold()` is called once, but=
+ `sock_put()` is called `N` times, leading to a socket reference count unde=
+rflow and Use-After-Free of the `smc_sock` structure.
+- [High] Page reference count underflow and memory leak in `smc_rx_splice()=
+` error handling. When `splice_to_pipe()` fails to push all pages (e.g., if=
+ the pipe becomes full midway), it synchronously calls the pipe buffer rele=
+ase callback `smc_rx_spd_release()` on the rejected pages. This callback un=
+conditionally calls `put_page()`. However, `smc_rx_splice()` only increment=
+s the page reference count (`get_page()`) AFTER `splice_to_pipe()` returns,=
+ and only for the pages successfully pushed. This causes a page reference c=
+ount underflow (Use-After-Free) for the rejected pages. Additionally, the c=
+orresponding `smc_spd_priv` structures allocated for the rejected pages are=
+ leaked, as `smc_rx_spd_release()` does not free them.
+--
+
+commit eb0d2eff9f593a1bd0c0a49450526ace209f8db1
+Author: Bryam Vargas <hexlabsecurity@proton.me>
+
+net/smc: bound the receive length to the RMB in smc_rx_recvmsg()
+
+This commit bounds the readable length to rmb_desc->len in smc_rx_recvmsg()
+to prevent a forged cursor from driving bytes_to_rcv past the RMB. It treats
+negative values as out of range as well to prevent wrap-around copies from
+exceeding the ring buffer.
+
+Cc: stable@vger.kernel.org
+
+> diff --git a/net/smc/smc_rx.c b/net/smc/smc_rx.c
+> index c1d9b923938da..f461cf10b0855 100644
+> --- a/net/smc/smc_rx.c
+> +++ b/net/smc/smc_rx.c
+> @@ -442,6 +442,18 @@ int smc_rx_recvmsg(struct smc_sock *smc, struct msgh=
+dr *msg,
+>  		/* initialize variables for 1st iteration of subsequent loop */
+>  		/* could be just 1 byte, even after waiting on data above */
+>  		readable =3D smc_rx_data_available(conn, peeked_bytes);
+> +		/* bytes_to_rcv is accumulated from the peer's wire-controlled
+[ ... ]
+> +		 * 0 <=3D bytes_to_rcv <=3D rmb_desc->len invariant at the consumer,
+> +		 * race-free against the producer update in the receive tasklet.
+> +		 */
+> +		if (readable < 0 || readable > conn->rmb_desc->len)
+> +			readable =3D conn->rmb_desc->len;
+
+[Severity: Critical]
+This isn't a bug introduced by this patch, but does this clamp allow a
+massive read of stale data when readable is negative?
+
+If concurrent MSG_PEEK and recvmsg calls cause bytes_to_rcv - peeked_bytes
+to become negative, clamping it to the full rmb_desc->len here allows the
+copy loop to accumulate peeked_bytes indefinitely.
+
+Because the loop continues without correctly bounding peeked_bytes,
+smc_curs_add() is eventually called with a peeked_bytes value exceeding
+2 * rmb_desc->len.
+
+If value >=3D 2 * size, the wrap-around logic in smc_curs_add() fails to
+wrap correctly:
+
+net/smc/smc_cdc.h:smc_curs_add() {
+    ...
+    if (curs->count >=3D size) {
+        curs->wrap++;
+        curs->count -=3D size;
+    }
+    ...
+}
+
+Does this cause an underflow in the bounds check calculation
+conn->rmb_desc->len - cons.count, resulting in a negative integer cast
+to a huge size_t that bypasses bounds checks?
+
+
+While reviewing this, I also noticed a couple of preexisting issues in
+smc_rx_splice() and its pipe buffer callbacks:
+
+[Severity: High]
+This is a pre-existing issue, but does smc_rx_splice() leak memory and
+cause a page reference count underflow if splice_to_pipe() fails partially?
+
+When splice_to_pipe() rejects pages (e.g., pipe is nearly full), it calls
+the release callback which unconditionally drops a reference:
+
+net/smc/smc_rx.c:smc_rx_spd_release() {
+    ...
+    put_page(spd->pages[i]);
+}
+
+However, in smc_rx_splice(), get_page() is only called AFTER
+splice_to_pipe() returns, and only for the successfully pushed pages:
+
+net/smc/smc_rx.c:smc_rx_splice() {
+    ...
+    bytes =3D splice_to_pipe(pipe, &spd);
+    if (bytes > 0) {
+        sock_hold(&smc->sk);
+        if (!lgr->is_smcd && smc->conn.rmb_desc->is_vm) {
+            for (i =3D 0; i < PAGE_ALIGN(bytes + offset) / PAGE_SIZE; i++)
+                get_page(pages[i]);
+        } else {
+            get_page(smc->conn.rmb_desc->pages);
+        }
+    ...
+}
+
+Does this result in an immediate page reference count underflow for the
+rejected pages? Furthermore, are the corresponding smc_spd_priv structures
+for the rejected pages leaked, since smc_rx_spd_release() doesn't free them?
+
+
+[Severity: Critical]
+This is a pre-existing issue, but does a successful multi-page splice
+cause a socket reference count underflow?
+
+In smc_rx_splice(), when pushing multiple pages into the pipe, sock_hold()
+is called exactly once for the entire successful splice_to_pipe() operation:
+
+net/smc/smc_rx.c:smc_rx_splice() {
+    ...
+    bytes =3D splice_to_pipe(pipe, &spd);
+    if (bytes > 0) {
+        sock_hold(&smc->sk);
+    ...
+}
+
+However, as the pipe consumes the buffers, it calls the release callback
+individually for every single pipe buffer (page), and unconditionally calls
+sock_put() every time:
+
+net/smc/smc_rx.c:smc_rx_pipe_buf_release() {
+    ...
+out:
+    kfree(priv);
+    put_page(buf->page);
+    sock_put(sk);
+}
+
+If N pages are spliced (when using virtually contiguous memory,
+is_vm =3D=3D true), is sock_put() called N times for a single sock_hold(),
+leading to a use-after-free of the smc_sock structure?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260705-b4-disp-28=
+a1bbca-v4-0-be089b98acc6@proton.me?part=3D2
