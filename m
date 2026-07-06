@@ -1,99 +1,93 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C4F43DD50D
-	for <linux-s390@vger.kernel.org>; Mon,  6 Jul 2026 08:02:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 333D13EDE6E;
+	Mon,  6 Jul 2026 08:17:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783324954; cv=none; b=rp5oTPrI35Pxs6yMUxzNXpnpsPaeD/fL7mab/hw+D6b0QRhHohh0WV5T0C4Rt5PIgEMfZI86i2/qszw3b1/TLXlYDWx+Xf1tu/XXKE9GiryJsKn9c9+YjUnA5rF12mZfDw9ebkbb8vSghWy4PlM83kdoHpx/U4DZnhiK8EbU1BY=
+	t=1783325832; cv=none; b=EXopdJlxeRBqscAh0GNclKUMtPHUfDueelIWrZW0La43c0oubx0nSFURGdWjs/tbthPEkq63hi7uV4HB7tVeWZk3ssCtd/58PtxVcahgBnXK+rkbuDxrZIlY6HdvDkrqZ7ii1cJPt2qe0rPW4l274eyZWFNDngTPJjQ9Ws+DMdE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783324954; c=relaxed/simple;
-	bh=KPf6QSnuTBye0ku4y+66UJmJ/y+HGg1H4Wt97siv1Z4=;
+	s=arc-20240116; t=1783325832; c=relaxed/simple;
+	bh=2gFskhsb6RmAA5VINJrK/A8SJPhRd6tZO5gS28To3ts=;
 	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=ju2+p/fFBUJdYVBhQX0PkgTXHPh2I6Ohh8iFq5ebt40H4dgS/nmdZrXsOjSCI1Ue/QWp6yVlX5jP0qa4jOvOkzIqn/12ucVQHTziLeqlqs2tK1OTNaQWMT0npicAsBifTLNuXFVqTuDYIqiL2oyPG9zxtcSMGp0koIDcB4aDqmY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=EEtsYqPa; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 MIME-Version:Content-Type; b=Uwquj7ZNECsM+RLjAtk6r2AXRRdFKarzGPCrn/1Hnf3G7w6d16wjhIQ/t+26H0PuwGzb7Zkzln0QX2iisu1TYgCodoYAYURO/sy5oU8dIGiS9zgwREEMUjXXwDqtGar4Nvfl0yP+RqhV1Ov8FjiCMLkxlwzEKMENvqlwKa3fnoU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XfC9H2UV; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="EEtsYqPa"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1783324932;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=hqQoiX8nOstIqMDv9TBNeaeMATrv7hzlmItcdj7mYtY=;
-	b=EEtsYqPa9SHlpLJOnQ/RiPDqxdfxTTAaJuaVhaOGxsX/mtXP0taPrX8NO4fk64VnKNxdtD
-	fodO2GkS0pExKY2M65yl56dQuvV0RMrUZNsFzhuRZbJOB2dcQoJahqdVpGPALw69QCZhLV
-	yIDBTBKsIHkmrfQILkeoRxzSybbIze8=
-Received: from mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-60-f90MF37vM6-j2tZnSLWTLg-1; Mon,
- 06 Jul 2026 04:02:07 -0400
-X-MC-Unique: f90MF37vM6-j2tZnSLWTLg-1
-X-Mimecast-MFC-AGG-ID: f90MF37vM6-j2tZnSLWTLg_1783324925
-Received: from mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.93])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 64B2C195607C;
-	Mon,  6 Jul 2026 08:02:05 +0000 (UTC)
-Received: from localhost (headnet04.pony-001.prod.iad2.dc.redhat.com [10.2.32.116])
-	by mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 6298F18005A2;
-	Mon,  6 Jul 2026 08:02:04 +0000 (UTC)
-From: Cornelia Huck <cohuck@redhat.com>
-To: freude@linux.ibm.com
-Cc: richard.henderson@linaro.org, iii@linux.ibm.com, david@kernel.org,
- thuth@redhat.com, berrange@redhat.com, qemu-s390x@nongnu.org,
- qemu-devel@nongnu.org, linux-s390@vger.kernel.org, dengler@linux.ibm.com,
- borntraeger@linux.ibm.com, fcallies@linux.ibm.com
-Subject: Re: [PATCH v9 03/21] target/s390x: Move cpacf sha512 code into a
- new file
-In-Reply-To: <3ea0066d4b1f2e1e4a604286e49ef12b@linux.ibm.com>
-Organization: "Red Hat GmbH, Sitz: Werner-von-Siemens-Ring 12, D-85630
- Grasbrunn, Handelsregister: Amtsgericht =?utf-8?Q?M=C3=BCnchen=2C?= HRB
- 153243,
- =?utf-8?Q?Gesch=C3=A4ftsf=C3=BChrer=3A?= Ryan Barnhart, Charles Cachera,
- Avril Crosse O'Flaherty"
-References: <20260701164650.95760-1-freude@linux.ibm.com>
- <20260701164650.95760-4-freude@linux.ibm.com> <877bnckuuk.fsf@redhat.com>
- <3ea0066d4b1f2e1e4a604286e49ef12b@linux.ibm.com>
-User-Agent: Notmuch/0.40 (https://notmuchmail.org)
-Date: Mon, 06 Jul 2026 10:02:02 +0200
-Message-ID: <871pdglf5x.fsf@redhat.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XfC9H2UV"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7CF91F000E9;
+	Mon,  6 Jul 2026 08:16:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1783325820;
+	bh=r7+ah1vbGAvQLsR+3yUG/Iv1avIrbLDskfWMmANIMpA=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date;
+	b=XfC9H2UVpNQGtHq/xKLEWuvy4dBFo+F8wnT4a3nMjIvGfHuzuoXWCWWpR3IRGACyX
+	 ddDWKGu9BP+PsJvxUDK2bd/p/KeWLd0czr6A1n2oiorGfYOAORf0VSj4p8BpzPNLGs
+	 Ks/289z7wkXWc1DnJ7LrjlkM5r3LLyPV2aysSVO7Va/BtZrxeY3rlf3iV2jR28XK6V
+	 xvP1325V2CnieiUAnTaDerFyvnvz3so5txLMmGU2XfJvoVLUklK5D8L7xrnfvcxkuk
+	 3Zu/60IEr5IZRUAZ6W1jaKJhtWOhQgEXUqGG56v4UZ08TQLLk8BNUS0lXkVaayTddt
+	 u2lcP/zMPqcAw==
+From: Thomas Gleixner <tglx@kernel.org>
+To: Michal =?utf-8?Q?Such=C3=A1nek?= <msuchanek@suse.de>, Peter Zijlstra
+ <peterz@infradead.org>
+Cc: Jonathan Corbet <corbet@lwn.net>, Shuah Khan
+ <skhan@linuxfoundation.org>, Huacai Chen <chenhuacai@kernel.org>, WANG
+ Xuerui <kernel@xen0n.name>, Madhavan Srinivasan <maddy@linux.ibm.com>,
+ Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin
+ <npiggin@gmail.com>, "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+ Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
+ Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>, Heiko
+ Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Alexander
+ Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger
+ <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, Andy
+ Lutomirski <luto@kernel.org>, Ingo Molnar <mingo@redhat.com>, Borislav
+ Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
+ x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, Andrew Donnellan
+ <andrew+kernel@donnellan.id.au>, Mark Rutland <mark.rutland@arm.com>,
+ Michal =?utf-8?Q?Such=C3=A1nek?= <msuchanek@suse.de>, Arnd Bergmann
+ <arnd@arndb.de>, Jiaxun
+ Yang <jiaxun.yang@flygoat.com>, Ryan Roberts <ryan.roberts@arm.com>, Greg
+ Kroah-Hartman <gregkh@linuxfoundation.org>, Mukesh Kumar Chaurasiya
+ <mkchauras@linux.ibm.com>, Shrikanth Hegde <sshegde@linux.ibm.com>, Zong
+ Li <zong.li@sifive.com>, Nam Cao <namcao@linutronix.de>, Deepak Gupta
+ <debug@rivosinc.com>, Lukas Gerlach <lukas.gerlach@cispa.de>, Rui Qi
+ <qirui.001@bytedance.com>, Kees Cook <kees@kernel.org>,
+ linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+ loongarch@lists.linux.dev, linuxppc-dev@lists.ozlabs.org,
+ linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org
+Subject: Re: [RFC] entry: Untangle the return value of
+ syscall_enter_from_user_mode from syscall NR
+In-Reply-To: <akVRcPsD_R_CE1qW@kunlun.suse.cz>
+References: <akVRcPsD_R_CE1qW@kunlun.suse.cz>
+Date: Mon, 06 Jul 2026 10:16:57 +0200
+Message-ID: <87ik6sjzwm.ffs@fw13>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.93
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jul 06 2026, Harald Freudenberger <freude@linux.ibm.com> wrote:
+On Wed, Jul 01 2026 at 19:42, Michal Such=C3=A1nek wrote:
+>=20=20
+>  	if (unlikely(work & SYSCALL_WORK_SYSCALL_TRACEPOINT))
+> -		syscall =3D trace_syscall_enter(regs, syscall);
+> +		*syscall =3D trace_syscall_enter(regs, *syscall);
+>=20=20
+> -	syscall_enter_audit(regs, syscall);
+> +	syscall_enter_audit(regs, *syscall);
+>=20=20
+> -	return ret ? : syscall;
+> +	return 0;
 
-> On 2026-07-03 16:31, Cornelia Huck wrote:
->> On Wed, Jul 01 2026, Harald Freudenberger <freude@linux.ibm.com> wrote:
->> 
->>> Move the cpacf sha512 implementation into a new file
->>> cpacf_sha512.c. Add this new file to the build and use the cpacf.h
->>> header file storing function the prototypes.
->>> 
->>> Tested-by: Holger Dengler <dengler@linux.ibm.com>
->>> Reviewed-by: Finn Callies <fcallies@linux.ibm.com>
->>> Reviewed-by: Ilya Leoshkevich <iii@linux.ibm.com>
->>> Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
->>> ---
->>>  target/s390x/tcg/cpacf.h         |   5 +
->>>  target/s390x/tcg/crypto_helper.c | 222 
->>> -------------------------------
->>>  target/s390x/tcg/meson.build     |   1 +
->>>  3 files changed, 6 insertions(+), 222 deletions(-)
->> 
->> Forgot to commit the new cpacf_sha512.c file?
->
-> Yes - the last rework ...
-> Shall I send out v10 with only this missing file fixed ?
+That breaks trace_syscall_enter() because the probes/BPF muck attached
+ot that can:
 
-Just send out the complete series, that makes it easier to merge.
+     1) set the return code
+     2) set syscall to -1L
+
+That works correctly today, but with your sloppy hackery the low level
+x86 code falls into sys_ni_syscall() which sets the return code to
+-ENOSYS.
 
