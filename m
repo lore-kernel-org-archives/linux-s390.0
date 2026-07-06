@@ -1,45 +1,45 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 77E3F3C2787;
-	Mon,  6 Jul 2026 09:51:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BCAFF414A2F;
+	Mon,  6 Jul 2026 09:55:40 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783331501; cv=none; b=KJ2CDihEm1i+uQ/TTMFCLvEfj6+RHGgypjnNcRuAcBtjOTjIr6aKBocOvbjBrMB4rMoCEApYKKzu7JU/bh0Axw6yapZPXNKD/nPPN9DODsbQSqIQ/AdKCWBoNeB9jZSwMEQtWvqrg/411yFnHIMNkPiSbPN2L5w0sQXjb0f740U=
+	t=1783331743; cv=none; b=gTFbtou8hJ1L3becRvRsPA/t0e9gUGdUeuGcLc7kW7cEwjW9OqUw4YV0Tr/cl9R0nVPEADyRXi9YHUpy0dzDXaYUobGVmOimnw37MPExAP8v0rBtPRlqCDV7CeX+Z/c1WcgOxMONk4fXLOuN9qrVICW4EbkflxS6dWu8tyhA9kk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783331501; c=relaxed/simple;
-	bh=ywoaDCiitG6UUpbjXRz5XjrlLVumC9HZGxpFMZ3I8eU=;
+	s=arc-20240116; t=1783331743; c=relaxed/simple;
+	bh=9ki5cF70D3Uh3ZOW6IDmpeK33szzbrypcA1bbqKDVb8=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=n/C5ISiesENl44r8mG8BhhcoFmqZRD3nfYL7G4Xsx3YGQQmkbfcfp976XL6Zj4KqedasujBYGh09P+66PNngV483kENqwqwsteVRqUszlQeVjnIbvKIlVt2VHZQW5ramDrJ0Bvs8w3mxdREUpuPoU6L1Tz39DnY238ZOD1cRjO4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kcBaW/E1; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=mZU2WlqBDurwYW0P0EO4s8MZTfXUSS94CwC2gcJIOfNSMOhyz6QWhF98Fy0zNSN2U5OR5SRsCq2W5fH6hT8hP8P35McbKqlxhtsXpTcGh3DIr+wcVAWuh82msbU9e45RZM8WMkiw9DfFtE4aLPpBL4XbzJ3LXHxUKBqQvO0EN2A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fxzW/x6T; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kcBaW/E1"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DEB021F00A3A;
-	Mon,  6 Jul 2026 09:51:30 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fxzW/x6T"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B45631F000E9;
+	Mon,  6 Jul 2026 09:55:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783331491;
-	bh=zN2f75xRCPsJVmuL136Mb/updeydU4Ru6dHCSJnNi1s=;
+	s=k20260515; t=1783331739;
+	bh=2Bd4ZNNAr16/hhJQLZA+glw+EwFamZs+63t8jbmQ9WI=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=kcBaW/E1zeMDTNokdLZAj+MaOAifKXjrq3xDU9jXuHvI30MI/9pGdmGKA6I/3X8Jd
-	 8+02sQMRnsdesYru1hqeBxQ6hHoJ2yA3E+lI8vGjafVsFGlBXu7pmPKewBb3RNOus3
-	 kZCXaCrn0sF2cxFwc695F/EUAcemj8H1jetepKOkKW4D+HizYQpk8mR0TvMaCu+C67
-	 ilz/3ug6AU4lqjSPuoU3+NG0/DWm+GSnzi7s456+rpXWLdeC13xFMn0oZqfbvBapuT
-	 0uyLMNNK+ZJ8ryrYUX1F1p5nHL9RC6N8np8H0a/MrjvujEToiGXb94eiz/R0d9OVij
-	 KkOILjVLzTm2Q==
+	b=fxzW/x6TMR4pu0UnBbrNXMug//fGY0wBBvH5h15LRc4oxr0nhErrTEwZBSauq674I
+	 tXIgP9MuAh1xlJmyKE1ozrPGLAHgkPJ/BzcXLBetd8kVnW/hyO36Et8G7lZOUXgZJh
+	 jZabBht1Y0PewRVe46QkjpSpc0fWblg9TuLic58B82pzG7fklOGN6zUwLjaNwvc3B5
+	 nLegJ3gg+kfsy3NuTGI+SclqcLIzX7iABhTmD0RRgTqghnuFM8gbivz18CXAURVDsh
+	 NBO6hduMa+bVLXokuHucX4IzpvcUGkLaLoXvaGt8xcmsrP2hQK5vSFTmWogXv8HKkp
+	 CXh3AGxUoByOg==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 22/27] KVM: s390: Add basic arm64 kvm module
+Subject: Re: [PATCH v4 23/27] KVM: s390: arm64: Implement required functions
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Steffen Eiden" <seiden@linux.ibm.com>
-Cc: "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, kvm@vger.kernel.org, "Oliver
- Upton" <oupton@kernel.org>, "Marc Zyngier" <maz@kernel.org>, linux-s390@vger.kernel.org, "Heiko
- Carstens" <hca@linux.ibm.com>, kvmarm@lists.linux.dev
-In-Reply-To: <20260706085229.979525-23-seiden@linux.ibm.com>
+Cc: "Vasily Gorbik" <gor@linux.ibm.com>, "Marc Zyngier" <maz@kernel.org>, kvm@vger.kernel.org, "Oliver
+ Upton" <oupton@kernel.org>, kvmarm@lists.linux.dev, linux-s390@vger.kernel.org, "Heiko
+ Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
+In-Reply-To: <20260706085229.979525-24-seiden@linux.ibm.com>
 References: <20260706085229.979525-1-seiden@linux.ibm.com>
- <20260706085229.979525-23-seiden@linux.ibm.com>
+ <20260706085229.979525-24-seiden@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 06 Jul 2026 09:51:30 +0000
-Message-Id: <20260706095130.DEB021F00A3A@smtp.kernel.org>
+Date: Mon, 06 Jul 2026 09:55:38 +0000
+Message-Id: <20260706095538.B45631F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -48,116 +48,105 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
-- [Medium] Integer underflow in `kvm_max_guest_address()` allows bypassing =
-IPA limit checks, leading to shift-out-of-bounds undefined behavior.
-- [Medium] Falsely advertises support for `KVM_CAP_ARM_USER_IRQ` while sile=
-ntly dropping interrupt injections.
+- [High] PSCI SYSTEM_OFF handler fails to stop other vCPUs, leading to pote=
+ntial guest corruption during shutdown.
+- [Medium] Empty stubs for exception injection cause guest vCPUs to hang in=
+ an infinite loop.
 --
 
-commit cf17b7229eed87d0fba2ede0e60b154b44cdfc5e
+commit b5600b88451aab2daf96c3e367bc2f2db0abeb0c
 Author: Steffen Eiden <seiden@linux.ibm.com>
 
-KVM: s390: Add basic arm64 kvm module
-   =20
-Add basic code for the new arm64 on s390 KVM implementation.
-Add kernel module boilerplate code and trivial functions.
+KVM: s390: arm64: Implement required functions
 
-> diff --git a/arch/s390/kvm/arm64/arm.c b/arch/s390/kvm/arm64/arm.c
+This commit implements the required functions for s390 to support shared
+arm64 KVM code. It also introduces a basic SMCCC handler to stop a vCPU.
+
+> diff --git a/arch/s390/kvm/arm64/handle_exit.c b/arch/s390/kvm/arm64/hand=
+le_exit.c
 > new file mode 100644
-> index 0000000000000..19249ec5c539f
+> index 0000000000000..a0ebe5ffa19a6
 > --- /dev/null
-> +++ b/arch/s390/kvm/arm64/arm.c
+> +++ b/arch/s390/kvm/arm64/handle_exit.c
+
 [ ... ]
-> @@ -20,172 +20,192 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, l=
-ong ext)
->  {
->  	int ret;
-> =20
->  	switch (ext) {
->  	case KVM_CAP_NR_VCPUS:
->  	case KVM_CAP_MAX_VCPUS:
->  	case KVM_CAP_MAX_VCPU_ID:
->  		ret =3D KVM_MAX_VCPUS;
->  		break;
->  	case KVM_CAP_ARM_VM_IPA_SIZE:
->  		ret =3D get_kvm_ipa_limit();
->  		break;
->  	case KVM_CAP_IOEVENTFD:
->  	case KVM_CAP_ARM_USER_IRQ:
->  		ret =3D 1;
 
-[Severity: Medium]
-Since kvm_vm_ioctl_irq_line() silently drops interrupts and returns success,
-does advertising support for KVM_CAP_ARM_USER_IRQ here cause userspace to
-believe the capability works, leading to lost interrupts and guest hangs?
+> +static int kvm_smccc_call_handler(struct kvm_vcpu *vcpu)
+> +{
+> +	u32 func_id =3D vcpu_get_reg(vcpu, 0);
+> +	u64 val =3D PSCI_RET_NOT_SUPPORTED;
+> +	int ret =3D 1;
+> +
+> +	if (func_id =3D=3D PSCI_0_2_FN_SYSTEM_OFF) {
+> +		spin_lock(&vcpu->arch.mp_state_lock);
+> +		WRITE_ONCE(vcpu->arch.mp_state.mp_state, KVM_MP_STATE_STOPPED);
+> +		spin_unlock(&vcpu->arch.mp_state_lock);
+> +		kvm_make_all_cpus_request(vcpu->kvm, KVM_REQ_SLEEP);
 
->  		break;
->  	default:
->  		ret =3D 0;
->  	}
-> =20
->  	return ret;
->  }
-> =20
->  static u64 kvm_max_guest_address(void)
->  {
->  	u64 max_addr;
-> =20
->  	if (sclp.hamax =3D=3D U64_MAX)
->  		max_addr =3D TASK_SIZE_MAX;
->  	else
->  		max_addr =3D min_t(u64, TASK_SIZE_MAX, sclp.hamax);
->  	return ALIGN_DOWN(max_addr + 1, 1 << 30) - 1;
+[Severity: High]
+Does this actually stop all other vCPUs in the system?
 
-[Severity: Medium]
-Can this underflow if max_addr + 1 is less than 1GB?=20
+Because the mp_state is only updated for the calling vCPU, broadcasting
+KVM_REQ_SLEEP will leave the other vCPUs in their current state. When they
+process the sleep request, won't they evaluate their own mp_state, see they
+aren't STOPPED, and continue executing guest code while the VM is supposed
+to be shutting down?
 
-If sclp.hamax restricts the maximum address to less than 1GB,=20
-ALIGN_DOWN(max_addr + 1, 1 << 30) will evaluate to 0. Subtracting 1 would
-then underflow to U64_MAX.
+> +		memset(&vcpu->run->system_event, 0,
+> +		       sizeof(vcpu->run->system_event));
+> +		vcpu->run->system_event.type =3D KVM_SYSTEM_EVENT_SHUTDOWN;
+> +		vcpu->run->system_event.ndata =3D 1;
+> +		vcpu->run->system_event.data[0] =3D 0;
+> +		vcpu->run->exit_reason =3D KVM_EXIT_SYSTEM_EVENT;
+> +		val =3D PSCI_RET_INTERNAL_FAILURE;
+> +		ret =3D 0;
+> +	}
+> +	vcpu_set_reg(vcpu, 0, val);
+> +
+> +	return ret;
+> +}
 
->  }
-> =20
->  vm_fault_t kvm_arch_vcpu_fault(struct kvm_vcpu *vcpu, struct vm_fault *v=
-mf)
->  {
->  	return VM_FAULT_SIGBUS;
->  }
-> =20
->  long kvm_arch_dev_ioctl(struct file *filp,
->  			unsigned int ioctl, unsigned long arg)
->  {
->  	return -EINVAL;
->  }
-> =20
->  u32 get_kvm_ipa_limit(void)
->  {
->  	return fls64(kvm_max_guest_address() + 1) - 1;
-
-[Severity: Medium]
-If kvm_max_guest_address() returns U64_MAX due to the underflow above, this
-will evaluate to U32_MAX.=20
-
-Could this large value cause the IPA limit validation checks to be bypassed,
-allowing untrusted userspace to provide a large shift value and trigger a
-shift-out-of-bounds undefined behavior?
-
->  }
 [ ... ]
->  int kvm_vm_ioctl_irq_line(struct kvm *kvm, struct kvm_irq_level *irq_lev=
-el,
->  			  bool line_status)
->  {
->  	return 0;
+
+> diff --git a/arch/s390/kvm/arm64/inject_fault.c b/arch/s390/kvm/arm64/inj=
+ect_fault.c
+> new file mode 100644
+> index 0000000000000..425dbeaa421c6
+> --- /dev/null
+> +++ b/arch/s390/kvm/arm64/inject_fault.c
+> @@ -0,0 +1,21 @@
+> +// SPDX-License-Identifier: GPL-2.0
+> +
+> +#include <arm64/kvm_emulate.h>
+> +
+> +/**
+> + * kvm_inject_undefined - inject an undefined instruction into the guest
+> + * @vcpu: The vCPU in which to inject the exception
+> + *
+> + * It is assumed that this code is called from the VCPU thread and that =
+the
+> + * VCPU therefore is not currently executing guest code.
+> + */
+> +void kvm_inject_undefined(struct kvm_vcpu *vcpu)
+> +{
+> +	/* Stub until s390 supports arm64 sysregs TODO sysregs*/
+> +}
 
 [Severity: Medium]
-This isn't a bug in the implementation of the stub, but since
-KVM_CAP_ARM_USER_IRQ is advertised as supported, will returning success here
-without injecting the interrupt deceive userspace and silently drop the
-interrupts?
+Will this empty stub cause the guest to get stuck in an infinite exit loop?
 
->  }
+Since the function does nothing, it doesn't advance the guest's Program
+Counter or update exception state. When handle_exit() resumes the guest,
+won't it immediately re-execute the same trapping instruction over and over,
+hanging the vCPU and burning host CPU cycles?
+
+> +
+> +int kvm_inject_sea(struct kvm_vcpu *vcpu, bool iabt, u64 addr)
+> +{
+> +	/* Stub until s390 supports arm64 sysregs TODO sysregs*/
+> +	return 1;
+> +}
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260706085229.9795=
-25-1-seiden@linux.ibm.com?part=3D22
+25-1-seiden@linux.ibm.com?part=3D23
