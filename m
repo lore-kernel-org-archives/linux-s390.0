@@ -1,257 +1,291 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7BCB739937C;
-	Tue,  7 Jul 2026 09:33:49 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 053A63AB267;
+	Tue,  7 Jul 2026 09:34:10 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783416830; cv=none; b=KbclL7+P3AuHOf3IqoJ+5U15nUCBd2PE5jfa7SzhW86TpD3rpuwWm8OSiefDydqXmOD/qAPrBI/v9OAr873z4bU+LDL5c7hP2INO87wfNU6+6XKZ4E+33mkfinHpN1FCVEoeYOyHIrhxe7QuyD3AgJe7/WS7zNyK4E/IZdF2qZ8=
+	t=1783416851; cv=none; b=Kf1YtGhVY+IAatzWa54c9cqi06+b4snZEraxFLcDDRxTwBUr2fnf6JVix31ZHfwzv6El964JbT65g8QzlIsjOHv18jzHwraWPDy7jmKPrD4QDVgfs8O0nIH5KESOfM7jZ5cShinJo1dphrfvxXgSR0Ctaw7o2digIjhPr8e4g7A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783416830; c=relaxed/simple;
-	bh=Y8aExjF5hLCJ2HJAUiai7i2/xZohBXhjKIRnl7Shwx0=;
+	s=arc-20240116; t=1783416851; c=relaxed/simple;
+	bh=uM6M2qG3h6sgbovnCE92g0ohK4fP11XqKs3zCQb+fSw=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=d/Hg9T/8E6fLyqJGxVbdH0ihcm52ZDywD3r3ECfZ48o+jKmiPQ4BZxGQEzlIMtGLVFFWoWUWbmYkQbgLDAg2gmj4wTgGffNnviYe+8zeqM9dtV/IDTVHzlDi0bAxsCBeB7x9PPWocHBzwYDMrRfRaanFoANfi7/sP6vBAqvCUTg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QqNo3QSe; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=sjiAo2RPBzK6FdCBVlG4Pdy/bHX8Ld4LEWhJEWRuLiWKv3A15gJbKoxlca2YlqOYQNLzR8WrLJJg0ZSmcWTCoO25mPYQ0+1DEON26qDgJzZJaE5Uhclt8MTUBaU44Fz2HbWzK5iLzo8ohw5/O0cOroc7ygBSIaQX/MEfwL0ZsVA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RHTldl/m; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QqNo3QSe"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B73271F000E9;
-	Tue,  7 Jul 2026 09:33:48 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RHTldl/m"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FD521F000E9;
+	Tue,  7 Jul 2026 09:34:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783416829;
-	bh=4cYwtQKdomSMr61HQEw4mQfmiSbktJ6LpcdkOFwTXl0=;
+	s=k20260515; t=1783416849;
+	bh=9py1P+XK0Yk6jlka0Nuk7MUScBs6aXV5R0FF0HGAfaE=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=QqNo3QSek7/9XXXt9/a0glLr/QUjnAi6aUHNKOd3Ks/WrbOcZQcorIAAuItITUrYS
-	 aOkCwJlcD/eIA5l18e42TqBExiUGdSA+mDyN3ODYqiUGlYkPJZY0gHUwGxhpE4kMp3
-	 jylf+d2bV5zn1zEVUWu4Na+Mt+owsAbBKwzxKNW4RUr1mtskhgcGYEr3fAH5nIRBHM
-	 qVnMZmdMSOd/BazzyDBRsSoTGc436Zi9L05bKfUYps0JYyrtmjAlP+pYaY9or/TpuV
-	 xPIgAIJ+GXw8TJeMUWMclCBlTIrVR7Ivxlyqlna9wRBIubKusrc1P6ZKCn4XXyB+DY
-	 LqEPozmwmtM4A==
+	b=RHTldl/mdG42NtHELaaGbCt3aFRvQtzz1nDoxyUTdjvY4k7GmhhfC2PCtgcYOLTMY
+	 5jkDlGHz0kiUegUdxukMzJRcnRPbGjUGwlPgZdYV3hkRFyKbhhwI8z/XWbdWaNSkwT
+	 eCG+E2KX2hijkZ6glP+NBrzUbVAj9zaU5aMzO2Mk3Gc7AyPHm55sNShrxmjeJNZMWo
+	 BBKe1L2toyM+c8rC+RK+UjvH7bC+B/OtQ9/IhmwPY/XI6n7zw3YcgLFwCTKp8nBHp+
+	 BS5O9oOVFHbyD5l8VrFgvQbPwMy4jr9iWqytGLBTl9THJ1SNdB94Pr1BSnyLAcVDPD
+	 sCq839VHFxyBg==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 12/15] s390/vfio-ap: Transition device migration
- state from STOP to RUNNING and vice versa
+Subject: Re: [PATCH v4 11/15] s390/vfio-ap: Transition device migration
+ state to STOP
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Anthony Krowiak" <akrowiak@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
- Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
-In-Reply-To: <20260707090226.3206695-13-akrowiak@linux.ibm.com>
+Cc: "Vasily Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, "Heiko
+ Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
+In-Reply-To: <20260707090226.3206695-12-akrowiak@linux.ibm.com>
 References: <20260707090226.3206695-1-akrowiak@linux.ibm.com>
- <20260707090226.3206695-13-akrowiak@linux.ibm.com>
+ <20260707090226.3206695-12-akrowiak@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 07 Jul 2026 09:33:48 +0000
-Message-Id: <20260707093348.B73271F000E9@smtp.kernel.org>
+Date: Tue, 07 Jul 2026 09:34:09 +0000
+Message-Id: <20260707093409.8FD521F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 7 potential issue(=
+Thank you for your contribution! Sashiko AI review found 8 potential issue(=
 s) to consider:
-
-New issues:
-- [High] The transition to VFIO_DEVICE_STATE_STOP does not quiesce the AP h=
-ardware queues, leaving the device running during and after migration.
-
-Pre-existing issues:
-- [Critical] Writing fewer bytes than `sizeof(struct vfio_ap_config)` leads=
- to a ZERO_SIZE_PTR panic or Slab Out-of-Bounds read.
-- [Critical] A partial write of the AP configuration at `pos =3D=3D 0` perm=
-anently leaks the allocated memory and leads to a NULL pointer dereference =
-crash.
-- [Critical] Error paths and reallocation logic in `vfio_ap_resuming_write`=
- free `ap_config` without clearing the global pointer in `mig_data`.
-- [High] The `guest_matrix` stack variable is used without initialization w=
-hen setting up the AP matrix.
-- [High] Concurrent `write` operations on the migration file descriptors ca=
-use a data race on `filp->f_pos`, bypassing bounds checks and corrupting th=
-e migration stream state.
-- [High] `vfio_ap_release_mig_file` accesses and modifies `mig_data` intern=
-al pointers locklessly, racing with concurrent device state transitions.
+- [Critical] Fragmented or malformed writes to the resuming file descriptor=
+ trigger severe memory corruption bugs (Double Free, NULL Dereference, Leak=
+).
+- [Critical] Insufficient length check in allocate_ap_config allows out-of-=
+bounds heap read during post-copy validation.
+- [Critical] Uninitialized stack variable `guest_matrix` is used to configu=
+re the guest AP matrix.
+- [High] Improper handling of RESUMING -> STOP transition enables state mac=
+hine bypass, lack of validation, and memory leaks.
+- [High] The `config_sz` field in the serialized `struct vfio_ap_config` is=
+ never set during the STOP_COPY phase, breaking allocation logic on the tar=
+get host.
+- [High] Transitions between RUNNING and STOP states incorrectly return `-E=
+OPNOTSUPP`.
+- [High] Missing locking in `vfio_ap_release_mig_file` leads to a TOCTOU da=
+ta race and Use-After-Free of migration state pointers.
+- [Medium] `vfio_ap_release_migration_data` leaks `ap_config` when the devi=
+ce is closed.
 --
 
---- Patch [12]: [PATCH v4 12/15] s390/vfio-ap: Transition device migration =
-state from STOP to RUNNING and vice versa ---
-commit 6d2ef5d46b7ff5343fd3f1a4ec81fec852894cf9
+--- Patch [11]: [PATCH v4 11/15] s390/vfio-ap: Transition device migration =
+state to STOP ---
+commit 07eb7dcf0820cdb3df175eeebfcfafc28e35382d
 Author: Anthony Krowiak <akrowiak@linux.ibm.com>
 
-s390/vfio-ap: Transition device migration state from STOP to RUNNING and vi=
-ce versa
+s390/vfio-ap: Transition device migration state to STOP
 
-This commit handles the transition between the STOP and RUNNING states for =
-the
-vfio-ap device during migration. It indicates that the device is operating
-normally and sets the new state by returning NULL instead of an error.
+This commit modifies the VFIO AP migration state machine to return NULL
+when transitioning to the STOP state from RESUMING or STOP_COPY. It
+removes the unsupported error return to allow the migration framework to
+clean up the file streams.
 
 > diff --git a/drivers/s390/crypto/vfio_ap_migration.c b/drivers/s390/crypt=
 o/vfio_ap_migration.c
-> index 1b526b743ad02..572db04c4ac15 100644
+> index 9cd1e7a3f7430..1b526b743ad02 100644
 > --- a/drivers/s390/crypto/vfio_ap_migration.c
 > +++ b/drivers/s390/crypto/vfio_ap_migration.c
-> @@ -1172,12 +1172,17 @@ vfio_ap_transition_to_state(struct ap_matrix_mdev=
+> @@ -1159,12 +1159,17 @@ vfio_ap_transition_to_state(struct ap_matrix_mdev=
  *matrix_mdev,
->  		return NULL;
+>  		return filp;
 >  	}
 > =20
 > +	/*
-> +	 * These states indicate migration has either not been initiated or
-> +	 * has completed and the vfio-ap device is operating normally.Since the
-> +	 * vfio-ap device does not virtualize a DMA device, there is no internal
-> +	 * device state to incorporate into the vfio-ap device on the target.
+> +	 * Terminates the data transfer session of the vfio-ap device state
+> +	 * between the source and target hosts. Since the vfio-ap device does
+> +	 * not virtualize a DMA device, there is no internal device state to
+> +	 * incorporate into the vfio-ap device on the target.
 > +	 */
->  	if ((cur_state =3D=3D VFIO_DEVICE_STATE_STOP &&
->  	     new_state =3D=3D VFIO_DEVICE_STATE_RUNNING) ||
->  	    (cur_state =3D=3D VFIO_DEVICE_STATE_RUNNING &&
+>  	if ((cur_state =3D=3D VFIO_DEVICE_STATE_RESUMING &&
+>  	     new_state =3D=3D VFIO_DEVICE_STATE_STOP) ||
+>  	    (cur_state =3D=3D VFIO_DEVICE_STATE_STOP_COPY &&
 >  	     new_state =3D=3D VFIO_DEVICE_STATE_STOP)) {
 > -		/* TODO */
 > -		return ERR_PTR(-EOPNOTSUPP);
 > +		return NULL;
 
 [Severity: High]
-Does this transition to VFIO_DEVICE_STATE_STOP fully quiesce the hardware?
+Does returning NULL here without explicitly closing the file or clearing
+mig_data->resuming_mig_state.filp allow a state machine bypass?
 
-The VFIO migration specification mandates that VFIO_DEVICE_STATE_STOP must
-fully stop the device from executing or performing DMA. By just returning N=
-ULL
-here without calling vfio_ap_mdev_reset_queues() or similar, won't the AP
-queues continue to asynchronously process in-flight requests and perform DMA
-writes to the guest's NIB physical address?
+If a misbehaving userspace keeps the file descriptor open and transitions
+the device back to RUNNING, it appears it could bypass migration state
+machine constraints. Because vfio_ap_resuming_write() only checks that the
+file descriptor matches resuming_mig_state.filp rather than verifying the
+current mig_state, could userspace overwrite the active AP configuration
+while the device is fully running?
+
+Also, would initiating another migration cycle blindly overwrite filp and
+cause a memory leak?
 
 >  	}
 > =20
->  	/* vfio_mig_get_next_state() does not use arcs other than the above */
-
-While reviewing this migration code, I also noticed several pre-existing is=
-sues
-in the vfio_ap_migration.c implementation:
+>  	if ((cur_state =3D=3D VFIO_DEVICE_STATE_STOP &&
 
 [Severity: High]
-This is a pre-existing issue, but does setup_ap_matrix_from_ap_config() use=
- an
-uninitialized stack variable?
+Are transitions between RUNNING and STOP states incorrectly returning
+-EOPNOTSUPP in this adjacent block?
 
-In vfio_ap_resuming_write(), guest_matrix is declared on the stack without
-initialization:
+drivers/s390/crypto/vfio_ap_migration.c:vfio_ap_transition_to_state() {
+	...
+	if ((cur_state =3D=3D VFIO_DEVICE_STATE_STOP &&
+	     new_state =3D=3D VFIO_DEVICE_STATE_RUNNING) ||
+	    (cur_state =3D=3D VFIO_DEVICE_STATE_RUNNING &&
+	     new_state =3D=3D VFIO_DEVICE_STATE_STOP)) {
+		/* TODO */
+		return ERR_PTR(-EOPNOTSUPP);
+	}
+	...
+}
 
-    struct ap_matrix guest_matrix;
-    ...
-    setup_ap_matrix_from_ap_config(mdev_name, ap_config, &guest_matrix);
-
-Inside setup_ap_matrix_from_ap_config(), it only sets bits to 1:
-
-    if (!test_bit_inv(apid, guest_matrix->apm))
-        set_bit_inv(apid, guest_matrix->apm);
-
-Can this leave uninitialized stack garbage in the arrays (like the adm arra=
-y),
-causing the target guest to be configured with unintended AP adapter access?
-
-
-[Severity: Critical]
-This is a pre-existing issue, but does allocate_ap_config() handle small
-lengths correctly?
-
-If a user writes a small chunk where len < sizeof(struct vfio_ap_config), t=
-he
-code falls back to allocating len bytes:
-
-    if (len >=3D sizeof(struct vfio_ap_config)) {
-        config_size =3D calculate_ap_config_size(tmp_ap_config.num_queues);
-        ...
-    } else {
-        config_size =3D len;
-    }
-
-    *ap_config =3D kzalloc(config_size, GFP_KERNEL_ACCOUNT);
-
-If a user writes 0 bytes, won't kzalloc(0) return ZERO_SIZE_PTR, causing a
-kernel panic upon dereference?
-
-Also, if len is small (e.g., 8 bytes), this bypasses the minimum size check.
-Could this allow the tiny buffer to be passed to do_post_copy_validation(),
-which reads num_queues from the heap, potentially leading to an out-of-boun=
-ds
-memory access?
-
+The VFIO migration specification mandates that devices must support
+transitions between VFIO_DEVICE_STATE_RUNNING and VFIO_DEVICE_STATE_STOP.
+When vfio_mig_get_next_state() attempts to transition the device through the
+state machine, will this stub logic instantly fail and render the device
+migration feature broken?
 
 [Severity: Critical]
-This is a pre-existing issue, but does a partial write leak memory and caus=
-e a
-NULL pointer dereference?
+Can fragmented or malformed writes to the resuming file descriptor trigger
+memory corruption?
 
-In vfio_ap_resuming_write(), if the first write is partial, the newly
-allocated pointer is not saved to the global state until the entire write
-is complete:
+In vfio_ap_resuming_write():
 
-    if (*pos + len =3D=3D cfg_sz) {
-        ...
-        mig_data->resuming_mig_state.ap_config =3D ap_config;
-    }
+	if (*pos + len =3D=3D cfg_sz) {
+		ret =3D do_post_copy_validation(mdev_name, ap_config);
+		...
+		mig_data->resuming_mig_state.ap_config =3D ap_config;
+	}
 
-On the next write chunk, the code retrieves the pointer from mig_data:
+If a short write occurs where len < sizeof(config), it appears ap_config is
+allocated locally but not saved to mig_data because *pos + len =3D=3D cfg_sz
+evaluates to false, causing a memory leak.
 
-    ap_config =3D mig_data->resuming_mig_state.ap_config;
-    ret =3D reallocate_ap_config(&ap_config, len);
+Then, if a subsequent write fetches the unsaved (NULL) pointer and passes it
+to reallocate_ap_config():
 
-Since the pointer was never stored on the partial write, it retrieves a
-NULL pointer. Inside reallocate_ap_config(), it immediately dereferences
-ap_config to read config_sz. Won't this cause a guaranteed NULL pointer
-dereference crash? Also, doesn't the initially allocated buffer leak entire=
-ly?
+	cur_cfg_sz =3D ap_config->config_sz;
 
+Could this unconditionally dereference ap_config, causing a kernel crash?
+
+Alternatively, if a full write is followed by an extra write,
+reallocate_ap_config() executes krealloc(). If the bounds check fails and
+cleanup frees the local ap_config pointer, does
+mig_data->resuming_mig_state.ap_config still hold the freed pointer, leading
+to a Double Free when vfio_ap_release_resuming_file() is called?
 
 [Severity: Critical]
-This is a pre-existing issue, but do error paths in vfio_ap_resuming_write()
-leave dangling pointers?
+Is allocate_ap_config() allocating an undersized buffer if the input payload
+is smaller than expected?
 
-If an error occurs on a subsequent chunk (such as *pos + len > cfg_sz), the
-cleanup path frees the pointer:
+drivers/s390/crypto/vfio_ap_migration.c:allocate_ap_config() {
+	...
+	} else {
+		config_size =3D len;
+	}
 
-    ap_config =3D mig_data->resuming_mig_state.ap_config;
-    ...
-cleanup:
-    kfree(ap_config);
+	*ap_config =3D kzalloc(config_size, GFP_KERNEL_ACCOUNT);
+	...
+}
 
-However, mig_data->resuming_mig_state.ap_config is not cleared to NULL. When
-the file descriptor is subsequently closed, vfio_ap_release_mig_file() will
-unconditionally call kfree() on it again. Can this trigger a double free?
+If userspace writes a payload strictly smaller than sizeof(struct
+vfio_ap_config), and vfio_ap_resuming_write() considers the configuration
+fully written, the undersized buffer is passed to do_post_copy_validation().
 
+In queues_available_on_target_system():
+
+	for (int i =3D 0; i < source_config->num_queues; i++) {
+		apqn =3D source_config->qinfo[i].apqn;
+
+Does this allow an out-of-bounds heap read based on the untrusted
+and undersized config buffer?
+
+[Severity: Critical]
+Could the stack variable guest_matrix be used without initialization?
+
+drivers/s390/crypto/vfio_ap_migration.c:vfio_ap_resuming_write() {
+	...
+	struct ap_matrix guest_matrix;
+	...
+		setup_ap_matrix_from_ap_config(mdev_name, ap_config,
+					       &guest_matrix);
+	...
+}
+
+In setup_ap_matrix_from_ap_config():
+
+		if (!test_bit_inv(apid, guest_matrix->apm))
+			set_bit_inv(apid, guest_matrix->apm);
+
+It looks like guest_matrix is declared on the stack without being
+zero-initialized, and setup_ap_matrix_from_ap_config() only sets individual
+bits. Does this leave uninitialized bits in the apm, aqm, and adm bitmaps,
+potentially granting the target guest hardware access to unauthorized AP
+adapters and domains?
 
 [Severity: High]
-This is a pre-existing issue, but is there a data race on the file position?
+Are we missing the initialization of the config_sz field during the
+STOP_COPY phase?
 
-vfio_ap_resuming_write() uses the file's internal position and locklessly
-updates it after dropping mdevs_lock:
+drivers/s390/crypto/vfio_ap_migration.c:vfio_ap_get_config() {
+	ap_configuration =3D kzalloc(*ap_config_size, GFP_KERNEL_ACCOUNT);
+	if (!ap_configuration)
+		return -ENOMEM;
 
-    mutex_unlock(&matrix_dev->mdevs_lock);
+	ap_configuration->num_queues =3D num_queues;
+	...
+}
 
-    if (copy_from_user((char *)ap_config + *pos, buf, len)) {
-        ...
-    ret =3D len;
-    *pos +=3D len;
-
-Since the file stream is opened with stream_open(), FMODE_ATOMIC_POS is
-cleared, and the VFS layer does not serialize writes with f_pos_lock. Could
-concurrent write syscalls race to read and update *pos, bypassing bounds
-checks and corrupting the migration state?
-
+The allocation succeeds, but it doesn't look like
+ap_configuration->config_sz is initialized before returning it to be copied
+to user space. If this structure is transferred and the target host receives
+config_sz =3D=3D 0, would a fragmented write on the target erroneously call
+krealloc() to shrink the buffer to merely len bytes, breaking fragmented
+migrations?
 
 [Severity: High]
-This is a pre-existing issue, but does vfio_ap_release_mig_file() safely
-handle concurrent device state transitions?
+Is there a locking issue in vfio_ap_release_mig_file() that could lead to a
+data race and Use-After-Free?
 
-The VFS release callback checks filp and frees ap_config locklessly:
+drivers/s390/crypto/vfio_ap_migration.c:vfio_ap_release_mig_file() {
+	...
+	if (!matrix_mdev || !matrix_mdev->mig_data)
+		return -ENODEV;
 
-    else if (filp =3D=3D matrix_mdev->mig_data->resuming_mig_state.filp)
-        vfio_ap_release_resuming_file(matrix_mdev->mig_data);
+	if (filp =3D=3D matrix_mdev->mig_data->stop_copy_mig_file)
+		vfio_ap_release_stop_copy_file(matrix_mdev->mig_data);
+	...
+}
 
-If a concurrent VFIO ioctl transitions the device state and overwrites
-mig_data->resuming_mig_state.filp before the old file descriptor is release=
-d,
-won't this callback fail to match the old filp? Could this bypass cleanup a=
-nd
-leak memory, or improperly free memory belonging to a new migration session?
+This accesses matrix_mdev->mig_data entirely locklessly. Since
+vfio_ap_release_migration_data() and vfio_ap_transition_to_state() modify
+and free this data under matrix_dev->mdevs_lock, could a concurrent close of
+the migration file descriptor result in a Time-of-Check to Time-of-Use race?
+
+If vfio_ap_release_mig_file() evaluates matrix_mdev->mig_data as valid but a
+concurrent teardown thread kfrees it, would this result in a Use-After-Free
+when dereferencing mig_data->stop_copy_mig_file?
+
+[Severity: Medium]
+Will vfio_ap_release_migration_data() leak ap_config when the device is
+closed?
+
+drivers/s390/crypto/vfio_ap_migration.c:vfio_ap_release_migration_data() {
+	if (!matrix_mdev->mig_data)
+		return;
+
+	kfree(matrix_mdev->mig_data);
+	matrix_mdev->mig_data =3D NULL;
+}
+
+This frees mig_data without cleaning up the dynamically allocated
+mig_data->resuming_mig_state.ap_config buffer inside it.
+
+Because the pointer is nulled, when VFS eventually drops the final reference
+to the RESUMING migration file, vfio_ap_release_mig_file() will abort early
+with -ENODEV. Will this bypass the kfree call within
+vfio_ap_release_resuming_file() and permanently leak the allocated ap_config
+memory?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260707090226.3206=
-695-1-akrowiak@linux.ibm.com?part=3D12
+695-1-akrowiak@linux.ibm.com?part=3D11
