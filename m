@@ -1,48 +1,48 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 60486441030;
-	Tue,  7 Jul 2026 19:06:22 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BCE2F3A48C5;
+	Tue,  7 Jul 2026 19:06:27 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783451187; cv=none; b=YgFhLkxinIqoiTeQkyrb6DJH6YS2xlsAO7bTGVq3UMRcdpQYnKDGq9M9WN9/eJz9LZjZ5C0zSncJZw4+lWE5INcl3AYIhOtKcPOdw2HMbFwK5W7xKihfK1mg5VppfcYQkvqYA6zL23XtsdJLTP2RXHfc9xQZ9Eq+d3tpmaQPVEk=
+	t=1783451192; cv=none; b=SuQ3+/ZobVlz5x7CWKVWREBMogNkBzz3aPprnhGegAachKaCh6rxZOP13WaFaM6UZcq/3H/gQSLLL4Sa/VTasBPBtXiZq3ShOR4fzzFz+uluMZUrPc8FzYYE+EWXFUf43PkpdOKvchJhbuxi/reC/vvp2QHzrj3EYhtXg9FhO5E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783451187; c=relaxed/simple;
-	bh=ysPr6jr6XZIeyODky5nRl6TrszjrF+wONXSVXjJPKpY=;
+	s=arc-20240116; t=1783451192; c=relaxed/simple;
+	bh=PYhMM85AzHjZdVZlu3JZJgIVicv/CXGGISuxXGgoBrA=;
 	h=Date:Message-ID:From:To:Cc:Subject:References:MIME-Version:
-	 Content-Type; b=j42ZY+Vr81erxXtPqC/iyScIhkydgBVKhhV0C55Azk1Bajnv0vAro+pJV6ndWdRw53yqUczYbLnKmHUgACBzvgU8KBNbfgN5ngkf6Dbm3Xy5l7VKtxfyQGKyIhRBczkyC987PFFl1hdZjluA/dIxBY8rPzOqH6ypVoOMPBKlf7Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jmy5NgtN; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type; b=c1KH8+9E55/I9kioXoE/5ZKz3/svlgeg+RTUvxsIEDnAkDexvlWNIsPo52r0xMFL1W+80PlJdEoJeCwLxhjAoYZR2qkzg8C5ctyG+GlMFCPGkVMpZzr/RFfCfdeYjoZ+oineqooSjMC5pMN8ofqoQrtk8m1RGSit80ZSU5Ogvk0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OAQsikH3; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jmy5NgtN"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E5D11F00A3D;
-	Tue,  7 Jul 2026 19:06:21 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OAQsikH3"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FC491F000E9;
+	Tue,  7 Jul 2026 19:06:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783451182;
-	bh=FSz9R//tXkAkFf727Rcog7SX40mWm3WZD+GcFTZrqNo=;
+	s=k20260515; t=1783451186;
+	bh=EqhpiB2ZofNX2Hns8Xgz4OVDOubexQBaPatIimxnT/c=;
 	h=Date:From:To:Cc:Subject:References;
-	b=jmy5NgtN1SD2HqwkVPG0TWkFN54TmdXj7T1HSJ0YKKwFEFYGJZgl0bxw21Z5Zw6gF
-	 oLz0li+t91OzAxgXcJufOtcILCljJifd/dtqOAvAWgylV3Gsd2EQ0rLxbGfO01LU0j
-	 fGSFcIN5CQo8Eb+XAIcZbFr1t/Rccy9Jg9VrEGxft5Y0XFjAFPmIVc5t+s4ruAoLPe
-	 NXUZ3wSbTXF7v2pk2mNXgxKVbV69AzbsU6gyihCw7XUl2EEorcZSB4GwvDUCm+Y5ri
-	 rE9qNujpevqvyyh40zbml6ST8aYSMsFvamJntu3IcdBj7uE8fU0k0BtndQzpUpA3fJ
-	 QZRGwGblw5h8g==
-Date: Tue, 07 Jul 2026 21:06:19 +0200
-Message-ID: <20260707190253.974626922@kernel.org>
+	b=OAQsikH32zcXysH6hCjDCdC0GZdQsSYEYwKYLO4211wdV8Gx5U5QTVE1+P//2FXpn
+	 uIqA0JY8lGaPQiDHJVOdRGZSp+QbqEjfTrKS3EEXVNmeOvIQBrVQEfC4uIvhb5uzt+
+	 eT9i9M6+UlE8GQ+lRJyRHgkq+kITYoE5ZzhOkYUKb2PU4bWHESCf+nr7SFJdz6XhZt
+	 2iGqe+3vU4x0dhlP0lRwEovJHlRUe0zFn5tWw2ueZ7uZSvdCbVVh6SrVwQHTuvbp8Z
+	 nNfr1ROiFTyIDkK/ZvtATvAtmDATTdK6yv/sLVE04ZyzvrA9oLmxeUKMvdWrrAByna
+	 52gUU2XWEgjgQ==
+Date: Tue, 07 Jul 2026 21:06:23 +0200
+Message-ID: <20260707190254.030598804@kernel.org>
 User-Agent: quilt/0.69
 From: Thomas Gleixner <tglx@kernel.org>
 To: LKML <linux-kernel@vger.kernel.org>
 Cc: Peter Zijlstra <peterz@infradead.org>,
- Paul Walmsley <pjw@kernel.org>,
- Palmer Dabbelt <palmer@dabbelt.com>,
- linux-riscv@lists.infradead.org,
+ Sven Schnelle <svens@linux.ibm.com>,
+ linux-s390@vger.kernel.org,
  Michael Ellerman <mpe@ellerman.id.au>,
  Shrikanth Hegde <sshegde@linux.ibm.com>,
  linuxppc-dev@lists.ozlabs.org,
  Kees Cook <kees@kernel.org>,
  Huacai Chen <chenhuacai@kernel.org>,
  loongarch@lists.linux.dev,
- Sven Schnelle <svens@linux.ibm.com>,
- linux-s390@vger.kernel.org,
+ Paul Walmsley <pjw@kernel.org>,
+ Palmer Dabbelt <palmer@dabbelt.com>,
+ linux-riscv@lists.infradead.org,
  x86@kernel.org,
  Mark Rutland <mark.rutland@arm.com>,
  Jinjie Ruan <ruanjinjie@huawei.com>,
@@ -82,8 +82,8 @@ Cc: Peter Zijlstra <peterz@infradead.org>,
  =?UTF-8?q?Michal=20Such=C3=A1nek?= <msuchanek@suse.de>,
  Jonathan Corbet <corbet@lwn.net>,
  linux-doc@vger.kernel.org
-Subject: [patch 06/18] riscv/syscall: Use
- syscall_enter_from_user_mode_randomize_stack()
+Subject: [patch 07/18] s390/syscall: Use
+ enter_from_user_mode_randomize_stack()
 References: <20260707181957.433213175@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
@@ -93,43 +93,32 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 
-syscall_enter_from_user_mode_randomize_stack() replaces
-syscall_enter_from_user_mode() and the subsequent invocation of
-add_random_kstack_offset().
+enter_from_user_mode_randomize_stack() replaces enter_from_user_mode() and
+the subsequent invocation of add_random_kstack_offset_irqsoff().
 
-The advantage is that it applies the stack randomization right after
-enter_from_user_mode() and thereby avoids the overhead of get/put_cpu_var()
-as that code is invoked with interrupts disabled.
+As a bonus this avoids the overhead of get/put_cpu_var() in
+add_random_kstack_offset().
 
 No functional change.
 
 Signed-off-by: Thomas Gleixner <tglx@kernel.org>
-Cc: Paul Walmsley <pjw@kernel.org>
-Cc: Palmer Dabbelt <palmer@dabbelt.com>
-Cc: linux-riscv@lists.infradead.org
+Cc: Sven Schnelle <svens@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org
 ---
- arch/riscv/kernel/traps.c |    5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ arch/s390/kernel/syscall.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/riscv/kernel/traps.c
-+++ b/arch/riscv/kernel/traps.c
-@@ -7,7 +7,6 @@
- #include <linux/kernel.h>
- #include <linux/init.h>
- #include <linux/irqflags.h>
--#include <linux/randomize_kstack.h>
- #include <linux/sched.h>
- #include <linux/sched/debug.h>
- #include <linux/sched/signal.h>
-@@ -333,9 +332,7 @@ void do_trap_ecall_u(struct pt_regs *reg
+--- a/arch/s390/kernel/syscall.c
++++ b/arch/s390/kernel/syscall.c
+@@ -97,8 +97,8 @@ void noinstr __do_syscall(struct pt_regs
+ {
+ 	unsigned long nr;
  
- 		riscv_v_vstate_discard(regs);
- 
--		syscall = syscall_enter_from_user_mode(regs, syscall);
--
--		add_random_kstack_offset();
-+		syscall = syscall_enter_from_user_mode_randomize_stack(regs, syscall);
- 
- 		if (syscall >= 0 && syscall < NR_syscalls) {
- 			syscall = array_index_nospec(syscall, NR_syscalls);
+-	enter_from_user_mode(regs);
+-	add_random_kstack_offset();
++	enter_from_user_mode_randomize_stack(regs);
++
+ 	regs->psw = get_lowcore()->svc_old_psw;
+ 	regs->int_code = get_lowcore()->svc_int_code;
+ 	update_timer_sys();
 
