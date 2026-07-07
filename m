@@ -1,138 +1,143 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f52.google.com (mail-wr1-f52.google.com [209.85.221.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8CCD937BE7C;
-	Tue,  7 Jul 2026 15:10:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E95F3ED132
+	for <linux-s390@vger.kernel.org>; Tue,  7 Jul 2026 15:38:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783437023; cv=none; b=XPcoW2Mzd0ZagAsVaHGzxT/suj/9YRvOOXIra8wghEVxjdX/hqcGW/y0rdbsBJtNlOVBK1n+KNZrLtniuepn2i3+9Te2H7dunT0JO25qWQkRRlwCMRTL9JUrIBzEdbgVQLamlJWeBSxKiXObW5bbqQBaloykeZoYpdgRV2mN9R4=
+	t=1783438728; cv=none; b=iUfhL51YexjLGbXvkRe22esjYEGLWM3M/6+2w4YqeC6LDB6hTk2PChVwS0QGAYyEpCa2zvWErPzeMwQWrXIAEL9+CnF8ZWKYG3DFqWyPWW/+MmiCByrqgUL/1bDimcXVs2TV+ivoKMWQCRtr/D8EZnmjX384kW8KpxZ55N51bp8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783437023; c=relaxed/simple;
-	bh=VaBrHkmJl3/TBITZBTUsKP1whCdPS2A5Cbmn/ECe/TU=;
-	h=Date:Message-ID:From:To:Cc:Subject:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=nynpvCj774xzr3Sw10EfUZTZ25vOJy7XIuChnZQtWWPS4KKuW5gVCn4yRj9+GWK+MCYa+SXpGhc5+Ps4VrUKVKFfIiYOBuKxo7u/YroZ2ydRf9PSsSxcsc0vgcMlVBO0VXK/39oKVAXbkHRAl3N0HYHCSOzW8MYRSIr2v5vZ6Xw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GRoRwRfk; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1783438728; c=relaxed/simple;
+	bh=iDSVx05XJpQ187yLL+vngdmnzjWQdJOINiVqfnmbIYk=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=m+9bRTZSFd1iKAf3SX3q9pOw+Ir5PVZnNZsYVWp8T9EHT9gZP5VYQD3QY4tmxPUOoynAnfNAZRMEixlSJTryjJOsnCVRq0XNsQtSuv7WoM++w7G/TGVNW+Lq1+HDlCn1sM5Crm1XvpPXgZA880NfWSrlILq/a8+KsyOZQYSRCdI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=OQRAcW6u; arc=none smtp.client-ip=209.85.221.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GRoRwRfk"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 386F51F00A3E;
-	Tue,  7 Jul 2026 15:10:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783437022;
-	bh=NjRJOOgfj4HWWKYEXcQ/AbYuFATzaVJOA8skt66XvW4=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References;
-	b=GRoRwRfklUgC9ESBNWdgu/CRujDUfLkO0C2oxJG6sbpYcVgcthL0RnGtNQadUPwhM
-	 rzwRLn6AHj4WRRtiUsA+qSkbMqqSuQvvDBNxsogzdpdZntRV2bB5QBvBb57gy/hxXF
-	 mx7hkTtUhnoBCi5vex/zl4zelm5pL4IFSpB/rOByMSQJwI6kpmvAbSVEx7ZHgz1Os6
-	 KmO4CAO8xKgDaOaNK05ZIE4eSxhKFAqk62s5RsnsrFc0LehgB6BF1Wfzuyj68QQHaY
-	 BSamnfjeUAbueswISwAg4qL+8/v4bBrqXpbeo/GDwzIQXcdItm+rpZL8w0835ZgVTI
-	 YpRfxyEM9+Y/A==
-Received: from sofa.misterjones.org ([185.219.108.64] helo=goblin-girl.misterjones.org)
-	by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.98.2)
-	(envelope-from <maz@kernel.org>)
-	id 1wh7RE-00000002SwD-12Vn;
-	Tue, 07 Jul 2026 15:10:20 +0000
-Date: Tue, 07 Jul 2026 16:10:19 +0100
-Message-ID: <8633xuq1ic.wl-maz@kernel.org>
-From: Marc Zyngier <maz@kernel.org>
-To: Steffen Eiden <seiden@linux.ibm.com>
-Cc: kvm@vger.kernel.org,
-	kvmarm@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	linux-s390@vger.kernel.org,
+	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="OQRAcW6u"
+Received: by mail-wr1-f52.google.com with SMTP id ffacd0b85a97d-47debec234cso490100f8f.0
+        for <linux-s390@vger.kernel.org>; Tue, 07 Jul 2026 08:38:46 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=suse.com; s=google; t=1783438725; x=1784043525; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=UEQ8hvtSLcTmZmrsjKtJkrVXdZFggd5Aezo0pgyYhCk=;
+        b=OQRAcW6u4w3eHo1rKEUxi9C900X9L2rF9xzjyZszsY7iad0v5BNxcOALCOu9RG60YK
+         zIpoMbUOUpcuo2unP4EU1ljS1cteHo5NmgIa/Lxodlw8sbK94HXm5KnBocHprHa3reTh
+         wKyEs8iOUIkEITzDgeBCQI5VOfW6hct1UHDtkI6KjfdyZZ9KhzdykJBRtruYd7LVHHFr
+         yu3vwcn0crbkn7lGVO1D45mbgQVvuVr1IqHHOhenvDjPXHEKtIi+V2DGg3Sg8RNUl8+x
+         X7a61e2K5QIbcn7Z7XO8QDe7AkdYKuvCrPt/9koT7Vcv73MloNCs8eLuP/0k2rD0fBvy
+         CBSg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1783438725; x=1784043525;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=UEQ8hvtSLcTmZmrsjKtJkrVXdZFggd5Aezo0pgyYhCk=;
+        b=rbm4dTB4KtByrDC39Q/7bUFsVLniWTgJ6kh3r3FtKoae5nA1QLKzRf319H9REG2+sr
+         3GadhD2AOMzwY8i9TZmgmjgkhFd0piT5ro15CqJGTn1RP4P2OTNN4zF6PQQIBVVeaNFz
+         5TqOpZpdRWAhHr5LV9helA9n7JTU4qB+bup9xE7M8We8Gywk777g/PeXj91lrbqT3c0k
+         FZpjZsEMK424J5p+u86cx9qSJF9uJW7kLg3rhW1hwb5NIUEy6IejFMyhrLbJqYpMgST6
+         0F/lgveZyixPtwR9KKcUM0oQutQu5QgrRlNlEsnZEasx5TQ5qARmjZaShiSoreIK7oeM
+         fE0Q==
+X-Forwarded-Encrypted: i=1; AHgh+RrhR/00Ay3SAJkI3BQlrD4h03H+HkvZgTarF489vvFTv7OIEKh4kQjSwkFZ2kljuRjBRo5sYlPMjPGF@vger.kernel.org
+X-Gm-Message-State: AOJu0Yxq/6nK0oMZLCDtGb0BSrxJgQsgD6OhYIEULqZ0y1auJq2F5PmG
+	aflAk6BwLti06ObHdjuqUchEZDO7WrlUe8xr4E72qrHHAfbdpjrNdjn1XBQzzSCYFgc=
+X-Gm-Gg: AfdE7cmej8bRUbfJlL0cHdpTMfGYyuxMDYD6dxgBq/5Du1jjAaOgdG50DDjACqlfI4h
+	wU0x4ibLnVWZOv6PICAuSixjOqTGdJ+B5ZTyTSNZgdKiCApgCS+yyJZt+gMiCCq0ghkECQqzxxy
+	KYvhTQoZVq1njP9KkRZZu1cUyl2ZGy8q4AhrgO930YtVGUhL6JOzSZ1LkyFvfOP/CaAOhkN235A
+	B6C/STtl7OU9A97FU5kggHSDoAtTFKQXnGB2yk8sTvIB1NFDwGX8D/uFBzIyIl0n4ZWNf5G9+3J
+	MG7FhFWefyCAi7TavbDTaD4AdrzCAZvN5qqkDK8G5em+pDjRidq5vaYWXFXcmlWOU00jW/lYJ75
+	XcK0mCqmuPBj/+1dglcrRlPjuDL/Okz3N3uzFBk7vxaFvo7OqVs6hfn6F22tV+adYYDQuf5jpmB
+	rDGgg0aYVnWISTnqrX03cFo55/4OTHdHJ3BrJIK5HR2xqiE0ZaVlKqy1t5GMMHrmnzn50rYn+LC
+	NoD4r8zxaMqbue94klZo0Ap
+X-Received: by 2002:a05:600c:3b08:b0:493:cc25:9c0e with SMTP id 5b1f17b1804b1-493df0410d7mr67190395e9.14.1783438725537;
+        Tue, 07 Jul 2026 08:38:45 -0700 (PDT)
+Received: from zovi.suse.cz (dynamic-2a00-1028-838d-271e-8e3b-4aff-fe4c-a100.ipv6.o2.cz. [2a00:1028:838d:271e:8e3b:4aff:fe4c:a100])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-493e0f5b811sm101111785e9.13.2026.07.07.08.38.44
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 07 Jul 2026 08:38:45 -0700 (PDT)
+From: Petr Pavlu <petr.pavlu@suse.com>
+To: Thomas Gleixner <tglx@kernel.org>,
+	Ingo Molnar <mingo@redhat.com>,
+	Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	x86@kernel.org,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
 	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Andreas Grapentin <gra@linux.ibm.com>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Catalin Marinas <catalin.marinas@arm.com>,
+	Peter Huewe <peterhuewe@gmx.de>,
+	Jarkko Sakkinen <jarkko@kernel.org>,
+	Luis Chamberlain <mcgrof@kernel.org>,
+	Petr Pavlu <petr.pavlu@suse.com>,
+	Daniel Gomez <da.gomez@kernel.org>,
+	Sami Tolvanen <samitolvanen@google.com>
+Cc: Xin Li <xin@zytor.com>,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	Andy Lutomirski <luto@kernel.org>,
 	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Janosch Frank <frankja@linux.ibm.com>,
 	Claudio Imbrenda <imbrenda@linux.ibm.com>,
 	David Hildenbrand <david@kernel.org>,
-	Friedrich Welter <fritz@linux.ibm.com>,
-	Gautam Gala <ggala@linux.ibm.com>,
-	Hariharan Mari <hari55@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Hendrik Brueckner <brueckner@linux.ibm.com>,
-	Ilya Leoshkevich <iii@linux.ibm.com>,
-	Janosch Frank <frankja@linux.ibm.com>,
-	Joey Gouly <joey.gouly@arm.com>,
-	Nico Boehr <nrb@linux.ibm.com>,
-	Nina Schoetterl-Glausch <oss@nina.schoetterlglausch.eu>,
-	Oliver Upton <oupton@kernel.org>,
-	Paolo Bonzini <pbonzini@redhat.com>,
-	Suzuki K Poulose <suzuki.poulose@arm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Ulrich Weigand <Ulrich.Weigand@de.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Will Deacon <will@kernel.org>,
-	Zenghui Yu <yuzenghui@huawei.com>
-Subject: Re: [PATCH v4 24/27] KVM: s390: arm64: Implement vm/vcpu create destroy.
-In-Reply-To: <20260706085229.979525-25-seiden@linux.ibm.com>
-References: <20260706085229.979525-1-seiden@linux.ibm.com>
-	<20260706085229.979525-25-seiden@linux.ibm.com>
-User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
- FLIM-LB/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL-LB/10.8 EasyPG/1.0.0 Emacs/30.1
- (aarch64-unknown-linux-gnu) MULE/6.0 (HANACHIRUSATO)
+	Jason Gunthorpe <jgg@ziepe.ca>,
+	Aaron Tomlin <atomlin@atomlin.com>,
+	linux-s390@vger.kernel.org,
+	kvm@vger.kernel.org,
+	linux-integrity@vger.kernel.org,
+	linux-modules@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH 0/4] module: Limit ELF includes in linux/module.h to uapi/linux/elf.h
+Date: Tue,  7 Jul 2026 17:37:03 +0200
+Message-ID: <20260707153819.4172541-1-petr.pavlu@suse.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
-Content-Type: text/plain; charset=US-ASCII
-X-SA-Exim-Connect-IP: 185.219.108.64
-X-SA-Exim-Rcpt-To: seiden@linux.ibm.com, kvm@vger.kernel.org, kvmarm@lists.linux.dev, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, agordeev@linux.ibm.com, gra@linux.ibm.com, arnd@arndb.de, catalin.marinas@arm.com, borntraeger@linux.ibm.com, imbrenda@linux.ibm.com, david@kernel.org, fritz@linux.ibm.com, ggala@linux.ibm.com, hari55@linux.ibm.com, hca@linux.ibm.com, brueckner@linux.ibm.com, iii@linux.ibm.com, frankja@linux.ibm.com, joey.gouly@arm.com, nrb@linux.ibm.com, oss@nina.schoetterlglausch.eu, oupton@kernel.org, pbonzini@redhat.com, suzuki.poulose@arm.com, svens@linux.ibm.com, Ulrich.Weigand@de.ibm.com, gor@linux.ibm.com, will@kernel.org, yuzenghui@huawei.com
-X-SA-Exim-Mail-From: maz@kernel.org
-X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-On Mon, 06 Jul 2026 09:52:24 +0100,
-Steffen Eiden <seiden@linux.ibm.com> wrote:
-> 
-> Implement init and destroy IOCTLS for vcpu and vm.
-> Implement arch vm IOCTL. Use s390 gmap.
-> 
-> Co-developed-by: Janosch Frank <frankja@linux.ibm.com>
-> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-> Co-developed-by: Andreas Grapentin <gra@linux.ibm.com>
-> Signed-off-by: Andreas Grapentin <gra@linux.ibm.com>
-> Co-developed-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-> Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-> Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
-> ---
->  arch/s390/kvm/arm64/arm.c       | 190 ++++++++++++++++++++++++++++++++
->  arch/s390/kvm/arm64/arm.h       |  56 ++++++++++
->  arch/s390/kvm/gmap/faultin.c    |   5 +
->  arch/s390/kvm/gmap/gmap.c       |   4 +
->  arch/s390/kvm/gmap/trace-gmap.h |  13 +++
->  5 files changed, 268 insertions(+)
-> 
-> diff --git a/arch/s390/kvm/arm64/arm.c b/arch/s390/kvm/arm64/arm.c
-> index 19249ec5c539..3a4092698fae 100644
-> --- a/arch/s390/kvm/arm64/arm.c
-> +++ b/arch/s390/kvm/arm64/arm.c
-> @@ -8,6 +8,10 @@
->  #include <linux/kvm_types.h>
->  #include <linux/kvm_host.h>
->  
-> +#include <arm64/kvm_mmu.h>
-> +
-> +#include <gmap.h>
-> +
->  #include "arm.h"
->  
->  static unsigned long system_supported_vcpu_features(void);
-> @@ -31,6 +35,7 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
->  		break;
->  	case KVM_CAP_IOEVENTFD:
->  	case KVM_CAP_ARM_USER_IRQ:
-> +	case KVM_CAP_PRE_FAULT_MEMORY:
+The linux/module.h header is included by every *.mod.c file to provide
+`struct module` and other related definitions. This makes it a "hot"
+header, so it should avoid pulling in unnecessary definitions.
 
-arm64 *doesn't* support this yet. Please make sure you don't deviate
-from what arm64 currently supports.
+The header currently includes linux/elf.h but this is largely unnecessary
+because it requires only the base ELF structures, such as Elf_Ehdr and
+Elf_Sym, which are declared in uapi/linux/elf.h.
 
-Thanks,
+Replace the linux/elf.h include with uapi/linux/elf.h. On x86_64_defconfig,
+including linux/module.h alone results in 2.2 MB of preprocessed data. This
+change reduces that to 1.5 MB.
 
-	M.
+The first three patches are cleanups to avoid relying on declarations being
+indirectly provided through linux/module.h -> linux/elf.h. These patches
+are all independent and can go through their respective trees. The final
+patch depends on these changes.
+
+It is hard to identify all files that indirectly reference something only
+through linux/module.h -> linux/elf.h. The changes were build-tested with
+allmodconfig on arm, arm64, m68k, mips, powerpc64, riscv, s390, x86_64.
+
+Petr Pavlu (4):
+  x86: Avoid indirect includes through linux/module.h -> linux/elf.h
+  s390: Avoid indirect includes through linux/module.h -> linux/elf.h
+  tpm_crb_ffa: Include linux/slab.h for kzalloc_obj() and kfree()
+  module: Limit ELF includes in linux/module.h to uapi/linux/elf.h
+
+ arch/s390/kernel/nospec-branch.c | 1 +
+ arch/x86/entry/entry_fred.c      | 1 +
+ arch/x86/entry/syscall_32.c      | 1 +
+ arch/x86/kernel/cpu/intel.c      | 1 +
+ arch/x86/kernel/fpu/xstate.c     | 2 +-
+ arch/x86/kernel/process.c        | 1 +
+ arch/x86/kernel/signal.c         | 1 +
+ drivers/char/tpm/tpm_crb_ffa.c   | 1 +
+ drivers/s390/char/uvdevice.c     | 2 ++
+ include/linux/module.h           | 4 ++--
+ 10 files changed, 12 insertions(+), 3 deletions(-)
 
 -- 
-Without deviation from the norm, progress is not possible.
+2.54.0
+
