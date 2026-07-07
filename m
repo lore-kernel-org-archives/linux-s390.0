@@ -1,160 +1,101 @@
-Received: from out30-124.freemail.mail.aliyun.com (out30-124.freemail.mail.aliyun.com [115.124.30.124])
+Received: from out30-97.freemail.mail.aliyun.com (out30-97.freemail.mail.aliyun.com [115.124.30.97])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1D8B2233948
-	for <linux-s390@vger.kernel.org>; Tue,  7 Jul 2026 03:32:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C7F742086D;
+	Tue,  7 Jul 2026 03:56:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.97
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783395174; cv=none; b=pShvCWuWJOWwXrlVLU4Y5oOSHlNZkiSrlG9BcM5mD7n6lfTP+r7KmXVaHAQEUHtwT3vnqKbySDdgKXJmlKXJaz/8RPQxXaYrKRrUU1QA8Rj7TLai/JTpMH6Jzy9X3jcho096GcSThZIsR+Ep+cxjf1EtXXQy2ZJvBkZdGVrKG0Q=
+	t=1783396594; cv=none; b=dNNuNzVOzrCnvhAxlHfuSIeoKYKtE6VgLPs53ItU4gKzW4YLg6f/NfMciRlpRpkpfW2fYut2B6zH3JAiHX3TuI8sdqjaDuBmZSUMtw25LhkcDfW3Kg7eK4OLcBQmfofqDYIpG6j6t3k3zyTM0qzSzBFPT9HVhsVDSFEEBkmHyYY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783395174; c=relaxed/simple;
-	bh=MVO3liupPwj/Vlzs8En1OpPpt2fclexaglrXgfrHrFU=;
+	s=arc-20240116; t=1783396594; c=relaxed/simple;
+	bh=AH0x5XaXy0vIg0qhq+qAwESJKMn/Df6ORcuGRPEcxNo=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=f5NS37Kr/gUlh5HAC5c6FwzO4lLChCHpdu6cYo3+pO1uas2r1aLfxitSNGhlx+bcEpLq+8ej+RLv1YdgKd/Wo9EqUSJs4kJYHd2Sle8REE87rHOMM16O43Vea0bx8pGRZukwvgTHsbW6g72y0gt/CFjKZPP5B41swrXswqmbjFA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=r+ftn+GW; arc=none smtp.client-ip=115.124.30.124
+	 Content-Type:Content-Disposition:In-Reply-To; b=JMjylz9Ovnk9Xpql1fhyuk9qpaeC8vAdJlk6vkk7BRrGC45rR7MbM6hycq6C3UdQl1bmdMnU/p66t4c83i4HJwnGnuflRFigvmsiw3k8k5GtdPHL6saa2CRs5/UyR3oEkwVUebUM2MjNxDIRxQ1jJdU8HsJjxD37NavhQkycFVk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=LlakIQbN; arc=none smtp.client-ip=115.124.30.97
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="r+ftn+GW"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="LlakIQbN"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1783395169; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
-	bh=UL4ybNwsHd88nyr81UjZx7Ri3ifdNe2oAPkU7R2Fbg8=;
-	b=r+ftn+GWsJNtLEl25KIhm0hyr+PvDVncFMfBLZCnc5H0KYrFe7YtlLsitfx35rW2Rmok6PX1z0oR3T0khK2zjRTpKhb503IFBvO0vpBzj9eAvubCPL3czbWoct8lUrdEaeh7V9kJG9JLwcBLx7KdwHD7k6Pf72RYSdPA/cieq6A=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R161e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037033178;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=5;SR=0;TI=SMTPD_---0X6bLLSS_1783395167;
-Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0X6bLLSS_1783395167 cluster:ay36)
+	t=1783396581; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
+	bh=M4RVq49saWLjC2cfzHwMtl8WbBTa/nnpaGr8HOsnPv4=;
+	b=LlakIQbNJhf2JQWChhZ0wz876tCXtu0xCIvHcz8tG2i8d5USKunPD8FXAMy0LuW8opJJ3bPjDHsGRRiLqeByteLJY7bO4BKjhjFL+ovP8ug6UbojUMy83l/0tkkqeO4wPUcoqbZJYYDrPN1zamZm9HQIk622W5rxaq5wFdc30t4=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R171e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037009110;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=18;SR=0;TI=SMTPD_---0X6bdqfX_1783396580;
+Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0X6bdqfX_1783396580 cluster:ay36)
           by smtp.aliyun-inc.com;
-          Tue, 07 Jul 2026 11:32:48 +0800
-Date: Tue, 7 Jul 2026 11:32:47 +0800
+          Tue, 07 Jul 2026 11:56:21 +0800
+Date: Tue, 7 Jul 2026 11:56:20 +0800
 From: Dust Li <dust.li@linux.alibaba.com>
-To: sashiko-reviews@lists.linux.dev
-Cc: linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>
+To: "D. Wythe" <alibuda@linux.alibaba.com>,
+	Sidraya Jayagond <sidraya@linux.ibm.com>,
+	Wenjia Zhang <wenjia@linux.ibm.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>
+Cc: Mahanta Jambigi <mjambigi@linux.ibm.com>,
+	Tony Lu <tonylu@linux.alibaba.com>,
+	Wen Gu <guwen@linux.alibaba.com>, Simon Horman <horms@kernel.org>,
+	Ursula Braun <ubraun@linux.vnet.ibm.com>,
+	Hans Wippel <hwippel@linux.ibm.com>, linux-rdma@vger.kernel.org,
+	linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Subject: Re: [PATCH net] net/smc: ignore peer-supplied rmbe_idx and dmbe_idx
-Message-ID: <akxzX5lh6fRQZmaF@linux.alibaba.com>
+Message-ID: <akx45Ewt3iuhzCRI@linux.alibaba.com>
 Reply-To: dust.li@linux.alibaba.com
 References: <20260702171137.1099051-2-dust.li@linux.alibaba.com>
- <20260703171239.625D21F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20260703171239.625D21F000E9@smtp.kernel.org>
+In-Reply-To: <20260702171137.1099051-2-dust.li@linux.alibaba.com>
 
-On 2026-07-03 17:12:38, sashiko-bot@kernel.org wrote:
->Thank you for your contribution! Sashiko AI review found 2 potential issue(s) to consider:
+On 2026-07-03 01:11:38, Dust Li wrote:
+>Linux always uses exactly one RMBE per RMB (index 1 for SMC-R) and
+>one DMBE per DMB (index 0 for SMC-D), so conn->tx_off is always zero.
+>Hardcode these fixed values instead of deriving tx_off from the
+>peer-supplied rmbe_idx / dmbe_idx in the CLC Accept/Confirm message.
 >
->New issues:
->- [High] Hardcoding `peer_rmbe_idx` and `tx_off` violates the SMC protocol and breaks interoperability by ignoring the peer-supplied buffer index.
+>Fixes: e6727f39004b ("smc: send data (through RDMA)")
+>Fixes: 413498440e30 ("net/smc: add SMC-D support in af_smc")
+>Cc: stable@vger.kernel.org
+>Reported-by: Federico Kirschbaum <federico.kirschbaum@xbow.com>
+>Signed-off-by: Dust Li <dust.li@linux.alibaba.com>
+>---
+> net/smc/af_smc.c | 16 ++++++++++++----
+> 1 file changed, 12 insertions(+), 4 deletions(-)
 >
->Pre-existing issues:
->- [Critical] Missing bounds check in `dibs_lo_move_data` allows an arbitrary out-of-bounds write in the kernel.
->--
->
->commit 60af5c80d503d1904779918ca5eeba8800e8bbe9
->Author: Dust Li <dust.li@linux.alibaba.com>
->
->net/smc: ignore peer-supplied rmbe_idx and dmbe_idx
->
->This commit modifies the smc connection setup to ignore the peer-supplied
->rmbe and dmbe indices from the clc accept/confirm messages. It hardcodes
->the peer_rmbe_idx to 1 for smc-r and 0 for smc-d, and unconditionally sets
->tx_off to 0, assuming the peer allocates exactly one buffer.
->
->> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
->> --- a/net/smc/af_smc.c
->> +++ b/net/smc/af_smc.c
->> @@ -729,11 +729,15 @@ static void smcr_conn_save_peer_info(struct smc_sock *smc,
->>  {
->>  	int bufsize = smc_uncompress_bufsize(clc->r0.rmbe_size);
->>  
->> -	smc->conn.peer_rmbe_idx = clc->r0.rmbe_idx;
->> +	/* Linux uses exactly one RMBE per RMB (always index 1); ignore the
->> +	 * peer-supplied rmbe_idx to prevent a malicious peer from setting an
->> +	 * out-of-bounds tx_off.
->> +	 */
->> +	smc->conn.peer_rmbe_idx = 1;
->>  	smc->conn.local_tx_ctrl.token = ntohl(clc->r0.rmbe_alert_token);
->>  	smc->conn.peer_rmbe_size = bufsize;
->>  	atomic_set(&smc->conn.peer_rmbe_space, smc->conn.peer_rmbe_size);
->> -	smc->conn.tx_off = bufsize * (smc->conn.peer_rmbe_idx - 1);
->> +	smc->conn.tx_off = 0;
->
->[Severity: High]
->Does hardcoding the peer_rmbe_idx and tx_off violate the smc protocol and
->break interoperability with standard-compliant peers?
+>diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+>index b5db69073e20..3706e8ac49e0 100644
+>--- a/net/smc/af_smc.c
+>+++ b/net/smc/af_smc.c
+>@@ -729,11 +729,15 @@ static void smcr_conn_save_peer_info(struct smc_sock *smc,
+> {
+> 	int bufsize = smc_uncompress_bufsize(clc->r0.rmbe_size);
+> 
+>-	smc->conn.peer_rmbe_idx = clc->r0.rmbe_idx;
+>+	/* Linux uses exactly one RMBE per RMB (always index 1); ignore the
+>+	 * peer-supplied rmbe_idx to prevent a malicious peer from setting an
+>+	 * out-of-bounds tx_off.
+>+	 */
+>+	smc->conn.peer_rmbe_idx = 1;
+> 	smc->conn.local_tx_ctrl.token = ntohl(clc->r0.rmbe_alert_token);
+> 	smc->conn.peer_rmbe_size = bufsize;
+> 	atomic_set(&smc->conn.peer_rmbe_space, smc->conn.peer_rmbe_size);
+>-	smc->conn.tx_off = bufsize * (smc->conn.peer_rmbe_idx - 1);
+>+	smc->conn.tx_off = 0;
 
-Thanks for the reporting !
+Althrough we only have 1 RMBE/DMBE per RMB/DMB, but this does break SMC
+protocol.
 
-You are right, althrough we only support 1 RMBE/DMBE per RMB/DMB, but this
-breaks SMC protocol.
+I will send another patch, checking the bound in dibs_loopback.c, please
+ignore this one.
 
->
->If a remote peer multiplexes multiple connections into a single registered
->memory buffer and assigns an index greater than 1, ignoring this index could
->cause the Linux client to write its rdma payloads to the wrong remote offset.
->
->Could this corrupt the memory of other connections on the remote peer?
->
->>  }
->>  
->>  static void smcd_conn_save_peer_info(struct smc_sock *smc,
->> @@ -741,12 +745,16 @@ static void smcd_conn_save_peer_info(struct smc_sock *smc,
->>  {
->>  	int bufsize = smc_uncompress_bufsize(clc->d0.dmbe_size);
->>  
->> -	smc->conn.peer_rmbe_idx = clc->d0.dmbe_idx;
->> +	/* Linux uses exactly one DMBE per DMB (always index 0); ignore the
->> +	 * peer-supplied dmbe_idx to prevent a malicious peer from deriving an
->> +	 * out-of-bounds tx_off that causes an OOB write.
->> +	 */
->> +	smc->conn.peer_rmbe_idx = 0;
->>  	smc->conn.peer_token = ntohll(clc->d0.token);
->>  	/* msg header takes up space in the buffer */
->>  	smc->conn.peer_rmbe_size = bufsize - sizeof(struct smcd_cdc_msg);
->>  	atomic_set(&smc->conn.peer_rmbe_space, smc->conn.peer_rmbe_size);
->> -	smc->conn.tx_off = bufsize * smc->conn.peer_rmbe_idx;
->> +	smc->conn.tx_off = 0;
->
->[Severity: High]
->Similarly for smc-d, does discarding the peer-supplied dmbe_idx cause ism
->writes to target the wrong remote offset if the remote peer uses an index
->other than 0?
->
->[Severity: Critical]
->This isn't a bug introduced by this patch, but there appears to be a missing
->bounds check in the smc loopback driver:
->
->drivers/dibs/dibs_loopback.c:dibs_lo_move_data() {
->    ...
->    memcpy((char *)rmb_node->cpu_addr + offset, data, size);
->    ...
->}
->
->If a malicious local process acting as an smc loopback peer allocates a
->small dmb buffer but sends a forged clc accept message over the tcp socket
->with a deceptively large dmbe_size, could this trigger an out-of-bounds
->write?
->
->The local smc client would compute a massive peer_rmbe_size and pass a large
->size and offset to smcd->ops->move_data() when transmitting data. Without
->verifying that the requested offset + size fits within the actually
->allocated rmb_node->len, it seems this might overwrite kernel memory.
-
-
-This is the root cause, I will just send a patch fixing this.
+Thanks sashiko for pointing this out!
 
 Best regards,
 Dust
-
->
->>  }
->
->-- 
->Sashiko AI review · https://sashiko.dev/#/patchset/20260702171137.1099051-2-dust.li@linux.alibaba.com?part=1
