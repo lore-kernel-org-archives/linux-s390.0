@@ -1,184 +1,257 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3EB0C397E9D;
-	Tue,  7 Jul 2026 09:32:26 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7BCB739937C;
+	Tue,  7 Jul 2026 09:33:49 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783416748; cv=none; b=Mdd59VRMItaOj+Qs3TTzKNKg6W9rD4CWhgFjwvIgdGZqE+l2OhFSKxq6SiWFDhTYFrPigtsRclIyuBcxSOUSyeCULCIw1IXQXU6GRnyeUCcWIJ1BAtZkgKopF0nYN8evEr8yWVrpV8+TzCX+Gytd9z0ugTIUKTz6+2YAoJQvEQw=
+	t=1783416830; cv=none; b=KbclL7+P3AuHOf3IqoJ+5U15nUCBd2PE5jfa7SzhW86TpD3rpuwWm8OSiefDydqXmOD/qAPrBI/v9OAr873z4bU+LDL5c7hP2INO87wfNU6+6XKZ4E+33mkfinHpN1FCVEoeYOyHIrhxe7QuyD3AgJe7/WS7zNyK4E/IZdF2qZ8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783416748; c=relaxed/simple;
-	bh=Ar7Wc8cv4gYk0aBdp5wDndwyQ0KPIb/wZDaPYg6MvR4=;
+	s=arc-20240116; t=1783416830; c=relaxed/simple;
+	bh=Y8aExjF5hLCJ2HJAUiai7i2/xZohBXhjKIRnl7Shwx0=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=dwF9jLytRGUdXhkqMSqG7YgFpwz1gMOd0BWlfTr8LcckM0RjZx2/77in4aN0VSdQ5NK/we0EnWSjX+L9SpQXvAvAv295XD+R/z2P82/XN2ZEdv2nGyKb4Oxw1m7Z5CMr/dRYwSIHE2N+bus8wN2NOXuJhwgCZTwqxUipQZ/N3WY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CMxUF64D; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=d/Hg9T/8E6fLyqJGxVbdH0ihcm52ZDywD3r3ECfZ48o+jKmiPQ4BZxGQEzlIMtGLVFFWoWUWbmYkQbgLDAg2gmj4wTgGffNnviYe+8zeqM9dtV/IDTVHzlDi0bAxsCBeB7x9PPWocHBzwYDMrRfRaanFoANfi7/sP6vBAqvCUTg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QqNo3QSe; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CMxUF64D"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A3A81F000E9;
-	Tue,  7 Jul 2026 09:32:26 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QqNo3QSe"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B73271F000E9;
+	Tue,  7 Jul 2026 09:33:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783416746;
-	bh=aE4Vyr1iucpcDGTc27H9QnFGhm0W1ANEmFdU9uGr50E=;
+	s=k20260515; t=1783416829;
+	bh=4cYwtQKdomSMr61HQEw4mQfmiSbktJ6LpcdkOFwTXl0=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=CMxUF64DaiVFvz080cQbbSain2VzLoNKyq0zhOGG//APVpBmXgHvLxCua1bYZNaVL
-	 fGGQhhGMAzLOkQySGxxP+ZUHpM6wLlfzr/aq5wQmtzokAdeqKN9PAOsCHCGjWZv+jW
-	 7DuNnX9BMMDjQ3OEBtBIIIb3W+r5aICOltOZ8SY6rTgqq7ER7dAQQR/zgqfZuJ5PBQ
-	 wuW5Sfk2o/bHcXWUrPUf8b2vIe4WyxURigvM+eDV6l6UDAQbbx/czBRvpWVF1rGyx3
-	 P6+YazfuraMzSjaWLetgjovzQKomekp53qW3NWJjoVVzHHCG1sDCsA4IOmPMg7+PBA
-	 WV0s1ieJHQh/w==
+	b=QqNo3QSek7/9XXXt9/a0glLr/QUjnAi6aUHNKOd3Ks/WrbOcZQcorIAAuItITUrYS
+	 aOkCwJlcD/eIA5l18e42TqBExiUGdSA+mDyN3ODYqiUGlYkPJZY0gHUwGxhpE4kMp3
+	 jylf+d2bV5zn1zEVUWu4Na+Mt+owsAbBKwzxKNW4RUr1mtskhgcGYEr3fAH5nIRBHM
+	 qVnMZmdMSOd/BazzyDBRsSoTGc436Zi9L05bKfUYps0JYyrtmjAlP+pYaY9or/TpuV
+	 xPIgAIJ+GXw8TJeMUWMclCBlTIrVR7Ivxlyqlna9wRBIubKusrc1P6ZKCn4XXyB+DY
+	 LqEPozmwmtM4A==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 13/15] s390/vfio-ap: Callback to get the size of data
- to be migrated during guest migration
+Subject: Re: [PATCH v4 12/15] s390/vfio-ap: Transition device migration
+ state from STOP to RUNNING and vice versa
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Anthony Krowiak" <akrowiak@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, kvm@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>
-In-Reply-To: <20260707090226.3206695-14-akrowiak@linux.ibm.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
+ Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
+In-Reply-To: <20260707090226.3206695-13-akrowiak@linux.ibm.com>
 References: <20260707090226.3206695-1-akrowiak@linux.ibm.com>
- <20260707090226.3206695-14-akrowiak@linux.ibm.com>
+ <20260707090226.3206695-13-akrowiak@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 07 Jul 2026 09:32:26 +0000
-Message-Id: <20260707093226.7A3A81F000E9@smtp.kernel.org>
+Date: Tue, 07 Jul 2026 09:33:48 +0000
+Message-Id: <20260707093348.B73271F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 7 potential issue(=
 s) to consider:
-- [High] vfio_ap_resuming_write leaks memory and fails subsequent writes if=
- userspace performs a partial write during migration resuming.
-- [High] vfio_ap_get_config does not initialize the config_sz field of the =
-payload, sending 0 to the migration target.
+
+New issues:
+- [High] The transition to VFIO_DEVICE_STATE_STOP does not quiesce the AP h=
+ardware queues, leaving the device running during and after migration.
+
+Pre-existing issues:
+- [Critical] Writing fewer bytes than `sizeof(struct vfio_ap_config)` leads=
+ to a ZERO_SIZE_PTR panic or Slab Out-of-Bounds read.
+- [Critical] A partial write of the AP configuration at `pos =3D=3D 0` perm=
+anently leaks the allocated memory and leads to a NULL pointer dereference =
+crash.
+- [Critical] Error paths and reallocation logic in `vfio_ap_resuming_write`=
+ free `ap_config` without clearing the global pointer in `mig_data`.
+- [High] The `guest_matrix` stack variable is used without initialization w=
+hen setting up the AP matrix.
+- [High] Concurrent `write` operations on the migration file descriptors ca=
+use a data race on `filp->f_pos`, bypassing bounds checks and corrupting th=
+e migration stream state.
+- [High] `vfio_ap_release_mig_file` accesses and modifies `mig_data` intern=
+al pointers locklessly, racing with concurrent device state transitions.
 --
 
---- Patch [13]: [PATCH v4 13/15] s390/vfio-ap: Callback to get the size of =
-data to be migrated during guest migration ---
-commit cf31fd21666e32de812c2582ed7358837c47d2bd
+--- Patch [12]: [PATCH v4 12/15] s390/vfio-ap: Transition device migration =
+state from STOP to RUNNING and vice versa ---
+commit 6d2ef5d46b7ff5343fd3f1a4ec81fec852894cf9
 Author: Anthony Krowiak <akrowiak@linux.ibm.com>
 
-s390/vfio-ap: Callback to get the size of data to be migrated during guest =
-migration
+s390/vfio-ap: Transition device migration state from STOP to RUNNING and vi=
+ce versa
 
-This commit adds a callback to get the estimated data length required
-to complete reading of the vfio device's internal state. This is mandatory
-for VFIO_DEVICE_FEATURE_MIGRATION support.
+This commit handles the transition between the STOP and RUNNING states for =
+the
+vfio-ap device during migration. It indicates that the device is operating
+normally and sets the new state by returning NULL instead of an error.
 
 > diff --git a/drivers/s390/crypto/vfio_ap_migration.c b/drivers/s390/crypt=
 o/vfio_ap_migration.c
-> index 572db04c4ac15..83e1ce2c40c0c 100644
+> index 1b526b743ad02..572db04c4ac15 100644
 > --- a/drivers/s390/crypto/vfio_ap_migration.c
 > +++ b/drivers/s390/crypto/vfio_ap_migration.c
-> @@ -1283,7 +1283,18 @@ static int vfio_ap_get_state(struct vfio_device *v=
-dev,
->  static int vfio_ap_get_data_size(struct vfio_device *vdev,
->  				 unsigned long *stop_copy_length)
->  {
-> -	return -EOPNOTSUPP;
-> +	struct ap_matrix_mdev *matrix_mdev;
-> +	size_t qinfo_sz;
-> +	int num_queues;
-> +
-> +	mutex_lock(&matrix_dev->mdevs_lock);
-> +	matrix_mdev =3D container_of(vdev, struct ap_matrix_mdev, vdev);
-> +	num_queues =3D vfio_ap_mdev_get_num_queues(&matrix_mdev->shadow_apcb);
-> +	qinfo_sz =3D num_queues * sizeof(struct vfio_ap_queue_info);
-> +	*stop_copy_length =3D qinfo_sz + sizeof(struct vfio_ap_config);
-> +	mutex_unlock(&matrix_dev->mdevs_lock);
-> +
-> +	return 0;
->  }
+> @@ -1172,12 +1172,17 @@ vfio_ap_transition_to_state(struct ap_matrix_mdev=
+ *matrix_mdev,
+>  		return NULL;
+>  	}
 > =20
->  static const struct vfio_migration_ops vfio_ap_migration_ops =3D {
+> +	/*
+> +	 * These states indicate migration has either not been initiated or
+> +	 * has completed and the vfio-ap device is operating normally.Since the
+> +	 * vfio-ap device does not virtualize a DMA device, there is no internal
+> +	 * device state to incorporate into the vfio-ap device on the target.
+> +	 */
+>  	if ((cur_state =3D=3D VFIO_DEVICE_STATE_STOP &&
+>  	     new_state =3D=3D VFIO_DEVICE_STATE_RUNNING) ||
+>  	    (cur_state =3D=3D VFIO_DEVICE_STATE_RUNNING &&
+>  	     new_state =3D=3D VFIO_DEVICE_STATE_STOP)) {
+> -		/* TODO */
+> -		return ERR_PTR(-EOPNOTSUPP);
+> +		return NULL;
 
 [Severity: High]
-Does vfio_ap_resuming_write() leak the newly allocated ap_config and fail
-subsequent writes if userspace performs a partial write during migration
-resuming?
+Does this transition to VFIO_DEVICE_STATE_STOP fully quiesce the hardware?
 
-If a partial write occurs during vfio_ap_resuming_write() (i.e. *pos =3D=3D=
- 0
-but len < cfg_sz), the newly allocated ap_config is not saved to
-mig_data->resuming_mig_state.ap_config because the check
-if (*pos + len =3D=3D cfg_sz) is false.
+The VFIO migration specification mandates that VFIO_DEVICE_STATE_STOP must
+fully stop the device from executing or performing DMA. By just returning N=
+ULL
+here without calling vfio_ap_mdev_reset_queues() or similar, won't the AP
+queues continue to asynchronously process in-flight requests and perform DMA
+writes to the guest's NIB physical address?
 
-The function then bypasses the cleanup label:
+>  	}
+> =20
+>  	/* vfio_mig_get_next_state() does not use arcs other than the above */
 
-drivers/s390/crypto/vfio_ap_migration.c:vfio_ap_resuming_write() {
-...
-	ret =3D len;
-	*pos +=3D len;
-	goto done;
+While reviewing this migration code, I also noticed several pre-existing is=
+sues
+in the vfio_ap_migration.c implementation:
 
+[Severity: High]
+This is a pre-existing issue, but does setup_ap_matrix_from_ap_config() use=
+ an
+uninitialized stack variable?
+
+In vfio_ap_resuming_write(), guest_matrix is declared on the stack without
+initialization:
+
+    struct ap_matrix guest_matrix;
+    ...
+    setup_ap_matrix_from_ap_config(mdev_name, ap_config, &guest_matrix);
+
+Inside setup_ap_matrix_from_ap_config(), it only sets bits to 1:
+
+    if (!test_bit_inv(apid, guest_matrix->apm))
+        set_bit_inv(apid, guest_matrix->apm);
+
+Can this leave uninitialized stack garbage in the arrays (like the adm arra=
+y),
+causing the target guest to be configured with unintended AP adapter access?
+
+
+[Severity: Critical]
+This is a pre-existing issue, but does allocate_ap_config() handle small
+lengths correctly?
+
+If a user writes a small chunk where len < sizeof(struct vfio_ap_config), t=
+he
+code falls back to allocating len bytes:
+
+    if (len >=3D sizeof(struct vfio_ap_config)) {
+        config_size =3D calculate_ap_config_size(tmp_ap_config.num_queues);
+        ...
+    } else {
+        config_size =3D len;
+    }
+
+    *ap_config =3D kzalloc(config_size, GFP_KERNEL_ACCOUNT);
+
+If a user writes 0 bytes, won't kzalloc(0) return ZERO_SIZE_PTR, causing a
+kernel panic upon dereference?
+
+Also, if len is small (e.g., 8 bytes), this bypasses the minimum size check.
+Could this allow the tiny buffer to be passed to do_post_copy_validation(),
+which reads num_queues from the heap, potentially leading to an out-of-boun=
+ds
+memory access?
+
+
+[Severity: Critical]
+This is a pre-existing issue, but does a partial write leak memory and caus=
+e a
+NULL pointer dereference?
+
+In vfio_ap_resuming_write(), if the first write is partial, the newly
+allocated pointer is not saved to the global state until the entire write
+is complete:
+
+    if (*pos + len =3D=3D cfg_sz) {
+        ...
+        mig_data->resuming_mig_state.ap_config =3D ap_config;
+    }
+
+On the next write chunk, the code retrieves the pointer from mig_data:
+
+    ap_config =3D mig_data->resuming_mig_state.ap_config;
+    ret =3D reallocate_ap_config(&ap_config, len);
+
+Since the pointer was never stored on the partial write, it retrieves a
+NULL pointer. Inside reallocate_ap_config(), it immediately dereferences
+ap_config to read config_sz. Won't this cause a guaranteed NULL pointer
+dereference crash? Also, doesn't the initially allocated buffer leak entire=
+ly?
+
+
+[Severity: Critical]
+This is a pre-existing issue, but do error paths in vfio_ap_resuming_write()
+leave dangling pointers?
+
+If an error occurs on a subsequent chunk (such as *pos + len > cfg_sz), the
+cleanup path frees the pointer:
+
+    ap_config =3D mig_data->resuming_mig_state.ap_config;
+    ...
 cleanup:
-	kfree(ap_config);
-done:
-...
-}
+    kfree(ap_config);
 
-Because the pointer was never saved in the first partial write, the
-subsequent partial write fails this validation, returning -EFAULT,
-which permanently fails the migration:
+However, mig_data->resuming_mig_state.ap_config is not cleared to NULL. When
+the file descriptor is subsequently closed, vfio_ap_release_mig_file() will
+unconditionally call kfree() on it again. Can this trigger a double free?
 
-drivers/s390/crypto/vfio_ap_migration.c:validate_resuming_write_parms() {
-...
-	if ((!matrix_mdev->mig_data->resuming_mig_state.ap_config && *pos !=3D 0) =
-||
-	    (matrix_mdev->mig_data->resuming_mig_state.ap_config && *pos =3D=3D 0)=
-) {
-		ret =3D -EFAULT;
-...
-}
 
 [Severity: High]
-Can vfio_ap_get_config() send an uninitialized config_sz field to the
-migration target, causing the target to fail?
+This is a pre-existing issue, but is there a data race on the file position?
 
-In vfio_ap_get_config(), a new struct vfio_ap_config is allocated and
-populated, but its config_sz field is never initialized and remains 0.
-This structure is sent verbatim over the migration stream to the target hos=
-t:
+vfio_ap_resuming_write() uses the file's internal position and locklessly
+updates it after dropping mdevs_lock:
 
-drivers/s390/crypto/vfio_ap_migration.c:vfio_ap_get_config() {
-...
-	ap_configuration =3D kzalloc(*ap_config_size, GFP_KERNEL_ACCOUNT);
-	if (!ap_configuration)
-		return -ENOMEM;
+    mutex_unlock(&matrix_dev->mdevs_lock);
 
-	ap_configuration->num_queues =3D num_queues;
+    if (copy_from_user((char *)ap_config + *pos, buf, len)) {
+        ...
+    ret =3D len;
+    *pos +=3D len;
 
-	ret =3D vfio_ap_store_queue_info(matrix_mdev, ap_configuration);
-...
-}
+Since the file stream is opened with stream_open(), FMODE_ATOMIC_POS is
+cleared, and the VFS layer does not serialize writes with f_pos_lock. Could
+concurrent write syscalls race to read and update *pos, bypassing bounds
+checks and corrupting the migration state?
 
-If the target host receives a partial write and calls reallocate_ap_config(=
-),
-it reads cur_cfg_sz =3D ap_config->config_sz, which is 0.
 
-This causes the target to take the wrong reallocation path, shrinking the
-buffer incorrectly:
+[Severity: High]
+This is a pre-existing issue, but does vfio_ap_release_mig_file() safely
+handle concurrent device state transitions?
 
-drivers/s390/crypto/vfio_ap_migration.c:reallocate_ap_config() {
-...
-	cur_cfg_sz =3D ap_config->config_sz;
-	num_queues =3D ap_config->num_queues;
+The VFS release callback checks filp and frees ap_config locklessly:
 
-	/* ... */
-	if (cur_cfg_sz >=3D sizeof(struct vfio_ap_config)) {
-		new_cfg_sz =3D calculate_ap_config_size(num_queues);
-		// ...
-	} else {
-		new_cfg_sz =3D cur_cfg_sz + len;
-	}
-...
-}
+    else if (filp =3D=3D matrix_mdev->mig_data->resuming_mig_state.filp)
+        vfio_ap_release_resuming_file(matrix_mdev->mig_data);
 
-The validation if (*pos + len > cfg_sz) then fails because cfg_sz evaluates
-to len and *pos > 0, causing the buffer to be freed and migration to
-fail with -EIO.
+If a concurrent VFIO ioctl transitions the device state and overwrites
+mig_data->resuming_mig_state.filp before the old file descriptor is release=
+d,
+won't this callback fail to match the old filp? Could this bypass cleanup a=
+nd
+leak memory, or improperly free memory belonging to a new migration session?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260707090226.3206=
-695-1-akrowiak@linux.ibm.com?part=3D13
+695-1-akrowiak@linux.ibm.com?part=3D12
