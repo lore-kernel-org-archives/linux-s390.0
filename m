@@ -1,155 +1,136 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 37860332918;
-	Tue,  7 Jul 2026 09:23:55 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 395FB38B140;
+	Tue,  7 Jul 2026 09:24:11 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783416237; cv=none; b=DWbVmacw3BgqHY6F41z/fMyHuG0FmTJBlfOHom+f0EichzcJF+I/7Wu5i2C2l2Wm9t9pWj9uJrBDVXGYXdMrreHWfXLmQVnz1zKBW/9lUCW5OTwiLnRKY2EH6pLG1D8vp389vlUPCea/uDEgL1EWRmlS0lwkqT50Nn5pkqijKbo=
+	t=1783416253; cv=none; b=aJJwvQZ8I98LeG4aZ2rSk4s7Sj8t2FgP1YlIJXIEaCFYmQ6DZib3jzQgNhQIHg6ZmmvoSgzcwvQAp7VntTfynlidF53lyrslnnBsgZSpVrLKj7xOpB67+cD/5IgwEuo+oSNeoNToZOyiABL45lf39OZiETzOtEnulho7wQbGNAk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783416237; c=relaxed/simple;
-	bh=UmBnk8U8znlTO49or3cWhV2tudU4PUQL/Y2FzFFZahk=;
+	s=arc-20240116; t=1783416253; c=relaxed/simple;
+	bh=eRoo8bGA9pkvOINSaq4BljFr2nk86EwUmPtXdbhh3iE=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=B/LBgkzV+3AgwHW9jfF3UF32iQcScCx0J/q4V14XPJ2fXgNNs6seGgfeKA3wXD81lVGOP78AhvoMLU5pYCWmEjGAYLZdZwY4E8HIakTSbaGTnki+Dm6LAIGevpu9y8BaLpZXtFZOHl8LCk6glrULJvAqOH6iQVQK/iOYj9XWytk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fNC63Y8/; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=cGMA1P96sTRaL/Ih52GAcQJsSokxDg8LyDRNhyIr9onf/1Iyn3JYjDFImDsn/mr3fP17LhahTcsh6taGfcqi96HqLj0G5+gAyVLNP8tmJ59Aqn/l2NT3+KW5Fmby9l02+mHf57vYkmFh1w4JF+GsVtiuLkFh0xl2S+QnkjJP2WY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DPkqffOp; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fNC63Y8/"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7DDE91F000E9;
-	Tue,  7 Jul 2026 09:23:55 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DPkqffOp"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B47A1F000E9;
+	Tue,  7 Jul 2026 09:24:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783416235;
-	bh=wQvFf2/KH651D2il3Zy4y7Vw0VZsMmf8QSAuE4SKXbM=;
+	s=k20260515; t=1783416251;
+	bh=zVR77tCarUaLjzK9zo50A63cX/0g370KhzW8hMn3BCg=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=fNC63Y8/387eMNbe1QAtwXx1EnFQeLfDMxiWFG5I3KtiCGq7gNrRRe6UuxlVfiHKW
-	 elwZL75nJ7CnSIXxfmfDGocwHUSFntTI8GvyDij66xnvIhX0zLsobeAXHV1rdcjlzk
-	 QDbLQSeTjEHV2azD9tT2unrdq1rx7b7BVg2J88eEstMAuxgs16+z9NP5A4/KYu5UkB
-	 /P8hyvwPscqRhtBcukskBnrMEkDgQsh/JTcetjlphefMvXDeiPR3nF/6cj9eoxyWCg
-	 QzdpffiVlj/84TJdfFCF3KnL+M9SHlmCrU/X5K6EZUkrlXMZaxCYNQwr7vG0AC5/hQ
-	 62r+7xBnZ7BBw==
+	b=DPkqffOpndi0fdCyY2Qda1QJnl9rjLMbxAVpaueZrGRIbNby/U5cFTOTrqYzZV9N3
+	 fC0Cf9h/fNG1D0SXd5ISlnmEmj49Cu8sscWWLqRUSLtYeEKU8oUHmsXvUIxMfBZM85
+	 6eUJ27D3Hp171T4XdKzT7XUkP3SW9mWEZpooIkowhaLgrIlErYxHGqyTJ5J6ZI2gIU
+	 ym5ispXmks39ttTICorRWOEab4coHYH9BbxqfVcILjZuiJlTHAYpk2auwlqqhYEI5J
+	 9yEK5syMg9PhbpBP5J8E8yf641pQI9onuAispoF/TRGVCxgmlmYLQdFh8vYSG3ee8c
+	 +KmwKvwL3ndHQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 08/15] s390/vfio-ap: Transition device migration
- state from STOP to RESUMING
+Subject: Re: [PATCH v4 06/15] s390/vfio-ap: Transition guest migration state
+ from STOP to STOP_COPY
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Anthony Krowiak" <akrowiak@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, kvm@vger.kernel.org
-In-Reply-To: <20260707090226.3206695-9-akrowiak@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>, kvm@vger.kernel.org, "Heiko
+ Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
+In-Reply-To: <20260707090226.3206695-7-akrowiak@linux.ibm.com>
 References: <20260707090226.3206695-1-akrowiak@linux.ibm.com>
- <20260707090226.3206695-9-akrowiak@linux.ibm.com>
+ <20260707090226.3206695-7-akrowiak@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 07 Jul 2026 09:23:55 +0000
-Message-Id: <20260707092355.7DDE91F000E9@smtp.kernel.org>
+Date: Tue, 07 Jul 2026 09:24:10 +0000
+Message-Id: <20260707092411.6B47A1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [High] Migration file streams do not decouple their lifecycle from the vf=
-io_device, allowing `matrix_mdev` to be accessed after being freed.
-- [Medium] Concurrent reads on the migration state file cause a data race o=
-n `filp->f_pos`.
+- [Critical] The migration file descriptor's lifecycle is not decoupled fro=
+m the VFIO device, and its release callback accesses device structures lock=
+lessly. This causes a Use-After-Free and TOCTOU races if the migration file=
+ outlives the VFIO device or if it is closed concurrently with device teard=
+own.
 --
 
---- Patch [8]: [PATCH v4 08/15] s390/vfio-ap: Transition device migration s=
-tate from STOP to RESUMING ---
-commit df7f5fdcda2503aec3804ab2b04e4b736cd6f0a1
+--- Patch [6]: [PATCH v4 06/15] s390/vfio-ap: Transition guest migration st=
+ate from STOP to STOP_COPY ---
+commit 2960f99fd69c88ca78cea015d8ad75148e325f63
 Author: Anthony Krowiak <akrowiak@linux.ibm.com>
 
-s390/vfio-ap: Transition device migration state from STOP to RESUMING
+s390/vfio-ap: Transition guest migration state from STOP to STOP_COPY
 
-Transitioning from VFIO_DEVICE_STATE_STOP to VFIO_DEVICE_STATE_RESUMING
-starts a process of restoring the device state of the vfio device on the
-target system. To prepare for restoring the device state, open a file
-stream to receive the guest's AP configuration saved when the device state
-on the source system transitioned from VFIO_DEVICE_STATE_STOP to
-VFIO_DEVICE_STATE_STOP_COPY.
+This commit introduces the transition to the STOP_COPY migration state for
+vfio-ap devices. It creates a migration file descriptor using an anonymous
+inode to stream the guest's AP configuration, providing a stub read
+implementation and a release callback.
 
 > diff --git a/drivers/s390/crypto/vfio_ap_migration.c b/drivers/s390/crypt=
 o/vfio_ap_migration.c
-> index 5ef7127b697a5..e917cc995d352 100644
 > --- a/drivers/s390/crypto/vfio_ap_migration.c
 > +++ b/drivers/s390/crypto/vfio_ap_migration.c
 
 [ ... ]
 
-> @@ -74,6 +85,8 @@ static int vfio_ap_release_mig_file(struct inode *file_=
-inode, struct file *filp)
-> =20
->  	if (filp =3D=3D matrix_mdev->mig_data->stop_copy_mig_file)
->  		vfio_ap_release_stop_copy_file(matrix_mdev->mig_data);
-> +	else if (filp =3D=3D matrix_mdev->mig_data->resuming_mig_state.filp)
-> +		vfio_ap_release_resuming_file(matrix_mdev->mig_data);
->  	else
->  		return -ENOENT;
+> +static int vfio_ap_release_mig_file(struct inode *file_inode, struct fil=
+e *filp)
+> +{
+> +	struct ap_matrix_mdev *matrix_mdev =3D filp->private_data;
+> +
+> +	if (!matrix_mdev || !matrix_mdev->mig_data)
+> +		return -ENODEV;
+> +
+> +	if (filp =3D=3D matrix_mdev->mig_data->stop_copy_mig_file)
+> +		vfio_ap_release_stop_copy_file(matrix_mdev->mig_data);
 
-[Severity: High]
-Does this expose the matrix_mdev lifecycle to the file descriptor?
+[Severity: Critical]
+Is there a risk of a use-after-free here if the main VFIO device is closed
+or unbound concurrently while the migration file descriptor is still open?
 
-Migration file streams do not seem to decouple their lifecycle from the
-vfio_device. The migration state file descriptor is created using
-anon_inode_getfile() with matrix_mdev set as its private_data.
+Since this release callback accesses matrix_mdev and its mig_data locklessl=
+y,
+could matrix_mdev have already been freed during device teardown if userspa=
+ce
+closes the device but keeps the migration file descriptor open?
 
-If a user closes the main device file descriptor but keeps the migration
-file descriptor open, and the administrator unbinds the mdev device, the co=
-re
-VFIO layer unregisters and frees matrix_mdev.=20
-
-When the user later closes the migration file descriptor,
-vfio_ap_release_mig_file() dereferences filp->private_data to access the
-already freed matrix_mdev:
-
-static int vfio_ap_release_mig_file(...)
-{
-    struct ap_matrix_mdev *matrix_mdev =3D filp->private_data;
-    ...
-    mutex_lock(&matrix_dev->mdevs_lock);
-    if (filp =3D=3D matrix_mdev->mig_data->stop_copy_mig_file)
-
-Could this lead to a use-after-free of matrix_mdev when attempting to clean
-up the migration state?
+> +	else
+> +		return -ENOENT;
+> +
+> +	return 0;
+> +}
 
 [ ... ]
 
-> @@ -311,6 +324,32 @@ static struct file *vfio_ap_open_file_stream(struct =
-ap_matrix_mdev *matrix_mdev,
->  	return filp;
->  }
+> +static struct file *vfio_ap_open_file_stream(struct ap_matrix_mdev *matr=
+ix_mdev,
+> +					     const struct file_operations *fops,
+> +					     int flags)
+> +{
+> +	struct file *filp;
+> +
+> +	lockdep_assert_held(&matrix_dev->mdevs_lock);
+> +
+> +	filp =3D anon_inode_getfile("vfio_ap_mig_file", fops, matrix_mdev, flag=
+s);
 
-[Severity: Medium]
-Is it possible for concurrent operations on these migration state files to
-cause a data race on filp->f_pos?
+[Severity: Critical]
+Does this code safely couple the migration file descriptor's lifecycle to t=
+he
+VFIO device?
 
-vfio_ap_open_file_stream() initializes the file with stream_open(), which s=
-ets
-FMODE_STREAM and clears FMODE_ATOMIC_POS. In the VFS layer, this skips
-acquiring f_pos_lock for stream files.
+Because matrix_mdev is passed as private_data without taking a registration
+reference on the VFIO device or wrapping it in an independent lifecycle
+object, it seems the VFIO core will not wait for this migration fd to close
+before tearing down the device.
 
-Looking at vfio_ap_stop_copy_read() which uses these stream files:
-
-    pos =3D &filp->f_pos;
-    ...
-    mutex_unlock(&matrix_dev->mdevs_lock);
-
-    if (copy_to_user(buf, (char *)ap_config + *pos, len)) {
-        kfree(ap_config);
-        return -EFAULT;
-    }
-
-    kfree(ap_config);
-    *pos +=3D len;
-
-Since matrix_dev->mdevs_lock is released before copy_to_user() and before
-*pos +=3D len is executed, wouldn't concurrent read() calls read from the s=
-ame
-*pos offset, perform copy_to_user() with duplicate data, and concurrently
-update *pos?
-
-[ ... ]
+> +	if (!IS_ERR(filp))
+> +		stream_open(filp->f_inode, filp);
+> +
+> +	return filp;
+> +}
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260707090226.3206=
-695-1-akrowiak@linux.ibm.com?part=3D8
+695-1-akrowiak@linux.ibm.com?part=3D6
