@@ -1,130 +1,152 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D3C381EB5CE;
-	Tue,  7 Jul 2026 08:06:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CE3E4331A5B;
+	Tue,  7 Jul 2026 09:02:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783411584; cv=none; b=OjZWradv5Qa72m2BSGyKOX396K3nemZUbGVBEEATK8oZne6tCR2nIu3kQQqqNSwsQOf+TyVIgiSwvddrXZRj8eTuG/TX6OxOWqzz0/UZF9BCEs4HAZuLyEhiezKqdABAfv3y+PT7O3zRQp8B/Z0zo6L9VVWEko2yitMHLShZJaU=
+	t=1783414960; cv=none; b=JHu60nZLo9CHtkfnDsvBQ8bZaKy0WkzqEWVvCs2DAI/55XjxoIfEIM64Wk/keQb/q9WKR0XRyQpMyZop4WCoVmwzMIu1opWdrbAA/XYYuje/VJuP5ElCOYNVPd9pfiLjF0IDb29KsYx2j0sA5iIKbgBoUS2Kcf798xWEmV7P4VE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783411584; c=relaxed/simple;
-	bh=YObFcIh1tDVXWjQY/EyHvVKx8GEiNlbw2CdpCpbxLDA=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=V0W2HIKzLKDg2euldDtIhLwUqYhnWz/tEGZtc+JzDJOOplwC9isRsj1UJ24hzNw1WC3NzGX9BlfQ65Pd3FR5gRDFzEMsiLB007pbnduLEJsJdDmX7hM4lkX2FVQEqy0wFueT3Og7KhNwXig1V/BeCpnTUU9WdqeZjwYpEmwDvcU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ehzJVAlx; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1783414960; c=relaxed/simple;
+	bh=1s4beF7AUJtgUKAJTio1L984Gbc4oaNU5NglgSK1RX8=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=o1PEA9edv9yaRuZWYRBNLXIrcPselwRvjiZ0XxKi3aOxa7APHoozZSJZ2f9WVqdbe2AHksp1n5YILOwX0DBq0t90CC+fkeRMoOe5nT5hnIQY8PxdtRxhKmPpXX5IHC2TFL/SIy0WJo0hbW3T/CecTiZak75UXjwO8fUIKw1KBno=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=gSfcQc58; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ehzJVAlx"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E980D1F000E9;
-	Tue,  7 Jul 2026 08:06:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783411583;
-	bh=ea0IOau1aAltI3DRKVxyYkxeEjLOa5kYpwFj12qVzqc=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date;
-	b=ehzJVAlxIC/pC2sXhGD1Zd5xyp2mkGV8OuobvUJm80sNhARBCJldhVJnR/fvzUlg8
-	 t2QQb326FSv7l+dfyMjQn+q4qi0x/iJZD8qCoLvIATEMQErD8y3iRKIcZPoxzVgszV
-	 oRoggpbomDjX7tQZq9G9GaoCtyybcTlqjfRz4+F1rB3X4H4ooSWHLgUZt7CnfLeeFM
-	 zwEb6VljE8Xh9Fi9TviWiquZI1cqM+c0j9tSvLQJ700z+8l/66JsCg+ZgzcpDbHZNA
-	 MK5IFv5kO6A9ODArwj2zGJLks6KS3/uwYgDXQCaGY1s1PvXpmfKk7P0jRMoD6rRJUF
-	 QGcIHGnDYecHw==
-X-Mailer: emacs 30.2 (via feedmail 11-beta-1 I)
-From: Aneesh Kumar K.V <aneesh.kumar@kernel.org>
-To: iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev
-Cc: Robin Murphy <robin.murphy@arm.com>,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
-	Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
-	Steven Price <steven.price@arm.com>,
-	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Jiri Pirko <jiri@resnulli.us>,
-	Jason Gunthorpe <jgg@ziepe.ca>,
-	Mostafa Saleh <smostafa@google.com>,
-	Petr Tesarik <ptesarik@suse.com>,
-	Alexey Kardashevskiy <aik@amd.com>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Xu Yilun <yilun.xu@linux.intel.com>,
-	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org
-Subject: Re: [PATCH v7 00/22] dma-mapping: Track shared DMA state through
- direct, pool and swiotlb paths
-In-Reply-To: <20260701054926.825925-1-aneesh.kumar@kernel.org>
-References: <20260701054926.825925-1-aneesh.kumar@kernel.org>
-Date: Tue, 07 Jul 2026 13:36:10 +0530
-Message-ID: <yq5av7argr65.fsf@kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="gSfcQc58"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6678ICl33342048;
+	Tue, 7 Jul 2026 09:02:31 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=pp1; bh=qRRr17gzgKP7yb8yZ
+	FVvzVBAWOspssSggHtlOCAu1DQ=; b=gSfcQc58lLK3g7Blv7exbINVeeEwPiYXp
+	qGO3JDO8FFGi0q6VBVCoIvePYwUJ4viWQW4vspon9smEtxVFj4cO0FxSx59keSGL
+	SUQXrl1m7CEf1TLIgQVNeOrxP2V+1rJN/BE6vrWfZNNiq6Ke1e5OYhSBpyDZ4xIB
+	2b8eB+cgiZsouBZC/EZBxBxFil2fUOsqISdaLp3mg4sw0tLQNwAs+E2uWfCVyxgL
+	U3a6yScTo+NuNaZLA7YwpjzBxRUTP0RLb7JwMAFswATHToRwFzqbyfyLCvvUcrv4
+	zHTkX0DzeGhy0is5XAicEA2R/PukSzTHF9ZPy2Lbcr2bHtP1Nocjw==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4f6suqnypf-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 07 Jul 2026 09:02:31 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 6678nZCg028878;
+	Tue, 7 Jul 2026 09:02:30 GMT
+Received: from smtprelay02.dal12v.mail.ibm.com ([172.16.1.4])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4f7eqg1q23-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 07 Jul 2026 09:02:30 +0000 (GMT)
+Received: from smtpav03.dal12v.mail.ibm.com (smtpav03.dal12v.mail.ibm.com [10.241.53.102])
+	by smtprelay02.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66792TgV17629778
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 7 Jul 2026 09:02:29 GMT
+Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 51C7D58056;
+	Tue,  7 Jul 2026 09:02:29 +0000 (GMT)
+Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 2C8505803F;
+	Tue,  7 Jul 2026 09:02:28 +0000 (GMT)
+Received: from li-4c4c4544-004d-4810-8043-b7c04f423534.ibm.com.com (unknown [9.61.160.85])
+	by smtpav03.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Tue,  7 Jul 2026 09:02:28 +0000 (GMT)
+From: Anthony Krowiak <akrowiak@linux.ibm.com>
+To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org
+Cc: jjherne@linux.ibm.com, borntraeger@de.ibm.com, mjrosato@linux.ibm.com,
+        pasic@linux.ibm.com, alex@shazbot.org, kwankhede@nvidia.com,
+        fiuczy@linux.ibm.com, pbonzini@redhat.com, frankja@linux.ibm.com,
+        imbrenda@linux.ibm.com, agordeev@linux.ibm.com, hca@linux.ibm.com,
+        gor@linux.ibm.com
+Subject: [PATCH v4 01/15] s390/vfio-ap: Provide function to get the number of queues assigned to mdev
+Date: Tue,  7 Jul 2026 05:02:03 -0400
+Message-ID: <20260707090226.3206695-2-akrowiak@linux.ibm.com>
+X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20260707090226.3206695-1-akrowiak@linux.ibm.com>
+References: <20260707090226.3206695-1-akrowiak@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzA3MDA4NCBTYWx0ZWRfX1xC+7EsmjFov
+ wZYoknSUdJw3H4iGTfc6WmvK2xQlPed/i2zFgj8lAVIxn9/ljqGwUCsLr6QyZ7mE6vrxC96ohUT
+ /mV6leTzcDTeyB1haMSUcUF+fGjXAKk=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzA3MDA4NCBTYWx0ZWRfX99Y9UmZ8akV0
+ 2h3rAvIXWcBEEibHcmhJpntrjgdTaCeRg/ATb6Kbpp8DuHVji8gNEF87/Ir7oxF0dBt6JbAJ8FT
+ 9ZPf2p1+I3u4o48fue6jniaKyi+Vf6Zr678iL35OZJ21x2tUKF3wXect4wii3vUfR59KUmqbdK2
+ ceMhKanC5DDJ3HM7LISExudDSjf8T66gyv//dbe8vRUNPe3/GiHVTMXVAkLguFR0VNkvEtfa/to
+ mGoJ7YKU6DmFEp0J+47rIDmac02IkrhT/6Lpq+LbAx6Q7jlIvOISMTzFKYCUsjRfnxyTIjtEG4D
+ V/9WW9QYIMWPKfcHB/G4J/21uxBL/HX2MI+kE/YG3/z3I2b9XslXArKT7REZyJlucCkK4mQbws1
+ btvdmoAiuIvC+2+pYUHi5wUsTKor8NCQM/hq71jKtewKlOIN56PPTLF4Ys8FhLtxyIYAkMiZEvm
+ FfyCzkPyH5hvMmLti/w==
+X-Proofpoint-GUID: 4dVwoPzvYzBI_Aj370xNXpkXL0hrLgzx
+X-Authority-Analysis: v=2.4 cv=Oot/DS/t c=1 sm=1 tr=0 ts=6a4cc0a7 cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+ a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8 a=X0LuQLNI_Dy_l-hxe5EA:9
+X-Proofpoint-ORIG-GUID: 4dVwoPzvYzBI_Aj370xNXpkXL0hrLgzx
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-07-07_02,2026-07-06_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ bulkscore=0 lowpriorityscore=0 clxscore=1015 impostorscore=0 phishscore=0
+ malwarescore=0 suspectscore=0 spamscore=0 adultscore=0 priorityscore=1501
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607070084
 
-"Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org> writes:
+Provides a function that returns the number of queues that are or will be
+passed through to a guest when the mdev is attached to a guest.
 
-> This series tracks confidential-computing shared DMA state through the
-> dma-direct, dma-pool, and swiotlb paths so that encrypted and decrypted
-> DMA buffers are handled consistently.
->
-> Today, the direct DMA path mostly relies on force_dma_unencrypted() for
-> shared/decrypted buffer handling. This series consolidates the
-> force_dma_unencrypted() checks in the top-level functions and ensures
-> that the remaining DMA interfaces use DMA attributes to make the correct
-> decisions.
->
-> The series separates mapping and allocation state:
-> - DMA_ATTR_CC_SHARED describes the DMA address attribute requested for a
->   mapping. It tells the DMA mapping path that the DMA address must target
->   shared/decrypted memory.
-> - __DMA_ATTR_ALLOC_CC_SHARED is an internal DMA-mapping attribute used only
->   by allocation paths after the DMA core decides that the backing pages
->   must be allocated as shared/decrypted memory.
->
-> The series:
-> - moves swiotlb-backed allocations out of __dma_direct_alloc_pages(),
-> - uses __DMA_ATTR_ALLOC_CC_SHARED through the dma-direct alloc/free paths
-> - teaches the atomic DMA pools to track encrypted versus decrypted
->   state
-> - tracks swiotlb pool encryption state and enforces strict pool
->   selection
-> - centralizes encrypted/decrypted pgprot handling in dma_pgprot() using
->   DMA attributes
-> - passes DMA attributes down to dma_capable() so capability checks can
->   validate whether the selected DMA address encoding matches
->   DMA_ATTR_CC_SHARED
-> - makes dma_direct_map_phys() choose the DMA address encoding from
->   DMA_ATTR_CC_SHARED and fall back to swiotlb when a shared DMA request
->   cannot use the direct mapping, which lets arm64 and x86 CCA guests stop
->   relying on SWIOTLB_FORCE for DMA mappings
-> - use the selected swiotlb pool state to derive the returned DMA
->   address
-> - reports CC_ATTR_GUEST_MEM_ENCRYPT for arm64 Realms, powerpc secure
->   guests, and s390 protected virtualization guests.
->
-> Dependency:
-> This series depends on the pKVM changes posted at:
-> https://lore.kernel.org/all/20260603110522.3331819-1-smostafa@google.com
->
-> Please merge this series only after the pKVM changes above are merged.
-> Otherwise pKVM will be broken.
->
+Signed-off-by: Anthony Krowiak <akrowiak@linux.ibm.com>
+---
+ drivers/s390/crypto/vfio_ap_ops.c     | 14 ++++++++++++++
+ drivers/s390/crypto/vfio_ap_private.h |  2 ++
+ 2 files changed, 16 insertions(+)
 
-A rebased tree on top of the dependent pKVM changes can be found at:
-https://gitlab.arm.com/linux-arm/linux-cca/-/tree/scratch/pkvm/testing?ref_type=heads
-
-The patches had minor conflicts. I am not sure how we want to get this
-merged.
-
-Should we ask the pKVM maintainers for a topic branch, and then I can
-repost the updated series on top of that?
-
--aneesh
+diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+index 44b3a1dcc1b3..71d3e2c2e07c 100644
+--- a/drivers/s390/crypto/vfio_ap_ops.c
++++ b/drivers/s390/crypto/vfio_ap_ops.c
+@@ -2098,6 +2098,20 @@ static void vfio_ap_mdev_request(struct vfio_device *vdev, unsigned int count)
+ 	release_update_locks_for_mdev(matrix_mdev);
+ }
+ 
++int vfio_ap_mdev_get_num_queues(struct ap_matrix *ap_matrix)
++{
++	unsigned long apid, apqi;
++	int num_queues = 0;
++
++	lockdep_assert_held(&matrix_dev->mdevs_lock);
++
++	for_each_set_bit_inv(apid, ap_matrix->apm, AP_DEVICES)
++		for_each_set_bit_inv(apqi, ap_matrix->aqm, AP_DOMAINS)
++			num_queues++;
++
++	return num_queues;
++}
++
+ static int vfio_ap_mdev_get_device_info(unsigned long arg)
+ {
+ 	unsigned long minsz;
+diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
+index 9bff666b0b35..9677e49554d7 100644
+--- a/drivers/s390/crypto/vfio_ap_private.h
++++ b/drivers/s390/crypto/vfio_ap_private.h
+@@ -152,6 +152,8 @@ struct vfio_ap_queue {
+ 	struct work_struct reset_work;
+ };
+ 
++int vfio_ap_mdev_get_num_queues(struct ap_matrix *ap_matrix);
++
+ int vfio_ap_mdev_register(void);
+ void vfio_ap_mdev_unregister(void);
+ 
+-- 
+2.53.0
 
