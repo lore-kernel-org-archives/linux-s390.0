@@ -1,124 +1,184 @@
-Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B04FF33066D;
-	Tue,  7 Jul 2026 09:29:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.118
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3EB0C397E9D;
+	Tue,  7 Jul 2026 09:32:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783416557; cv=none; b=ANfwTCPXLR7ae+f9BPVMcvZ9Y7bpTTNwUbYrMcOvhigF/FadaJqG4on24G0hMIY/mgbktDlkQBgqrjKLHN2vIRS6GKdUU2iOdM4IpxIKs7eVJIvUGg2osGVQZGkgW1hNGl7AWaDzpG5+S+v/lJkwwMmGtqVoqm86v1GWbCoVtt8=
+	t=1783416748; cv=none; b=Mdd59VRMItaOj+Qs3TTzKNKg6W9rD4CWhgFjwvIgdGZqE+l2OhFSKxq6SiWFDhTYFrPigtsRclIyuBcxSOUSyeCULCIw1IXQXU6GRnyeUCcWIJ1BAtZkgKopF0nYN8evEr8yWVrpV8+TzCX+Gytd9z0ugTIUKTz6+2YAoJQvEQw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783416557; c=relaxed/simple;
-	bh=hZkT2Dsk6x1Rc8lxbgya9SVeGD89lnwkYlre0tYxc2w=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=EaVvxV+8a4S0AsvCSDgff+Br7NDj2ibq+noCp08D1uYw4MrslasZBdeWyNyWbLUP8RjDwOdjiDLziKmQQlLhpJh/ajwYxsuIVDpB0rhTs6diKX1reZjO9F2MangL33mt27S+XwWUc0kVvix+xF0gZjqYidJqMR8wEmi3Nt0EDDo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=pHBhzdAI; arc=none smtp.client-ip=115.124.30.118
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1783416748; c=relaxed/simple;
+	bh=Ar7Wc8cv4gYk0aBdp5wDndwyQ0KPIb/wZDaPYg6MvR4=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=dwF9jLytRGUdXhkqMSqG7YgFpwz1gMOd0BWlfTr8LcckM0RjZx2/77in4aN0VSdQ5NK/we0EnWSjX+L9SpQXvAvAv295XD+R/z2P82/XN2ZEdv2nGyKb4Oxw1m7Z5CMr/dRYwSIHE2N+bus8wN2NOXuJhwgCZTwqxUipQZ/N3WY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CMxUF64D; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="pHBhzdAI"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1783416546; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
-	bh=x/JBmUH0AmD4h3bq2fvjuR02nLqqtA1dtweQcgT9r2k=;
-	b=pHBhzdAIaNpia0nJojGu+fKNii3HdKyNGNztCwxn8bFH7pDMawwPbLLOPG9JcPTWuQGz7YHS1VB/BGRNuEmhDfIEtoRuo+lS0/rKyM4FkwzudoUKAKVeRkLc+slZ/TSjhNizhZx5dxUdrZVPDGzPx1QYXNEVoax9hB07b6XcRx8=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R151e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033045098064;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=18;SR=0;TI=SMTPD_---0X6cl3KV_1783416545;
-Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0X6cl3KV_1783416545 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Tue, 07 Jul 2026 17:29:05 +0800
-Date: Tue, 7 Jul 2026 17:29:04 +0800
-From: Dust Li <dust.li@linux.alibaba.com>
-To: hexlabsecurity@proton.me, "David S. Miller" <davem@davemloft.net>,
-	Sidraya Jayagond <sidraya@linux.ibm.com>,
-	Eric Dumazet <edumazet@google.com>,
-	"D. Wythe" <alibuda@linux.alibaba.com>,
-	Jakub Kicinski <kuba@kernel.org>, Simon Horman <horms@kernel.org>,
-	Wenjia Zhang <wenjia@linux.ibm.com>,
-	Paolo Abeni <pabeni@redhat.com>
-Cc: Stefan Raspl <raspl@linux.ibm.com>, Wen Gu <guwen@linux.alibaba.com>,
-	linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-	Mahanta Jambigi <mjambigi@linux.ibm.com>,
-	Tony Lu <tonylu@linux.alibaba.com>,
-	Ursula Braun <ubraun@linux.ibm.com>, linux-s390@vger.kernel.org,
-	linux-rdma@vger.kernel.org
-Subject: Re: [PATCH net v4 0/3] net/smc: bound wire-controlled CDC cursors
- against the local buffers
-Message-ID: <akzG4Hfeom6fNzFX@linux.alibaba.com>
-Reply-To: dust.li@linux.alibaba.com
-References: <20260705-b4-disp-28a1bbca-v4-0-be089b98acc6@proton.me>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CMxUF64D"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A3A81F000E9;
+	Tue,  7 Jul 2026 09:32:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1783416746;
+	bh=aE4Vyr1iucpcDGTc27H9QnFGhm0W1ANEmFdU9uGr50E=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=CMxUF64DaiVFvz080cQbbSain2VzLoNKyq0zhOGG//APVpBmXgHvLxCua1bYZNaVL
+	 fGGQhhGMAzLOkQySGxxP+ZUHpM6wLlfzr/aq5wQmtzokAdeqKN9PAOsCHCGjWZv+jW
+	 7DuNnX9BMMDjQ3OEBtBIIIb3W+r5aICOltOZ8SY6rTgqq7ER7dAQQR/zgqfZuJ5PBQ
+	 wuW5Sfk2o/bHcXWUrPUf8b2vIe4WyxURigvM+eDV6l6UDAQbbx/czBRvpWVF1rGyx3
+	 P6+YazfuraMzSjaWLetgjovzQKomekp53qW3NWJjoVVzHHCG1sDCsA4IOmPMg7+PBA
+	 WV0s1ieJHQh/w==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v4 13/15] s390/vfio-ap: Callback to get the size of data
+ to be migrated during guest migration
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Anthony Krowiak" <akrowiak@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, kvm@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>
+In-Reply-To: <20260707090226.3206695-14-akrowiak@linux.ibm.com>
+References: <20260707090226.3206695-1-akrowiak@linux.ibm.com>
+ <20260707090226.3206695-14-akrowiak@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 07 Jul 2026 09:32:26 +0000
+Message-Id: <20260707093226.7A3A81F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260705-b4-disp-28a1bbca-v4-0-be089b98acc6@proton.me>
 
-On 2026-07-05 02:54:04, Bryam Vargas via B4 Relay wrote:
->A peer's CDC producer/consumer cursors are copied from the wire and used,
->without an upper bound against the local buffers, as (a) a raw index into the
->RMB on the urgent path, (b) the receive length in smc_rx_recvmsg(), and (c) the
->send length in smc_tx_sendmsg() on the SMC-D DMB-merge path. A malicious or
->buggy peer can forge a cursor so each runs past the relevant buffer: an
->out-of-bounds read of adjacent kernel memory (disclosed to the peer) on the
->receive/urgent side, and, on the send side, an out-of-bounds write whose
->length the peer controls and whose overflowing bytes are the local sender's
->own outbound data.
->
->This series bounds each length where it is consumed. The clamp is synchronous
->and race-free against the tasklet that advances the cursor, so it is the minimal
->fix for stable. A separate net-next series adds the wire-boundary validation and
->connection abort that Dust Li suggested; those do not replace these clamps.
->
->The clamp is not subsumed by validating cursors at the input boundary. A peer
->that only increments prod.wrap with count == 0 hits the differing-wrap branch of
->smc_curs_diff(), which returns (len - 0) + 0 == len every CDC, so bytes_to_rcv
->(and sndbuf_space on the send side) accumulates past the buffer while every
->per-cursor bound sees count == 0 and accepts the message. The overflow lives in
->the accumulator, not the cursor; only the consumer-side clamp bounds it. And
->because a queued abort runs asynchronously (queue_work -> smc_conn_kill) while
->smc_rx_recvmsg() reads the accumulator under lock_sock, only the synchronous
->clamp closes that window. So the clamp goes to stable; the abort is net-next.
->
->The nearby readable >= rmb_desc->len / len > sndbuf_desc->len tests only feed
->statistics counters (SMC_STAT_RMB_RX_FULL / SMC_STAT_RMB_TX_SIZE_SMALL) on an
->earlier, separate read; they do not bound the copy.
->
->A/B (in-kernel KASAN replaying the sink arithmetic over a real rmb_desc->len /
->sndbuf_desc->len slab; kasan.fault=report kasan_multi_shot, 2026-07-05):
->  - urgent index (1/3):  count = len+1        -> slab-out-of-bounds Read;  clamped -> clean
->  - recv length  (2/3):  bytes_to_rcv = 5*len via wrap++/count=0 -> OOB Read; clamped -> clean
->  - send length  (3/3):  sndbuf_space inflated -> slab-out-of-bounds Write; clamped -> clean
->  - signed overflow:     readable = -1 -> v1 ">len" misses -> OOB; "<0 || >len" -> clean
->  - concurrent TOCTOU race: a producer-side clamp is racy (OOB in a racing consumer
->    kthread on another CPU); the consumer-side clamp is race-free (0 hits / 5,000,000 reads).
->  - every in-bounds / honest-peer arm: clean.
->
->Changes since v3:
->  - split into this stable-bound clamp series and a separate net-next
->    validate/abort series, per Dust Li's review;
->  - tightened the commit messages; noted that the nearby SMC_STAT_* tests are not
->    bounds; no functional change to the three clamps.
->  v3: https://lore.kernel.org/all/20260614-b4-disp-edd64be9-v3-0-551fa514257e@proton.me/
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
+- [High] vfio_ap_resuming_write leaks memory and fails subsequent writes if=
+ userspace performs a partial write during migration resuming.
+- [High] vfio_ap_get_config does not initialize the config_sz field of the =
+payload, sending 0 to the migration target.
+--
 
-Hi Bryam,
+--- Patch [13]: [PATCH v4 13/15] s390/vfio-ap: Callback to get the size of =
+data to be migrated during guest migration ---
+commit cf31fd21666e32de812c2582ed7358837c47d2bd
+Author: Anthony Krowiak <akrowiak@linux.ibm.com>
 
-Are you planning to land these clamps first, and then follow up with a
-separate validate/abort series?
+s390/vfio-ap: Callback to get the size of data to be migrated during guest =
+migration
 
-Looking at your earlier A/B test, it simulates this logic in userspace to
-demonstrate the bug, but it doesn't actually trigger the bug in our
-current kernel. If that's the case, the security risk here doesn't seem
-high to me, since SMC is only meant to be deployed in trusted environments.
+This commit adds a callback to get the estimated data length required
+to complete reading of the vfio device's internal state. This is mandatory
+for VFIO_DEVICE_FEATURE_MIGRATION support.
 
-On the other hand, once this is actually triggered, it means the data
-we've been handing to userspace is already wrong, which is already a
-serious problem, and the connection should be terminated. So I don't
-really see much value in merging the bound-clamp patches first.
+> diff --git a/drivers/s390/crypto/vfio_ap_migration.c b/drivers/s390/crypt=
+o/vfio_ap_migration.c
+> index 572db04c4ac15..83e1ce2c40c0c 100644
+> --- a/drivers/s390/crypto/vfio_ap_migration.c
+> +++ b/drivers/s390/crypto/vfio_ap_migration.c
+> @@ -1283,7 +1283,18 @@ static int vfio_ap_get_state(struct vfio_device *v=
+dev,
+>  static int vfio_ap_get_data_size(struct vfio_device *vdev,
+>  				 unsigned long *stop_copy_length)
+>  {
+> -	return -EOPNOTSUPP;
+> +	struct ap_matrix_mdev *matrix_mdev;
+> +	size_t qinfo_sz;
+> +	int num_queues;
+> +
+> +	mutex_lock(&matrix_dev->mdevs_lock);
+> +	matrix_mdev =3D container_of(vdev, struct ap_matrix_mdev, vdev);
+> +	num_queues =3D vfio_ap_mdev_get_num_queues(&matrix_mdev->shadow_apcb);
+> +	qinfo_sz =3D num_queues * sizeof(struct vfio_ap_queue_info);
+> +	*stop_copy_length =3D qinfo_sz + sizeof(struct vfio_ap_config);
+> +	mutex_unlock(&matrix_dev->mdevs_lock);
+> +
+> +	return 0;
+>  }
+> =20
+>  static const struct vfio_migration_ops vfio_ap_migration_ops =3D {
 
-So, I'd expected to see the real bug and validation/abort patch.
+[Severity: High]
+Does vfio_ap_resuming_write() leak the newly allocated ap_config and fail
+subsequent writes if userspace performs a partial write during migration
+resuming?
 
-Best regards,
-Dust
+If a partial write occurs during vfio_ap_resuming_write() (i.e. *pos =3D=3D=
+ 0
+but len < cfg_sz), the newly allocated ap_config is not saved to
+mig_data->resuming_mig_state.ap_config because the check
+if (*pos + len =3D=3D cfg_sz) is false.
 
+The function then bypasses the cleanup label:
+
+drivers/s390/crypto/vfio_ap_migration.c:vfio_ap_resuming_write() {
+...
+	ret =3D len;
+	*pos +=3D len;
+	goto done;
+
+cleanup:
+	kfree(ap_config);
+done:
+...
+}
+
+Because the pointer was never saved in the first partial write, the
+subsequent partial write fails this validation, returning -EFAULT,
+which permanently fails the migration:
+
+drivers/s390/crypto/vfio_ap_migration.c:validate_resuming_write_parms() {
+...
+	if ((!matrix_mdev->mig_data->resuming_mig_state.ap_config && *pos !=3D 0) =
+||
+	    (matrix_mdev->mig_data->resuming_mig_state.ap_config && *pos =3D=3D 0)=
+) {
+		ret =3D -EFAULT;
+...
+}
+
+[Severity: High]
+Can vfio_ap_get_config() send an uninitialized config_sz field to the
+migration target, causing the target to fail?
+
+In vfio_ap_get_config(), a new struct vfio_ap_config is allocated and
+populated, but its config_sz field is never initialized and remains 0.
+This structure is sent verbatim over the migration stream to the target hos=
+t:
+
+drivers/s390/crypto/vfio_ap_migration.c:vfio_ap_get_config() {
+...
+	ap_configuration =3D kzalloc(*ap_config_size, GFP_KERNEL_ACCOUNT);
+	if (!ap_configuration)
+		return -ENOMEM;
+
+	ap_configuration->num_queues =3D num_queues;
+
+	ret =3D vfio_ap_store_queue_info(matrix_mdev, ap_configuration);
+...
+}
+
+If the target host receives a partial write and calls reallocate_ap_config(=
+),
+it reads cur_cfg_sz =3D ap_config->config_sz, which is 0.
+
+This causes the target to take the wrong reallocation path, shrinking the
+buffer incorrectly:
+
+drivers/s390/crypto/vfio_ap_migration.c:reallocate_ap_config() {
+...
+	cur_cfg_sz =3D ap_config->config_sz;
+	num_queues =3D ap_config->num_queues;
+
+	/* ... */
+	if (cur_cfg_sz >=3D sizeof(struct vfio_ap_config)) {
+		new_cfg_sz =3D calculate_ap_config_size(num_queues);
+		// ...
+	} else {
+		new_cfg_sz =3D cur_cfg_sz + len;
+	}
+...
+}
+
+The validation if (*pos + len > cfg_sz) then fails because cfg_sz evaluates
+to len and *pos > 0, causing the buffer to be freed and migration to
+fail with -EIO.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260707090226.3206=
+695-1-akrowiak@linux.ibm.com?part=3D13
