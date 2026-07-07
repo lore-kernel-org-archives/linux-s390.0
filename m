@@ -1,146 +1,185 @@
-Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com [210.118.77.11])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 09583194C96;
-	Tue,  7 Jul 2026 13:03:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=210.118.77.11
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id A014D29AB1A;
+	Tue,  7 Jul 2026 13:17:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783429441; cv=none; b=mdUDKaDlvjlx7+5Vpft1g8F2uDck0B8eu0WdN0e2vAn9dLD/Vut6B1fPyLSwNqD9RL0/TziwmUT7K9tc7lRWQkCcRhmx4O2gQZRiidhNQK8HmQJ3LQdPMNPQ13Fw+yOvhXTlePNwL4qVFmSVs3JqROK/ST6xVf73tI3WYDPOrSM=
+	t=1783430262; cv=none; b=vBJbHSafsSBF1/06OXZco9kcRhXPRurW7106xf6cIRS8PzHvDPW8c4rp/9KZIYZ93MWp62+uQHtP595Cc7KJhrVzbVnI6rv4BIQ/l8U8GmCL5SyEs3VL4S5N2q9N+V/Ux4fgH93SV013e2i4l/bcC6PM5XsbfGtI98U0UXvdzsE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783429441; c=relaxed/simple;
-	bh=I9l5C+AWVnctHlRI+9Q6TepCS4o9BXhroqvGump9+3M=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:From:In-Reply-To:
-	 Content-Type:References; b=nIzSQtwrc4DcC9K7WesxDzVvs7jXems67OLFe56tyX4oHDHHH+Ii8+8amHdk4dc0vd0As+fltd/QWeOgUPbwa8Us00Kf5oFI8mKN8utaPxjygufYT8DCpYNrofG2WkJ28uzOvfs1hvx6iSHKrnTmgW7pdBmRJ3UCo80ocdNwtxE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com; spf=pass smtp.mailfrom=samsung.com; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=bIpgAugu; arc=none smtp.client-ip=210.118.77.11
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsung.com
+	s=arc-20240116; t=1783430262; c=relaxed/simple;
+	bh=c4sgJIlp41KnfkxKX5Y8adETb3Yp/G6tgwZ1bFzMLxo=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=cLfdbXVhWlqOg+ARHUd0tHKhI2cuDE17QRalXuNfMa904eauUAtMqR9cdGe8HnnF3rTm3fMcKdILkEA5C2iL0/K1q0tD411lVEm6hp9ew5yWdhLK/GfeXE5UpqO0OueeyN5CbQU2n/pqBhAkqqNvR9CdpbPhBYNFPRm6as6oaag=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=IDNSpqSx; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="bIpgAugu"
-Received: from eucas1p2.samsung.com (unknown [182.198.249.207])
-	by mailout1.w1.samsung.com (KnoxPortal) with ESMTP id 20260707130350euoutp01816b7aba68f35cc361a12757e4960321~AA55SXF0N2589025890euoutp01R;
-	Tue,  7 Jul 2026 13:03:50 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.w1.samsung.com 20260707130350euoutp01816b7aba68f35cc361a12757e4960321~AA55SXF0N2589025890euoutp01R
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-	s=mail20170921; t=1783429431;
-	bh=1pXyGCmuZ2dd2pCX0ADJkgnLvZuWQnMbV/mJUc5jL2g=;
-	h=Date:Subject:To:Cc:From:In-Reply-To:References:From;
-	b=bIpgAugumnJ+vFbRlkBo8FzRtO/g5MYRDHE2BlHryQsTPFMC5fInDzKCOAgZ1npra
-	 WjvJ/rWNe/t/bQYYXvdlEuuxIM77d/dc9M35H15wIneXXtBw3nINopT0vdG4B55jJi
-	 2Rm+c3z4Adg15mIXdYkxRRDiDG8vmD3c75cZpyvY=
-Received: from eusmtip1.samsung.com (unknown [203.254.199.221]) by
-	eucas1p1.samsung.com (KnoxPortal) with ESMTPA id
-	20260707130350eucas1p1721c804c0be9f8bcca8c74b90c602459~AA55DsDSM2891728917eucas1p1P;
-	Tue,  7 Jul 2026 13:03:50 +0000 (GMT)
-Received: from [106.210.134.192] (unknown [106.210.134.192]) by
-	eusmtip1.samsung.com (KnoxPortal) with ESMTPA id
-	20260707130349eusmtip16fa04cbe7458b13574cd93f920780ed5~AA53jcBbZ1173511735eusmtip1K;
-	Tue,  7 Jul 2026 13:03:49 +0000 (GMT)
-Message-ID: <fc804746-4fb8-4ea9-997f-a4cae9ba8c14@samsung.com>
-Date: Tue, 7 Jul 2026 15:03:48 +0200
+	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="IDNSpqSx"
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 6F2AF1BCA;
+	Tue,  7 Jul 2026 06:17:35 -0700 (PDT)
+Received: from [10.2.212.23] (e121345-lin.cambridge.arm.com [10.2.212.23])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 555EE3F85F;
+	Tue,  7 Jul 2026 06:17:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=arm.com; s=foss;
+	t=1783430259; bh=c4sgJIlp41KnfkxKX5Y8adETb3Yp/G6tgwZ1bFzMLxo=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=IDNSpqSxtFtaWJyxD6ND7bhZDzkCBdR/qNZC+pDBu9MxOTbdwwuRp2qhdJjRMjzk3
+	 YysGDLtP2ZnjwNvmBVMkMDiNbKNdfL4YoCvHcQ3PS8DF8iP9OT/GQsdjdnsUlDzODm
+	 pVxQUIhnCsc/b3A1PQmyYi7EofZIIfYSBk4wEIKQ=
+Message-ID: <b0a1bdd7-46ab-4025-8775-c9273892444e@arm.com>
+Date: Tue, 7 Jul 2026 14:17:29 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Betterbird (Windows)
-Subject: Re: [PATCH v7 00/22] dma-mapping: Track shared DMA state through
- direct, pool and swiotlb paths
-To: "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>, iommu@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	linux-coco@lists.linux.dev
-Cc: Robin Murphy <robin.murphy@arm.com>, Will Deacon <will@kernel.org>, Marc
-	Zyngier <maz@kernel.org>, Steven Price <steven.price@arm.com>, Suzuki K
-	Poulose <Suzuki.Poulose@arm.com>, Catalin Marinas <catalin.marinas@arm.com>,
-	Jiri Pirko <jiri@resnulli.us>, Jason Gunthorpe <jgg@ziepe.ca>, Mostafa Saleh
-	<smostafa@google.com>, Petr Tesarik <ptesarik@suse.com>, Alexey
-	Kardashevskiy <aik@amd.com>, Dan Williams <dan.j.williams@intel.com>, Xu
-	Yilun <yilun.xu@linux.intel.com>, linuxppc-dev@lists.ozlabs.org,
-	linux-s390@vger.kernel.org, Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, Alexander Gordeev
-	<agordeev@linux.ibm.com>, Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle
-	<svens@linux.ibm.com>, x86@kernel.org
-Content-Language: en-US
-From: Marek Szyprowski <m.szyprowski@samsung.com>
-In-Reply-To: <yq5av7argr65.fsf@kernel.org>
-Content-Transfer-Encoding: 8bit
-X-CMS-MailID: 20260707130350eucas1p1721c804c0be9f8bcca8c74b90c602459
-X-Msg-Generator: CA
-Content-Type: text/plain; charset="utf-8"
-X-RootMTR: 20260707080628eucas1p13fa8a57e60ef5dd3ec651e19e42af0a1
-X-EPHeader: CA
-X-CMS-RootMailID: 20260707080628eucas1p13fa8a57e60ef5dd3ec651e19e42af0a1
-References: <20260701054926.825925-1-aneesh.kumar@kernel.org>
-	<CGME20260707080628eucas1p13fa8a57e60ef5dd3ec651e19e42af0a1@eucas1p1.samsung.com>
-	<yq5av7argr65.fsf@kernel.org>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 04/11] arm64/mm: Add set_memory_device() and
+ set_memory_normal()
+To: Will Deacon <will@kernel.org>, Thierry Reding <thierry.reding@kernel.org>
+Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+ Conor Dooley <conor+dt@kernel.org>, Jonathan Hunter <jonathanh@nvidia.com>,
+ David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
+ Sowjanya Komatineni <skomatineni@nvidia.com>,
+ Luca Ceresoli <luca.ceresoli@bootlin.com>,
+ Mikko Perttunen <mperttunen@nvidia.com>, Yury Norov <yury.norov@gmail.com>,
+ Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+ Russell King <linux@armlinux.org.uk>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>,
+ Andrew Morton <akpm@linux-foundation.org>,
+ David Hildenbrand <david@kernel.org>, Lorenzo Stoakes <ljs@kernel.org>,
+ "Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>,
+ Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>,
+ Michal Hocko <mhocko@suse.com>, Marek Szyprowski <m.szyprowski@samsung.com>,
+ Sumit Semwal <sumit.semwal@linaro.org>,
+ Benjamin Gaignard <benjamin.gaignard@collabora.com>,
+ Brian Starkey <Brian.Starkey@arm.com>, John Stultz <jstultz@google.com>,
+ "T.J. Mercier" <tjmercier@google.com>,
+ =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>,
+ Steven Rostedt <rostedt@goodmis.org>, Masami Hiramatsu
+ <mhiramat@kernel.org>, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+ Catalin Marinas <catalin.marinas@arm.com>,
+ Thierry Reding <thierry.reding@gmail.com>, devicetree@vger.kernel.org,
+ linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org,
+ dri-devel@lists.freedesktop.org, linux-media@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org,
+ linux-mm@kvack.org, iommu@lists.linux.dev, linaro-mm-sig@lists.linaro.org,
+ linux-trace-kernel@vger.kernel.org, Thierry Reding <treding@nvidia.com>,
+ Chun Ng <chunn@nvidia.com>
+References: <20260701-tegra-vpr-v3-0-d80f7b871bb4@nvidia.com>
+ <20260701-tegra-vpr-v3-4-d80f7b871bb4@nvidia.com>
+ <akYs91INHMXMTI-t@willie-the-truck> <akZkuwktaXFTrASP@orome>
+ <akaSJ5D98w2cHqb6@orome> <akftuw9NyRy36fXA@willie-the-truck>
+ <akuvyu1Pq0ZVMZV0@orome> <akzikTrmhMsvkNVY@willie-the-truck>
+From: Robin Murphy <robin.murphy@arm.com>
+Content-Language: en-GB
+In-Reply-To: <akzikTrmhMsvkNVY@willie-the-truck>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On 07.07.2026 10:06, Aneesh Kumar K.V wrote:
-> "Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org> writes:
->
->> This series tracks confidential-computing shared DMA state through the
->> dma-direct, dma-pool, and swiotlb paths so that encrypted and decrypted
->> DMA buffers are handled consistently.
+On 07/07/2026 12:27 pm, Will Deacon wrote:
+> On Mon, Jul 06, 2026 at 03:49:24PM +0200, Thierry Reding wrote:
+>> On Fri, Jul 03, 2026 at 06:13:31PM +0100, Will Deacon wrote:
+>>> On Thu, Jul 02, 2026 at 06:41:23PM +0200, Thierry Reding wrote:
+>>>> On Thu, Jul 02, 2026 at 03:46:44PM +0200, Thierry Reding wrote:
+>>>>> On Thu, Jul 02, 2026 at 10:18:47AM +0100, Will Deacon wrote:
+>>>>>> On Wed, Jul 01, 2026 at 06:08:15PM +0200, Thierry Reding wrote:
+>>>>>>> From: Chun Ng <chunn@nvidia.com>
+>>>>>>>
+>>>>>>> Add helpers to swap PROT_NORMAL and PROT_DEVICE_nGnRnE protection bits
+>>>>>>> on a kernel-linear-map range.
+>>>>>>
+>>>>>> That sounds like a really terrible idea. Why is this necessary and how
+>>>>>> does it interact with things like load_unaligned_zeropad()?
+>>>>>
+>>>>> This is necessary because once the memory controller has walled off the
+>>>>> new memory region the CPU must not access it under any circumstances or
+>>>>> it'll cause the CPU to lock up (I think technically it'll hit an SError
+>>>>> but in practice that just means it'll freeze, as far as I can tell).
+>>>>>
+>>>>> Probably doesn't interact well at all with load_unaligned_zeropad().
+>>>>>
+>>>>>> I think you should unmap the memory from the linear map and memremap()
+>>>>>> it instead.
+>>>>>
+>>>>> Given that the memory can never be accessed by the CPU after the memory
+>>>>> controller locks it down, I don't think we'll even need memremap(). The
+>>>>> only thing we really need is the sg_table we hand out via the DMA BUFs
+>>>>> so that they can be used by device drivers to program their DMA engines
+>>>>> internally.
+>>>>>
+>>>>> Looking through some of the architecture code around this, shouldn't we
+>>>>> simply be using set_memory_encrypted() and set_memory_decrypted() for
+>>>>> this? While they might've been created for slightly other use-cases,
+>>>>> they seem to be doing exactly what we want (i.e. remove the page range
+>>>>> from the linear mapping and flushing it, or restoring the valid bit and
+>>>>> standard permissions, respectively).
+>>>>
+>>>> Ah... I guess we can't do it because we're not in a realm world and so
+>>>> the early checks in __set_memory_enc_dec() would return early and turn
+>>>> it into a no-op.
+>>>>
+>>>> How about if I extract a common helper and provide set_memory_p() and
+>>>> set_memory_np() in terms of those. Those are available on x86 and
+>>>> PowerPC as well, so fairly standard. I suppose at that point we're
+>>>> closer to set_memory_valid().
+>>>
+>>> Why not just call set_direct_map_invalid_noflush() +
+>>> flush_tlb_kernel_range() for each page? We already have APIs for this.
 >>
->> Today, the direct DMA path mostly relies on force_dma_unencrypted() for
->> shared/decrypted buffer handling. This series consolidates the
->> force_dma_unencrypted() checks in the top-level functions and ensures
->> that the remaining DMA interfaces use DMA attributes to make the correct
->> decisions.
+>> Having a "standard" helper with a fixed and documented purposed seemed
+>> like a preferable approach for this particular case. We also may want to
+>> make the driver that uses this buildable as a module, in which case we'd
+>> need to export these rather low-level APIs. And then there's also the
+>> fact that we typically call this on a rather large region of memory
+>> (usually something like 512 MiB), so doing it page-by-page is rather
+>> suboptimal.
 >>
->> The series separates mapping and allocation state:
->> - DMA_ATTR_CC_SHARED describes the DMA address attribute requested for a
->>   mapping. It tells the DMA mapping path that the DMA address must target
->>   shared/decrypted memory.
->> - __DMA_ATTR_ALLOC_CC_SHARED is an internal DMA-mapping attribute used only
->>   by allocation paths after the DMA core decides that the backing pages
->>   must be allocated as shared/decrypted memory.
+>>> The big challenge I see with any linear map manipulation, however, is
+>>> that it will rely on can_set_direct_map() which likely means you need to
+>>> give up some performance and/or security to make this work. Does memory
+>>> become inaccesible dynamically at runtime? If not, the best bet would
+>>> be to describe it as a carveout in the DT and mark it as "no-map" so
+>>> we avoid mapping it in the first place.
 >>
->> The series:
->> - moves swiotlb-backed allocations out of __dma_direct_alloc_pages(),
->> - uses __DMA_ATTR_ALLOC_CC_SHARED through the dma-direct alloc/free paths
->> - teaches the atomic DMA pools to track encrypted versus decrypted
->>   state
->> - tracks swiotlb pool encryption state and enforces strict pool
->>   selection
->> - centralizes encrypted/decrypted pgprot handling in dma_pgprot() using
->>   DMA attributes
->> - passes DMA attributes down to dma_capable() so capability checks can
->>   validate whether the selected DMA address encoding matches
->>   DMA_ATTR_CC_SHARED
->> - makes dma_direct_map_phys() choose the DMA address encoding from
->>   DMA_ATTR_CC_SHARED and fall back to swiotlb when a shared DMA request
->>   cannot use the direct mapping, which lets arm64 and x86 CCA guests stop
->>   relying on SWIOTLB_FORCE for DMA mappings
->> - use the selected swiotlb pool state to derive the returned DMA
->>   address
->> - reports CC_ATTR_GUEST_MEM_ENCRYPT for arm64 Realms, powerpc secure
->>   guests, and s390 protected virtualization guests.
+>> VPR exists in two modes: static and resizable. For static VPR we do
+>> exactly that: describe it as carveout in DT with no-map and deal with it
+>> accordingly in the driver. Resizable VPR is for device that have small
+>> amounts of RAM. Content-protected video playback will in the worst case
+>> consume around 1.8 GiB of RAM, so we want to be able to reuse for other
+>> purposes when VPR is unused on those devices. In that case, the memory
+>> is also described as a reserved-memory region in DT, but it is marked as
+>> reusable so that it can be managed by CMA.
 >>
->> Dependency:
->> This series depends on the pKVM changes posted at:
->> https://lore.kernel.org/all/20260603110522.3331819-1-smostafa@google.com
+>> The resize operation is fairly slow to begin with because we need to
+>> stall the GPU and put it into reset before the operation, then take it
+>> out of reset and resume it afterwards.
 >>
->> Please merge this series only after the pKVM changes above are merged.
->> Otherwise pKVM will be broken.
->>
-> A rebased tree on top of the dependent pKVM changes can be found at:
-> https://gitlab.arm.com/linux-arm/linux-cca/-/tree/scratch/pkvm/testing?ref_type=heads
->
-> The patches had minor conflicts. I am not sure how we want to get this
-> merged.
->
-> Should we ask the pKVM maintainers for a topic branch, and then I can
-> repost the updated series on top of that?
-I'm fine with merging on top of the topic branch and I assume that this
-patchset is mature enough to give it a try in linux-next, but first I
-would like to get a review or at least acks from others with good CC
-knowledge or experience.
+>> What kind of performance impact do you expect?
+> 
+> You'll need to measure it, but we've seen reports of double-digit
+> percentage regressions in performance and power. As I said, the problem
+> is that you need to split the linear map to 4k page at runtime to unmap
+> the dynamic carveout, but that isn't something that can be done on most
+> CPUs. Therefore you end up having to use page-granular mappings for the
+> entire thing, similarly to how 'rodata_full' drives can_set_direct_map()
+> and the perf/power hit affects everything.
+> 
+> It's hard to know what to suggest... I wonder if any of the memory
+> hotplug logic could help here?
 
-Best regards
--- 
-Marek Szyprowski, PhD
-Samsung R&D Institute Poland
+Given the precedent of memblock_mark_nomap(), as long as the reusable 
+reserved-memory regions also get split into distinct memblocks, then it 
+seems like in principle we ought to be able to give them a new 
+MEMBLOCK_PTEMAP (or whatever) flag which could then be picked up in 
+map_mem() without needing to override force_pte_mapping() globally?
 
+Cheers,
+Robin.
