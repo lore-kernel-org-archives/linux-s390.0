@@ -1,214 +1,237 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F8503F8241;
-	Mon,  6 Jul 2026 21:26:50 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 63DE9223DE9
+	for <linux-s390@vger.kernel.org>; Tue,  7 Jul 2026 03:24:42 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783373212; cv=none; b=MM6V080Q2cW8L3jSjRI1O5O4BOzUctqLa8qvIRCoi6R42Z6D3NavWJMAe30kFFjo1sxcp3JPA2z6GjcHwgdlqkE6QgQBg6FLCWdviwd58IlCDbQpK8KqlNX3u+eWeHq1dmVAhLR36wei00RLfP9oO8572hRSDAvj0oElOSzv19o=
+	t=1783394683; cv=none; b=AHIVeTkWW2m9bzfxgNiHIEjPwdX/TXWaGk4U8wyuAq7u+WBiIt2jr0/77AYl4wzYcDAQ/Ai0j3Zex0C1Gqn0+KR/Jl6DZjzriOoHmF85roQuTjnSoofpahsjWCJ22MpzW5g/y84W3u7lzLH3jYloQUiFAOt3KNZyJRCbaAj6URU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783373212; c=relaxed/simple;
-	bh=VWv2LRjxHkQEh814EbSvCcJKLdk6GxMAU+fgME4WUW8=;
-	h=Date:Message-ID:From:To:Cc:Subject:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=m+YvCPbDpWfs6fAz6Io7RkqHsPPLl5ls6oIaXtmZlYBrlrwxCm3EMb32P/KyYzMY5aLP3VLVrnjDDqKz/SHftd4V3EYosEKHDlZ0ZJMrN8rzF62xsirGi2NbLQdRPNSUaw2Vlaq8ptuRFRGUFprQp3RaCLAznnGjo8ruQlANBzA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=je6eqx5r; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1783394683; c=relaxed/simple;
+	bh=mFQkYG6TqmpEunEBWNw3m5FRZKxs37kqn0qXBcZWq+g=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=J8ZYp0/gTlySDDWIJpIW6Fp10V822i8vqDF34lYJikGKs69ztWjhfNDt0qGNySdKG/XYzIocnvcb1qH2X1Czpddub3F3TvezVcFqZm7m0TjYLragTcJDzglbj1VDF7BndvD88HFsKfwfSQXQDxq3LSYXcqkesUGajzUsSRJvqjE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nvv1oL5I; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="je6eqx5r"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACFFC1F000E9;
-	Mon,  6 Jul 2026 21:26:50 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nvv1oL5I"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1FB31F00A3A;
+	Tue,  7 Jul 2026 03:24:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783373210;
-	bh=T9lDsB/+NcYvsgur+jzOVo5SNmXQlABei/7lUjSJfZI=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References;
-	b=je6eqx5rUBP2UGCChKvezCJTL51nWqAmpUjT9xlKJI+oSC+RKx6pgAaMNVkuB7qc9
-	 KTpP8JMIJZoG9DkSHlZoaP6bOwMx5AZTpAbT2P7pTpwZguH8e0NCUU2VQZo5lijMxi
-	 DpoCH1iCRve2Gy1ot1kYaOGm5xcOZkzfIhkIb+YVDCtIEutXhbOAbp+i/u/eZ2IX+0
-	 FnWSPCTwm8pwD6uTa1BCDwevfQJ79kJtt1UkqItVpJ4PjVil6D9JNAqExLbys1F6vs
-	 KW8NLTtKCppJNXy23XDymbrKnUR9k8QNvU3/DDvAj4jdzIULiZt5QBOUkLOuzPs9P8
-	 FPidM6Zafwerw==
-Received: from sofa.misterjones.org ([185.219.108.64] helo=lobster-girl.misterjones.org)
-	by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.98.2)
-	(envelope-from <maz@kernel.org>)
-	id 1wgqq0-000000028nF-33rS;
-	Mon, 06 Jul 2026 21:26:48 +0000
-Date: Mon, 06 Jul 2026 22:28:37 +0100
-Message-ID: <877bn77qpm.wl-maz@kernel.org>
-From: Marc Zyngier <maz@kernel.org>
-To: Steffen Eiden <seiden@linux.ibm.com>
-Cc: kvm@vger.kernel.org,
-	kvmarm@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Andreas Grapentin <gra@linux.ibm.com>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Claudio Imbrenda <imbrenda@linux.ibm.com>,
-	David Hildenbrand <david@kernel.org>,
-	Friedrich Welter <fritz@linux.ibm.com>,
-	Gautam Gala <ggala@linux.ibm.com>,
-	Hariharan Mari <hari55@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Hendrik Brueckner <brueckner@linux.ibm.com>,
-	Ilya Leoshkevich <iii@linux.ibm.com>,
-	Janosch Frank <frankja@linux.ibm.com>,
-	Joey Gouly <joey.gouly@arm.com>,
-	Nico Boehr <nrb@linux.ibm.com>,
-	Nina Schoetterl-Glausch <oss@nina.schoetterlglausch.eu>,
-	Oliver Upton <oupton@kernel.org>,
-	Paolo Bonzini <pbonzini@redhat.com>,
-	Suzuki K Poulose <suzuki.poulose@arm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Ulrich Weigand <Ulrich.Weigand@de.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Will Deacon <will@kernel.org>,
-	Zenghui Yu <yuzenghui@huawei.com>
-Subject: Re: [PATCH v4 08/27] KVM: arm64: Prepare sharing arm64 code with s390
-In-Reply-To: <20260706085229.979525-9-seiden@linux.ibm.com>
-References: <20260706085229.979525-1-seiden@linux.ibm.com>
-	<20260706085229.979525-9-seiden@linux.ibm.com>
-User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
- FLIM-LB/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL-LB/10.8 EasyPG/1.0.0 Emacs/30.1
- (aarch64-unknown-linux-gnu) MULE/6.0 (HANACHIRUSATO)
+	s=k20260515; t=1783394681;
+	bh=sBOeMQVqnwzQ1eE6R31oH8JOa6fGSwOTLbmB2mD9HlI=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=nvv1oL5I0ihi9SE3SfWbJxUY6kYhcXiyNkmZ1rraz87yy3FJQrriuwPjve2XnM2Pm
+	 hVbHLgld7e//uM5v2FGSDfEzFn3VmA9LcBPCodQoE7QznXUgpFstNziJvBBlTwKr/c
+	 gZpn133J0YY4SWOpDJZiod/zzIpzuq9dk+FvSMvjYuAAGy93CO9TGei5bVb4F7+e40
+	 RyYc6ljWUEdwCOWgcldahYz+AsbD6addot0C8Pbv3rv6z75+FHrGcopAk3Wt4Lcng1
+	 q95cseMTgfM4AKh0z9anARyYRcQm6HBRPkJzb9MGXv0nPAxlOB/QzdjOvVyplGaGj3
+	 pTot2eak5pwkw==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH net] net/iucv: take a reference on the socket found in
+ afiucv_hs_rcv()
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Bryam Vargas" <hexlabsecurity@proton.me>
+Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
+ Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org
+In-Reply-To: <20260705-b4-disp-fc79c0dc-v1-1-d2cdcb57afa9@proton.me>
+References: <20260705-b4-disp-fc79c0dc-v1-1-d2cdcb57afa9@proton.me>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 07 Jul 2026 03:24:41 +0000
+Message-Id: <20260707032441.B1FB31F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
-Content-Type: text/plain; charset=US-ASCII
-X-SA-Exim-Connect-IP: 185.219.108.64
-X-SA-Exim-Rcpt-To: seiden@linux.ibm.com, kvm@vger.kernel.org, kvmarm@lists.linux.dev, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, agordeev@linux.ibm.com, gra@linux.ibm.com, arnd@arndb.de, catalin.marinas@arm.com, borntraeger@linux.ibm.com, imbrenda@linux.ibm.com, david@kernel.org, fritz@linux.ibm.com, ggala@linux.ibm.com, hari55@linux.ibm.com, hca@linux.ibm.com, brueckner@linux.ibm.com, iii@linux.ibm.com, frankja@linux.ibm.com, joey.gouly@arm.com, nrb@linux.ibm.com, oss@nina.schoetterlglausch.eu, oupton@kernel.org, pbonzini@redhat.com, suzuki.poulose@arm.com, svens@linux.ibm.com, Ulrich.Weigand@de.ibm.com, gor@linux.ibm.com, will@kernel.org, yuzenghui@huawei.com
-X-SA-Exim-Mail-From: maz@kernel.org
-X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 
-On Mon, 06 Jul 2026 09:52:08 +0100,
-Steffen Eiden <seiden@linux.ibm.com> wrote:
-> 
-> Mark functions that s390 can use to implement arm on s390 as shared
-> functions.
-> 
-> No functional change.
-> 
-> Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
-> ---
->  arch/arm64/kvm/arm.c         |  3 +++
->  arch/arm64/kvm/guest.c       |  3 +++
->  arch/arm64/kvm/handle_exit.c |  6 ++++++
->  arch/arm64/kvm/mmio.c        | 14 ++++++++++++++
->  arch/arm64/kvm/reset.c       |  3 +++
->  5 files changed, 29 insertions(+)
-> 
-> diff --git a/arch/arm64/kvm/arm.c b/arch/arm64/kvm/arm.c
-> index 50adfff75be8..c992308b2dce 100644
-> --- a/arch/arm64/kvm/arm.c
-> +++ b/arch/arm64/kvm/arm.c
-> @@ -1580,6 +1580,7 @@ static unsigned long system_supported_vcpu_features(void)
->  	return features;
->  }
->  
-> +#ifdef ARM64_S390_COMMON
->  static int kvm_vcpu_init_check_features(struct kvm_vcpu *vcpu,
->  					const struct kvm_vcpu_init *init)
->  {
-> @@ -1628,6 +1629,8 @@ static bool kvm_vcpu_init_changed(struct kvm_vcpu *vcpu,
->  			     KVM_VCPU_MAX_FEATURES);
->  }
->  
-> +#endif /* ARM64_S390_COMMON */
-> +
->  static int kvm_setup_vcpu(struct kvm_vcpu *vcpu)
->  {
->  	struct kvm *kvm = vcpu->kvm;
-> diff --git a/arch/arm64/kvm/guest.c b/arch/arm64/kvm/guest.c
-> index b01d6622b872..5a202cfd27bc 100644
-> --- a/arch/arm64/kvm/guest.c
-> +++ b/arch/arm64/kvm/guest.c
-> @@ -543,6 +543,7 @@ int kvm_arch_vcpu_ioctl_set_regs(struct kvm_vcpu *vcpu, struct kvm_regs *regs)
->  	return -EINVAL;
->  }
->  
-> +#ifdef ARM64_S390_COMMON
->  static int copy_core_reg_indices(const struct kvm_vcpu *vcpu,
->  				 u64 __user *uindices)
->  {
-> @@ -591,6 +592,8 @@ static unsigned long num_core_regs(const struct kvm_vcpu *vcpu)
->  	return copy_core_reg_indices(vcpu, NULL);
->  }
->  
-> +#endif /* ARM64_S390_COMMON */
-> +
->  static unsigned long num_sve_regs(const struct kvm_vcpu *vcpu)
->  {
->  	const unsigned int slices = vcpu_sve_slices(vcpu);
-> diff --git a/arch/arm64/kvm/handle_exit.c b/arch/arm64/kvm/handle_exit.c
-> index 54aedf93c78b..d511af145ee6 100644
-> --- a/arch/arm64/kvm/handle_exit.c
-> +++ b/arch/arm64/kvm/handle_exit.c
-> @@ -213,6 +213,7 @@ static int kvm_handle_guest_debug(struct kvm_vcpu *vcpu)
->  	return 0;
->  }
->  
-> +#ifdef ARM64_S390_COMMON
->  static int kvm_handle_unknown_ec(struct kvm_vcpu *vcpu)
->  {
->  	u64 esr = kvm_vcpu_get_esr(vcpu);
-> @@ -224,6 +225,8 @@ static int kvm_handle_unknown_ec(struct kvm_vcpu *vcpu)
->  	return 1;
->  }
->  
-> +#endif /* ARM64_S390_COMMON */
-> +
->  /*
->   * Guest access to SVE registers should be routed to this handler only
->   * when the system doesn't support SVE.
-> @@ -404,6 +407,7 @@ static exit_handle_fn arm_exit_handlers[] = {
->  	[ESR_ELx_EC_GCS]	= kvm_handle_gcs,
->  };
->  
-> +#ifdef ARM64_S390_COMMON
->  static exit_handle_fn kvm_get_exit_handler(struct kvm_vcpu *vcpu)
->  {
->  	u64 esr = kvm_vcpu_get_esr(vcpu);
-> @@ -439,6 +443,8 @@ static int handle_trap_exceptions(struct kvm_vcpu *vcpu)
->  	return handled;
->  }
->  
-> +#endif /* ARM64_S390_COMMON */
-> +
->  /*
->   * Return > 0 to return to guest, < 0 on error, 0 (and set exit_reason) on
->   * proper exit to userspace.
-> diff --git a/arch/arm64/kvm/mmio.c b/arch/arm64/kvm/mmio.c
-> index e2285ed8c91d..876d56dd5b64 100644
-> --- a/arch/arm64/kvm/mmio.c
-> +++ b/arch/arm64/kvm/mmio.c
-> @@ -10,6 +10,7 @@
->  
->  #include "trace.h"
->  
-> +#ifdef ARM64_S390_COMMON
->  void kvm_mmio_write_buf(void *buf, unsigned int len, unsigned long data)
->  {
->  	void *datap = NULL;
-> @@ -135,8 +136,11 @@ int kvm_handle_mmio_return(struct kvm_vcpu *vcpu)
->  		if (!kvm_vcpu_dabt_issf(vcpu))
->  			data = data & 0xffffffff;
->  
-> +#endif /* ARM64_S390_COMMON */
->  		trace_kvm_mmio(KVM_TRACE_MMIO_READ, len, run->mmio.phys_addr,
->  			       &data);
-> +		//TODO  tracing
-> +#ifdef ARM64_S390_COMMON
+Thank you for your contribution! Sashiko AI review found 5 potential issue(=
+s) to consider:
 
-Irk. The deal is that you lift full functions, not cherry-pick which
-lines you want. Just define empty stubs for the trace nonsense, and be
-done with it. But not this, please!
+Pre-existing issues:
+- [High] NULL Pointer Dereference in `afiucv_hs_callback_syn` error path.
+- [High] Shared SKB Data Corruption by in-place modification.
+- [High] Buffer Underflow panic due to unchecked `skb_push()`.
+- [High] Memory leak of `message_q.list` elements on socket destruction.
+- [High] Race Condition modifying socket state from softirq without checkin=
+g `sock_owned_by_user()`.
+--
 
-	M.
+commit 65314896d356a76bf086aa52125b656e444bcb3c
+Author: Bryam Vargas <hexlabsecurity@proton.me>
+Subject: net/iucv: take a reference on the socket found in afiucv_hs_rcv()
 
--- 
-Jazz isn't dead. It just smells funny.
+afiucv_hs_rcv() looks up the destination socket under iucv_sk_list.lock, dr=
+ops
+the lock, and passes the socket to handlers without holding a reference. Th=
+is
+commit takes a reference with sock_hold() while the socket is on the list a=
+nd
+releases it with sock_put() once the handler completes.
+
+> diff --git a/net/iucv/af_iucv.c b/net/iucv/af_iucv.c
+> index fed240b453bd9..b85fb9767dec2 100644
+> --- a/net/iucv/af_iucv.c
+> +++ b/net/iucv/af_iucv.c
+
+[ ... ]
+
+net/iucv/af_iucv.c:afiucv_hs_callback_syn() {
+    nsk =3D iucv_sock_alloc(NULL, GFP_ATOMIC, sk->sk_type, sk->sk_protocol);
+    if (!nsk) {
+        ...
+        goto out;
+    }
+...
+out:
+    iucv_sock_kill(nsk);
+}
+
+[Severity: High]
+This is a pre-existing issue, but does this error path cause a NULL pointer
+dereference when memory allocation fails?
+
+If iucv_sock_alloc() returns NULL under memory pressure, we jump to the out
+label and pass NULL to iucv_sock_kill().
+
+net/iucv/af_iucv.c:iucv_sock_kill() {
+    if (!sock_flag(sk, SOCK_ZAPPED) || sk->sk_socket)
+        return;
+...
+}
+
+Will iucv_sock_kill() immediately dereference the NULL sk pointer when chec=
+king
+the socket flags, causing a kernel panic?
+
+[ ... ]
+
+net/iucv/af_iucv.c:afiucv_hs_rcv() {
+    ...
+    trans_hdr =3D iucv_trans_hdr(skb);
+    EBCASC(trans_hdr->destAppName, sizeof(trans_hdr->destAppName));
+    EBCASC(trans_hdr->destUserID, sizeof(trans_hdr->destUserID));
+    ...
+}
+
+[Severity: High]
+This isn't a bug introduced by this patch, but does this in-place modificat=
+ion
+corrupt shared or cloned SKBs?
+
+Since afiucv_hs_rcv() acts as a packet_type handler, the received SKB might=
+ be
+cloned or shared with other consumers. Should we be using skb_share_check()=
+ or
+skb_unshare() before destructively modifying the header with EBCASC()?
+
+Similarly, in afiucv_swap_src_dest():
+
+net/iucv/af_iucv.c:afiucv_swap_src_dest() {
+    ...
+    ASCEBC(trans_hdr->destUserID, sizeof(trans_hdr->destUserID));
+    ...
+}
+
+Does this further modify the shared SKB payload in-place?
+
+[ ... ]
+
+net/iucv/af_iucv.c:afiucv_swap_src_dest() {
+    ...
+    skb_push(skb, ETH_HLEN);
+    ...
+}
+
+[Severity: High]
+This is a pre-existing issue, but does this skb_push() call cause a buffer
+underflow panic?
+
+When echoing packets back, this prepends a MAC header without verifying if =
+the
+SKB has sufficient headroom.
+
+If a packet is injected locally or the incoming interface strips the MAC he=
+ader
+tightly, will the lack of skb_headroom() checks result in skb_under_panic()?
+
+[ ... ]
+
+net/iucv/af_iucv.c:iucv_sock_destruct() {
+    ...
+    skb_queue_purge(&sk->sk_receive_queue);
+    skb_queue_purge(&sk->sk_error_queue);
+    ...
+}
+
+[Severity: High]
+This isn't a bug introduced by this patch, but does socket destruction leak
+the dynamically allocated message_q.list items?
+
+Incoming messages are allocated and appended to iucv->message_q.list in
+iucv_callback_rx().
+
+If the socket is destroyed before all messages are consumed by recvmsg(),
+neither iucv_sock_destruct() nor iucv_sock_close() appears to iterate over =
+and
+free these elements:
+
+net/iucv/af_iucv.c:iucv_sock_close() {
+    ...
+    skb_queue_purge(&iucv->send_skb_q);
+    skb_queue_purge(&iucv->backlog_skb_q);
+    ...
+}
+
+Could an abrupt disconnect permanently leak these unread items?
+
+[ ... ]
+
+net/iucv/af_iucv.c:afiucv_hs_callback_synack() {
+    ...
+    bh_lock_sock(sk);
+    iucv->msglimit_peer =3D iucv_trans_hdr(skb)->window;
+    sk->sk_state =3D IUCV_CONNECTED;
+    sk->sk_state_change(sk);
+    bh_unlock_sock(sk);
+    ...
+}
+
+[Severity: High]
+This is a pre-existing issue, but does modifying the socket state from a
+softirq context corrupt the socket state machine?
+
+Since this handler runs in softirq context when network packets arrive, it
+acquires the socket spinlock and directly mutates sk->sk_state.=20
+
+If a user process is concurrently executing a system call and holds the soc=
+ket
+mutex via lock_sock(), does bypassing the backlog mechanism by failing to c=
+heck
+sock_owned_by_user() cause race conditions?
+
+[ ... ]
+
+> @@ -2089,6 +2089,8 @@ static int afiucv_hs_rcv(struct sk_buff *skb, struc=
+t net_device *dev,
+>  			}
+>  		}
+>  	}
+> +	if (sk)
+> +		sock_hold(sk);
+>  	read_unlock(&iucv_sk_list.lock);
+>  	if (!iucv)
+>  		sk =3D NULL;
+> @@ -2138,6 +2140,8 @@ static int afiucv_hs_rcv(struct sk_buff *skb, struc=
+t net_device *dev,
+>  		kfree_skb(skb);
+>  	}
+> =20
+> +	if (sk)
+> +		sock_put(sk);
+>  	return err;
+>  }
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260705-b4-disp-fc=
+79c0dc-v1-1-d2cdcb57afa9@proton.me?part=3D1
