@@ -1,33 +1,60 @@
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id E6F1D41F7CE;
-	Tue,  7 Jul 2026 14:15:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A484B42B33A
+	for <linux-s390@vger.kernel.org>; Tue,  7 Jul 2026 14:38:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783433737; cv=none; b=u+lIZn2Z6RUXqPYg3CPR8tXhP43YtTTe8TjYesfMxKuB8e6iaavg/k6YwDPBS8A6MkZsJGvJAs91hMVmfwOsURru/xVf9eP3s+4WvHY6vGXIyM/ijQVq6UzkfZ3XwP2FSOO59AauvifxxqlUTLLOl1gGhhEPUTzt7BbQdsxVo5U=
+	t=1783435108; cv=none; b=ZCTr4PZZykaP8BS0xwKDgYNfuThbx5+p9cm0mw0Vqhva3fFKgu/iM9OGQkcHNxR3QsDA0aA4EnK1f3Bq//YGYkGymEpWP98F14xEbFIL3gW5zrc/4xLtArHePwX5NvFefkR/yX7xi0QmHTep2Zqpx6G3IC+wCsE3SBAnv44uY4U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783433737; c=relaxed/simple;
-	bh=IinY0qicpix8YaJZbueQ0ZMS6TH6C9aVow2ztmvUxgU=;
+	s=arc-20240116; t=1783435108; c=relaxed/simple;
+	bh=5Ce71SmRIA83Sz0k9oQWMYsHEW/f937Rcb3DRKURTG4=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=ioumIPLVU1uo+/oi0Lub/8dIB6GHb1+LKNE7jZgiP7FizxMU53y51zu7vpIzeOfp12CS8/v1uyphhsTlx6STteRSeWBuR5OgJ/yKhdvdrlIwxpgcLbPVAjjEK6R3cq62gabxZdGJDVda6SWpP/pD1Wk0N2z0oJihx8X5yznJjn0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=LyOTCEzl; arc=none smtp.client-ip=217.140.110.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+	 In-Reply-To:Content-Type; b=rahafJ4OfLNLSv0uBJGTa5mWZSPp7vUWFOzDvgwGILNeT3dfikJanaOY/Covbg3y7Eyt3QsnWkCxhWjvYQ8tvtKrZ9y3NrZK9EhOy+gSnH5ZlvUgu9yvUzkOqWG3UNOyewHQCtHjI+OW9VAEW51m6BKxv7ueK6FsM6MsIJbyNFY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=NdbhRFcy; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="LyOTCEzl"
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id E45351BB0;
-	Tue,  7 Jul 2026 07:15:30 -0700 (PDT)
-Received: from [10.2.212.23] (e121345-lin.cambridge.arm.com [10.2.212.23])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 5BEF93F7B4;
-	Tue,  7 Jul 2026 07:15:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=arm.com; s=foss;
-	t=1783433735; bh=IinY0qicpix8YaJZbueQ0ZMS6TH6C9aVow2ztmvUxgU=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=LyOTCEzl2lnONxDyc5YgaBVzkQQTQt8ZMCnf0rfSax4/Wh4a3/jy5UcOfHKZmIpCd
-	 0JK0/K1vtUPTZHNaeJXMR1zwsZF41NYv8fSGFE5DnXecvjNTDzStlfxEvHuMh4fFmB
-	 7HXVfvV6cUYysmr155+Ry6uasnPzrKLfjL2xY65Y=
-Message-ID: <f6e8b4d4-8b50-4cc7-b264-ae39929c619a@arm.com>
-Date: Tue, 7 Jul 2026 15:15:24 +0100
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="NdbhRFcy"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 667CJ6ou3936657;
+	Tue, 7 Jul 2026 14:38:18 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=QOc48c
+	MVZ8u07W2jPzWOupI0sDsmb+vwI1hW2tIXzhE=; b=NdbhRFcyQl/c+QzoyMXloI
+	l+i2O+NJgfNI2GoPr6/ElM3s/2woedQgdMlHFQ+mkNq6WCpz67df9UbAv4HaDjoa
+	0n8kC/dKePUnPeAMfqDGWVMaSnJ+K4Dxk2/TgnYcF/Sf0u2ssVJSXGab/IxZOge8
+	JRNE80+oxYl8W8nnQKZiwuAJt0hAZf0bkBJmTrLcRX1/snu+97PPQLnHWzNDfzPx
+	qYcNIF06C5JFt8oQ03gb57A8KLkPpO454kRZpdFB5q66f0Gfi38iOoUX7qb6jcjt
+	Ps2Sb35tNqMt0R4H1bpaE4tdhlj612sKiGD1AOSf+iUSvqb1s+8/AR3T2ksCDLKg
+	==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4f6qknfhdr-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 07 Jul 2026 14:38:18 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 667EYcHX025360;
+	Tue, 7 Jul 2026 14:38:17 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4f7f6y2wuk-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 07 Jul 2026 14:38:17 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 667EcEkN53018984
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 7 Jul 2026 14:38:14 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 0387C20049;
+	Tue,  7 Jul 2026 14:38:14 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 86EC320040;
+	Tue,  7 Jul 2026 14:38:13 +0000 (GMT)
+Received: from [9.111.13.17] (unknown [9.111.13.17])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue,  7 Jul 2026 14:38:13 +0000 (GMT)
+Message-ID: <310af657-1444-445d-bfd8-cd0d174298c9@linux.ibm.com>
+Date: Tue, 7 Jul 2026 16:38:13 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -35,77 +62,58 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 04/11] arm64/mm: Add set_memory_device() and
- set_memory_normal()
-To: Mike Rapoport <rppt@kernel.org>
-Cc: Will Deacon <will@kernel.org>, Thierry Reding
- <thierry.reding@kernel.org>, Rob Herring <robh@kernel.org>,
- Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
- <conor+dt@kernel.org>, Jonathan Hunter <jonathanh@nvidia.com>,
- David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
- Sowjanya Komatineni <skomatineni@nvidia.com>,
- Luca Ceresoli <luca.ceresoli@bootlin.com>,
- Mikko Perttunen <mperttunen@nvidia.com>, Yury Norov <yury.norov@gmail.com>,
- Rasmus Villemoes <linux@rasmusvillemoes.dk>,
- Russell King <linux@armlinux.org.uk>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>,
- Andrew Morton <akpm@linux-foundation.org>,
- David Hildenbrand <david@kernel.org>, Lorenzo Stoakes <ljs@kernel.org>,
- "Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>,
- Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>,
- Marek Szyprowski <m.szyprowski@samsung.com>,
- Sumit Semwal <sumit.semwal@linaro.org>,
- Benjamin Gaignard <benjamin.gaignard@collabora.com>,
- Brian Starkey <Brian.Starkey@arm.com>, John Stultz <jstultz@google.com>,
- "T.J. Mercier" <tjmercier@google.com>,
- =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>,
- Steven Rostedt <rostedt@goodmis.org>, Masami Hiramatsu
- <mhiramat@kernel.org>, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
- Catalin Marinas <catalin.marinas@arm.com>,
- Thierry Reding <thierry.reding@gmail.com>, devicetree@vger.kernel.org,
- linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org,
- dri-devel@lists.freedesktop.org, linux-media@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org,
- linux-mm@kvack.org, iommu@lists.linux.dev, linaro-mm-sig@lists.linaro.org,
- linux-trace-kernel@vger.kernel.org, Thierry Reding <treding@nvidia.com>,
- Chun Ng <chunn@nvidia.com>
-References: <20260701-tegra-vpr-v3-0-d80f7b871bb4@nvidia.com>
- <20260701-tegra-vpr-v3-4-d80f7b871bb4@nvidia.com>
- <akYs91INHMXMTI-t@willie-the-truck> <akZkuwktaXFTrASP@orome>
- <akaSJ5D98w2cHqb6@orome> <akftuw9NyRy36fXA@willie-the-truck>
- <akuvyu1Pq0ZVMZV0@orome> <akzikTrmhMsvkNVY@willie-the-truck>
- <b0a1bdd7-46ab-4025-8775-c9273892444e@arm.com> <ak0A6eLp0Pw8iKK0@kernel.org>
-From: Robin Murphy <robin.murphy@arm.com>
-Content-Language: en-GB
-In-Reply-To: <ak0A6eLp0Pw8iKK0@kernel.org>
+Subject: Re: [PATCH v10 09/21] target/s390x: Support AES XTS for cpacf km
+ instruction
+To: Harald Freudenberger <freude@linux.ibm.com>
+Cc: richard.henderson@linaro.org, iii@linux.ibm.com, david@kernel.org,
+        thuth@redhat.com, berrange@redhat.com, qemu-s390x@nongnu.org,
+        qemu-devel@nongnu.org, linux-s390@vger.kernel.org,
+        borntraeger@linux.ibm.com, fcallies@linux.ibm.com, cohuck@redhat.com
+References: <20260706094317.17032-1-freude@linux.ibm.com>
+ <20260706094317.17032-10-freude@linux.ibm.com>
+From: Holger Dengler <dengler@linux.ibm.com>
+Content-Language: en-US
+In-Reply-To: <20260706094317.17032-10-freude@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=Q/XiJY2a c=1 sm=1 tr=0 ts=6a4d0f5a cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8
+ a=48bj3Yrzj-su2sblZwEA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: x4sIcs8AhYU1_Rf59gdWH9QZdyjvLhLs
+X-Proofpoint-ORIG-GUID: x4sIcs8AhYU1_Rf59gdWH9QZdyjvLhLs
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzA3MDE0MCBTYWx0ZWRfX7LAL1IsivIY3
+ eUd++LUSqCCua1QViL5H72h8Vg1gcvFm6gkf1Iy20LeyIXxYZOGKmlxQFZU+Zkd+/HwoM2utukE
+ nXwRPUMyn6bMhBPVTSgYK1l4JoW5D3c=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzA3MDE0MCBTYWx0ZWRfX8XtwuCfQcy2F
+ mgE4LgxwPPPg9NFX2P/3uJqVJaDppsk/Cm3Cj0vB4YZzuH7FanMMjdiafjK98OxkFKHB3Rlm+X2
+ 46CwIYSp7oD6oEazEiRreIloFtC1zBwoeYZn9b9nVTAZe7yD/yzhtDU+2qEs5QNjWmFY0l7Qwsx
+ zq4RdS0GHRyLlsUrfjacXQNurDOdl+7RNiZgxpsHPbKEphymfmkWptj1iBI0eMuT5tsPT41//+0
+ +ZyqAwqpCZ4UWTI/fIXb0e/dYNpIFH9vit6RKJXqEsOBjZNj5CJ7IxiZdnGqoCKERZcEaxxVJS/
+ pp7pgBP3kbX0q/qvxL5dVTsyef4MmPvIkRgnEP8vr7k4Bbx5vTOkNaHiozkc2tvFc4tpG1vQWG2
+ F6Km5zqcGRY6qOh6/zDKOfzcvwculM8BwQcc0NhMEtGG84/2jTiojqQT6/SsDkdxSILp0agIBmm
+ sm+fumgDzf0eXkPAUOA==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-07-07_03,2026-07-06_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ adultscore=0 impostorscore=0 spamscore=0 phishscore=0 priorityscore=1501
+ bulkscore=0 clxscore=1015 lowpriorityscore=0 suspectscore=0 malwarescore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607070140
 
-On 07/07/2026 2:36 pm, Mike Rapoport wrote:
-> On Tue, Jul 07, 2026 at 02:17:29PM +0100, Robin Murphy wrote:
->>
->> Given the precedent of memblock_mark_nomap(), as long as the reusable
->> reserved-memory regions also get split into distinct memblocks, then it
->> seems like in principle we ought to be able to give them a new
->> MEMBLOCK_PTEMAP (or whatever) flag which could then be picked up in
->> map_mem() without needing to override force_pte_mapping() globally?
+On 7/6/26 11:43, Harald Freudenberger wrote:
+> Support the subfunctions XTS-AES-128 and XTS-AES-256
+> for the cpacf km instruction.
 > 
-> Please don't. _nomap() caused enough pain.
+> Tested-by: Holger Dengler <dengler@linux.ibm.com>
+> Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
 
-Indeed I was there for pretty much the whole pfn_valid() saga :)
+Reviewed-by: Holger Dengler <dengler@linux.ibm.com>
 
-Bad example maybe - in this case the only actual similarity to nomap 
-would be the fact that it would also be set by the of_reserved_mem code 
-based on what it finds in DT; in all other aspects it should be 
-functionally closer to something like MEMBLOCK_RSRV_NOINIT, i.e. just 
-carrying information through the mm init phase, then ceasing to matter 
-at all once the linear mapping is done.
+-- 
+Mit freundlichen Grüßen / Kind regards
+Holger Dengler
 
-Cheers,
-Robin.
