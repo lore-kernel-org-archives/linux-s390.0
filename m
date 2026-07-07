@@ -1,38 +1,37 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D1C183A380A;
-	Tue,  7 Jul 2026 19:06:31 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 895AA436BCA;
+	Tue,  7 Jul 2026 19:06:36 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783451196; cv=none; b=J9r8iJgBclG6vfYAiv0MPNtiTW96rndjG0euZ1pRHCwm7ezNXDzLKudYVGjtDCOA/e0j5h9TWhFVS2teY017mR8mEbeRa0LZN2pDWU3V3VW1d8E3NvgdbUFozmvFxg8aJZO3NACLaNm/AyvBwWLRw8FL2ffNgsHIh5cnIgj0KB4=
+	t=1783451202; cv=none; b=OeW2gyQJieQzoX7jR2yE91fca0HBDsBxUXA4wOg8Y8861ZR+RViDYmhVVuUP2GKGwk+XXpOZwzQrN3Vx5wGMbiJ1ZZ6VNpopk1kwWJmCYVnv0LHUVfzxLyBD7Jo4FZhDa5I77lXve3RWq/UA+E2tFQfMRiBCrC69Z4aF4EpCang=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783451196; c=relaxed/simple;
-	bh=f5adocVvDmANhynlDDS9Q7+CMqBafERvB6xHEIk5vOc=;
+	s=arc-20240116; t=1783451202; c=relaxed/simple;
+	bh=qREUyjIW8fgVFwf6mCuY/7+DaL+84ELoNQHCs1rFK8I=;
 	h=Date:Message-ID:From:To:Cc:Subject:References:MIME-Version:
-	 Content-Type; b=Vo1xTm3nGzjZUA+McQx1qG1G1aNp5JO4p5h3UFuh2kGuPc77DjhUc2mJOCLyz5xbq9Aov1v+jw7/mCuc3Q/jDr0yJMvLx3DOZbLvElwLmbfHZwxYb/eGyaxjHoqO3lrfAQJPZlhNrV5IunHNA1THGSmjwpinoW2HDYJ80jI82lM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nQZnMsUe; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type; b=SUv5F0uhQpzTMh9VzevwyKKaOajTLMYNYbjC9uxDlZbNpIft0dJ7BN7RsBciA5BPBE+hiQzvhajJEQ2bryqVPfi/qr81bF9abSkvm4bMOuYEqTymylvQSa2HARDqLXbgNhjgZtDRA6r0X8M51TpxJJpKu2pEjrlbi6jPPfhGnxA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=d68e/zkh; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nQZnMsUe"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9882A1F00A3D;
-	Tue,  7 Jul 2026 19:06:29 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="d68e/zkh"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C91BA1F000E9;
+	Tue,  7 Jul 2026 19:06:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783451190;
-	bh=9cJlPyoSYNFp/gOreqxa1IqYId3zkUs6emQr6ytoL3s=;
+	s=k20260515; t=1783451194;
+	bh=Ko42Ry29jFPoMyPQLdlxYhg8S/68hEmUYQPkE8hHtRo=;
 	h=Date:From:To:Cc:Subject:References;
-	b=nQZnMsUeWM0MBmYh2tftX2ldO6f4f4+KQMN8PIETF59TUOLWGfrzzUj86Bfd1xFh6
-	 10CcaK+cuIh4vWxH/paWeIPEbvqCR1T98llJwakIpvPv3wZbJgr7EneYcvAjY3VyZc
-	 A4mjZpEslZwnTQ9Y3RdELc2sHV368KIKF0A5adgHMQpKbhnF3wx5Vk/7BVZea8ug+A
-	 sLcT2ttVqhK19d2pPXbALVn/ZjJDUgCPlmQmEO3tTnqhNKn17sPyy6QjidI+vgfixZ
-	 R+fRDdpiEFDapfuQEgmUBP+RUuSIVZHbmwmncIS0zVZsCPzwXAEyG1obgAdo30Y+r0
-	 YPfe7YvFhevHQ==
-Date: Tue, 07 Jul 2026 21:06:27 +0200
-Message-ID: <20260707190254.079478122@kernel.org>
+	b=d68e/zkh5oU9ziZmyD8/j0zm+dms5mzI3QpxXDgS3beo+n+Xnv/2HSq+wH632V3sd
+	 8uTzG42LNfaK05lc2KYYdDujQ1J4Cgu9HUzFOHwcGxBUM8uoXWnE/1r5BSASo70M2/
+	 BeZM/CiOfzvrrk1xZNqIUAM6oN02Mkik+/OqqvpTFPpbyHqBCzcd+u7xOyvYG2DB/V
+	 bFMusVe8fZm0EviIlm2Cdc6bEcEu9PSgqO6pG/h8ekgyn42NUtvGGWIO67Mdyq29CY
+	 XsTesNZZfW6pwplIhbQXruHpmuALvlix8sPBSkJLCO72NF5LTVJjzfgWsBEq/Yvuwu
+	 cgcjZWz5+d1VQ==
+Date: Tue, 07 Jul 2026 21:06:32 +0200
+Message-ID: <20260707190254.132654198@kernel.org>
 User-Agent: quilt/0.69
 From: Thomas Gleixner <tglx@kernel.org>
 To: LKML <linux-kernel@vger.kernel.org>
 Cc: Peter Zijlstra <peterz@infradead.org>,
- x86@kernel.org,
  Michael Ellerman <mpe@ellerman.id.au>,
  Shrikanth Hegde <sshegde@linux.ibm.com>,
  linuxppc-dev@lists.ozlabs.org,
@@ -44,6 +43,7 @@ Cc: Peter Zijlstra <peterz@infradead.org>,
  linux-riscv@lists.infradead.org,
  Sven Schnelle <svens@linux.ibm.com>,
  linux-s390@vger.kernel.org,
+ x86@kernel.org,
  Mark Rutland <mark.rutland@arm.com>,
  Jinjie Ruan <ruanjinjie@huawei.com>,
  Andy Lutomirski <luto@kernel.org>,
@@ -82,8 +82,7 @@ Cc: Peter Zijlstra <peterz@infradead.org>,
  =?UTF-8?q?Michal=20Such=C3=A1nek?= <msuchanek@suse.de>,
  Jonathan Corbet <corbet@lwn.net>,
  linux-doc@vger.kernel.org
-Subject: [patch 08/18] x86/syscall: Use
- [syscall_]enter_from_user_mode_randomize_stack()
+Subject: [patch 09/18] entry: Remove syscall_enter_from_user_mode()
 References: <20260707181957.433213175@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
@@ -93,103 +92,138 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 
-These functions integrate the stack randomization.
+All architecture use either:
 
-syscall_enter_from_user_mode_randomize_stack() has the advantage that the
-randomization happens early right after enter_from_user_mode().
+    nr = enter_from_user_mode_randomize_stack(regs, nr);
 
-In both cases also the overhead of get/put_cpu_var() in
-add_random_kstack_offset() is avoided.
+or
 
-No functional change.
+    enter_from_user_mode_randomize_stack(regs);
+    nr = syscall_enter_from_user_mode_work(regs, nr);
+
+Remove the now unused function.
 
 Signed-off-by: Thomas Gleixner <tglx@kernel.org>
-Cc: x86@kernel.org
 ---
- arch/x86/entry/syscall_32.c         |   19 +++++--------------
- arch/x86/entry/syscall_64.c         |    3 +--
- arch/x86/include/asm/entry-common.h |    1 -
- 3 files changed, 6 insertions(+), 17 deletions(-)
+ Documentation/core-api/entry.rst |   17 +++++++++-------
+ include/linux/entry-common.h     |   40 +++------------------------------------
+ include/linux/irq-entry-common.h |    6 ++---
+ 3 files changed, 17 insertions(+), 46 deletions(-)
 
---- a/arch/x86/entry/syscall_32.c
-+++ b/arch/x86/entry/syscall_32.c
-@@ -142,10 +142,9 @@ static __always_inline bool int80_is_ext
- 	 * int80_is_external() below which calls into the APIC driver.
- 	 * Identical for soft and external interrupts.
- 	 */
--	enter_from_user_mode(regs);
-+	enter_from_user_mode_randomize_stack(regs);
+--- a/Documentation/core-api/entry.rst
++++ b/Documentation/core-api/entry.rst
+@@ -68,7 +68,7 @@ low-level C code must not be instrumente
+   noinstr void syscall(struct pt_regs *regs, int nr)
+   {
+ 	arch_syscall_enter(regs);
+-	nr = syscall_enter_from_user_mode(regs, nr);
++	nr = syscall_enter_from_user_mode_randomize_stack(regs, nr);
  
  	instrumentation_begin();
--	add_random_kstack_offset();
+ 	if (!invoke_syscall(regs, nr) && nr != -1)
+@@ -78,12 +78,14 @@ low-level C code must not be instrumente
+ 	syscall_exit_to_user_mode(regs);
+   }
  
- 	/* Validate that this is a soft interrupt to the extent possible */
- 	if (unlikely(int80_is_external()))
-@@ -210,11 +209,9 @@ DEFINE_FREDENTRY_RAW(int80_emulation)
- {
- 	int nr;
+-syscall_enter_from_user_mode() first invokes enter_from_user_mode() which
+-establishes state in the following order:
++syscall_enter_from_user_mode_randomize_stack() first invokes
++enter_from_user_mode_randomize_stack() which establishes state in the
++following order:
  
--	enter_from_user_mode(regs);
-+	enter_from_user_mode_randomize_stack(regs);
+   * Lockdep
+   * RCU / Context tracking
+   * Tracing
++  * Apply stack randomization
  
- 	instrumentation_begin();
--	add_random_kstack_offset();
+ and then invokes the various entry work functions like ptrace, seccomp, audit,
+ syscall tracing, etc. After all that is done, the instrumentable invoke_syscall
+@@ -99,10 +101,11 @@ that it invokes exit_to_user_mode() whic
+   * RCU / Context tracking
+   * Lockdep
+ 
+-syscall_enter_from_user_mode() and syscall_exit_to_user_mode() are also
+-available as fine grained subfunctions in cases where the architecture code
+-has to do extra work between the various steps. In such cases it has to
+-ensure that enter_from_user_mode() is called first on entry and
++syscall_enter_from_user_mode_randomize_stack() and
++syscall_exit_to_user_mode() are also available as fine grained subfunctions
++in cases where the architecture code has to do extra work between the
++various steps. In such cases it has to ensure that
++enter_from_user_mode_randomize_stack() is called first on entry and
+ exit_to_user_mode() is called last on exit.
+ 
+ Do not nest syscalls. Nested syscalls will cause RCU and/or context tracking
+--- a/include/linux/entry-common.h
++++ b/include/linux/entry-common.h
+@@ -19,7 +19,7 @@
+ #endif
+ 
+ /*
+- * SYSCALL_WORK flags handled in syscall_enter_from_user_mode()
++ * SYSCALL_WORK flags handled in syscall_enter_from_user_mode_work()
+  */
+ #define SYSCALL_WORK_ENTER	(SYSCALL_WORK_SECCOMP |			\
+ 				 SYSCALL_WORK_SYSCALL_TRACEPOINT |	\
+@@ -205,42 +205,10 @@ do {									\
+ 	_ret;								\
+ })
+ 
+-/**
+- * syscall_enter_from_user_mode - Establish state and check and handle work
+- *				  before invoking a syscall
+- * @regs:	Pointer to currents pt_regs
+- * @syscall:	The syscall number
+- *
+- * Invoked from architecture specific syscall entry code with interrupts
+- * disabled. The calling code has to be non-instrumentable. When the
+- * function returns all state is correct, interrupts are enabled and the
+- * subsequent functions can be instrumented.
+- *
+- * This is the combination of enter_from_user_mode() and
+- * syscall_enter_from_user_mode_work() to be used when there is no
+- * architecture specific work to be done between the two.
+- *
+- * Returns: The original or a modified syscall number. See
+- * syscall_enter_from_user_mode_work() for further explanation.
+- */
+-static __always_inline long syscall_enter_from_user_mode(struct pt_regs *regs, long syscall)
+-{
+-	long ret;
 -
- 	/*
- 	 * FRED pushed 0 into regs::orig_ax and regs::ax contains the
- 	 * syscall number.
-@@ -252,10 +249,10 @@ DEFINE_FREDENTRY_RAW(int80_emulation)
- 	 * orig_ax, the int return value truncates it. This matches
- 	 * the semantics of syscall_get_nr().
- 	 */
--	nr = syscall_enter_from_user_mode(regs, nr);
-+	nr = syscall_enter_from_user_mode_randomize_stack(regs, nr);
-+
- 	instrumentation_begin();
- 
--	add_random_kstack_offset();
- 	do_syscall_32_irqs_on(regs, nr);
- 
- 	instrumentation_end();
-@@ -268,15 +265,9 @@ static noinstr bool __do_fast_syscall_32
- 	int nr = syscall_32_enter(regs);
- 	int res;
- 
--	/*
--	 * This cannot use syscall_enter_from_user_mode() as it has to
--	 * fetch EBP before invoking any of the syscall entry work
--	 * functions.
--	 */
 -	enter_from_user_mode(regs);
-+	enter_from_user_mode_randomize_stack(regs);
- 
- 	instrumentation_begin();
--	add_random_kstack_offset();
- 	local_irq_enable();
- 	/* Fetch EBP from where the vDSO stashed it. */
- 	if (IS_ENABLED(CONFIG_X86_64)) {
---- a/arch/x86/entry/syscall_64.c
-+++ b/arch/x86/entry/syscall_64.c
-@@ -86,10 +86,9 @@ static __always_inline bool do_syscall_x
- /* Returns true to return using SYSRET, or false to use IRET */
- __visible noinstr bool do_syscall_64(struct pt_regs *regs, int nr)
+-
+-	instrumentation_begin();
+-	local_irq_enable();
+-	ret = syscall_enter_from_user_mode_work(regs, syscall);
+-	instrumentation_end();
+-
+-	return ret;
+-}
+-
+ /*
+- * If SYSCALL_EMU is set, then the only reason to report is when
+- * SINGLESTEP is set (i.e. PTRACE_SYSEMU_SINGLESTEP).  This syscall
+- * instruction has been already reported in syscall_enter_from_user_mode().
++ * If SYSCALL_EMU is set, then the only reason to report is when SINGLESTEP is
++ * set (i.e. PTRACE_SYSEMU_SINGLESTEP).  This syscall instruction has been
++ * already reported in syscall_enter_from_user_mode_work().
+  */
+ static __always_inline bool report_single_step(unsigned long work)
  {
--	nr = syscall_enter_from_user_mode(regs, nr);
-+	nr = syscall_enter_from_user_mode_randomize_stack(regs, nr);
+--- a/include/linux/irq-entry-common.h
++++ b/include/linux/irq-entry-common.h
+@@ -49,9 +49,9 @@
+  * Defaults to an empty implementation. Can be replaced by architecture
+  * specific code.
+  *
+- * Invoked from syscall_enter_from_user_mode() in the non-instrumentable
+- * section. Use __always_inline so the compiler cannot push it out of line
+- * and make it instrumentable.
++ * Invoked from enter_from_user_mode_syscall_and_randomize_stack() in the
++ * non-instrumentable section. Use __always_inline so the compiler cannot push
++ * it out of line and make it instrumentable.
+  */
+ static __always_inline void arch_enter_from_user_mode(struct pt_regs *regs);
  
- 	instrumentation_begin();
--	add_random_kstack_offset();
- 
- 	if (!do_syscall_x64(regs, nr) && !do_syscall_x32(regs, nr) && nr != -1) {
- 		/* Invalid system call, but still a system call. */
---- a/arch/x86/include/asm/entry-common.h
-+++ b/arch/x86/include/asm/entry-common.h
-@@ -2,7 +2,6 @@
- #ifndef _ASM_X86_ENTRY_COMMON_H
- #define _ASM_X86_ENTRY_COMMON_H
- 
--#include <linux/randomize_kstack.h>
- #include <linux/user-return-notifier.h>
- 
- #include <asm/nospec-branch.h>
 
