@@ -1,195 +1,163 @@
-Received: from mail.mindbit.ro (xs1.mindbit.ro [80.86.107.70])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 550FE36212C;
-	Wed,  8 Jul 2026 17:26:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.86.107.70
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BEDED2459EA;
+	Wed,  8 Jul 2026 17:58:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783531616; cv=none; b=PcHdBNBB1bKMQcG+dbN9okvP2062qGiagNAzV8uSuvs4l2kuUa4MFYAJbvNLzfdJe2z2FNUxTytEYtKCg+JpjngL7QdHUjryvYe1iZSR6sLHstE44xJ13LtccKPc2xTe+jTIlTcdp6f2f8ac7mcwvoOVUu0UxOtXzCdxz+4RwBg=
+	t=1783533510; cv=none; b=l2f8ZTTfOzd1WSxO9j1orjmj6lPWO+y0j/b1F9V0a9gNChmULY8gMVSec6dH5IVqelPb/kN5xzgqcCZMT4JpmbmhMBxWdOtdwUwLdEp7jkjHZq6hfV7cjqmDX7fCIJ2PzjS7JXLcPW9wse4tBdMfzM4/t6ftjmYfCTnb+Sv98y8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783531616; c=relaxed/simple;
-	bh=2hoJA0I8rorlRGOq+HwlWXfcZlYFh59K/rfqYRa+z8c=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=OnmEaSSdpxvXPv09TxQGxPwiuszf1jrd+H5sNQTRXTaYE3CURpgmB1N2cpVhkeDT9wMRWxFJXOI30aEeHuWrCEUWwy3RjCDAEPEt14vQi9DdnUyDo3CU/EDWY3oSH4hM9qCRziEy66Q1yL52akxkPSuJl71amcwRnIdxnh5dNc4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=rendec.net; spf=pass smtp.mailfrom=rendec.net; dkim=pass (2048-bit key) header.d=rendec.net header.i=@rendec.net header.b=Z6pyfRb1; arc=none smtp.client-ip=80.86.107.70
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=rendec.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rendec.net
+	s=arc-20240116; t=1783533510; c=relaxed/simple;
+	bh=DAStDXOSf9Oo/ReDKIwpVBMsGNG26XsqmGIDDvE59dc=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=qOev/0Txr80LJDDmCo+4NgnpvRDxwsqJGFd2zoznKcZ4+2qeRwsCffQvtlAtxRjCATOoeCTSu/Fjgus0KHrVQNO6ay047E8YGQmwNFI/+uIteyLVJqsfvqlC+/K8xHr60ew0dH0Cj7KnLYtBwFVLRnhAv0whXjUDpzeL7V4O5GU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lUFCGVvh; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rendec.net header.i=@rendec.net header.b="Z6pyfRb1"
-Received: from bat.kanata.rendec.net (unknown [24.114.111.125])
-	by mail.mindbit.ro (Postfix) with ESMTPSA id 1B198C343D;
-	Wed,  8 Jul 2026 20:26:25 +0300 (EEST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail.mindbit.ro 1B198C343D
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=rendec.net;
-	s=default; t=1783531613;
-	bh=1gcsmXz67IjQqMY0eBQ3O8esAmywA90IGOEUSqxZHJQ=;
-	h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
-	b=Z6pyfRb1XnNrJb7Iy5l8RXt+U4vqsGvqqzStbhN7435vjpK29RR4S8ie2UFwESgWv
-	 CcSG+nZyfqWkQNIiMihfXIe5SU5d9xFxuT/FVpIkY2si8YfqZBiGdxwpOgc4+v6GTu
-	 NSt9pFgzwrUImE/LpJy0sei+Lk+GBqVAsmPsiJ8VtpU8nMjFtYkmKduWX13Ouy9uBJ
-	 1ENXVXzDYQWjK4BhPh/7z7U3FCNNVQhlgPxqvAWAfKgmRqCj2sxf9iIIgCC2PgpYcH
-	 RSMOv3KD/QpK9l25WlQ3grvgf5R2LttSDjfKaawhSgxe9j5XVHCFPDPCqOj6a4P2dQ
-	 eMxeS2+WglD9w==
-Message-ID: <8b21dbb1e167b4a50b72613f09fdbb800a420fb8.camel@rendec.net>
-Subject: Re: [patch 03/18] entry: Provide
- [syscall_]enter_from_user_mode_randomize_stack()
-From: Radu Rendec <radu@rendec.net>
-To: Thomas Gleixner <tglx@kernel.org>, LKML <linux-kernel@vger.kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>, Michael Ellerman
- <mpe@ellerman.id.au>,  Shrikanth Hegde <sshegde@linux.ibm.com>,
- linuxppc-dev@lists.ozlabs.org, Kees Cook <kees@kernel.org>, Huacai Chen	
- <chenhuacai@kernel.org>, loongarch@lists.linux.dev, Paul Walmsley
- <pjw@kernel.org>,  Palmer Dabbelt <palmer@dabbelt.com>,
- linux-riscv@lists.infradead.org, Sven Schnelle <svens@linux.ibm.com>, 
-	linux-s390@vger.kernel.org, x86@kernel.org, Mark Rutland
- <mark.rutland@arm.com>,  Jinjie Ruan <ruanjinjie@huawei.com>, Andy
- Lutomirski <luto@kernel.org>, Oleg Nesterov <oleg@redhat.com>,  Richard
- Henderson <richard.henderson@linaro.org>, Russell King
- <linux@armlinux.org.uk>, Catalin Marinas	 <catalin.marinas@arm.com>, Guo
- Ren <guoren@kernel.org>, Geert Uytterhoeven	 <geert@linux-m68k.org>, Thomas
- Bogendoerfer <tsbogend@alpha.franken.de>,  Helge Deller	 <deller@gmx.de>,
- Yoshinori Sato <ysato@users.sourceforge.jp>, Richard Weinberger
- <richard@nod.at>, Chris Zankel <chris@zankel.net>,
- linux-arm-kernel@lists.infradead.org, 	linux-alpha@vger.kernel.org,
- linux-csky@vger.kernel.org, 	linux-m68k@lists.linux-m68k.org,
- linux-mips@vger.kernel.org, 	linux-parisc@vger.kernel.org,
- linux-sh@vger.kernel.org, 	linux-um@lists.infradead.org, Arnd Bergmann
- <arnd@arndb.de>, Vineet Gupta	 <vgupta@kernel.org>, Will Deacon
- <will@kernel.org>, Brian Cain <bcain@kernel.org>,  Michal Simek
- <monstr@monstr.eu>, Dinh Nguyen <dinguyen@kernel.org>, "David S. Miller"
- <davem@davemloft.net>,  Andreas Larsson <andreas@gaisler.com>,
- linux-snps-arc@lists.infradead.org, linux-hexagon@vger.kernel.org, 
-	linux-openrisc@vger.kernel.org, sparclinux@vger.kernel.org, 
-	linux-arch@vger.kernel.org, Michal =?ISO-8859-1?Q?Such=E1nek?=	
- <msuchanek@suse.de>, Jonathan Corbet <corbet@lwn.net>, 
-	linux-doc@vger.kernel.org
-Date: Wed, 08 Jul 2026 13:26:19 -0400
-In-Reply-To: <20260707190253.816918647@kernel.org>
-References: <20260707181957.433213175@kernel.org>
-	 <20260707190253.816918647@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.58.3 (3.58.3-1.fc43) 
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lUFCGVvh"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9DFE91F000E9;
+	Wed,  8 Jul 2026 17:58:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1783533509;
+	bh=2zcJcB1E4eAZy0egEbo5b49ra1AlE1ZZgAl0aBZPFpg=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date;
+	b=lUFCGVvhi3r0g2REAtCb2IGA8CZvBtpISzpqNOsLlIz4oC8RYsx/4BDzxBWlKpED0
+	 OO0H8pEE+Rj/gvkRHSvopojk6+7GJ2AVOWtst9fH1KbISbjRghLiVKG8hjeEoo2NJL
+	 1pONN4spCjOkHAEVviRtqhHebsdb8FkdHq+W9mwMHVu3D2rDo+PIliDI8dLOzCpavH
+	 2v63vsnLIDMQkmI7iMKzYlLlawSHemKEODU9IgIdU5HL7fCECve8y+XTvAEm18oYQ/
+	 fjk+++bhVL1mK2ZtC2q+a75eR0XtyKKWF5XVAIEO0u/AFkjmd4VWUqV8Us3U8DJG1R
+	 Qf80NCztIqmrQ==
+X-Mailer: emacs 30.2 (via feedmail 11-beta-1 I)
+From: Aneesh Kumar K.V <aneesh.kumar@kernel.org>
+To: Catalin Marinas <catalin.marinas@arm.com>
+Cc: iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev,
+	Robin Murphy <robin.murphy@arm.com>,
+	Marek Szyprowski <m.szyprowski@samsung.com>,
+	Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
+	Steven Price <steven.price@arm.com>,
+	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
+	Jiri Pirko <jiri@resnulli.us>,
+	Jason Gunthorpe <jgg@ziepe.ca>,
+	Mostafa Saleh <smostafa@google.com>,
+	Petr Tesarik <ptesarik@suse.com>,
+	Alexey Kardashevskiy <aik@amd.com>,
+	Dan Williams <dan.j.williams@intel.com>,
+	Xu Yilun <yilun.xu@linux.intel.com>,
+	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org,
+	Jiri Pirko <jiri@nvidia.com>,
+	Michael Kelley <mhklinux@outlook.com>
+Subject: Re: [PATCH v7 16/22] dma-direct: make dma_direct_map_phys() honor
+ DMA_ATTR_CC_SHARED
+In-Reply-To: <ak42F240d-53QeFN@arm.com>
+References: <20260701054926.825925-1-aneesh.kumar@kernel.org>
+ <20260701054926.825925-17-aneesh.kumar@kernel.org>
+ <ak42F240d-53QeFN@arm.com>
+Date: Wed, 08 Jul 2026 23:28:14 +0530
+Message-ID: <yq5apl0xgy89.fsf@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain
 
-On Tue, 2026-07-07 at 21:06 +0200, Thomas Gleixner wrote:
-> Randomizing the syscall stack can only happen after state is established
-> via enter_from_user_mode() or syscall_enter_from_user_mode(). The earlier
-> it happens the better.
->=20
-> Provide two new macros to consolidate that:
->=20
-> =C2=A0 - enter_from_user_mode_randomize_stack()
-> 	enter_from_user_mode();
-> 	add_random_kstack_offset_irqsoff();
->=20
-> =C2=A0 - syscall_enter_from_user_mode_randomize_stack()
-> 	enter_from_user_mode_randomize_stack();
-> 	syscall_enter_from_user_mode_work();
-> =C2=A0=C2=A0=C2=A0=20
-> to reduce boiler plate code.
->=20
-> Those are macros and not inline functions as the latter would limit the
-> stack randomization scope to the inline function itself.
->=20
-> Signed-off-by: Thomas Gleixner <tglx@kernel.org>
-> ---
-> =C2=A0include/linux/entry-common.h |=C2=A0=C2=A0 56 +++++++++++++++++++++=
-++++++++++++++++++++++
-> =C2=A01 file changed, 56 insertions(+)
->=20
-> --- a/include/linux/entry-common.h
-> +++ b/include/linux/entry-common.h
-> @@ -6,6 +6,7 @@
-> =C2=A0#include <linux/irq-entry-common.h>
-> =C2=A0#include <linux/livepatch.h>
-> =C2=A0#include <linux/ptrace.h>
-> +#include <linux/randomize_kstack.h>
-> =C2=A0#include <linux/resume_user_mode.h>
-> =C2=A0#include <linux/seccomp.h>
-> =C2=A0#include <linux/sched.h>
-> @@ -150,6 +151,61 @@ static __always_inline long syscall_ente
-> =C2=A0}
-> =C2=A0
-> =C2=A0/**
-> + * enter_from_user_mode_randomize_stack - Establish state and add stack =
-randomization
-> + *					=C2=A0 before invoking syscall_enter_from_user_mode_work()
-> + * @regs:	Pointer to currents pt_regs
-                           ^^^^^^^^
+Catalin Marinas <catalin.marinas@arm.com> writes:
 
-Nit: current
+> On Wed, Jul 01, 2026 at 11:19:20AM +0530, Aneesh Kumar K.V (Arm) wrote:
+>> diff --git a/arch/arm64/mm/init.c b/arch/arm64/mm/init.c
+>> index 97987f850a33..acf67c7064db 100644
+>> --- a/arch/arm64/mm/init.c
+>> +++ b/arch/arm64/mm/init.c
+>> @@ -338,10 +338,8 @@ void __init arch_mm_preinit(void)
+>>  	unsigned int flags = SWIOTLB_VERBOSE;
+>>  	bool swiotlb = max_pfn > PFN_DOWN(arm64_dma_phys_limit);
+>>  
+>> -	if (is_realm_world()) {
+>> +	if (is_realm_world())
+>>  		swiotlb = true;
+>> -		flags |= SWIOTLB_FORCE;
+>> -	}
+>
+> For this part:
+>
+> Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+>
+>> diff --git a/kernel/dma/direct.h b/kernel/dma/direct.h
+>> index e05dc7649366..f3fc28f352ba 100644
+>> --- a/kernel/dma/direct.h
+>> +++ b/kernel/dma/direct.h
+>> @@ -88,37 +88,40 @@ static inline dma_addr_t dma_direct_map_phys(struct device *dev,
+>>  {
+>>  	dma_addr_t dma_addr;
+>>  
+>> +	/*
+>> +	 * For a device requiring unencrypted DMA, MMIO memory is treated
+>> +	 * as shared by default.
+>> +	 */
+>> +	if (force_dma_unencrypted(dev) && (attrs & DMA_ATTR_MMIO))
+>> +		attrs |= DMA_ATTR_CC_SHARED;
+>> +
+>>  	if (is_swiotlb_force_bounce(dev)) {
+>> -		if (!(attrs & DMA_ATTR_CC_SHARED)) {
+>> -			if (attrs & (DMA_ATTR_MMIO | DMA_ATTR_REQUIRE_COHERENT))
+>> -				return DMA_MAPPING_ERROR;
+>> +		if (attrs & (DMA_ATTR_MMIO | DMA_ATTR_REQUIRE_COHERENT))
+>> +			return DMA_MAPPING_ERROR;
+>>  
+>> -			return swiotlb_map(dev, phys, size, dir, attrs);
+>> -		}
+>> -	} else if (attrs & DMA_ATTR_CC_SHARED) {
+>> -		return DMA_MAPPING_ERROR;
+>> +		return swiotlb_map(dev, phys, size, dir, attrs);
+>>  	}
+>>  
+>> -	if (attrs & DMA_ATTR_MMIO) {
+>> -		dma_addr = phys;
+>> -		if (unlikely(!dma_capable(dev, dma_addr, size, false, attrs)))
+>> -			goto err_overflow;
+>> -	} else if (attrs & DMA_ATTR_CC_SHARED) {
+>> +	if (attrs & DMA_ATTR_CC_SHARED)
+>>  		dma_addr = phys_to_dma_unencrypted(dev, phys);
+>> +	else
+>> +		dma_addr = phys_to_dma_encrypted(dev, phys);
+>
+> For AMD/SME, on host with memory encryption we now end up setting the C
+> bit for DMA_ATTR_MMIO. This is fine for RAM but not sure whether
+> some other MMIO bus understands this attribute. Maybe we should stick to
+> something like __phys_to_dma() for the !CC_SHARED && MMIO path. Or,
+> since this is not universally defined, just use the old dma_addr = phys
+> if MMIO and ignore any unlikely DMA offsets.
+>
 
-> + *
-> + * Invoked from architecture specific syscall entry code with interrupts
-> + * disabled. The calling code has to be non-instrumentable. When the fun=
-ction
-> + * returns all state is correct, interrupts are still disabled and the
-> + * subsequent functions can be instrumented.
-> + *
-> + * Implemented as a macro so that the stack randomization is effective
-> + * throughout the function in which it is invoked. An inline would only =
-make it
-> + * effective in the scope of the inline function.
-> + */
-> +#define enter_from_user_mode_randomize_stack(regs)			\
-> +do {									\
-> +	enter_from_user_mode(regs);					\
-> +	instrumentation_begin();					\
-> +	add_random_kstack_offset_irqsoff();				\
-> +	instrumentation_end();						\
-> +} while (0)
-> +
-> +/**
-> + * syscall_enter_from_user_mode_randomize_stack - Establish state and ch=
-eck and handle work
-> + *						=C2=A0 before invoking a syscall
-> + * @regs:	Pointer to currents pt_regs
-                           ^^^^^^^^
+Considering for AMD/SME system an unencrypted dma addr is one without C
+bit, will this be good?
 
-Same here.
+	/*
+	 * For host memory encryption and device requiring unencrypted DMA,
+	 * MMIO memory is treated as shared by default.
+	 */
+	if (attrs & DMA_ATTR_MMIO) {
+		if (cc_platform_has(CC_ATTR_HOST_MEM_ENCRYPT) || force_dma_unencrypted(dev))
+			attrs |= DMA_ATTR_CC_SHARED;
+	}
 
-> + * @syscall:	The syscall number
-> + *
-> + * Invoked from architecture specific syscall entry code with interrupts
-> + * disabled. The calling code has to be non-instrumentable. When the
-> + * function returns all state is correct, interrupts are enabled and the
-> + * subsequent functions can be instrumented.
-> + *
-> + * This is the combination of enter_from_user_mode_randomize_stack() and
-> + * syscall_enter_from_user_mode_work() to be used when there is no
-> + * architecture specific work to be done between the two.
-> + *
-> + * Returns: The original or a modified syscall number. See
-> + * syscall_enter_from_user_mode_work() for further explanation.
-> + *
-> + * Implemented as a macro to make stack randomization effective in the c=
-alling
-> + * scope.
-> + */
-> +#define syscall_enter_from_user_mode_randomize_stack(regs, syscall)	\
-> +({									\
-> +	enter_from_user_mode_randomize_stack(regs);			\
-> +									\
-> +	instrumentation_begin();					\
-> +	local_irq_enable();						\
-> +	long _ret =3D syscall_enter_from_user_mode_work(regs, syscall);	\
-> +	instrumentation_end();						\
-> +									\
-> +	_ret;								\
-> +})
-> +
-> +/**
-> =C2=A0 * syscall_enter_from_user_mode - Establish state and check and han=
-dle work
-> =C2=A0 *				=C2=A0 before invoking a syscall
-> =C2=A0 * @regs:	Pointer to currents pt_regs
 
-With the above nits,
+>
+> In the other case, for an arm CCA guest, if the MMIO is shared we end up
+> setting the shared attribute but that's fine, it's only an IPA address.
+>
+> -- 
+> Catalin
 
-Reviewed-by: Radu Rendec <radu@rendec.net>
+-aneesh
