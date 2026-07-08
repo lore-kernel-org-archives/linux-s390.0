@@ -1,200 +1,119 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from isrv.corpit.ru (isrv.corpit.ru [212.248.84.144])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E07B64252B5;
-	Wed,  8 Jul 2026 10:42:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2CB5142EEA0
+	for <linux-s390@vger.kernel.org>; Wed,  8 Jul 2026 10:46:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.248.84.144
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783507386; cv=none; b=KI+9fcC4BTCPEy3ZLxKSfs/+iZk37TmMVlMFRKX4RnVxQAZ21UU0Td+YtyXKRB7K3GIP4iNOuiAmHgxGCshI2M3qZwseEUeeLuxpZXNIpBXuPytrilh9uzdnth6cFdWxEPhOifkzZD7XhTMATzW+AfdOGA2KqNZY9P+igObiuLw=
+	t=1783507574; cv=none; b=fIFooy8PeftvoOvf75OuIRYzVqqVmUMMwJ4ZZgntYVGLxzkv9zVpZdJzd+odGxwabh/IrVJtkYT6yrGBRGTz54ge9rILMXkOFnQJINFi/o35lOO9bqSDi6lXTgHvRAUDF0Z+sTj/hLcvpmBGymE0YvWgrNGWvdM99afJwZn8sY0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783507386; c=relaxed/simple;
-	bh=g1cEDVucPut9nx4DxUDgLwvwvEc+KFxNwPycj1pZ2/Q=;
-	h=Date:Message-ID:From:To:Cc:Subject:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=MEgiYnJZ4OkVRFt9yOTiv+dulCvnVfuPdeUkUN746n2uD4v1IJmr3CVndZywLivPmtg2fOrM2ShWbEcBMpNdJZJ6bsDd8WgsEcPafFYoj672iRbkAH7Cpxuk2P04KVZ08XOBlIi0UXiyaqAkD8Gbp0K7sX197sMSAC/toZmZbxQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Eok20oS+; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1783507574; c=relaxed/simple;
+	bh=P575weruEuT/gpDM0T5gQo9v8qn6W2dx644Aq4PjQXw=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=PmFjM7VMv1pArpdkwivHPUT2f3OzgdAqbM3joZHGIu/05DTvPzw1CftLkak6mi76LCNNdWLnsce/FmhqSNow4DQWAvKrr0vLkFqupilwNQEVIz2k2LJunW6WmTvdg2Vtl8gUNjfCv6GdZWqnShDGjodVypHgTyjWvOMoWgQzsyQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=tls.msk.ru; spf=pass smtp.mailfrom=tls.msk.ru; dkim=pass (2048-bit key) header.d=tls.msk.ru header.i=@tls.msk.ru header.b=Pv0MHOy0; arc=none smtp.client-ip=212.248.84.144
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=tls.msk.ru
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=tls.msk.ru
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Eok20oS+"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F29401F000E9;
-	Wed,  8 Jul 2026 10:42:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783507373;
-	bh=l4UyoSNyXebLeXjulHaoflPQw9V3It1bzboWcTLzP7s=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References;
-	b=Eok20oS+ydCL9nQkOELYtvSANI3EO+8Mppguumlyf4qv4bE/mnNXLqjmaKSJLdLAz
-	 e6wySYAdHbh0lv8vXonOiEQ1APKQGtVddR3qvacEXeqAGRcGA1Nr85Lgc3tF1lgoo2
-	 bLF4lm+DuOFXrVmxvIDPZq/3uf3OfiMmil7FQwibynaZFTySQNWU4ZltrUHId1Jlf5
-	 YsFeiJTQHvj3P9MVcPixYII7pO1Y15qOzHIniZGV/3SMGy3jCBCoW3GvxJ3JKpl6Bi
-	 8IQwKmj/gDaHZCvwr6Vo2JjHZnC0Ya/9yiBQRw77Z5UBjQ53S4As7lVm39Rmv10X43
-	 qSS3NqxqZ35vg==
-Received: from sofa.misterjones.org ([185.219.108.64] helo=lobster-girl.misterjones.org)
-	by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.98.2)
-	(envelope-from <maz@kernel.org>)
-	id 1whPju-00000002mQn-1Zh5;
-	Wed, 08 Jul 2026 10:42:50 +0000
-Date: Wed, 08 Jul 2026 11:44:37 +0100
-Message-ID: <874ii97obu.wl-maz@kernel.org>
-From: Marc Zyngier <maz@kernel.org>
-To: Steffen Eiden <seiden@linux.ibm.com>
-Cc: kvm@vger.kernel.org,
-	kvmarm@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Andreas Grapentin <gra@linux.ibm.com>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Claudio Imbrenda <imbrenda@linux.ibm.com>,
-	David Hildenbrand <david@kernel.org>,
-	Friedrich Welter <fritz@linux.ibm.com>,
-	Gautam Gala <ggala@linux.ibm.com>,
-	Hariharan Mari <hari55@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Hendrik Brueckner <brueckner@linux.ibm.com>,
-	Ilya Leoshkevich <iii@linux.ibm.com>,
-	Janosch Frank <frankja@linux.ibm.com>,
-	Joey Gouly <joey.gouly@arm.com>,
-	Nico Boehr <nrb@linux.ibm.com>,
-	Nina Schoetterl-Glausch <oss@nina.schoetterlglausch.eu>,
-	Oliver Upton <oupton@kernel.org>,
-	Paolo Bonzini <pbonzini@redhat.com>,
-	Suzuki K Poulose <suzuki.poulose@arm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Ulrich Weigand <Ulrich.Weigand@de.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Will Deacon <will@kernel.org>,
-	Zenghui Yu <yuzenghui@huawei.com>
-Subject: Re: [PATCH v4 25/27] KVM: s390: arm64: Implement vCPU IOCTLs
-In-Reply-To: <20260706085229.979525-26-seiden@linux.ibm.com>
-References: <20260706085229.979525-1-seiden@linux.ibm.com>
-	<20260706085229.979525-26-seiden@linux.ibm.com>
-User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
- FLIM-LB/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL-LB/10.8 EasyPG/1.0.0 Emacs/30.1
- (aarch64-unknown-linux-gnu) MULE/6.0 (HANACHIRUSATO)
+	dkim=pass (2048-bit key) header.d=tls.msk.ru header.i=@tls.msk.ru header.b="Pv0MHOy0"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=tls.msk.ru; s=202602;
+	t=1783507048; bh=P575weruEuT/gpDM0T5gQo9v8qn6W2dx644Aq4PjQXw=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=Pv0MHOy0WLQdhzpHVk0SqZtUXZWVQCv/O2trjZ8llsR1lnpQDtgxKmfEdrDJpdBPZ
+	 Nnr0GrCagQwIiGX9krp07/So5JT46wIBFgYklhnA4NGVPw1pSQ97EHOexFK0Go6+8i
+	 a1n9Bcihme/zxksDWQ6uLkmwKGjltVZpT1CPlQ5H/Dkznf1S+vSGLVZOz5HQELvcfq
+	 3nFPrCy1e3mckBuLTa82Xkzu9hFQe4CerkhMZgpGDhOa7Avqzw+x2qhK4zh6NLnVav
+	 LbgSVKQVUnm/OkHcEFeqv3Ni8uyCKgh1OnW8d6SaTEpAmud8i33LWIblqzwGWAr8MO
+	 nKYHcXdsl8w3g==
+Received: from [192.168.177.146] (mjtthink.wg.tls.msk.ru [192.168.177.146])
+	by isrv.corpit.ru (Postfix) with ESMTP id 4F7191BF461;
+	Wed, 08 Jul 2026 13:37:27 +0300 (MSK)
+Message-ID: <3e31b38c-0561-4f37-b2c4-97c10e6f232f@tls.msk.ru>
+Date: Wed, 8 Jul 2026 13:37:26 +0300
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
-Content-Type: text/plain; charset=US-ASCII
-X-SA-Exim-Connect-IP: 185.219.108.64
-X-SA-Exim-Rcpt-To: seiden@linux.ibm.com, kvm@vger.kernel.org, kvmarm@lists.linux.dev, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, agordeev@linux.ibm.com, gra@linux.ibm.com, arnd@arndb.de, catalin.marinas@arm.com, borntraeger@linux.ibm.com, imbrenda@linux.ibm.com, david@kernel.org, fritz@linux.ibm.com, ggala@linux.ibm.com, hari55@linux.ibm.com, hca@linux.ibm.com, brueckner@linux.ibm.com, iii@linux.ibm.com, frankja@linux.ibm.com, joey.gouly@arm.com, nrb@linux.ibm.com, oss@nina.schoetterlglausch.eu, oupton@kernel.org, pbonzini@redhat.com, suzuki.poulose@arm.com, svens@linux.ibm.com, Ulrich.Weigand@de.ibm.com, gor@linux.ibm.com, will@kernel.org, yuzenghui@huawei.com
-X-SA-Exim-Mail-From: maz@kernel.org
-X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v11 01/21] target/s390x: Fix wrong address handling in
+ address loops
+To: Harald Freudenberger <freude@linux.ibm.com>,
+ richard.henderson@linaro.org, iii@linux.ibm.com, david@kernel.org,
+ thuth@redhat.com, berrange@redhat.com
+Cc: qemu-s390x@nongnu.org, qemu-devel@nongnu.org, linux-s390@vger.kernel.org,
+ dengler@linux.ibm.com, borntraeger@linux.ibm.com, fcallies@linux.ibm.com,
+ cohuck@redhat.com, qemu-stable <qemu-stable@nongnu.org>
+References: <20260707161815.40919-1-freude@linux.ibm.com>
+ <20260707161815.40919-2-freude@linux.ibm.com>
+Content-Language: en-US, ru-RU
+From: Michael Tokarev <mjt@tls.msk.ru>
+Autocrypt: addr=mjt@tls.msk.ru; keydata=
+ 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
+In-Reply-To: <20260707161815.40919-2-freude@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Mon, 06 Jul 2026 09:52:25 +0100,
-Steffen Eiden <seiden@linux.ibm.com> wrote:
+On 07.07.2026 19:17, Harald Freudenberger wrote:
+> The loop increments addr by the element stride (+= 4) before calling
+> wrap_address, but then overwrites the loop addr with the wrapped
+> value. On the next iteration the stride is applied to the wrapped
+> address of the previous element, not to the original unwrapped
+> address. This results in every element after the first is read from a
+> wrong (wrapped) address.
 > 
-> +static void adjust_pc(struct kvm_vcpu *vcpu)
-> +{
-> +	if (vcpu_get_flag(vcpu, INCREMENT_PC)) {
-> +		kvm_skip_instr(vcpu);
-> +		vcpu_clear_flag(vcpu, INCREMENT_PC);
-> +	}
-> +}
+> Fixes: 9f17bfdab4 ("target/s390x: support SHA-512 extensions")
+> Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
+> ---
+>   target/s390x/tcg/crypto_helper.c | 12 ++++--------
+>   1 file changed, 4 insertions(+), 8 deletions(-)
 
-Can you clarify the semantics of adjust_pc() here? arm64 also deals
-with exceptions in the same code, and I wonder how you deal with this.
-
-> +
-> +static void arm_vcpu_run(struct kvm_vcpu *vcpu)
-> +{
-> +	struct kvm_sae_block *sae_block = &vcpu->arch.sae_block;
-> +
-> +	adjust_pc(vcpu);
-> +
-> +	local_irq_disable();
-> +	guest_enter_irqoff();
-> +	local_irq_enable();
-> +
-> +	sae_block->icptr = 0;
-> +
-> +	sae64a(sae_block);
-> +
-> +	local_irq_disable();
-> +	guest_exit_irqoff();
-> +	local_irq_enable();
-> +}
-> +
-> +/** kvm_arch_vcpu_ioctl_run() - run arm64 vCPU
-> + *
-> + * Execute arm64 guest instructions using SAE.
-> + *
-> + * Returns:
-> + * 1 enter the guest (should not be observed by userspace)
-> + * 0 exit to userspace
-> + * < 0 exit to userspace, where the return value indicates n error
-> + *
-> + *
-> + */
-> +int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu)
-> +{
-> +	DECLARE_KERNEL_FPU_ONSTACK32(fpu_save);
-> +	struct kvm_run *kvm_run = vcpu->run;
-> +	int ret;
-> +
-> +	if (kvm_run->exit_reason == KVM_EXIT_MMIO) {
-> +		ret = kvm_handle_mmio_return(vcpu);
-> +		if (ret <= 0)
-> +			return ret;
-> +	}
-> +
-> +	vcpu_load(vcpu);
-> +
-> +	kernel_fpu_begin(&fpu_save, KERNEL_FPC | KERNEL_VXR);
-> +	load_vx_regs((vcpu->arch.ctxt.vregs));
-> +
-> +	if (!vcpu->wants_to_run) {
-> +		ret = -EINTR;
-> +		goto out;
-> +	}
-> +
-> +	kvm_sigset_activate(vcpu);
-> +
-> +	might_fault();
-> +
-> +	ret = 1;
-> +	do {
-> +		if (signal_pending(current)) {
-> +			kvm_run->exit_reason = KVM_EXIT_INTR;
-> +			ret = -EINTR;
-> +			continue;
-> +		}
-> +
-> +		if (need_resched())
-> +			schedule();
-> +
-> +		if (ret > 0)
-> +			ret = check_vcpu_requests(vcpu);
-> +
-> +		vcpu->arch.sae_block.icptr = 0;
-> +
-> +		arm_vcpu_run(vcpu);
-> +
-> +		ret = handle_exit(vcpu);
-> +
-> +	} while (ret > 0);
-> +
-> +	kvm_sigset_deactivate(vcpu);
-> +out:
-> +	if (unlikely(vcpu_get_flag(vcpu, INCREMENT_PC)))
-> +		adjust_pc(vcpu);
-
-arm64 has the following statements:
-
-	if (unlikely(vcpu_get_flag(vcpu, PENDING_EXCEPTION) ||
-		     vcpu_get_flag(vcpu, INCREMENT_PC)))
-		kvm_call_hyp(__kvm_adjust_pc, vcpu);
-
-It isn't clear to me why you can afford not to deal with pending
-exceptions when returning to userspace.
+This feels like qemu-stable material.
+I'm picking this change up for currently active stable qemu series.
+Please let me know if I shouldn't.
 
 Thanks,
 
-	M.
-
--- 
-Jazz isn't dead. It just smells funny.
+/mjt
