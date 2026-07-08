@@ -1,134 +1,111 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 56C3641CB46
-	for <linux-s390@vger.kernel.org>; Wed,  8 Jul 2026 15:38:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1376B331A78
+	for <linux-s390@vger.kernel.org>; Wed,  8 Jul 2026 15:47:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783525124; cv=none; b=de9IoPxyVnwM3BQfAgcvzRsFBU95JAgMaSthLrZ6ikk+801w7oGguxoLhgw2FtZNMqoj0vJNmhz+5I0/vZfFkCWpS1Pqd6hAKUDHj9NgzEGCB+xMJBFS1qH7c29uqy+lRH36MSkQH4PFY0HbdsVNtgkqkKnmg8XtYPZk4M9pnC0=
+	t=1783525625; cv=none; b=G7/g05WkPmA91aWFV0hVbPmMzKFVSAPVUIK3au316SH3OKTm04v/Vf6ARZoPx3xN/XDAg8qxitaehQj7GMv27Nu96Ire1zNcSVDQ7wzmzChmZe1/2eKjcJpV1uJ/FgDclDawc4vRrWya+J8LCW9862fE13+j0+caZv7P/gj3F38=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783525124; c=relaxed/simple;
-	bh=J0abimNOSxxIeTntrBcjIV3CunZWyrhvafRoqRfP8fU=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=hV9ULkeew0ISNWaZpb2ME1RMBaJcMVOljfnqZNhvKqmJHQoqIoUG3XDLIO1w2UX2HMDX63zFQBNFJBqs+zTSbqY57WvL/HzI4QaAc3qqhuQ/ECvZLWCI6toBFCf1r0Iumah85RmMQEnjboLnAqC/06sIviI/E3kRlcWLZ75yjOo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fR5vkIWn; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1783525625; c=relaxed/simple;
+	bh=Va2IGzeVOAPTHMa4DaH+yWHwp2fTjUY5mobPTHVuW/k=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=KLWVpLca+5vYlWBh5h+3usx2T4hZnKiR8nedk4SbKAcnsBUrLs73DMjct1VmRlRLDzvngdrQ8pFbpSM4DHx/Q00MNmbnENtkkgmVjcHy+XcAV5oP4Qy9yRBMdcW/Jafg8N/doVtxm0GqbJZ169Tncxaq8gMcQiBFrb5WVX95Bn0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=GDKGisZ7; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fR5vkIWn"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93C111F00A3F;
-	Wed,  8 Jul 2026 15:38:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783525122;
-	bh=h+IqMSnRUgv2J54WmZJHir72YK5D4WY6VBExYHYK1uA=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=fR5vkIWn2etZLjF1+LHhMC+Na1NrCaAdO3oMI+G0J9hIr39vQRcWOro28aaUvyUS1
-	 EVFAxOhsIyiZc4oyT5WftoeOnSnDxBmfz5I3xVeRRyS9WNK/tH+Uf2az/JJ5jW9aZk
-	 4Z9mV82s3xLLXq4cr264NTpH5HV+tT9/eC8dO+JqN96BM4jzDW7n5vQOxlckTKqwdd
-	 1tc3coIxMCDUzIZjXkBdfg3r8i7VedD2AmY+IWF7+h64udve9v7jjNjhbqWt/9j61S
-	 dfn7rVM2WIHkwQI44PSyLiDktVHTQqEfYccixfCbfEgMx/nXt1QDiPn542o6JQbNwJ
-	 H/5GPG/ckD4OQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 07/10] x86/mm: remove CONFIG_HAVE_BOOTMEM_INFO_NODE
-Reply-To: sashiko-reviews@lists.linux.dev
-To: =?utf-8?b?RGF2aWQgSGlsZGVuYnJhbmQgKEFybSk=?= <david@kernel.org>
-Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
- Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
-In-Reply-To: <20260708-bootmem_info_part2-v1-7-156ce4986598@kernel.org>
-References: <20260708-bootmem_info_part2-v1-0-156ce4986598@kernel.org>
- <20260708-bootmem_info_part2-v1-7-156ce4986598@kernel.org>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 08 Jul 2026 15:38:41 +0000
-Message-Id: <20260708153842.93C111F00A3F@smtp.kernel.org>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="GDKGisZ7"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1783525623;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Va2IGzeVOAPTHMa4DaH+yWHwp2fTjUY5mobPTHVuW/k=;
+	b=GDKGisZ7tRx/ACD9ETXSaJGFF0oG7rImnn27ivc+mEJm6bIwablasI5js1yBAYafaMayvX
+	z400iNdCON6c+FEznJ7B2q7dVN13Bk3ekPTbTjSL40zcScMX0e1Y9i0OAP03IzElvowxKW
+	m5C5lSUvLnyuykUBAme5LlFnj4NFq0Q=
+Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-660-M2lrH6tYOsC5ufvFITf8jA-1; Wed,
+ 08 Jul 2026 11:46:57 -0400
+X-MC-Unique: M2lrH6tYOsC5ufvFITf8jA-1
+X-Mimecast-MFC-AGG-ID: M2lrH6tYOsC5ufvFITf8jA_1783525612
+Received: from mx-prod-int-10.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-10.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.95])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 391341956060;
+	Wed,  8 Jul 2026 15:46:48 +0000 (UTC)
+Received: from fedora (unknown [10.44.33.83])
+	by mx-prod-int-10.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with SMTP id 668DD31D2;
+	Wed,  8 Jul 2026 15:46:27 +0000 (UTC)
+Received: by fedora (nbSMTP-1.00) for uid 1000
+	oleg@redhat.com; Wed,  8 Jul 2026 17:46:47 +0200 (CEST)
+Date: Wed, 8 Jul 2026 17:46:24 +0200
+From: Oleg Nesterov <oleg@redhat.com>
+To: Thomas Gleixner <tglx@kernel.org>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Richard Henderson <richard.henderson@linaro.org>,
+	Vineet Gupta <vgupta@kernel.org>,
+	Russell King <linux@armlinux.org.uk>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>,
+	Brian Cain <bcain@kernel.org>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	Michal Simek <monstr@monstr.eu>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Dinh Nguyen <dinguyen@kernel.org>, Helge Deller <deller@gmx.de>,
+	Yoshinori Sato <ysato@users.sourceforge.jp>,
+	"David S. Miller" <davem@davemloft.net>,
+	Andreas Larsson <andreas@gaisler.com>,
+	Chris Zankel <chris@zankel.net>, linux-alpha@vger.kernel.org,
+	linux-snps-arc@lists.infradead.org,
+	linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+	linux-hexagon@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
+	linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
+	linux-parisc@vger.kernel.org, linux-sh@vger.kernel.org,
+	sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
+	linux-arch@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
+	Shrikanth Hegde <sshegde@linux.ibm.com>,
+	linuxppc-dev@lists.ozlabs.org, Kees Cook <kees@kernel.org>,
+	Huacai Chen <chenhuacai@kernel.org>, loongarch@lists.linux.dev,
+	Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
+	linux-riscv@lists.infradead.org,
+	Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org,
+	x86@kernel.org, Mark Rutland <mark.rutland@arm.com>,
+	Jinjie Ruan <ruanjinjie@huawei.com>,
+	Andy Lutomirski <luto@kernel.org>,
+	Richard Weinberger <richard@nod.at>,
+	Michal =?iso-8859-1?Q?Such=E1nek?= <msuchanek@suse.de>,
+	Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org
+Subject: Re: [patch 12/18] ptrace, treewide: Rename
+ ptrace_report_syscall_entry() to ptrace_report_syscall_permit_entry()
+Message-ID: <ak5w0KB_x2P4G3rd@redhat.com>
+References: <20260707181957.433213175@kernel.org>
+ <20260707190254.280015701@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260707190254.280015701@kernel.org>
+X-Scanned-By: MIMEDefang 3.6 on 10.30.177.95
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
+On 07/07, Thomas Gleixner wrote:
+>
+> The return value of that function is boolean and tells the caller whether
+> to permit the syscall processing or not.
+>
+> Rename the function so the purpose is clear and make the return type bool.
 
-New issues:
-- [Medium] Incomplete feature removal leaves behind dead code.
+Just in case,
 
-Pre-existing issues:
-- [High] Page tables and vmemmap target pages are freed to the buddy alloca=
-tor before their page table entries are cleared, causing a Use-After-Free r=
-ace with hardware page table walkers.
---
+Acked-by: Oleg Nesterov <oleg@redhat.com>
 
---- Patch [7]: [PATCH 07/10] x86/mm: remove CONFIG_HAVE_BOOTMEM_INFO_NODE -=
---
-commit 4f73978273a221d985e72d75af30f38db0280de6
-Author: David Hildenbrand (Arm) <david@kernel.org>
-
-x86/mm: remove CONFIG_HAVE_BOOTMEM_INFO_NODE
-   =20
-CONFIG_HAVE_BOOTMEM_INFO_NODE now essentially doesn't do anything.
-So let's remove support for CONFIG_HAVE_BOOTMEM_INFO_NODE.
-
-> diff --git a/arch/x86/mm/init_64.c b/arch/x86/mm/init_64.c
-> index 1b17dcf781e66..ab4c5a02326f7 100644
-> --- a/arch/x86/mm/init_64.c
-> +++ b/arch/x86/mm/init_64.c
-
-[ ... ]
-
-> diff --git a/mm/Kconfig b/mm/Kconfig
-> index f794a341d7422..592003a258bad 100644
-> --- a/mm/Kconfig
-> +++ b/mm/Kconfig
-> @@ -590,7 +590,6 @@ endchoice
-> =20
->  config MEMORY_HOTREMOVE
->  	bool "Allow for memory hot remove"
-> -	select HAVE_BOOTMEM_INFO_NODE if X86_64
-
-[Severity: Medium]
-Since the intention of this commit is to remove support for=20
-CONFIG_HAVE_BOOTMEM_INFO_NODE, should the definition of the config itself=20
-also be deleted?
-
-Currently, `config HAVE_BOOTMEM_INFO_NODE` remains in mm/Kconfig as a dead=
-=20
-`def_bool n` option. Additionally, `mm/bootmem_info.c` and its build rule=20
-`obj-$(CONFIG_HAVE_BOOTMEM_INFO_NODE) +=3D bootmem_info.o` in mm/Makefile a=
-re=20
-left behind as dead code.
-
->  	depends on MEMORY_HOTPLUG
->  	select MIGRATION
-> =20
-
-[Severity: High]
-This isn't a bug introduced by this patch, but while reviewing the memory=20
-hot-remove code in arch/x86/mm/init_64.c, I noticed that page tables and=20
-vmemmap target pages appear to be freed to the buddy allocator before their=
-=20
-page table entries are actually cleared.
-
-In arch/x86/mm/init_64.c:free_pte_table():
-
-	/* free a pte table */
-	free_pagetable(pmd_page(*pmd));
-	spin_lock(&init_mm.page_table_lock);
-	pmd_clear(pmd);
-
-And similarly in arch/x86/mm/init_64.c:remove_pte_table():
-
-			if (!direct)
-				/* We never populate base pages from the altmap. */
-				free_vmemmap_pages(pte_page(*pte), 0, NULL);
-
-			spin_lock(&init_mm.page_table_lock);
-			pte_clear(&init_mm, addr, pte);
-
-Does this open a use-after-free race window where hardware page table walke=
-rs=20
-or speculative execution could access the recently-freed memory and interpr=
-et=20
-arbitrary data as page tables before the clear operation completes?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260708-bootmem_in=
-fo_part2-v1-0-156ce4986598@kernel.org?part=3D7
