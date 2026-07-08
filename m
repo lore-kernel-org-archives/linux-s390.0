@@ -1,123 +1,156 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CDB2B3A718D
-	for <linux-s390@vger.kernel.org>; Wed,  8 Jul 2026 07:01:10 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 16BC23F888B;
+	Wed,  8 Jul 2026 07:36:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783494080; cv=none; b=LxiuffF/C9892VXXWbmazvqEhy2t5Vcntv8yeZyV3WcGkNPPfAbOKzRLWm+dJe0gg5t7xHtyiB2hipWNCEtNroQYcFEvpGlwmiyQyuqyO9UAfFhbl10j2/1vhG7TnSt3z50vN+KYrB5mqKRMRoyZCpUvsT89Y1C715gHuoKrl8E=
+	t=1783496194; cv=none; b=JvN8oOxLReG0wen9aFBm4OzNmPe7dsBgy0FJ94tVEaykV36rvAR00xJ0WqklkgOkdxlHfYqS111DAZ7etGmhn1bBpZyTIFjmnOwYeYZ6s7UvCO3I2z6vguATgDAy0W77M19Nbyg1CDZUe05rNg5jKuIfKDxAFxSgoP6oIkluS20=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783494080; c=relaxed/simple;
-	bh=SwjlTLK+s1S6gQKUeZHZfWKu/MNsc9Zp+JgjLNZFKao=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=bpbXWXB7EnJW9uASaBLRKLfv/Zw1uAjKKASjTuIncIiVbzyYF39Or4Oy2PBeiajOL1iBGaLiQEfXOV10SrRawp9jRx9U8fb7VDUjlY1T9bVtuKfEj28F3dnA1ELWvV03ZHUD1UWhI9ESnuWLrGL05Eapq2rPXnMXZWIH0mpVEww=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hp+543sl; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1783496194; c=relaxed/simple;
+	bh=GkSu0T/j1EigHEvHkz4OfSe+5dY8ZtTvL5k3rcGsVg0=;
+	h=Date:Message-ID:From:To:Cc:Subject:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=Bh7Mi6kct4YIDw+Xej9iMp3DFn+oKGz1Ejl5eB1m6L8NGipKw397Q7s+MQkqSJvEMa+Sq4koQsS+EytmEVLXlVia69elZB9yzRa7zvZYpg+rmMJmWjsy7iY12Wk8Vc8GK3xWRZgsz2xQla5yUbcAetJSNOKpdsSGYenalaivuoo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Ip4NvB47; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hp+543sl"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2EBEC1F000E9;
-	Wed,  8 Jul 2026 07:01:04 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Ip4NvB47"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D24431F000E9;
+	Wed,  8 Jul 2026 07:36:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783494064;
-	bh=GlOTQXcGwGTa4FomG2Z8BU/YVbuYbTNCnSGfGBycb7Q=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=hp+543slQDp7aws0GPS2/9CVc9lwhv1AjfcLPYKxzADt6Qpz98usYDk2f64Id1T2c
-	 yOgPXYbvLtzNQJMEhU6x0YoUOyZh9LLgmT3oii+zoXEcdHR78fEQgsM5+puYcciPvN
-	 MqkGpDWrm5xTDni2pK4awTOZsClSNO7bUe8Bv5wAC26RDKPU+5Kes0SuKLnSWeYvkJ
-	 cBFNvYsL2/XDWSyeCtyplukS+7C63BDdXmFtj+e6kt4+1X8OTKI2kNa1fg7giHjuSK
-	 R/2BSjUKdFqlsu1g7Wawrl8vxJ0WDdD/dDrB23DIo50XDcNPHSPkEPjG4huu/W6Uye
-	 hefMcyaRwsOmQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH net] net/iucv: fix use-after-free of a severed iucv_path
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Bryam Vargas" <hexlabsecurity@proton.me>
-Cc: "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
- Carstens" <hca@linux.ibm.com>
-In-Reply-To: <20260707-b4-disp-783fedbb-v1-1-463b9dbda2ea@proton.me>
-References: <20260707-b4-disp-783fedbb-v1-1-463b9dbda2ea@proton.me>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 08 Jul 2026 07:01:03 +0000
-Message-Id: <20260708070104.2EBEC1F000E9@smtp.kernel.org>
+	s=k20260515; t=1783496177;
+	bh=xls0ncCjyWcLCH10SsoXeKirDHltIOo0E/jR/8APp6g=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References;
+	b=Ip4NvB47gbOwipZa0QyaFhGhU4Vm+o/21PVfALYlAyU6X0qJyBv4zSdlp/zMVzpOM
+	 BTI3YYYMtX3GtDTOvAalB+L3bvT11rvpKtqt7d6LHlu+NX5opY4w+bJSIZW02QITLn
+	 /3dQC6ZjeWlTa+WoM5tyjJI2XGPyha02Vo21UBZUd6lZm4z1OJ976CmocY7Yi2FI1N
+	 QcS7aTomqtppnG+LbYRUdzOarl/452D7tERIU83hgc7aLI5g+fVUjCJuDBBzLJU0BS
+	 MJDitX2DWqgbP+PQ1j2dHuodEFH5RLddS2fFDwdb6wVCv8xD2uOuD56qeXgcW8g6UH
+	 ACxJKR8XzLxJg==
+Received: from sofa.misterjones.org ([185.219.108.64] helo=goblin-girl.misterjones.org)
+	by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98.2)
+	(envelope-from <maz@kernel.org>)
+	id 1whMpL-00000002hwZ-1cyF;
+	Wed, 08 Jul 2026 07:36:15 +0000
+Date: Wed, 08 Jul 2026 08:36:14 +0100
+Message-ID: <861pdeorv5.wl-maz@kernel.org>
+From: Marc Zyngier <maz@kernel.org>
+To: Steffen Eiden <seiden@linux.ibm.com>
+Cc: kvm@vger.kernel.org,
+	kvmarm@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Andreas Grapentin <gra@linux.ibm.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Claudio Imbrenda <imbrenda@linux.ibm.com>,
+	David Hildenbrand <david@kernel.org>,
+	Friedrich Welter <fritz@linux.ibm.com>,
+	Gautam Gala <ggala@linux.ibm.com>,
+	Hariharan Mari <hari55@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Hendrik Brueckner <brueckner@linux.ibm.com>,
+	Ilya Leoshkevich <iii@linux.ibm.com>,
+	Janosch Frank <frankja@linux.ibm.com>,
+	Joey Gouly <joey.gouly@arm.com>,
+	Nico Boehr <nrb@linux.ibm.com>,
+	Nina Schoetterl-Glausch <oss@nina.schoetterlglausch.eu>,
+	Oliver Upton <oupton@kernel.org>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Suzuki K Poulose <suzuki.poulose@arm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Ulrich Weigand <Ulrich.Weigand@de.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Will Deacon <will@kernel.org>,
+	Zenghui Yu <yuzenghui@huawei.com>
+Subject: Re: [PATCH v4 24/27] KVM: s390: arm64: Implement vm/vcpu create destroy.
+In-Reply-To: <20260708065150.583632-C-seiden@linux.ibm.com>
+References: <20260706085229.979525-1-seiden@linux.ibm.com>
+	<20260706085229.979525-25-seiden@linux.ibm.com>
+	<8633xuq1ic.wl-maz@kernel.org>
+	<20260708065150.583632-C-seiden@linux.ibm.com>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
+ FLIM-LB/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL-LB/10.8 EasyPG/1.0.0 Emacs/30.1
+ (aarch64-unknown-linux-gnu) MULE/6.0 (HANACHIRUSATO)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
+Content-Type: text/plain; charset=US-ASCII
+X-SA-Exim-Connect-IP: 185.219.108.64
+X-SA-Exim-Rcpt-To: seiden@linux.ibm.com, kvm@vger.kernel.org, kvmarm@lists.linux.dev, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, agordeev@linux.ibm.com, gra@linux.ibm.com, arnd@arndb.de, catalin.marinas@arm.com, borntraeger@linux.ibm.com, imbrenda@linux.ibm.com, david@kernel.org, fritz@linux.ibm.com, ggala@linux.ibm.com, hari55@linux.ibm.com, hca@linux.ibm.com, brueckner@linux.ibm.com, iii@linux.ibm.com, frankja@linux.ibm.com, joey.gouly@arm.com, nrb@linux.ibm.com, oss@nina.schoetterlglausch.eu, oupton@kernel.org, pbonzini@redhat.com, suzuki.poulose@arm.com, svens@linux.ibm.com, Ulrich.Weigand@de.ibm.com, gor@linux.ibm.com, will@kernel.org, yuzenghui@huawei.com
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
+On Wed, 08 Jul 2026 07:51:50 +0100,
+Steffen Eiden <seiden@linux.ibm.com> wrote:
+> 
+> On Tue, Jul 07, 2026 at 04:10:19PM +0100, Marc Zyngier wrote:
+> > On Mon, 06 Jul 2026 09:52:24 +0100,
+> > Steffen Eiden <seiden@linux.ibm.com> wrote:
+> > > 
+> > > Implement init and destroy IOCTLS for vcpu and vm.
+> > > Implement arch vm IOCTL. Use s390 gmap.
+> > > 
+> > > Co-developed-by: Janosch Frank <frankja@linux.ibm.com>
+> > > Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> > > Co-developed-by: Andreas Grapentin <gra@linux.ibm.com>
+> > > Signed-off-by: Andreas Grapentin <gra@linux.ibm.com>
+> > > Co-developed-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+> > > Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+> > > Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
+> > > ---
+> > >  arch/s390/kvm/arm64/arm.c       | 190 ++++++++++++++++++++++++++++++++
+> > >  arch/s390/kvm/arm64/arm.h       |  56 ++++++++++
+> > >  arch/s390/kvm/gmap/faultin.c    |   5 +
+> > >  arch/s390/kvm/gmap/gmap.c       |   4 +
+> > >  arch/s390/kvm/gmap/trace-gmap.h |  13 +++
+> > >  5 files changed, 268 insertions(+)
+> > > 
+> > > diff --git a/arch/s390/kvm/arm64/arm.c b/arch/s390/kvm/arm64/arm.c
+> > > index 19249ec5c539..3a4092698fae 100644
+> > > --- a/arch/s390/kvm/arm64/arm.c
+> > > +++ b/arch/s390/kvm/arm64/arm.c
+> > > @@ -8,6 +8,10 @@
+> > >  #include <linux/kvm_types.h>
+> > >  #include <linux/kvm_host.h>
+> > >  
+> > > +#include <arm64/kvm_mmu.h>
+> > > +
+> > > +#include <gmap.h>
+> > > +
+> > >  #include "arm.h"
+> > >  
+> > >  static unsigned long system_supported_vcpu_features(void);
+> > > @@ -31,6 +35,7 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
+> > >  		break;
+> > >  	case KVM_CAP_IOEVENTFD:
+> > >  	case KVM_CAP_ARM_USER_IRQ:
+> > > +	case KVM_CAP_PRE_FAULT_MEMORY:
+> > 
+> > arm64 *doesn't* support this yet. Please make sure you don't deviate
+> > from what arm64 currently supports.
+> >
+> 
+> I hoped the corresponding arm64 series is merged when we got this :) 
 
-Pre-existing issues:
-- [High] Concurrent Use-After-Free of `iucv_path` due to incorrect ordering=
- of queue cleanup and path freeing in `iucv_sever_path()`.
---
+If the quality of the previous postings of that series is anything to
+go by, I doubt this will be merged on this side of the death of the
+universe.
 
---- Patch [1]: [PATCH net] net/iucv: fix use-after-free of a severed iucv_p=
-ath ---
-commit 9139c973711b1b0860aa18a8e778aceb20d5b1dd
-Author: Bryam Vargas <hexlabsecurity@proton.me>
+> I will remove this advertisement. I'll keep the implementation as the compiler
+> expect that function to be present anyways, as native s390 KVM now implements
+> this CAP. OK? 
 
-net/iucv: fix use-after-free of a severed iucv_path
+As long as the code isn't reachable from the arm64 side, that's fine
+by me.
 
-This commit drops queued message notifications in iucv->message_q when an
-IUCV path is severed. It acquires the message_q.lock and frees any remaining
-notifications that reference the severed path to prevent use-after-free
-during a later recvmsg().
+	M.
 
-Closes: https://sashiko.dev/#/patchset/20260705-b4-disp-fc79c0dc-v1-1-d2cdc=
-b57afa9@proton.me?part=3D1
-
-> diff --git a/net/iucv/af_iucv.c b/net/iucv/af_iucv.c
-> index fed240b453bd9..2869a103f7fa2 100644
-> --- a/net/iucv/af_iucv.c
-> +++ b/net/iucv/af_iucv.c
-
-[ ... ]
-
-> @@ -348,6 +349,19 @@ static void iucv_sever_path(struct sock *sk, int wit=
-h_user_data)
->  		} else
->  			pr_iucv->path_sever(path, NULL);
->  		iucv_path_free(path);
-
-[Severity: High]
-This is a pre-existing issue, but does freeing the path before clearing
-the queue leave a race window for a concurrent receive?
-
-If a concurrent recvmsg() is running, it could acquire the message_q.lock
-and pop a notification containing the freed path pointer before we acquire
-the lock here to clear the queue:
-
-CPU1 in iucv_sever_path():
-    iucv_path_free(path);
-    // preempted or delayed before acquiring message_q.lock
-           =20
-CPU2 in iucv_sock_recvmsg():
-    // pops notification from message_q
-    iucv_process_message_q()
-        iucv_process_message(sk, skb, p->path, &p->msg);
-            __iucv_message_receive()
-                parm->db.ippathid =3D path->pathid; // use-after-free read
-                       =20
-Would it be safer to move iucv_path_free(path) after the spin_unlock_bh
-block that drops the queued notifications?
-
-> +
-> +		/*
-> +		 * Message notifications queued on message_q still reference
-> +		 * the now freed path; drop them, otherwise a later recvmsg()
-> +		 * would pass the freed iucv_path to message_receive() via
-> +		 * iucv_process_message_q().
-> +		 */
-> +		spin_lock_bh(&iucv->message_q.lock);
-> +		list_for_each_entry_safe(p, n, &iucv->message_q.list, list) {
-> +			list_del(&p->list);
-> +			kfree(p);
-> +		}
-> +		spin_unlock_bh(&iucv->message_q.lock);
->  	}
->  }
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260707-b4-disp-78=
-3fedbb-v1-1-463b9dbda2ea@proton.me?part=3D1
+-- 
+Without deviation from the norm, progress is not possible.
