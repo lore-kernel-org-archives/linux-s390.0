@@ -1,143 +1,243 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mail.mindbit.ro (xs1.mindbit.ro [80.86.107.70])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 302003E8C6A
-	for <linux-s390@vger.kernel.org>; Wed,  8 Jul 2026 21:18:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D4D63F39D3;
+	Wed,  8 Jul 2026 21:21:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.86.107.70
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783545506; cv=none; b=SvcU4BiPq2JEZd/Jwgn5N8LMQookeocq41aEYMnJCUjfow4s4HxAy1mBNxgfRGrkgcolliloxU79eSqaOmOC4hndIVRxXw7/elfvgEvyv6fP11v1GIgvOxEilDQ5R99mkn+0ArWht4mIMFAbptVb57kVEm0Dv1DEaZRFJXsCq/I=
+	t=1783545712; cv=none; b=u/gO+z4qePqq5xo28Gb4af6A83kgyDleUIrBSB5jaRG8s9rzVigEwqFx1cb8RzcvKiyipNrqmWuXl7jyE3th7B4pU7HLbyUt1/EfrS+FJbfHSqbTbKgkbyvUOH4icwiAJv3r4zJ5cmxidMEpquuDINtNhSsCFF17D/mQgmKZn8Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783545506; c=relaxed/simple;
-	bh=/yf86s+VjDN6zg68B/grd6BOMs4viFCbAkNex3o3AKU=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=SFb4bqyv6p4d2BGlmq9gvDPTN3Oi/cZMbtZoRl2gaUk/Zu8cmgsb0zLllX7Bbnkll9PDVblN9Ow3FpmI1LF5FgF+mMhW6+MAgiyjZ4MX9m5n3PpWkk1L0RCxfT4khDJUAr5ukhytozdL7Hj+M0eDBDEvHg9YcHidXEr698M4aZA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ij1oKLvn; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1783545712; c=relaxed/simple;
+	bh=gA90Ha6tpVTtSvyChMKd7EA+UzPuD3ZxiiumMcmVt04=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=n3I+6c3wzlboWQvrTup4gNdWrkLGWfQVMLi3yxVNWqKU7Sigtkw4SSKyCYecj0H+1r2dPt2xK+JLByuBQplhB7U9ezD0TtJ5gGgJq8vkP3Il2dOEH3HQ2cLO0ZnLetK3HB7woRpiQGkKz/a62/o5B0nQbGf7NJYulmKMmvrOBTs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=rendec.net; spf=pass smtp.mailfrom=rendec.net; dkim=pass (2048-bit key) header.d=rendec.net header.i=@rendec.net header.b=H73P2hvf; arc=none smtp.client-ip=80.86.107.70
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=rendec.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rendec.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ij1oKLvn"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7CB091F00ADF
-	for <linux-s390@vger.kernel.org>; Wed,  8 Jul 2026 21:18:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783545503;
-	bh=XHlK26iT5OTlGmvdsQr6aTlcJ71q9tfgFUQl/PoXZWA=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc;
-	b=ij1oKLvneDuoMo7g4aa7tnzEGSduqP/POFTYHBdxBZ815qZpk9LFbDgsAo0yCt8IU
-	 7IVs6w+zLmWUyetjrgBlg1w5iqaPlbRALMaZO8JW7hqU/1gvwTbxJwp4KOcWeGc63v
-	 75V4WotUCt8Dobg79gGG87lQ7nK03BdYhKAKjhYHR6XGEIrP/JoGdtP22AbbDvdmY9
-	 B/6r+YzOxZx43W7v+wiSMS40iikcKhYr6dIVP5FmzwUS2uq8+P91iQ4y6rs3YT1Lct
-	 RdWSXHuhozPhfIOsKn2saEE2M5xJTpuQM3JnOsppmQRmSqllqe3+hlGwET7HA3MA1T
-	 EVcF2gcOddPww==
-Received: by mail-ed1-f51.google.com with SMTP id 4fb4d7f45d1cf-699fbcd23ccso1741065a12.1
-        for <linux-s390@vger.kernel.org>; Wed, 08 Jul 2026 14:18:23 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AHgh+RpcleMP4Sag5iLEvQZMCoWKNR8ddxXrNYLzZCQuu1o8wygRsRQWKtzy0V5hz9X6gJo58gLZWaruPl2y@vger.kernel.org
-X-Gm-Message-State: AOJu0Yyj3pvW+nYxcuFiv/B9W8M8frLCa12in3i24jtQBBvi5DB+EVCc
-	opz6qUI2wfUo17HAY075ItZe5+0RNXLI/KxAWKg3hyMIqFdafONveDu0Mx7UYet1MPqwY7vsm3k
-	dn3visjnmwgBvmkY8xrcRIBIqHR5f8w==
-X-Received: by 2002:a17:907:a286:b0:c15:b6bd:cbb8 with SMTP id
- a640c23a62f3a-c15ce121a12mr190425566b.50.1783545501322; Wed, 08 Jul 2026
- 14:18:21 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=rendec.net header.i=@rendec.net header.b="H73P2hvf"
+Received: from bat.kanata.rendec.net (unknown [24.114.111.125])
+	by mail.mindbit.ro (Postfix) with ESMTPSA id 861B2C343F;
+	Thu,  9 Jul 2026 00:21:24 +0300 (EEST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mail.mindbit.ro 861B2C343F
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=rendec.net;
+	s=default; t=1783545706;
+	bh=kcBzFv6UQNpvLv0B/9fxsmBCsaF3luDIfOX4WPfJ0LI=;
+	h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
+	b=H73P2hvfJZwIoqeJMs+L8qKs84L6aXmcpvOfF+kp0m/siC+vpb3dmh5/rQGzQvZb1
+	 KAdLUM9HsIAVBSvQjur23GoqyvDR1vgkeRT+zXhGdund4eNITGlrejtsuhMxfFKCAR
+	 IZ2RR1YudeVpqiP4/BJTXsJStEaItfFAHRrFL/MeBdH47TYEEwHpIXXyM29AJ0RJba
+	 vDIsPAjX9g3lfxQFYB1UHQ6gSu4bIZDX60YvEcwW27AO+k2CzGxaM5EC7xOeYYIbCf
+	 SQX7lGJfXcy7EYovUwRvpU/bXxv/k8y5ltB87qAr3f6aIyyUbl73d4R/VmW3qRZE22
+	 yV9hYRdOWZEFg==
+Message-ID: <28fb0a8fd840bbf5223c60fea156584cb0f0f208.camel@rendec.net>
+Subject: Re: [patch 09/18] entry: Remove syscall_enter_from_user_mode()
+From: Radu Rendec <radu@rendec.net>
+To: Thomas Gleixner <tglx@kernel.org>, LKML <linux-kernel@vger.kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>, Michael Ellerman
+ <mpe@ellerman.id.au>,  Shrikanth Hegde <sshegde@linux.ibm.com>,
+ linuxppc-dev@lists.ozlabs.org, Kees Cook <kees@kernel.org>, Huacai Chen	
+ <chenhuacai@kernel.org>, loongarch@lists.linux.dev, Paul Walmsley
+ <pjw@kernel.org>,  Palmer Dabbelt <palmer@dabbelt.com>,
+ linux-riscv@lists.infradead.org, Sven Schnelle <svens@linux.ibm.com>, 
+	linux-s390@vger.kernel.org, x86@kernel.org, Mark Rutland
+ <mark.rutland@arm.com>,  Jinjie Ruan <ruanjinjie@huawei.com>, Andy
+ Lutomirski <luto@kernel.org>, Oleg Nesterov <oleg@redhat.com>,  Richard
+ Henderson <richard.henderson@linaro.org>, Russell King
+ <linux@armlinux.org.uk>, Catalin Marinas	 <catalin.marinas@arm.com>, Guo
+ Ren <guoren@kernel.org>, Geert Uytterhoeven	 <geert@linux-m68k.org>, Thomas
+ Bogendoerfer <tsbogend@alpha.franken.de>,  Helge Deller	 <deller@gmx.de>,
+ Yoshinori Sato <ysato@users.sourceforge.jp>, Richard Weinberger
+ <richard@nod.at>, Chris Zankel <chris@zankel.net>,
+ linux-arm-kernel@lists.infradead.org, 	linux-alpha@vger.kernel.org,
+ linux-csky@vger.kernel.org, 	linux-m68k@lists.linux-m68k.org,
+ linux-mips@vger.kernel.org, 	linux-parisc@vger.kernel.org,
+ linux-sh@vger.kernel.org, 	linux-um@lists.infradead.org, Arnd Bergmann
+ <arnd@arndb.de>, Vineet Gupta	 <vgupta@kernel.org>, Will Deacon
+ <will@kernel.org>, Brian Cain <bcain@kernel.org>,  Michal Simek
+ <monstr@monstr.eu>, Dinh Nguyen <dinguyen@kernel.org>, "David S. Miller"
+ <davem@davemloft.net>,  Andreas Larsson <andreas@gaisler.com>,
+ linux-snps-arc@lists.infradead.org, linux-hexagon@vger.kernel.org, 
+	linux-openrisc@vger.kernel.org, sparclinux@vger.kernel.org, 
+	linux-arch@vger.kernel.org, Michal =?ISO-8859-1?Q?Such=E1nek?=	
+ <msuchanek@suse.de>, Jonathan Corbet <corbet@lwn.net>, 
+	linux-doc@vger.kernel.org
+Date: Wed, 08 Jul 2026 17:21:19 -0400
+In-Reply-To: <20260707190254.132654198@kernel.org>
+References: <20260707181957.433213175@kernel.org>
+	 <20260707190254.132654198@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.58.3 (3.58.3-1.fc43) 
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260701-tegra-vpr-v3-0-d80f7b871bb4@nvidia.com>
- <20260701-tegra-vpr-v3-1-d80f7b871bb4@nvidia.com> <178293558945.1610040.13281502080616690110.robh@kernel.org>
- <akZde-8lFvf8rPji@orome>
-In-Reply-To: <akZde-8lFvf8rPji@orome>
-From: Rob Herring <robh@kernel.org>
-Date: Wed, 8 Jul 2026 16:18:10 -0500
-X-Gmail-Original-Message-ID: <CAL_JsqJCMm-oL35COx=agY+mwRUMMnRvbUgzPr5Hy9uvcPk0Dg@mail.gmail.com>
-X-Gm-Features: AUfX_mz5rhGcrunDpACqiF1Zhx-HBPPyHD0sxMJJ0YCYlPmg5dj7i6HAGao9icM
-Message-ID: <CAL_JsqJCMm-oL35COx=agY+mwRUMMnRvbUgzPr5Hy9uvcPk0Dg@mail.gmail.com>
-Subject: Re: [PATCH v3 01/11] dt-bindings: reserved-memory: Document Tegra VPR
-To: Thierry Reding <thierry.reding@kernel.org>
-Cc: Christian Borntraeger <borntraeger@linux.ibm.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, 
-	dri-devel@lists.freedesktop.org, David Hildenbrand <david@kernel.org>, 
-	Yury Norov <yury.norov@gmail.com>, linux-media@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, Robin Murphy <robin.murphy@arm.com>, 
-	Simona Vetter <simona@ffwll.ch>, linux-trace-kernel@vger.kernel.org, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>, 
-	linux-mm@kvack.org, Russell King <linux@armlinux.org.uk>, Will Deacon <will@kernel.org>, 
-	Masami Hiramatsu <mhiramat@kernel.org>, David Airlie <airlied@gmail.com>, 
-	Vasily Gorbik <gor@linux.ibm.com>, Benjamin Gaignard <benjamin.gaignard@collabora.com>, 
-	linaro-mm-sig@lists.linaro.org, Heiko Carstens <hca@linux.ibm.com>, 
-	Sumit Semwal <sumit.semwal@linaro.org>, Thierry Reding <treding@nvidia.com>, 
-	Maxime Ripard <mripard@kernel.org>, Thierry Reding <thierry.reding@gmail.com>, 
-	John Stultz <jstultz@google.com>, Luca Ceresoli <luca.ceresoli@bootlin.com>, 
-	Vlastimil Babka <vbabka@kernel.org>, Brian Starkey <Brian.Starkey@arm.com>, 
-	Mikko Perttunen <mperttunen@nvidia.com>, Michal Hocko <mhocko@suse.com>, 
-	Steven Rostedt <rostedt@goodmis.org>, Jonathan Hunter <jonathanh@nvidia.com>, 
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
-	Sowjanya Komatineni <skomatineni@nvidia.com>, Suren Baghdasaryan <surenb@google.com>, 
-	linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, 
-	devicetree@vger.kernel.org, "Liam R. Howlett" <liam@infradead.org>, 
-	linux-tegra@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>, 
-	Marek Szyprowski <m.szyprowski@samsung.com>, Conor Dooley <conor+dt@kernel.org>, 
-	Thomas Zimmermann <tzimmermann@suse.de>, Andrew Morton <akpm@linux-foundation.org>, 
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
-	Lorenzo Stoakes <ljs@kernel.org>, "T.J. Mercier" <tjmercier@google.com>, 
-	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, iommu@lists.linux.dev, 
-	Mike Rapoport <rppt@kernel.org>, Sven Schnelle <svens@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jul 2, 2026 at 7:58=E2=80=AFAM Thierry Reding <thierry.reding@kerne=
-l.org> wrote:
->
-> On Wed, Jul 01, 2026 at 02:53:10PM -0500, Rob Herring (Arm) wrote:
-> >
-> > On Wed, 01 Jul 2026 18:08:12 +0200, Thierry Reding wrote:
-> > > From: Thierry Reding <treding@nvidia.com>
-> > >
-> > > The Video Protection Region (VPR) found on NVIDIA Tegra chips is a
-> > > region of memory that is protected from CPU accesses. It is used to
-> > > decode and play back DRM protected content.
-> > >
-> > > It is a standard reserved memory region that can exist in two forms:
-> > > static VPR where the base address and size are fixed (uses the "reg"
-> > > property to describe the memory) and a resizable VPR where only the
-> > > size is known upfront and the OS can allocate it wherever it can be
-> > > accomodated.
-> > >
-> > > Reviewed-by: Rob Herring (Arm) <robh@kernel.org>
-> > > Signed-off-by: Thierry Reding <treding@nvidia.com>
-> > > ---
-> > > Changes in v2:
-> > > - add examples for fixed and resizable VPR
-> > > ---
-> > >  .../nvidia,tegra-video-protection-region.yaml      | 76 ++++++++++++=
-++++++++++
-> > >  1 file changed, 76 insertions(+)
-> > >
-> >
-> > My bot found errors running 'make dt_binding_check' on your patch:
-> >
-> > yamllint warnings/errors:
-> >
-> > dtschema/dtc warnings/errors:
-> > /builds/robherring/dt-review-ci/linux/Documentation/devicetree/bindings=
-/reserved-memory/nvidia,tegra-video-protection-region.example.dtb: protecte=
-d@2a8000000 (nvidia,tegra-video-protection-region): reg: [[2, 2818572288], =
-[0, 1879048192]] is too long
-> >       from schema $id: http://devicetree.org/schemas/reserved-memory/nv=
-idia,tegra-video-protection-region.yaml
-> > /builds/robherring/dt-review-ci/linux/Documentation/devicetree/bindings=
-/reserved-memory/nvidia,tegra-video-protection-region.example.dtb: protecte=
-d@2a8000000 (nvidia,tegra-video-protection-region): Unevaluated properties =
-are not allowed ('no-map', 'reg' were unexpected)
-> >       from schema $id: http://devicetree.org/schemas/reserved-memory/nv=
-idia,tegra-video-protection-region.yaml
->
-> Any ideas why that second error shows up? It turns out that it goes away
-> when the first one is fixed (which admittedly is a stupid mistake), but
-> I spent quite a bit of time looking for a fix before realizing that it's
-> only a side-effect of the first.
+On Tue, 2026-07-07 at 21:06 +0200, Thomas Gleixner wrote:
+> All architecture use either:
+>=20
+> =C2=A0=C2=A0=C2=A0 nr =3D enter_from_user_mode_randomize_stack(regs, nr);
 
-If a property fails validation in a referenced schema, then everything
-in that referenced schema is considered not evaluated. So then
-unevaluatedProperties is applied to the properties only in the
-referenced schema. That's why 'no-map' is also unevaluated. Just a
-quirk of how json-schema works...
+You probably mean syscall_enter_from_user_mode_randomize_stack.
 
-Rob
+>=20
+> or
+>=20
+> =C2=A0=C2=A0=C2=A0 enter_from_user_mode_randomize_stack(regs);
+> =C2=A0=C2=A0=C2=A0 nr =3D syscall_enter_from_user_mode_work(regs, nr);
+>=20
+> Remove the now unused function.
+>=20
+> Signed-off-by: Thomas Gleixner <tglx@kernel.org>
+> ---
+> =C2=A0Documentation/core-api/entry.rst |=C2=A0=C2=A0 17 +++++++++-------
+> =C2=A0include/linux/entry-common.h=C2=A0=C2=A0=C2=A0=C2=A0 |=C2=A0=C2=A0 =
+40 +++------------------------------------
+> =C2=A0include/linux/irq-entry-common.h |=C2=A0=C2=A0=C2=A0 6 ++---
+> =C2=A03 files changed, 17 insertions(+), 46 deletions(-)
+>=20
+> --- a/Documentation/core-api/entry.rst
+> +++ b/Documentation/core-api/entry.rst
+> @@ -68,7 +68,7 @@ low-level C code must not be instrumente
+> =C2=A0=C2=A0 noinstr void syscall(struct pt_regs *regs, int nr)
+> =C2=A0=C2=A0 {
+> =C2=A0	arch_syscall_enter(regs);
+> -	nr =3D syscall_enter_from_user_mode(regs, nr);
+> +	nr =3D syscall_enter_from_user_mode_randomize_stack(regs, nr);
+> =C2=A0
+> =C2=A0	instrumentation_begin();
+> =C2=A0	if (!invoke_syscall(regs, nr) && nr !=3D -1)
+> @@ -78,12 +78,14 @@ low-level C code must not be instrumente
+> =C2=A0	syscall_exit_to_user_mode(regs);
+> =C2=A0=C2=A0 }
+> =C2=A0
+> -syscall_enter_from_user_mode() first invokes enter_from_user_mode() whic=
+h
+> -establishes state in the following order:
+> +syscall_enter_from_user_mode_randomize_stack() first invokes
+> +enter_from_user_mode_randomize_stack() which establishes state in the
+> +following order:
+> =C2=A0
+> =C2=A0=C2=A0 * Lockdep
+> =C2=A0=C2=A0 * RCU / Context tracking
+> =C2=A0=C2=A0 * Tracing
+> +=C2=A0 * Apply stack randomization
+> =C2=A0
+> =C2=A0and then invokes the various entry work functions like ptrace, secc=
+omp, audit,
+> =C2=A0syscall tracing, etc. After all that is done, the instrumentable in=
+voke_syscall
+> @@ -99,10 +101,11 @@ that it invokes exit_to_user_mode() whic
+> =C2=A0=C2=A0 * RCU / Context tracking
+> =C2=A0=C2=A0 * Lockdep
+> =C2=A0
+> -syscall_enter_from_user_mode() and syscall_exit_to_user_mode() are also
+> -available as fine grained subfunctions in cases where the architecture c=
+ode
+> -has to do extra work between the various steps. In such cases it has to
+> -ensure that enter_from_user_mode() is called first on entry and
+> +syscall_enter_from_user_mode_randomize_stack() and
+> +syscall_exit_to_user_mode() are also available as fine grained subfuncti=
+ons
+> +in cases where the architecture code has to do extra work between the
+> +various steps. In such cases it has to ensure that
+> +enter_from_user_mode_randomize_stack() is called first on entry and
+> =C2=A0exit_to_user_mode() is called last on exit.
+> =C2=A0
+> =C2=A0Do not nest syscalls. Nested syscalls will cause RCU and/or context=
+ tracking
+> --- a/include/linux/entry-common.h
+> +++ b/include/linux/entry-common.h
+> @@ -19,7 +19,7 @@
+> =C2=A0#endif
+> =C2=A0
+> =C2=A0/*
+> - * SYSCALL_WORK flags handled in syscall_enter_from_user_mode()
+> + * SYSCALL_WORK flags handled in syscall_enter_from_user_mode_work()
+> =C2=A0 */
+> =C2=A0#define SYSCALL_WORK_ENTER	(SYSCALL_WORK_SECCOMP |			\
+> =C2=A0				 SYSCALL_WORK_SYSCALL_TRACEPOINT |	\
+> @@ -205,42 +205,10 @@ do {									\
+> =C2=A0	_ret;								\
+> =C2=A0})
+> =C2=A0
+> -/**
+> - * syscall_enter_from_user_mode - Establish state and check and handle w=
+ork
+> - *				=C2=A0 before invoking a syscall
+> - * @regs:	Pointer to currents pt_regs
+> - * @syscall:	The syscall number
+> - *
+> - * Invoked from architecture specific syscall entry code with interrupts
+> - * disabled. The calling code has to be non-instrumentable. When the
+> - * function returns all state is correct, interrupts are enabled and the
+> - * subsequent functions can be instrumented.
+> - *
+> - * This is the combination of enter_from_user_mode() and
+> - * syscall_enter_from_user_mode_work() to be used when there is no
+> - * architecture specific work to be done between the two.
+> - *
+> - * Returns: The original or a modified syscall number. See
+> - * syscall_enter_from_user_mode_work() for further explanation.
+> - */
+> -static __always_inline long syscall_enter_from_user_mode(struct pt_regs =
+*regs, long syscall)
+> -{
+> -	long ret;
+> -
+> -	enter_from_user_mode(regs);
+> -
+> -	instrumentation_begin();
+> -	local_irq_enable();
+> -	ret =3D syscall_enter_from_user_mode_work(regs, syscall);
+> -	instrumentation_end();
+> -
+> -	return ret;
+> -}
+> -
+> =C2=A0/*
+> - * If SYSCALL_EMU is set, then the only reason to report is when
+> - * SINGLESTEP is set (i.e. PTRACE_SYSEMU_SINGLESTEP).=C2=A0 This syscall
+> - * instruction has been already reported in syscall_enter_from_user_mode=
+().
+> + * If SYSCALL_EMU is set, then the only reason to report is when SINGLES=
+TEP is
+> + * set (i.e. PTRACE_SYSEMU_SINGLESTEP).=C2=A0 This syscall instruction h=
+as been
+> + * already reported in syscall_enter_from_user_mode_work().
+> =C2=A0 */
+> =C2=A0static __always_inline bool report_single_step(unsigned long work)
+> =C2=A0{
+> --- a/include/linux/irq-entry-common.h
+> +++ b/include/linux/irq-entry-common.h
+> @@ -49,9 +49,9 @@
+> =C2=A0 * Defaults to an empty implementation. Can be replaced by architec=
+ture
+> =C2=A0 * specific code.
+> =C2=A0 *
+> - * Invoked from syscall_enter_from_user_mode() in the non-instrumentable
+> - * section. Use __always_inline so the compiler cannot push it out of li=
+ne
+> - * and make it instrumentable.
+> + * Invoked from enter_from_user_mode_syscall_and_randomize_stack() in th=
+e
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Probably syscall_enter_from_user_mode_randomize_stack()? But the
+reality is it's only ever invoked from enter_from_user_mode(), which is
+below in the same file (include/linux/irq-entry-common.h).
+
+Granted, that's an always inline function, and it's used by both macros
+you added (since the second one uses the first one).
+
+> + * non-instrumentable section. Use __always_inline so the compiler canno=
+t push
+> + * it out of line and make it instrumentable.
+> =C2=A0 */
+> =C2=A0static __always_inline void arch_enter_from_user_mode(struct pt_reg=
+s *regs);
+> =C2=A0
+
