@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A80DC439323;
-	Wed,  8 Jul 2026 15:13:30 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1D2783B6C1D;
+	Wed,  8 Jul 2026 15:15:58 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783523612; cv=none; b=rU4yT8CP/764caumC09ewWsZb7CTkuf13u1btXqPPdt3aJHfHDMC5MzZ0TNNu2Ym1khOmS/tePTdxlVOig2VgQhNIXfF6KZB7bMcrreriMO1spl7ZJ4eHOOlIia4GQKfi2wFdDiZ2VsrIsvmqSabr2fuyU5JZi6UZ6OehMmtfFQ=
+	t=1783523759; cv=none; b=R1dFtOsxxie9HA56/c9bST4B/+2JUHUV8sYNnZxeC795uPecDVM8bdoY8I0W7aeLMi7qEBWKCSEAUWN0A8phCGO6La6LaUgo/CMzUKf/mTBJbiT4GiHpcu132ia1RWSKiYStCV09eRBWG6lhoQkD2uRTHBSzHQMsMf8KOy9sa5s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783523612; c=relaxed/simple;
-	bh=EAs1wLxgxUr8QphoNCTnwBt9V7QgesQjY4CSEp9rbJA=;
+	s=arc-20240116; t=1783523759; c=relaxed/simple;
+	bh=cUc5EpwDR3pelFjHIjeW0QZyT+DUob6lC+bjAbGVXlM=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=CZWjO2mnmHfJKdndRE4V3tfu6bUS4gQXk/ATA2xQvYyhrpSj/EZ2Fta+G5gX7/u5Kl1zFKs53lNxxKNtYJ1HVJ3tSwZe3YXhler6M13slfiq55WGpbu0Ou8VWCSumO9yHbKHPozGSdtP0D0Odux/Z+UFWcY0fIN2PTDoqVwnVpc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=b172Ftkd; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:Content-Type; b=bTP8xZr0ICYZGjIECkeDuuwlfyHonkLvnTci7hnL+v30if1hA21bXFgkLzCAdBlflmqXCMcBWxXfmJRJlJhoAexlPyP+8Dj47Xq/HszcKzKadtJAKH/Ul7CsVUrnMdELih0zOaPmghRsL/k4B6QN12vxhR/VIf0vxeLwfF37kK8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=oz5MizNl; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="b172Ftkd"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E062A1F000E9;
-	Wed,  8 Jul 2026 15:13:22 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="oz5MizNl"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F4211F000E9;
+	Wed,  8 Jul 2026 15:15:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783523610;
-	bh=dY3UhUcYvYikZtGBYs+3zTBokdgjfjfU+WDdt96CQOU=;
+	s=k20260515; t=1783523758;
+	bh=jU1GPKH/Gizt9YoqdTBMhVGS7QSyAEyQGtAl+M4xEbY=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=b172FtkdibBF/k8qkdVxwxVxIoxhk5PUXuLfSOQ7NIgWDpyJiB5oHp2Cwis1F1Acn
-	 mYkDzjL3ltm+oX1pUW4W7R9+SDSsMB0L3BPLtGEsHeXrhPXSyVKi/pXskqC7uwZfXR
-	 AlWQ3oFqrjN1RqIHOyB2xXwUrQ+z6f1FOJXVvv2+iWBhVti1ziuzWXnII0b2U/SVLi
-	 K07SFb5qMFexZYq8G31KTP2VkISk/Gl15rwNKkFIPURnzWsPpiZhuT+CYIrW3IsG+c
-	 msmTCOAoNIPeRx6zu14UEW7nMgVQ1eJnHAEi7px2+8RkVmtdCex1cSEYz9pCQ/+jkh
-	 51O8uPaiOQxKA==
-Message-ID: <dd1bfb6a-4e3d-40dc-b1b1-6c169279b366@kernel.org>
-Date: Wed, 8 Jul 2026 17:13:21 +0200
+	b=oz5MizNlb3uPkGnFpOnL3yPlFyp/hK0LXvT8N06KF4hyzPESzeWEB+iwlJtHJIhIa
+	 dR13T8MiYl2a40ogk62Nqu+2Gk2FTKT5VXgo0C73SUL1gbMkxE3UqAsKNP2E8DQat4
+	 bzrqfcQCG0LgHsIioKX05E5K4V+GKc/DUSfusGCGqMBPQTK9euRN46wn8sygbBOYZT
+	 fh4wLp7tmMwe3cImDY5wLR9lfW51F5TjZuPthIqsg8y5eu6x7e7WsjYu/YyBSj0IGB
+	 dV2xazzYr+GW4aEn6CRUzKd3sYitmOPyZFmTA/Ln8P6D4TCM0ltE5yL4RmzqkXlcQ2
+	 mbDmsSOkpS7sg==
+Message-ID: <e57dc812-8ada-4bed-9d6d-cb9a6dc5e9ea@kernel.org>
+Date: Wed, 8 Jul 2026 17:15:49 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -35,8 +35,7 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 02/10] mm: provide free_reserved_pages(), removing x86
- variant
+Subject: Re: [PATCH 01/10] x86/mm: drop order parameter from free_pagetable()
 To: Dave Hansen <dave.hansen@linux.intel.com>,
  Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>,
  Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
@@ -55,7 +54,7 @@ To: Dave Hansen <dave.hansen@linux.intel.com>,
 Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
  linux-s390@vger.kernel.org
 References: <20260708-bootmem_info_part2-v1-0-156ce4986598@kernel.org>
- <20260708-bootmem_info_part2-v1-2-156ce4986598@kernel.org>
+ <20260708-bootmem_info_part2-v1-1-156ce4986598@kernel.org>
 From: "David Hildenbrand (Arm)" <david@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=david@kernel.org; keydata=
@@ -102,120 +101,41 @@ Autocrypt: addr=david@kernel.org; keydata=
  3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
  CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
  qIws/H2t
-In-Reply-To: <20260708-bootmem_info_part2-v1-2-156ce4986598@kernel.org>
+In-Reply-To: <20260708-bootmem_info_part2-v1-1-156ce4986598@kernel.org>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-On 7/8/26 16:10, David Hildenbrand (Arm) wrote:
-> Let's extend free_reserved_page() in page_alloc.c to free_reserved_pages(),
-> dropping the custom x86 variant. The common-code variant will consume an
-> order, so adjust the x86 callers accordingly.
-> 
-> Make free_reserved_pages() assume that we are freeing ordinary
-> high-order pages, just with the special "reserved" flavor. The target
-> use case for now is freeing vmemmap PMD pages.
-> 
-> Set the refcount directly to 0 (instead of 1) and call
-> __free_frozen_pages(). Add some kerneldoc. Use a single
-> adjust_managed_page_count() call.
-> 
-> Signed-off-by: David Hildenbrand (Arm) <david@kernel.org>
-> ---
->  arch/x86/mm/init_64.c |  8 +-------
->  include/linux/mm.h    |  8 ++++++--
->  mm/page_alloc.c       | 33 ++++++++++++++++++++++++++-------
->  3 files changed, 33 insertions(+), 16 deletions(-)
-> 
-> diff --git a/arch/x86/mm/init_64.c b/arch/x86/mm/init_64.c
-> index 69e36f02a663a..320e742b0bb3f 100644
-> --- a/arch/x86/mm/init_64.c
-> +++ b/arch/x86/mm/init_64.c
-> @@ -1000,12 +1000,6 @@ int arch_add_memory(int nid, u64 start, u64 size,
->  	return add_pages(nid, start_pfn, nr_pages, params);
->  }
->  
-> -static void free_reserved_pages(struct page *page, unsigned long nr_pages)
-> -{
-> -	while (nr_pages--)
-> -		free_reserved_page(page++);
-> -}
-> -
->  static void __meminit free_pagetable(struct page *page)
->  {
->  	/* bootmem page has reserved flag */
-> @@ -1038,7 +1032,7 @@ static void __meminit free_vmemmap_pages(struct page *page, unsigned int order,
->  			while (nr_pages--)
->  				put_page_bootmem(page++);
->  		} else {
-> -			free_reserved_pages(page, nr_pages);
-> +			free_reserved_pages(page, order);
->  		}
->  	} else {
->  		__free_pages(page, order);
-> diff --git a/include/linux/mm.h b/include/linux/mm.h
-> index 113e1752548c2..62b261cccf16f 100644
-> --- a/include/linux/mm.h
-> +++ b/include/linux/mm.h
-> @@ -3993,8 +3993,12 @@ extern unsigned long free_reserved_area(void *start, void *end,
->  
->  extern void adjust_managed_page_count(struct page *page, long count);
->  
-> -/* Free the reserved page into the buddy system, so it gets managed. */
-> -void free_reserved_page(struct page *page);
-> +void free_reserved_pages(struct page *page, unsigned int order);
-> +
-> +static inline void free_reserved_page(struct page *page)
-> +{
-> +	free_reserved_pages(page, 0);
-> +}
->  
->  static inline void mark_page_reserved(struct page *page)
->  {
-> diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-> index a63733dac659e..9311d1f3793ad 100644
-> --- a/mm/page_alloc.c
-> +++ b/mm/page_alloc.c
-> @@ -6381,15 +6381,34 @@ void adjust_managed_page_count(struct page *page, long count)
->  }
->  EXPORT_SYMBOL(adjust_managed_page_count);
->  
-> -void free_reserved_page(struct page *page)
-> +/**
-> + * free_reserved_pages - free reserved pages
-> + * @page: First page to free.
-> + * @order: The page order to free.
-> + *
-> + * Free pages allocated through memblock during boot, letting the buddy
-> + * manage them from now on.
-> + *
-> + * @page must be naturally aligned to the order and the order must not
-> + * exceed MAX_PAGE_ORDER. All pages must be reserved.
-> + */
-> +void free_reserved_pages(struct page *page, unsigned int order)
->  {
-> -	clear_page_tag_ref(page);
-> -	ClearPageReserved(page);
-> -	init_page_count(page);
-> -	__free_page(page);
-> -	adjust_managed_page_count(page, 1);
-> +	const unsigned long nr_pages = 1UL << order;
-> +	int i;
-> +
-> +	VM_WARN_ON_ONCE(!IS_ALIGNED(page_to_pfn(page), nr_pages));
-> +	VM_WARN_ON_ONCE(order > MAX_PAGE_ORDER);
-> +
-> +	for (i = 0; i < nr_pages; i++) {
-> +		clear_page_tag_ref(page + i);
-> +		ClearPageReserved(page + i);
-> +		set_page_count(page + i, 0);
 
-Sashiko raises in reply to #4 that PFN walkers trying to grab pages could see
-their reference getting overridden.
+>  	/* free a pte table */
+> -	free_pagetable(pmd_page(*pmd), 0);
+> +	free_pagetable(pmd_page(*pmd));
+>  	spin_lock(&init_mm.page_table_lock);
+>  	pmd_clear(pmd);
+>  	spin_unlock(&init_mm.page_table_lock);
+> @@ -1078,7 +1075,7 @@ static void __meminit free_pmd_table(pmd_t *pmd_start, pud_t *pud)
+>  	}
+>  
+>  	/* free a pmd table */
+> -	free_pagetable(pud_page(*pud), 0);
+> +	free_pagetable(pud_page(*pud));
+>  	spin_lock(&init_mm.page_table_lock);
+>  	pud_clear(pud);
+>  	spin_unlock(&init_mm.page_table_lock);
+> @@ -1096,7 +1093,7 @@ static void __meminit free_pud_table(pud_t *pud_start, p4d_t *p4d)
+>  	}
+>  
+>  	/* free a pud table */
+> -	free_pagetable(p4d_page(*p4d), 0);
+> +	free_pagetable(p4d_page(*p4d));
+>  	spin_lock(&init_mm.page_table_lock);
+>  	p4d_clear(p4d);
+>  	spin_unlock(&init_mm.page_table_lock);
+> 
 
-While that is not something we should be worrying about (or fixing in old code),
-I think it's best to ClearPageReserved() after set_page_count(), so someone
-actually trying to grab a reference would have the chance to rely on
-PageReserved from being a reliable indication.
+Sashiko raises some pre-existing things around use-after free that I will just
+ignore. We don't expect anybody to walk pages tables we are tearing down here,
+and we'd have to wait for the TLB flush to get this right. And I don't see the
+need to.
 
 -- 
 Cheers,
