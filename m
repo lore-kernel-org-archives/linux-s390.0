@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 731133E022B;
-	Wed,  8 Jul 2026 08:35:18 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C435D406802;
+	Wed,  8 Jul 2026 09:00:04 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783499719; cv=none; b=E5/LiHdOpNb8tVVCppAIt4/rndy7sXFFqQ7BFKG6goLUAnrmBFtwqR6Vy0frVzAjF9x0+/FxZvuTKV5RTpItIq8dNl+2+h7GSOJ8WNXJDrXPn03jFpcxZiWjQIccQTheOZaHOHv/HxKoOOQXiPVp2000BlO7+Hgn65rGdRomHIY=
+	t=1783501205; cv=none; b=EVaVSfMWsHGCoPRj2aFrBxfUJCbNQQmt3HLGXLdAhWEqE3VcQpUgqc4Ny2djyHKJ/u6xTl1Dl6H9pXZEpNtsHrJIGIlBJhvrxWuN6dMjmtIQ7p/qExyrecQBcnBScjURcBFFdgLFLn8vZBWJAOMdoSZn7pQ0raW84auGEUeSY/M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783499719; c=relaxed/simple;
-	bh=s8mRwa8qVz6sFRyfSgleJeb+Etx42UxQfNAk2RJG3A4=;
+	s=arc-20240116; t=1783501205; c=relaxed/simple;
+	bh=qWhYj6MQPO/MH9kFY77eKyngQd1ZO+mMyqbq7aXdRbA=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=B8el4TT2WCWrYLIDzyzqzrIP25vymHzLIcmREylCqghbZ9TxJhWkpXHOyb1Al4YLtNDLLKtI0mzwsJewPDuZA4Klyg3vLD/lHL49srJEDqgMEa59a78jDI+yS9zq42wkT8ewkc8rfM81xtld0JmXSwbB5uYWVEQcSNtf8gUa/PQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fYUxsPmo; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:Content-Type; b=Ys/nbtSBppdxhy0HrlLixsauynHIzYB6jykVvd47bak2FDOdOiO5ulO5HDuKmQdxaOKP7+lgvmDGAMSKdgk4V6MANowpO4fs80hm4MhqY2vvntjfAMMTEm8ksUmQWobtZfEnZUiDKAzgWZdhWMqyWE243CvVQveyCTDqw84mqC0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=iHtmHf+W; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fYUxsPmo"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C78A1F00A3D;
-	Wed,  8 Jul 2026 08:35:04 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="iHtmHf+W"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E88291F000E9;
+	Wed,  8 Jul 2026 08:59:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783499718;
-	bh=4uiif8fNbVlBmdL2ASdJilfD3DbcrZEYwaykfaYTV9g=;
+	s=k20260515; t=1783501204;
+	bh=42ENaxlVxio2+AeXpLQCCBY5AaY42vaHQtw8IyJI7n4=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=fYUxsPmoKxL7tkvFv1U2Rkq6xMVJg/1EtoDALVfrTVYR/oX0m2IAHLgV46rXUnrIX
-	 V0uuh6jKOZ3GzzNGIVlszOO5ORRcKo4qeopV99ra0pNDOZ56DxkBqfs0GYkKgomk01
-	 emCNhpZT6zSqHMONM52Nxl1OF15mwts5If8BmwNxUTIylI2LzB9KO1ptrr1XE9B3Y/
-	 SgwC8lBufAijCmw80odkWve+lpOybqcYgYD/CmfTYVvvkrzg29LXaLdQBqO845Ggxg
-	 MR1bowcwqGF9mb2dXmeLK18OufZbp0oEbyarsZ+b6NAc4JpccziSxm2ug6GATnAxM2
-	 vnYmHf6CHahBw==
-Message-ID: <e212caac-6c30-448a-9e10-32fff8b842f6@kernel.org>
-Date: Wed, 8 Jul 2026 10:35:03 +0200
+	b=iHtmHf+W92OnzbuIGI/2kRlZExBywlAzkyUDXMC6Rjv+NJD7rS2O7NEduy2egn4G7
+	 TKjsBbmYtkGtNyvRhzZnNvUK2kcWhL+oPKetwYOGs8n79NmwgfBymXAI2yeQLHqR3z
+	 MrJjwMra9aWFMHaLJZBFIIPGAJYZBb6FFWpTBlDNOhJIAme4maDHpuOMLuMr8jQH/W
+	 Dzp/KsdaILh+27RGjHZK71B/vovDbAdEX05hoarii4XhLvaBDQxMxOMKE7jTeRYltK
+	 ldw1+1HAHXHEh8oSVliTo7a8sMzMXQj1l0+oQMVe2k7shpGJ+BJsGcdValVGj/F2lU
+	 Sqnt2Ad8FzbxA==
+Message-ID: <b1c1693d-02b4-4c5c-bb0a-1c2d87258d30@kernel.org>
+Date: Wed, 8 Jul 2026 10:59:46 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -36,10 +36,14 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH v3 06/11] mm/cma: Allow dynamically creating CMA areas
-To: Marek Szyprowski <m.szyprowski@samsung.com>,
- Thierry Reding <thierry.reding@kernel.org>, Rob Herring <robh@kernel.org>,
- Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
- <conor+dt@kernel.org>, Jonathan Hunter <jonathanh@nvidia.com>,
+To: Thierry Reding <thierry.reding@kernel.org>, Rob Herring
+ <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+ Conor Dooley <conor+dt@kernel.org>, Jonathan Hunter <jonathanh@nvidia.com>,
+ David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
+ Sowjanya Komatineni <skomatineni@nvidia.com>,
+ Luca Ceresoli <luca.ceresoli@bootlin.com>,
  Mikko Perttunen <mperttunen@nvidia.com>, Yury Norov <yury.norov@gmail.com>,
  Rasmus Villemoes <linux@rasmusvillemoes.dk>,
  Russell King <linux@armlinux.org.uk>,
@@ -51,8 +55,8 @@ To: Marek Szyprowski <m.szyprowski@samsung.com>,
  Andrew Morton <akpm@linux-foundation.org>, Lorenzo Stoakes <ljs@kernel.org>,
  "Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>,
  Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>,
- Michal Hocko <mhocko@suse.com>, Robin Murphy <robin.murphy@arm.com>,
- Sumit Semwal <sumit.semwal@linaro.org>,
+ Michal Hocko <mhocko@suse.com>, Marek Szyprowski <m.szyprowski@samsung.com>,
+ Robin Murphy <robin.murphy@arm.com>, Sumit Semwal <sumit.semwal@linaro.org>,
  Benjamin Gaignard <benjamin.gaignard@collabora.com>,
  Brian Starkey <Brian.Starkey@arm.com>, John Stultz <jstultz@google.com>,
  "T.J. Mercier" <tjmercier@google.com>,
@@ -60,15 +64,14 @@ To: Marek Szyprowski <m.szyprowski@samsung.com>,
  Steven Rostedt <rostedt@goodmis.org>, Masami Hiramatsu
  <mhiramat@kernel.org>, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
  Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>
-Cc: devicetree@vger.kernel.org, linux-tegra@vger.kernel.org,
- linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org,
- linux-media@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- linux-s390@vger.kernel.org, linux-mm@kvack.org, iommu@lists.linux.dev,
- linaro-mm-sig@lists.linaro.org, linux-trace-kernel@vger.kernel.org
+Cc: Thierry Reding <thierry.reding@gmail.com>, devicetree@vger.kernel.org,
+ linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org,
+ dri-devel@lists.freedesktop.org, linux-media@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org,
+ linux-mm@kvack.org, iommu@lists.linux.dev, linaro-mm-sig@lists.linaro.org,
+ linux-trace-kernel@vger.kernel.org, Thierry Reding <treding@nvidia.com>
 References: <20260701-tegra-vpr-v3-0-d80f7b871bb4@nvidia.com>
- <CGME20260701160902eucas1p1214af933ba0f54b85630a3a4e5a4689c@eucas1p1.samsung.com>
  <20260701-tegra-vpr-v3-6-d80f7b871bb4@nvidia.com>
- <3f47aeab-33b1-4966-a5ce-5d6d5261e0e2@samsung.com>
 From: "David Hildenbrand (Arm)" <david@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=david@kernel.org; keydata=
@@ -115,25 +118,35 @@ Autocrypt: addr=david@kernel.org; keydata=
  3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
  CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
  qIws/H2t
-In-Reply-To: <3f47aeab-33b1-4966-a5ce-5d6d5261e0e2@samsung.com>
+In-Reply-To: <20260701-tegra-vpr-v3-6-d80f7b871bb4@nvidia.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-On 7/7/26 12:02, Marek Szyprowski wrote:
-> On 01.07.2026 18:08, Thierry Reding wrote:
->> From: Thierry Reding <treding@nvidia.com>
->>
->> There is no technical reason why there should be a limited number of CMA
->> regions, so extract some code into helpers and use them to create extra
->> functions (cma_create() and cma_free()) that allow creating and freeing,
->> respectively, CMA regions dynamically at runtime.
+On 7/1/26 18:08, Thierry Reding wrote:
+> From: Thierry Reding <treding@nvidia.com>
 > 
-> 
-> Well, the technical reason for not creating cma regions dynamically at
-> runtime is that on some architectures (like 32bit ARM) the early fixup
-> for the region is needed to make it functional for DMA.
+> There is no technical reason why there should be a limited number of CMA
+> regions, so extract some code into helpers and use them to create extra
+> functions (cma_create() and cma_free()) that allow creating and freeing,
+> respectively, CMA regions dynamically at runtime.
 
-Can you point me at the code that does that? Thanks!
+I'm confused. We still allow cma_create() only during __init, right?
+
+Would we expect callers of cma_free() after __init? Or at which point?
+
+> 
+> The static array of CMA areas cannot be replaced by dynamically created
+> areas because for many of them, allocation must not fail and some cases
+> may need to initialize them before the slab allocator is even available.
+
+We can start with a memblock array of an initial size (like we do today).
+
+Then, when you need more space, we can double the size (copying content and
+exchanging the pointer). Either allocate from memblock or from slab, if
+available (slab_is_available).
+
+memblock does something similar, see memblock_double_array().
+
 
 -- 
 Cheers,
