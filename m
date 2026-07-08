@@ -1,34 +1,34 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ADF83481226;
-	Wed,  8 Jul 2026 14:12:09 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2024644CAE0;
+	Wed,  8 Jul 2026 14:12:17 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783519930; cv=none; b=tInFr4wbMKpquTXU0pAvw2I8yR/9D19uEMJca8tL03nyubb1FJal/vnZL35uWaoMFwOc+2765JSNKr+Pi2UZSj/R3Eeo11dvXVSyx1MOlLCDqibeDkx/CnRohcBehKccW9I2f8HMPWR5KRkoJyeqdM3uBiu1qw78NkA9SkIS4XM=
+	t=1783519938; cv=none; b=hmXL7Le8gCaSW7kS75MWmyt6uIMG9pP9bshpB2/w4tDK5ChBNwDDC6CemWgfy0+7MFykMIvvCrRjXtTjiZOEZeHmvQmro2AUKBXyLV3Dl6b/keFFGfOGr0Tywtd2cWu09biesYYfcEyaWT/axBYUjEPo+zwEXrm8VT9v7LIxdGc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783519930; c=relaxed/simple;
-	bh=eaFkEAKx4m1JxYiS0xVBoqKX8fGDxxr14xHvFmK2qQw=;
+	s=arc-20240116; t=1783519938; c=relaxed/simple;
+	bh=KXoJcAB0qh0bVM4fvhz6WHM2BQBe4RU2eB7o5k6x37A=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=mIzi9jnunsFqfCn3L/wkx3BmUXsIQPaOVCvQzTRlAoAMOg123ZtBqisbAh3XqcssFkazJVZMhzxiwnfJbQHmRKLW8b+YqpvlxBbTyZfIU8v9ad0rtye5NEeI4viDz99icYfwNh2sRdN55pHxc0h0lvuHILXGRrrhjbwHmCqrERY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VVKeExoV; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:To:Cc; b=dhtNmPIhePkFGIINyd1PpN6AB6lSqbN9eiklwC3Wo23P0tvF5Prphob3+UZmC9bOKULdzYQnoE5PaEMRRwAz3OKYOs/p4off/ymk0N4EtYWaGWqZf6aO1Ttm16aMOVvd8egEdCbFA14dm8N/F/aGCjFckQFic/qsAESs8+AKATQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Ia1IsIGC; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VVKeExoV"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C525E1F000E9;
-	Wed,  8 Jul 2026 14:12:01 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Ia1IsIGC"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3A671F00A3E;
+	Wed,  8 Jul 2026 14:12:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783519929;
-	bh=WWLUsYbDG7mGiwVJlzgDyy16xOy76zogl1g8GKgt0OE=;
+	s=k20260515; t=1783519937;
+	bh=fwd351vZMeylo11Xt7QUAJDGgeyO/aHkIwHIv82aQeE=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=VVKeExoVskhmb7x1k+V/281l4+bx71A5EAtpLvXXnhLBnmo/wXh3+iZtgRsaaKtXV
-	 SMMuJ0OkPqB7pypW7SaC8grlPMVEDZ19latunSwoGyvts5gag3mmstusguhvCkTcea
-	 TfoFB2v2S486O94fWOMmjfkoBXlH6LmYdxd3OP8uMx119/akp9FSVdqORbQgjt2YIx
-	 NVnukUkX+UL7vuZMnBf0DQc7cUeTJFMTMwj3YOZQWd3L50cZCpjzgbMu105rzDVcno
-	 ajYPGXNTNr5g0jfiD6JIZHbRZoPUX9vS65XSFYfZWFsCyM1ESZ6iWmUjMtEw4TCkvr
-	 8qn56UFNuKDjw==
+	b=Ia1IsIGCAROHagJA8XwwjgWhiIfaUuC7J/9zrD3GRG8E6BcnaOGLwuncYlD8oQVsk
+	 +EM+3WTRQpYEx01oCoCMobP5C2WKODaicATQyQ6Rf4uq0+0OavBC8GZnqmqvHOTIxF
+	 cCBZOu4IGMudBC0VlX5FvTrPZpmkLDqId9OqDTKCiNY2LTM7A9LAn9zQD0+IAnbQe7
+	 d3412Zn30tqetBcQvajn1+y4EVQxidTLUq46UfuKVpbcZ8I5I9ZNaf2y2O5SxJKkWH
+	 +8z+E6pN6bz32RXtg43tJ77K0q7yVf+f1x2yciCv3NViPcVTt2If4TWKtyKs9uAoP6
+	 06shHonGEWjAw==
 From: "David Hildenbrand (Arm)" <david@kernel.org>
-Date: Wed, 08 Jul 2026 16:11:03 +0200
-Subject: [PATCH 08/10] mm/hugetlb_vmemmap: remove bootmem_info leftovers
+Date: Wed, 08 Jul 2026 16:11:04 +0200
+Subject: [PATCH 09/10] mm/sparse: remove bootmem_info.h include
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -37,7 +37,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260708-bootmem_info_part2-v1-8-156ce4986598@kernel.org>
+Message-Id: <20260708-bootmem_info_part2-v1-9-156ce4986598@kernel.org>
 References: <20260708-bootmem_info_part2-v1-0-156ce4986598@kernel.org>
 In-Reply-To: <20260708-bootmem_info_part2-v1-0-156ce4986598@kernel.org>
 To: Dave Hansen <dave.hansen@linux.intel.com>, 
@@ -59,52 +59,25 @@ Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
  linux-s390@vger.kernel.org, "David Hildenbrand (Arm)" <david@kernel.org>
 X-Mailer: b4 0.15.2
 
-We never set CONFIG_HAVE_BOOTMEM_INFO_NODE, so we can just switch to
-free_reserved_page() and drop the register_page_bootmem_memmap() call.
+No longer required, so let's remove it.
 
 Signed-off-by: David Hildenbrand (Arm) <david@kernel.org>
 ---
- mm/hugetlb_vmemmap.c | 8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ mm/sparse.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/mm/hugetlb_vmemmap.c b/mm/hugetlb_vmemmap.c
-index 1430a5aa2de57..917db0984143c 100644
---- a/mm/hugetlb_vmemmap.c
-+++ b/mm/hugetlb_vmemmap.c
-@@ -12,7 +12,6 @@
- 
- #include <linux/pgtable.h>
- #include <linux/moduleparam.h>
+diff --git a/mm/sparse.c b/mm/sparse.c
+index 058ef93003672..b5c74aab3379a 100644
+--- a/mm/sparse.c
++++ b/mm/sparse.c
+@@ -13,7 +13,6 @@
+ #include <linux/vmalloc.h>
+ #include <linux/swap.h>
+ #include <linux/swapops.h>
 -#include <linux/bootmem_info.h>
- #include <linux/mmdebug.h>
- #include <linux/pagewalk.h>
- #include <linux/pgalloc.h>
-@@ -177,13 +176,13 @@ static int vmemmap_remap_range(unsigned long start, unsigned long end,
-  * Free a vmemmap page. A vmemmap page can be allocated from the memblock
-  * allocator or buddy allocator. If the PG_reserved flag is set, it means
-  * that it allocated from the memblock allocator, just free it via the
-- * free_bootmem_page(). Otherwise, use __free_page().
-+ * free_reserved_page(). Otherwise, use __free_page().
-  */
- static inline void free_vmemmap_page(struct page *page)
- {
- 	if (PageReserved(page)) {
- 		memmap_boot_pages_add(-1);
--		free_bootmem_page(page);
-+		free_reserved_page(page);
- 	} else {
- 		memmap_pages_add(-1);
- 		__free_page(page);
-@@ -641,9 +640,6 @@ static void __hugetlb_vmemmap_optimize_folios(struct hstate *h,
- 			epfn = spfn + hugetlb_vmemmap_size(h);
- 			vmemmap_wrprotect_hvo(spfn, epfn, folio_nid(folio),
- 					HUGETLB_VMEMMAP_RESERVE_SIZE);
--			register_page_bootmem_memmap(pfn_to_section_nr(folio_pfn(folio)),
--					&folio->page,
--					HUGETLB_VMEMMAP_RESERVE_PAGES);
- 			continue;
- 		}
- 
+ #include <linux/vmstat.h>
+ #include "internal.h"
+ #include <asm/dma.h>
 
 -- 
 2.43.0
