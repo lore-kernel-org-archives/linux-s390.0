@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1D2783B6C1D;
-	Wed,  8 Jul 2026 15:15:58 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E5CA8349CFC;
+	Wed,  8 Jul 2026 15:20:14 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783523759; cv=none; b=R1dFtOsxxie9HA56/c9bST4B/+2JUHUV8sYNnZxeC795uPecDVM8bdoY8I0W7aeLMi7qEBWKCSEAUWN0A8phCGO6La6LaUgo/CMzUKf/mTBJbiT4GiHpcu132ia1RWSKiYStCV09eRBWG6lhoQkD2uRTHBSzHQMsMf8KOy9sa5s=
+	t=1783524016; cv=none; b=I8/JMW+b2GqHH/iDADyR9erMtBlSmIVoDOX2iPMf2iIXlV20HLw7zpvef7aOnfJYAUAPrRHcxwcjNNAIlfxcTsbpo8ur9mgvDWp5nXr2kp5UYzBVBfSOyZYsgQ4jdWX/Aq4jHYSFkdudFFLfm4UYWzMMb9IQesevnJ3IGQnndM8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783523759; c=relaxed/simple;
-	bh=cUc5EpwDR3pelFjHIjeW0QZyT+DUob6lC+bjAbGVXlM=;
+	s=arc-20240116; t=1783524016; c=relaxed/simple;
+	bh=LTofTFn2v8O4lCaPSWt1TUywyBv47M+jG86ho4KZqwU=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=bTP8xZr0ICYZGjIECkeDuuwlfyHonkLvnTci7hnL+v30if1hA21bXFgkLzCAdBlflmqXCMcBWxXfmJRJlJhoAexlPyP+8Dj47Xq/HszcKzKadtJAKH/Ul7CsVUrnMdELih0zOaPmghRsL/k4B6QN12vxhR/VIf0vxeLwfF37kK8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=oz5MizNl; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:Content-Type; b=jjZ/5T+ug/bpLpHUx7mvJs/K2ufkLGOa0SgFSdHv0P95no4H1q8ulUlPvGeaSgKklAEZflwIFze5REuIa0Bp3KHXsUgEtZIVuhiP6WRTCC5geVRaAwXmZDwBvZUBVcHWTtbYb1SebkxpZhSTalTFKyOFMuf2Ku2xWvZreawRuTg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RKJdhY+k; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="oz5MizNl"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F4211F000E9;
-	Wed,  8 Jul 2026 15:15:50 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RKJdhY+k"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F3FD1F000E9;
+	Wed,  8 Jul 2026 15:20:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783523758;
-	bh=jU1GPKH/Gizt9YoqdTBMhVGS7QSyAEyQGtAl+M4xEbY=;
+	s=k20260515; t=1783524014;
+	bh=SyrH706BcdoEPwB9iPMiIaYpZBRwfJwZHUjuadUPpjE=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=oz5MizNlb3uPkGnFpOnL3yPlFyp/hK0LXvT8N06KF4hyzPESzeWEB+iwlJtHJIhIa
-	 dR13T8MiYl2a40ogk62Nqu+2Gk2FTKT5VXgo0C73SUL1gbMkxE3UqAsKNP2E8DQat4
-	 bzrqfcQCG0LgHsIioKX05E5K4V+GKc/DUSfusGCGqMBPQTK9euRN46wn8sygbBOYZT
-	 fh4wLp7tmMwe3cImDY5wLR9lfW51F5TjZuPthIqsg8y5eu6x7e7WsjYu/YyBSj0IGB
-	 dV2xazzYr+GW4aEn6CRUzKd3sYitmOPyZFmTA/Ln8P6D4TCM0ltE5yL4RmzqkXlcQ2
-	 mbDmsSOkpS7sg==
-Message-ID: <e57dc812-8ada-4bed-9d6d-cb9a6dc5e9ea@kernel.org>
-Date: Wed, 8 Jul 2026 17:15:49 +0200
+	b=RKJdhY+kg4FpeHGOB5dQg2U5atUaHWmTubuJnOTz9OwrPzFKymVYGPYtEPyyJtsvY
+	 PJi+oSoASNxhTO4dfBqg2Jx8dtwJrHtRx4t8Vd+fxjCgfRwTXMFHNRgwcg8lB1l+cA
+	 IpMIyHjT9m2nGaeSnNnteLR4F7mIj87U/N17D1U83XwAfm4RXWOsNd+O3iyFr5oAlb
+	 DTtgJtrv/a1dDRBjPXQ2Noj1+h0Toh+4uDUwT8uIRllEjltLB7ptIwl8ZKrIN9+LvF
+	 OXA1T69+dXJKU/urt7OJq67ayUHMhdg06DeaSd3mpRindahvOzO6BYChGv0HaKGMeZ
+	 by1y1h57Ikvuw==
+Message-ID: <9d3eab96-55a8-4916-ae41-774318780df3@kernel.org>
+Date: Wed, 8 Jul 2026 17:20:05 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -35,7 +35,7 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 01/10] x86/mm: drop order parameter from free_pagetable()
+Subject: Re: [PATCH 05/10] x86/mm: stop marking vmemmap as SECTION_INFO
 To: Dave Hansen <dave.hansen@linux.intel.com>,
  Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>,
  Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
@@ -54,7 +54,7 @@ To: Dave Hansen <dave.hansen@linux.intel.com>,
 Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
  linux-s390@vger.kernel.org
 References: <20260708-bootmem_info_part2-v1-0-156ce4986598@kernel.org>
- <20260708-bootmem_info_part2-v1-1-156ce4986598@kernel.org>
+ <20260708-bootmem_info_part2-v1-5-156ce4986598@kernel.org>
 From: "David Hildenbrand (Arm)" <david@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=david@kernel.org; keydata=
@@ -101,41 +101,38 @@ Autocrypt: addr=david@kernel.org; keydata=
  3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
  CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
  qIws/H2t
-In-Reply-To: <20260708-bootmem_info_part2-v1-1-156ce4986598@kernel.org>
+In-Reply-To: <20260708-bootmem_info_part2-v1-5-156ce4986598@kernel.org>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-
->  	/* free a pte table */
-> -	free_pagetable(pmd_page(*pmd), 0);
-> +	free_pagetable(pmd_page(*pmd));
->  	spin_lock(&init_mm.page_table_lock);
->  	pmd_clear(pmd);
->  	spin_unlock(&init_mm.page_table_lock);
-> @@ -1078,7 +1075,7 @@ static void __meminit free_pmd_table(pmd_t *pmd_start, pud_t *pud)
->  	}
->  
->  	/* free a pmd table */
-> -	free_pagetable(pud_page(*pud), 0);
-> +	free_pagetable(pud_page(*pud));
->  	spin_lock(&init_mm.page_table_lock);
->  	pud_clear(pud);
->  	spin_unlock(&init_mm.page_table_lock);
-> @@ -1096,7 +1093,7 @@ static void __meminit free_pud_table(pud_t *pud_start, p4d_t *p4d)
->  	}
->  
->  	/* free a pud table */
-> -	free_pagetable(p4d_page(*p4d), 0);
-> +	free_pagetable(p4d_page(*p4d));
->  	spin_lock(&init_mm.page_table_lock);
->  	p4d_clear(p4d);
->  	spin_unlock(&init_mm.page_table_lock);
+On 7/8/26 16:11, David Hildenbrand (Arm) wrote:
+> We added the whole bootmem registration machinery in commit 04753278769f
+> ("memory hotplug: register section/node id to free").
 > 
+> The main use case was to remember to which memory section memmap pages
+> belonged, so the memmap could be handled accordingly when freeing
+> memory.
+> 
+> However, all that machinery is not required anymore: a memory section
+> can only get offlined if *all* pages can get offlined; and it can only
+> get unplugged once offline. If some of these pages are unmovable memmap
+> pages: bad luck, doesn't work. Offlining will fail.
+> 
+> Further, a lot of this machinery was required for pre-vmemmap support.
+> Now we only support the vmemmap with memory hotplug.
+> 
+> So the whole machinery is useless today. Let's start by removing the
+> last pieces by first stopping to mark vmemmap pages as SECTION_INFO.
+> In free_vmemmap_pages(), we can now always just free the reserved pages
+> directly.
+> 
+> Signed-off-by: David Hildenbrand (Arm) <david@kernel.org>
+> ---
 
-Sashiko raises some pre-existing things around use-after free that I will just
-ignore. We don't expect anybody to walk pages tables we are tearing down here,
-and we'd have to wait for the TLB flush to get this right. And I don't see the
-need to.
+Sashiko mentions the same thing about freeing page tables that are still mapped
+that I will ignore, and it also mentions an oddity in the PMD vmemmap handling
+with get_page_bootmem() (taking 512 references whereby teardown only drops one
+reference) that I will ignore, as I am ripping that part out completely either way.
 
 -- 
 Cheers,
