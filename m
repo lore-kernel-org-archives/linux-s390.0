@@ -1,127 +1,119 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f48.google.com (mail-wm1-f48.google.com [209.85.128.48])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1288A34753B
-	for <linux-s390@vger.kernel.org>; Wed,  8 Jul 2026 10:02:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A6F4389DE8
+	for <linux-s390@vger.kernel.org>; Wed,  8 Jul 2026 10:10:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783504943; cv=none; b=KhmFXUe1ba5bgiuF7jQD/qtnFBnud/y1jP51YQcMtjzutWoFooGWAxZQLO/1a2UW7+rD8sFnfzT1QGmVAGNroLVkCxnThRcZ3K1vb2ltQWhjEcNiDEEXWtOOViCa879vV2KTYT9EJ8OGEOXzTvi/7URrmrDvAzQK1E/3I22FZDo=
+	t=1783505451; cv=none; b=XNOC763Y1+ZGKQufAeVHd5HgZRnLUcKJOG263m/lyvttG6X6jTUSVIoouXc2GEQhRPO9CuenhBOXCE7uZHFhmL7BkmlYiWJqMtwzldIq6bB0HCIfei1m1B0OYWtty7CzDjeU2PIAIHCwrv/EgQw1RU3kNLs75D01SIiyjC0NPs0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783504943; c=relaxed/simple;
-	bh=nj/tXYICVZsncp7mCBoL33SdT5yGXUnBuA0ysViUKYE=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=oOKDTTPkSzPUSMtrbn/Nb1JuueNHc0MB95tloRdv5DFAm1gaHpDYk+7h6nstb3h3Jv6GJKSRfqp8FVFw52GF5rcCv5P6voHGcTH5rXIJxP+uN8TAp4NsZV1XsfUiUbY6I/XQEofNCz8jCFNFwCtBUerqvkAF2bmSwJ0pKyJDAmk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=DcM5cLqk; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1783505451; c=relaxed/simple;
+	bh=ecF2cTn5AYhAAM68s9B/PAUIJM5SNBc7WXxDZmZ73mo=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=kGS5PG08oVs7QbyN7BarsaOL3Y4K87l0P6KCo3IBxAxG6p+PwVIRbB2O7NapC8tUyI4zmCC3xalwsVCu8AU3dEgPonlLoWD2wmWv7aWzjrZJau7xCHDfY06QtMmeUfkTWDp+zloXVzkYvpS+iIlQJgw2BYYogakPI367bKPDOM4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=cX/uMt1R; arc=none smtp.client-ip=209.85.128.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="DcM5cLqk"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6688IDl22501467
-	for <linux-s390@vger.kernel.org>; Wed, 8 Jul 2026 10:02:21 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:message-id:mime-version:subject:to; s=
-	pp1; bh=hTUXtRVlciOZTPP2S8tXzuPJI54IEIe0THyw5Hkx1/0=; b=DcM5cLqk
-	mH4ffRK8O4/qwVWTfha6lXJVqfc0F2dO/U71MaFUikw7L2q4HYoyGiD7YXnAYvPs
-	U/sBb62xPsgKrjB3BIGRQizZEICKApWr9Pw0Km11mS3pyX7bKsfD1cmvsqH2QLKU
-	OiGMhvQZeY6X8IfM5BmYR22g/Tpq6cMYJfuqJ72ruzzkI1DDZHHO03UxyCdNO3tA
-	36CctSrai3vcXXLtB9iWbIivt/ZpaFDu3pjp7NMUJ5N/hyTw17Niw+6pQSSz9usB
-	ICtIHnHH/qKyok0uKMGG1Qc2y8SltPsihyBU8iYTbFDN3JXN9Kx7waIoy25RLK6h
-	nOPeiyvsseCgZQ==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4f6sw4uubd-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Wed, 08 Jul 2026 10:02:20 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 6689YcNe001514
-	for <linux-s390@vger.kernel.org>; Wed, 8 Jul 2026 10:02:19 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4f7e0hf7fd-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Wed, 08 Jul 2026 10:02:19 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 668A2FPi25952700
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 8 Jul 2026 10:02:15 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B10DF20077;
-	Wed,  8 Jul 2026 10:02:15 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 758172007B;
-	Wed,  8 Jul 2026 10:02:15 +0000 (GMT)
-Received: from localhost (unknown [9.111.0.64])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Wed,  8 Jul 2026 10:02:15 +0000 (GMT)
-Date: Wed, 8 Jul 2026 12:02:14 +0200
-From: Vasily Gorbik <gor@linux.ibm.com>
-To: Heiko Carstens <hca@linux.ibm.com>, Ilya Leoshkevich <iii@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org
-Subject: [PATCH] s390/checksum: Fix csum_partial() without vector facility
-Message-ID: <p01.g0de361f35d11.tthup4z@ub.hpns>
+	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="cX/uMt1R"
+Received: by mail-wm1-f48.google.com with SMTP id 5b1f17b1804b1-493b786d6c0so2489525e9.2
+        for <linux-s390@vger.kernel.org>; Wed, 08 Jul 2026 03:10:50 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=suse.com; s=google; t=1783505449; x=1784110249; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=JNhfZKXmPDIRApTD3u3cceCo1e7KoMWEMGSpd5WD324=;
+        b=cX/uMt1RSfp0n/7y9fyGVoExl7JnbjQQtYqyosKI6Up334zNll97aeFqpf/AJARIzp
+         KOXS4t3NsVDjNslte7VDW4gVwbMPOm3f/OUfySnXs4WIsd0dbSQWhP+SqmXEEToeir1S
+         D1G3PMLsJgmYQD9a5WTxu7ARw2xrorFuXb/GWZtKNOi1q5dTQpgn/mURcdmE2lYgmPSQ
+         iQ64J2GQ/jUX6jlbvjmUVT+DQiZfh02bTJEhRdHBJNM+4N8Yyl/eh8z8YASKgKc+Om7i
+         3CSZFxq4G54qEoYLRWwXSCm5iY8BZU3r8IYXKeIz4eLc30AmBYuxp1jFUO90Hi/OXwjP
+         xunQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1783505449; x=1784110249;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=JNhfZKXmPDIRApTD3u3cceCo1e7KoMWEMGSpd5WD324=;
+        b=KIUP5FWYFDd4Zxu22STSt+Ww0zd4BqbYf3XCHKziHeq6ojC74Zz/Vx6SRTI3ZcaSEv
+         NANtYsMH6QLWPXAZdg4LWzmppRnbr/ZamfhFFPP00kdy1Bv6MquTJNwgLMXxudhWeTVX
+         cXd3Wu262o/rmxyY/yorSldsPitIInym51eH9hHRKnekZshIKqcdPY3EjDCpf0mjvarK
+         rr2pufa3TFPyK6+s3/dkFvRCLgN6MU+1T+E6tqaTWe2254C4hroHGx8yYyRNDxfFhmGN
+         1gCuhJTju68F5PglMFsn7XKi0XRwsFHj0aV8W2hvkKTx0CiXLM14wWYQ2s6g/Iy5R4mL
+         bpnA==
+X-Forwarded-Encrypted: i=1; AHgh+RpagMnmtv3KiWgN/4Qooy/6gbD/NiC7fGIIG5QjoMuSY4zoahVUU2Zq3olS57xN7jlmrCXNpmj6uDww@vger.kernel.org
+X-Gm-Message-State: AOJu0YzWrUN13+ee61Qj1t7wOMkM8w6OHkh80SPoFKgOL7JADnSi4D+Y
+	+gUpdAgL5mgo1XKWeB23JhHDREKfmn64cLkwh87htIHSQ7Ox6X6Y3M1cWvt02c2B4RXnIXuPNB7
+	XdtMvsSY=
+X-Gm-Gg: AfdE7ckvadoctSnMFST7LeBVDynZz49SR0akgTUuwVH77uNP99aUGLE4hH4WK+U4pz+
+	7E9gEWNTM3kS6UvJpVzmReYLeuoACDWAaJSuLtTb7O9J5ptSnHDqEPn6GQymJ7sO+uAmyOScuRl
+	XywFH8ShZYIURl5Xhp3bvcPjhRttaokaHBWncuAS5Gbu//+DR0r2W21LMgpPTrxf0Ct4WYSABXS
+	nvTp6Sq34pwJk1uVsFVl4PIK/2PpV0x5L8fQaVbewzN4Y8a/G0adYqnwKJsacLsWN7nbYPM5E5r
+	mLT8bqZ7jG2uks71h6KUvyPG/sy3vcgpqTSFLfDU/+Ege9yxdFMB+9vmNkfFTiR3EbdZifYBWn9
+	iQ/0rH+zBK0C73N48xNYyRldAZJ/TWRJYDTvCPa6nIWvXJ7X9f+A8oUYLaQneA9LeJbNd/rvgNp
+	4lzEzilN42wHREs/C2ZKj9ExhZ3CFDok66iQ==
+X-Received: by 2002:a05:600c:4f91:b0:490:be14:bfda with SMTP id 5b1f17b1804b1-493e6859a48mr17703585e9.6.1783505448853;
+        Wed, 08 Jul 2026 03:10:48 -0700 (PDT)
+Received: from [192.168.42.79] (nat2.prg.suse.com. [195.250.132.146])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-493e0fbb410sm130766595e9.12.2026.07.08.03.10.48
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 08 Jul 2026 03:10:48 -0700 (PDT)
+Message-ID: <883098de-dc3c-4c72-abf4-75b67c0c3351@suse.com>
+Date: Wed, 8 Jul 2026 12:10:47 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-X-Patchwork-Bot: notify
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: _BV_P04x_LjitjJZleyLexw1uhxyE86D
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzA4MDA5NCBTYWx0ZWRfX9WRxajMbBQg8
- 5E0iyIwMWjG3vF8bo8+KY0Ci7/dW4SXG4SMUG2AQ2JFZavj0eQn4I2JBZCs/udRvtX+MCFwS+D0
- LMMBNIYYTrX0OIKtiYIywVTC2QtUsYYOhCIChncFmBNd/g02c0AYisx5LUtPqiofHuRzdkJSorY
- SIgra3+5l64ME2z2qmKATitv/ls1AWq1+LpS5dlm8mPW5FV/1eUrzfCa4UCxg+fwoV/TYpMjO6o
- S05Hz0ccFme8NAGPZTKzXfsrBuMLMXjKTDUfuSS3kyBs2EMgwTgOe/HmPws1Sep8DMhz0Zwp05L
- c8OCg7+W93GNLsBc3q39TqenExy3+BiPf4MiZNO7VC0LMKip7TeKm62ofO0JChLHeWx29SIcKoL
- KhIKViL/mnRaTLB+5Kfib/LqsQoNDD4RgRqRZ/2OupLXfYCGJoPH5k6athw3d77V/XFNnU20cYM
- oH2VMnb46PgqzS++L7g==
-X-Proofpoint-ORIG-GUID: _BV_P04x_LjitjJZleyLexw1uhxyE86D
-X-Authority-Analysis: v=2.4 cv=FqQ1OWrq c=1 sm=1 tr=0 ts=6a4e202c cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8
- a=BXMOZH6PS6HjN1SVsM0A:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzA4MDA5NCBTYWx0ZWRfX5Bo8znqEUcGT
- WgbI59Vkasx9yWOvoQkIhYS6o++/+LI2nKrL78sPodZQBjWAe8KQ8I2adzM2y7zjOfQN3bjJZZ0
- 7LWkMXu6yw4w+XTaEuURRscDVKOzRWE=
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-07-08_01,2026-07-06_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- adultscore=0 impostorscore=0 clxscore=1015 malwarescore=0 lowpriorityscore=0
- priorityscore=1501 bulkscore=0 suspectscore=0 spamscore=0 phishscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607080094
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 3/4] tpm_crb_ffa: Include linux/slab.h for kzalloc_obj()
+ and kfree()
+To: sashiko-reviews@lists.linux.dev
+Cc: kvm@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+ linux-modules@vger.kernel.org, Alexander Gordeev <agordeev@linux.ibm.com>,
+ linux-s390@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>
+References: <20260707153819.4172541-1-petr.pavlu@suse.com>
+ <20260707153819.4172541-4-petr.pavlu@suse.com>
+ <20260707154337.CE2901F000E9@smtp.kernel.org>
+Content-Language: en-US
+From: Petr Pavlu <petr.pavlu@suse.com>
+In-Reply-To: <20260707154337.CE2901F000E9@smtp.kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Currently csum_partial() calls csum_copy() with copy=false and dst=NULL.
-On machines without the vector facility, csum_copy() falls back to
-cksm(dst, ...), causing the checksum to be calculated from address zero
-instead of the source buffer.
+On 7/7/26 5:43 PM, sashiko-bot@kernel.org wrote:
+> Thank you for your contribution! Sashiko AI review found 1 potential issue(s) to consider:
+> - [Low] The commit message incorrectly claims that the file uses `kzalloc_obj()` instead of `kzalloc()`.
+> --
+> 
+> --- Patch [3]: [PATCH 3/4] tpm_crb_ffa: Include linux/slab.h for kzalloc_obj() and kfree() ---
+> commit a56e4cf89267d12126bd70f7981a05c846959016
+> Author: Petr Pavlu <petr.pavlu@suse.com>
+> 
+> tpm_crb_ffa: Include linux/slab.h for kzalloc_obj() and kfree()
+> 
+> This commit adds the missing linux/slab.h inclusion to tpm_crb_ffa.c.
+> It removes the reliance on indirect inclusion through linux/module.h.
+> This prepares for the eventual removal of linux/elf.h from linux/module.h.
+> 
+>> tpm_crb_ffa: Include linux/slab.h for kzalloc_obj() and kfree()
+> 
+> [Severity: Low]
+> This isn't a bug, but there appears to be a typo in the commit subject.
+> Did you mean kzalloc() instead of kzalloc_obj()? Looking at
+> tpm_crb_ffa_probe() in the driver, it correctly calls kzalloc().
+> 
+>> The drivers/char/tpm/tpm_crb_ffa.c file uses kzalloc_obj() and kfree(),
+> 
+> [Severity: Low]
+> This isn't a bug, but the same typo is also present here in the commit
+> description.
+> 
 
-The VX implementation already checksums data loaded from src. Make the
-fallback do the same by passing src to cksm().
+I don't see a typo here. The code uses the kzalloc_obj() macro:
 
-Fixes: dcd3e1de9d17 ("s390/checksum: provide csum_partial_copy_nocheck()")
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
----
- arch/s390/lib/csum-partial.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/arch/s390/lib/csum-partial.c b/arch/s390/lib/csum-partial.c
-index 458abd9bac70..9d74ceff136c 100644
---- a/arch/s390/lib/csum-partial.c
-+++ b/arch/s390/lib/csum-partial.c
-@@ -23,7 +23,7 @@ static __always_inline __wsum csum_copy(void *dst, const void *src, int len, __w
- 	if (!cpu_has_vx()) {
- 		if (copy)
- 			memcpy(dst, src, len);
--		return cksm(dst, len, sum);
-+		return cksm(src, len, sum);
- 	}
- 	kernel_fpu_begin(&vxstate, KERNEL_VXR_V16V23);
- 	fpu_vlvgf(16, (__force u32)sum, 1);
--- 
-2.53.0
+https://github.com/torvalds/linux/blob/v7.2-rc2/drivers/char/tpm/tpm_crb_ffa.c#L339
