@@ -1,133 +1,244 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 59DFD23BD1D;
-	Wed,  8 Jul 2026 12:47:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A7906438FFB;
+	Wed,  8 Jul 2026 12:50:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783514831; cv=none; b=pae4dpb1XbJ+bPvfnszy2k2X6Kdpm6u2JfMBazQZB+b/6WEsgnklM7SJn/FxNi4j6gNAjJ/ZkojbJO8n9h1Gs6pf27wWKmAnyoXk7aBfyaGFsuaeAlU75Zhp88cH/m5mvaKjwHWcPPLkoVaaFD3FkwiGJ+k5d2kvujZdP+ek4B0=
+	t=1783515011; cv=none; b=mYF0cgU1dCYkz9S6x3fgoOQBXRVrbuODdd28hCmLJ4+2wT4lKOrbGEjzlf5RrItz4SM1eEyF9gHxPxCViFIv6p9jphF/INqZj+rCmdYr5qj5fR0e9f3I2MtvuEc54jOxK0lCHnic3GlCllY5qViMStLqGcf7QTovv96HPK3oM6w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783514831; c=relaxed/simple;
-	bh=Il163L430DNSTI7nJBzgFtK7rLxoJBPeA5CQIqod/UA=;
+	s=arc-20240116; t=1783515011; c=relaxed/simple;
+	bh=IbwF4pMHfyhwOslYT5YnzmrvzgTa5uH5GBgU1nK9uiI=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=qvmtY5MI9FMvmIYqHHA98kmJ8TKcSoJcvfqkklzf391PiZy+uWTiweJ9UBLlscF9Iyeda9ZpksfME+VmhKo5ByJcUoTbuwdTlvg0aNfdSDLq0FLeZ3qddrnT5IgPbCskHq4//Z7vN6RSfjnHrgpwbUfNswTiX4LpiYLqfx/ry4k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Lxip59Wo; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=RNjmFQYyO1Jg6KkQGwSC8CVMXnKm6UPOZCdNq63h8S3FPArP8O8/qbI+dPplRV3suSHb5o5VwXEzSVzPkz8TX06+quh0REhCzpppy9nkYg1E2RY4PiM8Jc5F3M4368mpsrfn4mHbEsn6rXapPnH5XIiV0htv5HVE3w37LuOCyGM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jitZrOHB; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Lxip59Wo"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 668CIQCc3243353;
-	Wed, 8 Jul 2026 12:47:08 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=pa8MdNpUtg5klv5oBvoGlluIYVcCPQ
-	G5XFnrt23NvI8=; b=Lxip59WoJwY3NwENohKUShEmDroTLOYPxrwDZexnAgGheG
-	yW/DAEEZ9yEw6g0SIbM2qk5mXlifyDoznB3IN8UG78+yIw6rC0wU2p4JQX6kyNI3
-	2N9ucjwUoSndnfjB1lErn97dOSn0eOIkBSrvTMCxSScrpx1FA8/72dLGV9mMpV7s
-	BwQ/hlXAWnBhj0FDUqKiK9HT5I8RQet6aTdQwqOfX8oa/SyCsYiZfsCdhpZd0QWV
-	T4MsicfCKMVEImgrlEGjGwOrJQo4bHkQMTZ8DvjGvjdyOx6rIkexF72ahpn2SrRs
-	eN2NeHvjR7R/urELp+oLTcd8lXx4WMPFXzXao/jA==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4f6sp3vey6-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 08 Jul 2026 12:47:07 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 668CYhiW002602;
-	Wed, 8 Jul 2026 12:47:07 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4f7eqg7t0t-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 08 Jul 2026 12:47:06 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 668Cl2eH28049864
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 8 Jul 2026 12:47:02 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 819CC2004B;
-	Wed,  8 Jul 2026 12:47:02 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6693F20043;
-	Wed,  8 Jul 2026 12:47:02 +0000 (GMT)
-Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.224.92.206])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Wed,  8 Jul 2026 12:47:02 +0000 (GMT)
-Date: Wed, 8 Jul 2026 14:47:01 +0200
-From: Alexander Gordeev <agordeev@linux.ibm.com>
-To: Thomas Huth <thuth@redhat.com>
-Cc: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] s390/uapi: Remove obsolete unistd_32.h from Kbuild file
-Message-ID: <c8182a6f-6196-4389-936d-23d8f9cd1891-agordeev@linux.ibm.com>
-References: <20260701134727.882734-1-thuth@redhat.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jitZrOHB"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2693F1F000E9;
+	Wed,  8 Jul 2026 12:50:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1783515007;
+	bh=IbwF4pMHfyhwOslYT5YnzmrvzgTa5uH5GBgU1nK9uiI=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=jitZrOHBE9XNJumMdXFVv18tUngtPLdb9x2l4MXb1a4a3audPmwI5ES1+E/p39+fH
+	 HMBtTttJu5WKPwMZpzl5XSMW8IWWsdWOQpWuuuOHUvCzW0Upi/fHIEHKy/XatkKhbs
+	 YIrgECVYDaOyOlaeXFov/nDhiba0x7J/yL1Q67FUZOmQNsefjzpkn/aCjEu0dJ6ZK9
+	 nlap2Fjp+x+P5ahqGT40ffudUAfNKdE4tL3hjqRQjY1+Q8v+zswk6N6KyX0QPm3fqz
+	 Jak61XpK3z4GmnyZVFYWCCa1m5lbXTTe07OjSwKUXfEIRonD9IqEaS2TOTSr62FACC
+	 l7BKByWi/ic2A==
+Date: Wed, 8 Jul 2026 14:50:04 +0200
+From: Thierry Reding <thierry.reding@kernel.org>
+To: Will Deacon <will@kernel.org>
+Cc: Rob Herring <robh@kernel.org>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	Jonathan Hunter <jonathanh@nvidia.com>, David Airlie <airlied@gmail.com>, 
+	Simona Vetter <simona@ffwll.ch>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
+	Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
+	Sowjanya Komatineni <skomatineni@nvidia.com>, Luca Ceresoli <luca.ceresoli@bootlin.com>, 
+	Mikko Perttunen <mperttunen@nvidia.com>, Yury Norov <yury.norov@gmail.com>, 
+	Rasmus Villemoes <linux@rasmusvillemoes.dk>, Russell King <linux@armlinux.org.uk>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Gerald Schaefer <gerald.schaefer@linux.ibm.com>, 
+	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Christian Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, 
+	Andrew Morton <akpm@linux-foundation.org>, David Hildenbrand <david@kernel.org>, 
+	Lorenzo Stoakes <ljs@kernel.org>, "Liam R. Howlett" <liam@infradead.org>, 
+	Vlastimil Babka <vbabka@kernel.org>, Mike Rapoport <rppt@kernel.org>, 
+	Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>, 
+	Marek Szyprowski <m.szyprowski@samsung.com>, Robin Murphy <robin.murphy@arm.com>, 
+	Sumit Semwal <sumit.semwal@linaro.org>, Benjamin Gaignard <benjamin.gaignard@collabora.com>, 
+	Brian Starkey <Brian.Starkey@arm.com>, John Stultz <jstultz@google.com>, 
+	"T.J. Mercier" <tjmercier@google.com>, Christian =?utf-8?B?S8O2bmln?= <christian.koenig@amd.com>, 
+	Steven Rostedt <rostedt@goodmis.org>, Masami Hiramatsu <mhiramat@kernel.org>, 
+	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, Catalin Marinas <catalin.marinas@arm.com>, 
+	Thierry Reding <thierry.reding@gmail.com>, devicetree@vger.kernel.org, linux-tegra@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-media@vger.kernel.org, 
+	linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, linux-mm@kvack.org, 
+	iommu@lists.linux.dev, linaro-mm-sig@lists.linaro.org, 
+	linux-trace-kernel@vger.kernel.org, Thierry Reding <treding@nvidia.com>, Chun Ng <chunn@nvidia.com>
+Subject: Re: [PATCH v3 04/11] arm64/mm: Add set_memory_device() and
+ set_memory_normal()
+Message-ID: <ak5CXzGStC6ZmtwI@orome>
+References: <20260701-tegra-vpr-v3-0-d80f7b871bb4@nvidia.com>
+ <20260701-tegra-vpr-v3-4-d80f7b871bb4@nvidia.com>
+ <akYs91INHMXMTI-t@willie-the-truck>
+ <akZkuwktaXFTrASP@orome>
+ <akaSJ5D98w2cHqb6@orome>
+ <akftuw9NyRy36fXA@willie-the-truck>
+ <akuvyu1Pq0ZVMZV0@orome>
+ <akzikTrmhMsvkNVY@willie-the-truck>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="gs6kcdn3aiethnov"
 Content-Disposition: inline
-In-Reply-To: <20260701134727.882734-1-thuth@redhat.com>
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=KsJ9H2WN c=1 sm=1 tr=0 ts=6a4e46cb cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=kj9zAlcOel0A:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=20KFwNOVAAAA:8
- a=hYLWXru5GXBysA_Rh0gA:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzA4MDEyMCBTYWx0ZWRfX88T1SAQeZSrH
- xDERXzoCBnnG+YkNJ99GOP2f0Vv7SecmgPwy0H862QGFMcHFxdg3idk8iMr8FVkfVcIp72IjMxp
- 5Z3h+RoKVc08hS03+vhmp0bJAusaZ20=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzA4MDEyMCBTYWx0ZWRfXx049CGchplPf
- RcEGuGKGDUP64cl9g/3ODLigpm3bqYfdamry0YC1f14qRTGcJu6BcxId/BnvAN9KEeemdF7FVH9
- 66wc/L59Wyr72q3OR21MXN2dDrpz/L+pYGPlBkJ3Ussb8PuqZ4unbcOCPcYg8H1+32738+ufjyJ
- V+yz9WpUWhfcPfMf9w/GrQsfGPwoplNumzSa/lp1KFrieQEVrr0cmE9W8jgfUOwXBzbFa4fBAcU
- f9j1AZOsNrxhysDm5a0kqeI8V7dbc3DsuOXDr3QSrsWZzdtoeTG58chAO/GWD7jARZy3hRFp4kq
- mniAuurXgS2152DeSuQvbjPPU7RY5I+RuygEXiq1obxSxB7MyUZojIC2lM6/rYj9D6M+Xbi2XhC
- Szyd92x27+vp5LK4Ei9YelbRiG/rUQXzUTJ6176A4SMI+hGu3ZFGvfS9fNjMycMRyRzDW3hYFSy
- 736KhzvQMvmpLfyfkfw==
-X-Proofpoint-ORIG-GUID: q2ohNmmsKANnZdIJpmU580apuaSuvxsm
-X-Proofpoint-GUID: q2ohNmmsKANnZdIJpmU580apuaSuvxsm
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-07-08_02,2026-07-08_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- impostorscore=0 malwarescore=0 spamscore=0 adultscore=0 clxscore=1011
- suspectscore=0 lowpriorityscore=0 priorityscore=1501 bulkscore=0 phishscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607080120
+In-Reply-To: <akzikTrmhMsvkNVY@willie-the-truck>
 
-On Wed, Jul 01, 2026 at 03:47:27PM +0200, Thomas Huth wrote:
 
-Hi Thomas,
+--gs6kcdn3aiethnov
+Content-Type: text/plain; protected-headers=v1; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [PATCH v3 04/11] arm64/mm: Add set_memory_device() and
+ set_memory_normal()
+MIME-Version: 1.0
 
-> From: Thomas Huth <thuth@redhat.com>
-> 
-> unistd_32.h is not build anymore since commit 4ac286c4a8d90
-> ("s390/syscalls: Switch to generic system call table generation").
-> Thus drop the superfluous line from the Kbuild file now, too.
-> 
-> Signed-off-by: Thomas Huth <thuth@redhat.com>
-> ---
->  arch/s390/include/uapi/asm/Kbuild | 1 -
->  1 file changed, 1 deletion(-)
-> 
-> diff --git a/arch/s390/include/uapi/asm/Kbuild b/arch/s390/include/uapi/asm/Kbuild
-> index 46c1ff0b842a1..378151cef3cce 100644
-> --- a/arch/s390/include/uapi/asm/Kbuild
-> +++ b/arch/s390/include/uapi/asm/Kbuild
-> @@ -1,4 +1,3 @@
->  # SPDX-License-Identifier: GPL-2.0
->  
-> -generated-y += unistd_32.h
->  generated-y += unistd_64.h
+On Tue, Jul 07, 2026 at 12:27:13PM +0100, Will Deacon wrote:
+> On Mon, Jul 06, 2026 at 03:49:24PM +0200, Thierry Reding wrote:
+> > On Fri, Jul 03, 2026 at 06:13:31PM +0100, Will Deacon wrote:
+> > > On Thu, Jul 02, 2026 at 06:41:23PM +0200, Thierry Reding wrote:
+> > > > On Thu, Jul 02, 2026 at 03:46:44PM +0200, Thierry Reding wrote:
+> > > > > On Thu, Jul 02, 2026 at 10:18:47AM +0100, Will Deacon wrote:
+> > > > > > On Wed, Jul 01, 2026 at 06:08:15PM +0200, Thierry Reding wrote:
+> > > > > > > From: Chun Ng <chunn@nvidia.com>
+> > > > > > >=20
+> > > > > > > Add helpers to swap PROT_NORMAL and PROT_DEVICE_nGnRnE protec=
+tion bits
+> > > > > > > on a kernel-linear-map range.
+> > > > > >=20
+> > > > > > That sounds like a really terrible idea. Why is this necessary =
+and how
+> > > > > > does it interact with things like load_unaligned_zeropad()?
+> > > > >=20
+> > > > > This is necessary because once the memory controller has walled o=
+ff the
+> > > > > new memory region the CPU must not access it under any circumstan=
+ces or
+> > > > > it'll cause the CPU to lock up (I think technically it'll hit an =
+SError
+> > > > > but in practice that just means it'll freeze, as far as I can tel=
+l).
+> > > > >=20
+> > > > > Probably doesn't interact well at all with load_unaligned_zeropad=
+().
+> > > > >=20
+> > > > > > I think you should unmap the memory from the linear map and mem=
+remap()
+> > > > > > it instead.
+> > > > >=20
+> > > > > Given that the memory can never be accessed by the CPU after the =
+memory
+> > > > > controller locks it down, I don't think we'll even need memremap(=
+). The
+> > > > > only thing we really need is the sg_table we hand out via the DMA=
+ BUFs
+> > > > > so that they can be used by device drivers to program their DMA e=
+ngines
+> > > > > internally.
+> > > > >=20
+> > > > > Looking through some of the architecture code around this, should=
+n't we
+> > > > > simply be using set_memory_encrypted() and set_memory_decrypted()=
+ for
+> > > > > this? While they might've been created for slightly other use-cas=
+es,
+> > > > > they seem to be doing exactly what we want (i.e. remove the page =
+range
+> > > > > from the linear mapping and flushing it, or restoring the valid b=
+it and
+> > > > > standard permissions, respectively).
+> > > >=20
+> > > > Ah... I guess we can't do it because we're not in a realm world and=
+ so
+> > > > the early checks in __set_memory_enc_dec() would return early and t=
+urn
+> > > > it into a no-op.
+> > > >=20
+> > > > How about if I extract a common helper and provide set_memory_p() a=
+nd
+> > > > set_memory_np() in terms of those. Those are available on x86 and
+> > > > PowerPC as well, so fairly standard. I suppose at that point we're
+> > > > closer to set_memory_valid().
+> > >=20
+> > > Why not just call set_direct_map_invalid_noflush() +
+> > > flush_tlb_kernel_range() for each page? We already have APIs for this.
+> >=20
+> > Having a "standard" helper with a fixed and documented purposed seemed
+> > like a preferable approach for this particular case. We also may want to
+> > make the driver that uses this buildable as a module, in which case we'd
+> > need to export these rather low-level APIs. And then there's also the
+> > fact that we typically call this on a rather large region of memory
+> > (usually something like 512 MiB), so doing it page-by-page is rather
+> > suboptimal.
+> >=20
+> > > The big challenge I see with any linear map manipulation, however, is
+> > > that it will rely on can_set_direct_map() which likely means you need=
+ to
+> > > give up some performance and/or security to make this work. Does memo=
+ry
+> > > become inaccesible dynamically at runtime? If not, the best bet would
+> > > be to describe it as a carveout in the DT and mark it as "no-map" so
+> > > we avoid mapping it in the first place.
+> >=20
+> > VPR exists in two modes: static and resizable. For static VPR we do
+> > exactly that: describe it as carveout in DT with no-map and deal with it
+> > accordingly in the driver. Resizable VPR is for device that have small
+> > amounts of RAM. Content-protected video playback will in the worst case
+> > consume around 1.8 GiB of RAM, so we want to be able to reuse for other
+> > purposes when VPR is unused on those devices. In that case, the memory
+> > is also described as a reserved-memory region in DT, but it is marked as
+> > reusable so that it can be managed by CMA.
+> >=20
+> > The resize operation is fairly slow to begin with because we need to
+> > stall the GPU and put it into reset before the operation, then take it
+> > out of reset and resume it afterwards.
+> >=20
+> > What kind of performance impact do you expect?
+>=20
+> You'll need to measure it, but we've seen reports of double-digit
+> percentage regressions in performance and power. As I said, the problem
+> is that you need to split the linear map to 4k page at runtime to unmap
+> the dynamic carveout, but that isn't something that can be done on most
+> CPUs. Therefore you end up having to use page-granular mappings for the
+> entire thing, similarly to how 'rodata_full' drives can_set_direct_map()
+> and the perf/power hit affects everything.
+>=20
+> It's hard to know what to suggest... I wonder if any of the memory
+> hotplug logic could help here?
 
-On repeated builds it results in:
+I've read up on memory hotplug a bit and it sounds like it could fit
+this really nicely. Given that we only use CMA (along with the extra
+patches to it) to make sure that any buffers are reclaimed for VPR use,
+we should be able to get rid of the CMA usage altogether and replace it
+with online_pages() and offline_pages() instead. Rather than using a
+fixed set of CMA areas like we currently do, each "chunk" in the VPR
+driver could represent a memory block instead (which looks like it will
+be 128 MiB for 4 KiB pages and 512 MiB for 64 KiB pages). We currently
+use 512 MiB as the chunk size, so it should be relatively similar and
+easy to adjust.
 
-  SYSHDR  arch/s390/include/generated/uapi/asm/unistd_32.h
-  REMOVE  arch/s390/include/generated/uapi/asm/unistd_32.h
+One issue that we would absolutely need this memory to be ZONE_MOVABLE
+=66rom the start. Using no-map in DT and then online_pages() probably will
+not work because there's no struct page for the memory. So we're left
+with keeping the memory onlined by default, in which case we'd need some
+way for DT to instruct the memory to be put into ZONE_MOVABLE always.
 
-A complete removal would require changes to arch/s390/kernel/syscalls/Makefile
-at least, but we still  might want to have unistd_32.h around.
+There's a "hotpluggable" property for "memory" nodes, maybe that can be
+extended to apply to reserved-memory nodes as well?
 
-Thanks!
+Thierry
+
+--gs6kcdn3aiethnov
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAmpOR3kACgkQ3SOs138+
+s6EbFg/9G04JpY5Cu3AX1K9vtQtrw3D5Gowsl1qT7PXe9AmN9PK2oggEDnsm6JPw
+hyDVKxzpLbktBMB5vNKmr4KGYrIEeW4fs+thwrdNjf5GhX7cTQyL78oHaEVTZAn7
+cpiFfepSy6xW4ZDIpHzj6bUVg06S8VZmLOwKHuDbA4N6PZ95evD1ff3/TQs6Y1E6
+WJhgBPjZbTLh6jiIM1y2hRK3GAChy9nC2g2R1LOySIK9NBCgfKV0p2/hv+vQCLSk
+e5ON2GcP06dR1XChOMnEPkUS4BzptxIzVkM7aRiGPJqxVREXJK4MvRTyjZ+W4FuX
+R/QDhwkxdI8+4pwfVPWB10dEWH5vfIrxU5VwO4Uujp4p14P1/nKkWXTe8S69Qitj
+GU8UxLk76btqwkVS43qOyHXH+yXuQBiaWBVTyo8vQx3zp5i8gq1h1xm04ryI0hWj
+BGqXiOxzDr6lEmXUj6h3gUTP+14whWOW8lTqIL0QTKwC4HDv5KTgfgBME2KkYAwp
+1adJdmJ09vhkKAOK1mKHCJHmhOggmoDpIfH8yYSbHeTe4mZZHq9qKtFjvzA8TtMw
+82H0EfyjYM8eNPNZU1/SfsTnhKpTmnLpDCmmdz6Oe4hWGxZVO16z9VujL/EPa0fa
+mY3dWpM8cSvKCP6jm8jguy5IhhLZkS4ljig1obSEvcH0/Tu1FJk=
+=zFs3
+-----END PGP SIGNATURE-----
+
+--gs6kcdn3aiethnov--
