@@ -1,45 +1,45 @@
-Received: from out-170.mta0.migadu.com (out-170.mta0.migadu.com [91.218.175.170])
+Received: from out-188.mta1.migadu.com (out-188.mta1.migadu.com [95.215.58.188])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3148B3368A4
-	for <linux-s390@vger.kernel.org>; Thu,  9 Jul 2026 06:20:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EAEB43B6C11
+	for <linux-s390@vger.kernel.org>; Thu,  9 Jul 2026 06:22:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.188
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783578008; cv=none; b=dtnPI+u5YglZ+OPMHNRF8GAkxb6hcXkJXX33b8bft+ELWCQ74dekRR013qX/ILiusTSMgCSESBpio06paWbbtmjFhINOCfGdypYfsmHYg/fVNlLVb8of7mAwyDImno9TWUkDQ/i/zlXhVZGUOkbmUtz9sz+BAM0mRsJNU4Bfzbg=
+	t=1783578133; cv=none; b=Mi+fyNtV1FYzglyGpSmGJJsHNu1gb5xBi+OwCdnHIgW1z+yT0sYJDraptJ5oXqTwlSXGqD52IbqnaLPBsFA1vab2F4OwklTF5M6O3F0FiBhAZWOnhZiQR6nmGsii+RBD9jB3lPv0rvqsmltphJIOj4Hw6uTrfFhuRJ5dm3X50E8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783578008; c=relaxed/simple;
-	bh=8qVwWktxTz6gXQVrO6UEq7d6/qkHFBlpEUWBBjqfXHA=;
+	s=arc-20240116; t=1783578133; c=relaxed/simple;
+	bh=P/QCrg470mfFDR+Q+wE8Z4xuR+F8U2eThJhald4aKY0=;
 	h=Content-Type:Mime-Version:Subject:From:In-Reply-To:Date:Cc:
-	 Message-Id:References:To; b=Qw2PnTbiAK+TzziWFJIqvGR/nhrafAa1M/Grpvu86EOe9bjEcoAWU3CcdHvwKgXY2k5YbsnAUrd1NlyhaMbBaogY7i3aKZx4nQnMkDVUSibHfvj3US4Hu0m69QWnrBsHa378mzjCiM8XtoE9AskRgBk0WKieuHoI3hRudD5Y+sY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=deA20KBL; arc=none smtp.client-ip=91.218.175.170
+	 Message-Id:References:To; b=Z8ESwD9qU+mjTeA11QyqZNSyyxOMtcLCKgtWxwAcAoUqwvVG3kFO9zHLWzgcXTsM+Z84WT6Z87XrB3bGgApvfBu6woDBVPaoJGyev1v3Wkeu0dC6e3NIBwIRvgMsONvD21GDDC88SENvwEHf90nE7HYz6e8aRcz/p8ZQ5+iA7ic=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=Q7a+Bmp8; arc=none smtp.client-ip=95.215.58.188
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="deA20KBL"
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="Q7a+Bmp8"
 Content-Type: text/plain;
 	charset=us-ascii
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1783578003;
+	t=1783578119;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=YCfbSPYkuXgQMKbs8/rTmLjbAoORspmCy2JKVmh+HMY=;
-	b=deA20KBL4gs5pH8xMVS1j0msOIFOVHuhmvXwqHy4R8tcdNVF+S8N+RBPihPyQdVi7qqgKv
-	lsG2BAJdabQKkMub6HZAOquGVjWJF1OkWu1I22i+CErtYyEoKW/qZqnA/+uzTWAtYt28tu
-	eR26KQyGBnkFgtIMR2FAFMu3tF/QIzk=
+	bh=znZ8IZ2MCG5DYpWmhO7hiaMDFiMKsk7aYAqEZhmZICQ=;
+	b=Q7a+Bmp8koaIsN4oy4qnhCTUkeMPABO6vym8zcZXkhw9VG2A+cI4mxCTZpoIr6F4Sfk519
+	J7aSs4hEUaxzuXz8QtfaDb0ZgJIWsZGNUiVZIR+Q/Kkx4uP7X2lUT66oNyju4LF0v9tTSm
+	XJmvPgyF5Wx4S5G21qreKujdpLhW87s=
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3864.600.51.1.1\))
-Subject: Re: [PATCH 02/10] mm: provide free_reserved_pages(), removing x86
- variant
+Subject: Re: [PATCH 03/10] s390/mm: use free_reserved_pages() in
+ vmem_free_pages()
 X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
 From: Muchun Song <muchun.song@linux.dev>
-In-Reply-To: <20260708-bootmem_info_part2-v1-2-156ce4986598@kernel.org>
-Date: Thu, 9 Jul 2026 14:19:22 +0800
+In-Reply-To: <20260708-bootmem_info_part2-v1-3-156ce4986598@kernel.org>
+Date: Thu, 9 Jul 2026 14:21:13 +0800
 Cc: Dave Hansen <dave.hansen@linux.intel.com>,
  Andy Lutomirski <luto@kernel.org>,
  Peter Zijlstra <peterz@infradead.org>,
@@ -69,9 +69,9 @@ Cc: Dave Hansen <dave.hansen@linux.intel.com>,
  linux-mm@kvack.org,
  linux-s390@vger.kernel.org
 Content-Transfer-Encoding: 7bit
-Message-Id: <9667F817-DFD9-460B-B7AA-C9F551190F2E@linux.dev>
+Message-Id: <D12603A8-0072-4CD3-BC61-3E6F0B4ACC62@linux.dev>
 References: <20260708-bootmem_info_part2-v1-0-156ce4986598@kernel.org>
- <20260708-bootmem_info_part2-v1-2-156ce4986598@kernel.org>
+ <20260708-bootmem_info_part2-v1-3-156ce4986598@kernel.org>
 To: "David Hildenbrand (Arm)" <david@kernel.org>
 X-Migadu-Flow: FLOW_OUT
 
@@ -79,17 +79,7 @@ X-Migadu-Flow: FLOW_OUT
 
 > On Jul 8, 2026, at 22:10, David Hildenbrand (Arm) <david@kernel.org> wrote:
 > 
-> Let's extend free_reserved_page() in page_alloc.c to free_reserved_pages(),
-> dropping the custom x86 variant. The common-code variant will consume an
-> order, so adjust the x86 callers accordingly.
-> 
-> Make free_reserved_pages() assume that we are freeing ordinary
-> high-order pages, just with the special "reserved" flavor. The target
-> use case for now is freeing vmemmap PMD pages.
-> 
-> Set the refcount directly to 0 (instead of 1) and call
-> __free_frozen_pages(). Add some kerneldoc. Use a single
-> adjust_managed_page_count() call.
+> Let's use our new generic helper.
 > 
 > Signed-off-by: David Hildenbrand (Arm) <david@kernel.org>
 
