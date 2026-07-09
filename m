@@ -1,147 +1,141 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qv1-f46.google.com (mail-qv1-f46.google.com [209.85.219.46])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5446B3655F1
-	for <linux-s390@vger.kernel.org>; Thu,  9 Jul 2026 17:18:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 74D2F4DBD63
+	for <linux-s390@vger.kernel.org>; Thu,  9 Jul 2026 18:13:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783617483; cv=none; b=oWtczlfJPmyIYc6Atr1oib4qbZj4C14/WFoCt9z1diYARb9hn8aTX/YlO+X5bIOrlg4MTP/FpmtrayZSpC8yHBgyG7dGhzi88LbyqUjrlzvlZdHwfwmTInLLvTDfiYyj67RY2tpN1DW6UVhv8Rg7i5fKJRKih2fvvsU/rijVLOI=
+	t=1783620819; cv=none; b=tLvGF1axeP46wofeEdCrT2+qv/gRcpcSyaABMO+tzbm7/EnNxLalBJbadZm8N77GtuBfN6hDys17tXrVXzOzgS7MOx4hx3xy1oWGBvO5nNfK4HJluf5aa3erg06AA4KohNakEJZTq1DyZ61HH5J0/UO0sUUd53IgLGJVi/8j75E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783617483; c=relaxed/simple;
-	bh=HbgxIQVvGQge9wsEV+ID6C+lwO/aq1D+JIJTvYxaVvA=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=PjmhqqCCACy0K97sEa5dEbM9tHfCZPk0PZV5PmzHMP+YyVcpBhKQ+bkB1uQkTb2WhXh59x7QtBuhTXVmk/f/S3OU6AZgvTWxjTyFvU1/Od1ganqIMMXmfHAXGGTicB3qlYPF3er94OnFWdzKAlL0x3muFCKyaDPcDdU1XWSM2Q8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=eB8MJsBA; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1783620819; c=relaxed/simple;
+	bh=bvUrlGSFk5YOKRSganZsEuUYcVv+Ux1auqFKnDwJzG8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=jMzI/9frZMnSE9vzpTTes6bQUrpTljXlBvwJZMcEX333M/v0/8kpPArIaywzYI4OITy88mMSw/kKJTK7FMRUCzqettzCCnFIIsCKGfPph+Nv4w01gurvFKCDLrPrddIbiT5UuaXRd3IPItBrBzVbQlO34sU8VtZBHuF9Q+emO8Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca; spf=pass smtp.mailfrom=ziepe.ca; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=CyuetQGX; arc=none smtp.client-ip=209.85.219.46
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="eB8MJsBA"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 669GoFnX2880084;
-	Thu, 9 Jul 2026 17:17:50 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=bK4PTm
-	VSvQLtKnImQ9CPpDWo785JHDdO2dToUg/S0xg=; b=eB8MJsBAAN+Tcd1sVt3Ns2
-	i/mfYpTnl5e/gEMRFyqCOZoObZufeNkD4guCsdzRBOZwMaQiSOhj+ahDH0vAdK9f
-	p0vQe3Q9MaIMOd7m7G7YB/Ul04lJNFCoZJJi1QxiZLRBtw84rMQYP6/jKpY5nv0S
-	fuTHVkg/mM+VSIK4JgZ6LP/HuuYG12v6AgKgk1an7lCiGcCsL6mrjR/NCghZYG8P
-	3YjttFO0Z68TQ8Fu5No7hvtlyLxRb1/hypRIVqgBuyFzsTSJuKap4TKNXq55X3Kp
-	SYTt2hacghVx7n5TQljGpyv7SWMxuD3Y+ADqgafP8GKFVXBlTp6VOSg3qkRlzC1Q
-	==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4f6qknt9gf-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 09 Jul 2026 17:17:50 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 669H4cUE009949;
-	Thu, 9 Jul 2026 17:17:49 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4f7eqgdxrn-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 09 Jul 2026 17:17:49 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 669HHjvb38339016
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 9 Jul 2026 17:17:45 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 789442005A;
-	Thu,  9 Jul 2026 17:17:45 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2EEDA2004B;
-	Thu,  9 Jul 2026 17:17:45 +0000 (GMT)
-Received: from [9.111.160.7] (unknown [9.111.160.7])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu,  9 Jul 2026 17:17:45 +0000 (GMT)
-Message-ID: <b524ae17-9fe5-4270-bb8d-3e411ef683e5@linux.ibm.com>
-Date: Thu, 9 Jul 2026 19:17:44 +0200
+	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="CyuetQGX"
+Received: by mail-qv1-f46.google.com with SMTP id 6a1803df08f44-8efb708b1a0so2094186d6.3
+        for <linux-s390@vger.kernel.org>; Thu, 09 Jul 2026 11:13:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ziepe.ca; s=google; t=1783620817; x=1784225617; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=cHkQmsdB2OewXXEQfHxageXwJQg6EnEw6Gurdq9kErI=;
+        b=CyuetQGXo+XLSmoKTPOORB5iZq46kMYcinoWKTTT9t9YgZLQLkYpNwaUJHmexivIiu
+         ECEWeHDILxRaM4+Ayvc+zpSU+PNsac7aNY6/lZqmH/QL/AoFDMu8CGhEKbIksPBegCUm
+         UuqJfcc3QHSp+a+5qVjpvW4boDrYD+LeVpXx9OUax3+4uc+KdA0hzCejWb4CcqIDpTx8
+         4EazscwPbkuS+p88qBUmV24VJb72qoR9F89Z+B3/+befVNJt/e2UziS9nm3eL81IA/eF
+         tnaxW2tmKDOVyQo4KijfP9MSuarwiJdw2Yh880kQAkUEGw9gtkNEvizju8tYl4otpXt1
+         cdlw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1783620817; x=1784225617;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=cHkQmsdB2OewXXEQfHxageXwJQg6EnEw6Gurdq9kErI=;
+        b=hxq9Gm3F2zchAJ5cbJc0QHoHsKsT7Bduc3plR4UJVY+tPG6JvNgrMN9ewsbcDzCHSn
+         ldnkGd7iowYmfsQuhDcVlwcdoJvpa0LRfL1Aaf0gH8uS2JV8hAIRh9epY/dRddDFOVFT
+         6lxw8jhCrw0li3pDkj5/To8hCt9znPm5SSl5DCdiFJPjf40stCyFE7SVzyVL1dXBJ0d+
+         tpqWZkya9UpUs8EVJQeDN+GLR4cSNvgRcT3vYssvbGdXTaAznxcqqi7Kn+jkcxRTWs2d
+         NSEOC/e0axKdGh+mW8/cTr7++j3MtFbHYTmq59u+2ScyMk1A8Ax+fIqiiUsbCnQsjiKj
+         fHPg==
+X-Forwarded-Encrypted: i=1; AHgh+RpxBPj5iCSPdXhgPLJZoppKvE8ROZ1Hze7hEbjmm9ijsnRANkxzeRH4yK4lZh26rR2oslekQSgp+YdX@vger.kernel.org
+X-Gm-Message-State: AOJu0Yw3SdkcbT9FU5h/lJ7pBytm2Uh8mM6DL33afUOJYJqzclAZcLsV
+	wJuBKoJWFwsSKven4geVgIyNp5IZ+YcSY2EjB1ZRAUGY0tpG/39BcbF7G/URiFqclVM=
+X-Gm-Gg: AfdE7clQ+uOzqIt3A+r/9fGiWzbqWEaogV21qI4ZcgbAthRh4b/r90GUb3itFaeupsv
+	oZuMW+xrCcR6HhcaCCZnijpJA+rNOolQO4CkmAIghAAZjudZUYdJO6ix5O04fIXy25SNf5wHGv7
+	deoV1yDilMz0BHM3D0uQeHxHdf8b38GGTloDnt41rara8YMe9/0htO6W1XD0YEDaVEvpDmEpa//
+	Gb5+2GNYwX7w7gnlubggUEGuHEGntHXFIKXPFvAUOAUEEes9Y276Pq35jASicIvL5/9wOyg+A7E
+	saaxxVFiWAC7gAcgX8ovPxQy7GlybMaYMUMd0KValw3SwpXoQn2TahQBX34nkfUdZMXP+PVE9j/
+	x8WPRgKeLgjbBs2yk/lMXQVG97+pAH67LWGMoErTeuW10fROrM+BLt7GY1VvU
+X-Received: by 2002:ac8:690c:0:b0:51c:43d8:8604 with SMTP id d75a77b69052e-51c8b3b4eb1mr92527611cf.51.1783620817365;
+        Thu, 09 Jul 2026 11:13:37 -0700 (PDT)
+Received: from ziepe.ca ([159.2.72.92])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8ffd82ea9casm22695666d6.42.2026.07.09.11.13.36
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 09 Jul 2026 11:13:36 -0700 (PDT)
+Received: from jgg by wakko with local (Exim 4.97)
+	(envelope-from <jgg@ziepe.ca>)
+	id 1whtFg-00000005Kqr-0IQc;
+	Thu, 09 Jul 2026 15:13:36 -0300
+Date: Thu, 9 Jul 2026 15:13:36 -0300
+From: Jason Gunthorpe <jgg@ziepe.ca>
+To: Catalin Marinas <catalin.marinas@arm.com>
+Cc: "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>, iommu@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	linux-coco@lists.linux.dev, Robin Murphy <robin.murphy@arm.com>,
+	Marek Szyprowski <m.szyprowski@samsung.com>,
+	Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
+	Steven Price <steven.price@arm.com>,
+	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
+	Jiri Pirko <jiri@resnulli.us>, Mostafa Saleh <smostafa@google.com>,
+	Petr Tesarik <ptesarik@suse.com>,
+	Alexey Kardashevskiy <aik@amd.com>,
+	Dan Williams <dan.j.williams@intel.com>,
+	Xu Yilun <yilun.xu@linux.intel.com>, linuxppc-dev@lists.ozlabs.org,
+	linux-s390@vger.kernel.org,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org,
+	Jiri Pirko <jiri@nvidia.com>, Michael Kelley <mhklinux@outlook.com>
+Subject: Re: [PATCH v7 16/22] dma-direct: make dma_direct_map_phys() honor
+ DMA_ATTR_CC_SHARED
+Message-ID: <20260709181336.GM118978@ziepe.ca>
+References: <20260701054926.825925-1-aneesh.kumar@kernel.org>
+ <20260701054926.825925-17-aneesh.kumar@kernel.org>
+ <ak42F240d-53QeFN@arm.com>
+ <yq5apl0xgy89.fsf@kernel.org>
+ <ak-CT3oanlDfgTy4@arm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net] net/iucv: take a reference on the socket found in
- afiucv_hs_rcv()
-To: sashiko-reviews@lists.linux.dev, Bryam Vargas <hexlabsecurity@proton.me>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        linux-s390@vger.kernel.org, Hidayath Khan <hidayath@linux.ibm.com>
-References: <20260705-b4-disp-fc79c0dc-v1-1-d2cdcb57afa9@proton.me>
- <20260707032441.B1FB31F00A3A@smtp.kernel.org>
-Content-Language: en-US
-From: Alexandra Winter <wintera@linux.ibm.com>
-In-Reply-To: <20260707032441.B1FB31F00A3A@smtp.kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=Q/XiJY2a c=1 sm=1 tr=0 ts=6a4fd7be cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=mpG3tCo3JFPGy_rZ:21 a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22
- a=VwQbUJbxAAAA:8 a=mJcjGnY3pr7I_6ufGOQA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: VWMUhkT7r8-ws6wl3HKVO9WD32o1xS2R
-X-Proofpoint-ORIG-GUID: VWMUhkT7r8-ws6wl3HKVO9WD32o1xS2R
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzA5MDE2NCBTYWx0ZWRfXyjszKf11lMKo
- eQWU3FVm5puUEDcLJa1i6VkwlbEQ3ve3cggSxOOk44KmzZtGEkiFwrchyn8nNvXhbOyys37M3F3
- ggrV23m9Vbqq5lw37FwKV70h7uNLYu4=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzA5MDE2NCBTYWx0ZWRfXwzBTYai0E8U7
- 9X36QJ39dw6A3Tz5ceD9wBd1Nj83dudkntDfZyTWBUSlGoGy7A2UYXPRqYadCD2r7sHlKWrSiEW
- S0NKyt4pOiH9SVahZ6W01FDmeaHnjj/Ud9uzBwKWhof+HJhpKx3K3HQPCVMXwKX3rad5mVcGwxh
- dbDSfqmnZDX3XoOv8gRKFoQVK7TqqvyNG0Z2uDi5izt0TJzE1DNiW0+TA6IPnSUnYi4czdi4QW8
- +Laanu62+/xWl1Co94AFxm0CJhhyCFZBEtwccwcbw0mOOC8iIEo6OWbtsEO67EfOQSIXBAO1Lzc
- X1ubXcAzCBMVhp5Oe6uuVB6a8/+V9j4rhVNukVwv/pNj2GGo7so8H9rgHRF5EimYghPY3WgAqFG
- Qz2AsbPx5jiNehJb0kEZOonYtJHmV2rEHc2/VYPFXnsOxH256voKqUMAKG71wnNbECV10Dql56C
- ddSMgGXkVOM8hKXJDRA==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-07-09_03,2026-07-09_03,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- adultscore=0 impostorscore=0 spamscore=0 phishscore=0 priorityscore=1501
- bulkscore=0 clxscore=1011 lowpriorityscore=0 suspectscore=0 malwarescore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607090164
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ak-CT3oanlDfgTy4@arm.com>
 
-
-
-On 07.07.26 05:24, sashiko-bot@kernel.org wrote:
-> [Severity: High]
-> This is a pre-existing issue, but does modifying the socket state from a
-> softirq context corrupt the socket state machine?
+On Thu, Jul 09, 2026 at 12:13:19PM +0100, Catalin Marinas wrote:
+> > > For AMD/SME, on host with memory encryption we now end up setting the C
+> > > bit for DMA_ATTR_MMIO. This is fine for RAM but not sure whether
+> > > some other MMIO bus understands this attribute. Maybe we should stick to
+> > > something like __phys_to_dma() for the !CC_SHARED && MMIO path. Or,
+> > > since this is not universally defined, just use the old dma_addr = phys
+> > > if MMIO and ignore any unlikely DMA offsets.
+> > >
+> > 
+> > Considering for AMD/SME system an unencrypted dma addr is one without C
+> > bit, will this be good?
+> > 
+> > 	/*
+> > 	 * For host memory encryption and device requiring unencrypted DMA,
+> > 	 * MMIO memory is treated as shared by default.
+> > 	 */
+> > 	if (attrs & DMA_ATTR_MMIO) {
+> > 		if (cc_platform_has(CC_ATTR_HOST_MEM_ENCRYPT) || force_dma_unencrypted(dev))
+> > 			attrs |= DMA_ATTR_CC_SHARED;
+> > 	}
 > 
-> Since this handler runs in softirq context when network packets arrive, it
-> acquires the socket spinlock and directly mutates sk->sk_state. 
-> 
-> If a user process is concurrently executing a system call and holds the socket
-> mutex via lock_sock(), does bypassing the backlog mechanism by failing to check
-> sock_owned_by_user() cause race conditions?
-> 
-> [ ... ]
-> 
->> @@ -2089,6 +2089,8 @@ static int afiucv_hs_rcv(struct sk_buff *skb, struct net_device *dev,
->>  			}
->>  		}
->>  	}
->> +	if (sk)
->> +		sock_hold(sk);
->>  	read_unlock(&iucv_sk_list.lock);
->>  	if (!iucv)
->>  		sk = NULL;
->> @@ -2138,6 +2140,8 @@ static int afiucv_hs_rcv(struct sk_buff *skb, struct net_device *dev,
->>  		kfree_skb(skb);
->>  	}
->>  
->> +	if (sk)
->> +		sock_put(sk);
->>  	return err;
->>  }
+> Yes, I think it does the trick, preserves the current semantics for AMD.
+> I guess you could use a single 'if' for all checks (up to you).
 
+Please don't change it, MMIO P2P is broken on CC systems today and it
+should stay broken. Passing DMA_ATTR_MMIO with DMA_ATTR_CC_SHARED is
+an error that we need to correct in the drivers not make work in the
+core code.
 
-I think sashiko is right, this patch does not completely close the gap.
-See my commit message for
-f558120cd709 ("net/iucv: fix use after free in iucv_sock_close()")
-Iiuc the socket locking in AF_IUCV is incomplete in general.
+Jason
 
-Bryam, would you like to try to update the socket locking in AF_IUCV altogether?
-Otherwise Hidayath or I can take that task.
+ 
