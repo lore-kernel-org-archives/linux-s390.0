@@ -1,159 +1,136 @@
-Received: from mail-wm1-f53.google.com (mail-wm1-f53.google.com [209.85.128.53])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C80F6244661
-	for <linux-s390@vger.kernel.org>; Thu,  9 Jul 2026 13:04:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B58D9331EDC;
+	Thu,  9 Jul 2026 13:54:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783602269; cv=none; b=NQjSIBMtCmM2yDtpui4CMj9SA30rKJqDa+5rrpzMLgDb8bVORT8ZpuAQKbzOYQIu8uer109xnSf2CrRJIQHk4F3HWmXhH86uSmR1YsQopj+IV5p6gzIhgeraUX2ljzVwId4LiHLZ7xJr4ZDuZ5bGw9qQeWI+kALGSrMPJv7AnFQ=
+	t=1783605253; cv=none; b=n6Yk2jrj2rXLhDSx8p40yNivEWaXcXLu2AU87OahevkhvFtIV2j9Uj7Xddcc9uPOC3zSaSNUzrvEFwp0w9ksuguaEDQ4McEPVQzkKq+9U3Xu+cWUbTrcvUSRqcS5v6s4qe5z+6nTWK110YrAzb8e9Mfgw2YLlqx7X8pnqgE89DA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783602269; c=relaxed/simple;
-	bh=pomWuPe/tr64a82692VQtY4Wk2PnNc+aTLslFAls9Aw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=eQ/zx5QbVkm0qPd1L/fgxQGSMhpTNsVFJaeUtYXfaf+BOqfu8iLJnk8WyKki7DmvHgWDhRSeue95AVQqIZMgNRaoEUu3MZV8xSqjt3Nuck1K5EjFTtwZa/2ru3oU1EZgX73iGf4sVTFxoq7TfpMxiWkJpqKXCeVKalHZZcSJIwU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=GH6Q3lUU; arc=none smtp.client-ip=209.85.128.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
+	s=arc-20240116; t=1783605253; c=relaxed/simple;
+	bh=N/FVJoLGchO37FNS19p+JzA0T8fcwmsQE/YKK1R72tU=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=dbp809YamQrtrI8ian/7u70VnU5HqA1VMh+nut+6XLp3adC8jC3PovnbSQqyxuTkoLPPRueLxlSVYjykoPDKGItRZ+QyQj8J78Vu/jfvpXe/hwP/kbH7DW7Au0wZJuwzyuSS+DYXUUqvulCWtHjdtwrWgUcVtIvsg6LMZdilFGs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=rmbmNdu3; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="GH6Q3lUU"
-Received: by mail-wm1-f53.google.com with SMTP id 5b1f17b1804b1-493c59f740cso14487425e9.3
-        for <linux-s390@vger.kernel.org>; Thu, 09 Jul 2026 06:04:27 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=suse.com; s=google; t=1783602266; x=1784207066; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=fOOmFkjlODizpn7Pcs0slVGKdf2bx5h/bU795bDZqXU=;
-        b=GH6Q3lUUH5Jiyx1mink2Jtohp84TSDDEwackmOd/AdtmidnqTqsXgdvLLyetR8RVeK
-         lYMoyOeS8Ai9Rwkx8+q7VssbZtSYDSxbj9whzWtRuZvOBLIWBbNx2INXa/0s+13BvPxk
-         96qyo7AZNuJCGKyKsOaXepdd5rNpoDg/1+xvjfV5rIlrbjkeHeM7CLoxCnzFl8CDlgYQ
-         jIWtgmx+/T0Ej2CKK3kpkA7HGtUg7Ii4PBMMj3tx1p8NgvtubSTu5BLVTLvXAAlpfy+L
-         6g8NY3Do4fJXTEY1MdkqcOLUL/LUMjieUgAJ8jO/P4DSceQnZvVlACJ4A/zW6HgOL/HB
-         rtLQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783602266; x=1784207066;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=fOOmFkjlODizpn7Pcs0slVGKdf2bx5h/bU795bDZqXU=;
-        b=dylu6gcfWHBgGmmY5Y1VSXqzSylEK5A43XbqJcBeNCyktHtOLnS6Tga8vOQQ5Ab4XY
-         3YxQTNARuacXps1Mq9CgaFwZbZB6h8b80EGovICeSqJXTod5wru/UsWbsL6pks8rt85A
-         ixQ94b+39Ctp4byGBSTqxSrG234GReGAvpiNTiCgJ0V77bK9jNhE42+hV3nwZKtQLMPz
-         +N7kZIaiiwCKLvwfri5nQDIPyROCx3ckI3c+GUxxtV+ATRGRcp7GWmLS9yoqpnmFmlei
-         W3IWK69pf8uQaJNwH51IplBZL3ycEyfOGyN73X2eJjD46upfPDlCH/Csv7xf3cl56cjE
-         WpnQ==
-X-Forwarded-Encrypted: i=1; AHgh+RqYJv/2TxP2RgMfw54fBOr7pYWDC2UFVTJ7mMyfTQmmNdCHbidEP7y8JoC2vbfIcfIXWhP5m8hADERZ@vger.kernel.org
-X-Gm-Message-State: AOJu0YwtxQXMvzZQp7eU5H/6oKVkKycLRucKJlgbII+ycDXg+1egggHc
-	AT9a/KbR1VyffGFkQq9k68x9WEtJn9kq6XV+tOO/XlDorCDJy3ynB7EWElGJTET/7uI=
-X-Gm-Gg: AfdE7cnGG3owTr7f8EIflvbDFI41HrLHwxMpP9y8cHxWz0P+UR+r1iEAiWd0oq3CDLr
-	oeUcfeLQLmuMN+YpBlPQICFATX2Pcasj+VNd1p2zK7RV5GO+R5uMcJYQEOd8yIdVTYIzPz3eJVc
-	Nspwf8a1O8kzC8P++ObFytk1uc3Ja6cXNJ+9jAK+jN9/icL2HDGWC6HgjQ5WqvWxiuSp15iudv7
-	SNWVKcVvyciJ9yhp8xfqPiSX68OJSDkd7Xtly/g6iDtgX9HPAheUZaI0BXGryYeJU+clx5VixFh
-	JpHp3LRpxylryadN5YGq2ehgCpX6fSbbdB04ORGlB44Ey/s+xoX+FIzVxqN946G4JErsfZm39S7
-	Fl1X2gVFKuSrjcokpWEXAuHbjQ3uTc/EHGD/i199E7RAqjTNwS1o0pFFBze3XuDgsX8ST9gb1jn
-	T7jYYsSRPuB8ZVcYc6SRFi6PDKWgkfBYcrQmCwZg==
-X-Received: by 2002:a05:600c:6206:b0:493:d078:796 with SMTP id 5b1f17b1804b1-493e6a4a8a4mr66442385e9.17.1783602266150;
-        Thu, 09 Jul 2026 06:04:26 -0700 (PDT)
-Received: from localhost.localdomain (nat2.prg.suse.com. [195.250.132.146])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-493eb6fb526sm69825665e9.15.2026.07.09.06.04.24
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 09 Jul 2026 06:04:25 -0700 (PDT)
-Date: Thu, 9 Jul 2026 15:04:23 +0200
-From: Michal =?utf-8?Q?Koutn=C3=BD?= <mkoutny@suse.com>
-To: Jiri Pirko <jiri@resnulli.us>
-Cc: linux-rdma@vger.kernel.org, cgroups@vger.kernel.org, 
-	netdev@vger.kernel.org, linux-s390@vger.kernel.org, linux-kselftest@vger.kernel.org, 
-	jgg@ziepe.ca, leon@kernel.org, parav@nvidia.com, mbloch@nvidia.com, 
-	cmeiohas@nvidia.com, roman.gushchin@linux.dev, bvanassche@acm.org, 
-	zyjzyj2000@gmail.com, shuah@kernel.org, tj@kernel.org, hannes@cmpxchg.org, 
-	alibuda@linux.alibaba.com, dust.li@linux.alibaba.com, sidraya@linux.ibm.com, 
-	wenjia@linux.ibm.com
-Subject: Re: [PATCH rdma-next 08/13] RDMA/cgroup: Scope rdma cgroup device
- visibility to the net namespace
-Message-ID: <ak-Z071LrWhnI5lK@localhost.localdomain>
-References: <20260709095532.855647-1-jiri@resnulli.us>
- <20260709095532.855647-9-jiri@resnulli.us>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="rmbmNdu3"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 669BmnhH2227120;
+	Thu, 9 Jul 2026 13:54:08 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=rGOOVeLA20x0QPPK3WXVNgBbJLjJxEmrpOrL3YTRh
+	zs=; b=rmbmNdu3zZjhOsUB1fci3+/jwEvdrPEjtgWpY0ZCnMlHgtymHEMczGQye
+	++ONjy6r0Eh3YsoyQNxhjo9YxgDNyKz+Nkexjqdbt7WonJm331ybFBPpyqIDnHFT
+	P5ASwMeFurEiCJ9jz5tOXRZQl9+jFcMnle7e6rqdkgi6sbkK+M30PjKrGbE++0Y4
+	gF0wGc+TdbP5oXWACpcyyT0NA7RGtfjyjS2/ew0466cXYljQFQFuFvfPz8qjVfqy
+	Sz9xUotQygBzc8U7cWgSAyEkyvEOfiJLpjuxCXYw6affEAgFzUbeM1maZuKnIap5
+	frdwjh199FL9jwSN3ZjsCHBwxJTXA==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4f6qknsejg-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 09 Jul 2026 13:54:08 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 669DnbtR009769;
+	Thu, 9 Jul 2026 13:54:08 GMT
+Received: from smtprelay02.wdc07v.mail.ibm.com ([172.16.1.69])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4f7e0hn9f6-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 09 Jul 2026 13:54:08 +0000 (GMT)
+Received: from smtpav04.wdc07v.mail.ibm.com (smtpav04.wdc07v.mail.ibm.com [10.39.53.231])
+	by smtprelay02.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 669Ds69l18547344
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 9 Jul 2026 13:54:06 GMT
+Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C454058045;
+	Thu,  9 Jul 2026 13:54:06 +0000 (GMT)
+Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 3A9925805F;
+	Thu,  9 Jul 2026 13:54:05 +0000 (GMT)
+Received: from li-2311da4c-2e09-11b2-a85c-c003041e9174.ibm.com.com (unknown [9.61.74.132])
+	by smtpav04.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Thu,  9 Jul 2026 13:54:05 +0000 (GMT)
+From: Matthew Rosato <mjrosato@linux.ibm.com>
+To: linux-s390@vger.kernel.org
+Cc: alifm@linux.ibm.com, farman@linux.ibm.com, borntraeger@linux.ibm.com,
+        frankja@linux.ibm.com, imbrenda@linux.ibm.com, david@kernel.org,
+        hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+        svens@linux.ibm.com, schnelle@linux.ibm.com, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: [PATCH] KVM: s390: pci: Fix handling of AIF enable without AISB
+Date: Thu,  9 Jul 2026 09:54:04 -0400
+Message-ID: <20260709135404.2255136-1-mjrosato@linux.ibm.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="y2qmoqgw5gkrylpt"
-Content-Disposition: inline
-In-Reply-To: <20260709095532.855647-9-jiri@resnulli.us>
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=Q/XiJY2a c=1 sm=1 tr=0 ts=6a4fa800 cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
+ a=rbFSK_jk36QTBQMObJwA:9
+X-Proofpoint-GUID: NhFBMyCD1wyjfu55y7Ayc5Z7iAQwlMmM
+X-Proofpoint-ORIG-GUID: NhFBMyCD1wyjfu55y7Ayc5Z7iAQwlMmM
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzA5MDEzNiBTYWx0ZWRfX2ByoNDUUmO7J
+ aBD8MdU+BxMWMuYdI6yLdhcjuWWwJXc7mDuhgqYGGe92XOQwXxeFX3+P1C+b7MPAbMbS223RKnT
+ hi0r6TTqEesjuq7lAKEalDGdyEoJ3/Q=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzA5MDEzNiBTYWx0ZWRfX3i7GFpHGf/OM
+ iDSng6t2vsr+obnfjamI0C2ANIwvbPfOWuA75DJ/fFPRaIDPSjrH7fREKpOgbrpsZReCLjCyrEF
+ uxjJuRZWDvFMjhJZId2CMlAgRackoutVVSF6n6nYW226e2CVbehO/bEBpTmpRw3HYDqbzWaZ1Y7
+ L3PvMBCzurLPN+sd0cA86QArH4Ju7mulNMqXNYM7ix9n3/HU8Y9ao+JSLmSR61EeFvi19n/eN8T
+ T2tqtdz7j+DSc/9/AiTzg7MnCxYIHvgJqhxTcISUaudl64+ombI+0O/n//HrRNsjFZI+N5HAwJH
+ Xbyrm0igzpEFD+r+cYnmnqdKwNc5zru0q9i7/frDER+ndT31yAbc2udhNDC91nVbeBQsh1WyO0/
+ 4PYLV5/HH2JIJz4dpaC+rB/Fp+/XT5nFPZ8Ns1+cGBlMU9OC8kWrhqkL390FCrsYd9+8l5i+vhw
+ RlgiBCHDY2hP2Y617dQ==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-07-09_02,2026-07-09_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ adultscore=0 impostorscore=0 spamscore=0 phishscore=0 priorityscore=1501
+ bulkscore=0 clxscore=1015 lowpriorityscore=0 suspectscore=0 malwarescore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607090136
 
+When a guest seeks to register IRQs without a summary bit specified,
+ensure that the associated GAITE then stores 0 for the guest AISB
+location instead of virt_to_phys(page_address(NULL)).
 
---y2qmoqgw5gkrylpt
-Content-Type: text/plain; protected-headers=v1; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [PATCH rdma-next 08/13] RDMA/cgroup: Scope rdma cgroup device
- visibility to the net namespace
-MIME-Version: 1.0
+Fixes: 3c5a1b6f0a18 ("KVM: s390: pci: provide routines for enabling/disabling interrupt forwarding")
+Cc: stable@vger.kernel.org
+Reviewed-by: Farhan Ali <alifm@linux.ibm.com>
+Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
+---
+ arch/s390/kvm/pci.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-Hi.
+diff --git a/arch/s390/kvm/pci.c b/arch/s390/kvm/pci.c
+index 5b075c38998e..dc748cde4703 100644
+--- a/arch/s390/kvm/pci.c
++++ b/arch/s390/kvm/pci.c
+@@ -300,9 +300,14 @@ static int kvm_s390_pci_aif_enable(struct zpci_dev *zdev, struct zpci_fib *fib,
+ 
+ 	gaite->gisc = fib->fmt0.isc;
+ 	gaite->count++;
+-	gaite->aisbo = fib->fmt0.aisbo;
+-	gaite->aisb = virt_to_phys(page_address(aisb_page) + (fib->fmt0.aisb &
+-							      ~PAGE_MASK));
++	if (fib->fmt0.sum == 1) {
++		gaite->aisbo = fib->fmt0.aisbo;
++		gaite->aisb = virt_to_phys(page_address(aisb_page) +
++					   (fib->fmt0.aisb & ~PAGE_MASK));
++	} else {
++		gaite->aisbo = 0;
++		gaite->aisb = 0;
++	}
+ 	aift->kzdev[zdev->aisb] = zdev->kzdev;
+ 	spin_unlock_irq(&aift->gait_lock);
+ 
+-- 
+2.54.0
 
-On Thu, Jul 09, 2026 at 11:55:27AM +0200, Jiri Pirko <jiri@resnulli.us> wro=
-te:
-> index 993446ab66d0..4523c1884d67 100644
-> --- a/Documentation/admin-guide/cgroup-v2.rst
-> +++ b/Documentation/admin-guide/cgroup-v2.rst
-> @@ -2752,6 +2752,13 @@ RDMA
->  The "rdma" controller regulates the distribution and accounting of
->  RDMA resources.
-> =20
-> +When RDMA devices are isolated per network namespace (exclusive mode),
-> +device names are unique only within a network namespace. The device lines
-> +below are therefore scoped to the reading or writing process's network
-> +namespace: only devices accessible from that namespace are listed, and a
-> +limit is applied to the device of that name in that namespace. Configure
-> +limits from the same network namespace as the workloads.
-
-OK.
-
-> --- a/include/linux/cgroup_rdma.h
-> +++ b/include/linux/cgroup_rdma.h
-> @@ -7,6 +7,7 @@
->  #define _CGROUP_RDMA_H
-> =20
->  #include <linux/cgroup.h>
-> +#include <net/net_namespace.h>
-> =20
->  enum rdmacg_resource_type {
->  	RDMACG_RESOURCE_HCA_HANDLE,
-> @@ -34,6 +35,15 @@ struct rdmacg_device {
->  	struct list_head	dev_node;
->  	struct list_head	rpools;
->  	char			*name;
-> +	/*
-> +	 * Net namespace the device belongs to. @netns_shared mirrors
-> +	 * ib_devices_shared_netns: when true the device is visible from every
-> +	 * net namespace (shared mode); otherwise @net is the only namespace
-> +	 * that may see and configure it. @netns_shared is updated when the
-> +	 * sharing mode changes, so use {READ,WRITE}_ONCE() to access it.
-> +	 */
-> +	possible_net_t		net;
-> +	bool			netns_shared;
-
-Any reason to store the netns_shared split per device? (IIUC, it's a
-global parameter.)
-
-Thanks,
-Michal
-
---y2qmoqgw5gkrylpt
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iJEEABYKADkWIQRCE24Fn/AcRjnLivR+PQLnlNv4CAUCak+cKRsUgAAAAAAEAA5t
-YW51MiwyLjUrMS4xMiwyLDIACgkQfj0C55Tb+AgSmgD/Vgg6K9wF0JX4NBgdz4NM
-xV33/zTua20t6++MDiv2LGQA/iiwBIKorFXkq2bd30gmVkdyXN6gNLUnmclqxnfK
-+M0P
-=L3DZ
------END PGP SIGNATURE-----
-
---y2qmoqgw5gkrylpt--
