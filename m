@@ -1,173 +1,129 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 29BE236EA98;
-	Thu,  9 Jul 2026 15:25:40 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 91E9637C906;
+	Thu,  9 Jul 2026 15:26:35 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783610742; cv=none; b=suwEmscgxTR5C1fkxVkFeCK3XyY5xcomTA0PivkeyPpwp+/QGULA1g690AGfiUpFf2GEmSWTayeDAjeY46Nhl1KOlQKpYLLnlQZmQTp605M/NC8aZ0zxkxAGsGsK4ZVHOeaIseHHjRtXSfVqrGdCHrKlSK5YJsAOw3P1hIiiUT0=
+	t=1783610797; cv=none; b=bqKGhzRM4tyQnYa0RtnIv4qBteHKisV6/uwz+OE7Xc6xPyyndkY4xyZK/gyKRChbCTm2f7DPWmPcVF9sa4iK4QJS4Ys6ADUYFrfZu3CGPOJ6Ch+y76cguYYLSS6dv2cQRFPuZ6mDvna8kt0izq0rNNGP9mq6yMOrtFvC0lQ/T74=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783610742; c=relaxed/simple;
-	bh=DdTFjLHjssV3wK6rKlS+tPTY/zuDw3H2I/ozXo0kJdo=;
+	s=arc-20240116; t=1783610797; c=relaxed/simple;
+	bh=Zk/5gehJNTtNOZcW1+Cp2mfXbgoDt8oKRMNBfT0xcWk=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=svNaZiCHVJkB40p9AYprykbADsvTIReM7oF+bKluHCjvBfbV8eo+n2Mak/gZdgg8JeelPV5EwNWW/xBiERBO2z5teqYmTeDEXY0xsUqOLRkZ8geZdJQucttsHM8bh7xvjCgYmkR+Miu7zPE4lYclRE47WmXa78DgmHwmH2srDEQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kryV9sqL; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=t6dvOrWIaGdB05Uk67LeyXo4osc3VGNpmtCZ5bzXBB6CuSfNcOO0skcGf0wVXv/euqVbteHYht913A+BZ4FE8DckhRV8NpKtE799q/0GN5OBLhcplRPjjDWK5CIUa+Pevjp6l070Vdis0Gmjwv8uAgGuoJcsKw0z2JSqipf/WHU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lIXW+F9q; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kryV9sqL"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 596461F00A3A;
-	Thu,  9 Jul 2026 15:25:40 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lIXW+F9q"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A0761F00A3E;
+	Thu,  9 Jul 2026 15:26:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783610740;
-	bh=JAFiL36r/G0cZxeKduUvAGyRirtPuay1HexwZhQigBY=;
+	s=k20260515; t=1783610794;
+	bh=ZMQo3dQxijluTAK+Yp6GRzDyBvIL6p4wN6lzJgbEU/w=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=kryV9sqLlM1R8hfQjJbURkwW3GS2sW2XzRJ6SkjnPm10UAomIxnKVbzmvfVQNYRgb
-	 Lni/Gy1RuHQ9SHgWXMQ1u4VxsAP/1e2ECD1ZmAghCq3FeilQ5PPLq4UJ69REP5IV3l
-	 NdUCir88+q6XePW17NaG/R/nLS4dzIad72lkMtUUTIsnKjXoL4rAPI/BJnGx0tyAK2
-	 RutxJAsrc8b+WS/0K9uiwyN3qvmyfph2qjEEzUIwoPPSt/3WrHMDIxQsl53BXgreJv
-	 o3Hwm3ox6onW4lzLKA2ysfCTX87DNC058db8cw2y54OR1gX4itdwFHjmscHGdXHWoy
-	 CrXCIUbDOD3yg==
+	b=lIXW+F9qLfAaTBRs37Zl6iq7laiLZVKa18k1A3bS9qXSIH+NuyN8naOM+smZLaJ2c
+	 vveD3qcPCY5unvvMc+90EPd6GmUYnsEjfInjCehCKoU5HuRp4cc/PW6JxnLp2UUZY5
+	 vySw43/32wvXv+IZElas3zBfvKB+ry9QTYxGLk1UgBCwSOTguVYLDyaJnbMg6nk+hd
+	 8u9TzwUc3uNfIyOtOeMpC9TVVT5IYwY9a8gzw9+6LH8Z0o0C7l0zwsVhn0A8QektAE
+	 aPvmMNOv+xzfTwl1Aygk/utRj/sKQL7KY9ZFpLfgJKJlMZmyMVqiG1ik6EmUXihBmV
+	 W6jTN08BXpRog==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 12/21] KVM: s390: vsie: Replace radix_tree with xarray
- addr_to_page
+Subject: Re: [PATCH 05/21] KVM: s390: vsie: Move SCAO validation into a
+ function
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Christoph Schlameuss" <schlameuss@linux.ibm.com>
-Cc: "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, "Heiko
- Carstens" <hca@linux.ibm.com>
-In-Reply-To: <20260709-vsie-sigpi-v1-12-ea9f12066408@linux.ibm.com>
+Cc: "Heiko Carstens" <hca@linux.ibm.com>, linux-s390@vger.kernel.org, "Vasily
+ Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, kvm@vger.kernel.org
+In-Reply-To: <20260709-vsie-sigpi-v1-5-ea9f12066408@linux.ibm.com>
 References: <20260709-vsie-sigpi-v1-0-ea9f12066408@linux.ibm.com>
- <20260709-vsie-sigpi-v1-12-ea9f12066408@linux.ibm.com>
+ <20260709-vsie-sigpi-v1-5-ea9f12066408@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 09 Jul 2026 15:25:39 +0000
-Message-Id: <20260709152540.596461F00A3A@smtp.kernel.org>
+Date: Thu, 09 Jul 2026 15:26:33 +0000
+Message-Id: <20260709152634.5A0761F00A3E@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [High] Unconditional overwrite and logic error in `get_vsie_page` due to =
-`xa_store()` misuse.
-- [Medium] Missing `xa_destroy()` causes memory leak of XArray internal nod=
-es during VM teardown.
-- [Medium] Incorrect XArray initialization drops memcg accounting and adds =
-free-slot tracking overhead.
+- [High] The validity intercept for an invalid SCAO is written to the origi=
+nal guest SCB (`scb_o`) instead of the shadow SCB (`scb_s`), causing it to =
+be silently overwritten and lost during unshadowing.
 --
 
---- Patch [12]: [PATCH 12/21] KVM: s390: vsie: Replace radix_tree with xarr=
-ay addr_to_page ---
-commit b9607cfaff7f6d624df41b31c8e80cc0a315a2e3
+--- Patch [5]: [PATCH 05/21] KVM: s390: vsie: Move SCAO validation into a f=
+unction ---
+commit 617161c9be47e700da98b253966f2dd2c1dfcaeb
 Author: Christoph Schlameuss <schlameuss@linux.ibm.com>
 
-KVM: s390: vsie: Replace radix_tree with xarray addr_to_page
+KVM: s390: vsie: Move SCAO validation into a function
 
-This commit replaces the radix_tree implementation in the s390 vsie with
-an xarray for addr_to_page. Changing to the xarray API directly relaxes some
-of the locking obligations and provides more symmetry with the next vsie
-changes in the series.
+This commit moves the System Control Area Origin (SCAO) validation logic
+into a new standalone function to improve readability and allow reuse. It
+also adds logic to validate both BSCA and ESCA origin addresses.
 
 > diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-> index 4090b4019f215..1734215ae73a9 100644
 > --- a/arch/s390/kvm/vsie.c
 > +++ b/arch/s390/kvm/vsie.c
+
 [ ... ]
-> @@ -1574,14 +1569,13 @@ static struct vsie_page *get_vsie_page(struct kvm=
- *kvm, unsigned long addr)
->  			kvm->arch.vsie.next %=3D nr_vcpus;
->  		}
->  		if (vsie_page->scb_gpa !=3D ULONG_MAX)
-> -			radix_tree_delete(&kvm->arch.vsie.addr_to_page,
-> -					  vsie_page->scb_gpa >> 9);
-> +			xa_erase(&kvm->arch.vsie.addr_to_page, vsie_page->scb_gpa >> 9);
->  		/* Mark it as invalid until it resides in the tree. */
->  		vsie_page->scb_gpa =3D ULONG_MAX;
->  	}
+
+> @@ -788,20 +812,14 @@ static int pin_blocks(struct kvm_vcpu *vcpu, struct=
+ vsie_page *vsie_page)
 > =20
->  	/* Double use of the same address or allocation failure. */
-> -	if (radix_tree_insert(&kvm->arch.vsie.addr_to_page, addr >> 9, vsie_pag=
-e)) {
-> +	if (xa_store(&kvm->arch.vsie.addr_to_page, addr >> 9, vsie_page, GFP_KE=
-RNEL)) {
+>  	gpa =3D read_scao(vcpu->kvm, scb_o);
+>  	if (gpa) {
+> -		if (gpa < 2 * PAGE_SIZE)
+> -			rc =3D set_validity_icpt(scb_s, 0x0038U);
+> -		else if ((gpa & ~0x1fffUL) =3D=3D kvm_s390_get_prefix(vcpu))
+> -			rc =3D set_validity_icpt(scb_s, 0x0011U);
+> -		else if ((gpa & PAGE_MASK) !=3D
+> -			 ((gpa + offsetof(struct bsca_block, cpu[0]) - 1) & PAGE_MASK))
+> -			rc =3D set_validity_icpt(scb_s, 0x003bU);
+> -		if (!rc) {
+> -			rc =3D pin_guest_page(vcpu->kvm, gpa, &hpa);
+> -			if (rc)
+> -				rc =3D set_validity_icpt(scb_s, 0x0034U);
+> -		}
+> +		rc =3D validate_scao(vcpu, scb_o, gpa);
 
 [Severity: High]
-Does this unintentionally change the error handling semantics by using
-xa_store() instead of xa_insert()?
+Does this mistakenly set the validity intercept on the original SCB (scb_o)
+instead of the shadow SCB (scb_s)?
 
-The original radix_tree_insert() correctly refused to overwrite existing
-entries and returned an error (e.g., -EEXIST). However, xa_store()
-unconditionally overwrites the entry and returns the previous pointer or an
-error pointer on failure.
+The previous code correctly called set_validity_icpt(scb_s, ...) to write
+intercepts to the shadow SCB. By passing scb_o to validate_scao(), the
+validity intercept is now written to the original SCB.
 
-If an entry already exists, xa_store() returns the old vsie_page pointer,
-which evaluates to true. The code incorrectly treats this as an error, call=
-ing
-put_vsie_page() on the newly inserted page while returning NULL. The new pa=
-ge
-remains in the xarray but its scb_gpa is left as ULONG_MAX, breaking lookups
-for this address.
+When unshadowing occurs later in unshadow_scb(), the uninitialized intercept
+data from the shadow SCB will overwrite the original SCB, completely erasing
+the validity intercept:
 
-Also, should this be using GFP_KERNEL_ACCOUNT to maintain the accounting
-properties of the original code?
+unshadow_scb() {
+    ...
+    scb_o->icptcode =3D scb_s->icptcode;
+    scb_o->icptstatus =3D scb_s->icptstatus;
+    scb_o->ipa =3D scb_s->ipa;
+    scb_o->ipb =3D scb_s->ipb;
+    ...
+}
 
->  		put_vsie_page(vsie_page);
->  		mutex_unlock(&kvm->arch.vsie.mutex);
->  		return NULL;
-[ ... ]
-> @@ -1660,7 +1654,7 @@ int kvm_s390_handle_vsie(struct kvm_vcpu *vcpu)
->  void kvm_s390_vsie_init(struct kvm *kvm)
->  {
->  	mutex_init(&kvm->arch.vsie.mutex);
-> -	INIT_RADIX_TREE(&kvm->arch.vsie.addr_to_page, GFP_KERNEL_ACCOUNT);
-> +	xa_init_flags(&kvm->arch.vsie.addr_to_page, XA_FLAGS_ALLOC);
+Should validate_scao() be modified to ensure the validity intercept is=20
+correctly written to the shadow SCB?
 
-[Severity: Medium]
-Should this use XA_FLAGS_ACCOUNT (or 0) instead of XA_FLAGS_ALLOC?
-
-The original code initialized the radix tree with GFP_KERNEL_ACCOUNT, ensur=
-ing
-that memory allocated for internal nodes was accounted to the guest's memory
-cgroup. Initializing with XA_FLAGS_ALLOC and storing with GFP_KERNEL drops =
-this
-accounting.
-
-Additionally, XA_FLAGS_ALLOC enables internal free-slot tracking
-(XA_FLAGS_TRACK_FREE) which is typically meant for ID allocators (like
-xa_alloc()). Using this on an xarray indexed by sparse physical addresses a=
-dds
-unnecessary overhead.
-
->  }
-> =20
->  /* Destroy the vsie data structures. To be called when a vm is destroyed=
-. */
-> @@ -1676,10 +1670,8 @@ void kvm_s390_vsie_destroy(struct kvm *kvm)
->  			if (vsie_page->gmap_cache.gmap)
->  				release_gmap_shadow(vsie_page);
->  		kvm->arch.vsie.pages[i] =3D NULL;
-> -		/* free the radix tree entry */
->  		if (vsie_page->scb_gpa !=3D ULONG_MAX)
-> -			radix_tree_delete(&kvm->arch.vsie.addr_to_page,
-> -					  vsie_page->scb_gpa >> 9);
-> +			xa_erase(&kvm->arch.vsie.addr_to_page, vsie_page->scb_gpa >> 9);
->  		free_vsie_page(vsie_page);
+>  		if (rc)
+>  			goto unpin;
+> +		rc =3D pin_guest_page(vcpu->kvm, gpa, &hpa);
+> +		if (rc) {
+> +			rc =3D set_validity_icpt(scb_s, 0x0034U);
+> +			goto unpin;
+> +		}
+>  		vsie_page->sca_gpa =3D gpa;
+>  		write_scao(scb_s, hpa);
 >  	}
->  	kvm->arch.vsie.page_count =3D 0;
-
-[Severity: Medium]
-Will this leak the xarray internal nodes when tearing down a VM?
-
-If any page was left with scb_gpa =3D=3D ULONG_MAX (e.g., due to the xa_sto=
-re()
-issue mentioned above), xa_erase() is skipped for that entry.
-
-Because the VM destruction path never calls
-xa_destroy(&kvm->arch.vsie.addr_to_page), the xarray internal nodes allocat=
-ed
-for any remaining entries will be permanently leaked. Should xa_destroy() be
-called here to guarantee all internal memory is freed?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260709-vsie-sigpi=
--v1-0-ea9f12066408@linux.ibm.com?part=3D12
+-v1-0-ea9f12066408@linux.ibm.com?part=3D5
