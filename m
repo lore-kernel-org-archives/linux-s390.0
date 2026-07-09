@@ -1,45 +1,45 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C26836E497;
-	Thu,  9 Jul 2026 15:28:21 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 797B6379C34;
+	Thu,  9 Jul 2026 15:30:05 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783610902; cv=none; b=b0FjrzD8slWidtiovDQBHBAhKPezr2q2H4KaRVTSQfkWI9AQkNwCtlskGAORzM2sxGXNO/MLEP5+KSmMJMlfg0UCt7lMtnYv4xXVwQkOcN0iYypMye5et5NaOU25DFSCa13lA6t7eyWdfOJABKOl4zLtS185Mta52cKXbS5fhGI=
+	t=1783611007; cv=none; b=ZhhQvIoijzsHxIEi+uaPSeQllikt1Ei72dxvMFasK0r8ywI1AzjUAUjOjIEjH6R44XEuSDKA8qpiC8ED9PS0/kGETMVA4JvFCVj86BKfqSmVjaEyLHUwD2PXtZYeZ5VGrjgqijher87nMo18lUm55Rz8RmftfOn5w4ZaQaQSzjs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783610902; c=relaxed/simple;
-	bh=4LE43HFdnu9J+Hnq0hr7LtLo/RCEv8cGzQfUpMKKOmk=;
+	s=arc-20240116; t=1783611007; c=relaxed/simple;
+	bh=mraSf28PzwjPH3SFTjPupW9t6EVfqaozHQgwI+o71Ps=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=BD9PVTfYzbreNWaYnhqDxjAh7Gn7S+Aj6nqq48rsAsqWRJKprqWPcE1O/eoj9uJpj4uLOGatdj98pa4/VDb3JVBQ9mrSr8tkzl9khOg7IDvrdoiLlS7c501Msb72GXN2fJ4Wez3KrazjhLZZsIurFuS+8jMb8tII/StQ3TPnBKA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EYdYncZT; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=lDpFjYIbgtpEKVqSpbYxOaSFV+pw4k+ikzdoodc/Uv51443urvgdU1yDvfXq6hoHrudAr9R37Tu56/fnFHaHee10nB357pIIqRVfGm1+r5mYGj5U2y7IPpH6hUYXq6plGTelkeFvJWD26BAmDb18dY1nX/5vITG0W3tvM+TTqNA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cZDHx96j; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EYdYncZT"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA50D1F000E9;
-	Thu,  9 Jul 2026 15:28:20 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cZDHx96j"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37CEA1F000E9;
+	Thu,  9 Jul 2026 15:30:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783610901;
-	bh=YYNiq4S15DjqsDd6zl+v2H9ZWdITMR0swfeRDY309kk=;
+	s=k20260515; t=1783611004;
+	bh=hSk7RzskBIok731iVGKVgo91Y6ViLvPZRSG1O6gzkdU=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=EYdYncZTR9HhrfjQ1k6gAhCX3rwgUott4AAvePsz7BuwnekP/9KsrswIftEJX5UjS
-	 ylb4HhwJ3Qu8fjBeII3ELE+qqg/u9lJn6Jcm6dtwsXukIRDoCHxku4p9Si8ksoMuVf
-	 ScyuLdCkD1k84of8OL930QckDoYs7culWsr/t3HIjcwQJ5I6SSThzWIIk1Kwwxi4OG
-	 aNQTM1eWmKVmhN7L2n0/cyq/MWQUXySwx6pC0yy//HuyIYSeEmulSjI68ZShd3Ju5A
-	 kGk72TDZz/UYGOIy2FTE47SjiyNiOhx2En3ZpMZz3nRieRa06Dpcuy2faMUD9xyQ6x
-	 PcGaFOeNpNykg==
+	b=cZDHx96jRcAwca2KEhfJ3jDvNSqPI7x3uPaEnLSjSLEjsfK69Bv3iChmAgjkJPo5/
+	 trq53m967+hNaC8Bc1xuwYkclYRa9fVrLktr5+T8+1ZaPerKtUrMhuuni0BcWdTKT1
+	 M1wQdmLFn4wBVu0tdF4nbKlHKjuSXRQovIeuNZPjGDPpMZxE3cxNgFBAjCTJ6/78QS
+	 OyroqG326hClfwRi50i0pnmvHswsK5ocvs24STcgHJ+Rw700RDyUQH1hqHU30yB1kE
+	 umnVuPC9cFDxPwDqrJNpOjjQT7ROySi+04zf6FeeVL1zLC909LngmB3368KaR8oNAv
+	 IF/fTVbMqhX0w==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 13/21] KVM: s390: vsie: Add helper to pin multiple guest
- pages
+Subject: Re: [PATCH 14/21] KVM: s390: vsie: Add helper to release gmap
+ shadow
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Christoph Schlameuss" <schlameuss@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, kvm@vger.kernel.org, "Vasily
- Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
-In-Reply-To: <20260709-vsie-sigpi-v1-13-ea9f12066408@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
+ Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, kvm@vger.kernel.org
+In-Reply-To: <20260709-vsie-sigpi-v1-14-ea9f12066408@linux.ibm.com>
 References: <20260709-vsie-sigpi-v1-0-ea9f12066408@linux.ibm.com>
- <20260709-vsie-sigpi-v1-13-ea9f12066408@linux.ibm.com>
+ <20260709-vsie-sigpi-v1-14-ea9f12066408@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 09 Jul 2026 15:28:20 +0000
-Message-Id: <20260709152820.BA50D1F000E9@smtp.kernel.org>
+Date: Thu, 09 Jul 2026 15:30:02 +0000
+Message-Id: <20260709153004.37CEA1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -48,86 +48,63 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [Medium] Incorrect address calculation for unaligned GPAs in `pin_guest_p=
-ages`, leading to data corruption for multi-page contiguous buffers.
+- [High] Incorrect replacement of `radix_tree_insert` with `xa_store` inadv=
+ertently overwrites active VSIE pages on collision.
 --
 
---- Patch [13]: [PATCH 13/21] KVM: s390: vsie: Add helper to pin multiple g=
-uest pages ---
-commit b2d504ec12f509941a6b52b4ad1605645f085955
+--- Patch [14]: [PATCH 14/21] KVM: s390: vsie: Add helper to release gmap s=
+hadow ---
+commit 4c401f4e9eb6b9bc115d89b58dc2831bda3b8f47
 Author: Christoph Schlameuss <schlameuss@linux.ibm.com>
 
-KVM: s390: vsie: Add helper to pin multiple guest pages
+KVM: s390: vsie: Add helper to release gmap shadow
    =20
-This commit introduces helpers to pin and unpin multiple consecutive guest
-pages in guest-1. It moves the existing pin and unpin methods to avoid
-forward declarations and iterates over pages to store guest and host addres=
-ses.
+Create a helper method release_gmap_shadow_safe() to simplify releasing
+the gmap shadow of a vsie_page.
+Will be called from multiple places in upcoming patches.
 
 > diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-> index 1734215ae73a9..644b37582b5c8 100644
+> index 644b37582b5c8..874ed2a553479 100644
 > --- a/arch/s390/kvm/vsie.c
 > +++ b/arch/s390/kvm/vsie.c
-
 [ ... ]
+> @@ -1623,11 +1632,7 @@ static struct vsie_page *get_vsie_page(struct kvm =
+*kvm, unsigned long addr)
 
-> @@ -240,6 +245,40 @@ static void unpin_guest_page(struct kvm *kvm, gpa_t =
-gpa, hpa_t hpa)
->  	mark_page_dirty(kvm, gpa_to_gfn(gpa));
->  }
+[Severity: High]
+Does replacing radix_tree_insert() with xa_store() inadvertently overwrite
+active VSIE pages on collision?
+
+Looking at get_vsie_page() just above this diff context:
+
+	/* Double use of the same address or allocation failure. */
+	if (xa_store(&kvm->arch.vsie.addr_to_page, addr >> 9, vsie_page, GFP_KERNE=
+L)) {
+		put_vsie_page(vsie_page);
+		mutex_unlock(&kvm->arch.vsie.mutex);
+		return NULL;
+	}
+
+xa_store() replaces existing entries unconditionally instead of returning
+-EEXIST like radix_tree_insert().
+
+When an existing entry is overwritten, it returns the old entry (a truthy
+pointer), triggering the error path but leaving the xarray pointing to the
+aborted new page.
+
+>  	mutex_unlock(&kvm->arch.vsie.mutex);
 > =20
-> +/* unpin multiple guest pages pinned with pin_guest_pages() */
-> +static void unpin_guest_pages(struct kvm *kvm, struct kvm_address_pair *=
-addr, unsigned int nr_pages)
-> +{
-> +	int i;
-> +
-> +	for (i =3D 0; i < nr_pages; i++) {
-> +		unpin_guest_page(kvm, addr[i].gpa, addr[i].hpa);
-> +		addr[i].gpa =3D 0;
-> +		addr[i].hpa =3D 0;
-> +	}
-> +}
-> +
-> +/* pin nr_pages consecutive guest pages */
-> +static int pin_guest_pages(struct kvm *kvm, gpa_t gpa, unsigned int nr_p=
-ages,
-> +			   struct kvm_address_pair *addr)
-> +{
-> +	hpa_t hpa;
-> +	int i, rc;
-> +
-> +	/* the guest pages may not be mapped continuously, so pin each page */
-> +	for (i =3D 0; i < nr_pages; i++) {
-> +		rc =3D pin_guest_page(kvm, gpa + PAGE_SIZE * i, &hpa);
-
-[Severity: Medium]
-Could this address calculation cause issues if the initial gpa is unaligned?
-
-If a caller passes an unaligned gpa to pin_guest_pages() (for example, 0x10=
-10),
-adding PAGE_SIZE * i propagates this initial page offset to every subsequen=
-t=20
-page. This would mean the calculation requests 0x2010, 0x3010, and so on,
-skipping the guest memory between 0x2000 and 0x200F.
-
-Would it be safer to align the gpa calculation for the subsequent pages to
-ensure a truly contiguous buffer is correctly pinned?
-
-> +		if (rc)
-> +			goto err;
-> +		addr[i].gpa =3D gpa + PAGE_SIZE * i;
-> +		addr[i].hpa =3D hpa;
-> +	}
-> +	return i;
-> +
-> +err:
-> +	unpin_guest_pages(kvm, addr, i);
-> +	return -EFAULT;
-> +}
-
-[ ... ]
+>  	memset(&vsie_page->scb_s, 0, sizeof(struct kvm_s390_sie_block));
+> -	if (vsie_page->gmap_cache.gmap) {
+> -		scoped_guard(spinlock, &kvm->arch.gmap->children_lock)
+> -			if (vsie_page->gmap_cache.gmap)
+> -				release_gmap_shadow(vsie_page);
+> -	}
+> +	release_gmap_shadow_safe(kvm, vsie_page);
+>  	prefix_unmapped(vsie_page);
+>  	vsie_page->fault_addr =3D 0;
+>  	vsie_page->scb_s.ihcpu =3D 0xffffU;
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260709-vsie-sigpi=
--v1-0-ea9f12066408@linux.ibm.com?part=3D13
+-v1-0-ea9f12066408@linux.ibm.com?part=3D14
