@@ -1,62 +1,62 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA3783803DB;
-	Thu,  9 Jul 2026 15:15:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3A4CA383316;
+	Thu,  9 Jul 2026 15:15:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783610139; cv=none; b=jDgJqKySYyZO+jBJQXl0N/WvgAij/cT9Ll5IiCbTjoYTRzT4LszqeWxgSAuvGdsfUkwv+qxUBY5Ce069GXSP91B3DdeNJqpTcoGSD2dRUMgYEqbklHBtAbDBP/dYG6oyb1FU+dKE7TqehcMMGC7lDiGNwCf8EsB3OY/gOFPUc2Y=
+	t=1783610140; cv=none; b=HBoQFROl2ixQyqoZOskCw91h0zYSPl1GG7hMqvsP9giMuaVVNDk1vEAwm/27njFkoE8l2gf46Za30HfPc5zaLB6ZhBYXsrsA/BFiV6twaEBkQsbxzB+Gbrr6Gx4fWO8e00chYzDjbyF8vMz+f5m9fuE6wtYB8LDCnv+ya5OaN9k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783610139; c=relaxed/simple;
-	bh=it78sR/ErkcgiHXgXrzvbg1fpVbfSnMV723u0oH2wao=;
+	s=arc-20240116; t=1783610140; c=relaxed/simple;
+	bh=yVXsG475EOxvnZK5feZO1BGPTHWAi+ZSnYIme2XDylE=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=iyUqMlCv0grfXB3qC3BrMvGPQ2WvDmNWtv54aDFhSu6A2MNochxSq4e8sZIWQs+dZycrGf7hIWzWNLvPXqfDbLUGVaJhag0uGkngDTIt2K3OM0Ob45vvz5nFFUUE2+hIAzqO8N2iTSgCrIMEb/+a16gweZsHkHFYiuOE+BDVqM8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=aZOVW6gM; arc=none smtp.client-ip=148.163.156.1
+	 In-Reply-To:To:Cc; b=rr3WxRrvgduM/IeT1zerEAb3WMyRQ5NhusCldFhQutlGY8/hPKN62fdozSQQjY5Ik15t5RJzi6Cirw363VGvHUxxXptR/6RezGdKwnD4AHcQald5M0G8NG7PqrDhV5bUQB/RvMcMDci9wDYiZ9CV1izuggIpvd+O2AbfNLDX11I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=TqreRQDr; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="aZOVW6gM"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 669EIaZi2409159;
-	Thu, 9 Jul 2026 15:15:34 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="TqreRQDr"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 669EIn691497508;
+	Thu, 9 Jul 2026 15:15:36 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=nwXbVz
-	rel4F8qxjVlNkWQ/tdjeHZPFiymsIZI1uzPd8=; b=aZOVW6gM4soresoZIiAP0S
-	ffyMzzPSytC2V15UYvO0GLzjl1Mq5NLCx9useh8LpoizTGayYBXh6mVDrLdI+APT
-	z/mGK6Y6WXA50NHv31DHRxgUNxvo3GenmLAj/kK2Y6NQIqd2J4gaoVka+iOEfcUd
-	2Jm7hiPana6owN82OVvRm+WJgZ2y0gcrMqIntC/j2YKHq9oVqB0nYJ4cGV+s1tsE
-	03pKGAhf3sCgMusvyH00itBaaeg9WXd2m95FL6QOo/e+9AUZ/R5+rrobBBn3JEo4
-	Q0WEBc9bn48KEdwOfKGv/YIMVHVgsTjBWfe1JTkNBzV+riTD4Z6h+8uCwCL15RJg
+	:message-id:mime-version:references:subject:to; s=pp1; bh=MW6p+R
+	utD+7J7kp902Wy9XSnDOr9sP5gbaZa/KRMpOE=; b=TqreRQDrbvq8qBM+p8bOQE
+	9nrWLV2zvvtIjh75Fe5B7rqE0i44dnehbjb+z727x8PsP1tqNVIi5PYt0WksQvy1
+	TPOlvWtmuTiTo+ffff+3e71FJANS7UwcCy/XxtmIYNYgyoE8iMkOMgzkfLLqRuyQ
+	kKXKE2tBGo/iwPsJ6Adr78W1Bp7JlznFrx7DuY6BzJRupXFvJVJKY3ie5Wi6768J
+	sTNCY63wToGUW54BB/at6PFHiPB8GYCJ1IN8f0/yxMtfFpRPVktq3hau+l+zZjLb
+	trwUBWc8ApWi5r1Cq52IJ9Ih7zsQ8233aNUluXWd8djmZafrlRxBbn9VgiQXXlyw
 	==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4f6sp42e7d-1
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4f6stt2m0n-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 09 Jul 2026 15:15:34 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 669EndwB028366;
-	Thu, 9 Jul 2026 15:15:33 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4f7cgqdwct-1
+	Thu, 09 Jul 2026 15:15:35 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 669F4jw5026950;
+	Thu, 9 Jul 2026 15:15:35 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4f7cvwdvdn-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 09 Jul 2026 15:15:33 +0000 (GMT)
+	Thu, 09 Jul 2026 15:15:35 +0000 (GMT)
 Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 669FFTsx24248780
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 669FFUuR46661962
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 9 Jul 2026 15:15:29 GMT
+	Thu, 9 Jul 2026 15:15:31 GMT
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6ABB22004B;
-	Thu,  9 Jul 2026 15:15:29 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id D097420040;
+	Thu,  9 Jul 2026 15:15:30 +0000 (GMT)
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id CF2C820043;
-	Thu,  9 Jul 2026 15:15:28 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 4111B2004E;
+	Thu,  9 Jul 2026 15:15:30 +0000 (GMT)
 Received: from [192.168.88.251] (unknown [9.111.64.199])
 	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu,  9 Jul 2026 15:15:28 +0000 (GMT)
+	Thu,  9 Jul 2026 15:15:30 +0000 (GMT)
 From: Christoph Schlameuss <schlameuss@linux.ibm.com>
-Date: Thu, 09 Jul 2026 17:15:15 +0200
-Subject: [PATCH 15/21] KVM: s390: vsie: Add struct vsie_sca with pin and
- unpin
+Date: Thu, 09 Jul 2026 17:15:17 +0200
+Subject: [PATCH 17/21] KVM: s390: vsie: Allow guest-3 cpu add and remove
+ with vsie sigpif
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -65,7 +65,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260709-vsie-sigpi-v1-15-ea9f12066408@linux.ibm.com>
+Message-Id: <20260709-vsie-sigpi-v1-17-ea9f12066408@linux.ibm.com>
 References: <20260709-vsie-sigpi-v1-0-ea9f12066408@linux.ibm.com>
 In-Reply-To: <20260709-vsie-sigpi-v1-0-ea9f12066408@linux.ibm.com>
 To: kvm@vger.kernel.org, linux-s390@vger.kernel.org
@@ -81,177 +81,167 @@ Cc: David Hildenbrand <david@kernel.org>, Heiko Carstens <hca@linux.ibm.com>,
         David Hildenbrand <david@kernel.org>,
         Christoph Schlameuss <schlameuss@linux.ibm.com>
 X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=openpgp-sha256; l=4035;
+X-Developer-Signature: v=1; a=openpgp-sha256; l=4505;
  i=schlameuss@linux.ibm.com; h=from:subject:message-id;
- bh=it78sR/ErkcgiHXgXrzvbg1fpVbfSnMV723u0oH2wao=;
- b=owGbwMvMwCUmoqVx+bqN+mXG02pJDFn+u1lbft6exvmPQ6S9QNP+4rfLcSzv5rY9sv+7QXp13
- t1DKmKBHaUsDGJcDLJiiizV4tZ5VX2tS+cctLwGM4eVCWQIAxenAEykJoHhn3LOM5+YbJ+wD5kC
- BtyuIfMys9S9XtwUjdEx2/JgfV3PNkaG62KCjboWonZMXoKP1l1XOmxpeHTS/T1X5b9eygi6w3W
- KBwA=
+ bh=yVXsG475EOxvnZK5feZO1BGPTHWAi+ZSnYIme2XDylE=;
+ b=owGbwMvMwCUmoqVx+bqN+mXG02pJDFn+u1nPeJ4MW6FRntRSlfspb3+3++b+RXPuHatrqJi3e
+ vMJMyu9jlIWBjEuBlkxRZZqceu8qr7WpXMOWl6DmcPKBDKEgYtTACZS/Z2Roees+QRF7h/NFYKq
+ /6VrohlYJrre5V6U2Php2rXYwzEyNYwMvxIE1j+716dftLsi66rV+tdqlYZZ/RyRxrVvjkydeLG
+ ZDQA=
 X-Developer-Key: i=schlameuss@linux.ibm.com; a=openpgp;
  fpr=0E34A68642574B2253AF4D31EEED6AB388551EC3
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=KsJ9H2WN c=1 sm=1 tr=0 ts=6a4fbb16 cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+X-Proofpoint-ORIG-GUID: K5TPTjRBuET_iQWafeIPPW0OEXc2R5qQ
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzA5MDE0NiBTYWx0ZWRfXwsQUSUiA5zy7
+ SAntvF2bDsblnbQlIvdmY/Ug99hmxM03uyVxRlrksyozzK4aIYJefB/IcWh5fX1xdoVBk4pcdiF
+ /IPFjaX5axo688LTB7M/i0cBUV3ME1U=
+X-Authority-Analysis: v=2.4 cv=DKW/JSNb c=1 sm=1 tr=0 ts=6a4fbb17 cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
  a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8
- a=OIv39ysXCM8_XdHbMy4A:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzA5MDE0NiBTYWx0ZWRfX9qluFSN3GzJ1
- R0lhc7fUSHlsS8V3F6RkFuTbmOmPAYzAE+BEPT3vKnOxxztDmj1xFg5iD1MdnOBfmlFW6g+POal
- j66i5d63SkSsRc11EzKOIE9flq7ZCfQ=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzA5MDE0NiBTYWx0ZWRfXyxDtOgnNP2+F
- CzPvx8FG606bRPnDhp8Xdq3dcG7E6Hp0EFRVWMxWU9xzEQ/bEjQNY3VqeovjmuAPV7TR5K6J2uJ
- mkZDO6i98Hu9cNiRiKHxIY0qYqrBWBPmeCm4DYgqsLPFK6j+XyZBd6t5hi+ZzvzkSix65LuqL75
- e9BcOeunDL7f8DB00FPKoZu1wiCNPbUT4GX3Pb6X/SLndKbfKwRfBDG2Y+az1Whesg3PZhK6OPm
- VPRCskyYfaBSeP9zKkEyAEx+Qpd2SOUaF5F0+zt2GdeMEmHjyvwAR7tsvC+yZ6JHO4mUu1xF8/6
- OmqHpE2PDganUl890+fMi2eBoJDzNkfFGPNekJFG8ZUvGrYAwOGaYdwD2emW/+q+4JKTCYgFN6w
- 4Y+C3UnZqlc/GPGFGs+OPwP7jYHBjCkQc5PUafQ4WJ1CUFCKkqsPfWJdcI/r588JptU8m4hdi6n
- zvzoTlOIl/YR6z1RF+g==
-X-Proofpoint-ORIG-GUID: 2CsMsjomex8SDVvIqJpS71iRsQNf-2R4
-X-Proofpoint-GUID: 2CsMsjomex8SDVvIqJpS71iRsQNf-2R4
+ a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8
+ a=NGxpWG_ktdww3nycDa4A:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: K5TPTjRBuET_iQWafeIPPW0OEXc2R5qQ
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzA5MDE0NiBTYWx0ZWRfX9qQMPo4fWlc2
+ bQeUyQQcq4ZcKxcbonWRx5xcPbU9VxXZKX8LwuPAjAZjq3/MSGZhg4CJ6TJItfmqPiR5iHI2RIn
+ zjhMS5Nv2jQ9kluriBd5t4sVEtNYM3iXUw6DkKnvmPMKqHSqpMC9OqhiK5qGxdETtpPQvvnzezM
+ 5lSh9r8sS5gfdm4WM47E1SpfjUSLpXDcaqk1ekz8hhsKomObkqC/tKASoe14PHT1qZJxmrRxYaC
+ 6e5KD5DeeYgf+p/2RWYvW26SoG55vuujGzLV57aEhgdtUolX08RRiI2lqbJu81u9t5OQXk/1tP7
+ 8nEEQzpPIxZ8yIIt029Akj7S9HWBasvTuHYrndEM+jxjakeN57TlDjm3Gb71PVwlYkniln/a169
+ 1c9TlrfKJgT9c6aBRhI+JAprLo1+MACpL77sGrWvVv2gFTNKvKY0w/JoQMDUO10/SSTWD5sdpi0
+ c2Fp3cMqHuwEWDE+ATg==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-07-09_03,2026-07-09_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- impostorscore=0 malwarescore=0 spamscore=0 adultscore=0 clxscore=1015
- suspectscore=0 lowpriorityscore=0 priorityscore=1501 bulkscore=0 phishscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607090146
+ spamscore=0 bulkscore=0 clxscore=1015 phishscore=0 impostorscore=0
+ priorityscore=1501 adultscore=0 lowpriorityscore=0 suspectscore=0
+ malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2607090146
 
-Introduce the struct vsie_sca to hold the SSCA and required management
-data along with alloc and free methods to use with the struct.
-On this basis we can also add methods {,un}pin_sca() to simplify the
-pinning SCAs in g1.
+As we are shadowing the SCA we need to add and remove the pointers to
+the shadowed control blocks and sca entries whenever the mcn /
+processors in the configuration changes.
+
+It is not expected that the mcn changes frequently for a already running
+guest-3 configuration. So we can simply fully re-init the ssca whenever
+the mcn changes.
+To detect the mcn change we store the expected mcn in the struct
+vsie_sca when running init_ssca().
 
 Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
 ---
- arch/s390/include/asm/kvm_host_types.h |  1 +
- arch/s390/kvm/vsie.c                   | 79 +++++++++++++++++++++++++++++++++-
- 2 files changed, 79 insertions(+), 1 deletion(-)
+ arch/s390/kvm/vsie.c | 68 ++++++++++++++++++++++++++++++++++++++++++----------
+ 1 file changed, 56 insertions(+), 12 deletions(-)
 
-diff --git a/arch/s390/include/asm/kvm_host_types.h b/arch/s390/include/asm/kvm_host_types.h
-index 6540146b4b00..d6025b34a66d 100644
---- a/arch/s390/include/asm/kvm_host_types.h
-+++ b/arch/s390/include/asm/kvm_host_types.h
-@@ -7,6 +7,7 @@
- #include <linux/types.h>
- 
- #define KVM_S390_MAX_VSIE_VCPUS 256
-+#define KVM_S390_MAX_SCA_PAGES 5
- 
- #define KVM_S390_BSCA_CPU_SLOTS 64
- #define KVM_S390_ESCA_CPU_SLOTS 248
 diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-index 874ed2a55347..4b492af15542 100644
+index 74455c689c51..de8931e714ca 100644
 --- a/arch/s390/kvm/vsie.c
 +++ b/arch/s390/kvm/vsie.c
-@@ -29,6 +29,7 @@
- 
- enum vsie_page_flags {
- 	VSIE_PAGE_IN_USE = 0,
-+	VSIE_PAGE_PINNED = 1,
- };
- 
- struct vsie_page {
-@@ -64,7 +65,8 @@ struct vsie_page {
- 	gpa_t scb_gpa;				/* 0x0258 */
- 	/* the shadow gmap in use by the vsie_page */
- 	struct gmap_cache gmap_cache;		/* 0x0260 */
--	__u8 reserved[0x06f8 - 0x0278];		/* 0x0278 */
-+	struct vsie_sca *vsie_sca;		/* 0x0278 */
-+	__u8 reserved[0x06f8 - 0x0280];		/* 0x0280 */
- 	struct kvm_s390_crypto_cb crycb;	/* 0x06f8 */
- 	__u8 fac[8 + S390_ARCH_FAC_LIST_SIZE_BYTE];/* 0x07f8 */
- };
-@@ -76,6 +78,27 @@ struct kvm_address_pair {
- 	hpa_t hpa;
- };
- 
-+enum vsie_sca_flags {
-+	VSIE_SCA_ESCA = 0,
-+	VSIE_SCA_PINNED = 1,
-+};
-+
-+struct vsie_sca {
-+	struct ssca_block	ssca;
-+	struct vsie_page	*pages[KVM_S390_MAX_VSIE_VCPUS];
-+	struct mutex		mutex;
-+	atomic_t		ref_count;
-+	gpa_t			sca_gpa;
-+	unsigned long		flags;
-+	u64			mcn[4];
-+	unsigned long		sca_o_nr_pages;
-+	struct kvm_address_pair	sca_o_pages[KVM_S390_MAX_SCA_PAGES];
-+};
-+
-+static_assert(!(offsetof(struct vsie_sca, ssca) & 0x3f));
-+static_assert((offsetof(struct vsie_sca, ssca) & ~PAGE_MASK) +
-+	      offsetof(struct ssca_block, cpu[0]) <= PAGE_SIZE);
-+
- static inline bool sie_uses_esca(struct kvm_s390_sie_block *scb)
- {
- 	return (scb->ecb2 & ECB2_ESCA);
-@@ -831,6 +854,60 @@ static int pin_scb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page,
- 	return 0;
+@@ -2014,6 +2014,43 @@ static struct vsie_page *get_vsie_page_cpu_nr(struct kvm_vcpu *vcpu, struct vsie
+ 	return vsie_page;
  }
  
 +/*
-+ * Unpin g2 original sca in g1 memory.
++ * Copy the mcn from the osca to the vsie_sca to be able to detect mcn changes later on.
 + *
-+ * Called with vsie_sca_lock held.
++ * @vsie_sca: vsie_sca to copy mcn to.
++ * @sca: Pointer to a struct bsca_block or struct esca_block to read from.
 + */
-+static void unpin_sca(struct kvm *kvm, struct vsie_sca *vsie_sca)
++static void sca_mcn_copy(struct vsie_sca *vsie_sca, void *sca)
 +{
-+	if (!test_bit(VSIE_SCA_PINNED, &vsie_sca->flags))
-+		return;
++	int offset = offsetof(struct bsca_block, mcn);
++	int size = BYTES_PER_LONG;
 +
-+	unpin_guest_pages(kvm, vsie_sca->sca_o_pages, vsie_sca->sca_o_nr_pages);
-+	vsie_sca->sca_o_nr_pages = 0;
-+
-+	__clear_bit(VSIE_SCA_PINNED, &vsie_sca->flags);
++	if (test_bit(VSIE_SCA_ESCA, &vsie_sca->flags)) {
++		offset = offsetof(struct esca_block, mcn);
++		size = BYTES_PER_LONG * 4;
++	}
++	memcpy(&vsie_sca->mcn, sca + offset, size);
 +}
 +
 +/*
-+ * Pin g2 original sca in g1 memory.
++ * Compare the mcn from the given sca to the vsie_sca to be able to detect mcn changes.
 + *
-+ * Called with vsie_sca_lock held.
++ * @vsie_sca: vsie_sca to compare mcn to.
++ * @sca: Pointer to a struct bsca_block or struct esca_block to compare to.
 + */
-+static int pin_sca(struct kvm *kvm, struct vsie_sca *vsie_sca)
++static bool sca_mcn_equals(struct vsie_sca *vsie_sca, void *sca)
 +{
-+	bool is_esca = test_bit(VSIE_SCA_ESCA, &vsie_sca->flags);
-+	int nr_pages = KVM_S390_MAX_SCA_PAGES;
++	int offset = offsetof(struct bsca_block, mcn);
++	int size = BYTES_PER_LONG;
 +
-+	if (test_bit(VSIE_SCA_PINNED, &vsie_sca->flags))
-+		return 0;
-+
-+	if (!is_esca) {
-+		nr_pages = 1;
-+		if ((vsie_sca->sca_gpa & ~PAGE_MASK) + sizeof(struct bsca_block) > PAGE_SIZE)
-+			nr_pages = 2;
++	if (test_bit(VSIE_SCA_ESCA, &vsie_sca->flags)) {
++		size = BYTES_PER_LONG * 4;
++		offset = offsetof(struct esca_block, mcn);
 +	}
 +
-+	vsie_sca->sca_o_nr_pages = pin_guest_pages(kvm, vsie_sca->sca_gpa, nr_pages,
-+						   vsie_sca->sca_o_pages);
-+	if (WARN_ON_ONCE(vsie_sca->sca_o_nr_pages != nr_pages))
-+		return -EIO;
-+	__set_bit(VSIE_SCA_PINNED, &vsie_sca->flags);
++	return !memcmp(&vsie_sca->mcn, sca + offset, size);
++}
++
+ static void vsie_sca_update(struct vsie_sca *vsie_sca, unsigned int cpu_nr,
+ 			    struct vsie_page *vsie_page_n, hpa_t sca_o_entry_hpa)
+ {
+@@ -2031,18 +2068,14 @@ static int _shadow_sca(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page,
+ 	unsigned int cpu_nr, cpu_slots;
+ 	struct vsie_page *vsie_page_n;
+ 	hva_t sca_o_entry_hva;
+-	unsigned long *mcn;
+ 	gpa_t scb_o_gpa;
+ 	int rc;
+ 
+-	if (is_esca)
+-		mcn = phys_to_virt(sca_o_hpa) + offsetof(struct esca_block, mcn);
+-	else
+-		mcn = phys_to_virt(sca_o_hpa) + offsetof(struct bsca_block, mcn);
++	sca_mcn_copy(vsie_sca, phys_to_virt(sca_o_hpa));
+ 
+ 	/* pin and make shadow for ALL scb in the sca */
+ 	cpu_slots = is_esca ? KVM_S390_MAX_VSIE_VCPUS : KVM_S390_BSCA_CPU_SLOTS;
+-	for_each_set_bit_inv(cpu_nr, mcn, cpu_slots) {
++	for_each_set_bit_inv(cpu_nr, (unsigned long *)&vsie_sca->mcn, cpu_slots) {
+ 		rc = get_sca_entry_addr(vcpu->kvm, vsie_sca, cpu_nr, NULL, &sca_o_entry_hpa);
+ 		if (rc)
+ 			goto err;
+@@ -2074,7 +2107,7 @@ static int _shadow_sca(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page,
+ 	return 0;
+ 
+ err:
+-	for_each_set_bit_inv(cpu_nr, mcn, cpu_slots) {
++	for_each_set_bit_inv(cpu_nr, (unsigned long *)&vsie_sca->mcn, cpu_slots) {
+ 		vsie_sca->ssca.cpu[cpu_nr].ssda = 0;
+ 		vsie_sca->ssca.cpu[cpu_nr].ossea = 0;
+ 	}
+@@ -2084,13 +2117,24 @@ static int _shadow_sca(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page,
+ /* Shadow or reshadow the SCA on VSIE enter. */
+ static int shadow_sca(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page, struct vsie_sca *vsie_sca)
+ {
+-	int rc = 0;
++	struct kvm_s390_sie_block *sca_o = phys_to_virt(vsie_sca->sca_o_pages[0].hpa);
++	bool do_init_ssca;
+ 
+-	guard(rwsem_write)(&vcpu->kvm->arch.vsie.vsie_sca_lock);
+-	if (!vsie_sca->ssca.osca)
+-		rc = _shadow_sca(vcpu, vsie_page, vsie_sca);
++	scoped_guard(rwsem_read, &vcpu->kvm->arch.vsie.vsie_sca_lock) {
++		do_init_ssca = !vsie_sca->ssca.osca;
++		do_init_ssca = do_init_ssca || !sca_mcn_equals(vsie_sca, sca_o);
++		if (!do_init_ssca)
++			return 0;
++	}
+ 
+-	return rc;
++	scoped_guard(rwsem_write, &vcpu->kvm->arch.vsie.vsie_sca_lock) {
++		do_init_ssca = !vsie_sca->ssca.osca;
++		do_init_ssca = do_init_ssca || !sca_mcn_equals(vsie_sca, sca_o);
++		if (do_init_ssca)
++			return _shadow_sca(vcpu, vsie_page, vsie_sca);
++	}
 +
 +	return 0;
-+}
-+
-+static void free_vsie_sca(struct kvm *kvm, struct vsie_sca *vsie_sca)
-+{
-+	free_pages_exact(vsie_sca, sizeof(*vsie_sca));
-+}
-+
-+static struct vsie_sca *alloc_vsie_sca(void)
-+{
-+	return alloc_pages_exact(sizeof(struct vsie_sca), GFP_KERNEL_ACCOUNT | __GFP_ZERO);
-+}
-+
- void kvm_s390_vsie_gmap_notifier(struct gmap *gmap, gpa_t start, gpa_t end)
- {
- 	struct vsie_page *cur, *next;
+ }
+ 
+ int kvm_s390_handle_vsie(struct kvm_vcpu *vcpu)
 
 -- 
 2.55.0
