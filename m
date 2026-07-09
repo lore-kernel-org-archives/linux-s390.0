@@ -1,40 +1,40 @@
-Received: from canpmsgout11.his.huawei.com (canpmsgout11.his.huawei.com [113.46.200.226])
+Received: from canpmsgout03.his.huawei.com (canpmsgout03.his.huawei.com [113.46.200.218])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 193AC3630BC;
-	Thu,  9 Jul 2026 02:55:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=113.46.200.226
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D47942F49FD;
+	Thu,  9 Jul 2026 03:46:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=113.46.200.218
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783565738; cv=none; b=pWEazDbItwR5nPHL0u+Vo5fN+woeSd1sXs0evNroSSS3Aci1GSDNN+mAdQezef0EWCPDZ/dzdRrtOqAfdLpL1mdTH6VkNbjv6GufAcbSq7QdBjxMu4QTQJHHhYlHrrwiOaEPr9ubPEgbNDnTZ87MhrQfcRFwCbwS4ylbo8UV4FU=
+	t=1783568778; cv=none; b=f5ApYc0DcuyPWkNC8JgG+7g/zIJtTAbs8lUs11iRsDaqEH0/eNpd3UCB18GPr6kpXbAOk/SDvyk0zqd+G+10bI7WUjZ0eOORDcnS8fsz88DX0SIyuqBNXLz3be6TE7/K2QJinU6uSenUT9/vrVWibvXFejaKlyD6ZYmFYhFO3vs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783565738; c=relaxed/simple;
-	bh=6z6shxm0VomiVB/0CDqlEOacVIgWdbaKb5EXpCfIKCY=;
+	s=arc-20240116; t=1783568778; c=relaxed/simple;
+	bh=y3xx833U4ww9Cq3u9w34mmvk34+zHYMoUoG7ghGtgRQ=;
 	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=Snz7wTCxIiXR33HN28shVJ4U/VhjVAbKN3tp0Fhx57opb98LQYSObxm4A7o3jj1af6M7dG5Rx8JA0Lr2z6j97/aBjdKwKXUz8qkAK3gSNqYaczZSVv6+4Dt9qqbk8L4Aoyikay/KVrcdY3mniqPwjKcGG5QItIIhefNzfm6uqlg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b=thFA5tBr; arc=none smtp.client-ip=113.46.200.226
+	 In-Reply-To:Content-Type; b=SZQBEP+zraJVqO8k+hxSTApT3nAdnLnmCU70JMdrWaGZ5fLXFvMNyL/Jlij/bqdUPn0D3JXJ10PXucXtp/IHzprdaLKen9JytYt2IZfu8dJG6r9CYimjK7xo+o/kmqcAwELCR6uXloNXFP3sX9kIwf3ZNGoOekQyqzdCTEq33f8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b=r6RtRSgk; arc=none smtp.client-ip=113.46.200.218
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b="thFA5tBr"
+	dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b="r6RtRSgk"
 dkim-signature: v=1; a=rsa-sha256; d=huawei.com; s=dkim;
 	c=relaxed/relaxed; q=dns/txt;
 	h=From;
-	bh=anxdR+vCsrXIdO5WleMXd+QVx9rE9sRRtEs8cuXxkx8=;
-	b=thFA5tBrS52775v/1sgEOCDpqo9UJ007PspB8urA6kVaevJyEOvuQkvWzdOaLWq6Xx/1eMn5Z
-	A/b2IWRpV/0Piw4SCuwzsg3g+vdgdjnGu2VRpcttACWjYP9fu2kSuIM/Q3ignQ5N4UJmT6yKcYm
-	V+2fe4p1lhxwJaTzWBRn7Ik=
-Received: from mail.maildlp.com (unknown [172.19.163.127])
-	by canpmsgout11.his.huawei.com (SkyGuard) with ESMTPS id 4gwfVH24kdzKm60;
-	Thu,  9 Jul 2026 10:46:15 +0800 (CST)
+	bh=S12kfcpDi3n+0LKTkd0ZeOMuD4be+hwO7l/dC6hKERM=;
+	b=r6RtRSgklJXTYPLKflO27pyxFSmmCAshlJ9sm0FshpvKL/UlLPYd2FfTNtINKHoCzuTfShLyS
+	LkOmzr7xxMEHmA7sCPUPICbnen8w5KxUkRZCWYkkaVaxSOG+7qe1F0UiIFaRZ9FEqLiKzBUVzBQ
+	oR/081TML0omCrg301p3De4=
+Received: from mail.maildlp.com (unknown [172.19.163.0])
+	by canpmsgout03.his.huawei.com (SkyGuard) with ESMTPS id 4gwgdP686WzpSvs;
+	Thu,  9 Jul 2026 11:37:29 +0800 (CST)
 Received: from dggpemf500011.china.huawei.com (unknown [7.185.36.131])
-	by mail.maildlp.com (Postfix) with ESMTPS id 43B58402AB;
-	Thu,  9 Jul 2026 10:55:32 +0800 (CST)
+	by mail.maildlp.com (Postfix) with ESMTPS id 6702240561;
+	Thu,  9 Jul 2026 11:46:11 +0800 (CST)
 Received: from [10.67.109.254] (10.67.109.254) by
  dggpemf500011.china.huawei.com (7.185.36.131) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.11; Thu, 9 Jul 2026 10:55:28 +0800
-Message-ID: <710049c4-8568-48c9-b378-0cb64c8ee68d@huawei.com>
-Date: Thu, 9 Jul 2026 10:55:27 +0800
+ 15.2.1544.11; Thu, 9 Jul 2026 11:46:08 +0800
+Message-ID: <5fb7a6bc-2a4b-4e91-b12d-2a1b0d3de88a@huawei.com>
+Date: Thu, 9 Jul 2026 11:46:07 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -42,7 +42,8 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [patch 10/18] entry: Use syscall number instead of rereading it
+Subject: Re: [patch 03/18] entry: Provide
+ [syscall_]enter_from_user_mode_randomize_stack()
 To: Thomas Gleixner <tglx@kernel.org>, LKML <linux-kernel@vger.kernel.org>
 CC: Peter Zijlstra <peterz@infradead.org>, Michael Ellerman
 	<mpe@ellerman.id.au>, Shrikanth Hegde <sshegde@linux.ibm.com>,
@@ -72,60 +73,154 @@ CC: Peter Zijlstra <peterz@infradead.org>, Michael Ellerman
 	<msuchanek@suse.de>, Jonathan Corbet <corbet@lwn.net>,
 	<linux-doc@vger.kernel.org>
 References: <20260707181957.433213175@kernel.org>
- <20260707190254.181086755@kernel.org>
+ <20260707190253.816918647@kernel.org>
 From: Jinjie Ruan <ruanjinjie@huawei.com>
-In-Reply-To: <20260707190254.181086755@kernel.org>
+In-Reply-To: <20260707190253.816918647@kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: kwepems500002.china.huawei.com (7.221.188.17) To
+X-ClientProxiedBy: kwepems100002.china.huawei.com (7.221.188.206) To
  dggpemf500011.china.huawei.com (7.185.36.131)
 
 
 
 On 7/8/2026 3:06 AM, Thomas Gleixner wrote:
-> rseq_syscall_enter_work() is invoked before the syscall number can be
-> modified. So there is no point in rereading it from pt_regs.
+> Randomizing the syscall stack can only happen after state is established
+> via enter_from_user_mode() or syscall_enter_from_user_mode(). The earlier
+> it happens the better.
+> 
+> Provide two new macros to consolidate that:
+> 
+>   - enter_from_user_mode_randomize_stack()
+> 	enter_from_user_mode();
+> 	add_random_kstack_offset_irqsoff();
+> 
+>   - syscall_enter_from_user_mode_randomize_stack()
+> 	enter_from_user_mode_randomize_stack();
+> 	syscall_enter_from_user_mode_work();
+>     
+> to reduce boiler plate code.
+> 
+> Those are macros and not inline functions as the latter would limit the
+> stack randomization scope to the inline function itself.
 > 
 > Signed-off-by: Thomas Gleixner <tglx@kernel.org>
 > ---
->  include/linux/entry-common.h |    9 +++++----
->  1 file changed, 5 insertions(+), 4 deletions(-)
+>  include/linux/entry-common.h |   56 +++++++++++++++++++++++++++++++++++++++++++
+>  1 file changed, 56 insertions(+)
 > 
 > --- a/include/linux/entry-common.h
 > +++ b/include/linux/entry-common.h
-> @@ -70,9 +70,10 @@ static inline void syscall_enter_audit(s
->  	}
+> @@ -6,6 +6,7 @@
+>  #include <linux/irq-entry-common.h>
+>  #include <linux/livepatch.h>
+>  #include <linux/ptrace.h>
+> +#include <linux/randomize_kstack.h>
+>  #include <linux/resume_user_mode.h>
+>  #include <linux/seccomp.h>
+>  #include <linux/sched.h>
+> @@ -150,6 +151,61 @@ static __always_inline long syscall_ente
 >  }
 >  
-> -static __always_inline long syscall_trace_enter(struct pt_regs *regs, unsigned long work)
-> +static __always_inline long syscall_trace_enter(struct pt_regs *regs, unsigned long work,
-> +						long syscall)
->  {
-> -	long syscall, ret = 0;
-> +	long ret = 0;
->  
->  	/*
->  	 * Handle Syscall User Dispatch.  This must comes first, since
-> @@ -90,7 +91,7 @@ static __always_inline long syscall_trac
->  	 * through hrtimer_interrupt().
->  	 */
->  	if (work & SYSCALL_WORK_SYSCALL_RSEQ_SLICE)
-> -		rseq_syscall_enter_work(syscall_get_nr(current, regs));
-> +		rseq_syscall_enter_work(syscall);
->  
->  	/* Handle ptrace */
->  	if (work & (SYSCALL_WORK_SYSCALL_TRACE | SYSCALL_WORK_SYSCALL_EMU)) {
-> @@ -145,7 +146,7 @@ static __always_inline long syscall_ente
->  	unsigned long work = READ_ONCE(current_thread_info()->syscall_work);
->  
->  	if (work & SYSCALL_WORK_ENTER)
-> -		syscall = syscall_trace_enter(regs, work);
-> +		syscall = syscall_trace_enter(regs, work, syscall);
+>  /**
+> + * enter_from_user_mode_randomize_stack - Establish state and add stack randomization
+> + *					  before invoking syscall_enter_from_user_mode_work()
+> + * @regs:	Pointer to currents pt_regs
+> + *
+> + * Invoked from architecture specific syscall entry code with interrupts
+> + * disabled. The calling code has to be non-instrumentable. When the function
+> + * returns all state is correct, interrupts are still disabled and the
+> + * subsequent functions can be instrumented.
+> + *
+> + * Implemented as a macro so that the stack randomization is effective
+> + * throughout the function in which it is invoked. An inline would only make it
+> + * effective in the scope of the inline function.
+> + */
+> +#define enter_from_user_mode_randomize_stack(regs)			\
+> +do {									\
+> +	enter_from_user_mode(regs);					\
+> +	instrumentation_begin();					\
+> +	add_random_kstack_offset_irqsoff();				\
+> +	instrumentation_end();						\
+> +} while (0)
 
-Reviewed-by: Jinjie Ruan <ruanjinjie@huawei.com>
 
->  
->  	return syscall;
->  }
+Perhaps this new function can also be reused when the ARM64 is switched
+to the generic entry as the irq also disabled now.
+
+--- a/arch/arm64/kernel/entry-common.c
++++ b/arch/arm64/kernel/entry-common.c
+@@ -64,7 +64,7 @@ static void noinstr arm64_exit_to_kernel_mode(struct
+pt_regs *regs,
+
+ static __always_inline void arm64_syscall_enter_from_user_mode(struct
+pt_regs *regs)
+ {
+-       enter_from_user_mode(regs);
++       enter_from_user_mode_randomize_stack(regs);
+        mte_disable_tco_entry(current);
+        sme_enter_from_user_mode();
+ }
+diff --git a/arch/arm64/kernel/syscall.c b/arch/arm64/kernel/syscall.c
+index e0a98fac3b85..42ac02573b66 100644
+--- a/arch/arm64/kernel/syscall.c
++++ b/arch/arm64/kernel/syscall.c
+@@ -6,7 +6,6 @@
+ #include <linux/errno.h>
+ #include <linux/nospec.h>
+ #include <linux/ptrace.h>
+-#include <linux/randomize_kstack.h>
+ #include <linux/syscalls.h>
+
+ #include <asm/debug-monitors.h>
+@@ -42,8 +41,6 @@ static void invoke_syscall(struct pt_regs *regs,
+unsigned int scno,
+ {
+        long ret;
+
+-       add_random_kstack_offset();
+-
+        if (likely(scno < sc_nr)) {
+                syscall_fn_t syscall_fn;
+                syscall_fn = syscall_table[array_index_nospec(scno, sc_nr)];
+
+
+> +
+> +/**
+> + * syscall_enter_from_user_mode_randomize_stack - Establish state and check and handle work
+> + *						  before invoking a syscall
+> + * @regs:	Pointer to currents pt_regs
+> + * @syscall:	The syscall number
+> + *
+> + * Invoked from architecture specific syscall entry code with interrupts
+> + * disabled. The calling code has to be non-instrumentable. When the
+> + * function returns all state is correct, interrupts are enabled and the
+> + * subsequent functions can be instrumented.
+> + *
+> + * This is the combination of enter_from_user_mode_randomize_stack() and
+> + * syscall_enter_from_user_mode_work() to be used when there is no
+> + * architecture specific work to be done between the two.
+> + *
+> + * Returns: The original or a modified syscall number. See
+> + * syscall_enter_from_user_mode_work() for further explanation.
+> + *
+> + * Implemented as a macro to make stack randomization effective in the calling
+> + * scope.
+> + */
+> +#define syscall_enter_from_user_mode_randomize_stack(regs, syscall)	\
+> +({									\
+> +	enter_from_user_mode_randomize_stack(regs);			\
+> +									\
+> +	instrumentation_begin();					\
+> +	local_irq_enable();						\
+> +	long _ret = syscall_enter_from_user_mode_work(regs, syscall);	\
+> +	instrumentation_end();						\
+> +									\
+> +	_ret;								\
+> +})
+> +
+> +/**
+>   * syscall_enter_from_user_mode - Establish state and check and handle work
+>   *				  before invoking a syscall
+>   * @regs:	Pointer to currents pt_regs
 > 
 
