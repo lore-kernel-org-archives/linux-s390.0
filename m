@@ -1,133 +1,88 @@
-Received: from canpmsgout10.his.huawei.com (canpmsgout10.his.huawei.com [113.46.200.225])
+Received: from out-178.mta0.migadu.com (out-178.mta0.migadu.com [91.218.175.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6923731E822;
-	Thu,  9 Jul 2026 02:13:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=113.46.200.225
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D92C3382E1;
+	Thu,  9 Jul 2026 02:33:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783563202; cv=none; b=muvDXHG3IbqV1kRyZT1RwMOMoww0kvr8XIvByUdf6za+2eHsznJ9QXOg4EKirDZ0zpEFpZ0kVCHICbYEieSQaZcdipqVDUQrykHXNqXTqS9GHAzhrcWv4luO4Z7EHh1TnxXE8JYYr1GWrVoEDdERvod9Ds8v15/n7PTOuTzTN6o=
+	t=1783564431; cv=none; b=sX/dK7SU4r1I/GuzcG4g3kLawNv0usAGQIsGH4v7ByJjW0xCwnosYzbKtWq2U7csy4yl69bTgHH+sqCdgiPU7oi7+kqJegBgJVb/AM58OCdy7GmpSud6auc6GWyTEQz1JjVZ+gAEZhZRTIwVp+cEFbV5Q4mtp1tMBbIqXWX+iL0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783563202; c=relaxed/simple;
-	bh=SOuxBEMe6Snhg5If1hoAhWP9tSzyKmHrj1lSJoOW4xI=;
-	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=g8v0o7m3bSU0thA+rDo2FfTbxIFkuCeKkzhabX5YLFXZ8qj2xc/yk8GFd5QAMKdYFnM8XVzur1MX/Bo/J/7ayL01oZvZfCqE3dp3A0WabtQErtEKpgLz2NkMJdzaUhUS+syOBxLWndbVpWyzMtj46jqjiM9bAprRY9j5WxETgmQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b=2rmhw3tA; arc=none smtp.client-ip=113.46.200.225
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
+	s=arc-20240116; t=1783564431; c=relaxed/simple;
+	bh=HzUw7rCHO0FnTt3sdVgm/XNvnD31q2tYJNPlOGoz6Ww=;
+	h=Content-Type:Mime-Version:Subject:From:In-Reply-To:Date:Cc:
+	 Message-Id:References:To; b=hrLvyv/8FLGCYNBM3MQPu+udjd9xqahCjXnldYdoUymLjWpCdZzi2DwFmJKrvpKuoVtrv84z8nFw2om1QQ45Mflb4jnBSCkMp5wb11FzSYsqR9KStemdByPw/DlJmXXBbPc2sUz/hRwYsI95OkJpajPfT/OefgLFubY9Ej43/mQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=r7Q1Gay2; arc=none smtp.client-ip=91.218.175.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b="2rmhw3tA"
-dkim-signature: v=1; a=rsa-sha256; d=huawei.com; s=dkim;
-	c=relaxed/relaxed; q=dns/txt;
-	h=From;
-	bh=EIzhkxswirYpNGm9CWwkdDS2HF3tntCDkdxaAlmwFV4=;
-	b=2rmhw3tAjKXtz09O7hvY7cAlY/1Yd/KOqZ+ZN+0RclN3O1JQ97bO9iM01OI1tNyjUBfVBZ+JE
-	tsopHd70NpH1/LAqiYYENqjY7FRDJ+e6LjhHTLPLPPp1WxyG71HEpSeN/TNuJ3k9DIYW/ZQQXNg
-	+wXo3TuMW926WHIty2rH81A=
-Received: from mail.maildlp.com (unknown [172.19.163.15])
-	by canpmsgout10.his.huawei.com (SkyGuard) with ESMTPS id 4gwdYY6NQGz1K97H;
-	Thu,  9 Jul 2026 10:04:01 +0800 (CST)
-Received: from dggpemf500011.china.huawei.com (unknown [7.185.36.131])
-	by mail.maildlp.com (Postfix) with ESMTPS id 1EDDC40578;
-	Thu,  9 Jul 2026 10:13:15 +0800 (CST)
-Received: from [10.67.109.254] (10.67.109.254) by
- dggpemf500011.china.huawei.com (7.185.36.131) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.11; Thu, 9 Jul 2026 10:13:12 +0800
-Message-ID: <289cf9a8-aa46-4dac-b370-07a35c6c7c7e@huawei.com>
-Date: Thu, 9 Jul 2026 10:13:11 +0800
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="r7Q1Gay2"
+Content-Type: text/plain;
+	charset=us-ascii
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1783564422;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=rUCzNBo2De+EFhwds+D3LViOOG1LNZhzLGOzUdX1xuI=;
+	b=r7Q1Gay2oSrwXoJ7iuGffU4EvlFvnQegMN9d4T+5AoK8K6sgF+4mGzBYKl3UE2JSFm73T0
+	nD7oIrq/l0m1+Cwb69+VpKifvk6gBPY9qQtfiRjT7Zdc/WfGNfp/r5odSTR2WV5vHPkTxy
+	6p2kuqkiRW5gtdYt9D3ws9ynXwO52eg=
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [patch 02/18] randomize_kstack: Provide
- add_random_kstack_offset_irqsoff()
-To: Thomas Gleixner <tglx@kernel.org>, LKML <linux-kernel@vger.kernel.org>
-CC: Peter Zijlstra <peterz@infradead.org>, Kees Cook <kees@kernel.org>,
-	Michael Ellerman <mpe@ellerman.id.au>, Shrikanth Hegde
-	<sshegde@linux.ibm.com>, <linuxppc-dev@lists.ozlabs.org>, Huacai Chen
-	<chenhuacai@kernel.org>, <loongarch@lists.linux.dev>, Paul Walmsley
-	<pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
-	<linux-riscv@lists.infradead.org>, Sven Schnelle <svens@linux.ibm.com>,
-	<linux-s390@vger.kernel.org>, <x86@kernel.org>, Mark Rutland
-	<mark.rutland@arm.com>, Andy Lutomirski <luto@kernel.org>, Oleg Nesterov
-	<oleg@redhat.com>, Richard Henderson <richard.henderson@linaro.org>, Russell
- King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, Guo
- Ren <guoren@kernel.org>, Geert Uytterhoeven <geert@linux-m68k.org>, Thomas
- Bogendoerfer <tsbogend@alpha.franken.de>, Helge Deller <deller@gmx.de>,
-	Yoshinori Sato <ysato@users.sourceforge.jp>, Richard Weinberger
-	<richard@nod.at>, Chris Zankel <chris@zankel.net>,
-	<linux-arm-kernel@lists.infradead.org>, <linux-alpha@vger.kernel.org>,
-	<linux-csky@vger.kernel.org>, <linux-m68k@lists.linux-m68k.org>,
-	<linux-mips@vger.kernel.org>, <linux-parisc@vger.kernel.org>,
-	<linux-sh@vger.kernel.org>, <linux-um@lists.infradead.org>, Arnd Bergmann
-	<arnd@arndb.de>, Vineet Gupta <vgupta@kernel.org>, Will Deacon
-	<will@kernel.org>, Brian Cain <bcain@kernel.org>, Michal Simek
-	<monstr@monstr.eu>, Dinh Nguyen <dinguyen@kernel.org>, "David S. Miller"
-	<davem@davemloft.net>, Andreas Larsson <andreas@gaisler.com>,
-	<linux-snps-arc@lists.infradead.org>, <linux-hexagon@vger.kernel.org>,
-	<linux-openrisc@vger.kernel.org>, <sparclinux@vger.kernel.org>,
-	<linux-arch@vger.kernel.org>, =?UTF-8?Q?Michal_Such=C3=A1nek?=
-	<msuchanek@suse.de>, Jonathan Corbet <corbet@lwn.net>,
-	<linux-doc@vger.kernel.org>
-References: <20260707181957.433213175@kernel.org>
- <20260707190253.768842729@kernel.org>
-From: Jinjie Ruan <ruanjinjie@huawei.com>
-In-Reply-To: <20260707190253.768842729@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3864.600.51.1.1\))
+Subject: Re: [PATCH 01/10] x86/mm: drop order parameter from free_pagetable()
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From: Muchun Song <muchun.song@linux.dev>
+In-Reply-To: <20260708-bootmem_info_part2-v1-1-156ce4986598@kernel.org>
+Date: Thu, 9 Jul 2026 10:32:57 +0800
+Cc: Dave Hansen <dave.hansen@linux.intel.com>,
+ Andy Lutomirski <luto@kernel.org>,
+ Peter Zijlstra <peterz@infradead.org>,
+ Thomas Gleixner <tglx@kernel.org>,
+ Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>,
+ x86@kernel.org,
+ "H. Peter Anvin" <hpa@zytor.com>,
+ Andrew Morton <akpm@linux-foundation.org>,
+ Lorenzo Stoakes <ljs@kernel.org>,
+ "Liam R. Howlett" <liam@infradead.org>,
+ Vlastimil Babka <vbabka@kernel.org>,
+ Mike Rapoport <rppt@kernel.org>,
+ Suren Baghdasaryan <surenb@google.com>,
+ Michal Hocko <mhocko@suse.com>,
+ Brendan Jackman <jackmanb@google.com>,
+ Johannes Weiner <hannes@cmpxchg.org>,
+ Zi Yan <ziy@nvidia.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+ Heiko Carstens <hca@linux.ibm.com>,
+ Vasily Gorbik <gor@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>,
+ Oscar Salvador <osalvador@suse.de>,
+ linux-kernel@vger.kernel.org,
+ linux-mm@kvack.org,
+ linux-s390@vger.kernel.org
 Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: kwepems100001.china.huawei.com (7.221.188.238) To
- dggpemf500011.china.huawei.com (7.185.36.131)
+Message-Id: <8ED0A21F-15DA-4B82-A326-88DDF7466CB6@linux.dev>
+References: <20260708-bootmem_info_part2-v1-0-156ce4986598@kernel.org>
+ <20260708-bootmem_info_part2-v1-1-156ce4986598@kernel.org>
+To: "David Hildenbrand (Arm)" <david@kernel.org>
+X-Migadu-Flow: FLOW_OUT
 
 
 
-On 7/8/2026 3:06 AM, Thomas Gleixner wrote:
-> add_random_kstack_offset() uses get/put_cpu_var() which is pointless
-> overhead when it is invoked from low level entry code with interrupts
-> disabled.
+> On Jul 8, 2026, at 22:10, David Hildenbrand (Arm) <david@kernel.org> wrote:
 > 
-> Provide a irqsoff() variant, which avoids that.
+> All callers pass 0, so let's drop the parameter.
 > 
-> Signed-off-by: Thomas Gleixner <tglx@kernel.org>
-> Cc: Kees Cook <kees@kernel.org>
-> ---
->  include/linux/randomize_kstack.h |   19 +++++++++++++++++++
->  1 file changed, 19 insertions(+)
-> 
-> --- a/include/linux/randomize_kstack.h
-> +++ b/include/linux/randomize_kstack.h
-> @@ -77,8 +77,27 @@ static __always_inline u32 get_kstack_of
->  	}								\
->  } while (0)
->  
-> +/**
-> + * add_random_kstack_offset_irqsoff - Increase stack utilization by a random offset.
-> + *
-> + * This should be used in the syscall entry path after user registers have been
-> + * stored to the stack. Interrupts must be still disabled.
-> + */
-> +#define add_random_kstack_offset_irqsoff()					\
-> +do {										\
-> +	lockdep_assert_irqs_disabled();						\
-> +	if (static_branch_maybe(CONFIG_RANDOMIZE_KSTACK_OFFSET_DEFAULT,		\
-> +				&randomize_kstack_offset)) {			\
-> +		u32 offset = prandom_u32_state(raw_cpu_ptr(&kstack_rnd_state));	\
-> +		u8 *ptr = __kstack_alloca(KSTACK_OFFSET_MAX(offset));		\
-> +		/* Keep allocation even after "ptr" loses scope. */		\
-> +		asm volatile("" :: "r"(ptr) : "memory");			\
-> +	}									\
-> +} while (0)
+> Signed-off-by: David Hildenbrand (Arm) <david@kernel.org>
 
-Or can we avoid these repetitions and reuse the same code?
+Reviewed-by: Muchun Song <muchun.song@linux.dev>
 
-> +
->  #else /* CONFIG_RANDOMIZE_KSTACK_OFFSET */
->  #define add_random_kstack_offset()		do { } while (0)
-> +#define add_random_kstack_offset_irqsoff()	do { } while (0)
->  #endif /* CONFIG_RANDOMIZE_KSTACK_OFFSET */
->  
->  #endif
-> 
+Thanks.
 
