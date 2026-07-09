@@ -1,63 +1,63 @@
-Received: from mail-wm1-f45.google.com (mail-wm1-f45.google.com [209.85.128.45])
+Received: from mail-wm1-f54.google.com (mail-wm1-f54.google.com [209.85.128.54])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E7A9D404BD6
-	for <linux-s390@vger.kernel.org>; Thu,  9 Jul 2026 09:56:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C273403AF7
+	for <linux-s390@vger.kernel.org>; Thu,  9 Jul 2026 09:56:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.54
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783590978; cv=none; b=NEDTqqej2fvbEDRDKGQ3HxWbGytUeJu1QpOAO+ca9QAQNt2KHlJ5oVRINOQNmFHYM4mU7pjkDINjyILBBLSlL3WIQ2dHWmhMQBdHhaohHKJHWw59kHSCM33nOKl1L8KP8Zvek8xjEMe8A7j03mTfR5nuanmarnoDEnV0cmnO/iE=
+	t=1783590979; cv=none; b=qCyICeikk2c6TfVJV44lSbmJ1CpNwByYXBAQgPWuDEoFsNFWV0uCxD7a2Kla4/RtHx/9pJrQb9U8mnM8QDOYnh5Jn9N7g5QXp5WtOCk3VyztKRGQ0jTKmMVWxYImwjZn4PskEk9dt0/Sw6puTnzNwntYqIBNzqdiqgFBbzd8jPw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783590978; c=relaxed/simple;
-	bh=AlWKq+WCpJ6jqrd7bHxM+xUmQDKopJjD0aSNOnzQ77Q=;
+	s=arc-20240116; t=1783590979; c=relaxed/simple;
+	bh=BtV4YlWqSeeVkZLMl7O/Z8uUv5IQpghIyehpmENCIJs=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=giHDDSZPX2xhK45tw51xW07GcdYO0VE4DogwJ/HqzbqBW4hlaSSXMMPZCpZedqzODjJb+JhxkUkw2ZDmBgtS4rY+p2j2woOZcPBeFbk8TN+K/pAAC7q8Qp3CCr+FIu5uGji9Z3O1K1bYcuZkVJDgSJXA6zIT+fU1NgOdbVIWF9g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20251104.gappssmtp.com header.i=@resnulli-us.20251104.gappssmtp.com header.b=EK2qKbHj; arc=none smtp.client-ip=209.85.128.45
+	 MIME-Version; b=DWyZH9ZMDWjBN6OiaNb0TdXJx0JceJ4uKbTNlw+vY1Dxfn4ZsCpdpWSsaQWWG0sg/xqpVZR0AvQkGbY2QO+1gB6tcJzZnwvx/6OT7Qu+xfDeIQCwPHqsupOSSIvi+jsCmqbnfdEbzwEZkaoc2obYydcr08gNSyGodIRe8iFBaQI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20251104.gappssmtp.com header.i=@resnulli-us.20251104.gappssmtp.com header.b=GI+x+lL8; arc=none smtp.client-ip=209.85.128.54
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=resnulli-us.20251104.gappssmtp.com header.i=@resnulli-us.20251104.gappssmtp.com header.b="EK2qKbHj"
-Received: by mail-wm1-f45.google.com with SMTP id 5b1f17b1804b1-493c486f012so7098495e9.3
-        for <linux-s390@vger.kernel.org>; Thu, 09 Jul 2026 02:56:16 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=resnulli-us.20251104.gappssmtp.com header.i=@resnulli-us.20251104.gappssmtp.com header.b="GI+x+lL8"
+Received: by mail-wm1-f54.google.com with SMTP id 5b1f17b1804b1-493c1950518so4523355e9.1
+        for <linux-s390@vger.kernel.org>; Thu, 09 Jul 2026 02:56:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=resnulli-us.20251104.gappssmtp.com; s=20251104; t=1783590975; x=1784195775; darn=vger.kernel.org;
+        d=resnulli-us.20251104.gappssmtp.com; s=20251104; t=1783590966; x=1784195766; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=1DAcALuj6CLiGGxg2YU+zPjUKqyxKHB8HUr7MGOtyF0=;
-        b=EK2qKbHjF/3hyZLJq5H3dLsl0XlAQpmpHO1Y1rUF/egg5KypMZaczFPeaQRkZVsBB6
-         cSlc++ZZt6IckP+7sdSpgTQhf1V453QWIahFOXEcJeIPJi3/gLJrIsJ5RxOxKEg8MzcG
-         MykQH4rHxRigN65mZPXdJG6s4duuT7FTamRX9keequsaiFTxSOea0I3PTFHEaYU6/oIU
-         xjkRpoKGRa1IosbPqNIlOVlzaVUcL0XJMDKgiVVHcj5yf45h8TdA+qloac8TWbnYob7h
-         IC4x2FE4ceW2wfL/UfycuSnSBYT9pc4ubMvTlJw3poeC8udAHJPmMP1Wi4qb9t101Mcq
-         5iaw==
+        bh=FMAXl1cpFneAc8qw41p6eJ7Eq0JeDqgZ4KunEwtw9x4=;
+        b=GI+x+lL8sq0CkxXuBnv0Cu1jA9kMWZ1Be8D5Z6yYyqffjpsE6H8buIGveFfzQvQo5I
+         kOschQwaJRUU4taSyUeZB9PvIqFsA1wN0Q8PWWg3yp1EqdDrxLwE0kHXlh0zMnbSiZ+l
+         Dr0wPMcBCdOQvz2h9Ut4yIlcl7T+CSPowbYTZR9Jzv9ox1zyIuKrW8b4mFIWJD02oWaY
+         kRt+uqCVIG1jVHd74eIvyCk2h6KWQpHFM0V2gqKAj0FUKCBG0wmTbA3uxsuk/FbsYCId
+         2NbZr2C8FpmGhLC1jT0+aidmMp+Pv0Qr+y1wrY6N63VNXyODWLRQ1SGZ88b4pe7g2zlY
+         PQfA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783590975; x=1784195775;
+        d=1e100.net; s=20251104; t=1783590966; x=1784195766;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=1DAcALuj6CLiGGxg2YU+zPjUKqyxKHB8HUr7MGOtyF0=;
-        b=r4nmmVBiDdn5YFQBjT5tsYlEl9kLN1JS4q4M2QdpimZdVFmv3K8gvlZVwrGzWltLcb
-         F2DqXAWctc1rW+8URDARoVwo2r8T2dM9nZRAc0bnXioWCLbdX4RVsthjdIB3YLkikJC0
-         GDbMXIztT+fdhImp/kvh7DUKyejCYXeIcVXIekpmp3qEdPg6VWbZ1TRa/vXpSplNEIfD
-         bndhaNw9o0myjy/mnWbTttsWHv+fXwiD1lNVSdjUK5pGn3ANzAwz39LPJwkdjYbnBFXb
-         9/N01aTJQzkktnB1Er5Dop/ysfUuf1FMa8KIgzXEaLtwl1h+mczm2e+cI43WhoQ0zbfi
-         WsYQ==
-X-Forwarded-Encrypted: i=1; AHgh+Ro2c+gYIxBKzlVFb/UxBcSQQVvQTj9y5uQlb0k333GGWOifwSRaZzKBxYzFsYTbOY9yfw36akxPfzgR@vger.kernel.org
-X-Gm-Message-State: AOJu0YweWTg5IutsBiM7mYJbIH+ezE5weWMFEOC7bWeA6Lax1+TMNaHF
-	GbHzGhZ72iR/9q8mpy7RdN5en0nmkLNPnGR21H2ZOnhBN0ZOk0FEu9RhbSvOe19cbrk=
-X-Gm-Gg: AfdE7cmE5kt005DqfzMRy2BU3gM3o8/l91Nl8U4xmZWo8C49DtGhE/hdnHG94LxSA13
-	c2/GeDrJS5SYZ6R4BPSq99cE780lZ1qKDcvhadeV0vVmvJQO7pWAY/QspxZ3YnDoMLtStKvN2FA
-	6k6Int3pSNmVNlf1thSfPgpqIruENCubG3Hk8eMttxPCHEKOSnfGPX8xrYMYukvhvgdxLI5XO3F
-	sFqwfd6zguRVN+MXfCDdJcc1OAT/bvqJvM+0Qarbfp3/NWXl2VjfC7pP1RLNiQeplCY/hHIblup
-	VQgqbe98zS3eNx+nRgXSxuc3HcG/8hVHDMXVD+tTA8KQE/7m2pBFls6ipOesTcyJC40S9SWSb5v
-	4C4/3zHmvAE8X0sczBcD7ZyJAQttgtbsZ9sr9RTbhRRhTyp3VLOklwvR/PJNEF0wGB2VoSeEQEL
-	CHI+9W30UyDsSZLjpn33MuuA==
-X-Received: by 2002:a05:600c:628d:b0:493:bcef:5646 with SMTP id 5b1f17b1804b1-493e6862b68mr59669985e9.12.1783590975296;
-        Thu, 09 Jul 2026 02:56:15 -0700 (PDT)
+        bh=FMAXl1cpFneAc8qw41p6eJ7Eq0JeDqgZ4KunEwtw9x4=;
+        b=mY5TpWGGyZ9/4ZOvJazc56IVwUwW1obmgHHiBEA3XrNrDoPvce/09dd9X++C4egnXl
+         OeW1lwhxFewrzU2qf9/o+zBC6fHAd9txbwUS7lvIF7zWosLQ60OwAE3+4Mqhw7C1p1SO
+         89+a3rsLtZnWh6ZC4rU6ZMruckN/R7dgXTY9jnBA/LEQBcyOSIIwwa5T1Av62eGu8GtE
+         ieRrMilNw+axwfKrDAgY3DQdS9six3j6/t7xiOoOWp/xNbryL+4u8TB4FVxZxsiF7EVb
+         19KIteTlIt1/7pKUgJgn7JfWiWworxb+Y1r1BxSAJ2B/SACb6/W1rCjwrLlETDWxT0vQ
+         XsPA==
+X-Forwarded-Encrypted: i=1; AHgh+RoqNtIcCmAxzSAnuqWpxrOGfZVx48+tWTAmUQ43nPMk6NMea4itOax98TZh6ckOrn6ZajmNUk8EyOIx@vger.kernel.org
+X-Gm-Message-State: AOJu0Yx2X/YWLvGi381yWWQjhzLWliPFZb4O5zzGJJiQcs1+3BpCsSEf
+	FPoenJlLm8CfpCBEVEUavLf6rIRQVu5i8He+3NyXeebeINITenfOnOnubaBmrCsXH/8=
+X-Gm-Gg: AfdE7ckr932Ql3UgfurfEdSMIYsEDRHhwYUPL4OisiGM4i9wRAH7YHh5y8E5qUiDDXW
+	1/hc00qHdze8JQbgv6N2Ns12+0FW9gmdnjy2LIGmXg6PFtM9tIFyCZCfIsxXhTaEvYOVlpHIVmP
+	owvMTD7f868tqb8zD2pQoGkvolJnoqarHW/pqPclorvuT4gVZK1i5URQl6FpvawE9P/GEPTas+S
+	EEsxcEvmivbjvHAOfxexTUOZ6pfqC4tkA/bgg0es51KK5NEfKVT4v+5ehItQlrAkapZWd57vl/d
+	gU4FR+ufRAMX1zCHNLcsnEVw4JlXEewmEfjmSOkOoMRg1W4Yly49xOz0hFAe0ec36wDfoeMjJ5N
+	RkqvqhLNBcez8CHr57bZ6AK0nuFRm1+uN6ymXYHod+4B+wuUs7cxdRuK2K3C4frECDtFfZYmuEL
+	Lp6nX0L8X3xVy6Tl920NrO4Q==
+X-Received: by 2002:a05:600c:3ba2:b0:493:e542:ffd5 with SMTP id 5b1f17b1804b1-493ec65ecf7mr22790365e9.5.1783590965776;
+        Thu, 09 Jul 2026 02:56:05 -0700 (PDT)
 Received: from localhost ([140.209.217.211])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-493eb742a49sm47241745e9.12.2026.07.09.02.56.14
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-493eb6f16cfsm51734255e9.12.2026.07.09.02.56.05
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 09 Jul 2026 02:56:14 -0700 (PDT)
+        Thu, 09 Jul 2026 02:56:05 -0700 (PDT)
 From: Jiri Pirko <jiri@resnulli.us>
 To: linux-rdma@vger.kernel.org
 Cc: cgroups@vger.kernel.org,
@@ -80,9 +80,9 @@ Cc: cgroups@vger.kernel.org,
 	dust.li@linux.alibaba.com,
 	sidraya@linux.ibm.com,
 	wenjia@linux.ibm.com
-Subject: [PATCH rdma-next 12/13] RDMA/rxe: Implement disassociate_ucontext callback
-Date: Thu,  9 Jul 2026 11:55:31 +0200
-Message-ID: <20260709095532.855647-13-jiri@resnulli.us>
+Subject: [PATCH rdma-next 09/13] RDMA/cma: Document that CM configfs cannot be net namespace scoped
+Date: Thu,  9 Jul 2026 11:55:28 +0200
+Message-ID: <20260709095532.855647-10-jiri@resnulli.us>
 X-Mailer: git-send-email 2.54.0
 In-Reply-To: <20260709095532.855647-1-jiri@resnulli.us>
 References: <20260709095532.855647-1-jiri@resnulli.us>
@@ -96,42 +96,45 @@ Content-Transfer-Encoding: 8bit
 
 From: Jiri Pirko <jiri@nvidia.com>
 
-Implement an empty disassociate_ucontext() callback so the RDMA core
-can move rxe devices between net namespaces. The core requires this
-callback to reset user contexts without waiting for userspace.
-
-rxe needs no teardown here: its user-mapped queues live in
-reference-counted vmalloc memory (see rxe_mmap.c) that stays valid
-while userspace holds the mappings.
+Document the rdma_cm configfs limitation: configfs is global, so same-named
+RDMA devices in different net namespaces cannot both be represented there.
 
 Signed-off-by: Jiri Pirko <jiri@nvidia.com>
 ---
- drivers/infiniband/sw/rxe/rxe_verbs.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ Documentation/ABI/testing/configfs-rdma_cm | 4 ++++
+ drivers/infiniband/core/cma_configfs.c     | 4 ++++
+ 2 files changed, 8 insertions(+)
 
-diff --git a/drivers/infiniband/sw/rxe/rxe_verbs.c b/drivers/infiniband/sw/rxe/rxe_verbs.c
-index 1ec130fee8ea..6eb10d2f0653 100644
---- a/drivers/infiniband/sw/rxe/rxe_verbs.c
-+++ b/drivers/infiniband/sw/rxe/rxe_verbs.c
-@@ -240,6 +240,10 @@ static void rxe_dealloc_ucontext(struct ib_ucontext *ibuc)
- 		rxe_err_uc(uc, "cleanup failed, err = %d\n", err);
+diff --git a/Documentation/ABI/testing/configfs-rdma_cm b/Documentation/ABI/testing/configfs-rdma_cm
+index 74f9506f42e7..739f7b6a1259 100644
+--- a/Documentation/ABI/testing/configfs-rdma_cm
++++ b/Documentation/ABI/testing/configfs-rdma_cm
+@@ -12,6 +12,10 @@ Description: 	Interface is used to configure RDMA-cable HCAs in respect to
+ 		for this HCA has to be created:
+ 		mkdir -p /config/rdma_cm/<hca>
+ 
++		Note: configfs has no network namespace support, so this
++		interface cannot represent two devices that share a name in
++		different network namespaces (possible in exclusive netns mode).
++
+ 
+ What: 		/config/rdma_cm/<hca>/ports/<port-num>/default_roce_mode
+ Date: 		November 29, 2015
+diff --git a/drivers/infiniband/core/cma_configfs.c b/drivers/infiniband/core/cma_configfs.c
+index 891e52afb8f4..c389d4e37b6b 100644
+--- a/drivers/infiniband/core/cma_configfs.c
++++ b/drivers/infiniband/core/cma_configfs.c
+@@ -65,6 +65,10 @@ static struct cma_dev_port_group *to_dev_port_group(struct config_item *item)
+ 	return container_of(group, struct cma_dev_port_group, group);
  }
  
-+static void rxe_disassociate_ucontext(struct ib_ucontext *ibuc)
-+{
-+}
-+
- /* pd */
- static int rxe_alloc_pd(struct ib_pd *ibpd, struct ib_udata *udata)
++/*
++ * configfs is not net namespace aware, so a name shared by devices in
++ * different namespaces resolves to the first match here.
++ */
+ static bool filter_by_name(struct ib_device *ib_dev, void *cookie)
  {
-@@ -1478,6 +1482,7 @@ static const struct ib_device_ops rxe_dev_ops = {
- 	.destroy_srq = rxe_destroy_srq,
- 	.detach_mcast = rxe_detach_mcast,
- 	.device_group = &rxe_attr_group,
-+	.disassociate_ucontext = rxe_disassociate_ucontext,
- 	.enable_driver = rxe_enable_driver,
- 	.get_dma_mr = rxe_get_dma_mr,
- 	.get_hw_stats = rxe_ib_get_hw_stats,
+ 	return !strcmp(dev_name(&ib_dev->dev), cookie);
 -- 
 2.54.0
 
