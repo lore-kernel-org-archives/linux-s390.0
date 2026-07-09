@@ -1,228 +1,258 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f175.google.com (mail-pg1-f175.google.com [209.85.215.175])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B80B1305E19;
-	Thu,  9 Jul 2026 19:58:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A475031AA87
+	for <linux-s390@vger.kernel.org>; Thu,  9 Jul 2026 20:15:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.175
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783627085; cv=none; b=Z97XlwRc9EQl5w2rjd1HtH3EEGuQwT3a+ucYG9ufCFrnYl3UP1AhvhaSWlfZJgLZI6P8UdkWaosvOq6gpH9NQLaCBGe6rxodrzV756J25MJmA6lb+GiuRlTGpA8a/P1e3ka7ShhAP/7GQRTzmVkJWHEEsvI+ctv7Doxafw7zWag=
+	t=1783628142; cv=none; b=UcuQKXlY+JBF+F8mDnbCyC0kYFt8o2Bt7duUXrDn0XvH7VemA2gr53z0pdnPAqKbloeiECi92U9vjjlOQjVrSs7oAqtjM87J+GFE6x5t1W4QZ/Jo/4jyIDjYxcSOImAPEb4w7tanJbKRbMdekRB4W3/eNL/3N2fO1ndy5ul848U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783627085; c=relaxed/simple;
-	bh=nASUEopdTVpbiOlaqA3bl70JASaPDBXc6RrPfU8TUhM=;
+	s=arc-20240116; t=1783628142; c=relaxed/simple;
+	bh=vDHDpmX/SHzXbqc6X1TB+shIwLpdQz10EZJe4LqT6ms=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=HiYSQsui9CPC71TYWN8jkFyZF28c+w8HWxXvdlFuAv/hLpPsXRiDCxZq5Q1ScW55siSwO0/bsXFMrhqu01gkGy30hap6D9JzRnyJwLrvNEpyfvv18rSwPd8XfR/9E35dtMpTw4N/6KtUGnechyGWxMJ8aborGj4EWhyekL8rVIw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HUZ0FPy6; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=fDYeLeMOKrHwewrvv/RYDtKYyf9pk/KUkb1ni5p2iwzd3y1ThOFjOpXsnu9ViyX1ZkKxebsx4AxAe6MZv4u8JqyWhtrAG8Ufb+TtPG8JcWL4GFe5JQ/Bzvub0sRV/Ty/I0tVJIVN720Hq50D1Zp5Bu/Fa+2Ov1rkouz/w/0W7sg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=pPcGO3ki; arc=none smtp.client-ip=209.85.215.175
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HUZ0FPy6"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A69C51F000E9;
-	Thu,  9 Jul 2026 19:58:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783627084;
-	bh=nASUEopdTVpbiOlaqA3bl70JASaPDBXc6RrPfU8TUhM=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=HUZ0FPy6tJ5k2FpZZk4TmtW8oNPYG0UCTaswg34FnSsVTMZ+nc6abBzQoGLAe7QpZ
-	 4839oR2E7eU5H+0VQhcuYDxXFXmLbqe785v0OtfK8pZM64xT/vjBbY8gU6OQqxdQko
-	 2bj2K0aisc+j7i5kyFSxJBzHYPyWTVbTuJKmXAkqp+WJvRZsZfqnl91bOFM7185CBN
-	 pNNt3ie4Xo7ripQOTTqoaN5lwefEhmBf7ncJ41sgP4urIb+UmKalmTY+FHBAjFjAbH
-	 sZHtyFtM9TSgQQsGPMBhSwsdDCYRoGd5HD7SutnqDROuHsn6T0qtpDhVLf9Zj3BAl/
-	 ejFRs0GNI3+Yw==
-Date: Thu, 9 Jul 2026 21:58:01 +0200
-From: Thierry Reding <thierry.reding@kernel.org>
-To: Will Deacon <will@kernel.org>
-Cc: Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Jonathan Hunter <jonathanh@nvidia.com>, David Airlie <airlied@gmail.com>, 
-	Simona Vetter <simona@ffwll.ch>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
-	Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
-	Sowjanya Komatineni <skomatineni@nvidia.com>, Luca Ceresoli <luca.ceresoli@bootlin.com>, 
-	Mikko Perttunen <mperttunen@nvidia.com>, Yury Norov <yury.norov@gmail.com>, 
-	Rasmus Villemoes <linux@rasmusvillemoes.dk>, Russell King <linux@armlinux.org.uk>, 
-	Alexander Gordeev <agordeev@linux.ibm.com>, Gerald Schaefer <gerald.schaefer@linux.ibm.com>, 
-	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
-	Christian Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, 
-	Andrew Morton <akpm@linux-foundation.org>, David Hildenbrand <david@kernel.org>, 
-	Lorenzo Stoakes <ljs@kernel.org>, "Liam R. Howlett" <liam@infradead.org>, 
-	Vlastimil Babka <vbabka@kernel.org>, Mike Rapoport <rppt@kernel.org>, 
-	Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>, 
-	Marek Szyprowski <m.szyprowski@samsung.com>, Robin Murphy <robin.murphy@arm.com>, 
-	Sumit Semwal <sumit.semwal@linaro.org>, Benjamin Gaignard <benjamin.gaignard@collabora.com>, 
-	Brian Starkey <Brian.Starkey@arm.com>, John Stultz <jstultz@google.com>, 
-	"T.J. Mercier" <tjmercier@google.com>, Christian =?utf-8?B?S8O2bmln?= <christian.koenig@amd.com>, 
-	Steven Rostedt <rostedt@goodmis.org>, Masami Hiramatsu <mhiramat@kernel.org>, 
-	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, Catalin Marinas <catalin.marinas@arm.com>, 
-	Thierry Reding <thierry.reding@gmail.com>, devicetree@vger.kernel.org, linux-tegra@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-media@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, linux-mm@kvack.org, 
-	iommu@lists.linux.dev, linaro-mm-sig@lists.linaro.org, 
-	linux-trace-kernel@vger.kernel.org, Thierry Reding <treding@nvidia.com>, Chun Ng <chunn@nvidia.com>
-Subject: Re: [PATCH v3 04/11] arm64/mm: Add set_memory_device() and
- set_memory_normal()
-Message-ID: <ak_8Po3NxgAU7k0T@orome>
-References: <20260701-tegra-vpr-v3-0-d80f7b871bb4@nvidia.com>
- <20260701-tegra-vpr-v3-4-d80f7b871bb4@nvidia.com>
- <akYs91INHMXMTI-t@willie-the-truck>
- <akZkuwktaXFTrASP@orome>
- <akaSJ5D98w2cHqb6@orome>
- <akftuw9NyRy36fXA@willie-the-truck>
- <akuvyu1Pq0ZVMZV0@orome>
- <akzikTrmhMsvkNVY@willie-the-truck>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="pPcGO3ki"
+Received: by mail-pg1-f175.google.com with SMTP id 41be03b00d2f7-c88a4d79ba5so171764a12.2
+        for <linux-s390@vger.kernel.org>; Thu, 09 Jul 2026 13:15:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1783628139; x=1784232939; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=4V4fuwVKw9a+buqSTfOSwTO6Zlt+2k8vx+/ObUQlSos=;
+        b=pPcGO3ki8aiA3GFmYvP3IhvWe6YILhYaUEBulmCKeZ+r2KJTGiKNjkWuBhmMdrAZCr
+         bIN7si8+TB3Ko4eJJBOKEUm8ErKb3XWJWpBzeB+6uED6h7M5VC7NlQqFytg1IEnbHB6Y
+         Tl4YVmDV/pGjBpyr6T22sGOsT93E1DQEu5bjWpEGM/XwbNLQsHu8pYLedW0pJWFjS1BK
+         SJcfmUZpOC+qL9SrkwA3m+w1jy7R+wzwPnNl0VlGkQLBg6LqNq90l/CPGNzTtLwvzpaL
+         ebSDYixhMSQx0osVC70xVd9HGap9GELh7qdrjHRvv4rlAJdmpNB106P8JEU0ydkpnt6T
+         74iQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1783628139; x=1784232939;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=4V4fuwVKw9a+buqSTfOSwTO6Zlt+2k8vx+/ObUQlSos=;
+        b=ShwO830wS2aZAsJ2UmfRZ6TthxbgB9L9UerB1L8Bc5ZiWtTah4lwNdFxTo0IBJt2+1
+         piVv7d6UZ9sor5AgMa+QBuR1X21YoSapRDb9tkuT+Fj2xYh85J+Sr5aoh4a0QZPphNHb
+         SijcHGj/7pvmFs8y15Pv4V3I1rkVxhR4GbgMRVQlcH44a6d3N1GVXodfN7RMx01wiSf7
+         P5yq/qiOOdTaAeWAgns7OdCHr3FBVuLKICtn/UZ7642eVNuUD1Etz9IgH9/8Pj/cuk64
+         xM7bQQJWiGTBbJknYCnOUvP5L8cYDQlxpV/mHRYbX0MJr/mVXGyCTYqV5XG3YIfmRAH+
+         tiCA==
+X-Forwarded-Encrypted: i=1; AHgh+RoJygWboz6xwbXXqgcBnpM215F2CfHDjJhrHUaEDlCAl+jXz7QtK8BT5SvBV7rbhO1IJyFq3wq9aUM/@vger.kernel.org
+X-Gm-Message-State: AOJu0YxBp5SUGsipdqkTM7ZIrleuitzGY2X58k/u0N6W0vlYQ4osa/Fp
+	TT1RCHTDMpWt9WbasIPaczbuZMqeBHUfIaA/HGyc90zn4MOQIZ5EIZ5+
+X-Gm-Gg: AfdE7clY5Flk5UgkM+rRO/r5q7uOzSzD7UAzNf2XBnh/nQ1g5IOs6VdbIunlEkXxnlw
+	nY9h+qlvnnXP+uPGCUimZ51jFUrnNSwXAhDZx3md6K4vevO1D/z3/ubxeEUU99t6ZdNhb7+9762
+	1ySQyo23mgJMxiF33Bww7Z3+YCfmvMy3Zxr+59son8UZPFEVrFEmXivjJAF9/i/LDMubil/IirU
+	ZETUkWrcRpnbYKqFJdR4mbjN6+Ah3+g55IBs+Cne7qkAOhUnwSSXByCRQBH2jnvivynwNZzZR03
+	eGBfkUPygy5GYQwsRqqAkqwKI7TwyKnLaPDQRRclmmE+YJZSZ8qR7diTr+G1my5rYnuBGZzF5CB
+	QG23vopB76gtboeZqCZf0djfdVXF2kfLE5uy4gGmhFXePMhlAuI1xoLJd3pypuTbyw7ozmj4OEm
+	65LybomkMqBUCb+L/y6phTZaZSgvYFtquk44hF5jpQ3JiVQTD+dh9V7uGVeOtp0GKKi7Fb260=
+X-Received: by 2002:a05:6a21:32a2:b0:398:8870:b58f with SMTP id adf61e73a8af0-3c0bcbe77a5mr11679805637.14.1783628138627;
+        Thu, 09 Jul 2026 13:15:38 -0700 (PDT)
+Received: from li-1a3e774c-28e4-11b2-a85c-acc9f2883e29.ibm.com ([106.51.160.236])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3120c8e41fcsm2908315eec.15.2026.07.09.13.15.22
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 09 Jul 2026 13:15:38 -0700 (PDT)
+Date: Fri, 10 Jul 2026 01:45:19 +0530
+From: Mukesh Kumar Chaurasiya <mkchauras@gmail.com>
+To: Thomas Gleixner <tglx@kernel.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, 
+	Peter Zijlstra <peterz@infradead.org>, Michael Ellerman <mpe@ellerman.id.au>, 
+	Shrikanth Hegde <sshegde@linux.ibm.com>, linuxppc-dev@lists.ozlabs.org, Kees Cook <kees@kernel.org>, 
+	Huacai Chen <chenhuacai@kernel.org>, loongarch@lists.linux.dev, Paul Walmsley <pjw@kernel.org>, 
+	Palmer Dabbelt <palmer@dabbelt.com>, linux-riscv@lists.infradead.org, 
+	Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org, x86@kernel.org, 
+	Mark Rutland <mark.rutland@arm.com>, Jinjie Ruan <ruanjinjie@huawei.com>, 
+	Andy Lutomirski <luto@kernel.org>, Oleg Nesterov <oleg@redhat.com>, 
+	Richard Henderson <richard.henderson@linaro.org>, Russell King <linux@armlinux.org.uk>, 
+	Catalin Marinas <catalin.marinas@arm.com>, Guo Ren <guoren@kernel.org>, 
+	Geert Uytterhoeven <geert@linux-m68k.org>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
+	Helge Deller <deller@gmx.de>, Yoshinori Sato <ysato@users.sourceforge.jp>, 
+	Richard Weinberger <richard@nod.at>, Chris Zankel <chris@zankel.net>, 
+	linux-arm-kernel@lists.infradead.org, linux-alpha@vger.kernel.org, linux-csky@vger.kernel.org, 
+	linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, 
+	linux-sh@vger.kernel.org, linux-um@lists.infradead.org, Arnd Bergmann <arnd@arndb.de>, 
+	Vineet Gupta <vgupta@kernel.org>, Will Deacon <will@kernel.org>, Brian Cain <bcain@kernel.org>, 
+	Michal Simek <monstr@monstr.eu>, Dinh Nguyen <dinguyen@kernel.org>, 
+	"David S. Miller" <davem@davemloft.net>, Andreas Larsson <andreas@gaisler.com>, 
+	linux-snps-arc@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-openrisc@vger.kernel.org, 
+	sparclinux@vger.kernel.org, linux-arch@vger.kernel.org, 
+	Michal =?utf-8?B?U3VjaMOhbmVr?= <msuchanek@suse.de>, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org
+Subject: Re: [patch 00/18] entry: Consolidate and rework syscall entry
+ handling
+Message-ID: <ak_7lawD_OujooyZ@li-1a3e774c-28e4-11b2-a85c-acc9f2883e29.ibm.com>
+References: <20260707181957.433213175@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="rvxsrpqt5djhs2ak"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <akzikTrmhMsvkNVY@willie-the-truck>
+In-Reply-To: <20260707181957.433213175@kernel.org>
 
+On Tue, Jul 07, 2026 at 09:05:53PM +0200, Thomas Gleixner wrote:
+> Sorry for the long CC list, but this is a treewide change.
+> 
+> Michal recently posted a RFC patch to separate the potential syscall number
+> modifications in syscall_enter_user_mode_work() from the information
+> whether the syscall should be processed and the return value modified:
+> 
+>   https://lore.kernel.org/lkml/CE1qW@kunlun.suse.cz
+> 
+> The existing logic is:
+> 
+> arch_syscall()
+> 	regs->result = -ENOSYS;
+> 
+> 	syscallnr = syscall_enter_from_user_mode(regs, syscall);
+> 
+> 	if (syscallnr != -1L)
+> 		regs->result = invoke_syscall(regs, syscall;
+> 
+> syscall_enter_from_user_mode() invokes ptrace, seccomp and
+> tracing/BPF/Probes. All of them can modify the syscall number.
+> 
+> ptrace and seccomp explicitly set the syscall number to -1L to indicate
+> that the syscall invocation needs to be skipped and the result has not to
+> be modified as it might have been modified by ptrace or seccomp. The
+> tracer/BPF/Probes mechanism can modify the syscall number as well and
+> relies implicitly on the -1L logic.
+> 
+> This can obviously not be differentiated from a syscall invocation where
+> userspace provided -1 as syscall number.
+> 
+> The general agreement of the discussion was that the current mechanism,
+> while functionally correct is non-intuitive and something like Michals
+> proposal would make that code clearer and easier to handle on the
+> architecture side:
+> 
+> arch_syscall()
+> 	regs->result = -ENOSYS;
+> 
+> 	if (syscall_enter_from_user_mode(regs, &syscall)) 
+> 		regs->result = invoke_syscall(regs, syscall;
+> 
+> That discussion made me look deeper into the related code and as usual
+> there were a lot of other things to discover.
+> 
+>   1) Stack randomization
+> 
+>      add_random_kstack_offset() can only be invoked after
+>      enter_from_user_mode() established proper state as it calls into
+>      instrumentable code.
+> 
+>      PowerPC got that wrong and the other architectures either invoke it
+>      after enter_from_user_mode() or after syscall_enter_from_user_mode().
+> 
+>      The latter is suboptimal as the randomization takes place after all
+>      the user mode entry work. Aside of that add_random_kstack_offset()
+>      uses get/put_cpu_var(), which makes it usable in preemptible code, but
+>      when invoked in the interrupt disabled region that's pointless
+>      overhead.
+> 
+>   2) As discussed in the above thread just changing the function signature
+>      of syscall_enter_from_user_mode[_work]() so they take a pointer
+>      argument for the syscall and then return 0 on success is not really
+>      intuitive either. Aside of that this breaks the implicit assumption of
+>      the tracer when setting the syscall number to -1.
+> 
+>   3) The x86 entry code has some historically accumulated oddities
+> 
+> The following series addresses this by:
+> 
+>   1) Providing new [syscall_]enter_from_user_mode() variants, which include
+>      stack randomization and utilize a new add_random_kstack_offset_irqsoff()
+>      variant, which avoids the get/put_cpu_var() overhead and converting all
+>      usage sites over
+> 
+>   2) Picking up Jinjie's seccomp patch from:
+> 
+>      https://lore.kernel.org/lkml/20260629130616.642022-2-ruanjinjie@huawei.com
+> 
+>      and addressing the feedback (renaming the seccomp functions)
+> 
+>   3) Making the ptrace and tracer related functions return a boolean value
+>      to indicate syscall permission
+> 
+>   4) Addressing the x86 oddities
+> 
+>   5) Converting the tree over to the new scheme
+> 
+> With that all architectures using the generic syscall entry code follow the
+> same scheme, apply stack randomization at the correct and earliest possible
+> place and skip syscall processing depending on the boolean return value of
+> syscall_enter_from_user_mode[_work]().
+> 
+> There should be no functional changes, at least there are none intended.
+> 
+> The resulting text size for the syscall entry code on x8664 is slightly
+> smaller than before these changes.
+> 
+> Testing syscall heavy workloads and micro benchmarks shows a small
+> performance gain for the general rework, but the last patch, which changes
+> the logic to be more understandable has no measurable impact in either
+> direction.
+> 
+> The series applies on Linus tree and is also available from git:
+> 
+>         git://git.kernel.org/pub/scm/linux/kernel/git/tglx/devel.git entry-rework-v1
+> 
+> Thanks,
+> 
+> 	tglx
+> ---
+>  Documentation/core-api/entry.rst      |   33 +++++---
+>  arch/alpha/kernel/ptrace.c            |    4 -
+>  arch/arc/kernel/ptrace.c              |    2 
+>  arch/arm/kernel/ptrace.c              |    4 -
+>  arch/arm64/kernel/ptrace.c            |    4 -
+>  arch/csky/kernel/ptrace.c             |    4 -
+>  arch/hexagon/kernel/traps.c           |    2 
+>  arch/loongarch/kernel/syscall.c       |   17 +---
+>  arch/m68k/kernel/ptrace.c             |    4 -
+>  arch/microblaze/kernel/ptrace.c       |    2 
+>  arch/mips/kernel/ptrace.c             |    4 -
+>  arch/nios2/kernel/ptrace.c            |    2 
+>  arch/openrisc/kernel/ptrace.c         |    2 
+>  arch/parisc/kernel/ptrace.c           |   12 +--
+>  arch/powerpc/kernel/syscall.c         |    5 -
+>  arch/riscv/kernel/traps.c             |   14 +--
+>  arch/s390/kernel/syscall.c            |   11 +-
+>  arch/sh/kernel/ptrace_32.c            |    4 -
+>  arch/sparc/kernel/ptrace_32.c         |    2 
+>  arch/sparc/kernel/ptrace_64.c         |    2 
+>  arch/um/kernel/ptrace.c               |    2 
+>  arch/um/kernel/skas/syscall.c         |    2 
+>  arch/x86/entry/syscall_32.c           |   70 +++++++------------
+>  arch/x86/entry/syscall_64.c           |   61 ++++++----------
+>  arch/x86/entry/vsyscall/vsyscall_64.c |   14 +--
+>  arch/x86/include/asm/entry-common.h   |    1 
+>  arch/x86/include/asm/syscall.h        |   10 --
+>  arch/xtensa/kernel/ptrace.c           |    5 -
+>  include/asm-generic/syscall.h         |    4 -
+>  include/linux/entry-common.h          |  125 ++++++++++++++++++++--------------
+>  include/linux/irq-entry-common.h      |    6 -
+>  include/linux/ptrace.h                |   13 +--
+>  include/linux/randomize_kstack.h      |   19 +++++
+>  include/linux/seccomp.h               |   12 +--
+>  kernel/entry/syscall-common.c         |    7 +
+>  kernel/seccomp.c                      |   35 ++++-----
+>  36 files changed, 264 insertions(+), 256 deletions(-)
+> 
+> 
+> 
+> _______________________________________________
+> linux-snps-arc mailing list
+> linux-snps-arc@lists.infradead.org
+> http://lists.infradead.org/mailman/listinfo/linux-snps-arc
 
---rvxsrpqt5djhs2ak
-Content-Type: text/plain; protected-headers=v1; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [PATCH v3 04/11] arm64/mm: Add set_memory_device() and
- set_memory_normal()
-MIME-Version: 1.0
-
-On Tue, Jul 07, 2026 at 12:27:13PM +0100, Will Deacon wrote:
-> On Mon, Jul 06, 2026 at 03:49:24PM +0200, Thierry Reding wrote:
-> > On Fri, Jul 03, 2026 at 06:13:31PM +0100, Will Deacon wrote:
-> > > On Thu, Jul 02, 2026 at 06:41:23PM +0200, Thierry Reding wrote:
-> > > > On Thu, Jul 02, 2026 at 03:46:44PM +0200, Thierry Reding wrote:
-> > > > > On Thu, Jul 02, 2026 at 10:18:47AM +0100, Will Deacon wrote:
-> > > > > > On Wed, Jul 01, 2026 at 06:08:15PM +0200, Thierry Reding wrote:
-> > > > > > > From: Chun Ng <chunn@nvidia.com>
-> > > > > > >=20
-> > > > > > > Add helpers to swap PROT_NORMAL and PROT_DEVICE_nGnRnE protec=
-tion bits
-> > > > > > > on a kernel-linear-map range.
-> > > > > >=20
-> > > > > > That sounds like a really terrible idea. Why is this necessary =
-and how
-> > > > > > does it interact with things like load_unaligned_zeropad()?
-> > > > >=20
-> > > > > This is necessary because once the memory controller has walled o=
-ff the
-> > > > > new memory region the CPU must not access it under any circumstan=
-ces or
-> > > > > it'll cause the CPU to lock up (I think technically it'll hit an =
-SError
-> > > > > but in practice that just means it'll freeze, as far as I can tel=
-l).
-> > > > >=20
-> > > > > Probably doesn't interact well at all with load_unaligned_zeropad=
-().
-> > > > >=20
-> > > > > > I think you should unmap the memory from the linear map and mem=
-remap()
-> > > > > > it instead.
-> > > > >=20
-> > > > > Given that the memory can never be accessed by the CPU after the =
-memory
-> > > > > controller locks it down, I don't think we'll even need memremap(=
-). The
-> > > > > only thing we really need is the sg_table we hand out via the DMA=
- BUFs
-> > > > > so that they can be used by device drivers to program their DMA e=
-ngines
-> > > > > internally.
-> > > > >=20
-> > > > > Looking through some of the architecture code around this, should=
-n't we
-> > > > > simply be using set_memory_encrypted() and set_memory_decrypted()=
- for
-> > > > > this? While they might've been created for slightly other use-cas=
-es,
-> > > > > they seem to be doing exactly what we want (i.e. remove the page =
-range
-> > > > > from the linear mapping and flushing it, or restoring the valid b=
-it and
-> > > > > standard permissions, respectively).
-> > > >=20
-> > > > Ah... I guess we can't do it because we're not in a realm world and=
- so
-> > > > the early checks in __set_memory_enc_dec() would return early and t=
-urn
-> > > > it into a no-op.
-> > > >=20
-> > > > How about if I extract a common helper and provide set_memory_p() a=
-nd
-> > > > set_memory_np() in terms of those. Those are available on x86 and
-> > > > PowerPC as well, so fairly standard. I suppose at that point we're
-> > > > closer to set_memory_valid().
-> > >=20
-> > > Why not just call set_direct_map_invalid_noflush() +
-> > > flush_tlb_kernel_range() for each page? We already have APIs for this.
-> >=20
-> > Having a "standard" helper with a fixed and documented purposed seemed
-> > like a preferable approach for this particular case. We also may want to
-> > make the driver that uses this buildable as a module, in which case we'd
-> > need to export these rather low-level APIs. And then there's also the
-> > fact that we typically call this on a rather large region of memory
-> > (usually something like 512 MiB), so doing it page-by-page is rather
-> > suboptimal.
-> >=20
-> > > The big challenge I see with any linear map manipulation, however, is
-> > > that it will rely on can_set_direct_map() which likely means you need=
- to
-> > > give up some performance and/or security to make this work. Does memo=
-ry
-> > > become inaccesible dynamically at runtime? If not, the best bet would
-> > > be to describe it as a carveout in the DT and mark it as "no-map" so
-> > > we avoid mapping it in the first place.
-> >=20
-> > VPR exists in two modes: static and resizable. For static VPR we do
-> > exactly that: describe it as carveout in DT with no-map and deal with it
-> > accordingly in the driver. Resizable VPR is for device that have small
-> > amounts of RAM. Content-protected video playback will in the worst case
-> > consume around 1.8 GiB of RAM, so we want to be able to reuse for other
-> > purposes when VPR is unused on those devices. In that case, the memory
-> > is also described as a reserved-memory region in DT, but it is marked as
-> > reusable so that it can be managed by CMA.
-> >=20
-> > The resize operation is fairly slow to begin with because we need to
-> > stall the GPU and put it into reset before the operation, then take it
-> > out of reset and resume it afterwards.
-> >=20
-> > What kind of performance impact do you expect?
->=20
-> You'll need to measure it, but we've seen reports of double-digit
-> percentage regressions in performance and power. As I said, the problem
-> is that you need to split the linear map to 4k page at runtime to unmap
-> the dynamic carveout, but that isn't something that can be done on most
-> CPUs. Therefore you end up having to use page-granular mappings for the
-> entire thing, similarly to how 'rodata_full' drives can_set_direct_map()
-> and the perf/power hit affects everything.
-
-The VPR has fairly large alignment restrictions (1 MiB) and we do unmap
-in fairly large chunks (512 MiB currently, but we can change that if it
-is helpful) because we really want to avoid resizing operations, so the
-tradeoff is between frequency of resize vs. potential memory wasted.
-
-Does that change anything with regards to performance?
-
-Thierry
-
---rvxsrpqt5djhs2ak
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAmpP/UkACgkQ3SOs138+
-s6GFqBAAsfNpGtxzDc/1UKAc4Vjp9eilQE6L3ZzhQhn1d3Crc+ym9vGZzyfe4lTR
-di2aYaWn+6XslOczfKwW58jo+D8/fP64sFF9UY3mR7U+MzuIGEF61RVgF0fFH4Vb
-wo6H5bLYvA2J1VhXyIv08l/Oxb+GGHMa2gRVdTbFux+csAi4ahPJVT0oS9S0sJht
-cmPEaDkjN8StPrx4IN3oTcj7g3LW3aDuShMtgqRrceSaIw2xvtb+rvWLvGJac/HH
-kNrn5Vc+pAJJigN3NZqMgpjeD3gHZDZYaKUToPXJuIOlZILR0VzdDAHxD9U+lmyD
-YVPGNnPi13QmxTk9KHR+Tm2aL7AxXx8TK0jIOUFuaySrgD16Oo9CTxOvsxewNGpg
-lGDhuvag7BCxZqQzlxbhAuGtHZS+s6OWCXleWAsKpVs4Ga/FDaAvZYCHugxIur84
-mexc1/5CBcjohTAfvTLpAZGUxDXslKopeYaBZGgRJXz+iwulrGeeDpEvDH1VNo1r
-SkCIXoLOlq4bEKwejuGzuVzc47hLYGL+c09cCOwa73rhvVARke2v05fRowwN29Iv
-1OVDKNQTsHbBZ8PNTsoaEApLvif8crc38kborIPtiuaGz4WDg7q90ogJoIhqEK2L
-z8Lt64Ul985C2ht8PNWLbWeUKGNX54YFmnBCCP+lgBzDRu2sc4g=
-=Axxn
------END PGP SIGNATURE-----
-
---rvxsrpqt5djhs2ak--
+Boot tested this on P11 LPAR and P9 powernv system.
+Tested-by: Mukesh Kumar Chaurasiya (IBM) <mkchauras@gmail.com>
