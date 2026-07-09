@@ -1,61 +1,61 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 58546384CD5;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 963F03803DB;
 	Thu,  9 Jul 2026 15:15:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783610141; cv=none; b=Aza9VGgDe7dHjk3w+9VV97quAa652Upi06yRZwkEL8MNDpgWIzrXlxev1EGTJohXJFV9uYqz9cIIATKZsPix2tIz8OTK8xBECueybFA2YgLwll81kMVoEaHxN4LQTfajHOaayfwiDzXaZ88ByOzd5hxDD9OOaI1jIgTLxujqsm8=
+	t=1783610142; cv=none; b=FGQSN5YALTPLTVbEaTd8B5Yt9ohJ5kTG8g6WfDLQg3yDyIzelAJOFrX2gBQLuiMRDJ5TSXpgLN5XYFjC/1sElg4weC5zfcy+KZxe80gucSo1kbjYL5Zov/RFXBauiQ3hrlSlmj3DrEvS20+Hyvwvc/VjCLv9bq3FGrRmBSPUHLA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783610141; c=relaxed/simple;
-	bh=ZJEn68dUAVvbvfrCeDjwk+kIWSFd+3LSXRb4CRitZic=;
+	s=arc-20240116; t=1783610142; c=relaxed/simple;
+	bh=0N1jfxc6iRUaeGmBnC3ZmB3zJ0OW8JgBU0Axjp2Qnkg=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=uBOA7dwY2DBuwcW6lmSpJTQ567i3bOXiTF9cB08Y2ym5LzcCNudRfUtAPiCDy9nPoX0ss5faI9Ewd97E4sXMel/lFzdASLqs5pYkeM09w/h7uOKdBJDo1teTuNVpDWKXZox32MDxrW0oMysEi0mjeKnS7SAZQMRIG1dVKZehhBc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=eAY3Id0b; arc=none smtp.client-ip=148.163.156.1
+	 In-Reply-To:To:Cc; b=VaQbDbM8qy834C5wyRirbxwzwnYHiq/ji04g6UsLRvJu6sIxAlR/F2sS4dp29tOj9fowLFT4IrdJ1YmAiB8HOoDnNq7ked1MgJ77YfJpgltNmjSB8nG+ieeDXP659Ps/nfhy417/UpKN+8AwyGHkYejj9YaMBj+q5nta8Tyjfdw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Fo6o5xt4; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="eAY3Id0b"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 669EIrTd2915272;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Fo6o5xt4"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 669EIQAE1769923;
 	Thu, 9 Jul 2026 15:15:37 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=qBW5Xk
-	E7t5SaiyQY/4z1OgN2A+LaJStv2xniu+DtHLo=; b=eAY3Id0bO2i5RoMlWfMeA2
-	YHddHgFlkehHbCB7vKNjvrTwx+w5gbUb3OT2o27cx31njWblZLRskrS99WZBs6Hz
-	VrdW7OB/9c3YskrZCnlgp58RH7fJoHeGwFi0H9i8i4X3wklqUNGUNy+Y+ZjaKOHW
-	vn6zjxX0oTsN4yeyRILN2I6J1ck8WzngKiyJpMcApizsj04pUkI99p60iBzWVuzT
-	xl2/YT/aVAl1sgzPwVZESeD1nuCGT3bGyJU3y0ZT8HorNU71BmtzkZQYlnEeAf+m
-	juRRhwdNs11EK1n5WJ77KmpcLrOdqvb+Yjvkvp49BG2KBMz63uFhHPLxulzdaPWw
+	:message-id:mime-version:references:subject:to; s=pp1; bh=+rSo68
+	Vwc7B5bdKwKZHzTiZrlLy4vW7/eM1fylxSxI0=; b=Fo6o5xt4COjlqynticg+hb
+	QvAnq1GkA/Hp11UPWQfAN9rre+LPm5D+cbHAG/3p0Rz7Knty16lwj8UW1PCsDqtt
+	lEJ4T+/bXWZU/wof/k4Z2fb7QUS5xJOr/LrrOGptS8v33OkoaXFdesYyVbvCx/Dq
+	tpkOZooTZw+3P90MN1cBu/yf5dEyewCJggy5LCIQ1f+PHyD4ideD7QhsWHEObGi7
+	wr1ZkAKKULnYAiyNZn0r2FWaVzov9MglZ+hEB80IJgr0VUzVkY+5VTb2j4dZff6y
+	NLDTEtGL9aZ5loWi1cWh0/lfnvLiSGPQct+VUMsj4bVFwdKBR4xEnFfJl9dcHHiA
 	==
 Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4f6sur22w5-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4f6rke2pq8-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Thu, 09 Jul 2026 15:15:36 +0000 (GMT)
 Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 669F4aS1025099;
-	Thu, 9 Jul 2026 15:15:35 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4f7e0hnk5y-1
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 669F4dhA025112;
+	Thu, 9 Jul 2026 15:15:36 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4f7e0hnk61-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 09 Jul 2026 15:15:35 +0000 (GMT)
+	Thu, 09 Jul 2026 15:15:36 +0000 (GMT)
 Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 669FFVAD60096824
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 669FFW5437355938
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 9 Jul 2026 15:15:31 GMT
+	Thu, 9 Jul 2026 15:15:32 GMT
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7E2F020040;
+	by IMSVA (Postfix) with ESMTP id 3224520040;
+	Thu,  9 Jul 2026 15:15:32 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8E80120043;
 	Thu,  9 Jul 2026 15:15:31 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E142E20043;
-	Thu,  9 Jul 2026 15:15:30 +0000 (GMT)
 Received: from [192.168.88.251] (unknown [9.111.64.199])
 	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu,  9 Jul 2026 15:15:30 +0000 (GMT)
+	Thu,  9 Jul 2026 15:15:31 +0000 (GMT)
 From: Christoph Schlameuss <schlameuss@linux.ibm.com>
-Date: Thu, 09 Jul 2026 17:15:18 +0200
-Subject: [PATCH 18/21] KVM: s390: vsie: Add VSIE max shadow configuration
+Date: Thu, 09 Jul 2026 17:15:19 +0200
+Subject: [PATCH 19/21] KVM: s390: vsie: Add VSIE shadow stat counters
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -64,7 +64,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260709-vsie-sigpi-v1-18-ea9f12066408@linux.ibm.com>
+Message-Id: <20260709-vsie-sigpi-v1-19-ea9f12066408@linux.ibm.com>
 References: <20260709-vsie-sigpi-v1-0-ea9f12066408@linux.ibm.com>
 In-Reply-To: <20260709-vsie-sigpi-v1-0-ea9f12066408@linux.ibm.com>
 To: kvm@vger.kernel.org, linux-s390@vger.kernel.org
@@ -80,107 +80,146 @@ Cc: David Hildenbrand <david@kernel.org>, Heiko Carstens <hca@linux.ibm.com>,
         David Hildenbrand <david@kernel.org>,
         Christoph Schlameuss <schlameuss@linux.ibm.com>
 X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=openpgp-sha256; l=3032;
+X-Developer-Signature: v=1; a=openpgp-sha256; l=4033;
  i=schlameuss@linux.ibm.com; h=from:subject:message-id;
- bh=ZJEn68dUAVvbvfrCeDjwk+kIWSFd+3LSXRb4CRitZic=;
- b=owGbwMvMwCUmoqVx+bqN+mXG02pJDFn+u1kLdjhtk5fiS5arbO80FV1tdjMo2sbI7kX0bNkz1
- lFfFf90lLIwiHExyIopslSLW+dV9bUunXPQ8hrMHFYmkCEMXJwCMJHdJQz/zP7qfFft9uFlKhVl
- svTqNFHcuD6Kx11D/MeZZ4tr/0XlMzI8LE85+/L3/C9S087F8Xi0lwiZJ9sEXOaPj93VPlXfRYw
- fAA==
+ bh=0N1jfxc6iRUaeGmBnC3ZmB3zJ0OW8JgBU0Axjp2Qnkg=;
+ b=owGbwMvMwCUmoqVx+bqN+mXG02pJDFn+u1mVDfLX6O88Omej/94Fd+c+/BcrMeXTnVNi50xvp
+ Do8vsuQ0lHKwiDGxSArpshSLW6dV9XXunTOQctrMHNYmUCGMHBxCsBEXvszMrTKKxpea8zif22k
+ L9iyt3rx8i1CjP6vZG7Yz8v9eFJVdRLDP7uX1ovjn1Y07be70TNhbuKBngOiO3pKwkP/BrBwfre
+ IZwUA
 X-Developer-Key: i=schlameuss@linux.ibm.com; a=openpgp;
  fpr=0E34A68642574B2253AF4D31EEED6AB388551EC3
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzA5MDE0NiBTYWx0ZWRfX/EtF+d7ClZF7
- daVoN9p9VRP1B1uNvUVJzD5yeG8ID2EWU2U4ZLhtNkPWdPfxhxOtBMs7mHjDvLNKOsFcdUM5Wdb
- lac23ozE/5H7ftlfxh6/1toypxpE6/4=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzA5MDE0NiBTYWx0ZWRfX80Kih/YkofH3
- o6DtXIVnYchI7OxYkv7fJOQ63X93007X2aI4ntxzOTohnb38+freg+rKSVwAcZ1+weIWP/LVvVr
- SVR/XtnJfMGCNLEg2xkGWIu+jAdFdObM40tmm6+h86HNZdiSY7WQ+mJhikT1G1WeRdhcmw2DPeK
- pa70Ff94L2xOAaSTry6zcoirKz4gZ20CmYxOrSfdwZNo/xvie/ujLF7ThConW9LfBf9om8plR/X
- CeUs8bA8ROz91ZoahBTc+WfpGR0VZzubPusyTqH+wM6vTQoJ392MkE0O1aOITxYNryAUH8QJlpm
- w06wEVqoSMN1psiRLfeCvMOFbHdKo5ybZajoCHPqiXDpOCqmXa9sXwpjJe7/0HcAuqdkCq3ip10
- bci8uxJyDwCTwBvrC6mxL9R1BtxxP0I+BURGMinixsyHWWWXpPebgo7yvtNjcg/Ut8ZmT42y1Cq
- q7QZidR7rt3H+txQe3Q==
-X-Proofpoint-GUID: BhPk5aBNUpjW12vsoz8g44XezTSrnt8x
-X-Authority-Analysis: v=2.4 cv=Oot/DS/t c=1 sm=1 tr=0 ts=6a4fbb18 cx=c_pps
+X-Authority-Analysis: v=2.4 cv=M7J97Sws c=1 sm=1 tr=0 ts=6a4fbb18 cx=c_pps
  a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
  a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8
- a=NT-WFI3kCPxDzj7wveAA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-ORIG-GUID: BhPk5aBNUpjW12vsoz8g44XezTSrnt8x
+ a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8
+ a=ACqrv-Omp4_yNseKlhkA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzA5MDE0NiBTYWx0ZWRfX8KZ/WJtziCja
+ +IF6la1haTtJ15jZICfCLTgCTEp3J1nXlMH5GcY5D7p93k5pi1oZpi6sa+P0HxXu3ekckDfsR8u
+ cC7iMQD+5Qx9lCWDWvKtfYo+TrAIZVOMDo/m7nA2ZJOWauNI3Kc8BMChcQx5aoFtKbtLa0hsgW1
+ ssjJ9P3ZnyPJcWyD8Fy3gQSpCiL1hpKc2BOPGQLddX7UcGmJL0HwHDxpSbGs1+cU3yIsOcjDKnm
+ /LVVDvqaPNBXcu686rh4CsjXwSQko0/OitNauRB925tlBpmfQDJLjmB78QSwkDVEiWlhZ226V5t
+ Y28d4fFf5u7PjJO9a31Vm0KodTstV7ojnW5HAPE+RwekUwxdJ/KRYnYmX2V3LsGdxFLnLqv/us/
+ u3ZizrIhZ/XU+ZTvNjSLbikSoYHLoRxQ2je0Aac5WjeKNXgDPckB2n5pG/aKFB38EAewsS85Fja
+ P0x7frfrab6oFpVtH8Q==
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzA5MDE0NiBTYWx0ZWRfX+vy63QbXj7uX
+ LG+mqsgnUGeab8YMS5+5Q5g00v1wu52Qhz1g7KtEYAqlsgjUVTkkGVTlysqWlZTYob/5MwJgeZm
+ OOXRUcTohLnu2sQpYgJ0FiJVu1toakw=
+X-Proofpoint-GUID: Ru2XtuevwoftYmHbn1OsQRhLSiBQJCVM
+X-Proofpoint-ORIG-GUID: Ru2XtuevwoftYmHbn1OsQRhLSiBQJCVM
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-07-09_03,2026-07-09_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0 lowpriorityscore=0 clxscore=1015 impostorscore=0 phishscore=0
- malwarescore=0 suspectscore=0 spamscore=0 adultscore=0 priorityscore=1501
+ suspectscore=0 lowpriorityscore=0 malwarescore=0 clxscore=1015 adultscore=0
+ priorityscore=1501 bulkscore=0 spamscore=0 impostorscore=0 phishscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607090146
 
-Introduce two new module parameters allowing to keep more shadow
-structures
+Add new stat counters to VSIE shadowing to be able to verify and monitor
+the functionality.
 
-* vsie_shadow_scb_max
-  Override the maximum number of VSIE control blocks / vsie_pages to
-  shadow in guest-1. KVM will either use this value or the number of
-  current VCPUs. Either way the number will be capped to 256.
-  This is the number of guest-3 control blocks / CPUs to keep shadowed
-  to minimize the repeated shadowing effort.
-
-* vsie_shadow_sca_max
-  Override the maximum number of VSIE system control areas to
-  shadow in guest-1. KVM will use a minimum of the current number of
-  vCPUs and a maximum of 256 or this value if it is lower.
-  This is the number of guest-3 system control areas / VMs to keep
-  shadowed to minimize repeated shadowing effort.
-  Set to 0 to disable the SCA shadowing and VSIE SIGPI.
+* vsie_shadow_scb shows the number of allocated SIE control block
+  shadows. Should count upwards between 0 and the max number of active
+  CPUs or configured value.
+* vsie_shadow_sca shows the number of allocated system control area
+  shadows. Should count upwards between 0 and the max number of active
+  CPUs or configured value.
+* vsie_shadow_scb_reuse shows the number of reused SIE control block
+  shadows.
+* vsie_shadow_sca_reuse shows the number of reused system control area
+  shadows.
 
 Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
 ---
- arch/s390/kvm/vsie.c | 16 ++++++++++++++--
- 1 file changed, 14 insertions(+), 2 deletions(-)
+ arch/s390/include/asm/kvm_host.h | 4 ++++
+ arch/s390/kvm/kvm-s390.c         | 4 ++++
+ arch/s390/kvm/vsie.c             | 6 ++++++
+ 3 files changed, 14 insertions(+)
 
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index c0e5caf0eb16..575fd67941f7 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -466,6 +466,10 @@ struct kvm_vm_stat {
+ 	u64 gmap_shadow_r3_entry;
+ 	u64 gmap_shadow_sg_entry;
+ 	u64 gmap_shadow_pg_entry;
++	u64 vsie_shadow_scb;
++	u64 vsie_shadow_scb_reuse;
++	u64 vsie_shadow_sca;
++	u64 vsie_shadow_sca_reuse;
+ };
+ 
+ struct kvm_arch_memory_slot {
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 6749198bac3f..481e566fe228 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -86,6 +86,10 @@ const struct kvm_stats_desc kvm_vm_stats_desc[] = {
+ 	STATS_DESC_COUNTER(VM, gmap_shadow_r3_entry),
+ 	STATS_DESC_COUNTER(VM, gmap_shadow_sg_entry),
+ 	STATS_DESC_COUNTER(VM, gmap_shadow_pg_entry),
++	STATS_DESC_COUNTER(VM, vsie_shadow_scb),
++	STATS_DESC_COUNTER(VM, vsie_shadow_scb_reuse),
++	STATS_DESC_COUNTER(VM, vsie_shadow_sca),
++	STATS_DESC_COUNTER(VM, vsie_shadow_sca_reuse),
+ };
+ 
+ const struct kvm_stats_header kvm_vm_stats_header = {
 diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-index de8931e714ca..c392f7afe130 100644
+index c392f7afe130..80050376eaab 100644
 --- a/arch/s390/kvm/vsie.c
 +++ b/arch/s390/kvm/vsie.c
-@@ -100,6 +100,16 @@ static_assert(!(offsetof(struct vsie_sca, ssca) & 0x3f));
- static_assert((offsetof(struct vsie_sca, ssca) & ~PAGE_MASK) +
- 	      offsetof(struct ssca_block, cpu[0]) <= PAGE_SIZE);
- 
-+/* maximum vsie shadow scb */
-+unsigned int vsie_shadow_scb_max = 1;
-+module_param(vsie_shadow_scb_max, uint, 0644);
-+MODULE_PARM_DESC(vsie_shadow_scb_max, "Maximum number of VSIE shadow control blocks to keep. Values smaller number VCPUs uses number of VCPUs; maximum 256");
-+
-+/* maximum vsie shadow sca */
-+unsigned int vsie_shadow_sca_max = 1;
-+module_param(vsie_shadow_sca_max, uint, 0644);
-+MODULE_PARM_DESC(vsie_shadow_sca_max, "Maximum number of VSIE shadow system control areas to keep. Values smaller number of VCPUs uses number of VCPUs; maximum 256");
-+
- static inline bool sie_uses_esca(struct kvm_s390_sie_block *scb)
- {
- 	return (scb->ecb2 & ECB2_ESCA);
-@@ -1038,7 +1048,8 @@ static struct vsie_sca *get_vsie_sca(struct kvm_vcpu *vcpu, struct kvm_s390_sie_
- 	 * We want at least #online_vcpus shadows, so every VCPU can execute the
- 	 * VSIE in parallel. (Worst case all single core VMs.)
- 	 */
--	max_vsie_sca = MIN(atomic_read(&kvm->online_vcpus), KVM_S390_MAX_VSIE_VCPUS);
-+	max_vsie_sca = MIN(MAX(atomic_read(&kvm->online_vcpus), vsie_shadow_sca_max),
-+			   KVM_S390_MAX_VSIE_VCPUS);
- 
- 	if (kvm->arch.vsie.sca_count < max_vsie_sca) {
- 		vsie_sca_new = alloc_vsie_sca();
-@@ -1902,7 +1913,8 @@ static struct vsie_page *get_vsie_page(struct kvm_vcpu *vcpu, unsigned long addr
- 		put_vsie_page(vsie_page);
+@@ -1080,6 +1080,7 @@ static struct vsie_sca *get_vsie_sca(struct kvm_vcpu *vcpu, struct kvm_s390_sie_
+ 		kvm->arch.vsie.scas[kvm->arch.vsie.sca_count] = vsie_sca;
+ 		kvm->arch.vsie.sca_count++;
+ 		atomic_set(&vsie_sca->ref_count, 1);
++		kvm->stat.vsie_shadow_sca++;
+ 	} else {
+ 		/* reuse previously created vsie_sca allocation for different osca */
+ 		vsie_sca = get_reuseable_vsie_sca(kvm);
+@@ -1102,6 +1103,7 @@ static struct vsie_sca *get_vsie_sca(struct kvm_vcpu *vcpu, struct kvm_s390_sie_
+ 		}
+ 		unpin_sca(kvm, vsie_sca);
+ 		clear_vsie_sca(vsie_sca);
++		kvm->stat.vsie_shadow_sca_reuse++;
  	}
  
--	max_vsie_page = MIN(atomic_read(&kvm->online_vcpus), KVM_S390_MAX_VSIE_VCPUS);
-+	max_vsie_page = MIN(MAX(atomic_read(&kvm->online_vcpus), vsie_shadow_scb_max),
-+			    KVM_S390_MAX_VSIE_VCPUS);
+ 	if (sie_uses_esca(scb_o))
+@@ -1946,6 +1948,7 @@ static struct vsie_page *get_vsie_page(struct kvm_vcpu *vcpu, unsigned long addr
+ 		vsie_page_new = NULL;
+ 		WRITE_ONCE(kvm->arch.vsie.pages[kvm->arch.vsie.page_count], vsie_page);
+ 		kvm->arch.vsie.page_count++;
++		kvm->stat.vsie_shadow_scb++;
+ 	} else {
+ 		/* reuse an existing entry that belongs to nobody */
+ 		while (true) {
+@@ -1958,6 +1961,7 @@ static struct vsie_page *get_vsie_page(struct kvm_vcpu *vcpu, unsigned long addr
+ 		}
  
- 	/* allocate new vsie_page - we will likely need it */
- 	if (kvm->arch.vsie.page_count < max_vsie_page) {
+ 		unpin_scb(kvm, vsie_page);
++		kvm->stat.vsie_shadow_scb_reuse++;
+ 	}
+ 
+ 	rc = vsie_page_init(vcpu, vsie_page, addr);
+@@ -2002,6 +2006,7 @@ static struct vsie_page *get_vsie_page_cpu_nr(struct kvm_vcpu *vcpu, struct vsie
+ 				vsie_page = vsie_page_new;
+ 			}
+ 		}
++		vcpu->kvm->stat.vsie_shadow_scb++;
+ 	}
+ 	if (vsie_page != vsie_page_new) {
+ 		if (vsie_page_new)
+@@ -2011,6 +2016,7 @@ static struct vsie_page *get_vsie_page_cpu_nr(struct kvm_vcpu *vcpu, struct vsie
+ 		if (!try_get_vsie_page(vsie_page))
+ 			return ERR_PTR(-EAGAIN);
+ 		vsie_page->vsie_sca = vsie_sca;
++		vcpu->kvm->stat.vsie_shadow_scb_reuse++;
+ 	}
+ 	if (vsie_page->scb_gpa != scb_gpa || vsie_page->sca_gpa != vsie_sca->sca_gpa) {
+ 		scoped_guard(mutex, &vcpu->kvm->arch.vsie.mutex) {
 
 -- 
 2.55.0
