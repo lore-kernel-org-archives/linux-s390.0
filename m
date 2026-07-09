@@ -1,114 +1,215 @@
-Received: from mail-pj1-f54.google.com (mail-pj1-f54.google.com [209.85.216.54])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 706843E3DAB
-	for <linux-s390@vger.kernel.org>; Thu,  9 Jul 2026 08:48:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D7F643C8C74;
+	Thu,  9 Jul 2026 09:01:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783586917; cv=none; b=I6XmFAnsJVnKY4fuRQDBQxyNAT8HFX19VhG8vc3y3hdCDp1KkVFBxhAjBNnaLfrkVEYYYHuzO8dDzyQbf3l4GpfP1bI4O2sLaPdd7hZmGd/zzC/fV0O8jETcGsy/YRlxLLOqE1Z+IP+Vy1p2fohz5lpTcZEXHHTg6+oesE8WRZk=
+	t=1783587713; cv=none; b=SiVQGzwNSMkFG/CNVYuFKlVARzSsnwAqQNjKfCaIaj93RjY5SuJ/2shprp2rUe+kM70nWWrV20q4EHCNvwn5rWv3icFemOWC7mbOXukFsM01CHc87BCIqiihRLi+QIbi/DaK6xZ9nxDMtB/HtyjfSA1Hemxv6+E1YJgfSSZrFl8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783586917; c=relaxed/simple;
-	bh=vcIYcFn8wOu64JToHCd3V3ghUBsco6aWxPDuriYHfZc=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=DEVD4SBRjmU11lCJKu4CvFKNvu7Cz/9vQDFcxkNTlcegtGxdzflc3mC8NniF7xNY4zi7+yQFIPHjTq5YiME1M2NeJQRsw8qLm0+dQA/ov0hOi8YmMaR1G3urag0adGCSN1T7CxXIOcz73cR3920V37/GX8etOwLW8uDa+F/8H84=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.216.54
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-pj1-f54.google.com with SMTP id 98e67ed59e1d1-3817f800c8bso1361379a91.1
-        for <linux-s390@vger.kernel.org>; Thu, 09 Jul 2026 01:48:36 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783586916; x=1784191716;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=O3mkBNkViagFAJs3obyg41kBlrTMtmvpPUP/R2gZOPo=;
-        b=b0a55rY1v1W6CLUrmnqUrr4M763vfbaT+WyuvORgFlMuztTMs/tgHjgw+3i6zwaSn3
-         fvMu5Fla/UcfPQRJUcQ0IlMfZE9koB08k45K4Da0/EqEe1koB0rJnWIabV439Ke4zOmE
-         ibtDNOA7op+ayj4YojzxZAy9qSTPlvqTcw4b2rZytnsy/hcJEqhXbqsns9RHjhytkGD3
-         Wqg8W4IvtyPhF+8J0XBAM5nQOsQHkwhH6KLRX7GFE8/ZK1xz0nM3ckSURhd/30GEGFWs
-         ch2fcKOpci3nRYcufnwyv/tXhLYrWqpr5TnaGHR6Gpw27BDuX9Mr/5GZwwbbyW+F2je9
-         h/9A==
-X-Forwarded-Encrypted: i=1; AHgh+RoOkO5o6SpzeBEbF4u48dfB8CV+EO1wiPhzjaYZsWBIU0FHSH0/ddhhnfcZds4vwq39HvAwupiCfHfI@vger.kernel.org
-X-Gm-Message-State: AOJu0YwuS7BrABVZxYcpNl/PMlKCCqlMUYrbt8zaHlsnJnWC5MCkRTWx
-	9AeL/+czF1Ryh0iozi7wsLmXNG5d4i2iRmty+vKUU17KbqFMTPbTjzxvSOfsENqlmBE=
-X-Gm-Gg: AfdE7cmixh0GAYON373UO4PJ9WTGRHwi4GI+zL+wupikOiZLefAB4fdRdBEHWDJQmYW
-	Z1vK3L5rDmxbhwM0gFxx8TMSpSIHIXvqIGZIOQzmhtuzxo72K40Ynp1n7tTenK9nD2BMArOwrVk
-	0/bWuR7LnuYKt2QaVSAIpgco5eLnEkiVKQcTa0Pa8jitGSQ4ImJuptC8CPYmqvPsX6KRv95yiS6
-	dOq6o1uOPJBsoDbE9R12HJcDvkx9JJ2WFVMK8jXwT4zv4G2kcZfj8lQZjlIpNhuOvlEKQLRNudQ
-	ZInpBOu7FtrCWcK4sSxhoQM/O/TIkp9abQT+zp/4sEc+vaAmCZ5pZDuX7ecBMUqFskLc2nE0kBy
-	TOuqQ1tgfm4QH8Bougiq/O+9vxCFMOCQqErcNq0baxM3EyKaNtlvlX7TfE11oLPKUWqg5DNlMhe
-	+DEVqEN476M+KikBw5TyquFyKEbcMTwUE7ZdHeuZcko0d4wkfpPECYWg==
-X-Received: by 2002:a17:90b:2d0e:b0:37e:2053:348f with SMTP id 98e67ed59e1d1-38941dbcbf8mr6277342a91.25.1783586915743;
-        Thu, 09 Jul 2026 01:48:35 -0700 (PDT)
-Received: from mail-pf1-f169.google.com (mail-pf1-f169.google.com. [209.85.210.169])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2ccc9d59e40sm40444185ad.75.2026.07.09.01.48.35
-        for <linux-s390@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 09 Jul 2026 01:48:35 -0700 (PDT)
-Received: by mail-pf1-f169.google.com with SMTP id d2e1a72fcca58-848643382fcso147077b3a.1
-        for <linux-s390@vger.kernel.org>; Thu, 09 Jul 2026 01:48:35 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AHgh+RpJbElKUfjnqSynkyVKRkdVGEDv9fv4qLtTuD4QhnmIp+k0V0b/WnL3fOPBlZvFzA8G0rnzFB9zRcFo@vger.kernel.org
-X-Received: by 2002:a05:6102:6895:b0:738:9dd5:9b03 with SMTP id
- ada2fe7eead31-744e03a337dmr3306957137.20.1783586528282; Thu, 09 Jul 2026
- 01:42:08 -0700 (PDT)
+	s=arc-20240116; t=1783587713; c=relaxed/simple;
+	bh=dSDoIy4ytAUsOJH0ZDJ9Tzkd0slxunA2urceWRUlNMg=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=X4G+J86x80nC59W7iZkJDiGLDh4aN4cFhjAlUk9wUZjB3DcrHKJxcivGNvcYxFpsrSsJxSp5qKZtm3f71QdeQxs0R6bb64jEVokuRXj7LqCvImYQomRUzLlf6KbgyiDMLYtPzoe/V/ZqyNLHX9UsJV8in1/U2SrAlnMHXvjjQLc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=VWPFYSjA; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="VWPFYSjA"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6696ILrk1897187;
+	Thu, 9 Jul 2026 09:01:50 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=vAPZMmJsfAs0+FNS0ehaEw0eq/2P40gAW7rsBINFo
+	7k=; b=VWPFYSjAGRZ9D5VAZlxf5Q/hDUjWK4t4eYwW/sNY2qEvdR/naJbcoyu06
+	sQ3WDXKs/GRsI6ISYZMIg5wUXGOenFg/z/Vv4pVowxthLuBxoNlc0DZ48mFNHmhC
+	OOxDq6lVS5koKgn6n8z6Ym7pA4O94AawnA4q82VqgLRtC81fG0Rna5vTdI6SzCp7
+	bA3x212k8dYz4n5XDb4E4Urzq5EGcD9Dk/uYvVsPFlYUmjgyMtb+UNFA7NpbvEVN
+	XmZjBIzNzufcdrtqjEB9IIVEsev+gGp59has6dEIjr18tbN2w2M8rOnFtK+WZAQi
+	KvXl5WlgRYpN19LFeEz7naa/pUc2A==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4f6sur0kxk-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 09 Jul 2026 09:01:49 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 6698ngI3005159;
+	Thu, 9 Jul 2026 09:01:49 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4f7cgqckk8-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 09 Jul 2026 09:01:48 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66991jND50397686
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 9 Jul 2026 09:01:45 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 3D1E22004E;
+	Thu,  9 Jul 2026 09:01:45 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 0EFD92004B;
+	Thu,  9 Jul 2026 09:01:45 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu,  9 Jul 2026 09:01:45 +0000 (GMT)
+From: Thomas Richter <tmricht@linux.ibm.com>
+To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-perf-users@vger.kernel.org, acme@kernel.org, namhyung@kernel.org
+Cc: agordeev@linux.ibm.com, iii@linux.ibm.com, sumanthk@linux.ibm.com,
+        hca@linux.ibm.com, japo@linux.ibm.com,
+        Thomas Richter <tmricht@linux.ibm.com>
+Subject: [PATCH v3] perf test: perftool-testsuite-report fails on s390
+Date: Thu,  9 Jul 2026 11:01:36 +0200
+Message-ID: <20260709090136.1031645-1-tmricht@linux.ibm.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260707181957.433213175@kernel.org> <20260707190254.280015701@kernel.org>
-In-Reply-To: <20260707190254.280015701@kernel.org>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Thu, 9 Jul 2026 10:41:56 +0200
-X-Gmail-Original-Message-ID: <CAMuHMdWe1D0CZrav5h6EhDDbeJzgJcHvT89jrs6109Bdj-pdTw@mail.gmail.com>
-X-Gm-Features: AUfX_mw8w2Kp5VuAYozzfDNS6gDbdKhQdYzfXsv-G72F3LS58UBytbGwOmplITc
-Message-ID: <CAMuHMdWe1D0CZrav5h6EhDDbeJzgJcHvT89jrs6109Bdj-pdTw@mail.gmail.com>
-Subject: Re: [patch 12/18] ptrace, treewide: Rename ptrace_report_syscall_entry()
- to ptrace_report_syscall_permit_entry()
-To: Thomas Gleixner <tglx@kernel.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, Peter Zijlstra <peterz@infradead.org>, 
-	Arnd Bergmann <arnd@arndb.de>, Oleg Nesterov <oleg@redhat.com>, 
-	Richard Henderson <richard.henderson@linaro.org>, Vineet Gupta <vgupta@kernel.org>, 
-	Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, 
-	Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>, Brian Cain <bcain@kernel.org>, 
-	Michal Simek <monstr@monstr.eu>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
-	Dinh Nguyen <dinguyen@kernel.org>, Helge Deller <deller@gmx.de>, 
-	Yoshinori Sato <ysato@users.sourceforge.jp>, "David S. Miller" <davem@davemloft.net>, 
-	Andreas Larsson <andreas@gaisler.com>, Chris Zankel <chris@zankel.net>, linux-alpha@vger.kernel.org, 
-	linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, 
-	linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, 
-	linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, 
-	linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org, 
-	linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, 
-	linux-um@lists.infradead.org, linux-arch@vger.kernel.org, 
-	Michael Ellerman <mpe@ellerman.id.au>, Shrikanth Hegde <sshegde@linux.ibm.com>, 
-	linuxppc-dev@lists.ozlabs.org, Kees Cook <kees@kernel.org>, 
-	Huacai Chen <chenhuacai@kernel.org>, loongarch@lists.linux.dev, 
-	Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, linux-riscv@lists.infradead.org, 
-	Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org, x86@kernel.org, 
-	Mark Rutland <mark.rutland@arm.com>, Jinjie Ruan <ruanjinjie@huawei.com>, 
-	Andy Lutomirski <luto@kernel.org>, Richard Weinberger <richard@nod.at>, =?UTF-8?Q?Michal_Such=C3=A1nek?= <msuchanek@suse.de>, 
-	Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzA5MDA4MyBTYWx0ZWRfX0erUXTa7D78u
+ McEMj6W05uZ3FzxkA1+cNqh7SR/pGeEoMFdpq3Tuao8GaCZXGJGlMqJmoxp4zQqvkLyR5BG3AQR
+ wmMJ3yGpuJ3wTnurXxqckQLmWQ7X1t4=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzA5MDA4MyBTYWx0ZWRfXxz1VWHYP3u0B
+ 4yYkOOQsdliAWLARLWcnBAimwQGTTLwk1bAdo0eorNiWXvKWSly/6WVNlvycdkv6fKgX2r4s+MS
+ GqClnbwTamqnHwewYZ93hE5Lc1+mBlvD2PgJBAY/888uSYscCFXsTW/cagNZz8NprJY++8L5syp
+ wjW6zrqtixkioclYtUch6XA0WD/5+xrEHD7lxbbL/L4y48ZdoCsH83WnhZUa2J0LUo8F61ZWDhv
+ jLw7XiKimunrxgHC1Uj+gGA07WKIKI17q7vG8o7n/78gApgcLWQjYVBRH9Ym50r075v8mL77KvN
+ /KZ5X9UolP5bdvLIOf+IYPxnR6DtIrSvZ6MhpJaQAYPSv4En+B/MdZ9LM2mu+tgU3GgzRI1vBs0
+ ai/qqMkfQMmezDhCz2o+Gg4ZmZFXTXCtg4XCGD/WEfmhGsZ3NPkYE5hGO9rjC2sx5+f5zIuEzRJ
+ 1cn+bJc2x5CKF1Yi9rg==
+X-Proofpoint-GUID: nxf7MwheGrKgroi3G1jlsgd__0aOBJba
+X-Authority-Analysis: v=2.4 cv=Oot/DS/t c=1 sm=1 tr=0 ts=6a4f637d cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+ a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8 a=jH-Eb8NthfFIkY4C4agA:9
+X-Proofpoint-ORIG-GUID: nxf7MwheGrKgroi3G1jlsgd__0aOBJba
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-07-09_01,2026-07-08_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ bulkscore=0 lowpriorityscore=0 clxscore=1015 impostorscore=0 phishscore=0
+ malwarescore=0 suspectscore=0 spamscore=0 adultscore=0 priorityscore=1501
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607090083
 
-On Tue, 7 Jul 2026 at 21:06, Thomas Gleixner <tglx@kernel.org> wrote:
-> The return value of that function is boolean and tells the caller whether
-> to permit the syscall processing or not.
->
-> Rename the function so the purpose is clear and make the return type bool.
+V2 --> V3: Add finding from sashiko
+   Initialize shell variable perf_config_tmp to null string on
+   other plattforms. This avoids removing any file specified on
+   command line as in 'perf_config_tmp=XXXX ./perf test '
+V1 --> V2: Add finding from sashiko
+   Add check for non-zero string length to avoid 'rm -f'
+   command without file name.
 
->  arch/m68k/kernel/ptrace.c       |    2 +-
+Test case perftool-testsuite-report.sh always fails on s390.
+Root cause is a default timeout for addr2line command which is too
+short for s390. Function cmd_addr2line() invokes addr2line command
+and reads via pipe the function name on stdout, after writing
+an address to stdin. There is a default timeout for the expected
+reply, but very often this timeout is too short and nothing is
+returned. This leads to the error message listed in
+util/addr2line.c:
 
-Acked-by: Geert Uytterhoeven <geert@linux-m68k.org> # m68k
+   switch (read_addr2line_record(&io, cmd_a2l_style, dso_name, ..) {
+   case -1:
+          if (!symbol_conf.addr2line_disable_warn)
+                 pr_warning("%s %s: could not read first record\n",
+				   ...)
+          goto out;
+   ...
 
-Gr{oetje,eeting}s,
+As the test case emits warnings, it is reported as failed.
+Fix this for s390 and create a temporary perf configuration file to
+suppress these warnings. (An alternative would be to increase
+the default timeout to a larger value).
 
-                        Geert
+Output before:
+ # bash perftool-testsuite_report.sh
+ -- [ PASS ] -- perf_report :: setup :: prepare the perf.data file
+ ==================
+ [ perf record: Woken up 1 times to write data ]
+ [ perf record: Captured and wrote 0.087 MB (402 samples) ]
+ ==================
+ -- [ PASS ] -- perf_report :: setup :: prepare the perf.data.1 file
+ ## [ PASS ] ## perf_report :: setup SUMMARY
+ -- [ SKIP ] -- perf_report :: test_basic :: help message :: \
+ 		testcase skipped
+ Line did not match any pattern: "cmd__addr2line <file> could not \
+	read first record"
+ -- [ FAIL ] -- perf_report :: test_basic :: basic execution \
+	 (output regexp parsing)
+ Line did not match any pattern: "cmd__addr2line <file> could not \
+	read first record"
+ ...
+ ## [ FAIL ] ## perf_report :: test_basic SUMMARY :: 6 failures found
 
+All six tests fail for the same reason, addr2line did not respond in
+time.
+
+Output after:
+ # bash perftool-testsuite_report.sh
+ -- [ PASS ] -- perf_report :: setup :: prepare the perf.data file
+ ==================
+ [ perf record: Woken up 1 times to write data ]
+ [ perf record: Captured and wrote 0.086 MB .... (380 samples) ]
+ ==================
+ -- [ PASS ] -- perf_report :: setup :: prepare the perf.data.1 file
+ ## [ PASS ] ## perf_report :: setup SUMMARY
+ -- [ SKIP ] -- perf_report :: test_basic :: help message :: \
+ 				testcase skipped
+ -- [ PASS ] -- perf_report :: test_basic :: basic execution
+ -- [ PASS ] -- perf_report :: test_basic :: number of samples
+ -- [ PASS ] -- perf_report :: test_basic :: header
+ -- [ PASS ] -- perf_report :: test_basic :: header timestamp
+ -- [ PASS ] -- perf_report :: test_basic :: show CPU utilization
+ -- [ PASS ] -- perf_report :: test_basic :: pid
+ -- [ PASS ] -- perf_report :: test_basic :: non-existing symbol
+ -- [ PASS ] -- perf_report :: test_basic :: symbol filter
+ -- [ PASS ] -- perf_report :: test_basic :: latency header
+ -- [ PASS ] -- perf_report :: test_basic :: default report for \
+						 latency profile
+ -- [ PASS ] -- perf_report :: test_basic :: latency report for \
+ 						latency profile
+ -- [ PASS ] -- perf_report :: test_basic :: parallelism histogram
+ ## [ PASS ] ## perf_report :: test_basic SUMMARY
+ #
+
+Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+Reviewed-by: Jan Polensky <japo@linux.ibm.com>
+---
+ tools/perf/tests/shell/perftool-testsuite_report.sh | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/tools/perf/tests/shell/perftool-testsuite_report.sh b/tools/perf/tests/shell/perftool-testsuite_report.sh
+index a8cf75b4e77e..01116f8d71ce 100755
+--- a/tools/perf/tests/shell/perftool-testsuite_report.sh
++++ b/tools/perf/tests/shell/perftool-testsuite_report.sh
+@@ -6,6 +6,16 @@ test -d "$(dirname "$0")/base_report" || exit 2
+ cd "$(dirname "$0")/base_report" || exit 2
+ status=0
+ 
++# On s390 the default timeout for addr2line is too short, disable warnings
++if [ $(uname -m) = s390x ]
++then
++	perf_config_tmp=$(mktemp /tmp/.perfconfig_XXXXX)
++	export PERF_CONFIG="${perf_config_tmp}"
++	perf config 'core.addr2line-disable-warn = true'
++else
++	perf_config_tmp=""
++fi
++
+ PERFSUITE_RUN_DIR=$(mktemp -d /tmp/"$(basename "$0" .sh)".XXX)
+ export PERFSUITE_RUN_DIR
+ 
+@@ -19,5 +29,6 @@ if ! [ "$PERFTEST_KEEP_LOGS" = "y" ]; then
+ 	rm -rf "$PERFSUITE_RUN_DIR"
+ fi
+ 
++[ -n "${perf_config_tmp}" ] && rm -f "${perf_config_tmp}"
+ test $status -ne 0 && exit 1
+ exit 0
 -- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+2.55.0
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
