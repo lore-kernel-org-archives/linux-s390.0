@@ -1,221 +1,148 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1CEF654723;
-	Thu,  9 Jul 2026 15:47:10 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9552E332917;
+	Thu,  9 Jul 2026 15:59:16 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783612032; cv=none; b=pP2EeU3QLwk2bXdmSEN9ZVwURC5QZ5pA/rHK/DsJS4cNohn3ZISnXjh0FYyLc/aeekQoogIGKPqHfsRpn5gE2KsbQNUOFcSbz+WjAbRN93IawhucyV6SdA/EDQT4/cD8ZqwS0e39D6YzqSfd4p3LtaWzx2VYOJ1G1iEKQbF+ESk=
+	t=1783612757; cv=none; b=MdCamrvEElkcAErpZvVRkts9j+uQoPN9C7JuAoUAeLkL5/SQazWw1wNXbqbILvKyt1E9eJa+oySYT/IHIVHG1Jgc7VmtB7UPiGlx/8Phs/mZNW2hoJKTliHyR9D+8jhF2cXA7P412lNySmE6zRIedc3x95xblH/QtDiZxwPUq2c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783612032; c=relaxed/simple;
-	bh=vpjynq5BJlsG0KQv+rgFMfXKhfuPYUUINaiZNsFzPm0=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=o6pIovC8qi18ZbimQ68fdr8JaMDgDuMWSJPBO+v81WCTiD1R3CfBYVfv8qqXifFoSTqxZO8GBsKhoTEVrRaHJkH9ouMgjiBeuQEHrEht2/bwuTAFsImzkOhrwLGEDXzlUbLpme9ae55YH4PogijA+8aT8mA8FvqUaCXMysfDTdI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VlCvT1Tb; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1783612757; c=relaxed/simple;
+	bh=aJbh9LElbrEI7E/P7mvmoKpzdOlw1yDQ59JtSNULaUQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=OkqPKPu/lg5N2S3ELhLewsEkHXFGWfEttEj1hBfoo8kUpU9FxPEceEwuBfUeOhKMbYXOK7AADlMTFPTvwPBcsCCYMvDgTzpFTDVDnba1Cnuigvcl3Dt6o9RtEyJnZRQ4D7T64UXbikBm4RzMLIH8a4kyGaa8+xijyPPgXvGw7gE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RC+SN67W; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VlCvT1Tb"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B7B01F000E9;
-	Thu,  9 Jul 2026 15:47:10 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RC+SN67W"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7221E1F000E9;
+	Thu,  9 Jul 2026 15:59:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783612030;
-	bh=4Iz3VetR0IW+5P+ybhmt0roE5XRS6ec9BjP0xTtEWuw=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=VlCvT1TbaNLF4xCQ5Agua3g5v6XT627m29C/lEJuR5Di6jdwOnBqF2wvIYmWQtb7T
-	 GRYIe9ZPsQNdioKS0u8J7G0cU/w5/Gk3FB5KK5dCaqLGx9jBzmJKbkk2xvsDAEZ+gL
-	 K92ThSPVm4zqyr27Fv5kPK1Z/LunadMQtxagIdtubcLtBVX2rQY4Fd3KARd7CwOH2E
-	 1RyTgjPiXrP8bWDmMrKr3zBma03GKYv+Fh90j1oNJYDcvpYgNbD+hsSvAOfOrimqKO
-	 iwHy99W/UUUaohCVAqg7mdVCa4dNdAV2R8mErhy7ofRQbI73a7pdgQNSfN6p2k5BFR
-	 da/JgJ9iy0Vug==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 20/21] KVM: s390: vsie: Create minimal scb shadows for
- not running g3 blocks
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Christoph Schlameuss" <schlameuss@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
- Gorbik" <gor@linux.ibm.com>, kvm@vger.kernel.org, "Alexander Gordeev" <agordeev@linux.ibm.com>
-In-Reply-To: <20260709-vsie-sigpi-v1-20-ea9f12066408@linux.ibm.com>
-References: <20260709-vsie-sigpi-v1-0-ea9f12066408@linux.ibm.com>
- <20260709-vsie-sigpi-v1-20-ea9f12066408@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 09 Jul 2026 15:47:09 +0000
-Message-Id: <20260709154710.4B7B01F000E9@smtp.kernel.org>
+	s=k20260515; t=1783612756;
+	bh=aJbh9LElbrEI7E/P7mvmoKpzdOlw1yDQ59JtSNULaUQ=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=RC+SN67Wo1bRPHmk2A3aRNqpRIZs1vt054/wDbMqrDQX+h2TC1c2qOU/P+vZpdlhO
+	 AGbczQTeBS/xYxBRav4immcCdk9NfNEvFoxtcbuJpR+9S08i4HqzmmxUf2mXM8hMj7
+	 lXpkqf096CaOPzHCghkHjTNtD6G/fOZ8q4jHCFjUFlLP5HaCXiv4HJYAS5IZqtiACw
+	 SFUrZULwFBv+H+0ToU32sDdtnyqRsHAorRSMSNXr8y2FRWFng0qncigrrOJt/3zqzq
+	 3H/Ma20+f66D8Hr1nfijRAegJrkTFT+SYpIfq6Gx4gdnn9Z3ulZD77FcSZxNF6fYJs
+	 u62hwfrMdO64Q==
+Date: Thu, 9 Jul 2026 17:59:13 +0200
+From: Thierry Reding <thierry.reding@kernel.org>
+To: Marek Szyprowski <m.szyprowski@samsung.com>
+Cc: "David Hildenbrand (Arm)" <david@kernel.org>, 
+	Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+	Conor Dooley <conor+dt@kernel.org>, Jonathan Hunter <jonathanh@nvidia.com>, 
+	Mikko Perttunen <mperttunen@nvidia.com>, Yury Norov <yury.norov@gmail.com>, 
+	Rasmus Villemoes <linux@rasmusvillemoes.dk>, Russell King <linux@armlinux.org.uk>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Gerald Schaefer <gerald.schaefer@linux.ibm.com>, 
+	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Christian Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, 
+	Andrew Morton <akpm@linux-foundation.org>, Lorenzo Stoakes <ljs@kernel.org>, 
+	"Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>, 
+	Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>, 
+	Michal Hocko <mhocko@suse.com>, Robin Murphy <robin.murphy@arm.com>, 
+	Sumit Semwal <sumit.semwal@linaro.org>, Benjamin Gaignard <benjamin.gaignard@collabora.com>, 
+	Brian Starkey <Brian.Starkey@arm.com>, John Stultz <jstultz@google.com>, 
+	"T.J. Mercier" <tjmercier@google.com>, Christian =?utf-8?B?S8O2bmln?= <christian.koenig@amd.com>, 
+	Steven Rostedt <rostedt@goodmis.org>, Masami Hiramatsu <mhiramat@kernel.org>, 
+	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, Catalin Marinas <catalin.marinas@arm.com>, 
+	Will Deacon <will@kernel.org>, devicetree@vger.kernel.org, linux-tegra@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-media@vger.kernel.org, 
+	linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, linux-mm@kvack.org, 
+	iommu@lists.linux.dev, linaro-mm-sig@lists.linaro.org, 
+	linux-trace-kernel@vger.kernel.org
+Subject: Re: [PATCH v3 06/11] mm/cma: Allow dynamically creating CMA areas
+Message-ID: <ak_E4UxfnFJywJa7@orome>
+References: <20260701-tegra-vpr-v3-0-d80f7b871bb4@nvidia.com>
+ <CGME20260701160902eucas1p1214af933ba0f54b85630a3a4e5a4689c@eucas1p1.samsung.com>
+ <20260701-tegra-vpr-v3-6-d80f7b871bb4@nvidia.com>
+ <3f47aeab-33b1-4966-a5ce-5d6d5261e0e2@samsung.com>
+ <e212caac-6c30-448a-9e10-32fff8b842f6@kernel.org>
+ <83e5e74d-7106-4e14-9d10-56438372f6a3@samsung.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="j2boipej3wyu4mib"
+Content-Disposition: inline
+In-Reply-To: <83e5e74d-7106-4e14-9d10-56438372f6a3@samsung.com>
 
-Thank you for your contribution! Sashiko AI review found 6 potential issue(=
-s) to consider:
 
-New issues:
-- [Critical] Out-of-bounds array access using guest-controlled `icpua`.
-- [Critical] Host WARN and VM crash via invalid SCA physical address (DoS).
-- [High] Lost validity intercept for side VCPUs causing silent execution di=
-vergence.
-- [High] SCA corruption and livelock on concurrent VSIE entry.
-- [High] Pinned SCB guest pages are leaked when the VM is destroyed.
+--j2boipej3wyu4mib
+Content-Type: text/plain; protected-headers=v1; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [PATCH v3 06/11] mm/cma: Allow dynamically creating CMA areas
+MIME-Version: 1.0
 
-Pre-existing issues:
-- [High] Guest 2 SCB memory corruption when prepare_cpuflags fails.
---
+On Thu, Jul 09, 2026 at 07:56:45AM +0200, Marek Szyprowski wrote:
+> On 08.07.2026 10:35, David Hildenbrand (Arm) wrote:
+> > On 7/7/26 12:02, Marek Szyprowski wrote:
+> >> On 01.07.2026 18:08, Thierry Reding wrote:
+> >>> From: Thierry Reding <treding@nvidia.com>
+> >>>
+> >>> There is no technical reason why there should be a limited number of =
+CMA
+> >>> regions, so extract some code into helpers and use them to create ext=
+ra
+> >>> functions (cma_create() and cma_free()) that allow creating and freei=
+ng,
+> >>> respectively, CMA regions dynamically at runtime.
+> >>
+> >> Well, the technical reason for not creating cma regions dynamically at
+> >> runtime is that on some architectures (like 32bit ARM) the early fixup
+> >> for the region is needed to make it functional for DMA.
+> > Can you point me at the code that does that? Thanks!
+> Check dma_contiguous_early_fixup() and dma_contiguous_remap() in=C2=A0
+> arch/arm/mm/dma-mapping.c. Those functions ensures that the CPU mappings =
+for
+> the CMA reserved region in linear map are remapped with 4k pages instead
+> of the 1M sections, so later, it will be=C2=A0possible to alter the mappi=
+ngs and
+> change them to coherent when needed (altering 1M sections is not possible,
+> because each process has it's own level-1 array even for the kernel linear
+> mapping).
+>=20
+>=20
+>=20
+> However, in the use case in this patchset the reserved region is only sha=
+red
+> with buddy allocator by using the CMA infrastructure, not registered to t=
+he
+> regular DMA-mapping API, so it would work fine. I'm not convinced that th=
+is
+> is the right API to use for this though.
 
---- Patch [20]: [PATCH 20/21] KVM: s390: vsie: Create minimal scb shadows f=
-or not running g3 blocks ---
-commit 2f62e0dfe18aabd20de0781221d96146e1f85a9f
-Author: Christoph Schlameuss <schlameuss@linux.ibm.com>
+Are you saying you're not convinced that CMA is the right API to use for
+this? Or something else?
 
-KVM: s390: vsie: Create minimal scb shadows for not running g3 blocks
+I certainly don't think we want to get the DMA-mapping API involved for
+this because that always implies that we perform cache operations, which
+we specifically don't want for this memory.
 
-Instead of creating a full shadow for vSIE control blocks, this creates a
-minimal shadow for SIGP purposes for currently not running guest-3 blocks.
-The full shadow is recreated when vSIE is entered with that SCB later.
+Thierry
 
-> diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-> index 80050376eaab1..feac755d56cb5 100644
-> --- a/arch/s390/kvm/vsie.c
-> +++ b/arch/s390/kvm/vsie.c
-[ ... ]
-> @@ -692,6 +691,39 @@ static void unshadow_scb(struct kvm_vcpu *vcpu, stru=
-ct vsie_page *vsie_page)
->  		scb_o->ihcpu =3D scb_s->ihcpu;
->  }
-> =20
-> +static int shadow_scb_minimal(struct kvm_vcpu *vcpu, struct vsie_page *v=
-sie_page)
-> +{
-[ ... ]
-> +	rc =3D prepare_cpuflags(vcpu, vsie_page);
-> +	if (rc)
-> +		return rc;
-> +
-> +	scb_s->icpua =3D scb_o->icpua;
+--j2boipej3wyu4mib
+Content-Type: application/pgp-signature; name="signature.asc"
 
-[Severity: Critical]
-Does this code allow an out-of-bounds array access if the guest provides an
-invalid icpua?
+-----BEGIN PGP SIGNATURE-----
 
-If a malicious guest provides an SCB with an icpua value greater than 255,
-it appears kvm_s390_handle_vsie() passes this unvalidated scb_o->icpua to
-get_vsie_page_cpu_nr().
+iQIzBAABCgAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAmpPxVEACgkQ3SOs138+
+s6Eb0Q/+LDCagsX5c/5bbiHk3kITlOkkdqUCHLmicqkfr4LZXyuHnPZlygaoxrFM
+pWQKdyKOOfpM0U1Z1cuOHjLwTv5iB98Ne5qANisu+FqK6xFJ4ccA5Y2pXRG+2cEG
+YJS9S13i37EoR6iOHndhRxeZyxcx080fd7aAJdY9yKXL4+bAmW9W5/zS5XbLyBbt
+9MEA8Ah3pUnnLdjfeEq0SH2diKgT9OHXRpP4MEEFJbBufctOLZKoBOBBYPuURxCJ
+UxjR6KKyMObW2G6HP7fdgDzj5XYdbMEyHN+Cvom68auUKijpkjfOt5NUTQvxuuni
+YbwzbmHnbB76VYY6E/4i8uUPDxlBxha2COauHTiiJvdhBoJtPWSKLEYRU7BFrqBr
+SJY+OpLNROUP+oZLTyr7jmAoaJI0wLnBLxId6GjF0iID6w1BybeRRDX34o5+mkpE
+TOQ703x0/ZpECHboXKqJgo9CX0XIWtiD+yEbn7/HnR/wvHjksGNrCGxYaR5mrIAv
+N75RHCupJjA918YwITUGC0EtKUWOcwlVvLwS2G8gAUZd6goYWyEd/fV7G4VEj/4+
++GA2L/CzSK0TbN+Ktayav2Ec5EQy4mKHa47hkWmWGe+Lh22DNNiP2CS3LjnPGs2i
+II6qTao1jGC6L0sqjSQAw8VxP4TpU/XHRW8zs9HCzUaNg0ZSnGs=
+=xmpu
+-----END PGP SIGNATURE-----
 
-Inside get_vsie_page_cpu_nr(), the cpu_nr is used to index directly into the
-fixed-size vsie_sca->pages array:
-
-vsie_page =3D vsie_sca->pages[cpu_nr];
-
-Could this result in an out-of-bounds read and a subsequent out-of-bounds
-write of a kernel heap pointer when vsie_page_new is evaluated?
-
-> +	scb_s->ecb2 |=3D scb_o->ecb2 & ECB2_ESCA;
-[ ... ]
-> @@ -711,17 +743,7 @@ static int shadow_scb(struct kvm_vcpu *vcpu, struct =
-vsie_page *vsie_page)
-[ ... ]
-> -	rc =3D prepare_cpuflags(vcpu, vsie_page);
-> +	rc =3D shadow_scb_minimal(vcpu, vsie_page);
-
-[Severity: High]
-This isn't a bug introduced by this patch, but does the error path here
-corrupt guest memory when prepare_cpuflags() fails?
-
-If shadow_scb_minimal() returns an error, the code jumps to the out label
-and calls unshadow_scb().
-
-Because the failure occurs before shadow_scb() initializes scb_s with guest
-state from scb_o, scb_s might contain uninitialized zeros or stale data.
-
-Does unshadow_scb() then copy this uninitialized data back into the guest's
-scb_o, corrupting the guest's memory?
-
->  	if (rc)
->  		goto out;
-[ ... ]
-> @@ -2113,7 +2133,7 @@ static int _shadow_sca(struct kvm_vcpu *vcpu, struc=
-t vsie_page *vsie_page,
->  				rc =3D PTR_ERR(vsie_page_n);
->  			if (rc)
->  				goto err;
-> -			rc =3D shadow_scb(vcpu, vsie_page_n);
-> +			rc =3D shadow_scb_minimal(vcpu, vsie_page_n);
-
-[Severity: High]
-Does this error path lose the validity intercept for side VCPUs?
-
-If a side CPU's SCB is invalid, shadow_scb_minimal() sets a validity
-intercept in vsie_page_n->scb_s.icptcode and returns an error.
-
-When _shadow_sca() propagates this error and jumps to the err label, it
-doesn't seem to call unshadow_scb() on vsie_page_n. Later,
-kvm_s390_handle_vsie() jumps to out_unshadow, which only unshadows the main
-CPU's vsie_page.
-
-Does this cause the guest to silently skip the SIE instruction without
-notification, leading to execution divergence?
-
-[Severity: High]
-Can a concurrent VSIE entry cause SCA corruption and a livelock here?
-
-If VCPU 1 is running, its vsie_page has VSIE_PAGE_IN_USE set. If VCPU 2
-enters SIE and observes an MCN change, _shadow_sca() attempts to get
-VCPU 1's page via get_vsie_page_cpu_nr(), which fails and returns -EAGAIN.
-
-When _shadow_sca() jumps to the err label, it zeroes out
-vsie_sca->ssca.cpu[cpu_nr] for all CPUs:
-
-err:
-    for_each_set_bit_inv(cpu_nr, ...) {
-        vsie_sca->ssca.cpu[cpu_nr].ssda =3D 0;
-        vsie_sca->ssca.cpu[cpu_nr].ossea =3D 0;
-    }
-
-Does this corrupt the SCA actively used by VCPU 1's hardware, and cause
-VCPU 2 to continuously retry in a tight loop until VCPU 1 exits?
-
-[Severity: Critical]
-Does get_vsie_page_cpu_nr() trigger a host warning and VM crash if the guest
-provides an invalid SCA physical address?
-
-If a malicious guest provides an invalid physical address in its SCA for a
-side CPU, pin_scb() detects this, injects a PGM_ADDRESSING exception, and
-returns 1.
-
-It appears vsie_page_init() transforms this return code into -ENOMEM.
-
-When get_vsie_page_cpu_nr() sees this, it hits WARN_ON_ONCE(rc):
-
-get_vsie_page_cpu_nr() {
-    ...
-    if (WARN_ON_ONCE(rc)) {
-        put_vsie_page(vsie_page);
-        return ERR_PTR(rc);
-    }
-}
-
-Does this propagate the -ENOMEM up to the KVM_RUN ioctl, causing QEMU to
-terminate the VM instead of resuming the guest?
-
->  			vsie_sca_update(vsie_sca, cpu_nr, vsie_page_n, sca_o_entry_hpa);
->  			put_vsie_page(vsie_page_n);
->  			if (rc)
->  				goto err;
-
-[Severity: High]
-Do we leak pinned SCB guest pages when the VM is destroyed?
-
-The vsie_page_init() function pins the guest's SCB page, leaving the
-vsie_page in the global kvm->arch.vsie.pages cache with a pinned host
-physical page.
-
-When the VM is destroyed, kvm_s390_vsie_destroy() frees each vsie_page in
-the global cache via kvm_s390_vsie_destroy_page(). However, it appears to
-miss calling unpin_scb() for these main CPU pages.
-
-Could this permanently leak the pinned pages, potentially allowing an
-unprivileged user to trigger a host physical memory leak by repeatedly
-creating and destroying VMs?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260709-vsie-sigpi=
--v1-0-ea9f12066408@linux.ibm.com?part=3D20
+--j2boipej3wyu4mib--
