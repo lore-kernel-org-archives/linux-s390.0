@@ -1,216 +1,325 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.14])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 07AD43F65E7;
-	Fri, 10 Jul 2026 09:34:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=192.198.163.14
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783676093; cv=fail; b=kGnUJd/i++FecNzemSxuc2wgXMVYF/ppr9eLoUB/vG5xWIdRW3ua3puMi3gwLDLUrChDQ4DpIz0xsuh/xYtzEBRV6BZBwjIIqVVvT79SukcrAQQcHFn6/i/q0tzqEJrtkPPMPspUptpg1qtWPmGpIpoy+xGq5DPCEMKm3yUJ+TI=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783676093; c=relaxed/simple;
-	bh=ODcGxiUKiS1j9MlUipuvJOfkwE9H3HLH6IqA+SPBOYA=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=q8w6SWBiEJ8F7ZjWzqfbW6qS6xU5OJnR6YxuPwZ4kz05jzOv+JG/aequ59dn42txXcGibls6CIf0rXsAtyGj4HfKzoU1YgMbqwNVAc7RO7GHfie1yzprXFN0Jb6EzG9wbswX/3NyoRIiR29n2PKKg69rVezOCYzNC/z/tUSkNjU=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=oHMHumR7; arc=fail smtp.client-ip=192.198.163.14
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 452A03F12DF;
+	Fri, 10 Jul 2026 09:54:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1783677297; cv=none; b=Ve1YoXJ/Biqv93aqTvpxaAcJu0Kdi7geqgESPG79j/NF4YWMqWH3S0DqVVNMTGy5NEzzE0Ud4VPqfQAR8RlLL1Kt6sFNGUAyeAAvzP68X8euGLKdenSlNrTqwyDEThztlcsuTLR4j3aKJwP6wVKadHu/Sg1xeF+Bz8CedlrtiCI=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1783677297; c=relaxed/simple;
+	bh=f0LF6EtHzVjMNUCuQP8ONBMBUxNXd9skfsh8Xir2itM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=tOsfeXUuGBSxx7JjzPUBEhc8Ao9SHcg2L2risvBwtO84AdtTJw9uLarW0brgJsOaVEuED6o5FOUt6KT0V4Jj1Y01ca5lYJy2J0qisTDOC1tydRyXY6ytZgpfTBliVqhf1xFt8vyHnGY910vAAjHqK5uPjvopH/3s4+8cG6/onyE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=hxS4Kj/0; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="oHMHumR7"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1783676090; x=1815212090;
-  h=from:to:cc:subject:date:message-id:references:
-   in-reply-to:content-transfer-encoding:mime-version;
-  bh=ODcGxiUKiS1j9MlUipuvJOfkwE9H3HLH6IqA+SPBOYA=;
-  b=oHMHumR7ZspXx4RxM98yUUpPVR7I82Rtc5y0mEhZCjh+K52EvCPGT6Uh
-   wNV5U6Y7i/5rg2D1XG6zdgHEAZWdWbx41DIx113X+rzlDVdCrVmsBnfKq
-   iA7EY0P5aGlECE0qcLx04Ns+b0pn08cI/87//+5nO6CjQyYM4wHoW1bLn
-   T5oXBqZNkf46cuebCtsAlArc3gPUhqYv2GGEMsnpQ8ezschFszQpFy1IO
-   KRbJ2UnOxAY/baIa1EH4GXGU97q0PEWNGZG0s3D6V7/dE2n677/rqHQ53
-   /p2n39k4rKHkAs/LVO3O93Tdr2PmgLgim8PwPEyzJoq8Bx/nVHpJxHEwX
-   w==;
-X-CSE-ConnectionGUID: jix8Po4hRNaji7nBUESq0Q==
-X-CSE-MsgGUID: v4nLd0AvR5KYDQl4zwxRCQ==
-X-IronPort-AV: E=McAfee;i="6800,10657,11841"; a="84425524"
-X-IronPort-AV: E=Sophos;i="6.25,154,1779174000"; 
-   d="scan'208";a="84425524"
-Received: from orviesa001.jf.intel.com ([10.64.159.141])
-  by fmvoesa108.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Jul 2026 02:34:49 -0700
-X-CSE-ConnectionGUID: lU9ivxAcT2ackfEVLKl3gg==
-X-CSE-MsgGUID: WbJ1FO38STuDrMRwn+tN+g==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.25,154,1779174000"; 
-   d="scan'208";a="293041101"
-Received: from fmsmsx902.amr.corp.intel.com ([10.18.126.91])
-  by orviesa001.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Jul 2026 02:34:49 -0700
-Received: from FMSMSX902.amr.corp.intel.com (10.18.126.91) by
- fmsmsx902.amr.corp.intel.com (10.18.126.91) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.43; Fri, 10 Jul 2026 02:34:47 -0700
-Received: from fmsedg901.ED.cps.intel.com (10.1.192.143) by
- FMSMSX902.amr.corp.intel.com (10.18.126.91) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.43 via Frontend Transport; Fri, 10 Jul 2026 02:34:47 -0700
-Received: from CY3PR05CU001.outbound.protection.outlook.com (40.93.201.30) by
- edgegateway.intel.com (192.55.55.81) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.43; Fri, 10 Jul 2026 02:34:47 -0700
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=n/clDkcOwLVon3ZY+n7r6JwoYUnznk/YZdb7UWLKRa8wHnQ/wPm2N5nlyeqAsfbgEjDNbE12DKDKvuz2dSJe1AbLMi5UaLjfe7LI8fmGBDToi1C5Nf4ddBNQAvlsKuss3QR741I9mrUiBnZHd7YZLCAzAUJzHYWo9P8vRVA1u+DvBXQNeGlGL0qzSEWXMKJjMyzoO2o4alk6JEyNsIz5NsYnLRkUG2lUnxjlRTD3hMFZ1O69HD5w3nrJphJqNU950zozpJY+0j3G3/AFSPrwL9cald7O8K8yPhMnNaxBQNx/hacHUGX6vxlC7kVdmNUbci+Wk0leBzyrZhRM+zuGmQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=LzIk6kJtLUE9kzb48sPhXI5DHBHAcxwAF8t1l18sDfo=;
- b=t297HHPN7786BxjbjAN9qHPklXpSW6pPFwHJGMgFX1LsepHwIImLDb/5GG2VJX7C6s6HZqc6TMZ6izkQ6d0oH9sCSdkf5qCVabHECt0HLMINJp29e8gvdTu1L95BWaVFVajGX9lXcYms/2xGJfuPSLQTickeUFq3aKfihXrr8JsDBKOQiVUc8OSy7PSsCo1YYCUgKlIKuI9Uj25Ac6B1wALCvheqBs2MNYoVn/GBPFnoeXnmpiENlX7j+m+FlhRukirI95LsjVm1/2OhjA+lz6xddVTNtkeE/h+Tgkt/6BC1i23ofue5h4H0SrALEh2lLmZ9vVerNUTOgd7tHiSHWg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Received: from PH0PR11MB5902.namprd11.prod.outlook.com (2603:10b6:510:14d::19)
- by SA0PR11MB4655.namprd11.prod.outlook.com (2603:10b6:806:9d::22) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.181.17; Fri, 10 Jul
- 2026 09:34:40 +0000
-Received: from PH0PR11MB5902.namprd11.prod.outlook.com
- ([fe80::f95a:602a:34d3:5d37]) by PH0PR11MB5902.namprd11.prod.outlook.com
- ([fe80::f95a:602a:34d3:5d37%5]) with mapi id 15.21.0181.009; Fri, 10 Jul 2026
- 09:34:39 +0000
-From: "Jagielski, Jedrzej" <jedrzej.jagielski@intel.com>
-To: Hidayath Khan <hidayath@linux.ibm.com>, "davem@davemloft.net"
-	<davem@davemloft.net>, "edumazet@google.com" <edumazet@google.com>,
-	"kuba@kernel.org" <kuba@kernel.org>, "pabeni@redhat.com" <pabeni@redhat.com>
-CC: "horms@kernel.org" <horms@kernel.org>, "linux-s390@vger.kernel.org"
-	<linux-s390@vger.kernel.org>, "netdev@vger.kernel.org"
-	<netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org"
-	<linux-kernel@vger.kernel.org>, "wintera@linux.ibm.com"
-	<wintera@linux.ibm.com>, "twinkler@linux.ibm.com" <twinkler@linux.ibm.com>,
-	"heiko.carstens@de.ibm.com" <heiko.carstens@de.ibm.com>, "gor@linux.ibm.com"
-	<gor@linux.ibm.com>, "agordeev@linux.ibm.com" <agordeev@linux.ibm.com>,
-	"borntraeger@linux.ibm.com" <borntraeger@linux.ibm.com>,
-	"svens@linux.ibm.com" <svens@linux.ibm.com>
-Subject: RE: [PATCH net] net/af_iucv: fix NULL deref in
- afiucv_hs_callback_syn()
-Thread-Topic: [PATCH net] net/af_iucv: fix NULL deref in
- afiucv_hs_callback_syn()
-Thread-Index: AQHdD9iMFy+KzXkWFUSXG5MLgXbKTbZmfhRg
-Date: Fri, 10 Jul 2026 09:34:39 +0000
-Message-ID: <PH0PR11MB590247B1CA37A1E9A4B4FD79F0FD2@PH0PR11MB5902.namprd11.prod.outlook.com>
-References: <20260709191732.124092-1-hidayath@linux.ibm.com>
-In-Reply-To: <20260709191732.124092-1-hidayath@linux.ibm.com>
-Accept-Language: pl-PL, en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: PH0PR11MB5902:EE_|SA0PR11MB4655:EE_
-x-ms-office365-filtering-correlation-id: 5f5de6ae-0ea2-4438-3085-08dede66770d
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;ARA:13230040|366016|376014|7416014|1800799024|23010399003|18002099003|22082099003|11063799006|38070700021|56012099006;
-x-microsoft-antispam-message-info: VYsnmiUTvgAMimx/YKNJM4vs2YnTeIwEtYhQQcY2rvhEXQ891bBu0uM+c5WyMAbpJjR9iHaueRuyMRqyCl1+RmzLKZvqeRUcqt8EAOt7RYKoC6sdY8vHBmtrSXzzWCUTWKwOXkcY8mqmglF7dUXwB/GsmyBQLJkRqPywM5mlE9tPzOx1wMnWUisDfFdpn/cMNspOiYAA5II7WE07s5JqTS53V1nosKPvlIAea3jKhtLULU1mdttBqYzPhBMvdhrXRVEdDM1vWUyVeoAdmEYgowBg2AFN5s5kvbk+IkqNozu6gNUwO88yvznQ6Lq5JuZw03n1rP+tGmHbG0HCT2aHuFUw/RLc+7G3UmZb7hB3oKfB/Wl7E20gz/XcGK6HW2r7+GvlPF7GuPJbSSXFLOPQW9OrUvpW81OC0+I5abRIaGi/e01SQVxaAN9HK6/AojmIWY9iuHVLozvn3O+yohAmIjzAEFG414xKixu6UJnk+4zoOfPdjr3NSTRp1NXPAaW8alE6jjq7nF3nZPB088IJAGXDfCpMjyGNB3XQTndZfj1ekVyJXrRgN7T4WJnN/b9Gu8dm/s4m0niHL4Fleah+IF764Uw6lr80jsecoUXdpZzF0j3tNPXMkifJInVvjAWdKNbQUL5d0mriuk+COnGtAi2HIs5MXXJFS+au53ox2dJG0RxbTSqdXtR9iDad+A0IKdTQrFxbjOuZiXorybdH2dX4RaHOBIrHeLXY4X1lgnk=
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR11MB5902.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(376014)(7416014)(1800799024)(23010399003)(18002099003)(22082099003)(11063799006)(38070700021)(56012099006);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?C6cmZi28P0YahRzc9FtGGVPhRHqb873kWdjSutbdQC4cigS88Q+QXfzJhZFb?=
- =?us-ascii?Q?hMMM706qY5+lBagN4Nbs0mLpHCyZccMf31zDpCkGIgdavY4NJRD1gKXX0ju/?=
- =?us-ascii?Q?/CdW4gALw7Ls3UDBucZZsewvMZnoj04k+d16mNr8eDuvIi+W8AvpOiaAd0iY?=
- =?us-ascii?Q?7gXtVn3TBT3hE4SVOCJd2rAium/hIXGbTJqg5liwJln2iG5ygeWogpnZz03x?=
- =?us-ascii?Q?5SMZ9hcsK0I4oxsVzhFrRTAoR+cLBYe0+SalXq3QZWNl9N/ZzHt0oV0rAcqh?=
- =?us-ascii?Q?0pTIWANEMiNQ9USdp4evf2PUfu59MXyDIsTs2mxzXrMo+M2rcjX6HHTE031c?=
- =?us-ascii?Q?BtQifLCUZzGRPz4Riq9CXsT7EkN9iJ44He3OA0/lN1f5MM8FnF1fc5TzzohT?=
- =?us-ascii?Q?gneGsA6tI2NtyUK+erScnIU/vGBYeCs8VoDhCab6xCoIG3O48MjoJNAeksmx?=
- =?us-ascii?Q?LxXTRBefEfQ4n+2BHbGbV+KqKFxc2SVCy7VXzZ9DOK/Gi9f1J44xOIWumi1F?=
- =?us-ascii?Q?bwgZYcn5mQxuNeOcwET173j7XJsJQZionNXgKi8PxWPYAUWw8MQInGmB8Rr7?=
- =?us-ascii?Q?Ot+I5RSB8NQ9qJ3ixOg+WFlA3PnK3Ojcl4X1sj49wmDUqmMd0K2Ar8IPV8vh?=
- =?us-ascii?Q?Y/QjLE8X0RS72xVoYQHzfcD7GN3W/iiH30WREZ1gZoULvsMtqIhVGlMhIV1q?=
- =?us-ascii?Q?nZHrkezkh7+jX1Z0tH7WGUBZFG6YpgkP3MUc3ma+SaRjZqYVBd4JtzDuuzgK?=
- =?us-ascii?Q?zZCsL+kz95xcM2RvhBPdhtApWROMWA8AmwxepVofVmtejPINCt5xET73R9AB?=
- =?us-ascii?Q?O0aF9ztMR1iK7dl7ZadA+x8T40H7XYPvHgFDwGGyStGskLOuZobVF5JSXo0n?=
- =?us-ascii?Q?b9OECCFefLB7cSsmiQMiV0Lb0TXSB0AwGGxQeubxopf3vTJzMp2aXHQnjFkg?=
- =?us-ascii?Q?MB8zkmrD5P0m6CYXprP1IiXbwekWYAKjlQL6jfpeHIktwpi/t0lZu0+dXp7M?=
- =?us-ascii?Q?TBhQARTrg7bIrcFy+eRX4HwxmKYEpQDqfYKSaxLDbheff3dBcrs8BS52a3Tv?=
- =?us-ascii?Q?tUazT9waz6kjuxeHVg2qm7hmkFCo6ITWJXvUFhTNm7mTeg4abvDwraYHzgxK?=
- =?us-ascii?Q?LMWVSqplFU2y0f0n72G/rOn3Ny6h9Nj3yFbKlMGixK4vEfpYyqDg+0ZcNsyd?=
- =?us-ascii?Q?D3r+nMe0uhySXqfMXmPKNTN698GPFXX2UYjhaOn/tOCRKPT3dK2MqUL8mORa?=
- =?us-ascii?Q?hBq084xHCX6Z3qXAwZMQzSTdwK/zvlfFM+WFEvO+kqY6oGm4GqBuL08mru5D?=
- =?us-ascii?Q?bGqIUg/hVEhRmZmI0mQswBEqqZ5hbYjGgqWm167qShVw8+sHEzYOkbZ9mpco?=
- =?us-ascii?Q?XlTz+WqXzcDxGPC8fRkfuNj4RMOg0Q/BU/Hb4WD9rOs+2gbt8f1hANmQG695?=
- =?us-ascii?Q?Po28NSBwpYOFqXVbnJaQVJuaF/8XcPjWy9qLPSnBkyrmbBbLoclIXSXdhaJE?=
- =?us-ascii?Q?v2HplaEMsc8FoWI4V46MXevT0mjN5i0fV/N9eAj1AS05Jc5hj31kLzNVUyT7?=
- =?us-ascii?Q?Kiv2O9qhXxpSqQ0G/jC5bNI797LTT8Lz7qbJGShmM08WtJwqqK64T3BqZb5Q?=
- =?us-ascii?Q?b8hiwtxXPtnpyRyVJlMRjLu2i0PVDyAWg0pJA8b7KEXJfUCzYwVmitGvOrXr?=
- =?us-ascii?Q?r76z6MvaSxHSPrc4gkofPuB5C1MeTJYRw95W974j7wle2IaWxZrQgzmuBzEQ?=
- =?us-ascii?Q?CSnYhP5XwA=3D=3D?=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="hxS4Kj/0"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66A7ma1W605539;
+	Fri, 10 Jul 2026 09:54:36 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=Vw3LDl3Cthd/R/noN4kr8e2c2V+Exi
+	ANntAoAxdwi00=; b=hxS4Kj/0SG6WM+5KQWVR/LHVJ0lwXW1KBknI8OvSNVD85l
+	nnyGz9ITzuNVtyPqulBOaRSLEKcXGolQ1+GDNbeqkMf3RR03Ac5M5LyzwkZ+hu93
+	mKbaPiCY8shQpSxO5/773b86Av8zfSiBKcIRozXSGg4Fsz0dIu7o5hSBboB3UHNt
+	8p9gz9jC0M14qmT93ngAAq1oCFwydUkRiDl6LYVbffJG29jGVCTP5MPz1uEuRSv6
+	DynE/eJI0YFsS5VRNpjWJ/zb801ChX4D8gcOEymDjMCeUu4oXJXeeRP5w8IRlWdP
+	seKaKUNxCARIoKfp1CiOagy6hpW4EFORjqBYvtcw==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4f6qknwe3n-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 10 Jul 2026 09:54:35 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66A9nfUN004961;
+	Fri, 10 Jul 2026 09:54:35 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4f7e0hsadk-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 10 Jul 2026 09:54:35 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66A9sSHd40042902
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 10 Jul 2026 09:54:28 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6CA6A2004B;
+	Fri, 10 Jul 2026 09:54:28 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 89FAD20043;
+	Fri, 10 Jul 2026 09:54:27 +0000 (GMT)
+Received: from osiris (unknown [9.87.147.219])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Fri, 10 Jul 2026 09:54:27 +0000 (GMT)
+Date: Fri, 10 Jul 2026 11:54:26 +0200
+From: Steffen Eiden <seiden@linux.ibm.com>
+To: Marc Zyngier <maz@kernel.org>
+Cc: kvm@vger.kernel.org, kvmarm@lists.linux.dev,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, Alexander Gordeev <agordeev@linux.ibm.com>,
+        Andreas Grapentin <gra@linux.ibm.com>, Arnd Bergmann <arnd@arndb.de>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@kernel.org>,
+        Friedrich Welter <fritz@linux.ibm.com>,
+        Gautam Gala <ggala@linux.ibm.com>,
+        Hariharan Mari <hari55@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Hendrik Brueckner <brueckner@linux.ibm.com>,
+        Ilya Leoshkevich <iii@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>, Joey Gouly <joey.gouly@arm.com>,
+        Nico Boehr <nrb@linux.ibm.com>,
+        Nina Schoetterl-Glausch <oss@nina.schoetterlglausch.eu>,
+        Oliver Upton <oupton@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Ulrich Weigand <Ulrich.Weigand@de.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>,
+        Zenghui Yu <yuzenghui@huawei.com>
+Subject: Re: [PATCH v4 07/27] arm64: Prepare sharing arm64 headers with s390
+Message-ID: <20260710095426.984749-F-seiden@linux.ibm.com>
+References: <20260706085229.979525-1-seiden@linux.ibm.com>
+ <20260706085229.979525-8-seiden@linux.ibm.com>
+ <878q7n7qzi.wl-maz@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Exchange-RoutingPolicyChecked: H+gra6gHx8rqUPwQrcnwucJsuxlSjv2fWdI7F5aa3TZATf33ZwTWYEMYN1I8FGdNdZUSItk7JKbER845F6RKYN4yM3xyXrwFbbaFlnUXXFVIsB3UYw7T+Ms8lDU5+Cr3Akykr6aJskim/ANVDHbLC0uf9HkPLMKy/vMviQZ+LOUNxOGjnivRftfNf7nrEie2moBWtc6zKD5cfTh9cgJSsaVrXgC4FBTfBx9cv2YuCA90SqZirzPZxd1tTRFKlpY9gb7f0qtyD9ryomyggI8dvz/wVn/F8Y2b9TH2VjaXC1Zf05aHaGksxCYTk6UDXLLmgYvnGClxbhN7TuGOBI1oug==
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: PH0PR11MB5902.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 5f5de6ae-0ea2-4438-3085-08dede66770d
-X-MS-Exchange-CrossTenant-originalarrivaltime: 10 Jul 2026 09:34:39.8309
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: tqksTs8yzed4F8CcZN2p661iprHk2Oi3h9dAxaj5eVxTVO65N6wog9hAKdQsuQQZzgPUN9uJiQHvWy53+Fzt8lc6D4dezaKaEkCQo4H9ydM=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA0PR11MB4655
-X-OriginatorOrg: intel.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <878q7n7qzi.wl-maz@kernel.org>
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=Q/XiJY2a c=1 sm=1 tr=0 ts=6a50c15b cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=kj9zAlcOel0A:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8
+ a=vsfpsYCfe5RcM17dGcoA:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-GUID: MswuiDxkc9j4TY9wZyb_cxruE6NSFssh
+X-Proofpoint-ORIG-GUID: MswuiDxkc9j4TY9wZyb_cxruE6NSFssh
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzEwMDA5NiBTYWx0ZWRfX0rZZO/S8kOE6
+ j+GbX4hjZ1VXbfZu1nUT8XGNkqe0q5MNVqqODGlbrXZ0kqJiQyZ8yZVkthB/iCMOcL0OWycuG5Q
+ IOKNUu7gQoTsqz78Y2u5nvpO1krzh6o=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzEwMDA5NiBTYWx0ZWRfX5JgZQIA2d/yR
+ 8NqgVw/psDGwh6XaHto4aN7LEWFc6foVALdwGwq60h6vYwmMyGcbVSvZNava+Md0TuEsVXmHkOp
+ pKdOXQXsCgora9Fu4mTVCM516uLPXxL083gkQiyo7rMd0X3gVBCqGAdpZROHa47U25VkAYlcCTj
+ wi2tGjERCqNkNVuBEReuQ2v+3KH6CzIzBl1rDqsu430OZnrcd9vvQxKokow7KzNr77mTx1eLFiV
+ OxtYhgbieSKhlUI/+QBec8KMW6GB1OTghcRXAKoMHXyPlGvaMQC3AKb69Q7iil05FQcBACaAgbQ
+ MF70xPueF1Z0MqQxLWNFli7kDHwi2Y4/ui+k27cTF1YpV6JAtX6SZSgm9I8WOEuEpX8ZDrSub1p
+ CEPTKmj6OfabD3YRFxpWm8fDV0VHIIM0LlODAonTDSPuXBK5II3B3bcSVenDyz9diKwpN+4wi+Q
+ rSfWOKt1kNaMQ8cQ3VA==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-07-10_02,2026-07-09_04,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ adultscore=0 impostorscore=0 spamscore=0 phishscore=0 priorityscore=1501
+ bulkscore=0 clxscore=1015 lowpriorityscore=0 suspectscore=0 malwarescore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607100096
 
-From: Hidayath Khan <hidayath@linux.ibm.com>=20
-Sent: Thursday, July 9, 2026 9:18 PM
+On Mon, Jul 06, 2026 at 10:22:41PM +0100, Marc Zyngier wrote:
+> On Mon, 06 Jul 2026 09:52:07 +0100,
+> Steffen Eiden <seiden@linux.ibm.com> wrote:
+> > 
+> > Prepare the sharing of arm64 headers with s390 by marking the shared
+> > regions or add a comment that the whole file is shared.
+> > The regions are marked with:
+> > 
+> >  #define ARM64_S390_COMMON
+> > 
+> >  /* insert shared definitions here */
+> > 
+> >  #endif /* ARM64_S390_COMMON */
+> > 
+> > The preprocessor symbol ARM64_S390_COMMON is always defined for arm64.
+> > Reduce the include scope where possible and beneficial for s390.
+> > No functional change.
+> > 
+> > Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
+> > ---
+> >  arch/arm64/Makefile                  |  2 ++
+> >  arch/arm64/include/asm/brk-imm.h     |  1 +
+> >  arch/arm64/include/asm/esr.h         |  5 +++--
+> >  arch/arm64/include/asm/kvm_arm.h     |  6 ++++--
+> >  arch/arm64/include/asm/kvm_emulate.h | 19 ++++++++++++++++++
+> >  arch/arm64/include/asm/kvm_host.h    | 28 +++++++++++++++++++++++++++
+> >  arch/arm64/include/asm/kvm_mmu.h     |  6 ++++++
+> >  arch/arm64/include/asm/ptrace.h      |  9 +++++++++
+> >  arch/arm64/include/asm/sysreg.h      | 29 +++++++++++++++++++++++++---
+> >  9 files changed, 98 insertions(+), 7 deletions(-)
+> > 
 
->afiucv_hs_callback_syn() allocates the child socket with GFP_ATOMIC.
->If the allocation fails, nsk is NULL.
->
->The connection-refused path is entered when the listen state check
->fails, the accept backlog is full, or nsk is NULL. The code
->unconditionally calls iucv_sock_kill(nsk) in that path.
->
->iucv_sock_kill() does not accept a NULL socket pointer and immediately
->dereferences sk via sock_flag(sk, SOCK_ZAPPED). When nsk is NULL,
->calling iucv_sock_kill(nsk) results in a NULL pointer dereference.
->
->Only call iucv_sock_kill() when a child socket was successfully
->allocated.
->
->Fixes: 3881ac441f64 ("af_iucv: add HiperSockets transport")
->Cc: stable@vger.kernel.org
->Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
->Signed-off-by: Hidayath Khan <hidayath@linux.ibm.com>
->---
-> net/iucv/af_iucv.c | 3 ++-
-> 1 file changed, 2 insertions(+), 1 deletion(-)
->
->diff --git a/net/iucv/af_iucv.c b/net/iucv/af_iucv.c
->index fed240b453bd..f5b1ec44b6ae 100644
->--- a/net/iucv/af_iucv.c
->+++ b/net/iucv/af_iucv.c
->@@ -1872,7 +1872,8 @@ static int afiucv_hs_callback_syn(struct sock *sk, s=
-truct sk_buff *skb)
-> 		afiucv_swap_src_dest(skb);
-> 		trans_hdr->flags =3D AF_IUCV_FLAG_SYN | AF_IUCV_FLAG_FIN;
-> 		err =3D dev_queue_xmit(skb);
->-		iucv_sock_kill(nsk);
->+		if (nsk)
+...
 
-Hi Hidayath
+> >  		vcpu_set_flag((v), e);					\
+> >  	} while (0)
+> >  
+> > +#endif /* ARM64_S390_COMMON */
+> > +
+> 
+> It'd be worth looking at an initial patch reorganising this file to
+> minimise the number of such markers. This is equally valid for other
+> files in this patch.
+> 
+> [...]
+> 
 
-why not to move this check into iucv_sock_kill()?
-would prevent from potential similar issues in the future
+So it is fine if I reorganize files a bit to reduce the number of
+markes?
+I feared it would not. I will reorganize the files a bit then if this
+reduces the number of sections. Also if some thiings are required in a
+later series I might alreaddy share the stuff if possible if that
+reduces the number of regions.
 
->+			iucv_sock_kill(nsk);
-> 		bh_unlock_sock(sk);
-> 		goto out;
-> 	}
+
+> > diff --git a/arch/arm64/include/asm/kvm_mmu.h b/arch/arm64/include/asm/kvm_mmu.h
+> > index 6eae7e7e2a68..b782cae771fe 100644
+> > --- a/arch/arm64/include/asm/kvm_mmu.h
+> > +++ b/arch/arm64/include/asm/kvm_mmu.h
+> > @@ -142,12 +142,15 @@ static __always_inline unsigned long __kern_hyp_va(unsigned long v)
+> >  
+> >  extern u32 __hyp_va_bits;
+> >  
+> > +#ifdef ARM64_S390_COMMON
+> >  /*
+> >   * We currently support using a VM-specified IPA size. For backward
+> >   * compatibility, the default IPA size is fixed to 40bits.
+> >   */
+> >  #define KVM_PHYS_SHIFT	(40)
+> >  
+> > +#endif /* ARM64_S390_COMMON */
+> > +
+> >  #define kvm_phys_shift(mmu)		VTCR_EL2_IPA((mmu)->vtcr)
+> >  #define kvm_phys_size(mmu)		(_AC(1, ULL) << kvm_phys_shift(mmu))
+> >  #define kvm_phys_mask(mmu)		(kvm_phys_size(mmu) - _AC(1, ULL))
+> > @@ -178,9 +181,12 @@ void stage2_unmap_vm(struct kvm *kvm);
+> >  int kvm_init_stage2_mmu(struct kvm *kvm, struct kvm_s2_mmu *mmu, unsigned long type);
+> >  void kvm_uninit_stage2_mmu(struct kvm *kvm);
+> >  void kvm_free_stage2_pgd(struct kvm_s2_mmu *mmu);
+> > +#ifdef ARM64_S390_COMMON
+> >  int kvm_phys_addr_ioremap(struct kvm *kvm, phys_addr_t guest_ipa,
+> >  			  phys_addr_t pa, unsigned long size, bool writable);
+> 
+> This only serves a purpose for GICv2, and I really hope your HW will
+> not implement this. You should probably find a way to avoid dragging
+> stuff that doesn't make sense on s390.
+> 
+
+good catch, I added this as a mistake. It was a leftover from the early
+days.
+
+
+...
+
+> > +#ifdef ARM64_S390_COMMON
+> > +
+> >  /*
+> >   * Instructions for modifying PSTATE fields.
+> >   * As per Arm ARM for v8-A, Section "C.5.1.3 op0 == 0b00, architectural hints,
+> > @@ -91,8 +99,6 @@
+> >   */
+> >  #define pstate_field(op1, op2)		((op1) << Op1_shift | (op2) << Op2_shift)
+> >  #define PSTATE_Imm_shift		CRm_shift
+> > -#define ENCODE_PSTATE(x, r)		(0xd500401f | PSTATE_ ## r | ((!!x) << PSTATE_Imm_shift))
+> > -#define SET_PSTATE(x, r)		__emit_inst(ENCODE_PSTATE(x, r))
+> >  
+> >  #define PSTATE_PAN			pstate_field(0, 4)
+> >  #define PSTATE_UAO			pstate_field(0, 3)
+> > @@ -100,6 +106,11 @@
+> >  #define PSTATE_DIT			pstate_field(3, 2)
+> >  #define PSTATE_TCO			pstate_field(3, 4)
+> >  
+> > +#endif /* ARM64_S390_COMMON */
+> > +
+> > +#define ENCODE_PSTATE(x, r)		(0xd500401f | PSTATE_ ## r | ((!!x) << PSTATE_Imm_shift))
+> > +#define SET_PSTATE(x, r)		__emit_inst(ENCODE_PSTATE(x, r))
+> > +
+> >  #define SET_PSTATE_PAN(x)		SET_PSTATE((x), PAN)
+> >  #define SET_PSTATE_UAO(x)		SET_PSTATE((x), UAO)
+> >  #define SET_PSTATE_SSBS(x)		SET_PSTATE((x), SSBS)
+> > @@ -123,6 +134,8 @@
+> >  #define GSB_SYS_BARRIER_INSN		__SYS_BARRIER_INSN(1, 0, 12, 0, 0, 31)
+> >  #define GSB_ACK_BARRIER_INSN		__SYS_BARRIER_INSN(1, 0, 12, 0, 1, 31)
+> 
+> What is the reason to avoid dragging these definitions? They seem
+> extremely similar to the rest.
+> 
+
+They emit arm64 instructions, dont they?
+
+> >
+> > +#ifdef ARM64_S390_COMMON
+> > +
+> >  /* Data cache zero operations */
+> >  #define SYS_DC_ISW			sys_insn(1, 0, 7, 6, 2)
+> >  #define SYS_DC_IGSW			sys_insn(1, 0, 7, 6, 4)
+> > @@ -835,6 +848,8 @@
+> >  #define SCTLR_ELx_A	 (BIT(1))
+> >  #define SCTLR_ELx_M	 (BIT(0))
+> >  
+> > +#endif /* ARM64_S390_COMMON */
+> > +
+> >  #ifdef CONFIG_CPU_BIG_ENDIAN
+> >  #define ENDIAN_SET_EL2		SCTLR_ELx_EE
+> >  #else
+> > @@ -869,6 +884,8 @@
+> >  	 SCTLR_EL1_LSMAOE | SCTLR_EL1_nTLSMD | SCTLR_EL1_EIS   | \
+> >  	 SCTLR_EL1_TSCXT  | SCTLR_EL1_EOS)
+> >  
+> > +#ifdef ARM64_S390_COMMON
+> > +
+> >  /* MAIR_ELx memory attributes (used by Linux) */
+> >  #define MAIR_ATTR_DEVICE_nGnRnE		UL(0x00)
+> >  #define MAIR_ATTR_DEVICE_nGnRE		UL(0x04)
+> > @@ -1105,6 +1122,8 @@
+> >  #define GICV5_GICR_CDNMIA_TYPE_MASK	GENMASK_ULL(31, 29)
+> >  #define GICV5_GICR_CDNMIA_ID_MASK	GENMASK_ULL(23, 0)
+> >  
+> > +#endif /* ARM64_S390_COMMON */
+> > +
+> >  #define gicr_insn(insn)			read_sysreg_s(GICV5_OP_GICR_##insn)
+> >  #define gic_insn(v, insn)		write_sysreg_s(v, GICV5_OP_GIC_##insn)
+> >  
+> > @@ -1254,6 +1273,8 @@
+> >  	par;								\
+> >  })
+> >  
+> > +#ifdef ARM64_S390_COMMON
+> > +
+> >  #define SYS_FIELD_VALUE(reg, field, val)	reg##_##field##_##val
+> >  
+> >  #define SYS_FIELD_GET(reg, field, val)		\
+> > @@ -1266,6 +1287,8 @@
+> >  		 FIELD_PREP(reg##_##field##_MASK,	\
+> >  			    SYS_FIELD_VALUE(reg, field, val))
+> >  
+> > -#endif
+> > +#endif /* ARM64_S390_COMMON */
+> > +
+> > +#endif /* __ASSEMBLER__ */
+> >  
+> >  #endif	/* __ASM_SYSREG_H */
+> 
+> Overall, the fine-grained tagging is a bit hard to read, and there is
+> no obvious rationale on why some bits are needed, and not others are
+> not.
 >
->base-commit: 262b2eac463d880a664cf92af1107b4f9d84ad37
->--=20
->2.52.0
 
+Sometimes the reason that it is not used is that they are not used yet
+but will in a later series. I defenitely can add a few more function
+that we need right now to reduce the scatter.
+
+> It definitely looks more manageable than the previous iteration, but
+> as I said above, it would benefit from a less scattergun approach.
+That is great to hear!
+
+I tried to move as little arm code as possible. This is probably the
+other extreme compared to the first attempts where I moved everything.
+I will try out moving a few functions/defenitions inside the
+headers/functions to resuce the scattering.
+
+	Steffen
 
