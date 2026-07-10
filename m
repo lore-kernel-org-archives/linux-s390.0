@@ -1,159 +1,121 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1304324336D;
-	Fri, 10 Jul 2026 05:23:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DFE423C76BD
+	for <linux-s390@vger.kernel.org>; Fri, 10 Jul 2026 07:43:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783660985; cv=none; b=M3JDkMByZ7G+8gSWSYLoBLbKhM0QKILhJoodFrRAidAH1fmt2kLS7EYhoGYYi0owrxZ3YAYqyrKvsZ95u50HjURpV3EXM/6Td9idSb56pLTolWdaAy2AAd2veVJq8gCGenX0KbXzhOtDxYK2X5iv6NqKZU5Jg2W1dzmLZfDKYoE=
+	t=1783669433; cv=none; b=hECz6hASHNvE2olYK0IlwqUtpNkabLPPZVSB+fQemUyYGfnaYK94iL/k5LnmqVsqkAqWKtF5fkIcVN4UKklc8aVYKEFW/grdp/DvnFaRWLi93SIk2bw4hFvDrkwtEKb+QBGQvYurh8NHWsAcJwdMsLUXwqynqb2SCohSeWmfIeo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783660985; c=relaxed/simple;
-	bh=lqBwW/if3qUGBNykxpmLTfRLLwSORAlTtLD14GzmOVY=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=MzQq6/6IEeD6wztyXI0aXaBr3dYAe/RZRKu5wnhe19gAnRY6rd0LOHscECI01IfGCH2J1tTmCHEONKoLkJISG2zWPhvaSO4CFNv0oDHHKmL4BKIlJz1MZmDnaz2y1sYjP0KvVGCn4nQ/zvzafIaygvDMd2h2oVFPy6YxmAqHzd4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bNlSVXT3; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1783669433; c=relaxed/simple;
+	bh=MF/S0hPtjh5rLRtp/1QPmNagCFg/g4Mzil71uf49GVo=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=B+6QLyaXsGVKcEVeE9Nc7bYD/oMiIQvTKykrjcz73NgXcJTd/YZn8lM8JeHMDsN84xtQqCMAfI1EJ3U9p12jLdw3MYgZ9Xi6EajB56D3jx2BNdWZqLppz9faaANsFFxIfcAEKQr6V6LagGC+amvAqwKnRbVP1zaS+ktonKy5UeU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=SmFAjgst; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bNlSVXT3"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60EBD1F000E9;
-	Fri, 10 Jul 2026 05:22:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783660984;
-	bh=550ooWT8542+63+b73F3KAgnV89CFJo9aC92rxEIRio=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date;
-	b=bNlSVXT3ETCHbdeWOabjzODZivq8U9g4F7kEA6Aw4NSN7/iClos+6FnnRkEloBTQx
-	 kYDdZ5It6cK3pDU1sVLNfVvyp92GT9KnRBSjY45JIhg78l32NwyF7rJpiRPqj0BVUP
-	 8ZguLouhrS8wYHspEicQcK61eLs15Bcqz/9u2KhrJQJk4XgUD2q/0h/z4hDga0v9QI
-	 eMeQxwFokadPjLOrsMZkF6JDmQ/8georqPF7vU27VTFLhMKBvJISPjIM8Mrs4P/TXt
-	 yOJTeULh173Hgo7dKmAW3nhIaq8VFpWH+iVqc4tNoqbH1ucJJsZH4f7Af8vl/d9ed7
-	 nijIDYfIjO2vw==
-X-Mailer: emacs 30.2 (via feedmail 11-beta-1 I)
-From: Aneesh Kumar K.V <aneesh.kumar@kernel.org>
-To: Jason Gunthorpe <jgg@ziepe.ca>,
-	Catalin Marinas <catalin.marinas@arm.com>
-Cc: iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev,
-	Robin Murphy <robin.murphy@arm.com>,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
-	Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
-	Steven Price <steven.price@arm.com>,
-	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
-	Jiri Pirko <jiri@resnulli.us>,
-	Mostafa Saleh <smostafa@google.com>,
-	Petr Tesarik <ptesarik@suse.com>,
-	Alexey Kardashevskiy <aik@amd.com>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Xu Yilun <yilun.xu@linux.intel.com>,
-	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org,
-	Jiri Pirko <jiri@nvidia.com>,
-	Michael Kelley <mhklinux@outlook.com>
-Subject: Re: [PATCH v7 16/22] dma-direct: make dma_direct_map_phys() honor
- DMA_ATTR_CC_SHARED
-In-Reply-To: <20260709181336.GM118978@ziepe.ca>
-References: <20260701054926.825925-1-aneesh.kumar@kernel.org>
- <20260701054926.825925-17-aneesh.kumar@kernel.org>
- <ak42F240d-53QeFN@arm.com> <yq5apl0xgy89.fsf@kernel.org>
- <ak-CT3oanlDfgTy4@arm.com> <20260709181336.GM118978@ziepe.ca>
-Date: Fri, 10 Jul 2026 10:52:49 +0530
-Message-ID: <yq5ajyr3h106.fsf@kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="SmFAjgst"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66A3mhMl4125589
+	for <linux-s390@vger.kernel.org>; Fri, 10 Jul 2026 07:43:51 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=VmNBIUXqLcxMVVxTjBW2PG8JJr5bsm
+	28d+EaMpviPcc=; b=SmFAjgstBUHvXUEcV/IpvoPc0p7hQTq7r6/i3i5lb1ljJN
+	OZpO6iZpd/kAEse3lD/ep7ojZF2sxUZW3czjnaRDtAm6nd1eZ7YEUveDOQqQ5Zqo
+	3m1SQF+W4TORCgoBobGTLPVeFytsQOWwEQ1/YayW3kVC5w3R3klhbklzJUdPNvmN
+	KZ0V7mjFFDxRbNSqxUuv+pBb8OXai7pwP1r+I1cDZKRQIYQwoRcfdJnUTsqe0w2Y
+	z95X91E0XooFdyV69RqZAZK6Fn4c7ktqoCKsyqwczvEwQuR/Y9zgswPL9/Y6Qn74
+	98Q8RqQhIykMK1l3Nue+uxL1DhC4z2K476sICntQ==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fafh0av2x-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Fri, 10 Jul 2026 07:43:50 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66A7YZpl015966
+	for <linux-s390@vger.kernel.org>; Fri, 10 Jul 2026 07:43:49 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4f7dgkgysu-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Fri, 10 Jul 2026 07:43:49 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66A7hjUL58720600
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 10 Jul 2026 07:43:46 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id D959620043;
+	Fri, 10 Jul 2026 07:43:45 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 90B7520040;
+	Fri, 10 Jul 2026 07:43:45 +0000 (GMT)
+Received: from osiris (unknown [9.87.146.126])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Fri, 10 Jul 2026 07:43:45 +0000 (GMT)
+Date: Fri, 10 Jul 2026 09:43:44 +0200
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Sven Schnelle <svens@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>, borntraeger@linux.ibm.com,
+        linux-s390@vger.kernel.org
+Subject: Re: [PATCH 0/2] s390: Remove PIF_GUEST_FAULT and add PER trap flag
+Message-ID: <20260710074344.17568Acd-hca@linux.ibm.com>
+References: <20260709195500.1241833-1-svens@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260709195500.1241833-1-svens@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=VebH+lp9 c=1 sm=1 tr=0 ts=6a50a2b6 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=kj9zAlcOel0A:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8
+ a=TUaCbrCJA9lGdIzC_NEA:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-GUID: figqaT1RTzlvHl0ryL6g2LvZ8CsY4DcL
+X-Proofpoint-ORIG-GUID: figqaT1RTzlvHl0ryL6g2LvZ8CsY4DcL
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzEwMDA2OSBTYWx0ZWRfX7Z1oDUPNgl0h
+ A39D5ZIsqGcd3V4CnTsxZig+rPSGL8+Zmd0/0CLwfAL6xgmjhesrZ71T7Dnc2RHtZx/7P7LI7Rk
+ iuvUuFnd2SrmKf6CjJImOymtEW80GFM=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzEwMDA2OSBTYWx0ZWRfX4gauQ1ulIOvd
+ vx6uTtEA3oNIk1R9lzU9An1pp7Ab2ntXaNcxYRM1lGfI/94lNUwSfFSMJAXoBhFPIVsYg9tDf5R
+ X4B1diGe71gycsT/t+H4uPQ7nblnnGLUixgtGeaDuYfEjyrXo0uKItrviHu2kLER/L9kJ12qJu3
+ ZJGLvfI4LBBDePxhqRDgH6nlNApubMPMDpGRAOcJk+Ljk12clnsjopVwEdIqobV7GI8Dmfbv5iC
+ LO1DavJ6llzTZlzDI8wHI5SOTmdA5cDN7nRUYhaPrufpl2UlRJGTNGqlYhgQd30HmgH0+q51lfy
+ BzwR1IrJBbQQXOxfoa13DJcyqgCfUMEqQ6IBehzokAxJjVlePqLTIlMzVWRqZvSsRgsEIh7fH/a
+ 64GN33YUicnYIep3Xv+tOy0ZgLYJvPA7/+Sc9xIHPf6GzVEFAMmMLRSxQ62WhjJjGElwvfo/TSI
+ 1UXedev6mKCVGmaSoeA==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-07-10_01,2026-07-09_04,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ priorityscore=1501 suspectscore=0 clxscore=1015 malwarescore=0
+ impostorscore=0 phishscore=0 lowpriorityscore=0 adultscore=0 spamscore=0
+ bulkscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
+ adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2607100069
 
-Jason Gunthorpe <jgg@ziepe.ca> writes:
+On Thu, Jul 09, 2026 at 09:54:58PM +0200, Sven Schnelle wrote:
+> While looking at the syscall code I noticed that entry.S still sets
+> PIF_GUEST_FAULT in ptregs even though it's only used in __do_pgm_check().
+> Remove that and pass it directly to __do_pgm_check(). Heiko suggested
+> to also add a define for the per trap flag in system_call().
+> 
+> Sven Schnelle (2):
+>   s390/traps: Remove PIF_GUEST_FAULT
+>   s390/syscalls: Use define instead of '1' to indicate PER trap
+> 
+>  arch/s390/include/asm/ptrace.h |  4 +---
+>  arch/s390/kernel/entry.S       |  9 +++++----
+>  arch/s390/kernel/entry.h       | 10 ++++++++--
+>  arch/s390/kernel/syscall.c     |  4 ++--
+>  arch/s390/kernel/traps.c       |  4 ++--
+>  5 files changed, 18 insertions(+), 13 deletions(-)
 
-> On Thu, Jul 09, 2026 at 12:13:19PM +0100, Catalin Marinas wrote:
->> > > For AMD/SME, on host with memory encryption we now end up setting the C
->> > > bit for DMA_ATTR_MMIO. This is fine for RAM but not sure whether
->> > > some other MMIO bus understands this attribute. Maybe we should stick to
->> > > something like __phys_to_dma() for the !CC_SHARED && MMIO path. Or,
->> > > since this is not universally defined, just use the old dma_addr = phys
->> > > if MMIO and ignore any unlikely DMA offsets.
->> > >
->> > 
->> > Considering for AMD/SME system an unencrypted dma addr is one without C
->> > bit, will this be good?
->> > 
->> > 	/*
->> > 	 * For host memory encryption and device requiring unencrypted DMA,
->> > 	 * MMIO memory is treated as shared by default.
->> > 	 */
->> > 	if (attrs & DMA_ATTR_MMIO) {
->> > 		if (cc_platform_has(CC_ATTR_HOST_MEM_ENCRYPT) || force_dma_unencrypted(dev))
->> > 			attrs |= DMA_ATTR_CC_SHARED;
->> > 	}
->> 
->> Yes, I think it does the trick, preserves the current semantics for AMD.
->> I guess you could use a single 'if' for all checks (up to you).
->
-> Please don't change it, MMIO P2P is broken on CC systems today and it
-> should stay broken. Passing DMA_ATTR_MMIO with DMA_ATTR_CC_SHARED is
-> an error that we need to correct in the drivers not make work in the
-> core code.
->
-
-But the above changes are intended to handle HOST_MEM_ENCRYPT. In v7, we
-had the following diff:
-
-@@ -88,37 +88,40 @@ static inline dma_addr_t dma_direct_map_phys(struct device *dev,
- {
- 	dma_addr_t dma_addr;
- 
-+	/*
-+	 * For a device requiring unencrypted DMA, MMIO memory is treated
-+	 * as shared by default.
-+	 */
-+	if (force_dma_unencrypted(dev) && (attrs & DMA_ATTR_MMIO))
-+		attrs |= DMA_ATTR_CC_SHARED;
-+
-
-This is now getting updated to
-
-@@ -624,37 +626,44 @@ dma_addr_t dma_direct_map_phys(struct device *dev, phys_addr_t phys,
- {
- 	dma_addr_t dma_addr;
- 
-+	if (attrs & DMA_ATTR_MMIO) {
-+		/*
-+		 * For host memory encryption and device requiring
-+		 * unencrypted DMA, MMIO memory is treated as shared by
-+		 * default.
-+		 */
-+		if (cc_platform_has(CC_ATTR_HOST_MEM_ENCRYPT) ||
-+		    force_dma_unencrypted(dev))
-+			attrs |= DMA_ATTR_CC_SHARED;
-+	}
-+
-
-I agree that we need to move that DMA_ATTR_CC_SHARED setting to 
-
-modified   drivers/pci/p2pdma.c
-@@ -285,6 +285,11 @@ int pcim_p2pdma_init(struct pci_dev *pdev)
- 			continue;
- 
- 		p2p->mem[i].owner = &pdev->dev;
-+
-+		p2p->mem[i].dma_mapping_flags = DMA_ATTR_MMIO;
-+		if (force_dma_unencrypted(dev))
-+			p2p->mem[i].dma_mapping_flags |= DMA_ATTR_CC_SHARED;
-+
-
-As we discussed [1], that can come in a later patch. In the meantime, adding
-the HOST_MEM_ENCRYPT check preserves the previous behavior for SME.
-
-[1] https://lore.kernel.org/all/20260522132240.GD7702@ziepe.ca/
-
--aneesh
+Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
