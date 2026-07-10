@@ -1,213 +1,216 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D53832D738F
-	for <linux-s390@vger.kernel.org>; Fri, 10 Jul 2026 15:10:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C51433630AD
+	for <linux-s390@vger.kernel.org>; Fri, 10 Jul 2026 15:20:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783696214; cv=none; b=OjvFmbshZwTMe8+QLO4qDWR8FezIDOakWGNh7su74UcGwtohndxZJc5qQuif+r5KZAX43ZITBR9hVp3hBcW4MPJdi9+f48+UE9jkh4DsMiHVdxNVOS3+D+//ZwuyxL9BvYyF1j6wqFVrKD7JhGqkxXNvxz40Bn4cE+rhbYqkqbw=
+	t=1783696809; cv=none; b=Ddgw3/bBV8KGrk8SCS22maqSlAKT8JfAsyfUfmO8hJGN+XeGOom+hIBh9BKlvUD4ZZoYkFn7xTrCE1rnfFYA5PgMkJ18MLrbeTpdZlOh0QKeDTOUiL+Mz1gAdsGSYcYEB/T/mjvB5bfqp9tJKZvOaxHo0hzwkPWQWRgXciU9GD4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783696214; c=relaxed/simple;
-	bh=Ojk1bEY52vJrVU8qzEUX40y9qQRu3wK9DLtvUttUSGw=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=U7Td9tdMzIjp16OpOALLcaNSMbWEAQMMUgwoZzX/2+lFbOEQFPwpqwdQ5hzhO8/vhnTfjPbeX8I9NajBCAg9i2MSaFptJxfadN885dGU6ueX3olnEXc6y4SsONqHWb7c91HXEQOmOuMfelbg6j4g0RiKx0KYnvnI7oDmXkJr6hE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Xzw1lIQZ; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1783696809; c=relaxed/simple;
+	bh=bhIYmmI03GH5yV64n+12XWMrt5l5IMtbkoVv62BqL3M=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Ur0TmFum/u8MnMVXLWcQ8+b5fZZF8I5i/FbK78/YJqlCLQOZPi5nzsCVOtYySaGDXodD7JaRf5OSdXm3SBAmwVhPX/DSAS5kCuOxVE2BnrAyef7pUTViA8ocUEbi7JbWXKetetjn064zrneamdTu4KVogRwXjvFOMHDlNVHyed8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=rRfHvU7h; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=pk/+bbw3; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=PEvxjgpH; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=p4USxO4M; arc=none smtp.client-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Xzw1lIQZ"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66AEmhcg765810
-	for <linux-s390@vger.kernel.org>; Fri, 10 Jul 2026 15:10:12 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=0/YUx64Q3dIDor79E
-	ve08QLJMDvqajuUZCQ35ZKJQmo=; b=Xzw1lIQZWevzaDPupOml/oC5IePd9xBK8
-	afVuWHUmz8EP1pB6AZECWDdBGSS4Dh8CYHHmrgLiQNJVwQWyqwuLKrYBYhULcyDS
-	XtWwfqirvKn3NTaQoAbbC6vAK/7AlXlS3a6rHf9UBTExxqQP6KddiTDgJySCZVMt
-	nJh81L8boXcLMuGwZSaOVowjsP5qgcWGci69zDeIEVngn0AU8/1MBH7oAyecHtRu
-	/f/iAjk98/HY1S0SAQDNpbPRFmdKejOLmNrFMJ/UFczvBlpgtfWSXEgSmzu1LCsn
-	B31Oygtz5LCPlPqmqHVjDtmJu7TK5qyHHX2zQJfqyxdQIGtMeFHFA==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4f6rke7hh2-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Fri, 10 Jul 2026 15:10:11 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66AF4h9G020291
-	for <linux-s390@vger.kernel.org>; Fri, 10 Jul 2026 15:10:11 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4f7cvwjrax-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Fri, 10 Jul 2026 15:10:11 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66AFA6H023134934
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 10 Jul 2026 15:10:07 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id DD0F520040;
-	Fri, 10 Jul 2026 15:10:06 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C10AC2004B;
-	Fri, 10 Jul 2026 15:10:06 +0000 (GMT)
-Received: from funtu2.ibm.com (unknown [9.111.196.135])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 10 Jul 2026 15:10:06 +0000 (GMT)
-From: Harald Freudenberger <freude@linux.ibm.com>
-To: dengler@linux.ibm.com, fcallies@linux.ibm.com
-Cc: freude@linux.ibm.com, linux-s390@vger.kernel.org,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>
-Subject: [PATCH v5 1/1] s390/zcrypt: Improve zcrypt reply message verification checks
-Date: Fri, 10 Jul 2026 17:10:05 +0200
-Message-ID: <20260710151005.79765-2-freude@linux.ibm.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260710151005.79765-1-freude@linux.ibm.com>
-References: <20260710151005.79765-1-freude@linux.ibm.com>
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="rRfHvU7h";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="pk/+bbw3";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="PEvxjgpH";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="p4USxO4M"
+Received: from kunlun.suse.cz (unknown [IPv6:2a07:de40:b306:2000::2])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange ECDHE (prime256v1) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id B43DE76801;
+	Fri, 10 Jul 2026 15:20:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1783696805; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=PZQD0gbHT/+/4nEi6V44a4a6X/c8Qb54PXXTiWjk/u8=;
+	b=rRfHvU7hwvxSxH/yhWy3u/UmnKewb4V/Z4b30wYyACRHS2pvvGsK3hzGOrADXnhSphQb6B
+	TJO7bjd1/2FVOhXCYNiRGDpELYNIfYY2dwQ6Y49rIZ1WBugDexsBsCaHyF140dt8k3TjmV
+	UWP5O1yIlbcNFepPxleuBxi0o0QQDRg=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1783696805;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=PZQD0gbHT/+/4nEi6V44a4a6X/c8Qb54PXXTiWjk/u8=;
+	b=pk/+bbw3K3lpKh/bJanZxO9C8hJb0ZZOIjqryyeda12Q6eGbOK0xFb2lDAgDT0IE8bAo9T
+	Y31J/JbRgJZSmhDA==
+Authentication-Results: smtp-out1.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=PEvxjgpH;
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=p4USxO4M
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1783696804; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=PZQD0gbHT/+/4nEi6V44a4a6X/c8Qb54PXXTiWjk/u8=;
+	b=PEvxjgpHDkYAsWHBvOJnCwi8Aqh7iUKS6UnrUW8IsLNixt7v9VdTF6VpKe/6vGC/h1xgM2
+	uQXypgGxDhZQFurqRWyXGrIHbe4ykOmc1FofcTQPuLdfVOHR9PXQBW7Js2xqnQRuLq0aZj
+	LLSWX+cwuBo/Mg5E6/LeKOba5LZ7xYM=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1783696804;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=PZQD0gbHT/+/4nEi6V44a4a6X/c8Qb54PXXTiWjk/u8=;
+	b=p4USxO4MP+4N45GZtMpBPez/DEQVEMysX4p56b8ql7l7r16Ar/kLpYHwhTAobjb9FOy99M
+	EDSZAKc2nxg1qgBA==
+Date: Fri, 10 Jul 2026 17:20:03 +0200
+From: Michal =?iso-8859-1?Q?Such=E1nek?= <msuchanek@suse.de>
+To: Oleg Nesterov <oleg@redhat.com>
+Cc: Thomas Gleixner <tglx@kernel.org>, LKML <linux-kernel@vger.kernel.org>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Shrikanth Hegde <sshegde@linux.ibm.com>,
+	linuxppc-dev@lists.ozlabs.org, Kees Cook <kees@kernel.org>,
+	Huacai Chen <chenhuacai@kernel.org>, loongarch@lists.linux.dev,
+	Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
+	linux-riscv@lists.infradead.org,
+	Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org,
+	x86@kernel.org, Mark Rutland <mark.rutland@arm.com>,
+	Jinjie Ruan <ruanjinjie@huawei.com>,
+	Andy Lutomirski <luto@kernel.org>,
+	Richard Henderson <richard.henderson@linaro.org>,
+	Russell King <linux@armlinux.org.uk>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Guo Ren <guoren@kernel.org>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Helge Deller <deller@gmx.de>,
+	Yoshinori Sato <ysato@users.sourceforge.jp>,
+	Richard Weinberger <richard@nod.at>,
+	Chris Zankel <chris@zankel.net>,
+	linux-arm-kernel@lists.infradead.org, linux-alpha@vger.kernel.org,
+	linux-csky@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
+	linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
+	linux-sh@vger.kernel.org, linux-um@lists.infradead.org,
+	Arnd Bergmann <arnd@arndb.de>, Vineet Gupta <vgupta@kernel.org>,
+	Will Deacon <will@kernel.org>, Brian Cain <bcain@kernel.org>,
+	Michal Simek <monstr@monstr.eu>, Dinh Nguyen <dinguyen@kernel.org>,
+	"David S. Miller" <davem@davemloft.net>,
+	Andreas Larsson <andreas@gaisler.com>,
+	linux-snps-arc@lists.infradead.org, linux-hexagon@vger.kernel.org,
+	linux-openrisc@vger.kernel.org, sparclinux@vger.kernel.org,
+	linux-arch@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>,
+	linux-doc@vger.kernel.org
+Subject: Re: [patch 13/18] entry: Make trace_syscall_enter() return type bool
+Message-ID: <alENozSQmA3nU86B@kunlun.suse.cz>
+References: <20260707181957.433213175@kernel.org>
+ <20260707190254.338083894@kernel.org>
+ <ak5ySpil83TNWxeq@kunlun.suse.cz>
+ <87se5tqkyp.ffs@fw13>
+ <alDQ7isUKJFl8Va4@kunlun.suse.cz>
+ <alDaOw8t-e3rxIPm@redhat.com>
+ <alDmTcgzMlKiio9H@kunlun.suse.cz>
+ <alDrGBMdTuoLcVyy@redhat.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=M7J97Sws c=1 sm=1 tr=0 ts=6a510b53 cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
- a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8 a=VwQbUJbxAAAA:8
- a=ob2ZjO9MYi1PFxOv-r4A:9
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzEwMDE0OCBTYWx0ZWRfX+UNOOApU1iYt
- oOrHjeSYEH5PXlvrjpBXv1IlXS47XvsI55icl0Rfr/LZ9T6mKe7bsQszjwxEs9AticQQLnwWaA9
- kdU9uBVduFhtruHTdOIjFhGYyznFQAYBieCRPUKzab6XaBKsMb5mPHbql3wp7X518MTk+GgJPae
- s/H5Ih2/QZS7g212nOn6kpBPNGQ0OjmlozHaQytZA9tw2edYtKup5j8tBX5DFqKLTtWfrOVpACx
- BPxV+FJ9wBN3dRUR+UZxG6FXSlk5vPZj+GTvkBGKrTXja2/k7FnG8uY1Uf0inMqOV5GOEeLV7Ro
- 00ERs17PGXBuQsJTEEfuDpNaFUjN80nvZ+W+l2UTLJnQ4+VCH7HG6dd2y7JGzKd/8IW+HDi1z2k
- 9VxANAPchxUkB7wcjz/1LFMcy5jnDLa2cocm4fcTmuUiEo6MS07rdueqzWpHU4NVQEFiFCcc3g2
- LcNDuNfYeG31koiDZyg==
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzEwMDE0OCBTYWx0ZWRfX0Jlvq4jidnLb
- UrW2jUbtzv7PINjcLrYGJjsyswmwRy8PFXUqZnR/v1ASiKJDmTaMi34+9rNBisPL/4378p1JpJF
- XbERE1/Oi4canXb1yEmmka3F9B1NBRk=
-X-Proofpoint-GUID: ykGAh3n4v6COTpSYYKVkhVtTK0p7NxSm
-X-Proofpoint-ORIG-GUID: ykGAh3n4v6COTpSYYKVkhVtTK0p7NxSm
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-07-10_04,2026-07-10_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 lowpriorityscore=0 malwarescore=0 clxscore=1015 adultscore=0
- priorityscore=1501 bulkscore=0 spamscore=0 impostorscore=0 phishscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607100148
+In-Reply-To: <alDrGBMdTuoLcVyy@redhat.com>
+X-Spam-Flag: YES
+X-Rspamd-Action: add header
+X-Spam-Level: ***************
+X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
+X-Spamd-Result: default: False [15.15 / 50.00];
+	SPAM_FLAG(5.00)[];
+	NEURAL_SPAM_LONG(3.50)[1.000];
+	BAYES_HAM(-3.00)[100.00%];
+	NEURAL_SPAM_SHORT(2.96)[0.987];
+	HFILTER_HOSTNAME_UNKNOWN(2.50)[];
+	RDNS_NONE(2.00)[];
+	ONCE_RECEIVED(1.20)[];
+	HFILTER_HELO_IP_A(1.00)[kunlun.suse.cz];
+	HFILTER_HELO_NORES_A_OR_MX(0.30)[kunlun.suse.cz];
+	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	ARC_NA(0.00)[];
+	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b306:2000::2:from];
+	MIME_TRACE(0.00)[0:+];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	FREEMAIL_ENVRCPT(0.00)[gmx.de];
+	TO_DN_SOME(0.00)[];
+	RCPT_COUNT_GT_50(0.00)[52];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	RCVD_COUNT_ZERO(0.00)[0];
+	R_RATELIMIT(0.00)[to_ip_from(RLrpyf51xp5ujasy9bitsaikab)];
+	MISSING_XM_UA(0.00)[];
+	FREEMAIL_CC(0.00)[kernel.org,vger.kernel.org,infradead.org,ellerman.id.au,linux.ibm.com,lists.ozlabs.org,lists.linux.dev,dabbelt.com,lists.infradead.org,arm.com,huawei.com,linaro.org,armlinux.org.uk,linux-m68k.org,alpha.franken.de,gmx.de,users.sourceforge.jp,nod.at,zankel.net,lists.linux-m68k.org,arndb.de,monstr.eu,davemloft.net,gaisler.com,lwn.net];
+	DKIM_TRACE(0.00)[suse.de:+];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[kunlun.suse.cz:helo,kunlun.suse.cz:mid,suse.de:dkim]
+X-Spamd-Bar: +++++++++++++++
+X-Rspamd-Queue-Id: B43DE76801
+X-Spam-Score: 15.15
+X-Spam: Yes
 
-Add or improve checks related to buffer sizes and reply sizes to the
-handling of replies from the crypto cards for CCA and EP11 (AP message
-type 6) messages. The verification code related to reply field length
-was not designed well and thus firmware deficiencies could lead to
-unexpected behavior in the zcrypt device driver. Thus improve the code
-to more closely inspect especially length fields at message replies.
+On Fri, Jul 10, 2026 at 02:52:40PM +0200, Oleg Nesterov wrote:
+> On 07/10, Michal Suchánek wrote:
+> >
+> > On Fri, Jul 10, 2026 at 01:40:43PM +0200, Oleg Nesterov wrote:
+> > >
+> > > I can only say that ptrace users do want to skip the syscall and set the
+> > > return value on entry.
+> > >
+> > > See
+> > > 	[PATCH v5 1/2] ptrace: add PTRACE_SET_SYSCALL_INFO syscall skipping support
+> > > 	https://lore.kernel.org/all/20260709100949.94345-2-renzo@cs.unibo.it/
+> > >
+> > > The changelog explains that currently this doesn't work because
+> > > among the arches which define HAVE_ARCH_TRACEHOOK (at least) arch/mips is
+> > > broken in this regard.
+> >
+> > Or it could be documented that setting the return value has to be done
+> > in the exit trace, and that would than work on any architecture AFAICT.
+> 
+> Well, ptrace users know the problem. And this what they have to do
+> currently.
+> 
+> > With ppc and s390 using the same register for the syscall number and
+> > syscall return value it's very much impossible to poke the return value
+> > on entry into a register using the generic register access function. As
+> > of now there is no place to store the value ot of the return value
+> > outside of the registers, either.
+> 
+> I know nothing about ppc and s390. Can't comment right now.
+> 
+> > And the current PTRACE_SET_SYSCALL_INFO indeed sets the syscall nr and
+> > arguments on entry and the syscall return value on exit, that
+> > disctincion is implemented.
+> >
+> > Not sure how the patchset you point out is relevant, it only adds
+> > changes in the exit case.
+> 
+> No. It allows to skip-and-set-retval on PTRACE_EVENT_SECCOMP.
 
-The 3 hunks of this patch deal with CCA, EP11 and (CCA) RNG replies
-and improve the checking for reply buffer size by using size_t instead
-of int. RNG replies an additional check makes sure the hard coded
-limit of the data buffer is not exceeded. Also there was a condition
-with additional data for an CCA reply where some of the field values
-where unchecked used to invoke memcpy into user
-space. zcrypt_msgtype6_receive() now checks all the relevant fields
-before convert_type86_xcrb() uses them.
+And if it was hooked correctly to seccomp indicating to seccomp that the
+syscall needs to be skipped it could work but it is not, and will fail
+on ppc.
 
-Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
-Cc: stable@vger.kernel.org
----
- drivers/s390/crypto/zcrypt_msgtype6.c | 42 ++++++++++++++++++++++-----
- 1 file changed, 34 insertions(+), 8 deletions(-)
+Thanks
 
-diff --git a/drivers/s390/crypto/zcrypt_msgtype6.c b/drivers/s390/crypto/zcrypt_msgtype6.c
-index 40f72cdf284d..8252fd185663 100644
---- a/drivers/s390/crypto/zcrypt_msgtype6.c
-+++ b/drivers/s390/crypto/zcrypt_msgtype6.c
-@@ -691,6 +691,13 @@ static int convert_type86_rng(struct zcrypt_queue *zq,
- 
- 	if (msg->cprbx.ccp_rtcode != 0 || msg->cprbx.ccp_rscode != 0)
- 		return -EINVAL;
-+	/*
-+	 * Note that offset2 and count2 have already been checked in
-+	 * zcrypt_msgtype6_receive(). So only check for not exceeding
-+	 * the hard coded rng buffer size.
-+	 */
-+	if (msg->fmt2.count2 > ZCRYPT_RNG_BUFFER_SIZE)
-+		return -EMSGSIZE;
- 	memcpy(buffer, data + msg->fmt2.offset2, msg->fmt2.count2);
- 	return msg->fmt2.count2;
- }
-@@ -853,7 +860,7 @@ static void zcrypt_msgtype6_receive(struct ap_queue *aq,
- 	};
- 	struct ap_response_type *resp_type = &msg->response;
- 	struct type86x_reply *t86r;
--	int len;
-+	size_t len, len1, len2 = 0;
- 
- 	/* Copy the reply message to the request message buffer. */
- 	if (!reply)
-@@ -863,7 +870,8 @@ static void zcrypt_msgtype6_receive(struct ap_queue *aq,
- 	    t86r->cprbx.cprb_ver_id == 0x02) {
- 		switch (resp_type->type) {
- 		case CEXXC_RESPONSE_TYPE_ICA:
--			len = sizeof(struct type86x_reply) + t86r->length;
-+			len = (size_t)sizeof(struct type86x_reply) +
-+				(size_t)t86r->length;
- 			if (len > reply->bufsize || len > msg->bufsize ||
- 			    len != reply->len) {
- 				pr_debug("len mismatch => EMSGSIZE\n");
-@@ -874,10 +882,27 @@ static void zcrypt_msgtype6_receive(struct ap_queue *aq,
- 			msg->len = len;
- 			break;
- 		case CEXXC_RESPONSE_TYPE_XCRB:
--			if (t86r->fmt2.count2)
--				len = t86r->fmt2.offset2 + t86r->fmt2.count2;
--			else
--				len = t86r->fmt2.offset1 + t86r->fmt2.count1;
-+			len1 = (size_t)t86r->fmt2.offset1 +
-+				(size_t)t86r->fmt2.count1;
-+			if (t86r->fmt2.offset1 > reply->len ||
-+			    t86r->fmt2.count1 > reply->len ||
-+			    len1 > reply->len) {
-+				pr_debug("len mismatch => EMSGSIZE\n");
-+				msg->rc = -EMSGSIZE;
-+				goto out;
-+			}
-+			if (t86r->fmt2.count2) {
-+				len2 = (size_t)t86r->fmt2.offset2 +
-+					(size_t)t86r->fmt2.count2;
-+				if (t86r->fmt2.offset2 > reply->len ||
-+				    t86r->fmt2.count2 > reply->len ||
-+				    len2 > reply->len) {
-+					pr_debug("len mismatch => EMSGSIZE\n");
-+					msg->rc = -EMSGSIZE;
-+					goto out;
-+				}
-+			}
-+			len = max_t(size_t, len1, len2);
- 			if (len > reply->bufsize || len > msg->bufsize ||
- 			    len != reply->len) {
- 				pr_debug("len mismatch => EMSGSIZE\n");
-@@ -917,7 +942,7 @@ static void zcrypt_msgtype6_receive_ep11(struct ap_queue *aq,
- 	};
- 	struct ap_response_type *resp_type = &msg->response;
- 	struct type86_ep11_reply *t86r;
--	int len;
-+	size_t len;
- 
- 	/* Copy the reply message to the request message buffer. */
- 	if (!reply)
-@@ -927,7 +952,8 @@ static void zcrypt_msgtype6_receive_ep11(struct ap_queue *aq,
- 	    t86r->cprbx.cprb_ver_id == 0x04) {
- 		switch (resp_type->type) {
- 		case CEXXC_RESPONSE_TYPE_EP11:
--			len = t86r->fmt2.offset1 + t86r->fmt2.count1;
-+			len = (size_t)t86r->fmt2.offset1 +
-+				(size_t)t86r->fmt2.count1;
- 			if (len > reply->bufsize || len > msg->bufsize ||
- 			    len != reply->len) {
- 				pr_debug("len mismatch => EMSGSIZE\n");
--- 
-2.43.0
+Michal
 
+> 
+> But ENTRY -> EXIT transition is not yet allowed due to the problems
+> above.
+> 
+> Oleg.
+> 
