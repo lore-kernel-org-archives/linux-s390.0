@@ -1,158 +1,137 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6171341B373
-	for <linux-s390@vger.kernel.org>; Fri, 10 Jul 2026 11:28:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A2E8941C2E2
+	for <linux-s390@vger.kernel.org>; Fri, 10 Jul 2026 11:41:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783682893; cv=none; b=bZ6GZpB9D3eZ9IH4P6o6a51TnqKkNS+2Q5yhMsRVbdW51u21zvcgRFs1Xj938UHEB0mZv7q1uHW9Bhl3Rq+BxqqRhauGUcu0a+b8a4NvdpcdnZQUK3QOLQTeNhgtQjRfa/EvThlsjhQu6KU79+Qq2cFoYcT5BU9E5Ct2FD1UAhs=
+	t=1783683687; cv=none; b=LtTgjDAg83lkZl0C17aLU/eTxnWytEm8gT+CT0IowctUkK3YIWC/+GkZ7eG417kl+zlDwpfWtqxxuW2K3zFQhiWI+aIVS5/mJPpkcl7gSZmRQ0zk9XtvqWOhljIwHtYx6fUAdG9qls8QM4Afqhutx35A5zf/qA1oylvO3hAtVKg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783682893; c=relaxed/simple;
-	bh=BoPz6CqtethS12FkUVZm3oTV3CzXkqr80/kv3MbvNF0=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=b+GU+908W6FAJb592lBxSzahbwy7cCltFLNQ3R9EjLxxauz/pvdQh3jaBazdSrqNEFWDSSKC3koRa1070iMbYJPJjq3WKbLjjsyvlQIe5mGKsPGXzLf1OziyHKtbR9nNCODmwYXvT//KP02tufm6a6rNelzmW+zyrmT0Fqy1nlE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ip6qk++y; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1783683687; c=relaxed/simple;
+	bh=yn22xVYmK++EhinRZRQNCMhLcj+IBqHTKVWiPIkBZ3c=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=eALS1h7jpRwn3+OEKOVNEfxxBr9zbVbdBn4adyE775v/kR/lKNWtYTHrd60w2nvFWVhSRTUP9j04kKXza60TqCWnghStTcZrqF5A/+84qa4l/ro6Bhf1KFBtqeUAZmWpPF0VcCO+wpbJezYRvFAvxgpXK/1oFDKGfTnypBHQP+4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=irYNBYOP; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ip6qk++y"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66AAnEwB248395
-	for <linux-s390@vger.kernel.org>; Fri, 10 Jul 2026 11:28:02 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=s0l+2d92WweNv020A
-	VJH66k1KN8QpN/Q+4U5B8u2hvE=; b=ip6qk++y9Ex00e1Xpj9YRTAJJ247onBgT
-	r+NOscF9oV1/203cSHbg1outwbKe0rDg96jPbl2vtBScr3orw89H7mPZEde7rk05
-	7dVZLEd1zeVNDBww6p/OZHtghta0Ew5jHLASEYw+9r3VOQ1Nfo2IuOhuVoRjX2CQ
-	5RZHwm7kItMvGC8YOx7huw03hsEAYigHq6aNQag9t3y9wVFC73HYHSPSMAr+YpNG
-	ofX19fCre/+rzEL5f3Fot0XzYcwR3iqXF4Ny6G3/AIHMWIjw8WKS9YAP4BSYAy3M
-	310hBTnpBzozUC7iwK4E1DFdyycX9DpMN+ksU0KcRXNY1yDBo3R7Q==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4f6rke6mvr-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Fri, 10 Jul 2026 11:28:02 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66ABJcPd025495
-	for <linux-s390@vger.kernel.org>; Fri, 10 Jul 2026 11:28:01 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4f7dgkhrea-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Fri, 10 Jul 2026 11:28:01 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66ABRveK62063036
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 10 Jul 2026 11:27:57 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A8D6E20040;
-	Fri, 10 Jul 2026 11:27:57 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8FE262004B;
-	Fri, 10 Jul 2026 11:27:57 +0000 (GMT)
-Received: from funtu2.ibm.com (unknown [9.111.196.135])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 10 Jul 2026 11:27:57 +0000 (GMT)
-From: Harald Freudenberger <freude@linux.ibm.com>
-To: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: freude@linux.ibm.com, linux-s390@vger.kernel.org
-Subject: [PATCH v4 1/1] s390/zcrypt: Improve zcrypt reply message verification checks
-Date: Fri, 10 Jul 2026 13:27:56 +0200
-Message-ID: <20260710112756.75346-2-freude@linux.ibm.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260710112756.75346-1-freude@linux.ibm.com>
-References: <20260710112756.75346-1-freude@linux.ibm.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="irYNBYOP"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1783683675;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=okIzKFIsL/4R4vmkR+TFByt5pFrNsTBzPM+Bl8mNt+c=;
+	b=irYNBYOPH3KA1tNtJoaP4cvoz+B4M303DtxZQ82Zy1nT4jNi1jBQ1cNlX7qRpQzo5ucvCv
+	bXP40t5WaIPxHZFxiOXUc8yTujzCHnZGQZOl0G3k75eLea4WTQR0T20/47j1mroE4fMJNn
+	DfCHbiEafjfiBBByO/vWPBblfZi4zYk=
+Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-21-qfsr_rx-O6mPQrP7hF_qjQ-1; Fri,
+ 10 Jul 2026 07:41:12 -0400
+X-MC-Unique: qfsr_rx-O6mPQrP7hF_qjQ-1
+X-Mimecast-MFC-AGG-ID: qfsr_rx-O6mPQrP7hF_qjQ_1783683667
+Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id B188F1800844;
+	Fri, 10 Jul 2026 11:41:03 +0000 (UTC)
+Received: from fedora (unknown [10.44.49.164])
+	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with SMTP id 8F127195419F;
+	Fri, 10 Jul 2026 11:40:45 +0000 (UTC)
+Received: by fedora (nbSMTP-1.00) for uid 1000
+	oleg@redhat.com; Fri, 10 Jul 2026 13:41:03 +0200 (CEST)
+Date: Fri, 10 Jul 2026 13:40:43 +0200
+From: Oleg Nesterov <oleg@redhat.com>
+To: Michal =?iso-8859-1?Q?Such=E1nek?= <msuchanek@suse.de>
+Cc: Thomas Gleixner <tglx@kernel.org>, LKML <linux-kernel@vger.kernel.org>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Shrikanth Hegde <sshegde@linux.ibm.com>,
+	linuxppc-dev@lists.ozlabs.org, Kees Cook <kees@kernel.org>,
+	Huacai Chen <chenhuacai@kernel.org>, loongarch@lists.linux.dev,
+	Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
+	linux-riscv@lists.infradead.org,
+	Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org,
+	x86@kernel.org, Mark Rutland <mark.rutland@arm.com>,
+	Jinjie Ruan <ruanjinjie@huawei.com>,
+	Andy Lutomirski <luto@kernel.org>,
+	Richard Henderson <richard.henderson@linaro.org>,
+	Russell King <linux@armlinux.org.uk>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Guo Ren <guoren@kernel.org>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Helge Deller <deller@gmx.de>,
+	Yoshinori Sato <ysato@users.sourceforge.jp>,
+	Richard Weinberger <richard@nod.at>,
+	Chris Zankel <chris@zankel.net>,
+	linux-arm-kernel@lists.infradead.org, linux-alpha@vger.kernel.org,
+	linux-csky@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
+	linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
+	linux-sh@vger.kernel.org, linux-um@lists.infradead.org,
+	Arnd Bergmann <arnd@arndb.de>, Vineet Gupta <vgupta@kernel.org>,
+	Will Deacon <will@kernel.org>, Brian Cain <bcain@kernel.org>,
+	Michal Simek <monstr@monstr.eu>, Dinh Nguyen <dinguyen@kernel.org>,
+	"David S. Miller" <davem@davemloft.net>,
+	Andreas Larsson <andreas@gaisler.com>,
+	linux-snps-arc@lists.infradead.org, linux-hexagon@vger.kernel.org,
+	linux-openrisc@vger.kernel.org, sparclinux@vger.kernel.org,
+	linux-arch@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>,
+	linux-doc@vger.kernel.org
+Subject: Re: [patch 13/18] entry: Make trace_syscall_enter() return type bool
+Message-ID: <alDaOw8t-e3rxIPm@redhat.com>
+References: <20260707181957.433213175@kernel.org>
+ <20260707190254.338083894@kernel.org>
+ <ak5ySpil83TNWxeq@kunlun.suse.cz>
+ <87se5tqkyp.ffs@fw13>
+ <alDQ7isUKJFl8Va4@kunlun.suse.cz>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=M7J97Sws c=1 sm=1 tr=0 ts=6a50d742 cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8 a=VwQbUJbxAAAA:8
- a=ng_CRhvcuIW9pqeT64gA:9
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzEwMDExMiBTYWx0ZWRfX84OVYqab8MKg
- L+uJ05USmrcDoRz1w8oPFmY7O9AlfXXpbfKV1UrP0N0lU5UEoV6VVcQzkh0zf+ETpyYgPJp//48
- ZVMTzpzZKA/uJDZPVHML3eBqGjiNpSdGRY9xoEu+9gVprL25yCR47XEnkZtKhwHRuzqxvXZ+uoJ
- qFbHD+7C+giXPdZaqkyqgm9Q5OLjHIzbbS0T+XSnQcgmx4sphL9xjYW1NLf4544eEOI2i60GFn/
- A35HRtWq0y+DD6dLqkotC6Iv6bOM/OaXMP+vuamMTQZVaHVgXylkpsELvv6L/WpYlG0nl1+mRIN
- 1IY+VXydfTtRBxMF0Ib+86isu780rLnU5GjgLOjj7pnjTJGYFY4suulq0N9sh4FpLNeLfiWkBjH
- yaS+CyL7rSC+2fzzqVgFM6Ud6Xq4SUVlErUxIERjvICqCBeSDJ0l/rzIIJg7an2OfONZVeTy7Re
- 4ODFuzlM55CjSoqoGPw==
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzEwMDExMiBTYWx0ZWRfX6ZlIM1RnkAC0
- fNqVkMqyiuxm8RpyA+k0I84Ehi2crH8Bi2OchN8FF5fCdpAIYmOThJQSguPFAGPqa0cl6Uxw3gU
- UqMuKE2FXY36wYhMi+VzBj/UcUPjga4=
-X-Proofpoint-GUID: 4HWhPQwJBRWoB-OurkhX8038X6osAfkF
-X-Proofpoint-ORIG-GUID: 4HWhPQwJBRWoB-OurkhX8038X6osAfkF
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-07-10_03,2026-07-09_04,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 lowpriorityscore=0 malwarescore=0 clxscore=1015 adultscore=0
- priorityscore=1501 bulkscore=0 spamscore=0 impostorscore=0 phishscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607100112
+In-Reply-To: <alDQ7isUKJFl8Va4@kunlun.suse.cz>
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
 
-Add or improve checks related to buffer sizes and reply sizes to the
-handling of replies from the crypto cards for CCA and EP11 (AP message
-type 6) messages. The verification code related to reply field length
-was not designed well and thus firmware deficiencies could lead to
-unexpected behavior in the zcrypt device driver. Thus improve the code
-to more closely inspect especially length fields at message replies.
+On 07/10, Michal Suchánek wrote:
+>
+> On Wed, Jul 08, 2026 at 10:34:38PM +0200, Thomas Gleixner wrote:
+> >
+> >   1) The set in stone rule is that if the entry code returns -1L as the
+> >      syscall number then the architecture code has to skip the syscall
+> >      invocation _and_ is not supposed to change the return value.
+>
+> Which stone?
+>
+> Pics or it did not happen.
+>
+> >
+> >   2) There is no guarantee and never has been that any of the involved
+> >      mechanisms (ptrace, seccomp, tracing) will change the return value
+> >      when it sets the syscall number to -1L.
+>
+> For ptrace to correctly emulate a syscall it needs to set the syscall nr
+> to an invalid value on entry, and the desired result if the syscall on
+> exit AFAICT.
 
-The 3 hunks of this patch deal with CCA, EP11 and (CCA) RNG replies
-and improve the checking for reply buffer size by using size_t instead
-of int. RNG replies an additional check makes sure the hard coded
-limit of the data buffer is not exceeded.
+I can only say that ptrace users do want to skip the syscall and set the
+return value on entry.
 
-Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
-Reviewed-by: Ingo Franzki <ifranzki@linux.ibm.com>
-Reviewed-by: Holger Dengler <dengler@linux.ibm.com>
-Cc: stable@vger.kernel.org
----
- drivers/s390/crypto/zcrypt_msgtype6.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+See
+	[PATCH v5 1/2] ptrace: add PTRACE_SET_SYSCALL_INFO syscall skipping support
+	https://lore.kernel.org/all/20260709100949.94345-2-renzo@cs.unibo.it/
 
-diff --git a/drivers/s390/crypto/zcrypt_msgtype6.c b/drivers/s390/crypto/zcrypt_msgtype6.c
-index 40f72cdf284d..ae175cab041b 100644
---- a/drivers/s390/crypto/zcrypt_msgtype6.c
-+++ b/drivers/s390/crypto/zcrypt_msgtype6.c
-@@ -691,6 +691,13 @@ static int convert_type86_rng(struct zcrypt_queue *zq,
- 
- 	if (msg->cprbx.ccp_rtcode != 0 || msg->cprbx.ccp_rscode != 0)
- 		return -EINVAL;
-+	/*
-+	 * Note that offset2 and count2 have already been checked in
-+	 * zcrypt_msgtype6_receive(). So only check for not exceeding
-+	 * the hard coded rng buffer size.
-+	 */
-+	if (msg->fmt2.count2 > ZCRYPT_RNG_BUFFER_SIZE)
-+		return -EMSGSIZE;
- 	memcpy(buffer, data + msg->fmt2.offset2, msg->fmt2.count2);
- 	return msg->fmt2.count2;
- }
-@@ -853,7 +860,7 @@ static void zcrypt_msgtype6_receive(struct ap_queue *aq,
- 	};
- 	struct ap_response_type *resp_type = &msg->response;
- 	struct type86x_reply *t86r;
--	int len;
-+	size_t len;
- 
- 	/* Copy the reply message to the request message buffer. */
- 	if (!reply)
-@@ -917,7 +924,7 @@ static void zcrypt_msgtype6_receive_ep11(struct ap_queue *aq,
- 	};
- 	struct ap_response_type *resp_type = &msg->response;
- 	struct type86_ep11_reply *t86r;
--	int len;
-+	size_t len;
- 
- 	/* Copy the reply message to the request message buffer. */
- 	if (!reply)
--- 
-2.43.0
+The changelog explains that currently this doesn't work because
+among the arches which define HAVE_ARCH_TRACEHOOK (at least) arch/mips is
+broken in this regard.
+
+Oleg.
 
