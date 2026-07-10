@@ -1,193 +1,216 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from LO0P265CU003.outbound.protection.outlook.com (mail-uksouthazon11022075.outbound.protection.outlook.com [52.101.96.75])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6CD6374E5A;
-	Fri, 10 Jul 2026 13:41:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783690881; cv=none; b=ot3vOQ4oofk4ExFFDE8q8sUvhm53l5aYtVPVC53YmzZYtUP/+Na2Kltv4Ivi0n7TuPTXyqUxECY5PUUq18ycO79pFB4TeX1JFrD+dOgkjBFpOlcVbm76OQlxpG+j3cYCGDFnMkiswsR+CIS0jjh38KY3s86xsUdm1rpyQHHhE/8=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783690881; c=relaxed/simple;
-	bh=y7imvDBUf0TciTUd+NP7o0tXn/u7oKHLwDJ7ePlVId8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=S0WRGv9XkLkDd507xbLVmWcrZw4XrO3wSIoGe3WSRDvkIqhiWS9okeJXGuJfThCSlA2r1iy4ZPSdlEJLYXuwgV75XU/LToEMWQKXDn00arNQawQqo92P2F0OJRC7RpYEPQei9ZpfFfoA0umfYk3bLsP/0mLOSZpUaqHakgEXoSo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=i3rziSTp; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="i3rziSTp"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66ADIDXJ1713075;
-	Fri, 10 Jul 2026 13:41:00 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=N9LSC889O68KIxMLOEUoke37oASt8N
-	T31vCJEcDdTOg=; b=i3rziSTpsz+IImWsw7MCjmADLQnmzEZtJSJSofxHoc8UlP
-	OcKkIh/S1Zi84nC9S+iOsUeEHitZyqqlNhtvvD6dx1l7Fbi4dOSFxji4F4YYXdl8
-	OlFLjnzqCt5xUuy3BuOfZ4cIjWc23VwAcNNB9bxgztxeDxq7iudAbz8hLL+TEHOz
-	qUBVCrec9UtPMWbFbEdp+G5HUkmPiW/sRGZ6oa/+NuidZ95sCC2XUEfw3XACVJFn
-	LeWl4ieDZXIKEXPkyt+PLJYhM+bk7dFEJgcRIQXXIyco06VOLo4LPGNnKve7CtHY
-	k+hf857iZGVgsqccjDg3PBqAXL+PFerQ5CiIzwKg==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4f6sur6qy6-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 10 Jul 2026 13:41:00 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66ADYjGu003964;
-	Fri, 10 Jul 2026 13:40:59 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4f7cgqjebj-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 10 Jul 2026 13:40:59 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66ADepJ029360624
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 10 Jul 2026 13:40:51 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 931192004D;
-	Fri, 10 Jul 2026 13:40:51 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B5CEA20040;
-	Fri, 10 Jul 2026 13:40:50 +0000 (GMT)
-Received: from osiris (unknown [9.87.147.219])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Fri, 10 Jul 2026 13:40:50 +0000 (GMT)
-Date: Fri, 10 Jul 2026 15:40:49 +0200
-From: Steffen Eiden <seiden@linux.ibm.com>
-To: Marc Zyngier <maz@kernel.org>
-Cc: kvm@vger.kernel.org, kvmarm@lists.linux.dev,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, Alexander Gordeev <agordeev@linux.ibm.com>,
-        Andreas Grapentin <gra@linux.ibm.com>, Arnd Bergmann <arnd@arndb.de>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@kernel.org>,
-        Friedrich Welter <fritz@linux.ibm.com>,
-        Gautam Gala <ggala@linux.ibm.com>,
-        Hariharan Mari <hari55@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Hendrik Brueckner <brueckner@linux.ibm.com>,
-        Ilya Leoshkevich <iii@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>, Joey Gouly <joey.gouly@arm.com>,
-        Nico Boehr <nrb@linux.ibm.com>,
-        Nina Schoetterl-Glausch <oss@nina.schoetterlglausch.eu>,
-        Oliver Upton <oupton@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Ulrich Weigand <Ulrich.Weigand@de.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>,
-        Zenghui Yu <yuzenghui@huawei.com>
-Subject: Re: [PATCH v4 23/27] KVM: s390: arm64: Implement required functions
-Message-ID: <20260710134049.984749-J-seiden@linux.ibm.com>
-References: <20260706085229.979525-1-seiden@linux.ibm.com>
- <20260706085229.979525-24-seiden@linux.ibm.com>
- <87bjcj7t5h.wl-maz@kernel.org>
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E3DC24BBF0;
+	Fri, 10 Jul 2026 13:56:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.96.75
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1783691805; cv=fail; b=hO3Afu1+eu03V1ZuHBptrHzz+8rVh9q4MDRUrd3gTb/TZN1Xn0Szg/9ckByIw/23DnGGmnJt3J9qld24JLVgn6+PnYqGiPb1L/BSO2IEiTYgHxVJ1tvjU3bYkMU+dZXPIaTdLc6X0CoczYPhWphHJrqbCDjtjkqUSO3sCe3nKwA=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1783691805; c=relaxed/simple;
+	bh=wipI0/Tviq2lQp+4ATJxSDwh4bKj+fGrmrCqCl8zsNQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=tD4rZqdRkrC88bHtlMWppGlFIl9AZtRAjd4ySvP/GwrRKryVNATaKBxQ0SuzKsRr2a5aPaUKI/lg/NcnCsPgs2uibjYVsLkK7v+gty9PnAk/U300eYwzqXYIrxBbDmjjw0+9MTlOtygyzZRzzEczVJGvIuCGX/8DSQpCePjnONA=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=atomlin.com; spf=pass smtp.mailfrom=atomlin.com; arc=fail smtp.client-ip=52.101.96.75
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=atomlin.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=atomlin.com
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=K/eK5FPY1v7UbmkKTGq8vRJgMioQA5UliEDeYgybMQDpd1V8dDw7z6dLjqOPLD47UJFe1FCT28DxGVWi4KQafhjTEFt/Q2NRh9mezfrImORUg7WMRrqwftlsm3sNLAvLvVBx+UMFwwQC7KC52JLh25pQEBbGxDUhocRNNU6XycpApxClvSmB+jCxum+tYL5fQ7bzh+af4G6cBjXmvlK5RwWMZ88c3+m3lNU4258xjy1Wo1FadMR0mQktU5WTWy6yvuZG4Y2dGShDQSWl+YsYJfLx9nugx4if91Ylp8utwkG/hectmRDh2i/D7lgA+e1LbNNKiPSqzlhCRhJa5AH1/g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001; h=From:Date:Subject:Message-ID:MIME-Version;
+ bh=SW/ewZIZrlgut/NjKX0iGLfdqS1i70zSTvGhoS7BjWY=;
+ b=KrqmDsyl56BiKl1I8vp0lr/2a+DigfcSQ55aMYu6IL5VCP3q2xUdLsQePdlHNtd02nkF0ijAhCFWqZowZWWoY9ir6eiW+FMQgYrtCUE+g0BJ8DvTu+DftaR66Ja2ew1CaP27bM+NkVAglH7g5Kt6WVrW7C5puTsbVFTGGRucOw2Ulgv+R4HNbKEsWT1nqaQWBbUFdGyguH5Ar6vu+qqKnPoSlqe0oxq2A63STG2j18eI4DkeZeacURFrgWFi1HQ4jj0HFQXf5eNDpmoZt8ykFJw1xY4WCx5V9zHeLSYBx/khsvvFnLlstFhNj7P/Y3Sp8ap+B0zUkhtHoKb0u1BPRg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=atomlin.com; dmarc=pass action=none header.from=atomlin.com;
+ dkim=pass header.d=atomlin.com; arc=none
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=atomlin.com;
+Received: from CWLP123MB6607.GBRP123.PROD.OUTLOOK.COM (2603:10a6:400:183::5)
+ by LO0P123MB6448.GBRP123.PROD.OUTLOOK.COM (2603:10a6:600:290::12) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.181.17; Fri, 10 Jul
+ 2026 13:56:39 +0000
+Received: from CWLP123MB6607.GBRP123.PROD.OUTLOOK.COM
+ ([fe80::cec4:77ab:262e:d230]) by CWLP123MB6607.GBRP123.PROD.OUTLOOK.COM
+ ([fe80::cec4:77ab:262e:d230%4]) with mapi id 15.21.0181.014; Fri, 10 Jul 2026
+ 13:56:39 +0000
+Date: Fri, 10 Jul 2026 09:56:34 -0400
+From: Aaron Tomlin <atomlin@atomlin.com>
+To: Petr Pavlu <petr.pavlu@suse.com>
+Cc: Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, 
+	Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, 
+	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Peter Huewe <peterhuewe@gmx.de>, 
+	Jarkko Sakkinen <jarkko@kernel.org>, Luis Chamberlain <mcgrof@kernel.org>, 
+	Daniel Gomez <da.gomez@kernel.org>, Sami Tolvanen <samitolvanen@google.com>, Xin Li <xin@zytor.com>, 
+	"H. Peter Anvin" <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>, 
+	Christian Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, 
+	Janosch Frank <frankja@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, 
+	David Hildenbrand <david@kernel.org>, Jason Gunthorpe <jgg@ziepe.ca>, linux-s390@vger.kernel.org, 
+	kvm@vger.kernel.org, linux-integrity@vger.kernel.org, linux-modules@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 4/4] module: Limit ELF includes in linux/module.h to
+ uapi/linux/elf.h
+Message-ID: <4ogmo7leahb4p7c2dke7epdtu2nd7lm7nmv6y4axcvcnkcrcd4@dmoguf2nk64j>
+References: <20260707153819.4172541-1-petr.pavlu@suse.com>
+ <20260707153819.4172541-5-petr.pavlu@suse.com>
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="zjubmoucclkdeek2"
+Content-Disposition: inline
+In-Reply-To: <20260707153819.4172541-5-petr.pavlu@suse.com>
+X-ClientProxiedBy: BL0PR05CA0015.namprd05.prod.outlook.com
+ (2603:10b6:208:91::25) To CWLP123MB6607.GBRP123.PROD.OUTLOOK.COM
+ (2603:10a6:400:183::5)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CWLP123MB6607:EE_|LO0P123MB6448:EE_
+X-MS-Office365-Filtering-Correlation-Id: 2d4469f2-cbdf-468b-abfe-08dede8b100a
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|1800799024|366016|23010399003|7416014|376014|22082099003|18002099003|56012099006|4143699003;
+X-Microsoft-Antispam-Message-Info:
+	R9OX+iWT7XwITD4KxXDdAMrd4HaKa/lGWqEOJEuAxeVJx89zZvNpDFAS/U3m3ZFWzFHjV00gQY444Y6Do1cmYnY4FDxOISWsf3sTikeIsWJIOgHJ0iuLcw0iU2mGLuTRzsUxz3fBu/cWT+77CFtESnt5BKB3+ueepppKT8t2I9ZKLpLvJQ6Oa3OYHdbeUACEz7SyekrQUFx+mspnt56OI6l5kC7pLro7Khwwhwhv0nf0SCMedRL9V+TchnvkuR8XuVP1C1ZPw5om98nktt5TTUXJJtmm8Zr18EQiu1gQLRDoVZycqeZc2GeWyuUGhDSIIbyju8M8mD8csbL+JKCe6jaGzTMoyX4vayq3D3FjIA1G1AQXBZKQ/KVpl3EuWKknSSYs1Xt+peUk3d/4AZ+7B6lwxocu8XQXfO1l89DJ28n21pB4fUVsth5SOYBWAdZ9sEjiS0cby1FnArJ+KfqBggBoOCxgu7AK7ousjEw/CkpxLg24JgT0Ny5WMVymCbcabIHV1KfgJFWSsXmef82tG+9191rdPGnkIuNmD5gmLMay1p09y6uAFNFnH8fR6EiqzqsS2/ABaSxMRXY8/lwH53FIlT0a8TeYkxBpLebP5Vk7Ug+shbkDcOphLQ/QxK5QpMpkU2hZDHWb1Cts9xiF0WmnFkQEHOhEesQLJ1B1vtU=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CWLP123MB6607.GBRP123.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(23010399003)(7416014)(376014)(22082099003)(18002099003)(56012099006)(4143699003);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?UnVkaTVSa1gxQnVwOVZLbjJVY0pQYVVRejlTUTRaL0Z3RCs0QllYUmtqcnZm?=
+ =?utf-8?B?TzRCc2NwUS9HaXAxK1RyQ2RWRmxvOUIxY29iU0N4eFBqUzFLY2k2OUJaa1ds?=
+ =?utf-8?B?MGZzaGdxR1RYaUN1eWVQTTZpdUs0R2l2UmV2aFM1cmdPMFV6dVBFdlZMWkps?=
+ =?utf-8?B?S21GVUQ1RHFvOVZCRno3NzIrZTRmUlZRRTVZOVg0cUdZVCtvblQrK3NTblVX?=
+ =?utf-8?B?Y0ZtN2tlSlNuMlptdmJLVkdDQVB2TUp4dDNXbGdCUit5ZEFaODh4Z2tTQVla?=
+ =?utf-8?B?RG9UQzdTYUhCUGFkcTBzTkhMbURtaCtUS1VJUWNDR1pPRTFiNlBqY3Z1NkVk?=
+ =?utf-8?B?NG9Hd1E1cThvcXJCYzk0dDNFaVkrcEhyck4vR21xNnBvdERnK2ZTMW8vc3hW?=
+ =?utf-8?B?VW9FMVJBVDBabGY0SXpFV3V4OElNU0xZVXdpVDg2YlZDSlpxTWZjZEVHSnF0?=
+ =?utf-8?B?SE5KdDVXdCs3SmFYQk9GaE10N3dXRnNDZGxqZWtZWXdUbGJoNldWZ0ZCRjZj?=
+ =?utf-8?B?djE0YjNYOUdlVkMwbDlXWUZSQzZLY0NuZURiZUpxV01aNERTLzR3WEljTnd1?=
+ =?utf-8?B?UGxlQkZWZW95SjFwaDc3eUxBeUZlV25yUS9ETmVFR3RpeENsN0ZlZEt3NXZP?=
+ =?utf-8?B?VnltUVZQSHowY2I5MVVIRGpOcWY1a3c5TW1DZjVSUzY5STFCS2tHUUxrODl1?=
+ =?utf-8?B?eFE5K0RBU2ZZQVNxQnRKbUxMYmVtU2RuaE5Tc1BDbmsvdEROeDkybmRtcHVV?=
+ =?utf-8?B?WlVkQWl3R2NuMEs1b1BQUnVJTGN2a0JUSFlTYWk5YTdWRERwbzNrMklmeXBU?=
+ =?utf-8?B?YktMczI5RUFhRjVzRmlNWkZQeTMwSDhpTG54R0xUUStCcUpHZEE1SDhKWlZy?=
+ =?utf-8?B?ZmtuR3N6bUdWTFg0VjlKMzBOV1Y3SGdGUHlaYlBicWR2UHhyL1AzdDF1Y0Fa?=
+ =?utf-8?B?dXl0N2VpUTROZzErOWphRTBQdTJRT2wrZEs5UWhmRXlzcDJVNXdSRFF1VkpQ?=
+ =?utf-8?B?K3BNeS9lNk9jUmNMd1B2V0F4UXdNNjFaZnpHYk1CdENoazFuL2M2TktLa0lG?=
+ =?utf-8?B?L0paVEZPWDdIb1F5Nncxd3NVa0crZlNvZ2VGU1V6a29RcjErVVFBYmNEcWs5?=
+ =?utf-8?B?SlJPWmk3NytmTTZLdGkySUV2V092bmNTK1Zzd1JoWngweXJYWnN6Y3QrVVQ5?=
+ =?utf-8?B?cjkrOTFqRzZRUmFTcmFPYkp1UW5QNjZGbkdXMTNoNVkwbCs2a1M0aXNaaCs5?=
+ =?utf-8?B?dXVrRmJ4N0VEMjJiVngvUndOcnlFUmJoT0tMeUYxU0k3VHZmN2x1akdjVk1j?=
+ =?utf-8?B?cnRRUVhZNFpkZ1BaNzFhVGYvNG5MMUZneUo3Um5MOUtVdTJvRGoxcWVPRlBn?=
+ =?utf-8?B?R3NRbkJGdnFJQlhsM2hnZEtDVDF0ZTJUaUxIWXBwaGxmS0xMZElhOUk0TWhh?=
+ =?utf-8?B?bHB4ZDhnelQ2RzVFT3lnblJac2gxOFhNaGZsb0RoUmxEaWZLajZ0NE1NeERZ?=
+ =?utf-8?B?TVZiMzExK0RhYXdUNnRyN0I4ZE5SbGNIaGozTzFieFR2UlM1cDV2dkZZVU5o?=
+ =?utf-8?B?NzJGKzB5VEpnNFJGNHhpZmdqT0tjUG1JNXI2SlpQT1B2NTE5Z2gwWUhNQ0VL?=
+ =?utf-8?B?WSs3MU5TMzNlQzQyQnp1YjVsMk1Qa1B6UHk5UW94Q1ExVDk4c0xNZTdCSnNZ?=
+ =?utf-8?B?TWROWXVwNWp1eVJIbUl0RCtLQ1Z0TFlJME1VTDBGall2aVNTSjRPQkhwSXhC?=
+ =?utf-8?B?YUk4QzFGd0xMbER3Uy9ad0RaSHZ0elo1MEl5RGo3RC8vVkVjNlM1dWtuejNC?=
+ =?utf-8?B?c3MwcC9kR2xnaGlpL3NwTjZXN3RoRkFQWFNOMHFaenQ3ZkViTFZ1MmNJZ2t3?=
+ =?utf-8?B?cG5NUldPNkIwM1ZZc2I1elRka1F0SHZLcmJuekMxd0NPbktRT3BpMUVVN1dW?=
+ =?utf-8?B?ekh2Y2VCdDVtNi9nUGZoSFUxSGkrQjc1YXlacmswOGJQNjJOOGNmQXpOT2VU?=
+ =?utf-8?B?VFEreHBJczRvdFg4QlJ2Slh0NVhqSHp5RWJQUWg5Rmt2cy84eU5Nc1hBTnlw?=
+ =?utf-8?B?ZDh2WkYwOFhPUDhDTFFzUW51dUlrdnVySlhqWXFyd1JWbjkzOHRuckEyVWc1?=
+ =?utf-8?B?M1IwRUNKbkJnWkpDTjNlOWpoMFRFWjJtdTF5MTc0U0x3bDBNODduM2J1VWV4?=
+ =?utf-8?B?Vk5ubDdaR0RoaVloK083M0NjUWljK2JwUkVCR2o2eHdZMWhNUGJqc2V1R3BC?=
+ =?utf-8?B?blJFSi95cXdUT0MxdFJML1EyamRVQWlxWHBQM3dpOEQrSGplaXFBbVZscEV3?=
+ =?utf-8?B?czhvY3ozVXJjVUtiQlZIdzZrZVZGalp3SlBOMW1MYWlmOGJaQmwyZz09?=
+X-OriginatorOrg: atomlin.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 2d4469f2-cbdf-468b-abfe-08dede8b100a
+X-MS-Exchange-CrossTenant-AuthSource: CWLP123MB6607.GBRP123.PROD.OUTLOOK.COM
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Jul 2026 13:56:38.7948
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: e6a32402-7d7b-4830-9a2b-76945bbbcb57
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: 8jN2+PY2eerX6S1dvp+H1W+So9hwhh6gd4U39A8DRjp9529QRel7+nlxPLB9RxOBvCmcNNaxAk1RiOtCVmS2UQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: LO0P123MB6448
+
+--zjubmoucclkdeek2
+Content-Type: text/plain; protected-headers=v1; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <87bjcj7t5h.wl-maz@kernel.org>
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzEwMDEzMiBTYWx0ZWRfX3ROGKCS0YtfH
- QFpX266GmP1th1voyuu9ytstSczZDgwjBOmRrvn6c9sgbI0q8aeEo0cWUFMAGE3HKZY/ZrzDJFK
- KIkuuPqoSHNWtvcWI10i7kdjs863gPI=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzEwMDEzMiBTYWx0ZWRfX9sgiu26vVoXN
- gdez2/XVYkga5ITBLcWUbbTgmVuMFQ7cJWmwuRknWjQ6MDdwulbkITzSDOsMtEoX21jeYelo2he
- Bi9KI3h5SIKMPd13gqFG+Ox3gnoa9zT6r8QUkSa/oEdgvGGZ6PIDWdVKYxUPV9oJPk7Y85AVmuR
- vAWE4POrfzZTXoULkStEatexfPO1O/WY77rRD4gP6AS3cPPnpI0L7MrCPTSSPyRCRqkVzDIyqQM
- rIbMW8phIC1emakSE/CCF98Rju/vWGskunxZ+0tQ6qzHRFOfrBqjvynC5QBQqJTEsCCiVc8+5fD
- 5KeUKIdXCHwjof8NI4/kdH6cc4m6A+fhFpZ2Ftyth27v6yhLlGniWWrLdMToM/9f39jtImpd+6O
- +uZO33TequZ1ic2fvZ9QdGs7ekNtRr+h87ry1rZtPNtSo4hbGBqI2QX0h+Mgn0OA/hQtXiJcnLy
- B6Cyo/X6UGU4gtA03Qw==
-X-Proofpoint-GUID: 9G33u2V4ajpbDsBj3uLwc9D7zJAckEKf
-X-Authority-Analysis: v=2.4 cv=Oot/DS/t c=1 sm=1 tr=0 ts=6a50f66c cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
- a=kj9zAlcOel0A:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8
- a=RsO_Ah-4iS8lBfzd37cA:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-ORIG-GUID: 9G33u2V4ajpbDsBj3uLwc9D7zJAckEKf
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-07-10_03,2026-07-10_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0 lowpriorityscore=0 clxscore=1015 impostorscore=0 phishscore=0
- malwarescore=0 suspectscore=0 spamscore=0 adultscore=0 priorityscore=1501
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607100132
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [PATCH 4/4] module: Limit ELF includes in linux/module.h to
+ uapi/linux/elf.h
+MIME-Version: 1.0
 
-On Mon, Jul 06, 2026 at 09:35:54PM +0100, Marc Zyngier wrote:
-> On Mon, 06 Jul 2026 09:52:23 +0100,
-> Steffen Eiden <seiden@linux.ibm.com> wrote:
-> > 
-> > Implement the mostly trivial functions that the shared arm64 (kvm)
-> > code & headers oblige s390 to implement.
-> > 
-> > Implement a very basic smccc handler that (non-compliantly) is just able
-> > to stop a vcpu.
-> > 
-> > Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
-> > ---
-> >  arch/s390/include/arm64/kvm_emulate.h | 135 ++++++++++++++++++++++++++
-> >  arch/s390/include/arm64/kvm_nested.h  |  11 +++
-> >  arch/s390/kvm/arm64/handle_exit.c     | 110 +++++++++++++++++++++
-> >  arch/s390/kvm/arm64/inject_fault.c    |  21 ++++
-> >  4 files changed, 277 insertions(+)
-> >  create mode 100644 arch/s390/include/arm64/kvm_emulate.h
-> >  create mode 100644 arch/s390/include/arm64/kvm_nested.h
-> >  create mode 100644 arch/s390/kvm/arm64/handle_exit.c
-> >  create mode 100644 arch/s390/kvm/arm64/inject_fault.c
+On Tue, Jul 07, 2026 at 05:37:07PM +0200, Petr Pavlu wrote:
+> The linux/module.h header is included by every *.mod.c file to provide
+> `struct module` and other related definitions. This makes it a "hot"
+> header, so it should avoid pulling in unnecessary definitions.
+>=20
+> The header currently includes linux/elf.h but this is largely unnecessary
+> because it requires only the base ELF structures, such as Elf_Ehdr and
+> Elf_Sym, which are declared in uapi/linux/elf.h.
+>=20
+> Replace the linux/elf.h include with uapi/linux/elf.h. On x86_64_defconfi=
+g,
+> including linux/module.h alone results in 2.2 MB of preprocessed data. Th=
+is
+> change reduces that to 1.5 MB.
+>=20
+> Signed-off-by: Petr Pavlu <petr.pavlu@suse.com>
+> ---
+>  include/linux/module.h | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+>=20
+> diff --git a/include/linux/module.h b/include/linux/module.h
+> index 7566815fabbe..7661faadbedd 100644
+> --- a/include/linux/module.h
+> +++ b/include/linux/module.h
+> @@ -17,7 +17,6 @@
+>  #include <linux/cleanup.h>
+>  #include <linux/kmod.h>
+>  #include <linux/init.h>
+> -#include <linux/elf.h>
+>  #include <linux/stringify.h>
+>  #include <linux/kobject.h>
+>  #include <linux/moduleparam.h>
+> @@ -29,8 +28,9 @@
+>  #include <linux/srcu.h>
+>  #include <linux/static_call_types.h>
+>  #include <linux/dynamic_debug.h>
+> -
+>  #include <linux/percpu.h>
+> +
+> +#include <uapi/linux/elf.h>
+>  #include <asm/module.h>
+> =20
+>  #define MODULE_NAME_LEN __MODULE_NAME_LEN
+> --=20
+> 2.54.0
+>=20
 
-...
+Thank you Petr. LGTM.
 
-> > +
-> > +#define SPSR_SS BIT(21)
-> 
-> We may be better off defining SPSR_ELx in the sysreg file and use that
-> all over the place.
-> 
+Reviewed-by: Aaron Tomlin <atomlin@atomlin.com>
 
-make sense. I'll create a patch for this.
+--=20
+Aaron Tomlin
 
-...
+--zjubmoucclkdeek2
+Content-Type: application/pgp-signature; name="signature.asc"
 
-> > +
-> > +#define __INCL_GEN_ARM_FILE
-> > +#include "generated/handle_exit.inc"
-> > +#undef __INCL_GEN_ARM_FILE
-> > +
-> > +#define PSCI_0_2_FN_SYSTEM_OFF		0x84000008
-> > +#define PSCI_RET_NOT_SUPPORTED		-1
-> > +#define PSCI_RET_INTERNAL_FAILURE	-6
-> 
-> All of this exists in include/uapi/linux/psci.h.
+-----BEGIN PGP SIGNATURE-----
 
-Yes. We'll use them in a later series as well.
-this is just a placeholder implememtation so guests do not have to run
-idefenitely. 
+iQIzBAEBCgAdFiEEeQaE6/qKljiNHm6b4t6WWBnMd9YFAmpQ+g0ACgkQ4t6WWBnM
+d9aq9RAAsLy6+NOcgwZEYAtqHH2Vs/cK9PSXklxGAJTZg1PJpqeZA7SusemTQ4bm
+YKpQ7gLSZcSe+n0pRNoVwgw70vx/b3614wy0RSoZASNZmZgCjOxBt2rTadZ2aY3T
+MPrE9bcrm7NvN3c4iujaRJZ0S/XGnkleJgIsO17NTX7u9d8IWwCyLn3AHqnrd52i
+a8F+PFehXnCQDdoN8RDmOV9JbmmwIcLGBZG/3H0FNW67bs2d/zXK1vJVxzevzQng
+mpJDL5odKHknjoYbCoyoeLNP78cvwbTRuDcbpXm92ldjQQSj+3/I82m1I8RwDasn
+YPImKQlbeO/EhXUnyk5xJiKC7GO9yRSNeWtR8TdZrI2iFqLApFfHcA8G9AH+7aUy
+cPk2QbujDbdiuE8O8543UmAVR8+famKXHQi9JFYqVvFiAjYTurpkDe9l7B6Qe6mX
+Lm7ahNj8KiwSkj3bxqKkQwTY1MKcYCsNsjh6Sv2pmfo+gk188kYAAaUKzwr1+xl6
+uuIqyJtMMlavCbdA16P46NlI9FmD9SeND3cYJjK1bANTfUWViTTurQ/YfN+pEd/V
+6fbCQUQhXP27kvg/e/x85vAXn7FoFlUzF+wQCz/3iMpVb4SPLlgxmRByHvh9Ra60
+dz28uSikieachFtGH0F+UPGaO2T0WnsfBWsmDAdSV1h3gH9x2Ao=
+=f5TE
+-----END PGP SIGNATURE-----
 
-
-...
-
-> > +	[ESR_ELx_EC_SOFTSTP_CUR]	= "Software Step (current EL)",
-> > +	[ESR_ELx_EC_WATCHPT_LOW]	= "Watchpoint (lower EL)",
-> > +	[ESR_ELx_EC_WATCHPT_CUR]	= "Watchpoint (current EL)",
-> > +	[ESR_ELx_EC_BKPT32]		= "BKPT (AArch32)",
-> > +	[ESR_ELx_EC_VECTOR32]		= "Vector catch (AArch32)",
-> > +	[ESR_ELx_EC_BRK64]		= "BRK (AArch64)",
-> > +};
-> 
-> There are a lot of AArch32-specific ECs here that you may not need.
-
-you are absolutely right. This was just a blind 1to1 copy. IMO they do
-not hurt but I can reduce 32 specific ones.
-
-FYI
-The code is not shared as I would have to spin up a whole sharing
-infrastructure to share this one defenition from arm kernel code.
-
-	Steffen
+--zjubmoucclkdeek2--
