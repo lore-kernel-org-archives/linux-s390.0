@@ -1,158 +1,188 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E263437DE84;
-	Fri, 10 Jul 2026 19:10:04 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E3E637FF47
+	for <linux-s390@vger.kernel.org>; Fri, 10 Jul 2026 19:17:49 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783710606; cv=none; b=NqR84pZ/IQ+VxMW2mv0KdHGcSlPsLMnlgIIh4mCiABxnnKAOJPONrMNaAyf4Cw8BjIs0vlz71RZXMeB65zt0YkBKoOXtKLUKJa8B4ZiSTi226Y3feeVgmJPlyKPjXdK/0yR7/PvBD1hMDEMDbEoJpPowKQfj2f9SRyHki0FbLSQ=
+	t=1783711070; cv=none; b=kZrZobqvGjt70Uq1WqFpBnI/yZNg8JpI3VrDJWs89Ouf1TWApmBhtoPqgya6EXvkq0suWl6iM9jdIEqnryZ+zfI00n6+n32sLRF+Vjvamn12OMfGilLjTwKM2TMgFB9psyQtIVGyFw10NzW+FWdPxAnE51I5DJP7Wa6y8MJgGUk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783710606; c=relaxed/simple;
-	bh=T3NhY1Odkiqu1O5vVfFHhbxIja3A+wYbFcoqVrmS1IM=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=e/e5FFZczUwecqxp+KglhMqDF/2dS7WSUd6vjBMLg+MRQfax95XpUzVyAWOOScU5zfK9UEazE5nDIz8HeYGGN1PdDSECSFAjr+q/y8SJTwnzS/FmoUICS1+5TLjBoIOJbTKqXmkVcpgs/0kGAmSpuTkm+InHOdlG7CbhazXmiQQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gJVAQDeZ; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1783711070; c=relaxed/simple;
+	bh=8SvHQiiE/6i1UCg1Q0UWnDTS081ZZ4628qoGXqzCbi8=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=taAClBU+kzmd/2T3Bzh7KcKM7d3jxoz/UVHoiZLWPy8aqvewjDnGmVcIgWwkTX37IwdfUR5HssbfQCjWd1WCqxxzNyhNcbwVZBxbJd5nvfOoRzI0Ol0Dt6tOhYzoE0x2z1j5krGwco79zNhn+nZAgCTOunwj6VVgVoezBzeOVg4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WN4NblCQ; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gJVAQDeZ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A666D1F000E9;
-	Fri, 10 Jul 2026 19:09:53 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WN4NblCQ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2D651F000E9;
+	Fri, 10 Jul 2026 19:17:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783710604;
-	bh=W80wLEkD9W1pRB495wpgnQIxmPS8lDwtXqHw1IqIoXA=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date;
-	b=gJVAQDeZh09mlIwH9aS39ydQbMv9ATCa+q6RzlotJlYDVCb0X489XGl54CievRuGV
-	 bGeu8Trnzs9LKTmlXX1pDvL33HGewl6FHGfOjc0OpTWhcguWUb6nrHVON5SwxxlXxh
-	 iJTpwsEFNo+/Gm+kYK5XFRHKL4VnmI2nxMSvTZO7jYF/1Rr/f9TiJImRsDON2mAQ0g
-	 19pArOpGrtzlKcjk3UrEhjHcRxKRE7bBMnW84vRE1rhb/QkRefEY9u0Iubp2HtQgxb
-	 ZzlSURdXD0kwVECjToI+lZg14zJMWTnVf7oLvDTrLlhMJEAMH6DYqS738Ii5K0QjYJ
-	 coYrGCnVbQA5Q==
-X-Mailer: emacs 30.2 (via feedmail 11-beta-1 I)
-From: Aneesh Kumar K.V <aneesh.kumar@kernel.org>
-To: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: Catalin Marinas <catalin.marinas@arm.com>, iommu@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev,
-	Robin Murphy <robin.murphy@arm.com>,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
-	Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
-	Steven Price <steven.price@arm.com>,
-	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
-	Jiri Pirko <jiri@resnulli.us>,
-	Mostafa Saleh <smostafa@google.com>,
-	Petr Tesarik <ptesarik@suse.com>,
-	Alexey Kardashevskiy <aik@amd.com>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Xu Yilun <yilun.xu@linux.intel.com>,
-	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org,
-	Jiri Pirko <jiri@nvidia.com>,
-	Michael Kelley <mhklinux@outlook.com>
-Subject: Re: [PATCH v7 16/22] dma-direct: make dma_direct_map_phys() honor
- DMA_ATTR_CC_SHARED
-In-Reply-To: <20260710161945.GO118978@ziepe.ca>
-References: <20260701054926.825925-1-aneesh.kumar@kernel.org>
- <20260701054926.825925-17-aneesh.kumar@kernel.org>
- <ak42F240d-53QeFN@arm.com> <yq5apl0xgy89.fsf@kernel.org>
- <ak-CT3oanlDfgTy4@arm.com> <20260709181336.GM118978@ziepe.ca>
- <yq5ajyr3h106.fsf@kernel.org> <20260710161945.GO118978@ziepe.ca>
-Date: Sat, 11 Jul 2026 00:39:49 +0530
-Message-ID: <yq5atsq6hdaa.fsf@kernel.org>
+	s=k20260515; t=1783711069;
+	bh=PFngFLxk/qUqIyOf6A1eKm6noo+w/17BsJuGfxjmRPY=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=WN4NblCQDISQ89+Bw53yK8NKuOSnfdc6ogZhvqfSWYmP+YEiVnWTeJf3MwgwF2pn6
+	 ioGqfLSaLVzh8NHzzJideI0gun9Zo192mUy7pzCEgrzeXzDRqNI3QBprO9jW7bu9m3
+	 LlnU2sfI911u4XBr1ZsaI8Jn1jbEt9MblHgoszsS06jjhf9h7oTRnFjIkJcS4s6dUb
+	 TCXJH05SP9Dt+dCyinsZgQDAFv4wNg7SBrDLFd3LDNtJ/b8wcKAzsF37Wm1+1igOBu
+	 maFQ1g0ZfN6FYmA7PaZAD3VOqItORBlEFRsDTKb4yUjtTuJ230mh0RAh4NPGoYp865
+	 gOPD4GkqC+smQ==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH net] net/af_iucv: fix NULL deref in
+ afiucv_hs_callback_syn()
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Hidayath Khan" <hidayath@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>, "Heiko
+ Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
+In-Reply-To: <20260709191732.124092-1-hidayath@linux.ibm.com>
+References: <20260709191732.124092-1-hidayath@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 10 Jul 2026 19:17:48 +0000
+Message-Id: <20260710191748.E2D651F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain
 
-Jason Gunthorpe <jgg@ziepe.ca> writes:
+Thank you for your contribution! Sashiko AI review found 4 potential issue(=
+s) to consider:
 
-> On Fri, Jul 10, 2026 at 10:52:49AM +0530, Aneesh Kumar K.V wrote:
->> >> > 	/*
->> >> > 	 * For host memory encryption and device requiring unencrypted DMA,
->> >> > 	 * MMIO memory is treated as shared by default.
->> >> > 	 */
->> >> > 	if (attrs & DMA_ATTR_MMIO) {
->> >> > 		if (cc_platform_has(CC_ATTR_HOST_MEM_ENCRYPT) || force_dma_unencrypted(dev))
->> >> > 			attrs |= DMA_ATTR_CC_SHARED;
->> >> > 	}
->> >> 
->> >> Yes, I think it does the trick, preserves the current semantics for AMD.
->> >> I guess you could use a single 'if' for all checks (up to you).
->> >
->> > Please don't change it, MMIO P2P is broken on CC systems today and it
->> > should stay broken. Passing DMA_ATTR_MMIO with DMA_ATTR_CC_SHARED is
->> > an error that we need to correct in the drivers not make work in the
->> > core code.
->> >
->> 
->> But the above changes are intended to handle HOST_MEM_ENCRYPT. In v7, we
->> had the following diff:
->
-> To follow how the rest of the decrypted/encrypted stuff works the MMIO
-> has to be flaged with CC_SHARED for HOST_MEM_ENCRYPT too, just like
-> the PTEs.
->
->> @@ -88,37 +88,40 @@ static inline dma_addr_t dma_direct_map_phys(struct device *dev,
->>  {
->>  	dma_addr_t dma_addr;
->>  
->> +	/*
->> +	 * For a device requiring unencrypted DMA, MMIO memory is treated
->> +	 * as shared by default.
->> +	 */
->> +	if (force_dma_unencrypted(dev) && (attrs & DMA_ATTR_MMIO))
->> +		attrs |= DMA_ATTR_CC_SHARED;
->
-> force_dma_unencrypted() says nothing about the properties of the
-> address passed in, this was nonsense :\
->
->> As we discussed [1], that can come in a later patch. In the meantime, adding
->> the HOST_MEM_ENCRYPT check preserves the previous behavior for SME.
->
-> It never worked. When we added ATTR_MMIO it started to have a chance
-> to work but prior to that it was always broken anyhow. I don't see
-> there is much merit in preserving the narrow window when we
-> inadvertantly had a half working ATTR_MMIO.
->
-> But if you really want to it should be
-> cc_platform_has(CC_ATTR_HOST_MEM_ENCRYPT) *only* and get rid of the wrong
-> force_dma_unencrypted().
->
+Pre-existing issues:
+- [High] Newly allocated sockets and their pinned net_devices are permanent=
+ly leaked on error paths because iucv_sock_kill() ignores sockets without t=
+he SOCK_ZAPPED flag.
+- [High] Missing socket reference count (sock_hold) when searching the glob=
+al socket list leads to a Use-After-Free vulnerability.
+- [High] In-place modification of potentially shared/cloned SKBs corrupts d=
+ata for concurrent consumers, and missing headroom checks cause panics.
+- [High] Unlocked traversal of the accept_q leads to list corruption and da=
+ta races.
+--
 
-Ok, I will update the changes to so we preserve the previous behaviour
-for SME?
+--- Patch [1]: [PATCH net] net/af_iucv: fix NULL deref in afiucv_hs_callbac=
+k_syn() ---
+commit df9d50569da59293e9b6bc6ce2e2ee48847f1ed8
+Author: Hidayath Khan <hidayath@linux.ibm.com>
 
-	if (attrs & DMA_ATTR_MMIO) {
-		/*
-		 * For host memory encryption treat MMIO memory as shared
-		 */
-		if (cc_platform_has(CC_ATTR_HOST_MEM_ENCRYPT))
-			attrs |= DMA_ATTR_CC_SHARED;
-	}
+net/af_iucv: fix NULL deref in afiucv_hs_callback_syn()
 
-Do let me know if you feel strongly that the above change should not be
-included and that the SME P2P case should instead be handled in a future
-patch.
+afiucv_hs_callback_syn() allocates the child socket with GFP_ATOMIC.
+If the allocation fails, nsk is NULL. The connection-refused path
+unconditionally calls iucv_sock_kill(nsk), resulting in a NULL pointer
+dereference, which this patch fixes by checking if nsk is valid.
 
+> diff --git a/net/iucv/af_iucv.c b/net/iucv/af_iucv.c
+> index fed240b453bd9..f5b1ec44b6ae3 100644
+> --- a/net/iucv/af_iucv.c
+> +++ b/net/iucv/af_iucv.c
+> @@ -1872,7 +1872,8 @@ static int afiucv_hs_callback_syn(struct sock *sk, =
+struct sk_buff *skb)
 
->
-> But IMHO, I'd rather this series treat ATTR_MMIO as private MMIO and
-> ATTR_MMIO|CC_SHARED as shared MMIO and that's the right and correct
-> thing for the DMA API.
->
+[Severity: High]
+This is a pre-existing issue, but is there a missing reference count when
+looking up sockets?
 
-If you think the rest of the series is ready for upstream, could you
-please ack it so it can be picked up for the next merge window? I'll
-repost v8, rebased on top of the pKVM topic branch.
+In afiucv_hs_rcv(), the socket is found and the list lock is dropped without
+acquiring a reference:
 
--aneesh
+net/iucv/af_iucv.c:afiucv_hs_rcv() {
+    ...
+    read_unlock(&iucv_sk_list.lock);
+    if (!iucv)
+        sk =3D NULL;
+    ...
+    err =3D afiucv_hs_callback_syn(sk, skb);
+}
+
+Could another CPU concurrently close and destroy the socket, causing a
+use-after-free when afiucv_hs_callback_syn() calls bh_lock_sock(sk)?
+
+>  		afiucv_swap_src_dest(skb);
+
+[Severity: High]
+This isn't a bug introduced by this patch, but does afiucv_swap_src_dest()
+safely modify the SKB?
+
+The SKB payload is modified in-place, but there is no check to ensure
+exclusive ownership:
+
+net/iucv/af_iucv.c:afiucv_hs_rcv() {
+    ...
+    trans_hdr =3D iucv_trans_hdr(skb);
+    EBCASC(trans_hdr->destAppName, sizeof(trans_hdr->destAppName));
+    ...
+}
+
+Could this corrupt packet data for concurrent consumers if the SKB is shared
+or cloned?
+
+Additionally, afiucv_swap_src_dest() unconditionally pushes into the SKB
+headroom:
+
+net/iucv/af_iucv.c:afiucv_swap_src_dest() {
+    ...
+    skb_push(skb, ETH_HLEN);
+    memset(skb->data, 0, ETH_HLEN);
+}
+
+If an untrusted packet is received with 0 headroom, will this cause an
+skb_under_panic?
+
+>  		trans_hdr->flags =3D AF_IUCV_FLAG_SYN | AF_IUCV_FLAG_FIN;
+>  		err =3D dev_queue_xmit(skb);
+> -		iucv_sock_kill(nsk);
+> +		if (nsk)
+> +			iucv_sock_kill(nsk);
+
+[Severity: High]
+This is a pre-existing issue, but does iucv_sock_kill() actually clean up t=
+he
+socket here?
+
+When iucv_sock_alloc() creates the socket, the SOCK_ZAPPED flag is cleared.
+However, iucv_sock_kill() immediately returns if SOCK_ZAPPED is not set:
+
+net/iucv/af_iucv.c:iucv_sock_kill() {
+    if (!sock_flag(sk, SOCK_ZAPPED) || sk->sk_socket)
+        return;
+    ...
+}
+
+Does this mean newly allocated sockets and their pinned net_devices are
+permanently leaked on this error path?
+
+>  		bh_unlock_sock(sk);
+>  		goto out;
+>  	}
+
+[Severity: High]
+This is a pre-existing issue, but is the accept queue safely protected agai=
+nst
+concurrent modifications?
+
+In iucv_accept_dequeue(), the queue is traversed without holding
+accept_q_lock:
+
+net/iucv/af_iucv.c:iucv_accept_dequeue() {
+    ...
+    list_for_each_entry_safe(isk, n, &iucv_sk(parent)->accept_q, accept_q) {
+    ...
+}
+
+Meanwhile, iucv_accept_enqueue() modifies the same list from softirq context
+using the lock:
+
+net/iucv/af_iucv.c:iucv_accept_enqueue() {
+    ...
+    spin_lock_irqsave(&par->accept_q_lock, flags);
+    list_add_tail(&iucv_sk(sk)->accept_q, &par->accept_q);
+    spin_unlock_irqrestore(&par->accept_q_lock, flags);
+}
+
+Since lock_sock(parent) does not block softirqs from acquiring bh_lock_sock,
+can iucv_accept_enqueue() run concurrently and corrupt the list pointers?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260709191732.1240=
+92-1-hidayath@linux.ibm.com?part=3D1
