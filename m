@@ -1,259 +1,120 @@
-Received: from PH7PR06CU001.outbound.protection.outlook.com (mail-westus3azon11010068.outbound.protection.outlook.com [52.101.201.68])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6EAFF3358C6;
-	Fri, 10 Jul 2026 08:17:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.201.68
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783671443; cv=fail; b=pGzApgAuQAqoTi/scL1rZgvZp9ue0rvREMtKBGJ4Ao2wvg9w8gylJTq6Mxv+42HPHi2R0nTSuChyICMgniNXKMbnEze00VJ7qYZ4C4mBeKoL4+vIO2Wt2BgsQlD2OT320dPo4rP+i5fsGz5iV6h8MrUlL/606uL1h/29smVdHDo=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783671443; c=relaxed/simple;
-	bh=VQMuaT8JLqvfdUsdV+BNt/Ude636eZA/TxsM82FiQS8=;
-	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=rxL4DRp8nsGYRs0eTkx7MnSCUlTOjo8L5pI8FToTLDFGgY8hQUnz9DQFTf4vByOuRDnVTcom7x0BIOF1sJgod/fqTVASxBEHk7qIOkCGh1C46G5lJnezrFeXFut1HrsExmiM5fA3VxyIuA04Tn7APCGAR1pdksvsgFwJNVYgLbg=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=2CsJejtt; arc=fail smtp.client-ip=52.101.201.68
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 125AE3F12E1
+	for <linux-s390@vger.kernel.org>; Fri, 10 Jul 2026 08:40:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1783672851; cv=none; b=SMw3eaBT8BiWoJubePKfEgTPmykzmZjPAtOt7SBfFb5OtzoVyh9OxfzDSO6kZecMC4BPq4xSxJoObALeUswhlMfrfQGkYFU5L1J1o9UwQalVGwyjwfGkIuAnnivNddliflOazhVGJzraEvFj9k4UpjN+nQ9waefos89y/hZIsf4=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1783672851; c=relaxed/simple;
+	bh=YxLkxaLKGPbQUPWOjtTCzo+sY69ap72Lc9BqmuvY/Co=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=h4FMkthNlDjGuJXRJXrijXryX5IQ68DEjlmcFBoF6G1zPAJbtGdMW0dEfx2eCyoZZYLoRn7mlO5e1pZdm8kxdfED+b34tJZrmR49K/d9Uo48B0uBShBqc6HcUNfOleLio9zS4hrHCDIFLXRphENLJLYMTeeCt1jusYed53/DerE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=tbpTwHWe; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="2CsJejtt"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=bADy4MyDlRtFS7Ey6zhS7/3ranOwzmkHDZMwLNpDFivy6cDI9k9xI/onzlKl/pyYyeGzvLfqH3F/x8BvfbXeCWdUHnTY3P9hHMGf83AhcP7CLXI2DU5wUsUkmyGIDmiP89GuTVXPcilsXYVlQs4JhSTJvtiaSH27bQDDfW2f6P3ngyb8GUShv3zgvmpJCbjYLhsmMuiD1mh4ohL1f4mMFMWuYaMpPaPBVagF+ZcTzXF10T5Kr+vkVnvw+RfVuASVa+ItRcdqmDCpTmiP/rmgy+Hnf/zkCzUFfGQQ0mkCPmgAnD+vmVofOwIgPuowgIxd/6uglDcptZKCL9DVNyprrA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=OXOHSZK3138l5feHcf8tQrpnH6XzX3HFkUrrAbxwBf4=;
- b=SJKWY4xnsFFZrSrQRbWoL2ejWmjW2wn/fDKWSywaEly38uKoxdP76qcGjG3r1rm6HBLIv6tN8kZsA+lCvrzVzNbkGS15bQr2WsGbor3/jcThJzc8h5jOOptT87mUviiw7ZFoppRh0HDZuHDIa4/ScsC0OT2vlvhxkorcJVWAHWiYd+TeCIZ0PzVrAoqHXTZzoDkxlspnDqAGr6UWMiJOGH7ak9STCV7Chgg+NxgQacgSdqiPffFcElJdtcBWzafvFUG7Y5YbQGz3r02732mC7iFdKd/xnrXERI0XhSSzEuyg/bbxT59UO64CX9w4Px1IYHp/amqJWni1fimSJW0Bgw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 165.204.84.17) smtp.rcpttodomain=gmail.com smtp.mailfrom=amd.com; dmarc=pass
- (p=quarantine sp=quarantine pct=100) action=none header.from=amd.com;
- dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=OXOHSZK3138l5feHcf8tQrpnH6XzX3HFkUrrAbxwBf4=;
- b=2CsJejtt2+4ndMVIgzhYdgnZ5q2vSQz52BTNmZD8cUh/wm23YNtEB34cZHChS1Aq+y2vXV08M3tgqOBVm4bbcVrOLVpSk/bTMSPw4iG87Dejfafit0I8PK9S+Ueq5JM0JDray3ApZ2Jo+A92G5phRQQY+VJC+c6TiIGbPxHB8tM=
-Received: from MN0P223CA0017.NAMP223.PROD.OUTLOOK.COM (2603:10b6:208:52b::8)
- by CH8PR12MB9816.namprd12.prod.outlook.com (2603:10b6:610:262::18) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.181.15; Fri, 10 Jul
- 2026 08:17:17 +0000
-Received: from BN3PEPF0000B371.namprd21.prod.outlook.com
- (2603:10b6:208:52b:cafe::8a) by MN0P223CA0017.outlook.office365.com
- (2603:10b6:208:52b::8) with Microsoft SMTP Server (version=TLS1_3,
- cipher=TLS_AES_256_GCM_SHA384) id 15.21.202.13 via Frontend Transport; Fri,
- 10 Jul 2026 08:17:17 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
- smtp.mailfrom=amd.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=amd.com;
-Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
- 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
- client-ip=165.204.84.17; helo=satlexmb07.amd.com; pr=C
-Received: from satlexmb07.amd.com (165.204.84.17) by
- BN3PEPF0000B371.mail.protection.outlook.com (10.167.243.168) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.21.223.0 via Frontend Transport; Fri, 10 Jul 2026 08:17:16 +0000
-Received: from satlexmb08.amd.com (10.181.42.217) by satlexmb07.amd.com
- (10.181.42.216) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.41; Fri, 10 Jul
- 2026 03:17:16 -0500
-Received: from [10.136.35.241] (10.180.168.240) by satlexmb08.amd.com
- (10.181.42.217) with Microsoft SMTP Server id 15.2.2562.41 via Frontend
- Transport; Fri, 10 Jul 2026 03:17:11 -0500
-Message-ID: <650c7050-2a77-4415-b597-3bb39ccfb1e8@amd.com>
-Date: Fri, 10 Jul 2026 13:47:10 +0530
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="tbpTwHWe"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66A7nRtT607204
+	for <linux-s390@vger.kernel.org>; Fri, 10 Jul 2026 08:40:49 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=ukZaGD1K+vhcPGs0h7sre9WLAWTnzh
+	7LB2m5u3DOyKk=; b=tbpTwHWeE1rrnO+dcHkxqQhth7q+IFM84yt1DIs5RwG4qI
+	G+htiV0eLxCEsk26hGCoh5YOIXNjptceh5khSqLv+/tTIG5wJGPt8iTw+vQGEVrB
+	N9IngT9eNfLOqg6ijDBNVmtzjtctZA9yky7F+X0cBDwguQcans/5/TwFsoy1W7CO
+	/QOV4HlSEZuwOUbgjxn3Ns4/dsC9OEwecgG03RUDAAzaygdWNnYgRsjvPcAHiFsZ
+	CHU0pVYI0Ou8vZ4Vbcgfb2lsUUoQZojEDvBPoI5ucCh+oW1xbMb566RIOAMrOgzO
+	u6ZtRmn9LV96wB0+eG/BvovkPXY+2KI3V25RpUbg==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4f6qknw5m6-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Fri, 10 Jul 2026 08:40:48 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66A8YhKv015371
+	for <linux-s390@vger.kernel.org>; Fri, 10 Jul 2026 08:40:48 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4f7dgkh5ty-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Fri, 10 Jul 2026 08:40:48 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66A8eivn60686724
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 10 Jul 2026 08:40:44 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 141D920043;
+	Fri, 10 Jul 2026 08:40:44 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id BD35C2004B;
+	Fri, 10 Jul 2026 08:40:43 +0000 (GMT)
+Received: from localhost (unknown [9.111.0.64])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Fri, 10 Jul 2026 08:40:43 +0000 (GMT)
+Date: Fri, 10 Jul 2026 10:40:42 +0200
+From: Vasily Gorbik <gor@linux.ibm.com>
+To: Sven Schnelle <svens@linux.ibm.com>
+Cc: Heiko Carstens <hca@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>, borntraeger@linux.ibm.com,
+        linux-s390@vger.kernel.org
+Subject: Re: [PATCH 0/2] s390: Remove PIF_GUEST_FAULT and add PER trap flag
+Message-ID: <tthyaru@ub.hpns>
+References: <20260709195500.1241833-1-svens@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v5 5/8] riscv/runtime-const: Introduce
- runtime_const_mask_32()
-To: Charlie Jenkins <thecharlesjenkins@gmail.com>
-CC: Arnd Bergmann <arnd@arndb.de>, Thomas Gleixner <tglx@kernel.org>, Ingo
- Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Sebastian
- Andrzej Siewior <bigeasy@linutronix.de>, Paul Walmsley <pjw@kernel.org>,
-	Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>,
-	Darren Hart <dvhart@infradead.org>, Davidlohr Bueso <dave@stgolabs.net>,
-	=?UTF-8?Q?Andr=C3=A9_Almeida?= <andrealmeid@igalia.com>,
-	<linux-arch@vger.kernel.org>, <linux-kernel@vger.kernel.org>, Samuel Holland
-	<samuel.holland@sifive.com>, <linux-arm-kernel@lists.infradead.org>,
-	<linux-riscv@lists.infradead.org>, <linux-s390@vger.kernel.org>, Alexandre
- Ghiti <alex@ghiti.fr>, Jisheng Zhang <jszhang@kernel.org>
-References: <20260630045531.3939-1-kprateek.nayak@amd.com>
- <20260630045531.3939-6-kprateek.nayak@amd.com>
- <178366995930.1208691.2993932866462893112.b4-review@b4>
-Content-Language: en-US
-From: K Prateek Nayak <kprateek.nayak@amd.com>
-In-Reply-To: <178366995930.1208691.2993932866462893112.b4-review@b4>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: BN3PEPF0000B371:EE_|CH8PR12MB9816:EE_
-X-MS-Office365-Filtering-Correlation-Id: 32fd8548-7dad-4237-4418-08dede5ba7b3
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|82310400026|7416014|376014|1800799024|36860700016|23010399003|11063799006|4143699003|5023799004|22082099003|56012099006|18002099003|3023799007|13003099007;
-X-Microsoft-Antispam-Message-Info:
-	Q/9ktpJsUqU9YY6zkbyoOn1QUlbJ+/6RwN3a5/mkWn6etdYrVp1Xwp+3HQeSVP3DwNzktZfDBLO59E+NnE9xir8SKzrRrkqaq34aOKn0YbrYj2t+FcXATn/c2vJ2+LeB+zOtDHC/z9fMRd+ZDBBkNzALUKLzmooT71j7MLUzpwWWKQ4O/SJ/0PqAGPNUswbvpGh1IumXJXP/VXccbUbPHbN+NQf9h8pyrzNIcV/IRKCuEdbYtSTslgL6IciYD+u/JINXvijcgkznQx8qXYh3Vh5IYaU++GjQlpRYN5gJ1ogHi8c10wREkHZWmWkwA7q+slgQasvsYY/paW5q56Islubv3jw85tN5itm3F1/Va5tK89TfrN/hLJoqACcREaefetPxLXPb86eiD/XRgvs3jX/Qh2W8k92EvbkmFRK6XHQnxGadMATBABsx9rSAlHCTsn5z0E2clqlXbbBL9ztqinVoB7/tTA2cDQHCf3xNABV1OrXxZY6GniPl4WheQ8qIpeZ+iGbDbe3CZdS7r9kHlczkUX74c5/zsdwHk/rjBDX0eVwxfsamiJQ+3cyd3InsZ8IyjjPw0wCt71gK4Q607/PBiiHf0cGpiBWwfsgs8X/I81mo3uSsmeXOl9Jj1V4tLnPP7w15N1lkmsaEFG0g8xxtWPS7St2nqYdyf/JoM5MtYriGBwiSL4EvrN8NR/qv3MjZb3libzkv9wImUFVMeQ==
-X-Forefront-Antispam-Report:
-	CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:satlexmb07.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(82310400026)(7416014)(376014)(1800799024)(36860700016)(23010399003)(11063799006)(4143699003)(5023799004)(22082099003)(56012099006)(18002099003)(3023799007)(13003099007);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	60pdV8geNf2LGy6amrH9UHz4HB+liaHa8OSGHsqTNViw7oXQ249X9/AxDXEBPT7AnEg8ZdRXgUBHxlYACOmZQGYW87ZjV6+TxVG2cyOG9c6BLMYOjzC1nP5NQn4+PaREJZUZvfXdr4LeQyTIGNWLIB0s1nzxYg+tFD2DgvDdG/QwyaWMRLRdmp/g8tHkI78gp1Wv5qk45RzbrqP6uvgGImmtG7kRzs3ss/ovE+nC5lWeewQ3jD5vK//MvYhWHJDhi/Wjss3OJgLPR9ENljPxVLxOxqIqWT/pG2P07+arTG+p/07FfAyTOeuH4/eZ/Ze+VQtAWfXsRNAuX9b8wBnN+RpKYQs28YmfhsMpQsShvtAfykKsjTiQna8TYWCjVeYU6RJDQgpOZNJxgyf4yas6IuPaWqlJziwI9WM1hTrkuZGFRWs9pbuthM4acsYljNrq
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Jul 2026 08:17:16.9680
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 32fd8548-7dad-4237-4418-08dede5ba7b3
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[satlexmb07.amd.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	BN3PEPF0000B371.namprd21.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH8PR12MB9816
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20260709195500.1241833-1-svens@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=Q/XiJY2a c=1 sm=1 tr=0 ts=6a50b010 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=TUaCbrCJA9lGdIzC_NEA:9
+ a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: ith5psA_xnEUQoF-WeDvvreW2LI937GG
+X-Proofpoint-ORIG-GUID: ith5psA_xnEUQoF-WeDvvreW2LI937GG
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzEwMDA4MCBTYWx0ZWRfXzc3FUth0mrqF
+ HsLzVSVGALbQTXpwxzU60iu1wvet8qPRTSV/Wu1k1KxfocxhhuOs5MJBk/bS5VJa8NzxIPQv6ad
+ qF8I2p68Jg0OSytYN7hyVUnRPrk5v1w=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzEwMDA4MCBTYWx0ZWRfX2jWrebSQuUMe
+ D2qNSgX6z5KnsY1cvgAgUGDFczHfhG+/ta6Vg6GWVS3cD14VGmF5ipzmJy3bTQLFQumaLf3bNyt
+ GGveGFH7PQIdIha/1OQvZq00dmgbIu3i2cX1u631YjwTzg2CFWeU5Z+2ej+ujyMU7fBRoHtD6Jd
+ 8K8hWpe7fg6Swjmr1AOYyaCmGu2Vwyp8T31fFYq6ABpY3tJkRBIODPp7OGDHaSl4vCuRvJ6e7Ox
+ /lpZmUX4fYqT3KEf+p5nRFz5GnxvYLT0xGoqVKatHKo6FnZVviA9/mZmkWp/NNLA1s4OOdtYJqE
+ hRg23RrA2neQt1Mi3X8JyGY5vuThJTkeUs2y6RZI/AZAALxgQMJ3BDHG1PsgZL20GuVOu5X8a4j
+ /bJkuQC+IhpamwWU0/6zSVx4VekCqJ85dI5VUANwfLv1xndgxFB1QmHJl8YPvcgLPh/mtw2wPx5
+ HS5KQEHZZRuP3EHIC6g==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-07-10_02,2026-07-09_04,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ adultscore=0 impostorscore=0 spamscore=0 phishscore=0 priorityscore=1501
+ bulkscore=0 clxscore=1015 lowpriorityscore=0 suspectscore=0 malwarescore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607100080
 
-Hello Charlie,
+On Thu, Jul 09, 2026 at 09:54:58PM +0200, Sven Schnelle wrote:
+> While looking at the syscall code I noticed that entry.S still sets
+> PIF_GUEST_FAULT in ptregs even though it's only used in __do_pgm_check().
+> Remove that and pass it directly to __do_pgm_check(). Heiko suggested
+> to also add a define for the per trap flag in system_call().
+> 
+> Sven Schnelle (2):
+>   s390/traps: Remove PIF_GUEST_FAULT
+>   s390/syscalls: Use define instead of '1' to indicate PER trap
+> 
+>  arch/s390/include/asm/ptrace.h |  4 +---
+>  arch/s390/kernel/entry.S       |  9 +++++----
+>  arch/s390/kernel/entry.h       | 10 ++++++++--
+>  arch/s390/kernel/syscall.c     |  4 ++--
+>  arch/s390/kernel/traps.c       |  4 ++--
+>  5 files changed, 18 insertions(+), 13 deletions(-)
 
-On 7/10/2026 1:22 PM, Charlie Jenkins wrote:
-> [You don't often get email from thecharlesjenkins@gmail.com. Learn why this is important at https://aka.ms/LearnAboutSenderIdentification ]
-> 
-> On Tue, 30 Jun 2026 04:55:28 +0000, K Prateek Nayak <kprateek.nayak@amd.com> wrote:
->> Futex hash computation requires a mask operation with read-only after
->> init data that will be converted to a runtime constant in the subsequent
->> commit.
->>
->> Introduce runtime_const_mask_32 to further optimize the mask operation
->> in the futex hash computation hot path. Since all the current use-cases
->> are of the form GENMASK(n, 0), with n > 0, following sequence:
-> 
-> I really appreciate you spending the time to do this, thank you!
-
-My pleasure! And I really appreciate you taking time to review and test
-this series. Thanks a ton for that!
-
-> 
->>
->>
->> diff --git a/arch/riscv/include/asm/runtime-const.h b/arch/riscv/include/asm/runtime-const.h
->> index 1ce02605d2e4..dbf96c937dbb 100644
->> --- a/arch/riscv/include/asm/runtime-const.h
->> +++ b/arch/riscv/include/asm/runtime-const.h
->> @@ -262,6 +279,33 @@ static inline void __runtime_fixup_shift(void *where, unsigned long val)
->> [ ... skip 24 lines ... ]
->> +     BUG_ON(!val || width > 31 || (GENMASK(width - 1, 0) != val));
->> +
->> +     __runtime_fixup_shift(where, 32 - width);
->> +     __runtime_fixup_shift(where + 4, 32 - width);
->> +}
->> +
-> 
-> It would be "optimal" to use an andi when the mask is <=11 bits since
-> andi can fit an 11 bit mask. What you have is good enough but I'll leave
-> my stab at doing the andi patching here in case you want to apply it.
-> 
-> From 9e5527aaddd464783af795aacdb6d094e11cc31e Mon Sep 17 00:00:00 2001
-> From: Charlie Jenkins <thecharlesjenkins@gmail.com>
-> Date: Thu, 9 Jul 2026 23:18:09 -0700
-> Subject: [PATCH] riscv: Optimize __runtime_fixup_mask for masks with <= 11
->  bits
-
-Peter seems to have merged the v5 series in his tree but If you could give
-your S-o-b, I can throw in a commit log, some testing along with a few
-cosmetic modifications, and send it for official review on top of
-queue:locking/core ;-)
-
-> 
-> ---
->  arch/riscv/include/asm/insn.h          |  2 ++
->  arch/riscv/include/asm/runtime-const.h | 29 ++++++++++++++++++++++++--
->  2 files changed, 29 insertions(+), 2 deletions(-)
-> 
-> diff --git a/arch/riscv/include/asm/insn.h b/arch/riscv/include/asm/insn.h
-> index c3005573e8c9..0a34cd7305d0 100644
-> --- a/arch/riscv/include/asm/insn.h
-> +++ b/arch/riscv/include/asm/insn.h
-> @@ -141,6 +141,7 @@
->  #define RVG_OPCODE_JALR                0x67
->  #define RVG_OPCODE_JAL         0x6f
->  #define RVG_OPCODE_SYSTEM      0x73
-> +#define RVG_OPCODE_ANDI                0x13
->  #define RVG_SYSTEM_CSR_OFF     20
->  #define RVG_SYSTEM_CSR_MASK    GENMASK(12, 0)
-> 
-> @@ -175,6 +176,7 @@
->  #define RVG_FUNCT3_BGE         0x5
->  #define RVG_FUNCT3_BLTU                0x6
->  #define RVG_FUNCT3_BGEU                0x7
-> +#define RVG_FUNCT3_ANDI                0x7
-> 
->  /* parts of funct3 code for C extension*/
->  #define RVC_FUNCT3_C_BEQZ      0x6
-> diff --git a/arch/riscv/include/asm/runtime-const.h b/arch/riscv/include/asm/runtime-const.h
-> index dbf96c937dbb..24a9b13081f7 100644
-> --- a/arch/riscv/include/asm/runtime-const.h
-> +++ b/arch/riscv/include/asm/runtime-const.h
-> @@ -9,6 +9,7 @@
->  #include <asm/asm.h>
->  #include <asm/alternative.h>
->  #include <asm/cacheflush.h>
-> +#include <asm/insn.h>
->  #include <asm/insn-def.h>
->  #include <linux/memory.h>
->  #include <asm/text-patching.h>
-> @@ -302,8 +303,32 @@ static inline void __runtime_fixup_mask(void *where, unsigned long val)
->          */
->         BUG_ON(!val || width > 31 || (GENMASK(width - 1, 0) != val));
-> 
-> -       __runtime_fixup_shift(where, 32 - width);
-> -       __runtime_fixup_shift(where + 4, 32 - width);
-> +       /*
-> +        * A riscv 'andi' instruction can fit an 11 bit immediate, so the mask
-> +        * can be directly applied. Otherwise fall back to SRLI + SLLI.
-> +        */
-> +       if (width < 11) {
-> +               __le16 *parcel = where;
-> +               u32 insn;
-> +               __le32 res, nop;
-> +
-> +               insn = (u32)le16_to_cpu(parcel[0]) | (u32)le16_to_cpu(parcel[1]) << 16;
-> +
-> +               /* Replace the slli/slliw with an andi */
-> +               insn &= 0x000fcf80;
-> +               insn |= val << 20 | RV_ENCODE_FUNCT3(ANDI) | RVG_OPCODE_ANDI;
-> +
-> +               res = cpu_to_le32(insn);
-> +               /* Replace the srli/srliw with a nop */
-> +               nop = cpu_to_le32(RISCV_INSN_NOP4);
-> +               mutex_lock(&text_mutex);
-> +               patch_text_nosync(where, &res, sizeof(insn));
-> +               patch_text_nosync(where + 4, &nop, sizeof(insn));
-> +               mutex_unlock(&text_mutex);
-> +       } else {
-> +               __runtime_fixup_shift(where, 32 - width);
-> +               __runtime_fixup_shift(where + 4, 32 - width);
-> +       }
->  }
-> 
->  static inline void runtime_const_fixup(void (*fn)(void *, unsigned long),
-> --
-> 2.54.0
-> 
-> 
-> I would prefer including this, but I am happy to approve this
-> regardless.
-
-Ack! I'll keep it as an optimization on top to retain your attribution.
-
-> 
-> Reviewed-by: Charlie Jenkins <thecharlesjenkins@gmail.com>
-> Tested-by: Charlie Jenkins <thecharlesjenkins@gmail.com>
-
-Thank you again!
-
--- 
-Thanks and Regards,
-Prateek
-
+Applied, thank you!
