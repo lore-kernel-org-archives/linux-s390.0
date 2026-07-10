@@ -1,161 +1,312 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1B13B4195CD
-	for <linux-s390@vger.kernel.org>; Fri, 10 Jul 2026 11:43:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ADB474189B6;
+	Fri, 10 Jul 2026 11:57:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783683825; cv=none; b=b5XoPcKwrMF9yuk6nD6E8uD6NBM2LX2vPNXevaIHXuVdb/j8ztydLrdRwHwUct5FGgwmvWJht8Q1uQ0Ui2OX454xY/ump61Y3g0vy5E0jlqmStuAZdrsrYTeCuUpunBuE3BpLeI61wkmheyDB+6Rj7tERF6VT1U9h7ga123N7+w=
+	t=1783684651; cv=none; b=M+mYiFfS4b6NxPP6nTjjBfQFvK3VyeBxl038jiCSZmgnttCyiW2TMcTLsdPdvtSwVJT/c472utJaEfIB4at6/IRHbOKTkvvo0c4VXkec549Dl+7GrjmF8VGKzP+LPpozqiCAybl09kLxVAZeY/NbsF7Cik83nzV2MQQydo8iXuY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783683825; c=relaxed/simple;
-	bh=DhSmTqhszdViJaVGZZS4aD/Ee+N3MIYleeVLCVZ/72Q=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=V0iXT1K06XrdOdppwWRp6hppSZQUTffgEIsiBvDgGINgidhJ9WVIwYOZWPFeD4rflrRPmA13ss/O8DCzKSavLS5g+5Jd81YNJ0vbbh6i9P0JFIFbdeE+BInj8Naj1FP/RGVoo5vD6MUHUDtnDt3leG6RKXEpUGckzkq07lg04CY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Ezpgh7wV; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1783684651; c=relaxed/simple;
+	bh=kvazcfUq9ZYj6uZ16qwJeVm5v3hO6kSzer36N7uDJU4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=gjIhigfDhhR+q0fmZ3++6SJXhMjBkbRt7Z+0aYv/gxVBP2thfYJonQiuFCGHvo7hx4BgsFS73Ao5HI0sckPd9a1J6BV97JY79x1D+qZhrRx5+bjAySViFh26OvnFyS0ABDQ+nA0rysN3DdAMQutdHXgO8xOtpMv/Z6pmMRapHmQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=W0sQt6cU; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Ezpgh7wV"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 484231F000E9;
-	Fri, 10 Jul 2026 11:43:33 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783683813;
-	bh=/LWyD9eWBqeEBw068OythxbPiG5GQjNvNPuyIGZDWKM=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Ezpgh7wVS6FjvtGJJkGsnUv/kCune2sKX8XQ1cmK4DVWcy7nq5/A53dYe2HVK4MgK
-	 HDgsBy3/DkL4K0a8sDyyCGerXle2QCY6jo8imYNkQBLv3NJcanZMysKTvKVlTlkjzS
-	 x2GkY4A9p6xxJP+RQbpyefqGb4YKqDq+YQNDtgyVQ82krhuV6IcvCNB0imvpLIQeQ2
-	 9Bz3NN8PWJoiQuNWzxDaGkDyYtv+fCK64S4VtvHaNs4Hw3QWmjnFd3+OdwltwT7HN7
-	 JGLmUcy1RqVqI7C6bkZppmJjDUJXP+mq8H1ngtNDY8AwIw/V8X1r+KBszTK3qkxtcx
-	 zE13AQ6O64/TQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 1/1] s390/zcrypt: Improve zcrypt reply message
- verification checks
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Harald Freudenberger" <freude@linux.ibm.com>
-Cc: "Heiko Carstens" <hca@linux.ibm.com>, linux-s390@vger.kernel.org, "Vasily
- Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
-In-Reply-To: <20260710112756.75346-2-freude@linux.ibm.com>
-References: <20260710112756.75346-1-freude@linux.ibm.com>
- <20260710112756.75346-2-freude@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 10 Jul 2026 11:43:32 +0000
-Message-Id: <20260710114333.484231F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="W0sQt6cU"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66AAmt1d1391207;
+	Fri, 10 Jul 2026 11:56:49 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=9fsiWcwBToyW3gsri5KuLfQd15xA3y
+	Q0e3RQdD/aBtg=; b=W0sQt6cUZP/EUAfkWxrsYO13TAF6nT5ZJUfCagHiCHMiux
+	T/uWkUm374ULa/kJx5kh20hNOWqEFtu+oYAuwYxt03nqSS03lgdyMRfaiEpjFspO
+	H7Cdz9W7BqyPgSG6IJApCNw/2WmfmWLwFgc+WdKdgZYlu5HNbmskuLT+bZI+dsxk
+	+XJZCiGFmOOLCwhEEkmH/frrY5aO4Xc3NscL6mKi954xnHgfilPgRRmxCkVcpQmt
+	qdGAujdF1VsFjJuntdrl+OOcMOxdnBahDmCYOQZ7LKQCKrpIR2tuL9qTto6Sc2Ss
+	6ku20EwL2q8f8IPZ7gHXutUmDUYcDCY9QR2IihSQ==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4f6sur69kc-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 10 Jul 2026 11:56:48 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66ABnnZg007753;
+	Fri, 10 Jul 2026 11:56:47 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4f7cvwj22t-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 10 Jul 2026 11:56:47 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66ABueRs27263266
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 10 Jul 2026 11:56:40 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 2A20A20049;
+	Fri, 10 Jul 2026 11:56:40 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4555020040;
+	Fri, 10 Jul 2026 11:56:39 +0000 (GMT)
+Received: from osiris (unknown [9.87.147.219])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Fri, 10 Jul 2026 11:56:39 +0000 (GMT)
+Date: Fri, 10 Jul 2026 13:56:37 +0200
+From: Steffen Eiden <seiden@linux.ibm.com>
+To: Marc Zyngier <maz@kernel.org>
+Cc: kvm@vger.kernel.org, kvmarm@lists.linux.dev,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, Alexander Gordeev <agordeev@linux.ibm.com>,
+        Andreas Grapentin <gra@linux.ibm.com>, Arnd Bergmann <arnd@arndb.de>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@kernel.org>,
+        Friedrich Welter <fritz@linux.ibm.com>,
+        Gautam Gala <ggala@linux.ibm.com>,
+        Hariharan Mari <hari55@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Hendrik Brueckner <brueckner@linux.ibm.com>,
+        Ilya Leoshkevich <iii@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>, Joey Gouly <joey.gouly@arm.com>,
+        Nico Boehr <nrb@linux.ibm.com>,
+        Nina Schoetterl-Glausch <oss@nina.schoetterlglausch.eu>,
+        Oliver Upton <oupton@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Ulrich Weigand <Ulrich.Weigand@de.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>,
+        Zenghui Yu <yuzenghui@huawei.com>
+Subject: Re: [PATCH v4 09/27] KVM: arm64: Access elements of vcpu_gp_regs
+ individually
+Message-ID: <20260710115637.984749-H-seiden@linux.ibm.com>
+References: <20260706085229.979525-1-seiden@linux.ibm.com>
+ <20260706085229.979525-10-seiden@linux.ibm.com>
+ <86cxx0ovx5.wl-maz@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <86cxx0ovx5.wl-maz@kernel.org>
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzEwMDExNyBTYWx0ZWRfX4LaHG2cbEDg/
+ BIx2/t04jsyLY1n5DJ221VRhumIJmabCnU6WnnKyJ5GXvzBUIiZJZa3dEW8eOzlRLd4INYjc4w+
+ N6BWUeIewSS3WCtE/vsmr9nC3Px2pZI=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzEwMDExNyBTYWx0ZWRfX1OLJhk/mxwBH
+ m39hdBM2yJSRl0y7hd/yKzK0tF2OMP5DXdaqyNy9WKoR82s3cZenNU/8ZFwACcRwX48fHLl9y3z
+ 6LAejCZoFk5FvG5Af2IeeaZboaJLpPLAgf+5cP/CyJwN/e0c/gse+Q0CrBQ1Z/Y1mkb8zID+a6H
+ lG+5iUslSBeSjhVVwRCtXPB0ESCug1qFiQhiTu4+v2i9nbRmBCPHiZ+ahx7VP1bZrFxnAOm5EAl
+ e9LphNcN26rTn7wRXUqOtBiB2WGurxm836iStnp0awRqfG2mr3pFr5jLkBZY0rXWwYGL4nZFTr8
+ CmAPvJB1QqJDMTADPPxKktZIZfdTN+Z4IdDlIiY7v+TmvwE+n0A9/wsmaEbcTfQoVgL8XJ5loQ+
+ Zvp10MJ6bMfsijkalBSBN2mWCWT8G/NuciGeU3KY9h9xHEkG9+5mW2fBS9pZgxLvrPxZShSXY9G
+ 5Yyr+TGleopO9hI6b7g==
+X-Proofpoint-GUID: QewiZpKBES5sTR1z0ckpN5bbItnepDFb
+X-Authority-Analysis: v=2.4 cv=Oot/DS/t c=1 sm=1 tr=0 ts=6a50de01 cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=kj9zAlcOel0A:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8
+ a=JvUMi_Ukf_9PVyXn5B4A:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-ORIG-GUID: QewiZpKBES5sTR1z0ckpN5bbItnepDFb
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-07-10_03,2026-07-09_04,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ bulkscore=0 lowpriorityscore=0 clxscore=1015 impostorscore=0 phishscore=0
+ malwarescore=0 suspectscore=0 spamscore=0 adultscore=0 priorityscore=1501
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607100117
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
+On Mon, Jul 06, 2026 at 06:44:06PM +0100, Marc Zyngier wrote:
+> On Mon, 06 Jul 2026 09:52:09 +0100,
+> Steffen Eiden <seiden@linux.ibm.com> wrote:
+> > 
+> > While for arm64 the members of vcpu_gp_regs are allocated continuous
+> > this is not necessarily true for other architectures implementing ARM.
+> > 
+> > Let vcpu_gp_regs() no longer return the address of the user_pt_regs in
+> > the vcpu context but the address of the gp-register array field in the
+> > user_pt_reg struct.
+> 
+> That's an interesting change of semantics, because this excludes PC
+> from the GPRs. This is valid on AArch64, but wrong for AArch32 (PC
+> really is R15, and is just another GPR).
+>
 
-Pre-existing issues:
-- [High] 32-bit integer overflow in reply length validation allows out-of-b=
-ounds kernel memory read.
-- [High] Missing bounds validation for `offset1` and `count1` when `count2`=
- is non-zero allows arbitrary kernel memory leak.
---
+I never looked into AArch32 thanks for pointing this out.
 
---- Patch [1]: [PATCH v4 1/1] s390/zcrypt: Improve zcrypt reply message ver=
-ification checks ---
-commit 6d9229604582e7a664ea0c26830d5edc37b47568
-Author: Harald Freudenberger <freude@linux.ibm.com>
+> It isn't a huge deal, and nothing breaks, but that's something that
+> you may want to capture.
+> 
 
-s390/zcrypt: Improve zcrypt reply message verification checks
+Shall I add a comment into the commit message that this splits pc from
+the gprs for arm32?
 
-This patch adds or improves checks related to buffer sizes and reply sizes
-in the handling of CCA and EP11 replies from crypto cards. It changes reply
-buffer sizes from int to size_t and adds a check for RNG replies to avoid
-exceeding the hard-coded data buffer limit.
 
-> diff --git a/drivers/s390/crypto/zcrypt_msgtype6.c b/drivers/s390/crypto/=
-zcrypt_msgtype6.c
-> index 40f72cdf284d3..ae175cab041b8 100644
-> --- a/drivers/s390/crypto/zcrypt_msgtype6.c
-> +++ b/drivers/s390/crypto/zcrypt_msgtype6.c
-> @@ -691,6 +691,13 @@ static int convert_type86_rng(struct zcrypt_queue *z=
-q,
-> =20
->  	if (msg->cprbx.ccp_rtcode !=3D 0 || msg->cprbx.ccp_rscode !=3D 0)
->  		return -EINVAL;
-> +	/*
-> +	 * Note that offset2 and count2 have already been checked in
-> +	 * zcrypt_msgtype6_receive(). So only check for not exceeding
-> +	 * the hard coded rng buffer size.
-> +	 */
-> +	if (msg->fmt2.count2 > ZCRYPT_RNG_BUFFER_SIZE)
-> +		return -EMSGSIZE;
->  	memcpy(buffer, data + msg->fmt2.offset2, msg->fmt2.count2);
 
-[Severity: High]
-This is a pre-existing issue, but does this bounds checking fully prevent
-out-of-bounds reads if the offset2 and count2 values wrap around?
+...
 
-In zcrypt_msgtype6_receive(), len is calculated as:
+> >  
+> > +#define kvm_vcpu_get_sp_el1(__vcpu) (__ctxt_sys_reg(&(__vcpu)->arch.ctxt, SP_EL1))
+> > +#define kvm_vcpu_get_vreg(__vcpu, _n) (&(__vcpu)->arch.ctxt.fp_regs.vregs[_n])
+> > +#define kvm_vcpu_get_vregs(__vcpu) (&(__vcpu)->arch.ctxt.fp_regs.vregs)
+> > +#define kvm_vcpu_get_fpsr(__vcpu) (&(__vcpu)->arch.ctxt.fp_regs.fpsr)
+> > +#define kvm_vcpu_get_fpcr(__vcpu) (&(__vcpu)->arch.ctxt.fp_regs.fpcr)
+> > +
+> >  u64 kvm_vcpu_apply_reg_masks(const struct kvm_vcpu *, enum vcpu_sysreg, u64);
+> >  
+> >  #define __vcpu_assign_sys_reg(v, r, val)				\
+> > diff --git a/arch/arm64/kvm/guest.c b/arch/arm64/kvm/guest.c
+> > index 5a202cfd27bc..5e1e1faa98c2 100644
+> > --- a/arch/arm64/kvm/guest.c
+> > +++ b/arch/arm64/kvm/guest.c
+> > @@ -62,6 +62,7 @@ const struct kvm_stats_header kvm_vcpu_stats_header = {
+> >  		       sizeof(kvm_vcpu_stats_desc),
+> >  };
+> >  
+> > +#ifdef ARM64_S390_COMMON
+> 
+> I really think this patch (and a few others) needs splitting. What I'd
+> like to see is a prefix to this series adding the required arm64
+> rework, and only in a subsequent patch add the "make this shared"
+> attributes.
 
-    len =3D t86r->fmt2.offset2 + t86r->fmt2.count2;
+Ok, makes sense. I'll do the refactroings first and then add these
+markers.
 
-If the firmware provides values that wrap modulo 2^32 (for instance,
-offset2 =3D 0xFFFFFFE0 and count2 =3D 0x40), the sum is evaluated as an add=
-ition
-of two 32-bit unsigned integers before being zero-extended to size_t.
+> 
+> Also, quite a lot of this patch is about using the existing accessors
+> instead of an open-coded version. These changes should be standalone.
 
-The wrapped value could match the hardware's reply->len and bypass the
-subsequent len > msg->bufsize checks.
+Ok I'llsplit this up:
 
-This would allow the memcpy() here to read out-of-bounds kernel memory.
+1. vcpu_gp_regs change
+2. accessor use
 
-Could a malicious or faulty CEX card firmware trigger an out-of-bounds read
-of kernel memory with this wrap around?
+> 
+> >  static bool core_reg_offset_is_vreg(u64 off)
+> >  {
+> >  	return off >= KVM_REG_ARM_CORE_REG(fp_regs.vregs) &&
+> > @@ -134,19 +135,19 @@ static void *core_reg_addr(struct kvm_vcpu *vcpu, const struct kvm_one_reg *reg)
+> >  	     KVM_REG_ARM_CORE_REG(regs.regs[30]):
+> >  		off -= KVM_REG_ARM_CORE_REG(regs.regs[0]);
+> >  		off /= 2;
+> > -		return &vcpu->arch.ctxt.regs.regs[off];
+> > +		return &vcpu_gp_regs(vcpu)[off];
+> >  
+> >  	case KVM_REG_ARM_CORE_REG(regs.sp):
+> > -		return &vcpu->arch.ctxt.regs.sp;
+> > +		return vcpu_sp_el0(vcpu);
+> >  
+> >  	case KVM_REG_ARM_CORE_REG(regs.pc):
+> > -		return &vcpu->arch.ctxt.regs.pc;
+> > +		return vcpu_pc(vcpu);
+> >  
+> >  	case KVM_REG_ARM_CORE_REG(regs.pstate):
+> > -		return &vcpu->arch.ctxt.regs.pstate;
+> > +		return vcpu_cpsr(vcpu);
+> >  
+> >  	case KVM_REG_ARM_CORE_REG(sp_el1):
+> > -		return __ctxt_sys_reg(&vcpu->arch.ctxt, SP_EL1);
+> > +		return  kvm_vcpu_get_sp_el1(vcpu);
+> >  
+> >  	case KVM_REG_ARM_CORE_REG(elr_el1):
+> >  		return __ctxt_sys_reg(&vcpu->arch.ctxt, ELR_EL1);
+> > @@ -170,13 +171,13 @@ static void *core_reg_addr(struct kvm_vcpu *vcpu, const struct kvm_one_reg *reg)
+> >  	     KVM_REG_ARM_CORE_REG(fp_regs.vregs[31]):
+> >  		off -= KVM_REG_ARM_CORE_REG(fp_regs.vregs[0]);
+> >  		off /= 4;
+> > -		return &vcpu->arch.ctxt.fp_regs.vregs[off];
+> > +		return kvm_vcpu_get_vreg(vcpu, off);
+> >  
+> >  	case KVM_REG_ARM_CORE_REG(fp_regs.fpsr):
+> > -		return &vcpu->arch.ctxt.fp_regs.fpsr;
+> > +		return  kvm_vcpu_get_fpsr(vcpu);
+> >  
+> >  	case KVM_REG_ARM_CORE_REG(fp_regs.fpcr):
+> > -		return &vcpu->arch.ctxt.fp_regs.fpcr;
+> > +		return  kvm_vcpu_get_fpcr(vcpu);
+> 
+> Odd additional spaces (3 instances).
 
-[ ... ]
+thanks.
 
-> @@ -853,7 +860,7 @@ static void zcrypt_msgtype6_receive(struct ap_queue *=
-aq,
->  	};
->  	struct ap_response_type *resp_type =3D &msg->response;
->  	struct type86x_reply *t86r;
-> -	int len;
-> +	size_t len;
-> =20
->  	/* Copy the reply message to the request message buffer. */
->  	if (!reply)
->  		goto out;	/* ap_msg->rc indicates the error */
+> 
+> >  
+> >  	default:
+> >  		return NULL;
+> > @@ -306,6 +307,8 @@ static int set_core_reg(struct kvm_vcpu *vcpu, const struct kvm_one_reg *reg)
+> >  	return err;
+> >  }
+> >  
+> > +#endif /* ARM64_S390_COMMON */
+> > +
+> >  #define vq_word(vq) (((vq) - SVE_VQ_MIN) / 64)
+> >  #define vq_mask(vq) ((u64)1 << ((vq) - SVE_VQ_MIN) % 64)
+> >  #define vq_present(vqs, vq) (!!((vqs)[vq_word(vq)] & vq_mask(vq)))
+> > diff --git a/arch/arm64/kvm/hyp/exception.c b/arch/arm64/kvm/hyp/exception.c
+> > index bef40ddb16db..82611442a2d1 100644
+> > --- a/arch/arm64/kvm/hyp/exception.c
+> > +++ b/arch/arm64/kvm/hyp/exception.c
+> > @@ -277,6 +277,9 @@ static const u8 return_offsets[8][2] = {
+> >  	[7] = { 4, 4 },		/* FIQ, unused */
+> >  };
+> >  
+> > +#define OFFSETOF_PT_REG(__r) offsetof(struct user_pt_regs, __r)
+> > +#define COMPAT_IDX(__c) ((OFFSETOF_PT_REG(__c) - OFFSETOF_PT_REG(regs[0])) / sizeof(u64))
+> > +
+> 
+> Oh $gawd, this is... awful.
+> 
+> >  static void enter_exception32(struct kvm_vcpu *vcpu, u32 mode, u32 vect_offset)
+> >  {
+> >  	unsigned long spsr = *vcpu_cpsr(vcpu);
+> > @@ -292,12 +295,12 @@ static void enter_exception32(struct kvm_vcpu *vcpu, u32 mode, u32 vect_offset)
+> >  	switch(mode) {
+> >  	case PSR_AA32_MODE_ABT:
+> >  		__vcpu_write_spsr_abt(vcpu, host_spsr_to_spsr32(spsr));
+> > -		vcpu_gp_regs(vcpu)->compat_lr_abt = return_address;
+> > +		vcpu_gp_regs(vcpu)[COMPAT_IDX(compat_lr_abt)] = return_address;
+> >  		break;
+> 
+> Stupid idea: why don't you simply have new #defines that make the
+> register number standalone, and make ptrace.h use that? Something line
+> this (which can obviously be extended to all the compat registers):
+> 
+> diff --git a/arch/arm64/include/asm/ptrace.h b/arch/arm64/include/asm/ptrace.h
+> index 39582511ad72f..2d3d324d2598e 100644
+> --- a/arch/arm64/include/asm/ptrace.h
+> +++ b/arch/arm64/include/asm/ptrace.h
+> @@ -104,6 +104,10 @@
+>  #define COMPAT_USER_SZ	296
+>  
+>  /* Architecturally defined mapping between AArch32 and AArch64 registers */
+> +enum aarch32_reg_mapping {
+> +	__compat_lr_und = 22,
+> +};
+> +
+>  #define compat_usr(x)	regs[(x)]
+>  #define compat_fp	regs[11]
+>  #define compat_sp	regs[13]
+> @@ -115,7 +119,7 @@
+>  #define compat_sp_svc	regs[19]
+>  #define compat_lr_abt	regs[20]
+>  #define compat_sp_abt	regs[21]
+> -#define compat_lr_und	regs[22]
+> +#define compat_lr_und	regs[__compat_lr_und]
+>  #define compat_sp_und	regs[23]
+>  #define compat_r8_fiq	regs[24]
+>  #define compat_r9_fiq	regs[25]
+> 
+> and then your #defines from hell can go?
 
-[Severity: High]
-This isn't a bug introduced by this patch, but does the bounds check in this
-function correctly validate offset1 and count1 when count2 is non-zero?
+Great suggestion I do not like this macro hell myself. I'll implement it
+that way. Should I convert all compat_* regs to this concept or just the
+ones I need?
 
-When processing a CEXXC_RESPONSE_TYPE_XCRB response, the length validation
-logic checks:
+	Steffen
 
-drivers/s390/crypto/zcrypt_msgtype6.c:zcrypt_msgtype6_receive() {
-	...
-		case CEXXC_RESPONSE_TYPE_XCRB:
-			if (t86r->fmt2.count2)
-				len =3D t86r->fmt2.offset2 + t86r->fmt2.count2;
-			else
-				len =3D t86r->fmt2.offset1 + t86r->fmt2.count1;
-			if (len > reply->bufsize || len > msg->bufsize ||
-	...
-}
-
-If t86r->fmt2.count2 is non-zero, only offset2 and count2 are validated.
-
-However, in convert_type86_xcrb(), offset1 and count1 are unconditionally
-used to copy kernel memory to userspace:
-
-drivers/s390/crypto/zcrypt_msgtype6.c:convert_type86_xcrb() {
-	...
-	if (z_copy_to_user(userspace, xcrb->reply_control_blk_addr,
-			   data + msg->fmt2.offset1, msg->fmt2.count1))
-		return -EFAULT;
-	...
-}
-
-Could firmware provide a valid count2 and offset2 alongside maliciously
-large offset1 and count1 values to leak kernel memory to userspace?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260710112756.7534=
-6-2-freude@linux.ibm.com?part=3D1
