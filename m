@@ -1,64 +1,64 @@
-Received: from mail-pj1-f46.google.com (mail-pj1-f46.google.com [209.85.216.46])
+Received: from mail-pl1-f179.google.com (mail-pl1-f179.google.com [209.85.214.179])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4E75E3DA7E0
-	for <linux-s390@vger.kernel.org>; Fri, 10 Jul 2026 07:52:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CEFA73DE45C
+	for <linux-s390@vger.kernel.org>; Fri, 10 Jul 2026 07:52:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783669968; cv=none; b=VvdnbZzycUng55piUuaoF2ZdPsmIMgttHuk9V5+Bqt3zGxvEwKEPYqq1SInZyg3r1lqdlOxQ/lBaD8XPW+hppEgtAFuweBpgJ+TtJMMXA1Q/v+WoPmsTtzHdHzNR4bNwl/IJHThsIFn30RI4qNMwTlxgz2Z2tImpRUODyv7XmU4=
+	t=1783669970; cv=none; b=BkM2R2ofpUYSewlRiIeGu4+fi/u5zOQ2ET30AF4EbEsT9gIbdJG1t4LES7E8xE+urIC+Da8eTxvQq9+vAZ7VFvCBxeBdr9khZWcxIXaqMP6PJdB6Xe6Vtbjwh/88SpMtqUXYhAa4JwjzLzlWqQ7nCMsGFO64xYFmtknBgRhawQc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783669968; c=relaxed/simple;
-	bh=D9CFIdORg3KDPUuWXmjAR2RsP8Zpq9G9I7JzBgl41j4=;
+	s=arc-20240116; t=1783669970; c=relaxed/simple;
+	bh=+O07iyphnPsMhbwdcZl/xEUDllR7WIMFNYTSmUuHDHk=;
 	h=MIME-Version:Content-Type:Subject:From:To:Cc:In-Reply-To:
-	 References:Date:Message-Id; b=ok+z1q863XQkKCE7YD5Si949HBYvPYAWPQaTx6+eLMjfthksL7c5xLWpphnQtmXenVfBAZeDHUzskgNpnWaK7OwegAs2KzUyJvrCD3G1LGcDzg/Q4vLyu4M507RVvKwVhq338GWJgFWJt36Lma36ScI/k9ZcE9ju9cmRkiIZWMk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ejiWIZN6; arc=none smtp.client-ip=209.85.216.46
+	 References:Date:Message-Id; b=SKIMy0MCA75yWJE0kQDT24PhNPh/aqQoH2HnTGkDxGz7WmTiyMyJxJRPIS8usfFBFTari8+I5hu6ydJY6MDDJhTAj94lGMoloS493Aggd2xDyqNtA3otSg8SqlB5r+k6x3MhSeKnYE/6IZurxsmWHBQye81Fi4hpfuaE+bpkyvw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=phCDgbmF; arc=none smtp.client-ip=209.85.214.179
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ejiWIZN6"
-Received: by mail-pj1-f46.google.com with SMTP id 98e67ed59e1d1-38511175ad3so635881a91.2
-        for <linux-s390@vger.kernel.org>; Fri, 10 Jul 2026 00:52:47 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="phCDgbmF"
+Received: by mail-pl1-f179.google.com with SMTP id d9443c01a7336-2c9bd2f8bf7so23862425ad.1
+        for <linux-s390@vger.kernel.org>; Fri, 10 Jul 2026 00:52:48 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1783669967; x=1784274767; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1783669968; x=1784274768; darn=vger.kernel.org;
         h=message-id:date:references:in-reply-to:cc:to:from:subject
          :content-transfer-encoding:content-type:mime-version:from:to:cc
          :subject:date:message-id:reply-to:content-type;
-        bh=ihT/2aOY8wGTL01WDNL3ZSISpn356Jmov1yxoJ5Q2Is=;
-        b=ejiWIZN6XA5SZFKmedWw6IIGdlixVt7BYNZhVsY/HXsflrRXZTTv4OoRq8SuZ6JlwU
-         9Sx5a84PXjyPTl0M86Ghsa9yB6RlCtoZWEooRPJT5jgyKuBzJh/yU9L4QmXNRdaywx0m
-         Pi3JDLt+T3tqFsisEn1XVVLbatQhwU3MzYY+0+DqIFqjmowQDUIuKrZYca5yk2vhVOoB
-         L4Y9Tvq8aQyNrefrbmhvzdZB9J76cqwN77mF5+0TBKfrQjXUYN2esv1nZOPRcqBrXPPW
-         ZgCuwg6reqBmQtKUMVJYftoLueHDXEI3y7UHUpAIi7GJV+WiykpHiQ/L4NYCNcn5r4C6
-         eJkQ==
+        bh=hBmrtvJxIONdnfaPYnlm/oDBvJlVXO+AfljQowycHCs=;
+        b=phCDgbmFYIabUWS3GMYDH/KvmwvHnZtuUplOhDQEjP3K5yuPobZmcgQ7t03x7nG/ce
+         S4z1Dq19hMrKgJaBgxsRbxfGnTQ+IVJbeSAsH1exWak+mLxpKLi5drEiiG1EokCGWWH3
+         0C0DHthSC/KRQfKUgdbWTZWDUdsG7XjkNWyz3W8trbQM9fnnJJq3jWgLylggWLFeRXsy
+         HrYWKXpYD0bvsJjMDFJnG4dgoqMtJRof/M7wZqufQe/YzLpokIv3ifWgdSJ0KquZ+RX/
+         YkSp+6aMdOiy4vQnrpuaAAoPlae9+iYRO/fVxN9dffw4liNXtWRwtenyOptOKvIdBo6h
+         O2aQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783669967; x=1784274767;
+        d=1e100.net; s=20251104; t=1783669968; x=1784274768;
         h=message-id:date:references:in-reply-to:cc:to:from:subject
          :content-transfer-encoding:content-type:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=ihT/2aOY8wGTL01WDNL3ZSISpn356Jmov1yxoJ5Q2Is=;
-        b=FS54/lP95CLj1RHCWJsy7sLwbun4Kc3kMGJYOcq+oNZMqKFFmZymW2pF6eiRRsaS43
-         l9EtxJ1nI30PIvDCWAvo1ZQEAMF8fMQQgmXVmJQRj/tPD+QchDCzlX8A3tADzjZ2sZnm
-         FJ0J0xrFZuNRHswHLxwCxTBP64BKByTm/b5CL48BwPAEBOjA8w4MUl7SF6xOAIlavKVe
-         dPeN1t08daQAQJ+3FjQtuh0RjdOMfo6XTdEgVC1sM+OPozl9I772Qwxc92Tl2D1JKlL9
-         jUNprsoE8dBxVzqWqGjc/Uq+xzWw5pEWYK1sf7IU1cJWHyDL1RYUvZ/Frc3y0aiwe5zr
-         zQ7Q==
-X-Forwarded-Encrypted: i=1; AHgh+RpZvErEcl5Q+aPdIAnx5akWQ2ELgdWPGFxnc9vV2GGnHAa9eBOqIHMGmuQD8mMrtc+FyF7DRrunmxxl@vger.kernel.org
-X-Gm-Message-State: AOJu0YzkSudvtrAQ+cbOf9BUnMSF6kecT7A/L/9MGtYz1Y0hGxOrtsL4
-	KKhY4aHZ13hrsI8HBlkRKe3Ma0jEzOBMRHUjj6h9woEckTul4PzSAbyc
-X-Gm-Gg: AfdE7ck+/3FPHM4zpf5HNNLkawDBqWxMh4xzAWvpFP2wcmbBd1Bcs3iRgOW3MCguF9b
-	YO0Vhu4ULpVdryNhuqhJPqeE4bCDEfDZlNkIThx0HXTptTkD/ZKWXdwiGnsPleR9s3FHjIxbs3S
-	5u6BA8eNB3Hx7XObnzL/rTBuexkpiCqmYRq4bJ4sLCLlc6jWRqRDiGJ6VLdKszy9fGn//aIn1CU
-	eX0v8Gu4kNxS7xNQYSWw6p6d1qNzf3zh2sZizwnySzfpnvOq3mR0SmJAip61uXI5H8MWwUjGk+1
-	Zsa03Xeuh1AOSsFP5o2qhHSdc0/BjkV9d8iNKF598kjqy17Wj5b5lwa6l84ucE3+7N8SRQLDWSp
-	hcdDJBg625vUk47isYjxtN2ASqw6FWBl0/CwqCJEbpq8NVN3lLQl2AaPPfcmr3Gu3VZPVvec+Hy
-	MXhHMLy7LwQpsIPtcv4Ll+yCDSp8XeCFjXDNqXV9DU
-X-Received: by 2002:a17:90b:254b:b0:381:e73:3c2e with SMTP id 98e67ed59e1d1-389416e7dd1mr11435912a91.24.1783669966472;
-        Fri, 10 Jul 2026 00:52:46 -0700 (PDT)
+        bh=hBmrtvJxIONdnfaPYnlm/oDBvJlVXO+AfljQowycHCs=;
+        b=JGrlOftonNU07XUexH4KtzBE30gNYT4Lph/A0J6F6Uc6KO5HUl7/CiSgOyzbhnhfkA
+         sXAgiwGU72Fil+ePGDly7ARVVTSbU36LV9+1k7g8IIgp6Op4INNZ4cATtU0RT1bnm/0/
+         jnUAHcQmSe6Sxs1J2dwO4Yg3i7nZxQXfA1I+cpa9wQ3i0PDqIbZfA08xdr+yk8iVD0zA
+         MJ+FJvB25kTcFL8K/fRf9ni368n4R+E7SP4rcb32KAauizpVEIGjrL6VCPeROi1n+k5f
+         0AnSlGyAC6K26vNOf8kyuSTYWxuxDtUlnLzgN/MIK3s9R2LfDRKW1HwQAz9yqgP3gDW8
+         YG3w==
+X-Forwarded-Encrypted: i=1; AHgh+Rr/KoWHO2SPzfYreDxW4SERnvVnxfO8sWaOtZYJWtA9ff9K5/30dZb9L5rw32WJ4OKxbDA3hRtBP4kj@vger.kernel.org
+X-Gm-Message-State: AOJu0YxhmMRVqbRivIw+0C05PuN8zh+JNpy2Zxbf6Gy9iZ5mDNwUiBAp
+	ZlMERTSP/aQ/FR37DrdZJnV0srtG253C9bzgjbDQHWuOJO4A6TBaRQ2i
+X-Gm-Gg: AfdE7clZ+DS+VyUwYH8o+0o3frvlJxRjOQMHHkcBJiHUhqtB9A+/1tYZ8suDAOSo6yS
+	LmmzgFRFhtr6erQa18WpjqyA+iwvs/mX1uUlKrz2k6IShM7XqJ5KG0zUYgGvM6oXo+Xvctis+wn
+	l5VVxkm8HUzvBeMbqeWTnlEtcjzl75R9g1moivvsEITN8VGHnZW0VdjKL/g2tAtvf3sXX66XlyO
+	PlYzLLdiw5p0o0EfysTeopDw6dsWE+Xaxnqje699aUUbnzEZpxI7AcP3WZ0lDmz6V7L7GY5ND9j
+	s6k+SKt96BVW+1ZvSJdD2CjHFK1L4Hk5mrbhclYajycO4z1V0DF81mopuVEunu2tM5XYr+2rWER
+	k5KzyJVUw5kOG/l77iOZ+z4OIodiUQGboM4gnBqBxJpFtAAH1n8P3+PA0wstEooBQMuV9l+SFSr
+	htBWvrAsh89DS+1gkFp9UGEojdasE8LcIxqtId6or3
+X-Received: by 2002:a05:6300:6708:b0:3b5:445c:e483 with SMTP id adf61e73a8af0-3c0f085cde5mr3063429637.3.1783669968147;
+        Fri, 10 Jul 2026 00:52:48 -0700 (PDT)
 Received: from [10.0.0.65] ([2601:647:6700:64d0::94ac])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-31174839f89sm38555369eec.10.2026.07.10.00.52.44
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-31174839f89sm38555369eec.10.2026.07.10.00.52.46
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 10 Jul 2026 00:52:45 -0700 (PDT)
+        Fri, 10 Jul 2026 00:52:47 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -67,8 +67,8 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Subject: Re: [PATCH v5 2/8] arm64/runtime-const: Use
- aarch64_insn_patch_text_nosync() for patching
+Subject: Re: [PATCH v5 3/8] arm64/runtime-const: Introduce
+ runtime_const_mask_32()
 From: Charlie Jenkins <thecharlesjenkins@gmail.com>
 To: K Prateek Nayak <kprateek.nayak@amd.com>
 Cc: Arnd Bergmann <arnd@arndb.de>, Thomas Gleixner <tglx@kernel.org>, 
@@ -82,28 +82,28 @@ Cc: Arnd Bergmann <arnd@arndb.de>, Thomas Gleixner <tglx@kernel.org>,
  Charlie Jenkins <thecharlesjenkins@gmail.com>, 
  linux-arm-kernel@lists.infradead.org, linux-riscv@lists.infradead.org, 
  linux-s390@vger.kernel.org, Jisheng Zhang <jszhang@kernel.org>
-In-Reply-To: <20260630045531.3939-3-kprateek.nayak@amd.com>
+In-Reply-To: <20260630045531.3939-4-kprateek.nayak@amd.com>
 References: <20260630045531.3939-1-kprateek.nayak@amd.com>
- <20260630045531.3939-3-kprateek.nayak@amd.com>
+ <20260630045531.3939-4-kprateek.nayak@amd.com>
 Date: Fri, 10 Jul 2026 00:52:39 -0700
-Message-Id: <178366995928.1208691.248201589452077852.b4-review@b4>
+Message-Id: <178366995929.1208691.6493654690059057340.b4-review@b4>
 X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1783669964; l=559;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1783669964; l=605;
  i=thecharlesjenkins@gmail.com; s=20260605; h=from:subject:message-id;
- bh=D9CFIdORg3KDPUuWXmjAR2RsP8Zpq9G9I7JzBgl41j4=;
- b=UkmRaKA4A5laoVQOHeU6g+5KHEhNh4nXv7y+97IHAPLwPizJjZc9yUiwBeTb07rPCZ5L7YjhV
- y/FrmXvAxlqDOKl91ohFaIJIf6Y3Z+PQbXebeX3Uf8dsWUwOiN5UCOq
+ bh=+O07iyphnPsMhbwdcZl/xEUDllR7WIMFNYTSmUuHDHk=;
+ b=cz9XXDbkR0SqPbqmjDnlzBYAVi5QXign/r4fxPETsJQjHLuhqKNi1lidC/VVBt9XeNDUNYCm6
+ hNQu7cyMBW+DNBsieROPBZ33ez+ffYUCmOSl5oGIFtaAneSomqGU4B7
 X-Developer-Key: i=thecharlesjenkins@gmail.com; a=ed25519;
  pk=ajnnRQ98PIdwKp4HeMkq9U32okYbnh6Zb4G3o5XXvkg=
 
-On Tue, 30 Jun 2026 04:55:25 +0000, K Prateek Nayak <kprateek.nayak@amd.com> wrote:
-> The current scheme to directly patch the kernel text for runtime
-> constants runs into the following issue with futex adapted to using
-> runtime constants on arm64:
+On Tue, 30 Jun 2026 04:55:26 +0000, K Prateek Nayak <kprateek.nayak@amd.com> wrote:
+> Futex hash computation requires a mask operation with read-only after
+> init data that will be converted to a runtime constant in the subsequent
+> commit.
 > 
->   Unable to handle kernel write to read-only memory at virtual address ...
-> 
-> The pc points to the *p assignment in the following call chain:
+> Introduce runtime_const_mask_32 to further optimize the mask operation
+> in the futex hash computation hot path. Since all the current use-cases
+> are of the form GENMASK(n, 0), with n > 0, a single:
 > 
 > [...]
 
