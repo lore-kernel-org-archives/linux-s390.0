@@ -1,127 +1,115 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f46.google.com (mail-pj1-f46.google.com [209.85.216.46])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9275344998C;
-	Fri, 10 Jul 2026 07:46:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4E75E3DA7E0
+	for <linux-s390@vger.kernel.org>; Fri, 10 Jul 2026 07:52:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783669569; cv=none; b=s6urTiwqr00y4IKxI2zMXln9yaO4md1paF/knNQ1/ifsK3XEjHevRaRkOMmT7O/rkWUp9wkPOxjr64Jmfi3kFHIjxsX6SqVpetO5FSaOzAW87sxuAX/m9j0Tg3vAfMgQTcCWaQLt04Iou3Gs0qW0zhE8XH6fYakOioASwEGWlCY=
+	t=1783669968; cv=none; b=VvdnbZzycUng55piUuaoF2ZdPsmIMgttHuk9V5+Bqt3zGxvEwKEPYqq1SInZyg3r1lqdlOxQ/lBaD8XPW+hppEgtAFuweBpgJ+TtJMMXA1Q/v+WoPmsTtzHdHzNR4bNwl/IJHThsIFn30RI4qNMwTlxgz2Z2tImpRUODyv7XmU4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783669569; c=relaxed/simple;
-	bh=JnAewx0S6FKvY2adyhnGaspuRdr8K2s2RFHu/MiSLTQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=uSQUwui09puJgc6HLbFW4veQqYQ8YuvwfjJhwZRtTTctKktKbfCuzH9KCupXZR3yz/3cTA8r1UaiyspiPDdeuX/ljH6ZFVEi8J0vYxSTzPzZzkInc9wMCbzwxGiu2zmKgtEoN0xaLO/NEEdzVnf65WvD6Vs49mdMWg5CrLZAhFA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=pj4Fwxni; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1783669968; c=relaxed/simple;
+	bh=D9CFIdORg3KDPUuWXmjAR2RsP8Zpq9G9I7JzBgl41j4=;
+	h=MIME-Version:Content-Type:Subject:From:To:Cc:In-Reply-To:
+	 References:Date:Message-Id; b=ok+z1q863XQkKCE7YD5Si949HBYvPYAWPQaTx6+eLMjfthksL7c5xLWpphnQtmXenVfBAZeDHUzskgNpnWaK7OwegAs2KzUyJvrCD3G1LGcDzg/Q4vLyu4M507RVvKwVhq338GWJgFWJt36Lma36ScI/k9ZcE9ju9cmRkiIZWMk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ejiWIZN6; arc=none smtp.client-ip=209.85.216.46
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="pj4Fwxni"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66A3nhu43493583;
-	Fri, 10 Jul 2026 07:46:07 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=CyR0wawecAlzmWpvQspnkZ1SPMtFD/
-	WhOgGDRf6OIaw=; b=pj4FwxniVsMLOfOJjItfkK6qE8nuWON1P8XV9SSuGBw0Ub
-	FMEnsdIDqPskXLwn0Iq57pYMbTB6MHUrmIg5FDh8npS1F/xx5XLvEIY6/ELSF0Ga
-	KunkRmTy3idqzhnZVNux40co//oAFB3NVDlv8cOBQwa2Gl8QU+4wWn7QkTa4/YMi
-	QF8ZXEnEW5NgX5EOheRcp3d21jVc9Jl13M1M1Fc4sAiaLOGf4asDEGq+beClQ/tf
-	5kZYGS3sY7exttPsF7HILGYUqTmY+2cVOpGWOc1VupXRKK5EDCUaoSxmd+YKcRnI
-	UYe4MPPe27tcA8z5QJPsRJXQdU4AM/a03VexsJeA==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4f6rke5uy5-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 10 Jul 2026 07:46:07 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66A7YcVs024365;
-	Fri, 10 Jul 2026 07:46:06 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4f7e0hrvd5-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 10 Jul 2026 07:46:06 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66A7k22T51118568
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 10 Jul 2026 07:46:02 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5CA822004B;
-	Fri, 10 Jul 2026 07:46:02 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 12D1920043;
-	Fri, 10 Jul 2026 07:46:02 +0000 (GMT)
-Received: from osiris (unknown [9.87.146.126])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Fri, 10 Jul 2026 07:46:02 +0000 (GMT)
-Date: Fri, 10 Jul 2026 09:46:00 +0200
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Jens Remus <jremus@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Ilya Leoshkevich <iii@linux.ibm.com>
-Subject: Re: [PATCH 0/2] s390/vdso: Fix GNU_EH_FRAME PHDR
-Message-ID: <20260710074600.17568Beb-hca@linux.ibm.com>
-References: <20260706151909.103539-1-jremus@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ejiWIZN6"
+Received: by mail-pj1-f46.google.com with SMTP id 98e67ed59e1d1-38511175ad3so635881a91.2
+        for <linux-s390@vger.kernel.org>; Fri, 10 Jul 2026 00:52:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1783669967; x=1784274767; darn=vger.kernel.org;
+        h=message-id:date:references:in-reply-to:cc:to:from:subject
+         :content-transfer-encoding:content-type:mime-version:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=ihT/2aOY8wGTL01WDNL3ZSISpn356Jmov1yxoJ5Q2Is=;
+        b=ejiWIZN6XA5SZFKmedWw6IIGdlixVt7BYNZhVsY/HXsflrRXZTTv4OoRq8SuZ6JlwU
+         9Sx5a84PXjyPTl0M86Ghsa9yB6RlCtoZWEooRPJT5jgyKuBzJh/yU9L4QmXNRdaywx0m
+         Pi3JDLt+T3tqFsisEn1XVVLbatQhwU3MzYY+0+DqIFqjmowQDUIuKrZYca5yk2vhVOoB
+         L4Y9Tvq8aQyNrefrbmhvzdZB9J76cqwN77mF5+0TBKfrQjXUYN2esv1nZOPRcqBrXPPW
+         ZgCuwg6reqBmQtKUMVJYftoLueHDXEI3y7UHUpAIi7GJV+WiykpHiQ/L4NYCNcn5r4C6
+         eJkQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1783669967; x=1784274767;
+        h=message-id:date:references:in-reply-to:cc:to:from:subject
+         :content-transfer-encoding:content-type:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=ihT/2aOY8wGTL01WDNL3ZSISpn356Jmov1yxoJ5Q2Is=;
+        b=FS54/lP95CLj1RHCWJsy7sLwbun4Kc3kMGJYOcq+oNZMqKFFmZymW2pF6eiRRsaS43
+         l9EtxJ1nI30PIvDCWAvo1ZQEAMF8fMQQgmXVmJQRj/tPD+QchDCzlX8A3tADzjZ2sZnm
+         FJ0J0xrFZuNRHswHLxwCxTBP64BKByTm/b5CL48BwPAEBOjA8w4MUl7SF6xOAIlavKVe
+         dPeN1t08daQAQJ+3FjQtuh0RjdOMfo6XTdEgVC1sM+OPozl9I772Qwxc92Tl2D1JKlL9
+         jUNprsoE8dBxVzqWqGjc/Uq+xzWw5pEWYK1sf7IU1cJWHyDL1RYUvZ/Frc3y0aiwe5zr
+         zQ7Q==
+X-Forwarded-Encrypted: i=1; AHgh+RpZvErEcl5Q+aPdIAnx5akWQ2ELgdWPGFxnc9vV2GGnHAa9eBOqIHMGmuQD8mMrtc+FyF7DRrunmxxl@vger.kernel.org
+X-Gm-Message-State: AOJu0YzkSudvtrAQ+cbOf9BUnMSF6kecT7A/L/9MGtYz1Y0hGxOrtsL4
+	KKhY4aHZ13hrsI8HBlkRKe3Ma0jEzOBMRHUjj6h9woEckTul4PzSAbyc
+X-Gm-Gg: AfdE7ck+/3FPHM4zpf5HNNLkawDBqWxMh4xzAWvpFP2wcmbBd1Bcs3iRgOW3MCguF9b
+	YO0Vhu4ULpVdryNhuqhJPqeE4bCDEfDZlNkIThx0HXTptTkD/ZKWXdwiGnsPleR9s3FHjIxbs3S
+	5u6BA8eNB3Hx7XObnzL/rTBuexkpiCqmYRq4bJ4sLCLlc6jWRqRDiGJ6VLdKszy9fGn//aIn1CU
+	eX0v8Gu4kNxS7xNQYSWw6p6d1qNzf3zh2sZizwnySzfpnvOq3mR0SmJAip61uXI5H8MWwUjGk+1
+	Zsa03Xeuh1AOSsFP5o2qhHSdc0/BjkV9d8iNKF598kjqy17Wj5b5lwa6l84ucE3+7N8SRQLDWSp
+	hcdDJBg625vUk47isYjxtN2ASqw6FWBl0/CwqCJEbpq8NVN3lLQl2AaPPfcmr3Gu3VZPVvec+Hy
+	MXhHMLy7LwQpsIPtcv4Ll+yCDSp8XeCFjXDNqXV9DU
+X-Received: by 2002:a17:90b:254b:b0:381:e73:3c2e with SMTP id 98e67ed59e1d1-389416e7dd1mr11435912a91.24.1783669966472;
+        Fri, 10 Jul 2026 00:52:46 -0700 (PDT)
+Received: from [10.0.0.65] ([2601:647:6700:64d0::94ac])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-31174839f89sm38555369eec.10.2026.07.10.00.52.44
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 10 Jul 2026 00:52:45 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260706151909.103539-1-jremus@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=M7J97Sws c=1 sm=1 tr=0 ts=6a50a33f cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=kj9zAlcOel0A:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8
- a=QIGkLDAR6kq93mu5Qc0A:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzEwMDA2OSBTYWx0ZWRfX+P8qnVTg+LCp
- i8ogMRzYiwQfHoCplXN5Hh1AAQGDcR2L3+DAN7BG3DlkY5ZNh5feKMVLXJnjBqXZ/dvoeSHoB+w
- tsw8Wc6IjxFeipCOAF70Lhj6mYSQI9plijrAOUa0Kg5OP8r6ak0Hb8hPFhfzec9Qc+f4AH9y+2n
- v+ljZf2oCGUprVzen218ehdLrPn9ggpsrtv9OEnrvc3+nzdVzA9gyOk77tnw4oT8224IfM01kYY
- r26j6r3qQQDl7R6OjGTBDMmW8GHp/PUHsi6BLkyR3obtdfaCxJSvguP7QaEFy0B/AtMqPnc6Mh7
- peOfAALuZzh4pcFr7yr4Xk1XKZyMtu91E74rRnWvUSExkCz86FJxkuQ2hgTckf/NSG48bt4kx1j
- OKpsKofDH4qjAArajEwai00JfHdkJH8Fo5NHLeOyTPYbvK+ps8tAM4kNUh3FPWX9pwXeUxr4Xf2
- sWkPZmzSTiNTZg2pCrA==
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzEwMDA2OSBTYWx0ZWRfX24OcySBjFcME
- XUCGntS6oHR7Aeg/09P6Oab2rVqKUW1NEXtlj5MBqgTPQCIjYRNEHwmYvydBa7cSeKchBX51LSR
- WWtm4aX9No0PbnDPRoeMWJW6jM913lY=
-X-Proofpoint-GUID: ohB8wC-d7R264flkU1UGM12Vopt4duFe
-X-Proofpoint-ORIG-GUID: ohB8wC-d7R264flkU1UGM12Vopt4duFe
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-07-10_01,2026-07-09_04,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 lowpriorityscore=0 malwarescore=0 clxscore=1015 adultscore=0
- priorityscore=1501 bulkscore=0 spamscore=0 impostorscore=0 phishscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607100069
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH v5 2/8] arm64/runtime-const: Use
+ aarch64_insn_patch_text_nosync() for patching
+From: Charlie Jenkins <thecharlesjenkins@gmail.com>
+To: K Prateek Nayak <kprateek.nayak@amd.com>
+Cc: Arnd Bergmann <arnd@arndb.de>, Thomas Gleixner <tglx@kernel.org>, 
+ Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, 
+ Sebastian Andrzej Siewior <bigeasy@linutronix.de>, 
+ Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, 
+ Darren Hart <dvhart@infradead.org>, Davidlohr Bueso <dave@stgolabs.net>, 
+ =?utf-8?q?Andr=C3=A9_Almeida?= <andrealmeid@igalia.com>, 
+ linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ Samuel Holland <samuel.holland@sifive.com>, 
+ Charlie Jenkins <thecharlesjenkins@gmail.com>, 
+ linux-arm-kernel@lists.infradead.org, linux-riscv@lists.infradead.org, 
+ linux-s390@vger.kernel.org, Jisheng Zhang <jszhang@kernel.org>
+In-Reply-To: <20260630045531.3939-3-kprateek.nayak@amd.com>
+References: <20260630045531.3939-1-kprateek.nayak@amd.com>
+ <20260630045531.3939-3-kprateek.nayak@amd.com>
+Date: Fri, 10 Jul 2026 00:52:39 -0700
+Message-Id: <178366995928.1208691.248201589452077852.b4-review@b4>
+X-Mailer: b4 0.15.2
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1783669964; l=559;
+ i=thecharlesjenkins@gmail.com; s=20260605; h=from:subject:message-id;
+ bh=D9CFIdORg3KDPUuWXmjAR2RsP8Zpq9G9I7JzBgl41j4=;
+ b=UkmRaKA4A5laoVQOHeU6g+5KHEhNh4nXv7y+97IHAPLwPizJjZc9yUiwBeTb07rPCZ5L7YjhV
+ y/FrmXvAxlqDOKl91ohFaIJIf6Y3Z+PQbXebeX3Uf8dsWUwOiN5UCOq
+X-Developer-Key: i=thecharlesjenkins@gmail.com; a=ed25519;
+ pk=ajnnRQ98PIdwKp4HeMkq9U32okYbnh6Zb4G3o5XXvkg=
 
-On Mon, Jul 06, 2026 at 05:19:07PM +0200, Jens Remus wrote:
-> Patch 1 fixes the empty GNU_EH_FRAME program table header entry to
-> enable unwinders and stacktracers to locate the .eh_frame_hdr section.
+On Tue, 30 Jun 2026 04:55:25 +0000, K Prateek Nayak <kprateek.nayak@amd.com> wrote:
+> The current scheme to directly patch the kernel text for runtime
+> constants runs into the following issue with futex adapted to using
+> runtime constants on arm64:
 > 
-> Patch 2 uses symbolic constants for the PHDR permission flags to improve
-> readability and explicitly specifies the GNU_EH_FRAME PHDR to be read-
-> only.
+>   Unable to handle kernel write to read-only memory at virtual address ...
 > 
-> Regards,
-> Jens
+> The pc points to the *p assignment in the following call chain:
 > 
-> 
-> Jens Remus (2):
->   s390/vdso: Pass --eh-frame-hdr to the linker
->   s390/vdso: Use symbolic constants for the PHDR permission flags
-> 
->  arch/s390/kernel/vdso/Makefile   |  3 ++-
->  arch/s390/kernel/vdso/vdso.lds.S | 12 ++++++++----
->  2 files changed, 10 insertions(+), 5 deletions(-)
+> [...]
 
-This series is in limbo state. Do you plan to send a new version to
-address the very minor nits, or should it stay as is?
+Reviewed-by: Charlie Jenkins <thecharlesjenkins@gmail.com>
+Tested-by: Charlie Jenkins <thecharlesjenkins@gmail.com>
 
-In any case:
-Acked-by: Heiko Carstens <hca@linux.ibm.com>
+-- 
+- Charlie
+
