@@ -1,188 +1,406 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from out-179.mta0.migadu.com (out-179.mta0.migadu.com [91.218.175.179])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E3E637FF47
-	for <linux-s390@vger.kernel.org>; Fri, 10 Jul 2026 19:17:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6028640861C;
+	Fri, 10 Jul 2026 23:52:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783711070; cv=none; b=kZrZobqvGjt70Uq1WqFpBnI/yZNg8JpI3VrDJWs89Ouf1TWApmBhtoPqgya6EXvkq0suWl6iM9jdIEqnryZ+zfI00n6+n32sLRF+Vjvamn12OMfGilLjTwKM2TMgFB9psyQtIVGyFw10NzW+FWdPxAnE51I5DJP7Wa6y8MJgGUk=
+	t=1783727527; cv=none; b=E+ZkShIGJNnn4OuwqlTcI9YB58D8lgZlTSBLRmktg2Fbcdcp8aEyrFVg0X37f2CZlHEkhFdkLZXkjPU5mvotB8AX62NZskIJ3slH4l9q5nY5hEzi+3uyJ3hJRxmq3KB3+LhWB+VpTIjKTdBFdVm3carV0OiFGNOyiWHuPNDimkM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783711070; c=relaxed/simple;
-	bh=8SvHQiiE/6i1UCg1Q0UWnDTS081ZZ4628qoGXqzCbi8=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=taAClBU+kzmd/2T3Bzh7KcKM7d3jxoz/UVHoiZLWPy8aqvewjDnGmVcIgWwkTX37IwdfUR5HssbfQCjWd1WCqxxzNyhNcbwVZBxbJd5nvfOoRzI0Ol0Dt6tOhYzoE0x2z1j5krGwco79zNhn+nZAgCTOunwj6VVgVoezBzeOVg4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WN4NblCQ; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1783727527; c=relaxed/simple;
+	bh=O8gtSvZgFfroeKrN4VzmfikT47vC3UulLVIYKCoyNms=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Gs5KL9Dh6IbO9fSpXlQcHc2A5oy6cKN8OHsxPoOvIAzSWwMWNZmX7lqXkMvo/JKEporA1DaVSzVaFx3LhajD4/kpFR6QGHhkxJ7XJHX6/cu7g69xnyvP5UFRgjFw7sa4donqQtfJamVifHqGQfBz7pNpcT59Qf2HypYzeWwLzt4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=dt1rK+bK; arc=none smtp.client-ip=91.218.175.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WN4NblCQ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2D651F000E9;
-	Fri, 10 Jul 2026 19:17:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783711069;
-	bh=PFngFLxk/qUqIyOf6A1eKm6noo+w/17BsJuGfxjmRPY=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=WN4NblCQDISQ89+Bw53yK8NKuOSnfdc6ogZhvqfSWYmP+YEiVnWTeJf3MwgwF2pn6
-	 ioGqfLSaLVzh8NHzzJideI0gun9Zo192mUy7pzCEgrzeXzDRqNI3QBprO9jW7bu9m3
-	 LlnU2sfI911u4XBr1ZsaI8Jn1jbEt9MblHgoszsS06jjhf9h7oTRnFjIkJcS4s6dUb
-	 TCXJH05SP9Dt+dCyinsZgQDAFv4wNg7SBrDLFd3LDNtJ/b8wcKAzsF37Wm1+1igOBu
-	 maFQ1g0ZfN6FYmA7PaZAD3VOqItORBlEFRsDTKb4yUjtTuJ230mh0RAh4NPGoYp865
-	 gOPD4GkqC+smQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH net] net/af_iucv: fix NULL deref in
- afiucv_hs_callback_syn()
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Hidayath Khan" <hidayath@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>, "Heiko
- Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
-In-Reply-To: <20260709191732.124092-1-hidayath@linux.ibm.com>
-References: <20260709191732.124092-1-hidayath@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 10 Jul 2026 19:17:48 +0000
-Message-Id: <20260710191748.E2D651F000E9@smtp.kernel.org>
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="dt1rK+bK"
+Message-ID: <2aec2d14-0000-4595-aa2a-73aa5ae41060@linux.dev>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1783727511;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=eHN3OZqyVBMoc0WzZkstTYo8wC+PciAiKk3q7cpBgqQ=;
+	b=dt1rK+bKIACqT4/0ZiipMUIoxmxuUd1chKCHxd8vIYdox4XZZItHIKR37lNh5ZRLIOnT8A
+	GLjCt+C/uUBz9lF17uqDQ3SVbBTxVKXJcNKhQCUTN1E8CN09L3yhrXu2MVjhzdgpQwWNCh
+	rea8WfnVbxjS6Z/+PNBZYepkzCMc8io=
+Date: Fri, 10 Jul 2026 16:51:45 -0700
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Subject: Re: [PATCH rdma-next 13/13] RDMA/selftests: Add rxe_netns_names test
+To: Jiri Pirko <jiri@resnulli.us>, linux-rdma@vger.kernel.org,
+ Zhu Yanjun <yanjun.zhu@linux.dev>
+Cc: cgroups@vger.kernel.org, netdev@vger.kernel.org,
+ linux-s390@vger.kernel.org, linux-kselftest@vger.kernel.org, jgg@ziepe.ca,
+ leon@kernel.org, parav@nvidia.com, mbloch@nvidia.com, cmeiohas@nvidia.com,
+ roman.gushchin@linux.dev, bvanassche@acm.org, zyjzyj2000@gmail.com,
+ shuah@kernel.org, tj@kernel.org, mkoutny@suse.com, hannes@cmpxchg.org,
+ alibuda@linux.alibaba.com, dust.li@linux.alibaba.com, sidraya@linux.ibm.com,
+ wenjia@linux.ibm.com
+References: <20260709095532.855647-1-jiri@resnulli.us>
+ <20260709095532.855647-14-jiri@resnulli.us>
+Content-Language: en-US
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From: "yanjun.zhu" <yanjun.zhu@linux.dev>
+In-Reply-To: <20260709095532.855647-14-jiri@resnulli.us>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Migadu-Flow: FLOW_OUT
 
-Thank you for your contribution! Sashiko AI review found 4 potential issue(=
-s) to consider:
+On 7/9/26 2:55 AM, Jiri Pirko wrote:
+> From: Jiri Pirko <jiri@nvidia.com>
+> 
+> Add a kselftest script that exercises per-netns RDMA device naming
+> with RXE. Cover duplicate names across namespaces, move conflict
+> handling, move-with-rename, and same-namespace rename requests.
 
-Pre-existing issues:
-- [High] Newly allocated sockets and their pinned net_devices are permanent=
-ly leaked on error paths because iucv_sock_kill() ignores sockets without t=
-he SOCK_ZAPPED flag.
-- [High] Missing socket reference count (sock_hold) when searching the glob=
-al socket list leads to a Use-After-Free vulnerability.
-- [High] In-place modification of potentially shared/cloned SKBs corrupts d=
-ata for concurrent consumers, and missing headroom checks cause panics.
-- [High] Unlocked traversal of the accept_q leads to list corruption and da=
-ta races.
---
+# timeout set to 45
+# selftests: rdma: rxe_netns_names.sh
+# TAP version 13
+# 1..6
+# ok 1 same RDMA device name can exist in two net namespaces
+# ok 2 move without rename fails on destination name conflict
+# ok 3 move then rename succeeds
+# ok 4 move with requested destination name succeeds # SKIP     < --- 
+This testcase skip
 
---- Patch [1]: [PATCH net] net/af_iucv: fix NULL deref in afiucv_hs_callbac=
-k_syn() ---
-commit df9d50569da59293e9b6bc6ce2e2ee48847f1ed8
-Author: Hidayath Khan <hidayath@linux.ibm.com>
+# ok 5 same-netns rename rejects duplicate name
+# # device returned to init_net as 'ibdev35'
+# ok 6 netns delete returns device to init_net and renames on conflict
+# # 1 skipped test(s) detected.  Consider enabling relevant config 
+options to improve coverage.
+# # Totals: pass:5 fail:0 xfail:0 xpass:0 skip:1 error:0
+ok 6 selftests: rdma: rxe_netns_names.sh
 
-net/af_iucv: fix NULL deref in afiucv_hs_callback_syn()
+The above are my test results. But one testcase is skipped.
 
-afiucv_hs_callback_syn() allocates the child socket with GFP_ATOMIC.
-If the allocation fails, nsk is NULL. The connection-refused path
-unconditionally calls iucv_sock_kill(nsk), resulting in a NULL pointer
-dereference, which this patch fixes by checking if nsk is valid.
+Zhu Yanjun
 
-> diff --git a/net/iucv/af_iucv.c b/net/iucv/af_iucv.c
-> index fed240b453bd9..f5b1ec44b6ae3 100644
-> --- a/net/iucv/af_iucv.c
-> +++ b/net/iucv/af_iucv.c
-> @@ -1872,7 +1872,8 @@ static int afiucv_hs_callback_syn(struct sock *sk, =
-struct sk_buff *skb)
+> 
+> Signed-off-by: Jiri Pirko <jiri@nvidia.com>
+> ---
+>   tools/testing/selftests/rdma/Makefile         |   3 +-
+>   tools/testing/selftests/rdma/config           |   2 +
+>   .../testing/selftests/rdma/rxe_netns_names.sh | 282 ++++++++++++++++++
+>   3 files changed, 286 insertions(+), 1 deletion(-)
+>   create mode 100755 tools/testing/selftests/rdma/rxe_netns_names.sh
+> 
+> diff --git a/tools/testing/selftests/rdma/Makefile b/tools/testing/selftests/rdma/Makefile
+> index 07af7f15c1bf..a91c14c45006 100644
+> --- a/tools/testing/selftests/rdma/Makefile
+> +++ b/tools/testing/selftests/rdma/Makefile
+> @@ -3,6 +3,7 @@ TEST_PROGS := rxe_rping_between_netns.sh \
+>   		rxe_ipv6.sh \
+>   		rxe_socket_with_netns.sh \
+>   		rxe_test_NETDEV_UNREGISTER.sh \
+> -		rxe_sent_rcvd_bytes.sh
+> +		rxe_sent_rcvd_bytes.sh \
+> +		rxe_netns_names.sh
+>   
+>   include ../lib.mk
+> diff --git a/tools/testing/selftests/rdma/config b/tools/testing/selftests/rdma/config
+> index 4ffb814e253b..e1ff54ec0f57 100644
+> --- a/tools/testing/selftests/rdma/config
+> +++ b/tools/testing/selftests/rdma/config
+> @@ -1,3 +1,5 @@
+>   CONFIG_TUN
+>   CONFIG_VETH
+> +CONFIG_DUMMY
+> +CONFIG_NET_NS
+>   CONFIG_RDMA_RXE
+> diff --git a/tools/testing/selftests/rdma/rxe_netns_names.sh b/tools/testing/selftests/rdma/rxe_netns_names.sh
+> new file mode 100755
+> index 000000000000..a7e57706fdff
+> --- /dev/null
+> +++ b/tools/testing/selftests/rdma/rxe_netns_names.sh
+> @@ -0,0 +1,282 @@
+> +#!/bin/bash
+> +# SPDX-License-Identifier: GPL-2.0
+> +#
+> +# Exercise RDMA device name handling across network namespaces.
+> +
+> +source "$(dirname "$0")/../kselftest/ktap_helpers.sh"
+> +
+> +NAME_PREFIX="rxe_netns_names_$$"
+> +NETDEV_PREFIX="rxn$$"
+> +NS1="${NAME_PREFIX}ns1"
+> +NS2="${NAME_PREFIX}ns2"
+> +RXE_A="${NAME_PREFIX}rxe_a"
+> +RXE_B="${NAME_PREFIX}rxe_b"
+> +RXE_SAME="${NAME_PREFIX}rxe_same"
+> +RXE_NEW="${NAME_PREFIX}rxe_new"
+> +DUMMY_A="${NETDEV_PREFIX}a"
+> +DUMMY_B="${NETDEV_PREFIX}b"
+> +OLD_MODE=""
+> +MODE_CHANGED=0
+> +MODS=("dummy" "rdma_rxe")
+> +TEST_SAME_NAMES="same RDMA device name can exist in two net namespaces"
+> +TEST_MOVE_CONFLICT="move without rename fails on destination name conflict"
+> +TEST_MOVE_RENAME="move then rename succeeds"
+> +TEST_COMBINED_MOVE_RENAME="move with requested destination name succeeds"
+> +TEST_SAME_NETNS_DUP_RENAME="same-netns rename rejects duplicate name"
+> +TEST_TEARDOWN_RETURN="netns delete returns device to init_net and renames on conflict"
+> +
+> +ksft_skip()
+> +{
+> +	ktap_skip_all "$*"
+> +	exit "$KSFT_SKIP"
+> +}
+> +
+> +fail()
+> +{
+> +	ktap_exit_fail_msg "$*"
+> +}
+> +
+> +need_cmd()
+> +{
+> +	command -v "$1" >/dev/null 2>&1 || ksft_skip "missing command: $1"
+> +}
+> +
+> +rdma_ns()
+> +{
+> +	local ns=$1
+> +
+> +	shift
+> +	ip netns exec "$ns" rdma "$@"
+> +}
+> +
+> +rdma_dev_exists()
+> +{
+> +	local ns=$1
+> +	local dev=$2
+> +
+> +	if [ -n "$ns" ]; then
+> +		rdma_ns "$ns" dev show "$dev" >/dev/null 2>&1
+> +	else
+> +		rdma dev show "$dev" >/dev/null 2>&1
+> +	fi
+> +}
+> +
+> +add_dummy()
+> +{
+> +	local netdev=$1
+> +
+> +	ip link add "$netdev" type dummy || return 1
+> +	ip link set "$netdev" up || return 1
+> +}
+> +
+> +add_rxe()
+> +{
+> +	local dev=$1
+> +	local netdev=$2
+> +
+> +	rdma link add "$dev" type rxe netdev "$netdev"
+> +}
+> +
+> +rdma_dev_on_netdev()
+> +{
+> +	local netdev=$1
+> +
+> +	rdma link show 2>/dev/null | awk -v want="$netdev" '
+> +		{
+> +			for (i = 1; i < NF; i++)
+> +				if ($i == "netdev" && $(i + 1) == want) {
+> +					dev = $2
+> +					sub(/\/.*/, "", dev)
+> +					print dev
+> +					exit
+> +				}
+> +		}'
+> +}
+> +
+> +wait_rdma_dev_on_netdev()
+> +{
+> +	local netdev=$1
+> +	local dev
+> +	local i
+> +
+> +	for i in $(seq 1 50); do
+> +		dev=$(rdma_dev_on_netdev "$netdev")
+> +		if [ -n "$dev" ]; then
+> +			echo "$dev"
+> +			return 0
+> +		fi
+> +		sleep 0.1
+> +	done
+> +
+> +	return 1
+> +}
+> +
+> +setup_devs()
+> +{
+> +	cleanup_devs
+> +
+> +	add_dummy "$DUMMY_A" || return 1
+> +	add_dummy "$DUMMY_B" || return 1
+> +
+> +	add_rxe "$RXE_A" "$DUMMY_A" || return 1
+> +	add_rxe "$RXE_B" "$DUMMY_B" || return 1
+> +}
+> +
+> +cleanup_devs()
+> +{
+> +	ip link del "$DUMMY_A" 2>/dev/null
+> +	ip link del "$DUMMY_B" 2>/dev/null
+> +}
+> +
+> +setup()
+> +{
+> +	OLD_MODE=$(rdma system show 2>/dev/null |
+> +		   sed -n 's/.*netns \([^ ]*\).*/\1/p')
+> +	[ -n "$OLD_MODE" ] || ksft_skip "failed to read RDMA netns mode"
+> +
+> +	rdma system set netns exclusive >/dev/null 2>&1 ||
+> +		ksft_skip "rdma netns exclusive mode is not supported"
+> +	MODE_CHANGED=1
+> +
+> +	ip netns add "$NS1" || return 1
+> +	ip netns add "$NS2" || return 1
+> +}
+> +
+> +cleanup()
+> +{
+> +	cleanup_devs
+> +
+> +	ip netns del "$NS1" 2>/dev/null
+> +	ip netns del "$NS2" 2>/dev/null
+> +
+> +	if [ "$MODE_CHANGED" -eq 1 ]; then
+> +		rdma system set netns "$OLD_MODE" 2>/dev/null
+> +	fi
+> +
+> +	for m in "${MODS[@]}"; do
+> +		modprobe -r "$m" 2>/dev/null
+> +	done
+> +}
+> +
+> +rdma_supports_combined_move_rename()
+> +{
+> +	rdma dev help 2>&1 | grep -Eq 'netns .*name|name .*netns'
+> +}
+> +
+> +[ "$(id -u)" -eq 0 ] || ksft_skip "must be run as root"
+> +need_cmd ip
+> +need_cmd rdma
+> +need_cmd modprobe
+> +
+> +trap cleanup EXIT
+> +
+> +for m in "${MODS[@]}"; do
+> +	modinfo "$m" >/dev/null 2>&1 || ksft_skip "module $m not found"
+> +	modprobe "$m" || fail "failed to load $m"
+> +done
+> +
+> +setup || fail "failed to create net namespaces"
+> +
+> +ktap_print_header
+> +ktap_set_plan 7
+> +
+> +if setup_devs &&
+> +   rdma dev set "$RXE_A" netns "$NS1" &&
+> +   rdma_ns "$NS1" dev set "$RXE_A" name "$RXE_SAME" &&
+> +   rdma dev set "$RXE_B" netns "$NS2" &&
+> +   rdma_ns "$NS2" dev set "$RXE_B" name "$RXE_SAME" &&
+> +   rdma_dev_exists "$NS1" "$RXE_SAME" &&
+> +   rdma_dev_exists "$NS2" "$RXE_SAME"; then
+> +	ktap_test_pass "$TEST_SAME_NAMES"
+> +else
+> +	ktap_test_fail "$TEST_SAME_NAMES"
+> +fi
+> +cleanup_devs
+> +
+> +if ! setup_devs ||
+> +   ! rdma dev set "$RXE_A" netns "$NS1" ||
+> +   ! rdma_ns "$NS1" dev set "$RXE_A" name "$RXE_SAME" ||
+> +   ! rdma dev set "$RXE_B" netns "$NS2" ||
+> +   ! rdma_ns "$NS2" dev set "$RXE_B" name "$RXE_SAME"; then
+> +	ktap_test_fail "$TEST_MOVE_CONFLICT"
+> +elif rdma_ns "$NS1" dev set "$RXE_SAME" netns "$NS2" >/dev/null 2>&1; then
+> +	ktap_test_fail "$TEST_MOVE_CONFLICT"
+> +elif rdma_dev_exists "$NS1" "$RXE_SAME" &&
+> +     rdma_dev_exists "$NS2" "$RXE_SAME"; then
+> +	ktap_test_pass "$TEST_MOVE_CONFLICT"
+> +else
+> +	ktap_test_fail "$TEST_MOVE_CONFLICT"
+> +fi
+> +cleanup_devs
+> +
+> +if ! setup_devs; then
+> +	ktap_test_fail "$TEST_MOVE_RENAME"
+> +elif rdma dev set "$RXE_A" netns "$NS2" &&
+> +     rdma_ns "$NS2" dev set "$RXE_A" name "$RXE_NEW"; then
+> +	if rdma_dev_exists "$NS2" "$RXE_NEW" &&
+> +	   ! rdma_dev_exists "" "$RXE_A"; then
+> +		ktap_test_pass "$TEST_MOVE_RENAME"
+> +	else
+> +		ktap_test_fail "$TEST_MOVE_RENAME"
+> +	fi
+> +else
+> +	ktap_test_fail "$TEST_MOVE_RENAME"
+> +fi
+> +cleanup_devs
+> +
+> +if ! rdma_supports_combined_move_rename; then
+> +	ktap_test_skip "$TEST_COMBINED_MOVE_RENAME"
+> +elif ! setup_devs; then
+> +	ktap_test_fail "$TEST_COMBINED_MOVE_RENAME"
+> +elif rdma dev set "$RXE_A" netns "$NS2" name "$RXE_NEW"; then
+> +	if rdma_dev_exists "$NS2" "$RXE_NEW" &&
+> +	   ! rdma_dev_exists "" "$RXE_A"; then
+> +		ktap_test_pass "$TEST_COMBINED_MOVE_RENAME"
+> +	else
+> +		ktap_test_fail "$TEST_COMBINED_MOVE_RENAME"
+> +	fi
+> +else
+> +	ktap_test_fail "$TEST_COMBINED_MOVE_RENAME"
+> +fi
+> +cleanup_devs
+> +
+> +if ! setup_devs; then
+> +	ktap_test_fail "$TEST_SAME_NETNS_DUP_RENAME"
+> +elif rdma dev set "$RXE_A" name "$RXE_SAME" &&
+> +     rdma dev set "$RXE_B" name "$RXE_NEW"; then
+> +	if rdma dev set "$RXE_A" name "$RXE_NEW" >/dev/null 2>&1; then
+> +		ktap_test_fail "$TEST_SAME_NETNS_DUP_RENAME"
+> +	elif rdma_dev_exists "" "$RXE_SAME" &&
+> +	     rdma_dev_exists "" "$RXE_NEW"; then
+> +		ktap_test_pass "$TEST_SAME_NETNS_DUP_RENAME"
+> +	else
+> +		ktap_test_fail "$TEST_SAME_NETNS_DUP_RENAME"
+> +	fi
+> +else
+> +	ktap_test_fail "$TEST_SAME_NETNS_DUP_RENAME"
+> +fi
+> +cleanup_devs
+> +
+> +if ! setup_devs; then
+> +	ktap_test_fail "$TEST_TEARDOWN_RETURN"
+> +elif ! rdma dev set "$RXE_A" name "$RXE_SAME" ||
+> +     ! rdma dev set "$RXE_B" netns "$NS2" ||
+> +     ! rdma_ns "$NS2" dev set "$RXE_B" name "$RXE_SAME" ||
+> +     ! rdma_dev_exists "$NS2" "$RXE_SAME"; then
+> +	ktap_test_fail "$TEST_TEARDOWN_RETURN"
+> +else
+> +	ip netns del "$NS2"
+> +	returned=$(wait_rdma_dev_on_netdev "$DUMMY_B")
+> +	ktap_print_msg "device returned to init_net as '${returned:-<missing>}'"
+> +	if rdma_dev_exists "" "$RXE_SAME" &&
+> +	   [ -n "$returned" ] &&
+> +	   [ "$returned" != "$RXE_SAME" ] &&
+> +	   [ "${returned#ibdev}" != "$returned" ]; then
+> +		ktap_test_pass "$TEST_TEARDOWN_RETURN"
+> +	else
+> +		ktap_test_fail "$TEST_TEARDOWN_RETURN"
+> +	fi
+> +fi
+> +cleanup_devs
+> +
+> +ktap_finished
 
-[Severity: High]
-This is a pre-existing issue, but is there a missing reference count when
-looking up sockets?
-
-In afiucv_hs_rcv(), the socket is found and the list lock is dropped without
-acquiring a reference:
-
-net/iucv/af_iucv.c:afiucv_hs_rcv() {
-    ...
-    read_unlock(&iucv_sk_list.lock);
-    if (!iucv)
-        sk =3D NULL;
-    ...
-    err =3D afiucv_hs_callback_syn(sk, skb);
-}
-
-Could another CPU concurrently close and destroy the socket, causing a
-use-after-free when afiucv_hs_callback_syn() calls bh_lock_sock(sk)?
-
->  		afiucv_swap_src_dest(skb);
-
-[Severity: High]
-This isn't a bug introduced by this patch, but does afiucv_swap_src_dest()
-safely modify the SKB?
-
-The SKB payload is modified in-place, but there is no check to ensure
-exclusive ownership:
-
-net/iucv/af_iucv.c:afiucv_hs_rcv() {
-    ...
-    trans_hdr =3D iucv_trans_hdr(skb);
-    EBCASC(trans_hdr->destAppName, sizeof(trans_hdr->destAppName));
-    ...
-}
-
-Could this corrupt packet data for concurrent consumers if the SKB is shared
-or cloned?
-
-Additionally, afiucv_swap_src_dest() unconditionally pushes into the SKB
-headroom:
-
-net/iucv/af_iucv.c:afiucv_swap_src_dest() {
-    ...
-    skb_push(skb, ETH_HLEN);
-    memset(skb->data, 0, ETH_HLEN);
-}
-
-If an untrusted packet is received with 0 headroom, will this cause an
-skb_under_panic?
-
->  		trans_hdr->flags =3D AF_IUCV_FLAG_SYN | AF_IUCV_FLAG_FIN;
->  		err =3D dev_queue_xmit(skb);
-> -		iucv_sock_kill(nsk);
-> +		if (nsk)
-> +			iucv_sock_kill(nsk);
-
-[Severity: High]
-This is a pre-existing issue, but does iucv_sock_kill() actually clean up t=
-he
-socket here?
-
-When iucv_sock_alloc() creates the socket, the SOCK_ZAPPED flag is cleared.
-However, iucv_sock_kill() immediately returns if SOCK_ZAPPED is not set:
-
-net/iucv/af_iucv.c:iucv_sock_kill() {
-    if (!sock_flag(sk, SOCK_ZAPPED) || sk->sk_socket)
-        return;
-    ...
-}
-
-Does this mean newly allocated sockets and their pinned net_devices are
-permanently leaked on this error path?
-
->  		bh_unlock_sock(sk);
->  		goto out;
->  	}
-
-[Severity: High]
-This is a pre-existing issue, but is the accept queue safely protected agai=
-nst
-concurrent modifications?
-
-In iucv_accept_dequeue(), the queue is traversed without holding
-accept_q_lock:
-
-net/iucv/af_iucv.c:iucv_accept_dequeue() {
-    ...
-    list_for_each_entry_safe(isk, n, &iucv_sk(parent)->accept_q, accept_q) {
-    ...
-}
-
-Meanwhile, iucv_accept_enqueue() modifies the same list from softirq context
-using the lock:
-
-net/iucv/af_iucv.c:iucv_accept_enqueue() {
-    ...
-    spin_lock_irqsave(&par->accept_q_lock, flags);
-    list_add_tail(&iucv_sk(sk)->accept_q, &par->accept_q);
-    spin_unlock_irqrestore(&par->accept_q_lock, flags);
-}
-
-Since lock_sock(parent) does not block softirqs from acquiring bh_lock_sock,
-can iucv_accept_enqueue() run concurrently and corrupt the list pointers?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260709191732.1240=
-92-1-hidayath@linux.ibm.com?part=3D1
