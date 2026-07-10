@@ -1,118 +1,118 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7BE503FADFA
-	for <linux-s390@vger.kernel.org>; Fri, 10 Jul 2026 09:56:31 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 72A783FADFA
+	for <linux-s390@vger.kernel.org>; Fri, 10 Jul 2026 09:56:33 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783677392; cv=none; b=cLSqT04csV1Ve6tpP3A5huPZITkCiAN3HF0Gfc3oXaalJECyco4MEOVAy7QcfKcB+w6DIbdBFZMvx/qhjGewle65fVpEdnUk8M7v0DNjaXMA7f+75QcFPx/yIFJWnDNyD4T+bvrk1AKXc3w/i1K8mRjzO4P/RuMaerB6Q7X2Uv8=
+	t=1783677394; cv=none; b=jmmVxK3lPVsQlyQRPyv7I2QZzjKyT6eejJzWVpETVQKFwUkD4DQYRq/IF7SjSrXeaur6GH5Y/BlQMPm3h4CZKsTFGG14orJA+eVYtCUbkmjFlkWHSdseCDVDUeXQsr+xhf+yUVLGL22hzo5phjmzMx79v6vc0vcnrSKRMuXcVNA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783677392; c=relaxed/simple;
-	bh=7uZfMvSXyfBv598qBSJJmsEpRyvNrlFRgzliWKwxOZE=;
+	s=arc-20240116; t=1783677394; c=relaxed/simple;
+	bh=5MNGg/A8JaVSQezcsabYZ2PIU1+Mf57v3d/BGIz36VU=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=BYfQ82QLuZVIbqh5BOCkidJ0NAuEZAtccTHb1yoSOShsfICDNnhrY/VafNAbDtEX7iMTDRGEA6b43S7ynHARZ19zZsorpSKxMs/ipvbk+3h6jqFXrkZ37S+xe/k4kQqIBcYEr9zwvUxwTJ5N6eHWiQE4eT0WoCv2MzpT8DNxlHA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Y8cX2e8t; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=QQUZ+5FtrL5r1oaxPKzKfJ9UoUSi+lscYpmHKdohoZVgNFnEj/dDCn/p18oYDDJTHxdWhQlYNt5s/NXWTsoxttSm+J1O0helCk0sgcZhZ8JQOSoTUP0YxvImGVpvsk2vEjlcBI0UO1yoSbYFFc63uYfiVrugvcUG0k7hFuba6+0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ncEmGc4E; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Y8cX2e8t"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5F851F00A3D;
-	Fri, 10 Jul 2026 09:56:30 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ncEmGc4E"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F8A41F000E9;
+	Fri, 10 Jul 2026 09:56:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783677391;
-	bh=PYRhlcgikvLTGi/xuNYZxxk4KNE06L3V2lrY15PPRL8=;
+	s=k20260515; t=1783677393;
+	bh=dFIhdR4f7Lm8UcPbvPO4I596ATet3XbtYD+Tycq83fY=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Y8cX2e8tu8hYJEGMqA2OwcSnCz3nxW7X/MN4/Wc4u/KgMh9eIMjZ+ryCfz7y0gZBD
-	 8rElQM6/KK1dsmr9jYxQWNMnzif4aJ9G03q9lR+HqCwr7G6EsKDeKILidZh+XXUy6t
-	 cHVVOozIZnAMX8hXP7GuvliZymXH2G3+/3CA5BM3lE0WEnDr0+ghKn3a0JLULsl9Y3
-	 zCCcmVAqqeCbQZLawNFSpSUv331m4uAzL53QRmItnLq4cpHHOpNsSU93RicQ3dyFf1
-	 m46c2S3M4kU2aHAAWoXGkLpjUNJ7MlN5uphRWfCv2ZQHn2jiRi17fWGRcsuYs222oz
-	 K2KvEbjgsFMvQ==
+	b=ncEmGc4EzNe53ev7ms2CEto2kbhxdcSTTHybg7N8l7hwyy66jCLWGR9ECyF5Kncyr
+	 8aJShMl9K23+LVI7sh4zy4ao8EApLHVKBHo7w+31PjFotpJASwG1u9iJDflgDyKQEq
+	 6CHI+/SRg42JMHEEb1fVz3t8A8ulAAlTTBgvPctAcuodtXO/WhshhIU7k1Wj5Qh43c
+	 w3zwsDyferaOrwaG8acxChg5b/f29+I+vsrb593HxiEwaO/LBhcK73GuKoqPT0POBB
+	 aAgoWCSKt8Kl09oDgu0RMhrGBtSZdFgRcrujAV8d+7unWF2h9nlkxIt+ZNOJTVuZu8
+	 DwxUPEFOeyq+Q==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH rdma-next 12/13] RDMA/rxe: Implement
- disassociate_ucontext callback
+Subject: Re: [PATCH rdma-next 13/13] RDMA/selftests: Add rxe_netns_names
+ test
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Jiri Pirko" <jiri@resnulli.us>
-Cc: "Heiko Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Vasily
- Gorbik" <gor@linux.ibm.com>, tj@kernel.org, linux-s390@vger.kernel.org, hannes@cmpxchg.org, mkoutny@suse.com
-In-Reply-To: <20260709095532.855647-13-jiri@resnulli.us>
+Cc: "Vasily Gorbik" <gor@linux.ibm.com>, tj@kernel.org, mkoutny@suse.com, linux-s390@vger.kernel.org, "Heiko
+ Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, hannes@cmpxchg.org
+In-Reply-To: <20260709095532.855647-14-jiri@resnulli.us>
 References: <20260709095532.855647-1-jiri@resnulli.us>
- <20260709095532.855647-13-jiri@resnulli.us>
+ <20260709095532.855647-14-jiri@resnulli.us>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 10 Jul 2026 09:56:30 +0000
-Message-Id: <20260710095630.C5F851F00A3D@smtp.kernel.org>
+Date: Fri, 10 Jul 2026 09:56:31 +0000
+Message-Id: <20260710095632.8F8A41F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
-- [Critical] Implementing an empty `disassociate_ucontext` callback bypasse=
-s the core's VMA zapping because RXE uses legacy, untracked VMAs. This lead=
-s to a Use-After-Free of `ib_ucontext` and `rxe_dev` when the VMA is eventu=
-ally closed, and potential kernel panics upon module unload.
+- [Medium] The test script declares a test plan of 7 tests, but only contai=
+ns logic to execute 6 tests, causing the script to unconditionally fail.
+- [Medium] The test `TEST_SAME_NETNS_DUP_RENAME` attempts to rename a non-e=
+xistent device, causing the test to pass for the wrong reason and failing t=
+o verify duplicate name rejection.
 --
 
---- Patch [12]: [PATCH rdma-next 12/13] RDMA/rxe: Implement disassociate_uc=
-ontext callback ---
-commit 8946fc9f2a378bad6f910a408699c6a70e97a6f6
+--- Patch [13]: [PATCH rdma-next 13/13] RDMA/selftests: Add rxe_netns_names=
+ test ---
+commit abd8a5c3d2f106017be1f5b869afa69da9c27f3a
 Author: Jiri Pirko <jiri@resnulli.us>
 
-RDMA/rxe: Implement disassociate_ucontext callback
+RDMA/selftests: Add rxe_netns_names test
 
-Implement an empty disassociate_ucontext() callback so the RDMA core
-can move rxe devices between net namespaces. The core requires this
-callback to reset user contexts without waiting for userspace.
+This commit adds a kselftest script that exercises per-netns RDMA device
+naming with RXE. It covers duplicate names across namespaces, move conflict
+handling, move-with-rename, and same-namespace rename requests.
 
-> diff --git a/drivers/infiniband/sw/rxe/rxe_verbs.c b/drivers/infiniband/s=
-w/rxe/rxe_verbs.c
-> index 1ec130fee8ea7..6eb10d2f0653b 100644
-> --- a/drivers/infiniband/sw/rxe/rxe_verbs.c
-> +++ b/drivers/infiniband/sw/rxe/rxe_verbs.c
-> @@ -240,6 +240,10 @@ static void rxe_dealloc_ucontext(struct ib_ucontext =
-*ibuc)
->  		rxe_err_uc(uc, "cleanup failed, err =3D %d\n", err);
->  }
-> =20
-> +static void rxe_disassociate_ucontext(struct ib_ucontext *ibuc)
-> +{
-> +}
-> +
-
-[Severity: Critical]
-By adding this callback, does this opt the driver into asynchronous teardown
-which can lead to a use-after-free and kernel panic?
-
-Because RXE uses legacy, untracked VMAs (bypassing the core's
-rdma_user_mmap_entry mechanism), these VMAs are invisible to the core and a=
-re
-not zapped during teardown.
-
-If a user process maps an RXE resource and the device is then removed or
-migrated to another network namespace, the asynchronous teardown will free
-the ib_ucontext and allow module unload while the process still holds the V=
-MA.
-
-When the process later unmaps the memory or exits, the untracked VMA's close
-callback (rxe_vma_close) will trigger rxe_mmap_release(), accessing the
-already-freed ib_ucontext and rxe_dev:
-
-drivers/infiniband/sw/rxe/rxe_mmap.c:rxe_mmap_release() {
-	struct rxe_mmap_info *ip =3D container_of(ref,
-					struct rxe_mmap_info, ref);
-	struct rxe_dev *rxe =3D to_rdev(ip->context->device);
-
-	spin_lock_bh(&rxe->pending_lock);
-    ...
-}
-
-If the module was unloaded in the interim, jumping to the VMA's close callb=
-ack
-could also trigger an immediate kernel panic.
+> diff --git a/tools/testing/selftests/rdma/rxe_netns_names.sh b/tools/test=
+ing/selftests/rdma/rxe_netns_names.sh
+> new file mode 100755
+> index 0000000000000..a7e57706fdff7
+> --- /dev/null
+> +++ b/tools/testing/selftests/rdma/rxe_netns_names.sh
 
 [ ... ]
 
+> +setup || fail "failed to create net namespaces"
+> +
+> +ktap_print_header
+> +ktap_set_plan 7
+
+[Severity: Medium]
+Does this plan count match the number of tests executed? It looks like the
+script only runs 6 tests, which would cause the test suite to unconditional=
+ly
+fail during ktap_finished due to a missing test.
+
+> +
+> +if setup_devs &&
+
+[ ... ]
+
+> +if ! setup_devs; then
+> +	ktap_test_fail "$TEST_SAME_NETNS_DUP_RENAME"
+> +elif rdma dev set "$RXE_A" name "$RXE_SAME" &&
+> +     rdma dev set "$RXE_B" name "$RXE_NEW"; then
+> +	if rdma dev set "$RXE_A" name "$RXE_NEW" >/dev/null 2>&1; then
+
+[Severity: Medium]
+Will this command fail because of a duplicate name, or because the device
+is missing?=20
+
+The device originally named RXE_A was just renamed to RXE_SAME in the previ=
+ous
+condition. If we attempt to rename RXE_A again here, the command fails due =
+to
+the device not being found, which seems to cause the test to pass for the
+wrong reason instead of properly verifying duplicate name rejection.
+
+> +		ktap_test_fail "$TEST_SAME_NETNS_DUP_RENAME"
+> +	elif rdma_dev_exists "" "$RXE_SAME" &&
+> +	     rdma_dev_exists "" "$RXE_NEW"; then
+> +		ktap_test_pass "$TEST_SAME_NETNS_DUP_RENAME"
+
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260709095532.8556=
-47-1-jiri@resnulli.us?part=3D12
+47-1-jiri@resnulli.us?part=3D13
