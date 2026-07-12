@@ -1,222 +1,158 @@
-Received: from fhigh-a6-smtp.messagingengine.com (fhigh-a6-smtp.messagingengine.com [103.168.172.157])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 955E7149DF1;
-	Sun, 12 Jul 2026 11:02:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.157
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 09DFF2222AC;
+	Sun, 12 Jul 2026 18:06:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783854159; cv=none; b=qfR97Md3x03z4XsjxwSfQOSlgkA4VB4cyZjZv3RaebcL1h61Vtp820wjBGfsXSqogsmBgLoqBF3br6ni9Mf82WBzmNAANviLGhpU9VO2LVmFe6GwF5U4k5otZFglnf6gheTc1IrJ2UpQVcise745g5FKBwz8BVxWQaXg2k1QFnc=
+	t=1783879585; cv=none; b=LoPbq3kMrQAORORiIGMhku8qQhHvxrqg3kEXa5xUjWSFFviT3gkPcNaLjcUKiXj06Iy0fwb9ABLniUGQoY+MfHMCHIgaFUf/nEj/NrZAAHmUhJTPOR5xCAfKYOSOuVx4nf9EAfpL49tlhukYyzO2GNLJM4h9YCpzSNnmbpt0hfU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783854159; c=relaxed/simple;
-	bh=QFAERGkwm7FFeWB0LrovUamDAkSprs7aihtdoZvXuKE=;
-	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
-	 Subject:Content-Type; b=NKoWjzE/U9Cg81q8x/q+xGMA4Dju/BDKtzUlmXLX0P+/vgeMv2dgD7brrPKZqRPslrVfKKuG/wygnWi2EbpqE7SpjguHA8X987epUkETbAPw3BX/AP4rrrvLI7lz9cujWCucBJ4cd0qgsBWNkvrEucHW0ECWq80VWQu4vKXYC3I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=zpHRfiC5; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=l6PtvRhd; arc=none smtp.client-ip=103.168.172.157
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
+	s=arc-20240116; t=1783879585; c=relaxed/simple;
+	bh=q0/nv5RwKYGQhTYU24/ah0KsnrCuhTX1ytm/bz0/jBU=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=fXGhVZ9ow8INNYfsDjYNJDyI1L2ObpYU+MVF+F52gpcdj7vqGpcAK21CPyJ6rVQfvwt9PlSqRJ+IRE1Lem1to9Jg71wszdMU4EnKAvFqtxQIqmKK9hr/LqgbzS4vakkWRNP9xoYHZbcmjFdUcKAoMHD+qqYAZ1tkVEaa9Mijz14=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=sa0FmZO9; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="zpHRfiC5";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="l6PtvRhd"
-Received: from phl-compute-04.internal (phl-compute-04.internal [10.202.2.44])
-	by mailfhigh.phl.internal (Postfix) with ESMTP id B209314000F9;
-	Sun, 12 Jul 2026 07:02:36 -0400 (EDT)
-Received: from phl-imap-05 ([10.202.2.95])
-  by phl-compute-04.internal (MEProxy); Sun, 12 Jul 2026 07:02:36 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
-	:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm1; t=1783854156;
-	 x=1783940556; bh=VmtnK3tqoDU1aIaol+aWaActTb6DTRuQA5S8IlUXC6U=; b=
-	zpHRfiC5EPwl520ahCHYKKw5slNvnULR9f0KFrRT9y/2496pQCwk5KRBRbFgaYwK
-	qG5F+qyc+u6zQHl69ceJPRiSScFtXeE7ZyRSVgJSuprmdrpegDBkSA7FMJ5iWHIW
-	SWlwkvdzIryhehvQjfxl6CaW2ssS7P7s2gf6gPSaRBitFcji6E7w6O+D9MGOTq8e
-	KhN1cpA/Tqcli21P3rrlWr0Xxua3FpQ5R7OFYe9FPdjPs6R+VvBCiyDkT0HtPl2f
-	qii8ZEdh5SWDrMrxQFPHLV29au4QVk00LL5Ct/0KCqib5HX/6aJG4Up8UlRvgkJY
-	nRorXxeir3laErJG81MisA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=1783854156; x=
-	1783940556; bh=VmtnK3tqoDU1aIaol+aWaActTb6DTRuQA5S8IlUXC6U=; b=l
-	6PtvRhdAV0qi2d8e9JUkK2fFLlwxNVY88bcJ+5Aj5gdngpmAYCMSgprFJ8wo710r
-	L3GX7fLDfky6/oZ5HVFMbvr3LfslQE3A4w7QmId8Pn6hgVlensKX8wbHDxXJXMEw
-	ljaGdMaWuSttqpLIh1kRGvTz2JKn9ccjs3FegrO0y+RbRlkAzKbQ2dqj069GeO+7
-	KiNB7ReoNHH0ZUF3RSAIMtQSTjbO3t+zGQmSf4gQWGO8/uy+Wvbs6Xl2gDkoDMV7
-	CmCc8Ljjg46b8emiC9vxMTJkV1Aw2OeUhRq5fNYVA+WvlRG7ZcpAMzEUPYx0xvod
-	o+8ewgiMwgBexztrVjN5Q==
-X-ME-Sender: <xms:SXRTar8WT3jXuGcKhip6v_oZ_ev_MYJ3TiCDPsHDGOy_4qyk61nOpA>
-    <xme:SXRTaigdv70_fhLJe4evVFXvY38h-PROEIkCw6nfAYtcRrN4q0volhQFULkdIqZ6L
-    z8_glaP7Vjxtth72FHcVVja1cD22b3GdPb5JUl06P7cs54F9UBgiclm>
-X-ME-Proxy-Cause: dmFkZTGLo78njPg/nVe+uHWg3AzWojEtguj4DH8KNv19gE9YnhOLAIWMCTf4qhQuAaKC9P
-    oqyQsM8pSAEKHb797BqDSo1aNsM3rLblcv7PG7RotKu6L/VmYg2dW8zs2GiGwBQBqITK1u
-    X7zWoJgFJCv+6+BhbAHafVgja8Z3pTN2uEr2UPDO/nE22eQsOCXiJJSQPkNMNg99Cf35b5
-    J+tdL50vwyZ/VB0b7S4W+UsY7ZTc+cfBHJYz0U/kX691quZfggwKD0RgbG/U6czrjHfrvF
-    6fq/4yXwXeSj8YJFVVakjVNKSPD+23ViVy8tbJNIxUaNcajIR7AH0T/de5rCVSDzK344tx
-    U0x24Up+ufBa9p+NAvwC4cO2T9HS+kz0KnK//dY/mOxOe/QpD8tgteUxcBF++TLDigfVC1
-    C3EJFOtWxRFUioYMCn8qg0rQx+yCJX0thmaTY7UEVDucc/9mhpzue03w8Dp+CxjgmXdcGu
-    RSCzsnIT3+hEirvAmIyFtq70pAE1IonG2VSteXv8IfwRKlnb463XanbbZobuFZ9GMPY1GC
-    8nsnv82zjPtzkRalpSto4MmL5kHeehrV6iIR1EmzKUc5FkQFY5TKbxBu61Nz8jJ7suNzU3
-    Cyvv5MNgqU18rt3jpb2tgZMGlm2/SgzvbBaj3jXxb82AJ7qi2ot7EKTwTDoQ
-X-ME-Proxy: <xmx:SXRTapHAhWRiFbB-4amYjFgmwydjtOdojLMQlh0VZZlQEErKhomHig>
-    <xmx:SXRTaoKLDK9Ecbgry1ger4QfqGLLQ1xOkTzua4qZzvVI-kaPbzgKWw>
-    <xmx:SXRTap8dLyvqloUGHlP29AnEVqPiM2OIYq0126wYr_cBo0x_TFVHVA>
-    <xmx:SXRTaqegpYaBne9K3glgOErxceihkfr_b7_lWpHaESTvei9pJ8qgGA>
-    <xmx:THRTagApbQu8pd3LegvnC51UZb7KkVStZc2jhlRfHD_OxzYfyYsDaYFF>
-Feedback-ID: i56a14606:Fastmail
-Received: by mailuser.phl.internal (Postfix, from userid 501)
-	id 29B00182007E; Sun, 12 Jul 2026 07:02:33 -0400 (EDT)
-X-Mailer: MessagingEngine.com Webmail Interface
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="sa0FmZO9"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66CHBjkV137332;
+	Sun, 12 Jul 2026 18:06:22 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:message-id:mime-version:subject:to; s=
+	pp1; bh=/rFtVRdSO2/Fq0Om1Plhrq4kvr98FH/em1dAPqEIN/g=; b=sa0FmZO9
+	jZx/LpnFqH4vyr7TyR7DMpKl6L8Mb1FohGQPsKvcdKEpnjf7OPaGQ2ytYDoc+Wbp
+	I2WdCqqdiMHrx4HzPXtitsqD+ourmAmvsC1flRE/+L3ADmcQIjPi0RoFvSF6Xq7q
+	bDK/0vxeBDdPNLpVwbYdLn6j8j9lYAKnKN2E+iNbWq/DHeoZPXm8VdCOjFvr0QPs
+	92GFKu+9TLheZUJ9L+9Um4VODSUw9iRV6s84Iaw99s2vbV/O2fcxvfaqRcLdvz5c
+	DLYeWJXOPkjjsUMcbXTwUyvaoAH9U8YM/+ELqFdn1zzNs+MVevK6DqAPYhAYKOvv
+	3n3EqxLIEEC0Yw==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fbegbd1nc-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Sun, 12 Jul 2026 18:06:22 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66CI4cAK025425;
+	Sun, 12 Jul 2026 18:06:21 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fc15jjfpg-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Sun, 12 Jul 2026 18:06:21 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66CI6HF429622776
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Sun, 12 Jul 2026 18:06:17 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B2C0A20043;
+	Sun, 12 Jul 2026 18:06:17 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 76D7520040;
+	Sun, 12 Jul 2026 18:06:17 +0000 (GMT)
+Received: from localhost (unknown [9.111.25.5])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Sun, 12 Jul 2026 18:06:17 +0000 (GMT)
+Date: Sun, 12 Jul 2026 20:06:16 +0200
+From: Vasily Gorbik <gor@linux.ibm.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Heiko Carstens <hca@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: [GIT PULL] s390 updates for 7.2-rc3
+Message-ID: <tti2qag@ub.hpns>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-ThreadId: ARmmoW1aQeCk
-Date: Sun, 12 Jul 2026 13:01:52 +0200
-From: "Arnd Bergmann" <arnd@arndb.de>
-To: "Fernando Fernandez Mancera" <fmancera@suse.de>,
- Netdev <netdev@vger.kernel.org>
-Cc: "David S . Miller" <davem@davemloft.net>,
- "Eric Dumazet" <edumazet@google.com>, "Jakub Kicinski" <kuba@kernel.org>,
- "Paolo Abeni" <pabeni@redhat.com>, "David Ahern" <dsahern@kernel.org>,
- "Simon Horman" <horms@kernel.org>, "Ido Schimmel" <idosch@nvidia.com>,
- "Jason Gunthorpe" <jgg@ziepe.ca>, "Leon Romanovsky" <leon@kernel.org>,
- "Andrew Lunn" <andrew+netdev@lunn.ch>,
- "Anthony L Nguyen" <anthony.l.nguyen@intel.com>,
- "Przemek Kitszel" <przemyslaw.kitszel@intel.com>,
- "Elad Nachman" <enachman@marvell.com>,
- "Saeed Mahameed" <saeedm@nvidia.com>, "Tariq Toukan" <tariqt@nvidia.com>,
- "Mark Bloch" <mbloch@nvidia.com>, "Petr Machata" <petrm@nvidia.com>,
- "Edward Cree" <ecree.xilinx@gmail.com>,
- "Maxime Coquelin" <mcoquelin.stm32@gmail.com>,
- "Alexandre Torgue" <alexandre.torgue@foss.st.com>,
- "Arend van Spriel" <arend.vanspriel@broadcom.com>,
- "Miri Korenblit" <miriam.rachel.korenblit@intel.com>,
- "Keith Busch" <kbusch@kernel.org>, "Jens Axboe" <axboe@kernel.dk>,
- "Christoph Hellwig" <hch@lst.de>, "Sagi Grimberg" <sagi@grimberg.me>,
- "Chaitanya Kulkarni" <kch@nvidia.com>,
- "Saurav Kashyap" <skashyap@marvell.com>,
- "Javed Hasan" <jhasan@marvell.com>,
- GR-QLogic-Storage-Upstream@marvell.com,
- "James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>,
- "Martin K. Petersen" <martin.petersen@oracle.com>,
- "Nilesh Javali" <njavali@marvell.com>,
- "Manish Rangankar" <mrangankar@marvell.com>,
- "Varun Prakash" <varun@chelsio.com>,
- "Alexander Viro" <viro@zeniv.linux.org.uk>,
- "Christian Brauner" <brauner@kernel.org>, "Jan Kara" <jack@suse.cz>,
- "David Howells" <dhowells@redhat.com>,
- "Marc Dionne" <marc.dionne@auristor.com>,
- "Trond Myklebust" <trondmy@kernel.org>,
- "Anna Schumaker" <anna@kernel.org>, "Chuck Lever" <cel@kernel.org>,
- "Jeff Layton" <jlayton@kernel.org>, NeilBrown <neil@brown.name>,
- "Olga Kornievskaia" <okorniev@redhat.com>,
- "Dai Ngo" <Dai.Ngo@oracle.com>, "Tom Talpey" <tom@talpey.com>,
- "Marek Lindner" <marek.lindner@mailbox.org>,
- "Simon Wunderlich" <sw@simonwunderlich.de>,
- "Antonio Quartulli" <antonio@mandelbit.com>,
- "Sven Eckelmann" <sven@narfation.org>,
- "Nikolay Aleksandrov" <razor@blackwall.org>,
- "Pablo Neira Ayuso" <pablo@netfilter.org>,
- "Florian Westphal" <fw@strlen.de>, "Phil Sutter" <phil@nwl.cc>,
- "Johannes Berg" <johannes@sipsolutions.net>,
- "Matthieu Baerts" <matttbe@kernel.org>,
- "Mat Martineau" <martineau@kernel.org>,
- "Geliang Tang" <geliang@kernel.org>, "Julian Anastasov" <ja@ssi.bg>,
- "Aaron Conole" <aconole@redhat.com>,
- "Eelco Chaudron" <echaudro@redhat.com>,
- "Ilya Maximets" <i.maximets@ovn.org>,
- "Allison Henderson" <achender@kernel.org>,
- "Jamal Hadi Salim" <jhs@mojatatu.com>, "Jiri Pirko" <jiri@resnulli.us>,
- "Marcelo Ricardo Leitner" <marcelo.leitner@gmail.com>,
- "Xin Long" <lucien.xin@gmail.com>,
- "D. Wythe" <alibuda@linux.alibaba.com>,
- "Dust Li" <dust.li@linux.alibaba.com>,
- "Sidraya Jayagond" <sidraya@linux.ibm.com>,
- "Wenjia Zhang" <wenjia@linux.ibm.com>,
- "Mahanta Jambigi" <mjambigi@linux.ibm.com>,
- "Tony Lu" <tonylu@linux.alibaba.com>, "Wen Gu" <guwen@linux.alibaba.com>,
- "Jon Maloy" <jmaloy@redhat.com>,
- "Steffen Klassert" <steffen.klassert@secunet.com>,
- "Herbert Xu" <herbert@gondor.apana.org.au>,
- "Vikas Gupta" <vikas.gupta@broadcom.com>,
- "Rajashekar Hudumula" <rajashekar.hudumula@broadcom.com>,
- "Justin Chen" <justin.chen@broadcom.com>,
- "Bhargava Marreddy" <bhargava.marreddy@broadcom.com>,
- "Nicolai Buchwitz" <nb@tipi-net.de>,
- "Florian Fainelli" <florian.fainelli@broadcom.com>,
- "Heiner Kallweit" <hkallweit1@gmail.com>,
- "Krzysztof Kozlowski" <krzk@kernel.org>,
- "Russell King" <rmk+kernel@armlinux.org.uk>, "Yao Zi" <me@ziyao.cc>,
- "Yanteng Si" <siyanteng@cqsoftware.com.cn>,
- "Maxime Chevallier" <maxime.chevallier@bootlin.com>,
- "Julian Braha" <julianbraha@gmail.com>,
- "Joey Lu" <a0987203069@gmail.com>,
- "Shangjuan Wei" <weishangjuan@eswincomputing.com>,
- "Chen-Yu Tsai" <wens@kernel.org>, "Inochi Amaoto" <inochiama@gmail.com>,
- "Lad, Prabhakar" <prabhakar.mahadev-lad.rj@bp.renesas.com>,
- "Qingfang Deng" <qingfang.deng@linux.dev>,
- "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
- "Eric Biggers" <ebiggers@kernel.org>,
- "Ethan Nelson-Moore" <enelsonmoore@gmail.com>,
- "Ard Biesheuvel" <ardb@kernel.org>,
- "Dmitry Safonov" <0x7f454c46@gmail.com>,
- "Kuniyuki Iwashima" <kuniyu@google.com>, "Alyssa Ross" <hi@alyssa.is>,
- linux-rdma@vger.kernel.org, linux-kernel@vger.kernel.org,
- "intel-wired-lan@lists.osuosl.org" <intel-wired-lan@lists.osuosl.org>,
- "open list:NETRONOME ETHERNET DRIVERS" <oss-drivers@corigine.com>,
- linux-net-drivers@amd.com, linux-stm32@st-md-mailman.stormreply.com,
- linux-arm-kernel@lists.infradead.org, linux-wireless@vger.kernel.org,
- brcm80211@lists.linux.dev, brcm80211-dev-list.pdl@broadcom.com,
- linux-nvme@lists.infradead.org, linux-scsi@vger.kernel.org,
- target-devel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
- linux-afs@lists.infradead.org, linux-nfs@vger.kernel.org,
- b.a.t.m.a.n@lists.open-mesh.org,
- "open list:ETHERNET BRIDGE" <bridge@lists.linux.dev>,
- netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
- mptcp@lists.linux.dev, lvs-devel@vger.kernel.org, dev@openvswitch.org,
- rds-devel@oss.oracle.com, linux-sctp@vger.kernel.org,
- linux-s390@vger.kernel.org,
- "open list:TIPC NETWORK LAYER" <tipc-discussion@lists.sourceforge.net>
-Message-Id: <12ffac6a-649a-4e4a-8d12-0b48171e1d95@app.fastmail.com>
-In-Reply-To: <20260712013941.4570-2-fmancera@suse.de>
-References: <20260712013941.4570-1-fmancera@suse.de>
- <20260712013941.4570-2-fmancera@suse.de>
-Subject: Re: [PATCH 01/13 RFC net-next] net: ipv4: introduce CONFIG_IPV4 to decouple
- the IPv4 stack
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=fOcJG5ae c=1 sm=1 tr=0 ts=6a53d79e cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VwQbUJbxAAAA:8
+ a=6-hqe5jbB1Gv4S7O8j4A:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzEyMDE5MCBTYWx0ZWRfX02ttdHyKZ8iU
+ yS8Q6wsrc+MsAhJtW8DNF2xYVQn4U35jDWdZ47ie+IXWbhjA8iDkGfdfyoKXsrihJZ1YwFS0ZIB
+ LX6u7d4UurTscqbdaOYDd68anbpVnm5fbdLbycmYGNodo7b8xxP/CGOI+QWyikyuUvc+npyj4nf
+ oYH12adi1CSYhHutHbVBFNHV24YtUQDv/Xi+txkAnYO7PERhWBO4Mf2axzNivvV0EC9hmxcuVoD
+ hdNSffoIUy+XE4a0OrG6mV53yxVaAc0YCSvs+jJtw9C6h4tii6m84FBiE4gh2MOfU7LEoXzzIPE
+ 2sqkrxbKeprHKxCJmvHoOc5IOfTakQp6mDmJauxjEME2w7VVmNinHeoo+VjQNGnmCzJVnHJ1ciI
+ MCIj5SpciLFmdtJ9zXPE8YfZ60KiX/gXMF08ao8e7WpAoKH0X2APD7ldJB8pKOv6HUDtIf9nYxO
+ JK3aGquazGpE40SBOgg==
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzEyMDE5MCBTYWx0ZWRfX7iHwbq/Obn7c
+ DA4/KiYejhwgYgjr5HLgwx44ZM17khE6JJ4eM5q2mP2F7OANShyYofTJAcsp0UEr790YJoC98ZT
+ FgE/3pYPiPGb4bcyoRIUiLO7gmMpsGc=
+X-Proofpoint-GUID: 2CbZDQOQPWAhPnsnel8MFmcpi3vhTp3F
+X-Proofpoint-ORIG-GUID: 2CbZDQOQPWAhPnsnel8MFmcpi3vhTp3F
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-07-12_06,2026-07-10_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ spamscore=0 bulkscore=0 impostorscore=0 suspectscore=0 adultscore=0
+ priorityscore=1501 malwarescore=0 clxscore=1015 phishscore=0
+ lowpriorityscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2607120190
 
-On Sun, Jul 12, 2026, at 03:38, Fernando Fernandez Mancera wrote:
-> Historically, the IPv4 protocol has been linked to the core INET
-> subsystem. Because shared infrastructure like the TCP/UDP engine,
-> routing or INET hashtables live inside net/ipv4/, it has been impossible
-> to compile a kernel with only IPv6 support.
->
-> This patch introduces the CONFIG_IPV4 Kconfig symbol, which is set to
-> 'def_bool y' for now. This does not allow to completely disable the
-> IPv4 stack yet but it lays the necessary build-system work for that
-> goal.
+Hello Linus,
 
-I expect this will cause additional (trivial) build regression in the
-next step when randconfig builds run into obscure corner cases, either
-with INET=y IPV4=n IPV6=y or with INET=y IPV4=n IPV6=n.
+please pull s390 fixes for 7.2-rc3.
 
-I can probably give your patch (with IPV4 visible or disabled) an
-early go on the randconfig tree to find these more quickly.
-If I run into regressions, should I just add more 'depends on IPV4',
-or do you have other plans?
+Thank you,
+Vasily
 
-Should we have some logic to ensure that at least one of IPV4 or
-IPV6 is enabled? I think this would work
+The following changes since commit 8cdeaa50eae8dad34885515f62559ee83e7e8dda:
 
-config IPV4
-      bool "The IPv4 protocol" if IPV6
-      default INET
+  Linux 7.2-rc2 (2026-07-05 14:44:06 -1000)
 
-which only allows turning IPV4 off if IPV6 has enabled.
+are available in the Git repository at:
 
-       Arnd
+  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-7.2-4
+
+for you to fetch changes up to 7d5c2f679147859c1db97d9f66366ff16909abee:
+
+  s390: Add build salt to the vDSO (2026-07-08 17:02:48 +0200)
+
+----------------------------------------------------------------
+s390 updates for 7.2-rc3
+
+- Fix missing array_index_nospec() call in diag310 memory topology code
+  to prevent speculative execution with a user controlled array index
+
+- Fix get_align_mask() return type to match vm_unmapped_area_info
+  align_mask, avoiding possible truncation for future larger masks
+
+- Remove empty zcrypt CEX2 files left over after CEX2 and CEX3 driver
+  removal
+
+- Add build salt to the vDSO so it gets a unique build id, similar to
+  the kernel and modules
+
+----------------------------------------------------------------
+Bastian Blank (1):
+      s390: Add build salt to the vDSO
+
+Gerald Schaefer (1):
+      s390/mm: Fix type mismatch in get_align_mask().
+
+Heiko Carstens (1):
+      s390/diag: Add missing array_index_nospec() call to memtop_get_page_count()
+
+Rongguang Wei (1):
+      s390/zcrypt: Remove the empty file
+
+ arch/s390/kernel/diag/diag310.c    | 7 ++++---
+ arch/s390/kernel/vdso/note.S       | 3 +++
+ arch/s390/mm/mmap.c                | 2 +-
+ drivers/s390/crypto/zcrypt_cex2a.c | 0
+ drivers/s390/crypto/zcrypt_cex2a.h | 0
+ drivers/s390/crypto/zcrypt_cex2c.c | 0
+ drivers/s390/crypto/zcrypt_cex2c.h | 0
+ 7 files changed, 8 insertions(+), 4 deletions(-)
+ delete mode 100644 drivers/s390/crypto/zcrypt_cex2a.c
+ delete mode 100644 drivers/s390/crypto/zcrypt_cex2a.h
+ delete mode 100644 drivers/s390/crypto/zcrypt_cex2c.c
+ delete mode 100644 drivers/s390/crypto/zcrypt_cex2c.h
