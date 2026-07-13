@@ -1,196 +1,193 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A6390314A84;
-	Mon, 13 Jul 2026 15:34:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5A80942DA2E;
+	Mon, 13 Jul 2026 15:40:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783956860; cv=none; b=ZrXbbhYkV0/9ViiJgDAONCBlKHIf/+jrTk61RPm8ezgXApuyM4Fr5MmwWou/mrl5PxDDLyQL4eWm5wFVdpD9bV0++LOYotTvNT5ponXDz3R9UsOgaB14IkpR7013bc+r3IoDjsnoTFgh+878zTGPnpZQoFlLp7joSQJPWh7/LO8=
+	t=1783957220; cv=none; b=ctQJPIk1dB3qmeevGqN3eqC1cXOsaHmoOW4GwC7e2cwulDFioyFZeY8oiV4HuHZaU7Ze7ejkzLDjh4G0xnypucn0XcqiQE+UVUH4gn+qpBGTsX+fJA+FGwLYqRnB4ZPoTXPV0JM6ugswdzOYIYqoEPCA3/t1cGrnWWld/415yWY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783956860; c=relaxed/simple;
-	bh=tVsQdMUVWz3g5rnMqmjD0eXUsiuGJ9HxfeBaubOSpIU=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=cXI8Y8G47xgjQZWQNyY6Gp5iHovmjyrdRpdW6JaQmbNQ8Nx4086dzVLLMKVLyxM6xAREuvXBKurbdhnueoKOjj3ATcWiIBkmA0yhF0gFpNhZP7hhDUd2jLQ10EqO/lQOVejeG5AScFv0sbL52u3qlrqSnEV9jwRxVIUiveFSovQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=IgdtTuT/; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1783957220; c=relaxed/simple;
+	bh=1RP7nIJvZuzFUVz7LbE/87Gze67ycwP4Zd0J1lCM4X4=;
+	h=Date:Message-ID:From:To:Cc:Subject:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=GUYNWELN8z64OiKkvCYeDHP6NheYmCJD4lLkLcqW1CCVv2U2Zds3pEqdHsLsLu0ynbwtrOvx8PGdbXpKFiEveMIIqY6D2qTyH42rRrtCFPmbqMJVuzzgfcGOe2rq7fThl6+PCm1oUrVz50Q45WJLXwB5Q/YetgmpM7N7CjDG4Ww=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Cn2ZUCB+; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="IgdtTuT/"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66DFElqU2774398;
-	Mon, 13 Jul 2026 15:34:17 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=XCqfTJ
-	zD9QBVrBP8YeASxRkjlT5LB+Y4FA1cox5D4kg=; b=IgdtTuT/fhWtLRgCdbraEG
-	nikWl7vjndFAc0nMPn+pLlv0oMI2xDV2lAsmGivn8D1hx6wjPM5YJYhHKZdxuhrJ
-	XsF8rxyOlnMKE8DcvWrcQeQxzkNlFesOxrA5UEuWc2H7qMB66vJGkcRzU69qfW1m
-	84TSnshCq7HwURRovB5fBb/juPnzbxH+ZWiwOxkfFPmf9SWC5x2lvMNREL/l0nGd
-	ZPBK+yYrz89kUcihP9ObTCm0HIPzb4r7DJHjDdQ5zyWzHuJ1VlIjD1Oq0kQ+g0ZE
-	dy4ajfIxhsanFV1C6WsuRSZmE7wBI0AtplRRUzI+soAH06K9IITS4N6tZOUFDiGg
-	==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fbf2a1288-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 13 Jul 2026 15:34:17 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66DFK5Xh006455;
-	Mon, 13 Jul 2026 15:34:16 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fc05pxhg0-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 13 Jul 2026 15:34:16 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66DFYCeC49021374
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 13 Jul 2026 15:34:12 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 99DF820043;
-	Mon, 13 Jul 2026 15:34:12 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E708220040;
-	Mon, 13 Jul 2026 15:34:11 +0000 (GMT)
-Received: from [9.111.161.78] (unknown [9.111.161.78])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 13 Jul 2026 15:34:11 +0000 (GMT)
-Message-ID: <3b4603ba-1d56-4540-b927-9002605fc137@linux.ibm.com>
-Date: Mon, 13 Jul 2026 17:34:09 +0200
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Cn2ZUCB+"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F25771F000E9;
+	Mon, 13 Jul 2026 15:40:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1783957219;
+	bh=bgGgHEFrLGkQhpGDdK+yppM68Mi1G34yHD+nEZ0cRvI=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References;
+	b=Cn2ZUCB+DP+A+yh8GoVyIuambcgu9zH+5DmmoJPwToYOYq2t2XeVgJO9coDBBFNjk
+	 81ZA7FFzrTucxbUJF7pwryMqEmNaBcfaKPuwAIwEZoiOZ5e4FB2MRdTTJqMSNoXIUj
+	 s5k7KVSP+1VHiZB1j1ulfEzWbLKtlwJqy1Ch0aJkHXnxnhEP0ML/V244TtoHApg79A
+	 69yy93M65/CibCsFPLu/xMTTe9vPbz2E7n7fnDAU4MfIH1rXSHSuagQgyXn7RXB3c6
+	 ySWxQhLOHBX6QHlFiWUnSnDEe+SPVCcpI58lu2N6i2KrU6+0PY5PAJuUF++T+tcdHm
+	 FrGMRexNuXUog==
+Received: from sofa.misterjones.org ([185.219.108.64] helo=lobster-girl.misterjones.org)
+	by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98.2)
+	(envelope-from <maz@kernel.org>)
+	id 1wjIlV-00000004YRs-09Of;
+	Mon, 13 Jul 2026 15:40:17 +0000
+Date: Mon, 13 Jul 2026 16:42:06 +0100
+Message-ID: <87a4ru6gmp.wl-maz@kernel.org>
+From: Marc Zyngier <maz@kernel.org>
+To: Steffen Eiden <seiden@linux.ibm.com>
+Cc: kvm@vger.kernel.org,
+	kvmarm@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Andreas Grapentin <gra@linux.ibm.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Claudio Imbrenda <imbrenda@linux.ibm.com>,
+	David Hildenbrand <david@kernel.org>,
+	Friedrich Welter <fritz@linux.ibm.com>,
+	Gautam Gala <ggala@linux.ibm.com>,
+	Hariharan Mari <hari55@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Hendrik Brueckner <brueckner@linux.ibm.com>,
+	Ilya Leoshkevich <iii@linux.ibm.com>,
+	Janosch Frank <frankja@linux.ibm.com>,
+	Joey Gouly <joey.gouly@arm.com>,
+	Nico Boehr <nrb@linux.ibm.com>,
+	Nina Schoetterl-Glausch <oss@nina.schoetterlglausch.eu>,
+	Oliver Upton <oupton@kernel.org>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Suzuki K Poulose <suzuki.poulose@arm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Ulrich Weigand <Ulrich.Weigand@de.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Will Deacon <will@kernel.org>,
+	Zenghui Yu <yuzenghui@huawei.com>
+Subject: Re: [PATCH v4 09/27] KVM: arm64: Access elements of vcpu_gp_regs individually
+In-Reply-To: <20260710115637.984749-H-seiden@linux.ibm.com>
+References: <20260706085229.979525-1-seiden@linux.ibm.com>
+	<20260706085229.979525-10-seiden@linux.ibm.com>
+	<86cxx0ovx5.wl-maz@kernel.org>
+	<20260710115637.984749-H-seiden@linux.ibm.com>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
+ FLIM-LB/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL-LB/10.8 EasyPG/1.0.0 Emacs/30.1
+ (aarch64-unknown-linux-gnu) MULE/6.0 (HANACHIRUSATO)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 0/2] s390/vdso: Fix GNU_EH_FRAME PHDR
-To: Heiko Carstens <hca@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev
- <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Ilya Leoshkevich <iii@linux.ibm.com>
-References: <20260706151909.103539-1-jremus@linux.ibm.com>
- <20260710074600.17568Beb-hca@linux.ibm.com>
-Content-Language: en-US
-From: Jens Remus <jremus@linux.ibm.com>
-Organization: IBM Deutschland Research & Development GmbH
-In-Reply-To: <20260710074600.17568Beb-hca@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzEzMDE1OCBTYWx0ZWRfX40+x+7G3njcU
- gWCP1YMIKvNFZJTIxL6LjF9k+aDNu5UryEWLE/NUml0FY5A63A4Lmjnb3ceekSiwtskwDqNCttC
- 7avicaAp6ZqBNd8rD09oy7uahOlCAEI=
-X-Proofpoint-GUID: yrN5X_LFGBoBlJwMp9Jz-VR4nSENuoGF
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzEzMDE1OCBTYWx0ZWRfXwywzbpSE4y8q
- yDNdsYARz5iuKNuiVWiv/u0jCJgxPJHPGuBbzfs5CdgPomN7mGaex/K+V+lgVVkiBNC6G6xmRST
- wm2qVA/5+2X8jnNU+GQClE3FvmVxJ0rNoPc+Qo2VRixXnAQOTuzzGMZgdBxQhJcwm4MA8LyJl4j
- WqoSRweXWNNIXKZu8GYxeJM2CrhYpcVdiE43IVuknLGGhVaZfbrVGe1Am974Fm/bM2X5mK8YR5F
- uWenAVg8ijD0CqEthjitBYCQPzoyT9G43Cn2gy2yLUH7Fvn8lM3S6rRN1KPvBIts8SEPmS7tWnH
- 7nGQ6lyQp7xwWvOiMxDXJ+xHBBZHGaGlpDSyXudBvXqzaJ7wuHM6LpbdUguGTm9yYX77haBXF1v
- vxh0tYZDw+8WAaAKrcvksu5/BFR+2VrjEWMsQFq2+CvBL+emy+f+1wZ37xTg51oN7tFyxyIZOYr
- wJEywa+Dv1Tav3hiImg==
-X-Proofpoint-ORIG-GUID: yrN5X_LFGBoBlJwMp9Jz-VR4nSENuoGF
-X-Authority-Analysis: v=2.4 cv=PvajqQM3 c=1 sm=1 tr=0 ts=6a550579 cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
- a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8
- a=ZQoJ5bdyw165gDN1tUYA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
- a=O8hF6Hzn-FEA:10
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-07-13_04,2026-07-10_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 malwarescore=0 bulkscore=0 impostorscore=0 adultscore=0
- clxscore=1015 lowpriorityscore=0 spamscore=0 suspectscore=0 phishscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607130158
+MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
+Content-Type: text/plain; charset=US-ASCII
+X-SA-Exim-Connect-IP: 185.219.108.64
+X-SA-Exim-Rcpt-To: seiden@linux.ibm.com, kvm@vger.kernel.org, kvmarm@lists.linux.dev, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, agordeev@linux.ibm.com, gra@linux.ibm.com, arnd@arndb.de, catalin.marinas@arm.com, borntraeger@linux.ibm.com, imbrenda@linux.ibm.com, david@kernel.org, fritz@linux.ibm.com, ggala@linux.ibm.com, hari55@linux.ibm.com, hca@linux.ibm.com, brueckner@linux.ibm.com, iii@linux.ibm.com, frankja@linux.ibm.com, joey.gouly@arm.com, nrb@linux.ibm.com, oss@nina.schoetterlglausch.eu, oupton@kernel.org, pbonzini@redhat.com, suzuki.poulose@arm.com, svens@linux.ibm.com, Ulrich.Weigand@de.ibm.com, gor@linux.ibm.com, will@kernel.org, yuzenghui@huawei.com
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 
-On 7/10/2026 9:46 AM, Heiko Carstens wrote:
-> On Mon, Jul 06, 2026 at 05:19:07PM +0200, Jens Remus wrote:
->> Patch 1 fixes the empty GNU_EH_FRAME program table header entry to
->> enable unwinders and stacktracers to locate the .eh_frame_hdr section.
->>
->> Patch 2 uses symbolic constants for the PHDR permission flags to improve
->> readability and explicitly specifies the GNU_EH_FRAME PHDR to be read-
->> only.
-
-...
-
->> Jens Remus (2):
->>   s390/vdso: Pass --eh-frame-hdr to the linker
->>   s390/vdso: Use symbolic constants for the PHDR permission flags
->>
->>  arch/s390/kernel/vdso/Makefile   |  3 ++-
->>  arch/s390/kernel/vdso/vdso.lds.S | 12 ++++++++----
->>  2 files changed, 10 insertions(+), 5 deletions(-)
+On Fri, 10 Jul 2026 12:56:37 +0100,
+Steffen Eiden <seiden@linux.ibm.com> wrote:
 > 
-> This series is in limbo state. Do you plan to send a new version to
-> address the very minor nits, or should it stay as is?
+> On Mon, Jul 06, 2026 at 06:44:06PM +0100, Marc Zyngier wrote:
+> > On Mon, 06 Jul 2026 09:52:09 +0100,
+> > Steffen Eiden <seiden@linux.ibm.com> wrote:
+> > > 
+> > > While for arm64 the members of vcpu_gp_regs are allocated continuous
+> > > this is not necessarily true for other architectures implementing ARM.
+> > > 
+> > > Let vcpu_gp_regs() no longer return the address of the user_pt_regs in
+> > > the vcpu context but the address of the gp-register array field in the
+> > > user_pt_reg struct.
+> > 
+> > That's an interesting change of semantics, because this excludes PC
+> > from the GPRs. This is valid on AArch64, but wrong for AArch32 (PC
+> > really is R15, and is just another GPR).
+> >
+> 
+> I never looked into AArch32 thanks for pointing this out.
+> 
+> > It isn't a huge deal, and nothing breaks, but that's something that
+> > you may want to capture.
+> > 
+> 
+> Shall I add a comment into the commit message that this splits pc from
+> the gprs for arm32?
 
-Sorry for the delay!  I have sent a v2.
+Yeah, I really want this stuff to be correctly documented, just in
+case we break something and have to go back in time to find out why.
+That's overall something that could be improved in this series.
 
-I tried hard to figure out whether adding a proper GNU_STACK PHDR
-with RW in a separate commit (similar to x86 commit 8717b02b8c03
-("x86/entry/vdso: Include GNU_PROPERTY and GNU_STACK PHDRs") would
-provide any benefit on s390:
+[...]
 
-Loading executables in the kernel:
+> > > diff --git a/arch/arm64/kvm/hyp/exception.c b/arch/arm64/kvm/hyp/exception.c
+> > > index bef40ddb16db..82611442a2d1 100644
+> > > --- a/arch/arm64/kvm/hyp/exception.c
+> > > +++ b/arch/arm64/kvm/hyp/exception.c
+> > > @@ -277,6 +277,9 @@ static const u8 return_offsets[8][2] = {
+> > >  	[7] = { 4, 4 },		/* FIQ, unused */
+> > >  };
+> > >  
+> > > +#define OFFSETOF_PT_REG(__r) offsetof(struct user_pt_regs, __r)
+> > > +#define COMPAT_IDX(__c) ((OFFSETOF_PT_REG(__c) - OFFSETOF_PT_REG(regs[0])) / sizeof(u64))
+> > > +
+> > 
+> > Oh $gawd, this is... awful.
+> > 
+> > >  static void enter_exception32(struct kvm_vcpu *vcpu, u32 mode, u32 vect_offset)
+> > >  {
+> > >  	unsigned long spsr = *vcpu_cpsr(vcpu);
+> > > @@ -292,12 +295,12 @@ static void enter_exception32(struct kvm_vcpu *vcpu, u32 mode, u32 vect_offset)
+> > >  	switch(mode) {
+> > >  	case PSR_AA32_MODE_ABT:
+> > >  		__vcpu_write_spsr_abt(vcpu, host_spsr_to_spsr32(spsr));
+> > > -		vcpu_gp_regs(vcpu)->compat_lr_abt = return_address;
+> > > +		vcpu_gp_regs(vcpu)[COMPAT_IDX(compat_lr_abt)] = return_address;
+> > >  		break;
+> > 
+> > Stupid idea: why don't you simply have new #defines that make the
+> > register number standalone, and make ptrace.h use that? Something line
+> > this (which can obviously be extended to all the compat registers):
+> > 
+> > diff --git a/arch/arm64/include/asm/ptrace.h b/arch/arm64/include/asm/ptrace.h
+> > index 39582511ad72f..2d3d324d2598e 100644
+> > --- a/arch/arm64/include/asm/ptrace.h
+> > +++ b/arch/arm64/include/asm/ptrace.h
+> > @@ -104,6 +104,10 @@
+> >  #define COMPAT_USER_SZ	296
+> >  
+> >  /* Architecturally defined mapping between AArch32 and AArch64 registers */
+> > +enum aarch32_reg_mapping {
+> > +	__compat_lr_und = 22,
+> > +};
+> > +
+> >  #define compat_usr(x)	regs[(x)]
+> >  #define compat_fp	regs[11]
+> >  #define compat_sp	regs[13]
+> > @@ -115,7 +119,7 @@
+> >  #define compat_sp_svc	regs[19]
+> >  #define compat_lr_abt	regs[20]
+> >  #define compat_sp_abt	regs[21]
+> > -#define compat_lr_und	regs[22]
+> > +#define compat_lr_und	regs[__compat_lr_und]
+> >  #define compat_sp_und	regs[23]
+> >  #define compat_r8_fiq	regs[24]
+> >  #define compat_r9_fiq	regs[25]
+> > 
+> > and then your #defines from hell can go?
+> 
+> Great suggestion I do not like this macro hell myself. I'll implement it
+> that way. Should I convert all compat_* regs to this concept or just the
+> ones I need?
 
-- s390, unlike other archs, does not provide an arch-specific
-  elf_read_implies_exec(), therefore the generic from include/linux/elf.h
-  that returns false is used.
-- As a consequence fs/binfmt_elf.c, load_elf_binary() does not default
-  executables without GNU_STACK PHDR to executable stack.
+All of them, please., I value consistency. As you are doing this,
+consider adding a reference to I_PYKVS, which describes the mapping in
+the ARM ARM.
 
-Loading shared libraries in Glibc:
+Thanks,
 
-- elf/dl-load.c, _dl_map_object_from_fd() does default shared libraries
-  without GNU_STACK PHDR to executable stack (see DEFAULT_STACK_PERMS).
+	M.
 
-
-Based on that I performed the following tests, all using an executable
-with GNU_STACK RW (not RWX):
-
-Library with GNU_STACK RWX loaded at startup: [stack] rwxp (exec=YES)
-Library with GNU_STACK RW  loaded at startup: [stack] rw-p (exec=NO)
-Library without GNU_STACK  loaded at startup: [stack] rwxp (exec=YES)
-
-Library with GNU_STACK RWX loaded via dlopen: fails  *1)
-Library with GNU_STACK RW  loaded via dlopen: [stack] rw-p (exec=NO)
-Library without GNU_STACK  loaded via dlopen: fails  *1)
-
-vDSO without GNU_STACK loaded via startup: [stack] rw-p (exec=NO)  *2)
-vDSO without GNU_STACK loaded via dlopen : [stack] rw-p (exec=NO)  *3)
-
-
-*1) dlopen fails with cannot enable executable stack as shared object
-    requires: Invalid argument.  Regardless of glibc.rtld.execstack=1
-    tunable.
-
-*2) Linking against /usr/modules/.../vdso/vdso.so (won't be listed in
-    ldd output though)
-
-*3) dlopen("linux-vdso.so.1", RTLD_NOW);
-
-
-Technically adding a GNU_STACK PHDR with RW seems to be the right
-thing, although I could not construct a use case, where it would
-really matter.
-
-> In any case:
-> Acked-by: Heiko Carstens <hca@linux.ibm.com>
-
-Thanks!
-
-Regards,
-Jens
 -- 
-Jens Remus
-Linux on Z Development (D3303)
-jremus@de.ibm.com / jremus@linux.ibm.com
-
-IBM Deutschland Research & Development GmbH; Vorsitzender des Aufsichtsrats: Wolfgang Wendt; Geschäftsführung: David Faller; Sitz der Gesellschaft: Ehningen; Registergericht: Amtsgericht Stuttgart, HRB 243294
-IBM Data Privacy Statement: https://www.ibm.com/privacy/
-
+Jazz isn't dead. It just smells funny.
