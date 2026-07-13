@@ -1,68 +1,68 @@
-Received: from mail-qk1-f176.google.com (mail-qk1-f176.google.com [209.85.222.176])
+Received: from mail-qv1-f49.google.com (mail-qv1-f49.google.com [209.85.219.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E923F357CF8
-	for <linux-s390@vger.kernel.org>; Mon, 13 Jul 2026 19:37:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 76FBC357D13
+	for <linux-s390@vger.kernel.org>; Mon, 13 Jul 2026 19:39:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783971446; cv=none; b=MxvI35HllJOmcHSV5ekA7W60DWv6+JyJUmTy4jmYowz6bXSEA56G728PzSVqaOT56P5ccIZ/V+3p3ZneTQeVqaL+EkQ5F2nyWS+c2Mc/ozhknVFh4C9zKrI+DliibEV+98gIoMAF7tjkQ0/JKqfriQ6zE8dB3ghknvJBClIUufk=
+	t=1783971586; cv=none; b=LgMGEHI2YPbjsaXtEAhYdD6MzG+bg04RcNrpKGpeRIBwGoM7W7RoJyM5vy4lNJHxVNnKE4ZRgrnae285iqm2Bu39E4NXCYxlMnqKlse8CWi0e2i+9RbPpfzAbfusqoUndyLiO5Ad1kXpUj2D6QA4x0irqQL5BjHLSDWxoumB6p0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783971446; c=relaxed/simple;
-	bh=Xsfi+SO6SJr84aSbkQrUqh5LTCvlYWMyrm0+dQckaBI=;
+	s=arc-20240116; t=1783971586; c=relaxed/simple;
+	bh=6ObL/bIb2BF9Fm+HEWevziQ1Coe0QkELhGyBpHyDwZw=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=QHfH1F53ztGHofrN3Yj/A1cWY46dntH+hm9P8y8nNa7KcQASKNRO93aagFj4AqQ4hd2eEU5XTLheRyYmJm35MZN4yS9xxTWu4j2lgNopINaIWQpwkuosqc0sSgbDDtGBDGPHAsUk0ua9bi52yxUWymDr+cT07YC2wuYnAJpb71E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca; spf=pass smtp.mailfrom=ziepe.ca; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=bCH7thWk; arc=none smtp.client-ip=209.85.222.176
+	 Content-Type:Content-Disposition:In-Reply-To; b=iRjAO+LLxp02Ps1Py6fkRO8eqUBEN6w0bR39bAy0gxU2CN7o/PtcgxBlceM1l9SuwaUi7qUTKlu7x3ojYAoxM2bDQYMwNnjRxS/5S7FB6G+rCZOTjMIOKLbl3v7EaAuR5bpukhqUV4OfJxUSPuA6hR2YWnORJIyg/wHKcwETIKE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca; spf=pass smtp.mailfrom=ziepe.ca; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=olusSk7d; arc=none smtp.client-ip=209.85.219.49
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="bCH7thWk"
-Received: by mail-qk1-f176.google.com with SMTP id af79cd13be357-92e85499ffbso20849785a.0
-        for <linux-s390@vger.kernel.org>; Mon, 13 Jul 2026 12:37:24 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="olusSk7d"
+Received: by mail-qv1-f49.google.com with SMTP id 6a1803df08f44-8f29ec73064so29508646d6.1
+        for <linux-s390@vger.kernel.org>; Mon, 13 Jul 2026 12:39:44 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google; t=1783971444; x=1784576244; darn=vger.kernel.org;
+        d=ziepe.ca; s=google; t=1783971583; x=1784576383; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=seRQ4x7WCVBDlRNvM1ESoBfWnXSVwL4ZPJ5Cc52Vq54=;
-        b=bCH7thWkHUmHqjRoXeaBgsb3lecl0+IbVkKRPH4GzvVS4UZWsD+3865TdbqG8jpLSP
-         SsjWB0DamBr1/ayp5/ZSi7hpGwSkHr35Xxk5Bn9hEraHpLp5mkDXoziSKuanF46obtot
-         +6Qm8zvlRIGqaYAmemVVD0BPyR9dH7o9xnRrz8AFyl23uq6meFQ6kbW7nRgdUWJGuLLL
-         J7qbilrsVdDj9QfFMcAQBUDhzU8VN1Yk24MGvwXFMWIZwlL4EFi0TUGoKf9o8eRbRIqV
-         XF9Fxexa0xMZ6AsBI7tO525l7G3+5BPfasS86Q03YBqjqpUY/twzQg4xpUuXe2wIQPGX
-         fsOw==
+        bh=1JWJRfd6QdZf7qlUjcbW5D2kIZlwkQZ3KWr7+m1ApiM=;
+        b=olusSk7dW857D7vkVHeKtqcn8E/C5XJj+roNCR3KosdtGCtKKWDyZO5Mfck5lpEywS
+         OlV59SgB4Nqt8g/exVmlWH/61W2+NJKOBoxwlFOT6wNpABjNaVff5DhKkbBgvWSWDrsg
+         Zqqr5fo1TuJbw7Z0KG1MGmZLxNjm6tvLVgGLXsqWzeKTyIf1PNJLcpFmkfdp9RvJwp9n
+         loKEHBB7BgtI4MYTjo0UOVIyqXYF5lnniYLsi5AAe4Qr1SnHZ3EufwCB0MY+mzcmOBvk
+         ltqlEQH9B+OX9ahmjVyRMJj7eo6DVNP9c8PjWyJAsbf/GaTM3w9v+JpH2r89YgLAWFQq
+         8GEQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783971444; x=1784576244;
+        d=1e100.net; s=20251104; t=1783971583; x=1784576383;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=seRQ4x7WCVBDlRNvM1ESoBfWnXSVwL4ZPJ5Cc52Vq54=;
-        b=CB9qJj3lAu5ATVDOMGuuu2uTvSTDuaalYen3eC+TnXNa2PiIyZ74lRiIjrdYeN54pa
-         di1V8RTRsJ8y4PYRhrk9vpk7cYw9fdAAoDJByAoD7qAPszL2WenKQo5QGOqPIjUVkvW8
-         M8feKl1qinUOtFOx66YOJMFTj23lLu1cIzNMgG0lrP8LeO9Dg5aRH7ePSz1qzgRK/06l
-         jcmYVIDmTnc6kn2FXDhsoaXjjbIuu/TO5BMRS/sTN5vt+I1i6rRfeCfunvZZeAECOdzy
-         kTJCCZK3dGtEEqQ5L5Xd8SI9P/hclyvFvW0D41H1PnteM8oAJo/vgOJ0PC9iKFuCIRTG
-         dtEg==
-X-Forwarded-Encrypted: i=1; AHgh+Rpbjc1QTJcIKh0CZKr1wbwJFxAQTax5bbpHVqL4d5Xedyon1qCYi9qVLmky5qitAUp0ZWrE8IOmJBoS@vger.kernel.org
-X-Gm-Message-State: AOJu0YzyMrbTY8BnR8E5KixgGsV0Kho2gmybq+VOe/9zsBmP/KtsdFIj
-	qW4RNC/6qZJZB99VhfNsfogNTOIYKRffy5aOydZdPok0fADMBy49fcdaIeNZixYy/Vo=
-X-Gm-Gg: AfdE7cl9TTMOct7ZoHhKJ7/1k6437RZ3J53Se++YUhQbg/0qDXQXsdsV+24kEX/Elk9
-	uMWroaND8poNgl+6yxZ9/4+iqgjNZuxYydypc9hn6MNEz3gZ+OGwmdAnhExs4Z+KuIM8OZOLSsS
-	2lkPFOnZLoXJYs7qn9aHxyYYxzPO/apV7JiIcspz7lvMY7GuDflFhSvlmZoh6fjP6vsV5Qp+W3w
-	rSxlUvvqSay8Vl+leSQ1gIUp395+UMwU8OWUYgbXD3iQfGvUm3dpqPjaEvLR2hOrqcxPaFz74th
-	QNROI6xHgXJGRj9nmL1oNzS8EWwgD7KreCQvgqLdHqxJ8olGjb/6XVe0Nkt2vW01RFOjKKDRoX1
-	Aq0hIGI1uwAVCmELrmAOoj4SkD8TO8iGBiT9e6dU2NnQmhIJKhjERrnIwC465LWLI748cvZs=
-X-Received: by 2002:a05:620a:2551:b0:915:5930:94e6 with SMTP id af79cd13be357-92ef2bcc91emr1112783085a.51.1783971443832;
-        Mon, 13 Jul 2026 12:37:23 -0700 (PDT)
+        bh=1JWJRfd6QdZf7qlUjcbW5D2kIZlwkQZ3KWr7+m1ApiM=;
+        b=d7P6draE3RrEBRBpaKGfx+I5iG/PH5UKZ9YFZRL2UAPAtF7ZZ0ogaBhaaI0P39olzG
+         t+DvEFQqy2LIzOAW9FFm0ducling1zaz4CF3xQmu89Zd0RE71Ys1NF764Y1mOoJO7r/P
+         66o4phpG9uaJrYLPrRGMIidhRVyDl94RN3sv6BcFiaB1pzekOfd2kf+Qzef4IU5nVz7U
+         siY8eXz2AgCsREONaVaPI5OHSeEue1z+fqLnQqE0gE7df00LaIgfobpbyURH0lJ6BqZG
+         fG3kDXsxVdIVkf4xLNeqKOQPvbdv1hJuNe3lR8D3fy9lNar4FRTLsLQ3HPL4C/86T7Q5
+         blEQ==
+X-Forwarded-Encrypted: i=1; AHgh+RpMg/cAJ0/dW8VoA7ciMf9ZYNfqcex6Eaoao+TFfbD31X9+Ov8pqzhWWnw/4YyeZ4NBhQD693LhCGXC@vger.kernel.org
+X-Gm-Message-State: AOJu0YwJwnCrYrumhjdW6hmiwa0PLmEaA8Nkh2OdaqkUBlr6xVt1Iz0r
+	ja+xLHDGN2esW3H/fFNB15sJEB+SOZNA+B9+zJeQJIYYgGLxyk6wfsmDSrTsr6mabZM=
+X-Gm-Gg: AfdE7clhkJOBp80zAwb3h5b/QR5Ovz0IoKCFK3Fsu1U8leD+HK4kujj2eISUao8n9zD
+	M9MWw9jh+LIRRXTGQKNfvq/ujV4/sVXlx8RmxMZzeWlYoJvWzwpdMbdg/zFw74PO/u+inb5lcW1
+	tgvlzfnXsnTVjb5yk7H/mMICALIoOKuGgPCO66aPb4R8VAb4VUxb4OEhtsJ0/Tx0JwJ8UzXfUsL
+	UuKgpryeTTqpLMzb6+RlTLnt7pwq0p5LWqW+OuEJy5J2KCrXwl+8rgx2Hf5c2JHOKsg2KdJZ83s
+	pwopG2U6Evx5t05dosGkCn+hictQoJhHrsFGYsTl8C9Uw/VHhuFs9G6wcU74ZZaHWxG3tXFi3qP
+	EesfKX2gQfssx9/0jbPEt0o8wqZb29t3hqFIjEqJB0W7n4DjqfkcH+2n3LWGk
+X-Received: by 2002:a05:6214:4c8a:b0:8f1:3533:7a83 with SMTP id 6a1803df08f44-90402c68b4dmr105755746d6.33.1783971582552;
+        Mon, 13 Jul 2026 12:39:42 -0700 (PDT)
 Received: from ziepe.ca ([159.2.72.92])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-92ee5b86276sm1177578085a.11.2026.07.13.12.37.23
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-90725bc050esm20419156d6.28.2026.07.13.12.39.41
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 13 Jul 2026 12:37:23 -0700 (PDT)
+        Mon, 13 Jul 2026 12:39:42 -0700 (PDT)
 Received: from jgg by wakko with local (Exim 4.97)
 	(envelope-from <jgg@ziepe.ca>)
-	id 1wjMSw-0000000E6Rs-2gqS;
-	Mon, 13 Jul 2026 16:37:22 -0300
-Date: Mon, 13 Jul 2026 16:37:22 -0300
+	id 1wjMVB-0000000E6bn-2D9o;
+	Mon, 13 Jul 2026 16:39:41 -0300
+Date: Mon, 13 Jul 2026 16:39:41 -0300
 From: Jason Gunthorpe <jgg@ziepe.ca>
 To: "Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org>
 Cc: iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
@@ -90,11 +90,11 @@ Cc: iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
 	Christian Borntraeger <borntraeger@linux.ibm.com>,
 	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org,
 	Jiri Pirko <jiri@nvidia.com>, Michael Kelley <mhklinux@outlook.com>
-Subject: Re: [PATCH v7 17/22] dma-direct: set decrypted flag for remapped DMA
- allocations
-Message-ID: <20260713193722.GW3133966@ziepe.ca>
+Subject: Re: [PATCH v7 18/22] dma-direct: select DMA address encoding from
+ __DMA_ATTR_ALLOC_CC_SHARED
+Message-ID: <20260713193941.GX3133966@ziepe.ca>
 References: <20260701054926.825925-1-aneesh.kumar@kernel.org>
- <20260701054926.825925-18-aneesh.kumar@kernel.org>
+ <20260701054926.825925-19-aneesh.kumar@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -103,27 +103,14 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260701054926.825925-18-aneesh.kumar@kernel.org>
+In-Reply-To: <20260701054926.825925-19-aneesh.kumar@kernel.org>
 
-On Wed, Jul 01, 2026 at 11:19:21AM +0530, Aneesh Kumar K.V (Arm) wrote:
-> Devices that are DMA non-coherent and require a remap were skipping
-> dma_set_decrypted(), leaving DMA buffers encrypted even when the device
-> requires unencrypted access. Move the call after the if (remap) branch
-> so that both the direct and remapped allocation paths correctly mark the
-> allocation as decrypted (or fail cleanly) before use.
-> 
-> Fix dma_direct_alloc() and dma_direct_free() to apply set_memory_*() to the
-> linear-map alias of the backing pages instead of the remapped CPU address.
-> Also disallow highmem pages for __DMA_ATTR_ALLOC_CC_SHARED, because highmem
-> buffers do not provide a usable linear-map address.
-> 
-> Tested-by: Jiri Pirko <jiri@nvidia.com>
-> Tested-by: Michael Kelley <mhklinux@outlook.com>
-> Tested-by: Mostafa Saleh <smostafa@google.com>
-> Signed-off-by: Aneesh Kumar K.V (Arm) <aneesh.kumar@kernel.org>
-> ---
->  kernel/dma/direct.c | 56 +++++++++++++++++++++++++++++++++++----------
->  1 file changed, 44 insertions(+), 12 deletions(-)
+> -	*dma_handle = phys_to_dma_direct(dev, page_to_phys(page));
+> +	*dma_handle = phys_to_dma_direct(dev, page_to_phys(page),
+> +					 !!(attrs & __DMA_ATTR_ALLOC_CC_SHARED));
+
+The !! isn't needed when going through bool, the compiler does it
+automatically.
 
 Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
 
