@@ -1,67 +1,67 @@
-Received: from mail-lf1-f50.google.com (mail-lf1-f50.google.com [209.85.167.50])
+Received: from mail-lf1-f43.google.com (mail-lf1-f43.google.com [209.85.167.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C2143D6470
-	for <linux-s390@vger.kernel.org>; Mon, 13 Jul 2026 08:58:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4FB033DBD43
+	for <linux-s390@vger.kernel.org>; Mon, 13 Jul 2026 09:02:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783933119; cv=none; b=cDKELduovnxQJg1+RT2OadlM3FRLXz2YGsd2j5Ac8VmhAeDu08Pswb9CdJlcdSk27F6zL3Oz+kYgHtw62MiyiRGbjHqHDDqyZwPx6u8pbg/lh2OremFoaYcwC6+J5VJ6W4L+fuadW+bJJROJKQYf86fSbbaTbifGm14x0UarR/U=
+	t=1783933359; cv=none; b=VoIl48uHKTaxdBxk5Xt8t43SNhEOGJbvnX8zeeRxIcNnnV6cPZEVVJY7pOMEIZE6+LpIpWdzOM3iAM8MGi/euox8es9fKLrCit7rGLa3dBfhiZv1P6i4vltWsOyilDCKOBGm9f2jVZ4FPtedjiVwV3Wli/71FXbW8t8jpybPSfo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783933119; c=relaxed/simple;
-	bh=1o1CyI5Ge8COlJA/GNtWMVlB7gFYnNefBLUngEwwR3M=;
+	s=arc-20240116; t=1783933359; c=relaxed/simple;
+	bh=ZMnTzIIYD3ryqWvmxnS7KPltVp7erW0leC7SgcT6FFE=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=J6CRYTYl2b/Ng6UpfMZdChQKfBujmplmnHw6x+3JOih+Tah4lzkxW86X2Qwr+DXqONsLEGy+pFKF2KAFG35BfHDbFGrj4yyVL7Vrgu5hU6ICO1jD9iDePzuMiTqt4mYVk0E6pksJZEXIeYhFR6DWWPLvSoV8ZvnfyPxV0Ec5OTM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20251104.gappssmtp.com header.i=@resnulli-us.20251104.gappssmtp.com header.b=U5P9xbLd; arc=none smtp.client-ip=209.85.167.50
+	 Content-Type:Content-Disposition:In-Reply-To; b=pge0Pe3oQ/DII/6otj2xjLKTGo1JNyHqW05ucR/UPKS8kUqdNsUaro+hr0D4tRua+bdyBthR9g0u1S/VJbeWKE2hltUwRrRRwAfKMAQ7beMjegKSEH9mU/B6J6+U6RfkoEijJDCYvmnvTeM4jsat6EExoQ5dW9xGzOz3zOEAwUU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20251104.gappssmtp.com header.i=@resnulli-us.20251104.gappssmtp.com header.b=dEo1Mewv; arc=none smtp.client-ip=209.85.167.43
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=resnulli-us.20251104.gappssmtp.com header.i=@resnulli-us.20251104.gappssmtp.com header.b="U5P9xbLd"
-Received: by mail-lf1-f50.google.com with SMTP id 2adb3069b0e04-5aeb98460c6so3039049e87.2
-        for <linux-s390@vger.kernel.org>; Mon, 13 Jul 2026 01:58:35 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=resnulli-us.20251104.gappssmtp.com header.i=@resnulli-us.20251104.gappssmtp.com header.b="dEo1Mewv"
+Received: by mail-lf1-f43.google.com with SMTP id 2adb3069b0e04-5b0115b9e17so2792261e87.0
+        for <linux-s390@vger.kernel.org>; Mon, 13 Jul 2026 02:02:37 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=resnulli-us.20251104.gappssmtp.com; s=20251104; t=1783933113; x=1784537913; darn=vger.kernel.org;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :content-type:mime-version:references:message-id:subject:cc:to:from
-         :date:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=VAR/B1mlsTXa8tBE6zzVojx+J5Qr4ZE0aQH3nd2YxMA=;
-        b=U5P9xbLd+WKkHG7aivFZ2Y6ZO5n5wy1d0fNdWq7zcT6fmyvWY4Spe+a/mZqFBSZU0b
-         COGhPIl/ay+d+R20Tz3SAS9iayWppR97YyF1laL+D1nUViNzo1Q17pwTEa58GI0bWwL/
-         641lm+TukMRewa6shRu+kWUO/IKLxEO+sNHd+vn4erBPi1gKYVdtNTAC/3xwgwMnLSxA
-         LYjpk1A+i8a3dAEcJ0mNkuF9QY0s7yKC8M/BKJTLMyJ5WoZxTYVhHABBJpt9pEYIn9LJ
-         s0wfmKNl+c5u8qppxUjA/Nd05KCkw5JjlHB75CtoBADii39PGIIXL7816utX0ukmuOfo
-         kZOQ==
+        d=resnulli-us.20251104.gappssmtp.com; s=20251104; t=1783933355; x=1784538155; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=JmJBQdQ4elBFSV3TDptElk8IGzQWnD9GFf/e4lmq0eU=;
+        b=dEo1MewvM6WVrTO3QDvtPCjC/VqjyYBM9skqvyFMwPKBtM8yq2R8Y25kbhDUJ6jWfs
+         f0Cu3WR9L4UYqWpBjybNUr2F/8r/fmM4k1D8W6W1DVpV4YFkY7kU1sBF931YgUK7F3SR
+         6YaueeH6f6hW19Tx6fRpdYnhpr5O7p5nOlJjFN7u+7HlQq0y9l7EBnZ42wSYRdz2u+NO
+         g5EVs8CZU/hHeAOou6eVQWdBIx5DcD1vvtoN6MJ/RG6ZzL03vx1Pik6kmavbOErDpfNB
+         AV4IPEl4nnJ1VNW3J+D2rpGnQQ+39GtKSTVUJxb6wlkGex8eB++k64IrQg49z7gf4wwu
+         Fh6A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783933113; x=1784537913;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :content-type:mime-version:references:message-id:subject:cc:to:from
-         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to:content-type;
-        bh=VAR/B1mlsTXa8tBE6zzVojx+J5Qr4ZE0aQH3nd2YxMA=;
-        b=gOsAd3O8+oI7cp6eDv54MUOBmC9W+Cw1ARJtV/ILmcGiT+eW/7WL0O0zvn+PxxxxDL
-         NEqGaiHlPo38KD8x+vrpmCUImESvYzbADpNa+nw/65T8eYmdtCHCLZNi1DJ9QRrmilp1
-         N64ALylbydksBOU/B3Nw9hsbzAcblKazQcwGSgaY3qvG3QXLHA6ZZ+rlnKvBN8DQmT5a
-         JTb5Itv20Q1r0cVClehuJBwHYXfDPHzyd7bSvQOE4Dm6cTDro2w8Srvv0G1T7hCx72Q9
-         0IsRG7WVx9ZFkiDVZfjI+tDy06786Q699jvMV45l25EOFwZdHVRRAGDlRFhkFKhmTZfT
-         XLbQ==
-X-Forwarded-Encrypted: i=1; AHgh+RpUIaNjZM0FV8VrZBfaye9OhzeKfQ+T5vp+xcAcjs+lbzaPFoGGVJEVyKg7W3B0vwckzXNYPC9fakgx@vger.kernel.org
-X-Gm-Message-State: AOJu0YwqOdt4KPO4UJGqidPclAWQwtTyk3yq4nDJVnu9GsOBpf+oMzUg
-	HgGKfVXvaiAtpDnmmdVpdDb9c6pifAEp2qm/BEWa+9TvLjfRxulPMqLSiBtHzYRDBME=
-X-Gm-Gg: AfdE7ckXRU1gB0k8hMV+50gObCDEp5MRI1qayTEgTDcaaYIt/+B9bkZQLy6g9is5Ytk
-	rEDgsi/kMGT91Z0wnuQD+iQvHnAAFDF9bbrVLzssfHk/hwmSBM2PhrBYaVXHkZeJN2q4S93P6HE
-	sWEUne707PHZOTPOQMffrOJ18G9JFF2Nr5n3or6xV/Vggpr9Abpt6WIzC0kGcML9eOVPTPkKr8j
-	C+RASwJfAPhza1fjifnkRvA/mcw7qAx4c7Km6ObSt23hcAe9kLuhB/6nlkU95N7quCmwZI+ECrY
-	Utls7QmElr1+RZ3Abf1275h3hmk3h10Lk/Nt3zSz0/5w8UqtX1+CqO6pUeLBkBvV8XuE/VDwYrU
-	WjdhktaG0Kk3JT9gdZNkcAILeYApUnmTzrrGWc6absFCQ32m8Y0QiL2/FOUeFHqt4uKJ++it0Wc
-	D4zTdKvpICQ2KXqauRMk+Dj+xNmNqXFzlL
-X-Received: by 2002:a05:6512:1194:b0:5b0:12cf:ae18 with SMTP id 2adb3069b0e04-5b0236ade52mr2002807e87.47.1783933113266;
-        Mon, 13 Jul 2026 01:58:33 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1783933355; x=1784538155;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=JmJBQdQ4elBFSV3TDptElk8IGzQWnD9GFf/e4lmq0eU=;
+        b=ap44wQ2YAytZWSa4jA9JT2XYruxzoHosy3JoCocgTHoLLFi87TWu9A6V5XrmCOUDNe
+         k6hON4zA7zYIRCBm8wTi3BOzrw0fquyPlOb3mgJQS7PuifIUlM+FFDZWZnei1C9tDHXw
+         vm3xyJojE5jeSiZkSr01c3HynTh5CtK4vE71rFvEpnvqKRgT//m4PueG+OdAmGUwTgzy
+         6aqSFoiEBLvquK/Kes48jh2bFn/Qr3PGHwO4b76AQmLx/MixD0ZCMjery3yWVY1NsRnv
+         VPzFKt3MHgvwx4NC8u82WD+F9F253wslM9IVJD9TZA0tSPTT2WZEH6JO2fQlKBJGR+Pb
+         w6lQ==
+X-Forwarded-Encrypted: i=1; AHgh+RolepAJA6Pfz0z9NqTgpzl/555HQzfj5Fhwk5Z5IOk+mnJG2zfwCGBWUOYGjkl7INhTdphkbgaUtz2K@vger.kernel.org
+X-Gm-Message-State: AOJu0YyjPIs3sLi2Nr9CLn1ZTCr3OCICBYn9BNnCXFTM4C7zDPeDq00R
+	zDNXTM4KSKsy8Y3dBp+uBXtz/ibUbI96Vsvynho3bOZ+2hQzeXZxpMul3OqdWBarE50=
+X-Gm-Gg: AfdE7ckJ5YfWILYHFWxkwCicueOkgcbUEku416tEvtM3H2y+40EQXbNqR7KSuL93AWW
+	E1GGe/SgLIf/OEr03o4J1E8+erCiW//bNc0vqmNPoO7+s9j9xhN6NoAnoVLNz+ALXlL6gaAHMsu
+	8LeJrmrBk3TpSxo/uSsRRsphIdNVzFbR4yPsxX6Pqjc+PPYiHHiKueZRXnYteUyu6iI4eesfm6+
+	K1RrIbR9AfqOedQTGQeQK1Y9z8iiXNArLwlWQ+4gJC/PW5OIv2RQtYjEVtIPU/xix2KBpW/5Uas
+	EcsaKRAm6omMf+sMOan5xjtYcrzB/fe/xnAkUZD8s5bCn8fhUeI3M84U7w9w2yUgVsHwPCOyTs1
+	rCLgSUpv0uOlkJDFMmECUJkZtws2eI32m7pZMTx1OftLB7ypO+s2jAncMUjnZEUeF0PSBFRK6qU
+	bcyevVzBbYZHl4AGp49W1UrQ==
+X-Received: by 2002:a05:6512:23d2:b0:5b0:1ae2:8b7a with SMTP id 2adb3069b0e04-5b0236ab3e8mr1256753e87.45.1783933355519;
+        Mon, 13 Jul 2026 02:02:35 -0700 (PDT)
 Received: from localhost ([140.209.217.211])
-        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5b01caa5c4csm2737736e87.57.2026.07.13.01.58.31
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5b01caa66b4sm2731890e87.64.2026.07.13.02.02.33
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 13 Jul 2026 01:58:32 -0700 (PDT)
-Date: Mon, 13 Jul 2026 10:58:28 +0200
+        Mon, 13 Jul 2026 02:02:34 -0700 (PDT)
+Date: Mon, 13 Jul 2026 11:02:30 +0200
 From: Jiri Pirko <jiri@resnulli.us>
-To: Zhu Yanjun <yanjun.zhu@linux.dev>
+To: "yanjun.zhu" <yanjun.zhu@linux.dev>
 Cc: linux-rdma@vger.kernel.org, cgroups@vger.kernel.org, 
 	netdev@vger.kernel.org, linux-s390@vger.kernel.org, linux-kselftest@vger.kernel.org, 
 	jgg@ziepe.ca, leon@kernel.org, parav@nvidia.com, mbloch@nvidia.com, 
@@ -70,63 +70,52 @@ Cc: linux-rdma@vger.kernel.org, cgroups@vger.kernel.org,
 	hannes@cmpxchg.org, alibuda@linux.alibaba.com, dust.li@linux.alibaba.com, 
 	sidraya@linux.ibm.com, wenjia@linux.ibm.com
 Subject: Re: [PATCH rdma-next 13/13] RDMA/selftests: Add rxe_netns_names test
-Message-ID: <alSoo59MP6b34Uk8@FV6GYCPJ69>
+Message-ID: <alSoztLdt2of_6rf@FV6GYCPJ69>
 References: <20260709095532.855647-1-jiri@resnulli.us>
  <20260709095532.855647-14-jiri@resnulli.us>
- <ebb4125e-6d35-44c9-b1b8-267dc3226b81@linux.dev>
+ <2aec2d14-0000-4595-aa2a-73aa5ae41060@linux.dev>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <ebb4125e-6d35-44c9-b1b8-267dc3226b81@linux.dev>
+In-Reply-To: <2aec2d14-0000-4595-aa2a-73aa5ae41060@linux.dev>
 
-Fri, Jul 10, 2026 at 06:24:25AM +0200, yanjun.zhu@linux.dev wrote:
->
->在 2026/7/9 2:55, Jiri Pirko 写道:
+Sat, Jul 11, 2026 at 01:51:45AM +0200, yanjun.zhu@linux.dev wrote:
+>On 7/9/26 2:55 AM, Jiri Pirko wrote:
 >> From: Jiri Pirko <jiri@nvidia.com>
 >> 
 >> Add a kselftest script that exercises per-netns RDMA device naming
 >> with RXE. Cover duplicate names across namespaces, move conflict
 >> handling, move-with-rename, and same-namespace rename requests.
 >
->This is a very comprehensive test suite for the per-netns RDMA device naming
->infra.
+># timeout set to 45
+># selftests: rdma: rxe_netns_names.sh
+># TAP version 13
+># 1..6
+># ok 1 same RDMA device name can exist in two net namespaces
+># ok 2 move without rename fails on destination name conflict
+># ok 3 move then rename succeeds
+># ok 4 move with requested destination name succeeds # SKIP     < --- This
+>testcase skip
 >
->I especially appreciate the inclusion of the 'TEST_TEARDOWN_RETURN'
->case—ensuring
+># ok 5 same-netns rename rejects duplicate name
+># # device returned to init_net as 'ibdev35'
+># ok 6 netns delete returns device to init_net and renames on conflict
+># # 1 skipped test(s) detected.  Consider enabling relevant config options to
+>improve coverage.
+># # Totals: pass:5 fail:0 xfail:0 xpass:0 skip:1 error:0
+>ok 6 selftests: rdma: rxe_netns_names.sh
 >
->that the kernel's automatic renaming and fallback mechanics work seamlessly
->during
->
->netns deletion is crucial for long-term stability.
->
->
->One minor thing to clean up before pushing to the tree: the script declares
->'ktap_set_plan 7'
->
->but actually defines 6 distinct test cases in the execution block. I will fix
->this plan count to 6
+>The above are my test results. But one testcase is skipped.
 
-Correct. Leftover, will fix.
+Yep, you need patched iproute2:
+https://github.com/jpirko/iproute2_mlxsw/commit/cfb61f715fb16fc2b6d007408e048786ef3ed3f6
 
-
->
->to avoid any "bad plan" warnings in automated CI frameworks (like KernelCI).
->
->
->Aside from that, the cleanup paths and setup tracking are solid.
->
->Thanks for adding this.
->
->Reviewed-by: Zhu Yanjun <yanjun.zhu@linux.dev>
-
-
-Thanks!
+Plan to send this one after this patchset is merged.
 
 
 >
@@ -451,8 +440,4 @@ Thanks!
 >> +cleanup_devs
 >> +
 >> +ktap_finished
->
->-- 
->Best Regards,
->Yanjun.Zhu
 >
