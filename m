@@ -1,176 +1,144 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B8FFA34BA28;
-	Mon, 13 Jul 2026 17:41:20 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8856C34B43F;
+	Mon, 13 Jul 2026 17:41:26 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783964482; cv=none; b=WowbEqbo4VkaOX3mIeG87o+SHZnsfNmdYON7C484BTVWCMCIwrXd0jw1aJU3ypZG+epNrFkgVaFBRvqfgetR+yt0UrAQFtBPnYEm7A0G1K/nOudK+sEMJakx7yb6uRA8YfQU2h8zyi2ujdGFeUy/RUSEejEyWB8b5ptvTr7YUPg=
+	t=1783964487; cv=none; b=l52wn3h88sdyIdsQt0Lrd8mIzs2fHq4yBA89dqoRjdIuP3v2iStE1obid+gm81GKtPW0efBLnt5///zcIae/xuedi5byFdmVBigLS3QITGnI2XJlwkOphJkU/wuEhkpWqWHy18/wGT/JgCPxL3cVdiUiglLb4zi6jD0ClWJ4X9s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783964482; c=relaxed/simple;
-	bh=m65ijHuykVvQcdLGU7LPrILlHK7KgCN7bMM8TT4OKgg=;
+	s=arc-20240116; t=1783964487; c=relaxed/simple;
+	bh=PiUkkafRY9qcxkKxhiyDg1XPlp95th/cbl2bn7tcKCk=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=qr0Y6dEKlqR1sbH7OU7EoJUct8WqgFKjM4gmpW2tXoUTJP6YKhXkNfqW6xAY5k1SKmwizDCpmNrmSkV83TQv68+EOGCEDnuHYJ+tib7dfIIvaA7MSXIwj/zPzbWBAe7DRjK8hiTSL5sKmjZfoHUtMvRUag9GoFCUeQVzXlHpsfo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lCbA+/my; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=JrTKuKP+/VUNsalouoxV+UhQCH3JXYtUTszQ3JBm1wEt7N+i+r4GBEZCX6ZdBXFZb85XFzz97kGI4IHEUr0clqFsy/m8qdM6tH6HKp3wKhac7dMVPRJCuB1YwlJLSK5hej5xdLzYwviXZgQhdAWRPdS1L2Hg5BArWJxcwOp2PgQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mZ2KVRkz; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lCbA+/my"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01E881F000E9;
-	Mon, 13 Jul 2026 17:41:19 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mZ2KVRkz"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05FC71F000E9;
+	Mon, 13 Jul 2026 17:41:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783964480;
-	bh=QXkhjIjhnzWbA8fkJWkyRAe4U8l/Ube91BRO8U33Jy8=;
+	s=k20260515; t=1783964486;
+	bh=qxo8K6JbaxSi3cT7ISYAM/yM/hMSM2DEgYR5OFycc+k=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=lCbA+/my9aJLLCsCJMivBzEQQOIPKQeB+Y+eCc5Ks0hXjhsVm1GlrZTGmlkglSL0+
-	 wASvQ9qTEKqRT6D5E2yB6CUfe9xXmLyHoVPq5ITw8HN8hwhI2VPFH/wD6rFkg3AEAM
-	 Vdo+70qMdDk+SyU7XnMNd7Jh1KY6vJYEhiezTWlfvaq6XQosPpV79teqn7EL4IXAkE
-	 ftbQ9sL5gqcShqeupQK5jxO7OvIjRAoGYx0/dX1d43J1WhEF9wInHofagj1mTqmmxJ
-	 JQ1qbbG8UWl5gka2mNTv5IwFqvGzF5R/rx97iHkqTjkKtSx7HSHS4EdTmjThohl1on
-	 s4eEaYrh4wTuA==
+	b=mZ2KVRkzIFZ9+RT/EOIJvuFSQCRuOmkVDp6kgQGnfkDlQhLI2nZrYn1adlRHpakCU
+	 XmAaHc7eqrXmtSCaOvc3wQi98hsBZJIHfDqQlvJ+KlaQQdx/AZ+lJWuJ+tiTlLQAAz
+	 +N7HApTUv7/8xHoJNvWILntKshx2KVkPl++aZ/Dkb9Ep9oT/FVnve/0NWjvuPtbZXS
+	 RIX3DLdnDQD15c3NTyNsxTT+ChYPA6Wt1KMtuvboed+GR2qQa3ZKGrp2vdRYBBzKQm
+	 f3ABaa24DWTDnXbB3s9QOB9q9hLRVqKO9nahNM8IQI6P5jxoyy38uoRztJVmi2HWgt
+	 yeD847VcQK8uQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v1 1/5] KVM: s390: pci: Fix refcount leak in memory
- accounting functions
+Subject: Re: [PATCH v1 2/5] KVM: s390: pci: Fix missing error codes and
+ memory unaccounting
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Farhan Ali" <alifm@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
+Cc: "Heiko Carstens" <hca@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, "Vasily
  Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
-In-Reply-To: <20260713172600.1284-2-alifm@linux.ibm.com>
+In-Reply-To: <20260713172600.1284-3-alifm@linux.ibm.com>
 References: <20260713172600.1284-1-alifm@linux.ibm.com>
- <20260713172600.1284-2-alifm@linux.ibm.com>
+ <20260713172600.1284-3-alifm@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 13 Jul 2026 17:41:19 +0000
-Message-Id: <20260713174120.01E881F000E9@smtp.kernel.org>
+Date: Mon, 13 Jul 2026 17:41:25 +0000
+Message-Id: <20260713174126.05FC71F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
 
-New issues:
-- [High] Incorrect object lifetime management allows RLIMIT_MEMLOCK bypass.
-
 Pre-existing issues:
-- [High] Incorrect accounting context causes memory accounting leaks and po=
-tential local DoS via integer underflow.
-- [High] Missing state check in `kvm_s390_pci_aif_enable()` allows maliciou=
-s userspace to repeatedly register AIF, leaking memory and adapter interrup=
-t bit vectors.
+- [High] `unaccount_mem()` incorrectly relies on `current` to reverse memor=
+y accounting, allowing arbitrary processes to corrupt their own memory limi=
+ts.
+- [High] Unrestricted overwrite of AIF structures on repeated ioctl calls l=
+eads to severe memory and resource leaks.
 --
 
---- Patch [1]: [PATCH v1 1/5] KVM: s390: pci: Fix refcount leak in memory a=
-ccounting functions ---
-commit 81851b731e542e864a0b6023c4b3b8622937a3f3
+--- Patch [2]: [PATCH v1 2/5] KVM: s390: pci: Fix missing error codes and m=
+emory unaccounting ---
+commit 38461cd36a2d54b4c7ee766e7c866405617494d9
 Author: Farhan Ali <alifm@linux.ibm.com>
 
-KVM: s390: pci: Fix refcount leak in memory accounting functions
+KVM: s390: pci: Fix missing error codes and memory unaccounting
 
-This patch modifies account_mem() and unaccount_mem() to call free_uid()
-after completing memory accounting operations. This is intended to fix a
-reference count leak of the user_struct incremented by get_uid().
+In kvm_s390_pci_aif_enable(), two error paths failed to set an error code
+and did not roll back memory accounting on failure. This commit propagates
+the error code and calls unaccount_mem() in the cleanup path.
+
+Fixes: 3c5a1b6f0a18 ("KVM: s390: pci: provide routines for enabling/disabli=
+ng interrupt forwarding")
 
 > diff --git a/arch/s390/kvm/pci.c b/arch/s390/kvm/pci.c
-> index 720bb58cabe2e..5bbbb1de4b5a0 100644
+> index 5bbbb1de4b5a0..42db20c2afca5 100644
 > --- a/arch/s390/kvm/pci.c
 > +++ b/arch/s390/kvm/pci.c
-> @@ -198,25 +198,32 @@ static inline void unaccount_mem(unsigned long nr_p=
-ages)
+> @@ -282,14 +282,17 @@ static int kvm_s390_pci_aif_enable(struct zpci_dev =
+*zdev, struct zpci_fib *fib,
+>  	}
+> =20
+>  	/* Account for pinned pages, roll back on failure */
+> -	if (account_mem(pcount))
+> +	rc =3D account_mem(pcount);
+> +	if (rc)
+>  		goto unpin2;
+> =20
+>  	/* AISB must be allocated before we can fill in GAITE */
+>  	mutex_lock(&aift->aift_lock);
+>  	bit =3D airq_iv_alloc_bit(aift->sbv);
+> -	if (bit =3D=3D -1UL)
+> +	if (bit =3D=3D -1UL) {
+> +		rc =3D -ENOMEM;
+>  		goto unlock;
+> +	}
+>  	zdev->aisb =3D bit; /* store the summary bit number */
+>  	zdev->aibv =3D airq_iv_create(msi_vecs, AIRQ_IV_DATA |
+>  				    AIRQ_IV_BITLOCK |
 
 [Severity: High]
-This isn't a bug introduced by this patch, but does this logic query the
-current execution context for unaccounting instead of storing and using the
-original user and mm structures?
+This is a pre-existing issue, but could this unconditional overwrite of
+zdev->aibv lead to a memory and resource leak?
 
-If unaccount_mem() is called from a worker thread or another daemon's conte=
-xt
-where current->mm is NULL:
+If a userspace caller issues the KVM_S390_ZPCIOP_REG_AEN ioctl multiple tim=
+es
+for the same device, kvm_s390_pci_aif_enable() lacks state validation (e.g.,
+verifying zdev->kzdev->fib.fmt0.aibv =3D=3D 0).
 
-arch/s390/kvm/pci.c:unaccount_mem() {
-    struct user_struct *user =3D get_uid(current_user());
-    ...
-}
+Would this cause the code to repeatedly pin new pages, allocate new airq_iv
+structures, and blindly overwrite the zdev->aibv and zdev->aisb pointers,
+permanently orphaning the previously allocated resources?
 
-Wouldn't this leak the original pinned_vm charge?
-
-Additionally, if current_user() resolves to the current thread's user (like
-root), could this subtract pages from root's locked_vm and cause an integer
-underflow, while the original user's quota is never restored?
-
->  		atomic_long_sub(nr_pages, &user->locked_vm);
->  	if (current->mm)
->  		atomic64_sub(nr_pages, &current->mm->pinned_vm);
-> +
-> +	free_uid(user);
->  }
+> @@ -333,6 +336,8 @@ static int kvm_s390_pci_aif_enable(struct zpci_dev *z=
+dev, struct zpci_fib *fib,
+>  	return rc;
 > =20
->  static inline int account_mem(unsigned long nr_pages)
-
-[ ... ]
-
->  	do {
->  		new_pages =3D cur_pages + nr_pages;
-> -		if (new_pages > page_limit)
-> -			return -ENOMEM;
-> +		if (new_pages > page_limit) {
-> +			rc =3D -ENOMEM;
-> +			goto out;
-> +		}
->  	} while (!atomic_long_try_cmpxchg(&user->locked_vm, &cur_pages, new_pag=
-es));
-> =20
->  	atomic64_add(nr_pages, &current->mm->pinned_vm);
-> =20
-> -	return 0;
-> +out:
-> +	free_uid(user);
-> +	return rc;
+>  unlock:
+> +	if (pcount > 0)
+> +		unaccount_mem(pcount);
 
 [Severity: High]
-Does dropping the user_struct reference immediately here fail to tie the
-lifetime of the user's accounting object to the duration of the memory pin?
+This isn't a bug introduced by this patch, but does unaccount_mem()
+incorrectly rely on current to reverse memory accounting?
 
-If a user registers AIF, passes the file descriptor to a persistent daemon,
-and terminates their own processes, the user_struct reference count drops to
-zero and is freed.
+If process A pins memory via ioctl (accounting against process A's limits) =
+and
+passes the KVM file descriptor to process B, and process B closes it, the
+file's .release handler triggers KVM unregistration.
 
-When the user logs back in, a fresh user_struct is allocated with
-locked_vm =3D 0. Could this allow a malicious user to bypass RLIMIT_MEMLOCK
-and pin unbounded amounts of memory?
+Calling unaccount_mem() in process B's context would subtract from process =
+B's
+limits while leaking process A's limits.
 
->  }
-> =20
->  static int kvm_s390_pci_aif_enable(struct zpci_dev *zdev, struct zpci_fi=
-b *fib,
+Could this allow an unprivileged process to artificially underflow its
+locked_vm and pinned_vm limits, bypassing RLIMIT_MEMLOCK and allowing
+unlimited memory pinning?
 
-[Severity: High]
-This is a pre-existing issue, but does the AIF registration path lack a sta=
-te
-check to verify if AIF is already enabled before proceeding with memory
-pinning and vector allocations?
-
-If userspace calls KVM_S390_ZPCIOP_REG_AEN multiple times:
-
-arch/s390/kvm/pci.c:kvm_s390_pci_zpci_reg_aen() {
-    ...
-    hostflag =3D !(args->u.reg_aen.flags & KVM_S390_ZPCIOP_REGAEN_HOST);
-    return kvm_s390_pci_aif_enable(zdev, &fib, hostflag);
-}
-
-arch/s390/kvm/pci.c:kvm_s390_pci_aif_enable() {
-    ...
-    idx =3D srcu_read_lock(&kvm->srcu);
-    hva =3D gfn_to_hva(kvm, gpa_to_gfn((gpa_t)fib->fmt0.aibv));
-    ...
-}
-
-Will this blindly pin new pages, increment memory accounting, and allocate
-new bit vectors, silently overwriting the old pointers in zdev?
-
-Could this lead to a permanent leak of pinned host pages, airq_iv
-allocations, and gaite entries?
+>  	mutex_unlock(&aift->aift_lock);
+>  unpin2:
+>  	if (fib->fmt0.sum =3D=3D 1)
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260713172600.1284=
--1-alifm@linux.ibm.com?part=3D1
+-1-alifm@linux.ibm.com?part=3D2
