@@ -1,68 +1,68 @@
-Received: from mail-qk1-f170.google.com (mail-qk1-f170.google.com [209.85.222.170])
+Received: from mail-qt1-f180.google.com (mail-qt1-f180.google.com [209.85.160.180])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3926E357D19
-	for <linux-s390@vger.kernel.org>; Mon, 13 Jul 2026 19:42:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF307357D0A
+	for <linux-s390@vger.kernel.org>; Mon, 13 Jul 2026 19:42:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783971740; cv=none; b=lk+q+Ox20qLkAZobQRw2c3pXWG7JXFLuo4zZV5+Akotm0MDkaI9uskw48MvGjfdz5Honm86TfXfjoTZXHMxgkKFfWuWvUYdmitzgiKgK5aP/g2eIg3FBr0isTjLs2OMNpZzHqaBkIs8+QXCGiL6vKN69QUDDpvd68K99j2ZhF04=
+	t=1783971753; cv=none; b=EFRQ4hFA2vEgCFShxtk9ghnlTP2IvSaQgaDEzP6gBbajuzWvcE/3yQbj7R+LbsYM0zW+PDVSQGydwtIFJJ+GbDQ4w/15UdAYzHMo2fBb/ps4AmgbehIIUJUHUbHQ5JCdkm83hkaoHfK+T440GCueeSc3tm0lXXNKUMjfB5jpiFk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783971740; c=relaxed/simple;
-	bh=5d6Bc8gkCbSlPfvzi0E/608dMWlnVz1C1iUyYSF7w/A=;
+	s=arc-20240116; t=1783971753; c=relaxed/simple;
+	bh=LrC9TUnnqFTfebiht7I286OGjyOyXGf0/ejqHXWR6G8=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=OVzcQTOqeOSwNsUeN1sU4nQHYEAtAlx4WHFhKmjqqounHrk2tlfUhLjJpvUDSpZ7+87jbTr1g2Ev21BXgB8Myu6mDM2uuccWDfKXjPjYLiGfmiqdJ82YIcxjZQ5m7vocb9JqXPnJktl0Z81LSS43fDCKmSQvlCnIGvB7nqfOH1Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca; spf=pass smtp.mailfrom=ziepe.ca; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=K/qvTTqN; arc=none smtp.client-ip=209.85.222.170
+	 Content-Type:Content-Disposition:In-Reply-To; b=qSeEszY0cwaCLPVccED0+uAtNlp0yAavhoJnmToBtBl8HYWiWc+7ruTnoL4YmKHOFw3/c8k6V2gehnCMk3lRRaLLl6/ZIEUAhIITAq4JaVXAmKcjlFVtlWR5akhvvtqtcBg0lNzrewqR9TFONId/wBY0QnEYnqpongRIDF4NMmY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca; spf=pass smtp.mailfrom=ziepe.ca; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=E4aPWAt5; arc=none smtp.client-ip=209.85.160.180
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="K/qvTTqN"
-Received: by mail-qk1-f170.google.com with SMTP id af79cd13be357-92e85499ffbso21175685a.0
-        for <linux-s390@vger.kernel.org>; Mon, 13 Jul 2026 12:42:19 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="E4aPWAt5"
+Received: by mail-qt1-f180.google.com with SMTP id d75a77b69052e-51c0ecfaee7so26362091cf.0
+        for <linux-s390@vger.kernel.org>; Mon, 13 Jul 2026 12:42:31 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google; t=1783971738; x=1784576538; darn=vger.kernel.org;
+        d=ziepe.ca; s=google; t=1783971751; x=1784576551; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=q5KluJxuBWim2YOI+gCMldEdZU/bLOQ3tr992AX6OwE=;
-        b=K/qvTTqNV9qxStEIt2GJD2Wf6/0r0z9sW9cWUCgNW5gGeAQjbbXSrxxu2Bx2DFxfT8
-         DGllO8QzGEousqgXPH65cd9le50bm6uPxlOQgnizfBly/QgnH187G5C1rOdBO830NO7o
-         kPTactL8NC/UHK8nW0KOwy+LacaUHWUS0kbL21Eg+BJEyUwpn1tMc9Ge1UWxAX4I8ozi
-         hDhOei25p6uEqJci904/XXhjkzbdy+WK7mUmW1biWG8gRrnNYrkRL2YuCjt3rG4Ratvx
-         oO8pfQ5H+zLvfeMnJKiXToUjB3PBoLjxEcSIOiAMortJfIDYvnOeQ/BGWyXHS4A0lpcE
-         3hpw==
+        bh=1BBsjNZJ46p61GVJyRNvRKNhKTJyhEwUbX6XNXZgDe0=;
+        b=E4aPWAt5iG/uGrQDOCeF0ieeKbFA01FIAdeM5OVxSjTJ6HHssRUJjm+a+azdXHcv0y
+         Cx6EAetrWfReMqUTGZHjxUNrhVhLB3xlATt5xiJ4KrKTQErL+heKSrI4fSDs2aKgUhoo
+         ZdRZ3G+2kLlD+rA+wqZ+NKSq3ycAZPiIXHBFDyf63UFsHpnjKFziRu3GgJPCndiVfnia
+         vL7+5UbaL2mVEN2iOSlePFuNmPtGeeWRSp2qasmT9zPgoJnbvqMsrtpqNB6z9e2swQ0a
+         1PcK/5K/VR/L/ygtP3v2kttKBuUMF7AaTV506oVLUbA3xNIVwOPgeg2nHsac/Y+n3gHk
+         zzRA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783971738; x=1784576538;
+        d=1e100.net; s=20251104; t=1783971751; x=1784576551;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=q5KluJxuBWim2YOI+gCMldEdZU/bLOQ3tr992AX6OwE=;
-        b=fXApNf+iW9lwoT1rU4h3Ps4xkyMrk8+At/+aBFNwnwPg7ro6aYMn5e08vn1uSEVrZ6
-         DcnpLlkeJIMkg/8pipd8EvEODsbSadvjV6fh+N5xYiHRxdn6owdcBcc4rjjNDls+2bx+
-         VoOn2FsjOYppI2gwm2gCTGaEXBvKYGH49siKB3Uf5M7T1MvGfYaz4pRCA7i1D82D3RPQ
-         /GHWy0qqdBqTn1BLTScvYckxsMIlE1Z1rR7hAcR67qhxSankaCR87nyZd8dGOp4FpZIz
-         aLZsWcYXUPV8OzT31NBOTq0uuWx+liN/naJsKk9CS+9hKy41T/Znr3RrnSJGpRJXTWPq
-         WtLg==
-X-Forwarded-Encrypted: i=1; AHgh+RorF68lTkYLERVema0uHX1Hq1J9pq+1XjiBVBWkbwoU0WsLpBu/QYVcNsebFWuwtOK5n+rV8diLZQcE@vger.kernel.org
-X-Gm-Message-State: AOJu0YzwE9uyL6JfXe/0dFgIIAeZZ72cAnR2Lz9EID6nBp4pbKiwyJAL
-	VYiGI4owtj5w3ACmW2SMVziTaLmtZL6oeVz0qKEUuG/gJTIsdxoUPk0TY3bQAy741Uk=
-X-Gm-Gg: AfdE7clOIC5pLGN1L44IUTajJazRDO148NlIQ2qDjKgRSf0R5EtJHjiFisxa9fdEwRr
-	MkNHo5jZ5XgHhFxKP6IS5XzEpZz77NiwEklfmQJbaG5U62MN9v9BHJu1ocATT5++id3BBJBZvtd
-	fobCyYAem40tH+609QlRklqE2qSee5iJgVGlHJyc13lL64mhdkLhrxmVrepewAaULyHFcPCaPjw
-	51iNHczVshHCUKdVwkdrsheNhkXrMzy30iAQQlcesqGRh+GphEdox1v9YP+cuqJBkfwOUrUHxga
-	tbkadnnd/DjefkzIFnguCJzfNq816KSOGdjqtPrjBhFpXb9MGsOjtHS9ayZZenMUm2Pbm+z3XZp
-	0W+o4v3tkbtn75aK1WV4PS6tCtOzDY8xLwIL+8nYIbgqdJtyDvu1Lb9/Lk832
-X-Received: by 2002:a05:620a:262a:b0:92b:d4e3:1f08 with SMTP id af79cd13be357-92ef2bcc2e9mr1042196885a.55.1783971738155;
-        Mon, 13 Jul 2026 12:42:18 -0700 (PDT)
+        bh=1BBsjNZJ46p61GVJyRNvRKNhKTJyhEwUbX6XNXZgDe0=;
+        b=WNLe/sQ8oSLm5/1xMnWYRRO4Og3xlmhEXX/wLBhyGZUT7QWBNBvQ4sbMVKYNfDrRL8
+         KirjeOrPBiLvPmLjfr75NCekar8C+U18pDGCa40mfI9ous7nPi+lxEGEjywUU1bC0zRa
+         A6RIreytUPk1pnScm5fBuo/bZeY7vI/ZQ0CAbFmsAGQGQMRRc5QNggWDyuqJkhYw6VKe
+         i1LHQG/v+8tjEeion6VhT1IjMRlslI7fTFAFTN/L06HY9U3xU8L4p9G/pufJbycw3oOc
+         YFKAmFJDa+W6PA/dRMoYzsq22e4rkj3xA0QfTGhS1gO007yQCbAspVnvR8LoDgz7XZdd
+         ZSYA==
+X-Forwarded-Encrypted: i=1; AHgh+RouyKOz+ANVLKdB7+4EDcs7mvrmeyiSlBUJxPxW+PYI5bVhonPs7rrKFYnwauvj/GVEbvb3o5SuDnkx@vger.kernel.org
+X-Gm-Message-State: AOJu0YyRpP/H1TrH4Ps9OTRokmA7wzJ6GOrAzNRenQQso4MDXJzZkgY4
+	w+4fQQbU+xW0lW7QvAHFvVMshP+pvm0fnZ6golS8vdejPoBo8aPGDDMfPGC/jltWBAc=
+X-Gm-Gg: AfdE7clc+XjIyoPcx7Ij8emypb0v80IGiI4yz18fHQbTMiNU0sSU5INQH2Z/X1t8dsw
+	dEwFXy9deGXfFvpIYcszoLDd+XXJk1BVv+zFcjg8VhTIQKEH5PZaQsWOxgdocBLAkLPCo/b6hZI
+	LCm0cYOCKySE8whqDhO4KJEt6OBfxw7GuIV8ryi2C7MIbOf4T4jYVqj7psz2m7ieEVX8gCCBU0Z
+	lq0vBx+/ATVn0wOPrWCfgg8pNqUoEKgXvjVfe5wEv31tQbO61Dp+Vi0OAYAiJTh8xxeU6GasKHE
+	f6TZ6d8xc7x1LARkHiKJylqSgx+zyvBTajE0FyM9M6SZtkw6OFsb8oOCh06kMPnUcIJ3gN+rw7I
+	Z/lJrgTG6Em1q0ihHiHQG7pjej6qCJ8RBghm9+NwNRVyn1YSr/+xBruWBMSUy
+X-Received: by 2002:ac8:7d53:0:b0:517:6550:2a0 with SMTP id d75a77b69052e-51cbf0b836emr108931441cf.19.1783971750625;
+        Mon, 13 Jul 2026 12:42:30 -0700 (PDT)
 Received: from ziepe.ca ([159.2.72.92])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-92ee5d37540sm1154048285a.38.2026.07.13.12.42.17
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8ffd5bbac2asm138277776d6.21.2026.07.13.12.42.30
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 13 Jul 2026 12:42:17 -0700 (PDT)
+        Mon, 13 Jul 2026 12:42:30 -0700 (PDT)
 Received: from jgg by wakko with local (Exim 4.97)
 	(envelope-from <jgg@ziepe.ca>)
-	id 1wjMXh-0000000E6o6-0etu;
-	Mon, 13 Jul 2026 16:42:17 -0300
-Date: Mon, 13 Jul 2026 16:42:17 -0300
+	id 1wjMXt-0000000E6oU-2oJ5;
+	Mon, 13 Jul 2026 16:42:29 -0300
+Date: Mon, 13 Jul 2026 16:42:29 -0300
 From: Jason Gunthorpe <jgg@ziepe.ca>
 To: "Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org>
 Cc: iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
@@ -88,13 +88,11 @@ Cc: iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
 	Heiko Carstens <hca@linux.ibm.com>,
 	Vasily Gorbik <gor@linux.ibm.com>,
 	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org,
-	Michael Kelley <mhklinux@outlook.com>
-Subject: Re: [PATCH v7 21/22] dma: swiotlb: handle set_memory_decrypted()
- failures
-Message-ID: <20260713194217.GA3133966@ziepe.ca>
+	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org
+Subject: Re: [PATCH v7 22/22] swiotlb: remove unused SWIOTLB_FORCE flag
+Message-ID: <20260713194229.GB3133966@ziepe.ca>
 References: <20260701054926.825925-1-aneesh.kumar@kernel.org>
- <20260701054926.825925-22-aneesh.kumar@kernel.org>
+ <20260701054926.825925-23-aneesh.kumar@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -103,29 +101,20 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260701054926.825925-22-aneesh.kumar@kernel.org>
+In-Reply-To: <20260701054926.825925-23-aneesh.kumar@kernel.org>
 
-On Wed, Jul 01, 2026 at 11:19:25AM +0530, Aneesh Kumar K.V (Arm) wrote:
-> Check the return value when converting swiotlb pools between encrypted and
-> decrypted mappings. If the default pool cannot be decrypted after early
-> initialization, mark the pool fully used so it cannot satisfy future bounce
-> allocations.
+On Wed, Jul 01, 2026 at 11:19:26AM +0530, Aneesh Kumar K.V (Arm) wrote:
+> SWIOTLB_FORCE has no remaining in-tree users. Forced bouncing is now
+> controlled through the swiotlb=force command line option via
+> swiotlb_force_bounce.
 > 
-> For late initialization, return the `set_memory_decrypted()` failure. For
-> restricted DMA pools, fail device initialization if the reserved pool
-> cannot be decrypted.
+> Remove the unused flag and simplify the force_bounce initialization.
 > 
-> This prevents swiotlb from using pools whose encryption attributes do not
-> match their metadata, and avoids returning pages with uncertain encryption
-> state back to the allocator.
-> 
-> Tested-by: Michael Kelley <mhklinux@outlook.com>
-> Tested-by: Mostafa Saleh <smostafa@google.com>
-> Reviewed-by: Petr Tesarik <ptesarik@suse.com>
 > Signed-off-by: Aneesh Kumar K.V (Arm) <aneesh.kumar@kernel.org>
 > ---
->  kernel/dma/swiotlb.c | 80 +++++++++++++++++++++++++++++++++++---------
->  1 file changed, 65 insertions(+), 15 deletions(-)
+>  include/linux/swiotlb.h | 3 +--
+>  kernel/dma/swiotlb.c    | 3 +--
+>  2 files changed, 2 insertions(+), 4 deletions(-)
 
 Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
 
