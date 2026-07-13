@@ -1,201 +1,140 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 26E9F30C610;
-	Mon, 13 Jul 2026 15:31:24 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C143B31A572;
+	Mon, 13 Jul 2026 15:33:34 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783956686; cv=none; b=fzsZtZ33PaDnrctfXVwUffK4GzYIuOfwXB6a01sfCePy/Rv+81mk9Kc8C/y7aALfPqCaIKWaOYbV5u1syps5345Irrk2nXl1g82zrUD5u4UzeBW7mmn7MEFXkPT3TYwdgCn2XnlwcbtNUGz5IF5e4UNQdwQuK6CjxRTNv4R2PoE=
+	t=1783956815; cv=none; b=A6Pm26xoy+I+kZ8NdmAUAcQTqBNmIk0EqQxY1aSpvB/WajNS6hE4tWdRBlQYrr+Hrl1YiVrFYc7q9JlQY4nSfx73ItBwsDSs1hEO/VzhTn9hl0tmAOkV1i0RSH7xTcuQAybvBerhMD5UYjYh93qevHbV5QZPMgFEokFo63Y7OAw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783956686; c=relaxed/simple;
-	bh=nw9AjyhWyIz8P5XJZ+TTyrl9tuG3aPJ8FfojfWTnTbs=;
-	h=Date:Message-ID:From:To:Cc:Subject:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=mzWtnZQNSokZ6Ubk/nKzp5oCO6EBUgGJQ90dV5hvf0oBlJCEsQwWG4BhFLF6cxL8KgmTfZ9suq4SKmLKTv4NJsyVHSCnzKX8ZDs52H6Blp7YB6cX0XU9MnYzyNvWvzpUjzjdtt9XEB7ZTV3oL+ppJEVps7pUREJN2y4fR4hROGk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=R1sjbB13; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1783956815; c=relaxed/simple;
+	bh=tkNbMVe5c/rYR4w2Af3NClkk691YYhetvcrZ0CfIlvY=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=E+gAUqt1rHGyboND9qf89bCHiG9t90rhUo+86yFuDJxQmfrIHwQjFYRPC6+AoP7STbxXFmcBcxcwAY5+uax88Z3vqm6fCp4ppsd1HAP4jbwsdLid61p0HosKi/auw9wzzEbehgqdKus7pcjUR9BgpYyjtBj5zyOWqnkT/HNidek=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OWyz74N0; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="R1sjbB13"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA0CE1F000E9;
-	Mon, 13 Jul 2026 15:31:24 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OWyz74N0"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C6C11F00AC4;
+	Mon, 13 Jul 2026 15:33:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783956684;
-	bh=OU0kBWfYm2e1Vbiw7Vo5mciB2uXRYmNVKqqRWrRTVCo=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References;
-	b=R1sjbB13BZ3Mn0ZIwwmn5bjUrr3bXrQOczCT1xn1qei/TKv8hjzqLbIGFNchaa2cz
-	 q8Hw/XnZlSQWMtMq0ndTlVcNR+0PRHbnG4USdth8WMzXqu2hV21Yvks5fFqosdmDmz
-	 RQ5Z4WdNz0w1P6404eF2/A0DJtxvdyB+97oFezHC3IKfpXzFk1qlbIpmNO+AJnkqzl
-	 6aYju/mmpOkYLzscf1KYP7M32eptqvA624cG3QQpUrRW8nEPfuCHAPuEhnUjChXNSq
-	 5OCH7m0bBJV9FSW9qKX3slNiduXaXDrOdPHL4Uev65n7afFW134GKLaCvi0vpowfW6
-	 9JZt5D9LsI+2Q==
-Received: from sofa.misterjones.org ([185.219.108.64] helo=lobster-girl.misterjones.org)
-	by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.98.2)
-	(envelope-from <maz@kernel.org>)
-	id 1wjIcs-00000004Y7n-3dqA;
-	Mon, 13 Jul 2026 15:31:22 +0000
-Date: Mon, 13 Jul 2026 16:33:11 +0100
-Message-ID: <87bjca6h1k.wl-maz@kernel.org>
-From: Marc Zyngier <maz@kernel.org>
-To: Steffen Eiden <seiden@linux.ibm.com>
-Cc: kvm@vger.kernel.org,
-	kvmarm@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Andreas Grapentin <gra@linux.ibm.com>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Claudio Imbrenda <imbrenda@linux.ibm.com>,
-	David Hildenbrand <david@kernel.org>,
-	Friedrich Welter <fritz@linux.ibm.com>,
-	Gautam Gala <ggala@linux.ibm.com>,
-	Hariharan Mari <hari55@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Hendrik Brueckner <brueckner@linux.ibm.com>,
-	Ilya Leoshkevich <iii@linux.ibm.com>,
-	Janosch Frank <frankja@linux.ibm.com>,
-	Joey Gouly <joey.gouly@arm.com>,
-	Nico Boehr <nrb@linux.ibm.com>,
-	Nina Schoetterl-Glausch <oss@nina.schoetterlglausch.eu>,
-	Oliver Upton <oupton@kernel.org>,
-	Paolo Bonzini <pbonzini@redhat.com>,
-	Suzuki K Poulose <suzuki.poulose@arm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Ulrich Weigand <Ulrich.Weigand@de.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Will Deacon <will@kernel.org>,
-	Zenghui Yu <yuzenghui@huawei.com>
-Subject: Re: [PATCH v4 07/27] arm64: Prepare sharing arm64 headers with s390
-In-Reply-To: <20260710095426.984749-F-seiden@linux.ibm.com>
-References: <20260706085229.979525-1-seiden@linux.ibm.com>
-	<20260706085229.979525-8-seiden@linux.ibm.com>
-	<878q7n7qzi.wl-maz@kernel.org>
-	<20260710095426.984749-F-seiden@linux.ibm.com>
-User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
- FLIM-LB/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL-LB/10.8 EasyPG/1.0.0 Emacs/30.1
- (aarch64-unknown-linux-gnu) MULE/6.0 (HANACHIRUSATO)
+	s=k20260515; t=1783956814;
+	bh=04XgTq2rfwqDK3x0zzoRGeXuC5a1a5Ocha3hlm77s1U=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=OWyz74N0HFOj8JR+WNzzNfn36MNfZ3h/u1OvMdG7RoimbQ4PXlW8RpuVUcQyiikY5
+	 7TstA8XDPqsd1k1+9VmoqV+/eoa1ZipxStTC1rBePMmIIaxMF4bYZ8IUxLrXSaDgCC
+	 2VWiTkDn5cMz/avlAmS3gXCQDCeTo4IhcanvYaGMTbTec7CO8rJhKJePbuB/9HCznJ
+	 3I0HiApPHSHkqsbRswcaIVBliNhJCif+ZxeDAyF6NDLKosXTioEMmJ1ud+o63GNLPl
+	 hx3SXTfUCLzyugZGPVSChwTgIz9/mtvrhmE6NjygShU1akbSp91CxoLHot3ZfxPMm4
+	 FPHjHRls7DJeQ==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2 7/7] KVM: s390: Return -EINTR if a signal was pending
+ while faulting-in
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>
+Cc: "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Heiko
+ Carstens" <hca@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org
+In-Reply-To: <20260713150857.269954-8-imbrenda@linux.ibm.com>
+References: <20260713150857.269954-1-imbrenda@linux.ibm.com>
+ <20260713150857.269954-8-imbrenda@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Mon, 13 Jul 2026 15:33:33 +0000
+Message-Id: <20260713153334.0C6C11F00AC4@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
-Content-Type: text/plain; charset=US-ASCII
-X-SA-Exim-Connect-IP: 185.219.108.64
-X-SA-Exim-Rcpt-To: seiden@linux.ibm.com, kvm@vger.kernel.org, kvmarm@lists.linux.dev, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, agordeev@linux.ibm.com, gra@linux.ibm.com, arnd@arndb.de, catalin.marinas@arm.com, borntraeger@linux.ibm.com, imbrenda@linux.ibm.com, david@kernel.org, fritz@linux.ibm.com, ggala@linux.ibm.com, hari55@linux.ibm.com, hca@linux.ibm.com, brueckner@linux.ibm.com, iii@linux.ibm.com, frankja@linux.ibm.com, joey.gouly@arm.com, nrb@linux.ibm.com, oss@nina.schoetterlglausch.eu, oupton@kernel.org, pbonzini@redhat.com, suzuki.poulose@arm.com, svens@linux.ibm.com, Ulrich.Weigand@de.ibm.com, gor@linux.ibm.com, will@kernel.org, yuzenghui@huawei.com
-X-SA-Exim-Mail-From: maz@kernel.org
-X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 
-On Fri, 10 Jul 2026 10:54:26 +0100,
-Steffen Eiden <seiden@linux.ibm.com> wrote:
-> 
-> On Mon, Jul 06, 2026 at 10:22:41PM +0100, Marc Zyngier wrote:
-> > On Mon, 06 Jul 2026 09:52:07 +0100,
-> > Steffen Eiden <seiden@linux.ibm.com> wrote:
-> > > 
-> > > Prepare the sharing of arm64 headers with s390 by marking the shared
-> > > regions or add a comment that the whole file is shared.
-> > > The regions are marked with:
-> > > 
-> > >  #define ARM64_S390_COMMON
-> > > 
-> > >  /* insert shared definitions here */
-> > > 
-> > >  #endif /* ARM64_S390_COMMON */
-> > > 
-> > > The preprocessor symbol ARM64_S390_COMMON is always defined for arm64.
-> > > Reduce the include scope where possible and beneficial for s390.
-> > > No functional change.
-> > > 
-> > > Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
-> > > ---
-> > >  arch/arm64/Makefile                  |  2 ++
-> > >  arch/arm64/include/asm/brk-imm.h     |  1 +
-> > >  arch/arm64/include/asm/esr.h         |  5 +++--
-> > >  arch/arm64/include/asm/kvm_arm.h     |  6 ++++--
-> > >  arch/arm64/include/asm/kvm_emulate.h | 19 ++++++++++++++++++
-> > >  arch/arm64/include/asm/kvm_host.h    | 28 +++++++++++++++++++++++++++
-> > >  arch/arm64/include/asm/kvm_mmu.h     |  6 ++++++
-> > >  arch/arm64/include/asm/ptrace.h      |  9 +++++++++
-> > >  arch/arm64/include/asm/sysreg.h      | 29 +++++++++++++++++++++++++---
-> > >  9 files changed, 98 insertions(+), 7 deletions(-)
-> > > 
-> 
-> ...
-> 
-> > >  		vcpu_set_flag((v), e);					\
-> > >  	} while (0)
-> > >  
-> > > +#endif /* ARM64_S390_COMMON */
-> > > +
-> > 
-> > It'd be worth looking at an initial patch reorganising this file to
-> > minimise the number of such markers. This is equally valid for other
-> > files in this patch.
-> > 
-> > [...]
-> > 
-> 
-> So it is fine if I reorganize files a bit to reduce the number of
-> markes?
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [Critical] Returning -EINTR from kvm_s390_faultin_gfn bypasses explicit -=
+EAGAIN handling in callers, causing skipped instructions (missed PSW rewind=
+s) and failed PV_UNPACK ioctl retries.
+--
 
-Within reason, yes.
+--- Patch [7]: [PATCH v2 7/7] KVM: s390: Return -EINTR if a signal was pend=
+ing while faulting-in ---
+commit f252af4580d9ab98014328b1d85bbc46f505b01c
+Author: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-> I feared it would not. I will reorganize the files a bit then if this
-> reduces the number of sections. Also if some thiings are required in a
-> later series I might alreaddy share the stuff if possible if that
-> reduces the number of regions.
+KVM: s390: Return -EINTR if a signal was pending while faulting-in
+   =20
+If a signal is pending while trying to fault-in a page, return -EINTR
+instead of -EAGAIN.
 
-We'll have to evaluate the amount of churn this generates, but overall
-it would makes sense to keep related things together, and apply the
-markers sensibly.
+> diff --git a/arch/s390/kvm/faultin.c b/arch/s390/kvm/faultin.c
+> index fee80047bd94f..235b9c66ce542 100644
+> --- a/arch/s390/kvm/faultin.c
+> +++ b/arch/s390/kvm/faultin.c
+> @@ -93,7 +93,7 @@ int kvm_s390_faultin_gfn(struct kvm_vcpu *vcpu, struct =
+kvm *kvm, struct guest_fa
+>  			return PGM_ADDRESSING;
+>  		/* Signal pending: try again. */
+>  		if (f->pfn =3D=3D KVM_PFN_ERR_SIGPENDING)
+> -			return -EAGAIN;
+> +			return -EINTR;
 
-[...]
+[Severity: Critical]
+Will returning -EINTR here bypass explicit -EAGAIN handling in callers?
 
-> > > +#ifdef ARM64_S390_COMMON
-> > > +
-> > >  /*
-> > >   * Instructions for modifying PSTATE fields.
-> > >   * As per Arm ARM for v8-A, Section "C.5.1.3 op0 == 0b00, architectural hints,
-> > > @@ -91,8 +99,6 @@
-> > >   */
-> > >  #define pstate_field(op1, op2)		((op1) << Op1_shift | (op2) << Op2_shift)
-> > >  #define PSTATE_Imm_shift		CRm_shift
-> > > -#define ENCODE_PSTATE(x, r)		(0xd500401f | PSTATE_ ## r | ((!!x) << PSTATE_Imm_shift))
-> > > -#define SET_PSTATE(x, r)		__emit_inst(ENCODE_PSTATE(x, r))
-> > >  
-> > >  #define PSTATE_PAN			pstate_field(0, 4)
-> > >  #define PSTATE_UAO			pstate_field(0, 3)
-> > > @@ -100,6 +106,11 @@
-> > >  #define PSTATE_DIT			pstate_field(3, 2)
-> > >  #define PSTATE_TCO			pstate_field(3, 4)
-> > >  
-> > > +#endif /* ARM64_S390_COMMON */
-> > > +
-> > > +#define ENCODE_PSTATE(x, r)		(0xd500401f | PSTATE_ ## r | ((!!x) << PSTATE_Imm_shift))
-> > > +#define SET_PSTATE(x, r)		__emit_inst(ENCODE_PSTATE(x, r))
-> > > +
-> > >  #define SET_PSTATE_PAN(x)		SET_PSTATE((x), PAN)
-> > >  #define SET_PSTATE_UAO(x)		SET_PSTATE((x), UAO)
-> > >  #define SET_PSTATE_SSBS(x)		SET_PSTATE((x), SSBS)
-> > > @@ -123,6 +134,8 @@
-> > >  #define GSB_SYS_BARRIER_INSN		__SYS_BARRIER_INSN(1, 0, 12, 0, 0, 31)
-> > >  #define GSB_ACK_BARRIER_INSN		__SYS_BARRIER_INSN(1, 0, 12, 0, 1, 31)
-> > 
-> > What is the reason to avoid dragging these definitions? They seem
-> > extremely similar to the rest.
-> > 
-> 
-> They emit arm64 instructions, dont they?
+For example, in arch/s390/kvm/intercept.c:handle_mvpg_pei(), there is
+the following loop:
 
-They emit instructions if you make use of them. And so do all the
-PSTATE macros. Why the different treatment?
+	do {
+		rc =3D kvm_s390_faultin_gfn_simple(vcpu, NULL, gpa_to_gfn(dstaddr), true);
+	} while (rc =3D=3D -EAGAIN);
+	if (rc)
+		return rc;
 
+	kvm_s390_retry_instr(vcpu);
 
-Thanks,
+If a non-fatal signal is pending, handle_mvpg_pei() will return -EINTR
+and bypass kvm_s390_retry_instr(vcpu). Since the hardware has already
+advanced the guest PSW for the intercept, does exiting to userspace without
+rewinding the PSW cause the guest to resume at the next instruction,
+silently skipping the MVPG instruction?
 
-	M.
+Similarly, in arch/s390/kvm/vsie.c:vsie_run(), returning -EINTR from
+map_prefix() skips the rc =3D=3D -EAGAIN check:
 
--- 
-Jazz isn't dead. It just smells funny.
+		rc =3D map_prefix(vcpu, vsie_page, sg);
+...
+		if (rc =3D=3D -EAGAIN)
+			rc =3D 0;
+
+		/* Exit the loop if the guest needs to process the intercept */
+		if (rc || scb_s->icptcode)
+			break;
+
+This breaks out of vsie_run() and exits to userspace without rewinding the
+SIE instruction.
+
+Finally, in arch/s390/kvm/pv.c:kvm_s390_pv_unpack(), the loop handles -EAGA=
+IN
+explicitly to absorb non-fatal signals:
+
+	while (offset < size) {
+		ret =3D unpack_one(kvm, addr, tweak, offset, rc, rrc);
+		if (ret =3D=3D -EAGAIN) {
+			cond_resched();
+			if (fatal_signal_pending(current))
+				break;
+			continue;
+		}
+		if (ret)
+			break;
+
+Returning -EINTR terminates the unpacking prematurely. When userspace
+retries the KVM_PV_UNPACK ioctl, it restarts from offset 0, which could
+cause the Ultravisor to reject the attempt to unpack already-secured pages,
+permanently failing the VM boot process.
+
+>  		/* Check if it's read-only memory; don't try to actually handle that c=
+ase. */
+>  		if (f->pfn =3D=3D KVM_PFN_ERR_RO_FAULT)
+>  			return -EOPNOTSUPP;
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260713150857.2699=
+54-1-imbrenda@linux.ibm.com?part=3D7
