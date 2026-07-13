@@ -1,187 +1,234 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D23443BF684
-	for <linux-s390@vger.kernel.org>; Mon, 13 Jul 2026 08:44:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7FC3D3CF05E;
+	Mon, 13 Jul 2026 08:47:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783932306; cv=none; b=gt/VD1u3Y+2M/vMbWDpyFMOZwI8Rw15Uq/G9d0B2c4YhWbhTzC5ASVPTTGltejzIJz0RI+Tij/Um/zQ2OeHRI/0QOPVgRElZhTYgRM7WB1R0iMw0qUYiOW3gIwFqfFlf1riqyWffb/Z0n8GL560SGuRCwC/kA+2bKo8X2r41BPY=
+	t=1783932456; cv=none; b=kyeJp40zfwXo15k6TwmkM2HWIQ8vn/UK3QjUNNeHWnmQc5Rz6Cipy2VMFFlETO0rHUTPx6o6tRBeKqN3Xj8ZJZyz8B3ZyEHj7jiCm+ExFtNyPPQ4+kauiluKiOuCx5OgZep4M3bN+VEfb/T/xPCFx1H2jlcsnBrHJd7Dm7XfRJc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783932306; c=relaxed/simple;
-	bh=bZ34bsvXlV3rjb/Mxe/xt4IzULpQTffhX4j3vdYGiAs=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=j6II4eTUfaKNPrzxF/EGcxSM29xv0G8rZ/5Ols9KrFwOZRKwjrT57zlUoc/oZSz6+V3bZ7YohHGEme3s+17HrOXqUD8fgAsbVo30looAK/RhW5rqwIcgEszCbH9XFLkp68UGry0HhyjCpPc+WYHsXP8IFUawLAeM4ygRxXEgGn8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=r+RdOu7X; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=gQkdb4P9; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=r+RdOu7X; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=gQkdb4P9; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	s=arc-20240116; t=1783932456; c=relaxed/simple;
+	bh=HxpbuDBUCW0CPcuCj0jBPwJqeuKQ59rjkxl5o+sEmXY=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=HQOIvWZs/Zkik4sJxBTOou2NI+kYKG+weJZEnwYgQt1vjqX6UD11lLNOqd/GZAX+RDBqoIgLv5xbna6lfojP/BEH7YDHcJrRjMzJ6N4YTOHm852tq2hYF1H0ctfcPJXsphtpxE2NOWu9zkIJiNCAy2WeS6vgn9EgJ+uP4W6rEgI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MHwGSzwp; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="r+RdOu7X";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="gQkdb4P9";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="r+RdOu7X";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="gQkdb4P9"
-Received: from kunlun.suse.cz (unknown [IPv6:2a07:de40:b306:2000::2])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (prime256v1) server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 8BA357744E;
-	Mon, 13 Jul 2026 08:44:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1783932292; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=wOqYLE7XCd1dyoTtB3Uni1tJhG2ZPfNesMlKhEUlxw0=;
-	b=r+RdOu7XiG6HWhbr9pAG6XGyeZKMMBFIRjat/72NL2mbYxHP0zrOB3f3QilNPJI7q3w5xs
-	wVeyVaHVmQa0RWsKdSNXdpZ68FK/P6qCgxIqCmH0rzBIz1yc8AtG57aGojuCq+btSgCdJM
-	kMgpjbKEFSn/eBjKsOd+YBfrfwpNGCA=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1783932292;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=wOqYLE7XCd1dyoTtB3Uni1tJhG2ZPfNesMlKhEUlxw0=;
-	b=gQkdb4P9HbkQTKS5EkCscMvwW0dRzYA0YniAiaIdT5hSQuexB294AZ+icFllO6E4kklxGL
-	Yl2ucsTSYxhqrIBA==
-Authentication-Results: smtp-out2.suse.de;
-	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=r+RdOu7X;
-	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=gQkdb4P9
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1783932292; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=wOqYLE7XCd1dyoTtB3Uni1tJhG2ZPfNesMlKhEUlxw0=;
-	b=r+RdOu7XiG6HWhbr9pAG6XGyeZKMMBFIRjat/72NL2mbYxHP0zrOB3f3QilNPJI7q3w5xs
-	wVeyVaHVmQa0RWsKdSNXdpZ68FK/P6qCgxIqCmH0rzBIz1yc8AtG57aGojuCq+btSgCdJM
-	kMgpjbKEFSn/eBjKsOd+YBfrfwpNGCA=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1783932292;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=wOqYLE7XCd1dyoTtB3Uni1tJhG2ZPfNesMlKhEUlxw0=;
-	b=gQkdb4P9HbkQTKS5EkCscMvwW0dRzYA0YniAiaIdT5hSQuexB294AZ+icFllO6E4kklxGL
-	Yl2ucsTSYxhqrIBA==
-Date: Mon, 13 Jul 2026 10:44:51 +0200
-From: Michal =?iso-8859-1?Q?Such=E1nek?= <msuchanek@suse.de>
-To: Thomas Gleixner <tglx@kernel.org>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Shrikanth Hegde <sshegde@linux.ibm.com>,
-	linuxppc-dev@lists.ozlabs.org, Huacai Chen <chenhuacai@kernel.org>,
-	loongarch@lists.linux.dev, Paul Walmsley <pjw@kernel.org>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	linux-riscv@lists.infradead.org,
-	Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org,
-	x86@kernel.org, Mark Rutland <mark.rutland@arm.com>,
-	Jinjie Ruan <ruanjinjie@huawei.com>,
-	Magnus Lindholm <linmag7@gmail.com>,
-	"Mukesh Kumar Chaurasiya (IBM)" <mkchauras@gmail.com>,
-	Jonathan Corbet <corbet@lwn.net>, Radu Rendec <radu@rendec.net>
-Subject: Re: [patch 4/4] entry, treewide: Make
- syscall_enter_from_user_mode[_work]() indicate syscall execution
-Message-ID: <alSlg72c8xmjaj48@kunlun.suse.cz>
-References: <20260712134433.549076055@kernel.org>
- <20260712141346.772209074@kernel.org>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MHwGSzwp"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A65111F000E9;
+	Mon, 13 Jul 2026 08:47:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1783932452;
+	bh=fEEMYKLgZySn/ysi4H2GfXtjcjLXq/b2ydjGJYWEnCE=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=MHwGSzwpruZWx0jpXfqHydfCpitlyFORAqX8VdQybCdvAhxjE1XJ6yYzVPtSANd4D
+	 nmnjkHtwGRxmwgxfoE6OeFea0buQplQD7wfbPUnMiYxEFqGHjJbNbyM0GK/IW8Ryrz
+	 y+4n1Rr6/w7P+tbyDCLVMebpuLn2YWowhPhMU/7anUsy7RWND5VdSmoOHNgqOr0Ubk
+	 JI3F78kwpoHFkM+C9zEb8Nkp8Y86QJFAKALwD6lYgrIDzQyvRDqPBC2fHmCBtJh8sm
+	 8u+UsL/pfYuOEKGDN4u82TI4691JDDsBMiXL6f5ZtY6W2yjOsUeUxs18XeSe1y8QMl
+	 ibkR8Gd1zgt8A==
+From: sashiko-bot@kernel.org
+Subject: Re: [GIT PULL 5/5] KVM: s390: pci: Fix handling of AIF enable
+ without AISB
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Christian Borntraeger" <borntraeger@de.ibm.com>
+Cc: kvm@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
+ Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
+In-Reply-To: <20260713083007.65863-6-borntraeger@de.ibm.com>
+References: <20260713083007.65863-1-borntraeger@de.ibm.com>
+ <20260713083007.65863-6-borntraeger@de.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Mon, 13 Jul 2026 08:47:31 +0000
+Message-Id: <20260713084731.A65111F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260712141346.772209074@kernel.org>
-X-Spam-Flag: YES
-X-Rspamd-Action: add header
-X-Spam-Level: **************
-X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
-X-Spamd-Result: default: False [14.88 / 50.00];
-	SPAM_FLAG(5.00)[];
-	NEURAL_SPAM_LONG(3.50)[1.000];
-	BAYES_HAM(-3.00)[100.00%];
-	NEURAL_SPAM_SHORT(2.69)[0.897];
-	HFILTER_HOSTNAME_UNKNOWN(2.50)[];
-	RDNS_NONE(2.00)[];
-	ONCE_RECEIVED(1.20)[];
-	HFILTER_HELO_IP_A(1.00)[kunlun.suse.cz];
-	HFILTER_HELO_NORES_A_OR_MX(0.30)[kunlun.suse.cz];
-	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	MIME_GOOD(-0.10)[text/plain];
-	MX_GOOD(-0.01)[];
-	FUZZY_RATELIMITED(0.00)[rspamd.com];
-	MIME_TRACE(0.00)[0:+];
-	ARC_NA(0.00)[];
-	RCPT_COUNT_TWELVE(0.00)[19];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com];
-	TO_DN_SOME(0.00)[];
-	DNSWL_BLOCKED(0.00)[2a07:de40:b306:2000::2:from];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	DWL_DNSWL_BLOCKED(0.00)[suse.de:dkim];
-	MISSING_XM_UA(0.00)[];
-	RCVD_COUNT_ZERO(0.00)[0];
-	FREEMAIL_CC(0.00)[vger.kernel.org,ellerman.id.au,linux.ibm.com,lists.ozlabs.org,kernel.org,lists.linux.dev,dabbelt.com,lists.infradead.org,arm.com,huawei.com,gmail.com,lwn.net,rendec.net];
-	DKIM_TRACE(0.00)[suse.de:+];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:dkim]
-X-Spamd-Bar: ++++++++++++++
-X-Rspamd-Queue-Id: 8BA357744E
-X-Spam-Score: 14.88
-X-Spam: Yes
 
-Hello,
+Thank you for your contribution! Sashiko AI review found 8 potential issue(=
+s) to consider:
 
-On Sun, Jul 12, 2026 at 11:25:32PM +0200, Thomas Gleixner wrote:
-> The return values of syscall_enter_from_user_mode[_work]() are
-> non-intuitive. Both functions return the syscall number which should be
-> invoked by the architecture specific syscall entry code. The returned
-> number can be:
-> 
->   - the unmodified syscall number which was handed in by the caller
-> 
->   - a modified syscall number (ptrace, seccomp, trace/probe/bpf)
-> 
-> That has an additional twist. If the return value is -1L then the caller is
-> not allowed to modify the return value as that indicates that the modifying
-> entity requests to abort the syscall and set the return value already. That
-> can obviously not be differentiated from a syscall which handed in -1 as
-> syscall number.
-> 
-> The most trivial way to deal with that is:
-> 
->     set_return_value(regs, -ENOSYS);
->     nr = syscall_enter_from_user_mode(regs, nr);
->     if (valid(nr))
->     	handle_syscall(regs, nr);
-> 
-> That's what LOONGARCH, RISCV, and X86 do. But PowerPC and S390 do not
-> preset the return value, so when user space hands in -1 and there is
-> nothing setting the return value in the entry work code, then the syscall
-> is skipped but the return value is whatever random data has been in the
-> return value register.
+Pre-existing issues:
+- [Critical] Unchecked return value from `airq_iv_create()` causes a host k=
+ernel panic in `kvm_zpci_set_airq()`.
+- [Critical] Insufficient page pinning for the Adapter Interrupt Bit Vector=
+ (AIBV) allows hardware DMA to write beyond the pinned page into arbitrary =
+host memory.
+- [Critical] The `set_bit_inv()` call in the interrupt forwarding path can =
+write outside the bounds of the single pinned AISB page due to an unvalidat=
+ed page offset and bit index.
+- [High] Repeated KVM_S390_ZPCIOP_REG_AEN ioctl calls unconditionally overw=
+rite existing AIF allocations, causing unbounded memory and resource exhaus=
+tion.
+- [High] Error paths in `kvm_s390_pci_aif_enable()` fail to update `rc`, er=
+roneously returning success to userspace when enabling fails.
+- [High] Early error paths in `kvm_s390_pci_aif_enable()` fail to rollback =
+successfully allocated resources like GISC registrations and memory quotas.
+- [High] `account_mem()` and `unaccount_mem()` perpetually leak `struct use=
+r_struct` reference counts.
+- [High] `unaccount_mem()` blindly uses `current_user()` and `current->mm`,=
+ risking quota corruption when invoked asynchronously or from a different c=
+ontext.
+--
 
-The reason why PowerPC and S390 do not preset the return value is that
-the return value uses the same register as the syscall number. There are
-apparently other architectures on which the return value overlaps with
-the arguments which also do not preset the return value for that reason.
-If they would use the generic entry the same problem would arise.
+--- Patch [1]: [GIT PULL 5/5] KVM: s390: pci: Fix handling of AIF enable wi=
+thout AISB ---
+commit e5fbf43dd647bd07ede442137b445e6821685004
+Author: Matthew Rosato <mjrosato@linux.ibm.com>
+KVM: s390: pci: Fix handling of AIF enable without AISB
 
-> Change the return values of syscall_enter_from_user_mode[_work]() to
-> boolean and return false, when either ptrace or seccomp request to skip the
+When a guest seeks to register IRQs without a summary bit specified, ensure
+that the associated GAITE stores 0 for the guest AISB location instead of an
+invalid physical address.
 
-There is a difference between seccomp and ptrace.
+> diff --git a/arch/s390/kvm/pci.c b/arch/s390/kvm/pci.c
+> index 5b075c38998e3..dc748cde4703b 100644
+> --- a/arch/s390/kvm/pci.c
+> +++ b/arch/s390/kvm/pci.c
+> @@ -300,9 +300,14 @@ static int kvm_s390_pci_aif_enable(struct zpci_dev *=
+zdev, struct zpci_fib *fib,
+> =20
+>  	gaite->gisc =3D fib->fmt0.isc;
+>  	gaite->count++;
+> -	gaite->aisbo =3D fib->fmt0.aisbo;
+> -	gaite->aisb =3D virt_to_phys(page_address(aisb_page) + (fib->fmt0.aisb &
+> -							      ~PAGE_MASK));
+> +	if (fib->fmt0.sum =3D=3D 1) {
+> +		gaite->aisbo =3D fib->fmt0.aisbo;
+> +		gaite->aisb =3D virt_to_phys(page_address(aisb_page) +
+> +					   (fib->fmt0.aisb & ~PAGE_MASK));
 
-When seccomp indicates to skip the syscall it has also set the syscall
-return value.
+[Severity: Critical]
+This is a pre-existing issue, but does this setup allow for an out-of-bounds
+write during interrupt forwarding?
 
-However, when the syscall number is -1 and the return value is not
-preset that does not indicate anything.
+If a guest provides a summary bit address near a page boundary and a large
+summary bit offset (up to 255), we might exceed the bounds of the single
+pinned page. When a host interrupt arrives, aen_host_forward() executes:
 
-The return value can still hold garbage. ptrace does not have the
-ability to indicate that a syscall is to be skipped, at least on the
-entry trace. It needs to be skipped based on the syscall number being
-invalid.
+    set_bit_inv(gaite->aisbo, phys_to_virt(gaite->aisb));
 
-Thanks
+Since set_bit_inv() modifies a 64-bit word, could this read and write up to
+31 bytes into the adjacent, unpinned virtual page in the host linear mappin=
+g?
 
-Michal
+> +	} else {
+> +		gaite->aisbo =3D 0;
+> +		gaite->aisb =3D 0;
+> +	}
+>  	aift->kzdev[zdev->aisb] =3D zdev->kzdev;
+>  	spin_unlock_irq(&aift->gait_lock);
+
+[Severity: High]
+This is a pre-existing issue, but does repeated invocation of the
+KVM_S390_ZPCIOP_REG_AEN ioctl leak AIF allocations?
+
+Looking at kvm_s390_pci_aif_enable(), we allocate and assign new resources
+to zdev without checking for or freeing prior state:
+
+    zdev->aisb =3D bit; /* store the summary bit number */
+    zdev->aibv =3D airq_iv_create(...);
+
+Could a guest or malicious userspace repeatedly invoke the ioctl to cause
+unbounded memory exhaustion of pinned pages and airq_iv structures?
+
+[Severity: High]
+This is a pre-existing issue, but do the error paths in
+kvm_s390_pci_aif_enable() accidentally return success?
+
+If account_mem() or airq_iv_alloc_bit() fail, the code jumps to cleanup lab=
+els:
+
+    if (account_mem(pcount))
+        goto unpin2;
+    ...
+    if (bit =3D=3D -1UL)
+        goto unlock;
+
+Since rc remains initialized to 0, does this erroneously return success to
+userspace when enabling actually failed?
+
+[Severity: High]
+This is a pre-existing issue, but do the early error paths in
+kvm_s390_pci_aif_enable() leak resources?
+
+If pin_user_pages_fast(), account_mem(), or airq_iv_alloc_bit() fail, we
+jump to the cleanup labels:
+
+    unlock:
+        mutex_unlock(&aift->aift_lock);
+    unpin2:
+        if (fib->fmt0.sum =3D=3D 1)
+            unpin_user_page(aisb_page);
+    unpin1:
+        unpin_user_page(aibv_page);
+    out:
+        return rc;
+
+Does this miss calling kvm_s390_gisc_unregister() and unaccount_mem(),
+leaving GISC registrations and locked_vm quotas permanently leaked?
+
+[Severity: High]
+This is a pre-existing issue, but do account_mem() and unaccount_mem() leak
+struct user_struct reference counts?
+
+Both functions increment the user refcount via get_uid():
+
+    struct user_struct *user =3D get_uid(current_user());
+
+However, free_uid() is never called in these functions. Could this lead to a
+persistent memory leak and potential refcount overflow?
+
+[Severity: High]
+This is a pre-existing issue, but does unaccount_mem() risk quota corruption
+by blindly using current_user() and current->mm?
+
+When unaccount_mem() is called:
+
+    struct user_struct *user =3D get_uid(current_user());
+    if (user)
+        atomic_long_sub(nr_pages, &user->locked_vm);
+
+If this is invoked asynchronously during VFIO device closure (e.g., via fput
+in a system workqueue), the current user will resolve to the worker thread.
+Does this mean the original user's quota is never restored, and an unrelated
+system worker's quota is incorrectly reduced?
+
+[Severity: Critical]
+This is a pre-existing issue, but does an unchecked return value from
+airq_iv_create() risk a host kernel panic?
+
+In kvm_s390_pci_aif_enable():
+
+    zdev->aibv =3D airq_iv_create(msi_vecs, ...);
+
+If airq_iv_create() returns NULL due to memory pressure, this is assigned to
+zdev->aibv. Immediately after, kvm_zpci_set_airq() is called, which execute=
+s:
+
+    fib.fmt0.noi =3D airq_iv_end(zdev->aibv);
+
+Does airq_iv_end() unconditionally dereference the potentially NULL pointer,
+allowing unprivileged userspace or a guest to trigger a panic?
+
+[Severity: Critical]
+This is a pre-existing issue, but is the page pinning for the Adapter
+Interrupt Bit Vector (AIBV) insufficient?
+
+In kvm_s390_pci_aif_enable(), only a single page is pinned:
+
+    npages =3D pin_user_pages_fast(hva, 1, FOLL_WRITE | FOLL_LONGTERM, page=
+s);
+
+The physical address passed to hardware contains the unvalidated offset:
+
+    gaddr =3D page_to_phys(aibv_page) + (fib->fmt0.aibv & ~PAGE_MASK);
+
+If a guest specifies an AIBV offset close to the end of the page, could the
+hardware DMA engine write beyond the pinned page boundary and corrupt
+adjacent host memory?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260713083007.6586=
+3-6-borntraeger@de.ibm.com?part=3D1
