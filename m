@@ -1,30 +1,30 @@
 Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 4F0B040E8F5;
-	Mon, 13 Jul 2026 12:59:04 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 9831B3B0AD1;
+	Mon, 13 Jul 2026 13:14:48 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783947548; cv=none; b=UKLC6ab7G/dc5qCUz4GSrZVNZYN/NaPOwNGNhy2wHniTm92OV5LfpTn7wSZKE+EkyaxlQVCJDesZwtXUN3Y4vklQ0gjLI8KV/PMvT9RXlxBpMmzdXWosHBqO3yBEF9zBe06iK0GNUjqE//iO16argbBEnfxcUOpmwc4CWOHheNc=
+	t=1783948490; cv=none; b=VHvRGwmhj6woZnP/BRIWgJMbI7qVLbb3z5p1hV5GjcOdXhAIh+vt+yuswqkP0oLqetLcUcywyvBdPvtO3yt3ydSgj20zpinWJUizqBj3eL9bMCALy0g5jc3iokCCCDExZ0lR6oNArCPY8sUCuczLukGfiHXVFWD8v3rORoeZVTg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783947548; c=relaxed/simple;
-	bh=HYG7xsN3we//3CS5YORptORDiWvvKL/5naSd2e0b1jY=;
+	s=arc-20240116; t=1783948490; c=relaxed/simple;
+	bh=1yzgUn483sH+JxOQ5FbwdLIpvw9PWIjgLRVy9cHrIRM=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Nsht377uKEVZZoKqWxyb5Nio7AlBZr8YfrlVscw8MXIvqwe51Eb62wcb1Ng6+3v9lJrrJZ1wZXY+F2Ok0H600mATkfaXEgNJGyu0Tg7k3FeO73NRyn9p/XH9we4mr5sgXlRw1Dws6JH8XSfIpTAaDwkAmSbf0iGZxGt9L/vdLg4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=jMF9GiWS; arc=none smtp.client-ip=13.77.154.182
+	 Content-Type:Content-Disposition:In-Reply-To; b=M0f9CiiRatEDAhm8qBi9906eOPZncxsjlCKmrDZENAg+sIFciXXKxyVymqEwfgtFxSbudY6Fu50/hsCkUaZ+sR5mit+VUzUOR2X9TxSVoSJjcyEmOyzXMWekLzua952rtwMOC4kZDZPYrel5fFVq+o54M4x/kJmaqhe9qaAtv8A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=mW3EdGl5; arc=none smtp.client-ip=13.77.154.182
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="jMF9GiWS"
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="mW3EdGl5"
 Received: by linux.microsoft.com (Postfix, from userid 1099)
-	id D821220B716F; Mon, 13 Jul 2026 05:58:55 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com D821220B716F
+	id AA8D620B716F; Mon, 13 Jul 2026 06:14:40 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com AA8D620B716F
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-	s=default; t=1783947535;
-	bh=B4xgmHRpxY0w+f4J0WGkQeaIjzFbYhEnWIXDWbYxgao=;
+	s=default; t=1783948480;
+	bh=0uQfzfsLDOyWc28Iub4vqCWbjhL+DS0pz2FwJiRgUvw=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=jMF9GiWSlj4YIrS3pAEigfyWM8hLIx0rVLXPc4T0zXSzSZKUAfGQZR01xl1VV52zU
-	 bNDjgp2P6o0xlEZW97iP1lkK0wcx0cd5867xcTPWgE561/TAuwO3INAHBpqlBhBwwB
-	 WuMAGljFz3336C+4N6dpWc5FS/rv/4ejgrphxdoA=
-Date: Mon, 13 Jul 2026 05:58:55 -0700
+	b=mW3EdGl5gqw+3GBkXvv3n6dbQnd5J+cNN8+qe1t5nB9LHbcQ4K6MxrpSC8Ps/Dyz/
+	 1kqo52e0VmqTO+WN0+i8/FBeDAGT0Fb6Ij5EfuRxt1jERN1SV8XhPwPJmKregZ1dOq
+	 SWGeXQuXbQqwhuL1bYKo+fBebudB0ERSBSUe+2MI=
+Date: Mon, 13 Jul 2026 06:14:40 -0700
 From: Souradeep Chakrabarti <schakrabarti@linux.microsoft.com>
 To: "Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org>
 Cc: linux-coco@lists.linux.dev, iommu@lists.linux.dev,
@@ -55,12 +55,13 @@ Cc: linux-coco@lists.linux.dev, iommu@lists.linux.dev,
 	Alex Williamson <alex@shazbot.org>,
 	Matthew Rosato <mjrosato@linux.ibm.com>,
 	Farhan Ali <alifm@linux.ibm.com>,
-	Eric Farman <farman@linux.ibm.com>, linux-s390@vger.kernel.org
-Subject: Re: [PATCH v5 1/5] vfio: cache KVM VM file references instead of raw
- struct kvm pointers
-Message-ID: <alThD6mjBG2SGZzf@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net>
+	Eric Farman <farman@linux.ibm.com>, linux-s390@vger.kernel.org,
+	Jason Gunthorpe <jgg@nvidia.com>
+Subject: Re: [PATCH v5 2/5] iommufd/device: Associate KVM file pointer with
+ iommufd_device
+Message-ID: <alTkwFYXH2z6fmfO@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net>
 References: <20260525154816.1029642-1-aneesh.kumar@kernel.org>
- <20260525154816.1029642-2-aneesh.kumar@kernel.org>
+ <20260525154816.1029642-3-aneesh.kumar@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -69,430 +70,124 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260525154816.1029642-2-aneesh.kumar@kernel.org>
+In-Reply-To: <20260525154816.1029642-3-aneesh.kumar@kernel.org>
 
-On Mon, May 25, 2026 at 09:18:12PM +0530, Aneesh Kumar K.V (Arm) wrote:
-> VFIO currently records struct kvm pointers on vfio_group, vfio_device_file
-> and the opened vfio_device. Switch VFIO to track the VM's struct file
-> instead, so VFIO and iommufd can use normal file references for VM lifetime
-> instead of depending on KVM's internal struct kvm refcounting.
+On Mon, May 25, 2026 at 09:18:13PM +0530, Aneesh Kumar K.V (Arm) wrote:
+> From: Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>
 > 
-> KVM_CREATE_DEVICE binds the KVM VM lifetime to the KVM device fd lifetime.
-> For KVM_DEV_TYPE_VFIO, the KVM VFIO device fd also takes references to each
-> VFIO file added through KVM_DEV_VFIO_FILE_ADD. The KVM VFIO device fd
-> therefore owns both the internal KVM reference and the VFIO file references
-> in kvf->file.
+> TSM vDevice support needs access to the KVM associated with a VFIO device
+> after the device has been bound to iommufd.
 > 
-> KVM_DEV_VFIO_FILE_ADD further installs the VM file association into the
-> VFIO file. VFIO converts the struct kvm pointer to a VM file reference with
-> get_file_active(&kvm->_file), because the KVM device fd can keep struct kvm
-> alive after the original VM fd is already in final release.
+> Extend iommufd_device_bind() to accept the device's KVM file and store it
+> in the iommufd_device. The KVM file reference is owned by VFIO and is
+> already held for the duration of the device open path.
 > 
-> The association intentionally pins the VM file until KVM_DEV_VFIO_FILE_DEL
-> or until the KVM VFIO device fd is released. This gives VFIO/iommufd a
-> stable VM file reference source without taking a dependency on KVM's struct
-> kvm lifetime. The KVM VFIO device release path clears the VFIO-side
-> association before dropping its VFIO file references.
-> 
-> When a VFIO device is opened or bound, VFIO takes an additional reference
-> from the associated VM file and stores it in vfio_device::kvm_file for
-> driver and iommufd use. That open-time reference is released from
-> vfio_device_put_kvm() when the VFIO device is closed or unbound.
-> 
-can the "VM file" that VFIO caches be abstracted from "the KVM VM file"
-to "a VM file the VMM registered"?
-> This gives the ownership model:
-> 
->   - KVM device fd pins struct kvm through kvm->users_count
->   - KVM VFIO device fd pins VFIO files through kvf->file
->   - VFIO group/device-file state pins the VM file while associated with KVM
->   - vfio_device::kvm_file pins the VM file during active VFIO device use
-> 
+> Signed-off-by: Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>
+> Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
+> [nicolinc: fix build error in iommufd_test_mock_domain()]
+> Signed-off-by: Nicolin Chen <nicolinc@nvidia.com>
+> [aneesh.kumar: Switch to use kvm_file]
 > Signed-off-by: Aneesh Kumar K.V (Arm) <aneesh.kumar@kernel.org>
 > ---
->  drivers/s390/crypto/vfio_ap_ops.c |  5 +-
->  drivers/vfio/device_cdev.c        | 10 ++--
->  drivers/vfio/group.c              | 14 +++---
->  drivers/vfio/pci/vfio_pci_zdev.c  |  7 +--
->  drivers/vfio/vfio.h               | 16 ++++--
->  drivers/vfio/vfio_main.c          | 81 ++++++++++++++++---------------
->  include/linux/kvm_host.h          |  3 ++
->  include/linux/vfio.h              | 17 ++++++-
->  virt/kvm/kvm_main.c               |  2 +
->  9 files changed, 91 insertions(+), 64 deletions(-)
+>  drivers/iommu/iommufd/device.c          | 7 ++++++-
+>  drivers/iommu/iommufd/iommufd_private.h | 2 ++
+>  drivers/iommu/iommufd/selftest.c        | 2 +-
+>  drivers/vfio/iommufd.c                  | 3 ++-
+>  include/linux/iommufd.h                 | 4 +++-
+>  5 files changed, 14 insertions(+), 4 deletions(-)
 > 
-> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-> index 44b3a1dcc1b3..05996a8fd860 100644
-> --- a/drivers/s390/crypto/vfio_ap_ops.c
-> +++ b/drivers/s390/crypto/vfio_ap_ops.c
-> @@ -2054,11 +2054,12 @@ static int vfio_ap_mdev_open_device(struct vfio_device *vdev)
+> diff --git a/drivers/iommu/iommufd/device.c b/drivers/iommu/iommufd/device.c
+> index 170a7005f0bc..718abdc0e627 100644
+> --- a/drivers/iommu/iommufd/device.c
+> +++ b/drivers/iommu/iommufd/device.c
+> @@ -203,6 +203,7 @@ void iommufd_device_destroy(struct iommufd_object *obj)
+>   * iommufd_device_bind - Bind a physical device to an iommu fd
+>   * @ictx: iommufd file descriptor
+>   * @dev: Pointer to a physical device struct
+> + * @kvm_file: VM file if device belongs to a KVM VM
+>   * @id: Output ID number to return to userspace for this device
+>   *
+>   * A successful bind establishes an ownership over the device and returns
+> @@ -216,7 +217,9 @@ void iommufd_device_destroy(struct iommufd_object *obj)
+>   * The caller must undo this with iommufd_device_unbind()
+>   */
+>  struct iommufd_device *iommufd_device_bind(struct iommufd_ctx *ictx,
+> -					   struct device *dev, u32 *id)
+> +					   struct device *dev,
+> +					   struct file *kvm_file,
+> +					   u32 *id)
+could it be a neutrally-named VM-file handle (e.g. vm_file)?
 >  {
->  	struct ap_matrix_mdev *matrix_mdev =
->  		container_of(vdev, struct ap_matrix_mdev, vdev);
-> +	struct kvm *kvm = vfio_device_get_kvm(vdev);
->  
-> -	if (!vdev->kvm)
-> +	if (!kvm)
->  		return -EINVAL;
->  
-> -	return vfio_ap_mdev_set_kvm(matrix_mdev, vdev->kvm);
-> +	return vfio_ap_mdev_set_kvm(matrix_mdev, kvm);
->  }
->  
->  static void vfio_ap_mdev_close_device(struct vfio_device *vdev)
-> diff --git a/drivers/vfio/device_cdev.c b/drivers/vfio/device_cdev.c
-> index 54abf312cf04..ca75ab8eb7bd 100644
-> --- a/drivers/vfio/device_cdev.c
-> +++ b/drivers/vfio/device_cdev.c
-> @@ -56,7 +56,7 @@ int vfio_device_fops_cdev_open(struct inode *inode, struct file *filep)
->  static void vfio_df_get_kvm_safe(struct vfio_device_file *df)
->  {
->  	spin_lock(&df->kvm_ref_lock);
-> -	vfio_device_get_kvm_safe(df->device, df->kvm);
-> +	vfio_device_get_kvm_safe(df->device, df->kvm_file);
->  	spin_unlock(&df->kvm_ref_lock);
->  }
->  
-> @@ -133,10 +133,10 @@ long vfio_df_ioctl_bind_iommufd(struct vfio_device_file *df,
+>  	struct iommufd_device *idev;
+>  	struct iommufd_group *igroup;
+> @@ -266,6 +269,8 @@ struct iommufd_device *iommufd_device_bind(struct iommufd_ctx *ictx,
+>  	if (!iommufd_selftest_is_mock_dev(dev))
+>  		iommufd_ctx_get(ictx);
+>  	idev->dev = dev;
+For a non-KVM VMM a registrable "which VM-file type" hook (a 
+file_is_mshv_partition() analogue) rather than an implicit "whatever 
+VFIO set" contract will be helpful, so the type can be validated where 
+it matters.
+> +	/* reference is already taken in vfio_df_ioctl_bind_iommufd() */
+> +	idev->kvm_file = kvm_file;
+>  	idev->enforce_cache_coherency =
+>  		device_iommu_capable(dev, IOMMU_CAP_ENFORCE_CACHE_COHERENCY);
+>  	/* The calling driver is a user until iommufd_device_unbind() */
+> diff --git a/drivers/iommu/iommufd/iommufd_private.h b/drivers/iommu/iommufd/iommufd_private.h
+> index 6ac1965199e9..44eb026c206d 100644
+> --- a/drivers/iommu/iommufd/iommufd_private.h
+> +++ b/drivers/iommu/iommufd/iommufd_private.h
+> @@ -488,6 +488,8 @@ struct iommufd_device {
+>  	struct list_head group_item;
+>  	/* always the physical device */
+>  	struct device *dev;
+> +	/* ..and the VM file if available */
+> +	struct file *kvm_file;
+>  	bool enforce_cache_coherency;
+>  	struct iommufd_vdevice *vdev;
+>  	bool destroying;
+> diff --git a/drivers/iommu/iommufd/selftest.c b/drivers/iommu/iommufd/selftest.c
+> index af07c642a526..a193390f9d07 100644
+> --- a/drivers/iommu/iommufd/selftest.c
+> +++ b/drivers/iommu/iommufd/selftest.c
+> @@ -1069,7 +1069,7 @@ static int iommufd_test_mock_domain(struct iommufd_ucmd *ucmd,
+>  		goto out_sobj;
 >  	}
 >  
->  	/*
-> -	 * Before the device open, get the KVM pointer currently
-> -	 * associated with the device file (if there is) and obtain
-> -	 * a reference.  This reference is held until device closed.
-> -	 * Save the pointer in the device for use by drivers.
-> +	 * Before the device open, get the VM struct file currently
-> +	 * associated with the device file (if there is one) and obtain a
-> +	 * reference. This reference is held until the device is closed.
-> +	 * Save the file in the device for use by drivers.
->  	 */
->  	vfio_df_get_kvm_safe(df);
->  
-> diff --git a/drivers/vfio/group.c b/drivers/vfio/group.c
-> index b2299e5bc6df..8950cfb9405d 100644
-> --- a/drivers/vfio/group.c
-> +++ b/drivers/vfio/group.c
-> @@ -163,7 +163,7 @@ static int vfio_group_ioctl_set_container(struct vfio_group *group,
->  static void vfio_device_group_get_kvm_safe(struct vfio_device *device)
+> -	idev = iommufd_device_bind(ucmd->ictx, &sobj->idev.mock_dev->dev,
+> +	idev = iommufd_device_bind(ucmd->ictx, &sobj->idev.mock_dev->dev, NULL,
+>  				   &idev_id);
+>  	if (IS_ERR(idev)) {
+>  		rc = PTR_ERR(idev);
+> diff --git a/drivers/vfio/iommufd.c b/drivers/vfio/iommufd.c
+> index a38d262c6028..d2d0bd9382a1 100644
+> --- a/drivers/vfio/iommufd.c
+> +++ b/drivers/vfio/iommufd.c
+> @@ -119,7 +119,8 @@ int vfio_iommufd_physical_bind(struct vfio_device *vdev,
 >  {
->  	spin_lock(&device->group->kvm_ref_lock);
-> -	vfio_device_get_kvm_safe(device, device->group->kvm);
-> +	vfio_device_get_kvm_safe(device, device->group->kvm_file);
->  	spin_unlock(&device->group->kvm_ref_lock);
->  }
+>  	struct iommufd_device *idev;
 >  
-> @@ -181,10 +181,10 @@ static int vfio_df_group_open(struct vfio_device_file *df)
->  	mutex_lock(&device->dev_set->lock);
->  
->  	/*
-> -	 * Before the first device open, get the KVM pointer currently
-> -	 * associated with the group (if there is one) and obtain a reference
-> -	 * now that will be held until the open_count reaches 0 again.  Save
-> -	 * the pointer in the device for use by drivers.
-> +	 * Before the first device open, get the VM struct file currently
-> +	 * associated with the group (if there is one) and obtain a
-> +	 * reference now that will be held until the open_count reaches 0
-> +	 * again. Save the file in the device for use by drivers.
->  	 */
->  	if (device->open_count == 0)
->  		vfio_device_group_get_kvm_safe(device);
-> @@ -862,9 +862,7 @@ bool vfio_group_enforced_coherent(struct vfio_group *group)
->  
->  void vfio_group_set_kvm(struct vfio_group *group, struct kvm *kvm)
->  {
-> -	spin_lock(&group->kvm_ref_lock);
-> -	group->kvm = kvm;
-> -	spin_unlock(&group->kvm_ref_lock);
-> +	vfio_kvm_file_replace(&group->kvm_file, &group->kvm_ref_lock, kvm);
->  }
->  
->  /**
-> diff --git a/drivers/vfio/pci/vfio_pci_zdev.c b/drivers/vfio/pci/vfio_pci_zdev.c
-> index 0990fdb146b7..a9d8e6aa3839 100644
-> --- a/drivers/vfio/pci/vfio_pci_zdev.c
-> +++ b/drivers/vfio/pci/vfio_pci_zdev.c
-> @@ -144,15 +144,16 @@ int vfio_pci_info_zdev_add_caps(struct vfio_pci_core_device *vdev,
->  int vfio_pci_zdev_open_device(struct vfio_pci_core_device *vdev)
->  {
->  	struct zpci_dev *zdev = to_zpci(vdev->pdev);
-> +	struct kvm *kvm = vfio_device_get_kvm(&vdev->vdev);
->  
->  	if (!zdev)
->  		return -ENODEV;
->  
-> -	if (!vdev->vdev.kvm)
-> +	if (!kvm)
->  		return 0;
->  
->  	if (zpci_kvm_hook.kvm_register)
-> -		return zpci_kvm_hook.kvm_register(zdev, vdev->vdev.kvm);
-> +		return zpci_kvm_hook.kvm_register(zdev, kvm);
->  
->  	return -ENOENT;
->  }
-> @@ -161,7 +162,7 @@ void vfio_pci_zdev_close_device(struct vfio_pci_core_device *vdev)
->  {
->  	struct zpci_dev *zdev = to_zpci(vdev->pdev);
->  
-> -	if (!zdev || !vdev->vdev.kvm)
-> +	if (!zdev || !vfio_device_get_kvm(&vdev->vdev))
->  		return;
->  
->  	if (zpci_kvm_hook.kvm_unregister)
-> diff --git a/drivers/vfio/vfio.h b/drivers/vfio/vfio.h
-> index e4b72e79b7e3..41032104eb36 100644
-> --- a/drivers/vfio/vfio.h
-> +++ b/drivers/vfio/vfio.h
-> @@ -22,8 +22,8 @@ struct vfio_device_file {
->  
->  	u8 access_granted;
->  	u32 devid; /* only valid when iommufd is valid */
-> -	spinlock_t kvm_ref_lock; /* protect kvm field */
-> -	struct kvm *kvm;
-> +	spinlock_t kvm_ref_lock; /* protect kvm_file */
-> +	struct file *kvm_file;
->  	struct iommufd_ctx *iommufd; /* protected by struct vfio_device_set::lock */
+> -	idev = iommufd_device_bind(ictx, vdev->dev, out_device_id);
+> +	idev = iommufd_device_bind(ictx, vdev->dev, vdev->kvm_file,
+> +				   out_device_id);
+>  	if (IS_ERR(idev))
+>  		return PTR_ERR(idev);
+>  	vdev->iommufd_device = idev;
+> diff --git a/include/linux/iommufd.h b/include/linux/iommufd.h
+> index 6e7efe83bc5d..0a0bb4abfbd2 100644
+> --- a/include/linux/iommufd.h
+> +++ b/include/linux/iommufd.h
+> @@ -59,7 +59,9 @@ struct iommufd_object {
 >  };
 >  
-> @@ -88,7 +88,7 @@ struct vfio_group {
->  #endif
->  	enum vfio_group_type		type;
->  	struct mutex			group_lock;
-> -	struct kvm			*kvm;
-> +	struct file			*kvm_file;
->  	struct file			*opened_file;
->  	struct iommufd_ctx		*iommufd;
->  	spinlock_t			kvm_ref_lock;
-> @@ -434,11 +434,17 @@ static inline void vfio_virqfd_exit(void)
->  #endif
+>  struct iommufd_device *iommufd_device_bind(struct iommufd_ctx *ictx,
+> -					   struct device *dev, u32 *id);
+> +					   struct device *dev,
+> +					   struct file *kvm_file,
+> +					   u32 *id);
+>  void iommufd_device_unbind(struct iommufd_device *idev);
 >  
->  #if IS_ENABLED(CONFIG_KVM)
-> -void vfio_device_get_kvm_safe(struct vfio_device *device, struct kvm *kvm);
-> +void vfio_kvm_file_replace(struct file **dst, spinlock_t *lock, struct kvm *kvm);
-> +void vfio_device_get_kvm_safe(struct vfio_device *device, struct file *kvm_file);
->  void vfio_device_put_kvm(struct vfio_device *device);
->  #else
-> +static inline void vfio_kvm_file_replace(struct file **dst,
-> +		spinlock_t *lock, struct kvm *kvm)
-> +{
-> +}
-> +
->  static inline void vfio_device_get_kvm_safe(struct vfio_device *device,
-> -					    struct kvm *kvm)
-> +					    struct file *kvm_file)
->  {
->  }
->  
-> diff --git a/drivers/vfio/vfio_main.c b/drivers/vfio/vfio_main.c
-> index 6222376ab6ab..88c85a7b98c0 100644
-> --- a/drivers/vfio/vfio_main.c
-> +++ b/drivers/vfio/vfio_main.c
-> @@ -442,55 +442,61 @@ void vfio_unregister_group_dev(struct vfio_device *device)
->  EXPORT_SYMBOL_GPL(vfio_unregister_group_dev);
->  
->  #if IS_ENABLED(CONFIG_KVM)
-> -void vfio_device_get_kvm_safe(struct vfio_device *device, struct kvm *kvm)
-> +void vfio_kvm_file_replace(struct file **dst, spinlock_t *lock, struct kvm *kvm)
->  {
-> -	void (*pfn)(struct kvm *kvm);
-> -	bool (*fn)(struct kvm *kvm);
-> -	bool ret;
-> +	struct file *old_kvm_file, *new_kvm_file = NULL;
->  
-> -	lockdep_assert_held(&device->dev_set->lock);
-> +	/*
-> +	 * @kvm can outlive the VM fd and its final __fput(). Only take a
-> +	 * new reference if the VM file is still active.
-> +	 */
-> +	if (kvm)
-> +		new_kvm_file = get_file_active(&kvm->_file);
->  
-> -	if (!kvm)
-> -		return;
-> +	spin_lock(lock);
-> +	old_kvm_file = *dst;
-> +	*dst = new_kvm_file;
-> +	spin_unlock(lock);
->  
-> -	pfn = symbol_get(kvm_put_kvm);
-> -	if (WARN_ON(!pfn))
-> -		return;
-> +	if (old_kvm_file)
-> +		fput(old_kvm_file);
-> +}
->  
-> -	fn = symbol_get(kvm_get_kvm_safe);
-> -	if (WARN_ON(!fn)) {
-> -		symbol_put(kvm_put_kvm);
-> -		return;
-> -	}
-> +void vfio_device_get_kvm_safe(struct vfio_device *device, struct file *kvm_file)
-> +{
-> +	lockdep_assert_held(&device->dev_set->lock);
->  
-> -	ret = fn(kvm);
-> -	symbol_put(kvm_get_kvm_safe);
-> -	if (!ret) {
-> -		symbol_put(kvm_put_kvm);
-> -		return;
-> -	}
-> +	/*
-> +	 * Take a VM file reference if the KVM fd is still active.
-> +	 */
-> +	if (kvm_file)
-> +		kvm_file = get_file(kvm_file);
->  
-> -	device->put_kvm = pfn;
-> -	device->kvm = kvm;
-> +	device->kvm_file = kvm_file;
->  }
->  
->  void vfio_device_put_kvm(struct vfio_device *device)
->  {
-> +	struct file *kvm_file;
-> +
->  	lockdep_assert_held(&device->dev_set->lock);
->  
-> -	if (!device->kvm)
-> +	kvm_file = device->kvm_file;
-> +	if (!kvm_file)
->  		return;
->  
-> -	if (WARN_ON(!device->put_kvm))
-> -		goto clear;
-> +	device->kvm_file = NULL;
-> +	fput(kvm_file);
-> +}
->  
-> -	device->put_kvm(device->kvm);
-> -	device->put_kvm = NULL;
-> -	symbol_put(kvm_put_kvm);
-> +struct kvm *vfio_device_get_kvm(struct vfio_device *device)
-> +{
-> +	if (!device->kvm_file)
-> +		return NULL;
->  
-> -clear:
-> -	device->kvm = NULL;
-> +	return device->kvm_file->private_data;
->  }
-> +EXPORT_SYMBOL_GPL(vfio_device_get_kvm);
->  #endif
->  
->  /* true if the vfio_device has open_device() called but not close_device() */
-> @@ -1518,13 +1524,10 @@ static void vfio_device_file_set_kvm(struct file *file, struct kvm *kvm)
->  	struct vfio_device_file *df = file->private_data;
->  
->  	/*
-> -	 * The kvm is first recorded in the vfio_device_file, and will
-> -	 * be propagated to vfio_device::kvm when the file is bound to
-> -	 * iommufd successfully in the vfio device cdev path.
-> +	 * Cache the VM file reference associated with this VFIO file so it
-> +	 * can be pinned into vfio_device while the device is open.
->  	 */
-> -	spin_lock(&df->kvm_ref_lock);
-> -	df->kvm = kvm;
-> -	spin_unlock(&df->kvm_ref_lock);
-> +	vfio_kvm_file_replace(&df->kvm_file, &df->kvm_ref_lock, kvm);
->  }
->  
->  /**
-> @@ -1532,8 +1535,8 @@ static void vfio_device_file_set_kvm(struct file *file, struct kvm *kvm)
->   * @file: VFIO group file or VFIO device file
->   * @kvm: KVM to link
->   *
-> - * When a VFIO device is first opened the KVM will be available in
-> - * device->kvm if one was associated with the file.
-> + * When a VFIO device is first opened, VFIO caches a VM file reference if
-> + * one was associated with the file.
->   */
->  void vfio_file_set_kvm(struct file *file, struct kvm *kvm)
->  {
-> diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
-> index 4c14aee1fb06..31afac5fb0ea 100644
-> --- a/include/linux/kvm_host.h
-> +++ b/include/linux/kvm_host.h
-> @@ -45,6 +45,8 @@
->  #include <asm/kvm_host.h>
->  #include <linux/kvm_dirty_ring.h>
->  
-> +struct file;
-> +
->  #ifndef KVM_MAX_VCPU_IDS
->  #define KVM_MAX_VCPU_IDS KVM_MAX_VCPUS
->  #endif
-> @@ -861,6 +863,7 @@ struct kvm {
->  	struct srcu_struct srcu;
->  	struct srcu_struct irq_srcu;
->  	pid_t userspace_pid;
-> +	struct file __rcu *_file;
->  	bool override_halt_poll_ns;
->  	unsigned int max_halt_poll_ns;
->  	u32 dirty_ring_size;
-> diff --git a/include/linux/vfio.h b/include/linux/vfio.h
-> index 31b826efba00..bca1d00f7845 100644
-> --- a/include/linux/vfio.h
-> +++ b/include/linux/vfio.h
-> @@ -22,8 +22,22 @@ struct kvm;
->  struct iommufd_ctx;
->  struct iommufd_device;
->  struct iommufd_access;
-> +struct vfio_device;
->  struct vfio_info_cap;
->  
-> +#if IS_ENABLED(CONFIG_KVM)
-> +/*
-> + * Return the KVM associated with @vdev's kvm_file. The returned pointer
-> + * is valid only while VFIO device open holds the kvm_file reference.
-> + */
-> +struct kvm *vfio_device_get_kvm(struct vfio_device *vdev);
-> +#else
-> +static inline struct kvm *vfio_device_get_kvm(struct vfio_device *vdev)
-> +{
-> +	return NULL;
-> +}
-> +#endif
-> +
->  /*
->   * VFIO devices can be placed in a set, this allows all devices to share this
->   * structure and the VFIO core will provide a lock that is held around
-> @@ -54,7 +68,7 @@ struct vfio_device {
->  	struct list_head dev_set_list;
->  	unsigned int migration_flags;
->  	u8 precopy_info_v2;
-> -	struct kvm *kvm;
-> +	struct file *kvm_file;
->  
->  	/* Members below here are private, not for driver use */
->  	unsigned int index;
-> @@ -66,7 +80,6 @@ struct vfio_device {
->  	unsigned int open_count;
->  	struct completion comp;
->  	struct iommufd_access *iommufd_access;
-> -	void (*put_kvm)(struct kvm *kvm);
->  	struct inode *inode;
->  #if IS_ENABLED(CONFIG_IOMMUFD)
->  	struct iommufd_device *iommufd_device;
-> diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-> index 89489996fbc1..011819c5c47c 100644
-> --- a/virt/kvm/kvm_main.c
-> +++ b/virt/kvm/kvm_main.c
-> @@ -1351,6 +1351,7 @@ static int kvm_vm_release(struct inode *inode, struct file *filp)
->  
->  	kvm_irqfd_release(kvm);
->  
-> +	RCU_INIT_POINTER(kvm->_file, NULL);
->  	kvm_put_kvm(kvm);
->  	return 0;
->  }
-> @@ -5500,6 +5501,7 @@ static int kvm_dev_ioctl_create_vm(unsigned long type)
->  		r = PTR_ERR(file);
->  		goto put_kvm;
->  	}
-> +	rcu_assign_pointer(kvm->_file, file);
->  
->  	/*
->  	 * Don't call kvm_put_kvm anymore at this point; file->f_op is
+>  int iommufd_device_attach(struct iommufd_device *idev, ioasid_t pasid,
 > -- 
 > 2.43.0
 > 
