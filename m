@@ -1,156 +1,133 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qk1-f175.google.com (mail-qk1-f175.google.com [209.85.222.175])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 370D034BA28;
-	Mon, 13 Jul 2026 17:50:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF8C334BA28
+	for <linux-s390@vger.kernel.org>; Mon, 13 Jul 2026 17:54:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.175
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783965050; cv=none; b=dToD/sP+k1moDtQLLw4CSvuBI3kx9bLOJoRn6MdDuq3RRo+85K1+mRo6tVBeWR+8OO4JO5kPiOF4MhL5j0PboUgeg93LiuItnf0XEGuD73sK4RfAgQf8l0S1ujcnqnV0VFk4WSgwa8IBU3A/TtvxyMGUX+zsNP6MyYmhFD9EmDA=
+	t=1783965278; cv=none; b=JVZzS14pnBUj84LOcqye6k4UHE7PtxoBgEbniAZwI69IWa+Mcq/rs8Ab5043wEfcfeGxQiSaNmIhqykv0jV6dFBcoFkrOCqOz94TFj3SgnA01bFl5rcpJPHMJbY++jFGcA0RXUxGCimght1RsXGRF3lHeE938Ip0r39iRNcypVU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783965050; c=relaxed/simple;
-	bh=J9Cd9JsbYBociKxi0u5ZcYhmzbsBtj0CtwT/D54nH1s=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=Bik2oFe2C4YzcpBwU+RmVQxMfR2sMSV18i7lxa8RXE8PfHJmN4+f4nAAzqmYqgpv3HQu9WE6Aa6Tao9Y6DbIO157/4VIWReiqwre4oOsofzF8SqXVR5fAO4smiBTXxhrv6KyChcC/VFhP8vutFSmGQc6nEWJ7gd4yivP/OBLEvU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=iF+fg5PY; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1783965278; c=relaxed/simple;
+	bh=K2KZlv8DzBtV03E/TVL3MeUwYAAgOJe/Vo9Rt0OvASs=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=qhxoOuyKKNhiDlOQ983thX5PzKx+Gxu7ghRCInoFWqrQ1xS9PxFP89kW62dhBu34yJBMs6XakmCnw0nK2i4S7PlPwa1yfRJjUtElezkJmOpAlywW+ET2mHJkTzk5bYPnRwL2SRyCORfxx0JXz7F3T+gcVznoyfLBH6pygjIEE5Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca; spf=pass smtp.mailfrom=ziepe.ca; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=VwE9LL26; arc=none smtp.client-ip=209.85.222.175
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="iF+fg5PY"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7614B1F00A3A;
-	Mon, 13 Jul 2026 17:50:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783965048;
-	bh=wOcDRDYckEc0sa0JsJPk9/wtlEtj3p53Dfwp+MfkMWw=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=iF+fg5PY0/MPTHTeWiWAw/jENs5Pqnt3gajxEkmq6G6QrsY4oFBfBE614TeszZ9Q5
-	 Q2LG8y8pqXqo6Y7NXvFGi4hOz0ynj/J7nk2Iw0qH/9PonqxUIlrX4QRCilNBEN2cEv
-	 zAowiOU1cce5BDR0upezjT2Tw2o2MUNdS6RSA9BQtYRkbRloxDZ9U6eg4cDGGRb8Dt
-	 cvG/GuZmazje99hoXqg0ItfCzHL7KCHLab6hQRfFF17g2ZZXA6vOllURZKLpGB3sjr
-	 NWB2/pKn8GEsJZBoYCfjnGQh9r+HRFUj9tcnhoABJpzQtIXhcuppIbGUvUdh1HdkFi
-	 3JWI53tJROchQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v1 3/5] KVM: s390: pci: Fix NULL dereference on AIBV
- allocation failure
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Farhan Ali" <alifm@linux.ibm.com>
-Cc: "Vasily Gorbik" <gor@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, "Alexander
- Gordeev" <agordeev@linux.ibm.com>
-In-Reply-To: <20260713172600.1284-4-alifm@linux.ibm.com>
-References: <20260713172600.1284-1-alifm@linux.ibm.com>
- <20260713172600.1284-4-alifm@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 13 Jul 2026 17:50:47 +0000
-Message-Id: <20260713175048.7614B1F00A3A@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="VwE9LL26"
+Received: by mail-qk1-f175.google.com with SMTP id af79cd13be357-92e855da580so273322485a.1
+        for <linux-s390@vger.kernel.org>; Mon, 13 Jul 2026 10:54:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ziepe.ca; s=google; t=1783965275; x=1784570075; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=Yflr35iQtozkrKsWPSXMB3haiCYqPE+VDxf/660hH9k=;
+        b=VwE9LL26Wmj3Bic97jnDe0FdhlxJKNHI8GF5oPUVFEzjHop6rveZn25da/L2GWKkXr
+         sSnBTm7wvTMgjGmMCwv6qvZJP4hUUADTspmHja544fGTlGVAxs1fJRp19KPWi+jDJFTg
+         cm+sm6zVXebpXv3cNYFdQzmd66mejtVPfokoETaVS49213pzGpJ5CzRMihCvh/kXJuUu
+         /8w2V1ZaSCBbYS0W1PxynFlBIjoKn1fM6X5myfw+amdRuSpsYq7Qe3dCd+V2qoCY9iug
+         bzU60uHdF8XiEUZ3MzWyy3mMUVU9i8EQS0Xx70hgHbrxZvnROMHz1ZJA5P4EXhkTIfVX
+         I/Kg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1783965275; x=1784570075;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=Yflr35iQtozkrKsWPSXMB3haiCYqPE+VDxf/660hH9k=;
+        b=kr6BlrvOdaxdzIds6paht+9LPNXbmUiz6W6npMCENPeToWg8IyZ6M0vue1trq3wsxJ
+         +Z8hSoSbfwgSBR5kdCQf7XR5W/0DjZX2XppsjZb3nOubG0UpHOoLGmUyUxPuTawS4UXG
+         EYfr6LfKw2SnoiLeawoAG6v4Dx49rNFwQbJZKudLVToGUlhWJ6QF/7gO8pviGPAxe0EF
+         2Qfhhh4HxmP0Q5axPDgkWLEFF4VNyUP01SfgcX7wvWfcnT2ewU7UMHTenTcQM0N4X0tE
+         PAp/5ZYXSt/wafKp09BqRTCT4GlZwj6bQiei/LVQP274CNJvtqwMCDpK/SynwtXNxdeR
+         8CBg==
+X-Forwarded-Encrypted: i=1; AHgh+RrmMILd646ACVaAeKpH4mh14/Vl/1HZGUFbS4EErVCdqePvbxvKDnx6v/OxHnzr8D0A/pSnl2gHyHr4@vger.kernel.org
+X-Gm-Message-State: AOJu0Ywd1n4nYtOckJf9IYuNIEbOs/eSgKbrX2WZYgeV9elcOvS8zX09
+	tY3lvlFyn++147snGwMI38cNsUKso/+EsBGoCFQGMbB4P2mHVMG0Zj+wLUqJMmcP/EI=
+X-Gm-Gg: AfdE7cmHC9xp2g+DrK6Xqq1w6/R5ZAb74/Bq1Tve7FQLK4lVBe0CG2u41v2erbFkdlC
+	oqLTmdYPIO+th0RUTX1vUasz2TnyZjntmP8nyhCKNYx1cHWt4HFUwsJmK6rHMrUXSE0a5bwOp0b
+	hHpvd6tgD8MlEzez22jX4ogW/8DibyZEMow+MkpuZtyO2166erjgAoO8QAYIHG4N/oIskU9yJOQ
+	w3Abjrs/AqrjOkRGLLZfB4cTzznqxAnpCTIIP2JRtntpDMccRKjKMrXC3RlRLpjmspTIicyy1H5
+	euNcYv3ketL0XtzloY7N1BZYTyW06ky5t0bSNP3qErShEP/8XQkl0p7hdbSgqG+1fS60jgIpShb
+	2RBAi/w3u1jNh0V/R7iuWY7LTdUjCZlwFjsuP9Dg5pLg5/AK+IO4fkjQtyEd4
+X-Received: by 2002:a05:620a:469e:b0:915:94f7:55df with SMTP id af79cd13be357-92ef2bd609cmr983527785a.20.1783965274729;
+        Mon, 13 Jul 2026 10:54:34 -0700 (PDT)
+Received: from ziepe.ca ([159.2.72.92])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-92ee5cfdf6fsm1229104285a.24.2026.07.13.10.54.34
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 13 Jul 2026 10:54:34 -0700 (PDT)
+Received: from jgg by wakko with local (Exim 4.97)
+	(envelope-from <jgg@ziepe.ca>)
+	id 1wjKrR-0000000DwzJ-2as1;
+	Mon, 13 Jul 2026 14:54:33 -0300
+Date: Mon, 13 Jul 2026 14:54:33 -0300
+From: Jason Gunthorpe <jgg@ziepe.ca>
+To: "Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org>
+Cc: iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev,
+	Robin Murphy <robin.murphy@arm.com>,
+	Marek Szyprowski <m.szyprowski@samsung.com>,
+	Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
+	Steven Price <steven.price@arm.com>,
+	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Jiri Pirko <jiri@resnulli.us>, Mostafa Saleh <smostafa@google.com>,
+	Petr Tesarik <ptesarik@suse.com>,
+	Alexey Kardashevskiy <aik@amd.com>,
+	Dan Williams <dan.j.williams@intel.com>,
+	Xu Yilun <yilun.xu@linux.intel.com>, linuxppc-dev@lists.ozlabs.org,
+	linux-s390@vger.kernel.org,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org,
+	Michael Kelley <mhklinux@outlook.com>
+Subject: Re: [PATCH v7 02/22] dma-pool: fix page leak in atomic_pool_expand()
+ cleanup
+Message-ID: <20260713175433.GI3133966@ziepe.ca>
+References: <20260701054926.825925-1-aneesh.kumar@kernel.org>
+ <20260701054926.825925-3-aneesh.kumar@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260701054926.825925-3-aneesh.kumar@kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
-s) to consider:
-
-Pre-existing issues:
-- [Critical] Hardware DMA out-of-bounds write due to missing page boundary =
-validation for the AIBV.
-- [High] Unbounded resource leak and potential Use-After-Free on repeated K=
-VM_S390_ZPCIOP_REG_AEN calls.
-- [High] Context mismatch in memory accounting leads to leakage or underflo=
-w during asynchronous teardown.
---
-
---- Patch [3]: [PATCH v1 3/5] KVM: s390: pci: Fix NULL dereference on AIBV =
-allocation failure ---
-commit efdcaa0691c30263d9d4c19ea7c5478853d5a3ab
-Author: Farhan Ali <alifm@linux.ibm.com>
-
-KVM: s390: pci: Fix NULL dereference on AIBV allocation failure
-
-The commit adds a NULL check for the return value of airq_iv_create() to
-prevent a potential NULL pointer dereference. If the allocation fails, it
-now properly frees the previously allocated AISB bit before returning an
-error.
-
-> --- a/arch/s390/kvm/pci.c
-> +++ b/arch/s390/kvm/pci.c
-> @@ -299,6 +299,11 @@ static int kvm_s390_pci_aif_enable(struct zpci_dev *=
-zdev, struct zpci_fib *fib,
-
-[Severity: Critical]
-This isn't a regression introduced by this patch, but is there a missing pa=
-ge
-boundary validation for the AIBV that could lead to an out-of-bounds DMA
-write?
-
-If the guest provides an unaligned guest physical address for the AIBV that
-crosses a page boundary, does the pinning logic fail to account for vector
-lengths spanning across boundaries?
-
-arch/s390/kvm/pci.c:kvm_s390_pci_aif_enable() {
-    ...
-    npages =3D pin_user_pages_fast(hva, 1, FOLL_WRITE | FOLL_LONGTERM, page=
-s);
-    ...
-}
-
-Could the hardware firmware sequentially DMA interrupt data across the page
-boundary into an unpinned host physical page?
-
->  				    AIRQ_IV_GUESTVEC,
->  				    phys_to_virt(fib->fmt0.aibv));
-> =20
-> +	if (!zdev->aibv) {
-> +		rc =3D -ENOMEM;
-> +		goto free_aisb;
+On Wed, Jul 01, 2026 at 11:19:06AM +0530, Aneesh Kumar K.V (Arm) wrote:
+> @@ -115,8 +116,10 @@ static int atomic_pool_expand(struct gen_pool *pool, size_t pool_size,
+>  	 */
+>  	ret = set_memory_decrypted((unsigned long)page_to_virt(page),
+>  				   1 << order);
+> -	if (ret)
+> +	if (ret) {
+> +		leak_pages = true;
+>  		goto remove_mapping;
 > +	}
-> +
 
-[Severity: High]
-This isn't a regression introduced by this patch, but does this path leak
-the airq_iv bit vectors and cause a potential use-after-free?
+Truely these _set_memory_decrypted() things are an insane API. So a if
+it fails to decrypt it can be in any messy state?
 
-If a user-space process repeatedly triggers the KVM_S390_ZPCIOP_REG_AEN ioc=
-tl,
-does this code blindly overwrite zdev->aisb and zdev->aibv without clearing
-the global aift->kzdev[old_aisb] reference?
+> @@ -130,14 +133,15 @@ static int atomic_pool_expand(struct gen_pool *pool, size_t pool_size,
+>  				   1 << order);
+>  	if (WARN_ON_ONCE(ret)) {
+>  		/* Decrypt succeeded but encrypt failed, purposely leak */
+> -		goto out;
+> +		leak_pages = true;
 
-If the device is later deregistered, only the newest AISB index would be
-cleared. If a hardware interrupt triggers for the orphaned AISB bit, could
-aen_host_forward() access the freed kzdev structure?
+At least this one makes some sense..
 
->  	spin_lock_irq(&aift->gait_lock);
->  	gaite =3D aift->gait + zdev->aisb;
-> =20
-> @@ -335,6 +340,9 @@ static int kvm_s390_pci_aif_enable(struct zpci_dev *z=
-dev, struct zpci_fib *fib,
->  	rc =3D kvm_zpci_set_airq(zdev);
->  	return rc;
-> =20
-> +free_aisb:
-> +	airq_iv_free_bit(aift->sbv, zdev->aisb);
-> +	zdev->aisb =3D 0;
->  unlock:
->  	if (pcount > 0)
->  		unaccount_mem(pcount);
+Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
 
-[Severity: High]
-This isn't a regression introduced by this patch, but does unaccount_mem()
-incorrectly rely on current->mm in asynchronous teardown contexts?
-
-If unaccount_mem() is called asynchronously (for example, during a VFIO
-device removal or sysfs unbind):
-
-arch/s390/kvm/pci.c:unaccount_mem() {
-    struct user_struct *user =3D get_uid(current_user());
-    ...
-    if (current->mm)
-        atomic64_sub(nr_pages, &current->mm->pinned_vm);
-    ...
-}
-
-Would current point to the worker thread rather than the QEMU process that
-originally pinned the memory, leading to an underflow of the wrong memory
-quotas and leaking the original quotas?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260713172600.1284=
--1-alifm@linux.ibm.com?part=3D3
+Jason
