@@ -1,205 +1,458 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lf1-f50.google.com (mail-lf1-f50.google.com [209.85.167.50])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 13C983B9928;
-	Mon, 13 Jul 2026 08:48:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C2143D6470
+	for <linux-s390@vger.kernel.org>; Mon, 13 Jul 2026 08:58:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783932523; cv=none; b=SJGVHsm9RWiNSeIh+gsxGu7SS/xVmAGXstHjpdDFf5pex/DEY0RXhEG+SDMCnugOMx6xEZtQ5ZqkAUcaAanDiJZpunzWan6u+2WXYeAkbz4sD1IkJ6A0aZ95zwJNKKXACwSmzBe1Yiium+ChdtozW4ncQppOMIe9sy2yN1oLhT8=
+	t=1783933119; cv=none; b=cDKELduovnxQJg1+RT2OadlM3FRLXz2YGsd2j5Ac8VmhAeDu08Pswb9CdJlcdSk27F6zL3Oz+kYgHtw62MiyiRGbjHqHDDqyZwPx6u8pbg/lh2OremFoaYcwC6+J5VJ6W4L+fuadW+bJJROJKQYf86fSbbaTbifGm14x0UarR/U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783932523; c=relaxed/simple;
-	bh=+XevlmmT+JfZOppaltCqI+ikm27nk8xd7kxyCWPkBr8=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=BctmegNM2dU0M/iCRn1LMtDVcG7f4oxuws899w3M9daqUtg8axF/9q8KgiwrerKCVkrzyFRZ2HMEFA+ciMRqqZ1KjofIlCmAuYEYRBeikRNOgf0LxjWhSZ/HDlMyjogfT9z0UHAAz3e/QtpfGmdNvrZ2p5MP0PFFaCQUawCyMH4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=diujnaTQ; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1783933119; c=relaxed/simple;
+	bh=1o1CyI5Ge8COlJA/GNtWMVlB7gFYnNefBLUngEwwR3M=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=J6CRYTYl2b/Ng6UpfMZdChQKfBujmplmnHw6x+3JOih+Tah4lzkxW86X2Qwr+DXqONsLEGy+pFKF2KAFG35BfHDbFGrj4yyVL7Vrgu5hU6ICO1jD9iDePzuMiTqt4mYVk0E6pksJZEXIeYhFR6DWWPLvSoV8ZvnfyPxV0Ec5OTM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20251104.gappssmtp.com header.i=@resnulli-us.20251104.gappssmtp.com header.b=U5P9xbLd; arc=none smtp.client-ip=209.85.167.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="diujnaTQ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A56DE1F000E9;
-	Mon, 13 Jul 2026 08:48:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783932510;
-	bh=9wJ61ak+4EO+2Nyfcj2vpQF/9/vnecFJz+r7x0oHFjs=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=diujnaTQwUmaQvkRbnHNw+gFVe6tQYZ4gjwgRdjS5BM13SGZd8mThxbkVkjNKZ0tZ
-	 fotvPIKiy3bfvL3RvCS831Fzukp3bxFCX8iBu8vRYc76sDrLc3yu49hKQgbqa1Fp33
-	 MiGbiNzY/Z4CtULgpmFrFwglqbhrQD+/RhDMRd+J+2N4VttJvOx2aUS9hmXEbw9Eaz
-	 3zczjpDw8Qws0Psy28YOrnfVEjWYD8fiNIuzJG/dvzGt85pRfZsHzoMbvQSqyfo9xh
-	 BogcbeHfVgmbgzYz2t01IuaxevQDbW44SqMxH5FHZqno8HmYF31w2QUzo/IOFsfawt
-	 AajHV7MkaEbqQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [GIT PULL 1/5] KVM: s390: pci: Fix GISC refcount leak on AIF
- enable failure
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Christian Borntraeger" <borntraeger@de.ibm.com>
-Cc: "Vasily Gorbik" <gor@linux.ibm.com>, kvm@vger.kernel.org, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, linux-s390@vger.kernel.org
-In-Reply-To: <20260713083007.65863-2-borntraeger@de.ibm.com>
-References: <20260713083007.65863-1-borntraeger@de.ibm.com>
- <20260713083007.65863-2-borntraeger@de.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 13 Jul 2026 08:48:29 +0000
-Message-Id: <20260713084829.A56DE1F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=resnulli-us.20251104.gappssmtp.com header.i=@resnulli-us.20251104.gappssmtp.com header.b="U5P9xbLd"
+Received: by mail-lf1-f50.google.com with SMTP id 2adb3069b0e04-5aeb98460c6so3039049e87.2
+        for <linux-s390@vger.kernel.org>; Mon, 13 Jul 2026 01:58:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=resnulli-us.20251104.gappssmtp.com; s=20251104; t=1783933113; x=1784537913; darn=vger.kernel.org;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :content-type:mime-version:references:message-id:subject:cc:to:from
+         :date:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=VAR/B1mlsTXa8tBE6zzVojx+J5Qr4ZE0aQH3nd2YxMA=;
+        b=U5P9xbLd+WKkHG7aivFZ2Y6ZO5n5wy1d0fNdWq7zcT6fmyvWY4Spe+a/mZqFBSZU0b
+         COGhPIl/ay+d+R20Tz3SAS9iayWppR97YyF1laL+D1nUViNzo1Q17pwTEa58GI0bWwL/
+         641lm+TukMRewa6shRu+kWUO/IKLxEO+sNHd+vn4erBPi1gKYVdtNTAC/3xwgwMnLSxA
+         LYjpk1A+i8a3dAEcJ0mNkuF9QY0s7yKC8M/BKJTLMyJ5WoZxTYVhHABBJpt9pEYIn9LJ
+         s0wfmKNl+c5u8qppxUjA/Nd05KCkw5JjlHB75CtoBADii39PGIIXL7816utX0ukmuOfo
+         kZOQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1783933113; x=1784537913;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :content-type:mime-version:references:message-id:subject:cc:to:from
+         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=VAR/B1mlsTXa8tBE6zzVojx+J5Qr4ZE0aQH3nd2YxMA=;
+        b=gOsAd3O8+oI7cp6eDv54MUOBmC9W+Cw1ARJtV/ILmcGiT+eW/7WL0O0zvn+PxxxxDL
+         NEqGaiHlPo38KD8x+vrpmCUImESvYzbADpNa+nw/65T8eYmdtCHCLZNi1DJ9QRrmilp1
+         N64ALylbydksBOU/B3Nw9hsbzAcblKazQcwGSgaY3qvG3QXLHA6ZZ+rlnKvBN8DQmT5a
+         JTb5Itv20Q1r0cVClehuJBwHYXfDPHzyd7bSvQOE4Dm6cTDro2w8Srvv0G1T7hCx72Q9
+         0IsRG7WVx9ZFkiDVZfjI+tDy06786Q699jvMV45l25EOFwZdHVRRAGDlRFhkFKhmTZfT
+         XLbQ==
+X-Forwarded-Encrypted: i=1; AHgh+RpUIaNjZM0FV8VrZBfaye9OhzeKfQ+T5vp+xcAcjs+lbzaPFoGGVJEVyKg7W3B0vwckzXNYPC9fakgx@vger.kernel.org
+X-Gm-Message-State: AOJu0YwqOdt4KPO4UJGqidPclAWQwtTyk3yq4nDJVnu9GsOBpf+oMzUg
+	HgGKfVXvaiAtpDnmmdVpdDb9c6pifAEp2qm/BEWa+9TvLjfRxulPMqLSiBtHzYRDBME=
+X-Gm-Gg: AfdE7ckXRU1gB0k8hMV+50gObCDEp5MRI1qayTEgTDcaaYIt/+B9bkZQLy6g9is5Ytk
+	rEDgsi/kMGT91Z0wnuQD+iQvHnAAFDF9bbrVLzssfHk/hwmSBM2PhrBYaVXHkZeJN2q4S93P6HE
+	sWEUne707PHZOTPOQMffrOJ18G9JFF2Nr5n3or6xV/Vggpr9Abpt6WIzC0kGcML9eOVPTPkKr8j
+	C+RASwJfAPhza1fjifnkRvA/mcw7qAx4c7Km6ObSt23hcAe9kLuhB/6nlkU95N7quCmwZI+ECrY
+	Utls7QmElr1+RZ3Abf1275h3hmk3h10Lk/Nt3zSz0/5w8UqtX1+CqO6pUeLBkBvV8XuE/VDwYrU
+	WjdhktaG0Kk3JT9gdZNkcAILeYApUnmTzrrGWc6absFCQ32m8Y0QiL2/FOUeFHqt4uKJ++it0Wc
+	D4zTdKvpICQ2KXqauRMk+Dj+xNmNqXFzlL
+X-Received: by 2002:a05:6512:1194:b0:5b0:12cf:ae18 with SMTP id 2adb3069b0e04-5b0236ade52mr2002807e87.47.1783933113266;
+        Mon, 13 Jul 2026 01:58:33 -0700 (PDT)
+Received: from localhost ([140.209.217.211])
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5b01caa5c4csm2737736e87.57.2026.07.13.01.58.31
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 13 Jul 2026 01:58:32 -0700 (PDT)
+Date: Mon, 13 Jul 2026 10:58:28 +0200
+From: Jiri Pirko <jiri@resnulli.us>
+To: Zhu Yanjun <yanjun.zhu@linux.dev>
+Cc: linux-rdma@vger.kernel.org, cgroups@vger.kernel.org, 
+	netdev@vger.kernel.org, linux-s390@vger.kernel.org, linux-kselftest@vger.kernel.org, 
+	jgg@ziepe.ca, leon@kernel.org, parav@nvidia.com, mbloch@nvidia.com, 
+	cmeiohas@nvidia.com, roman.gushchin@linux.dev, bvanassche@acm.org, 
+	zyjzyj2000@gmail.com, shuah@kernel.org, tj@kernel.org, mkoutny@suse.com, 
+	hannes@cmpxchg.org, alibuda@linux.alibaba.com, dust.li@linux.alibaba.com, 
+	sidraya@linux.ibm.com, wenjia@linux.ibm.com
+Subject: Re: [PATCH rdma-next 13/13] RDMA/selftests: Add rxe_netns_names test
+Message-ID: <alSoo59MP6b34Uk8@FV6GYCPJ69>
+References: <20260709095532.855647-1-jiri@resnulli.us>
+ <20260709095532.855647-14-jiri@resnulli.us>
+ <ebb4125e-6d35-44c9-b1b8-267dc3226b81@linux.dev>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <ebb4125e-6d35-44c9-b1b8-267dc3226b81@linux.dev>
 
-Thank you for your contribution! Sashiko AI review found 4 potential issue(=
-s) to consider:
+Fri, Jul 10, 2026 at 06:24:25AM +0200, yanjun.zhu@linux.dev wrote:
+>
+>在 2026/7/9 2:55, Jiri Pirko 写道:
+>> From: Jiri Pirko <jiri@nvidia.com>
+>> 
+>> Add a kselftest script that exercises per-netns RDMA device naming
+>> with RXE. Cover duplicate names across namespaces, move conflict
+>> handling, move-with-rename, and same-namespace rename requests.
+>
+>This is a very comprehensive test suite for the per-netns RDMA device naming
+>infra.
+>
+>I especially appreciate the inclusion of the 'TEST_TEARDOWN_RETURN'
+>case—ensuring
+>
+>that the kernel's automatic renaming and fallback mechanics work seamlessly
+>during
+>
+>netns deletion is crucial for long-term stability.
+>
+>
+>One minor thing to clean up before pushing to the tree: the script declares
+>'ktap_set_plan 7'
+>
+>but actually defines 6 distinct test cases in the execution block. I will fix
+>this plan count to 6
 
-Pre-existing issues:
-- [Critical] Lack of guest-provided AIBV/AISB address boundary validation a=
-llows arbitrary host memory corruption.
-- [High] Missing cleanup on KVM_S390_ZPCIOP_REG_AEN overwrite and failure p=
-aths causes resource leaks and silent failures.
-- [High] Missing NULL pointer check for airq_iv_create() return value cause=
-s a host kernel panic.
-- [High] Reference count leak of user_struct and unsafe memory un-accountin=
-g context corrupts memory quotas.
---
+Correct. Leftover, will fix.
 
---- Patch [1]: [GIT PULL 1/5] KVM: s390: pci: Fix GISC refcount leak on AIF=
- enable failure ---
-commit 3845d6e353bdaf75c36ec128cd79d6dddde46a80
-Author: Haoxiang Li <haoxiang_li2024@163.com>
 
-KVM: s390: pci: Fix GISC refcount leak on AIF enable failure
-   =20
-kvm_s390_gisc_register() registers the guest ISC before pinning
-the guest interrupt forwarding pages and allocating the AISB bit.
-If any of the later setup steps fails, the function unwinds the
-pinned pages and other local state, but does not unregister the
-GISC reference. Add the missing kvm_s390_gisc_unregister() to the
-error unwind path.
+>
+>to avoid any "bad plan" warnings in automated CI frameworks (like KernelCI).
+>
+>
+>Aside from that, the cleanup paths and setup tracking are solid.
+>
+>Thanks for adding this.
+>
+>Reviewed-by: Zhu Yanjun <yanjun.zhu@linux.dev>
 
-> diff --git a/arch/s390/kvm/pci.c b/arch/s390/kvm/pci.c
-> index 5b075c38998e3..686113be05309 100644
-> --- a/arch/s390/kvm/pci.c
-> +++ b/arch/s390/kvm/pci.c
-> @@ -328,6 +328,7 @@ static int kvm_s390_pci_aif_enable(struct zpci_dev *z=
-dev, struct zpci_fib *fib,
->  unpin1:
->  	unpin_user_page(aibv_page);
->  out:
-> +	kvm_s390_gisc_unregister(kvm, fib->fmt0.isc);
 
-[Severity: High]
-This isn't a bug introduced by this patch, but does this function properly
-handle failure paths and repeated calls?
+Thanks!
 
-If a guest repeatedly issues the KVM_S390_ZPCIOP_REG_AEN ioctl, is there a
-check to prevent blindly overwriting existing allocations?
 
-arch/s390/kvm/pci.c:kvm_s390_pci_aif_enable() {
-    ...
-    zdev->aibv =3D airq_iv_create(...);
-    ...
-}
-
-Also, if airq_iv_alloc_bit() fails, it appears we jump to unlock without
-setting a negative rc or calling unaccount_mem(pcount):
-
-    bit =3D airq_iv_alloc_bit(aift->sbv);
-    if (bit =3D=3D -1UL)
-        goto unlock;
-
-Additionally, if kvm_zpci_set_airq() fails, it looks like we return the err=
-or
-without rolling back the pinned pages, adapter event bits, or memory
-accounting:
-
-    rc =3D kvm_zpci_set_airq(zdev);
-    return rc;
-
-Could these paths lead to resource leaks or silent failures if the hardware
-rejects the registration?
-
-[Severity: High]
-This is a pre-existing issue, but is it possible for airq_iv_create() to
-return NULL here?
-
-arch/s390/kvm/pci.c:kvm_s390_pci_aif_enable() {
-    ...
-    zdev->aibv =3D airq_iv_create(msi_vecs, AIRQ_IV_DATA |
-                                AIRQ_IV_BITLOCK |
-                                AIRQ_IV_GUESTVEC,
-                                phys_to_virt(fib->fmt0.aibv));
-    ...
-}
-
-If the host is under memory pressure and airq_iv_create() fails, we
-immediately assign NULL to zdev->aibv. Then in kvm_zpci_set_airq(), it looks
-like this is unconditionally dereferenced:
-
-arch/s390/kvm/pci.c:kvm_zpci_set_airq() {
-    ...
-    fib.fmt0.noi =3D airq_iv_end(zdev->aibv);
-    ...
-}
-
-Can this lead to a host kernel panic if guest userspace triggers the
-registration ioctl?
-
-[Severity: Critical]
-This is a pre-existing issue, but are the bounds of the guest-provided
-addresses adequately validated here?
-
-arch/s390/kvm/pci.c:kvm_s390_pci_aif_enable() {
-    ...
-    npages =3D pin_user_pages_fast(hva, 1, FOLL_WRITE | FOLL_LONGTERM, page=
-s);
-    ...
-    gaddr =3D page_to_phys(aibv_page) + (fib->fmt0.aibv & ~PAGE_MASK);
-    fib->fmt0.aibv =3D gaddr;
-    ...
-}
-
-The code pins exactly 1 page. However, could msi_vecs require more space th=
-an
-what remains in the page from the provided offset?=20
-
-If a guest provides an unaligned physical address near the end of a page, a=
-nd
-the interrupt vectors require more space (up to 256 bytes), might the
-hardware's DMA write cross the page boundary into unpinned host physical
-memory?
-
-[Severity: High]
-This isn't a bug introduced by this patch, but how do the memory accounting
-functions handle the user_struct reference count and quotas?
-
-arch/s390/kvm/pci.c:account_mem() {
-    ...
-    struct user_struct *user =3D get_uid(current_user());
-    ...
-}
-
-It seems we increment the user_struct refcount with get_uid() but never free
-it, nor do we store the user pointer for accurate future teardown.=20
-
-Then in unaccount_mem():
-
-arch/s390/kvm/pci.c:unaccount_mem() {
-    ...
-    struct user_struct *user =3D get_uid(current_user());
-
-    if (user)
-        atomic_long_sub(nr_pages, &user->locked_vm);
-    ...
-}
-
-Does this leak a user_struct reference on each call? Furthermore, if teardo=
-wn
-happens in a different context (such as a kernel thread during hot-unplug),
-could it subtract quotas from an unrelated process instead of the process t=
-hat
-originally registered the AEN?
-
->  	return rc;
->  }
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260713083007.6586=
-3-2-borntraeger@de.ibm.com?part=3D1
+>
+>Zhu Yanjun
+>
+>> 
+>> Signed-off-by: Jiri Pirko <jiri@nvidia.com>
+>> ---
+>>   tools/testing/selftests/rdma/Makefile         |   3 +-
+>>   tools/testing/selftests/rdma/config           |   2 +
+>>   .../testing/selftests/rdma/rxe_netns_names.sh | 282 ++++++++++++++++++
+>>   3 files changed, 286 insertions(+), 1 deletion(-)
+>>   create mode 100755 tools/testing/selftests/rdma/rxe_netns_names.sh
+>> 
+>> diff --git a/tools/testing/selftests/rdma/Makefile b/tools/testing/selftests/rdma/Makefile
+>> index 07af7f15c1bf..a91c14c45006 100644
+>> --- a/tools/testing/selftests/rdma/Makefile
+>> +++ b/tools/testing/selftests/rdma/Makefile
+>> @@ -3,6 +3,7 @@ TEST_PROGS := rxe_rping_between_netns.sh \
+>>   		rxe_ipv6.sh \
+>>   		rxe_socket_with_netns.sh \
+>>   		rxe_test_NETDEV_UNREGISTER.sh \
+>> -		rxe_sent_rcvd_bytes.sh
+>> +		rxe_sent_rcvd_bytes.sh \
+>> +		rxe_netns_names.sh
+>>   include ../lib.mk
+>> diff --git a/tools/testing/selftests/rdma/config b/tools/testing/selftests/rdma/config
+>> index 4ffb814e253b..e1ff54ec0f57 100644
+>> --- a/tools/testing/selftests/rdma/config
+>> +++ b/tools/testing/selftests/rdma/config
+>> @@ -1,3 +1,5 @@
+>>   CONFIG_TUN
+>>   CONFIG_VETH
+>> +CONFIG_DUMMY
+>> +CONFIG_NET_NS
+>>   CONFIG_RDMA_RXE
+>> diff --git a/tools/testing/selftests/rdma/rxe_netns_names.sh b/tools/testing/selftests/rdma/rxe_netns_names.sh
+>> new file mode 100755
+>> index 000000000000..a7e57706fdff
+>> --- /dev/null
+>> +++ b/tools/testing/selftests/rdma/rxe_netns_names.sh
+>> @@ -0,0 +1,282 @@
+>> +#!/bin/bash
+>> +# SPDX-License-Identifier: GPL-2.0
+>> +#
+>> +# Exercise RDMA device name handling across network namespaces.
+>> +
+>> +source "$(dirname "$0")/../kselftest/ktap_helpers.sh"
+>> +
+>> +NAME_PREFIX="rxe_netns_names_$$"
+>> +NETDEV_PREFIX="rxn$$"
+>> +NS1="${NAME_PREFIX}ns1"
+>> +NS2="${NAME_PREFIX}ns2"
+>> +RXE_A="${NAME_PREFIX}rxe_a"
+>> +RXE_B="${NAME_PREFIX}rxe_b"
+>> +RXE_SAME="${NAME_PREFIX}rxe_same"
+>> +RXE_NEW="${NAME_PREFIX}rxe_new"
+>> +DUMMY_A="${NETDEV_PREFIX}a"
+>> +DUMMY_B="${NETDEV_PREFIX}b"
+>> +OLD_MODE=""
+>> +MODE_CHANGED=0
+>> +MODS=("dummy" "rdma_rxe")
+>> +TEST_SAME_NAMES="same RDMA device name can exist in two net namespaces"
+>> +TEST_MOVE_CONFLICT="move without rename fails on destination name conflict"
+>> +TEST_MOVE_RENAME="move then rename succeeds"
+>> +TEST_COMBINED_MOVE_RENAME="move with requested destination name succeeds"
+>> +TEST_SAME_NETNS_DUP_RENAME="same-netns rename rejects duplicate name"
+>> +TEST_TEARDOWN_RETURN="netns delete returns device to init_net and renames on conflict"
+>> +
+>> +ksft_skip()
+>> +{
+>> +	ktap_skip_all "$*"
+>> +	exit "$KSFT_SKIP"
+>> +}
+>> +
+>> +fail()
+>> +{
+>> +	ktap_exit_fail_msg "$*"
+>> +}
+>> +
+>> +need_cmd()
+>> +{
+>> +	command -v "$1" >/dev/null 2>&1 || ksft_skip "missing command: $1"
+>> +}
+>> +
+>> +rdma_ns()
+>> +{
+>> +	local ns=$1
+>> +
+>> +	shift
+>> +	ip netns exec "$ns" rdma "$@"
+>> +}
+>> +
+>> +rdma_dev_exists()
+>> +{
+>> +	local ns=$1
+>> +	local dev=$2
+>> +
+>> +	if [ -n "$ns" ]; then
+>> +		rdma_ns "$ns" dev show "$dev" >/dev/null 2>&1
+>> +	else
+>> +		rdma dev show "$dev" >/dev/null 2>&1
+>> +	fi
+>> +}
+>> +
+>> +add_dummy()
+>> +{
+>> +	local netdev=$1
+>> +
+>> +	ip link add "$netdev" type dummy || return 1
+>> +	ip link set "$netdev" up || return 1
+>> +}
+>> +
+>> +add_rxe()
+>> +{
+>> +	local dev=$1
+>> +	local netdev=$2
+>> +
+>> +	rdma link add "$dev" type rxe netdev "$netdev"
+>> +}
+>> +
+>> +rdma_dev_on_netdev()
+>> +{
+>> +	local netdev=$1
+>> +
+>> +	rdma link show 2>/dev/null | awk -v want="$netdev" '
+>> +		{
+>> +			for (i = 1; i < NF; i++)
+>> +				if ($i == "netdev" && $(i + 1) == want) {
+>> +					dev = $2
+>> +					sub(/\/.*/, "", dev)
+>> +					print dev
+>> +					exit
+>> +				}
+>> +		}'
+>> +}
+>> +
+>> +wait_rdma_dev_on_netdev()
+>> +{
+>> +	local netdev=$1
+>> +	local dev
+>> +	local i
+>> +
+>> +	for i in $(seq 1 50); do
+>> +		dev=$(rdma_dev_on_netdev "$netdev")
+>> +		if [ -n "$dev" ]; then
+>> +			echo "$dev"
+>> +			return 0
+>> +		fi
+>> +		sleep 0.1
+>> +	done
+>> +
+>> +	return 1
+>> +}
+>> +
+>> +setup_devs()
+>> +{
+>> +	cleanup_devs
+>> +
+>> +	add_dummy "$DUMMY_A" || return 1
+>> +	add_dummy "$DUMMY_B" || return 1
+>> +
+>> +	add_rxe "$RXE_A" "$DUMMY_A" || return 1
+>> +	add_rxe "$RXE_B" "$DUMMY_B" || return 1
+>> +}
+>> +
+>> +cleanup_devs()
+>> +{
+>> +	ip link del "$DUMMY_A" 2>/dev/null
+>> +	ip link del "$DUMMY_B" 2>/dev/null
+>> +}
+>> +
+>> +setup()
+>> +{
+>> +	OLD_MODE=$(rdma system show 2>/dev/null |
+>> +		   sed -n 's/.*netns \([^ ]*\).*/\1/p')
+>> +	[ -n "$OLD_MODE" ] || ksft_skip "failed to read RDMA netns mode"
+>> +
+>> +	rdma system set netns exclusive >/dev/null 2>&1 ||
+>> +		ksft_skip "rdma netns exclusive mode is not supported"
+>> +	MODE_CHANGED=1
+>> +
+>> +	ip netns add "$NS1" || return 1
+>> +	ip netns add "$NS2" || return 1
+>> +}
+>> +
+>> +cleanup()
+>> +{
+>> +	cleanup_devs
+>> +
+>> +	ip netns del "$NS1" 2>/dev/null
+>> +	ip netns del "$NS2" 2>/dev/null
+>> +
+>> +	if [ "$MODE_CHANGED" -eq 1 ]; then
+>> +		rdma system set netns "$OLD_MODE" 2>/dev/null
+>> +	fi
+>> +
+>> +	for m in "${MODS[@]}"; do
+>> +		modprobe -r "$m" 2>/dev/null
+>> +	done
+>> +}
+>> +
+>> +rdma_supports_combined_move_rename()
+>> +{
+>> +	rdma dev help 2>&1 | grep -Eq 'netns .*name|name .*netns'
+>> +}
+>> +
+>> +[ "$(id -u)" -eq 0 ] || ksft_skip "must be run as root"
+>> +need_cmd ip
+>> +need_cmd rdma
+>> +need_cmd modprobe
+>> +
+>> +trap cleanup EXIT
+>> +
+>> +for m in "${MODS[@]}"; do
+>> +	modinfo "$m" >/dev/null 2>&1 || ksft_skip "module $m not found"
+>> +	modprobe "$m" || fail "failed to load $m"
+>> +done
+>> +
+>> +setup || fail "failed to create net namespaces"
+>> +
+>> +ktap_print_header
+>> +ktap_set_plan 7
+>> +
+>> +if setup_devs &&
+>> +   rdma dev set "$RXE_A" netns "$NS1" &&
+>> +   rdma_ns "$NS1" dev set "$RXE_A" name "$RXE_SAME" &&
+>> +   rdma dev set "$RXE_B" netns "$NS2" &&
+>> +   rdma_ns "$NS2" dev set "$RXE_B" name "$RXE_SAME" &&
+>> +   rdma_dev_exists "$NS1" "$RXE_SAME" &&
+>> +   rdma_dev_exists "$NS2" "$RXE_SAME"; then
+>> +	ktap_test_pass "$TEST_SAME_NAMES"
+>> +else
+>> +	ktap_test_fail "$TEST_SAME_NAMES"
+>> +fi
+>> +cleanup_devs
+>> +
+>> +if ! setup_devs ||
+>> +   ! rdma dev set "$RXE_A" netns "$NS1" ||
+>> +   ! rdma_ns "$NS1" dev set "$RXE_A" name "$RXE_SAME" ||
+>> +   ! rdma dev set "$RXE_B" netns "$NS2" ||
+>> +   ! rdma_ns "$NS2" dev set "$RXE_B" name "$RXE_SAME"; then
+>> +	ktap_test_fail "$TEST_MOVE_CONFLICT"
+>> +elif rdma_ns "$NS1" dev set "$RXE_SAME" netns "$NS2" >/dev/null 2>&1; then
+>> +	ktap_test_fail "$TEST_MOVE_CONFLICT"
+>> +elif rdma_dev_exists "$NS1" "$RXE_SAME" &&
+>> +     rdma_dev_exists "$NS2" "$RXE_SAME"; then
+>> +	ktap_test_pass "$TEST_MOVE_CONFLICT"
+>> +else
+>> +	ktap_test_fail "$TEST_MOVE_CONFLICT"
+>> +fi
+>> +cleanup_devs
+>> +
+>> +if ! setup_devs; then
+>> +	ktap_test_fail "$TEST_MOVE_RENAME"
+>> +elif rdma dev set "$RXE_A" netns "$NS2" &&
+>> +     rdma_ns "$NS2" dev set "$RXE_A" name "$RXE_NEW"; then
+>> +	if rdma_dev_exists "$NS2" "$RXE_NEW" &&
+>> +	   ! rdma_dev_exists "" "$RXE_A"; then
+>> +		ktap_test_pass "$TEST_MOVE_RENAME"
+>> +	else
+>> +		ktap_test_fail "$TEST_MOVE_RENAME"
+>> +	fi
+>> +else
+>> +	ktap_test_fail "$TEST_MOVE_RENAME"
+>> +fi
+>> +cleanup_devs
+>> +
+>> +if ! rdma_supports_combined_move_rename; then
+>> +	ktap_test_skip "$TEST_COMBINED_MOVE_RENAME"
+>> +elif ! setup_devs; then
+>> +	ktap_test_fail "$TEST_COMBINED_MOVE_RENAME"
+>> +elif rdma dev set "$RXE_A" netns "$NS2" name "$RXE_NEW"; then
+>> +	if rdma_dev_exists "$NS2" "$RXE_NEW" &&
+>> +	   ! rdma_dev_exists "" "$RXE_A"; then
+>> +		ktap_test_pass "$TEST_COMBINED_MOVE_RENAME"
+>> +	else
+>> +		ktap_test_fail "$TEST_COMBINED_MOVE_RENAME"
+>> +	fi
+>> +else
+>> +	ktap_test_fail "$TEST_COMBINED_MOVE_RENAME"
+>> +fi
+>> +cleanup_devs
+>> +
+>> +if ! setup_devs; then
+>> +	ktap_test_fail "$TEST_SAME_NETNS_DUP_RENAME"
+>> +elif rdma dev set "$RXE_A" name "$RXE_SAME" &&
+>> +     rdma dev set "$RXE_B" name "$RXE_NEW"; then
+>> +	if rdma dev set "$RXE_A" name "$RXE_NEW" >/dev/null 2>&1; then
+>> +		ktap_test_fail "$TEST_SAME_NETNS_DUP_RENAME"
+>> +	elif rdma_dev_exists "" "$RXE_SAME" &&
+>> +	     rdma_dev_exists "" "$RXE_NEW"; then
+>> +		ktap_test_pass "$TEST_SAME_NETNS_DUP_RENAME"
+>> +	else
+>> +		ktap_test_fail "$TEST_SAME_NETNS_DUP_RENAME"
+>> +	fi
+>> +else
+>> +	ktap_test_fail "$TEST_SAME_NETNS_DUP_RENAME"
+>> +fi
+>> +cleanup_devs
+>> +
+>> +if ! setup_devs; then
+>> +	ktap_test_fail "$TEST_TEARDOWN_RETURN"
+>> +elif ! rdma dev set "$RXE_A" name "$RXE_SAME" ||
+>> +     ! rdma dev set "$RXE_B" netns "$NS2" ||
+>> +     ! rdma_ns "$NS2" dev set "$RXE_B" name "$RXE_SAME" ||
+>> +     ! rdma_dev_exists "$NS2" "$RXE_SAME"; then
+>> +	ktap_test_fail "$TEST_TEARDOWN_RETURN"
+>> +else
+>> +	ip netns del "$NS2"
+>> +	returned=$(wait_rdma_dev_on_netdev "$DUMMY_B")
+>> +	ktap_print_msg "device returned to init_net as '${returned:-<missing>}'"
+>> +	if rdma_dev_exists "" "$RXE_SAME" &&
+>> +	   [ -n "$returned" ] &&
+>> +	   [ "$returned" != "$RXE_SAME" ] &&
+>> +	   [ "${returned#ibdev}" != "$returned" ]; then
+>> +		ktap_test_pass "$TEST_TEARDOWN_RETURN"
+>> +	else
+>> +		ktap_test_fail "$TEST_TEARDOWN_RETURN"
+>> +	fi
+>> +fi
+>> +cleanup_devs
+>> +
+>> +ktap_finished
+>
+>-- 
+>Best Regards,
+>Yanjun.Zhu
+>
