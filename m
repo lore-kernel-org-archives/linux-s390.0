@@ -1,148 +1,163 @@
-Received: from mail-qv1-f43.google.com (mail-qv1-f43.google.com [209.85.219.43])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0B30C344D9D
-	for <linux-s390@vger.kernel.org>; Mon, 13 Jul 2026 18:11:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C773F353A85;
+	Mon, 13 Jul 2026 18:21:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783966263; cv=none; b=gv6QnTp8gdLPU+NTalGdemNtPrFQX6dzhqWLdGaPcjPO1ptaIp4+7VvWyohN8T+8K0lPTwrO0ATvXHmcxWahAubW0g44g+TXs3/0JzdPaRZYyJngiClvI2cBPK9E3gWFIdxguvIeerm10gqnjEOqF83XK8XkMw55e3m5g43cBsg=
+	t=1783966902; cv=none; b=qlBJhvo0fdhjuCCw2SkN2DCYr3B7ERyCoDhtsaT814uiqnqBj47QkTVC26iBOp780OfWaAYMpz2Bkdtga1Xh5Uq89R+4ZrxDvlWnukdvHNZHvpHPnMfV7Pd8A276J+Z3hLurkYOzf8968plFs/lxokgJFk9c2F2/ExElt3ugz6U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783966263; c=relaxed/simple;
-	bh=YUh8//1CawO0lxzXPLb9x+Xef1uhNSh6FnuTiN+bISs=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=iHlTPbijDGgj37kNqTntzJ4d/SIFxU3VLRDms5OHcltE+dpKm4seZY6BPXIKCTmDRioSYbtWCpyYuSfaFdsTw3lxb8Pff3daLRB51lTSa6jehClHNouwAOVA8olT1kOdsxpYh+WzfAiKdyzpTKy8WRQzEW+9GhXhFqCk+85OBvs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca; spf=pass smtp.mailfrom=ziepe.ca; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=KiTpIKkI; arc=none smtp.client-ip=209.85.219.43
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
+	s=arc-20240116; t=1783966902; c=relaxed/simple;
+	bh=/wtvZXQk8dHl7nx+WqHqBTN6NjaZl9MwBV5LpHyjSbU=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=iV2jUcVMeHlF72PLi+o7fufSAxey9p8Ncjkgg92p0j3QDc7jpsu4rpvNQANH9vSXXy823qU+bGbEvoEXbjzPPUe+WZPN6vhqop7/mnKTsFL6UvLArrGdTyugKIWrkmT0eBzsqj+Uk5jw7JlV0+PWa8dHnRdq//sMOYSrL5WZyCo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Wri4PbOh; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="KiTpIKkI"
-Received: by mail-qv1-f43.google.com with SMTP id 6a1803df08f44-8ee43b3e5abso28288396d6.3
-        for <linux-s390@vger.kernel.org>; Mon, 13 Jul 2026 11:11:01 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google; t=1783966261; x=1784571061; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=r3LqUwIJYp9NQ4diqGbAZyVDrYnzRQFmiULYhYdIqPw=;
-        b=KiTpIKkIyki9rkN22uLrIR75iMI+J4LNxKsOCvX8GGZgaI1rL69EeFpaM0oMLdEokx
-         7+djrj0P+1ZixAHXWZIQRFAXGG/6GosFltYENUQ2Ya9FLZYtTka6UCnzZJkwoRhbBcvT
-         04wjfLRc8L2TTwiUb0riww8PdXrSIUJghsELEgZ2P1AUidZxRW6I7aqnzHwib7zTJmXb
-         JeE0l88pcp4j3TrDjGFe1c9oJPhjAZYZmyq+0emBpaiA+ZAA7/48FCATYDjG+UgKxrt2
-         0GBH5ONjgl2ld39EI7Es+2dE1NElC3gMmsPGGlsw1lNxjBGqik8Wc6EL5ECBrdU9RUIi
-         AkIw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783966261; x=1784571061;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=r3LqUwIJYp9NQ4diqGbAZyVDrYnzRQFmiULYhYdIqPw=;
-        b=QueqQ6exWjRl3ECkOdIsomMPN4gb2KGel/Wc0aYNykMVqEJouyqFrhybQiM49wwffa
-         azzUcJi4yzSnbVa6W7WhKILwNkpROS4f11IFfUJHAB49kaEI2cENXCat5tx1fHc8aQwP
-         E6O6oGtxg8V9XyPxHCUTuoZB3bTdp7fbG9VFUK8ZMC5/OwU0Mlru8PQxAPySevwXfo+9
-         /xvfFgqg65Rngn0jClj2rfLSvJCwTTOU49JeMS+M1RZOofWJERKFjqKBdN3j2GsOYlRV
-         XqHeNH34ajkKEzKLm9JIMp3JYG1nq8SfkLKkDcp1TW/kVdMSz8QVIQvjXVG5rLH6Wqsn
-         q7tA==
-X-Forwarded-Encrypted: i=1; AHgh+Ror066sfv0uT41W5vpYCR9vnVAHVaXA1wtk0/JjaRjHki1/uM1AErHPGPfwPPaNKqJsxKR6lJm/0hOx@vger.kernel.org
-X-Gm-Message-State: AOJu0YwhsgYVjgjK6bQdT6hvmO0Hb7GfG+hJ3hBUC2JzPn2dGJuIVKM+
-	1LbexkTOnqXdmENa0VrC6ZXT7pSxwWo8pFVfNN9hT9G4nl3LpyNb82Vu6TzhkZ00T+c=
-X-Gm-Gg: AfdE7cmJrMJFkdlM/05iysiiFsfuAdrGDV+6RJ9TXWCSoYuQLApOaNrS31yL/l3HvNc
-	/c42pGu0gJIDHszmYhz5FAHJ1D2zsrahIHaH6fxNLX2xMV7cVjdzkFW2olhfGU0kYGB1XFkwkQT
-	9Ti/+Ybf6zLatUDNAmKaofI0jtHETOOf06k3/d+xXJ9FmHXFKLZybuLs4XXlmzts9RwW9cNCdl1
-	TWeyyAjq6Ok1Nw8KEZfpeLmNem0q54jvJLBjAvJPC4sASTCCP9CiandHHV3bg9RcCH5rxy1sj6v
-	QxWnlcjQvRDmFFWpkWDK9ulN1rTcL2q80MycefeSEYfL24iwWaSRjgAk22dKeWWdfvKBbHVvFcI
-	OII0bw+ExJ029IuMYLG7pEeGinAxb1QgS4NmK3VCTrIidxoyHu9E1YKuJ3gK7
-X-Received: by 2002:a05:6214:601a:b0:8f6:8677:7ea5 with SMTP id 6a1803df08f44-90402c68ee8mr99154096d6.37.1783966260999;
-        Mon, 13 Jul 2026 11:11:00 -0700 (PDT)
-Received: from ziepe.ca ([159.2.72.92])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8ffd5bbac2asm135284216d6.21.2026.07.13.11.11.00
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 13 Jul 2026 11:11:00 -0700 (PDT)
-Received: from jgg by wakko with local (Exim 4.97)
-	(envelope-from <jgg@ziepe.ca>)
-	id 1wjL7L-0000000DyOu-42Rk;
-	Mon, 13 Jul 2026 15:10:59 -0300
-Date: Mon, 13 Jul 2026 15:10:59 -0300
-From: Jason Gunthorpe <jgg@ziepe.ca>
-To: "Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org>
-Cc: iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev,
-	Robin Murphy <robin.murphy@arm.com>,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
-	Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
-	Steven Price <steven.price@arm.com>,
-	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Jiri Pirko <jiri@resnulli.us>, Mostafa Saleh <smostafa@google.com>,
-	Petr Tesarik <ptesarik@suse.com>,
-	Alexey Kardashevskiy <aik@amd.com>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Xu Yilun <yilun.xu@linux.intel.com>, linuxppc-dev@lists.ozlabs.org,
-	linux-s390@vger.kernel.org,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org,
-	Michael Kelley <mhklinux@outlook.com>
-Subject: Re: [PATCH v7 04/22] dma: free atomic pool pages by physical address
-Message-ID: <20260713181059.GL3133966@ziepe.ca>
-References: <20260701054926.825925-1-aneesh.kumar@kernel.org>
- <20260701054926.825925-5-aneesh.kumar@kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Wri4PbOh"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66DFEZpD2833178;
+	Mon, 13 Jul 2026 18:21:36 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=2KowTR
+	FgB52ZiLjBHaKUQY4xVTvQlighuuY235chHCQ=; b=Wri4PbOhVEa3+b8bM4Sn/w
+	MAD99CmWHxTsiKdvSt/3KtJxULzzL15ksPhDDTPemeH3kD4ZW7fBoyqp/1V3nyzh
+	6HtVzrEoDs4oR7BoxP43EzAl/mBKvMSnemyI6IrSHcAK3u4DAc9FGs22N19sVW1w
+	2LYVHxBls/XifhSK2KnPKk2HPMlvzpU524407awggDuAeCfcY+aIMv0Xl1wz+aJM
+	pRf+CYgEYtuyYR4z9q/pplnqiAfh21TIoVfo5wJMc2nRdKIGJm8ocwAbWzWLfru1
+	eHo9JutYuuB/fmUGylvvEQxgZHO4hERcfeDf/NCeVLNWp9wyAfwBt9NNCyGqdCOw
+	==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fbegbhuqh-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 13 Jul 2026 18:21:36 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66DIJgYp014367;
+	Mon, 13 Jul 2026 18:21:35 GMT
+Received: from smtprelay04.wdc07v.mail.ibm.com ([172.16.1.71])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fc05py8he-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 13 Jul 2026 18:21:35 +0000 (GMT)
+Received: from smtpav03.wdc07v.mail.ibm.com (smtpav03.wdc07v.mail.ibm.com [10.39.53.230])
+	by smtprelay04.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66DILXJn59506982
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 13 Jul 2026 18:21:34 GMT
+Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id DC7955805A;
+	Mon, 13 Jul 2026 18:21:33 +0000 (GMT)
+Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 09AC558054;
+	Mon, 13 Jul 2026 18:21:33 +0000 (GMT)
+Received: from [9.61.249.24] (unknown [9.61.249.24])
+	by smtpav03.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Mon, 13 Jul 2026 18:21:32 +0000 (GMT)
+Message-ID: <030005d7-d87b-4eed-966c-5bb48ff31997@linux.ibm.com>
+Date: Mon, 13 Jul 2026 11:21:32 -0700
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260701054926.825925-5-aneesh.kumar@kernel.org>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v21 0/4] [PCI] Error recovery for vfio-pci devices on
+ s390x
+To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-pci@vger.kernel.org
+Cc: helgaas@kernel.org, alex@shazbot.org, schnelle@linux.ibm.com,
+        mjrosato@linux.ibm.com
+References: <20260630164807.643-1-alifm@linux.ibm.com>
+Content-Language: en-US
+From: Farhan Ali <alifm@linux.ibm.com>
+In-Reply-To: <20260630164807.643-1-alifm@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=fOcJG5ae c=1 sm=1 tr=0 ts=6a552cb0 cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+ a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VwQbUJbxAAAA:8
+ a=VnNF1IyMAAAA:8 a=r1p2_3pzAAAA:8 a=29iEHxvmWTY-H69hz_cA:9 a=QEXdDO2ut3YA:10
+ a=O8hF6Hzn-FEA:10 a=r_pkcD-q9-ctt7trBg_g:22
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzEzMDE4OSBTYWx0ZWRfX2TJ2lYc4Y6PI
+ KfL+r1cLKOQlfH6ag7OMkp/t4bo3/CtIfQFCWbayYq9Bm4kyGr5pUPMR1SgN20zh27dwxBni2nW
+ d0nU3Uc1tGl9on76XA19xPFZkw3LVilSdcTzmJWgN2gRrgW50ZM49lSPwFEKFp7vlS1M91ASaYY
+ ywiagG+JrBjjPdl2nWE6iDMImzPLnN2sCwHQNpq44qMbZ+47S3ivWCxCWZrac30QPMIukBQrm0/
+ J/uVDHnqgT+9yaarbjt1zDj2+NYeMtF4yBN5K299nhTz/6ndo/cDTKYyKuV9KFyn9AjfVfr2DvT
+ 0tZpq8vx/Qni089p7e7nQmLKX9ufYWYGXOtUejYAK7W0006XGQz3F5R05JfAfM7MfbaJhHnUEOa
+ wJSO/BB4Oa7+lFm/GEfyKQ3dtRGdOTmey+Ny6dtwGkdsds5erHUNK6J+q8unyS4fclsq7bb3+Mm
+ lp9KqDYNpIRSLRvWoYA==
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzEzMDE4OSBTYWx0ZWRfX8tiMEbFElmSd
+ /9DjGp3o6shVYO7mscmnty8f42s9T+k44QVXTXzBfEpYSGrLb0pi/XtP1JTbxiI0bqNzXLgQvB/
+ zGwKV4B9p9/EECbVToCIPzzk9770dGg=
+X-Proofpoint-GUID: DJ_XcHPg9W_54-WhCaqfAxr0JK0NrPb3
+X-Proofpoint-ORIG-GUID: DJ_XcHPg9W_54-WhCaqfAxr0JK0NrPb3
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-07-13_04,2026-07-10_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ spamscore=0 bulkscore=0 impostorscore=0 suspectscore=0 adultscore=0
+ priorityscore=1501 malwarescore=0 clxscore=1015 phishscore=0
+ lowpriorityscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2607130189
 
-On Wed, Jul 01, 2026 at 11:19:08AM +0530, Aneesh Kumar K.V (Arm) wrote:
-> dma_direct_alloc_pages() may satisfy atomic allocations from the coherent
-> atomic pools. The pool allocation is keyed by the virtual address stored in
-> the gen_pool, but the pages API returns only the backing struct page.
-> 
-> On architectures with CONFIG_DMA_DIRECT_REMAP, atomic pool chunks are added
-> to the gen_pool using their remapped virtual address.
-> dma_direct_free_pages() reconstructs a linear-map address with
-> page_address(page) and passes that to dma_free_from_pool(). That address
-> does not match the gen_pool virtual range, so the pool lookup can fail and
-> the code can fall through to freeing a pool-owned page through the normal
-> page allocator path.
-> 
-> Add a page-based pool free helper that looks up the owning pool chunk by
-> physical address, translates it back to the gen_pool virtual address, and
-> frees that address to the pool. Use it from dma_direct_free_pages() while
-> keeping the existing virtual-address helper for coherent allocation frees.
-> 
-> Tested-by: Michael Kelley <mhklinux@outlook.com>
-> Tested-by: Mostafa Saleh <smostafa@google.com>
-> Signed-off-by: Aneesh Kumar K.V (Arm) <aneesh.kumar@kernel.org>
-> ---
->  include/linux/dma-map-ops.h |  1 +
->  kernel/dma/direct.c         |  4 +--
->  kernel/dma/pool.c           | 54 +++++++++++++++++++++++++++++++++++++
->  3 files changed, 57 insertions(+), 2 deletions(-)
+Polite ping for this series.
 
-This seems pretty suboptimal?
+Thanks
 
-If !CONFIG_DMA_DIRECT_REMAP then page_to_virt() was used to compute
-the genpool's addr so dma_free_from_pool_page() can use the same
-logic, which is how things must be working at all today
+Farhan
 
-The CONFIG_DMA_DIRECT_REMAP scenario does look broken, so I'm
-surprised there isn't a Fixes line on this commit? I don't have an
-opinion on the search, but since alloc_pages() is used there is 8
-bytes in the struct page that could be used to store the remapped
-vaddr to avoid the search if someday someone wants to improve
-this. Maybe a small comment hinting that direction would be a nice
-addition.
-
-Jason
+On 6/30/2026 9:48 AM, Farhan Ali wrote:
+> Hi Bjorn,
+>
+> This patch set includes only the PCI patches of the original series for
+> error recovery for vfio-pci devices on s390x [1]. Breaking up the patch
+> series into PCI and VFIO only patches to make merging easier based on
+> discussion with Alex [2].
+>
+> Thanks
+> Farhan
+>
+> [1] https://lore.kernel.org/all/20260520171113.1111-1-alifm@linux.ibm.com/
+> [2] https://lore.kernel.org/all/20260602163344.1eda12d2@shazbot.org/
+>
+> ChangeLog
+> ---------
+> v20 https://lore.kernel.org/all/20260622171840.1618-1-alifm@linux.ibm.com/
+> v20 -> v21
+>    - Amend commit message to include Fixes tag and cc stable (patch 4).
+>    - Rebase on 7.2-rc1.
+>
+> v19 https://lore.kernel.org/all/20260615183524.2880-1-alifm@linux.ibm.com/
+> v19 -> v20
+>    - Unconditionally enable Memory bit while restoring MSI-X (patch 4).
+>    Fixes an issue found with sashiko.
+>
+> v18 https://lore.kernel.org/all/20260603181647.2215-1-alifm@linux.ibm.com/
+> v18 -> v19
+>    - Move config space accessible check to pcie_flr() function (based on
+>    discussion of Sashiko review)
+>
+>    - Fix a gap in MSI-X restoration (patch 4).
+>
+>    - Rebase on 7.1-rc7
+>
+> v17 -> v18
+>    - Rebase on 7.1-rc6.
+>
+> Farhan Ali (4):
+>    PCI: Allow per function PCI slots to fix slot reset on s390
+>    PCI: Avoid saving config space state if inaccessible
+>    PCI: Fail FLR when config space is inaccessible
+>    PCI/MSI: Enable memory decoding before restoring MSI-X messages
+>
+>   drivers/pci/hotplug/rpaphp_slot.c |  2 +-
+>   drivers/pci/msi/msi.c             | 10 ++++++++++
+>   drivers/pci/pci.c                 | 32 ++++++++++++++++++++++++++++--
+>   drivers/pci/slot.c                | 33 +++++++++++++++++++++++--------
+>   include/linux/pci.h               |  8 ++++++--
+>   5 files changed, 72 insertions(+), 13 deletions(-)
+>
