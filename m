@@ -1,189 +1,159 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B9883F39DB
-	for <linux-s390@vger.kernel.org>; Tue, 14 Jul 2026 08:40:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AAD003F822A;
+	Tue, 14 Jul 2026 08:45:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784018410; cv=none; b=skwNvQ+p7CrpOf5F8tptPhZRsVM+YAS2rgWvHPtBp5ta/h6fLOWnmBWNXTUzLMVgIQT6JMhIasbJrY8d2X97gh3O+EoEe+MqGPwtu0ounQm1JyNkqWWRpWckD1k8X70BZWPOE2Dv2f9wU54tJkbU7kOTu/WR/GtQqt26ywIW+mg=
+	t=1784018705; cv=none; b=G0O04CbQZzi3rP+ixbNIqkbtqvzQT4pX0sEzyzQ3SnmOjrP1X66y0vx1zlebXXM2wBcgeZVQKdC7yi8Z3v44/fU0MZXCNwo3o8qs8m7Jm3IyFx483qMjcQBN0lR+c2r2pmu9+AmBIdLLgn0WAgCbfALtkmHLz+6PYDPQcdF7gY0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784018410; c=relaxed/simple;
-	bh=tBC5GAfYqzzIKHW4i9rpzCVQlvK4uJUv+NEEABETIBA=;
+	s=arc-20240116; t=1784018705; c=relaxed/simple;
+	bh=xtJvXATLVpOo96Z5w9TpLQQp4beYZGsCl2yQMCKVago=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=iIuV28wQiaO/8JfqUjdhg4/1PyitaeNb5NbC2bTV5VV8ceKn1ZKaRR6XINfUdLlGAhRfVuvAn+oUuBFIjDpAc4EuvAwrjyDD0LKSo5xLYKjJ1WUdHrGWIOTlva5NWBEOsNPkqymXO7LeXlzMxHyHjX4vBPCDUIy9qUGai2SnAJg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=fd90Yu/v; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=ZLKthYKr; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=swPFPzDc; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=yGiPbGwq; arc=none smtp.client-ip=195.135.223.130
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	 Content-Type:Content-Disposition:In-Reply-To; b=Jm92AzzCcCmvsJl++N+Io2Ga1BdC3rw6LV3wpjzF6xTWHLGwyQuKfhldJk0hjymLpEACXS0wd6K97Dp1X9BPc9nEJxEnKG9+wQdCbeBLFSk/i1pNrx7lyvHFo55JpFGb0YOHPel7CsW55LEauGnYOMmPM7JdhE76eGAirr1cq2w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=p9Ww0pKM; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="fd90Yu/v";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="ZLKthYKr";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="swPFPzDc";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="yGiPbGwq"
-Received: from kunlun.suse.cz (unknown [IPv6:2a07:de40:b306:2000::2])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (prime256v1) server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id BFAE277D88;
-	Tue, 14 Jul 2026 08:40:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1784018403; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=w9715Yz9COQgcSHQikGgGymVBJrFS/wJDfe2eKWAzmY=;
-	b=fd90Yu/vYqin+DOmDo2grtNXGLfs/4fl+7Ivvh4GJRpGOavVQ0e0E35Sv7Ow7Aaxd/A/Q2
-	i4gB8qLldsbRqxmXPDhEacFuNqb8gaLjdP1esJ5/W4GyNh6LYdzY0m0hiJKJEu86lwsy6r
-	n8O+jsJQgHwWcMDbOVg4RL49AkwH0Bs=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1784018403;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=w9715Yz9COQgcSHQikGgGymVBJrFS/wJDfe2eKWAzmY=;
-	b=ZLKthYKrCuejE3fTIMfqv83NTR83YNCQml6R8ku17Vga3LwVRNbnafLfo6b0SX47fqIJoB
-	i0VeYcs90YvokhBg==
-Authentication-Results: smtp-out1.suse.de;
-	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=swPFPzDc;
-	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=yGiPbGwq
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1784018402; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=w9715Yz9COQgcSHQikGgGymVBJrFS/wJDfe2eKWAzmY=;
-	b=swPFPzDcs8ZGYwuQDuJ0V5yul8A9oQIF/esqALj1kVj0w9dIfq3r+3W7zxHry1UROiQ+80
-	oqSZbbTm7ZmLh4N0ZOb4kxQpomPOCgb+Q9XcWvFEXCapw8CQA0kITGEqapRNisjdoHdpf5
-	5zekOTzHk/+6np+AAxSb2SQ7aTKvL18=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1784018402;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=w9715Yz9COQgcSHQikGgGymVBJrFS/wJDfe2eKWAzmY=;
-	b=yGiPbGwqtW7Lt8OjX6gJRodZOTMEtzl9msgc/30cP/QVfPyq7E2RA0QfMPO3OGCKfQc4Nc
-	IWnrgidLqmHVo0Dg==
-Date: Tue, 14 Jul 2026 10:40:01 +0200
-From: Michal =?iso-8859-1?Q?Such=E1nek?= <msuchanek@suse.de>
-To: Thomas Gleixner <tglx@kernel.org>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Shrikanth Hegde <sshegde@linux.ibm.com>,
-	linuxppc-dev@lists.ozlabs.org, Huacai Chen <chenhuacai@kernel.org>,
-	loongarch@lists.linux.dev, Paul Walmsley <pjw@kernel.org>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	linux-riscv@lists.infradead.org,
-	Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org,
-	x86@kernel.org, Mark Rutland <mark.rutland@arm.com>,
-	Jinjie Ruan <ruanjinjie@huawei.com>,
-	Magnus Lindholm <linmag7@gmail.com>,
-	"Mukesh Kumar Chaurasiya (IBM)" <mkchauras@gmail.com>,
-	Jonathan Corbet <corbet@lwn.net>, Radu Rendec <radu@rendec.net>
-Subject: Re: [patch 4/4] entry, treewide: Make
- syscall_enter_from_user_mode[_work]() indicate syscall execution
-Message-ID: <alX14R_pxloY_baW@kunlun.suse.cz>
-References: <20260712134433.549076055@kernel.org>
- <20260712141346.772209074@kernel.org>
- <alSlg72c8xmjaj48@kunlun.suse.cz>
- <871pd6r0ou.ffs@fw13>
- <alXlSUcT2TWOlM7r@kunlun.suse.cz>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="p9Ww0pKM"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66E6fvh3547331;
+	Tue, 14 Jul 2026 08:44:50 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=fu8oy/MSKMY83NKDFpT0hU2LxVQFj+
+	CVw58Zd+ZHMHc=; b=p9Ww0pKM0EUKwYF6y0Q0HSiS3GueYKQWuJuooUiVfMcnGT
+	KDwFjLP6hKd5ZDDVVzqlWbCYJD6mSWOsqtkpGPEDgpOB/MeLqPRuMETlBAfZEM74
+	bq8eKqqZCxzg/z289IIdxuoku6yN5hrK7ifJQJKRpdPVmRy8JCSx9BEJY2Sj4Et+
+	tQBuC7tby1E4382aT6FsQiGteEDJKmLi4+Of/oN1QA37x2RNLaUh0DogyF43Yt48
+	bsj72JoWMpbJ8aruU3T/R894LlVPMJXYuMmNgTTyv29YVQsOVgX1AWgKnXCIBKh3
+	yZu8EHJrWIQJG4kDZ5IedzYfGD0bjZsCkYMQzrqg==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fbegbmnva-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 14 Jul 2026 08:44:50 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66E8YcMZ017063;
+	Tue, 14 Jul 2026 08:44:49 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fc15jst4j-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 14 Jul 2026 08:44:49 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66E8ijoq39322028
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 14 Jul 2026 08:44:45 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B864020043;
+	Tue, 14 Jul 2026 08:44:45 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8E3F320040;
+	Tue, 14 Jul 2026 08:44:45 +0000 (GMT)
+Received: from osiris (unknown [9.224.76.185])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Tue, 14 Jul 2026 08:44:45 +0000 (GMT)
+Date: Tue, 14 Jul 2026 10:44:44 +0200
+From: Steffen Eiden <seiden@linux.ibm.com>
+To: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, borntraeger@de.ibm.com,
+        frankja@linux.ibm.com, david@kernel.org, nrb@linux.ibm.com,
+        schlameuss@linux.ibm.com, gra@linux.ibm.com
+Subject: Re: [PATCH v2 2/7] KVM: s390: Return -EFAULT instead of
+ PGM_ADDRESSING
+Message-ID: <20260714084444.55132-I-seiden@linux.ibm.com>
+References: <20260713150857.269954-1-imbrenda@linux.ibm.com>
+ <20260713150857.269954-3-imbrenda@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <alXlSUcT2TWOlM7r@kunlun.suse.cz>
-X-Spamd-Bar: ++++++++++++++
-X-Rspamd-Queue-Id: BFAE277D88
-X-Spam-Flag: YES
-X-Spam-Score: 14.86
-X-Spam-Level: **************
-X-Rspamd-Action: add header
-X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
-X-Spamd-Result: default: False [14.86 / 50.00];
-	SPAM_FLAG(5.00)[];
-	NEURAL_SPAM_LONG(3.50)[1.000];
-	BAYES_HAM(-3.00)[100.00%];
-	NEURAL_SPAM_SHORT(2.67)[0.891];
-	HFILTER_HOSTNAME_UNKNOWN(2.50)[];
-	RDNS_NONE(2.00)[];
-	ONCE_RECEIVED(1.20)[];
-	HFILTER_HELO_IP_A(1.00)[kunlun.suse.cz];
-	HFILTER_HELO_NORES_A_OR_MX(0.30)[kunlun.suse.cz];
-	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	MIME_GOOD(-0.10)[text/plain];
-	MX_GOOD(-0.01)[];
-	FUZZY_RATELIMITED(0.00)[rspamd.com];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	RCPT_COUNT_TWELVE(0.00)[19];
-	ARC_NA(0.00)[];
-	MIME_TRACE(0.00)[0:+];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com];
-	TO_DN_SOME(0.00)[];
-	DNSWL_BLOCKED(0.00)[2a07:de40:b306:2000::2:from];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	RCVD_COUNT_ZERO(0.00)[0];
-	DKIM_TRACE(0.00)[suse.de:+];
-	MISSING_XM_UA(0.00)[];
-	FREEMAIL_CC(0.00)[vger.kernel.org,ellerman.id.au,linux.ibm.com,lists.ozlabs.org,kernel.org,lists.linux.dev,dabbelt.com,lists.infradead.org,arm.com,huawei.com,gmail.com,lwn.net,rendec.net];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:dkim,kunlun.suse.cz:mid,kunlun.suse.cz:helo]
-X-Spam: Yes
+In-Reply-To: <20260713150857.269954-3-imbrenda@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=fOcJG5ae c=1 sm=1 tr=0 ts=6a55f702 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=kj9zAlcOel0A:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8
+ a=Ut07lfCzzDaAezmImtMA:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzE0MDA5MCBTYWx0ZWRfX9EQCtyd14Y0X
+ mbDQsPCFSe5vzbi61E9teVu2GYSXMUuGdz2nmArIpBosTywvOc4EH01zFJ26yWnrVHQqZf4Ypnj
+ s0JsL8klL+8/N7CorhoKN9swBVH5P18lJdMh650nMUxXddFVbCEESvvdCZXBCD+VKkxtDbASGzf
+ W1N37zzySCLMp9ZuwviJ+ebtw6T0MsSFF+noheUvpeW2Bxyw4yQ7Ky95ZoFzqvgAUqaneKfLFMu
+ 7wFqCkBPfQ6e4cf/WMRPTID4ho5gRxZACP0A2ImVY1+XcG732t2R31KyG29kc9QeHCLA3BwxJN2
+ r+luy/A0dxHfB0GwsLlOcghzqS4FDpUtlqVBrueFAYvAfkIAVW0jwxXMEFf+BDqhA+glIaCVGgY
+ Rg5SklrZUcE25vMVTAJkHGvP5rjHvjwHlsCkuKy0hwIsfloDO97SsVhM47N6qrqx/kYqXypgr5R
+ HSS3xDmQitcwXIKs4YQ==
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzE0MDA5MCBTYWx0ZWRfX084txLcyWect
+ x8HYMGXIOxltdTaxymgActj2iTq0jpdTk2eP7FlKU0vaThwYlWShTzsgxNXvH7m/X0pQsqvPzru
+ 0IX+6kODZEo2g9f4GPnwyK8qjNzIS1g=
+X-Proofpoint-GUID: Zk6BuJTj3vi8nghNhuT5oznMEmd2wyZw
+X-Proofpoint-ORIG-GUID: Zk6BuJTj3vi8nghNhuT5oznMEmd2wyZw
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-07-14_02,2026-07-10_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ spamscore=0 bulkscore=0 impostorscore=0 suspectscore=0 adultscore=0
+ priorityscore=1501 malwarescore=0 clxscore=1015 phishscore=0
+ lowpriorityscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2607140090
 
-On Tue, Jul 14, 2026 at 09:29:13AM +0200, Michal Suchánek wrote:
-> On Tue, Jul 14, 2026 at 12:20:49AM +0200, Thomas Gleixner wrote:
-> > On Mon, Jul 13 2026 at 10:44, Michal Suchánek wrote:
-> > > On Sun, Jul 12, 2026 at 11:25:32PM +0200, Thomas Gleixner wrote:
-> > >> The return values of syscall_enter_from_user_mode[_work]() are
-> > >> non-intuitive. Both functions return the syscall number which should be
-> > >> invoked by the architecture specific syscall entry code. The returned
-> > >> number can be:
-> > >> 
-> > >>   - the unmodified syscall number which was handed in by the caller
-> > >> 
-> > >>   - a modified syscall number (ptrace, seccomp, trace/probe/bpf)
-> > >> 
-> > >> That has an additional twist. If the return value is -1L then the caller is
-> > >> not allowed to modify the return value as that indicates that the modifying
-> > >> entity requests to abort the syscall and set the return value already. That
-> > >> can obviously not be differentiated from a syscall which handed in -1 as
-> > >> syscall number.
-> > >> 
-> > >> The most trivial way to deal with that is:
-> > >> 
-> > >>     set_return_value(regs, -ENOSYS);
-> > >>     nr = syscall_enter_from_user_mode(regs, nr);
-> > >>     if (valid(nr))
-> > >>     	handle_syscall(regs, nr);
-> > >> 
-> > >> That's what LOONGARCH, RISCV, and X86 do. But PowerPC and S390 do not
-> > >> preset the return value, so when user space hands in -1 and there is
-> > >> nothing setting the return value in the entry work code, then the syscall
-> > >> is skipped but the return value is whatever random data has been in the
-> > >> return value register.
-> > >
-> > > The reason why PowerPC and S390 do not preset the return value is that
-> > > the return value uses the same register as the syscall number. There are
-> > > apparently other architectures on which the return value overlaps with
-> > > the arguments which also do not preset the return value for that reason.
-> > > If they would use the generic entry the same problem would arise.
-> > 
-> > That's an implementation choice of PPC/S390 as I explained before, which
-> > could trivially be solved by having an explicit pt_regs->return_val
-> > member,
+On Mon, Jul 13, 2026 at 05:08:52PM +0200, Claudio Imbrenda wrote:
+> If kvm_s390_set_cmma_bits() is asked to set CMMA values outside of a
+> memslot, PGM_ADDRESSING (5) is returned, instead of a negative error
+> value. Same issue with kvm_s390_{g,s}et_skeys().
+> 
+> Fix by returning -EFAULT whenever the return value would be > 0, which
+> is consistent with the behaviour before the gmap rewrite.
+> 
+> Fixes: e38c884df921 ("KVM: s390: Switch to new gmap")
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> ---
+>  arch/s390/kvm/kvm-s390.c | 6 +++---
+>  1 file changed, 3 insertions(+), 3 deletions(-)
+> 
+> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> index 374dae6dae81..53691aaf6534 100644
+> --- a/arch/s390/kvm/kvm-s390.c
+> +++ b/arch/s390/kvm/kvm-s390.c
+> @@ -2212,7 +2212,7 @@ static int kvm_s390_get_skeys(struct kvm *kvm, struct kvm_s390_skeys *args)
+>  	}
+>  
+>  	kvfree(keys);
+> -	return r;
+> +	return r <= 0 ? r : -EFAULT;
+>  }
+>  
+>  static int kvm_s390_set_skeys(struct kvm *kvm, struct kvm_s390_skeys *args)
+> @@ -2274,7 +2274,7 @@ static int kvm_s390_set_skeys(struct kvm *kvm, struct kvm_s390_skeys *args)
+>  	kvm_s390_free_mmu_cache(mc);
+>  out:
+>  	kvfree(keys);
+> -	return r;
+> +	return r <= 0 ? r : -EFAULT;
+>  }
+>  
+>  /*
+> @@ -2384,7 +2384,7 @@ static int kvm_s390_set_cmma_bits(struct kvm *kvm,
+>  
+>  	set_bit(GMAP_FLAG_USES_CMM, &kvm->arch.gmap->flags);
+>  
+> -	return r;
+> +	return r <= 0 ? r : -EFAULT;
+>  }
 
-Sorry, I got confused, and was looking at the previous revision of the
-patchset.
+Wouldnt it make more sense to let dat_set_cmma_bits return -EFAULT?
+(there the PGM_ADDRESSING might come from)
 
-In this revision I do not see any obvious problem that did not exist
-before.
+at least change the documentation of this function that it might return
+PGM_ADDRESSING in case of an error.
 
-Thanks
+Similary, dat_{g,s}et_storage_keys may return -EFAULT or at least have
+this behaviour documented.
 
-Michal
+
+	Steffen
