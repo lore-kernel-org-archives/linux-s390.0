@@ -1,116 +1,139 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qk1-f180.google.com (mail-qk1-f180.google.com [209.85.222.180])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E6D6D39150A
-	for <linux-s390@vger.kernel.org>; Tue, 14 Jul 2026 12:07:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 88056370ACC
+	for <linux-s390@vger.kernel.org>; Tue, 14 Jul 2026 12:22:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784030836; cv=none; b=G60idxB0yeEkUTOwGXaZ2yollAp76SRePBU5VPCEwRadUyIqq3S4YYMCG8IkQtXbm+p/AWLtg8VGIHOHHJXH7Ham8tiCYMLa++9AARfRzl/67VV6JlHrUJ7PCy7ljzwmzUdRnXbjDGQRxFJbNlCAJiQ1upmd+K2z22yALARRpRc=
+	t=1784031770; cv=none; b=g27b7FnKE4OTd0X6u49xCrChTyVLWLYrVgxvlH0V/zIdwZIfrRhN4lE/cfQKUcN5Ew7huSqmTJO3JBIEhR8LZ4/p/bZm8S+xRl9tHVLC7hEYNTVFijsckibyN4j/ObRdkRTl2xTP9Q4ZMkDptd1z4d/kuGjNs9KU1dUiyvz3uWk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784030836; c=relaxed/simple;
-	bh=0jqC4pdgB5lh1c5ytRbxc+y6qmUNtrAu8ZSvYVWXHV4=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=OtqgRKXJ/hBQ7RPp52HOvRwOVCEdg/lAN0SOdlOTGxHsxJIGf5CrKd9yCRql9iylx9ygyeOZ24voEc6cox5NF76XEpnyLO0iQvy5+q8LuxX9z608OkoM2sO6d8LT6jLqrdPlq0/kB+5dIVuYikjeNX9fHlJ99Ek7fYwETHQmOfo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=eeLdex9w; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1784031770; c=relaxed/simple;
+	bh=Gu04W+cCiiM26ZsyHUMdXjMPrm/Duv/aZB+CYp/Nq1c=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=W5+PNS/nmgcIHhMW11FlWRkNP6s6ssifOJ1Ua97V+nsfsywYMMKJPl9RUNQTZlEIiArkp+sp0fqH1vIad3ygNbovXK2A1G97HtuaIAZNSjRbI8/zCn8RuJyNMkrB4WRfq1AObzLkdlz9yv89Zly3jUsCkGjZESK17aPlEULtmio=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca; spf=pass smtp.mailfrom=ziepe.ca; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=kXbSuiGs; arc=none smtp.client-ip=209.85.222.180
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="eeLdex9w"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66EBgOjZ1129788;
-	Tue, 14 Jul 2026 12:07:07 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=ufBEGs
-	eW3AA2+IsycrjZ1tEFevajLJn5Ikcdb01JhqU=; b=eeLdex9wPWWAEWqjM+KTUM
-	+mpm6nxMtM9V9Mgd8N0Ijg1WMmdd5sAOrmLLFPEyNz26hTxSy140iN364rXL14iL
-	Y2k+ZwUTS6HvtBVq3IvRl5xv1LkIMdYsN4ZoUrKK0o48wgV8pRtKBPUkTV05VWdW
-	1uaXkz2Onx+G/qQsqcPenLFBQk19cZXw6j+k9RBsGQvE/69uJRr3LSuhjonmJv3I
-	vDikMMvcxZCNrSHBdRZ3hHoLiYDl8E/luUrX9XzDJjQPyc+DYiKhNe0lAWy6k7O7
-	2s2p7gL6gloi1PFb34xYKkDWBnkV6tlJaEACgCsZoXlwyKMuVdAbYrrjtdp89/FQ
-	==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fbexwnf2u-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 14 Jul 2026 12:07:07 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66EC4b17006430;
-	Tue, 14 Jul 2026 12:07:06 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fc2uy2b08-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 14 Jul 2026 12:07:06 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66EC73dQ25690600
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 14 Jul 2026 12:07:03 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1AAAD20043;
-	Tue, 14 Jul 2026 12:07:03 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id BBA3420040;
-	Tue, 14 Jul 2026 12:07:02 +0000 (GMT)
-Received: from [0.0.0.0] (unknown [9.111.75.242])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 14 Jul 2026 12:07:02 +0000 (GMT)
-Message-ID: <920fea2e-5557-4cc5-ad7f-887558116215@linux.ibm.com>
-Date: Tue, 14 Jul 2026 14:07:02 +0200
+	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="kXbSuiGs"
+Received: by mail-qk1-f180.google.com with SMTP id af79cd13be357-92ea24a2dbfso317289685a.0
+        for <linux-s390@vger.kernel.org>; Tue, 14 Jul 2026 05:22:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ziepe.ca; s=google; t=1784031754; x=1784636554; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=5CIAv+UZ8t7s5h+WlDS73yJMkdztMQ3zXG2Fxq/to8M=;
+        b=kXbSuiGsizaJGXnP5Oe10d3MmN6ZDiAdGtR2MPNJ1vRy5smGbDLppm2hUD/hE4rqd4
+         WijR9WOS40i+6nBD4RjrDWNfRrspbtfZqht1Vns+WDsFh4mxdQCT/wIa+4PFhElgQ4on
+         jj4YtFlthd4AGtMZarD8Tk7xwGUecfLGEhFYVhLN6vdAjHKMW/PgHrGSchgkVMRTfOme
+         VO3Y8nrYrYL2xD14FNxaLerz9QcyrB7VpG/BbRV2iCMcZaFuIGlvA+Quo98Wu9ImqfXg
+         rlaNePbbMd2NzvQLK2zQiPZuKJImliERRpHt+Y3bNC8diF6RuUL4S02PN7jDPy0wx8Qm
+         K9qg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784031754; x=1784636554;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=5CIAv+UZ8t7s5h+WlDS73yJMkdztMQ3zXG2Fxq/to8M=;
+        b=mErJQezwSIi5bu+gMu0bQ3CT681M1UyT6WRSbLQL0qyCp1EW3AxuWz3A8b9EtW6qzb
+         MV0nBNbWFh10ixE7CQ2UpGnFBAJy/NnaoeezsXeelnL3iV5OmOPWYEcygamBLKwpUiPv
+         8MCGPEIWIqXooRMzBOHbeiAn+zjGoTo/6PHnNjw9WgwZGZcezJ8v+vxhfynFdZPlXzef
+         8pezIYszGiuD20ta/67NEQsmNQ6RqVSLvKES7yu3lmRE400REwF0pKQpCiWBKrVZX9nM
+         mhS5/FCofvmlW6ZDrwY605rSGOEDQT4cdv2JUNesoFfXiJhEU/yGll9Hlkj67jpJdiVq
+         upKw==
+X-Forwarded-Encrypted: i=1; AHgh+Rrt3mf4GoNHaZZgBZ4RwyjPwrRlC1gUXszqUDXPvRqQmt7vZWtGy0jPZoaKrAh5Lh+ASdCIDlAMNWLP@vger.kernel.org
+X-Gm-Message-State: AOJu0YxIFjZTQscKmpjlE1+wEpnosiTlZnrXG/vTGPHES4u5eypfMMWN
+	04Wke3z3FWtEoP+pRZpbZ8sAr/r+uztQrLVyV17i0RgFe6aRvWK0SXCElyY58ZNeEEQ=
+X-Gm-Gg: AfdE7cnnVQyM7uuzNUxl9C/sHWKlQCzHZwkDjiOpMGp6TUmskljGiz+SlBP/YZagANf
+	e9h4Ev12GgAU77q0Pago4vrlTNDaqClAiJigH7UgtQngH8bRqJvpIfnVwLLsmN9a6OQOgvOmtUT
+	pANiacpLNtNXnOKLkYc/xq46+4Ty8Ry/7d0MjeIjd8h+8xwHi9Za0CGezXiOcjMU/nijoKxVyjs
+	7+ATXBL7fzYGIYP79UR6jQOFG5Z86lBKm7lmza+EosK+0K7TL+bNHKUGrBoSr2T8ZlpvzjNUU3T
+	OCnnOZBgNhM4Rnv2BuCxGqXuXFaZKEOXNSexIeNL6bAgw88XTUSjARDPpIu+SeIBtHAD72F43Iy
+	svGCq93hIzQwATzrcmStSx9ZvYrrpb9Kd0JOSdCQIPbmQsceBMH+iTm1aTHUn
+X-Received: by 2002:a05:620a:7085:b0:92e:6bbf:966e with SMTP id af79cd13be357-92ef2cb202cmr1211484585a.45.1784031754284;
+        Tue, 14 Jul 2026 05:22:34 -0700 (PDT)
+Received: from ziepe.ca ([159.2.72.92])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8ffd82ea9casm164927486d6.42.2026.07.14.05.22.33
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 14 Jul 2026 05:22:33 -0700 (PDT)
+Received: from jgg by wakko with local (Exim 4.97)
+	(envelope-from <jgg@ziepe.ca>)
+	id 1wjc9g-0000000FRaG-0ohM;
+	Tue, 14 Jul 2026 09:22:32 -0300
+Date: Tue, 14 Jul 2026 09:22:32 -0300
+From: Jason Gunthorpe <jgg@ziepe.ca>
+To: "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>
+Cc: iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev,
+	Robin Murphy <robin.murphy@arm.com>,
+	Marek Szyprowski <m.szyprowski@samsung.com>,
+	Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
+	Steven Price <steven.price@arm.com>,
+	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Jiri Pirko <jiri@resnulli.us>, Mostafa Saleh <smostafa@google.com>,
+	Petr Tesarik <ptesarik@suse.com>,
+	Alexey Kardashevskiy <aik@amd.com>,
+	Dan Williams <dan.j.williams@intel.com>,
+	Xu Yilun <yilun.xu@linux.intel.com>, linuxppc-dev@lists.ozlabs.org,
+	linux-s390@vger.kernel.org,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org,
+	Michael Kelley <mhklinux@outlook.com>
+Subject: Re: [PATCH v7 02/22] dma-pool: fix page leak in atomic_pool_expand()
+ cleanup
+Message-ID: <20260714122232.GE3133966@ziepe.ca>
+References: <20260701054926.825925-1-aneesh.kumar@kernel.org>
+ <20260701054926.825925-3-aneesh.kumar@kernel.org>
+ <20260713175433.GI3133966@ziepe.ca>
+ <yq5azezumef6.fsf@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v12 16/17] docs/s390: Document CPACF instructions support
-To: Harald Freudenberger <freude@linux.ibm.com>, richard.henderson@linaro.org,
-        david@kernel.org, thuth@redhat.com, berrange@redhat.com
-Cc: qemu-s390x@nongnu.org, qemu-devel@nongnu.org, linux-s390@vger.kernel.org,
-        dengler@linux.ibm.com, borntraeger@linux.ibm.com,
-        fcallies@linux.ibm.com, cohuck@redhat.com
-References: <20260710152906.80207-1-freude@linux.ibm.com>
- <20260710152906.80207-17-freude@linux.ibm.com>
-Content-Language: en-US
-From: Ilya Leoshkevich <iii@linux.ibm.com>
-In-Reply-To: <20260710152906.80207-17-freude@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: -Xg7fSMsXB_ZGFrtmYuKeefH2sbRdjxK
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzE0MDEyMiBTYWx0ZWRfXx8B1p2GAu7xh
- M44Q0SZ2V+WOpLZAtbfZnVYkcV1oZ+8VSz1G7ts+aw49Ig4RN7npqliiuOkiHKh2etHm1wYArOv
- GWtDqyJhe/9AZofSEsTGy75GDYpTVbS/j/E4oCRYnXgWTp5kcOilqfQ/p4CX+kzo8nf1cwifQtS
- m8NdY5E4cOZBRs3ponAPLAimTz65JEKT2ovFh+5yLSE1zyDepN7KwZGsqBK5gvnZGOXVWuvjlxr
- bM3+TdLN/IS0ChsJvPINCmCGAQnFv19LwHfWFPY5ct5E23wXHzlNaaAg/RYbSL0Myp80u8mFKph
- hHsxbBeJJehxfGTCFjnWW1yMbarAY3WwyBCz6sXSLnof8uBpMeuek7IQbO2Zginjs/IQPyRA64h
- sqBvrZNW6uo5A7yu2WKjG0PpOFS1gbu4CpaY2kDiB1f9+WHXxyLG+W/PwT1M0sDT0pmzBnvPHD9
- +f0155MeARdkkNz99OQ==
-X-Authority-Analysis: v=2.4 cv=XJoAjwhE c=1 sm=1 tr=0 ts=6a56266b cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8
- a=HKfntiqoSFCIcbcqxL8A:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-ORIG-GUID: -Xg7fSMsXB_ZGFrtmYuKeefH2sbRdjxK
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzE0MDEyMiBTYWx0ZWRfXxOrEHD87znLB
- P7Lx7Pohoupv1kMuEUThXjxntiMfpAY3PiauI+wRiFEkVBas8lzKVfJ0x51oPho8wesd10QRgR3
- +OSeuGH2zw/VVqZAEN7RajAUtljDNiY=
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-07-14_03,2026-07-10_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 adultscore=0 bulkscore=0 phishscore=0 lowpriorityscore=0
- priorityscore=1501 impostorscore=0 clxscore=1015 spamscore=0 malwarescore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607140122
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <yq5azezumef6.fsf@kernel.org>
 
-
-
-On 7/10/26 17:29, Harald Freudenberger wrote:
-> Add a first document covering the Qemu s390 CPACF instructions
-> and functions supported.
+On Tue, Jul 14, 2026 at 09:05:25AM +0530, Aneesh Kumar K.V wrote:
+> Jason Gunthorpe <jgg@ziepe.ca> writes:
 > 
-> Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
-> Reviewed-by: Finn Callies <fcallies@linux.ibm.com>
+> > On Wed, Jul 01, 2026 at 11:19:06AM +0530, Aneesh Kumar K.V (Arm) wrote:
+> >> @@ -115,8 +116,10 @@ static int atomic_pool_expand(struct gen_pool *pool, size_t pool_size,
+> >>  	 */
+> >>  	ret = set_memory_decrypted((unsigned long)page_to_virt(page),
+> >>  				   1 << order);
+> >> -	if (ret)
+> >> +	if (ret) {
+> >> +		leak_pages = true;
+> >>  		goto remove_mapping;
+> >> +	}
+> >
+> > Truely these _set_memory_decrypted() things are an insane API. So a if
+> > it fails to decrypt it can be in any messy state?
+> >
+> 
+> Yes, we could possibly try to encrypt the page again and, if that
+> succeeds, avoid leaking it. We might want to do that tree-wide in a
+> separate patch.
 
-Reviewed-by: Ilya Leoshkevich <iii@linux.ibm.com>
+IMHO it is a horrid API if failure leaves thing in an indeterminate
+state. For something like this I don't see why the arch FW implementation
+would be unable to restore things back to as they were on failure.
 
+But whatever, everything about set_memory_xx is really bad it could
+use a cleaning
+
+Jason
