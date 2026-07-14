@@ -1,190 +1,101 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ABD3347B409
-	for <linux-s390@vger.kernel.org>; Tue, 14 Jul 2026 14:54:46 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 74B7448AE15
+	for <linux-s390@vger.kernel.org>; Tue, 14 Jul 2026 14:56:20 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784040887; cv=none; b=YbHesJ5+dwtTRiGJ62RvtplSFvPD6kKjHIb9LNZ4LfKxiJRwAvxVA52artKZK5cC/9122+7NCP0CHBddHkJKMl1gyY3F4BSTaClGiRWsU4gksKvi/C7dSPdrsPdwL0H58UxuUHsqEunKAHUGrd+N3cVDvrvtnwBED35FUUrdS54=
+	t=1784040981; cv=none; b=P+rsw793uEbfdS0MJfeiToHn19XIBqK4IGk5dr439QQOBbiuHfmJadRfyOgHoegDF67fMoboja0eeYbvSiRBrQ46Uam+3jbNj4qyx7RJUy2W+jIivIaYlu/FhnF/eyd3cgQdogoa0FPVSlvPOjeKAr2LVj43DqBmVq3Cdgz1R2c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784040887; c=relaxed/simple;
-	bh=Mw9Q4dZSZywxIhl+yICNHBnTJTAInG4bkpaSeq/J8b4=;
+	s=arc-20240116; t=1784040981; c=relaxed/simple;
+	bh=5JfPAWKh6vT8PkEJtBPviRvgp/CPC9N8IJ6cdJdxrEM=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=kQvcUa2jFtmNOpUQ2Go18GTnKXn3eLgq0a3erQ0mY5bYCURHIPvkAGvYCJDJmNxCHs1OHcOWAPxVKOt8qpH4rdFhANBGEgQmbTIiQBO1UDdO3L0W4YpMm7wB6fvhenTECKK/BhdLIEGAcnUyc/3MZqf7yw6NBzeFQLW+s4nZmt4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=j9G/TrKJ; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=pSWCW7S3ssefMWUNoAz1C7yyiPmJoLV7irnNtqjJLh164zjQm2NDnnR7SHzW4nTQaXc2o7buTrwi2A1E6Y4iDQ/xyYGKTPzw9gVBKbcGz+bdTirh6csycQpUMGy/OhjD+g3yMh4bAPPxtVy4QTom2KhZ0yEhuIqg4tK3aGAabac=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=AEXpWRqn; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="j9G/TrKJ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38A871F00A3A;
-	Tue, 14 Jul 2026 14:54:46 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AEXpWRqn"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 049841F00A3A;
+	Tue, 14 Jul 2026 14:56:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784040886;
-	bh=fEBTMDbPdFH60vwhBD5gseSacUAcwfw39XKLo3Jvsgc=;
+	s=k20260515; t=1784040980;
+	bh=2RYdTq+gYczVW4aA6jRxLIWaR+XvVyXXFBQrwM7LaFA=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=j9G/TrKJMJoQvE3SIkHfSBLDcadFsRLhK1wqz/kvkKje7sGi8mKb/z+9HGJEmB2cl
-	 8zREepFI1kyXo7gJk7FsvXFHibu6iXJrLbGCCqs2hO8GsD6mT/HM6nXs4aNoeauQon
-	 aGrK3UV967cbntAZI35R1fWSC0aaHE4JZ05U5QYMMm1f2L4LRwFsDb8mimsE5OV85s
-	 C+I2NeTQQFfc5Hv8coTzdCt/fdzr/CS5OJa6sKAmAq7x4Hh71SlqbWQDaxgHNWRhQm
-	 W20per52hGkRbsOkm3gl03lXUHQ+dE8IsiU57qMeqvOSUCNQFhSKQqZkT1yCwDsw6o
-	 SUw9FIA/bVaUA==
+	b=AEXpWRqnDGKhRZWfAINAmnXIb6iYCjDiEaZQmO6Ygqqih4+1v89CtENAZuPiuWCgA
+	 GnA9d5E1nH6MNWvJISBSNuRtEEy3BYe/CIJBgVtqgt6JoqLHQpt4r8sveZRJnrLnSG
+	 s4aRUq0Q/pQfgF7cZIHKhONz5VRymrrHva5JyAL9luX8+KT5QHTeHIQ8nBeJosZ9Zv
+	 iKgJRXC0+hZVMHqEQBYtUuNNG1rPKuAbX+xzUaW1beCtePyBpthRUNvyv0mUDht12j
+	 yB5HBYaD0xgBsB23dXwKcCLBggliBqbvtcPFE5jLbPu9SndG0USw1z/cP8H8XC3wIx
+	 JzIsbBhbid+Gw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 13/22] mm: account page table pages when allocated
+Subject: Re: [PATCH 20/22] arm64: mm: drop ctor/dtor calls for kernel page
+ tables
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Kevin Brodsky" <kevin.brodsky@arm.com>
-Cc: "Vasily Gorbik" <gor@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, linux-s390@vger.kernel.org, "Alexander
- Gordeev" <agordeev@linux.ibm.com>
-In-Reply-To: <20260714-remove_pgtable_cdtor-v1-13-44be8a7685d7@arm.com>
+Cc: "Vasily Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>
+In-Reply-To: <20260714-remove_pgtable_cdtor-v1-20-44be8a7685d7@arm.com>
 References: <20260714-remove_pgtable_cdtor-v1-0-44be8a7685d7@arm.com>
- <20260714-remove_pgtable_cdtor-v1-13-44be8a7685d7@arm.com>
+ <20260714-remove_pgtable_cdtor-v1-20-44be8a7685d7@arm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 14 Jul 2026 14:54:45 +0000
-Message-Id: <20260714145446.38A871F00A3A@smtp.kernel.org>
+Date: Tue, 14 Jul 2026 14:56:19 +0000
+Message-Id: <20260714145620.049841F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 4 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [Medium] NR_PAGETABLE statistic leak on architectures that do not define =
-CONFIG_MMU_GATHER_TABLE_FREE.
-- [Medium] Direct calls to pagetable_dtor() followed by generic page freein=
-g functions bypass the NR_PAGETABLE decrement, causing stat leaks on ARM64 =
-memory hot-remove.
-- [Medium] SPARC32 SRMMU page tables completely lose NR_PAGETABLE accountin=
-g.
-- [Medium] Memory hot-remove and vmemmap teardown on x86 will underflow the=
- NR_PAGETABLE counter.
+- [High] Kernel page tables allocated during memory hotplug leak the NR_PAG=
+ETABLE stat and retain the PG_pgtable flag when freed, causing a buddy allo=
+cator BUG on reallocation.
 --
 
---- Patch [13]: [PATCH 13/22] mm: account page table pages when allocated -=
---
-commit 5c303720c0cd77f50e7b180d025a9a9869aab6a2
+--- Patch [20]: [PATCH 20/22] arm64: mm: drop ctor/dtor calls for kernel pa=
+ge tables ---
+commit eb398eca88012b977463df47eaf81e1fcd66213d
 Author: Kevin Brodsky <kevin.brodsky@arm.com>
-mm: account page table pages when allocated
 
-This commit moves memory accounting of pagetable pages from the ctor/dtor
-functions to pagetable_alloc() and pagetable_free() in order to improve
-accounting where ctor/dtor calls might be missing.
+arm64: mm: drop ctor/dtor calls for kernel page tables
+   =20
+This patch removes pagetable constructor and destructor calls for kernel
+page tables, under the assumption that they no longer perform necessary wor=
+k.
+It also removes the pgtable level callback arguments from the early
+allocation wrappers.
 
-Link: https://lore.kernel.org/r/20251113140448.1814860-3-willy@infradead.org
-
-> diff --git a/include/linux/mm.h b/include/linux/mm.h
-> index b336eb32faa05..361a0d7b74c51 100644
-> --- a/include/linux/mm.h
-> +++ b/include/linux/mm.h
-> @@ -3681,6 +3681,11 @@ static inline struct ptdesc *pagetable_alloc_nopro=
-f(gfp_t gfp, unsigned int orde
->  {
->  	struct page *page =3D alloc_pages_noprof(gfp | __GFP_COMP, order);
-> =20
-> +	if (!page)
-> +		return NULL;
-> +
-> +	lruvec_stat_add_folio(page_folio(page), NR_PAGETABLE);
-> +
->  	return page_ptdesc(page);
->  }
-
-[Severity: Medium]
-For architectures or code paths that allocate page tables without using
-pagetable_alloc_noprof(), will we now lose the NR_PAGETABLE accounting?
-
-For example, on SPARC32, pte_alloc_one() in arch/sparc/mm/srmmu.c allocates
-from a pre-allocated pool via srmmu_get_nocache() and previously relied on
-pagetable_pte_ctor() to increment the stat:
-
-arch/sparc/mm/srmmu.c:pte_alloc_one() {
-    ...
-	if (page_ref_inc_return(page) =3D=3D 2 &&
-		!pagetable_pte_ctor(mm, page_ptdesc(page))) {
-    ...
-}
-
-Similarly, the freeing path mirrors this bypass, using srmmu_free_nocache()
-instead of pagetable_free(). Does this change cause SPARC32 to completely
-lose user PTE accounting?
-
-> @@ -3689,6 +3694,8 @@ static inline void __pagetable_free(struct ptdesc *=
-pt)
->  {
->  	struct page *page =3D ptdesc_page(pt);
-> =20
-> +	lruvec_stat_sub_folio(page_folio(page), NR_PAGETABLE);
-> +
->  	__free_pages(page, compound_order(page));
->  }
-
-[Severity: Medium]
-Will this cause an underflow on x86 during memory hot-remove?
-
-In arch/x86/mm/init_64.c, free_pagetable() calls pagetable_free() (which
-now decrements the stat) during hot-remove:
-
-arch/x86/mm/init_64.c:free_pagetable() {
-    ...
-	if (PageReserved(page))
-		free_reserved_page(page);
-	else
-		pagetable_free(page_ptdesc(page));
-}
-
-However, these kernel page tables were originally allocated during hot-add
-with spp_getpage() or vmemmap_alloc_block_buf(). Both of these use base
-allocators and bypass pagetable_alloc_noprof().
-
-Because the stat is never incremented on allocation but is now decremented
-on free, does this cause an underflow?
+> diff --git a/arch/arm64/mm/mmu.c b/arch/arm64/mm/mmu.c
+> index f723bcf68174f..f1400c6f68ba7 100644
+> --- a/arch/arm64/mm/mmu.c
+> +++ b/arch/arm64/mm/mmu.c
 
 [ ... ]
 
-> @@ -3797,7 +3804,6 @@ static inline void __pagetable_ctor(struct ptdesc *=
-ptdesc)
->  	struct folio *folio =3D ptdesc_folio(ptdesc);
+> @@ -1445,7 +1410,6 @@ static void free_hotplug_page_range(struct page *pa=
+ge, size_t size,
 > =20
->  	__folio_set_pgtable(folio);
-> -	lruvec_stat_add_folio(folio, NR_PAGETABLE);
->  }
-> =20
->  static inline void pagetable_dtor(struct ptdesc *ptdesc)
-> @@ -3806,7 +3812,6 @@ static inline void pagetable_dtor(struct ptdesc *pt=
-desc)
-> =20
->  	ptlock_free(ptdesc);
->  	__folio_clear_pgtable(folio);
-> -	lruvec_stat_sub_folio(folio, NR_PAGETABLE);
+>  static void free_hotplug_pgtable_page(struct page *page)
+>  {
+> -	pagetable_dtor(page_ptdesc(page));
+>  	free_hotplug_page_range(page, PAGE_SIZE, NULL);
 >  }
 
-[Severity: Medium]
-Will this leak the NR_PAGETABLE counter on architectures that bypass
-__pagetable_free() and only call pagetable_dtor()?
+[Severity: High]
+Does this cause the buddy allocator to reject the physical page and leak the
+NR_PAGETABLE statistic during memory hot-remove?
 
-On architectures lacking CONFIG_MMU_GATHER_TABLE_FREE (like m68k or xtensa),
-the fallback tlb_remove_table() implementation explicitly calls
-pagetable_dtor() and then enqueues the page for generic batch freeing:
+By dropping the destructor call here, the PG_pgtable flag is no longer
+cleared. Since free_hotplug_page_range() eventually calls __free_pages()
+directly rather than using pagetable_free(), the required cleanup is entire=
+ly
+skipped.
 
-include/asm-generic/tlb.h:tlb_remove_table() {
-	struct ptdesc *ptdesc =3D (struct ptdesc *)table;
-
-	pagetable_dtor(ptdesc);
-	tlb_remove_page(tlb, ptdesc_page(ptdesc));
-}
-
-Since the decrement was moved from pagetable_dtor() to __pagetable_free(),
-which is bypassed here, will this leak the counter when userspace unmaps
-memory?
-
-A similar bypass appears to occur on ARM64 during memory hot-remove:
-
-arch/arm64/mm/mmu.c:free_hotplug_pgtable_page() {
-	pagetable_dtor(page_ptdesc(page));
-	free_hotplug_page_range(page, PAGE_SIZE, NULL);
-}
-
-Since this directly calls pagetable_dtor() and skips __pagetable_free(),
-will this also leave the stat un-decremented?
+If the buddy allocator later reallocates this page, check_new_page_bad()
+will detect the leftover PG_pgtable flag, trigger a bad_page() warning,
+and permanently leak the page.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260714-remove_pgt=
-able_cdtor-v1-0-44be8a7685d7@arm.com?part=3D13
+able_cdtor-v1-0-44be8a7685d7@arm.com?part=3D20
