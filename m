@@ -1,122 +1,185 @@
-Received: from mail-qv1-f50.google.com (mail-qv1-f50.google.com [209.85.219.50])
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 06A5C44839B
-	for <linux-s390@vger.kernel.org>; Tue, 14 Jul 2026 12:26:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 04BCC4508F8
+	for <linux-s390@vger.kernel.org>; Tue, 14 Jul 2026 12:28:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784032007; cv=none; b=D9shCbPbaVvWqYSwT4gJhRKKWHOs48WLCz3ocOpmJvq+Fg6g+av87QIQVnqhYeL1kjiWpKKv4zF8tGWl/f54MimhRcRV7ZUO4f/cIbW0JmoV0qUbd8uc3qY01UzHTdtaROhU/WGZe2fapCpMYGV/IfDeCj4wbzS0XYr89qI7Gcs=
+	t=1784032085; cv=none; b=BSrENSuDI/CZTPypgAIODD18X/pd09rqmRxLYieRXam9n3vvaknsgxjhUkJo0FSjRuI2WoffLwgk2m3ARQzGrDnkgU/sl3ZVA4iwmaWVFHlUkqIl6nghPXLbjTZm0oih82vqIVIi9qf6IghmexhKqoBgVhcOiqLzfrcN6F+5HJQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784032007; c=relaxed/simple;
-	bh=EyC6N0xAwYeQ07+jukS70K/lUL1qxajRoHTimoin/A8=;
+	s=arc-20240116; t=1784032085; c=relaxed/simple;
+	bh=LUyrhPHF6LD5ke9CfQJg0CxJp7pi61DwH3+Jof/M6oY=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ooKvJkT8qXlhNMmKUlvagiBBWDcaKkKkNM4XfXrwGubkPUk/WU8mK4HSZBVVzrD8RXvdVwxHNonq1Zt529gU2vQWK4/Au7st/32O421+G9O0IMf6qC7YL83dnwx78w9Q75B+9KKcvgC0ZKaeL+YEPVFS1OLWxZz9AwYEl2qXrBU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca; spf=pass smtp.mailfrom=ziepe.ca; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=boLAbqr0; arc=none smtp.client-ip=209.85.219.50
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
+	 Content-Type:Content-Disposition:In-Reply-To; b=DkFxojQtNFrqnXLigG55TwYotgD7y4U9U/PMIiltYs0LgJbY3hWK4kOCaOS+FlJsg02kRFawnVOY75VcDmeMdHiM2eWbcnXWh/UWSWIrjxJCkjNsZsigdvexz4nWYa4a0LqmJvaSTVifiNa2DFKvzIjS0/XkX/8CjfmIkpzbZQk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=ZlsG22+2; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=SHQYjcVL; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=ZlsG22+2; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=SHQYjcVL; arc=none smtp.client-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="boLAbqr0"
-Received: by mail-qv1-f50.google.com with SMTP id 6a1803df08f44-8f18d92172aso12773476d6.2
-        for <linux-s390@vger.kernel.org>; Tue, 14 Jul 2026 05:26:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google; t=1784032000; x=1784636800; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=AuDF+BU2wT5tVoACVa1l/BwLN4UR/axOeynKCGX6Iio=;
-        b=boLAbqr0JYcFO7/aj4gJCdrDNMNI7YjDhHvA4Jy05IWte2oWzKhvZXD/pMEOyTzIsm
-         aG9nOna/0E/DaefTKfbe2kpuychVOjllXj4qrVvodD6MS/L2toK5GuQHXfhaFC3bsD1z
-         DO6lSOtS85tz04ZHNIE3Bxj+42RItmWkrTIr9cp8usqVkjfiOxUcXoJmIVlvMT5oNLmt
-         c+XgPgdGXQRlr+1X3gOj5ARBimvDjsuXSlBYzy80kfR9T1ACA7umHPEcYVlvFs7MSsOl
-         R+OElYvnBteFGGp0BZn0RAbG/9oUfOEeOyRPjTPD3so9377gTzeoEQdpnIUmmAPVDwqy
-         XQkw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784032000; x=1784636800;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=AuDF+BU2wT5tVoACVa1l/BwLN4UR/axOeynKCGX6Iio=;
-        b=NwQmsGirTW58hKzB7ogZTdpve6yRc4jxNXQ4aiU6whHISx7fGzlSaPq6ndC0PwPc5R
-         g6VHw8sDllbXXYlhNQidu1sM8mAs4hjbHw6Y2QiKhHySmKtIu6CBNA0Xo0lKSXE5jDPo
-         ZATEU/sAhXWVS4UpkM+MlfIRrqpJ0u0H2nELT087zO14QpFp0jFXESV9c24Rg8o1ZqUr
-         mw/lMArdBZeGwWRvNf/TprmOWMqIZNs7Yndi7UgtMNlyIAN/iER4C0c2wSj8NzxyCC9c
-         zgY8Gwn7AdBE9bUJBUWxOVcYudZVcW4AQdFJkBn6JD6BUoprMqi6G8oLCmGTADSWB/fi
-         SSug==
-X-Forwarded-Encrypted: i=1; AHgh+RqWZ/koDyOeYr9LqJX572spH9mmBHO49QC10ic6ZRfz/mKRP8SobECVsPTsk0LDTZYLjC/Iws7flwuJ@vger.kernel.org
-X-Gm-Message-State: AOJu0YzCK+xo45A6y21Ist0x3wxFyGdJMHQyHWbCHgsoViBG8ebYoXLw
-	5wxrypsoDJ6lHZd0We5wPojQG1YyxTrOBEqzwFDmulOIIceWAsqVXHVDGAaRi1xiYLM=
-X-Gm-Gg: AfdE7ckLXuC0y5Vv+931AqeHij5qTrzqrCFd5DWbeSMN/P++p6KgqEVv5lqEuaFX62L
-	vaX+aAhI+P4Wywb+AvgGvTBu/SqR66ypF19V1fYWsbnHoZY5FdGISHx3qDomlmjH6UZupm8Gy21
-	qrgjq/E92a4/yZOB8wEF4vBC29o/JRd2iHvFuB5mf02mtHES0jTqdEepr0MKLLhOEVBMJ/E9MBZ
-	eA/sXthKpUATOilFS1YD1vjrRuV0IaOF3Yp26aCu9mLYvq6i8jfh8gH81PFTe0IPfS8cfBD6oI2
-	1EY/2QiT5ocKSCtdjUJxrUwWSbcHjlbK6wBdBPAaMuVO3eJpxZSgaDlfaRcLWidTHbynZkMXTRF
-	8jm4dq9qALaxtWmhhWFrPzYlq5LDWxIbWDfdNdcGZ9O/XjLcLvhG4SakAdA0u
-X-Received: by 2002:a05:6214:1cc6:b0:8e9:f5de:d629 with SMTP id 6a1803df08f44-9040423dcecmr141353846d6.56.1784032000167;
-        Tue, 14 Jul 2026 05:26:40 -0700 (PDT)
-Received: from ziepe.ca ([159.2.72.92])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8ffd7c1ec84sm168106996d6.29.2026.07.14.05.26.39
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 14 Jul 2026 05:26:39 -0700 (PDT)
-Received: from jgg by wakko with local (Exim 4.97)
-	(envelope-from <jgg@ziepe.ca>)
-	id 1wjcDf-0000000FRvu-0Ugk;
-	Tue, 14 Jul 2026 09:26:39 -0300
-Date: Tue, 14 Jul 2026 09:26:39 -0300
-From: Jason Gunthorpe <jgg@ziepe.ca>
-To: "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>
-Cc: iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev,
-	Robin Murphy <robin.murphy@arm.com>,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
-	Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
-	Steven Price <steven.price@arm.com>,
-	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Jiri Pirko <jiri@resnulli.us>, Mostafa Saleh <smostafa@google.com>,
-	Petr Tesarik <ptesarik@suse.com>,
-	Alexey Kardashevskiy <aik@amd.com>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Xu Yilun <yilun.xu@linux.intel.com>, linuxppc-dev@lists.ozlabs.org,
-	linux-s390@vger.kernel.org,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="ZlsG22+2";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="SHQYjcVL";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="ZlsG22+2";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="SHQYjcVL"
+Received: from kunlun.suse.cz (unknown [IPv6:2a07:de40:b306:2000::2])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange ECDHE (prime256v1) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 7B1CE77E59;
+	Tue, 14 Jul 2026 12:27:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1784032079; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Mv55jrFDO93gjGYIsU0f7D2xrkBLg3m+YQNtif0jQGw=;
+	b=ZlsG22+2qJHsdTgdkxvwmSlcE2jpD1rDFltZ2XBaaBUdxSXZ9XTNs5pK/w4lCTCHx6x/us
+	rdRAWawR7siq4niXzhUqnNnE5zb9rtW+qo+o2fR+aSW99C2RM5JEfmFuQ+Ug1+/rcEi/8D
+	zneyg7bhMeggThQytWIj8e9LdbZpxPk=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1784032079;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Mv55jrFDO93gjGYIsU0f7D2xrkBLg3m+YQNtif0jQGw=;
+	b=SHQYjcVL5VrOKoaQAh2ZpNoUXIv2pbv4B/7Mv1feXJEdCMZcbfPGQCL5NBPQDmIOG9kGxC
+	PRv0lwkN6hB1BSAQ==
+Authentication-Results: smtp-out1.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=ZlsG22+2;
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=SHQYjcVL
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1784032079; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Mv55jrFDO93gjGYIsU0f7D2xrkBLg3m+YQNtif0jQGw=;
+	b=ZlsG22+2qJHsdTgdkxvwmSlcE2jpD1rDFltZ2XBaaBUdxSXZ9XTNs5pK/w4lCTCHx6x/us
+	rdRAWawR7siq4niXzhUqnNnE5zb9rtW+qo+o2fR+aSW99C2RM5JEfmFuQ+Ug1+/rcEi/8D
+	zneyg7bhMeggThQytWIj8e9LdbZpxPk=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1784032079;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Mv55jrFDO93gjGYIsU0f7D2xrkBLg3m+YQNtif0jQGw=;
+	b=SHQYjcVL5VrOKoaQAh2ZpNoUXIv2pbv4B/7Mv1feXJEdCMZcbfPGQCL5NBPQDmIOG9kGxC
+	PRv0lwkN6hB1BSAQ==
+Date: Tue, 14 Jul 2026 14:27:58 +0200
+From: Michal =?iso-8859-1?Q?Such=E1nek?= <msuchanek@suse.de>
+To: Thomas Gleixner <tglx@kernel.org>
+Cc: LKML <linux-kernel@vger.kernel.org>,
 	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org,
-	Jiri Pirko <jiri@nvidia.com>, Michael Kelley <mhklinux@outlook.com>
-Subject: Re: [PATCH v7 11/22] dma-pool: track decrypted atomic pools and
- select them via attrs
-Message-ID: <20260714122639.GH3133966@ziepe.ca>
-References: <20260701054926.825925-1-aneesh.kumar@kernel.org>
- <20260701054926.825925-12-aneesh.kumar@kernel.org>
- <20260713184810.GM3133966@ziepe.ca>
- <yq5aqzl6mc00.fsf@kernel.org>
+	Shrikanth Hegde <sshegde@linux.ibm.com>,
+	linuxppc-dev@lists.ozlabs.org, Huacai Chen <chenhuacai@kernel.org>,
+	loongarch@lists.linux.dev, Paul Walmsley <pjw@kernel.org>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	linux-riscv@lists.infradead.org,
+	Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org,
+	x86@kernel.org, Mark Rutland <mark.rutland@arm.com>,
+	Jinjie Ruan <ruanjinjie@huawei.com>,
+	Magnus Lindholm <linmag7@gmail.com>,
+	"Mukesh Kumar Chaurasiya (IBM)" <mkchauras@gmail.com>,
+	Jonathan Corbet <corbet@lwn.net>, Radu Rendec <radu@rendec.net>
+Subject: Re: [patch 0/4] entry: Rework syscall skip logic
+Message-ID: <alYrTktEcosLvGiw@kunlun.suse.cz>
+References: <20260712134433.549076055@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <yq5aqzl6mc00.fsf@kernel.org>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260712134433.549076055@kernel.org>
+X-Spamd-Bar: ++
+X-Rspamd-Queue-Id: 7B1CE77E59
+X-Spam-Flag: NO
+X-Spam-Score: 2.49
+X-Spam-Level: **
+X-Rspamd-Action: no action
+X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
+X-Spamd-Result: default: False [2.49 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	HFILTER_HOSTNAME_UNKNOWN(2.50)[];
+	RDNS_NONE(2.00)[];
+	ONCE_RECEIVED(1.20)[];
+	HFILTER_HELO_IP_A(1.00)[kunlun.suse.cz];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	HFILTER_HELO_NORES_A_OR_MX(0.30)[kunlun.suse.cz];
+	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-0.999];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	ARC_NA(0.00)[];
+	RCPT_COUNT_TWELVE(0.00)[19];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	MIME_TRACE(0.00)[0:+];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com];
+	FREEMAIL_CC(0.00)[vger.kernel.org,ellerman.id.au,linux.ibm.com,lists.ozlabs.org,kernel.org,lists.linux.dev,dabbelt.com,lists.infradead.org,arm.com,huawei.com,gmail.com,lwn.net,rendec.net];
+	TO_DN_SOME(0.00)[];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	DNSWL_BLOCKED(0.00)[2a07:de40:b306:2000::2:from];
+	MISSING_XM_UA(0.00)[];
+	RCVD_COUNT_ZERO(0.00)[0];
+	DKIM_TRACE(0.00)[suse.de:+];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[kunlun.suse.cz:mid,kunlun.suse.cz:helo,suse.de:email,suse.de:dkim]
 
-On Tue, Jul 14, 2026 at 09:57:43AM +0530, Aneesh Kumar K.V wrote:
-> >
-> > But I don't view this as that important, the CC hypervisor is probably
-> > going to use the S2 page table to force cachable on all system memory
-> > so the non-cached pgprot is a NOP, but the extra vmap is wasteful and
-> > it is confusing.. So maybe a little fixme is all that is needed here.
-> >
+On Sun, Jul 12, 2026 at 11:25:12PM +0200, Thomas Gleixner wrote:
+> This are the reworked leftovers of the larger entry logic rework series,
+> which can be found here:
 > 
-> Something like?
+>   https://lore.kernel.org/lkml/20260707181957.433213175@kernel.org
+> 
+> The undisputed part of the series has been merged into:
+> 
+>   git://git.kernel.org/pub/scm/linux/kernel/git/tip/tip.git core/entry
+> 
+> After a fruitless discussion about the most resilent approach, I decided to
+> give up wasting my time and reworked the series so it caters to the desire
+> of powerpc and s390 to be special.
+> 
+> That results in almost identical behavior except for the case where
+> tracing/probe/BPF sets the syscall number to -1 (or any other out of range
+> value) and also sets the syscall return value to something different than
+> -ENOSYS.
+> 
+> PowerPC and S390 will overwrite that value with -ENOSYS.
+> 
+> Loongarch, RISC-V and x86 will not overwrite it because those architectures
+> preset the return value to -ENOSYS and skip out of range syscalls
+> completely. Loongarch and RISC-V always did the out of range skip. X86
+> gained that in the already applied rework, which means that the final patch
+> which splits the skip decision from the syscall number does not longer
+> change x86 behavior for the above case.
+> 
+> Documentation is also updated and describes the two implementation variants
+> and the subtle difference in the resulting behavior.
+> 
+> The series applies on top of:
+> 
+>   git://git.kernel.org/pub/scm/linux/kernel/git/tip/tip.git core/entry
+> 
+> and is also available from git:
+> 
+>   git://git.kernel.org/pub/scm/linux/kernel/git/tglx/devel.git entry/rework
 
-Yeah
+Hello,
 
-Jason
+applying this on top of 7.2~rc3 and running tests for the cases that
+were reported as problematic I see results as expected.
+
+This version of the patchset works for me.
+
+Tested-by: Michal Suchánek <msuchanek@suse.de>
+
+This is certainly not comprehensive, there are many corner cases not
+tested. Some were broken to start with as well.
+
+Thanks
+
+Michal
