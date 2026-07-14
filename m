@@ -1,467 +1,183 @@
-Received: from mail.mindbit.ro (xs1.mindbit.ro [80.86.107.70])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 92A8236A022;
-	Tue, 14 Jul 2026 18:57:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.86.107.70
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5DA1842BE95;
+	Tue, 14 Jul 2026 23:22:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784055482; cv=none; b=EpotfqoKJKHiC3g0b9bZy/v3kjse+d6BFYRju4w2vC6qiLcNH7hkWnisl0XS4AcvIdgcfAZUHRfhyoASziZvuWxHZENcnTaAfuB4WXSSXAlRw4BX6PAfs8cS36dGo7IBHlQlRj5kjz6d0zNCxUgIcCY37neCXMzGfwAXjAQTMAw=
+	t=1784071339; cv=none; b=H3WiHr0IypJAWCxkllnFCreMDTptNp27EJZX6oKDFsPyXZAAFYq5gobMv1lTdxd/nLCL6uAYpjxkMiUAWSfRzaCRleuCTeSKsjxlkrDEQKEXPQexCWQHV1g/pdZ0LLf3Cr/zcgFCYhgQJ3Spp7Xq0/7QQLysDJk/AVWhKgKXgeE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784055482; c=relaxed/simple;
-	bh=4jYhO1//W5jrcY+SJFKC3A7WGIgGEQLpvPHnyKFOGsk=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=G8tMbNS9khUdXGnItfv0YvQHEJAjc72SlXpQY5gPEgDh0ql1pX81gRldMDGQRSJR3xxbPxn5hx3nb7IU+TZ0z09At/c6GEDVQO6ErvQp/yUNCc6xu/JVKtQqgP/WdydGdc5oPgOHOsJPNMSa7AMeqQIqBhNzZrIzQK0zA6J5ouQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=rendec.net; spf=pass smtp.mailfrom=rendec.net; dkim=pass (2048-bit key) header.d=rendec.net header.i=@rendec.net header.b=vVWaTmPf; arc=none smtp.client-ip=80.86.107.70
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=rendec.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rendec.net
+	s=arc-20240116; t=1784071339; c=relaxed/simple;
+	bh=PVFcPV7a8IiGyZusUfGwMSC8/Qgs0elyNRsO6J94NS0=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=t8lKavol8COV913wduVfNnqY+u0HWybv4ZZ7BexWuzNgndarCllQWDtSv21NZCnTPUT4Dt2ajXqc90TJmqestpjhjsYmUm4nJdKTWTjIhPWJlCAokapl2jIhubRgK1TOpBqPJ44IjZbE4u2DaUrQlXw0vkNKZ4DrG4lOihXG1GQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=c3xqPRQH; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rendec.net header.i=@rendec.net header.b="vVWaTmPf"
-Received: from bat.kanata.rendec.net (unknown [24.114.103.87])
-	by mail.mindbit.ro (Postfix) with ESMTPSA id 43614C2A88;
-	Tue, 14 Jul 2026 21:57:45 +0300 (EEST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail.mindbit.ro 43614C2A88
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=rendec.net;
-	s=default; t=1784055476;
-	bh=rA5MDGxT4TvlBPI8rCIT4YVPzlsSvdsP3lxcCVyTIKQ=;
-	h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
-	b=vVWaTmPfOJk9gq5hHsN3nvtphcqSGgGhfDwbUDi10K8hF4lqNJqXCOV2mjG6z7VqZ
-	 FZcupsG3m+lHKZPA/pscH5pGL0MMOcDZmaCJHK5MY48zUAFZ7ICg84mzakkPnyZICh
-	 bK5Hwr/7hs0vE0AQdQGzIv/BJLEBmkh/m6sqouv1yX37iolfZatrvIkuROJY4YcajG
-	 s61tJ8fPvCeFSw72lmqL99F7fmoWjDhUKRtGZTQgo5Sx55V26l97tAuewBbtGVA0jZ
-	 qNWK2467NaYmSlXLKJKatLJyGkZADhvbL4XxQkdj5PlsmTXpKTTPDH2d2CzMuqUFCL
-	 JnHEjHrgQ6ZEA==
-Message-ID: <e35a11d2bd1a8dfa6c1b8d67fe2940c3fd507596.camel@rendec.net>
-Subject: Re: [patch 4/4] entry, treewide: Make
- syscall_enter_from_user_mode[_work]() indicate syscall execution
-From: Radu Rendec <radu@rendec.net>
-To: Thomas Gleixner <tglx@kernel.org>, LKML <linux-kernel@vger.kernel.org>
-Cc: Michal =?ISO-8859-1?Q?Such=E1nek?= <msuchanek@suse.de>, Michael Ellerman
-	 <mpe@ellerman.id.au>, Shrikanth Hegde <sshegde@linux.ibm.com>, 
-	linuxppc-dev@lists.ozlabs.org, Huacai Chen <chenhuacai@kernel.org>, 
-	loongarch@lists.linux.dev, Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt	
- <palmer@dabbelt.com>, linux-riscv@lists.infradead.org, Sven Schnelle	
- <svens@linux.ibm.com>, linux-s390@vger.kernel.org, x86@kernel.org, Mark
- Rutland	 <mark.rutland@arm.com>, Jinjie Ruan <ruanjinjie@huawei.com>,
- Magnus Lindholm	 <linmag7@gmail.com>, "Mukesh Kumar Chaurasiya (IBM)"
- <mkchauras@gmail.com>,  Jonathan Corbet	 <corbet@lwn.net>
-Date: Tue, 14 Jul 2026 14:57:41 -0400
-In-Reply-To: <20260712141346.772209074@kernel.org>
-References: <20260712134433.549076055@kernel.org>
-	 <20260712141346.772209074@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.58.3 (3.58.3-1.fc43) 
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="c3xqPRQH"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66EJBjW82198619;
+	Tue, 14 Jul 2026 23:22:17 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=pp1; bh=RvX3wjFVBiIFnX0eT
+	yYT1jCPxHd6yorYubpelkCZmQ0=; b=c3xqPRQHV0QYu3pBeQUky66nlea7aqKFq
+	vthgkXh6TcrAgp75HiQdbPZLgBYasLeDxDkpbOSkHJYS7ai+GO+E0pjZm2jIktW4
+	2dFHKExx5dIGVLmlecFEkcilic2soSmUCzLYqFFuYnx8JxiT3j2UunIKVwXhgRQc
+	MgT6fofb6JB4uYvnnVWhuu5/CkI2YfUcHPLR2K+mgISuTPMeZCLLt5AmRjeHwNYt
+	mm4Dq0FxY54oLznvweMujlYWgGqGhTcIwutiu81egNhz6SY0je8u0tba5EybFlHx
+	dqHPTWgdadcw6wxOglIlk4jsH6w18ExfmPGEEBZyQwW/qA/DTpM/Q==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fbepxgrq5-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 14 Jul 2026 23:22:17 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66ENJfYF012337;
+	Tue, 14 Jul 2026 23:22:16 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fc2cgcyjr-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 14 Jul 2026 23:22:16 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66ENMCGq30998854
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 14 Jul 2026 23:22:12 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 64E5C2004B;
+	Tue, 14 Jul 2026 23:22:12 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 44BF820040;
+	Tue, 14 Jul 2026 23:22:12 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with SMTP;
+	Tue, 14 Jul 2026 23:22:12 +0000 (GMT)
+Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 4958)
+	id 25F2016267D; Wed, 15 Jul 2026 01:22:12 +0200 (CEST)
+From: Eric Farman <farman@linux.ibm.com>
+To: linux-s390@vger.kernel.org, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Cc: Matthew Rosato <mjrosato@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Eric Farman <farman@linux.ibm.com>, stable@vger.kernel.org
+Subject: [PATCH v1 2/6] s390/vfio_ccw: limit the number of channel program segments
+Date: Wed, 15 Jul 2026 01:22:04 +0200
+Message-ID: <20260714232208.1683788-3-farman@linux.ibm.com>
+X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20260714232208.1683788-1-farman@linux.ibm.com>
+References: <20260714232208.1683788-1-farman@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: eHsTBQ8hmANsyNGgMB2SdWyhJnwqAZ_9
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzE0MDI0MCBTYWx0ZWRfXw5cyF8xOiRS2
+ avp3X5RC2VfsbN4LgZueytcIXjhvUVHxkx2pbyAkWxFb6vo8Xt7lqhzrND4IW+UKB5BelMHbwVa
+ 8CmvchElmk0Qq/D+pBRHrcc7WmhIhkU=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzE0MDI0MCBTYWx0ZWRfX4KvJinxMHbu7
+ P1dbyhQt/oGv7rUROwhI1u+8ItYbbd5OxLXqVwrGvqS0Qd360cFm/ViYYvBn70JJ1vnvlONQvBU
+ eMfgkJ2KUx+j8Q3wOje68oIW3sPRcf4OGL8b+5kR1m7ZkLQ4nJtfaQCetMhWi4K75LKO3Zg7Ngu
+ 2v8qSxoUBr15ayhE3uVgU1kHyfIFEvTZySWMXN9oGHklo7/KaFiucfVlZkdbrzaEkBkSyMaiYBl
+ DHO5vts4ryYVCm9EMdPrL5vv+5zRtzo6dF95viWzwFEkIY/4VJ5OhqrO9+gYeRcyYOY9WMoJSAW
+ F0cULeS8WG/Ax7J0hJc09PnvRi5gOzdbU/aoUIeWHDhdPQ4PphhhFPBDSavHUavCvGXRDNmY4Oi
+ PkBfnJJSCIRe5OrCkYNnbwwNmGu5/T/dYHf8rIyn5FWoiddepBaLsJSE9I44bZi+OShG3xaGOiG
+ 26XrVTZxCOP7eM8lQEA==
+X-Authority-Analysis: v=2.4 cv=XbS5Co55 c=1 sm=1 tr=0 ts=6a56c4a9 cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+ a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=iQ6ETzBq9ecOQQE5vZCe:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
+ a=OzPGupj-Brq4hERWPoIA:9
+X-Proofpoint-ORIG-GUID: eHsTBQ8hmANsyNGgMB2SdWyhJnwqAZ_9
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-07-14_05,2026-07-14_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ clxscore=1011 suspectscore=0 spamscore=0 phishscore=0 lowpriorityscore=0
+ priorityscore=1501 adultscore=0 malwarescore=0 impostorscore=0 bulkscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607140240
 
-On Sun, 2026-07-12 at 23:25 +0200, Thomas Gleixner wrote:
-> The return values of syscall_enter_from_user_mode[_work]() are
-> non-intuitive. Both functions return the syscall number which should be
-> invoked by the architecture specific syscall entry code. The returned
-> number can be:
->=20
-> =C2=A0 - the unmodified syscall number which was handed in by the caller
->=20
-> =C2=A0 - a modified syscall number (ptrace, seccomp, trace/probe/bpf)
->=20
-> That has an additional twist. If the return value is -1L then the caller =
-is
-> not allowed to modify the return value as that indicates that the modifyi=
-ng
-> entity requests to abort the syscall and set the return value already. Th=
-at
-> can obviously not be differentiated from a syscall which handed in -1 as
-> syscall number.
->=20
-> The most trivial way to deal with that is:
->=20
-> =C2=A0=C2=A0=C2=A0 set_return_value(regs, -ENOSYS);
-> =C2=A0=C2=A0=C2=A0 nr =3D syscall_enter_from_user_mode(regs, nr);
-> =C2=A0=C2=A0=C2=A0 if (valid(nr))
-> =C2=A0=C2=A0=C2=A0=C2=A0	handle_syscall(regs, nr);
->=20
-> That's what LOONGARCH, RISCV, and X86 do. But PowerPC and S390 do not
-> preset the return value, so when user space hands in -1 and there is
-> nothing setting the return value in the entry work code, then the syscall
-> is skipped but the return value is whatever random data has been in the
-> return value register.
->=20
-> Change the return values of syscall_enter_from_user_mode[_work]() to
-> boolean and return false, when either ptrace or seccomp request to skip t=
-he
-> syscall. If they return true, update the syscall number as it might have
-> been changed.
->=20
-> That results in slightly different behaviour of the architectures versus
-> tracing.
->=20
-> If the syscall tracepoint has probe/BPF attached, those might set the
-> syscall number to -1 and also set the return value. PowerPC and S390 will
-> then overwrite that value with -ENOSYS. The other architectures will just
-> ignore it like any other invalid syscall and use the modified one.
->=20
-> Originally-by: Michal Such=C3=A1nek <msuchanek@suse.de>
-> Signed-off-by: Thomas Gleixner <tglx@kernel.org>
-> ---
-> V2: Change the return logic so Power and S390 can insist on being special=
-.
-> ---
-> =C2=A0Documentation/core-api/entry.rst |=C2=A0=C2=A0 45 +++++++++++++++++=
-+++++++++++++---------
-> =C2=A0arch/loongarch/kernel/syscall.c=C2=A0 |=C2=A0=C2=A0 14 ++++++------
-> =C2=A0arch/powerpc/kernel/syscall.c=C2=A0=C2=A0=C2=A0 |=C2=A0=C2=A0=C2=A0=
- 3 +-
-> =C2=A0arch/riscv/kernel/traps.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
- |=C2=A0=C2=A0 11 ++++-----
-> =C2=A0arch/s390/kernel/syscall.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 |=C2=
-=A0=C2=A0=C2=A0 7 ++++--
-> =C2=A0arch/x86/entry/syscall_32.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 |=C2=A0=
-=C2=A0 25 ++++++++++-----------
-> =C2=A0arch/x86/entry/syscall_64.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 |=C2=A0=
-=C2=A0 12 +++++-----
-> =C2=A0include/linux/entry-common.h=C2=A0=C2=A0=C2=A0=C2=A0 |=C2=A0=C2=A0 =
-32 +++++++++++++--------------
-> =C2=A08 files changed, 88 insertions(+), 61 deletions(-)
+The processing of channel programs, and the CCWs within them, is done
+recursively. As such, there is an arbitrary (but not architectural)
+limit to the number of CCWs that can exist in a single channel program.
 
-I've been staring at this for a while. My only concern is that for
-powerpc and s390, which do not set a default return value, the return
-value is no longer forced to -ENOSYS for the cases when
-syscall_trace_enter() returns False. Previously, it was turned into a -
-1 in syscall_enter_from_user_mode_work() and interpreted as a syscall
-number, so the architecture specific code took the invalid syscall
-number path where it set the return value to -ENOSYS explicitly.
+The vfio-ccw logic breaks these channel programs into segments whenever
+it encounters a Transfer-In-Channel (TIC) CCW, and the combined number
+of segments count towards the global limit. Impose an equivalent limit
+to the number of segments until such logic can be made non-recursive.
 
-That implies that in all 3 cases when syscall_trace_enter() returns
-False, the underlying function that denied the syscall *must* also set
-the syscall return value (or deliver a signal or rollback the syscall),
-or else the return value would be junk. That *seems* to be the case as
-far as I can tell, but the ramifications are quite deep, and I must
-admit I don't fully understand everything.
+Fixes: 0a19e61e6d4c ("vfio: ccw: introduce channel program interfaces")
+Cc: stable@vger.kernel.org
+Signed-off-by: Eric Farman <farman@linux.ibm.com>
+---
+ drivers/s390/cio/vfio_ccw_cp.c | 5 +++++
+ drivers/s390/cio/vfio_ccw_cp.h | 6 ++++++
+ 2 files changed, 11 insertions(+)
 
-With that said,
+diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_c=
+p.c
+index 80c3d87f5482..76632b18fc37 100644
+--- a/drivers/s390/cio/vfio_ccw_cp.c
++++ b/drivers/s390/cio/vfio_ccw_cp.c
+@@ -319,6 +319,9 @@ static struct ccwchain *ccwchain_alloc(struct channel=
+_program *cp, int len)
+ {
+ 	struct ccwchain *chain;
+=20
++	if (cp->ccwchain_count >=3D CCWCHAIN_COUNT_MAX)
++		return NULL;
++
+ 	chain =3D kzalloc_obj(*chain);
+ 	if (!chain)
+ 		return NULL;
+@@ -332,6 +335,7 @@ static struct ccwchain *ccwchain_alloc(struct channel=
+_program *cp, int len)
+ 		goto out_err;
+=20
+ 	list_add_tail(&chain->next, &cp->ccwchain_list);
++	cp->ccwchain_count++;
+=20
+ 	return chain;
+=20
+@@ -731,6 +735,7 @@ int cp_init(struct channel_program *cp, union orb *or=
+b)
+ 			vdev->dev,
+ 			"Prefetching channel program even though prefetch not specified in OR=
+B");
+=20
++	cp->ccwchain_count =3D 0;
+ 	INIT_LIST_HEAD(&cp->ccwchain_list);
+ 	memcpy(&cp->orb, orb, sizeof(*orb));
+=20
+diff --git a/drivers/s390/cio/vfio_ccw_cp.h b/drivers/s390/cio/vfio_ccw_c=
+p.h
+index fc31eb699807..dc91a317ef19 100644
+--- a/drivers/s390/cio/vfio_ccw_cp.h
++++ b/drivers/s390/cio/vfio_ccw_cp.h
+@@ -23,6 +23,11 @@
+  */
+ #define CCWCHAIN_LEN_MAX	256
+=20
++/*
++ * Maximum number of chains
++ */
++#define CCWCHAIN_COUNT_MAX	16
++
+ /**
+  * struct channel_program - manage information for channel program
+  * @ccwchain_list: list head of ccwchains
+@@ -38,6 +43,7 @@ struct channel_program {
+ 	union orb orb;
+ 	bool initialized;
+ 	struct ccw1 *guest_cp;
++	int ccwchain_count;
+ };
+=20
+ int cp_init(struct channel_program *cp, union orb *orb);
+--=20
+2.53.0
 
-Reviewed-by: Radu Rendec <radu@rendec.net>
-
-> --- a/Documentation/core-api/entry.rst
-> +++ b/Documentation/core-api/entry.rst
-> @@ -58,26 +58,51 @@ state transitions must run with interrup
-> =C2=A0Syscalls
-> =C2=A0--------
-> =C2=A0
-> -Syscall-entry code starts in assembly code and calls out into low-level =
-C code
-> -after establishing low-level architecture-specific state and stack frame=
-s. This
-> -low-level C code must not be instrumented. A typical syscall handling fu=
-nction
-> -invoked from low-level assembly code looks like this:
-> +Syscall-entry code starts in assembly code and calls out into low-level =
-C
-> +code after establishing low-level architecture-specific state and stack
-> +frames. This low-level C code must not be instrumented. The recommended
-> +syscall handling function invoked from low-level assembly code looks lik=
-e
-> +this:
-> =C2=A0
-> =C2=A0.. code-block:: c
-> =C2=A0
-> -=C2=A0 noinstr void syscall(struct pt_regs *regs, int nr)
-> +=C2=A0 noinstr void syscall(struct pt_regs *regs, long nr)
-> =C2=A0=C2=A0 {
-> =C2=A0	arch_syscall_enter(regs);
-> -	nr =3D syscall_enter_from_user_mode_randomize_stack(regs, nr);
-> +	result_reg(regs) =3D -ENOSYS;
-> +	if (syscall_enter_from_user_mode_randomize_stack(regs, &nr)) {
-> +		instrumentation_begin();
-> +		if (valid(nr)
-> +			result_reg(regs) =3D invoke_syscall(regs, nr);
-> +		instrumentation_end();
-> +	}
-> +	syscall_exit_to_user_mode(regs);
-> +=C2=A0 }
-> =C2=A0
-> -	instrumentation_begin();
-> -	if (!invoke_syscall(regs, nr) && nr !=3D -1)
-> -	=C2=A0	result_reg(regs) =3D __sys_ni_syscall(regs);
-> -	instrumentation_end();
-> +This is the most resilent variant as it has always a guaranteed valid
-> +return code. The alternative variant is:
-> +
-> +.. code-block:: c
-> =C2=A0
-> +=C2=A0 noinstr void syscall(struct pt_regs *regs, long nr)
-> +=C2=A0 {
-> +	arch_syscall_enter(regs);
-> +	if (syscall_enter_from_user_mode_randomize_stack(regs, &nr)) {
-> +		instrumentation_begin();
-> +		if (valid(nr)
-> +			result_reg(regs) =3D invoke_syscall(regs, nr);
-> +		else
-> +			result_reg(regs) =3D -ENOSYS;
-> +		instrumentation_end();
-> +	}
-> =C2=A0	syscall_exit_to_user_mode(regs);
-> =C2=A0=C2=A0 }
-> =C2=A0
-> +That works for most situations except when a probe/BPF attached to the
-> +syscall tracepoint sets an invalid syscall number e.g. -1 and also modif=
-ies
-> +the result register. So this variant will obviously overwrite the modifi=
-ed
-> +result with -ENOSYS.
-> +
-> =C2=A0syscall_enter_from_user_mode_randomize_stack() first invokes
-> =C2=A0enter_from_user_mode_randomize_stack() which establishes state in t=
-he
-> =C2=A0following order:
-> --- a/arch/loongarch/kernel/syscall.c
-> +++ b/arch/loongarch/kernel/syscall.c
-> @@ -57,8 +57,8 @@ typedef long (*sys_call_fn)(unsigned lon
-> =C2=A0
-> =C2=A0void noinstr __no_stack_protector do_syscall(struct pt_regs *regs)
-> =C2=A0{
-> -	unsigned long nr;
-> =C2=A0	sys_call_fn syscall_fn;
-> +	unsigned long nr;
-> =C2=A0
-> =C2=A0	nr =3D regs->regs[11];
-> =C2=A0	/* Set for syscall restarting */
-> @@ -69,12 +69,12 @@ void noinstr __no_stack_protector do_sys
-> =C2=A0	regs->orig_a0 =3D regs->regs[4];
-> =C2=A0	regs->regs[4] =3D -ENOSYS;
-> =C2=A0
-> -	nr =3D syscall_enter_from_user_mode_randomize_stack(regs, nr);
-> -
-> -	if (nr < NR_syscalls) {
-> -		syscall_fn =3D sys_call_table[array_index_nospec(nr, NR_syscalls)];
-> -		regs->regs[4] =3D syscall_fn(regs->orig_a0, regs->regs[5], regs->regs[=
-6],
-> -					=C2=A0=C2=A0 regs->regs[7], regs->regs[8], regs->regs[9]);
-> +	if (likely(syscall_enter_from_user_mode_randomize_stack(regs, &nr))) {
-> +		if (nr < NR_syscalls) {
-> +			syscall_fn =3D sys_call_table[array_index_nospec(nr, NR_syscalls)];
-> +			regs->regs[4] =3D syscall_fn(regs->orig_a0, regs->regs[5], regs->regs=
-[6],
-> +						=C2=A0=C2=A0 regs->regs[7], regs->regs[8], regs->regs[9]);
-> +		}
-> =C2=A0	}
-> =C2=A0
-> =C2=A0	syscall_exit_to_user_mode(regs);
-> --- a/arch/powerpc/kernel/syscall.c
-> +++ b/arch/powerpc/kernel/syscall.c
-> @@ -18,7 +18,8 @@ notrace long system_call_exception(struc
-> =C2=A0	long ret;
-> =C2=A0	syscall_fn f;
-> =C2=A0
-> -	r0 =3D syscall_enter_from_user_mode_randomize_stack(regs, r0);
-> +	if (unlikely(!syscall_enter_from_user_mode_randomize_stack(regs, &r0)))
-> +		return syscall_get_error(current, regs);
-> =C2=A0
-> =C2=A0	if (unlikely(r0 >=3D NR_syscalls)) {
-> =C2=A0		if (unlikely(trap_is_unsupported_scv(regs))) {
-> --- a/arch/riscv/kernel/traps.c
-> +++ b/arch/riscv/kernel/traps.c
-> @@ -332,13 +332,12 @@ void do_trap_ecall_u(struct pt_regs *reg
-> =C2=A0
-> =C2=A0		riscv_v_vstate_discard(regs);
-> =C2=A0
-> -		syscall =3D syscall_enter_from_user_mode_randomize_stack(regs, syscall=
-);
-> -
-> -		if (syscall >=3D 0 && syscall < NR_syscalls) {
-> -			syscall =3D array_index_nospec(syscall, NR_syscalls);
-> -			syscall_handler(regs, syscall);
-> +		if (likely(syscall_enter_from_user_mode_randomize_stack(regs, &syscall=
-))) {
-> +			if (syscall >=3D 0 && syscall < NR_syscalls) {
-> +				syscall =3D array_index_nospec(syscall, NR_syscalls);
-> +				syscall_handler(regs, syscall);
-> +			}
-> =C2=A0		}
-> -
-> =C2=A0		syscall_exit_to_user_mode(regs);
-> =C2=A0	} else {
-> =C2=A0		irqentry_state_t state =3D irqentry_nmi_enter(regs);
-> --- a/arch/s390/kernel/syscall.c
-> +++ b/arch/s390/kernel/syscall.c
-> @@ -96,6 +96,7 @@ SYSCALL_DEFINE0(ni_syscall)
-> =C2=A0void noinstr __do_syscall(struct pt_regs *regs, int per_trap)
-> =C2=A0{
-> =C2=A0	unsigned long nr;
-> +	bool permit;
-> =C2=A0
-> =C2=A0	enter_from_user_mode_randomize_stack(regs);
-> =C2=A0
-> @@ -121,7 +122,9 @@ void noinstr __do_syscall(struct pt_regs
-> =C2=A0		regs->psw.addr =3D current->restart_block.arch_data;
-> =C2=A0		current->restart_block.arch_data =3D 1;
-> =C2=A0	}
-> -	nr =3D syscall_enter_from_user_mode_work(regs, nr);
-> +
-> +	permit =3D syscall_enter_from_user_mode_work(regs, &nr);
-> +
-> =C2=A0	/*
-> =C2=A0	 * In the s390 ptrace ABI, both the syscall number and the return =
-value
-> =C2=A0	 * use gpr2. However, userspace puts the syscall number either in =
-the
-> @@ -129,7 +132,7 @@ void noinstr __do_syscall(struct pt_regs
-> =C2=A0	 * work, the ptrace code sets PIF_SYSCALL_RET_SET, which is checke=
-d here
-> =C2=A0	 * and if set, the syscall will be skipped.
-> =C2=A0	 */
-> -	if (unlikely(test_and_clear_pt_regs_flag(regs, PIF_SYSCALL_RET_SET)))
-> +	if (unlikely(test_and_clear_pt_regs_flag(regs, PIF_SYSCALL_RET_SET) || =
-!permit))
-> =C2=A0		goto out;
-> =C2=A0	regs->gprs[2] =3D -ENOSYS;
-> =C2=A0	if (likely(nr < NR_syscalls)) {
-> --- a/arch/x86/entry/syscall_32.c
-> +++ b/arch/x86/entry/syscall_32.c
-> @@ -161,8 +161,9 @@ static __always_inline bool int80_is_ext
-> =C2=A0	nr =3D syscall_32_enter(regs);
-> =C2=A0
-> =C2=A0	local_irq_enable();
-> -	nr =3D syscall_enter_from_user_mode_work(regs, nr);
-> -	do_syscall_32_irqs_on(regs, nr);
-> +
-> +	if (likely(syscall_enter_from_user_mode_work(regs, &nr)))
-> +		do_syscall_32_irqs_on(regs, nr);
-> =C2=A0
-> =C2=A0	instrumentation_end();
-> =C2=A0	syscall_exit_to_user_mode(regs);
-> @@ -223,8 +224,8 @@ DEFINE_FREDENTRY_RAW(int80_emulation)
-> =C2=A0	nr =3D syscall_32_enter(regs);
-> =C2=A0
-> =C2=A0	local_irq_enable();
-> -	nr =3D syscall_enter_from_user_mode_work(regs, nr);
-> -	do_syscall_32_irqs_on(regs, nr);
-> +	if (likely(syscall_enter_from_user_mode_work(regs, &nr)))
-> +		do_syscall_32_irqs_on(regs, nr);
-> =C2=A0
-> =C2=A0	instrumentation_end();
-> =C2=A0	syscall_exit_to_user_mode(regs);
-> @@ -243,13 +244,13 @@ DEFINE_FREDENTRY_RAW(int80_emulation)
-> =C2=A0	 * orig_ax, the int return value truncates it. This matches
-> =C2=A0	 * the semantics of syscall_get_nr().
-> =C2=A0	 */
-> -	nr =3D syscall_enter_from_user_mode_randomize_stack(regs, nr);
-> -
-> -	instrumentation_begin();
-> +	if (likely(syscall_enter_from_user_mode_randomize_stack(regs, &nr))) {
-> +		instrumentation_begin();
-> =C2=A0
-> -	do_syscall_32_irqs_on(regs, nr);
-> +		do_syscall_32_irqs_on(regs, nr);
-> =C2=A0
-> -	instrumentation_end();
-> +		instrumentation_end();
-> +	}
-> =C2=A0	syscall_exit_to_user_mode(regs);
-> =C2=A0}
-> =C2=A0#endif /* !CONFIG_IA32_EMULATION */
-> @@ -286,10 +287,8 @@ static noinstr bool __do_fast_syscall_32
-> =C2=A0		return false;
-> =C2=A0	}
-> =C2=A0
-> -	nr =3D syscall_enter_from_user_mode_work(regs, nr);
-> -
-> -	/* Now this is just like a normal syscall. */
-> -	do_syscall_32_irqs_on(regs, nr);
-> +	if (likely(syscall_enter_from_user_mode_work(regs, &nr)))
-> +		do_syscall_32_irqs_on(regs, nr);
-> =C2=A0
-> =C2=A0	instrumentation_end();
-> =C2=A0	syscall_exit_to_user_mode(regs);
-> --- a/arch/x86/entry/syscall_64.c
-> +++ b/arch/x86/entry/syscall_64.c
-> @@ -78,14 +78,14 @@ static __always_inline void do_syscall_x
-> =C2=A0/* Returns true to return using SYSRET, or false to use IRET */
-> =C2=A0__visible noinstr bool do_syscall_64(struct pt_regs *regs, long nr)
-> =C2=A0{
-> -	nr =3D syscall_enter_from_user_mode_randomize_stack(regs, nr);
-> +	if (likely(syscall_enter_from_user_mode_randomize_stack(regs, &nr))) {
-> +		instrumentation_begin();
-> =C2=A0
-> -	instrumentation_begin();
-> +		if (!do_syscall_x64(regs, nr))
-> +			do_syscall_x32(regs, nr);
-> =C2=A0
-> -	if (!do_syscall_x64(regs, nr))
-> -		do_syscall_x32(regs, nr);
-> -
-> -	instrumentation_end();
-> +		instrumentation_end();
-> +	}
-> =C2=A0	syscall_exit_to_user_mode(regs);
-> =C2=A0
-> =C2=A0	/*
-> --- a/include/linux/entry-common.h
-> +++ b/include/linux/entry-common.h
-> @@ -111,16 +111,15 @@ static __always_inline long syscall_trac
-> =C2=A0 * @regs:	Pointer to currents pt_regs
-> =C2=A0 * @syscall:	The syscall number
-> =C2=A0 *
-> - * Invoked from architecture specific syscall entry code with interrupts
-> - * enabled after invoking enter_from_user_mode(), enabling interrupts an=
-d
-> - * extra architecture specific work.
-> + * Invoked from architecture specific syscall entry code with interrupts=
- enabled
-> + * after invoking enter_from_user_mode(), enabling interrupts and extra
-> + * architecture specific work with the syscall return value preset to -E=
-NOSYS.
-> =C2=A0 *
-> - * Returns: The original or a modified syscall number
-> + * Returns: True if the syscall should be invoked, False otherwise.
-> =C2=A0 *
-> - * If the returned syscall number is -1 then the syscall should be
-> - * skipped. In this case the caller may invoke syscall_set_error() or
-> - * syscall_set_return_value() first.=C2=A0 If neither of those are calle=
-d and -1
-> - * is returned, then the syscall will fail with ENOSYS.
-> + * If the return value is false, the caller must skip the syscall and le=
-ave the
-> + * syscall return value unmodified as it might have been set by one of t=
-he entry
-> + * work functions.
-> =C2=A0 *
-> =C2=A0 * It handles the following work items:
-> =C2=A0 *
-> @@ -128,19 +127,20 @@ static __always_inline long syscall_trac
-> =C2=A0 *=C2=A0=C2=A0=C2=A0=C2=A0 ptrace_report_syscall_permit_entry(), __=
-seccomp_permit_syscall(), trace_sys_enter()
-> =C2=A0 *=C2=A0 2) Invocation of audit_syscall_entry()
-> =C2=A0 */
-> -static __always_inline long syscall_enter_from_user_mode_work(struct pt_=
-regs *regs, long syscall)
-> +static __always_inline bool syscall_enter_from_user_mode_work(struct pt_=
-regs *regs, long *syscall)
-> =C2=A0{
-> =C2=A0	unsigned long work =3D READ_ONCE(current_thread_info()->syscall_wo=
-rk);
-> =C2=A0
-> -	if (work & SYSCALL_WORK_ENTER) {
-> -		if (!syscall_trace_enter(regs, work, syscall))
-> -			return -1L;
-> +	if (!(work & SYSCALL_WORK_ENTER))
-> +		return true;
-> =C2=A0
-> -		/* Reread the syscall number as it might have been modified */
-> -		syscall =3D syscall_get_nr(current, regs);
-> -	}
-> +	if (unlikely(!syscall_trace_enter(regs, work, *syscall)))
-> +		return false;
-> =C2=A0
-> -	return syscall;
-> +	/* Reread the syscall number as it might have been modified */
-> +	*syscall =3D syscall_get_nr(current, regs);
-> +
-> +	return true;
-> =C2=A0}
-> =C2=A0
-> =C2=A0/**
