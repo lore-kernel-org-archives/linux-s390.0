@@ -1,156 +1,180 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+Received: from mail-wm1-f46.google.com (mail-wm1-f46.google.com [209.85.128.46])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 40E86370AE5
-	for <linux-s390@vger.kernel.org>; Tue, 14 Jul 2026 07:29:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA1463EF64F
+	for <linux-s390@vger.kernel.org>; Tue, 14 Jul 2026 07:39:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784014163; cv=none; b=M/rh0V9sc0wCfCUZs2vUiTy6GDJnQz5PLRzBC/6bD3AVpDsgFu0Ok7Mm4s9c/wY31d8uwayP14rFq0VGhsDqqyPiDjhqicOpkcd6vQ9KzfbyYPt/Nyceb9pIMW7WDX1Qjp8MjfHJ9vguL6CZEw3SUBsmBn4FY0e60RT4tA5Ajfg=
+	t=1784014803; cv=none; b=hG+4pyawkH1S3DKrYvX7C/qh4TD05YsC1ckMLFJbNfDsdX43CE39tkFQhkW7DGOzLeA22YcgU+07Ym4MorpwGXEGmtQ9NJT/N5j7Uu5wXDhvA4Mt0p803xZskwpXBwocLRulM4neOC07il8nNlw58TFEwEGAYPec5URT3BjXiM0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784014163; c=relaxed/simple;
-	bh=qDt93a+EwrorpyaBSh1iasbFveXzrdCrAoSZ4MwufC0=;
+	s=arc-20240116; t=1784014803; c=relaxed/simple;
+	bh=Ii4QglIlNfk2AF9Ta5Xci6IGgX7bNyNYfS9+14rJzNM=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=dyD6JFP7i2uvR6PL2MS7QioQNifeqmmYLSyvzy2/cSB64pKt7G8kg6igIDIi/14hDl3mqHlFIAxtZSYppp5Ub5jA5BJDRN+8PT8GajmN92jv1+UNhwvI9Aw1+KJr2EGveiiAmZhG6gCsupJyW1b7tFV58j3n6pIUosDvjUtROlI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; arc=none smtp.client-ip=195.135.223.130
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
-Received: from kunlun.suse.cz (unknown [IPv6:2a07:de40:b306:2000::2])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (prime256v1) server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id D0B5C77D39;
-	Tue, 14 Jul 2026 07:29:14 +0000 (UTC)
-Authentication-Results: smtp-out1.suse.de;
-	none
-Date: Tue, 14 Jul 2026 09:29:13 +0200
-From: Michal =?iso-8859-1?Q?Such=E1nek?= <msuchanek@suse.de>
-To: Thomas Gleixner <tglx@kernel.org>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Shrikanth Hegde <sshegde@linux.ibm.com>,
-	linuxppc-dev@lists.ozlabs.org, Huacai Chen <chenhuacai@kernel.org>,
-	loongarch@lists.linux.dev, Paul Walmsley <pjw@kernel.org>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	linux-riscv@lists.infradead.org,
-	Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org,
-	x86@kernel.org, Mark Rutland <mark.rutland@arm.com>,
-	Jinjie Ruan <ruanjinjie@huawei.com>,
-	Magnus Lindholm <linmag7@gmail.com>,
-	"Mukesh Kumar Chaurasiya (IBM)" <mkchauras@gmail.com>,
-	Jonathan Corbet <corbet@lwn.net>, Radu Rendec <radu@rendec.net>
-Subject: Re: [patch 4/4] entry, treewide: Make
- syscall_enter_from_user_mode[_work]() indicate syscall execution
-Message-ID: <alXlSUcT2TWOlM7r@kunlun.suse.cz>
-References: <20260712134433.549076055@kernel.org>
- <20260712141346.772209074@kernel.org>
- <alSlg72c8xmjaj48@kunlun.suse.cz>
- <871pd6r0ou.ffs@fw13>
+	 Content-Type:Content-Disposition:In-Reply-To; b=tzMRmTdAWT8eJaalzdkTwFAvSnDDLwtzByQmj9/Y+p9G4lMqvmBvU+/P5DSVqkjGvx2Q5QIZaRrH0iNtSkIHBdzIzrDeMltSpT/+ren8vnLKhyVSu15UaDyTEwULW4JL1/g4+F+qVH53+mpCGBf5Vh0lD319WGweAFRiQU1c9SI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20251104.gappssmtp.com header.i=@resnulli-us.20251104.gappssmtp.com header.b=MXGbOTxb; arc=none smtp.client-ip=209.85.128.46
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=resnulli-us.20251104.gappssmtp.com header.i=@resnulli-us.20251104.gappssmtp.com header.b="MXGbOTxb"
+Received: by mail-wm1-f46.google.com with SMTP id 5b1f17b1804b1-493b77b150aso4641975e9.2
+        for <linux-s390@vger.kernel.org>; Tue, 14 Jul 2026 00:39:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=resnulli-us.20251104.gappssmtp.com; s=20251104; t=1784014798; x=1784619598; darn=vger.kernel.org;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :content-type:mime-version:references:message-id:subject:cc:to:from
+         :date:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=7C5iWjcphG9+X8eLvvIf+CpqUo2Z4rnWqlw/CwVzzuA=;
+        b=MXGbOTxb/bWGnJSaW6/5X7OBDtdY5cRnC3WhClHMgp+BSOmlZyRVXImcF77gCuruCm
+         JABkSDaLE4PVCwElIQtzeRBaqXfMR3PpBt6qPdPC5uBXSlyAuFjCMHaLLjfp0Mt7swqP
+         as9OJpiGN+iybBbWENmIMOzoGxLznGHJzWF3KkEYSRddBIqZlhxs1IgNh5COjZRpafJa
+         VsA3ozpE/9f7aJ7SPQkdjW7lQxqUD0sNDYZYhXNmaNxtXjaSjL+h8DSkLZ828gGWtcT0
+         Rln1x8RKDBYr+cxoGWwi6+x6sb7xkooEkMGJHt+njcSi4vLJZlcWfPoK9ojLCvFIP0Zv
+         lhSg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784014798; x=1784619598;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :content-type:mime-version:references:message-id:subject:cc:to:from
+         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=7C5iWjcphG9+X8eLvvIf+CpqUo2Z4rnWqlw/CwVzzuA=;
+        b=de0BruIxve080MgeA1SRAbMIsrMDed3Z31h5DUExKoaLMDxunAIeK5fAihk21Njl4B
+         PIb+AF34ixbXBMVV6B/cnMO5a9Dr1yoOQtia3Is8WpAFaNhb752zytLy57cSpMlEk9e2
+         qcXNN7Qw5O2G5vZ+/hZ5V0Z4Tc5wylgQ5S5DwBuCeK5NrQIE3yumKLAFdVGHhdGF7qLG
+         8XgnNKs+W+Yp8nF1WNrfT+CM08JJa86hLMXbXkeyy5NXb+OHrvTL6SgrMFI9da004o9n
+         Da0jrPg7P3xkHg9vjhA+Dzb3NkfGFEwWR8fNW9pcuv2FpXHjDYABl/LP6qpcz9vwv/mQ
+         c8lA==
+X-Forwarded-Encrypted: i=1; AHgh+RoBmB4XaeLwFUda8tFrBsEjytG29sgcKFj4VFlQ02sgHUUgs4Q7wGGwox7Cgq6yP6yDSqP82yPyascT@vger.kernel.org
+X-Gm-Message-State: AOJu0YwYXJQjuFkiayXcFuAEV1Oa1au5WTCryDZtmUFdVp91PHDcZLEC
+	zh3qDRSbtM6Z/8XfbXd3zTlrCpXIy1iE9k2O/D1CBq1rc3yzAGHIxlxrOKvoXloYDXo=
+X-Gm-Gg: AfdE7ckfjXfEozCpIXulYaCuCfXebImgBKp+exS2nU1DhOa//qfor/2xPjm6w8t7vRJ
+	WmHjM0rdFV3zuM5nCsiShdQlvlXc0MqvvnxzDLtolumqj6b6uX2tfBvioSZTT1jKRB+eOHcSRqk
+	gx98d/ELACQ7XwRT9MASzgYkzJb7TnY7sogC4ofkwbILaVQaRrU9JTCL2mZcpXoh9owohdbq2YP
+	qwO5HXJYur1c7A9bzLzQC/4Ya1czSxHsWhr6MaapBiYdXMTX+d0/6TXwul2tWjqrD9IPa53w99P
+	pTLWPchaB2HoVD/eEz+A7bA4ajt8MeIlXioQj/y/A4LeH+4HUQRCxFI18rMRb+LJ1axM16Xniux
+	IW1GgCSIXVlNkNCe9zRK1qtYIgEydTbK5Pt/50M4Ucs1qR7qbRc2BF8qsHI2PzpEmuP2C2nSSrB
+	gIso3mMKf6Ik0wMrBn0Dagqw==
+X-Received: by 2002:a05:600c:1f87:b0:493:f870:fbf0 with SMTP id 5b1f17b1804b1-493f88b3693mr153093885e9.34.1784014797971;
+        Tue, 14 Jul 2026 00:39:57 -0700 (PDT)
+Received: from localhost ([140.209.217.211])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4950a322bcbsm63449225e9.9.2026.07.14.00.39.57
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 14 Jul 2026 00:39:57 -0700 (PDT)
+Date: Tue, 14 Jul 2026 09:39:53 +0200
+From: Jiri Pirko <jiri@resnulli.us>
+To: Tao Cui <cui.tao@linux.dev>
+Cc: Michal =?utf-8?Q?Koutn=C3=BD?= <mkoutny@suse.com>, 
+	linux-rdma@vger.kernel.org, cgroups@vger.kernel.org, netdev@vger.kernel.org, 
+	linux-s390@vger.kernel.org, linux-kselftest@vger.kernel.org, jgg@ziepe.ca, leon@kernel.org, 
+	parav@nvidia.com, mbloch@nvidia.com, cmeiohas@nvidia.com, roman.gushchin@linux.dev, 
+	bvanassche@acm.org, zyjzyj2000@gmail.com, shuah@kernel.org, tj@kernel.org, 
+	hannes@cmpxchg.org, alibuda@linux.alibaba.com, dust.li@linux.alibaba.com, 
+	sidraya@linux.ibm.com, wenjia@linux.ibm.com
+Subject: Re: [PATCH rdma-next 08/13] RDMA/cgroup: Scope rdma cgroup device
+ visibility to the net namespace
+Message-ID: <alXmwzDASDFaeVNZ@FV6GYCPJ69>
+References: <20260709095532.855647-1-jiri@resnulli.us>
+ <20260709095532.855647-9-jiri@resnulli.us>
+ <ak-Z071LrWhnI5lK@localhost.localdomain>
+ <alSxB0wziQnNuyfn@FV6GYCPJ69>
+ <2fc297ce-7259-4410-9d86-ccc32485622f@linux.dev>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <871pd6r0ou.ffs@fw13>
-X-Rspamd-Pre-Result: action=no action;
-	module=replies;
-	Message is reply to one we originated
-X-Rspamd-Queue-Id: D0B5C77D39
-X-Spam-Flag: NO
-X-Spam-Score: -2.00
-X-Spam-Level: 
-X-Rspamd-Action: no action
-X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
-X-Rspamd-Pre-Result: action=no action;
-	module=replies;
-	Message is reply to one we originated
-X-Spamd-Result: default: False [-2.00 / 50.00];
-	REPLY(-4.00)[];
-	RDNS_NONE(2.00)[]
+In-Reply-To: <2fc297ce-7259-4410-9d86-ccc32485622f@linux.dev>
 
-On Tue, Jul 14, 2026 at 12:20:49AM +0200, Thomas Gleixner wrote:
-> On Mon, Jul 13 2026 at 10:44, Michal Such�nek wrote:
-> > On Sun, Jul 12, 2026 at 11:25:32PM +0200, Thomas Gleixner wrote:
-> >> The return values of syscall_enter_from_user_mode[_work]() are
-> >> non-intuitive. Both functions return the syscall number which should be
-> >> invoked by the architecture specific syscall entry code. The returned
-> >> number can be:
-> >> 
-> >>   - the unmodified syscall number which was handed in by the caller
-> >> 
-> >>   - a modified syscall number (ptrace, seccomp, trace/probe/bpf)
-> >> 
-> >> That has an additional twist. If the return value is -1L then the caller is
-> >> not allowed to modify the return value as that indicates that the modifying
-> >> entity requests to abort the syscall and set the return value already. That
-> >> can obviously not be differentiated from a syscall which handed in -1 as
-> >> syscall number.
-> >> 
-> >> The most trivial way to deal with that is:
-> >> 
-> >>     set_return_value(regs, -ENOSYS);
-> >>     nr = syscall_enter_from_user_mode(regs, nr);
-> >>     if (valid(nr))
-> >>     	handle_syscall(regs, nr);
-> >> 
-> >> That's what LOONGARCH, RISCV, and X86 do. But PowerPC and S390 do not
-> >> preset the return value, so when user space hands in -1 and there is
-> >> nothing setting the return value in the entry work code, then the syscall
-> >> is skipped but the return value is whatever random data has been in the
-> >> return value register.
-> >
-> > The reason why PowerPC and S390 do not preset the return value is that
-> > the return value uses the same register as the syscall number. There are
-> > apparently other architectures on which the return value overlaps with
-> > the arguments which also do not preset the return value for that reason.
-> > If they would use the generic entry the same problem would arise.
-> 
-> That's an implementation choice of PPC/S390 as I explained before, which
-> could trivially be solved by having an explicit pt_regs->return_val
-> member,
-> 
-> >> Change the return values of syscall_enter_from_user_mode[_work]() to
-> >> boolean and return false, when either ptrace or seccomp request to skip the
-> >
-> > There is a difference between seccomp and ptrace.
-> >
-> > When seccomp indicates to skip the syscall it has also set the syscall
-> > return value.
-> >
-> > However, when the syscall number is -1 and the return value is not
-> > preset that does not indicate anything.
-> 
-> I agree it's an invalid syscall, but the current generic entry code made
-> the rightful assumption that returning -1L as the syscall number either
-> results in -ENOSYS or in the value which was set by one of the entry
-> mechanisms as that code originated from the x86 implementation.
+Tue, Jul 14, 2026 at 04:28:01AM +0200, cui.tao@linux.dev wrote:
+>
+>
+>在 2026/7/13 17:34, Jiri Pirko 写道:
+>> Thu, Jul 09, 2026 at 03:04:23PM +0200, mkoutny@suse.com wrote:
+>>> Hi.
+>>>
+>>> On Thu, Jul 09, 2026 at 11:55:27AM +0200, Jiri Pirko <jiri@resnulli.us> wrote:
+>>>> index 993446ab66d0..4523c1884d67 100644
+>>>> --- a/Documentation/admin-guide/cgroup-v2.rst
+>>>> +++ b/Documentation/admin-guide/cgroup-v2.rst
+>>>> @@ -2752,6 +2752,13 @@ RDMA
+>>>>  The "rdma" controller regulates the distribution and accounting of
+>>>>  RDMA resources.
+>>>>  
+>>>> +When RDMA devices are isolated per network namespace (exclusive mode),
+>>>> +device names are unique only within a network namespace. The device lines
+>>>> +below are therefore scoped to the reading or writing process's network
+>>>> +namespace: only devices accessible from that namespace are listed, and a
+>>>> +limit is applied to the device of that name in that namespace. Configure
+>>>> +limits from the same network namespace as the workloads.
+>>>
+>>> OK.
+>>>
+>>>> --- a/include/linux/cgroup_rdma.h
+>>>> +++ b/include/linux/cgroup_rdma.h
+>>>> @@ -7,6 +7,7 @@
+>>>>  #define _CGROUP_RDMA_H
+>>>>  
+>>>>  #include <linux/cgroup.h>
+>>>> +#include <net/net_namespace.h>
+>>>>  
+>>>>  enum rdmacg_resource_type {
+>>>>  	RDMACG_RESOURCE_HCA_HANDLE,
+>>>> @@ -34,6 +35,15 @@ struct rdmacg_device {
+>>>>  	struct list_head	dev_node;
+>>>>  	struct list_head	rpools;
+>>>>  	char			*name;
+>>>> +	/*
+>>>> +	 * Net namespace the device belongs to. @netns_shared mirrors
+>>>> +	 * ib_devices_shared_netns: when true the device is visible from every
+>>>> +	 * net namespace (shared mode); otherwise @net is the only namespace
+>>>> +	 * that may see and configure it. @netns_shared is updated when the
+>>>> +	 * sharing mode changes, so use {READ,WRITE}_ONCE() to access it.
+>>>> +	 */
+>>>> +	possible_net_t		net;
+>>>> +	bool			netns_shared;
+>>>
+>>> Any reason to store the netns_shared split per device? (IIUC, it's a
+>>> global parameter.)
+>> 
+>> No reason, changed.
+>> 
+>Hi Jiri,
+>
+>A question on the v2 you mentioned to Michal.
+>
+>Once netns_shared stops being cached per rdmacg_device,
+>rdmacg_device_visible() in kernel/cgroup/rdma.c still needs the current
+>sharing mode, whose authoritative value lives in the IB core
+>(ib_devices_shared_netns). How do you plan to expose it there without
+>the generic cgroup controller reaching back into drivers/infiniband/?
+>Exporting the global, or keeping an IB-side update hook, both feel a bit
+>awkward; it would be good to see which direction you took.
 
-You know, the world is not x86. For 20+ years that is not true.
+Exposing this from ib side is not doable, as IB may be compiled as a
+module. So what I do is I intrododuce "static bool rdmacg_netns_shared"
+in cgroup/rdma.c and exported function rdmacg_set_netns_shared() to set
+it from IB.
 
-> 
-> It's not the fault of that code that PPC and S390 converted their stuff
-> over without paying attention to that detail.
 
-So this is not generic entry but rather x86-like entry do I get it
-correct?
-
-> 
-> > The return value can still hold garbage. ptrace does not have the
-> > ability to indicate that a syscall is to be skipped, at least on the
-> > entry trace. It needs to be skipped based on the syscall number being
-> > invalid.
-> 
-> That's what I explained you before and you told me I'm all wrong.
-> 
-> But that's moot as this latest version does not care anymore. The
-> architectures whixh preset the return value are correct under all
-> circumstances and PPC/S390 can keep their own world view.
-
-So do I get it that you do not care about breaking userspace then?
-
-Thanks
-
-Michal
+>
+>On the mechanism itself: it's the right call that rdmacg_try_charge()
+>stays out of the scoping. Charging takes the rdmacg_device pointer
+>directly (no name lookup), and a task can only charge a device it
+>already holds a handle to, so applying visibility there would be wrong.
+>The scoping deliberately touches only the name-based lookup (the write
+>path) and the enumeration (read/show) paths -- worth keeping that
+>invariant in mind so a later patch doesn't grow the filter.
+>
+>Thanks,
+>Tao> Thanks!
+>> 
+>>>
+>>> Thanks,
+>>> Michal
+>> 
+>> 
+>> 
+>
