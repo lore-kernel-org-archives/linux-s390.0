@@ -1,157 +1,165 @@
-Received: from mail-wr1-f53.google.com (mail-wr1-f53.google.com [209.85.221.53])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9507B20ADF8
-	for <linux-s390@vger.kernel.org>; Tue, 14 Jul 2026 11:39:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E6323F4102
+	for <linux-s390@vger.kernel.org>; Tue, 14 Jul 2026 11:45:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784029165; cv=none; b=UNdn+NffGaG8MZeRwOGzsQZbYqzZyzgxxAV+rRAqBJ5i1I5zVhVvFOF5TFNqptMw4I6vhv574jX8gqClylO3JtNdwN1NQEhQt0mj+0o6yqhDf855uopJYbl1XAvZOq8bH2MKEkSa3bm3JblIOQkrHnkqBwr393AQFBZj6mqubrI=
+	t=1784029541; cv=none; b=HNyP1dSpGx6KbiCMvDZnxm2OAh1qsE6A2SVI2RrM3A9mI2KmasFQkUwy412ASSCbakGzz+FaLcBUTRrsKAFDIF+zq21qZHXSwnWB0s0ib30Lt0oraT1NTTuTNomO/MdqnfM5GuWGyVQoAJ5/6gz0d8IwmSWTZUooDr5RmhPmwrM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784029165; c=relaxed/simple;
-	bh=JDGlkO80/4eCZ+xaiLytlvS5xjqXuTVj0rvJyW8fk18=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=qA/UrnKm6JPj33pReMVHEf5OFrWJI64vSaSAF98zqr+XSok2TSH5Gq6Y07XqWemHMyVg6Qb19xEt1z2+pI2onW3iTqhHIqfBIzfzYugC2VskX/vP+VMK75kS5IwvimMOeWvk59vjQKjAYZ47yYwQfjZ6S+r2de66lO2kPDHDLpI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20251104.gappssmtp.com header.i=@resnulli-us.20251104.gappssmtp.com header.b=zhTNYRpH; arc=none smtp.client-ip=209.85.221.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
+	s=arc-20240116; t=1784029541; c=relaxed/simple;
+	bh=7KjE4Vmm4HhBtt3W0h44WCR5aooV3E4nQXTFDXZnM0I=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=VqQPix9XWZxaA6fcHRWCYeNIku0LncCN9sHz4YmlYFjdFdn5f9FGqwGLbgSrjgO3ZPSIvci9gIKX2yFzxl/GHRGq0rMvPx5BkO6JtSYxVcBYeCbBSpnxz4y2Udn2+sWEzToxakyP7muoYUKT6uA6ymCpOVa2uEnGmM9C5k67VMQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=khEM2goh; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=resnulli-us.20251104.gappssmtp.com header.i=@resnulli-us.20251104.gappssmtp.com header.b="zhTNYRpH"
-Received: by mail-wr1-f53.google.com with SMTP id ffacd0b85a97d-47c2b362ee2so3705281f8f.1
-        for <linux-s390@vger.kernel.org>; Tue, 14 Jul 2026 04:39:21 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=resnulli-us.20251104.gappssmtp.com; s=20251104; t=1784029159; x=1784633959; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=YVAZD/QZRiDNfNtUy5ZL8amdKrMPkHTvglBUm1ucEk0=;
-        b=zhTNYRpHngZIR13oxWatl7kCC/5u7DLRypaENSAPIjZRms9qvZjoz4JB4t4zyxtJ9Z
-         Xb8iW2h6KmE+HtKWJZ10Hkkp41prUNauB3Ah1RqCSznq4QBxI1BIR8gRSUF8uMIv9Cj/
-         Qce200CW42aJzRDqMevBT9Zf/jMdJ502LoKv+pUDkHgtHz0XzYb114vYYMTvtJ+X+iSC
-         5lBt7t0AhbIiztG9a9WpIcfIeIplVLl0mwGWJ70MwARlzfRqAYcpS0OiiucDFj0uBjTt
-         0VgCajrO9ur+omqJa2xMoPKEjR4YCyCtPSzlkBTay9YPba81i4jVccQk1eVeDGuAna91
-         b7rA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784029159; x=1784633959;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=YVAZD/QZRiDNfNtUy5ZL8amdKrMPkHTvglBUm1ucEk0=;
-        b=aC0aXPRXj5UNzTP9+9v2dApG5/ekgXUhC4rHrYP1p7YBh2wPqy9QqX/Bs2G7eQibl5
-         MxMcL/dJL4YnV2h3A08wEBKZALaEHkNJE5vfuD7Lny+m7ofGfPybfAD2lSxh4ChY5M19
-         rFgTUOb+YZHouGKQ7RozIt6x4FcYjbx9I0VpPdsPBesFknyZq0tNrtMz9dQN10hxY19h
-         SxH0JwhjuwnPAjbE49FT9+ymtmokkM1+ratpi1WQyXkNvOLGwz/K8MCBliRG9crOIq5b
-         FpRu4vLjciEAW18zVZW0K21xPzei9Q0sir2vSE9UAG7fNL53d9hoVNemiPErnaC8iURR
-         sK3w==
-X-Forwarded-Encrypted: i=1; AHgh+RpFZK9DQYmdPmHBVGYz6UfVel3R4TdJdXQLuilnNjHthVzaSZEZKyKSNDFBU4zw8zmDU0hXEe6IHkGh@vger.kernel.org
-X-Gm-Message-State: AOJu0YyO2X3O8JXPPVliq57mfYl6frSd08u89/RIdkZoFfOaOC7HcazQ
-	/xnrwFY0ZfhV7rNMsW3lhCpJZPGq+EOAfJhMBiFwcfabI1IbyJUPbxTOk9k0M9H26jk=
-X-Gm-Gg: AfdE7ckDt8T2Y9xsKHmpiBTZUAXr1KRcRwiXfaZsJ3xTYZk/SIqr6y/yyEHC+bIKmE3
-	B2LqXsAvtRF36I+CPnjFnWnAOYuvSmroc8XfbuT++7RUpQT/gTWYD8xcl1pW8ObWkxNbe+7Puk/
-	fCyBlJjFQ04QbHeEmvF1IYbhdSGMUux4dzZXSfMQMAg7GQEZTEeakxGt18HKnmoQJq2lyhv4Mt9
-	KTTbZKGzUWqqmmV6VaIE0COQcre/upnQJlpVuPxor2Vmj2jwn29iflVZhu6L4451QfLfnGm8ieP
-	JUhwyM3NGWr0Aukcl7eFJ9GtfD6IB9qeOfa1E/MEAS9jNdmQ5rOlHCW7wzBj/6JdeCHSBWURbfP
-	b/Sv2dY/JpaSs5Um72op6QFWYIg1VaEAsBPoiS++K+KGkecY7QI0Ov3gVLr3jkK5UvvDpziQqHv
-	YvNA5n6nAKrEunz7Fsaol2hQ==
-X-Received: by 2002:a5d:59c9:0:b0:472:edc7:b4c9 with SMTP id ffacd0b85a97d-47f2dce91aemr14601962f8f.38.1784029159490;
-        Tue, 14 Jul 2026 04:39:19 -0700 (PDT)
-Received: from localhost ([140.209.217.211])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-47f47688f29sm5897940f8f.21.2026.07.14.04.39.18
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 14 Jul 2026 04:39:18 -0700 (PDT)
-Date: Tue, 14 Jul 2026 13:39:15 +0200
-From: Jiri Pirko <jiri@resnulli.us>
-To: sashiko-reviews@lists.linux.dev
-Cc: tj@kernel.org, mkoutny@suse.com, Heiko Carstens <hca@linux.ibm.com>, 
-	hannes@cmpxchg.org, linux-s390@vger.kernel.org, 
-	Alexander Gordeev <agordeev@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>
-Subject: Re: [PATCH rdma-next 08/13] RDMA/cgroup: Scope rdma cgroup device
- visibility to the net namespace
-Message-ID: <alYfV5DlIDBw5J3_@FV6GYCPJ69>
-References: <20260709095532.855647-1-jiri@resnulli.us>
- <20260709095532.855647-9-jiri@resnulli.us>
- <20260710095629.BF89E1F00A3A@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="khEM2goh"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66EBg6GX1195260;
+	Tue, 14 Jul 2026 11:45:27 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=XRMBds
+	E7624obXoG7gQWrrh7YKQrQZXTgOIUys3vZj8=; b=khEM2gohQq5Y3tTWNuiico
+	uMNLnisj8ROEuXC5/mZCIfr1sYM+SjQEOcIuKgwQ9pl8pGRG+TYGlTsScCpSRLkQ
+	OspObTcTiMKEHne2TGq3gZm4GBC+CAFPhcvRHDRatqXPL56t5DuEtENW64yf2tZp
+	g9dRTab7cEa/ux9caJsq5A+/8v6iE5eVF8oRJjLc1ZjoV8r9trS4RIibLo++20nZ
+	90iHmRfqvHu98rd7AUAsTMBWrpZiuo34aIV5F0G+Af4TIyMf0u+TWpkT0K7ovQJf
+	DGa8DBDkSsmV9KhLWqhdvJANS+tZxSKSmfTaSSn+H0nQZZ0fNebaoWpZyWfX7CmA
+	==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fbegbnf6g-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 14 Jul 2026 11:45:27 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66EBYtVB028830;
+	Tue, 14 Jul 2026 11:45:26 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fc2cgabsd-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 14 Jul 2026 11:45:26 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66EBjMwm31326610
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 14 Jul 2026 11:45:22 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9A68120040;
+	Tue, 14 Jul 2026 11:45:22 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4018720043;
+	Tue, 14 Jul 2026 11:45:22 +0000 (GMT)
+Received: from [0.0.0.0] (unknown [9.111.75.242])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 14 Jul 2026 11:45:22 +0000 (GMT)
+Message-ID: <13fa7159-9757-4858-b824-6507494e0876@linux.ibm.com>
+Date: Tue, 14 Jul 2026 13:45:22 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260710095629.BF89E1F00A3A@smtp.kernel.org>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v12 04/17] crypto: Add aes-helpers file to support some
+ AES modes
+To: Harald Freudenberger <freude@linux.ibm.com>, richard.henderson@linaro.org,
+        david@kernel.org, thuth@redhat.com, berrange@redhat.com
+Cc: qemu-s390x@nongnu.org, qemu-devel@nongnu.org, linux-s390@vger.kernel.org,
+        dengler@linux.ibm.com, borntraeger@linux.ibm.com,
+        fcallies@linux.ibm.com, cohuck@redhat.com
+References: <20260710152906.80207-1-freude@linux.ibm.com>
+ <20260710152906.80207-5-freude@linux.ibm.com>
+Content-Language: en-US
+From: Ilya Leoshkevich <iii@linux.ibm.com>
+In-Reply-To: <20260710152906.80207-5-freude@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=fOcJG5ae c=1 sm=1 tr=0 ts=6a562157 cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+ a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8
+ a=WUVNbM32cKeQYF9Oq8QA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzE0MDEyMiBTYWx0ZWRfXzkgvM/ahkiuz
+ BJvl5yCKD9msBu/AlHJQEfTVuv/UuuuN5zH1KTISf+w8OocZOohUxLz1cea2DiWjc9hRJn8DEh2
+ D/1166VJkdI/+Ebrgt2T7GUyX3Zw/fk+oEWvZOySsuQ5BEKxnWd9HkB8vK5LObRHtdBpqzPxF/T
+ AIfDhJTMJyoTsDI/8kl23Y0wZJc8xjbVVC8Vq2AJE+jaKhHKY5Bl/cOqOu4PI2/5lHVLLXaCZcu
+ UUIr2825cNbrcsssveAYFFBWgffKhtBsQghIPxsdf8QnzZ1f8agbAHmU3rpLxJKMVmsnE0mBEv8
+ hHr2MftFrsNMpyM4HTVG4yj/p98ixIwymL/7hxsKm5QkwTJrOOnzTpyDBNtXwui7YwS800rW/iH
+ Qz/jn3Ns6ZZgpeZt33NRTvz8CNcpLow8uiMMK26HyDho2q5++zSVgdoNDtgVEAy2Gprl9yCcsYS
+ tNziaXIUBJUWebatFVw==
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzE0MDEyMiBTYWx0ZWRfX6ekDmdL2J2bX
+ w+3LKhWg2T/lZYv4/fNudJhpn96o1WNkdB5sX1MEX89Lc4oeYgvCcwABZlcsnn+MMBVzUpRh1LX
+ EtL6kEVIgV9Jyxdzec4BwMHIQ8Id/kE=
+X-Proofpoint-GUID: jHlziirphkBA0ndbKNkzi_KghgiMvy-j
+X-Proofpoint-ORIG-GUID: jHlziirphkBA0ndbKNkzi_KghgiMvy-j
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-07-14_03,2026-07-10_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ spamscore=0 bulkscore=0 impostorscore=0 suspectscore=0 adultscore=0
+ priorityscore=1501 malwarescore=0 clxscore=1015 phishscore=0
+ lowpriorityscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2607140122
 
-Fri, Jul 10, 2026 at 11:56:29AM +0200, sashiko-bot@kernel.org wrote:
->Thank you for your contribution! Sashiko AI review found 2 potential issue(s) to consider:
->- [High] Scoping RDMA cgroup device visibility to the reader's network namespace breaks host-level cgroup administration and monitoring.
->- [Medium] Concurrent lockless read of `device->net` using `read_pnet()` without `READ_ONCE()` leads to a data race.
->--
->
->--- Patch [8]: [PATCH rdma-next 08/13] RDMA/cgroup: Scope rdma cgroup device visibility to the net namespace ---
->commit 18e4bddcfb08bd42bef710d6d1b72824d15fa2c9
->Author: Jiri Pirko <jiri@resnulli.us>
->
->RDMA/cgroup: Scope rdma cgroup device visibility to the net namespace
->
->Track each rdma cgroup device's net namespace and sharing mode, then filter
->name lookups and cgroupfs enumeration to devices visible from the caller's
->namespace. Keep the cached sharing mode synchronized across registration,
->netns moves, and runtime mode changes.
->
->> diff --git a/kernel/cgroup/rdma.c b/kernel/cgroup/rdma.c
->> index 5e82a03b3270a..c8b4e3de76305 100644
->> --- a/kernel/cgroup/rdma.c
->> +++ b/kernel/cgroup/rdma.c
->[ ... ]
->> @@ -464,6 +465,13 @@ void rdmacg_unregister_device(struct rdmacg_device *device)
->>  }
->>  EXPORT_SYMBOL(rdmacg_unregister_device);
->>  
->> +/* netns_shared is toggled without rdmacg_mutex, hence READ_ONCE(). */
->> +static bool rdmacg_device_visible(const struct rdmacg_device *device)
->> +{
->> +	return READ_ONCE(device->netns_shared) ||
->> +	       net_eq(read_pnet(&device->net), current->nsproxy->net_ns);
->
->[Severity: Medium]
->Does this lockless read of device->net using read_pnet() cause a data race?
->
->When another thread concurrently moves the RDMA device to a new network
->namespace, it updates device->net:
->
->drivers/infiniband/core/cgroup.c:ib_device_rdmacg_change_netns() {
->	write_pnet(&device->cg_device.net, net);
->}
->
->While write_pnet() uses rcu_assign_pointer() to update the pointer concurrently,
->read_pnet() here expands to a plain pointer access without READ_ONCE(). Since
->rdmacg_mutex is not held during the write, could this plain read race with the
->assignment and cause undefined behavior?
->
->[Severity: High]
->Does tying RDMA cgroup device visibility to the reader's network namespace
->break host-level cgroup administration and monitoring?
->
->If a device is moved to a non-init network namespace (exclusive mode), host
->administrators and orchestration tools (like systemd or Kubernetes running in
->init_net) will completely lose visibility and control over its RDMA cgroup
->resources. Attempting to write to rdma.max will result in -ENODEV, and reading
->rdma.current will show an empty list for these devices.
->
->Since cgroup state must reflect the cgroup's configuration independent of the
->reading process's network namespace, does tying the UAPI to
->current->nsproxy->net_ns violate VFS semantics where an open file descriptor's
->behavior would dynamically change depending on which process calls write()?
 
-This report made me think a bit more about the current approach.
-A cgroup may contain processes using devices from multiple network
-namespaces, so caller-relative filtering can hide part of its state
-from host administrators and make the same open file behave differently
-depending on the calling task. That does not look and feel correct.
 
-Instead, to handle device names that are duplicated across network
-namespaces, v2 will use the system-wide RDMA device index for
-disambiguation. The existing name-only format will remain unchanged
-for unique names. For duplicate names, reads will include an `index=N`
-selector and writes will require it; ambiguous name-only writes will
-fail with `-ENOTUNIQ`.
+On 7/10/26 17:28, Harald Freudenberger wrote:
+> Add a new file crypto/aes-helpers.c with simple functions
+> to support some AES modes:
+> - AES cbc: AES_cbc_encrypt() AES_cbc_decrypt()
+> - AES ctr: AES_ctr_encrypt()
+> - AES xts: AES_xts_encrypt() AES_xts_decrypt()
+> and some AES related helpers:
+> - AES_xor()
+> - AES_xts_prep_next_tweak()
+> Add header file include/crypto/aes-helpers.h for these functions
+> 
+> Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
+> Reviewed-by: Finn Callies <fcallies@linux.ibm.com>
+> ---
+>   crypto/aes-helpers.c         | 106 ++++++++++++++++++++++++++++++++
+>   crypto/meson.build           |   1 +
+>   include/crypto/aes-helpers.h | 116 +++++++++++++++++++++++++++++++++++
+>   3 files changed, 223 insertions(+)
+>   create mode 100644 crypto/aes-helpers.c
+>   create mode 100644 include/crypto/aes-helpers.h
+> 
+> diff --git a/crypto/aes-helpers.c b/crypto/aes-helpers.c
+> new file mode 100644
+> index 0000000000..ff4aa0a385
+> --- /dev/null
+> +++ b/crypto/aes-helpers.c
+
+[...]
+
+> +void AES_ctr_encrypt(const unsigned char *in, unsigned char *out,
+> +                     const unsigned char *ctr, const AES_KEY *key)
+> +{
+> +    unsigned char buf[AES_BLOCK_SIZE];
+> +
+> +    /* encrypt ctr => buf */
+> +    AES_encrypt(ctr, buf, key);
+> +    /* exor input data with encrypted ctr => out */
+> +    AES_xor(in, buf, out);
+> +}
+> +
+> +/*
+> + * Tweak calculation for AES XTS.
+> + * Multiply tweak by α (x) in GF(2^128) per IEEE 1619-2007. The tweak
+> + * is a 128-bit little-endian integer (tweak[0]=LSB, tweak[15]=MSB).
+> + * This implementation has been verified on litte and big endian.
+> + */
+
+Nit: do we need to have this comment twice?
+It's already present in the header.
+
+Also typo: litte -> little (but I'm not sure if we even need to state
+that in the code).
+
+[...]
+
+Reviewed-by: Ilya Leoshkevich <iii@linux.ibm.com>
