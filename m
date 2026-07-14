@@ -1,123 +1,161 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 377E8245019
-	for <linux-s390@vger.kernel.org>; Tue, 14 Jul 2026 14:42:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0A3BA480965;
+	Tue, 14 Jul 2026 14:47:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784040168; cv=none; b=aOfIYX7RRABP1ToNhrD/h5XC3Ho2qFY5fwQSuis1zgqy2SrSxFfUWsGY2M+XWUX7dbo1RqxLvMUkVJwU16vHPEgxhQOA6FkT31ZwD/yawVfm9ewDmpYM5624/+xvIrbFkjB4AkK8AP0skfJP2KAfa7pEmdR6Gv9THlTgDg4q8As=
+	t=1784040474; cv=none; b=Bza7yLptdtdewhiBZgw1ytZheDYaFD0C3SJ/Kd2sgqFimeYTy9dg9is1F3Lvl7GsFnzzCiDa/Dqz9Il+/GQovQ1U1MinsnZJ2T1HjXOFv01CdLJkHJWDTgV9Y8ptQhVtcYIDHKoR3eeLwVWSi+23TPj2PXnVSuGp4T5IO0xxfRY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784040168; c=relaxed/simple;
-	bh=pywX3Xsz0qNBhUnGp2hnl5t5n8f960UHShK/7mqpttg=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=YZc9ZotZDMFfwh65tYyE9iiF7pc2m1EYeLV2MBwQNKIYFbNMjwaEG9xuukdp26pwf450owEsb3J6erUKj1sexvv22/Nl6jjVbuHs3cQoiNFN22eOQBzidwRpj/Cxr6bCjgty5AoDWopfPe8g00TWuYAlSq3nEM2BEoaBVx8A7QY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nii4LqUT; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1784040474; c=relaxed/simple;
+	bh=7jYtKOqMf6Pgdjyp1ryXf3vuWp1YoknSmjWLVoh7LoQ=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=MZkxJMOCqpcFaEZ1o+2aj+cDNf3hEi77f54SCGN0oPmB1A2UfZeqUjTUNscwO0LhobNgdrVDUVkBJzWYVm/A/4tNTkr43lh8YTqTv41F7ycqEkBSTGq0xua/qddUh6YUyh1OJMbvyNRcOmN+Cd4N7sulNmXqe2mLLbrUxymlLIE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=e9Ly4PiG; arc=none smtp.client-ip=192.198.163.18
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nii4LqUT"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 641C81F000E9;
-	Tue, 14 Jul 2026 14:42:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784040152;
-	bh=02naE/FBngPObjMizTz9qTUL3h29NRxoQl2OwhWRgDY=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=nii4LqUT+DWkfOaJGX4BBvyiPIcWHuSSeeIQzWsYN7HeGZe1YNA8fzr0kGhSuJo42
-	 348HE0eTGV83F8hzwZfw/BrhwAn7D96diaI0Lu1lJHQVYZEtrlD1QsgZ2n552HgGY3
-	 jFpZW6vD09gQiim8yn5gvHoACDwsUeBI2d+tPco8uHfCMmHtVXsQ5Zsmxbmpnrf9Lo
-	 8NvP0Y5MMyIc0UpxJt0/k34rq+CG9C2qxK7FSGuiqPh/aT61ahkZ4YeFLaJVNiCSv5
-	 TJDUKvWo44+41NAFWYrqJ902F62t8X6FlfxrnZbcO9yvWPyGwBA0iPk1xX8kFN1gkX
-	 25Ddd9O7XwgwA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 17/22] mm: pagewalk: drop redundant address check for
- kernel mm walks
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Kevin Brodsky" <kevin.brodsky@arm.com>
-Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
- Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
-In-Reply-To: <20260714-remove_pgtable_cdtor-v1-17-44be8a7685d7@arm.com>
-References: <20260714-remove_pgtable_cdtor-v1-0-44be8a7685d7@arm.com>
- <20260714-remove_pgtable_cdtor-v1-17-44be8a7685d7@arm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 14 Jul 2026 14:42:31 +0000
-Message-Id: <20260714144232.641C81F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="e9Ly4PiG"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1784040471; x=1815576471;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=7jYtKOqMf6Pgdjyp1ryXf3vuWp1YoknSmjWLVoh7LoQ=;
+  b=e9Ly4PiGx8p6EeOqgwCCo3ogOECLln+3LgbYb4Yv5WuGME0Tpk8gWHTv
+   1IoTxMrBZBP7kjeoTNK2fgnHor9t1OVNAlDDcIhvuWXhGl8I/AONN3joF
+   qplvTVV8HTOa1iZk1uN3rnfDKoS3lhhNqUiGYWSkTRfqAKc+2RPGSLJpm
+   XQ1VubuOM8HjQBolWuSBAvzPZY0erIK0vfMIEcOBnVKw16HkxdyDAIK7E
+   Vx2L5ntVvDhYP2DNl//XlJgcEFtblR0VOrMMGKP4Dob7oXZnol+kp4Ws4
+   iv0AShQyn5kGCyIonZcxTe08RVSeL3C7j506FRGckQrv6X0nKt1GmGOGM
+   g==;
+X-CSE-ConnectionGUID: WFlpPhr8T5C6LWkL5WqG1g==
+X-CSE-MsgGUID: 5m5e17zBRX2LU30D7eyBLg==
+X-IronPort-AV: E=McAfee;i="6800,10657,11846"; a="83786095"
+X-IronPort-AV: E=Sophos;i="6.25,163,1779174000"; 
+   d="scan'208";a="83786095"
+Received: from fmviesa009.fm.intel.com ([10.60.135.149])
+  by fmvoesa112.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Jul 2026 07:47:42 -0700
+X-CSE-ConnectionGUID: OiCJe9CqT02Oh0NQ/2atrA==
+X-CSE-MsgGUID: jVw5jRu8SdCoOkbVGYZT+Q==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.25,163,1779174000"; 
+   d="scan'208";a="249522242"
+Received: from aschende-mobl.amr.corp.intel.com (HELO [10.125.108.120]) ([10.125.108.120])
+  by fmviesa009-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Jul 2026 07:47:40 -0700
+Message-ID: <71045fa8-89fe-4a0b-a05b-67e19ce89834@intel.com>
+Date: Tue, 14 Jul 2026 07:47:43 -0700
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 03/22] mm: introduce MMF_KERNEL flag and set it for
+ init_mm
+To: Kevin Brodsky <kevin.brodsky@arm.com>, linux-mm@kvack.org
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+ David Hildenbrand <david@kernel.org>, Lorenzo Stoakes <ljs@kernel.org>,
+ "Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>,
+ Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>,
+ Michal Hocko <mhocko@suse.com>, Pasha Tatashin <pasha.tatashin@soleen.com>,
+ Russell King <linux@armlinux.org.uk>,
+ Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
+ Ryan Roberts <ryan.roberts@arm.com>, linux-arm-kernel@lists.infradead.org,
+ Huacai Chen <chenhuacai@kernel.org>, loongarch@lists.linux.dev,
+ "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+ Helge Deller <deller@gmx.de>, linux-parisc@vger.kernel.org,
+ Madhavan Srinivasan <maddy@linux.ibm.com>,
+ Michael Ellerman <mpe@ellerman.id.au>, linuxppc-dev@lists.ozlabs.org,
+ Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
+ Albert Ou <aou@eecs.berkeley.edu>, linux-riscv@lists.infradead.org,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Gerald Schaefer <gerald.schaefer@linux.ibm.com>, linux-s390@vger.kernel.org,
+ "David S. Miller" <davem@davemloft.net>,
+ Andreas Larsson <andreas@gaisler.com>, sparclinux@vger.kernel.org,
+ Richard Weinberger <richard@nod.at>,
+ Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+ Johannes Berg <johannes@sipsolutions.net>, linux-um@lists.infradead.org,
+ Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
+ "H. Peter Anvin" <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>,
+ Peter Zijlstra <peterz@infradead.org>, Ning Sun <ning.sun@intel.com>,
+ x86@kernel.org, tboot-devel@lists.sourceforge.net,
+ Ard Biesheuvel <ardb@kernel.org>,
+ Ilias Apalodimas <ilias.apalodimas@linaro.org>, linux-efi@vger.kernel.org,
+ Vishal Moola <vishal.moola@gmail.com>, Alistair Popple <apopple@nvidia.com>,
+ "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+ linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+References: <20260714-remove_pgtable_cdtor-v1-0-44be8a7685d7@arm.com>
+ <20260714-remove_pgtable_cdtor-v1-3-44be8a7685d7@arm.com>
+From: Dave Hansen <dave.hansen@intel.com>
+Content-Language: en-US
+Autocrypt: addr=dave.hansen@intel.com; keydata=
+ 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
+In-Reply-To: <20260714-remove_pgtable_cdtor-v1-3-44be8a7685d7@arm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [High] Removing the `addr >=3D TASK_SIZE` check in `walk_pte_range()` cau=
-ses `ptdump` to clear valid kernel PMDs, leading to memory corruption and a=
- kernel panic.
---
+On 7/14/26 07:03, Kevin Brodsky wrote:
+> +static inline bool mm_is_kernel(const struct mm_struct *mm)
+> +{
+> +	return mm && mm_flags_test(MMF_KERNEL, mm);
+> +}
 
---- Patch [17]: [PATCH 17/22] mm: pagewalk: drop redundant address check fo=
-r kernel mm walks ---
-commit 85b512e55cb35ec57a18d00b67fbf62a68320627
-Author: Kevin Brodsky <kevin.brodsky@arm.com>
+Could we give this some nice comments explaining what a kernel mm is,
+please? Part of the problem with the init_mm checks is that they're
+magic and it's not always clear what's special about init_mm.
 
-mm: pagewalk: drop redundant address check for kernel mm walks
+Maybe start with this list?
 
-This commit removes the addr >=3D TASK_SIZE check from walk_pte_range() for
-no-VMA walks. It relies entirely on mm_is_kernel() to determine whether
-to use pte_offset_kernel() or pte_offset_map().
+1. There's only one of them.
+2. All kernel threads share it. tsk->mm is the same for all kernel
+   threads.
+3. It holds the reference copy of the kernel page tables
+4. Userspace can't be entered when it is the current mm
+5. It has different TLB flushing rules than userspace mms
 
-> diff --git a/mm/pagewalk.c b/mm/pagewalk.c
-> index a3f47d1de3c5a..0dd9d4ad9b689 100644
-> --- a/mm/pagewalk.c
-> +++ b/mm/pagewalk.c
-> @@ -68,17 +68,14 @@ static int walk_pte_range(pmd_t *pmd, unsigned long a=
-ddr, unsigned long end,
->  	if (walk->no_vma) {
->  		/*
->  		 * pte_offset_map() might apply user-specific validation.
-> -		 * Indeed, on x86_64 the pmd entries set up by init_espfix_ap()
-> -		 * fit its pmd_bad() check (_PAGE_NX set and _PAGE_RW clear),
-> -		 * and CONFIG_EFI_PGT_DUMP efi_mm goes so far as to walk them.
->  		 */
-> -		if (mm_is_kernel(walk->mm) || addr >=3D TASK_SIZE)
-> +		if (mm_is_kernel(walk->mm))
->  			pte =3D pte_offset_kernel(pmd, addr);
->  		else
->  			pte =3D pte_offset_map(pmd, addr);
-
-[Severity: High]
-Does removing the addr >=3D TASK_SIZE check here cause ptdump to clear valid
-kernel PMDs?
-
-When tools like ptdump walk the address space (e.g. via
-/sys/kernel/debug/page_tables/current_kernel), they may walk kernel address=
-es
-using current->mm, which is a user mm. In this case, mm_is_kernel() returns
-false, causing walk_pte_range() to use pte_offset_map() for kernel addresse=
-s.
-
-On x86, pte_offset_map() eventually calls __pte_offset_map(), which validat=
-es
-the PMD using pmd_bad(). If a kernel PMD (such as the espfix mapping) fails
-this check because it intentionally lacks _PAGE_RW and sets _PAGE_NX,
-__pte_offset_map() unconditionally clears it via pmd_clear_bad().
-
-Since kernel page tables are shared via init_mm, clearing the PMD permanent=
-ly
-destroys the global espfix mapping. The next IRET to a 16-bit userspace
-segment would then encounter a missing page table, triggering a Double Fault
-kernel panic.
-
-Should we keep the addr >=3D TASK_SIZE check to ensure kernel addresses alw=
-ays
-use pte_offset_kernel(), even when walked via a user mm?
-
->  		if (pte) {
->  			err =3D walk_pte_range_inner(pte, addr, end, walk);
-> -			if (!mm_is_kernel(walk->mm) && addr < TASK_SIZE)
-> +			if (!mm_is_kernel(walk->mm))
->  				pte_unmap(pte);
->  		}
->  	} else {
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260714-remove_pgt=
-able_cdtor-v1-0-44be8a7685d7@arm.com?part=3D17
+I _think_ those are universal across all architectures.
