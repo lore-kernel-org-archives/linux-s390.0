@@ -1,180 +1,97 @@
-Received: from mail-wm1-f46.google.com (mail-wm1-f46.google.com [209.85.128.46])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out30-119.freemail.mail.aliyun.com (out30-119.freemail.mail.aliyun.com [115.124.30.119])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA1463EF64F
-	for <linux-s390@vger.kernel.org>; Tue, 14 Jul 2026 07:39:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 21326145B3F;
+	Tue, 14 Jul 2026 08:05:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.119
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784014803; cv=none; b=hG+4pyawkH1S3DKrYvX7C/qh4TD05YsC1ckMLFJbNfDsdX43CE39tkFQhkW7DGOzLeA22YcgU+07Ym4MorpwGXEGmtQ9NJT/N5j7Uu5wXDhvA4Mt0p803xZskwpXBwocLRulM4neOC07il8nNlw58TFEwEGAYPec5URT3BjXiM0=
+	t=1784016316; cv=none; b=liisoo5PEsFDLtgoRbQ06ewCYIlpe9yBgYiQbrURzcuCiUAKbWfFgCJ3ybYfmOcYvOMhBUWzeAOMVwj0+a0yf+6n+VkC61QtSEH54nnNYp0c1J+LPD5qKT8Atv3A/uxG15Qd8mTWeYQzEH4KBb550/9bQpBIqEIFPOYnjHnAs9w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784014803; c=relaxed/simple;
-	bh=Ii4QglIlNfk2AF9Ta5Xci6IGgX7bNyNYfS9+14rJzNM=;
+	s=arc-20240116; t=1784016316; c=relaxed/simple;
+	bh=TiLVHWKy4mlkeS41lVKDXWkDRcTjPNnk1QZCzNu8HGI=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=tzMRmTdAWT8eJaalzdkTwFAvSnDDLwtzByQmj9/Y+p9G4lMqvmBvU+/P5DSVqkjGvx2Q5QIZaRrH0iNtSkIHBdzIzrDeMltSpT/+ren8vnLKhyVSu15UaDyTEwULW4JL1/g4+F+qVH53+mpCGBf5Vh0lD319WGweAFRiQU1c9SI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20251104.gappssmtp.com header.i=@resnulli-us.20251104.gappssmtp.com header.b=MXGbOTxb; arc=none smtp.client-ip=209.85.128.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
+	 Content-Type:Content-Disposition:In-Reply-To; b=rhX4W4UOW2EzU/rDryAPeZ1l6QgUPBjj5rw7TCVEAdtZBK/5N01+zLdqBRbTgTptjX39gF2MkbkWwfYOn8zCW6kL1rC9hpoc9Bd7GruJujPvUV+sJVy/EJTGhMauulWzJMdMBuUEt5kjTQvzEmRU2RJVICd0N6eVJvhIg7pMR1E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=JAu2Ukq7; arc=none smtp.client-ip=115.124.30.119
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=resnulli-us.20251104.gappssmtp.com header.i=@resnulli-us.20251104.gappssmtp.com header.b="MXGbOTxb"
-Received: by mail-wm1-f46.google.com with SMTP id 5b1f17b1804b1-493b77b150aso4641975e9.2
-        for <linux-s390@vger.kernel.org>; Tue, 14 Jul 2026 00:39:59 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=resnulli-us.20251104.gappssmtp.com; s=20251104; t=1784014798; x=1784619598; darn=vger.kernel.org;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :content-type:mime-version:references:message-id:subject:cc:to:from
-         :date:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=7C5iWjcphG9+X8eLvvIf+CpqUo2Z4rnWqlw/CwVzzuA=;
-        b=MXGbOTxb/bWGnJSaW6/5X7OBDtdY5cRnC3WhClHMgp+BSOmlZyRVXImcF77gCuruCm
-         JABkSDaLE4PVCwElIQtzeRBaqXfMR3PpBt6qPdPC5uBXSlyAuFjCMHaLLjfp0Mt7swqP
-         as9OJpiGN+iybBbWENmIMOzoGxLznGHJzWF3KkEYSRddBIqZlhxs1IgNh5COjZRpafJa
-         VsA3ozpE/9f7aJ7SPQkdjW7lQxqUD0sNDYZYhXNmaNxtXjaSjL+h8DSkLZ828gGWtcT0
-         Rln1x8RKDBYr+cxoGWwi6+x6sb7xkooEkMGJHt+njcSi4vLJZlcWfPoK9ojLCvFIP0Zv
-         lhSg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784014798; x=1784619598;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :content-type:mime-version:references:message-id:subject:cc:to:from
-         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to:content-type;
-        bh=7C5iWjcphG9+X8eLvvIf+CpqUo2Z4rnWqlw/CwVzzuA=;
-        b=de0BruIxve080MgeA1SRAbMIsrMDed3Z31h5DUExKoaLMDxunAIeK5fAihk21Njl4B
-         PIb+AF34ixbXBMVV6B/cnMO5a9Dr1yoOQtia3Is8WpAFaNhb752zytLy57cSpMlEk9e2
-         qcXNN7Qw5O2G5vZ+/hZ5V0Z4Tc5wylgQ5S5DwBuCeK5NrQIE3yumKLAFdVGHhdGF7qLG
-         8XgnNKs+W+Yp8nF1WNrfT+CM08JJa86hLMXbXkeyy5NXb+OHrvTL6SgrMFI9da004o9n
-         Da0jrPg7P3xkHg9vjhA+Dzb3NkfGFEwWR8fNW9pcuv2FpXHjDYABl/LP6qpcz9vwv/mQ
-         c8lA==
-X-Forwarded-Encrypted: i=1; AHgh+RoBmB4XaeLwFUda8tFrBsEjytG29sgcKFj4VFlQ02sgHUUgs4Q7wGGwox7Cgq6yP6yDSqP82yPyascT@vger.kernel.org
-X-Gm-Message-State: AOJu0YwYXJQjuFkiayXcFuAEV1Oa1au5WTCryDZtmUFdVp91PHDcZLEC
-	zh3qDRSbtM6Z/8XfbXd3zTlrCpXIy1iE9k2O/D1CBq1rc3yzAGHIxlxrOKvoXloYDXo=
-X-Gm-Gg: AfdE7ckfjXfEozCpIXulYaCuCfXebImgBKp+exS2nU1DhOa//qfor/2xPjm6w8t7vRJ
-	WmHjM0rdFV3zuM5nCsiShdQlvlXc0MqvvnxzDLtolumqj6b6uX2tfBvioSZTT1jKRB+eOHcSRqk
-	gx98d/ELACQ7XwRT9MASzgYkzJb7TnY7sogC4ofkwbILaVQaRrU9JTCL2mZcpXoh9owohdbq2YP
-	qwO5HXJYur1c7A9bzLzQC/4Ya1czSxHsWhr6MaapBiYdXMTX+d0/6TXwul2tWjqrD9IPa53w99P
-	pTLWPchaB2HoVD/eEz+A7bA4ajt8MeIlXioQj/y/A4LeH+4HUQRCxFI18rMRb+LJ1axM16Xniux
-	IW1GgCSIXVlNkNCe9zRK1qtYIgEydTbK5Pt/50M4Ucs1qR7qbRc2BF8qsHI2PzpEmuP2C2nSSrB
-	gIso3mMKf6Ik0wMrBn0Dagqw==
-X-Received: by 2002:a05:600c:1f87:b0:493:f870:fbf0 with SMTP id 5b1f17b1804b1-493f88b3693mr153093885e9.34.1784014797971;
-        Tue, 14 Jul 2026 00:39:57 -0700 (PDT)
-Received: from localhost ([140.209.217.211])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4950a322bcbsm63449225e9.9.2026.07.14.00.39.57
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 14 Jul 2026 00:39:57 -0700 (PDT)
-Date: Tue, 14 Jul 2026 09:39:53 +0200
-From: Jiri Pirko <jiri@resnulli.us>
-To: Tao Cui <cui.tao@linux.dev>
-Cc: Michal =?utf-8?Q?Koutn=C3=BD?= <mkoutny@suse.com>, 
-	linux-rdma@vger.kernel.org, cgroups@vger.kernel.org, netdev@vger.kernel.org, 
-	linux-s390@vger.kernel.org, linux-kselftest@vger.kernel.org, jgg@ziepe.ca, leon@kernel.org, 
-	parav@nvidia.com, mbloch@nvidia.com, cmeiohas@nvidia.com, roman.gushchin@linux.dev, 
-	bvanassche@acm.org, zyjzyj2000@gmail.com, shuah@kernel.org, tj@kernel.org, 
-	hannes@cmpxchg.org, alibuda@linux.alibaba.com, dust.li@linux.alibaba.com, 
-	sidraya@linux.ibm.com, wenjia@linux.ibm.com
-Subject: Re: [PATCH rdma-next 08/13] RDMA/cgroup: Scope rdma cgroup device
- visibility to the net namespace
-Message-ID: <alXmwzDASDFaeVNZ@FV6GYCPJ69>
-References: <20260709095532.855647-1-jiri@resnulli.us>
- <20260709095532.855647-9-jiri@resnulli.us>
- <ak-Z071LrWhnI5lK@localhost.localdomain>
- <alSxB0wziQnNuyfn@FV6GYCPJ69>
- <2fc297ce-7259-4410-9d86-ccc32485622f@linux.dev>
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="JAu2Ukq7"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1784016307; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
+	bh=XcY9oAzuAkEa1Ucn4QLvsDCT9v6MfjC/iYTifozKeGQ=;
+	b=JAu2Ukq7luEl7zWZrpMjgntfqDBfZyrZWmAEHpV28RQ24dgSH+f/nTcJ4m2ZdOz7QK5MIIcVrGkdOChWFfR4V2uUQrq8v7rTGMPR20Fz+YJAoHn5N5E3QCnxnkYLRffRIP08j/C290j3CzJQWcEUD7nc2Y+PZ5v96dy5lAob590=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R111e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033032089153;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=15;SR=0;TI=SMTPD_---0X73dCz._1784016306;
+Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0X73dCz._1784016306 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Tue, 14 Jul 2026 16:05:06 +0800
+Date: Tue, 14 Jul 2026 16:05:06 +0800
+From: Dust Li <dust.li@linux.alibaba.com>
+To: "D. Wythe" <alibuda@linux.alibaba.com>, mjambigi@linux.ibm.com,
+	wenjia@linux.ibm.com, wintera@linux.ibm.com,
+	tonylu@linux.alibaba.com, guwen@linux.alibaba.com
+Cc: kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+	linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
+	pabeni@redhat.com, edumazet@google.com, sidraya@linux.ibm.com,
+	jaka@linux.ibm.com
+Subject: Re: [PATCH net-next v3 1/3] net/smc: clear the correct v2 slot and
+ buffer in smc_wr_tx_put_slot()
+Message-ID: <alXtstsR477AuKPD@linux.alibaba.com>
+Reply-To: dust.li@linux.alibaba.com
+References: <20260710033356.16460-1-alibuda@linux.alibaba.com>
+ <20260710033356.16460-2-alibuda@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <2fc297ce-7259-4410-9d86-ccc32485622f@linux.dev>
+In-Reply-To: <20260710033356.16460-2-alibuda@linux.alibaba.com>
 
-Tue, Jul 14, 2026 at 04:28:01AM +0200, cui.tao@linux.dev wrote:
+On 2026-07-10 11:33:54, D. Wythe wrote:
+>smc_wr_tx_put_slot() tries to reset the v2 pending slot and buffer with
+>memset(&link->wr_tx_v2_pend, 0, sizeof(link->wr_tx_v2_pend)) and the
+>equivalent for wr_tx_buf_v2. Both are pointers, so this zeroes the 8-byte
+>pointer variable instead of the structure it points to. The pending slot
+>and buffer are therefore never actually cleared, and the pointers get
+>overwritten with NULL.
 >
+>Pass the pointers directly and use sizeof(*pointer) so the intended
+>structures are cleared.
 >
->在 2026/7/13 17:34, Jiri Pirko 写道:
->> Thu, Jul 09, 2026 at 03:04:23PM +0200, mkoutny@suse.com wrote:
->>> Hi.
->>>
->>> On Thu, Jul 09, 2026 at 11:55:27AM +0200, Jiri Pirko <jiri@resnulli.us> wrote:
->>>> index 993446ab66d0..4523c1884d67 100644
->>>> --- a/Documentation/admin-guide/cgroup-v2.rst
->>>> +++ b/Documentation/admin-guide/cgroup-v2.rst
->>>> @@ -2752,6 +2752,13 @@ RDMA
->>>>  The "rdma" controller regulates the distribution and accounting of
->>>>  RDMA resources.
->>>>  
->>>> +When RDMA devices are isolated per network namespace (exclusive mode),
->>>> +device names are unique only within a network namespace. The device lines
->>>> +below are therefore scoped to the reading or writing process's network
->>>> +namespace: only devices accessible from that namespace are listed, and a
->>>> +limit is applied to the device of that name in that namespace. Configure
->>>> +limits from the same network namespace as the workloads.
->>>
->>> OK.
->>>
->>>> --- a/include/linux/cgroup_rdma.h
->>>> +++ b/include/linux/cgroup_rdma.h
->>>> @@ -7,6 +7,7 @@
->>>>  #define _CGROUP_RDMA_H
->>>>  
->>>>  #include <linux/cgroup.h>
->>>> +#include <net/net_namespace.h>
->>>>  
->>>>  enum rdmacg_resource_type {
->>>>  	RDMACG_RESOURCE_HCA_HANDLE,
->>>> @@ -34,6 +35,15 @@ struct rdmacg_device {
->>>>  	struct list_head	dev_node;
->>>>  	struct list_head	rpools;
->>>>  	char			*name;
->>>> +	/*
->>>> +	 * Net namespace the device belongs to. @netns_shared mirrors
->>>> +	 * ib_devices_shared_netns: when true the device is visible from every
->>>> +	 * net namespace (shared mode); otherwise @net is the only namespace
->>>> +	 * that may see and configure it. @netns_shared is updated when the
->>>> +	 * sharing mode changes, so use {READ,WRITE}_ONCE() to access it.
->>>> +	 */
->>>> +	possible_net_t		net;
->>>> +	bool			netns_shared;
->>>
->>> Any reason to store the netns_shared split per device? (IIUC, it's a
->>> global parameter.)
->> 
->> No reason, changed.
->> 
->Hi Jiri,
->
->A question on the v2 you mentioned to Michal.
->
->Once netns_shared stops being cached per rdmacg_device,
->rdmacg_device_visible() in kernel/cgroup/rdma.c still needs the current
->sharing mode, whose authoritative value lives in the IB core
->(ib_devices_shared_netns). How do you plan to expose it there without
->the generic cgroup controller reaching back into drivers/infiniband/?
->Exporting the global, or keeping an IB-side update hook, both feel a bit
->awkward; it would be good to see which direction you took.
+>Fixes: 8799e310fb3f ("net/smc: add v2 support to the work request layer")
+>Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
 
-Exposing this from ib side is not doable, as IB may be compiled as a
-module. So what I do is I intrododuce "static bool rdmacg_netns_shared"
-in cgroup/rdma.c and exported function rdmacg_set_netns_shared() to set
-it from IB.
+Reviewed-by: Dust Li <dust.li@linux.alibaba.com>
+
+Best regards,
+Dust
 
 
+>---
+> net/smc/smc_wr.c | 8 ++++----
+> 1 file changed, 4 insertions(+), 4 deletions(-)
 >
->On the mechanism itself: it's the right call that rdmacg_try_charge()
->stays out of the scoping. Charging takes the rdmacg_device pointer
->directly (no name lookup), and a task can only charge a device it
->already holds a handle to, so applying visibility there would be wrong.
->The scoping deliberately touches only the name-based lookup (the write
->path) and the enumeration (read/show) paths -- worth keeping that
->invariant in mind so a later patch doesn't grow the filter.
->
->Thanks,
->Tao> Thanks!
->> 
->>>
->>> Thanks,
->>> Michal
->> 
->> 
->> 
->
+>diff --git a/net/smc/smc_wr.c b/net/smc/smc_wr.c
+>index 59c92b46945c..6b5add922993 100644
+>--- a/net/smc/smc_wr.c
+>+++ b/net/smc/smc_wr.c
+>@@ -288,10 +288,10 @@ int smc_wr_tx_put_slot(struct smc_link *link,
+> 	} else if (link->lgr->smc_version == SMC_V2 &&
+> 		   pend->idx == link->wr_tx_cnt) {
+> 		/* Large v2 buffer */
+>-		memset(&link->wr_tx_v2_pend, 0,
+>-		       sizeof(link->wr_tx_v2_pend));
+>-		memset(&link->lgr->wr_tx_buf_v2, 0,
+>-		       sizeof(link->lgr->wr_tx_buf_v2));
+>+		memset(link->wr_tx_v2_pend, 0,
+>+		       sizeof(*link->wr_tx_v2_pend));
+>+		memset(link->lgr->wr_tx_buf_v2, 0,
+>+		       sizeof(*link->lgr->wr_tx_buf_v2));
+> 		return 1;
+> 	}
+> 
+>-- 
+>2.45.0
