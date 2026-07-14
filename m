@@ -1,177 +1,145 @@
-Received: from PH7PR06CU001.outbound.protection.outlook.com (mail-westus3azolkn19010016.outbound.protection.outlook.com [52.103.23.16])
+Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EC90A26AF4;
-	Tue, 14 Jul 2026 15:46:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.103.23.16
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784044003; cv=fail; b=Wxykbab9HTmJHRce1oM7vn3wg9Ayfc8zuBqymwYBO3l3SoO23oMe4epKWhSg9s2Fr6+o6iZz5mmoORkRNg65MP/CbzhtWoRfLamGWRzPsuIjoILlwb8nzQaCIbuVHLrWmMacMyPJyFv7xJjb/Y+rPI8HNg2VAuiKKHElxrOPOC0=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784044003; c=relaxed/simple;
-	bh=q7jIaElpU2sFTVf/3GSHfVP06Tf7CBhAk+SrQxcL5KQ=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=RB8FKp/JkqgDKc4qaA8Z7BsDYq00ufsi/C0nIplqxSBYRu3P51IB/cHqRMZ4VxvsS1OFKILsi5ukCa5lFeyoUit3Y+c97qecU1oO4DxMRi+jHrMRBx/Q7QqURmRsFfb3k0IDtDVlaOT1lurH7OhYMgQ0J9B/DJmfqQhXY8ntZLM=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com; spf=pass smtp.mailfrom=outlook.com; dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b=UTxpF5so; arc=fail smtp.client-ip=52.103.23.16
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=outlook.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD93924A076;
+	Tue, 14 Jul 2026 16:18:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.110
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1784045931; cv=none; b=Uv9HRBO1uLFY572ConGSFQUxasdGY8IPzKrG4UvLz0OtdsLJp2azTFCChvwLSoQ/Y4gicdDJtkSePDzKvqWjZPJe2263NqtXofyQsgCuBWrLJCNV2aiIkVUK7rBMuVGCuSA+U7A4yzekzBu+LNtxpSjPtXodedbzdau9N86LhQ0=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1784045931; c=relaxed/simple;
+	bh=5jhpvelHXRkr+KgJi9FzFCf3OR87GzHpK6BSo1tKqY4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=ltMKwDnjuzl8eD3xL/h8EjrMv5ImNPbMOLrupDx58qY0zliZqo3e7mZANN+eNyIvSdLS/KEs+KgEjFl+VE+ixLbFv5piipPV9L2V+VsPmfiBzJ1omonuWm6CORJ9ZUdJWihse1HvA28h6tmyVzRwYQtywfOqczURPDwf+r7zXKs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=cQF+11ed; arc=none smtp.client-ip=115.124.30.110
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b="UTxpF5so"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=nVHY8Y26798GAgW5ItQvwTbtGcTRE1B52slJ1weVhuRHVsDLgD4pYm1iruHP++tB5gcK3BEqAS9KeqJ2/BNiLHIxSw42DLZNiEw4BK3hNLNifoxV/gZlQAI2vqEkyb3TfTZOMqr0ABWi4CAFvChwCKb3P+iYdDWS+iuBH1HNrjZmJ+qYjfHh7kJwuT6+afmqQS+/HdC7WyQ9LDtXwmecsod5fdZmgiu0cixaik9pevpuh2M2ViEV0cbqDt5SYwcn58+oZ9RCxnUXCYrcGaBrzzHo8O6TSIUcgJIP4cwNCLEv4gIJiNwssglsgDLmHNCWr0hjpgQ6bdmALKJMUG6O0w==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=AkxJFdvFImNHaUkEOP56gpJG+1IskAsN9CBJ7CIBpzs=;
- b=wjd3BTPJGIsXCtSwvzQazqIw+f7sBwhfTGdrSm4Guzxj9sXkPTPEdTJI9jRYdKLYJdthej26Q1tmR33cOtvu1rMdkIs/37K/OQ1UR3UXkbW+13L5EQQlNa34tlOgcSToopQz/yvHPaJd51FozSZqptKc5agDSzjEk8bU7bqglSe6lt8G2uYSao013PmASZ1gl/tkolRC3U9uyNAsIdy4q7pAeA9veIQVqREAL/eWBwtqUvZIKhLX+3+Hxa146cMM0HL7V74mHnV9tOu3y+VaO+GpVB2zx9rQMOCQ8CqqKQmVG9hg7MSzd6A0d1JBQwekw2Js+w4432OgQgnGRKjxHw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
- dkim=none; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=outlook.com;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=AkxJFdvFImNHaUkEOP56gpJG+1IskAsN9CBJ7CIBpzs=;
- b=UTxpF5so6xwu0mYpO0rPzvjYkSwK6iCbvS8oRdKD3QhFdlpr/r3Gp2CpmQd22Z+lVZYe+JoV5neQJ2AJ5K25tXRjJlP/NpgXHuosnNxJv4HxnwGBi3vR/vAfBTu6tOGjQHOU2gFixqf5zvRoCjD0+58bfIj+AdK/fCIjrL5OXKkpQZhdOuQrLv0mdr5cfT7KaKLKE1iC70n8gS6lVcR6GWPhoHEX1nEUEl7yLXLstJ2ZAiaMwrkHF5wEuuO8ZpRzk/hxKtj9mmHwBr0pYm9YpfA3t244X9etzNYjYs9brNvw9Ge5GTuxXHOJ2GPruXjJ7KCqhOQ+AWC2yGi+/F7Eow==
-Received: from BN7PR02MB4148.namprd02.prod.outlook.com (2603:10b6:406:f6::17)
- by SJ0PR02MB7613.namprd02.prod.outlook.com (2603:10b6:a03:322::24) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.202.18; Tue, 14 Jul
- 2026 15:46:38 +0000
-Received: from BN7PR02MB4148.namprd02.prod.outlook.com
- ([fe80::6007:d1a1:bcf9:58ef]) by BN7PR02MB4148.namprd02.prod.outlook.com
- ([fe80::6007:d1a1:bcf9:58ef%6]) with mapi id 15.21.0223.008; Tue, 14 Jul 2026
- 15:46:37 +0000
-From: Michael Kelley <mhklinux@outlook.com>
-To: Jason Gunthorpe <jgg@ziepe.ca>, Aneesh Kumar K.V <aneesh.kumar@kernel.org>
-CC: "iommu@lists.linux.dev" <iommu@lists.linux.dev>,
-	"linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org"
-	<linux-kernel@vger.kernel.org>, "linux-coco@lists.linux.dev"
-	<linux-coco@lists.linux.dev>, Robin Murphy <robin.murphy@arm.com>, Marek
- Szyprowski <m.szyprowski@samsung.com>, Will Deacon <will@kernel.org>, Marc
- Zyngier <maz@kernel.org>, Steven Price <steven.price@arm.com>, Suzuki K
- Poulose <Suzuki.Poulose@arm.com>, Catalin Marinas <catalin.marinas@arm.com>,
-	Jiri Pirko <jiri@resnulli.us>, Mostafa Saleh <smostafa@google.com>, Petr
- Tesarik <ptesarik@suse.com>, Alexey Kardashevskiy <aik@amd.com>, Dan Williams
-	<dan.j.williams@intel.com>, Xu Yilun <yilun.xu@linux.intel.com>,
-	"linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
-	"linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Madhavan
- Srinivasan <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>, "Christophe Leroy (CS GROUP)"
-	<chleroy@kernel.org>, Alexander Gordeev <agordeev@linux.ibm.com>, Gerald
- Schaefer <gerald.schaefer@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger
-	<borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>,
-	"x86@kernel.org" <x86@kernel.org>, Jiri Pirko <jiri@nvidia.com>, Michael
- Kelley <mhklinux@outlook.com>
-Subject: RE: [PATCH v7 11/22] dma-pool: track decrypted atomic pools and
- select them via attrs
-Thread-Topic: [PATCH v7 11/22] dma-pool: track decrypted atomic pools and
- select them via attrs
-Thread-Index: AQHdCR21HzJYiEbtiU2dmeozUbuIfbZrz5EAgACpXoCAAIxuAIAAOE7g
-Date: Tue, 14 Jul 2026 15:46:37 +0000
-Message-ID:
- <BN7PR02MB41480896D46601E8B7F6166DD4F92@BN7PR02MB4148.namprd02.prod.outlook.com>
-References: <20260701054926.825925-1-aneesh.kumar@kernel.org>
- <20260701054926.825925-12-aneesh.kumar@kernel.org>
- <20260713175616.GJ3133966@ziepe.ca> <yq5atsq2md64.fsf@kernel.org>
- <20260714122504.GG3133966@ziepe.ca>
-In-Reply-To: <20260714122504.GG3133966@ziepe.ca>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: BN7PR02MB4148:EE_|SJ0PR02MB7613:EE_
-x-ms-office365-filtering-correlation-id: ae017260-74a3-488f-95c6-08dee1bf1732
-x-microsoft-antispam:
- BCL:0;ARA:14566002|24021099003|15080799012|19110799012|8062599012|8060799015|31061999003|13091999003|25010399006|51005399006|37011999003|40105399003|102099032|3412199025|440099028|1710799026;
-x-microsoft-antispam-message-info:
- =?us-ascii?Q?Red/QiJYwYIJ8CicvWHgzRvBK/ghVQ0p5dTfV8s1p7GHqfaYmvTZuKtNC6ev?=
- =?us-ascii?Q?2pYDoqikZN4IRI7VUZ46HprR8vCVEtF7uXX3MDQvy9HHTA2FQlkum8pqzju1?=
- =?us-ascii?Q?AvOWKv9DxGVIkbvNKGnEvaj//VbAxVEA4UhQ+lvqU86Kz5IcC4k6t9quU492?=
- =?us-ascii?Q?u9fC7v4fxlgfxfsC133Q7Tf7qhnZ7buAEEiY6LahU4vOOt43kYygP15VP3YZ?=
- =?us-ascii?Q?2a+4/n5EtOLctGMZPAztZLc5OQv0UHmVV29aIBfX76wCXa/57HniOLNCXYZf?=
- =?us-ascii?Q?KNFbMskluj3AfcXZSqDmhdkhJM1mFVmi+ZgtY1utWjX5RxwHf49GouI9ix0X?=
- =?us-ascii?Q?Z3Fiqy4IHurPFcIKX65IQrWvuDv4NRN/xt0KBDf1dO1Pr8DrSKvnvk+dmTYQ?=
- =?us-ascii?Q?0LCUJ652Iv5pI8vXqoUuSzafiZwSib01jMZPzU+2/Ue3Ujo52P2EnHwOoj63?=
- =?us-ascii?Q?XCVD+G0XQPTE6JTvrlZ6gbLihNGwoFvfEap042/n+l6NC3oUin3RHkvcOVyu?=
- =?us-ascii?Q?mPDVCQQVCakhoO3e1fiCL83docgEBQYeGCbAVigVKj+Ah9wHyEND0JDgxUE5?=
- =?us-ascii?Q?sOSjm30pznXqqF4akJsXewvJsiPolfvG1LqaxfRLjXUy+gPnBNuSM1JdBXZD?=
- =?us-ascii?Q?9lJoHiVCz1EW2qHQY/p1Y1qiaZjDmngmrInOTN/NS9iwPhkyZqTuJ5eUAdbR?=
- =?us-ascii?Q?SYDlgOHukaE5YVa3P/imJKR6VyDOHMAge2ez4dw1WF0pJz4T8dzu/D1ZD8/d?=
- =?us-ascii?Q?ugdDi05TEczpz33yU7gTIB1hS3GLZoGIlwSfw1/Mdr25VgFjKTTZlpZHDSi3?=
- =?us-ascii?Q?m1ZheAp+P/3BNpJFyqk2avbkQkBJexmW7AkOpRZTHmc5CEVVfRlp9Cr+N7by?=
- =?us-ascii?Q?5A10AfsSvXXsL5wUmByNkdCbE4C72/dlkyoHjx8KTDGrIsd+0/xt1XNdqM5i?=
- =?us-ascii?Q?E/bET8TPilxTQF0KP3UudptVwtuTwQR7srVQNY64L1VbUg7SOE2EXTKfoFq0?=
- =?us-ascii?Q?lKDhHeJ59BXNy3YiMaL7bUAPgQ=3D=3D?=
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0:
- =?us-ascii?Q?+fZINyrI1VxSyC5Zw09hM84dNk+TMVMSlLnMzx9+n3GHdRDh2UPTqPzIJfAj?=
- =?us-ascii?Q?SNF2lr7bTCm7Zd471BslTAt08q4fKTF3L8DiW7PrNpRsFV1+dUaPPFQaSt5k?=
- =?us-ascii?Q?z8b7aRvY9L3YBM9SJtsrr+Pluj+RyE0VaIiHv3nmYG9yyPy/4BFSRK3kyOoR?=
- =?us-ascii?Q?NKQEcc49pZKQnbIrUkEPab4d7SA7YowHcePzEuvLFsnb24KTZC8b0M5zQsv9?=
- =?us-ascii?Q?P4NNC01W9mfqZNxaUyxonBIMCG9q2MoTvsdazTXj9sLK9Wxv27hggXYrhofp?=
- =?us-ascii?Q?HTWXWRv181i6e4fu63ZPsqTzWIN/H5ROJFVZ4gCh+f965tnuCgQOuPtPACEk?=
- =?us-ascii?Q?5t5zTf/Cpx11rX4oAOcyr29Dh9FQLNZM1B0gTNAPm6qdSZ/AYlC7RMMYniDY?=
- =?us-ascii?Q?sB9LP8TLcR42dAv9/E4a1G4ZTsg7ew62vWGrk76xfAcnwaeJMzZ0R8zqbLAi?=
- =?us-ascii?Q?dlvWCBcEGG7vzylGC7KWKjCFHQ9ca5XHTJCNW3A8fsDd3LF1FK2TPKKfF76T?=
- =?us-ascii?Q?W307dbpd2s6HPSOBruybPXL2O6gNPM5W3Kwp1wa/tQz8q/DBEk/h+q0hJgpI?=
- =?us-ascii?Q?TxiaipaCuUv2e1JVOTRy2yV+6L8L7W/C3DXv2xMtkdn4KerfNA+1dVQNUAfj?=
- =?us-ascii?Q?ZeJ45/AWJXMJjaiLs9vYTu1rV0ZSU3DAhZU5BHErAbGFl+1kOhs0euy2AA6J?=
- =?us-ascii?Q?ncdWAt673nXkueFHFHeQbn+9dHaRDt2EASqe5TyRZjatIgP+Wrc8sNPCCUuF?=
- =?us-ascii?Q?vdvO+7faEzs1XOP0CG1ItTbo8DIwteBLpX/ybla8PvlG0bhB6+jsGtUvILcm?=
- =?us-ascii?Q?Neg7pgxmnPV3/YxCZsZskdclY7mASeeKb5HEQ6iQvqAVfudrlHcJnabsW9AC?=
- =?us-ascii?Q?X86yzb+ahwp1TBt2qVTPGO0vsgnuc6W/RcMsxNy/we0YEyPp2fPQ9MVvJrNa?=
- =?us-ascii?Q?RvCwamgDhln+TOGBRl+yzdiG0vWibkgZ05Z9k5+L+aMglj+91SrdFfcrASla?=
- =?us-ascii?Q?HWnULMU58tePO9TT150itdaCICDJB3rMTCywouEHTtfWlMUU5pXIWpl495NQ?=
- =?us-ascii?Q?w/CMP3RBWC9cw+c8Mc1If424R3R5q/i/aikY95nAz4mo6FWZoFhLxzBDfpP0?=
- =?us-ascii?Q?krmtpYSeGIwtApM8C1sOr+dMzi84Q3cEs8nxNyGyk5j6jp6n14PxfuHWCfi8?=
- =?us-ascii?Q?9K3sODTHDfGJcWdOa8zmpgUx1k2ccjhu43oMHQA/2swwu1M2g0qiguRuKasg?=
- =?us-ascii?Q?anPRd2TFac3qATumidrXMUEdegb/R24OGM+fAohxEQMavTIQ+ePrfR1OuUsQ?=
- =?us-ascii?Q?cKMu2lydhQZ3HMKPNbNVGvcg7PD5XhFdRJ4e8NuGWANdObXJv/rLrPw9MFRN?=
- =?us-ascii?Q?kazUgyc=3D?=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="cQF+11ed"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1784045923; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
+	bh=T3I6JtrPCGC1yfJByv8sZE4okdZHv+KvkXv9UcaOing=;
+	b=cQF+11edFA/a7sZkJogYslh+KTgaU3uYCPVHsJ4DaQlNe5bv+fngEYyB6FaGfZfot6JkRB+ks+2kImcSfo/JXScCzAcsO+bXCbWD+Y/Xl7i3lG/Tlfk5TrQrKPgVF6aL5MYlPYT/uyDXgy8k/U9+g1MXLeNPdCmZOMoEsyfa/Oo=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R171e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037033178;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=18;SR=0;TI=SMTPD_---0X757Q5c_1784045922;
+Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0X757Q5c_1784045922 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Wed, 15 Jul 2026 00:18:42 +0800
+Date: Wed, 15 Jul 2026 00:18:42 +0800
+From: Dust Li <dust.li@linux.alibaba.com>
+To: Bryam Vargas <hexlabsecurity@proton.me>
+Cc: Wenjia Zhang <wenjia@linux.ibm.com>,
+	"D . Wythe" <alibuda@linux.alibaba.com>,
+	Sidraya Jayagond <sidraya@linux.ibm.com>,
+	Eric Dumazet <edumazet@google.com>,
+	"David S . Miller" <davem@davemloft.net>,
+	Mahanta Jambigi <mjambigi@linux.ibm.com>,
+	Wen Gu <guwen@linux.alibaba.com>, Simon Horman <horms@kernel.org>,
+	Ursula Braun <ubraun@linux.ibm.com>,
+	Stefan Raspl <raspl@linux.ibm.com>,
+	Tony Lu <tonylu@linux.alibaba.com>, Paolo Abeni <pabeni@redhat.com>,
+	Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org,
+	linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH net v4 0/3] net/smc: bound wire-controlled CDC cursors
+ against the local buffers
+Message-ID: <alZhYh6TOvqH0T9s@linux.alibaba.com>
+Reply-To: dust.li@linux.alibaba.com
+References: <20260705-b4-disp-28a1bbca-v4-0-be089b98acc6@proton.me>
+ <akzG4Hfeom6fNzFX@linux.alibaba.com>
+ <20260711104315.82912-1-hexlabsecurity@proton.me>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-OriginatorOrg: outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: BN7PR02MB4148.namprd02.prod.outlook.com
-X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg: 00000000-0000-0000-0000-000000000000
-X-MS-Exchange-CrossTenant-Network-Message-Id: ae017260-74a3-488f-95c6-08dee1bf1732
-X-MS-Exchange-CrossTenant-originalarrivaltime: 14 Jul 2026 15:46:37.6833
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
-X-MS-Exchange-CrossTenant-rms-persistedconsumerorg: 00000000-0000-0000-0000-000000000000
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ0PR02MB7613
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260711104315.82912-1-hexlabsecurity@proton.me>
 
-From: Jason Gunthorpe <jgg@ziepe.ca> Sent: Tuesday, July 14, 2026 5:25 AM
->=20
-> On Tue, Jul 14, 2026 at 09:32:27AM +0530, Aneesh Kumar K.V wrote:
->=20
-> > If we want to warn about such failures, we should add the warning
-> > consistently across the code. We may also want to handle decrypt
-> > failures by encrypting the page again to avoid leaking it.
-> >
-> > I will work on that as a tree-wide change in a separate patch.
->=20
-> IMHO the WARN should be inside set_memory_encrypted(), and maybe it
-> should be a BUG_ON...
+On 2026-07-11 10:43:26, Bryam Vargas wrote:
+>On Tue, 7 Jul 2026 17:29:04 +0800, Dust Li wrote:
+>> Are you planning to land these clamps first, and then follow up with a
+>> separate validate/abort series?
+>
+>Yes -- clamp series to net (Cc: stable), then the wire-boundary validate/abort to
+>net-next, which is the split from your v3 review. If you'd rather have the
+>validate/abort as the primary fix, or both in one series, say so and I'll
+>restructure it.
+>
+>> Looking at your earlier A/B test, it simulates this logic in userspace to
+>> demonstrate the bug, but it doesn't actually trigger the bug in our
+>> current kernel.
+>
+>Right -- the earlier one replayed the smc_curs_diff/copy arithmetic over a kmalloc
+>buffer. I built the end-to-end version: two AF_SMC sockets over the SMC-D loopback
+>(dibs), CONFIG_SMC=m with KASAN, receive path unmodified. Only the sender's on-wire
+>producer cursor is forged, modelling what a misbehaving peer sends:
+>
+>  cdc.prod.wrap = curs.wrap;
+>  cdc.prod.count = curs.count;
+>+ if (forge) {                 /* peer just bumps the wrap, count stays 0 */
+>+     static u16 w;
+>+     cdc.prod.wrap = ++w;
+>+     cdc.prod.count = 0;
+>+ }
+>
+>The client sends six 1-byte messages, the server recvs into a 2 MB buffer.
+>rmb_desc->len = 65504; the three arms on 7.2-rc1:
+>
+>  honest (no forge)            recv 6        clean
+>  forged, patch 2/3 clamp on   recv 65504    clean   (== rmb_desc->len)
+>  forged, no clamp             recv 393024   KASAN
+>
+>In the last arm bytes_to_rcv reaches 6*len, so smc_rx_recvmsg()'s second wrap-around
+>chunk (copylen - first_chunk = 393024 - 65504) is read from ring offset 0, past the
+>RMB page:
+>
+>  BUG: KASAN: slab-use-after-free in _copy_to_iter
+>  Read of size 327520 ... smc_rx_recvmsg <- smc_recvmsg <- __sys_recvfrom
+>
+>(use-after-free rather than out-of-bounds only because the over-read lands in a freed
+>adjacent slab.) Happy to send the driver.
+>
+>> the security risk here doesn't seem high to me, since SMC is only meant to
+>> be deployed in trusted environments.
+>
+>Agreed it's low urgency there. The reason I'd still keep the bound in stable: it's a
+>peer-driven out-of-bounds read of kernel memory that a buggy, not only malicious,
+>peer can hit, and the clamp never resets an honest connection. The stable tag is
+>your call.
+>
+>> once this is actually triggered, it means the data we've been handing to
+>> userspace is already wrong ... the connection should be terminated. So I
+>> don't really see much value in merging the bound-clamp patches first.
+>
+>I'm not arguing against the abort -- a bad CDC means the connection can't be trusted
+>and should go down, and that's the net-next work. Two points on it.
+>
+>The predicate has to test the accumulator, not the cursor. Every forged CDC here
+>carries count == 0, which is in [0, rmb_desc->len), so it passes any per-cursor
+>input check, including patch 1/3; only bytes_to_rcv goes out of range. A
+>cursor-boundary abort wouldn't catch this vector.
+>
+>And placement: if the abort is queued (queue_work -> smc_conn_kill) after the
+>atomic_add, a recvmsg() under lock_sock can still read the inflated accumulator in
+>the window before teardown runs. A synchronous check that bails before the
+>atomic_add avoids that, and so does the consumer clamp.
+>
+>If you'd prefer a single accumulator-abort in place of the -stable clamp, I'll
+>respin it that way and run the same A/B.
 
-There was a discussion about this a while back. The decision was
-to embed the WARNs,  and that callers should not output any error
-messages upon failure.
+Hi Bryam,
 
-The x86 implementation of set_memory_decrypted() and
-set_memory_encrypted() has an embedded WARN_ON_ONCE()
-that triggers on a failure. The arm64 realm encrypt/decrypt ops also
-have an embedded WARN().
+Thanks for the detailed explanation — I think you're right. To me the
+key point here is that no matter how the peer misbehaves, we should
+never let it cause a panic or memory corruption on our side.
 
-The pkvm encrypt/decrypt ops do not, so that's maybe where it should
-be added.
+So I think your current clamp can stay. In the net-next version we
+can add the abort logic, and additionally, it would be best to emit a
+warning log whenever the clamp detects an anomaly here.
 
-Michael
+Best regards, Dust
+
