@@ -1,216 +1,123 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 028652F7F1E;
-	Tue, 14 Jul 2026 14:35:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 377E8245019
+	for <linux-s390@vger.kernel.org>; Tue, 14 Jul 2026 14:42:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784039728; cv=none; b=omeI9hxc+JGqzT6vss6RU9uBe6HVAKzMkdg+fvr4H0EHaO2vZIkHj4erRIF1LwyInodZfJYgW3cI7Yh1aHO3Qqi19w17mgRtN67CtdikuoNVBdfgPPTESmCcIzK0xiK2s9o6rA4pel4fNsP5XvlK+x27wDlLmWUIZ6FL9KzTqBs=
+	t=1784040168; cv=none; b=aOfIYX7RRABP1ToNhrD/h5XC3Ho2qFY5fwQSuis1zgqy2SrSxFfUWsGY2M+XWUX7dbo1RqxLvMUkVJwU16vHPEgxhQOA6FkT31ZwD/yawVfm9ewDmpYM5624/+xvIrbFkjB4AkK8AP0skfJP2KAfa7pEmdR6Gv9THlTgDg4q8As=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784039728; c=relaxed/simple;
-	bh=I3Y4+O/L4+GgNRT+cXqx2n2E/MqpoGGBD3B1Ezus5VU=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=joFHi//C93bsQhfv3j0gTBmENSMHbCFZsyppCS4/JdK6wOui7FhL7OOOKdtRiObNWrnYeA/0dBov9ro+esqePkRxGXOJr1SG+0GivxMUZ45+1BHm3lfU7kbcpeLafojUM0cV9+oXacM8ApZkEa9j+kcOTbl9HYJG7NCza2jiZSs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=KqxhLKPZ; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1784040168; c=relaxed/simple;
+	bh=pywX3Xsz0qNBhUnGp2hnl5t5n8f960UHShK/7mqpttg=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=YZc9ZotZDMFfwh65tYyE9iiF7pc2m1EYeLV2MBwQNKIYFbNMjwaEG9xuukdp26pwf450owEsb3J6erUKj1sexvv22/Nl6jjVbuHs3cQoiNFN22eOQBzidwRpj/Cxr6bCjgty5AoDWopfPe8g00TWuYAlSq3nEM2BEoaBVx8A7QY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nii4LqUT; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="KqxhLKPZ"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66EBfYPD3511615;
-	Tue, 14 Jul 2026 14:35:16 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=BEbBhY
-	qdmzCfIdkPOBhD7HWZ8RBuahz/ItYQv/Ipr+g=; b=KqxhLKPZJWrRkhUdbwFU68
-	P5G7rLcqcF5Z9e7TlFUKdZJWtXsrCFb5I9t2tx2a4416mzyCGHaZea3sY5wRpQdc
-	LMvFJzHIoHZncTNcsOsGrweA+Bt/aiYBX9dEoeI2b3vNOF2PMmv9mEVvGnByqkcD
-	ObnPi3B3cOvPUUoVwcHwO3+yPI0r8d1EiyEYLxHke5iDEYVNqH6BpqfZ/lnsmeWM
-	nP3Shqdc9bY1kg1y7gV141G4LwCvjMF2Zq16ariNVRns8PzT0QHMEEwRroKNa6KR
-	cCz55L43pR0BhsqMuE6gwe0Vp9qOegFPCC/ezQErqKWuhEfXO7W2/ABCpJkTypVg
-	==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fcv33776n-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 14 Jul 2026 14:35:15 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66EEYaOk010017;
-	Tue, 14 Jul 2026 14:35:14 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fc2uy2xf3-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 14 Jul 2026 14:35:14 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66EEZ9BK45351268
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 14 Jul 2026 14:35:09 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id EF64520040;
-	Tue, 14 Jul 2026 14:35:08 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B33BE2004B;
-	Tue, 14 Jul 2026 14:35:04 +0000 (GMT)
-Received: from [9.124.218.75] (unknown [9.124.218.75])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 14 Jul 2026 14:35:04 +0000 (GMT)
-Message-ID: <e879d72c-2141-4ba5-b831-d864defd1088@linux.ibm.com>
-Date: Tue, 14 Jul 2026 20:05:03 +0530
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nii4LqUT"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 641C81F000E9;
+	Tue, 14 Jul 2026 14:42:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1784040152;
+	bh=02naE/FBngPObjMizTz9qTUL3h29NRxoQl2OwhWRgDY=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=nii4LqUT+DWkfOaJGX4BBvyiPIcWHuSSeeIQzWsYN7HeGZe1YNA8fzr0kGhSuJo42
+	 348HE0eTGV83F8hzwZfw/BrhwAn7D96diaI0Lu1lJHQVYZEtrlD1QsgZ2n552HgGY3
+	 jFpZW6vD09gQiim8yn5gvHoACDwsUeBI2d+tPco8uHfCMmHtVXsQ5Zsmxbmpnrf9Lo
+	 8NvP0Y5MMyIc0UpxJt0/k34rq+CG9C2qxK7FSGuiqPh/aT61ahkZ4YeFLaJVNiCSv5
+	 TJDUKvWo44+41NAFWYrqJ902F62t8X6FlfxrnZbcO9yvWPyGwBA0iPk1xX8kFN1gkX
+	 25Ddd9O7XwgwA==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 17/22] mm: pagewalk: drop redundant address check for
+ kernel mm walks
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Kevin Brodsky" <kevin.brodsky@arm.com>
+Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
+ Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
+In-Reply-To: <20260714-remove_pgtable_cdtor-v1-17-44be8a7685d7@arm.com>
+References: <20260714-remove_pgtable_cdtor-v1-0-44be8a7685d7@arm.com>
+ <20260714-remove_pgtable_cdtor-v1-17-44be8a7685d7@arm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 14 Jul 2026 14:42:31 +0000
+Message-Id: <20260714144232.641C81F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net 1/1] net: smc: fix splice entry lifetime imbalance in
- smc_rx_splice
-From: Sidraya Jayagond <sidraya@linux.ibm.com>
-To: Ren Wei <n05ec@lzu.edu.cn>, linux-rdma@vger.kernel.org,
-        linux-s390@vger.kernel.org, netdev@vger.kernel.org
-Cc: alibuda@linux.alibaba.com, dust.li@linux.alibaba.com, wenjia@linux.ibm.com,
-        mjambigi@linux.ibm.com, tonylu@linux.alibaba.com,
-        guwen@linux.alibaba.com, ubraun@linux.ibm.com,
-        stefan.raspl@linux.ibm.com, davem@davemloft.net, yuantan098@gmail.com,
-        zcliangcn@gmail.com, bird@lzu.edu.cn, lx24@stu.ynu.edu.cn,
-        d4n.for.sec@gmail.com
-References: <cover.1781097957.git.d4n.for.sec@gmail.com>
- <192d1b44ed358ca143f44ef167d14153bccc51e9.1781097957.git.d4n.for.sec@gmail.com>
- <430a9dd9-ecfb-4465-9eeb-f854fbbc2e61@linux.ibm.com>
-Content-Language: en-US
-In-Reply-To: <430a9dd9-ecfb-4465-9eeb-f854fbbc2e61@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzE0MDE0OCBTYWx0ZWRfXzeUN291kFQYu
- rVJfDE2O9739IEGmI62NEf22mOrhC8O3VN2nlW/uzPO/QSXWvdynXounEWErN8NfcPKRw4+SyIl
- OEEEBfjVIHGt7ZcE6PaxvzqHqamAP5E=
-X-Authority-Analysis: v=2.4 cv=Mp1iLWae c=1 sm=1 tr=0 ts=6a564923 cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=pGLkceISAAAA:8
- a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8 a=n4IcWV1pZ7l_pZ99XOgA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: ZzMpEkg_nBect57M171RWg_4JBMeqZnZ
-X-Proofpoint-ORIG-GUID: jYyzbNHs3VvckKB37-L-CBQWoXWuLcLV
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzE0MDE0OCBTYWx0ZWRfX/MPa0iXw44u5
- h/6OzQkxfy9iReItZKU8GJ9pCwZTApPaN5BPAyJ4yAd6dYdmwV4ExbzQprCob4gKBCJjAbysYZM
- QaS/K5f/SE14JodNvksJneEkbSyYdXEIRns+PX4e80kAp4IOqSm/boHmYeGeV5pZisYyn+lm+KQ
- JF3q0IU++VryTkjt/mbpUpiVV4/dw/fPUzP4MKM64MXiiqcRkWuJP6662ezv8iAasiAd4Kq2n01
- cXW4f/s1rM50AeZQIKQT908bUsF9ZBIONdr9xZwt2AjEJhUPtlX6qBmysztz6NBw9oBkBi7ojVA
- VIyQMwvCJ60LwmMbEndftjCg3IrELvm8BGeS1+gCpeRxIF9LaxvPN7/2GmaYCv65vH1MCiq1dYK
- yV6hdrGcmseWevLfeJ8W5GO+vGFmSZR6VSAW1w7fnlQp9DrPDNjGOKO2OP5FmUjJKE3Cd3BSR/8
- ruBTSZMHe6Y69TpI7iw==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-07-14_03,2026-07-10_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- adultscore=0 bulkscore=0 spamscore=0 malwarescore=0 lowpriorityscore=0
- impostorscore=0 priorityscore=1501 suspectscore=0 clxscore=1015 phishscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607140148
 
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [High] Removing the `addr >=3D TASK_SIZE` check in `walk_pte_range()` cau=
+ses `ptdump` to clear valid kernel PMDs, leading to memory corruption and a=
+ kernel panic.
+--
 
+--- Patch [17]: [PATCH 17/22] mm: pagewalk: drop redundant address check fo=
+r kernel mm walks ---
+commit 85b512e55cb35ec57a18d00b67fbf62a68320627
+Author: Kevin Brodsky <kevin.brodsky@arm.com>
 
-On 16/06/26 7:57 pm, Sidraya Jayagond wrote:
-> 
-> 
-> On 10/06/26 11:24 pm, Ren Wei wrote:
->> From: Daming Li <d4n.for.sec@gmail.com>
->>
->> smc_rx_splice() hands candidate pages to splice_to_pipe() without taking
->> references for the lifetime of each splice entry first. That breaks the
->> splice ownership contract in the VM-backed RMB path.
->>
->> splice_to_pipe() drops unqueued entries through spd_release(), while
->> queued entries are later dropped through the pipe buffer release
->> callback. The current code only tries to take page references after the
->> splice succeeds, and it derives the number of queued VM pages from a
->> mutated offset value. This can underflow page refcounts and trigger a
->> use-after-free. It also leaves the socket lifetime imbalanced in the
->> multi-page VM case, where one sock_hold() can be followed by multiple
->> sock_put() calls.
->>
->> Fix this by taking the page and socket references for every candidate
->> splice entry before calling splice_to_pipe(), and by releasing the
->> matching private state, page reference, and socket reference from
->> smc_rx_spd_release() for entries that never get queued. This makes the
->> SMC splice path follow the normal splice lifetime rules and removes the
->> broken post-splice VM page counting entirely.
->>
->> Fixes: 9014db202cb7 ("smc: add support for splice()")
->> Cc: stable@vger.kernel.org
->> Reported-by: Yuan Tan <yuantan098@gmail.com>
->> Reported-by: Zhengchuan Liang <zcliangcn@gmail.com>
->> Reported-by: Xin Liu <bird@lzu.edu.cn>
->> Assisted-by: Codex:GPT-5.4
->> Co-developed-by: Liu Xiao <lx24@stu.ynu.edu.cn>
->> Signed-off-by: Liu Xiao <lx24@stu.ynu.edu.cn>
->> Signed-off-by: Daming Li <d4n.for.sec@gmail.com>
->> Signed-off-by: Ren Wei <n05ec@lzu.edu.cn>
->> ---
->>  net/smc/smc_rx.c | 21 +++++++++++----------
->>  1 file changed, 11 insertions(+), 10 deletions(-)
->>
->> diff --git a/net/smc/smc_rx.c b/net/smc/smc_rx.c
->> index c1d9b923938d..88aee0d93597 100644
->> --- a/net/smc/smc_rx.c
->> +++ b/net/smc/smc_rx.c
->> @@ -150,18 +150,23 @@ static const struct pipe_buf_operations smc_pipe_ops = {
->>  static void smc_rx_spd_release(struct splice_pipe_desc *spd,
->>  			       unsigned int i)
->>  {
->> +	struct smc_spd_priv *priv = (struct smc_spd_priv *)spd->partial[i].private;
->> +	struct sock *sk = &priv->smc->sk;
->> +
->> +	kfree(priv);
->>  	put_page(spd->pages[i]);
->> +	sock_put(sk);
->>  }
->>  
->>  static int smc_rx_splice(struct pipe_inode_info *pipe, char *src, size_t len,
->>  			 struct smc_sock *smc)
->>  {
->>  	struct smc_link_group *lgr = smc->conn.lgr;
->> -	int offset = offset_in_page(src);
->>  	struct partial_page *partial;
->>  	struct splice_pipe_desc spd;
->>  	struct smc_spd_priv **priv;
->>  	struct page **pages;
->> +	int offset = offset_in_page(src);
->>  	int bytes, nr_pages;
->>  	int i;
->>  
->> @@ -209,6 +214,10 @@ static int smc_rx_splice(struct pipe_inode_info *pipe, char *src, size_t len,
->>  			offset = 0;
->>  		}
->>  	}
->> +	for (i = 0; i < nr_pages; i++) {
->> +		get_page(pages[i]);
->> +		sock_hold(&smc->sk);
->> +	}
->>  	spd.nr_pages_max = nr_pages;
->>  	spd.nr_pages = nr_pages;
->>  	spd.pages = pages;
->> @@ -217,16 +226,8 @@ static int smc_rx_splice(struct pipe_inode_info *pipe, char *src, size_t len,
->>  	spd.spd_release = smc_rx_spd_release;
->>  
->>  	bytes = splice_to_pipe(pipe, &spd);
->> -	if (bytes > 0) {
->> -		sock_hold(&smc->sk);
->> -		if (!lgr->is_smcd && smc->conn.rmb_desc->is_vm) {
->> -			for (i = 0; i < PAGE_ALIGN(bytes + offset) / PAGE_SIZE; i++)
->> -				get_page(pages[i]);
->> -		} else {
->> -			get_page(smc->conn.rmb_desc->pages);
->> -		}
->> +	if (bytes > 0)
->>  		atomic_add(bytes, &smc->conn.splice_pending);
->> -	}
->>  	kfree(priv);
->>  	kfree(partial);
->>  	kfree(pages);
-> Code changes looks good to me.
-> Reviewed-by: Sidraya Jayagond <sidraya@linux.ibm.com>
-> 
-Hi Ren wei,
-will you be sending v2 patch fixing minor nit-picks suggested by Dust Li?
+mm: pagewalk: drop redundant address check for kernel mm walks
+
+This commit removes the addr >=3D TASK_SIZE check from walk_pte_range() for
+no-VMA walks. It relies entirely on mm_is_kernel() to determine whether
+to use pte_offset_kernel() or pte_offset_map().
+
+> diff --git a/mm/pagewalk.c b/mm/pagewalk.c
+> index a3f47d1de3c5a..0dd9d4ad9b689 100644
+> --- a/mm/pagewalk.c
+> +++ b/mm/pagewalk.c
+> @@ -68,17 +68,14 @@ static int walk_pte_range(pmd_t *pmd, unsigned long a=
+ddr, unsigned long end,
+>  	if (walk->no_vma) {
+>  		/*
+>  		 * pte_offset_map() might apply user-specific validation.
+> -		 * Indeed, on x86_64 the pmd entries set up by init_espfix_ap()
+> -		 * fit its pmd_bad() check (_PAGE_NX set and _PAGE_RW clear),
+> -		 * and CONFIG_EFI_PGT_DUMP efi_mm goes so far as to walk them.
+>  		 */
+> -		if (mm_is_kernel(walk->mm) || addr >=3D TASK_SIZE)
+> +		if (mm_is_kernel(walk->mm))
+>  			pte =3D pte_offset_kernel(pmd, addr);
+>  		else
+>  			pte =3D pte_offset_map(pmd, addr);
+
+[Severity: High]
+Does removing the addr >=3D TASK_SIZE check here cause ptdump to clear valid
+kernel PMDs?
+
+When tools like ptdump walk the address space (e.g. via
+/sys/kernel/debug/page_tables/current_kernel), they may walk kernel address=
+es
+using current->mm, which is a user mm. In this case, mm_is_kernel() returns
+false, causing walk_pte_range() to use pte_offset_map() for kernel addresse=
+s.
+
+On x86, pte_offset_map() eventually calls __pte_offset_map(), which validat=
+es
+the PMD using pmd_bad(). If a kernel PMD (such as the espfix mapping) fails
+this check because it intentionally lacks _PAGE_RW and sets _PAGE_NX,
+__pte_offset_map() unconditionally clears it via pmd_clear_bad().
+
+Since kernel page tables are shared via init_mm, clearing the PMD permanent=
+ly
+destroys the global espfix mapping. The next IRET to a 16-bit userspace
+segment would then encounter a missing page table, triggering a Double Fault
+kernel panic.
+
+Should we keep the addr >=3D TASK_SIZE check to ensure kernel addresses alw=
+ays
+use pte_offset_kernel(), even when walked via a user mm?
+
+>  		if (pte) {
+>  			err =3D walk_pte_range_inner(pte, addr, end, walk);
+> -			if (!mm_is_kernel(walk->mm) && addr < TASK_SIZE)
+> +			if (!mm_is_kernel(walk->mm))
+>  				pte_unmap(pte);
+>  		}
+>  	} else {
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260714-remove_pgt=
+able_cdtor-v1-0-44be8a7685d7@arm.com?part=3D17
