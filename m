@@ -1,108 +1,167 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f49.google.com (mail-wm1-f49.google.com [209.85.128.49])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7092047AF65
-	for <linux-s390@vger.kernel.org>; Tue, 14 Jul 2026 14:28:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D315447DD43
+	for <linux-s390@vger.kernel.org>; Tue, 14 Jul 2026 14:29:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784039297; cv=none; b=cD+uKBgNmDsh4JylE7zgMEl0IYaoMbQioiHUQ4N2QRwSP1+5YzWnua4CpH52zMheFvu//QlB1bWGkQFY/JwU+x+6wTYdtJTyryRT6ggRAbiovcbG2O9NIAGDRO1M2+FLv7FsnbMXyX1DPl8mS9hlDEUMV4r6Lp8bcUXjO6gD5ZU=
+	t=1784039377; cv=none; b=mC5bovM4IdGjSs87Z07XE3FVBOgY1rCpqQ86hFJ6HbNDaPhQ8ECcWLGLE9bc7Jj6sYnEjB85HTigqCIFvLJ1tqPMiye831sjhvqqWlFQ63eEM9nZUTHaYzaJ1YH1LYAe6GX7Lh9+NBTiqaOEh7/vPtojTKBpqh8TJQ4c7hwQ4Yk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784039297; c=relaxed/simple;
-	bh=omCJ3FuGGSBWonLVq4aDuRGWgaUmEDTV9OQ7cHNgad4=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=J5O0wwQEm5t4cjbQMdA0ZGxwVzRs+fQttg+Bo0y6/zq+HA8EUQvDseDbvz4hLyiAV4oi9MjYiFsH5bDplt62y1/msNhNQBQL0hVqXS0jOrPjL+qAKp3UxPZ8NpY34jBZmZ7NCUGgas+Dq4RuCqE7HjC8iTJ32KMAyvorV9PVhxA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bZspgHbs; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1784039377; c=relaxed/simple;
+	bh=HV4KXx3jCDo5tnyS2SR083CFGU4A98rHzoR25fN+NeY=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=u5ZXO3PfOM068/SW9XWXK02dGMW7rBzjaXr1uFWbDb0x/svvTkVo60W3PneGlMMovLD7kCM8LvDZvDw7G0GRwaoQhUmvG+iGMxI3NIcPXNEX7ZvtZYvWHI8fvhws0hXyNcMZmayyIxH07O1jPtwgcqFqk7eYguarx/25KJPSgCU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20251104.gappssmtp.com header.i=@resnulli-us.20251104.gappssmtp.com header.b=fHw8f9x8; arc=none smtp.client-ip=209.85.128.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bZspgHbs"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 743D41F000E9;
-	Tue, 14 Jul 2026 14:28:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784039295;
-	bh=/keSP/pqwUYpSdZgOuHMbSl7I6F/eU8Xld9y+wzIX88=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=bZspgHbsB4ANHJv0xXe5XJeuueTt0vmjr7U3WTU4JTtu+UA/NWxDwORZJ09YgTzja
-	 RNSbDykyJxsMtijEEP3wbS247q+nwxdEG1t1NNhGyolgX0rUc9HkgRLePdj6x5ye5S
-	 8LQ4/VeU6rzurCzu28qJHJxP5NA/y4BUddZvTMmL6xnBozUayRTiuGvWR59wA6KLei
-	 HiFe82WZNN4Hm5RqPer6ZxpJjBYeLHJr6GVOccjT+/DeqsbnqFxDsf/NQOUg0PwLua
-	 W5ubU0MCPmSCYV7IFqgES6BogpKuQnq5SCFg2oRjpRwOc8HpuOv16FpKFrynukBXmq
-	 LkJfmRryq+56Q==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 04/22] mm: use mm_is_kernel() in generic page table code
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Kevin Brodsky" <kevin.brodsky@arm.com>
-Cc: linux-s390@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>
-In-Reply-To: <20260714-remove_pgtable_cdtor-v1-4-44be8a7685d7@arm.com>
-References: <20260714-remove_pgtable_cdtor-v1-0-44be8a7685d7@arm.com>
- <20260714-remove_pgtable_cdtor-v1-4-44be8a7685d7@arm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 14 Jul 2026 14:28:14 +0000
-Message-Id: <20260714142815.743D41F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=resnulli-us.20251104.gappssmtp.com header.i=@resnulli-us.20251104.gappssmtp.com header.b="fHw8f9x8"
+Received: by mail-wm1-f49.google.com with SMTP id 5b1f17b1804b1-493ae59eca6so6076215e9.1
+        for <linux-s390@vger.kernel.org>; Tue, 14 Jul 2026 07:29:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=resnulli-us.20251104.gappssmtp.com; s=20251104; t=1784039371; x=1784644171; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=nvrKYD5ArwJczv3P3+Ce5/GBU6hZFow7WIOmjK2Noeg=;
+        b=fHw8f9x8RZOOPQd8Mm2kUYt4NWzctTLq5X2G/diUH3e100eOXh2xfWHZC3lMNsx2Xl
+         FbHBTlfuqaVpv2pAX5O0iXv/ivF0qRh6D4/xBC1qfrSPafw2ykft9iy4nAitxLt9VFn2
+         +VcUlbWF/2sg7v3RViTMXZMVlHDYt0BdhY7bFIYOrVcGv3JUF5qFn524qP9RJm92lZ2q
+         oTeXvc80c5HvgK7A4q4tlRkcAcxcwuejvsEgKMP1HufBI3gnJvqcg0gKx2SggDVQ74FE
+         m4Zux397TbjkfELO+lLOP91U2j2ysQ1gdg6q/QFv7IYn9N9ps20LShRH8GY5it15bbgR
+         ksig==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784039371; x=1784644171;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=nvrKYD5ArwJczv3P3+Ce5/GBU6hZFow7WIOmjK2Noeg=;
+        b=PSHzn4teiFSxj7QHXIfJOClNqvIP6q5R+wugKjzAQ1hZuR4bCkDwWXk3J92+ozcA5d
+         IpufFiKC2TylakYLIA+dBghEKrcPFCNsxL0Lq/E0FFj4/2dnmtkNta3HAJiC5wGtbdg4
+         LxeAp/oc0m6L7Hf/wjcpMa4WhIKoUYs760nVNQeAbi6pH3yTMpHxS6o3ORYo+BVhFOwP
+         YeawDVGrdxnWQUOixLUTSl4999HLqLkHjb0wcAhUs8mWJqD+J/vF8mJkAU8vbS5axi6Q
+         KQlbA6PJ50AIGR5I1Vju72Zqj0pLU84x49V2Jc9OTzpvYtrcKxB5TrIZQMGy7h2BqJrX
+         gNPQ==
+X-Forwarded-Encrypted: i=1; AHgh+RrmHFasvf4FFHP34LxNTpUE9YsoGwVIfXePxyOpaBeYdQSB4WooKo7Siz0Rj6DZmWDx8cbkM5Z4QFb4@vger.kernel.org
+X-Gm-Message-State: AOJu0YwTZJv3BCjSbwXUZvC8lV+g+WuPMhMlzgwNk8BTPwSY8L7Y8W06
+	+3gaik94TNnUOMMoEy9lVmN9xADPvBi243V0TazlyREKAhmhFl7/IiM9B2JX3qibGpA=
+X-Gm-Gg: AfdE7ck3waRrt7vloiR2IBbZ2c7Z/gnIKkDuFGqqw2D8+fwuce8XYeFgdXawW9U2bGy
+	SEKX56+fqRW1snRcTY0KqWIP2nEOIBTqPnGawEguxGs2TrR0oXfyEpFYF7cNxjkzP7ArNVjQ+XA
+	OHwag1chGLpDDd5G/JMSu3VqvrPpGBv5lYBKFnW3VY4V3fcClEn3I13r0g4NdYuwjMsRqKmiWZj
+	TXF6oL0hy6TmNGETcyjabM8BXaO8pFNfpo1YAFyuH/IVtoqMaLi1I6ZyathfCTu6fYYUqGcaZ5a
+	2RVgwxlg7h86U6OUoSpbFqICRBa7pwiZwxBTrzIuB6M803ZonTiI6d0n9FukXN/ua9AIbwEFN8C
+	qS3zq6PktLHQ1qbll/3hUjK7uKQg9srSYi9SbwZ5QHlnbRJwdaMrsQKr5GEeQWscYhwsBUxqmFl
+	xwmTEY4I6eJcHIBXgsEvwBww==
+X-Received: by 2002:a05:600c:8108:b0:495:39a9:f8bb with SMTP id 5b1f17b1804b1-49539a9f8cbmr17623035e9.27.1784039370894;
+        Tue, 14 Jul 2026 07:29:30 -0700 (PDT)
+Received: from localhost ([140.209.217.211])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49506a1fbcesm81645145e9.0.2026.07.14.07.29.30
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 14 Jul 2026 07:29:30 -0700 (PDT)
+From: Jiri Pirko <jiri@resnulli.us>
+To: linux-rdma@vger.kernel.org
+Cc: cgroups@vger.kernel.org,
+	netdev@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	linux-kselftest@vger.kernel.org,
+	jgg@ziepe.ca,
+	leon@kernel.org,
+	parav@nvidia.com,
+	mbloch@nvidia.com,
+	cmeiohas@nvidia.com,
+	roman.gushchin@linux.dev,
+	bvanassche@acm.org,
+	zyjzyj2000@gmail.com,
+	shuah@kernel.org,
+	tj@kernel.org,
+	mkoutny@suse.com,
+	hannes@cmpxchg.org,
+	alibuda@linux.alibaba.com,
+	dust.li@linux.alibaba.com,
+	sidraya@linux.ibm.com,
+	wenjia@linux.ibm.com,
+	yanjun.zhu@linux.dev,
+	cui.tao@linux.dev
+Subject: [PATCH rdma-next v2 00/14] RDMA: Make device names unique per net namespace
+Date: Tue, 14 Jul 2026 16:29:13 +0200
+Message-ID: <20260714142927.1298897-1-jiri@resnulli.us>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [Medium] apply_to_pte_range() routes all kernel MMs to pte_alloc_kernel_t=
-rack(), which explicitly hardcodes &init_mm, leading to incorrect locking a=
-nd mm attribution.
---
+From: Jiri Pirko <jiri@nvidia.com>
 
---- Patch [4]: [PATCH 04/22] mm: use mm_is_kernel() in generic page table c=
-ode ---
-commit 94fec0def7956a4362140e84c87769a3c5a046b2
-Author: Kevin Brodsky <kevin.brodsky@arm.com>
+RDMA device names are unique system-wide today:
+__ib_device_get_by_name() checks a requested name against every
+registered device regardless of the network namespace it lives in.
+A device in one network namespace therefore cannot use a name already
+taken in another, even in exclusive netns mode (netns_mode=0) where
+the two are otherwise isolated. Net devices have no such restriction -
+their names only need to be unique within a network namespace.
 
-mm: use mm_is_kernel() in generic page table code
+This series makes RDMA device names unique per network namespace,
+matching net device semantics, and adapts the users that assumed
+system-wide unique names.
 
-Generic page-table allocation, constructor and walker code uses
-init_mm comparisons to select kernel page table handling. Use
-mm_is_kernel() instead so kernel-owned mm's can share that handling
-once they are marked with MMF_KERNEL.
+Scoping reuses the existing rdma_dev_access_netns() predicate, so
+behavior only changes in exclusive mode:
+  - shared mode (default): names stay unique system-wide, no change;
+  - exclusive mode: names only need to be unique within a namespace;
+  - CONFIG_NET_NS=n: everything is init_net, names stay system-wide
+    unique.
 
-> diff --git a/mm/memory.c b/mm/memory.c
-> index d5e87624f6920..c0244c0b07567 100644
-> --- a/mm/memory.c
-> +++ b/mm/memory.c
-[ ... ]
-> @@ -3394,13 +3394,13 @@ static int apply_to_pte_range(struct mm_struct *m=
-m, pmd_t *pmd,
->  	spinlock_t *ptl;
-> =20
->  	if (create) {
-> -		mapped_pte =3D pte =3D (mm =3D=3D &init_mm) ?
-> +		mapped_pte =3D pte =3D mm_is_kernel(mm) ?
->  			pte_alloc_kernel_track(pmd, addr, mask) :
+There are two users that cannot be made per-namespace and are
+documented as known limitations instead of changed:
+  - the rdma_cm configfs tree: configfs has no network namespace
+    support, so it cannot represent two same-named devices;
+  - SELinux ibendport labelling: endports are labelled by (device
+    name, port) from a global policy; distinguishing same-named
+    devices would need net namespace support in the SELinux policy
+    language and tooling.
 
-[Severity: Medium]
-If a non-init_mm kernel MM (like efi_mm) has MMF_KERNEL set in the future,
-will this route it to pte_alloc_kernel_track() which hardcodes init_mm?
+Tested with the new rxe_netns_names kselftest added in the last patch.
 
-Looking at __pte_alloc_kernel() in mm/memory.c, which=20
-pte_alloc_kernel_track() calls:
+Jiri Pirko (14):
+  RDMA/core: Pass the net namespace to the device name lookups
+  RDMA/core: Handle device name conflicts when changing net namespace
+  RDMA/core: Support renaming a device when changing its net namespace
+  RDMA/nldev: Report net namespace move errors through extack
+  RDMA/nldev: Allow setting the device name while changing net namespace
+  net/smc: Look up the pnetid ib device within the net namespace
+  RDMA/srp: Make the SRP sysfs class net namespace aware
+  RDMA/cgroup: Disambiguate devices across net namespaces
+  RDMA/cma: Document that CM configfs cannot be net namespace scoped
+  RDMA/core: Document the SELinux ibendport net namespace limitation
+  RDMA/core: Make device names unique per net namespace
+  RDMA/rxe: Allow queue VMAs to outlive ucontexts
+  RDMA/rxe: Implement disassociate_ucontext callback
+  RDMA/selftests: Add rxe_netns_names test
 
-int __pte_alloc_kernel(pmd_t *pmd)
-{
-        pte_t *new =3D pte_alloc_one_kernel(&init_mm);
-        if (!new)
-                return -ENOMEM;
+ Documentation/ABI/testing/configfs-rdma_cm    |   4 +
+ Documentation/admin-guide/cgroup-v1/rdma.rst  |   8 +
+ Documentation/admin-guide/cgroup-v2.rst       |  15 +-
+ drivers/infiniband/core/cgroup.c              |   1 +
+ drivers/infiniband/core/cma_configfs.c        |   4 +
+ drivers/infiniband/core/core_priv.h           |   3 +-
+ drivers/infiniband/core/device.c              | 245 ++++++++++++---
+ drivers/infiniband/core/nldev.c               |  26 +-
+ drivers/infiniband/core/security.c            |   6 +
+ drivers/infiniband/sw/rxe/rxe_mmap.c          |  35 +--
+ drivers/infiniband/sw/rxe/rxe_verbs.c         |   5 +
+ drivers/infiniband/ulp/srp/ib_srp.c           |  16 +-
+ include/linux/cgroup_rdma.h                   |   1 +
+ include/uapi/rdma/rdma_netlink.h              |   5 +-
+ kernel/cgroup/rdma.c                          |  71 ++++-
+ net/smc/smc_pnet.c                            |  20 +-
+ tools/testing/selftests/rdma/Makefile         |   3 +-
+ tools/testing/selftests/rdma/config           |   2 +
+ .../testing/selftests/rdma/rxe_netns_names.sh | 282 ++++++++++++++++++
+ 19 files changed, 653 insertions(+), 99 deletions(-)
+ create mode 100755 tools/testing/selftests/rdma/rxe_netns_names.sh
 
-        spin_lock(&init_mm.page_table_lock);
-...
+-- 
+2.54.0
 
-Since __pte_alloc_kernel() drops the mm context and explicitly locks
-init_mm.page_table_lock instead of the target MM's lock, would this
-lead to data races during concurrent page table modifications for other
-kernel MMs?
-
->  			pte_alloc_map_lock(mm, pmd, addr, &ptl);
->  		if (!pte)
->  			return -ENOMEM;
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260714-remove_pgt=
-able_cdtor-v1-0-44be8a7685d7@arm.com?part=3D4
