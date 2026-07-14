@@ -1,31 +1,31 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 49D3C3655F0;
-	Tue, 14 Jul 2026 03:57:15 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D2223283FCF;
+	Tue, 14 Jul 2026 04:02:41 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784001436; cv=none; b=J+KMdJS1inRQG4BSoGZTscwrbev8YsYhLXBQjmnKyEyuH3/rMdHUBLCK+uQy1hMoe8XWV50qfIkFaBc1jszy8kd+5IAvy1lU6tC/CNRLqqoRrvAWCnpcwdZazA5TUZmABswDsOk3wzJ9+9VFLe2VnkshaOmZSQ1miuJiyvnj+tE=
+	t=1784001764; cv=none; b=kJtKpFY+eN/k4KvlVPqNbzI9ofxd5JPItd2cuKWxdJTbAbSfNAf4ZR0O7MwYjS0LtBu+O/jExj2JAnAShnrqvU2koK6XRifPPQR42LAYKjgwjP9k5LGhNBzeoJe6V97N7eggkWG5H7ii2vBK1g2oL30RpGrQ1dQlAgSYhzcU7QI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784001436; c=relaxed/simple;
-	bh=StS7UKvJ/np+93VrnACK0jk1cBXTnkp0ijBgNiHgeYU=;
+	s=arc-20240116; t=1784001764; c=relaxed/simple;
+	bh=zWct6K3uIvjDGlZKeyZrRRKmfg1akXIOeRFLxArwtfA=;
 	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=j2mbUobtJle4wJIgwoaY1V+5OxX+dMnP4jqr5uLGzUCcgzi/wuY4/c95MY9N/oZXZECBSLtRhBKEU6jzxdgLgeOMld2uDVQsRdf0vB5sJUGsW2WrxKbmuWk9tBvNC4XxAxkBhbYx02Nwhzyr+3aHdWF49AqPFP0sCqBDDiNE2aA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=liTaKP1C; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=p3zEOmVOk/KAkTjFVeZhH97S6xxcJsoUpZYLb4vAAU8xxdiHAZY3IVf98RR78e6+OVKjZ1mmkfsWVc86Ov0twzCZHP6hCKVePoVq3Pri1UuC2zNSUO1KKs/DRNK1xO/fds/lGs/xCTZoQmlfGXf+vU5E3sMoFmEEkiblwydcZwk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Sz+jLGb5; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="liTaKP1C"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE0781F000E9;
-	Tue, 14 Jul 2026 03:57:04 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Sz+jLGb5"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BA5F1F000E9;
+	Tue, 14 Jul 2026 04:02:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784001434;
-	bh=0DTF91RjgvUm3CkB4plK9HEQr87d/ix1i757jTGkFXY=;
+	s=k20260515; t=1784001760;
+	bh=I+ZBXykHnbEwGIuh63wccmA7DmHMIqMB7lgyh5rZR2Q=;
 	h=From:To:Cc:Subject:In-Reply-To:References:Date;
-	b=liTaKP1CyQrmvF0csupiCFTNVzXrIF4DX9PY42lGELqbECDbZSqXHFZ9ZmTU2m0e9
-	 5KWxINF9sfknPV5nVNQ1W/TliVFmJMCkEjFEYGHUfMP22YLVwQTk3GvT9OKdkoUmd7
-	 O6t/MMHc03XpwRzKpXb5NBzNwRLz6dmuIH1uOX5bFJfbq9eOuqVSgWUPXIHBRMH22u
-	 AmQ2hRYMtzI26BCCfdviKKLYvAzWyATOKECrGshO0bgqaHnTSbVIB7dcZWobY+G5/R
-	 hXLxwzKEw2QW/46MBn1MokgBPlijaMw8orHsIzchJadQjcBC1HAK2Epj4bNYTUnO6g
-	 2ZAHiwxtlSCjQ==
+	b=Sz+jLGb5lqaIZdWXV5CgOFgtGhqpCdS9TzBy3Zi/FZdiL/JcpHnSOLFWaVYHy2tEu
+	 0z60X/PsuJFrCARLJjubigCSTZRICnH353bC8OXad9IyIY1+enenSt0y3KaF+xL+sW
+	 8lQgb6amuJFbAq4Z7TcDyrBgJFMIjy39lUR5T7hoQVIygJmSNBiAoM5TuHUBIWcLut
+	 2EEU0Hw+Op7oSrVx/EtawGwStFg7Ok6X4NqNJM4I2Db/C/xB0XLNZOyBmyxFoT/3er
+	 DeOXIY8HufW/cYyNZJxzZZ+EDvupXNVMaU/JsNpu6rlNiKMwKGhQi4/GS9d4rdv9qi
+	 YoUbvZuFqm5LQ==
 X-Mailer: emacs 30.2 (via feedmail 11-beta-1 I)
 From: Aneesh Kumar K.V <aneesh.kumar@kernel.org>
 To: Jason Gunthorpe <jgg@ziepe.ca>
@@ -54,14 +54,16 @@ Cc: iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
 	Vasily Gorbik <gor@linux.ibm.com>,
 	Christian Borntraeger <borntraeger@linux.ibm.com>,
 	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org,
+	Jiri Pirko <jiri@nvidia.com>,
 	Michael Kelley <mhklinux@outlook.com>
-Subject: Re: [PATCH v7 04/22] dma: free atomic pool pages by physical address
-In-Reply-To: <20260713181059.GL3133966@ziepe.ca>
+Subject: Re: [PATCH v7 11/22] dma-pool: track decrypted atomic pools and
+ select them via attrs
+In-Reply-To: <20260713175616.GJ3133966@ziepe.ca>
 References: <20260701054926.825925-1-aneesh.kumar@kernel.org>
- <20260701054926.825925-5-aneesh.kumar@kernel.org>
- <20260713181059.GL3133966@ziepe.ca>
-Date: Tue, 14 Jul 2026 09:27:01 +0530
-Message-ID: <yq5awluymdf6.fsf@kernel.org>
+ <20260701054926.825925-12-aneesh.kumar@kernel.org>
+ <20260713175616.GJ3133966@ziepe.ca>
+Date: Tue, 14 Jul 2026 09:32:27 +0530
+Message-ID: <yq5atsq2md64.fsf@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -72,56 +74,60 @@ Content-Type: text/plain
 
 Jason Gunthorpe <jgg@ziepe.ca> writes:
 
-> On Wed, Jul 01, 2026 at 11:19:08AM +0530, Aneesh Kumar K.V (Arm) wrote:
->> dma_direct_alloc_pages() may satisfy atomic allocations from the coherent
->> atomic pools. The pool allocation is keyed by the virtual address stored in
->> the gen_pool, but the pages API returns only the backing struct page.
->> 
->> On architectures with CONFIG_DMA_DIRECT_REMAP, atomic pool chunks are added
->> to the gen_pool using their remapped virtual address.
->> dma_direct_free_pages() reconstructs a linear-map address with
->> page_address(page) and passes that to dma_free_from_pool(). That address
->> does not match the gen_pool virtual range, so the pool lookup can fail and
->> the code can fall through to freeing a pool-owned page through the normal
->> page allocator path.
->> 
->> Add a page-based pool free helper that looks up the owning pool chunk by
->> physical address, translates it back to the gen_pool virtual address, and
->> frees that address to the pool. Use it from dma_direct_free_pages() while
->> keeping the existing virtual-address helper for coherent allocation frees.
->> 
->> Tested-by: Michael Kelley <mhklinux@outlook.com>
->> Tested-by: Mostafa Saleh <smostafa@google.com>
->> Signed-off-by: Aneesh Kumar K.V (Arm) <aneesh.kumar@kernel.org>
->> ---
->>  include/linux/dma-map-ops.h |  1 +
->>  kernel/dma/direct.c         |  4 +--
->>  kernel/dma/pool.c           | 54 +++++++++++++++++++++++++++++++++++++
->>  3 files changed, 57 insertions(+), 2 deletions(-)
+> On Wed, Jul 01, 2026 at 11:19:15AM +0530, Aneesh Kumar K.V (Arm) wrote:
+>> -static int atomic_pool_expand(struct gen_pool *pool, size_t pool_size,
+>> +static int atomic_pool_expand(struct dma_gen_pool *dma_pool, size_t pool_size,
+>>  			      gfp_t gfp)
+>>  {
+>>  	unsigned int order;
+>> @@ -114,14 +120,17 @@ static int atomic_pool_expand(struct gen_pool *pool, size_t pool_size,
+>>  	 * Memory in the atomic DMA pools must be unencrypted, the pools do not
+>>  	 * shrink so no re-encryption occurs in dma_direct_free().
+>>  	 */
+>> -	ret = set_memory_decrypted((unsigned long)page_to_virt(page),
+>> -				   1 << order);
+>> -	if (ret) {
+>> -		leak_pages = true;
+>> -		goto remove_mapping;
+>> +	if (dma_pool->cc_shared) {
+>> +		ret = set_memory_decrypted((unsigned long)page_to_virt(page),
+>> +					   1 << order);
+>> +		if (ret) {
+>> +			leak_pages = true;
+>> +			goto remove_mapping;
+>> +		}
+>>  	}
+>> -	ret = gen_pool_add_virt(pool, (unsigned long)addr, page_to_phys(page),
+>> -				pool_size, NUMA_NO_NODE);
+>> +
+>> +	ret = gen_pool_add_virt(dma_pool->pool, (unsigned long)addr,
+>> +				page_to_phys(page), pool_size, NUMA_NO_NODE);
+>>  	if (ret)
+>>  		goto encrypt_mapping;
+>>  
+>> @@ -129,12 +138,10 @@ static int atomic_pool_expand(struct gen_pool *pool, size_t pool_size,
+>>  	return 0;
+>>  
+>>  encrypt_mapping:
+>> -	ret = set_memory_encrypted((unsigned long)page_to_virt(page),
+>> -				   1 << order);
+>> -	if (WARN_ON_ONCE(ret)) {
+>> -		/* Decrypt succeeded but encrypt failed, purposely leak */
+>> +	if (dma_pool->cc_shared &&
+>> +	    set_memory_encrypted((unsigned long)page_to_virt(page), 1 << order))
+>>  		leak_pages = true;
+>> -	}
+>> +
 >
-> This seems pretty suboptimal?
->
-> If !CONFIG_DMA_DIRECT_REMAP then page_to_virt() was used to compute
-> the genpool's addr so dma_free_from_pool_page() can use the same
-> logic, which is how things must be working at all today
->
-> The CONFIG_DMA_DIRECT_REMAP scenario does look broken, so I'm
-> surprised there isn't a Fixes line on this commit? I don't have an
-> opinion on the search, but since alloc_pages() is used there is 8
-> bytes in the struct page that could be used to store the remapped
-> vaddr to avoid the search if someday someone wants to improve
-> this. Maybe a small comment hinting that direction would be a nice
-> addition.
->
-> Jason
->
+> Was it intentional to remove the WARN_ON and comment ?
 
-Something like
+That WARN_ON() was a bit inconsistent. Not all page leaks due to
+encrypt/decrypt failures triggered a warning, so I removed it.
 
-+/*
-+ * FIXME!! We could avoid this by storing the remapped virtual address in
-+ * struct page and using that for lookup.
-+ */
- bool dma_free_from_pool_page(struct device *dev, struct page *page, size_t size)
+If we want to warn about such failures, we should add the warning
+consistently across the code. We may also want to handle decrypt
+failures by encrypting the page again to avoid leaking it.
+
+I will work on that as a tree-wide change in a separate patch.
 
 -aneesh
