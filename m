@@ -1,178 +1,196 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 913A23749E2
-	for <linux-s390@vger.kernel.org>; Wed, 15 Jul 2026 14:10:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B4083128D4;
+	Wed, 15 Jul 2026 14:21:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784124656; cv=none; b=bUTjQAxnIEB8LBon/vOUYPdfo4X6A+faY8cMfmbaDlVcx+69GDAtiyehtOBWhQ/BuHETXmBY1CAjmhb3UdUZ0iLFq35dm3xrQILYQqhDqXKHEfm1A+UyxVBU1Rr6YEEwz7Z5DyCnuomsi2Ldx3vS9CZNFJNtSFsayTvnasQntfI=
+	t=1784125302; cv=none; b=VcPGs3TZmJ1WF0Owx3vL2pf12hPvStrhbnFTdMFq67vtTVCYgK0sqlxdoFIustXkg01bzHMaB/gL2q1TMRDbUWPFjOUfV7AiWUHQQe3xFJdx96NI2a5pZZXd0Ujrp9LV13r3N2GX1P6VqFkzaDgCirg5oGz7x1C5aCDV50zx6sA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784124656; c=relaxed/simple;
-	bh=AC+Thx7d2CMlbLdMeZfWw80m1lZG9KgXCFN1PkSTmkM=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=qVGufr63Ue00N8DuB4xB6p0NIF0FpSk70qzmfV5HA2bE2HajHGdGDgsEiQe7x3f9PtF5piKixSkxjTodlbj5QLXrxQqmohG7uexlZjkW4B7PqA6Z3FLvlp8HR3vppAeTedq0R1+3HtlM9XfGuV5xrWBf0cDHY7H6ykJVPpbEDWY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=k1GNVa0D; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1784125302; c=relaxed/simple;
+	bh=QQqytx8zgYsfaqy5Dmj7Z5d3bmhOj+QQfpM+cpIa9dA=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=FvhLtuxYZVPwWrelZYuefga1d7PAHqaMYlYiPQPFCcH6Q08IpXYUXOdWkTkBPHbJHxMbNQ89XdqT4rGfZ+L9rnQcEtIxf2NjZ1eB79Z1Gfa07ks2TAPNVIxKab5fnSF7kxDhk+lUZOMs64YF5/4sPPijjvGOHvlFXPxzjmP4up0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=EwyX2BHB; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="k1GNVa0D"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0FCB61F00A3A;
-	Wed, 15 Jul 2026 14:10:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784124654;
-	bh=h9bMTc3xKk5y8qPvP0Y290GABHc9ZsoqItc8ojiXP2c=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=k1GNVa0D+TPz5sTxl2MVrsaA5wzgbGUyJ1IioUD9Ljeb2o1kn57GBxsdWOydTdx4u
-	 s420oBVSkapMWrbpuxzxYLikO60BcuQ7tDutUgW1tntsbyj95A/REWmv9ZNwFiJyMc
-	 6XPgx4qxwcPs6bGEmNjFdLep/vPCBKr95a8ay5kfvmy7o+bVxqCPAwtnrezUWMSu77
-	 FcV1fa4Gr8eChWTciFDd81EVcVqnhS56VTdhnvqN8fFXSd1n4Qaep0NZIM6Ptp8vvI
-	 Gec+YYg+BAl4LLGCAUrrP7uD0bqSuu0BkUghWnr0hvlfiL1MSBYSCg/Ze+GTB3zSPK
-	 tJsO1TbZrTD7w==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 2/2] s390/syscall: Keep syscall number in extra ptregs
- member
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Sven Schnelle" <svens@linux.ibm.com>
-Cc: "Heiko Carstens" <hca@linux.ibm.com>, linux-s390@vger.kernel.org, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>
-In-Reply-To: <20260715133830.2619853-3-svens@linux.ibm.com>
-References: <20260715133830.2619853-1-svens@linux.ibm.com>
- <20260715133830.2619853-3-svens@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 15 Jul 2026 14:10:53 +0000
-Message-Id: <20260715141054.0FCB61F00A3A@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="EwyX2BHB"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66FEBwBr398664;
+	Wed, 15 Jul 2026 14:21:38 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=ew5vYJ
+	7WPSsDXHls/os2WZ6bxy88VWgLelAwB+1qMbA=; b=EwyX2BHBfZkkPOJ/Gm3iIy
+	xN76Rhq/hNM//fQcu2iFrXm6Yocss1jY6a2kpBNL7UbBLS1u0NL3oe0yFb1EnIYa
+	tHPAvNueTPRwVc4h81XoDtCMdI6w9MlaSuzaQv99FjJHogHN3LhkLbVigG6c5CBX
+	Y2YVbkrjFuYEHVIxhHXQmzOYvrKSifNoe8tap+fYNJW7rxtrDzLZUBqjSP60l0sZ
+	emQ5PD6hJGaoe73mGc8tAzjOELmWp4e1OuwxIGmUK1UKwFpDz7OSnEedVJ+pOm7R
+	14FnZyWjVZWVVuBA05mgwYZ0fQE5g9qbtkERr43F3l+H93uvi3+Wkg8HJbHo5gvA
+	==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fbepxkys6-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 15 Jul 2026 14:21:37 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66FEJZNT030510;
+	Wed, 15 Jul 2026 14:21:37 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fc2cgg6f8-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 15 Jul 2026 14:21:36 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66FELXOQ41091546
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 15 Jul 2026 14:21:33 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 511022004B;
+	Wed, 15 Jul 2026 14:21:33 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id F294020040;
+	Wed, 15 Jul 2026 14:21:32 +0000 (GMT)
+Received: from [9.111.23.116] (unknown [9.111.23.116])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 15 Jul 2026 14:21:32 +0000 (GMT)
+Message-ID: <296aa86b-6caf-4b4d-bb4e-8a25876cf48e@linux.ibm.com>
+Date: Wed, 15 Jul 2026 16:21:32 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 16/21] KVM: s390: vsie: Shadow VSIE SCA in guest-1
+To: Christoph Schlameuss <schlameuss@linux.ibm.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Cc: David Hildenbrand <david@kernel.org>, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev
+ <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Nico Boehr <nrb@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>,
+        Paolo Bonzini <pbonzini@redhat.com>, Shuah Khan <shuah@kernel.org>,
+        Eric Farman <farman@linux.ibm.com>
+References: <20260709-vsie-sigpi-v1-0-ea9f12066408@linux.ibm.com>
+ <20260709-vsie-sigpi-v1-16-ea9f12066408@linux.ibm.com>
+Content-Language: en-US
+From: Janosch Frank <frankja@linux.ibm.com>
+Autocrypt: addr=frankja@linux.ibm.com; keydata=
+ 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
+In-Reply-To: <20260709-vsie-sigpi-v1-16-ea9f12066408@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: YPX3cX6cnsOs5HKSCe0PtiqHTrS47T4a
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzE1MDE0MSBTYWx0ZWRfX9tjMzAnbeOXM
+ fIqUul4oBXIkFTSaLWsX4rbEe/YA5zGIbQrXQM1yDk05QFd5UF/kLVOYYpg0DUBJy6omoPV9xV6
+ Av4yengJsMvlofrSn8L5wC9wuAdi+DE=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzE1MDE0MSBTYWx0ZWRfX1yYEXozUiU2n
+ F11A1C3F8Nkr46OHFKSaVTB1TVqAFTk2Lztzb75EwDLv5NL/LlOMddwyo4ReO8AL9YW7/U80wtg
+ ftuTtN6w4X0TsQd6HoeeFxxX/Hj9uCMgcAGHiXO3L8a//xJ3saH08yFiU/8CFRLRiEKPNVwF1eW
+ H/+k7cVv2oW1PcutPlhWJ8bLFxyI7Vz+z6PfEbGRFzLAgz8kZdKJArFWdb87GqYFmE3doj/Zt3W
+ TuGrcF4AOWrsgPjgPPqp9wn4H6g83as1+CtZpyhloQeGSpZ2mFgUNwyUOKu7SlmW8+21b8hGwLP
+ /3OJWEfMHlT0dkQbP2fOP/ho99pwOjuh10FHOCkIJSxFWH0O/B8qThPIouaS8fzgspfKhX/lJ+y
+ IOcknsF1qh1mDDcPCKcXIa4Ix9mzem9ujAXI2lk1JgcKxfB84+9vvIdQgG9qOvLq7er4ISySASB
+ eL2d1J6EZrLGnzeg8dQ==
+X-Authority-Analysis: v=2.4 cv=XbS5Co55 c=1 sm=1 tr=0 ts=6a579772 cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+ a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8
+ a=2prQhZuATWbUqhegNzEA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-ORIG-GUID: YPX3cX6cnsOs5HKSCe0PtiqHTrS47T4a
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-07-15_03,2026-07-15_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ clxscore=1015 suspectscore=0 spamscore=0 phishscore=0 lowpriorityscore=0
+ priorityscore=1501 adultscore=0 malwarescore=0 impostorscore=0 bulkscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607150141
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
-s) to consider:
-- [High] Syscall restarts for system calls invoked via the `EXECUTE` instru=
-ction will rewind the instruction pointer by the wrong amount, causing exec=
-ution corruption.
-- [High] The patch breaks the ptrace `NT_S390_SYSTEM_CALL` regset ABI by om=
-itting the instruction length data.
-- [High] The syscall number loaded from `%r1` is no longer truncated to 16 =
-bits, allowing arbitrary garbage in the upper bits to cause valid syscalls =
-to fail.
---
+On 7/9/26 17:15, Christoph Schlameuss wrote:
+> Restructure kvm_s390_handle_vsie() to create a guest-1 shadow of the SCA
+> if guest-2 attempts to enter SIE with an SCA. If the SCA is used the
+> vsie_pages are stored in a new vsie_sca struct instead of the arch vsie
+> struct.
+> 
+> When the VSIE-Interpretation-Extension Facility is active the shadow SCA
+> (ssca_block) will be created and shadows of all CPUs defined in the
+> configuration are created. SCAOL/H in the VSIE control block are
+> overwritten with references to the shadow SCA.
+> 
+> The shadow SCA contains the addresses of the original guest-3 SCA as
+> well as the original VSIE control blocks. With these addresses the
+> machine can directly monitor the intervention bits within the original
+> SCA entries, enabling it to handle SENSE_RUNNING and EXTERNAL_CALL sigp
+> instructions without exiting VSIE.
+> 
+> The original SCA will be pinned in guest-2 memory and only be unpinned
+> before reuse. This means some pages might still be pinned even after the
+> guest 3 VM does no longer exist.
+> 
+> The vsie_scas including the ssca_blocks are also kept within a map to
+> reuse already existing ssca_blocks efficiently. While the map and array
+> with references to the vsie_scas are held in the arch vsie struct. The
+> use of vsie_scas is tracked using an ref_count.
+> 
+> Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
+> ---
 
---- Patch [2]: [PATCH 2/2] s390/syscall: Keep syscall number in extra ptreg=
-s member ---
-commit 1c7e9df362bfdaa075e7114b5570a63dc6c4e073
-Author: Sven Schnelle <svens@linux.ibm.com>
+[...]
 
-s390/syscall: Keep syscall number in extra ptregs member
-   =20
-Move the syscall number from ptregs::int_code to another union member
-called syscall_nr. This simplifies the code a bit.
+> +/*
+> + * Try to find the address of an existing shadow system control area.
+> + * @sca_o_gpa: original system control area address; guest-2 physical
+> + *
+> + * Called with lock on vsie_sca_lock.
+> + */
+> +static struct vsie_sca *get_existing_vsie_sca(struct kvm *kvm, hpa_t sca_o_gpa)
+> +{
+> +	struct vsie_sca *vsie_sca = xa_load(&kvm->arch.vsie.osca_to_sca, sca_o_gpa >> 6);
 
-> diff --git a/arch/s390/kernel/signal.c b/arch/s390/kernel/signal.c
-> index 4874de5edea0a..c3c69294ff330 100644
-> --- a/arch/s390/kernel/signal.c
-> +++ b/arch/s390/kernel/signal.c
-> @@ -447,12 +447,12 @@ void arch_do_signal_or_restart(struct pt_regs *regs)
->  	 * call information.
->  	 */
->  	current->thread.system_call =3D
-> -		test_pt_regs_flag(regs, PIF_SYSCALL) ? regs->int_code : 0;
-> +		test_pt_regs_flag(regs, PIF_SYSCALL) ? regs->syscall_nr : 0;
+s/6/SSCA_ALIGNMENT_SHIFT/
 
-[Severity: High]
-Does this break the ptrace NT_S390_SYSTEM_CALL regset ABI?
-
-Previously, thread.system_call stored both the syscall number and the
-instruction length code (ILC) in the upper 16 bits, which userspace tools=20
-like CRIU depend on to correctly restart syscalls.
-
-By saving only regs->syscall_nr, it appears the instruction length data is
-dropped.
-
-> =20
->  	if (get_signal(&ksig)) {
->  		/* Whee!  Actually deliver the signal.  */
->  		if (current->thread.system_call) {
-> -			regs->int_code =3D current->thread.system_call;
-> +			regs->syscall_nr =3D current->thread.system_call;
->  			/* Check for system call restarting. */
->  			switch (regs->gprs[2]) {
-
-[ ... ]
-
-> @@ -467,9 +467,7 @@ void arch_do_signal_or_restart(struct pt_regs *regs)
->  				fallthrough;
->  			case -ERESTARTNOINTR:
->  				regs->gprs[2] =3D regs->orig_gpr2;
-> -				regs->psw.addr =3D
-> -					__rewind_psw(regs->psw,
-> -						     regs->int_code >> 16);
-> +				regs->psw.addr =3D __rewind_psw(regs->psw, SVC_LEN);
-
-[Severity: High]
-Is it safe to rewind the PSW address by a hardcoded SVC_LEN (2 bytes) here?
-
-If a user-space application invokes a restartable syscall using the EXECUTE
-instruction, the dynamic instruction length is 4 or 6 bytes.=20
-
-Because the hardware ILC is no longer used to determine the rewind length,
-could resuming userspace result in execution corruption or a SIGILL by
-resuming in the middle of the EXECUTE instruction?
-
->  				break;
->  			}
->  		}
-
-[ ... ]
-
-> @@ -498,7 +496,7 @@ void arch_do_signal_or_restart(struct pt_regs *regs)
->  		case -ERESTARTSYS:
->  		case -ERESTARTNOINTR:
->  			regs->gprs[2] =3D regs->orig_gpr2;
-> -			regs->psw.addr =3D __rewind_psw(regs->psw, regs->int_code >> 16);
-> +			regs->psw.addr =3D __rewind_psw(regs->psw, SVC_LEN);
-
-[Severity: High]
-This seems to have the same hardcoded SVC_LEN issue as above when restarting
-syscalls on the alternative restart path. Could this also cause execution
-corruption if the syscall was invoked via EXECUTE?
-
->  			if (test_thread_flag(TIF_SINGLE_STEP))
->  				clear_thread_flag(TIF_PER_TRAP);
->  			break;
-
-[ ... ]
-
-> diff --git a/arch/s390/kernel/syscall.c b/arch/s390/kernel/syscall.c
-> index ce244dceec6dc..62e283ffef373 100644
-> --- a/arch/s390/kernel/syscall.c
-> +++ b/arch/s390/kernel/syscall.c
-> @@ -100,7 +100,10 @@ void noinstr __do_syscall(struct pt_regs *regs, int =
-per_trap)
->  	enter_from_user_mode(regs);
->  	add_random_kstack_offset();
->  	regs->psw =3D get_lowcore()->svc_old_psw;
-> -	regs->int_code =3D get_lowcore()->svc_int_code;
-> +	nr =3D get_lowcore()->svc_int_code & 0xffff;
-> +	if (likely(!nr))
-> +		nr =3D regs->gprs[1];
-> +	regs->syscall_nr =3D nr;
-
-[Severity: High]
-Does this assignment need to truncate the value read from regs->gprs[1] to
-16 bits?
-
-If a 31-bit compat application, or a 64-bit application leaves garbage in
-the upper 32 bits of register %r1 and issues a syscall with SVC number 0, nr
-will include that garbage.=20
-
-Could this cause the subsequent bounds check on nr in __do_syscall() to
-fail, returning -ENOSYS for an otherwise valid syscall?
-
->  	update_timer_sys();
->  	if (cpu_has_bear())
->  		current->thread.last_break =3D regs->last_break;
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260715133830.2619=
-853-1-svens@linux.ibm.com?part=3D2
