@@ -1,274 +1,234 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6DEC44C65F;
-	Wed, 15 Jul 2026 12:21:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1A261472765;
+	Wed, 15 Jul 2026 13:22:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784118121; cv=none; b=b3y34WwjJTvfM6aEk0hWYlKIbuaMkwGrqlIngRSc9kKSAmZ2xvjpUjG7g4j3StttOxWL6Z3maQ6HAZA3nicKlkdQwmDlKk8p9f39G5Mu3YHnkd8SSfdvNcV/7drR/UR5tulLqCmd6dJpGtJ2F+RvSxjIM9j9K9WB42TDoSzZgzA=
+	t=1784121774; cv=none; b=t6q3cOUgnl8kzA2Kgl+ukkEqKmKAbDwpWkKVGrfIk0KEcPvkziykV9H5KkB8eaZb3JgNPFQbV5XQb9CqnkqRtpJkS7QsiPqHTVwCAy+csPQEt/ydxFt+F6Wd8cO9TLO21YWfx871wgr9QW880C+eMsiDQtM+4ESmV1+atuMHWi8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784118121; c=relaxed/simple;
-	bh=x/+Deqo72SEBIsarop1qZEWlqqsNvS9ulVXGIckFS0Q=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=ApzCE1S1URskC6j4lVUxYv/ogJBt0EUzR2ltc3sY4EQKWIt8JBLKMwwm1gDr8sWk/lE1Iwt740t3U/AWamLY7fqBeriWPCnxmOQ7v2+kjl8fkX1JHXwChVSwN6hDCAdK4MZAI5bMygJvLOwZPPcBkFTdzmNyth2OSifAwzD2ETM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=U9JW+Sf1; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1784121774; c=relaxed/simple;
+	bh=Pj7muIkHVV7p/3ibgnYK0z3YYXatpPcl464jDq+I2kU=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=p1Kcxv1Bz/slo6mHsN2wJH3KiQ+hf2oE/5vQUmf8bZeEULEMmIopudxdAHqGiNHfXAVM9E73NGixpgxX7o/Eb2BNofeizwXkhLpPBSwDn6odmTKLzWw8tILWM2PhNi4bwP/NWYzG1Kc2yAXl/GKlk+PHxEJSHEkaeFvSYKm1eEg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=PhE+jxTO; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="U9JW+Sf1"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66FBfYVM2370482;
-	Wed, 15 Jul 2026 12:21:51 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="PhE+jxTO"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66FBfwpS4179583;
+	Wed, 15 Jul 2026 13:22:44 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=nvXOTE
-	192DT2O9k6oybYScSvBhqBDbOeX3gUaBQjxak=; b=U9JW+Sf1SsJWZ45G1bdkya
-	Op42m4pX6osIEgFEUReqTzK9pCwqHF/ncKyD4uPXp/NtJdr2DPLjKXiVWHaQgGss
-	MlfJMbRbyU2HHvmpA3FNzRHmxRlKX5T6ccLOCJnsj9G1WcvcF8TZ+O5QKJCLrcKG
-	uDHbQET2jEdj2RgFyhnNqLei9KUr6E9kvgcQFfyIgdaGvak09ae/oLrlJF+9IS/a
-	1EJpK9jzUDbvNaF3f7LIO+nmokhs3inA15+9WLEpWdYpCI4Rl0HEjbZz1Yl48DDg
-	xDxVkxWnz0M+xzPr0TjS0Ke9swlr2z1Ee5kEdMZ8emDqSQcbf9V4vT4gAc6waqTA
-	==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fcv33c15c-1
+	:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=pp1; bh=vIFo0YrK5esCG67Dm
+	/2h5j9Bki/Ly61qdMaw02Uu8MM=; b=PhE+jxTOXGB8BQ4QyyMswmDciwBbYrj1k
+	rPANFzDHOzHLz47e5EJTVtG4q4Fh/c6uiMHLQsZYJoRG9136twRe72xzIj0OSRIA
+	dDYxP0J/qv127hYyiZ2vo6ImoJZ043nwlG9Z5PdyYffvdGvU3bZqvJ9HGVZ76NLG
+	5ZP90coqDU3K94gMkr5mPlAH5SWG2LT0trPEPYXCFMlKqW9bNDBsIDT/6P5NJGvZ
+	eumsEMmv3WVxJ9YwuBu4o9YsCrm6fwQ8v3nGc7kv1rsiyQ2LQX51zw9jsQtxfUI9
+	zKsacZlJlp9+YBv31Ir2aVeDInNYWxfptn9MVd2Bdq5/a01UbfhNg==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fbexwu31m-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 15 Jul 2026 12:21:51 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66FCJbw4032513;
-	Wed, 15 Jul 2026 12:21:50 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fc2cgfqyy-1
+	Wed, 15 Jul 2026 13:22:43 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66FDJevV025139;
+	Wed, 15 Jul 2026 13:22:43 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fc0hw8an2-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 15 Jul 2026 12:21:49 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66FCLkhk49021280
+	Wed, 15 Jul 2026 13:22:43 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66FDMdp940960292
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 15 Jul 2026 12:21:46 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 59A8A2004D;
-	Wed, 15 Jul 2026 12:21:46 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id F022F20040;
-	Wed, 15 Jul 2026 12:21:45 +0000 (GMT)
-Received: from [9.111.23.116] (unknown [9.111.23.116])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 15 Jul 2026 12:21:45 +0000 (GMT)
-Message-ID: <2b51de93-eb60-4ce0-87e0-6ff98c9cb5c0@linux.ibm.com>
-Date: Wed, 15 Jul 2026 14:21:45 +0200
+	Wed, 15 Jul 2026 13:22:39 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 16A082004B;
+	Wed, 15 Jul 2026 13:22:39 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id DCF3320043;
+	Wed, 15 Jul 2026 13:22:38 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with SMTP;
+	Wed, 15 Jul 2026 13:22:38 +0000 (GMT)
+Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 55669)
+	id C454B16267D; Wed, 15 Jul 2026 15:22:38 +0200 (CEST)
+From: Alexander Gordeev <agordeev@linux.ibm.com>
+To: Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Andrey Ryabinin <ryabinin.a.a@gmail.com>
+Cc: linux-s390@vger.kernel.org, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, kasan-dev@googlegroups.com,
+        Kevin Brodsky <kevin.brodsky@arm.com>,
+        David Hildenbrand <david@redhat.com>
+Subject: [PATCH v6 3/4] mm/kasan: Introduce helpers for lazy MMU mode sanitizer
+Date: Wed, 15 Jul 2026 15:22:37 +0200
+Message-ID: <a5bf7ac327864193bb7c95d8575d6ce1f6a9576c.1784121418.git.agordeev@linux.ibm.com>
+X-Mailer: git-send-email 2.53.0
+In-Reply-To: <cover.1784121418.git.agordeev@linux.ibm.com>
+References: <cover.1784121418.git.agordeev@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 15/21] KVM: s390: vsie: Add struct vsie_sca with pin and
- unpin
-To: Christoph Schlameuss <schlameuss@linux.ibm.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Cc: David Hildenbrand <david@kernel.org>, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev
- <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Nico Boehr <nrb@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>,
-        Paolo Bonzini <pbonzini@redhat.com>, Shuah Khan <shuah@kernel.org>,
-        Eric Farman <farman@linux.ibm.com>
-References: <20260709-vsie-sigpi-v1-0-ea9f12066408@linux.ibm.com>
- <20260709-vsie-sigpi-v1-15-ea9f12066408@linux.ibm.com>
-Content-Language: en-US
-From: Janosch Frank <frankja@linux.ibm.com>
-Autocrypt: addr=frankja@linux.ibm.com; keydata=
- xsFNBFubpD4BEADX0uhkRhkj2AVn7kI4IuPY3A8xKat0ihuPDXbynUC77mNox7yvK3X5QBO6
- qLqYr+qrG3buymJJRD9xkp4mqgasHdB5WR9MhXWKH08EvtvAMkEJLnqxgbqf8td3pCQ2cEpv
- 15mH49iKSmlTcJ+PvJpGZcq/jE42u9/0YFHhozm8GfQdb9SOI/wBSsOqcXcLTUeAvbdqSBZe
- zuMRBivJQQI1esD9HuADmxdE7c4AeMlap9MvxvUtWk4ZJ/1Z3swMVCGzZb2Xg/9jZpLsyQzb
- lDbbTlEeyBACeED7DYLZI3d0SFKeJZ1SUyMmSOcr9zeSh4S4h4w8xgDDGmeDVygBQZa1HaoL
- Esb8Y4avOYIgYDhgkCh0nol7XQ5i/yKLtnNThubAcxNyryw1xSstnKlxPRoxtqTsxMAiSekk
- 0m3WJwvwd1s878HrQNK0orWd8BzzlSswzjNfQYLF466JOjHPWFOok9pzRs+ucrs6MUwDJj0S
- cITWU9Rxb04XyigY4XmZ8dywaxwi2ZVTEg+MD+sPmRrTw+5F+sU83cUstuymF3w1GmyofgsU
- Z+/ldjToHnq21MNa1wx0lCEipCCyE/8K9B9bg9pUwy5lfx7yORP3JuAUfCYb8DVSHWBPHKNj
- HTOLb2g2UT65AjZEQE95U2AY9iYm5usMqaWD39pAHfhC09/7NQARAQABzSVKYW5vc2NoIEZy
- YW5rIDxmcmFua2phQGxpbnV4LmlibS5jb20+wsF3BBMBCAAhBQJbm6Q+AhsjBQsJCAcCBhUI
- CQoLAgQWAgMBAh4BAheAAAoJEONU5rjiOLn4p9gQALjkdj5euJVI2nNT3/IAxAhQSmRhPEt0
- AmnCYnuTcHRWPujNr5kqgtyER9+EMQ0ZkX44JU2q7OWxTdSNSAN/5Z7qmOR9JySvDOf4d3mS
- bMB5zxL9d8SbnSs1uW96H9ZBTlTQnmLfsiM9TetAjSrR8nUmjGhe2YUhJLR1v1LguME+YseT
- eXnLzIzqqpu311/eYiiIGcmaOjPCE+vFjcXL5oLnGUE73qSYiujwhfPCCUK0850o1fUAYq5p
- CNBCoKT4OddZR+0itKc/cT6NwEDwdokeg0+rAhxb4Rv5oFO70lziBplEjOxu3dqgIKbHbjza
- EXTb+mr7VI9O4tTdqrwJo2q9zLqqOfDBi7NDvZFLzaCewhbdEpDYVu6/WxprAY94hY3F4trT
- rQMHJKQENtF6ZTQc9fcT5I3gAmP+OEvDE5hcTALpWm6Z6SzxO7gEYCnF+qGXqp8sJVrweMub
- UscyLqHoqdZC2UG4LQ1OJ97nzDpIRe0g6oJ9ZIYHKmfw5jjwH6rASTld5MFWajWdNsqK15k/
- RZnHAGICKVIBOBsq26m4EsBlfCdt3b/6emuBjUXR1pyjHMz2awWzCq6/6OWs5eANZ0sdosNq
- dq2v0ULYTazJz2rlCXV89qRa7ukkNwdBSZNEwsD4eEMicj1LSrqWDZMAALw50L4jxaMD7lPL
- jJbazsFNBFubpD4BEADAcUTRqXF/aY53OSH7IwIK9lFKxIm0IoFkOEh7LMfp7FGzaP7ANrZd
- cIzhZi38xyOkcaFY+npGEWvko7rlIAn0JpBO4x3hfhmhBD/WSY8LQIFQNNjEm3vzrMo7b9Jb
- JAqQxfbURY3Dql3GUzeWTG9uaJ00u+EEPlY8zcVShDltIl5PLih20e8xgTnNzx5c110lQSu0
- iZv2lAE6DM+2bJQTsMSYiwKlwTuv9LI9Chnoo6+tsN55NqyMxYqJgElk3VzlTXSr3+rtSCwf
- tq2cinETbzxc1XuhIX6pu/aCGnNfuEkM34b7G1D6CPzDMqokNFbyoO6DQ1+fW6c5gctXg/lZ
- 602iEl4C4rgcr3+EpfoPUWzKeM8JXv5Kpq4YDxhvbitr8Dm8gr38+UKFZKlWLlwhQ56r/zAU
- v6LIsm11GmFs2/cmgD1bqBTNHHcTWwWtRTLgmnqJbVisMJuYJt4KNPqphTWsPY8SEtbufIlY
- HXOJ2lqUzOReTrie2u0qcSvGAbSfec9apTFl2Xko/ddqPcZMpKhBiXmY8tJzSPk3+G4tqur4
- 6TYAm5ouitJsgAR61Cu7s+PNuq/pTLDhK+6/Njmc94NGBcRA4qTuysEGE79vYWP2oIAU4Fv6
- gqaWHZ4MEI2XTqH8wiwzPdCQPYsSE0fXWiYu7ObeErT6iLSTZGx4rQARAQABwsFfBBgBCAAJ
- BQJbm6Q+AhsMAAoJEONU5rjiOLn4DDEP/RuyckW65SZcPG4cMfNgWxZF8rVjeVl/9PBfy01K
- 8R0hajU40bWtXSMiby7j0/dMjz99jN6L+AJHJvrLz4qYRzn2Ys843W+RfXj62Zde4YNBE5SL
- jJweRCbMWKaJLj6499fctxTyeb9+AMLQS4yRSwHuAZLmAb5AyCW1gBcTWZb8ON5BmWnRqeGm
- IgC1EvCnHy++aBnHTn0m+zV89BhTLTUal35tcjUFwluBY39R2ux/HNlBO1GY3Z+WYXhBvq7q
- katThLjaQSmnOrMhzqYmdShP1leFTVbzXUUIYv/GbynO/YrL2gaQpaP1bEUEi8lUAfXJbEWG
- dnHFkciryi092E8/9j89DJg4mmZqOau7TtUxjRMlBcIliXkzSLUk+QvD4LK1kWievJse4mte
- FBdkWHfP4BH/+8DxapRcG1UAheSnSRQ5LiO50annOB7oXF+vgKIaie2TBfZxQNGAs3RQ+bga
- DchCqFm5adiSP5+OT4NjkKUeGpBe/aRyQSle/RropTgCi85pje/juYEn2P9UAgkfBJrOHvQ9
- Z+2Sva8FRd61NJLkCJ4LFumRn9wQlX2icFbi8UDV3do0hXJRRYTWCxrHscMhkrFWLhYiPF4i
- phX7UNdOWBQ90qpHyAxHmDazdo27gEjfvsgYMdveKknEOTEb5phwxWgg7BcIDoJf9UMC
-In-Reply-To: <20260709-vsie-sigpi-v1-15-ea9f12066408@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzE1MDEyMSBTYWx0ZWRfX7ppKYt6Q8ca4
- tQSMPIthLEulQT1lddkUJhHhOdpfmDBuNiStxQLZlIUQp0o4axAhgxcy08Im7TvwLZXN3GyiZ1m
- fSHFOoBoPUwtbny4pmnYW6+T8NaldS8=
-X-Authority-Analysis: v=2.4 cv=Mp1iLWae c=1 sm=1 tr=0 ts=6a577b5f cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8
- a=PGrXbKZJNvlhCRs6KjAA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: HK2RbLkZGteAS7Vx7YY3Yu-zZlWK9qFI
-X-Proofpoint-ORIG-GUID: HK2RbLkZGteAS7Vx7YY3Yu-zZlWK9qFI
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzE1MDEyMSBTYWx0ZWRfXx34ccdGpUz0E
- iiOLlpCSYUSdxSjK9YC5yOpKVE0Qb/sj0hpdzMb57+YO8tMxotX+irNqki5a/Z079SxcVLZAAvP
- au2IQIIL7M4cOGlerfGzSZHYILu+UTsD3MFKaBM1piYTjevrXMD9N8jaRND9bDACl7J6soRILh5
- FR097y5tm0dLEzHG/fuo4MboDX7XPOTpSjhBXtUZDonM/1Ky83ST+C/+cLWYWP8AkOIXtg93rsK
- rGwCE+Ld4QToo4WYSeIfd9mo4B+jLp/Pp0XajpCtmQQMBf71unZcYIifdyL5486m0NGcJ7OIi7U
- +GmdRnjOUFt9vbMs7UzRA5jc5BkTxkor/E8RZ3XbaqtqfW2TF5u2T55nrOCMH6ikHYs293EH/Ex
- HdhaWYJINmZE/tmgvPIuBVMoYABgL4hk88ZQ8Rl5rIzMG18vVuGf1L8jommGs0mb9Z/NpXbvRaO
- g8znP51LxNixHK9iiYg==
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-GUID: 2ZgdxkD_DYSdg9jm7Pp6y5oNH5YOUkHx
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzE1MDEzMSBTYWx0ZWRfXwrK7eiK2dknl
+ 51QHOgXzU39lTsIxK9u9LCfMzbI4qgTtRmhhyG5FAVTwfEmWxmJYbU4q2zFLIjWSGvus23wtqU8
+ roC1X+wiXxX56BswANoX4v0pm5GrqEgZSgaMSqSmUCbPFkJbVGkhnFjCHR6HA9JoiV7tDV7LlH5
+ VBy8Ybnu4q4MAKKt4OR8gW1I7+D0w94BrANMDGlQE4+4vrLo8Cm0BctlW18gOe8MppJzRv0ixrk
+ hM4o+Omul91T15izPsT7db63Z6OhuM+hdGJosA5PMdXlZZiY/Mzqg1RQnOseTIruSREnHjs6QFM
+ JrVFjdK7qY5+VV0iKIA58BbKRq2xZuVXsH+MrCt1MkhnxhWmK5hlWmXqQdkwpClMv3SDDW8P4Ar
+ NrGOQ/8ZW4MgEZN29NpWay4ccT2NIJp8pijkydyOIrz9dwGC3Oo4eHoq33agFghFZ39JZvQ9Rbg
+ tlWvfgASLia0IaqZuqw==
+X-Authority-Analysis: v=2.4 cv=XJoAjwhE c=1 sm=1 tr=0 ts=6a5789a4 cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8 a=IbWDVZlrxelGz4sJbtUA:9
+X-Proofpoint-ORIG-GUID: FE-uiVEGEwD2-Wux2TSiwKAzgMqSIBSs
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzE1MDEzMSBTYWx0ZWRfXyYt7UqZQ06T/
+ rBvOxOuNJCamh4xOpMiPJJW7nukNzFcGbangxtz5EIWDHthw7llQba4INI1kgxRPZVuOhNn2nqq
+ ZX5HCFF3uVAaStAKg7ae/DXtpFKeUm4=
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-07-15_02,2026-07-15_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- adultscore=0 bulkscore=0 spamscore=0 malwarescore=0 lowpriorityscore=0
- impostorscore=0 priorityscore=1501 suspectscore=0 clxscore=1015 phishscore=0
+ suspectscore=0 adultscore=0 bulkscore=0 phishscore=0 lowpriorityscore=0
+ priorityscore=1501 impostorscore=0 clxscore=1015 spamscore=0 malwarescore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607150121
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607150131
 
-On 7/9/26 17:15, Christoph Schlameuss wrote:
-> Introduce the struct vsie_sca to hold the SSCA and required management
-> data along with alloc and free methods to use with the struct.
-> On this basis we can also add methods {,un}pin_sca() to simplify the
-> pinning SCAs in g1.
-> 
-> Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
-> ---
->   arch/s390/include/asm/kvm_host_types.h |  1 +
->   arch/s390/kvm/vsie.c                   | 79 +++++++++++++++++++++++++++++++++-
->   2 files changed, 79 insertions(+), 1 deletion(-)
-> 
-> diff --git a/arch/s390/include/asm/kvm_host_types.h b/arch/s390/include/asm/kvm_host_types.h
-> index 6540146b4b00..d6025b34a66d 100644
-> --- a/arch/s390/include/asm/kvm_host_types.h
-> +++ b/arch/s390/include/asm/kvm_host_types.h
-> @@ -7,6 +7,7 @@
->   #include <linux/types.h>
->   
->   #define KVM_S390_MAX_VSIE_VCPUS 256
-> +#define KVM_S390_MAX_SCA_PAGES 5
->   
->   #define KVM_S390_BSCA_CPU_SLOTS 64
->   #define KVM_S390_ESCA_CPU_SLOTS 248
-> diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-> index 874ed2a55347..4b492af15542 100644
-> --- a/arch/s390/kvm/vsie.c
-> +++ b/arch/s390/kvm/vsie.c
-> @@ -29,6 +29,7 @@
->   
->   enum vsie_page_flags {
->   	VSIE_PAGE_IN_USE = 0,
-> +	VSIE_PAGE_PINNED = 1,
->   };
+Provide helpers that allow architectures implement
+illegitimate PTE direct accesses while the lazy MMU
+mode is enabled, such as:
 
-This seems to belong to the next patch.
-Also I'd adjust the name and incorporate scb into it so it's clear we're 
-not pinning the vsie_page.
+	pte_t pte =3D *ptep;
+	*ptep =3D pte;
 
->   
->   struct vsie_page {
-> @@ -64,7 +65,8 @@ struct vsie_page {
->   	gpa_t scb_gpa;				/* 0x0258 */
->   	/* the shadow gmap in use by the vsie_page */
->   	struct gmap_cache gmap_cache;		/* 0x0260 */
-> -	__u8 reserved[0x06f8 - 0x0278];		/* 0x0278 */
-> +	struct vsie_sca *vsie_sca;		/* 0x0278 */
-> +	__u8 reserved[0x06f8 - 0x0280];		/* 0x0280 */
->   	struct kvm_s390_crypto_cb crycb;	/* 0x06f8 */
->   	__u8 fac[8 + S390_ARCH_FAC_LIST_SIZE_BYTE];/* 0x07f8 */
->   };
-> @@ -76,6 +78,27 @@ struct kvm_address_pair {
->   	hpa_t hpa;
->   };
->   
-> +enum vsie_sca_flags {
-> +	VSIE_SCA_ESCA = 0,
-> +	VSIE_SCA_PINNED = 1,
-> +};
-> +
-> +struct vsie_sca {
-> +	struct ssca_block	ssca;
-> +	struct vsie_page	*pages[KVM_S390_MAX_VSIE_VCPUS];
-> +	struct mutex		mutex;
+By contrast, these would have to be:
 
-You added a description about what the mutex is protecting to the next 
-patch. Move it to this patch please.
+	pte_t pte =3D ptep_get(ptep);
+	set_pte(ptep, pte);
 
-> +	atomic_t		ref_count;
-> +	gpa_t			sca_gpa;
-> +	unsigned long		flags;
-> +	u64			mcn[4];
-> +	unsigned long		sca_o_nr_pages;
+The direct PTE accesses pose a real issue on s390.
 
-unsigned long might be a bit much for a handful of pages.
+Suggested-by: Ilya Leoshkevich <iii@linux.ibm.com>
+Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
+---
+ include/linux/kasan.h     | 16 ++++++++++++++++
+ mm/kasan/common.c         | 14 ++++++++++++++
+ mm/kasan/kasan.h          |  2 ++
+ mm/kasan/report_generic.c |  3 +++
+ 4 files changed, 35 insertions(+)
 
-> +	struct kvm_address_pair	sca_o_pages[KVM_S390_MAX_SCA_PAGES];
-> +};
-> +
-> +static_assert(!(offsetof(struct vsie_sca, ssca) & 0x3f));
-> +static_assert((offsetof(struct vsie_sca, ssca) & ~PAGE_MASK) +
-> +	      offsetof(struct ssca_block, cpu[0]) <= PAGE_SIZE);
+diff --git a/include/linux/kasan.h b/include/linux/kasan.h
+index bf233bde68c7..deadf566b84a 100644
+--- a/include/linux/kasan.h
++++ b/include/linux/kasan.h
+@@ -134,6 +134,20 @@ static __always_inline void kasan_poison_slab(struct=
+ slab *slab)
+ 		__kasan_poison_slab(slab);
+ }
+=20
++void __kasan_poison_pte(pte_t *pte, int nr);
++static __always_inline void kasan_poison_pte(pte_t *pte, int nr)
++{
++	if (kasan_enabled())
++		__kasan_poison_pte(pte, nr);
++}
++
++void __kasan_unpoison_pte(pte_t *pte, int nr);
++static __always_inline void kasan_unpoison_pte(pte_t *pte, int nr)
++{
++	if (kasan_enabled())
++		__kasan_unpoison_pte(pte, nr);
++}
++
+ void __kasan_unpoison_new_object(struct kmem_cache *cache, void *object)=
+;
+ /**
+  * kasan_unpoison_new_object - Temporarily unpoison a new slab object.
+@@ -414,6 +428,8 @@ static inline bool kasan_unpoison_pages(struct page *=
+page, unsigned int order,
+ 	return false;
+ }
+ static inline void kasan_poison_slab(struct slab *slab) {}
++static inline void kasan_poison_pte(pte_t *pte, int nr) {}
++static inline void kasan_unpoison_pte(pte_t *pte, int nr) {}
+ static inline void kasan_unpoison_new_object(struct kmem_cache *cache,
+ 					void *object) {}
+ static inline void kasan_poison_new_object(struct kmem_cache *cache,
+diff --git a/mm/kasan/common.c b/mm/kasan/common.c
+index b7d05c2a6d93..94d106094989 100644
+--- a/mm/kasan/common.c
++++ b/mm/kasan/common.c
+@@ -163,6 +163,20 @@ void __kasan_poison_slab(struct slab *slab)
+ 		     KASAN_SLAB_REDZONE, false);
+ }
+=20
++void __kasan_poison_pte(pte_t *pte, int nr)
++{
++	if (IS_ALIGNED(sizeof(*pte), KASAN_GRANULE_SIZE))
++		kasan_poison(pte, sizeof(*pte) * nr, KASAN_LAZY_MMU_PTE, false);
++}
++EXPORT_SYMBOL_GPL(__kasan_poison_pte);
++
++void __kasan_unpoison_pte(pte_t *pte, int nr)
++{
++	if (IS_ALIGNED(sizeof(*pte), KASAN_GRANULE_SIZE))
++		kasan_unpoison(pte, sizeof(*pte) * nr, false);
++}
++EXPORT_SYMBOL_GPL(__kasan_unpoison_pte);
++
+ void __kasan_unpoison_new_object(struct kmem_cache *cache, void *object)
+ {
+ 	kasan_unpoison(object, cache->object_size, false);
+diff --git a/mm/kasan/kasan.h b/mm/kasan/kasan.h
+index fc9169a54766..1a2d18cdb21d 100644
+--- a/mm/kasan/kasan.h
++++ b/mm/kasan/kasan.h
+@@ -144,12 +144,14 @@ static inline bool kasan_requires_meta(void)
+ #define KASAN_PAGE_REDZONE	0xFE  /* redzone for kmalloc_large allocation=
+ */
+ #define KASAN_SLAB_REDZONE	0xFC  /* redzone for slab object */
+ #define KASAN_SLAB_FREE		0xFB  /* freed slab object */
++#define KASAN_LAZY_MMU_PTE	0xFD  /* direct pte access in lazy mmu mode *=
+/
+ #define KASAN_VMALLOC_INVALID	0xF8  /* inaccessible space in vmap area *=
+/
+ #else
+ #define KASAN_PAGE_FREE		KASAN_TAG_INVALID
+ #define KASAN_PAGE_REDZONE	KASAN_TAG_INVALID
+ #define KASAN_SLAB_REDZONE	KASAN_TAG_INVALID
+ #define KASAN_SLAB_FREE		KASAN_TAG_INVALID
++#define KASAN_LAZY_MMU_PTE	KASAN_TAG_INVALID
+ #define KASAN_VMALLOC_INVALID	KASAN_TAG_INVALID /* only used for SW_TAGS=
+ */
+ #endif
+=20
+diff --git a/mm/kasan/report_generic.c b/mm/kasan/report_generic.c
+index f5b8e37b3805..489d4a8d6902 100644
+--- a/mm/kasan/report_generic.c
++++ b/mm/kasan/report_generic.c
+@@ -113,6 +113,9 @@ static const char *get_shadow_bug_type(struct kasan_r=
+eport_info *info)
+ 	case KASAN_SLAB_FREE_META:
+ 		bug_type =3D "slab-use-after-free";
+ 		break;
++	case KASAN_LAZY_MMU_PTE:
++		bug_type =3D "lazy-mmu-pte-access";
++		break;
+ 	case KASAN_ALLOCA_LEFT:
+ 	case KASAN_ALLOCA_RIGHT:
+ 		bug_type =3D "alloca-out-of-bounds";
+--=20
+2.53.0
 
-If we force ssca to offset 0 will the second assert be unnecessary?
-Where did you get the second check from anyway? Send me a DM.
-
-Something like this could be a bit clearer:
-/* SSCA needs to be 32-byte aligned. Let's be lazy and force it to 
-offset 0. */
-static_assert(!(offsetof(struct vsie_sca, ssca)));
-
-> +
->   static inline bool sie_uses_esca(struct kvm_s390_sie_block *scb)
->   {
->   	return (scb->ecb2 & ECB2_ESCA);
-> @@ -831,6 +854,60 @@ static int pin_scb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page,
->   	return 0;
->   }
->   
-> +/*
-> + * Unpin g2 original sca in g1 memory.
-> + *
-> + * Called with vsie_sca_lock held.
-> + */
-> +static void unpin_sca(struct kvm *kvm, struct vsie_sca *vsie_sca)
-> +{
-> +	if (!test_bit(VSIE_SCA_PINNED, &vsie_sca->flags))
-> +		return;
-> +
-> +	unpin_guest_pages(kvm, vsie_sca->sca_o_pages, vsie_sca->sca_o_nr_pages);
-> +	vsie_sca->sca_o_nr_pages = 0;
-> +
-> +	__clear_bit(VSIE_SCA_PINNED, &vsie_sca->flags);
-> +}
-I think you moved out the wrong code.
-Leave the structs and constants and move the functions into the next 
-patch so it's less confusing for me and the LLM :)
-
-You can consider splitting the scb pin functions from the next patch as 
-well as get_vsie_page() (if possible, didn't fully check).
