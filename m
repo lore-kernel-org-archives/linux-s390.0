@@ -1,75 +1,40 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A025C42FCCF;
-	Wed, 15 Jul 2026 19:12:59 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 92E37377A91;
+	Wed, 15 Jul 2026 23:34:10 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784142798; cv=none; b=ocMqU8xyGBVpB6RY2VrsNjShRZbiTN9guuS2jhttOf0n1t8odWRI6InJA3LOZ4wMOW94KV7DVEt+D+gOzfpJYeYkqQeevYZl+WSsj4WmsEoO1kVDHUmwzYm90GUSsbHVXfL3p0ohF5XaHVvjCn1EYhIOuQNKHPvFjOGIAKWwye8=
+	t=1784158451; cv=none; b=W95Shi3ULDEjhFx5qoHeuEEC6Ptcy4vJHJsdXB8b8I+MW5I8GRjasqTZiQLrtha0A8kA99D1YXJJTfRoWWFU0x4xUszz58rajRLFvzIS2KgR5uQlreaeLEMq65FaqPrKFLzuaSKtYfLqQd0OdMsDIc08kBuLwtAgruzueuOLswU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784142798; c=relaxed/simple;
-	bh=+e6WArOpGfBJmkNVtC1sEC4jNnxBzfLBaz71ANfRWX8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=McAPqL2A/5nlGEPAYi1g7jYFMV1a/u3JP4v9CRBHAyBmq1ydmwJEkzOq0NswgIVCimnOKDU1f+QOhofotYPhLdzGrkGhePVZiChalzlIDFSQ3B8ntrbLsEBMR+xMOG5QddwkYOXg7+BsYGeaInzhE1/ONGQWUfT/ohVkKA/YSKE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ThkLp/3D; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1784158451; c=relaxed/simple;
+	bh=pH8F5UGT9+IdC3oKIzzOSQfEgtEphC5O/midW2/D99U=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To; b=Rkoc1SxLObtpJvuSAvqRenOJyRfbqeK0mDpDUCrV6x0EZoQtmkevL+JYaDb+mtit18bdXnE/i+JRU6rhyOgRXMFs8HxGX8S7pLsN9oJlHbbJ2tJGc/jiZkFJ0N/aDEgjnwr9GSLmckVi0VTBnvDltLvLw0R6k8iV6MpUxtwRjN4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=l9GhMDmu; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ThkLp/3D"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4925E1F00A3A;
-	Wed, 15 Jul 2026 19:12:56 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="l9GhMDmu"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E9941F000E9;
+	Wed, 15 Jul 2026 23:34:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784142776;
-	bh=9oVCCdJZ6i0nGcuAu+X52AzRGPPFJc6TOHwzZS5ksvI=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=ThkLp/3DbgYhs8eYeG60ITWsTanEfafHo4P1Dis5gx0XzPaUQWEsAbGIH6EDFvhR7
-	 grngim+iQWZ9dA2fKdCAVHOz3HgAbhsBhk3FUeAKNF2EZszlUHcaJB5iyzZOpPHmCt
-	 EM1HN13QrPkmdzcrubqrVzA5pcIma3IRaejhabRFP2r+ZLwRgS1efXtDaRW9RBOiru
-	 lsLeoFn1sQP60GH72OpM33N+Yid61Z+hs9WQRVFdiMXqlEv7/tD2qxgvj17YS48kGN
-	 jczXQJMF51moHrReRTbJQo0WxP5640NY0BqghhhmXOh0M1dKvOYR1b0f/YsuJ+ehtE
-	 7Q4cFug10BGjA==
-Received: from phl-compute-02.internal (phl-compute-02.internal [10.202.2.42])
-	by mailfauth.phl.internal (Postfix) with ESMTP id 5E4A0F40068;
-	Wed, 15 Jul 2026 15:12:55 -0400 (EDT)
-Received: from phl-frontend-03 ([10.202.2.162])
-  by phl-compute-02.internal (MEProxy); Wed, 15 Jul 2026 15:12:55 -0400
-X-ME-Sender: <xms:t9tXai3LM5gP4pb83_8lwyGYjL8IxVLq3WnbEDrZ-vFeC6d08nxqxw>
-    <xme:t9tXavz1wIh1_YEXExlr9yorUaDDeunVqrlPowmCryLHu4sipndSpEqJlrijTrS7M
-    dE1qfH4rKjEoQCrKkg1E9eKydMiyYUF1cY_TQnHgq7HjkvSQUhDEQ>
-X-ME-Received: <xmr:t9tXajnu-pDrundjT5KEYWuEGkA1Xn5jBr0Ieerz88EnoQNTnVqoKaeQnz26SLJlBmFNqcuCWV9EuecScL2e-ed7mD5JW5F9>
-X-ME-Proxy-Cause: dmFkZTFravVrf3m1MWAOqu03Ewy0VcAX7ERyeMWoyOAJjzaLpK1CFtXM1o/PM+kYHNzt+v
-    vXewgjU7nnGz+GB+//KkYeTgtn3zL8y5gaT5XMhmOldD2IStpkEHfXLfoSCYJ5gKoDMJtZ
-    KTE2O0bgoAmCbrvWb96MCVZjml/MZFehGkTy6vMxRAzvgCXWz8W+pPQf2vNplzPYmlKDc6
-    xy/LN3YuDOAcJjJWDhdla2Onqx55C6dgFJqjBuhfmgvpEBihLQf5XtA+gU2Pw2YvaARRPo
-    aYDDJgcOmNA3x2PkLZceYJH7GslTjvvxpI4gNfu2bhk4Ew2u+cqUNTX+veexZ2gFx6WIkZ
-    g+7P8n6OsMNsXJXghrZMkd4leU28/Jj2zM7eXOG6vrTskwzUtoCq7wpBBvyKwWDuGIyeSm
-    ynEx4Oo6A9c6OcYZAq1dvBSp8Upw3YLC9f9jmBibRU1vx3U5CuXTlHbs3D3tClkzfGIEQB
-    Fkn6EgjPhNU/tNjcjJaBXCkDo69gvxGj9qUmdgL0E+yUTBpf1SVcir3XyDnAWvnVtIKCqe
-    rfmWBbFJRHv9QHKn+f/iVy251FNxMJV8j9N4zbwJ8mLApwsWfgrM5UFWIf8P0WqvS6xgVT
-    Fnp0RucLfWas7dkzslbbVNJ/t3+Ci/97WamE1be3e42QMkqqwOW+0IfifaIg
-X-ME-Proxy: <xmx:t9tXaq9GYPEmFEHwapYNE7ex01_yST_bkfvgTvMeF6h64fv9S9ZyXg>
-    <xmx:t9tXamoRGHr0d3gZIbsy3Qvv70-joycrW1qT2cRdC-s5vOUBufH_Hw>
-    <xmx:t9tXamJCfljY_2EO1CoIpkGpd1WX6mzG8EzaF7xTSYWvx76xNqogVg>
-    <xmx:t9tXao0oZG6x2T5IoPH1yL-9Bl8jbZXOEkliAVsbib5BBUhc7KeBqQ>
-    <xmx:t9tXatWkz7GQif861JbELg6lfoEW-9OdTFwGQyPqFPfVUJz3xcTq9yrf>
-Feedback-ID: i8dbe485b:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
- 15 Jul 2026 15:12:54 -0400 (EDT)
-Date: Wed, 15 Jul 2026 12:12:53 -0700
-From: Boqun Feng <boqun@kernel.org>
-To: kernel test robot <lkp@intel.com>
-Cc: Lyude Paul <lyude@redhat.com>, llvm@lists.linux.dev,
-	oe-kbuild-all@lists.linux.dev, Benno Lossin <lossin@kernel.org>,
-	Andreas Hindborg <a.hindborg@kernel.org>,
-	Gary Guo <gary@garyguo.net>, Ilya Leoshkevich <iii@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org
-Subject: Re: [boqun:rust-rcu 14/27] rust/helpers/interrupt.c:17:9: warning:
- static function 'arch_local_save_flags' is used in an inline function with
- external linkage
-Message-ID: <alfbtUKkXANyGyYf@tardis.local>
-References: <202607131219.euJHPSJ5-lkp@intel.com>
+	s=k20260515; t=1784158450;
+	bh=OpP+uwcYv5bpmQu1ogpSKpC+BhFXw0j7AREQxpNPVZM=;
+	h=Date:From:To:Cc:Subject:In-Reply-To;
+	b=l9GhMDmugVihR/0TMBYro0l+NcdUjmP8JSlnh89oSR4yz3uDxCfrNyoNkfrPD8+jz
+	 Kc/dw7iKlJJ3JowLAJ0TjIBsTg4XdG/O/8EKL7NPh1fRKiMoQiaaYrfRXD8Gs4z9rI
+	 Tkx2MJVDH0tAXk3//OTNUQQ8ZXXXTOOxr82JEi4m3d62e2tUF4B9jSRSHgsFB9Hahx
+	 /9gd7nO03kMo4yA1HqsA7x6fgq3QLPt612dng9fhe+4gRH7NHlkPW01TLIRfE0arHa
+	 60HYAmX/eHtOFw45Ka0qWheMuYbsYyDy1wRnN/VOYV2icwk9+M/apaY2A2gyR5yqus
+	 iSYjCEbCiMqhQ==
+Date: Wed, 15 Jul 2026 18:34:08 -0500
+From: Bjorn Helgaas <helgaas@kernel.org>
+To: Farhan Ali <alifm@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-pci@vger.kernel.org, alex@shazbot.org, schnelle@linux.ibm.com,
+	mjrosato@linux.ibm.com, stable@vger.kernel.org
+Subject: Re: [PATCH v21 1/4] PCI: Allow per function PCI slots to fix slot
+ reset on s390
+Message-ID: <20260715233408.GA271741@bhelgaas>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -78,101 +43,197 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <202607131219.euJHPSJ5-lkp@intel.com>
+In-Reply-To: <20260630164807.643-2-alifm@linux.ibm.com>
 
-[Cc s390]
+On Tue, Jun 30, 2026 at 09:48:04AM -0700, Farhan Ali wrote:
+> On s390 systems, which use a machine level hypervisor, PCI devices are
+> always accessed through a form of PCI pass-through which fundamentally
+> operates on a per PCI function granularity. This is also reflected in the
+> s390 PCI hotplug driver which creates hotplug slots for individual PCI
+> functions. Its reset_slot() function, which is a wrapper for
+> zpci_hot_reset_device(), thus also resets individual functions.
+> 
+> Currently, the kernel's PCI_SLOT() macro assigns the same pci_slot object
+> to multifunction devices.
 
-On Mon, Jul 13, 2026 at 12:45:07PM +0800, kernel test robot wrote:
-> tree:   https://git.kernel.org/pub/scm/linux/kernel/git/boqun/linux.git rust-rcu
-> head:   dcecd5f6e71e2437c8abe333ee2426fbe63e6398
-> commit: 27e30521043c39ca18ea3e28f825f9c7bd30b580 [14/27] rust: Introduce interrupt module
-> config: s390-randconfig-002-20260713 (https://download.01.org/0day-ci/archive/20260713/202607131219.euJHPSJ5-lkp@intel.com/config)
-> compiler: clang version 17.0.6 (https://github.com/llvm/llvm-project 6009708b4367171ccdbf4b5905cb6a803753fe18)
-> rustc: rustc 1.96.0 (ac68faa20 2026-05-25)
-> reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260713/202607131219.euJHPSJ5-lkp@intel.com/reproduce)
-> 
-> If you fix the issue in a separate patch/commit (i.e. not just a new version of
-> the same patch/commit), kindly add following tags
-> | Reported-by: kernel test robot <lkp@intel.com>
-> | Closes: https://lore.kernel.org/oe-kbuild-all/202607131219.euJHPSJ5-lkp@intel.com/
-> 
-> All warnings (new ones prefixed by >>):
-> 
->    In file included from rust/helpers/helpers.c:68:
-> >> rust/helpers/interrupt.c:17:9: warning: static function 'arch_local_save_flags' is used in an inline function with external linkage [-Wstatic-in-inline]
->       17 |         return irqs_disabled();
->          |                ^
->    include/linux/irqflags.h:256:3: note: expanded from macro 'irqs_disabled'
->      256 |                 raw_local_save_flags(_flags);           \
->          |                 ^
->    include/linux/irqflags.h:184:11: note: expanded from macro 'raw_local_save_flags'
->      184 |                 flags = arch_local_save_flags();        \
->          |                         ^
->    rust/helpers/interrupt.c:15:1: note: use 'static' to give inline function 'rust_helper_irqs_disabled' internal linkage
->       15 | __rust_helper bool rust_helper_irqs_disabled(void)
->          | ^
->          | static 
->    rust/helpers/helpers.c:38:23: note: expanded from macro '__rust_helper'
->       38 | #define __rust_helper __always_inline
->          |                       ^
->    include/linux/compiler_attributes.h:55:41: note: expanded from macro '__always_inline'
->       55 | #define __always_inline                 inline __attribute__((__always_inline__))
->          |                                         ^
->    include/linux/compiler_types.h:235:16: note: expanded from macro 'inline'
->      235 | #define inline inline __gnu_inline __inline_maybe_unused notrace
->          |                ^
->    arch/s390/include/asm/irqflags.h:46:48: note: 'arch_local_save_flags' declared here
->       46 | static arch_local_irq_attributes unsigned long arch_local_save_flags(void)
->          |                                                ^
->    1 warning generated.
-> --
->    In file included from rust/helpers/helpers.c:68:
-> >> rust/helpers/interrupt.c:17:9: warning: static function 'arch_local_save_flags' is used in an inline function with external linkage [-Wstatic-in-inline]
->    17 |         return irqs_disabled();
->    |                ^
->    include/linux/irqflags.h:256:3: note: expanded from macro 'irqs_disabled'
->    256 |                 raw_local_save_flags(_flags);           \
->    |                 ^
->    include/linux/irqflags.h:184:11: note: expanded from macro 'raw_local_save_flags'
->    184 |                 flags = arch_local_save_flags();        \
->    |                         ^
->    rust/helpers/interrupt.c:15:1: note: use 'static' to give inline function 'rust_helper_irqs_disabled' internal linkage
->    15 | __rust_helper bool rust_helper_irqs_disabled(void)
->    | ^
->    | static
->    rust/helpers/helpers.c:38:23: note: expanded from macro '__rust_helper'
->    38 | #define __rust_helper __always_inline
->    |                       ^
->    include/linux/compiler_attributes.h:55:41: note: expanded from macro '__always_inline'
->    55 | #define __always_inline                 inline __attribute__((__always_inline__))
->    |                                         ^
->    include/linux/compiler_types.h:235:16: note: expanded from macro 'inline'
->    235 | #define inline inline __gnu_inline __inline_maybe_unused notrace
->    |                ^
->    arch/s390/include/asm/irqflags.h:46:48: note: 'arch_local_save_flags' declared here
->    46 | static arch_local_irq_attributes unsigned long arch_local_save_flags(void)
->    |                                                ^
->    1 warning generated.
->    warning: 1 warning emitted
-> 
+PCI_SLOT() doesn't assign pci_slot objects; I guess they're assigned
+by some code that *uses* PCI_SLOT().  Since this says "currently," I
+assume you're changing that code, so we should mention where it is to
+help readers out.
 
-This seems not a Rust-only issue to me, basically you got the warning
-whenever you have an inline function calling irqs_disabled(). I'm a bit
-curious why 1b301f5f28ba ("s390/irqflags: do not instrument
-arch_local_irq_*() with KMSAN") wanted to add noinline when KMSAN=y, all
-you need is noinstr, no?
+I see some Sashiko comments; those also need to be addressed or
+explained away.
 
-Regards,
-Boqun
-
+> This approach worked fine on s390 systems that
+> only exposed virtual functions as individual PCI domains to the operating
+> system.  Since commit 44510d6fa0c0 ("s390/pci: Handling multifunctions")
+> s390 supports exposing the topology of multifunction PCI devices by
+> grouping them in a shared PCI domain. This creates a problem when resetting
+> a function through the hotplug driver's slot_reset() interface.
 > 
-> vim +/arch_local_save_flags +17 rust/helpers/interrupt.c
+> When attempting to reset a function through the hotplug driver, the shared
+> slot assignment causes the wrong function to be reset instead of the
+> intended one. It also leaks memory as we do create a pci_slot object for
+> the function, but don't correctly free it in pci_slot_release().
 > 
->     14	
->     15	__rust_helper bool rust_helper_irqs_disabled(void)
->     16	{
->   > 17		return irqs_disabled();
+> Add a flag for struct pci_slot to allow per function PCI slots for
+> functions managed through a hypervisor, which exposes individual PCI
+> functions while retaining the topology. Since we can use all 8 bits
+> for slot 'number' (for ARI devices), change slot 'number' u16 to
+> account for special values -1 and PCI_SLOT_ALL_DEVICES.
 > 
-> --
-> 0-DAY CI Kernel Test Service
-> https://github.com/intel/lkp-tests/wiki
+> Fixes: 44510d6fa0c0 ("s390/pci: Handling multifunctions")
+> Cc: stable@vger.kernel.org
+> Suggested-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+> ---
+>  drivers/pci/hotplug/rpaphp_slot.c |  2 +-
+>  drivers/pci/pci.c                 |  5 +++--
+>  drivers/pci/slot.c                | 33 +++++++++++++++++++++++--------
+>  include/linux/pci.h               |  8 ++++++--
+>  4 files changed, 35 insertions(+), 13 deletions(-)
+> 
+> diff --git a/drivers/pci/hotplug/rpaphp_slot.c b/drivers/pci/hotplug/rpaphp_slot.c
+> index 67362e5b9971..92eabf5f61b9 100644
+> --- a/drivers/pci/hotplug/rpaphp_slot.c
+> +++ b/drivers/pci/hotplug/rpaphp_slot.c
+> @@ -84,7 +84,7 @@ int rpaphp_register_slot(struct slot *slot)
+>  	struct hotplug_slot *php_slot = &slot->hotplug_slot;
+>  	u32 my_index;
+>  	int retval;
+> -	int slotno = -1;
+> +	int slotno = PCI_SLOT_PLACEHOLDER;
+>  
+>  	dbg("%s registering slot:path[%pOF] index[%x], name[%s] pdomain[%x] type[%d]\n",
+>  		__func__, slot->dn, slot->index, slot->name,
+> diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
+> index 77b17b13ee61..350bae907ebf 100644
+> --- a/drivers/pci/pci.c
+> +++ b/drivers/pci/pci.c
+> @@ -4897,8 +4897,9 @@ static int pci_reset_hotplug_slot(struct hotplug_slot *hotplug, bool probe)
+>  
+>  static int pci_dev_reset_slot_function(struct pci_dev *dev, bool probe)
+>  {
+> -	if (dev->multifunction || dev->subordinate || !dev->slot ||
+> -	    dev->dev_flags & PCI_DEV_FLAGS_NO_BUS_RESET)
+> +	if (dev->subordinate || !dev->slot ||
+> +	    dev->dev_flags & PCI_DEV_FLAGS_NO_BUS_RESET ||
+> +	    (dev->multifunction && !dev->slot->per_func_slot))
+>  		return -ENOTTY;
+>  
+>  	return pci_reset_hotplug_slot(dev->slot->hotplug, probe);
+> diff --git a/drivers/pci/slot.c b/drivers/pci/slot.c
+> index 6d5cd37bfb1e..894d6213ed30 100644
+> --- a/drivers/pci/slot.c
+> +++ b/drivers/pci/slot.c
+> @@ -37,7 +37,7 @@ static const struct sysfs_ops pci_slot_sysfs_ops = {
+>  
+>  static ssize_t address_read_file(struct pci_slot *slot, char *buf)
+>  {
+> -	if (slot->number == 0xff)
+> +	if (slot->number == (u16)PCI_SLOT_PLACEHOLDER)
+>  		return sysfs_emit(buf, "%04x:%02x\n",
+>  				  pci_domain_nr(slot->bus),
+>  				  slot->bus->number);
+> @@ -72,6 +72,23 @@ static ssize_t cur_speed_read_file(struct pci_slot *slot, char *buf)
+>  	return bus_speed_read(slot->bus->cur_bus_speed, buf);
+>  }
+>  
+> +static bool pci_dev_matches_slot(struct pci_dev *dev, struct pci_slot *slot)
+> +{
+> +	if (slot->per_func_slot)
+> +		return dev->devfn == slot->number;
+> +
+> +	return slot->number == PCI_SLOT_ALL_DEVICES ||
+> +		PCI_SLOT(dev->devfn) == slot->number;
+> +}
+> +
+> +static bool pci_slot_enabled_per_func(void)
+> +{
+> +	if (IS_ENABLED(CONFIG_S390))
+> +		return true;
+> +
+> +	return false;
+> +}
+> +
+>  static void pci_slot_release(struct kobject *kobj)
+>  {
+>  	struct pci_dev *dev;
+> @@ -82,8 +99,7 @@ static void pci_slot_release(struct kobject *kobj)
+>  
+>  	down_read(&pci_bus_sem);
+>  	list_for_each_entry(dev, &slot->bus->devices, bus_list)
+> -		if (slot->number == PCI_SLOT_ALL_DEVICES ||
+> -		    PCI_SLOT(dev->devfn) == slot->number)
+> +		if (pci_dev_matches_slot(dev, slot))
+>  			dev->slot = NULL;
+>  	up_read(&pci_bus_sem);
+>  
+> @@ -187,8 +203,7 @@ void pci_dev_assign_slot(struct pci_dev *dev)
+>  
+>  	mutex_lock(&pci_slot_mutex);
+>  	list_for_each_entry(slot, &dev->bus->slots, list)
+> -		if (slot->number == PCI_SLOT_ALL_DEVICES ||
+> -		    PCI_SLOT(dev->devfn) == slot->number)
+> +		if (pci_dev_matches_slot(dev, slot))
+>  			dev->slot = slot;
+>  	mutex_unlock(&pci_slot_mutex);
+>  }
+> @@ -267,7 +282,7 @@ struct pci_slot *pci_create_slot(struct pci_bus *parent, int slot_nr,
+>  
+>  	mutex_lock(&pci_slot_mutex);
+>  
+> -	if (slot_nr == -1)
+> +	if (slot_nr == PCI_SLOT_PLACEHOLDER)
+>  		goto placeholder;
+>  
+>  	/*
+> @@ -298,6 +313,9 @@ struct pci_slot *pci_create_slot(struct pci_bus *parent, int slot_nr,
+>  	slot->bus = pci_bus_get(parent);
+>  	slot->number = slot_nr;
+>  
+> +	if (pci_slot_enabled_per_func())
+> +		slot->per_func_slot = 1;
+> +
+>  	slot->kobj.kset = pci_slots_kset;
+>  
+>  	slot_name = make_slot_name(name);
+> @@ -318,8 +336,7 @@ struct pci_slot *pci_create_slot(struct pci_bus *parent, int slot_nr,
+>  
+>  	down_read(&pci_bus_sem);
+>  	list_for_each_entry(dev, &parent->devices, bus_list)
+> -		if (slot_nr == PCI_SLOT_ALL_DEVICES ||
+> -		    PCI_SLOT(dev->devfn) == slot_nr)
+> +		if (pci_dev_matches_slot(dev, slot))
+>  			dev->slot = slot;
+>  	up_read(&pci_bus_sem);
+>  
+> diff --git a/include/linux/pci.h b/include/linux/pci.h
+> index ebb5b9d76360..b6e20616e17f 100644
+> --- a/include/linux/pci.h
+> +++ b/include/linux/pci.h
+> @@ -79,14 +79,18 @@
+>   * and, if ARI Forwarding is enabled, functions may appear to be on multiple
+>   * devices.
+>   */
+> -#define PCI_SLOT_ALL_DEVICES	0xfe
+> +#define PCI_SLOT_ALL_DEVICES	0xfeff
+> +
+> +/* Used to identify a slot as a placeholder */
+> +#define PCI_SLOT_PLACEHOLDER	-1
+>  
+>  /* pci_slot represents a physical slot */
+>  struct pci_slot {
+>  	struct pci_bus		*bus;		/* Bus this slot is on */
+>  	struct list_head	list;		/* Node in list of slots */
+>  	struct hotplug_slot	*hotplug;	/* Hotplug info (move here) */
+> -	unsigned char		number;		/* Device nr, or PCI_SLOT_ALL_DEVICES */
+> +	u16			number;		/* Device nr, or PCI_SLOT_ALL_DEVICES */
+> +	unsigned int		per_func_slot:1; /* Allow per function slot */
+>  	struct kobject		kobj;
+>  };
+>  
+> -- 
+> 2.43.0
+> 
