@@ -1,229 +1,190 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 36C13231A21;
-	Wed, 15 Jul 2026 04:34:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C42C3C4B6A;
+	Wed, 15 Jul 2026 07:52:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784090083; cv=none; b=KBtfjALDZSMsRlGCSJ78H0xulMQggvs/E8wShDcB3hfExMXcDJajU4kq87nx2VnDtzIz+qwPbujbgbh6tHHRdkV7amUXq74rHSD24QFC+5preUfucVouo38fBp5THnyFUBtVR2lU43pc4T+hchS2k6WTw18dY1iOnU3EVpr+kkM=
+	t=1784101941; cv=none; b=q4NjpEYAKmXo7UxMdcKLRNmTx6TeoAjaYUDZjXv8qF6GyZ9cmYa84KfX7Uzco20kYaE2ZDEO5aK6EbGZaLC0yXQf0x2AdYNrEldTdibwMVcHtGt5/rQo7ctAztWW6m6mUNu3qZvzJn7sefp1DIOKbYNGsj/GvZwjAQDH78vsIsQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784090083; c=relaxed/simple;
-	bh=rH+f3KaxbEK3Yk7pODNj76lVdviFxGc5DFDvPRSqoBA=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=umgTB3l8ZZalM+biDoYpgBDmf14wUPQIpugcNN/a5NfLS3wK7JQ+/81A5i/KuGjuaG0dL3ysWvLOscbF5xlNET5l9lcfvdwmuzmywDQp20SXGBX59tA8udjDvLKvcgDWXBpfSrBt/ajs1Dtl72j2WFfRCC+2Ci7X2nrd/o9KE+s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=sUyrUB8e; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1784101941; c=relaxed/simple;
+	bh=nrWukbd4qzX+TpgXVB9Zi/NIYLzpkyvqBbK8S35Q2Vw=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=rW+flgRkXOUCgr1h3RhRUWfd1COiJkCuZNZRN7r/363rNyGjlh/+MQBQpswu2xi1ez3vWLkHF693U2QWfhYd89wFYHLSBYC5bwKCye/NWXOjn2pLftawmB+vtdNTlQ2ysytKiRcg264Ag2YfxkjCj6sUqh+IRPQdtby0aEqi2YA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=trGauMhr; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="sUyrUB8e"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 8ECB1C2BCB7;
-	Wed, 15 Jul 2026 04:34:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1784090082;
-	bh=rH+f3KaxbEK3Yk7pODNj76lVdviFxGc5DFDvPRSqoBA=;
-	h=From:Date:Subject:To:Cc:Reply-To:From;
-	b=sUyrUB8eir7gHAuvp5pg37VL0xsZrwzXixr9oZ9xhQT/KIQ4Np7NmW0wLvK3Ar3Je
-	 7llnD8E9fembGx3Cecc/c2Ein8OiFwschIb+TW5foitRQcIsdcyuBNlFJM4hzA3v1B
-	 NcPS2PonIXunDfnUQAeuwNd/krI2YAmcuJVe6u7GbFN7Wq2Jq6n80BRkv+CTw2g4RB
-	 n/Tr8KcYPRnppvXEX6VwvdpGgn+wGfGW1aqZDgu6fcTN9Le3cBv/70NsUsDL7xUOo0
-	 tq3WsiS/Ci+Hg2sD0RsBB9UYkr9sR1gCU1Q3+sHj1CR/hBs6W8sxTLGcLheJl9ERqH
-	 rDrEcIx0uYPvQ==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 68733C4450A;
-	Wed, 15 Jul 2026 04:34:42 +0000 (UTC)
-From: Bryam Vargas via B4 Relay <devnull+hexlabsecurity.proton.me@kernel.org>
-Date: Tue, 14 Jul 2026 23:34:42 -0500
-Subject: [PATCH net v2] net/smc: order the CDC receive path against buffer
- publication
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="trGauMhr"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66F4BxuT3272800;
+	Wed, 15 Jul 2026 07:52:16 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=74XsCv
+	WQ0S9Br/3owegjCwMZF3S+wf6QCgX8swb5dL8=; b=trGauMhroJVGIMIZ/QJZ+F
+	Xdbr7IHg4IR4xAPJG5VmS+ofsK75lTghY4boNrhVSy2YGvcIXt/HrR6YkH/C64S+
+	byUhSt3WjYebJVcxmrvq00yXWwcBQsavEgHJUr9+Mf6hItBujjAgP8nKUfH5UMDN
+	vCoMOpjxedSaTcK1zPenMUjPr60e9ZP/NgbYKxEd2cY1BeYQq18RVuo+HK5lFERZ
+	clG8x1fvQ5RkQaO3LWygpw68kSYTl8IELDg/CiNdXzD4fPiXiJsW35b2vnzMsj5x
+	+Mhanu3PAdPezDrDSvKvEDPINciyXWmY7xLxpK9k8r6Tmqd/QETBVlTr0bzItkcw
+	==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fbegbsq03-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 15 Jul 2026 07:52:16 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66F7nbUc016955;
+	Wed, 15 Jul 2026 07:52:15 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fc2cgejkx-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 15 Jul 2026 07:52:15 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66F7qBf743843934
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 15 Jul 2026 07:52:11 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 52DF42004D;
+	Wed, 15 Jul 2026 07:52:11 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id CC5D32004F;
+	Wed, 15 Jul 2026 07:52:10 +0000 (GMT)
+Received: from [9.111.23.116] (unknown [9.111.23.116])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 15 Jul 2026 07:52:10 +0000 (GMT)
+Message-ID: <cd037130-b99a-48c4-81a6-649b4ef7842f@linux.ibm.com>
+Date: Wed, 15 Jul 2026 09:52:10 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 04/21] KVM: s390: vsie: Add SCAO read and write helpers
+To: Christoph Schlameuss <schlameuss@linux.ibm.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Cc: David Hildenbrand <david@kernel.org>, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev
+ <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Nico Boehr <nrb@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>,
+        Paolo Bonzini <pbonzini@redhat.com>, Shuah Khan <shuah@kernel.org>,
+        Eric Farman <farman@linux.ibm.com>
+References: <20260709-vsie-sigpi-v1-0-ea9f12066408@linux.ibm.com>
+ <20260709-vsie-sigpi-v1-4-ea9f12066408@linux.ibm.com>
+Content-Language: en-US
+From: Janosch Frank <frankja@linux.ibm.com>
+Autocrypt: addr=frankja@linux.ibm.com; keydata=
+ xsFNBFubpD4BEADX0uhkRhkj2AVn7kI4IuPY3A8xKat0ihuPDXbynUC77mNox7yvK3X5QBO6
+ qLqYr+qrG3buymJJRD9xkp4mqgasHdB5WR9MhXWKH08EvtvAMkEJLnqxgbqf8td3pCQ2cEpv
+ 15mH49iKSmlTcJ+PvJpGZcq/jE42u9/0YFHhozm8GfQdb9SOI/wBSsOqcXcLTUeAvbdqSBZe
+ zuMRBivJQQI1esD9HuADmxdE7c4AeMlap9MvxvUtWk4ZJ/1Z3swMVCGzZb2Xg/9jZpLsyQzb
+ lDbbTlEeyBACeED7DYLZI3d0SFKeJZ1SUyMmSOcr9zeSh4S4h4w8xgDDGmeDVygBQZa1HaoL
+ Esb8Y4avOYIgYDhgkCh0nol7XQ5i/yKLtnNThubAcxNyryw1xSstnKlxPRoxtqTsxMAiSekk
+ 0m3WJwvwd1s878HrQNK0orWd8BzzlSswzjNfQYLF466JOjHPWFOok9pzRs+ucrs6MUwDJj0S
+ cITWU9Rxb04XyigY4XmZ8dywaxwi2ZVTEg+MD+sPmRrTw+5F+sU83cUstuymF3w1GmyofgsU
+ Z+/ldjToHnq21MNa1wx0lCEipCCyE/8K9B9bg9pUwy5lfx7yORP3JuAUfCYb8DVSHWBPHKNj
+ HTOLb2g2UT65AjZEQE95U2AY9iYm5usMqaWD39pAHfhC09/7NQARAQABzSVKYW5vc2NoIEZy
+ YW5rIDxmcmFua2phQGxpbnV4LmlibS5jb20+wsF3BBMBCAAhBQJbm6Q+AhsjBQsJCAcCBhUI
+ CQoLAgQWAgMBAh4BAheAAAoJEONU5rjiOLn4p9gQALjkdj5euJVI2nNT3/IAxAhQSmRhPEt0
+ AmnCYnuTcHRWPujNr5kqgtyER9+EMQ0ZkX44JU2q7OWxTdSNSAN/5Z7qmOR9JySvDOf4d3mS
+ bMB5zxL9d8SbnSs1uW96H9ZBTlTQnmLfsiM9TetAjSrR8nUmjGhe2YUhJLR1v1LguME+YseT
+ eXnLzIzqqpu311/eYiiIGcmaOjPCE+vFjcXL5oLnGUE73qSYiujwhfPCCUK0850o1fUAYq5p
+ CNBCoKT4OddZR+0itKc/cT6NwEDwdokeg0+rAhxb4Rv5oFO70lziBplEjOxu3dqgIKbHbjza
+ EXTb+mr7VI9O4tTdqrwJo2q9zLqqOfDBi7NDvZFLzaCewhbdEpDYVu6/WxprAY94hY3F4trT
+ rQMHJKQENtF6ZTQc9fcT5I3gAmP+OEvDE5hcTALpWm6Z6SzxO7gEYCnF+qGXqp8sJVrweMub
+ UscyLqHoqdZC2UG4LQ1OJ97nzDpIRe0g6oJ9ZIYHKmfw5jjwH6rASTld5MFWajWdNsqK15k/
+ RZnHAGICKVIBOBsq26m4EsBlfCdt3b/6emuBjUXR1pyjHMz2awWzCq6/6OWs5eANZ0sdosNq
+ dq2v0ULYTazJz2rlCXV89qRa7ukkNwdBSZNEwsD4eEMicj1LSrqWDZMAALw50L4jxaMD7lPL
+ jJbazsFNBFubpD4BEADAcUTRqXF/aY53OSH7IwIK9lFKxIm0IoFkOEh7LMfp7FGzaP7ANrZd
+ cIzhZi38xyOkcaFY+npGEWvko7rlIAn0JpBO4x3hfhmhBD/WSY8LQIFQNNjEm3vzrMo7b9Jb
+ JAqQxfbURY3Dql3GUzeWTG9uaJ00u+EEPlY8zcVShDltIl5PLih20e8xgTnNzx5c110lQSu0
+ iZv2lAE6DM+2bJQTsMSYiwKlwTuv9LI9Chnoo6+tsN55NqyMxYqJgElk3VzlTXSr3+rtSCwf
+ tq2cinETbzxc1XuhIX6pu/aCGnNfuEkM34b7G1D6CPzDMqokNFbyoO6DQ1+fW6c5gctXg/lZ
+ 602iEl4C4rgcr3+EpfoPUWzKeM8JXv5Kpq4YDxhvbitr8Dm8gr38+UKFZKlWLlwhQ56r/zAU
+ v6LIsm11GmFs2/cmgD1bqBTNHHcTWwWtRTLgmnqJbVisMJuYJt4KNPqphTWsPY8SEtbufIlY
+ HXOJ2lqUzOReTrie2u0qcSvGAbSfec9apTFl2Xko/ddqPcZMpKhBiXmY8tJzSPk3+G4tqur4
+ 6TYAm5ouitJsgAR61Cu7s+PNuq/pTLDhK+6/Njmc94NGBcRA4qTuysEGE79vYWP2oIAU4Fv6
+ gqaWHZ4MEI2XTqH8wiwzPdCQPYsSE0fXWiYu7ObeErT6iLSTZGx4rQARAQABwsFfBBgBCAAJ
+ BQJbm6Q+AhsMAAoJEONU5rjiOLn4DDEP/RuyckW65SZcPG4cMfNgWxZF8rVjeVl/9PBfy01K
+ 8R0hajU40bWtXSMiby7j0/dMjz99jN6L+AJHJvrLz4qYRzn2Ys843W+RfXj62Zde4YNBE5SL
+ jJweRCbMWKaJLj6499fctxTyeb9+AMLQS4yRSwHuAZLmAb5AyCW1gBcTWZb8ON5BmWnRqeGm
+ IgC1EvCnHy++aBnHTn0m+zV89BhTLTUal35tcjUFwluBY39R2ux/HNlBO1GY3Z+WYXhBvq7q
+ katThLjaQSmnOrMhzqYmdShP1leFTVbzXUUIYv/GbynO/YrL2gaQpaP1bEUEi8lUAfXJbEWG
+ dnHFkciryi092E8/9j89DJg4mmZqOau7TtUxjRMlBcIliXkzSLUk+QvD4LK1kWievJse4mte
+ FBdkWHfP4BH/+8DxapRcG1UAheSnSRQ5LiO50annOB7oXF+vgKIaie2TBfZxQNGAs3RQ+bga
+ DchCqFm5adiSP5+OT4NjkKUeGpBe/aRyQSle/RropTgCi85pje/juYEn2P9UAgkfBJrOHvQ9
+ Z+2Sva8FRd61NJLkCJ4LFumRn9wQlX2icFbi8UDV3do0hXJRRYTWCxrHscMhkrFWLhYiPF4i
+ phX7UNdOWBQ90qpHyAxHmDazdo27gEjfvsgYMdveKknEOTEb5phwxWgg7BcIDoJf9UMC
+In-Reply-To: <20260709-vsie-sigpi-v1-4-ea9f12066408@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260714-b4-disp-835288a6-v2-1-581555ef2145@proton.me>
-X-B4-Tracking: v=1; b=H4sIAOENV2oC/x3MTQqAIBBA4avErBvI6UfpKtHCcqzZWGhEEN49a
- fkt3nshcRROMFYvRL4lyREKqK5g3W3YGMUVAzU0NFp1uHToJJ1o2p6MsQMqr8l747TVCkp2Rvb
- y/MsJAl8w5/wBB6Gs1mcAAAA=
-To: Sidraya Jayagond <sidraya@linux.ibm.com>, 
- Wenjia Zhang <wenjia@linux.ibm.com>, Dust Li <dust.li@linux.alibaba.com>, 
- "D. Wythe" <alibuda@linux.alibaba.com>, Paolo Abeni <pabeni@redhat.com>, 
- "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, 
- Mahanta Jambigi <mjambigi@linux.ibm.com>, Wen Gu <guwen@linux.alibaba.com>, 
- Eric Dumazet <edumazet@google.com>, Tony Lu <tonylu@linux.alibaba.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
- Simon Horman <horms@kernel.org>, linux-s390@vger.kernel.org, 
- linux-rdma@vger.kernel.org
-X-Mailer: b4 0.13.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1784090081; l=7310;
- i=hexlabsecurity@proton.me; s=proton; h=from:subject:message-id;
- bh=2xz4cjDnqoAG1H/FZ06+DlrFtR6erHNnU+ZElifwqQs=;
- b=1ZcEFXlHow9qiTEgF62ozWBR3XP1RmBrt3w4BuchwclJvBZ5VwhHh4vUPYdZCfZpWAYZSDbXU
- 1vUitCp2sylCks4GvsFDSIS0P7jVG+BS99BotcywZGX1OQAQ8mlklP1
-X-Developer-Key: i=hexlabsecurity@proton.me; a=ed25519;
- pk=dmppBMZNLLoPzxHi9l8tZDzEZUunPbgsYqIZYXeUrL0=
-X-Endpoint-Received: by B4 Relay for hexlabsecurity@proton.me/proton with
- auth_id=814
-X-Original-From: Bryam Vargas <hexlabsecurity@proton.me>
-Reply-To: hexlabsecurity@proton.me
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=fOcJG5ae c=1 sm=1 tr=0 ts=6a573c30 cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+ a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8
+ a=9oAxtj6az9Sey8u1omcA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzE1MDA3MyBTYWx0ZWRfX57uIVFrKDUCe
+ Ij+KjmDLOXAOYcGf3JnbgzZmTSPc+r0qISzR/Auh846Vq3lYqLgJA/pprvIVPl0/eb5KWORSkz0
+ iZySuvHJAk4kzC3VvX5BNhpVOmtLzzhB75IPhuIGG9jCFwacjfFVu5L0zLLDKoKsbho3ttrDwrY
+ AN+isSUX2ULUGPxgDQI2unPL/SaPYcrQqcB+YHovZ9iaIOofkjE9RY1EmCgrTFPIfQq2v0ajE/3
+ cfQfxCRM6OyDQs5IBYiyOB//CXdiDf2JbxRhbV2g+yNJeSps8d8PXHGXtC91f2+SQsuf/7darom
+ +AGa/z75amfHzCvJdiAHQjtUl8PMudMMF9F0ekOobty2uXBR4TySGqsBMpTQtQhoiypzoYviieK
+ 9+lIysty55CXhz30/A4jFDSAvd2ZjxfEvM4XP0E9vneyvjXL5xjU60xvXurkQ1XH/0js0jEWBOJ
+ stgxo2VI5cdn/HPydSw==
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzE1MDA3MyBTYWx0ZWRfX8FFVgO48B4eP
+ EQVOeiHaZ3vM/fF/ANLS1bNYZvR99Vf3jjM49Ax2uPftX5naYs4QOgT18sUXrCtjqtY2sBWFv8b
+ Sr2IqIn8InKgIH7V+Rut2k5L3VjiDU0=
+X-Proofpoint-GUID: K3J8poIBMq5c9f1g9ZNDQni-7IPCOj92
+X-Proofpoint-ORIG-GUID: K3J8poIBMq5c9f1g9ZNDQni-7IPCOj92
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-07-15_02,2026-07-14_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ spamscore=0 bulkscore=0 impostorscore=0 suspectscore=0 adultscore=0
+ priorityscore=1501 malwarescore=0 clxscore=1015 phishscore=0
+ lowpriorityscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2607150073
 
-From: Bryam Vargas <hexlabsecurity@proton.me>
+On 7/9/26 17:15, Christoph Schlameuss wrote:
+> Introduce some small helper functions to get and set the system control
+> area origin address from the SIE control block.
+> 
+> Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
+> ---
+>   arch/s390/kvm/vsie.c | 28 ++++++++++++++++++++--------
+>   1 file changed, 20 insertions(+), 8 deletions(-)
+> 
+> diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
+> index 937f9c99bc00..aa0cebece2d5 100644
+> --- a/arch/s390/kvm/vsie.c
+> +++ b/arch/s390/kvm/vsie.c
+> @@ -72,6 +72,22 @@ struct vsie_page {
+>   
+>   static_assert(sizeof(struct vsie_page) == PAGE_SIZE);
+>   
+> +static unsigned long read_scao(struct kvm *kvm, struct kvm_s390_sie_block *scb)
+> +{
+> +	unsigned long vsie_sca = READ_ONCE(scb->scaol) & ~0xfUL;
+> +
+> +	if (test_kvm_cpu_feat(kvm, KVM_S390_VM_CPU_FEAT_64BSCAO))
+> +		vsie_sca |= (u64)READ_ONCE(scb->scaoh) << 32;
 
-The SMC CDC receive handlers dereference conn->rmb_desc, and on the
-SMC-D DMB-nocopy path conn->sndbuf_desc, but both are published after
-the connection is already reachable to a peer: rmb_desc after
-smc_conn_create() registers it in the link group's token tree,
-sndbuf_desc after __smc_buf_create() arms the ISM tasklet via
-smc_ism_set_conn().  A CDC in that window reaches the handlers with the
-buffer unset.  The store is plain, so a handler can load it as NULL, or
-on a weakly ordered CPU see it non-NULL while its buffer is still
-uninitialised -- a host crash or a stale-buffer read.
+Sashiko is right, you need to distinguish between host and guest 
+features. scbo can have this masking/extending but scbs can't have it 
+since 64bscao is a prereq for vsie in KVM.
 
-Publish both buffers with smp_store_release() and consume them with
-smp_load_acquire(), bailing while unset as the handlers already do for
-a killed or out-of-sync connection.  Conforming peers are unaffected.
+I see a couple of ways to handle this automatically but none of them are 
+nice to look at.
 
-Closes: https://sashiko.dev/#/patchset/20260711-b4-disp-c36a9798-v1-1-340b0c6053fb@proton.me?part=1
-Cc: stable@vger.kernel.org
-Signed-off-by: Bryam Vargas <hexlabsecurity@proton.me>
----
-v2: order both CDC-reachable buffers with smp_store_release()/smp_load_acquire()
-    instead of the plain NULL guard v1 used.  The rmb_desc ordering is what the
-    Sashiko review of v1 asked for (the Closes: link above); the sndbuf_desc case
-    (SMC-D DMB-nocopy, smc_cdc_msg_recv_action()) is the same-window sibling found
-    by inspection -- smcd_buf_attach() sets the ghost sndbuf_desc after
-    smc_ism_set_conn() already armed the tasklet.  Release/acquire closes the NULL
-    deref on all arches and the stale-buffer read on weakly ordered ones.
-    v1: https://lore.kernel.org/all/20260711-b4-disp-c36a9798-v1-1-340b0c6053fb@proton.me/
-
-Happy to split this: the sndbuf_desc hunks only apply where the DMB-nocopy path
-exists and can carry their own Fixes: tag for a cleaner stable backport, while the
-rmb_desc ordering predates the git history here.  No Fixes: added -- please add
-whichever you prefer.
-
-Both orderings are modelled with LKMM message-passing litmus tests (herd7): plain
-accesses allow the "pointer published, buffer stale" outcome and flag a data race;
-smp_store_release()/smp_load_acquire() forbid it.  The patched build was exercised
-over an SMC-D loopback under KASAN with no regression; the rmb_desc NULL-deref arm
-is reproduced with an in-kernel KASAN model faulting at the ->cpu_addr / ->len
-offsets.  af_smc runs over an RDMA fabric or an ISM device, so the weak-memory arm
-is model-level; litmus tests and reproducer available on request.
----
- net/smc/smc_cdc.c  | 29 +++++++++++++++++++++++++----
- net/smc/smc_core.c | 16 ++++++++++++++--
- 2 files changed, 39 insertions(+), 6 deletions(-)
-
-diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
-index 32d6d03df321..2cd0ee7b51c2 100644
---- a/net/smc/smc_cdc.c
-+++ b/net/smc/smc_cdc.c
-@@ -332,6 +332,7 @@ static void smc_cdc_msg_recv_action(struct smc_sock *smc,
- {
- 	union smc_host_cursor cons_old, prod_old;
- 	struct smc_connection *conn = &smc->conn;
-+	struct smc_buf_desc *sndbuf_desc;
- 	int diff_cons, diff_prod, diff_tx;
- 
- 	smc_curs_copy(&prod_old, &conn->local_rx_ctrl.prod, conn);
-@@ -353,12 +354,20 @@ static void smc_cdc_msg_recv_action(struct smc_sock *smc,
- 		 * peer RMB, then update tx_curs_fin and sndbuf_space
- 		 * here since peer has already consumed the data.
- 		 */
-+		/* Pair with smp_store_release() in smcd_buf_attach(): the ghost
-+		 * sndbuf_desc is attached after the connection is reachable to
-+		 * the ISM device, so acquire it and skip the update while it is
-+		 * unset -- avoids a NULL deref and a load of an uninitialised
-+		 * buffer.
-+		 */
-+		sndbuf_desc = smp_load_acquire(&conn->sndbuf_desc);
- 		if (conn->lgr->is_smcd &&
--		    smc_ism_support_dmb_nocopy(conn->lgr->smcd)) {
-+		    smc_ism_support_dmb_nocopy(conn->lgr->smcd) &&
-+		    sndbuf_desc) {
- 			/* Calculate consumed data and
- 			 * increment free send buffer space.
- 			 */
--			diff_tx = smc_curs_diff(conn->sndbuf_desc->len,
-+			diff_tx = smc_curs_diff(sndbuf_desc->len,
- 						&conn->tx_curs_fin,
- 						&conn->local_rx_ctrl.cons);
- 			/* increase local sndbuf space and fin_curs */
-@@ -443,13 +452,21 @@ static void smcd_cdc_rx_tsklet(struct tasklet_struct *t)
- {
- 	struct smc_connection *conn = from_tasklet(conn, t, rx_tsklet);
- 	struct smcd_cdc_msg *data_cdc;
-+	struct smc_buf_desc *rmb_desc;
- 	struct smcd_cdc_msg cdc;
- 	struct smc_sock *smc;
- 
- 	if (!conn || conn->killed)
- 		return;
-+	/* Pair with smp_store_release() in __smc_buf_create(): the connection
-+	 * is published before its RMB is allocated, so bail while rmb_desc is
-+	 * unset to avoid a NULL deref and a load of an uninitialised buffer.
-+	 */
-+	rmb_desc = smp_load_acquire(&conn->rmb_desc);
-+	if (!rmb_desc)
-+		return;
- 
--	data_cdc = (struct smcd_cdc_msg *)conn->rmb_desc->cpu_addr;
-+	data_cdc = (struct smcd_cdc_msg *)rmb_desc->cpu_addr;
- 	smcd_curs_copy(&cdc.prod, &data_cdc->prod, conn);
- 	smcd_curs_copy(&cdc.cons, &data_cdc->cons, conn);
- 	smc = container_of(conn, struct smc_sock, conn);
-@@ -483,7 +500,11 @@ static void smc_cdc_rx_handler(struct ib_wc *wc, void *buf)
- 	lgr = smc_get_lgr(link);
- 	read_lock_bh(&lgr->conns_lock);
- 	conn = smc_lgr_find_conn(ntohl(cdc->token), lgr);
--	if (!conn || conn->out_of_sync) {
-+	/* Pair with smp_store_release() in __smc_buf_create(): bail while the
-+	 * RMB is unset (smc_cdc_msg_recv_action() dereferences it) to avoid a
-+	 * NULL deref and a stale-buffer read in the connection setup window.
-+	 */
-+	if (!conn || conn->out_of_sync || !smp_load_acquire(&conn->rmb_desc)) {
- 		read_unlock_bh(&lgr->conns_lock);
- 		return;
- 	}
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index cf6b620fef05..d94b728c0d68 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -2499,7 +2499,13 @@ static int __smc_buf_create(struct smc_sock *smc, bool is_smcd, bool is_rmb)
- 	}
- 
- 	if (is_rmb) {
--		conn->rmb_desc = buf_desc;
-+		/* Publish with release semantics: the connection is already in
-+		 * the link group's token tree, so a concurrent CDC receive
-+		 * handler must observe a fully initialised buffer once it sees
-+		 * a non-NULL rmb_desc.  Pairs with the smp_load_acquire() in
-+		 * the CDC receive path.
-+		 */
-+		smp_store_release(&conn->rmb_desc, buf_desc);
- 		conn->rmbe_size_comp = bufsize_comp;
- 		smc->sk.sk_rcvbuf = bufsize * 2;
- 		atomic_set(&conn->bytes_to_rcv, 0);
-@@ -2599,7 +2605,13 @@ int smcd_buf_attach(struct smc_sock *smc)
- 	buf_desc->cpu_addr =
- 		(u8 *)buf_desc->cpu_addr + sizeof(struct smcd_cdc_msg);
- 	buf_desc->len -= sizeof(struct smcd_cdc_msg);
--	conn->sndbuf_desc = buf_desc;
-+	/* Publish with release semantics: the connection is already reachable
-+	 * to the ISM device (smc_ism_set_conn() ran in __smc_buf_create()), so
-+	 * the CDC receive tasklet must observe a fully initialised ghost buffer
-+	 * once it sees a non-NULL sndbuf_desc.  Pairs with smp_load_acquire()
-+	 * in smc_cdc_msg_recv_action().
-+	 */
-+	smp_store_release(&conn->sndbuf_desc, buf_desc);
- 	conn->sndbuf_desc->used = 1;
- 	atomic_set(&conn->sndbuf_space, conn->sndbuf_desc->len);
- 	return 0;
-
----
-base-commit: 3f1f755366687d051174739fb99f7d560202f60b
-change-id: 20260714-b4-disp-835288a6-1f72ff8d7a71
-
-Best regards,
--- 
-Bryam Vargas <hexlabsecurity@proton.me>
-
+I shortly considered storing the hpa in the vsie_page in addition to the 
+gpa but this is the only case where we need to do these shenanigans to 
+generate an address so it would only complicate things and cost storage 
+with no benefit.
 
