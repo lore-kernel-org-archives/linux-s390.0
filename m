@@ -1,35 +1,34 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B4F1D42DFE1;
-	Thu, 16 Jul 2026 14:51:38 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8721142FCAD;
+	Thu, 16 Jul 2026 14:51:43 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784213499; cv=none; b=kzPAyM243WzWzMnvWP2uNjkcYHysw6Jh+Ogpoi+/zRYHvLqnPQhZu8FmrtI+cMceeWuJ9amiG5jXg5TEWuh0ljbU1j9tVhLpJsZl+x7O2gF2GVbBwUderExBB/4BjOcemGOdyjfNagro+OtMrVQZBcTfJsw99W/WYc4cO7akSuI=
+	t=1784213504; cv=none; b=Qd9YFXg/HYNmXAmgty+WC18Adk26V8JC7+y+QnhwaUpqWY31ozSkSgaJwLDWpvDzFv95ud2rklQJehvw5gnVgoWIy6vWpCRYrPh3/g8BhTrM/uEwmTmEn+cQzVgIxLMvIuU7MekV75O2mO/v5qNvJohy1oYGblJjeKZ2WSPf34s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784213499; c=relaxed/simple;
-	bh=l9Eon2DAllHdR7TpivU/G/WNzIVckSN8NOjnlhaieQw=;
+	s=arc-20240116; t=1784213504; c=relaxed/simple;
+	bh=n3tvgN/k4UYuQ2JhAdxrtV0BlqhciU7/a8t2Zbfyzq0=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=GVOQ5Usq846Ddrg+h8PAdpm4ySLi7N+UhrFNhYJOcDlE9Q19RNCMxHaqsHwKVOkFlA+GbjJPeMGPCqTxhdQfovldZRT7bH1WlV7/e44gJu//3IA9UgMNk2TwYET1EIBMxgZQ6M3NBAbU1Qs1ybuVaipCuvbXWUTRxz5BDCQd8kI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=AhJ8k2KZ; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:To:Cc; b=G3qfn7QLPuD9UPsE1A0W0WQY13ilhZFkAWcxO/+h7cYbt6mJDW+s/J7cVpZ7brgFf02W3CQSikjytHqOgezaOyI01OsE9Vt9bTSt4XJq2aiXdjQHJzdKkjzgQqXQfo1qqLW5l5Xxmp8uCp2VnBG1b/m9Ez9ByKRK1sJc44KhL+4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=G8J8pa/1; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AhJ8k2KZ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3BB391F000E9;
-	Thu, 16 Jul 2026 14:51:34 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="G8J8pa/1"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 017BF1F00A3D;
+	Thu, 16 Jul 2026 14:51:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784213498;
-	bh=4s9VNibOd89d9UPHIC3VdfqdIw6cc3uF1PGgnXgGtOw=;
+	s=k20260515; t=1784213503;
+	bh=Ka6zYOXsuhzx77WYU+YoIUZ4Wz6My9SyyjFFnIK2/ts=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=AhJ8k2KZFqliaAqjQf9LzR9AdE9YgK5D5ArxxTLTQgmgSXOf8jfqUAzF8TLTczJRU
-	 MJap6wY76tZCjiDj7rclJjZoZ284wlfh4a9aa2DxDdwThMR4DbhDdjbXyWf51LSe+0
-	 za+FEvWACbp/mW8KFJcza2s5c8KihKE/0YKLssYt9G1TkWjLEL4V/yPv7M5HlZ09Lw
-	 hHenPzKWM1S1Xu683kFXEKUQvU3c9argQzI61tdzPrvTF5xh2nKGMbD+rGIFR019BD
-	 G9q005m9cfgBSSWmtpJJbb3wiBvD6eywjwd55FLpuHDU4kufXrC2uDd/KpjQCKcl7h
-	 bt4l/fV1Ec2yA==
+	b=G8J8pa/1nRI8j8oUQnulySCu96Q8xq00a5h/GkJWgx7G0Lor9V+49krSS4vZNMTpl
+	 BjpBYfElp1gxBB+nFV7YEEbbFPxfd4VelehBfIC4A9Dn+mkA4B6RQsTbcFe+Gpb/CV
+	 EvHE5iBlPYmRMjoMrHC246WyHB1iEwkmpkLuJWUZp1Hwo6LO1xNbVMg5mVP67XtRln
+	 O+iLPelLLhHSUZbEreJXf8p7v9RlVBMtWuwuvrPsQYAQDhUfooYBBPfaolthnAojYJ
+	 ZRqXakJe0kFVulTi95mGCbNQPOBmHFlsmyWIDt8VUMs/Gt1Z23gbOtjFTJNhAsgYCf
+	 rKLUWk3nOUTiQ==
 From: "David Hildenbrand (Arm)" <david@kernel.org>
-Date: Thu, 16 Jul 2026 16:51:03 +0200
-Subject: [PATCH v2 04/10] mm/bootmem_info: allow calling
- free_bootmem_page() on pages without a bootmem_type
+Date: Thu, 16 Jul 2026 16:51:04 +0200
+Subject: [PATCH v2 05/10] x86/mm: stop marking vmemmap as SECTION_INFO
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -38,7 +37,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260716-bootmem_info_part2-v2-4-4afc76c73d61@kernel.org>
+Message-Id: <20260716-bootmem_info_part2-v2-5-4afc76c73d61@kernel.org>
 References: <20260716-bootmem_info_part2-v2-0-4afc76c73d61@kernel.org>
 In-Reply-To: <20260716-bootmem_info_part2-v2-0-4afc76c73d61@kernel.org>
 To: Dave Hansen <dave.hansen@linux.intel.com>, 
@@ -60,42 +59,93 @@ Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
  linux-s390@vger.kernel.org, "David Hildenbrand (Arm)" <david@kernel.org>
 X-Mailer: b4 0.15.2
 
-As preparation for further changes, let's temporarily allow freeing
-pages that were not previously registered.
+We added the whole bootmem registration machinery in commit 04753278769f
+("memory hotplug: register section/node id to free").
 
-This will allow freeing unregistered vmemmap pages allocated during boot
-through free_bootmem_page() from hugetlb code, until we fully rip all
-of that out.
+The main use case was to remember to which memory section memmap pages
+belonged, so the memmap could be handled accordingly when freeing
+memory.
+
+However, all that machinery is not required anymore: a memory section
+can only get offlined if *all* pages can get offlined; and it can only
+get unplugged once offline. If some of these pages are unmovable memmap
+pages: bad luck, doesn't work. Offlining will fail.
+
+Further, a lot of this machinery was required for pre-vmemmap support.
+Now we only support the vmemmap with memory hotplug.
+
+So the whole machinery is useless today. Let's start by removing the
+last pieces by first stopping to mark vmemmap pages as SECTION_INFO.
+In free_vmemmap_pages(), we can now always just free the reserved pages
+directly.
 
 Reviewed-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
-Reviewed-by: Muchun Song <muchun.song@linux.dev>
 Signed-off-by: David Hildenbrand (Arm) <david@kernel.org>
 ---
- include/linux/bootmem_info.h | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ arch/x86/mm/init_64.c | 30 ++++--------------------------
+ 1 file changed, 4 insertions(+), 26 deletions(-)
 
-diff --git a/include/linux/bootmem_info.h b/include/linux/bootmem_info.h
-index f724340755e55..486acc6127039 100644
---- a/include/linux/bootmem_info.h
-+++ b/include/linux/bootmem_info.h
-@@ -44,12 +44,12 @@ static inline void free_bootmem_page(struct page *page)
+diff --git a/arch/x86/mm/init_64.c b/arch/x86/mm/init_64.c
+index 320e742b0bb3f..82bb0384b8ab0 100644
+--- a/arch/x86/mm/init_64.c
++++ b/arch/x86/mm/init_64.c
+@@ -1024,19 +1024,12 @@ static void __meminit free_vmemmap_pages(struct page *page, unsigned int order,
  {
- 	enum bootmem_type type = bootmem_type(page);
+ 	unsigned long nr_pages = 1u << order;
  
--	VM_BUG_ON_PAGE(page_ref_count(page) != 2, page);
--
--	if (type == SECTION_INFO || type == MIX_SECTION_INFO)
-+	if (type == SECTION_INFO || type == MIX_SECTION_INFO) {
-+		VM_WARN_ON_PAGE(page_ref_count(page) != 2, page);
- 		put_page_bootmem(page);
--	else
--		VM_BUG_ON_PAGE(1, page);
-+	} else {
-+		free_reserved_page(page);
-+	}
+-	if (altmap) {
++	if (altmap)
+ 		vmem_altmap_free(altmap, nr_pages);
+-	} else if (PageReserved(page)) {
+-		if (IS_ENABLED(CONFIG_HAVE_BOOTMEM_INFO_NODE) &&
+-		    bootmem_type(page) == SECTION_INFO) {
+-			while (nr_pages--)
+-				put_page_bootmem(page++);
+-		} else {
+-			free_reserved_pages(page, order);
+-		}
+-	} else {
++	else if (PageReserved(page))
++		free_reserved_pages(page, order);
++	else
+ 		__free_pages(page, order);
+-	}
  }
- #else
- static inline void register_page_bootmem_info_node(struct pglist_data *pgdat)
+ 
+ static void __meminit free_pte_table(pte_t *pte_start, pmd_t *pmd)
+@@ -1593,12 +1586,8 @@ void register_page_bootmem_memmap(unsigned long section_nr,
+ 	p4d_t *p4d;
+ 	pud_t *pud;
+ 	pmd_t *pmd;
+-	unsigned int nr_pmd_pages;
+-	struct page *page;
+ 
+ 	for (; addr < end; addr = next) {
+-		pte_t *pte = NULL;
+-
+ 		pgd = pgd_offset_k(addr);
+ 		if (pgd_none(*pgd)) {
+ 			next = (addr + PAGE_SIZE) & PAGE_MASK;
+@@ -1630,19 +1619,8 @@ void register_page_bootmem_memmap(unsigned long section_nr,
+ 			next = (addr + PAGE_SIZE) & PAGE_MASK;
+ 			get_page_bootmem(section_nr, pmd_page(*pmd),
+ 					 MIX_SECTION_INFO);
+-
+-			pte = pte_offset_kernel(pmd, addr);
+-			if (pte_none(*pte))
+-				continue;
+-			get_page_bootmem(section_nr, pte_page(*pte),
+-					 SECTION_INFO);
+ 		} else {
+ 			next = pmd_addr_end(addr, end);
+-			nr_pmd_pages = (next - addr) >> PAGE_SHIFT;
+-			page = pmd_page(*pmd);
+-			while (nr_pmd_pages--)
+-				get_page_bootmem(section_nr, page++,
+-						 SECTION_INFO);
+ 		}
+ 	}
+ }
 
 -- 
 2.43.0
