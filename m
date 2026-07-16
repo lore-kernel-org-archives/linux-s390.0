@@ -1,281 +1,161 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4FF6A42A17D;
-	Thu, 16 Jul 2026 13:50:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0669A322A1F
+	for <linux-s390@vger.kernel.org>; Thu, 16 Jul 2026 13:54:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784209847; cv=none; b=ZkTQe2N33WYfj8CQpi7gHUzgMozICTXp3cmVPcmogMdmY92vcB6rcWYp6qRdbxg4evSlfGKJchoDNaRlsEdl5j5EpgCKv1xPxy3//Xz36bvNKu3lpoDUKVlDkoSQl4NA7OIzehEnWiyoRG9uShKHkAml1LBQzbDu8rSlXzROc8k=
+	t=1784210096; cv=none; b=EMCCGihO5nnaMn2g5GMyW0OWYAL1ixXJvuwj1oLaxms3IEMgS1QFgd3MRDLNx1Au/GQR6dutrVcfCr2CpU8K+opcHL9mx/MZIYrCRM15lDmJBxn7P/IVieSR8O4M6ced1HfXltj/zkUT60UxRpZQ1/in3CyoB3C8M5+SP816fH0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784209847; c=relaxed/simple;
-	bh=UzpmWiDSqqP+iFkA0R8h+A1fwholsVskgVIc/9kF5Vw=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=N1z9Etd42cmlAgpQ9lAgCGkAW6FnBGFRqW/y5QKUMq45sAmqx6gP7s48EQkG8pCUdRibJF8yDRywgoIAspiWt4Wy0gZV4fv8faGs73cik3uFRziiTb8jSuoSlh2zh0kPDQ4qnnD8Q1Avyin2JDzI35dcB0n2FigFjgtk1uhTUJ0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DqH+9tSA; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1784210096; c=relaxed/simple;
+	bh=iVeIG0h7n3P2rGEmrJDmWjRK/vnwVF0SnpjZFa2iN6g=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Q4cG9csz/DSBFizjqze5V05osBdNFK+KQtv5GloI81ki+5iKrrVFtnbTFJ/wPWlZdDzE2BYRvbqjftbtxZBxO6w9HHcN8YuQdltu0ADZuuB19WavyR26P0fGG6RuVj3e5vkq5vAQNTK7UOD6CU92VMfbtdjD2MDloGvgrDbkSlo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Wm0AKunS; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DqH+9tSA"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id DD414C2BCC9;
-	Thu, 16 Jul 2026 13:50:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1784209846;
-	bh=UzpmWiDSqqP+iFkA0R8h+A1fwholsVskgVIc/9kF5Vw=;
-	h=From:Date:Subject:To:Cc:Reply-To:From;
-	b=DqH+9tSASMiBBT8QaBwrJ1N16EKSOEY5CdaDQLN0pbSkXZV/RlJIqZ6E/d2kq8Cz3
-	 wI6cmtMqKQXyL4RTP4dUz1j6Ywt9jrosIBXGuVgEcPgj7aJlyv304WAYAOQcJP8fuU
-	 zy1Mjgo1FCF6D1CVKbXyUvvMkQkmnaV5VZwl0q3LIbY+4/a9CZ3tQerILQUVrhhNxo
-	 YbAXbyugDIqzyV5NrhFkMHFCOIesrAHkBoqxNu4KKrb74tcNSpKJph0+8fMv2uEk3B
-	 ISNTr7RS8iLHl2CupY/lWyy/M7PI8dRBsgrRh7y8lXAOTOEnw+j/dn5S9iS+uldJu1
-	 HIUlCpH3gs0xQ==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9B64AC4450A;
-	Thu, 16 Jul 2026 13:50:46 +0000 (UTC)
-From: Bryam Vargas via B4 Relay <devnull+hexlabsecurity.proton.me@kernel.org>
-Date: Thu, 16 Jul 2026 08:50:45 -0500
-Subject: [PATCH net v3] net/smc: order the CDC receive path against buffer
- publication
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Wm0AKunS"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66GDfgRS1469841;
+	Thu, 16 Jul 2026 13:54:46 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=V6uFoj
+	vM4zr5zCdUb4O5iQuVgE+kVe9me2sV3lRFtyk=; b=Wm0AKunSAzru7wYK1chTuC
+	gNIME/LO/hJ15VxJkhqUlvlkkhRxIUhYsgfmlUzMu+bFAwXaU8R2/BWxlw7ehbzq
+	T1L8SsmZ3LyxgH+USyzd5zs/VhUvwQrwAlWK432IeHMFcJrH763xVImQgZbKMSLS
+	qjTEhihNZuPKS9lZBABvxYjjwh5DrdMfyAfWzX/ZXVRGuzii+0jMTC7tXOSnQbtv
+	QeX38/vruvH54z5vK2CLM8Cp1mRvkauAbwkHzm87jlZDpd1hpoyK+OROb8X2qHRS
+	YvDylDHIAuO7ujuv4+PgaGfxFxdlhwBiXi0wXO6O4Xk3knhtQikewRdgTfzcPuBA
+	==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fcv33hpgy-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 16 Jul 2026 13:54:45 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66GDYfPW017584;
+	Thu, 16 Jul 2026 13:54:44 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fc05qdf8v-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 16 Jul 2026 13:54:44 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66GDsfW344892642
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 16 Jul 2026 13:54:41 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 40AD020043;
+	Thu, 16 Jul 2026 13:54:41 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id CCCFD20040;
+	Thu, 16 Jul 2026 13:54:40 +0000 (GMT)
+Received: from [0.0.0.0] (unknown [9.87.134.210])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 16 Jul 2026 13:54:40 +0000 (GMT)
+Message-ID: <6b6eab2e-8324-4173-9896-89f13127d042@linux.ibm.com>
+Date: Thu, 16 Jul 2026 15:54:40 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+User-Agent: Mozilla Thunderbird
+Subject: Re: [boqun:rust-rcu 14/27] rust/helpers/interrupt.c:17:9: warning:
+ static function 'arch_local_save_flags' is used in an inline function with
+ external linkage
+To: Heiko Carstens <hca@linux.ibm.com>, Boqun Feng <boqun@kernel.org>
+Cc: kernel test robot <lkp@intel.com>, Lyude Paul <lyude@redhat.com>,
+        llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
+        Benno Lossin <lossin@kernel.org>,
+        Andreas Hindborg <a.hindborg@kernel.org>, Gary Guo <gary@garyguo.net>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org
+References: <202607131219.euJHPSJ5-lkp@intel.com>
+ <alfbtUKkXANyGyYf@tardis.local> <20260716115652.25491C83-hca@linux.ibm.com>
+Content-Language: en-US
+From: Ilya Leoshkevich <iii@linux.ibm.com>
+In-Reply-To: <20260716115652.25491C83-hca@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260716-b4-disp-aa52955a-v3-1-03a4411a7549@proton.me>
-X-B4-Tracking: v=1; b=H4sIALThWGoC/x3MPQqAMAxA4atIZgP9sRW9ijhEjZqlllZEEO9uc
- fyG9x7InIQz9NUDiS/JcoQCW1cw7xQ2RlmKwSjjVas9Tg0ukiMSOdM5R+i8WnU3N5YMQcli4lX
- ufzlA4BPG9/0AAXzEXWcAAAA=
-To: "D. Wythe" <alibuda@linux.alibaba.com>, Paolo Abeni <pabeni@redhat.com>, 
- Jakub Kicinski <kuba@kernel.org>, Eric Dumazet <edumazet@google.com>, 
- Mahanta Jambigi <mjambigi@linux.ibm.com>, 
- Dust Li <dust.li@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>, 
- "David S. Miller" <davem@davemloft.net>, 
- Sidraya Jayagond <sidraya@linux.ibm.com>, 
- Wenjia Zhang <wenjia@linux.ibm.com>, Tony Lu <tonylu@linux.alibaba.com>
-Cc: netdev@vger.kernel.org, Simon Horman <horms@kernel.org>, 
- linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org, 
- linux-kernel@vger.kernel.org
-X-Mailer: b4 0.13.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1784209844; l=9556;
- i=hexlabsecurity@proton.me; s=proton; h=from:subject:message-id;
- bh=8rdrQeoqAP//SANKUMiO9RanFoUJmkH6UG4jV/txETM=;
- b=WGVanU1Q5UWJ0VRvNyWdONdPuWe9Xe37CaN5HmENvtKiROmzY1mWgJbjTt8OaCpH4IYzvwtfY
- 0YsU/ji30l+DzxmUSROprHb3c8ZKYjXfm/f/zOr+dIS3pJrXjbJzgIt
-X-Developer-Key: i=hexlabsecurity@proton.me; a=ed25519;
- pk=dmppBMZNLLoPzxHi9l8tZDzEZUunPbgsYqIZYXeUrL0=
-X-Endpoint-Received: by B4 Relay for hexlabsecurity@proton.me/proton with
- auth_id=814
-X-Original-From: Bryam Vargas <hexlabsecurity@proton.me>
-Reply-To: hexlabsecurity@proton.me
-
-From: Bryam Vargas <hexlabsecurity@proton.me>
-
-The SMC CDC receive handlers dereference conn->rmb_desc, and on the
-SMC-D DMB-nocopy path conn->sndbuf_desc, but both are published after the
-connection is already reachable to a peer: rmb_desc once the connection
-is in the link group's token tree, the nocopy ghost sndbuf_desc later
-still, in smcd_buf_attach() after the ISM receive tasklet is armed. A CDC
-in that window hits a handler with the buffer unset -- a NULL dereference
-and host DoS -- or, on a weakly ordered CPU, non-NULL but not yet
-initialised. Both are also published before the receive state
-(bytes_to_rcv, sndbuf_space), so an early CDC's accounting can be
-overwritten by setup.
-
-Initialise the receive state first and publish both buffers last with
-smp_store_release(), consuming them with smp_load_acquire() and bailing
-while unset, as the handlers already do for a killed connection. Gate the
-whole sndbuf consumer trigger on the send buffer, not just the nocopy
-accounting: smc_tx_prepared_sends() and smc_tx_pending() dereference it
-too. Conforming peers are unaffected.
-
-Closes: https://sashiko.dev/#/patchset/20260714-b4-disp-835288a6-v2-1-581555ef2145@proton.me?part=1
-Cc: stable@vger.kernel.org
-Signed-off-by: Bryam Vargas <hexlabsecurity@proton.me>
----
-v3:
- - Publish rmb_desc and the ghost sndbuf_desc after the receive state is
-   initialised, not before. The earlier revision released the pointer first,
-   which let an early CDC's accounting be overwritten by setup.
- - Gate the whole sndbuf consumer trigger on sndbuf_desc, not only the nocopy
-   accounting: smc_tx_prepared_sends() and smc_tx_pending() dereference it too.
- The v2 review raised both.
-v2: https://lore.kernel.org/all/20260714-b4-disp-835288a6-v2-1-581555ef2145@proton.me/
-v1: https://lore.kernel.org/all/20260711-b4-disp-c36a9798-v1-1-340b0c6053fb@proton.me/
-
-herd7 models both orderings. Plain accesses allow the "pointer published, buffer
-stale" outcome and flag a data race; release/acquire forbid it. A publish-order
-litmus shows the lost update is allowed with the store released first and never
-with it released last. af_smc runs over an RDMA fabric or an ISM device, so the
-weak-memory arm is model-level; litmus tests and reproducer on request.
-
-No Fixes: tag -- the rmb_desc ordering is foundational (predates the git history
-here); the sndbuf_desc hunks additionally cover the later SMC-D DMB-nocopy path.
-Happy to split rmb/sndbuf for a cleaner stable backport.
----
- net/smc/smc_cdc.c  | 50 +++++++++++++++++++++++++++++++++++++++++---------
- net/smc/smc_core.c | 26 ++++++++++++++++++++++----
- 2 files changed, 63 insertions(+), 13 deletions(-)
-
-diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
-index 32d6d03df321..ea61b1e75c72 100644
---- a/net/smc/smc_cdc.c
-+++ b/net/smc/smc_cdc.c
-@@ -332,8 +332,20 @@ static void smc_cdc_msg_recv_action(struct smc_sock *smc,
- {
- 	union smc_host_cursor cons_old, prod_old;
- 	struct smc_connection *conn = &smc->conn;
-+	struct smc_buf_desc *sndbuf_desc;
- 	int diff_cons, diff_prod, diff_tx;
- 
-+	/* Acquire the send buffer once, pairing with the smp_store_release() in
-+	 * __smc_buf_create()/smcd_buf_attach().  On the SMC-D DMB-nocopy path
-+	 * the ghost sndbuf_desc is attached only after the connection is already
-+	 * reachable to the ISM device, so it can still be unset here; every
-+	 * sndbuf_desc consumer below (the nocopy accounting and the sndbuf
-+	 * consumer trigger, which dereferences it via smc_tx_prepared_sends())
-+	 * is skipped while it is NULL to avoid a NULL deref and a load of an
-+	 * uninitialised buffer.
-+	 */
-+	sndbuf_desc = smp_load_acquire(&conn->sndbuf_desc);
-+
- 	smc_curs_copy(&prod_old, &conn->local_rx_ctrl.prod, conn);
- 	smc_curs_copy(&cons_old, &conn->local_rx_ctrl.cons, conn);
- 	smc_cdc_msg_to_host(&conn->local_rx_ctrl, cdc, conn);
-@@ -351,14 +363,17 @@ static void smc_cdc_msg_recv_action(struct smc_sock *smc,
- 
- 		/* if local sndbuf shares the same memory region with
- 		 * peer RMB, then update tx_curs_fin and sndbuf_space
--		 * here since peer has already consumed the data.
-+		 * here since peer has already consumed the data.  The ghost
-+		 * sndbuf_desc (acquired above) may still be unset in the SMC-D
-+		 * DMB-nocopy setup window, so skip the update while it is NULL.
- 		 */
- 		if (conn->lgr->is_smcd &&
--		    smc_ism_support_dmb_nocopy(conn->lgr->smcd)) {
-+		    smc_ism_support_dmb_nocopy(conn->lgr->smcd) &&
-+		    sndbuf_desc) {
- 			/* Calculate consumed data and
- 			 * increment free send buffer space.
- 			 */
--			diff_tx = smc_curs_diff(conn->sndbuf_desc->len,
-+			diff_tx = smc_curs_diff(sndbuf_desc->len,
- 						&conn->tx_curs_fin,
- 						&conn->local_rx_ctrl.cons);
- 			/* increase local sndbuf space and fin_curs */
-@@ -391,10 +406,15 @@ static void smc_cdc_msg_recv_action(struct smc_sock *smc,
- 			conn->urg_state = SMC_URG_NOTYET;
- 	}
- 
--	/* trigger sndbuf consumer: RDMA write into peer RMBE and CDC */
--	if ((diff_cons && smc_tx_prepared_sends(conn)) ||
--	    conn->local_rx_ctrl.prod_flags.cons_curs_upd_req ||
--	    conn->local_rx_ctrl.prod_flags.urg_data_pending) {
-+	/* trigger sndbuf consumer: RDMA write into peer RMBE and CDC.
-+	 * smc_tx_prepared_sends() and smc_tx_pending() dereference sndbuf_desc,
-+	 * so skip the whole trigger while it is unset (the SMC-D DMB-nocopy
-+	 * setup window): there is nothing to send without a send buffer.
-+	 */
-+	if (sndbuf_desc &&
-+	    ((diff_cons && smc_tx_prepared_sends(conn)) ||
-+	     conn->local_rx_ctrl.prod_flags.cons_curs_upd_req ||
-+	     conn->local_rx_ctrl.prod_flags.urg_data_pending)) {
- 		if (!sock_owned_by_user(&smc->sk))
- 			smc_tx_pending(conn);
- 		else
-@@ -443,13 +463,21 @@ static void smcd_cdc_rx_tsklet(struct tasklet_struct *t)
- {
- 	struct smc_connection *conn = from_tasklet(conn, t, rx_tsklet);
- 	struct smcd_cdc_msg *data_cdc;
-+	struct smc_buf_desc *rmb_desc;
- 	struct smcd_cdc_msg cdc;
- 	struct smc_sock *smc;
- 
- 	if (!conn || conn->killed)
- 		return;
-+	/* Pair with smp_store_release() in __smc_buf_create(): the connection
-+	 * is published before its RMB is allocated, so bail while rmb_desc is
-+	 * unset to avoid a NULL deref and a load of an uninitialised buffer.
-+	 */
-+	rmb_desc = smp_load_acquire(&conn->rmb_desc);
-+	if (!rmb_desc)
-+		return;
- 
--	data_cdc = (struct smcd_cdc_msg *)conn->rmb_desc->cpu_addr;
-+	data_cdc = (struct smcd_cdc_msg *)rmb_desc->cpu_addr;
- 	smcd_curs_copy(&cdc.prod, &data_cdc->prod, conn);
- 	smcd_curs_copy(&cdc.cons, &data_cdc->cons, conn);
- 	smc = container_of(conn, struct smc_sock, conn);
-@@ -483,7 +511,11 @@ static void smc_cdc_rx_handler(struct ib_wc *wc, void *buf)
- 	lgr = smc_get_lgr(link);
- 	read_lock_bh(&lgr->conns_lock);
- 	conn = smc_lgr_find_conn(ntohl(cdc->token), lgr);
--	if (!conn || conn->out_of_sync) {
-+	/* Pair with smp_store_release() in __smc_buf_create(): bail while the
-+	 * RMB is unset (smc_cdc_msg_recv_action() dereferences it) to avoid a
-+	 * NULL deref and a stale-buffer read in the connection setup window.
-+	 */
-+	if (!conn || conn->out_of_sync || !smp_load_acquire(&conn->rmb_desc)) {
- 		read_unlock_bh(&lgr->conns_lock);
- 		return;
- 	}
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index cf6b620fef05..0561f83be327 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -2499,15 +2499,26 @@ static int __smc_buf_create(struct smc_sock *smc, bool is_smcd, bool is_rmb)
- 	}
- 
- 	if (is_rmb) {
--		conn->rmb_desc = buf_desc;
- 		conn->rmbe_size_comp = bufsize_comp;
- 		smc->sk.sk_rcvbuf = bufsize * 2;
- 		atomic_set(&conn->bytes_to_rcv, 0);
- 		conn->rmbe_update_limit =
- 			smc_rmb_wnd_update_limit(buf_desc->len);
-+		/* Publish the receive buffer last, with release semantics: the
-+		 * connection is already in the link group's token tree, so a
-+		 * concurrent CDC receive handler must observe the fully
-+		 * initialised receive state above (and the buffer) once it sees
-+		 * a non-NULL rmb_desc.  Pairs with the smp_load_acquire() in the
-+		 * CDC receive path.
-+		 */
-+		smp_store_release(&conn->rmb_desc, buf_desc);
- 		if (is_smcd)
- 			smc_ism_set_conn(conn); /* map RMB/smcd_dev to conn */
- 	} else {
-+		/* Plain store: this send-buffer pass runs before the RMB pass,
-+		 * whose smp_store_release(&conn->rmb_desc) then publishes this
-+		 * store too, and the CDC receive path is gated on rmb_desc.
-+		 */
- 		conn->sndbuf_desc = buf_desc;
- 		smc->sk.sk_sndbuf = bufsize * 2;
- 		atomic_set(&conn->sndbuf_space, bufsize);
-@@ -2599,9 +2610,16 @@ int smcd_buf_attach(struct smc_sock *smc)
- 	buf_desc->cpu_addr =
- 		(u8 *)buf_desc->cpu_addr + sizeof(struct smcd_cdc_msg);
- 	buf_desc->len -= sizeof(struct smcd_cdc_msg);
--	conn->sndbuf_desc = buf_desc;
--	conn->sndbuf_desc->used = 1;
--	atomic_set(&conn->sndbuf_space, conn->sndbuf_desc->len);
-+	buf_desc->used = 1;
-+	atomic_set(&conn->sndbuf_space, buf_desc->len);
-+	/* Publish the ghost send buffer last, with release semantics: the
-+	 * connection is already reachable to the ISM device (smc_ism_set_conn()
-+	 * ran in __smc_buf_create()), so the CDC receive tasklet must observe
-+	 * the fully initialised ghost buffer once it sees a non-NULL
-+	 * sndbuf_desc.  Pairs with smp_load_acquire() in
-+	 * smc_cdc_msg_recv_action().
-+	 */
-+	smp_store_release(&conn->sndbuf_desc, buf_desc);
- 	return 0;
- 
- free:
-
----
-base-commit: 3f1f755366687d051174739fb99f7d560202f60b
-change-id: 20260716-b4-disp-aa52955a-560f19c43a2a
-
-Best regards,
--- 
-Bryam Vargas <hexlabsecurity@proton.me>
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzE2MDE0MSBTYWx0ZWRfX83oHPeftlP27
+ EMIaRAiqt3nmBZbMwm9mO7eDaCdx/zir+zf3pxdx+jKKQxbszk9q08yA4ql8ve7tHSMOKcMxg1t
+ H2ggv0xNPjzje0gCqU+6/sLpnaQOBS0=
+X-Authority-Analysis: v=2.4 cv=Mp1iLWae c=1 sm=1 tr=0 ts=6a58e2a5 cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+ a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=yDg0MXncU-FSiYKy0mAA:9
+ a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: zkEpa3DXTOxGIm-_RXiAQBMxHcR4AqR9
+X-Proofpoint-ORIG-GUID: zkEpa3DXTOxGIm-_RXiAQBMxHcR4AqR9
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzE2MDE0MSBTYWx0ZWRfX2aGN3ji6Ah8P
+ Uth9zLTPR2ToRNYZQ6FAUXPjiNI4bmObNrvm185OxjS85qNebtWEQMcvmZmyKcAIlK62Mho5OWK
+ Y6ERi37GcodNgkj4bmtuzKGG/g8IpnQD/ICER16LxMm4CALQR0Y8vhJ8wO3cKnfcvCmMMInDPXq
+ KN/7YmYpNjPIb7aEeTSa6IbtLglXv9GBeO0NjPUs2cKcpAZ7EilZNk6iaKFztY1qwHq5PT2Wp8w
+ mVtcUBhv9lSaFKcPuU/kbbXCueS5WTH+2dUgrO4aZdNJ5t1dLzKQN5/kgFuQxWJVrXnzpV1pZF6
+ XgWA5rMemVEn3tbTrOH0DJi+Bl16Cx8ITab+Ytdf3I2HFItPGZF/p0cqmLEzmAPH8lo+H9JpmMz
+ 2LykZj7kDNtwLt0PBb/1q3/TQ9aEz4UCCvcZAf9kkyX8e2EIgnkmf75f6/xsPxMmp+KHRCgrAEO
+ Yo/m5dKLH+xuoiGcbzA==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-07-16_05,2026-07-15_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ adultscore=0 bulkscore=0 spamscore=0 malwarescore=0 lowpriorityscore=0
+ impostorscore=0 priorityscore=1501 suspectscore=0 clxscore=1015 phishscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607160141
 
 
+
+On 7/16/26 13:56, Heiko Carstens wrote:
+> On Wed, Jul 15, 2026 at 12:12:53PM -0700, Boqun Feng wrote:
+>> [Cc s390]
+>>>     In file included from rust/helpers/helpers.c:68:
+>>>>> rust/helpers/interrupt.c:17:9: warning: static function 'arch_local_save_flags' is used in an inline function with external linkage [-Wstatic-in-inline]
+>>>     17 |         return irqs_disabled();
+>>>     |                ^
+>>>     include/linux/irqflags.h:256:3: note: expanded from macro 'irqs_disabled'
+>>>     256 |                 raw_local_save_flags(_flags);           \
+>>>     |                 ^
+>>>     include/linux/irqflags.h:184:11: note: expanded from macro 'raw_local_save_flags'
+>>>     184 |                 flags = arch_local_save_flags();        \
+>>>     |                         ^
+>>>     rust/helpers/interrupt.c:15:1: note: use 'static' to give inline function 'rust_helper_irqs_disabled' internal linkage
+>>>     15 | __rust_helper bool rust_helper_irqs_disabled(void)
+>>>     | ^
+>>>     | static
+>>>     rust/helpers/helpers.c:38:23: note: expanded from macro '__rust_helper'
+>>>     38 | #define __rust_helper __always_inline
+>>>     |                       ^
+>>>     include/linux/compiler_attributes.h:55:41: note: expanded from macro '__always_inline'
+>>>     55 | #define __always_inline                 inline __attribute__((__always_inline__))
+>>>     |                                         ^
+>>>     include/linux/compiler_types.h:235:16: note: expanded from macro 'inline'
+>>>     235 | #define inline inline __gnu_inline __inline_maybe_unused notrace
+>>>     |                ^
+>>>     arch/s390/include/asm/irqflags.h:46:48: note: 'arch_local_save_flags' declared here
+>>>     46 | static arch_local_irq_attributes unsigned long arch_local_save_flags(void)
+>>>     |                                                ^
+>>>     1 warning generated.
+>>>     warning: 1 warning emitted
+>>>
+>>
+>> This seems not a Rust-only issue to me, basically you got the warning
+>> whenever you have an inline function calling irqs_disabled(). I'm a bit
+>> curious why 1b301f5f28ba ("s390/irqflags: do not instrument
+>> arch_local_irq_*() with KMSAN") wanted to add noinline when KMSAN=y, all
+>> you need is noinstr, no?
+> 
+> While the combination of __always_inline and noinstr _seems_ to work
+> with clang, this looks just wrong to me. I guess we really would need
+> a (single) out-of-line variant of the affected functions in question
+> for KMSAN.
+> 
+> Ilya, since that was your commit, does that sound sane?
+
+Hi, sure, making them out-of-line would make life easier.
+I will look into it.
