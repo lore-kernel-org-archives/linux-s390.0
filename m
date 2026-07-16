@@ -1,152 +1,167 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f51.google.com (mail-wr1-f51.google.com [209.85.221.51])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 125E5412C07
-	for <linux-s390@vger.kernel.org>; Thu, 16 Jul 2026 11:57:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 35476423794
+	for <linux-s390@vger.kernel.org>; Thu, 16 Jul 2026 13:23:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784203029; cv=none; b=hDJgrMPOYRksPw5k1GliWxZtxJr98syz9Ghq3FyIOblqxFqm7u0dR1MvE/J3O+9DasCKILsn3SkSIWBVMX5AYYehewj4IIt48NzbCYy+iBlHG2/g38IuNOOUz2tUyKKOCwh7hghTRZGU3M/hjkcpdSgBcUT2JrWDJYE4DM9dxt0=
+	t=1784208205; cv=none; b=GPZK7CRE1TrTNoatm2yUM4lfNJggr8mt7OVh6tSpBb+D5hRH5sZgpBgE62Yv8SFScSHbuxbosz/ox3FDSfKjYh27TYaY60nju7DhwVECvT3Ja0fYZm5kBfHHIbu5Bs2pvAgPiuxy0ihe2nCMy9T/fauJDlzzGenTzVwpYpI/dsI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784203029; c=relaxed/simple;
-	bh=kcjgYzHQ2udbVwJaCqp2Hqwjv09AzW1l7wO7KdsKUmw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ac/WdxgF9WrAFIPxbRd+ZWACkeUti5cjDFZxerdlnN7jniKOfF7WOGFHDWhkNqvxbYVosfTPLnsiWc8KVJUcGDra3ComIy5K1/R5daA3zll8m1iJ2gGf29w5fuKAJ8L6b1On6OqvgkjyhbS7gSssgfLNkZxOkrl+9iXwK6dgSts=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=T+gmIyEW; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1784208205; c=relaxed/simple;
+	bh=VH7ls6oS3JXo8rVW0MfQ99q9DKuXUysicTSoN/sq33g=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=LiAl1utKRdiCMozrjJzFZWeRntl0lHYpXepeItJvpBLcqlgGcroCNHveCAjG3c2JYY0usk426etuBsSnVWP7TLS2m+GKCGId0X/7k0tolgmgtGrexOeRolQO0cXOI3kHUYV7ciNXFKQ3Z8M6chhaVH7HcoJDx2heo/zeW+ZIGDs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20251104.gappssmtp.com header.i=@resnulli-us.20251104.gappssmtp.com header.b=w4Wah1Hw; arc=none smtp.client-ip=209.85.221.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="T+gmIyEW"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66GABwYI2910913;
-	Thu, 16 Jul 2026 11:56:59 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=AGXtMw+HwzzAwMk768TRelfDyJc5Qy
-	mAdFtZS2nAbyw=; b=T+gmIyEWnUO0Mc7s5xIBX81mySIm8sukmbKrTclkUhK2Qd
-	od7kHJJFyXZcej9uvyv70NSrDtWECW0FLyhC7ZmjNb5xczFMccdGF/ekNr6VGe9L
-	Z+8UMFne91AXDq5YUeOeezTSui+uC4SGWwrR6kNlbQXPLM7+a3lga1zEuIqkvzLY
-	C4nwS8jtwlR1EW5FRBw1mDrW8xgk2gpQfuih2MAvh4SP8TqRos2uDixj/elVidRC
-	bSpZ+Clqo+8pCSkhj7BRNzGuoZVoQgCylBUgj1yae+m3Wv08ZrUIb8C+kQFqZr4m
-	8snMpYoKrI4V9RzoKZwPe/Oj1ehTAmfbFlwnuoLA==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fbepxrkry-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 16 Jul 2026 11:56:59 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66GBnZnL005270;
-	Thu, 16 Jul 2026 11:56:58 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fc15k4sx2-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 16 Jul 2026 11:56:58 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66GBusl438535670
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 16 Jul 2026 11:56:54 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 252662004B;
-	Thu, 16 Jul 2026 11:56:54 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A05AA20040;
-	Thu, 16 Jul 2026 11:56:53 +0000 (GMT)
-Received: from osiris (unknown [9.111.27.209])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Thu, 16 Jul 2026 11:56:53 +0000 (GMT)
-Date: Thu, 16 Jul 2026 13:56:52 +0200
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Boqun Feng <boqun@kernel.org>, Ilya Leoshkevich <iii@linux.ibm.com>
-Cc: kernel test robot <lkp@intel.com>, Lyude Paul <lyude@redhat.com>,
-        llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
-        Benno Lossin <lossin@kernel.org>,
-        Andreas Hindborg <a.hindborg@kernel.org>, Gary Guo <gary@garyguo.net>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org
-Subject: Re: [boqun:rust-rcu 14/27] rust/helpers/interrupt.c:17:9: warning:
- static function 'arch_local_save_flags' is used in an inline function with
- external linkage
-Message-ID: <20260716115652.25491C83-hca@linux.ibm.com>
-References: <202607131219.euJHPSJ5-lkp@intel.com>
- <alfbtUKkXANyGyYf@tardis.local>
+	dkim=pass (2048-bit key) header.d=resnulli-us.20251104.gappssmtp.com header.i=@resnulli-us.20251104.gappssmtp.com header.b="w4Wah1Hw"
+Received: by mail-wr1-f51.google.com with SMTP id ffacd0b85a97d-471eeac43bfso6386314f8f.3
+        for <linux-s390@vger.kernel.org>; Thu, 16 Jul 2026 06:23:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=resnulli-us.20251104.gappssmtp.com; s=20251104; t=1784208199; x=1784812999; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=D6Q0MKGqIF4orx9zGR7eUo6VhJ11Sr2evJgGoyQOE4c=;
+        b=w4Wah1HwFUJorSFXv3gg4YZgAdiNC9roLfvlgy4YTTqOH41y/hQ4XEL819J8MUWew6
+         /sc5kQWFhjiam0dK7CXBZ/pe7iBes5+nbIxw3iAPP9fGbXfmxZ/+7H/fWkeyY5wUlphM
+         fh9TQz0cv+hvWepCwM+2Xn9f12GaVZLI9VgQDcsF+m++o7bknWdGfKKPcztMwHf2tLg/
+         Zh2B1d2ThM/aHk6KQDM7ozY9WWGaUNPaNaPRuOFujd1B579X3Z2m2ridqIEgFFHJ2zlr
+         eX2c8z+IdhAp8RnaHai7vfX+qGd2lkTWiLjZXtQn2X971CDPywXrhTmQfmGZ3pJKYhAw
+         AUvQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784208199; x=1784812999;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=D6Q0MKGqIF4orx9zGR7eUo6VhJ11Sr2evJgGoyQOE4c=;
+        b=Mv2OVkN5RLOgbhjNxDyV4CTJets6p10jcLVEIR//TqLCpk1f54DbA/ze/kiOhwwxRr
+         l10avqaTq1Ei62AJOSVRPBgRjunN9pDQMKqbW4nEHWMNWcZLdoFk15upyHSCLIvSLJgg
+         As8oj5w9TCt9JwLHAA09e7orc7+SACLCwhzAvw1RWz/x2lFVTwib1dvOBKGsMRb71xol
+         AjyeMNEIA70x5U9ILVmAgdVlcKmWi6fP5vwB43jLfH6G0WVhI3yzkg4ssDSAbLxuSHme
+         q/O0AkGqc0SHmZE4JMAJBF4zlfGx6MJonHOOZzJWg9w3qdFpW5AJxpGwS6JeM9tjGXvE
+         ukdg==
+X-Forwarded-Encrypted: i=1; AHgh+RpighRVW1zQ3a4EOvtSl1LuPxMiNXlG5JguzM61KNueYjufgG3fj7H9c8f5/wp+E7tYec0IdDKvM9qK@vger.kernel.org
+X-Gm-Message-State: AOJu0YxPwBvDFa/hCGVo0tA/EMEtUSG0c6rw+R9udLrZxS7DJ3N6M9SW
+	eXAlyJ+aFn+1hl4iPisND+zKNGKEDL+NbRHkuhCac921J5d0FcUe8XHEnpPFWx2cGxM=
+X-Gm-Gg: AfdE7cm2U0nDT/FqtR09tUiWcfkKtGm2lpcL2EOS0YG4Bfh2n6kEiUehBb1ZceSbnn7
+	HgwpbCKzYDpms2xKVJ7yU8wW7PI0wQK61D7kX6jwhVQKYVcKeKF173+iqd8Gx4ML57rYVfRjgYq
+	h2DGhH9OcbYftQVe/eWHKLZ+xK0hZyzSygFW4L1YiXJQtjnG2o56sIqhzqHDYcxC13z1rHTpUPP
+	CnGYcY7yMQFdFDzozTb6dUBStNKSuDLfh0R/dhD/73Y8Yj1AqukVN14j9q+jFXfkpv1rVmvCTT5
+	ihPPwCRbx4nhtQWmWKXqBFARKz/3+J7VTkf/UdZ8ywh3O2dNe2/R+ymqtOQAni4dG0QNpbqZpyG
+	jdqX/D57aGXqZxs9E4lkzmWEO6DJM7FoXn/R+5ipmDNzglJ2MQgO2Emue1OELoi9kfQ0K/Euu3E
+	3f9YyTWROwUT0m0WUH4dzkhw==
+X-Received: by 2002:a05:6000:4b06:b0:460:2eee:4e21 with SMTP id ffacd0b85a97d-47f4fcd5592mr9318323f8f.17.1784208199021;
+        Thu, 16 Jul 2026 06:23:19 -0700 (PDT)
+Received: from localhost ([140.209.217.211])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-47f4635a9cesm24674591f8f.14.2026.07.16.06.23.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 16 Jul 2026 06:23:18 -0700 (PDT)
+From: Jiri Pirko <jiri@resnulli.us>
+To: linux-rdma@vger.kernel.org
+Cc: cgroups@vger.kernel.org,
+	netdev@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	linux-kselftest@vger.kernel.org,
+	jgg@ziepe.ca,
+	leon@kernel.org,
+	parav@nvidia.com,
+	mbloch@nvidia.com,
+	cmeiohas@nvidia.com,
+	roman.gushchin@linux.dev,
+	bvanassche@acm.org,
+	zyjzyj2000@gmail.com,
+	shuah@kernel.org,
+	tj@kernel.org,
+	mkoutny@suse.com,
+	hannes@cmpxchg.org,
+	alibuda@linux.alibaba.com,
+	dust.li@linux.alibaba.com,
+	sidraya@linux.ibm.com,
+	wenjia@linux.ibm.com,
+	yanjun.zhu@linux.dev,
+	cui.tao@linux.dev
+Subject: [PATCH rdma-next v3 00/14] RDMA: Make device names unique per net namespace
+Date: Thu, 16 Jul 2026 15:23:01 +0200
+Message-ID: <20260716132316.1495242-1-jiri@resnulli.us>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <alfbtUKkXANyGyYf@tardis.local>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 4orCvh7Ps8WAunvz7Rt1No978nm8Ndhl
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzE2MDEyMSBTYWx0ZWRfX5nVQJ+OAFLkg
- aKr2vjuPkarmbtBwBpqfDuG7rKWHMgaj9pnSNhi89VqGzKIAOpVaw/Gi5uI2hjwqZDGv/LRvS3E
- qjFKqb4prbWanaR3XfDd+VhRLlTUqkk=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzE2MDEyMSBTYWx0ZWRfX/TsqNFYlnMKW
- ZnZ+JeY8LenYBcONeK/42ICJYAN2qbmX9YI7SEgELrtrfLm/Tu6eshoSZNiviBOseBPBo8iKKgF
- SuEB+/UI43miFBCBip38EWS4vtj26G84ETKVsraZkAHP2QZ3sPF2bRTX80x5EVV/9bSyN9IR/6l
- cNkC1AEgnrLzw7jEOfDi78ZhSRRFC1VhpEYOv+cjYvhsrUy5aOTsUcxNlF8/smjkFm6cToITzse
- GCT8IhJt4HkGs70SMRvcu+8Fpz33ZY9RF+XfW9zqK1PmeuaHyRmrAzPfGG+4XtbQKUmYOwARlvd
- kmD2e5lhECwdQ8QeTn3kU+PzKXukqGC9DdZhqsLMM5UugNYNAn55u1LBgXKCXw15FjqdgsoF95R
- VX46q8ctEPAuaRkIJmnKcatjauQMzJXG+10Hyysos/ZkhJhGisWK2xOzlNCnK/4EdeqNwJPimE1
- wbz8S/qpPmoDjeaJJHg==
-X-Authority-Analysis: v=2.4 cv=XbS5Co55 c=1 sm=1 tr=0 ts=6a58c70b cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=kj9zAlcOel0A:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=BoKzBCvMNuogcYMSMhUA:9
- a=CjuIK1q_8ugA:10
-X-Proofpoint-ORIG-GUID: 4orCvh7Ps8WAunvz7Rt1No978nm8Ndhl
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-07-16_04,2026-07-15_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1011 suspectscore=0 spamscore=0 phishscore=0 lowpriorityscore=0
- priorityscore=1501 adultscore=0 malwarescore=0 impostorscore=0 bulkscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607160121
+Content-Transfer-Encoding: 8bit
 
-On Wed, Jul 15, 2026 at 12:12:53PM -0700, Boqun Feng wrote:
-> [Cc s390]
-> >    In file included from rust/helpers/helpers.c:68:
-> > >> rust/helpers/interrupt.c:17:9: warning: static function 'arch_local_save_flags' is used in an inline function with external linkage [-Wstatic-in-inline]
-> >    17 |         return irqs_disabled();
-> >    |                ^
-> >    include/linux/irqflags.h:256:3: note: expanded from macro 'irqs_disabled'
-> >    256 |                 raw_local_save_flags(_flags);           \
-> >    |                 ^
-> >    include/linux/irqflags.h:184:11: note: expanded from macro 'raw_local_save_flags'
-> >    184 |                 flags = arch_local_save_flags();        \
-> >    |                         ^
-> >    rust/helpers/interrupt.c:15:1: note: use 'static' to give inline function 'rust_helper_irqs_disabled' internal linkage
-> >    15 | __rust_helper bool rust_helper_irqs_disabled(void)
-> >    | ^
-> >    | static
-> >    rust/helpers/helpers.c:38:23: note: expanded from macro '__rust_helper'
-> >    38 | #define __rust_helper __always_inline
-> >    |                       ^
-> >    include/linux/compiler_attributes.h:55:41: note: expanded from macro '__always_inline'
-> >    55 | #define __always_inline                 inline __attribute__((__always_inline__))
-> >    |                                         ^
-> >    include/linux/compiler_types.h:235:16: note: expanded from macro 'inline'
-> >    235 | #define inline inline __gnu_inline __inline_maybe_unused notrace
-> >    |                ^
-> >    arch/s390/include/asm/irqflags.h:46:48: note: 'arch_local_save_flags' declared here
-> >    46 | static arch_local_irq_attributes unsigned long arch_local_save_flags(void)
-> >    |                                                ^
-> >    1 warning generated.
-> >    warning: 1 warning emitted
-> > 
-> 
-> This seems not a Rust-only issue to me, basically you got the warning
-> whenever you have an inline function calling irqs_disabled(). I'm a bit
-> curious why 1b301f5f28ba ("s390/irqflags: do not instrument
-> arch_local_irq_*() with KMSAN") wanted to add noinline when KMSAN=y, all
-> you need is noinstr, no?
+From: Jiri Pirko <jiri@nvidia.com>
 
-While the combination of __always_inline and noinstr _seems_ to work
-with clang, this looks just wrong to me. I guess we really would need
-a (single) out-of-line variant of the affected functions in question
-for KMSAN.
+RDMA device names are unique system-wide today:
+__ib_device_get_by_name() checks a requested name against every
+registered device regardless of the network namespace it lives in.
+A device in one network namespace therefore cannot use a name already
+taken in another, even in exclusive netns mode (netns_mode=0) where
+the two are otherwise isolated. Net devices have no such restriction -
+their names only need to be unique within a network namespace.
 
-Ilya, since that was your commit, does that sound sane?
+This series makes RDMA device names unique per network namespace,
+matching net device semantics, and adapts the users that assumed
+system-wide unique names.
+
+Scoping reuses the existing rdma_dev_access_netns() predicate, so
+behavior only changes in exclusive mode:
+  - shared mode (default): names stay unique system-wide, no change;
+  - exclusive mode: names only need to be unique within a namespace;
+  - CONFIG_NET_NS=n: everything is init_net, names stay system-wide
+    unique.
+
+There are two users that cannot be made per-namespace and are
+documented as known limitations instead of changed:
+  - the rdma_cm configfs tree: configfs has no network namespace
+    support, so it cannot represent two same-named devices;
+  - SELinux ibendport labelling: endports are labelled by (device
+    name, port) from a global policy; distinguishing same-named
+    devices would need net namespace support in the SELinux policy
+    language and tooling.
+
+Tested with the new rxe_netns_names kselftest added in the last patch.
+
+Jiri Pirko (14):
+  RDMA/core: Pass the net namespace to the device name lookups
+  RDMA/core: Handle device name conflicts when changing net namespace
+  RDMA/core: Support renaming a device when changing its net namespace
+  RDMA/nldev: Report net namespace move errors through extack
+  RDMA/nldev: Allow setting the device name while changing net namespace
+  net/smc: Look up the pnetid ib device within the net namespace
+  RDMA/srp: Make the SRP sysfs class net namespace aware
+  RDMA/cgroup: Disambiguate devices across net namespaces
+  RDMA/cma: Document that CM configfs cannot be net namespace scoped
+  RDMA/core: Document the SELinux ibendport net namespace limitation
+  RDMA/core: Make device names unique per net namespace
+  RDMA/rxe: Allow queue VMAs to outlive ucontexts
+  RDMA/rxe: Implement disassociate_ucontext callback
+  RDMA/selftests: Add rxe_netns_names test
+
+ Documentation/ABI/testing/configfs-rdma_cm    |   4 +
+ Documentation/admin-guide/cgroup-v1/rdma.rst  |   8 +
+ Documentation/admin-guide/cgroup-v2.rst       |  15 +-
+ drivers/infiniband/core/cgroup.c              |   1 +
+ drivers/infiniband/core/cma_configfs.c        |   4 +
+ drivers/infiniband/core/core_priv.h           |   3 +-
+ drivers/infiniband/core/device.c              | 245 +++++++++++--
+ drivers/infiniband/core/nldev.c               |  26 +-
+ drivers/infiniband/core/security.c            |   6 +
+ drivers/infiniband/sw/rxe/rxe_mmap.c          |  35 +-
+ drivers/infiniband/sw/rxe/rxe_verbs.c         |   5 +
+ drivers/infiniband/ulp/srp/ib_srp.c           |  16 +-
+ include/linux/cgroup_rdma.h                   |   1 +
+ include/uapi/rdma/rdma_netlink.h              |   5 +-
+ kernel/cgroup/rdma.c                          |  71 +++-
+ net/smc/smc_pnet.c                            |  20 +-
+ tools/testing/selftests/rdma/Makefile         |   3 +-
+ tools/testing/selftests/rdma/config           |   2 +
+ .../testing/selftests/rdma/rxe_netns_names.sh | 334 ++++++++++++++++++
+ 19 files changed, 705 insertions(+), 99 deletions(-)
+ create mode 100755 tools/testing/selftests/rdma/rxe_netns_names.sh
+
+-- 
+2.54.0
+
