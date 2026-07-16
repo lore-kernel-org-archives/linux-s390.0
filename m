@@ -1,149 +1,124 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A04672571C7;
-	Thu, 16 Jul 2026 18:06:56 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 793313DA7F9;
+	Thu, 16 Jul 2026 18:08:20 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784225217; cv=none; b=h0nwX8QSBNIWIKiqe06J1y4ykIphaVAQhFJH6cabJqPk5/YAz6irA4E0pVrd9ScZjaOoBAgSzSomrsfpi1EoEZdHrP3noT3ZKZ8r6qakzlout3asYedO0UnQj+VgXph5FPWndtQZlpd8ksD1JiQqBhrFGp9Iz1FgCl3yFXVPeA4=
+	t=1784225302; cv=none; b=i8rGNL3mmqGv9Cp/E79DeRwbaC/qZB9FCLm7/I90qKCq393XFaxUfpk99cLZJozKdPsXsltf5bl3h0kgyWi/3q0cl11E8ZwyqS3czjbSl1QJSwU+1/c4l5kyus/Jps+LNlXkrSEgjJJUbibbShQcmD5lETs54gxi7eUD4NShX1Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784225217; c=relaxed/simple;
-	bh=XQKs1ru7cmOD1MmTLBGz9IjfgtyNKVroxD57eg0v86I=;
+	s=arc-20240116; t=1784225302; c=relaxed/simple;
+	bh=qbYBgeiXQ8CBm/bZPw/JQ9u2a7bdj/xb0VcYxliQT2c=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=ehdSMlAiFe9Tjisv9e1R4zUpEdvIMh7X1YxW1/v1JcDz6lmsgxdIdxZ2J69oW8sHDgkxgbmNDjMvIpoUFgEDUzxfiWFS+EhrdCtbfB0ur4bDQpzPnQN6Gjoy8WL2E0Jbb3KPgbMdUT2A1GzgZA/Ujzu8/j25JFfv+9L5dScIbNw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MQKq8axf; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=smcpr9/Hyrt7KD3IfE8MdNW3saF+MFgrAflVhwlnzqDxh5Fp57Zz6KNNYcnIfgOP8cy749UuLHiV1v7lQVyAhML0nZdL+H185oZixWeMnto/krCQZIYG3bv0d+VrYjVQeFJQIZVRCJXsT5hJH6dOLbq4lhShxu+7S7fEQzxUjzo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=eue2HDEs; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MQKq8axf"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4A6D1F000E9;
-	Thu, 16 Jul 2026 18:06:55 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="eue2HDEs"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7BD461F000E9;
+	Thu, 16 Jul 2026 18:08:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784225216;
-	bh=bhY+USyPbFOvtz87c4eR2uauWUYVm3lvDJkgBv3KSTs=;
+	s=k20260515; t=1784225299;
+	bh=KNb4Y/PUQZYj0NYXmCyHWJsTdJWI8x2jhTbPt5qhzDc=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=MQKq8axfn8sj5oGWtiDbSCHZkODB5zrsEEpN+DpKEgDeo33gUjVUw4PhkuZ8gU/Oa
-	 K88DAlXI+LgQuGRRk1AetXrZV4To81jZSCHlia/nl1NXNi86FNI7YKROZy0ZIqO49O
-	 2tl+5KE766uwRgVaLt7HBhy2yEU+lCgRHPnVk7RxSqaUp/7hA3VvPrizYM9OmS6RMS
-	 u7JpB7zM17uO145JYdiDNxkztaPDd1aqUeQYQmlaXbM9iY3ngSMnnpl4vxfR4PFdWx
-	 Y5u3BuVl37t9izj8QVQIPHbFfHcNyfoaBnvnYxsBYeLWgnqyMIgJJgpnCMwn45ijqO
-	 XT3Hefv+frQ0A==
+	b=eue2HDEstqmQvUncb5yqSo/qsNdYrDlkxNFbPZOPWbLWjbqY1BitSQSRMLic8NzEX
+	 mK2HBrOKWEotmbeufKXIjYhfzE/taUSDPk1SmNsMMmAwH/yxWnzdLxJnOV8W+pNjAh
+	 cJLwBGtZ34x/Yn4EAzOG0IXP7rONg11SoUuBXnHgBynChc1NSv45uKHta12DyNMh2R
+	 nBFnXTNPSVU1BFEkwkYjH5a9e0Wqvw650ztS7tmtDljq/DbjGzykv+5xWLT7y33hbh
+	 zfA/JILEa06UgrjbQkf2X2QUtDe74Vf1GJMsmItOZOyA9kelD2422+uEISDZExZwMv
+	 SEBQucs1sCBYw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 3/4] KVM: s390: pci: Fix NULL dereference on AIBV
- allocation failure
+Subject: Re: [PATCH v2 1/4] KVM: s390: pci: Fix memory accounting for
+ pinned/unpinned pages
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Farhan Ali" <alifm@linux.ibm.com>
-Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, kvm@vger.kernel.org, "Vasily
- Gorbik" <gor@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, linux-s390@vger.kernel.org
-In-Reply-To: <20260716175241.1039-4-alifm@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, "Alexander Gordeev" <agordeev@linux.ibm.com>, kvm@vger.kernel.org, "Heiko
+ Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>
+In-Reply-To: <20260716175241.1039-2-alifm@linux.ibm.com>
 References: <20260716175241.1039-1-alifm@linux.ibm.com>
- <20260716175241.1039-4-alifm@linux.ibm.com>
+ <20260716175241.1039-2-alifm@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 16 Jul 2026 18:06:55 +0000
-Message-Id: <20260716180655.E4A6D1F000E9@smtp.kernel.org>
+Date: Thu, 16 Jul 2026 18:08:19 +0000
+Message-Id: <20260716180819.7BD461F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-
-Pre-existing issues:
-- [Critical] Guest-controlled AIBV can cross a page boundary, leading to ho=
-st memory corruption.
-- [High] Missing cleanup when kvm_zpci_set_airq() fails in kvm_s390_pci_aif=
-_enable().
-- [High] Missing state check allows unbounded resource leaks via repeated K=
-VM_S390_ZPCIOP_REG_AEN ioctls.
+- [High] Sequential calls to the KVM_S390_ZPCIOP_REG_AEN ioctl on the same =
+device overwrite kzdev->user_account and kzdev->mm_account without dropping=
+ previous references, causing a permanent leak of mm_struct references and =
+pinned pages.
 --
 
---- Patch [3]: [PATCH v2 3/4] KVM: s390: pci: Fix NULL dereference on AIBV =
-allocation failure ---
-commit 6cf8d654914206b2e0a5d8af6cb9a7272f96c280
+--- Patch [1]: [PATCH v2 1/4] KVM: s390: pci: Fix memory accounting for pin=
+ned/unpinned pages ---
+commit cbbebe9ad7b7a6af2ee4a68dd67b2e520770bd20
 Author: Farhan Ali <alifm@linux.ibm.com>
-KVM: s390: pci: Fix NULL dereference on AIBV allocation failure
+KVM: s390: pci: Fix memory accounting for pinned/unpinned pages
 
-This commit adds a check to ensure airq_iv_create() does not return NULL,
-preventing a subsequent NULL pointer dereference in kvm_zpci_set_airq().
-If the allocation fails, it frees the previously allocated AISB bit and
-returns -ENOMEM.
+This patch addresses a bug where unaccount_mem() could be called from a
+different process context than the one that initially pinned the pages. It
+resolves this by storing the pinning process's user_struct and mm_struct
+when accounting for pinned pages, so they can be properly freed later.
 
+> diff --git a/arch/s390/kvm/pci.c b/arch/s390/kvm/pci.c
+> index 720bb58cabe2e..dd17f8a7b4734 100644
 > --- a/arch/s390/kvm/pci.c
 > +++ b/arch/s390/kvm/pci.c
-> @@ -240,6 +240,9 @@ static int kvm_s390_pci_aif_enable(struct zpci_dev *z=
-dev, struct zpci_fib *fib,
->  				   bool assist)
->  {
+[ ... ]
+> @@ -206,17 +220,24 @@ static inline int account_mem(struct kvm_zdev *kzde=
+v, unsigned long nr_pages)
+>  	do {
+>  		new_pages =3D cur_pages + nr_pages;
+> -		if (new_pages > page_limit)
+> -			return -ENOMEM;
+> +		if (new_pages > page_limit) {
+> +			rc =3D  -ENOMEM;
+> +			goto out;
+> +		}
+>  	} while (!atomic_long_try_cmpxchg(&user->locked_vm, &cur_pages, new_pag=
+es));
+> =20
+> +	mmgrab(current->mm);
+>  	atomic64_add(nr_pages, &current->mm->pinned_vm);
+> +	kzdev->user_account =3D user;
+> +	kzdev->mm_account =3D current->mm;
 
 [Severity: High]
-This isn't a bug introduced by this patch, but is there a missing state
-check here before proceeding with the allocations?
+If kvm_s390_pci_aif_enable() is called multiple times for the same device,
+will this overwrite kzdev->user_account and kzdev->mm_account and leak
+the previously acquired references?
 
-If the ioctl for AEN registration is called repeatedly for the same PCI
-device, this function appears to unconditionally pin new memory pages,
-allocate new aift->sbv bits, and overwrite the previous pointers in zdev
-without freeing them. Could this lead to exhausting aift->sbv bits and
-leaking pinned memory pages?
+It looks like kvm_s390_pci_aif_enable() doesn't check if the device is
+already enabled before proceeding. If a userspace process calls the
+KVM_S390_ZPCIOP_REG_AEN ioctl twice on the same device, the first call
+will successfully populate these pointers.=20
 
->  	struct page *pages[1], *aibv_page, *aisb_page =3D NULL;
->  	unsigned int msi_vecs, idx;
+The second call would then overwrite them here, leaking the original
+mm_struct reference and permanently stranding the initially pinned pages.
+If that second call subsequently fails, unaccount_mem() drops the new
+reference and sets the pointers to NULL, leaving the original references
+permanently orphaned.
 
-[ ... ]
-
->  	/* Replace AIBV address */
->  	idx =3D srcu_read_lock(&kvm->srcu);
->  	hva =3D gfn_to_hva(kvm, gpa_to_gfn((gpa_t)fib->fmt0.aibv));
->  	npages =3D pin_user_pages_fast(hva, 1, FOLL_WRITE | FOLL_LONGTERM, page=
-s);
->  	srcu_read_unlock(&kvm->srcu, idx);
->  	if (npages < 1) {
->  		rc =3D -EIO;
->  		goto out;
->  	}
->  	aibv_page =3D pages[0];
->  	pcount++;
->  	gaddr =3D page_to_phys(aibv_page) + (fib->fmt0.aibv & ~PAGE_MASK);
->  	fib->fmt0.aibv =3D gaddr;
-
-[Severity: Critical]
-This is a pre-existing issue, but does this calculation safely handle the
-case where the bit vector crosses a page boundary?
-
-The code pins exactly one page, but the interrupt bit vector size depends
-on msi_vecs. If fib->fmt0.aibv is provided near the end of a page
-boundary (for example, offset 4088) and msi_vecs requires more bytes than
-what is left in the page, will the hardware and host software read or write
-out-of-bounds into the adjacent unmapped physical page?
-
-[ ... ]
-
-> @@ -346,6 +351,9 @@ static int kvm_s390_pci_aif_enable(struct zpci_dev *z=
-dev, struct zpci_fib *fib,
->  	/* Save some guest fib values in the host for later use */
->  	zdev->kzdev->fib.fmt0.isc =3D fib->fmt0.isc;
->  	zdev->kzdev->fib.fmt0.aibv =3D fib->fmt0.aibv;
-> =20
->  	/* Issue the clp to setup the irq now */
->  	rc =3D kvm_zpci_set_airq(zdev);
->  	return rc;
-
-[Severity: High]
-This isn't a bug introduced by this patch, but does returning directly
-here bypass the required cleanup logic?
-
-If kvm_zpci_set_airq() fails, returning rc directly means we skip the
-free_aisb and unlock labels. Could this leave the pages pinned, the
-accounted memory incremented, and the aift->sbv bits allocated, causing
-these resources to be permanently lost?
+Should there be a check in kvm_s390_pci_aif_enable() to bail out if it
+is already enabled, or a check here to ensure we aren't overwriting an
+existing reference?
 
 > =20
-> +free_aisb:
-> +	airq_iv_free_bit(aift->sbv, zdev->aisb);
-> +	zdev->aisb =3D 0;
->  unlock:
->  	if (pcount > 0)
+>  	return 0;
+> +
+> +out:
+> +	free_uid(user);
+> +	return rc;
+>  }
+> =20
+>  static int kvm_s390_pci_aif_enable(struct zpci_dev *zdev, struct zpci_fi=
+b *fib,
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260716175241.1039=
--1-alifm@linux.ibm.com?part=3D3
+-1-alifm@linux.ibm.com?part=3D1
