@@ -1,149 +1,153 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 41ABF443AB2;
-	Thu, 16 Jul 2026 17:52:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E81D17082D;
+	Thu, 16 Jul 2026 18:05:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784224372; cv=none; b=im6FUc84Ag/cvODGRBV4JW9bGKMABqZKn8arDW5dJb56+TvmRLhrxe3Xmg/nfHAgSEnZIPixTL3PJmJGsl+LelTu+NGwtCv9XuYhxgDV0jBlFycJk8SosfzwNfVz7jPm5/qta8KtdKrrkakEASDxU936OvMfbeibnxLUFQEoHA4=
+	t=1784225135; cv=none; b=Fe0Xtcuf4iD2rqhXiQVf386cQ6gnEcddBbHEWjlm25FiturI0BZykha3er57st21DjIp4siyERv/wCjbHRt7+UFQ2QvuWU4uGzB3tLpF+OauyI+crvq7LhQ+jk4g83Od2Pi0A+nzpUJwVWkFdGhJZ8PX3NVSO3Wrr97Z4EAS8Rk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784224372; c=relaxed/simple;
-	bh=UWdOZNWZXME+2Yz7BGzABGZKWdPgE+RuBS0qOAwoptg=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=ajgoxjoBRRkWr5Kw3vy4xjUGHBjYnGlbbqQRftJPmGeK67PLrAtbKvAsz5j0++6Ah4MJyeKPXYH/8ZUQdeQxGjlJ4lpvwpqB6MQRw66i/tr3EnCnpJYtlgZmbkaHP2DHrFf0ojFKvGAh98/rLHA4NCBwPiuoFWbbLxNwew7pT9w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=W3GF3puw; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1784225135; c=relaxed/simple;
+	bh=cQJyuK6K8ywZTzhFad6durtHt67MP1+6n+6GEXCW05k=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=tj/yNcm3ycO99wnaH2NM/ePJV/hsuFWn9JISE+YYJs88u2KPp5RrT2UVJh0bD+iDITWq2Pw+JIElhks4l650POdMLm9TzRMhHMa9cfnzr1hDf/X/i609YRuI4SQwTh8TqKa97K0lRnB2XOJ199q4gOFf4ty2/SdkQv/mfaau2Rs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bJVgdfsn; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="W3GF3puw"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66GGft4H3678372;
-	Thu, 16 Jul 2026 17:52:49 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=o/jy0bzMaQjq8R5k+
-	AwwaVrD/J+EDOrQRIcnF5S22bw=; b=W3GF3puw1TzHr4dbJFWSsj/hZx6sab6B9
-	lHSIi2GowcKon+mrdRZRBVHSIJZ6MzBVuZ/UqFnQG7PEFYf73/uOGU7kqUv2BLzM
-	IOzvKPLFtcsgR9fqW+X01bDp76VN7eXXQduy9yr1ty7Scbue1guLktEpjTdCEoNK
-	jZl/ov4xg1pjAinp+fhSsDGhY4KMnRkCSDyJ6d7peWGDrH1w7lHHTxxKLMhJGekS
-	q3rlqu8TMaTP+BiR8K7CpX/CYCaOh4W67AwT7h8osBMNLkWoKciiSePLsbxirzri
-	ddX9pZcp5YDZBIeI6eISQ0jjj8Fqu9tHYI2ZkcfnOJn0qjgYy8jNw==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fbf2ahgd6-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 16 Jul 2026 17:52:49 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66GHne1l020733;
-	Thu, 16 Jul 2026 17:52:49 GMT
-Received: from smtprelay07.dal12v.mail.ibm.com ([172.16.1.9])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fc1nhp2yg-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 16 Jul 2026 17:52:49 +0000 (GMT)
-Received: from smtpav02.wdc07v.mail.ibm.com (smtpav02.wdc07v.mail.ibm.com [10.39.53.229])
-	by smtprelay07.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66GHqlJW21496388
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 16 Jul 2026 17:52:47 GMT
-Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7E3865805C;
-	Thu, 16 Jul 2026 17:52:47 +0000 (GMT)
-Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B0A095805D;
-	Thu, 16 Jul 2026 17:52:46 +0000 (GMT)
-Received: from IBM-D32RQW3.ibm.com (unknown [9.61.248.47])
-	by smtpav02.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 16 Jul 2026 17:52:46 +0000 (GMT)
-From: Farhan Ali <alifm@linux.ibm.com>
-To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org
-Cc: alifm@linux.ibm.com, mjrosato@linux.ibm.com, borntraeger@linux.ibm.com,
-        farman@linux.ibm.com
-Subject: [PATCH v2 4/4] KVM: s390: pci: Fix resource leak on IRQ registration failure
-Date: Thu, 16 Jul 2026 10:52:41 -0700
-Message-ID: <20260716175241.1039-5-alifm@linux.ibm.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260716175241.1039-1-alifm@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bJVgdfsn"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 395DF1F000E9;
+	Thu, 16 Jul 2026 18:05:33 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1784225133;
+	bh=f8gmC5isiyfadw0i387kPSgrpvyHEhu6Xks+kgun+TE=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=bJVgdfsnu9784gxQatahlJ6UV4AM5YPQwffz8BpF73z0ThMdmcywbMDIT0p0OmTLI
+	 MSNBekkGGtS+afzc5/90UQc9KkMZnyETxvjxlG8HArSUUugR1xIE5Thw1+hookDdxo
+	 cjeQwBC+mJXpfyI/AV0YdGlWNJScUoRqidTGaEEFgu+t8Ui4BdK1Fn0ehV94qeAOGQ
+	 u/iwxKgWrJrN+A3mohEYS9B82m9zoI53dLhl2mgIvRf7z57njKSqQo3F52/9nrN0/6
+	 +EOymZilPEtd69dv9iS6yr/YVBRV2Hr1wl+vx1nqci9VcTfUw9L/Mae2+iKQiY5oCK
+	 LvMwE6UZvpWaw==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2 4/4] KVM: s390: pci: Fix resource leak on IRQ
+ registration failure
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Farhan Ali" <alifm@linux.ibm.com>
+Cc: "Heiko Carstens" <hca@linux.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, "Vasily
+ Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
+In-Reply-To: <20260716175241.1039-5-alifm@linux.ibm.com>
 References: <20260716175241.1039-1-alifm@linux.ibm.com>
+ <20260716175241.1039-5-alifm@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 16 Jul 2026 18:05:32 +0000
+Message-Id: <20260716180533.395DF1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzE2MDE4MSBTYWx0ZWRfX7/SJZYxEhnAz
- HD/70NcLYI+pArOI+X+v04CSjGhdypo6NxSZAMukbtzku3YUH4pvcdpcDkaW2gEvI/SqnlW4QKw
- HVwQsnWz8mjMz0F8A61X7C7f5pHgkgU=
-X-Proofpoint-GUID: vK18012Y_ahZg_mt3T3mDGqsAsuckNBP
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzE2MDE4MSBTYWx0ZWRfX+sZAXPTvvOIc
- chTwV0ATXrEPbmp4YRnaeYPdScGEZOpzkrYZDKACD5KmCqZ/NCASpVRLNi7Bz3ibVLgs6TqeTXm
- NkN+Ams8GHCsAo6sgeYnpvJesyJ9UeUq+xtx7jpxEb8I2gXoqh/JVkMLj35Heyj6luLqvAxhx29
- xz1GKXoxFqXU2LoL3cHipScwP24fMH2A8HG+PPxP3JVNPee616HxTazB5an/V914RFr0ugnk8JC
- pMpei8qIiM4RNBv/9ZojEgYi+7ypdDYJOc1u0hOFQzPgooeIRJ9eAu+lCy5wF5SQ9/MePMbMoLh
- UMzbydtyTvx+hKp6KKA2bhmT22hNc0CrnPDZOWFLjcX8Kv7zYiLSq5ax3qbsI03Jw0SpO9Wno/F
- T27GzamEHI0ulrfiGFx7Cg3zptorvq36OjIhF7NrFA5rrhJT9jrj3E3KO5+oyVgbG6+YGjZL6KA
- u4zoP9oVaAPusEMc8+g==
-X-Proofpoint-ORIG-GUID: vK18012Y_ahZg_mt3T3mDGqsAsuckNBP
-X-Authority-Analysis: v=2.4 cv=PvajqQM3 c=1 sm=1 tr=0 ts=6a591a71 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8 a=S3gQTLpqa8hfpVGigeQA:9
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-07-16_06,2026-07-15_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 malwarescore=0 bulkscore=0 impostorscore=0 adultscore=0
- clxscore=1015 lowpriorityscore=0 spamscore=0 suspectscore=0 phishscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607160181
 
-Currently if kvm_zpci_set_airq() fails, kvm_s390_pci_aif_enable() returns
-the error code but doesn't do any resource cleanup thus leaking resources.
-Fix this by cleaning up all the resources such as the GAITE, AIBV, AISB and
-unpinning any pinned pages.
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
 
-Fixes: 3c5a1b6f0a18 ("KVM: s390: pci: provide routines for enabling/disabling interrupt forwarding")
-Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
----
- arch/s390/kvm/pci.c | 22 ++++++++++++++++++++--
- 1 file changed, 20 insertions(+), 2 deletions(-)
+New issues:
+- [High] The newly added error path for `kvm_zpci_set_airq()` failure uses =
+the wrong ISC value when unregistering the guest ISC, leaking the guest ISC=
+ reference and potentially corrupting the host NISC reference count.
 
-diff --git a/arch/s390/kvm/pci.c b/arch/s390/kvm/pci.c
-index 85f4fb5d36b3..f85d856b58c6 100644
---- a/arch/s390/kvm/pci.c
-+++ b/arch/s390/kvm/pci.c
-@@ -345,11 +345,29 @@ static int kvm_s390_pci_aif_enable(struct zpci_dev *zdev, struct zpci_fib *fib,
- 	/* Save some guest fib values in the host for later use */
- 	zdev->kzdev->fib.fmt0.isc = fib->fmt0.isc;
- 	zdev->kzdev->fib.fmt0.aibv = fib->fmt0.aibv;
--	mutex_unlock(&aift->aift_lock);
- 
- 	/* Issue the clp to setup the irq now */
- 	rc = kvm_zpci_set_airq(zdev);
--	return rc;
-+	if (!rc) {
-+		mutex_unlock(&aift->aift_lock);
-+		return rc;
-+	}
-+
-+	/* Start cleanup */
-+	zdev->kzdev->fib.fmt0.isc = 0;
-+	zdev->kzdev->fib.fmt0.aibv = 0;
-+
-+	spin_lock_irq(&aift->gait_lock);
-+	gaite->count--;
-+	gaite->aisb = 0;
-+	gaite->gisc = 0;
-+	gaite->aisbo = 0;
-+	gaite->gisa = 0;
-+	aift->kzdev[zdev->aisb] = NULL;
-+	spin_unlock_irq(&aift->gait_lock);
-+
-+	airq_iv_release(zdev->aibv);
-+	zdev->aibv = NULL;
- 
- free_aisb:
- 	airq_iv_free_bit(aift->sbv, zdev->aisb);
--- 
-2.43.0
+Pre-existing issues:
+- [High] Missing state check allows multiple concurrent `KVM_S390_ZPCIOP_RE=
+G_AEN` ioctls, causing memory leaks of pinned pages, `mmgrab` references, a=
+nd exhaustion of global `airq_iv` structures.
+--
 
+--- Patch [4]: [PATCH v2 4/4] KVM: s390: pci: Fix resource leak on IRQ regi=
+stration failure ---
+commit 9f5448d2e142dd7c73a306c74cf6bad6443d3218
+Author: Farhan Ali <alifm@linux.ibm.com>
+
+KVM: s390: pci: Fix resource leak on IRQ registration failure
+
+This commit adds cleanup code in kvm_s390_pci_aif_enable() to free the
+associated adapter interrupt resources and unpin any pinned pages if
+kvm_zpci_set_airq() fails. It does this by adding an error path that
+resets the state and falls through to the existing cleanup labels.
+
+> diff --git a/arch/s390/kvm/pci.c b/arch/s390/kvm/pci.c
+> index 85f4fb5d36b38..f85d856b58c65 100644
+> --- a/arch/s390/kvm/pci.c
+> +++ b/arch/s390/kvm/pci.c
+> @@ -345,11 +345,29 @@ static int kvm_s390_pci_aif_enable(struct zpci_dev =
+*zdev, struct zpci_fib *fib,
+
+[Severity: High]
+This is a pre-existing issue, but does kvm_s390_pci_aif_enable() lack a che=
+ck
+to verify if interrupt forwarding is already enabled?
+
+If a userspace process repeatedly calls the registration ioctl on a single
+KVM PCI device without deregistering first, the kernel appears to
+unconditionally allocate new resources like pinned pages and airq_iv
+structures.
+
+Because the pointers to the previous allocations are overwritten without be=
+ing
+freed, could this allow a user to exhaust the host-wide global adapter
+interrupt table bitmask (aift->sbv) and permanently leak pinned memory?
+
+>  	/* Save some guest fib values in the host for later use */
+>  	zdev->kzdev->fib.fmt0.isc =3D fib->fmt0.isc;
+>  	zdev->kzdev->fib.fmt0.aibv =3D fib->fmt0.aibv;
+> -	mutex_unlock(&aift->aift_lock);
+> =20
+>  	/* Issue the clp to setup the irq now */
+>  	rc =3D kvm_zpci_set_airq(zdev);
+> -	return rc;
+> +	if (!rc) {
+> +		mutex_unlock(&aift->aift_lock);
+> +		return rc;
+> +	}
+> +
+> +	/* Start cleanup */
+> +	zdev->kzdev->fib.fmt0.isc =3D 0;
+> +	zdev->kzdev->fib.fmt0.aibv =3D 0;
+> +
+> +	spin_lock_irq(&aift->gait_lock);
+> +	gaite->count--;
+> +	gaite->aisb =3D 0;
+> +	gaite->gisc =3D 0;
+> +	gaite->aisbo =3D 0;
+> +	gaite->gisa =3D 0;
+> +	aift->kzdev[zdev->aisb] =3D NULL;
+> +	spin_unlock_irq(&aift->gait_lock);
+> +
+> +	airq_iv_release(zdev->aibv);
+> +	zdev->aibv =3D NULL;
+
+[Severity: High]
+Does this new error path unregister the host ISC instead of the guest ISC?
+
+Earlier in this function, the guest ISC in fib->fmt0.isc is replaced with t=
+he
+host ISC:
+
+    fib->fmt0.isc =3D gisc;
+
+When kvm_zpci_set_airq() fails, the code now falls through to the out label:
+
+out:
+    kvm_s390_gisc_unregister(kvm, fib->fmt0.isc);
+
+Since fib->fmt0.isc was overwritten, wouldn't this decrement the host ISC
+reference count instead of the guest ISC reference count?
+
+This could corrupt the host's alert mask and potentially disable interrupt
+forwarding for other independent PCI devices sharing the host ISC, while
+leaving the guest ISC reference permanently leaked.
+
+> =20
+>  free_aisb:
+>  	airq_iv_free_bit(aift->sbv, zdev->aisb);
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260716175241.1039=
+-1-alifm@linux.ibm.com?part=3D4
