@@ -1,34 +1,35 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 075D422301;
-	Thu, 16 Jul 2026 14:51:19 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C014930D40B;
+	Thu, 16 Jul 2026 14:51:24 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784213481; cv=none; b=cGUtzle7lVWoiXZ8KyQNiecAs3u4uhq7F6yP5z+99qslqXuqKzz8YtAk0UK/oFvnWZ3Gmx4Xwk/OFLuOnbEtH3MS265bKsFSszjVvKQRDyZCj23qDFL/xMMJ6MQ6ISjI+xuTkVnW5IfztGuxX9VrpVdUpmwt7jerR7vY8J4sEOk=
+	t=1784213485; cv=none; b=bbWavXOPfbWK+fu67COkNj37qlwsBoz2GB/H6cj9kj+zTeTdnlD5/op2W3D7CLr9TZPMaya/7HcjK4LrBam7kJDnSAvYyvDmMmKVt1Jl3Rn8NK5Xu/pdcUcTjQYoMszP4z3RtrpvpE7sN7r/3MWl81NuWuDL7PyBqUpAXoA4XrQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784213481; c=relaxed/simple;
-	bh=5posrEIIB3Jkb5HHkrEz5R3V+I/jIudcfLc0dgWA1hA=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=lmFSMgG01alUH1ilHGxb76TAOUC6GGPmbdPjLx4sL+EtX8HR66a8sC2hl9D1twN6lF5iGdkNur6TSH1z1GWxAJyLF0jmVI1+lDmNwEYlGN5MCn64ZcbV03bsAJqTWpkEKMTMMhH9h4ciPrKalBngDM+v7PLhqueSqfzwo0vvWq4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=D0LDeiCv; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1784213485; c=relaxed/simple;
+	bh=7mbZY915ufrCqBy6s5DZhqSr6P34AS9jh9aPiB1YHvw=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=bxCh4AMhAlYX+eRwWmRA17Ref43k/IG3e2NBITAnKmDYrvU6GxUhujzaWzta/PR+O77c6bXawjo+Os7SWuJabuoIluGNtsZj3d3/oL/jRGDU+jtLttnjG8GVESqHneHlyxzbtQOJ2uErMTzNcrpVi8II45JBpG49Zmp5Qpj5SE8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Df/vCrmp; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="D0LDeiCv"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C26E1F000E9;
-	Thu, 16 Jul 2026 14:51:15 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Df/vCrmp"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8A931F00A3A;
+	Thu, 16 Jul 2026 14:51:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784213479;
-	bh=Zz+36yUziYF15DNC+aOn3O6eA/aUkcC+mnFUaLJ5lGc=;
-	h=From:Subject:Date:To:Cc;
-	b=D0LDeiCvT5iqD9YtMclprsJ7AvnZHg7GHs6EAfLO2QhyV0hIf2J4bJTCQPtwSSEYs
-	 o2g+22Eehz/QPe1n4FEU34dGtWBcXwRGMIve8e2icBn3Eu1vhw10RwStIc49paCsqU
-	 zdA7nZnUQNCssIe4UYt3HWDiqT/ePC6LYALmtRjHBeiIbeGiJsizjZhL+6cUAIgZJ/
-	 vV7bGB3xRJOoqP02Bc0/jlKgnfMZys6osYRN/Dsv5Q4OL4uUxxltXWBU154sZ64QR7
-	 R4K7WgEDAbr3eEeOJs3h+uDCVZX1YgoIdIGvsBxcpzBs2ldbZIwtFVF1fKBBBf03hM
-	 DcaDqNQx3fu2A==
+	s=k20260515; t=1784213484;
+	bh=VRo8YFh6zUYF3ZhnWdJ55baNXlBROoBJ18GXOIHqSYs=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc;
+	b=Df/vCrmpv32e4O/AWaBKoao0h77SA7q12X1pjDs5yQOB6Rx+txHPKvk4MB9UU9J1A
+	 8T6TpeC8632LXGkJwMgpTRkZVl07Dq0VUK1X8TwW0Fp5lb0d9zMokxC/fSCiZqH6DE
+	 aa2OsvAb7VMXwWNSoOYuYqyy3P0QOXmI/bPUhCidtijsaTgsSxaR4kiutceuSSKZ6v
+	 o2xu2KUzaYFtWYMuaQNIqmCqv1x0Obr4nqOnqZQYj0qlWWqdaE2qs9vSbxWhl8FLej
+	 bUuuxuqEy0soB2BgyPAjm+LyQUXQJpkM7rmaBCWAVRiY6X0Grzdq3YsBSQdGjbE1UP
+	 ApPa03RhCs8lg==
 From: "David Hildenbrand (Arm)" <david@kernel.org>
-Subject: [PATCH v2 00/10] mm: remove CONFIG_HAVE_BOOTMEM_INFO_NODE (Part 2)
-Date: Thu, 16 Jul 2026 16:50:59 +0200
-Message-Id: <20260716-bootmem_info_part2-v2-0-4afc76c73d61@kernel.org>
+Date: Thu, 16 Jul 2026 16:51:00 +0200
+Subject: [PATCH v2 01/10] x86/mm: drop order parameter from
+ free_pagetable()
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -37,11 +38,9 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIANPvWGoC/22NQQ6CMBBFr0JmbU2pBYGV9zCEUBhgorRk2hAN4
- e5W3Lp8L/nvb+CRCT1UyQaMK3lyNoI6JdBNrR1RUB8ZlFS51KoQxrkw49yQHVyztByU0MYYrbO
- +NJce4nBhHOh1RO915Il8cPw+Ptb0a3+5q/ybW1MhRZrlHeqyyLOyuD2QLT7Pjkeo933/AMHki
- uq1AAAA
-X-Change-ID: 20260428-bootmem_info_part2-4bbb445d9b3d
+Message-Id: <20260716-bootmem_info_part2-v2-1-4afc76c73d61@kernel.org>
+References: <20260716-bootmem_info_part2-v2-0-4afc76c73d61@kernel.org>
+In-Reply-To: <20260716-bootmem_info_part2-v2-0-4afc76c73d61@kernel.org>
 To: Dave Hansen <dave.hansen@linux.intel.com>, 
  Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, 
  Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, 
@@ -61,56 +60,76 @@ Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
  linux-s390@vger.kernel.org, "David Hildenbrand (Arm)" <david@kernel.org>
 X-Mailer: b4 0.15.2
 
-Let's remove the remaining pieces of CONFIG_HAVE_BOOTMEM_INFO_NODE,
-performing some smaller cleanups around freeing of reserved vmemmap
-pages on the way.
+All callers pass 0, so let's drop the parameter.
 
-Tested on x86-64 with hugetlb vmemmap optimization in combination with
-KMEMLEAK. Heavily cross-compiled.
-
+Reviewed-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
+Reviewed-by: Muchun Song <muchun.song@linux.dev>
 Signed-off-by: David Hildenbrand (Arm) <david@kernel.org>
 ---
-Changes in v2:
-- In patch #2, reverse the order of setting the page count and clearing
-  PG_reserved, and modify the patch description accordingly.
-- Link to v1: https://patch.msgid.link/20260708-bootmem_info_part2-v1-0-156ce4986598@kernel.org
+ arch/x86/mm/init_64.c | 21 +++++++++------------
+ 1 file changed, 9 insertions(+), 12 deletions(-)
 
----
+diff --git a/arch/x86/mm/init_64.c b/arch/x86/mm/init_64.c
+index d57f29ca23a5a..69e36f02a663a 100644
+--- a/arch/x86/mm/init_64.c
++++ b/arch/x86/mm/init_64.c
+@@ -1006,22 +1006,19 @@ static void free_reserved_pages(struct page *page, unsigned long nr_pages)
+ 		free_reserved_page(page++);
+ }
+ 
+-static void __meminit free_pagetable(struct page *page, int order)
++static void __meminit free_pagetable(struct page *page)
+ {
+ 	/* bootmem page has reserved flag */
+ 	if (PageReserved(page)) {
+-		unsigned long nr_pages = 1 << order;
+ #ifdef CONFIG_HAVE_BOOTMEM_INFO_NODE
+ 		enum bootmem_type type = bootmem_type(page);
+ 
+-		if (type == MIX_SECTION_INFO) {
+-			while (nr_pages--)
+-				put_page_bootmem(page++);
+-		} else {
+-			free_reserved_pages(page, nr_pages);
+-		}
++		if (type == MIX_SECTION_INFO)
++			put_page_bootmem(page);
++		else
++			free_reserved_page(page);
+ #else
+-		free_reserved_pages(page, nr_pages);
++		free_reserved_page(page);
+ #endif
+ 	} else {
+ 		pagetable_free(page_ptdesc(page));
+@@ -1060,7 +1057,7 @@ static void __meminit free_pte_table(pte_t *pte_start, pmd_t *pmd)
+ 	}
+ 
+ 	/* free a pte table */
+-	free_pagetable(pmd_page(*pmd), 0);
++	free_pagetable(pmd_page(*pmd));
+ 	spin_lock(&init_mm.page_table_lock);
+ 	pmd_clear(pmd);
+ 	spin_unlock(&init_mm.page_table_lock);
+@@ -1078,7 +1075,7 @@ static void __meminit free_pmd_table(pmd_t *pmd_start, pud_t *pud)
+ 	}
+ 
+ 	/* free a pmd table */
+-	free_pagetable(pud_page(*pud), 0);
++	free_pagetable(pud_page(*pud));
+ 	spin_lock(&init_mm.page_table_lock);
+ 	pud_clear(pud);
+ 	spin_unlock(&init_mm.page_table_lock);
+@@ -1096,7 +1093,7 @@ static void __meminit free_pud_table(pud_t *pud_start, p4d_t *p4d)
+ 	}
+ 
+ 	/* free a pud table */
+-	free_pagetable(p4d_page(*p4d), 0);
++	free_pagetable(p4d_page(*p4d));
+ 	spin_lock(&init_mm.page_table_lock);
+ 	p4d_clear(p4d);
+ 	spin_unlock(&init_mm.page_table_lock);
 
-David Hildenbrand (Arm) (10):
-      x86/mm: drop order parameter from free_pagetable()
-      mm: provide free_reserved_pages(), removing x86 variant
-      s390/mm: use free_reserved_pages() in vmem_free_pages()
-      mm/bootmem_info: allow calling free_bootmem_page() on pages without a bootmem_type
-      x86/mm: stop marking vmemmap as SECTION_INFO
-      x86/mm: stop marking page tables as MIX_SECTION_INFO
-      x86/mm: remove CONFIG_HAVE_BOOTMEM_INFO_NODE
-      mm/hugetlb_vmemmap: remove bootmem_info leftovers
-      mm/sparse: remove bootmem_info.h include
-      mm/bootmem_info: remove CONFIG_HAVE_BOOTMEM_INFO_NODE
-
- MAINTAINERS                  |   1 -
- arch/s390/mm/vmem.c          |   4 +-
- arch/x86/mm/init_64.c        | 134 ++++---------------------------------------
- include/linux/bootmem_info.h |  89 ----------------------------
- include/linux/mm.h           |   8 ++-
- mm/Kconfig                   |   8 ---
- mm/Makefile                  |   1 -
- mm/bootmem_info.c            |  72 -----------------------
- mm/hugetlb_vmemmap.c         |   8 +--
- mm/page_alloc.c              |  33 ++++++++---
- mm/sparse.c                  |   1 -
- 11 files changed, 46 insertions(+), 313 deletions(-)
-
----
-
-base-commit: d11ba1f570615ec8d4814d6313ee1d7075a33787
-
-change-id: 20260428-bootmem_info_part2-4bbb445d9b3d
-
---
-
-Cheers,
-
-David
+-- 
+2.43.0
 
