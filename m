@@ -1,143 +1,135 @@
-Received: from mail-qt1-f180.google.com (mail-qt1-f180.google.com [209.85.160.180])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.17])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F0525305692
-	for <linux-s390@vger.kernel.org>; Thu, 16 Jul 2026 14:52:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B89737C904;
+	Thu, 16 Jul 2026 16:19:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.17
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784213575; cv=none; b=BCJsXM0zYkKWRkEllB2qB6apSi3OctDaX5gFxni/xo8spAzFAUADD48SJ1T8bvEK+kChjPi2d3rr9FX3WRqwVpdxlLwuTVCKh18mAZhcAAzh8fQcSvWk+rJbW4s5HtaZEWKtjbaZhnzLGLAZQNM5kpCw+stcO2WCARi9y27OK8o=
+	t=1784218754; cv=none; b=V0gRLITUw1hQjKZkRJXeK+lNzd/81YwHlWis33sDx4PUhCNyGujXmUpmhieT2AZqJhJNjoFRFg2DMbqALFYjaBNmUQNkhBRn3yiXQuo+TROL0zOjc7YZ9Y8Yxy/UlftQi69YOA7RX+YWOofu4M2Hvv+o1rrWuylJSYFpIkahXD8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784213575; c=relaxed/simple;
-	bh=Kt8BJTiDI+f7OuSjZH0CFB0i0A4B8tJakd1pImozOd4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=bVuUA87Zfu2jFI82lZnLmnEAA2oH9k2Fpw/yEestg6MrNzMVA3MM5b9trR1HKGFrgD/6yvh9RDUs8b2ETmHBoHS76Wa57A0W2ckvswwMPFOiYr2eaVZ8OAi0qcLjezjcEm7Jt/mkhiaHKr9UA8NN5CSIdGMUowt20TO9hpV5jgU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca; spf=pass smtp.mailfrom=ziepe.ca; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=W73PkPBe; arc=none smtp.client-ip=209.85.160.180
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
+	s=arc-20240116; t=1784218754; c=relaxed/simple;
+	bh=0/Fk8bMYKR6nYRmd7MD5F/OXammJjg//Xp/IxAHeSOo=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=EcSWVVUkNJsepNpvuv4W9dIAJOjvmJHV+qe/4WkK4GalgedPAoPwedR5t1jZcf0EOerp3/SifQ0vkyIPyPDfm2ekknRdqSp1iWiUqylzO4X7anw7+KBz5o+NM8hPYVFetNbbGDdKEIxTJI9JZSEmFg/7EXO6ik6mtet5BcJi3Ac=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=ZfSgyxEd; arc=none smtp.client-ip=198.175.65.17
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="W73PkPBe"
-Received: by mail-qt1-f180.google.com with SMTP id d75a77b69052e-51c1805b8a7so69016681cf.3
-        for <linux-s390@vger.kernel.org>; Thu, 16 Jul 2026 07:52:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google; t=1784213573; x=1784818373; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=M86Ir7wes1y7r8ERYu4z2fhecNCYpHaDZuovfA+lIDI=;
-        b=W73PkPBeN88Wo2jq6qTZiy0ieVNB+jgqQ+yeTqNGoYy4NjVkdE3YSnhZSUyczYnxAO
-         uhZyzB4PKT067fEEerfWaTtPcAcJODka1DuN9vRZasTWYZBV6XssYoIptVrHmZOyuRt/
-         PGJva0VwWKbEwJ1B16I+HccIvSNAmNwJuxRad5vVW4nqWS0mxJ5cruvKmI0IowixdUJZ
-         pszZe+1lvcHkcoeCrzpFPKafsu9tQ/34scryRNsE2P0ZJ+6Y3qS+yrzBjUBaEAIc8ust
-         K8DIXyuPjatecx0KGd+q18YnNXub9fXsCSiLWlk1wXLb5n6TSNE0SRpMCxsLtLucb010
-         +oAA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784213573; x=1784818373;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=M86Ir7wes1y7r8ERYu4z2fhecNCYpHaDZuovfA+lIDI=;
-        b=aADszDMY0p2AeVtCgUrgJh15IT7oiNJHsQ7Eocsb4gWXCcG8iCmyIYn5i+pDZ9+WKo
-         K3CeTvWd2NY1EUWCmdaEq+Hf9a4JyjAl6qrm2vYg2FRd/UK2JoIkP5dgXiONo0su3p3A
-         AIsylOgPfTtrfwtbY+XXX9KaqYg2mSxQ6rvoLM/3JOYc1xD1GK1bYkC6Xe3Hrgr+vjQe
-         vF4wUylHD8NiGwYS8KY14eElOW/Q+eCvEvuCXd9wR7aayvZydFisIG8iJ6dvDaaWiMMe
-         /EucEaiWirAeudTOsJXznocwm/dZ5EmkI4ZHIzyrJG3FCC/jVuTCgVarwUomJe3LSgox
-         UW7w==
-X-Forwarded-Encrypted: i=1; AHgh+RpwkZ8/D0Kkae+2rZNrykQd50+60c2+4uF5xlS78IgfhnsIOgqwVUQcQgRPpb9tS6jw8Es7zH6sKAJV@vger.kernel.org
-X-Gm-Message-State: AOJu0YwdrLhha7yoeRbzLjkkqTGVjX/XI8b2jZQiMcXPpwalMlDcP8/P
-	vYJxqzHeoLh9cLznRmwN/Q+ChK0DWNt9kKTMjgy/f1Ti9x3zK78gZoHbx2/nvzzFk4U=
-X-Gm-Gg: AfdE7cn4RidBcvaT4vynVdH7Qw1mLKveI2XpFQh4/CWn7jWNpGjV0R+iPWXCrDGOkO1
-	k9k/b0I4pZRwJnX0F7nYxY4h4ne+JAB4LuQqTiFOb2MlhMXweT+idNgUfZDfCtos17vp9dFRUQw
-	2gAbL36S4iUINOm9sbPyvAmSMbC97YkMriskgv1aMM4LXTd37pInZjmSD+f2JLjCC7ScotLdDAT
-	tOByJJMS/awRBCXbVB+AOaMUpZ5BDo9M65vnG2Mr1i4fWaaWItYjbggRbifcCgidCEaY8VdttMu
-	nbXt2a60VxhA7f4g/sU4YfY4HUkfqv7V2hMm1Jjof+XmFHlcwD137A5S+3NUtQSWDfL0soRr1gj
-	teKthpyiq+y7r4q43fpKHqz/d3U+hhsy0FOcR/5lAESaE23Dfsw==
-X-Received: by 2002:a05:622a:1b88:b0:51c:1811:6eae with SMTP id d75a77b69052e-51e4f0a757dmr78823321cf.47.1784213572745;
-        Thu, 16 Jul 2026 07:52:52 -0700 (PDT)
-Received: from ziepe.ca ([159.2.72.92])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-51ec9fef211sm28849141cf.0.2026.07.16.07.52.51
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 16 Jul 2026 07:52:51 -0700 (PDT)
-Received: from jgg by wakko with local (Exim 4.97)
-	(envelope-from <jgg@ziepe.ca>)
-	id 1wkNSF-00000002ZDm-0DPq;
-	Thu, 16 Jul 2026 11:52:51 -0300
-Date: Thu, 16 Jul 2026 11:52:51 -0300
-From: Jason Gunthorpe <jgg@ziepe.ca>
-To: Alexey Kardashevskiy <aik@amd.com>
-Cc: "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>,
-	Catalin Marinas <catalin.marinas@arm.com>, iommu@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	linux-coco@lists.linux.dev, Robin Murphy <robin.murphy@arm.com>,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
-	Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
-	Steven Price <steven.price@arm.com>,
-	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
-	Jiri Pirko <jiri@resnulli.us>, Mostafa Saleh <smostafa@google.com>,
-	Petr Tesarik <ptesarik@suse.com>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Xu Yilun <yilun.xu@linux.intel.com>, linuxppc-dev@lists.ozlabs.org,
-	linux-s390@vger.kernel.org,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org,
-	Jiri Pirko <jiri@nvidia.com>, Michael Kelley <mhklinux@outlook.com>
-Subject: Re: [PATCH v7 16/22] dma-direct: make dma_direct_map_phys() honor
- DMA_ATTR_CC_SHARED
-Message-ID: <20260716145251.GE210048@ziepe.ca>
-References: <20260701054926.825925-1-aneesh.kumar@kernel.org>
- <20260701054926.825925-17-aneesh.kumar@kernel.org>
- <ak42F240d-53QeFN@arm.com>
- <yq5apl0xgy89.fsf@kernel.org>
- <9d83ec13-3b1e-4c1b-8bab-16ea057cfba0@amd.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="ZfSgyxEd"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1784218751; x=1815754751;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=0/Fk8bMYKR6nYRmd7MD5F/OXammJjg//Xp/IxAHeSOo=;
+  b=ZfSgyxEdFqZ7hzG7A/wzCyQmLycb13vnfEP7ax4TbMJ3ebIKDy2Mwkio
+   MbR1h5JKme7uUjW9xjYdDjbpkS8lnRPnNygv240cuWWUn5+2yxsyIyiyk
+   opToUvwPJfHNYgYBioR592P5Mo+PecbFlSLguKRR9QcmOSRflBGfTkmXV
+   fD+GEPXc6tJ3en9qXEkWYwaG+Fr+padVJqAMaO+t+iKH1urFZ+Bg/BuWI
+   V6+QEleW8Qkz4YXu4mekAoR5ZBe93dZw11ItsNsmVJi7bSSHuFtONGjWT
+   NrRPpPQptNWd2LfX1ccOczWXz3uTo9jNw5TnpgMwb5oHmAr5x6kAfYKzx
+   g==;
+X-CSE-ConnectionGUID: 7YRVFLblSHOAWJJl9CX06Q==
+X-CSE-MsgGUID: ivAXJKwWTUOxBduIAoqUKw==
+X-IronPort-AV: E=McAfee;i="6800,10657,11848"; a="84909958"
+X-IronPort-AV: E=Sophos;i="6.25,167,1779174000"; 
+   d="scan'208";a="84909958"
+Received: from orviesa004.jf.intel.com ([10.64.159.144])
+  by orvoesa109.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Jul 2026 09:19:08 -0700
+X-CSE-ConnectionGUID: 5fnBUgAPR86qBDvxjDk2Mg==
+X-CSE-MsgGUID: 9wqLZrHjRumIc80hv9sy5w==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.25,167,1779174000"; 
+   d="scan'208";a="260354356"
+Received: from cjhill-mobl.amr.corp.intel.com (HELO [10.125.108.230]) ([10.125.108.230])
+  by orviesa004-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Jul 2026 09:19:08 -0700
+Message-ID: <c0f585ce-bf1e-49c6-b04a-91c905716042@intel.com>
+Date: Thu, 16 Jul 2026 09:19:06 -0700
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9d83ec13-3b1e-4c1b-8bab-16ea057cfba0@amd.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 00/10] mm: remove CONFIG_HAVE_BOOTMEM_INFO_NODE (Part
+ 2)
+To: "David Hildenbrand (Arm)" <david@kernel.org>,
+ Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski
+ <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>,
+ Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>, x86@kernel.org,
+ "H. Peter Anvin" <hpa@zytor.com>, Andrew Morton <akpm@linux-foundation.org>,
+ Lorenzo Stoakes <ljs@kernel.org>, "Liam R. Howlett" <liam@infradead.org>,
+ Vlastimil Babka <vbabka@kernel.org>, Mike Rapoport <rppt@kernel.org>,
+ Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>,
+ Brendan Jackman <jackmanb@google.com>, Johannes Weiner <hannes@cmpxchg.org>,
+ Zi Yan <ziy@nvidia.com>, Alexander Gordeev <agordeev@linux.ibm.com>,
+ Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>, Muchun Song <muchun.song@linux.dev>,
+ Oscar Salvador <osalvador@suse.de>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+ linux-s390@vger.kernel.org
+References: <20260716-bootmem_info_part2-v2-0-4afc76c73d61@kernel.org>
+From: Dave Hansen <dave.hansen@intel.com>
+Content-Language: en-US
+Autocrypt: addr=dave.hansen@intel.com; keydata=
+ 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
+In-Reply-To: <20260716-bootmem_info_part2-v2-0-4afc76c73d61@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Thu, Jul 16, 2026 at 11:55:20AM +1000, Alexey Kardashevskiy wrote:
-> > > For AMD/SME, on host with memory encryption we now end up setting the C
-> > > bit for DMA_ATTR_MMIO. This is fine for RAM but not sure whether
-> > > some other MMIO bus understands this attribute. Maybe we should stick to
-> > > something like __phys_to_dma() for the !CC_SHARED && MMIO path. Or,
-> > > since this is not universally defined, just use the old dma_addr = phys
-> > > if MMIO and ignore any unlikely DMA offsets.
-> > > 
-> > 
-> > Considering for AMD/SME system an unencrypted dma addr is one without C
-> > bit, will this be good?
-> 
-> Normally both encrypted and unencrypted DMA addresses do not have
-> Cbit, with the only exception of "iommu=pt" (which is not the
-> default afaik). And in this case, having Cbit in DMA handles only
-> makes sense if p2p trafic goes via the root port (== IOMMU in
-> passthrough mode, and I am not sure even about if the root port will
-> convert this Cbit to T=1 MMIO in this mode) but if it goes via some
-> PCI bridge - then Cbit won't mean encryption for sure. But I do not
-> know much about p2p (never touched). But in any case
-> force_dma_unencrypted() seems to make no sense here.
+On 7/16/26 07:50, David Hildenbrand (Arm) wrote:
+>  arch/x86/mm/init_64.c        | 134 ++++---------------------------------------
 
-True p2p through a switch does not call the DMA API at all, it
-directly stuffs the physical MMIO BAR address of the target into the
-dma_addr_t - which won't have a C bit.
+Uhhh. Wow. <blink><blink><blink>
 
-The DMA API is only involved if the p2p will transit through the root
-port, so adding the C bit is correct.
+This is a really big win. Thanks for doing this!
 
-AFAICT it is iommu=!pt that doesn't work at all since the AMD IOMMU
-driver always does __sme_set() even for MMIO when forming the IOPTE,
-which I guess is wrong for MMIO.
+I assume the plan is to take this series through the mm route?
 
-Jason
+Reviewed-by: Dave Hansen <dave.hansen@linux.intel.com>
+
