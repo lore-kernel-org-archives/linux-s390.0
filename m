@@ -1,127 +1,132 @@
-Received: from mail-wm1-f54.google.com (mail-wm1-f54.google.com [209.85.128.54])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 562333A7820
-	for <linux-s390@vger.kernel.org>; Thu, 16 Jul 2026 07:19:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.54
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 2A9B7395AF1;
+	Thu, 16 Jul 2026 09:33:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784186376; cv=none; b=ZZihxe/VAk2FOQb7/rmQxhL0cfT8RGOjXSpT1TmrsSFWrdmMndKpRR5Mu6yzEyLVI4+8PrREDXHrJ5+9y+swdvyOzVMpX+6ZQNAUQiqt13FXLf3uEOyQjHFtuculh1UfIboOPa/wCrrEwcclUo3N2bkaionP9c7IaqufXeRuBBk=
+	t=1784194436; cv=none; b=mKQJdYNl5UIvKisy+tU2WvNn835d6nHZc5HVpqeXDnZ2Eo9SP5ZvazT6Ob6XJ3rWaWDWikw68rw8YiQoAPDORdmRDkbu/CnC8T1VML2tcUdlx0x92Rl11xWaVzzz2tTKbC9iODbvpMS7P9JzATmveMD1YlIzVcHt8b2iMKsFH3I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784186376; c=relaxed/simple;
-	bh=y4yHZGxT74a6MspUjQGJIAo038r7XXw7zxCaM56ULQQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=EMe90IxBFEZkoLu5REmmCLW3HDqHFN1L/grQOCjSCfcqVpsJyCrBAHU4jWm4hoBIRqTTD8jNaiux2Q4NdamgYgPbJ+r/LcX7hpi50BXkhVP9OGgCdnsVQut7TwIMXyPZ76ASVTIbbTCL64Mh8WU0LF6caABRPfl74fjLfZguAKY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20251104.gappssmtp.com header.i=@resnulli-us.20251104.gappssmtp.com header.b=BaGoAYgB; arc=none smtp.client-ip=209.85.128.54
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
+	s=arc-20240116; t=1784194436; c=relaxed/simple;
+	bh=Jiq0eRIkC/oi6OkkmArmlbDUuLGok8mQdQh0yrF9YB0=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=tY9JjpwF4dVDkwzFTH0O1AymNullGBqUbrOfla2Rlm3MoiE25T2Pjs3AcBgmV/py8MkE5VpuPgpKLhOFDW6I1xrVOLt5ZZFMGPDcEBN1ULWI6LRBkTKucwtSlQaSXrCpugYFzgez5w3u/Xoefn1Qq7M7t71sp1LsX9xZJtFpjsw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=IZauRYRl; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=resnulli-us.20251104.gappssmtp.com header.i=@resnulli-us.20251104.gappssmtp.com header.b="BaGoAYgB"
-Received: by mail-wm1-f54.google.com with SMTP id 5b1f17b1804b1-493c2c0b9a8so19457965e9.1
-        for <linux-s390@vger.kernel.org>; Thu, 16 Jul 2026 00:19:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=resnulli-us.20251104.gappssmtp.com; s=20251104; t=1784186364; x=1784791164; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=Xo+t1wRWpFilpcKELYi9v4ykQHKL/M+Rp1FsYxe7xSM=;
-        b=BaGoAYgBYwRUiVM8idV46rUKTymCduvvTyUq/PN3G9c9TOP850sdFr2AMVYIYa3j4O
-         LNjkHs5bvcYIy9XUgh6cNnWJX61+yqCzmgKXK6M9wv/X9Us9nLH6nG/Zcl/hKwoP6vrH
-         jer7yHajQeKMMNLZ+JLJPasNL63oZtMkoegsytoI+9rTqNMkbu+5kuzX2/KL4lwrb+ns
-         o5i7G9fhgmY2a/ts8HN1RcLDrG8ZzrwgNtUNzDRXtg71gvHFwrmcqjHlpgavKM0mtEps
-         +4Z6R8YnAvJ2sNOVQsbwaKzNVBb9PGSRo8jn8pHSMZwwxcK+skov+15APmDIcqEwowpi
-         xBRQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784186364; x=1784791164;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=Xo+t1wRWpFilpcKELYi9v4ykQHKL/M+Rp1FsYxe7xSM=;
-        b=svQxJozPHEYB59TAZTs+kujVSrAW9QDdvvYDG8Jt50/cDlGbxe9f/smIJ596RfsFb5
-         akANEnu9w9Sr3CukLBh9Icf98t2y1nx08lROg+egzXYCCzqjX5AcRvUbesx092DiQ9Wa
-         WEOCI9Ri+6RBHVGu2VLqYDMZk0DZWN7+zxWOEUiBfEKQir6NYHRXGXV1lzp8doLR/9SD
-         uV+wjXw2odbnm2ocAjOFEV3EFZ1lHk3EfoEJq8nE631eIPPyR03wrrwAhVhgufWIAcf0
-         si6eO0rDZCZ3N8l8W6dzOTBNq4VLm4Wd6qcv8aHUDFtu1Ok2IdD/q8Md598BIxI7cqpx
-         +v0g==
-X-Forwarded-Encrypted: i=1; AHgh+RqBpVje8BzuwCLYEJ6MMFuRagjpHkDduGRpFttUY+6J/fUPc6F2REZSDmXLGjn7Ycs2cpNq7yHx0tas@vger.kernel.org
-X-Gm-Message-State: AOJu0Yzr0jlWmSa/yCP+dk/fqfpHGKOeK2YlZooKII+LYa2NDpUP+nKt
-	J/zctRHWedkVet/7m1ifsMSJ4VIucMifQ99oPudDguvnUfAl3Zi0PNWLm5dV4cVxdgk=
-X-Gm-Gg: AfdE7ckMZA0BqDooXwvodseFGE8LVCdz7c/sVFt0by/C632MxQd+DQwVvvBM7I4/ySR
-	vapnTWgU2bfMv4XaDNeYp7h9dwKR2dECtGEEIOHKgayu00UgctgKrrZl2VsfYOj2HQ6fq1NDHfX
-	nYGXogniN9mrTnD6xn+rcEnNL2GI2qImHPoG4JIVQwHtHQ9qgxf3Y9k4LZI7upA9ZB7P25rUrFG
-	wLufsEnZgLpyAy2mQLfl2/+DqdIkE4tRChy3IBLMkWghC1gcLNhPPOF3dyY5skwXxexhKQ3uDM5
-	lBjWIh0eOVME13XAO+sFzuxwy6JPhzy+f3GGaiaZYxkTrtZwrpb2Bv16nkGxILVOFq+/hTKykAI
-	c7Aa82vx+VjBQOG9T4mNmID2GYrGR1de7Pbx0pUYuxnPzrJmRC7undt3CcQFz6HcLjWwNOtRk1n
-	xvWrkD8FgTY84=
-X-Received: by 2002:a05:600c:528d:b0:493:b4cf:d37f with SMTP id 5b1f17b1804b1-493f87e5e0dmr226727475e9.16.1784186364315;
-        Thu, 16 Jul 2026 00:19:24 -0700 (PDT)
-Received: from localhost ([140.209.217.211])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49541e9a7bbsm36681925e9.13.2026.07.16.00.19.23
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 16 Jul 2026 00:19:23 -0700 (PDT)
-Date: Thu, 16 Jul 2026 09:19:20 +0200
-From: Jiri Pirko <jiri@resnulli.us>
-To: sashiko-reviews@lists.linux.dev
-Cc: tj@kernel.org, hannes@cmpxchg.org, mkoutny@suse.com, 
-	linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>, 
-	Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>
-Subject: Re: [PATCH rdma-next v2 06/14] net/smc: Look up the pnetid ib device
- within the net namespace
-Message-ID: <aliF6MhKWL_iilRP@FV6GYCPJ69>
-References: <20260714142927.1298897-1-jiri@resnulli.us>
- <20260714142927.1298897-7-jiri@resnulli.us>
- <20260715143043.4F3CC1F00A3A@smtp.kernel.org>
+	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="IZauRYRl"
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 3B9CE1477;
+	Thu, 16 Jul 2026 02:33:43 -0700 (PDT)
+Received: from [10.57.83.230] (unknown [10.57.83.230])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 1894E3F905;
+	Thu, 16 Jul 2026 02:33:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=arm.com; s=foss;
+	t=1784194427; bh=Jiq0eRIkC/oi6OkkmArmlbDUuLGok8mQdQh0yrF9YB0=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=IZauRYRl5ICTEYN8zkstcpXUOGTNSh9WC4OOdZL7resltad2ntP1sTBpfqQKq/LOy
+	 NJ7R16g/TBidqac95gDoBdSGmrESHyLIJbhrl3Pu0YR5HqAz6dxQoYwAZrSwLCNC6+
+	 RzqdaEwAda9C20R94gG615k7hLEu0nCXftHu3u9w=
+Message-ID: <5ce00109-c0ea-43f0-881d-f58a0fda8dcb@arm.com>
+Date: Thu, 16 Jul 2026 11:33:33 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260715143043.4F3CC1F00A3A@smtp.kernel.org>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 03/22] mm: introduce MMF_KERNEL flag and set it for
+ init_mm
+To: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>,
+ Dave Hansen <dave.hansen@intel.com>
+Cc: linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>,
+ David Hildenbrand <david@kernel.org>, "Liam R. Howlett"
+ <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>,
+ Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>,
+ Michal Hocko <mhocko@suse.com>, Pasha Tatashin <pasha.tatashin@soleen.com>,
+ Russell King <linux@armlinux.org.uk>,
+ Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
+ Ryan Roberts <ryan.roberts@arm.com>, linux-arm-kernel@lists.infradead.org,
+ Huacai Chen <chenhuacai@kernel.org>, loongarch@lists.linux.dev,
+ "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
+ Helge Deller <deller@gmx.de>, linux-parisc@vger.kernel.org,
+ Madhavan Srinivasan <maddy@linux.ibm.com>,
+ Michael Ellerman <mpe@ellerman.id.au>, linuxppc-dev@lists.ozlabs.org,
+ Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
+ Albert Ou <aou@eecs.berkeley.edu>, linux-riscv@lists.infradead.org,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Gerald Schaefer <gerald.schaefer@linux.ibm.com>, linux-s390@vger.kernel.org,
+ "David S. Miller" <davem@davemloft.net>,
+ Andreas Larsson <andreas@gaisler.com>, sparclinux@vger.kernel.org,
+ Richard Weinberger <richard@nod.at>,
+ Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+ Johannes Berg <johannes@sipsolutions.net>, linux-um@lists.infradead.org,
+ Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
+ "H. Peter Anvin" <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>,
+ Peter Zijlstra <peterz@infradead.org>, Ning Sun <ning.sun@intel.com>,
+ x86@kernel.org, tboot-devel@lists.sourceforge.net,
+ Ard Biesheuvel <ardb@kernel.org>,
+ Ilias Apalodimas <ilias.apalodimas@linaro.org>, linux-efi@vger.kernel.org,
+ Vishal Moola <vishal.moola@gmail.com>, Alistair Popple <apopple@nvidia.com>,
+ "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+ linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+References: <20260714-remove_pgtable_cdtor-v1-0-44be8a7685d7@arm.com>
+ <20260714-remove_pgtable_cdtor-v1-3-44be8a7685d7@arm.com>
+ <71045fa8-89fe-4a0b-a05b-67e19ce89834@intel.com> <alZOs30ziqa7l_Lq@lucifer>
+From: Kevin Brodsky <kevin.brodsky@arm.com>
+Content-Language: en-GB
+In-Reply-To: <alZOs30ziqa7l_Lq@lucifer>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Wed, Jul 15, 2026 at 04:30:42PM +0200, sashiko-bot@kernel.org wrote:
->Thank you for your contribution! Sashiko AI review found 1 potential issue(s) to consider:
->
->Pre-existing issues:
->- [High] Returning unreferenced device pointers from `smc_pnet_find_ib()` and `smc_pnet_find_smcd()` causes Use-After-Free vulnerabilities when devices are concurrently removed.
->--
->
->--- Patch [6]: [PATCH rdma-next v2 06/14] net/smc: Look up the pnetid ib device within the net namespace ---
->commit 4529cf06709604767797679d2d489bb89001f950
->Author: Jiri Pirko <jiri@nvidia.com>
->Date:   Tue Jul 14 14:29:19 2026 +0000
->
->    net/smc: Look up the pnetid ib device within the net namespace
->    
->    Scope smc_pnet_find_ib() to the caller's net namespace so pnetid setup
->    cannot bind to a same-named RDMA device from another namespace once names
->    become per-netns.
->
->> diff --git a/net/smc/smc_pnet.c b/net/smc/smc_pnet.c
->> index 63e286e2dfaa8..ff9c9c35cc2f5 100644
->> --- a/net/smc/smc_pnet.c
->> +++ b/net/smc/smc_pnet.c
->> @@ -408,8 +413,8 @@ static int smc_pnet_add_eth(struct smc_pnettable *pnettable, struct net *net,
->>  	return rc;
->>  }
->>  
->> -static int smc_pnet_add_ib(struct smc_pnettable *pnettable, char *ib_name,
->> -			   u8 ib_port, char *pnet_name)
->> +static int smc_pnet_add_ib(struct smc_pnettable *pnettable, struct net *net,
->> +			   char *ib_name, u8 ib_port, char *pnet_name)
->>  {
->>  	struct smc_pnetentry *tmp_pe, *new_pe;
->>  	struct smc_ib_device *ib_dev;
->> @@ -419,7 +424,7 @@ static int smc_pnet_add_ib(struct smc_pnettable *pnettable, char *ib_name,
->>  	bool new_ibdev;
->>  
->>  	/* try to apply the pnetid to active devices */
->> -	ib_dev = smc_pnet_find_ib(ib_name);
->> +	ib_dev = smc_pnet_find_ib(net, ib_name);
->
->[Severity: High]
->This is a pre-existing issue, but can this lead to a use-after-free?
+On 14/07/2026 17:04, Lorenzo Stoakes (ARM) wrote:
+> On Tue, Jul 14, 2026 at 07:47:43AM -0700, Dave Hansen wrote:
+>> On 7/14/26 07:03, Kevin Brodsky wrote:
+>>> +static inline bool mm_is_kernel(const struct mm_struct *mm)
+>>> +{
+>>> +	return mm && mm_flags_test(MMF_KERNEL, mm);
+>>> +}
+>> Could we give this some nice comments explaining what a kernel mm is,
+>> please? Part of the problem with the init_mm checks is that they're
+>> magic and it's not always clear what's special about init_mm.
 
-Unrelated to this patch/set. Ignoring.
+Agreed, we need to define what this property means exactly, and your
+comments on patch 14 show that extending it to efi_mm isn't necessarily
+as benign as it appeared to me at first.
+
+My motivation really is about how page tables are handled (in particular
+whether ptlocks are used), so as you suggested on patch 19 maybe this
+flag should be narrower in scope, and the naming should reflect it.
+Possibly MMF_KERNEL_PGTABLES? That's at least one thing that should be
+true of all of init_mm, efi_mm and tboot_mm: their page tables use
+kernel permissions, not user, and should follow the same rules including
+not using ptlocks.
+
+>> Maybe start with this list?
+>>
+>> 1. There's only one of them.
+>> 2. All kernel threads share it. tsk->mm is the same for all kernel
+>>    threads.
+>> 3. It holds the reference copy of the kernel page tables
+>> 4. Userspace can't be entered when it is the current mm
+>> 5. It has different TLB flushing rules than userspace mms
+>>
+>> I _think_ those are universal across all architectures.
+> Well point 1 isn't true of efimm or tboot_mm so we possibly need a better
+> name :)
+>
+> "Special" is overloaded too much already. I quite like "eternal" so:
+>
+> 	static inline bool mm_is_eternal(const struct mm_struct *mm)
+> 	{
+> 		return mm && mm_flags_test(MMF_ETERNAL, mm);
+> 	}
+
+Cheeky but why not! I do wonder whether this conveys the right idea
+though. The main point of this flag is that page tables are
+allocated/initialised/locked differently; in principle you could have a
+temporary non-user mm.
+
+- Kevin
