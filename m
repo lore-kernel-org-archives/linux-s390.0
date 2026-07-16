@@ -1,135 +1,131 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.17])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B89737C904;
-	Thu, 16 Jul 2026 16:19:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.17
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A8CD443634B;
+	Thu, 16 Jul 2026 17:52:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784218754; cv=none; b=V0gRLITUw1hQjKZkRJXeK+lNzd/81YwHlWis33sDx4PUhCNyGujXmUpmhieT2AZqJhJNjoFRFg2DMbqALFYjaBNmUQNkhBRn3yiXQuo+TROL0zOjc7YZ9Y8Yxy/UlftQi69YOA7RX+YWOofu4M2Hvv+o1rrWuylJSYFpIkahXD8=
+	t=1784224370; cv=none; b=F/s1d0dP9HfS5MkiQ7CVip4cvr2ms3p0bisJyn1UZ0O7FHRJL0su7boUcYxU+KhvdcjKFtUZlLtL21OwHTe0Z7ROwjVHnS0d8dRDBPtmUdbBQKoQXCAgExg2mKwJmEYEDFzH+td19Y2T4bib6JygKSq2tElTm4NlYJXhn9xo8AQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784218754; c=relaxed/simple;
-	bh=0/Fk8bMYKR6nYRmd7MD5F/OXammJjg//Xp/IxAHeSOo=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=EcSWVVUkNJsepNpvuv4W9dIAJOjvmJHV+qe/4WkK4GalgedPAoPwedR5t1jZcf0EOerp3/SifQ0vkyIPyPDfm2ekknRdqSp1iWiUqylzO4X7anw7+KBz5o+NM8hPYVFetNbbGDdKEIxTJI9JZSEmFg/7EXO6ik6mtet5BcJi3Ac=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=ZfSgyxEd; arc=none smtp.client-ip=198.175.65.17
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1784224370; c=relaxed/simple;
+	bh=sZNdI1BSDgcAuBmVpUM9hUROeSO0vtL5IlYSgOj8/aA=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=QHBNy03FDQkd/4H/ZFC2RMouV2Fqz+kBqEzsR6Ft2ScvBFzoJu45ZLvssfraB/gC9eE65wLDpjVXa54FM2n5325ry+axW33MkK2PGc+N79p6CIg6AEa3CzGyJHJZYPvLd5xwZRL8rp5EKCjSQkglYtrMSVdUej65Ls99kieY2l0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=KZegGTDv; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="ZfSgyxEd"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1784218751; x=1815754751;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=0/Fk8bMYKR6nYRmd7MD5F/OXammJjg//Xp/IxAHeSOo=;
-  b=ZfSgyxEdFqZ7hzG7A/wzCyQmLycb13vnfEP7ax4TbMJ3ebIKDy2Mwkio
-   MbR1h5JKme7uUjW9xjYdDjbpkS8lnRPnNygv240cuWWUn5+2yxsyIyiyk
-   opToUvwPJfHNYgYBioR592P5Mo+PecbFlSLguKRR9QcmOSRflBGfTkmXV
-   fD+GEPXc6tJ3en9qXEkWYwaG+Fr+padVJqAMaO+t+iKH1urFZ+Bg/BuWI
-   V6+QEleW8Qkz4YXu4mekAoR5ZBe93dZw11ItsNsmVJi7bSSHuFtONGjWT
-   NrRPpPQptNWd2LfX1ccOczWXz3uTo9jNw5TnpgMwb5oHmAr5x6kAfYKzx
-   g==;
-X-CSE-ConnectionGUID: 7YRVFLblSHOAWJJl9CX06Q==
-X-CSE-MsgGUID: ivAXJKwWTUOxBduIAoqUKw==
-X-IronPort-AV: E=McAfee;i="6800,10657,11848"; a="84909958"
-X-IronPort-AV: E=Sophos;i="6.25,167,1779174000"; 
-   d="scan'208";a="84909958"
-Received: from orviesa004.jf.intel.com ([10.64.159.144])
-  by orvoesa109.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Jul 2026 09:19:08 -0700
-X-CSE-ConnectionGUID: 5fnBUgAPR86qBDvxjDk2Mg==
-X-CSE-MsgGUID: 9wqLZrHjRumIc80hv9sy5w==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.25,167,1779174000"; 
-   d="scan'208";a="260354356"
-Received: from cjhill-mobl.amr.corp.intel.com (HELO [10.125.108.230]) ([10.125.108.230])
-  by orviesa004-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Jul 2026 09:19:08 -0700
-Message-ID: <c0f585ce-bf1e-49c6-b04a-91c905716042@intel.com>
-Date: Thu, 16 Jul 2026 09:19:06 -0700
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="KZegGTDv"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66GGfkod3754241;
+	Thu, 16 Jul 2026 17:52:46 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=HYX8HsCbo50LXa7sf1u3m5yiWO4eVqKpCInbBX8Ny
+	Ts=; b=KZegGTDvCeMK9gPA9jqp3jGPWT+D2ybfduGPel8M1qUr5rcQSSXOJIUz1
+	xxb+h+oPVWYVc8k52CHziKZAVI97FQ8M2pxQi5UwyLB8Kz4m2jqyuHWIwKHJkhdm
+	0RitwdyZSv00t+0sQVjx9vd+nv5ppYTAu3ph/d8oo1mnCYjRId5fX7lJzk0xIJhu
+	MGvSJjN4X8uRx5a6tIaLm7r/pEb8B8KjL2LBXkctn6jHeM7U+TVN1X01OOGrgkcE
+	IQKT0aF69YNeusFw0U2eSfzpyJPznS0YfUaXgffs84YDZu3YubkFNxPN3iW+AvaT
+	r5440leFZj2WkGLaCLcazGdkRqqAQ==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fbepxt953-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 16 Jul 2026 17:52:45 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66GHncZU021750;
+	Thu, 16 Jul 2026 17:52:45 GMT
+Received: from smtprelay07.wdc07v.mail.ibm.com ([172.16.1.74])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fc2cgny68-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 16 Jul 2026 17:52:45 +0000 (GMT)
+Received: from smtpav02.wdc07v.mail.ibm.com (smtpav02.wdc07v.mail.ibm.com [10.39.53.229])
+	by smtprelay07.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66GHqh9026084090
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 16 Jul 2026 17:52:43 GMT
+Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8EE3258058;
+	Thu, 16 Jul 2026 17:52:43 +0000 (GMT)
+Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B3D9B5805B;
+	Thu, 16 Jul 2026 17:52:42 +0000 (GMT)
+Received: from IBM-D32RQW3.ibm.com (unknown [9.61.248.47])
+	by smtpav02.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 16 Jul 2026 17:52:42 +0000 (GMT)
+From: Farhan Ali <alifm@linux.ibm.com>
+To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org
+Cc: alifm@linux.ibm.com, mjrosato@linux.ibm.com, borntraeger@linux.ibm.com,
+        farman@linux.ibm.com
+Subject: [PATCH v2 0/4] KVM s390x PCI fixes
+Date: Thu, 16 Jul 2026 10:52:37 -0700
+Message-ID: <20260716175241.1039-1-alifm@linux.ibm.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 00/10] mm: remove CONFIG_HAVE_BOOTMEM_INFO_NODE (Part
- 2)
-To: "David Hildenbrand (Arm)" <david@kernel.org>,
- Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski
- <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>,
- Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, x86@kernel.org,
- "H. Peter Anvin" <hpa@zytor.com>, Andrew Morton <akpm@linux-foundation.org>,
- Lorenzo Stoakes <ljs@kernel.org>, "Liam R. Howlett" <liam@infradead.org>,
- Vlastimil Babka <vbabka@kernel.org>, Mike Rapoport <rppt@kernel.org>,
- Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>,
- Brendan Jackman <jackmanb@google.com>, Johannes Weiner <hannes@cmpxchg.org>,
- Zi Yan <ziy@nvidia.com>, Alexander Gordeev <agordeev@linux.ibm.com>,
- Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, Muchun Song <muchun.song@linux.dev>,
- Oscar Salvador <osalvador@suse.de>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
- linux-s390@vger.kernel.org
-References: <20260716-bootmem_info_part2-v2-0-4afc76c73d61@kernel.org>
-From: Dave Hansen <dave.hansen@intel.com>
-Content-Language: en-US
-Autocrypt: addr=dave.hansen@intel.com; keydata=
- xsFNBE6HMP0BEADIMA3XYkQfF3dwHlj58Yjsc4E5y5G67cfbt8dvaUq2fx1lR0K9h1bOI6fC
- oAiUXvGAOxPDsB/P6UEOISPpLl5IuYsSwAeZGkdQ5g6m1xq7AlDJQZddhr/1DC/nMVa/2BoY
- 2UnKuZuSBu7lgOE193+7Uks3416N2hTkyKUSNkduyoZ9F5twiBhxPJwPtn/wnch6n5RsoXsb
- ygOEDxLEsSk/7eyFycjE+btUtAWZtx+HseyaGfqkZK0Z9bT1lsaHecmB203xShwCPT49Blxz
- VOab8668QpaEOdLGhtvrVYVK7x4skyT3nGWcgDCl5/Vp3TWA4K+IofwvXzX2ON/Mj7aQwf5W
- iC+3nWC7q0uxKwwsddJ0Nu+dpA/UORQWa1NiAftEoSpk5+nUUi0WE+5DRm0H+TXKBWMGNCFn
- c6+EKg5zQaa8KqymHcOrSXNPmzJuXvDQ8uj2J8XuzCZfK4uy1+YdIr0yyEMI7mdh4KX50LO1
- pmowEqDh7dLShTOif/7UtQYrzYq9cPnjU2ZW4qd5Qz2joSGTG9eCXLz5PRe5SqHxv6ljk8mb
- ApNuY7bOXO/A7T2j5RwXIlcmssqIjBcxsRRoIbpCwWWGjkYjzYCjgsNFL6rt4OL11OUF37wL
- QcTl7fbCGv53KfKPdYD5hcbguLKi/aCccJK18ZwNjFhqr4MliQARAQABzUVEYXZpZCBDaHJp
- c3RvcGhlciBIYW5zZW4gKEludGVsIFdvcmsgQWRkcmVzcykgPGRhdmUuaGFuc2VuQGludGVs
- LmNvbT7CwXgEEwECACIFAlQ+9J0CGwMGCwkIBwMCBhUIAgkKCwQWAgMBAh4BAheAAAoJEGg1
- lTBwyZKwLZUP/0dnbhDc229u2u6WtK1s1cSd9WsflGXGagkR6liJ4um3XCfYWDHvIdkHYC1t
- MNcVHFBwmQkawxsYvgO8kXT3SaFZe4ISfB4K4CL2qp4JO+nJdlFUbZI7cz/Td9z8nHjMcWYF
- IQuTsWOLs/LBMTs+ANumibtw6UkiGVD3dfHJAOPNApjVr+M0P/lVmTeP8w0uVcd2syiaU5jB
- aht9CYATn+ytFGWZnBEEQFnqcibIaOrmoBLu2b3fKJEd8Jp7NHDSIdrvrMjYynmc6sZKUqH2
- I1qOevaa8jUg7wlLJAWGfIqnu85kkqrVOkbNbk4TPub7VOqA6qG5GCNEIv6ZY7HLYd/vAkVY
- E8Plzq/NwLAuOWxvGrOl7OPuwVeR4hBDfcrNb990MFPpjGgACzAZyjdmYoMu8j3/MAEW4P0z
- F5+EYJAOZ+z212y1pchNNauehORXgjrNKsZwxwKpPY9qb84E3O9KYpwfATsqOoQ6tTgr+1BR
- CCwP712H+E9U5HJ0iibN/CDZFVPL1bRerHziuwuQuvE0qWg0+0SChFe9oq0KAwEkVs6ZDMB2
- P16MieEEQ6StQRlvy2YBv80L1TMl3T90Bo1UUn6ARXEpcbFE0/aORH/jEXcRteb+vuik5UGY
- 5TsyLYdPur3TXm7XDBdmmyQVJjnJKYK9AQxj95KlXLVO38lczsFNBFRjzmoBEACyAxbvUEhd
- GDGNg0JhDdezyTdN8C9BFsdxyTLnSH31NRiyp1QtuxvcqGZjb2trDVuCbIzRrgMZLVgo3upr
- MIOx1CXEgmn23Zhh0EpdVHM8IKx9Z7V0r+rrpRWFE8/wQZngKYVi49PGoZj50ZEifEJ5qn/H
- Nsp2+Y+bTUjDdgWMATg9DiFMyv8fvoqgNsNyrrZTnSgoLzdxr89FGHZCoSoAK8gfgFHuO54B
- lI8QOfPDG9WDPJ66HCodjTlBEr/Cwq6GruxS5i2Y33YVqxvFvDa1tUtl+iJ2SWKS9kCai2DR
- 3BwVONJEYSDQaven/EHMlY1q8Vln3lGPsS11vSUK3QcNJjmrgYxH5KsVsf6PNRj9mp8Z1kIG
- qjRx08+nnyStWC0gZH6NrYyS9rpqH3j+hA2WcI7De51L4Rv9pFwzp161mvtc6eC/GxaiUGuH
- BNAVP0PY0fqvIC68p3rLIAW3f97uv4ce2RSQ7LbsPsimOeCo/5vgS6YQsj83E+AipPr09Caj
- 0hloj+hFoqiticNpmsxdWKoOsV0PftcQvBCCYuhKbZV9s5hjt9qn8CE86A5g5KqDf83Fxqm/
- vXKgHNFHE5zgXGZnrmaf6resQzbvJHO0Fb0CcIohzrpPaL3YepcLDoCCgElGMGQjdCcSQ+Ci
- FCRl0Bvyj1YZUql+ZkptgGjikQARAQABwsFfBBgBAgAJBQJUY85qAhsMAAoJEGg1lTBwyZKw
- l4IQAIKHs/9po4spZDFyfDjunimEhVHqlUt7ggR1Hsl/tkvTSze8pI1P6dGp2XW6AnH1iayn
- yRcoyT0ZJ+Zmm4xAH1zqKjWplzqdb/dO28qk0bPso8+1oPO8oDhLm1+tY+cOvufXkBTm+whm
- +AyNTjaCRt6aSMnA/QHVGSJ8grrTJCoACVNhnXg/R0g90g8iV8Q+IBZyDkG0tBThaDdw1B2l
- asInUTeb9EiVfL/Zjdg5VWiF9LL7iS+9hTeVdR09vThQ/DhVbCNxVk+DtyBHsjOKifrVsYep
- WpRGBIAu3bK8eXtyvrw1igWTNs2wazJ71+0z2jMzbclKAyRHKU9JdN6Hkkgr2nPb561yjcB8
- sIq1pFXKyO+nKy6SZYxOvHxCcjk2fkw6UmPU6/j/nQlj2lfOAgNVKuDLothIxzi8pndB8Jju
- KktE5HJqUUMXePkAYIxEQ0mMc8Po7tuXdejgPMwgP7x65xtfEqI0RuzbUioFltsp1jUaRwQZ
- MTsCeQDdjpgHsj+P2ZDeEKCbma4m6Ez/YWs4+zDm1X8uZDkZcfQlD9NldbKDJEXLIjYWo1PH
- hYepSffIWPyvBMBTW2W5FRjJ4vLRrJSUoEfJuPQ3vW9Y73foyo/qFoURHO48AinGPZ7PC7TF
- vUaNOTjKedrqHkaOcqB185ahG2had0xnFsDPlx5y
-In-Reply-To: <20260716-bootmem_info_part2-v2-0-4afc76c73d61@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: cp4zkA07mAf7P0qUfr59_Tu35lzr9o4F
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzE2MDE4MSBTYWx0ZWRfX4VSKE77foBp5
+ HWT/MJQrzXynd7hhozTRTQ55zyjGZjosJsvBvj04Cuvdgo0pgN95r3yKvLO5/2MEIBvXxCOl9HG
+ S5vuFy6B+7cZMSqfRWXb6rj5/YidCDs=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzE2MDE4MSBTYWx0ZWRfX5LUuQDiJQzJp
+ OEUjkE8mdXu+dLGwIfPW65EhRReCE19HglxE58SvWNM/7xk7BABMPtGIzqaZHRxQsSaUVbScRhB
+ ZB6aU3yh34v4hEYrZtJ3l9RElksIivrQF9ifDm0gpYiLQbu9FkFSKCZ7x5gMyElzEpZZ+IXeQZT
+ 7Z09MYZ6pNhy9B5lcK6xvJ0iHnX/SlUzGsCRupD9NTr2Nlol+OM+jANMNoxfdeKVLfui+DL2nKf
+ MHh5QlByR/bki8vW0ocPUKcUm9Xg3cYPJnpFeqI4L3Cin1rqR93v3EZI/rKhXX+OVICKKeL2FWh
+ NvH+fG89/BUvKahHAFfFDK2jKbVlbnrtjN0OuWCMYS1oW2OHVwSi3cmZeylHwcIZ6UGF500Dczd
+ JMK3l4KQhseaRdEBS8WqiXk92AvLBAfBMcR8TK7LDB6b1yKH1NBcHkV5RGJWt1lux9X3TY8y9Z4
+ zUWAy/IbRVauRYcZ9Rg==
+X-Authority-Analysis: v=2.4 cv=XbS5Co55 c=1 sm=1 tr=0 ts=6a591a6d cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+ a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=iQ6ETzBq9ecOQQE5vZCe:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
+ a=vMMF0QzAnVfWwn9IwzMA:9
+X-Proofpoint-ORIG-GUID: cp4zkA07mAf7P0qUfr59_Tu35lzr9o4F
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-07-16_06,2026-07-15_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ clxscore=1015 suspectscore=0 spamscore=0 phishscore=0 lowpriorityscore=0
+ priorityscore=1501 adultscore=0 malwarescore=0 impostorscore=0 bulkscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607160181
 
-On 7/16/26 07:50, David Hildenbrand (Arm) wrote:
->  arch/x86/mm/init_64.c        | 134 ++++---------------------------------------
+Hi,
 
-Uhhh. Wow. <blink><blink><blink>
+This series attempts to fix some the pre-existing issues[1] found by sashiko.
+In v1 of the series, sashiko correctly pointed out some issues with the fix
+for AISB/AIBV spanning multiple pages and resource leaks that can happen
+over multiple ioctl calls for the same device. Fixing these will require 
+some more rework and will be address later.  
 
-This is a really big win. Thanks for doing this!
+[1] https://lore.kernel.org/all/20260624063447.85DF51F000E9@smtp.kernel.org/
 
-I assume the plan is to take this series through the mm route?
+Thanks
+Farhan
 
-Reviewed-by: Dave Hansen <dave.hansen@linux.intel.com>
+ChangeLog
+---------
+v1: https://lore.kernel.org/all/20260713172600.1284-1-alifm@linux.ibm.com/
+v1 -> v2
+   - Drop fix handling AISB/AIBV spanning multiple pages.
+   - Fix memory accounting functions for the case when interrupt forwarding
+   is enabled by one process but disabled by a different process (patch 1).
+
+Farhan Ali (4):
+  KVM: s390: pci: Fix memory accounting for pinned/unpinned pages
+  KVM: s390: pci: Fix missing error codes and memory unaccounting
+  KVM: s390: pci: Fix NULL dereference on AIBV allocation failure
+  KVM: s390: pci: Fix resource leak on IRQ registration failure
+
+ arch/s390/kvm/pci.c | 75 +++++++++++++++++++++++++++++++++++++--------
+ arch/s390/kvm/pci.h |  2 ++
+ 2 files changed, 64 insertions(+), 13 deletions(-)
+
+-- 
+2.43.0
 
