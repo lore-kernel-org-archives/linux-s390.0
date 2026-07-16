@@ -1,189 +1,116 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f45.google.com (mail-wm1-f45.google.com [209.85.128.45])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BE7EC19E7F7
-	for <linux-s390@vger.kernel.org>; Thu, 16 Jul 2026 04:34:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A5771376BEF
+	for <linux-s390@vger.kernel.org>; Thu, 16 Jul 2026 07:18:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784176487; cv=none; b=CBixHzKmaJKAyBhZMxLcGcJZoGXHuUlrFKJcuaI4IGxciulMknWkXYJFJ7lVbDb9Ih9JvFgYxjdO3U0k+p718X5G3iODUnbOY7KJon8g35lM5eZ7an2aaue9LIrKtVZEW0tT0dZc7ICNSKdq26IAK1S1VK79v2Dz6MXBL3X6f6Q=
+	t=1784186298; cv=none; b=mou8gOx/Htr4o1QltAyXILO4jF8oPLG3BPgcFiHL0hrw+BMI9/V7OxLf/proQv17uGpX4wNPcO3oC2MT715UbzcUN9B99orAryEZJD56nB76+LPLKM5ywG/gsjEGyEj6noUca110HGOh+d8HBgMBf77C/1UKQgqNQAfO/15WPKM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784176487; c=relaxed/simple;
-	bh=PHitiJ1h5dL3DXMs1ZSJiuaNj5cw9cu1jBuHL9BSrHA=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=IK/K1kqInmv74u0JvY+BtuIHyZK4L/lG1oZJsnR9Y/90JXjQFQBwYxDQNycibX3ye6xbHuInXf81P1HWlLcy8kkBNcLQonNabTIqzbZ3gyDpANeQPbQvELHH2fhWf/V7w+rFVV9yO2/+mUrtL0Di/pnj0c4JhB2k5v23yHmR89U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=c2FZKQoo; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1784186298; c=relaxed/simple;
+	bh=wCOrf4Gl1Kcl375uPlXE+ALtdINw1fX6Rz+X+UFuWis=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=iCIinNrAWy6MB7y/jjRCVIswEA0dNXvR181rk5YCmvY76G5X4peHxlJ58wstBXb4s2JO/4fkxu5paROIVXOUZezfCYIvSjJVgGgEU7Zlt/NS+7ehORN1MGcqf0iUQ7FYo6lBAftfOezeUX77e/oknv0dRWHMlsW5mHoHr1CTj1s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20251104.gappssmtp.com header.i=@resnulli-us.20251104.gappssmtp.com header.b=txBfEPef; arc=none smtp.client-ip=209.85.128.45
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="c2FZKQoo"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17CF61F000E9;
-	Thu, 16 Jul 2026 04:34:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784176485;
-	bh=7wfLO20qqWzNmFwffjWIi99saV6fylFIMeGvMiTlIA4=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=c2FZKQooncf+0N2LPwLCwUyjC9kY+p7l2WpvE/2Y95mkm72d3TZziu403HgoEEiR6
-	 lhc/MYsDftg2s3RI9TDXM4Hn+i2To4Dod1RUb5XlCbLfXsVZQGTJrU6uyDGYa2pvF4
-	 Mdgz6Y7ebnb/95rBwxrBhlXonRg4z5LJPgN45j3oNvRNHG4btzQQGJV93HJtpCWvqV
-	 l8pO8gtS8cIazAh++jT6FgyRXIZ30WNSAjiTpuLvbn1h/TfuTEwX7186ZZBmv6qwJr
-	 7fm57bmz6CHJB/4iNjizV98cfsxJlpsVYlbzxpbOtrejQkIFpJy65LIp6hao7VU7Rn
-	 GsMYWKRKYc7jA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH net v2] net/smc: order the CDC receive path against
- buffer publication
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Bryam Vargas" <hexlabsecurity@proton.me>
-Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
- Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
-In-Reply-To: <20260714-b4-disp-835288a6-v2-1-581555ef2145@proton.me>
-References: <20260714-b4-disp-835288a6-v2-1-581555ef2145@proton.me>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 16 Jul 2026 04:34:44 +0000
-Message-Id: <20260716043445.17CF61F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=resnulli-us.20251104.gappssmtp.com header.i=@resnulli-us.20251104.gappssmtp.com header.b="txBfEPef"
+Received: by mail-wm1-f45.google.com with SMTP id 5b1f17b1804b1-493f4638f4aso24988215e9.3
+        for <linux-s390@vger.kernel.org>; Thu, 16 Jul 2026 00:18:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=resnulli-us.20251104.gappssmtp.com; s=20251104; t=1784186291; x=1784791091; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=ixWQT49fcvwii9ShrrSJHWLi6DgSNOGFoa6xSTGg1wM=;
+        b=txBfEPef8qMFPcU042gNwkqbqtrFeAkv/xuSZ0HumNpzXFzgkyruYX++F8wvzJySun
+         nmIJOF5V0MK3gf9DfD68NP7VVNDot2epYg3D4TtaONVBQDrhKU1mDHKnBDMXEX1xpVSz
+         D6c+iQN/IsNJkIJ/hUZ0TlswpX4/TOyPyVEC/Ie8K0xGK6KuO7HPQhlJqXY6fRmjQfgB
+         f/VL1oM8vsFA4Xy49M5Yp9jsr78bzIhSEMEo1tm6go4IDDKLC/efqjzeuWSRvUK+oDjt
+         UA6dpP+mARnmeErGHNq8HoTrwLL+RmY8lVuRnkBeqLiTx670kN2E2DIdoFCUTGxQyPN3
+         1yZQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784186291; x=1784791091;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=ixWQT49fcvwii9ShrrSJHWLi6DgSNOGFoa6xSTGg1wM=;
+        b=UbhL0CmGkWom1DjGJZe/k8QbBRMG749RgjgSq4/VduuJiB8AGX1GI7GeMsKgD0VJN3
+         IqqkQwf31EF9VUrf8jEitN1084j/6G4wAKmgKlXoiX7M8Hnazm3YiME5XWiV4oG6dmcW
+         YrVW58lGixJfquy5R1Qog6phWevRpBHghFGWY7MmrwZ6UNp8twx6dDvdWspsgfetJOds
+         x8o77xCDRwCp2AJsighj5yOPZf3n5J/l9obZjTTCD86tagSmi/zxdnRmq50ZkYKGRY5y
+         rTmu28DVwrP2ous9WPJ7afkO9xll3owyh3ZqvJgpHa7vrX3/MIlZuetyCsR1VoSgxRG1
+         mAyg==
+X-Forwarded-Encrypted: i=1; AHgh+Ro/X8hRH56UyKZHiIPScxa3KB2sulAQwpjGNu69SsJK5xHrImf56v1BVLMd5V+Npt8aCnAp39YP7gaT@vger.kernel.org
+X-Gm-Message-State: AOJu0Ywt0GMdBX8Qy/jJsFdLa8ONjKClIrmVBiBzyBXIobuGUGcXhMyn
+	f0qClo3uOuRQ60egLMmIzdh+e0M6/MpT9Ek61YLB2lVk6xWv8JvvZbJWaSMtHZvDADk=
+X-Gm-Gg: AfdE7ckzJG235kbjm4VMbLearka7gmvo0fgMPizLRFqWGndvdt2UVfjZOMdZsthh36H
+	oA7mC53F6pyHLGfcT28Nus6LAhMaGnf2EJO81kY9KUq9hrn938ZDR0Bm1lfCQZKO4g5CwLiTAhL
+	9Q+iKaTJuja0G1fsHDx6lVjgl1NNsvmbkRed6LXaAKfBbN8HtQdQAprvIhUoCgh4lmaLWYbU6qv
+	KdMvmypp3NsPEGXJd6clN3dAsbrncpkPDD7NuphzGzB3EiU/PM3CFfYvMrDBKmbMY42/hJ15vNV
+	CwOTbWLFcYt3g5GkYE9qXbSEqFJCErqtuNuuoR1Hx7Ris1y/7XY+D6MNRLAxYhuAxuoLdLeLQ2H
+	fsW69W8qeWbnH1F4POaZGbU3byZkI6T3toLXh94gUpEFIJlLxBjE/ZVT56vvlAWIrkWifBTR8Go
+	mxXl+cn/tcRiI=
+X-Received: by 2002:a05:600c:3e0d:b0:493:f0f5:f2d7 with SMTP id 5b1f17b1804b1-493f87d6118mr220650365e9.7.1784186290293;
+        Thu, 16 Jul 2026 00:18:10 -0700 (PDT)
+Received: from localhost ([140.209.217.211])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4953c708313sm67561525e9.1.2026.07.16.00.18.08
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 16 Jul 2026 00:18:08 -0700 (PDT)
+Date: Thu, 16 Jul 2026 09:18:04 +0200
+From: Jiri Pirko <jiri@resnulli.us>
+To: sashiko-reviews@lists.linux.dev
+Cc: hannes@cmpxchg.org, Vasily Gorbik <gor@linux.ibm.com>, 
+	linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, tj@kernel.org, mkoutny@suse.com
+Subject: Re: [PATCH rdma-next v2 03/14] RDMA/core: Support renaming a device
+ when changing its net namespace
+Message-ID: <aliFm7wdxDf-56rW@FV6GYCPJ69>
+References: <20260714142927.1298897-1-jiri@resnulli.us>
+ <20260714142927.1298897-4-jiri@resnulli.us>
+ <20260715143041.A46771F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260715143041.A46771F000E9@smtp.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
+Wed, Jul 15, 2026 at 04:30:37PM +0200, sashiko-bot@kernel.org wrote:
+>Thank you for your contribution! Sashiko AI review found 1 potential issue(s) to consider:
+>- [High] Unreachable feature and silent failure in netlink handler for RDMA namespace moves
+>--
+>
+>--- Patch [3]: [PATCH rdma-next v2 03/14] RDMA/core: Support renaming a device when changing its net namespace ---
+>commit 4056da04c986796c81666352d7fa9e90d5591d4e
+>Author: Jiri Pirko <jiri@nvidia.com>
+>
+>RDMA/core: Support renaming a device when changing its net namespace
+>
+>This commit introduces support for renaming an RDMA device when moving
+>it to a new network namespace. It preserves the literal-name path for
+>user requests and keeps the fallback naming on the teardown path.
+>
+>> diff --git a/drivers/infiniband/core/nldev.c b/drivers/infiniband/core/nldev.c
+>> index 32b6c4d68ca0a..77a7580801486 100644
+>> --- a/drivers/infiniband/core/nldev.c
+>> +++ b/drivers/infiniband/core/nldev.c
+>[ ... ]
+>> @@ -1195,7 +1195,7 @@ static int nldev_set_doit(struct sk_buff *skb, struct nlmsghdr *nlh,
+>>  		u32 ns_fd;
+>>  
+>>  		ns_fd = nla_get_u32(tb[RDMA_NLDEV_NET_NS_FD]);
+>> -		err = ib_device_set_netns_put(skb, device, ns_fd);
+>> +		err = ib_device_set_netns_put(skb, device, ns_fd, NULL);
+>
+>[Severity: High]
+>Does hardcoding NULL here make the newly introduced naming feature
+>unreachable from user space?
 
-Pre-existing issues:
-- [High] Premature publication of buffer descriptors (`rmb_desc` and `sndbu=
-f_desc`) via `smp_store_release()` before the completion of their associate=
-d connection state initialization leaves a race window where concurrent sta=
-te updates from CDC handlers can be silently overwritten.
-- [High] The patch attempts to fix a NULL pointer dereference of `conn->snd=
-buf_desc` in `smc_cdc_msg_recv_action()` for the SMC-D DMB-nocopy path but =
-misses a secondary dereference path in the same function, leaving an exploi=
-table kernel panic.
---
-
---- Patch [1]: [PATCH net v2] net/smc: order the CDC receive path against b=
-uffer publication ---
-commit 9b6f28a01319410a969a198788b79eb249671b6c
-Author: Bryam Vargas <hexlabsecurity@proton.me>
-Subject: net/smc: order the CDC receive path against buffer publication
-
-This commit introduces acquire/release pairs for publishing rmb_desc and
-sndbuf_desc to prevent NULL dereferences and stale reads. By ensuring
-CDC handlers only see fully initialized buffers, it prevents crashes=20
-during the connection setup window.
-
-Closes: https://sashiko.dev/#/patchset/20260711-b4-disp-c36a9798-v1-1-340b0=
-c6053fb@proton.me?part=3D1
-
-> diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
-> index 32d6d03df3214..2cd0ee7b51c22 100644
-> --- a/net/smc/smc_cdc.c
-> +++ b/net/smc/smc_cdc.c
-> @@ -353,12 +354,20 @@ static void smc_cdc_msg_recv_action(struct smc_sock=
- *smc,
->  		 * peer RMB, then update tx_curs_fin and sndbuf_space
->  		 * here since peer has already consumed the data.
->  		 */
-> +		/* Pair with smp_store_release() in smcd_buf_attach(): the ghost
-> +		 * sndbuf_desc is attached after the connection is reachable to
-> +		 * the ISM device, so acquire it and skip the update while it is
-> +		 * unset -- avoids a NULL deref and a load of an uninitialised
-> +		 * buffer.
-> +		 */
-> +		sndbuf_desc =3D smp_load_acquire(&conn->sndbuf_desc);
->  		if (conn->lgr->is_smcd &&
-> -		    smc_ism_support_dmb_nocopy(conn->lgr->smcd)) {
-> +		    smc_ism_support_dmb_nocopy(conn->lgr->smcd) &&
-> +		    sndbuf_desc) {
->  			/* Calculate consumed data and
->  			 * increment free send buffer space.
->  			 */
-> -			diff_tx =3D smc_curs_diff(conn->sndbuf_desc->len,
-> +			diff_tx =3D smc_curs_diff(sndbuf_desc->len,
->  						&conn->tx_curs_fin,
->  						&conn->local_rx_ctrl.cons);
-
-[Severity: High]
-This isn't a bug introduced by this patch, but does this function have a
-secondary NULL pointer dereference path?
-
-While this patch adds a guard for sndbuf_desc here, further down in this
-same function (smc_cdc_msg_recv_action), if an early CDC message arrives
-with an advanced cons cursor, diff_cons will be > 0.
-
-This triggers the following code block:
-
-    if ((diff_cons && smc_tx_prepared_sends(conn)) || ...
-
-Looking at smc_tx_prepared_sends() in net/smc/smc_tx.h, it unconditionally
-dereferences sndbuf_desc:
-
-static inline int smc_tx_prepared_sends(struct smc_connection *conn)
-{
-    ...
-    return smc_curs_diff(conn->sndbuf_desc->len, &sent, &prep);
-}
-
-Could this cause a panic if conn->sndbuf_desc is still NULL during the race
-window?
-
-[ ... ]
-
-> diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-> index cf6b620fef05f..d94b728c0d68c 100644
-> --- a/net/smc/smc_core.c
-> +++ b/net/smc/smc_core.c
-> @@ -2499,7 +2499,13 @@ static int __smc_buf_create(struct smc_sock *smc, =
-bool is_smcd, bool is_rmb)
->  	}
-> =20
->  	if (is_rmb) {
-> -		conn->rmb_desc =3D buf_desc;
-> +		/* Publish with release semantics: the connection is already in
-> +		 * the link group's token tree, so a concurrent CDC receive
-> +		 * handler must observe a fully initialised buffer once it sees
-> +		 * a non-NULL rmb_desc.  Pairs with the smp_load_acquire() in
-> +		 * the CDC receive path.
-> +		 */
-> +		smp_store_release(&conn->rmb_desc, buf_desc);
->  		conn->rmbe_size_comp =3D bufsize_comp;
->  		smc->sk.sk_rcvbuf =3D bufsize * 2;
->  		atomic_set(&conn->bytes_to_rcv, 0);
-
-[Severity: High]
-This is a pre-existing issue, but could this ordering cause concurrent
-handler updates to be silently clobbered?
-
-By publishing rmb_desc via smp_store_release() before bytes_to_rcv is
-initialized, could a CDC receive handler observe the non-NULL descriptor,
-process a message, and update bytes_to_rcv via atomic_add(), only for this
-thread to immediately overwrite it with atomic_set(&conn->bytes_to_rcv, 0)?
-
-[ ... ]
-
-> @@ -2599,7 +2605,13 @@ int smcd_buf_attach(struct smc_sock *smc)
->  	buf_desc->cpu_addr =3D
->  		(u8 *)buf_desc->cpu_addr + sizeof(struct smcd_cdc_msg);
->  	buf_desc->len -=3D sizeof(struct smcd_cdc_msg);
-> -	conn->sndbuf_desc =3D buf_desc;
-> +	/* Publish with release semantics: the connection is already reachable
-> +	 * to the ISM device (smc_ism_set_conn() ran in __smc_buf_create()), so
-> +	 * the CDC receive tasklet must observe a fully initialised ghost buffer
-> +	 * once it sees a non-NULL sndbuf_desc.  Pairs with smp_load_acquire()
-> +	 * in smc_cdc_msg_recv_action().
-> +	 */
-> +	smp_store_release(&conn->sndbuf_desc, buf_desc);
->  	conn->sndbuf_desc->used =3D 1;
->  	atomic_set(&conn->sndbuf_space, conn->sndbuf_desc->len);
->  	return 0;
-
-[Severity: High]
-This is also a pre-existing issue, but does this have the same clobbering
-risk as the rmb_desc publication above?
-
-If a CDC handler observes the published sndbuf_desc and updates sndbuf_space
-via atomic_add(), wouldn't the atomic_set(&conn->sndbuf_space, ...) here
-unconditionally overwrite the handler's update, leading to corrupted space
-accounting?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260714-b4-disp-83=
-5288a6-v2-1-581555ef2145@proton.me?part=3D1
+False positive. "RDMA/nldev: Allow setting the device name while
+changing net namespace" adds this.
