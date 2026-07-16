@@ -1,63 +1,63 @@
-Received: from mail-wr1-f43.google.com (mail-wr1-f43.google.com [209.85.221.43])
+Received: from mail-wr1-f53.google.com (mail-wr1-f53.google.com [209.85.221.53])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4DA9442377B
-	for <linux-s390@vger.kernel.org>; Thu, 16 Jul 2026 13:23:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D0D88424673
+	for <linux-s390@vger.kernel.org>; Thu, 16 Jul 2026 13:23:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784208223; cv=none; b=Co7R+si0tbM+ua+/lLgdxbTSU0H7fT4rq8am/q1OTd+Ook4ezHYnvjqv/71ieVZcOb3umcbX0r2rSCwtfr71q6LljExg2if/KU5hH8F9N9V0zaxzJbba5Wz96dfiuzKaXJisvF14Cy8A+AAtoqaf2XI3LUIr/JCZjcCEC/0oA/0=
+	t=1784208226; cv=none; b=Eu05uPA+yQoKAwrYf1GQG1Cc3eCjSeQu3CWvHQngMmkBLRf0b3pAad0uX/hqzmrCvZvfsED7KnqFCLkiAYiukM85nOTEWRc5GHJvZqOA1bFWvPttwuOF2JbbSeqs7lj9ZV7Vey3PvbdzwoLXMfKnKSEvhgvaFnMmRif7bhvAWzM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784208223; c=relaxed/simple;
-	bh=arqp4STH24gOt1WR8ANOHexprcbXDePbt4BmXI/EbWQ=;
+	s=arc-20240116; t=1784208226; c=relaxed/simple;
+	bh=pdMmpZJCv+StAJxQjGBnq4nulDEDCbuKp7xLyLbTHHY=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=rkn6hqHMxg6cHRgEEzP8KzlIHp5C1/WTKbuCUBzDRarrvJF8e8aG6LZJNuQHhEOu+slI8jjE8BaJNwjdUhaMlSoUL+uOvbJjOaVErATMHgErfn8eCxfvF/XFH+py2jvaC3SG8m3radGBFl275NZgokqCASSDVYdqDLM5uu995lk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20251104.gappssmtp.com header.i=@resnulli-us.20251104.gappssmtp.com header.b=ivOkC5BN; arc=none smtp.client-ip=209.85.221.43
+	 MIME-Version; b=ZH4/v6XUEQaOSUVNhoehDlgtannTalvlMUeix+3iJlL8ZzYjlMGHUndzQKMmBaQ019C67kxcf5VZrHPwgMcOjWuiw+LBMN7/vOG6xARc95WwKXlK8mnSwVE1bWXj1PtM6xTFGJ3snfeI+VjgK//geXJFjnwH/sM2WnRiI0dLvI8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20251104.gappssmtp.com header.i=@resnulli-us.20251104.gappssmtp.com header.b=Xd4sPgdG; arc=none smtp.client-ip=209.85.221.53
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=resnulli-us.20251104.gappssmtp.com header.i=@resnulli-us.20251104.gappssmtp.com header.b="ivOkC5BN"
-Received: by mail-wr1-f43.google.com with SMTP id ffacd0b85a97d-47f59f25ec4so203866f8f.2
-        for <linux-s390@vger.kernel.org>; Thu, 16 Jul 2026 06:23:41 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=resnulli-us.20251104.gappssmtp.com header.i=@resnulli-us.20251104.gappssmtp.com header.b="Xd4sPgdG"
+Received: by mail-wr1-f53.google.com with SMTP id ffacd0b85a97d-4758bd3731bso494241f8f.0
+        for <linux-s390@vger.kernel.org>; Thu, 16 Jul 2026 06:23:44 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=resnulli-us.20251104.gappssmtp.com; s=20251104; t=1784208219; x=1784813019; darn=vger.kernel.org;
+        d=resnulli-us.20251104.gappssmtp.com; s=20251104; t=1784208223; x=1784813023; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=qLqbGYXrDU0DpDR0so2JkJHWGdeLy/bGDG6GJds0Ueg=;
-        b=ivOkC5BNl3SQ19XypVbUyQW3/zuX/mHlWCJ/CuOTXYJ2NERig2+XGdmbP7yrONswqS
-         jUGgo8ElXZtq57huP6IhSZmAZTMiGT11supfwnyNNbCS2w8wW0AaDWpqJjSHOSNQdM62
-         YIlTbju1fzkI8vRsIw75Bup0ZM5S5DKaKjIYO0/4n6+fBtUCTDN1oZooYqeBe+kU0te5
-         eDF63RqOh+hCY6pg97mo6hk32nSzInJLgA6tJMwXeEv9lem0bKQSU9laAfmwFFVMi/W8
-         qbyI4x7wX1Kxij/UN9Hl/Nc48lQvUkos20pnXgv9IB9ncwYkEGW2/Vdn2s/lC1NYF1jb
-         jQQw==
+        bh=NfMuLF2nfHbgRgmO34SL3Jj6SviYlx2uzsjm64OYl7Y=;
+        b=Xd4sPgdGg6OzjN4YUnTbRDwN59GeQ52siqSP5qyS3L40sUwMWUEj6rtmn//dzLtISB
+         jDhOzNMjXJWY0UzUw7c5kj2+G8b0sk9+Wz3KCPdkhVqmgmc59ZfX1YJ21AfQAvOAYGAk
+         DBR/s6goyDzYVHdhg1qREYw8Gl4UHgLE+3hoPoU317CrjaMxVSN587eLctoSfjZpNMdd
+         GeH/3ie21YQ6ZH0FWB7DJGajs8V5BbfIapAVco1MwXYjU/Y7Iijy7HvDG4s1GSl3E8en
+         Wx8yRZ+fPVN2Gb0aVlnXJG7U4QGkA/jQSljGNom4fvLgdiVyXJSYOdxK/nV56K0xVi8J
+         oQXQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784208219; x=1784813019;
+        d=1e100.net; s=20251104; t=1784208223; x=1784813023;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=qLqbGYXrDU0DpDR0so2JkJHWGdeLy/bGDG6GJds0Ueg=;
-        b=AQvGhFF+dAeqVzGWSdN/7Nlwp7a4Eo3YmOnVlL0hucpHuGH7UaZmffOtg/DmraIi/t
-         kixRwgxivZTQ6Yk07bXtS4EXlZT3HhechFSSpkoD902C4DArVa9XRqZDn0SQlLo4Yj2B
-         nBgVW93XsmUTZrIIVva6QstWZ0eUno+jDtQ9fCmTfxwTsuHL07EcV1U7z8NlmUlcz/pp
-         G6dseh5nl2yUB6nU3Av7YJbNksikPm6qjw3Ngpz3iHlMM03mzVXaoGBQwG2339pPrrhq
-         QuXGuxixUMZneYsOIzo6fcFmvg7VO/e8a8fKLNA23fPFa0m2u37uV5szE3KNxdIpgbau
-         xaDw==
-X-Forwarded-Encrypted: i=1; AHgh+RrQl8pQa2BMPKupCTVSpHNLMkJ6vVyN/9/2Lm8LILq+ZYPpFfz3O4RPt4zdMD7JzUJ/r4BQ4NB7eJUd@vger.kernel.org
-X-Gm-Message-State: AOJu0YxyE5upjeWvrQUhdtE3U+gZc9P0DNnSRuQSraGiwDwH/atItiPB
-	GLL2E7WhexX7KVTpC2eD98W7MkXcLWtgMTGsC0+N+kCc7ixs1e0HmfXS5I+r/YP/n3g=
-X-Gm-Gg: AfdE7cm6OMfHfrFwzSFYjhEsDO369GvsFXShhPxlDaKe0MrmiBi+JDQ4LKogUo/qb4r
-	ZRoIOlhCvEC0AVe2c5NP3CRN8cOMJYnPQImekQnXABRtn5gHcw3y7ZX64F6cIXQ7vAat/PpmfEc
-	rz4j1o0n5Jm3R8uKTzsREyXnrMDwWSqYF8XVMadyBdqYaN6FsbC461B1eAckgFbtupdluX3y84y
-	llgP9Xu5kOxHxSH71aPBIA6mVDOom70SxzTNICgb1kpBLFs1+AsMqMdQWvfbZgjPKMwh8dSfQTb
-	WqE9W3rzLMw3oQaOcH4yURpA2V9DlbUHW5WP3Y5IqnkwuiIe+iD5zav22/5YpM87zigV+OUVbdQ
-	ej3pCzLgaVIfOwKc1lkvzOUG7dsa0cbJkiLIQ8HTSneWkObPcaurald5tBBMPbywMn2imh3Ln1A
-	ct9yQ0TpE/KIQHvMaEeLOtAQ==
-X-Received: by 2002:a05:6000:4b0d:b0:46d:8169:bb39 with SMTP id ffacd0b85a97d-47f2dd1f302mr23305304f8f.37.1784208219414;
-        Thu, 16 Jul 2026 06:23:39 -0700 (PDT)
+        bh=NfMuLF2nfHbgRgmO34SL3Jj6SviYlx2uzsjm64OYl7Y=;
+        b=qoM+Me3PcNf1kIjXO4emfpVvnpzs/xeRLU7FaaPWRkx+4kJAuoknlngPYU4hutzwM2
+         0Pmf+ZdlO1Q2vo98aaOwNgkz1h0FJk+G8arKZ0GTKFSplBUIT7BGAFwVqA0Y9ETTJB+g
+         KMsGjfPoBdq998MvH5uLOYS/bvnmqXeU3PK7uL6XdfuTO01CzZ3zWZ/UCiusQ0VBuxQs
+         hnSCsDLtDGVwl8Me7suvvBfS9wHSGJVuA9PmQi2/gNzM7NZTX9KRaeQGRwZfLQ11KyV0
+         cEJS1JsnLm4ABw0TeQTwMnw6ry7XqiQ77ASLVo4ebgc8ZKg1WoBiknqogkiU+2r8ICtX
+         AeXw==
+X-Forwarded-Encrypted: i=1; AHgh+Rp+SpwDEETsTWoJj2sL/q0n9Uabyvm6WpBHQfpGxeNqnUOF7gb9fT/4c9bPKyb78W7nDWgu4l97oVh7@vger.kernel.org
+X-Gm-Message-State: AOJu0Ywz5GAZoy1Iq7RyM+qPRaoDTrjxEvugozfWe38dwTtSDX6FEHdz
+	/AWIW9XmL2cDfu7DAjp/WLXGmmxfR4m65QASEdhK6KrWg3Z88hC3R2DT913wMyx/AhM=
+X-Gm-Gg: AfdE7cnZqRe+e8N/GXOZ+ZQdTb6e9B0KmgZu+87WjjApJ4EkPp1uhMNh/PsS5Ac6NNQ
+	SZy85t/PbOY+CwsrdrXjZV4/3dhJSFrjlyxZ/2uHaZLvK45LyawVgMpfhPD1KD6Tplcze2HslUA
+	/bYTOJ75F3cL3KaSSDALVCBoLngzGlyY8OVjSmrYmtT2HT1gEbjZKFNlBVbKK7zqGhQjywwNGqv
+	8Loz3ObidkkTggWqAWRLa9BsrB4nXRijZyWrKRtOxnYLrzoJN9rjn2v5znk41q2/DqIi+wkjdQO
+	vKuiNTwPhLNj8z92/PwhZGrazum4UT1+xzujhUPWH3CuhGaN6H1ZwlHDngiTwBo1QthUKCXlUIh
+	NIqf+ImTdoqv4YAfPjs01ptGFHrwabJ7QvjQIH8djc8eJO37addxpnmVvA16BMnP7ylAatF1ZIf
+	rJidsLepuEj7r8mnryUsS03A==
+X-Received: by 2002:a05:6000:26ce:b0:475:f0c2:75ad with SMTP id ffacd0b85a97d-47f5a538607mr3085824f8f.24.1784208223044;
+        Thu, 16 Jul 2026 06:23:43 -0700 (PDT)
 Received: from localhost ([140.209.217.211])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-47f4635a5d7sm23809932f8f.10.2026.07.16.06.23.38
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-47f4634e029sm24529624f8f.3.2026.07.16.06.23.42
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 16 Jul 2026 06:23:38 -0700 (PDT)
+        Thu, 16 Jul 2026 06:23:42 -0700 (PDT)
 From: Jiri Pirko <jiri@resnulli.us>
 To: linux-rdma@vger.kernel.org
 Cc: cgroups@vger.kernel.org,
@@ -82,9 +82,9 @@ Cc: cgroups@vger.kernel.org,
 	wenjia@linux.ibm.com,
 	yanjun.zhu@linux.dev,
 	cui.tao@linux.dev
-Subject: [PATCH rdma-next v3 05/14] RDMA/nldev: Allow setting the device name while changing net namespace
-Date: Thu, 16 Jul 2026 15:23:06 +0200
-Message-ID: <20260716132316.1495242-6-jiri@resnulli.us>
+Subject: [PATCH rdma-next v3 06/14] net/smc: Look up the pnetid ib device within the net namespace
+Date: Thu, 16 Jul 2026 15:23:07 +0200
+Message-ID: <20260716132316.1495242-7-jiri@resnulli.us>
 X-Mailer: git-send-email 2.54.0
 In-Reply-To: <20260716132316.1495242-1-jiri@resnulli.us>
 References: <20260716132316.1495242-1-jiri@resnulli.us>
@@ -98,102 +98,79 @@ Content-Transfer-Encoding: 8bit
 
 From: Jiri Pirko <jiri@nvidia.com>
 
-Accept RDMA_NLDEV_ATTR_DEV_NAME together with RDMA_NLDEV_NET_NS_FD so a
-netlink move can rename the device in the destination namespace. Keep the
-name semantics aligned with the existing RDMA rename path.
+Scope smc_pnet_find_ib() to the caller's net namespace so pnetid setup
+cannot bind to a same-named RDMA device from another namespace once names
+become per-netns.
 
 Signed-off-by: Jiri Pirko <jiri@nvidia.com>
 ---
- drivers/infiniband/core/device.c |  6 ++++++
- drivers/infiniband/core/nldev.c  | 27 ++++++++++++++++++---------
- include/uapi/rdma/rdma_netlink.h |  5 ++++-
- 3 files changed, 28 insertions(+), 10 deletions(-)
+ net/smc/smc_pnet.c | 20 ++++++++++++++------
+ 1 file changed, 14 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/infiniband/core/device.c b/drivers/infiniband/core/device.c
-index 366bd8463c07..bb02640239d7 100644
---- a/drivers/infiniband/core/device.c
-+++ b/drivers/infiniband/core/device.c
-@@ -1901,6 +1901,9 @@ int ib_device_set_netns_put(struct sk_buff *skb,
- 		if (ret == -EEXIST)
- 			NL_SET_ERR_MSG(extack,
- 				       "Device name already exists in the target net namespace");
-+		else if (ret == -EINVAL && name)
-+			NL_SET_ERR_MSG(extack,
-+				       "Unable to use requested device name in the target net namespace");
- 		goto ns_err;
- 	}
+diff --git a/net/smc/smc_pnet.c b/net/smc/smc_pnet.c
+index 63e286e2dfaa..ff9c9c35cc2f 100644
+--- a/net/smc/smc_pnet.c
++++ b/net/smc/smc_pnet.c
+@@ -304,13 +304,18 @@ static bool smc_pnetid_valid(const char *pnet_name, char *pnetid)
+ 	return true;
+ }
  
-@@ -1931,6 +1934,9 @@ int ib_device_set_netns_put(struct sk_buff *skb,
- 	if (ret == -EEXIST)
- 		NL_SET_ERR_MSG(extack,
- 			       "Device name already exists in the target net namespace");
-+	else if (ret == -EINVAL && name)
-+		NL_SET_ERR_MSG(extack,
-+			       "Unable to use requested device name in the target net namespace");
+-/* Find an infiniband device by a given name. The device might not exist. */
+-static struct smc_ib_device *smc_pnet_find_ib(char *ib_name)
++/*
++ * Find an infiniband device by a given name, restricted to the devices
++ * accessible from @net. The device might not exist.
++ */
++static struct smc_ib_device *smc_pnet_find_ib(struct net *net, char *ib_name)
+ {
+ 	struct smc_ib_device *ibdev;
  
- 	put_net(net);
- 	return ret;
-diff --git a/drivers/infiniband/core/nldev.c b/drivers/infiniband/core/nldev.c
-index 8648e95700bf..4efa387ec1be 100644
---- a/drivers/infiniband/core/nldev.c
-+++ b/drivers/infiniband/core/nldev.c
-@@ -1178,6 +1178,24 @@ static int nldev_set_doit(struct sk_buff *skb, struct nlmsghdr *nlh,
- 	if (!device)
- 		return -EINVAL;
+ 	mutex_lock(&smc_ib_devices.mutex);
+ 	list_for_each_entry(ibdev, &smc_ib_devices.list, list) {
++		if (!rdma_dev_access_netns(ibdev->ibdev, net))
++			continue;
+ 		if (!strncmp(ibdev->ibdev->name, ib_name,
+ 			     sizeof(ibdev->ibdev->name)) ||
+ 		    (ibdev->ibdev->dev.parent &&
+@@ -408,8 +413,8 @@ static int smc_pnet_add_eth(struct smc_pnettable *pnettable, struct net *net,
+ 	return rc;
+ }
  
-+	if (tb[RDMA_NLDEV_NET_NS_FD]) {
-+		char name[IB_DEVICE_NAME_MAX] = {};
-+		u32 ns_fd;
+-static int smc_pnet_add_ib(struct smc_pnettable *pnettable, char *ib_name,
+-			   u8 ib_port, char *pnet_name)
++static int smc_pnet_add_ib(struct smc_pnettable *pnettable, struct net *net,
++			   char *ib_name, u8 ib_port, char *pnet_name)
+ {
+ 	struct smc_pnetentry *tmp_pe, *new_pe;
+ 	struct smc_ib_device *ib_dev;
+@@ -419,7 +424,7 @@ static int smc_pnet_add_ib(struct smc_pnettable *pnettable, char *ib_name,
+ 	bool new_ibdev;
+ 
+ 	/* try to apply the pnetid to active devices */
+-	ib_dev = smc_pnet_find_ib(ib_name);
++	ib_dev = smc_pnet_find_ib(net, ib_name);
+ 	if (ib_dev) {
+ 		ibdev_applied = smc_pnet_apply_ib(ib_dev, ib_port, pnet_name);
+ 		if (ibdev_applied)
+@@ -518,7 +523,7 @@ static int smc_pnet_enter(struct net *net, struct nlattr *tb[])
+ 			if (ibport < 1 || ibport > SMC_MAX_PORTS)
+ 				goto error;
+ 		}
+-		rc = smc_pnet_add_ib(pnettable, string, ibport, pnet_name);
++		rc = smc_pnet_add_ib(pnettable, net, string, ibport, pnet_name);
+ 		if (!rc)
+ 			new_ibdev = true;
+ 		else if (rc != -EEXIST)
+@@ -1170,6 +1175,9 @@ int smc_pnetid_by_table_ib(struct smc_ib_device *smcibdev, u8 ib_port)
+ 	struct smc_net *sn;
+ 	int rc = -ENOENT;
+ 
++	if (!rdma_dev_access_netns(smcibdev->ibdev, &init_net))
++		return -ENOENT;
 +
-+		if (tb[RDMA_NLDEV_ATTR_DEV_NAME]) {
-+			nla_strscpy(name, tb[RDMA_NLDEV_ATTR_DEV_NAME],
-+				    IB_DEVICE_NAME_MAX);
-+			if (strlen(name) == 0) {
-+				err = -EINVAL;
-+				goto done;
-+			}
-+		}
-+		ns_fd = nla_get_u32(tb[RDMA_NLDEV_NET_NS_FD]);
-+		err = ib_device_set_netns_put(skb, device, ns_fd,
-+					      name[0] ? name : NULL, extack);
-+		goto put_done;
-+	}
-+
- 	if (tb[RDMA_NLDEV_ATTR_DEV_NAME]) {
- 		char name[IB_DEVICE_NAME_MAX] = {};
- 
-@@ -1191,15 +1209,6 @@ static int nldev_set_doit(struct sk_buff *skb, struct nlmsghdr *nlh,
- 		goto done;
- 	}
- 
--	if (tb[RDMA_NLDEV_NET_NS_FD]) {
--		u32 ns_fd;
--
--		ns_fd = nla_get_u32(tb[RDMA_NLDEV_NET_NS_FD]);
--		err = ib_device_set_netns_put(skb, device, ns_fd, NULL,
--					      extack);
--		goto put_done;
--	}
--
- 	if (tb[RDMA_NLDEV_ATTR_DEV_DIM]) {
- 		u8 use_dim;
- 
-diff --git a/include/uapi/rdma/rdma_netlink.h b/include/uapi/rdma/rdma_netlink.h
-index 3af946ecbac3..ee11c3bbbae2 100644
---- a/include/uapi/rdma/rdma_netlink.h
-+++ b/include/uapi/rdma/rdma_netlink.h
-@@ -516,7 +516,10 @@ enum rdma_nldev_attr {
- 	RDMA_NLDEV_ATTR_DEV_PROTOCOL,		/* string */
- 
- 	/*
--	 * File descriptor handle of the net namespace object
-+	 * File descriptor handle of the net namespace object. May be combined
-+	 * with RDMA_NLDEV_ATTR_DEV_NAME (a literal device name) to also rename
-+	 * the device in the destination namespace; the move fails with -EEXIST
-+	 * if that name is already taken there.
- 	 */
- 	RDMA_NLDEV_NET_NS_FD,			/* u32 */
- 	/*
+ 	/* get pnettable for init namespace */
+ 	sn = net_generic(&init_net, smc_net_id);
+ 	pnettable = &sn->pnettable;
 -- 
 2.54.0
 
