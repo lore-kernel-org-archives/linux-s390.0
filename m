@@ -1,140 +1,115 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E218F3B6C1D
-	for <linux-s390@vger.kernel.org>; Fri, 17 Jul 2026 11:38:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF5313C3449;
+	Fri, 17 Jul 2026 12:59:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784288293; cv=none; b=Rzj+e9MXxaQqBvuXi1W2ECbG/TOIuXRhAKuECWchZBcbv4an7O2rkI+IOS13+lQosc6lh8A3nLmtiPl2vppKKt0MBGjuOOML/Wqfjb3q3XXyrfTcevwxKjRDBXl5pMGIk3iHyJXtL1FIXzvb4iuH1jeWkgPtgo+crplwkRAMVvk=
+	t=1784293159; cv=none; b=nHyZkcJJTfW1IdJNbxiXEJxlSx6ZsBSrJpzq/pBvnm8QKZtD1PFmRG7JpYgeUqjF5RJxtYhuHFuqoQvbY6e5D1FtKwgHfojDf2CG0WMiy6+atU4pqPKNbgmAJsD6vLU6LQcZfuctxUn6Ykm4cH0RsdSN4FMqcz7I4m96KhU1xP8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784288293; c=relaxed/simple;
-	bh=ukTjwdM235dt1zLSHz+ujAu7eZhkNIZoahOp5cZfgCc=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=FhZe8IRAPW0cJ/brI9rlrrMFQqIeZ0Thqi15WBKxUuh8Q3FOIpOZm+lNaERwvyyAiA7cTE8gH6icNeQeotcKj8L59X6Vkfx0VrctkIhszfbRdx91W3nk0DxLUQtCxj7nSNUup53Di8s8ifKZXgYZnC9YuInJnblDOF5e5JA/jK4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ByORUsJj; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1784293159; c=relaxed/simple;
+	bh=jpW4u/rTtEELEua+gA3R2ONjiHBY76iZD3ypjcl9qYk=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=rTXr6IVBwke3IEd90uI0gLMG9zlTkkLUb5TVfedVSo7fJLV9hIGUYaHNfH5aAxlwWlxWW2ueWSDfh9C1MuuKXamV3xK/I8yg2jCr4GRpKtsTyuEQPTjpGRttEqyZrgPphAyh/q/9cSbBRvjdVenvglEL0edqMZWspB+CBUitpW0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=pgAIWO2P; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ByORUsJj"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49E8C1F000E9;
-	Fri, 17 Jul 2026 11:38:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784288291;
-	bh=sm+gPky/tB/pf86p8fzTRenjSe1NdrUj5LPcBgEf5yk=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=ByORUsJjlDgJcleNdaKM5DqdiyMQrDqwDDI+mIPMaErnM40DmNZvLlXDFveknkeC+
-	 VPXWNPP6oLeHelQ+dRq/fKZw3vuH0y9d2m/b4i/KYSkzl1qIi17dJg3sDYZzfVzht7
-	 n7NLF3VfmNb6mhN3GhsazbpU5q1Tdm5I5T0gjovIqmg5VJo6c5phKr2kONslq7zfp/
-	 vOpwFy1VlRyLtgnA9QNMzD7M731ytxji6QJGEXezYtaxyMr6rM7rtkS4Wr4M5paawf
-	 7rmpED8ZVpwx+2tFOKwGdiFQ0IkfihQwrYlFOFgL0psZj7vSa1sbXjTsMD2Q5Ngudv
-	 +XA8iS40aaGcg==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH net-next v4 1/3] net/smc: clear the correct v2 slot and
- buffer in smc_wr_tx_put_slot()
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "D. Wythe" <alibuda@linux.alibaba.com>
-Cc: "Vasily Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
- Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
-In-Reply-To: <20260716113745.65234-2-alibuda@linux.alibaba.com>
-References: <20260716113745.65234-1-alibuda@linux.alibaba.com>
- <20260716113745.65234-2-alibuda@linux.alibaba.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 17 Jul 2026 11:38:10 +0000
-Message-Id: <20260717113811.49E8C1F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="pgAIWO2P"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66HCfYgi2047860;
+	Fri, 17 Jul 2026 12:59:16 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=Zy9LAFyb6D/reDYRzNV5e5WjX4UDrO
+	TKYx7aV0+RXNw=; b=pgAIWO2P1/2O9UBSkZiQp72nErW468QwgJkgp9MrAZjTxW
+	CgjO1Q8cvCM9i+LaaYzX5OHb58Mz1DEbVcAzHArO9+6C4v5wZfL9lCWjqnNrehXW
+	A6TVVo27l+mj0Twv1CVBLcXFXa7zjWdfaQSm6uypADnSug1StTEF0nqy1523oLUD
+	/zgV7wN4pZTyCV7cwEY6huiFLM05ydk2He0fDrKF5MRDxvWuCx7+olGScH37iAXw
+	bERcbecTaLB8YXUyM+3GYu9qkW9h84MZPdybJ3qeHhq+9+18mpnR1GXZznAjSmso
+	j1dBjGALg0fNPVsLVcwXuSiEyJnUc4z7LBevsysg==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fbepxxgqk-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 17 Jul 2026 12:59:16 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66HCnaUq002020;
+	Fri, 17 Jul 2026 12:59:15 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fc1nhsn87-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 17 Jul 2026 12:59:15 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66HCxBSC46334226
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 17 Jul 2026 12:59:11 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8148120040;
+	Fri, 17 Jul 2026 12:59:11 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 2A9DF20043;
+	Fri, 17 Jul 2026 12:59:11 +0000 (GMT)
+Received: from osiris (unknown [9.87.159.133])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Fri, 17 Jul 2026 12:59:11 +0000 (GMT)
+Date: Fri, 17 Jul 2026 14:59:09 +0200
+From: Steffen Eiden <seiden@linux.ibm.com>
+To: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, borntraeger@de.ibm.com,
+        frankja@linux.ibm.com, david@kernel.org, nrb@linux.ibm.com,
+        schlameuss@linux.ibm.com, gra@linux.ibm.com
+Subject: Re: [PATCH v2 5/7] KVM: s390: ucontrol: Add missing locking around
+ gmap_remove_child()
+Message-ID: <20260717125909.319936-C-seiden@linux.ibm.com>
+References: <20260713150857.269954-1-imbrenda@linux.ibm.com>
+ <20260713150857.269954-6-imbrenda@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260713150857.269954-6-imbrenda@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: _yrzn1ssRGGzvHLN3qZdvDKJRtr1NLX5
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzE3MDEyOSBTYWx0ZWRfXznO9KDRfeX6u
+ SU4H+uknL7tO8BadsrMPnrzJAgL28haz/q6dkxZq8pPoJIPFjsvNxNw432mS7V3hSibGn5xGunf
+ LpIVHKgU443Pq3jEYwhvOj6wUyEwWps=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzE3MDEyOSBTYWx0ZWRfXzI6uEFzUNGct
+ tGFQeZrCohAfon8ks4tVAR2u3Qn6Aj8mVPNJ1RhYd4yPM+GKaoHOVRyGiBKXfQKi+IMgsFaYNbj
+ ehfgqkKlw4374OW9gaaZK5+zcLs8GBf/whwxcfIFHF7MjHx8NLd1d0yIillVBVsWngMwXKtKucO
+ h/dj3a9jG+GZZObSYks8PaBrT1iz8/uekKRIx6nN7o71AjeKRDri/brr+iKtjSMt47rKw+S3Y3D
+ MdE3UnRQ6RU75s+UDMY/2MFAcU8zcBx4DJhihR6AOtVAaHQevfnvhxYO2jNO6fJBTG1+rRQvq3z
+ 6/LNF2Lk8SM4V1CIXVSDu/9uSJWG7rDpFBqgVqtKlftGBn/SOy6VbIJL2eF96WOMRTOjzCPLRJP
+ qDEHJE52rdWAQERdXscOkEkK/5RJ2Yg0QVPvcIqQ384OoBAg/veKZiINJVMf5hxaRpZqFOX7u8s
+ LhB1lUTbiAkm41BlKkg==
+X-Authority-Analysis: v=2.4 cv=XbS5Co55 c=1 sm=1 tr=0 ts=6a5a2724 cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=kj9zAlcOel0A:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8
+ a=ArR1R98Ic4aZ9UPBaNEA:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-ORIG-GUID: _yrzn1ssRGGzvHLN3qZdvDKJRtr1NLX5
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-07-17_03,2026-07-17_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ clxscore=1015 suspectscore=0 spamscore=0 phishscore=0 lowpriorityscore=0
+ priorityscore=1501 adultscore=0 malwarescore=0 impostorscore=0 bulkscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607170129
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
+On Mon, Jul 13, 2026 at 05:08:55PM +0200, Claudio Imbrenda wrote:
+> gmap_remove_child() needs to be called while holding the children_lock
+> of the parent gmap. This was not the case in the error handling path of
+> kvm_arch_vcpu_create() for UCONTROL guests.
+> 
+> Fix by adding the missing lock.
+> 
+> Fixes: e38c884df921 ("KVM: s390: Switch to new gmap")
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-Pre-existing issues:
-- [High] Data race in V2 slot cleanup allowing a concurrent sender's data t=
-o be overwritten.
-- [High] Unconditional zeroing of the shared `lgr->wr_tx_buf_v2` in `smc_wr=
-_tx_process_cqe()` on any link error corrupts in-progress LLC messages on o=
-ther links.
---
+Reviewed-by: Steffen Eiden <seiden@linux.ibm.com>
 
---- Patch [1]: [PATCH net-next v4 1/3] net/smc: clear the correct v2 slot a=
-nd buffer in smc_wr_tx_put_slot() ---
-commit eb37bf5f30fd47da384e2535c48a0ad5576aa908
-Author: D. Wythe <alibuda@linux.alibaba.com>
-
-net/smc: clear the correct v2 slot and buffer in smc_wr_tx_put_slot()
-
-smc_wr_tx_put_slot() tries to reset the v2 pending slot and buffer with
-memset(&link->wr_tx_v2_pend, 0, sizeof(link->wr_tx_v2_pend)) and the
-equivalent for wr_tx_buf_v2. Both are pointers, so this zeroes the 8-byte
-pointer variable instead of the structure it points to. The pending slot
-and buffer are therefore never actually cleared, and the pointers get
-overwritten with NULL.
-
-Pass the pointers directly and use sizeof(*pointer) so the intended
-structures are cleared.
-
-> diff --git a/net/smc/smc_wr.c b/net/smc/smc_wr.c
-> index 59c92b46945c5..6b5add9229937 100644
-> --- a/net/smc/smc_wr.c
-> +++ b/net/smc/smc_wr.c
-> @@ -288,10 +288,10 @@ int smc_wr_tx_put_slot(struct smc_link *link,
->  	} else if (link->lgr->smc_version =3D=3D SMC_V2 &&
->  		   pend->idx =3D=3D link->wr_tx_cnt) {
->  		/* Large v2 buffer */
-> -		memset(&link->wr_tx_v2_pend, 0,
-> -		       sizeof(link->wr_tx_v2_pend));
-> +		memset(link->wr_tx_v2_pend, 0,
-> +		       sizeof(*link->wr_tx_v2_pend));
-
-[Severity: High]
-This isn't a bug introduced by this patch, but does clearing the control
-structure before the data buffer create a race window?
-
-If a thread sends an LLC message and waits for a response, the Rx tasklet=20
-might process the Rx CQE first, waking up the LLC flow thread which proceeds
-to send the next message by calling smc_wr_tx_get_v2_slot().
-
-Concurrently, the Tx tasklet could process the Tx CQE and clear the slot
-control structure here. The zeroed idx immediately publishes the slot as
-free, so the LLC thread could acquire it and begin formatting its message in
-link->lgr->wr_tx_buf_v2.
-
-The same sequence appears to occur in smc_wr_tx_process_cqe().
-
-Would the following memset then wipe out the newly written message?
-
-> -		memset(&link->lgr->wr_tx_buf_v2, 0,
-> -		       sizeof(link->lgr->wr_tx_buf_v2));
-> +		memset(link->lgr->wr_tx_buf_v2, 0,
-> +		       sizeof(*link->lgr->wr_tx_buf_v2));
-
-[Severity: High]
-This is a pre-existing issue, but could unconditionally zeroing the shared
-link->lgr->wr_tx_buf_v2 cause issues for other links in the LGR?
-
-It looks like the same zeroing pattern happens in the error path of
-smc_wr_tx_process_cqe():
-
-net/smc/smc_wr.c:smc_wr_tx_process_cqe() {
-    ...
-    if (unlikely(wc->status)) {
-        ...
-        if (link->lgr->smc_version =3D=3D SMC_V2) {
-            memset(link->wr_tx_v2_pend, 0, sizeof(*link->wr_tx_v2_pend));
-            memset(link->lgr->wr_tx_buf_v2, 0, sizeof(*link->lgr->wr_tx_buf=
-_v2));
-        }
-    }
-}
-
-If Link B is actively formatting an LLC message in this shared LGR buffer,
-and a normal data work request concurrently fails on Link A, would Link A's
-tasklet incorrectly wipe out Link B's in-progress LLC message?
-
->  		return 1;
->  	}
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260716113745.6523=
-4-1-alibuda@linux.alibaba.com?part=3D1
