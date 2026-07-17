@@ -1,33 +1,60 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E97F18FDDE;
-	Fri, 17 Jul 2026 08:41:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 756E633C518;
+	Fri, 17 Jul 2026 09:05:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784277680; cv=none; b=lMpc7plrxs2MuYJx657fAYiYYVlA2mhP1qYYXkFn8sN+vuK3lcZlaAbD9t8NcBXfs0tplrJhRGXys9r6F9+qJPZOfi5a4I0q2C2WoX/jrJQlIVls54d5x8YrKg4IpMbZQ7aYba9Oi1P44wQyD6pv0IJExtG4cUYB/ODUqi5K3Vc=
+	t=1784279122; cv=none; b=kiK+S38F6mugA1o9rUSDdw/XKUetltgqxVw9EZ7S5w272cjiDYvUgEY8nFjHcsQujnb0ou2YO/FfdhqtecwzGoHPY29OYF1TmoIoFedLPxBHiix8iKIGENxwmtOFxBSQ5d1Fedp/XxgxBbA8aU4s/VRTmsv9jkAcEgglnFg28uo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784277680; c=relaxed/simple;
-	bh=jtop9uwhUuoC3NhD2BL8mZfDQL5XR4FXNKtFfz3xDN0=;
+	s=arc-20240116; t=1784279122; c=relaxed/simple;
+	bh=duervrsXsempBqbm0OWKWBcN2NT84vcay8Uab08FJ0k=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=qzk9v5tKDKDx+Wn/BmPQwiqUQKMDTuzL34nN/zvPjUkdqe/+XbWVbhf/iCUwzs5kHJ9xD4wpkXKsGHzNVEpDnQrzZzZHQXsW5z2UPF3DQDkjUYTFZxUPRbF0Dg/RLO/htqbEUHyRwmst+S77d/3y95PhCRPllUVEDzTskQwDjCA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cMjoN7tA; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:Content-Type; b=s5A1TErCluxK9OIPPuLmBYzIviNu5pQg+TKzzwIfuqm+AfvxWeoADQ/cpmlYcYWx640VGlX6OZ3kqouneV9a/jTbw3H4n30dWFjv3f8+jlEwPV6QsfPrue6Q7VfcWjc6Sh6a5a11D7mOXXuY7KOmxrF6Rois0Hm9bjr79cyxnaU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ASyniwHo; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cMjoN7tA"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 094941F000E9;
-	Fri, 17 Jul 2026 08:41:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784277679;
-	bh=MH0Ek6amXInUmmPKYuk0ZExAduIfS4jyNdkvppK51As=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=cMjoN7tAtb10fsveaPVknkkuIa+CA+G6v/C3GEmukpLObIKkPTwGFOGUaEsp1mf9N
-	 Vfwfrz6SmRXWiC3qToIew6KWVhAPHVGQesNMU5G/OW2fTq4hb+d+ZnGLnBJXj9JILv
-	 v8dzI3XqOvmnbVwpdnpbMTHX1VYTSRvPxRekYYUOdQkz9+dcAUmiU4QUIivjLMWZkW
-	 +Wo9H/5yozyr8gKZS8jVe1zGqBwuVf9xtZwD5kw2QjSSgTlGnSWaE/LbGmntOPeR93
-	 Sg0mhdkv0knC6swfG3vmiP1VcsjR8Ykt2FkFhoQMhN7XZVSaUN1sZuQQ3J9V7Hp9Pi
-	 lAJUBvMrwUAxQ==
-Message-ID: <9bcf08bf-12fb-4175-b9de-d5016a9eb242@kernel.org>
-Date: Fri, 17 Jul 2026 10:41:12 +0200
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ASyniwHo"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66H6fbBu3602047;
+	Fri, 17 Jul 2026 09:05:18 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=j1mCeF
+	4U+u244jn5iAkFoGO6ncb6yfVP0T4Ela+HT98=; b=ASyniwHocK+TBhRmwZ8x1+
+	Niu6sWO2LYN4oSvppeT+Ir1w/l8zRbOPnD7hzjo2qaq6eHcDUMjctaUL4riOVqmW
+	209oG6LBYhQ0a3Qb28zGYCfvRIw2jwvmkLyo/8t6eWmbewD7/svYlPLJsmYoa0dj
+	9nih0JXIjwlKr1/+PJgWaWVUvgAgPRtS9pA/1RLm44faUKpHZxMFl+NwiBBRkgy4
+	hRxqHHEBNjiSue7yhXzyfTjOnbaocPLHXWmR9c1QPjdrYPcRw2/jCEpfSMi6AO3m
+	qgB/mn8oQP+Wv1jmnn5bC4yeoc1o4oA2Wj35upDTtkSehT7+5hDFGKBsQngcGOsg
+	==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fcv33p6a0-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 17 Jul 2026 09:05:17 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66H94cKP026520;
+	Fri, 17 Jul 2026 09:05:16 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fc1nhrvy7-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 17 Jul 2026 09:05:16 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66H95CoY52494592
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 17 Jul 2026 09:05:12 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9898120043;
+	Fri, 17 Jul 2026 09:05:12 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 557B720040;
+	Fri, 17 Jul 2026 09:05:12 +0000 (GMT)
+Received: from [9.224.77.173] (unknown [9.224.77.173])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Fri, 17 Jul 2026 09:05:12 +0000 (GMT)
+Message-ID: <1e04d9c8-ea80-4b19-8f56-9d622261964a@linux.ibm.com>
+Date: Fri, 17 Jul 2026 11:05:12 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -35,93 +62,93 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 00/10] mm: remove CONFIG_HAVE_BOOTMEM_INFO_NODE (Part
- 2)
-To: Dave Hansen <dave.hansen@intel.com>,
- Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski
- <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>,
- Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, x86@kernel.org,
- "H. Peter Anvin" <hpa@zytor.com>, Andrew Morton <akpm@linux-foundation.org>,
- Lorenzo Stoakes <ljs@kernel.org>, "Liam R. Howlett" <liam@infradead.org>,
- Vlastimil Babka <vbabka@kernel.org>, Mike Rapoport <rppt@kernel.org>,
- Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>,
- Brendan Jackman <jackmanb@google.com>, Johannes Weiner <hannes@cmpxchg.org>,
- Zi Yan <ziy@nvidia.com>, Alexander Gordeev <agordeev@linux.ibm.com>,
- Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, Muchun Song <muchun.song@linux.dev>,
- Oscar Salvador <osalvador@suse.de>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
- linux-s390@vger.kernel.org
-References: <20260716-bootmem_info_part2-v2-0-4afc76c73d61@kernel.org>
- <c0f585ce-bf1e-49c6-b04a-91c905716042@intel.com>
-From: "David Hildenbrand (Arm)" <david@kernel.org>
+Subject: Re: [PATCH 0/4] s390: Reintroduce support for DCACHE_WORD_ACCESS
+To: Heiko Carstens <hca@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@kernel.org>
+Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20260716141436.2125703-1-hca@linux.ibm.com>
 Content-Language: en-US
-Autocrypt: addr=david@kernel.org; keydata=
- xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
- dBrn+lhhOYjjNefFQou6478faXE6o2AhmebqT4KiQoUQFV4R7y1KMEKoSyy8hQaK1umALTdL
- QZLQMzNE74ap+GDK0wnacPQFpcG1AE9RMq3aeErY5tujekBS32jfC/7AnH7I0v1v1TbbK3Gp
- XNeiN4QroO+5qaSr0ID2sz5jtBLRb15RMre27E1ImpaIv2Jw8NJgW0k/D1RyKCwaTsgRdwuK
- Kx/Y91XuSBdz0uOyU/S8kM1+ag0wvsGlpBVxRR/xw/E8M7TEwuCZQArqqTCmkG6HGcXFT0V9
- PXFNNgV5jXMQRwU0O/ztJIQqsE5LsUomE//bLwzj9IVsaQpKDqW6TAPjcdBDPLHvriq7kGjt
- WhVhdl0qEYB8lkBEU7V2Yb+SYhmhpDrti9Fq1EsmhiHSkxJcGREoMK/63r9WLZYI3+4W2rAc
- UucZa4OT27U5ZISjNg3Ev0rxU5UH2/pT4wJCfxwocmqaRr6UYmrtZmND89X0KigoFD/XSeVv
- jwBRNjPAubK9/k5NoRrYqztM9W6sJqrH8+UWZ1Idd/DdmogJh0gNC0+N42Za9yBRURfIdKSb
- B3JfpUqcWwE7vUaYrHG1nw54pLUoPG6sAA7Mehl3nd4pZUALHwARAQABzS5EYXZpZCBIaWxk
- ZW5icmFuZCAoQ3VycmVudCkgPGRhdmlkQGtlcm5lbC5vcmc+wsGQBBMBCAA6AhsDBQkmWAik
- AgsJBBUKCQgCFgICHgUCF4AWIQQb2cqtc1xMOkYN/MpN3hD3AP+DWgUCaYJt/AIZAQAKCRBN
- 3hD3AP+DWriiD/9BLGEKG+N8L2AXhikJg6YmXom9ytRwPqDgpHpVg2xdhopoWdMRXjzOrIKD
- g4LSnFaKneQD0hZhoArEeamG5tyo32xoRsPwkbpIzL0OKSZ8G6mVbFGpjmyDLQCAxteXCLXz
- ZI0VbsuJKelYnKcXWOIndOrNRvE5eoOfTt2XfBnAapxMYY2IsV+qaUXlO63GgfIOg8RBaj7x
- 3NxkI3rV0SHhI4GU9K6jCvGghxeS1QX6L/XI9mfAYaIwGy5B68kF26piAVYv/QZDEVIpo3t7
- /fjSpxKT8plJH6rhhR0epy8dWRHk3qT5tk2P85twasdloWtkMZ7FsCJRKWscm1BLpsDn6EQ4
- jeMHECiY9kGKKi8dQpv3FRyo2QApZ49NNDbwcR0ZndK0XFo15iH708H5Qja/8TuXCwnPWAcJ
- DQoNIDFyaxe26Rx3ZwUkRALa3iPcVjE0//TrQ4KnFf+lMBSrS33xDDBfevW9+Dk6IISmDH1R
- HFq2jpkN+FX/PE8eVhV68B2DsAPZ5rUwyCKUXPTJ/irrCCmAAb5Jpv11S7hUSpqtM/6oVESC
- 3z/7CzrVtRODzLtNgV4r5EI+wAv/3PgJLlMwgJM90Fb3CB2IgbxhjvmB1WNdvXACVydx55V7
- LPPKodSTF29rlnQAf9HLgCphuuSrrPn5VQDaYZl4N/7zc2wcWM7BTQRVy5+RARAA59fefSDR
- 9nMGCb9LbMX+TFAoIQo/wgP5XPyzLYakO+94GrgfZjfhdaxPXMsl2+o8jhp/hlIzG56taNdt
- VZtPp3ih1AgbR8rHgXw1xwOpuAd5lE1qNd54ndHuADO9a9A0vPimIes78Hi1/yy+ZEEvRkHk
- /kDa6F3AtTc1m4rbbOk2fiKzzsE9YXweFjQvl9p+AMw6qd/iC4lUk9g0+FQXNdRs+o4o6Qvy
- iOQJfGQ4UcBuOy1IrkJrd8qq5jet1fcM2j4QvsW8CLDWZS1L7kZ5gT5EycMKxUWb8LuRjxzZ
- 3QY1aQH2kkzn6acigU3HLtgFyV1gBNV44ehjgvJpRY2cC8VhanTx0dZ9mj1YKIky5N+C0f21
- zvntBqcxV0+3p8MrxRRcgEtDZNav+xAoT3G0W4SahAaUTWXpsZoOecwtxi74CyneQNPTDjNg
- azHmvpdBVEfj7k3p4dmJp5i0U66Onmf6mMFpArvBRSMOKU9DlAzMi4IvhiNWjKVaIE2Se9BY
- FdKVAJaZq85P2y20ZBd08ILnKcj7XKZkLU5FkoA0udEBvQ0f9QLNyyy3DZMCQWcwRuj1m73D
- sq8DEFBdZ5eEkj1dCyx+t/ga6x2rHyc8Sl86oK1tvAkwBNsfKou3v+jP/l14a7DGBvrmlYjO
- 59o3t6inu6H7pt7OL6u6BQj7DoMAEQEAAcLBfAQYAQgAJgIbDBYhBBvZyq1zXEw6Rg38yk3e
- EPcA/4NaBQJonNqrBQkmWAihAAoJEE3eEPcA/4NaKtMQALAJ8PzprBEXbXcEXwDKQu+P/vts
- IfUb1UNMfMV76BicGa5NCZnJNQASDP/+bFg6O3gx5NbhHHPeaWz/VxlOmYHokHodOvtL0WCC
- 8A5PEP8tOk6029Z+J+xUcMrJClNVFpzVvOpb1lCbhjwAV465Hy+NUSbbUiRxdzNQtLtgZzOV
- Zw7jxUCs4UUZLQTCuBpFgb15bBxYZ/BL9MbzxPxvfUQIPbnzQMcqtpUs21CMK2PdfCh5c4gS
- sDci6D5/ZIBw94UQWmGpM/O1ilGXde2ZzzGYl64glmccD8e87OnEgKnH3FbnJnT4iJchtSvx
- yJNi1+t0+qDti4m88+/9IuPqCKb6Stl+s2dnLtJNrjXBGJtsQG/sRpqsJz5x1/2nPJSRMsx9
- 5YfqbdrJSOFXDzZ8/r82HgQEtUvlSXNaXCa95ez0UkOG7+bDm2b3s0XahBQeLVCH0mw3RAQg
- r7xDAYKIrAwfHHmMTnBQDPJwVqxJjVNr7yBic4yfzVWGCGNE4DnOW0vcIeoyhy9vnIa3w1uZ
- 3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
- CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
- qIws/H2t
-In-Reply-To: <c0f585ce-bf1e-49c6-b04a-91c905716042@intel.com>
-Content-Type: text/plain; charset=UTF-8
+From: Christian Borntraeger <borntraeger@linux.ibm.com>
+In-Reply-To: <20260716141436.2125703-1-hca@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzE3MDA4NiBTYWx0ZWRfX3+sT3RiDj2b7
+ +6P4bQNYxEIacAjcT3gqETtLKim65IJxGKCTx6A6JrnCm9bgMKJFeVozpuPjFvGUPNYDHdTPY/a
+ xY1ajAOlB0gI7F9D6s9qJu/a14wydYM=
+X-Authority-Analysis: v=2.4 cv=Mp1iLWae c=1 sm=1 tr=0 ts=6a59f04e cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8
+ a=yUqyZBMAralKIz-t7gkA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: EIbV_yYe33i9iNS7qZQjXH9_wsZdEmCY
+X-Proofpoint-ORIG-GUID: EIbV_yYe33i9iNS7qZQjXH9_wsZdEmCY
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzE3MDA4NiBTYWx0ZWRfX/Z1c6Llf73pq
+ Gv/rE+9Nkg6Sv4CL+diZ043ntjsfthZ+2z5FE2YpR70vT2iXhPPLsIEY/S7dELAPh1xiRco7KB+
+ cPVUVG/md27oRP+lXRc615durnAQ/AOA8XAMJFsowbVrwgSQWyW2Cu69/rm8nUVQGWXjjIXhmcT
+ Z8uVLfYLtfgdKN0AFS8TCw7kvUTHQBpx+LeRKYX7WZdYvxqHSYlkhE9T8ZmK7/3Ij+vBZOC492g
+ swM2bOZhWGE90UVhTbFbEkJccLJvkl68M8ZkHZ8pI+b4mYmsjNz+IYoRA83yzlADc+6ogLpxLWs
+ b/+nhY0jiGEWnyVS/jJOKE7AvW9WsJ3DRH+JaYw6GYRFXlKdWNpUyPwZ+XnYhehtOedKaPeSEd+
+ JJl/qtH9gFJw9Lq36ourzkTjuYtv8/5H/rVFgC4hFm8E25UYyVa5ZCrdXatlsopuui4kP2r6rWu
+ iXqUPIdiQ8MGZp8tsiw==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-07-17_02,2026-07-15_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ adultscore=0 bulkscore=0 spamscore=0 malwarescore=0 lowpriorityscore=0
+ impostorscore=0 priorityscore=1501 suspectscore=0 clxscore=1015 phishscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607170086
 
-On 7/16/26 18:19, Dave Hansen wrote:
-> On 7/16/26 07:50, David Hildenbrand (Arm) wrote:
->>  arch/x86/mm/init_64.c        | 134 ++++---------------------------------------
+Am 16.07.26 um 16:14 schrieb Heiko Carstens:
+> Support for DCACHE_WORD_ACCESS was recently removed [1] since it caused
+> problems with the incomplete handling of secure storage access
+> exceptions. It looked like fixing the exception handler would be a larger
+> effort; therefore support for DCACHE_WORD_ACCESS was removed as a work
+> around.
 > 
-> Uhhh. Wow. <blink><blink><blink>
+> Address the potential problems that exist with secure storage access
+> exceptions and add support for DCACHE_WORD_ACCESS again.
 > 
-> This is a really big win. Thanks for doing this!
+> In particular address the following problems:
+> 
+> - Reading the guest variable storage area via the /proc/kcore interface
+>    results in short reads. Address this by using a VM_SPARSE area for the
+>    guest variable storage area. VM_SPARSE areas will be handled like
+>    memory holes (zeros will be read).
+> 
+> - Fix handling of secure storage access exceptions in vmalloc area.
+> 
+> - Remove folio handling for secure storage access exceptions to avoid
+>    potential data corruption.
+> 
+> [1] 37540b8c287f ("s390: Revert support for DCACHE_WORD_ACCESS")
+> 
+> Heiko Carstens (4):
+>    KVM: s390: pv: Use VM_SPARSE area for guest variable storage area
+>    s390/mm: Fix handling of secure storage access exceptions in vmalloc area
+>    s390/mm: Remove folio handling for secure storage access exceptions
+>    s390: Add support for DCACHE_WORD_ACCESS (again)
 
-Thanks!
+Whole series
+Tested-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+with a kernel module and a hacked up kselftest.
 
-Next step is to merge CONFIG_MEMORY_HOTPLUG and CONFIG_MEMORY_HOTUNPLUG.
 
-It will look nice, but not this nice :)
+> 
+>   arch/s390/Kconfig                      |  1 +
+>   arch/s390/include/asm/asm-extable.h    |  4 ++
+>   arch/s390/include/asm/uv.h             |  2 +
+>   arch/s390/include/asm/word-at-a-time.h | 22 ++++++++++
+>   arch/s390/kernel/uv.c                  | 59 ++++++++++++++++++++++++++
+>   arch/s390/kvm/pv.c                     |  6 +--
+>   arch/s390/mm/extable.c                 | 18 ++++++++
+>   arch/s390/mm/fault.c                   | 10 ++---
+>   8 files changed, 112 insertions(+), 10 deletions(-)
+> 
 
--- 
-Cheers,
-
-David
