@@ -1,115 +1,135 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF5313C3449;
-	Fri, 17 Jul 2026 12:59:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C25F83FD14F;
+	Fri, 17 Jul 2026 13:14:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784293159; cv=none; b=nHyZkcJJTfW1IdJNbxiXEJxlSx6ZsBSrJpzq/pBvnm8QKZtD1PFmRG7JpYgeUqjF5RJxtYhuHFuqoQvbY6e5D1FtKwgHfojDf2CG0WMiy6+atU4pqPKNbgmAJsD6vLU6LQcZfuctxUn6Ykm4cH0RsdSN4FMqcz7I4m96KhU1xP8=
+	t=1784294067; cv=none; b=VNb/kVjgcvPdn/FS7ZD6ZX7fFMEPFFmyFAWikokuZzB6C2i+LGXQI1lcT3tdyh32Msg9Q+J4YOtj0VpYEcO+jyCuqqWDfpFW8LSd9odweat3i+zGXhha3yPgCrMcjLS2ytla8kwMjYyLBMVw/6l0P9Ss2mysuaVKT8XBZ2DjmlY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784293159; c=relaxed/simple;
-	bh=jpW4u/rTtEELEua+gA3R2ONjiHBY76iZD3ypjcl9qYk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=rTXr6IVBwke3IEd90uI0gLMG9zlTkkLUb5TVfedVSo7fJLV9hIGUYaHNfH5aAxlwWlxWW2ueWSDfh9C1MuuKXamV3xK/I8yg2jCr4GRpKtsTyuEQPTjpGRttEqyZrgPphAyh/q/9cSbBRvjdVenvglEL0edqMZWspB+CBUitpW0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=pgAIWO2P; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1784294067; c=relaxed/simple;
+	bh=p40NI5+SbbU6sf1rKMKCSyLGFtC6+197G3hU7xXjveA=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=nyhKoIeF95YjoZiHROcYng6dBS4j0SotsOvVtrWnwHhJg4uMOC5fS/TE4eqkb4dg8VNW/MQ4gIYwBozv2isvVhjMSZUAYPbBSyk+z3Umd6e9jWn5AYfZworSY27H5A/dKMWAYxELlsI0HisU+Xt8zDvyfseUgIUh9m16Ab4boMs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ejuy0aZC; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="pgAIWO2P"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66HCfYgi2047860;
-	Fri, 17 Jul 2026 12:59:16 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ejuy0aZC"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66HCfqcw1959221;
+	Fri, 17 Jul 2026 13:14:12 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=Zy9LAFyb6D/reDYRzNV5e5WjX4UDrO
-	TKYx7aV0+RXNw=; b=pgAIWO2P1/2O9UBSkZiQp72nErW468QwgJkgp9MrAZjTxW
-	CgjO1Q8cvCM9i+LaaYzX5OHb58Mz1DEbVcAzHArO9+6C4v5wZfL9lCWjqnNrehXW
-	A6TVVo27l+mj0Twv1CVBLcXFXa7zjWdfaQSm6uypADnSug1StTEF0nqy1523oLUD
-	/zgV7wN4pZTyCV7cwEY6huiFLM05ydk2He0fDrKF5MRDxvWuCx7+olGScH37iAXw
-	bERcbecTaLB8YXUyM+3GYu9qkW9h84MZPdybJ3qeHhq+9+18mpnR1GXZznAjSmso
-	j1dBjGALg0fNPVsLVcwXuSiEyJnUc4z7LBevsysg==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fbepxxgqk-1
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=OSSgFem/6BxTSGqh0Tyrrgu7B/ooRh1RbpSvBqW5V
+	AQ=; b=ejuy0aZCyhMTDz5QF8pxwnToVH/0sA9g5uMbaNvpTJBJqMQeNxOBefsyI
+	BQCTHLYDh11JbiysXy/0KXZOdKRWXBnaY2vKcfjVIWwCc9rcvzSedVI3yCD+ZKtK
+	wH2xB8P0Ls3J6K0F59Nkf5RLodllmX+YMnIjQUr7Ql0K9mYoOtyadz2Gz2BpwFNO
+	YjDH7vrMs1L0sfVzsFwvhaAz7CfSs9Hk6j8CbkEsVdZLRJY1vEZeJ2pjGfCxbn3T
+	lqw/pUZCkkU79LVaniye2hy82PG5ZgHdpWepBLxdccWVyPzsbM1jRyfBQrHv+P66
+	0d67ap1jlErb5d0HOcxq8emKBkIzA==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fbexx5h5x-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 17 Jul 2026 12:59:16 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66HCnaUq002020;
-	Fri, 17 Jul 2026 12:59:15 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fc1nhsn87-1
+	Fri, 17 Jul 2026 13:14:12 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66HD4bRG018899;
+	Fri, 17 Jul 2026 13:14:11 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fc0hwhx54-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 17 Jul 2026 12:59:15 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66HCxBSC46334226
+	Fri, 17 Jul 2026 13:14:11 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66HDE7cm59113966
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 17 Jul 2026 12:59:11 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8148120040;
-	Fri, 17 Jul 2026 12:59:11 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2A9DF20043;
-	Fri, 17 Jul 2026 12:59:11 +0000 (GMT)
-Received: from osiris (unknown [9.87.159.133])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Fri, 17 Jul 2026 12:59:11 +0000 (GMT)
-Date: Fri, 17 Jul 2026 14:59:09 +0200
-From: Steffen Eiden <seiden@linux.ibm.com>
-To: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, borntraeger@de.ibm.com,
-        frankja@linux.ibm.com, david@kernel.org, nrb@linux.ibm.com,
-        schlameuss@linux.ibm.com, gra@linux.ibm.com
-Subject: Re: [PATCH v2 5/7] KVM: s390: ucontrol: Add missing locking around
- gmap_remove_child()
-Message-ID: <20260717125909.319936-C-seiden@linux.ibm.com>
-References: <20260713150857.269954-1-imbrenda@linux.ibm.com>
- <20260713150857.269954-6-imbrenda@linux.ibm.com>
+	Fri, 17 Jul 2026 13:14:07 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9E24620043;
+	Fri, 17 Jul 2026 13:14:07 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6A7BE20040;
+	Fri, 17 Jul 2026 13:14:07 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Fri, 17 Jul 2026 13:14:07 +0000 (GMT)
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@kernel.org>
+Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH] s390/mm: Add missing vm_start <= addr check to do_secure_storage_access()
+Date: Fri, 17 Jul 2026 15:14:07 +0200
+Message-ID: <20260717131407.855327-1-hca@linux.ibm.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260713150857.269954-6-imbrenda@linux.ibm.com>
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: _yrzn1ssRGGzvHLN3qZdvDKJRtr1NLX5
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzE3MDEyOSBTYWx0ZWRfXznO9KDRfeX6u
- SU4H+uknL7tO8BadsrMPnrzJAgL28haz/q6dkxZq8pPoJIPFjsvNxNw432mS7V3hSibGn5xGunf
- LpIVHKgU443Pq3jEYwhvOj6wUyEwWps=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzE3MDEyOSBTYWx0ZWRfXzI6uEFzUNGct
- tGFQeZrCohAfon8ks4tVAR2u3Qn6Aj8mVPNJ1RhYd4yPM+GKaoHOVRyGiBKXfQKi+IMgsFaYNbj
- ehfgqkKlw4374OW9gaaZK5+zcLs8GBf/whwxcfIFHF7MjHx8NLd1d0yIillVBVsWngMwXKtKucO
- h/dj3a9jG+GZZObSYks8PaBrT1iz8/uekKRIx6nN7o71AjeKRDri/brr+iKtjSMt47rKw+S3Y3D
- MdE3UnRQ6RU75s+UDMY/2MFAcU8zcBx4DJhihR6AOtVAaHQevfnvhxYO2jNO6fJBTG1+rRQvq3z
- 6/LNF2Lk8SM4V1CIXVSDu/9uSJWG7rDpFBqgVqtKlftGBn/SOy6VbIJL2eF96WOMRTOjzCPLRJP
- qDEHJE52rdWAQERdXscOkEkK/5RJ2Yg0QVPvcIqQ384OoBAg/veKZiINJVMf5hxaRpZqFOX7u8s
- LhB1lUTbiAkm41BlKkg==
-X-Authority-Analysis: v=2.4 cv=XbS5Co55 c=1 sm=1 tr=0 ts=6a5a2724 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=kj9zAlcOel0A:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8
- a=ArR1R98Ic4aZ9UPBaNEA:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-ORIG-GUID: _yrzn1ssRGGzvHLN3qZdvDKJRtr1NLX5
+X-Proofpoint-GUID: zlPznC1jKJe2CbA4AygVWmLGB81TDMZ_
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzE3MDEzNCBTYWx0ZWRfX+o0eHZlpyD0c
+ YDzF2PcJcK8qJSnuXmwzg092bixpEGHPqIhBhfYPRaCJ2ExNHCNjy6rFbwhBvqPxPpml7yWf4Gd
+ ZUbxjKm7hkC2rZyKDEThDYDrNHwJynXbjK7sNDwCiq7m4rEEohVw1U+pbWqsNOKMkaxNYzs5w5P
+ OJQI0ImpAcPCNJS1R48pEyTfw9OCWU6ZYYddaE5B0NeJ0XWsSTBoCBx3xaaposoIylFlEvMnnFF
+ 8sKXxxbH3HLs57LZRxxh97Rm4sTQIga37lQ0ODdqDUlnbw3EcappTnGramn1mdHWTTqz/Vt4W/W
+ wJS4aG/vNApUxlH9lwpIqwV2coXDnE+wXNIBVhA8YICr1lkt8LTMVhh3Qszjp3weeuMn+56qPgy
+ mdv6FAFrKqbKqEexTxTmIcuVynNv49M3HQKsHsA7eJE5PmCa0tlL1drLKDv0TZDgZR+XXo4BokM
+ OE+1dOribVouNWhgEQg==
+X-Authority-Analysis: v=2.4 cv=XJoAjwhE c=1 sm=1 tr=0 ts=6a5a2aa4 cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=V8glGbnc2Ofi9Qvn3v5h:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
+ a=q1cbuJAsPhdWy6OxXkMA:9
+X-Proofpoint-ORIG-GUID: zlPznC1jKJe2CbA4AygVWmLGB81TDMZ_
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzE3MDEzNCBTYWx0ZWRfX75L6QFbi4PUo
+ V8krna8JxG++yXu7ZWr6AgaElkCinaqan+esuWYcybMLuEcFOC0/yx06Lm6rvaTNAdxSJdZ6eeh
+ zNGPTnDOTsDmtCMgqYHCbKEmdCvM/eQ=
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-07-17_03,2026-07-17_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 suspectscore=0 spamscore=0 phishscore=0 lowpriorityscore=0
- priorityscore=1501 adultscore=0 malwarescore=0 impostorscore=0 bulkscore=0
+ suspectscore=0 adultscore=0 bulkscore=0 phishscore=0 lowpriorityscore=0
+ priorityscore=1501 impostorscore=0 clxscore=1015 spamscore=0 malwarescore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607170129
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607170134
 
-On Mon, Jul 13, 2026 at 05:08:55PM +0200, Claudio Imbrenda wrote:
-> gmap_remove_child() needs to be called while holding the children_lock
-> of the parent gmap. This was not the case in the error handling path of
-> kvm_arch_vcpu_create() for UCONTROL guests.
-> 
-> Fix by adding the missing lock.
-> 
-> Fixes: e38c884df921 ("KVM: s390: Switch to new gmap")
-> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+do_secure_storage_access() uses find_vma() without verifying that the
+faulting address is within the returned vma. Add this missing check by
+converting to lock_mm_and_find_vma().
 
-Reviewed-by: Steffen Eiden <seiden@linux.ibm.com>
+This is not a critical fix, since the worst that could happen is
+WARN_ON_ONCE() in folio_walk_start().
+
+Reported-by: sashiko-bot <sashiko-bot@kernel.org>
+Closes: https://lore.kernel.org/all/20260717093904.E4A421F00A3E@smtp.kernel.org/
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+---
+ arch/s390/mm/fault.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
+diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
+index 028aeb9c48d6..d6c58d78edc5 100644
+--- a/arch/s390/mm/fault.c
++++ b/arch/s390/mm/fault.c
+@@ -456,10 +456,9 @@ void do_secure_storage_access(struct pt_regs *regs)
+ 		if (faulthandler_disabled())
+ 			return handle_fault_error_nolock(regs, 0);
+ 		mm = current->mm;
+-		mmap_read_lock(mm);
+-		vma = find_vma(mm, addr);
++		vma = lock_mm_and_find_vma(mm, addr, regs);
+ 		if (!vma)
+-			return handle_fault_error(regs, SEGV_MAPERR);
++			return handle_fault_error_nolock(regs, SEGV_MAPERR);
+ 		folio = folio_walk_start(&fw, vma, addr, 0);
+ 		if (!folio) {
+ 			mmap_read_unlock(mm);
+-- 
+2.53.0
 
