@@ -1,120 +1,169 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from fhigh-b1-smtp.messagingengine.com (fhigh-b1-smtp.messagingengine.com [202.12.124.152])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D64D737D126;
-	Fri, 17 Jul 2026 18:09:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 32D96175A60;
+	Fri, 17 Jul 2026 21:26:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.152
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784311770; cv=none; b=UKCLuTWZjeL16bzjsMjf8wWaguvrDRzR92Yz4QSIAXPPt/beIp5ZJ/wELe962EeohWA5dyImyGz1qQKqs+HAVx+4cZRhJv4aWjuw3+arVi9ZqbLlgEBx7XqcwFywheR31gWPDsOr716/E4vr22ZUJOCFInIjvac/QFocsYkYD2c=
+	t=1784323618; cv=none; b=K8yijzrQhO4zIcufk6cTM+DSlV6K+efXPCxzwV76HhY7w+w/+VytZmMqQjbrl3Sc3bQDMvF0Wmjqm1kK5bVCH2EDVyHq64SYa3/l7RVaINOZ/5e/SDsg/z5H+qxAgR1LaHPoKmPz4k+xj60yX2SnonDHQbgndcRNXdurbsLfNG4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784311770; c=relaxed/simple;
-	bh=pGo1yPgsER01aQ8A4oxLe7N9Xn4S7xozVAJYzXGd0dQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=ZDKdxwts/GWJixJfOteVWo2FLbbw7WqfCXPoEggxeaNUXJuTfoYZ7/YV/E+KtLDjQg/wCkOuqRD2IvcRygzTdOEmcuqKeeo558NZodjuOClgbGR/+CoRxouiTNmHnji9kk4r3OWL7+on4M6yAs/V5sAAuwNZdxNwzacRMeLnejI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZKEaTtkj; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1784323618; c=relaxed/simple;
+	bh=WRo21tuBs4OXgxJUolfMP/gyj8Tnu3aUwH7kLghZHzU=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=eizmWPevydp7fhQOnlG1VVzS7ujGNRzdw4ZYHSpVyMeKPlJX2CxtXy+zUqylbfRuHa5MJjop4RNLZzTReccpPAXYfwKBHKgu5RJksSs98dsN+qFpnLhff4zgqRCdgukuHlRSVYF9LtxDf3rGWnEtu6NaoOgVrcgOn6jATMWEsrc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shazbot.org; spf=pass smtp.mailfrom=shazbot.org; dkim=pass (2048-bit key) header.d=shazbot.org header.i=@shazbot.org header.b=C3Czv3yx; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=rEDi52Bu; arc=none smtp.client-ip=202.12.124.152
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shazbot.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=shazbot.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZKEaTtkj"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63CFE1F00A3A;
-	Fri, 17 Jul 2026 18:09:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784311768;
-	bh=tkXR0ipZ7ma+5T3tic3bVYqHfLRJ5/MS0548pdfa6Q4=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=ZKEaTtkjlsYTecPUwUZYY5boRz8Hl5p9D2dk5Y5OHE5V+KrdaCWiMHICIVvyeZo8l
-	 bfDENN6CkL/X2Nhd1Dhikwp79Ii7RZhp6+TdbxOWmncy5evwDeUC0PrecgKYvOfJ2i
-	 z5t5X7pIAq2lJxusYJVvtvqityS5Yt1NuT1GCEYBv/ZX+VxYwD85Oz7Abz4+1TQJdX
-	 wcai+O3Dp9MiHid7sAM+sdbkz+TE4Ihrj2BOXgkzKovblm2cKclw8oi9o7WFLwiD3J
-	 OUQsZBxyG2lJSEe2eHv3+KJZZXFXBOwVqSpI2S4/WrMB2IqHdqF6IqWNhGaswGM9hg
-	 XgoRYSziMoMAQ==
-From: "Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org>
-To: iommu@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	linux-coco@lists.linux.dev
-Cc: "Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org>,
-	Robin Murphy <robin.murphy@arm.com>,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
-	Will Deacon <will@kernel.org>,
-	Marc Zyngier <maz@kernel.org>,
-	Steven Price <steven.price@arm.com>,
-	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Jiri Pirko <jiri@resnulli.us>,
-	Jason Gunthorpe <jgg@ziepe.ca>,
-	Mostafa Saleh <smostafa@google.com>,
-	Petr Tesarik <ptesarik@suse.com>,
-	Alexey Kardashevskiy <aik@amd.com>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Xu Yilun <yilun.xu@linux.intel.com>,
-	linuxppc-dev@lists.ozlabs.org,
-	linux-s390@vger.kernel.org,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	x86@kernel.org,
-	Jason Gunthorpe <jgg@nvidia.com>
-Subject: [PATCH v8 23/23] swiotlb: remove unused SWIOTLB_FORCE flag
-Date: Fri, 17 Jul 2026 23:34:41 +0530
-Message-ID: <20260717180442.110954-24-aneesh.kumar@kernel.org>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260717180442.110954-1-aneesh.kumar@kernel.org>
-References: <20260717180442.110954-1-aneesh.kumar@kernel.org>
+	dkim=pass (2048-bit key) header.d=shazbot.org header.i=@shazbot.org header.b="C3Czv3yx";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="rEDi52Bu"
+Received: from phl-compute-05.internal (phl-compute-05.internal [10.202.2.45])
+	by mailfhigh.stl.internal (Postfix) with ESMTP id 1D31E7A010C;
+	Fri, 17 Jul 2026 17:26:54 -0400 (EDT)
+Received: from phl-frontend-04 ([10.202.2.163])
+  by phl-compute-05.internal (MEProxy); Fri, 17 Jul 2026 17:26:54 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=shazbot.org; h=
+	cc:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm1; t=1784323613;
+	 x=1784410013; bh=eeWHQD2AYFBFSMjRiK1uv2wR0q7xPl1Xc5RCGX4uxCw=; b=
+	C3Czv3yxLvt077+WMxsq6tcvKLwrXOPtoMUW9vD4ixC0uyNNKT3OPnXCOahH/Vxo
+	ewLMA41q9cGWynnAa5VO0vbLILCWRsNnmKrdJoM/EY6p5wDAzBnPlAgc3wFH61cW
+	Sr55DhjZ9HCgQdwhX3qmN48EaO/3Qs7kMF60pe5vw05jynr+lbzwQ3YqczLIgZD/
+	k7A1ZHqkkwKA1XrXIqxEDc1MC3z0XuDWmsOa5mUfZdkBk39OBnwFZsbfdafAvgF7
+	eqzQzDgEmhAiFDDbgM2R66R+xM+PFK1pXKamEVRmV5EEZ7qko67ZC0lgvsn8tALV
+	Yiiv8XWzrFPx9hZksHyc5w==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=1784323613; x=
+	1784410013; bh=eeWHQD2AYFBFSMjRiK1uv2wR0q7xPl1Xc5RCGX4uxCw=; b=r
+	EDi52Buc6VN4BDg6+7fX5tQfD+J0olwYqHi3SfqCjPnh53A8tGVd8DVIM394saMx
+	V1MGjCzuaBQ/IhgGRDBFV094RkZSIfcnIeuRbwghlLtOrJeDz76mO9Amf7x0ZvKE
+	hvJvEGnKEkU+s/qonn3sSEgLw1URUy/Q9h9uK3yZnkTp1PaqmyIxUr+zwtgF2jzU
+	BtVaS93IetlsDzKmfLCA4tLhvhJISx3cqdbTM9DtUa2vmHBif+FuQtK4gc5hdIlT
+	A40JCqcm+ngiPyXtZzn25LPzIPVU3MlEu8ZZeDJ7FmPedIpx6jFHUL7aNeMm2wtr
+	JwU88kIx68cuISW3fscLA==
+X-ME-Sender: <xms:HZ5aaoTPJt15R01iZzHHWjATMJL-j1rQm1iFbe43z2xtu38LqgxQYw>
+    <xme:HZ5aanXvrZbiu-lU0bj9xUQVifHspqgWm2b6bn-A8QjBCBsgV6KoM54_mXMUsrmuW
+    g4F3c4pguLhSU-wr_iTgv7t3CkAAlfiq0pnnFMK1k_5RCl6lGNnqg>
+X-ME-Received: <xmr:HZ5aasL52RoP8EyqLjCXMJi-4p8rMCIJa0mxHqIACrLChBy35B27eq9Tjs0>
+X-ME-Proxy-Cause: dmFkZTEz7pjAUecrHvE1kyqQzWT7rGXWfz7Q5pmVw05qIT18Seci3DhxhvPovL3SMkYD2i
+    AA4YkNncWtmZoIciVTSogFqHGSuHn5a0+qZcCRuHL95YDu+DTtlG5tR4/VXSTThiSUfCtG
+    HRuH6yZHADv7x58sNbKEtc1ZoeHe3SRYGDMNpCRoxyAWDm76RPDMA20nP7v4vd3HQP/6Bh
+    8H1A3e2E93jaqIZmeIrZ1kd/UenrILW1bOuCTEyUouRzgTg3fYoq35DTR7tD8jOK9InWxi
+    kvV9+zczKyvjEZ3maXxDKEcibGGuapfFQ6qYZUBUIWIO45bMDccRNOkc81AyS9st0vmbBB
+    hSOGZub7SNGdn3SXOo4Nk9psvV+i3WzCTl4I6bmtR1AWtA8tWD8pvjgTQDij1CTNeqhK76
+    iOAFqCgqpw6DOAqmAH2Ox+PEfc4delJzXgVN+ci89oiwPQNJ8a4by1RtScN+VAcWPS7KzK
+    5KzLXeq0EYo7ryNRrzJN9GNWt+NpXIx//fg5kgQU2OparMCvNFj0JjrVzMktbhgUWt5wLy
+    KVQ0rqlEqPi+OyK9dy5pSKBM8XrPHuu1gwOhhvO4bZmJjw4UC8qMskSrdqQ5qZnk7K/aw1
+    XBq64XjaBn6NtDk06Y2m/dbP6+UswpuOcP0YZnvPOg++WKnRJiIAaF5btLjg
+X-ME-Proxy: <xmx:HZ5aan3csTPecHmlsrkLjvLNq0hYMepyql7VFlOxPmTAvLdZ0P4OhA>
+    <xmx:HZ5aapIwhKhogXJTe_RBFES7Xsdff67wf8yypQhmzagBTUQnYZLNXw>
+    <xmx:HZ5aaiiyoULVEI43eOd9DHhRz6ZMPjRPyWM2mzQNz6EImwrSOnDLOg>
+    <xmx:HZ5aapBCy2r-gBek-gif3r1nD1nj7hZSQjIRj47tNNynSEP8fJFmJQ>
+    <xmx:HZ5aapY3hCDjxUe39PLVx_CpBVdA81dqmwW0FRueweP3Pv0MYJqK0rVW>
+Feedback-ID: i03f14258:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Fri,
+ 17 Jul 2026 17:26:52 -0400 (EDT)
+Date: Fri, 17 Jul 2026 15:26:50 -0600
+From: Alex Williamson <alex@shazbot.org>
+To: Farhan Ali <alifm@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-pci@vger.kernel.org, helgaas@kernel.org, schnelle@linux.ibm.com,
+ mjrosato@linux.ibm.com, alex@shazbot.org
+Subject: Re: [PATCH v20 2/3] vfio-pci/zdev: Add a device feature for error
+ information
+Message-ID: <20260717152650.3cfc2d10@shazbot.org>
+In-Reply-To: <20260630165553.725-3-alifm@linux.ibm.com>
+References: <20260630165553.725-1-alifm@linux.ibm.com>
+	<20260630165553.725-3-alifm@linux.ibm.com>
+X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-SWIOTLB_FORCE has no remaining in-tree users. Forced bouncing is now
-controlled through the swiotlb=force command line option via
-swiotlb_force_bounce.
+On Tue, 30 Jun 2026 09:55:52 -0700
+Farhan Ali <alifm@linux.ibm.com> wrote:
 
-Remove the unused flag and simplify the force_bounce initialization.
+> For zPCI devices, we have platform specific error information. The platform
+> firmware provides this error information to the operating system in an
+> architecture specific mechanism. To enable recovery from userspace for
+> these devices, we want to expose this error information to userspace. Add a
+> new device feature to expose this information.
+> 
+> Userspace needs to be provide a buffer of fixed size. This size is provided
+> to userspace via the VFIO_DEVICE_INFO_CAP_ZPCI_BASE capability.
+> 
+> Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
+> Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+> ---
+>  arch/s390/include/asm/pci.h      |  2 ++
+>  arch/s390/pci/pci_event.c        | 19 ++++++++++++++
+>  drivers/vfio/pci/vfio_pci_core.c |  2 ++
+>  drivers/vfio/pci/vfio_pci_priv.h |  9 +++++++
+>  drivers/vfio/pci/vfio_pci_zdev.c | 45 ++++++++++++++++++++++++++++++--
+>  include/uapi/linux/vfio.h        | 23 ++++++++++++++++
+>  include/uapi/linux/vfio_zdev.h   |  2 ++
+>  7 files changed, 100 insertions(+), 2 deletions(-)
+> 
+> diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
+> index 016386f7ef4a..88a125b92bdd 100644
+> --- a/arch/s390/include/asm/pci.h
+> +++ b/arch/s390/include/asm/pci.h
+> @@ -364,6 +364,8 @@ int zpci_clear_error_state(struct zpci_dev *zdev);
+>  int zpci_reset_load_store_blocked(struct zpci_dev *zdev);
+>  void zpci_start_mediated_recovery(struct zpci_dev *zdev);
+>  void zpci_stop_mediated_recovery(struct zpci_dev *zdev);
+> +int zpci_get_pending_error(struct zpci_dev *zdev,
+> +			   struct zpci_ccdf_err *ccdf);
+>  
+>  #ifdef CONFIG_NUMA
+>  
+> diff --git a/arch/s390/pci/pci_event.c b/arch/s390/pci/pci_event.c
+> index 8934b640a095..3ad16038e005 100644
+> --- a/arch/s390/pci/pci_event.c
+> +++ b/arch/s390/pci/pci_event.c
+> @@ -77,6 +77,25 @@ static int zpci_store_pci_error(struct pci_dev *pdev,
+>  	return 0;
+>  }
+>  
+> +int zpci_get_pending_error(struct zpci_dev *zdev,
+> +			   struct zpci_ccdf_err *ccdf)
+> +{
+> +	int head = 0;
 
-Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
-Signed-off-by: Aneesh Kumar K.V (Arm) <aneesh.kumar@kernel.org>
----
- include/linux/swiotlb.h | 3 +--
- kernel/dma/swiotlb.c    | 3 +--
- 2 files changed, 2 insertions(+), 4 deletions(-)
+Nit, unnecessary initialization.
 
-diff --git a/include/linux/swiotlb.h b/include/linux/swiotlb.h
-index c3bf7ed6f7a6..9caca923c380 100644
---- a/include/linux/swiotlb.h
-+++ b/include/linux/swiotlb.h
-@@ -15,8 +15,7 @@ struct page;
- struct scatterlist;
- 
- #define SWIOTLB_VERBOSE	(1 << 0) /* verbose initialization */
--#define SWIOTLB_FORCE	(1 << 1) /* force bounce buffering */
--#define SWIOTLB_ANY	(1 << 2) /* allow any memory for the buffer */
-+#define SWIOTLB_ANY	(1 << 1) /* allow any memory for the buffer */
- 
- /*
-  * Maximum allowable number of contiguous slabs to map,
-diff --git a/kernel/dma/swiotlb.c b/kernel/dma/swiotlb.c
-index 8b7e47504304..897aba538c5b 100644
---- a/kernel/dma/swiotlb.c
-+++ b/kernel/dma/swiotlb.c
-@@ -400,8 +400,7 @@ void __init swiotlb_init_remap(bool addressing_limit, unsigned int flags,
- 	if (swiotlb_force_disable)
- 		return;
- 
--	io_tlb_default_mem.force_bounce =
--		swiotlb_force_bounce || (flags & SWIOTLB_FORCE);
-+	io_tlb_default_mem.force_bounce = swiotlb_force_bounce;
- 
- #ifdef CONFIG_SWIOTLB_DYNAMIC
- 	if (!remap)
--- 
-2.43.0
+Otherwise LGTM and I can drop the initialization on commit if there's
+no other reason for respin.  I think we just need a branch from Bjorn
+to base this on once he's happy with the PCI series.  Thanks,
 
+Alex
+
+> +
+> +	guard(mutex)(&zdev->pending_errs_lock);
+> +
+> +	if (!zdev->pending_errs.count)
+> +		return -ENOMSG;
+> +
+> +	head = zdev->pending_errs.head % ZPCI_ERR_PENDING_MAX;
+> +	memcpy(ccdf, &zdev->pending_errs.err[head],
+> +	       sizeof(struct zpci_ccdf_err));
+> +	zdev->pending_errs.head++;
+> +	zdev->pending_errs.count--;
+> +	return 0;
+> +}
+> +EXPORT_SYMBOL_GPL(zpci_get_pending_error);
+> +
+>  void zpci_start_mediated_recovery(struct zpci_dev *zdev)
+>  {
+>  	guard(mutex)(&zdev->pending_errs_lock);
