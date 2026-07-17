@@ -1,60 +1,33 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6D5142A15C;
-	Fri, 17 Jul 2026 14:20:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C792442BE9A;
+	Fri, 17 Jul 2026 14:53:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784298048; cv=none; b=gZqlXnPM8wfCuL1kHY2p9Ia/rU+lPjN3RnYw28LsMJRU4HLgv8wOckKAUrvwNjpoZVBkMcuVF4qWVDWEYekDSIHzve5NqcJ/XS8QiROXT1SgMMRXyU+BosxnuKb/KeXOoSshl+qkQpMssoUrtsj6RoPZU1+J5QdtH8grSz3uoK0=
+	t=1784300012; cv=none; b=gSuEP56VyoLh8dX4I1ji5WzRoAk/4H4vKP9PdLMUi5X/CNu9ovmrmRzrdkfZo+MAs+PC8t96CcSrJquNN2gCzJHyeXCAUtxHUp8BXHiVCyPqY8UokdL8R/Slt6Cu4hFb55PLjPDvnu5esBtbHFzqrhlPTFFT/zdXitLgQgK8oFA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784298048; c=relaxed/simple;
-	bh=cHsTzn2tX40ywNJS0j4WjFz/ntPucHl9/VDGKGcdmIU=;
+	s=arc-20240116; t=1784300012; c=relaxed/simple;
+	bh=sgN4cICDEnV/dg7jkC9mrhIo5mpt2p32mDdZs2BhDs0=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=EX/DL+PdzKdt3gM9/EGMGbz31fet83fdWo16SkvSaZXccGrvk82X7T4Jqx77sFjB0+Fl3P8c8CZSbOUqiNgf64TcQ/WVcryCzNJIMLhRnx5GbIjvy1hngPSQ23ogoRwO9RnZd7/Q/m+nT7Pkgu9gGs/TeU9oSRKlUn1LmG97sJo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=HxsW1v3i; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	 In-Reply-To:Content-Type; b=BZ7TTDbTAFE1/Gs6JJ0OG90c83W0Tx8SYAMYrYlSomA7GLTIAWLJnXyQ5sAcu3pwB4SaxlDqM5x9vbp/ZYV7MULRdvrveFym8rrU4ZKCt/8jvJsyxjhhA+suPsre8uqd2D6rXl2rgsuSSQHEhm1e6+ZWWp8vNNjV4DoUy+azOuo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EOKldVbv; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="HxsW1v3i"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66HEBglY359399;
-	Fri, 17 Jul 2026 14:20:32 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=CorMoY
-	NWaVdsQft9S/AsGZ8ttquR2L7zEB96ShrkE+s=; b=HxsW1v3iqhdEAZQgCtD0Wg
-	AeTrPiTGQ12zfCM2sQNyaqiCC7gS9eD2+7VntFNuZ813ubwkT5t68JJOfqvP02Yq
-	PPn/pOT3aSodGQVOtk2SWarskl0hgb35vNmREedeOghVfsJ1vuq6uMtCTmYV8sEy
-	ef8+QCNRIJofZQU056th71VkG8vTXDuvFWfXHC6LWBBOcwdvp92RYp4cKCor4QQj
-	iLfkGHwWZ2VWTc9HFNSmfQKfklCam6jq5/+8Ko5wpPlI6cokpTVu5fa+bq2ueZ/X
-	OfApTJnCIHBKjstC5okcEGKGGEMA/clGcavEAIfkhOkPXCIOUeS5/y3YdB0RzJ2Q
-	==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fcv33qdq8-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 17 Jul 2026 14:20:31 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66HEJkVM014101;
-	Fri, 17 Jul 2026 14:20:30 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fc05qj6xc-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 17 Jul 2026 14:20:30 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66HEKRaJ49479996
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 17 Jul 2026 14:20:27 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 342732004B;
-	Fri, 17 Jul 2026 14:20:27 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D36A820043;
-	Fri, 17 Jul 2026 14:20:26 +0000 (GMT)
-Received: from [9.87.143.191] (unknown [9.87.143.191])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 17 Jul 2026 14:20:26 +0000 (GMT)
-Message-ID: <dd13861e-58af-44af-bfe0-9dc3dafdd7e8@linux.ibm.com>
-Date: Fri, 17 Jul 2026 16:20:26 +0200
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EOKldVbv"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1426A1F00A3D;
+	Fri, 17 Jul 2026 14:53:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1784299996;
+	bh=1/oJ5Qf/VbHfBWLAM64QZk53YNO+mKq9utgzR8uUk4E=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=EOKldVbvIfdnaD+P7TdPswSLRN+O9HifxN6uWB8N8hdEVWGAf8uN3yVuRNuqRgRfe
+	 o81M2I5yAgWGhNB0EmRa1Isd2tZlGCfIFBKvn7Qw2sb3+emXasJS53nw3LwsJdAXEo
+	 W1Sbi5NBo8+rHcsbn39WHpiBv1Fhj6ig+C911jyaEgdEstRAPNcKythrdY5GoKmKHz
+	 BNndFan+L1ioUCt6RaHPT9JrrLZQPtm1Lv3TJ/t1dsj+fI1Y2af7/27oWKBYhpQZst
+	 p1MqjL3tU+iVijQvuSWMbtSiVvfO8G7TAI5EZ2TK8Izeip3tCPQz3pPsHHI7ryX8Qw
+	 0uRbih7+b2gfQ==
+Message-ID: <e50fb51d-72ac-4ace-b532-5cf32ecd80f1@kernel.org>
+Date: Fri, 17 Jul 2026 15:53:13 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -62,130 +35,116 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 16/21] KVM: s390: vsie: Shadow VSIE SCA in guest-1
-To: Christoph Schlameuss <schlameuss@linux.ibm.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Cc: David Hildenbrand <david@kernel.org>, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev
- <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Nico Boehr <nrb@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>,
-        Paolo Bonzini <pbonzini@redhat.com>, Shuah Khan <shuah@kernel.org>,
-        Eric Farman <farman@linux.ibm.com>
-References: <20260709-vsie-sigpi-v1-0-ea9f12066408@linux.ibm.com>
- <20260709-vsie-sigpi-v1-16-ea9f12066408@linux.ibm.com>
+Subject: Re: [RFC PATCH 0/4] mm: introduce __ptent sparse attribute
+To: Alexander Gordeev <agordeev@linux.ibm.com>,
+ Kevin Brodsky <kevin.brodsky@arm.com>, Chris Li <sparse@chrisli.org>,
+ Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+ Heiko Carstens <hca@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-mm@kvack.org,
+ linux-kernel@vger.kernel.org, linux-sparse@vger.kernel.org,
+ Muhammad Usama Anjum <usama.anjum@arm.com>
+References: <cover.1784292223.git.agordeev@linux.ibm.com>
+From: "David Hildenbrand (Arm)" <david@kernel.org>
 Content-Language: en-US
-From: Janosch Frank <frankja@linux.ibm.com>
-Autocrypt: addr=frankja@linux.ibm.com; keydata=
- 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
-In-Reply-To: <20260709-vsie-sigpi-v1-16-ea9f12066408@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Autocrypt: addr=david@kernel.org; keydata=
+ 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
+ qIws/H2t
+In-Reply-To: <cover.1784292223.git.agordeev@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzE3MDE0NCBTYWx0ZWRfX9ihXaygp5lLO
- O4Rz6jRW1Z9dHnVrO5rYLOvVoBbNCPYFWQ7BlarBN20Rt7O/zHHSFSNmRanbLzy3Qq3qb6F+tgt
- 2XLilNiCYyx+mn/Wv5RvvBBKXdTb9Qc=
-X-Authority-Analysis: v=2.4 cv=Mp1iLWae c=1 sm=1 tr=0 ts=6a5a3a2f cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
- a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=2prQhZuATWbUqhegNzEA:9
- a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: DqIgFKXU8QGUr_fsz44b4UDm_zYQw64i
-X-Proofpoint-ORIG-GUID: DqIgFKXU8QGUr_fsz44b4UDm_zYQw64i
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzE3MDE0NCBTYWx0ZWRfX0kEHgqrfEDIh
- POwoBLF2T0UDvGvqTLqwLt33sIlQYPajCAco+fUIXAOfh7d04yFKVRYUrWh5qnJqybJKZ1XsRAa
- /AgU7sfZNoasG7dwpteKuFLBjYp8WGvYeV5slO/y6AV04hGYDJ/gSZUK0z1cl8zUcaxgEoJtkBj
- 9meY+Vgfc4yUB2Qf/U8Nz66LB8dsX6cVSCfvi3fGDyxjH0j668dnws45NhCxCK7pxivTACuzPcF
- LNQyOGmgK12oz6GJYlPtgXZLNNxeKdmBnpjyFKzJ7ulTdNCjSkOaSgGvhxNK92A1bkaXoCOqsW3
- TE6t/GPTs+9qEfn5E354S8UbTdsg2Yqvs34jR21qqm0OFsGYbweuzgXI7KBzSKDlnwus0dyBqv8
- uygbDCnT6bPRDVnkvYvoRLeiZ6/sxkHbeS0riRvuxRw5CEhVa4DVfa41pZ83bGE4QpWdVedU+er
- duKtuzAsMNNLKNYeClw==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-07-17_04,2026-07-17_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- adultscore=0 bulkscore=0 spamscore=0 malwarescore=0 lowpriorityscore=0
- impostorscore=0 priorityscore=1501 suspectscore=0 clxscore=1015 phishscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607170144
 
-On 7/9/26 17:15, Christoph Schlameuss wrote:
-> Restructure kvm_s390_handle_vsie() to create a guest-1 shadow of the SCA
-> if guest-2 attempts to enter SIE with an SCA. If the SCA is used the
-> vsie_pages are stored in a new vsie_sca struct instead of the arch vsie
-> struct.
+On 7/17/26 14:32, Alexander Gordeev wrote:
+> Hi All!
 > 
-> When the VSIE-Interpretation-Extension Facility is active the shadow SCA
-> (ssca_block) will be created and shadows of all CPUs defined in the
-> configuration are created. SCAOL/H in the VSIE control block are
-> overwritten with references to the shadow SCA.
+> This RFC is a result the implementation of lazy MMU mode on s390 [1].
 > 
-> The shadow SCA contains the addresses of the original guest-3 SCA as
-> well as the original VSIE control blocks. With these addresses the
-> machine can directly monitor the intervention bits within the original
-> SCA entries, enabling it to handle SENSE_RUNNING and EXTERNAL_CALL sigp
-> instructions without exiting VSIE.
+> Heiko Carstens requested some mechanism that would rule out direct
+> dereferencing of PTE pointers, which otherwise would bypass the per-
+> cpu cache on s390 and lead to catastrophic results.
 > 
-> The original SCA will be pinned in guest-2 memory and only be unpinned
-> before reuse. This means some pages might still be pinned even after the
-> guest 3 VM does no longer exist.
+> This is an attempt to introduce __ptent sparse attribute similar to
+> __private, but to be applied only to pte_t type by architectures.
+> When used with C=1 the modified sparse "dereference of PTE pointer"
+> warning is emitted.
 > 
-> The vsie_scas including the ssca_blocks are also kept within a map to
-> reuse already existing ssca_blocks efficiently. While the map and array
-> with references to the vsie_scas are held in the arch vsie struct. The
-> use of vsie_scas is tracked using an ref_count.
+> With using that new mechanism I was able to identify direct PTE
+> pointer dereferences, which should not have existed after commit
+> c33c794828f2 ("mm: ptep_get() conversion") (and its follow-ups).
 > 
+> In addition to ptep_get() and set_pte() accessors I suggest to
+> introduce ptep_get_nopgtable() and set_pte_nopgtable() variants
+> to use when a PTE pointer does not point to the page table, but
+> rather to a copy of the PTE. These would allow dropping unnecessary
+> checks on s390, but is already the case for folio_pte_batch_flags().
+> 
+> Patches 1,2 are independent from the sparse rework and are good to go AFAICT.
+> Patch 3 is the required change to be coupled with the sparse rework below.
+> Patch 4 is an example of how __ptent was implemented on s390.
+> 
+> I hesitate to post the sparse patch itself before the rework is is agreed,
+> but I am CC-ing the sparse mailing list.
 
-[...]
+Usama is working on something bigger, whereby we introduce the concept of pte_t
+and hw_pte_t in common code, and allow to decouple them on architectures that
+really need (IOW that implement it in their arch code).
 
-> +
-> +static void vsie_sca_update(struct vsie_sca *vsie_sca, unsigned int cpu_nr,
-> +			    struct vsie_page *vsie_page_n, hpa_t sca_o_entry_hpa)
-> +{
-> +	vsie_sca->ssca.cpu[cpu_nr].ssda = virt_to_phys(&vsie_page_n->scb_s);
-> +	vsie_sca->ssca.cpu[cpu_nr].ossea = sca_o_entry_hpa;
-We potentially update these while a cpu is in VSIE, correct?
-Do we need to make sure that these stores are atomic?
+On architecture that decouple both types, the compiler will do the type checking
+for us.
 
+The prototype patches I saw looked pretty encouraging (at least for pte_t, pmd_t
+is more involved).
+
+There is some information here:
+
+https://lore.kernel.org/r/6110202c-057b-4701-8c04-1a76ee7bb9ab@arm.com
+
+And I'm sure Usama can share some more details with you to give you a better
+idea if that would solve the problem for s390x as well.
+
+-- 
+Cheers,
+
+David
