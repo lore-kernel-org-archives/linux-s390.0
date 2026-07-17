@@ -1,31 +1,31 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA6EE32570D;
-	Fri, 17 Jul 2026 18:05:36 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8174D31714A;
+	Fri, 17 Jul 2026 18:05:48 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784311537; cv=none; b=elneCjz5ese6NNQIJoJ9czTUuLl0hTgzjNSae9RUdPmdx33A5HDc0nSjYsTd95Pw6I4BSHfk4cCSaVeo3GmGBdaMIYRlThGVq4TF5URt2sAbRCiHL3cbxXLpikfFHGBFSeUwtNuIT2CncljIxVTlLiuX+9uXQpaj/RnysrH92HQ=
+	t=1784311549; cv=none; b=RG02ag8iUEqDoAWLL4fHycSXrg6Ulpkg9Od034OGwhFvf00Zll9+4gxDew1mv5l43B9WZ7zOJ0iM9GSDoPKxKyM6Bc7oh6Dh0bIXm2sEHVAx4KCBOzDiDYTh9qqJZ6KLbN8PA4FffRSjdvL2G0eONDg2kE4bJ2utPMlnWx2E/M8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784311537; c=relaxed/simple;
-	bh=I+x2QPZqGU6QLJFjyfra/KkgEvRsmXqnm/8TIga5+kQ=;
+	s=arc-20240116; t=1784311549; c=relaxed/simple;
+	bh=ooE2r7JwM/HGQIw48oIFNvbdsX7HgZSRQubrOtylgUM=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=U/PnGAlRLV2vLLHZn2z7QbsPaKbDqW+N3ub01sc1bq6nbiSVc8caORy4Aa3gNMV/X/QYVhvk86p8+XXZl0AMAIj/LiXQZHT85gTOxyfYxyTurQeO5cgdMkK7tdZGkXmMakHqBMMXLR0GC+riGKowePj3ipq44BJdA1ErVhtxo6Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PiVA0z2H; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version; b=ojZAG2j2P9nU1T+x5ylER6apQDZG7u48QFiFLBCzcl0cxfxqo6E8MUqZI9GgD9OAdjW9AqhhBNfnjX3SxrAESZZCg/yehWpMaK6MOVvAi4Vmzbk5Oz40is5euQIkBG411fyPZ9YGcaa83ivGKGxzmA5XAQnIBuAGvbKiW0dZrM8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=oeF+Ifxp; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PiVA0z2H"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85BB81F00A3D;
-	Fri, 17 Jul 2026 18:05:25 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="oeF+Ifxp"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 813691F000E9;
+	Fri, 17 Jul 2026 18:05:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784311536;
-	bh=6JAWb8OTjOFId3JccbNdiGr1f8/BydsRdPfwaJAJRw8=;
+	s=k20260515; t=1784311548;
+	bh=z6dDgE7JkOObtE2Hn1HKt3eeloSTK5VxIseLNnZOFlg=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=PiVA0z2H4Snzd6lFwW/aQE3N8yGaK1f96qr9raHxxnqHLOyMqLswOfAV3OmODRrA7
-	 KWUigEa1nQENHkk2fpPUawIZcoNGzZNukyqTGX742GZmzNW6aE5IMprZ53p8Gl0ReC
-	 PMiHzCvvyGrqH1+lS0m8KzVFNwiaw7wxbBglg+5j0c4X9d5VMAV2b8SiIO55sh8C1J
-	 rRegbQR7pFr11wRS4d3YTLrh7NmJTjul0aBRX04PN8ZcVlAgfLB053IG6duvKqH9/Q
-	 QbgfQb2XG57vWlQvnpcQYOqY+7NpdXzDTtJ0ZtvQWUXoQjjlNO9YmGnJeWLKkp7rqQ
-	 O0E8L88PGpcHA==
+	b=oeF+IfxpYmSZu1u63a32cjs/L6r2e1rcv4bFhtQBcuR85N5csGMHhS2Zv4clRRRfo
+	 166/0G3NoQm3IkkzhttzLiZor3pQyQuRBeIi7AUb6eNG/m9T26xDOD0U7IBM5q3JD2
+	 KDj0cfreenJRdo5kM018PQi+WeqxvoKAsj6IjfGXWjwZFhBuo0Ovvq3OR5H73JZoBS
+	 AnPoFylIrnK6Oo6qmRifNa4hFKTXFTTxF0DVCZ4aRukA0AGbk+98JPvjtojnbw7dnm
+	 4d3c38FgZhROoLkjtF1V6KXLi89DhnzsYwwQZ+rHP1+zvJyKLm4edWgJzrrUnBBTBT
+	 mpGs1kqSePKhA==
 From: "Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org>
 To: iommu@lists.linux.dev,
 	linux-arm-kernel@lists.infradead.org,
@@ -59,11 +59,10 @@ Cc: "Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org>,
 	Christian Borntraeger <borntraeger@linux.ibm.com>,
 	Sven Schnelle <svens@linux.ibm.com>,
 	x86@kernel.org,
-	Jason Gunthorpe <jgg@nvidia.com>,
 	Michael Kelley <mhklinux@outlook.com>
-Subject: [PATCH v8 03/23] iommu/dma: Check atomic pool allocation result directly
-Date: Fri, 17 Jul 2026 23:34:21 +0530
-Message-ID: <20260717180442.110954-4-aneesh.kumar@kernel.org>
+Subject: [PATCH v8 04/23] dma: free atomic pool pages by physical address
+Date: Fri, 17 Jul 2026 23:34:22 +0530
+Message-ID: <20260717180442.110954-5-aneesh.kumar@kernel.org>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20260717180442.110954-1-aneesh.kumar@kernel.org>
 References: <20260717180442.110954-1-aneesh.kumar@kernel.org>
@@ -75,48 +74,129 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The non-blocking, non-coherent allocation path uses dma_alloc_from_pool(),
-which returns the allocated page and fills cpu_addr only on success.
+dma_direct_alloc_pages() may satisfy atomic allocations from the coherent
+atomic pools. The pool allocation is keyed by the virtual address stored in
+the gen_pool, but the pages API returns only the backing struct page.
 
-Do not rely on cpu_addr to detect allocation failure in this path. Check
-the returned page directly before using it for the IOMMU mapping.
+On architectures with CONFIG_DMA_DIRECT_REMAP, atomic pool chunks are added
+to the gen_pool using their remapped virtual address.
+dma_direct_free_pages() reconstructs a linear-map address with
+page_address(page) and passes that to dma_free_from_pool(). That address
+does not match the gen_pool virtual range, so the pool lookup can fail and
+the code can fall through to freeing a pool-owned page through the normal
+page allocator path.
 
-Fixes: 9420139f516d ("dma-pool: fix coherent pool allocations for IOMMU mappings")
-Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
+Add a page-based pool free helper that looks up the owning pool chunk by
+physical address, translates it back to the gen_pool virtual address, and
+frees that address to the pool. Use it from dma_direct_free_pages() while
+keeping the existing virtual-address helper for coherent allocation frees.
+
 Tested-by: Michael Kelley <mhklinux@outlook.com>
 Tested-by: Mostafa Saleh <smostafa@google.com>
-Reviewed-by: Petr Tesarik <ptesarik@suse.com>
 Signed-off-by: Aneesh Kumar K.V (Arm) <aneesh.kumar@kernel.org>
 ---
- drivers/iommu/dma-iommu.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ include/linux/dma-map-ops.h |  1 +
+ kernel/dma/direct.c         |  4 +--
+ kernel/dma/pool.c           | 61 +++++++++++++++++++++++++++++++++++++
+ 3 files changed, 64 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/iommu/dma-iommu.c b/drivers/iommu/dma-iommu.c
-index 5598ed4bff72..6a45acbbfb0c 100644
---- a/drivers/iommu/dma-iommu.c
-+++ b/drivers/iommu/dma-iommu.c
-@@ -1671,13 +1671,16 @@ void *iommu_dma_alloc(struct device *dev, size_t size, dma_addr_t *handle,
- 	}
+diff --git a/include/linux/dma-map-ops.h b/include/linux/dma-map-ops.h
+index bcb5b5428aea..137e015c1750 100644
+--- a/include/linux/dma-map-ops.h
++++ b/include/linux/dma-map-ops.h
+@@ -215,6 +215,7 @@ struct page *dma_alloc_from_pool(struct device *dev, size_t size,
+ 		void **cpu_addr, gfp_t flags,
+ 		bool (*phys_addr_ok)(struct device *, phys_addr_t, size_t));
+ bool dma_free_from_pool(struct device *dev, void *start, size_t size);
++bool dma_free_from_pool_page(struct device *dev, struct page *page, size_t size);
  
- 	if (IS_ENABLED(CONFIG_DMA_DIRECT_REMAP) &&
--	    !gfpflags_allow_blocking(gfp) && !coherent)
-+	    !gfpflags_allow_blocking(gfp) && !coherent) {
- 		page = dma_alloc_from_pool(dev, PAGE_ALIGN(size), &cpu_addr,
--					       gfp, NULL);
--	else
-+					   gfp, NULL);
-+		if (!page)
-+			return NULL;
-+	} else {
- 		cpu_addr = iommu_dma_alloc_pages(dev, size, &page, gfp, attrs);
--	if (!cpu_addr)
--		return NULL;
-+		if (!cpu_addr)
-+			return NULL;
+ int dma_direct_set_offset(struct device *dev, phys_addr_t cpu_start,
+ 		dma_addr_t dma_start, u64 size);
+diff --git a/kernel/dma/direct.c b/kernel/dma/direct.c
+index 363d984d90e7..a81597f8c3ed 100644
+--- a/kernel/dma/direct.c
++++ b/kernel/dma/direct.c
+@@ -381,9 +381,9 @@ void dma_direct_free_pages(struct device *dev, size_t size,
+ {
+ 	void *vaddr = page_address(page);
+ 
+-	/* If cpu_addr is not from an atomic pool, dma_free_from_pool() fails */
++	/* If page is not from an atomic pool, dma_free_from_pool_page() fails */
+ 	if (IS_ENABLED(CONFIG_DMA_COHERENT_POOL) &&
+-	    dma_free_from_pool(dev, vaddr, size))
++	    dma_free_from_pool_page(dev, page, size))
+ 		return;
+ 
+ 	if (dma_set_encrypted(dev, vaddr, size))
+diff --git a/kernel/dma/pool.c b/kernel/dma/pool.c
+index b0303efbc153..e981c1faaadf 100644
+--- a/kernel/dma/pool.c
++++ b/kernel/dma/pool.c
+@@ -311,3 +311,64 @@ bool dma_free_from_pool(struct device *dev, void *start, size_t size)
+ 
+ 	return false;
+ }
++
++struct dma_pool_phys_match {
++	phys_addr_t phys;
++	size_t size;
++	unsigned long addr;
++	bool found;
++};
++
++static void dma_pool_find_phys(struct gen_pool *pool, struct gen_pool_chunk *chunk,
++			       void *data)
++{
++	struct dma_pool_phys_match *match = data;
++	phys_addr_t end = match->phys + match->size - 1;
++	phys_addr_t chunk_end;
++
++	if (match->found)
++		return;
++
++	chunk_end = chunk->phys_addr + (chunk->end_addr - chunk->start_addr);
++	if (match->phys < chunk->phys_addr || end > chunk_end)
++		return;
++
++	match->addr = chunk->start_addr + (match->phys - chunk->phys_addr);
++	match->found = true;
++}
++
++static bool dma_free_from_pool_phys(struct gen_pool *pool, phys_addr_t phys,
++				    size_t size)
++{
++	struct dma_pool_phys_match match = {
++		.phys = phys,
++		.size = size,
++	};
++
++	gen_pool_for_each_chunk(pool, dma_pool_find_phys, &match);
++	if (!match.found)
++		return false;
++
++	gen_pool_free(pool, match.addr, size);
++	return true;
++}
++
++/*
++ * FIXME: We could avoid this by storing the remapped virtual address in
++ * struct page and using that for lookup.
++ */
++bool dma_free_from_pool_page(struct device *dev, struct page *page, size_t size)
++{
++	struct gen_pool *pool = NULL;
++	phys_addr_t phys = page_to_phys(page);
++
++	if (!IS_ENABLED(CONFIG_DMA_DIRECT_REMAP))
++		return dma_free_from_pool(dev, page_address(page), size);
++
++	while ((pool = dma_guess_pool(pool, 0))) {
++		if (dma_free_from_pool_phys(pool, phys, size))
++			return true;
 +	}
- 
- 	*handle = __iommu_dma_map(dev, page_to_phys(page), size, ioprot,
- 			dev->coherent_dma_mask);
++
++	return false;
++}
 -- 
 2.43.0
 
