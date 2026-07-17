@@ -1,31 +1,31 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA005340417;
-	Fri, 17 Jul 2026 18:05:24 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA6EE32570D;
+	Fri, 17 Jul 2026 18:05:36 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784311525; cv=none; b=g2bwfRUXL5yNvOilnHCOtSHcIwdiXXA0wwJwCJYMSjy5paxKk7gmoemLhAsr3xeqfYnBumwXuQ18jIx2piTGfEScU8cQ1n4vr1Op2Opg5QwRerYAOTxh2N/BDGKCoUl6Fr6f6+WKP7z5j9UIPsh2q2LgQizzi/HshVUPjt+VvF8=
+	t=1784311537; cv=none; b=elneCjz5ese6NNQIJoJ9czTUuLl0hTgzjNSae9RUdPmdx33A5HDc0nSjYsTd95Pw6I4BSHfk4cCSaVeo3GmGBdaMIYRlThGVq4TF5URt2sAbRCiHL3cbxXLpikfFHGBFSeUwtNuIT2CncljIxVTlLiuX+9uXQpaj/RnysrH92HQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784311525; c=relaxed/simple;
-	bh=wDumvzkXnSiFdlhTUSh4W5hc8/0cvR4MLjYrq2D2y5I=;
+	s=arc-20240116; t=1784311537; c=relaxed/simple;
+	bh=I+x2QPZqGU6QLJFjyfra/KkgEvRsmXqnm/8TIga5+kQ=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Un0mK7+sk6eb8WQqFn+K/IHdAWMRwT1KlcP3rdpqUJ2TPmFvO1KVKw9KfKoCA6wE+G0/EsmKBvnW1vO26/FUcv7AwK0+BZUQQ4lsQd5ft/ca8rwJuIUviWwQU79b+rNUT2rb1kmPdFoZ7/nXQK4YdEMV+oUb/uh+dLJxhaAwSKo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TuVQu0Md; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version; b=U/PnGAlRLV2vLLHZn2z7QbsPaKbDqW+N3ub01sc1bq6nbiSVc8caORy4Aa3gNMV/X/QYVhvk86p8+XXZl0AMAIj/LiXQZHT85gTOxyfYxyTurQeO5cgdMkK7tdZGkXmMakHqBMMXLR0GC+riGKowePj3ipq44BJdA1ErVhtxo6Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PiVA0z2H; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TuVQu0Md"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A20961F000E9;
-	Fri, 17 Jul 2026 18:05:13 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PiVA0z2H"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85BB81F00A3D;
+	Fri, 17 Jul 2026 18:05:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784311524;
-	bh=Ss9PM/006K6SV5h+g0Mm+5y5zthxbL2BqyOfIndeCeE=;
+	s=k20260515; t=1784311536;
+	bh=6JAWb8OTjOFId3JccbNdiGr1f8/BydsRdPfwaJAJRw8=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=TuVQu0MdtCse0JkcTEXH2Lq3N8GnmxJYSHQ6CoRTHDltevRiIULT5pnqPM4+8+BAQ
-	 /JYVDAwN6m05+4yZnuZwY+K+Uvh7axJ4AmMsAJCMR7dGUeQuyQp75bJT0fW4GwPxsr
-	 r2m0krA+7xFAwrpSKW3D1wGN0ak4798EK1c2pnF1nE1AxAqM5JU7p2Y+uwKAtlzr/3
-	 0SP8yoL0OntLzCWzdi5O4R036tEdejgeaZDyzHmy7KzUiLH+vr0e7bLicKBgrzgUFT
-	 QWcdjpVZw+U9E+w0lbFwqX/3IGUvZJvLJDX+7Ctr3NP0ikMrI2SChaP0sOzNHVVMfQ
-	 j3ClE0BUZz12A==
+	b=PiVA0z2H4Snzd6lFwW/aQE3N8yGaK1f96qr9raHxxnqHLOyMqLswOfAV3OmODRrA7
+	 KWUigEa1nQENHkk2fpPUawIZcoNGzZNukyqTGX742GZmzNW6aE5IMprZ53p8Gl0ReC
+	 PMiHzCvvyGrqH1+lS0m8KzVFNwiaw7wxbBglg+5j0c4X9d5VMAV2b8SiIO55sh8C1J
+	 rRegbQR7pFr11wRS4d3YTLrh7NmJTjul0aBRX04PN8ZcVlAgfLB053IG6duvKqH9/Q
+	 QbgfQb2XG57vWlQvnpcQYOqY+7NpdXzDTtJ0ZtvQWUXoQjjlNO9YmGnJeWLKkp7rqQ
+	 O0E8L88PGpcHA==
 From: "Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org>
 To: iommu@lists.linux.dev,
 	linux-arm-kernel@lists.infradead.org,
@@ -61,9 +61,9 @@ Cc: "Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org>,
 	x86@kernel.org,
 	Jason Gunthorpe <jgg@nvidia.com>,
 	Michael Kelley <mhklinux@outlook.com>
-Subject: [PATCH v8 02/23] dma-pool: fix page leak in atomic_pool_expand() cleanup
-Date: Fri, 17 Jul 2026 23:34:20 +0530
-Message-ID: <20260717180442.110954-3-aneesh.kumar@kernel.org>
+Subject: [PATCH v8 03/23] iommu/dma: Check atomic pool allocation result directly
+Date: Fri, 17 Jul 2026 23:34:21 +0530
+Message-ID: <20260717180442.110954-4-aneesh.kumar@kernel.org>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20260717180442.110954-1-aneesh.kumar@kernel.org>
 References: <20260717180442.110954-1-aneesh.kumar@kernel.org>
@@ -75,66 +75,48 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-atomic_pool_expand() frees the allocated pages from the remove_mapping
-error path only when CONFIG_DMA_DIRECT_REMAP is enabled.
+The non-blocking, non-coherent allocation path uses dma_alloc_from_pool(),
+which returns the allocated page and fills cpu_addr only on success.
 
-When CONFIG_DMA_DIRECT_REMAP is disabled, failures after page allocation,
-such as gen_pool_add_virt(), jump to remove_mapping and return without
-freeing the pages.
+Do not rely on cpu_addr to detect allocation failure in this path. Check
+the returned page directly before using it for the IOMMU mapping.
 
-Move __free_pages(page, order) out of the CONFIG_DMA_DIRECT_REMAP block so
-that cleanup paths always release the allocation.
-
+Fixes: 9420139f516d ("dma-pool: fix coherent pool allocations for IOMMU mappings")
 Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
 Tested-by: Michael Kelley <mhklinux@outlook.com>
 Tested-by: Mostafa Saleh <smostafa@google.com>
+Reviewed-by: Petr Tesarik <ptesarik@suse.com>
 Signed-off-by: Aneesh Kumar K.V (Arm) <aneesh.kumar@kernel.org>
 ---
- kernel/dma/pool.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/iommu/dma-iommu.c | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
-diff --git a/kernel/dma/pool.c b/kernel/dma/pool.c
-index 2b2fbb709242..b0303efbc153 100644
---- a/kernel/dma/pool.c
-+++ b/kernel/dma/pool.c
-@@ -81,6 +81,7 @@ static int atomic_pool_expand(struct gen_pool *pool, size_t pool_size,
- {
- 	unsigned int order;
- 	struct page *page = NULL;
-+	bool leak_pages = false;
- 	void *addr;
- 	int ret = -ENOMEM;
- 
-@@ -115,8 +116,10 @@ static int atomic_pool_expand(struct gen_pool *pool, size_t pool_size,
- 	 */
- 	ret = set_memory_decrypted((unsigned long)page_to_virt(page),
- 				   1 << order);
--	if (ret)
-+	if (ret) {
-+		leak_pages = true;
- 		goto remove_mapping;
-+	}
- 	ret = gen_pool_add_virt(pool, (unsigned long)addr, page_to_phys(page),
- 				pool_size, NUMA_NO_NODE);
- 	if (ret)
-@@ -130,14 +133,15 @@ static int atomic_pool_expand(struct gen_pool *pool, size_t pool_size,
- 				   1 << order);
- 	if (WARN_ON_ONCE(ret)) {
- 		/* Decrypt succeeded but encrypt failed, purposely leak */
--		goto out;
-+		leak_pages = true;
+diff --git a/drivers/iommu/dma-iommu.c b/drivers/iommu/dma-iommu.c
+index 5598ed4bff72..6a45acbbfb0c 100644
+--- a/drivers/iommu/dma-iommu.c
++++ b/drivers/iommu/dma-iommu.c
+@@ -1671,13 +1671,16 @@ void *iommu_dma_alloc(struct device *dev, size_t size, dma_addr_t *handle,
  	}
- remove_mapping:
- #ifdef CONFIG_DMA_DIRECT_REMAP
- 	dma_common_free_remap(addr, pool_size);
- free_page:
--	__free_pages(page, order);
- #endif
-+	if (!leak_pages)
-+		__free_pages(page, order);
- out:
- 	return ret;
- }
+ 
+ 	if (IS_ENABLED(CONFIG_DMA_DIRECT_REMAP) &&
+-	    !gfpflags_allow_blocking(gfp) && !coherent)
++	    !gfpflags_allow_blocking(gfp) && !coherent) {
+ 		page = dma_alloc_from_pool(dev, PAGE_ALIGN(size), &cpu_addr,
+-					       gfp, NULL);
+-	else
++					   gfp, NULL);
++		if (!page)
++			return NULL;
++	} else {
+ 		cpu_addr = iommu_dma_alloc_pages(dev, size, &page, gfp, attrs);
+-	if (!cpu_addr)
+-		return NULL;
++		if (!cpu_addr)
++			return NULL;
++	}
+ 
+ 	*handle = __iommu_dma_map(dev, page_to_phys(page), size, ioprot,
+ 			dev->coherent_dma_mask);
 -- 
 2.43.0
 
