@@ -1,45 +1,46 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 42D3C3998B1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D11283FDBE5
 	for <linux-s390@vger.kernel.org>; Fri, 17 Jul 2026 13:24:28 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784294669; cv=none; b=gI6lPYxQLWs4yC3plCDdqqZApXWAeYjScqtmh1sl37VqjqbjR+2bEf87kSKo5NdYSH0OPrbyAHUlOYRtSLeyFSa4DYG9HYLSmy5uOnJd+q4r7EoBlznaXppekSdYUJnhm2sMbEf5U46MooQu8ynIAwQokFiu3zB2iLgQQLLdqqA=
+	t=1784294669; cv=none; b=lj0d8aqoFNByWsQ6UrgWWEwMPJBhIfc6FM65OSFzhbdDUd3NdkGetiGBnvXiEqTbSq8IkPsj+ynrsqCPvyefIUXV26UvuQOehbba/ppdeLJ/00VnyZPsBRP8MItVzulfxPy65WPQ8FZ7dB5wYJ3EG1W3eymYPcYAaRvXVx/MXMc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1784294669; c=relaxed/simple;
-	bh=WNxEfunE5Vce9oXBwbuFMsLWzn8URobOOi5mNzlMVDg=;
+	bh=nZPVxLB188AS9HSR0MfptTZk2T6PVDKhptoVeckJp/E=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=n40KMKuBnCtaHb4DpP/7BKwY4c3zl3FNG2M+4LrQXopePmkgssxpUXdHeTZaK4yzQaDLbgA0sWYQt2hHpEl3EMKeciP6fxJgro5c6Xa/y/tZcY6QnccOPCiupCRPkodQL0sfFB5ObrgAP+yyKEou+x5dCwzD5jvqH5P2g2E8HMo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=oyfAALFU; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=UdfLTiofL65z4e1hov/z/McW1zX6CHBtyvJC7mGqAOe0E7Hn1Ce6i+A4jGUV27B1RQStkJyniAH1o2ahZcRTujmeYxXAjcwOS0CFCAZrAukEx0kuJjogzWk+K6uzVvOLl8sSLQiNxTXBLn+s0jpbfK8InmzOLlybMaV4ifQdmuw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=myQk+TZK; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="oyfAALFU"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82BA81F000E9;
-	Fri, 17 Jul 2026 13:24:27 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="myQk+TZK"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 686441F00A3A;
+	Fri, 17 Jul 2026 13:24:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
 	s=k20260515; t=1784294668;
-	bh=zrhMimYvLsZpswdFVTQdA8lBK+iV4PtFtUBjg19/Pxo=;
+	bh=gDYKjXOBxWRpOrGKbbQGT/Vsg1mu6+oHvtcYGr47wLQ=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=oyfAALFUu3c/xUQiVZQFCMwTOkmreRk8rzX9IrsbVwGQkxpR+8KymkgYCVuiTPIZd
-	 TxomPRFXlN61UVKUBcb4Z40NcSjVf+lFfsh4U4bSjOe4/Fbua4kgR4HOKqZhSEZl68
-	 EsveEa2Eh5by659/qI+njVlc2kmoQg/+z+yQM0S7Ag57F/B9zk02o0k7PTYoMUeHVE
-	 rekmp9nDxV590xj3tM7kt+Nu1LL6IiK0eXuv1GN+Ks41IgUcEqeljyrS39fhLDkXRs
-	 4wnSoiXzX5SHL2y3sWdozumsVMJxcmgNNOkG+bqUybsq+CTBKFlIkl1A5GBYljdSOt
-	 HDQnvcCu1162A==
+	b=myQk+TZKLn03pL3hyHzF3Mg1qoNk+eSGbPwsbH1KE/x7nODj0k2EgHnT0OzykhfeO
+	 pA/vwiAe+m0c/GKKDyTEPTzSctzKfbTzqism1GcbDsPNDAysDN82mGMSdvlFvakEAu
+	 P7bLATyBw3tETVRWc7h+HXf+b/IfDd/NyZA8gfB5YUBP08eFnXZXKFjESuxs6jHili
+	 rjMkjxVqHDxBnhQS/qbwcjLhw3DoT0nj63nYTOcrUcZXNPpwIp5cAMZ0xnh4ENbDD5
+	 eUbKN15nTkh5ZFKcZy+/z9muGadWNxzSyV8sSNhr18LoqqBUYq+yukbf/I+pl6Drbq
+	 mPB3MWW/sHc2Q==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH rdma-next v3 06/14] net/smc: Look up the pnetid ib
- device within the net namespace
+Subject: Re: [PATCH rdma-next v3 03/14] RDMA/core: Support renaming a device
+ when changing its net namespace
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Jiri Pirko" <jiri@resnulli.us>
-Cc: tj@kernel.org, "Alexander Gordeev" <agordeev@linux.ibm.com>, hannes@cmpxchg.org, mkoutny@suse.com, "Heiko
- Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org
-In-Reply-To: <20260716132316.1495242-7-jiri@resnulli.us>
+Cc: tj@kernel.org, linux-s390@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, hannes@cmpxchg.org, mkoutny@suse.com, "Heiko
+ Carstens" <hca@linux.ibm.com>
+In-Reply-To: <20260716132316.1495242-4-jiri@resnulli.us>
 References: <20260716132316.1495242-1-jiri@resnulli.us>
- <20260716132316.1495242-7-jiri@resnulli.us>
+ <20260716132316.1495242-4-jiri@resnulli.us>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 17 Jul 2026 13:24:27 +0000
-Message-Id: <20260717132427.82BA81F000E9@smtp.kernel.org>
+Date: Fri, 17 Jul 2026 13:24:28 +0000
+Message-Id: <20260717132428.686441F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -48,82 +49,56 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-
-Pre-existing issues:
-- [Critical] `smc_pnet_find_ib()` and `smc_pnet_find_smcd()` return unrefer=
-enced pointers leading to a Use-After-Free during concurrent device removal.
+- [Medium] The netlink handler fails to pass the requested device name to `=
+ib_device_set_netns_put` during a network namespace change, and ignores nam=
+espace moves entirely if a rename is also requested.
 --
 
---- Patch [6]: [PATCH rdma-next v3 06/14] net/smc: Look up the pnetid ib de=
-vice within the net namespace ---
-commit 22bac16fe9606993a05fb72609386eb7b37fed92
+--- Patch [3]: [PATCH rdma-next v3 03/14] RDMA/core: Support renaming a dev=
+ice when changing its net namespace ---
+commit 65e19be4bcb60d41b06e567081d99cee8fd2722c
 Author: Jiri Pirko <jiri@resnulli.us>
 
-net/smc: Look up the pnetid ib device within the net namespace
+RDMA/core: Support renaming a device when changing its net namespace
 
-Scope smc_pnet_find_ib() to the caller's net namespace so pnetid setup
-cannot bind to a same-named RDMA device from another namespace once names
-become per-netns.
+This commit adds support for renaming a device at the same time it is moved
+to a new network namespace. It allows namespace moves to request a specific
+destination device name, falling back to a trusted kernel-controlled pattern
+if none is provided.
 
-> diff --git a/net/smc/smc_pnet.c b/net/smc/smc_pnet.c
-> index 63e286e2dfaa8..ff9c9c35cc2f5 100644
-> --- a/net/smc/smc_pnet.c
-> +++ b/net/smc/smc_pnet.c
-
-[ ... ]
-
-> @@ -408,8 +413,8 @@ static int smc_pnet_add_eth(struct smc_pnettable *pne=
-ttable, struct net *net,
->  	return rc;
->  }
+> diff --git a/drivers/infiniband/core/nldev.c b/drivers/infiniband/core/nl=
+dev.c
+> index 32b6c4d68ca0a..77a7580801486 100644
+> --- a/drivers/infiniband/core/nldev.c
+> +++ b/drivers/infiniband/core/nldev.c
+> @@ -1195,7 +1195,7 @@ static int nldev_set_doit(struct sk_buff *skb, stru=
+ct nlmsghdr *nlh,
+>  		u32 ns_fd;
 > =20
-> -static int smc_pnet_add_ib(struct smc_pnettable *pnettable, char *ib_nam=
-e,
-> -			   u8 ib_port, char *pnet_name)
-> +static int smc_pnet_add_ib(struct smc_pnettable *pnettable, struct net *=
-net,
-> +			   char *ib_name, u8 ib_port, char *pnet_name)
->  {
->  	struct smc_pnetentry *tmp_pe, *new_pe;
->  	struct smc_ib_device *ib_dev;
-> @@ -419,7 +424,7 @@ static int smc_pnet_add_ib(struct smc_pnettable *pnet=
-table, char *ib_name,
->  	bool new_ibdev;
-> =20
->  	/* try to apply the pnetid to active devices */
-> -	ib_dev =3D smc_pnet_find_ib(ib_name);
-> +	ib_dev =3D smc_pnet_find_ib(net, ib_name);
+>  		ns_fd =3D nla_get_u32(tb[RDMA_NLDEV_NET_NS_FD]);
+> -		err =3D ib_device_set_netns_put(skb, device, ns_fd);
+> +		err =3D ib_device_set_netns_put(skb, device, ns_fd, NULL);
 
-[Severity: Critical]
-This isn't a bug introduced by this patch, but does returning an unreferenc=
-ed
-pointer from smc_pnet_find_ib() create a use-after-free window?
+[Severity: Medium]
+Does this hardcoded NULL prevent the core feature from being reached?
 
-Looking at smc_pnet_find_ib(), the function holds smc_ib_devices.mutex while
-finding the device, but then drops the lock and returns the raw ibdev point=
-er:
+It appears the newly added name parameter in ib_device_set_netns_put() is=20
+never populated with the requested device name from the netlink attributes=
+=20
+in nldev_set_doit().=20
 
-net/smc/smc_pnet.c:smc_pnet_find_ib() {
-    ...
-    out:
-        mutex_unlock(&smc_ib_devices.mutex);
-        return ibdev;
-}
+If a user provides both RDMA_NLDEV_ATTR_DEV_NAME and RDMA_NLDEV_NET_NS_FD,
+the rename-during-move functionality cannot be used. Additionally, if the
+name attribute is parsed in a separate block, the function appears to take
+an early exit path, bypassing the namespace move entirely.
 
-If a concurrent device removal path acquires the mutex, removes the device
-from the list, and frees the struct smc_ib_device via kfree(), could the
-netlink thread subsequently dereference the freed pointer?
+Could this be updated to properly process both attributes and pass the
+requested device name during the move?
 
->  	if (ib_dev) {
->  		ibdev_applied =3D smc_pnet_apply_ib(ib_dev, ib_port, pnet_name);
->  		if (ibdev_applied)
-
-For example, smc_pnet_apply_ib() re-acquires the mutex and writes to
-ib_dev->pnetid, and the caller then reads ib_dev->ibdev->name for logging.
-
-Does this same unreferenced pointer pattern also affect smc_pnet_find_smcd()
-when it is called immediately after?
+>  		if (err =3D=3D -EEXIST)
+>  			NL_SET_ERR_MSG(extack,
+>  				       "Device name already exists in the target net namespace");
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260716132316.1495=
-242-1-jiri@resnulli.us?part=3D6
+242-1-jiri@resnulli.us?part=3D3
