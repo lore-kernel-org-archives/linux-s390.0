@@ -1,465 +1,127 @@
-Received: from out-178.mta0.migadu.com (out-178.mta0.migadu.com [91.218.175.178])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3807B37BE86
-	for <linux-s390@vger.kernel.org>; Fri, 17 Jul 2026 04:23:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E97F18FDDE;
+	Fri, 17 Jul 2026 08:41:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784262194; cv=none; b=JUE8G5JxNnC1vzr5J0FXNc8CSXYOFBpA+H3ay2VtRV0louXn3f+BDCOZZ4sLAMNrPmamSV0vCIFe3ZHBHXZ88//FW8kDwbZNleYIQwiOViwTfgDED0XC152es56c2uEGHkz5NYjNS7BIYYHCEYZ//OOSLnhXVqDgowimgqK+ch8=
+	t=1784277680; cv=none; b=lMpc7plrxs2MuYJx657fAYiYYVlA2mhP1qYYXkFn8sN+vuK3lcZlaAbD9t8NcBXfs0tplrJhRGXys9r6F9+qJPZOfi5a4I0q2C2WoX/jrJQlIVls54d5x8YrKg4IpMbZQ7aYba9Oi1P44wQyD6pv0IJExtG4cUYB/ODUqi5K3Vc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784262194; c=relaxed/simple;
-	bh=5IfC82RjBl4mddCZTUgkUM+Qqp7TpAMPmq8dqa7ThlY=;
+	s=arc-20240116; t=1784277680; c=relaxed/simple;
+	bh=jtop9uwhUuoC3NhD2BL8mZfDQL5XR4FXNKtFfz3xDN0=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=FKT2ic96T4UM7M/6lMuog27ztjd0ZgPqTCd/G4z834/pNxcS46xY/3MZQWYGH2XlXsTtV8NCVPs49jMO7HUCoqUqtvmsNdfTxQ/qoMefD7E8xyi6XGaXEFaazG2+bEnQQ5mvyAtfhWAnJEwdQKri3zoT87Uw+wAN1oYxoDfhEJY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=hn6e2Bb6; arc=none smtp.client-ip=91.218.175.178
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	 In-Reply-To:Content-Type; b=qzk9v5tKDKDx+Wn/BmPQwiqUQKMDTuzL34nN/zvPjUkdqe/+XbWVbhf/iCUwzs5kHJ9xD4wpkXKsGHzNVEpDnQrzZzZHQXsW5z2UPF3DQDkjUYTFZxUPRbF0Dg/RLO/htqbEUHyRwmst+S77d/3y95PhCRPllUVEDzTskQwDjCA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cMjoN7tA; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="hn6e2Bb6"
-Message-ID: <72f75fac-e39d-4fa4-903d-eb734307c3c5@linux.dev>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1784262179;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=uODrgicXLvj4e5C9B4P96p+sA4xdua+uWYhQeryRdrQ=;
-	b=hn6e2Bb6V07LGEIYwde3hgV/sqpMOk3i96DcYVx4Yl8mcr+prO7d4IKiM+/DguSWN/9+6T
-	Mb4X+kB5PNW5d6/T9SNkbnek+c6a7rk5f1Yy/pIS4vPbdhvntEJWnY+NBv2w31UcDrtojc
-	+hcBp+P5huR2BjQ7IuwGL+Q+un5cDMI=
-Date: Thu, 16 Jul 2026 21:22:51 -0700
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cMjoN7tA"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 094941F000E9;
+	Fri, 17 Jul 2026 08:41:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1784277679;
+	bh=MH0Ek6amXInUmmPKYuk0ZExAduIfS4jyNdkvppK51As=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=cMjoN7tAtb10fsveaPVknkkuIa+CA+G6v/C3GEmukpLObIKkPTwGFOGUaEsp1mf9N
+	 Vfwfrz6SmRXWiC3qToIew6KWVhAPHVGQesNMU5G/OW2fTq4hb+d+ZnGLnBJXj9JILv
+	 v8dzI3XqOvmnbVwpdnpbMTHX1VYTSRvPxRekYYUOdQkz9+dcAUmiU4QUIivjLMWZkW
+	 +Wo9H/5yozyr8gKZS8jVe1zGqBwuVf9xtZwD5kw2QjSSgTlGnSWaE/LbGmntOPeR93
+	 Sg0mhdkv0knC6swfG3vmiP1VcsjR8Ykt2FkFhoQMhN7XZVSaUN1sZuQQ3J9V7Hp9Pi
+	 lAJUBvMrwUAxQ==
+Message-ID: <9bcf08bf-12fb-4175-b9de-d5016a9eb242@kernel.org>
+Date: Fri, 17 Jul 2026 10:41:12 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Subject: Re: [PATCH rdma-next v3 14/14] RDMA/selftests: Add rxe_netns_names
- test
-To: Jiri Pirko <jiri@resnulli.us>, linux-rdma@vger.kernel.org,
- "yanjun.zhu@linux.dev" <yanjun.zhu@linux.dev>
-Cc: cgroups@vger.kernel.org, netdev@vger.kernel.org,
- linux-s390@vger.kernel.org, linux-kselftest@vger.kernel.org, jgg@ziepe.ca,
- leon@kernel.org, parav@nvidia.com, mbloch@nvidia.com, cmeiohas@nvidia.com,
- roman.gushchin@linux.dev, bvanassche@acm.org, zyjzyj2000@gmail.com,
- shuah@kernel.org, tj@kernel.org, mkoutny@suse.com, hannes@cmpxchg.org,
- alibuda@linux.alibaba.com, dust.li@linux.alibaba.com, sidraya@linux.ibm.com,
- wenjia@linux.ibm.com, cui.tao@linux.dev
-References: <20260716132316.1495242-1-jiri@resnulli.us>
- <20260716132316.1495242-15-jiri@resnulli.us>
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From: Zhu Yanjun <yanjun.zhu@linux.dev>
-In-Reply-To: <20260716132316.1495242-15-jiri@resnulli.us>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Migadu-Flow: FLOW_OUT
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 00/10] mm: remove CONFIG_HAVE_BOOTMEM_INFO_NODE (Part
+ 2)
+To: Dave Hansen <dave.hansen@intel.com>,
+ Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski
+ <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>,
+ Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>, x86@kernel.org,
+ "H. Peter Anvin" <hpa@zytor.com>, Andrew Morton <akpm@linux-foundation.org>,
+ Lorenzo Stoakes <ljs@kernel.org>, "Liam R. Howlett" <liam@infradead.org>,
+ Vlastimil Babka <vbabka@kernel.org>, Mike Rapoport <rppt@kernel.org>,
+ Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>,
+ Brendan Jackman <jackmanb@google.com>, Johannes Weiner <hannes@cmpxchg.org>,
+ Zi Yan <ziy@nvidia.com>, Alexander Gordeev <agordeev@linux.ibm.com>,
+ Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>, Muchun Song <muchun.song@linux.dev>,
+ Oscar Salvador <osalvador@suse.de>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+ linux-s390@vger.kernel.org
+References: <20260716-bootmem_info_part2-v2-0-4afc76c73d61@kernel.org>
+ <c0f585ce-bf1e-49c6-b04a-91c905716042@intel.com>
+From: "David Hildenbrand (Arm)" <david@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=david@kernel.org; keydata=
+ xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
+ dBrn+lhhOYjjNefFQou6478faXE6o2AhmebqT4KiQoUQFV4R7y1KMEKoSyy8hQaK1umALTdL
+ QZLQMzNE74ap+GDK0wnacPQFpcG1AE9RMq3aeErY5tujekBS32jfC/7AnH7I0v1v1TbbK3Gp
+ XNeiN4QroO+5qaSr0ID2sz5jtBLRb15RMre27E1ImpaIv2Jw8NJgW0k/D1RyKCwaTsgRdwuK
+ Kx/Y91XuSBdz0uOyU/S8kM1+ag0wvsGlpBVxRR/xw/E8M7TEwuCZQArqqTCmkG6HGcXFT0V9
+ PXFNNgV5jXMQRwU0O/ztJIQqsE5LsUomE//bLwzj9IVsaQpKDqW6TAPjcdBDPLHvriq7kGjt
+ WhVhdl0qEYB8lkBEU7V2Yb+SYhmhpDrti9Fq1EsmhiHSkxJcGREoMK/63r9WLZYI3+4W2rAc
+ UucZa4OT27U5ZISjNg3Ev0rxU5UH2/pT4wJCfxwocmqaRr6UYmrtZmND89X0KigoFD/XSeVv
+ jwBRNjPAubK9/k5NoRrYqztM9W6sJqrH8+UWZ1Idd/DdmogJh0gNC0+N42Za9yBRURfIdKSb
+ B3JfpUqcWwE7vUaYrHG1nw54pLUoPG6sAA7Mehl3nd4pZUALHwARAQABzS5EYXZpZCBIaWxk
+ ZW5icmFuZCAoQ3VycmVudCkgPGRhdmlkQGtlcm5lbC5vcmc+wsGQBBMBCAA6AhsDBQkmWAik
+ AgsJBBUKCQgCFgICHgUCF4AWIQQb2cqtc1xMOkYN/MpN3hD3AP+DWgUCaYJt/AIZAQAKCRBN
+ 3hD3AP+DWriiD/9BLGEKG+N8L2AXhikJg6YmXom9ytRwPqDgpHpVg2xdhopoWdMRXjzOrIKD
+ g4LSnFaKneQD0hZhoArEeamG5tyo32xoRsPwkbpIzL0OKSZ8G6mVbFGpjmyDLQCAxteXCLXz
+ ZI0VbsuJKelYnKcXWOIndOrNRvE5eoOfTt2XfBnAapxMYY2IsV+qaUXlO63GgfIOg8RBaj7x
+ 3NxkI3rV0SHhI4GU9K6jCvGghxeS1QX6L/XI9mfAYaIwGy5B68kF26piAVYv/QZDEVIpo3t7
+ /fjSpxKT8plJH6rhhR0epy8dWRHk3qT5tk2P85twasdloWtkMZ7FsCJRKWscm1BLpsDn6EQ4
+ jeMHECiY9kGKKi8dQpv3FRyo2QApZ49NNDbwcR0ZndK0XFo15iH708H5Qja/8TuXCwnPWAcJ
+ DQoNIDFyaxe26Rx3ZwUkRALa3iPcVjE0//TrQ4KnFf+lMBSrS33xDDBfevW9+Dk6IISmDH1R
+ HFq2jpkN+FX/PE8eVhV68B2DsAPZ5rUwyCKUXPTJ/irrCCmAAb5Jpv11S7hUSpqtM/6oVESC
+ 3z/7CzrVtRODzLtNgV4r5EI+wAv/3PgJLlMwgJM90Fb3CB2IgbxhjvmB1WNdvXACVydx55V7
+ LPPKodSTF29rlnQAf9HLgCphuuSrrPn5VQDaYZl4N/7zc2wcWM7BTQRVy5+RARAA59fefSDR
+ 9nMGCb9LbMX+TFAoIQo/wgP5XPyzLYakO+94GrgfZjfhdaxPXMsl2+o8jhp/hlIzG56taNdt
+ VZtPp3ih1AgbR8rHgXw1xwOpuAd5lE1qNd54ndHuADO9a9A0vPimIes78Hi1/yy+ZEEvRkHk
+ /kDa6F3AtTc1m4rbbOk2fiKzzsE9YXweFjQvl9p+AMw6qd/iC4lUk9g0+FQXNdRs+o4o6Qvy
+ iOQJfGQ4UcBuOy1IrkJrd8qq5jet1fcM2j4QvsW8CLDWZS1L7kZ5gT5EycMKxUWb8LuRjxzZ
+ 3QY1aQH2kkzn6acigU3HLtgFyV1gBNV44ehjgvJpRY2cC8VhanTx0dZ9mj1YKIky5N+C0f21
+ zvntBqcxV0+3p8MrxRRcgEtDZNav+xAoT3G0W4SahAaUTWXpsZoOecwtxi74CyneQNPTDjNg
+ azHmvpdBVEfj7k3p4dmJp5i0U66Onmf6mMFpArvBRSMOKU9DlAzMi4IvhiNWjKVaIE2Se9BY
+ FdKVAJaZq85P2y20ZBd08ILnKcj7XKZkLU5FkoA0udEBvQ0f9QLNyyy3DZMCQWcwRuj1m73D
+ sq8DEFBdZ5eEkj1dCyx+t/ga6x2rHyc8Sl86oK1tvAkwBNsfKou3v+jP/l14a7DGBvrmlYjO
+ 59o3t6inu6H7pt7OL6u6BQj7DoMAEQEAAcLBfAQYAQgAJgIbDBYhBBvZyq1zXEw6Rg38yk3e
+ EPcA/4NaBQJonNqrBQkmWAihAAoJEE3eEPcA/4NaKtMQALAJ8PzprBEXbXcEXwDKQu+P/vts
+ IfUb1UNMfMV76BicGa5NCZnJNQASDP/+bFg6O3gx5NbhHHPeaWz/VxlOmYHokHodOvtL0WCC
+ 8A5PEP8tOk6029Z+J+xUcMrJClNVFpzVvOpb1lCbhjwAV465Hy+NUSbbUiRxdzNQtLtgZzOV
+ Zw7jxUCs4UUZLQTCuBpFgb15bBxYZ/BL9MbzxPxvfUQIPbnzQMcqtpUs21CMK2PdfCh5c4gS
+ sDci6D5/ZIBw94UQWmGpM/O1ilGXde2ZzzGYl64glmccD8e87OnEgKnH3FbnJnT4iJchtSvx
+ yJNi1+t0+qDti4m88+/9IuPqCKb6Stl+s2dnLtJNrjXBGJtsQG/sRpqsJz5x1/2nPJSRMsx9
+ 5YfqbdrJSOFXDzZ8/r82HgQEtUvlSXNaXCa95ez0UkOG7+bDm2b3s0XahBQeLVCH0mw3RAQg
+ r7xDAYKIrAwfHHmMTnBQDPJwVqxJjVNr7yBic4yfzVWGCGNE4DnOW0vcIeoyhy9vnIa3w1uZ
+ 3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
+ CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
+ qIws/H2t
+In-Reply-To: <c0f585ce-bf1e-49c6-b04a-91c905716042@intel.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
+On 7/16/26 18:19, Dave Hansen wrote:
+> On 7/16/26 07:50, David Hildenbrand (Arm) wrote:
+>>  arch/x86/mm/init_64.c        | 134 ++++---------------------------------------
+> 
+> Uhhh. Wow. <blink><blink><blink>
+> 
+> This is a really big win. Thanks for doing this!
 
-在 2026/7/16 6:23, Jiri Pirko 写道:
-> From: Jiri Pirko <jiri@nvidia.com>
->
-> Add a kselftest script that exercises per-netns RDMA device naming
-> with RXE. Cover duplicate names across namespaces, move conflict
-> handling, move-with-rename, and same-namespace rename requests.
->
-> Signed-off-by: Jiri Pirko <jiri@nvidia.com>
-> ---
-> v2->v3:
-> - added wait for rdma devices are removed
-> - added retry for old rdma netns mode restore
-> v1->v2:
-> - fixed ktap_set_plan
-> - s/RXE_A/RXE_SAME/ in dup rename
-> ---
->   tools/testing/selftests/rdma/Makefile         |   3 +-
->   tools/testing/selftests/rdma/config           |   2 +
->   .../testing/selftests/rdma/rxe_netns_names.sh | 334 ++++++++++++++++++
->   3 files changed, 338 insertions(+), 1 deletion(-)
->   create mode 100755 tools/testing/selftests/rdma/rxe_netns_names.sh
->
-> diff --git a/tools/testing/selftests/rdma/Makefile b/tools/testing/selftests/rdma/Makefile
-> index 07af7f15c1bf..a91c14c45006 100644
-> --- a/tools/testing/selftests/rdma/Makefile
-> +++ b/tools/testing/selftests/rdma/Makefile
-> @@ -3,6 +3,7 @@ TEST_PROGS := rxe_rping_between_netns.sh \
->   		rxe_ipv6.sh \
->   		rxe_socket_with_netns.sh \
->   		rxe_test_NETDEV_UNREGISTER.sh \
-> -		rxe_sent_rcvd_bytes.sh
-> +		rxe_sent_rcvd_bytes.sh \
-> +		rxe_netns_names.sh
->   
->   include ../lib.mk
-> diff --git a/tools/testing/selftests/rdma/config b/tools/testing/selftests/rdma/config
-> index 4ffb814e253b..e1ff54ec0f57 100644
-> --- a/tools/testing/selftests/rdma/config
-> +++ b/tools/testing/selftests/rdma/config
-> @@ -1,3 +1,5 @@
->   CONFIG_TUN
->   CONFIG_VETH
-> +CONFIG_DUMMY
-> +CONFIG_NET_NS
->   CONFIG_RDMA_RXE
-> diff --git a/tools/testing/selftests/rdma/rxe_netns_names.sh b/tools/testing/selftests/rdma/rxe_netns_names.sh
-> new file mode 100755
-> index 000000000000..f40118407f4c
-> --- /dev/null
-> +++ b/tools/testing/selftests/rdma/rxe_netns_names.sh
-> @@ -0,0 +1,334 @@
-> +#!/bin/bash
-> +# SPDX-License-Identifier: GPL-2.0
-> +#
-> +# Exercise RDMA device name handling across network namespaces.
-> +
-> +source "$(dirname "$0")/../kselftest/ktap_helpers.sh"
-> +
-> +NAME_PREFIX="rxe_netns_names_$$"
-> +NETDEV_PREFIX="rxn$$"
-> +NS1="${NAME_PREFIX}ns1"
-> +NS2="${NAME_PREFIX}ns2"
-> +RXE_A="${NAME_PREFIX}rxe_a"
-> +RXE_B="${NAME_PREFIX}rxe_b"
-> +RXE_SAME="${NAME_PREFIX}rxe_same"
-> +RXE_NEW="${NAME_PREFIX}rxe_new"
-> +DUMMY_A="${NETDEV_PREFIX}a"
-> +DUMMY_B="${NETDEV_PREFIX}b"
-> +OLD_MODE=""
-> +MODE_CHANGED=0
-> +MODS=("dummy" "rdma_rxe")
-> +TEST_SAME_NAMES="same RDMA device name can exist in two net namespaces"
-> +TEST_MOVE_CONFLICT="move without rename fails on destination name conflict"
-> +TEST_MOVE_RENAME="move then rename succeeds"
-> +TEST_COMBINED_MOVE_RENAME="move with requested destination name succeeds"
-> +TEST_SAME_NETNS_DUP_RENAME="same-netns rename rejects duplicate name"
-> +TEST_TEARDOWN_RETURN="netns delete returns device to init_net and renames on conflict"
-> +
-> +ksft_skip()
-> +{
-> +	ktap_skip_all "$*"
-> +	exit "$KSFT_SKIP"
-> +}
-> +
-> +fail()
-> +{
-> +	ktap_exit_fail_msg "$*"
-> +}
-> +
-> +need_cmd()
-> +{
-> +	command -v "$1" >/dev/null 2>&1 || ksft_skip "missing command: $1"
-> +}
-> +
-> +rdma_ns()
-> +{
-> +	local ns=$1
-> +
-> +	shift
-> +	ip netns exec "$ns" rdma "$@"
-> +}
-> +
-> +rdma_dev_exists()
-> +{
-> +	local ns=$1
-> +	local dev=$2
-> +
-> +	if [ -n "$ns" ]; then
-> +		rdma_ns "$ns" dev show "$dev" >/dev/null 2>&1
-> +	else
-> +		rdma dev show "$dev" >/dev/null 2>&1
-> +	fi
-> +}
-> +
-> +add_dummy()
-> +{
-> +	local netdev=$1
-> +
-> +	ip link add "$netdev" type dummy || return 1
-> +	ip link set "$netdev" up || return 1
-> +}
-> +
-> +add_rxe()
-> +{
-> +	local dev=$1
-> +	local netdev=$2
-> +
-> +	rdma link add "$dev" type rxe netdev "$netdev"
-> +}
-> +
-> +rdma_dev_on_netdev()
-> +{
-> +	local netdev=$1
-> +
-> +	rdma link show 2>/dev/null | awk -v want="$netdev" '
-> +		{
-> +			for (i = 1; i < NF; i++)
-> +				if ($i == "netdev" && $(i + 1) == want) {
-> +					dev = $2
-> +					sub(/\/.*/, "", dev)
-> +					print dev
-> +					exit
-> +				}
-> +		}'
-> +}
-> +
-> +wait_rdma_dev_on_netdev()
-> +{
-> +	local netdev=$1
-> +	local dev
-> +	local i
-> +
-> +	for i in $(seq 1 50); do
-> +		dev=$(rdma_dev_on_netdev "$netdev")
-> +		if [ -n "$dev" ]; then
-> +			echo "$dev"
-> +			return 0
-> +		fi
-> +		sleep 0.1
-> +	done
-> +
-> +	return 1
-> +}
-> +
-> +# ip link del returns after NETDEV_UNREGISTER, but rxe tears the RDMA device
-> +# down asynchronously via ib_unregister_device_queued(). Wait until our names
-> +# are gone.
-> +wait_rdma_devs_gone()
-> +{
-> +	local i name ns
-> +	local names=("$RXE_A" "$RXE_B" "$RXE_SAME" "$RXE_NEW")
-> +
-> +	for i in $(seq 1 50); do
-> +		local found=0
-> +
-> +		for name in "${names[@]}"; do
-> +			if rdma_dev_exists "" "$name"; then
-> +				found=1
-> +				break
-> +			fi
-> +			for ns in "$NS1" "$NS2"; do
-> +				ip netns exec "$ns" true 2>/dev/null || continue
-> +				if rdma_dev_exists "$ns" "$name"; then
-> +					found=1
-> +					break 2
-> +				fi
-> +			done
-> +		done
-> +
-> +		[ "$found" -eq 0 ] && return 0
-> +		sleep 0.1
-> +	done
-> +
-> +	return 1
-> +}
-> +
-> +setup_devs()
-> +{
-> +	cleanup_devs || return 1
-> +
-> +	add_dummy "$DUMMY_A" || return 1
-> +	add_dummy "$DUMMY_B" || return 1
-> +
-> +	add_rxe "$RXE_A" "$DUMMY_A" || return 1
-> +	add_rxe "$RXE_B" "$DUMMY_B" || return 1
-> +}
-> +
-> +cleanup_devs()
-> +{
-> +	ip link del "$DUMMY_A" 2>/dev/null
-> +	ip link del "$DUMMY_B" 2>/dev/null
-> +	wait_rdma_devs_gone
-> +}
-> +
-> +setup()
-> +{
-> +	OLD_MODE=$(rdma system show 2>/dev/null |
-> +		   sed -n 's/.*netns \([^ ]*\).*/\1/p')
-> +	[ -n "$OLD_MODE" ] || ksft_skip "failed to read RDMA netns mode"
-> +
-> +	rdma system set netns exclusive >/dev/null 2>&1 ||
-> +		ksft_skip "rdma netns exclusive mode is not supported"
-> +	MODE_CHANGED=1
-> +
-> +	ip netns add "$NS1" || return 1
-> +	ip netns add "$NS2" || return 1
-> +}
-> +
-> +# ip netns del returns before rdma_dev_exit_net() removes the net from
-> +# rdma_nets. rdma_compatdev_set() returns -EBUSY until that completes, so
-> +# retry the mode restore instead of leaving the system in exclusive mode.
-> +restore_netns_mode()
-> +{
-> +	local i
-> +
-> +	[ "$MODE_CHANGED" -eq 1 ] || return 0
-> +
-> +	for i in $(seq 1 50); do
-> +		if rdma system set netns "$OLD_MODE" >/dev/null 2>&1; then
-> +			MODE_CHANGED=0
-> +			return 0
-> +		fi
-> +		sleep 0.1
-> +	done
-> +
-> +	echo "warning: failed to restore RDMA netns mode to $OLD_MODE" >&2
-> +	return 1
-> +}
-> +
-> +cleanup()
-> +{
-> +	cleanup_devs
-> +
-> +	ip netns del "$NS1" 2>/dev/null
-> +	ip netns del "$NS2" 2>/dev/null
-> +
-> +	restore_netns_mode
-> +
-> +	for m in "${MODS[@]}"; do
-> +		modprobe -r "$m" 2>/dev/null
-> +	done
-> +}
-> +
-> +rdma_supports_combined_move_rename()
-> +{
-> +	rdma dev help 2>&1 | grep -Eq 'netns .*name|name .*netns'
-> +}
-> +
-> +[ "$(id -u)" -eq 0 ] || ksft_skip "must be run as root"
-> +need_cmd ip
-> +need_cmd rdma
-> +need_cmd modprobe
-> +
-> +trap cleanup EXIT
-> +
-> +for m in "${MODS[@]}"; do
-> +	modinfo "$m" >/dev/null 2>&1 || ksft_skip "module $m not found"
-> +	modprobe "$m" || fail "failed to load $m"
-> +done
-> +
-> +setup || fail "failed to create net namespaces"
-> +
-> +ktap_print_header
-> +ktap_set_plan 6
+Thanks!
 
-Hi, Jiri
+Next step is to merge CONFIG_MEMORY_HOTPLUG and CONFIG_MEMORY_HOTUNPLUG.
 
-Thanks a lot.
-
-With the first version of this patch series, I already ran the selftests 
-with RXE, and everything worked as expected.
-
-Only test case 4 was skipped because it depends on a recent commit.
-
-Once that commit is merged, I'll rerun the tests.
-
-As for the numbering, I'm fine with changing it from 7 to 6.
-
-Thanks a lot.
-
-Zhu Yanjun
-
-> +
-> +if setup_devs &&
-> +   rdma dev set "$RXE_A" netns "$NS1" &&
-> +   rdma_ns "$NS1" dev set "$RXE_A" name "$RXE_SAME" &&
-> +   rdma dev set "$RXE_B" netns "$NS2" &&
-> +   rdma_ns "$NS2" dev set "$RXE_B" name "$RXE_SAME" &&
-> +   rdma_dev_exists "$NS1" "$RXE_SAME" &&
-> +   rdma_dev_exists "$NS2" "$RXE_SAME"; then
-> +	ktap_test_pass "$TEST_SAME_NAMES"
-> +else
-> +	ktap_test_fail "$TEST_SAME_NAMES"
-> +fi
-> +cleanup_devs
-> +
-> +if ! setup_devs ||
-> +   ! rdma dev set "$RXE_A" netns "$NS1" ||
-> +   ! rdma_ns "$NS1" dev set "$RXE_A" name "$RXE_SAME" ||
-> +   ! rdma dev set "$RXE_B" netns "$NS2" ||
-> +   ! rdma_ns "$NS2" dev set "$RXE_B" name "$RXE_SAME"; then
-> +	ktap_test_fail "$TEST_MOVE_CONFLICT"
-> +elif rdma_ns "$NS1" dev set "$RXE_SAME" netns "$NS2" >/dev/null 2>&1; then
-> +	ktap_test_fail "$TEST_MOVE_CONFLICT"
-> +elif rdma_dev_exists "$NS1" "$RXE_SAME" &&
-> +     rdma_dev_exists "$NS2" "$RXE_SAME"; then
-> +	ktap_test_pass "$TEST_MOVE_CONFLICT"
-> +else
-> +	ktap_test_fail "$TEST_MOVE_CONFLICT"
-> +fi
-> +cleanup_devs
-> +
-> +if ! setup_devs; then
-> +	ktap_test_fail "$TEST_MOVE_RENAME"
-> +elif rdma dev set "$RXE_A" netns "$NS2" &&
-> +     rdma_ns "$NS2" dev set "$RXE_A" name "$RXE_NEW"; then
-> +	if rdma_dev_exists "$NS2" "$RXE_NEW" &&
-> +	   ! rdma_dev_exists "" "$RXE_A"; then
-> +		ktap_test_pass "$TEST_MOVE_RENAME"
-> +	else
-> +		ktap_test_fail "$TEST_MOVE_RENAME"
-> +	fi
-> +else
-> +	ktap_test_fail "$TEST_MOVE_RENAME"
-> +fi
-> +cleanup_devs
-> +
-> +if ! rdma_supports_combined_move_rename; then
-> +	ktap_test_skip "$TEST_COMBINED_MOVE_RENAME"
-> +elif ! setup_devs; then
-> +	ktap_test_fail "$TEST_COMBINED_MOVE_RENAME"
-> +elif rdma dev set "$RXE_A" netns "$NS2" name "$RXE_NEW"; then
-> +	if rdma_dev_exists "$NS2" "$RXE_NEW" &&
-> +	   ! rdma_dev_exists "" "$RXE_A"; then
-> +		ktap_test_pass "$TEST_COMBINED_MOVE_RENAME"
-> +	else
-> +		ktap_test_fail "$TEST_COMBINED_MOVE_RENAME"
-> +	fi
-> +else
-> +	ktap_test_fail "$TEST_COMBINED_MOVE_RENAME"
-> +fi
-> +cleanup_devs
-> +
-> +if ! setup_devs; then
-> +	ktap_test_fail "$TEST_SAME_NETNS_DUP_RENAME"
-> +elif rdma dev set "$RXE_A" name "$RXE_SAME" &&
-> +     rdma dev set "$RXE_B" name "$RXE_NEW"; then
-> +	if rdma dev set "$RXE_SAME" name "$RXE_NEW" >/dev/null 2>&1; then
-> +		ktap_test_fail "$TEST_SAME_NETNS_DUP_RENAME"
-> +	elif rdma_dev_exists "" "$RXE_SAME" &&
-> +	     rdma_dev_exists "" "$RXE_NEW"; then
-> +		ktap_test_pass "$TEST_SAME_NETNS_DUP_RENAME"
-> +	else
-> +		ktap_test_fail "$TEST_SAME_NETNS_DUP_RENAME"
-> +	fi
-> +else
-> +	ktap_test_fail "$TEST_SAME_NETNS_DUP_RENAME"
-> +fi
-> +cleanup_devs
-> +
-> +if ! setup_devs; then
-> +	ktap_test_fail "$TEST_TEARDOWN_RETURN"
-> +elif ! rdma dev set "$RXE_A" name "$RXE_SAME" ||
-> +     ! rdma dev set "$RXE_B" netns "$NS2" ||
-> +     ! rdma_ns "$NS2" dev set "$RXE_B" name "$RXE_SAME" ||
-> +     ! rdma_dev_exists "$NS2" "$RXE_SAME"; then
-> +	ktap_test_fail "$TEST_TEARDOWN_RETURN"
-> +else
-> +	ip netns del "$NS2"
-> +	returned=$(wait_rdma_dev_on_netdev "$DUMMY_B")
-> +	ktap_print_msg "device returned to init_net as '${returned:-<missing>}'"
-> +	if rdma_dev_exists "" "$RXE_SAME" &&
-> +	   [ -n "$returned" ] &&
-> +	   [ "$returned" != "$RXE_SAME" ] &&
-> +	   [ "${returned#ibdev}" != "$returned" ]; then
-> +		ktap_test_pass "$TEST_TEARDOWN_RETURN"
-> +	else
-> +		ktap_test_fail "$TEST_TEARDOWN_RETURN"
-> +	fi
-> +fi
-> +cleanup_devs
-> +
-> +ktap_finished
+It will look nice, but not this nice :)
 
 -- 
-Best Regards,
-Yanjun.Zhu
+Cheers,
 
+David
