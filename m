@@ -1,145 +1,191 @@
-Received: from mail-lf1-f43.google.com (mail-lf1-f43.google.com [209.85.167.43])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 21164306741
-	for <linux-s390@vger.kernel.org>; Fri, 17 Jul 2026 14:16:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6D5142A15C;
+	Fri, 17 Jul 2026 14:20:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784297770; cv=none; b=dt15fr06Ei2wIr0UypW8+ILIMrfEZE6tMUV+TjMxXFF6uERotqGP89ktYzkeXxkV/vT8Yt2fjqxI9krzJul8i6IApCUueKJV2MNyfVzR3wAdKSKDkcHLkyDj3SDomsgZYBcNnyfdHu4fj3B4GWLJiQbdpAuHTZIiM4+Gyh+j0bM=
+	t=1784298048; cv=none; b=gZqlXnPM8wfCuL1kHY2p9Ia/rU+lPjN3RnYw28LsMJRU4HLgv8wOckKAUrvwNjpoZVBkMcuVF4qWVDWEYekDSIHzve5NqcJ/XS8QiROXT1SgMMRXyU+BosxnuKb/KeXOoSshl+qkQpMssoUrtsj6RoPZU1+J5QdtH8grSz3uoK0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784297770; c=relaxed/simple;
-	bh=ZTIYqO8lvntxq7PBA88uJmOyCPtNN+lz3W5n2rnc7uc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ZXSXNFkrGvYu44d+0ywKPY8rYLRDdjz0s2th+giFnqLt2XydmwF0ba8KukdK5COSauQe7M/xPKKrE3I7kQajDBv4h1bZXQ3ID5B3eic5PtTh7iJrA5uyR+s8NRvRMoWHDjjyaUlwOv8tj80VTF7WS2LJ3m4IhLIJcFhs+a5xLB4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20251104.gappssmtp.com header.i=@resnulli-us.20251104.gappssmtp.com header.b=qn9BrZXE; arc=none smtp.client-ip=209.85.167.43
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
+	s=arc-20240116; t=1784298048; c=relaxed/simple;
+	bh=cHsTzn2tX40ywNJS0j4WjFz/ntPucHl9/VDGKGcdmIU=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=EX/DL+PdzKdt3gM9/EGMGbz31fet83fdWo16SkvSaZXccGrvk82X7T4Jqx77sFjB0+Fl3P8c8CZSbOUqiNgf64TcQ/WVcryCzNJIMLhRnx5GbIjvy1hngPSQ23ogoRwO9RnZd7/Q/m+nT7Pkgu9gGs/TeU9oSRKlUn1LmG97sJo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=HxsW1v3i; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=resnulli-us.20251104.gappssmtp.com header.i=@resnulli-us.20251104.gappssmtp.com header.b="qn9BrZXE"
-Received: by mail-lf1-f43.google.com with SMTP id 2adb3069b0e04-5b0231a3e86so7294832e87.0
-        for <linux-s390@vger.kernel.org>; Fri, 17 Jul 2026 07:16:07 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=resnulli-us.20251104.gappssmtp.com; s=20251104; t=1784297766; x=1784902566; darn=vger.kernel.org;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :content-type:mime-version:references:message-id:subject:cc:to:from
-         :date:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=f1PJ2tCrZprO03QzczdHRzzYo8M3sJdRoRBqwRMce6E=;
-        b=qn9BrZXENaayKwINHpBeYg0SX+uWLVMV6kswSg6qi2ce96IUgWnWfblpR4mxigu8P7
-         JxEFapbX3tBkMF/7TwdD+9Uw0tKdfa6QdJMAYCk1mWqx9xpp4z8F3rYCuQKFZtUqv10F
-         3ja44gijq7qGycmbSv0fn0Cqg3d/P/OlEdO+4jLkFXkxqLYEz+NTPnnko1lQMuKJKsGH
-         7QT6x64u3Ry+4Dt6pWAQ1RoQ73/1UkjNdlbyltw/+b0EmLAxcL5+k+exD+UaKiLr4RVE
-         8YJM66o161IUY07oPQwTvWR2DLHfgtvQv2IuzetqKZvEOdW7N3+ARmjNk046WtWYwU8r
-         2U6w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784297766; x=1784902566;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :content-type:mime-version:references:message-id:subject:cc:to:from
-         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to:content-type;
-        bh=f1PJ2tCrZprO03QzczdHRzzYo8M3sJdRoRBqwRMce6E=;
-        b=EXHXkp8HpUvd57sxtPKEwLCDmKz55dKaUc1TrEnsn8X7rHt/Yb1TJUwQksl1pS0bWZ
-         rOd67bG9LbvZ15rTfXzueZ6FvULLYMpbbf+rnePjKEmp+WbDt9xkrXAU5CU0ERxXDCon
-         5QRqsoJdc4D/p7Dc7r4uf9O5XYfvpjc04H/un8sI4T9PKgneG5K+toNY2wJ/o6fH2VuS
-         E5zNzDeS+2km3bdhbtF14bXIx4HxWD1hp7LqByz7Y5T4DGlHRI+sHz9gCDlq3JmMb5RE
-         4tAJGsg9ouEMU3sRU6rA7vHd2DaNZFZjwl5jWyeBFKvDq9vffgLgMY4E+j8w50frutwh
-         6GaA==
-X-Forwarded-Encrypted: i=1; AHgh+RpEX3Y6M8uUeE7ICKa/yv+E0Icl3P1U6tuvM84oqx9HPvh1J79wM87XKRCDw129g3z8hZISuw7XiNrL@vger.kernel.org
-X-Gm-Message-State: AOJu0YxDxPTY+rJTBKNrdQ6+I9CMFrvzXpMsm0BT2YAnQmWIxTVDUPgm
-	HSZn2xkVvzWgpto3iM7sX960gTeUKGqUmhVhn4Fn0wBkC5G92jnC/8QUHJhRegA4sG3ADpC7uGc
-	jNVgp
-X-Gm-Gg: AfdE7clVL3B0LObcHBdkJEhNcqbIgXmNidOHJ17UpYlbJZ8WWorepcVVY4zVETViuB7
-	X2FbXN4pI4WAF686jXe+jG5oLgsZE1zy0IdL+2Og4kWs4lc2+NQRLTl3O1jDI1lctc7eJ1fQPAc
-	x/K/8AeVXKqthjSkhAGiVVzbpFXtvZSn1Vjc4pTA+m/s5pw5iqCXeMXJi0tKi+8N4PUZ67kexww
-	o2T7Wvt4YAck3KkLDcsKaVSMX31XEneJLcEb/z57xSZcB/pY9XSCtZ617DobmpiMP8MSXIhJLTC
-	b2bxSZN5o91p403DdbW8dmBFXFVw3+arxy2yVkRlY+IspD7zhBxGHCSp3R2sB9MpVRKsjBpO7ez
-	Jik/OSci9nGL+E+iNJZylp7iZuStiFeVeRqphJAeaQ8HfTjDilVwr6gQwAFY+3TbxYcuh5JD05b
-	90va3tZWnZhuY=
-X-Received: by 2002:a05:600c:1c20:b0:493:e97b:3b9c with SMTP id 5b1f17b1804b1-4954b560583mr24280245e9.29.1784297395233;
-        Fri, 17 Jul 2026 07:09:55 -0700 (PDT)
-Received: from localhost ([140.209.217.211])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-495499f3f99sm49884525e9.0.2026.07.17.07.09.54
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 17 Jul 2026 07:09:54 -0700 (PDT)
-Date: Fri, 17 Jul 2026 16:09:51 +0200
-From: Jiri Pirko <jiri@resnulli.us>
-To: sashiko-reviews@lists.linux.dev
-Cc: tj@kernel.org, mkoutny@suse.com, hannes@cmpxchg.org, 
-	Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>, 
-	Alexander Gordeev <agordeev@linux.ibm.com>
-Subject: Re: [PATCH rdma-next v3 14/14] RDMA/selftests: Add rxe_netns_names
- test
-Message-ID: <alo3nS7XrhjdRsSJ@FV6GYCPJ69>
-References: <20260716132316.1495242-1-jiri@resnulli.us>
- <20260716132316.1495242-15-jiri@resnulli.us>
- <20260717132429.3DE161F00A3D@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="HxsW1v3i"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66HEBglY359399;
+	Fri, 17 Jul 2026 14:20:32 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=CorMoY
+	NWaVdsQft9S/AsGZ8ttquR2L7zEB96ShrkE+s=; b=HxsW1v3iqhdEAZQgCtD0Wg
+	AeTrPiTGQ12zfCM2sQNyaqiCC7gS9eD2+7VntFNuZ813ubwkT5t68JJOfqvP02Yq
+	PPn/pOT3aSodGQVOtk2SWarskl0hgb35vNmREedeOghVfsJ1vuq6uMtCTmYV8sEy
+	ef8+QCNRIJofZQU056th71VkG8vTXDuvFWfXHC6LWBBOcwdvp92RYp4cKCor4QQj
+	iLfkGHwWZ2VWTc9HFNSmfQKfklCam6jq5/+8Ko5wpPlI6cokpTVu5fa+bq2ueZ/X
+	OfApTJnCIHBKjstC5okcEGKGGEMA/clGcavEAIfkhOkPXCIOUeS5/y3YdB0RzJ2Q
+	==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fcv33qdq8-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 17 Jul 2026 14:20:31 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66HEJkVM014101;
+	Fri, 17 Jul 2026 14:20:30 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fc05qj6xc-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 17 Jul 2026 14:20:30 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66HEKRaJ49479996
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 17 Jul 2026 14:20:27 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 342732004B;
+	Fri, 17 Jul 2026 14:20:27 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id D36A820043;
+	Fri, 17 Jul 2026 14:20:26 +0000 (GMT)
+Received: from [9.87.143.191] (unknown [9.87.143.191])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Fri, 17 Jul 2026 14:20:26 +0000 (GMT)
+Message-ID: <dd13861e-58af-44af-bfe0-9dc3dafdd7e8@linux.ibm.com>
+Date: Fri, 17 Jul 2026 16:20:26 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20260717132429.3DE161F00A3D@smtp.kernel.org>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 16/21] KVM: s390: vsie: Shadow VSIE SCA in guest-1
+To: Christoph Schlameuss <schlameuss@linux.ibm.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Cc: David Hildenbrand <david@kernel.org>, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev
+ <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Nico Boehr <nrb@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>,
+        Paolo Bonzini <pbonzini@redhat.com>, Shuah Khan <shuah@kernel.org>,
+        Eric Farman <farman@linux.ibm.com>
+References: <20260709-vsie-sigpi-v1-0-ea9f12066408@linux.ibm.com>
+ <20260709-vsie-sigpi-v1-16-ea9f12066408@linux.ibm.com>
+Content-Language: en-US
+From: Janosch Frank <frankja@linux.ibm.com>
+Autocrypt: addr=frankja@linux.ibm.com; keydata=
+ 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
+In-Reply-To: <20260709-vsie-sigpi-v1-16-ea9f12066408@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzE3MDE0NCBTYWx0ZWRfX9ihXaygp5lLO
+ O4Rz6jRW1Z9dHnVrO5rYLOvVoBbNCPYFWQ7BlarBN20Rt7O/zHHSFSNmRanbLzy3Qq3qb6F+tgt
+ 2XLilNiCYyx+mn/Wv5RvvBBKXdTb9Qc=
+X-Authority-Analysis: v=2.4 cv=Mp1iLWae c=1 sm=1 tr=0 ts=6a5a3a2f cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+ a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=2prQhZuATWbUqhegNzEA:9
+ a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: DqIgFKXU8QGUr_fsz44b4UDm_zYQw64i
+X-Proofpoint-ORIG-GUID: DqIgFKXU8QGUr_fsz44b4UDm_zYQw64i
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzE3MDE0NCBTYWx0ZWRfX0kEHgqrfEDIh
+ POwoBLF2T0UDvGvqTLqwLt33sIlQYPajCAco+fUIXAOfh7d04yFKVRYUrWh5qnJqybJKZ1XsRAa
+ /AgU7sfZNoasG7dwpteKuFLBjYp8WGvYeV5slO/y6AV04hGYDJ/gSZUK0z1cl8zUcaxgEoJtkBj
+ 9meY+Vgfc4yUB2Qf/U8Nz66LB8dsX6cVSCfvi3fGDyxjH0j668dnws45NhCxCK7pxivTACuzPcF
+ LNQyOGmgK12oz6GJYlPtgXZLNNxeKdmBnpjyFKzJ7ulTdNCjSkOaSgGvhxNK92A1bkaXoCOqsW3
+ TE6t/GPTs+9qEfn5E354S8UbTdsg2Yqvs34jR21qqm0OFsGYbweuzgXI7KBzSKDlnwus0dyBqv8
+ uygbDCnT6bPRDVnkvYvoRLeiZ6/sxkHbeS0riRvuxRw5CEhVa4DVfa41pZ83bGE4QpWdVedU+er
+ duKtuzAsMNNLKNYeClw==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-07-17_04,2026-07-17_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ adultscore=0 bulkscore=0 spamscore=0 malwarescore=0 lowpriorityscore=0
+ impostorscore=0 priorityscore=1501 suspectscore=0 clxscore=1015 phishscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607170144
 
-Fri, Jul 17, 2026 at 03:24:28PM +0200, sashiko-bot@kernel.org wrote:
->Thank you for your contribution! Sashiko AI review found 1 potential issue(s) to consider:
->- [Medium] `wait_rdma_devs_gone()` fails to wait for dynamically renamed RDMA devices (e.g., `ibdevX`) to finish asynchronous unregistration, potentially causing module unload failures.
->--
->
->--- Patch [14]: [PATCH rdma-next v3 14/14] RDMA/selftests: Add rxe_netns_names test ---
->commit dabec57822c009814520c6cece67efb39fb7b1f8
->Author: Jiri Pirko <jiri@resnulli.us>
->
->RDMA/selftests: Add rxe_netns_names test
->
->This commit adds a kselftest script that exercises per-netns RDMA device
->naming with RXE. It covers duplicate names, conflicts, move-with-rename, and
->same-namespace rename requests.
->
->> diff --git a/tools/testing/selftests/rdma/rxe_netns_names.sh b/tools/testing/selftests/rdma/rxe_netns_names.sh
->> new file mode 100755
->> index 0000000000000..f40118407f4c0
->> --- /dev/null
->> +++ b/tools/testing/selftests/rdma/rxe_netns_names.sh
->
->[ ... ]
->
->> +wait_rdma_devs_gone()
->> +{
->> +	local i name ns
->> +	local names=("$RXE_A" "$RXE_B" "$RXE_SAME" "$RXE_NEW")
->
->[Severity: Medium]
->Does this hardcoded list of names miss dynamically assigned fallback names
->like 'ibdevX'?
->
->During the TEST_TEARDOWN_RETURN test, the device moves back to init_net and
->conflicts with an existing name, receiving a dynamic fallback name (e.g.,
->ibdev0). When cleanup_devs() deletes the underlying dummy netdevs, it calls
->wait_rdma_devs_gone() to wait for asynchronous unregistration.
+On 7/9/26 17:15, Christoph Schlameuss wrote:
+> Restructure kvm_s390_handle_vsie() to create a guest-1 shadow of the SCA
+> if guest-2 attempts to enter SIE with an SCA. If the SCA is used the
+> vsie_pages are stored in a new vsie_sca struct instead of the arch vsie
+> struct.
+> 
+> When the VSIE-Interpretation-Extension Facility is active the shadow SCA
+> (ssca_block) will be created and shadows of all CPUs defined in the
+> configuration are created. SCAOL/H in the VSIE control block are
+> overwritten with references to the shadow SCA.
+> 
+> The shadow SCA contains the addresses of the original guest-3 SCA as
+> well as the original VSIE control blocks. With these addresses the
+> machine can directly monitor the intervention bits within the original
+> SCA entries, enabling it to handle SENSE_RUNNING and EXTERNAL_CALL sigp
+> instructions without exiting VSIE.
+> 
+> The original SCA will be pinned in guest-2 memory and only be unpinned
+> before reuse. This means some pages might still be pinned even after the
+> guest 3 VM does no longer exist.
+> 
+> The vsie_scas including the ssca_blocks are also kept within a map to
+> reuse already existing ssca_blocks efficiently. While the map and array
+> with references to the vsie_scas are held in the arch vsie struct. The
+> use of vsie_scas is tracked using an ref_count.
+> 
 
-*Very* unlikely. Ignoring.
+[...]
 
+> +
+> +static void vsie_sca_update(struct vsie_sca *vsie_sca, unsigned int cpu_nr,
+> +			    struct vsie_page *vsie_page_n, hpa_t sca_o_entry_hpa)
+> +{
+> +	vsie_sca->ssca.cpu[cpu_nr].ssda = virt_to_phys(&vsie_page_n->scb_s);
+> +	vsie_sca->ssca.cpu[cpu_nr].ossea = sca_o_entry_hpa;
+We potentially update these while a cpu is in VSIE, correct?
+Do we need to make sure that these stores are atomic?
 
->
->Since the dynamic name isn't in this list of expected names, the function may
->return early before the device actually finishes tearing down. Could this
->cause the script to fail to unload the rdma_rxe module or leave a dirty state
->for subsequent tests?
->
->> +
->> +	for i in $(seq 1 50); do
->> +		local found=0
->> +
->> +		for name in "${names[@]}"; do
->> +			if rdma_dev_exists "" "$name"; then
->> +				found=1
->> +				break
->> +			fi
->
->[ ... ]
->
->-- 
->Sashiko AI review · https://sashiko.dev/#/patchset/20260716132316.1495242-1-jiri@resnulli.us?part=14
