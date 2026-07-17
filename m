@@ -1,135 +1,115 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C25F83FD14F;
-	Fri, 17 Jul 2026 13:14:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B3C6B3FD125;
+	Fri, 17 Jul 2026 13:23:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784294067; cv=none; b=VNb/kVjgcvPdn/FS7ZD6ZX7fFMEPFFmyFAWikokuZzB6C2i+LGXQI1lcT3tdyh32Msg9Q+J4YOtj0VpYEcO+jyCuqqWDfpFW8LSd9odweat3i+zGXhha3yPgCrMcjLS2ytla8kwMjYyLBMVw/6l0P9Ss2mysuaVKT8XBZ2DjmlY=
+	t=1784294627; cv=none; b=QVLfDnYM6RuLjvr0NaRNrxTSxdZ1Ke0pmygKlpWd37hkKMSuB49jfACeFHGixE1xy/bs5HSs7Ud53AZworzW3LWUTa4Vdvv/X4AkOA8f3rafysufiAIF3IWdMmvDxHnCtlK11BdpW5A8qt4baZ3HDFA6EhSBBcdDd0hHe3kjQ7o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784294067; c=relaxed/simple;
-	bh=p40NI5+SbbU6sf1rKMKCSyLGFtC6+197G3hU7xXjveA=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=nyhKoIeF95YjoZiHROcYng6dBS4j0SotsOvVtrWnwHhJg4uMOC5fS/TE4eqkb4dg8VNW/MQ4gIYwBozv2isvVhjMSZUAYPbBSyk+z3Umd6e9jWn5AYfZworSY27H5A/dKMWAYxELlsI0HisU+Xt8zDvyfseUgIUh9m16Ab4boMs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ejuy0aZC; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1784294627; c=relaxed/simple;
+	bh=an4wbqlztKZ70Fmd7vZp50QJieW2y7B1E+VgvviC/Mk=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=IpnjqbLS73B5a3ZbBzkKkxMxe+uAs79QEeRBZJkCguL21MlTVaWXtSb9zuDvTaWqaW1MxYQ9Gf0afYvjg1xNhbLLTfUPjnF8BO33n3tCvxCcjNPQOerpP5qBnH85tYNgxDbSyLz61TFsaLfoEYz3A3pGvvZHhX2ApXQoa50Mp9c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VllROZlw; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ejuy0aZC"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66HCfqcw1959221;
-	Fri, 17 Jul 2026 13:14:12 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=OSSgFem/6BxTSGqh0Tyrrgu7B/ooRh1RbpSvBqW5V
-	AQ=; b=ejuy0aZCyhMTDz5QF8pxwnToVH/0sA9g5uMbaNvpTJBJqMQeNxOBefsyI
-	BQCTHLYDh11JbiysXy/0KXZOdKRWXBnaY2vKcfjVIWwCc9rcvzSedVI3yCD+ZKtK
-	wH2xB8P0Ls3J6K0F59Nkf5RLodllmX+YMnIjQUr7Ql0K9mYoOtyadz2Gz2BpwFNO
-	YjDH7vrMs1L0sfVzsFwvhaAz7CfSs9Hk6j8CbkEsVdZLRJY1vEZeJ2pjGfCxbn3T
-	lqw/pUZCkkU79LVaniye2hy82PG5ZgHdpWepBLxdccWVyPzsbM1jRyfBQrHv+P66
-	0d67ap1jlErb5d0HOcxq8emKBkIzA==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fbexx5h5x-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 17 Jul 2026 13:14:12 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66HD4bRG018899;
-	Fri, 17 Jul 2026 13:14:11 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fc0hwhx54-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 17 Jul 2026 13:14:11 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66HDE7cm59113966
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 17 Jul 2026 13:14:07 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9E24620043;
-	Fri, 17 Jul 2026 13:14:07 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6A7BE20040;
-	Fri, 17 Jul 2026 13:14:07 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 17 Jul 2026 13:14:07 +0000 (GMT)
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@kernel.org>
-Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH] s390/mm: Add missing vm_start <= addr check to do_secure_storage_access()
-Date: Fri, 17 Jul 2026 15:14:07 +0200
-Message-ID: <20260717131407.855327-1-hca@linux.ibm.com>
-X-Mailer: git-send-email 2.53.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VllROZlw"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 539A11F00A3A;
+	Fri, 17 Jul 2026 13:23:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1784294626;
+	bh=DJUZcjZm1ztcQvWSC8sM6FRT6s95fc9tPzk/X111cX4=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=VllROZlwtP/m1kgpPJXnfhOgymVJbeWniE47gyPDOrUIT7dVOgReoU2fkrUHKURQl
+	 ZGJfzA05MQucWhOXG4PP0HrCaY8FAVluSS78OrPu5/S8/p7E/ERju7AJF4debVBRnT
+	 zNJNCvRmPfVAonmq6RaQ1ph1oKx40IvykGaEpp/ZkxgdfpUSCBDdaZdzMd4hCTHvHN
+	 UAyUjcg8Jvu//9mBwyVkkeLKNjmxO9mZwAS/5M5Lqq4BUkSjmyR3+jf5OlfvyttLZK
+	 t65kl90wP79oqFnLno1ZR0eh1ELO0vIF+cHnKrsD1/unABTdz2AIxFXdEdFJKagRgP
+	 gyz9xs2obBU2A==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] s390/mm: Add missing vm_start <= addr check to
+ do_secure_storage_access()
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Heiko Carstens" <hca@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
+ Gorbik" <gor@linux.ibm.com>, kvm@vger.kernel.org, "Alexander Gordeev" <agordeev@linux.ibm.com>
+In-Reply-To: <20260717131407.855327-1-hca@linux.ibm.com>
+References: <20260717131407.855327-1-hca@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 17 Jul 2026 13:23:44 +0000
+Message-Id: <20260717132345.539A11F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: zlPznC1jKJe2CbA4AygVWmLGB81TDMZ_
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzE3MDEzNCBTYWx0ZWRfX+o0eHZlpyD0c
- YDzF2PcJcK8qJSnuXmwzg092bixpEGHPqIhBhfYPRaCJ2ExNHCNjy6rFbwhBvqPxPpml7yWf4Gd
- ZUbxjKm7hkC2rZyKDEThDYDrNHwJynXbjK7sNDwCiq7m4rEEohVw1U+pbWqsNOKMkaxNYzs5w5P
- OJQI0ImpAcPCNJS1R48pEyTfw9OCWU6ZYYddaE5B0NeJ0XWsSTBoCBx3xaaposoIylFlEvMnnFF
- 8sKXxxbH3HLs57LZRxxh97Rm4sTQIga37lQ0ODdqDUlnbw3EcappTnGramn1mdHWTTqz/Vt4W/W
- wJS4aG/vNApUxlH9lwpIqwV2coXDnE+wXNIBVhA8YICr1lkt8LTMVhh3Qszjp3weeuMn+56qPgy
- mdv6FAFrKqbKqEexTxTmIcuVynNv49M3HQKsHsA7eJE5PmCa0tlL1drLKDv0TZDgZR+XXo4BokM
- OE+1dOribVouNWhgEQg==
-X-Authority-Analysis: v=2.4 cv=XJoAjwhE c=1 sm=1 tr=0 ts=6a5a2aa4 cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
- a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=V8glGbnc2Ofi9Qvn3v5h:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
- a=q1cbuJAsPhdWy6OxXkMA:9
-X-Proofpoint-ORIG-GUID: zlPznC1jKJe2CbA4AygVWmLGB81TDMZ_
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzE3MDEzNCBTYWx0ZWRfX75L6QFbi4PUo
- V8krna8JxG++yXu7ZWr6AgaElkCinaqan+esuWYcybMLuEcFOC0/yx06Lm6rvaTNAdxSJdZ6eeh
- zNGPTnDOTsDmtCMgqYHCbKEmdCvM/eQ=
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-07-17_03,2026-07-17_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 adultscore=0 bulkscore=0 phishscore=0 lowpriorityscore=0
- priorityscore=1501 impostorscore=0 clxscore=1015 spamscore=0 malwarescore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607170134
 
-do_secure_storage_access() uses find_vma() without verifying that the
-faulting address is within the returned vma. Add this missing check by
-converting to lock_mm_and_find_vma().
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
 
-This is not a critical fix, since the worst that could happen is
-WARN_ON_ONCE() in folio_walk_start().
+Pre-existing issues:
+- [High] Missing !mm check in do_secure_storage_access allows kernel thread=
+s faulting on user-space accesses to trigger a NULL pointer dereference.
+--
 
-Reported-by: sashiko-bot <sashiko-bot@kernel.org>
-Closes: https://lore.kernel.org/all/20260717093904.E4A421F00A3E@smtp.kernel.org/
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
----
- arch/s390/mm/fault.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+--- Patch [1]: [PATCH] s390/mm: Add missing vm_start <=3D addr check to do_=
+secure_storage_access() ---
+commit 925b56344e2c328b11b68034f7f630693a6c6b31
+Author: Heiko Carstens <hca@linux.ibm.com>
 
-diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
-index 028aeb9c48d6..d6c58d78edc5 100644
---- a/arch/s390/mm/fault.c
-+++ b/arch/s390/mm/fault.c
-@@ -456,10 +456,9 @@ void do_secure_storage_access(struct pt_regs *regs)
- 		if (faulthandler_disabled())
- 			return handle_fault_error_nolock(regs, 0);
- 		mm = current->mm;
--		mmap_read_lock(mm);
--		vma = find_vma(mm, addr);
-+		vma = lock_mm_and_find_vma(mm, addr, regs);
- 		if (!vma)
--			return handle_fault_error(regs, SEGV_MAPERR);
-+			return handle_fault_error_nolock(regs, SEGV_MAPERR);
- 		folio = folio_walk_start(&fw, vma, addr, 0);
- 		if (!folio) {
- 			mmap_read_unlock(mm);
--- 
-2.53.0
+s390/mm: Add missing vm_start <=3D addr check to do_secure_storage_access()
 
+This patch converts do_secure_storage_access() to use lock_mm_and_find_vma(=
+)=20
+to ensure the faulting address is properly checked against the VMA boundari=
+es.
+
+Link: https://lore.kernel.org/all/20260717093904.E4A421F00A3E@smtp.kernel.o=
+rg/
+
+> diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
+> index 028aeb9c48d6f..d6c58d78edc5a 100644
+> --- a/arch/s390/mm/fault.c
+> +++ b/arch/s390/mm/fault.c
+> @@ -456,10 +456,9 @@ void do_secure_storage_access(struct pt_regs *regs)
+>  		if (faulthandler_disabled())
+>  			return handle_fault_error_nolock(regs, 0);
+>  		mm =3D current->mm;
+> -		mmap_read_lock(mm);
+> -		vma =3D find_vma(mm, addr);
+> +		vma =3D lock_mm_and_find_vma(mm, addr, regs);
+
+[Severity: High]
+This is a pre-existing issue, but does this lack of a NULL check on mm lead=
+=20
+to a crash if a kernel thread faults on a user-space access?
+
+When a kernel thread (which has current->mm =3D=3D NULL) triggers a secure
+storage access exception (for instance, via a copy_from_user() mapped to a
+secure page), it enters this branch. The mm pointer is set to NULL and then
+passed to lock_mm_and_find_vma():
+
+vma =3D lock_mm_and_find_vma(mm, addr, regs);
+
+Inside lock_mm_and_find_vma(), it unconditionally calls mmap_read_lock(mm):
+
+mm/mmap_lock.c:lock_mm_and_find_vma() {
+        ...
+        mmap_read_lock(mm);
+        ...
+}
+
+Could this result in a NULL pointer dereference? The do_page_fault() path
+handles this gracefully with an explicit !mm check and exception fixups, but
+do_secure_storage_access() appears to be missing this check.
+
+>  		if (!vma)
+> -			return handle_fault_error(regs, SEGV_MAPERR);
+> +			return handle_fault_error_nolock(regs, SEGV_MAPERR);
+
+[ ... ]
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260717131407.8553=
+27-1-hca@linux.ibm.com?part=3D1
