@@ -1,179 +1,153 @@
-Received: from mail-ed1-f53.google.com (mail-ed1-f53.google.com [209.85.208.53])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A480035B634
-	for <linux-s390@vger.kernel.org>; Sun, 19 Jul 2026 11:25:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.53
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784460349; cv=pass; b=caUJNv1zGlyiveBOr3Oj3cDA+3wD5NBO74Jo1fvI4OPNl2lEaFTvuWiWQ6Mj0Fs+i1wALonWeS/zs3R14zzVUkwMwhE0NxRUWcdf3GefPO0mSQ7sNdoCew5ce3ZoEtyOgRJiEhHSinf+dHOtpItGpw2WdQRQ0S/w4wWDw9Xngug=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784460349; c=relaxed/simple;
-	bh=rgcqbxa6lEmJgPeR85dLIKFK2p9ERX+2iKovNt7jIVY=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ldTmxO2Tnm0vw9s99LXrUAOzGajGh3ETPx+50N6yNlkjsEJ+9h+4/q+NSdgIcQ3GdLBiBt70cUHuN8ZwjFffo1st/Dmtql4cBRdnHZ6La7NvpTJywmfNOyabNECT+SRWWE8mXo5VbPMsAGjBA/X/cGl1tOdE7b2n6lDjNxRpZ2A=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=D9Eg2uDU; arc=pass smtp.client-ip=209.85.208.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E728D7262A;
+	Sun, 19 Jul 2026 13:00:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1784466016; cv=none; b=Ly56d2kQ2oceVGiHkpWfyDd+ojMcHiVNTHm9lphMzzvna+WnIHT1Bd2LG0R77c1IdYpODe792NRF0B9NTipVHkMw5MExfljJvBNq+m7W3dyBZIWWKgLksBWxL2zoYwVGDbFx6cYOafdf+aeCRikKE8DMebnttYlTjmfjmG4MJWw=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1784466016; c=relaxed/simple;
+	bh=OyYcqMbB9FY2u9nk1si4+E0HCFJIE7B8KifswfndNZw=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Tp93TaZOHK73t+rrr7KYAvHOuS47Wy8t1kvurwBay28XEgWHZwG+5UlApXHClpFHLkMYzIl3pHw4BfghzrGLiFgGFHV+pXahkDSAUx8sc7d1tkNhVYrbZAhR64WEJvxq3lauAj+4CJb1JHfIB2asgOQiP5806/XDYjUTt3ZBkKQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ScVsxnXr; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="D9Eg2uDU"
-Received: by mail-ed1-f53.google.com with SMTP id 4fb4d7f45d1cf-69c600f76ccso9261070a12.0
-        for <linux-s390@vger.kernel.org>; Sun, 19 Jul 2026 04:25:46 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1784460345; cv=none;
-        d=google.com; s=arc-20260327;
-        b=hoA+++av3j2QUc6rz+yMFJ8+H+GkmyqwdlR3gjnvteMlACQ2vZHeX/KtBDm8SAuV/S
-         S3ijTWNHPbxq4YxkglPe0V29a+JLK1a8VMTLBKzpIw3CM1M3xm9muuz1x6C85U6fMJ+a
-         H70mIuZN/buRFc6iUBblJ7cAmLxoWp7fo5Ry0laTaQnys249xDng238dpqNrA+4WWW1u
-         R7ZSzrWq0eLLdw2xvnbBbNy3DQNhj19O9wlewM64kpQVnXO1NbFRK5Rn6PPKcH6aUFzB
-         Z83sd2UzDEG0bzc2hg00wImX+yUH38tc6LzQ9X6jil9Bd+475v8voMkddI95qxINmuLR
-         JUEg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:dkim-signature;
-        bh=HjwBEg56Cr9vHNVIU01sUWrlM5gmQ+vCUXpN04JdIto=;
-        fh=3dqXDEAoeUFuH9hrPq4AewRBDsisgLQr4MNtbDLz/GA=;
-        b=LLIpreS2qzasc5VWaqS1qTcrTjJY7yNnIFSR6iCeaeWp9NlK9BPsZTxJKRkLHOSGft
-         +uXNZxuSnTYs88tQokzPBLbx100FT6cAQtuePJkWcH/D/dQca7DLwE4u8QuwFBb6CWDc
-         ziRabNx5YCDwVJchkm36MLLfNmM7E6xlVNH1TvwzTuT8ubOBDQU49lIdvovvtkyNkWqx
-         7EEWP3VJb0dbR5+MD2SDmwo58OB1ds/MY2an2K/yaOuOV2TZp2Ju1U6TbOluDHfI4mIP
-         YBxEhpJ7+EzScV+tpMdF6lF7D+OnVpwn5yfJSTj9fa4no4zdyEoUqtgf1weOo8LdugN/
-         fy9Q==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784460345; x=1785065145; darn=vger.kernel.org;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=HjwBEg56Cr9vHNVIU01sUWrlM5gmQ+vCUXpN04JdIto=;
-        b=D9Eg2uDUSi1x0Y0zg7fYRwtO/ea3ND5A/4nTPUeApKtSEYiUynlMiE59GblVd3IOrl
-         oWFLcCJp25Ys4PA6xy84FzRAl40+EnzjzRCpSvwGo7RHBsGsYMluu61eRFOFojQND+uf
-         lNJOO3g5JejU7GJi6tHzDEvpZzKFqs8qHKpdvXxbKlewQ6qiZ+CA5RKcpH/KLcFJLheA
-         g2ExVRjhJfMz7jIq0+v0kblCXJOFmPxGPhyEutQjLJ+4HNvh68qQ5hZaqeUXlD5xjERu
-         lUwCLdeswboAyC7uRJFB1Xc36fvUf6TDNx+P0LVWtrX9LSsJKKKRbJx1t2fLrOwcBBgd
-         7OEw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784460345; x=1785065145;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=HjwBEg56Cr9vHNVIU01sUWrlM5gmQ+vCUXpN04JdIto=;
-        b=CtT59cgCO6DDeUDRYOpkYP0s2S8qJNrBzMjEieXiX+cg6+UV56Hf0f51LT7e5E/Mf8
-         pF6akinY8PmoSPrYM1SLaaRuriyLYTH/r7xMzuUymlqpiSHsMKjAceHw44MclMyG9NPN
-         a8AECykApuVaQ39mJyV9qG/hwaE5/6x9hXy5fZuwc0NQttHGBMt2Ct4uNTW0g0mwbDFh
-         /spcQFBZ4r5uHv9/Hr1q/eNxptXTTPDziKGwPrWjdSQcRg4uBTnYugYuQd0jpW9XrdOi
-         pZb+UzQ9gd0QnwD2bxxUbMMQPIpTwxAUzQkbTWyPRX0D6iAXBGvEoEdcpYLUwRZnWxgz
-         jZkg==
-X-Forwarded-Encrypted: i=1; AHgh+RpV6l93YE7W+/tabcliZtj1QA93oTOR2RiSU7ZQCJ09Juxyiu9QUahnwGdU+2wjf6dD+3ctPmyLpJi4@vger.kernel.org
-X-Gm-Message-State: AOJu0Yx/PMjY0+Hia4W/W55zjNTZgQOAu6cbw+CgDw/78v2Uu5pDrXC+
-	+eQCZm7GnUr0KPBsz+ejBZczBu59qOpKppyTahc+2nv8OpU6BXF9k8XcXhRD9zLh2TZ/LcMRB6q
-	yPMLQpHl2q2PXv0tZRIeAlgSW+6jX8ko=
-X-Gm-Gg: AfdE7cmF31VC0xMvBm3rd2BEhGcZ3IphXIrqgzFEKPECS7z/yK+t9p22tb+tVU4zeCM
-	Z5KZmTcR2WWsWRRKDARoCWDhifj4ITLBAWYOtDcHwRltxnafWGUHCwQhfTdZXNOng3PxIwc4AV4
-	dtvIWKtW4uHv+1eN71uWz0siI9WiaXEWUuF+mgUWvvwuNX+ScrUrXrUhQjZIxPmpjiTa1BEW7R+
-	CB40YfAiNTCyvOTvBHSwCoqtLi1CtMRqhe7LhK1cChCyXN5/xDaF9KFTi2IGjHHljdlp3zrPlqi
-	+1tgGuJ9myCEK/ODfIap9fYuUNiidLGqWf6N+m/cxg==
-X-Received: by 2002:a05:6402:34d5:b0:698:3b7b:e48a with SMTP id
- 4fb4d7f45d1cf-69e652f908dmr3652615a12.32.1784460344585; Sun, 19 Jul 2026
- 04:25:44 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ScVsxnXr"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66JBBsck3258057;
+	Sun, 19 Jul 2026 13:00:11 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=siJZ4QHaIqsKL/mro0wAOyhSm+JDHJumBB3JU3LO3
+	zI=; b=ScVsxnXrM5mS5R3IMfAZhyz93+Y3oM/ouNJhGNlRo9mCJD1hMSVuZCD8V
+	QFEHNn51a0IwukUoqLtAXwXRetKAeJJvDELcji379xxmjx9edUH64vb29UWMTZDh
+	KfULxHtQNdP0fe3lLjYF0RERa/h5MmXUp7jwisAwB2cdgMKcnsen7GJGkLFw7Sz2
+	MpLNK8w6r0wkl5SZDt2jzT+pqVF1mrevipUWa3glAKtpQZK6kk+fhjRu82s5gdY0
+	eBpHuW6FTgVqFmPrvaJuDBVkNNyODcLI8bNOrAREEHiul6pyhDtYqIOZd2zYlH7c
+	tzdN9F2tRLstVCmQVZW8wc7f1kKgw==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fg78fucac-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Sun, 19 Jul 2026 13:00:11 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66JCnad6018664;
+	Sun, 19 Jul 2026 13:00:10 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fgpgy1c8x-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Sun, 19 Jul 2026 13:00:10 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66JD06iL45416818
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Sun, 19 Jul 2026 13:00:06 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9A0832004D;
+	Sun, 19 Jul 2026 13:00:06 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 69C7B2004B;
+	Sun, 19 Jul 2026 13:00:06 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Sun, 19 Jul 2026 13:00:06 +0000 (GMT)
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@kernel.org>
+Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH v3 0/6] s390: Reintroduce support for DCACHE_WORD_ACCESS
+Date: Sun, 19 Jul 2026 15:00:00 +0200
+Message-ID: <20260719130006.3882764-1-hca@linux.ibm.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260707181957.433213175@kernel.org>
-In-Reply-To: <20260707181957.433213175@kernel.org>
-From: Magnus Lindholm <linmag7@gmail.com>
-Date: Sun, 19 Jul 2026 13:25:32 +0200
-X-Gm-Features: AUfX_mzTzrHRlu_CZJHA0P1GUw_Z2tfq0CbfsG-DFTqsEJDFIQx7LWbdfB3YWqk
-Message-ID: <CA+=Fv5TDNH8+JAojV9_W36kUkEE68uiA00FQ7i0vJunebqs1sA@mail.gmail.com>
-Subject: Re: [patch 00/18] entry: Consolidate and rework syscall entry handling
-To: Thomas Gleixner <tglx@kernel.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, Peter Zijlstra <peterz@infradead.org>, 
-	Michael Ellerman <mpe@ellerman.id.au>, Shrikanth Hegde <sshegde@linux.ibm.com>, 
-	linuxppc-dev@lists.ozlabs.org, Kees Cook <kees@kernel.org>, 
-	Huacai Chen <chenhuacai@kernel.org>, loongarch@lists.linux.dev, 
-	Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, linux-riscv@lists.infradead.org, 
-	Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org, x86@kernel.org, 
-	Mark Rutland <mark.rutland@arm.com>, Jinjie Ruan <ruanjinjie@huawei.com>, 
-	Andy Lutomirski <luto@kernel.org>, Oleg Nesterov <oleg@redhat.com>, 
-	Richard Henderson <richard.henderson@linaro.org>, Russell King <linux@armlinux.org.uk>, 
-	Catalin Marinas <catalin.marinas@arm.com>, Guo Ren <guoren@kernel.org>, 
-	Geert Uytterhoeven <geert@linux-m68k.org>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
-	Helge Deller <deller@gmx.de>, Yoshinori Sato <ysato@users.sourceforge.jp>, 
-	Richard Weinberger <richard@nod.at>, Chris Zankel <chris@zankel.net>, linux-arm-kernel@lists.infradead.org, 
-	linux-alpha@vger.kernel.org, linux-csky@vger.kernel.org, 
-	linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, 
-	linux-parisc@vger.kernel.org, linux-sh@vger.kernel.org, 
-	linux-um@lists.infradead.org, Arnd Bergmann <arnd@arndb.de>, 
-	Vineet Gupta <vgupta@kernel.org>, Will Deacon <will@kernel.org>, Brian Cain <bcain@kernel.org>, 
-	Michal Simek <monstr@monstr.eu>, Dinh Nguyen <dinguyen@kernel.org>, 
-	"David S. Miller" <davem@davemloft.net>, Andreas Larsson <andreas@gaisler.com>, 
-	linux-snps-arc@lists.infradead.org, linux-hexagon@vger.kernel.org, 
-	linux-openrisc@vger.kernel.org, sparclinux@vger.kernel.org, 
-	linux-arch@vger.kernel.org, =?UTF-8?Q?Michal_Such=C3=A1nek?= <msuchanek@suse.de>, 
-	Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzE5MDEzOSBTYWx0ZWRfX5DaDKFqThfMD
+ kUy/BUSibETFY2m/SGs8qvMBeIDjHFa2n3BthI6v/s6lbMJIOU+Xicgv7kK01J4b7itAsxxWdvJ
+ WfxOzypLajq8u2c8WJlDeyzjxKC7QKSGHvGPTAj4buSg+Y57M/5gT0xQGy9C9qCNDmNQwWyPbq3
+ tD71c37m0Ub7wd9XzQR2kB3lyVy9ObtVNBh0zpT68ed+WWvzhDX2trOfTvNlBNt+QSnrjeBAXHF
+ mePkcYXklcJ/WiGODfmVWtUeU7POvwc5GjvLsMYOVS2A/MI80YE0uPJp+2zPHrxcRalR1oIXMZR
+ nfYG9L84anBa0nY3rYYlSTw83AQtO3px/blxTNFELhTKMHEvO8QdtXVqAHWDguze3vz4Xs3O7UR
+ OdjFzyySpocu7B909c9BCHLnWzdQwGYzm3KI0oq59YOrrrj/tRh1HbTE+nyaSrovLVN07MQuCMT
+ yQUyBopqIi0fWlV0/Ww==
+X-Proofpoint-GUID: UGEle3GqFfHzLApijzDHojKzUc-M-zPf
+X-Authority-Analysis: v=2.4 cv=MelcfZ/f c=1 sm=1 tr=0 ts=6a5cca5b cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=V8glGbnc2Ofi9Qvn3v5h:22 a=oTK_JJbRH6YLXrI8L4wA:9
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzE5MDEzOSBTYWx0ZWRfXw1uYo4ox4Nn7
+ LZEqde8KGIqQIocZezSSv9azbVGagg+PFesumz4V+J0z7Wi0tgwMByYwFAMSYbh10djAYW4R+I8
+ ZUTP6NqVE3E/k5y66Mdd9476C6eZKYM=
+X-Proofpoint-ORIG-GUID: UGEle3GqFfHzLApijzDHojKzUc-M-zPf
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-07-19_04,2026-07-17_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ impostorscore=0 lowpriorityscore=0 priorityscore=1501 bulkscore=0 spamscore=0
+ clxscore=1015 malwarescore=0 phishscore=0 adultscore=0 suspectscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607190139
 
->
-> With that all architectures using the generic syscall entry code follow the
-> same scheme, apply stack randomization at the correct and earliest possible
-> place and skip syscall processing depending on the boolean return value of
-> syscall_enter_from_user_mode[_work]().
->
-> There should be no functional changes, at least there are none intended.
->
-> The resulting text size for the syscall entry code on x8664 is slightly
-> smaller than before these changes.
->
-> Testing syscall heavy workloads and micro benchmarks shows a small
-> performance gain for the general rework, but the last patch, which changes
-> the logic to be more understandable has no measurable impact in either
-> direction.
->
-> The series applies on Linus tree and is also available from git:
->
->         git://git.kernel.org/pub/scm/linux/kernel/git/tglx/devel.git entry-rework-v1
->
+v3:
+- Fix two more pre-existing bugs reported by Sashiko
+- Add Christian's Tested-by tag to four of the six patches
 
-Hi Thomas,
+v2:
+- Explicitely PAGE_ALIGN size in uv_alloc_stor_var() [Sashiko]
+- Document that lazy PTE update / TLB flushing is intended [Sashiko]
 
-I did another round of testing of this series on Alpha, this time with my
-Alpha GENERIC_ENTRY conversion rebased on top of this series.
+v1:
+Support for DCACHE_WORD_ACCESS was recently removed [1] since it caused
+problems with the incomplete handling of secure storage access
+exceptions. It looked like fixing the exception handler would be a larger
+effort; therefore support for DCACHE_WORD_ACCESS was removed as a work
+around.
 
-For this test I also manually applied the seccomp fixup discussed earlier in
-this thread, i.e. fixing the recheck-after-trace logic in
-__seccomp_filter() along the lines suggested by Jinjie/Oleg.
+Address the potential problems that exist with secure storage access
+exceptions and add support for DCACHE_WORD_ACCESS again.
 
-With that in place, the kernel boots on Alpha and I do not see any
-regressions in the seccomp_bpf kernel selftest or in the strace testsuite.
+In particular address the following problems:
 
-One note: the seccomp_bpf selftest run on Alpha uses this not-yet-upstream
-Alpha selftest enablement patch:
+- Reading the guest variable storage area via the /proc/kcore interface
+  results in short reads. Address this by using a VM_SPARSE area for the
+  guest variable storage area. VM_SPARSE areas will be handled like
+  memory holes (zeros will be read).
 
-https://lore.kernel.org/linux-alpha/20260203063357.14320-1-linmag7@gmail.com/
+- Fix handling of secure storage access exceptions in vmalloc area.
 
-One Alpha-specific wrinkle I hit while rebasing the GENERIC_ENTRY patch is
-that Alpha cannot unconditionally pre-seed the normal -ENOSYS return state
-before calling into the generic entry code: syscall_set_return_value() also
-updates r19/a3, which is still syscall argument 4 on the normal entry path.
-Doing that too early broke early userspace mmap() during boot.
+- Remove folio handling for secure storage access exceptions to avoid
+  potential data corruption.
 
-The Alpha conversion therefore handles this on the no-dispatch path instead:
-after the generic entry helper returns, if the syscall is not to be invoked
-or the resulting syscall number is invalid, Alpha skips the call, preserves
-any ptrace/seccomp/BPF-provided return value, and only synthesizes -ENOSYS if
-the return state was otherwise unchanged. That was needed for the
-TRACE_syscall.ptrace.syscall_faked and syscall_errno seccomp_bpf cases to
-pass.
+[1] 37540b8c287f ("s390: Revert support for DCACHE_WORD_ACCESS")
 
-So from the Alpha side, with the seccomp fixup applied:
+Heiko Carstens (6):
+  KVM: s390: pv: Use VM_SPARSE area for guest variable storage area
+  s390/mm: Add missing mm check to do_secure_storage_access()
+  s390/mm: Use lock_mm_and_find_vma() in do_secure_storage_access()
+  s390/mm: Fix handling of vmalloc area in do_secure_storage_access()
+  s390/mm: Remove folio handling for kernel faults in do_secure_storage_access()
+  s390: Add support for DCACHE_WORD_ACCESS (again)
 
-Tested-by: Magnus Lindholm linmag7@gmail.com
+ arch/s390/Kconfig                      |  1 +
+ arch/s390/include/asm/asm-extable.h    |  4 ++
+ arch/s390/include/asm/uv.h             |  2 +
+ arch/s390/include/asm/word-at-a-time.h | 22 +++++++++
+ arch/s390/kernel/uv.c                  | 65 ++++++++++++++++++++++++++
+ arch/s390/kvm/pv.c                     |  6 +--
+ arch/s390/mm/extable.c                 | 18 +++++++
+ arch/s390/mm/fault.c                   | 20 +++-----
+ 8 files changed, 122 insertions(+), 16 deletions(-)
 
-Are you planning to send a v2 with the seccomp recheck fix and any other
-review fixups folded in? Is the intention to route this upstream
-during the next merge window?
+-- 
+2.53.0
 
-Thanks,
-Magnus
