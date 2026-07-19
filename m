@@ -1,161 +1,124 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8315143F08E;
-	Sun, 19 Jul 2026 13:13:08 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC5D043F08E;
+	Sun, 19 Jul 2026 13:14:31 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784466789; cv=none; b=a8q8ALIK0PxwXLgEBaOX7AEr4NqaPsnzMwevQ3WJTZQ7yJnYKCogsoHPfW8OT18elP3g3ReUTXN2f3e26E6dZE65tMARcC86kTQFo2uBlFmoviIIwC8M8tMr/WpET4mUzbBReUMT8sLEl8NfoUwHNRzk/jEB5l5ifgUQ+twVQGk=
+	t=1784466872; cv=none; b=Ma6lE3dDwYJ1l1UN1ul5paqnaody84trwx66EPQ48nJ5DxVdPgEZp8n/xkeER2BEFB1ImE+R6qRxQ57VJcs8rlfgaSk3Q4TOJZipZShRnA4wvad0MYP6qFHoD2X3UpQ+9x5QS3GovIp4HsBjTaOKNN96mTpL2mzJLxr3xl2CswM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784466789; c=relaxed/simple;
-	bh=W18JH2kghUuTWfbppTbMbvuHfwrSXm7Yirr8jj7zjzU=;
+	s=arc-20240116; t=1784466872; c=relaxed/simple;
+	bh=SsSLxgEbrq+W61Gdcoduityt39CXNvjtwk459r/0Uio=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=JFuELNenP39XunyEmDg0WGf/Ln6Zf20D6/ulxexeL/FBIT9hLku9OaTc3ATNxFEXuWB31izvQt243WEsVyCaMSCSwCexxjWGFOWf1zAmjH6fB0sejJDxY1ctRf1THlMD0+n8ag/bOloWuO71M1hKPPwZwjw6Jh7RP0DkO83YaOI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HU9rSMAa; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=p4/0ZBWNlu1ds4A2NvIMsR4SfN8ONg2oceyP+LrwaG78U3Xx4BPVcOlSSE+2Hbkvu+2VJixEkRiLO7pwPA/lMasVCUcrtzkCu8k7D3WQqkuEHejujDdCMtvKGx/XmhbGIsnPk0YN+Vbf+WPV9WmzZccOCWC58wNyKK0OueNessA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Sqp1lmvg; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HU9rSMAa"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E40B61F000E9;
-	Sun, 19 Jul 2026 13:13:07 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Sqp1lmvg"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 172401F000E9;
+	Sun, 19 Jul 2026 13:14:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784466788;
-	bh=ZzH3SislvqtsOTWI1ABS9/miqC3h9sBqfk3bC85nD7U=;
+	s=k20260515; t=1784466871;
+	bh=OY5Zcm1rMAfQz1tENGaRR+TSgq+B3sWYQeRuaZtyX0w=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=HU9rSMAak/hCoXJZLVDb5w0U1smOemm7qkiLaGAoownIOPm90ZMLudoZXualG15tk
-	 N+xE5Oc7nOMUJow1IgstlIKeYjZQmCoPYj1QkSPuAsRqc0nx5wtp+csb/v6m6PIt64
-	 lugbUEJREnKvI6yhDNp4inJBgTtC/52tGALPOBMgQYzoRQH0ZxsjYP2kNlsfFWLNoY
-	 0bCGx/qlI1FY9rt7jGXKFWt/sVQWPh1dR9mjdsOpsvSQ3x/vUcBuVFj1X5vovkCRal
-	 oBNi32imEA0gq8648/6NDaP5T8CE2b3HUmnouJ0BFaU6cd2DBdZTux5v4sgwbN+eF7
-	 pDqK2FC+ZyzPg==
+	b=Sqp1lmvgTUNAZ8vk/+tHfYz6ouX9jsvpcZ2decCx6I7rbD8frzE1TBxC4KlnZlIVw
+	 Xyb7D0U9pY134dJB0zSu/u+ghXeaAt6aaTJBDdY7vw4QkB/IwwJMArzriYBTehibPL
+	 AFmXG+WXqTece7ROcikKk4tfStq1otEnK2P7ZV2utFvrB0KYAagTAwScYfyHuUIXuW
+	 SisDtKmNBLAmVab2soGeaBqcsXv5NWMeS0wwdOSnMWIwIkQhJAP/+8GamOf7DL4Dk2
+	 ZQQazU684MYcNXnoOHBpOpI7/cqeQv21pAWwGSHIf/pwTtSQ/Vs6oT/RjgjEeZ2aEM
+	 v2z5/7ZuoI72A==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 2/6] s390/mm: Add missing mm check to
- do_secure_storage_access()
+Subject: Re: [PATCH v3 5/6] s390/mm: Remove folio handling for kernel faults
+ in do_secure_storage_access()
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Heiko Carstens" <hca@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
- Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
-In-Reply-To: <20260719130006.3882764-3-hca@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
+ Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, kvm@vger.kernel.org
+In-Reply-To: <20260719130006.3882764-6-hca@linux.ibm.com>
 References: <20260719130006.3882764-1-hca@linux.ibm.com>
- <20260719130006.3882764-3-hca@linux.ibm.com>
+ <20260719130006.3882764-6-hca@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sun, 19 Jul 2026 13:13:07 +0000
-Message-Id: <20260719131307.E40B61F000E9@smtp.kernel.org>
+Date: Sun, 19 Jul 2026 13:14:30 +0000
+Message-Id: <20260719131431.172401F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [High] Missing VMA Bounds Check allows Denial of Service via WARN_ON_ONCE.
-- [High] Invalid Memory Access / Kernel Crash via virt_to_folio() on non-di=
-rect-mapped addresses.
+- [Critical] Kernel accesses with exception fixups (e.g., speculative reads=
+ or probe reads) unconditionally destroy active secure guest pages because =
+uv_convert_from_secure() is executed before checking fixup_exception().
 --
 
---- Patch [2]: [PATCH v3 2/6] s390/mm: Add missing mm check to do_secure_st=
-orage_access() ---
-commit 55ed80680943e84fffd67209605311fedc0e28ae
+--- Patch [5]: [PATCH v3 5/6] s390/mm: Remove folio handling for kernel fau=
+lts in do_secure_storage_access() ---
+commit 475be2dbf4868b390a06f3b6bd78b394674a341a
 Author: Heiko Carstens <hca@linux.ibm.com>
 
-s390/mm: Add missing mm check to do_secure_storage_access()
-   =20
-Similar like the normal exception handler the secure storage access
-exception handler needs to verify if mm is not NULL, which may happen
-with kernel threads.
-   =20
-Reported-by: sashiko-bot <sashiko-bot@kernel.org>
-Closes: https://lore.kernel.org/all/20260717132345.539A11F00A3A@smtp.kernel=
-.org/
+s390/mm: Remove folio handling for kernel faults in do_secure_storage_acces=
+s()
+
+This commit removes folio handling and reference counting for secure
+storage access exceptions triggered via the kernel mapping. It replaces
+the folio_to_phys() conversion with a direct __pa(addr) translation to
+avoid data corruption from a known race condition.
 
 > diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
-> index 028aeb9c48d6f..2839d7a64401c 100644
+> index e650cdfa25231..776549d55c94a 100644
 > --- a/arch/s390/mm/fault.c
 > +++ b/arch/s390/mm/fault.c
-> @@ -409,9 +409,9 @@ void do_secure_storage_access(struct pt_regs *regs)
->  {
->  	union teid teid =3D { .val =3D regs->int_parm_long };
->  	unsigned long addr =3D get_fault_address(regs);
-> +	struct mm_struct *mm =3D current->mm;
->  	struct vm_area_struct *vma;
->  	struct folio_walk fw;
-> -	struct mm_struct *mm;
->  	struct folio *folio;
->  	int rc;
-> =20
-
-[ ... ]
-
-> @@ -453,9 +453,8 @@ void do_secure_storage_access(struct pt_regs *regs)
->  		if (rc)
+> @@ -440,13 +440,7 @@ void do_secure_storage_access(struct pt_regs *regs)
+>  	if (is_kernel_fault(regs)) {
+>  		if (is_vmalloc_addr((void *)addr))
 >  			return handle_fault_error_nolock(regs, 0);
->  	} else {
-> -		if (faulthandler_disabled())
-> +		if (faulthandler_disabled() || !mm)
->  			return handle_fault_error_nolock(regs, 0);
-> -		mm =3D current->mm;
->  		mmap_read_lock(mm);
->  		vma =3D find_vma(mm, addr);
->  		if (!vma)
+> -		folio =3D virt_to_folio((void *)addr);
+> -		if (unlikely(!folio_try_get(folio)))
+> -			return;
+> -		rc =3D uv_convert_from_secure(folio_to_phys(folio));
+> -		if (!rc)
+> -			clear_bit(PG_arch_1, &folio->flags.f);
+> -		folio_put(folio);
+> +		rc =3D uv_convert_from_secure(__pa(addr));
 
-[Severity: High]
-This isn't a bug introduced by this patch, but can this cause memory
-corruption?
+[Severity: Critical]
+This is a pre-existing issue, but does this unconditionally destroy active
+secure guest pages on speculative reads?
 
-Earlier in this same function:
+Looking at do_secure_storage_access(), uv_convert_from_secure() is called
+here before checking fixup_exception(). Because the Ultravisor allows the
+host to reclaim active guest memory, uv_convert_from_secure() succeeds for
+guest memory, scrubs the page, and returns 0.
+
+Since the conversion succeeds, the code skips calling
+handle_fault_error_nolock() where the fixup is actually evaluated:
 
 arch/s390/mm/fault.c:do_secure_storage_access() {
-    ...
-	if (is_kernel_fault(regs)) {
-		folio =3D virt_to_folio((void *)addr);
-    ...
+        ...
+        rc =3D uv_convert_from_secure(__pa(addr));
+        /*
+         * There are some valid fixup types for kernel
+         * accesses to donated secure memory. zeropad is one
+         * of them.
+         */
+        if (rc)
+                return handle_fault_error_nolock(regs, 0);
+        ...
 }
 
-When the kernel accesses a secure guest page through a vmalloc mapping,
-is_kernel_fault(regs) evaluates to true. Then virt_to_folio() is
-unconditionally applied to the faulting kernel address without validating t=
-hat
-it is a direct-mapped address.
+If a speculative kernel read (like the mentioned load_unaligned_zeropad)
+or an eBPF probe read targets an address in the direct map belonging to a
+secure guest, wouldn't this silently destroy the guest's memory instead of
+safely executing the fixup?
 
-Since virt_to_folio() subtracts the direct map offset, wouldn't it produce a
-bogus PFN for vmalloc addresses, leading to dereferencing a garbage struct =
-page
-pointer?
-
-[Severity: High]
-This is also a pre-existing issue, but could this lead to a denial of servi=
-ce
-via WARN_ON_ONCE?
-
-Looking at do_secure_storage_access() in arch/s390/mm/fault.c, find_vma()
-returns a VMA that may start after the faulting address, which is not verif=
-ied
-before use.
-
-If a concurrent thread unmaps the VMA between the time the hardware generat=
-es
-the secure storage exception and the handler acquires the mmap lock, could
-find_vma() return the next adjacent VMA?
-
-If so, passing this potentially unrelated VMA to folio_walk_start():
-
-arch/s390/mm/fault.c:do_secure_storage_access() {
-    ...
-		vma =3D find_vma(mm, addr);
-		if (!vma)
-			return handle_fault_error(regs, SEGV_MAPERR);
-		folio =3D folio_walk_start(&fw, vma, addr, 0);
-    ...
-}
-
-would trigger the WARN_ON_ONCE(addr < vma->vm_start || addr >=3D vma->vm_en=
-d)
-safety check. Could a malicious user-space program exploit this race by
-repeatedly triggering secure storage accesses while concurrently unmapping
-regions to crash the system if panic_on_warn is enabled?
+>  		/*
+>  		 * There are some valid fixup types for kernel
+>  		 * accesses to donated secure memory. zeropad is one
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260719130006.3882=
-764-1-hca@linux.ibm.com?part=3D2
+764-1-hca@linux.ibm.com?part=3D5
