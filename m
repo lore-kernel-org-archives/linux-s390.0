@@ -1,106 +1,155 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E41F62FD69E;
-	Mon, 20 Jul 2026 19:21:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4C2238E5FE;
+	Mon, 20 Jul 2026 19:25:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784575271; cv=none; b=XbMCTqgDla/IG1c0w9gd+sICX07wyjqwWgCh3fZ1a6+u0NBdpC4YhiqqvXBjdpHbwzUNARL/sC0VcOrHXMorlsQBWN4+Gavm0E8S1mfG1kCSVVfaXNADqR1NDXmpzoInO+CR+iNqongpltSoz1saPLV5T3M6A7iBPBxUv45hoXs=
+	t=1784575515; cv=none; b=VZThbib2+AW/aZkZejBYqgPXQxfTTkyt5+E/I5UgPm/bIuprnRdl+ilR82g5KpV8oLCFLNLApfRtcHcjE6Lb8no08vfd39oodRYjgkEh76lwKjolQVA6dGHaYI7MrudW1iNGKxsJNDfa7j1cvzpcSLht4uN6dBtKl66zycBu9rQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784575271; c=relaxed/simple;
-	bh=H/vKTqmynWJ9xGLYIa8zO75nqGaobj6R+UxbFnLBdNk=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=Ns/WBYXQtUdD3S2Cjb/A8hRI1LyhSq8EmQ9ue/mUebmcagp5v8VmfeZZWvfJKWm8zoTrt9aTo9Xaums8xR+3rdjmeuXeknojAl1/Xh2zJTc0Xy5RdbXktX/MgoEweD4OtLRh9bdPqzsA9FzVYhdC+JWUb+4ZQwYzjknQO1fnOJQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Spav0GWz; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1784575515; c=relaxed/simple;
+	bh=/KuxQCQymQoIRNq9iJ1JDsV4+O3aPA4c+7w8DtPch7w=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=r1FD9qZ5wmpP/rbai+OASDdjsCbCTiWbJtVTSacyqISZDS2bs2auFgbTemfDSc98opRFZCcHQp8yMmMaKipUO0LIfkXNx6DSliNkQNUHgooVTj9uFtbFbBo8LDLwaffO0r4ryf/INcJQ7Q44toxE76xwPlM5B5Bwg4xX41l9lcI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=spVFV1JQ; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Spav0GWz"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC12B1F000E9;
-	Mon, 20 Jul 2026 19:21:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784575270;
-	bh=y4vTZRCmYUoacTgRQeb9iD10u8BLXmQ5njXvIgguyco=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date;
-	b=Spav0GWz3rWmeiOvTkSHmoLaFmA0dsmghrTMMUGIy7BsnbqtE0r1vEIJpGCtqeWB+
-	 BpTJQ6xzB/KOaDAAkoTPfDvyF002TmAYBtSyKK5uExFq/Cj1mLr43Z33qJ2sRMi9Nf
-	 nJuZqLg2J7TvcdvdFpFOL3PuoTONb0yf3DbORivGivTO7zCY0H72Bu+OkktKpqh03L
-	 Vksh67h0wy7gmPYEI4mwGb9sleMrzw8Jsb1sLuHLmScVy2tv/f+VR08LYTxzvzqe4C
-	 b/ZkM/7+AGeKxhezpkSh009TVoxiBEuZvcET+KD3PE+3fxGAVYAS/3R9Y8DzfgWlkp
-	 U2Lg+Wsg/dkOQ==
-From: Thomas Gleixner <tglx@kernel.org>
-To: Magnus Lindholm <linmag7@gmail.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, Peter Zijlstra
- <peterz@infradead.org>, Michael Ellerman <mpe@ellerman.id.au>, Shrikanth
- Hegde <sshegde@linux.ibm.com>, linuxppc-dev@lists.ozlabs.org, Kees Cook
- <kees@kernel.org>, Huacai Chen <chenhuacai@kernel.org>,
- loongarch@lists.linux.dev, Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt
- <palmer@dabbelt.com>, linux-riscv@lists.infradead.org, Sven Schnelle
- <svens@linux.ibm.com>, linux-s390@vger.kernel.org, x86@kernel.org, Mark
- Rutland <mark.rutland@arm.com>, Jinjie Ruan <ruanjinjie@huawei.com>, Andy
- Lutomirski <luto@kernel.org>, Oleg Nesterov <oleg@redhat.com>, Richard
- Henderson <richard.henderson@linaro.org>, Russell King
- <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, Guo
- Ren <guoren@kernel.org>, Geert Uytterhoeven <geert@linux-m68k.org>, Thomas
- Bogendoerfer <tsbogend@alpha.franken.de>, Helge Deller <deller@gmx.de>,
- Yoshinori Sato <ysato@users.sourceforge.jp>, Richard Weinberger
- <richard@nod.at>, Chris Zankel <chris@zankel.net>,
- linux-arm-kernel@lists.infradead.org, linux-alpha@vger.kernel.org,
- linux-csky@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
- linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
- linux-sh@vger.kernel.org, linux-um@lists.infradead.org, Arnd Bergmann
- <arnd@arndb.de>, Vineet Gupta <vgupta@kernel.org>, Will Deacon
- <will@kernel.org>, Brian Cain <bcain@kernel.org>, Michal Simek
- <monstr@monstr.eu>, Dinh Nguyen <dinguyen@kernel.org>, "David S. Miller"
- <davem@davemloft.net>, Andreas Larsson <andreas@gaisler.com>,
- linux-snps-arc@lists.infradead.org, linux-hexagon@vger.kernel.org,
- linux-openrisc@vger.kernel.org, sparclinux@vger.kernel.org,
- linux-arch@vger.kernel.org, Michal =?utf-8?Q?Such=C3=A1nek?=
- <msuchanek@suse.de>, Jonathan
- Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org
-Subject: Re: [patch 00/18] entry: Consolidate and rework syscall entry handling
-In-Reply-To: <CA+=Fv5TDNH8+JAojV9_W36kUkEE68uiA00FQ7i0vJunebqs1sA@mail.gmail.com>
-References: <20260707181957.433213175@kernel.org>
- <CA+=Fv5TDNH8+JAojV9_W36kUkEE68uiA00FQ7i0vJunebqs1sA@mail.gmail.com>
-Date: Mon, 20 Jul 2026 21:21:07 +0200
-Message-ID: <87wluplb6k.ffs@fw13>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="spVFV1JQ"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66KHBtZI2713694;
+	Mon, 20 Jul 2026 19:25:09 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=vxo1gr9j3rNVIPeG0Gh7PR3XHS/1P1MFJpWiBXCn9
+	7s=; b=spVFV1JQJnS3BTEf6kWJwFgnn/kHJyKCanLlV0mICZ3k9ocVGqxbdN1aJ
+	GYXFhYePPwEfy2CgGg7wMpzudRIBq9MI5i7tGt855EOtkeatpzxI07/bynS47jtK
+	/oURgokFV63ULQmp+e2cNvqEM23xdo9xoigUqgvChn/ysMKUi1CvMS9Ijh3rn9xy
+	5WKUszlEGmh60pTN/dFcEKRuBEzCZRmd37eMMVyNqFT8xMBzhVBYR3pvBjOP/aDZ
+	zZOBiDP1+SDx3DYskTDOpYMCzV9BTVMqIwrcSzqGPeGTSIX2tAqmbec3iyMnamL5
+	fmogK/0dCMlUMSq5dHuGSpryrIN0A==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fg78g0u12-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 20 Jul 2026 19:25:09 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66KJJbqm030887;
+	Mon, 20 Jul 2026 19:25:08 GMT
+Received: from smtprelay07.wdc07v.mail.ibm.com ([172.16.1.74])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fgktpy6kv-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 20 Jul 2026 19:25:08 +0000 (GMT)
+Received: from smtpav02.wdc07v.mail.ibm.com (smtpav02.wdc07v.mail.ibm.com [10.39.53.229])
+	by smtprelay07.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66KJP6mX11731580
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 20 Jul 2026 19:25:06 GMT
+Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 97B015805D;
+	Mon, 20 Jul 2026 19:25:06 +0000 (GMT)
+Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B4CD85805B;
+	Mon, 20 Jul 2026 19:25:05 +0000 (GMT)
+Received: from IBM-D32RQW3.ibm.com (unknown [9.61.255.209])
+	by smtpav02.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Mon, 20 Jul 2026 19:25:05 +0000 (GMT)
+From: Farhan Ali <alifm@linux.ibm.com>
+To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-pci@vger.kernel.org
+Cc: helgaas@kernel.org, alex@shazbot.org, alifm@linux.ibm.com,
+        schnelle@linux.ibm.com, mjrosato@linux.ibm.com
+Subject: [PATCH v22 0/4] [PCI] Error recovery for vfio-pci devices on s390x
+Date: Mon, 20 Jul 2026 12:25:01 -0700
+Message-ID: <20260720192505.2957-1-alifm@linux.ibm.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzIwMDIwOSBTYWx0ZWRfXxRX/VYVo7pwY
+ cQF2Vp+uOpUCILJUleutPFNEFyJbXSvuD+V4hL/liHnZjCRePNzBtfqv5x7nAUGL2Ukpmkm6EYu
+ kAiZp10rwq4WEmuujd6sTREqbqw5+AWfIDLvnpkMfvvYygIXhomdObXJ3GbsvSGYcDROSyz9wD5
+ uwY+wFpwuz63uVLrwpYuiAL+Qw5sD6X/G4EVIno0qAzYSohtI5DASHeNBkmFSk2azy3gKPk49Q0
+ 9hh0wYi9SIG4giPFrPi6yVnjzoOhfPlrg3+hIMI2sWwhb9T9Q034AuksMcSsbagT/TySwVKkvDC
+ 6T55sIqgXzjxDBR+v7mSo02mpinMDFlGMaeWQa0fQVJK693oyryyC0HHjG7pPkUkhkxPEXN7yte
+ g4De45uCFjC+OIse3OQL730YaupJe6GGi+x50r3qLiGC4za6PWHVy6EyYP+6Bg/JNobSQQr0RQx
+ TlDQDoWw1pM3/LJHHOQ==
+X-Proofpoint-GUID: t7redkN4azQwop5noa20GTYTr82fJXIF
+X-Authority-Analysis: v=2.4 cv=MelcfZ/f c=1 sm=1 tr=0 ts=6a5e7615 cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+ a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=V8glGbnc2Ofi9Qvn3v5h:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8 a=r1p2_3pzAAAA:8
+ a=ztKUdEHD2T5e-c5t2tQA:9 a=O8hF6Hzn-FEA:10 a=r_pkcD-q9-ctt7trBg_g:22
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzIwMDIwOSBTYWx0ZWRfX7DMCbl4UROXT
+ cYKQYaKTVR1UhY/vreUWso2d/lrhGOIdHQJCz83ebz3mrqyZLExFA55X4E90etHEVAiCqSYqldV
+ VNNS0L5w2vny9rI8l16BCr29d+PT7FE=
+X-Proofpoint-ORIG-GUID: t7redkN4azQwop5noa20GTYTr82fJXIF
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-07-20_04,2026-07-20_03,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ impostorscore=0 lowpriorityscore=0 priorityscore=1501 bulkscore=0 spamscore=0
+ clxscore=1015 malwarescore=0 phishscore=0 adultscore=0 suspectscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607200209
 
-Magnus!
+Hi Bjorn,
 
-On Sun, Jul 19 2026 at 13:25, Magnus Lindholm wrote:
-> One Alpha-specific wrinkle I hit while rebasing the GENERIC_ENTRY patch is
-> that Alpha cannot unconditionally pre-seed the normal -ENOSYS return state
-> before calling into the generic entry code: syscall_set_return_value() also
-> updates r19/a3, which is still syscall argument 4 on the normal entry path.
-> Doing that too early broke early userspace mmap() during boot.
+This patch set includes only the PCI patches of the original series for
+error recovery for vfio-pci devices on s390x [1]. Breaking up the patch
+series into PCI and VFIO only patches to make merging easier based on
+discussion with Alex [2].
 
-Similar to what Peter and me suggested in the related discussion
-vs. s390 which has a similar issue, you can just have a dedicated
-syscall_return member in your pt_regs struct, which is preset to -ENOSYS
-and operate on that. You have an unused padding entry there which means
-it won't even change the size.
+Thanks
+Farhan
 
-> Are you planning to send a v2 with the seccomp recheck fix and any other
-> review fixups folded in? Is the intention to route this upstream
-> during the next merge window?
+[1] https://lore.kernel.org/all/20260520171113.1111-1-alifm@linux.ibm.com/
+[2] https://lore.kernel.org/all/20260602163344.1eda12d2@shazbot.org/
 
-You were on CC for the V2, no?
+ChangeLog
+---------
+v21: https://lore.kernel.org/all/20260630164807.643-1-alifm@linux.ibm.com/
+v21 -> v22
+  - Ammend commit message for patch 1.
+  - Rebase on 7.2-rc4
 
-The whole pile including Jinjie's seccomp bypass fix is in
+v20 https://lore.kernel.org/all/20260622171840.1618-1-alifm@linux.ibm.com/
+v20 -> v21
+  - Amend commit message to include Fixes tag and cc stable (patch 4).
+  - Rebase on 7.2-rc1.
 
-    git://git.kernel.org/pub/scm/linux/kernel/git/tip/tip.git core/entry
+v19 https://lore.kernel.org/all/20260615183524.2880-1-alifm@linux.ibm.com/
+v19 -> v20
+  - Unconditionally enable Memory bit while restoring MSI-X (patch 4).
+  Fixes an issue found with sashiko. 
 
-and is targeted for the 7.3 merge window.
+v18 https://lore.kernel.org/all/20260603181647.2215-1-alifm@linux.ibm.com/
+v18 -> v19
+  - Move config space accessible check to pcie_flr() function (based on
+  discussion of Sashiko review)
 
-If you want to base your stuff on that for 7.3, I can add a tag which
-makes it immutable so it can be pulled into the alpha tree.
+  - Fix a gap in MSI-X restoration (patch 4).
 
-Thanks,
+  - Rebase on 7.1-rc7
 
-        tglx
+v17 -> v18
+  - Rebase on 7.1-rc6.
+
+Farhan Ali (4):
+  PCI: Allow per function PCI slots to fix slot reset on s390
+  PCI: Avoid saving config space state if inaccessible
+  PCI: Fail FLR when config space is inaccessible
+  PCI/MSI: Enable memory decoding before restoring MSI-X messages
+
+ drivers/pci/hotplug/rpaphp_slot.c |  2 +-
+ drivers/pci/msi/msi.c             | 10 ++++++++++
+ drivers/pci/pci.c                 | 32 ++++++++++++++++++++++++++++--
+ drivers/pci/slot.c                | 33 +++++++++++++++++++++++--------
+ include/linux/pci.h               |  8 ++++++--
+ 5 files changed, 72 insertions(+), 13 deletions(-)
+
+-- 
+2.43.0
 
