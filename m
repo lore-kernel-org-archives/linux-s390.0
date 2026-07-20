@@ -1,171 +1,146 @@
-Received: from mail-ed1-f53.google.com (mail-ed1-f53.google.com [209.85.208.53])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0B01443B3EE
-	for <linux-s390@vger.kernel.org>; Mon, 20 Jul 2026 22:01:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.53
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784584880; cv=pass; b=aC4G/Ndtx0ax3vT0qgDhdgeGrhljKLcnwOOAw7RNlgYtQraUIQMNGnZAscjYIkidskluOa33BPdzBwEcHAUcPa764Z3YtVcd6vmj7yIH2OcuxaHSgy//EAwOjEmkx5X6HosAtLQPa+xifW75qUZ3xQ6E/o5A8VxMjeKqyIhywXw=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784584880; c=relaxed/simple;
-	bh=j/7Pu0goIzrDPISYd7UGXNeACZWMCvQbsT7AmxUh2RI=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=oFxs8P8tMrMlyZx51d4n9ujOGKE1x5uCI1bP9AEbPfLVH7rJGdSog/FdGE6tmi04OJOVooMsHAeoIe8SZZQHC1MRzobImHO5K9mpnlEWBXwlghPmQSsK2XnTuzIz7cMHHW3jRTcxrE8cZOkMcXIX6OLChV4Bmil69bCKHxIzViM=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZMey3lva; arc=pass smtp.client-ip=209.85.208.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE183449B25;
+	Mon, 20 Jul 2026 22:22:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1784586173; cv=none; b=UFQAwJ64f59CUNNwWp/Euxd3sAV78HKOWNapUd4HK0I34hGhEMTW6eG8Krm6XynnK3MiMAiRtcUjOiW248q96qHJls5J5EWF2GJRHGDqXAA//RhND2alqZKzRLJApOsvj3n8z+CaCab/WU6b8Z3JLX625nL1+FdkUxfe3NTJfnA=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1784586173; c=relaxed/simple;
+	bh=Rxy0yIKRfMPcf3+ShCD2kUCFrShrLuuTgNqOJF2bJL4=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Yr60I/dJT2PQg+giLjsuUW/yQfUKaWujtJQRNxdsR3nja9PiuIvAZ6il74fbLvGr51sm41YGDMJ5cRG4pz6uCRXbub1AMPS0yrwbsqcsOLAVqq4TXS7MpGKa6mU7lWc+q/6V/5JkF22BOE5qZQQEAfdKbjnVQyK+mGiFNGCr0Gc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=aHYJM4AI; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZMey3lva"
-Received: by mail-ed1-f53.google.com with SMTP id 4fb4d7f45d1cf-698a9f11776so12016608a12.1
-        for <linux-s390@vger.kernel.org>; Mon, 20 Jul 2026 15:01:16 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1784584875; cv=none;
-        d=google.com; s=arc-20260327;
-        b=V22iaImWu22/HCBqXVty4EXALfMHkEfaTOdI8HuMOi1SavONZW5VGZf6oPZQd4lFWk
-         rksBf+Zq+YFLLODCgUW9JfbU1P3QEChk3S2kbfmfYKqTYlcQBMra62xaFUmdl/i4ntZp
-         LasF4E02G5aJ/BX29LFUQtiekm3lxVYTuPQgUZAgfSzTpPU6fSLcFeiqG8NidLie1NGf
-         pQeU5Rjf2Vv+AuQXqrBNMKXcna5alo19DLKYNnedYxyf7KWTa3TqAN36cnlqsxRtKaF0
-         r0NJoIDf2Mpr09fuborJOJnZQsUq353gp0j0z3v5qkDDUq5mjUUrstRtsLQAkl5zN+dZ
-         9bnQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=OFKHaLiuiIMT2s5Bf3SZwWbn7++lylaBZHxfNpeM7Fk=;
-        fh=9PlthWm569Aa7sjJ12FBzTYeizn/eezMDpJH848pfHY=;
-        b=X8snTxdZxNUp0Cd4/1Zsfk0xxZyXf+ZkEkUFctoIckPTq9r3lt8WQvicgBLx6tgPOv
-         siZknh5HMJcZcs4Isn4rioK3VVnfzusfd5rXy6f24i4UcmfOICVEbpGKLUsgj7akSyta
-         LIBAet4PRypZNtgbbrnG/G+5mocifQLXWSIHVkBmaU3K3/eo2LL/W/RRmt5L9m/xoJNZ
-         q/fC6ynMNwXxHoQV0BTdr8dzQu1YjLeilM3rwH5bALsqHB6qGT01PsyxIOJVAsnlgHwW
-         tfHomiv3OPb/MWtLFtzsg/LK9munhhYVi06jPSdRo+chG4cxw+g+BNUbSvT3zsChjLqo
-         B7CQ==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784584875; x=1785189675; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=OFKHaLiuiIMT2s5Bf3SZwWbn7++lylaBZHxfNpeM7Fk=;
-        b=ZMey3lvahqP+YPW9LamnWQzczRxQiZ4wg9gw2Nu7P3y1v17JUAuMM/AR3JTiQFFKU8
-         d9noasqw2G++q5S+mCeWeywDA5kpg8MuVxJjECyua9/y3jlOjzMIOYlRYZqO13STHgxR
-         WQ87V1/rMYJN18KwPy7Kt1f4oO1hp7OTlSg/lmBFsB1gkADDpu+GAYd81uYxtDWFgDYj
-         g7E/fCVHIhWUawA3wQ30Wot0eYDovRLDP5gkADBspVyzhS4siR8fFKxsvW3/xg6aPXXq
-         4tTUNL4YjCh2lps4QkQgZ6MAQbSDaAHnlH759VBDRh1kPBksK3QYu64fJW2a6dhpi8jy
-         qpww==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784584875; x=1785189675;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=OFKHaLiuiIMT2s5Bf3SZwWbn7++lylaBZHxfNpeM7Fk=;
-        b=SC9Z3A5UEa1xc5WJGctkhN62IgKTyhUr4e+oTSHODmXYEqoVxOhtanSu9ECn1HI/yo
-         yT3i8GIr25t8e4eQ83mIf0mQAsGhN+TVnbbYRchFoZZF32JLNHqjN9SbgdHkftSgtidb
-         vFlyPLl8I9gXIyHFAyv9myfLyGiyIf7vvumfExkRfXfRci4ICKHkebsnuEOjKzkB3olD
-         0g9fbx8AdW8EIn05vNWo1bgT/JUhKz4FbFipo0PRP5xhZOUS0l+z+n7ExwAzl8yvez+W
-         bmB/85ezJmotRxeJ0xUZEwPX9Tkjds5vxGMBR9IVwrBhczNiYOpvR+kCPW1oh7UFJ+dN
-         Kyfg==
-X-Forwarded-Encrypted: i=1; AHgh+Rod+jpu/PiX0cDKDBd67ZxzwZNIM03pwM4zArjdtoDHLos+ekRovzBYH6+w9rQga9bLR5SApYt0u16N@vger.kernel.org
-X-Gm-Message-State: AOJu0YxiXCdc4VQFIzutQ9NVVrSLZJs92NDaJVZkd/ZZWWj8us4zMtgk
-	aTSmBhf01PSvG8QaHNRYZ8qVF8E6tWWhZ7xZtYsL750Z1quW1UQnEvqHpTqTxKh9rR3bIY08O2v
-	0dQ3VCFhZnj4gh97rf/zmVzixQy42h3w=
-X-Gm-Gg: AR+sD12iwUqNqNEAQ9pIu2WeqyWQhPBMPKQ2HGFTVBkj8O//LXcCdcUc89MxS62fdUM
-	ZuUVrT/6vCf7b/Xj542Tbc6KfWxE8KYOdFZLdF70+XAtC64i2Qe/gb4MR0z4EdHDQlP1A6adelz
-	wmFS1b9Tnk7PY8JkNpNWnkXBBQOE7Kc4ZqwgOnr5EGIDRR0GF7Hgunx0j/OEHD8OnZmobWH7Uxv
-	4PPG4PXNd3BdWMB3EoYhGuOkBRzSGZyoT7TGCbkvk2v6wPcMIU5dTkHhN27lD0WTSTWcOHtlsmF
-	qcCuALoYnuFFOynJZfaEIacuBFn+f7c=
-X-Received: by 2002:a05:6402:2356:b0:674:5b2c:d42c with SMTP id
- 4fb4d7f45d1cf-69e6525c770mr6536246a12.3.1784584875096; Mon, 20 Jul 2026
- 15:01:15 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="aHYJM4AI"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66KJfchA1245764;
+	Mon, 20 Jul 2026 22:22:50 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=oMahkUsl8pWrYQrKksQp6/p03wgTU10psdAiIKZVn
+	N4=; b=aHYJM4AI2WAGbDi6sO5IrA2okWiOdjmZHzuG5NOqwa9dk+fM3D9z6vOF1
+	8mzHo41+t2QTaaYXCMVl/wBs+tBPRyt4+GKFSNTDzxx/KvXgXqeFrusaKvg0PDTi
+	GbdOR989efyx6a9a+P1by55LEdYBaC29+WRHH0Svd7qpkWa+I8RG8Uf4vcc0gUBA
+	urTvOZd9tcaBhRpqsDjan4LBnNxzT0g/uF1xNQoAPxDSAC1dkk2Z551Id1QT1SA6
+	WZIB4EfpcYMQOXseyoY7c4Kg+lw4f9QR+iNFjqexAIxo+duRS5YI2f0/hEhUQKnx
+	2rh4wN3DycpjhoZ+phpQAGq4EeEBQ==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fg77a9r7p-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 20 Jul 2026 22:22:50 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66KMJa61022272;
+	Mon, 20 Jul 2026 22:22:49 GMT
+Received: from smtprelay03.dal12v.mail.ibm.com ([172.16.1.5])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fgktpyrqf-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 20 Jul 2026 22:22:49 +0000 (GMT)
+Received: from smtpav03.wdc07v.mail.ibm.com (smtpav03.wdc07v.mail.ibm.com [10.39.53.230])
+	by smtprelay03.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66KMMmmP26804810
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 20 Jul 2026 22:22:48 GMT
+Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 1D6915805A;
+	Mon, 20 Jul 2026 22:22:48 +0000 (GMT)
+Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 5748058054;
+	Mon, 20 Jul 2026 22:22:47 +0000 (GMT)
+Received: from IBM-GLTZVH3.ibm.com (unknown [9.61.250.131])
+	by smtpav03.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Mon, 20 Jul 2026 22:22:47 +0000 (GMT)
+From: Jaehoon Kim <jhkim@linux.ibm.com>
+To: borntraeger@linux.ibm.com, frankja@linux.ibm.com, imbrenda@linux.ibm.com,
+        hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com
+Cc: david@kernel.org, svens@linux.ibm.com, mjrosato@linux.ibm.com,
+        freimuth@linux.ibm.com, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Jaehoon Kim <jhkim@linux.ibm.com>
+Subject: [PATCH v1] KVM: s390: Fall back to short-term pinning in MAP ioctl
+Date: Mon, 20 Jul 2026 17:22:38 -0500
+Message-ID: <20260720222238.1576-1-jhkim@linux.ibm.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260707181957.433213175@kernel.org> <CA+=Fv5TDNH8+JAojV9_W36kUkEE68uiA00FQ7i0vJunebqs1sA@mail.gmail.com>
- <87wluplb6k.ffs@fw13>
-In-Reply-To: <87wluplb6k.ffs@fw13>
-From: Magnus Lindholm <linmag7@gmail.com>
-Date: Tue, 21 Jul 2026 00:01:03 +0200
-X-Gm-Features: AUfX_mw5696pn_wiz_LjCaJHiFU9IchwhNNUbBWmuIdhtqSFIK3TJnj9-atYCBw
-Message-ID: <CA+=Fv5Sd5+-K3-MOiEc2N8z_5CoLQPVPUwjiugSj3u8cBWJXXQ@mail.gmail.com>
-Subject: Re: [patch 00/18] entry: Consolidate and rework syscall entry handling
-To: Thomas Gleixner <tglx@kernel.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, Peter Zijlstra <peterz@infradead.org>, 
-	Michael Ellerman <mpe@ellerman.id.au>, Shrikanth Hegde <sshegde@linux.ibm.com>, 
-	linuxppc-dev@lists.ozlabs.org, Kees Cook <kees@kernel.org>, 
-	Huacai Chen <chenhuacai@kernel.org>, loongarch@lists.linux.dev, 
-	Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, linux-riscv@lists.infradead.org, 
-	Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org, x86@kernel.org, 
-	Mark Rutland <mark.rutland@arm.com>, Jinjie Ruan <ruanjinjie@huawei.com>, 
-	Andy Lutomirski <luto@kernel.org>, Oleg Nesterov <oleg@redhat.com>, 
-	Richard Henderson <richard.henderson@linaro.org>, Russell King <linux@armlinux.org.uk>, 
-	Catalin Marinas <catalin.marinas@arm.com>, Guo Ren <guoren@kernel.org>, 
-	Geert Uytterhoeven <geert@linux-m68k.org>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
-	Helge Deller <deller@gmx.de>, Yoshinori Sato <ysato@users.sourceforge.jp>, 
-	Richard Weinberger <richard@nod.at>, Chris Zankel <chris@zankel.net>, linux-arm-kernel@lists.infradead.org, 
-	linux-alpha@vger.kernel.org, linux-csky@vger.kernel.org, 
-	linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, 
-	linux-parisc@vger.kernel.org, linux-sh@vger.kernel.org, 
-	linux-um@lists.infradead.org, Arnd Bergmann <arnd@arndb.de>, 
-	Vineet Gupta <vgupta@kernel.org>, Will Deacon <will@kernel.org>, Brian Cain <bcain@kernel.org>, 
-	Michal Simek <monstr@monstr.eu>, Dinh Nguyen <dinguyen@kernel.org>, 
-	"David S. Miller" <davem@davemloft.net>, Andreas Larsson <andreas@gaisler.com>, 
-	linux-snps-arc@lists.infradead.org, linux-hexagon@vger.kernel.org, 
-	linux-openrisc@vger.kernel.org, sparclinux@vger.kernel.org, 
-	linux-arch@vger.kernel.org, =?UTF-8?Q?Michal_Such=C3=A1nek?= <msuchanek@suse.de>, 
-	Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: V62-ViBgAVPqFzhJUVuJ8Kjuhdk7SEAl
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzIwMDI0MSBTYWx0ZWRfX7ASOC1bUUXNF
+ N0uUO9hOaFTcJ/9PIrkyCTQtQHxQEQaUWp8bbdv0XXVWeAUVEhI6eYFFHS3Hmn0/hDXAgsGTaND
+ Nguwfgl+5gdJAJ8d4yh+Z+f5ZB+QP/8=
+X-Proofpoint-GUID: V62-ViBgAVPqFzhJUVuJ8Kjuhdk7SEAl
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzIwMDI0MSBTYWx0ZWRfX7P75IT/w2VT5
+ 4NAXljakq5rLGsiG2DtseWNtd8/1UtPSmTkFIJqA+L0ls3hfiGCn/5XBOurK0RFNnrzF3CghE2s
+ +xYqFpSgoAsv7H1vzCZvUZ/Tfh7JqpmIyXveuNRBHKYlunYojKqFTIQIo8bglRIPmYv1X3m/n/R
+ XmSkdGuMYBx9lTtsZGS3wwbab8VeXYxeusKRt6dD+Xg06wPAU3dG7GAcihVVjInBMEpkXgvx0a/
+ usNSJAEB9PR9urIcJLukPyxd6jmhX5qDyk7Yt7kZBY/X4r5RjdqCyu8NJsNdywL4yHcdbnl7/4z
+ hi/QFM4Lv71/E6a8FPzwwc9S/Ow+TWOoJlNCbcXufyqrFYfg1Oilho+RzWcTHKTtH/llVLBp1In
+ H6R1ovKMCElePJ2DDwnfHSnoJ8xBE2CH5WaIiRcKpm9Mfb7PcCh5NlMoKLpG90xQNnE03MzWhZ9
+ t05IifXlGpo6H3iBXXw==
+X-Authority-Analysis: v=2.4 cv=K7AS2SWI c=1 sm=1 tr=0 ts=6a5e9fba cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+ a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8 a=DHE891H7Gske2VlohvUA:9
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-07-20_05,2026-07-20_03,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ lowpriorityscore=0 suspectscore=0 bulkscore=0 clxscore=1011
+ priorityscore=1501 spamscore=0 phishscore=0 malwarescore=0 adultscore=0
+ impostorscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2607200241
 
-Thomas,
+FOLL_LONGTERM pinning fails for some memory types, such as file-backed
+guest memory. As a result, kvm_s390_adapter_map() returns -EINVAL and
+irqfd adapter registration fails even though interrupt delivery could
+still work via the existing non-atomic path.
 
-On Mon, Jul 20, 2026 at 9:21=E2=80=AFPM Thomas Gleixner <tglx@kernel.org> w=
-rote:
->
->
-> Similar to what Peter and me suggested in the related discussion
-> vs. s390 which has a similar issue, you can just have a dedicated
-> syscall_return member in your pt_regs struct, which is preset to -ENOSYS
-> and operate on that. You have an unused padding entry there which means
-> it won't even change the size.
->
+When FOLL_LONGTERM pinning fails, verify that the page is accessible
+using a short-term pin instead. If the short-term pin succeeds,
+immediately unpin the page and return success. The non-atomic irqfd
+path already performs short-term pinning for interrupt delivery, so
+this restores the previous behavior for memory that cannot be pinned
+long-term.
 
-Thanks, that makes sense in principle.
+Fixes: adcd5b3e758b ("KVM: s390: Add map/unmap ioctl and clean mappings post-guest")
+Signed-off-by: Jaehoon Kim <jhkim@linux.ibm.com>
+---
+ arch/s390/kvm/interrupt.c | 15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
 
-One complication is that my Alpha GENERIC_ENTRY branch already reuses that
-former pt_regs padding slot, while keeping the pt_regs size and stack
-alignment unchanged. The extra syscall-entry bookkeeping I needed so far li=
-ves
-in thread_info rather than adding more fields to pt_regs.
+diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+index 9e3e6b0d72ad..4b68e0cb51f6 100644
+--- a/arch/s390/kvm/interrupt.c
++++ b/arch/s390/kvm/interrupt.c
+@@ -2520,8 +2520,19 @@ static int kvm_s390_adapter_map(struct kvm *kvm, unsigned int id, __u64 addr)
+ 	map->addr = host_addr;
+ 	map->page = pin_map_page(kvm, host_addr, FOLL_LONGTERM);
+ 	if (!map->page) {
+-		ret = -EINVAL;
+-		goto out;
++		/*
++		 * Long-term pinning may fail for memory types such as file-backed
++		 * memory. Check whether short-term pinning is possible so that the
++		 * non-atomic irqfd path can handle interrupt injection.
++		 */
++		map->page = pin_map_page(kvm, host_addr, 0);
++		if (!map->page) {
++			ret = -EINVAL;
++			goto out;
++		}
++		unpin_user_page(map->page);
++		kfree(map);
++		return 0;
+ 	}
+ 	spin_lock_irqsave(&adapter->maps_lock, flags);
+ 	if (adapter->nr_maps < MAX_S390_ADAPTER_MAPS) {
+-- 
+2.43.0
 
-So the padding slot is not free in my current branch. I can still look at
-whether a dedicated syscall_return scratch value would be cleaner, but the
-tested version currently handles this by setting the default -ENOSYS result
-only on the no-dispatch path, after generic entry processing, and only if
-ptrace/seccomp/BPF did not already provide a return value.
-
->
-> You were on CC for the V2, no?
->
-
-Sorry, I must have missed that.
-
-> The whole pile including Jinjie's seccomp bypass fix is in
->
->     git://git.kernel.org/pub/scm/linux/kernel/git/tip/tip.git core/entry
->
-> and is targeted for the 7.3 merge window.
->
-
-Great!
-
-> If you want to base your stuff on that for 7.3, I can add a tag which
-> makes it immutable so it can be pulled into the alpha tree.
->
-
-Yes, please. There is still some ongoing testing/review of my Alpha
-GENERIC_ENTRY series, but assuming it is ready in time for the 7.3 merge
-window, an immutable tag would be very helpful.
-
-Magnus
