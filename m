@@ -1,191 +1,171 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f53.google.com (mail-ed1-f53.google.com [209.85.208.53])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF0C4430CFD;
-	Mon, 20 Jul 2026 21:48:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784584114; cv=none; b=hPGx0yEB/uEQD5qKKWJ+ij9vyrnT2pe6wUbuZ1TupDK/aCuft5d0vhYxeq1bRdc2iCTkti1bMuVAyM5ACYLTABKQ4YD0ch928jYSaU9csNQ/BV+t+M7jmfi9EQbqx3f5vB8/c2OrZjGAopKYIfn0cILMQZsP5znt4hHr89tDEBw=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784584114; c=relaxed/simple;
-	bh=T3ovAt55A22O1KjU1qY+ppGa+qpeOdFrnXEXhzSkMNE=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=KWDjpYEfca9ZZwAnFBomEHK4PQvMXJFzUVr/9J3dcksFRY8ad/AQqC4hlx8q+LmN15HTLZVSxQ3h2ERtNrmJZO0fXQtRPgu8+v/Rga8khJftWxxuFLxq+S+1y7dU1V/fjgaJcv6APT8b7T/QVU8Ue4jP7ejS7AFJS76h7MUvhQI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=gmgvIyFF; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0B01443B3EE
+	for <linux-s390@vger.kernel.org>; Mon, 20 Jul 2026 22:01:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.53
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1784584880; cv=pass; b=aC4G/Ndtx0ax3vT0qgDhdgeGrhljKLcnwOOAw7RNlgYtQraUIQMNGnZAscjYIkidskluOa33BPdzBwEcHAUcPa764Z3YtVcd6vmj7yIH2OcuxaHSgy//EAwOjEmkx5X6HosAtLQPa+xifW75qUZ3xQ6E/o5A8VxMjeKqyIhywXw=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1784584880; c=relaxed/simple;
+	bh=j/7Pu0goIzrDPISYd7UGXNeACZWMCvQbsT7AmxUh2RI=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=oFxs8P8tMrMlyZx51d4n9ujOGKE1x5uCI1bP9AEbPfLVH7rJGdSog/FdGE6tmi04OJOVooMsHAeoIe8SZZQHC1MRzobImHO5K9mpnlEWBXwlghPmQSsK2XnTuzIz7cMHHW3jRTcxrE8cZOkMcXIX6OLChV4Bmil69bCKHxIzViM=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZMey3lva; arc=pass smtp.client-ip=209.85.208.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="gmgvIyFF"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66KJg7bq3129666;
-	Mon, 20 Jul 2026 21:48:28 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=VscOjs
-	kHbZzOYEiC+JC4a4/RAMVF0HubI1QgH+rs70k=; b=gmgvIyFFDO3dAHRG9aoDkt
-	q1Nse0/jiUAOOXfb5lsqbK9X+v6ncwdXaMbycszvWHH+OG0K7w2BShAz05nhfwzD
-	gUCouQs6J7+UWcqGVhm5B2tOgo4DQMfIvO0YToAIwIKAkRTvP7u08q4pe4NVdybu
-	fMt5VTyyWQtLIJsZk10kV/M1VJU2PDZvZwLwa8zRcpRpTJfufYUpVe4jddehmBKY
-	1uJYHnBVm2MRdg/A9vY5TtIlvLsMnOBGkAenxPXVXcrstyxQgO0zhyqjsMsECHQg
-	LJyijslvzSSdNkuYExp9lJt/GlFJXAUbV3yXl26fvfs/08reHzXT+RBkVEYy8BJQ
-	==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fg7ah1a5h-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 20 Jul 2026 21:48:28 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66KLYZE0012101;
-	Mon, 20 Jul 2026 21:48:27 GMT
-Received: from smtprelay07.dal12v.mail.ibm.com ([172.16.1.9])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fgpgy775c-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 20 Jul 2026 21:48:27 +0000 (GMT)
-Received: from smtpav01.wdc07v.mail.ibm.com (smtpav01.wdc07v.mail.ibm.com [10.39.53.228])
-	by smtprelay07.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66KLmPnc31523566
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 20 Jul 2026 21:48:26 GMT
-Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id BBEBD58065;
-	Mon, 20 Jul 2026 21:48:25 +0000 (GMT)
-Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D44ED58055;
-	Mon, 20 Jul 2026 21:48:24 +0000 (GMT)
-Received: from [9.61.255.134] (unknown [9.61.255.134])
-	by smtpav01.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 20 Jul 2026 21:48:24 +0000 (GMT)
-Message-ID: <74b5de0b-b52f-40a8-8fca-9876bb12ac48@linux.ibm.com>
-Date: Mon, 20 Jul 2026 14:48:24 -0700
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZMey3lva"
+Received: by mail-ed1-f53.google.com with SMTP id 4fb4d7f45d1cf-698a9f11776so12016608a12.1
+        for <linux-s390@vger.kernel.org>; Mon, 20 Jul 2026 15:01:16 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1784584875; cv=none;
+        d=google.com; s=arc-20260327;
+        b=V22iaImWu22/HCBqXVty4EXALfMHkEfaTOdI8HuMOi1SavONZW5VGZf6oPZQd4lFWk
+         rksBf+Zq+YFLLODCgUW9JfbU1P3QEChk3S2kbfmfYKqTYlcQBMra62xaFUmdl/i4ntZp
+         LasF4E02G5aJ/BX29LFUQtiekm3lxVYTuPQgUZAgfSzTpPU6fSLcFeiqG8NidLie1NGf
+         pQeU5Rjf2Vv+AuQXqrBNMKXcna5alo19DLKYNnedYxyf7KWTa3TqAN36cnlqsxRtKaF0
+         r0NJoIDf2Mpr09fuborJOJnZQsUq353gp0j0z3v5qkDDUq5mjUUrstRtsLQAkl5zN+dZ
+         9bnQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=OFKHaLiuiIMT2s5Bf3SZwWbn7++lylaBZHxfNpeM7Fk=;
+        fh=9PlthWm569Aa7sjJ12FBzTYeizn/eezMDpJH848pfHY=;
+        b=X8snTxdZxNUp0Cd4/1Zsfk0xxZyXf+ZkEkUFctoIckPTq9r3lt8WQvicgBLx6tgPOv
+         siZknh5HMJcZcs4Isn4rioK3VVnfzusfd5rXy6f24i4UcmfOICVEbpGKLUsgj7akSyta
+         LIBAet4PRypZNtgbbrnG/G+5mocifQLXWSIHVkBmaU3K3/eo2LL/W/RRmt5L9m/xoJNZ
+         q/fC6ynMNwXxHoQV0BTdr8dzQu1YjLeilM3rwH5bALsqHB6qGT01PsyxIOJVAsnlgHwW
+         tfHomiv3OPb/MWtLFtzsg/LK9munhhYVi06jPSdRo+chG4cxw+g+BNUbSvT3zsChjLqo
+         B7CQ==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1784584875; x=1785189675; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=OFKHaLiuiIMT2s5Bf3SZwWbn7++lylaBZHxfNpeM7Fk=;
+        b=ZMey3lvahqP+YPW9LamnWQzczRxQiZ4wg9gw2Nu7P3y1v17JUAuMM/AR3JTiQFFKU8
+         d9noasqw2G++q5S+mCeWeywDA5kpg8MuVxJjECyua9/y3jlOjzMIOYlRYZqO13STHgxR
+         WQ87V1/rMYJN18KwPy7Kt1f4oO1hp7OTlSg/lmBFsB1gkADDpu+GAYd81uYxtDWFgDYj
+         g7E/fCVHIhWUawA3wQ30Wot0eYDovRLDP5gkADBspVyzhS4siR8fFKxsvW3/xg6aPXXq
+         4tTUNL4YjCh2lps4QkQgZ6MAQbSDaAHnlH759VBDRh1kPBksK3QYu64fJW2a6dhpi8jy
+         qpww==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784584875; x=1785189675;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=OFKHaLiuiIMT2s5Bf3SZwWbn7++lylaBZHxfNpeM7Fk=;
+        b=SC9Z3A5UEa1xc5WJGctkhN62IgKTyhUr4e+oTSHODmXYEqoVxOhtanSu9ECn1HI/yo
+         yT3i8GIr25t8e4eQ83mIf0mQAsGhN+TVnbbYRchFoZZF32JLNHqjN9SbgdHkftSgtidb
+         vFlyPLl8I9gXIyHFAyv9myfLyGiyIf7vvumfExkRfXfRci4ICKHkebsnuEOjKzkB3olD
+         0g9fbx8AdW8EIn05vNWo1bgT/JUhKz4FbFipo0PRP5xhZOUS0l+z+n7ExwAzl8yvez+W
+         bmB/85ezJmotRxeJ0xUZEwPX9Tkjds5vxGMBR9IVwrBhczNiYOpvR+kCPW1oh7UFJ+dN
+         Kyfg==
+X-Forwarded-Encrypted: i=1; AHgh+Rod+jpu/PiX0cDKDBd67ZxzwZNIM03pwM4zArjdtoDHLos+ekRovzBYH6+w9rQga9bLR5SApYt0u16N@vger.kernel.org
+X-Gm-Message-State: AOJu0YxiXCdc4VQFIzutQ9NVVrSLZJs92NDaJVZkd/ZZWWj8us4zMtgk
+	aTSmBhf01PSvG8QaHNRYZ8qVF8E6tWWhZ7xZtYsL750Z1quW1UQnEvqHpTqTxKh9rR3bIY08O2v
+	0dQ3VCFhZnj4gh97rf/zmVzixQy42h3w=
+X-Gm-Gg: AR+sD12iwUqNqNEAQ9pIu2WeqyWQhPBMPKQ2HGFTVBkj8O//LXcCdcUc89MxS62fdUM
+	ZuUVrT/6vCf7b/Xj542Tbc6KfWxE8KYOdFZLdF70+XAtC64i2Qe/gb4MR0z4EdHDQlP1A6adelz
+	wmFS1b9Tnk7PY8JkNpNWnkXBBQOE7Kc4ZqwgOnr5EGIDRR0GF7Hgunx0j/OEHD8OnZmobWH7Uxv
+	4PPG4PXNd3BdWMB3EoYhGuOkBRzSGZyoT7TGCbkvk2v6wPcMIU5dTkHhN27lD0WTSTWcOHtlsmF
+	qcCuALoYnuFFOynJZfaEIacuBFn+f7c=
+X-Received: by 2002:a05:6402:2356:b0:674:5b2c:d42c with SMTP id
+ 4fb4d7f45d1cf-69e6525c770mr6536246a12.3.1784584875096; Mon, 20 Jul 2026
+ 15:01:15 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 1/7] s390/vfio_ccw: free all memory if cp_init() fails
-To: Eric Farman <farman@linux.ibm.com>, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Matthew Rosato <mjrosato@linux.ibm.com>,
-        Halil Pasic
- <pasic@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        stable@vger.kernel.org
-References: <20260720201931.976660-1-farman@linux.ibm.com>
- <20260720201931.976660-2-farman@linux.ibm.com>
-Content-Language: en-US
-From: Farhan Ali <alifm@linux.ibm.com>
-In-Reply-To: <20260720201931.976660-2-farman@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: xj5j8ABTRqGKgo5hDMGmx-NQytJnYyY8
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzIwMDIzNSBTYWx0ZWRfXyh1cARZe9Rte
- Bbc791uQ1ynOHkpsXFb0+CKeZEXQ1CKS0cUbiHT5/0SPEueYy0xTrdULQxGC0Noo+0flbzdRcpL
- 92oKTV3KKjUES3Fu8KR5mXHNrLyJwlTHGIwNQ+ks0j79sBLOLY8yW0OrZVwwFkBORnQ5m8lDVyp
- neC7RyWpJunYrodAHac9ppkkjzEkqRiX+JFH9095IAoCTmSCtxUp7PMKKpnVGvCRRtU3v+OckIv
- F4mhVb666rafReCFcGGpzOl25/+9X5FPHXF5/0w+f9vYrH2M4Dx4/V4d+wGAyReF89TVTYc3rt9
- xA059NsqrQj/U001894cuy2xk2J0GWvFNqgTOGMuGRwrm5AWFnaKCeYwwDAW0JUj6JZbxlDaBXb
- pFbh87L2ZdIgopHq3rUK9zA7a5srN00/LHzJ/DOcCcTzi6nmnOyfjOMDtq2huAZYzc6p1PPgzOI
- z+5dCoaQw15lK+m0plw==
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzIwMDIzNSBTYWx0ZWRfX5KJcqoJo0kd6
- sKePsUN6PpayyxPdRm8k5sjWP19ylLmiGFjo3surkaBzioRzozaiQvtsNavZ9H3MwxRIsZXj0sj
- 9BlvBXnsz6yduc8AxxXA8u2X0NU09Es=
-X-Proofpoint-GUID: xj5j8ABTRqGKgo5hDMGmx-NQytJnYyY8
-X-Authority-Analysis: v=2.4 cv=SM5ykuvH c=1 sm=1 tr=0 ts=6a5e97ac cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VwQbUJbxAAAA:8
- a=VnNF1IyMAAAA:8 a=BGMVehrePew0uRRqv7kA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-07-20_05,2026-07-20_03,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 lowpriorityscore=0 bulkscore=0 suspectscore=0 adultscore=0
- spamscore=0 malwarescore=0 priorityscore=1501 phishscore=0 impostorscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607200235
+References: <20260707181957.433213175@kernel.org> <CA+=Fv5TDNH8+JAojV9_W36kUkEE68uiA00FQ7i0vJunebqs1sA@mail.gmail.com>
+ <87wluplb6k.ffs@fw13>
+In-Reply-To: <87wluplb6k.ffs@fw13>
+From: Magnus Lindholm <linmag7@gmail.com>
+Date: Tue, 21 Jul 2026 00:01:03 +0200
+X-Gm-Features: AUfX_mw5696pn_wiz_LjCaJHiFU9IchwhNNUbBWmuIdhtqSFIK3TJnj9-atYCBw
+Message-ID: <CA+=Fv5Sd5+-K3-MOiEc2N8z_5CoLQPVPUwjiugSj3u8cBWJXXQ@mail.gmail.com>
+Subject: Re: [patch 00/18] entry: Consolidate and rework syscall entry handling
+To: Thomas Gleixner <tglx@kernel.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, Peter Zijlstra <peterz@infradead.org>, 
+	Michael Ellerman <mpe@ellerman.id.au>, Shrikanth Hegde <sshegde@linux.ibm.com>, 
+	linuxppc-dev@lists.ozlabs.org, Kees Cook <kees@kernel.org>, 
+	Huacai Chen <chenhuacai@kernel.org>, loongarch@lists.linux.dev, 
+	Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, linux-riscv@lists.infradead.org, 
+	Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org, x86@kernel.org, 
+	Mark Rutland <mark.rutland@arm.com>, Jinjie Ruan <ruanjinjie@huawei.com>, 
+	Andy Lutomirski <luto@kernel.org>, Oleg Nesterov <oleg@redhat.com>, 
+	Richard Henderson <richard.henderson@linaro.org>, Russell King <linux@armlinux.org.uk>, 
+	Catalin Marinas <catalin.marinas@arm.com>, Guo Ren <guoren@kernel.org>, 
+	Geert Uytterhoeven <geert@linux-m68k.org>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
+	Helge Deller <deller@gmx.de>, Yoshinori Sato <ysato@users.sourceforge.jp>, 
+	Richard Weinberger <richard@nod.at>, Chris Zankel <chris@zankel.net>, linux-arm-kernel@lists.infradead.org, 
+	linux-alpha@vger.kernel.org, linux-csky@vger.kernel.org, 
+	linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, 
+	linux-parisc@vger.kernel.org, linux-sh@vger.kernel.org, 
+	linux-um@lists.infradead.org, Arnd Bergmann <arnd@arndb.de>, 
+	Vineet Gupta <vgupta@kernel.org>, Will Deacon <will@kernel.org>, Brian Cain <bcain@kernel.org>, 
+	Michal Simek <monstr@monstr.eu>, Dinh Nguyen <dinguyen@kernel.org>, 
+	"David S. Miller" <davem@davemloft.net>, Andreas Larsson <andreas@gaisler.com>, 
+	linux-snps-arc@lists.infradead.org, linux-hexagon@vger.kernel.org, 
+	linux-openrisc@vger.kernel.org, sparclinux@vger.kernel.org, 
+	linux-arch@vger.kernel.org, =?UTF-8?Q?Michal_Such=C3=A1nek?= <msuchanek@suse.de>, 
+	Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
+Thomas,
 
-On 7/20/2026 1:19 PM, Eric Farman wrote:
-> The routine cp_free() is called to unpin/free any memory once an I/O
-> is completed successfully, or if cp_prefetch() fails. But if cp_init()
-> fails, and cp->initialized is not enabled, the same routine cannot be
-> used to free all the memory.
+On Mon, Jul 20, 2026 at 9:21=E2=80=AFPM Thomas Gleixner <tglx@kernel.org> w=
+rote:
 >
-> An attempt to address this exists in ccwchain_handle_ccw(), where a
-> single call to ccwchain_free() is made for the currently-processed
-> CCW segment. But this will leak other segments (created as a result
-> of a Transfer in Channel) that had been allocated as part of the same
-> channel program.
 >
-> Address this by performing the cleanup outside of the recursive
-> ccwchain_handle_ccw()/ccwchain_loop_tic() logic.
+> Similar to what Peter and me suggested in the related discussion
+> vs. s390 which has a similar issue, you can just have a dedicated
+> syscall_return member in your pt_regs struct, which is preset to -ENOSYS
+> and operate on that. You have an unused padding entry there which means
+> it won't even change the size.
 >
-> Fixes: 8b515be512a2 ("vfio-ccw: Fix memory leak and don't call cp_free in cp_init")
-> Cc: stable@vger.kernel.org
-> Cc: Farhan Ali <alifm@linux.ibm.com>
-> Signed-off-by: Eric Farman <farman@linux.ibm.com>
-> ---
->   drivers/s390/cio/vfio_ccw_cp.c | 22 ++++++++++++++++++----
->   1 file changed, 18 insertions(+), 4 deletions(-)
+
+Thanks, that makes sense in principle.
+
+One complication is that my Alpha GENERIC_ENTRY branch already reuses that
+former pt_regs padding slot, while keeping the pt_regs size and stack
+alignment unchanged. The extra syscall-entry bookkeeping I needed so far li=
+ves
+in thread_info rather than adding more fields to pt_regs.
+
+So the padding slot is not free in my current branch. I can still look at
+whether a dedicated syscall_return scratch value would be cleaner, but the
+tested version currently handles this by setting the default -ENOSYS result
+only on the no-dispatch path, after generic entry processing, and only if
+ptrace/seccomp/BPF did not already provide a return value.
+
 >
-> diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
-> index 7561aa7d3e01..086d1b54bdb0 100644
-> --- a/drivers/s390/cio/vfio_ccw_cp.c
-> +++ b/drivers/s390/cio/vfio_ccw_cp.c
-> @@ -455,9 +455,6 @@ static int ccwchain_handle_ccw(dma32_t cda, struct channel_program *cp)
->   	/* Loop for tics on this new chain. */
->   	ret = ccwchain_loop_tic(chain, cp);
->   
-> -	if (ret)
-> -		ccwchain_free(chain);
-> -
->   	return ret;
->   }
->   
-> @@ -486,6 +483,23 @@ static int ccwchain_loop_tic(struct ccwchain *chain, struct channel_program *cp)
->   	return 0;
->   }
->   
-> +static int ccwchain_build_ccws(dma32_t cda, struct channel_program *cp)
-> +{
-> +	struct ccwchain *chain, *temp;
-> +	int ret;
-> +
-> +	ret = ccwchain_handle_ccw(cda, cp);
-> +
-> +	if (ret) {
-> +		/* Cleanup if an error occurred */
-> +		list_for_each_entry_safe(chain, temp, &cp->ccwchain_list, next) {
-> +			ccwchain_free(chain);
-> +		}
-> +	}
-> +
-> +	return ret;
-> +}
-> +
->   static int ccwchain_fetch_tic(struct ccw1 *ccw,
->   			      struct channel_program *cp)
->   {
-> @@ -735,7 +749,7 @@ int cp_init(struct channel_program *cp, union orb *orb)
->   	memcpy(&cp->orb, orb, sizeof(*orb));
->   
->   	/* Build a ccwchain for the first CCW segment */
-> -	ret = ccwchain_handle_ccw(orb->cmd.cpa, cp);
-> +	ret = ccwchain_build_ccws(orb->cmd.cpa, cp);
->   
->   	if (!ret)
->   		cp->initialized = true;
+> You were on CC for the V2, no?
+>
 
-The fix looks correct to me and I don't think Sashiko found any issues 
-with this patch (issues identified as pre-existing and i think something 
-this series is trying to fix).
+Sorry, I must have missed that.
 
-Reviewed-by: Farhan Ali<alifm@linux.ibm.com>
+> The whole pile including Jinjie's seccomp bypass fix is in
+>
+>     git://git.kernel.org/pub/scm/linux/kernel/git/tip/tip.git core/entry
+>
+> and is targeted for the 7.3 merge window.
+>
 
-Thanks
+Great!
 
-Farhan
+> If you want to base your stuff on that for 7.3, I can add a tag which
+> makes it immutable so it can be pulled into the alpha tree.
+>
 
+Yes, please. There is still some ongoing testing/review of my Alpha
+GENERIC_ENTRY series, but assuming it is ready in time for the 7.3 merge
+window, an immutable tag would be very helpful.
 
-
+Magnus
