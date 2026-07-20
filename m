@@ -1,60 +1,65 @@
-Received: from sender-op-o17.zoho.eu (sender-op-o17.zoho.eu [136.143.169.17])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2FA62399002;
-	Mon, 20 Jul 2026 17:08:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.169.17
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784567288; cv=pass; b=d+oPIZybu+5iC30c3rrn9bDSMhfODwWHDipaIAcau6hKLbzgfSNjRp6ro+aAXF5KGhTzzk8lcwSVztlbmR7Tg5yYDm2Hut9s0NFuC6jsoSEvx0qEjv1sFplO1W8nt2eSpmFg8jXMTieFG87JPLUY8KYwRd2Qux9TId6zpKo5XmQ=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784567288; c=relaxed/simple;
-	bh=dNqVxR63V6xQon7zsJn+Ma77TefGiYPz54fRdZ8GDJc=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=e/gveVBHrHY7M0P1E2GvI8flibGhKE89YKwy6SVJAgsPZ2wHw2J0z0X9OO59Yrrv5lfpsywx3H7qvJ+fcb//fhezKd4NcCACx7H5lcH8DfPBaXeubkLTNYudbynkUjm8fQfJ/zhRwTSL1H0VcMkN41ZiGyls6HR8zxWO5rHGW/g=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=auditcode.ai; spf=pass smtp.mailfrom=auditcode.ai; dkim=pass (1024-bit key) header.d=auditcode.ai header.i=security@auditcode.ai header.b=ku50Hzrc; arc=pass smtp.client-ip=136.143.169.17
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=auditcode.ai
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=auditcode.ai
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99B023A0B3F;
+	Mon, 20 Jul 2026 17:58:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1784570308; cv=none; b=pBLglLS9lVZQ1huf8hSIXB2WTIDzPse28QYrhjQs6MnY5VaqQHzGYygFvq5iBI626OcqeAtC/GHiyfl+/QUh2LEmy4M5oy13Wtmy/y8Oal6Re05vURcKgJDcpsz7j/MuOqpvnoNWzQiwTI9VdYKuXm+lma6dvQu5RdSghyFDdG0=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1784570308; c=relaxed/simple;
+	bh=Zqn+ZS+6JBljRgBujCcJ2I6bxGplhx5N1Y+D759voVM=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=iYg7BSleBMTQ1oIfE1DHWqheZCyo1GheZpwvigLy0xvlsgCQ/7L3piXUfgXIT3vw6ncBpPqGEeCIQVtJ+Y+szapFTqkG+pUIOikux9m6CpZGjMiVcPKgRu5c9UE3AqBbRMuQfpOlS3SDbywU0ZZSo1H8i+wIEs62OACfCJU0Ul0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=eUVaL6v0; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=auditcode.ai header.i=security@auditcode.ai header.b="ku50Hzrc"
-ARC-Seal: i=1; a=rsa-sha256; t=1784567244; cv=none; 
-	d=zohomail.eu; s=zohoarc; 
-	b=ld8knbAu/Ah1xIom4ITHvPesNMHjfsXzJ6OSFIiwQ+SJtXvZ7KGOalBfVX5K5JrXMPtOtlefZbJjfFJQrfl9lxEjk/UMA1tMSm8FhtZUg21e8yadLJLldLNv69FVLcAFQAZswIBPzfIX0wLlKjxLGHAjt663gVf5g4TO+lFe3qk=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.eu; s=zohoarc; 
-	t=1784567244; h=Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=HjByz5AvHsIQNltISoR9+2X9Bmm/qrLTUWsUjkq8GY8=; 
-	b=UDLZFinvllHs7jIEOTFx3rgQyruEbU1oRT86rjUmiKFp4SqSjQzBd59EgkEeE0yuS8vLT73c86GsLLJrt10sH9OoY3jz2wRCWM8WLrSOodqQXRleKWPTSIQbN8KJtiIm5h/hYeAPn8oQ+g8GZPVcQPWvYoGGvy9UT+GLFZUYNro=
-ARC-Authentication-Results: i=1; mx.zohomail.eu;
-	dkim=pass  header.i=auditcode.ai;
-	spf=pass  smtp.mailfrom=security@auditcode.ai;
-	dmarc=pass header.from=<security@auditcode.ai>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1784567244;
-	s=zmail; d=auditcode.ai; i=security@auditcode.ai;
-	h=From:From:To:To:Cc:Cc:Subject:Subject:Date:Date:Message-ID:MIME-Version:Content-Transfer-Encoding:Message-Id:Reply-To;
-	bh=HjByz5AvHsIQNltISoR9+2X9Bmm/qrLTUWsUjkq8GY8=;
-	b=ku50Hzrc4DRQ5WqQiTWRTVI3Hz5nicabKWCgmkKJzz42FlWsfpR4Dri6xvjY+Dwd
-	jdbOryCN4+SaRReYpsFYXLqunJRAVR5qgc9rWL4THGzInUtGx/ACQ68Jg/vrQkVX7hK
-	pQ9CB7EptjY9KemObm931E07X9lKbfGCidG2IdHI=
-Received: by mx.zoho.eu with SMTPS id 1784567241224482.3073788218354;
-	Mon, 20 Jul 2026 19:07:21 +0200 (CEST)
-From: Ibrahim Hashimov <security@auditcode.ai>
-To: alibuda@linux.alibaba.com,
-	dust.li@linux.alibaba.com,
-	wenjia@linux.ibm.com,
-	davem@davemloft.net,
-	edumazet@google.com,
-	kuba@kernel.org,
-	pabeni@redhat.com
-Cc: tonylu@linux.alibaba.com,
-	guwen@linux.alibaba.com,
-	horms@kernel.org,
-	linux-rdma@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org
-Subject: [PATCH net] net/smc: validate peer CDC cursor against RMBE size before accepting it
-Date: Mon, 20 Jul 2026 19:07:17 +0200
-Message-ID: <20260720170717.11425-1-security@auditcode.ai>
-X-Mailer: git-send-email 2.50.1
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="eUVaL6v0"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66KHBpoW928624;
+	Mon, 20 Jul 2026 17:58:24 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=AlSVMpaYFPdYcqKKvdWIxaYmhuXJkztZVvwLQTzwv
+	ss=; b=eUVaL6v0DzdFzQrToeDcSfcHaBIq6AdYd+2ZnXK5m0/uXxgimS6FpJwoy
+	bWYIh8ytmHZ3uw/kW3eIyE4oSaLX3cRPPR5vjZOZJy4P13PvPFqZuv/INbJS6cJ6
+	qUEN+phPmspaqg0ImW9+WqCq2UEKSkEJQsg0Xu9lBdo3d2Ck2CVMrbQw5OjKQfFC
+	P2feFGKryxSK17ZIoMjriEn0ASDKv3xmIolsLyPZ12p7yArm0ATmIEbfsaKsbqWD
+	jotTVAdpI4EO4TcQwaGax8ZSgmQ9mnPujXkM5rJEajCtl58LUctlDdFotpFVz/kV
+	tSZNMT8dxwPEzfLaS9C0Za9LEWhpA==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fg77a8ujx-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 20 Jul 2026 17:58:23 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66KHnagx001676;
+	Mon, 20 Jul 2026 17:58:22 GMT
+Received: from smtprelay02.wdc07v.mail.ibm.com ([172.16.1.69])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fgnagxpkv-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 20 Jul 2026 17:58:22 +0000 (GMT)
+Received: from smtpav03.wdc07v.mail.ibm.com (smtpav03.wdc07v.mail.ibm.com [10.39.53.230])
+	by smtprelay02.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66KHwLSs28246654
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 20 Jul 2026 17:58:21 GMT
+Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4979E58054;
+	Mon, 20 Jul 2026 17:58:21 +0000 (GMT)
+Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6B6D65805A;
+	Mon, 20 Jul 2026 17:58:20 +0000 (GMT)
+Received: from IBM-D32RQW3.ibm.com (unknown [9.61.254.89])
+	by smtpav03.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Mon, 20 Jul 2026 17:58:20 +0000 (GMT)
+From: Farhan Ali <alifm@linux.ibm.com>
+To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org
+Cc: alifm@linux.ibm.com, mjrosato@linux.ibm.com, borntraeger@linux.ibm.com,
+        farman@linux.ibm.com
+Subject: [PATCH v3 0/4]  KVM s390x PCI fixes
+Date: Mon, 20 Jul 2026 10:58:15 -0700
+Message-ID: <20260720175819.1723-1-alifm@linux.ibm.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -62,98 +67,72 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-ZohoMailClient: External
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: kTnscvkXUvHQJDt7TPChrbPY-wAF5pYx
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzIwMDE5NCBTYWx0ZWRfX/29CStJJuwBq
+ yTOQWnnl9kcWEwNkBh+qNmG8aE9Soc4wlcgCotADic9Dl80NlR63Le9FiXukS28Fy55DzjD2NHl
+ 9KC6QRYMdpKiAOGL/9RiD0buLVmcpg8=
+X-Proofpoint-GUID: kTnscvkXUvHQJDt7TPChrbPY-wAF5pYx
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzIwMDE5NCBTYWx0ZWRfX/KHlQ6vYB8Ja
+ 38YmeqFzr4jcBtqYkWMmumHHMGlQM0fHbOfk9N08/FyjeZYP9ADsu4+B3O6iiu8MWsJgYNGUNhW
+ 0cNkPDeUmfFuX4Ymin9WWYFhtN9TJ/aMoyJcYlhcI4Me+BKuR8J1BemJqxNgTv3qXWVsPxvoSVI
+ LJLKxThYBjwyxbG4asGQ2g1tE611q6kngBFq2KIwf2z7ymvSmw7zmuSzf0xRalr6XSLM23BYzHR
+ kxeDenPY+FDan/dIXUuyzZb5yh30ZVL/lJF9wYmXxwED5I7nST8fvd3thNh2AajLgKefyIVVeDW
+ AS6IpN4BxcavskxAdc+e6HZ+01OsbZQpMHpoefWBWVVkT8VbXq3RAf7fC5jdxmhaZAoabblpQc9
+ YVsyTJ15DhmlQfXOhBFrAchHKkc3NBxzq04Dp+RoFrg36a8n+1oPBT0qusBckyKSdVaWuSMI7jF
+ bx/fsfTYpi59Kw+vo2A==
+X-Authority-Analysis: v=2.4 cv=K7AS2SWI c=1 sm=1 tr=0 ts=6a5e61bf cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=uAbxVGIbfxUO_5tXvNgY:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
+ a=xMaImaq-nirgh_4BfFQA:9
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-07-20_04,2026-07-20_03,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ lowpriorityscore=0 suspectscore=0 bulkscore=0 clxscore=1015
+ priorityscore=1501 spamscore=0 phishscore=0 malwarescore=0 adultscore=0
+ impostorscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2607200194
 
-smc_cdc_cursor_to_host() converts the wire-format producer/consumer
-cursor of an incoming CDC message into a host smc_host_cursor. It rejects
-a cursor that goes backwards, but never checks that the cursor's count is
-inside the buffer it indexes. Per smc_host_cursor ("an offset in an
-RMBE") and the invariant smc_curs_add() enforces for every local advance
-(0 <= count < size), a valid cursor count must be < size; the wire cursor
-is peer-controlled and was never checked against that.
+Hi,
 
-smcr_cdc_msg_to_host() accepts the producer and consumer cursors, and the
-unbounded value feeds smc_curs_diff() in smc_cdc_msg_recv_action(), which
-computes new->count - old->count without clamping against size. A peer
-that puts an out-of-range prod.count on the wire (e.g. 0x7fffffff) drives
-bytes_to_rcv far past rmb_desc->len -- the very invariant the comment
-above the atomic_add() claims but does not enforce.
+This series attempts to fix some the pre-existing issues[1] found by sashiko.
+In v1 of the series, sashiko correctly pointed out some issues with the fix
+for AISB/AIBV spanning multiple pages and resource leaks that can happen
+over multiple ioctl calls for the same device. Fixing these will require 
+some more rework and will be address later.  
 
-smc_rx_recvmsg() then trusts bytes_to_rcv as the amount of valid RMB
-data. Its first copy chunk is safely bounded by rmb_desc->len -
-cons.count, but the second chunk copies (copylen - chunk_len) bytes from
-offset 0, and copylen came from the inflated readable -- an out-of-bounds
-read of the RMB's backing (v)malloc allocation, copied straight to the
-receiving process via _copy_to_iter(). This is a remote kernel-memory
-disclosure driven by a malicious SMC-R peer, needing no local privilege
-on the victim. The same unbounded count also reaches
-smc_cdc_handle_urg_data_arrival() (base + urg_curs.count - 1) -- a
-second, narrower OOB read.
+[1] https://lore.kernel.org/all/20260624063447.85DF51F000E9@smtp.kernel.org/
 
-Fix it where the wire cursor is accepted, mirroring the cursor-sanity
-idiom two lines above: reject any incoming cursor whose count is >= the
-size of the buffer it will index. smc_cdc_cursor_to_host() gains a size
-parameter; smcr_cdc_msg_to_host() passes conn->rmb_desc->len for the
-producer cursor and conn->peer_rmbe_size for the consumer cursor. This
-bounds it at its single origin instead of patching every downstream
-consumer. SMC-D (smcd_cdc_msg_to_host()) does not use this helper and is
-a separate, out-of-scope gap.
+Thanks
+Farhan
 
-Reproduced on a v6.19 KASAN kernel (SMC-Rv2 over soft-RoCE): a peer
-emitting prod.count=0x7fffffff triggers a vmalloc-out-of-bounds read in
-_copy_to_iter() via smc_rx_recvmsg(), returning ~960 KB of RMB-adjacent
-kernel heap to userspace; an in-range cursor transfers cleanly. With the
-fix the out-of-range cursor is dropped before it reaches
-conn->local_rx_ctrl.prod, and the reproducer returns rc=0 with no report.
+ChangeLog
+---------
+v2: https://lore.kernel.org/all/20260716175241.1039-1-alifm@linux.ibm.com/
+v2 -> v3
+   - Remove overwriting guest FIB since we don't use it for 
+   re-issue (patch 4).
 
-Fixes: 5f08318f617b ("smc: connection data control (CDC)")
-Cc: stable@vger.kernel.org
-Signed-off-by: Ibrahim Hashimov <security@auditcode.ai>
-Assisted-by: AuditCode-AI:2026.07
----
- net/smc/smc_cdc.h | 15 +++++++++++++--
- 1 file changed, 13 insertions(+), 2 deletions(-)
+v1: https://lore.kernel.org/all/20260713172600.1284-1-alifm@linux.ibm.com/
+v1 -> v2
+   - Drop fix handling AISB/AIBV spanning multiple pages.
+   - Fix memory accounting functions for the case when interrupt forwarding
+   is enabled by one process but disabled by a different process (patch 1).
 
-diff --git a/net/smc/smc_cdc.h b/net/smc/smc_cdc.h
-index 696cc11f2303..f07bbef47073 100644
---- a/net/smc/smc_cdc.h
-+++ b/net/smc/smc_cdc.h
-@@ -221,6 +221,7 @@ static inline void smc_host_msg_to_cdc(struct smc_cdc_msg *peer,
- 
- static inline void smc_cdc_cursor_to_host(union smc_host_cursor *local,
- 					  union smc_cdc_cursor *peer,
-+					  unsigned int size,
- 					  struct smc_connection *conn)
- {
- 	union smc_host_cursor temp, old;
-@@ -235,6 +236,14 @@ static inline void smc_cdc_cursor_to_host(union smc_host_cursor *local,
- 	if ((old.wrap == temp.wrap) &&
- 	    (old.count > temp.count))
- 		return;
-+	/* count is an offset into the RMBE and must always stay inside
-+	 * it (see smc_curs_add()); the peer is untrusted, so reject an
-+	 * out-of-range wire cursor the same way an out-of-order one is
-+	 * already rejected above, instead of letting it drive
-+	 * bytes_to_rcv / the urgent-byte offset past the buffer end
-+	 */
-+	if (temp.count >= size)
-+		return;
- 	smc_curs_copy(local, &temp, conn);
- }
- 
-@@ -246,8 +255,10 @@ static inline void smcr_cdc_msg_to_host(struct smc_host_cdc_msg *local,
- 	local->len = peer->len;
- 	local->seqno = ntohs(peer->seqno);
- 	local->token = ntohl(peer->token);
--	smc_cdc_cursor_to_host(&local->prod, &peer->prod, conn);
--	smc_cdc_cursor_to_host(&local->cons, &peer->cons, conn);
-+	smc_cdc_cursor_to_host(&local->prod, &peer->prod,
-+			       conn->rmb_desc->len, conn);
-+	smc_cdc_cursor_to_host(&local->cons, &peer->cons,
-+			       conn->peer_rmbe_size, conn);
- 	local->prod_flags = peer->prod_flags;
- 	local->conn_state_flags = peer->conn_state_flags;
- }
+
+Farhan Ali (4):
+  KVM: s390: pci: Fix memory accounting for pinned/unpinned pages
+  KVM: s390: pci: Fix missing error codes and memory unaccounting
+  KVM: s390: pci: Fix NULL dereference on AIBV allocation failure
+  KVM: s390: pci: Fix resource leak on IRQ registration failure
+
+ arch/s390/kvm/pci.c | 82 ++++++++++++++++++++++++++++++++++-----------
+ arch/s390/kvm/pci.h |  2 ++
+ 2 files changed, 65 insertions(+), 19 deletions(-)
+
 -- 
-2.50.1 (Apple Git-155)
+2.43.0
 
