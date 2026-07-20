@@ -1,148 +1,113 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B370225B086;
-	Sun, 19 Jul 2026 13:27:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 52DF43BBFCE;
+	Mon, 20 Jul 2026 07:27:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784467651; cv=none; b=Cxba9Qgx8ZqyoogK7IHBUQHMrtUpNxf/HSe2XYWqc4cDCNyeyPsXqx2HGHPyeIV0JPh+nRFXVXGiEChMS7I3f26+lkXrpldZuL9h0M9IhuHRgOnDWulcGy3tyh4y3wOQflFbPCJAHqpkIKkVDHZMSGtj1qRk676XT/wvU5zoilw=
+	t=1784532478; cv=none; b=AjMRccKCNcUFxDxIz29LMJHzU6CcpKnZwX6DEmUOA3H9AztC8druje+zAHRsZSyrXtZ/Q8s0u/zqOccNASSfLs4fqd+b+sOA7eY+XDw1P0O5xJ7hrg5Cf0jOO7AaCWAMFvjG84A6DpjB8xvqS/oYGeP77v1zAR8HmcJw2+WP9GA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784467651; c=relaxed/simple;
-	bh=B0mS37Z4SPcZBxOHdDSSdDNPeLUifOpjgksE0VPwkVY=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=NEMBAb7QRo+pnxJzkVKXbWmgX8vtKdspABoq5VmdDeWE9B83ohCBRGF+ECOxiE/FdzVLhtBVfyrbvVtRAE+2NmRfV2e3h/5/0RoW7lo2xrQxXhgTioI3dJaONWVXn/wnZN8Rnv/z4iOCqjX8kf0lJCyijCzwAkUHfiMam0G4ZwQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fjms5FCE; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1784532478; c=relaxed/simple;
+	bh=qpQUfDd7NVAh+v8LhpGSOVPtuFPRXIZBqH7/itNvfto=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=g83B+llEhplZVQjbdXGimN0PK9eEX7SHN+ZXBk9l3Yi+J9+wbcS0UFE7c/czENRAjd0W5WQ+p0t7NVLnWRuaYZQswDpOi7V9WX21Batgu99sgMUlixx9oZwiL8UjaFFzbQ3kP3NtR12tsg9cG1StYdq/3+XhG35BG/tIRsFnUSE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=mQQnJ76s; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fjms5FCE"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81D5C1F000E9;
-	Sun, 19 Jul 2026 13:27:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784467648;
-	bh=uGlgtWCpJPT+1K5zF6Pr4NaCtStOHzHH5RDDcKuQBE0=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=fjms5FCEZfG4pK0JKI2F0NTqb8UIVvn2jLXbSu8dkgONLS7DMkG5Y7sweSZWf9iXJ
-	 EqUEgirYSAKETYbLi+wowBCU+5u4q4L5jbvS095AUyYmbAQadb1EJSkjSEF/gCmZjh
-	 rQFl2ZMj3d/1PVLaZ+n4AlmUyXt78lX1IjpNfLY+IrBBBJq4u0fjLdDWFk8CLnI2re
-	 Qjom8TsbThuTG48p3PlMlpLVMloKBcHyUxBqYf6wjxRBnLLtRJa0vZ8RxKUwV3vt4K
-	 eFDca1YhH8jJysnRMMDXGSQPt0iLMZRKIk6K2YYBA2BqNGDesZH6EYVFvpP8/gncut
-	 gu8HpsDpziNWQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 1/6] KVM: s390: pv: Use VM_SPARSE area for guest
- variable storage area
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Heiko Carstens" <hca@linux.ibm.com>
-Cc: "Vasily Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, kvm@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>
-In-Reply-To: <20260719130006.3882764-2-hca@linux.ibm.com>
-References: <20260719130006.3882764-1-hca@linux.ibm.com>
- <20260719130006.3882764-2-hca@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sun, 19 Jul 2026 13:27:28 +0000
-Message-Id: <20260719132728.81D5C1F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="mQQnJ76s"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66K6g0gc1368506;
+	Mon, 20 Jul 2026 07:27:49 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=cvpAM0GL/YI/ppYtRNAx+aCI2YjCzRCtRkR5L7W/c
+	iI=; b=mQQnJ76s4Ku4KhF2TBnMF3PVfq8na6ZLKsOwIX1/ziHhDCHD1XP/77LXu
+	Ly1nt3RIP2C8h/UfXzT5b/C06wuVblKkECS/nzVICUpJ3KWqsp/uvK9dqOQOUkCr
+	Zd8hV7kX2sKG/naVRfTFw1SATBPCalO5+2H+uQEqpdk9vw9CiUh3KdQKS6sxfv9C
+	mhiZ7MrfNGCA1KHvwNfbJSpVFy6eD6mwFB+Q+lgoRgc9fxjudm34AQgxuG2yBkI+
+	UzfKRNU+f5vdhNuCIq09qiV5vWa1Hkt9As3kJsbFfZcD0GwUUZCYezautOvymSV7
+	kFh5RxOVZFJw7pT7szQm32qFoa2tw==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fg78fx23p-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 20 Jul 2026 07:27:49 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66K7JbMZ017394;
+	Mon, 20 Jul 2026 07:27:48 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fgmtjmj9r-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 20 Jul 2026 07:27:48 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66K7Rf5e15925620
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 20 Jul 2026 07:27:41 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 94C382004D;
+	Mon, 20 Jul 2026 07:27:41 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6393020040;
+	Mon, 20 Jul 2026 07:27:41 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Mon, 20 Jul 2026 07:27:41 +0000 (GMT)
+From: Nihar Panda <niharp@linux.ibm.com>
+To: "James E . J . Bottomley" <James.Bottomley@HansenPartnership.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>
+Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>,
+        =?UTF-8?q?Vasily=20Gorbik=C2=A0?= <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        =?UTF-8?q?Christian=20Borntraeger=C2=A0?= <borntraeger@de.ibm.com>,
+        =?UTF-8?q?Nihar=20Panda=C2=A0?= <nihar.panda@ibm.com>
+Subject: [PATCH 0/1] zfcp bugfix for 7.2
+Date: Mon, 20 Jul 2026 09:27:35 +0200
+Message-ID: <20260720072736.3381816-1-niharp@linux.ibm.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzIwMDA3OCBTYWx0ZWRfX4AVucCB20f9q
+ vdSFqqZAQFhib03p6EuZrQFWxQXudS8wspxkyhHwQR7MSrAoFOW6j/s9GDdibZj8GdjZX6UP5D2
+ fWvIGARVROgiz4Su7MCdGvVPE91klFqUsrw4nMRbcW/tn/IDkmM6mqrwmIY4PnWCgyHHeuYwMWh
+ eEygv3QRAEHZ9rHvP8B27nsdODZihbN1QNE3epP0OZkUM94UFrB27ykEIMy1jWSV4KFVwVjPumv
+ D/dup5le1huZermbRVzGDE8gk6OAf8a1D6/goF+hgeI8tdSnnSvNADeZnXLLx6ZSo8NyoyFp4x1
+ ll1tQdOShu2rE8rKvzipF2KVU45em3UKr+2oIKlHnBGaPErHNsphmXPaKEUCspzs0EqhI8Nprzm
+ thYMZ8i2oKK+NxEje/TTyYs0fpuNwYAmWWOXXz6Em8nEkUrPe80d0NpZoLWk2fnKxyGDFUzcKcM
+ ZFcYWfPTJtsy6uj2EEQ==
+X-Proofpoint-GUID: pTtdvny1oSGs-Z6EAL9gRSgzOrdysKfK
+X-Authority-Analysis: v=2.4 cv=MelcfZ/f c=1 sm=1 tr=0 ts=6a5dcdf5 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=V8glGbnc2Ofi9Qvn3v5h:22 a=Z6Ue59XA6M_jgbqSVj4A:9
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzIwMDA3OCBTYWx0ZWRfXxwW0S+xeMxBf
+ XGEPuQAUaRKsr7dplRC0zGYaeSccY80Zl1dOaFcCzNFYpXYeoRpak6fM9EpzkQhKs7DYLnIJDKG
+ hP8Gr/tHiLu+XMUIYnxru6v0/sIE2hk=
+X-Proofpoint-ORIG-GUID: pTtdvny1oSGs-Z6EAL9gRSgzOrdysKfK
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-07-20_01,2026-07-17_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ impostorscore=0 lowpriorityscore=0 priorityscore=1501 bulkscore=0 spamscore=0
+ clxscore=1015 malwarescore=0 phishscore=0 adultscore=0 suspectscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607200078
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
-- [High] Physical pages are freed to the buddy allocator before their page =
-table entries (PTEs) are cleared, creating a Use-After-Free and memory corr=
-uption window.
-- [Medium] A sleeping memory allocation is performed inside a pte_fn_t call=
-back under lazy_mmu_mode_enable(), violating core MM API contracts.
---
+Hi Martin and James,
+we have a zfcp bugfix that address memory leak in zfcp.
+It would be great if this could be included in v7.2 release.
 
---- Patch [1]: [PATCH v3 1/6] KVM: s390: pv: Use VM_SPARSE area for guest v=
-ariable storage area ---
-commit 2a65969cbdc861d6caeb95bb64f45d4facecff0e
-Author: Heiko Carstens <hca@linux.ibm.com>
+Benjamin Block (1):
+  fix memory leak during adapter release by destroying gid_pn_req
 
-KVM: s390: pv: Use VM_SPARSE area for guest variable storage area
+ drivers/s390/scsi/zfcp_aux.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-The guest variable storage area is allocated with vmalloc and then
-donated to the ultravisor. Any kernel access to that area will result
-in a secure storage access exception (aka fault).
+-- 
+2.53.0
 
-This is a problem if such a memory area is read via /proc/kcore. This
-causes an exception via vread_iter() and results in an unexpected short
-read. Avoid this by allocating a custom VM_SPARSE area.
-
-> diff --git a/arch/s390/kernel/uv.c b/arch/s390/kernel/uv.c
-> index a284f98d97168..d1cdc5ae5e270 100644
-> --- a/arch/s390/kernel/uv.c
-> +++ b/arch/s390/kernel/uv.c
-[ ... ]
-> @@ -209,6 +210,70 @@ int uv_convert_from_secure_pte(pte_t pte)
->  	return uv_convert_from_secure_folio(pfn_folio(pte_pfn(pte)));
->  }
-> =20
-> +static int uv_free_range_cb(pte_t *ptep, unsigned long addr, void *data)
-> +{
-> +	pte_t pte =3D ptep_get(ptep);
-> +
-> +	if (!pte_present(pte))
-> +		return 0;
-> +	/*
-> +	 * Note: do not update the pte here, since there is no code which
-> +	 * accesses the memory range, besides bugs. The invalidation of ptes
-> +	 * and TLB flushing is deferred like for regular vfree() calls.
-> +	 */
-> +	__free_page(pte_page(pte));
-
-[Severity: High]
-Is it safe to free the physical page back to the buddy allocator while the
-PTE remains fully present in the init_mm page tables?
-
-The commit message notes that vfree() defers PTE updates, but vfree() actua=
-lly
-clears the PTEs via remove_vm_area() before freeing the underlying pages.
-Here, the pages are freed first, and the PTEs are cleared later when
-free_vm_area() is called in uv_free_stor_var().
-
-Could this create a window where the physical page is reallocated to another
-process, but the current CPU still has a valid, writable PTE pointing to it?
-
-Any stray kernel access or speculative execution through the old vmalloc
-address could then silently corrupt the new owner's memory without faulting.
-
-> +	return 0;
-> +}
-> +
-> +void uv_free_stor_var(void *stor_var)
-> +{
-[ ... ]
-> +}
-> +EXPORT_SYMBOL_FOR_MODULES(uv_free_stor_var, "kvm");
-> +
-> +static int uv_alloc_range_cb(pte_t *ptep, unsigned long addr, void *data)
-> +{
-> +	struct page *page;
-> +	pte_t pte;
-> +
-> +	page =3D alloc_page(GFP_KERNEL_ACCOUNT | __GFP_ZERO);
-
-[Severity: Medium]
-Does this violate the cross-architecture pte_fn_t API contract by performing
-a sleeping memory allocation?
-
-This callback is executed by apply_to_page_range(), which wraps the pte_fn_t
-callbacks in a lazy MMU mode section. The MM subsystem guidelines dictate
-that lazy MMU mode implies a possible atomic context (as it disables
-preemption on some architectures), forbidding these callbacks from sleeping.
-
-While lazy_mmu_mode_enable() is currently a no-op on s390, the commit messa=
-ge
-states s390 expects to gain full support for lazy MMU mode in the future.
-Will this GFP_KERNEL allocation then introduce a preemption-disabled deadlo=
-ck?
-
-> +	if (!page)
-> +		return -ENOMEM;
-[ ... ]
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260719130006.3882=
-764-1-hca@linux.ibm.com?part=3D1
