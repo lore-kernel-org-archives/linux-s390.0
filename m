@@ -1,124 +1,146 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4DADA330D29;
-	Mon, 20 Jul 2026 07:55:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7AB13306768;
+	Mon, 20 Jul 2026 08:58:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784534141; cv=none; b=GRwmMXzni6GS7qcuxu+s6xH7ruqv82NcTqv0cPBLyaVCriEm/a16wIKpdfn0nVmiFAIQ2gL3Z+SfTk9QDLTyyQrCN6GnbigKDGMYpCrQmjE/DTQlRJtUzdL0qQOm5Vw87v9J7lIep4S3bvlOUADM0KxZkYsJGzNq2DzTICKXvvA=
+	t=1784537923; cv=none; b=n70AB3nY7MtbjV6piNDqUAEnblHmBUxFoe+kRfY+WS2o/6JsIt0pb54kDMDml3SiSn0KyzAV8OYDrrIkIfoXBTJWpj2sYEmhx1jjLrNx6QIJu/WQuW07bbJxP5/Sgk4oS2oLYrC+fF8v57VUxrZbyarOqOCZEepuXYvV/Nrcwjc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784534141; c=relaxed/simple;
-	bh=r4tsRZEbUF6HXhLPhR/ZnIYYwBSqqDtR+r/gMLMvZdg=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=ZDl+kjFUXDHXxwy8ZqJBAMZdGLbnf5VasItr28NRcQWvMcMCuRvy+eCfTfU6iKIvjk1kcZLO/+WSoVCmH4dVCuARFzEVaPRD2cOBRq1QkYLYZW70WijPMd8d8PbHDKuYXi2+1lTTnm7WNXS9XqvmozA30Z0LqwByBvl7n3sa0E4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ldlJCwsM; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1784537923; c=relaxed/simple;
+	bh=kt/IaOFVul557FqevKqMSkljaUYBNNzywr8px+IDhvw=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=Yn5DWcC+IP7DFyXNqisvQgW8gXAN0nIgkDCKTCsbmdWTSLvDgz58jZ+iYqz6Fe65KjMUOCFYypPGch4zRSj5UTecA6TIioVwUdLpdFOn7VyM0WqtFsra1U9nMTORFzyXhsGGsgbT6x3dVrRzs2BLtal2Vjj1gyrGdSeSZ/Dr70c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=WmT/oAcE; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ldlJCwsM"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66K6fslY1381829;
-	Mon, 20 Jul 2026 07:55:39 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="WmT/oAcE"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66K6fnlI3777390;
+	Mon, 20 Jul 2026 08:58:40 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=8cZdCJ
-	FlArZN60sE5iwXWYyLpAkSWdvVzbq6C08177M=; b=ldlJCwsMkj669jfiTRhT7n
-	iueie4DGMKEFWxw462xULnZJPm6E1fEtJ2p4UrNOIoT36JRp+PRLrEgSO80Rp0S1
-	nrwv+SQihtWOu/R9y2amsXXY/wnRtk+/CtkRbcwAYLZ/eZlQAhZlcFC8zsOdRrhE
-	pvffGCCLwOY2uqVkojug5JRuO432uOrIuchNsSEaI83dA6yS6qfJ1n1+P4v4BNNW
-	Pn/AHZPj1f6Am/D95ETO/KZGtpgOqZxFMqmZ3C7arcdgCUynAgV76ho0cCbKgJF8
-	NiNryeGADkxgcq2CRT/+TFW91Gjl4mEEP+4a8UplLB3k+aEXuFvueXquN5a3yEMg
-	==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fg77jx5mh-1
+	:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=pp1; bh=t4ZnftpYbbLC2ucKQ
+	zkh5yaupKRJNl/rZPqRGt4bVm0=; b=WmT/oAcEpJ80VfW4piAZ5uJYHeKWQOkkv
+	RBPOhmeTkFSJnDvmRkb+1OTXQhb1TtCk58ST58gBLOBJjUw/EBTGAOw8K8f4JCcI
+	ob68+ji3foN3Qy/nFLWlXw4MuF2Fb1WlE0bXJX3ldfhoSIpj62FlIqPy4CD1KYZo
+	Ooy1aTvj60fa2sIdup0tP3cAk6ynlRKPnm/sDku1Jm2170VC0VM/4FY2ICQAcwm/
+	/eyYpOz92xyYa74doEglfIC3DspEgoVTVUBadw2WAEDm+ypT3DaAkMDxOy2OTqSz
+	iCPzUJbSS7k3F5PiA0JFmd9e3Ucr8WbisdfTidIqXtVIAIWG3uOKA==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fg77a6m83-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 20 Jul 2026 07:55:38 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66K7nnSt014862;
-	Mon, 20 Jul 2026 07:55:38 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fgmtjmmn3-1
+	Mon, 20 Jul 2026 08:58:40 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66K8Ygnn030004;
+	Mon, 20 Jul 2026 08:58:39 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fgktpw0h6-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 20 Jul 2026 07:55:38 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66K7tYI245613506
+	Mon, 20 Jul 2026 08:58:39 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66K8wZpr42664428
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 20 Jul 2026 07:55:34 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5550B2004E;
-	Mon, 20 Jul 2026 07:55:34 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C6B1E20040;
-	Mon, 20 Jul 2026 07:55:32 +0000 (GMT)
-Received: from [9.124.218.199] (unknown [9.124.218.199])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 20 Jul 2026 07:55:32 +0000 (GMT)
-Message-ID: <7c25d2af-d224-4d23-98ba-e2e89f7bdf95@linux.ibm.com>
-Date: Mon, 20 Jul 2026 13:25:31 +0530
+	Mon, 20 Jul 2026 08:58:36 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id DD83720040;
+	Mon, 20 Jul 2026 08:58:35 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id BB7CF2005A;
+	Mon, 20 Jul 2026 08:58:35 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Mon, 20 Jul 2026 08:58:35 +0000 (GMT)
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@kernel.org>
+Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH v4 5/8] s390/mm: Remove folio handling for kernel faults in do_secure_storage_access()
+Date: Mon, 20 Jul 2026 10:58:31 +0200
+Message-ID: <20260720085834.898025-6-hca@linux.ibm.com>
+X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20260720085834.898025-1-hca@linux.ibm.com>
+References: <20260720085834.898025-1-hca@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 1/1] fix memory leak during adapter release by destroying
- gid_pn_req
-To: sashiko-reviews@lists.linux.dev
-Cc: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org,
-        Alexander Gordeev <agordeev@linux.ibm.com>
-References: <20260720072736.3381816-1-niharp@linux.ibm.com>
- <20260720072736.3381816-2-niharp@linux.ibm.com>
- <20260720074027.649FD1F000E9@smtp.kernel.org>
-Content-Language: en-US
-From: Nihar Ranjan Panda <niharp@linux.ibm.com>
-In-Reply-To: <20260720074027.649FD1F000E9@smtp.kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=HJXz0Itv c=1 sm=1 tr=0 ts=6a5dd47a cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VwQbUJbxAAAA:8
- a=VnNF1IyMAAAA:8 a=IWXOrLfZgRw9ZWNs2HcA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzIwMDA4NCBTYWx0ZWRfX5Fkx1LfIuOdv
- lkZcwpbdTumL7OqdLZL74F8t84vzeh43TdqXgzyN9SqYWqc4xF+DMlqbk54rWJvQxnm9e+UEAW0
- KfFq0H0HvFzjFq/B7Aqpn5VynhVpNHm8aDvLmmesWGGAlNwVpcTKthYRqWP9yioR8AdfGJU7FWn
- 4DOz0zm90ycyOxPlyC7l1gpOhhrryCf8DZcM42SfRKByb7wF9TlqIGBeLcvVFh3d9fgm14zdMs6
- Q8SeyD7TZSI2HOscFZF4604BfDKXX7vLbHvBMoEA1mxz/5w/9n8QmaoBI08i4UJ+PgSqL1CzU3z
- VUxNDuJBGq9D22eEhu/tDbwSA6fJpyCUABVuDGquQf7Aw5bQmWcNQmVVUBgkhPWZWP1F8i5kLy8
- 9J7Be3+Qj0oKJhwx+wHkwm4T5k5Ae8hRVvtnbdMHrsoXEu5vt/XsC83MEinnic6lJY3Qvcf6kDH
- +o83e65l80hdSO5ClKQ==
-X-Proofpoint-ORIG-GUID: wuPOzjnP1_rB3_pRw-NvE4My7KWy3Bup
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzIwMDA4NCBTYWx0ZWRfX78ukUg/02s3B
- pkPLSxWU3ts3p1cuZ/QQdW5KHxdV5s4EhsjA3x2o0LaC8m2AXE1/hXoo3NPOGHptQQmndHUfXgv
- t0T0Mp5DpPfe9rwU7G9Yfystz37drlk=
-X-Proofpoint-GUID: wuPOzjnP1_rB3_pRw-NvE4My7KWy3Bup
+X-Proofpoint-ORIG-GUID: IoJiaYt6Ppk79OyiKpVJiNY1eP2jEqPN
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzIwMDA5NiBTYWx0ZWRfX1AbA0DpWOZWV
+ okNoKHSSPIa/jNG6wkd9HWfGC+C+lDxeV097DB6SWtpb5dKYVKO/lJpN2z2SlnpN/rlHFRKvh8W
+ +J6M69PkTyDnS+8SVuT4ronHpeQaUmA=
+X-Proofpoint-GUID: IoJiaYt6Ppk79OyiKpVJiNY1eP2jEqPN
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzIwMDA5NiBTYWx0ZWRfX3PjVCAYStjig
+ 0fMou9BDPWrPoG66WlHscZXVDW4dmNZEIYPzQF1F641F0MKs1M7nOJjn9ND/Coxue7Oab/3+LUe
+ Sc9DeIX2g4PVUGDAc0VdnOzJXAUir15XEPZ1EjfLEIw1ls+1OUpA7DN6XNcwsrBCNcRZkyVjxqh
+ llSW397gdrHtPKe/JZmQ1U2dO8bxGmB0H5b9X8VgA0J3slSvLLnDvyiRuvWW1IGRM84WsgZLQLE
+ UDd+kylKXwf0jMr8Gh96pgpgibZXP4jD2QYfuWk9O4As9L1zovw1D28vhuRQMZ6bsD7RQkX+zvP
+ ZWMixLZ4v7/lT0UGTpFnAn27U1hAwLXAfcl40ZRPRenw6hcq7b84pMSZtUGnNgfiI0SERF3Ks8a
+ c+wFGYkYfvVGqIWhVjoOwqyIE/tOLgdb7k6eZhRfsMaojFOigPbdGiLwvMVd8u2gAXqQVbb7wpv
+ E3OH62+bkVTn4o3gCIg==
+X-Authority-Analysis: v=2.4 cv=K7AS2SWI c=1 sm=1 tr=0 ts=6a5de340 cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+ a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8 a=3bIF1FMAx5P9TMvWi0MA:9
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-07-20_01,2026-07-17_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0 priorityscore=1501 lowpriorityscore=0 suspectscore=0
- malwarescore=0 impostorscore=0 clxscore=1011 phishscore=0 spamscore=0
- adultscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ lowpriorityscore=0 suspectscore=0 bulkscore=0 clxscore=1015
+ priorityscore=1501 spamscore=0 phishscore=0 malwarescore=0 adultscore=0
+ impostorscore=0 classifier=typeunknown authscore=0 authtc= authcc=
  route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2607200084
+ definitions=main-2607200096
 
+Remove folio handling for secure storage access exceptions that happen
+via the kernel mapping. Using folio_try_get() for exceptions via the
+kernel mapping is racy: for example such an exception may happen on one
+CPU, while a different CPU frees the corresponding page. Subsequently the
+page can be part of a folio of different size, before the faulting CPU
+executes folio_try_get(). This may lead to data corruption.
 
-Hi Martin and James,
-The bug reported by the sashiko bot is a pre-existing issue and was not introduced by this fix.
- 
-Please allow this fix to go upstream. We will create an EWM ticket to address the bot's finding in a separate patch.
+As of now this scenario does not seem to be possible, however with the
+upcoming load_unaligned_zeropad() this is possible.
 
-On 20/07/26 1:10 pm, sashiko-bot@kernel.org wrote:
-> Pre-existing issues:
-> - [High] The error path in `zfcp_adapter_enqueue()` calls `zfcp_erp_thread_kill()` which unconditionally passes `adapter->erp_thread` to `kthread_stop()`. If adapter initialization fails before the thread is created (e.g., during `zfcp_allocate_low_mem_buffers()`), this results in a kernel panic because `kthread_stop()` does not handle NULL pointers.
-> --
-> 
-> --- Patch [1]: [PATCH 1/1] fix memory leak during adapter release by destroying gid_pn_req ---
-> commit 5b4668bd066d14a43f77f6f0301f8c98cbb5069c
-> Author: Benjamin Block <bblock@linux.ibm.com>
-> 
-> fix memory leak during adapter release by destroying gid_pn_req
+As a side effect PG_arch_1 is not cleared anymore for such faults via the
+kernel mapping. However given that this bit is over-indicating it
+shouldn't matter.
+
+Tested-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+---
+ arch/s390/mm/fault.c | 8 +-------
+ 1 file changed, 1 insertion(+), 7 deletions(-)
+
+diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
+index e650cdfa2523..776549d55c94 100644
+--- a/arch/s390/mm/fault.c
++++ b/arch/s390/mm/fault.c
+@@ -440,13 +440,7 @@ void do_secure_storage_access(struct pt_regs *regs)
+ 	if (is_kernel_fault(regs)) {
+ 		if (is_vmalloc_addr((void *)addr))
+ 			return handle_fault_error_nolock(regs, 0);
+-		folio = virt_to_folio((void *)addr);
+-		if (unlikely(!folio_try_get(folio)))
+-			return;
+-		rc = uv_convert_from_secure(folio_to_phys(folio));
+-		if (!rc)
+-			clear_bit(PG_arch_1, &folio->flags.f);
+-		folio_put(folio);
++		rc = uv_convert_from_secure(__pa(addr));
+ 		/*
+ 		 * There are some valid fixup types for kernel
+ 		 * accesses to donated secure memory. zeropad is one
+-- 
+2.53.0
 
