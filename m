@@ -1,112 +1,181 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C95FF3C063A;
-	Tue, 21 Jul 2026 10:28:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C3BAE48A2B4
+	for <linux-s390@vger.kernel.org>; Tue, 21 Jul 2026 10:44:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784629729; cv=none; b=rGQ3TJozUPDaqoyl4B6jIzsNc7SQ5N3oeycb7BqewvaByZ0rqFmoG9O8jSwaKH+QXlTbTBhr7A0mP0tN5vZb8FamstGNkLiUFIZDbFccK03BL0u4lPjsS33qA/LrUBmQhz9lGLDlET09ILjTiN8Wbtbl4kDmcVj+W55yG4+1Nf0=
+	t=1784630699; cv=none; b=U1ehsfLIhdNG2YZQa8WRiXtbPbYmzj2z/yF5o5ZosNmccVEWlyIkfiGjhb+tbTrEihkHuMGUTiQyT0G4r6FsYRhyvzRDqlKWN5pADjY37Ak3zCPDfEGDBxM12XVT4hOfJRmbZly+TZHj3Oa3O1nbEjyxgXQenrf1OKH9hqypNaY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784629729; c=relaxed/simple;
-	bh=uKbArLOvJ0yoBD2XKCMXEoj4aZzhkpHUSKaB4eSh7tI=;
+	s=arc-20240116; t=1784630699; c=relaxed/simple;
+	bh=SHxQMuzcUvEU6vlDszhMl8raJZxJiuhFTw/tuNzN+z8=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=qfPgQvbha8r72X9Ma5KC1mcfreUtJVQj7CgcWnXaZfgLrM+5puFh4U/iiFGFwnzjf4+DsxoqS/Vx6I808RyJIqFTOEt+xBwgdKnUfZXz8A13qD4TMiLObOPi01tjGGDaQxYmKdKEoGCnjWoYeyKvpyXQeqmlyv6oQWqq0E9IC0U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=qVeEGzS8; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=blcgTxqrZTDpNWjrhoQQvpxecCeU5ALceDHogsCPvwlD3KojecUiALSR7xukIQ5uTQfHL1RMKxiMKtf9fB/6cNgh07xEdplX8as/7ajnrGfK0/IZ48PwIOinmrXROBHhRk+hBXlgJlFxlGsIWPwhfS6zeGYcvV1tEb1SudLh5k4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=JtQP6lge; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=y2frQJ8p; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=JtQP6lge; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=y2frQJ8p; arc=none smtp.client-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="qVeEGzS8"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66KNDh9n3560330;
-	Tue, 21 Jul 2026 10:28:42 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=4KQ6VOug7KNU+mTEpx2lyl9Nlzs4tV
-	I364aNteSdGlE=; b=qVeEGzS8316MgDyGSR0KJiIbCbQOd2Sz+ehTpRnBpk/IEo
-	pPghQhv877mCDIarl8y85zYjKKsPFOOX9q2nKtiXX9GZpKSDq6x+qp3aSu3g9JJD
-	BWRywT+MhCuWNzh3cMzMl4/7sgDbJ+SybYH9LXkUYugPQ+i7RNzszUgHgy8xcLzG
-	JiKrac91e1sbj7UhEs0ARok0tFWUDknj1vLJqNnu8rPn5ldXtSw/CivOVhHXOPoh
-	JVrFI6SORL77ZJvAtxwdnouUF0nXrn84iKadXktOCVeHHmjamMxJQcoFVugHyVwV
-	zt/YmFch8RdsZFj7kGzGNisQjnoyAXrFN/575KnA==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fg7ah3npv-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 21 Jul 2026 10:28:41 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66LAJcnL022758;
-	Tue, 21 Jul 2026 10:28:41 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fgnah1smf-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 21 Jul 2026 10:28:41 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66LASbE745285642
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 21 Jul 2026 10:28:37 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 58AA92004B;
-	Tue, 21 Jul 2026 10:28:37 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1CB1D20040;
-	Tue, 21 Jul 2026 10:28:37 +0000 (GMT)
-Received: from localhost (unknown [9.87.154.205])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Tue, 21 Jul 2026 10:28:37 +0000 (GMT)
-Date: Tue, 21 Jul 2026 12:28:35 +0200
-From: Vasily Gorbik <gor@linux.ibm.com>
-To: Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] s390/maccess: use proper PTE accessors for copying old
- memory
-Message-ID: <ttiit3n@ub.hpns>
-References: <20260720144734.1003497-1-agordeev@linux.ibm.com>
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="JtQP6lge";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="y2frQJ8p";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="JtQP6lge";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="y2frQJ8p"
+Received: from kunlun.suse.cz (unknown [IPv6:2a07:de40:b306:2000::2])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange ECDHE (prime256v1) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id 531843E07;
+	Tue, 21 Jul 2026 10:44:38 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1784630678; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=B0Py5B3mwQHc+JOXafe3hbEgSFjr03UEdbTua5LDYRg=;
+	b=JtQP6lged4KTQ9qwSmJWoFVAqDxIRDZ+BQwSXLtHg+hxvrs0KZqezKv7NOpLhu1e843nkg
+	JT1pK7pnMGMQMv8FU5RcH5t+x4oxP4g/E6bssli90KGK+L+lwzEkt2iJceUzwLYI/PZ++9
+	PvGiUBNZ/4KSC7Vpjng9OD92j/wQyII=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1784630678;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=B0Py5B3mwQHc+JOXafe3hbEgSFjr03UEdbTua5LDYRg=;
+	b=y2frQJ8pJWgRl/gkkNhGtA7abbAg0ghd3xXR7bRLXh8+ijdsEq5T6omONmmn2klKmyD0HA
+	vXo1mY9eOZlpodCA==
+Authentication-Results: smtp-out2.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=JtQP6lge;
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=y2frQJ8p
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1784630678; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=B0Py5B3mwQHc+JOXafe3hbEgSFjr03UEdbTua5LDYRg=;
+	b=JtQP6lged4KTQ9qwSmJWoFVAqDxIRDZ+BQwSXLtHg+hxvrs0KZqezKv7NOpLhu1e843nkg
+	JT1pK7pnMGMQMv8FU5RcH5t+x4oxP4g/E6bssli90KGK+L+lwzEkt2iJceUzwLYI/PZ++9
+	PvGiUBNZ/4KSC7Vpjng9OD92j/wQyII=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1784630678;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=B0Py5B3mwQHc+JOXafe3hbEgSFjr03UEdbTua5LDYRg=;
+	b=y2frQJ8pJWgRl/gkkNhGtA7abbAg0ghd3xXR7bRLXh8+ijdsEq5T6omONmmn2klKmyD0HA
+	vXo1mY9eOZlpodCA==
+Date: Tue, 21 Jul 2026 12:44:37 +0200
+From: Michal Suchanek <msuchanek@suse.de>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Kees Cook <kees@kernel.org>, Andy Lutomirski <luto@amacapital.net>,
+	Will Drewry <wad@chromium.org>, Paul Walmsley <pjw@kernel.org>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
+	linux-kernel@vger.kernel.org, linux-riscv@lists.infradead.org,
+	Thomas Gleixner <tglx@kernel.org>,
+	Michal =?iso-8859-1?Q?Such=E1nek?= <msuchanek@suse.de>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Shrikanth Hegde <sshegde@linux.ibm.com>,
+	linuxppc-dev@lists.ozlabs.org, Huacai Chen <chenhuacai@kernel.org>,
+	loongarch@lists.linux.dev, Sven Schnelle <svens@linux.ibm.com>,
+	linux-s390@vger.kernel.org, x86@kernel.org,
+	Mark Rutland <mark.rutland@arm.com>,
+	Jinjie Ruan <ruanjinjie@huawei.com>,
+	Magnus Lindholm <linmag7@gmail.com>,
+	"Mukesh Kumar Chaurasiya (IBM)" <mkchauras@gmail.com>,
+	Jonathan Corbet <corbet@lwn.net>, Radu Rendec <radu@rendec.net>,
+	Renzo Davoli <renzo@cs.unibo.it>, Oleg Nesterov <oleg@redhat.com>
+Subject: [PATCH] seccomp: Fix syscall skip logic on ptrace
+Message-ID: <al9NlZi20xHMvla2@kunlun.suse.cz>
+References: <20260707181957.433213175@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260720144734.1003497-1-agordeev@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: UD3gw3hh5fmUSmjawUGgUIEFC2KV6Ue-
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzIxMDEwOCBTYWx0ZWRfX/25WZIgE2h9q
- X35Ts9otS5aSZfkcQfihC0WKxfoYuMfypHyPu4N0FI7kDSOd6y6OeVAFiCJC3tvpn23C/nNhRvh
- ItKvP+nRim0wd95bPaXdBkxbLuC+5VFvYsHWBgoXiCAlg6XX8GUvnmwDKyN2X8NOwrf9uQmWIfY
- 79Fh88aKdbFdMj87RZ5R5uE5iqUNc4m3AyE4Z03g5pRw4RfFknMsTaFDvtWKoOQCmDs1l1r5btW
- J+mPbnO+4CidaA9ZCdovKUQh+9lZaMqT8P1URHc7kNupA5SnUjMbGIZ01x8q/U0OPCTJXQkVv6L
- FvbwJmzzYiTtizZ4D3jMPQ0DOo8KMaYhUXWy4fQadNGWyj+gFa7muFwQ4rFD2wG02veeTMf9VyL
- CjtHb9abg8xCkDL5nQ7OSF5Fm3bHYN96qTgHCvjnTNltkRKzJbLHG9u5CvZ6uiH0qJJVeOinEWO
- xhwebwjGW9pmxIpy7nQ==
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzIxMDEwOCBTYWx0ZWRfX7h8PG4MjUXYa
- M+fBBsoGMJ8h5DMyL43qb+EFYl0MNVGe528T9TyEC76KfauZnsJBGw4g1i4U4cg9hU8TfP2wLEE
- O2IwWK/lzl4V7cv5MPUyUUm17evc/a0=
-X-Proofpoint-GUID: UD3gw3hh5fmUSmjawUGgUIEFC2KV6Ue-
-X-Authority-Analysis: v=2.4 cv=SM5ykuvH c=1 sm=1 tr=0 ts=6a5f49d9 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8
- a=RGM47z_RLjzLivI8PxAA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-07-20_06,2026-07-20_03,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 lowpriorityscore=0 bulkscore=0 suspectscore=0 adultscore=0
- spamscore=0 malwarescore=0 priorityscore=1501 phishscore=0 impostorscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607210108
+In-Reply-To: <20260707181957.433213175@kernel.org>
+X-Spam-Flag: NO
+X-Rspamd-Action: no action
+X-Spam-Level: **
+X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
+X-Spamd-Result: default: False [2.49 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	HFILTER_HOSTNAME_UNKNOWN(2.50)[];
+	RDNS_NONE(2.00)[];
+	ONCE_RECEIVED(1.20)[];
+	HFILTER_HELO_IP_A(1.00)[kunlun.suse.cz];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	HFILTER_HELO_NORES_A_OR_MX(0.30)[kunlun.suse.cz];
+	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b306:2000::2:from];
+	ARC_NA(0.00)[];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	RCPT_COUNT_TWELVE(0.00)[28];
+	MIME_TRACE(0.00)[0:+];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com];
+	DKIM_TRACE(0.00)[suse.de:+];
+	TO_DN_SOME(0.00)[];
+	TO_MATCH_ENVRCPT_SOME(0.00)[];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	FREEMAIL_CC(0.00)[kernel.org,amacapital.net,chromium.org,dabbelt.com,eecs.berkeley.edu,ghiti.fr,vger.kernel.org,lists.infradead.org,suse.de,ellerman.id.au,linux.ibm.com,lists.ozlabs.org,lists.linux.dev,arm.com,huawei.com,gmail.com,lwn.net,rendec.net,cs.unibo.it,redhat.com];
+	DNSWL_BLOCKED(0.00)[2a07:de40:b306:2000::2:from];
+	MISSING_XM_UA(0.00)[];
+	RCVD_COUNT_ZERO(0.00)[0];
+	R_RATELIMIT(0.00)[to_ip_from(RLgmbm6kmdycgna1ji64zx9jke)];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:email,suse.de:dkim,kunlun.suse.cz:helo,kunlun.suse.cz:mid]
+X-Spamd-Bar: ++
+X-Rspamd-Queue-Id: 531843E07
+X-Spam-Score: 2.49
 
-On Mon, Jul 20, 2026 at 04:47:34PM +0200, Alexander Gordeev wrote:
-> Follow the pattern established by commit c33c794828f2 ("mm:
-> ptep_get() conversion") and use proper PTE accessors instead
-> of a direct pointer dereference in memcpy_real_iter().
-> 
-> Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
-> ---
->  arch/s390/mm/maccess.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+seccomp takes a shortcut here. When the syscall number is re-read after
+ptrace and the sign bit is set in the syscall number the syscall is
+skipped right away.
 
-Applied, thank you!
+This works fairly well on x86 where the return value of the syscall is
+preset before seccomp is processed.
+
+However, on some architectures the syscall return value overlaps with
+the syscall number or syscall arguments, and as a result the return
+value cannot be preset in advance.
+
+For these architectures seccomp needs to exit without flagging the
+syscall as skipped. Then processing of invalid syscall number in the
+architecture code should set the return value to -ENOSYS and skip the
+syscall.
+
+This introduces a change: If the syscall number has the sign bit
+set, such as -1, previously the filter re-check would not be done, not
+applying the filter after trace. Now the re-check is done both for
+syscall nubers with and without sign bit set. This would only make a
+difference if the syscall number or the filter was changed by the
+tracer. Otherwise the filter would be resolved the first time around.
+
+Signed-off-by: Michal Suchanek <msuchanek@suse.de>
+---
+ kernel/seccomp.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
+
+diff --git a/kernel/seccomp.c b/kernel/seccomp.c
+index 066909393c38..9e40a38aaedf 100644
+--- a/kernel/seccomp.c
++++ b/kernel/seccomp.c
+@@ -1318,11 +1318,8 @@ static int __seccomp_filter(int this_syscall, const bool recheck_after_trace)
+ 		 */
+ 		if (fatal_signal_pending(current))
+ 			goto skip;
+-		/* Check if the tracer forced the syscall to be skipped. */
+-		this_syscall = syscall_get_nr(current, current_pt_regs());
+-		if (this_syscall < 0)
+-			goto skip;
+ 
++		this_syscall = syscall_get_nr(current, current_pt_regs());
+ 		/*
+ 		 * Recheck the syscall, since it may have changed. This
+ 		 * intentionally uses a NULL struct seccomp_data to force
+-- 
+2.51.0
+
