@@ -1,237 +1,158 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2499A1C68F;
-	Tue, 21 Jul 2026 12:41:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9150F377EA5;
+	Tue, 21 Jul 2026 13:54:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784637689; cv=none; b=ruuk0AykfM+1FIq1WwpTCKOR1uqMqp2Ax6qePy3pQ7uIi4HCFG0QNIjK3z6d5tZdHFhEK0cyaJl3q/qQt949xZPybr21+/BjsC78BCwJqrIuAUFBFkaijhgQhu05WBqvCq0KMhK1VauH+BgOEm2K4o30MVeYXbb9fJKbn/bF1dA=
+	t=1784642058; cv=none; b=oPqd44AyPj7A1NM60+0nqe8d4qHs8F2RSKeVVQM27Ulh5Q3mDZH6GyfgZRlyRxZnnw86tNBAlTK6cJIx9Cq58hCG6cLWTkicuTsNiyjVaYHPfRBsUpv3PxTLdPM1mKlGDr0ls+gS9riM3dzQjb4CUowQ6t7xktt0wlLFbw2DsCE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784637689; c=relaxed/simple;
-	bh=feZG2Q3lsTwy24OL3kKIJsTDPgy9AVpjjFO591TMf1k=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=W0FGFELpRZiZ49KQP3Xr4+zAQILsNStf5I4v+C9+Ud9sjwiUH20+0XiXIetK2iBcQpp8nW4VVP3HB4R61qsoncy1COPuhjgXaho6wxAF5++HrYp69mwSvBpwYN9T58WSxEWTih+vbEL+li0B3pw9tbWqZ4c90DMsp3shHdqFsuI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=nMTllraD; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1784642058; c=relaxed/simple;
+	bh=veLGk4CcAAcJSmgOuAs5+j7FiC8KGBsfI6txWBX99s0=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=LZXdKUaESXkr5JmaGQS827wyVDa1Hu44wMyd7TtRnMUhRdB5oQ5qU3fPyHt8lIITp1Eq2wVH9qdgC/UGzZXp9F43wjUpwbE1DvQa2ZqNjLNTilHz1xxF2ItF+JsH2kPCs4ZH0luBPibf07cNH3FM2D8h2hrcihaR1kChOFKTzwk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=OL/zFHx1; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="nMTllraD"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66LAfsVU793700;
-	Tue, 21 Jul 2026 12:41:02 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="OL/zFHx1"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66LDgewT1072675;
+	Tue, 21 Jul 2026 13:54:11 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=iPlPzqvav1UW5eHaa40ZbJscdEd+i1
-	OC+0ehWg4cK3E=; b=nMTllraDCvXzlQ4gSXh5/QOPJ0MHn7mfMQmwGww2FERYza
-	3mZJ7lRspjiI+v7D2VoxYDFEmEFFciuwPc5yYcYTj3PRDTHbMDUZzKB9bMuzb652
-	9gvnEFDZy9SgYJZd16lZ7Ff489jCVh8j5hrI7OdN7lZ4jJqZDU4EHij346BLWyH0
-	+lCmjbgkQb/4EQQ4DmgaM5kE/aYv2OZj2UrawOc7Ab0pe/BOx5Pigu7gfBbWHLYP
-	UjXfvzH/PCweM3nDKSSA+xjsv8IrcQdnR3ODYBqjuUSbcCXFDAHrT2JkZOpgOgP/
-	lJACeA6/CWy2Kp1a9aOQthVCa4ivXyIHEsSatL0Q==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fg790vh2a-1
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=FeTWme
+	EbhBkr4kRlTPXGcf8yx9t/qPxZA1IN/+Jp2ko=; b=OL/zFHx1bzifRSqUKKy8TQ
+	Uq1OeVYqXlU78ZU0V0M6oriI86EARsx4+eoQkIwAfPRxbo/X+/KF8XsvNSs4tpbl
+	rsOxUjZLs4+Oei3Z50+b8VvSd4mNRJsNvvcCuvy6xQo8M0t1Tsq26Lpj8WFPympx
+	rmrokWqq+iPr1osJn5wzM+kVohEREnj3hFYlqsVijcL/RT6f+7ZSB0BFWyJGTt6/
+	4X0dD4jaOBwm9nu3dItZbXDCFp5QS/QtP8529sLDd1rbHVuDkIhNe9ta3gr5D6dM
+	5slwCsZRTxEzWCQWAy2fm1ca1DRqlJH4Nbg4eG239KM2EfxsGZM2jyL45lOPKHFw
+	==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fg78g4ex7-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 21 Jul 2026 12:41:02 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66LCYYLH002468;
-	Tue, 21 Jul 2026 12:41:01 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fgm6w2c6d-1
+	Tue, 21 Jul 2026 13:54:11 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66LDo58E008560;
+	Tue, 21 Jul 2026 13:54:10 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fgpgya7qp-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 21 Jul 2026 12:41:01 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66LCex8G42664360
+	Tue, 21 Jul 2026 13:54:10 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66LDs5NS44892664
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 21 Jul 2026 12:40:59 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 024B72004E;
-	Tue, 21 Jul 2026 12:40:59 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C3D232004B;
-	Tue, 21 Jul 2026 12:40:58 +0000 (GMT)
-Received: from tuxmaker (unknown [9.87.85.9])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Tue, 21 Jul 2026 12:40:58 +0000 (GMT)
-Date: Tue, 21 Jul 2026 14:40:57 +0200
-From: Alexander Gordeev <agordeev@linux.ibm.com>
-To: Muhammad Usama Anjum <usama.anjum@arm.com>
-Cc: "David Hildenbrand (Arm)" <david@kernel.org>, Zi Yan <ziy@nvidia.com>,
-        Pedro Falcato <pfalcato@suse.de>, Ryan Roberts <ryan.roberts@arm.com>,
-        Lorenzo Stoakes <ljs@kernel.org>, linux-mm@kvack.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        "Liam R. Howlett" <liam@infradead.org>,
-        Mike Rapoport <rppt@kernel.org>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Samuel Holland <samuel.holland@sifive.com>, linux-s390@vger.kernel.org
-Subject: Re: mm: opaque hardware page-table entry handles
-Message-ID: <20260721124057.2820903Adf-agordeev@linux.ibm.com>
-References: <74182e50-b54f-4d2d-a27f-3a59a538d6bc@arm.com>
- <31d36023-d728-4eee-90f8-158c7066f565@kernel.org>
- <e22407d8-4509-4a53-9ba4-491b9d5c5ef7@arm.com>
- <4bfeb697-9c1f-4316-96bb-9bfd66f959df@kernel.org>
- <6110202c-057b-4701-8c04-1a76ee7bb9ab@arm.com>
+	Tue, 21 Jul 2026 13:54:05 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 7EAD520043;
+	Tue, 21 Jul 2026 13:54:05 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4206220040;
+	Tue, 21 Jul 2026 13:54:05 +0000 (GMT)
+Received: from [9.224.94.95] (unknown [9.224.94.95])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 21 Jul 2026 13:54:05 +0000 (GMT)
+Message-ID: <fff72695-88b5-4ba5-b1f4-f70a2b02ed1b@linux.ibm.com>
+Date: Tue, 21 Jul 2026 15:54:05 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <6110202c-057b-4701-8c04-1a76ee7bb9ab@arm.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net] net/af_iucv: fix NULL deref in
+ afiucv_hs_callback_syn()
+To: Hidayath Khan <hidayath@linux.ibm.com>, davem@davemloft.net,
+        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com
+Cc: horms@kernel.org, linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, twinkler@linux.ibm.com,
+        heiko.carstens@de.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+        borntraeger@linux.ibm.com, svens@linux.ibm.com
+References: <20260709191732.124092-1-hidayath@linux.ibm.com>
+Content-Language: en-US
+From: Alexandra Winter <wintera@linux.ibm.com>
+In-Reply-To: <20260709191732.124092-1-hidayath@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: y-cS7h0zIIKKfU5heE1tSQvzZjOAVoN7
-X-Authority-Analysis: v=2.4 cv=V6RNF+ni c=1 sm=1 tr=0 ts=6a5f68de cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
- a=kj9zAlcOel0A:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=VwQbUJbxAAAA:8
- a=WHKbetgI1jfQOmHUsxoA:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzIxMDEyOSBTYWx0ZWRfX5L8TJE6Lf5z/
- PQ4oUUYB41NczNetweoXhqbQVYI4cGQ5SH66WxF9ziddwLi534CCE8LEyy62iBcCqZtE1f+D9RK
- n5vYb/6LHZ4bxhdeg3gEDqW/yeWmPqw=
-X-Proofpoint-GUID: y-cS7h0zIIKKfU5heE1tSQvzZjOAVoN7
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzIxMDEyOSBTYWx0ZWRfX3cWHXzVyanrU
- IGkEbOlm9FJuFbDU97cgAhueRbpaYHss3q5E2bfV9nfbIgx8kPrhkm4y1bhf6uQ6lfPCxulrP56
- oJyn85GoW7FBamrYjdFw6soYQS7jF0BnlV6VhHppblUpc25b0SqU0riM3hBXJzwwDvIr0dO1orO
- 8Su/34UenHl3yQjtQI4E4Fm+0doYENDWsyVgzbyQ+w0CoCvJ2d2j8rJdzODTG55f0CaihWQNL2z
- DTvIAWRpAdV7o9rFTDFXqeQATE9OrNPJtibgXzfadiVtzk02wQRR3GYuPOdKaKkbRCxLAziVOhS
- t/+rWhBtsUJwDCb2fnUvtNStfgyelrCiVLt1tKgFEE/dqCc38GhK0aAK1qCOgyN1KRj9Sb608j3
- YCQB83mcJYOTjta5lm61iP+fkq4BzxsHvvosQ9aYfCBv662uIRSZQC9ymiHfmX+19wh3ppkxm5d
- SX59MRyJoyPubstxIRQ==
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzIxMDE0NSBTYWx0ZWRfX3Id7GbH30hQK
+ 0rq7EbrBKaXUGRjuQ0cFYF7ddgWV3T2ejmRLRRkCICV0YhZ7vKsquh/pr1gqxsI7cKeeGShAKDH
+ pjOzEJRqhtf18DW813GzgkncoT6FYgILk4mEkdFOKBlrZxpR5UMr5AuOFGGPin5Pl6+h04HQqZb
+ ju8nbU/p+dE8locA6hr6cOGnYWavN5Ch1AP1dH6x8V39t2j0NYgk6e+KGo1F2h8bqNOfdrCaSAF
+ R+QJTtVrf1GWhwexOZoVXkVbiniiemcQ+tDGsszwD2cjck8syRUzeQ7hmPZabY5lSQ9m2CY1SvD
+ 6fX4hc2GeS6qQo8H5p761PgloxnYqGrv9I30gmi048qMf5LYwhRT0YB7/E5hMMFkONFraKOOl8/
+ rM3zKK9ZANjtV8JKefFt3+Zo07dNFZjz8mAuJEYJRq9of5zQVnbmBUb+W0DJ7kgYTI0kL/z9a4f
+ PxhJMPBi/3e/LWfMeLg==
+X-Proofpoint-GUID: hmV0od4ylTZNIsUsOE6oKtSOssaRWbM_
+X-Authority-Analysis: v=2.4 cv=MelcfZ/f c=1 sm=1 tr=0 ts=6a5f7a03 cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VwQbUJbxAAAA:8
+ a=VnNF1IyMAAAA:8 a=Pk9XwYpVuUtOZicstfYA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzIxMDE0NSBTYWx0ZWRfX1ujsAeykVfZ7
+ WpxcQyAHYaR4iXTRBs1Qq+6bhQF9zd6jkJeLUU5fIG89GhhbNIIXzoIurfjql+culcbet4dWx+t
+ 9MOQIX3A06PlXiFKDt1zhA72cTQbPeI=
+X-Proofpoint-ORIG-GUID: Ku8r_xh8Tg1xYe3gED7H1XErBqnQPKLJ
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-07-21_01,2026-07-20_03,2025-10-01_01
+ definitions=2026-07-21_03,2026-07-20_03,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 adultscore=0 bulkscore=0 lowpriorityscore=0 clxscore=1011
- spamscore=0 impostorscore=0 phishscore=0 priorityscore=1501 suspectscore=0
+ impostorscore=0 lowpriorityscore=0 priorityscore=1501 bulkscore=0 spamscore=0
+ clxscore=1015 malwarescore=0 phishscore=0 adultscore=0 suspectscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607210129
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607210145
 
-On Wed, Jul 15, 2026 at 05:15:36PM +0100, Muhammad Usama Anjum wrote:
-> Hi,
+
+
+On 09.07.26 21:17, Hidayath Khan wrote:
+> afiucv_hs_callback_syn() allocates the child socket with GFP_ATOMIC.
+> If the allocation fails, nsk is NULL.
 > 
-> [Moved some already involved people to To. So they can help with the plan
-> details mentioned below.]
+> The connection-refused path is entered when the listen state check
+> fails, the accept backlog is full, or nsk is NULL. The code
+> unconditionally calls iucv_sock_kill(nsk) in that path.
 > 
-> On 07/07/2026 2:17 pm, David Hildenbrand (Arm) wrote:
-> > [...]
-> > 
-> >>>
-> >>> typedef struct {
-> >>> 	pte_t __pte;
-> >>> } hw_pte_t;
-> >>>
-> >>> And then simply use
-> >>>
-> >>> hw_pte_t *hptep;
-> >> Make sense. So you have suggested to just hide put pte_t inside a structure
-> >> instead of complex structure of pointer. I've tried to implement and it reduces
-> >> churn enormously.
-> > 
-> > Right. And for most architectures we can probable leave both types be the same
-> > under the hood.
-> > 
-> > So we'd only have to convert common code first, and can then e.g., look into
-> > making architectures that care about the difference (e.g., arm64) actually have
-> > it be two separate types.
-> It makes a lot of sense.
+> iucv_sock_kill() does not accept a NULL socket pointer and immediately
+> dereferences sk via sock_flag(sk, SOCK_ZAPPED). When nsk is NULL,
+> calling iucv_sock_kill(nsk) results in a NULL pointer dereference.
 > 
-> Let's even divide the series into more parts as there are several places where
-> conversion is controversial. (Xi Yan had mentioned one example earlier in this
-> thread.) Most of those controversial conversions are pmd related. I propose
-> that we convert pte_t first, then pmd_t and others. It'll keep the number of
-> patches manageable and easier to review. 
+> Only call iucv_sock_kill() when a child socket was successfully
+> allocated.
 > 
-> I think wider agreement for this approach will be very helpful before I post the
-> actual code.
+> Fixes: 3881ac441f64 ("af_iucv: add HiperSockets transport")
+> Cc: stable@vger.kernel.org
+> Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
+> Signed-off-by: Hidayath Khan <hidayath@linux.ibm.com>
+> ---
+>  net/iucv/af_iucv.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
 > 
-> > 
-> > Just an idea to further reduce the churn and limit it only to core code (because
-> > I saw some very ugly stuff in some arch code that would make such a conversion
-> > harder).
-> > 
-> > [...]
-> > 
-> >>> Why do we need this and what would we use it for?
-> >> The idea was that there should be two different functions to read value. Let's
-> >> leave this out of the first initial series. It is complicating the original
-> >> proposal.
-> > 
-> > Right, let's leave that out for now. I'm currently working with Levi on an
-> > approach that tries to avoid the overhead due to READ_ONCE with folded page
-> > tables. [1]
-> So you are referring to page folding improvements. I also stumbled upon those
-> while doing a dirty implementation.
+> diff --git a/net/iucv/af_iucv.c b/net/iucv/af_iucv.c
+> index fed240b453bd..f5b1ec44b6ae 100644
+> --- a/net/iucv/af_iucv.c
+> +++ b/net/iucv/af_iucv.c
+> @@ -1872,7 +1872,8 @@ static int afiucv_hs_callback_syn(struct sock *sk, struct sk_buff *skb)
+>  		afiucv_swap_src_dest(skb);
+>  		trans_hdr->flags = AF_IUCV_FLAG_SYN | AF_IUCV_FLAG_FIN;
+>  		err = dev_queue_xmit(skb);
+> -		iucv_sock_kill(nsk);
+> +		if (nsk)
+> +			iucv_sock_kill(nsk);
+>  		bh_unlock_sock(sk);
+>  		goto out;
+>  	}
 > 
-> > 
-> > We're still struggling with some bits, but looks like we can make it fly and
-> > have it be fairly robust.
-> > 
-> > With that, maybe there is no reason left to have separate pXXp_get() vs.
-> > pXXp_get_once(). TBD :)
-> Yeah, I was reviewing that series earlier today. I've not looked deeply, but it
-> seems there are still a lot of cases where (mostly) pmd is getting dereferenced
-> directly. To complete the conversion, direct dereferences need to be converted
-> into an API. I've been thinking if there should be a dereference macro or we
-> must always use pmdp_get() even though it ensures ordering. It may add excessive 
-> ordering in some functions if pmdp_get() is getting called multiple times. But
-> storing its output in a tmp variable would solve this. 
-> 
-> Do you agree with converting all direct dereferences into pXXp_get()?
+> base-commit: 262b2eac463d880a664cf92af1107b4f9d84ad37
 
-For the clarity (e.g. on the PTE level) is it goint to be converted to?
 
-pte_t ptep_get(hw_pte_t *ptep);
-pte_t set_pte(hw_pte_t *ptep, pte_t pte);
+Gentle ping to netdev maintainers:
+Did this one get lost in the overflow?
+It is all green in patchwork. Is there something you need us to do?
+Should we re-send it?
+I don't see this as urgent or especially dangerous.
 
-While variables on stack are still may be dereferenced directly via pte_t*?
-
-What about unlinked/temporary page tables in memory?
-
-> > [1] https://lore.kernel.org/all/08ecabe9-0664-4aea-82fb-f9cb1739f762@kernel.org/
-> > 
-> > [...]
-> > 
-> >>>
-> >>> I'm still not sure about the _once() really, and if we need that right now. We
-> >>> survived without is so far, why do we need it now?
-> >> The idea is to convert all current pXXp_get() to pXXp_get_once() and convert raw
-> >> dereference to pXXp_get(). Let's keep this idea separate for the other work. Let's
-> >> discuss it later sometime again later.
-> > 
-
-> > Sounds good.
-> 
-> I've tried to do conversions already. Converting by call hierarchy wise is very
-> difficult and error prune.
-> 
-> Converting component by component (such as page walk, huge page) is also difficult
-> as code is tangled. Some helper which is getting used in one component is also used
-> in another component.
-> 
-> I see the following way forward:
-> * Add the new type
-> * Identify which functions need explicitly pointer to a stack variable. These
->   must not be converted. These variables must be renamed to a common name. For
->   pte_t pointers on stack some functions already use ptentp, which is unique name
->   if we look at generic code. So ptentp would be used for all such variables.
-> * One commit per controversial change would be done at this point. We need new
->   separate function for stack types. Also we can do more renaming to a name which
->   will not be converted.
-> * Run Coccinelle script directory-by-directory which would ignore converting any
->   ptentp (and similarly for other types). Coccinelle doesn't converts in some case
->   (pte_t *a. *b) which can be done by hand at this point.
-> * Update any remaining functions
-
-What is the approach to STRICT_MM_TYPECHECKS?
-
-We would like to keep it, and I guess some other architectures too.
-
-> -- 
-> Thanks,
-> Usama
-
-Thanks!
+Kind regards
+Alexandra
