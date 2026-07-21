@@ -1,158 +1,163 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9150F377EA5;
-	Tue, 21 Jul 2026 13:54:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 45DAD39AD3A;
+	Tue, 21 Jul 2026 14:20:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784642058; cv=none; b=oPqd44AyPj7A1NM60+0nqe8d4qHs8F2RSKeVVQM27Ulh5Q3mDZH6GyfgZRlyRxZnnw86tNBAlTK6cJIx9Cq58hCG6cLWTkicuTsNiyjVaYHPfRBsUpv3PxTLdPM1mKlGDr0ls+gS9riM3dzQjb4CUowQ6t7xktt0wlLFbw2DsCE=
+	t=1784643626; cv=none; b=U6s8E4iksv1XujehotOGvVkS/Ly0xxQ9KQWRxumY8QBMGWxJTkkbia2YatLZoTocZy3DM0aoNh3xq5Kg8Xou5SIt60+cB9zTVKJVd5jof+PMvF9RB5ELSDwsQHmcu/+iBTX4rm3jfAxnkYi8ELWE/R+xzIJPqJgktGjwZW9yxiY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784642058; c=relaxed/simple;
-	bh=veLGk4CcAAcJSmgOuAs5+j7FiC8KGBsfI6txWBX99s0=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=LZXdKUaESXkr5JmaGQS827wyVDa1Hu44wMyd7TtRnMUhRdB5oQ5qU3fPyHt8lIITp1Eq2wVH9qdgC/UGzZXp9F43wjUpwbE1DvQa2ZqNjLNTilHz1xxF2ItF+JsH2kPCs4ZH0luBPibf07cNH3FM2D8h2hrcihaR1kChOFKTzwk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=OL/zFHx1; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1784643626; c=relaxed/simple;
+	bh=Q/j682BHn4/bqEtQENQgsu0DCJvAVU5yzDBtUSeFGGY=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=B5o/m9FE6eD1mxSOzz1JOEUgJrxrmM/MYvJs66uhrqKJUIXsnmJowOS3ISM9wZKK7cVBk3S0zyHybTnenZ2HRaMV/MSOYiSistuLej29hN1RotF2l7BlJpecAbE+w1/bJdps5+Xwg8bnkgtioTuPJvCIoWIgMCbdifBBQQZN5WQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZAXeJTn5; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="OL/zFHx1"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66LDgewT1072675;
-	Tue, 21 Jul 2026 13:54:11 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=FeTWme
-	EbhBkr4kRlTPXGcf8yx9t/qPxZA1IN/+Jp2ko=; b=OL/zFHx1bzifRSqUKKy8TQ
-	Uq1OeVYqXlU78ZU0V0M6oriI86EARsx4+eoQkIwAfPRxbo/X+/KF8XsvNSs4tpbl
-	rsOxUjZLs4+Oei3Z50+b8VvSd4mNRJsNvvcCuvy6xQo8M0t1Tsq26Lpj8WFPympx
-	rmrokWqq+iPr1osJn5wzM+kVohEREnj3hFYlqsVijcL/RT6f+7ZSB0BFWyJGTt6/
-	4X0dD4jaOBwm9nu3dItZbXDCFp5QS/QtP8529sLDd1rbHVuDkIhNe9ta3gr5D6dM
-	5slwCsZRTxEzWCQWAy2fm1ca1DRqlJH4Nbg4eG239KM2EfxsGZM2jyL45lOPKHFw
-	==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fg78g4ex7-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 21 Jul 2026 13:54:11 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66LDo58E008560;
-	Tue, 21 Jul 2026 13:54:10 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fgpgya7qp-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 21 Jul 2026 13:54:10 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66LDs5NS44892664
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 21 Jul 2026 13:54:05 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7EAD520043;
-	Tue, 21 Jul 2026 13:54:05 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4206220040;
-	Tue, 21 Jul 2026 13:54:05 +0000 (GMT)
-Received: from [9.224.94.95] (unknown [9.224.94.95])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 21 Jul 2026 13:54:05 +0000 (GMT)
-Message-ID: <fff72695-88b5-4ba5-b1f4-f70a2b02ed1b@linux.ibm.com>
-Date: Tue, 21 Jul 2026 15:54:05 +0200
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZAXeJTn5"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 992DD1F000E9;
+	Tue, 21 Jul 2026 14:20:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1784643624;
+	bh=0vlMnn1H9hiO4jT5wquIo2lbFYyrtK27kHf9bWe+2BM=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date;
+	b=ZAXeJTn5Gpmsi+fP/8KnFVJrWtLr1s+gLT8XCY+gJDlj/j3JD5/rYU5iAxSrzp+pd
+	 olYQzw9d9qnF622vSrO0xgj0l2V/UWVA/TwCEdteCq9j5ZG5/DBjpuMXcH9FrxHWil
+	 v85SMWGDxZbPRG2SeJtJpKBw0NI86LxW0iHL6uBUKgcqneXjADoUesd7rroKVKo3mm
+	 SC9mFdCU8LmsaoJ7LEzSPJZXaM2HeNcQ54nqu/ic/L5F5VrXdzNVoDsdMC66+nliHc
+	 cM0qXX4fadGnq6/2LCkf6IQ7hjwQ818TGBo7IX/dKg+5Y2YA0GOVfKLHel40zJ33wz
+	 APR8zrlv8Umyg==
+X-Mailer: emacs 30.2 (via feedmail 11-beta-1 I)
+From: Aneesh Kumar K.V <aneesh.kumar@kernel.org>
+To: Leon Romanovsky <leon@kernel.org>
+Cc: iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev,
+	Robin Murphy <robin.murphy@arm.com>,
+	Marek Szyprowski <m.szyprowski@samsung.com>,
+	Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
+	Steven Price <steven.price@arm.com>,
+	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Jiri Pirko <jiri@resnulli.us>,
+	Jason Gunthorpe <jgg@ziepe.ca>,
+	Mostafa Saleh <smostafa@google.com>,
+	Petr Tesarik <ptesarik@suse.com>,
+	Alexey Kardashevskiy <aik@amd.com>,
+	Dan Williams <dan.j.williams@intel.com>,
+	Xu Yilun <yilun.xu@linux.intel.com>,
+	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org,
+	stable@vger.kernel.org, Michael Kelley <mhklinux@outlook.com>,
+	Jason Gunthorpe <jgg@nvidia.com>
+Subject: Re: [PATCH v8 01/23] dma-direct: return struct page from
+ dma_direct_alloc_from_pool()
+In-Reply-To: <20260721115456.GI110966@unreal>
+References: <20260717180442.110954-1-aneesh.kumar@kernel.org>
+ <20260717180442.110954-2-aneesh.kumar@kernel.org>
+ <20260721115456.GI110966@unreal>
+Date: Tue, 21 Jul 2026 19:50:10 +0530
+Message-ID: <yq5atsps77c5.fsf@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net] net/af_iucv: fix NULL deref in
- afiucv_hs_callback_syn()
-To: Hidayath Khan <hidayath@linux.ibm.com>, davem@davemloft.net,
-        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com
-Cc: horms@kernel.org, linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, twinkler@linux.ibm.com,
-        heiko.carstens@de.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
-        borntraeger@linux.ibm.com, svens@linux.ibm.com
-References: <20260709191732.124092-1-hidayath@linux.ibm.com>
-Content-Language: en-US
-From: Alexandra Winter <wintera@linux.ibm.com>
-In-Reply-To: <20260709191732.124092-1-hidayath@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzIxMDE0NSBTYWx0ZWRfX3Id7GbH30hQK
- 0rq7EbrBKaXUGRjuQ0cFYF7ddgWV3T2ejmRLRRkCICV0YhZ7vKsquh/pr1gqxsI7cKeeGShAKDH
- pjOzEJRqhtf18DW813GzgkncoT6FYgILk4mEkdFOKBlrZxpR5UMr5AuOFGGPin5Pl6+h04HQqZb
- ju8nbU/p+dE8locA6hr6cOGnYWavN5Ch1AP1dH6x8V39t2j0NYgk6e+KGo1F2h8bqNOfdrCaSAF
- R+QJTtVrf1GWhwexOZoVXkVbiniiemcQ+tDGsszwD2cjck8syRUzeQ7hmPZabY5lSQ9m2CY1SvD
- 6fX4hc2GeS6qQo8H5p761PgloxnYqGrv9I30gmi048qMf5LYwhRT0YB7/E5hMMFkONFraKOOl8/
- rM3zKK9ZANjtV8JKefFt3+Zo07dNFZjz8mAuJEYJRq9of5zQVnbmBUb+W0DJ7kgYTI0kL/z9a4f
- PxhJMPBi/3e/LWfMeLg==
-X-Proofpoint-GUID: hmV0od4ylTZNIsUsOE6oKtSOssaRWbM_
-X-Authority-Analysis: v=2.4 cv=MelcfZ/f c=1 sm=1 tr=0 ts=6a5f7a03 cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VwQbUJbxAAAA:8
- a=VnNF1IyMAAAA:8 a=Pk9XwYpVuUtOZicstfYA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzIxMDE0NSBTYWx0ZWRfX1ujsAeykVfZ7
- WpxcQyAHYaR4iXTRBs1Qq+6bhQF9zd6jkJeLUU5fIG89GhhbNIIXzoIurfjql+culcbet4dWx+t
- 9MOQIX3A06PlXiFKDt1zhA72cTQbPeI=
-X-Proofpoint-ORIG-GUID: Ku8r_xh8Tg1xYe3gED7H1XErBqnQPKLJ
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-07-21_03,2026-07-20_03,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- impostorscore=0 lowpriorityscore=0 priorityscore=1501 bulkscore=0 spamscore=0
- clxscore=1015 malwarescore=0 phishscore=0 adultscore=0 suspectscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607210145
+Content-Type: text/plain
 
+Leon Romanovsky <leon@kernel.org> writes:
 
+> On Fri, Jul 17, 2026 at 11:34:19PM +0530, Aneesh Kumar K.V (Arm) wrote:
+>> Commit 5b138c534fda ("dma-direct: factor out a dma_direct_alloc_from_pool
+>> helper") changed dma_direct_alloc_from_pool() to return the CPU address
+>> from dma_alloc_from_pool(). That fits dma_direct_alloc(), but
+>> dma_direct_alloc_pages() also uses the helper and expects a struct page *.
+>> 
+>> Fix this by making dma_direct_alloc_from_pool() return the struct page *
+>> again, and pass the CPU address back through an out-parameter for the
+>> dma_direct_alloc() caller.
+>> 
+>> Fixes: 5b138c534fda ("dma-direct: factor out a dma_direct_alloc_from_pool helper")
+>> Cc: stable@vger.kernel.org
+>> Tested-by: Michael Kelley <mhklinux@outlook.com>
+>> Tested-by: Mostafa Saleh <smostafa@google.com>
+>> Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
+>> Signed-off-by: Aneesh Kumar K.V (Arm) <aneesh.kumar@kernel.org>
+>> ---
+>>  kernel/dma/direct.c | 18 ++++++++++--------
+>>  1 file changed, 10 insertions(+), 8 deletions(-)
+>> 
+>> diff --git a/kernel/dma/direct.c b/kernel/dma/direct.c
+>> index d8219efe3273..363d984d90e7 100644
+>> --- a/kernel/dma/direct.c
+>> +++ b/kernel/dma/direct.c
+>> @@ -164,22 +164,21 @@ static bool dma_direct_use_pool(struct device *dev, gfp_t gfp)
+>>  	return !gfpflags_allow_blocking(gfp) && !is_swiotlb_for_alloc(dev);
+>>  }
+>>  
+>> -static void *dma_direct_alloc_from_pool(struct device *dev, size_t size,
+>> -		dma_addr_t *dma_handle, gfp_t gfp)
+>> +static struct page *dma_direct_alloc_from_pool(struct device *dev, size_t size,
+>> +		dma_addr_t *dma_handle, void **cpu_addr, gfp_t gfp)
+>>  {
+>>  	struct page *page;
+>>  	u64 phys_limit;
+>> -	void *ret;
+>>  
+>>  	if (WARN_ON_ONCE(!IS_ENABLED(CONFIG_DMA_COHERENT_POOL)))
+>>  		return NULL;
+>>  
+>>  	gfp |= dma_direct_optimal_gfp_mask(dev, &phys_limit);
+>> -	page = dma_alloc_from_pool(dev, size, &ret, gfp, dma_coherent_ok);
+>> +	page = dma_alloc_from_pool(dev, size, cpu_addr, gfp, dma_coherent_ok);
+>>  	if (!page)
+>>  		return NULL;
+>>  	*dma_handle = phys_to_dma_direct(dev, page_to_phys(page));
+>> -	return ret;
+>> +	return page;
+>>  }
+>>  
+>>  static void *dma_direct_alloc_no_mapping(struct device *dev, size_t size,
+>> @@ -247,8 +246,11 @@ void *dma_direct_alloc(struct device *dev, size_t size,
+>>  	 * the atomic pools instead if we aren't allowed block.
+>>  	 */
+>>  	if ((remap || force_dma_unencrypted(dev)) &&
+>> -	    dma_direct_use_pool(dev, gfp))
+>> -		return dma_direct_alloc_from_pool(dev, size, dma_handle, gfp);
+>> +	    dma_direct_use_pool(dev, gfp)) {
+>> +		page = dma_direct_alloc_from_pool(dev, size, dma_handle,
+>> +						  &ret, gfp);
+>> +		return page ? ret : NULL;
+>
+> Sorry for joining the discussion late, but the line above caught my
+> attention.
+>
+> Why do we need both ret and page? We can derive cpu_addr from page and
+> vice versa. Do we really need the &ret parameter? Or, more generally, do
+> we really need "struct page *"?
+>
+> static struct page *__dma_alloc_from_pool(struct device *dev, size_t size,
+> 		struct gen_pool *pool, void **cpu_addr,
+> 		bool (*phys_addr_ok)(struct device *, phys_addr_t, size_t))
+> {
+> ...
+> 	*cpu_addr = (void *)addr;
+> 	memset(*cpu_addr, 0, size);
+> 	return pfn_to_page(__phys_to_pfn(phys));
+> }
+>
+> Why
+>
 
-On 09.07.26 21:17, Hidayath Khan wrote:
-> afiucv_hs_callback_syn() allocates the child socket with GFP_ATOMIC.
-> If the allocation fails, nsk is NULL.
-> 
-> The connection-refused path is entered when the listen state check
-> fails, the accept backlog is full, or nsk is NULL. The code
-> unconditionally calls iucv_sock_kill(nsk) in that path.
-> 
-> iucv_sock_kill() does not accept a NULL socket pointer and immediately
-> dereferences sk via sock_flag(sk, SOCK_ZAPPED). When nsk is NULL,
-> calling iucv_sock_kill(nsk) results in a NULL pointer dereference.
-> 
-> Only call iucv_sock_kill() when a child socket was successfully
-> allocated.
-> 
-> Fixes: 3881ac441f64 ("af_iucv: add HiperSockets transport")
-> Cc: stable@vger.kernel.org
-> Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
-> Signed-off-by: Hidayath Khan <hidayath@linux.ibm.com>
-> ---
->  net/iucv/af_iucv.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
-> 
-> diff --git a/net/iucv/af_iucv.c b/net/iucv/af_iucv.c
-> index fed240b453bd..f5b1ec44b6ae 100644
-> --- a/net/iucv/af_iucv.c
-> +++ b/net/iucv/af_iucv.c
-> @@ -1872,7 +1872,8 @@ static int afiucv_hs_callback_syn(struct sock *sk, struct sk_buff *skb)
->  		afiucv_swap_src_dest(skb);
->  		trans_hdr->flags = AF_IUCV_FLAG_SYN | AF_IUCV_FLAG_FIN;
->  		err = dev_queue_xmit(skb);
-> -		iucv_sock_kill(nsk);
-> +		if (nsk)
-> +			iucv_sock_kill(nsk);
->  		bh_unlock_sock(sk);
->  		goto out;
->  	}
-> 
-> base-commit: 262b2eac463d880a664cf92af1107b4f9d84ad37
+With CONFIG_DMA_DIRECT_REMAP the cpu_addr can be different from
+page_address.
 
-
-Gentle ping to netdev maintainers:
-Did this one get lost in the overflow?
-It is all green in patchwork. Is there something you need us to do?
-Should we re-send it?
-I don't see this as urgent or especially dangerous.
-
-Kind regards
-Alexandra
+-aneesh
