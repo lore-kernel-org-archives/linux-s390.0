@@ -1,32 +1,32 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 25FC946AA72;
-	Tue, 21 Jul 2026 15:33:27 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 25FA946AA75;
+	Tue, 21 Jul 2026 15:35:02 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784648009; cv=none; b=jN3kNbo3D/w1o3TlEjL1E+OWJkKszRWshiMi/BeNXvF/C4B7y8BJH4H6RWdA/qT9Kl/VF3pt8ZCumYCJ2L4xZ6AcK6F9PZYAe3aR49Yw4o4WeWxdtRo2Hlinq1teZ4xpzilwfHH3ATp/Np0qADG2dAALFAGU+xMqDZDHX8wteCE=
+	t=1784648103; cv=none; b=gk29bsYvyi+EkuxxbZatqSWOsJIbygnjjrMTRPm51G65XWjnSNr9tF7QX+eotu0tlFSs+jMb2HRV9S+MYXLELhNl4r/LEp2ybEWDYqJJfsPG7PcFC4B2UBQWitE3r9F2C5YaL2599ZPcYcaUXTQCgozI2b5ohQROTBXV5eTXVW8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784648009; c=relaxed/simple;
-	bh=+YZQfaaTiJHIA2ETq/1rzRtmtcZbyzJHfNuMtqgXGws=;
+	s=arc-20240116; t=1784648103; c=relaxed/simple;
+	bh=Bqwha5kXvb7TkgwPCF2JnFGEmZ01G6XWlFoe+BlIrTY=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=phVlrdVavE6az5nBZiKeV3um1WhhaofsCN8WZ46HwrR90l+otyzWMNE8qtD2x4D487sGb1U7gpU5P2mrQMGPqk7oAr7sK7H0F9r5FaRDknukytFJE5mqNDHqSDK74iURC4c/Y1pjBmcdAn1EvNOBKpl+7wOnoCCy7bBtCGx0sro=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RtTlvsgB; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=eunnHZsQe/CD91dlUCXz3w/kroemd/DkaNvv29mVlbojktKTJ8aOGjMGzhRqduI2r3JUwFlrCGYDVSp8Lk/co55hNVA2HWOAvLmEU+4NZmqCP/xfjcF27I8ickl4OVmHhGfDJEdm57Ti4GXVDGYWCYxRyAapeTAyHtqlHe09/Vg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=IJiPu+RZ; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RtTlvsgB"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91E401F000E9;
-	Tue, 21 Jul 2026 15:33:26 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IJiPu+RZ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8D001F000E9;
+	Tue, 21 Jul 2026 15:35:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784648007;
-	bh=0MsfUHsh7/pU0dEmGJ8yQrcxAOBrj57aAW4TYmEgSa4=;
+	s=k20260515; t=1784648102;
+	bh=QVePzAEvk/HRAZDkJnNSAQ/f5uWHK1anOdVi7+q3VC8=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=RtTlvsgBwpvI0cpC2iB7lmnZsJJQS3iN2nxCIQ//4/R7sa6Ddwam0EfjjO67bp+fO
-	 ZUvnFVQCbVdC+rprpImnQ71P/DXiWl4BcNPLzChAK5mZc6IC7Fg7/+u3KpDARDYE48
-	 783F22LzzVw+RaD1DEkOXy6Hmr7sf5hej91oSPVKZPxvUyT34ZcmiF29+aHPPjBQ5I
-	 GQ9xQgSmPNM3x8bNp45OOFOZDKpUwuRY+pw61HJlkyNZZPXHkzn4MuVJl8wAQQncL0
-	 xB0NTm977UpaO8i1yNgz9I7sxcKIQ34Wqb3yHygOtgO5PY3h0RqiM4Fh+NA77y/ggd
-	 u6EVDacyAMw7w==
-Date: Tue, 21 Jul 2026 18:33:21 +0300
+	b=IJiPu+RZcRhgVPKAHX5VV+zkTpGbxlaIRt8LxXNBYciu1fuMPhhgYPKJQ96TwVCRB
+	 3n+JiLog3a27/oOTINg2GG5gDlhgSmxXdIOL+JxMBbJBKdkjaOmMJ+qUFIRhCQswJt
+	 RyFoKN8CBSq9d43YYEEbCAToMoDtSj2osByB1nu529L9d5iwVIM8Chf46dxyH7IXiF
+	 mv6Mt4mlVUU73mvkDpfQ+y/6Ov42XFQI740FHvBbKbsKR0gJgcOGnQAHeOGj1DRBJo
+	 RVu3b7leBlQogcOqXBk0V9pb/AfRcNa77YB1xLEHV8PPgq6WzgTFVNUdArT+9LHotq
+	 mk+vfcLOSch0w==
+Date: Tue, 21 Jul 2026 18:34:57 +0300
 From: Leon Romanovsky <leon@kernel.org>
 To: "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>
 Cc: iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
@@ -54,17 +54,15 @@ Cc: iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
 	Vasily Gorbik <gor@linux.ibm.com>,
 	Christian Borntraeger <borntraeger@linux.ibm.com>,
 	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org,
-	stable@vger.kernel.org, Michael Kelley <mhklinux@outlook.com>,
-	Jason Gunthorpe <jgg@nvidia.com>
-Subject: Re: [PATCH v8 01/23] dma-direct: return struct page from
- dma_direct_alloc_from_pool()
-Message-ID: <20260721153321.GO110966@unreal>
+	Jason Gunthorpe <jgg@nvidia.com>,
+	Michael Kelley <mhklinux@outlook.com>
+Subject: Re: [PATCH v8 02/23] dma-pool: fix page leak in atomic_pool_expand()
+ cleanup
+Message-ID: <20260721153457.GP110966@unreal>
 References: <20260717180442.110954-1-aneesh.kumar@kernel.org>
- <20260717180442.110954-2-aneesh.kumar@kernel.org>
- <20260721115456.GI110966@unreal>
- <yq5atsps77c5.fsf@kernel.org>
- <20260721142921.GN110966@unreal>
- <yq5ao6g0750v.fsf@kernel.org>
+ <20260717180442.110954-3-aneesh.kumar@kernel.org>
+ <20260721123107.GJ110966@unreal>
+ <yq5aqzkw76ch.fsf@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -73,100 +71,104 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <yq5ao6g0750v.fsf@kernel.org>
+In-Reply-To: <yq5aqzkw76ch.fsf@kernel.org>
 
-On Tue, Jul 21, 2026 at 08:40:08PM +0530, Aneesh Kumar K.V wrote:
+On Tue, Jul 21, 2026 at 08:11:34PM +0530, Aneesh Kumar K.V wrote:
 > Leon Romanovsky <leon@kernel.org> writes:
 > 
-> > On Tue, Jul 21, 2026 at 07:50:10PM +0530, Aneesh Kumar K.V wrote:
-> >> Leon Romanovsky <leon@kernel.org> writes:
+> > On Fri, Jul 17, 2026 at 11:34:20PM +0530, Aneesh Kumar K.V (Arm) wrote:
+> >> atomic_pool_expand() frees the allocated pages from the remove_mapping
+> >> error path only when CONFIG_DMA_DIRECT_REMAP is enabled.
 > >> 
-> >> > On Fri, Jul 17, 2026 at 11:34:19PM +0530, Aneesh Kumar K.V (Arm) wrote:
-> ....
-> >> >>  static void *dma_direct_alloc_no_mapping(struct device *dev, size_t size,
-> >> >> @@ -247,8 +246,11 @@ void *dma_direct_alloc(struct device *dev, size_t size,
-> >> >>  	 * the atomic pools instead if we aren't allowed block.
-> >> >>  	 */
-> >> >>  	if ((remap || force_dma_unencrypted(dev)) &&
-> >> >> -	    dma_direct_use_pool(dev, gfp))
-> >> >> -		return dma_direct_alloc_from_pool(dev, size, dma_handle, gfp);
-> >> >> +	    dma_direct_use_pool(dev, gfp)) {
-> >> >> +		page = dma_direct_alloc_from_pool(dev, size, dma_handle,
-> >> >> +						  &ret, gfp);
-> >> >> +		return page ? ret : NULL;
-> >> >
-> >> > Sorry for joining the discussion late, but the line above caught my
-> >> > attention.
-> >> >
-> >> > Why do we need both ret and page? We can derive cpu_addr from page and
-> >> > vice versa. Do we really need the &ret parameter? Or, more generally, do
-> >> > we really need "struct page *"?
-> >> >
-> >> > static struct page *__dma_alloc_from_pool(struct device *dev, size_t size,
-> >> > 		struct gen_pool *pool, void **cpu_addr,
-> >> > 		bool (*phys_addr_ok)(struct device *, phys_addr_t, size_t))
-> >> > {
-> >> > ...
-> >> > 	*cpu_addr = (void *)addr;
-> >> > 	memset(*cpu_addr, 0, size);
-> >> > 	return pfn_to_page(__phys_to_pfn(phys));
-> >> > }
-> >> >
-> >> > Why
-> >> >
+> >> When CONFIG_DMA_DIRECT_REMAP is disabled, failures after page allocation,
+> >> such as gen_pool_add_virt(), jump to remove_mapping and return without
+> >> freeing the pages.
 > >> 
-> >> With CONFIG_DMA_DIRECT_REMAP the cpu_addr can be different from
-> >> page_address.
+> >> Move __free_pages(page, order) out of the CONFIG_DMA_DIRECT_REMAP block so
+> >> that cleanup paths always release the allocation.
+> >> 
+> >> Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
+> >> Tested-by: Michael Kelley <mhklinux@outlook.com>
+> >> Tested-by: Mostafa Saleh <smostafa@google.com>
+> >> Signed-off-by: Aneesh Kumar K.V (Arm) <aneesh.kumar@kernel.org>
+> >> ---
+> >>  kernel/dma/pool.c | 10 +++++++---
+> >>  1 file changed, 7 insertions(+), 3 deletions(-)
+> >> 
+> >> diff --git a/kernel/dma/pool.c b/kernel/dma/pool.c
+> >> index 2b2fbb709242..b0303efbc153 100644
+> >> --- a/kernel/dma/pool.c
+> >> +++ b/kernel/dma/pool.c
+> >> @@ -81,6 +81,7 @@ static int atomic_pool_expand(struct gen_pool *pool, size_t pool_size,
+> >>  {
+> >>  	unsigned int order;
+> >>  	struct page *page = NULL;
+> >> +	bool leak_pages = false;
+> >>  	void *addr;
+> >>  	int ret = -ENOMEM;
+> >>  
+> >> @@ -115,8 +116,10 @@ static int atomic_pool_expand(struct gen_pool *pool, size_t pool_size,
+> >>  	 */
+> >>  	ret = set_memory_decrypted((unsigned long)page_to_virt(page),
+> >>  				   1 << order);
+> >> -	if (ret)
+> >> +	if (ret) {
+> >> +		leak_pages = true;
+> >>  		goto remove_mapping;
+> >> +	}
+> >>  	ret = gen_pool_add_virt(pool, (unsigned long)addr, page_to_phys(page),
+> >>  				pool_size, NUMA_NO_NODE);
+> >>  	if (ret)
+> >> @@ -130,14 +133,15 @@ static int atomic_pool_expand(struct gen_pool *pool, size_t pool_size,
+> >>  				   1 << order);
+> >>  	if (WARN_ON_ONCE(ret)) {
+> >>  		/* Decrypt succeeded but encrypt failed, purposely leak */
+> >> -		goto out;
+> >> +		leak_pages = true;
 > >
-> > Can you please point to the code there it can happen?
-> > __dma_alloc_from_pool() has direct connection between physical address
-> > and struct page.
+> > Instead of doing this dance with temporal variable, change "goto out" to
+> > be "return true".
 > >
 > 
-> dma_direct_alloc -> 	remap = IS_ENABLED(CONFIG_DMA_DIRECT_REMAP);
-> 	if ((remap && dma_direct_use_pool(dev, gfp)) {
-> 		page = dma_direct_alloc_from_pool(dev, size,
 > 
-> ..
-> __dma_alloc_from_pool -> 
-> 	addr = gen_pool_alloc(pool, size);
-> 	if (!addr)
-> 
-> 
-> We expand the pool as below..
-> 
-> atomic_pool_expand ->
-> 
-> #ifdef CONFIG_DMA_DIRECT_REMAP
-> 	addr = dma_common_contiguous_remap(page, pool_size,
-> 			pgprot_decrypted(pgprot_dmacoherent(PAGE_KERNEL)),
-> 			__builtin_return_address(0));
-> 	if (!addr)
-> 		goto free_page;
-> #else
-> 	addr = page_to_virt(page);
-> #endif
+> I didn't follow the return true part. A failure in
+> set_memory_encrypted() or set_memory_decrypted() requires the pages to
+> be leaked, so this is not the only call site that sets leak_pages =
+> true. There is a similar case a few lines above.
 
-Right, and nothing prevents you from adding a small DMA helper
-that translates mapped/direct addresses back to struct page.
-
-Something like, but probably void* needs to be phys_addr_t:
-
-static inline struct page *dma_phys_to_page(void *addr)
-{
-#ifdef CONFIG_DMA_DIRECT_REMAP
-	return vmalloc_to_page(addr);
-#else
-	return virt_to_page(addr);
-#endif
-}
-
-Architecture code already does this throughout the tree.
+Comment about "leaked" is enough. There is no need to introduce
+convoluted flow just to check that page != NULL.
 
 Thanks
 
-
 > 
+> 
+> >
+> >>  	}
+> >>  remove_mapping:
+> >>  #ifdef CONFIG_DMA_DIRECT_REMAP
+> >>  	dma_common_free_remap(addr, pool_size);
+> >>  free_page:
+> >
+> > Remove free_page label, and change leftover of "goto free_page" to be
+> > "goto out"
+> >
+> >> -	__free_pages(page, order);
+> >>  #endif
+> >> +	if (!leak_pages)
+> >> +		__free_pages(page, order);
+> >
+> > Put these checks under out label and rely on page != NULL as a marker.
+> > if (page)
+> >  __free_pages(page, order);
+> >
+> >>  out:
+> >>  	return ret;
+> >>  }
+> >> -- 
+> >> 2.43.0
+> >> 
+> >> 
 > 
 > -aneesh
 > 
