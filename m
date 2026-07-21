@@ -1,166 +1,143 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E8F9B3F8245;
-	Tue, 21 Jul 2026 14:41:48 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3049D4C9561;
+	Tue, 21 Jul 2026 14:57:18 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784644910; cv=none; b=hMKIIElAyo41BJpGQH7N6pxqErmySJugf8oAxDS5zzMtGIxgUaitMF49vmtzSuo9JRbASKQAKJ5Ff2hsM/GMRvEOTEE/CCFUl8t4BZEpVan/43ZqpFbxX/kunn9VjP4857wL4bL5JePku3GvqmaW3b4qvQUZet0B5zR3LcKDDyM=
+	t=1784645839; cv=none; b=OyFXT16/PIGx+TS0Hq21d0MGMihj98ohgte0bd6HrxPFcAabMIXW/3AhCHeLhmgthjsApIBy03K1J+eJX8znpn+O9dR9ixlP0rM/vYO3F1KFj/1Q1RUpGnE0r8fFzcgDMNpW59KQg/daL15eJaxp1e1u5hF7kXKTKpVPdtA+/eU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784644910; c=relaxed/simple;
-	bh=om9HkUyYtLgnLL87+pUPUSCVHE7jQC/wha0pFRcoiiA=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=NK2TSS9juhitzBd0twIvKUuVHfJ7R3zdD7SD3lJ/MJ1J9LzA6XitQrDWtswPMFpYYpmbNxiPa+03lX+P8Sdm84JFjceFsODXd9KkoqX0u93JBtjYLBHYEyF+mPm/zlTEsrcyJxBZYBT37RFZhoNQoZQ2mPXhAg2XaGKGy53ZWfE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=a9sMx8Tl; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1784645839; c=relaxed/simple;
+	bh=XSSPNqcWaWwFE0k6ohelXUQ2e/0TNSYoCc/cSMKanb8=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=H3DUhCRBevsXL8eb0EcVl8vke7MkzhKBIHl6sprsEI2OjnQ8B90yUbenu79FnHl4JAq0dkqkOuHnPav2JLbo13CQ7wbbr4zaAmQmfWa8RYU2LsxPICYUlO/W/jcmrg1SAoRyuJiPWGubG7ysJ+9Yx1y/wP/hK8bv9g9R/pxAVrc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WgSfBD18; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="a9sMx8Tl"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9F6E1F00AC4;
-	Tue, 21 Jul 2026 14:41:38 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WgSfBD18"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 629C01F000E9;
+	Tue, 21 Jul 2026 14:57:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784644908;
-	bh=cbjfsvMUtOM597sXFYSy4LMyCCKlivTlN6bg0GYZbig=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date;
-	b=a9sMx8TlLU2rGUvpHoxNcYyMDx/kraTiQ25aOr5lNDOnmZaWccTNeAMKsWTIfXblc
-	 Ep70skfYp6qXTCsQAA/kIwueiGEp4e7ZiYRPJYNmsnVW0fa1/6Hqf2cphc4qIQ78FB
-	 xwK26DYrQnIMXproaXvVtR8riyHv/FmjZBQcRCCIz3L556YvFQ4sx8zc70mUNJOkMX
-	 y/G46IpQzBIjnS7IWD7Id+pYRhSq5V+YCyP0xMGyXBEG0eqv0Jj39WI9et8O6YsJoq
-	 /1FpVoYDunZEVtzPRG/eSUAmdBc/cDXEl8oWt4qLu7jZ4duE3/2D5WVldSKMmAXEVv
-	 0Uyp0VWxjGPYQ==
-X-Mailer: emacs 30.2 (via feedmail 11-beta-1 I)
-From: Aneesh Kumar K.V <aneesh.kumar@kernel.org>
-To: Leon Romanovsky <leon@kernel.org>
-Cc: iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev,
-	Robin Murphy <robin.murphy@arm.com>,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
-	Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
-	Steven Price <steven.price@arm.com>,
-	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Jiri Pirko <jiri@resnulli.us>,
-	Jason Gunthorpe <jgg@ziepe.ca>,
-	Mostafa Saleh <smostafa@google.com>,
-	Petr Tesarik <ptesarik@suse.com>,
-	Alexey Kardashevskiy <aik@amd.com>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Xu Yilun <yilun.xu@linux.intel.com>,
-	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org,
-	Jason Gunthorpe <jgg@nvidia.com>,
-	Michael Kelley <mhklinux@outlook.com>
-Subject: Re: [PATCH v8 02/23] dma-pool: fix page leak in
- atomic_pool_expand() cleanup
-In-Reply-To: <20260721123107.GJ110966@unreal>
-References: <20260717180442.110954-1-aneesh.kumar@kernel.org>
- <20260717180442.110954-3-aneesh.kumar@kernel.org>
- <20260721123107.GJ110966@unreal>
-Date: Tue, 21 Jul 2026 20:11:34 +0530
-Message-ID: <yq5aqzkw76ch.fsf@kernel.org>
+	s=k20260515; t=1784645838;
+	bh=X2h5bpBFH+7npqK5spxeWS5f6StKH/bYQuKFvgmb620=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=WgSfBD18nsRmmrJbieRHbTVnpndeVh/tD76HjXec6RXFgapMArMcgsdjnj3ag9o+z
+	 gRz5mmhtSTZHrmYy5ISeCHWFYOTq7G1IN/AumKXpJns+CtzdzduEIoHtuwoerwhrZ9
+	 o+cHYXj3YXpuJr8AKYsSMPqZD19eTtjcpMp2+2Cc2bAb4BA8C0oZQBcuuIci3G3RQU
+	 ifhNI6BDFoki0rZELq87NBJ4bnC/uCZ1USuEO623tHk4h8hxI+SQsbYiOmFvQARDUZ
+	 nwmxkjaQnS2o0Ipn8VUe3e09evZb5SLADluS5GaT349oximkYtUuU/T1Q9kT98BPoX
+	 VnzApXzpWL2iw==
+Message-ID: <45118388-cf5e-4407-b2a2-ec67727cc4a4@kernel.org>
+Date: Tue, 21 Jul 2026 16:57:03 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 01/22] mm: drop unused __mm_flags_set_mask_bits_word()
+To: Kevin Brodsky <kevin.brodsky@arm.com>, linux-mm@kvack.org
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+ Lorenzo Stoakes <ljs@kernel.org>, "Liam R. Howlett" <liam@infradead.org>,
+ Vlastimil Babka <vbabka@kernel.org>, Mike Rapoport <rppt@kernel.org>,
+ Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>,
+ Pasha Tatashin <pasha.tatashin@soleen.com>,
+ Russell King <linux@armlinux.org.uk>,
+ Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
+ Ryan Roberts <ryan.roberts@arm.com>, linux-arm-kernel@lists.infradead.org,
+ Huacai Chen <chenhuacai@kernel.org>, loongarch@lists.linux.dev,
+ "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+ Helge Deller <deller@gmx.de>, linux-parisc@vger.kernel.org,
+ Madhavan Srinivasan <maddy@linux.ibm.com>,
+ Michael Ellerman <mpe@ellerman.id.au>, linuxppc-dev@lists.ozlabs.org,
+ Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
+ Albert Ou <aou@eecs.berkeley.edu>, linux-riscv@lists.infradead.org,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Gerald Schaefer <gerald.schaefer@linux.ibm.com>, linux-s390@vger.kernel.org,
+ "David S. Miller" <davem@davemloft.net>,
+ Andreas Larsson <andreas@gaisler.com>, sparclinux@vger.kernel.org,
+ Richard Weinberger <richard@nod.at>,
+ Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+ Johannes Berg <johannes@sipsolutions.net>, linux-um@lists.infradead.org,
+ Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
+ "H. Peter Anvin" <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>,
+ Peter Zijlstra <peterz@infradead.org>, Ning Sun <ning.sun@intel.com>,
+ x86@kernel.org, tboot-devel@lists.sourceforge.net,
+ Ard Biesheuvel <ardb@kernel.org>,
+ Ilias Apalodimas <ilias.apalodimas@linaro.org>, linux-efi@vger.kernel.org,
+ Vishal Moola <vishal.moola@gmail.com>, Alistair Popple <apopple@nvidia.com>,
+ "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+ linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+References: <20260714-remove_pgtable_cdtor-v1-0-44be8a7685d7@arm.com>
+ <20260714-remove_pgtable_cdtor-v1-1-44be8a7685d7@arm.com>
+From: "David Hildenbrand (Arm)" <david@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=david@kernel.org; keydata=
+ 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
+ qIws/H2t
+In-Reply-To: <20260714-remove_pgtable_cdtor-v1-1-44be8a7685d7@arm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Leon Romanovsky <leon@kernel.org> writes:
+On 7/14/26 16:03, Kevin Brodsky wrote:
+> Commit 39f8049cd49f ("mm: update coredump logic to correctly
+> use bitmap mm flags") added coredump-specific helpers for the
+> remaining masked mm-flags update users.
+> 
+> That left __mm_flags_set_mask_bits_word() without any callers.
+> This is a special-purpose helper that is unlikely to be useful for
+> other purposes; best to remove it.
+> 
+> Assisted-by: Codex:GPT-5.5
+> Signed-off-by: Kevin Brodsky <kevin.brodsky@arm.com>
+> ---
 
-> On Fri, Jul 17, 2026 at 11:34:20PM +0530, Aneesh Kumar K.V (Arm) wrote:
->> atomic_pool_expand() frees the allocated pages from the remove_mapping
->> error path only when CONFIG_DMA_DIRECT_REMAP is enabled.
->> 
->> When CONFIG_DMA_DIRECT_REMAP is disabled, failures after page allocation,
->> such as gen_pool_add_virt(), jump to remove_mapping and return without
->> freeing the pages.
->> 
->> Move __free_pages(page, order) out of the CONFIG_DMA_DIRECT_REMAP block so
->> that cleanup paths always release the allocation.
->> 
->> Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
->> Tested-by: Michael Kelley <mhklinux@outlook.com>
->> Tested-by: Mostafa Saleh <smostafa@google.com>
->> Signed-off-by: Aneesh Kumar K.V (Arm) <aneesh.kumar@kernel.org>
->> ---
->>  kernel/dma/pool.c | 10 +++++++---
->>  1 file changed, 7 insertions(+), 3 deletions(-)
->> 
->> diff --git a/kernel/dma/pool.c b/kernel/dma/pool.c
->> index 2b2fbb709242..b0303efbc153 100644
->> --- a/kernel/dma/pool.c
->> +++ b/kernel/dma/pool.c
->> @@ -81,6 +81,7 @@ static int atomic_pool_expand(struct gen_pool *pool, size_t pool_size,
->>  {
->>  	unsigned int order;
->>  	struct page *page = NULL;
->> +	bool leak_pages = false;
->>  	void *addr;
->>  	int ret = -ENOMEM;
->>  
->> @@ -115,8 +116,10 @@ static int atomic_pool_expand(struct gen_pool *pool, size_t pool_size,
->>  	 */
->>  	ret = set_memory_decrypted((unsigned long)page_to_virt(page),
->>  				   1 << order);
->> -	if (ret)
->> +	if (ret) {
->> +		leak_pages = true;
->>  		goto remove_mapping;
->> +	}
->>  	ret = gen_pool_add_virt(pool, (unsigned long)addr, page_to_phys(page),
->>  				pool_size, NUMA_NO_NODE);
->>  	if (ret)
->> @@ -130,14 +133,15 @@ static int atomic_pool_expand(struct gen_pool *pool, size_t pool_size,
->>  				   1 << order);
->>  	if (WARN_ON_ONCE(ret)) {
->>  		/* Decrypt succeeded but encrypt failed, purposely leak */
->> -		goto out;
->> +		leak_pages = true;
->
-> Instead of doing this dance with temporal variable, change "goto out" to
-> be "return true".
->
+Acked-by: David Hildenbrand (Arm) <david@kernel.org>
 
+-- 
+Cheers,
 
-I didn't follow the return true part. A failure in
-set_memory_encrypted() or set_memory_decrypted() requires the pages to
-be leaked, so this is not the only call site that sets leak_pages =
-true. There is a similar case a few lines above.
-
-
->
->>  	}
->>  remove_mapping:
->>  #ifdef CONFIG_DMA_DIRECT_REMAP
->>  	dma_common_free_remap(addr, pool_size);
->>  free_page:
->
-> Remove free_page label, and change leftover of "goto free_page" to be
-> "goto out"
->
->> -	__free_pages(page, order);
->>  #endif
->> +	if (!leak_pages)
->> +		__free_pages(page, order);
->
-> Put these checks under out label and rely on page != NULL as a marker.
-> if (page)
->  __free_pages(page, order);
->
->>  out:
->>  	return ret;
->>  }
->> -- 
->> 2.43.0
->> 
->> 
-
--aneesh
+David
