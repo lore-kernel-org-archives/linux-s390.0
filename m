@@ -1,45 +1,45 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 250F93803DB
-	for <linux-s390@vger.kernel.org>; Wed, 22 Jul 2026 15:34:02 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 90B7B35E1C0
+	for <linux-s390@vger.kernel.org>; Wed, 22 Jul 2026 15:38:02 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784734443; cv=none; b=KLRm8twMqBGkYR9/a0Ye/erInrl0invQL1+oinAoA80qFaZDSgT3rbkDebWBPCfxCifaWw8Rr3WVtg5H+vEFjhG01UA47Ws95sdW9HOq5voV0RCGi2rvsxuwp21+S7RXeEhlV8JhdYcmD8Ur2TO58k7Twxb7rosigCug7pyYfzY=
+	t=1784734684; cv=none; b=pt9zrsMu1+WIBhdvYdd0GL5/XO3GgsAGy+Bu7bCUNr0MEl9KavAht20hwLY2Pr0YIp6jvTRfcR7fwQcMlNAbXbI1hY0fZ9k4y6EZKZ8PMIBbDc3YRejXIum2y+gRp8bbUs9o+2ydsSJ39B+nso5IDgf62HobohAvKLkekk7Q+pg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784734443; c=relaxed/simple;
-	bh=IaZ3qwueQsXpZEsIfnuUukrkyb/QwE8aJnB4dGAkEMI=;
+	s=arc-20240116; t=1784734684; c=relaxed/simple;
+	bh=JC+ojsu6m0t3KwLU1C3V6hnctlRLRUnESzQMPkTuJMg=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=X+kUr2KY+PE66B+PBHt54oSrJH8xfKdYXt7vQ/Sayx7DwuYHBkaOyDrTMz4CzrVS8bUStN1qb51LQyK6ZmDTOePxjv2zjqh3l9ojm49bRKGsE5IS/qA4pjfZ7GzLdxUGGhRQxBUwSuS2hUtqn1bETuCU42qUWNoVUzCK+T5PQT0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KdxialXh; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=KzBCbmGjBhiSkgws81aiWzjTd726yX3K4i4HtCE8PKu++PD1Z5c72wN660OX3mcWOny8zgf3BbqzPveu9MgRLtZGh3qFHMBU54w0dUxNSFTG/iARP1jCgawIWJhu9gwjdecAqFsuQHpFLDhgnC2vC0vsgxtQU5TcHejD/P7y2Jk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ja5l78Ov; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KdxialXh"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B45251F000E9;
-	Wed, 22 Jul 2026 15:34:01 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ja5l78Ov"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA2681F000E9;
+	Wed, 22 Jul 2026 15:38:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784734442;
-	bh=IPX1iYEjQSdnBmkCtYlTXgWP7uaTmSBMvT6HwJJWLIo=;
+	s=k20260515; t=1784734682;
+	bh=4/37yUVwj9gBzQbY/bzJw+YjrvwdU9lEA9HtkLrCbj8=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=KdxialXhqr9QezgbSN8e0/eKn2hS2F+rSb+ioDxXBuW3SaMXs9+kZmmL5sEmGR2K7
-	 DudD+Qi50+5AVFh35TNHXtKPUeBYDf+jAHEHqBP+aRoEh1qE1c8QDcTX6erABvCRA2
-	 4oSfsNK6eyZeajakJr2gqVVCr0N4UheoW2NaFFC8QENJU5FftAneOzwX6dKfs99Tic
-	 SO+FhOa8w2OObO2GZdaifmG7AG1nu7mx0SHs781xAYJkgAG1NQNe3hyjHE2HfQa//r
-	 rHpcX/OOIV3KDYyTFoFHkIKCkAWCxo/NJdUh0BLT5LJh81f2H1qkGNstd4H9HR85Hl
-	 q/Z3w1pUUwxDQ==
+	b=ja5l78Ov4dTjW1N3jh+OBs9JnIAHcJ1qBjiBnR5lvts7NGijHV4jfazv8gQwqzj/L
+	 jwfCA1eamOGiWSkAEZKGhg9x6QbCT2ZT7fPQaf8itItzi1tGRQp7dGw08wjXYKpQh1
+	 bCo1Xz6qD5ZnP75hJkoek/IK0jQN99Xeus8qrc1wofDemKgAPYSM/dj3loMaVsuTZO
+	 ZCxLaqlui7ukB894jm/H7uz/SDWONLdUeTZfXCPawrC1QzAbx+VcCH7+FXgoQ4Vwtj
+	 r+TGEsk0d/xtZKHuLwwu0AgRoni3rm1II5Ma0THvXt0OQ/FMTh7wb9ifGJSJUaQnJ4
+	 TNZqCbPIr/ksw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 1/1] s390/zcrypt: Close speculative mem read
- possibility
+Subject: Re: [PATCH 3/3] s390/dasd: Make FBA discard support conditional per
+ device
 Reply-To: sashiko-reviews@lists.linux.dev
-To: "Harald Freudenberger" <freude@linux.ibm.com>
-Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
- Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>
-In-Reply-To: <20260722152025.119391-2-freude@linux.ibm.com>
-References: <20260722152025.119391-1-freude@linux.ibm.com>
- <20260722152025.119391-2-freude@linux.ibm.com>
+To: "Volkan Unal" <vunal@linux.ibm.com>
+Cc: "Vasily Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
+ Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
+In-Reply-To: <20260722151651.292621-4-vunal@linux.ibm.com>
+References: <20260722151651.292621-1-vunal@linux.ibm.com>
+ <20260722151651.292621-4-vunal@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 22 Jul 2026 15:34:01 +0000
-Message-Id: <20260722153401.B45251F000E9@smtp.kernel.org>
+Date: Wed, 22 Jul 2026 15:38:01 +0000
+Message-Id: <20260722153801.DA2681F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -50,88 +50,103 @@ Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
 
 New issues:
-- [High] In `_zcrypt_send_ep11_cprb`, `array_index_nospec()` is used withou=
-t a prior bounds check against `AP_DOMAINS`, silently aliasing out-of-bound=
-s domains to domain 0 and bypassing administrative permission checks.
+- [Medium] Physical FBA devices can falsely inherit discard support if they=
+ bind to a bus_id previously used by a virtual FBA device.
 
 Pre-existing issues:
-- [High] Administrative CPRBs with domain =3D=3D AUTOSEL_DOM completely byp=
-ass the perms->adm permission check in `_zcrypt_send_cprb` and `_zcrypt_sen=
-d_ep11_cprb`.
+- [High] Processing a discard or write zeroes request via `dasd_fba_free_cp=
+()` causes a NULL pointer dereference when accessing `bio->bi_io_vec`.
 --
 
---- Patch [1]: [PATCH v2 1/1] s390/zcrypt: Close speculative mem read possi=
-bility ---
-commit de8272723358b7baff06b29b44fe219b26350d5e
-Author: Harald Freudenberger <freude@linux.ibm.com>
-s390/zcrypt: Close speculative mem read possibility
+--- Patch [3]: [PATCH 3/3] s390/dasd: Make FBA discard support conditional =
+per device ---
+commit 87109ad16dbff96168935ae6a9f15a26e6baaf51
+Author: Volkan Unal <vunal@linux.ibm.com>
 
-This patch addresses a speculative execution out-of-bounds read by adding
-array_index_nospec() to the domain value extracted from user-controlled
-CPRB structs before it is used as an array index.
+s390/dasd: Make FBA discard support conditional per device
+   =20
+This commit replaces the static discipline->has_discard flag with dynamic
+per-device feature checks. Discard support is conditionally enabled only for
+virtual FBA devices (6310/9336), while physical FBA devices (3880/3370) will
+report no discard support.
 
-> diff --git a/drivers/s390/crypto/zcrypt_api.c b/drivers/s390/crypto/zcryp=
-t_api.c
-> index f57189c2b839e..593aace5fc484 100644
-> --- a/drivers/s390/crypto/zcrypt_api.c
-> +++ b/drivers/s390/crypto/zcrypt_api.c
-> @@ -879,6 +879,7 @@ static long _zcrypt_send_cprb(u32 xflags, struct ap_p=
-erms *perms,
+> diff --git a/drivers/s390/block/dasd.c b/drivers/s390/block/dasd.c
+> index 3181c06d91ce3..3e009217c130d 100644
+> --- a/drivers/s390/block/dasd.c
+> +++ b/drivers/s390/block/dasd.c
+> @@ -327,7 +327,7 @@ static int dasd_state_basic_to_ready(struct dasd_devi=
+ce *device)
+>  	 */
+>  	lim.dma_alignment =3D lim.logical_block_size - 1;
 > =20
->  	if (perms !=3D &ap_perms && domain < AP_DOMAINS) {
+> -	if (device->discipline->has_discard) {
+> +	if (dasd_get_feature(device->cdev, DASD_FEATURE_DISCARD) > 0) {
+>  		unsigned int max_bytes;
+> =20
+>  		lim.discard_granularity =3D block->bp_block;
+> diff --git a/drivers/s390/block/dasd_fba.c b/drivers/s390/block/dasd_fba.c
+> index 029acb83ecab6..b28661b7c0446 100644
+> --- a/drivers/s390/block/dasd_fba.c
+> +++ b/drivers/s390/block/dasd_fba.c
+[ ... ]
+> @@ -162,8 +172,9 @@ dasd_fba_check_characteristics(struct dasd_device *de=
+vice)
+>  	if (readonly)
+>  		set_bit(DASD_FLAG_DEVICE_RO, &device->flags);
+> =20
+> -	/* FBA supports discard, set the according feature bit */
+> -	dasd_set_feature(cdev, DASD_FEATURE_DISCARD, 1);
+> +	/* Virtual and EDEV FBA supports discard, set the according feature bit=
+ */
+> +	if (cdev_is_virtual_or_edev(cdev))
+> +		dasd_set_feature(cdev, DASD_FEATURE_DISCARD, 1);
 
-[Severity: High]
-This is a pre-existing issue, but does this logic allow administrative
-CPRBs with domain =3D=3D AUTOSEL_DOM to bypass the perms->adm permission
-check entirely?
+[Severity: Medium]
+Will physical FBA devices inherit discard support if they bind to a bus_id
+previously used by a virtual FBA device?
 
-If a user submits a CPRB request with an administrative command code and se=
-ts
-the target domain to AUTOSEL_DOM, this condition evaluates to false.
+If a virtual device is unbound, the devmap persists in memory with the
+DASD_FEATURE_DISCARD bit set. If a physical FBA device is subsequently bound
+to the same subchannel, this code doesn't explicitly clear the bit, which
+might cause the physical device to incorrectly advertise discard support.
 
-The perms->adm evaluation is skipped, and the kernel later selects a queue
-based solely on the user's usage permissions in zcrypt_check_queue().
-
->  		if (ap_msg.flags & AP_MSG_FLAG_ADMIN) {
-> +			domain =3D array_index_nospec(domain, AP_DOMAINS);
->  			if (!test_bit_inv(domain, perms->adm)) {
->  				rc =3D -ENODEV;
->  				goto out;
+Should there be an else branch to clear the feature bit for physical device=
+s?
 
 [ ... ]
-
-> @@ -1079,6 +1080,7 @@ static long _zcrypt_send_ep11_cprb(u32 xflags, stru=
-ct ap_perms *perms,
-> =20
->  	if (perms !=3D &ap_perms && domain < AUTOSEL_DOM) {
-
-[Severity: High]
-This is a pre-existing issue, but does this similarly skip the admin check
-for EP11 CPRBs if domain =3D=3D AUTOSEL_DOM?
-
->  		if (ap_msg.flags & AP_MSG_FLAG_ADMIN) {
-> +			domain =3D array_index_nospec(domain, AP_DOMAINS);
+> @@ -763,7 +774,6 @@ static struct dasd_discipline dasd_fba_discipline =3D=
+ {
+>  	.owner =3D THIS_MODULE,
+>  	.name =3D "FBA ",
+>  	.ebcname =3D "FBA ",
+> -	.has_discard =3D true,
+>  	.check_device =3D dasd_fba_check_characteristics,
 
 [Severity: High]
-Does this use of array_index_nospec() map out-of-bounds domains to domain 0?
+This is a pre-existing issue, but does dasd_fba_free_cp() crash when
+processing discard or write zeroes requests?
 
-The guard condition for this block in _zcrypt_send_ep11_cprb() checks
-domain < AUTOSEL_DOM, but array_index_nospec() bounds against AP_DOMAINS.
+If the kernel is booted with the fixedbuffers parameter (initializing
+dasd_page_cache), dasd_fba_free_cp() unconditionally enters the segment loo=
+p:
 
-If a user provides a domain value between AP_DOMAINS and AUTOSEL_DOM - 1, t=
-he
-array_index_nospec() call will forcefully mask the out-of-bounds domain to =
-0.=20
+drivers/s390/block/dasd_fba.c:dasd_fba_free_cp() {
+    ...
+	if (!dasd_page_cache)
+		goto out;
+    ...
+	rq_for_each_segment(bv, req, iter) {
+    ...
+}
 
-Will this result in checking perms->adm for domain 0 instead of the request=
-ed
-domain, potentially allowing an authorization bypass if the user has admin
-privileges for domain 0?
+Since discard and write zeroes requests have no data payload, bio->bi_io_vec
+is NULL, which will cause a NULL pointer dereference.
 
->  			if (!test_bit_inv(domain, perms->adm)) {
->  				rc =3D -ENODEV;
->  				goto out;
+Does this iteration need a blk_rq_bytes() or bio_has_data() check before
+traversing the segments?
+
+>  	.do_analysis =3D dasd_fba_do_analysis,
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260722152025.1193=
-91-2-freude@linux.ibm.com?part=3D1
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260722151651.2926=
+21-1-vunal@linux.ibm.com?part=3D3
