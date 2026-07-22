@@ -1,156 +1,126 @@
-Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 145F128FFF6;
-	Wed, 22 Jul 2026 03:47:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.118
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 17CB230C164;
+	Wed, 22 Jul 2026 07:07:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784692073; cv=none; b=qgbbl+Q9YN6CT4vPl7kJiwSaqhPY6KLcVjwz4TvHze6EMcW6tQjk7D8HYFNoq2Cynf+Vl7wVWQ/5vUJCqGlWD/diWtKdefAyT9cSeIDkltw5IKpQM7EOpUTfJcyXqDlNlxhb8uqoIjCTS5Ql0ta95+z3evCxRZ7YipHk2SeUaK8=
+	t=1784704031; cv=none; b=kI8PGLxS7fGRKIXfmLaihLEHyUJ7z8MzCLdqrRZbTjj9BLCoJsapMLpPkXMZKGN5oxCvy9x2md3cTcaIhH6J/2IxzOU7IIyCuRZ7P2vxt4ZKuanbx4iZ4R/4JgSo7RHXS5E52HB/nzb/1jr6B+dIsATo2LDozs6AXdYl5MHNt9Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784692073; c=relaxed/simple;
-	bh=U5orYbkn7aAXqsiQ0r8ZE2YgklsSx9sVL827kt2SKYo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Ljqt92kJimSPvYtxzLhn8SCejajYmihWkeG/3odGtYGgmmCFAWR9zhgOX7201n2DKE6v6m6MqKoWZdEs+Clh7Hn2m+CuNvUTsHR1vVnSi915yqH9Ij7PvBnCI0UGATm0Eoh3HVTPHBckYvwwtsfwcCPvliNKONX0Avi3jwwGiYM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=s21uDTcD; arc=none smtp.client-ip=115.124.30.118
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1784704031; c=relaxed/simple;
+	bh=M6rd/wvm3LuvSAYvyPEu14wGul3N+uGiTHIKOw6eG6k=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=qjfEQLRhxbAI/EhIq50caDX5SnuTSaiv+1KGmiqLZCs6jRaZP/jmmE9RBbasJ1TxXc8QOpWum727aHCCRZ8tKXXzE3ysWKztttVW5tnntFgrIfnSFMB9uJpuUdIInJ60AjhtWNM5r2gkKeakw9+9OqCbSArYrV5ctQTz69pzzBA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=cmaIdTZQ; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="s21uDTcD"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1784692062; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
-	bh=DdS7iV0fw22ioV9moVyPfHztNR68dF8K57N0I2joKNU=;
-	b=s21uDTcD3VrW9l1M0JeIeRvvJ2Hgms8uE80W4NsOpqjay6s1vp5+obyF3QFP991NFJj4lqBgAv9YObkitqxG3HUeHfrvRzgEleWpcH570376j6L4QShXIelw49rL6rS2tYf8jLfHH1b/RjWXNPRYtIGokTCGqOfVKT19Ea2QyeY=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R111e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037009110;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=15;SR=0;TI=SMTPD_---0X7c0hKr_1784692060;
-Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0X7c0hKr_1784692060 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Wed, 22 Jul 2026 11:47:41 +0800
-Date: Wed, 22 Jul 2026 11:47:40 +0800
-From: Dust Li <dust.li@linux.alibaba.com>
-To: Ibrahim Hashimov <security@auditcode.ai>, alibuda@linux.alibaba.com,
-	wenjia@linux.ibm.com, davem@davemloft.net, edumazet@google.com,
-	kuba@kernel.org, pabeni@redhat.com
-Cc: tonylu@linux.alibaba.com, guwen@linux.alibaba.com, horms@kernel.org,
-	linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org
-Subject: Re: [PATCH net] net/smc: validate peer CDC cursor against RMBE size
- before accepting it
-Message-ID: <amA9XGOWH3z4Z1fu@linux.alibaba.com>
-Reply-To: dust.li@linux.alibaba.com
-References: <20260720170717.11425-1-security@auditcode.ai>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="cmaIdTZQ"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66M5BeVB3147767;
+	Wed, 22 Jul 2026 07:06:55 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=M4sSuU
+	kIvsqMX+riGT3pYgHVklSJ/VpUcUN95pvf0Ko=; b=cmaIdTZQULclJX4G+yXMQZ
+	DvbDlCe00stxHXNtX/4r4mJ9o73n2vZXUqYxxI3gmIiPUh0FrDh3zKoJ7Zb90AKF
+	k4n5ROdMRQ3Auy2Cpgja+oEl5C6NQmcai7AfxPCk6wP8L0sIu7ZicarWY+xep+du
+	15lHAnQw/gTsOzE6vfM/nkIbC83U9u8G+ii0Yab+1FiewjeiO8NSE/jztxAYoaYV
+	9wg3zq6WldkrXZEeq8v3ap0ZonvSA58uSHcTTJWYEGr/KkXtBRWOnWShye/YfdDR
+	TNF846X9spqTaHao2rnBzjseucOumyQfoK/vVsbQwJ3rRCbBykYNeoh6f/zb5c/Q
+	==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fg7abgrdt-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 22 Jul 2026 07:06:54 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66M74dsK001931;
+	Wed, 22 Jul 2026 07:06:53 GMT
+Received: from smtprelay06.wdc07v.mail.ibm.com ([172.16.1.73])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fgp1gdwqc-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 22 Jul 2026 07:06:53 +0000 (GMT)
+Received: from smtpav01.wdc07v.mail.ibm.com (smtpav01.wdc07v.mail.ibm.com [10.39.53.228])
+	by smtprelay06.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66M76qAP48365956
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 22 Jul 2026 07:06:52 GMT
+Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E747458063;
+	Wed, 22 Jul 2026 07:06:51 +0000 (GMT)
+Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8EAAB5804B;
+	Wed, 22 Jul 2026 07:06:41 +0000 (GMT)
+Received: from [9.123.4.151] (unknown [9.123.4.151])
+	by smtpav01.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 22 Jul 2026 07:06:41 +0000 (GMT)
+Message-ID: <30ee395a-2005-4915-9766-ae2b0afdcd5d@linux.ibm.com>
+Date: Wed, 22 Jul 2026 12:36:38 +0530
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260720170717.11425-1-security@auditcode.ai>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next v4 0/3] net/smc: transition to RDMA core CQ
+ pooling
+To: Jakub Kicinski <kuba@kernel.org>, "D. Wythe" <alibuda@linux.alibaba.com>
+Cc: wenjia@linux.ibm.com, wintera@linux.ibm.com, dust.li@linux.alibaba.com,
+        tonylu@linux.alibaba.com, guwen@linux.alibaba.com, davem@davemloft.net,
+        netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-rdma@vger.kernel.org, leonro@nvidia.com, pabeni@redhat.com,
+        edumazet@google.com, sidraya@linux.ibm.com, jaka@linux.ibm.com,
+        oliver.yang@linux.alibaba.com
+References: <20260716113745.65234-1-alibuda@linux.alibaba.com>
+ <20260721175309.321b6503@kernel.org>
+Content-Language: en-US
+From: Mahanta Jambigi <mjambigi@linux.ibm.com>
+In-Reply-To: <20260721175309.321b6503@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzIyMDA2MSBTYWx0ZWRfX6kgtUdkYe7cg
+ 2PT/7IDtw7f+2XOELr/nL1ErnpTXkdcV0+HgA3hYMYlXtoH5v6JJXvN+4UR/dwtOiuTAh9JnMsO
+ NOdD1wCqcpgf8KfaC8+qE4AoD0WHv45SnA14v3TwkHT447aHT5E8qyRNyEUCpy2TCCYXqJ2Ye90
+ PNcpX9Dzg6vQ66gVPGkb/Bnp0H3S++b6KhIVjRKjzAoyVgaUx3+GpVeas6IJInHD58Y5ecLn4ym
+ GMlpiCBM0wQSyc5ObD+02NCB1jnuXLrFw0YZCYARrTxDwjCjplveH7bz0Mtj0ITzRW50qQR45av
+ KM38JUGPECOyL7x6No2M/C6096OVKT64VYxsKJH7ZVMHgLF9MCh83TcQItG+1P4OmjdVJ1sS0js
+ F9AUQE/Jw36RR7nkrtgxwb3eee37jzkMAo54WD8jTrapE5W1Mt02pVjOqFMF+1wP3DKNHA9wP0G
+ rjHXwAM/hQKAIXtGVAA==
+X-Authority-Analysis: v=2.4 cv=F7ZnsKhN c=1 sm=1 tr=0 ts=6a606c0e cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+ a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=6Ov3Vrx_pWbtEMIe9AgA:9
+ a=QEXdDO2ut3YA:10
+X-Proofpoint-ORIG-GUID: cG2Yq2lLpREDXD9qC0dYjjtGOv4O8sXA
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzIyMDA2MSBTYWx0ZWRfXwO3AAuEThC79
+ BrLOZjerMqUnixvNhcy8QOZ3S8+ZnUW/bjRSSk5kD1lTyF5m6gK2l6nxSSXCOGO2czDGg2FAcrU
+ JDOUc3Sg0pJfWvBMZpIaKMHtusH2+jI=
+X-Proofpoint-GUID: zvSbQwGaamGDTvO0BA6rDJA8h-GIIvvk
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-07-22_02,2026-07-21_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ spamscore=0 phishscore=0 bulkscore=0 clxscore=1011 priorityscore=1501
+ impostorscore=0 lowpriorityscore=0 suspectscore=0 malwarescore=0 adultscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607220061
 
-On 2026-07-20 19:07:17, Ibrahim Hashimov wrote:
-
-Hi Ibrahim,
-
-I believe Bryam already sent a similar patch to the mailist and I have already
-reviewed it.
-
-https://lore.kernel.org/netdev/20260705-b4-disp-28a1bbca-v4-1-be089b98acc6@proton.me/
-
-Best regards,
-Dust
 
 
->smc_cdc_cursor_to_host() converts the wire-format producer/consumer
->cursor of an incoming CDC message into a host smc_host_cursor. It rejects
->a cursor that goes backwards, but never checks that the cursor's count is
->inside the buffer it indexes. Per smc_host_cursor ("an offset in an
->RMBE") and the invariant smc_curs_add() enforces for every local advance
->(0 <= count < size), a valid cursor count must be < size; the wire cursor
->is peer-controlled and was never checked against that.
->
->smcr_cdc_msg_to_host() accepts the producer and consumer cursors, and the
->unbounded value feeds smc_curs_diff() in smc_cdc_msg_recv_action(), which
->computes new->count - old->count without clamping against size. A peer
->that puts an out-of-range prod.count on the wire (e.g. 0x7fffffff) drives
->bytes_to_rcv far past rmb_desc->len -- the very invariant the comment
->above the atomic_add() claims but does not enforce.
->
->smc_rx_recvmsg() then trusts bytes_to_rcv as the amount of valid RMB
->data. Its first copy chunk is safely bounded by rmb_desc->len -
->cons.count, but the second chunk copies (copylen - chunk_len) bytes from
->offset 0, and copylen came from the inflated readable -- an out-of-bounds
->read of the RMB's backing (v)malloc allocation, copied straight to the
->receiving process via _copy_to_iter(). This is a remote kernel-memory
->disclosure driven by a malicious SMC-R peer, needing no local privilege
->on the victim. The same unbounded count also reaches
->smc_cdc_handle_urg_data_arrival() (base + urg_curs.count - 1) -- a
->second, narrower OOB read.
->
->Fix it where the wire cursor is accepted, mirroring the cursor-sanity
->idiom two lines above: reject any incoming cursor whose count is >= the
->size of the buffer it will index. smc_cdc_cursor_to_host() gains a size
->parameter; smcr_cdc_msg_to_host() passes conn->rmb_desc->len for the
->producer cursor and conn->peer_rmbe_size for the consumer cursor. This
->bounds it at its single origin instead of patching every downstream
->consumer. SMC-D (smcd_cdc_msg_to_host()) does not use this helper and is
->a separate, out-of-scope gap.
->
->Reproduced on a v6.19 KASAN kernel (SMC-Rv2 over soft-RoCE): a peer
->emitting prod.count=0x7fffffff triggers a vmalloc-out-of-bounds read in
->_copy_to_iter() via smc_rx_recvmsg(), returning ~960 KB of RMB-adjacent
->kernel heap to userspace; an in-range cursor transfers cleanly. With the
->fix the out-of-range cursor is dropped before it reaches
->conn->local_rx_ctrl.prod, and the reproducer returns rc=0 with no report.
->
->Fixes: 5f08318f617b ("smc: connection data control (CDC)")
->Cc: stable@vger.kernel.org
->Signed-off-by: Ibrahim Hashimov <security@auditcode.ai>
->Assisted-by: AuditCode-AI:2026.07
->---
-> net/smc/smc_cdc.h | 15 +++++++++++++--
-> 1 file changed, 13 insertions(+), 2 deletions(-)
->
->diff --git a/net/smc/smc_cdc.h b/net/smc/smc_cdc.h
->index 696cc11f2303..f07bbef47073 100644
->--- a/net/smc/smc_cdc.h
->+++ b/net/smc/smc_cdc.h
->@@ -221,6 +221,7 @@ static inline void smc_host_msg_to_cdc(struct smc_cdc_msg *peer,
+On 22/07/26 6:23 am, Jakub Kicinski wrote:
+> On Thu, 16 Jul 2026 19:37:42 +0800 D. Wythe wrote:
+>> This series transitions SMC-R completion handling to RDMA core CQ pooling
+>> via the ib_cqe API. The new completion model improves scalability by
+>> allowing per-link completion processing across multiple cores and enables
+>> DIM-based interrupt moderation.
 > 
-> static inline void smc_cdc_cursor_to_host(union smc_host_cursor *local,
-> 					  union smc_cdc_cursor *peer,
->+					  unsigned int size,
-> 					  struct smc_connection *conn)
-> {
-> 	union smc_host_cursor temp, old;
->@@ -235,6 +236,14 @@ static inline void smc_cdc_cursor_to_host(union smc_host_cursor *local,
-> 	if ((old.wrap == temp.wrap) &&
-> 	    (old.count > temp.count))
-> 		return;
->+	/* count is an offset into the RMBE and must always stay inside
->+	 * it (see smc_curs_add()); the peer is untrusted, so reject an
->+	 * out-of-range wire cursor the same way an out-of-order one is
->+	 * already rejected above, instead of letting it drive
->+	 * bytes_to_rcv / the urgent-byte offset past the buffer end
->+	 */
->+	if (temp.count >= size)
->+		return;
-> 	smc_curs_copy(local, &temp, conn);
-> }
-> 
->@@ -246,8 +255,10 @@ static inline void smcr_cdc_msg_to_host(struct smc_host_cdc_msg *local,
-> 	local->len = peer->len;
-> 	local->seqno = ntohs(peer->seqno);
-> 	local->token = ntohl(peer->token);
->-	smc_cdc_cursor_to_host(&local->prod, &peer->prod, conn);
->-	smc_cdc_cursor_to_host(&local->cons, &peer->cons, conn);
->+	smc_cdc_cursor_to_host(&local->prod, &peer->prod,
->+			       conn->rmb_desc->len, conn);
->+	smc_cdc_cursor_to_host(&local->cons, &peer->cons,
->+			       conn->peer_rmbe_size, conn);
-> 	local->prod_flags = peer->prod_flags;
-> 	local->conn_state_flags = peer->conn_state_flags;
-> }
->-- 
->2.50.1 (Apple Git-155)
+> There are 2 fixes for SMC on the list waiting for review.
+> It'd also be great to get someone to review this series, preferably
+> from IBM. There are 7 reviewers/maintainers for this code.
+> Pinging y'all is getting really tedious.
+
+Sorry for the delay, I was tied up with other work. I'm reviewing the
+series now.
+
