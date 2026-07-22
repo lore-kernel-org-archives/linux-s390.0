@@ -1,105 +1,40 @@
-Received: from mail-pj1-f54.google.com (mail-pj1-f54.google.com [209.85.216.54])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3184A3F9F2F
-	for <linux-s390@vger.kernel.org>; Wed, 22 Jul 2026 19:59:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E812C257851;
+	Wed, 22 Jul 2026 22:32:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784750355; cv=none; b=c8OsIZSaGIvqdjlKNO6WmE6YjTMnlRnFlf/b698JYQUOrEodqHGuugMTgBCRtrWlfndxiN+5Zuzl+YPl5hk9Fhu2BGytM50l6N8WqPWOCSSA34ylcsNFd+RRCCeAfcANGn8PbF2zo1t3ksdX25MNjHRR6bAV6s0lsRSC8ttE85I=
+	t=1784759554; cv=none; b=lpfH624a36DhFy2uLpjvk1/FReMpuZQkpok0fWIhHiqdvTbLy9subTBMA0U6D+fTd+aBl0ypQSHNpCOZbws3knt8cESYDv3kFjOhxFBhnB6Zn2rtYN3ArpUPBrSlEQmkwgWCPz1obBlgLUDzPrqzeia6ROwQWJcTtXGGQ0TLqeo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784750355; c=relaxed/simple;
-	bh=QzKGPAMMMcYp8C3yznRY+b0+buzB7XKjOZxs2Zi0vAE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=OmKpyGPOTGdNKz5Z1OsX1vJNvlHvIjUbxC6bXoAn9P9o0Gq8Wwm2oO9CTOkhO2HE4P+IHBw2BCoYCKV7Mx5Qi7bvqsH7VzFY3pkyX/mLEwOCCb8by98C0z2UKj2wHh5yFXphsmhJui9X3LE6+7sBM0nkmmGs5EcZfe0koaw2MY4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca; spf=pass smtp.mailfrom=ziepe.ca; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=eBukXR/E; arc=none smtp.client-ip=209.85.216.54
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
+	s=arc-20240116; t=1784759554; c=relaxed/simple;
+	bh=uprKlxS7ZQgDSIPrPLdW+RRlKXr48VRHjjV3dpQ4qc8=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To; b=C4DZyvyn9Hh6NSTZYzY9QIn80jHYLe3OEmpYsNUlN1tzTN2XxevmSMgzwG6aEmY1cFXzN63qV3zNEx2cGcdD+3xfGelsBjB0j4uTl+7pninuDTjvTnI44YDdd5HBQJiIsXbc7yAVyoqeZ4hqfYCfC42Pu/QhdrtJMgM6JGanYpA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GutrhelS; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="eBukXR/E"
-Received: by mail-pj1-f54.google.com with SMTP id 98e67ed59e1d1-38e041ea211so10836894a91.0
-        for <linux-s390@vger.kernel.org>; Wed, 22 Jul 2026 12:59:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google; t=1784750353; x=1785355153; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=EEIQnXJI41GVGpHCEj7IDcqZ+AmiiYPwRk5ZlYk7rZE=;
-        b=eBukXR/EsjSSPdjGAt6oue4EPdv626XfkH8m3FKgn91ujkV/y6GptDL2sICWDF0t8d
-         OntmcgG0cUrI17tvqqFVW+eeoxJraybSXYIT0sqsovZGBTg0PmzHOZERuYqJdEn8Yd25
-         Py0s55El45+7/jSvGkGe14TnCIKksIn8caOC5LhFx1nZTPN3rYsWpmYzBkKd++ByaX2o
-         eVCuw7zH4an6RUQQAd6wEhPl4RhdMbeqTrxhL9ovkZG7BY+nHqfsX8kg64D0gcXVEb2e
-         AeDvBD6HWk2jCO7wDKD4+Q0jSjJJDww2a1imWAyC3W1tGOcmx+LClRZY/Mpip3AbEiR9
-         BQ6A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784750353; x=1785355153;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=EEIQnXJI41GVGpHCEj7IDcqZ+AmiiYPwRk5ZlYk7rZE=;
-        b=qYtejB8ivore9ckeTIJ4LT3YOym2EfYUttwrsBjG83xpyejAuuN1rbBRl6n0PcqUX6
-         CGBErMsDikcJYLfEisb4p3An6yqJBtiTs+XntDgZLwlIisvYThbBRn/gwbzOIaxMyk09
-         yS9LwzQ2QRJPKDqS6zb5V/rFqFmzWqXEohI7gO+cImJoOqP92Un3YpBy0uXRiZYJqJ5P
-         U3h393s/gJ3ogZczHRP+V6sE/YvOpAFKZUKM4/+Kzv2IQyeTfIS020kmsjLc+QlCD03P
-         jwOhvI+0ZRRFdvYJMTQ7eB/XYFhqASPB/rtxTa/tJPxImDZQ3DFTX4sbpID1DkXWRrUC
-         tBaA==
-X-Forwarded-Encrypted: i=1; AHgh+RpY5QM1CRY7vnxCQWHzkfm3RoIxEltEQm9nnvjX3OgHYxlGrbPbbZHeRzbP4dPcZB5zeDuI25Q67uMn@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy+KkKClNi78vbjYRYusQZYsnLZxSnk0ZjCS6pQO4dTzyB4he/y
-	9kOuEXRF24I1jsOHkUXcWy05ir7KOuXdfw2L7WUZN1DKF+PxXZN06PMaPbXn+RfsRTs=
-X-Gm-Gg: AR+sD11198ZDDGu9vSAjnfA1CEHnuEBQI7lrJlzONteOx4o5glzoffHkwReA8QX6QxO
-	x7vyuTEat9ERzahQyVVaKSh3CHweOgYMiKGc+t/FH8JQUN+OP4vWCK+NR3v7tYO6yecNRmR5WVv
-	8zEZNH5K6v6W5SbSFTn1e+kdeU6GXtudcgbbCj40SBnNCCXpve0mg0LsvSDBiLZsFdH6MUlH7CF
-	TQX5xCcLPHBQZFVFfVX+gL0XWpSqVnmV19p/5tifKW1rsWM7miLMcQb2ePvJk+n9fZUqoFIi7PL
-	SDbwvrJRVjj6KiYULKbOaSvX7lXZvl8qxfh5m9jZI32toBwIbRNMbnvzJgIiUQwx3ToZtLFMB9a
-	BMwN0fV5qpJ+pJ/eJlxpi7pEeOrxU4mm4bhTxfVICCC7nBnoaWB2N
-X-Received: by 2002:a17:90b:28c5:b0:38e:7080:b4c0 with SMTP id 98e67ed59e1d1-38ec6979bc6mr98413a91.10.1784750353408;
-        Wed, 22 Jul 2026 12:59:13 -0700 (PDT)
-Received: from ziepe.ca ([216.228.115.8])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-13d13003f12sm14809771c88.2.2026.07.22.12.59.12
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 22 Jul 2026 12:59:12 -0700 (PDT)
-Received: from jgg by NV-9X0Z6D3.localdomain with local (Exim 4.97)
-	(envelope-from <jgg@ziepe.ca>)
-	id 1wmd60-000000002O0-1hvF;
-	Wed, 22 Jul 2026 16:59:12 -0300
-Date: Wed, 22 Jul 2026 16:59:12 -0300
-From: Jason Gunthorpe <jgg@ziepe.ca>
-To: Leon Romanovsky <leon@kernel.org>
-Cc: "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>, iommu@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	linux-coco@lists.linux.dev, Robin Murphy <robin.murphy@arm.com>,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
-	Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
-	Steven Price <steven.price@arm.com>,
-	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Jiri Pirko <jiri@resnulli.us>, Mostafa Saleh <smostafa@google.com>,
-	Petr Tesarik <ptesarik@suse.com>,
-	Alexey Kardashevskiy <aik@amd.com>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Xu Yilun <yilun.xu@linux.intel.com>, linuxppc-dev@lists.ozlabs.org,
-	linux-s390@vger.kernel.org,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org,
-	stable@vger.kernel.org, Michael Kelley <mhklinux@outlook.com>
-Subject: Re: [PATCH v8 01/23] dma-direct: return struct page from
- dma_direct_alloc_from_pool()
-Message-ID: <amEhEKQW0_HJ9cLN@ziepe.ca>
-References: <20260717180442.110954-1-aneesh.kumar@kernel.org>
- <20260717180442.110954-2-aneesh.kumar@kernel.org>
- <20260721115456.GI110966@unreal>
- <yq5atsps77c5.fsf@kernel.org>
- <20260721142921.GN110966@unreal>
- <yq5ao6g0750v.fsf@kernel.org>
- <20260721153321.GO110966@unreal>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GutrhelS"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 683A81F000E9;
+	Wed, 22 Jul 2026 22:32:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1784759552;
+	bh=Y4UyDyYrkdpFTGRWoaBdCuW6YZ57p9qBdn9SogG3Io4=;
+	h=Date:From:To:Cc:Subject:In-Reply-To;
+	b=GutrhelSr1fKLeVRLLZGTTeWAcehTMHr2VU2rQUAwUjMvpygKNseMwky+2zn0r6rI
+	 nyK2dmRRJ0ZHpxlAJWFER2aPHlHlcX/VvlbARxCjPnXs81kU39gXgOsqoJnAmGzJ6k
+	 WVfkUbYV/g5mjwmcOWitZXmkYis0x+5ZrZIEWL2U7veLfOe7XE6Wkny1U8f7bpsfgZ
+	 sfYbI9oMwjTiY6ZkTmIhSSfTBgo/1dDgTlmIPOyEaz4yLawRykZ1QuYof5ZGp6qQm6
+	 Z/Zk6Jam3PSnTy9rESSRo7JJoJx8ZaqIt4CcPsQLLF7EFp5yjqxXs/mcfZTwwKiBSX
+	 DtHKcRBdw4cwQ==
+Date: Wed, 22 Jul 2026 17:32:31 -0500
+From: Bjorn Helgaas <helgaas@kernel.org>
+To: Farhan Ali <alifm@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-pci@vger.kernel.org, alex@shazbot.org, schnelle@linux.ibm.com,
+	mjrosato@linux.ibm.com, stable@vger.kernel.org
+Subject: Re: [PATCH v21 1/4] PCI: Allow per function PCI slots to fix slot
+ reset on s390
+Message-ID: <20260722223231.GA801609@bhelgaas>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -108,22 +43,84 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260721153321.GO110966@unreal>
+In-Reply-To: <95f6e8f0-19b7-434f-a39c-7c07df67650f@linux.ibm.com>
 
-On Tue, Jul 21, 2026 at 06:33:21PM +0300, Leon Romanovsky wrote:
-
-> Something like, but probably void* needs to be phys_addr_t:
+On Thu, Jul 16, 2026 at 11:15:33AM -0700, Farhan Ali wrote:
 > 
-> static inline struct page *dma_phys_to_page(void *addr)
-> {
-> #ifdef CONFIG_DMA_DIRECT_REMAP
-> 	return vmalloc_to_page(addr);
-> #else
-> 	return virt_to_page(addr);
-> #endif
-> }
+> On 7/15/2026 4:34 PM, Bjorn Helgaas wrote:
+> > > On s390 systems, which use a machine level hypervisor, PCI devices are
+> > > always accessed through a form of PCI pass-through which fundamentally
+> > > operates on a per PCI function granularity. This is also reflected in the
+> > > s390 PCI hotplug driver which creates hotplug slots for individual PCI
+> > > functions. Its reset_slot() function, which is a wrapper for
+> > > zpci_hot_reset_device(), thus also resets individual functions.
+> > > 
+> > > Currently, the kernel's PCI_SLOT() macro assigns the same pci_slot object
+> > > to multifunction devices.
+> > PCI_SLOT() doesn't assign pci_slot objects; I guess they're assigned
+> > by some code that*uses* PCI_SLOT().  Since this says "currently," I
+> > assume you're changing that code, so we should mention where it is to
+> > help readers out.
+> 
+> Thanks for your response! I can re-word the commit message, how about
+> something like this:
+> 
+> Currently, the pci_create_slot() assigns the same pci_slot object to
+> multifunction devices.
+> 
+> > I see some Sashiko comments; those also need to be addressed or
+> > explained away.
+> 
+> Regarding Sashiko's comments for this patch, it mentions 2 issues:
+> 
+> New issues: - [High] Unconditional enablement of `per_func_slot` on S390
+> breaks standard PCI hotplug (e.g., pciehp, shpchp) slot matching and resets.
+> 
+> I believe this is not applicable as on s390 we don't support any other PCI
+> hotplug drivers given the unique nature of zPCI architecture.
 
-I don't like this, we don't know for sure the addr will be in a vmap
-and this will fail if it isn't.
+Makes sense.
 
-Jason
+> Pre-existing issues:
+> - [High] Lockless access to `dev->slot` in `pci_dev_reset_slot_function` can
+> lead to Use-After-Free if a hotplug driver is concurrently unbound.
+> 
+> Sashiko identified this as a pre-existing issue, so I don't think should be
+> addressed with this patch.
+
+Right, we don't need to fix pre-existing issues in this series, but I
+meant there were Sashiko comments on other patches in this series that
+look like they *should* be addressed, e.g.,
+
+  [PATCH v21 2/4] PCI: Avoid saving config space state if inaccessible
+
+    - [High] pci_dev_save_and_disable() skips disabling the device if
+      config space is momentarily inaccessible, potentially leaving
+      DMA and interrupts enabled.
+    - [Low] String literal passed to a non-const `char *` pointer in
+      `pci_dev_config_accessible()`.
+
+    https://lore.kernel.org/all/20260630170754.093021F00A3A@smtp.kernel.org
+
+  [PATCH v21 3/4] PCI: Fail FLR when config space is inaccessible
+
+    - [High] Un-ratelimited pci_warn() in pci_dev_config_accessible()
+      allows an attacker to flood the host kernel log.
+    - [High] Early bailout in pcie_flr() when config space is
+      inaccessible skips the Function Level Reset and the subsequent
+      wait, allowing device assignment to continue without reset,
+      leaking state.
+
+    https://lore.kernel.org/all/20260630171310.F25D41F000E9@smtp.kernel.org
+
+  [PATCH v21 4/4] PCI/MSI: Enable memory decoding before restoring MSI-X messages
+
+    - [Medium] Blindly restoring a stale PCI_COMMAND value introduces
+      a TOCTOU race window that can erase concurrent modifications to
+      the register.
+
+    https://lore.kernel.org/all/20260630171255.20BD91F000E9@smtp.kernel.org
+
+Annoyingly, on v22, Sashiko complained about *different* things and
+didn't complain about some of these even though the v22 patches are
+identical to v21.  Sigh.
