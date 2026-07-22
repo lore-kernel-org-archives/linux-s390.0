@@ -1,142 +1,132 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lf1-f50.google.com (mail-lf1-f50.google.com [209.85.167.50])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 63CAD40F725;
-	Wed, 22 Jul 2026 12:27:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E21702367D3
+	for <linux-s390@vger.kernel.org>; Wed, 22 Jul 2026 13:01:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784723237; cv=none; b=FQSsu8a+10QbSOVkuSiYNBrzBngRI3XafO6NAdBtJZ82cmDlJMf1iOlipFHgwYcdpdODJkFFBnIjiP+7g+Z2DWn4CA33kiuaUaYk+LIVu6juQZy4B/Eg3hlfpb+4MWRPPmWdASEG1vHwragtjFhRpTP0B4XEJSwJCMHcZ98GnVA=
+	t=1784725300; cv=none; b=AuuWDRqCf3fUD+hIFSchwVeqOei4HeSHxv3n09zdECr1Jc7kZ9Qt5tslwckR3X5zh5dtWLLfigcW2KFoYqbBkfzKAm/CCywf1yi+E8rLUJSReeUkD7st6iPyj4pMaMXVJG+ItW7lzHvCEv8WkoykHyvLzLAk9tmwFcb138y/ago=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784723237; c=relaxed/simple;
-	bh=1lt5AIB1aE5HgOVHRdWyhADuOgJn6DcEw9y9oZ5GZV4=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=oz6sKjcP+ACvfD+TMMN6CYoYNCcqnnpeaCQtu2P8aXmyJ3V52+4pJBnUEpKOH6HxlYMDggxKIlZibixSwmxjjK0S0G9Qk534SoLHPs4v1OYHTQfFfaUSG6ogxxuTQGLuHe+n/TZwZhxV6hTMGzSL2kF/IXcRm3yAJte5EfNvxcc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Es0EHmtn; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1784725300; c=relaxed/simple;
+	bh=wQrqwaqAAAHfV06ufuWJnrTQGXAusn8DdkbMG8nkRrM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=DQ72gefPrixIMY1JmusUYnS5uslmlTaJ1a4dir7Uz9j26QYb6oojEdSNeESu6wrKDmYzaedNo78KP4tDS5Ej8X3PnVUPlc8pyt2pBnZx694L0FFaampntGPTQeGVIwVKQKgQIA1rUx1S4nKlBu+sCqahedgUVuGPIHj30bSNuts=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20251104.gappssmtp.com header.i=@resnulli-us.20251104.gappssmtp.com header.b=lSwOyNcO; arc=none smtp.client-ip=209.85.167.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Es0EHmtn"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66M9BuFt3566083;
-	Wed, 22 Jul 2026 12:27:09 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=m4AMEIy4CZedwhaT8P6I7fvQ3zUjkF9eLEKWF7/nL
-	b8=; b=Es0EHmtnpbWQR1gYlDYPSVWfwP+24G8zxksK+aJ9tXHPPGQ3B/Ulu/TY8
-	+MFiS8uHs3LA+f5eASiWvpC5fa/hgDP9N0jLbk3d1SskkfbrO/4C8G7G/UUSJI2J
-	kMZAfZVEWhERubxh7ukK/3VZ82hlqpjT33tq5gqWS+c3fDjXfZK4OMhIIRGgTwc5
-	Q9p6YKg9gKMBA+xcdcNdL2k6UR2qgM+vIIdKsiJ0sqx/Se3G0JgJe8ge3W3a4w+4
-	OHa11CukZQCgTIbHUl5Ay3blLSYXVbEroWA8hZj2QGPMVwO7+ioHb0+Fu8kX4FGU
-	85yw9xkF0/QZNpwHYwBa/uSe5UzBQ==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fg78g9k4s-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 22 Jul 2026 12:27:08 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66MCJb3t002973;
-	Wed, 22 Jul 2026 12:27:07 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fgnah7615-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 22 Jul 2026 12:27:07 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66MCR3fw42402248
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 22 Jul 2026 12:27:03 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B902C200B9;
-	Wed, 22 Jul 2026 12:27:03 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5FF50200B8;
-	Wed, 22 Jul 2026 12:27:03 +0000 (GMT)
-Received: from dhcp-9-224-66-107.ehn-de.ibm.com (unknown [9.224.66.107])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 22 Jul 2026 12:27:03 +0000 (GMT)
-From: Wenjia Zhang <wenjia@linux.ibm.com>
-To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>,
-        Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>,
-        Andrew Lunn <andrew+netdev@lunn.ch>
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sidraya Jayagond <sidraya@linux.ibm.com>,
-        Mahanta Jambigi <mjambigi@linux.ibm.com>, aswin@linux.ibm.com,
-        Alexandra Winter <wintera@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>, Wenjia Zhang <wenjia@linux.ibm.com>,
-        Wen Gu <guwen@linux.alibaba.com>,
-        "D. Wythe" <alibuda@linux.alibaba.com>,
-        Tony Lu <tonylu@linux.alibaba.com>,
-        Dust Li <dust.li@linux.alibaba.com>
-Subject: [PATCH net-next v2] MAINTAINERS: Update SHARED MEMORY COMMUNICATIONS (SMC) maintainer entries
-Date: Wed, 22 Jul 2026 14:27:01 +0200
-Message-ID: <20260722122701.20514-1-wenjia@linux.ibm.com>
-X-Mailer: git-send-email 2.50.1
+	dkim=pass (2048-bit key) header.d=resnulli-us.20251104.gappssmtp.com header.i=@resnulli-us.20251104.gappssmtp.com header.b="lSwOyNcO"
+Received: by mail-lf1-f50.google.com with SMTP id 2adb3069b0e04-5b015b2d792so14075190e87.3
+        for <linux-s390@vger.kernel.org>; Wed, 22 Jul 2026 06:01:36 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=resnulli-us.20251104.gappssmtp.com; s=20251104; t=1784725295; x=1785330095; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=1S07zOcIxbdMXlT+EiHelCK8nLPptceTFpPa+ZORBrc=;
+        b=lSwOyNcOHc/w7R3T8cuA3HUrsb5sm0KVk3Zgf/bHte8+MsvMQWOu/k6YYNsknhN+eJ
+         x/ak3a6Sdq/54Y/gjWURvy1djNP28eRYLaclncqhM9M0+S4k2e8SvzCNiw/+80J3qseg
+         8UKphu7S/SNXYeLTd7psvuPqXFPN2uLreJhNZxWnUr9kkE0qc8F/kwZZrBru0kn9+o0/
+         CbPWFHan74qCCeeWiTtik2vovy5iTo/jqqR70oPHpDas0g+fB5lOm/m0PZvJTTEkxeed
+         rieaAXRpnYz1CB2oCPMn0nRhjdF14S20w/5lSobcVPvuofdK13l7ekrq4bz24Ab3FeCP
+         m8sg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784725295; x=1785330095;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=1S07zOcIxbdMXlT+EiHelCK8nLPptceTFpPa+ZORBrc=;
+        b=Q3lqXqWzPvKIIKw59rNsmEgSwIBvalxbq0jAK0HT76RbOtBPuHAoD2eGIiF8+A/T2O
+         Yv9rsF5qqQ5jCVynYDHK4JBHaK+LJyaI9HXE7zznHgGN54ujUj03U59BMLM7BHfKpAKV
+         oi6Nt7GOxgT9m6OcW+k5TpHX0be2NOFrkpr0/SzWTr2Z72OYq0AbWBWl5MQf8e5jcUMU
+         ohZBcepW3pzSN6kf5YJOLt4g2B9fAmbwUMBGkPbomS/crrTVTvcXeGVmPiZY0GCM559S
+         WdAHDJTms+9vftVsoDIaLKuLgX5xQ6nCOkqVQ6cWBFlt0kzxboVVUZm55nsJHS/yiR/V
+         xQlw==
+X-Forwarded-Encrypted: i=1; AHgh+RqPX6WUvH8fHPS7RD4TFArF5LuYiw2Q5qvZFh/wK2hW0ZtdL+5+o1udkQtGyiGfFDl9flQqyXodwG+v@vger.kernel.org
+X-Gm-Message-State: AOJu0Yz1rgfovx8HM+DFHfxZGWFavmyKcU/tb5iN4CGftez/bSGHxJVm
+	peV5JH2evphqiRkOwrW7HGqD/LuLrE4M9JbPaqW90/W+U2khx5DMhWcmGpmBV/oHzrk=
+X-Gm-Gg: AR+sD136DqEkLMRzbwkUjKd85rDMkklUZYgOTAhFyQ7ty1KPISEoYrxDnBGPAuV8Tch
+	fSkyovI4RdWt807Xdo1wpJWNT3dbMn+q7nX+KIIequdi1C7lJRC/zta+Y/Ek6NNnNhVykncbkaa
+	ldjrxLWY1k3qJk00um3fiTYNFTWBpKIyUBvZ5AJLmeAw62XWpMKq8QRtk4LFkh1iY/WOy5R82kn
+	RcS+QekfHjfoPsDB0JncPvnVDzrIpLT/tNJSzuKHX91Q8WYc5ga+isO2a676kD1bSLxFpQxZ+FI
+	gDNG7rJ+m4kgqMCnrEKj4E/zvh5rGX8JPiQhO+FaNB8M3zsR42oWNl26M6uubkNJAN42B+jDK2P
+	G6xpFifhlueOxsypCsd/XU5sWG9a+W1E6/HEWienp+pWn3a6VXkJ7pOcqQOyMZTP6FG6AmHyByy
+	8Rg2NTMZJz03OB
+X-Received: by 2002:a05:6512:10d2:b0:5ae:c34c:aefe with SMTP id 2adb3069b0e04-5b28fad60c6mr5115853e87.62.1784725294622;
+        Wed, 22 Jul 2026 06:01:34 -0700 (PDT)
+Received: from localhost ([140.209.217.211])
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5b2a9e45344sm451183e87.64.2026.07.22.06.01.33
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 22 Jul 2026 06:01:33 -0700 (PDT)
+Date: Wed, 22 Jul 2026 15:01:30 +0200
+From: Jiri Pirko <jiri@resnulli.us>
+To: Leon Romanovsky <leon@kernel.org>
+Cc: linux-rdma@vger.kernel.org, cgroups@vger.kernel.org, 
+	netdev@vger.kernel.org, linux-s390@vger.kernel.org, linux-kselftest@vger.kernel.org, 
+	jgg@ziepe.ca, parav@nvidia.com, mbloch@nvidia.com, cmeiohas@nvidia.com, 
+	roman.gushchin@linux.dev, bvanassche@acm.org, zyjzyj2000@gmail.com, shuah@kernel.org, 
+	tj@kernel.org, mkoutny@suse.com, hannes@cmpxchg.org, alibuda@linux.alibaba.com, 
+	dust.li@linux.alibaba.com, sidraya@linux.ibm.com, wenjia@linux.ibm.com, 
+	yanjun.zhu@linux.dev, cui.tao@linux.dev
+Subject: Re: [PATCH rdma-next v3 00/14] RDMA: Make device names unique per
+ net namespace
+Message-ID: <amC-_-7QZCPckp6e@FV6GYCPJ69>
+References: <20260716132316.1495242-1-jiri@resnulli.us>
+ <amCm6nW8IttsHGgY@FV6GYCPJ69>
+ <20260722115323.GY110966@unreal>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzIyMDExOSBTYWx0ZWRfX6snL96brDSQL
- 6A5kB+agBg2+URrioq4TmZJ3eGbmKUoQEVHjvG4WsWrtwMJEhDCBPqrGACjhSjoG7qOOYaC8RvR
- yh4UIVzkNa1JM2yFuDW59s7BoGsber5L4LEzR83ForBiOu3Fg1bQMjPMQq/3qzu2ndy7+6LFq6M
- SH/EZnuoXirUfWwFK6fWChMgGTUbQoiEVzUQjM7vfmUZ+es/+POxC3ZLfW7vK+tJp2Jx3I0ewa5
- 27v8PpGKrbrgQ/fmxQbHAZbv84FekBpM9bJTmS+WaCjeG5Igj6WX2IbyMDxVzPr87McSbPeDkZQ
- OzOtWrEHHNnVqRDwMx6vU0DRQNI8O2wO6ihM9K3cxrVKP59Y2I8KEcIsrAw6ngkZtR830PBe30L
- C6S09+o67R5elyJW1ozxvdracM8L+qDpyVrY3I9JSNdkHIYhs+NAEV6jI4/x3SuUGxYgzLfePPO
- hFlBAgrRfMvA6TpMaCw==
-X-Proofpoint-GUID: V7WUvQjch_10IuBgfNp-ZGhmRKjgu52W
-X-Authority-Analysis: v=2.4 cv=MelcfZ/f c=1 sm=1 tr=0 ts=6a60b71d cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8 a=SRrdq9N9AAAA:8 a=VwQbUJbxAAAA:8
- a=9rZ5XDlJ3pyyg2uh-ysA:9
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzIyMDExOSBTYWx0ZWRfX9ZaLQw+W/pbb
- CHSwWR4i7Aryt36SdUpaKX3/qq+VxrvcG90LtnRJnNY2pAsKK5bB+FqrXHrAqrhEgqeBmTwqg/I
- Qo+W/YfGIQ6dRJWvwvidbWs1n+YI3F8=
-X-Proofpoint-ORIG-GUID: 2L-4-8v4jWQ-V1YTYq684XkSYT9kJF3l
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-07-22_03,2026-07-21_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- impostorscore=0 lowpriorityscore=0 priorityscore=1501 bulkscore=0 spamscore=0
- clxscore=1015 malwarescore=0 phishscore=0 adultscore=0 suspectscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607220119
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260722115323.GY110966@unreal>
 
-Due to a change in responsibilities, I can no longer serve as an SMC
-maintainer and need to be removed from the MAINTAINERS list.
+Wed, Jul 22, 2026 at 01:53:23PM +0200, leon@kernel.org wrote:
+>On Wed, Jul 22, 2026 at 01:19:00PM +0200, Jiri Pirko wrote:
+>> Thu, Jul 16, 2026 at 03:23:01PM +0200, jiri@resnulli.us wrote:
+>> >From: Jiri Pirko <jiri@nvidia.com>
+>> >
+>> >RDMA device names are unique system-wide today:
+>> >__ib_device_get_by_name() checks a requested name against every
+>> >registered device regardless of the network namespace it lives in.
+>> >A device in one network namespace therefore cannot use a name already
+>> >taken in another, even in exclusive netns mode (netns_mode=0) where
+>> >the two are otherwise isolated. Net devices have no such restriction -
+>> >their names only need to be unique within a network namespace.
+>> >
+>> >This series makes RDMA device names unique per network namespace,
+>> >matching net device semantics, and adapts the users that assumed
+>> >system-wide unique names.
+>> >
+>> >Scoping reuses the existing rdma_dev_access_netns() predicate, so
+>> >behavior only changes in exclusive mode:
+>> >  - shared mode (default): names stay unique system-wide, no change;
+>> >  - exclusive mode: names only need to be unique within a namespace;
+>> >  - CONFIG_NET_NS=n: everything is init_net, names stay system-wide
+>> >    unique.
+>> >
+>> >There are two users that cannot be made per-namespace and are
+>> >documented as known limitations instead of changed:
+>> >  - the rdma_cm configfs tree: configfs has no network namespace
+>> >    support, so it cannot represent two same-named devices;
+>> >  - SELinux ibendport labelling: endports are labelled by (device
+>> >    name, port) from a global policy; distinguishing same-named
+>> >    devices would need net namespace support in the SELinux policy
+>> >    language and tooling.
+>> >
+>> >Tested with the new rxe_netns_names kselftest added in the last patch.
+>> 
+>> This looks like good to go. All Sashiko findings are false positive or
+>> unrelated. Care to merge? Thanks!
+>
+>We usually take extra time before merging complex changes touching
+>core or UAPI code.
 
-To reflect these organizational changes, promote Mahanta Jambigi
-<mjambigi@linux.ibm.com> from reviewer to maintainer.
+Sure, I just wanted to let you know the ball is on your side. Take your
+time of course :)
 
-Acked-by: Mahanta Jambigi <mjambigi@linux.ibm.com>
-Signed-off-by: Wenjia Zhang <wenjia@linux.ibm.com>
----
- MAINTAINERS | 3 +--
- file        | 0
- 2 files changed, 1 insertion(+), 2 deletions(-)
- create mode 100644 file
-
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 1ab8736850ea..f60ccc62e710 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -24631,8 +24631,7 @@ SHARED MEMORY COMMUNICATIONS (SMC) SOCKETS
- M:	D. Wythe <alibuda@linux.alibaba.com>
- M:	Dust Li <dust.li@linux.alibaba.com>
- M:	Sidraya Jayagond <sidraya@linux.ibm.com>
--M:	Wenjia Zhang <wenjia@linux.ibm.com>
--R:	Mahanta Jambigi <mjambigi@linux.ibm.com>
-+M:	Mahanta Jambigi <mjambigi@linux.ibm.com>
- R:	Tony Lu <tonylu@linux.alibaba.com>
- R:	Wen Gu <guwen@linux.alibaba.com>
- L:	linux-rdma@vger.kernel.org
-diff --git a/file b/file
-new file mode 100644
-index 000000000000..e69de29bb2d1
--- 
-2.50.1 (Apple Git-155)
-
+Thanks!
