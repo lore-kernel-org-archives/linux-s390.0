@@ -1,225 +1,165 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E878339391
-	for <linux-s390@vger.kernel.org>; Wed, 22 Jul 2026 10:52:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 85EF5481AAE;
+	Wed, 22 Jul 2026 11:01:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784717563; cv=none; b=NH6QdveXY982dTH2OM+set8LEDJvPg3sF1YmHZ30wgIgLMCOzwBE9cDV5WU1RGzrLjkUATOC4uYW7PhRDNxG31JOrFYbSxXkqsMjeDE+7XWGV7kCpJ0CMws7KdIKrMT4PrZ4O9iUv1cNPwbQMitg0RFufEjz5/J2acqKi5Vt1W8=
+	t=1784718104; cv=none; b=L0IrM111snrul3OPHLbF6aMYWu7cNSomPU8RXvBwULHTxcUk3mLaTo4H05i2UnFfSRVKJSRE6yZUwvQYt91eh8HwGOW0+w0icDXEO2ZbEyZb98BtJgkosrQkph53fcfMfV9ftHCUyACAZh9DXlZKm1nbUZIAMv0fuMKDdO4F/Qg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784717563; c=relaxed/simple;
-	bh=mke9bSUV5X6Ksy90sjq+KxGr3kYrELXndoctO8TEMjc=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=p3EN225OEFW7IhHgdWcGBOTJFSMEDJ9WXQj1Sp5bwdMQqPoaimNj+YWOTdNBfzU8HgEgjN4nA4RemlWdhIos4qj8nIeZwVVWYkXyD74FQdQ2EHE7NX7GReng8mWSF+wo1aQeK21VMZwFWGuqSxyluPYM0n5psijQwgQaqhTOzx0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OSL3lH7g; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1784718104; c=relaxed/simple;
+	bh=9YaNevITp5zziLKtTkueKQrfLGXZmMVSfB0pQXoOJI4=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=bTnvWxNSSjRLDHL29SM8Af5kqcuQUlz3CW1+ld3FRIPqnBruZ7r4QquZO+OKn5gthWTuqkIdJpsdHQWAdC9OIMyeNSdNzTEz2j+Sa4JZ6u4Uu8ecB6By9EYu0+4JDyQW1jgKgbb4s3VQS6yKakqbNrdKxBeX72Zvi8LrRDfOqUY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=j/IMPHnd; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OSL3lH7g"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A13561F000E9;
-	Wed, 22 Jul 2026 10:52:41 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784717561;
-	bh=mcvMcrlccOPBMqDVK6r73wDn09JHoiBHsjh4WYDcy4Q=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=OSL3lH7gSEflytZOJXiU0lJ1KdYKhAFzPD9L5Z9L4OnO5zLLHWuU4krrzznynh4u2
-	 Fcv3t21c5bgdICQBa/BRBPo2YV6G1NOYXKlk+EanbQwgzZT6Wyl0n1Z4WYEv0B0Mcz
-	 lEtOUupE9UfBwu2MgmBS9F6hOIxw0C3pqzCTqDWxNLR6h7j/L7g0AZcjSy1kwhu83C
-	 AUjiamN+rx0mVK65hKUJwOGEjCTw4kzYK4hdgahxOb+7W9D5dPkrisAgVZia6UPG+z
-	 KpYPr4MrbQyW6GjNaXAtZb5dGUPHdl/sPzvFURZRdhB7oTzDalfuhMkxiUMTKm35rg
-	 /I27EfwyhEggA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] s390/dasd: Fix undersized format-check buffer
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Stefan Haberland" <sth@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>, "Heiko
- Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
-In-Reply-To: <20260722103704.1709668-1-sth@linux.ibm.com>
-References: <20260722103704.1709668-1-sth@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 22 Jul 2026 10:52:41 +0000
-Message-Id: <20260722105241.A13561F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="j/IMPHnd"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66M9C1ml3592016;
+	Wed, 22 Jul 2026 11:01:35 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=UvcPnd
+	rlYMa8S35/lSIPRT5TPd5cMCuiLuFhgPF5ijo=; b=j/IMPHnd3VJXMBPfwqI/xq
+	34frzBiFJQSjrBjy2rI++6RdHVBwjtE6CebGaRBkcY7+AVaCf8/6z8MapyFMSglc
+	9OeOJmyHZqa0A5UiZpCdfCD99xj+mha5Nt008vkCaM5HHt4ahqBKHt5vbWFPoqmp
+	KNldde9YVVsPod+km3RXGJ46e3TPunqt4loyUzs01gF6PlaL7UHvrXfFgycWv3ey
+	m8+zWQruxDU3Dg9sgqMnSadwMEmHwsFF8z7RvcInYLDzxq15WEnCmhS3reQHKzU+
+	0iBXQsOUMwNbynBp71rJMWnEIMiFkeb+WLCZcdNreuLVrPZUZ+93+DSsumoRpyYw
+	==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fg77k9asg-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 22 Jul 2026 11:01:34 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66MAngBr032515;
+	Wed, 22 Jul 2026 11:01:33 GMT
+Received: from smtprelay04.dal12v.mail.ibm.com ([172.16.1.6])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fgktq751u-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 22 Jul 2026 11:01:33 +0000 (GMT)
+Received: from smtpav06.dal12v.mail.ibm.com (smtpav06.dal12v.mail.ibm.com [10.241.53.105])
+	by smtprelay04.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66MB1WNC16057018
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 22 Jul 2026 11:01:32 GMT
+Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id AD11D5808A;
+	Wed, 22 Jul 2026 11:01:32 +0000 (GMT)
+Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 0BF235808D;
+	Wed, 22 Jul 2026 11:01:26 +0000 (GMT)
+Received: from [9.39.18.174] (unknown [9.39.18.174])
+	by smtpav06.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 22 Jul 2026 11:01:25 +0000 (GMT)
+Message-ID: <ea854b04-82c2-42af-a75f-2b2eec2ac224@linux.ibm.com>
+Date: Wed, 22 Jul 2026 16:31:24 +0530
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next] MAINTAINERS: Update SHARED MEMORY COMMUNICATIONS
+ (SMC) maintainer entries
+To: Wenjia Zhang <wenjia@linux.ibm.com>, David Miller <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>, Eric Dumazet <edumazet@google.com>,
+        Paolo Abeni <pabeni@redhat.com>, Andrew Lunn <andrew+netdev@lunn.ch>
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux390-list@tuxmaker.boeblingen.de.ibm.com,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sidraya Jayagond <sidraya@linux.ibm.com>, aswin@linux.ibm.com,
+        Alexandra Winter <wintera@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>, Wen Gu <guwen@linux.alibaba.com>,
+        "D. Wythe" <alibuda@linux.alibaba.com>,
+        Tony Lu <tonylu@linux.alibaba.com>,
+        Dust Li <dust.li@linux.alibaba.com>
+References: <20260722085705.56755-1-wenjia@linux.ibm.com>
+Content-Language: en-US
+From: Mahanta Jambigi <mjambigi@linux.ibm.com>
+In-Reply-To: <20260722085705.56755-1-wenjia@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Authority-Analysis: v=2.4 cv=HJXz0Itv c=1 sm=1 tr=0 ts=6a60a30e cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+ a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8
+ a=SRrdq9N9AAAA:8 a=VwQbUJbxAAAA:8 a=gUIg_fxKUUYeLYk5HKsA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzIyMDEwMyBTYWx0ZWRfX3cwNjSiVZuc7
+ 2EbGoinfLbEACTvBviRDMbWILue6VjEiiD4bzxVwvN5rKyMSAZMixf6yzLwW8ApgVql7R+RYRVF
+ 3BX5NJBEu3g5TuvhW/LKHVcRcPe0Kbf6TfIlwgZZB2IC7KZ1ItWDQpUyidh0wW/vyL6LgYYiT9T
+ XnjrZOVO8RH0nYpLk+fPjhOo72Wl2bj67xyMPZOv3M65CHvsoHtlkvOqeJ9zGAGQ8LEOrfAenIi
+ saeByChyUyboymHuIOBpGu7/lUKs25+RF9pl8uk8EfXAYGFfGtlIpiwu37l0PuqP419FZ3IFZeK
+ XPKGyM0VQ3fZsMRGDwKNB1/CgBMd+7/rREq9+qPd4/UB/CZPgyYiBFxLaJkn6GcsE1D5C3jFmts
+ k4GhdOrXLEG789GTbxk9Z2dXg/UHEbOvV76yROpwP3oVHAC2IgW5A8XGrD6nBOdKZWOCm0D2pw5
+ NzCkjtppYUSeaLgphyg==
+X-Proofpoint-ORIG-GUID: GEAo77438hLwA3xtFpg0yfSs0kKSZ8r7
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzIyMDEwMyBTYWx0ZWRfX8A99qo/ECPbi
+ KbPB59c02UTDjCxEuXVutcYpVNbtdw3AjRgF7NkAGhNnC326aLNX6rjW/gEZhNx5u6fTbWrums7
+ QWisZanbB1/dIH7oVCD6us5POs3cpG8=
+X-Proofpoint-GUID: 5Djy9ADd-gmZI3y6yLyjYdpt53BQxtqv
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-07-22_03,2026-07-21_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ bulkscore=0 priorityscore=1501 lowpriorityscore=0 suspectscore=0
+ malwarescore=0 impostorscore=0 clxscore=1015 phishscore=0 spamscore=0
+ adultscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2607220103
 
-Thank you for your contribution! Sashiko AI review found 5 potential issue(=
-s) to consider:
 
-Pre-existing issues:
-- [High] Mismatched allocation and free functions in the error path of `das=
-d_eckd_build_check_tcw()` cause a guaranteed NULL pointer dereference.
-- [High] In FICON transport mode (`tpm`), the `while` loop skipping trailin=
-g zeros causes out-of-bounds reads on the `fmt_buffer` array.
-- [High] The user-provided `result` field in `format_check_t` is uninitiali=
-zed by the kernel, allowing a logic bypass that causes an out-of-bounds mem=
-ory read and Information Leak.
-- [Medium] Unprivileged users can trigger a kernel warning splat (DoS) via =
-`BIODASDCHECKFMT` ioctl due to missing bounds check before a massive `kzall=
-oc`.
-- [Medium] Device reference counts are permanently leaked on the error path=
-s of request builder functions.
---
 
---- Patch [1]: [PATCH] s390/dasd: Fix undersized format-check buffer ---
-commit dfd4c2437bd8554cd6e6af49167ed3eb732910da
-Author: Stefan Haberland <sth@linux.ibm.com>
-Date:   Wed Jul 22 10:37:04 2026 +0000
+On 22/07/26 2:27 pm, Wenjia Zhang wrote:
+> Due to a change in responsibilities, I can no longer serve as an SMC
+> maintainer and need to be removed from the MAINTAINERS list.
+> 
+> To reflect these organizational changes, promote Mahanta Jambigi
+> <mjambigi@linux.ibm.com> from reviewer to maintainer.
 
-    s390/dasd: Fix undersized format-check buffer
-   =20
-    fmt_buffer_size in dasd_eckd_check_device_format() is declared as
-    int, even though one of the multiplicands, sizeof(struct eckd_count),
-    is a size_t. Compute the buffer size with check_mul_overflow() and
-    keep it in a size_t to prevent silent truncation and resulting memory
-    corruption.
+Acked-by: Mahanta Jambigi <mjambigi@linux.ibm.com>
 
-    Cc: stable@vger.kernel.org #4.7
+> 
+> Signed-off-by: Wenjia Zhang <wenjia@linux.ibm.com>
+> ---
+>  Kernels.code-workspace | 1 +
+>  MAINTAINERS            | 3 +--
+>  file                   | 0
+>  3 files changed, 2 insertions(+), 2 deletions(-)
+>  create mode 100644 Kernels.code-workspace
+>  create mode 100644 file
+> 
+> diff --git a/Kernels.code-workspace b/Kernels.code-workspace
+> new file mode 100644
+> index 000000000000..9e26dfeeb6e6
+> --- /dev/null
+> +++ b/Kernels.code-workspace
+> @@ -0,0 +1 @@
+> +{}
 
-> diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eck=
-d.c
-> index 74fe73b5738ab..d356a9f8f016f 100644
-> --- a/drivers/s390/block/dasd_eckd.c
-> +++ b/drivers/s390/block/dasd_eckd.c
+I believe this change happened by mistake. If yes, please remove it.
 
-[ ... ]
+> \ No newline at end of file
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index 1ab8736850ea..f60ccc62e710 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -24631,8 +24631,7 @@ SHARED MEMORY COMMUNICATIONS (SMC) SOCKETS
+>  M:	D. Wythe <alibuda@linux.alibaba.com>
+>  M:	Dust Li <dust.li@linux.alibaba.com>
+>  M:	Sidraya Jayagond <sidraya@linux.ibm.com>
+> -M:	Wenjia Zhang <wenjia@linux.ibm.com>
+> -R:	Mahanta Jambigi <mjambigi@linux.ibm.com>
+> +M:	Mahanta Jambigi <mjambigi@linux.ibm.com>
+>  R:	Tony Lu <tonylu@linux.alibaba.com>
+>  R:	Wen Gu <guwen@linux.alibaba.com>
+>  L:	linux-rdma@vger.kernel.org
+> diff --git a/file b/file
+> new file mode 100644
+> index 000000000000..e69de29bb2d1
 
-> @@ -3490,7 +3491,9 @@ static int dasd_eckd_check_device_format(struct das=
-d_device *base,
->  	rpt_exp =3D recs_per_track(&private->rdc_data, 0, cdata->expect.blksize=
-);
-> =20
->  	trkcount =3D cdata->expect.stop_unit - cdata->expect.start_unit + 1;
-> -	fmt_buffer_size =3D trkcount * rpt_max * sizeof(struct eckd_count);
-> +	if (check_mul_overflow(trkcount, rpt_max, &fmt_buffer_size) ||
-> +	    check_mul_overflow(fmt_buffer_size, sizeof(struct eckd_count), &fmt=
-_buffer_size))
-> +		return -EINVAL;
-> =20
->  	fmt_buffer =3D kzalloc(fmt_buffer_size, GFP_KERNEL | GFP_DMA);
-
-[Severity: Medium]
-This is a pre-existing issue, but missing a CAP_SYS_ADMIN check allows
-unprivileged users to trigger a warning splat here.
-
-Looking at drivers/s390/block/dasd_ioctl.c:dasd_ioctl_check_format(), cdata
-is populated from user space without a capability check:
-
-    if (copy_from_user(&cdata, argp, sizeof(cdata))) {
-        rc =3D -EFAULT;
-        goto out_err;
-    }
-
-This allows a user to control start_unit and stop_unit to request an
-extremely large allocation size. If the requested size exceeds
-KMALLOC_MAX_SIZE, this kzalloc() will fail and throw a WARN_ON_ONCE splat
-because it lacks __GFP_NOWARN.
-
-Since the sanity checks in dasd_eckd_format_sanity_checks() are performed
-later, should this ioctl require CAP_SYS_ADMIN like BIODASDFMT does, or
-should the size be capped earlier to avoid spamming OOM warnings?
-
->  	if (!fmt_buffer)
->  		return -ENOMEM;
-
-[Severity: High]
-This isn't a bug introduced by this patch, but does the error path in
-dasd_eckd_build_check_tcw() use the wrong free function?
-
-If dasd_eckd_build_check_tcw() fails, it branches to out_err:
-
-drivers/s390/block/dasd_eckd.c:dasd_eckd_build_check_tcw() {
-    ...
-    cqr =3D dasd_fmalloc_request(DASD_ECKD_MAGIC, 0, itcw_size, startdev);
-    ...
-out_err:
-    dasd_sfree_request(cqr, startdev);
-    return ERR_PTR(rc);
-}
-
-Because dasd_fmalloc_request() was used, cqr->mem_chunk is NULL. However,
-dasd_sfree_request() passes this to dasd_free_chunk():
-
-drivers/s390/block/dasd_int.h:dasd_free_chunk() {
-    chunk =3D (struct dasd_mchunk *) ((char *) mem - sizeof(struct dasd_mch=
-unk));
-    ...
-}
-
-Will this cause invalid pointer arithmetic and a subsequent NULL pointer
-dereference panic?
-
-[Severity: Medium]
-This is a pre-existing issue, but does the same error path leak the device
-reference count?
-
-Earlier in dasd_eckd_build_check_tcw(), the reference count is incremented:
-
-drivers/s390/block/dasd_eckd.c:dasd_eckd_build_check_tcw() {
-    ...
-    start_priv->count++;
-    ...
-}
-
-If an error occurs, out_err releases the request but does not decrement
-start_priv->count. Can this result in a permanent reference leak?
-
-[Severity: High]
-This isn't a bug introduced by this patch, but is there an out-of-bounds
-read when skipping trailing zeros?
-
-In drivers/s390/block/dasd_eckd.c:dasd_eckd_format_evaluate_tracks(), the
-while loop checks the array content before validating the bounds:
-
-    while (fmt_buffer[pos].record =3D=3D 0 &&
-           fmt_buffer[pos].dl =3D=3D 0) {
-        if (pos++ > max_entries)
-            break;
-    }
-
-When pos reaches max_entries, it evaluates fmt_buffer[pos] before the break
-condition is checked. Furthermore, the break condition executes pos++ again,
-leaving pos pointing up to 2 elements out of bounds.
-
-This out-of-bounds index is then passed to dasd_eckd_count_records() as
-start:
-
-    for (i =3D start; i < max; i++) {
-        if (i > start) {
-            if ((fmt_buffer[i].head =3D=3D head && ...
-
-Could this trigger an out-of-bounds read on kernel heap memory?
-
-[Severity: High]
-This is a pre-existing issue, but does an uninitialized user space value
-cause a logic bypass and information leak?
-
-In drivers/s390/block/dasd_ioctl.c:dasd_ioctl_check_format(), cdata is
-copied from user space without kernel initialization of cdata->result:
-
-    if (copy_from_user(&cdata, argp, sizeof(cdata))) {
-        ...
-
-Later, in drivers/s390/block/dasd_eckd.c:dasd_eckd_format_evaluate_tracks(),
-the index correction relies on this result field:
-
-    if (!cdata->result) {
-        i--;
-        pos--;
-    }
-
-If a user intentionally provides a non-zero cdata->result, this bypasses the
-index decrement. The loop leaves pos incremented out of bounds, and the
-out-of-bounds data is copied:
-
-    cdata->rec =3D fmt_buffer[pos].record;
-    cdata->blksize =3D fmt_buffer[pos].dl;
-    cdata->key_length =3D fmt_buffer[pos].kl;
-
-Since cdata is then copied back to user space, could this allow unprivileged
-users to leak kernel heap contents?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260722103704.1709=
-668-1-sth@linux.ibm.com?part=3D1
