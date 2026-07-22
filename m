@@ -1,118 +1,134 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 23D163E7BA1
-	for <linux-s390@vger.kernel.org>; Wed, 22 Jul 2026 08:28:57 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 78B6F3CB2FA;
+	Wed, 22 Jul 2026 08:35:34 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784708940; cv=none; b=CkcYFiEVN8Bw6YQNwgjfhvAeWe92Q7ADwUaN5ncdA7wZT/LFUy8Fprbvs3jB4emKQx8OYrBeoXCdiGK1GOLJ1hY+zgBmjdGUYAhF60v5aYXUg5+X1iym60oXEgalZcD2qJz2IVahI/hemxyRo1MErgzYYRh9abHr5wdj1+h+fvQ=
+	t=1784709335; cv=none; b=HCftFYgZolPcDSbwbhQfvnhWcEtPbJ7Yc3g/qLOdGHSn9m1aLy3bZKwEwS3/KaoyleaCxAAf5R9QTDS9L8bcRnIcRyTS7Fo9l59BGEbFJpaa7NDw1O20gH3nGGk1bKZWWeqj5PIjIh4shTECo4TMG9giDo0J+67jQ72JzLmyATw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784708940; c=relaxed/simple;
-	bh=hGVkM1r0yIld4/WQGt5WPZtpReinwtE66PfEclOeCfo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=tbylj2nO8JS0D6FuGISgSxSayuH2eocZ3DjEv0fSiML/tJVqVMRmMlq8awQ4RLsP+1nd5XxaU0sG6Q+oaAU/GUHlR0UEbNyBUHefE0wPgvbXVXiEOWiViv3tGUe2pVTdZ3rPayUcEHutgsv8KRW3Uf/zfW73CzI5IJB3cZOUDCY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=H+12PjmD; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1784709335; c=relaxed/simple;
+	bh=fyiZ7dewrgguMVLV2Dy6hVGCjw4hxoNo92BrZ65/ET0=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=UD+l37iX1sGAKJanKdmE2aRSZWSVby8cNnPYiPaMDIPSl1KSlhq2629nps1R2Qi8Cn3GRROrYCd8sYzm+qeo83SsQUpFYrvTEU9qVkw3is+vMhpH7VeELE5Bquwr2MfhhymxK7oBvszCgFvDHMoJAzsEpi9KkFg7PC9hmCj+kAA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=OAuY0ELm; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="H+12PjmD"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66M5BlRr3147927
-	for <linux-s390@vger.kernel.org>; Wed, 22 Jul 2026 08:28:57 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="OAuY0ELm"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66M5BiGR3156846;
+	Wed, 22 Jul 2026 08:35:30 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=nxa3emftrl1kb0a2PLOR0+tMTVBmnB
-	eGDRUrO9smNgg=; b=H+12PjmDzwo7Mjn0AzLBzz3RrjFWruMmZ64RUjUybG3vGT
-	ehRuJwkU2EDx+ljvHxf42U3qPxuxPOQnjRESrzTHvpWskwjvL28f7zsdB/7RIldT
-	2RKU8fD/DT3pU0HDyPk+jSfzICyX9s3M6GHf06EH+BwdyHoeQMaMBAU+pXY9gDlf
-	6I8P5uGbFoVGxXWsq3si6VoPWgznO5SHWyS0wYrWW0qlIgtZ7yf8DMFztup2noSA
-	kEHCn9MBtxWRRypDialfDee6vT+svFS9NpBvPgIySokn1LzgD0y9jT5jh5crlZOl
-	gpEFO5KcK3Itq+Hz2Kn67qjVeQdWTGQaQQNMCEJA==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fg7abh4bf-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Wed, 22 Jul 2026 08:28:57 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66M8Ji3J009146
-	for <linux-s390@vger.kernel.org>; Wed, 22 Jul 2026 08:28:56 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fgnah6cfu-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Wed, 22 Jul 2026 08:28:55 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66M8Sm3349414604
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=rv1SGN
+	C2gyflEP8G7nbM0uchSYfvL3xosKpihjoUKag=; b=OAuY0ELmX0Qm4/KW0wgbut
+	J1wqu0NmUscUPGHPOiB1iRh4MMTA2EJogj9eK1i2k3PS/OFJbAG6Pco978llRsKD
+	JVesu5j5tRdXBHSx17vUuKEVhJ9cr9cWOK0vpmKGL3c5xFkBgG5dZdjmlQkh8XkU
+	Ap0BLmNLtZnVfTvLbiF0basXsBJIeXc35SX+6mVASwy1GWWMKEJccYgXsXtz6Kb0
+	gnuh+2e11KQLUrf3VyWQZ2vYttXCygXbHWqFLfzvMzyyBASRhSN37DLGzSyD8ATJ
+	X2xQJ41ieefXCbTelivo2W3rvev2WWg3BRKkns/zDqEhD3ScgK3gqmll67hlDyAA
+	==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fg79114np-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 22 Jul 2026 08:35:29 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66M8Yhsw027119;
+	Wed, 22 Jul 2026 08:35:28 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fgmtjxett-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 22 Jul 2026 08:35:28 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66M8ZQ7b49545692
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 22 Jul 2026 08:28:49 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id CA61D20076;
-	Wed, 22 Jul 2026 08:28:48 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8736E20073;
-	Wed, 22 Jul 2026 08:28:48 +0000 (GMT)
-Received: from osiris (unknown [9.111.27.184])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Wed, 22 Jul 2026 08:28:48 +0000 (GMT)
-Date: Wed, 22 Jul 2026 10:28:47 +0200
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Mete Durlu <meted@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org
-Subject: Re: [PATCH 0/2] s390/ipl: Improve readability
-Message-ID: <20260722082847.16302A2b-hca@linux.ibm.com>
-References: <20260721-ipl_refactor-v1-0-4d5938de9a70@linux.ibm.com>
+	Wed, 22 Jul 2026 08:35:26 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 3F0E62004B;
+	Wed, 22 Jul 2026 08:35:26 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 1935920040;
+	Wed, 22 Jul 2026 08:35:26 +0000 (GMT)
+Received: from [9.224.77.173] (unknown [9.224.77.173])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 22 Jul 2026 08:35:25 +0000 (GMT)
+Message-ID: <83290932-cb8b-4741-bff0-6a7d8df2c637@linux.ibm.com>
+Date: Wed, 22 Jul 2026 10:35:25 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260721-ipl_refactor-v1-0-4d5938de9a70@linux.ibm.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH/RFC] btrfs: fix folio lock leak in writepage_delalloc()
+ for folios dirtied behind btrfs' back
+To: Qu Wenruo <quwenruo.btrfs@gmx.com>, linux-btrfs@vger.kernel.org,
+        Qu Wenruo <wqu@suse.com>
+Cc: David Sterba <dsterba@suse.com>, Chris Mason <clm@fb.com>,
+        Josef Bacik <josef@toxicpanda.com>, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org, linux-s390@vger.kernel.org
+References: <20260721191152.101118-1-borntraeger@linux.ibm.com>
+ <20260721191152.101118-2-borntraeger@linux.ibm.com>
+ <b226a6e9-fef2-49bd-b17e-9f9b015626c1@gmx.com>
+Content-Language: en-US
+From: Christian Borntraeger <borntraeger@linux.ibm.com>
+In-Reply-To: <b226a6e9-fef2-49bd-b17e-9f9b015626c1@gmx.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzIyMDA3NiBTYWx0ZWRfX7546jLi/6Jhi
- 1HmzKSs81I7t3JMhR30t1En8UIIqFf8I0s680qy7bNSk9hRsnnCdXsqmqalvJgh7J2CIo+0Jd5V
- Sp3R+lwsbQXNACUNyoZxiNUja5QqI1d30rFv0ml72tCIvfH1zcnklkEUNvsCDjMD8FE+5Dqht/0
- KmwybVM40kv+CfGyJDllC3gc44VHiuyw//UBkgQzOhYguNIVghyJlUnM+jeH6yR2Zo4cPduaPbl
- MdHTMt7Y2/HiY2h9c3DErH4EaboiZOXTn46HFC5+mKGE2skam9aoC66+2Mrv7csg6KyiUDU/mov
- ILNqdLe2AqvDYt+9d1ptW14qA+QTXK1JQl461X9uvb3KIGPhjt98v/PWmu95ApRKDCvzEIV2YaF
- SxQZ3MX+4ozPiB6pTNoRATyGJrgjfRjq4eJ9iSUV8PjAuwt0qSpxwtVUZr/EDdsQuji3NsyMbeA
- gMPLyM4oAhrVuvr5jlg==
-X-Authority-Analysis: v=2.4 cv=F7ZnsKhN c=1 sm=1 tr=0 ts=6a607f49 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=kj9zAlcOel0A:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8
- a=8HJMNE-WD3Ejd7u3PcYA:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-ORIG-GUID: O0uJtM5ZjcVrcdfzqlwB__M3de1tT_pF
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzIyMDA3NiBTYWx0ZWRfX2lxacBI2J1qV
- IK29XkxNV3jJmdZbV53OZJlEW+neFc0o6jMsy7XwGLWf7RVDK0hE2PIxcSeZfsRO2QZkc1Qgxqy
- vBlihIklOBu5Iaq8Iwk3ow+5RCdiBCA=
-X-Proofpoint-GUID: O0uJtM5ZjcVrcdfzqlwB__M3de1tT_pF
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-ORIG-GUID: _mzbYkPGzxBvwZIsNGHvhmFwqjqYiEVA
+X-Authority-Analysis: v=2.4 cv=V6RNF+ni c=1 sm=1 tr=0 ts=6a6080d2 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=lEjgxdKC6ZHkbqwYjkIA:9
+ a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzIyMDA3NiBTYWx0ZWRfXyGLPGDP2vbEj
+ xMfWmDcg0apWLLCqd2cKsB/9I7bHctn0osX38LoGmsk8i3zhVp+fQThg0mu+mi1JuFitXkJ+ELd
+ u6avby2E6Y/dRH4bMJCwxZ8PuXgdnks=
+X-Proofpoint-GUID: xJaR1kY_-9f5HcRkVD3uL3fjtbNscKvv
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzIyMDA3NiBTYWx0ZWRfX4n4DDF+G5WJ6
+ Y6wRBS0BREuAManMEekI/fbKLEnkBaTl9fwtCQM3S0gI7fGOdDpmve/8AaX/TjJAdtjSEyRTESk
+ LKfm/+FrH4RRJdDgRUAfbqnXKuSs9cava7MvMw8Ik8D6Sju69cuyyHeLGr/sTxEm28lLDrySt9r
+ jllt6m5tfpbFtGjVDv9hc+KrbqAqQhR0ZKPCIGah+tIb7aOqkpOt/oMj15t6X1wiIzBpC4s9yeE
+ qACK3PNE1I7ymm1jZoOF5J6yRKCbqSZRzq9H6ZsBoN/i7O5HOky1BDMeBxi3xcdRdg5Pl2VY1W4
+ g3URAxscIu32FstgqtcFu067m5GA44GYNUOxztGwf6k8C4XqQEf0mzY7XdbUYW7ALEkKHh8VCXV
+ rp/M/uO1WaOy4ovq15BTh0YEHHhUBypq08nFyenAfjsZ3Xsitwwt4k81u5ppEorwRZNVJ0EdtNr
+ M/lqrGY1wws5tF6sPJw==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-07-22_02,2026-07-21_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 phishscore=0 bulkscore=0 clxscore=1015 priorityscore=1501
- impostorscore=0 lowpriorityscore=0 suspectscore=0 malwarescore=0 adultscore=0
+ malwarescore=0 adultscore=0 bulkscore=0 lowpriorityscore=0 clxscore=1015
+ spamscore=0 impostorscore=0 phishscore=0 priorityscore=1501 suspectscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607220076
 
-On Tue, Jul 21, 2026 at 08:47:26PM +0200, Mete Durlu wrote:
-> Improve readability of s390 ipl code by openly writing static struct
-> definitions, reformatting list definitions and using ARRAY_SIZE() macro
-> in suitable places.
-> 
-> No functional changes, only coding style changes.
-> 
-> Signed-off-by: Mete Durlu <meted@linux.ibm.com>
-> ---
-> Mete Durlu (2):
->       s390/ipl: Use ARRAY_SIZE macro
->       s390/ipl: Improve readability
-> 
->  arch/s390/kernel/ipl.c | 58 +++++++++++++++++++++++++++++++++-----------------
->  1 file changed, 38 insertions(+), 20 deletions(-)
+Am 21.07.26 um 23:07 schrieb Qu Wenruo:
 
-Acked-by: Heiko Carstens <hca@linux.ibm.com>
+First, thank you for taking the time to look into this and trying to understand
+things and trying to explain things. this is highly appreciated.
+I am still trying to fully understand this myself. A question:
+
+> 在 2026/7/22 04:41, Christian Borntraeger 写道:
+>> A folio can carry the folio-level dirty flag while its btrfs subpage
+>> dirty bitmap is empty: btrfs data mappings use filemap_dirty_folio(),
+>> so a generic folio_mark_dirty() call sets only the folio flag and the
+>> xarray tag, without setting any subpage dirty bit and without a
+>> delalloc reservation.  The typical source is set_page_dirty_lock() on
+>> a GUP pin,
+> 
+> Shouldn't such folio got its ->page_mkwrite() callback get called first?
+
+Isnt that called implicitely at pin time?
+At unpin, set_page_dirty_lock() re-dirties the now-clean folio.
+ From what I can see, this is not an s390 invention but a sanctioned pattern.
+
+But I can certainly not exclude that this is still an s390 specific problem.
+Let me dig a bit deeper.
+
+Thanks again for your quick response.
+
+Christian
