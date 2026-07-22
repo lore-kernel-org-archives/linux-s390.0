@@ -1,315 +1,175 @@
-Received: from mail-ej1-f47.google.com (mail-ej1-f47.google.com [209.85.218.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from sender-op-o17.zoho.eu (sender-op-o17.zoho.eu [136.143.169.17])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B9283BB678
-	for <linux-s390@vger.kernel.org>; Wed, 22 Jul 2026 09:35:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.47
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784712945; cv=none; b=PciYu2nzeaox0S7KyKCepyosN4lNZ1qM3Y62vgPOWFWWnr9CgouRYBpuVOSmqIIzOi65UdvwYDJVsG/JmVZa6wxQIVG4UsAQXJjChewe0fD9AeCl+2hK+FPGqx7akwfESvqrI+82+EG5goQA6wkdcTr0zw8fqgXXvsBa3yJDr6s=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784712945; c=relaxed/simple;
-	bh=GG2EOvrsApZCeL1C+Pb/We/gJRTuu4NFd+kjd4iSItM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=r5YPw/R55a5LwwwwkoJhm0qnAllquszyuF9ojgssOapwv42kzNkLroBeOO4zG68TP+6TIyIDMzbqL89+YBA5SQSHvPBkQ7iJvF2z50ZumvlSVCXp4yIXg1e22MMxBnVJOTq/gO1hkj3Na+g7lf6o+sEx7FAmvMOEncm8BgRYHgs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=agLrWkPh; arc=none smtp.client-ip=209.85.218.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B92F548A2AA;
+	Wed, 22 Jul 2026 10:18:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.169.17
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1784715515; cv=pass; b=SISVsBq7KsDctZYcAPGFSYplzowpfB42B8BnDce0C4m1+UxZ3glLtrmD4VWn2EVwB+RIWsbo4GP5HReomDhMbVhxejaq0TvJgpuqUYjsegkCmRYXmOaORLVoAKRJM/H6iz78bkQyznmOsj5KMV3Qd1L2mBejOelJ63ACM9kBe88=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1784715515; c=relaxed/simple;
+	bh=5IK0E5VfLWQFyv9kEBje5gPPeAhXHabQJOyuDTyUoxk=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=JyIMVflHSPefINXEEXYjoAqqcH1jzb4ATj8hhXVa2jI5olLatJdb0Wln6krfDMBmCpd7MS+Gprt9SCo2ZWAb3r3T6t5zu4C9IscXHCufF215lh1uWSjk8jFYtCm3WVQNNi4na0wencHo6mxjzjieTAQVHyPl57rFnQKhC2A1Clw=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=auditcode.ai; spf=pass smtp.mailfrom=auditcode.ai; dkim=pass (1024-bit key) header.d=auditcode.ai header.i=security@auditcode.ai header.b=ucwSM2pr; arc=pass smtp.client-ip=136.143.169.17
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=auditcode.ai
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=auditcode.ai
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="agLrWkPh"
-Received: by mail-ej1-f47.google.com with SMTP id a640c23a62f3a-c15ca7a7ca9so933145166b.0
-        for <linux-s390@vger.kernel.org>; Wed, 22 Jul 2026 02:35:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=suse.com; s=google; t=1784712941; x=1785317741; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=dFy4yNyzmo3UbOv6Xs2SIMr6v8Q5AhI2ZjktcOYD0w8=;
-        b=agLrWkPhHBIv5YF4CciQoQzc+Hf2Qc+YCv6KFnYLFc4cV5YAOyQuZ1AsM3DWqnLKhw
-         wZ76dwNftBiE1EqtJh95tPCMrFZTotHnEEu2jzXqn5MO453nE4KmwAzx0ne5e/M1FDlp
-         rtksDnCPGuFJUacOEWKQbpgQRlszBFYvgndYdITeqXDUEA4M+FoBxok0hu1QFG2lKWkW
-         LhmFnqFPUZ33jjlYPIx68VO1GwhzEoUncyIsa53J/hB3pb+evxYtSgpHRW4YQPtIrUhZ
-         On54WiemrUnFt9zd2soD10WplOhprKNLyDLdupND1j4yp/fgTI21NggxzkGH7uULeLLh
-         i99A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784712941; x=1785317741;
-        h=content-transfer-encoding:content-type:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=dFy4yNyzmo3UbOv6Xs2SIMr6v8Q5AhI2ZjktcOYD0w8=;
-        b=QCeTobW90trHuwS2WKskERVXmrRBvsFrIgWLJSxP7GpMqSAm7rbIriAWj772ndEo7X
-         VvbB70MK8HDiCBOiCjUfs+kkHlcuBEnaCjWZfkWKof50vtawqoiB/TfhJCptFY/DkaCV
-         pHoFD7Su12IWciJUS+jIaWzt0pjFJS1OHF+3LmOHMgBZ+qoxaNIibS1xW7Hsn2ycrXOx
-         9j4pBUijEF8LQEA9zFWNDLFFCaMT9UclIQC46nl8jlTBEOwWOZ80bE6vS9uyANizUeFM
-         VEFw7j+vs8oJa0bKZEAVf5omtOHZ6NnvFneNk5ecN3zcFyzvr1rWiVitbjIKqy7siFtM
-         os2w==
-X-Forwarded-Encrypted: i=1; AHgh+Rpd3e5qtd8MEKAGTqJgtUhHSs4zzrqrFr1Lc9jEqIH/bbHaDGMZLujla5dK435jeaLyB2KzzepLjUMI@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy66ZwkD/lwaswavsOVpOjJn8p+R8p1c5pq8aw9p7ll28b+FOJq
-	1Lfjyf7tbMkLCXH+w93PXP1rEp/tRP8OQ8Hwftip+dLX+NmS7UHNAqtHc5yZdoh/a0Y=
-X-Gm-Gg: AR+sD13nLF7ic8SkiJuBxvQL0tUE0veShHHlKdYAxn7roVZL9xoBajV/N5H30q3Hc9p
-	CDOTC8zAGM+UCL+e43Oe0wvlFDeilEJgAXlUQu7U37KR36ywZRPHkdh4gECC5kLxgXwAOpRbrHd
-	kYakpiQqC/kBP+DtDLKNhOfZY6gG8MsEjHHMxUusCYo0ufTodkoa/rmclK89vShcl5Oljg5koXL
-	IqXNee0Y6oiLVzwlwHTtIZCKwu5wkPsdMP1Xptbz6oRy/RML3XgXdfKCEarSTWLEjWyQWLFFvch
-	whFnquysVlIrduzZ87PiHV8n/M/hV3ZciszweCIOKDUpKrIi7qVusS391lzmWHg7Z4E8L7SzU6W
-	TWcfVsDa78X3mmEPZFebP0MNv4bFot+pcbDEX3pzzusbtuo/EN2fGvxGhydG+L9UhOIBOCEg=
-X-Received: by 2002:a17:907:3f99:b0:c16:592b:ec4c with SMTP id a640c23a62f3a-c16b46990d8mr926168866b.1.1784712941118;
-        Wed, 22 Jul 2026 02:35:41 -0700 (PDT)
-Received: from [172.16.0.229] ([159.196.52.54])
-        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-cbb8f02e454sm882841a12.0.2026.07.22.02.35.36
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 22 Jul 2026 02:35:40 -0700 (PDT)
-Message-ID: <8ef80fa7-6c93-40bc-8a49-bf6494104cb7@suse.com>
-Date: Wed, 22 Jul 2026 19:05:33 +0930
+	dkim=pass (1024-bit key) header.d=auditcode.ai header.i=security@auditcode.ai header.b="ucwSM2pr"
+ARC-Seal: i=1; a=rsa-sha256; t=1784715482; cv=none; 
+	d=zohomail.eu; s=zohoarc; 
+	b=DSPBifPtK3vXBuHvG7IsIfm3DkRgbzHB9rnx63XMWvqW4AWajEZWQPAfIbIBdtZL69uHifpsI0DD2MiuATPpSpl00R9n41y0z1y5Lf16FCNfKvpsSlWyujpNsEsDGHzdXQaD2/Y/H6HF1a1RZbo85Qp6G8Y0nTUsK1TYw3RJca4=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.eu; s=zohoarc; 
+	t=1784715482; h=Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=nPfVdwY5n496Gpr+RRe/9aJXt3Vr8Qe8AO0w56laRGY=; 
+	b=ItZiXlRcq02UXd4YmFVJrpBGBX28KkAUQTcC5U3Vp2lBIQD2UXUyVUAica3mAixhhtwP1IdxGtCtMPLRJa1pEXRoIamBdvXrm+hY27AQ1UgZI58gRNA3U/qcGkpVP3FSSSh3KbUjxVsbmwLfoAYqhA7glGkgrBsvaNINYZeYnJk=
+ARC-Authentication-Results: i=1; mx.zohomail.eu;
+	dkim=pass  header.i=auditcode.ai;
+	spf=pass  smtp.mailfrom=security@auditcode.ai;
+	dmarc=pass header.from=<security@auditcode.ai>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1784715482;
+	s=zmail; d=auditcode.ai; i=security@auditcode.ai;
+	h=From:From:To:To:Cc:Cc:Subject:Subject:Date:Date:Message-ID:MIME-Version:Content-Transfer-Encoding:Message-Id:Reply-To;
+	bh=nPfVdwY5n496Gpr+RRe/9aJXt3Vr8Qe8AO0w56laRGY=;
+	b=ucwSM2prSzCBzAPtI10YAsZmkbHF9NV2mvNBE1AQrDsukjdg5PJ0ZlVMIupkmdTH
+	OiZNoyPKrzcSZZDw/1XJiREHoHS/5fF3WRCHA/vvgKvd9eMa41EIL8RjBdlrukAFC/Y
+	+Y96KGCEt5Xrc2eLVaK2ud2SqZbyf+LD9+ASABGw=
+Received: by mx.zoho.eu with SMTPS id 1784715480713346.6775599105855;
+	Wed, 22 Jul 2026 12:18:00 +0200 (CEST)
+From: Ibrahim Hashimov <security@auditcode.ai>
+To: alibuda@linux.alibaba.com,
+	dust.li@linux.alibaba.com,
+	wenjia@linux.ibm.com,
+	davem@davemloft.net,
+	edumazet@google.com,
+	kuba@kernel.org,
+	pabeni@redhat.com
+Cc: tonylu@linux.alibaba.com,
+	guwen@linux.alibaba.com,
+	horms@kernel.org,
+	linux-rdma@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org
+Subject: [PATCH net v2] net/smc: validate peer CDC cursor against RMBE size before accepting it
+Date: Wed, 22 Jul 2026 12:17:58 +0200
+Message-ID: <20260722101758.37817-1-security@auditcode.ai>
+X-Mailer: git-send-email 2.50.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH/RFC] btrfs: fix folio lock leak in writepage_delalloc()
- for folios dirtied behind btrfs' back
-To: Christian Borntraeger <borntraeger@linux.ibm.com>,
- Qu Wenruo <quwenruo.btrfs@gmx.com>, linux-btrfs@vger.kernel.org,
- Linux Memory Management List <linux-mm@kvack.org>,
- "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>
-Cc: David Sterba <dsterba@suse.com>, Chris Mason <clm@fb.com>,
- Josef Bacik <josef@toxicpanda.com>, linux-kernel@vger.kernel.org,
- kvm@vger.kernel.org, linux-s390@vger.kernel.org
-References: <20260721191152.101118-1-borntraeger@linux.ibm.com>
- <20260721191152.101118-2-borntraeger@linux.ibm.com>
- <b226a6e9-fef2-49bd-b17e-9f9b015626c1@gmx.com>
- <83290932-cb8b-4741-bff0-6a7d8df2c637@linux.ibm.com>
- <224d56d2-fcad-41bf-afe3-6f5f5108172a@gmx.com>
- <f12f70e5-d84d-4a9f-ac94-693be4c863ac@linux.ibm.com>
-Content-Language: en-US
-From: Qu Wenruo <wqu@suse.com>
-Autocrypt: addr=wqu@suse.com; keydata=
- xsBNBFnVga8BCACyhFP3ExcTIuB73jDIBA/vSoYcTyysFQzPvez64TUSCv1SgXEByR7fju3o
- 8RfaWuHCnkkea5luuTZMqfgTXrun2dqNVYDNOV6RIVrc4YuG20yhC1epnV55fJCThqij0MRL
- 1NxPKXIlEdHvN0Kov3CtWA+R1iNN0RCeVun7rmOrrjBK573aWC5sgP7YsBOLK79H3tmUtz6b
- 9Imuj0ZyEsa76Xg9PX9Hn2myKj1hfWGS+5og9Va4hrwQC8ipjXik6NKR5GDV+hOZkktU81G5
- gkQtGB9jOAYRs86QG/b7PtIlbd3+pppT0gaS+wvwMs8cuNG+Pu6KO1oC4jgdseFLu7NpABEB
- AAHNGFF1IFdlbnJ1byA8d3F1QHN1c2UuY29tPsLAlAQTAQgAPgIbAwULCQgHAgYVCAkKCwIE
- FgIDAQIeAQIXgBYhBC3fcuWlpVuonapC4cI9kfOhJf6oBQJnEXVgBQkQ/lqxAAoJEMI9kfOh
- Jf6o+jIH/2KhFmyOw4XWAYbnnijuYqb/obGae8HhcJO2KIGcxbsinK+KQFTSZnkFxnbsQ+VY
- fvtWBHGt8WfHcNmfjdejmy9si2jyy8smQV2jiB60a8iqQXGmsrkuR+AM2V360oEbMF3gVvim
- 2VSX2IiW9KERuhifjseNV1HLk0SHw5NnXiWh1THTqtvFFY+CwnLN2GqiMaSLF6gATW05/sEd
- V17MdI1z4+WSk7D57FlLjp50F3ow2WJtXwG8yG8d6S40dytZpH9iFuk12Sbg7lrtQxPPOIEU
- rpmZLfCNJJoZj603613w/M8EiZw6MohzikTWcFc55RLYJPBWQ+9puZtx1DopW2jOwE0EWdWB
- rwEIAKpT62HgSzL9zwGe+WIUCMB+nOEjXAfvoUPUwk+YCEDcOdfkkM5FyBoJs8TCEuPXGXBO
- Cl5P5B8OYYnkHkGWutAVlUTV8KESOIm/KJIA7jJA+Ss9VhMjtePfgWexw+P8itFRSRrrwyUf
- E+0WcAevblUi45LjWWZgpg3A80tHP0iToOZ5MbdYk7YFBE29cDSleskfV80ZKxFv6koQocq0
- vXzTfHvXNDELAuH7Ms/WJcdUzmPyBf3Oq6mKBBH8J6XZc9LjjNZwNbyvsHSrV5bgmu/THX2n
- g/3be+iqf6OggCiy3I1NSMJ5KtR0q2H2Nx2Vqb1fYPOID8McMV9Ll6rh8S8AEQEAAcLAfAQY
- AQgAJgIbDBYhBC3fcuWlpVuonapC4cI9kfOhJf6oBQJnEXWBBQkQ/lrSAAoJEMI9kfOhJf6o
- cakH+QHwDszsoYvmrNq36MFGgvAHRjdlrHRBa4A1V1kzd4kOUokongcrOOgHY9yfglcvZqlJ
- qfa4l+1oxs1BvCi29psteQTtw+memmcGruKi+YHD7793zNCMtAtYidDmQ2pWaLfqSaryjlzR
- /3tBWMyvIeWZKURnZbBzWRREB7iWxEbZ014B3gICqZPDRwwitHpH8Om3eZr7ygZck6bBa4MU
- o1XgbZcspyCGqu1xF/bMAY2iCDcq6ULKQceuKkbeQ8qxvt9hVxJC2W3lHq8dlK1pkHPDg9wO
- JoAXek8MF37R8gpLoGWl41FIUb3hFiu3zhDDvslYM4BmzI18QgQTQnotJH8=
-In-Reply-To: <f12f70e5-d84d-4a9f-ac94-693be4c863ac@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
+X-ZohoMailClient: External
 
+smc_cdc_cursor_to_host() converts the wire-format producer/consumer
+cursor of an incoming CDC message into a host smc_host_cursor. It rejects
+a cursor that goes backwards, but never checks that the cursor stays
+inside the buffer it indexes. Per smc_host_cursor ("an offset in an
+RMBE") and the invariant smc_curs_add() enforces for every local advance
+(0 <= count < size), a valid cursor count must be < size and a single
+advance can be at most one bufferful; the wire cursor is peer-controlled
+and was never checked against either.
 
+smcr_cdc_msg_to_host() accepts the producer and consumer cursors, and the
+unbounded value feeds smc_curs_diff() in smc_cdc_msg_recv_action(), which
+computes the advance without clamping against size. A peer can inflate it
+two ways: an out-of-range prod.count (e.g. 0x7fffffff), or -- since on a
+wrap increment smc_curs_diff() returns (size - old.count) + new.count --
+a cursor with a bumped wrap and new.count above old.count. Either drives
+bytes_to_rcv far past rmb_desc->len, the very invariant the comment above
+the atomic_add() claims but does not enforce.
 
-在 2026/7/22 18:59, Christian Borntraeger 写道:
-> Am 22.07.26 um 10:59 schrieb Qu Wenruo:
->>
->>
->> 在 2026/7/22 18:05, Christian Borntraeger 写道:
->>> Am 21.07.26 um 23:07 schrieb Qu Wenruo:
->>>
->>> First, thank you for taking the time to look into this and trying to 
->>> understand
->>> things and trying to explain things. this is highly appreciated.
->>> I am still trying to fully understand this myself. A question:
->>>
->>>> 在 2026/7/22 04:41, Christian Borntraeger 写道:
->>>>> A folio can carry the folio-level dirty flag while its btrfs subpage
->>>>> dirty bitmap is empty: btrfs data mappings use filemap_dirty_folio(),
->>>>> so a generic folio_mark_dirty() call sets only the folio flag and the
->>>>> xarray tag, without setting any subpage dirty bit and without a
->>>>> delalloc reservation.  The typical source is set_page_dirty_lock() on
->>>>> a GUP pin,
->>>>
->>>> Shouldn't such folio got its ->page_mkwrite() callback get called 
->>>> first?
->>>
->>> Isnt that called implicitely at pin time?
->>
->> I have to admit, I'm not an expert on the MM part, I'm mostly a simple 
->> user of the existing MM interfaces.
->>
->> AFAIK, the last time I brought this thing up, Christoph mentioned that 
->> dirtying-folio-without-notifying-fs is a bug, and fs should not and is 
->> not able to handle such situation anyway.
->>
->> And that idea makes a lot of sense to me.
->>
->> So adding MM list for more help.
-> So I now have an userspace O_DIRECT reproducer outside of KVM. 
-> (attached) which gave me (on an s390 system, though)
+smc_rx_recvmsg() then trusts bytes_to_rcv as the amount of valid RMB
+data. Its first copy chunk is safely bounded by rmb_desc->len -
+cons.count, but the second chunk copies (copylen - chunk_len) bytes from
+offset 0, and copylen came from the inflated readable -- an out-of-bounds
+read of the RMB's backing (v)malloc allocation, copied straight to the
+receiving process via _copy_to_iter(). This is a remote kernel-memory
+disclosure driven by a malicious SMC-R peer, needing no local privilege
+on the victim. The same unbounded count also reaches
+smc_cdc_handle_urg_data_arrival() (base + urg_curs.count - 1) -- a
+second, narrower OOB read.
 
-Thanks a lot, I can also reproduce it on arm64 (64K page size).
+Reject the bad cursor at ingress, mirroring the cursor-sanity idiom two
+lines above: drop any incoming cursor whose count is outside the buffer
+(>= size), and any whose advance from the last accepted cursor exceeds
+one bufferful (smc_curs_diff() > size), which catches the wrap case.
+smc_cdc_cursor_to_host() gains a size parameter; smcr_cdc_msg_to_host()
+passes conn->rmb_desc->len for the producer cursor and
+conn->peer_rmbe_size for the consumer cursor, bounding it at its single
+origin instead of patching every downstream consumer. SMC-D
+(smcd_cdc_msg_to_host()) does not use this helper and is a separate,
+out-of-scope gap.
 
-This is super bad, as we have just removed a lot of folio ordered 
-related code to detect such problem.
+Reproduced on a v6.19 KASAN kernel (SMC-Rv2 over soft-RoCE): a peer
+emitting prod.count=0x7fffffff triggers a vmalloc-out-of-bounds read in
+_copy_to_iter() via smc_rx_recvmsg(), returning ~960 KB of RMB-adjacent
+kernel heap to userspace; an in-range cursor transfers cleanly. With the
+fix the out-of-range cursor is dropped before it reaches
+conn->local_rx_ctrl.prod, and the reproducer returns rc=0 with no report.
 
-I'll also check if it's some recent btrfs changes making it worse.
+Fixes: 5f08318f617b ("smc: connection data control (CDC)")
+Cc: stable@vger.kernel.org
+Signed-off-by: Ibrahim Hashimov <security@auditcode.ai>
+Assisted-by: AuditCode-AI:2026.07
+---
+v2: also bound the cursor *advance* (smc_curs_diff() <= size), not just
+    the count. A wrap increment with new.count above old.count passes the
+    count check yet still inflates bytes_to_rcv past the buffer -- thanks
+    to sashiko-bot for spotting the count-only gap. Resent standalone.
 
-Thanks,
-Qu
-> 
-> [  189.067731] sysrq: Show Blocked State
-> [  189.067872] task:kworker/u1665:5 state:D stack:0     pid:1363  
-> tgid:1363  ppid:2      task_flags:0x4208060 flags:0x00000000
-> [  189.067877] Workqueue: writeback wb_workfn (flush-btrfs-1)
-> [  189.067884] Call Trace:
-> [  189.067886]  [<000003a8b2e19284>] __schedule+0x374/0x900
-> [  189.067891]  [<000003a8b2e1984c>] schedule+0x3c/0xf0
-> [  189.067894]  [<000003a8b2e1996c>] io_schedule+0x2c/0x40
-> [  189.067896]  [<000003a8b219d158>] folio_wait_bit_common+0x198/0x3b0
-> [  189.067902]  [<000003a8b263e2e8>] extent_write_cache_pages+0x348/0x4d0
-> [  189.067907]  [<000003a8b263ea0a>] btrfs_writepages+0x6a/0xd0
-> [  189.067910]  [<000003a8b21ad444>] do_writepages+0xd4/0x190
-> [  189.067915]  [<000003a8b2324590>] __writeback_single_inode+0x50/0x310
-> [  189.067917]  [<000003a8b2324b1a>] writeback_sb_inodes+0x2ca/0x690
-> [  189.067919]  [<000003a8b2324f36>] __writeback_inodes_wb+0x56/0x140
-> [  189.067921]  [<000003a8b2325498>] wb_writeback+0x368/0x460
-> [  189.067923]  [<000003a8b23258c6>] wb_do_writeback+0x336/0x3d0
-> [  189.067925]  [<000003a8b2325d2a>] wb_workfn+0x5a/0x1d0
-> [  189.067927]  [<000003a8b1f0cee2>] process_one_work+0x1d2/0x480
-> [  189.067932]  [<000003a8b1f0df30>] worker_thread+0x210/0x420
-> [  189.067935]  [<000003a8b1f190b8>] kthread+0x148/0x170
-> [  189.067939]  [<000003a8b1e90358>] __ret_from_fork+0x48/0x220
-> [  189.067941]  [<000003a8b2e2426a>] ret_from_fork+0xa/0x30
-> [  189.067994] task:oob-dirty-repro state:D stack:0     pid:8152  
-> tgid:8151  ppid:7260   task_flags:0x400040 flags:0x00000800
-> [  189.067997] Call Trace:
-> [  189.067998]  [<000003a8b2e19284>] __schedule+0x374/0x900
-> [  189.068050]  [<000003a8b2e1984c>] schedule+0x3c/0xf0
-> [  189.068052]  [<000003a8b2e1996c>] io_schedule+0x2c/0x40
-> [  189.068054]  [<000003a8b219d158>] folio_wait_bit_common+0x198/0x3b0
-> [  189.068057]  [<000003a8b263e2e8>] extent_write_cache_pages+0x348/0x4d0
-> [  189.068061]  [<000003a8b263ea0a>] btrfs_writepages+0x6a/0xd0
-> [  189.068063]  [<000003a8b21ad444>] do_writepages+0xd4/0x190
-> [  189.068066]  [<000003a8b2199dec>] filemap_writeback+0xbc/0x100
-> [  189.068069]  [<000003a8b2199e5a>] filemap_fdatawrite_range+0x2a/0x40
-> [  189.068072]  [<000003a8b2637d3c>] 
-> btrfs_start_ordered_extent_nowriteback+0x18c/0x1d0
-> [  189.068074]  [<000003a8b26260ce>] btrfs_page_mkwrite+0x22e/0x8d0
-> [  189.068079]  [<000003a8b21f89d0>] do_page_mkwrite+0x60/0xf0
-> [  189.068084]  [<000003a8b21ffa64>] do_wp_page+0x134/0x660
-> [  189.068086]  [<000003a8b2206584>] __handle_mm_fault+0x1c4/0x5a0
-> [  189.068088]  [<000003a8b22069f0>] handle_mm_fault+0x90/0x230
-> [  189.068090]  [<000003a8b1ebfbd0>] do_exception+0x190/0x560
-> [  189.068094]  [<000003a8b2e136c0>] __do_pgm_check+0x1b0/0x370
-> [  189.068098]  [<000003a8b2e243a4>] pgm_check_handler+0x114/0x160
-> [  189.068101]  [<000003a8b283135e>] _copy_to_iter+0x6e/0x870
-> [  189.068106]  [<000003a8b2831c4a>] copy_page_to_iter+0xea/0x160
-> [  189.068108]  [<000003a8b219ff8c>] filemap_read+0x1ec/0x400
-> [  189.068109]  [<000003a8b22d0a70>] vfs_read+0x210/0x370
-> [  189.068112]  [<000003a8b22d1694>] ksys_pread64+0xa4/0xd0
-> [  189.068114]  [<000003a8b2e13b7e>] __do_syscall+0x14e/0x590
-> [  189.068117]  [<000003a8b2e24242>] system_call+0x72/0x90
-> [  189.068120] task:oob-dirty-repro state:D stack:0     pid:8153  
-> tgid:8151  ppid:7260   task_flags:0x400040 flags:0x00000000
-> [  189.068123] Call Trace:
-> [  189.068124]  [<000003a8b2e19284>] __schedule+0x374/0x900
-> [  189.068126]  [<000003a8b2e1984c>] schedule+0x3c/0xf0
-> [  189.068128]  [<000003a8b2e1996c>] io_schedule+0x2c/0x40
-> [  189.068130]  [<000003a8b219d158>] folio_wait_bit_common+0x198/0x3b0
-> [  189.068133]  [<000003a8b263e2e8>] extent_write_cache_pages+0x348/0x4d0
-> [  189.068136]  [<000003a8b263ea0a>] btrfs_writepages+0x6a/0xd0
-> [  189.068138]  [<000003a8b21ad444>] do_writepages+0xd4/0x190
-> [  189.068141]  [<000003a8b2199dec>] filemap_writeback+0xbc/0x100
-> [  189.068144]  [<000003a8b2199e5a>] filemap_fdatawrite_range+0x2a/0x40
-> [  189.068146]  [<000003a8b2637d3c>] 
-> btrfs_start_ordered_extent_nowriteback+0x18c/0x1d0
-> [  189.068149]  [<000003a8b26260ce>] btrfs_page_mkwrite+0x22e/0x8d0
-> [  189.068152]  [<000003a8b21f89d0>] do_page_mkwrite+0x60/0xf0
-> [  189.068154]  [<000003a8b21ffa64>] do_wp_page+0x134/0x660
-> [  189.068156]  [<000003a8b2206584>] __handle_mm_fault+0x1c4/0x5a0
-> [  189.068158]  [<000003a8b22069f0>] handle_mm_fault+0x90/0x230
-> [  189.068160]  [<000003a8b1ebfbd0>] do_exception+0x190/0x560
-> [  189.068163]  [<000003a8b2e136c0>] __do_pgm_check+0x1b0/0x370
-> [  189.068165]  [<000003a8b2e243a4>] pgm_check_handler+0x114/0x160
-> [  189.068168]  [<000003a8b283135e>] _copy_to_iter+0x6e/0x870
-> [  189.068170]  [<000003a8b2831c4a>] copy_page_to_iter+0xea/0x160
-> [  189.068172]  [<000003a8b219ff8c>] filemap_read+0x1ec/0x400
-> [  189.068174]  [<000003a8b22d0a70>] vfs_read+0x210/0x370
-> [  189.068176]  [<000003a8b22d1694>] ksys_pread64+0xa4/0xd0
-> [  189.068178]  [<000003a8b2e13b7e>] __do_syscall+0x14e/0x590
-> [  189.068181]  [<000003a8b2e24242>] system_call+0x72/0x90
-> [  189.068184] task:oob-dirty-repro state:D stack:0     pid:8154  
-> tgid:8151  ppid:7260   task_flags:0x400040 flags:0x00000000
-> [  189.068187] Call Trace:
-> [  189.068188]  [<000003a8b2e19284>] __schedule+0x374/0x900
-> [  189.068190]  [<000003a8b2e1984c>] schedule+0x3c/0xf0
-> [  189.068192]  [<000003a8b2e1996c>] io_schedule+0x2c/0x40
-> [  189.068193]  [<000003a8b219d158>] folio_wait_bit_common+0x198/0x3b0
-> [  189.068196]  [<000003a8b26260fc>] btrfs_page_mkwrite+0x25c/0x8d0
-> [  189.068199]  [<000003a8b21f89d0>] do_page_mkwrite+0x60/0xf0
-> [  189.068202]  [<000003a8b21ffa64>] do_wp_page+0x134/0x660
-> [  189.068203]  [<000003a8b2206584>] __handle_mm_fault+0x1c4/0x5a0
-> [  189.068206]  [<000003a8b22069f0>] handle_mm_fault+0x90/0x230
-> [  189.068208]  [<000003a8b1ebfbd0>] do_exception+0x190/0x560
-> [  189.068210]  [<000003a8b2e136c0>] __do_pgm_check+0x1b0/0x370
-> [  189.068213]  [<000003a8b2e243a4>] pgm_check_handler+0x114/0x160
-> [  189.068215]  [<000003a8b283135e>] _copy_to_iter+0x6e/0x870
-> [  189.068218]  [<000003a8b2831c4a>] copy_page_to_iter+0xea/0x160
-> [  189.068219]  [<000003a8b219ff8c>] filemap_read+0x1ec/0x400
-> [  189.068221]  [<000003a8b22d0a70>] vfs_read+0x210/0x370
-> [  189.068223]  [<000003a8b22d1694>] ksys_pread64+0xa4/0xd0
-> [  189.068225]  [<000003a8b2e13b7e>] __do_syscall+0x14e/0x590
-> [  189.068228]  [<000003a8b2e24242>] system_call+0x72/0x90
-> [  189.068231] task:oob-dirty-repro state:D stack:0     pid:8155  
-> tgid:8151  ppid:7260   task_flags:0x400040 flags:0x00000000
-> [  189.068234] Call Trace:
-> [  189.068235]  [<000003a8b2e19284>] __schedule+0x374/0x900
-> [  189.068237]  [<000003a8b2e1984c>] schedule+0x3c/0xf0
-> [  189.068239]  [<000003a8b2e1996c>] io_schedule+0x2c/0x40
-> [  189.068241]  [<000003a8b219d158>] folio_wait_bit_common+0x198/0x3b0
-> [  189.068244]  [<000003a8b263e2e8>] extent_write_cache_pages+0x348/0x4d0
-> [  189.068246]  [<000003a8b263ea0a>] btrfs_writepages+0x6a/0xd0
-> [  189.068249]  [<000003a8b21ad444>] do_writepages+0xd4/0x190
-> [  189.068252]  [<000003a8b2199dec>] filemap_writeback+0xbc/0x100
-> [  189.068255]  [<000003a8b2199e5a>] filemap_fdatawrite_range+0x2a/0x40
-> [  189.068257]  [<000003a8b2637d3c>] 
-> btrfs_start_ordered_extent_nowriteback+0x18c/0x1d0
-> [  189.068260]  [<000003a8b26260ce>] btrfs_page_mkwrite+0x22e/0x8d0
-> [  189.068263]  [<000003a8b21f89d0>] do_page_mkwrite+0x60/0xf0
-> [  189.068265]  [<000003a8b21ffa64>] do_wp_page+0x134/0x660
-> [  189.068267]  [<000003a8b2206584>] __handle_mm_fault+0x1c4/0x5a0
-> [  189.068269]  [<000003a8b22069f0>] handle_mm_fault+0x90/0x230
-> [  189.068271]  [<000003a8b1ebfbd0>] do_exception+0x190/0x560
-> [  189.068274]  [<000003a8b2e136c0>] __do_pgm_check+0x1b0/0x370
-> [  189.068277]  [<000003a8b2e243a4>] pgm_check_handler+0x114/0x160
-> [  189.068279]  [<000003a8b283135e>] _copy_to_iter+0x6e/0x870
-> [  189.068281]  [<000003a8b2831c4a>] copy_page_to_iter+0xea/0x160
-> [  189.068283]  [<000003a8b219ff8c>] filemap_read+0x1ec/0x400
-> [  189.068285]  [<000003a8b22d0a70>] vfs_read+0x210/0x370
-> [  189.068287]  [<000003a8b22d1694>] ksys_pread64+0xa4/0xd0
-> [  189.068289]  [<000003a8b2e13b7e>] __do_syscall+0x14e/0x590
-> [  189.068292]  [<000003a8b2e24242>] system_call+0x72/0x90
-> [  189.068294] task:oob-dirty-repro state:D stack:0     pid:8156  
-> tgid:8151  ppid:7260   task_flags:0x400040 flags:0x00000000
-> [  189.068297] Call Trace:
-> [  189.068298]  [<000003a8b2e19284>] __schedule+0x374/0x900
-> [  189.068300]  [<000003a8b2e1984c>] schedule+0x3c/0xf0
-> [  189.068302]  [<000003a8b2e1996c>] io_schedule+0x2c/0x40
-> [  189.068304]  [<000003a8b219d158>] folio_wait_bit_common+0x198/0x3b0
-> [  189.068307]  [<000003a8b263e2e8>] extent_write_cache_pages+0x348/0x4d0
-> [  189.068310]  [<000003a8b263ea0a>] btrfs_writepages+0x6a/0xd0
-> [  189.068313]  [<000003a8b21ad444>] do_writepages+0xd4/0x190
-> [  189.068315]  [<000003a8b2199dec>] filemap_writeback+0xbc/0x100
-> [  189.068318]  [<000003a8b2199e5a>] filemap_fdatawrite_range+0x2a/0x40
-> [  189.068320]  [<000003a8b232bbf2>] sync_file_range+0x122/0x150
-> [  189.068323]  [<000003a8b232bc84>] ksys_sync_file_range+0x64/0xb0
-> [  189.068326]  [<000003a8b232bd0a>] __s390x_sys_sync_file_range+0x3a/0x50
-> [  189.068328]  [<000003a8b2e13b7e>] __do_syscall+0x14e/0x590
-> [  189.068331]  [<000003a8b2e24242>] system_call+0x72/0x90
+ net/smc/smc_cdc.h | 22 ++++++++++++++++++++--
+ 1 file changed, 20 insertions(+), 2 deletions(-)
 
+diff --git a/net/smc/smc_cdc.h b/net/smc/smc_cdc.h
+index 696cc11f2303..b0ae4d43b017 100644
+--- a/net/smc/smc_cdc.h
++++ b/net/smc/smc_cdc.h
+@@ -221,6 +221,7 @@ static inline void smc_host_msg_to_cdc(struct smc_cdc_msg *peer,
+ 
+ static inline void smc_cdc_cursor_to_host(union smc_host_cursor *local,
+ 					  union smc_cdc_cursor *peer,
++					  unsigned int size,
+ 					  struct smc_connection *conn)
+ {
+ 	union smc_host_cursor temp, old;
+@@ -235,6 +236,21 @@ static inline void smc_cdc_cursor_to_host(union smc_host_cursor *local,
+ 	if ((old.wrap == temp.wrap) &&
+ 	    (old.count > temp.count))
+ 		return;
++	/* count is an offset into the RMBE and must always stay inside
++	 * it (see smc_curs_add()); the peer is untrusted, so reject an
++	 * out-of-range wire cursor the same way an out-of-order one is
++	 * already rejected above, instead of letting it drive
++	 * bytes_to_rcv / the urgent-byte offset past the buffer end
++	 */
++	if (temp.count >= size)
++		return;
++	/* Bound the advance too: a wrap increment with temp.count above
++	 * old.count makes smc_curs_diff() report more than one bufferful,
++	 * which would inflate bytes_to_rcv / peer_rmbe_space past the buffer
++	 * in smc_cdc_msg_recv_action(). Reject such a cursor.
++	 */
++	if (smc_curs_diff(size, &old, &temp) > size)
++		return;
+ 	smc_curs_copy(local, &temp, conn);
+ }
+ 
+@@ -246,8 +262,10 @@ static inline void smcr_cdc_msg_to_host(struct smc_host_cdc_msg *local,
+ 	local->len = peer->len;
+ 	local->seqno = ntohs(peer->seqno);
+ 	local->token = ntohl(peer->token);
+-	smc_cdc_cursor_to_host(&local->prod, &peer->prod, conn);
+-	smc_cdc_cursor_to_host(&local->cons, &peer->cons, conn);
++	smc_cdc_cursor_to_host(&local->prod, &peer->prod,
++			       conn->rmb_desc->len, conn);
++	smc_cdc_cursor_to_host(&local->cons, &peer->cons,
++			       conn->peer_rmbe_size, conn);
+ 	local->prod_flags = peer->prod_flags;
+ 	local->conn_state_flags = peer->conn_state_flags;
+ }
+-- 
+2.50.1 (Apple Git-155)
