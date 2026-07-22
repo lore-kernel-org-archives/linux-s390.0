@@ -1,52 +1,53 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 686CA34BA28
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4BCC355F49
 	for <linux-s390@vger.kernel.org>; Wed, 22 Jul 2026 14:38:37 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784731118; cv=none; b=Zs2S2ABG6E6JfLLfJEZn1zjGhOctqynbqkjtcb34cJ5FP+s2ukGPn72jadXDpAS2MQvSMh+Fn1xIUNZCxHIuS7pSwQ2u7CR4C0t+nA+bZFuQ8ilo7k9CvN8AP2dxPODMF2LWTPXCqMZ2KP7smwzbeIO0WrA1eM7VfM/ViKo9igw=
+	t=1784731119; cv=none; b=urEd6xoFGk5EHkIzjUPcnJj7EcG4/OVkUjnfewnE2n6K4LmLu6XDtWHZty6aErr6wNo/YeNq26HeeUCCnjTqlusleHmv45KHR70jkeTVimtvGXjNKbwT2h+B7tNVWt+ngnrvTQLITDBKFidyH7Ic4P4DgDeoixtdO54X61lJjOU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784731118; c=relaxed/simple;
-	bh=iD8hK+lNAKg8nhNT9pU9AIDJe8L6OX3z3tqxBvtYeUQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Pf+YnTZWnuHPD3uX72e2n3DnM+Ny331crqKIE+yK/+cWvSQxBMoowR/uAvO3QxNDZFG8rRH9prtVbwTFtYIE0aJOMIsO63nblaHS5URmuOXiUy1N+GZUgqM2mSHROc9DN+NfuA+Z/48ci+jgNpjnc8UpDcGgv7f7DMiG3yOP7Nw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Wt1l76ht; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1784731119; c=relaxed/simple;
+	bh=RAXXFLU7+MPc656O//gEe3Ck5VxMy7HLYjJONQduGnc=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=M4wWxCxJBVvzrf1awG1HYKx0+me55nfVimgDAmBbX+gu6vTV/3snPdNTbvjtGnTIehx8lNbKC9eoYRT27kqAPyownigmmNiTtVgTYPEotDzZueJW9SLsPfLd9XvxL2hsbRTrC2i114lE6zkF0fG1/DLIuUGduf2L+tnjmx1xjl0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=mzKcjwa1; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Wt1l76ht"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66MDfn8G4182132
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="mzKcjwa1"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66MDftsF095396
 	for <linux-s390@vger.kernel.org>; Wed, 22 Jul 2026 14:38:36 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=AKvqo1iTtq2Jffx5VvlHVCjp3L911Tf9gcg1+0gQx
-	Bc=; b=Wt1l76htRma5KmYEbjdAVK//LVMq7nu5ST9GHt9AoKpBVLwfz99y8ryo+
-	wcz9FARTSIX0/0d+BtSaYYqRS5dvgpgDRpvXkrTMWNLVSEJGTcAbcH4hSUvjbH/Z
-	X2/astkUzFCzBTWKm3Q2RnNpUoTSXRDMcyJYgdAMPvAS0Q9CCP+IAxyznL8lM9WH
-	ntGII1Y1KiqyIKuvQojdI1ZDM/LF5FzBxY/qBRNJ1t/jgn8675Uen8TERS+OOvHl
-	7nvh9FV6BB/9YRV7TfJriJ4tyRIp1v/902koGFBR7CGfYx8CkjH08TUVJnN18QNT
-	oOd8OXUEwnvo9Kwp42FiUJN8zXyuQ==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fg78ga73c-1
+	:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=pp1; bh=AyXmNvDivWDoSm4i0
+	YWAd5RHXJwelS9rPzCbGeDTTJ0=; b=mzKcjwa15dqBXLZsUTidba2UmWqqO0wpt
+	Fv8WestvRQ1LVsewV6mVt3jopCbtNWDZqcG3467ttPJAqCRo80cR3lRp/vI+sv8d
+	MpErhRN8R9ndcanFyX9EYkGxzRqejQUg1bxoZT2cSlfafpFT/30IGScuDSIFqUxq
+	PZcg3FovUHxUC78T/EWoIQ3SaeFgaqslQtkfX7ZzPCByZA2QlxG4ORb0LsPcOiSH
+	HC9H3kYRjkSGYoO9T6BCCSSALMajTvReFt/9ZMueSi0HFUIrD3SQoheJ1kjtD9m9
+	bCORlQYttT9xEuNV9mmrh9DGDlSkRLKMQkDYWgmM7APyQbiqczciA==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fg7aha7t3-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Wed, 22 Jul 2026 14:38:35 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66MEYcJb009672
+	for <linux-s390@vger.kernel.org>; Wed, 22 Jul 2026 14:38:36 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66MEYgCm024865
 	for <linux-s390@vger.kernel.org>; Wed, 22 Jul 2026 14:38:35 GMT
 Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fgktq7x6s-1
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fgp1gfj3a-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
 	for <linux-s390@vger.kernel.org>; Wed, 22 Jul 2026 14:38:35 +0000 (GMT)
 Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66MEcVKO60227950
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66MEcV8h60227952
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
 	Wed, 22 Jul 2026 14:38:31 GMT
 Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 70E4D20274;
+	by IMSVA (Postfix) with ESMTP id 92C3D20273;
 	Wed, 22 Jul 2026 14:38:31 +0000 (GMT)
 Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5618620273;
+	by IMSVA (Postfix) with ESMTP id 782AF20275;
 	Wed, 22 Jul 2026 14:38:31 +0000 (GMT)
 Received: from funtu2.ibm.com (unknown [9.111.200.113])
 	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
@@ -55,10 +56,12 @@ From: Harald Freudenberger <freude@linux.ibm.com>
 To: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>
 Cc: freude@linux.ibm.com, linux-s390@vger.kernel.org
-Subject: [PATCH v2 0/1] Fix wrong domain value verification with EP11 cards
-Date: Wed, 22 Jul 2026 16:38:30 +0200
-Message-ID: <20260722143831.109929-1-freude@linux.ibm.com>
+Subject: [PATCH v2 1/1] s390/zcrypt: Fix wrong domain value verification with EP11 CPRBs
+Date: Wed, 22 Jul 2026 16:38:31 +0200
+Message-ID: <20260722143831.109929-2-freude@linux.ibm.com>
 X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20260722143831.109929-1-freude@linux.ibm.com>
+References: <20260722143831.109929-1-freude@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -67,30 +70,30 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzIyMDEzOSBTYWx0ZWRfX+RA2TMPTcIW1
- cPrgP1Vi10kOwEQgfVz9bUVB10nfIC6WVjGwJ+s8+pC1Y9vmVmVI/X77/XUXgHOj7f6yHtbcU2D
- 1tp28f/fIw/58iDfQNWXxEFXCVGJGwElb12ZLs931Ub5wAy4IfJiILLdeBn4ERw0d7+ws9UNRs8
- eEVTFleV+9agno16iS4jlJNyVTZK0jzb+Xoyx16tm9d5E8l9DgJ90VYz5XC7T7/iqLRn+3Pdqry
- cMklBK0gLAeJdmvS5tmJoY+6MgsPtsPdz34maJvZo+vWEMXmp/Qh8FtEhcxCKHHOmJZPypAx/an
- zaQ7iQxzScZ9o9QMB8vCvdhX+9CWcQXRU6mmE5iudOdM1iSirbjxB/L5HfMKUqIwXckdp0H0BwQ
- wP0U60jBN/gNmPoX0AVh3fe5iJ+mxojoDiFJRybxDTqjnrN2zBiXtQWDcEPPi79W3NkTTrAYKhH
- H/kk4xdhe3i6m0ozmcg==
-X-Proofpoint-GUID: nXQRY_1EAp0mkDTeBGEV7yJnxGh80f3s
-X-Authority-Analysis: v=2.4 cv=MelcfZ/f c=1 sm=1 tr=0 ts=6a60d5ec cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+X-Proofpoint-ORIG-GUID: -TZvv-pu2ySYADjxoXTUlF1B6kV6okFi
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzIyMDEzOSBTYWx0ZWRfXyMNTyXGgrikC
+ IaptQfT1wBrMFbJVWWPcBOB1GRkxTn4WUQyrhw41Mt+O8G75VRzxTBkyS88ccKlrrE19YBYE+FX
+ hzCcxdgSKH9wpdfk33b8YfUgHuf/NVSahggSwAA8CU9uVpCbaJceeS7FQt8RmEB871VCEBc8Yoa
+ Tq0d+jo7y30UtRimR6WUuLcPSQ8Z2v2/236M3I+jaDxAQEZyIixqz2NAw5+iLEmwrWgRdyz/JmH
+ Q8ISmaXagSHHwqwoqyHXxkvrNHKPemCRvy/2mIvP1oevDM4eJWcTf4OTVOH+G4Wp1wcg59UisT7
+ XiZzvkryXZwJsYUQOteiLvNPY7hs7oT3/k0mH1nCf6ahOAc8QxyPZy8G4zOHMllI3ck/6nAzaE8
+ SXcm5jUOqXKzlF0vIqmOn8V1uas7ueR88Ek5ZnL98CVLACg00QuS6M7jODjMuf9zCSfowLZD+0n
+ mwv48mrtjyIhhKost5Q==
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzIyMDEzOSBTYWx0ZWRfX1qO14Xw5S1zH
+ IdAb6xccIU4cEZbaWEILndJXbmM2S2m/4sXfoYvfx9jIOSrhUeVTQaczoyaxffSW0DOP5CRCsqK
+ IpxCM/7+B59H3ZVq0nSKemJokpspUu8=
+X-Proofpoint-GUID: -TZvv-pu2ySYADjxoXTUlF1B6kV6okFi
+X-Authority-Analysis: v=2.4 cv=SM5ykuvH c=1 sm=1 tr=0 ts=6a60d5ec cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
  a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=V8glGbnc2Ofi9Qvn3v5h:22 a=CM-y2MPe4wPWvEBP-aQA:9 a=zgiPjhLxNE0A:10
- a=zZCYzV9kfG8A:10
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzIyMDEzOSBTYWx0ZWRfX7eshs79rpzA/
- 3Afv6HdZ1Yiqa29tvIltC2y/zB79LLUHWTqPh1is3g5CKuot2JYrLgOpMd1FCuenIf1cexK0gYZ
- ethUGtjHSqreAxvrHDRcRUBqboKmqM8=
-X-Proofpoint-ORIG-GUID: nXQRY_1EAp0mkDTeBGEV7yJnxGh80f3s
+ a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8 a=VwQbUJbxAAAA:8
+ a=Pa6B3iQwBwFtng1MImYA:9
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-07-22_04,2026-07-22_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- impostorscore=0 lowpriorityscore=0 priorityscore=1501 bulkscore=0 spamscore=0
- clxscore=1015 malwarescore=0 phishscore=0 adultscore=0 suspectscore=0
+ clxscore=1015 lowpriorityscore=0 bulkscore=0 suspectscore=0 adultscore=0
+ spamscore=0 malwarescore=0 priorityscore=1501 phishscore=0 impostorscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607220139
 
@@ -100,15 +103,27 @@ active on custom device nodes but may lead to access heap memory
 behind perms->adm when an administrative CPRB is sent.
 Add correct limit (AP_DOMAINS = 256) checking to fix this.
 
-v1: initial version
-v2: Resend without any code changes, just Finn's reviewed by added.
-
-Harald Freudenberger (1):
-  s390/zcrypt: Fix wrong domain value verification with EP11 CPRBs
-
+Fixes: cfd68b33094e ("s390/zcrypt: Filter admin CPRBs on custom devices")
+Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
+Reviewed-by: Finn Callies <fcallies@linux.ibm.com>
+Cc: stable@vger.kernel.org
+---
  drivers/s390/crypto/zcrypt_api.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
+diff --git a/drivers/s390/crypto/zcrypt_api.c b/drivers/s390/crypto/zcrypt_api.c
+index f57189c2b839..81eefdeae248 100644
+--- a/drivers/s390/crypto/zcrypt_api.c
++++ b/drivers/s390/crypto/zcrypt_api.c
+@@ -1077,7 +1077,7 @@ static long _zcrypt_send_ep11_cprb(u32 xflags, struct ap_perms *perms,
+ 	print_hex_dump_debug("ep11req: ", DUMP_PREFIX_ADDRESS, 16, 1,
+ 			     ap_msg.msg, ap_msg.len, false);
+ 
+-	if (perms != &ap_perms && domain < AUTOSEL_DOM) {
++	if (perms != &ap_perms && domain < AP_DOMAINS) {
+ 		if (ap_msg.flags & AP_MSG_FLAG_ADMIN) {
+ 			if (!test_bit_inv(domain, perms->adm)) {
+ 				rc = -ENODEV;
 -- 
 2.43.0
 
