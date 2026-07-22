@@ -1,129 +1,114 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4BCC355F49
-	for <linux-s390@vger.kernel.org>; Wed, 22 Jul 2026 14:38:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 07F99306765
+	for <linux-s390@vger.kernel.org>; Wed, 22 Jul 2026 14:53:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784731119; cv=none; b=urEd6xoFGk5EHkIzjUPcnJj7EcG4/OVkUjnfewnE2n6K4LmLu6XDtWHZty6aErr6wNo/YeNq26HeeUCCnjTqlusleHmv45KHR70jkeTVimtvGXjNKbwT2h+B7tNVWt+ngnrvTQLITDBKFidyH7Ic4P4DgDeoixtdO54X61lJjOU=
+	t=1784731999; cv=none; b=g/xyfIYVlzFH9R0qHO4TuvUXr6GuipRqr/qr320pVIkvf56KXjVgwsH5O7NF9iWh1LXnOZCc6HC/SzA/q7tB3Ty6TBmhNuQZSU/Iq7FwxpoQt/Uc+1gXRyjsX+AZBefcwlJoULtL9y77UTBo/Vm0NtIW9pxwA4iQs4gF8uWjbnk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784731119; c=relaxed/simple;
-	bh=RAXXFLU7+MPc656O//gEe3Ck5VxMy7HLYjJONQduGnc=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=M4wWxCxJBVvzrf1awG1HYKx0+me55nfVimgDAmBbX+gu6vTV/3snPdNTbvjtGnTIehx8lNbKC9eoYRT27kqAPyownigmmNiTtVgTYPEotDzZueJW9SLsPfLd9XvxL2hsbRTrC2i114lE6zkF0fG1/DLIuUGduf2L+tnjmx1xjl0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=mzKcjwa1; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1784731999; c=relaxed/simple;
+	bh=Xg65Pf/Nr1Vblps4pYqu2/c0QF3GmMoVU6CiHt8i7SE=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=KL8SxOwgWyS6XdvbmMrKJquu6rZVa+YMKZCXJLi29Zj0uvjvmL1Si1ChUw1dQkIl+tmKdJzfjG2PUNWWMPEAvY8cTt+8LB0qELjeJHasWSCsw4Bm0PG+wsH+JFt5TQJJiwuOyaH/sRJaCh1mz3yNuB0mx+wvZi8olCPeG1ubwms=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=H/Dh06KX; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="mzKcjwa1"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66MDftsF095396
-	for <linux-s390@vger.kernel.org>; Wed, 22 Jul 2026 14:38:36 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=AyXmNvDivWDoSm4i0
-	YWAd5RHXJwelS9rPzCbGeDTTJ0=; b=mzKcjwa15dqBXLZsUTidba2UmWqqO0wpt
-	Fv8WestvRQ1LVsewV6mVt3jopCbtNWDZqcG3467ttPJAqCRo80cR3lRp/vI+sv8d
-	MpErhRN8R9ndcanFyX9EYkGxzRqejQUg1bxoZT2cSlfafpFT/30IGScuDSIFqUxq
-	PZcg3FovUHxUC78T/EWoIQ3SaeFgaqslQtkfX7ZzPCByZA2QlxG4ORb0LsPcOiSH
-	HC9H3kYRjkSGYoO9T6BCCSSALMajTvReFt/9ZMueSi0HFUIrD3SQoheJ1kjtD9m9
-	bCORlQYttT9xEuNV9mmrh9DGDlSkRLKMQkDYWgmM7APyQbiqczciA==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fg7aha7t3-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Wed, 22 Jul 2026 14:38:36 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66MEYgCm024865
-	for <linux-s390@vger.kernel.org>; Wed, 22 Jul 2026 14:38:35 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fgp1gfj3a-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Wed, 22 Jul 2026 14:38:35 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66MEcV8h60227952
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 22 Jul 2026 14:38:31 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 92C3D20273;
-	Wed, 22 Jul 2026 14:38:31 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 782AF20275;
-	Wed, 22 Jul 2026 14:38:31 +0000 (GMT)
-Received: from funtu2.ibm.com (unknown [9.111.200.113])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 22 Jul 2026 14:38:31 +0000 (GMT)
-From: Harald Freudenberger <freude@linux.ibm.com>
-To: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: freude@linux.ibm.com, linux-s390@vger.kernel.org
-Subject: [PATCH v2 1/1] s390/zcrypt: Fix wrong domain value verification with EP11 CPRBs
-Date: Wed, 22 Jul 2026 16:38:31 +0200
-Message-ID: <20260722143831.109929-2-freude@linux.ibm.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260722143831.109929-1-freude@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="H/Dh06KX"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F70D1F000E9;
+	Wed, 22 Jul 2026 14:53:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1784731997;
+	bh=l2riv4yKcYuGC2iu1n3zSHbkuPSj8yybfJbyFNUVNLo=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=H/Dh06KXhuq+2ObSBbXqUMY0yAsk7XxokOti2lb7/ZPXGYm9tlU5gZp2/mGk8Lb7d
+	 J21/Zpn6oSfd4eskme0iJQ7PUoA1tc2GHfd1KgdaMSLzaEkdyUqk/obPG0LUhCFVyT
+	 hr/TLTcPvTgdjofekmAz3tnlkfI3rDhLr1D6IWgpPYVwV1tH6c5bG3PIDldERUGSiW
+	 3EecoofwrAssvvCC7JLia7j30GWX6Jx6xSuZy4xgqMn1IrmAKABt20WnxFnh/ATUBZ
+	 5vTi8e0BogdHNoN3rFXMlk2AzUuxS+Cp73A89uFRUpx7ofm3L6A3g3+R+gaPKuVXmm
+	 gmc1O1FCvH1mw==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2 1/1] s390/zcrypt: Fix wrong domain value verification
+ with EP11 CPRBs
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Harald Freudenberger" <freude@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>, "Heiko
+ Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
+In-Reply-To: <20260722143831.109929-2-freude@linux.ibm.com>
 References: <20260722143831.109929-1-freude@linux.ibm.com>
+ <20260722143831.109929-2-freude@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Wed, 22 Jul 2026 14:53:16 +0000
+Message-Id: <20260722145317.6F70D1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: -TZvv-pu2ySYADjxoXTUlF1B6kV6okFi
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzIyMDEzOSBTYWx0ZWRfXyMNTyXGgrikC
- IaptQfT1wBrMFbJVWWPcBOB1GRkxTn4WUQyrhw41Mt+O8G75VRzxTBkyS88ccKlrrE19YBYE+FX
- hzCcxdgSKH9wpdfk33b8YfUgHuf/NVSahggSwAA8CU9uVpCbaJceeS7FQt8RmEB871VCEBc8Yoa
- Tq0d+jo7y30UtRimR6WUuLcPSQ8Z2v2/236M3I+jaDxAQEZyIixqz2NAw5+iLEmwrWgRdyz/JmH
- Q8ISmaXagSHHwqwoqyHXxkvrNHKPemCRvy/2mIvP1oevDM4eJWcTf4OTVOH+G4Wp1wcg59UisT7
- XiZzvkryXZwJsYUQOteiLvNPY7hs7oT3/k0mH1nCf6ahOAc8QxyPZy8G4zOHMllI3ck/6nAzaE8
- SXcm5jUOqXKzlF0vIqmOn8V1uas7ueR88Ek5ZnL98CVLACg00QuS6M7jODjMuf9zCSfowLZD+0n
- mwv48mrtjyIhhKost5Q==
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzIyMDEzOSBTYWx0ZWRfX1qO14Xw5S1zH
- IdAb6xccIU4cEZbaWEILndJXbmM2S2m/4sXfoYvfx9jIOSrhUeVTQaczoyaxffSW0DOP5CRCsqK
- IpxCM/7+B59H3ZVq0nSKemJokpspUu8=
-X-Proofpoint-GUID: -TZvv-pu2ySYADjxoXTUlF1B6kV6okFi
-X-Authority-Analysis: v=2.4 cv=SM5ykuvH c=1 sm=1 tr=0 ts=6a60d5ec cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8 a=VwQbUJbxAAAA:8
- a=Pa6B3iQwBwFtng1MImYA:9
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-07-22_04,2026-07-22_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 lowpriorityscore=0 bulkscore=0 suspectscore=0 adultscore=0
- spamscore=0 malwarescore=0 priorityscore=1501 phishscore=0 impostorscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607220139
+
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+
+Pre-existing issues:
+- [Critical] The administrative permission (`perms->adm`) check can be comp=
+letely bypassed by supplying a domain >=3D AP_DOMAINS (such as AUTOSEL_DOM)=
+, allowing unauthorized administrative commands to be executed on queues wh=
+ere the user only has usage access.
+--
+
+--- Patch [1]: [PATCH v2 1/1] s390/zcrypt: Fix wrong domain value verificat=
+ion with EP11 CPRBs ---
+commit bde27d2c3d10843f1570c9d533dc3ccd2e17bf0f
+Author: Harald Freudenberger <freude@linux.ibm.com>
+
+s390/zcrypt: Fix wrong domain value verification with EP11 CPRBs
 
 There is a wrong upper limit check for the domain value when an EP11
 CPRB is processed for sending to a crypto card. This check is only
 active on custom device nodes but may lead to access heap memory
 behind perms->adm when an administrative CPRB is sent.
-Add correct limit (AP_DOMAINS = 256) checking to fix this.
 
-Fixes: cfd68b33094e ("s390/zcrypt: Filter admin CPRBs on custom devices")
-Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
-Reviewed-by: Finn Callies <fcallies@linux.ibm.com>
-Cc: stable@vger.kernel.org
----
- drivers/s390/crypto/zcrypt_api.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> diff --git a/drivers/s390/crypto/zcrypt_api.c b/drivers/s390/crypto/zcryp=
+t_api.c
+> index f57189c2b839e..81eefdeae2485 100644
+> --- a/drivers/s390/crypto/zcrypt_api.c
+> +++ b/drivers/s390/crypto/zcrypt_api.c
+> @@ -1077,7 +1077,7 @@ static long _zcrypt_send_ep11_cprb(u32 xflags, stru=
+ct ap_perms *perms,
+>  	print_hex_dump_debug("ep11req: ", DUMP_PREFIX_ADDRESS, 16, 1,
+>  			     ap_msg.msg, ap_msg.len, false);
+> =20
+> -	if (perms !=3D &ap_perms && domain < AUTOSEL_DOM) {
+> +	if (perms !=3D &ap_perms && domain < AP_DOMAINS) {
 
-diff --git a/drivers/s390/crypto/zcrypt_api.c b/drivers/s390/crypto/zcrypt_api.c
-index f57189c2b839..81eefdeae248 100644
---- a/drivers/s390/crypto/zcrypt_api.c
-+++ b/drivers/s390/crypto/zcrypt_api.c
-@@ -1077,7 +1077,7 @@ static long _zcrypt_send_ep11_cprb(u32 xflags, struct ap_perms *perms,
- 	print_hex_dump_debug("ep11req: ", DUMP_PREFIX_ADDRESS, 16, 1,
- 			     ap_msg.msg, ap_msg.len, false);
- 
--	if (perms != &ap_perms && domain < AUTOSEL_DOM) {
-+	if (perms != &ap_perms && domain < AP_DOMAINS) {
- 		if (ap_msg.flags & AP_MSG_FLAG_ADMIN) {
- 			if (!test_bit_inv(domain, perms->adm)) {
- 				rc = -ENODEV;
--- 
-2.43.0
+[Severity: Critical]
+This is a pre-existing issue, but does this logic allow an unauthorized
+administrative command to bypass the perms->adm check entirely if a user
+supplies a domain value greater than or equal to AP_DOMAINS, such as
+AUTOSEL_DOM (0xFFFF)?
 
+If domain >=3D AP_DOMAINS, this condition evaluates to false, completely
+skipping the administrative permissions check. The driver then proceeds to
+autoselect a queue using zcrypt_check_queue(), which only verifies the usage
+mask (perms->aqm), ignoring whether the queue is being targeted by an
+administrative command.
+
+For example, if a user issues an ioctl with an admin command and sets the
+domain field to AUTOSEL_DOM, the driver bypasses the perms->adm verificatio=
+n.
+Then, as seen in paths like zcrypt_msgtype6_send_cprb() for CCA, the
+AUTOSEL_DOM value is overwritten with the selected queue's real domain ID
+before dispatch, converting the bypassed command into an executable hardware
+command. The same bypass exists here in the EP11 request path.
+
+Can a user with only usage permission on a custom zcrypt device node use th=
+is
+to execute arbitrary hardware administrative commands?
+
+>  		if (ap_msg.flags & AP_MSG_FLAG_ADMIN) {
+>  			if (!test_bit_inv(domain, perms->adm)) {
+>  				rc =3D -ENODEV;
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260722143831.1099=
+29-2-freude@linux.ibm.com?part=3D1
