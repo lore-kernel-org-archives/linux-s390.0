@@ -1,169 +1,156 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5006D3ED11B;
-	Thu, 23 Jul 2026 07:33:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8BD6A355F46;
+	Thu, 23 Jul 2026 07:34:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784792018; cv=none; b=TTqhOLSm3dx5oxSWKHLTIPqpKuk9bZikO73aK/RWvD8CcoarwSm7FOFubPDBfPh5WZWPZbvQNYa8x3olzpniWh1lAuQAblo56yN52hpNfn6o/jD7MrEcju9vE71ywUr4441zc8EuZ9DAkOyOdv3WZiLiT5DPzHnrdeN3JsM2jx0=
+	t=1784792065; cv=none; b=a9U8PbccZ7xeefXMDorxcyBm/A54Hou8116VMojy9+9Z/ZpWe4vNN2YoYUzpP9248ybfzQ8vjINskLcMkjmxhlKV+OIuockwdh70+3PbnZUsYPGFGh33AMOBPolHxjwz4r0woZQoSlnoZGk0uQkAZIwpJlzpjkETi8m7qhYgW6o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784792018; c=relaxed/simple;
-	bh=oC7sbdUgNMV8QTYtSsP43klCwlgDf7B5XZJkVhlnl7g=;
-	h=Mime-Version:Content-Type:Date:Message-Id:From:Cc:To:Subject:
-	 References:In-Reply-To; b=kO7RJXFVMHcSsn1DJCg2O6g/hh/r5Qphhq8vQjg4PIQ4Yf9PF6NYmyOr59jZFnfr+gdRTu3nkxzPygeskj8uvD8Jb3T9Nb94VTpzh10G+I0RVw/SqTZ4LJqo7OXxivNHzVsm5sK1krRfMBdoMrLD/U0eKROxrf+DpLYEjm9dYdc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=saIVXHy9; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1784792065; c=relaxed/simple;
+	bh=RqEOYvOZJ6RNuORK5PKhO5mff86XkQ6tTlYe75iv+m8=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=nWXVjo5Yv+S1ThflY/5QHz4TiWlf5R5xXo6sGlF5q522pUB3YcorC61zRCVk6AGliMueL3Cic8J8wFDYe0GdXFCvRqv6/haNxNHXyaFjWANwnmgpkymxR6weHwr9wijFDad0OJe7vRaSIPs8nNin+tdOj9oOG0BDN+H7+Ta9ZdQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=fBhLQmMh; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="saIVXHy9"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66N5CjK82084695;
-	Thu, 23 Jul 2026 07:33:36 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="fBhLQmMh"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66N5CEUC2000108;
+	Thu, 23 Jul 2026 07:34:23 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=mt3U42
-	aN626+U6dkCBBEqQUPL9hveoK+KDmxcgBTv6Y=; b=saIVXHy9fBGHE5U+39KXLY
-	lSQPMMlZ2MpHhRYUcMJhpSRW0CuiFHxzWDT7cSJwAifq+qmJQDcdzI8DewwcwImY
-	K+qBqC5sZha3ywdqe43l8WwFkYT5og8ik9WB1PKbsnw1bQQgzDwYlrx0ccrQVVrJ
-	qJKiq8YRiKZ+gq+RXIHHsFbQQadlNcuFRN78vCxoN4OXQJt8yNsFPmJhBIRhrlYL
-	40cNPc2EiPkI1exp9cptaCIjxqqxWb0TeInKjoCVzCw3IO05496msfHbCDq+qFdm
-	sQlHnl62NtANVwVBBP5Uu6CrzuICgLTQFq6eQ0wo+AlxnWBsO/nbrLf3QpTFoZhg
+	:message-id:mime-version:references:subject:to; s=pp1; bh=bUGJar
+	zH91fLJRaYXDhzA161X7iu5vC4FYApbpnRtN4=; b=fBhLQmMhSnouKnXK6roXRD
+	EzRqcjUss9fMr7l9Udl6UFRImdlDfvlCk/9qXAg7s0V7JPCccQGb0ez9nIBTMwko
+	gmMgMxGopeLec9sYOaQesLUmXfqteRyE7VwZXYnv7R27WPJdEIKHJZqLtDXkGyxg
+	9+yR0sDydAhRj3U4I1+V/iUeem4Ce88PQ3om71+a4lIAa+0tEsL0Y+9FIrcmWLgD
+	FMR1aYxPwf5MZ6O1LMsTKnHBym/RQCOAhKygSI37YLYQA7t+fhYWRqcDJ6jiXV/t
+	qh9X0qB60KGNr67a70xISA37Ga3fvDgKSCKIoaxk0C4Ypra1Gi62hzepS9RAxXCA
 	==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fg7916b90-1
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fg77kdt8r-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 23 Jul 2026 07:33:36 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66N7JdB9011886;
-	Thu, 23 Jul 2026 07:33:35 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fgp1gjvwv-1
+	Thu, 23 Jul 2026 07:34:23 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66N7JjRj030786;
+	Thu, 23 Jul 2026 07:34:22 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fgmtk33rc-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 23 Jul 2026 07:33:35 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66N7XVpv41681216
+	Thu, 23 Jul 2026 07:34:22 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66N7YIRY61473122
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 23 Jul 2026 07:33:31 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 80E8120075;
-	Thu, 23 Jul 2026 07:33:31 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6C77E20071;
-	Thu, 23 Jul 2026 07:33:31 +0000 (GMT)
-Received: from darkmoore (unknown [9.224.78.25])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 23 Jul 2026 07:33:31 +0000 (GMT)
+	Thu, 23 Jul 2026 07:34:18 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A5C5220136;
+	Thu, 23 Jul 2026 07:34:18 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 5D2D82012E;
+	Thu, 23 Jul 2026 07:34:18 +0000 (GMT)
+Received: from [9.224.77.173] (unknown [9.224.77.173])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 23 Jul 2026 07:34:18 +0000 (GMT)
+Message-ID: <ecada619-8e43-4847-8001-afcf2be7d4fe@linux.ibm.com>
+Date: Thu, 23 Jul 2026 09:34:18 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Thu, 23 Jul 2026 09:33:26 +0200
-Message-Id: <DK5RYOJDRPYK.1UBAUE8G7YG75@linux.ibm.com>
-From: "Christoph Schlameuss" <schlameuss@linux.ibm.com>
-Cc: <linux-s390@vger.kernel.org>, "Heiko Carstens" <hca@linux.ibm.com>,
-        <kvm@vger.kernel.org>, "Vasily Gorbik" <gor@linux.ibm.com>,
-        "Alexander
- Gordeev" <agordeev@linux.ibm.com>
-To: "Janosch Frank" <frankja@linux.ibm.com>, <sashiko-reviews@lists.linux.dev>,
-        "Christoph Schlameuss"
- <schlameuss@linux.ibm.com>
-Subject: Re: [PATCH 13/21] KVM: s390: vsie: Add helper to pin multiple guest
- pages
-X-Mailer: aerc 0.21.0
-References: <20260709-vsie-sigpi-v1-0-ea9f12066408@linux.ibm.com>
- <20260709-vsie-sigpi-v1-13-ea9f12066408@linux.ibm.com>
- <20260709152820.BA50D1F000E9@smtp.kernel.org>
- <869ceed8-1c04-46ff-aa0d-c1ae5e01badb@linux.ibm.com>
-In-Reply-To: <869ceed8-1c04-46ff-aa0d-c1ae5e01badb@linux.ibm.com>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v4 3/6] KVM: s390: pci: Fix missing error codes and memory
+ unaccounting
+To: Farhan Ali <alifm@linux.ibm.com>, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, kvm@vger.kernel.org
+Cc: mjrosato@linux.ibm.com, farman@linux.ibm.com
+References: <20260722170621.1686-1-alifm@linux.ibm.com>
+ <20260722170621.1686-4-alifm@linux.ibm.com>
+Content-Language: en-US
+From: Christian Borntraeger <borntraeger@linux.ibm.com>
+In-Reply-To: <20260722170621.1686-4-alifm@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: cjnaU2pdzk-Yat43uaq2L_Tn5IgmLLwg
-X-Authority-Analysis: v=2.4 cv=V6RNF+ni c=1 sm=1 tr=0 ts=6a61c3d0 cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+X-Authority-Analysis: v=2.4 cv=HJXz0Itv c=1 sm=1 tr=0 ts=6a61c3ff cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
  a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=VwQbUJbxAAAA:8
- a=HN2Bi1S7tktRAlzQxmMA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzIzMDA3MSBTYWx0ZWRfX0+knXjz2XtQ8
- 0VSncqCVKFMb031ipOI1zA2MgEoynTSyRb+phrgZYPAWL5wta5uIcwT+c3LgXaIgVO1TTGZYNm0
- eXwDINfS/an/ZFuvuKaEGuVFyrRYtOQ=
-X-Proofpoint-GUID: cjnaU2pdzk-Yat43uaq2L_Tn5IgmLLwg
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzIzMDA3MSBTYWx0ZWRfX5q1dYRe+EomK
- zFG9sOTDP9WGnwl07x9sk/j6yigy2FhI9iWGfPUgHQbtchvVd328JmcYLvPiVzcZckBheiEMp2+
- A2DVOXxY9MRCv6Ha8ZjbYSS5k6YLmfV11uHfWDz2TTcyU7qtLjAPNFjG6C6vF+rJ/YATynZ4c2n
- j7rK4NQblxugtYhI4daHojFfONXx1UK9ZiHUmwSZRwwc4hOWgCLgcew5RiiWC2omLDbhp5i1T8e
- C8Ec5owaR2qmtC6keQuEh4nNgYwH+7CZU+08uqSVAKPXMHipYEN25DMqTv7dVIPgnda1aAUScZ8
- VSY1ahu/xfYieg6DcosPZdiHhjNfFQyChe+iUqRHZQDKlJAHE8OWBRR2g+4KmslakbNkOjtPmw7
- qLJYAd+wmYhcqyx5xMM1H0UIRBdao4l/b+teHXGhkfQm9FuEAKuzyiEFfSdoZIXVJlzi5AMza/4
- i+A8BJ+cC6u61wmCaLA==
+ a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8
+ a=AJ4VnbqJACYr0d-LWtUA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzIzMDA3MSBTYWx0ZWRfX+8lpMJq4iy+2
+ dHT8oSa9vefWapt0o/t4+qYPYKMBlp5L2SlOczHbjBJ6+qlpJQEmOF1kLlfXLpE4q060oFNGzYT
+ ldXbmZ6etlOq5vqqFcOiZYQ4pgdjDy7aHaIEa7DRn3XjJ+YQMMJPz6Rnv+JYnzuvgTTLhwJUijr
+ SxiNBzjfkDg7JLijkYqNRfPIgk3ziHTEKNkCw1bFY8/BnIZ/E0u/5h2Osory6PSDLQstGQN9aK6
+ P/28EXtfQWNeFXpq/HNfu+gkZeyuna61oNOriMZ9gTWrJiXIKEmL5zmdWZLnFq9+RDXjp/neazv
+ NvaQQLSUveBmi50fQFf+W4ew9YqAQbypr35uXfdjeEf5lmy1nkrF+CIFxHktoimVHzbJaneqDZZ
+ ZhD/2u5AmppuOQAAxK3996FXhgw1g53f/AYR12uOMWaI4fFTgquijJ7njMYN3XwPxn9CLF0E0Fx
+ itwkEYSpcQQb7jwiXBQ==
+X-Proofpoint-ORIG-GUID: YoVF_erpkz8WepC6LJ_P5MUsYCd5s_HQ
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzIzMDA3MSBTYWx0ZWRfXywT3yVDAWFrg
+ iVF9LZL7HJANXgrcAYSJ/I3RkYsFxvZ6tcGkcCkIDqWYPM7NP/VUcsF4RZPmMmzDh4y68hw5ylL
+ kZSonjqIU2L+lNnWN3XbSDdP80hQWJw=
+X-Proofpoint-GUID: YoVF_erpkz8WepC6LJ_P5MUsYCd5s_HQ
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-07-23_02,2026-07-22_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 adultscore=0 bulkscore=0 lowpriorityscore=0 clxscore=1011
- spamscore=0 impostorscore=0 phishscore=0 priorityscore=1501 suspectscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607230071
-
-On Wed Jul 15, 2026 at 11:19 AM CEST, Janosch Frank wrote:
-> On 7/9/26 17:28, sashiko-bot@kernel.org wrote:
->> Thank you for your contribution! Sashiko AI review found 1 potential iss=
-ue(s) to consider:
->> - [Medium] Incorrect address calculation for unaligned GPAs in `pin_gues=
-t_pages`, leading to data corruption for multi-page contiguous buffers.
->> --
->
-> [...]
->
->>=20
->> [Severity: Medium]
->> Could this address calculation cause issues if the initial gpa is unalig=
-ned?
->>=20
->> If a caller passes an unaligned gpa to pin_guest_pages() (for example, 0=
-x1010),
->> adding PAGE_SIZE * i propagates this initial page offset to every subseq=
-uent
->> page. This would mean the calculation requests 0x2010, 0x3010, and so on=
-,
->> skipping the guest memory between 0x2000 and 0x200F.
->>=20
->> Would it be safer to align the gpa calculation for the subsequent pages =
-to
->> ensure a truly contiguous buffer is correctly pinned?
->>=20
->>> +		if (rc)
->>> +			goto err;
->>> +		addr[i].gpa =3D gpa + PAGE_SIZE * i;
->>> +		addr[i].hpa =3D hpa;
->>> +	}
-> When unpinning that shouldn't matter since gpa_to_gfn() removes those=20
-> remaining bits. Are you ever using a hpa other than the index 0 one?
->
-> But yeah, there shouldn't be any offsets for follow on pages.
-
-I am not too happy with that. While agree that it is confusing to have the =
-array
-named sca_o_pages, I still do need the in page offset of
-vsie_sca->sca_o_pages[0].hpa.
-
-ATM only vsie_sca->sca_o_pages[0].hpa is used to store the original sca ori=
-gin.
-
-If we would want to store page adressess here all of them should be. Meanin=
-g we
-need to reconstruct the actual sca_o_hpa from something like
-
-  vsie_sca->sca_o_pages[0].hpa | (vsie_sca->sca_gpa & ~PAGE_MASK)
-
-Its only needed in two places in the end though. Other places do a recalcul=
-ation
-of the offset anyway.
-
-Putting the recalculation in a little helper method and having sca_o_pages
-entries all masked to the page addresses somewhat works for me.
+ bulkscore=0 priorityscore=1501 lowpriorityscore=0 suspectscore=0
+ malwarescore=0 impostorscore=0 clxscore=1015 phishscore=0 spamscore=0
+ adultscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2607230071
 
 
+
+Am 22.07.26 um 19:06 schrieb Farhan Ali:
+> In kvm_s390_pci_aif_enable() two error paths failed to set error code,
+> causing the function to return 0 on failure. It also failed to rollback
+> memory accounting on failure. Fix both by propagating error code on
+> failure and calling unaccount_mem() in the cleanup path.
+> 
+> Fixes: 3c5a1b6f0a18 ("KVM: s390: pci: provide routines for enabling/disabling interrupt forwarding")
+> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+
+Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+
+> ---
+>   arch/s390/kvm/pci.c | 9 +++++++--
+>   1 file changed, 7 insertions(+), 2 deletions(-)
+> 
+> diff --git a/arch/s390/kvm/pci.c b/arch/s390/kvm/pci.c
+> index 1b3114c7cfbb..33abc15aa685 100644
+> --- a/arch/s390/kvm/pci.c
+> +++ b/arch/s390/kvm/pci.c
+> @@ -297,14 +297,17 @@ static int kvm_s390_pci_aif_enable(struct zpci_dev *zdev, struct zpci_fib *fib,
+>   	}
+>   
+>   	/* Account for pinned pages, roll back on failure */
+> -	if (account_mem(zdev->kzdev, pcount))
+> +	rc = account_mem(zdev->kzdev, pcount);
+> +	if (rc)
+>   		goto unpin2;
+>   
+>   	/* AISB must be allocated before we can fill in GAITE */
+>   	mutex_lock(&aift->aift_lock);
+>   	bit = airq_iv_alloc_bit(aift->sbv);
+> -	if (bit == -1UL)
+> +	if (bit == -1UL) {
+> +		rc = -ENOMEM;
+>   		goto unlock;
+> +	}
+>   	zdev->aisb = bit; /* store the summary bit number */
+>   	zdev->aibv = airq_iv_create(msi_vecs, AIRQ_IV_DATA |
+>   				    AIRQ_IV_BITLOCK |
+> @@ -348,6 +351,8 @@ static int kvm_s390_pci_aif_enable(struct zpci_dev *zdev, struct zpci_fib *fib,
+>   	return rc;
+>   
+>   unlock:
+> +	if (pcount > 0)
+> +		unaccount_mem(zdev->kzdev, pcount);
+>   	mutex_unlock(&aift->aift_lock);
+>   unpin2:
+>   	if (fib->fmt0.sum == 1)
 
