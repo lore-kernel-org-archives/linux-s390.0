@@ -1,235 +1,197 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8422D42AFA3;
-	Thu, 23 Jul 2026 14:12:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C0E442AF8F
+	for <linux-s390@vger.kernel.org>; Thu, 23 Jul 2026 14:13:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784815945; cv=none; b=Wp3ljwBaz5vvAgj5ME5XfXed+4RIm1k6Rc3j6o5gbRGUkxLSZNB49dEn1KnAZurxcwbW1670XHsMFT7rNbJ5zMUKKnP2sISGh09pWxdkEtSzhljGRZ9fbefdjZNTesHHpRS6vKrLgCGd9GgT0Aiek0WkLd1rz/3V2AvcFnZlcbs=
+	t=1784816001; cv=none; b=dQK1zeuBqXSqcg3670yyaTTx9r2idufIv90iHn2rTasjXx1eg/gL14l/3hEzZ1wFGiiewqOcUfsJBhKv4StHjgQ243nfdYqsVzE8wpP83WytQSnOa2z7ykRU8vNHArqcE5TXHIWhD3H80T9LVbBKNlEANGigEwy7DA1Wshy53qc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784815945; c=relaxed/simple;
-	bh=KFnpCeNZJchKC2hhB+llZy22Sv/bzS+xjk5dAZPfJkY=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=JBLUsmC3Ka7v0c+bboRB0qJauhTOcw98hSJQC9g0J5C9ZNk4D719RiaDkaicaa6j/gacSAYCUiodY+pfdpVm+5TSDQsUEoXvBu9SEAWnnVikUisQkj88xjfm3lrl8EoQqxKo5R1Gfu9xVJk7cUKj9vvBkEY5olyVOQjodfWEu0s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=hCGb4j+R; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1784816001; c=relaxed/simple;
+	bh=LIOkG7idHOgST+pJXjztS1UG+IIyB5pEJRsUuH4LciI=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=me+JWzurZ/55EpSlGNX3itlki2WXFeOSRPOmULzQu9HHjwvXBpGK2vyuC8bHk+F1siTK7pu079qWIV6Do/kDOd0p0OA7Wnui0WCS/joPtg8htyx1eKKDAwXl0Q1zz63W61bVuXBwopGblNlX70Q6RrJ0c9JFUopJHyvpDNMhsQs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=At99WPgi; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="hCGb4j+R"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66NDC48G3015697;
-	Thu, 23 Jul 2026 14:12:12 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=6PrLLC
-	Ymbl+wXdXHgBy0BDG6AZ+//JFo3EhbaFX2gQM=; b=hCGb4j+RYVMsr2G0nUeAVA
-	pPcHffBfZqOKQ8sVc2ZkCyzZVWdQBpxYVal3IYEiDKpFtTBB/fGAuHKBK0U2lZSw
-	JvggusbpbBDGoGXfguLCOlpTqh3wbFR+Fb5BEePpwElc3181VJK09t6sQRw6aODr
-	JeV8L9vlbY44wGqKHJKTdOGcNs4UTx+2eJZTrIl3zAoyTtnCDxGwO0isQcC1Coc/
-	zbypwO5zOUqLuRsrjLU6dsGVdIP1dFUN/WXLDPodgT8OnyNbuN46EH/fxQStmV4B
-	jKGQCLpg8JOClHcWRQYSp/7l7zL1pYgXAHuTXc2pFV4fIDiJ80AgSSkdH03kdAwA
-	==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fg77kfcr8-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 23 Jul 2026 14:12:12 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66NE4cYk012006;
-	Thu, 23 Jul 2026 14:12:11 GMT
-Received: from smtprelay05.wdc07v.mail.ibm.com ([172.16.1.72])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fgp1gmb7f-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 23 Jul 2026 14:12:11 +0000 (GMT)
-Received: from smtpav05.wdc07v.mail.ibm.com (smtpav05.wdc07v.mail.ibm.com [10.39.53.232])
-	by smtprelay05.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66NECA9J21365496
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 23 Jul 2026 14:12:10 GMT
-Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4D29358053;
-	Thu, 23 Jul 2026 14:12:10 +0000 (GMT)
-Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 96FCD58043;
-	Thu, 23 Jul 2026 14:12:09 +0000 (GMT)
-Received: from [9.61.177.4] (unknown [9.61.177.4])
-	by smtpav05.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 23 Jul 2026 14:12:09 +0000 (GMT)
-Message-ID: <6f87bda7-8a8a-4f93-907c-6e0a442c8ceb@linux.ibm.com>
-Date: Thu, 23 Jul 2026 10:12:09 -0400
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="At99WPgi"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37F111F000E9;
+	Thu, 23 Jul 2026 14:13:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1784815992;
+	bh=OiKUdhFXNE8T/fztGZ+qzp10k8N7f8hMWBv+V7UuWyQ=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=At99WPgi1HpaenA5n4msy0v+T9Fu0ITXCSPxQFTndeNldlcNrU1fmtGjgzzwV7g3Q
+	 p+dr/uf9+5VoVBaqWjgWbsK8SX345vWKtHOquI3VriaR3wTp1g+ZlIOpmV1bBgYZc/
+	 z1MKaM9Y/rKsQDwgUsagAmwI5C+k/Awboc14oCj7pwFliK1mAc8TsWWhAykzFtl8TK
+	 0eOr8mBtNygy0msYwYXxDNbclgoh+CoPZa+tsAx8ZVh5aiNTDStzoNW6rL5aHaPkA0
+	 JHaPAtVJ52yM3Ix5vs0oYvc4/oqv1Ui52iV3IUeSZ4AcsdxDyc2h65u2CO7cm6fccM
+	 FdBWRTtzy+T+Q==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v3 03/13] s390/dasd: Add range-based format-track
+ collision detection
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Stefan Haberland" <sth@linux.ibm.com>
+Cc: "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Heiko
+ Carstens" <hca@linux.ibm.com>, linux-s390@vger.kernel.org
+In-Reply-To: <20260723134743.672413-4-sth@linux.ibm.com>
+References: <20260723134743.672413-1-sth@linux.ibm.com>
+ <20260723134743.672413-4-sth@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 23 Jul 2026 14:13:11 +0000
+Message-Id: <20260723141312.37F111F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4 2/6] KVM: s390: pci: Fix memory accounting for
- pinned/unpinned pages
-To: Farhan Ali <alifm@linux.ibm.com>, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, kvm@vger.kernel.org
-Cc: borntraeger@linux.ibm.com, farman@linux.ibm.com
-References: <20260722170621.1686-1-alifm@linux.ibm.com>
- <20260722170621.1686-3-alifm@linux.ibm.com>
-Content-Language: en-US
-From: Matthew Rosato <mjrosato@linux.ibm.com>
-In-Reply-To: <20260722170621.1686-3-alifm@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=HJXz0Itv c=1 sm=1 tr=0 ts=6a62213c cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8
- a=E6e_nEtZC23g9tHm4cEA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzIzMDE0MCBTYWx0ZWRfX65pxbA5Oxhk1
- z3vGoRoCa/pqhU6E6/EqYsvzy6HmmiQ1SWhLPgUdpdsT6E5YcvoWnl2e+opJwRUI1V1vjd8tYcj
- MVZdHdI7RIaiYA65aUkjY6qJozfh/LP1VwLhhslzdpYAE2bJTxxCq4lihdDaU6lggJX3YVVyMI8
- HDU61UaAeI6ERqW69lgxif38n2EiM4BKkcfnzZ7GPdxjOIgZdaYD12ncqBXl4wqCh7EfUDgmV8G
- W+u99md0MrLVsFm9Hm3o2Zo/Ys6dQ7/A/3GL0fUzVTwN4LrjB/Z6ZHXnJZwSKGUz/APHa9KykbD
- tHFdcPzZ2VSl7SxNEOO7bKMnGx8xOlwjzl/1uoW3rZ0IUSxJ+JvhRvsdc5W+IgN5FyFzZPJhwyf
- EPNOFKmrkHfD9ML/2+kQr83lw7E0ydU9rzTQHQVS4Sr63IZ+tbAfXpg5BTQaHQIvsZPz6S0cGzB
- zfyAmewlZLZCQybJgSw==
-X-Proofpoint-ORIG-GUID: kic4btpkUmSsoJ8vxycy0guV2HeXS0AJ
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzIzMDE0MCBTYWx0ZWRfXxVNYoeaJP/5x
- 4Lh5DwvLdPex9L3uPfPG6GrIJEkBXouF6Kaphua8IC0gwL/kQV7nN0ueWHPYTS2gL1G/API+RZQ
- oByy5DDlIzurv4ZgJqWp5qZQMubdE4k=
-X-Proofpoint-GUID: kic4btpkUmSsoJ8vxycy0guV2HeXS0AJ
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-07-23_04,2026-07-22_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0 priorityscore=1501 lowpriorityscore=0 suspectscore=0
- malwarescore=0 impostorscore=0 clxscore=1015 phishscore=0 spamscore=0
- adultscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2607230140
 
-On 7/22/26 1:06 PM, Farhan Ali wrote:
-> The account_mem() and unaccount_mem() functions call get_uid() which
-> increments the reference count of struct user_struct on every invocation.
-> But we don't decrement the count by calling free_uid(). It also
-> accounted/unaccounted the pages against the current->mm. But its possible
-> the unaccount_mem() can be called from a different process context than the
-> one that originally pinned the pages.
-> 
-> Let's fix this by storing the pinning process user_struct and mm_struct
-> when accounting for pinned pages, and subsequently free these resources
-> when the pages are unpinned.
-> 
-> Fixes: 3c5a1b6f0a18 ("KVM: s390: pci: provide routines for enabling/disabling interrupt forwarding")
-> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
-> ---
->  arch/s390/kvm/pci.c | 38 ++++++++++++++++++++++++++++----------
->  arch/s390/kvm/pci.h |  2 ++
->  2 files changed, 30 insertions(+), 10 deletions(-)
-> 
-> diff --git a/arch/s390/kvm/pci.c b/arch/s390/kvm/pci.c
-> index d2a11cdf6941..1b3114c7cfbb 100644
-> --- a/arch/s390/kvm/pci.c
-> +++ b/arch/s390/kvm/pci.c
-> @@ -190,33 +190,51 @@ static int kvm_zpci_clear_airq(struct zpci_dev *zdev)
->  	return cc ? -EIO : 0;
->  }
->  
-> -static inline void unaccount_mem(unsigned long nr_pages)
-> +static inline void unaccount_mem(struct kvm_zdev *kzdev, unsigned long nr_pages)
+Thank you for your contribution! Sashiko AI review found 4 potential issue(=
+s) to consider:
+- [Critical] Uninitialized track range fields in data requests break collis=
+ion detection.
+- [High] Unreachable collision detection logic due to incorrect callback.
+- [High] Collision detection loop ignores queued requests, skipping the one=
+s it is meant to wake up.
+- [High] Error paths perform unprotected list deletions and permanently lea=
+k format array slots.
+--
+
+--- Patch [3]: [PATCH v3 03/13] s390/dasd: Add range-based format-track col=
+lision detection ---
+commit 1d2db2dae28f75e003a69468da44050bd92fdedd
+Author: Stefan Haberland <sth@linux.ibm.com>
+
+s390/dasd: Add range-based format-track collision detection
+
+Replace the single per-device format_entry slot with an array of 16
+slots so multiple format requests can be in flight at once, and extend
+struct dasd_format_entry with a start_trk/end_trk/cqr range (replacing
+the single track field).
+
+> diff --git a/drivers/s390/block/dasd.c b/drivers/s390/block/dasd.c
+> --- a/drivers/s390/block/dasd.c
+> +++ b/drivers/s390/block/dasd.c
+[ ... ]
+> @@ -2855,6 +2848,27 @@ static void __dasd_process_block_ccw_queue(struct =
+dasd_block *block,
+> =20
+>  static void dasd_return_cqr_cb(struct dasd_ccw_req *cqr, void *data)
 >  {
-> -	struct user_struct *user = get_uid(current_user());
-> +	struct user_struct *user = kzdev->user_account;
-> +	struct mm_struct *mm_account = kzdev->mm_account;
->  
-> -	if (user)
-> +	if (user) {
->  		atomic_long_sub(nr_pages, &user->locked_vm);
-> -	if (current->mm)
-> -		atomic64_sub(nr_pages, &current->mm->pinned_vm);
-
-Previous code handled the case where current->mm could be NULL...
-
-> +		free_uid(user);
-> +		kzdev->user_account = NULL;
-> +	}
+> +	struct dasd_ccw_req *temp_cqr;
+> +	struct dasd_block *block;
 > +
-> +	if (mm_account) {
+> +	/* only format CQRs are candidates */
+> +	if (!cqr->block || unlikely(!cqr->format))
+> +		goto out;
 
-... And you check for kzdev->mm_account being NULL here...
+[Severity: High]
+Does this guard prevent the collision logic from ever being executed?
 
-> +		atomic64_sub(nr_pages, &mm_account->pinned_vm);
-> +		mmdrop(mm_account);
-> +		kzdev->mm_account = NULL;
-> +	}
->  }
->  
-> -static inline int account_mem(unsigned long nr_pages)
-> +static inline int account_mem(struct kvm_zdev *kzdev, unsigned long nr_pages)
->  {
->  	struct user_struct *user = get_uid(current_user());
->  	unsigned long page_limit, cur_pages, new_pages;
-> +	int rc = 0;
->  
->  	page_limit = rlimit(RLIMIT_MEMLOCK) >> PAGE_SHIFT;
->  
->  	cur_pages = atomic_long_read(&user->locked_vm);
->  	do {
->  		new_pages = cur_pages + nr_pages;
-> -		if (new_pages > page_limit)
-> -			return -ENOMEM;
-> +		if (new_pages > page_limit) {
-> +			rc =  -ENOMEM;
-> +			goto out;
+Regular data requests use dasd_return_cqr_cb() as their callback but they
+do not have cqr->format set. ESE format requests have cqr->format set, but
+they use dasd_eckd_ese_format_cb() as their callback instead of this one.
+
+Will this path always take the goto out, making the collision logic
+unreachable?
+
+> +
+> +	block =3D cqr->block;
+> +	/*
+> +	 * Mark queued CQRs that overlap this just-completed format
+> +	 * range so they re-check in test_and_set_format.
+> +	 */
+> +	list_for_each_entry(temp_cqr, &block->ccw_queue, blocklist) {
+> +		if (temp_cqr !=3D cqr &&
+> +		    temp_cqr->status !=3D DASD_CQR_FILLED &&
+> +		    temp_cqr->status !=3D DASD_CQR_QUEUED &&
+
+[Severity: High]
+Does this explicitly skip requests in the queued state, which are exactly
+the ones waiting to be flagged?
+
+Requests delayed due to a conflict (returning -EEXIST from
+test_and_set_format_track) are put in the DASD_CQR_QUEUED state. If this
+loop filters out DASD_CQR_QUEUED, does it ignore the exact requests it was
+designed to evaluate and flag with collision =3D true?
+
+> +		    dasd_req_conflict(cqr, temp_cqr)) {
+> +			temp_cqr->collision =3D true;
 > +		}
->  	} while (!atomic_long_try_cmpxchg(&user->locked_vm, &cur_pages, new_pages));
->  
-> +	mmgrab(current->mm);
-
-... But here you do not check if current->mm is NULL.  I'm not sure if
-it will happen in practice, but we did guard against it before this
-patch.  Just add if (!current->mm) around this mmgrab?
-
->  	atomic64_add(nr_pages, &current->mm->pinned_vm);
-> +	kzdev->user_account = user;
-> +	kzdev->mm_account = current->mm;
-
-Then if it IS NULL, we will stash a NULL into kzdev->mm_account here and
-handle it above as before with the if (mm_account) check.
-
->  
->  	return 0;
-> +
+> +	}
 > +out:
-> +	free_uid(user);
-> +	return rc;
+>  	dasd_schedule_block_bh(cqr->block);
 >  }
->  
->  static int kvm_s390_pci_aif_enable(struct zpci_dev *zdev, struct zpci_fib *fib,
-> @@ -279,7 +297,7 @@ static int kvm_s390_pci_aif_enable(struct zpci_dev *zdev, struct zpci_fib *fib,
->  	}
->  
->  	/* Account for pinned pages, roll back on failure */
-> -	if (account_mem(pcount))
-> +	if (account_mem(zdev->kzdev, pcount))
->  		goto unpin2;
->  
->  	/* AISB must be allocated before we can fill in GAITE */
-> @@ -400,7 +418,7 @@ static int kvm_s390_pci_aif_disable(struct zpci_dev *zdev, bool force)
->  		pcount++;
->  	}
->  	if (pcount > 0)
-> -		unaccount_mem(pcount);
-> +		unaccount_mem(kzdev, pcount);
->  out:
->  	mutex_unlock(&aift->aift_lock);
->  
-> diff --git a/arch/s390/kvm/pci.h b/arch/s390/kvm/pci.h
-> index ff0972dd5e71..544e6aa75e38 100644
-> --- a/arch/s390/kvm/pci.h
-> +++ b/arch/s390/kvm/pci.h
-> @@ -21,6 +21,8 @@ struct kvm_zdev {
->  	struct zpci_dev *zdev;
->  	struct kvm *kvm;
->  	struct zpci_fib fib;
-> +	struct user_struct *user_account;
-> +	struct mm_struct *mm_account;
->  	struct list_head entry;
->  };
->  
+> =20
+> diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eck=
+d.c
+> --- a/drivers/s390/block/dasd_eckd.c
+> +++ b/drivers/s390/block/dasd_eckd.c
+[ ... ]
+> @@ -3232,17 +3245,27 @@ dasd_eckd_ese_format(struct dasd_device *startdev=
+, struct dasd_ccw_req *cqr,
+>  	fdata.intensity =3D private->uses_cdl ? DASD_FMT_INT_COMPAT : 0;
+> =20
+>  	rc =3D dasd_eckd_format_sanity_checks(base, &fdata);
+> -	if (rc)
+> +	if (rc) {
+> +		if (format)
+> +			list_del(&format->list);
+>  		return ERR_PTR(-EINVAL);
+> +	}
+> =20
+>  	/*
+>  	 * We're building the request with PAV disabled as we're reusing
+>  	 * the former startdev.
+>  	 */
+>  	fcqr =3D dasd_eckd_build_format(base, startdev, &fdata, 0);
+> -	if (IS_ERR(fcqr))
+> +	if (IS_ERR(fcqr)) {
+> +		if (format)
+> +			list_del(&format->list);
+>  		return fcqr;
+> +	}
 
+[Severity: High]
+Are we modifying the list without holding block->format_lock here?
+
+These error paths call list_del(&format->list) without acquiring the lock.
+Additionally, they do not set format->cqr =3D NULL. Since
+test_and_set_format_track() identifies free slots by checking
+!device->format_entry[i].cqr, does this permanently leak format array slots?
+
+Could this use clear_format_track(format, block) instead to properly lock
+and clear the state?
+
+> diff --git a/drivers/s390/block/dasd_int.h b/drivers/s390/block/dasd_int.h
+> --- a/drivers/s390/block/dasd_int.h
+> +++ b/drivers/s390/block/dasd_int.h
+[ ... ]
+> @@ -834,6 +842,13 @@ static inline void *dasd_get_callback_data(struct da=
+sd_ccw_req *cqr)
+>  	return cqr->callback_data;
+>  }
+> =20
+> +static inline bool dasd_req_conflict(struct dasd_ccw_req *cqr1,
+> +				     struct dasd_ccw_req *cqr2)
+> +{
+> +	return !(cqr1->format->end_trk < cqr2->start_trk ||
+> +		 cqr2->end_trk < cqr1->format->start_trk);
+> +}
+> +
+
+[Severity: Critical]
+Are start_trk and end_trk guaranteed to be initialized for normal data
+requests?
+
+Since dasd_fmalloc_request() zero-allocates memory, cqr2->start_trk and
+cqr2->end_trk default to 0 for normal data requests. When evaluated here,
+the comparison cqr2->end_trk < cqr1->format->start_trk evaluates as
+0 < format->start_trk, which is always true for any track > 0.
+
+Does this silently fail to detect collisions for any tracks other than
+track 0?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260723134743.6724=
+13-1-sth@linux.ibm.com?part=3D3
