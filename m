@@ -1,197 +1,199 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C0E442AF8F
-	for <linux-s390@vger.kernel.org>; Thu, 23 Jul 2026 14:13:15 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B7EE64477E0
+	for <linux-s390@vger.kernel.org>; Thu, 23 Jul 2026 14:13:51 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784816001; cv=none; b=dQK1zeuBqXSqcg3670yyaTTx9r2idufIv90iHn2rTasjXx1eg/gL14l/3hEzZ1wFGiiewqOcUfsJBhKv4StHjgQ243nfdYqsVzE8wpP83WytQSnOa2z7ykRU8vNHArqcE5TXHIWhD3H80T9LVbBKNlEANGigEwy7DA1Wshy53qc=
+	t=1784816040; cv=none; b=UJl9nWgz9l0fDXp5S+pwPZmXaZqJ+ciEz1LZbWFgyAeMXLDLhDEIpQ2dvFgWUQxCcjA0WH1O3tPHlZCFB+rdxfVkLFykJZy9uiCz54SjafbBETi3O0D6ajrjq0//jQ7UbiRDGxGIU4wgeflkmjynMmCFksx7KIiW7JzadAY+gh0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784816001; c=relaxed/simple;
-	bh=LIOkG7idHOgST+pJXjztS1UG+IIyB5pEJRsUuH4LciI=;
+	s=arc-20240116; t=1784816040; c=relaxed/simple;
+	bh=U9LQJjivzc4KZRDiEiOfBeAEuUBuVdOS248HtGeMU8Y=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=me+JWzurZ/55EpSlGNX3itlki2WXFeOSRPOmULzQu9HHjwvXBpGK2vyuC8bHk+F1siTK7pu079qWIV6Do/kDOd0p0OA7Wnui0WCS/joPtg8htyx1eKKDAwXl0Q1zz63W61bVuXBwopGblNlX70Q6RrJ0c9JFUopJHyvpDNMhsQs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=At99WPgi; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=IkZ9cARd0+97YrPTBYLfE6yAJ+Gl+aF6Ge9KHlfYzlrWZLjAHJQDx761JNRk04wnRe34Am+e3zTKqWegFhhHgXFDbcX1X4+vSkNPjNWRfTalS6R98VrXVPxh+PKxLzoQvp5NmyK6cG6MDoo4oByQ6n8MjYLW+fLCr2olRyorbFk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=P+iUSgYH; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="At99WPgi"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37F111F000E9;
-	Thu, 23 Jul 2026 14:13:12 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="P+iUSgYH"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48BB21F000E9;
+	Thu, 23 Jul 2026 14:13:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784815992;
-	bh=OiKUdhFXNE8T/fztGZ+qzp10k8N7f8hMWBv+V7UuWyQ=;
+	s=k20260515; t=1784816028;
+	bh=Uauy3WV82/v/M3r3a7WT6JkSEILCjPVMWLVH8d/qync=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=At99WPgi1HpaenA5n4msy0v+T9Fu0ITXCSPxQFTndeNldlcNrU1fmtGjgzzwV7g3Q
-	 p+dr/uf9+5VoVBaqWjgWbsK8SX345vWKtHOquI3VriaR3wTp1g+ZlIOpmV1bBgYZc/
-	 z1MKaM9Y/rKsQDwgUsagAmwI5C+k/Awboc14oCj7pwFliK1mAc8TsWWhAykzFtl8TK
-	 0eOr8mBtNygy0msYwYXxDNbclgoh+CoPZa+tsAx8ZVh5aiNTDStzoNW6rL5aHaPkA0
-	 JHaPAtVJ52yM3Ix5vs0oYvc4/oqv1Ui52iV3IUeSZ4AcsdxDyc2h65u2CO7cm6fccM
-	 FdBWRTtzy+T+Q==
+	b=P+iUSgYHlxrkljjG1+5OxsoQVAavGEffFu9/EnYgv04RY/MWzl7anpGP+dpIJGtpi
+	 kvPOLKZE+6yS1HW/0dwrp7rC4PJy8JCAQ/qv5GJ8BlHcRANgdEegmx6yYOAtcUzr4A
+	 qZpg8FvxWsLiInmNgiU5Z39hkW1mpfVf9r6vMiK8rVcm8V+pAruJR/IYCsl8/5kvWb
+	 6D4FlH6Wm2fTs7kqNHxJpuUshM6423hFLdpoeOCt+BG/+UAGhSIYaOdFPOIJeXoCkE
+	 3bVdA/x1vdwTjI0GnZMB5bUgeeXvzOo9kRg4MD3qqfuwxN+IxNTYBH3DFogOaKRoQ2
+	 Nn7dO8TYWn9pQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 03/13] s390/dasd: Add range-based format-track
- collision detection
+Subject: Re: [PATCH v3 06/13] s390/dasd: Use WRITE_FULL_TRACK in ESE format
+ handler
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Stefan Haberland" <sth@linux.ibm.com>
-Cc: "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Heiko
+Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Heiko
  Carstens" <hca@linux.ibm.com>, linux-s390@vger.kernel.org
-In-Reply-To: <20260723134743.672413-4-sth@linux.ibm.com>
+In-Reply-To: <20260723134743.672413-7-sth@linux.ibm.com>
 References: <20260723134743.672413-1-sth@linux.ibm.com>
- <20260723134743.672413-4-sth@linux.ibm.com>
+ <20260723134743.672413-7-sth@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 23 Jul 2026 14:13:11 +0000
-Message-Id: <20260723141312.37F111F000E9@smtp.kernel.org>
+Date: Thu, 23 Jul 2026 14:13:47 +0000
+Message-Id: <20260723141348.48BB21F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 4 potential issue(=
+Thank you for your contribution! Sashiko AI review found 5 potential issue(=
 s) to consider:
-- [Critical] Uninitialized track range fields in data requests break collis=
-ion detection.
-- [High] Unreachable collision detection logic due to incorrect callback.
-- [High] Collision detection loop ignores queued requests, skipping the one=
-s it is meant to wake up.
-- [High] Error paths perform unprotected list deletions and permanently lea=
-k format array slots.
+
+New issues:
+- [High] Generating a WRITE_FULL_TRACK CCW for a request spanning more than=
+ 16 tracks causes a negative bit shift, producing an invalid hardware track=
+ mask.
+- [High] Bounce buffers allocated from `dasd_page_cache` are permanently le=
+aked when an origin request is aborted and replaced by an ESE format reques=
+t.
+- [High] The `fillsize` allocation for `filldata` does not account for padd=
+ing injected by `reserve_nocross()`, leading to out-of-bounds allocation fa=
+ilures and dropped I/O.
+
+Pre-existing issues:
+- [Critical] Partial I/O completions on ERP requests lose the `proc_bytes` =
+value, causing the block layer to incorrectly treat the entire request as s=
+uccessful.
+- [High] Error paths in `dasd_eckd_ese_format` fail to schedule the device =
+tasklet or clear the timer, causing the I/O request to hang.
 --
 
---- Patch [3]: [PATCH v3 03/13] s390/dasd: Add range-based format-track col=
-lision detection ---
-commit 1d2db2dae28f75e003a69468da44050bd92fdedd
+--- Patch [6]: [PATCH v3 06/13] s390/dasd: Use WRITE_FULL_TRACK in ESE form=
+at handler ---
+commit 2efec0cd23e150d9cbd9db63fa5fad5ebdee9860
 Author: Stefan Haberland <sth@linux.ibm.com>
 
-s390/dasd: Add range-based format-track collision detection
+s390/dasd: Use WRITE_FULL_TRACK in ESE format handler
 
-Replace the single per-device format_entry slot with an array of 16
-slots so multiple format requests can be in flight at once, and extend
-struct dasd_format_entry with a start_trk/end_trk/cqr range (replacing
-the single track field).
+Wire dasd_eckd_build_cp_tpm_writefulltrack() into the ESE unformated
+track handler. dasd_eckd_ese_format() now returns void and builds a
+writefulltrack CQR directly.
 
-> diff --git a/drivers/s390/block/dasd.c b/drivers/s390/block/dasd.c
-> --- a/drivers/s390/block/dasd.c
-> +++ b/drivers/s390/block/dasd.c
-[ ... ]
-> @@ -2855,6 +2848,27 @@ static void __dasd_process_block_ccw_queue(struct =
-dasd_block *block,
-> =20
->  static void dasd_return_cqr_cb(struct dasd_ccw_req *cqr, void *data)
->  {
-> +	struct dasd_ccw_req *temp_cqr;
-> +	struct dasd_block *block;
-> +
-> +	/* only format CQRs are candidates */
-> +	if (!cqr->block || unlikely(!cqr->format))
-> +		goto out;
-
-[Severity: High]
-Does this guard prevent the collision logic from ever being executed?
-
-Regular data requests use dasd_return_cqr_cb() as their callback but they
-do not have cqr->format set. ESE format requests have cqr->format set, but
-they use dasd_eckd_ese_format_cb() as their callback instead of this one.
-
-Will this path always take the goto out, making the collision logic
-unreachable?
-
-> +
-> +	block =3D cqr->block;
-> +	/*
-> +	 * Mark queued CQRs that overlap this just-completed format
-> +	 * range so they re-check in test_and_set_format.
-> +	 */
-> +	list_for_each_entry(temp_cqr, &block->ccw_queue, blocklist) {
-> +		if (temp_cqr !=3D cqr &&
-> +		    temp_cqr->status !=3D DASD_CQR_FILLED &&
-> +		    temp_cqr->status !=3D DASD_CQR_QUEUED &&
-
-[Severity: High]
-Does this explicitly skip requests in the queued state, which are exactly
-the ones waiting to be flagged?
-
-Requests delayed due to a conflict (returning -EEXIST from
-test_and_set_format_track) are put in the DASD_CQR_QUEUED state. If this
-loop filters out DASD_CQR_QUEUED, does it ignore the exact requests it was
-designed to evaluate and flag with collision =3D true?
-
-> +		    dasd_req_conflict(cqr, temp_cqr)) {
-> +			temp_cqr->collision =3D true;
-> +		}
-> +	}
-> +out:
->  	dasd_schedule_block_bh(cqr->block);
->  }
-> =20
 > diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eck=
 d.c
 > --- a/drivers/s390/block/dasd_eckd.c
 > +++ b/drivers/s390/block/dasd_eckd.c
+> @@ -3224,60 +3212,135 @@ dasd_eckd_ese_format(struct dasd_device *startde=
+v, struct dasd_ccw_req *cqr,
 [ ... ]
-> @@ -3232,17 +3245,27 @@ dasd_eckd_ese_format(struct dasd_device *startdev=
-, struct dasd_ccw_req *cqr,
->  	fdata.intensity =3D private->uses_cdl ? DASD_FMT_INT_COMPAT : 0;
-> =20
->  	rc =3D dasd_eckd_format_sanity_checks(base, &fdata);
-> -	if (rc)
+> +	rc =3D dasd_eckd_track_from_irb(irb, base, &curr_trk);
 > +	if (rc) {
-> +		if (format)
-> +			list_del(&format->list);
->  		return ERR_PTR(-EINVAL);
-> +	}
-> =20
->  	/*
->  	 * We're building the request with PAV disabled as we're reusing
->  	 * the former startdev.
->  	 */
->  	fcqr =3D dasd_eckd_build_format(base, startdev, &fdata, 0);
-> -	if (IS_ERR(fcqr))
-> +	if (IS_ERR(fcqr)) {
-> +		if (format)
-> +			list_del(&format->list);
->  		return fcqr;
+> +		/* sense data could not be parsed - this will not resolve by retrying =
+*/
+> +		cqr->status =3D DASD_CQR_ERROR;
+> +		return;
 > +	}
 
 [Severity: High]
-Are we modifying the list without holding block->format_lock here?
+This is a pre-existing issue, but error paths in dasd_eckd_ese_format() fail
+to schedule the device tasklet or clear the timer. If sense data cannot be
+parsed or the track is out-of-bounds, dasd_eckd_ese_format() sets the status
+to DASD_CQR_ERROR and returns. Since dasd_int_handler() expects the
+discipline hook to handle scheduling on error, doesn't this leave the I/O
+request stranded in the queue until the 5-minute fallback timeout fires?
 
-These error paths call list_del(&format->list) without acquiring the lock.
-Additionally, they do not set format->cqr =3D NULL. Since
-test_and_set_format_track() identifies free slots by checking
-!device->format_entry[i].cqr, does this permanently leak format array slots?
-
-Could this use clear_format_track(format, block) instead to properly lock
-and clear the state?
-
-> diff --git a/drivers/s390/block/dasd_int.h b/drivers/s390/block/dasd_int.h
-> --- a/drivers/s390/block/dasd_int.h
-> +++ b/drivers/s390/block/dasd_int.h
 [ ... ]
-> @@ -834,6 +842,13 @@ static inline void *dasd_get_callback_data(struct da=
-sd_ccw_req *cqr)
->  	return cqr->callback_data;
->  }
+> +	fcqr =3D dasd_eckd_build_cp_tpm_writefulltrack(startdev, block, req,
+> +						     first_rec, last_rec,
+> +						     first_trk, last_trk,
+> +						     first_offs, last_offs,
+> +						     recs_per_trk, blksize, cqr);
+
+[Severity: High]
+Can trkcount exceed 16 here? When dasd_eckd_build_cp_tpm_writefulltrack()
+calls prepare_itcw(), the count argument is used in a bit shift:
+
+lredata->extended_parameter[1] <<=3D (16 - count);
+
+If a user issues a large write request that spans more than 16 tracks,
+won't this result in a negative bit shift, causing undefined behavior and
+generating an invalid hardware track mask?
+
+[Severity: High]
+Does the fillsize allocation inside dasd_eckd_build_cp_tpm_writefulltrack()
+account for the padding injected by reserve_nocross()?
+
+fillsize =3D trkcount * (sizeof(struct eckd_r0) +
+                       (sizeof(struct eckd_count) * (blk_per_trk + 2)));
+filldata =3D dasd_alloc_chunk(&startdev->fill_chunks, fillsize);
+
+When reserve_nocross() appends elements, it injects padding bytes to
+prevent them from crossing page boundaries. Because this padding is not
+budgeted in fillsize, the remaining space might drop below zero before all
+track elements are written, causing reserve_nocross() to return NULL and
+abort the request.
+
+> @@ -5297,6 +5363,14 @@ dasd_eckd_free_cp(struct dasd_ccw_req *cqr, struct=
+ request *req)
+>  	sector_t recid;
+>  	int status;
 > =20
-> +static inline bool dasd_req_conflict(struct dasd_ccw_req *cqr1,
-> +				     struct dasd_ccw_req *cqr2)
-> +{
-> +	return !(cqr1->format->end_trk < cqr2->start_trk ||
-> +		 cqr2->end_trk < cqr1->format->start_trk);
-> +}
-> +
+> +	/*
+> +	 * special handling for format aborted requests
+> +	 * only clean up the request, nothing finished
+> +	 */
+> +	if (cqr->status =3D=3D DASD_CQR_ABORTED) {
+> +		status =3D DASD_CQR_ABORTED;
+> +		goto abort;
+> +	}
+>  	if (!dasd_page_cache)
+>  		goto out;
+
+[Severity: High]
+Does this early exit skip freeing the bounce buffers? If dasd_page_cache
+is active and an origin request is marked DASD_CQR_ABORTED (because it
+was replaced by an ESE format request), the goto abort statement bypasses
+the loop responsible for calling kmem_cache_free(). Could this permanently
+leak the bounce buffer memory allocated for the I/O segments?
+
+> diff --git a/drivers/s390/block/dasd_erp.c b/drivers/s390/block/dasd_erp.c
+> --- a/drivers/s390/block/dasd_erp.c
+> +++ b/drivers/s390/block/dasd_erp.c
+> @@ -120,13 +120,14 @@ dasd_default_erp_action(struct dasd_ccw_req *cqr)
+>   */
+>  struct dasd_ccw_req *dasd_default_erp_postaction(struct dasd_ccw_req *cq=
+r)
+>  {
+> -	int success;
+> +	int success, aborted;
+>  	unsigned long startclk, stopclk;
+>  	struct dasd_device *startdev;
+> =20
+>  	BUG_ON(cqr->refers =3D=3D NULL || cqr->function =3D=3D NULL);
+> =20
+>  	success =3D cqr->status =3D=3D DASD_CQR_DONE;
+> +	aborted =3D cqr->status =3D=3D DASD_CQR_ABORTED;
 
 [Severity: Critical]
-Are start_trk and end_trk guaranteed to be initialized for normal data
-requests?
+This is a pre-existing issue, but does the loop that unwinds the ERP chain
+just below here lose the proc_bytes value from a partial completion?
 
-Since dasd_fmalloc_request() zero-allocates memory, cqr2->start_trk and
-cqr2->end_trk default to 0 for normal data requests. When evaluated here,
-the comparison cqr2->end_trk < cqr1->format->start_trk evaluates as
-0 < format->start_trk, which is always true for any track > 0.
+while (cqr->refers !=3D NULL) {
+        struct dasd_ccw_req *refers =3D cqr->refers;
+        list_del(&cqr->blocklist);
+        dasd_free_erp_request(cqr, cqr->memdev);
+        cqr =3D refers;
+}
 
-Does this silently fail to detect collisions for any tracks other than
-track 0?
+When an ERP retry hits an unformatted track, dasd_eckd_ese_format() or
+ese_read() sets cqr->proc_bytes on the ERP request and marks it successful.
+During this unwinding, the ERP request holding this partial completion is
+freed without propagating proc_bytes to the base request. When the base
+request is later processed, it will have proc_bytes =3D=3D 0, causing the b=
+lock
+layer to incorrectly treat the entire request as successful and silently
+drop the unwritten or unread portion.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260723134743.6724=
-13-1-sth@linux.ibm.com?part=3D3
+13-1-sth@linux.ibm.com?part=3D6
