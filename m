@@ -1,272 +1,139 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A5AA82F8E90;
-	Thu, 23 Jul 2026 17:31:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2295C38F259;
+	Thu, 23 Jul 2026 17:48:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784827907; cv=none; b=letLxa4ycaU1SrPs+sZOIf+9EXTl/kSMQFCYSJf0mlDDIJe9OGV714EfDsnoauU7waSZnqjnBslKcD8AKWS/OJDx51xqIWqRB0QVNEh68STsEehZ1jU2lv/hSTNo3zHM2ZKsHcqrDal2YOM3xT7KJQ8Iyv+z6pTs6m76TYSIe34=
+	t=1784828883; cv=none; b=VhcVFJn4Fx+ZJDHP0qfDSOJNemQB/xSdEeO+WCNYqyOmgIQBQkUu3q0uFf4PB4UHkzy6e855fR0rDsxriWfE14hq5ExHj9qLOJvg5qj1C/rlBXJS2Qn5r/Idf+45B3ZEqAht+SBydhLqRE7Fn72PP6Fix/p+CVUJ92cCt7Dk6QE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784827907; c=relaxed/simple;
-	bh=6LOcYfOJGh0+ldrtmPFlWLuW+Zjp77rXM/MRmp1qTHc=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=L3r9UmfkrnFyv6OOv3CgF0qFNneN189xvia6kdbbjuIZkNLiOFDzAfctXG0qCrhlja7ykMI2Lo/20FX5GlpeugZ5Dln+F1aFws9AvvoV47XV6INOA0rh7uJDd0FzlNlgzuhQi6c1Xqey9lE0QlMf+rLtY193n+D9K5oTyaUcYAw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=WLR1C39q; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1784828883; c=relaxed/simple;
+	bh=CsLpPdwJJZoTL+G3xS3ZccZNpgFVtHBdG2gha6G4H3w=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=tPazLTdj3Rp2QZ0Hr9z8DZsyaEtfjQJA9okT/DLajQQVHr7Os/ByJO0/MK/H5I48YfZkdb/WJP0+Iu2qj3LwhMNkXp3jJy/ipg8xbM0jSR+ATuHQSqVgMeRjJ4V8lsNPQchKxe+KGYP6U2mX9NXql3m9JSY6C3HINaEx6QJq9UM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=VvkK5di0; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="WLR1C39q"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66NDBp8N3094842;
-	Thu, 23 Jul 2026 17:31:44 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="VvkK5di0"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66NHfdRV3681714;
+	Thu, 23 Jul 2026 17:47:59 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=kkPa/x
-	oJfiOxFkHrZA7tstgC7v4/EyIKAP1hZ4Yi9xU=; b=WLR1C39qB3Cwzv909DoL2o
-	chlGQYsGx8QnpyGaBhK07AbX1Vg4eSK0OhTXk7l4b/UZFCNseh7+nCpuU7HzVApt
-	KZO4GOpfxnSy5t3mi6BnYmIc6zkmHDd6cNGvCnAcI2ziHun24YDbR1STJwTjSvXl
-	xPTYq0iz2xGm2Zi9vKPqaun2OjKVBRMJm9KxlC56f12Nd4ThrHrDp57hBHFFC+6V
-	YV8Ga99Ab7y9sbDY8bjYLkqSXm6hAIQnYBPk9Hsy3Zbzqn8ogEKmJO0MdDZpWqph
-	Bbmom91yp9jsnXuN9FtlZiJBOul++Zm/IyDe3//139CHU2dOESK5KoLTxGLOIDhA
-	==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fg7ahg6xe-1
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=BrONkhtlVLnrKFz+ad1SEB8m0VjNpjudET/OKWCMy
+	YA=; b=VvkK5di0COgDhJi9k75SxhqLHFB9QNshqWFY/1GPOauzEUOEENJJsw4St
+	4kBSFxlKgSwVA+N/JzjIk2h2SUvhIOWj3MxOkWALOH+m2TRqXMZFyhNaHF0eh3o8
+	Iv96VcZ9qKx+9hd3RF8ioQHu9v476GkV20r/CJ3LE3FoAvgVCBvzX6ixLm190XV+
+	+0dZICHe24/d2zbMUhcXpZ3PArN9qbGUGUeWH3eRUG0uwpacSpIl4Xag7ZUWvJx5
+	LdHXqvi+iKvH7Xfar9nCGkxruCuRubBbRtgckNjFev7CopiiWvAHAA3sKhQoWaCK
+	h0CrF29tRVQl74jz9QWFZuCbQpjyw==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fg7abrxas-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 23 Jul 2026 17:31:44 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66NH4jEW022204;
-	Thu, 23 Jul 2026 17:31:43 GMT
-Received: from smtprelay02.dal12v.mail.ibm.com ([172.16.1.4])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fgmtk59gx-1
+	Thu, 23 Jul 2026 17:47:59 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66NHZ440029784;
+	Thu, 23 Jul 2026 17:47:58 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fgpgyn2um-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 23 Jul 2026 17:31:43 +0000 (GMT)
-Received: from smtpav05.wdc07v.mail.ibm.com (smtpav05.wdc07v.mail.ibm.com [10.39.53.232])
-	by smtprelay02.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66NHVgY629164274
+	Thu, 23 Jul 2026 17:47:58 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66NHlsR031785352
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 23 Jul 2026 17:31:42 GMT
-Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4796258059;
-	Thu, 23 Jul 2026 17:31:42 +0000 (GMT)
-Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 85EB95805D;
-	Thu, 23 Jul 2026 17:31:41 +0000 (GMT)
-Received: from [9.61.177.4] (unknown [9.61.177.4])
-	by smtpav05.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 23 Jul 2026 17:31:41 +0000 (GMT)
-Message-ID: <66a15560-87ba-4167-934d-cf43916c37e3@linux.ibm.com>
-Date: Thu, 23 Jul 2026 13:31:41 -0400
+	Thu, 23 Jul 2026 17:47:55 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id D98FA20169;
+	Thu, 23 Jul 2026 17:47:54 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B7F0F20162;
+	Thu, 23 Jul 2026 17:47:54 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with SMTP;
+	Thu, 23 Jul 2026 17:47:54 +0000 (GMT)
+Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 4958)
+	id 9DA9B1627E5; Thu, 23 Jul 2026 19:47:54 +0200 (CEST)
+From: Eric Farman <farman@linux.ibm.com>
+To: linux-s390@vger.kernel.org, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Cc: Matthew Rosato <mjrosato@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Eric Farman <farman@linux.ibm.com>
+Subject: [PATCH v3 0/8] s390/vfio_ccw fixes
+Date: Thu, 23 Jul 2026 19:47:43 +0200
+Message-ID: <20260723174751.1180334-1-farman@linux.ibm.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4 2/6] KVM: s390: pci: Fix memory accounting for
- pinned/unpinned pages
-To: Farhan Ali <alifm@linux.ibm.com>, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, kvm@vger.kernel.org
-Cc: borntraeger@linux.ibm.com, farman@linux.ibm.com
-References: <20260722170621.1686-1-alifm@linux.ibm.com>
- <20260722170621.1686-3-alifm@linux.ibm.com>
- <6f87bda7-8a8a-4f93-907c-6e0a442c8ceb@linux.ibm.com>
- <3950a0e4-3074-44af-a1d1-d38ee3391c0f@linux.ibm.com>
-Content-Language: en-US
-From: Matthew Rosato <mjrosato@linux.ibm.com>
-In-Reply-To: <3950a0e4-3074-44af-a1d1-d38ee3391c0f@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: qltQratDnYiXzd5j9Qf4B4KzOisGmctP
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzIzMDE2OCBTYWx0ZWRfXxv8jICA3nGLi
- he3h/ghKd2X9EZYgVuCIGrxDyBp5OO0HqNMzY7DKWyGCaZom08Rx4ZTQucrxQqDyx7MvGVQrG7h
- hMl/zy2xwsLD1KoGY+giutpSqv0/uoYz9bXlU30To8qomPnlGu3661VR2GT8bCrQHKQfJM6P5F8
- a3+NC2gCpCxbz7e3U1ydcJYfVgvfwZ6NOl5b+zzs51BMZRaZuvGEW5NsumGmnZBEP64shKnBzRK
- yocTRzBdRC2qVQqdCCrIoGhYhebT1jcw9RjoLadIBhDyoKsVv8Y2frGdFVGM6KjwzUUVFUXz49Q
- t33wYnm5UHH0z994UMfgF4if16VE/Kjpqg62qqQ8lfAoPb3tZE6PW/7etiFF0ty7p/KmCulkkvc
- /a77p2bWKTiMEz15chkYTukS6kolkyCEiq6NRhx9WEt3PoHhO9k9FoMchmySmG+T8nd5U6S8vhm
- ILxg569nygdclSzbk4g==
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzIzMDE2OCBTYWx0ZWRfX1yIEsMB3JBH6
- QE32zXk7knj4ojecaKKvHrAZvSEhXj93Vl3fG32jU6la3tR9FGDcglu4x/K6WfbYfdf+V/+XEIJ
- 3MhKnbvT6D0uJeCp7lcDPofK4eTGys0=
-X-Proofpoint-GUID: qltQratDnYiXzd5j9Qf4B4KzOisGmctP
-X-Authority-Analysis: v=2.4 cv=SM5ykuvH c=1 sm=1 tr=0 ts=6a625000 cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VwQbUJbxAAAA:8
- a=P-IC7800AAAA:8 a=VnNF1IyMAAAA:8 a=jbpgf7bDCpGlyQxb25MA:9 a=3ZKOabzyN94A:10
- a=QEXdDO2ut3YA:10 a=d3PnA9EDa4IxuAV0gXij:22
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzIzMDE3MyBTYWx0ZWRfX8OqLE4A5HLiZ
+ WDBlw9cb6Ev4164/pnMVv1Jswlwkq8YGOsvNYgeYb52r4GeWjhCCBufwZntlzOuRb1pwNdujZlO
+ Wg3S7YYtBXIiFAuPzu7vTwdLWpExulU2n2sM83Q5ZF4Ui2A5hmwPYLwpRex2jobJh48f1vGhPs9
+ f0faWpvq7JlO0+7mkcLSF6ZTIb8f09bTPRVBex+cRb/0O91p7qnyKBAussTP/aVTRwGWyzvcSPS
+ qrAYmAlun4c9gDSO7b5fIjmpxx5+vE59ozKRoAwyIU+57hU+T+zd0Pw+L8Y8nRdcI7yxjIWG2EK
+ JHokNBbfXMn841UBevRnzf9H2xg733jHVsM+FtkEIVaQLWqAFyWsDnENVcB8NIPtUgNdzalf3gW
+ MIOuodOcxyIcrBkAMgoUFB7cKkxR+MpPigC2PcSm/BfJGPimyI8QKMd/kNM5aotahWt6QrQ/4kx
+ WV0exNOL/Gme+/p227Q==
+X-Authority-Analysis: v=2.4 cv=F7ZnsKhN c=1 sm=1 tr=0 ts=6a6253cf cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=iQ6ETzBq9ecOQQE5vZCe:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
+ a=-W5gkg908v1zLjHEBtAA:9
+X-Proofpoint-ORIG-GUID: 39436r4qHGeI3_ajeZj3O9Q1U6XV8SfN
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzIzMDE3MyBTYWx0ZWRfXwW/UFkmEJN4t
+ itgQ5cD2BmOYcODFzo4F6lZwrOa+n+smmcb5eI81GL3BqQVb3fjgQi4EDwUV0SWQLz4pe/12Tz7
+ Xm0wJrWq8McvrmZ9J9/7a3aUBioj1eo=
+X-Proofpoint-GUID: 39436r4qHGeI3_ajeZj3O9Q1U6XV8SfN
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-07-23_04,2026-07-22_02,2025-10-01_01
+ definitions=2026-07-23_05,2026-07-22_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 lowpriorityscore=0 bulkscore=0 suspectscore=0 adultscore=0
- spamscore=0 malwarescore=0 priorityscore=1501 phishscore=0 impostorscore=0
+ spamscore=0 phishscore=0 bulkscore=0 clxscore=1015 priorityscore=1501
+ impostorscore=0 lowpriorityscore=0 suspectscore=0 malwarescore=0 adultscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607230168
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607230173
 
-On 7/23/26 1:08 PM, Farhan Ali wrote:
-> 
-> On 7/23/2026 7:12 AM, Matthew Rosato wrote:
->> On 7/22/26 1:06 PM, Farhan Ali wrote:
->>> The account_mem() and unaccount_mem() functions call get_uid() which
->>> increments the reference count of struct user_struct on every
->>> invocation.
->>> But we don't decrement the count by calling free_uid(). It also
->>> accounted/unaccounted the pages against the current->mm. But its
->>> possible
->>> the unaccount_mem() can be called from a different process context
->>> than the
->>> one that originally pinned the pages.
->>>
->>> Let's fix this by storing the pinning process user_struct and mm_struct
->>> when accounting for pinned pages, and subsequently free these resources
->>> when the pages are unpinned.
->>>
->>> Fixes: 3c5a1b6f0a18 ("KVM: s390: pci: provide routines for enabling/
->>> disabling interrupt forwarding")
->>> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
->>> ---
->>>   arch/s390/kvm/pci.c | 38 ++++++++++++++++++++++++++++----------
->>>   arch/s390/kvm/pci.h |  2 ++
->>>   2 files changed, 30 insertions(+), 10 deletions(-)
->>>
->>> diff --git a/arch/s390/kvm/pci.c b/arch/s390/kvm/pci.c
->>> index d2a11cdf6941..1b3114c7cfbb 100644
->>> --- a/arch/s390/kvm/pci.c
->>> +++ b/arch/s390/kvm/pci.c
->>> @@ -190,33 +190,51 @@ static int kvm_zpci_clear_airq(struct zpci_dev
->>> *zdev)
->>>       return cc ? -EIO : 0;
->>>   }
->>>   -static inline void unaccount_mem(unsigned long nr_pages)
->>> +static inline void unaccount_mem(struct kvm_zdev *kzdev, unsigned
->>> long nr_pages)
->>>   {
->>> -    struct user_struct *user = get_uid(current_user());
->>> +    struct user_struct *user = kzdev->user_account;
->>> +    struct mm_struct *mm_account = kzdev->mm_account;
->>>   -    if (user)
->>> +    if (user) {
->>>           atomic_long_sub(nr_pages, &user->locked_vm);
->>> -    if (current->mm)
->>> -        atomic64_sub(nr_pages, &current->mm->pinned_vm);
->> Previous code handled the case where current->mm could be NULL...
->>
->>> +        free_uid(user);
->>> +        kzdev->user_account = NULL;
->>> +    }
->>> +
->>> +    if (mm_account) {
->> ... And you check for kzdev->mm_account being NULL here...
->>
->>> +        atomic64_sub(nr_pages, &mm_account->pinned_vm);
->>> +        mmdrop(mm_account);
->>> +        kzdev->mm_account = NULL;
->>> +    }
->>>   }
->>>   -static inline int account_mem(unsigned long nr_pages)
->>> +static inline int account_mem(struct kvm_zdev *kzdev, unsigned long
->>> nr_pages)
->>>   {
->>>       struct user_struct *user = get_uid(current_user());
->>>       unsigned long page_limit, cur_pages, new_pages;
->>> +    int rc = 0;
->>>         page_limit = rlimit(RLIMIT_MEMLOCK) >> PAGE_SHIFT;
->>>         cur_pages = atomic_long_read(&user->locked_vm);
->>>       do {
->>>           new_pages = cur_pages + nr_pages;
->>> -        if (new_pages > page_limit)
->>> -            return -ENOMEM;
->>> +        if (new_pages > page_limit) {
->>> +            rc =  -ENOMEM;
->>> +            goto out;
->>> +        }
->>>       } while (!atomic_long_try_cmpxchg(&user->locked_vm, &cur_pages,
->>> new_pages));
->>>   +    mmgrab(current->mm);
->> ... But here you do not check if current->mm is NULL.  I'm not sure if
->> it will happen in practice, but we did guard against it before this
->> patch.  Just add if (!current->mm) around this mmgrab?
-> 
-> But wouldn't the atomic64_add just below this also need to be in the
-> check? FWIW looking at some of the other references to mmgrab, I didn't
+This series addresses some pre-existing issues found in the
+s390 vfio_ccw (DASD passthrough) driver.
 
-Yep good point - my intent was to not mess with a structure pointing at
-address 0, so you'd want to skip that too.
+v1: https://lore.kernel.org/r/20260714232208.1683788-1-farman@linux.ibm.c=
+om/
+v2: https://lore.kernel.org/r/20260720201931.976660-1-farman@linux.ibm.co=
+m/
+v2->v3:
+ (Patches 1-4 are unchanged except for these first two items)
+ - [FA] Added r-b to patch 1 (thank you!)
+ - [sashiko] Fixed typo on error return from ccwchain_handle_ccw()
+ - [NEW][sashiko] Fixed the idal size calculated by get_guest_idal()
+ - [sashiko] Expanded clamps across region types
+ - [sashiko] Replace cp_lock with cp_mutex, and rework intersections with
+   the existing sch->lock and private->io_mutex
 
-As for other references to mmgrab, I don't know, but
-https://www.kernel.org/doc/Documentation/mm/active_mm.rst
-Specifically says to check
-if (!current->mm)
-to ensure we have user context.
+Eric Farman (8):
+  s390/vfio_ccw: free all memory if cp_init() fails
+  s390/vfio_ccw: limit the number of channel program segments
+  s390/vfio_ccw: fix out of bounds check on CCW array
+  s390/vfio_ccw: ensure first IDAW remains constant
+  s390/vfio_ccw: calculate idal length based on idaw type
+  s390/vfio_ccw: ensure index for read/write regions are within range
+  s390/vfio_ccw: implement a channel program mutex
+  s390/vfio_ccw: implement a crw lock
 
-Now, here's the thing:  I believe in practice today all of our calls to
-account_mem will have a user context because they are done in response
-to an ioctl.  And it is likely that the examples you looked at are also
-guaranteed to be in user context.
+ drivers/s390/cio/vfio_ccw_async.c   |  4 ++
+ drivers/s390/cio/vfio_ccw_chp.c     | 19 +++++++---
+ drivers/s390/cio/vfio_ccw_cp.c      | 59 ++++++++++++++++++++++++-----
+ drivers/s390/cio/vfio_ccw_cp.h      |  7 ++++
+ drivers/s390/cio/vfio_ccw_drv.c     | 14 ++++++-
+ drivers/s390/cio/vfio_ccw_fsm.c     | 22 +++++++----
+ drivers/s390/cio/vfio_ccw_ops.c     | 20 +++++++---
+ drivers/s390/cio/vfio_ccw_private.h |  5 +++
+ 8 files changed, 122 insertions(+), 28 deletions(-)
 
-The problem would be if we were to ever call this accounting function
-later from a kernel thread where current->mm was indeed NULL.  I suspect
-it was either a review comment on the initial implementation or a case
-of 'easy enough to protect against it'
-
-> see explicit checks for the current->mm [1] [2]
-> 
-> [1] https://elixir.bootlin.com/linux/v7.2-rc4/source/io_uring/
-> io_uring.c#L3047
-> 
-> [2] https://elixir.bootlin.com/linux/v7.2-rc4/source/drivers/vfio/
-> vfio_iommu_type1.c#L1675
-> 
-> Thanks
-> 
-> Farhan
-> 
-> 
->>
->>>       atomic64_add(nr_pages, &current->mm->pinned_vm);
->>> +    kzdev->user_account = user;
->>> +    kzdev->mm_account = current->mm;
->> Then if it IS NULL, we will stash a NULL into kzdev->mm_account here and
->> handle it above as before with the if (mm_account) check.
->>
->>>         return 0;
->>> +
->>> +out:
->>> +    free_uid(user);
->>> +    return rc;
->>>   }
->>>     static int kvm_s390_pci_aif_enable(struct zpci_dev *zdev, struct
->>> zpci_fib *fib,
->>> @@ -279,7 +297,7 @@ static int kvm_s390_pci_aif_enable(struct
->>> zpci_dev *zdev, struct zpci_fib *fib,
->>>       }
->>>         /* Account for pinned pages, roll back on failure */
->>> -    if (account_mem(pcount))
->>> +    if (account_mem(zdev->kzdev, pcount))
->>>           goto unpin2;
->>>         /* AISB must be allocated before we can fill in GAITE */
->>> @@ -400,7 +418,7 @@ static int kvm_s390_pci_aif_disable(struct
->>> zpci_dev *zdev, bool force)
->>>           pcount++;
->>>       }
->>>       if (pcount > 0)
->>> -        unaccount_mem(pcount);
->>> +        unaccount_mem(kzdev, pcount);
->>>   out:
->>>       mutex_unlock(&aift->aift_lock);
->>>   diff --git a/arch/s390/kvm/pci.h b/arch/s390/kvm/pci.h
->>> index ff0972dd5e71..544e6aa75e38 100644
->>> --- a/arch/s390/kvm/pci.h
->>> +++ b/arch/s390/kvm/pci.h
->>> @@ -21,6 +21,8 @@ struct kvm_zdev {
->>>       struct zpci_dev *zdev;
->>>       struct kvm *kvm;
->>>       struct zpci_fib fib;
->>> +    struct user_struct *user_account;
->>> +    struct mm_struct *mm_account;
->>>       struct list_head entry;
->>>   };
->>>   
+--=20
+2.53.0
 
