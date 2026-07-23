@@ -1,281 +1,159 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 767C81D9A5F;
-	Thu, 23 Jul 2026 18:10:25 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 38851369219;
+	Thu, 23 Jul 2026 18:14:08 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784830226; cv=none; b=FLwgntbMxrTbeEpAanSAZ5ByG/njwETE+c4GCIBMT6aU9eftUdjw+3tWDzNYMwTf96KXALXOXJD3LW2VZUOPYP2DhZg1NVps47evRJ2H07uBHxR2R159ObHqhLsJenXx641efoe5GVgcFPjqF5sDRYAdy3IOMma371cdzoY/jxY=
+	t=1784830452; cv=none; b=YbgLC3JZWWAzpuJYNvtH6lnKhb1fERRmJN0MNgjkqzjpzd4azwPiSuBuciT/K51x3mdvltlPDH+PprsfhUCB7QAQo1PlvD6pCUavV8MZtZpKjOmK1LhSpqRmjqWEdtpzrQrfWWSgMWO9EVKiird2ky3R71HJwvGJ4Avxgz5yvkw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784830226; c=relaxed/simple;
-	bh=AoSF8bkRkbISbkyfOU6ABYuMh+8+87AqaY1ZJNQ1yys=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ZTqKkbX4WG8KSdciZvef2f2FRSMOYHkFd+HUwQbszACvs4qyPXugF6++WWbWJHpODBhcvFgrawjRbjEA1boUl8Qf/o0S5ua/jPcyPRjh6OyxPXO6T+SM1302+KXCkuElrYAlY3jHj9sQ7UXga9vTJNi7V4c2LtJEcOwRSHET9xo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=VIDjNNxr; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1784830452; c=relaxed/simple;
+	bh=6/JMiugfV4sScU55OBvsvxuy80I6llEI6X5XFacqoc8=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=aroMWNKwFaYtR02vzjsZsY8IziYopBITrLdUUv7VuXsZBNObtpOQ84WmUNA4uVzMd1sy7U0cwj/AwKeI7EkzzCVNB3CW5ggGl2gMzFKyZfP429MvF78OmuLX1MWb2W5BEweZ6Y0sf6DV9hpRF3QIkumrF3aSV0AN9D1VcLuzJWM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=g+h9F6Id; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="VIDjNNxr"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66NHgVwm3689491;
-	Thu, 23 Jul 2026 18:10:22 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="g+h9F6Id"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66NHfjCQ3606697;
+	Thu, 23 Jul 2026 18:14:05 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=XoE9d9rvQwvZtpfw0AGnP6ps6vKTllkX3tlIKwRy9
-	ZM=; b=VIDjNNxr2t2C/XMUgZ9sE1dVy28U6bjkoDXQxsdbCtFugMdxbwbSJFq+r
-	GlbhbyHUHy2L01iTfnkejmfHvzItMK0jUbYWF7GgEpynKSwyvwKZz8Afu1YOAaVx
-	kCGHv80GfLT3C0FfP+KJvZWKCas/OnhWjdaPa6vMFbvH2e6TfnXpZHLi5ZEw8z17
-	CfJT2Fo3WModByEpkx6U02NTvz0laROKOANLWfU6HINqkkPa7w+S98EdX7lGHuBX
-	q+/w/Tuh9/9XTMSPTD31ztUezgGjlMgxqPPTjXST/evdGGxOLjtUGoEpVBk3G0Ky
-	2I1qOqptZ8lawtszs9MrtLuMNm/gg==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fg7ahgc0x-1
+	:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=pp1; bh=yXRPadUaCSXOsF4LQ
+	AqW3fNWZ5XVvc2gI0Yb7jyrxiM=; b=g+h9F6Id1JksZO7DH0lkHcrLVVOr2PWIp
+	8/+0BHHWr54vrWbEcyltyKA27obRW9P5fh59CBBwNuncFfnksXIt8oAeZq3u4FW9
+	WoKhDeciV73HRwiukPl8+dAXP1m00cRr7rT/CawVIotRO8cV+hYCyK+CumpUfNX+
+	41Bl5W41d2v34xiCraPDQwSFVem193YvZm6Kp9NZHu5VoY+5zC3Yv8LfyO4Xx4MC
+	7vEbE8FkSdEYH2M1TXRQSX9UUWyJ4uZq6ntGLJk9c67oxRcyB+SKMLdIRZTNWn/K
+	cgMJRKBNXnwNhlSKFPHtbxbmHH++EldOgSTvrGufE74fcSiSRu9ag==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fg77kge2c-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 23 Jul 2026 18:10:22 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66NI4brD032698;
-	Thu, 23 Jul 2026 18:10:21 GMT
-Received: from smtprelay03.wdc07v.mail.ibm.com ([172.16.1.70])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fgktqdkvr-1
+	Thu, 23 Jul 2026 18:14:05 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66NI4aiY002235;
+	Thu, 23 Jul 2026 18:14:04 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fgpgyn67u-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 23 Jul 2026 18:10:21 +0000 (GMT)
-Received: from smtpav02.dal12v.mail.ibm.com (smtpav02.dal12v.mail.ibm.com [10.241.53.101])
-	by smtprelay03.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66NI9hBV3932924
+	Thu, 23 Jul 2026 18:14:04 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66NIE0MX38011368
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 23 Jul 2026 18:09:44 GMT
-Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 98EFE5805A;
-	Thu, 23 Jul 2026 18:10:19 +0000 (GMT)
-Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5573558051;
-	Thu, 23 Jul 2026 18:10:19 +0000 (GMT)
-Received: from IBM-GLTZVH3.ibm.com (unknown [9.61.247.15])
-	by smtpav02.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 23 Jul 2026 18:10:19 +0000 (GMT)
-From: Jaehoon Kim <jhkim@linux.ibm.com>
-To: borntraeger@linux.ibm.com, frankja@linux.ibm.com, imbrenda@linux.ibm.com,
-        hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com
-Cc: david@kernel.org, svens@linux.ibm.com, mjrosato@linux.ibm.com,
-        freimuth@linux.ibm.com, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Jaehoon Kim <jhkim@linux.ibm.com>
-Subject: [PATCH v2] KVM: s390: Fall back to short-term pinning in MAP ioctl
-Date: Thu, 23 Jul 2026 13:10:16 -0500
-Message-ID: <20260723181017.1220552-1-jhkim@linux.ibm.com>
-X-Mailer: git-send-email 2.43.0
+	Thu, 23 Jul 2026 18:14:00 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 1202B200DA;
+	Thu, 23 Jul 2026 17:47:55 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E50F8200D9;
+	Thu, 23 Jul 2026 17:47:54 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with SMTP;
+	Thu, 23 Jul 2026 17:47:54 +0000 (GMT)
+Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 4958)
+	id A7E941627FA; Thu, 23 Jul 2026 19:47:54 +0200 (CEST)
+From: Eric Farman <farman@linux.ibm.com>
+To: linux-s390@vger.kernel.org, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Cc: Matthew Rosato <mjrosato@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Eric Farman <farman@linux.ibm.com>,
+        sashiko-bot <sashiko-bot@kernel.org>, stable@vger.kernel.org
+Subject: [PATCH v3 5/8] s390/vfio_ccw: calculate idal length based on idaw type
+Date: Thu, 23 Jul 2026 19:47:48 +0200
+Message-ID: <20260723174751.1180334-6-farman@linux.ibm.com>
+X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20260723174751.1180334-1-farman@linux.ibm.com>
+References: <20260723174751.1180334-1-farman@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: Ox7zgz8KvIhzN_p4fL0KLBBwFoL47TRD
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzIzMDE3MyBTYWx0ZWRfX80MbzLCsJjzg
- RGIl9fVajrGSpXiy2xy2yRQHauijx4fOj+2WQcE/e3QpBLSsRC+/HFchQtSsQfCLAlynU/HpfKe
- Z/ylnUsJL50q7Rx4+a4fMUQD2m1BSGto6oeFusmWhZfKwub5i1HsEOolB8/Rtb6cW8sAx4zlnNs
- 38p1KzFV1siluvFNmdljfsVMbNyt6yD7KVY6dp1lNGHksNWcluH2Y7AX4SiqZDA343aWykMIIvp
- cx/8Mfjcd0Do/OodPqPfuHABBaR7H4UvrLxtvk3SKzye39aC6qjq9ZU1j/TXIFgnaM+zA8FelaL
- FDTmdveTpVivsDTb8mNU4sKeMKqnaftBqyF5cI+wzcMZFwrBYcvUVUTJU2Y6XZRCEl6tBvAe6nw
- AVpGSXm/rsM5EF1ZnCeuoIfbPe194Js0p87nIaHW60lMSkR38PupMofAM5fwshblBkBe/YzhR4z
- U/70A/y17iKbbZDfPmA==
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzIzMDE3MyBTYWx0ZWRfX+bfxv72bKERl
- hM2qqkB7yWcTN5/ciV2Cei2ROVMDPY5ZyM+9nbbBOpU7ixOdkKP9q0qxgrpv3n730gJIPMI7Tqd
- AEfV0ILcQpCxbVzCu4GhZsx+XNemMoo=
-X-Proofpoint-GUID: Ox7zgz8KvIhzN_p4fL0KLBBwFoL47TRD
-X-Authority-Analysis: v=2.4 cv=SM5ykuvH c=1 sm=1 tr=0 ts=6a62590e cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+X-Authority-Analysis: v=2.4 cv=HJXz0Itv c=1 sm=1 tr=0 ts=6a6259ed cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
  a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8 a=H3qqm0ZU6jIU6DdWDYQA:9
+ a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
+ a=Qev3T-O1x3Ov5i2I8JAA:9
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzIzMDE3OCBTYWx0ZWRfX7mFC631alW/N
+ rkwZ+Xs0kiC4nTx3Q8mxJ6iRbS7UEarz+4x4s8RRNH4glsn6Su3uKKdb1lCdbPcf458AWZPrfp4
+ xfZB5pCngCXHBxhOUtOXOmivDO3IpyYX+23SXPsBPv7cg3ltKxY+gPEbQU4jYzfpowehZXAYncx
+ A7PwF39ygNeWF3055uoo0Oddn9qsmlQKU+n97amYe5pLK4Z1WjBIPdwPrdQv2GbPekhgrN320Qm
+ JNXHwky0H333zwqnt6D4Mrrdg5chdohSo/Mc1kOxFzSVOvVtM/+RG8nNnP43Oedn45Zp/eTFtxZ
+ Eacc8c6n9rWq8zjvb/DIRHnjZf1N10IXpE6Xj2066DcFTLM6tL/+LT5q0+te88hS4lNocxg1F8+
+ AoQx0LWF/bgIb+XScpFS/bPxnJ1wYkEFsYW+3oJoGLwxx+8pVCr4dfT+d38qTwjOHocOnNLKoBh
+ u3QR95sw5VTXOLVX/WA==
+X-Proofpoint-ORIG-GUID: ufGEs_rcLHRfZPwj5PB2XaTrLjChfJ-j
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzIzMDE3OCBTYWx0ZWRfX9dC+GTztzm/E
+ YejAHjYpADW1RfhhPnfQKx09R0GaLmQSgjLv3/Qm9QLeNMDfT5dkDFv3M3PBvSkYK3pTEXw2qCD
+ 2WtIRpjbHkWMzHYsIDVZGyAQA+pM0dA=
+X-Proofpoint-GUID: ufGEs_rcLHRfZPwj5PB2XaTrLjChfJ-j
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-07-23_05,2026-07-22_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 lowpriorityscore=0 bulkscore=0 suspectscore=0 adultscore=0
- spamscore=0 malwarescore=0 priorityscore=1501 phishscore=0 impostorscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607230173
+ bulkscore=0 priorityscore=1501 lowpriorityscore=0 suspectscore=0
+ malwarescore=0 impostorscore=0 clxscore=1011 phishscore=0 spamscore=0
+ adultscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2607230178
 
-FOLL_LONGTERM pinning fails for some memory types, such as file-backed
-guest memory. As a result, kvm_s390_adapter_map() returns -EINVAL and
-irqfd adapter registration fails even though interrupt delivery could
-still work via the existing non-atomic path.
+Sashiko pointed out that get_guest_idal() unconditionally calculates
+the length of the IDAL presuming everything is a Format-2 IDAW.
 
-When FOLL_LONGTERM pinning fails, verify that the page is accessible
-using a short-term pin instead. If the short-term pin succeeds, unpin
-the page and add a map entry with pinned=false to preserve MAP/UNMAP
-symmetry. The non-atomic irqfd path already performs short-term pinning
-for interrupt delivery, so this restores the previous behavior for
-memory that cannot be pinned long-term.
+The output of vfio-ccw is always Format-2, but the input can be either
+Format-1 (31-bit addresses) or Format-2 (64-bit addresses). As a result,
+the size of the guest IDAL may be incorrect and should be trimmed down.
 
-get_map_info() is updated to return NULL for unpinned entries so that
-the atomic irqfd fast path falls back to the non-atomic path.
-kvm_s390_adapter_unmap() and kvm_s390_unmap_all_adapters() skip dirty
-marking and unpin for unpinned entries.
-
-Update Documentation/virt/kvm/devices/s390_flic.rst to reflect the
-new MAP/UNMAP behavior.
-
-Fixes: adcd5b3e758b ("KVM: s390: Add map/unmap ioctl and clean mappings post-guest")
-Signed-off-by: Jaehoon Kim <jhkim@linux.ibm.com>
-Reviewed-by: Douglas Freimuth <freimuth@linux.ibm.com>
+Reported-by: sashiko-bot <sashiko-bot@kernel.org>
+Link: https://lore.kernel.org/r/20260720203400.7328E1F000E9@smtp.kernel.o=
+rg/
+Fixes: 1b676fe3d9d3 ("vfio/ccw: handle a guest Format-1 IDAL")
+Cc: stable@vger.kernel.org
+Signed-off-by: Eric Farman <farman@linux.ibm.com>
 ---
- Documentation/virt/kvm/devices/s390_flic.rst | 11 +++-
- arch/s390/include/asm/kvm_host.h             |  5 ++
- arch/s390/kvm/interrupt.c                    | 59 +++++++++++++++-----
- 3 files changed, 58 insertions(+), 17 deletions(-)
+ drivers/s390/cio/vfio_ccw_cp.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/Documentation/virt/kvm/devices/s390_flic.rst b/Documentation/virt/kvm/devices/s390_flic.rst
-index b784f8016748..ec9aaae04e22 100644
---- a/Documentation/virt/kvm/devices/s390_flic.rst
-+++ b/Documentation/virt/kvm/devices/s390_flic.rst
-@@ -112,9 +112,16 @@ Groups:
-       mask or unmask the adapter, as specified in mask
- 
-     KVM_S390_IO_ADAPTER_MAP
--      This is now a no-op. The mapping is purely done by the irq route.
-+      Map an adapter indicator or summary page for long-term pinning so that
-+      interrupt injection can be performed in atomic context. If long-term
-+      pinning is not possible (e.g. file-backed memory), the page is verified
-+      via a short-term pin and the ioctl returns success; interrupt injection
-+      will use the non-atomic irqfd path with short-term pinning on each
-+      interrupt. In Secure Execution mode this is a no-op.
-     KVM_S390_IO_ADAPTER_UNMAP
--      This is now a no-op. The mapping is purely done by the irq route.
-+      Unmap a previously mapped adapter indicator or summary page and release
-+      the long-term pin. If the page was not long-term pinned (e.g. file-backed
-+      memory or Secure Execution mode), this is a no-op and returns success.
- 
-   KVM_DEV_FLIC_AISM
-     modify the adapter-interruption-suppression mode for a given isc if the
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index eaa34c5bd3c1..c172f9b212d1 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -476,6 +476,11 @@ struct s390_map_info {
- 	__u64 guest_addr;
- 	__u64 addr;
- 	struct page *page;
-+	/*
-+	 * True if the page is long-term pinned. False if long-term pinning
-+	 * failed and this entry exists only to preserve MAP/UNMAP symmetry.
-+	 */
-+	bool pinned;
- };
- 
- struct s390_io_adapter {
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index 9e3e6b0d72ad..75eacd1578ef 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -2520,8 +2520,22 @@ static int kvm_s390_adapter_map(struct kvm *kvm, unsigned int id, __u64 addr)
- 	map->addr = host_addr;
- 	map->page = pin_map_page(kvm, host_addr, FOLL_LONGTERM);
- 	if (!map->page) {
--		ret = -EINVAL;
--		goto out;
-+		/*
-+		 * Long-term pinning may fail for memory types such as file-backed
-+		 * memory. Verify that short-term pinning succeeds so that the
-+		 * non-atomic irqfd path can handle interrupt injection.
-+		 */
-+		map->page = pin_map_page(kvm, host_addr, 0);
-+		if (!map->page) {
-+			ret = -EINVAL;
-+			goto out;
-+		}
-+		unpin_user_page(map->page);
-+		map->page = NULL;
-+		map->pinned = false;
-+		/* Add an entry to preserve MAP/UNMAP symmetry. */
-+	} else {
-+		map->pinned = true;
- 	}
- 	spin_lock_irqsave(&adapter->maps_lock, flags);
- 	if (adapter->nr_maps < MAX_S390_ADAPTER_MAPS) {
-@@ -2532,7 +2546,7 @@ static int kvm_s390_adapter_map(struct kvm *kvm, unsigned int id, __u64 addr)
- 		ret = -EINVAL;
- 	}
- 	spin_unlock_irqrestore(&adapter->maps_lock, flags);
--	if (ret)
-+	if (ret && map->page)
- 		unpin_user_page(map->page);
- out:
- 	if (ret)
-@@ -2546,6 +2560,7 @@ static int kvm_s390_adapter_unmap(struct kvm *kvm, unsigned int id, __u64 addr)
- 	struct s390_map_info *map, *tmp, *map_to_free;
- 	struct page *map_page_to_put = NULL;
- 	u64 map_addr_to_mark = 0;
-+	bool map_pinned = false;
- 	unsigned long flags;
- 	int found = 0, idx;
- 
-@@ -2560,6 +2575,7 @@ static int kvm_s390_adapter_unmap(struct kvm *kvm, unsigned int id, __u64 addr)
- 			list_del(&map->list);
- 			map_page_to_put = map->page;
- 			map_addr_to_mark = map->guest_addr;
-+			map_pinned = map->pinned;
- 			map_to_free = map;
- 			break;
- 		}
-@@ -2568,11 +2584,18 @@ static int kvm_s390_adapter_unmap(struct kvm *kvm, unsigned int id, __u64 addr)
- 
- 	if (found) {
- 		kfree(map_to_free);
--		idx = srcu_read_lock(&kvm->srcu);
--		mark_page_dirty(kvm, map_addr_to_mark >> PAGE_SHIFT);
--		set_page_dirty_lock(map_page_to_put);
--		srcu_read_unlock(&kvm->srcu, idx);
--		unpin_user_page(map_page_to_put);
-+		if (map_pinned) {
-+			/*
-+			 * Only long-term pinned pages need to be marked dirty
-+			 * and released. Fallback entries exist only for
-+			 * MAP/UNMAP symmetry.
-+			 */
-+			idx = srcu_read_lock(&kvm->srcu);
-+			mark_page_dirty(kvm, map_addr_to_mark >> PAGE_SHIFT);
-+			set_page_dirty_lock(map_page_to_put);
-+			srcu_read_unlock(&kvm->srcu, idx);
-+			unpin_user_page(map_page_to_put);
-+		}
- 	}
- 
- 	return found ? 0 : -ENOENT;
-@@ -2598,11 +2621,13 @@ void kvm_s390_unmap_all_adapters(struct kvm *kvm)
- 
- 		list_for_each_entry_safe(map, tmp, &local_list, list) {
- 			list_del(&map->list);
--			idx = srcu_read_lock(&kvm->srcu);
--			mark_page_dirty(kvm, map->guest_addr >> PAGE_SHIFT);
--			set_page_dirty_lock(map->page);
--			srcu_read_unlock(&kvm->srcu, idx);
--			unpin_user_page(map->page);
-+			if (map->pinned) {
-+				idx = srcu_read_lock(&kvm->srcu);
-+				mark_page_dirty(kvm, map->guest_addr >> PAGE_SHIFT);
-+				set_page_dirty_lock(map->page);
-+				srcu_read_unlock(&kvm->srcu, idx);
-+				unpin_user_page(map->page);
-+			}
- 			kfree(map);
- 		}
- 	}
-@@ -2929,8 +2954,12 @@ static struct s390_map_info *get_map_info(struct s390_io_adapter *adapter,
- 		return NULL;
- 
- 	list_for_each_entry(map, &adapter->maps, list) {
--		if (map->addr == addr)
--			return map;
-+		if (map->addr == addr) {
-+			if (map->pinned)
-+				return map;
-+			else
-+				return NULL;
-+		}
- 	}
- 	return NULL;
+diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_c=
+p.c
+index 06b6bc6142a0..b4a041d35bba 100644
+--- a/drivers/s390/cio/vfio_ccw_cp.c
++++ b/drivers/s390/cio/vfio_ccw_cp.c
+@@ -233,6 +233,7 @@ static void convert_ccw0_to_ccw1(struct ccw1 *source,=
+ unsigned long len)
  }
--- 
-2.54.0
+=20
+ #define idal_is_2k(_cp) (!(_cp)->orb.cmd.c64 || (_cp)->orb.cmd.i2k)
++#define get_idaw_size(_cp) ((_cp)->orb.cmd.c64 ? sizeof(u64) : sizeof(u3=
+2))
+=20
+ /*
+  * Helpers to operate ccwchain.
+@@ -534,7 +535,7 @@ static dma64_t *get_guest_idal(struct ccw1 *ccw, stru=
+ct channel_program *cp, int
+ 	dma64_t *idaws;
+ 	dma32_t *idaws_f1;
+ 	u64 first_idaw;
+-	int idal_len =3D idaw_nr * sizeof(*idaws);
++	int idal_len =3D idaw_nr * get_idaw_size(cp);
+ 	int idaw_size =3D idal_is_2k(cp) ? PAGE_SIZE / 2 : PAGE_SIZE;
+ 	int idaw_mask =3D ~(idaw_size - 1);
+ 	int i, ret;
+@@ -602,7 +603,7 @@ static int ccw_count_idaws(struct ccw1 *ccw,
+ 	struct vfio_device *vdev =3D
+ 		&container_of(cp, struct vfio_ccw_private, cp)->vdev;
+ 	u64 iova;
+-	int size =3D cp->orb.cmd.c64 ? sizeof(u64) : sizeof(u32);
++	int size =3D get_idaw_size(cp);
+ 	int ret;
+ 	int bytes =3D 1;
+=20
+--=20
+2.53.0
 
