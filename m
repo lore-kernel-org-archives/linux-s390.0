@@ -1,162 +1,219 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E809231F9A6;
-	Thu, 23 Jul 2026 14:15:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 01E76318EC5
+	for <linux-s390@vger.kernel.org>; Thu, 23 Jul 2026 14:16:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784816162; cv=none; b=hcFe8sSeKN00YkdBXSU3RSPwkebQTTVMJ7BL1bblTste46lzcG7H5Gn5eMdtEMzeXmpUsrQfUKZ+CWgOwtVAe61eVS9LwSjhLcrNX+fzUDAcs7MSaJlqvrIi15mcdz9jM0ZBePcD3iTDwfvjCf4gTlBPTzR/t/aiAN04qpWPJzo=
+	t=1784816202; cv=none; b=jKPfZYklqHExY1fd3uEDipvTwVT2p26C8T6eEYC92mYj4xkEuVu2crVEQw/06sUFUDgP3gYrAMeH+XZDwFhhMq37kpZ459FfR1hEfX+Q1I+2z+8KZ5uVzAxP8kkJ2sG0tFf8+0d5zzwofrcRoHT0xFLV1FG07aheDKns0OItx1g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784816162; c=relaxed/simple;
-	bh=ycHTgRnfodxFntTWRr09mNJua/CWHEwh0Yr2uEr5sNw=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Ymc/wuL4IH4g572bRfCOVI1PAySgW7eNJAKriMs0Wy9O1dnBMBguucSc91tPP8J5rebHJ04nSpWgEDh3Xq4y7wAGW+kr9tmnEZQhoY+G3fUKWUBLG1I7l67Sh5YpvMwmCf3VrBUW1p+PF+ax1jDJtgRUMjQPdrFQ1CSNDzf3j4Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=TnkNVOux; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1784816202; c=relaxed/simple;
+	bh=M9t6OSVV45OXuFKLV+GYYfItK+aypZ+kBx9BxyuHoeY=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=WIOgWKZ2rURb80hVDRUl6uPwn0pULbj7ksMw2bPuD61KB3RUwPxMhnkXn6dgSOmD/aOapxkS2HGfjgN90hmeMxErGgtRJRsHIUFrIy4GRKRnwQwygssA7WCeNQd6QQQCPhJVDj1g8vWex67JpM0UqDeWHAAwDnrk9ihv1xIIjek=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LF+Iw7xp; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="TnkNVOux"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66NDCLwh1211946;
-	Thu, 23 Jul 2026 14:15:48 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=X1zevz
-	Cmk3qRGwiAzvhfy5r7dUFHGzz6Dwan2wco76k=; b=TnkNVOuxFMlbt9JnCQQrcF
-	8oIb+bMzgFh2fXtNHQNcT3RUzjk2QBwPmECkuLvQWnRdpC6OYuGVjHLWKwVzPDb+
-	Qet3hA3p399xeS5oe4qajSpjL5wW/na7Mfy3ibuU9J1epth6UgNC2JmvFtvRhuQF
-	ta3HYcni/HYuCAyswM8mwvxFmJxLpaWlSizamGXhPO6//7nJb77y2z86/tUzhQY3
-	Bo6c0BJjjbrnDqFYpw6qEr83rcz2Tc7LyKF9wpxmuZY8Tkqk41s0QONl6vgu4cUj
-	6m0VV5RMYt9sLkl12c9jvMTTj3UCgXLEn9H4Gy4QCxqAyVqOC6uPESXaGZMAVGQw
-	==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fg77aqy2f-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 23 Jul 2026 14:15:48 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66NE4cSe025116;
-	Thu, 23 Jul 2026 14:15:47 GMT
-Received: from smtprelay07.dal12v.mail.ibm.com ([172.16.1.9])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fgnahcg24-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 23 Jul 2026 14:15:47 +0000 (GMT)
-Received: from smtpav05.wdc07v.mail.ibm.com (smtpav05.wdc07v.mail.ibm.com [10.39.53.232])
-	by smtprelay07.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66NEFjZA31392324
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 23 Jul 2026 14:15:46 GMT
-Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id CE6545805D;
-	Thu, 23 Jul 2026 14:15:45 +0000 (GMT)
-Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 184BC58053;
-	Thu, 23 Jul 2026 14:15:45 +0000 (GMT)
-Received: from [9.61.177.4] (unknown [9.61.177.4])
-	by smtpav05.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 23 Jul 2026 14:15:44 +0000 (GMT)
-Message-ID: <4a3d08fb-c3cc-433b-b44c-c2f2e51468f7@linux.ibm.com>
-Date: Thu, 23 Jul 2026 10:15:44 -0400
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LF+Iw7xp"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0084B1F000E9;
+	Thu, 23 Jul 2026 14:16:38 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1784816199;
+	bh=nw+09rd10Krxtzt5TEt0/igo+VAmYaildWyhY/2ayjQ=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=LF+Iw7xpB2YxB//Vz0wWaG7CLwJWF4R4wcIqAtLOEK/Qw1A3X+BG8AO1P3yWKsRFm
+	 CMbcnT2tjNTUmBwT9D23DQAIKEt0bIc+CxOYyy8pMYzVnDbYrg1os6gvdgNfpM4j8x
+	 VeWmaZRDsFJV5GQ9wXjMdYl+CUaP6cruuAGX5ZuLpuTkeQBOFTF1FCT8QUl2SeTaxB
+	 SDs5YVHxPTSJFBqm8+SgtrI3oJjkJsLGJ9Bk3CLRgYKN2UGsKKMif6sxBnhEswywfL
+	 UOKNokmkWT5sDS+B1tU0LCCrQ3FUj9lhYAmSiGYcR2o4u1/JayC8dFA7I5DN+qdmwL
+	 dq6RU3WxXvaYA==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v3 07/13] s390/dasd: Add full_track_bias sysfs attribute
+ to control fulltrack write mode
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Stefan Haberland" <sth@linux.ibm.com>
+Cc: "Vasily Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
+ Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
+In-Reply-To: <20260723134743.672413-8-sth@linux.ibm.com>
+References: <20260723134743.672413-1-sth@linux.ibm.com>
+ <20260723134743.672413-8-sth@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 23 Jul 2026 14:16:38 +0000
+Message-Id: <20260723141639.0084B1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4 3/6] KVM: s390: pci: Fix missing error codes and memory
- unaccounting
-To: Farhan Ali <alifm@linux.ibm.com>, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, kvm@vger.kernel.org
-Cc: borntraeger@linux.ibm.com, farman@linux.ibm.com
-References: <20260722170621.1686-1-alifm@linux.ibm.com>
- <20260722170621.1686-4-alifm@linux.ibm.com>
-Content-Language: en-US
-From: Matthew Rosato <mjrosato@linux.ibm.com>
-In-Reply-To: <20260722170621.1686-4-alifm@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: pVRAoVjiYr-v7c0mzokWALFmHBkYtdKC
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzIzMDE0MCBTYWx0ZWRfX3ZND8VzifsW7
- tWwqyyTAMYBNHJ4LYJ7E+eaYDqo+ZoTya8IHiPM4t3XQxHQs/sU9/cVQL2ajY22VCLn36UApx53
- /4uqyxF4lVhHrQn6iGnX/LNpoJzSMgU=
-X-Proofpoint-GUID: pVRAoVjiYr-v7c0mzokWALFmHBkYtdKC
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzIzMDE0MCBTYWx0ZWRfXxW8K53PulVGF
- 1LTb5EhGVye+QUA5wHqrzyozUcVWZkM23okZgDt0rnf9arRh4OeKSDnN1DbzGazxri+lbqfBfIg
- wb1QADliU0hS7PiUUV/jVu8BlaeiQK//CoLoQsm/0NoYoX+sBsLoK3Zb3yotBNI8f4ciYYrg/7m
- iAHUljM3KDFyokHjlpMMtmcyQiI1wqtKjrOjod6b1RJ8XizgDWLHWgTFyImm4IuEmgbk5czNutE
- /GQoqIKSNKt7deg782cOlzNfU6gxS6LUgDp7bL1QIURnveJzyzh7FUTbcVURyJCncvn5Pc3d02h
- mK5uH232jBHhrAQG/a72SbhxQFpX+CHEJKXBegGXwODsQcDiAgrSt3wPd4hPEL8rin1Fc7DnqS2
- QBVQb1iMZwvnG7OrOrrTVLnluWOGZdfYaIyF9jOtd9SoknyCjGLy9r39+wWA5esGuni0MY3IB2l
- WZuFvs/lnxCHLpFXatQ==
-X-Authority-Analysis: v=2.4 cv=K7AS2SWI c=1 sm=1 tr=0 ts=6a622214 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8
- a=AJ4VnbqJACYr0d-LWtUA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-07-23_04,2026-07-22_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- lowpriorityscore=0 suspectscore=0 bulkscore=0 clxscore=1015
- priorityscore=1501 spamscore=0 phishscore=0 malwarescore=0 adultscore=0
- impostorscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2607230140
 
-On 7/22/26 1:06 PM, Farhan Ali wrote:
-> In kvm_s390_pci_aif_enable() two error paths failed to set error code,
+Thank you for your contribution! Sashiko AI review found 4 potential issue(=
+s) to consider:
+- [High] Unconditional enablement of `WRITE_FULL_TRACK` via the `full_track=
+_bias` module parameter causes a severe throughput regression for non-ESE s=
+tandard ECKD devices.
+- [Medium] Using `rq_data_dir(req) =3D=3D WRITE` incorrectly routes datales=
+s operations to `dasd_eckd_build_cp_tpm_writefulltrack()`, violating the su=
+bsystem guide and risking a NULL pointer dereference.
+- [Medium] The `fillsize` calculation in `dasd_eckd_build_cp_tpm_writefullt=
+rack()` lacks padding headroom, causing sporadic request build failures.
+- [Low] Concurrent writes to the `full_track_bias` sysfs attribute can leav=
+e `ft_bias` and `fulltrack` in an inconsistent state.
+--
 
-nit: set 'an' error code
+--- Patch [7]: [PATCH v3 07/13] s390/dasd: Add full_track_bias sysfs attrib=
+ute to control fulltrack write mode ---
+commit ba2fbebc6514d0ac9b7370c40e5b4ab38ea6caff
+Author: Stefan Haberland <sth@linux.ibm.com>
 
-> causing the function to return 0 on failure. It also failed to rollback
-> memory accounting on failure. Fix both by propagating error code on
+s390/dasd: Add full_track_bias sysfs attribute to control fulltrack write m=
+ode
 
-'an' error code
+This commit adds a full_track_bias sysfs attribute to control the full-track
+write mode for ESE devices. It sets an initial default bias from a module
+parameter and routes aligned write requests to the full-track write path.
 
-> failure and calling unaccount_mem() in the cleanup path.
+> diff --git a/drivers/s390/block/dasd_devmap.c b/drivers/s390/block/dasd_d=
+evmap.c
+> index 381d616ad433f..035c022255b68 100644
+> --- a/drivers/s390/block/dasd_devmap.c
+> +++ b/drivers/s390/block/dasd_devmap.c
 
-With or without those changes:
+[ ... ]
 
-Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
+> @@ -1630,6 +1630,44 @@ dasd_expires_store(struct device *dev, struct devi=
+ce_attribute *attr,
+>  static DEVICE_ATTR(expires, 0644, dasd_expires_show, dasd_expires_store);
 
-> 
-> Fixes: 3c5a1b6f0a18 ("KVM: s390: pci: provide routines for enabling/disabling interrupt forwarding")
-> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
-> ---
->  arch/s390/kvm/pci.c | 9 +++++++--
->  1 file changed, 7 insertions(+), 2 deletions(-)
-> 
-> diff --git a/arch/s390/kvm/pci.c b/arch/s390/kvm/pci.c
-> index 1b3114c7cfbb..33abc15aa685 100644
-> --- a/arch/s390/kvm/pci.c
-> +++ b/arch/s390/kvm/pci.c
-> @@ -297,14 +297,17 @@ static int kvm_s390_pci_aif_enable(struct zpci_dev *zdev, struct zpci_fib *fib,
->  	}
->  
->  	/* Account for pinned pages, roll back on failure */
-> -	if (account_mem(zdev->kzdev, pcount))
-> +	rc = account_mem(zdev->kzdev, pcount);
-> +	if (rc)
->  		goto unpin2;
->  
->  	/* AISB must be allocated before we can fill in GAITE */
->  	mutex_lock(&aift->aift_lock);
->  	bit = airq_iv_alloc_bit(aift->sbv);
-> -	if (bit == -1UL)
-> +	if (bit == -1UL) {
-> +		rc = -ENOMEM;
->  		goto unlock;
-> +	}
->  	zdev->aisb = bit; /* store the summary bit number */
->  	zdev->aibv = airq_iv_create(msi_vecs, AIRQ_IV_DATA |
->  				    AIRQ_IV_BITLOCK |
-> @@ -348,6 +351,8 @@ static int kvm_s390_pci_aif_enable(struct zpci_dev *zdev, struct zpci_fib *fib,
->  	return rc;
->  
->  unlock:
-> +	if (pcount > 0)
-> +		unaccount_mem(zdev->kzdev, pcount);
->  	mutex_unlock(&aift->aift_lock);
->  unpin2:
->  	if (fib->fmt0.sum == 1)
+[ ... ]
 
+> +static ssize_t full_track_bias_store(struct device *dev,
+> +				     struct device_attribute *attr,
+> +				     const char *buf, size_t count)
+> +{
+> +	struct dasd_device *device;
+> +	unsigned int val;
+> +
+> +	if (kstrtouint(buf, 0, &val) || val > DASD_FT_BIAS_MAX)
+> +		return -EINVAL;
+> +
+> +	device =3D dasd_device_from_cdev(to_ccwdev(dev));
+> +	if (IS_ERR(device))
+> +		return -ENODEV;
+> +
+> +	device->ft_bias =3D val;
+> +	device->fulltrack =3D val ? 1 : 0;
+
+[Severity: Low]
+Can concurrent writes to this sysfs attribute leave ft_bias and fulltrack
+in an inconsistent state?
+
+These fields are updated sequentially without lock protection. If two
+threads write different values simultaneously, it might result in a
+mismatched state.
+
+> +
+> +	dasd_put_device(device);
+> +	return count;
+> +}
+
+[ ... ]
+
+> diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eck=
+d.c
+> index afbc915ea4d0c..c10fe20e7d3ff 100644
+> --- a/drivers/s390/block/dasd_eckd.c
+> +++ b/drivers/s390/block/dasd_eckd.c
+
+[ ... ]
+
+> @@ -2118,6 +2130,10 @@ dasd_eckd_check_characteristics(struct dasd_device=
+ *device)
+>  	device->path_interval =3D DASD_ECKD_PATH_INTERVAL;
+>  	device->aq_timeouts =3D DASD_RETRIES_MAX;
+> =20
+> +	/* default ESE fulltrack write aggressiveness from the module parameter=
+ */
+> +	device->ft_bias =3D min_t(unsigned int, full_track_bias, DASD_FT_BIAS_M=
+AX);
+> +	device->fulltrack =3D device->ft_bias ? 1 : 0;
+
+[Severity: High]
+Does this unconditionally enable fulltrack writes for standard non-ESE ECKD
+devices?
+
+The fulltrack flag is enabled based on the default bias, without checking
+if the device is actually ESE capable. This appears to force the
+WRITE_FULL_TRACK command for standard ECKD devices, which has an overall
+penalty for maximum throughput.
+
+> +
+>  	if (private->conf.gneq) {
+>  		value =3D 1;
+
+[ ... ]
+
+> @@ -5165,11 +5181,20 @@ static struct dasd_ccw_req *dasd_eckd_build_cp(st=
+ruct dasd_device *startdev,
+>  		/* do nothing, just fall through to the cmd mode single case */
+>  	} else if ((data_size <=3D private->fcx_max_data)
+>  		   && (fcx_multitrack || (first_trk =3D=3D last_trk))) {
+> -		cqr =3D dasd_eckd_build_cp_tpm_track(startdev, block, req,
+> -						   first_rec, last_rec,
+> -						   first_trk, last_trk,
+> -						   first_offs, last_offs,
+> -						   blk_per_trk, blksize);
+> +		if (!first_offs && (last_offs + 1 =3D=3D blk_per_trk) &&
+> +		    rq_data_dir(req) =3D=3D WRITE && basedev->fulltrack) {
+
+[Severity: Medium]
+Does this incorrectly route dataless operations like REQ_OP_WRITE_ZEROES
+to the full-track write path?
+
+The rq_data_dir() macro checks the lowest bit of the operation, which means
+it evaluates to true for dataless operations. If this routes a dataless
+request to dasd_eckd_build_cp_tpm_writefulltrack(), iterating over bio
+segments can result in a NULL pointer dereference because dataless
+operations lack a bi_io_vec.
+
+The block layer subsystem guidelines explicitly forbid using op_is_write()
+as a guard for data fields, and require bio_has_data() instead.
+
+[Severity: Medium]
+When dasd_eckd_build_cp_tpm_writefulltrack() is called, is the fillsize
+calculation large enough to account for page alignment padding?
+
+Inside dasd_eckd_build_cp_tpm_writefulltrack(), the fillsize is calculated
+exactly:
+
+fillsize =3D trkcount * (sizeof(struct eckd_r0) +
+                       (sizeof(struct eckd_count) * (blk_per_trk + 2)));
+
+However, reserve_nocross() skips padding bytes when encountering a page
+boundary and subtracts the padding from the remaining space:
+
+pad =3D PAGE_SIZE - off;
+if (*space < pad)
+        return NULL; /* out of space */
+*p      =3D (void *)((char *)*p + pad);
+*space -=3D pad;
+
+Can this lack of padding headroom cause the preallocated filldata buffer to
+run out of space prematurely, forcing a failure and a fallback to a slower
+I/O mode?
+
+> +			cqr =3D dasd_eckd_build_cp_tpm_writefulltrack(startdev, block, req,
+> +								    first_rec, last_rec,
+> +								    first_trk, last_trk,
+> +								    first_offs, last_offs,
+> +								    blk_per_trk, blksize, NULL);
+> +		} else {
+> +			cqr =3D dasd_eckd_build_cp_tpm_track(startdev, block, req,
+> +							   first_rec, last_rec,
+> +							   first_trk, last_trk,
+> +							   first_offs, last_offs,
+> +							   blk_per_trk, blksize);
+> +		}
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260723134743.6724=
+13-1-sth@linux.ibm.com?part=3D7
