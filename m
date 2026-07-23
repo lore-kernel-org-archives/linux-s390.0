@@ -1,72 +1,66 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0E505486E61;
-	Thu, 23 Jul 2026 18:42:41 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D420139FCE;
+	Thu, 23 Jul 2026 18:43:24 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784832167; cv=none; b=i3WrncZVWQvHH3uV5mKjy2iESL47QlMfUmzt5VHTpkS9I1+F97j4nnwnzv1uVVd54oGsSt+bc7SV8bzLF1y6qVzk2OmnxxENdtIV7O33vBu9snYnUwM4ewq2hPsgAClcITa4b2BQUSWxZ5Nkq+1NM2E6ic2iO3cKnQPChKrhCes=
+	t=1784832209; cv=none; b=KVXmJEWlCI1HR6pqz+gcvOe8ZlIVwy5JJzXna08BaQvkIwttC1Z74g8TqhOUYAl77brIt9rkHCBR6ji1TNgm/PMBoz06NVuUnqsGUd6RnJ/ZHi35qh3npg0CZsDyGduYx7MngyLgcx537R/Qs9aSEZBES6scLKM9eZLqqp8Qx/c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784832167; c=relaxed/simple;
-	bh=yVUHDzsOe0/OZ5C3aGOuE6wpKssIrCaKBcN9BcS22t4=;
+	s=arc-20240116; t=1784832209; c=relaxed/simple;
+	bh=YSJeqfKUfgjokDQlInAbhaPcAGL0Z1Us258OXuU9XBU=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=eRAPtHnK8VrxkTvlrm36mTyEgSuauwxcrKT97zz6c/kLGk+hejlyAC0MsidmcQG9NQen1JZjyZ8Sh0hdspjcOJQH1GjaID3jhkD1jLOzvtdKsbF6nadcySn+QxruFPTO6BEkWmd6bkYWGm3fLRe0ovT1bw3W5DG3t5qHoCJqqog=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=AizGEWNH; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=cErDUbuNEac9ibF3cLF0Fkdj1wKaMXQVhk11dVo8bAEjMfKVgBSb5qe9wClHJ10lw7BelrbabAeDP7HD8ctP+ubOvvUpTiRW6lcNUU/C8J2n9Q9w0fNxX7agjjUSpqFexRvVncwCfWi0Ooju09rdurfDI1++ajlx1JYS6jN8nQk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YnUrWd6I; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AizGEWNH"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BFC01F000E9;
-	Thu, 23 Jul 2026 18:42:39 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YnUrWd6I"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 142A21F000E9;
+	Thu, 23 Jul 2026 18:43:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784832159;
-	bh=yVUHDzsOe0/OZ5C3aGOuE6wpKssIrCaKBcN9BcS22t4=;
+	s=k20260515; t=1784832200;
+	bh=YSJeqfKUfgjokDQlInAbhaPcAGL0Z1Us258OXuU9XBU=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=AizGEWNHKWl4rvCP384Zus0eKULE4cYPUXamVAalnw2S0QRUmAx1FgxY3IWvknDmO
-	 spQNsS+9nFyeS+b92ap07lQH2reEk1o1V7ABDMU41YlTjcchAD7WSnNo6g59JRfpPb
-	 8gD1Gpx1NJl/nFVkTSGRB7ALP8vZUACQBA9M31dErym5wvBDciFEnuz+NRKiFts764
-	 8LabDp6kxk6QZEt73cqV1RwYwpqVrgw2xDhL85vg2IFKjYTYs729FNsYg/K/IrOEb/
-	 Dkvk62qWHx2v1vfUJK993ayrtdf2MXWxczhAoJb/OcRt4kAwHUt4es2a9fhIB9eDN0
-	 iymkODoARoZGg==
+	b=YnUrWd6I9ZJTd3/DEipsROA7xeMJgPBbb/+uo4EzeN+W1AIUSEHwrrphDlyH8DrS+
+	 U6dLjgPsAc5YuXBwyub+lOA5cLjRLEXeafk2W5+71X+kshvTI9B4okVvtVfqZHRpOB
+	 4vVH+C5EvhiRHBOrETcXaOPAZpyDT1A2Plv/3km3bV287JC+CZij0MWaw3WRourEMX
+	 WeQwyKN21t1KMzGN5nDdDjXE6czrWL12u3TmzqlCrr1T62eCcmMssafABGjqR09u5s
+	 nsi2CbGRkhpJa0PSLvpCPit1Hiuzb2Ypc0xzviyZC5rjS72/5ak4OGO4ESuHVuw1mL
+	 s+ahc+TwkKFAw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 5/6] KVM: s390: pci: Fix resource leak on IRQ
- registration failure
+Subject: Re: [PATCH v5 3/6] KVM: s390: pci: Fix missing error codes and
+ memory unaccounting
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Farhan Ali" <alifm@linux.ibm.com>
-Cc: "Heiko Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, kvm@vger.kernel.org, "Vasily
- Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org
-In-Reply-To: <20260723183440.3271-6-alifm@linux.ibm.com>
+Cc: "Heiko Carstens" <hca@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, "Vasily
+ Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
+In-Reply-To: <20260723183440.3271-4-alifm@linux.ibm.com>
 References: <20260723183440.3271-1-alifm@linux.ibm.com>
- <20260723183440.3271-6-alifm@linux.ibm.com>
+ <20260723183440.3271-4-alifm@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 23 Jul 2026 18:42:38 +0000
-Message-Id: <20260723184239.2BFC01F000E9@smtp.kernel.org>
+Date: Thu, 23 Jul 2026 18:43:19 +0000
+Message-Id: <20260723184320.142A21F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-> Currently if kvm_zpci_set_airq() fails, kvm_s390_pci_aif_enable() returns
-> an error code but doesn't do any resource cleanup, thus leaking resources.
-> Fix this by cleaning up all the resources such as the GAITE, AIBV, AISB a=
-nd
-> unpinning any pinned pages. While at it, remove dead code that stored FIB
-> values that were never referenced.
->=20
-> As part of the cleanup, we are also holding the aift_lock while executing
-> the MPCIFC instruction. Though this is not strictly necessary, it means
-> we don't have to drop and re-acquire in the error case.
+> In kvm_s390_pci_aif_enable() two error paths failed to set an error code,
+> causing the function to return 0 on failure. It also failed to rollback
+> memory accounting on failure. Fix both by propagating an error code on
+> failure and calling unaccount_mem() in the cleanup path.
 >=20
 > Fixes: 3c5a1b6f0a18 ("KVM: s390: pci: provide routines for enabling/disab=
 ling interrupt forwarding")
 > Cc: stable@vger.kernel.org
-> Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
 > Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+> Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
 > Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
 
 Sashiko has reviewed this patch and found no issues. It looks great!
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260723183440.3271=
--1-alifm@linux.ibm.com?part=3D5
+-1-alifm@linux.ibm.com?part=3D3
 
