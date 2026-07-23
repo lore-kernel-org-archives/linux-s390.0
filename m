@@ -1,124 +1,123 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4EEE3E3C7B;
-	Thu, 23 Jul 2026 18:26:10 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 021CA456DFB;
+	Thu, 23 Jul 2026 18:30:00 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784831178; cv=none; b=ekRGd4o5RQK6JkzBtWo8iYaHVzE69Ey7GMgWaNKSi5bnQ4mgF2PU5jcyT+lyPAxVJf4yjb7H2+6Ylt1I7nzyn56DHIeZi/Ty9QIX8GWoFvYbp6445Udx3T+XX7bSxRXXgay1MS6mRSj/10tcw2b/5Ff1LBOfPCO1Mszl/i7YZyo=
+	t=1784831405; cv=none; b=U3iDseVVHv+i+V/KvBErgSvwhUeNo88d6hO5XaceDUV/CVBFgGsZlesICrI6571qHmHx3RBqpN3i3rdekHOLTT1YmlsoSA1VFCLtaQthaieiBvB80QrzbyV35vIg1n/sG4NnaHrjgwzYl+qC4010rcdRzpz/qYXG0EkURtCyK1o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784831178; c=relaxed/simple;
-	bh=bfQ93CfVDtXL/rlAXYO77XGsfSmUjhxfbE50Klmh6yg=;
+	s=arc-20240116; t=1784831405; c=relaxed/simple;
+	bh=Upm6fw24jGhRmA7QauJVviOADrHChMem/s6+QhxPUjQ=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=kFdeySMoXXM6v9uof67db0N7A5YImb35QWVvutIgUc+Re0eECeW/SMgCiZ2gydqQinmMYu0HE/Kh30se3VuBxtNl8aW8R8BfXd/BDADb3vz1nMeIuhb1chxCSTxbBjP6k0rFNQT4xPB3f2R3WQBpUNlVaOjOHMkQ8aWFvL8u5Ak=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=eMGnUdNc; arc=none smtp.client-ip=100.103.45.18
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="eMGnUdNc"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3BE1F1F000E9;
-	Thu, 23 Jul 2026 18:26:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784831168;
-	bh=1jiHYqqramL44FEP0XcS4qB+Yw1VD7T4baEsYw5Qsoc=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=eMGnUdNc2lxXhblyBfl0fjQ9ZtatkmEa+CKhdUax8jfZF3KkKnjBN0ukPtp4SYcr7
-	 Ggj2iKoFl+yBbFW4qGR+ilU9JDDdDPp3vQAmRlSrcsqlUwRwQN5F/LoHvcLhBl6IP6
-	 5q1sH/UZem5TvYjLBPg884GD/4Y26oyUps4bvH/3t/uQQNU1g5dgOfDPXUGSBXxnKw
-	 jedmuLUFxbdiXXAUD33ZoVyLJVD51UxhUDMv2r/RtvOF0whY7On2RAYut/ocbslPOb
-	 KglQb/YL0G6UUBXtcbg7dU6ORQvYeuaNyI98mA6hqbv70fBRYdxyEg4TswdGS1qlmt
-	 uBsyZrc5rPsew==
+	 Message-Id; b=G5VCXnsD41BangPB5e3EftTusZwdmFN4O5Lkzsn9+lbRZkWYY0uY1b9cHQrnq5Yk1BLt50suuN6PRaEAgruIOTy3CyUvNn73Pd4JyJNUUmEGtg24d1PbpU64AfQ0HtdeF15NJgEUso+hHqAEgfXvPAzdFF1CQEsnhOlGzL6byxM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AF2F1F000E9;
+	Thu, 23 Jul 2026 18:29:56 +0000 (UTC)
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 2/8] s390/vfio_ccw: limit the number of channel
- program segments
+Subject: Re: [PATCH v3 4/8] s390/vfio_ccw: ensure first IDAW remains
+ constant
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Eric Farman" <farman@linux.ibm.com>
-Cc: kvm@vger.kernel.org, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Vasily
- Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>
-In-Reply-To: <20260723174751.1180334-3-farman@linux.ibm.com>
+Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, kvm@vger.kernel.org, "Heiko
+ Carstens" <hca@linux.ibm.com>, linux-s390@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>
+In-Reply-To: <20260723174751.1180334-5-farman@linux.ibm.com>
 References: <20260723174751.1180334-1-farman@linux.ibm.com>
- <20260723174751.1180334-3-farman@linux.ibm.com>
+ <20260723174751.1180334-5-farman@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 23 Jul 2026 18:26:07 +0000
-Message-Id: <20260723182608.3BE1F1F000E9@smtp.kernel.org>
+Date: Thu, 23 Jul 2026 18:29:55 +0000
+Message-Id: <20260723182956.2AF2F1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
 
+New issues:
+- [Low] Applying a bitwise shift directly to a restricted `__bitwise` type =
+(`dma64_t`) and implicitly casting it strips type annotations, triggering s=
+parse warnings.
+
 Pre-existing issues:
-- [High] Off-by-one error in ccwchain_calc_length allows a guest-triggered =
-out-of-bounds read.
+- [High] `get_guest_idal` reads too many bytes for Format-1 IDALs, potentia=
+lly causing spurious failures for valid channel programs.
 --
 
---- Patch [2]: [PATCH v3 2/8] s390/vfio_ccw: limit the number of channel pr=
-ogram segments ---
-commit b0f514e864a35fcb11c0505d666fd9d7fbad12c0
+--- Patch [4]: [PATCH v3 4/8] s390/vfio_ccw: ensure first IDAW remains cons=
+tant ---
+commit e8a4291c688f39a3fdc915242b5bb6676e357ac5
 Author: Eric Farman <farman@linux.ibm.com>
-Subject: s390/vfio_ccw: limit the number of channel program segments
 
-This commit limits the number of channel program segments that can exist
-in a single channel program. It breaks channel programs into segments
-when it encounters a Transfer-In-Channel (TIC) CCW, and adds a check to
-ensure the segment count does not exceed a global limit. This prevents
-hitting an arbitrary limit due to recursive processing.
+s390/vfio_ccw: ensure first IDAW remains constant
+
+This commit ensures the first IDAW in a list is read separately to accurate=
+ly
+calculate the buffer size needed. It verifies that the address found in the
+first IDAW is unchanged between reads to maintain consistency.
 
 > diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_c=
 p.c
-> index 086d1b54bdb05..1c2890d139c6b 100644
+> index 258a99930c6a0..06b6bc6142a0f 100644
 > --- a/drivers/s390/cio/vfio_ccw_cp.c
 > +++ b/drivers/s390/cio/vfio_ccw_cp.c
-[ ... ]
-> @@ -441,6 +442,10 @@ static int ccwchain_handle_ccw(dma32_t cda, struct c=
-hannel_program *cp)
->  	if (len < 0)
->  		return len;
-> =20
+> @@ -533,6 +533,7 @@ static dma64_t *get_guest_idal(struct ccw1 *ccw, stru=
+ct channel_program *cp, int
+>  		&container_of(cp, struct vfio_ccw_private, cp)->vdev;
+>  	dma64_t *idaws;
+>  	dma32_t *idaws_f1;
+> +	u64 first_idaw;
+>  	int idal_len =3D idaw_nr * sizeof(*idaws);
 
 [Severity: High]
-This isn't a bug introduced by this patch, but does ccwchain_calc_length()
-contain an off-by-one error that allows a guest-triggered out-of-bounds rea=
-d?
+This is a pre-existing issue, but does get_guest_idal() read too many bytes
+for Format-1 IDALs here?
 
-When a guest VM submits a channel program containing a sequence of 256 CCWs
-with the command-chaining or data-chaining flag set, the driver handles
-this request and calls ccwchain_calc_length() to parse the chain.
+Because idal_len is calculated using sizeof(*idaws) which evaluates to 8
+bytes, instead of the actual 4 byte IDAW size for Format-1 IDALs,
+vfio_dma_rw() will attempt to read idaw_nr * 8 bytes.
 
-The array cp->guest_cp is allocated to hold exactly CCWCHAIN_LEN_MAX (256)
-elements. However, the loop in ccwchain_calc_length() uses the condition
-while (cnt < CCWCHAIN_LEN_MAX + 1):
+If a guest VM submits an I/O request with a Format-1 IDAL that fits exactly
+at the end of a mapped page, this could cross the page boundary into an
+unmapped page and cause the DMA read to fail, spuriously rejecting a valid
+request.
 
-drivers/s390/cio/vfio_ccw_cp.c:ccwchain_calc_length() {
-	do {
-		cnt++;
-		...
-		if (!ccw_is_chain(ccw) && !is_tic_within_range(ccw, iova, cnt))
-			break;
-
-		ccw++;
-	} while (cnt < CCWCHAIN_LEN_MAX + 1);
-}
-
-Does this allow the loop to iterate up to 257 times? During the 257th
-iteration (cnt =3D 257), does the pointer ccw advance past the end of the
-cp->guest_cp array, causing the ccw_is_chain(ccw) macro to dereference
-an out-of-bounds pointer to read ccw->flags?
-
-Could this lead to a kernel heap out-of-bounds read and subsequent kernel
-panic if KASAN is enabled, allowing an unprivileged guest to impact host
-stability?
-
-> +	/* Limit number of chains in a single channel program */
-> +	if (cp->ccwchain_count >=3D CCWCHAIN_COUNT_MAX)
-> +		return -EINVAL;
-> +
->  	/* Need alloc a new chain for this one. */
->  	chain =3D ccwchain_alloc(cp, len);
 [ ... ]
+
+> @@ -549,6 +550,17 @@ static dma64_t *get_guest_idal(struct ccw1 *ccw, str=
+uct channel_program *cp, int
+>  			kfree(idaws);
+>  			return ERR_PTR(ret);
+>  		}
+> +
+> +		if (cp->orb.cmd.c64)
+> +			first_idaw =3D dma64_to_u64(idaws[0]);
+> +		else
+> +			first_idaw =3D dma32_to_u32(idaws[0] >> 32);
+
+[Severity: Low]
+Does applying a bitwise shift directly to a restricted __bitwise type like
+dma64_t and passing it to dma32_to_u32() trigger sparse warnings?
+
+Since idaws[0] is of type dma64_t (__bitwise u64) and dma32_to_u32() expects
+a dma32_t (__bitwise u32), this implicitly strips type annotations.
+
+Should this be explicitly cast using (__force u64) before shifting to avoid
+violating sparse type rules?
+
+> +
+> +		/* Unexpected mismatch from earlier read */
+> +		if (first_idaw !=3D cp->guest_iova) {
+> +			kfree(idaws);
+> +			return ERR_PTR(-EINVAL);
+> +		}
+>  	} else {
+>  		/* Fabricate an IDAL based off CCW data address */
+>  		if (cp->orb.cmd.c64) {
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260723174751.1180=
-334-1-farman@linux.ibm.com?part=3D2
+334-1-farman@linux.ibm.com?part=3D4
