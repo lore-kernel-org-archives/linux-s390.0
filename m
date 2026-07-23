@@ -1,124 +1,113 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from out-174.mta0.migadu.com (out-174.mta0.migadu.com [91.218.175.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 198C538E5C8
-	for <linux-s390@vger.kernel.org>; Thu, 23 Jul 2026 10:34:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 865A1353EE0
+	for <linux-s390@vger.kernel.org>; Thu, 23 Jul 2026 10:56:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784802890; cv=none; b=Z1WQYF1WnAxPJILgqkgxMIShhAv0NAv08H6WeByekGn/89dadt3XC4qSaFzblMHqTRvv9QdEsQQZy7fq8n+gGE2A16/3wTqe7JY6yaI4CQRrKL0k6mxwjNBgwl01J8zR3FtlfYu5VT2hBDjM3uxeTajfcI5eL2eGvdruk6D4y9s=
+	t=1784804167; cv=none; b=C124UGS3TKjeW6MZalHjkAMu5FAYHkvgzsTyWmJTLzEUUk6wjdLeOQuKQhZYvBIUYEFvW8L+SI6lahiVABT6DbFIZdWPAJurqO/aRaavLhvv2wACNRDTkRx6OaDNReTb0pO3bL06drVdKfKw4raLl+wP/VQ5cvPcSMay/m1aRr0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784802890; c=relaxed/simple;
-	bh=JE4bbCEulP+AaPpCnokdovtCMh0husOxSuDOugSPehg=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=Fd0lUk9gy4CVm8563piIxGMoM7Raqzr/Y2Pqa9+zwQcKWpOxI1//IIhCOGq5Gtg990zFMb6aywlfyedT6KmSOaXPwH4uz/jYVvP6ZNKLucD0nY8iWPHV66d3c6zDCLR29RTv4IQAdG9ngOqVunQDNbZjRaBgctNTGnaUbr7maTk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 878ED1F000E9;
-	Thu, 23 Jul 2026 10:34:48 +0000 (UTC)
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 2/2] s390/zcrypt: Close speculative mem read
- possibility
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Harald Freudenberger" <freude@linux.ibm.com>
-Cc: "Heiko Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Vasily
- Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org
-In-Reply-To: <20260723095453.127322-3-freude@linux.ibm.com>
-References: <20260723095453.127322-1-freude@linux.ibm.com>
- <20260723095453.127322-3-freude@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 23 Jul 2026 10:34:48 +0000
-Message-Id: <20260723103448.878ED1F000E9@smtp.kernel.org>
+	s=arc-20240116; t=1784804167; c=relaxed/simple;
+	bh=9rxoLCRqSNVSSHw6DC195I+0fKa72nHj18A2Wle8798=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=i2jVenTs7GC2DK7dMEuMBKpm89odAJFrRH3Vd7h37SvEhuDE6LPV8k5FNh9syZbat3LmxcsaD9SRrh2CSKCd72cUV5APkZP0fQEUjRLsRkKWQSkQu4VVzw1Lktob0h+Mh4H9XaHa/1GHT/0iDwD8hzLBM5bCoRWvpUuE6axQywk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=VEF1xN6R; arc=none smtp.client-ip=91.218.175.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="VEF1xN6R"
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1784804160;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=bgp1gURqCnNNv68p8sCgcv9sqD4HO0W1reMIZt6kLWk=;
+	b=VEF1xN6RMmwKqy1WaP6GOqkOLEQZVoaWbermIcDIbiLn3ZDO0fw/jCNIINZA9ysDauNskb
+	K92CC921g3aIyPur+32K2ynO17pZDXhxXwxot4xJJUKtYerwIUvM3+aBGapBIhQ6y4HuiD
+	ieGrffugbF1psKApp20b28m3NVeTpmE=
+From: xuanqiang.luo@linux.dev
+To: netdev@vger.kernel.org
+Cc: alibuda@linux.alibaba.com,
+	dust.li@linux.alibaba.com,
+	sidraya@linux.ibm.com,
+	wenjia@linux.ibm.com,
+	mjambigi@linux.ibm.com,
+	tonylu@linux.alibaba.com,
+	guwen@linux.alibaba.com,
+	davem@davemloft.net,
+	edumazet@google.com,
+	kuba@kernel.org,
+	pabeni@redhat.com,
+	horms@kernel.org,
+	kgraul@linux.ibm.com,
+	ubraun@linux.ibm.com,
+	linux-rdma@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	Xuanqiang Luo <luoxuanqiang@kylinos.cn>,
+	stable@vger.kernel.org
+Subject: [PATCH net v1] net/smc: fix socket use-after-free during link group termination
+Date: Thu, 23 Jul 2026 18:54:54 +0800
+Message-ID: <20260723105454.87016-1-xuanqiang.luo@linux.dev>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-Migadu-Flow: FLOW_OUT
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
+From: Xuanqiang Luo <luoxuanqiang@kylinos.cn>
 
-Pre-existing issues:
-- [High] Authorization bypass for administrative CPRB requests via domain a=
-uto-selection.
-- [Medium] Incomplete Spectre v1 mitigation for the user-controlled domain =
-value.
---
+__smc_lgr_terminate() drops conns_lock after finding a connection in
+lgr->conns_all, but before taking a reference on its socket. The connection
+is embedded in the socket, and its registration reference protects it only
+while the connection remains in the tree.
 
---- Patch [2]: [PATCH v3 2/2] s390/zcrypt: Close speculative mem read possi=
-bility ---
-commit 231c807d810ac3d48184d28be474dabc8e020aa9
-Author: Harald Freudenberger <freude@linux.ibm.com>
+A concurrent close can unregister the connection and drop that reference,
+freeing the socket before the termination worker reaches sock_hold().
 
-s390/zcrypt: Close speculative mem read possibility
+The race is reachable when close overlaps link group termination.
+Local stress testing reproduced the use-after-free and KASAN reported:
 
-This commit attempts to fix a speculative execution vulnerability in the
-s390 zcrypt driver. It adds an array_index_nospec() barrier for the domain
-value during administrative CPRB processing to prevent potential
-side-channel attacks.
+  BUG: KASAN: slab-use-after-free in __smc_lgr_terminate.part.0 [smc]
+  Write of size 4 by task kworker/3:3
+  Workqueue: events smc_lgr_terminate_work [smc]
+  __smc_lgr_terminate.part.0 [smc]
 
-> diff --git a/drivers/s390/crypto/zcrypt_api.c b/drivers/s390/crypto/zcryp=
-t_api.c
-> --- a/drivers/s390/crypto/zcrypt_api.c
-> +++ b/drivers/s390/crypto/zcrypt_api.c
-> @@ -879,12 +879,13 @@ static long _zcrypt_send_cprb(u32 xflags, struct ap=
-_perms *perms,
-> =20
->  	if (perms !=3D &ap_perms && domain < AP_DOMAINS) {
+The socket was allocated by smc_create(), freed through
+slab_free_after_rcu_debug(), and was followed by:
 
-[Severity: High]
-This is a pre-existing issue, but does this check allow an authorization by=
-pass
-for administrative requests if the user specifies AUTOSEL_DOM (0xFFFF) as t=
-he
-domain?
+  refcount_t: addition on 0; use-after-free.
+  __smc_lgr_terminate.part.0 [smc]
 
-If an administrative CPRB request uses AUTOSEL_DOM, the condition
-`domain < AP_DOMAINS` evaluates to false, causing the code to skip the
-`test_bit_inv(domain, perms->adm)` administrative permission validation
-entirely.
+Take the socket reference while conns_lock still protects the tree entry.
+The unregister path then cannot drop the last reference until termination
+has finished using the socket.
 
-Later in _zcrypt_send_cprb(), the queue selection logic autoselects a queue=
- and
-only validates the user's usage permissions via zcrypt_check_queue(). Does =
-this
-allow unprivileged users with access to a restricted custom device node to
-execute administrative commands on a queue where they only have usage right=
-s?
+Fixes: 69318b5215f2 ("net/smc: improve abnormal termination locking")
+Cc: stable@vger.kernel.org
+Signed-off-by: Xuanqiang Luo <luoxuanqiang@kylinos.cn>
+---
+ net/smc/smc_core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
->  		if (ap_msg.flags & AP_MSG_FLAG_ADMIN) {
-> +			domain =3D array_index_nospec(domain, AP_DOMAINS);
->  			if (!test_bit_inv(domain, perms->adm)) {
->  				rc =3D -ENODEV;
->  				goto out;
->  			}
->  		} else if ((ap_msg.flags & AP_MSG_FLAG_USAGE) =3D=3D 0) {
->  			rc =3D -EOPNOTSUPP;
->  			goto out;
->  		}
->  	}
->  	/*
->  	 * If a valid target domain is set and this domain is NOT a usage
->  	 * domain but a control only domain, autoselect target domain.
->  	 */
->  	if (domain < AP_DOMAINS &&
->  	    !ap_test_config_usage_domain(domain) &&
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index cf6b620fef05f..b4208cb186c5e 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -1572,10 +1572,10 @@ static void __smc_lgr_terminate(struct smc_link_group *lgr, bool soft)
+ 	read_lock_bh(&lgr->conns_lock);
+ 	node = rb_first(&lgr->conns_all);
+ 	while (node) {
+-		read_unlock_bh(&lgr->conns_lock);
+ 		conn = rb_entry(node, struct smc_connection, alert_node);
+ 		smc = container_of(conn, struct smc_sock, conn);
+ 		sock_hold(&smc->sk); /* sock_put below */
++		read_unlock_bh(&lgr->conns_lock);
+ 		lock_sock(&smc->sk);
+ 		smc_conn_kill(conn, soft);
+ 		release_sock(&smc->sk);
+-- 
+2.43.0
 
-[Severity: Medium]
-This isn't a bug introduced by this patch, but does the un-sanitized domain
-value remain vulnerable to speculative out-of-bounds reads here?
-
-The patch adds array_index_nospec() inside the AP_MSG_FLAG_ADMIN check, but
-for non-administrative requests, the domain variable is used unmitigated in
-ap_test_config_usage_domain() and ap_test_config_ctrl_domain().
-
-Both functions call into ap_test_config(), which uses the domain as an array
-index. Since the `domain < AP_DOMAINS` bounds check can be speculatively
-bypassed, does this leave a Prime+Probe side-channel attack gadget open for
-non-administrative requests?
-
->  	    ap_test_config_ctrl_domain(domain))
->  		domain =3D AUTOSEL_DOM;
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260723095453.1273=
-22-1-freude@linux.ibm.com?part=3D2
