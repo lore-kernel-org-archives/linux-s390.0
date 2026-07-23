@@ -1,134 +1,166 @@
-Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ADF8443B3D1;
-	Thu, 23 Jul 2026 12:00:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5BFE647F2C4
+	for <linux-s390@vger.kernel.org>; Thu, 23 Jul 2026 12:06:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784808011; cv=none; b=s6E31JpJIX+eSzul7NEd4P1lDbEGjCnLesEYf+V3L4OU8qZfeXU6n5byKr4l0s6Qmr2S082PzM+gACLwT6Q1f/1hLBWQk5dFTCubaSXVm62ffcAAR/TyMAvn/gpA+RQkJoIyLUO3XA+Zc+oDQw0gOHoxFHj0wZUm2tfR4fxsK7Q=
+	t=1784808414; cv=none; b=h5+fWc3GMiBH/HsFTUiMYkabDNmS48I6bYtZL2MiDM91EVp7fFuAvCSGsG7IDSpSkyZbpL3oTLferSzkpN+8FWrCqqWsi5OVNodhLNjgP6TJZqvP5uBDz7jIeeEWFRhuOM+hOlLcIs6ofu0ZCcP20U2tWbRAFZWS/UmmsNcwC54=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784808011; c=relaxed/simple;
-	bh=vl0TeuTcWnosTAVKcGI0I4lkggB1UVzt9mBoGeLJF0A=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=CLEgURe8nFt6rFUZAh92c+Srpc9AbeIYAJw8Ue4NI/5fYpnqfZkExBAUNijo1a6FuHZGLKPKlmMyBxePUEoJiXiCl5zLIZ4ovJsC2Pr11Qio1pd+R43AAtw5LWx2Q046clU7rc+eRZJalSnxk5zmjSI+UBbAKzJzojdg4G0y5mQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=pass smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=MHyabGz3; arc=none smtp.client-ip=90.155.50.34
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=infradead.org
+	s=arc-20240116; t=1784808414; c=relaxed/simple;
+	bh=XymYl9vW/tttGMfn7YfZiaIidFz49INpA26y9+eC00M=;
+	h=MIME-Version:Date:From:To:Cc:Subject:In-Reply-To:References:
+	 Message-ID:Content-Type; b=nuMXNp52XDkWCUOYE6xBFcyq6s3wIRIZPt9RXA5lxgB+aq0VxycnutNzA4ViheLKRrbfuinMuubieLAmC0/bFFTqatwG4SaUGKgxVBfJ9rMCUN+VtcdgXfl0Oqvp7nglCG0UEZKGPD8JoXuaYrn24SYNBCGEVs1A3bzepIX9xfQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=qPIOyluA; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="MHyabGz3"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Transfer-Encoding:
-	Content-Type:MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:
-	Sender:Reply-To:Content-ID:Content-Description;
-	bh=c4hElVqmYpqUsdMIDfblHdUXoaZAp8PegjmWKWhCfi0=; b=MHyabGz3a+YQkwKLmY93en+C9q
-	V3KyBg0TsuClrun8CjqP00/AdTEnKuRdi0xjGvsJ0thjHbQPuiMXgPmZu/3ticfErRaRG+XTDJg31
-	WqoM4h3w8B/SknpDK78zm6lk+beGWfs1oGFFRDgoUSS2yVqDFVGNDBiTGCGiIPNmGY5YJ9WqQIh3R
-	b3Bmqvmn7Ejq0BXm+oMUDJuRBiYdLpERczqWZwKrLGutLbmpZRQtmt6saykl6+AOnzslJi43hJjit
-	VBeX/GbxaWFqD8g6BNzaebWGbKWvRQwBtIoi3TS90ETdg6JGTLyAboSWSBi7IslW/LgW785QvN8Nw
-	uB6TxpWw==;
-Received: from willy by casper.infradead.org with local (Exim 4.99.1 #2 (Red Hat Linux))
-	id 1wms5p-00000000S92-3D48;
-	Thu, 23 Jul 2026 12:00:01 +0000
-Date: Thu, 23 Jul 2026 13:00:01 +0100
-From: Matthew Wilcox <willy@infradead.org>
-To: Qu Wenruo <quwenruo.btrfs@gmx.com>
-Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
-	linux-btrfs@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
-	Linux Memory Management List <linux-mm@kvack.org>,
-	"linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
-	David Sterba <dsterba@suse.com>, Chris Mason <clm@fb.com>,
-	Josef Bacik <josef@toxicpanda.com>, linux-kernel@vger.kernel.org,
-	kvm@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: Re: [PATCH/RFC] btrfs: fix folio lock leak in writepage_delalloc()
- for folios dirtied behind btrfs' back
-Message-ID: <amICQYTK9Xu4KLtH@casper.infradead.org>
-References: <20260721191152.101118-1-borntraeger@linux.ibm.com>
- <20260721191152.101118-2-borntraeger@linux.ibm.com>
- <b226a6e9-fef2-49bd-b17e-9f9b015626c1@gmx.com>
- <83290932-cb8b-4741-bff0-6a7d8df2c637@linux.ibm.com>
- <224d56d2-fcad-41bf-afe3-6f5f5108172a@gmx.com>
- <f12f70e5-d84d-4a9f-ac94-693be4c863ac@linux.ibm.com>
- <amC-J7yzwk4Z5tHW@casper.infradead.org>
- <ad6eebbd-07f8-41ce-b04c-edd50d91a6e3@gmx.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="qPIOyluA"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66N9BeqC2580272;
+	Thu, 23 Jul 2026 12:06:37 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:reply-to:subject:to; s=pp1;
+	 bh=zAfVjCGDd06uVWfIK0kuSd/mt2h4cHY1dgjHgPLWep8=; b=qPIOyluAFDra
+	nOev47nwYZZ3ddWiNF3USp52cr6HtdLJcITJJkb08etWG8oHoUG6THk5HxTYRGDR
+	Tj4U0TYDPVacJWYz0sIV1MsydXka7K80cZ/FfSP65A/P70pIoDJTlHkjPfn5Pgn6
+	JG3eA78jVx8dY087T7Lyemey/OPvIu69LhjNP5tYHeTy1n2OX8L3ljEjNGbiAsYv
+	wvxYPlCkIKyQNu3/rEtL6TK4O4J3nigjAy8ovvsd4DQ8j1SJ4a1rgfBuLdPoAjrz
+	1ZBTb1wH+DDtcEThf2QEw3rJxHtR6zKMHw+gyGvsnE+YwGACj6jDPc8WzcSzRFLz
+	3qLR/bhRIQ==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fg7abqce4-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 23 Jul 2026 12:06:36 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66NC4dmS010256;
+	Thu, 23 Jul 2026 12:06:35 GMT
+Received: from smtprelay05.wdc07v.mail.ibm.com ([172.16.1.72])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fgmtk40ww-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 23 Jul 2026 12:06:35 +0000 (GMT)
+Received: from smtpav06.dal12v.mail.ibm.com (smtpav06.dal12v.mail.ibm.com [10.241.53.105])
+	by smtprelay05.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66NC6Yjm25231998
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 23 Jul 2026 12:06:34 GMT
+Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 66C6B58043;
+	Thu, 23 Jul 2026 12:06:34 +0000 (GMT)
+Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C03EA58055;
+	Thu, 23 Jul 2026 12:06:33 +0000 (GMT)
+Received: from ltc.linux.ibm.com (unknown [9.5.196.140])
+	by smtpav06.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 23 Jul 2026 12:06:33 +0000 (GMT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <ad6eebbd-07f8-41ce-b04c-edd50d91a6e3@gmx.com>
+Date: Thu, 23 Jul 2026 14:06:33 +0200
+From: Harald Freudenberger <freude@linux.ibm.com>
+To: Ilya Leoshkevich <iii@linux.ibm.com>
+Cc: richard.henderson@linaro.org, david@kernel.org, thuth@redhat.com,
+        berrange@redhat.com, qemu-s390x@nongnu.org, qemu-devel@nongnu.org,
+        linux-s390@vger.kernel.org, dengler@linux.ibm.com,
+        borntraeger@linux.ibm.com, fcallies@linux.ibm.com, cohuck@redhat.com
+Subject: Re: [PATCH v12 17/17] tests/tcg/s390x: Add tests for CPACF
+ instructions
+Reply-To: freude@linux.ibm.com
+Mail-Reply-To: freude@linux.ibm.com
+In-Reply-To: <33187980-d8d8-43f4-a138-34c67fa63d8b@linux.ibm.com>
+References: <20260710152906.80207-1-freude@linux.ibm.com>
+ <20260710152906.80207-18-freude@linux.ibm.com>
+ <33187980-d8d8-43f4-a138-34c67fa63d8b@linux.ibm.com>
+Message-ID: <8068c6b81fca91a619c3ea9b116ad5c8@linux.ibm.com>
+X-Sender: freude@linux.ibm.com
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzIzMDExNSBTYWx0ZWRfX5xVWrQrTlvmu
+ Ae1xTtGayUGNwL0gohPFBI8PekPADYNpSoVqn+AUz1r4oC3pa5vzW7EB/2QIiMv0fTVyCTjiLI4
+ PB+mZdp8szEOCHzaFG/lr6gWmD6HPKg1egw1vzTIf6yzylrs8HeG9spzzYS75QZo4N1WeV3Ach3
+ S7+fOgj5tcK1OUHxOyshVTAn6XUSEiuIHO2TbpvXiybAvcgVaiFMBVyVziDsUbfMSTPZWMoXbvO
+ GcOzRheqKia7BXeyswmzcl656lpfM77llUKfY1PBcHZihiuk0l043gGbXFgbw6AU3m80NilSGFS
+ pTtnmpll9RJ0BjcYhzo3xOkjme0bhTMnFKL3tHF2YxDYAvLUbSVXFgHnLAl2CW9fPUUc/gf1qWe
+ iMrs7hXCDc3avnhxrqeMbBCafgODCHXJ4Wy34gO8Meofvi0XMbwaRF55ZQxcyKzTQWynjR6HJB8
+ jz3O0nLP2UT/H9PBGjw==
+X-Authority-Analysis: v=2.4 cv=F7ZnsKhN c=1 sm=1 tr=0 ts=6a6203cd cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=kj9zAlcOel0A:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8
+ a=woZNQi_L4tNMqXH-QfIA:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-ORIG-GUID: o9g1NUi2OHWi-bi9tGembB_6OOe8PmfS
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzIzMDExNSBTYWx0ZWRfX89Q66KUs8kbL
+ v3u58yJhE6AR55hpx+PyeXJAX+PX3cYWUMhgxvSdFajQ623V6qqPULO+4eigrhr9GJgkVT/4Utp
+ juiWhaSHtBP868IwJnYqwK6SZhDYVoA=
+X-Proofpoint-GUID: o9g1NUi2OHWi-bi9tGembB_6OOe8PmfS
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-07-23_03,2026-07-22_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ spamscore=0 phishscore=0 bulkscore=0 clxscore=1015 priorityscore=1501
+ impostorscore=0 lowpriorityscore=0 suspectscore=0 malwarescore=0 adultscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607230115
 
-On Thu, Jul 23, 2026 at 10:12:27AM +0930, Qu Wenruo wrote:
+On 2026-07-14 14:01, Ilya Leoshkevich wrote:
+> On 7/10/26 17:29, Harald Freudenberger wrote:
+>> Add simple tests for the CPACF instructions implemented:
+>> - kdsa - minimal as only query is implemented
+>> - kimd - query, sha256, sha512
+>> - klmd - query, sha256, sha512
+>> - km - query, aes 128, 192, 256 with clear and prot key
+>> - kmac - minimal as only query is implemented
+>> - kmc - query, aes 128, 192, 256 with clear and prot key
+>> - kmctr - query, aes 128, 192, 256 with clear and prot key
+>> - pcc - query, xts aes 128, 256 and prot key xts aes 128, 256
+>> - prno - query, trng
+>> No test for pckmo as this is a privileged instruction.
+>> No test for kma, kmf, kmo as these instructions are currently
+>> not implemented at all.
+>> 
+>> Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
+>> ---
+>>   target/s390x/tcg/cpacf.h        |   7 +
+>>   tests/tcg/s390x/Makefile.target |   9 +
+>>   tests/tcg/s390x/cpacf-kdsa.c    |  58 ++++
+>>   tests/tcg/s390x/cpacf-kimd.c    | 166 +++++++++
+>>   tests/tcg/s390x/cpacf-klmd.c    | 206 +++++++++++
+>>   tests/tcg/s390x/cpacf-km.c      | 590 
+>> ++++++++++++++++++++++++++++++++
+>>   tests/tcg/s390x/cpacf-kmac.c    |  58 ++++
+>>   tests/tcg/s390x/cpacf-kmc.c     | 351 +++++++++++++++++++
+>>   tests/tcg/s390x/cpacf-kmctr.c   | 360 +++++++++++++++++++
+>>   tests/tcg/s390x/cpacf-pcc.c     | 245 +++++++++++++
+>>   tests/tcg/s390x/cpacf-prno.c    | 131 +++++++
+>>   tests/tcg/s390x/cpacf.h         | 571 
+>> +++++++++++++++++++++++++++++++
+>>   12 files changed, 2752 insertions(+)
+>>   create mode 100644 tests/tcg/s390x/cpacf-kdsa.c
+>>   create mode 100644 tests/tcg/s390x/cpacf-kimd.c
+>>   create mode 100644 tests/tcg/s390x/cpacf-klmd.c
+>>   create mode 100644 tests/tcg/s390x/cpacf-km.c
+>>   create mode 100644 tests/tcg/s390x/cpacf-kmac.c
+>>   create mode 100644 tests/tcg/s390x/cpacf-kmc.c
+>>   create mode 100644 tests/tcg/s390x/cpacf-kmctr.c
+>>   create mode 100644 tests/tcg/s390x/cpacf-pcc.c
+>>   create mode 100644 tests/tcg/s390x/cpacf-prno.c
+>>   create mode 100644 tests/tcg/s390x/cpacf.h
 > 
+> I get failures when running these on a real z17, for example:
 > 
-> 在 2026/7/22 22:27, Matthew Wilcox 写道:
-> > On Wed, Jul 22, 2026 at 11:29:36AM +0200, Christian Borntraeger wrote:
-> > >   *   4. Thread B loops sync_file_range(WRITE|WAIT) on the target file.
-> > >   *      Whenever a full clean cycle (clear_page_dirty_for_io(),
-> > >   *      writeback, bits cleared) completes inside thread A's
-> > >   *      submission->completion window, the completion-time
-> > >   *      set_page_dirty_lock() hits a *clean* folio: filemap_dirty_folio()
-> > >   *      sets only the folio flag and the xarray tag - no btrfs subpage
-> > >   *      dirty bit, no delalloc reservation.  See the 20-year-old comment
-> > >   *      above bio_set_pages_dirty() in block/bio.c describing exactly
-> > >   *      this ("other code (eg, flusher threads) could clean the pages").
-> > 
-> > There's your problem.  filemap_dirty_folio() documents that btrfs is
-> > doing it wrongly:
-> > 
-> >   * Filesystems which do not use buffer heads should call this function
-> >   * from their dirty_folio address space operation.  It ignores the
-> >   * contents of folio_get_private(), so if the filesystem marks individual
-> >   * blocks as dirty, the filesystem should handle that itself.
-> > 
-> > fs/btrfs/inode.c:       .dirty_folio    = filemap_dirty_folio,
-> > 
-> > so btrfs should have its own btrfs_dirty_folio() which does whatever
-> > metadata updates it needs to and then call filemap_dirty_folio() to
-> > take care of the page cache business.  See iomap_dirty_folio() as
-> > an example, but many other filesystems also do this.
-> 
-> Thanks a lot for the advice.
-> 
-> However it looks like the sub-folio dirty block tracking is a little
-> different between iomap and btrfs.
+> $ ./cpacf-kdsa
+> test_kdsa_query failed
+> cpacf-kdsa: 1 failures
 
-My point is not that "you should do it the exact same way as iomap".
-Rather "the dirty_folio op is the entry point to tell the filesystem
-that a folio is being dirtied".  And you aren't taking advantage of
-that, you're just calling the VFS so the VFS can do its own tracking.
+Ok, I only tested on qemu. But of course you are right, it should
+work fine on a real machine also. Will check this ...
 
-> E.g. iomap will mark the full folio range dirty even if the EOF is inside
-> the folio, but btrfs will only mark the range inside EOF as dirty.
-> 
-> 
-> Another thing is, even if we follow iomap to mark the full folio dirty, it's
-> still not the end of the story.
-> 
-> We have other supporting mechanisms required to tracking the dirty range.
-> E.g. EXTENT_DELALLOC flags inside extent-io-tree, indicating we have already
-> reserved space for the dirty range.
-> 
-> Only with EXTENT_DELALLOC flag set, we will do the real delayed allocation,
-> allocating the on-disk extents etc.
-> 
-> So even if we always mark the full folio dirty, the writeback path will not
-> handle them correctly either.
-> 
-> 
-> Finally, even without large folios, the reproducer can already cause
-> problems on btrfs. E.g. on x86_64, with mapping_set_folio_order_range()
-> disabled.
-> 
-> The symptom there is that, ordered extent accounting underflows, which may
-> also contribute to the stall observed.
-> 
-> I'll keep digging for this bug.
-> 
-> Thanks,
-> Qu
-> 
-> 
+Oh maybe one thing: query works with a fixed bitfield of subfunctions
+which are supported - by the QEMU CPACF implementation. So a real
+query may result in a lot of more subfunctions enabled in the result
+bitfield and thus the compare will fail.
