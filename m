@@ -1,41 +1,60 @@
-Received: from mout.gmx.net (mout.gmx.net [212.227.17.22])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E294E27FB1F;
-	Thu, 23 Jul 2026 00:42:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.227.17.22
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 41FCB2BCF46;
+	Thu, 23 Jul 2026 01:21:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784767364; cv=none; b=KAn8SUm/hRYNUiQ8UvORnErwf7SWMdQ6tRQ8VnBOM/iRgWfDOxDfsPm3FKhXZ1as1AjQMk2KIDj3nOhJ78y0cWzoOFufCL54FpvRLTzY2JwfYrcrxoo4ZYTpK42r7FVXmnHgDPqOVWGywJBjJ+EZOZcZLhEWZvi+x8szgrTgtQA=
+	t=1784769704; cv=none; b=KOSIIpQNCwOjOHZ1ZIkn+tUECNmtEo1IcVbyCJQ7FaokqTWSqXS6fHddHzX3EznrYbUKEiVXfI3uuag64q1CFl28aB3j/FpcYlLzzHWjiVXBhOpQmtdbV7LRxQCN5FPvyOTMfl3wbMx/nxKZZCDKX02JDu/JEwEKm39vj/lit3I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784767364; c=relaxed/simple;
-	bh=0X8IrlXTZBi6eGo0i4zFUtCBKcAanmmJ2YCT+Pwq12k=;
+	s=arc-20240116; t=1784769704; c=relaxed/simple;
+	bh=/4WK5zroedOfaaEfh4bRDb6yVMphiJLBs7FVuWMIXgg=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=QygGMg9I1E1nQ9JIIfSn9crWZfTlY1ch/KSxsnAD3gvrhJup5wGHgWxeSbXmjSMQz9DOcMmO23NVbLE+4516XsLmsZmuXaw4+bO/vUJA49aXyaAWyNegPdP8LoCgcSOmjiEPgzbISANCkzB7pP70JctdWhvjhpFzZL4xJtjzAeY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gmx.com; spf=pass smtp.mailfrom=gmx.com; dkim=pass (2048-bit key) header.d=gmx.com header.i=quwenruo.btrfs@gmx.com header.b=OMFZh65i; arc=none smtp.client-ip=212.227.17.22
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gmx.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmx.com
+	 In-Reply-To:Content-Type; b=KjgOu5pmBC5x3X4G28GnmUxWscIs5fpzHMdiEqHgEdPquXPDjAAnx0wST+tYhnwieND8zLRMfAV39QJ0UbWOSOMqyiqA0dqnlds/6J2n3mT1PXhbXsoOW44BSxLA1V2oeG9ObcLMZsURgkdzJL7+abv0VS+VKBTNXkndBOUE9aM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=cg6Ooe6q; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmx.com header.i=quwenruo.btrfs@gmx.com header.b="OMFZh65i"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmx.com;
-	s=s31663417; t=1784767356; x=1785372156; i=quwenruo.btrfs@gmx.com;
-	bh=72rD37V4RsYtifWkhcvHdKCeXRydgQkWFU7HsaPnWjQ=;
-	h=X-UI-Sender-Class:Message-ID:Date:MIME-Version:Subject:To:Cc:
-	 References:From:In-Reply-To:Content-Type:
-	 Content-Transfer-Encoding:cc:content-transfer-encoding:
-	 content-type:date:from:message-id:mime-version:reply-to:subject:
-	 to;
-	b=OMFZh65inZssy3Hx1YaD4ut7t9/gOoIxUhZgAd7+R28JcZlfjiTl5iMYd3+b5fbO
-	 vZmVaZVLlQ63aTQ7lnDsICwE+TslMDFrod1wip4xWoJG3DactWBt9214EoW5vBCZy
-	 HMACVR53MD7sCENhSUFYACUlbfwf0irt0TZeL9+dzPP9KZA6WB9+EgwaxjAlDBCrk
-	 C7qIBvzg5AaUeahQZ+RdLlXE11ZseLkfkukewwz3zVsQwZu9Tdo8V6cTa+PcyWWD7
-	 j0K49zbYd4WpkOmXepXoU4i6ISseQBBlqDsTUXtrsnfXTK5blmhlla0pBO2mwabPu
-	 dczlDUyLyfN7uKciLw==
-X-UI-Sender-Class: 724b4f7f-cbec-4199-ad4e-598c01a50d3a
-Received: from client.hidden.invalid by mail.gmx.net (mrgmx104
- [212.227.17.174]) with ESMTPSA (Nemesis) id 1MTRMi-1wPVn51qF2-00QU0L; Thu, 23
- Jul 2026 02:42:36 +0200
-Message-ID: <ad6eebbd-07f8-41ce-b04c-edd50d91a6e3@gmx.com>
-Date: Thu, 23 Jul 2026 10:12:27 +0930
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="cg6Ooe6q"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66N0gLpx1529893;
+	Thu, 23 Jul 2026 01:21:38 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=LpCzxm
+	6qpwL/i0Oh2ovMitcsykAvLEFh9PXNoNPhDHg=; b=cg6Ooe6qRnrA/T9rNhNKFk
+	/c4b5t2Cl8eu1jKnQq0qy5POQ/yW2poE5XKgV+siX8S00cxwicjG+7Fzw93CzGsy
+	nO3uabFPGev4IN438EvammFyYNOnyELT8wTZH4TjuG/uaOm12IwOpcqehUe/cJ2S
+	TkSd65EZRQrKzGvgx6lwy2suKJczVSh9UulEC5CuSeTLWVsKZwr+sy7gcbQobUK8
+	zLMcaXLsdkGsx8w0yQ09ZZPGDhDZ1Ufu9t+Fb8Uqwjo1Fp7Cadc/UavjL6MyWDAC
+	3yI09X9ahQuyyA/4Fkj9fOxReSWxiEJM/uMjvVT3A2tw73uGCQ9VavHSNuZKKl4A
+	==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fg7ahcks7-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 23 Jul 2026 01:21:38 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66N1JkJU009640;
+	Thu, 23 Jul 2026 01:21:37 GMT
+Received: from smtprelay01.wdc07v.mail.ibm.com ([172.16.1.68])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fgpgyhqsk-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 23 Jul 2026 01:21:37 +0000 (GMT)
+Received: from smtpav01.wdc07v.mail.ibm.com (smtpav01.wdc07v.mail.ibm.com [10.39.53.228])
+	by smtprelay01.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66N1LaNK60293460
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 23 Jul 2026 01:21:36 GMT
+Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 59E2B58067;
+	Thu, 23 Jul 2026 01:21:36 +0000 (GMT)
+Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 7E02B58065;
+	Thu, 23 Jul 2026 01:21:35 +0000 (GMT)
+Received: from [9.61.243.141] (unknown [9.61.243.141])
+	by smtpav01.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 23 Jul 2026 01:21:35 +0000 (GMT)
+Message-ID: <fd385a3b-7dae-40ec-8b7f-7f981944a0fe@linux.ibm.com>
+Date: Wed, 22 Jul 2026 18:21:33 -0700
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -43,203 +62,157 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH/RFC] btrfs: fix folio lock leak in writepage_delalloc()
- for folios dirtied behind btrfs' back
-To: Matthew Wilcox <willy@infradead.org>,
- Christian Borntraeger <borntraeger@linux.ibm.com>
-Cc: linux-btrfs@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
- Linux Memory Management List <linux-mm@kvack.org>,
- "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
- David Sterba <dsterba@suse.com>, Chris Mason <clm@fb.com>,
- Josef Bacik <josef@toxicpanda.com>, linux-kernel@vger.kernel.org,
- kvm@vger.kernel.org, linux-s390@vger.kernel.org
-References: <20260721191152.101118-1-borntraeger@linux.ibm.com>
- <20260721191152.101118-2-borntraeger@linux.ibm.com>
- <b226a6e9-fef2-49bd-b17e-9f9b015626c1@gmx.com>
- <83290932-cb8b-4741-bff0-6a7d8df2c637@linux.ibm.com>
- <224d56d2-fcad-41bf-afe3-6f5f5108172a@gmx.com>
- <f12f70e5-d84d-4a9f-ac94-693be4c863ac@linux.ibm.com>
- <amC-J7yzwk4Z5tHW@casper.infradead.org>
+Subject: Re: [PATCH v21 1/4] PCI: Allow per function PCI slots to fix slot
+ reset on s390
+To: Bjorn Helgaas <helgaas@kernel.org>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-pci@vger.kernel.org, alex@shazbot.org, schnelle@linux.ibm.com,
+        mjrosato@linux.ibm.com, stable@vger.kernel.org
+References: <20260722223231.GA801609@bhelgaas>
 Content-Language: en-US
-From: Qu Wenruo <quwenruo.btrfs@gmx.com>
-Autocrypt: addr=quwenruo.btrfs@gmx.com; keydata=
- xsBNBFnVga8BCACyhFP3ExcTIuB73jDIBA/vSoYcTyysFQzPvez64TUSCv1SgXEByR7fju3o
- 8RfaWuHCnkkea5luuTZMqfgTXrun2dqNVYDNOV6RIVrc4YuG20yhC1epnV55fJCThqij0MRL
- 1NxPKXIlEdHvN0Kov3CtWA+R1iNN0RCeVun7rmOrrjBK573aWC5sgP7YsBOLK79H3tmUtz6b
- 9Imuj0ZyEsa76Xg9PX9Hn2myKj1hfWGS+5og9Va4hrwQC8ipjXik6NKR5GDV+hOZkktU81G5
- gkQtGB9jOAYRs86QG/b7PtIlbd3+pppT0gaS+wvwMs8cuNG+Pu6KO1oC4jgdseFLu7NpABEB
- AAHNIlF1IFdlbnJ1byA8cXV3ZW5ydW8uYnRyZnNAZ214LmNvbT7CwJQEEwEIAD4CGwMFCwkI
- BwIGFQgJCgsCBBYCAwECHgECF4AWIQQt33LlpaVbqJ2qQuHCPZHzoSX+qAUCZxF1YAUJEP5a
- sQAKCRDCPZHzoSX+qF+mB/9gXu9C3BV0omDZBDWevJHxpWpOwQ8DxZEbk9b9LcrQlWdhFhyn
- xi+l5lRziV9ZGyYXp7N35a9t7GQJndMCFUWYoEa+1NCuxDs6bslfrCaGEGG/+wd6oIPb85xo
- naxnQ+SQtYLUFbU77WkUPaaIU8hH2BAfn9ZSDX9lIxheQE8ZYGGmo4wYpnN7/hSXALD7+oun
- tZljjGNT1o+/B8WVZtw/YZuCuHgZeaFdhcV2jsz7+iGb+LsqzHuznrXqbyUQgQT9kn8ZYFNW
- 7tf+LNxXuwedzRag4fxtR+5GVvJ41Oh/eygp8VqiMAtnFYaSlb9sjia1Mh+m+OBFeuXjgGlG
- VvQFzsBNBFnVga8BCACqU+th4Esy/c8BnvliFAjAfpzhI1wH76FD1MJPmAhA3DnX5JDORcga
- CbPEwhLj1xlwTgpeT+QfDmGJ5B5BlrrQFZVE1fChEjiJvyiSAO4yQPkrPVYTI7Xj34FnscPj
- /IrRUUka68MlHxPtFnAHr25VIuOS41lmYKYNwPNLRz9Ik6DmeTG3WJO2BQRNvXA0pXrJH1fN
- GSsRb+pKEKHKtL1803x71zQxCwLh+zLP1iXHVM5j8gX9zqupigQR/Cel2XPS44zWcDW8r7B0
- q1eW4Jrv0x19p4P923voqn+joIAostyNTUjCeSrUdKth9jcdlam9X2DziA/DHDFfS5eq4fEv
- ABEBAAHCwHwEGAEIACYCGwwWIQQt33LlpaVbqJ2qQuHCPZHzoSX+qAUCZxF1gQUJEP5a0gAK
- CRDCPZHzoSX+qHGpB/kB8A7M7KGL5qzat+jBRoLwB0Y3Zax0QWuANVdZM3eJDlKJKJ4HKzjo
- B2Pcn4JXL2apSan2uJftaMbNQbwotvabLXkE7cPpnppnBq7iovmBw++/d8zQjLQLWInQ5kNq
- Vmi36kmq8o5c0f97QVjMryHlmSlEZ2Wwc1kURAe4lsRG2dNeAd4CAqmTw0cMIrR6R/Dpt3ma
- +8oGXJOmwWuDFKNV4G2XLKcghqrtcRf2zAGNogg3KulCykHHripG3kPKsb7fYVcSQtlt5R6v
- HZStaZBzw4PcDiaAF3pPDBd+0fIKS6BlpeNRSFG94RYrt84Qw77JWDOAZsyNfEIEE0J6LSR/
-In-Reply-To: <amC-J7yzwk4Z5tHW@casper.infradead.org>
+From: Farhan Ali <alifm@linux.ibm.com>
+In-Reply-To: <20260722223231.GA801609@bhelgaas>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:+MEPxw/Y1t5b82ICW+5xecgHp44NMWCYm9Zbs65/tr5kGBev5Kg
- pxui9HwSy3xzbFU8Rge/Eb/VbVj5V3gWbjtn5G2O2yce0WGRIj8xV7atsB9EsLqpKJripMU
- hY7KyioLTP/E1r1Ggr85kotDxr7w52h6RhAnLaYK6P/YtFBdbNMhxiSezwSFubN2ZUOKI6Y
- yw/QxGcJra/1956LbovaA==
-X-Spam-Flag: NO
-UI-OutboundReport: notjunk:1;M01:P0:HjO7+iri6Bk=;mCqRS1TkiIZII7I5qK1q6kM244g
- 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
- 3qDGTKIX2HduD6/QZdNXwvOMMQutEbJxC+OeAoy
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: d5gSVyhkDZEO5Q3lGTohbcwslEGiJ8o0
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzIzMDAwOSBTYWx0ZWRfX4YtKahbzjsaW
+ 8L49t96n6eu8cdE++ZoUs6tAPidrnnHIbtm5Kr1+HnexvcN9V4yW5O+uFfKowIof8dakDz5Z+f6
+ o87YFfgvywX1VHGv8T+hUHv8BWJk9FDy8HbaC/12QXVKaYj8SyO8gdla0GLOsjuKeM0gdQl/FTN
+ 9jWcjYoY1JmFycvH1GfsSV2FCpjqpM0x+8L4EtSLAtbueHaLHr2uFkJ9UwqO7A4qBYm6f2OslJD
+ ZShiuUmLBt9C8YIu4hCHZCzv6ajYYZINe7nOcn+JVgT9XmMh0sSmH5R4/TTUgrE2hCA1z0DjM7l
+ y2VgOF+6ua/Xh3w8u0czZLz4Odmh1dzsF9cTXHBXB9+A3Udvu5YAol8dXzO15sJw7jzRaTARolk
+ o2c6mIZR8rzS+yxi2SxQkas4X0I3cAvQEdBQRFX3SVsMF5HS2MP7nZXiy9w/cjZfoKlkV4H5Yqh
+ rXBIGZb3V0XJgVH9vdw==
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzIzMDAwOSBTYWx0ZWRfX+jH4UVZG6wUG
+ 7cdJBP8/yGlOTlafx9Vzir+F1ALMHcVE1IwdpO5tTRZPPEFfNqCWwvqIuzzjrgJ7WJdGptChPmN
+ TIU0L/TmTmNyp4hzaif5nV4Eu/WWR28=
+X-Proofpoint-GUID: d5gSVyhkDZEO5Q3lGTohbcwslEGiJ8o0
+X-Authority-Analysis: v=2.4 cv=SM5ykuvH c=1 sm=1 tr=0 ts=6a616ca2 cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VwQbUJbxAAAA:8
+ a=fKvCKPnV1Suih4e517sA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-07-23_01,2026-07-22_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ clxscore=1015 lowpriorityscore=0 bulkscore=0 suspectscore=0 adultscore=0
+ spamscore=0 malwarescore=0 priorityscore=1501 phishscore=0 impostorscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607230009
 
 
+On 7/22/2026 3:32 PM, Bjorn Helgaas wrote:
+> On Thu, Jul 16, 2026 at 11:15:33AM -0700, Farhan Ali wrote:
+>> On 7/15/2026 4:34 PM, Bjorn Helgaas wrote:
+>>>> On s390 systems, which use a machine level hypervisor, PCI devices are
+>>>> always accessed through a form of PCI pass-through which fundamentally
+>>>> operates on a per PCI function granularity. This is also reflected in the
+>>>> s390 PCI hotplug driver which creates hotplug slots for individual PCI
+>>>> functions. Its reset_slot() function, which is a wrapper for
+>>>> zpci_hot_reset_device(), thus also resets individual functions.
+>>>>
+>>>> Currently, the kernel's PCI_SLOT() macro assigns the same pci_slot object
+>>>> to multifunction devices.
+>>> PCI_SLOT() doesn't assign pci_slot objects; I guess they're assigned
+>>> by some code that*uses* PCI_SLOT().  Since this says "currently," I
+>>> assume you're changing that code, so we should mention where it is to
+>>> help readers out.
+>> Thanks for your response! I can re-word the commit message, how about
+>> something like this:
+>>
+>> Currently, the pci_create_slot() assigns the same pci_slot object to
+>> multifunction devices.
+>>
+>>> I see some Sashiko comments; those also need to be addressed or
+>>> explained away.
+>> Regarding Sashiko's comments for this patch, it mentions 2 issues:
+>>
+>> New issues: - [High] Unconditional enablement of `per_func_slot` on S390
+>> breaks standard PCI hotplug (e.g., pciehp, shpchp) slot matching and resets.
+>>
+>> I believe this is not applicable as on s390 we don't support any other PCI
+>> hotplug drivers given the unique nature of zPCI architecture.
+> Makes sense.
+>
+>> Pre-existing issues:
+>> - [High] Lockless access to `dev->slot` in `pci_dev_reset_slot_function` can
+>> lead to Use-After-Free if a hotplug driver is concurrently unbound.
+>>
+>> Sashiko identified this as a pre-existing issue, so I don't think should be
+>> addressed with this patch.
+> Right, we don't need to fix pre-existing issues in this series, but I
+> meant there were Sashiko comments on other patches in this series that
+> look like they *should* be addressed, e.g.,
+>
+>    [PATCH v21 2/4] PCI: Avoid saving config space state if inaccessible
+>
+>      - [High] pci_dev_save_and_disable() skips disabling the device if
+>        config space is momentarily inaccessible, potentially leaving
+>        DMA and interrupts enabled.
 
-=E5=9C=A8 2026/7/22 22:27, Matthew Wilcox =E5=86=99=E9=81=93:
-> On Wed, Jul 22, 2026 at 11:29:36AM +0200, Christian Borntraeger wrote:
->>   *   4. Thread B loops sync_file_range(WRITE|WAIT) on the target file.
->>   *      Whenever a full clean cycle (clear_page_dirty_for_io(),
->>   *      writeback, bits cleared) completes inside thread A's
->>   *      submission->completion window, the completion-time
->>   *      set_page_dirty_lock() hits a *clean* folio: filemap_dirty_foli=
-o()
->>   *      sets only the folio flag and the xarray tag - no btrfs subpage
->>   *      dirty bit, no delalloc reservation.  See the 20-year-old comme=
-nt
->>   *      above bio_set_pages_dirty() in block/bio.c describing exactly
->>   *      this ("other code (eg, flusher threads) could clean the pages"=
-).
->=20
-> There's your problem.  filemap_dirty_folio() documents that btrfs is
-> doing it wrongly:
->=20
->   * Filesystems which do not use buffer heads should call this function
->   * from their dirty_folio address space operation.  It ignores the
->   * contents of folio_get_private(), so if the filesystem marks individu=
-al
->   * blocks as dirty, the filesystem should handle that itself.
->=20
-> fs/btrfs/inode.c:       .dirty_folio    =3D filemap_dirty_folio,
->=20
-> so btrfs should have its own btrfs_dirty_folio() which does whatever
-> metadata updates it needs to and then call filemap_dirty_folio() to
-> take care of the page cache business.  See iomap_dirty_folio() as
-> an example, but many other filesystems also do this.
+I am not sure if this is an issue? If we want to check if the device is 
+momentarily inaccessible, then we would need to poll and do something 
+similar to pci_dev_wait(). Please correct me if I am wrong. FWIW this 
+doesn't even show up as an error anymore in v22 even though its the same 
+code.
 
-Thanks a lot for the advice.
+https://lore.kernel.org/all/20260720194254.E6B811F000E9@smtp.kernel.org/
 
-However it looks like the sub-folio dirty block tracking is a little=20
-different between iomap and btrfs.
+>      - [Low] String literal passed to a non-const `char *` pointer in
+>        `pci_dev_config_accessible()`.
 
-E.g. iomap will mark the full folio range dirty even if the EOF is=20
-inside the folio, but btrfs will only mark the range inside EOF as dirty.
+I wasn't sure if this is something that is strictly enforced. But I can 
+fix this if we want to enforce it.
 
 
-Another thing is, even if we follow iomap to mark the full folio dirty,=20
-it's still not the end of the story.
+>      https://lore.kernel.org/all/20260630170754.093021F00A3A@smtp.kernel.org
+>
+>    [PATCH v21 3/4] PCI: Fail FLR when config space is inaccessible
+>
+>      - [High] Un-ratelimited pci_warn() in pci_dev_config_accessible()
+>        allows an attacker to flood the host kernel log.
 
-We have other supporting mechanisms required to tracking the dirty=20
-range. E.g. EXTENT_DELALLOC flags inside extent-io-tree, indicating we=20
-have already reserved space for the dirty range.
+Since we bailout early with -ENOTTY, we should at least try the other 
+reset methods such as bus reset. So AFAIU we shouldn't be spamming the logs.
 
-Only with EXTENT_DELALLOC flag set, we will do the real delayed=20
-allocation, allocating the on-disk extents etc.
+>      - [High] Early bailout in pcie_flr() when config space is
+>        inaccessible skips the Function Level Reset and the subsequent
+>        wait, allowing device assignment to continue without reset,
+>        leaking state.
+>
+>      https://lore.kernel.org/all/20260630171310.F25D41F000E9@smtp.kernel.org
 
-So even if we always mark the full folio dirty, the writeback path will=20
-not handle them correctly either.
+The idea with early bailout was to make sure we can try the other reset 
+methods as currently if FLR is inaccessible/fails we don't try any other 
+reset methods. So we should be trying the other reset methods and it 
+shouldn't leak state. I think we probably are leaking the state today, 
+as we don't try any other reset methods to reset the device.
 
 
-Finally, even without large folios, the reproducer can already cause=20
-problems on btrfs. E.g. on x86_64, with mapping_set_folio_order_range()=20
-disabled.
+>
+>    [PATCH v21 4/4] PCI/MSI: Enable memory decoding before restoring MSI-X messages
+>
+>      - [Medium] Blindly restoring a stale PCI_COMMAND value introduces
+>        a TOCTOU race window that can erase concurrent modifications to
+>        the register.
+>
+>      https://lore.kernel.org/all/20260630171255.20BD91F000E9@smtp.kernel.org
 
-The symptom there is that, ordered extent accounting underflows, which=20
-may also contribute to the stall observed.
+I am not sure if this something we should fix?
 
-I'll keep digging for this bug.
 
-Thanks,
-Qu
+>
+> Annoyingly, on v22, Sashiko complained about *different* things and
+> didn't complain about some of these even though the v22 patches are
+> identical to v21.  Sigh.
+
+Yeah, for this series Sashiko has been a little inconsistent in the 
+issues it identifies :)
+
+Thanks
+
+Farhan
+
 
