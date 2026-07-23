@@ -1,45 +1,32 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4E1A53515FE;
-	Thu, 23 Jul 2026 18:32:01 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 42C06474247;
+	Thu, 23 Jul 2026 18:32:27 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784831524; cv=none; b=GgTvgQsb3fxfvZoA/ZmQZknWWg+hKh34cEWJ6kWSd5QlQFBPVXYLvWFx/NQu4p8HFU83lTbyN/m2rIIzpQmXUomBKlGwcEbJ8wLrAp75plxumvUbjtXJTa3sAUQzRUr43zy0VzlR/Cn3/8q9bYWt6HoTwhMolMjUyxIBsD+1Y1E=
+	t=1784831555; cv=none; b=LKEJBmgWa1rr+KG2dbLAcXCFfBfAoW4LJJRNRV0Xuh4/023hvC0/iHoN061hgGe75pgjdpqs6m5yf3fXGqhFsEr4RMOCkTsgRjAF5BKDtyyf/3DIdkEj1+GoMMQ7fLjOPGJbwkfO+TSSa6JcCin5Vi0nofJjiW8WD+zyTVkCLvQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784831524; c=relaxed/simple;
-	bh=ZC1GF1MNZePh9HLLuuog9KO9//houAM+fAU1BrOZPdc=;
+	s=arc-20240116; t=1784831555; c=relaxed/simple;
+	bh=PGk/c80td/LId8hehi3OvhdCApBEbNORC3ZoNXs5MO0=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=sgcSxAHbxU9VapGPToaFi7foIUqnI4HHwCY8o4yo6qSwsEZr8BzPkLw67g3vQMiQzJnhPJw08ukw2fqnaZ42b84xM0+FzCGBK7jTUemR+gDofdftd8OdlOpOFgPLfZ3TtWjOwMh0zuM5b9rBwxr9aA7kI37x7NAoStmVk0m+jIE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Fdpy4aOD; arc=none smtp.client-ip=100.103.45.18
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Fdpy4aOD"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7FD181F000E9;
-	Thu, 23 Jul 2026 18:31:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784831518;
-	bh=gyDSgT+6hZ3IABio99o7X+r2PvEh8UgvnWY8feAe5FE=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Fdpy4aOD0hc4e8QAZNOZ7Zp8J7iFf7fQHEvqwJSyo5mSCc987xV2v22wj0+rJ1OpE
-	 VUftxcQ6Lv1w0sFIBfBwFgH2Csea2fC6EtZTPfenOFu2E8R339egDMVNUo0Z2DA+O2
-	 VUsvaefIK2KgP0VSBHDF/Y3OgSDq4q8O4+AN3eMiGsLYWRAIMTGukP50EUUypMaviR
-	 iOvIXOWTXMh7lBQUGgg6w6q2IY7jTzJYVMrvxqp+kl91zWCrS55HIE+/TQlhShomCR
-	 tUUqcZ0woWqQzAoPoGmk4WHqLX6ZsXxEch7vp4arKCrlJn981YFWMhWnQpqH0TOp2E
-	 YNQoigNiy1OpA==
+	 Message-Id; b=lx662sG8XYMULEJVkQWfxMGn03gl3vl2yyQqbTWXQ497sPv/pq15nncw5F2k2honVvXKxsEBkD5U8se6Trb7tCI5dD2Hkmp61jPS/OO1d183ekWjEeBRzg6HnvAX9TWh/enMG72WwFxvyzLqqWDEO6zXNmOJpGxTI0I7tMjnnoY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47F1D1F00A3D;
+	Thu, 23 Jul 2026 18:32:24 +0000 (UTC)
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 1/8] s390/vfio_ccw: free all memory if cp_init()
- fails
+Subject: Re: [PATCH v3 7/8] s390/vfio_ccw: implement a channel program mutex
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Eric Farman" <farman@linux.ibm.com>
-Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
- Carstens" <hca@linux.ibm.com>, kvm@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>
-In-Reply-To: <20260723174751.1180334-2-farman@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Vasily
+ Gorbik" <gor@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, kvm@vger.kernel.org
+In-Reply-To: <20260723174751.1180334-8-farman@linux.ibm.com>
 References: <20260723174751.1180334-1-farman@linux.ibm.com>
- <20260723174751.1180334-2-farman@linux.ibm.com>
+ <20260723174751.1180334-8-farman@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 23 Jul 2026 18:31:58 +0000
-Message-Id: <20260723183158.7FD181F000E9@smtp.kernel.org>
+Date: Thu, 23 Jul 2026 18:32:23 +0000
+Message-Id: <20260723183224.47F1D1F00A3D@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -49,93 +36,97 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
 
+New issues:
+- [High] Dropping `sch->lock` in `vfio_ccw_sch_event` before dispatching th=
+e FSM event causes `css_sched_sch_todo` to be called locklessly, leading to=
+ lost unregister events.
+
 Pre-existing issues:
-- [Critical] Unbounded mutual recursion in channel program parsing leads to=
- host kernel stack overflow.
-- [High] Out-of-bounds read in `ccwchain_calc_length` due to an off-by-one =
-error.
+- [High] Missing locking in `vfio_ccw_mdev_reset` allows concurrent `VFIO_D=
+EVICE_RESET` ioctls to trigger physical subchannel unregistration.
 --
 
---- Patch [1]: [PATCH v3 1/8] s390/vfio_ccw: free all memory if cp_init() f=
-ails ---
-commit e7fe5fe9c1f027187ba27b2948379cc2bd88397e
+--- Patch [7]: [PATCH v3 7/8] s390/vfio_ccw: implement a channel program mu=
+tex ---
+commit 7b4b6e7c580cf97b697d04eaf47e890ff6d29bb0
 Author: Eric Farman <farman@linux.ibm.com>
 
-s390/vfio_ccw: free all memory if cp_init() fails
+s390/vfio_ccw: implement a channel program mutex
+   =20
+The channel_program struct is manipulated without a serialization
+mechanism to ensure consistent behavior. Take a broad stroke of
+putting the entire structure behind a mutex, and ensure everything
+that needs private->cp holds this mutex.
+   =20
+Cc: stable@vger.kernel.org
+Signed-off-by: Eric Farman <farman@linux.ibm.com>
 
-The routine cp_free() is called to unpin/free any memory once an I/O
-is completed successfully, or if cp_prefetch() fails. But if cp_init()
-fails, and cp->initialized is not enabled, the same routine cannot be
-used to free all the memory. This patch performs the cleanup outside of
-the recursive ccwchain_handle_ccw()/ccwchain_loop_tic() logic.
-
-> diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_c=
-p.c
-> index 7561aa7d3e017..086d1b54bdb05 100644
-> --- a/drivers/s390/cio/vfio_ccw_cp.c
-> +++ b/drivers/s390/cio/vfio_ccw_cp.c
-> @@ -455,9 +455,6 @@ static int ccwchain_handle_ccw(dma32_t cda, struct ch=
-annel_program *cp)
->  	/* Loop for tics on this new chain. */
->  	ret =3D ccwchain_loop_tic(chain, cp);
-
-[Severity: Critical]
-This is a pre-existing issue, but does this mutual recursion between
-ccwchain_handle_ccw() and ccwchain_loop_tic() have a depth limit?
-
-If a guest VM constructs a channel program with a long sequence of
-transfer in channel commands that each jump to a distinct guest physical
-address, tic_target_chain_exists() will return false.
-
-This causes ccwchain_loop_tic() to recursively call ccwchain_handle_ccw():
-
-drivers/s390/cio/vfio_ccw_cp.c:ccwchain_loop_tic() {
-        ...
-        if (tic_target_chain_exists(tic, cp))
-                continue;
-
-        ret =3D ccwchain_handle_ccw(tic->cda, cp);
-        ...
-}
-
-Since there doesn't appear to be a limit on the recursion depth here,
-could this exhaust the host kernel stack?
-
-> -	if (ret)
-> -		ccwchain_free(chain);
-> -
->  	return ret;
->  }
-
-[ ... ]
+> diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_=
+drv.c
+> --- a/drivers/s390/cio/vfio_ccw_drv.c
+> +++ b/drivers/s390/cio/vfio_ccw_drv.c
+> @@ -259,12 +263,16 @@ static int vfio_ccw_sch_event(struct subchannel *sc=
+h, int process)
+>  	rc =3D 0;
+> =20
+>  	if (cio_update_schib(sch)) {
+> -		if (private)
+> +		if (private) {
+> +			spin_unlock_irqrestore(&sch->lock, flags);
+>  			vfio_ccw_fsm_event(private, VFIO_CCW_EVENT_NOT_OPER);
+> +			goto out;
+> +		}
+>  	}
 
 [Severity: High]
-This is also a pre-existing issue, but is there a potential out-of-bounds
-read in ccwchain_calc_length() due to an off-by-one error?
+Since sch->lock is dropped here, does this allow css_sched_sch_todo() to be
+called locklessly?
 
-drivers/s390/cio/vfio_ccw_cp.c:ccwchain_calc_length() {
-        ...
-        do {
-                cnt++;
-                if (!ccw_is_chain(ccw) && !is_tic_within_range(ccw, iova, c=
-nt))
-                        break;
-                ccw++;
-        } while (cnt < CCWCHAIN_LEN_MAX + 1);
-        ...
-}
+If vfio_ccw_fsm_event() routes to fsm_notoper(), we have:
 
-Since cp->guest_cp is allocated with exactly CCWCHAIN_LEN_MAX elements,
-if a guest provides a channel program where all 256 items have the
-command-chaining flag enabled, the loop executes 256 times.
+vfio_ccw_sch_event()
+  spin_unlock_irqrestore(&sch->lock, flags);
+  vfio_ccw_fsm_event() -> fsm_notoper()
+    css_sched_sch_todo(sch, SCH_TODO_UNREG);
 
-On the 257th iteration, cnt is 257 and ccw points to cp->guest_cp[256],
-which is past the end of the allocation. The loop condition evaluates
-to true (256 < 257), allowing ccw_is_chain(ccw) to dereference the
-out-of-bounds pointer.
+Could this lead to a race on sch->todo, allowing other events to overwrite
+SCH_TODO_UNREG and leaving the kernel state out of sync with hardware?
 
-Could this read hit an unmapped guard page and crash the host?
+> diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_=
+ops.c
+> --- a/drivers/s390/cio/vfio_ccw_ops.c
+> +++ b/drivers/s390/cio/vfio_ccw_ops.c
+> @@ -38,8 +38,13 @@ static void vfio_ccw_dma_unmap(struct vfio_device *vde=
+v, u64 iova, u64 length)
+>  		container_of(vdev, struct vfio_ccw_private, vdev);
+> =20
+>  	/* Drivers MUST unpin pages in response to an invalidation. */
+> -	if (!cp_iova_pinned(&private->cp, iova, length))
+> +	mutex_lock(&private->cp_mutex);
+> +	if (!cp_iova_pinned(&private->cp, iova, length)) {
+> +		mutex_unlock(&private->cp_mutex);
+>  		return;
+> +	}
+> +
+> +	mutex_unlock(&private->cp_mutex);
+> =20
+>  	vfio_ccw_mdev_reset(private);
+>  }
+
+[Severity: High]
+This is a pre-existing issue, but does vfio_ccw_mdev_reset() lack locking
+protection against concurrent invocations?
+
+If two threads concurrently trigger vfio_ccw_mdev_reset() (e.g. via the
+VFIO_DEVICE_RESET ioctl), they could interleave:
+
+Thread A issues VFIO_CCW_EVENT_CLOSE, transitioning to STANDBY.
+Before Thread A issues OPEN, Thread B issues VFIO_CCW_EVENT_CLOSE.
+
+The FSM receives CLOSE while in STANDBY state, which routes to fsm_notoper()
+and schedules SCH_TODO_UNREG. Could this cause the physical subchannel to be
+permanently unregistered, acting as a host denial of service?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260723174751.1180=
-334-1-farman@linux.ibm.com?part=3D1
+334-1-farman@linux.ibm.com?part=3D7
