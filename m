@@ -1,38 +1,38 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7AEBB40680F;
-	Thu, 23 Jul 2026 07:51:21 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A703A3AE184;
+	Thu, 23 Jul 2026 07:57:09 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784793082; cv=none; b=U9slqFdwyGKPOjA20aTj/yPn5FnQqiXA4xViZIS7dzRWE/h3NmVYlJVnKnJXb+KnWkJf8oZbqcKj9CFVcGvaUAYQgBrI4z73tVb5CN5t74VuZ80pO3unD7nIfoV03wt0Yel+rlijv3nqslT6DokvuonVMFoMMb0Ttni1qPGMl6Y=
+	t=1784793430; cv=none; b=Mmv77+SfQDjAq8+hWKGIFPx/RPYOB9OpxU0Q/Fr4zLTUn5CRg97d+d6/DV7gglahrU0VK72Lz8YngJICjLu6rSO7AE0BzhXl//suqcQW2QwAQrVzzlFXAVCwYTkNiT/W52yd9dhMHC9DkI8TTQMvjILM4wsYd5ubL8hSG8znuy8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784793082; c=relaxed/simple;
-	bh=tDUFO0vLmWrLeoaSVmk16KindEOv1rbAReMd2abxSk8=;
+	s=arc-20240116; t=1784793430; c=relaxed/simple;
+	bh=c4vhT9kYQoQuOODF3qVRg0f9ZMULx4+stzKFjWkULBc=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=q8DWsh4CQw/vRP+FyQ31JcJnYilYyzeTPvAHFZddns2+OoKeMVAMU/6zIQXSQZO4LIeyRmRjSSMFNS38Uhr7Y6dkvMJyTGSR7kA+9snrMRMxSkAiG5PtYRnVURI7EIY4iVlZK7paoxZ7tKLBuNE66bZoZCl0nD2sRw6EHqzbJgo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=C5yVtX07; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=f+31QdlwwT438JKvEqesLxDGeHyoqp1dJB3tRuAMFSRYIrCOmwOoOv+HFz9Dxvul7G3X187Dq/XJBO8LiSKFk64aG16wIsSkfG9udBvEYnRK8O0AQo8MMNee1tmJMejDTGiACB0nYOzz4qjTAjISSs9H9qRLeCXzR+VfRbE223A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=d3xmLXvw; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="C5yVtX07"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BEBAF1F000E9;
-	Thu, 23 Jul 2026 07:51:19 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="d3xmLXvw"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9AF221F000E9;
+	Thu, 23 Jul 2026 07:57:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784793081;
-	bh=oS1NMvx865gW2UoErMylGfTUK0dtoB1K+HlWaCkJDOs=;
+	s=k20260515; t=1784793429;
+	bh=MV/ddKhkOPrQoZ9vfnIwVbLJK9zML3biWg/uhRgYT0U=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=C5yVtX07ZkUJj3b2b+kYtfuR23XpTFRkdHRdENTWAARDLYmTf2IRILt6XAP3lcQ3i
-	 guxWOSpqvbZxIkPudGanZc9oRLKmaWg7jWE5nWdWWffLISp3ZQ+ad4Ihoe02/FYjI0
-	 zawcqNvZ4YMD98rRRw9KmxbnYTZO2a2pevFxO+lic7WvlenUPBRb/qjJSo021Hq+fK
-	 RnJUL29qw9dIMmgyNVWejeSnfUWslCr7nlHO+wb/2jqEuc0/cAk14jRWF5Uc2ySZeT
-	 fSQ5DwAeoStwg7yjuT2gjGQyNTVPQV9uRZe39mcHkbKAqEo5c/lhrEDQ+DHZjlr32v
-	 nL9nveFp0YtMA==
-Date: Thu, 23 Jul 2026 10:51:08 +0300
+	b=d3xmLXvwi2GMENZnteIxAJT9s/vth/ydaB8jnGiDbnoJQUcvxVpdQ4CJ0u/BR5Y29
+	 qaZW01Tiv8f4zxAh9MGXy85RlTXDqDPcKcAejcfjjHjyYTYGbVh/52WQY1d0+CsjH4
+	 ZXpYH0x/j/a+NIv+xUiENTmrpZC3T7+frmDwNIUG6kyP4miDxfjWLm2Kn7T3DD2S1N
+	 Rr5EEKagMJePKW4DfUuaR2sNSURnR2wMcS+E4LnTti/I86ga4mpseDz/aSW2/dFH2l
+	 lQt2pE4DfhbMPDcGZRVqphfYVCpTaURvHtyxvsl8CTFjve+0WEFD5IouvdUm0NhOK9
+	 QYRocdPIUyYIw==
+Date: Thu, 23 Jul 2026 10:57:04 +0300
 From: Leon Romanovsky <leon@kernel.org>
 To: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: "Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org>,
-	Marek Szyprowski <m.szyprowski@samsung.com>, iommu@lists.linux.dev,
+Cc: "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>, iommu@lists.linux.dev,
 	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
 	linux-coco@lists.linux.dev, Robin Murphy <robin.murphy@arm.com>,
+	Marek Szyprowski <m.szyprowski@samsung.com>,
 	Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
 	Steven Price <steven.price@arm.com>,
 	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
@@ -52,13 +52,19 @@ Cc: "Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org>,
 	Heiko Carstens <hca@linux.ibm.com>,
 	Vasily Gorbik <gor@linux.ibm.com>,
 	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org
-Subject: Re: [PATCH v8 00/23] dma-mapping: Track shared DMA state through
- direct, pool and swiotlb paths
-Message-ID: <20260723075108.GB110966@unreal>
+	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org,
+	stable@vger.kernel.org, Michael Kelley <mhklinux@outlook.com>
+Subject: Re: [PATCH v8 01/23] dma-direct: return struct page from
+ dma_direct_alloc_from_pool()
+Message-ID: <20260723075704.GC110966@unreal>
 References: <20260717180442.110954-1-aneesh.kumar@kernel.org>
- <20260721124056.GK110966@unreal>
- <amEglRH3u6UFFnIQ@ziepe.ca>
+ <20260717180442.110954-2-aneesh.kumar@kernel.org>
+ <20260721115456.GI110966@unreal>
+ <yq5atsps77c5.fsf@kernel.org>
+ <20260721142921.GN110966@unreal>
+ <yq5ao6g0750v.fsf@kernel.org>
+ <20260721153321.GO110966@unreal>
+ <amEhEKQW0_HJ9cLN@ziepe.ca>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -67,43 +73,34 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <amEglRH3u6UFFnIQ@ziepe.ca>
+In-Reply-To: <amEhEKQW0_HJ9cLN@ziepe.ca>
 
-On Wed, Jul 22, 2026 at 04:57:09PM -0300, Jason Gunthorpe wrote:
-> On Tue, Jul 21, 2026 at 03:40:56PM +0300, Leon Romanovsky wrote:
+On Wed, Jul 22, 2026 at 04:59:12PM -0300, Jason Gunthorpe wrote:
+> On Tue, Jul 21, 2026 at 06:33:21PM +0300, Leon Romanovsky wrote:
 > 
-> > Why don't we continue the effort to remove "struct page" entirely
-> > from the DMA API internals?
+> > Something like, but probably void* needs to be phys_addr_t:
 > > 
-> > IMHO, everything not exposed to DMA API users should use
-> > phys_addr_t, including the DMA address pool.
+> > static inline struct page *dma_phys_to_page(void *addr)
+> > {
+> > #ifdef CONFIG_DMA_DIRECT_REMAP
+> > 	return vmalloc_to_page(addr);
+> > #else
+> > 	return virt_to_page(addr);
+> > #endif
+> > }
 > 
-> The alloc interfaces return a struct page, that is why this stuff is
-> organized like this. Look at dma_alloc_pages()
+> I don't like this, we don't know for sure the addr will be in a vmap
+> and this will fail if it isn't.
 
-And I didn't say that we should change dma_alloc_pages(). It is external
-API, which needs to be struct *page. I'm talking about internals.
+Of course we know. The existing "#ifdef CONFIG_DMA_DIRECT_REMAP" is
+relevant for addresses acquired from pool.
 
-Even dma_alloc_pages() flow shows how convoluted and non-uniform
-the code underneath which performs translations all the time.
+dma_phys_to_page() is a bad name for some low-level conversion function.
+It needs to be internal to DMA logic, in the level when we convert from
+phys to page.
 
-dma_alloc_pages()
-	->  __dma_alloc_pages()
-		-> dma_direct_alloc_pages()
-....
-	ret = page_address(page);             <--- here we need virt address
-	if (dma_set_decrypted(dev, ret, size))
-		goto out_leak_pages;
-	memset(ret, 0, size);
-	*dma_handle = phys_to_dma_direct(dev, page_to_phys(page)); <- and here we need phys address
-	return page;
+Thanks
 
-So my point is that internal flows should not require struct page
-and should not depend on it.
-
-> 
-> There is also an API that forms a scatterlist that has to be struct
-> page as well
 > 
 > Jason
 > 
