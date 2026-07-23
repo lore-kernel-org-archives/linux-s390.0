@@ -1,83 +1,117 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 46EEB4D98EC;
-	Thu, 23 Jul 2026 14:10:57 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A6D60476CCF
+	for <linux-s390@vger.kernel.org>; Thu, 23 Jul 2026 14:11:33 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784815866; cv=none; b=SnAJsmI2ic7n/pKfK6tVtIvmJEtE309QbSCVJvluYaqm3of+NuEUBkDRRnrvhRJYty66S74vtdMAM51kxUaEfNjcGTpEjdOAD59wK4hgAOc7UDqQlPvinSePCzogVv6dOpzNfjcEOpk4cZUTT9U8boduubB8geNXsz8Joagb4oU=
+	t=1784815903; cv=none; b=emvkmPkQA+Pe7nBShTx9R9+J2Jd/z9nJ9c6uhWjFfB8AzlvvkHC6E8VhQvEeZL+GyhrH/EbZ7amr0YqUp/t1lTB7UmnkV4uAZgqiBpJSVz2xk/TscWe0rr4uF2a6ffVQncx4ZbiRsxmjx8XpG0swm4/rGZlqfeiyAwdeC2JvKoI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784815866; c=relaxed/simple;
-	bh=ciq2LWZ3xEuE2AHnFLcBGFoVl5PndzarVUze0mapLGg=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=QGQhEfnmGSlYWa/lnK8s22b0P6bqoICbubmAfIeH/GxB27PFldh1ZcZ1jUjzydR910y1c6C8snHDhviTaNHifq2/iVG2NGq+6jZcTiTGR4+56tdpeDaLOjdSh4UMxDMI5xKExZsu83DeTqm2qWkDmzY007W4F6sWWWn/cP/xosg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TEHWwMN6; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1784815903; c=relaxed/simple;
+	bh=+ScEbVRNzVI3XOF8MVp9cPLSljG5g9Pn+XfCiduirck=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=Z3GMnXzY8x1b5l8YlSX4t7PnGkG6lk4vtOOqQpSJmD2seIrfso78TcEI4MHT+/kcf8pzOb+2usCbs05zs8D26uPwv2rsPgMW8mD1zRdJOK2oU2zW/WtgTlvCSI+dwsNk7swk5pfP1TMCdNbuJT668eoU2EJuJOQbclM6jz0TlZA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GBm3EvWb; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TEHWwMN6"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0C3C1F00A3A;
-	Thu, 23 Jul 2026 14:10:50 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GBm3EvWb"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 304F91F000E9;
+	Thu, 23 Jul 2026 14:11:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784815851;
-	bh=dYsgV7bhpHW2r8cJsJ1Mi2zJOES69OLLKWlcQQRI/qA=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc;
-	b=TEHWwMN65d9iqnuEKzd93g+UMTPpjLm28qv/d+W54enQLvKLAbQaWb20xrU0YcxNc
-	 pg4OVDPmXxnKWsjI11pK2StQl3QKR6uWWX8dEq8c50B4l3bxaBugzsalf+LB/KP3Jv
-	 /UYwU87vJ1WMyuo2x71QMBHkoe4EOn/eGF0jd2g1lX5tD+ADWi8TyIM+JXazLfC0Sz
-	 SoBaS4ozc75UVHLFngS8oabqI8smCBxwbvUxdZClQ71XIpj6lhJwqhPwIiYw7Asspf
-	 CytPIilg/2TTMsbMFptyUDLWqk82g58CuZUPPri5YEZe3f8DJzhlAAwXj3yMh++d5w
-	 6T6qlGhgjkFEA==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 56BD4380CFD4;
-	Thu, 23 Jul 2026 14:10:20 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	s=k20260515; t=1784815890;
+	bh=TvdVum7i6K3Xo4gGdjj0gZSmDI+qnf73DIEPbZP0kwY=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=GBm3EvWb7qvVwDY/WXKnfqgq2USPqFKFoUwsfTjgsGXBJdKtmYq8vUOBBhu3gNS/g
+	 j955Ugo7XpoPQ5HBX5o7ZvXxnftO7BSMmSRWkTgeu15whUTC+n/dEAy42AyIYtAox2
+	 6RalpQpZ1rNwELxJzPrHo8CGhjdI+r2v2KUgxZOX6swY/sAlYgEXlCpuKS9s8V4WSZ
+	 T/hlK7qEu5BWO0kcif76QkMlEiNygphPHorlF4k0KCKYuzcN7Yrk5zR9ZyH1ILILyW
+	 vDrirgeCHvqEl+ngBwLmJsZPKahZtQqqWCQThmzt16DKlmB/hu1VP6EFyUvhO9irjR
+	 AcebEemIg+c8Q==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v3 02/13] s390/dasd: Add infrastructure for ESE
+ full-track write
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Stefan Haberland" <sth@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>, "Heiko
+ Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
+In-Reply-To: <20260723134743.672413-3-sth@linux.ibm.com>
+References: <20260723134743.672413-1-sth@linux.ibm.com>
+ <20260723134743.672413-3-sth@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 23 Jul 2026 14:11:29 +0000
+Message-Id: <20260723141130.304F91F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH v2 0/2] Add missing facility check to ptp_s390 driver
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <178481581889.2248593.3567702646132973015.git-patchwork-notify@kernel.org>
-Date: Thu, 23 Jul 2026 14:10:18 +0000
-References: <20260714130342.1971700-1-svens@linux.ibm.com>
-In-Reply-To: <20260714130342.1971700-1-svens@linux.ibm.com>
-To: Sven Schnelle <svens@linux.ibm.com>
-Cc: richardcochran@gmail.com, netdev@vger.kernel.org,
- linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
- davem@davemloft.net, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
- hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com
 
-Hello:
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [Critical] The newly added check `else if (status =3D=3D DASD_CQR_ABORTED=
+)` erroneously compares the boolean return value of `free_cp` to an integer=
+ constant, rendering the intended abort early-return unreachable and causin=
+g fatal double-completion of block requests.
+--
 
-This series was applied to netdev/net.git (main)
-by Jakub Kicinski <kuba@kernel.org>:
+--- Patch [2]: [PATCH v3 02/13] s390/dasd: Add infrastructure for ESE full-=
+track write ---
+commit fa055a0513f53e5dc907e4af42753941bd1ec384
+Author: Stefan Haberland <sth@linux.ibm.com>
 
-On Tue, 14 Jul 2026 15:03:40 +0200 you wrote:
-> This patchset adds a missing facility check and a check that the 'query
-> physical clock' (PTFF QPT) function is actually available. If it's not
-> present, no qpt ptp device will be registered. In order to use ptff_query()
-> in a module, the first patch adds a EXPORT_SYMBOL() to export
-> ptff_function_mask.
-> 
-> Changes in v2:
-> - drop CC check
-> - add PTFF QAF check
-> - add patch to export ptff_function_mask
-> 
-> [...]
+s390/dasd: Add infrastructure for ESE full-track write
 
-Here is the summary with links:
-  - [v2,1/2] s390/ptff: Export ptff_function_mask[]
-    https://git.kernel.org/netdev/net/c/9de445d8296a
-  - [v2,2/2] ptp: ptp_s390: Add missing facility check
-    https://git.kernel.org/netdev/net/c/e78f1ac37afc
+This commit adds driver internals to build WRITE_FULL_TRACK FCX channel
+programs in response to unformatted tracks on ESE devices. It introduces
+new CQR states like DASD_CQR_ABORTED to retire origin requests when they
+are replaced. It also enlarges CCW and ESE format pools to keep two
+maximum-size requests in flight.
 
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+> diff --git a/drivers/s390/block/dasd.c b/drivers/s390/block/dasd.c
+> index 3181c06d91ce3..2289f36d38b11 100644
+> --- a/drivers/s390/block/dasd.c
+> +++ b/drivers/s390/block/dasd.c
 
+[ ... ]
 
+> @@ -2714,7 +2759,9 @@ static void __dasd_cleanup_cqr(struct dasd_ccw_req =
+*cqr)
+>  			error =3D BLK_STS_IOERR;
+>  			break;
+>  		}
+> -	}
+> +	} else if (status =3D=3D DASD_CQR_ABORTED)
+> +		/* aborted requests are replaced with a new one so do not complete thi=
+s */
+> +		return;
+
+[Severity: Critical]
+Is it possible for this check to ever evaluate to true?
+
+The 'status' variable is assigned the return value of
+cqr->block->base->discipline->free_cp(cqr, req) earlier in this function.
+Looking at dasd_eckd_free_cp(), it appears to return a boolean:
+
+drivers/s390/block/dasd_eckd.c:dasd_eckd_free_cp() {
+    ...
+    status =3D cqr->status =3D=3D DASD_CQR_DONE;
+    dasd_sfree_request(cqr, cqr->memdev);
+    return status;
+}
+
+Since DASD_CQR_ABORTED is defined as 0x06, this check would always be false.
+When free_cp() returns 0 for an aborted request, the code will fall into the
+'else if (status =3D=3D 0)' block above and attempt to complete the request=
+ via
+blk_mq_end_request().
+
+Because the replacement request will also try to complete the same req, does
+this result in a double-completion of the block request?
+
+> =20
+>  	/*
+>  	 * We need to take care for ETIMEDOUT errors here since the
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260723134743.6724=
+13-1-sth@linux.ibm.com?part=3D2
