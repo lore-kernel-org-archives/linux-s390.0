@@ -1,125 +1,66 @@
-Received: from mail-pj1-f45.google.com (mail-pj1-f45.google.com [209.85.216.45])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9CE10486648
-	for <linux-s390@vger.kernel.org>; Thu, 23 Jul 2026 18:46:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CC84648CD79;
+	Thu, 23 Jul 2026 18:47:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784832425; cv=none; b=U+imhkrczf8ykbldC17POMmFgTmQkUjBlQmeFltCSDF3nN/LweCNTznpJqNFyH3hcCijj4sHpgoutKBLEMDKW9gv3KvkVqWrtpEIVGD67E2fgUrZe+WA+tHmcOkA5rH18JaMMpBravecSAdkyFriBElCKO/e/9Quu6scWJkvF+o=
+	t=1784832454; cv=none; b=tvj2SXfkUiKMbJiKXZKbx/PtMqtfgqdAPQ0FcWa7OIsLvoH8pETSLdJz8A8MCNoWZjqCi6K3ajBhj0lfmkR4Kqm5/EiwIriU1dLQFZE7sXRCfJV9LMXgfXlLIFAybusiJG6zrgTXmhEtFmHeY/VIfUlHWPW+KIXgpNj7b6U/Lo8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784832425; c=relaxed/simple;
-	bh=d0EWrVZ42EPe2bhaOHHufbmj44DuHjUEdUtjBw/ex20=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=EbKQwy4dlSFHnasy5/3HmwL2vxYJ5+8O1Rg2mhSu7lqka0uDCl7KSM7asJ1cEx/xmbIUNAK+RMS3lx/Yb63L19zMMtjj2QVO7EMERlQCQ/9nmoFYxmqeW803ztlmnZVsgyX7afOGyKgl5nOL84OsQmc7tlow+f1+DZxy+DHUyKk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LeV/R+zV; arc=none smtp.client-ip=209.85.216.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1784832454; c=relaxed/simple;
+	bh=kB6QQVUArqoaG0DAG23aHYQ9XPGP2nrRpYQvFxxgzR4=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=QmHQ5Y+JNnJubP0zUDBKU3vNqhKPmPYE8EWtVALveP7imzz3Bjb/HJtCzI9xfqA1dTjF+XPcYdWry+ajVESy83lapew6XbO0nzgMIRghajLqQf3pJJZxncrfflf72vPd6kgT1WzlVBwAC1oN+9ykCcWFzaptXb6M8HFcGNKtp5o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bIcMS27e; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LeV/R+zV"
-Received: by mail-pj1-f45.google.com with SMTP id 98e67ed59e1d1-38ec1402b05so775042a91.2
-        for <linux-s390@vger.kernel.org>; Thu, 23 Jul 2026 11:46:59 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784832416; x=1785437216; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=Pa9RhyBV4RDq7tkQpwKRVUOOI8N+P6srYqSVADpe3nI=;
-        b=LeV/R+zV/Qq6oWzzZqslYq4xBY9AOSEsjRVc5DucFqVnQ1m6J/xob2OdY69MCjOQcX
-         grCrFfHzQYBTQdZWkW5t2j3QgFd+axn0rvTv2sYfQQpsiIgz2bRWUxrdwCdomPOg7WsV
-         LLv4ZKm/dYHRkMjGaof1OywC2zvuoMQjgAX2xATzA3Vi/sbytm/ekeU2eVqFPjDxwU6E
-         x28QvIPt25U1D1LcelvFqFrXkhIMvm/ztniRkMU5QSOLOro+sqpbl0jBit5YWALRgkoX
-         UpsCJp7NLQWNHbQKTZSCO2LXEdO6aTT+Oenm3b/Pdiv9jby0+hm6SMiREbjXeEwdjh3v
-         DtKw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784832416; x=1785437216;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=Pa9RhyBV4RDq7tkQpwKRVUOOI8N+P6srYqSVADpe3nI=;
-        b=XgqEsXidJwYjl46/XqbhaGdfu8l8tKdQ0529v3XBLZxzpKrs7L5VBZDDFoSLpyPSKn
-         IOL0YZ0gaCo5GMGFxrhcU+5RAocWz1FxV5Ta2CIxt2jB0xXmi6im3VXF/L+5jPxaXDqP
-         8mulTTAe1rd3Pq6KYuFQmTQGzMX/61VTRzoDSlfLN5qMmmp9iaFGctQR50rnlf98Jbbb
-         bt0VPaKuioUAlFyunTOZX4MFWWC0zlJ2Bvl35DzIUBJXl2+Tc0WLmru78AdttOLX5iAG
-         QBzbFpH4ALb5qE7pSesArUTYQPL6HnUjylMUAKpqdEFRrYxs0Zk7WfNxyI4P6xjcH7Io
-         HlFA==
-X-Forwarded-Encrypted: i=1; AHgh+RqMuRojnDz5SMjxyrxWKglY62tJOK92y/mmu5lCsNh4RSn2nQ63TobyObEQXEEJ5WZJrwWVjHwarNOZ@vger.kernel.org
-X-Gm-Message-State: AOJu0YxDWicKYbyJJRsyanpqKtx0Xh6ZiHlRoAJ3KTy7LzUm6iuiaZbp
-	TldD7zGqnp6V+wyDEKUWRJZGeBEGH4VZKGMjAXFcEoU2sOHN5avY8ikl
-X-Gm-Gg: AR+sD11bkujTv8VWls6ub8QFFoYwPdyg00ecuWCmGRS13JJujdjTh3F+8rz8FtE05GC
-	vztF+HWYWPDjx3hIrs6m/F1iUPSjNFOpFrroKOM7W0N4sa8iwbVHsfnH2W34QaXgCMUTais8yt0
-	MDNentr6JrCjQcpFYJJaHx8Kmf6vlq/cCVwqXw/Z67C0QZHYL++JSFUroKYro0kmV9wyBs+a1XR
-	TNX37PRBaL0TzyWWcEc+jhjEqegXhSKu2ar1mYeuEwQJRoYOLuQj0xIHVul0fvR0nVfeEQXPZ5k
-	zqey+sBeYENCr6c/fi8bit0/DCrdFsoPAGmSkCW8X7ooG5dx9wo87MD5yx1PHFTtq4WvGtmq4b7
-	6ALM+H9a9ZrSvTiU7Co0E8sG3Bm9L1X584k5kDNa+fAc7cx94+JY/I28FWepCuZKLrPApJxDI
-X-Received: by 2002:a17:90b:2b47:b0:383:f52b:d616 with SMTP id 98e67ed59e1d1-38ec6454e6dmr4309241a91.10.1784832415649;
-        Thu, 23 Jul 2026 11:46:55 -0700 (PDT)
-Received: from ubuntu.. ([110.9.142.4])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-38f03af8a45sm308155a91.10.2026.07.23.11.46.53
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 23 Jul 2026 11:46:55 -0700 (PDT)
-From: Sang-Heon Jeon <ekffu200098@gmail.com>
-To: Julia.Lawall@inria.fr,
-	Niklas Schnelle <schnelle@linux.ibm.com>,
-	Matthew Rosato <mjrosato@linux.ibm.com>,
-	"Joerg Roedel (AMD)" <joro@8bytes.org>,
-	Will Deacon <will@kernel.org>
-Cc: cocci@inria.fr,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	iommu@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	Robin Murphy <robin.murphy@arm.com>
-Subject: [PATCH 22/36] iommu/s390: remove conditional return with no effect
-Date: Fri, 24 Jul 2026 03:45:24 +0900
-Message-ID: <20260723184538.3888637-23-ekffu200098@gmail.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260723184538.3888637-1-ekffu200098@gmail.com>
-References: <20260723184538.3888637-1-ekffu200098@gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bIcMS27e"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C0F51F000E9;
+	Thu, 23 Jul 2026 18:47:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1784832429;
+	bh=kB6QQVUArqoaG0DAG23aHYQ9XPGP2nrRpYQvFxxgzR4=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=bIcMS27eBW72DOyhqNNGJtxoRDDGlc3vk1orkpw4dP0GmnZNkzHQuYWZaBYeToTN/
+	 74M0r6TAMH/BpchWWG+tCtxW5SNFuH6l04pEjZl+64A0cLynpuyE9Sn0iXsG4rl0Tp
+	 Nmrio2Q6+Rn1cJPgEFPde9+s8HuHsKBmpZCAWX9jjNHdwnHOwJrjriWatRrruXRSPB
+	 wy0Np9sS8XRkSrKQRCd5KvQcygQSHis++QpygYXXwGPPkEB8VwFa8b0u7Kn4tvTNph
+	 PrCupPCGUTZN8BbviZtCNFPnRCT209pP4VL5qo91YTroDoIi6wUYhBh7XUPNCwNT52
+	 K2uQ8sGvdLPiQ==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v5 4/6] KVM: s390: pci: Fix NULL dereference on AIBV
+ allocation failure
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Farhan Ali" <alifm@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>
+In-Reply-To: <20260723183440.3271-5-alifm@linux.ibm.com>
+References: <20260723183440.3271-1-alifm@linux.ibm.com>
+ <20260723183440.3271-5-alifm@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 23 Jul 2026 18:47:07 +0000
+Message-Id: <20260723184709.3C0F51F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-Both branches of the check return the same value, so the check has
-no effect. Remove it and return the value directly.
+> The airq_iv_create() can return NULL on failure, but the return value was
+> never checked. If it fails, zdev->aibv will be NULL and fail when
+> dereferenced in kvm_zpci_set_airq(). Add a NULL check and free the
+> previously allocated AISB bit and zdev->aisb on failure.
+>=20
+> Fixes: 3c5a1b6f0a18 ("KVM: s390: pci: provide routines for enabling/disab=
+ling interrupt forwarding")
+> Cc: stable@vger.kernel.org
+> Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+> Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
+> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
 
-This is the result of running the Coccinelle script from
-scripts/coccinelle/misc/cond_return_no_effect.cocci.
+Sashiko has reviewed this patch and found no issues. It looks great!
 
-Signed-off-by: Sang-Heon Jeon <ekffu200098@gmail.com>
----
- drivers/iommu/s390-iommu.c | 8 +-------
- 1 file changed, 1 insertion(+), 7 deletions(-)
-
-diff --git a/drivers/iommu/s390-iommu.c b/drivers/iommu/s390-iommu.c
-index f148f559ac56..d008b1d14a9e 100644
---- a/drivers/iommu/s390-iommu.c
-+++ b/drivers/iommu/s390-iommu.c
-@@ -1115,8 +1115,6 @@ __setup("s390_iommu_aperture=", s390_iommu_aperture_setup);
- 
- static int __init s390_iommu_init(void)
- {
--	int rc;
--
- 	iommu_dma_forcedac = true;
- 	s390_iommu_aperture = (u64)virt_to_phys(high_memory);
- 	if (!s390_iommu_aperture_factor)
-@@ -1124,11 +1122,7 @@ static int __init s390_iommu_init(void)
- 	else
- 		s390_iommu_aperture *= s390_iommu_aperture_factor;
- 
--	rc = dma_alloc_cpu_table_caches();
--	if (rc)
--		return rc;
--
--	return rc;
-+	return dma_alloc_cpu_table_caches();
- }
- subsys_initcall(s390_iommu_init);
- 
--- 
-2.43.0
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260723183440.3271=
+-1-alifm@linux.ibm.com?part=3D4
 
