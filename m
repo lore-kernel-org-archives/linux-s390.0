@@ -1,60 +1,60 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B9934756A5;
-	Thu, 23 Jul 2026 15:19:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CD50943B3FF
+	for <linux-s390@vger.kernel.org>; Thu, 23 Jul 2026 15:28:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784819972; cv=none; b=Gj+7veGxUH/vLEB68k7Em8h+slOjLZwoAT5GTYTQT5d8E7PWsPxKwMyD1plAZstnTuymBzEHeMCrkB1Qgf5PtDhoh/d0UU85RB0TC7jfCFuqwdfD614KOxikTrp0pYRcJLA0ysVxhmri1s8RjI9HkR44rAR1O3E2hjd76d2lKR8=
+	t=1784820513; cv=none; b=Ry25o3AlUkim+xwitaIzhtjEuFwXSwHeV+MefXfGTMiZjqyqGAbbFxg7fepJpfQW20H2yXQybNphpXH4UW8u/8p2zWXJ3zLE1AZPogP3HH2CZqhPuRNVnZHoTIT4OeGJSHfr3N5myduMjOhDylpWiu6pCXVXPaWClZf0xRGcdPw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784819972; c=relaxed/simple;
-	bh=wwZcu/zyt1FAUeYi6erRrQC4mUbB9NUuNtVmKwQw0As=;
+	s=arc-20240116; t=1784820513; c=relaxed/simple;
+	bh=UDQwDvoJqNufhQ6nRO4ZNXNxQ2zuA/RwKssNRHs/9b8=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=pJeJM+bzcupqamU21qgrKhf06CEm9yCh1QIpB6irfkDZC/jyG5qDqQRfTelUuE5WIhyB6hsAmILhYKy+GUkuE976RcDXJvGtZphJn0ztDvy6EJ33ug8HVVLyMsN89zW03zAKwaUF482eYrBPTXjMD4IpVTD2h5kJaRQIxVV6HdQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=JIPPXqJp; arc=none smtp.client-ip=148.163.156.1
+	 In-Reply-To:Content-Type; b=Nd5AzuomWYZJ5+HyONIVnBusDbR1EObMriWkA4ucqVa2tOzUIGRNt11Oo/fgABUbQka2LYHYct4hoDruvmYPxSZqfpYsi4kWXU24EYYOCl16oloBeAqFSsYsO2W3iFAST0Zr3v28zYGeI8ToGJ14fxyWy3rhQNtAt361ay2azTg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=TzfOCWEq; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="JIPPXqJp"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66NDBoik3089974;
-	Thu, 23 Jul 2026 15:19:26 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="TzfOCWEq"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66NDBic03094723;
+	Thu, 23 Jul 2026 15:28:29 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=KeG7aM
-	7dexqwCNO18X2lTA3Zcl+djh0q2tQmqOsl5z4=; b=JIPPXqJpsxV5NYqWFVvBEQ
-	i00P7qa5cXnmp9488C2aeVawCw3PLA1oSFCpnPAOmRFCgY4zg/IZlHPUdpIWtm6Z
-	1cQIECMcFQSoYWVe7rlwbxaEJ+POh7h6LdBWGM8STKwKTfCm1YunnHsKsMeTKD9w
-	yVETHY2v21Wa0avbTmizPck8jmmL0+dwm/h0/zWuwvdDKPglY05BOwt/JGNapxob
-	9hSxteHIn3NRKplxO0e0/WD1gt4PNdEEV598LdwzeYmAfcWKzMLtjvN2s2ALs4DJ
-	1sQLYdZhv+C+7vnW7kTqwEtyDlPojGrxeRvs/LtY19rhIg9aidjfWR6FPJIx8ldA
+	:message-id:mime-version:references:subject:to; s=pp1; bh=mcD0fD
+	FNwfo5nL5TCX7S2Nwvq/3pqm2S/irV18ByPBc=; b=TzfOCWEq+CB7WeMURF2Oau
+	VyyTpTh8VUm3IdY1dWQRxKxEdkS+ZRxJoGir1T0dWUyXGVWBbg5sBSXX2j7NjNiN
+	Fm9ZjStinbRhJ/aEdGBPE2oXfxC2r3DKoOLlnmRpr4LkT4cQLr/+VJ5nyrQr681z
+	lI1+1HdchQ5gmqk70lAVvsF/7/Ktu+oGX6GUdtqJxdDTaq/iwSC/ZjHlkFRw+drw
+	yjec2DEZpBYdHK27aJSUFbMMxtMp4MfPLo87YuyqF6Wl32xxjRmzuGKJOZqirs4A
+	sxnBv6XIiLkfaEBZUmymQaycTQfCO4Q34jeSdsSW8Kb6FKlStu56mPv9Db8A6/3w
 	==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fg7abr9pv-1
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fg7ahfp7d-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 23 Jul 2026 15:19:25 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66NF4Z1J002233;
-	Thu, 23 Jul 2026 15:19:24 GMT
-Received: from smtprelay03.dal12v.mail.ibm.com ([172.16.1.5])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fgnahcqsg-1
+	Thu, 23 Jul 2026 15:28:28 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66NFJgZR024623;
+	Thu, 23 Jul 2026 15:28:28 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fgmtk4tjb-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 23 Jul 2026 15:19:24 +0000 (GMT)
-Received: from smtpav05.wdc07v.mail.ibm.com (smtpav05.wdc07v.mail.ibm.com [10.39.53.232])
-	by smtprelay03.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66NFJNTY8519996
+	Thu, 23 Jul 2026 15:28:28 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66NFSNAO47645040
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 23 Jul 2026 15:19:23 GMT
-Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1076658059;
-	Thu, 23 Jul 2026 15:19:23 +0000 (GMT)
-Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 43ECC58053;
-	Thu, 23 Jul 2026 15:19:22 +0000 (GMT)
-Received: from [9.61.177.4] (unknown [9.61.177.4])
-	by smtpav05.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 23 Jul 2026 15:19:22 +0000 (GMT)
-Message-ID: <a0044314-5d84-413b-8912-b50907fa0964@linux.ibm.com>
-Date: Thu, 23 Jul 2026 11:19:21 -0400
+	Thu, 23 Jul 2026 15:28:24 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id D53BD2004B;
+	Thu, 23 Jul 2026 15:28:23 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 7102A20040;
+	Thu, 23 Jul 2026 15:28:23 +0000 (GMT)
+Received: from [9.224.77.173] (unknown [9.224.77.173])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 23 Jul 2026 15:28:23 +0000 (GMT)
+Message-ID: <71e16596-591a-4991-b217-ecdcf284ea67@linux.ibm.com>
+Date: Thu, 23 Jul 2026 17:28:23 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -62,126 +62,127 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4 5/6] KVM: s390: pci: Fix resource leak on IRQ
- registration failure
-To: Farhan Ali <alifm@linux.ibm.com>, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, kvm@vger.kernel.org
-Cc: borntraeger@linux.ibm.com, farman@linux.ibm.com
-References: <20260722170621.1686-1-alifm@linux.ibm.com>
- <20260722170621.1686-6-alifm@linux.ibm.com>
+Subject: Re: [PATCH v2 2/2] s390/kvm: Add tracepoint for DIAG 9c directed
+ yield operations
+To: Ciunas Bennett <ciunas@linux.ibm.com>, linux-s390@vger.kernel.org
+Cc: frankja@linux.ibm.com, imbrenda@linux.ibm.com, david@kernel.org,
+        hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+        svens@linux.ibm.com
+References: <20260625131615.262367-1-ciunas@linux.ibm.com>
+ <20260625131615.262367-3-ciunas@linux.ibm.com>
 Content-Language: en-US
-From: Matthew Rosato <mjrosato@linux.ibm.com>
-In-Reply-To: <20260722170621.1686-6-alifm@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+From: Christian Borntraeger <borntraeger@linux.ibm.com>
+In-Reply-To: <20260625131615.262367-3-ciunas@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzIzMDE0OSBTYWx0ZWRfXy/e1B7YxiBBV
- ZWCb1uJdRmsoT0bmhmJdlgr/m11PTdp56U7PoK4TWnnkii9IbKvQVxeyHfeX1nwII4MRsNAYHr9
- TYbMjE5AjEvQTOc+iwPsX7sZJeBIYGI+7EAJRJjITZQBa/G30C1mLLE9jsNGvxLkBVYJCFkJdEA
- SzLaiMndftGq56bRDfGfrZpxbO2cfFuVsEX5GZf3q9idnAPFQGLLfB7RKWOe/k0EMoNOyj3hgr5
- SbnufJByXeK8gCvQWX7hZCNqAOPbtGB9WpJYXsO0dAcc0EBNGUC1wx468msc4DrHMAMACWu9Sxc
- G8W7URjL+9bPKe40Ni61McGW9grMwyLfENHbAajvqnMF3yuO8DHt01IIHOO5lQ41yRtIOBQZokp
- IfgnU3xHra4cPLsJMZr2TyxZaCTCFSA0OeTJQzKK/B+ETBqRQU8MfN1sFAscbCtjMlMP3AWOFFb
- S7e4T4sYfXcipprVjWw==
-X-Authority-Analysis: v=2.4 cv=F7ZnsKhN c=1 sm=1 tr=0 ts=6a6230fd cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+X-Proofpoint-ORIG-GUID: bf6r_8efEUtXiQiF80keJL7LSCrOPtW7
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzIzMDE0OSBTYWx0ZWRfX0gM+jg3khp8M
+ lOsMMr/vThGobUxln6V+HMD6++PJOHoM+fV8Z9zNjMNqQql70IAkWwjkPlfyB//J9v564UtkXZq
+ 7hDsppFM0To9HbaRPRYaGo1S/fP1deZgzACDw1SIKt7PxlI7pZmMhX5iOp/4rpfQuP2BKDovYG2
+ 7e8eNbEfKWJp/cV4PyjT/i6OuQO96jqcqx/aeFD/4zDCR5aWXbNoj9A5NudF85t2VMuh24/Wg4C
+ PNUpkkb6KjCgShhWk1bdWaIIdUcNjCwxzmPoqfetMZ5gvfIwMMCUZP4L2ULlUbLi7sta8fxGgNV
+ qzMjdova4LMzdpi71ewEwmLAgI9MsgEOGQ9KftxAkHpPdFdasZMCPsirWSZS4FpMmoWFVqzyl7g
+ We/cObrARQm7MZsh/C6NqiyHKnm8Nx+KiuDpUvFyHLpT6BRXaScrTmuoOyJ64FxmrYKT6nu36Iq
+ DIkH8LPZXL9ulet5xUg==
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzIzMDE0OSBTYWx0ZWRfXxBH9Lfm31eHb
+ IT5n0aKoDQlrWwds3LykGrkpy3YHu7sIPslQKJe0TcriDTaz3qmQY6gaodwnGq4ClwrwtfIoPwK
+ 6QJyoIGjIZNhoAT/feYVJRNg09U6amE=
+X-Proofpoint-GUID: bf6r_8efEUtXiQiF80keJL7LSCrOPtW7
+X-Authority-Analysis: v=2.4 cv=SM5ykuvH c=1 sm=1 tr=0 ts=6a62331c cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
  a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8
- a=W6YiH1k79j17DU6STyAA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-ORIG-GUID: NFAJtneAhPM9XYsCLdKev7GL0hvtV6av
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzIzMDE0OSBTYWx0ZWRfX1AN8zaoHlNQ6
- Ut1Xgkb96+b2pbsUYo967pMMLeR4iJjFSo9elOs2ZyCAIRCP/W6zcSz0m+MTQ0uKoRssbArVsDI
- urTltAy29RuXIba4isiM95p0VyRBet8=
-X-Proofpoint-GUID: NFAJtneAhPM9XYsCLdKev7GL0hvtV6av
+ a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8
+ a=BM3haevJdxyxnGiVQXUA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-07-23_04,2026-07-22_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 phishscore=0 bulkscore=0 clxscore=1015 priorityscore=1501
- impostorscore=0 lowpriorityscore=0 suspectscore=0 malwarescore=0 adultscore=0
+ clxscore=1015 lowpriorityscore=0 bulkscore=0 suspectscore=0 adultscore=0
+ spamscore=0 malwarescore=0 priorityscore=1501 phishscore=0 impostorscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607230149
 
-On 7/22/26 1:06 PM, Farhan Ali wrote:
-> Currently if kvm_zpci_set_airq() fails, kvm_s390_pci_aif_enable() returns
-> the error code but doesn't do any resource cleanup thus leaking resources.
 
-Nits: s/the/an/  ....  and 'resource cleanup, thus leaking' (add a comma)
 
-> Fix this by cleaning up all the resources such as the GAITE, AIBV, AISB and
-> unpinning any pinned pages.
+Am 25.06.26 um 15:16 schrieb Ciunas Bennett:
+> Add a new tracepoint kvm_s390_diag_9c to provide detailed observability
+> for directed yield operations. The tracepoint captures:
+> - Source and target VCPU IDs
+> - Current and target physical CPU numbers
+> - Operation result (done, ignored, yield forwarded)
 > 
-> Fixes: 3c5a1b6f0a18 ("KVM: s390: pci: provide routines for enabling/disabling interrupt forwarding")
-> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+> This enables better analysis of VCPU scheduling behaviour and helps
+> diagnose performance issues related to directed yields in virtualised
+> s390 environments.
+
+Nothing critical, just some ideas.
+
+> 
+> Signed-off-by: Ciunas Bennett <ciunas@linux.ibm.com>
 > ---
->  arch/s390/kvm/pci.c | 29 +++++++++++++++++++++--------
->  1 file changed, 21 insertions(+), 8 deletions(-)
+>   arch/s390/kvm/diag.c  |  1 +
+>   arch/s390/kvm/trace.h | 30 ++++++++++++++++++++++++++++++
+>   2 files changed, 31 insertions(+)
 > 
-> diff --git a/arch/s390/kvm/pci.c b/arch/s390/kvm/pci.c
-> index 231a4236fc3c..d76b2c5484ac 100644
-> --- a/arch/s390/kvm/pci.c
-> +++ b/arch/s390/kvm/pci.c
-> @@ -341,19 +341,32 @@ static int kvm_s390_pci_aif_enable(struct zpci_dev *zdev, struct zpci_fib *fib,
->  	aift->kzdev[zdev->aisb] = zdev->kzdev;
->  	spin_unlock_irq(&aift->gait_lock);
->  
-> -	/* Update guest FIB for re-issue */
-> -	fib->fmt0.aisbo = zdev->aisb & 63;
-> -	fib->fmt0.aisb = virt_to_phys(aift->sbv->vector) + (zdev->aisb / 64) * 8;
-> -	fib->fmt0.isc = gisc;
-> -
-
-OK, I had the same problem as Christian here.
-
-This is dead code because we don't re-use the fib, we make a new one in
-kvm_zpci_set_airq() and fill it with values from the kzdev.  Right?
-
-I agree adding something to the commit message to that effect would be
-good, even something like 'While at it, remove dead code that stored FIB
-values that were never referenced.'
-
->  	/* Save some guest fib values in the host for later use */
-> -	zdev->kzdev->fib.fmt0.isc = fib->fmt0.isc;
-> +	zdev->kzdev->fib.fmt0.isc = gisc;
->  	zdev->kzdev->fib.fmt0.aibv = fib->fmt0.aibv;
-> -	mutex_unlock(&aift->aift_lock);
->  
->  	/* Issue the clp to setup the irq now */
->  	rc = kvm_zpci_set_airq(zdev);
-> -	return rc;
-> +	if (!rc) {
-> +		mutex_unlock(&aift->aift_lock);
-
-This is subtle; we are now holding the aift_lock a bit longer now (over
-the MPCIFC re-issue) which I don't think is strictly necessary since we
-aren't messing with any of the zpci_aift fields during that timeframe,
-but I think is fine to do.  Maybe also worth a mention in the commit
-message that the lock is held a bit longer in order to handle the error
-case vs drop/re-acquire.
-
-For the code itself:
-
-Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
-
-> +		return rc;
-> +	}
+> diff --git a/arch/s390/kvm/diag.c b/arch/s390/kvm/diag.c
+> index 85c84421b510..031ab6e5d6c4 100644
+> --- a/arch/s390/kvm/diag.c
+> +++ b/arch/s390/kvm/diag.c
+> @@ -228,6 +228,7 @@ static int __diag_time_slice_end_directed(struct kvm_vcpu *vcpu)
+>   out:
+>   	VCPU_EVENT(vcpu, 5, "diag time slice end directed to %d: %s", tid,
+>   		   result);
+> +	trace_kvm_s390_diag_9c(vcpu, tid, tcpu_cpu, result);
+>   	return 0;
+>   }
+>   
+> diff --git a/arch/s390/kvm/trace.h b/arch/s390/kvm/trace.h
+> index aa419eb6a0c8..2d6da21f590c 100644
+> --- a/arch/s390/kvm/trace.h
+> +++ b/arch/s390/kvm/trace.h
+> @@ -283,6 +283,36 @@ TRACE_EVENT(kvm_s390_handle_diag,
+>   			   __print_symbolic(__entry->code, diagnose_codes))
+>   	);
+>   
+> +TRACE_EVENT(kvm_s390_diag_9c,
+> +	    TP_PROTO(VCPU_PROTO_COMMON, int target_vcpu, int target_cpu,
+> +		     const char *result),
+> +	    TP_ARGS(VCPU_ARGS_COMMON, target_vcpu, target_cpu, result),
 > +
-> +	/* Start cleanup */
-> +	zdev->kzdev->fib.fmt0.isc = 0;
-> +	zdev->kzdev->fib.fmt0.aibv = 0;
+> +	    TP_STRUCT__entry(
+> +		    VCPU_FIELD_COMMON
+> +		    __field(int, target_vcpu)
+> +		    __field(int, target_cpu)
+> +		    __field(int, current_cpu)
+> +		    __string(result, result)
+> +		    ),
 > +
-> +	spin_lock_irq(&aift->gait_lock);
-> +	gaite->count--;
-> +	gaite->aisb = 0;
-> +	gaite->gisc = 0;
-> +	gaite->aisbo = 0;
-> +	gaite->gisa = 0;
-> +	aift->kzdev[zdev->aisb] = NULL;
-> +	spin_unlock_irq(&aift->gait_lock);
+> +	    TP_fast_assign(
+> +		    VCPU_ASSIGN_COMMON
+> +		    __entry->target_vcpu = target_vcpu;
+> +		    __entry->target_cpu = target_cpu;
+> +		    __entry->current_cpu = smp_processor_id();
+> +		    __assign_str(result);
+> +		    ),
 > +
-> +	airq_iv_release(zdev->aibv);
-> +	zdev->aibv = NULL;
->  
->  free_aisb:
->  	airq_iv_free_bit(aift->sbv, zdev->aisb);
+> +	    VCPU_TP_PRINTK(
+> +		       "diag=9c vcpu=%d pcpu=%d target_vcpu=%d target_pcpu=%d result=%s",
+> +		       __entry->id,
+I think vcpu=%d re-prints __entry->id, which VCPU_TP_PRINTK() already emits as the line prefix; likewise current_cpu/pcpu=%d duplicates ftrace's built-in per-event CPU column.
+Can you double check?
+
+> +		       __entry->current_cpu,
+> +		       __entry->target_vcpu,
+> +		       __entry->target_cpu,
+> +		       __get_str(result))
+
+result is a dynamic __string of three fixed literals — an int plus __print_symbolic() (matching diagnose_codes style in the same file) would also allow splitting "ignored", which currently conflates four distinct causes despite the commit's diagnosability goal.
+This is not trivial though, due to the VCPU_EVENT which also uses result. So maybe this is not that easy and feel free to ignore that.
+
+> +	);
+> +
+>   TRACE_EVENT(kvm_s390_handle_lctl,
+>   	    TP_PROTO(VCPU_PROTO_COMMON, int g, int reg1, int reg3, u64 addr),
+>   	    TP_ARGS(VCPU_ARGS_COMMON, g, reg1, reg3, addr),
 
