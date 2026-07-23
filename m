@@ -1,64 +1,64 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CD6C433557D
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 74117472F9C
 	for <linux-s390@vger.kernel.org>; Thu, 23 Jul 2026 13:47:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784814478; cv=none; b=OJDUT/hLLPDa8n2ZYESBSTsLAbF/XRO/elu2HXvFoG8y9Qe1Q+MueBDzuo0kOLtWtAUJ+MgKt5979ATEnfCg9y2Yf+A7udDr2X6ISMog8rWRgJIWp6hiw9h2+v8gsPgbFO4vmqn/JvIG+zd1LwIHuZcGSl0jo23ZnHLGMN4COLo=
+	t=1784814478; cv=none; b=M/M9Wqc9u2/P17NCg666bEq/kyXqZve8SAhgAve+7KEr1udAf8brEHNFZ1H+Ak97taVAVg2ReElw/pkR7glzqTB6QrdoQAkrIC+danvuOMAWvZWl7NyL/Sh3L8ywPX3vjATi7WA/X7RujcxL2Lo/b/bI791vwq61GGmUtMF7MWo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1784814478; c=relaxed/simple;
-	bh=bccPoaEbuAcCUZ1wPpuskSoGNjEzZsA0pr5227V8ao4=;
+	bh=+zn4Y3w1L9ghxJ8ceNTgjHfRaQypI6rm29CbzLV60Gs=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=gGg+X3foaqYgICzYirykjBPK1wh+pjyEizhlLZ/Ubt20k3q+QhAtj7ngGbKo+rOnF73fg9Zdo5iQrtaT31enFbgS7d1E0+Uv6RT9ccS9JnO0+cweSKJT8vq0KKDK6/kNojDkhfM1it6I9w5wcq/QYGZA1yDWlTnKWzbo50eZGGY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=M5sq2XPs; arc=none smtp.client-ip=148.163.156.1
+	 MIME-Version; b=aQjthCdDeFWpG0nY37ulei7FDFbL+ExQpw48JUfucfO/wxv0Ll3N9YrpVlkN016xdNGKauOEE6b+JZhMigSn1nPYGVjOH40MwLuL/Kf4Q3KsZMqLqChXJ9J1t4uzOE5vvm0IoS1YTnv9FWzvl+ERa3vV9cnXyEzEnpB1CKHRKSU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=GvUf6/Yr; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="M5sq2XPs"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66NDBw4I1211213
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="GvUf6/Yr"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66NDC3fa3015647
 	for <linux-s390@vger.kernel.org>; Thu, 23 Jul 2026 13:47:53 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=K7pF4qhn4VnOJtVTG
-	QqylnBUFOQyqhD0ulBrEq0EvDY=; b=M5sq2XPsVshu+HnZsRMOI3Pc4WAsX9y79
-	EmxOZmjUW+nxWwTs1+zNsyTuzPW+9sqQ5XTPJLzPU/vRIdco5aw8bS50xDGycP/i
-	Nof34iy6C1oj8C6NeRZn1Q1Apk4q1UsCl12dE71x1UV/XQND9KqSBy+JvoO22ein
-	26R9rY6DTt3kKRuMQfvP8gD1L+ugLub3MlBX0Wf/ID9l/i48iddXKwk9rtBu4taI
-	dsWHk9BFoV379KODOLTVOR28jRK3pKB0DdB4As9/9qx6W4HHgXr9eRvobFwyo+IJ
-	sBXRzYwItzMa07L410iJqL3xPPUKvhcTFDIlpFdT3lNJ4z3q7U2Eg==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fg77aqtd0-1
+	:mime-version:references:subject:to; s=pp1; bh=N3qzN/mq6btfE1Sjg
+	69wFLGK6S0Z03B8TZCduF/WNZI=; b=GvUf6/Yr/nud97S+mLxvvmH24I9KQM2Hk
+	CI6ZN/I8fBsh0eMVxGHD6JPJvGk7UUPD6kAod5XRhygKEOJNPDLb/M9ytBhajO1s
+	iFkxTNKoJuCwr0rIyxVteBPNcDEgKk9akT1joWEMNoh65xs1LkDacIpCVnbO1hut
+	5+yfmEmwaNQuAtqOH3YkHimfoQnimMdp78EQI9Zus/Uv81n3MTJe6eBz6jNT/UgU
+	P7FdoxSHi4rJibuEX1YN84b/a8wVzmtQjYhZsKkoBb9bHziVFUrxncVyemplHqrB
+	VzHvmgye8p5xZ/oihzaXaK22dEN0qWUgnckczzH/uLp9Z9MNkWTJg==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fg77kf8ra-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Thu, 23 Jul 2026 13:47:53 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66NDYZ28025376
+	for <linux-s390@vger.kernel.org>; Thu, 23 Jul 2026 13:47:52 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66NDYZ4E025823
 	for <linux-s390@vger.kernel.org>; Thu, 23 Jul 2026 13:47:52 GMT
 Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fgm6wcgrj-1
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fgmtk4dua-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
 	for <linux-s390@vger.kernel.org>; Thu, 23 Jul 2026 13:47:52 +0000 (GMT)
 Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66NDlmTU51577208
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66NDlmNn51577206
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
 	Thu, 23 Jul 2026 13:47:48 GMT
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2D7AE20040;
+	by IMSVA (Postfix) with ESMTP id 0EBB820043;
 	Thu, 23 Jul 2026 13:47:48 +0000 (GMT)
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 139C22004D;
-	Thu, 23 Jul 2026 13:47:48 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id E3DD42004E;
+	Thu, 23 Jul 2026 13:47:47 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
 	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 23 Jul 2026 13:47:48 +0000 (GMT)
+	Thu, 23 Jul 2026 13:47:47 +0000 (GMT)
 From: Stefan Haberland <sth@linux.ibm.com>
 To: linux-s390@vger.kernel.org
 Cc: Jan Hoeppner <hoeppner@linux.ibm.com>,
         Eduard Shishkin <edward6@linux.ibm.com>
-Subject: [PATCH v3 04/13] s390/dasd: Extend prepare_itcw() to support WRITE_FULL_TRACK
-Date: Thu, 23 Jul 2026 15:47:34 +0200
-Message-ID: <20260723134743.672413-5-sth@linux.ibm.com>
+Subject: [PATCH v3 03/13] s390/dasd: Add range-based format-track collision detection
+Date: Thu, 23 Jul 2026 15:47:33 +0200
+Message-ID: <20260723134743.672413-4-sth@linux.ibm.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260723134743.672413-1-sth@linux.ibm.com>
 References: <20260723134743.672413-1-sth@linux.ibm.com>
@@ -70,158 +70,286 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: V0E9SvCxqbh3gFmrIGEeJOrBN-sJ5-uj
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzIzMDEzNSBTYWx0ZWRfX59LlqxsU2gzH
- D56+BGaEHDP+iuUj/SBdDVpJ2nPklJ/EMxCivTecY23VChFVh4/BFfZtgjwyCig/P5s4uWCiMSm
- GXuv6HBz/q+iu4ety1rCZ5JmMWrJ2RY=
-X-Proofpoint-GUID: V0E9SvCxqbh3gFmrIGEeJOrBN-sJ5-uj
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzIzMDEzNSBTYWx0ZWRfXwffOmBtwYtRh
- dIifiE/Iuc+l4nBL+jEv2XP9vh4mFBtV+2zivs/76YnZiNVuqRt0YTRxNBscR9lLq8tptOehCTJ
- +IfiOpr3NpVLWH5QBBMsHwMLRMQ/KYizqs1Ax4xHGbk+EzhXEpRDPxNY9+N516wbn5XIgLTvt/d
- 7yyF9GwuFZrfR6v9OMaAbj2itvYgTGKwE7at8cv+K5ucnu4IZZ5sFWe0h3n/Bu3mM8keGK8AFAF
- i/p2VBHqUr4I90qyCik5cITQtcv4P6Z1lhuaD1tcMpXaRU5Q7vc82fCaB7O8GUL9LGva/GgjKS7
- Wh6n3LgwKtJKKuxbmfHoGjh473KCa42XDjoPxQ/eYpVyBXvkuahlLbAl6BVMTW+a4rsvy7J+rpJ
- Ewsyu+/+Ir5AdtFR9fDp1yidTVRkXzFNuV+TUMVcnV39noP5plhlLWGRluUyfQ6VZPu5/kyYSPo
- Y7O0HT/5CKRjlfuTZJw==
-X-Authority-Analysis: v=2.4 cv=K7AS2SWI c=1 sm=1 tr=0 ts=6a621b89 cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+X-Authority-Analysis: v=2.4 cv=HJXz0Itv c=1 sm=1 tr=0 ts=6a621b88 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
  a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8 a=z9cVXL644kTWRId5wbEA:9
+ a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8 a=GaJKkLePmxIg6gA0iAYA:9
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzIzMDEzNSBTYWx0ZWRfX4/8q/gCfOJl1
+ L293L4nhtdhmMJ/Fg3BABB+4PKCNW7gs+wDGbS2FSao6mkPBx+8yihCBmVHhjsdn8oAbDKl4STN
+ gMr6SS9dKW+DWgA3pBMUW7Xq6RoJDPJTlUz8zzSrH9hq6NnUP2bLPtzEVQ50lbfFdnjSVKJXQDV
+ gCQ6tWtUVq31C6M5DBl9KwgJTQCMpxR8VDR5n/E+d152jCRxgAlbfkD0ivaTSqFW/QQo/MiAV7o
+ JU2hNakFXuD7dRSP2E7V1NSqEWfVVCU2idGQIejTRq2XwO33eQiAbiK7lg79Glf92qUbL1FrRxD
+ NnUSRO/h7+o0DtTCtnJuuWQH0vIQYc8RZqG5ZeAMu2joWhlh/CDc95wpVL7kVDC+ERLcqgBjK8G
+ qZQDKVV4jVp6URcDeTXq9bN8NxpLh4WZmEkPkcIB87PYFcEvaZfd2Qj7JCfqKkhA7RgAI9tJI1w
+ Hm+c36jeseFpYkfG8FQ==
+X-Proofpoint-ORIG-GUID: 95C1He_LBdluhyi0Px-6rw0x_ip7kzki
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzIzMDEzNSBTYWx0ZWRfX6spha0Dx2iB1
+ MqirCT4boCXxRn9ZsuJXdB6074w40L5/5fJvh5SuMc53nDVYrscj9egVe5KMw/AC9qUG09QSA6W
+ fnEebyGhFXtjvRQeDS0XPVtHzPjpzKE=
+X-Proofpoint-GUID: 95C1He_LBdluhyi0Px-6rw0x_ip7kzki
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-07-23_04,2026-07-22_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- lowpriorityscore=0 suspectscore=0 bulkscore=0 clxscore=1015
- priorityscore=1501 spamscore=0 phishscore=0 malwarescore=0 adultscore=0
- impostorscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ bulkscore=0 priorityscore=1501 lowpriorityscore=0 suspectscore=0
+ malwarescore=0 impostorscore=0 clxscore=1015 phishscore=0 spamscore=0
+ adultscore=0 classifier=typeunknown authscore=0 authtc= authcc=
  route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
  definitions=main-2607230135
 
-prepare_itcw() builds the FCX prefix block (PFX + LRE) for track-mode
-I/O. Extend it to handle DASD_ECKD_CCW_WRITE_FULL_TRACK.
+Replace the single per-device format_entry slot with an array of 16
+slots so multiple format requests can be in flight at once, and extend
+struct dasd_format_entry with a start_trk/end_trk/cqr range (replacing
+the single track field).
 
-WRITE_FULL_TRACK needs two extra bytes appended to the LRE for that
-bitmask. The prefix block is a scratch buffer copied into the TCCB by
-itcw_add_dcw(), so keep it on the stack (sized for the two extra bytes)
-rather than allocating it: this runs in the writeback path and must not
-depend on an allocation that can fail under memory pressure.
+Rewrite test_and_set_format_track() to scan the array for range overlaps
+instead of a trkcount snapshot, honour the early-collision flag, and
+return the allocated slot to the caller.
+
+Add dasd_req_conflict() and extend dasd_return_cqr_cb() to mark queued
+data CQRs that overlap a just-completed format range, so the next
+test_and_set_format_track() detects the conflict early.
+
+Remove the now-obsolete trkcount snapshot in dasd_start_IO().
 
 Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
 ---
- drivers/s390/block/dasd_eckd.c | 65 +++++++++++++++++++++++++++-------
- 1 file changed, 52 insertions(+), 13 deletions(-)
+ drivers/s390/block/dasd.c      | 28 +++++++++++----
+ drivers/s390/block/dasd_eckd.c | 63 +++++++++++++++++++++++-----------
+ drivers/s390/block/dasd_int.h  | 19 ++++++++--
+ 3 files changed, 81 insertions(+), 29 deletions(-)
 
-diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
-index 541b8eff647e..8649e57fe4c2 100644
---- a/drivers/s390/block/dasd_eckd.c
-+++ b/drivers/s390/block/dasd_eckd.c
-@@ -4356,11 +4356,13 @@ static int prepare_itcw(struct itcw *itcw,
- 			unsigned int tlf,
- 			unsigned int blk_per_trk)
- {
--	struct PFX_eckd_data pfxdata;
-+	u8 pfxbuf[sizeof(struct PFX_eckd_data) + 2] __aligned(8);
-+	struct PFX_eckd_data *pfxdata = (struct PFX_eckd_data *)pfxbuf;
- 	struct dasd_eckd_private *basepriv, *startpriv;
- 	struct DE_eckd_data *dedata;
- 	struct LRE_eckd_data *lredata;
- 	struct dcw *dcw;
-+	int pfxsize;
- 
- 	u32 begcyl, endcyl;
- 	u16 heads, beghead, endhead;
-@@ -4370,26 +4372,31 @@ static int prepare_itcw(struct itcw *itcw,
- 	int sector = 0;
- 	int dn, d;
- 
-+	pfxsize = sizeof(struct PFX_eckd_data);
-+	/* prefix + LRE extended data */
-+	if (cmd == DASD_ECKD_CCW_WRITE_FULL_TRACK)
-+		pfxsize += 2;
-+
-+	memset(pfxbuf, 0, pfxsize);
- 
- 	/* setup prefix data */
- 	basepriv = basedev->private;
- 	startpriv = startdev->private;
--	dedata = &pfxdata.define_extent;
--	lredata = &pfxdata.locate_record;
-+	dedata = &pfxdata->define_extent;
-+	lredata = &pfxdata->locate_record;
- 
--	memset(&pfxdata, 0, sizeof(pfxdata));
--	pfxdata.format = 1; /* PFX with LRE */
--	pfxdata.base_address = basepriv->conf.ned->unit_addr;
--	pfxdata.base_lss = basepriv->conf.ned->ID;
--	pfxdata.validity.define_extent = 1;
-+	pfxdata->format = 1; /* PFX with LRE */
-+	pfxdata->base_address = basepriv->conf.ned->unit_addr;
-+	pfxdata->base_lss = basepriv->conf.ned->ID;
-+	pfxdata->validity.define_extent = 1;
- 
- 	/* private uid is kept up to date, conf_data may be outdated */
- 	if (startpriv->uid.type == UA_BASE_PAV_ALIAS)
--		pfxdata.validity.verify_base = 1;
-+		pfxdata->validity.verify_base = 1;
- 
- 	if (startpriv->uid.type == UA_HYPER_PAV_ALIAS) {
--		pfxdata.validity.verify_base = 1;
--		pfxdata.validity.hyper_pav = 1;
-+		pfxdata->validity.verify_base = 1;
-+		pfxdata->validity.hyper_pav = 1;
+diff --git a/drivers/s390/block/dasd.c b/drivers/s390/block/dasd.c
+index a8dea7503dce..4934253dfd0e 100644
+--- a/drivers/s390/block/dasd.c
++++ b/drivers/s390/block/dasd.c
+@@ -1402,13 +1402,6 @@ int dasd_start_IO(struct dasd_ccw_req *cqr)
+ 		if (!cqr->lpm)
+ 			cqr->lpm = dasd_path_get_opm(device);
  	}
+-	/*
+-	 * remember the amount of formatted tracks to prevent double format on
+-	 * ESE devices
+-	 */
+-	if (cqr->block)
+-		cqr->trkcount = atomic_read(&cqr->block->trkcount);
+-
+ 	if (cqr->cpmode == 1) {
+ 		rc = ccw_device_tm_start(device->cdev, cqr->cpaddr,
+ 					 (long) cqr, cqr->lpm);
+@@ -2867,6 +2860,27 @@ static void __dasd_process_block_ccw_queue(struct dasd_block *block,
  
- 	switch (cmd) {
-@@ -4419,7 +4426,39 @@ static int prepare_itcw(struct itcw *itcw,
- 		 * data as well.
- 		 */
- 		if (dedata->ga_extended & 0x08 && dedata->ga_extended & 0x02)
--			pfxdata.validity.time_stamp = 1; /* 'Time Stamp Valid' */
-+			pfxdata->validity.time_stamp = 1; /* 'Time Stamp Valid' */
-+		pfx_cmd = DASD_ECKD_CCW_PFX;
-+		break;
-+	case DASD_ECKD_CCW_WRITE_FULL_TRACK:
-+		dedata->mask.perm = 0x3;
-+		dedata->mask.auth = 0x00;
-+		dedata->attributes.operation = basepriv->attrib.operation;
-+		dedata->blk_size = blksize;
-+		dedata->ga_extended |= 0x42;
-+		rc = set_timestamp(NULL, dedata, basedev);
-+		lredata->operation.orientation = 0x0;
-+		lredata->operation.operation = 0x3F;
-+		lredata->extended_operation = 0x11;
-+		lredata->auxiliary.check_bytes = 0x2;
-+		lredata->length = 0;
-+		lredata->extended_parameter_length = 0x02;
-+		if (count > 8) {
-+			lredata->extended_parameter[0] = 0xFF;
-+			lredata->extended_parameter[1] = 0xFF;
-+			lredata->extended_parameter[1] <<= (16 - count);
-+		} else {
-+			lredata->extended_parameter[0] = 0xFF;
-+			lredata->extended_parameter[0] <<= (8 - count);
-+			lredata->extended_parameter[1] = 0x00;
+ static void dasd_return_cqr_cb(struct dasd_ccw_req *cqr, void *data)
+ {
++	struct dasd_ccw_req *temp_cqr;
++	struct dasd_block *block;
++
++	/* only format CQRs are candidates */
++	if (!cqr->block || unlikely(!cqr->format))
++		goto out;
++
++	block = cqr->block;
++	/*
++	 * Mark queued CQRs that overlap this just-completed format
++	 * range so they re-check in test_and_set_format.
++	 */
++	list_for_each_entry(temp_cqr, &block->ccw_queue, blocklist) {
++		if (temp_cqr != cqr &&
++		    temp_cqr->status != DASD_CQR_FILLED &&
++		    temp_cqr->status != DASD_CQR_QUEUED &&
++		    dasd_req_conflict(cqr, temp_cqr)) {
++			temp_cqr->collision = true;
 +		}
-+		sector = 0xFF;
-+		/*
-+		 * If XRC is supported the System Time Stamp is set. The
-+		 * validity of the time stamp must be reflected in the prefix
-+		 * data as well.
-+		 */
-+		if (dedata->ga_extended & 0x08 && dedata->ga_extended & 0x02)
-+			pfxdata->validity.time_stamp = 1; /* 'Time Stamp Valid' */
- 		pfx_cmd = DASD_ECKD_CCW_PFX;
- 		break;
- 	case DASD_ECKD_CCW_READ_COUNT_MT:
-@@ -4498,7 +4537,7 @@ static int prepare_itcw(struct itcw *itcw,
- 	lredata->search_arg.record = rec_on_trk;
- 
- 	dcw = itcw_add_dcw(itcw, pfx_cmd, 0,
--		     &pfxdata, sizeof(pfxdata), total_data_size);
-+			   pfxdata, pfxsize, total_data_size);
- 	return PTR_ERR_OR_ZERO(dcw);
++	}
++out:
+ 	dasd_schedule_block_bh(cqr->block);
  }
  
+diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
+index 52f3859ef537..541b8eff647e 100644
+--- a/drivers/s390/block/dasd_eckd.c
++++ b/drivers/s390/block/dasd_eckd.c
+@@ -3120,32 +3120,43 @@ static int dasd_eckd_format_device(struct dasd_device *base,
+ 					     0, NULL);
+ }
+ 
+-static bool test_and_set_format_track(struct dasd_format_entry *to_format,
+-				      struct dasd_ccw_req *cqr)
++static bool test_and_set_format_track(sector_t start, sector_t end,
++				      struct dasd_ccw_req *cqr,
++				      struct dasd_block *block,
++				      struct dasd_device *device,
++				      struct dasd_format_entry **entry)
+ {
+-	struct dasd_block *block = cqr->block;
+-	struct dasd_format_entry *format;
++	struct dasd_format_entry *to_format, *format;
+ 	unsigned long flags;
+ 	bool rc = false;
++	int i = 0;
+ 
++	/* marked as a collision by dasd_return_cqr_cb last round: retry */
++	if (cqr && cqr->collision) {
++		cqr->collision = false;
++		return true;
++	}
+ 	spin_lock_irqsave(&block->format_lock, flags);
+-	if (cqr->trkcount != atomic_read(&block->trkcount)) {
+-		/*
+-		 * The number of formatted tracks has changed after request
+-		 * start and we can not tell if the current track was involved.
+-		 * To avoid data corruption treat it as if the current track is
+-		 * involved
+-		 */
++	while (i < DASD_NR_FORMAT_ENTRIES && device->format_entry[i].cqr)
++		i++;
++
++	if (i >= DASD_NR_FORMAT_ENTRIES) {
+ 		rc = true;
+ 		goto out;
+ 	}
++
+ 	list_for_each_entry(format, &block->format_list, list) {
+-		if (format->track == to_format->track) {
++		if (!(end < format->start_trk || format->end_trk < start)) {
+ 			rc = true;
+ 			goto out;
+ 		}
+ 	}
++	to_format = &device->format_entry[i];
++	to_format->start_trk = start;
++	to_format->end_trk = end;
++	to_format->cqr = cqr;
+ 	list_add_tail(&to_format->list, &block->format_list);
++	*entry = to_format;
+ 
+ out:
+ 	spin_unlock_irqrestore(&block->format_lock, flags);
+@@ -3153,13 +3164,16 @@ static bool test_and_set_format_track(struct dasd_format_entry *to_format,
+ }
+ 
+ static void clear_format_track(struct dasd_format_entry *format,
+-			      struct dasd_block *block)
++			       struct dasd_block *block)
+ {
+ 	unsigned long flags;
+ 
++	if (WARN_ON_ONCE(!block || !format))
++		return;
++
+ 	spin_lock_irqsave(&block->format_lock, flags);
+-	atomic_inc(&block->trkcount);
+ 	list_del_init(&format->list);
++	format->cqr = NULL;
+ 	spin_unlock_irqrestore(&block->format_lock, flags);
+ }
+ 
+@@ -3181,8 +3195,8 @@ static struct dasd_ccw_req *
+ dasd_eckd_ese_format(struct dasd_device *startdev, struct dasd_ccw_req *cqr,
+ 		     struct irb *irb)
+ {
++	struct dasd_format_entry *format = NULL;
+ 	struct dasd_eckd_private *private;
+-	struct dasd_format_entry *format;
+ 	struct format_data_t fdata;
+ 	unsigned int recs_per_trk;
+ 	struct dasd_ccw_req *fcqr;
+@@ -3201,7 +3215,6 @@ dasd_eckd_ese_format(struct dasd_device *startdev, struct dasd_ccw_req *cqr,
+ 	private = base->private;
+ 	blksize = block->bp_block;
+ 	recs_per_trk = recs_per_track(&private->rdc_data, 0, blksize);
+-	format = &startdev->format_entry;
+ 
+ 	first_trk = blk_rq_pos(req) >> block->s2b_shift;
+ 	sector_div(first_trk, recs_per_trk);
+@@ -3218,9 +3231,9 @@ dasd_eckd_ese_format(struct dasd_device *startdev, struct dasd_ccw_req *cqr,
+ 			      curr_trk, first_trk, last_trk);
+ 		return ERR_PTR(-EINVAL);
+ 	}
+-	format->track = curr_trk;
++
+ 	/* test if track is already in formatting by another thread */
+-	if (test_and_set_format_track(format, cqr)) {
++	if (test_and_set_format_track(curr_trk, curr_trk, cqr, block, startdev, &format)) {
+ 		/* this is no real error so do not count down retries */
+ 		cqr->retries++;
+ 		return ERR_PTR(-EEXIST);
+@@ -3232,17 +3245,27 @@ dasd_eckd_ese_format(struct dasd_device *startdev, struct dasd_ccw_req *cqr,
+ 	fdata.intensity = private->uses_cdl ? DASD_FMT_INT_COMPAT : 0;
+ 
+ 	rc = dasd_eckd_format_sanity_checks(base, &fdata);
+-	if (rc)
++	if (rc) {
++		if (format)
++			list_del(&format->list);
+ 		return ERR_PTR(-EINVAL);
++	}
+ 
+ 	/*
+ 	 * We're building the request with PAV disabled as we're reusing
+ 	 * the former startdev.
+ 	 */
+ 	fcqr = dasd_eckd_build_format(base, startdev, &fdata, 0);
+-	if (IS_ERR(fcqr))
++	if (IS_ERR(fcqr)) {
++		if (format)
++			list_del(&format->list);
+ 		return fcqr;
++	}
+ 
++	if (format) {
++		format->cqr = fcqr;
++		fcqr->format = format;
++	}
+ 	fcqr->callback = dasd_eckd_ese_format_cb;
+ 	fcqr->callback_data = (void *) format;
+ 
+diff --git a/drivers/s390/block/dasd_int.h b/drivers/s390/block/dasd_int.h
+index 0ca039126ae9..a7010f24eb41 100644
+--- a/drivers/s390/block/dasd_int.h
++++ b/drivers/s390/block/dasd_int.h
+@@ -545,9 +545,17 @@ struct dasd_profile {
+ 	spinlock_t lock;
+ };
+ 
++/*
++ * concurrent ESE format ranges in flight; also caps a WRITE_FULL_TRACK's
++ * track count, which the LRE track bitmask limits to 16
++ */
++#define DASD_NR_FORMAT_ENTRIES	16
++
+ struct dasd_format_entry {
+ 	struct list_head list;
+-	sector_t track;
++	struct dasd_ccw_req *cqr;
++	sector_t start_trk;
++	sector_t end_trk;
+ };
+ 
+ struct dasd_device {
+@@ -617,7 +625,7 @@ struct dasd_device {
+ 	struct dentry *debugfs_dentry;
+ 	struct dentry *hosts_dentry;
+ 	struct dasd_profile profile;
+-	struct dasd_format_entry format_entry;
++	struct dasd_format_entry format_entry[DASD_NR_FORMAT_ENTRIES];
+ 	struct kset *paths_info;
+ 	struct dasd_copy_relation *copy;
+ 	unsigned long aq_mask;
+@@ -834,6 +842,13 @@ static inline void *dasd_get_callback_data(struct dasd_ccw_req *cqr)
+ 	return cqr->callback_data;
+ }
+ 
++static inline bool dasd_req_conflict(struct dasd_ccw_req *cqr1,
++				     struct dasd_ccw_req *cqr2)
++{
++	return !(cqr1->format->end_trk < cqr2->start_trk ||
++		 cqr2->end_trk < cqr1->format->start_trk);
++}
++
+ /* externals in dasd.c */
+ #define DASD_PROFILE_OFF	 0
+ #define DASD_PROFILE_ON 	 1
 -- 
 2.53.0
 
