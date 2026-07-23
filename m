@@ -1,172 +1,189 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EC9D741378B;
-	Thu, 23 Jul 2026 13:12:46 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F10B3495518
+	for <linux-s390@vger.kernel.org>; Thu, 23 Jul 2026 13:36:58 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784812371; cv=none; b=GynuF3Y1XvokEp2BTnHctS/pblBL8rOTBGvYJtcANaKehlAnf+pedrca/bpStdvPo2wnPBp54RKzo6Dl3Ceuly+8SFzToANM++gO6EBy6YYgBcjXevHlqQ8pZUUX9xfO4CgyImTVIe3faSjJLnH71l7J4nsU6dScvVY2y5Ol+r4=
+	t=1784813823; cv=none; b=u4xQMYEp1/IGp9keQElH6gAFE9LF6brcziVvqGQkVL6M/Jaq9hASy5QearEKvrf88VFELKQGBtKy7e+TRt6MZpwx+7OO1mHzbWV0Q8ZsYR8nIaNJ/qFaP9x75k3i4kuzmQDNs7C73WXdNrWRPhSH3Xc1JTVFOvlvy4XaMTrO1HM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784812371; c=relaxed/simple;
-	bh=nPLm5vbtxa/6skrbj1WW4P9zeJMT2l37VJ8jwNPRY7s=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=EVyuaTS5eHtgncps77sqNpv+jb74FR3rLsPwl/sD8TEYWHHrCrnfczEl7I0C7EXHRoYmLOJk8FK8lFnQRt55SwMIhTZgvPq3o6jZLDRR5jK6I5ru1b9860EWgR7bfeJiHLVsCkTDo5BXSBXj2+1/b/DjrClxPtLE6uqxj4c04e0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=dSzISsx0; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1784813823; c=relaxed/simple;
+	bh=wA/swGMOWuhDXWYqhwXy5inrAGmrk/0a50gBsgDa1h0=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=dAqAcCGc5VyC8pEQyc3xrR1dwLCWpBQIt6yoneU/wk4lSL7BX5F++q0XeeSCuevJrE1M1Mr0IApRQyMiEgyfG4m0/ODG91aFHLCyN/NbHWj9Tjbkt18y3faW232/UnfHPM1BchHu23LHuHJgQI2SooOltEEOfoiPIFvCdVRff/Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=O+oXo32u; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="dSzISsx0"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66NDBdSO3106079;
-	Thu, 23 Jul 2026 13:12:30 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="O+oXo32u"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66NDBixI1210610
+	for <linux-s390@vger.kernel.org>; Thu, 23 Jul 2026 13:36:57 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=TPYGy/
-	xnl/LHU5WZ+btVhr5U4MM0vu15yaHT1tSjzbY=; b=dSzISsx0YtcWDLwJTYcVqt
-	U/JmKpQdSZ3l0JfPab/n0O81B2ShyuAvYlJvkjaGOngE61hf+/8YZihOnrj47PS5
-	H86PDdCs2UWMXnih94EYv9MaMK8yN3X+Ec0GqC9CrehVbXUGyGvvZoLQ1FteBO3I
-	mOP4BCzk2YvWgNEaXMO/D9EefTb8vFqwiavomBAFUWWAGG2qtJl3NaL9RT0eqiQ5
-	XCtjdSJ+Gq7bhI3fr1VVS6dWP3a1mKdYmbYPoH0FipB1reLVeK6qdIWVYFt0ELhK
-	TFuaGwxtr/FOyWtzjSmooMBEOFirbnP9HRDvaTp4DEhOLrTV1NjvfMOJikTsi4bg
-	==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fg7917na1-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 23 Jul 2026 13:12:29 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66ND54qS002423;
-	Thu, 23 Jul 2026 13:12:28 GMT
-Received: from smtprelay01.wdc07v.mail.ibm.com ([172.16.1.68])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fgp1gm2xv-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 23 Jul 2026 13:12:28 +0000 (GMT)
-Received: from smtpav06.wdc07v.mail.ibm.com (smtpav06.wdc07v.mail.ibm.com [10.39.53.233])
-	by smtprelay01.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66NDCQug5768176
+	:content-transfer-encoding:content-type:date:from:message-id
+	:mime-version:subject:to; s=pp1; bh=4oxxWhICXBuK32WQAMdLCOHVKQlS
+	qcteX6E09oo9znk=; b=O+oXo32uOSIfeEgBsUZvEd3kkO9uncgEjQJ29qPcYB0e
+	uqcJ/BtfcGcfHcnM27CJWXlXZEBL4ALHWJmDm0BTE4yzFK78RdySZiLUlYcduO+P
+	Fpu1VRU5q8hFe2+xPtNAaCnAWTzL2UDQaE1Sp5IGNABXj//OXpeRW/I3OloK8VgI
+	DPW2iOsAN0ePiLXUXXJ816Vjy2mece0StI1Uxqc7AjYlTRDuzWr1DP+oUkr+REd4
+	LDSzLiP/ND6GYFNz8L8tOBySAr3COejtSxWlaJTyT2HJRvfChCe1a+xmsTYwTUTM
+	o3kKkXodaKiLrto/7OoOha2HFPb/oCYJqclrnbLfJw==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fg77aqrwy-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Thu, 23 Jul 2026 13:36:56 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66NDYbc9021349
+	for <linux-s390@vger.kernel.org>; Thu, 23 Jul 2026 13:36:55 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fgnahcay4-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Thu, 23 Jul 2026 13:36:55 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66NDapjN47382900
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 23 Jul 2026 13:12:26 GMT
-Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7006D58055;
-	Thu, 23 Jul 2026 13:12:26 +0000 (GMT)
-Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 00E1458054;
-	Thu, 23 Jul 2026 13:12:19 +0000 (GMT)
-Received: from [9.124.222.188] (unknown [9.124.222.188])
-	by smtpav06.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 23 Jul 2026 13:12:18 +0000 (GMT)
-Message-ID: <afe502a5-7c42-4dbe-812b-9b072c819d25@linux.ibm.com>
-Date: Thu, 23 Jul 2026 18:42:16 +0530
+	Thu, 23 Jul 2026 13:36:51 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6B9952004B;
+	Thu, 23 Jul 2026 13:36:51 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 261DF20040;
+	Thu, 23 Jul 2026 13:36:51 +0000 (GMT)
+Received: from [192.168.2.127] (unknown [9.111.15.158])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 23 Jul 2026 13:36:51 +0000 (GMT)
+From: Mete Durlu <meted@linux.ibm.com>
+Date: Thu, 23 Jul 2026 15:36:43 +0200
+Subject: [PATCH] s390/smp: Reflect (de)configured CPUs to cpu_enabled_mask
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net v1] net/smc: fix socket use-after-free during link
- group termination
-To: xuanqiang.luo@linux.dev, netdev@vger.kernel.org
-Cc: alibuda@linux.alibaba.com, dust.li@linux.alibaba.com,
-        sidraya@linux.ibm.com, wenjia@linux.ibm.com, tonylu@linux.alibaba.com,
-        guwen@linux.alibaba.com, davem@davemloft.net, edumazet@google.com,
-        kuba@kernel.org, pabeni@redhat.com, horms@kernel.org,
-        kgraul@linux.ibm.com, ubraun@linux.ibm.com, linux-rdma@vger.kernel.org,
-        linux-s390@vger.kernel.org, Xuanqiang Luo <luoxuanqiang@kylinos.cn>,
-        stable@vger.kernel.org
-References: <20260723105454.87016-1-xuanqiang.luo@linux.dev>
-Content-Language: en-US
-From: Mahanta Jambigi <mjambigi@linux.ibm.com>
-In-Reply-To: <20260723105454.87016-1-xuanqiang.luo@linux.dev>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Message-Id: <20260723-enabled_cpus-v1-1-3a2cbdc374b0@linux.ibm.com>
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/6tWKk4tykwtVrJSqFYqSi3LLM7MzwNyDHUUlJIzE
+ vPSU3UzU4B8JSMDIzMDcyND3dS8xKSc1JT45ILSYl0TI7NUU2NTA7NkMwMloJaCotS0zAqwcdG
+ xtbUAQ5UrG14AAAA=
+X-Change-ID: 20260721-enabled_cpus-426e53506c60
+To: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Ilya Leoshkevich <iii@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, Mete Durlu <meted@linux.ibm.com>
+X-Mailer: b4 0.14.3
 X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-ORIG-GUID: kCVMwniQao9_0EbLoLk5cxzWHwZUUhhP
-X-Authority-Analysis: v=2.4 cv=V6RNF+ni c=1 sm=1 tr=0 ts=6a62133e cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+X-Proofpoint-ORIG-GUID: sq-avPOzWux5SgPeSc730i3JvE7hHDeY
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzIzMDEzMCBTYWx0ZWRfX+FHFJMf7QDzc
+ 2vupALJL3PJSnP9Tg5MJqHFkLdjk0/1qVAmGpM/jt84Mong3/DUsGmpNmHG3hJ8uGYLpBALEzmY
+ RzRYugeAbsZX+hxyLiV9qNzgsPHVK5I=
+X-Proofpoint-GUID: sq-avPOzWux5SgPeSc730i3JvE7hHDeY
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzIzMDEzMCBTYWx0ZWRfX0VLjjTPu7NPS
+ Cyu1B2PB9S29oek9aZCcj5jp80VdOTlh+N/pUO5ypyOMsraIMUoN6U4oiqZb7yVkeo4jCtZBYWP
+ Askcmi8Uqa2LU12ajmXmn7lPKIdE5L61kLoYfHsK/5okXxNXCM97ie/jBXVWgplYrQUnaGUx7+J
+ PlIBpAEa5yUUaHCjBUymtkD3N49SrsTC3YDHANfyxMLdrsDeAB4nt/4N7S9UQHO8Q43Vx57RR/v
+ JJjfO4ZtiTWFByPetHRw+kc5k0WDFf3/FxrZdU7XQW6H+WI69xatI48Lh5o0+OXzu+w1KkG9B6g
+ aFk3O7F1NixGZ/hFmkG8+uWGWfM3V/rlV9hXTJlOvkiE61JJ2BhTc36wAMR0eJkGaVsNQBJQgoJ
+ t+BXJT9jShfQlUmBy7bUkpVeYZNse06jGVyXJYzGS9w5eKmab6U/6FaUvhaGUpoDVcLlYuEAhep
+ c5LmoAJPwpQ+NMoBDVw==
+X-Authority-Analysis: v=2.4 cv=K7AS2SWI c=1 sm=1 tr=0 ts=6a6218f8 cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
  a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=VwQbUJbxAAAA:8
- a=VnNF1IyMAAAA:8 a=dY3EYeySmlwgit32IBUA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzIzMDEzMCBTYWx0ZWRfXx9LxDrli9SQh
- cik11bINIZpIBYumHSvVvj9NpfypiXm58yK5BxZRAdkvfnpg3zHDhBuCWmx5OiYSgDKoIbnBldN
- qSm8fyCFB83Vnotv92MchGdYd9L6/ZA=
-X-Proofpoint-GUID: tzS-avqFSH9MMflmHcByKNWOwiI3Ryka
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzIzMDEzMCBTYWx0ZWRfX3FAkIuMLJjf5
- YAS1/vniHp5Gd9gTTn5JGClzYLfTaFiaALuwLNyDKx5+kzoBLaOj3zTPhfbGMhR7llb7HJoxPnO
- 8V7ldPmz+V5loc3BHuAHJ0KKgnclCrl4HkgWXalDfDUyzs+xoOYN2ePDX5SdzBoRvstGNp9+1zC
- x38JoFCPd2uEopoYVQuRp76Qc5gu5cXSK5YvpGmAtsQVQMwcESABpvqExk77kG85A9Rgi97Y6m+
- MC3WYckd6eYIElmEOJ41Kr0Kpr6g3DzSjjxdjeFoZC1u/josPoitT+Ym1Ak63rU/tXVGOZDqUTp
- VwWfMBwCozYOxLEUnKLcAdvDGZqgsU5EfKw+vH2/jcSX2qsvm4Wkes9+RTr3alt1RbZuBmBfsTl
- gB3H6pFeKfsVqT4ptYPcpCzyNc7uROAEAMuJS84nIWPpZ+u4kXUOnygEMmSevUMjSpZsnAlOfyk
- n46/xAreY0HJasvHDuQ==
+ a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8
+ a=iX68x9PPo-yUIqnrTLMA:9 a=QEXdDO2ut3YA:10
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-07-23_04,2026-07-22_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 adultscore=0 bulkscore=0 lowpriorityscore=0 clxscore=1011
- spamscore=0 impostorscore=0 phishscore=0 priorityscore=1501 suspectscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607230130
+ lowpriorityscore=0 suspectscore=0 bulkscore=0 clxscore=1015
+ priorityscore=1501 spamscore=0 phishscore=0 malwarescore=0 adultscore=0
+ impostorscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2607230130
 
+On s390, CPUs can be in a state where it is not possible to hotplug
+them online before certain prequisite steps. For example the CPUs which
+get introduced during runtime of a system can posses a "deconfigured"
+state which prevents them from being hotplugged online before they get
+configured. Another case is when users set the configured state of CPUs
+themselves via "chcpu" or sysfs attributes.
 
+On s390 available CPUs are being registered as new devices via
+smp_add_core() either during boot or after a CPU rescan (for newly added
+CPUs during runtime). Registered CPUs are marked as enabled without
+considering the configure states. Add necessary checks to smp_add_core()
+and userspace configure attribute handler. Reflect the configured CPUs
+to cpu_enabled_mask to correctly represent which CPUs can be hotplugged
+online.
 
-On 23/07/26 4:24 pm, xuanqiang.luo@linux.dev wrote:
-> From: Xuanqiang Luo <luoxuanqiang@kylinos.cn>
-> 
-> __smc_lgr_terminate() drops conns_lock after finding a connection in
-> lgr->conns_all, but before taking a reference on its socket. The connection
-> is embedded in the socket, and its registration reference protects it only
-> while the connection remains in the tree.
-> 
-> A concurrent close can unregister the connection and drop that reference,
-> freeing the socket before the termination worker reaches sock_hold().
-> 
-> The race is reachable when close overlaps link group termination.
-> Local stress testing reproduced the use-after-free and KASAN reported:
-> 
->   BUG: KASAN: slab-use-after-free in __smc_lgr_terminate.part.0 [smc]
->   Write of size 4 by task kworker/3:3
->   Workqueue: events smc_lgr_terminate_work [smc]
->   __smc_lgr_terminate.part.0 [smc]
-> 
-> The socket was allocated by smc_create(), freed through
-> slab_free_after_rcu_debug(), and was followed by:
-> 
->   refcount_t: addition on 0; use-after-free.
->   __smc_lgr_terminate.part.0 [smc]
-> 
-> Take the socket reference while conns_lock still protects the tree entry.
-> The unregister path then cannot drop the last reference until termination
-> has finished using the socket.
+Signed-off-by: Mete Durlu <meted@linux.ibm.com>
+---
+4e1a7df45480 ("cpumask: Add enabled cpumask for present CPUs that can
+be brought online") introduces a new cpumask to signify which CPUs can
+be hotplugged online at a given time.
 
-The race description and fix look correct to me. Taking the socket
-reference before dropping *conns_lock* closes the window where a
-concurrent close can free the socket before sock_hold().
+Originally the concept is introduced to reflect CPUs which are being
+kept offline by firmware decisions. For s390 the configure state of the
+CPUs matches this concept. CPUs can assume configured or deconfigured
+state. When a CPU is in deconfigured state, it cannot be brought online
+util it is back in configured state.
+ 
+On s390 available CPUs are being registered as new devices via
+smp_add_core() either during boot or after a CPU rescan (for newly added
+CPUs during runtime). Registered CPUs are marked as enabled without
+considering the configure states. Add necessary checks to smp_add_core()
+and userspace configure attribute handler. Reflect the configured CPUs
+to cpu_enabled_mask to correctly represent which CPUs can be hotplugged
+online.
+---
+ arch/s390/kernel/smp.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-> 
-> Fixes: 69318b5215f2 ("net/smc: improve abnormal termination locking")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Xuanqiang Luo <luoxuanqiang@kylinos.cn>
+diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
+index 0ba7f89b8161..e0c9480c7bd2 100644
+--- a/arch/s390/kernel/smp.c
++++ b/arch/s390/kernel/smp.c
+@@ -1039,6 +1039,7 @@ static ssize_t cpu_configure_store(struct device *dev,
+ 			per_cpu(pcpu_devices, cpu + i).state = CPU_STATE_STANDBY;
+ 			smp_cpu_set_polarization(cpu + i,
+ 						 POLARIZATION_UNKNOWN);
++			set_cpu_enabled(cpu + i, false);
+ 		}
+ 		topology_expect_change();
+ 		break;
+@@ -1054,6 +1055,7 @@ static ssize_t cpu_configure_store(struct device *dev,
+ 			per_cpu(pcpu_devices, cpu + i).state = CPU_STATE_CONFIGURED;
+ 			smp_cpu_set_polarization(cpu + i,
+ 						 POLARIZATION_UNKNOWN);
++			set_cpu_enabled(cpu + i, true);
+ 		}
+ 		topology_expect_change();
+ 		break;
+@@ -1091,6 +1093,7 @@ bool arch_cpu_is_hotpluggable(int cpu)
+ 
+ int arch_register_cpu(int cpu)
+ {
++	struct pcpu *pcpu = per_cpu_ptr(&pcpu_devices, cpu);
+ 	struct cpu *c = per_cpu_ptr(&cpu_devices, cpu);
+ 	int rc;
+ 
+@@ -1104,6 +1107,8 @@ int arch_register_cpu(int cpu)
+ 	rc = topology_cpu_init(c);
+ 	if (rc)
+ 		goto out_topology;
++	if (pcpu->state != CPU_STATE_CONFIGURED)
++		set_cpu_enabled(cpu, false);
+ 	return 0;
+ 
+ out_topology:
 
-Reviewed-by: Mahanta Jambigi <mjambigi@linux.ibm.com>
+---
+base-commit: 1590cf0329716306e948a8fc29f1d3ee87d3989f
+change-id: 20260721-enabled_cpus-426e53506c60
 
-> ---
->  net/smc/smc_core.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-> index cf6b620fef05f..b4208cb186c5e 100644
-> --- a/net/smc/smc_core.c
-> +++ b/net/smc/smc_core.c
-> @@ -1572,10 +1572,10 @@ static void __smc_lgr_terminate(struct smc_link_group *lgr, bool soft)
->  	read_lock_bh(&lgr->conns_lock);
->  	node = rb_first(&lgr->conns_all);
->  	while (node) {
-> -		read_unlock_bh(&lgr->conns_lock);
->  		conn = rb_entry(node, struct smc_connection, alert_node);
->  		smc = container_of(conn, struct smc_sock, conn);
->  		sock_hold(&smc->sk); /* sock_put below */
-> +		read_unlock_bh(&lgr->conns_lock);
->  		lock_sock(&smc->sk);
->  		smc_conn_kill(conn, soft);
->  		release_sock(&smc->sk);
+Best regards,
+-- 
+Mete Durlu <meted@linux.ibm.com>
 
