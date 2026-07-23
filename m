@@ -1,201 +1,250 @@
-Received: from OSPPR02CU001.outbound.protection.outlook.com (mail-norwayeastazon11013053.outbound.protection.outlook.com [40.107.159.53])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA65445D1AF;
-	Thu, 23 Jul 2026 17:03:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.159.53
-ARC-Seal:i=3; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784826192; cv=fail; b=SZvyqIxs+NTbqZ9r9Wv7iC1vSu7ZhgjmCsnWJBElomt0IuGLVxUxb6HQ+bI/DhiS9SAOyCgPciGfYTybEPbmf7bawWEJTe58sY+C9bnQLqiHdRtedWpg6XKKqqZcKnbc8i05rBUbEEWiQhSnhuiOhRpbVyTIVMRmQ/uHvfKp2Yw=
-ARC-Message-Signature:i=3; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784826192; c=relaxed/simple;
-	bh=AK/im+nQZPV7XcQT0ugsqDjUSuRW0KREpQvbpcLADWM=;
-	h=Message-ID:Date:Cc:Subject:To:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=YePxhNErolyn8dhu2ts8pCsfnY+C6xrIkmZrjQGPYgHWTsUEmT0x0guub8kI45opx2n6tSN2qcBMSL3TOgnyCDNFiDB0P3Qvo3L+3ySPddcuBbFUWdEeYinFM9y8ZXZrmwMLATd/k8YgAU+0pYQ240g4Rha5Bc5dkkbaUALKiEM=
-ARC-Authentication-Results:i=3; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=l7Pj1zdg; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=l7Pj1zdg; arc=fail smtp.client-ip=40.107.159.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0CF304734C5;
+	Thu, 23 Jul 2026 17:08:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1784826516; cv=none; b=Qb/Ict+tOyOssI5pXJzD8g9H/D4FTeISTlQbP5bzyKrHjNiaP/OFxVJ6gZVUpUCDiPqEWILzSVylU6lHc6ZEehKkM2mb3edH3BvQRpJFaJ2W3ne9jCO+cA/NFAvMtRj0TmrIF5obTERcBcT5gpg4X3scwGjEgurujMiiG83rKpU=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1784826516; c=relaxed/simple;
+	bh=dUEaW8W/I6lFsqVbQooA22UoSHplbQ/G39DHIHvLzT0=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=o0V14++PWXyI/MCyY5F5sXg97t7cWn36dOsXf1PzRe09jSaB97gGSZjVdHJ4U86IwzctPqIX9Nvcy6Xb8+af/D3gg6bVTiWxsjdE2CFU6Z3kry54kTcWI2gyY1TKLF9LOSl0HRWAHp7yuU1aPaMq5nqPM7Z5sCKB7VJgU1isAZo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Yna/pYh+; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="l7Pj1zdg";
-	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="l7Pj1zdg"
-ARC-Seal: i=2; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=pass;
- b=SSMgymGLfw8ekxZfNkpFlNrJtBwGctc0MkmgIge4PJuzSBaM3+EwCKz4yV85SPAtrY0sGxad3djG5hqf/vmRqLuhUcqMKuxLJn0JKaOcgiaYKQAJub+fL5inkjL3GUz9sWr7VPVTn2yivjTG8JVkkqLpBvma4PKgNY482TEFWQhNW+FUbe7ektLTpThWzskkXuDQm3PMqXlklFePUC/4pSVFHom+IsAHN/NlEBnXvagN3TFR3VR7A2GkDth+4+7JyDIPu5UDmqGKxG7saVH8KleUeo7UpOolgIZKU7XuobnOb8/QEvHuTcHiJndM/eL+c2Gu+A9NqZ/Jw8Jggdq6uQ==
-ARC-Message-Signature: i=2; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=0RzewoZLDE2rAlD15CzIQzW0NEiPr58IQ8Fi4keIROY=;
- b=CLeQO3RDmexaDVCDtzIjMiXtOupzUjr6hFfb2pva5ggPMYZJhs5HOGal7e1SkYNTTFtiB1SZ0UbBO6HVvIe5D/E9u0JCU5BEtlPm/tkpmNwO0yrN4CTO+2qLzcsBfVlM+3KhSN7rZKwrFAr90yb2YYL9CkHYuHIKe9+jRL8SLB5I3kyRCEu73lQjH6l19wNtrKUC51AB2b5MNtV/7HsP0sFZt8hl5BwtMJoFSj8PgH1BhVTRePtAkonRwS+/QONHarzx2m+k41fQt4Ro4wsLGSKVDhIc3yHTcEYc1129tIw9z/dpmAA09LVI32pFwSpzYmmhcIn9x4x8HqFuVoFsow==
-ARC-Authentication-Results: i=2; mx.microsoft.com 1; spf=pass (sender ip is
- 4.158.2.129) smtp.rcpttodomain=kernel.org smtp.mailfrom=arm.com; dmarc=pass
- (p=none sp=none pct=100) action=none header.from=arm.com; dkim=pass
- (signature was verified) header.d=arm.com; arc=pass (0 oda=1 ltdi=1
- spf=[1,1,smtp.mailfrom=arm.com] dkim=[1,1,header.d=arm.com]
- dmarc=[1,1,header.from=arm.com])
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arm.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=0RzewoZLDE2rAlD15CzIQzW0NEiPr58IQ8Fi4keIROY=;
- b=l7Pj1zdgY84smYMC3AnEJwcDVKYtFlO+zmISQi9PWBB4LivQQRJ0dAN8zcdgyHsf+R2SU1KifjIiujjcWi0ZK615b656qtIbHy7PtLhARk1Cs5iN7guz7FZv7y2Tf/DsYp6/6d1Vxd3FegI39Sttf3QGLKke05TJr0Czp5iCtMs=
-Received: from AS9PR06CA0060.eurprd06.prod.outlook.com (2603:10a6:20b:463::26)
- by AMDPR08MB11508.eurprd08.prod.outlook.com (2603:10a6:20b:719::12) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.245.11; Thu, 23 Jul
- 2026 17:02:54 +0000
-Received: from AM3PEPF0000A79A.eurprd04.prod.outlook.com
- (2603:10a6:20b:463:cafe::37) by AS9PR06CA0060.outlook.office365.com
- (2603:10a6:20b:463::26) with Microsoft SMTP Server (version=TLS1_3,
- cipher=TLS_AES_256_GCM_SHA384) id 15.21.245.11 via Frontend Transport; Thu,
- 23 Jul 2026 17:02:54 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 4.158.2.129)
- smtp.mailfrom=arm.com; dkim=pass (signature was verified)
- header.d=arm.com;dmarc=pass action=none header.from=arm.com;
-Received-SPF: Pass (protection.outlook.com: domain of arm.com designates
- 4.158.2.129 as permitted sender) receiver=protection.outlook.com;
- client-ip=4.158.2.129; helo=outbound-uk1.az.dlp.m.darktrace.com; pr=C
-Received: from outbound-uk1.az.dlp.m.darktrace.com (4.158.2.129) by
- AM3PEPF0000A79A.mail.protection.outlook.com (10.167.16.105) with Microsoft
- SMTP Server (version=TLS1_3, cipher=TLS_AES_256_GCM_SHA384) id 15.21.270.5
- via Frontend Transport; Thu, 23 Jul 2026 17:02:53 +0000
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=U/A3n3hkhjq4QFpLYjDllwPBcRmmrhnI67RzIBOwUyHwUXXL2BRTZWYL8MSyqRLNqffwwGx5hSmz6tAobVExOoYetuZWOAP9mMJFhmsocw5ACUDrnQDZ2ke/p99MBroWVaUUXQ3D7he2esYbaHQooo96flB4whwP58LF3XWh6UgvnnHRTrKBtl5hhyl5bMJmNYQg3J0mCwI3S3AMLEFtlmoJeJmBectnm6+H+SNGeHUi24pwYCWs3YTx9HV6fN1wPaE4Vw5J2K3sXd5g6MvEA2LaikoaSzWNq7Y20iCLy8jX61YEE+cy3LIVVTPG2BknSGDv/p8vZqRs72gTQ6PJTQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=0RzewoZLDE2rAlD15CzIQzW0NEiPr58IQ8Fi4keIROY=;
- b=MQuxA6wapgtqpLLhFAY/3oSuyhBA/VTP2Mb86QBnCtUVIuDHoshtoVqMk4H/U1v9VxXn5sgGFUSIuiiGGw7jEaQ8mAUF/5jyByMieZfMP7QA9kVkvU5VGeiI3BBOz+SqI1feqAqa4qgOqo1V7a6/YcE2PkUpKhXsZmLSmAPM8LmxSwjx37mOhFz/Q5cfwEsWGGvKjTVwRbsgmtn148AYiLew2PRy3yqwvD2g1uOE78l8/n627FyIetnc9PBKOODA/iNPPLZSQJ8g6SqLEiAEXTcuVesUZOGj33gKyDHwvS+q2Uy72N547f2J4SLGfpeHCZjrbiC9kmZe7I4luOm4RQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=arm.com; dmarc=pass action=none header.from=arm.com; dkim=pass
- header.d=arm.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arm.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=0RzewoZLDE2rAlD15CzIQzW0NEiPr58IQ8Fi4keIROY=;
- b=l7Pj1zdgY84smYMC3AnEJwcDVKYtFlO+zmISQi9PWBB4LivQQRJ0dAN8zcdgyHsf+R2SU1KifjIiujjcWi0ZK615b656qtIbHy7PtLhARk1Cs5iN7guz7FZv7y2Tf/DsYp6/6d1Vxd3FegI39Sttf3QGLKke05TJr0Czp5iCtMs=
-Authentication-Results-Original: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=arm.com;
-Received: from VI1PR08MB3421.eurprd08.prod.outlook.com (2603:10a6:803:80::16)
- by PAWPR08MB10973.eurprd08.prod.outlook.com (2603:10a6:102:468::9) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.245.10; Thu, 23 Jul
- 2026 17:01:51 +0000
-Received: from VI1PR08MB3421.eurprd08.prod.outlook.com
- ([fe80::e079:6bd:fbe0:89b4]) by VI1PR08MB3421.eurprd08.prod.outlook.com
- ([fe80::e079:6bd:fbe0:89b4%3]) with mapi id 15.21.0245.009; Thu, 23 Jul 2026
- 17:01:51 +0000
-Message-ID: <47b4e62e-b001-465c-9c3b-ea0636925387@arm.com>
-Date: Thu, 23 Jul 2026 18:01:49 +0100
-User-Agent: Mozilla Thunderbird
-Cc: usama.anjum@arm.com, Zi Yan <ziy@nvidia.com>,
- Pedro Falcato <pfalcato@suse.de>, Ryan Roberts <ryan.roberts@arm.com>,
- Lorenzo Stoakes <ljs@kernel.org>, linux-mm@kvack.org,
- linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
- Andrew Morton <akpm@linux-foundation.org>,
- "Liam R. Howlett" <liam@infradead.org>, Mike Rapoport <rppt@kernel.org>,
- Anshuman Khandual <anshuman.khandual@arm.com>,
- Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
- Samuel Holland <samuel.holland@sifive.com>, linux-s390@vger.kernel.org
-Subject: Re: mm: opaque hardware page-table entry handles
-To: "David Hildenbrand (Arm)" <david@kernel.org>,
- Alexander Gordeev <agordeev@linux.ibm.com>
-References: <74182e50-b54f-4d2d-a27f-3a59a538d6bc@arm.com>
- <31d36023-d728-4eee-90f8-158c7066f565@kernel.org>
- <e22407d8-4509-4a53-9ba4-491b9d5c5ef7@arm.com>
- <4bfeb697-9c1f-4316-96bb-9bfd66f959df@kernel.org>
- <6110202c-057b-4701-8c04-1a76ee7bb9ab@arm.com>
- <20260721124057.2820903Adf-agordeev@linux.ibm.com>
- <3c21586c-0ffe-4ebc-97f1-803e8acfc5c1@arm.com>
- <716f73c1-41cc-48a5-b0e1-a47403a30da1@kernel.org>
-Content-Language: en-US
-From: Muhammad Usama Anjum <usama.anjum@arm.com>
-In-Reply-To: <716f73c1-41cc-48a5-b0e1-a47403a30da1@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: LO3P123CA0032.GBRP123.PROD.OUTLOOK.COM
- (2603:10a6:600:388::8) To VI1PR08MB3421.eurprd08.prod.outlook.com
- (2603:10a6:803:80::16)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Yna/pYh+"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66NDC2S33015582;
+	Thu, 23 Jul 2026 17:08:34 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=2NfAV/
+	u4b+IoWFkn7yKzWuRr4MkBW+pOP6m5YwXO/7Q=; b=Yna/pYh+OBnIqlUrcNR3Q7
+	GigkqUxc+pn0LDyOmB/SacsmCUF3pkuqFSpPVgd2i/M6vAC9HG5Zzfrn1u1LB/6I
+	Aow2RPGu5tQhAfKqtOUmfathbN0qj4bCQJ5gvvWo3W1oMYyVqmgnR5Qw1VhWzPSd
+	h7s9kpH1txkeztG28XnZzco+Gbc3LpqTXLvxvKQjR6pZx1M+SBYtOu45tI8DAxEf
+	CJHS3x7xx8Anvjjf/wwoiN3tNLe1Ma4/ES32RkOdX2vXtBgOxhSpuoWv+m4PrtDq
+	4/szw+6r3JtrYp2yLxd5IMqP6BuuwWDvedSV9upKMQm7VCoGtIBC/oc282VwOhjQ
+	==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fg77kg5b9-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 23 Jul 2026 17:08:33 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66NH4bVO022369;
+	Thu, 23 Jul 2026 17:08:32 GMT
+Received: from smtprelay04.dal12v.mail.ibm.com ([172.16.1.6])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fgktqdbta-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 23 Jul 2026 17:08:32 +0000 (GMT)
+Received: from smtpav06.dal12v.mail.ibm.com (smtpav06.dal12v.mail.ibm.com [10.241.53.105])
+	by smtprelay04.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66NH8Wnq64553322
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 23 Jul 2026 17:08:32 GMT
+Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 097F258055;
+	Thu, 23 Jul 2026 17:08:32 +0000 (GMT)
+Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8F66A58043;
+	Thu, 23 Jul 2026 17:08:31 +0000 (GMT)
+Received: from [9.61.254.118] (unknown [9.61.254.118])
+	by smtpav06.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 23 Jul 2026 17:08:31 +0000 (GMT)
+Message-ID: <3950a0e4-3074-44af-a1d1-d38ee3391c0f@linux.ibm.com>
+Date: Thu, 23 Jul 2026 10:08:31 -0700
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-TrafficTypeDiagnostic:
-	VI1PR08MB3421:EE_|PAWPR08MB10973:EE_|AM3PEPF0000A79A:EE_|AMDPR08MB11508:EE_
-X-MS-Office365-Filtering-Correlation-Id: 3fe14330-8f29-4ebb-25a2-08dee8dc3c78
-x-checkrecipientrouted: true
-NoDisclaimer: true
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam-Untrusted:
- BCL:0;ARA:13230040|1800799024|366016|7416014|376014|23010399003|18002099003|22082099003|4143699003|11063799006|10067099003|56012099006;
-X-Microsoft-Antispam-Message-Info-Original:
- Cawm+FfjxnM7wLmzkgmEVFXFTZY0YMsJgthdJttvTxqwDA5xuCycNi6R0G7KFF5dHthH9JmLeFJswuMztpPii8MhndUDDmS9lmi6MKJSr5P4q7VLfzfgonjnU7JVKt+mAqTXSepIFq3Bnf42ltnM2MMDqVT9ov96aTF84di34SiCvteu80UXn4Uk4oXPq4tUvBbeW4GOOZufJhZDpY9rMt2K8kEWnsdhIvb5XplqAaC1f2o2ucUr1YO1OnCVSSWgFLqJ21XCGlZRW74mjH64Dzlxt8a33yc1DxhoPacy6vhDDwRea8DxgBwUJR2HqTe4XuuP6S5t6PBTZrrKjI2UKuxxs2/3Ia1j8IKEiiWPVv8AZA13AnY5CorVmQlPaFy2E7Vhacp3C8khoeMySqqO6ThPU4EqCn9KJ9+/w0hxojk5wU+8dLxsj2IiA4O/Y/ASjQ3yVBYfi0AwFCzKUvxa1bCluGnNlkW3JvGp2GTVSW8AzSK4N7J6COyK79tYOMF0uKRL8N/QYOFleIL9Tp/l9L60JrQsrkfTskSVyv7LlAkCayDHgeokFrQsCtO8eXyBblMjSnmQHfeJkdlfOkfYT/BbXusH/k/VDktrw79ZwRBpp55i6VxWZnqNlrLYkf01hnoiq73hoJWAvFgF03nNUHithYsAWt75cv4BgxsMa/Y=
-X-Forefront-Antispam-Report-Untrusted:
- CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:VI1PR08MB3421.eurprd08.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(7416014)(376014)(23010399003)(18002099003)(22082099003)(4143699003)(11063799006)(10067099003)(56012099006);DIR:OUT;SFP:1101;
-X-Exchange-RoutingPolicyChecked:
- gQh8vBYgSPdVTncSOL3f6FF4kgNP/WGQsGezgKIawLZu8+5MJcyP6iQdEahY5QBUIru/pc3+DvVGlVx9e0YrYAicoYnhh6FblZcQ75F9Qje+JulMoZfX16SQU6+EFajThApylUp+wqUmgf/9t5g8292JVGYOISy+1rhiI9e80WhEeWirQNuXNlOvY3mF01QmByxRbpcXryJAfGsorpfq6AG9OxUK8cuTwF5zim0WbFGDhJmJJak10wNNpy8OD0R/kFEHd1tOe3Ozeu/FOpFQEeOo2MJtN4Fh1t/01FX5XJ3uUWZYkwdUt4ZjuhIt9osuLj39uyTZp5RAcDEmal3ZHw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PAWPR08MB10973
-X-EOPAttributedMessage: 0
-X-MS-Exchange-Transport-CrossTenantHeadersStripped:
- AM3PEPF0000A79A.eurprd04.prod.outlook.com
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id-Prvs:
-	7160bd6c-6af5-4e81-3b22-08dee8dc1703
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|23010399003|36860700016|7416014|14060799003|35042699022|82310400026|376014|1800799024|4143699003|56012099006|11063799006|10067099003|18002099003|22082099003;
-X-Microsoft-Antispam-Message-Info:
-	HCQMKbyDfOmNIiKHLzXGPrsIXJpb1dVgcal8fl7qnCm1qqO8wom0SQmMYG63eLrIj/L/jILL4U/jaURe9VNelfI7lMw0do4OUX2ODenR/KUgH/vM4uW/6qEhhyXxox/KEvCG6enP65R5AJWSvXrySkWMnstN2hiQUhw3IRdlRk0ZJTx7OaOyROftjfvY1pYCl8WsfwTxGga/K1GaS/6y0V+ACRDZFLUYEW+UPwa5A8jmuVEisWCPXjt5G1bgJ7bQAjllAgRzMl6avrPWLBbM8IIoZ6XFlns2HqUfctQA4pZUJEfzVz+QU0TYJbn3DWHgWOaTVX5RBl6PG/AmuF3EVj/VNJ+5zJnnL4CCCDZoiFAAoyx9AlPa2nDqK0uPZR79Xgm/TuxBTKnf9GhcExuB4FvMM5BpC0YKIMuxZiyT9yjUapDMzJxJfPF5O7nZftdLq9xd/1LQNkT4pg10gXCDHaO2EfJ+FEfYiKYI2INji9il0gepSH1suuiiXTVDhNkbGI/TxpehG7AeXL6yBzo3J/9Sey1VMXswcvAvl92nPSq8fYrXGgfvy/jJqvGeNUN0/9BVyo3Z2CNSgchc7H0yacvw4/rZ5ecDvbW+0jGQjElJ3SwLeirEqJMP8e5mCfsBeyDv6ZBH5xEfIjzizevY2gqbjxQ2jFU88TOpzAFlSbRxGVAhTD0XmlLrUfnqMeCjUBuX3BiG1lxaE3FveyqcKA==
-X-Forefront-Antispam-Report:
-	CIP:4.158.2.129;CTRY:GB;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:outbound-uk1.az.dlp.m.darktrace.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(23010399003)(36860700016)(7416014)(14060799003)(35042699022)(82310400026)(376014)(1800799024)(4143699003)(56012099006)(11063799006)(10067099003)(18002099003)(22082099003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	EfROl10OGV8zCSeqHdPpYq3ow2lVeSGecm/impmA7wzt+LPtapgiruEXBa8tVCWtQa7Rxvu6FZuP28hnoyDYAyU9J/b+0Ulp1UhgKRCjm52S3QtpNcSJ6w4MyLzSI+pQ64UIbarpM2FPPozLn+dpU+qVEdz+0Ze1Xfb8dvYamBXhL8xCtgmxwKC6K1vWrrR7jnYiYh1Zd8sIlcBFGBR7o0j8Q24AybgkE8QGtFpRik5NpH70iC8M38a1QHdMNcKUYzWxU1U2wy1Nshdb9zPdF6+OdteHE/I+rO5lxQ9e0v79YnNt4VDPGQRB/nsiMkabJB3WlspwmVBM+QdI65XoRrjsDQ0lU/XOOujpa5saJE2rKarEyT0/hOWprLRU7Tap4h/vW8+p0k7MHmGfWpdpwcm+0PuskK1kiKr8XFbGnxu2RDHKmkpeCqKxXVva+M40
-X-OriginatorOrg: arm.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 23 Jul 2026 17:02:53.7252
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 3fe14330-8f29-4ebb-25a2-08dee8dc3c78
-X-MS-Exchange-CrossTenant-Id: f34e5979-57d9-4aaa-ad4d-b122a662184d
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=f34e5979-57d9-4aaa-ad4d-b122a662184d;Ip=[4.158.2.129];Helo=[outbound-uk1.az.dlp.m.darktrace.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	AM3PEPF0000A79A.eurprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: AMDPR08MB11508
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v4 2/6] KVM: s390: pci: Fix memory accounting for
+ pinned/unpinned pages
+To: Matthew Rosato <mjrosato@linux.ibm.com>, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, kvm@vger.kernel.org
+Cc: borntraeger@linux.ibm.com, farman@linux.ibm.com
+References: <20260722170621.1686-1-alifm@linux.ibm.com>
+ <20260722170621.1686-3-alifm@linux.ibm.com>
+ <6f87bda7-8a8a-4f93-907c-6e0a442c8ceb@linux.ibm.com>
+Content-Language: en-US
+From: Farhan Ali <alifm@linux.ibm.com>
+In-Reply-To: <6f87bda7-8a8a-4f93-907c-6e0a442c8ceb@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=HJXz0Itv c=1 sm=1 tr=0 ts=6a624a91 cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+ a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=P-IC7800AAAA:8
+ a=VnNF1IyMAAAA:8 a=s7El_Fc1KRag8uzhLH4A:9 a=QEXdDO2ut3YA:10
+ a=d3PnA9EDa4IxuAV0gXij:22
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzIzMDE2NCBTYWx0ZWRfX8HpV4aw/3yqc
+ ys0AurZsmfsDJ9Sdi8d9BBHRcuh8kjpHXmafeCDJITfQBTeM18MGXVqn7ydhYZkUnjg66D166b+
+ 0N0Hre47x4b3ZJJ5O9kXYTjY1Psjhh6Pc85jv1EsMQ3jkBin9lkDnvOAkeIX0IJfCReYA7Nj3Dm
+ UtdmIPyEWh62uq+UtrOIgjynBu45YCaAoh1nYYHLSBBm1RFTUKUKYktBKdSRHYZ+2v5Cw0V/1dP
+ L7aBEtqCKpSD0Ru8Ni1Da1c0ny5HVNDG0/8cdYyQtFY0KJrTkVG0UH4xuD12xg+VTadCZ6mpdeF
+ rD4W7ctspzZmJ4wuTgH1VPdXAXcRON8BITHPP6gyrxz/tAfOfmayln/g64xo42gfzBH2RROmVF3
+ FC1fKJcXxxRTY0P0bQZVr8/f/wTR+cSC2W2uur8oSQjCTyp4I9t3XsIzdR1hJ1sBCHGaP9GljJ2
+ iVnpstkCKMpVxsAELTQ==
+X-Proofpoint-ORIG-GUID: mYzJOf2jTR9g3O65q95fapnacYBRzPFH
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzIzMDE2NCBTYWx0ZWRfX0d1hCameuqLD
+ +nq/d8/efL0c8BweO4aN0ytiwM/DVDsYSNJV1gN4lEVEhBLO++YgPIL7rv2m0CYNMT4EYGYYkWx
+ 4PczJayX6ArbYhnCmtZsUyUuwN9sCng=
+X-Proofpoint-GUID: mYzJOf2jTR9g3O65q95fapnacYBRzPFH
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-07-23_04,2026-07-22_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ bulkscore=0 priorityscore=1501 lowpriorityscore=0 suspectscore=0
+ malwarescore=0 impostorscore=0 clxscore=1015 phishscore=0 spamscore=0
+ adultscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2607230164
 
-On 23/07/2026 5:38 pm, David Hildenbrand (Arm) wrote:
-> 
->> So after the conversion, it doesn't makes sense to keep STRICT_MM_TYPECHECKS
->> around. Please correct me if I'm wrong.
+
+On 7/23/2026 7:12 AM, Matthew Rosato wrote:
+> On 7/22/26 1:06 PM, Farhan Ali wrote:
+>> The account_mem() and unaccount_mem() functions call get_uid() which
+>> increments the reference count of struct user_struct on every invocation.
+>> But we don't decrement the count by calling free_uid(). It also
+>> accounted/unaccounted the pages against the current->mm. But its possible
+>> the unaccount_mem() can be called from a different process context than the
+>> one that originally pinned the pages.
 >>
->> This brings another thing in my mind that in ideal world we would just
->> turn STRICT_MM_TYPECHECKS on for all arches all the time. But the problem
->> with it is that STRICT_MM_TYPECHECKS defines pte_t which will stay double
->> meaning still. So we want sort of STRICT_MM_TYPECHECKS with different name
->> and separate stack and hardware types.
-> 
-> I think STRICT_MM_TYPECHECKS is also to avoid catching when passing a pte_t into
-> a function that consumes a pmd_t, and vice versa.
-> 
-> STRICT_MM_TYPECHECKS makes the compiler generate worse code today, which is why
-> we don't enable it always.
-> 
+>> Let's fix this by storing the pinning process user_struct and mm_struct
+>> when accounting for pinned pages, and subsequently free these resources
+>> when the pages are unpinned.
 >>
->>>
->>> We would like to keep it, and I guess some other architectures too.
->> David had summarized it well. We'll convert generic code to use hw_p*_t
->> types which would be typedef to p*_t for those architectures which don't
->> care about. But if an architecture wants to interpret these types
->> differently or want to make sure the type is enforced and not directly
->> dereferenced, they need to convert the arch code a well. But it can be
->> done slowly.
-> 
-> I think what Alexander meant is: they want to keep STRICT_MM_TYPECHECKS (or
-> something that achieves something similar :) ). So as long as that keeps on
-> working, all good :)
-Thank you for clarifying.
+>> Fixes: 3c5a1b6f0a18 ("KVM: s390: pci: provide routines for enabling/disabling interrupt forwarding")
+>> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+>> ---
+>>   arch/s390/kvm/pci.c | 38 ++++++++++++++++++++++++++++----------
+>>   arch/s390/kvm/pci.h |  2 ++
+>>   2 files changed, 30 insertions(+), 10 deletions(-)
+>>
+>> diff --git a/arch/s390/kvm/pci.c b/arch/s390/kvm/pci.c
+>> index d2a11cdf6941..1b3114c7cfbb 100644
+>> --- a/arch/s390/kvm/pci.c
+>> +++ b/arch/s390/kvm/pci.c
+>> @@ -190,33 +190,51 @@ static int kvm_zpci_clear_airq(struct zpci_dev *zdev)
+>>   	return cc ? -EIO : 0;
+>>   }
+>>   
+>> -static inline void unaccount_mem(unsigned long nr_pages)
+>> +static inline void unaccount_mem(struct kvm_zdev *kzdev, unsigned long nr_pages)
+>>   {
+>> -	struct user_struct *user = get_uid(current_user());
+>> +	struct user_struct *user = kzdev->user_account;
+>> +	struct mm_struct *mm_account = kzdev->mm_account;
+>>   
+>> -	if (user)
+>> +	if (user) {
+>>   		atomic_long_sub(nr_pages, &user->locked_vm);
+>> -	if (current->mm)
+>> -		atomic64_sub(nr_pages, &current->mm->pinned_vm);
+> Previous code handled the case where current->mm could be NULL...
+>
+>> +		free_uid(user);
+>> +		kzdev->user_account = NULL;
+>> +	}
+>> +
+>> +	if (mm_account) {
+> ... And you check for kzdev->mm_account being NULL here...
+>
+>> +		atomic64_sub(nr_pages, &mm_account->pinned_vm);
+>> +		mmdrop(mm_account);
+>> +		kzdev->mm_account = NULL;
+>> +	}
+>>   }
+>>   
+>> -static inline int account_mem(unsigned long nr_pages)
+>> +static inline int account_mem(struct kvm_zdev *kzdev, unsigned long nr_pages)
+>>   {
+>>   	struct user_struct *user = get_uid(current_user());
+>>   	unsigned long page_limit, cur_pages, new_pages;
+>> +	int rc = 0;
+>>   
+>>   	page_limit = rlimit(RLIMIT_MEMLOCK) >> PAGE_SHIFT;
+>>   
+>>   	cur_pages = atomic_long_read(&user->locked_vm);
+>>   	do {
+>>   		new_pages = cur_pages + nr_pages;
+>> -		if (new_pages > page_limit)
+>> -			return -ENOMEM;
+>> +		if (new_pages > page_limit) {
+>> +			rc =  -ENOMEM;
+>> +			goto out;
+>> +		}
+>>   	} while (!atomic_long_try_cmpxchg(&user->locked_vm, &cur_pages, new_pages));
+>>   
+>> +	mmgrab(current->mm);
+> ... But here you do not check if current->mm is NULL.  I'm not sure if
+> it will happen in practice, but we did guard against it before this
+> patch.  Just add if (!current->mm) around this mmgrab?
 
-It has been a month since I started this discussion. We don't have any
-disagreement on it. Should I proceed to post first part patch series considering
-most people must already have viewed these emails and are on-board with it?
+But wouldn't the atomic64_add just below this also need to be in the 
+check? FWIW looking at some of the other references to mmgrab, I didn't 
+see explicit checks for the current->mm [1] [2]
 
--- 
-Thanks,
-Usama
+[1] 
+https://elixir.bootlin.com/linux/v7.2-rc4/source/io_uring/io_uring.c#L3047
 
+[2] 
+https://elixir.bootlin.com/linux/v7.2-rc4/source/drivers/vfio/vfio_iommu_type1.c#L1675
+
+Thanks
+
+Farhan
+
+
+>
+>>   	atomic64_add(nr_pages, &current->mm->pinned_vm);
+>> +	kzdev->user_account = user;
+>> +	kzdev->mm_account = current->mm;
+> Then if it IS NULL, we will stash a NULL into kzdev->mm_account here and
+> handle it above as before with the if (mm_account) check.
+>
+>>   
+>>   	return 0;
+>> +
+>> +out:
+>> +	free_uid(user);
+>> +	return rc;
+>>   }
+>>   
+>>   static int kvm_s390_pci_aif_enable(struct zpci_dev *zdev, struct zpci_fib *fib,
+>> @@ -279,7 +297,7 @@ static int kvm_s390_pci_aif_enable(struct zpci_dev *zdev, struct zpci_fib *fib,
+>>   	}
+>>   
+>>   	/* Account for pinned pages, roll back on failure */
+>> -	if (account_mem(pcount))
+>> +	if (account_mem(zdev->kzdev, pcount))
+>>   		goto unpin2;
+>>   
+>>   	/* AISB must be allocated before we can fill in GAITE */
+>> @@ -400,7 +418,7 @@ static int kvm_s390_pci_aif_disable(struct zpci_dev *zdev, bool force)
+>>   		pcount++;
+>>   	}
+>>   	if (pcount > 0)
+>> -		unaccount_mem(pcount);
+>> +		unaccount_mem(kzdev, pcount);
+>>   out:
+>>   	mutex_unlock(&aift->aift_lock);
+>>   
+>> diff --git a/arch/s390/kvm/pci.h b/arch/s390/kvm/pci.h
+>> index ff0972dd5e71..544e6aa75e38 100644
+>> --- a/arch/s390/kvm/pci.h
+>> +++ b/arch/s390/kvm/pci.h
+>> @@ -21,6 +21,8 @@ struct kvm_zdev {
+>>   	struct zpci_dev *zdev;
+>>   	struct kvm *kvm;
+>>   	struct zpci_fib fib;
+>> +	struct user_struct *user_account;
+>> +	struct mm_struct *mm_account;
+>>   	struct list_head entry;
+>>   };
+>>   
