@@ -1,219 +1,149 @@
-Received: from mail-pl1-f181.google.com (mail-pl1-f181.google.com [209.85.214.181])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 37E6435D5E2
-	for <linux-s390@vger.kernel.org>; Thu, 23 Jul 2026 08:16:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.181
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784794597; cv=pass; b=HGMH7uqsjyOn7Fq6YNjOuxKPZWkdEPkGYFly3hXCmgb+TycmN9IF5IRBnjXsL0cVGfPSpoVs1l6zGOY+pe77yxVDxPBDONFBuHsJ3mNkHHywUrXk63fptqL9HKL2+ggyHhYOx0g5WkazNZdS/nNt1EPOV5rU7OkoTta2mgUT4ak=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784794597; c=relaxed/simple;
-	bh=VT4MWQfU9hCucpc7cWdAlF6H9kZnwG+Gwdmmhdc0Ick=;
-	h=MIME-Version:From:Date:Message-ID:Subject:To:Cc:Content-Type; b=aKWjJxY/UktdTs99mEgqmeXCVO+T3pCE/PbjOMEzFy1Gh+VL1vAMgtjMKCOam+8Ds/8VgOmB/awhLOhdINAVHR0VYGCApnl6A69MSpLYW0e1oV3TC+7KFityB7SDMtnBEZYeZ7jJOxtlBvY5UtKOITto2ajr88oENv+5D530NYA=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hudrlQZc; arc=pass smtp.client-ip=209.85.214.181
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C8890355F46;
+	Thu, 23 Jul 2026 08:18:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1784794730; cv=none; b=OKhviRj8fxBQcDQi81gRvdT4E49lGRt6bIhDHN/v7L8FAxXUPxSlTSLDf9l/x82bkH6aYU4lS2F2WMOieGmnxccMDr/tBJQ3BTRUfa1M8yInrtOFj0rp8HpeTyzTDZ+71eVl5L6+vIyqeybyhO2ieyzq40KxV5/GOZWL4nExGpc=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1784794730; c=relaxed/simple;
+	bh=esGUJ1Prcbq4ifDiOBfNsGn1RecFqTL3u3/WyqgWi8c=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=jLgcfJh+eTSLxkISr4u/i5qkymZ+TORzQuXTcICAdW0Nyg+ezMMfCAg7YVY2NsyM7K1uLTnhE3gzm/btiQQqSNpo3JW1OW/znKmVgIWKpHiPKz8BunUndJA9guhT+kq2oh1W+NIcwl45xx7SVI/Y3Kg7lehwoQKUBW8S2eVUMrI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=H7To+J6a; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hudrlQZc"
-Received: by mail-pl1-f181.google.com with SMTP id d9443c01a7336-2ceed7018c8so2834965ad.1
-        for <linux-s390@vger.kernel.org>; Thu, 23 Jul 2026 01:16:36 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1784794595; cv=none;
-        d=google.com; s=arc-20260327;
-        b=W7Wme8dq/9gG+C2Fv7a6xnbuGWnqC4nV7ppLOstB65bKkLhOQ+1svJzERN4rpYHZrH
-         LETADdZ6kqshl8XPAuUSLWqGVln3+7nPRQXyVLBBT8ZWcqUJoxXDU8x6cZ24br1Z5j5a
-         qX1J3Q8kTYsXaJADKgC22QpSs+zCBIj+LGpq2qEyL8jNUbcIp4SStxmO7JmGT6JMOWxP
-         2mlTJDFJzs5026vZ1PlsLL9lzTjM8BZTifS9Mp2px8jq01VB3a6l7UKZY/RfeuzpSC2e
-         xcLQFfQI9S+aEVcX44T29PtJwrb6Ij/yJjy84EkZkW2DFMs3bjttTrdM+m6MOWnWJpEu
-         +QtQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=cc:to:subject:message-id:date:from:mime-version:dkim-signature;
-        bh=Wo+Vi5K3kSEn+1EpaozgmT/8tPtVROlmrkhTXMeQFAc=;
-        fh=CRHHD80oVnjcDZFTcSoJQpKGLy2XkLs/ettkyiP+yEg=;
-        b=FWqLOb69RZkyipK9fzUlvc75CL7CikQzoPt7IsLOGXs1cqrPvMjspjgPikbH3/ujF9
-         7zdRs2l80p7Nl7vEnJKZD/K3TbCqH8iAVYQKBw867Ndew/VO7YC06Yy3uKMO9deouldB
-         8/0nTr0XbrrLJcUS2lKPeDzIra2lbNjSIVVQe4sr3LhviZ388QfaW7yt+J6mWXCjpKsz
-         Tv4+oidkRmvfHAoa7TBZnSNAT2r/fvK+g99/XA4uEJ3mw2QjRzZE2jtOjr9Enb7mp23E
-         laQ7n70VkU5jk7BK/BlrvZYUibsjF9boqbia26W0D94+NmdIJJdYrOmfPpa6psY6Vsc5
-         pn3A==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784794595; x=1785399395; darn=vger.kernel.org;
-        h=content-type:cc:to:subject:message-id:date:from:mime-version:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=Wo+Vi5K3kSEn+1EpaozgmT/8tPtVROlmrkhTXMeQFAc=;
-        b=hudrlQZcCfRhc5K4qAFHCbIVX7cW5ty3gcBIAsEBvX7xZW9m1rYktX3y9d5B/gJpPA
-         f1ylWa4AZP9KS9fxgHoLuYqWD7SUaUMhPywCieWIQgCqFcM1sh36MQnMIh+aHNx20HgI
-         IsAWksYkAaPqykD065zA+yweUQi2MboCUi65DOm+Alf8x7V+RZOZAWCGKShM40Q7QZGh
-         yzlqeagc6o2aUZxb8YGhoDJ+t4AkNZ/phjcQOfRVyQwy8HsF3oALRwPgmyYVPqPhtuUJ
-         kRJifVVw9v136OiwbMPNLdxQAcx5/5CNmriTNTa5eaG0/FnCj2KYnfRJ3HD/CJZKP96P
-         rMlw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784794595; x=1785399395;
-        h=content-type:cc:to:subject:message-id:date:from:mime-version
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to:content-type;
-        bh=Wo+Vi5K3kSEn+1EpaozgmT/8tPtVROlmrkhTXMeQFAc=;
-        b=sXqSRwTMcRWxAsxKHQKGX6pnfVi/xUYQpp+z2u3kuflGupiGPSiY8Y4A4hyGJJeA20
-         TNg+taI8edP6ETWYw41v9awC7lRkEukI+44YWPg9Bqm6pa5jFDI+wdMmxOW/tzdyQ3KD
-         h65UOr5IQM4UBHovtxtBK0FZef6sxQhz1Adkbf6C+DWb532ANwW3Ym7ji3c/9ShTzN7+
-         zDFb+NNGgMJT2vc18MfbntBnitDigB22nPfQS4gaBWbGKPsb9kMwMSWwsQYfxR9xEeWW
-         RruFfUFWlg7AathDSW8K8TJ7wVUMBaHOVq8TxfHJqbludBHCVFauHFVD3BnIDw7uzD1r
-         WMmw==
-X-Forwarded-Encrypted: i=1; AHgh+RoUpxQQCqfKfxoz62UVW63oHwXF0bJ57YM+zlLaIKMZrHA2nodkpQ6Wk2h8CprCxNESku0QZehmFzgT@vger.kernel.org
-X-Gm-Message-State: AOJu0YzG4tLq4uFGxzk5nIZZtxYKFYi3PUMZo60jAPW6URsXJv1QMUYY
-	A+6qVkKC0d//LfHiP+gw4NhA8IGiNq3rrb2BI5m2TJuOA+wITjw0H8wGCBjg4Pna8uunYVOKLkK
-	ia/4vwzZuxyDTp07GpGgKuIg8mK5x8bnX5eBdF0c=
-X-Gm-Gg: AR+sD10erws5RS26vwGOhV41NBp0c8/lcscTEBipHmo+WuRyxtVQz98fiz6vovYcGy9
-	rxZYVIHodYSf/OvkeGibzYhuimT/pjdqOna18KpH2LrLbjk+rpab76Lg1e5RhtMKgXkNgwN8hS0
-	vDahFH33e9S7qp0MgOPmgVKJbCBwgK8W8dFovStFfCsyrgpvxVB2cOVCT3v7wrU7UzYRUcneVi3
-	l2mB6ZTNnbXNbHCJEmps/M5A+KvvntvjkNDFoJOU3dTOd4DSYH0IMwApn4emx64
-X-Received: by 2002:a05:6a21:608a:b0:3bf:9b61:f7ae with SMTP id
- adf61e73a8af0-3c44afcf8a6mr2128914637.14.1784794595473; Thu, 23 Jul 2026
- 01:16:35 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="H7To+J6a"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66N5BdcP2082163;
+	Thu, 23 Jul 2026 08:18:48 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=1fF2TS
+	BiDI/mW13E75Rb6zTUpRGEDsILSgcjbEtx4tU=; b=H7To+J6aDmieeyjWHMK357
+	2uiX+wbJ6yzK83dZZkjdOQeeFu9nnUDrhec4rI0C+hS+Mcp2CnIa0Vkc+1vCfyMk
+	cDaksCF3yyqpMEV2y8VzJxDldVrAtABrUG6zZyE4gbpZNekFmTZsql6+k6ByTI2C
+	GjuEJItRsl8gluUbrP6UPAInkaEd2oq+wvtnzWmx9kS6Y2kKRtGtHxDRqCxWPJxq
+	/V7xN9y7jQhU6d3RQY+N3uc7nWwJUTKiVGA07AtIM8sToS1AYTlo0UhEojSay55c
+	WVWvCgRrcXciyJHUIJcK20sEMz7YZmx6CrrQTe9lR82o08x+3AOsnSfyJFWN7HWw
+	==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fg7916hbq-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 23 Jul 2026 08:18:47 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66N84ipQ014058;
+	Thu, 23 Jul 2026 08:18:46 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fgnahb6ux-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 23 Jul 2026 08:18:46 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66N8IgUu48234850
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 23 Jul 2026 08:18:42 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6E91C20101;
+	Thu, 23 Jul 2026 08:18:42 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4DC6F200FF;
+	Thu, 23 Jul 2026 08:18:42 +0000 (GMT)
+Received: from [9.224.77.173] (unknown [9.224.77.173])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 23 Jul 2026 08:18:42 +0000 (GMT)
+Message-ID: <08e3312d-1f84-47ce-8e97-c151646f7a73@linux.ibm.com>
+Date: Thu, 23 Jul 2026 10:18:41 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-From: Min-gyu Kim <gimm78064@gmail.com>
-Date: Thu, 23 Jul 2026 17:16:23 +0900
-X-Gm-Features: AUfX_myL9bF7X6cpM8-4rFrG6l6JryBzW6Ow15hH2749EXFeM9RDeP9w91553Hg
-Message-ID: <CAGKGUv=sOuqQtA1Ub-5JXfA4FPosJFYKAQE4B79cK+P1erxqtg@mail.gmail.com>
-Subject: [RESEND][REGRESSION][SECURITY] bpf, s390: verifier/JIT mismatch
- allows unprivileged kernel memory access
-To: Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, 
-	Andrii Nakryiko <andrii@kernel.org>, Eduard Zingerman <eddyz87@gmail.com>, 
-	Kumar Kartikeya Dwivedi <memxor@gmail.com>, Ilya Leoshkevich <iii@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, 
-	Vasily Gorbik <gor@linux.ibm.com>
-Cc: bpf@vger.kernel.org, linux-s390@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, regressions@lists.linux.dev, 
-	security@kernel.org
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v4 4/6] KVM: s390: pci: Fix NULL dereference on AIBV
+ allocation failure
+To: Farhan Ali <alifm@linux.ibm.com>, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, kvm@vger.kernel.org
+Cc: mjrosato@linux.ibm.com, farman@linux.ibm.com
+References: <20260722170621.1686-1-alifm@linux.ibm.com>
+ <20260722170621.1686-5-alifm@linux.ibm.com>
+Content-Language: en-US
+From: Christian Borntraeger <borntraeger@linux.ibm.com>
+In-Reply-To: <20260722170621.1686-5-alifm@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: NgPUObI6mqahPT27UaP42u-4A2uHc9U3
+X-Authority-Analysis: v=2.4 cv=V6RNF+ni c=1 sm=1 tr=0 ts=6a61ce68 cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8
+ a=wahUZReCXgIwzAPQiRMA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzIzMDA4MSBTYWx0ZWRfXyffymXaVFuFC
+ rzj2A/Fkyfg7ap4yrRpW7AOGJRhLzjcLv+fFBOheJWnQCcIWNxlUtPleUv7LtPVOCHqwMS81Z0E
+ aTk8zRdMlp2IJyf2jWudv5TDwAN2r5M=
+X-Proofpoint-GUID: NgPUObI6mqahPT27UaP42u-4A2uHc9U3
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzIzMDA4MSBTYWx0ZWRfXyvQPQoDj2Qhe
+ SwajE4NWDRRLrzvfnTP1k17xMb+17ZG7Arbc4LgacQ/I6DYVeKNQB9eBJqy64RtkNSz4Q5KFFnS
+ 1I/1egMPuT7Dh4AYf2+05cZapgVuJRz2O8CAj0Kv/GcZZqTzFONjM8y8K8x0sYHrzYyTe5sDJDB
+ aH297htJBqB6rDtjB6ljdKawuL6v46jCeqfbuRbnhCusMPsXhXz6gZAlB8SLhmA/87chMaswY9x
+ U5dg5bapbFFNwNrLd1z2kDmJMyiRxpcm50/L7KekkOaDDHvV/UvEeeL5xcWeAh5XCh55WHTppfU
+ jiID06HnPcabpPZK6W4fl7/Up86aE92oTvOcQgguDBxTkxVwwFcZ6nvjg+T2uQMTSGT+pT5F5BK
+ 9NaSG1vSm3BbNmLhS6QvDIltlQXBu4u/RRvz8upp6UaLokJNRWCp7pllVfbpXVG8j1LyD8i/yaK
+ BwGNIQOOcnELHh5ugZA==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-07-23_02,2026-07-22_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ malwarescore=0 adultscore=0 bulkscore=0 lowpriorityscore=0 clxscore=1015
+ spamscore=0 impostorscore=0 phishscore=0 priorityscore=1501 suspectscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607230081
 
-Hello,
 
-I am reporting a potential security regression involving eBPF verifier state
-pruning and the s390x JIT. I reproduced arbitrary kernel read and write access
-and local privilege escalation as an unprivileged user.
 
-AI assistance was used during discovery and analysis. In accordance with the
-kernel security-bug reporting guidance, I am not requesting an embargo. The
-reproducer and exploit are not attached or published; I can provide them
-privately to maintainers on request.
+Am 22.07.26 um 19:06 schrieb Farhan Ali:
+> The airq_iv_create() can return NULL on failure, but the return value was
+> never checked. If it fails, zdev->aibv will be NULL and fail when
+> derefenced in kvm_zpci_set_airq(). Add a NULL check and free the previously
+> allocated AISB bit and zdev->aisb on failure.
+> 
+> Fixes: 3c5a1b6f0a18 ("KVM: s390: pci: provide routines for enabling/disabling interrupt forwarding")
+> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
 
-Summary and affected versions
+Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
 
-A verifier regression can cause the verifier and the s390x JIT to disagree
-about the upper 32 bits of scalar registers. A crafted socket-filter program
-can consequently form an unchecked 64-bit offset from an ARRAY map-value
-pointer and access attacker-selected kernel addresses.
 
-The regression was introduced by:
+> ---
+>   arch/s390/kvm/pci.c | 8 ++++++++
+>   1 file changed, 8 insertions(+)
+> 
+> diff --git a/arch/s390/kvm/pci.c b/arch/s390/kvm/pci.c
+> index 33abc15aa685..231a4236fc3c 100644
+> --- a/arch/s390/kvm/pci.c
+> +++ b/arch/s390/kvm/pci.c
+> @@ -314,6 +314,11 @@ static int kvm_s390_pci_aif_enable(struct zpci_dev *zdev, struct zpci_fib *fib,
+>   				    AIRQ_IV_GUESTVEC,
+>   				    phys_to_virt(fib->fmt0.aibv));
+>   
+> +	if (!zdev->aibv) {
+> +		rc = -ENOMEM;
+> +		goto free_aisb;
+> +	}
+> +
+>   	spin_lock_irq(&aift->gait_lock);
+>   	gaite = aift->gait + zdev->aisb;
+>   
+> @@ -350,6 +355,9 @@ static int kvm_s390_pci_aif_enable(struct zpci_dev *zdev, struct zpci_fib *fib,
+>   	rc = kvm_zpci_set_airq(zdev);
+>   	return rc;
+>   
+> +free_aisb:
+> +	airq_iv_free_bit(aift->sbv, zdev->aisb);
+> +	zdev->aisb = 0;
+>   unlock:
+>   	if (pcount > 0)
+>   		unaccount_mem(zdev->kzdev, pcount);
 
-  107e169799057bc6a379ddb625cbe1e51cfc7d72
-  ("bpf: disable and remove registers chain based liveness")
-
-The commit first appears in v6.18-rc1 and is not present in v6.17. The cause
-was still present in the v6.18, v6.19, v7.0, and v7.1 stable branches and in
-v7.2-rc4, bpf, and bpf-next when checked by source comparison on 2026-07-22.
-I also confirmed the relevant logic in mainline commit
-4539944e515183668109bdf4d0c3d7d228383d88 on 2026-07-23. Dynamic
-reproduction was performed on v6.18.38.
-
-Affected code:
-
-  kernel/bpf/verifier.c
-  kernel/bpf/states.c in current development trees
-  arch/s390/net/bpf_jit_comp.c
-
-Required conditions:
-
-  Architecture:                        64-bit s390x
-  Program type:                        BPF_PROG_TYPE_SOCKET_FILTER
-  Map type:                            BPF_MAP_TYPE_ARRAY
-  CONFIG_BPF_SYSCALL:                  enabled
-  BPF JIT:                             enabled and active
-  kernel.unprivileged_bpf_disabled:    0
-  Required capabilities:               none
-  User namespace:                      not required
-
-Root cause
-
-The verifier records an ALU32 definition in subreg_def. A later 64-bit read
-causes mark_insn_zext() to mark that instruction for explicit zero extension.
-Before 107e16979905, a cache hit in is_state_visited() propagated the 64-bit
-read to the alternate path's ALU32 definition.
-
-Commit 107e16979905 removed that propagation when register-chain liveness was
-replaced with static liveness. The static live-register mask does not track
-read width or path-specific subreg_def information. In current states.c,
-regs_exact() compares only fields before id, while subreg_def follows id in
-struct bpf_reg_state. The SCALAR_VALUE case in regsafe() also does not compare
-subreg_def. States with equal tracked scalar values but different ALU32
-definitions can therefore compare as equal, leaving the pruned path's ALU32
-instruction without a zero-extension mark.
-
-On s390, ALU32 ADD updates the low 32 bits while preserving the register's
-high half. EMIT_ZERO() emits llgfr only when the program-wide verifier_zext
-flag is clear. If another ALU32 definition is marked, verifier_zext is set and
-the JIT relies on each instruction's zext_dst flag. The pruned instruction
-lacks that flag and can execute with attacker-controlled high bits intact.
-
-Reproduction and impact
-
-I ran the test as uid 1000 with all capability sets empty:
-
-  Linux syzkaller 6.18.38 s390x
-  kernel.unprivileged_bpf_disabled = 0
-  net.core.bpf_jit_enable = 1
-
-The exploit disclosed array_map_ops through the existing map->ops pointer,
-derived the KASLR slide, and obtained arbitrary kernel read and write
-primitives. It used those primitives to locate and modify the calling
-process's credentials. map->ops was read only and was not overwritten.
-
-The resulting shell reported:
-
-  uid=0(root) gid=0(root) groups=0(root),27(sudo),100(users),1000(poc)
-  context=system_u:system_r:kernel_t:s0
-
-A standalone C reproducer and exploit, verifier log, kernel configuration,
-and build details are available privately on request.
-
-Mitigation and fix direction
-
-Setting kernel.unprivileged_bpf_disabled to a non-zero value prevents this
-attack by unprivileged users. Disabling the s390 BPF JIT also prevents the
-demonstrated mismatch.
-
-I have not yet tested a patch. A conservative verifier fix may be to avoid
-pruning live scalar states whose relevant subreg_def values differ, or to
-preserve the read-width information needed to mark the current path's ALU32
-instruction. As defense in depth, the s390 JIT could avoid relying only on
-the program-wide verifier_zext flag. I can prepare a regression test and test
-proposed changes in the s390x QEMU environment used for reproduction.
-
-References
-
-  Regression-introducing commit:
-  https://github.com/torvalds/linux/commit/107e169799057bc6a379ddb625cbe1e51cfc7d72
-
-  Public review discussion related to read width and zero extension:
-  https://www.spinics.net/lists/bpf/msg139280.html
-
-  Merged patch discussion:
-  https://www.spinics.net/lists/bpf/msg152234.html
-
-If appropriate, I would appreciate a Reported-by tag as:
-
-  Min-gyu Kim <gimm78064@gmail.com>
-
-Please let me know if you need additional information or would like the
-private reproducer and exploit.
-
-Thank you for your time.
-
-Best regards,
-Min-gyu Kim
