@@ -1,124 +1,187 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B1F7844DB7B
-	for <linux-s390@vger.kernel.org>; Thu, 23 Jul 2026 14:03:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 88F0138398F
+	for <linux-s390@vger.kernel.org>; Thu, 23 Jul 2026 14:09:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784815440; cv=none; b=B8JxmoHg0x96Q0HIaEF5v//18n716a76LBe3tx98pY05vClm+0xXzZ4xPGdy+fasaO5Mn9MwAMZE16swXog3wuLS9q6o9C+DEVsduw4MSLN4gBTK+cjRg35gpQmqKeN+f/1JcBBFJ9h+XKayN11eN3g3WK2qfWXFa3187vWOlDw=
+	t=1784815780; cv=none; b=jKLMqe5G8nBfRp/MX71GphuKiowXO3M8jn3O6HLcHEMe1Amy++Fv8KNB2UpUSEi4JDC3hjSG69olTCm1LkphBQAXN6HTGf1JLI0+VGEDrKjZyZL99hFpE/ZT9iZAKRGgwEtBvdBOOTZAshA1Aq4M/kzW4ahJUv6JcQVrlux1B84=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784815440; c=relaxed/simple;
-	bh=ZBFegY2McFd58xKRL9lnD0XZoKpqN0CYJirPRnTX6vU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=LpLEdl571e7o75px9tsTF2rD9Q+mYSKtJ+Q3rcUgeIM0cX+8zJEcVeoWaxPfq5aJ1Yic0DsP+QJLpsBCAMAxQGUrMh9yDM0AfhOPR7sIHmCqGnyZ8pz7/bRQAAf1yMwhfy/s0/SveTKeLvemO2nqcF9WKN/xbTPDsB4lPxfUv5o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=VLp8xCBu; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1784815780; c=relaxed/simple;
+	bh=fZuUiig0CVRBlIpkscGi+9TcipmMdt6pZbwyxvsz5aQ=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=QR6pTu/p9yk2wn3lH/r1LO7NnTmzHsbYDc79uEAJBmuqPDOKY8Bejx1cXDjOGCvL6By5rWG9NR73Y+6vJ2rdPAaBNfomZor51Ksg4L5jFmc9czPtiMxSDMp2ExqM2AvH+CuA7IUV3yYjIGaM9IdTZA5SXwxWIm8vwWXHbzTcy40=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WhcGPILG; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="VLp8xCBu"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66NDBiSU3094728
-	for <linux-s390@vger.kernel.org>; Thu, 23 Jul 2026 14:03:57 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=XfIyViuTTwhiqqOkUsk+grhtTS9VSK
-	xuD2B4Tn89jdg=; b=VLp8xCBufmdKM7+wpEnzZcR5NVL5dUBXhj1BE4oaBmYWyp
-	84AcyJoBLAscn/gDU0PtseOBMqk5xWqPrYEP4flAmO4MLgA0n8d0g00WayI5eiGD
-	pfLcSVauKhiA1dLi7Q/IzktyaoYHwIB8/M63cR9Hj37KTSADp518X7nSF7jacHjq
-	ols2I+BEab2sm7uopx5WYr17VhNOz0FCkNXkTLG8NvolQ1z5jLDVU5VZYVj3exMl
-	DQL4hyG2xO8LLIYdA6NyAJYnOmFgMXmIF5tGYCDZLZGShlEHl8k4JaFWK0BswpXG
-	zSLw3+VsSLG2+RAgOA92fuBwcZ+D69x5Jqu5XZAA==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fg7ahf9pc-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Thu, 23 Jul 2026 14:03:57 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66NDnjLw006571
-	for <linux-s390@vger.kernel.org>; Thu, 23 Jul 2026 14:03:56 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fgnahce5d-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Thu, 23 Jul 2026 14:03:56 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66NE3q1P30605884
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 23 Jul 2026 14:03:52 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A20DC2010F;
-	Thu, 23 Jul 2026 14:03:52 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 42873200FF;
-	Thu, 23 Jul 2026 14:03:28 +0000 (GMT)
-Received: from osiris (unknown [9.111.90.204])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Thu, 23 Jul 2026 14:03:28 +0000 (GMT)
-Date: Thu, 23 Jul 2026 16:03:26 +0200
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Mete Durlu <meted@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Ilya Leoshkevich <iii@linux.ibm.com>, linux-s390@vger.kernel.org
-Subject: Re: [PATCH] s390/smp: Reflect (de)configured CPUs to cpu_enabled_mask
-Message-ID: <20260723140326.27454Ef4-hca@linux.ibm.com>
-References: <20260723-enabled_cpus-v1-1-3a2cbdc374b0@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WhcGPILG"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE3011F000E9;
+	Thu, 23 Jul 2026 14:09:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1784815778;
+	bh=jsZ71JHYz8aH4mvPfX4YpXy3im3A9aHB60sAmifojac=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=WhcGPILGhObAVHg/ZekLoA9CX/aK23TeQL5ZXC92z+lwCmhSBUTpeFpGDJyP7hPDv
+	 pK3FFHW7sMHIC54HvqDTfP56JRcj1yNG7Lg7nnCxMlI/YNwyk6gI0R8iNwFTy1YkBd
+	 ryqhKEmJnSuENAhJNfinbB910JK/7b1cp/DK3QFWRN3myHV6FHL0OsfSCbO1km9j3y
+	 CrU8ou6fY6H4xjKuBfmPI/ANCb2xFx86ri2gf4H/KR3XR6yoMEf14yylcGf55RFLq3
+	 iou1HevyTFjIDWLjbIyDcjR377OqGdoZSOFwzSLyJqHzMV6rMlmSu1HGl+yM2SflAv
+	 iA5Y9FGgBWfPg==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v3 08/13] s390/dasd: Derive adaptive ESE fulltrack
+ heuristic from ft_bias
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Stefan Haberland" <sth@linux.ibm.com>
+Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
+ Carstens" <hca@linux.ibm.com>
+In-Reply-To: <20260723134743.672413-9-sth@linux.ibm.com>
+References: <20260723134743.672413-1-sth@linux.ibm.com>
+ <20260723134743.672413-9-sth@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 23 Jul 2026 14:09:37 +0000
+Message-Id: <20260723140937.CE3011F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260723-enabled_cpus-v1-1-3a2cbdc374b0@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: c8jDiL7TQKV1glGeIoqq0gHhdAX6I-od
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzIzMDEzNSBTYWx0ZWRfX6LjtqHZ5ap3Y
- Xa+w620QXIvnpuyeNV7rEOnWrYadmxpkZBFlXbqVcBT5ZyZM6imTS4eXvilxpb7muN0a9ZDLSUi
- +jR/xug7BBA0RPph2iHBWYOb9LvAazm6g+utj91OlYW0Gbw88kxxgCVy9pq0tL6HLBTH15uk/Uu
- YqFXw4Yqb8N/Dna2fI3seKO4YvXoqYcB2PUC2sPb1mifVzUmXMERwftli6XQiK/G0tH7cgmO9d2
- +7d50WVGRtK8rJeyClhAOSUxw5gnqXUYeTaYCvdZfkDUPlHz/sxXl5vYQ6wAnxWcVw2hc2C0vgz
- YHIW/R1INrG4avoFBPPjh7S2Xy3/VItN1tFSxDbIhG+3uZyXby5AzfhOBTd2PVQ5uSa4WWhItQe
- jkngtOAKO1uxuIlRQCWuyGs7N5hFnNBLOJ2gGJQUG7J0bKwEgzv18pg/FOkfNh9MrL2Ycog7/KD
- 8M1769DpdC0gVTu6sNg==
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzIzMDEzNSBTYWx0ZWRfX9cPPtP4xzpU2
- rmwgOqFKZ0hJjNKJgqEQKhPHBPVA47K90gEwuELJBKWo7O2KRzMNvI8G8YniUbx7NdfU8Ugxq/l
- GZg2W4YV2lodC+d6cSd6YIXPF0smqwY=
-X-Proofpoint-GUID: c8jDiL7TQKV1glGeIoqq0gHhdAX6I-od
-X-Authority-Analysis: v=2.4 cv=SM5ykuvH c=1 sm=1 tr=0 ts=6a621f4d cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=kj9zAlcOel0A:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8
- a=dxUnBXBTGvNPyM1y3QAA:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-07-23_04,2026-07-22_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 lowpriorityscore=0 bulkscore=0 suspectscore=0 adultscore=0
- spamscore=0 malwarescore=0 priorityscore=1501 phishscore=0 impostorscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607230135
 
-On Thu, Jul 23, 2026 at 03:36:43PM +0200, Mete Durlu wrote:
-> On s390, CPUs can be in a state where it is not possible to hotplug
-> them online before certain prequisite steps. For example the CPUs which
-> get introduced during runtime of a system can posses a "deconfigured"
-> state which prevents them from being hotplugged online before they get
-> configured. Another case is when users set the configured state of CPUs
-> themselves via "chcpu" or sysfs attributes.
-> 
-> On s390 available CPUs are being registered as new devices via
-> smp_add_core() either during boot or after a CPU rescan (for newly added
-> CPUs during runtime). Registered CPUs are marked as enabled without
-> considering the configure states. Add necessary checks to smp_add_core()
-> and userspace configure attribute handler. Reflect the configured CPUs
-> to cpu_enabled_mask to correctly represent which CPUs can be hotplugged
-> online.
-> 
-> Signed-off-by: Mete Durlu <meted@linux.ibm.com>
-> ---
->  arch/s390/kernel/smp.c | 5 +++++
->  1 file changed, 5 insertions(+)
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+s) to consider:
 
-Acked-by: Heiko Carstens <hca@linux.ibm.com>
+New issues:
+- [High] Writing to the `full_track_bias` sysfs attribute triggers a NULL p=
+ointer dereference if the DASD device is offline or has no discipline assig=
+ned.
+- [High] The adaptive heuristic FSM state and configuration variables are m=
+odified concurrently without synchronization, leading to permanent state co=
+rruption.
+
+Pre-existing issues:
+- [High] The condition in `dasd_release_space()` incorrectly uses `&&` inst=
+ead of `||`, breaking validation and evaluating a NULL function pointer for=
+ non-ESE disciplines.
+--
+
+--- Patch [8]: [PATCH v3 08/13] s390/dasd: Derive adaptive ESE fulltrack he=
+uristic from ft_bias ---
+commit 6212107d38eb431780604d50fae290b46a53ceff
+Author: Stefan Haberland <sth@linux.ibm.com>
+
+s390/dasd: Derive adaptive ESE fulltrack heuristic from ft_bias
+
+Turn the middle of the ft_bias range (1..99) into an adaptive heuristic
+that switches between fulltrack write (ft1) and plain write ft0 depending
+on how sparse the device still is. A state machine measures the NRF rate
+in short ft0 probe windows and flips back to ft1 when it is high.
+
+> diff --git a/drivers/s390/block/dasd_devmap.c b/drivers/s390/block/dasd_d=
+evmap.c
+> index 035c022255b68..c587817f5cf9e 100644
+> --- a/drivers/s390/block/dasd_devmap.c
+> +++ b/drivers/s390/block/dasd_devmap.c
+[ ... ]
+> @@ -1660,7 +1660,7 @@ static ssize_t full_track_bias_store(struct device =
+*dev,
+>  		return -ENODEV;
+> =20
+>  	device->ft_bias =3D val;
+> -	device->fulltrack =3D val ? 1 : 0;
+> +	dasd_ft_bias_apply(device);
+
+[Severity: High]
+Is it possible for device->discipline to be NULL when the device is offline?
+
+If a user writes to the full_track_bias sysfs attribute while the device is
+offline, dasd_ft_bias_apply() calls dasd_ese_adaptive(device) which directly
+dereferences device->discipline->is_ese:
+
+drivers/s390/block/dasd_int.h:dasd_ese_adaptive() {
+    return device->discipline->is_ese &&
+           device->discipline->is_ese(device) && ...
+}
+
+Could this result in a NULL pointer dereference during the sysfs write?
+
+> =20
+>  	dasd_put_device(device);
+>  	return count;
+[ ... ]
+> diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eck=
+d.c
+> index c10fe20e7d3ff..8b5f592b04d95 100644
+> --- a/drivers/s390/block/dasd_eckd.c
+> +++ b/drivers/s390/block/dasd_eckd.c
+[ ... ]
+> @@ -3201,6 +3208,65 @@ static void clear_format_track(struct dasd_format_=
+entry *format,
+>  	spin_unlock_irqrestore(&block->format_lock, flags);
+>  }
+> =20
+> +/*
+> + * Adaptive ft_bias heuristic, called once per IO from dasd_eckd_build_c=
+p().
+> + * Probes the device formatting state by briefly switching to ft0 and me=
+asuring
+> + * the NRF rate; parameters are derived from ft_bias.
+> + */
+> +static void dasd_ese_heuristic_tick(struct dasd_device *basedev)
+> +{
+> +	int ios, nrf, rate;
+> +
+> +	if (atomic_inc_return(&basedev->ese_io_cnt) < (int)basedev->ese_probe_i=
+nterval)
+> +		return;
+> +
+> +	/*
+> +	 * One wins the race to evaluate, the rest see ios =3D=3D 0 after the
+> +	 * xchg and return early, preventing redundant state transitions.
+> +	 */
+> +	ios =3D atomic_xchg(&basedev->ese_io_cnt, 0);
+> +	if (ios <=3D 0)
+> +		return;
+> +
+> +	switch (basedev->ese_probe_state) {
+> +	case DASD_ESE_HEU_FT1_ACTIVE:
+> +		/* Start ft0 probe window, reset NRF counter for clean measurement */
+> +		basedev->fulltrack          =3D 0;
+> +		basedev->ese_probe_state    =3D DASD_ESE_HEU_PROBING;
+
+[Severity: High]
+Is there a race condition here between this state update and a concurrent
+sysfs write to full_track_bias?
+
+If a sysfs write occurs concurrently with a block I/O request executing
+dasd_ese_heuristic_tick(), the I/O thread might read DASD_ESE_HEU_FT1_ACTIV=
+E.
+
+If the sysfs thread then updates ft_bias (for example, to 100) and forces
+fulltrack =3D 1 via dasd_ft_bias_apply(), the I/O thread could subsequently
+overwrite fulltrack =3D 0 and change the FSM state.=20
+
+Since ft_bias is now 100, dasd_ese_adaptive() will evaluate to false for
+future I/Os, meaning the heuristic tick is never called again and fulltrack
+remains stuck at 0. Does this need synchronization to prevent permanently
+locking the heuristic in the wrong state?
+
+> +		basedev->ese_probe_interval =3D basedev->ese_heu_probe_window;
+> +		atomic_set(&basedev->ese_nrf_window, 0);
+> +		break;
+
+[Severity: High]
+This is a pre-existing issue, but looking at dasd_release_space() in
+drivers/s390/block/dasd_ioctl.c:
+
+    if (!device->discipline->is_ese && !device->discipline->is_ese(device))
+        return -ENOTSUPP;
+
+Does this condition incorrectly use && instead of ||?=20
+
+If the discipline does not define the is_ese callback (such as for FBA
+devices), the first half evaluates to true. Because of the &&, it then
+evaluates the second half, which calls the NULL function pointer. Could an
+ioctl invoking dasd_release_space() on such a device cause a kernel panic?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260723134743.6724=
+13-1-sth@linux.ibm.com?part=3D8
