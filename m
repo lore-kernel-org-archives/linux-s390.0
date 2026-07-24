@@ -1,146 +1,182 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D3B6A219E8;
-	Fri, 24 Jul 2026 09:13:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B4CA33C7DE1
+	for <linux-s390@vger.kernel.org>; Fri, 24 Jul 2026 09:30:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784884429; cv=none; b=HJLA2OzpAyyWYAmwANZ275nyBsWHJWYu0sPp2QgrULCBAi5MnwAnzAiqQDA+OcwfCyZ7aEPCH+aDiUk5ZsL/+8atyPAkF4mL88XuDwSul6+UcFu6qFNDZh6JVmmh7goeHkxql9fsQvfJVxWx6IJ9LJLEnwFccRjTA5Yv+XJJN5o=
+	t=1784885430; cv=none; b=SBY51DuubUMpdWD9avolUV/gxR4IJFk5raOvrdJwmtFSwoeq7JJWIlmLWkzxyvYaRg+WU4ZxIj7e488yqGbGCKoLGk/S8CtJ9gHKzBXKw94Qa68XwiPcmrNpcO+iRssuGsT/7qg/2KL5rMgi724uRasW8wAaFDy6brQS0i9BBcA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784884429; c=relaxed/simple;
-	bh=xPqEUlhl5C0cCNg0yKKCZmDA5P5Yr//ZhyIW8a7sCOM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=b2HaigEoyPUapi7d34W88+mS7B+udHPvl+zlP7kRu00uSQ0IbENlBKYMCNAzs2JivnWf4LKztDgywMfMLI9+2W3pJHdOS7XvvafIhlhbr5O71Js1HEJ2hVcEBj1Kjs1PXo73aqX2X/th0eEsO2GzJLdMEIktt4IjuAKxEFm2jOc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Y0aDlGFr; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1784885430; c=relaxed/simple;
+	bh=84yHrMpqPVieO6739qAP6QTxI6nGHI+18742rSPGQ4E=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=DduW1SB3I1VvdCg0q+uvKHIOwVNK8GTltuNgVBnswz2uFj5Czt0uKXDiYIJvA8pXDwV64kP9GwbZHQymV3pIGYjG9pU6V1oQoi66+QIj0D2FUY4b+1CEKv40Ayp1suiQ8rF/02jgOcMIad4IsKuqtXXOczOucS8MBNQrnDW9AB4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=pmgFhNA5; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=t/RKhmKJ; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=pmgFhNA5; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=t/RKhmKJ; arc=none smtp.client-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Y0aDlGFr"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66O5Bwqu825908;
-	Fri, 24 Jul 2026 09:13:40 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=dcRpZN
-	ZzzQYNt7v2OyE5mClrIoIErcJsGVKfnBbyR2w=; b=Y0aDlGFrLiOfOccfB3ZNuQ
-	bZSDQZns6NlzaJBadW8b7ck4zc6Qb40bJU9DzjXHbtySgolWVTlkY4/FAvpoqhY6
-	9DmCYVCDgWnolVyU0ERkGp8jI0sN5vSJhv+15wNyjPqhRvep9AogjIFD9teHZtII
-	EVYInBaO1kC/m8YsraCLHZNs3LCbNNdxRQ8+4pSBkxD/PfCz4lDcuipl4J2gB0sJ
-	oebbNt41XXZM2ILLjGYKpLczM1M07hwTKJeTWmwT1XhVM177sxZTHiEp6UyMrzqB
-	WLK5zAhob2f6D/3RbgjcqEGebOjZM7K34+fDW8krRJUmt4qrsxnyWgajE+06oLfA
-	==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fg77kkasa-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 24 Jul 2026 09:13:39 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66O94fsg012366;
-	Fri, 24 Jul 2026 09:13:38 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fgnahg6mp-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 24 Jul 2026 09:13:38 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66O9DYXW50069990
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 24 Jul 2026 09:13:34 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C8B73201CB;
-	Fri, 24 Jul 2026 09:13:34 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 93436201C7;
-	Fri, 24 Jul 2026 09:13:31 +0000 (GMT)
-Received: from [9.123.3.72] (unknown [9.123.3.72])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 24 Jul 2026 09:13:31 +0000 (GMT)
-Message-ID: <28831f1e-b138-42d3-8566-23e5f603567d@linux.ibm.com>
-Date: Fri, 24 Jul 2026 14:43:30 +0530
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="pmgFhNA5";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="t/RKhmKJ";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="pmgFhNA5";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="t/RKhmKJ"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id 947773E87;
+	Fri, 24 Jul 2026 09:30:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1784885426; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=LKdkuQQf5JwTFfmj36cCb4Q9gjlzzdrKvccqkkcvgYU=;
+	b=pmgFhNA5ymxF0V2uIlbnVjGmSctKamWhT4w3Ni8Qt5sL1+YUwrWhdvq2TNHyMjpG3rkuMv
+	59G3SF8LuUdkr+2EYRjd/g8+tCrzvlsH05YNoETbqPoPY5l3K2GC8dIaD32naitXDiJ+Ce
+	J1E7l8mJVDWe8FYyglJ8ib7faqf04SU=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1784885426;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=LKdkuQQf5JwTFfmj36cCb4Q9gjlzzdrKvccqkkcvgYU=;
+	b=t/RKhmKJQ0guyWrvrw9HriaECpeLpVNpLOpUKQ4RdGQsE72pEohI3pm3q6ND0UpcascJQW
+	H5R+Mgodq5v4+yDw==
+Authentication-Results: smtp-out2.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=pmgFhNA5;
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b="t/RKhmKJ"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1784885426; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=LKdkuQQf5JwTFfmj36cCb4Q9gjlzzdrKvccqkkcvgYU=;
+	b=pmgFhNA5ymxF0V2uIlbnVjGmSctKamWhT4w3Ni8Qt5sL1+YUwrWhdvq2TNHyMjpG3rkuMv
+	59G3SF8LuUdkr+2EYRjd/g8+tCrzvlsH05YNoETbqPoPY5l3K2GC8dIaD32naitXDiJ+Ce
+	J1E7l8mJVDWe8FYyglJ8ib7faqf04SU=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1784885426;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=LKdkuQQf5JwTFfmj36cCb4Q9gjlzzdrKvccqkkcvgYU=;
+	b=t/RKhmKJQ0guyWrvrw9HriaECpeLpVNpLOpUKQ4RdGQsE72pEohI3pm3q6ND0UpcascJQW
+	H5R+Mgodq5v4+yDw==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 4373A779BA;
+	Fri, 24 Jul 2026 09:30:25 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id 280/DbEwY2r9NwAAD6G6ig
+	(envelope-from <pfalcato@suse.de>); Fri, 24 Jul 2026 09:30:25 +0000
+Date: Fri, 24 Jul 2026 10:30:23 +0100
+From: Pedro Falcato <pfalcato@suse.de>
+To: Muhammad Usama Anjum <usama.anjum@arm.com>
+Cc: "David Hildenbrand (Arm)" <david@kernel.org>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Zi Yan <ziy@nvidia.com>, Ryan Roberts <ryan.roberts@arm.com>, 
+	Lorenzo Stoakes <ljs@kernel.org>, linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, 
+	linux-kernel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, 
+	"Liam R. Howlett" <liam@infradead.org>, Mike Rapoport <rppt@kernel.org>, 
+	Anshuman Khandual <anshuman.khandual@arm.com>, Catalin Marinas <catalin.marinas@arm.com>, 
+	Will Deacon <will@kernel.org>, Samuel Holland <samuel.holland@sifive.com>, 
+	linux-s390@vger.kernel.org
+Subject: Re: mm: opaque hardware page-table entry handles
+Message-ID: <amMvuPZ0tglCoi1M@pedro-suse.lan>
+References: <74182e50-b54f-4d2d-a27f-3a59a538d6bc@arm.com>
+ <31d36023-d728-4eee-90f8-158c7066f565@kernel.org>
+ <e22407d8-4509-4a53-9ba4-491b9d5c5ef7@arm.com>
+ <4bfeb697-9c1f-4316-96bb-9bfd66f959df@kernel.org>
+ <6110202c-057b-4701-8c04-1a76ee7bb9ab@arm.com>
+ <20260721124057.2820903Adf-agordeev@linux.ibm.com>
+ <3c21586c-0ffe-4ebc-97f1-803e8acfc5c1@arm.com>
+ <716f73c1-41cc-48a5-b0e1-a47403a30da1@kernel.org>
+ <47b4e62e-b001-465c-9c3b-ea0636925387@arm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v3] MAINTAINERS: Update SHARED MEMORY
- COMMUNICATIONS (SMC) maintainer entries
-To: Wenjia Zhang <wenjia@linux.ibm.com>, David Miller <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>, Eric Dumazet <edumazet@google.com>,
-        Paolo Abeni <pabeni@redhat.com>, Andrew Lunn <andrew+netdev@lunn.ch>
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Mahanta Jambigi <mjambigi@linux.ibm.com>, aswin@linux.ibm.com,
-        Alexandra Winter <wintera@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>, Wen Gu <guwen@linux.alibaba.com>,
-        "D. Wythe" <alibuda@linux.alibaba.com>,
-        Tony Lu <tonylu@linux.alibaba.com>,
-        Dust Li <dust.li@linux.alibaba.com>
-References: <20260724053752.3084-1-wenjia@linux.ibm.com>
-Content-Language: en-US
-From: Sidraya Jayagond <sidraya@linux.ibm.com>
-In-Reply-To: <20260724053752.3084-1-wenjia@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Authority-Analysis: v=2.4 cv=HJXz0Itv c=1 sm=1 tr=0 ts=6a632cc3 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8
- a=SRrdq9N9AAAA:8 a=VwQbUJbxAAAA:8 a=Iqf_Y9A1iTEqXqYGlk4A:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI0MDA4MyBTYWx0ZWRfX2GOX7ZgOyaop
- AIPCn4b8ed2nSxu3xXfBacX4I6sgSlpeeR16vjBjFRxmLvg2hNcHHZ/t9Bks9ufDiRiItC8R/T+
- TAodFv00c1DdwHIyyemtU7GZf4nzEXOzW8X5VNKOnxabsZ1YYpIIyZK3QUnPZ5AalCqCb0IeyJ2
- 4e4yT3EiWHgiVYYExfCOibSQrVndCBZWlc0HZyHSR5kfZWypIn/K0L5GQp1kU5dEcEnW5ED4kZT
- 39KqKnHy2A59F8/gKuS3tdQ9/HBoIsqjD9LBVCphED4x7Ya1JlbLTDUmXm7bAHXYS9Q+BIWYk5s
- iRri2EFvMCfl1EmXZ4m24TcBNdaeDlmJ5FES0fTziM6icgsDRIqlEYH6/e7genpDgOtO/KMSyJN
- D7s5vnSmBaAXyg5uUpARHqGES9Lq9fhH+LULgl0i53P33N2aq/3EV65od9q8F0GZAKAPiU9fn83
- 9IAIZK99tdYXADroXng==
-X-Proofpoint-ORIG-GUID: uFeaP31iR2AcoBSKxn-3kQkmR0NrItHU
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI0MDA4MyBTYWx0ZWRfX5UNdovSXBwSC
- bQ1F96uLKI7JvMAOwL7t1+DJP22rRBHAndGrtNymoMD3CPYpkpWppD8dan5+8WY1bFMB0MlQsow
- RAey6TVcOQ77jfAnFPYYue9KAOlTOBg=
-X-Proofpoint-GUID: _flJAMVD2a0TeQ75C9yqUoVncj5b6q0Z
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-07-24_01,2026-07-22_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0 priorityscore=1501 lowpriorityscore=0 suspectscore=0
- malwarescore=0 impostorscore=0 clxscore=1011 phishscore=0 spamscore=0
- adultscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2607240083
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <47b4e62e-b001-465c-9c3b-ea0636925387@arm.com>
+X-Spamd-Result: default: False [-4.51 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	MIME_TRACE(0.00)[0:+];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	MISSING_XM_UA(0.00)[];
+	RCPT_COUNT_TWELVE(0.00)[17];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	ARC_NA(0.00)[];
+	RCVD_TLS_ALL(0.00)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	TO_DN_SOME(0.00)[];
+	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:dkim];
+	RCVD_COUNT_TWO(0.00)[2];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	DKIM_TRACE(0.00)[suse.de:+]
+X-Spam-Flag: NO
+X-Spam-Score: -4.51
+X-Spam-Level: 
+X-Rspamd-Queue-Id: 947773E87
+X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
+X-Rspamd-Action: no action
 
-
-
-On 24/07/26 11:07 am, Wenjia Zhang wrote:
-> Due to a change in responsibilities, I can no longer serve as an SMC
-> maintainer and need to be removed from the MAINTAINERS list.
+On Thu, Jul 23, 2026 at 06:01:49PM +0100, Muhammad Usama Anjum wrote:
+> On 23/07/2026 5:38 pm, David Hildenbrand (Arm) wrote:
+> > 
+> >> So after the conversion, it doesn't makes sense to keep STRICT_MM_TYPECHECKS
+> >> around. Please correct me if I'm wrong.
+> >>
+> >> This brings another thing in my mind that in ideal world we would just
+> >> turn STRICT_MM_TYPECHECKS on for all arches all the time. But the problem
+> >> with it is that STRICT_MM_TYPECHECKS defines pte_t which will stay double
+> >> meaning still. So we want sort of STRICT_MM_TYPECHECKS with different name
+> >> and separate stack and hardware types.
+> > 
+> > I think STRICT_MM_TYPECHECKS is also to avoid catching when passing a pte_t into
+> > a function that consumes a pmd_t, and vice versa.
+> > 
+> > STRICT_MM_TYPECHECKS makes the compiler generate worse code today, which is why
+> > we don't enable it always.
+> > 
+> >>
+> >>>
+> >>> We would like to keep it, and I guess some other architectures too.
+> >> David had summarized it well. We'll convert generic code to use hw_p*_t
+> >> types which would be typedef to p*_t for those architectures which don't
+> >> care about. But if an architecture wants to interpret these types
+> >> differently or want to make sure the type is enforced and not directly
+> >> dereferenced, they need to convert the arch code a well. But it can be
+> >> done slowly.
+> > 
+> > I think what Alexander meant is: they want to keep STRICT_MM_TYPECHECKS (or
+> > something that achieves something similar :) ). So as long as that keeps on
+> > working, all good :)
+> Thank you for clarifying.
 > 
-> To reflect these organizational changes, promote Mahanta Jambigi
-> <mjambigi@linux.ibm.com> from reviewer to maintainer.
-> 
-> Acked-by: Mahanta Jambigi <mjambigi@linux.ibm.com>
-> Signed-off-by: Wenjia Zhang <wenjia@linux.ibm.com>
-> ---
->  MAINTAINERS | 3 +--
->  1 file changed, 1 insertion(+), 2 deletions(-)
-> 
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index ff93f3954fd1..031db6fa5522 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -24632,8 +24632,7 @@ SHARED MEMORY COMMUNICATIONS (SMC) SOCKETS
->  M:	D. Wythe <alibuda@linux.alibaba.com>
->  M:	Dust Li <dust.li@linux.alibaba.com>
->  M:	Sidraya Jayagond <sidraya@linux.ibm.com>
-> -M:	Wenjia Zhang <wenjia@linux.ibm.com>
-> -R:	Mahanta Jambigi <mjambigi@linux.ibm.com>
-> +M:	Mahanta Jambigi <mjambigi@linux.ibm.com>
->  R:	Tony Lu <tonylu@linux.alibaba.com>
->  R:	Wen Gu <guwen@linux.alibaba.com>
->  L:	linux-rdma@vger.kernel.org
+> It has been a month since I started this discussion. We don't have any
+> disagreement on it. Should I proceed to post first part patch series considering
+> most people must already have viewed these emails and are on-board with it?
 
-Thank you Wenjia.
-Reviewed-by: Sidraya Jayagond <sidraya@linux.ibm.com>
+Besides the vague disagreement I have (about whether this is worth it or
+not), I have an actual objection: I've been doing some constifying of pte_t*
+for various reasons lately, and something that just just came up is how
+hw_ptep will _not_ work with const, unless you do something like
+const_hw_ptep, in which case welcome to Win32 programming or something :|
+
+(I'm assuming the idea still is typedef struct { pte_t *pte; } hw_ptep;)
+
+Have you tried sparse instead?
+
+-- 
+Pedro
