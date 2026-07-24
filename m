@@ -1,66 +1,60 @@
-Received: from mail-yx1-f47.google.com (mail-yx1-f47.google.com [74.125.224.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 914453515F5
-	for <linux-s390@vger.kernel.org>; Fri, 24 Jul 2026 20:35:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.224.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0B5343ACA6C;
+	Fri, 24 Jul 2026 20:44:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784925333; cv=none; b=muoISTzayYSPH2HbA75C4/tRNr960SdI8qC22XS5jXXP0k4L+X3LC/AwOQN3GiQRks3JHHgZfS3IY1QgR5S+FE7F92ecy+O87h48XeNRJTGaw5zh2bSP8SgednCMHonyR8N9GnIm9x4qPn+KuJNYFV41TAvAjKFWnhv4ouIs4Y8=
+	t=1784925856; cv=none; b=N5+jdQ7pEFYj3PWEq2c+j1QKSpx7i9SBofN+w/EdaFKkB9Swyv6E/iI8bvVZOLsB3l4tMiWj75ngxG2LW387z8Gq97ByQ1lM+Hta+aKCXuRhzyIV6veeEJZCpxRGh6kNHvQO/x7WokEefbGQwDsHm3bAqZ2k/2Tr+f6Bd8nbCvU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784925333; c=relaxed/simple;
-	bh=TIdb+PrmPRPIJerRy/ogzvQiQrvIOHY0y1wo5UN9DMM=;
+	s=arc-20240116; t=1784925856; c=relaxed/simple;
+	bh=iS/mwhebmyYWToIziqD02iD9GpjlCcOmOCo7RrmPunw=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=akXkoLjZblPPiNOprKqG/NubGq4Wn7UW9I7Gb2aeCHq700x32h1p+dRkUINg+WVrwBL6Dui/rqO9VrMLnpFgoUDKgCWwFu5na8mvp6gtvw6lKb0a88XpGdrZdpZ4Xeg60Lv0Y8bKda0jCAxY892lSahg/tpSBXRAuTRhuy4yNwA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MxbopMaS; arc=none smtp.client-ip=74.125.224.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 In-Reply-To:Content-Type; b=B+ff/ASdctqyJSZzJSwPlTHK2uQ2hXHeMC/Snm5ttpyqiVJXcmmslDJUr0GDrZdDU1pqqSquEW1yXmAIltDu+FauKSexDFTgco6l9E6O0zAhzqfuNTNxvwygfqt0ZiYoySKh2aZVSNNtkUo3kpD5FHaOFn9WatyESdbfZ9QfJ/M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=fNC4wajb; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MxbopMaS"
-Received: by mail-yx1-f47.google.com with SMTP id 956f58d0204a3-668c1b780e5so497292d50.2
-        for <linux-s390@vger.kernel.org>; Fri, 24 Jul 2026 13:35:31 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784925330; x=1785530130; darn=vger.kernel.org;
-        h=content-type:in-reply-to:autocrypt:from:content-language:references
-         :cc:to:subject:user-agent:mime-version:date:message-id:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=q/8kImmPB4tQ/JHFIpayA/JIm7PmQB1mt4kK24yFpjU=;
-        b=MxbopMaSEbgL+KxR9/xyT+gM5Om4AmEFUsVi+9Zcfgeh3CENNroRbgjkSiMDradbEH
-         K8rdviMh2pQu0L7YZuy4VD8RIoDfwPhZthlQiXOMOF+KQICTGUyhwaGScBn2iS5qMLfp
-         bmKb0/TCM+08yYsrmTurrllrPtABMC6S4jMdni9A3ne/KnQ9IsTBqFqVUuF1taaYKPlh
-         KbwV4RCeWhKVq0WoDXIWc2+TYS07Z/qAHbAbOsQvkpjae9ZiQWtMMcfH2U31Rpe2bMk8
-         JjN9xHKufsKQ7OwSOudVktKdi9WwtlWKBiqLdcsXH0eB++4xcUSMicZ/372h57f44Dnx
-         eceQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784925330; x=1785530130;
-        h=content-type:in-reply-to:autocrypt:from:content-language:references
-         :cc:to:subject:user-agent:mime-version:date:message-id:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=q/8kImmPB4tQ/JHFIpayA/JIm7PmQB1mt4kK24yFpjU=;
-        b=snGis+YqCyKgpPGW+oVlzo8sD3LcGIQ8ATiiIBvQs7SfPS4EIqCldpk7JhHLhVOOrr
-         2o3xuMlvPrQf+kibqBGUyTXSJIFUVKRWDQxmFH1JkYCZS74jKz/iSpLn0wVcJh9aKPBJ
-         JeBUPr8I8mGm1HbsaUKAEaSmrVrj9JQgLmPKhi5XKeR+pw5nncnFxqMA/ifmGJxLcVOt
-         0pDvBhE+yLNhPiQV6EySTgEoWVlAFVyhQsHF0Emb8zhFYPeO0FU5ruJc0zO9+W88gLUN
-         7SYxkg0qH9vY4Zj4uJXpE47caOIhVG3XA3BPsU6Mw61Euy2RPxgUMtitxn7KKwzH1R7Z
-         gN8g==
-X-Forwarded-Encrypted: i=1; AHgh+RoQY/cWxZdq1GaN0ImEQvM6X/nVhxDOhJF3fXSiGENmmZtdQnyw1S5aGviUnoePMOX4pt7nGTGTin0j@vger.kernel.org
-X-Gm-Message-State: AOJu0YwAp0NA6+/bGFzB0NcM/oWVtD4O9FkC6yjEp/PGECXLts9Wjpe5
-	Ka9lrPvOC7lMFyy6XHQ4rs+JUSTLWurYksUnj2O+m6F8bm4CVQrk2VO4
-X-Gm-Gg: AR+sD12i+F4kfikc9nAD/aXqlOB9HVa8Awd8Ixf1RnP/SOUadzZvIGxbQA4suDXlYZx
-	s/DtF8gwXRUIXuPHlDvu74NazZYNNhSa972ARvkpmoy6SXSldubxgX+zUBXgz0M+viWtRtwpzu/
-	9QNu1DxOhPFKw8Q0TwZ0y8l7r2qG7UiO9yt1ykIaYGi3N9YMH5hf3SF3UfupyrOrfFEf7euwiXM
-	u3OerwxilU/tglSbDba0AF4qb6UW+6WhN+M6XB/fKoTRN/Y8RGbnFdzU1ebAOzwagM2QocTRm8h
-	kgE6ROPQl2tfE4ycKuKwGEQsSQNGyUo9t6nZBJLUyYuGziV4vZOXpTJ0/+iC/G/qEQiLiTZY5ph
-	AWI2irEBznelmpH70RAnEIaYS85hc/g4UqnZNMthlBCKVBB71YVQASZJfXcNMirb80i77yoFjRC
-	bS4tR9
-X-Received: by 2002:a05:690e:43da:b0:662:ebb0:36fa with SMTP id 956f58d0204a3-668a4bb68b6mr1963039d50.20.1784925330394;
-        Fri, 24 Jul 2026 13:35:30 -0700 (PDT)
-Received: from [10.138.10.6] ([185.98.168.14])
-        by smtp.gmail.com with ESMTPSA id 956f58d0204a3-668c6dd57a0sm108d50.8.2026.07.24.13.35.28
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 24 Jul 2026 13:35:29 -0700 (PDT)
-Message-ID: <0ccda05f-077c-4661-b852-e6bf9bf40be3@gmail.com>
-Date: Fri, 24 Jul 2026 16:35:13 -0400
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="fNC4wajb"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66OHBdNK555929;
+	Fri, 24 Jul 2026 20:44:14 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=18zUN/
+	CDKU+1yKCD11JIizr4utJDNShJniXlRran+ME=; b=fNC4wajbfankA2bMxlMs6b
+	WnJ/mNJ70YiRjofAt00mmR5WcQUeveR11JPBBpFWdKusPQ3G19WurF2AZXGc7xPq
+	gYlmTifGpXZPUhQWVob+MEHefP6hUDaswjFduZxPNZnwYChccq7aIzuovw+NFSFl
+	QsWXLMndDEMEwjtFlxd/Z2FctGoSSzP2asFDPV6LEftkKeuYamT+0no5AMlLJ8nM
+	uQIZDaPbVZdLP9XD2Z+U9qLHZypCSGEMYXksHKSae7Sy9nIOAGeYGb7SoX0A9iNS
+	wcxT8lCw+gcOC0PlQM8x+j3QpCacMb4YtUOEyRq2IsyJoexVtQjIFQ+REIqPvILg
+	==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fm8gs9wy2-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 24 Jul 2026 20:44:14 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66OKYcCj031233;
+	Fri, 24 Jul 2026 20:44:13 GMT
+Received: from smtprelay02.wdc07v.mail.ibm.com ([172.16.1.69])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fgktqjstp-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 24 Jul 2026 20:44:13 +0000 (GMT)
+Received: from smtpav04.wdc07v.mail.ibm.com (smtpav04.wdc07v.mail.ibm.com [10.39.53.231])
+	by smtprelay02.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66OKiBP019858084
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 24 Jul 2026 20:44:11 GMT
+Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 5FDFB58045;
+	Fri, 24 Jul 2026 20:44:11 +0000 (GMT)
+Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 5D3E958050;
+	Fri, 24 Jul 2026 20:44:10 +0000 (GMT)
+Received: from [9.61.177.4] (unknown [9.61.177.4])
+	by smtpav04.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Fri, 24 Jul 2026 20:44:10 +0000 (GMT)
+Message-ID: <bebb434e-4923-4e39-b754-72d608a457a0@linux.ibm.com>
+Date: Fri, 24 Jul 2026 16:44:09 -0400
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -68,267 +62,103 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 2/3] AF_ALG: Drop support for off-CPU cryptography
-To: Dominique Martinet <asmadeus@codewreck.org>,
- Eric Biggers <ebiggers@kernel.org>
-Cc: Harald Freudenberger <freude@linux.ibm.com>, acme@kernel.org,
- adrian.hunter@intel.com, alexander.shishkin@linux.intel.com,
- ardb@kernel.org, axboe@kernel.dk, corbet@lwn.net, davem@davemloft.net,
- edumazet@google.com, herbert@gondor.apana.org.au, horms@kernel.org,
- io-uring@vger.kernel.org, irogers@google.com, james.clark@linaro.org,
- jolsa@kernel.org, kuba@kernel.org, kuniyu@google.com,
- linux-crypto@vger.kernel.org, linux-doc@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org,
- mark.rutland@arm.com, mingo@redhat.com, namhyung@kernel.org,
- netdev@vger.kernel.org, pabeni@redhat.com, peterz@infradead.org,
- skhan@linuxfoundation.org, willemb@google.com, linux-s390@vger.kernel.org
-References: <20260523-af-alg-harden-v1-2-c76755c3a5c5@gmail.com>
- <20260603133312.12848-1-freude@linux.ibm.com>
- <amOGWwdjnJqyxH5L@codewreck.org> <20260724160034.GB2032@sol>
- <amOTjPW__CNZui3_@codewreck.org>
+Subject: Re: [PATCH v3 8/8] s390/vfio_ccw: implement a crw lock
+To: Eric Farman <farman@linux.ibm.com>, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Halil Pasic <pasic@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        stable@vger.kernel.org, Farhan Ali <alifm@linux.ibm.com>
+References: <20260723174751.1180334-1-farman@linux.ibm.com>
+ <20260723174751.1180334-9-farman@linux.ibm.com>
 Content-Language: en-US
-From: Demi Marie Obenour <demiobenour@gmail.com>
-Autocrypt: addr=demiobenour@gmail.com; keydata=
- xsFNBFp+A0oBEADffj6anl9/BHhUSxGTICeVl2tob7hPDdhHNgPR4C8xlYt5q49yB+l2nipd
- aq+4Gk6FZfqC825TKl7eRpUjMriwle4r3R0ydSIGcy4M6eb0IcxmuPYfbWpr/si88QKgyGSV
- Z7GeNW1UnzTdhYHuFlk8dBSmB1fzhEYEk0RcJqg4AKoq6/3/UorR+FaSuVwT7rqzGrTlscnT
- DlPWgRzrQ3jssesI7sZLm82E3pJSgaUoCdCOlL7MMPCJwI8JpPlBedRpe9tfVyfu3euTPLPx
- wcV3L/cfWPGSL4PofBtB8NUU6QwYiQ9Hzx4xOyn67zW73/G0Q2vPPRst8LBDqlxLjbtx/WLR
- 6h3nBc3eyuZ+q62HS1pJ5EvUT1vjyJ1ySrqtUXWQ4XlZyoEFUfpJxJoN0A9HCxmHGVckzTRl
- 5FMWo8TCniHynNXsBtDQbabt7aNEOaAJdE7to0AH3T/Bvwzcp0ZJtBk0EM6YeMLtotUut7h2
- Bkg1b//r6bTBswMBXVJ5H44Qf0+eKeUg7whSC9qpYOzzrm7+0r9F5u3qF8ZTx55TJc2g656C
- 9a1P1MYVysLvkLvS4H+crmxA/i08Tc1h+x9RRvqba4lSzZ6/Tmt60DPM5Sc4R0nSm9BBff0N
- m0bSNRS8InXdO1Aq3362QKX2NOwcL5YaStwODNyZUqF7izjK4QARAQABzTxEZW1pIE1hcmll
- IE9iZW5vdXIgKGxvdmVyIG9mIGNvZGluZykgPGRlbWlvYmVub3VyQGdtYWlsLmNvbT7CwXgE
- EwECACIFAlp+A0oCGwMGCwkIBwMCBhUIAgkKCwQWAgMBAh4BAheAAAoJELKItV//nCLBhr8Q
- AK/xrb4wyi71xII2hkFBpT59ObLN+32FQT7R3lbZRjVFjc6yMUjOb1H/hJVxx+yo5gsSj5LS
- 9AwggioUSrcUKldfA/PKKai2mzTlUDxTcF3vKx6iMXKA6AqwAw4B57ZEJoMM6egm57TV19kz
- PMc879NV2nc6+elaKl+/kbVeD3qvBuEwsTe2Do3HAAdrfUG/j9erwIk6gha/Hp9yZlCnPTX+
- VK+xifQqt8RtMqS5R/S8z0msJMI/ajNU03kFjOpqrYziv6OZLJ5cuKb3bZU5aoaRQRDzkFIR
- 6aqtFLTohTo20QywXwRa39uFaOT/0YMpNyel0kdOszFOykTEGI2u+kja35g9TkH90kkBTG+a
- EWttIht0Hy6YFmwjcAxisSakBuHnHuMSOiyRQLu43ej2+mDWgItLZ48Mu0C3IG1seeQDjEYP
- tqvyZ6bGkf2Vj+L6wLoLLIhRZxQOedqArIk/Sb2SzQYuxN44IDRt+3ZcDqsPppoKcxSyd1Ny
- 2tpvjYJXlfKmOYLhTWs8nwlAlSHX/c/jz/ywwf7eSvGknToo1Y0VpRtoxMaKW1nvH0OeCSVJ
- itfRP7YbiRVc2aNqWPCSgtqHAuVraBRbAFLKh9d2rKFB3BmynTUpc1BQLJP8+D5oNyb8Ts4x
- Xd3iV/uD8JLGJfYZIR7oGWFLP4uZ3tkneDfYzsFNBFp+A0oBEAC9ynZI9LU+uJkMeEJeJyQ/
- 8VFkCJQPQZEsIGzOTlPnwvVna0AS86n2Z+rK7R/usYs5iJCZ55/JISWd8xD57ue0eB47bcJv
- VqGlObI2DEG8TwaW0O0duRhDgzMEL4t1KdRAepIESBEA/iPpI4gfUbVEIEQuqdqQyO4GAe+M
- kD0Hy5JH/0qgFmbaSegNTdQg5iqYjRZ3ttiswalql1/iSyv1WYeC1OAs+2BLOAT2NEggSiVO
- txEfgewsQtCWi8H1SoirakIfo45Hz0tk/Ad9ZWh2PvOGt97Ka85o4TLJxgJJqGEnqcFUZnJJ
- riwoaRIS8N2C8/nEM53jb1sH0gYddMU3QxY7dYNLIUrRKQeNkF30dK7V6JRH7pleRlf+wQcN
- fRAIUrNlatj9TxwivQrKnC9aIFFHEy/0mAgtrQShcMRmMgVlRoOA5B8RTulRLCmkafvwuhs6
- dCxN0GNAORIVVFxjx9Vn7OqYPgwiofZ6SbEl0hgPyWBQvE85klFLZLoj7p+joDY1XNQztmfA
- rnJ9x+YV4igjWImINAZSlmEcYtd+xy3Li/8oeYDAqrsnrOjb+WvGhCykJk4urBog2LNtcyCj
- kTs7F+WeXGUo0NDhbd3Z6AyFfqeF7uJ3D5hlpX2nI9no/ugPrrTVoVZAgrrnNz0iZG2DVx46
- x913pVKHl5mlYQARAQABwsFfBBgBAgAJBQJafgNKAhsMAAoJELKItV//nCLBwNIP/AiIHE8b
- oIqReFQyaMzxq6lE4YZCZNj65B/nkDOvodSiwfwjjVVE2V3iEzxMHbgyTCGA67+Bo/d5aQGj
- gn0TPtsGzelyQHipaUzEyrsceUGWYoKXYyVWKEfyh0cDfnd9diAm3VeNqchtcMpoehETH8fr
- RHnJdBcjf112PzQSdKC6kqU0Q196c4Vp5HDOQfNiDnTf7gZSj0BraHOByy9LEDCLhQiCmr+2
- E0rW4tBtDAn2HkT9uf32ZGqJCn1O+2uVfFhGu6vPE5qkqrbSE8TG+03H8ecU2q50zgHWPdHM
- OBvy3EhzfAh2VmOSTcRK+tSUe/u3wdLRDPwv/DTzGI36Kgky9MsDC5gpIwNbOJP2G/q1wT1o
- Gkw4IXfWv2ufWiXqJ+k7HEi2N1sree7Dy9KBCqb+ca1vFhYPDJfhP75I/VnzHVssZ/rYZ9+5
- 1yDoUABoNdJNSGUYl+Yh9Pw9pE3Kt4EFzUlFZWbE4xKL/NPno+z4J9aWemLLszcYz/u3XnbO
- vUSQHSrmfOzX3cV4yfmjM5lewgSstoxGyTx2M8enslgdXhPthZlDnTnOT+C+OTsh8+m5tos8
- HQjaPM01MKBiAqdPgksm1wu2DrrwUi6ChRVTUBcj6+/9IJ81H2P2gJk3Ls3AVIxIffLoY34E
- +MYSfkEjBz0E8CLOcAw7JIwAaeBT
-In-Reply-To: <amOTjPW__CNZui3_@codewreck.org>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="------------8JNKQ02asdP8sqLTJjoHdKEp"
-
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---------------8JNKQ02asdP8sqLTJjoHdKEp
-Content-Type: multipart/mixed; boundary="------------tHcDdCFADMuM4KeFqlrbc8bo";
- protected-headers="v1"; hp="clear"
-Message-ID: <0ccda05f-077c-4661-b852-e6bf9bf40be3@gmail.com>
-Date: Fri, 24 Jul 2026 16:35:13 -0400
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 2/3] AF_ALG: Drop support for off-CPU cryptography
-To: Dominique Martinet <asmadeus@codewreck.org>,
- Eric Biggers <ebiggers@kernel.org>
-Cc: Harald Freudenberger <freude@linux.ibm.com>, acme@kernel.org,
- adrian.hunter@intel.com, alexander.shishkin@linux.intel.com,
- ardb@kernel.org, axboe@kernel.dk, corbet@lwn.net, davem@davemloft.net,
- edumazet@google.com, herbert@gondor.apana.org.au, horms@kernel.org,
- io-uring@vger.kernel.org, irogers@google.com, james.clark@linaro.org,
- jolsa@kernel.org, kuba@kernel.org, kuniyu@google.com,
- linux-crypto@vger.kernel.org, linux-doc@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org,
- mark.rutland@arm.com, mingo@redhat.com, namhyung@kernel.org,
- netdev@vger.kernel.org, pabeni@redhat.com, peterz@infradead.org,
- skhan@linuxfoundation.org, willemb@google.com, linux-s390@vger.kernel.org
-References: <20260523-af-alg-harden-v1-2-c76755c3a5c5@gmail.com>
- <20260603133312.12848-1-freude@linux.ibm.com>
- <amOGWwdjnJqyxH5L@codewreck.org> <20260724160034.GB2032@sol>
- <amOTjPW__CNZui3_@codewreck.org>
-Content-Language: en-US
-From: Demi Marie Obenour <demiobenour@gmail.com>
-Autocrypt: addr=demiobenour@gmail.com; keydata=
- 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
- +MYSfkEjBz0E8CLOcAw7JIwAaeBT
-In-Reply-To: <amOTjPW__CNZui3_@codewreck.org>
-
---------------tHcDdCFADMuM4KeFqlrbc8bo
+From: Matthew Rosato <mjrosato@linux.ibm.com>
+In-Reply-To: <20260723174751.1180334-9-farman@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI0MDE4NiBTYWx0ZWRfX9uLtI64Ddcdy
+ ieTz7GNvbBNQh2i30u1Z+TMxny+7HJheqsejDMaaiQxntH7bq+VZMYFLvNhhj1fbdiOte6ee3aU
+ TPNRpOusrSaLw5t+JAbMphf8wpjjqks=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI0MDE4NiBTYWx0ZWRfX7ja6Sa8wt5Yx
+ 1E5iGZYmAsleL3M1XtFZ1ySmS45pEK2+522VLoorHjis4tH8csHCZAPQi1Amz9yzpKKgMQCzBRj
+ g2egeBBUqwbto4nPc+JMZUpf5dRThLJyds1OYVH3KWLB3EHNWdFthkmIiv4JcEGFmhMF/I61agj
+ r2fn9hKsLJ/Xx65OpYn+UL28wBAwIQQarRdP7kyKVkCnryiLEjb2b0cv6rUxVxcnBcYY8ulbgOp
+ sQBtkmqP4JsCYUfY4mhMw84DrUU6AIFleOdtkfXbUP49RIAN+8RjlDEAkzFG33JiN3DD30Llxq9
+ cQVxOHMjVUuDSzA/mmWA0JxYJ/0MEVlpJzHNLTLdSSTn6v8a7ghewrbIX1cnjlIb+jveAN0Il89
+ vzRgZt5hAjS6C55MGlDlhhP9xjpNAFE6MdJ1hcMdp2kQ1dXCwORvdcMtKYE1oc03NrV2h2vZ7B1
+ Wvhw9n4xqfsluInu8+Q==
+X-Authority-Analysis: v=2.4 cv=Q9LiJY2a c=1 sm=1 tr=0 ts=6a63ce9e cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+ a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VwQbUJbxAAAA:8
+ a=VnNF1IyMAAAA:8 a=givLDcII0hE-szGgeRIA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-ORIG-GUID: mU2dyMAc8Kw6CYhwDr7flq_Lt7Ne7Nzo
+X-Proofpoint-GUID: mU2dyMAc8Kw6CYhwDr7flq_Lt7Ne7Nzo
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-07-24_04,2026-07-24_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ clxscore=1015 malwarescore=0 adultscore=0 phishscore=0 bulkscore=0
+ spamscore=0 priorityscore=1501 impostorscore=0 suspectscore=0
+ lowpriorityscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2607240186
 
-On 7/24/26 12:32, Dominique Martinet wrote:
-> Eric Biggers wrote on Fri, Jul 24, 2026 at 09:00:34AM -0700:
->> On Sat, Jul 25, 2026 at 12:35:55AM +0900, Dominique Martinet wrote:
->>> The tool source is available here:
->>> https://github.com/nxp-imx/crypto_af_alg
->>> (which now fails with:
->>> bind(3, {sa_family=3DAF_ALG, salg_type=3D"skcipher", salg_feat=3D0, s=
-alg_mask=3D0, salg_name=3D"tk(cbc(aes))"}, 88) =3D -1 ENOENT (No such fil=
-e or directory)
->>> )
->>>
->>>
->>> I don't particularily care for the API used as long as we can keep us=
-ing
->>> the hardware key, but as far as I can see there's no alternative API =
---
->>> what's the path forward?
->>
->> There's no "tk(cbc(aes))" algorithm in the upstream kernel.  So, it's
->> not possible that this ever worked with upstream.  Given that, there's=
+On 7/23/26 1:47 PM, Eric Farman wrote:
+> Unlike the channel_program struct, which covers synchronous I/O
+> submissions and asynchronous interrupts, the CRW region relies
+> exclusively on asynchronous events coming from hardware.
+> 
+> Implement a lock to manage the list of those payloads, to ensure
+> they are read cohesively.
+> 
+> Fixes: 3f02cb2fd9d2 ("vfio-ccw: Wire up the CRW irq and CRW region")
+> Cc: stable@vger.kernel.org
+> Cc: Farhan Ali <alifm@linux.ibm.com>
+> Signed-off-by: Eric Farman <farman@linux.ibm.com>
+> ---
+>  drivers/s390/cio/vfio_ccw_chp.c     | 17 +++++++++++------
+>  drivers/s390/cio/vfio_ccw_drv.c     |  4 ++++
+>  drivers/s390/cio/vfio_ccw_ops.c     |  3 +++
+>  drivers/s390/cio/vfio_ccw_private.h |  2 ++
+>  4 files changed, 20 insertions(+), 6 deletions(-)
+> 
+> diff --git a/drivers/s390/cio/vfio_ccw_chp.c b/drivers/s390/cio/vfio_ccw_chp.c
+> index bf678270c457..3d05aaf790fa 100644
+> --- a/drivers/s390/cio/vfio_ccw_chp.c
+> +++ b/drivers/s390/cio/vfio_ccw_chp.c
+> @@ -93,15 +93,19 @@ static ssize_t vfio_ccw_crw_region_read(struct vfio_ccw_private *private,
+>  	if (pos + count > sizeof(*region))
+>  		return -EINVAL;
+>  
+> +	mutex_lock(&private->io_mutex);
+> +	i = array_index_nospec(i, private->num_regions);
 
->> no regression in upstream for this program, and it wouldn't be
->> appropriate to consider a sysctl knob in upstream at this time.
->=20
-> Bleh, you are correct, it's an NXP patch in
-> drivers/crypto/caam/caamalg.c that they've been carrying in their
-> tree(s) since 2018[1] and has apparently never been upstreamed...
-> [1] https://github.com/nxp-imx/linux-imx/commit/6868c9e49c1854028fb4602=
-2daac3b1b10ca2c70
->=20
-> Sorry for not having checked, I was hoping for better.
-> (I should be used to it by now...)
->=20
->=20
-> Regardless of the specific algorithm, most recent SoCs flaunt some
-> "secure element" or similiar hardware-backed keys (so one wouldn't be
-> able to decrypt $whatever without running on the specific board it was
-> intended for); I'm sure _some_ of them are upstream?
-> (Never used it so not sure if they are reachable from af_alg, but for
-> example drivers/crypto/ccree/cc_cipher.c talks about hardware key...)
->=20
-> There's not much I can do about the vendor's kernel I'm stuck with, but=
+Same comment as patch 6 wrt to array_index_nospec
 
-> that doesn't make having encryption material not accessible to userspac=
-e
-> useless as a concept;
-> forgetting about the sysctl for now, what are the alternatives API this=
+...
 
-> kind of implementations could be based on?
->=20
-> I guess I should start looking at how tpm backed encryption works,
-> some other day, it's getting late here...
+> index ac5aaa78a74b..2562679b5ef5 100644
+> --- a/drivers/s390/cio/vfio_ccw_private.h
+> +++ b/drivers/s390/cio/vfio_ccw_private.h
+> @@ -121,6 +121,8 @@ struct vfio_ccw_private {
+>  
+>  	struct irb		irb;
+>  	union scsw		scsw;
+> +
+> +	spinlock_t		crw_lock;
 
-I actually had this thought myself, though with a different
-use-case: preventing long-term keys (like TLS and SSH keys and
-cookie signing/encryption keys) from being accidentally leaked.
+This should have a comment either here or, in keeping with the rest of
+the struct, in the comment block above.
 
-I came up with a much simpler API than AF_ALG:
+This looks good if you're trying to protect private->crw list, I don't
+think it's complete if you're also trying to protect
+private->crw_trigger - it looks to me like you hold the new lock over
+most accesses to crw_trigger but at least not vfio_ccw_mdev_set_irqs
+where you set/clear it.
 
-1. Generate a file descriptor and a wrapping key.  The wrapping key
-   is used to encrypt data that will be imported.
 
-2. Import an encrypted secret key.  The key contains both the secret
-   key and the algorithm it will be used with.
+>  	struct list_head	crw;
+>  
+>  	struct eventfd_ctx	*io_trigger;
 
-3. Optionally, attach a restriction policy that requires data to
-   be signed to start with a certain prefix.  This provides domain
-   separation in contexts where the same key is used for multiple
-   purposes.
-
-4. Pass the file descriptor to another process via SCM_RIGHTS.
-
-5. The receiving process can use ioctls to perform secret-key
-   operations, such as ML-KEM, ML-DSA, XChaCha20-Poly1305, and
-   XAES-256-GCM.
-
-6. When the file descriptor is closed, the secret key is securely
-   deleted.
-  =20
-Compared to AF_ALG, the kernel attack surface is very small.  It's not
-quite a "hello world" character device driver, but compared to many
-of the other drivers in the kernel, it is tiny.  Furthermore, the
-whole thing should be able to be written in safe Rust.
-
-To keep the attack surface minimal, this would only use library
-functions, so there would be no support for hardware-wrapped keys.
-
-I don't plan to work on this myself, but I think it's of potential
-value in the future.  For asymmetric algorithms, the overhead of a
-system call should be fairly small compared to the operation itself.
---=20
-Sincerely,
-Demi Marie Obenour (she/her/hers)
-
---------------tHcDdCFADMuM4KeFqlrbc8bo--
-
---------------8JNKQ02asdP8sqLTJjoHdKEp
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCgAdFiEEopQtqVJW1aeuo9/sszaHOrMp8lMFAmpjzIsACgkQszaHOrMp
-8lNPug/+IDHRwaftOISwVsC+WuuG9FgGOwTLlQjjABKkrEhHZObZ/mWU4BpfL+Ek
-ujcELLLDD1+ewxFwJoh9hynjIG9XDJEwXB7dLJuOYCiMLBWFk/Gujjh2YK2Pd+La
-VGBc9XNcz96+3O8jQtwTbu1P5kQBg5+5WUOPTmONUetB2pzwACQUuRrtMW3g2LrU
-PA9IyEB2n3i/D74GD5L0ca5RVzqf6YrUMrQ9qeMXGLCehhyZecnsMeweBWR6ikIT
-b1s8wFFMD2V0/A5mWhoCnFmmfiyFR3zZQ14ZuxJ1/rhwZVUYgtMnsC6L8zjJLsVm
-pNxg7iXUTnzVjL8467eLCS2Cl3r02dXgvSHt2/xxlpKjPiexOcb5DCzr1ecPlHuh
-TvX19LaVBuITkjtzOlyvzQ0EvBKVqUh3B6btKfyYQ3NEP57Khbjp71rSICESPqdv
-j6fv7iJMmYVPPsIb4yPYowfIHBm7baekQfml+0o+/8Wkmj62T2Cd0dUS7yEGJRIz
-WSiK+99wi6ucfbVEEJNR5vckddmPfpYOasHohP3IhTM89G3FLxmuwfO+2WBJPPXo
-2NcfEWnlp7l8+QaZzvqnTqIVrqEPrfTuMIR421Z+OoDYCzdaP/hz+SLLPyZXBjF0
-eISqWWtGWHVcK7u8UNxBEkFZFbj5385JeXjl4UhysytbZVCK9v0=
-=cZKJ
------END PGP SIGNATURE-----
-
---------------8JNKQ02asdP8sqLTJjoHdKEp--
