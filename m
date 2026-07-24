@@ -1,150 +1,202 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C099392C42;
-	Fri, 24 Jul 2026 12:55:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1950F40B0EA
+	for <linux-s390@vger.kernel.org>; Fri, 24 Jul 2026 12:57:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784897719; cv=none; b=aTvA4XT8+ImydHskJ0s9+VmlEwZY1z2hgy8CKTx97SVicWFTmA50B5Jue2mry3Dy9KShf7Dn/bMuNRWEAmxuiFxl5+iShBCe0Zqe1LSG66YS2sRNu8URUTtCPBxYBXLzhPYwOAd9EfAlPIBsSVVpVTbmd8UURr+A367TqMiVGf8=
+	t=1784897871; cv=none; b=th0sKWYoGJ7v1SIFPKt9X7JyHgYBtZlMZylSSYTGiEowYAwx+QSBCYzmDMaiAyKGdl5D5H+h9GG8o1xghPOnasDR1YoEzxVJ17Cv6feK0642ZS6/VR7J/q9D2RIJ6ew/gahIK/cNrHjPHPG5cGOyIimxqQ5PFiW156vFBjT5nMU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784897719; c=relaxed/simple;
-	bh=nx9M+45K+bloZULlLrIRAVr23cR/yOTxrX1Ceej1N4I=;
+	s=arc-20240116; t=1784897871; c=relaxed/simple;
+	bh=wQyDjewG5PE8FOcb6XYWLSrruDclGNrCIilFQHYX9XI=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Re1zV1eWhJDWHLds7OTtSV0SoqRK6as4e3KFdQLnpkbagw53kW1Gc9q2sRGSujEFtN04pMzN1mzpYreBZE7Ek0++cQM3QidIDhM+xwDF1VoLbGYn9DsEC2V/qNDzd4cqG+5O31xwGIaXmtN5GLcz2bdgzyspjiBLRBmD6TYKVus=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=VBwVPkCb; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=u74QIts7PYj8PHplHyCJLDHNmq8MlMAQOmTE8em4/AmbsOptebPzLuEgm3rqAoeIeWqtcwnl0rZ+Aefbpvd8oWpIpSyVOk0vAA8An3cWwWWdQ/DUAjXhniMwuYAB6BQ9KFCykKf+X2ZxlVwiblCO/lDWN6laxsVF1cmYcekbPyQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=tpg/AegW; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=wYjmyrL6; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=tpg/AegW; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=wYjmyrL6; arc=none smtp.client-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="VBwVPkCb"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66OCggoQ1846071;
-	Fri, 24 Jul 2026 12:55:17 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:sender:subject:to; s=pp1;
-	 bh=DSeZxST8Z2xzZNa1zhUtTeRKBUaxnWPY4B9F7lKzN34=; b=VBwVPkCbyY/v
-	l5YRDrSc/A8lvLapTxql48xcFKIATluomxT5MjUp0d2CEpuSNl66na8Z4woEd5VL
-	oEMslsHNGUOh6F/Rjoyd8uUQUZ+7KYjtokswbqrq+ILfwf5j/2MO3HY+xueqUa0T
-	KTA5gdupXszTfTdfIC/NZaF/+3HdG+98oRLWifLCmdBsULkiXMF1v1NgxL0Z+B+B
-	MJtTzBHX77HTmB537zc6mUjx2NXa28a/AMRsyAl30i5RD501xdPEyz5Q/jhSD6/1
-	uYkKFbJXcvIKSWbmRnkDMj3HnFzkIxJt4g1pPYp0f+VpzieUafDuUgGuHSArKSRl
-	M9HYMUWy3w==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fg7abvs76-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 24 Jul 2026 12:55:17 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66OCoTSR004241;
-	Fri, 24 Jul 2026 12:55:16 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fgp1grrfc-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 24 Jul 2026 12:55:16 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66OCtCJA32702816
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 24 Jul 2026 12:55:12 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 827C720097;
-	Fri, 24 Jul 2026 12:55:12 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A9D94200DB;
-	Fri, 24 Jul 2026 12:55:11 +0000 (GMT)
-Received: from p1gen4-pw042f0m (unknown [9.224.78.55])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Fri, 24 Jul 2026 12:55:11 +0000 (GMT)
-Received: from bblock by p1gen4-pw042f0m with local (Exim 4.99.4)
-	(envelope-from <bblock@linux.ibm.com>)
-	id 1wnFQl-000000028cr-1pd7;
-	Fri, 24 Jul 2026 14:55:11 +0200
-Date: Fri, 24 Jul 2026 14:55:11 +0200
-From: Benjamin Block <bblock@linux.ibm.com>
-To: Niklas Schnelle <schnelle@linux.ibm.com>
-Cc: Gerd Bayer <gbayer@linux.ibm.com>, Matthew Rosato <mjrosato@linux.ibm.com>,
-        Farhan Ali <alifm@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Ramesh Errabolu <ramesh@linux.ibm.com>,
-        Julian Ruess <julianr@linux.ibm.com>,
-        Tobias Schumacher <ts@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Andreas Krebbel <krebbel@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] s390/sclp: Allow SCLP Action Qualifiers for Spyre card
- status reporting
-Message-ID: <20260724125511.GB14631@p1gen4-pw042f0m>
-References: <20260724-sclp_allow_aqs_spyre-v1-1-569acfe11385@linux.ibm.com>
- <20260724124900.GA14631@p1gen4-pw042f0m>
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="tpg/AegW";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="wYjmyrL6";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="tpg/AegW";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="wYjmyrL6"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id 134753ECD;
+	Fri, 24 Jul 2026 12:57:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1784897868; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=jwqlQxogPnZR3j3vZatDYSH4YbGvS2weAZ8abPdxsk8=;
+	b=tpg/AegWEEyQF9NL3NQe2dNMX5JujfVpqG5fC1Nc4EXxmT5E4LtC5ahHxaM7OXE8D40XUV
+	VwAZMPotr2+KQx5XFISeCjDTQYMCrKsvycbLLpqToRj5oRBo2zDFi8rrdj5ato0KWxXq3e
+	ItdiDPtlV2Mms3c2Gx90skTbZ0vvBXI=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1784897868;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=jwqlQxogPnZR3j3vZatDYSH4YbGvS2weAZ8abPdxsk8=;
+	b=wYjmyrL6U3rCCRtwBOXDHGnCz5StpbG4eKz69wfh3VCRU/PAF30jeR51gKTW3uKue0JZgm
+	86ndZlfes+8ZpGAg==
+Authentication-Results: smtp-out2.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b="tpg/AegW";
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=wYjmyrL6
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1784897868; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=jwqlQxogPnZR3j3vZatDYSH4YbGvS2weAZ8abPdxsk8=;
+	b=tpg/AegWEEyQF9NL3NQe2dNMX5JujfVpqG5fC1Nc4EXxmT5E4LtC5ahHxaM7OXE8D40XUV
+	VwAZMPotr2+KQx5XFISeCjDTQYMCrKsvycbLLpqToRj5oRBo2zDFi8rrdj5ato0KWxXq3e
+	ItdiDPtlV2Mms3c2Gx90skTbZ0vvBXI=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1784897868;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=jwqlQxogPnZR3j3vZatDYSH4YbGvS2weAZ8abPdxsk8=;
+	b=wYjmyrL6U3rCCRtwBOXDHGnCz5StpbG4eKz69wfh3VCRU/PAF30jeR51gKTW3uKue0JZgm
+	86ndZlfes+8ZpGAg==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id DE4F0779BA;
+	Fri, 24 Jul 2026 12:57:46 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id hn4FM0phY2ogBAAAD6G6ig
+	(envelope-from <pfalcato@suse.de>); Fri, 24 Jul 2026 12:57:46 +0000
+Date: Fri, 24 Jul 2026 13:57:45 +0100
+From: Pedro Falcato <pfalcato@suse.de>
+To: Muhammad Usama Anjum <usama.anjum@arm.com>
+Cc: "David Hildenbrand (Arm)" <david@kernel.org>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Zi Yan <ziy@nvidia.com>, Ryan Roberts <ryan.roberts@arm.com>, 
+	Lorenzo Stoakes <ljs@kernel.org>, linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, 
+	linux-kernel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, 
+	"Liam R. Howlett" <liam@infradead.org>, Mike Rapoport <rppt@kernel.org>, 
+	Anshuman Khandual <anshuman.khandual@arm.com>, Catalin Marinas <catalin.marinas@arm.com>, 
+	Will Deacon <will@kernel.org>, Samuel Holland <samuel.holland@sifive.com>, 
+	linux-s390@vger.kernel.org
+Subject: Re: mm: opaque hardware page-table entry handles
+Message-ID: <amNgK4WYP9yZe7iM@pedro-suse.lan>
+References: <31d36023-d728-4eee-90f8-158c7066f565@kernel.org>
+ <e22407d8-4509-4a53-9ba4-491b9d5c5ef7@arm.com>
+ <4bfeb697-9c1f-4316-96bb-9bfd66f959df@kernel.org>
+ <6110202c-057b-4701-8c04-1a76ee7bb9ab@arm.com>
+ <20260721124057.2820903Adf-agordeev@linux.ibm.com>
+ <3c21586c-0ffe-4ebc-97f1-803e8acfc5c1@arm.com>
+ <716f73c1-41cc-48a5-b0e1-a47403a30da1@kernel.org>
+ <47b4e62e-b001-465c-9c3b-ea0636925387@arm.com>
+ <amMvuPZ0tglCoi1M@pedro-suse.lan>
+ <67ee9da4-cbf9-40d1-92c7-49710fb15f1d@arm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20260724124900.GA14631@p1gen4-pw042f0m>
-Sender: Benjamin Block <bblock@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI0MDExNSBTYWx0ZWRfXwz/+cxhZyssZ
- 8VjWRaWp5bHDSRTyiSVWwElHuuURbaIT0lgBPokrRVW/kcU+aUBi37r1tA3uDRVdtWxJAglWrv3
- 7HbgV2ggofNTQS6rTXomI+pTAmMR2Xlk+ObH3iAv/dEcH+vpqjbdehfOHHormL0qVDCiW8LNIZW
- tGqp+XfOeqgHxWTLp0fSzGDHJ6Rseb0UyYRQcWU3LrDlWxiOZDAgyKiOhRk2xE4zxEVGWxKWriJ
- 72AFhrNLQg1NzHTJIMv3YhlSaAwVOPORORoOYHJlfz7a5/05Akd/D1ltuOO2cO5tZsgbuvqsXHg
- XpQHfvEvic3HyDEuObUY/ySyLwIIXkea+oPsVEoyVSDG/SU9CwyLEDSdo91hyXN1N0zXdZIt7Cw
- p2peLCIyuTYy0aRFHgmgHnnDz8dpxVabitylQ7Y1Dgvj0ZJpvQsBDlxii/fVU7lc/QoaQUHTJ/w
- vgw2fIijEJDA5K4XvWg==
-X-Authority-Analysis: v=2.4 cv=F7ZnsKhN c=1 sm=1 tr=0 ts=6a6360b5 cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=8nJEP1OIZ-IA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8
- a=W1gFA47YUPQWep858NcA:9 a=3ZKOabzyN94A:10 a=wPNLvfGTeEIA:10
-X-Proofpoint-ORIG-GUID: t0r-mOlFBb8L4HstuNE6M74lprPXMOkX
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI0MDExNSBTYWx0ZWRfX2BeS3U+elg5u
- 1TGMZ1Nx2QCOA6IS5mPUivi1Cp1Sf07u5IfYidC+KDHMB7WdykwgiSlBYRCNJG+NMDDAyAAyQPv
- XGipDHpvMDnEwWohmZ00fC4QpoHLoWM=
-X-Proofpoint-GUID: t0r-mOlFBb8L4HstuNE6M74lprPXMOkX
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-07-24_02,2026-07-24_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 phishscore=0 bulkscore=0 clxscore=1015 priorityscore=1501
- impostorscore=0 lowpriorityscore=0 suspectscore=0 malwarescore=0 adultscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607240115
+In-Reply-To: <67ee9da4-cbf9-40d1-92c7-49710fb15f1d@arm.com>
+X-Spam-Score: -4.51
+X-Spam-Level: 
+X-Rspamd-Action: no action
+X-Rspamd-Queue-Id: 134753ECD
+X-Spamd-Result: default: False [-4.51 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	ARC_NA(0.00)[];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	RCVD_TLS_ALL(0.00)[];
+	MISSING_XM_UA(0.00)[];
+	RCPT_COUNT_TWELVE(0.00)[17];
+	MIME_TRACE(0.00)[0:+];
+	TO_DN_SOME(0.00)[];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	DNSWL_BLOCKED(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	RCVD_COUNT_TWO(0.00)[2];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns,suse.de:dkim];
+	DKIM_TRACE(0.00)[suse.de:+]
+X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
+X-Spam-Flag: NO
 
-On Fri, Jul 24, 2026 at 02:49:00PM +0200, Benjamin Block wrote:
-> On Fri, Jul 24, 2026 at 02:23:01PM +0200, Niklas Schnelle wrote:
-> > Add SCLP Action Qualifiers used by the Spyre stack for reporting of the
-> > card's initialization status, recoverable errors, and telemetry data.
+On Fri, Jul 24, 2026 at 11:34:52AM +0100, Muhammad Usama Anjum wrote:
+> On 24/07/2026 10:30 am, Pedro Falcato wrote:
+> > On Thu, Jul 23, 2026 at 06:01:49PM +0100, Muhammad Usama Anjum wrote:
+> >> On 23/07/2026 5:38 pm, David Hildenbrand (Arm) wrote:
+> >>>
+> >>>> So after the conversion, it doesn't makes sense to keep STRICT_MM_TYPECHECKS
+> >>>> around. Please correct me if I'm wrong.
+> >>>>
+> >>>> This brings another thing in my mind that in ideal world we would just
+> >>>> turn STRICT_MM_TYPECHECKS on for all arches all the time. But the problem
+> >>>> with it is that STRICT_MM_TYPECHECKS defines pte_t which will stay double
+> >>>> meaning still. So we want sort of STRICT_MM_TYPECHECKS with different name
+> >>>> and separate stack and hardware types.
+> >>>
+> >>> I think STRICT_MM_TYPECHECKS is also to avoid catching when passing a pte_t into
+> >>> a function that consumes a pmd_t, and vice versa.
+> >>>
+> >>> STRICT_MM_TYPECHECKS makes the compiler generate worse code today, which is why
+> >>> we don't enable it always.
+> >>>
+> >>>>
+> >>>>>
+> >>>>> We would like to keep it, and I guess some other architectures too.
+> >>>> David had summarized it well. We'll convert generic code to use hw_p*_t
+> >>>> types which would be typedef to p*_t for those architectures which don't
+> >>>> care about. But if an architecture wants to interpret these types
+> >>>> differently or want to make sure the type is enforced and not directly
+> >>>> dereferenced, they need to convert the arch code a well. But it can be
+> >>>> done slowly.
+> >>>
+> >>> I think what Alexander meant is: they want to keep STRICT_MM_TYPECHECKS (or
+> >>> something that achieves something similar :) ). So as long as that keeps on
+> >>> working, all good :)
+> >> Thank you for clarifying.
+> >>
+> >> It has been a month since I started this discussion. We don't have any
+> >> disagreement on it. Should I proceed to post first part patch series considering
+> >> most people must already have viewed these emails and are on-board with it?
 > > 
-> > Co-developed-by: Andreas Krebbel <krebbel@linux.ibm.com>
-> > Signed-off-by: Andreas Krebbel <krebbel@linux.ibm.com>
-> > Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
-> > ---
-> >  arch/s390/include/asm/sclp.h | 3 +++
-> >  drivers/s390/char/sclp_pci.c | 3 +++
-> >  2 files changed, 6 insertions(+)
---8<--
+> > Besides the vague disagreement I have (about whether this is worth it or
+> > not), I have an actual objection: I've been doing some constifying of pte_t*
+> > for various reasons lately, and something that just just came up is how
+> > hw_ptep will _not_ work with const, unless you do something like
+> > const_hw_ptep, in which case welcome to Win32 programming or something :|
+> > 
+> > (I'm assuming the idea still is typedef struct { pte_t *pte; } hw_ptep;)
+> We have moved on from this as it was very disruptive. Now we envision the
+> following:
 > 
-> LGTM.
+> typedef struct {pte_t __pte;} hw_pte_t;
 > 
+> With this, const wouldn't be a problem.
+
+Ok, great!
+
 > 
-> Signed-off-by: Benjamin Block <bblock@linux.ibm.com>
+> > 
+> > Have you tried sparse instead?
+> We want to ensure safety during compile time. Without going into more detail,
+> more features would be build on top of this type conversion. 
 
-Sorry.. 
-
-Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
-
-Obviously.
+I understand corporate/business goals may be tying your hands together, but
+it's really difficult to think about your proposal critically if we don't have
+all the details.
 
 -- 
-Best Regards, Benjamin Block        /        Linux on IBM Z Kernel Development
-IBM Deutschland Research & Development GmbH    /   https://www.ibm.com/privacy
-Vors. Aufs.-R.: Wolfgang Wendt         /        Geschäftsführung: David Faller
-Sitz der Ges.: Ehningen     /     Registergericht: AmtsG Stuttgart, HRB 243294
+Pedro
