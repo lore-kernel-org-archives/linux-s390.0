@@ -1,124 +1,77 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2CA0A40683F
-	for <linux-s390@vger.kernel.org>; Fri, 24 Jul 2026 15:57:42 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF188441636;
+	Fri, 24 Jul 2026 16:02:27 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784908664; cv=none; b=vCQgaaRk5QzjrMl45GPrQVLUeTj6rKWktOaie7ShNrXkVB0X+4K1av0tF4Dfs/heVRfzavXGy9tS0b+IaAipoAKlGx4kuuLmSNRrnkzfuj0Ofxgj7/GmWldMMwvKB1cQeKsqNgwQ1MNmlYLxVIfxnGimlgBJQs56vmLlElIelog=
+	t=1784908948; cv=none; b=IOKGHVYEFTdVLBO+H4rz2MQDHD2I478fzVnxSwecLaLB+gR13cWVU1Fca7pcqs22Njo5DoWerGHs+jsdHRpOtWa7T0lRrYjQHEJ716Xo740YZu3I+3sgTVC97SrMoURCeA5QjcckkCRvCWRrDYXldpeAe0jwXDZvPu6wh3C5IEs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784908664; c=relaxed/simple;
-	bh=Oz+o+Vg8fw7opNBplpavFMVkRCSXMg0oG6ZFZiIlrEY=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=YADUP3rCENQ/CCx2DfURtVGu37WYT5kK6kXA9tqBn4ziV+FT9M8Y97VlHt3S0fKhRV2hGyBitAWOZHv5TVMoVW98O1uYweigI4+bJIKRoyZiK5UMBmmKt2tNJp0CdzZhCeKyLwjmjXrfgOwsEYBO3emn1u0ZmgL7Fcvi5qV9xvI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=n9ReeLXR; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1784908948; c=relaxed/simple;
+	bh=ZQ0q9M+TGIEffyH0DQOSK0C5+lHoBtyeWsyndEZdh4M=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=SlGt/j3u4/kMk90WHofvO6wcovFpW2hd5WRL3fckqA7KWwdmchXvYVzxBRhoagCwL5VCP4EmDp66rveZmjC7PPLowlHhPWEfay9spmgbLy3/QxfVH9BtQJwnqthI5d26v48p66OM5JnRmjNBeY+7DQBdL6z2rOXGQeEaxAcotcg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=dyeQFwoN; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="n9ReeLXR"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61C101F000E9;
-	Fri, 24 Jul 2026 15:57:42 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="dyeQFwoN"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59E951F000E9;
+	Fri, 24 Jul 2026 16:02:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784908662;
-	bh=iL/FID485mpdqnuAU6Mopl7iHvo2pMQ7ggoBWGpW6HU=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=n9ReeLXRq8wvz+B7f7vobKishkjklfoa0ghV5Qlg1o8EV/9xplH6nqzo/VLC9aDjY
-	 ljVFEfqBfpAo5JDbWGcxxufIKwYyaLaAJnn/Ipi46YqFBJe9OAXYlKMkXdS6K4bRVj
-	 GwYhlzSACwIUE6K8YoWwrtvUaWwaFSsg3y+qtHK/HZ3/B4tQfZrp2MsGYglnZ2BHsl
-	 e3drDJOtWe4Ya29m2f8wjpD8uDhmnGZfybM4g8zk6dDePcwc5v5b0k/T2glDcljG4P
-	 ytOuNkRKjLoyIBvB1OyrwV6Zj1j6M/rsRr1tQMc3hyl0gaFgdejszNjS05AuKDAuF6
-	 g9dYMJIsqF6Hg==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 2/2] s390/zcrypt: Improve EP11 CPRB length and
- overflow checks
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Harald Freudenberger" <freude@linux.ibm.com>
-Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
- Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>
-In-Reply-To: <20260724151616.147765-3-freude@linux.ibm.com>
-References: <20260724151616.147765-1-freude@linux.ibm.com>
- <20260724151616.147765-3-freude@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 24 Jul 2026 15:57:41 +0000
-Message-Id: <20260724155742.61C101F000E9@smtp.kernel.org>
+	s=k20260515; t=1784908947;
+	bh=J96RTthvr6jTtaMNTXKflh6cMMsn22VqdcO7ERNrSZ8=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=dyeQFwoNQObDFdh4xdUCf18PIKz6VPd8lr7nBw1EC/RRMz22kPhtgAlo23kV9MOgY
+	 XwlaUHWlO+K5ui52VBtD3+OA/c33OfUy3TUB0t0ki/RLcDEQKXsn831fy95Bs4fmSc
+	 Wsi9RKoYmHO6d3UapkehRANUlRKVfuC9zu8D4Dgy3N8UvzkFyXUJ+uhllBi5mqhgk0
+	 tiRAkPaLdHpazE8uVCpgttNlt68Sf5wupe2fF8rDt9qbkuz8pRK11er5IUym4D/2Cn
+	 b9WClITHkH92VKAviUIxpiV3hu7osa8k4JezBwU86ScKautyywbHYzM8w9EVVjFKfa
+	 VcLgl70T8Pz1w==
+Date: Fri, 24 Jul 2026 09:00:34 -0700
+From: Eric Biggers <ebiggers@kernel.org>
+To: Dominique Martinet <asmadeus@codewreck.org>
+Cc: demiobenour@gmail.com, Harald Freudenberger <freude@linux.ibm.com>,
+	acme@kernel.org, adrian.hunter@intel.com,
+	alexander.shishkin@linux.intel.com, ardb@kernel.org,
+	axboe@kernel.dk, corbet@lwn.net, davem@davemloft.net,
+	edumazet@google.com, herbert@gondor.apana.org.au, horms@kernel.org,
+	io-uring@vger.kernel.org, irogers@google.com,
+	james.clark@linaro.org, jolsa@kernel.org, kuba@kernel.org,
+	kuniyu@google.com, linux-crypto@vger.kernel.org,
+	linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-perf-users@vger.kernel.org, mark.rutland@arm.com,
+	mingo@redhat.com, namhyung@kernel.org, netdev@vger.kernel.org,
+	pabeni@redhat.com, peterz@infradead.org, skhan@linuxfoundation.org,
+	willemb@google.com, linux-s390@vger.kernel.org
+Subject: Re: [PATCH 2/3] AF_ALG: Drop support for off-CPU cryptography
+Message-ID: <20260724160034.GB2032@sol>
+References: <20260523-af-alg-harden-v1-2-c76755c3a5c5@gmail.com>
+ <20260603133312.12848-1-freude@linux.ibm.com>
+ <amOGWwdjnJqyxH5L@codewreck.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <amOGWwdjnJqyxH5L@codewreck.org>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
+On Sat, Jul 25, 2026 at 12:35:55AM +0900, Dominique Martinet wrote:
+> The tool source is available here:
+> https://github.com/nxp-imx/crypto_af_alg
+> (which now fails with:
+> bind(3, {sa_family=AF_ALG, salg_type="skcipher", salg_feat=0, salg_mask=0, salg_name="tk(cbc(aes))"}, 88) = -1 ENOENT (No such file or directory)
+> )
+> 
+> 
+> I don't particularily care for the API used as long as we can keep using
+> the hardware key, but as far as I can see there's no alternative API --
+> what's the path forward?
 
-Pre-existing issues:
-- [High] Padding bytes introduced by CEIL4 alignment are not zero-initializ=
-ed, causing up to 3 bytes of uninitialized kernel heap memory to be leaked =
-to the crypto hardware over the AP bus. This problem wasn't introduced by t=
-his patch, but it remains a security vulnerability.
---
+There's no "tk(cbc(aes))" algorithm in the upstream kernel.  So, it's
+not possible that this ever worked with upstream.  Given that, there's
+no regression in upstream for this program, and it wouldn't be
+appropriate to consider a sysctl knob in upstream at this time.
 
---- Patch [2]: [PATCH v5 2/2] s390/zcrypt: Improve EP11 CPRB length and ove=
-rflow checks ---
-commit c3d8ef25f1e2612bc37abf0a2ac52df48c88d9ee
-Author: Harald Freudenberger <freude@linux.ibm.com>
-
-s390/zcrypt: Improve EP11 CPRB length and overflow checks
-
-The xcrb_msg_to_type6_ep11cprb_msgx() function lacks proper input
-validation, creating security vulnerabilities. This patch fixes these by
-using size_t for length calculations, adding U32_MAX boundary checks after
-alignment, and validating minimum request size and minimum reply size
-before copying from userspace.
-
-> diff --git a/drivers/s390/crypto/zcrypt_msgtype6.c b/drivers/s390/crypto/=
-zcrypt_msgtype6.c
-> index 2e4aef330b680..f7a504f5d54e3 100644
-> --- a/drivers/s390/crypto/zcrypt_msgtype6.c
-> +++ b/drivers/s390/crypto/zcrypt_msgtype6.c
-> @@ -477,16 +477,25 @@ static int xcrb_msg_to_type6_ep11cprb_msgx(bool use=
-rspace, struct ap_message *ap
-[ ... ]
-> +	req_len =3D CEIL4(xcrb->req_len);
-> +	if (req_len < xcrb->req_len || req_len > U32_MAX)
-> +		return -EINVAL;
-> +	ap_msg->len =3D sizeof(struct type6_hdr) + req_len;
->  	if (ap_msg->len > ap_msg->bufsize)
->  		return -EINVAL;
-> =20
-> -	if (CEIL4(xcrb->resp_len) < xcrb->resp_len)
-> -		return -EINVAL; /* overflow after alignment*/
-> +	/* reply length and overflow checks */
-> +	if (xcrb->resp_len < sizeof(struct ep11_cprb))
-> +		return -EINVAL;
-> +	rep_len =3D CEIL4(xcrb->resp_len);
-> +	if (rep_len < xcrb->resp_len || rep_len > U32_MAX)
-> +		return -EINVAL;
-> =20
->  	/* prepare type6 header */
->  	msg->hdr =3D static_type6_ep11_hdr;
-
-[Severity: High]
-This is a pre-existing issue, but does this code leave up to 3 bytes of
-uninitialized kernel memory in the message buffer when xcrb->req_len is not
-4-byte aligned?
-
-When copying the request data from userspace just below this code in
-xcrb_msg_to_type6_ep11cprb_msgx():
-
-	/* Import CPRB data from the ioctl input parameter */
-	if (z_copy_from_user(userspace, msg->userdata,
-			     (char __force __user *)xcrb->req, xcrb->req_len)) {
-		return -EFAULT;
-	}
-
-The copy only transfers xcrb->req_len bytes. Because the message length
-dispatched to the hardware includes the padding bytes up to CEIL4(xcrb->req=
-_len),
-uninitialized memory could be leaked.
-
-Should there be a memset to zero-initialize the remaining padding bytes bef=
-ore
-the message is dispatched?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260724151616.1477=
-65-1-freude@linux.ibm.com?part=3D2
+- Eric
