@@ -1,114 +1,145 @@
-Received: from submarine.notk.org (submarine.notk.org [62.210.214.84])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 012FB2F9D89;
-	Fri, 24 Jul 2026 16:32:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=62.210.214.84
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4E9BA331ED1;
+	Fri, 24 Jul 2026 16:33:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784910763; cv=none; b=Rdzi2XtqElUpIfWHG+sSshPXhC/g0YWwVLUhr4JpzSz/uggB3K3/diQWL0l2XXtLnGcacVUFMtRFJZliveDXiZkNYzDpMfweAQrD9uW28rHVaNKoLJNhp+DbL5wg7VBSqGsXZs7W4Uta0AOj070ajfyszlg+WiNkyGfa4kAoPZ8=
+	t=1784910802; cv=none; b=Tj19Fa/EhtWnyCEJ8i5m7snQa2xmBwSNhumpoJlN3zSMGXB1ygCWj0B2WKAZiHNx1f/lWjFXFnULm1r57OUN+U+bgL+DILovOmx0DHgGb+RgPsXMIK0pMtOuKaEAqfpcaUyDvr0ToX5wWzetyPIURplr4BcuqOAjItw49Z+/Zdc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784910763; c=relaxed/simple;
-	bh=QAB56mMGhrf2Qos/ibU71GGhxUIwqG3ueBE4dX+y5rU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=a1YVDMSJ3PG2UfW2VAe1YvAhy0i/fFNRs6XM1CcTtW3U4grwnybzlb/dwCSWqYqGlKk452rtP2of3+hbXar90zdASCiUYZhK5GDQJHvLv0lrBWlPHnkHem69pKD+mm9OD7s3jLgbIfPNPw4pbMyCCz0d0LpsQ8BLvi9bATkk99Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=codewreck.org; spf=pass smtp.mailfrom=codewreck.org; dkim=pass (2048-bit key) header.d=codewreck.org header.i=@codewreck.org header.b=ABEIOwWY; arc=none smtp.client-ip=62.210.214.84
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=codewreck.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=codewreck.org
+	s=arc-20240116; t=1784910802; c=relaxed/simple;
+	bh=mOk33HJJS7pCPcxC4VL+fAK4OX3+1RGMBfBp9f5uA9A=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=YdMjcTLizyMAQEnT08ncsEB5QAPN9CpghYSNfcPzAgA/Qwr1Yt+H0uBH2bkCwOYrHtKhNeuPpqsb6Qlgmc3lI8J72N1+lbiMezShRzOcVJtJYkTCthE45wMh3miis4jAiZAFs/V/1kRczeMWhdU99afbL3xtKHYtOO6B6wW/8Rc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=hLwC/PZO; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=codewreck.org header.i=@codewreck.org header.b="ABEIOwWY"
-Received: from gaia.codewreck.org (localhost [127.0.0.1])
-	by submarine.notk.org (Postfix) with ESMTPS id C3B8414C2DE;
-	Fri, 24 Jul 2026 18:32:28 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=codewreck.org;
-	s=2; t=1784910757;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=pr75B2nE8KRHDz6YmRazBOYCHUF9tlzdiBw3I3n2jrU=;
-	b=ABEIOwWYkL2AzPOxD4b7sRNgirZ5pXF9gTSiyHWXkmvY/J/7C//g4zD7bI++t5B3Q5EtXq
-	XOpKNZFILaFUbRASm1kXiL+8cYyyY9Prm0VpdDYX7+y9iJmjxnJdVeIk33nG25HMUb58e5
-	1j3Mscbem3ZaLpq6Me5fYS+EhHTDtR/nv5XfEfiy253ihDP9TK4iSTsIhncTV3FATiXS5j
-	BCcNut0eYj/2BJSOj+XU/wUr2TrRj2CeNCYZrTG+RV2QwPoCZ3b0W0lBA0JXOZpakvi/Gc
-	p2j/yZzyQl0Zk9L1r785REtxC87F2QM8blCcsIc2q6vDQF8nXP8nSfbJ3I6uLA==
-Received: from localhost (gaia.codewreck.org [local])
-	by gaia.codewreck.org (OpenSMTPD) with ESMTPA id 9829caf7;
-	Fri, 24 Jul 2026 16:32:27 +0000 (UTC)
-Date: Sat, 25 Jul 2026 01:32:12 +0900
-From: Dominique Martinet <asmadeus@codewreck.org>
-To: Eric Biggers <ebiggers@kernel.org>
-Cc: demiobenour@gmail.com, Harald Freudenberger <freude@linux.ibm.com>,
-	acme@kernel.org, adrian.hunter@intel.com,
-	alexander.shishkin@linux.intel.com, ardb@kernel.org,
-	axboe@kernel.dk, corbet@lwn.net, davem@davemloft.net,
-	edumazet@google.com, herbert@gondor.apana.org.au, horms@kernel.org,
-	io-uring@vger.kernel.org, irogers@google.com,
-	james.clark@linaro.org, jolsa@kernel.org, kuba@kernel.org,
-	kuniyu@google.com, linux-crypto@vger.kernel.org,
-	linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-perf-users@vger.kernel.org, mark.rutland@arm.com,
-	mingo@redhat.com, namhyung@kernel.org, netdev@vger.kernel.org,
-	pabeni@redhat.com, peterz@infradead.org, skhan@linuxfoundation.org,
-	willemb@google.com, linux-s390@vger.kernel.org
-Subject: Re: [PATCH 2/3] AF_ALG: Drop support for off-CPU cryptography
-Message-ID: <amOTjPW__CNZui3_@codewreck.org>
-References: <20260523-af-alg-harden-v1-2-c76755c3a5c5@gmail.com>
- <20260603133312.12848-1-freude@linux.ibm.com>
- <amOGWwdjnJqyxH5L@codewreck.org>
- <20260724160034.GB2032@sol>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="hLwC/PZO"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66ODg8WR1899385;
+	Fri, 24 Jul 2026 16:14:18 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=pp1; bh=qG3IrEHveo+ZMR5w6
+	mHcbCXKA3r+HDZPyj36pkkSYWg=; b=hLwC/PZOg5UzIGSLW7sHhE9Z4bANzsZLX
+	R5kUdzfAgIi7nV/Qyv+gSVC/Y3Fzw/nfKdZMzbAm61Mm7tYwQfPzuNPYymvN04as
+	26r1J8M0u+QvaYnjWkPWIFbCJqyYr6/qRHUHkspgtu+nMenNV/fIi/6A/ItsH4xs
+	mbfJR0a5uro/7ge9LXx7dvaRmIsw1g1mJAdXI8UOD9rJcntdHl0VJZUrH1fqKdNH
+	fYaJld7cgQNGddDa9D6utzhQESaFHz3AquvhAU21RfIL2jPAtbFacaGuvo/mmRvd
+	hrJnma7C8udIwjjSXzX/DnAMI8X5hNQm93k3YB2scdtLDf5wm8C3Q==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fg77kmy24-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 24 Jul 2026 16:14:18 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66OG4eQe025354;
+	Fri, 24 Jul 2026 16:14:17 GMT
+Received: from smtprelay05.wdc07v.mail.ibm.com ([172.16.1.72])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fgnahhkpu-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 24 Jul 2026 16:14:17 +0000 (GMT)
+Received: from smtpav06.wdc07v.mail.ibm.com (smtpav06.wdc07v.mail.ibm.com [10.39.53.233])
+	by smtprelay05.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66OGEGao24052362
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 24 Jul 2026 16:14:16 GMT
+Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 97A7058055;
+	Fri, 24 Jul 2026 16:14:16 +0000 (GMT)
+Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 0B6DF58054;
+	Fri, 24 Jul 2026 16:14:15 +0000 (GMT)
+Received: from li-4c4c4544-004d-4810-8043-b7c04f423534.ibm.com.com (unknown [9.61.50.28])
+	by smtpav06.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Fri, 24 Jul 2026 16:14:14 +0000 (GMT)
+From: Anthony Krowiak <akrowiak@linux.ibm.com>
+To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org
+Cc: jjherne@linux.ibm.com, borntraeger@de.ibm.com, mjrosato@linux.ibm.com,
+        pasic@linux.ibm.com, alex@shazbot.org, kwankhede@nvidia.com,
+        fiuczy@linux.ibm.com, pbonzini@redhat.com, frankja@linux.ibm.com,
+        imbrenda@linux.ibm.com, agordeev@linux.ibm.com, hca@linux.ibm.com,
+        gor@linux.ibm.com
+Subject: [PATCH v5 13/15] s390/vfio-ap: Callback to get the size of data to be migrated during guest migration
+Date: Fri, 24 Jul 2026 12:13:49 -0400
+Message-ID: <20260724161351.1802644-14-akrowiak@linux.ibm.com>
+X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20260724161351.1802644-1-akrowiak@linux.ibm.com>
+References: <20260724161351.1802644-1-akrowiak@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20260724160034.GB2032@sol>
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=HJXz0Itv c=1 sm=1 tr=0 ts=6a638f5a cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=vZ-Ft76KQvoWVpZ_:21 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8
+ a=lW0G1kjGILAuz2jbLQAA:9
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI0MDE0NSBTYWx0ZWRfX+n17kc+Vus30
+ YwF1AJbQ8hFVgux5F/+52DoIVLOC6Ob4yiPK2BgWxq0sIfIRxLwEoTLGFqkrJBAzVbsomqX3nxV
+ /OlhjSOVg8SaDmAjZKtFvi+KbVPgIYxA+nnu+34ECOBS7EEX0jygpevjhXSfnq1i44H4Y9eTgAr
+ E3nUPzS1Qlk+NbMxg0MHSmrRbI1sM/GBX76Y+Zw08Tyg97Rhz4qk7RZVeJMzO16IkTbN7T71LOp
+ EbYMSHLXJ7ZPsXHjIcSr8YLjawWbFyly0e7IXnPLkaDCEd1gxHrmCJxl+Lkc/AJDNhxEf7rGtu8
+ mNRO1Nb54eeME51CmXWtmxWAn8FL8kWKZxPoKWdppo8ndGAXhkCCxCO+/ovcYg7+CnMmqSHTY/j
+ Tp6aovja0bM/yF8MBfGAOouhLQ8R+T+T+4DpU++ZyolUdwFrtroOox+SRU+gtHXEfAhqseZPCpi
+ 7EvFg6Pi9QGDChPOrlQ==
+X-Proofpoint-ORIG-GUID: LOSlXpvKHcMi9pADCR97esXXcaw6spQW
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI0MDE0NSBTYWx0ZWRfX33lZpkAg8eV9
+ Tz0cewa4DbnuXmv5CnmBgO26/Hxh8Qvtfp0/JxoAv4ap1W8kt+TxaoN0hkWe5lMin/dJc+w83ke
+ /uaV25wM3aXIGT+OmAwyY4JDZJjj00Y=
+X-Proofpoint-GUID: LOSlXpvKHcMi9pADCR97esXXcaw6spQW
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-07-24_03,2026-07-24_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ bulkscore=0 priorityscore=1501 lowpriorityscore=0 suspectscore=0
+ malwarescore=0 impostorscore=0 clxscore=1015 phishscore=0 spamscore=0
+ adultscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2607240145
 
-Eric Biggers wrote on Fri, Jul 24, 2026 at 09:00:34AM -0700:
-> On Sat, Jul 25, 2026 at 12:35:55AM +0900, Dominique Martinet wrote:
-> > The tool source is available here:
-> > https://github.com/nxp-imx/crypto_af_alg
-> > (which now fails with:
-> > bind(3, {sa_family=AF_ALG, salg_type="skcipher", salg_feat=0, salg_mask=0, salg_name="tk(cbc(aes))"}, 88) = -1 ENOENT (No such file or directory)
-> > )
-> > 
-> > 
-> > I don't particularily care for the API used as long as we can keep using
-> > the hardware key, but as far as I can see there's no alternative API --
-> > what's the path forward?
-> 
-> There's no "tk(cbc(aes))" algorithm in the upstream kernel.  So, it's
-> not possible that this ever worked with upstream.  Given that, there's
-> no regression in upstream for this program, and it wouldn't be
-> appropriate to consider a sysctl knob in upstream at this time.
+Callback to get the estimated data length of the data that will be required
+to complete reading of the vfio device's internal state. It's mandatory for
+VFIO_DEVICE_FEATURE_MIGRATION migration support.
 
-Bleh, you are correct, it's an NXP patch in
-drivers/crypto/caam/caamalg.c that they've been carrying in their
-tree(s) since 2018[1] and has apparently never been upstreamed...
-[1] https://github.com/nxp-imx/linux-imx/commit/6868c9e49c1854028fb46022daac3b1b10ca2c70
+The function pointer for this callback is specified via the
+'migration_get_data_size' field of the 'vfio_migration_ops' structure
+which is stored with the VFIO device when the 'vfio_device'
+structure representing the mediated device is initialized.
 
-Sorry for not having checked, I was hoping for better.
-(I should be used to it by now...)
+Signed-off-by: Anthony Krowiak <akrowiak@linux.ibm.com>
+---
+ drivers/s390/crypto/vfio_ap_migration.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
-
-Regardless of the specific algorithm, most recent SoCs flaunt some
-"secure element" or similiar hardware-backed keys (so one wouldn't be
-able to decrypt $whatever without running on the specific board it was
-intended for); I'm sure _some_ of them are upstream?
-(Never used it so not sure if they are reachable from af_alg, but for
-example drivers/crypto/ccree/cc_cipher.c talks about hardware key...)
-
-There's not much I can do about the vendor's kernel I'm stuck with, but
-that doesn't make having encryption material not accessible to userspace
-useless as a concept;
-forgetting about the sysctl for now, what are the alternatives API this
-kind of implementations could be based on?
-
-I guess I should start looking at how tpm backed encryption works,
-some other day, it's getting late here...
-
-
-Thank you,
+diff --git a/drivers/s390/crypto/vfio_ap_migration.c b/drivers/s390/crypto/vfio_ap_migration.c
+index 8876338d2898..20b519f0898f 100644
+--- a/drivers/s390/crypto/vfio_ap_migration.c
++++ b/drivers/s390/crypto/vfio_ap_migration.c
+@@ -1429,7 +1429,18 @@ static int vfio_ap_get_state(struct vfio_device *vdev,
+ static int vfio_ap_get_data_size(struct vfio_device *vdev,
+ 				 unsigned long *stop_copy_length)
+ {
+-	return -EOPNOTSUPP;
++	struct ap_matrix_mdev *matrix_mdev;
++	size_t qinfo_sz;
++	int num_queues;
++
++	mutex_lock(&matrix_dev->mdevs_lock);
++	matrix_mdev = container_of(vdev, struct ap_matrix_mdev, vdev);
++	num_queues = vfio_ap_mdev_get_num_queues(&matrix_mdev->shadow_apcb);
++	qinfo_sz = num_queues * sizeof(struct vfio_ap_queue_info);
++	*stop_copy_length = qinfo_sz + sizeof(struct vfio_ap_config);
++	mutex_unlock(&matrix_dev->mdevs_lock);
++
++	return 0;
+ }
+ 
+ static const struct vfio_migration_ops vfio_ap_migration_ops = {
 -- 
-Dominique Martinet | Asmadeus
+2.53.0
+
