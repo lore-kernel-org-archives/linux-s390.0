@@ -1,215 +1,175 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 68C18439008;
-	Fri, 24 Jul 2026 14:13:42 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 447163E717A
+	for <linux-s390@vger.kernel.org>; Fri, 24 Jul 2026 14:21:01 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784902424; cv=none; b=Y/089lmEpKo5JGmwqX15C6Om+o/P9sxHl+H30peqXO1Legz7ySaexcDE+6KjX+uAr3mhmmoNMDTsR0kzHAumvVotwer1AEqJ18zrhUT6qNWk1BIqqUi0DvtqCGb6oUROjdHJF9Q8d59TjHW5NVPq6XwiG4WiQE3G1edz6PO8UDY=
+	t=1784902862; cv=none; b=SS9AJhgIJa1o1nGtQRKX3uJdhqT41Qf6BQXYFcCupsImiPt5bxdp4qb+d1Yk7aiVZIZ7pAPZJionhkYnjUeG3n24OD5kj5FC2WfDB+FRw4f6aiaGZK7DzAmDp3RLgGvyOnhzOTqDaum3YoyyjYkhO2p4Rt0e1pu+V5lSgfLZnX0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784902424; c=relaxed/simple;
-	bh=qzdJEes+JcGSIMNS1SLAblNgi10KpFF/c7yicoMeH7M=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=I/JJWW5f2bxYwl2Pt0w96YAaw6O7wOjC+K+/1x6V/W8oUu6Nl/lj/wu7yMnSWft5LRLOaMKkJNFrf+glTiK1wL9kCqHIyc6sETxgg0Tc23Rj+NxSVvzLSxhjmhsDS7HC/BJVagkUQ6xdfQBtNB+kVK/ZS7bdF9LhgQEp5MBloiE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=f4ATmUMR; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1784902862; c=relaxed/simple;
+	bh=/Jl1eZBYx0NhCkSJdbHMiP5Jj/Dyid4VgaVNTDONSVw=;
+	h=MIME-Version:Date:From:To:Cc:Subject:In-Reply-To:References:
+	 Message-ID:Content-Type; b=Ycbw1B71vuyTR4L43eDvrbFwl7xbf5DFMZGKQ02KmKTfQ3vZ+wuCHVMPPewUNJwLhpbTXlL7dDBC3JVE3aeMEWzteT1J1m83fWsLxlMqFOa4CWmeUZ9B9Qz/1YYiXIIuDYe88K/fhwHxqo2fO91Mqmf4iSF0XQB8VpuHjMFDllI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=adLm6/bc; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="f4ATmUMR"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66ODfjd2100527;
-	Fri, 24 Jul 2026 14:13:29 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="adLm6/bc"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66ODfcl21992724;
+	Fri, 24 Jul 2026 14:20:53 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=3Gup2122irWeVTFwr
-	bTkTPgiSdur334BEncEwPBZo24=; b=f4ATmUMRShIEZtlwU0newHMUk2nm/a+OS
-	G8zZ1x7r8Iiw/DEVpOGEpivOsOkOCBp4MSyKYqAGXzU/HIIIrOJJo1TcaCeUQ/S6
-	QSReaJQ2o0Nqg60ZgcEZ7M6iQ8KZjeoWXbXdREsTtu31glEvpuh6YZsqc/a22t0K
-	m7zY3q2O7rGvROtqonaQRnrNdldOdTeGfrzPak6ZSmuoPq8SR+kuaWH1bMIHX5l0
-	6gW5dLJKI3/7okeEvSbJ36OKJz7pRmAphBxMUDGjRCl0qcoFylgE18r/CXuiHXSZ
-	jNTweATaJ3ogSR5ALiEBWc4BPa+PwZVncUGpI/Ua1cRFihMJm0kzw==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fm8gs8arv-1
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:reply-to:subject:to; s=pp1;
+	 bh=XWiIGbnVfPOt+SKvoxLq4ZMYODnhezOXCFteePNGcbM=; b=adLm6/bcU5Tz
+	3qj+WCsyGJKFNh6Mh24nHw6YZeAalAnOexErYLjFiPgYNgS3Q1FbfqdKSEyQOKC9
+	1Ei+PMOb883JNXALeCZavbCLcWXH4v6kajNGQWmSrmcewrHJaRgg3rSSUIV1iOMC
+	GtQBT4A0rQs051M1KV/Ynxdiez0F9kPSC2SEtPusAugZsZmf7EPlw0kmDFGsKy31
+	l8RbX5/sWQtZkOTVq0Aqv0U1G2Qmz/Zamyz4ZmGiSvCLKXmuLtweFzTS1FYSG4nk
+	Jny3g9i4I+G/QBFaarF0KdAuahzTZmOXcWVu9/LlJUKBbM5dqTbcVFu+N4v6Orwo
+	TJc5KDAYMg==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fm8h00bmk-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 24 Jul 2026 14:13:28 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66ODo3rv024916;
-	Fri, 24 Jul 2026 14:13:27 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fgnahh68x-1
+	Fri, 24 Jul 2026 14:20:53 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66OEJg2l026947;
+	Fri, 24 Jul 2026 14:20:52 GMT
+Received: from smtprelay03.dal12v.mail.ibm.com ([172.16.1.5])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fgpgyrywd-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 24 Jul 2026 14:13:27 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66OEDNPs47382922
+	Fri, 24 Jul 2026 14:20:52 +0000 (GMT)
+Received: from smtpav06.dal12v.mail.ibm.com (smtpav06.dal12v.mail.ibm.com [10.241.53.105])
+	by smtprelay03.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66OEKp6U33161972
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 24 Jul 2026 14:13:23 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 54A4520116;
-	Fri, 24 Jul 2026 14:13:23 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0D68D2012A;
-	Fri, 24 Jul 2026 14:13:23 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 24 Jul 2026 14:13:23 +0000 (GMT)
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Stefan Schulze Frielinghaus <stefansf@linux.ibm.com>,
-        Juergen Christ <jchrist@linux.ibm.com>,
-        Ilya Leoshkevich <iii@linux.ibm.com>,
-        Dominik Steenken <dost@de.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Maxim Khmelevskii <max@linux.ibm.com>,
-        Jens Remus <jremus@linux.ibm.com>,
-        Sami Tolvanen <samitolvanen@google.com>, Kees Cook <kees@kernel.org>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Eduard Zingerman <eddyz87@gmail.com>,
-        Kumar Kartikeya Dwivedi <memxor@gmail.com>
-Cc: llvm@lists.linux.dev, bpf@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH 6/6] s390/bpf: Add kCFI support
-Date: Fri, 24 Jul 2026 16:13:18 +0200
-Message-ID: <20260724141318.1037434-7-hca@linux.ibm.com>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20260724141318.1037434-1-hca@linux.ibm.com>
-References: <20260724141318.1037434-1-hca@linux.ibm.com>
+	Fri, 24 Jul 2026 14:20:51 GMT
+Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9274958055;
+	Fri, 24 Jul 2026 14:20:51 +0000 (GMT)
+Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id ECA6158043;
+	Fri, 24 Jul 2026 14:20:50 +0000 (GMT)
+Received: from ltc.linux.ibm.com (unknown [9.5.196.140])
+	by smtpav06.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Fri, 24 Jul 2026 14:20:50 +0000 (GMT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Date: Fri, 24 Jul 2026 16:20:50 +0200
+From: Harald Freudenberger <freude@linux.ibm.com>
+To: =?UTF-8?Q?Daniel_P=2E_Berrang=C3=A9?= <berrange@redhat.com>
+Cc: richard.henderson@linaro.org, iii@linux.ibm.com, david@kernel.org,
+        thuth@redhat.com, qemu-s390x@nongnu.org, qemu-devel@nongnu.org,
+        linux-s390@vger.kernel.org, dengler@linux.ibm.com,
+        borntraeger@linux.ibm.com, fcallies@linux.ibm.com, cohuck@redhat.com
+Subject: Re: [PATCH v12 04/17] crypto: Add aes-helpers file to support some
+ AES modes
+Reply-To: freude@linux.ibm.com
+Mail-Reply-To: freude@linux.ibm.com
+In-Reply-To: <alZEqU-d7NTHI1ZF@redhat.com>
+References: <20260710152906.80207-1-freude@linux.ibm.com>
+ <20260710152906.80207-5-freude@linux.ibm.com> <alZEqU-d7NTHI1ZF@redhat.com>
+Message-ID: <1c487081a366a59f4e6762979f5b15b9@linux.ibm.com>
+X-Sender: freude@linux.ibm.com
+Content-Type: text/plain; charset=UTF-8;
+ format=flowed
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI0MDEyOCBTYWx0ZWRfX7s4hQFR6dyO/
- yU//FEHDsfBWnBBqkCBq2lorxL69FsSOuiYOtpa9iaxSzNw39yKMTJM/TcSBs65QBHyPslMPqu/
- 1EVgBtJvVh17/ZoI7q6oUoCcL8mLfGM=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI0MDEyOCBTYWx0ZWRfX51a4/FY8yNIo
- FVL7HF8JlpwBT7LKzlejFFd4zMyKPkeP45Bi9FL7xVV3dhik26/tcMN3JCxyKR6yvSr3xHxjGjd
- Bmd+7PhYWfY3V2+Zggr6Nj1N9CkOcIvdHFkUc8RBG7rdTUrlx5SWGLijavEw/mgrfpnDaNYNiO7
- 0hghr83sYnH+SB9MuPCBTio7LONhrM5zNwdvBtbSqelrJiKUHogbSRXE/y5hWnbyFYR6MKqk1+x
- 2fAy4M/sFoWNFRnccBbOVs1BRl3HvQUddmG6R++Z3EPcZm04onDdknVe7oeaadrqcyMkh6Z827+
- 1/uMPM3DaTG/ozo8YLR4Cg+g2kWEjRl/k7/QZVugoTBNVNASMjVfggra8opm7KRGLqBEH/Q33VW
- ehY7osXKO4YQ7VNouoxq0vvEzMrvEENlcZ4iC6mNPnMRlz2RJUrUwNEOe4mCFuls6h7LaexdS5m
- VMFU9xtgT8EHVZhqUyw==
-X-Authority-Analysis: v=2.4 cv=Q9LiJY2a c=1 sm=1 tr=0 ts=6a637309 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8 a=bPLy7VutBQud47ZB1NcA:9
-X-Proofpoint-ORIG-GUID: oMa11n_Y9UKCYcPNaaYAs0qJMEEvpXng
-X-Proofpoint-GUID: 6xkqPT-oPyxkUZsJsKQ8nqlhyGuI0UDV
+X-Authority-Analysis: v=2.4 cv=LdcMLDfi c=1 sm=1 tr=0 ts=6a6374c5 cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8
+ a=20KFwNOVAAAA:8 a=LCagy2Ma_--e8QgrMPEA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+X-Proofpoint-ORIG-GUID: Jw45BPo2p4PPc_FwVTXZl2J-IUupo0gh
+X-Proofpoint-GUID: Jw45BPo2p4PPc_FwVTXZl2J-IUupo0gh
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI0MDEyOCBTYWx0ZWRfX/JYNW6Dksb2o
+ XzC5kkRlQ5vppqxNOYV8ZW/XDBxXMKIUSvELgFll9Urlmd9kMW39OSdVl0jzcXobguiUkDZrvZu
+ 8CS25nzBCSYT3CzTsBmHXRTjH+ojF2oa6PlkW6bVNH46Oq3gAOiwW7quGeQQeuOLLfKwarWfzFd
+ PzC9qGSruWXFjtPSPICFYs7ePpQC8a7VhE7wYPQkuQXB3uu3p14kY8eL6rYUoDsiTsvuE6XJU+H
+ 66+6UB9MDm1f9wgjyygPSkcbQjKzGbPy42gSAkCZmVxSx6hZkJ+YH6NliPBisfAXPsvtPYJjUeT
+ BRKj/YeKgOifuQlqRi24eiml15PeSKt9Kt94ZZGAe+WQIwg+hI9UJ4jue/Zr1VzhCwvEneUIS5K
+ H1F+NVqWmiq9jlX8UlFzA4u5e/GYn3CfDumtqaL6LNHYLlVmZpfj7PngxKTo3YojaWcC7V0Ed3h
+ ARgESsaY7Ln82w3XUCw==
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI0MDEyOCBTYWx0ZWRfX36TdDY0jV5ZD
+ hOyCA4QoRCWo0EX7KFZLxgtjtaX69cqAPLlOIuaEDLnKWsqHq4aqcedsUZ2AzZcQxpIWB2Ahbr8
+ 2frKwRUzDMsi8faQlGmer+RYOEODvlQ=
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-07-24_03,2026-07-24_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 malwarescore=0 adultscore=0 phishscore=0 bulkscore=0
- spamscore=0 priorityscore=1501 impostorscore=0 suspectscore=0
- lowpriorityscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2607240128
+ impostorscore=0 suspectscore=0 lowpriorityscore=0 spamscore=0 malwarescore=0
+ clxscore=1015 adultscore=0 priorityscore=1501 phishscore=0 bulkscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607240128
 
-This is the s390 variant of commit 710618c760c0 ("arm64/cfi,bpf: Support
-kCFI + BPF on arm64").
+On 2026-07-14 16:16, Daniel P. Berrangé wrote:
+> On Fri, Jul 10, 2026 at 05:28:50PM +0200, Harald Freudenberger wrote:
+>> Add a new file crypto/aes-helpers.c with simple functions
+>> to support some AES modes:
+>> - AES cbc: AES_cbc_encrypt() AES_cbc_decrypt()
+>> - AES ctr: AES_ctr_encrypt()
+>> - AES xts: AES_xts_encrypt() AES_xts_decrypt()
+>> and some AES related helpers:
+>> - AES_xor()
+>> - AES_xts_prep_next_tweak()
+>> Add header file include/crypto/aes-helpers.h for these functions
+>> 
+>> Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
+>> Reviewed-by: Finn Callies <fcallies@linux.ibm.com>
+>> ---
+>>  crypto/aes-helpers.c         | 106 ++++++++++++++++++++++++++++++++
+>>  crypto/meson.build           |   1 +
+>>  include/crypto/aes-helpers.h | 116 
+>> +++++++++++++++++++++++++++++++++++
+>>  3 files changed, 223 insertions(+)
+>>  create mode 100644 crypto/aes-helpers.c
+>>  create mode 100644 include/crypto/aes-helpers.h
+> 
+>> diff --git a/include/crypto/aes-helpers.h 
+>> b/include/crypto/aes-helpers.h
+>> new file mode 100644
+>> index 0000000000..c1552b0e8f
+>> --- /dev/null
+>> +++ b/include/crypto/aes-helpers.h
+>> @@ -0,0 +1,116 @@
+>> +/*
+>> + * SPDX-License-Identifier: GPL-2.0-or-later
+>> + *
+>> + * AES helper functions and modes
+>> + */
+>> +
+>> +#ifndef QEMU_AES_HELPERS_H
+>> +#define QEMU_AES_HELPERS_H
+>> +
+>> +/**
+>> + * AES_xor:
+>> + *
+>> + * Bitwise XOR operation between two AES blocks.
+>> + *
+>> + * @src1: first source buffer of AES_BLOCK_SIZE bytes
+>> + * @src2: second source buffer of AES_BLOCK_SIZE bytes
+>> + * @dst: destination buffer of AES_BLOCK_SIZE bytes
+> 
+> nit-picking - the list of parameters should normally be at the
+> start of the docs comment, immediately after the function name,
+> and then the description follows
 
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
----
- arch/s390/include/asm/cfi.h  |  7 +++++++
- arch/s390/net/bpf_jit_comp.c | 26 ++++++++++++++++++++++----
- 2 files changed, 29 insertions(+), 4 deletions(-)
- create mode 100644 arch/s390/include/asm/cfi.h
+Ok, done -> see v13
 
-diff --git a/arch/s390/include/asm/cfi.h b/arch/s390/include/asm/cfi.h
-new file mode 100644
-index 000000000000..9af2c7cb70ca
---- /dev/null
-+++ b/arch/s390/include/asm/cfi.h
-@@ -0,0 +1,7 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#ifndef _ASM_S390_CFI_H
-+#define _ASM_S390_CFI_H
-+
-+#define __bpfcall
-+
-+#endif /* _ASM_S390_CFI_H */
-diff --git a/arch/s390/net/bpf_jit_comp.c b/arch/s390/net/bpf_jit_comp.c
-index 31749c0362ca..74642e0b4ee1 100644
---- a/arch/s390/net/bpf_jit_comp.c
-+++ b/arch/s390/net/bpf_jit_comp.c
-@@ -21,6 +21,7 @@
- #include <linux/filter.h>
- #include <linux/init.h>
- #include <linux/bpf.h>
-+#include <linux/cfi.h>
- #include <linux/mm.h>
- #include <linux/kernel.h>
- #include <asm/cacheflush.h>
-@@ -356,6 +357,19 @@ static void emit6_pcrel_rilc(struct bpf_jit *jit, u32 op, u8 mask, s64 pcrel)
- 	}							\
- })
- 
-+static inline void emit_u32_data(const u32 data, struct bpf_jit *jit)
-+{
-+	if (jit->prg_buf)
-+		*(u32 *)(jit->prg_buf + jit->prg) = data;
-+	jit->prg += 4;
-+}
-+
-+static inline void emit_kcfi(u32 hash, struct bpf_jit *jit)
-+{
-+	if (IS_ENABLED(CONFIG_CFI))
-+		emit_u32_data(hash, jit);
-+}
-+
- /*
-  * Return whether this is the first pass. The first pass is special, since we
-  * don't know any sizes yet, and thus must be conservative.
-@@ -597,6 +611,8 @@ static void bpf_jit_prologue(struct bpf_jit *jit, struct bpf_prog *fp)
- {
- 	BUILD_BUG_ON(sizeof(struct prog_frame) != STACK_FRAME_OVERHEAD);
- 
-+	emit_kcfi(bpf_is_subprog(fp) ? cfi_bpf_subprog_hash : cfi_bpf_hash, jit);
-+
- 	/* No-op for hotpatching */
- 	/* brcl 0,prologue_plt */
- 	EMIT6_PCREL_RILC(0xc0040000, 0, jit->prologue_plt);
-@@ -616,7 +632,7 @@ static void bpf_jit_prologue(struct bpf_jit *jit, struct bpf_prog *fp)
- 		bpf_skip(jit, 6);
- 	}
- 	/* Tail calls have to skip above initialization */
--	jit->tail_call_start = jit->prg;
-+	jit->tail_call_start = jit->prg - cfi_get_offset();
- 	if (fp->aux->exception_cb) {
- 		/*
- 		 * Switch stack, the new address is in the 2nd parameter.
-@@ -2401,9 +2417,9 @@ struct bpf_prog *bpf_int_jit_compile(struct bpf_verifier_env *env, struct bpf_pr
- 		jit_data->ctx = jit;
- 		jit_data->pass = pass;
- 	}
--	fp->bpf_func = (void *) jit.prg_buf;
-+	fp->bpf_func = (void *)jit.prg_buf + cfi_get_offset();
- 	fp->jited = 1;
--	fp->jited_len = jit.size;
-+	fp->jited_len = jit.size - cfi_get_offset();
- 
- 	if (!fp->is_func || extra_pass) {
- 		bpf_prog_fill_jited_linfo(fp, jit.addrs + 1);
-@@ -2671,8 +2687,10 @@ static int __arch_prepare_bpf_trampoline(struct bpf_tramp_image *im,
- 		return -ENOTSUPP;
- 
- 	/* Return to %r14 in the struct_ops case. */
--	if (flags & BPF_TRAMP_F_INDIRECT)
-+	if (flags & BPF_TRAMP_F_INDIRECT) {
- 		flags |= BPF_TRAMP_F_SKIP_FRAME;
-+		emit_kcfi(cfi_get_func_hash(func_addr), jit);
-+	}
- 
- 	/*
- 	 * Compute how many arguments we need to pass to BPF programs.
--- 
-2.53.0
+> 
+> With that change made:
+> 
+>   Reviewed-by: Daniel P. Berrangé <berrange@redhat.com>
+>   Acked-by: Daniel P. Berrangé <berrange@redhat.com>
+> 
 
+Thanks for your review.
+
+> 
+> 
+> With regards,
+> Daniel
