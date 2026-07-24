@@ -1,88 +1,75 @@
-Received: from mail-pl1-f169.google.com (mail-pl1-f169.google.com [209.85.214.169])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 521FD2BF3F4
-	for <linux-s390@vger.kernel.org>; Fri, 24 Jul 2026 04:53:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0596E24336D;
+	Fri, 24 Jul 2026 05:38:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784868816; cv=none; b=Jj6Vvcpz7qfVdnnZD8Osd1eHdLqI4IGttvG0wM//+juOtpGhlzmSVna+UWXteOCzmBQC5jt6bkLp+O5ymi++h3tmZPKiPXRWxqam8lOO6E0ndwG9cd/xu8YsJoT3KadWuFIEsmPyiOdq8lOgVB/5rKjkJgQ3zQnAYLUqwHWfAJw=
+	t=1784871500; cv=none; b=a6lDBLZvNFpy5r+vndsaTCAyDorICp4GDe+e8iN3zJzzwBY9r9W3xLUe27YiQvAtlihaSzVASfKh8Uhtct+2rPeNA+V7CevtH9YYOl+PJSJ4I8V/McOdEDzlMAb9FRUlJw2Ov+bsJ5Nwtd4VBLdbYxraueDdpOS8qSuhCJvao1g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784868816; c=relaxed/simple;
-	bh=8hhpCauV9B0XHh+Hnm3eGrqfqRl5IvZHE11IcXpKxqg=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=dWXiKaLiu+jEY0rBHhnQTrrZodzKLGo98nFurFfAHF17Yl5HXg5BrDtXqbAiROvWn2c29JYyZC09IWfkycCcO4/aAOOjiwwZ4Zw72JxeOmDfv824x8LvU1gEiYVoOhyJhAuQwLPOvlTIsAgw4sFkiiRmbZSy+xiTi4j0NBRu8GI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=isslab.korea.ac.kr; spf=none smtp.mailfrom=isslab.korea.ac.kr; dkim=pass (2048-bit key) header.d=isslab-korea-ac-kr.20251104.gappssmtp.com header.i=@isslab-korea-ac-kr.20251104.gappssmtp.com header.b=d0ombMaa; arc=none smtp.client-ip=209.85.214.169
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=isslab.korea.ac.kr
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=isslab.korea.ac.kr
+	s=arc-20240116; t=1784871500; c=relaxed/simple;
+	bh=6nhvuYf8tDtra3dJk99mncdqcY5qPnfdTYaWbf1kGxQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=WEwOqS987immTZPYfLKbQ6IsQzafB58fg3wd6D7AKElK0Nwf7amI5hBYjwwC5NhC0WmY4rbuPX9I5yO1FCgs6UAnk5RRGH1iCEhlicvMcTggXqgeYyXgmPWF3RWaYKOJjqwfEnl6Jdd9vggWqSIMudGx+EMAgJ2Qu7tRxyFIlng=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=kPoo+OfH; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=isslab-korea-ac-kr.20251104.gappssmtp.com header.i=@isslab-korea-ac-kr.20251104.gappssmtp.com header.b="d0ombMaa"
-Received: by mail-pl1-f169.google.com with SMTP id d9443c01a7336-2cea3004256so619495ad.0
-        for <linux-s390@vger.kernel.org>; Thu, 23 Jul 2026 21:53:32 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=isslab-korea-ac-kr.20251104.gappssmtp.com; s=20251104; t=1784868812; x=1785473612; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=nBkOpq5Bp+PFLFXuwAdTIe/08W+WYHTKlNo6ov8KKew=;
-        b=d0ombMaaKvh4gZvTGEOcIJoUgZ/9xMdXbBl3m/0oSEZWLujjUV/2VM0SsbhFBjxJug
-         UvHur5t74dFHdj33kRJwVKp85uDEH9iQVJqZUTr1Z0nMI6cloHQ1M3NUuqodE62TLUzJ
-         KYwQ2o8zXq46TmGantuWxnvWm8nUH6iV/kBUpA3igqVCPEzadVFc2C8MATyGEB+G1+Y6
-         +66EjRB4mZ7iC95jr8BxBKfgcuLErdr5/esWHMMdaNEgHzgNDmom0GunQUIe0qWVzL2W
-         oeBv5Oq4QYNa1yzgib+Ef4F/fPgzUtMDwKmt22FgHOf5JyLKbwD3RyL0wnZ2yJ/Cytg7
-         flbw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784868812; x=1785473612;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=nBkOpq5Bp+PFLFXuwAdTIe/08W+WYHTKlNo6ov8KKew=;
-        b=b6OmDLG6ph+bMcclTUGhIChL+womTO7bmuHAbDW8/oJvSJAgzKQ5KXDaun2XJ+7W9g
-         zWqArB/7c8eoPvwUYsRxdeKRI+gqfQqmavpLRXimxc4SmeB99/YDgpqusiJ8KkGpwtK0
-         tiHMrv0q2wRxREOQ2ORdxuHjbNlVjiKHqSUo6VkVHmMOHHX2s0amfR+3RIDiU290fAu1
-         +XpkbTioEd2G9y15tnJ4FIUW08/Hae6V6zPEKIQcSLSh/PmTwEwPnb7YbV+9SsF1eLeW
-         u5wlYdFnwAI+d2d560jMLSqGl9/aJD8ZEaEKQnjpseQoWG3FlcPmcu5aoDw4U2L08KMy
-         cPXQ==
-X-Forwarded-Encrypted: i=1; AHgh+RpNt+dbd2gbncTayCTwQwqv80Qi1SvCCo8FNhaY/JzByEK5pJtOXDcb6ZEPJ5chprhEWpXY52cdzgwQ@vger.kernel.org
-X-Gm-Message-State: AOJu0Yxhpwu3wg/ljFUFNt1dkc5TyARjc9sMb4U83z18mJJy/Hcyygmk
-	eSrccVNh8RT+vL9hWJRfLCRqjt6Qoqg6zWcjU6z0nRJ30N03jtW7SXwqQZ1OuX3JZfA=
-X-Gm-Gg: AR+sD10kDh3bCxj7dElgFh89dTZqfrckY8KlZ45R2EZMjdroi4Sqx0jZyX2AxTyG1ef
-	8CBxWFGoX2Epgl6T/kKKeLwgd7iqw/Z7hhvbBVBna5/KUJBwWLJk0LtD3FhdFQqlFk4ZHjgGrTW
-	R3VmvsHidvE+wfJft4jJ1a70zswfgxhN2kwL9byKIqq+AqSGQQ1NOB97xKDb67ZCQ1HlqFTm9rr
-	AducZII7peJEEXYWxes8EcpjTSRTeiQgQCrL74gbflqaFN7EmwBcPv7863NaXKyHwXj8+Hjpnbf
-	61dFpqz2VdUWxnilY6hKX+QK4vXDjPF2VEvG2M40z/HNK20GtWOBoIJx/p2DuI0geIBa7TriWzm
-	e2dLLLpQyw+u5ESjhvjH9W2AniDhKEixv+w8kLks00P3XxljXhB1HNA9ps1Z2jBPeWhvlagplc4
-	QW97FkksgHeA==
-X-Received: by 2002:a17:902:ec8e:b0:2c9:de53:f84f with SMTP id d9443c01a7336-2cfa6b7394fmr70538245ad.19.1784868812290;
-        Thu, 23 Jul 2026 21:53:32 -0700 (PDT)
-Received: from yhlee-960QFG.. ([125.131.91.97])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2cf8f2e6247sm44281975ad.54.2026.07.23.21.53.29
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 23 Jul 2026 21:53:31 -0700 (PDT)
-From: Yehyeong Lee <yhlee@isslab.korea.ac.kr>
-To: "D. Wythe" <alibuda@linux.alibaba.com>,
-	Dust Li <dust.li@linux.alibaba.com>,
-	Sidraya Jayagond <sidraya@linux.ibm.com>,
-	Wenjia Zhang <wenjia@linux.ibm.com>,
-	Mahanta Jambigi <mjambigi@linux.ibm.com>,
-	Tony Lu <tonylu@linux.alibaba.com>,
-	Wen Gu <guwen@linux.alibaba.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	Simon Horman <horms@kernel.org>,
-	Guangguan Wang <guangguan.wang@linux.alibaba.com>,
-	linux-rdma@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Cc: Yehyeong Lee <yhlee@isslab.korea.ac.kr>
-Subject: [PATCH net v2] net/smc: fix out-of-bounds read of rkey array in SMC-Rv2 LLC processing
-Date: Fri, 24 Jul 2026 13:53:10 +0900
-Message-ID: <20260724045310.430202-1-yhlee@isslab.korea.ac.kr>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260723094027.391199-1-yhlee@isslab.korea.ac.kr>
-References: <20260723094027.391199-1-yhlee@isslab.korea.ac.kr>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="kPoo+OfH"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66O5C9kY914853;
+	Fri, 24 Jul 2026 05:38:10 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=0SbQfHxCGUwVM+wRZWUxosP9y42p9D+v1GY0hgpW+
+	EY=; b=kPoo+OfHstL7jdizCGP8pun257AwKZKiuffO8ZEy/hftm4M5byXYG473S
+	+CYqZgTn5TtIppfWJO82Y4z3RGdjvO+CoU4aCAX0saPP5BfOR72amTvIW9GIisF9
+	r68tG7QYcbm8V6WNJ2XawMGQNf716hoOFmj3qV1rQkhtiCUY5aBR8o/Rb/84/wPB
+	QTUr4AH16zQV44crVYxE3MUL3KNXY1J+IJpFTfFeMLtQrHuKBSoJnS76MTYKF4rG
+	AFSB7RLcO9mXOR7dWCW6qQWuCHCZNztsdn0KPxtaaGY4d4zNJOAa3pjE/MFkAxTu
+	tMR6/vDRQCBunv7bkczTb/Mz1D0Mw==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fg7ahjhqy-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 24 Jul 2026 05:38:09 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66O5YciI000575;
+	Fri, 24 Jul 2026 05:38:08 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fgktqfs2b-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 24 Jul 2026 05:38:08 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66O5c4ut11796970
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 24 Jul 2026 05:38:04 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8DA98200CA;
+	Fri, 24 Jul 2026 05:38:04 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C5684200CE;
+	Fri, 24 Jul 2026 05:38:00 +0000 (GMT)
+Received: from localhost.localdomain (unknown [9.111.143.111])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Fri, 24 Jul 2026 05:38:00 +0000 (GMT)
+From: Wenjia Zhang <wenjia@linux.ibm.com>
+To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>,
+        Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>,
+        Andrew Lunn <andrew+netdev@lunn.ch>
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sidraya Jayagond <sidraya@linux.ibm.com>,
+        Mahanta Jambigi <mjambigi@linux.ibm.com>, aswin@linux.ibm.com,
+        Alexandra Winter <wintera@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>, Wenjia Zhang <wenjia@linux.ibm.com>,
+        Wen Gu <guwen@linux.alibaba.com>,
+        "D. Wythe" <alibuda@linux.alibaba.com>,
+        Tony Lu <tonylu@linux.alibaba.com>,
+        Dust Li <dust.li@linux.alibaba.com>
+Subject: [PATCH net-next v3] MAINTAINERS: Update SHARED MEMORY COMMUNICATIONS (SMC) maintainer entries
+Date: Fri, 24 Jul 2026 07:37:52 +0200
+Message-ID: <20260724053752.3084-1-wenjia@linux.ibm.com>
+X-Mailer: git-send-email 2.50.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -90,179 +77,61 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-ORIG-GUID: uS2Mm8HCJxFNbjbxvK5pbwCMGe6vuXPs
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI0MDA0NSBTYWx0ZWRfX+ZTkzKM0wEAX
+ wLTcT7u+MrOwKLkWzu+DN/6Fp0eLlvQgqP7ICPCOByXsptNSAsEmWL/9NiWakzcg91YXL3EzwRv
+ sNw5bTfk3G68+DhOq1ijwTrPOJK46+VDJ2g+6MgKL3K5hx3Yrck5BCtP0WP27y/JPjeNavVORdP
+ OM1bDTTM7lR9aof1c1l3/RDiVhhj4zqT/11hPpcorL7ztwNq7SsQTc1PTAyQihCMTLhbZU8OcKG
+ vinAXqlkb6ytXbsRMMtWJUF4+iXuhNDdumFQ1yoFJ+pSUhc2zKaKOFwKNDzgO4N3qmB1FOuhqLz
+ sFystHSNd/TjRp8lzfcNy/GK6vn4jI5vAMqcUCMGDg5jpmysgFOZUh101lYbs+WcUs2VihzdSjj
+ wPGp/GcWCCzz8i/tufkf4vik4aLQxw8O0ghbh/ZgdFzazVb5RHeHpWEVyBKhvVi1N5kRTXz2Vj7
+ kraA/ojrlr2vPpI+QCA==
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI0MDA0NSBTYWx0ZWRfXyU5tmcTsITMy
+ v6gPhP72EdcoX7NVLdzgzubXvcXIStrmFOSxin4fGVjyRblOV8meJKgJ9szuA/cOHFOcJRr4qQC
+ c5iSnsPsMSbKitnLo/MMp/I1I11/G/0=
+X-Proofpoint-GUID: c5nJ6oBNBNBnA37WjMIgqUP2quwE47F5
+X-Authority-Analysis: v=2.4 cv=SM5ykuvH c=1 sm=1 tr=0 ts=6a62fa41 cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+ a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8 a=SRrdq9N9AAAA:8 a=VwQbUJbxAAAA:8
+ a=Ccpp6hyrmyWRenCNi6kA:9
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-07-24_01,2026-07-22_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ clxscore=1015 lowpriorityscore=0 bulkscore=0 suspectscore=0 adultscore=0
+ spamscore=0 malwarescore=0 priorityscore=1501 phishscore=0 impostorscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607240045
 
-SMC-Rv2 uses two receive-buffer layouts, selected by
-smc_link_shared_v2_rxbuf() (i.e. lnk->wr_rx_sge_cnt > 1):
+Due to a change in responsibilities, I can no longer serve as an SMC
+maintainer and need to be removed from the MAINTAINERS list.
 
- - shared (device max_recv_sge >= 2): each receive work request posts a
-   small primary SGE plus a spillover SGE that DMAs the message body into
-   the per-link-group lgr->wr_rx_buf_v2 (SMC_WR_BUF_V2_SIZE = 8 KiB) at
-   offset SMC_WR_TX_SIZE.
+To reflect these organizational changes, promote Mahanta Jambigi
+<mjambigi@linux.ibm.com> from reviewer to maintainer.
 
- - non-shared (device max_recv_sge == 1): each receive work request posts
-   a single SGE of wr_rx_buflen == SMC_WR_BUF_V2_SIZE, so the whole
-   message lands in the per-WR receive buffer.
-
-smc_llc_rx_handler() hands the received buffer to smc_llc_enqueue(),
-which copies only sizeof(union smc_llc_msg) bytes into the fixed-size
-qentry->msg and queues the request; the LLC request is then processed
-later from the llc_event_work work item, after smc_wr_rx_process_cqes()
-has already reposted (and thus recycled) the per-WR receive buffer.
-
-For the shared layout the rkey array survives in wr_rx_buf_v2, and
-smc_llc_rmt_delete_rkey() and smc_llc_save_add_link_rkeys() read it from
-there. For the non-shared layout nothing preserves the message body: both
-functions instead read the rkey array from the truncated qentry copy
-((struct smc_llc_msg_delete_rkey_v2 *)llc, and (u8 *)add_llc +
-SMC_WR_TX_SIZE), running past the end of the ~72-byte qentry allocation.
-The loop bound num_rkeys comes straight off the wire and is only capped at
-SMC_LLC_RKEYS_PER_MSG_V2 (255), so a peer that sends a DELETE_RKEY or
-ADD_LINK message with an oversized rkey count triggers an out-of-bounds
-read of up to ~1 KiB (delete_rkey) or ~4 KiB (add_link) past a kmalloc-96
-object.
-
-  BUG: KASAN: slab-out-of-bounds in smc_llc_rmt_delete_rkey+0x6a4/0x780
-  Read of size 4 at addr ffff8880059ee748 by task kworker/0:0H/11
-  Workqueue: events_highpri smc_llc_event_work
-  Call Trace:
-   dump_stack_lvl+0x53/0x70
-   print_report+0xd0/0x630
-   kasan_report+0xce/0x100
-   smc_llc_rmt_delete_rkey+0x6a4/0x780
-   smc_llc_event_handler+0xa13/0xef0
-   smc_llc_event_work+0x189/0x260
-   process_one_work+0x633/0x1030
-   worker_thread+0x45b/0xd10
-   kthread+0x2c6/0x3b0
-   ret_from_fork+0x36e/0x5a0
-   ret_from_fork_asm+0x1a/0x30
-  Allocated by task 43:
-   __kmalloc_cache_noprof+0x158/0x370
-   smc_llc_enqueue+0x72/0x560
-   smc_wr_rx_tasklet_fn+0x474/0xa80
-   ...
-  The buggy address is located 0 bytes to the right of
-   allocated 72-byte region [ffff8880059ee700, ffff8880059ee748)
-
-Preserve the message body for the non-shared layout as well: in
-smc_llc_rx_handler() copy the bytes beyond SMC_WR_TX_SIZE into
-wr_rx_buf_v2 + SMC_WR_TX_SIZE before the receive work request is reposted,
-exactly mirroring the spillover SGE of the shared layout. The header
-(which for a message that fits in SMC_WR_TX_SIZE contains the whole rkey
-array) is not copied here; smc_llc_rmt_delete_rkey() now restores it from
-the per-qentry copy for both layouts, so a different v2 LLC message that
-reaches the shared wr_rx_buf_v2 between reception and processing cannot
-clobber it. The rkey array is then read from wr_rx_buf_v2, bounded by its
-SMC_WR_BUF_V2_SIZE size.
-
-The body copy is guarded by lgr->smc_version == SMC_V2, since
-wr_rx_buf_v2 is only allocated for v2 link groups; keying it off the
-link-group version rather than only the wire llc_version prevents a NULL
-dereference should a v2-versioned LLC message arrive on a v1 link group.
-It also removes a latent use-after-free on the SMC-R server add-link path,
-where the non-shared code dereferenced add_llc after its qentry had been
-freed by smc_llc_flow_qentry_del().
-
-The rkey count is still only capped at SMC_LLC_RKEYS_PER_MSG_V2; the reads
-now stay within the 8 KiB buffer regardless, and validating num_rkeys
-against the received message length is left as a separate hardening.
-
-Triggering the bug requires a RoCE device that advertises
-max_recv_sge == 1 (a configuration the Fixes: change added support for)
-and a peer emitting an oversized rkey count. Reproduced under KASAN with
-soft-RoCE (rdma_rxe) after forcing wr_rx_sge_cnt = 1.
-
-Fixes: 27ef6a9981fe ("net/smc: support SMC-R V2 for rdma devices with max_recv_sge equals to 1")
-Signed-off-by: Yehyeong Lee <yhlee@isslab.korea.ac.kr>
+Acked-by: Mahanta Jambigi <mjambigi@linux.ibm.com>
+Signed-off-by: Wenjia Zhang <wenjia@linux.ibm.com>
 ---
-v2: guard the wr_rx_buf_v2 copy with lgr->smc_version == SMC_V2 (v1 keyed
-    the copy off the wire llc_version only, so a v2-versioned LLC message
-    received on a v1 link group could dereference the NULL wr_rx_buf_v2);
-    copy only the message body and restore the header from the per-qentry
-    copy in smc_llc_rmt_delete_rkey(), so a later v2 message reaching
-    wr_rx_buf_v2 cannot clobber it; note num_rkeys is not validated
-    against the message length.
-    v1: https://lore.kernel.org/netdev/20260723094027.391199-1-yhlee@isslab.korea.ac.kr
- net/smc/smc_llc.c | 45 +++++++++++++++++++++++++++++++++------------
- 1 file changed, 33 insertions(+), 12 deletions(-)
+ MAINTAINERS | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
-index 954b2ff1815c..84d8d9024efa 100644
---- a/net/smc/smc_llc.c
-+++ b/net/smc/smc_llc.c
-@@ -1099,9 +1099,8 @@ int smc_llc_cli_add_link(struct smc_link *link, struct smc_llc_qentry *qentry)
- 	if (rc)
- 		goto out_clear_lnk;
- 	if (lgr->smc_version == SMC_V2) {
--		u8 *llc_msg = smc_link_shared_v2_rxbuf(link) ?
--			(u8 *)lgr->wr_rx_buf_v2 : (u8 *)llc;
--		smc_llc_save_add_link_rkeys(link, lnk_new, llc_msg);
-+		smc_llc_save_add_link_rkeys(link, lnk_new,
-+					    (u8 *)lgr->wr_rx_buf_v2);
- 	} else {
- 		rc = smc_llc_cli_rkey_exchange(link, lnk_new);
- 		if (rc) {
-@@ -1501,9 +1500,8 @@ int smc_llc_srv_add_link(struct smc_link *link,
- 	if (rc)
- 		goto out_err;
- 	if (lgr->smc_version == SMC_V2) {
--		u8 *llc_msg = smc_link_shared_v2_rxbuf(link) ?
--			(u8 *)lgr->wr_rx_buf_v2 : (u8 *)add_llc;
--		smc_llc_save_add_link_rkeys(link, link_new, llc_msg);
-+		smc_llc_save_add_link_rkeys(link, link_new,
-+					    (u8 *)lgr->wr_rx_buf_v2);
- 	} else {
- 		rc = smc_llc_srv_rkey_exchange(link, link_new);
- 		if (rc)
-@@ -1812,12 +1810,15 @@ static void smc_llc_rmt_delete_rkey(struct smc_link_group *lgr)
- 	if (lgr->smc_version == SMC_V2) {
- 		struct smc_llc_msg_delete_rkey_v2 *llcv2;
- 
--		if (smc_link_shared_v2_rxbuf(link)) {
--			memcpy(lgr->wr_rx_buf_v2, llc, sizeof(*llc));
--			llcv2 = (struct smc_llc_msg_delete_rkey_v2 *)lgr->wr_rx_buf_v2;
--		} else {
--			llcv2 = (struct smc_llc_msg_delete_rkey_v2 *)llc;
--		}
-+		/* Restore the header - and, for a message that fits in
-+		 * SMC_WR_TX_SIZE, the whole rkey array - from the per-qentry copy
-+		 * for both rxbuf layouts, so a v2 message that reached
-+		 * wr_rx_buf_v2 in the meantime cannot clobber it.  The body of a
-+		 * larger message is already in wr_rx_buf_v2 (shared: spillover
-+		 * DMA; non-shared: smc_llc_rx_handler()).
-+		 */
-+		memcpy(lgr->wr_rx_buf_v2, llc, sizeof(*llc));
-+		llcv2 = (struct smc_llc_msg_delete_rkey_v2 *)lgr->wr_rx_buf_v2;
- 		llcv2->num_inval_rkeys = 0;
- 
- 		max = min_t(u8, llcv2->num_rkeys, SMC_LLC_RKEYS_PER_MSG_V2);
-@@ -2104,6 +2105,26 @@ static void smc_llc_rx_handler(struct ib_wc *wc, void *buf)
- 	} else {
- 		if (llc->raw.hdr.length_v2 < sizeof(*llc))
- 			return; /* invalid message */
-+		/* For the non-shared v2 rxbuf layout the message body beyond
-+		 * SMC_WR_TX_SIZE lives only in the per-WR receive buffer, which
-+		 * is reposted as soon as this handler returns.  The LLC event
-+		 * handlers run later from a work item and read the body from
-+		 * wr_rx_buf_v2, so copy it there now - only the body, mirroring
-+		 * the shared-rxbuf layout where the spillover SGE DMAs the body
-+		 * into wr_rx_buf_v2 + SMC_WR_TX_SIZE.  The header is left to the
-+		 * handlers, which restore it from the per-qentry copy, so a later
-+		 * message reaching wr_rx_buf_v2 cannot clobber it.  wr_rx_buf_v2
-+		 * only exists for SMC_V2 link groups, so the link-group version
-+		 * is checked (not just the wire llc_version) to avoid a NULL
-+		 * dereference on a v1 link group.
-+		 */
-+		if (link->lgr->smc_version == SMC_V2 &&
-+		    !smc_link_shared_v2_rxbuf(link) &&
-+		    wc->byte_len > SMC_WR_TX_SIZE)
-+			memcpy((u8 *)link->lgr->wr_rx_buf_v2 + SMC_WR_TX_SIZE,
-+			       (u8 *)llc + SMC_WR_TX_SIZE,
-+			       min_t(u32, wc->byte_len, SMC_WR_BUF_V2_SIZE) -
-+			       SMC_WR_TX_SIZE);
- 	}
- 
- 	smc_llc_enqueue(link, llc);
+diff --git a/MAINTAINERS b/MAINTAINERS
+index ff93f3954fd1..031db6fa5522 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -24632,8 +24632,7 @@ SHARED MEMORY COMMUNICATIONS (SMC) SOCKETS
+ M:	D. Wythe <alibuda@linux.alibaba.com>
+ M:	Dust Li <dust.li@linux.alibaba.com>
+ M:	Sidraya Jayagond <sidraya@linux.ibm.com>
+-M:	Wenjia Zhang <wenjia@linux.ibm.com>
+-R:	Mahanta Jambigi <mjambigi@linux.ibm.com>
++M:	Mahanta Jambigi <mjambigi@linux.ibm.com>
+ R:	Tony Lu <tonylu@linux.alibaba.com>
+ R:	Wen Gu <guwen@linux.alibaba.com>
+ L:	linux-rdma@vger.kernel.org
 -- 
-2.43.0
+2.50.1 (Apple Git-155)
 
