@@ -1,123 +1,114 @@
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 2CB4E33439A;
-	Fri, 24 Jul 2026 16:31:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
+Received: from submarine.notk.org (submarine.notk.org [62.210.214.84])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 012FB2F9D89;
+	Fri, 24 Jul 2026 16:32:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=62.210.214.84
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784910709; cv=none; b=bUIc4ADfhaUU2jVsvhdgTAb8zh+tysTYQtPjthJyJdCOQOhxcC3yqrNa1/CnB4LBYjC44E79pNVnt2PLlmmjIyXC/TXRMUiBvyZT/LBq+HROvz501AzAqadcrWt1POLpubIxSOttWd2fhhA765nzu4mg1Jg1nAqzVqCluBEr9Ug=
+	t=1784910763; cv=none; b=Rdzi2XtqElUpIfWHG+sSshPXhC/g0YWwVLUhr4JpzSz/uggB3K3/diQWL0l2XXtLnGcacVUFMtRFJZliveDXiZkNYzDpMfweAQrD9uW28rHVaNKoLJNhp+DbL5wg7VBSqGsXZs7W4Uta0AOj070ajfyszlg+WiNkyGfa4kAoPZ8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784910709; c=relaxed/simple;
-	bh=NEwnT35D7tuzT3xeTQQMHkJEWGepfSu0cwMv30sxXLk=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=trB7VcuLSPvxptxp6Zb9oQRJBZu3Y3R+BcIQ8jRbXcIswDG/De66Vb5Frx1O7lEUS+QNcu/Vl+e79LJzLf9bp1/ydbQ8nw8W6Ocy+3FrQ+9HIHoKGDEKaSvN69OK5yJ1aHPoaOgBNeNST64MK+dVSJfFwWqPw3O5QHVoIJxDxjY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=rJ2DJJ7D; arc=none smtp.client-ip=217.140.110.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+	s=arc-20240116; t=1784910763; c=relaxed/simple;
+	bh=QAB56mMGhrf2Qos/ibU71GGhxUIwqG3ueBE4dX+y5rU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=a1YVDMSJ3PG2UfW2VAe1YvAhy0i/fFNRs6XM1CcTtW3U4grwnybzlb/dwCSWqYqGlKk452rtP2of3+hbXar90zdASCiUYZhK5GDQJHvLv0lrBWlPHnkHem69pKD+mm9OD7s3jLgbIfPNPw4pbMyCCz0d0LpsQ8BLvi9bATkk99Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=codewreck.org; spf=pass smtp.mailfrom=codewreck.org; dkim=pass (2048-bit key) header.d=codewreck.org header.i=@codewreck.org header.b=ABEIOwWY; arc=none smtp.client-ip=62.210.214.84
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=codewreck.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=codewreck.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="rJ2DJJ7D"
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 4DF711BC0;
-	Fri, 24 Jul 2026 09:31:43 -0700 (PDT)
-Received: from [10.57.0.90] (unknown [10.57.0.90])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id ACA703F66F;
-	Fri, 24 Jul 2026 09:31:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=arm.com; s=foss;
-	t=1784910707; bh=NEwnT35D7tuzT3xeTQQMHkJEWGepfSu0cwMv30sxXLk=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=rJ2DJJ7D9c7D1FVu9FvWF7Hq7v5HoLI/CdhriAp1fJ4dLBnD8EJRRWBa3d3TSeSRj
-	 y4giJ+zCCtRJVGca1Zy4119yCr4CT8kuPBEs9cPEAEswfrfTiiEZd9fOxFya5yiDAq
-	 5lH15CX22toaprtjLQyFDxQHqVRAyMvOmxdmryBU=
-Message-ID: <c17ccb0b-9f6b-4521-a992-bdc658b91597@arm.com>
-Date: Fri, 24 Jul 2026 18:31:32 +0200
+	dkim=pass (2048-bit key) header.d=codewreck.org header.i=@codewreck.org header.b="ABEIOwWY"
+Received: from gaia.codewreck.org (localhost [127.0.0.1])
+	by submarine.notk.org (Postfix) with ESMTPS id C3B8414C2DE;
+	Fri, 24 Jul 2026 18:32:28 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=codewreck.org;
+	s=2; t=1784910757;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=pr75B2nE8KRHDz6YmRazBOYCHUF9tlzdiBw3I3n2jrU=;
+	b=ABEIOwWYkL2AzPOxD4b7sRNgirZ5pXF9gTSiyHWXkmvY/J/7C//g4zD7bI++t5B3Q5EtXq
+	XOpKNZFILaFUbRASm1kXiL+8cYyyY9Prm0VpdDYX7+y9iJmjxnJdVeIk33nG25HMUb58e5
+	1j3Mscbem3ZaLpq6Me5fYS+EhHTDtR/nv5XfEfiy253ihDP9TK4iSTsIhncTV3FATiXS5j
+	BCcNut0eYj/2BJSOj+XU/wUr2TrRj2CeNCYZrTG+RV2QwPoCZ3b0W0lBA0JXOZpakvi/Gc
+	p2j/yZzyQl0Zk9L1r785REtxC87F2QM8blCcsIc2q6vDQF8nXP8nSfbJ3I6uLA==
+Received: from localhost (gaia.codewreck.org [local])
+	by gaia.codewreck.org (OpenSMTPD) with ESMTPA id 9829caf7;
+	Fri, 24 Jul 2026 16:32:27 +0000 (UTC)
+Date: Sat, 25 Jul 2026 01:32:12 +0900
+From: Dominique Martinet <asmadeus@codewreck.org>
+To: Eric Biggers <ebiggers@kernel.org>
+Cc: demiobenour@gmail.com, Harald Freudenberger <freude@linux.ibm.com>,
+	acme@kernel.org, adrian.hunter@intel.com,
+	alexander.shishkin@linux.intel.com, ardb@kernel.org,
+	axboe@kernel.dk, corbet@lwn.net, davem@davemloft.net,
+	edumazet@google.com, herbert@gondor.apana.org.au, horms@kernel.org,
+	io-uring@vger.kernel.org, irogers@google.com,
+	james.clark@linaro.org, jolsa@kernel.org, kuba@kernel.org,
+	kuniyu@google.com, linux-crypto@vger.kernel.org,
+	linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-perf-users@vger.kernel.org, mark.rutland@arm.com,
+	mingo@redhat.com, namhyung@kernel.org, netdev@vger.kernel.org,
+	pabeni@redhat.com, peterz@infradead.org, skhan@linuxfoundation.org,
+	willemb@google.com, linux-s390@vger.kernel.org
+Subject: Re: [PATCH 2/3] AF_ALG: Drop support for off-CPU cryptography
+Message-ID: <amOTjPW__CNZui3_@codewreck.org>
+References: <20260523-af-alg-harden-v1-2-c76755c3a5c5@gmail.com>
+ <20260603133312.12848-1-freude@linux.ibm.com>
+ <amOGWwdjnJqyxH5L@codewreck.org>
+ <20260724160034.GB2032@sol>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 14/22] mm: set page table page type when allocated
-To: Vishal Moola <vishal.moola@gmail.com>
-Cc: linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>,
- David Hildenbrand <david@kernel.org>, Lorenzo Stoakes <ljs@kernel.org>,
- "Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>,
- Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>,
- Michal Hocko <mhocko@suse.com>, Pasha Tatashin <pasha.tatashin@soleen.com>,
- Russell King <linux@armlinux.org.uk>,
- Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
- Ryan Roberts <ryan.roberts@arm.com>, linux-arm-kernel@lists.infradead.org,
- Huacai Chen <chenhuacai@kernel.org>, loongarch@lists.linux.dev,
- "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
- Helge Deller <deller@gmx.de>, linux-parisc@vger.kernel.org,
- Madhavan Srinivasan <maddy@linux.ibm.com>,
- Michael Ellerman <mpe@ellerman.id.au>, linuxppc-dev@lists.ozlabs.org,
- Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
- Albert Ou <aou@eecs.berkeley.edu>, linux-riscv@lists.infradead.org,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Gerald Schaefer <gerald.schaefer@linux.ibm.com>, linux-s390@vger.kernel.org,
- "David S. Miller" <davem@davemloft.net>,
- Andreas Larsson <andreas@gaisler.com>, sparclinux@vger.kernel.org,
- Richard Weinberger <richard@nod.at>,
- Anton Ivanov <anton.ivanov@cambridgegreys.com>,
- Johannes Berg <johannes@sipsolutions.net>, linux-um@lists.infradead.org,
- Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
- "H. Peter Anvin" <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>,
- Peter Zijlstra <peterz@infradead.org>, Ning Sun <ning.sun@intel.com>,
- x86@kernel.org, tboot-devel@lists.sourceforge.net,
- Ard Biesheuvel <ardb@kernel.org>,
- Ilias Apalodimas <ilias.apalodimas@linaro.org>, linux-efi@vger.kernel.org,
- Alistair Popple <apopple@nvidia.com>,
- "Matthew Wilcox (Oracle)" <willy@infradead.org>,
- linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-References: <20260714-remove_pgtable_cdtor-v1-0-44be8a7685d7@arm.com>
- <20260714-remove_pgtable_cdtor-v1-14-44be8a7685d7@arm.com>
- <alZSwAM4pwmMOeaD@fedora> <f3afa5df-73f3-49da-87a6-d75eb5f3610f@arm.com>
- <al5xZHiFwatn518I@fedora>
-From: Kevin Brodsky <kevin.brodsky@arm.com>
-Content-Language: en-GB
-In-Reply-To: <al5xZHiFwatn518I@fedora>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20260724160034.GB2032@sol>
 
-On 20/07/2026 21:05, Vishal Moola wrote:
-> On Thu, Jul 16, 2026 at 11:49:31AM +0200, Kevin Brodsky wrote:
->>> We should switch over from __folio_set_pgtable() to __SetPagePgtable()
->>> in this patch. Ptdescs and folios should be treated as distinctly
->>> independent of each other.
->> I sure remember the previous discussion, but my reading of your comments
->> [1] is that we cannot really change this as long as pagetable_alloc()
->> can be called with order > 0, right? Multiple archs still rely on that.
-> Kinda...
->
-> The concern was about callers accessing tail pages directly for that
-> information. Using the folio API ensures that we always look into the
-> head page.
->
-> Since we're now doing it at allocation time, we know we always have the
-> head page, so it's fine.
+Eric Biggers wrote on Fri, Jul 24, 2026 at 09:00:34AM -0700:
+> On Sat, Jul 25, 2026 at 12:35:55AM +0900, Dominique Martinet wrote:
+> > The tool source is available here:
+> > https://github.com/nxp-imx/crypto_af_alg
+> > (which now fails with:
+> > bind(3, {sa_family=AF_ALG, salg_type="skcipher", salg_feat=0, salg_mask=0, salg_name="tk(cbc(aes))"}, 88) = -1 ENOENT (No such file or directory)
+> > )
+> > 
+> > 
+> > I don't particularily care for the API used as long as we can keep using
+> > the hardware key, but as far as I can see there's no alternative API --
+> > what's the path forward?
+> 
+> There's no "tk(cbc(aes))" algorithm in the upstream kernel.  So, it's
+> not possible that this ever worked with upstream.  Given that, there's
+> no regression in upstream for this program, and it wouldn't be
+> appropriate to consider a sysctl knob in upstream at this time.
 
-Ah got it, that makes sense.
+Bleh, you are correct, it's an NXP patch in
+drivers/crypto/caam/caamalg.c that they've been carrying in their
+tree(s) since 2018[1] and has apparently never been upstreamed...
+[1] https://github.com/nxp-imx/linux-imx/commit/6868c9e49c1854028fb46022daac3b1b10ca2c70
 
->
-> The dtor/free should be more questionable because the underlying api
-> uses virt_to_page() which could look at a tail page... oopsie. I
-> haven't seen any reports tied to it so its probably fine (the
-> setting/clearing has been using the folio API since ptdescs).
+Sorry for not having checked, I was hoping for better.
+(I should be used to it by now...)
 
-Right, that should be fine - calling pagetable_free() on anything else
-than a ptdesc allocated by pagetable_alloc() is a bug, so if we get any
-crash because of this we should just go and fix the underlying issue.
-I'd still switch to __SetPagePgtable() in a separate commit to improve
-bisectability.
 
-FWIW there are definitely cases where pagetable_free() and
-pagetable_alloc() calls aren't properly matched (see my reply to the
-cover letter), this needs to be addressed for this series anyway.
+Regardless of the specific algorithm, most recent SoCs flaunt some
+"secure element" or similiar hardware-backed keys (so one wouldn't be
+able to decrypt $whatever without running on the specific board it was
+intended for); I'm sure _some_ of them are upstream?
+(Never used it so not sure if they are reachable from af_alg, but for
+example drivers/crypto/ccree/cc_cipher.c talks about hardware key...)
 
-> We can say thats a happy accident that makes distinguishing ptdescs
-> and folios easier :)
+There's not much I can do about the vendor's kernel I'm stuck with, but
+that doesn't make having encryption material not accessible to userspace
+useless as a concept;
+forgetting about the sysctl for now, what are the alternatives API this
+kind of implementations could be based on?
 
-Indeed!
+I guess I should start looking at how tpm backed encryption works,
+some other day, it's getting late here...
 
-- Kevin
+
+Thank you,
+-- 
+Dominique Martinet | Asmadeus
