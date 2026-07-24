@@ -1,148 +1,108 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from flow-a4-smtp.messagingengine.com (flow-a4-smtp.messagingengine.com [103.168.172.139])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D8CB385516;
-	Fri, 24 Jul 2026 06:18:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C9BD14908AE;
+	Fri, 24 Jul 2026 06:37:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.139
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784873883; cv=none; b=E0QpzWOYLvJjswOgb3Df63TCAF74y+5W8rSI8vzYew+8bnJeVXHlwHvQD+dOWBs0FIy9l74f6CTQByOFSD9/gMmuCQx8guga9wv/ojdeTEi2ULYI1vKPfSk/uA9/pFTxYVIEbukA3kfaH1BEJPVghjjudQE6vxPgl4+mfYFJQxA=
+	t=1784875028; cv=none; b=WrGW2cc8pljxY9fDFHV+IH4EMK7D18An/sQVOMeN/LNs1cAKRqSTwwCA74NSoP015j1GUvwTq6BpRbZVL5U8gUSY4rOjyqnaXK32GmALuaAD03ptXxHf/gltsLW/WNHuLcNegmmeQZDbGKDKRUEhmyfiJwvcPtbsUqb6H77DtSM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784873883; c=relaxed/simple;
-	bh=eExEz3fhe3kIyTtVQd3d+3QkDMYThG7Eyo7G1laF8bE=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=V4tFwte6Ke60Cf+zKgH+wlWwOxu4aYgsWiJysH9G0ZasNtDMprtL7Lor3syQBjP6ZHOa8IUXyfyp/GaK6gPnDhNN997sd1tDfFqgly85+p7SQL8TOcvN5ItiXWYaZqeH/dMXQ2fT9fyo8vFwdaK0RdhTRzgyxfibvGdczpnzt6I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gbMBpHso; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1784875028; c=relaxed/simple;
+	bh=PL+cFJw+A1mVND9tcmXNWtL6i+LZP+ToNTcw6ge+K5o=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Ts+he5ViPSj9q9auFrY9qzJWJiLXNsCMA5kidRGWF4P9PsBuaYc/sLBL5Xo5deG7aRSL1RUhVt/czodXulVXZf7JLOa7Lx2QZoBrUFEfzwUz9G5YFHuXFLpTybKvkCwao/XlzN9HsAPyYTrcIcG29z9GpEPWCRv1XVMfcf0ALm0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=kroah.com; spf=pass smtp.mailfrom=kroah.com; dkim=pass (2048-bit key) header.d=kroah.com header.i=@kroah.com header.b=Xb3VqjiR; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=E4KRqURO; arc=none smtp.client-ip=103.168.172.139
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=kroah.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kroah.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gbMBpHso"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 996BB1F000E9;
-	Fri, 24 Jul 2026 06:18:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784873882;
-	bh=uu0ALMTspE3PJ0I5jSY0qhDd2lyV9IET0RSu0WYlnns=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=gbMBpHsoq6kFXk6lsfsdNeGWXfQ3hMwhSYzmxg/FMTwE0yzTiwd2YjDTYmc9zFUJz
-	 pQVuF8wHUwV5GdypEhcaUvd6LI4FnOKjNrRxO+10PM8h4lRLZ6UzZl3pO0cYImpfQP
-	 zDYmuM5r8qlxuw/OX11aJ086OhpPGYLoM6dPEEw842dg0dS0/KK59yXj7Zv49fRJuk
-	 4eeYloH+320+TPLqcho5SHv94CsIL/ez1kTLKA+qwZmSzpTLJtc3MkU4iW1O/UWgPy
-	 MLl5p9ZHfbikAA9KqgUYfHa8Dcf1fZNDf5NVCw2s7cGt6b83GvAxQGRRTZ+ydoHNN9
-	 wLuPP7rj58SMQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 1/4] zfcp: Enhance fsf status read buffer tracing
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Nihar Panda" <niharp@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>, "Heiko
- Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, linux-scsi@vger.kernel.org
-In-Reply-To: <20260724053934.2781087-2-niharp@linux.ibm.com>
-References: <20260724053934.2781087-1-niharp@linux.ibm.com>
- <20260724053934.2781087-2-niharp@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 24 Jul 2026 06:18:01 +0000
-Message-Id: <20260724061801.996BB1F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=kroah.com header.i=@kroah.com header.b="Xb3VqjiR";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="E4KRqURO"
+Received: from phl-compute-12.internal (phl-compute-12.internal [10.202.2.52])
+	by mailflow.phl.internal (Postfix) with ESMTP id 0305713800E3;
+	Fri, 24 Jul 2026 02:37:06 -0400 (EDT)
+Received: from phl-frontend-04 ([10.202.2.163])
+  by phl-compute-12.internal (MEProxy); Fri, 24 Jul 2026 02:37:06 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
+	:cc:content-type:content-type:date:date:from:from:in-reply-to
+	:in-reply-to:message-id:mime-version:references:reply-to:subject
+	:subject:to:to; s=fm2; t=1784875025; x=1784882225; bh=PL+cFJw+A1
+	mVND9tcmXNWtL6i+LZP+ToNTcw6ge+K5o=; b=Xb3VqjiR6ggHWM6NVPVt0/BKjK
+	bXhw8MVXE53YORvHsKkzqFzUo0IXSWczqFvOIWbSRPiwBhh46d2l0+z+48E9jAqH
+	bxe7UetM5rYAxFCSSENb+AqeMCfRX/vMsrPbK9esDop/Y8j4NJNvnVZ/z3g0dcT0
+	L2+pH16ElKFfxaRZa6JWMmCiUVARPMBID0lnFdr4BJNAu47ej/Zc4a2QaQdoB6Gl
+	J2xEZ/u/cipp0ccjwklA+tNT4ScF2nDFkMuszDtZkFZp3wRp8pJm6YNz3cHYLg8j
+	gFrxXGM41jq+Q7ns2NY7rQlvB/4cmUxhTjnwcgLeh/cm7wpJRl2QV8LjJ5OA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-type:content-type:date:date
+	:feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
+	:message-id:mime-version:references:reply-to:subject:subject:to
+	:to:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=
+	1784875025; x=1784882225; bh=PL+cFJw+A1mVND9tcmXNWtL6i+LZP+ToNTc
+	w6ge+K5o=; b=E4KRqUROThBmzor2t/zYxQJPB0ip9oJCkwPIx7cIxB9Ker+R+Cn
+	N5Qhu+Px3qugUOgFYhTi1FeLsql8Ia7evopSC0nShTfPNGF6WUOM0YsZjbcrR5tT
+	T81nmIkrQZb6Ke4YWb2yQksAPjjSD8bZOvlpm61vSSjusYSklXtqDFfZbcxDXqDa
+	SrJC/zFzC+SldTBgkkefxcFfcpipLKfvr0z/Rw+0jC4GoBmW38pOmBoC+XuCDvE3
+	iN9/DKnMKgVXZblyIWkWPBZvtgTgaMozBLRBdPDW1d1cTWcG3v+x2rWsEzN6qRno
+	qLPLV55uDV95wFR0kEu1tTQRZyYyfGvoQpA==
+X-ME-Sender: <xms:EQhjajIahRpDyx59YVAOkO9j9BUpR9uxdf4NYmtzk1PkrESKBsCdyA>
+    <xme:EQhjauHNIWSuwlIHsO6uzb7ivHVBZoemkAjWhePEi6brT-Uf-ZGGzNBKMW50p8xYF
+    qPz89Bhiw7xrvpSdBHTLPfVZ5ZZ-fJ_4fjIu9lmwqFLDiNK>
+X-ME-Received: <xmr:EQhjakoEPLUhORWZwQ_c-AwNC_8xjyXi11gYR8EY2Qqy7l8h3PyRGhtHyOLOrsc-CR_SEeeBu1q-xLerES5QGQd5KA>
+X-ME-Proxy-Cause: dmFkZTFX5iPjis1+08aMQAfG2anV+zBI8zmH41Y47VAyCiJWTyfwZ7ELMO3BhcMlLZKfMW
+    fDTWyOy+PZWlS7Kx0pAXG7czUqKvrgCi4q51xKfz5cJLLsvJYphO9ETeTeFDNZQdXHYgVe
+    im9wGVk+RJ1YLmeL6ZP/396+9lUxfFYoPLWLGBYHqgNXSvw/ruBoPyxVtLKOQH5nhRPvdR
+    fPHAtRIJhLDkZXwHO0SBQfKq71gLj6p7ksc4llFPpIUa4UxdRtbYrMBU2cLrxeU9FSZFR6
+    T/Dl/+RyngkiZN++qOZL1XZFDdA87kiubCGqiBzUY50/fHnnxgbpsi5T71PF1j+rW+aWe4
+    U+RWmDRzPaaUjDb67h3Hud9a8QHWQXPzNYpCRWV0gfiL0b36vn73tyFYXyLtZYxf83lYex
+    BAYrhOEH2yZOV45k1hcrx4tL58/D8YLiPf3UX+jOKhtBVEig5hCZkJNc3xbnIlmN0alFY3
+    wTvD8qtj/WfpTIXxH4MRj27kg+Fl4lyOH244mmo+idDPzQvNCNCOiCZWcZEOdpBnCLG0OI
+    7EnbERLSfCi5pK3SzHsEvYSN6XmziCBTZ749fxUlpBbovtejWaVQHI6IuL6sGiv+sVlwOq
+    rZs4nn01uxi611kMHRlCXh1MR+K5xAior7grBjFf5EjOl6Es80nyEMChUgEg
+X-ME-Proxy: <xmx:EQhjakNHbpMmHIZHJawQiTeRof7s-JdEiu5ucVVYtVXP7Oaw7YrObQ>
+    <xmx:EQhjakpsS4MslApj7D75HsFHPWK_7d12Z9JvFaPFyahEUKvzLRLgoQ>
+    <xmx:EQhjaqnYAKr85uSFUQ5G6PT_zyUwMPJ0HXTlHLpJiecCpxUogLlgAg>
+    <xmx:EQhjakw00X7KtRLLhmGIgmuXgLfVGeh3u-g_-BfU5q9hJUYEBHj7NQ>
+    <xmx:EQhjauW8KJG8te-aYgxBMw9UXPqEx0i5V_L5rEes977ufK1ky-lM76Yy>
+Feedback-ID: i787e41f1:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Fri,
+ 24 Jul 2026 02:37:05 -0400 (EDT)
+Date: Fri, 24 Jul 2026 08:35:42 +0200
+From: Greg KH <greg@kroah.com>
+To: Min-gyu Kim <gimm78064@gmail.com>
+Cc: Alexei Starovoitov <ast@kernel.org>,
+	Daniel Borkmann <daniel@iogearbox.net>,
+	Andrii Nakryiko <andrii@kernel.org>,
+	Eduard Zingerman <eddyz87@gmail.com>,
+	Kumar Kartikeya Dwivedi <memxor@gmail.com>,
+	Ilya Leoshkevich <iii@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>, bpf@vger.kernel.org,
+	linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+	regressions@lists.linux.dev, security@kernel.org
+Subject: Re: [REGRESSION][SECURITY] bpf, s390: verifier/JIT mismatch allows
+ unprivileged kernel memory access
+Message-ID: <2026072436-carload-untaken-585d@gregkh>
+References: <CAGKGUvm6sC9ay98zsYJS1xwB9+qUwverqAsAAwpVOpmqFpEy5A@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAGKGUvm6sC9ay98zsYJS1xwB9+qUwverqAsAAwpVOpmqFpEy5A@mail.gmail.com>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
+On Thu, Jul 23, 2026 at 04:55:12PM +0900, Min-gyu Kim wrote:
+> I have not yet tested a patch.
 
-Pre-existing issues:
-- [High] An integer underflow occurs when the hardware/firmware provides a =
-non-zero `srb->length` smaller than the `payload` offset, leading to a mass=
-ive out-of-bounds read and potential kernel panic.
-- [High] Missing bounds check on hardware-provided `log_start` and `log_len=
-gth` allows an out-of-bounds read and information leak.
---
+As you have a reproducer, please create a proposed patch that solves the
+issue for you for us to work off of, as our security documentation asks
+for.
 
---- Patch [1]: [PATCH 1/4] zfcp: Enhance fsf status read buffer tracing ---
-commit 2318c7a31a1b9a647e0a90e8e4d57fd114b807d1
-Author: Chinmaya Kajagar <chinmayk@linux.ibm.com>
+Also, as you cc:ed public mailing lists, there's no need to get
+security@kernel.org involved here.
 
-zfcp: Enhance fsf status read buffer tracing
+thanks,
 
-This commit appends the remaining SRB fields to the unsolicited status trace
-records and extends the driver to get the 3-byte source ID from the reserved
-field. This helps fully trace the incoming FSF status read buffer.
-
-> diff --git a/drivers/s390/scsi/zfcp_dbf.c b/drivers/s390/scsi/zfcp_dbf.c
-> index 71f625926ae19..89b859176b8bd 100644
-> --- a/drivers/s390/scsi/zfcp_dbf.c
-> +++ b/drivers/s390/scsi/zfcp_dbf.c
-
-[ ... ]
-
-> @@ -220,6 +220,13 @@ void zfcp_dbf_hba_fsf_uss(char *tag, struct zfcp_fsf=
-_req *req)
->  	rec->u.uss.lun =3D srb->fcp_lun;
->  	memcpy(&rec->u.uss.queue_designator, &srb->queue_designator,
->  	       sizeof(rec->u.uss.queue_designator));
-> +	rec->u.uss.length =3D srb->length;
-> +	rec->u.uss.res1 =3D srb->res1;
-> +	rec->u.uss.res2 =3D srb->res2;
-> +	rec->u.uss.class =3D srb->class;
-> +	rec->u.uss.res3 =3D srb->res3;
-> +	rec->u.uss.s_id =3D ntoh24(srb->s_id);
-> +	memcpy(&rec->u.uss.res4, &srb->res4, sizeof(rec->u.uss.res4));
-> =20
->  	/* status read buffer payload length */
->  	rec->pl_len =3D (!srb->length) ? 0 : srb->length -
-> 			offsetof(struct fsf_status_read_buffer, payload);
->=20
-> 	if (rec->pl_len)
-> 		zfcp_dbf_pl_write(dbf, srb->payload.data, rec->pl_len,
-> 				  "fsf_uss", req->req_id, ZFCP_DBF_PAY_LEVEL);
-
-[Severity: High]
-This is a pre-existing issue, but is there a risk of an integer underflow
-here if the firmware returns a non-zero srb->length that is smaller than the
-payload offset?
-
-If srb->length is less than offsetof(struct fsf_status_read_buffer, payload=
-),
-the subtraction will underflow. Because rec->pl_len is a u16, it would stor=
-e a
-large truncated positive integer.
-
-Could this cause zfcp_dbf_pl_write() to perform a massive out-of-bounds read
-beyond the srb buffer, potentially leading to a kernel panic from unmapped
-memory access or leaking adjacent sensitive kernel heap data into the trace
-ring buffer?
-
-An identical instance of this calculation seems to exist in
-zfcp_dbf_san_in_els() as well.
-
-
-While reviewing this tracing code, I also noticed another pre-existing issue
-in zfcp_dbf_hba_fsf_res():
-
-drivers/s390/scsi/zfcp_dbf.c:zfcp_dbf_hba_fsf_res() {
-	...
-	if (q_head->log_length) {
-		rec->pl_len =3D q_head->log_length;
-		zfcp_dbf_pl_write(dbf, (char *)q_pref + q_head->log_start,
-				  rec->pl_len, "fsf_res", req->req_id,
-				  ZFCP_DBF_PAY_LEVEL);
-	}
-	...
-}
-
-[Severity: High]
-This is also a pre-existing issue, but does this code adequately validate t=
-he
-hardware-provided q_head->log_length and q_head->log_start values?
-
-Since these values are read directly from the hardware-populated qtcb heade=
-r,
-is it possible for a malfunctioning or compromised firmware to provide
-arbitrary offsets and lengths?
-
-Without bounds checking to ensure they fall strictly within the allocated q=
-tcb
-structure, could zfcp_dbf_pl_write() perform an out-of-bounds read from the
-kernel heap, potentially leaking sensitive data or causing a crash?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260724053934.2781=
-087-1-niharp@linux.ibm.com?part=3D1
+greg k-h
