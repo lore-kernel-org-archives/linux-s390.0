@@ -1,60 +1,60 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 20CA131618C;
-	Fri, 24 Jul 2026 17:51:25 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9AE511C5D7D;
+	Fri, 24 Jul 2026 17:53:58 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784915487; cv=none; b=bp/gSoixW2mpF1/zmMUunlZ3YsVTmr59kwplbzlfBfZXzzDPPa2CQJ3u91aTLjKG0su8sV3faaj+irxksJuIs13vdurWDrg4EYY0PPJeFzTI8MjReajvy/tRsfKMmoA68FpfW+sDEPo2IEXCEsIKsZFeOZ5u96iHcGG+vJEO96w=
+	t=1784915640; cv=none; b=MewJ0+0Oz3+w5ztGHiL5LsMOjMt5Pd20jjgmEI7IctRpeb5zvZ+ZcpHDK3BbuBqf/a+P1BSRGfE2dkQAhB7BQbpcfkT9QGtycvRvuH32wDfoQ/4jG6Z0EJF5B0tPNmSedhHEUJfV2274smfUYtMR6Kvh+9ev4fK/2L3DRw9QEFk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784915487; c=relaxed/simple;
-	bh=nWnbTi8pvw8DLc79ebFvMEdjRzgQl2qSWxMboDg000s=;
+	s=arc-20240116; t=1784915640; c=relaxed/simple;
+	bh=8oaRis8UgQRGMMpH5zVLI9N8FyyPalp+/iV10iYEzy4=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=A3t2Y93Sw5tR61vR8JQ/P+pU+dwMEXC4jYQbU6Ol65SqTWzMYJKdsojO5tvuAfikhVdwF25WBYO9Pt/DZODL4ocSfCxjIXg+M52a8u06d23ddnNkb5q6HlE7IMoniQnPVJgDoINqtMQfrbHraBO+xswVJBy1tKBjM++HzsJsv/E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=gimToVP6; arc=none smtp.client-ip=148.163.158.5
+	 In-Reply-To:Content-Type; b=K+tfCac40TfIxRdUBiCM+j3ftfHFlQ+8HZKJbzXtp+demuexPb2brjOwxyiy05ygv+spFqTILfBkloLqnVhd/P3yvP5cJBF4v0w3C36gpq6qcTVaE9U+YpGgnCkA9FT3gpHCV+ni5OiibxChTfrSPx/SIvppmgZ/Q/MaOvV7GMw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=CEgrntMs; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="gimToVP6"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66OHBv7X2352942;
-	Fri, 24 Jul 2026 17:51:25 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="CEgrntMs"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66OHBnLE2450787;
+	Fri, 24 Jul 2026 17:53:57 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=qpPWGO
-	Ste8aUhnSh8xL3B8s1k3NcCGnPZ5/+NhtQx3I=; b=gimToVP6yvqg9Dh2i0DtnZ
-	COYUeeVPnwaWzPzeSuugNTXiwfzaF77HDmpmFxEJW5qFO3q+giXWXcq+6uzEbIZX
-	rpEHzwEf+EIJfG7HtW4xONRRVO0hr02Is7KUMQpb9vPY7Ily1NDxodtbqYrB0bOF
-	EJvaz2nBRjLrhHWMhunqtW4xGR/8yUHvUhx15dgCjSIzR4QZgJPOB5Jv0DqJuMyw
-	IUCtP2Oj1vhF3r4ujtYOjnZ7w4ZWyMecVHyZlHzBUrPirY2paLUhZl141/kotUFg
-	0hMlJRI+1CHtOkdX4hdat6y2H1ZYt1j5CIHsSN0FnhKxw6dkARcojZwQjvUoEKfA
+	:message-id:mime-version:references:subject:to; s=pp1; bh=+c0rxx
+	oG4q7orJ5qvjOr37YofShRkSUMF5bMuA7COXY=; b=CEgrntMsWWKQqA9ZMbPaS9
+	IsZWMBgBQ6+hJlpGOdl5HcbNhrM8mEfIgg/QVxQyrssUVao+TQmEV1tLwgDkrvJb
+	5k+dPEKGxNGiDhsbDrmvmtdd3/AjXAqkzy1R1axP885r0Y24bMty2Gl2YzAU+MbR
+	11u1WzMN5WXFh5lbmdjj9RprA/RvCtdAYt08TGzqqkvJV5kbMh9Swzcx6xDemyGC
+	IfPZFlKjCCCInLPwo7Uka0+fljv4e/WBKHM1uolfaaupbzYnQrUR5OKqDa9FzWtz
+	Bq72Hztga9bTNr4WatAgotEEDXMmRVOS/gdM/U9Kk2bVHWYc2P171dTZnRxDf8IQ
 	==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fg77knatu-1
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fg7ahn9b2-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 24 Jul 2026 17:51:24 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66OHniNs026353;
-	Fri, 24 Jul 2026 17:51:24 GMT
-Received: from smtprelay07.wdc07v.mail.ibm.com ([172.16.1.74])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fgktqj5w0-1
+	Fri, 24 Jul 2026 17:53:57 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66OHnafn008972;
+	Fri, 24 Jul 2026 17:53:56 GMT
+Received: from smtprelay02.dal12v.mail.ibm.com ([172.16.1.4])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fgp1gstdv-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 24 Jul 2026 17:51:24 +0000 (GMT)
-Received: from smtpav04.wdc07v.mail.ibm.com (smtpav04.wdc07v.mail.ibm.com [10.39.53.231])
-	by smtprelay07.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66OHpMG328639868
+	Fri, 24 Jul 2026 17:53:56 +0000 (GMT)
+Received: from smtpav02.wdc07v.mail.ibm.com (smtpav02.wdc07v.mail.ibm.com [10.39.53.229])
+	by smtprelay02.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66OHrtdc25625322
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 24 Jul 2026 17:51:22 GMT
-Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7DBD258045;
-	Fri, 24 Jul 2026 17:51:22 +0000 (GMT)
-Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8BB3E58050;
-	Fri, 24 Jul 2026 17:51:21 +0000 (GMT)
-Received: from [9.61.177.4] (unknown [9.61.177.4])
-	by smtpav04.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 24 Jul 2026 17:51:21 +0000 (GMT)
-Message-ID: <c234577c-c27d-4460-8dd5-7d8b48e0094b@linux.ibm.com>
-Date: Fri, 24 Jul 2026 13:51:21 -0400
+	Fri, 24 Jul 2026 17:53:55 GMT
+Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 52DF55805B;
+	Fri, 24 Jul 2026 17:53:55 +0000 (GMT)
+Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8EA3458058;
+	Fri, 24 Jul 2026 17:53:54 +0000 (GMT)
+Received: from [9.61.19.212] (unknown [9.61.19.212])
+	by smtpav02.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Fri, 24 Jul 2026 17:53:54 +0000 (GMT)
+Message-ID: <7c38970e-99e3-4680-a8ce-28ab9a3a5232@linux.ibm.com>
+Date: Fri, 24 Jul 2026 13:53:54 -0400
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -62,177 +62,179 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 4/8] s390/vfio_ccw: ensure first IDAW remains constant
-To: Eric Farman <farman@linux.ibm.com>, sashiko-reviews@lists.linux.dev
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>, kvm@vger.kernel.org,
-        Heiko Carstens <hca@linux.ibm.com>, linux-s390@vger.kernel.org,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>
+Subject: Re: [PATCH v3 3/8] s390/vfio_ccw: fix out of bounds check on CCW
+ array
+To: Matthew Rosato <mjrosato@linux.ibm.com>, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Halil Pasic <pasic@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        stable@vger.kernel.org
 References: <20260723174751.1180334-1-farman@linux.ibm.com>
- <20260723174751.1180334-5-farman@linux.ibm.com>
- <20260723182956.2AF2F1F000E9@smtp.kernel.org>
- <b21d6e76-27ba-4215-949d-30c8e77e5b3d@linux.ibm.com>
+ <20260723174751.1180334-4-farman@linux.ibm.com>
+ <924a8e11-f042-46d3-a559-407dbdc76d99@linux.ibm.com>
 Content-Language: en-US
-From: Matthew Rosato <mjrosato@linux.ibm.com>
-In-Reply-To: <b21d6e76-27ba-4215-949d-30c8e77e5b3d@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From: Eric Farman <farman@linux.ibm.com>
+Autocrypt: addr=farman@linux.ibm.com; keydata=
+ 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
+ y8m0x6unNti2MZIUMy0m2gcE
+In-Reply-To: <924a8e11-f042-46d3-a559-407dbdc76d99@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=HJXz0Itv c=1 sm=1 tr=0 ts=6a63a61c cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+X-Proofpoint-ORIG-GUID: Eces0XPtWHrSPlxqTU1f8i1JV-bYtpjM
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI0MDE1OSBTYWx0ZWRfX45N81XyEoe2g
+ b4aCVsDy+h2HgTF8fZ+B/NQCkNJJYRCuRCB76mg2z2X4sh5imcxCjm9U2XQDq+XzDi5yySpsvmr
+ Ue1O2ELiyu5RoV/iMW4kiq1wjhpI5FLDOFsTfzb084ddvZp0cWuEnGZxc0Blcntc6V1ceMIZknS
+ 0lVSEpnFdrnXMHR3swCFDwTHRcRHXCOPGegwjyPQAjE7caJJ09/byERkRGJfLD0ULfM1H4OIlDZ
+ rSnY3KqswaQuDRQ7BiGzyIiVkWSferB68uhUmwPS8Si4SEif/h4MEUdFF5L8lcjThlfr/PVV0Mt
+ BzqX5eqPpvB05WYBr6VoF/sbGOoakLdmQ62ybn1k8yT44FkWdl44g9OiRQFWSl/5t3gLTUXtMlG
+ RBe8+yV3I5EXgaLkO5ZWrHe6NoSEWSWkgdMCdxtCDE6x9SgjeLccn+INspdjXPg9/63ZlxDKxGq
+ 10LVNik73IFwlKkONYw==
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI0MDE1OSBTYWx0ZWRfX/BDwDZLakybl
+ Dq41zuAZ+HIApg9yZG5FnRHprSbm9jbxPoUhX3Na/sVczRI2DbnYcWFUFqARaIzL1tY5KJIDTLc
+ /516AWQLgDmrWiZGy9DeYAS89w/Ntjg=
+X-Proofpoint-GUID: Eces0XPtWHrSPlxqTU1f8i1JV-bYtpjM
+X-Authority-Analysis: v=2.4 cv=SM5ykuvH c=1 sm=1 tr=0 ts=6a63a6b5 cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
  a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VwQbUJbxAAAA:8
- a=VnNF1IyMAAAA:8 a=A5oUufH1SNi9yJRP6tIA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI0MDE1OSBTYWx0ZWRfX4Cm8JiYjT6tI
- QX5Ed+H9l0WABJc3g1Tx64fuWyYgrmrHq5ueBGkzMMKUfKTcAqGfIq0ff+d85uydnaWT1V+PS8H
- v7/hiR91x8xGjtqMu/xZjaAyyko0FWzWLtlSKEktQKFrlkKTztY9R/pm2dl89U/oLBA/+Pfpm0X
- UJxM1+/Fo0PKqYv/qEP9OwXinw5S6HUFaiisrnE3wkC4jfTaH4aE+z/TgzogC6VDssIjQLwBo0+
- nyOj4iESfM8yLbxFDSozpssPRDSa1bs5rcIKCS9ifip8SS5DBgI2G21gBwWJgzi+irQ9mGf68t4
- z6ypdANOOLrc2yuW2/FjiGTpXSJEFmEc+thnpYU5ct2qgD5wCSlKbIcv4DfYefwNPddoHiiFqMM
- mMFxxu6mM2VSw25X+r/hjbMIHkpKXgmttm41DxlhnJkv/ykgpPD+dqOl2fjbZaj5eiHXZzYtUiJ
- ULo9/3+Vj+wYDre3A0w==
-X-Proofpoint-ORIG-GUID: P0nSI3DxMi7Xn7rHw-jTPPjNinI28Uhu
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI0MDE1OSBTYWx0ZWRfX/1wj220Wt915
- zTu/jtGTVRB8vSavWgeZSAMgNizOhTWrlE+gxrsjUyZmn1+BBdBDIy4AjqlxmpCm2U5loZ/rDnq
- eKwsGYOHLSOPmJvA/Q0awaT1W+sugEo=
-X-Proofpoint-GUID: P0nSI3DxMi7Xn7rHw-jTPPjNinI28Uhu
+ a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VwQbUJbxAAAA:8
+ a=VnNF1IyMAAAA:8 a=cexSUo_GorlQsk_X9b8A:9 a=QEXdDO2ut3YA:10
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-07-24_04,2026-07-24_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0 priorityscore=1501 lowpriorityscore=0 suspectscore=0
- malwarescore=0 impostorscore=0 clxscore=1015 phishscore=0 spamscore=0
- adultscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2607240159
-
-On 7/23/26 4:38 PM, Eric Farman wrote:
-> 
-> 
-> On 7/23/26 2:29 PM, sashiko-bot@kernel.org wrote:
->> Thank you for your contribution! Sashiko AI review found 2 potential
->> issue(s) to consider:
->>
->> New issues:
->> - [Low] Applying a bitwise shift directly to a restricted `__bitwise`
->> type (`dma64_t`) and implicitly casting it strips type annotations,
->> triggering sparse warnings.
->>
->> Pre-existing issues:
->> - [High] `get_guest_idal` reads too many bytes for Format-1 IDALs,
->> potentially causing spurious failures for valid channel programs.
->> -- 
->>
->> --- Patch [4]: [PATCH v3 4/8] s390/vfio_ccw: ensure first IDAW remains
->> constant ---
->> commit e8a4291c688f39a3fdc915242b5bb6676e357ac5
->> Author: Eric Farman <farman@linux.ibm.com>
->>
->> s390/vfio_ccw: ensure first IDAW remains constant
->>
->> This commit ensures the first IDAW in a list is read separately to
->> accurately
->> calculate the buffer size needed. It verifies that the address found
->> in the
->> first IDAW is unchanged between reads to maintain consistency.
->>
->>> diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/
->>> vfio_ccw_cp.c
->>> index 258a99930c6a0..06b6bc6142a0f 100644
->>> --- a/drivers/s390/cio/vfio_ccw_cp.c
->>> +++ b/drivers/s390/cio/vfio_ccw_cp.c
->>> @@ -533,6 +533,7 @@ static dma64_t *get_guest_idal(struct ccw1 *ccw,
->>> struct channel_program *cp, int
->>>           &container_of(cp, struct vfio_ccw_private, cp)->vdev;
->>>       dma64_t *idaws;
->>>       dma32_t *idaws_f1;
->>> +    u64 first_idaw;
->>>       int idal_len = idaw_nr * sizeof(*idaws);
->>
->> [Severity: High]
->> This is a pre-existing issue, but does get_guest_idal() read too many
->> bytes
->> for Format-1 IDALs here?
->>
->> Because idal_len is calculated using sizeof(*idaws) which evaluates to 8
->> bytes, instead of the actual 4 byte IDAW size for Format-1 IDALs,
->> vfio_dma_rw() will attempt to read idaw_nr * 8 bytes.
->>
->> If a guest VM submits an I/O request with a Format-1 IDAL that fits
->> exactly
->> at the end of a mapped page, this could cross the page boundary into an
->> unmapped page and cause the DMA read to fail, spuriously rejecting a
->> valid
->> request.
->>
->> [ ... ]
->>
->>> @@ -549,6 +550,17 @@ static dma64_t *get_guest_idal(struct ccw1 *ccw,
->>> struct channel_program *cp, int
->>>               kfree(idaws);
->>>               return ERR_PTR(ret);
->>>           }
->>> +
->>> +        if (cp->orb.cmd.c64)
->>> +            first_idaw = dma64_to_u64(idaws[0]);
->>> +        else
->>> +            first_idaw = dma32_to_u32(idaws[0] >> 32);
->>
->> [Severity: Low]
->> Does applying a bitwise shift directly to a restricted __bitwise type
->> like
->> dma64_t and passing it to dma32_to_u32() trigger sparse warnings?
->>
->> Since idaws[0] is of type dma64_t (__bitwise u64) and dma32_to_u32()
->> expects
->> a dma32_t (__bitwise u32), this implicitly strips type annotations.
->>
->> Should this be explicitly cast using (__force u64) before shifting to
->> avoid
->> violating sparse type rules?
-> 
-> Probably a better solution to this is:
-
-Oh, I missed this reply.  Yep, that makes sense.
-
-So with the change below:
-
-Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
+ clxscore=1015 lowpriorityscore=0 bulkscore=0 suspectscore=0 adultscore=0
+ spamscore=0 malwarescore=0 priorityscore=1501 phishscore=0 impostorscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607240159
 
 
 
-> 
-> diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/
-> vfio_ccw_cp.c
-> index 06b6bc6142a0..08be6d5a99f3 100644
-> --- a/drivers/s390/cio/vfio_ccw_cp.c
-> +++ b/drivers/s390/cio/vfio_ccw_cp.c
-> @@ -551,10 +551,11 @@ static dma64_t *get_guest_idal(struct ccw1 *ccw,
-> struct channel_program *cp, int
->                         return ERR_PTR(ret);
->                 }
-> 
-> +               idaws_f1 = (dma32_t *)idaws;
->                 if (cp->orb.cmd.c64)
->                         first_idaw = dma64_to_u64(idaws[0]);
->                 else
-> -                       first_idaw = dma32_to_u32(idaws[0] >> 32);
-> +                       first_idaw = dma32_to_u32(idaws_f1[0]);
-> 
->                 /* Unexpected mismatch from earlier read */
->                 if (first_idaw != cp->guest_iova) {
-> 
-> 
+On 7/24/26 12:49 PM, Matthew Rosato wrote:
+> On 7/23/26 1:47 PM, Eric Farman wrote:
+>> The routine ccwchain_calc_length() counts the number of channel
+>> command words (CCWs) that are chained together in a single channel
+>> program, and rejects anything larger than CCWCHAIN_LEN_MAX (256) CCWs.
 >>
->>> +
->>> +        /* Unexpected mismatch from earlier read */
->>> +        if (first_idaw != cp->guest_iova) {
->>> +            kfree(idaws);
->>> +            return ERR_PTR(-EINVAL);
->>> +        }
->>>       } else {
->>>           /* Fabricate an IDAL based off CCW data address */
->>>           if (cp->orb.cmd.c64) {
+>> The loop itself is "do..while (count < 257)", and while the logic in
+>> is_cpa_within_range() correctly adjusts between the 0-index array of
+>> CCWs and the count of CCWs starting at 1, this means it would look
+>> at a possible 257th CCW before ending the loop and (correctly)
+>> returning an error.
 >>
+>> Fix this by restructuring the loop to break as soon as 256 CCWs
+>> (thus indexes 0-255) are examined, without looking at memory
+>> outside the range.
+>>
+>> Fixes: 0a19e61e6d4c ("vfio: ccw: introduce channel program interfaces")
+>> Cc: stable@vger.kernel.org
+>> Signed-off-by: Eric Farman <farman@linux.ibm.com>
+>> ---
+>>   drivers/s390/cio/vfio_ccw_cp.c | 11 +++++++----
+>>   1 file changed, 7 insertions(+), 4 deletions(-)
+>>
+> 
+> So, I think your approach is correct, but I tried for a bit to come up
+> with a more concise solution because the while(1) was bothering me.
+
+Ah, yes, it was bothering me too, but I guess I forgot about it.
+
+> The best I've managed to cook up is something like:
+> 
+> static int ccwchain_calc_length(u64 iova, struct channel_program *cp)
+> {
+> 	struct ccw1 *ccw = cp->guest_cp;
+> 	int cnt;
+> 
+> 	for (cnt = 1; cnt <= CCWCHAIN_LEN_MAX; cnt++, ccw++) {
+> 		if (!ccw_is_chain(ccw) && !is_tic_within_range(ccw, iova, cnt))
+> 			return cnt;
+> 	}
+> 
+> 	return -EINVAL;
+> }
+> 
+
+This seems reasonable, and is definitely nicer to read than what I had 
+before (which contained artifacts of the old/busted setup). I'm running 
+tests on this now, but will include in a v4.
+
+> Assume CCWCHAIN_LEN_MAX=2
+> We enter with cnt=1, ccw=guest_cp[0], and 1 <=2 so we enter loop
+> either return 1 or loop, assume loop so we increment
+> now cnt=2, ccw=guest_cp[1], 2 <= 2 so we enter loop
+> either return 2 or loop, assume loop so we increment
+> now cnt=3, ccw=guest_cp[2]*, 3 <= 2 so we break out of loop and return -EINVAL
+> 
+> *So the only catch is that we will increment ccw past the end, but unlike the
+> original implementation we will break out of the loop before ever attempting to
+> use that ccw pointer at that point.
+> 
+> What do you think?
+> 
+>> diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
+>> index 1c2890d139c6..258a99930c6a 100644
+>> --- a/drivers/s390/cio/vfio_ccw_cp.c
+>> +++ b/drivers/s390/cio/vfio_ccw_cp.c
+>> @@ -393,11 +393,14 @@ static int ccwchain_calc_length(u64 iova, struct channel_program *cp)
+>>   		if (!ccw_is_chain(ccw) && !is_tic_within_range(ccw, iova, cnt))
+>>   			break;
+>>   
+>> -		ccw++;
+>> -	} while (cnt < CCWCHAIN_LEN_MAX + 1);
+>> +		/* Exit the loop when we reach the maximum */
+>> +		if (cnt >= CCWCHAIN_LEN_MAX) {
+>> +			cnt = -EINVAL;
+>> +			break;
+>> +		}
+>>   
+>> -	if (cnt == CCWCHAIN_LEN_MAX + 1)
+>> -		cnt = -EINVAL;
+>> +		ccw++;
+>> +	} while (1);
+>>   
+>>   	return cnt;
+>>   }
 > 
 
