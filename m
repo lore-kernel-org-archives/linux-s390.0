@@ -1,44 +1,43 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8782D43846D;
-	Fri, 24 Jul 2026 13:54:06 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EC5CD433BB9
+	for <linux-s390@vger.kernel.org>; Fri, 24 Jul 2026 14:01:16 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784901253; cv=none; b=Fhabuca5IYkEbcjK326JGKAkA+W+OG6BPJ2zbp5ZYXBZ/owAcv5+bC4GX8CFbhPNSMSe0QSZmLqfAB8kNA/A/4/zHuAMbYRb01ORU2elfWOHygVDMwL68SMFO6eugWOTnIcA6TH3UZjslpw4yuInL/POZnbI7Ka/yUPdKP5oky0=
+	t=1784901679; cv=none; b=Ndl/oEBHTAjBsaIXjMkLeBohaVFEYrurdMD5ufQDwPsPVU1qH8NouL081QslJqoImrqqOTA/gHqHMqRt9/1DPM/im9B1oXE83iXhxfSu8J8YTfanav44Vp6GoR85V6L104Jdn8ZkqGHidwu0tNY4hbugCGM7z48hfD7N5b/CVNg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784901253; c=relaxed/simple;
-	bh=ubJ0PsHE52aO5JChqvOjs6jRdgyo/l2UTy1gtG0sGWU=;
+	s=arc-20240116; t=1784901679; c=relaxed/simple;
+	bh=PJs96jJ1sMpIGStsC8hbObiOXtj81hGbMCTs/Do0m64=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=Z7csCysCiCju311X2SDP+JGK2q6KLX0nbT3+GNDl5N1MnwwXlDWJs2rnAmxzGMe7ukDNltb19gr4N6z8GNfaLYm81R83j/ckElMANZrz0dABWBXFJCsM/0+IiQhwlkOo8qrl/3xBO96YNmy1Z2hhauVGX0unnh3hezwqPE36sZY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lZdr6e1t; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=gZZauQXQOZYdcyYktga9cX+pkAntVyv5l2QbC/so9tXC5LFwAuikSwjTQW/5fqZ6hCeLvMaztDczUFXvSJMupwuGKQjXZzPyrWQLylLrDgJ7FYsMJNCp4qUnaWKSLOkc9AdB/bgHfj25j2Few79jXQ2cn0fs2fuEp1+vWZ1BBVw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DQywNnd3; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lZdr6e1t"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 937751F000E9;
-	Fri, 24 Jul 2026 13:54:03 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DQywNnd3"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2523F1F00A3D;
+	Fri, 24 Jul 2026 14:01:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784901244;
-	bh=g5UP9IuYS/FDM9ySbyJ2tXFrVO8cOk5tKhKS3xTCRGA=;
+	s=k20260515; t=1784901675;
+	bh=E2JV6E80CQMtsQah/aTatUfLpAVaINSlLgLNxlQ47lw=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=lZdr6e1tb6U1oporF7LF/byAB8jN7Qr+E/df3LjWRIDFJnEFnw/uU4l25haKC7ZeM
-	 Sy+esu/jQ2oQjhVjtXDHOXRbD+JHMTxqDEo4Ndxch8NlYjUgQ5dAp1GuRUrvb2uZe/
-	 SFdhRjXSEzgOZ/irRdnIurOgWD5DGhlfmquwQ8Mc2p1nSELeyBIAl98q9NRIOSE9+0
-	 w81nPCcoqCmOgmvhSEvUf4K3cA7mL6G3NmUVCitEQ5oF0lYfPqM+3+RRlkorK4Vj5o
-	 VgCMwQZbUGAuSv3v/vIMK8DYtEVNLGCDCG31flr6pQk7kYsx4USMLXbVHOoJTxfkEV
-	 g+nP3JIEl2+BQ==
+	b=DQywNnd39vKm3u370lUD78j4Gss+gajoFexPEOzfAjnEt6ieYTVkRIrRwLqX239pe
+	 npPnKFXKaVYKYMTWFGR2isKeXVs+Z1UOR/O3xOYcw0XVSmOgG3IYLGgTgGi32fJVr3
+	 wyoNstrEzSL2m8bKOZaWal6r0MrB267qJDnBuI0QyEGIggxAxhyThvD9AlTXOoh16E
+	 iF6lXs6mdsU4AIok8DW/LyBfGCoyofdNO8RJHzaRI1k0JnVcSNR/V7khYY/wZkvXzv
+	 TwpSW6oUO4UR6ngsYJjruZortw6CyIX/+PsXgy/nezVl9SNcm19EpiEq2+whIaQeAk
+	 YDezdBTybKsRg==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3] KVM: s390: Fall back to short-term pinning in MAP
- ioctl
+Subject: Re: [PATCH net] s390/qeth: Check CAP_NET_ADMIN for private ioctls
 Reply-To: sashiko-reviews@lists.linux.dev
-To: "Jaehoon Kim" <jhkim@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, kvm@vger.kernel.org
-In-Reply-To: <20260724133943.1664961-1-jhkim@linux.ibm.com>
-References: <20260724133943.1664961-1-jhkim@linux.ibm.com>
+To: "Aswin Karuvally" <aswin@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>
+In-Reply-To: <20260723140050.762991-1-aswin@linux.ibm.com>
+References: <20260723140050.762991-1-aswin@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 24 Jul 2026 13:54:03 +0000
-Message-Id: <20260724135403.937751F000E9@smtp.kernel.org>
+Date: Fri, 24 Jul 2026 14:01:14 +0000
+Message-Id: <20260724140115.2523F1F00A3D@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -49,69 +48,70 @@ Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [High] Guest-triggerable WARN_ON_ONCE in adapter_indicators_set leads to =
-host DoS.
+- [High] An integer underflow in the buffer size check allows privileged us=
+ers to cause a kernel heap buffer overflow.
 --
 
---- Patch [1]: [PATCH v3] KVM: s390: Fall back to short-term pinning in MAP=
- ioctl ---
-commit 07b3642c0ab06a5f6b361f58b4393eb785c7021c
-Author: Jaehoon Kim <jhkim@linux.ibm.com>
+--- Patch [1]: [PATCH net] s390/qeth: Check CAP_NET_ADMIN for private ioctl=
+s ---
+commit 3ec90fe5fb86d5d8d0432c2487ad687ef4d3e227
+Author: Aswin Karuvally <aswin@linux.ibm.com>
 
-KVM: s390: Fall back to short-term pinning in MAP ioctl
+s390/qeth: Check CAP_NET_ADMIN for private ioctls
 
-This commit modifies the KVM s390 MAP ioctl to support memory types that ca=
-nnot
-be long-term pinned, such as file-backed memory. It falls back to verifying
-access with a short-term pin, preserving a map entry with a new pinned flag
-set to false. Accesses in the interrupt fast path are updated to skip these
-unpinned entries, causing them to fall back to the non-atomic path.
+This commit adds a CAP_NET_ADMIN capability check to the
+SIOC_QETH_ADP_SET_SNMP_CONTROL, SIOC_QETH_GET_CARD_TYPE, and
+SIOC_QETH_QUERY_OAT private ioctls. This ensures that these commands cannot
+be invoked by unprivileged users.
 
-> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-> --- a/arch/s390/kvm/interrupt.c
-> +++ b/arch/s390/kvm/interrupt.c
-[ ... ]
-> @@ -2929,8 +2954,11 @@ static struct s390_map_info *get_map_info(struct s=
-390_io_adapter *adapter,
->  		return NULL;
+> diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_co=
+re_main.c
+> index 20fb0d2e02a9a..f18eed9df3c7a 100644
+> --- a/drivers/s390/net/qeth_core_main.c
+> +++ b/drivers/s390/net/qeth_core_main.c
+> @@ -6525,6 +6525,9 @@ int qeth_siocdevprivate(struct net_device *dev, str=
+uct ifreq *rq, void __user *d
+>  	struct qeth_card *card =3D dev->ml_priv;
+>  	int rc =3D 0;
 > =20
->  	list_for_each_entry(map, &adapter->maps, list) {
-> -		if (map->addr =3D=3D addr)
-> +		if (map->addr =3D=3D addr) {
-> +			if (!map->pinned)
-> +				return NULL;
+> +	if (!capable(CAP_NET_ADMIN))
+> +		return -EPERM;
+> +
+>  	switch (cmd) {
+>  	case SIOC_QETH_ADP_SET_SNMP_CONTROL:
+>  		rc =3D qeth_snmp_command(card, data);
 
 [Severity: High]
-This isn't a bug introduced by this patch, but returning NULL here forces
-the caller to fall back to the non-atomic path in adapter_indicators_set().
+This is a pre-existing issue, but does qeth_snmp_command() allow an integer
+underflow that leads to a heap buffer overflow?
 
-If a malicious guest or untrusted userspace configures an IRQ routing entry
-with an unmapped host virtual address for summary_addr, the short-term pin
-will fail:
+If a user provides a udata_len smaller than sizeof(struct qeth_snmp_ureq_hd=
+r)
+(16 bytes), the unsigned subtraction in the callback underflows:
 
-arch/s390/kvm/interrupt.c:adapter_indicators_set() {
+drivers/s390/net/qeth_core_main.c:qeth_snmp_command() {
     ...
-    summary_info =3D get_map_info(adapter, adapter_int->summary_addr);
-    if (!summary_info) {
-        ...
-        summary_page =3D pin_map_page(kvm, adapter_int->summary_addr, 0);
-        if (WARN_ON_ONCE(!summary_page))
-            return -1;
+	if (get_user(qinfo.udata_len, &ureq->hdr.data_len) ||
+    ...
+	qinfo.udata =3D kzalloc(qinfo.udata_len, GFP_KERNEL);
+    ...
+	qinfo.udata_offset =3D sizeof(struct qeth_snmp_ureq_hdr);
     ...
 }
 
-Could this guest-triggerable WARN_ON_ONCE lead to a host denial of service
-if panic_on_warn is enabled on the host?
+drivers/s390/net/qeth_core_main.c:qeth_snmp_command_cb() {
+    ...
+	if ((qinfo->udata_len - qinfo->udata_offset) < data_len) {
+    ...
+}
 
-Should this WARN_ON_ONCE be downgraded to a normal error return so that it
-safely handles unmapped addresses?
+The underflow would bypass the available space check, leading to an
+out-of-bounds memcpy into the allocated heap buffer.
 
->  			return map;
-> +		}
->  	}
->  	return NULL;
->  }
+The same integer underflow pattern appears to exist in qeth_l3_arp_query_cb=
+()
+for the SIOC_QETH_ARP_QUERY_INFO ioctl.
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260724133943.1664=
-961-1-jhkim@linux.ibm.com?part=3D1
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260723140050.7629=
+91-1-aswin@linux.ibm.com?part=3D1
