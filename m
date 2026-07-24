@@ -1,138 +1,139 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 419731E9906;
-	Fri, 24 Jul 2026 17:20:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A69C541A569;
+	Fri, 24 Jul 2026 17:28:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784913639; cv=none; b=OHkoPuZwQzFObB/C75FMAyNF3lN8yC9LUXh9jauS+yDunntADoWaf2cAbdwg2cJrk+3XJZsXO3rIj3SEnVAWXX7Ns/TY5gd7H3gHvkWsXNn2VlvT/pOVov80YD1//kC1z8VWuG5HTcdIhKI86bXXgL+1WV27Nf/mZzfMkeoZMhQ=
+	t=1784914113; cv=none; b=S3bcG+yAGnZyKlUaut+mAnGyhtE2wrYUbGxVK9CGEl4mRhYMZO8syrFOYRVFaXrWPL5RoXCg59AcCpFat0ieYzkfzFYWImm8vzw4uoZz9SsnHgcQFo+XS/lDEuhJlCtZnBVOETkez2UeT/0eXg0gdKQzN9trhLlEkv+ILNl8BaM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784913639; c=relaxed/simple;
-	bh=F6EPhn4D7yRtGRsiR4G4CQeG9B089+lPX3nW/Giv13k=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=KleUnjbdPkNY+HdrN6gP58bDP4YCnFK7p1D58R6V7w78vGc1vWdkTmDMr0bjNokG0KxfvPLy2nh7UHahHP0f8Kg9vkHKH6LGjdjqwyn0+3lrvQU8cDD0O/cYtZ8RHZ/C3LrB8waYdtvfPC+zX17bCpmB3m7pLRlHkkU+dH2f6eE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ZFBOR8QF; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1784914113; c=relaxed/simple;
+	bh=LATGk1Mpopu7i+mX8N/0zdj3wbMrDrQ1cgcaTJT2WzY=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=JkmJVbbjrg0SxQbDoiQ6AZvmcyMrTNKQPOKFfCHSbaUMzRSPXluA5ihbG0/7rxX1v5aEOXgxF5MotQOkJl6IILy86uSs+7Xd4m7WuV6HFS/tqQdUM3MHNbxo/ycUhn2MGGYrdpXBdrZtY+6u+DLUY7Oqm2h6nxiPUx4RroGS6a4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=e3dd6ZOp; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ZFBOR8QF"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66ODfgIG1992890;
-	Fri, 24 Jul 2026 16:14:17 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=Q53JyTInkQbpzOZiA
-	29V6fcw0t5yC8ViDTnjFXo/AvY=; b=ZFBOR8QFeER3o7TE7eGxg8g28ARmGGcfa
-	1oEe3U5KHIGZ9IBejuOC/MHjup2BOeZO9cfsvvwUbjHSHtUrmCLtf9M6a8O/10Eb
-	siQQgVei+rZ4hKmI2vF2K4I8xoen6e2IAtX3oLg6YxT0Dr1Fl2FNdRKmj1FRsC8E
-	fbw51pbt57PhuQtFTuBH5BQVQwalyZqSHXTlG6Fnjp7s2zSnAtp+Yzfej/wk34SM
-	CoTAflxOirYdE2Gv//ivJFDoEnrz750UfmWAKlB7DKYy5aQpMHjXONL8lQgmB6q5
-	sNzYNoBgHjTVWTDOYSlxpGKBhgTmitBX1vgtJZntNBrFAI1ZtdY6g==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fm8h00u20-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 24 Jul 2026 16:14:17 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66OG4cRP028401;
-	Fri, 24 Jul 2026 16:14:16 GMT
-Received: from smtprelay03.wdc07v.mail.ibm.com ([172.16.1.70])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fgmtk9n2v-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 24 Jul 2026 16:14:16 +0000 (GMT)
-Received: from smtpav06.wdc07v.mail.ibm.com (smtpav06.wdc07v.mail.ibm.com [10.39.53.233])
-	by smtprelay03.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66OGDc8f56164716
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 24 Jul 2026 16:13:39 GMT
-Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D604558055;
-	Fri, 24 Jul 2026 16:14:14 +0000 (GMT)
-Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5313F58054;
-	Fri, 24 Jul 2026 16:14:13 +0000 (GMT)
-Received: from li-4c4c4544-004d-4810-8043-b7c04f423534.ibm.com.com (unknown [9.61.50.28])
-	by smtpav06.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 24 Jul 2026 16:14:13 +0000 (GMT)
-From: Anthony Krowiak <akrowiak@linux.ibm.com>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org
-Cc: jjherne@linux.ibm.com, borntraeger@de.ibm.com, mjrosato@linux.ibm.com,
-        pasic@linux.ibm.com, alex@shazbot.org, kwankhede@nvidia.com,
-        fiuczy@linux.ibm.com, pbonzini@redhat.com, frankja@linux.ibm.com,
-        imbrenda@linux.ibm.com, agordeev@linux.ibm.com, hca@linux.ibm.com,
-        gor@linux.ibm.com
-Subject: [PATCH v5 12/15] s390/vfio-ap: Transition device migration state from STOP to RUNNING and vice versa
-Date: Fri, 24 Jul 2026 12:13:48 -0400
-Message-ID: <20260724161351.1802644-13-akrowiak@linux.ibm.com>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20260724161351.1802644-1-akrowiak@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="e3dd6ZOp"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 467581F000E9;
+	Fri, 24 Jul 2026 17:28:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1784914108;
+	bh=ZUdeq4pw0b/ouxPAuL3nC9+/zktWW0SmAdpQcFnGbAY=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=e3dd6ZOp2nV7j52oOohEzBuEzRdm52rK/JGrNpJx0Bz+VEaZyrwGQK2q4niFR1nBu
+	 HNX4CvkdWCHlGBbX5pcTI/X6c+J7Pi+TimDjzILCN5++aMeKCeqrFp3uIz3rKLJht4
+	 VJc4bLWDEuMdoeLHMz1/CHiIH3CLt61FwzB25SJI863LDujjO2ojNQiRg2zo50ewaJ
+	 6YB6ng9rucfP+EjMCqLHHpIGvvZsl9/zSo5BeTiqvxX1UsDZZmCoCf5dAm/BOAKZxu
+	 Ok9q9Wc18cycrED4WO+amxAFMb6bVItgTWTmrXJXIknjmqG9+bCI2T2KBSmRlt85tl
+	 2xcv5XapxioEg==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v5 02/15] s390/vfio-ap: Data structures for facilitating
+ vfio device migration
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Anthony Krowiak" <akrowiak@linux.ibm.com>
+Cc: "Heiko Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org
+In-Reply-To: <20260724161351.1802644-3-akrowiak@linux.ibm.com>
 References: <20260724161351.1802644-1-akrowiak@linux.ibm.com>
+ <20260724161351.1802644-3-akrowiak@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 24 Jul 2026 17:28:27 +0000
+Message-Id: <20260724172828.467581F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=LdcMLDfi c=1 sm=1 tr=0 ts=6a638f59 cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8 a=YI3AHy_hWZklpQ5N57sA:9
-X-Proofpoint-ORIG-GUID: mUrjqAYuCsnLb4Ra9gPAAPWfrD0I4Tbq
-X-Proofpoint-GUID: mUrjqAYuCsnLb4Ra9gPAAPWfrD0I4Tbq
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI0MDE0NSBTYWx0ZWRfXwthOsP1p02yh
- cHrXXeR/X3AaIAr4PKfx3ESUYFSaCBiW/WpRJ0SRkQtjeCWPT1+3JUqRGh2h5oaLHGfVOqTkAFg
- sM7n0LX4de7bwq9eUto3axCfco1oeGDQ17Tq3SQgDPSLNA51A5PwQYDZl5zQMhdKRsmwrFlE3yM
- NA8zFVgK959ZzMJjanlqtWV+S2L1tkEc83io+gMEb56b2wf0oJSvWGMUfhP7H2wcMkbWl2JsszQ
- G69VBgHsR5+Jh/GSMSvKmTdSSoaP+k/pcBfJ2zi+M19GRpkxW9vNUlVisYYQPZdZ/iE/id4YUY1
- 2krXc0ZvpTW8dDfTdRBIyRJ79SYKsqmwN3b3CZ2uZTdiJh1O1bEL2M46diHE6KCi3RxTx2peiib
- RbetPKHVF1Ebq3TjY3n4DKQd5W2/0G05nbkf92e5MsbOk49/h6uAZ/J2uH7VcBI/QpXljBgCLNz
- O2cyV10kw5xI23KfCGg==
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI0MDE0NSBTYWx0ZWRfX9TqeoqycPO3a
- 0JzebIVapBoseLiUb25FHEHV+nWCayfIY3QPxyGwM/ef7UjD8zUGHUQz5oFeyEzoj/QccGYmMiB
- GHfQcBiUf8ftLqNeUxOmzSCMtKwSm44=
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-07-24_03,2026-07-24_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- impostorscore=0 suspectscore=0 lowpriorityscore=0 spamscore=0 malwarescore=0
- clxscore=1015 adultscore=0 priorityscore=1501 phishscore=0 bulkscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607240145
 
-The transition from STOP to RUNNING and vice versa indicates that
-the vfio device is operating normally and migration is not
-currently taking place. In this case, just set the new state.
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [Low] Incorrect kernel-doc formatting and field name mismatches will caus=
+e documentation build warnings.
+--
 
-Signed-off-by: Anthony Krowiak <akrowiak@linux.ibm.com>
----
- drivers/s390/crypto/vfio_ap_migration.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+--- Patch [2]: [PATCH v5 02/15] s390/vfio-ap: Data structures for facilitat=
+ing vfio device migration ---
+commit c31e0e68ee7918227073261c8d3c179cdb56d4da
+Author: Anthony Krowiak <akrowiak@linux.ibm.com>
 
-diff --git a/drivers/s390/crypto/vfio_ap_migration.c b/drivers/s390/crypto/vfio_ap_migration.c
-index 21cd9810a18c..8876338d2898 100644
---- a/drivers/s390/crypto/vfio_ap_migration.c
-+++ b/drivers/s390/crypto/vfio_ap_migration.c
-@@ -1317,12 +1317,17 @@ vfio_ap_transition_to_state(struct ap_matrix_mdev *matrix_mdev,
- 		return NULL;
- 	}
- 
-+	/*
-+	 * These states indicate migration has either not been initiated or
-+	 * has completed and the vfio-ap device is operating normally.Since the
-+	 * vfio-ap device does not virtualize a DMA device, there is no internal
-+	 * device state to incorporate into the vfio-ap device on the target.
-+	 */
- 	if ((cur_state == VFIO_DEVICE_STATE_STOP &&
- 	     new_state == VFIO_DEVICE_STATE_RUNNING) ||
- 	    (cur_state == VFIO_DEVICE_STATE_RUNNING &&
- 	     new_state == VFIO_DEVICE_STATE_STOP)) {
--		/* TODO */
--		return ERR_PTR(-EOPNOTSUPP);
-+		return NULL;
- 	}
- 
- 	/* vfio_mig_get_next_state() does not use arcs other than the above */
--- 
-2.53.0
+s390/vfio-ap: Data structures for facilitating vfio device migration
 
+Creates the data structures used to facilitate state transitions during
+vfio device migration.
+
+> diff --git a/drivers/s390/crypto/vfio_ap_migration.c b/drivers/s390/crypt=
+o/vfio_ap_migration.c
+> new file mode 100644
+> index 0000000000000..1b0856aacb697
+> --- /dev/null
+> +++ b/drivers/s390/crypto/vfio_ap_migration.c
+> @@ -0,0 +1,72 @@
+[ ... ]
+> +/**
+> + * vfio_ap_migration_file
+       ^^^^^^^^^^^^^^^^^^^^^^^^
+
+[Severity: Low]
+Is this missing the "struct " keyword and a short description for
+struct vfio_ap_migration_file?
+
+Building the documentation might trigger a kernel-doc warning here.
+
+> + *
+> + * This object is used for chunk processing of multiple reads and writes=
+ of
+> + * AP configuration information.
+[ ... ]
+> +struct vfio_ap_migration_file {
+> +	struct file		*filp;
+> +	struct vfio_ap_config	*ap_config;
+> +	unsigned long		config_sz;
+> +};
+> +
+> +/**
+> + * vfio_ap_migration_data
+       ^^^^^^^^^^^^^^^^^^^^^^^^
+
+[Severity: Low]
+Could this kernel-doc block for struct vfio_ap_migration_data also be
+missing the "struct " keyword?
+
+> + *
+> + * Manages the migration state for the VFIO device that maintains the AP
+> + * configuration of the guest being migrated.
+[ ... ]
+> +struct vfio_ap_migration_data {
+> +	enum vfio_device_mig_state	mig_state;
+> +	struct vfio_ap_migration_file	resuming_mig_file;
+> +	struct vfio_ap_migration_file	stop_copy_mig_file;
+> +};
+[ ... ]
+> +/**
+> + * vfio_ap_config - the guest's AP configuration
+> + *
+> + * @num_queues:	the number of queues passed through to the guest
+> + * @reserved:	padding to ensure proper alignment of @cntl_domains
+                                                              ^^^^^^^^^^^^^
+
+[Severity: Low]
+Does this documentation for @reserved incorrectly reference a nonexistent
+cntl_domains field in struct vfio_ap_config?
+
+The struct defines the field as adm, so this might result in a field name
+mismatch warning during documentation build.
+
+> + * @adm:	bitmap specifying the control domains in the AP configuration
+> + * @qinfo:	an array of vfio_ap_queue_info objects, each specifying the
+> + *		queue information for a queue passed through to the guest
+> + */
+> +struct vfio_ap_config {
+> +	u32				num_queues;
+> +	u8				reserved[4];
+> +	u64				adm[DIV_ROUND_UP(AP_DOMAINS, 64)];
+> +	struct vfio_ap_queue_info	qinfo[] __counted_by(num_queues);
+> +};
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260724161351.1802=
+644-1-akrowiak@linux.ibm.com?part=3D2
