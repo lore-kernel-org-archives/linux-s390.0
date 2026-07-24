@@ -1,157 +1,147 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 89E3A2F6596
-	for <linux-s390@vger.kernel.org>; Fri, 24 Jul 2026 10:13:58 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B684C41684A;
+	Fri, 24 Jul 2026 10:19:19 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784888039; cv=none; b=LtqAy6HV/aI/5gC5fE8qAaVM/Poll5loQed0UlVdy9Mf9/g2J+tCYQoqBskC+MIUl7w3ORPa81G8VdbnTbKJfpKtVwfRBPRtTDodbm+OJ7rSaAiWC8tzivqdSSjE4llkagrfUBaQnu/lQwtxFnbbgfUNp9acNt0Db3T/Im4sWrU=
+	t=1784888361; cv=none; b=K2M/nQ68HWQQXFMSG7fWXXbkv+C3f0xzIvzI2vEnQSHvIM20UNNc8JrzMU0qaasANOGWGsEFMYWIcpoDMU/kqCJ/yEySs71OU60+ZO+uJ8hifLxxjrKFfuau51XBjXPLMwmZJi8sVCN+/eGKJ0Fhe8r4q/pqiXDoW6ndUnO9FJs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784888039; c=relaxed/simple;
-	bh=2W9zG3KSqAZYDl1Sgx1rJOdOg52/UVrC2pQYj/Cw25k=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=OP0Smss0vpQhtuW5cULUy0/dqn2HEpStAfDR7+uLRdWWjASQwtq/uU0dRkBAjoQEdektsZfGOhcvnD5tnOXMB/M1sac0lMB3s9s6L/+U8yA/77xDc86fcsCwoG8jmpa0DgHGLchs4j/a6D7SmC/mOa42oaNdYsMUJBlwxRLclj0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=g5uecGac; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1784888361; c=relaxed/simple;
+	bh=izq1Rc/NLDv5bpLr2ryyv9MCwixOY9fmtQpFEl3/LRA=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=nPSuAeUCfLio040rmJUlXAUYSyn6hSv/nqzYKo1LCt2IqSwpf6BeWUZZOtPilN6wvNuxeXJf5dqU2Y0ABMlPJtR4wyZ9y1LTNwd7IJu0b5xm5vfR5O1D2+7JzHjeYK/jHOBdAGJjOsQWpM4q2JqQw0YXTIoxU75EEtV/8Co4WOE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=WWYVLCY0; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="g5uecGac"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66OADSvm1532556
-	for <linux-s390@vger.kernel.org>; Fri, 24 Jul 2026 10:13:58 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="WWYVLCY0"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66OADOWY1550358;
+	Fri, 24 Jul 2026 10:19:12 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=ZUmM4OSsrekD44ws7
-	v5QAyUXDoJagxf7eaa+QCZotb8=; b=g5uecGacGSH2EgSBzyqvk5PCvamvGZG4p
-	0pgsMS4ysIL20Uk5vBEHWoObJEjyQeh0LMx/bVEylVbvXzy63nqsuNiVlPmsM+b9
-	jV2W5Ft88mnbzDehCKa4jQgHKUCPa1XnX9DW+y42dMp5V5ja+l+FUy+7MSQ6USQi
-	KceViWHtjQpdcl/dLgMfpFA1PaifVFPqos7kuqI5ozA4IiYmpqtjlhBBKDdYCLVL
-	dYB3g98qzJMsKboSN4O2kGJRQg2+Jq901SUOQlT/jtFzXaS15Np1EXh4MdDo6HIW
-	gJ5p5fZBnjOkid1Mkm3tDByk00gFNjCLHSIEJPH3mMmOSlPi5jIiw==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fg7abv6re-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Fri, 24 Jul 2026 10:13:57 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66OA4acJ022588
-	for <linux-s390@vger.kernel.org>; Fri, 24 Jul 2026 10:13:56 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fgm6wggyj-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Fri, 24 Jul 2026 10:13:56 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66OADoOo47055320
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=Azfl91
+	jJyYQ69J3jMyxEHSvCpMiTIQ+q2C5X0SSR0Dc=; b=WWYVLCY0cUDD3aQN3nWJmw
+	ZlWC8bJfgGGDBDFIvVMqo8oez2Gd7u0LT4JyBCIVLxwoqDRmqDdGy1Kq2WlsAG1K
+	vAiKYMQKgczXTKao0PIsH2cY1+BsycZz0s2TQJMunctlP8VM5TSwVTm+AIkJfX9p
+	pz39W3ycjHXUI9DssgKrmhx5+nRuvn/I3LGSs8gbMWEsSXfjNPhUbnUBnVhqYtyH
+	4lXKsMdusxfJRMjGt74VJKoEpsm1r5oBN6/7amQ8CWWBkZBYysvAc3EZRKf7iM5f
+	OmXnG59S6bUGNlCqeAeO82dK/yTViMkC9nYhkT9PtFE9YJDRxW9Kp/UqwK5s0pOw
+	==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fg791c681-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 24 Jul 2026 10:19:11 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66OA4kA3019884;
+	Fri, 24 Jul 2026 10:19:10 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fgpgyr5wh-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 24 Jul 2026 10:19:10 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66OAJ6FC38535666
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 24 Jul 2026 10:13:51 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5EB2E2025F;
-	Fri, 24 Jul 2026 09:51:26 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3DBA02025D;
-	Fri, 24 Jul 2026 09:51:26 +0000 (GMT)
-Received: from funtu2.ibm.com (unknown [9.111.143.218])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 24 Jul 2026 09:51:26 +0000 (GMT)
-From: Harald Freudenberger <freude@linux.ibm.com>
-To: dengler@linux.ibm.com, fcallies@linux.ibm.com
-Cc: freude@linux.ibm.com, linux-s390@vger.kernel.org,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>
-Subject: [PATCH v3 2/2] s390/zcrypt: Improve EP11 CPRB length and overflow checks
-Date: Fri, 24 Jul 2026 11:51:28 +0200
-Message-ID: <20260724095128.140810-3-freude@linux.ibm.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260724095128.140810-1-freude@linux.ibm.com>
-References: <20260724095128.140810-1-freude@linux.ibm.com>
+	Fri, 24 Jul 2026 10:19:06 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6FA0F2004E;
+	Fri, 24 Jul 2026 10:19:06 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 1172020040;
+	Fri, 24 Jul 2026 10:19:06 +0000 (GMT)
+Received: from [9.111.144.97] (unknown [9.111.144.97])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Fri, 24 Jul 2026 10:19:05 +0000 (GMT)
+Message-ID: <7a35b2b9-b87c-4e70-85bf-6ef0320ed49a@linux.ibm.com>
+Date: Fri, 24 Jul 2026 12:19:05 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net] net/iucv: fix use-after-free of a severed iucv_path
+To: Bryam Vargas <hexlabsecurity@proton.me>
+Cc: Thorsten Winkler <twinkler@linux.ibm.com>,
+        Hidayath Khan <hidayath@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev
+ <agordeev@linux.ibm.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Eric Dumazet
+ <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20260707-b4-disp-783fedbb-v1-1-463b9dbda2ea@proton.me>
+ <178461900540.131537.16161978052316384549.git-patchwork-notify@kernel.org>
+ <3da353b3-a159-46ea-83fb-807a2a242e49@linux.ibm.com>
+ <20260724093301.9627-1-hexlabsecurity@proton.me>
+Content-Language: en-US
+From: Alexandra Winter <wintera@linux.ibm.com>
+In-Reply-To: <20260724093301.9627-1-hexlabsecurity@proton.me>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI0MDA5MyBTYWx0ZWRfX177PK3TMTznB
- Agz84lIhTtw/aiJHGSO6JQviK7NGX0/FiZ4f7Pd4hfLGR5tRXviORcvXbUetoYSd5p2Ux9ClSZx
- T3EHCL/B8f8a8EdXS8OnzJv8VU1mAInbmTnjMuggFviJKKrB2bJcTUnBklRv1KU5kN9NCRqADiq
- tG8vo1OxWl/xOxpDkHPXAChJgB/3HmP6czrd1BkAib7IVW54EDXsKT3uO/nZzu2aRoVeAUM8pDE
- 6+ekpU8iBvTPqGu31PjiDia2s7WpdpVDcpAGVYxnthARoo0FDBIwuQYtylHFCVkYyXebtQ3pNd8
- xftSc3SQLV4HbbIaE5OnGuclFEqQaF+5WQdND42xFZkLpsRH3/ciDGFQqfkQD23ifP0OMRRkjDb
- yNBQOeiFDKGsxH+OpwSOwC8jSt62CX/LcidNouawrLYW9cvWKv+by+nplC3fktKTGZQPi01qOyE
- 8papxSNWWP/bWPiPj8w==
-X-Authority-Analysis: v=2.4 cv=F7ZnsKhN c=1 sm=1 tr=0 ts=6a633ae5 cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
- a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8 a=yrkiJltxsN2MUqc3cT0A:9
-X-Proofpoint-ORIG-GUID: SoqzeGPYKrvu1VBXDh2rmDd6CfmRTPYt
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI0MDA5MyBTYWx0ZWRfX8iRSCL90WGRf
- 3Rca0skWKmO4ftUOPf5iVo2xIeECyU/J6seINxrnZCZeNAKNIJXrIwFJQ65hoQTliBBRfzvUodR
- eYz1rKadmZv5+Oa0ACPQ8BVVAd2X69k=
-X-Proofpoint-GUID: SoqzeGPYKrvu1VBXDh2rmDd6CfmRTPYt
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-ORIG-GUID: 6T9X4Rj-r7NTfcXMgLykuFg6-uWxK61O
+X-Authority-Analysis: v=2.4 cv=V6RNF+ni c=1 sm=1 tr=0 ts=6a633c1f cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=3CnklmOuJHeadbBvUj0A:9
+ a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI0MDA5MyBTYWx0ZWRfX8ml3x3UjBg05
+ P955pnWxw0dly87UrXFwTE1mbCJ9BPba7S82gu197UFGadgvt4tojnjf6Ue+RMjKaAvuhxIQvUi
+ TvkiAEufAu1tvG2wSnjl67s9XWkBX9s=
+X-Proofpoint-GUID: ZrVDAOBWlH5XBK1tA2uD6sUZ0Vp7P9eE
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI0MDA5MyBTYWx0ZWRfX5O+Cu40+azZR
+ fRRtVmtR9lo2EC/jxUAdJ+xq5N1TGav7w1UDZ/NksQOO2V8nwx8gqY/v63cxQ1zwA4CwjZka6cC
+ thY6VuXjSumyfLqry2+fUPSi0sH7JjlvEZq4jHzXO6CE5ClfZKZA19vGWP0o+JCRE8yqRbIW56Z
+ 2hyD+V+0BoxtARxu+7zMUV3UGQK2k/LXuTa1MXaRpKEM+PlQMMJD1UHRwz+nKpiPnmdhZxEYVsG
+ qJK6H75ruNvQ8sRjrbPv5osXm0/AcRNv1nSVKXXalqfLSABOUO8kdEAU4L8jPEdW+nXh96WDyJ2
+ jq5ebuykrRvAtU5YBvngccPlNJC1IKCSTFk5n0UaQ/zkgU9RYjKKD+8Hv+64xk2cTCkUworYNUp
+ ThzusWXXl+PySeVxe3K3jvVYuCXg8Y38iyIduArJBu6UfKL2oHkQi7dqD5Jy9JUX080LFckHih+
+ JVJaUeDJSnZ6y67yLHA==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-07-24_02,2026-07-22_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 phishscore=0 bulkscore=0 clxscore=1015 priorityscore=1501
- impostorscore=0 lowpriorityscore=0 suspectscore=0 malwarescore=0 adultscore=0
+ malwarescore=0 adultscore=0 bulkscore=0 lowpriorityscore=0 clxscore=1015
+ spamscore=0 impostorscore=0 phishscore=0 priorityscore=1501 suspectscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607240093
 
-The xcrb_msg_to_type6_ep11cprb_msgx() function lacks proper input
-validation, creating security vulnerabilities:
-1. Integer overflow after CEIL4 alignment: Signed int variables could
-   overflow during 4-byte boundary alignment, causing undersized
-   buffer allocations or incorrect bounds checking.
-2. Missing minimum size validation: The ep11_cprb structure and
-   subsequent payload fields (pld_tag, pld_lenfmt) are copied from
-   userspace without verifying sufficient buffer length.
-3. Arithmetic overflow in length calculations: CEIL4 alignment could
-   overflow, bypassing size checks and enabling buffer overflows.
 
-Fix by using size_t for length calculations, adding U32_MAX boundary
-checks after alignment, and validating minimum request size and
-minimum reply size before copying from userspace.
 
-Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
----
- drivers/s390/crypto/zcrypt_msgtype6.c | 20 ++++++++++++++------
- 1 file changed, 14 insertions(+), 6 deletions(-)
+On 24.07.26 11:33, Bryam Vargas wrote:
+> Alexandra,
+> 
+>> After iucv_sever_path it should not be possible to call
+>> iucv_process_message_q() anymore.
+> For the close path, yes -- iucv_sock_close() ends at IUCV_CLOSED/SOCK_ZAPPED
+> and recvmsg() is out, so message_q just leaks. The peer-sever path is
+> different: iucv_callback_connrej() severs and then sets IUCV_DISCONN, leaving
+> the socket open. recvmsg()'s early return needs message_q.list empty; with a
+> saved entry it falls through, and if a datagram is still on sk_receive_queue it
+> reaches iucv_process_message_q() and hands the freed path to message_receive()
+> -- pathid is the read.
+> 
 
-diff --git a/drivers/s390/crypto/zcrypt_msgtype6.c b/drivers/s390/crypto/zcrypt_msgtype6.c
-index 4ac767661cb5..3b56b7745588 100644
---- a/drivers/s390/crypto/zcrypt_msgtype6.c
-+++ b/drivers/s390/crypto/zcrypt_msgtype6.c
-@@ -474,16 +474,24 @@ static int xcrb_msg_to_type6_ep11cprb_msgx(bool userspace, struct ap_message *ap
- 		unsigned int	dom_val;	/* domain id	   */
- 	} __packed * payload_hdr = NULL;
- 
--	if (CEIL4(xcrb->req_len) < xcrb->req_len)
--		return -EINVAL; /* overflow after alignment*/
-+	size_t req_len, rep_len;
- 
--	/* length checks */
--	ap_msg->len = sizeof(struct type6_hdr) + CEIL4(xcrb->req_len);
-+	/* request length and overflow checks */
-+	if (xcrb->req_len < sizeof(struct ep11_cprb) + 2 * sizeof(unsigned char))
-+		return -EINVAL;
-+	req_len = CEIL4(xcrb->req_len);
-+	if (req_len > U32_MAX)
-+		return -EINVAL;
-+	ap_msg->len = sizeof(struct type6_hdr) + req_len;
- 	if (ap_msg->len > ap_msg->bufsize)
- 		return -EINVAL;
- 
--	if (CEIL4(xcrb->resp_len) < xcrb->resp_len)
--		return -EINVAL; /* overflow after alignment*/
-+	/* reply length and overflow checks */
-+	if (xcrb->resp_len < sizeof(struct ep11_cprb))
-+		return -EINVAL;
-+	rep_len = CEIL4(xcrb->resp_len);
-+	if (rep_len > U32_MAX)
-+		return -EINVAL;
- 
- 	/* prepare type6 header */
- 	msg->hdr = static_type6_ep11_hdr;
--- 
-2.43.0
+Thank you very much for the explanation. I overlooked that one. I think this
+was a design bug in f0703c80e515 ("[AF_IUCV]: postpone receival of iucv-packets").
+It doesn't make sense to check the message_q if IUCV_DISCONN.
+I'm taking notes for future cleanups.
+
+[...]
+> 
+> I'll fold the reachability point into the receive-path locking rework and send
+> that RFC to netdev and linux-s390, as you asked.
+> 
+
+Looking forward to that, thank you.
+
+> Thanks,
+> Bryam
 
