@@ -1,168 +1,163 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F3583A9D8F;
-	Fri, 24 Jul 2026 08:17:41 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 582183546C9
+	for <linux-s390@vger.kernel.org>; Fri, 24 Jul 2026 09:00:51 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784881064; cv=none; b=EIPiNpaQcwQVndHAFhBAQjp98RPHOdpXMcwFcDyJdy0hmgLz0La8u+UrwhRJz88kSwkp7tYxd2Hq2M8pZGWnSUByeqfWDIKAfuq8713cJb3ZApRuZKKc01jw86YtxzB/PRogdEyHgmPWw9pE6uRH0Z4kqZ+C/sqHRi2yKOWmlsQ=
+	t=1784883652; cv=none; b=VI7Ioz1b2E9fktbm5kyRp7KlZrEEBdRxagm5m1k099hkjPJtMC94wf37TPZioyKCWA5MoOrs2GWjona1FYBWeVWEz5SxP9bjQ+0h6Ak0nqNiCx7PjiwgOl5Bmg2yY/PhNZI9n0wFgRJgppD/dNiYpJwXoRLkuAZ0q91Cn4vBg3I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784881064; c=relaxed/simple;
-	bh=vg6yhHy+ypGFxAdIdnzyO0TJEKjh+TrkcBPxm//0m+Y=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=MYEVMYE4mO/n3LVcm71Pi7bvbMCHSTZBznysSE7n5xCcEqObGVkwOB2AENUh4/8+5rUgMMQ11/+ml0xGOKab/t352rcf34QqvbZiXNAXgnHRy5KypmDDNKucYpVPydMf5jOUe1D5QJdJ1uACjSE3gpbOJS40yW+j7yvwsm+C1cY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=IhxJthy9; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1784883652; c=relaxed/simple;
+	bh=wIGosUPqBec+oUqJSR/Sx28U1HcrOrh6Bltv8kxswqA=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=XBVJ8bP/fYVFYjJL4vJGhuAvx0S6GZbE41VIWSzf853Kg42HwtU15aupHdBHRuO4WydFB26g/nnnn5ceaFv1AnVuVOGtUAuj1cS+5rMmJmKPOvTo0jIlLxZFjkS1tIhX//PiWQ32omjoWfdN/vmPviv+7AyePJFdVS62bMvZD4o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=EOWho2Qb; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="IhxJthy9"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66O5Brxn914123;
-	Fri, 24 Jul 2026 08:17:39 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="EOWho2Qb"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66O5Bw7L798079;
+	Fri, 24 Jul 2026 09:00:48 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=UOWJ+X
-	4sg0ZAtnuuIkLy8Iu6I9hZeKpd9NgEjLm3/R0=; b=IhxJthy99aARPxa7Tp4pr6
-	y82sBDkk74SE7Pz+lphiCHlIXKniZH6NwuVb6n6aGY65v6LcP8cU87ghmlpe1ZIP
-	jqAf1MI/C5W9L4ZoGADnq4aXmCAgR/RjagUm6g1dp0bDeTThJyByPMikTN5vxVes
-	ftT3FsVltugMls6UODDhO8yLt4LaU79wYjC6DKxLkyzrQozZYG/qoxXbUgR2c6xS
-	F5SWFaBmZDwOllHB6q3FmCGaWBpd6BJ1KV4J45Mr2ggFOa4h8A/ruAFu61xKum6i
-	EoBIUAhLztGWpecm9HHifLlY8hFCgBV327qWpuAEpqt4riwmvG1rpe07RdEn5zJA
+	:message-id:mime-version:references:subject:to; s=pp1; bh=ghrArP
+	2puWMdRW0uyTmivHhcYz/qDPm+vMhq+hgoqf0=; b=EOWho2QbUeFvFrLupCCNnG
+	5JsguG7/Mvekqx+FA5dWH6wYgQ87/Foh71pMXjPMmwafe9ZLaRiXE/MlY6SXZxsw
+	O8lyCPaFlVFwOBtJwAHmlDdQGNUH7vjIh8CF6RuWIacA1Y7UA+S/+pEzZHXv7L4k
+	z4Zci71WP3ql40WAZgMUtgnREKjAP8eEEYmx42Cr/xddhHE3QexH73x/Q18rprg8
+	LLPZ2QyM49VxlCfrHNxm8A1/+YBJ9XBFX2RzTSa1iEalTpzau1zDCPWFS7ZUXTZs
+	MAUkGsM8wXdCt9zWaV4tmrJoKUqBbOjChxmPCw92Z0Bzdh54tYGk/2izw2swf/8Q
 	==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fg7ahk2kv-1
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fg78gk6t9-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 24 Jul 2026 08:17:38 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66O84dLR012293;
-	Fri, 24 Jul 2026 08:17:37 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fgktqg7xf-1
+	Fri, 24 Jul 2026 09:00:47 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66O8nine029010;
+	Fri, 24 Jul 2026 09:00:47 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fgpgyqx11-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 24 Jul 2026 08:17:37 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66O8HYsv30278388
+	Fri, 24 Jul 2026 09:00:46 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66O90hLW46858742
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 24 Jul 2026 08:17:34 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6E24C20067;
-	Fri, 24 Jul 2026 08:17:25 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3B88020063;
-	Fri, 24 Jul 2026 08:17:25 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.224.75.30])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with SMTP;
-	Fri, 24 Jul 2026 08:17:25 +0000 (GMT)
-Date: Fri, 24 Jul 2026 10:17:22 +0200
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-To: Christian Borntraeger <borntraeger@linux.ibm.com>
-Cc: Heiko Carstens <hca@linux.ibm.com>,
-        Alexander Gordeev
- <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Vasily
- Gorbik <gor@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        David
- Hildenbrand <david@kernel.org>, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v4 5/8] s390/mm: Remove folio handling for kernel faults
- in do_secure_storage_access()
-Message-ID: <20260724101722.363655e5@p-imbrenda>
-In-Reply-To: <da93640f-4fd4-4cae-bedf-921916dd4682@linux.ibm.com>
-References: <20260720085834.898025-1-hca@linux.ibm.com>
-	<20260720085834.898025-6-hca@linux.ibm.com>
-	<da93640f-4fd4-4cae-bedf-921916dd4682@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-redhat-linux-gnu)
+	Fri, 24 Jul 2026 09:00:43 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4D18320191;
+	Fri, 24 Jul 2026 09:00:43 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id D40892010D;
+	Fri, 24 Jul 2026 09:00:42 +0000 (GMT)
+Received: from [9.111.78.39] (unknown [9.111.78.39])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Fri, 24 Jul 2026 09:00:42 +0000 (GMT)
+Message-ID: <4c4ca006-d5e2-4877-a4f9-702df91c013a@linux.ibm.com>
+Date: Fri, 24 Jul 2026 10:00:42 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 2/2] s390/kvm: Add tracepoint for DIAG 9c directed
+ yield operations
+To: Christian Borntraeger <borntraeger@linux.ibm.com>,
+        linux-s390@vger.kernel.org, svens@linux.ibm.com
+Cc: frankja@linux.ibm.com, imbrenda@linux.ibm.com, david@kernel.org,
+        hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com
+References: <20260625131615.262367-1-ciunas@linux.ibm.com>
+ <20260625131615.262367-3-ciunas@linux.ibm.com>
+ <71e16596-591a-4991-b217-ecdcf284ea67@linux.ibm.com>
+ <4780639c-c5f1-474d-b51c-df9126ee6a1c@linux.ibm.com>
+ <409ee2c5-d6d6-4d85-aedf-5645fa755680@linux.ibm.com>
+Content-Language: en-GB
+From: Ciunas Bennett <ciunas@linux.ibm.com>
+In-Reply-To: <409ee2c5-d6d6-4d85-aedf-5645fa755680@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: qupa1iDYGK9lhvlWto5MfvPZqI0CLsfT
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI0MDA3MyBTYWx0ZWRfX6KEt9X41m3bN
- QnQENmb2/CMNOkUZRioOI34vxD+IDZDAn7JsxQBhrd878Ju96h3OA+EFPjkJVMkoF4uTNKAUS8w
- 4yGUjEYsQ2ZPNXzec0Tj6y4VYqt4uM/RRIOP3+8fpQOi1wbQyuog1Evlsu2/CdBibWme2wXGT/y
- 1jH4t89/d3xEfD+gKRql18LGgoEBo37Fmp27wHNZiiSm6tpsmaTIOCnK12T1amAPjH5zQyLBHAS
- CF5jkCQ3wcDOGXDIbI3g1r1Fz/tbsE20re1yNOkFsIlZHLpaXtMe8yPq/KXA231vgILlm+q/y4s
- 2vrmSm+rsWbLHNnrIM0hOEITr6jNM70TWGxkB2ogNTAeJcStRRj19IkhT8/82U5zm12d/KcAH41
- QO26Yz5ztKvSTnUAyrhaugGDYl/7UjecBaMGdp8sKuJIVxTCNAgCoObI/Po/Cc4dKP3qfvdnuLy
- uRTHKePGyFX+gDmAmzQ==
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI0MDA3MyBTYWx0ZWRfXySChLbt9kEdD
- 2f9Ct0UNC2s3mlS50H84wZNLDd8c7922JPBqBQKjC55Ol/GY+bTonYCorEio3LXwRlFGJDhc3Ef
- ye6Qx+L0Slcd4KRZG+aVdFLnRnggdD0=
-X-Proofpoint-GUID: qupa1iDYGK9lhvlWto5MfvPZqI0CLsfT
-X-Authority-Analysis: v=2.4 cv=SM5ykuvH c=1 sm=1 tr=0 ts=6a631fa2 cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
- a=kj9zAlcOel0A:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8
- a=uVMGJkIZJPMhafez8PoA:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI0MDA3OCBTYWx0ZWRfXwHYsqz21KkPZ
+ JAfNMneLgHpAVyNRdYQeVFVlZrUPMdlNNuTjMVJHdq9VN6ytqHO0sycM6OUWhvEooWHplg/9MeE
+ 3ur/4ay2Zje5p4aqxIBNDaWsKj99hyx8rxH/f+cIPIfNxUMu/FtV+c1StQRd0RenAzTYtDDPSwB
+ vQcxX6+gXzMfwA+ghpfwgyKSrOhON5Ana4RR7BTolbp40shD7s/G8/9BUbx0YmHqpkHlJi5RSdI
+ +wDDM22NMgaqreS3YRYy6SzhphMf/id14YXuxaV2vGEGEDtZMH/0MZ9Y6ymsB/ggxmclenlRvPp
+ Bm1x3n7UP3UIOqZCw/No6O24kbpFb54+2MLCvt5FjF3voVd7bV8fwXw7TsizJAz2GzqkuWyNslV
+ 8pG0uV3Q9klvCXdZ6UZRKKtoseH/Cta5mdgo4DABONe/swGdGlq4GT8vxikJqUEi610d9t9MEIX
+ ISBiJ1/lXN2ZDVXx4tA==
+X-Proofpoint-GUID: VvVvGlm2eYTHeyc5jyK26a70JqMq7jHi
+X-Authority-Analysis: v=2.4 cv=MelcfZ/f c=1 sm=1 tr=0 ts=6a6329bf cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=fdmd8Z3vNSULM-V7rEIA:9
+ a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI0MDA3OCBTYWx0ZWRfX6azTI+826vdP
+ VO7GAaCtj3ak6h0C0nDJD06FQw8E7ODU2DneLYXztlljga0lSc/uxKGOKck7Mrif3dz525NSHIX
+ QAoEdAnDpY+M+k/mZwSfIBck3flvfC0=
+X-Proofpoint-ORIG-GUID: VvVvGlm2eYTHeyc5jyK26a70JqMq7jHi
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-07-24_01,2026-07-22_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 lowpriorityscore=0 bulkscore=0 suspectscore=0 adultscore=0
- spamscore=0 malwarescore=0 priorityscore=1501 phishscore=0 impostorscore=0
+ impostorscore=0 lowpriorityscore=0 priorityscore=1501 bulkscore=0 spamscore=0
+ clxscore=1015 malwarescore=0 phishscore=0 adultscore=0 suspectscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607240073
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607240078
 
-On Mon, 20 Jul 2026 12:53:29 +0200
-Christian Borntraeger <borntraeger@linux.ibm.com> wrote:
 
-> Am 20.07.26 um 10:58 schrieb Heiko Carstens:
-> > Remove folio handling for secure storage access exceptions that happen
-> > via the kernel mapping. Using folio_try_get() for exceptions via the
-> > kernel mapping is racy: for example such an exception may happen on one
-> > CPU, while a different CPU frees the corresponding page. Subsequently the
-> > page can be part of a folio of different size, before the faulting CPU
-> > executes folio_try_get(). This may lead to data corruption.
-> > 
-> > As of now this scenario does not seem to be possible, however with the
-> > upcoming load_unaligned_zeropad() this is possible.
-> > 
-> > As a side effect PG_arch_1 is not cleared anymore for such faults via the
-> > kernel mapping. However given that this bit is over-indicating it
-> > shouldn't matter.
-> > 
-> > Tested-by: Christian Borntraeger <borntraeger@linux.ibm.com>
-> > Signed-off-by: Heiko Carstens <hca@linux.ibm.com>  
+
+On 24/07/2026 09:03, Christian Borntraeger wrote:
 > 
-> Ideally Claudio should confirm that PG_arch_1 is over-indicating.
-
-PG_arch_1 is over-indicating.
-
-Acked-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-
 > 
-> Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+> Am 23.07.26 um 21:56 schrieb Ciunas Bennett:
+>>
+>>
+>> On 23/07/2026 16:28, Christian Borntraeger wrote:
+>>>
+>>
+>> [...]
+>>
+>>>> +TRACE_EVENT(kvm_s390_diag_9c,
+>>>> +        TP_PROTO(VCPU_PROTO_COMMON, int target_vcpu, int target_cpu,
+>>>> +             const char *result),
+>>>> +        TP_ARGS(VCPU_ARGS_COMMON, target_vcpu, target_cpu, result),
+>>>> +
+>>>> +        TP_STRUCT__entry(
+>>>> +            VCPU_FIELD_COMMON
+>>>> +            __field(int, target_vcpu)
+>>>> +            __field(int, target_cpu)
+>>>> +            __field(int, current_cpu)
+>>>> +            __string(result, result)
+>>>> +            ),
+>>>> +
+>>>> +        TP_fast_assign(
+>>>> +            VCPU_ASSIGN_COMMON
+>>>> +            __entry->target_vcpu = target_vcpu;
+>>>> +            __entry->target_cpu = target_cpu;
+>>>> +            __entry->current_cpu = smp_processor_id();
+>>>> +            __assign_str(result);
+>>>> +            ),
+>>>> +
+>>>> +        VCPU_TP_PRINTK(
+>>>> +               "diag=9c vcpu=%d pcpu=%d target_vcpu=%d target_pcpu=%d result=%s",
+>>>> +               __entry->id,
+>>> I think vcpu=%d re-prints __entry->id, which VCPU_TP_PRINTK() already emits as the line prefix; likewise current_cpu/pcpu=%d duplicates ftrace's built-in per-event CPU column.
+>>> Can you double check?
+>>
+>> Yes it is and I was aware that VCPU_TP_PRINTK already includes the vCPU ID
+>> in the prefix, but I kept it in the message for readability.
+>> Having all the relevant fields together in a single format string makes
+>> the output a bit easier to grep and follow visually I find.
+>> That said, if you'd prefer to keep it consistent with the other
+>> tracepoints, I'm happy to drop the duplicate vCPU field.
 > 
-> > ---
-> >   arch/s390/mm/fault.c | 8 +-------
-> >   1 file changed, 1 insertion(+), 7 deletions(-)
-> > 
-> > diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
-> > index e650cdfa2523..776549d55c94 100644
-> > --- a/arch/s390/mm/fault.c
-> > +++ b/arch/s390/mm/fault.c
-> > @@ -440,13 +440,7 @@ void do_secure_storage_access(struct pt_regs *regs)
-> >   	if (is_kernel_fault(regs)) {
-> >   		if (is_vmalloc_addr((void *)addr))
-> >   			return handle_fault_error_nolock(regs, 0);
-> > -		folio = virt_to_folio((void *)addr);
-> > -		if (unlikely(!folio_try_get(folio)))
-> > -			return;
-> > -		rc = uv_convert_from_secure(folio_to_phys(folio));
-> > -		if (!rc)
-> > -			clear_bit(PG_arch_1, &folio->flags.f);
-> > -		folio_put(folio);
-> > +		rc = uv_convert_from_secure(__pa(addr));
-> >   		/*
-> >   		 * There are some valid fixup types for kernel
-> >   		 * accesses to donated secure memory. zeropad is one  
-> 
+> Yes, please drop.>
 
+Just to quickly follow up on this: ftrace already prints both the vcpu and the pcpu, as shown in the output below.
+In that case, would you like me to remove both of them and keep only target_vcpu and target_pcpu?
+
+[CPU 7/KVM-2066    [017] .....   827.871131: kvm_s390_diag_9c: 07[0404c00180000000-000001e619a6a9ea]: diag=9c vcpu=7 pcpu=17 target_vcpu=1 target_pcpu=23 result=ignored]
+
+[...] Ciunas
