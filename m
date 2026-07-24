@@ -1,113 +1,84 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0FCBC392803;
-	Fri, 24 Jul 2026 21:48:27 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5CBD93F482D;
+	Fri, 24 Jul 2026 22:00:40 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784929717; cv=none; b=lmE59OT/cc2rq/lI2LdfzBtVYT4hzbls+hc/puzRBhJuGm5j3xEmP2kIvVItV5pC2Rbi4lxgGHbhKrDYEeTMrCN1eC8XOcA3xGjJrP+l+yZU9CCMN/DkacPClBgHbF7NqUdmEDbAb+4Nfiq1T1e5DIcnUFOO5ofjo7aK41epYhc=
+	t=1784930441; cv=none; b=sFJRZW8TZjxmgcUGNmHsP5ZVe+SnRrR5a4u+qkqyaV/nd/6DY083IUl8tz1tc3px1eZiLWmMJq6SQe9OWTU0HHA8Ie1ebJTG2F/X5t0rGvYaZLdvED2j81tN1I74LBCCqpqvklZ1pM/Yz+sHyOJQUw63C1DeKZOSvuvZaq2IvAk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784929717; c=relaxed/simple;
-	bh=GTdZSgSwBlfAlIxva5M6ZU/kD9VYoe26BBxVBJ5WdPE=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=f0dWPJXuJkkHlQ5NLOuD9Ax5Gho1OuqyiVb7t0nd5oWleu8UvKWZ0I9ZwliB4KZE49TmmB6QFpuZUZCvhsdQzWUJFHk39L78Jrb5jzWdYLl7N97uSjvi3jiv7Dfm4rIqq0HGBt3VlUk4FDbtEfdYIBkLNyeZ2WbbL7Xj7V2F1Co=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bhpTuvSZ; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1784930441; c=relaxed/simple;
+	bh=X07jI/+qvanFnqzYWrbcYoCKu6qHnqXRLUz9I1YjOX4=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=Vu2PA3iAwnUowAQ9iL944NA9jgAr0pWjq2sx+nYVx8heu3OXbpDQl6croJFFj6k6kIq1MMHZHMhs5Elsk0KX8k2f4IsorurGtE61QafnHt2zdhs7b0Xz6YnNrFDSvyCCmF/oRqepeM/Txf9AgE/QT6bVmK38/RX1TiDgaITWbz4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=AVVoSBug; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bhpTuvSZ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A6FC1F000E9;
-	Fri, 24 Jul 2026 21:48:23 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AVVoSBug"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00A9D1F000E9;
+	Fri, 24 Jul 2026 22:00:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784929705;
-	bh=GTdZSgSwBlfAlIxva5M6ZU/kD9VYoe26BBxVBJ5WdPE=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References;
-	b=bhpTuvSZWBV7iq9keKc8+pixk18qLEuyMz3ZTlqKcB81KF/CnyeLGI6JSyvHGt9tA
-	 E+SxQVBXcXsXsZgtn3HAr+6nPULrU5HRAYu13tTfnL5ffRJr3w0sXxS3y6FSy3SRlS
-	 Qe3XQkADPgbjY9nioQHCBPR4pvKP4dL5d3HxM/ORX/63JYStNE+wqJy61XHcdbEpWF
-	 xaZAuoqTpynwYjXBJP4BY73AhLP471MMWjcWFGi91teQEabAfmboMZJJ2AI9mVl919
-	 5Vj52Ap+SYxCLa6sCvz56w/tCisRBng0kD6I+yiTKpyHAoJV1VexiywmsHK9mBuUsB
-	 8QLvkwcrgPftA==
-Date: Fri, 24 Jul 2026 14:48:22 -0700
-From: Jakub Kicinski <kuba@kernel.org>
-To: Sang-Heon Jeon <ekffu200098@gmail.com>
-Cc: Julia.Lawall@inria.fr, Alex Deucher <alexander.deucher@amd.com>,
- Alexander Shishkin <alexander.shishkin@linux.intel.com>, Alexandre Belloni
- <alexandre.belloni@bootlin.com>, Andrew Lunn <andrew@lunn.ch>, Andrew
- Morton <akpm@linux-foundation.org>, Arkadiusz Kubalewski
- <arkadiusz.kubalewski@intel.com>, Borislav Petkov <bp@alien8.de>, Christian
- =?UTF-8?B?S8O2bmln?= <christian.koenig@amd.com>, Daniel Lezcano
- <daniel.lezcano@kernel.org>, David Airlie <airlied@gmail.com>, "David S.
- Miller" <davem@davemloft.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>,
- Eric Dumazet <edumazet@google.com>, Florian Westphal <fw@strlen.de>, Greg
- Kroah-Hartman <gregkh@linuxfoundation.org>, Hans de Goede
- <hansg@kernel.org>, Hans Verkuil <hverkuil@kernel.org>, Heikki Krogerus
- <heikki.krogerus@linux.intel.com>, Herbert Xu
- <herbert@gondor.apana.org.au>, Ilpo =?UTF-8?B?SsOkcnZpbmVu?=
- <ilpo.jarvinen@linux.intel.com>, "James E.J. Bottomley"
- <James.Bottomley@HansenPartnership.com>, Jani Nikula
- <jani.nikula@linux.intel.com>, Jaroslav Kysela <perex@perex.cz>, Jason
- Gunthorpe <jgg@ziepe.ca>, Jiri Pirko <jiri@resnulli.us>, "Joerg Roedel
- (AMD)" <joro@8bytes.org>, Johan Hovold <johan@kernel.org>, Jonathan Cameron
- <jic23@kernel.org>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
- Julian Anastasov <ja@ssi.bg>, Leon Romanovsky <leon@kernel.org>, Liam
- Girdwood <lgirdwood@gmail.com>, Linus Walleij <linusw@kernel.org>, Maarten
- Lankhorst <maarten.lankhorst@linux.intel.com>, Mark Brown
- <broonie@kernel.org>, "Martin K. Petersen" <martin.petersen@oracle.com>,
- Matthew Sakai <msakai@redhat.com>, Mauro Carvalho Chehab
- <mchehab@kernel.org>, Maxime Ripard <mripard@kernel.org>, Michael Turquette
- <mturquette@baylibre.com>, Mike Rapoport <rppt@kernel.org>, Miri Korenblit
- <miriam.rachel.korenblit@intel.com>, Nicolas Palix <nicolas.palix@imag.fr>,
- Pablo Neira Ayuso <pablo@netfilter.org>, Paolo Abeni <pabeni@redhat.com>,
- Ping-Ke Shih <pkshih@realtek.com>, "Rafael J. Wysocki" <rafael@kernel.org>,
- Rodrigo Vivi <rodrigo.vivi@intel.com>, Sebastian Reichel <sre@kernel.org>,
- Shuah Khan <shuah@kernel.org>, Simona Vetter <simona@ffwll.ch>, Simon
- Horman <horms@verge.net.au>, Stephen Boyd <sboyd@kernel.org>, Steve French
- <sfrench@samba.org>, Takashi Iwai <tiwai@suse.com>, Thomas Renninger
- <trenn@suse.com>, Thomas Zimmermann <tzimmermann@suse.de>, Tony Luck
- <tony.luck@intel.com>, Tvrtko Ursulin <tursulin@ursulin.net>, Vadim
- Fedorenko <vadim.fedorenko@linux.dev>, Vinod Koul <vkoul@kernel.org>, Will
- Deacon <will@kernel.org>, Yazen Ghannam <Yazen.Ghannam@amd.com>,
- cocci@inria.fr, amd-gfx@lists.freedesktop.org, dmaengine@vger.kernel.org,
- dm-devel@lists.linux.dev, dri-devel@lists.freedesktop.org,
- intel-gfx@lists.freedesktop.org, intel-wired-lan@lists.osuosl.org,
- iommu@lists.linux.dev, linux-cifs@vger.kernel.org,
- linux-clk@vger.kernel.org, linux-crypto@vger.kernel.org,
- linux-edac@vger.kernel.org, linux-gpio@vger.kernel.org,
- linux-iio@vger.kernel.org, linux-input@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-media@vger.kernel.org,
- linux-mm@kvack.org, linux-pm@vger.kernel.org, linux-rdma@vger.kernel.org,
- linux-rtc@vger.kernel.org, linux-s390@vger.kernel.org,
- linux-scsi@vger.kernel.org, linux-sound@vger.kernel.org,
- linux-usb@vger.kernel.org, linux-wireless@vger.kernel.org,
- lvs-devel@vger.kernel.org, netdev@vger.kernel.org,
- netfilter-devel@vger.kernel.org, nouveau@lists.freedesktop.org,
- platform-driver-x86@vger.kernel.org
-Subject: Re: [PATCH 00/36] treewide: remove conditional returns with no
- effect
-Message-ID: <20260724144822.6af8213f@kernel.org>
-In-Reply-To: <20260723184538.3888637-1-ekffu200098@gmail.com>
-References: <20260723184538.3888637-1-ekffu200098@gmail.com>
+	s=k20260515; t=1784930440;
+	bh=Fl7Pc1djCZRwzz9Bth0ewIIi6/wzJ/eiV84p8CK2bQM=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc;
+	b=AVVoSBugieNKYjXI6FC/4mNN37hSAavbBTE8gDeYjeR+sem1995JIEngkJfUaLqyy
+	 tKoSR9+Z0RPdLSX3F5sJRTyA1dExdxzoC2cd3LMAyn5j7kLlrgCbhksybFHyftvRgV
+	 hfnaOvXVji+9O+szxP2WZx3B5hBSIxDF6Tb0Go1v+qYUjjnmseiJL63GYJ+1tNMW7z
+	 Cax6TupfOZQ2AIthEJp9OuNoRWClvWgrLSSmjAWcOYDBDpeWkIbxnvgIRmhZ6ZAb/G
+	 X9EhzkROVTtg00UCqNJudiefbsKQO7e6Qlt+bpPOLW2BxP9G86Lu+58EN6vyqEYJkO
+	 RMtW1vsHn7rIg==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 56A4738111D7;
+	Fri, 24 Jul 2026 22:00:08 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net-next v3] MAINTAINERS: Update SHARED MEMORY
+ COMMUNICATIONS
+ (SMC) maintainer entries
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <178493040692.3326421.5106894914058435335.git-patchwork-notify@kernel.org>
+Date: Fri, 24 Jul 2026 22:00:06 +0000
+References: <20260724053752.3084-1-wenjia@linux.ibm.com>
+In-Reply-To: <20260724053752.3084-1-wenjia@linux.ibm.com>
+To: Wenjia Zhang <wenjia@linux.ibm.com>
+Cc: davem@davemloft.net, kuba@kernel.org, edumazet@google.com,
+ pabeni@redhat.com, andrew+netdev@lunn.ch, netdev@vger.kernel.org,
+ linux-s390@vger.kernel.org, hca@linux.ibm.com, gor@linux.ibm.com,
+ agordeev@linux.ibm.com, sidraya@linux.ibm.com, mjambigi@linux.ibm.com,
+ aswin@linux.ibm.com, wintera@linux.ibm.com, pasic@linux.ibm.com,
+ guwen@linux.alibaba.com, alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
+ dust.li@linux.alibaba.com
 
-On Fri, 24 Jul 2026 03:45:02 +0900 Sang-Heon Jeon wrote:
-> Patch 1 adds a Coccinelle script that matches the pattern, including
-> negation and constant-comparison variants. Where a local variable is
-> assigned right before the check, the assignment and the two returns
-> turn into a single return of the assigned expression.
+Hello:
 
-Huh, I thought we already had such script. Various script children have
-been sending such "cleanups" in the past.
+This patch was applied to netdev/net.git (main)
+by Jakub Kicinski <kuba@kernel.org>:
 
-> Patches 2-36 are generated by the script, with hand fixes to restore
-> unexpectedly removed comments and to fix the formatting checkpatch.pl
-> complained about.
+On Fri, 24 Jul 2026 07:37:52 +0200 you wrote:
+> Due to a change in responsibilities, I can no longer serve as an SMC
+> maintainer and need to be removed from the MAINTAINERS list.
+> 
+> To reflect these organizational changes, promote Mahanta Jambigi
+> <mjambigi@linux.ibm.com> from reviewer to maintainer.
+> 
+> Acked-by: Mahanta Jambigi <mjambigi@linux.ibm.com>
+> Signed-off-by: Wenjia Zhang <wenjia@linux.ibm.com>
+> 
+> [...]
 
-Please post patches 4,7,8,9 as a separate series. Since you only CCed
-netdev on subset of the series patchwork thinks there are patches
-missing and doesn't kick off any CI.
+Here is the summary with links:
+  - [net-next,v3] MAINTAINERS: Update SHARED MEMORY COMMUNICATIONS (SMC) maintainer entries
+    https://git.kernel.org/netdev/net/c/9736d2efc996
+
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
