@@ -1,167 +1,231 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 116593D967F
-	for <linux-s390@vger.kernel.org>; Fri, 24 Jul 2026 09:57:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 933263DFC88
+	for <linux-s390@vger.kernel.org>; Fri, 24 Jul 2026 10:13:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784887070; cv=none; b=cF8sMT4HhBsEcgRmpRMcQDhz0ozRmhtGUkanQ85rk5kXrIOXV0qGufkjxcBtTdikn65nfPtgX6KXzKN+MwfW+6lE1flK78qpJ0CfLRDGv02DzxqJLsY1oilxU5+Yxz8BWY7W7vWde79MNnmjUrnrBAarolDtGmUQ0KNMyKpp/lE=
+	t=1784888036; cv=none; b=QKwO+rPL6IWOXyvLqp/6z604X24aqMsE0bI8W4G8wuHVWKaqUuOywACLXFor3NBBKLgwCubH7/jU/qNtEsh60nwKpPFc6A6SLFc0wJxF3yCxSVCVEoEcxWM+4rTwsr+sLajSBZkwMQgS0paUmKrbODtBT7STmr4qJJr70TiUJ10=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784887070; c=relaxed/simple;
-	bh=9gr52oOyBwTmK5CB2G5pDQTl39hCbDzkEU94Vn6IAxI=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Mk6GGywE90K5xWRaa255wuwCRBjsT/hgUcMZH5N+x3m5eVJRMqobWF7HR9S95/msNZVIakPjZSoexpojAWUrSwne9FNl14aVkPJ5bnZoGLKc7CEmQJpmTQNElb4VuUa7jn02h3jh83Q3S4xUWYwDzofQJzQi3WyQhA7XT6NjyLE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=HBIBybDM; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1784888036; c=relaxed/simple;
+	bh=bW8fOimnwDEsWMJz/4fZZ8Y0Tbo1Efba41GxiPFv1Ss=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=lkbReTnp8oJyAZX61/MIlp1WneKOdOTcrLPufEZjqEseyVyp4OMuM4G5lR14YwmTNkl2F4i/leC0LwXbLP7yqSHrYMppP1xdIpgaj50AFvTkl8RQIPrxPk5HS9n7gjuwX071n83A0XQ+SVpnfMws+z454qQvomFOaGb5kb4VwgY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=phRzd2WP; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="HBIBybDM"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66O5BppP797597;
-	Fri, 24 Jul 2026 09:57:46 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="phRzd2WP"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66OADS9i1532559
+	for <linux-s390@vger.kernel.org>; Fri, 24 Jul 2026 10:13:54 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=DiwCwE
-	V4xFuIssEKp2TcVISkDiyMs+//1lnkuGNhPEk=; b=HBIBybDMC0SweAKBcIyRfZ
-	Mm2mhy1DyFZt3LeVoMQjQU1XDRHNQ9ugzLcIGX3NdAStZad9ufqqTH62EDIrJlzY
-	qTDb8d7M4z0yHID1kQihUARqMh3N+0dHdPHkawa6LMShzjlkRDr4jCd9mTetwLnv
-	8v/COVwwLzL7kqd0RzgvbpICqQN0ulOLq6J13pKY/NeSt0JIk7TAM7GPpBBGihob
-	JQxu2np41mwTV4CdwuBAqsMkC24urxBn2BNPsZMkQxPcvDsNIqHdS5odnbCC+kFW
-	cdtp/+x+eKrlsKApK8phNq5fcPhF/SXrsxKiEZyheXBI1jA617MY358SYZPDulPQ
-	==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fg78gkd35-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 24 Jul 2026 09:57:45 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66O9napt017566;
-	Fri, 24 Jul 2026 09:57:45 GMT
+	:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=pp1; bh=Vzv4jeM9HrDB9Glzt
+	6lmUpP4gU19ocDpcIm+9Sb5E1M=; b=phRzd2WPy+AC27TpmJ7JBa/OZs99bQzDG
+	o8gsWyR0Dq/KIAT+rI+nNKGsn/j0rihDYw49IHGsnu7RHnKF/m/smV/Q9GceQgT+
+	7iCv13n9mKkg5bOWjIm5heacaIchSgOpwnZWIvRrUCfoT65Scsjnb3T8CWMZ8Pox
+	lTv6N4QXVuWgdR7EByZOGWc3a+4vIMiyk6V5JrIFxiEAxWmGoA2F4JjoBRAoW12v
+	rSeBasKD2q7I+juNpU5NUIoi6g9EB6F+Fn2T/DsPifua1byUsxi7k0eVkUL6otDJ
+	KuZmhXJF0RtGqyXr2KKMO5DlzyXmY3naRbAhl7SPffk+ztPdnTa3A==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fg7abv6r1-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Fri, 24 Jul 2026 10:13:54 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66OA4eCg019384
+	for <linux-s390@vger.kernel.org>; Fri, 24 Jul 2026 10:13:53 GMT
 Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fgp1gr5yj-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 24 Jul 2026 09:57:45 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66O9vfuG44564758
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fgpgyr5ey-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Fri, 24 Jul 2026 10:13:53 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66OADnZX42664248
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 24 Jul 2026 09:57:41 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5C224200C5;
-	Fri, 24 Jul 2026 09:57:41 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 00AB5200C4;
-	Fri, 24 Jul 2026 09:57:41 +0000 (GMT)
-Received: from [9.224.77.173] (unknown [9.224.77.173])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 24 Jul 2026 09:57:40 +0000 (GMT)
-Message-ID: <3b72c2c9-6dd4-4c28-bafc-326d31125a3e@linux.ibm.com>
-Date: Fri, 24 Jul 2026 11:57:40 +0200
+	Fri, 24 Jul 2026 10:13:49 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 3825220259;
+	Fri, 24 Jul 2026 09:51:26 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 17A782025B;
+	Fri, 24 Jul 2026 09:51:26 +0000 (GMT)
+Received: from funtu2.ibm.com (unknown [9.111.143.218])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Fri, 24 Jul 2026 09:51:26 +0000 (GMT)
+From: Harald Freudenberger <freude@linux.ibm.com>
+To: dengler@linux.ibm.com, fcallies@linux.ibm.com
+Cc: freude@linux.ibm.com, linux-s390@vger.kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>
+Subject: [PATCH v3 1/2] s390/zcrypt: Improve CCA CPRB length and overflow checks
+Date: Fri, 24 Jul 2026 11:51:27 +0200
+Message-ID: <20260724095128.140810-2-freude@linux.ibm.com>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20260724095128.140810-1-freude@linux.ibm.com>
+References: <20260724095128.140810-1-freude@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 2/2] s390/kvm: Add tracepoint for DIAG 9c directed
- yield operations
-To: Ciunas Bennett <ciunas@linux.ibm.com>, linux-s390@vger.kernel.org,
-        svens@linux.ibm.com
-Cc: frankja@linux.ibm.com, imbrenda@linux.ibm.com, david@kernel.org,
-        hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com
-References: <20260625131615.262367-1-ciunas@linux.ibm.com>
- <20260625131615.262367-3-ciunas@linux.ibm.com>
- <71e16596-591a-4991-b217-ecdcf284ea67@linux.ibm.com>
- <4780639c-c5f1-474d-b51c-df9126ee6a1c@linux.ibm.com>
- <409ee2c5-d6d6-4d85-aedf-5645fa755680@linux.ibm.com>
- <4c4ca006-d5e2-4877-a4f9-702df91c013a@linux.ibm.com>
-Content-Language: en-US
-From: Christian Borntraeger <borntraeger@linux.ibm.com>
-In-Reply-To: <4c4ca006-d5e2-4877-a4f9-702df91c013a@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI0MDA4OCBTYWx0ZWRfX+sCQNJhiqS0X
- xHYCMMFyi7oIOaXoesIXuTeTY3RZDhRcwrcIhOmIvb6eGleUP1uwbLDP8jT0PtN6ADWxSQNh8gy
- 9Kc4zNCZxu0EpiD6jge7kj/attCFosFVXzW9iufgXD3CubZ3Tj9XtGK1iL+Xc8FxahJbO5VOMkf
- jT4+OwiHhThOqUV/MnsGiiVUWHVPnTfNnnE+3nyelobIv1v9h1rvaOXSLmnzghDNbOWyka+fALc
- kTgHhJGLh3LyzR5xD5vzhYIRD1wvN7RUwdUwhUWDw5d+gveu3nzgN+KOu5JW3sdPM9PSeYzbsp9
- HedTDkd0eh/mPS+Dzj6j0SMorJufGr1lctw78a3irISVarNR5aA5zcLTv4VDbbP8YXJFx1aXf27
- VNkIJsohSVXayRCaqW4dj3Tp1tqY7qXpGrdhQiTtp0FAnJZ4CpC9G2bzEJ0NgFt+Ox4UjnHVwEK
- PFZWYLvHYehcQiuRAIQ==
-X-Proofpoint-GUID: 4dNwkqfVqkA4GdgwKbOtqUm73r6fhUns
-X-Authority-Analysis: v=2.4 cv=MelcfZ/f c=1 sm=1 tr=0 ts=6a63371a cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=fdmd8Z3vNSULM-V7rEIA:9
- a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI0MDA4OCBTYWx0ZWRfX7pe/z5q3375b
- hUTO1v48jab3Czo5RpcYE2WQkxRYLF33dw0/uhuENC+5NvOdAiQUPDL/NqtJvesTV4LC1I4U+Ab
- g1BwUuse4s1YXCAHLmxSXxTiG+4B6oY=
-X-Proofpoint-ORIG-GUID: 4dNwkqfVqkA4GdgwKbOtqUm73r6fhUns
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI0MDA5MyBTYWx0ZWRfXyrLyf40WzSnd
+ GK4LQWTijKo9WvFyu0OfAj7gcWdN9QX4J9Jz8VDD1FS/lfsGOnZTgOxHRK04HU4Di9YKdZeeOsy
+ ftBek1PbxfO0atNWkAK7oxb/aCq479+90KOJkreXhvZD9cDlRGNqGLjBeMKDMHoLaOtv5dOiC3Q
+ AivDHkZIvw4IYMc+X9nw9elGWLODTQBSvHsfX92QoIVA67ljATy6wB4N9l9kErPWnyzuDgVaqvw
+ fYQhQtu2uoZ1dDfB445qy2uyGkSCzHLxPxBI4Q1f8N806n/gVBPFm4nGRbcchyFMNrQoorYCdPm
+ 0wzpEJdd1K8rHxj5Ly0HE96HCv66piuYOtMoMcPOfLApVFw8cQgQ+R8zVs5x6nVBCiSNa40N3b1
+ uTNrlF7IVyOOK8QAmSWrJv7s9xB1N3HInPP6jmZp6BxnRLjK0ZPW1mvqgC4A0lLHmzu/HUL57kv
+ svuWdAiQbzv2ADra6zg==
+X-Authority-Analysis: v=2.4 cv=F7ZnsKhN c=1 sm=1 tr=0 ts=6a633ae2 cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8 a=hwlYjH4sdu7Xt8Y-kJcA:9
+X-Proofpoint-ORIG-GUID: OU6_KAGWQPSvsjfqKZ9IFfe1WLNbPf4g
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI0MDA5MyBTYWx0ZWRfX9fTdq8nHfojO
+ pF1wJ9BOV7vMVl7/C5LzQkyaEJpgE8oc3qF2ZlH4uqxiaee2mxzi5YzIULZx5XWC6V7fVxRzQoD
+ rg/OdaVhLT5TM7y/27vMjuQBE57bDSY=
+X-Proofpoint-GUID: OU6_KAGWQPSvsjfqKZ9IFfe1WLNbPf4g
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-07-24_01,2026-07-22_02,2025-10-01_01
+ definitions=2026-07-24_02,2026-07-22_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- impostorscore=0 lowpriorityscore=0 priorityscore=1501 bulkscore=0 spamscore=0
- clxscore=1015 malwarescore=0 phishscore=0 adultscore=0 suspectscore=0
+ spamscore=0 phishscore=0 bulkscore=0 clxscore=1015 priorityscore=1501
+ impostorscore=0 lowpriorityscore=0 suspectscore=0 malwarescore=0 adultscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607240088
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607240093
 
+The xcrb_msg_to_type6cprb_msgx() function lacks proper input
+validation, creating security vulnerabilities:
+1. Integer overflow after CEIL4 alignment: Signed int variables could
+   overflow during 4-byte boundary alignment, causing undersized
+   buffer allocations or incorrect bounds checking.
+2. Missing minimum size validation: The CPRBX structure is copied from
+   userspace without verifying sufficient buffer length. Undersized
+   buffers cause uninitialized memory access when reading structure
+   fields like cprbx.cprb_len and cprbx.domain.
+3. Arithmetic overflow in sum calculations: Adding control block and
+   data block sizes could overflow, bypassing size checks and enabling
+   buffer overflows.
 
+Fix by using size_t for length calculations, adding U32_MAX boundary
+checks after alignment, validating minimum control block size before
+copying from userspace, and detecting sum calculation overflows.
 
-Am 24.07.26 um 11:00 schrieb Ciunas Bennett:
-> 
-> 
-> On 24/07/2026 09:03, Christian Borntraeger wrote:
->>
->>
->> Am 23.07.26 um 21:56 schrieb Ciunas Bennett:
->>>
->>>
->>> On 23/07/2026 16:28, Christian Borntraeger wrote:
->>>>
->>>
->>> [...]
->>>
->>>>> +TRACE_EVENT(kvm_s390_diag_9c,
->>>>> +        TP_PROTO(VCPU_PROTO_COMMON, int target_vcpu, int target_cpu,
->>>>> +             const char *result),
->>>>> +        TP_ARGS(VCPU_ARGS_COMMON, target_vcpu, target_cpu, result),
->>>>> +
->>>>> +        TP_STRUCT__entry(
->>>>> +            VCPU_FIELD_COMMON
->>>>> +            __field(int, target_vcpu)
->>>>> +            __field(int, target_cpu)
->>>>> +            __field(int, current_cpu)
->>>>> +            __string(result, result)
->>>>> +            ),
->>>>> +
->>>>> +        TP_fast_assign(
->>>>> +            VCPU_ASSIGN_COMMON
->>>>> +            __entry->target_vcpu = target_vcpu;
->>>>> +            __entry->target_cpu = target_cpu;
->>>>> +            __entry->current_cpu = smp_processor_id();
->>>>> +            __assign_str(result);
->>>>> +            ),
->>>>> +
->>>>> +        VCPU_TP_PRINTK(
->>>>> +               "diag=9c vcpu=%d pcpu=%d target_vcpu=%d target_pcpu=%d result=%s",
->>>>> +               __entry->id,
->>>> I think vcpu=%d re-prints __entry->id, which VCPU_TP_PRINTK() already emits as the line prefix; likewise current_cpu/pcpu=%d duplicates ftrace's built-in per-event CPU column.
->>>> Can you double check?
->>>
->>> Yes it is and I was aware that VCPU_TP_PRINTK already includes the vCPU ID
->>> in the prefix, but I kept it in the message for readability.
->>> Having all the relevant fields together in a single format string makes
->>> the output a bit easier to grep and follow visually I find.
->>> That said, if you'd prefer to keep it consistent with the other
->>> tracepoints, I'm happy to drop the duplicate vCPU field.
->>
->> Yes, please drop.>
-> 
-> Just to quickly follow up on this: ftrace already prints both the vcpu and the pcpu, as shown in the output below.
-> In that case, would you like me to remove both of them and keep only target_vcpu and target_pcpu?
-> 
-> [CPU 7/KVM-2066    [017] .....   827.871131: kvm_s390_diag_9c: 07[0404c00180000000-000001e619a6a9ea]: diag=9c vcpu=7 pcpu=17 target_vcpu=1 target_pcpu=23 result=ignored]
+Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
+---
+ drivers/s390/crypto/zcrypt_msgtype6.c | 74 ++++++++++++---------------
+ 1 file changed, 34 insertions(+), 40 deletions(-)
 
-Its a bit harder to read, but yes try to avoid redundancy.
+diff --git a/drivers/s390/crypto/zcrypt_msgtype6.c b/drivers/s390/crypto/zcrypt_msgtype6.c
+index 40f72cdf284d..4ac767661cb5 100644
+--- a/drivers/s390/crypto/zcrypt_msgtype6.c
++++ b/drivers/s390/crypto/zcrypt_msgtype6.c
+@@ -342,49 +342,40 @@ static int xcrb_msg_to_type6cprb_msgx(bool userspace, struct ap_message *ap_msg,
+ 		};
+ 	} __packed * msg = ap_msg->msg;
+ 
+-	int rcblen = CEIL4(xcrb->request_control_blk_length);
+-	int req_sumlen, resp_sumlen;
+-	char *req_data = ap_msg->msg + sizeof(struct type6_hdr) + rcblen;
+-	char *function_code;
++	size_t req_cblen, rep_cblen, req_sumlen, rep_sumlen;
++	char *function_code, *req_data;
+ 
+-	if (CEIL4(xcrb->request_control_blk_length) <
+-			xcrb->request_control_blk_length)
+-		return -EINVAL; /* overflow after alignment*/
+-
+-	/* length checks */
++	/* request length and overflow checks */
++	if (xcrb->request_control_blk_length < sizeof(struct CPRBX))
++		return -EINVAL;
++	req_cblen = CEIL4((size_t)xcrb->request_control_blk_length);
++	if (req_cblen > U32_MAX)
++		return -EINVAL;
+ 	ap_msg->len = sizeof(struct type6_hdr) +
+-		CEIL4(xcrb->request_control_blk_length) +
+-		xcrb->request_data_length;
++		req_cblen + xcrb->request_data_length;
+ 	if (ap_msg->len > ap_msg->bufsize)
+ 		return -EINVAL;
+-
+-	/*
+-	 * Overflow check
+-	 * sum must be greater (or equal) than the largest operand
+-	 */
+-	req_sumlen = CEIL4(xcrb->request_control_blk_length) +
+-			xcrb->request_data_length;
+-	if ((CEIL4(xcrb->request_control_blk_length) <=
+-	     xcrb->request_data_length) ?
++	req_sumlen = req_cblen + xcrb->request_data_length;
++	if (req_sumlen > U32_MAX)
++		return -EINVAL;
++	if (req_cblen <= xcrb->request_data_length ?
+ 	    req_sumlen < xcrb->request_data_length :
+-	    req_sumlen < CEIL4(xcrb->request_control_blk_length)) {
++	    req_sumlen < req_cblen) {
+ 		return -EINVAL;
+ 	}
+ 
+-	if (CEIL4(xcrb->reply_control_blk_length) <
+-			xcrb->reply_control_blk_length)
+-		return -EINVAL; /* overflow after alignment*/
+-
+-	/*
+-	 * Overflow check
+-	 * sum must be greater (or equal) than the largest operand
+-	 */
+-	resp_sumlen = CEIL4(xcrb->reply_control_blk_length) +
+-			xcrb->reply_data_length;
+-	if ((CEIL4(xcrb->reply_control_blk_length) <=
+-	     xcrb->reply_data_length) ?
+-	    resp_sumlen < xcrb->reply_data_length :
+-	    resp_sumlen < CEIL4(xcrb->reply_control_blk_length)) {
++	/* reply length and overflow checks */
++	if (xcrb->reply_control_blk_length < sizeof(struct CPRBX))
++		return -EINVAL;
++	rep_cblen = CEIL4((size_t)xcrb->reply_control_blk_length);
++	if (rep_cblen > U32_MAX)
++		return -EINVAL;
++	rep_sumlen = rep_cblen + xcrb->reply_data_length;
++	if (rep_sumlen > U32_MAX)
++		return -EINVAL;
++	if (rep_cblen <= xcrb->reply_data_length ?
++	    rep_sumlen < xcrb->reply_data_length :
++	    rep_sumlen < rep_cblen) {
+ 		return -EINVAL;
+ 	}
+ 
+@@ -393,7 +384,7 @@ static int xcrb_msg_to_type6cprb_msgx(bool userspace, struct ap_message *ap_msg,
+ 	memcpy(msg->hdr.agent_id, &xcrb->agent_ID, sizeof(xcrb->agent_ID));
+ 	msg->hdr.tocardlen1 = xcrb->request_control_blk_length;
+ 	if (xcrb->request_data_length) {
+-		msg->hdr.offset2 = msg->hdr.offset1 + rcblen;
++		msg->hdr.offset2 = msg->hdr.offset1 + req_cblen;
+ 		msg->hdr.tocardlen2 = xcrb->request_data_length;
+ 	}
+ 	msg->hdr.fromcardlen1 = xcrb->reply_control_blk_length;
+@@ -437,10 +428,13 @@ static int xcrb_msg_to_type6cprb_msgx(bool userspace, struct ap_message *ap_msg,
+ 	}
+ 
+ 	/* copy data block */
+-	if (xcrb->request_data_length &&
+-	    z_copy_from_user(userspace, req_data, xcrb->request_data_address,
+-			     xcrb->request_data_length))
+-		return -EFAULT;
++	if (xcrb->request_data_length) {
++		req_data = ap_msg->msg + sizeof(struct type6_hdr) + req_cblen;
++		if (z_copy_from_user(userspace, req_data,
++				     xcrb->request_data_address,
++				     xcrb->request_data_length))
++			return -EFAULT;
++	}
+ 
+ 	return 0;
+ }
+-- 
+2.43.0
+
