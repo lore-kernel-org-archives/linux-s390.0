@@ -1,102 +1,61 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9FF4D44C51F;
-	Fri, 24 Jul 2026 18:30:11 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CD8F237F308;
+	Fri, 24 Jul 2026 18:38:33 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784917812; cv=none; b=tXIHVR9crCwNCxutlHn6mb2DzJVM7UizND2UbMrhGyty9SgRuLfNslh6EvbEglGAQu3Ml8yEga45J/hq9ruEVkOtnpDUE/fNgUkDO6OZR3MQ1WpGoh36v27vs5sbYb7UVEyzXTisTdCNaQDwaDYOxSMy8t7OXfh+FtK5fdCIX4E=
+	t=1784918314; cv=none; b=ibiTO3Wg12vkYljw44wX/AG2QcmMnbVQbNPU0dmi6JhHpoDirZ1i3OtNmLbQh28zfb6LixOY8sjSk7McU+8RbYPnaza26xkkT+LW3+nP/AIO7mNgVk6/mkuF00SYtB7ChAVlUVz32n1ZU9II3BovEP9ZkXaSTOdjcGS6JmrOVec=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784917812; c=relaxed/simple;
-	bh=R25O5hzdVj2s5Nz8FUJgsRY/m9xnDrv/jnrI6Va9Q/M=;
+	s=arc-20240116; t=1784918314; c=relaxed/simple;
+	bh=NnYUaHSfGbt3zysy7yXOiF0KNabynj9DoqXcYD7yiD4=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=BIUk32NpA9hSsw/LOrxCa8UP0aYJtN2QhnozeTSwHPjKEQxgNIgfzzY/CZ6Sz/Tjc3vK49+LNGXnRnsogWUX3io21JpERiiunCeoVcc9N0P/wieeBm9FEuJ/1d/2E+4kQd52VMVytbxGYWas80SNSNaJwKwFyYmCMgVhx71MPOg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=anpJquzQ; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=WkbXNFaV14IAbn7bdtCI3w860akJ+RVDIYpB5orzzc5zbXL1Hmo6fek5wjcaI+kJg45O8zU7dh2jDBsqx/1AAhhL3NCWladEJxBbOUzd/92r03ulOYxDF1BQAIUgmi5zKTLlQ0vRhCnt58kglOf/qpCyO0jT0Q8PxV6YetyJHO8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GHGLqn9T; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="anpJquzQ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC3121F000E9;
-	Fri, 24 Jul 2026 18:30:10 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GHGLqn9T"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 190FF1F00A3F;
+	Fri, 24 Jul 2026 18:38:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784917811;
-	bh=bENrHqeBUO/++oHcf5TfcJpvoxYaRPkdZsxmqn8HVow=;
+	s=k20260515; t=1784918313;
+	bh=NnYUaHSfGbt3zysy7yXOiF0KNabynj9DoqXcYD7yiD4=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=anpJquzQNItNhOnCt3NyAnXSL3DxD2R3YPrKBeKrrRuNparzuzVepk2BzCFQQpjPq
-	 1XDlTvhpT2LDletOQO2JKXhFWM8iEqZjkJxnkjA1XVEYN1s8vDkZX+EosDHDU6FK5O
-	 bvznJX2l1BZsR+8lUUI0gZqYsDTg6WTv0v0CogK61IM3VW6Bxy2p666sTM/Q0IcA4A
-	 nXivb1T7mFTTSzp18JQ90/gR8e/zXH0lCKhpPS12dQ8ZQryAaH/sjUCqdVzowPWzmG
-	 Q/0Mzvu6EtoWa14zdY3NBo0ua8rzYgrJ66CA8jaM78g8YWv6+IUOazxx1HWMpzw4Ww
-	 NmyoIUDJYczVQ==
+	b=GHGLqn9T2zQ9nZm5pKwfxrlV770DCNSZVD10n/aGh9G1fA8w2Y4mCCbmHn/ybpzks
+	 Pmb22BmIPS21JWOkWoV63QyuaX0eEpVs3f1uF+cXwCtDdJA8lf7ev3rKptP9XWRsQ0
+	 eAEJ/IUm8qo43fP4SOZ2HlnsGQ11cxVyETxTrrVcPHimV4GX+l0YdappHhilLwpoih
+	 dypR/oCxbwd8K82EyqwtQxAKy+SRGGBUJx+cAbsWv62OZ98AC+/o6TwB2y924F6tG9
+	 qhtORVapzq/wgzvf2h77TKd20/naSGOEFp//G8utrcEs5/4LbbgrpI0ZCEVBthD7sr
+	 DZqi+I8AzJwMQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 14/15] s390/vfio-ap: Add 'migratable' feature to
- sysfs 'features' attribute
+Subject: Re: [PATCH v5 15/15] s390/vfio-ap: Add live guest migration chapter
+ to vfio-ap.rst
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Anthony Krowiak" <akrowiak@linux.ibm.com>
-Cc: "Vasily Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, kvm@vger.kernel.org
-In-Reply-To: <20260724161351.1802644-15-akrowiak@linux.ibm.com>
+Cc: kvm@vger.kernel.org, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Vasily
+ Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>
+In-Reply-To: <20260724161351.1802644-16-akrowiak@linux.ibm.com>
 References: <20260724161351.1802644-1-akrowiak@linux.ibm.com>
- <20260724161351.1802644-15-akrowiak@linux.ibm.com>
+ <20260724161351.1802644-16-akrowiak@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 24 Jul 2026 18:30:10 +0000
-Message-Id: <20260724183010.DC3121F000E9@smtp.kernel.org>
+Date: Fri, 24 Jul 2026 18:38:32 +0000
+Message-Id: <20260724183833.190FF1F00A3F@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [Low] The newly added 'migratable' feature is not documented in the Drive=
-r Features table, and the Limitations section explicitly states migration i=
-s not supported.
---
+> Add a 'Live Guest Migration' chapter to the
+> Documentation/arch/s390/vfio-ap.rst document to describe the details for
+> initiating live guest migration for a guest to which AP adapters, domains
+> and control domains have been passed through.
+>=20
+> Signed-off-by: Anthony Krowiak <akrowiak@linux.ibm.com>
 
---- Patch [14]: [PATCH v5 14/15] s390/vfio-ap: Add 'migratable' feature to =
-sysfs 'features' attribute ---
-commit c8392bd6bcb1403c66327e9551bbba5ecd4a167d
-Author: Anthony Krowiak <akrowiak@linux.ibm.com>
-
-s390/vfio-ap: Add 'migratable' feature to sysfs 'features' attribute
-
-This commit adds the 'migratable' feature to the sysfs features attribute
-for vfio_ap. This exposes the feature to userspace, indicating that
-migration of vfio devices is supported.
-
-> diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio=
-_ap_drv.c
-> index 8e69ed286bb9c..4e973736522bc 100644
-> --- a/drivers/s390/crypto/vfio_ap_drv.c
-> +++ b/drivers/s390/crypto/vfio_ap_drv.c
-> @@ -26,9 +26,11 @@ MODULE_LICENSE("GPL v2");
->  struct ap_matrix_dev *matrix_dev;
->  debug_info_t *vfio_ap_dbf_info;
-> =20
-> +#define FEATURES "guest_matrix hotplug ap_config migratable"
-
-[Severity: Low]
-Since this adds the 'migratable' feature, shouldn't
-Documentation/arch/s390/vfio-ap.rst be updated to reflect this capability?
-
-Looking at that file, the "Driver Features" table appears to be missing an
-entry for this newly added 'migratable' flag.
-
-Additionally, the "Limitations" section in the same document explicitly
-states: "Live guest migration is not supported for guests using AP devices
-without intervention by a system administrator."
-
-Does this patch series render that limitation obsolete? If so, should that
-section be updated or removed to avoid confusing users?
-
-> +
->  static ssize_t features_show(struct device *dev, struct device_attribute=
- *attr, char *buf)
->  {
-> -	return sysfs_emit(buf, "guest_matrix hotplug ap_config\n");
-> +	return sysfs_emit(buf, "%s\n", FEATURES);
->  }
+Sashiko has reviewed this patch and found no issues. It looks great!
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260724161351.1802=
-644-1-akrowiak@linux.ibm.com?part=3D14
+644-1-akrowiak@linux.ibm.com?part=3D15
+
