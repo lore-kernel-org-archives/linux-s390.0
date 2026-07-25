@@ -1,170 +1,127 @@
-Received: from fhigh-b3-smtp.messagingengine.com (fhigh-b3-smtp.messagingengine.com [202.12.124.154])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 402F92BD0B;
-	Sat, 25 Jul 2026 06:26:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.154
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4BBD92F8E8F;
+	Sat, 25 Jul 2026 07:09:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784960791; cv=none; b=oFgLG8iLfP7T4rZ1o+Qx1YWNM8O10hMAsFdt1r80zzEmmQB1VoFH7hhMXKEqmrp1bq2/P/GTd8RwL1C6Ch3hCX4PqadEebYy9C2+aQOcEs7aZA8kF354HHpjCKeSwHojJc47Br4oFgk9AhZ56wc+uCOSERbkqfdAvSJEQwS6Q/U=
+	t=1784963366; cv=none; b=FkyQhoOjryiZeUOSMGHdDINE6PSDByhz/cmwzH2MNky+8it29vkU3VpBPyl3DPNyznTqjiV5fRl2ktURo/5zfIYIr3LoCqmZ7VYQzIEpumTfaGAKuOlYoYFpHCPfe2/6UyzPtA/1XiqXkY3L2T6uJ1DhvegEW2P3+EJAKbxkSRk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784960791; c=relaxed/simple;
-	bh=ThzLVPkyAqRzoZ/BYPEukuwlSKEt3wbFqQF9K7lEP+I=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=MJytN8LPtqDzMVD1hSk3WrWmN8c6zg6NcDagrJcdAJOqu69kVNNdpcoTM784eD/68kPdovnJSs1yZps+j5pBEaPVE3De8Ua66pHLYJHuospIn1KmJGNiDlmZZ3khQeq1au7GD7p04wpErFf9eea9kfuTpHq/XK22e7LVq7Ie/TA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=bur.io; spf=pass smtp.mailfrom=bur.io; dkim=pass (2048-bit key) header.d=bur.io header.i=@bur.io header.b=G+mFIm8e; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=bpbAKQmc; arc=none smtp.client-ip=202.12.124.154
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=bur.io
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bur.io
+	s=arc-20240116; t=1784963366; c=relaxed/simple;
+	bh=eWusWs1g22nWRtTHqO0ChFU1rsQZo1oLrBl2Wf7xDF8=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=B4I+eHV13oY5Agp2OtIlifcJjY23OnbMNRuyrbUkd88q2atr7BV/BjYwJBwD2uIJ7jRWn6OIV6HDobSDas9Vh9nWvZORnxZTxxbermAatfqcPUD8AdJEq9GcsPh1NuFPWx+6dN2KCc0CUKg9iDD0TWc0DWT5yVFpAr3ELpW8CVk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=UViRD/vP; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bur.io header.i=@bur.io header.b="G+mFIm8e";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="bpbAKQmc"
-Received: from phl-compute-02.internal (phl-compute-02.internal [10.202.2.42])
-	by mailfhigh.stl.internal (Postfix) with ESMTP id 3CCC97A011F;
-	Sat, 25 Jul 2026 02:26:29 -0400 (EDT)
-Received: from phl-frontend-04 ([10.202.2.163])
-  by phl-compute-02.internal (MEProxy); Sat, 25 Jul 2026 02:26:29 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bur.io; h=cc:cc
-	:content-transfer-encoding:content-type:content-type:date:date
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm3; t=1784960789;
-	 x=1785047189; bh=+fEzNHdT81nG+FD6y5g3w6OiXhQitOnL0cq79oUPrH0=; b=
-	G+mFIm8eeRJJJQH+OPn4mkczWnbar7bJUS7AKAUl4PL/V5FDCwo+XNmTpCBPgc/z
-	3KHtLrbr6MAKumC+Em+deHhD2r4b6Y+AOYhjv6zQeB7vhalD/U/8oV2tn5G9vYUS
-	eviQtsACIAYkPFIx1OmuaDrax9fGCiV7xu2BTTw4PIkW+6E5QAaj8k9inAp/r16f
-	H+cCOjcSfZuWULYekuMIgT3g3NEaXBSRrTMCTgoDsgMqGu7M3TIceTj3E4xk265S
-	CtoEkKQ3pcEViab+JLiBZ/Z10snIw4rSCthzV2v8D58y/GqqDVjdSbrxBV4P4TrW
-	bHwA2L6PZfwTMu6xhtbrFg==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=1784960789; x=
-	1785047189; bh=+fEzNHdT81nG+FD6y5g3w6OiXhQitOnL0cq79oUPrH0=; b=b
-	pbAKQmcgggbwX8VKy5zNLlJ5RgexCNSbBNixh0ZN11eMNoR6qJiHZgbjV5UDf4TC
-	+TUoZotcO5GjMIPjmFfvG2h2yx5JBlAmA0X4n6kd2U5sQxzl/GVKFgN8SQFnTkNa
-	BXdHLwsrVRQphKOLaJQcD7KHuTuWO1j6m05h4Mb7ETBX2N5j9KHQyCNPv5zJhPD/
-	rRseCZcPngIirNKrPk5dIQ82GT8v5TwZvz6CDEdYGerz9wXLLUfVx0coxMCio4tP
-	kulYDcUeKCWokqmVDW4N/7RFP2wnoA8HRKx+Hn2gm2kTGp2NFNK0gv2b/ptsKk70
-	vfB6Un9BZDHEFAp7lXspg==
-X-ME-Sender: <xms:FFdkaoBsceelMrkoB7jAR7IbAFCYdYS2onj2E7HSLkU_Rgfd7pBXYA>
-    <xme:FFdkaqFx5BbuOzedQcx_SKJw5VkaZyf0vcso3YPRb0eXq6o40lIt1YYONtcJEUW7_
-    PAnD36dh2cbaa7fAsnqBWqpPZZRctUvshKVVrdT2if6bpVqA6qfQyQ>
-X-ME-Received: <xmr:FFdkav6aQj4vf-tkOSP5wPgorfb5jpmnF8QMj3KIBOGTBfn6t6A4ZNdYx7-flMjPx4rdbt8k6C7UmLAuAMgfYtwjy6A>
-X-ME-Proxy-Cause: dmFkZTE8yrcjtnQH/jhzrzda23ac5bU0bQYcxjJuKgWbVXlvRh3mIDt1sFwNj+VixV9UGv
-    ZnG3WPL/BwuSab3UyYWdofQEa69n1FU9ktgikvh0yECfeyOxzbdNN9OeaaH7MtFdUOF2YO
-    kDARzmfgJE+DlMlTiciRPcJPBIYvjrawciVgoqL1LDUNW2XLl8b/NZNNFFuX3eGJcNYN+Y
-    Tb76ZP2aEz6vlX2wyfC+eHATQP5GJBZR6G+d+tp4GeOX2YkQRkKvfQbiswI+2ZoBt666KF
-    YxGgUMUXNrIE6D2ryrjILlc6JZNgUpj3zwd6TYd+AmfDBye3FBO6RTBvYkAWsjDS02vBA7
-    49/9NgTycaQORwnHMKkaV7HstnXpeZtCq1NxsdAxgynDilbyyOD0a2wyDKmukHcCvxXMcD
-    dSaj8B5W5xCi+i0NBZ+K2YXaVHk9KqYhuwvXFeVdmBJAzPn70m85az9B2ClT7LZGmSYWeW
-    nu/Q+Hs7Cv9yYpMw8+nvylBtiofiIhWZxvFaJ+N/nHL3KASxzKNbBjUKcpsw2Xu4fzYdeI
-    ziwBDKIofA1RKg42tqIJWhuy9vfRcjMhDdBSWsIp3l1fgf/bMwRKp2FVna1ikQjvGJBJvK
-    IrKMSUaRG7YIbpNiLQE7R7e7g86xzTgrps+ZYBKcNm74PReTGPwLGBvjmV1Q
-X-ME-Proxy: <xmx:FFdkahSypMBe6riODKTib_JJgX2dM3R2HyPV6NPmlYcAc0ry1farrQ>
-    <xmx:FFdkaq5bScPKG0IpAOWFYwSlmIQP5DVc9fuS-zvApYnMEdQshaakDw>
-    <xmx:FFdkauRxN_7DBdlrfQppQmGf1l3UiLTl1fJma8V_IXx8dm69c-WEPw>
-    <xmx:FFdkavn15HBFGl2I9YFzhbuvLsyOf35Cdo1PfHyzyMUy66-RbXHw1g>
-    <xmx:FVdkahdoxsaXwRDBWTLp1u4v9O01as_SwHDOsG9hZ5jgiqpaninKazsj>
-Feedback-ID: i083147f8:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sat,
- 25 Jul 2026 02:26:27 -0400 (EDT)
-Date: Fri, 24 Jul 2026 23:26:14 -0700
-From: Boris Burkov <boris@bur.io>
-To: Qu Wenruo <quwenruo.btrfs@gmx.com>
-Cc: Matthew Wilcox <willy@infradead.org>,
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="UViRD/vP"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4FF01F000E9;
+	Sat, 25 Jul 2026 07:09:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1784963364;
+	bh=hkeoESYmG7m48wiu7DFgnzkgoaFnDkiRgmmBzEi4GuA=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date;
+	b=UViRD/vP1cLupXloQti86AXEHd5Oqhs081layDqXo6b+RZ4Y82x9x4afggJK229+a
+	 Z+Yh1HMf6iUyBzHMniRMzOJOjGgX8/rmQVSfmwkUgXZ+kWSvMa1Sgpcojx9SrWMcgB
+	 KcPws98KPcszn5zlm+ZGjTfjdG2IbmfOXkGuIIKxYOCQZnC1J+O/zd6xcvj+NvctrH
+	 GOhr4BGexYASpkNSEDhYVdp4wzEoZLqqAAI00JxT4ZGJQliwuyn0a/tF1jAsMRBUQF
+	 GXMAh2heA1Axq+PkzXqbXUf+5yjbzncmCve2s3LU0TkmEGx25k+AGhlZEcH1i8rD/X
+	 k2xKELi60Uw9w==
+X-Mailer: emacs 30.2 (via feedmail 11-beta-1 I)
+From: Aneesh Kumar K.V <aneesh.kumar@kernel.org>
+To: iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev
+Cc: Robin Murphy <robin.murphy@arm.com>,
+	Marek Szyprowski <m.szyprowski@samsung.com>,
+	Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
+	Steven Price <steven.price@arm.com>,
+	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Jiri Pirko <jiri@resnulli.us>,
+	Jason Gunthorpe <jgg@ziepe.ca>,
+	Mostafa Saleh <smostafa@google.com>,
+	Petr Tesarik <ptesarik@suse.com>,
+	Alexey Kardashevskiy <aik@amd.com>,
+	Dan Williams <dan.j.williams@intel.com>,
+	Xu Yilun <yilun.xu@linux.intel.com>,
+	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
 	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	linux-btrfs@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
-	Linux Memory Management List <linux-mm@kvack.org>,
-	"linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
-	David Sterba <dsterba@suse.com>, Chris Mason <clm@fb.com>,
-	Josef Bacik <josef@toxicpanda.com>, linux-kernel@vger.kernel.org,
-	kvm@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: Re: [PATCH/RFC] btrfs: fix folio lock leak in writepage_delalloc()
- for folios dirtied behind btrfs' back
-Message-ID: <20260725062614.GA2792359@zen.localdomain>
-References: <20260721191152.101118-1-borntraeger@linux.ibm.com>
- <20260721191152.101118-2-borntraeger@linux.ibm.com>
- <b226a6e9-fef2-49bd-b17e-9f9b015626c1@gmx.com>
- <83290932-cb8b-4741-bff0-6a7d8df2c637@linux.ibm.com>
- <224d56d2-fcad-41bf-afe3-6f5f5108172a@gmx.com>
- <f12f70e5-d84d-4a9f-ac94-693be4c863ac@linux.ibm.com>
- <amC-J7yzwk4Z5tHW@casper.infradead.org>
- <ad6eebbd-07f8-41ce-b04c-edd50d91a6e3@gmx.com>
- <amICQYTK9Xu4KLtH@casper.infradead.org>
- <d948c88b-dec5-4e29-b30a-3ea368997ceb@gmx.com>
+	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org
+Subject: Re: [PATCH v8 00/23] dma-mapping: Track shared DMA state through
+ direct, pool and swiotlb paths
+In-Reply-To: <20260717180442.110954-1-aneesh.kumar@kernel.org>
+References: <20260717180442.110954-1-aneesh.kumar@kernel.org>
+Date: Sat, 25 Jul 2026 12:39:10 +0530
+Message-ID: <yq5azezfeeax.fsf@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <d948c88b-dec5-4e29-b30a-3ea368997ceb@gmx.com>
+Content-Type: text/plain
 
-On Fri, Jul 24, 2026 at 08:10:36AM +0930, Qu Wenruo wrote:
-> 
-> 
-> 在 2026/7/23 21:30, Matthew Wilcox 写道:
-> > On Thu, Jul 23, 2026 at 10:12:27AM +0930, Qu Wenruo wrote:
-> > > 
-> > > 
-> > > 在 2026/7/22 22:27, Matthew Wilcox 写道:
-> > > > On Wed, Jul 22, 2026 at 11:29:36AM +0200, Christian Borntraeger wrote:
-> > > > >    *   4. Thread B loops sync_file_range(WRITE|WAIT) on the target file.
-> > > > >    *      Whenever a full clean cycle (clear_page_dirty_for_io(),
-> > > > >    *      writeback, bits cleared) completes inside thread A's
-> > > > >    *      submission->completion window, the completion-time
-> > > > >    *      set_page_dirty_lock() hits a *clean* folio: filemap_dirty_folio()
-> > > > >    *      sets only the folio flag and the xarray tag - no btrfs subpage
-> > > > >    *      dirty bit, no delalloc reservation.  See the 20-year-old comment
-> > > > >    *      above bio_set_pages_dirty() in block/bio.c describing exactly
-> > > > >    *      this ("other code (eg, flusher threads) could clean the pages").
-> > > > 
-> > > > There's your problem.  filemap_dirty_folio() documents that btrfs is
-> > > > doing it wrongly:
-> > > > 
-> > > >    * Filesystems which do not use buffer heads should call this function
-> > > >    * from their dirty_folio address space operation.  It ignores the
-> > > >    * contents of folio_get_private(), so if the filesystem marks individual
-> > > >    * blocks as dirty, the filesystem should handle that itself.
-> > > > 
-> > > > fs/btrfs/inode.c:       .dirty_folio    = filemap_dirty_folio,
-> > > > 
-> > > > so btrfs should have its own btrfs_dirty_folio() which does whatever
-> > > > metadata updates it needs to and then call filemap_dirty_folio() to
-> > > > take care of the page cache business.  See iomap_dirty_folio() as
-> > > > an example, but many other filesystems also do this.
-> > > 
-> > > Thanks a lot for the advice.
-> > > 
-> > > However it looks like the sub-folio dirty block tracking is a little
-> > > different between iomap and btrfs.
-> > 
-> > My point is not that "you should do it the exact same way as iomap".
-> > Rather "the dirty_folio op is the entry point to tell the filesystem
-> > that a folio is being dirtied".
-> And since dirty_folio() is not allowed to sleep, we should introduce some
-> extra mechanism, e.g. page private 2/checked, to notify the fs that the
-> folio is marked dirty without proper preparation.
-> 
-> Then during writeback, detect such folio and do needed preparation for it
-> since at writeback we're allowed to sleep.
-> 
-> That sounds feasible, but I haven't seen anyone doing that (including the
-> older btrfs cow fixup).
-> 
-> Will explore that path. Thanks a lot again for the dirty_folio() help.
-> 
-> Thanks,
-> Qu
+"Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org> writes:
 
-Here is my proposal for a candidate fix. It passes the reproducer in
-this thread as well as several more intense reproducers (alluded to but
-not yet included)
+> This series tracks confidential-computing shared DMA state through the
+> dma-direct, dma-pool, and swiotlb paths so that encrypted and decrypted
+> DMA buffers are handled consistently.
+>
+> Today, the direct DMA path mostly relies on force_dma_unencrypted() for
+> shared/decrypted buffer handling. This series consolidates the
+> force_dma_unencrypted() checks in the top-level functions and ensures
+> that the remaining DMA interfaces use DMA attributes to make the correct
+> decisions.
+>
+> The series separates mapping and allocation state:
+> - DMA_ATTR_CC_SHARED describes the DMA address attribute requested for a
+>   mapping. It tells the DMA mapping path that the DMA address must target
+>   shared/decrypted memory.
+> - __DMA_ATTR_ALLOC_CC_SHARED is an internal DMA-mapping attribute used only
+>   by allocation paths after the DMA core decides that the backing pages
+>   must be allocated as shared/decrypted memory.
+>
+> The series:
+> - moves swiotlb-backed allocations out of __dma_direct_alloc_pages(),
+> - uses __DMA_ATTR_ALLOC_CC_SHARED through the dma-direct alloc/free paths
+> - teaches the atomic DMA pools to track encrypted versus decrypted
+>   state
+> - tracks swiotlb pool encryption state and enforces strict pool
+>   selection
+> - centralizes encrypted/decrypted pgprot handling in dma_pgprot() using
+>   DMA attributes
+> - passes DMA attributes down to dma_capable() so capability checks can
+>   validate whether the selected DMA address encoding matches
+>   DMA_ATTR_CC_SHARED
+> - makes dma_direct_map_phys() choose the DMA address encoding from
+>   DMA_ATTR_CC_SHARED and fall back to swiotlb when a shared DMA request
+>   cannot use the direct mapping, which lets arm64 and x86 CCA guests stop
+>   relying on SWIOTLB_FORCE for DMA mappings
+> - use the selected swiotlb pool state to derive the returned DMA
+>   address
+> - reports CC_ATTR_GUEST_MEM_ENCRYPT for arm64 Realms, powerpc secure
+>   guests, and s390 protected virtualization guests.
+>
+> Dependency:
+> This series depends on the pKVM changes posted at:
+> https://lore.kernel.org/all/20260603110522.3331819-1-smostafa@google.com
+>
+> Please merge this series only after the pKVM changes above are merged.
+> Otherwise pKVM will be broken.
+>
 
-https://lore.kernel.org/linux-btrfs/6758d4f27be0bbdb865cee7dd5adc435c969f4a3.1784960646.git.boris@bur.io/T/#u
+pKVM topic branch is now available 
 
-Thanks,
-Boris
+https://lore.kernel.org/all/178467286876.125042.12010461715645610054.b4-ty@kernel.org/
+
+https://git.kernel.org/pub/scm/linux/kernel/git/arm64/linux.git for-next/coco
+
+-aneesh
+
