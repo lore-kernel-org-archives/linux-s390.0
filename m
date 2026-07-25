@@ -1,105 +1,132 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B39E2E7374;
-	Sat, 25 Jul 2026 01:00:11 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DCB7C3126B9
+	for <linux-s390@vger.kernel.org>; Sat, 25 Jul 2026 04:53:41 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784941212; cv=none; b=fyvdFbmrkufUD7zJ2cOXlcqLdJ3380DUm9cQwrfo4Q+HSNSPcC16J3Ftohl4eDWWD9zu4IaSEgl5k6iAuu/1LrsUto5V2eoPFKvHSz1wPPggO6VQV25v4Cqi/76zQW4Oq0kSSnikwfgJlD0FWC+vVG/I5mocu0VG85vnpcz2a/Y=
+	t=1784955223; cv=none; b=NtApUv4DSICUwJE2mYetNlMIWyxLaKWMAiFlbj+sdY28RrLA8uUjHnUU52QhofMzFIZo5LorNSbnkJgvETm9gWmfScCNtopPVG+T1WKh6w2/0osxKBQA3G0ssqEz9MTpjSYCDWDWmZgW2QP7BNEt0nl32vyvowZmm3KCXC64emM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784941212; c=relaxed/simple;
-	bh=1RUFjWz6Rg1f1hrlS//lgaICRxO4c3YvsrZYedb7KL8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=OP2yo7O6074+TU/EOVdu1CvavgsBkKUKpRCqvIrVYMqNuRITaDt4O0nilIloDdanMEJ/qgl/+VZbnBfnhlTN+URYdGIxKOPMJAy1jzQ74DzLWXupr3yetoobF/mjhz5CWkn4TOOJuFXEydwoFdz5R0MalzHOeBvAungFhI4gSRY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WpNkeymz; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1784955223; c=relaxed/simple;
+	bh=I4dKDsUctMO0G6bk9SDXMkcjAhyavFXKtcO62C+khS8=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=txA6pCoo8TY3gm2wekP6xSBN5rCpIehUB2h2BM002Yc+oQnApsm4SexAUObMPTOiUbtWg36RlZviqEVq0+K72iNNJddCL2aRj56kJ2HT3TWEzUYRN+xgj2By7E7ZATDI1ZTaDF3asLQ6L+sA+YiH5MoSSk6OfyKzmfBawMkD4ek=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nDgskbvC; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WpNkeymz"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F37F51F000E9;
-	Sat, 25 Jul 2026 01:00:06 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nDgskbvC"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26B131F000E9;
+	Sat, 25 Jul 2026 04:53:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784941211;
-	bh=As1VFAV4/mE6JvvbbxmZ+Bp8mI/fGVenXZeP4wEav0w=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=WpNkeymzxme+ejkFrlPhhO39hPAULrf6Ox8rY8fd5z66lDcD7sQMYqZ0OJIWqte6G
-	 lkyDdWeFmbLddAXwFMuEdKeJrEkhhZUj3GH1SGjHUGXlgZ1QKvxbUm9U7J8jFU38OJ
-	 lX+pgVE2Umo+C+zC0LEu5na/P+wWjTnlUYs/MTXAvZA/5ntkRilET4bXMRzu/nc+x/
-	 MCg1V/7OAM+fxdaq7H3Kotho/ypxoMHFO6mcqiklqPugH/qnYOQzvSrhOZU6NNCQdd
-	 IuHFkwsLsIZxhbyfQnzcEl1liqC9puOGMLjdXRXenKjmr1vHlgNJNVgif65YY6jIMc
-	 N5UVIZqZhu7jg==
-Date: Fri, 24 Jul 2026 18:00:04 -0700
-From: Nathan Chancellor <nathan@kernel.org>
-To: Heiko Carstens <hca@linux.ibm.com>
-Cc: Stefan Schulze Frielinghaus <stefansf@linux.ibm.com>,
-	Juergen Christ <jchrist@linux.ibm.com>,
-	Ilya Leoshkevich <iii@linux.ibm.com>,
-	Dominik Steenken <dost@de.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Maxim Khmelevskii <max@linux.ibm.com>,
-	Jens Remus <jremus@linux.ibm.com>,
-	Sami Tolvanen <samitolvanen@google.com>,
-	Kees Cook <kees@kernel.org>, Alexei Starovoitov <ast@kernel.org>,
-	Daniel Borkmann <daniel@iogearbox.net>,
-	Andrii Nakryiko <andrii@kernel.org>,
-	Eduard Zingerman <eddyz87@gmail.com>,
-	Kumar Kartikeya Dwivedi <memxor@gmail.com>, llvm@lists.linux.dev,
-	bpf@vger.kernel.org, linux-s390@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 5/6] s390/Kconfig: Select ARCH_SUPPORTS_CFI
-Message-ID: <20260725010004.GA1686739@ax162>
-References: <20260724141318.1037434-1-hca@linux.ibm.com>
- <20260724141318.1037434-6-hca@linux.ibm.com>
+	s=k20260515; t=1784955221;
+	bh=WKfEb4M6QHVTo/w9cjpDeg5Jhk84BWwIEUdtIPsV3Y0=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=nDgskbvCaimoVPzfyf6WpuZTdRWsQeLwzWIQX9VDQZn7hbCmP7l8Tv+l6SCSxCvZG
+	 dPO1bWsyynJz7UwKXLaH33LeOHWzQc8IW+lehJi37U6eUcWNXmgS9WYgkX+DHL2D1l
+	 xQqkt0Q9Vj1lJVcA1QH7mNvaIQ7muhO5NbkNUR88YDc3hbJOCh8pmQOS6GbfggYaaA
+	 dKXHIKIr5LaDNQiZSJ95sxgK1UImVYyH0VS9qvGQimMaM189RFLgbrGVMwMgj//qZX
+	 i5OHhvGTzm/DhdbuRF0SyE+UtF4dOz3AIc+zuOLOyWi9iBKdkSpFfmHSlqrGRXlg8t
+	 /GBGDNCCAflyQ==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH net v2] net/smc: fix out-of-bounds read of rkey array in
+ SMC-Rv2 LLC processing
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Yehyeong Lee" <yhlee@isslab.korea.ac.kr>
+Cc: linux-s390@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>, "Heiko
+ Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
+In-Reply-To: <20260724045310.430202-1-yhlee@isslab.korea.ac.kr>
+References: <20260723094027.391199-1-yhlee@isslab.korea.ac.kr>
+ <20260724045310.430202-1-yhlee@isslab.korea.ac.kr>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Sat, 25 Jul 2026 04:53:40 +0000
+Message-Id: <20260725045341.26B131F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260724141318.1037434-6-hca@linux.ibm.com>
 
-Hi Heiko,
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
 
-On Fri, Jul 24, 2026 at 04:13:17PM +0200, Heiko Carstens wrote:
-> With all prerequisites in place select ARCH_SUPPORTS_CFI.
-> 
-> Note that this support is supposed to work with the generic kcfi support
-> which is provided by clang. This comes with a couple of limitations:
+Pre-existing issues:
+- [High] Data race and silent data corruption of the shared LLC receive buf=
+fer (`wr_rx_buf_v2`)
+--
 
-Consider adding
+--- Patch [1]: [PATCH net v2] net/smc: fix out-of-bounds read of rkey array=
+ in SMC-Rv2 LLC processing ---
+commit 60a54b5c8c2f6d12513324a22935be7ae509adaa
+Author: Yehyeong Lee <yhlee@isslab.korea.ac.kr>
 
-  select ARCH_USES_CFI_GENERIC_LLVM_PASS if CC_IS_CLANG
+net/smc: fix out-of-bounds read of rkey array in SMC-Rv2 LLC processing
 
-to this change in case there are problems such as the one worked around
-by commit c57f5fee54df ("libeth: xdp: Disable generic kCFI pass for
-libeth_xdp_tx_xmit_bulk()"). Whenever clang grows an s390 backend
-expansion for kCFI, that can be version gated pretty easily.
+This commit fixes an out-of-bounds read in SMC-Rv2 LLC processing for devic=
+es
+with max_recv_sge =3D=3D 1 by preserving the message body in the link-group=
+'s
+shared wr_rx_buf_v2 buffer, mirroring the behavior of the shared layout.
 
-I will test this series fully next week.
+> diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
+> index 954b2ff1815c2..84d8d9024efa3 100644
+> --- a/net/smc/smc_llc.c
+> +++ b/net/smc/smc_llc.c
 
-> ---
->  arch/s390/Kconfig | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-> index 84404e6778d5..d57a6c02f51d 100644
-> --- a/arch/s390/Kconfig
-> +++ b/arch/s390/Kconfig
-> @@ -144,6 +144,7 @@ config S390
->  	select ARCH_MHP_MEMMAP_ON_MEMORY_ENABLE
->  	select ARCH_STACKWALK
->  	select ARCH_SUPPORTS_ATOMIC_RMW
-> +	select ARCH_SUPPORTS_CFI
->  	select ARCH_SUPPORTS_DEBUG_PAGEALLOC
->  	select ARCH_SUPPORTS_HUGETLBFS
->  	select ARCH_SUPPORTS_INT128 if CC_HAS_INT128 && CC_IS_CLANG
-> -- 
-> 2.53.0
-> 
+[ ... ]
 
--- 
-Cheers,
-Nathan
+> @@ -2104,6 +2105,26 @@ static void smc_llc_rx_handler(struct ib_wc *wc, v=
+oid *buf)
+>  	} else {
+>  		if (llc->raw.hdr.length_v2 < sizeof(*llc))
+>  			return; /* invalid message */
+> +		/* For the non-shared v2 rxbuf layout the message body beyond
+> +		 * SMC_WR_TX_SIZE lives only in the per-WR receive buffer, which
+> +		 * is reposted as soon as this handler returns.  The LLC event
+> +		 * handlers run later from a work item and read the body from
+> +		 * wr_rx_buf_v2, so copy it there now - only the body, mirroring
+> +		 * the shared-rxbuf layout where the spillover SGE DMAs the body
+> +		 * into wr_rx_buf_v2 + SMC_WR_TX_SIZE.  The header is left to the
+> +		 * handlers, which restore it from the per-qentry copy, so a later
+> +		 * message reaching wr_rx_buf_v2 cannot clobber it.  wr_rx_buf_v2
+> +		 * only exists for SMC_V2 link groups, so the link-group version
+> +		 * is checked (not just the wire llc_version) to avoid a NULL
+> +		 * dereference on a v1 link group.
+> +		 */
+> +		if (link->lgr->smc_version =3D=3D SMC_V2 &&
+> +		    !smc_link_shared_v2_rxbuf(link) &&
+> +		    wc->byte_len > SMC_WR_TX_SIZE)
+> +			memcpy((u8 *)link->lgr->wr_rx_buf_v2 + SMC_WR_TX_SIZE,
+> +			       (u8 *)llc + SMC_WR_TX_SIZE,
+> +			       min_t(u32, wc->byte_len, SMC_WR_BUF_V2_SIZE) -
+> +			       SMC_WR_TX_SIZE);
+
+[Severity: High]
+This is a pre-existing issue, but does this pattern lead to silent data
+corruption if multiple LLC messages arrive concurrently or back-to-back?
+
+If local and remote DELETE_RKEY flows occur concurrently, the NIC might
+receive multiple messages in quick succession. Since this memcpy (and the
+equivalent hardware DMA in the shared layout) unconditionally writes to the
+same link-group shared lgr->wr_rx_buf_v2, a second message will overwrite
+the payload of the first.
+
+When the background worker thread later processes the first message:
+
+smc_llc_event_work()
+  -> smc_llc_event_handler()
+    -> smc_llc_rmt_delete_rkey() {
+       llcv2 =3D (struct smc_llc_msg_delete_rkey_v2 *)lgr->wr_rx_buf_v2;
+       ...
+       if (smc_rtoken_delete(link, llcv2->rkey[i]))
+    }
+   =20
+Will it end up reading the clobbered payload of the second message from
+wr_rx_buf_v2, potentially deleting the wrong rkeys?
+
+>  	}
+> =20
+>  	smc_llc_enqueue(link, llc);
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260724045310.4302=
+02-1-yhlee@isslab.korea.ac.kr?part=3D1
