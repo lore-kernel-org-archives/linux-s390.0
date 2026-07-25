@@ -1,180 +1,235 @@
-Received: from submarine.notk.org (submarine.notk.org [62.210.214.84])
+Received: from psionic.psi5.com (psionic.psi5.com [185.187.169.70])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0E0531E32D6;
-	Sat, 25 Jul 2026 07:37:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=62.210.214.84
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 239A1392C46;
+	Sat, 25 Jul 2026 10:18:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.187.169.70
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784965080; cv=none; b=D1DnP+HMHGY9qqr0VW8C1orUJq8YpcPLUA1UYfx6GoOwMiCLDKPcE+UxLgV6uxm+hzCw/IWlDIFIB+c9E3S+OJtVGViNlWrS8edokHzu9qp5kMWD50v5iM/Mc6tzwWUuRQljtNSahieNqURXRvXcj0lI6+6TOpyPSHa4PjILdDU=
+	t=1784974733; cv=none; b=hyQLNa1CYpbazm+dBwOqwPAAuABfHRggSOqM80G9O4PIOX5r3DvX5TPMQkYXasJ0UeDnlg7if29lwtnqFWdkPg3rrPHKlyWWs+afzgFafrpV0Zga+2QATRAWtZCJRYwMY3Jf6FnHG/ifK/no0nFYuNT68Ha+Xarlwytf37PGS1Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784965080; c=relaxed/simple;
-	bh=XjL/PCTTieyF1xuNrQwjb5zJt0BmcSy3+BD71z3Fnnk=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To; b=c9g33Tt5AE9/vOj2n48iMCBlrwaiOQDX9ioH9vIuMZmMZF3eWv/cM59szJNDVXQy3lUcLBQLgag7v99DGeB50Qdm6x12DxQVVK8pVdUEwLn7bCSBOt7v4/PQzQRYEmlxEFuiKO2VTn35zGF/hxiGUfelFD3Bz8vsNNhTGsPnGXE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=codewreck.org; spf=pass smtp.mailfrom=codewreck.org; dkim=pass (2048-bit key) header.d=codewreck.org header.i=@codewreck.org header.b=AZe73xcu; arc=none smtp.client-ip=62.210.214.84
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=codewreck.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=codewreck.org
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=codewreck.org header.i=@codewreck.org header.b="AZe73xcu"
-Received: from gaia.codewreck.org (localhost [127.0.0.1])
-	by submarine.notk.org (Postfix) with ESMTPS id D757B14C2DF;
-	Sat, 25 Jul 2026 09:37:40 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=codewreck.org;
-	s=2; t=1784965069;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to; bh=tI0aeDER7Ie5hOnB/yxjs2BvnuC8dTCzHI34tLG10UM=;
-	b=AZe73xcuIaxpzTg5ROjdccFdEV91hiVQLVe3GipGQhe7/Ih0uK2sSP6+AQf3RgMIjNnb2y
-	w8xgtuLmRVBXO8R59hvckA9jgljBg+iUfJOKsRCAzv0M5tKHXfJTA1QoHE6svDnJKT8l+i
-	sZnHPSqd+R9OwFdV/Ccax6+MGVmjt1iDkMijgEfGycE03/fHJE+fm8jjSrgjoXE+P8VJCH
-	G2IIpS7ThrWXnoD4DolaIf3UAyDVtjxMI/i4ov02PmXt6SDlBnoJh8KvjmzYq7V6jLw9Fi
-	si7XtoS5WqqY/+VOcENH1X65MxBnF3KK1x/0oRamQBiF2t8OBDpLYEmEixJdTw==
-Received: from localhost (gaia.codewreck.org [local])
-	by gaia.codewreck.org (OpenSMTPD) with ESMTPA id 177d4002;
-	Sat, 25 Jul 2026 07:37:39 +0000 (UTC)
-Date: Sat, 25 Jul 2026 16:37:24 +0900
-From: Dominique Martinet <asmadeus@codewreck.org>
-To: Eric Biggers <ebiggers@kernel.org>,
-	Demi Marie Obenour <demiobenour@gmail.com>
-Cc: Harald Freudenberger <freude@linux.ibm.com>, acme@kernel.org,
-	adrian.hunter@intel.com, alexander.shishkin@linux.intel.com,
-	ardb@kernel.org, axboe@kernel.dk, corbet@lwn.net,
-	davem@davemloft.net, edumazet@google.com,
-	herbert@gondor.apana.org.au, horms@kernel.org,
-	io-uring@vger.kernel.org, irogers@google.com,
-	james.clark@linaro.org, jolsa@kernel.org, kuba@kernel.org,
-	kuniyu@google.com, linux-crypto@vger.kernel.org,
-	linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-perf-users@vger.kernel.org, mark.rutland@arm.com,
-	mingo@redhat.com, namhyung@kernel.org, netdev@vger.kernel.org,
-	pabeni@redhat.com, peterz@infradead.org, skhan@linuxfoundation.org,
-	willemb@google.com, linux-s390@vger.kernel.org
-Subject: Re: [PATCH 2/3] AF_ALG: Drop support for off-CPU cryptography
-Message-ID: <amRntEmCUK-8wXcw@codewreck.org>
+	s=arc-20240116; t=1784974733; c=relaxed/simple;
+	bh=8gylFXiRDgX3u7HCxBJyDhWqt5vNOVmXtZo5ooJmvzo=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=qoLjFEBH2eWLTXZrxcKntBDE+75ZMuWNh4YKpiBWOpCF83xVTuaWjjrmy7L1RjTDnvaQqfnEyVpmBmQ34Y0W2GoWcWG7pG/g9o4Xc1VcsRMylkN87F691P6DFP4MrOL+Srb0M8TX9XRMsS9krwS/Rnud0d8JOtphcvKQOVsPf9k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=hogyros.de; spf=pass smtp.mailfrom=hogyros.de; arc=none smtp.client-ip=185.187.169.70
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=hogyros.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=hogyros.de
+Received: from [IPV6:2400:2410:b120:f200:9e5c:8eff:fec0:ee40] (unknown [IPv6:2400:2410:b120:f200:9e5c:8eff:fec0:ee40])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(Client did not present a certificate)
+	by psionic.psi5.com (Postfix) with ESMTPSA id E0E7B3F1BA;
+	Sat, 25 Jul 2026 12:18:30 +0200 (CEST)
+Message-ID: <10bad5ef-1897-402e-8f08-003680f1eed0@hogyros.de>
+Date: Sat, 25 Jul 2026 19:18:26 +0900
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <0ccda05f-077c-4661-b852-e6bf9bf40be3@gmail.com>
- <20260724180951.GA1572592@google.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 2/3] AF_ALG: Drop support for off-CPU cryptography
+To: Dominique Martinet <asmadeus@codewreck.org>,
+ Eric Biggers <ebiggers@kernel.org>,
+ Demi Marie Obenour <demiobenour@gmail.com>
+Cc: Harald Freudenberger <freude@linux.ibm.com>, acme@kernel.org,
+ adrian.hunter@intel.com, alexander.shishkin@linux.intel.com,
+ ardb@kernel.org, axboe@kernel.dk, corbet@lwn.net, davem@davemloft.net,
+ edumazet@google.com, herbert@gondor.apana.org.au, horms@kernel.org,
+ io-uring@vger.kernel.org, irogers@google.com, james.clark@linaro.org,
+ jolsa@kernel.org, kuba@kernel.org, kuniyu@google.com,
+ linux-crypto@vger.kernel.org, linux-doc@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org,
+ mark.rutland@arm.com, mingo@redhat.com, namhyung@kernel.org,
+ netdev@vger.kernel.org, pabeni@redhat.com, peterz@infradead.org,
+ skhan@linuxfoundation.org, willemb@google.com, linux-s390@vger.kernel.org
+References: <amRntEmCUK-8wXcw@codewreck.org>
+Content-Language: en-US
+From: Simon Richter <Simon.Richter@hogyros.de>
+In-Reply-To: <amRntEmCUK-8wXcw@codewreck.org>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="------------W6z5XQ6lOGPY4r3nWk7DRVwS"
 
-Thank you both for your time replying
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--------------W6z5XQ6lOGPY4r3nWk7DRVwS
+Content-Type: multipart/mixed; boundary="------------HAhYqwI7DTNpOGeMh824BomC";
+ protected-headers="v1"
+From: Simon Richter <Simon.Richter@hogyros.de>
+To: Dominique Martinet <asmadeus@codewreck.org>,
+ Eric Biggers <ebiggers@kernel.org>,
+ Demi Marie Obenour <demiobenour@gmail.com>
+Cc: Harald Freudenberger <freude@linux.ibm.com>, acme@kernel.org,
+ adrian.hunter@intel.com, alexander.shishkin@linux.intel.com,
+ ardb@kernel.org, axboe@kernel.dk, corbet@lwn.net, davem@davemloft.net,
+ edumazet@google.com, herbert@gondor.apana.org.au, horms@kernel.org,
+ io-uring@vger.kernel.org, irogers@google.com, james.clark@linaro.org,
+ jolsa@kernel.org, kuba@kernel.org, kuniyu@google.com,
+ linux-crypto@vger.kernel.org, linux-doc@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org,
+ mark.rutland@arm.com, mingo@redhat.com, namhyung@kernel.org,
+ netdev@vger.kernel.org, pabeni@redhat.com, peterz@infradead.org,
+ skhan@linuxfoundation.org, willemb@google.com, linux-s390@vger.kernel.org
+Message-ID: <10bad5ef-1897-402e-8f08-003680f1eed0@hogyros.de>
+Subject: Re: [PATCH 2/3] AF_ALG: Drop support for off-CPU cryptography
+References: <amRntEmCUK-8wXcw@codewreck.org>
+In-Reply-To: <amRntEmCUK-8wXcw@codewreck.org>
+Autocrypt-Gossip: addr=demiobenour@gmail.com; keydata=
+ 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
+ +MYSfkEjBz0E8CLOcAw7JIwAaeBT
 
-Eric Biggers wrote on Fri, Jul 24, 2026 at 06:09:51PM +0000:
-> On Sat, Jul 25, 2026 at 01:32:12AM +0900, Dominique Martinet wrote:
-> > There's not much I can do about the vendor's kernel I'm stuck with, but
-> > that doesn't make having encryption material not accessible to userspace
-> > useless as a concept;
-> > forgetting about the sysctl for now, what are the alternatives API this
-> > kind of implementations could be based on?
-> > 
-> > I guess I should start looking at how tpm backed encryption works,
-> > some other day, it's getting late here...
-> 
-> First, we should remember that implementing hardware-bound keys via a
-> standalone crypto engine is a dated approach.  Inline crypto engines and
-> CPUs, which work much better than and are much easier to use than legacy
-> standalone crypto engines, can support hardware-bound keys as well.  The
-> former is already supported, and is already being widely used, in the
-> kernel via the hardware-wrapped inline crypto keys feature.  For the
-> latter, see e.g. RISC-V High Assurance Cryptography.  In the CPU case no
-> UAPI is even needed; userspace can just use it directly.
+--------------HAhYqwI7DTNpOGeMh824BomC
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: base64
 
-Thank you, this is exactly what I was asking about - my background isn't
-crypto and ultimately whatever direction is implemented will depend on
-$vendor and I'll just be following along, but I'll read up on this.
+SGksDQoNCk9uIDcvMjUvMjYgMTY6MzcsIERvbWluaXF1ZSBNYXJ0aW5ldCB3cm90ZToNCg0K
+PiBTbyBiZWluZyBzZWxmaXNoIEknZCB2ZXJ5IG11Y2ggYXBwcmVjaWF0ZSBzb21lIGVmZm9y
+dCB0byBoYXZlIGEgc3RhbmRhcmQNCj4gQVBJIGV2ZXJ5b25lIGNvdWxkIHVzZSB0byBzaW1w
+bGlmeSBteSB1c2Vyc3BhY2UsIGJ1dCBnaXZlbiB2ZW5kb3JzIHdpbGwNCj4gbmV2ZXIgc3Bl
+bmQgdGhpcyBraW5kIG9mIHRpbWUgSSBndWVzcyBpdCdzIGEgcGlwZSBkcmVhbSBhbmQgSSds
+bCBiZQ0KPiBzdHVjayB3aXRoIGN1c3RvbSBkcml2ZXJzIGFuZC9vciBmcmFtZXdvcmsgZm9y
+IHRoZSBmb3JzZWVhYmxlIGZ1dHVyZS4uLg0KDQpUaGUgdGhpbmcgaXM6IHN1Y2ggYW4gQVBJ
+IHdvdWxkIGhhdmUgdG8gbG9vayBjb21wbGV0ZWx5IGRpZmZlcmVudCBmcm9tIA0KdGhlIEFQ
+SSB3ZSBoYXZlIG5vdywgYW5kIGFsbCB0aGUgZXhpc3RpbmcgZHJpdmVycyB3b3VsZCBuZWVk
+IHRvIGJlIA0KcG9ydGVkIHRvIGl0Lg0KDQpUaGUgY3VycmVudCBBUEkgaXMgZGVzaWduZWQg
+YXJvdW5kIHRoZSBhc3N1bXB0aW9uIHRoYXQgdGhlIGhhcmR3YXJlIGNhbiANCmJlIGludGVy
+ZmFjZWQgd2l0aCBtaW5pbWFsIG92ZXJoZWFkLiBUaGlzIGFzc3VtcHRpb24gaXMgbm8gbG9u
+Z2VyIHRydWUgDQpmb3IgYW55IGhhcmR3YXJlIGJ1aWx0IGluIHRoZSBsYXN0IHRlbiB5ZWFy
+cyBhdCBsZWFzdC4NCg0KT25lIGV4YW1wbGUgZm9yIHRoaXMgYXNzdW1wdGlvbiBpcyB0aGUg
+ImltcG9ydCIgYW5kICJleHBvcnQiIGZ1bmN0aW9ucyANCmluIGFoYXNoOiB0aGVzZSBhcmUg
+c3luY2hyb25vdXMgZXZlbiB0aG91Z2ggdGhlIGhhc2ggaXMgc3VwcG9zZWQgdG8gYmUgDQph
+c3luY2hyb25vdXMuIFRoYXQgaXMgbm90IGEgcHJvYmxlbSBmb3IgdGhlIG9sZCBoYXJkd2Fy
+ZSwgc2luY2Ugd2UgY2FuIA0KanVzdCBncmFiIHRoZSBoYXNoIHN0YXRlIHZpYSBkaXJlY3Qg
+cmVnaXN0ZXIgYWNjZXNzLCBidXQgaXQgbWFrZXMgaXQgDQpjbG9zZSB0byBpbXBvc3NpYmxl
+IHRvIHdyaXRlIGEgY29uZm9ybWluZyBpbXBsZW1lbnRhdGlvbiBvbiBhbnl0aGluZyANCm1v
+cmUgbW9kZXJuLg0KDQpJJ3ZlIHRyaWVkIG9uIGFuIEZQR0EsIGJ1dCBldmVuIHdpdGggZnVs
+bCBjb250cm9sIG92ZXIgdGhlIGhhcmR3YXJlIA0KaW1wbGVtZW50YXRpb24sIEkgbmVlZCB0
+byBlaXRoZXIgc2VyaWFsaXplIGFsbCByZXF1ZXN0cyBhbmQgcmVkdWNlIA0KcGVyZm9ybWFu
+Y2UsIG9yIGltcGxlbWVudCBhbiBlbGFib3JhdGUgc3lzdGVtIHdoZXJlIGVhY2ggcmVxdWVz
+dCBjb250ZXh0IA0KZ29lcyBpbnRvIGEgc2VwYXJhdGUgdmlydHVhbCBxdWV1ZSB0aGF0IGNh
+biBiZSBzeW5jaHJvbml6ZWQgd2l0aG91dCANCmFmZmVjdGluZyBvdGhlciBpbi1mbGlnaHQg
+cmVxdWVzdHMuIE9uIHRoZSBvdGhlciBoYW5kLCBJIG5lZWQgdGhhdCANCm1lY2hhbmlzbSBh
+bnl3YXksIGJlY2F1c2UgYWhhc2ggaXMgbm90IGV4cGVjdGVkIHRvIHJldHVybiB0aGUgcmVz
+dWx0IHZpYSANCkRNQSAtLSBpbnN0ZWFkLCB3ZSBhcmUgc3VwcG9zZWQgdG8gdXNlIGFuIGlu
+dGVycnVwdCB0aGF0IGNvbGxlY3RzIHRoZSANCnJlc3VsdCBhbmQgc3RhcnRzIHRoZSBuZXh0
+IHF1ZXVlZCByZXF1ZXN0IGlmIHRoZXJlIGlzIGFueS4NCg0KSSBkb24ndCBiZWxpZXZlIGFo
+YXNoL2Fjb21wL2FjcnlwdCBpcyBzYWx2YWdlYWJsZSwgYmVjYXVzZSBpdCBpcyBub3QgDQpv
+bmx5IGEgcHJvYmxlbSBvbiB0aGUgaGFyZHdhcmUgc2lkZSwgYnV0IGFsc28gb24gdGhlIGNs
+aWVudCBzaWRlLiBUaGUgDQp3b3JkcyAiaWYgdGhlcmUgaXMgYW55IiBhcmUgZG9pbmcgYSBs
+b3Qgb2YgaGVhdnkgbGlmdGluZyBoZXJlLCBiZWNhdXNlIA0KbW9zdCBjbGllbnRzIHN1Ym1p
+dCByZXF1ZXN0cyBzZXF1ZW50aWFsbHkgYmVjYXVzZSB0aGUgY29udGV4dCBjYW5ub3QgYmUg
+DQpyZXVzZWQgdW50aWwgaXQgaXMgaWRsZSwgZXhjZXB0IGZvciBxdWV1aW5nIG1vcmUgZGF0
+YSBmb3Igc3RyZWFtaW5nIC0tIA0Kc28geW91J2QgYWxzbyBuZWVkIGEgcmVxdWVzdCBwb29s
+Lg0KDQpXZSBuZWVkIHRvIGJvdGggaGlkZSB0aGF0IGNvbXBsZXhpdHkgZnJvbSB0aGUgY2xp
+ZW50cywgYW5kIG1ha2UgaXQgYWxzbyANCm9wdGlvbmFsIGFuZCBzdWJqZWN0IHRvIG5lZ290
+aWF0aW9uLCBiZWNhdXNlIHRoZSBtYWpvcml0eSBvZiBtYWNoaW5lcyANCm91dCB0aGVyZSBz
+aW1wbHkgZG8gbm90IGhhdmUgY3J5cHRvIGhhcmR3YXJlLCBzbyB3ZSB3YW50IHRvIHNraXAg
+dGhlIA0KZXh0cmEgb3ZlcmhlYWQgdGhlcmUgYW5kIGp1c3QgdXNlIHRoZSBDUFUuDQoNClNv
+LCBmb3IgYSBuZXcgY29tbW9uIEFQSSwgYSBuYXBraW4gZGVzaWduIHdvdWxkIGxvb2sgbGlr
+ZQ0KDQogIC0gbWVyZ2VkIHN5bmMgYW5kIGFzeW5jIGludGVyZmFjZXMNCiAgICAoY29tcGxl
+dGlvbiB0aHJvdWdoIGEgY2FsbGJhY2ssIHdoaWNoIGNhbiBiZSBhIHRhaWwgY2FsbCkNCiAg
+LSBzYW1lIGZvciB1c2VyIEFQSQ0KICAtIGNvbnRleHQgc3dpdGNoZXMgb3B0aW9uYWwNCiAg
+ICAtIENQVSBpbXBsZW1lbnRhdGlvbiBydW5zIGluIHVzZXJzcGFjZSB2aWEgdkRTTw0KICAg
+IC0gaGFyZHdhcmUgdGhhdCBzdXBwb3J0cyB1c2VyIHZpcnR1YWwgYWRkcmVzc2VzIChPcGVu
+Q0FQSSwgSUJNIE5YKSANCmlzIHByb2dyYW1tZWQgZnJvbSB1c2Vyc3BhY2UNCiAgLSBuZWdv
+dGlhdGlvbiBvZiBETUEgcmVxdWlyZW1lbnRzDQogICAgLSBDUFU6IG5vbmUNCiAgICAtIG1v
+c3QgZW5naW5lczogNjQgYml0DQogICAgLSBzb21lIGVuZ2luZXM6IDMyIGJpdA0KICAtIGNo
+ZWFwIGJhdGNoIHN1Ym1pc3Npb24NCiAgICAtIGNhbmNlbGxhdGlvbiBvZiBpbi1mbGlnaHQg
+cmVxdWVzdHMNCiAgICAtIHN1Ym1pc3Npb24gb2YgYWRkaXRpb25hbCByZXF1ZXN0cyB3aGls
+ZSBhIGJhdGNoIGlzIHVuZGVyIHdheQ0KICAgIC0gbmVnb3RpYXRlZCBmYWxsYmFjayB0byBz
+aW5nbGUtcmVxdWVzdCBzdWJtaXNzaW9uIChmb3IgQ1BVIGFsZ3MpDQogIC0gbGlnaHR3ZWln
+aHQgY29udGV4dHMgd2l0aCBhc3luY2hyb25vdXMgY3JlYXRpb24NCiAgICAtIGRpZmZlcmVu
+dCBrZXlzIG9yIElWcw0KICAgIC0gY29waWVzIG9mIG90aGVyIGNvbnRleHRzDQoNClNvLCB0
+aGUgKG5vcm1hbCkgQ1BVIGZhbGxiYWNrIGNhc2Ugd291bGQgaGF2ZSB0aGUgY2xpZW50IGNv
+ZGUgZ2V0IGEgDQooaGVhdnl3ZWlnaHQpIGNvbnRleHQgZm9yIHRoZSBjaG9zZW4gYWxnb3Jp
+dGhtLCB3aGljaCBoYXMgYSBmbGFnIHRoYXQgDQpzYXlzICJiYXRjaCBzdWJtaXNzaW9uIGlz
+IG5vdCBiZW5lZmljaWFsIiwgdGhlIGNsaWVudCBjb2RlIHdvdWxkIGNhbGwgDQppbnRvIGEg
+ZnVuY3Rpb24gaW5zaWRlIHRoaXMgY29udGV4dCwgc3VibWl0dGluZyBhIHNpbmdsZSByZXF1
+ZXN0IGFuZCBhIA0KY29tcGxldGlvbiBjYWxsYmFjaywgdGhlIGhhbmRsZXIgZnVuY3Rpb24g
+d291bGQgY2FsbCBpbnRvIHRoZSBjcnlwdG8gDQpsaWJyYXJ5IGFuZCBzdWJzZXF1ZW50bHkg
+dGFpbCBjYWxsIGludG8gdGhlIGNvbXBsZXRpb24gZnVuY3Rpb24NCg0KSWYgdGhlIGNhbGxi
+YWNrIGNvZGUgaXMgdGhlIG9ubHkgcHJvY2Vzc2luZyBuZWVkZWQsIHRoZW4gdGhlIGNhbGwg
+aW50byANCnRoZSBmdW5jdGlvbiBwcm92aWRlZCBieSB0aGUgY29udGV4dCBjb3VsZCBiZSBh
+IHRhaWwgY2FsbCBhbHJlYWR5IChzbyANCnRoZSByZXR1cm4gdHlwZSBvZiB0aGUgY2FsbGJh
+Y2sgYW5kIG9mIHRoZSBjcnlwdG8gZnVuY3Rpb24gd291bGQgaGF2ZSB0byANCmJlIHRoZSBz
+YW1lLCBhbmQgdGhlIGNhbGxiYWNrIHdvdWxkIGhhdmUgdG8gcGlua3kgcHJvbWlzZSB0byBh
+bHdheXMgDQpyZXR1cm4gc3VjY2VzcykuDQoNClRoZSBvZmZsb2FkIGNhc2Ugd291bGQgaGF2
+ZSBkaWZmZXJlbnQgaW1wbGVtZW50YXRpb25zIGRlcGVuZGluZyBvbiANCndoZXRoZXIgdGhl
+IGhhcmR3YXJlIHN1cHBvcnRzIG9uLWRldmljZSBxdWV1ZXMgb3Igbm90LCBidXQgaXQgd291
+bGQgDQpsaWtlbHkgYXNrIGNsaWVudHMgdG8gc3VibWl0IGEgbGFyZ2UgYmF0Y2ggaWYgcG9z
+c2libGUgKHNvIGlmIHdlIGhhdmUgYW4gDQoxIE1CIHJlcXVlc3QgZm9yIGZpbGUgc3lzdGVt
+IGRhdGEsIHdlIHNlZSBtb3JlIHRoYW4gNCBrQiBvZiBpdCkuDQoNCkl0IG1heSBldmVuIGJl
+IHBvc3NpYmxlIHRvIG1ha2UgdGhlIGVudHJ5IHBvaW50cyBsaWdodHdlaWdodCBlbm91Z2gg
+dGhhdCANCnN1Ym1pc3Npb24gb2YgYmF0Y2hlcyBkb2VzIG5vdCBldmVuIG5lZWQgYSBzZXBh
+cmF0ZSBpbnRlcmZhY2UsIGp1c3QgDQpjYWxsaW5nIHRoZSBlbnRyeSBmb3IgYSBzaW5nbGUg
+cmVxdWVzdCByZXBlYXRlZGx5IChhbmQgbWF5YmUgYW5vdGhlciANCiJmbHVzaCIgZnVuY3Rp
+b24gYXQgdGhlIGVuZCkgbWF5IHR1cm4gb3V0IHRvIGJlIHN1ZmZpY2llbnQuDQoNClRoYXQg
+aXMgcHJldHR5IG11Y2ggdGhlIG9ubHkgYXBwcm9hY2ggSSBjYW4gY29tZSB1cCB3aXRoIHRo
+YXQgY2FuIA0KYWJzdHJhY3QgYXdheSB0aGUgaGFyZHdhcmUgZGlmZmVyZW5jZXMgYW5kIHN0
+aWxsIGJlIHNvbWV3aGF0IHVzYWJsZSBvbiANCnRoZSBjbGllbnQgc2lkZS4gQXMgSSBzYWlk
+LCB0aGlzIGlzIGEgbmFwa2luIGRlc2lnbiwgYW5kIGl0IHdvdWxkIG5lZWQgYSANCmxvdCBv
+ZiB0aG91Z2h0cyBvbiB0aGUgc2VjdXJpdHkgYXNwZWN0cyAtLSBJJ3ZlIGJlZW4gbG9va2lu
+ZyBhdCBpdCBmcm9tIA0KYSAiaG93IHRvIGtlZXAgdGhlIHBpcGVsaW5lIGZlZCIgcG9pbnQg
+b2Ygdmlldy4NCg0KICAgIFNpbW9uDQo=
 
-"Inline crypto engine" seems to be a qualcomm marketing term, but from
-looking at their doc the API seems to be PKCS#11 smart card?
-Having worked on these for some other hardware I can't say I find it
-easier to use than af alg, but it's definitely something that can be
-worked out.
+--------------HAhYqwI7DTNpOGeMh824BomC--
 
-"The CPU case" (looking at the RISC-V High Assurance Cryptography) would
-be some CPU instructions (ISA) reserved for crypto ops?
-That's interesting, I had never seen this but I can see this would
-likely provide the best performance.. And if the ISA gain enough
-traction having them supported out of the box by OpenSSL or whatsnot
-might actually be possible, that'd be a great step forward.
+--------------W6z5XQ6lOGPY4r3nWk7DRVwS
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature.asc"
 
+-----BEGIN PGP SIGNATURE-----
 
-> But with that being said, yes, there are a few in-tree drivers that
-> register "paes" algorithms with the crypto_skcipher or crypto_aead APIs,
-> or "phmac" with crypto_ahash.  That made them accessible via AF_ALG.
-> 
-> Of course, no use of these via AF_ALG has actually been confirmed yet.
-> Note that any such use would be unrelated to any use via dm-crypt or
-> dm-integrity, as those features call the kernel's crypto code directly.
-> 
-> But if any are confirmed and we end up needing to allowlist any of these
-> specific hardware-bound key algorithms in AF_ALG for compatibility
-> reasons, we can do that.  That does not mean we should allowlist
-> out-of-tree algorithms, or asynchronous algorithms in general.
+iQEzBAEBCgAdFiEEtjuqOJSXmNjSiX3Tfr04e7CZCBEFAmpkjXIACgkQfr04e7CZ
+CBEnLAf/QQexxDg8Lko+pyjk8HWv3J3WYOv8Jt9kQV3TndxKO83tde6N+CsA/Y/6
+2oSI1edpsQ4OwCgB/lL06mfJ8XZGX2KtB4J1ABJwVIFi85c+FX6WAT8oe6YE6Wxf
+BPYGCOpHbD1kUM1stcBtGkbBiWsrHOkguLiODu6ZwLGJWOlfWLu9DrEfizLNc92b
+1ZokyzOmDu83pcXYfpN+0ExiwkAskucgraBDQVaJdcRR6Ddf2tWmgZbI7C50/Tj8
+Gr6AYhY/cXvTl/7GmD1eMqM41cBrpY+5+UX388MNXHdk1SMgpJ9O9mmOL+fzFTVO
+3wFLSWRWdEbHIyDnGso6BPTrEMkedA==
+=y69I
+-----END PGP SIGNATURE-----
 
-Right, sorry for asking about an out-of-tree driver, I hadn't realized
-since caam itself has been upstream for a while.
-
-I was just curious about the double-take approach taken with these two patches:
- crypto: af_alg - Drop support for off-CPU cryptography (this)
- crypto: af_alg - Add af_alg_restrict sysctl, defaulting to 1 ([4])
-[4] https://lore.kernel.org/linux-crypto/20260622234803.6982-1-ebiggers@kernel.org/T/#u
-
-I assume part of it was just that the whitelist wasn't ready yet when
-this patch was merged, but as far as I understand if the whitelist
-sysctl is implemented this is basically noop?
-(Well, I guess it'll allow code simplification over time, but these
-hopefully won't be backported to stable kernels too aggressively.. While
-I fully expect to see this "Drop support for off-CPU crypto" patch to
-show up in a couple of weeks in older stable trees; and for practical
-purposes I don't see much way around just reverting it for now)
-
-Thanks for putting up with me.
-
-> We should also remember that AF_ALG has never actually supported
-> creating hardware-bound keys.  Anyone using it actually needs to use a
-> different UAPI to create the key.  This is driver-specific.  For CAAM it
-> seems to involve keyctl() calls, whereas for s390 it's /dev/pkey.  Any
-> userspace program that (theoretically) would be using either one has to
-> know which type of hardware it's talking to anyway.
-
-Right, the program I rely on actually uses a /dev/caam-keygen device
-from another NXP non-upstreamed patch, but you are correct that there is
-driver specific glue already.
-
-> So with this being a dated approach and also driver-specific anyway, and
-> with at least one driver using a char device already, I think the
-> replacement here (if any is needed for the few standalone crypto engine
-> drivers that implement this) would just be a driver-specific char device
-> with the minimum functionality required.  We shouldn't overthink things.
-
-So this is basically what Demi Marie suggested as well, and I'm sure we
-can come up with driver specific APIs that are simpler than af alg,
-but these are actually a pain to support for me (in my position of
-"device integrator" building OS blocks for a variety of platforms)
-
-I'm also "supporting" SE050 and ATECC608A out of chip "secure elements",
-as well as looking at i.MX in-chip "edgelock secure enclave" as well as
-the caam algorithm I was talking about here, and they all require some
-sort of middleware that's far from trivial to configure and get to play
-nice together
-(if someone's curious, these three:
- https://github.com/NXP/plug-and-trust
- https://github.com/microchiptech/cryptoauthlib
- https://github.com/nxp-imx/imx-secure-enclave
-)
-
-So being selfish I'd very much appreciate some effort to have a standard
-API everyone could use to simplify my userspace, but given vendors will
-never spend this kind of time I guess it's a pipe dream and I'll be
-stuck with custom drivers and/or framework for the forseeable future...
-But it's not like complaining about this to either of you is any help,
-I'm grateful you took the time to answer so far.
-
-
-Thanks,
--- 
-Dominique Martinet | Asmadeus
+--------------W6z5XQ6lOGPY4r3nWk7DRVwS--
