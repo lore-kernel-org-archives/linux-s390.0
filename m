@@ -1,60 +1,66 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yw1-f173.google.com (mail-yw1-f173.google.com [209.85.128.173])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7662C388E5B;
-	Sat, 25 Jul 2026 17:04:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F1B63F7A87
+	for <linux-s390@vger.kernel.org>; Sat, 25 Jul 2026 17:38:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784999088; cv=none; b=CmAn4l9GVehN552LQfEvbUOH92URC9JoJuP8IzvS8L1GrhitV564NDSPw2al4tFUsF+3qkcARXNGLDKAHMrVL515E3n3eiC+CJFgS0zf7iqfLcds+kF5Ws9vISnqHon8vyv/IvLg8VOdzcSv10sF6W+dsSmeUZ51XdqClMV26js=
+	t=1785001099; cv=none; b=dIXUOl7L1XtSSyEYzhLxopzhazMur03raIEszd4c6lL2CZuhiivzIuXKuheo1GMhYov6JkvIaRFsqKc04kqRaMmJRW5WLH5LH8I7D4daZYhMxPwIQoRyJr6lJdFusAMdAGLG+7QTY+9g5EHC4l//X5UUFPMEjJAcSmrTgnbR0ME=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784999088; c=relaxed/simple;
-	bh=+fx1+j5fDhYbIUsoUTBaHhxS3HKJWGe8bqnjyUcZ62g=;
+	s=arc-20240116; t=1785001099; c=relaxed/simple;
+	bh=pTp18fyAAM/0sN10DjiOcE3NuT0ohGx2OknY4w/Sn/U=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=L4pceMwdFwF+20gK+Ydn/c294JxCEz+jepHfoKxQ15Yw4Fx4ZpZl+BvobIlYMRQeI+0zcF/mMFskRSAC77Plv+zyVHVIzgsf46ukd+Zy6jOo6IpHxCcp7GMywSFDdV0AMLuAXit3agE6P3q6O/jGcUfzvYSX1jKd/R4F59mTA88=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=MinSP9wJ; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	 In-Reply-To:Content-Type; b=rkycdJxhKHAzyoQsNuzDM1Ddf4nOLqKv0SLCxhSX0QJPYc8xvbX04GXCCl/OYENa6enZqAhz0/IAp6tEOX8jyCQcadZaokV+QwCL+q9QI10KhaUE+aNxfBnTrUJ1TRwhETdxO2hLv7qPdMxSMqElXxkWN31HGTUGTsKrOKH7tr0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=b8oaX60L; arc=none smtp.client-ip=209.85.128.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="MinSP9wJ"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66PDlaV9815207;
-	Sat, 25 Jul 2026 17:04:45 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=Ay9Bxw
-	XBcVd4f5ahs/uQka5+ZZZpLyKTk9bNaw+rijs=; b=MinSP9wJ7NirxHtdrY7+f1
-	AW2aDbo49AvZE/q088zAslyxHvuCLRu+64xlDQe/0CdqN8k8FtB7zO7PKg9VSlbb
-	DbX85zuakL2VeRbcK1LrQE45+Rroypx1WUThh89pCyhLfK7VVClubTdVmeEshaWV
-	6PRWGdQDNk0Q/+g0/X49z0YojY8g4ud7QXTMsYgJtq3GkWyhGBdUE1QC22UD7j2l
-	aQ3nakfCz7MDV0+YF8/8hmrRzQd4oGQU3Y9KZDnd0+ER/FFFD5lxexeL7LQPuiW+
-	hDGrJzjTZ75CQRp5j739ICph0+v1BK4aLl71+c10mnz9H9MfLmvz9Ktm1VGv/nYw
-	==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fmv0x8tst-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Sat, 25 Jul 2026 17:04:45 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66PGfDQQ032058;
-	Sat, 25 Jul 2026 17:04:44 GMT
-Received: from smtprelay04.wdc07v.mail.ibm.com ([172.16.1.71])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fmn5h9wmc-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Sat, 25 Jul 2026 17:04:44 +0000 (GMT)
-Received: from smtpav01.dal12v.mail.ibm.com (smtpav01.dal12v.mail.ibm.com [10.241.53.100])
-	by smtprelay04.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66PH4gcT53870884
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Sat, 25 Jul 2026 17:04:42 GMT
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6E44358057;
-	Sat, 25 Jul 2026 17:04:42 +0000 (GMT)
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D3A5E58059;
-	Sat, 25 Jul 2026 17:04:41 +0000 (GMT)
-Received: from [9.61.125.168] (unknown [9.61.125.168])
-	by smtpav01.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Sat, 25 Jul 2026 17:04:41 +0000 (GMT)
-Message-ID: <845a7809-4009-4199-b35f-ff08aaeb0336@linux.ibm.com>
-Date: Sat, 25 Jul 2026 13:04:41 -0400
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="b8oaX60L"
+Received: by mail-yw1-f173.google.com with SMTP id 00721157ae682-81e9f7491ffso16341897b3.0
+        for <linux-s390@vger.kernel.org>; Sat, 25 Jul 2026 10:38:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1785001092; x=1785605892; darn=vger.kernel.org;
+        h=content-type:in-reply-to:autocrypt:from:content-language:references
+         :cc:to:subject:user-agent:mime-version:date:message-id:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=TsABodENPiu91UKwsowi36mSYBdIiGJTh+xQVG4w3D0=;
+        b=b8oaX60LDz+pZFmtR0hsYu8rr3OmDtJIOLInup+VSr/UVdasnkG5dUjmTiKAfYBPQ+
+         tmuo7OFlRlG5mh705zXeEWwVhJ6layShPihQBvgLDmtH3tEZtDsAJw5TOdbkLkI8AVqM
+         F70IFgM2kD1pe7j6nKiofRO+2+GZ7vIbhk9FT2C1fkkQM0n/1iXY1u14c/HzwSHKxhTa
+         SkiHf+8yna6bdFJeEopmmvTFst+iLj3e34uVoUhOIWI0P/j7ji91DFooVFtl9jgOTyxW
+         JZQjaGiMFFxSEzo0SplSEGdkQMntTMWsh3LeoaVprJxRddbMTBN8b/FfpGrOoYZ9cZ7g
+         NwLg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1785001092; x=1785605892;
+        h=content-type:in-reply-to:autocrypt:from:content-language:references
+         :cc:to:subject:user-agent:mime-version:date:message-id:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=TsABodENPiu91UKwsowi36mSYBdIiGJTh+xQVG4w3D0=;
+        b=TInXZaUmcWVXtNa8RcP8fb9/Xj0PNqv9JqolQmNiyMr/KttWaQPWAc+IhtnE1+PQeQ
+         wffqXpJcNkfyL/BSNdXv7N+zSUU9K2g42+nw/0j4LfXcFAMGwVA/86ZqGTmHbGrY/20/
+         muZKdX3uPc7lHx2CPttqWAC6B73O68xHvEJfh9UzqQdjZ80QecNOJ71MIfocXYSzTrZl
+         3hyaoBwGYIVm+1gZtl7t8Fi3rPCIcaSoEsmXqVHB3BboNZrOTsGgK7d9xP1rDZ5IZAq8
+         fVhDXfyBkwrJwrkk3H9bSUrCaaQ4mKg2uZtr6ZRzfAqZnG86Z4WWvn+wtE0giVFbX7ST
+         4ppQ==
+X-Forwarded-Encrypted: i=1; AHgh+Rruu9aYrcZ/U0nobV0/jFs5WqgrUJJ6loZlOEeEhUaSBK7OcuKlOpefdXJIhsgzHZo5/SX4+m2d+e+p@vger.kernel.org
+X-Gm-Message-State: AOJu0YxT/W+1i2h2xwloLpxsh16SB/4rlO4DRE5dJaTULmIepM7txVzT
+	cpqF9f9FUNF+rW0s022ZgW5NmHVQCM+smdUSwc9PThvP3E1ssf1a9kr9
+X-Gm-Gg: AR+sD11vrYHA/yEDrOYMnjk/Ps/vdaWLuQx/bE2rl5DWK66hXz438t39y+Kna8xpolu
+	W65TUEZxKM7ZZBWFBsdhI58Qbcsm5G3A+AnNgKTBqwu611kXm8HqsMlEReTDwiBWh0iN+RO+ujh
+	H3IfKGqFH1nVbF96QstsWKjfqOFBdZ/O3jGXf/7G5THiLsHb8aDGcsRzzPX9CaREGjz/L2gB01m
+	ZuOD1oaVf9pi3P2C4waumQpsVMpCSpBwLfcyY5xLed+l8VWBxKypJ7re4Q1BwogDAHH5zh1jJBx
+	rtLjY5ql0V/xFn/seVxQeiF67EKwxtATQtl4QFLjqd25IbdS2pO/6Cw8Wv1ifs8iIcASZ8kKoaP
+	X0HhZclaoDhcZNgsiAzIVOeicIbCvdbJqjXNnLaVFBRclbvmYRtEsOHWLjRBIf2yV7CMJD+1X/I
+	K070h2
+X-Received: by 2002:a05:690c:692:b0:7dd:3463:6872 with SMTP id 00721157ae682-81f69e2f21amr10154877b3.41.1785001091612;
+        Sat, 25 Jul 2026 10:38:11 -0700 (PDT)
+Received: from [10.138.10.6] ([185.98.168.14])
+        by smtp.gmail.com with ESMTPSA id 00721157ae682-81f6576ee52sm13270607b3.3.2026.07.25.10.38.07
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sat, 25 Jul 2026 10:38:09 -0700 (PDT)
+Message-ID: <a7593240-bb61-4acd-b7ac-3d50b6efed0c@gmail.com>
+Date: Sat, 25 Jul 2026 13:38:02 -0400
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -62,339 +68,226 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4 8/9] s390/vfio_ccw: implement a channel program mutex
-To: Eric Farman <farman@linux.ibm.com>, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Halil Pasic <pasic@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        stable@vger.kernel.org
-References: <20260725152705.3958100-1-farman@linux.ibm.com>
- <20260725152705.3958100-9-farman@linux.ibm.com>
+Subject: Re: [PATCH 2/3] AF_ALG: Drop support for off-CPU cryptography
+To: Dominique Martinet <asmadeus@codewreck.org>,
+ Eric Biggers <ebiggers@kernel.org>
+Cc: Harald Freudenberger <freude@linux.ibm.com>, acme@kernel.org,
+ adrian.hunter@intel.com, alexander.shishkin@linux.intel.com,
+ ardb@kernel.org, axboe@kernel.dk, corbet@lwn.net, davem@davemloft.net,
+ edumazet@google.com, herbert@gondor.apana.org.au, horms@kernel.org,
+ io-uring@vger.kernel.org, irogers@google.com, james.clark@linaro.org,
+ jolsa@kernel.org, kuba@kernel.org, kuniyu@google.com,
+ linux-crypto@vger.kernel.org, linux-doc@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org,
+ mark.rutland@arm.com, mingo@redhat.com, namhyung@kernel.org,
+ netdev@vger.kernel.org, pabeni@redhat.com, peterz@infradead.org,
+ skhan@linuxfoundation.org, willemb@google.com, linux-s390@vger.kernel.org
+References: <amRntEmCUK-8wXcw@codewreck.org>
 Content-Language: en-US
-From: Matthew Rosato <mjrosato@linux.ibm.com>
-In-Reply-To: <20260725152705.3958100-9-farman@linux.ibm.com>
+From: Demi Marie Obenour <demiobenour@gmail.com>
+Autocrypt: addr=demiobenour@gmail.com; keydata=
+ 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
+ +MYSfkEjBz0E8CLOcAw7JIwAaeBT
+In-Reply-To: <amRntEmCUK-8wXcw@codewreck.org>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="------------Qav0WqtOq9GpvT00AbFXKs8Q"
+
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--------------Qav0WqtOq9GpvT00AbFXKs8Q
+Content-Type: multipart/mixed; boundary="------------9woazU20l50m9dxJk2VCDnaq";
+ protected-headers="v1"; hp="clear"
+Message-ID: <a7593240-bb61-4acd-b7ac-3d50b6efed0c@gmail.com>
+Date: Sat, 25 Jul 2026 13:38:02 -0400
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 2/3] AF_ALG: Drop support for off-CPU cryptography
+To: Dominique Martinet <asmadeus@codewreck.org>,
+ Eric Biggers <ebiggers@kernel.org>
+Cc: Harald Freudenberger <freude@linux.ibm.com>, acme@kernel.org,
+ adrian.hunter@intel.com, alexander.shishkin@linux.intel.com,
+ ardb@kernel.org, axboe@kernel.dk, corbet@lwn.net, davem@davemloft.net,
+ edumazet@google.com, herbert@gondor.apana.org.au, horms@kernel.org,
+ io-uring@vger.kernel.org, irogers@google.com, james.clark@linaro.org,
+ jolsa@kernel.org, kuba@kernel.org, kuniyu@google.com,
+ linux-crypto@vger.kernel.org, linux-doc@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org,
+ mark.rutland@arm.com, mingo@redhat.com, namhyung@kernel.org,
+ netdev@vger.kernel.org, pabeni@redhat.com, peterz@infradead.org,
+ skhan@linuxfoundation.org, willemb@google.com, linux-s390@vger.kernel.org
+References: <amRntEmCUK-8wXcw@codewreck.org>
+Content-Language: en-US
+From: Demi Marie Obenour <demiobenour@gmail.com>
+Autocrypt: addr=demiobenour@gmail.com; keydata=
+ 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
+ +MYSfkEjBz0E8CLOcAw7JIwAaeBT
+In-Reply-To: <amRntEmCUK-8wXcw@codewreck.org>
+
+--------------9woazU20l50m9dxJk2VCDnaq
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: Uwx06w_cqhmyXzkp0yLKxP4QsHY0p2Yk
-X-Proofpoint-ORIG-GUID: Uwx06w_cqhmyXzkp0yLKxP4QsHY0p2Yk
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI1MDE1OSBTYWx0ZWRfX+GMHaotSg1jH
- auxsOqqVTvx4VZHX2N7hoKOFrQrWy6iynX0qF8VQJxI9LybAuMO/+F0M3XPoRHFxCln4sfduvxe
- IKlr+rST+wNHy3OdJZI9FzwsoTFLcBo=
-X-Authority-Analysis: v=2.4 cv=dYuwG3Xe c=1 sm=1 tr=0 ts=6a64ecad cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=VwQbUJbxAAAA:8
- a=VnNF1IyMAAAA:8 a=GmbE4a3rjE6j2juYKq4A:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI1MDE1OSBTYWx0ZWRfX8Atne76cv4Zw
- nzbSv1+JN8UZOSl/lrzUveSSIyVn5Ldm4BJ52P52EuSjz17UbOsAtFnSShC5CQmThtppd+BqbmT
- +JCJGhCgSSFraEHz4Q30eIwHIqK+Ipse8q2OzD1dgksQQCrNn6POK86PyfBvzHzuJbq6GsO1VDJ
- OuO9I11DayqB1Bk1Avdt/e3KslsRcVNg+YdJV92Avq8rwj4hcGAbaCtwta/RVT5rBFrwTVDlkUL
- rG9ybSb6gmP9sqy6Ao1DSGui1gRN7vRZYyVIdjOBNTLGnIUcQd446Xzmj41sFWOEvEe37mcD8gX
- X7ndw1JWpzqWU4zin+Yn5eZmgx6aSg+0VYFdsMsqqZJuSYbhkDfAhHMd8KZJsK1U0oMofNYMG8E
- X7fWCQzMr53c/oJUKd9HOKoJpBxNaQDwa360VfJk3BpJsI5nxIspRovD5fKh0E/5GyjOOX1RlDB
- 7MqlTViya9Pb+1OnFyw==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-07-25_04,2026-07-24_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 impostorscore=0 clxscore=1015 phishscore=0 malwarescore=0
- spamscore=0 lowpriorityscore=0 bulkscore=0 suspectscore=0 adultscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607250159
+Content-Transfer-Encoding: quoted-printable
 
-On 7/25/26 11:27 AM, Eric Farman wrote:
-> The channel_program struct is manipulated without a serialization
-> mechanism to ensure consistent behavior. Take a broad stroke of
-> putting the entire structure behind a mutex, and ensure everything
-> that needs private->cp holds this mutex.
-> 
-> There are a couple where the cio layer's subchannel->lock performs
-> this role in this code, which isn't correct (it should only be used
-> when touching the actual subchannel, like cio_enable_subchannel()),
-> so adjust the locations where that spinlock is acquired/released
-> to correctly coexist with this new mutex.
-> 
-> Fixes: 0a19e61e6d4c ("vfio: ccw: introduce channel program interfaces")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Eric Farman <farman@linux.ibm.com>
+On 7/25/26 03:37, Dominique Martinet wrote:
+> Thank you both for your time replying
+>=20
+> Eric Biggers wrote on Fri, Jul 24, 2026 at 06:09:51PM +0000:
+>> On Sat, Jul 25, 2026 at 01:32:12AM +0900, Dominique Martinet wrote:
+>>> There's not much I can do about the vendor's kernel I'm stuck with, b=
+ut
+>>> that doesn't make having encryption material not accessible to usersp=
+ace
+>>> useless as a concept;
+>>> forgetting about the sysctl for now, what are the alternatives API th=
+is
+>>> kind of implementations could be based on?
+>>>
+>>> I guess I should start looking at how tpm backed encryption works,
+>>> some other day, it's getting late here...
+>>
+>> First, we should remember that implementing hardware-bound keys via a
+>> standalone crypto engine is a dated approach.  Inline crypto engines a=
+nd
+>> CPUs, which work much better than and are much easier to use than lega=
+cy
+>> standalone crypto engines, can support hardware-bound keys as well.  T=
+he
+>> former is already supported, and is already being widely used, in the
+>> kernel via the hardware-wrapped inline crypto keys feature.  For the
+>> latter, see e.g. RISC-V High Assurance Cryptography.  In the CPU case =
+no
+>> UAPI is even needed; userspace can just use it directly.
+>=20
+> Thank you, this is exactly what I was asking about - my background isn'=
+t
+> crypto and ultimately whatever direction is implemented will depend on
+> $vendor and I'll just be following along, but I'll read up on this.
+>=20
+> "Inline crypto engine" seems to be a qualcomm marketing term, but from
+> looking at their doc the API seems to be PKCS#11 smart card?
+> Having worked on these for some other hardware I can't say I find it
+> easier to use than af alg, but it's definitely something that can be
+> worked out.
 
-Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
+The Qualcomm Inline Crypto Engine is a type of inline encryption
+hardware.  Inline encryption hardware is integrated in the I/O path,
+so using it doesn't involve any extra copies or interrupts.  The data
+goes from memory to crypto hardware to the I/O target, and from the
+I/O target to crypto hardware to memory.  The ciphertext is never
+written to memory.
 
-> ---
->  drivers/s390/cio/vfio_ccw_cp.c      | 30 +++++++++++++++++++++++++----
->  drivers/s390/cio/vfio_ccw_drv.c     |  6 ++++++
->  drivers/s390/cio/vfio_ccw_fsm.c     | 20 ++++++++++++-------
->  drivers/s390/cio/vfio_ccw_ops.c     | 10 +++++++++-
->  drivers/s390/cio/vfio_ccw_private.h |  3 +++
->  5 files changed, 57 insertions(+), 12 deletions(-)
-> 
-> diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
-> index 5ef082b8289a..ab66caff9894 100644
-> --- a/drivers/s390/cio/vfio_ccw_cp.c
-> +++ b/drivers/s390/cio/vfio_ccw_cp.c
-> @@ -738,12 +738,15 @@ static int ccwchain_fetch_one(struct ccw1 *ccw,
->   */
->  int cp_init(struct channel_program *cp, union orb *orb)
->  {
-> -	struct vfio_device *vdev =
-> -		&container_of(cp, struct vfio_ccw_private, cp)->vdev;
-> +	struct vfio_ccw_private *private =
-> +		container_of(cp, struct vfio_ccw_private, cp);
-> +	struct vfio_device *vdev = &private->vdev;
->  	/* custom ratelimit used to avoid flood during guest IPL */
->  	static DEFINE_RATELIMIT_STATE(ratelimit_state, 5 * HZ, 1);
->  	int ret;
->  
-> +	lockdep_assert_held(&private->cp_mutex);
-> +
->  	/* this is an error in the caller */
->  	if (cp->initialized)
->  		return -EBUSY;
-> @@ -784,11 +787,14 @@ int cp_init(struct channel_program *cp, union orb *orb)
->   */
->  void cp_free(struct channel_program *cp)
->  {
-> -	struct vfio_device *vdev =
-> -		&container_of(cp, struct vfio_ccw_private, cp)->vdev;
-> +	struct vfio_ccw_private *private =
-> +		container_of(cp, struct vfio_ccw_private, cp);
-> +	struct vfio_device *vdev = &private->vdev;
->  	struct ccwchain *chain, *temp;
->  	int i;
->  
-> +	lockdep_assert_held(&private->cp_mutex);
-> +
->  	if (!cp->initialized)
->  		return;
->  
-> @@ -841,11 +847,15 @@ void cp_free(struct channel_program *cp)
->   */
->  int cp_prefetch(struct channel_program *cp)
->  {
-> +	struct vfio_ccw_private *private =
-> +		container_of(cp, struct vfio_ccw_private, cp);
->  	struct ccwchain *chain;
->  	struct ccw1 *ccw;
->  	struct page_array *pa;
->  	int len, idx, ret;
->  
-> +	lockdep_assert_held(&private->cp_mutex);
-> +
->  	/* this is an error in the caller */
->  	if (!cp->initialized)
->  		return -EINVAL;
-> @@ -883,10 +893,14 @@ int cp_prefetch(struct channel_program *cp)
->   */
->  union orb *cp_get_orb(struct channel_program *cp, struct subchannel *sch)
->  {
-> +	struct vfio_ccw_private *private =
-> +		container_of(cp, struct vfio_ccw_private, cp);
->  	union orb *orb;
->  	struct ccwchain *chain;
->  	struct ccw1 *cpa;
->  
-> +	lockdep_assert_held(&private->cp_mutex);
-> +
->  	/* this is an error in the caller */
->  	if (!cp->initialized)
->  		return NULL;
-> @@ -931,10 +945,14 @@ union orb *cp_get_orb(struct channel_program *cp, struct subchannel *sch)
->   */
->  void cp_update_scsw(struct channel_program *cp, union scsw *scsw)
->  {
-> +	struct vfio_ccw_private *private =
-> +		container_of(cp, struct vfio_ccw_private, cp);
->  	struct ccwchain *chain;
->  	dma32_t cpa = scsw->cmd.cpa;
->  	u32 ccw_head;
->  
-> +	lockdep_assert_held(&private->cp_mutex);
-> +
->  	if (!cp->initialized)
->  		return;
->  
-> @@ -977,9 +995,13 @@ void cp_update_scsw(struct channel_program *cp, union scsw *scsw)
->   */
->  bool cp_iova_pinned(struct channel_program *cp, u64 iova, u64 length)
->  {
-> +	struct vfio_ccw_private *private =
-> +		container_of(cp, struct vfio_ccw_private, cp);
->  	struct ccwchain *chain;
->  	int i;
->  
-> +	lockdep_assert_held(&private->cp_mutex);
-> +
->  	if (!cp->initialized)
->  		return false;
->  
-> diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
-> index c197ad5ab580..4830f0dd9c3a 100644
-> --- a/drivers/s390/cio/vfio_ccw_drv.c
-> +++ b/drivers/s390/cio/vfio_ccw_drv.c
-> @@ -91,6 +91,8 @@ void vfio_ccw_sch_io_todo(struct work_struct *work)
->  
->  	is_final = !(scsw_actl(&irb->scsw) &
->  		     (SCSW_ACTL_DEVACT | SCSW_ACTL_SCHACT));
-> +
-> +	mutex_lock(&private->cp_mutex);
->  	if (scsw_is_solicited(&irb->scsw)) {
->  		cp_update_scsw(&private->cp, &irb->scsw);
->  		if (is_final && private->state == VFIO_CCW_STATE_CP_PENDING) {
-> @@ -98,6 +100,8 @@ void vfio_ccw_sch_io_todo(struct work_struct *work)
->  			cp_is_finished = true;
->  		}
->  	}
-> +	mutex_unlock(&private->cp_mutex);
-> +
->  	mutex_lock(&private->io_mutex);
->  	memcpy(private->io_region->irb_area, irb, sizeof(*irb));
->  	mutex_unlock(&private->io_mutex);
-> @@ -131,7 +135,9 @@ void vfio_ccw_notoper_todo(struct work_struct *work)
->  
->  	private = container_of(work, struct vfio_ccw_private, notoper_work);
->  
-> +	mutex_lock(&private->cp_mutex);
->  	cp_free(&private->cp);
-> +	mutex_unlock(&private->cp_mutex);
->  }
->  
->  /*
-> diff --git a/drivers/s390/cio/vfio_ccw_fsm.c b/drivers/s390/cio/vfio_ccw_fsm.c
-> index 4d47a3c7b9a0..cefdfcb0cad7 100644
-> --- a/drivers/s390/cio/vfio_ccw_fsm.c
-> +++ b/drivers/s390/cio/vfio_ccw_fsm.c
-> @@ -25,17 +25,15 @@ static int fsm_io_helper(struct vfio_ccw_private *private)
->  	unsigned long flags;
->  	int ret;
->  
-> -	spin_lock_irqsave(&sch->lock, flags);
-> -
->  	orb = cp_get_orb(&private->cp, sch);
-> -	if (!orb) {
-> -		ret = -EIO;
-> -		goto out;
-> -	}
-> +	if (!orb)
-> +		return -EIO;
->  
->  	VFIO_CCW_TRACE_EVENT(5, "stIO");
->  	VFIO_CCW_TRACE_EVENT(5, dev_name(&sch->dev));
->  
-> +	spin_lock_irqsave(&sch->lock, flags);
-> +
->  	/* Issue "Start Subchannel" */
->  	ccode = ssch(sch->schid, orb);
->  
-> @@ -71,7 +69,6 @@ static int fsm_io_helper(struct vfio_ccw_private *private)
->  	default:
->  		ret = ccode;
->  	}
-> -out:
->  	spin_unlock_irqrestore(&sch->lock, flags);
->  	return ret;
->  }
-> @@ -251,6 +248,8 @@ static void fsm_io_request(struct vfio_ccw_private *private,
->  	private->state = VFIO_CCW_STATE_CP_PROCESSING;
->  	memcpy(scsw, io_region->scsw_area, sizeof(*scsw));
->  
-> +	mutex_lock(&private->cp_mutex);
-> +
->  	if (scsw->cmd.fctl & SCSW_FCTL_START_FUNC) {
->  		orb = (union orb *)io_region->orb_area;
->  
-> @@ -299,6 +298,8 @@ static void fsm_io_request(struct vfio_ccw_private *private,
->  			cp_free(&private->cp);
->  			goto err_out;
->  		}
-> +
-> +		mutex_unlock(&private->cp_mutex);
->  		return;
->  	} else if (scsw->cmd.fctl & SCSW_FCTL_HALT_FUNC) {
->  		VFIO_CCW_MSG_EVENT(2,
-> @@ -319,6 +320,7 @@ static void fsm_io_request(struct vfio_ccw_private *private,
->  	}
->  
->  err_out:
-> +	mutex_unlock(&private->cp_mutex);
->  	private->state = VFIO_CCW_STATE_IDLE;
->  	trace_vfio_ccw_fsm_io_request(scsw->cmd.fctl, schid,
->  				      io_region->ret_code, errstr);
-> @@ -409,7 +411,11 @@ static void fsm_close(struct vfio_ccw_private *private,
->  
->  	private->state = VFIO_CCW_STATE_STANDBY;
->  	spin_unlock_irq(&sch->lock);
-> +
-> +	mutex_lock(&private->cp_mutex);
->  	cp_free(&private->cp);
-> +	mutex_unlock(&private->cp_mutex);
-> +
->  	return;
->  
->  err_unlock:
-> diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
-> index 6c74d596be9d..9242a37677a0 100644
-> --- a/drivers/s390/cio/vfio_ccw_ops.c
-> +++ b/drivers/s390/cio/vfio_ccw_ops.c
-> @@ -38,8 +38,13 @@ static void vfio_ccw_dma_unmap(struct vfio_device *vdev, u64 iova, u64 length)
->  		container_of(vdev, struct vfio_ccw_private, vdev);
->  
->  	/* Drivers MUST unpin pages in response to an invalidation. */
-> -	if (!cp_iova_pinned(&private->cp, iova, length))
-> +	mutex_lock(&private->cp_mutex);
-> +	if (!cp_iova_pinned(&private->cp, iova, length)) {
-> +		mutex_unlock(&private->cp_mutex);
->  		return;
-> +	}
-> +
-> +	mutex_unlock(&private->cp_mutex);
->  
->  	vfio_ccw_mdev_reset(private);
->  }
-> @@ -50,6 +55,7 @@ static int vfio_ccw_mdev_init_dev(struct vfio_device *vdev)
->  		container_of(vdev, struct vfio_ccw_private, vdev);
->  
->  	mutex_init(&private->io_mutex);
-> +	mutex_init(&private->cp_mutex);
->  	private->state = VFIO_CCW_STATE_STANDBY;
->  	INIT_LIST_HEAD(&private->crw);
->  	INIT_WORK(&private->io_work, vfio_ccw_sch_io_todo);
-> @@ -91,6 +97,7 @@ static int vfio_ccw_mdev_init_dev(struct vfio_device *vdev)
->  out_free_cp:
->  	kfree(private->cp.guest_cp);
->  out_free_private:
-> +	mutex_destroy(&private->cp_mutex);
->  	mutex_destroy(&private->io_mutex);
->  	return -ENOMEM;
->  }
-> @@ -142,6 +149,7 @@ static void vfio_ccw_mdev_release_dev(struct vfio_device *vdev)
->  	kmem_cache_free(vfio_ccw_cmd_region, private->cmd_region);
->  	kmem_cache_free(vfio_ccw_io_region, private->io_region);
->  	kfree(private->cp.guest_cp);
-> +	mutex_destroy(&private->cp_mutex);
->  	mutex_destroy(&private->io_mutex);
->  }
->  
-> diff --git a/drivers/s390/cio/vfio_ccw_private.h b/drivers/s390/cio/vfio_ccw_private.h
-> index e2256402b089..b595fd81f370 100644
-> --- a/drivers/s390/cio/vfio_ccw_private.h
-> +++ b/drivers/s390/cio/vfio_ccw_private.h
-> @@ -94,6 +94,7 @@ struct vfio_ccw_parent {
->   * @schib_region: MMIO region for SCHIB information
->   * @crw_region: MMIO region for getting channel report words
->   * @num_regions: number of additional regions
-> + * @cp_mutex: protect against concurrent update of CP resources
->   * @cp: channel program for the current I/O operation
->   * @irb: irb info received from interrupt
->   * @scsw: scsw info
-> @@ -116,7 +117,9 @@ struct vfio_ccw_private {
->  	struct ccw_crw_region	*crw_region;
->  	int num_regions;
->  
-> +	struct mutex		cp_mutex;
->  	struct channel_program	cp;
-> +
->  	struct irb		irb;
->  	union scsw		scsw;
->  	struct list_head	crw;
+In the case of the Qualcomm Inline Crypto Engine, the I/O target is
+the the storage device.  On Android, that's eMMC or UFS.  I would be
+very surprised if the Inline Crypto Engine was any slower than the
+storage device connected to it.
 
+In Linux, inline storage encryption is exposed via the blk-crypto
+framework.  It works very well and is widely used on Android.
+--=20
+Sincerely,
+Demi Marie Obenour (she/her/hers)
+
+--------------9woazU20l50m9dxJk2VCDnaq--
+
+--------------Qav0WqtOq9GpvT00AbFXKs8Q
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCgAdFiEEopQtqVJW1aeuo9/sszaHOrMp8lMFAmpk9HsACgkQszaHOrMp
+8lOjDA//WdudKCsYd4EOeGAM3aieLtjj76rGYztK+AN03rlrekbuRjKfdi5rGqvl
+CBJlSGsY/t3sI+l7RcGn6/UrExCEIHyn1T4ZZCuoing0/W5vQHKUs3HHy4rITs5L
+xjnIb07/dInn++O082yVF1n5YwLNLOmRApXFYwD6+aOFLM1wCuXrYKXWUdcTLRGg
+PGExszD2QPJKA329UZSfP/iM02svhONaGXioEyTAbJw7aIUErTWFMt90Di1z8Fj5
+51Fvkj0YawiQXNg3+YzSC6mJCeTWuZy8R5OEYc5BSDN4cakZyiaG2cedKGZNJMfB
+MAcCsNov4fqgpuFeglR5eibzZpy0a7Y2nj/LKQkjQeoHNloYm5XGFpHA0TL1ryLj
+gJNBn28DolzkwoOj3y5bcCx3wMNNujjh00yPmvaewmDMNDQuqcYTs+udikfc8lap
+GhIiR9zpctGfoYQFRbyoUw8MFN3I5CllKcMkqQtDtCIcgA+UL8NbqYSRIth90p2c
+WR0vpZHL1OdhlaVEo1PTNN5OWuThQPUoQCBc6/bQbb/bGAboZLKRRDiFfeIcREat
+6j8+oB6mLtGB8+vZVgKW/NaKjmRG0yxJ3i5vRA+IrXskQH6ya2yFpwVT8lTMnvOZ
+hz9A6o5cnQKH+mnhG3IUUAC0+KqM2dcBoNbyvzp7JUzpvkcy2no=
+=M8sN
+-----END PGP SIGNATURE-----
+
+--------------Qav0WqtOq9GpvT00AbFXKs8Q--
