@@ -1,159 +1,144 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f176.google.com (mail-pg1-f176.google.com [209.85.215.176])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 57B3B21CC44;
-	Sat, 25 Jul 2026 17:49:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785001751; cv=none; b=ZN46YRGm91Lfy3ok6XDcXSYrj+QYgIIVALzFAIcCSVDWtIO//3+zjBk1hfJVbkDDF/1kfj/ejeLshm7oooJh3T4p1X3/adDK0hOihx6FIw4ddHw2kFecmlx2yXf8bywmAMB4q4hYq0lWXKJt9ptbI3IWTHSxvc7nNbdheD15VeI=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785001751; c=relaxed/simple;
-	bh=g2zxBVtQ/1sgGgGkuKKbs+j8xl+qgJFofasBkoJyQdI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=HYsk2Iu/g0/VJfGkKlMva/phmU1eyeZx+lKTHE5jI6Cv4cNziV0TOcgeGDZGWxiGJrdLjnJ8IjvPvK61u/XB5uh4w6xpXwunB8a44VkSS3dBTvqIAFX1nVX8W0XKNdHWpXvVR4/jcWYJZmaQbDvZ1aklkzoCUaUNJjBEGNPXGzY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=T8I4b6Er; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6AC24327BFB
+	for <linux-s390@vger.kernel.org>; Sat, 25 Jul 2026 20:55:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.215.176
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785012921; cv=pass; b=oHU8MH+scnmglkTp8x1tvjMO5UN36v7A0s/9bnJDh4MI2aFhH2xCOj+XeSd0DxZYoAYssJzHeo84/DoQ/U84x+7ENg7q/VekVD6M+56nx4tCFg9qzUMX/O4YGjmaJPGGM5oyOJ4EF9KNkgw44CVmPvXVc5AXovOjCVwCyQZvgzw=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785012921; c=relaxed/simple;
+	bh=zw51gC5xIPlAb+ehmicqnY9g7AruYRjvzVknaMunE54=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=ZlqJZ5g5KPO0CFIF78GXYx92skjJFvNJ60TJUVJ8rN8wHObkj7bqGJmljH3QY2qV/E5RQ1NCy4G2fEeQDYDgypGRzKGex8o2Wwg7s1WVffkqbFAoL3Lnus9Efm+IWG/ZaSCi1uB1wrGoyzGXUOLdnMRJ7XSGCUws+QLvnFL29/w=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CCfA16sJ; arc=pass smtp.client-ip=209.85.215.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="T8I4b6Er"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B3AB1F000E9;
-	Sat, 25 Jul 2026 17:49:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785001749;
-	bh=2Qn9qcCPN9f2sZGtQb6IdvTnxe98CDptH48FCRNf8CI=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=T8I4b6ErvUpV1fJcGr95aRhtKGwcAGm33JK8yv3kzyeh2eywbuQary097solhxPqj
-	 BWcpYQGvljvKnhl4Q6xilhAsdV1tSoxLZ2a+TMtvFWBIWFrn75NcKX5Mc9XS6lUemG
-	 I2XBkoQq/gugRTVC+ZM/NqgH/90a/8Y32UhFy5tuAffFGFkT6IRdH3qN0K4qIChJFi
-	 cFUw/tO0HvrF/tp9W3/RjMqQa/ioPw8BeJS2WoTN1MHXP7A1/TvYJvrJkeD6+EDzzf
-	 bIrN/gtAm9HJ7bSkZeDAqe29NrUTatOMAPdAIt0Q5Pvqtkna6t2dV6qHkEnU3Szs9O
-	 eXRFSuGFBXUQA==
-Date: Sat, 25 Jul 2026 10:49:03 -0700
-From: Eric Biggers <ebiggers@kernel.org>
-To: Dominique Martinet <asmadeus@codewreck.org>
-Cc: Demi Marie Obenour <demiobenour@gmail.com>,
-	Harald Freudenberger <freude@linux.ibm.com>, acme@kernel.org,
-	adrian.hunter@intel.com, alexander.shishkin@linux.intel.com,
-	ardb@kernel.org, axboe@kernel.dk, corbet@lwn.net,
-	davem@davemloft.net, edumazet@google.com,
-	herbert@gondor.apana.org.au, horms@kernel.org,
-	io-uring@vger.kernel.org, irogers@google.com,
-	james.clark@linaro.org, jolsa@kernel.org, kuba@kernel.org,
-	kuniyu@google.com, linux-crypto@vger.kernel.org,
-	linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-perf-users@vger.kernel.org, mark.rutland@arm.com,
-	mingo@redhat.com, namhyung@kernel.org, netdev@vger.kernel.org,
-	pabeni@redhat.com, peterz@infradead.org, skhan@linuxfoundation.org,
-	willemb@google.com, linux-s390@vger.kernel.org
-Subject: Re: [PATCH 2/3] AF_ALG: Drop support for off-CPU cryptography
-Message-ID: <20260725174903.GA150173@quark>
-References: <0ccda05f-077c-4661-b852-e6bf9bf40be3@gmail.com>
- <20260724180951.GA1572592@google.com>
- <amRntEmCUK-8wXcw@codewreck.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CCfA16sJ"
+Received: by mail-pg1-f176.google.com with SMTP id 41be03b00d2f7-c9aea40d799so772695a12.0
+        for <linux-s390@vger.kernel.org>; Sat, 25 Jul 2026 13:55:17 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1785012917; cv=none;
+        d=google.com; s=arc-20260327;
+        b=NjsV+I4PXBDQDOiDr6UQfhFeyGONi64C7k6j0sBGEpI+E3E+6l9b5ytnl9QDJ923rX
+         f0eQ7GmuE+yqmPA5/IZeHBM4GOslKkWdiz8GCYxtZPLpPt4HggOIcI2dwPQfQMUw7+ps
+         veoM2YGSoNTEZEkDGITHjuZpehpjZheiUNasaDbvtzNlOMqUkvVHflyPCaZRaPMhxpNj
+         nVC5lkSYH4fakzSKSFmBZGxZsF55PB74GCeM9uawzMNtwR6pcSWCe/CVd9KeZiw8DF6O
+         oiCXHwDlOfsWiVaM87xpbr79EHdfnLQ2xYn+gl1ybqnXRsNAiW/nbCawNoULRGLSZX6R
+         a0Xg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=8WOQSahUV2FdjC/IM2f0n66+R/EWHlwNnk6q/oqvWX0=;
+        fh=hu26QAb2mNBUMci9m3ezMRc8xKu9kqI/VUPaoHGsYPE=;
+        b=sdS8OsG1xBjKygvfSUU7inWcZLiBeB6E9tXaEoG7V0dvfNq+wM2mxAPq0Zr1dxlVrv
+         mzxYeaiiT1NX1A7Z9tc7SZ8N2dz4lTlAYjuGQ3Xd/Vk5tX+791vHkV7aSGlD5Zc/pZQR
+         eIS4KGrdHcdXlimSoQPJB86lBQoj7SpWwJd9RwhxFplWOWNXKJeHT+vdy3Ksw4DDfJgn
+         67sofsB1bs8NEUTtCqcoIiUSfwjnQkG0vWUyOuA9epu6/lgLknz7NYMNUMnBYKNLpHHX
+         OHmZzpaPXdZU53dPxoFhSUm7akDVMI0mccGiC5tRzIyxxfXG1hIC4QPxyCywRtIzuIQK
+         J1PA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1785012917; x=1785617717; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=8WOQSahUV2FdjC/IM2f0n66+R/EWHlwNnk6q/oqvWX0=;
+        b=CCfA16sJBtgz8hldzWHYxUcyEjDqG0Y36DO6tVDS/ExmfNKDZzPZL53IiAy2HXqw2O
+         KGAlALuZKD65GL9IxDdiAKuHMignZ6WXOsZx1samvNlbskdHpyC7TijOlka7b7Ab7JlX
+         9DOirbvc9OUcRek2FGlvwCYNbjCSoGUKFnIS+mB249msG4ov5+/MS9llmMgoi6gXo4wR
+         SQnOgz2SA+68IAreR4Ru1Uk0nfis315U2LA9sR0U72Iezp+sgkabMYRYXpfdgB4JiNMS
+         jEuo3pZ0GvvmCxcqlnHbjxszgy/btfDRvWGt+aeO2Q/am25HTFd9D96Xz6Fy0N7YIeZO
+         Yw5Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1785012917; x=1785617717;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=8WOQSahUV2FdjC/IM2f0n66+R/EWHlwNnk6q/oqvWX0=;
+        b=hfbtNJN5MjAlRsAFmW7IZJaKF6lr4hJGvYhYQkl2JBQb9n7T/RISXtO4Iro5l8IGOy
+         zX6scBw48IMMXgitJE33Ge1Jqj+wZBfTvk6bgQdVv+pgmteW4nnoahIEBbjWOgFwZObi
+         N5lMAEKdFESxGVZq0Qed53t00uyOmtDfHDQaTFmow/yaajGROxmkw/bEwMGQgerGU7K3
+         4CGIxfP5HLMG2OSEUAdHE1Q2MSmezs6/eG7SPKLJEQd7+OPseY4Oq98OVN4SxUovFqE7
+         IMh3X+hvcbtUNIxTPIg0qYw+sdoNPdawIIVF9/Q5URDCZLohtoo5zKE1YjsjdAX6386A
+         qGoQ==
+X-Forwarded-Encrypted: i=1; AHgh+Rrr48da+7Y5TRcLISA1kZrsFsdRKBrl3TNn5oUNdd6tzxCmo/X8wkF7oSlUBInfzOexFwo8xbN+cBc8@vger.kernel.org
+X-Gm-Message-State: AOJu0YyykuomB+Uow6nnsTHsxoi6w8xjExeSEuTpZxR+9Afz1Je5v9BJ
+	HtwvxHyG2G5Tq0OCwanUTAEbCgLa1o8NnNMs7p74IfoVp3o+87AcK5jxsY1EwlEq/SMXn17KtYe
+	Yp2IJraU8UkAHno7XjBuTs3U9GyKzNSA=
+X-Gm-Gg: AR+sD11HaE4tRgUTVcK/32bEBksAK4Bddrhe0LAX/c0LblatY+tkv3RFeMhgWHPdvF+
+	4M5dFSP1S78kabub9qRtDO7KthHZPFLoAavAuYTTW/tmLyPthiF9Fgcu2/K1hxJ2+8wCecD6IA2
+	G/HbF54my2+NhY+Baa180mfmf6G1vSCEenrOzP4YbKGOWdODeIak0Rt8FjngnoPkiMmBJyQyZV9
+	InV1vCtgUh1nXi3FwJ7NRHX3rPjh/7R4g94kzLEzFTQ+pyeFgm4HOLJvV6wxQ==
+X-Received: by 2002:a05:6a21:4784:b0:3c3:990b:2292 with SMTP id
+ adf61e73a8af0-3c67dfe6723mr2903792637.57.1785012916705; Sat, 25 Jul 2026
+ 13:55:16 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <amRntEmCUK-8wXcw@codewreck.org>
+References: <20260523-af-alg-harden-v1-2-c76755c3a5c5@gmail.com>
+ <20260603133312.12848-1-freude@linux.ibm.com> <amOGWwdjnJqyxH5L@codewreck.org>
+ <20260724160034.GB2032@sol> <amOTjPW__CNZui3_@codewreck.org>
+In-Reply-To: <amOTjPW__CNZui3_@codewreck.org>
+From: Richard Weinberger <richard.weinberger@gmail.com>
+Date: Sat, 25 Jul 2026 22:55:03 +0200
+X-Gm-Features: AUfX_myV9AV5bwxaPxDCds8CpJSSwUUfrEfnR7d5D_zQ_thbtzqC3K-k805u5U8
+Message-ID: <CAFLxGvy+ec3nQLrQtwFZgGELhT2pKBDnHdD0pMvEGh-Mf3rjgQ@mail.gmail.com>
+Subject: Re: [PATCH 2/3] AF_ALG: Drop support for off-CPU cryptography
+To: Dominique Martinet <asmadeus@codewreck.org>
+Cc: Eric Biggers <ebiggers@kernel.org>, demiobenour@gmail.com, 
+	Harald Freudenberger <freude@linux.ibm.com>, acme@kernel.org, adrian.hunter@intel.com, 
+	alexander.shishkin@linux.intel.com, ardb@kernel.org, axboe@kernel.dk, 
+	corbet@lwn.net, davem@davemloft.net, edumazet@google.com, 
+	herbert@gondor.apana.org.au, horms@kernel.org, io-uring@vger.kernel.org, 
+	irogers@google.com, james.clark@linaro.org, jolsa@kernel.org, kuba@kernel.org, 
+	kuniyu@google.com, linux-crypto@vger.kernel.org, linux-doc@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org, 
+	mark.rutland@arm.com, mingo@redhat.com, namhyung@kernel.org, 
+	netdev@vger.kernel.org, pabeni@redhat.com, peterz@infradead.org, 
+	skhan@linuxfoundation.org, willemb@google.com, linux-s390@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Sat, Jul 25, 2026 at 04:37:24PM +0900, Dominique Martinet wrote:
-> Thank you both for your time replying
-> 
-> Eric Biggers wrote on Fri, Jul 24, 2026 at 06:09:51PM +0000:
-> > On Sat, Jul 25, 2026 at 01:32:12AM +0900, Dominique Martinet wrote:
-> > > There's not much I can do about the vendor's kernel I'm stuck with, but
-> > > that doesn't make having encryption material not accessible to userspace
-> > > useless as a concept;
-> > > forgetting about the sysctl for now, what are the alternatives API this
-> > > kind of implementations could be based on?
-> > > 
-> > > I guess I should start looking at how tpm backed encryption works,
-> > > some other day, it's getting late here...
-> > 
-> > First, we should remember that implementing hardware-bound keys via a
-> > standalone crypto engine is a dated approach.  Inline crypto engines and
-> > CPUs, which work much better than and are much easier to use than legacy
-> > standalone crypto engines, can support hardware-bound keys as well.  The
-> > former is already supported, and is already being widely used, in the
-> > kernel via the hardware-wrapped inline crypto keys feature.  For the
-> > latter, see e.g. RISC-V High Assurance Cryptography.  In the CPU case no
-> > UAPI is even needed; userspace can just use it directly.
-> 
-> Thank you, this is exactly what I was asking about - my background isn't
-> crypto and ultimately whatever direction is implemented will depend on
-> $vendor and I'll just be following along, but I'll read up on this.
-> 
-> "Inline crypto engine" seems to be a qualcomm marketing term, but from
-> looking at their doc the API seems to be PKCS#11 smart card?
-> Having worked on these for some other hardware I can't say I find it
-> easier to use than af alg, but it's definitely something that can be
-> worked out.
+On Fri, Jul 24, 2026 at 6:41=E2=80=AFPM Dominique Martinet
+<asmadeus@codewreck.org> wrote:
+> > There's no "tk(cbc(aes))" algorithm in the upstream kernel.  So, it's
+> > not possible that this ever worked with upstream.  Given that, there's
+> > no regression in upstream for this program, and it wouldn't be
+> > appropriate to consider a sysctl knob in upstream at this time.
+>
+> Bleh, you are correct, it's an NXP patch in
+> drivers/crypto/caam/caamalg.c that they've been carrying in their
+> tree(s) since 2018[1] and has apparently never been upstreamed...
+> [1] https://github.com/nxp-imx/linux-imx/commit/6868c9e49c1854028fb46022d=
+aac3b1b10ca2c70
+>
+> Sorry for not having checked, I was hoping for better.
+> (I should be used to it by now...)
 
-I guess I should have written "inline encryption hardware", which is the
-vendor-independent term we've been using in the kernel, just in case
-anyone thinks "inline crypto engine" means the "Qualcomm Inline Crypto
-Engine" specifically (but really, IMO they are just descriptive phrases
-that mean the same thing).  There are many different hardware vendors
-that have inline encryption hardware for UFS and/or eMMC.
+Sorry for joining the party so late, you're killing AF_ALG faster than
+I can follow all the mails.
+Speaking of CAAM, there is a legit usecase which exists mainline. No
+vendor patches needed.
 
-Their interface is quite simple and doesn't use PKCS#11 at all.  I don't
-know where you're seeing anything about PKCS#11.
+You can create a CAAM BLOB (a generated and sealed key) using the
+trusted keys subsystem and use this BLOB
+later in AF_ALG to perform AES with a key invisible to userspace.
 
-See also the documentation in Documentation/block/inline-encryption.rst
+e.g.
+kid=3D$(keyctl add trusted mykey "new 32 pk" @s)
+keyctl print $kid | xxd -r -p > blob.bin
+Then just create a caam_pkey_info in userspace and feed it into AF_ALG
+and perform AES with it.
 
-> "The CPU case" (looking at the RISC-V High Assurance Cryptography) would
-> be some CPU instructions (ISA) reserved for crypto ops?
-> That's interesting, I had never seen this but I can see this would
-> likely provide the best performance.. And if the ISA gain enough
-> traction having them supported out of the box by OpenSSL or whatsnot
-> might actually be possible, that'd be a great step forward.
+So, pretty please,  if you kill AF_ALG and all this, offer some way to
+achieve the same in userspace.
 
-Yes, and similar developments are also occurring on other CPU
-architectures, like Intel's Key Locker.
-
-> Right, sorry for asking about an out-of-tree driver, I hadn't realized
-> since caam itself has been upstream for a while.
-> 
-> I was just curious about the double-take approach taken with these two patches:
->  crypto: af_alg - Drop support for off-CPU cryptography (this)
->  crypto: af_alg - Add af_alg_restrict sysctl, defaulting to 1 ([4])
-> [4] https://lore.kernel.org/linux-crypto/20260622234803.6982-1-ebiggers@kernel.org/T/#u
-> 
-> I assume part of it was just that the whitelist wasn't ready yet when
-> this patch was merged, but as far as I understand if the whitelist
-> sysctl is implemented this is basically noop?
-> (Well, I guess it'll allow code simplification over time, but these
-> hopefully won't be backported to stable kernels too aggressively.. While
-> I fully expect to see this "Drop support for off-CPU crypto" patch to
-> show up in a couple of weeks in older stable trees; and for practical
-> purposes I don't see much way around just reverting it for now)
-> 
-> Thanks for putting up with me.
-
-Neither of these patches is tagged with 'Cc stable', and I don't expect
-them to be backported to stable kernels soon.  That being said, it seems
-the people using LLMs to find vulnerabilities haven't focused much on
-drivers/crypto/ yet.  Once they do, well, they will of course find
-vulnerabilities everywhere (accessible from unprivileged userspace via
-AF_ALG), and when that happens there may be little choice.
-
-The addition of the af_alg_restrict sysctl (and the possibility of
-userspace explicitly choosing to disable restrictions by setting
-af_alg_restrict=0) doesn't necessarily mean that problematic
-functionality should be, or should have been, moved under
-af_alg_restrict=0 rather than removed outright.  It's just an option
-that can be used if needed for compatibility reasons, if actual user
-reports come in.  If something is not needed at all it can just be
-dropped right away.  This actually happens way more often than people
-might think, due to the immense amount of unnecessary functionality that
-AF_ALG has: *many* crypto algorithms have been removed from AF_ALG over
-the years without any complaints, since they were never used.
-
-I'll also note that hardware crypto "decelerator" driver authors are
-actually now *depending* on the drivers no longer being usable from
-AF_ALG in mainline in order to argue for more relaxed driver inclusion
-criteria.  I don't think they can have it both ways!
-
-- Eric
+-
+Thanks,
+//richard
