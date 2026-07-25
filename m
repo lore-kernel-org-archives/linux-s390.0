@@ -1,31 +1,31 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DCB7C3126B9
-	for <linux-s390@vger.kernel.org>; Sat, 25 Jul 2026 04:53:41 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 145A413A3F7
+	for <linux-s390@vger.kernel.org>; Sat, 25 Jul 2026 06:16:23 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784955223; cv=none; b=NtApUv4DSICUwJE2mYetNlMIWyxLaKWMAiFlbj+sdY28RrLA8uUjHnUU52QhofMzFIZo5LorNSbnkJgvETm9gWmfScCNtopPVG+T1WKh6w2/0osxKBQA3G0ssqEz9MTpjSYCDWDWmZgW2QP7BNEt0nl32vyvowZmm3KCXC64emM=
+	t=1784960185; cv=none; b=UWNHa2jQ/342jLTH77Mz1Wh+atIwJIF0HVOwXeD6x69E38o7NDfvpFhL3IunjPEzFvfLyz9UTpOq/1r0Stbt6SQijJz6FDOywjhIKkrTwaO5QeK/z+fFpqmevDUg4yqYr+y9wiLUnZA8u9UfgzQgsN8s5+15Wq9W4+PRR2hKUPw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784955223; c=relaxed/simple;
-	bh=I4dKDsUctMO0G6bk9SDXMkcjAhyavFXKtcO62C+khS8=;
+	s=arc-20240116; t=1784960185; c=relaxed/simple;
+	bh=NiCe8Zk8J/HHO3iaei0ltFRpLyE9u/N+6c6AYE9qWOY=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=txA6pCoo8TY3gm2wekP6xSBN5rCpIehUB2h2BM002Yc+oQnApsm4SexAUObMPTOiUbtWg36RlZviqEVq0+K72iNNJddCL2aRj56kJ2HT3TWEzUYRN+xgj2By7E7ZATDI1ZTaDF3asLQ6L+sA+YiH5MoSSk6OfyKzmfBawMkD4ek=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nDgskbvC; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=fnHiKUu0r0n+PIEkbDQhGLxjtoIoemPd8boc4nqF5c21ftw9H71kwSRZX9go5+Iq7nGgFfhMYDGzKz9N7EFS+pDPv25x92F+jWYBZzSq9okvb6yrTPPu22hoiw4OVwzamgzSAo0GJA9IjgJsNRHyAYGcH+lTPLk1W9ABpW6geMQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CnB6yMIS; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nDgskbvC"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26B131F000E9;
-	Sat, 25 Jul 2026 04:53:41 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CnB6yMIS"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 559701F00A3A;
+	Sat, 25 Jul 2026 06:16:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784955221;
-	bh=WKfEb4M6QHVTo/w9cjpDeg5Jhk84BWwIEUdtIPsV3Y0=;
+	s=k20260515; t=1784960183;
+	bh=tx0GUlz9xFqEC6nIq/bspIu3BgInc0Zjp/nqj3hBcAM=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=nDgskbvCaimoVPzfyf6WpuZTdRWsQeLwzWIQX9VDQZn7hbCmP7l8Tv+l6SCSxCvZG
-	 dPO1bWsyynJz7UwKXLaH33LeOHWzQc8IW+lehJi37U6eUcWNXmgS9WYgkX+DHL2D1l
-	 xQqkt0Q9Vj1lJVcA1QH7mNvaIQ7muhO5NbkNUR88YDc3hbJOCh8pmQOS6GbfggYaaA
-	 dKXHIKIr5LaDNQiZSJ95sxgK1UImVYyH0VS9qvGQimMaM189RFLgbrGVMwMgj//qZX
-	 i5OHhvGTzm/DhdbuRF0SyE+UtF4dOz3AIc+zuOLOyWi9iBKdkSpFfmHSlqrGRXlg8t
-	 /GBGDNCCAflyQ==
+	b=CnB6yMISOhjTvuyl1ypyekEQ25aq/hJ2v0kk5J9UoA1WoJGPOHb63xoB4hXs/FHpy
+	 CAkdcJP7ZNeQEGGEhhmBNdpZxIxDGjv+SyofFSL7Ws/TQ4BOjPpTJurv/qmS1e0jqH
+	 xsCptVqBb2U5qghPyFhBI9tx1QxMNJiuWl7L4bxbNRBxssXibS6Apb5RDZQZfwUOVw
+	 z9XIe067oPpYUViJy6v7toa1Kz5wLxDss6vD4p9EK2u2CAM8pi7XGqRPSVuzfrrshY
+	 xRoOS8SwxFR6XcTzZk4JDcwBLnkUMnUJMzpnCButW8GR8LUtWuhplBviUbJmMlgBuK
+	 zJ600Pqtqu4kw==
 From: sashiko-bot@kernel.org
 Subject: Re: [PATCH net v2] net/smc: fix out-of-bounds read of rkey array in
  SMC-Rv2 LLC processing
@@ -33,13 +33,12 @@ Reply-To: sashiko-reviews@lists.linux.dev
 To: "Yehyeong Lee" <yhlee@isslab.korea.ac.kr>
 Cc: linux-s390@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>, "Heiko
  Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
-In-Reply-To: <20260724045310.430202-1-yhlee@isslab.korea.ac.kr>
-References: <20260723094027.391199-1-yhlee@isslab.korea.ac.kr>
- <20260724045310.430202-1-yhlee@isslab.korea.ac.kr>
+In-Reply-To: <20260724061606.433735-1-yhlee@isslab.korea.ac.kr>
+References: <20260724061606.433735-1-yhlee@isslab.korea.ac.kr>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sat, 25 Jul 2026 04:53:40 +0000
-Message-Id: <20260725045341.26B131F000E9@smtp.kernel.org>
+Date: Sat, 25 Jul 2026 06:16:22 +0000
+Message-Id: <20260725061623.559701F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -48,24 +47,21 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-
-Pre-existing issues:
-- [High] Data race and silent data corruption of the shared LLC receive buf=
-fer (`wr_rx_buf_v2`)
+- [Medium] Data Race and Use-After-Overwrite in Asynchronous LLC Message Pr=
+ocessing
 --
 
 --- Patch [1]: [PATCH net v2] net/smc: fix out-of-bounds read of rkey array=
  in SMC-Rv2 LLC processing ---
-commit 60a54b5c8c2f6d12513324a22935be7ae509adaa
+commit 63d9ad267ae12085da6001381c4f5b5b34c2bf73
 Author: Yehyeong Lee <yhlee@isslab.korea.ac.kr>
 
 net/smc: fix out-of-bounds read of rkey array in SMC-Rv2 LLC processing
 
-This commit fixes an out-of-bounds read in SMC-Rv2 LLC processing for devic=
-es
-with max_recv_sge =3D=3D 1 by preserving the message body in the link-group=
-'s
-shared wr_rx_buf_v2 buffer, mirroring the behavior of the shared layout.
+This commit fixes an out-of-bounds read when processing SMC-Rv2 LLC messages
+with oversized rkey counts in the non-shared receive-buffer layout. It
+addresses the issue by copying the message body into the shared wr_rx_buf_v2
+in the receive handler before the per-WR buffer is reposted.
 
 > diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
 > index 954b2ff1815c2..84d8d9024efa3 100644
@@ -100,33 +96,23 @@ oid *buf)
 > +			       min_t(u32, wc->byte_len, SMC_WR_BUF_V2_SIZE) -
 > +			       SMC_WR_TX_SIZE);
 
-[Severity: High]
-This is a pre-existing issue, but does this pattern lead to silent data
-corruption if multiple LLC messages arrive concurrently or back-to-back?
+[Severity: Medium]
+If a peer sends two oversized LLC messages in rapid succession, could this
+memcpy() execute in the softirq handler while the first message is still
+being processed by the smc_llc_event_work workqueue?
 
-If local and remote DELETE_RKEY flows occur concurrently, the NIC might
-receive multiple messages in quick succession. Since this memcpy (and the
-equivalent hardware DMA in the shared layout) unconditionally writes to the
-same link-group shared lgr->wr_rx_buf_v2, a second message will overwrite
-the payload of the first.
+Since the workqueue reads from the same shared lgr->wr_rx_buf_v2 buffer:
 
-When the background worker thread later processes the first message:
+smc_llc_rmt_delete_rkey() {
+    ...
+    if (smc_rtoken_delete(link, llcv2->rkey[i]))
+    ...
+}
 
-smc_llc_event_work()
-  -> smc_llc_event_handler()
-    -> smc_llc_rmt_delete_rkey() {
-       llcv2 =3D (struct smc_llc_msg_delete_rkey_v2 *)lgr->wr_rx_buf_v2;
-       ...
-       if (smc_rtoken_delete(link, llcv2->rkey[i]))
-    }
-   =20
-Will it end up reading the clobbered payload of the second message from
-wr_rx_buf_v2, potentially deleting the wrong rkeys?
-
->  	}
-> =20
->  	smc_llc_enqueue(link, llc);
+Does this code introduce a data race regression causing torn reads, potenti=
+ally
+leading to the processing of mixed or overwritten payloads?
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260724045310.4302=
-02-1-yhlee@isslab.korea.ac.kr?part=3D1
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260724061606.4337=
+35-1-yhlee@isslab.korea.ac.kr?part=3D1
