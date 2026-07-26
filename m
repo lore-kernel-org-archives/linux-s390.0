@@ -1,69 +1,68 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 29E533D3D0E;
-	Sun, 26 Jul 2026 17:22:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E43343C8C49;
+	Sun, 26 Jul 2026 17:22:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785086524; cv=none; b=ubABKeZWtjauVkZqYyve8AmKTdxotNte8BQcJnThlGsZYcAaznr9m8fGluph96Cyrn9QkoE05dccnreaFJoa93WEZt8xbccciUo4ms66k/KF4WvVVSF8cK4c9wEIPSJl/8VgZ2C7Dw06e4TAaeXj9Lb52n+X3DRvYn5VOtEFUg8=
+	t=1785086524; cv=none; b=Yg/t9vBBTyMCm4DySoj6jMyfah1g+Vxr6iUE0ZCi2IGnSDxw78qsCe9EMzjSI4pjpZbG3CzLxLnlaMMjp9vMILogV0R0AJFAm4eQvnQUPMrlYwZbKJQbmPFpl0/KTD1YEekRzWA4dfPPn/AJAoO+ta/uRfNMpCsWyqCRk2yWq3M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1785086524; c=relaxed/simple;
-	bh=p+PbP0myv75st5mwvzBTsdFK7aSDgUKdeNFvumRPnck=;
+	bh=3EckSShkvG+H0FPgvbUGk1DwZ4vc5ZFCuqpJ/RHFI4A=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=ueqFOXMbrpkfmCfR+ExVnE3+ZoQeoNd//DX7Kx+mAUc7sB2BJKDYZ8SkX03lw/6sFUYE6oslmGh0x/YwycHR9DNhtgKyGke+V/XzKTAIf4BrinEWPN5Bg039Q44R8hZQhMVIapKExbJoZEBZ8BUQjAExUhkeQ69o7vFkxioktmE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=lZuwSgnu; arc=none smtp.client-ip=148.163.156.1
+	 MIME-Version; b=FrtIUalMNzaOZRk0BKYM9XcYGKgoAbVgydvFK9aZ3aYYrzvtg8V6t3o0ClXQEtH0qx1BGeCzBTQmMwVQxJWjTB4xsXIDkRGnzfUZkbs2/3fKdXWA1NQzxPhz0RwutzmXYV6b8QFc8iabfnWFAJn+HVqy2ejCywKzLqic2vZRU4k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ocD0buoF; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="lZuwSgnu"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66QHHbm24044080;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ocD0buoF"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66QHHexM4077950;
 	Sun, 26 Jul 2026 17:22:02 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=WRGNLeV0oXr2M/BZ+
-	sfXha8JHIJWYlAk6/V1XSPYaiM=; b=lZuwSgnugDWycFtxWT56Er8SjTXuKhCEp
-	rMt5ziNRX5KxyH9oHp8cEDryjq7l8y0mpe8QxxUwgNmVLUBxzPa3vCBBIVGh6GH/
-	GnA/UTHg2Kxzn/2fEL+MfGtl6A2s+C2yV0ex5OJyd38qgnh+7lsHT9MzG1fOQ6jx
-	ssWzXYmlWvqCsdGox/JxPFW88BnAlaYiwJly9DIA2Sjh1il3P+4R2k3hUMGKaeJG
-	XADG7rEXc6DdgRGHI/TJFdN4B95vyj2qiN3/jIx1Lp4p8OSlOb7YthjXLHZ/5yrb
-	srVAZBHo/Bf9Whj55Z2sB8MyylO3JxEq5X9o1VsiKoGxOxinzmROQ==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fmuw74bqg-1
+	:mime-version:references:subject:to; s=pp1; bh=xs+m2F3zNULxZt7Bf
+	rTJdMKPsHk4cB+6uiMDMsph1T0=; b=ocD0buoFogUcFbxXbHbHh5s10/d/Nawc3
+	usthate1jfmQz/sR0xpvZut7gjhoo6ulI+G2t1zwYE6NAkDMPhV64GFifLiY61/J
+	Cpp9lMD4cYbK/xIdWVe2Mx9hl6YUL+cnha8MYaq/d8AbWcD7XCA61xozvnsKsx2v
+	wpJEpcmjZSd6OaORwuFnhFMUsTZaVYw57aowLTVBTiDWrpXMh4IPzKDbwD5w4HE6
+	PI8FIVjWvAobH0maEzK1DJp1nPyPH7OT5hhDqGuM7pZTOzQwUGEAcSMPB5U/RGnw
+	ukKvXryFtNNVm6lwBYZE5+4fkEDvkEISA+TFJhpbBjCsCz2GCtl/A==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fmuwcm46e-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Sun, 26 Jul 2026 17:22:02 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66QHBgIU030562;
-	Sun, 26 Jul 2026 17:22:01 GMT
+	Sun, 26 Jul 2026 17:22:01 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66QHBaSc007983;
+	Sun, 26 Jul 2026 17:22:00 GMT
 Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fn8fjt7vp-1
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fna5xsy3a-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Sun, 26 Jul 2026 17:22:00 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66QHLu5037618032
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66QHLug734079072
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Sun, 26 Jul 2026 17:21:57 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C6CA420082;
+	Sun, 26 Jul 2026 17:21:56 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id BF2DA2004E;
 	Sun, 26 Jul 2026 17:21:56 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9BBAE20081;
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9B4042004F;
 	Sun, 26 Jul 2026 17:21:56 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with SMTP;
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with SMTP;
 	Sun, 26 Jul 2026 17:21:56 +0000 (GMT)
 Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 4958)
-	id 7F3C6160E89; Sun, 26 Jul 2026 19:21:56 +0200 (CEST)
+	id 81961160ED3; Sun, 26 Jul 2026 19:21:56 +0200 (CEST)
 From: Eric Farman <farman@linux.ibm.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org,
         linux-kernel@vger.kernel.org
 Cc: Matthew Rosato <mjrosato@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Eric Farman <farman@linux.ibm.com>, stable@vger.kernel.org,
-        Farhan Ali <alifm@linux.ibm.com>
-Subject: [PATCH v6 01/10] s390/vfio_ccw: free all memory if cp_init() fails
-Date: Sun, 26 Jul 2026 19:21:44 +0200
-Message-ID: <20260726172153.1818056-2-farman@linux.ibm.com>
+        Eric Farman <farman@linux.ibm.com>, stable@vger.kernel.org
+Subject: [PATCH v6 02/10] s390/vfio_ccw: limit the number of channel program segments
+Date: Sun, 26 Jul 2026 19:21:45 +0200
+Message-ID: <20260726172153.1818056-3-farman@linux.ibm.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260726172153.1818056-1-farman@linux.ibm.com>
 References: <20260726172153.1818056-1-farman@linux.ibm.com>
@@ -75,109 +74,119 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: KcKAtfbZ1xSwrU-o_w7AgSspTFV2IKOa
-X-Proofpoint-ORIG-GUID: KcKAtfbZ1xSwrU-o_w7AgSspTFV2IKOa
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI2MDE3NSBTYWx0ZWRfXx0VYFrxSYfM4
- hpRqDCCXP6rspYhdvPoG9gZgrJRpJVyKPsHfVCMLTKgfi/hQ8iZ1tcVBO+xheK2aLphrQ04p6SL
- 5le4gKoThzqVT8yHfLlEKFqWKvCJARGwB/VSUPu6jSH59ZYHQS+/uDtlpNNLrJob4UT2K+cO8G1
- 5UxD6DtnngCpkcWe/qtgRYxon1uBhzjH/B2xyO3Ep3cYW1x66c6ZjTKkhp6Yftctqarp3JdlOku
- NLggQSiiJJB963DuassH/HnNm66y+KW2yg4/pCpeV2kSRgNsFBQ/5G4zHa+RE8LA1qaGkz0WLnL
- deP6A3s9W22q4xtI99Lavr/1H8FQWGSIQL1cmKF/Or8wFyZ3UeVwIUtFXl16wmtoVviDh8DUAnK
- ZcEJmYL3+I4N8CQcZ5MCcN6cIIhM5/4Umga1Ksf0A18e79bKB/YwSyBDkSofYfTY+u45kw8uypp
- Eg+XtCHY0TbhxAb5REQ==
-X-Authority-Analysis: v=2.4 cv=SKFykuvH c=1 sm=1 tr=0 ts=6a66423a cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+X-Proofpoint-ORIG-GUID: cAklKW3P8hXvpnYPhs3yTk6fK-MkRIhu
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI2MDE3NSBTYWx0ZWRfXygLDGi8hlydT
+ LTSW3HAy778Cw9xPnKeQZKy47LZ5tX4XSefjdQR0qdyx62oeRPDo0u5xV+27oQlnK96iO6EJ0py
+ xQBV+UJFNlJpensOA24NPTdEk5/dePQ=
+X-Authority-Analysis: v=2.4 cv=E/z9Y6dl c=1 sm=1 tr=0 ts=6a664239 cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
  a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=iQ6ETzBq9ecOQQE5vZCe:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
- a=WEmllObKAWPfCt-5-jUA:9
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI2MDE3NSBTYWx0ZWRfX1UF3Mz0ZFccd
- kpMDdNoAKOIjhWPZULB+HKGqxWG3Lwxt4DINkFuRL3T8arxz3HHSM5IlTqqeEl+SogXfGNCH+dd
- 5nIbMIpGiU2RlNz4BwuSUHmT+IuT1cE=
+ a=RzCfie-kr_QcCd8fBx8p:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
+ a=sBi1HX8ECoo2m5KYV-oA:9
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI2MDE3NSBTYWx0ZWRfX74dFqAIoFjb3
+ Tis3DZ99tuzL+ZXku915qRLraWp4yFhf0VG0tBDmi441oi3EjL5oKiWCBKlcqJHSJmwrTIRPU4S
+ TZUIsAhuDZDYbssgsngBFtq8peO3Uf+q4J9s/ekzCFf/F0XK50d/3sArZiIokWMagtuFbbxmTx9
+ bTIy29bECFq4mbM5LD9eSEZz/urFfXgMTvcgIdse5hC59xVuiB0hF/mMkGUzSWwk43yP90CpO8O
+ zgnm/jv3V1UsmRDHLqGn0w/YA7q+N/MAboUXZAHw84EWKZQHog9+/LjWvg8Cpc7OfvuqQmx/h2W
+ lJr3F+0QEMbeRkx1duu6oWM2O7ldovwPNIlYGoNKHDRvfdLAW0eYa2yE7QdMi0tloEegETvDEbE
+ rzYVYfBgmbBnGNu8nYEE3cs3ox+5yGBQZ9/a3Eijx7VyOKkPqN2ATQIHM1dG6YLO2FYO4/vCqv+
+ K+qhFQnGwmvBKTUytcg==
+X-Proofpoint-GUID: cAklKW3P8hXvpnYPhs3yTk6fK-MkRIhu
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-07-26_05,2026-07-24_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 malwarescore=0 clxscore=1015 adultscore=0
- lowpriorityscore=0 bulkscore=0 impostorscore=0 phishscore=0 spamscore=0
- suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2607260175
+ adultscore=0 priorityscore=1501 spamscore=0 clxscore=1015 phishscore=0
+ lowpriorityscore=0 bulkscore=0 malwarescore=0 impostorscore=0 suspectscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607260175
 
-The routine cp_free() is called to unpin/free any memory once an I/O
-is completed successfully, or if cp_prefetch() fails. But if cp_init()
-fails, and cp->initialized is not enabled, the same routine cannot be
-used to free all the memory.
+The processing of channel programs, and the CCWs within them, is done
+recursively. As such, there is an arbitrary (but not architectural)
+limit to the number of CCWs that can exist in a single channel program.
 
-An attempt to address this exists in ccwchain_handle_ccw(), where a
-single call to ccwchain_free() is made for the currently-processed
-CCW segment. But this will leak other segments (created as a result
-of a Transfer in Channel) that had been allocated as part of the same
-channel program.
+The vfio-ccw logic breaks these channel programs into segments whenever
+it encounters a Transfer-In-Channel (TIC) CCW, and the combined number
+of segments count towards the global limit. Impose an equivalent limit
+to the number of segments until such logic can be made non-recursive.
 
-Address this by performing the cleanup outside of the recursive
-ccwchain_handle_ccw()/ccwchain_loop_tic() logic.
-
-Fixes: 8b515be512a2 ("vfio-ccw: Fix memory leak and don't call cp_free in=
- cp_init")
+Fixes: 0a19e61e6d4c ("vfio: ccw: introduce channel program interfaces")
 Cc: stable@vger.kernel.org
-Reviewed-by: Farhan Ali<alifm@linux.ibm.com>
 Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
 Signed-off-by: Eric Farman <farman@linux.ibm.com>
 ---
- drivers/s390/cio/vfio_ccw_cp.c | 22 ++++++++++++++++++----
- 1 file changed, 18 insertions(+), 4 deletions(-)
+ drivers/s390/cio/vfio_ccw_cp.c | 6 ++++++
+ drivers/s390/cio/vfio_ccw_cp.h | 8 ++++++++
+ 2 files changed, 14 insertions(+)
 
 diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_c=
 p.c
-index 7561aa7d3e01..086d1b54bdb0 100644
+index 086d1b54bdb0..1c2890d139c6 100644
 --- a/drivers/s390/cio/vfio_ccw_cp.c
 +++ b/drivers/s390/cio/vfio_ccw_cp.c
-@@ -455,9 +455,6 @@ static int ccwchain_handle_ccw(dma32_t cda, struct ch=
-annel_program *cp)
- 	/* Loop for tics on this new chain. */
- 	ret =3D ccwchain_loop_tic(chain, cp);
+@@ -332,6 +332,7 @@ static struct ccwchain *ccwchain_alloc(struct channel=
+_program *cp, int len)
+ 		goto out_err;
 =20
--	if (ret)
--		ccwchain_free(chain);
--
- 	return ret;
- }
+ 	list_add_tail(&chain->next, &cp->ccwchain_list);
++	cp->ccwchain_count++;
 =20
-@@ -486,6 +483,23 @@ static int ccwchain_loop_tic(struct ccwchain *chain,=
- struct channel_program *cp)
- 	return 0;
- }
+ 	return chain;
 =20
-+static int ccwchain_build_ccws(dma32_t cda, struct channel_program *cp)
-+{
-+	struct ccwchain *chain, *temp;
-+	int ret;
+@@ -441,6 +442,10 @@ static int ccwchain_handle_ccw(dma32_t cda, struct c=
+hannel_program *cp)
+ 	if (len < 0)
+ 		return len;
+=20
++	/* Limit number of chains in a single channel program */
++	if (cp->ccwchain_count >=3D CCWCHAIN_COUNT_MAX)
++		return -EINVAL;
 +
-+	ret =3D ccwchain_handle_ccw(cda, cp);
-+
-+	if (ret) {
-+		/* Cleanup if an error occurred */
-+		list_for_each_entry_safe(chain, temp, &cp->ccwchain_list, next) {
-+			ccwchain_free(chain);
-+		}
-+	}
-+
-+	return ret;
-+}
-+
- static int ccwchain_fetch_tic(struct ccw1 *ccw,
- 			      struct channel_program *cp)
- {
-@@ -735,7 +749,7 @@ int cp_init(struct channel_program *cp, union orb *or=
+ 	/* Need alloc a new chain for this one. */
+ 	chain =3D ccwchain_alloc(cp, len);
+ 	if (!chain)
+@@ -745,6 +750,7 @@ int cp_init(struct channel_program *cp, union orb *or=
 b)
+ 			vdev->dev,
+ 			"Prefetching channel program even though prefetch not specified in OR=
+B");
+=20
++	cp->ccwchain_count =3D 0;
+ 	INIT_LIST_HEAD(&cp->ccwchain_list);
  	memcpy(&cp->orb, orb, sizeof(*orb));
 =20
- 	/* Build a ccwchain for the first CCW segment */
--	ret =3D ccwchain_handle_ccw(orb->cmd.cpa, cp);
-+	ret =3D ccwchain_build_ccws(orb->cmd.cpa, cp);
+diff --git a/drivers/s390/cio/vfio_ccw_cp.h b/drivers/s390/cio/vfio_ccw_c=
+p.h
+index fc31eb699807..a9b1d8dbc6f6 100644
+--- a/drivers/s390/cio/vfio_ccw_cp.h
++++ b/drivers/s390/cio/vfio_ccw_cp.h
+@@ -23,11 +23,18 @@
+  */
+ #define CCWCHAIN_LEN_MAX	256
 =20
- 	if (!ret)
- 		cp->initialized =3D true;
++/*
++ * Maximum number of chains
++ */
++#define CCWCHAIN_COUNT_MAX	16
++
+ /**
+  * struct channel_program - manage information for channel program
+  * @ccwchain_list: list head of ccwchains
+  * @orb: orb for the currently processed ssch request
+  * @initialized: whether this instance is actually initialized
++ * @guest_cp: copy of guest channel program
++ * @ccwchain_count: number of channel program segments (linked by TIC)
+  *
+  * @ccwchain_list is the head of a ccwchain list, that contents the
+  * translated result of the guest channel program that pointed out by
+@@ -38,6 +45,7 @@ struct channel_program {
+ 	union orb orb;
+ 	bool initialized;
+ 	struct ccw1 *guest_cp;
++	unsigned int ccwchain_count;
+ };
+=20
+ int cp_init(struct channel_program *cp, union orb *orb);
 --=20
 2.53.0
 
