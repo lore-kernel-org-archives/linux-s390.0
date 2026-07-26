@@ -1,145 +1,138 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f43.google.com (mail-pj1-f43.google.com [209.85.216.43])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A75483DA5D9;
-	Sun, 26 Jul 2026 17:40:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785087650; cv=none; b=nBxalwJIMeEk6k10ldzSdO/V4UlOEyfYDcQ8ChrySGNDM/57E4U2ms6dqIDr4MAfriJXCEb5rdQ8ThqmDsgObhf4hIfEeB+l/0VIdmZ4gg/dt6kHWJKBBIcsoINQA4pwQSwAc6vLDcJwX1zFHtzqQAMDV0ccOdB/QiA4fijFimk=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785087650; c=relaxed/simple;
-	bh=U22RvA53Joeqw1mg59i7cxmxc4yKQY4yA2GuDzso3AY=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=JiOnzWCWq/a3aEg2mY9DNfPuh+bVeUUc4F62JXsUeD+rjC198L+hUWtvosGyFjdGqx4/uMXke1H6UiYSCqv2kRJPFrMWrctAyN3PRGOCRPcG9PR+4kcr1lW2+mA17G0KF7I69XEyGL25+342u6NBg1ZTjMmIDPKRuIN9K05AGFc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VKD79Xl7; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB37E378803
+	for <linux-s390@vger.kernel.org>; Sun, 26 Jul 2026 20:11:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.216.43
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785096663; cv=pass; b=XULz5+9GwEDwLIkxhGOwZFP3i50ug1dwyQ6RD0UCff7P0dRSmOQ/LS/P5W7kH1f8D80pwSoswnrowaMeaUyVlAuWv0F6TMiGC7Yq9x8BVl1C+ut1yQLbTIthvsETJHORJAgRvDkI9Ol3WUYV9mNSHTb0qTMBHx3e6ziYNHgIo8Q=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785096663; c=relaxed/simple;
+	bh=kWd2ZlnaGIqOzhBDtr6CPo+wqxbzhTWntedFRzAihME=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=pdLDemwrQuW51osbEC1x06+3PXYYcdg6LBcMB2kS29MkB0poGEXdbo6dGWYSaRKi0DCdK5g7vQNkY+F3R9TneWPy9tBxuM9z6xaEjcvANcLx29+9juk1BHFXtOmCGYBCgV93fFbzGPqnNKdy3PnsdI5BnaJj0QtOTDlNxbmDR2A=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bWjNmrzf; arc=pass smtp.client-ip=209.85.216.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VKD79Xl7"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3BB71F000E9;
-	Sun, 26 Jul 2026 17:40:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785087649;
-	bh=7FH47QMXmEDcxdhFltnt+16ETzYXgymQ4FC/YV50LeE=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=VKD79Xl74Ufxa4llSdl+8sE0zkEIFJXeuWUfg6lXYuFlSjQW5kBCk6R8nbvl9560z
-	 hgLDZH9YTGv3C7I6JPa5mpDO5ZO3+Vhg1mpLX4IN3tMx1bSDAUv5ritcoGa1x7d4zZ
-	 pFRPUsWVdvL4nFE8XsYaxdPmCH3AWHTqoqV6NPLUT5eWZ3KGj3QTApsul6NSljJFjC
-	 TZj8xlQA16r0TcTsm6FhxQ3K2HrcGFWlF75fYaDs67B26mZLb1lH6hs5sdhcTgbfsP
-	 jTnyM/WcIUdNpE40PpiKQAd2La9nMoIbl2Wi2l02Rtv1wzMCP1sKJDkHvHa23A/rmI
-	 BrOgKX5+6wQKw==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v6 09/10] s390/vfio_ccw: implement a channel program
- mutex
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Eric Farman" <farman@linux.ibm.com>
-Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, "Heiko
- Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>
-In-Reply-To: <20260726172153.1818056-10-farman@linux.ibm.com>
-References: <20260726172153.1818056-1-farman@linux.ibm.com>
- <20260726172153.1818056-10-farman@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sun, 26 Jul 2026 17:40:48 +0000
-Message-Id: <20260726174048.E3BB71F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bWjNmrzf"
+Received: by mail-pj1-f43.google.com with SMTP id 98e67ed59e1d1-381b831d535so2518564a91.0
+        for <linux-s390@vger.kernel.org>; Sun, 26 Jul 2026 13:11:01 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1785096661; cv=none;
+        d=google.com; s=arc-20260327;
+        b=ENt74gzLILI4Zq/ml8CocHEg/EqtKmv0P4sNI4AJUKnCvYLSIadxpoJkzeWdCP6/o4
+         KJvTBBr84ayhdPxhh0JUGWxWQ2CAcza/pzK01BEE+QIgCjie8axypkVlNqIeywtiTokq
+         bKFzwzKbkc2w7KnsYXpc24KcvAHkxn+M733mk+xlm9It4/tcQtkoUdSgg1nuugwWTAL8
+         0ZGTQtfyeVLK1SY6EPbYsXonbIPLcM7nKyBtgXI+vQAM1bceYH4UYP5aNdpgBtDAA8EW
+         oBZSmrBPEmGQ++PxPhT3CjWgo4jSl+VwIF8MwvJcMKiFljep58qyQZZ06blqvs87jYFU
+         Gn9w==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=2+Bo0viCEB2m22FDhwGjICfsYsQ1DUFzTfnhxFo1SU0=;
+        fh=0ODFQVnYYBNx0QvkfOTio6qBNzZ+VUDsjr8A/Me9iYc=;
+        b=dqDsOI6RPjcz1k6rZ/MhTPalLuZ+avMDvjhIzFlYawo4Z84DMNznDieQoEV+S5BuVJ
+         0RnPQ0HFMk1FvLI8q2Atu8k3EMu6lBViAZiysdRBdPWTNOspkuCm+yNRC3d9edvxHArL
+         pDpsf1C/JnNb/jswz4riiN6JeG2bJMPu/VlS5NoHbQWi2pI94l0MJC0cTnEmFZnwY6yr
+         O21XpB531diaicXuSJzBJXy5B5N6AGlIccDkXYiPoPuPGy7Rre3h3ZW9bpqD7K46r6hI
+         +QvfAlewaYsgHsD7FWjmhYu5R0lpmAlZGnjw3SHzcmSzacIYs6NexesoIu5QieeRA7Mh
+         rGvw==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1785096661; x=1785701461; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=2+Bo0viCEB2m22FDhwGjICfsYsQ1DUFzTfnhxFo1SU0=;
+        b=bWjNmrzfOcznBPitgGj/HS0xLXFm9c9EvME+U9Y38WewNosDqzxcptmAggNl6jtEYm
+         THi8L8kT7chED9bWcXg7+qUv/N7TMowQCnPZL3LwK7fkr6tym+6FhlhoxdYN4k1BD/Uf
+         9qaSxmxHi4Sjq3UYpbzBwI0DQFesqVWoJqU2jiPsnBPApLeCtmNo0OUMuH18+2f9+5LA
+         oo9hGHabcykOJDdvexQexzB4IBppCw9JBRQRZdnqM2zqJLAfzdlDvLn0nywYK8qtiGOj
+         x9pUhyT/uAItjv0TDjAWjuOVo5/1tolIctW/xUEQ+wdpDz9bPsJdIrkZuxbm8Nu+sMBL
+         pOOw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1785096661; x=1785701461;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=2+Bo0viCEB2m22FDhwGjICfsYsQ1DUFzTfnhxFo1SU0=;
+        b=BDu5Ieh5gKPdOI5bZr2MSfD9BSs3V1TSnfNWfdaldgSb9Mr1MN/jL+CTzEZoyVv9Pp
+         BAwd/0wLZA+twMSrTCfoSNF5Emsje2PNXZku7n/pe2g5Bndi6o6URGnu4JH71XHizZLV
+         eJ6fdrfnJ0+Rv1WQucX/wtpibDb9duWwE+6/mYy2ewyyVnNttywVNJCbLsRI7gsfvPQv
+         oG1OTNCFAgMykQ/VnkF3rVrtjCeQWvZ5yd/D4kwKCekaEJoqWnbQCx716js8+RCTFE9w
+         QHw0xukLKlMqJUCapKCrUNrxLk9M5sx4Dwqz2FGmsF4R2FLz1ncgPaPnVmIYGjekqsUs
+         5ZHw==
+X-Forwarded-Encrypted: i=1; AHgh+RogqatJGKz5D1z2yfmOdiAIF9scc67kzKNp4uDmMLbBLH/H7hC8c3Svb4Jf4kCO/2Rc6WUcjts+I2e6@vger.kernel.org
+X-Gm-Message-State: AOJu0Yw2BCHrYgKmtYn3lehlhVSOG4rW01eJHZzKrKlhgiXO9yewZA84
+	0xTgCpQsL8OqXXo13VIJuxZr9LSQ+Fu/TPtDfDDWO7+U4jToJv6GDpAoAEZEr7l3JkfuIQA/G+w
+	OEZnnPvH+SK38k4sCzt9lApBwBBWowe4/tlghPvg=
+X-Gm-Gg: AR+sD11l5BhPF4p+oeNcyL2eLdvG1kuFKhjXQlQMMeQcXjBHM5xRVuJQ37Q4z/Gz5fL
+	YXX/Hs2MdJjQYgYJckyILyWiiw9FmFICZ3gBV/u0Saw9DAX2lz6KoT1p5FuevZP4djC0QGBHcto
+	MoE2+mLFu/G2QbYp8RiulQ/p+qA0WH4D5VEmDlYFG3nL6a9MLT4eE/8B5qLitBlK17P5P5AV0Gl
+	ctdKMBueZgbWYEh68hl8YLYWkGiFdw53D5NCOHAt+BrgSiWYo13i8znUEK33xU+l1LxCnzE
+X-Received: by 2002:a17:90b:384b:b0:38d:ef48:b04 with SMTP id
+ 98e67ed59e1d1-38f294ea3c5mr6088330a91.10.1785096661118; Sun, 26 Jul 2026
+ 13:11:01 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+References: <20260523-af-alg-harden-v1-2-c76755c3a5c5@gmail.com>
+ <20260603133312.12848-1-freude@linux.ibm.com> <amOGWwdjnJqyxH5L@codewreck.org>
+ <20260724160034.GB2032@sol> <amOTjPW__CNZui3_@codewreck.org>
+ <CAFLxGvy+ec3nQLrQtwFZgGELhT2pKBDnHdD0pMvEGh-Mf3rjgQ@mail.gmail.com>
+ <20260725220443.GA41199@quark> <CAFLxGvyBGzfwh61F5YkYqctNPCQJCpFOwTtKfDs4L+iK8WJZpQ@mail.gmail.com>
+ <20260726155024.GB1673@sol>
+In-Reply-To: <20260726155024.GB1673@sol>
+From: Richard Weinberger <richard.weinberger@gmail.com>
+Date: Sun, 26 Jul 2026 22:10:48 +0200
+X-Gm-Features: AUfX_mwZurnXooec2A3FqadK1K8O_igYrMZGYhDFbqwtbTaFK-ATjGnI_bmWgHQ
+Message-ID: <CAFLxGvzaAH+ZGr-OFo=Li1aOxgwBjjR76T7m1CjFaL-6w3KPPQ@mail.gmail.com>
+Subject: Re: [PATCH 2/3] AF_ALG: Drop support for off-CPU cryptography
+To: Eric Biggers <ebiggers@kernel.org>
+Cc: Dominique Martinet <asmadeus@codewreck.org>, demiobenour@gmail.com, 
+	Harald Freudenberger <freude@linux.ibm.com>, acme@kernel.org, adrian.hunter@intel.com, 
+	alexander.shishkin@linux.intel.com, ardb@kernel.org, axboe@kernel.dk, 
+	corbet@lwn.net, davem@davemloft.net, edumazet@google.com, 
+	herbert@gondor.apana.org.au, horms@kernel.org, io-uring@vger.kernel.org, 
+	irogers@google.com, james.clark@linaro.org, jolsa@kernel.org, kuba@kernel.org, 
+	kuniyu@google.com, linux-crypto@vger.kernel.org, linux-doc@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org, 
+	mark.rutland@arm.com, mingo@redhat.com, namhyung@kernel.org, 
+	netdev@vger.kernel.org, pabeni@redhat.com, peterz@infradead.org, 
+	skhan@linuxfoundation.org, willemb@google.com, linux-s390@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [High] A 3-thread AB-BC-CA deadlock is introduced involving `cp_mutex`, `=
-iommu->lock`, and `iommu->device_list_lock`.
---
+On Sun, Jul 26, 2026 at 5:52=E2=80=AFPM Eric Biggers <ebiggers@kernel.org> =
+wrote:
+> Then I would suggest that skcipher_bind() should check if the name is
+> "cbc(paes)", and if so use 0 instead of AF_ALG_CRYPTOAPI_MASK.  Please
+> go ahead and send a patch against mainline (for v7.2-rc6) if you're
+> interested.
 
---- Patch [9]: [PATCH v6 09/10] s390/vfio_ccw: implement a channel program =
-mutex ---
-commit 24b60b7244a72b137b8847a953a24223d19d152e
-Author: Eric Farman <farman@linux.ibm.com>
+Patch sent.
 
-s390/vfio_ccw: implement a channel program mutex
+> On cryptodev/master (future 7.3) it should get an entry in the new
+> skcipher_allowlist as well: { "cbc(paes)", true }.  That would be a
+> separate patch.
 
-This patch introduces a mutex to protect the channel program struct in the
-vfio_ccw driver. The lock is held across operations that require private->cp
-to ensure consistent behavior and replaces some incorrect subchannel lock u=
-ses.
+Do you mind a new field in struct af_alg_allowlist_entry which indicates
+that  AF_ALG_CRYPTOAPI_MASK should get bypassed?
 
-> diff --git a/drivers/s390/cio/vfio_ccw_fsm.c b/drivers/s390/cio/vfio_ccw_=
-fsm.c
-> --- a/drivers/s390/cio/vfio_ccw_fsm.c
-> +++ b/drivers/s390/cio/vfio_ccw_fsm.c
-> @@ -249,6 +246,8 @@ static void fsm_io_request(struct vfio_ccw_private *p=
-rivate,
->  	private->state =3D VFIO_CCW_STATE_CP_PROCESSING;
->  	memcpy(scsw, io_region->scsw_area, sizeof(*scsw));
-> =20
-> +	mutex_lock(&private->cp_mutex);
-> +
->  	if (scsw->cmd.fctl & SCSW_FCTL_START_FUNC) {
->  		orb =3D (union orb *)io_region->orb_area;
+bool bypass_apimask;?
 
-[ ... ]
+> With those it will keep working as root.  (And you mentioned in your
+> other email it's used only as root anyway.)
 
-> diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_=
-ops.c
-> --- a/drivers/s390/cio/vfio_ccw_ops.c
-> +++ b/drivers/s390/cio/vfio_ccw_ops.c
-> @@ -38,8 +38,13 @@ static void vfio_ccw_dma_unmap(struct vfio_device *vde=
-v, u64 iova, u64 length)
->  		container_of(vdev, struct vfio_ccw_private, vdev);
-> =20
->  	/* Drivers MUST unpin pages in response to an invalidation. */
-> -	if (!cp_iova_pinned(&private->cp, iova, length))
-> +	mutex_lock(&private->cp_mutex);
-
-[Severity: High]
-Could this introduce a 3-way deadlock with the VFIO IOMMU subsystem?
-
-When an I/O request is submitted, fsm_io_request() takes cp_mutex and
-eventually calls cp_prefetch(), which attempts to acquire iommu->lock via
-vfio_pin_pages().
-
-At the same time, if a VFIO DMA unmap occurs, the VFIO core calls this
-vfio_ccw_dma_unmap() callback while already holding device_list_lock.
-This function then attempts to acquire cp_mutex.
-
-Meanwhile, a concurrent VFIO DMA unmap could acquire iommu->lock in the
-VFIO core (which drops it temporarily) and attempt to acquire
-device_list_lock.
-
-This seems to create a circular dependency:
-
-Thread 1 (I/O submission):
-fsm_io_request()
-  mutex_lock(&private->cp_mutex);
-  cp_prefetch()
-    ...
-      mutex_lock(&iommu->lock);
-
-Thread 2 (VFIO DMA unmap):
-vfio_notify_dma_unmap()
-  mutex_lock(&iommu->device_list_lock);
-  vfio_ccw_dma_unmap()
-    mutex_lock(&private->cp_mutex);
-
-Thread 3 (Concurrent VFIO DMA unmap):
-vfio_notify_dma_unmap()
-  mutex_lock(&iommu->lock);
-  mutex_lock(&iommu->device_list_lock);
-
-Is it possible for this sequence to freeze the CCW device operations and
-the VFIO IOMMU subsystem?
-
-> +	if (!cp_iova_pinned(&private->cp, iova, length)) {
-> +		mutex_unlock(&private->cp_mutex);
->  		return;
-> +	}
-> +
-> +	mutex_unlock(&private->cp_mutex);
-> =20
->  	vfio_ccw_mdev_reset(private);
->  }
+Agreed. While I don't know whether others out there using it in
+non-privileged mode,
+let's be conservative. If something breaks, users will speak up, I hope.
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260726172153.1818=
-056-1-farman@linux.ibm.com?part=3D9
+Thanks,
+//richard
