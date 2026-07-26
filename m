@@ -1,136 +1,173 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f169.google.com (mail-pl1-f169.google.com [209.85.214.169])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DB9B672630;
-	Sun, 26 Jul 2026 04:33:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785040398; cv=none; b=kbVUE/BOI2eTJh4ngHqm1lCIe7fTmRdzMGUMZjen3wypPigt7T3C3iLs8CTkYJiraxeBSE2MvNL+bO6F/icSDeQTUpuezt71JsSjExmaQvuhSAG9HJKMhV/NTCn4HDE8pRMMAlrDt2rFqaGYtVSEfhns01nVWmm3gW1EoBy+k+4=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785040398; c=relaxed/simple;
-	bh=BhldJj8NMtns8R1IwdCUPVArctn3UFrBmmU6Mh+gc1Y=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=kJhl4KAFc6txynEJCp1XwP2ZkBx5UXbz00f/JUo61AT73oWl2TzYkCqu2n6u434joyJdPdnE6D05CaC0tveW3d3tdxV0pQA1Pi21HNkgGI/8l2xd2zOHOXLiIDyW8/IPtnWEt94lN+GY4+JwblkjILCOY5mVb7X/HOh/YANDCQo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=S96t2S5g; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2AD5A377AA4
+	for <linux-s390@vger.kernel.org>; Sun, 26 Jul 2026 07:28:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.169
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785050909; cv=pass; b=HeiFV+7Kv85vjI2eMbSx7QQ2C7SM6GgWWvbaBCDNN9J/DSGtufP45KPsFHmpWb90+dalbo6WI7m88ro7JgWHAl3tXiL+kiCUCcSzMrdsoAlxtgxTlkRH6LH///6nsqWnKaJM/6Dl8tUIsQCGtot5bn8i5nX4GpxTvq7HSwjL3So=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785050909; c=relaxed/simple;
+	bh=YnQSxA6vOc4L3vy7N3SIEFndSmFrtTsw7Yc0V12H9AE=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=mBtqa/iVUgGZQpoT6XmdCUh3JNEn4iLU4ZbZQ7vKa/K8SAshdrzn7whOG/67JufiKcSkcO9VVbmOgdD86r8mKfjGCl7kjcoVA3uYryrKX1acLEqKoDe2V8XzikEMyIS9uW8EaWEjCQE+0ZEB+/nyAfalPyV7R8XjVSWC0RO7WYY=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=KCgAiTVI; arc=pass smtp.client-ip=209.85.214.169
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="S96t2S5g"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B9201F000E9;
-	Sun, 26 Jul 2026 04:33:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785040397;
-	bh=zctwmYHbNrPEn+v5dxkM1nBPquoh07Hp2GQJOVfS6P8=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=S96t2S5gDEId59nS5OJUSQCHHX1f3i5NlFl6GF5OXZyGbpXaq9ODJP8IJhXndLHHY
-	 5me++7rsHh9MnQC39baJJXxxfdEmwPcARSn/r736C+0Dzq1GvUXvQx3id4aFmZen7j
-	 J8vQoiW0b6hAsdb4AL74dZ3B84wXizFjlXoO3ABXXO0p8Q8Lh9Ds0K3tlI0PhcDk4E
-	 eaCyx6Yfy+Hcf00MaREDYzMPydINudC2IEL/u5QOVjdX7AzoW0N3eXS4rieE0oFbtk
-	 4Hix9y4t7IBBCLIUphNwFjvV5QbmWjR/feKkn1OyA6rQB9clCzLvoxqzvFt+mDH8TI
-	 nZ7WpcECCqGhA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 03/10] s390/vfio_ccw: fix out of bounds check on CCW
- array
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Eric Farman" <farman@linux.ibm.com>
-Cc: "Heiko Carstens" <hca@linux.ibm.com>, kvm@vger.kernel.org, "Vasily
- Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org, "Alexander Gordeev" <agordeev@linux.ibm.com>
-In-Reply-To: <20260726040129.2946151-4-farman@linux.ibm.com>
-References: <20260726040129.2946151-1-farman@linux.ibm.com>
- <20260726040129.2946151-4-farman@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sun, 26 Jul 2026 04:33:16 +0000
-Message-Id: <20260726043317.0B9201F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KCgAiTVI"
+Received: by mail-pl1-f169.google.com with SMTP id d9443c01a7336-2cc7ef7ec27so21866655ad.1
+        for <linux-s390@vger.kernel.org>; Sun, 26 Jul 2026 00:28:28 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1785050907; cv=none;
+        d=google.com; s=arc-20260327;
+        b=WEK1W1qUBrFRx2nG70R24l27xMbnf+IN22b2CW40kYEvtburHkSIZcg+kIy1oITKjS
+         nc2A7u9SvSWylHEOTQc1mwLJMDwKHjfeNULg7vOWKtvJnEvER8ZiS8pP3B1y9bnBOP8c
+         LlT5W/i9pMOZkcSGc36e7LmC773R5xEDV2TiU/11fi/AVeandlDZmbWrY8RO8535RLL3
+         lGp5ChQRm55gUqoXfgfVMV59jpxiUEA6mNEdH/itjFyQQyWo4+1WPlYwmjoUw9bRr9zK
+         kvr4kim3/pUyENwOKAppOTLgrmCCyPUc+CB42hDy8EuyYKaFSffwFlHNhBQCbYNjcIUi
+         9NcQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=MeZgOjZ9fB6EjuAkf8ccBhVqZofI6hKeYPctz9DlCKk=;
+        fh=oIcVwsCMXr6HurvsJZNjpkd0D9nYgAz0LGUEoltkhXU=;
+        b=IgUwMCUj8x5WhFmSbhXsfVMrWUxNFrkBMnSJtAxep1NpuWS1dETPIimlubF7S80mlA
+         0iooqbp3MmJ9qDWXXodcpn7xiAN82PbLT6U/sqnwdB9KIojucpZ4PKK1/M5NUn4Iy5Ca
+         HqEYtoaQoHjS8vYGXQF0UTdsMWZsubBn6pJRASrlCwWIPAoNcwteeSs3uGqyoW1O11Oh
+         +EIG9s06CJm74c+PV8xQoemPhiQSZ/Gzl/ZohW71Ac1cnm+LYlsaiI/95F7qHDOeglis
+         g2YXkAobzBX8edsSP/Wc02cduNEPID6R2vnANv+4oW+OQu9q5VQLi0tp+xxYxqDHEs/m
+         mNiA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1785050907; x=1785655707; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=MeZgOjZ9fB6EjuAkf8ccBhVqZofI6hKeYPctz9DlCKk=;
+        b=KCgAiTVID2AWkA9m75V+zxXT29r04XQpF7RlSRr4DulTCQlPVuF6g+fhBz5uAEwP88
+         3nx7H39EQ46RtQoGay2Ha5WH5RdymQhLFjL3zhPML+a3KwbuH/pIesFHF44W7ZBIcqxy
+         9hIgscEaQdiKlFiNXc4aAh/wcgChbti+lWKrJGZBI9XqkJC5F0qhj1flptgZF6qkliOA
+         m7zNc7uCQa5ztbZ0RuKzKuDAKO79CRNqO680uD2mPTgKFe5llFI8ptgOrVSOfAEyuQsp
+         FHX9q7+Ogsx59azlmplfow0oVmm0OAalcrgLiMgagcZntvjAPGljTNaz2VEatDTwt4bc
+         KaOA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1785050907; x=1785655707;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=MeZgOjZ9fB6EjuAkf8ccBhVqZofI6hKeYPctz9DlCKk=;
+        b=GAyJDj1qp/sM9TvePuQthEf1SN4OeFzax1QWtU508oSR5Fmkw6JK2vV6hHlE8JJojn
+         N1xIzS10asK1ROlEjyHBg8eimi9Q31A0bOrJYSWca7DRJ2G1yBgIXmcooTuwtIK2KJ+M
+         XxHPy7YZqbjqMAd/m8Bb/rlBqCFSrU6ZymdrHYsejh6abwBz3vVPW9X/M5Eq9TNX5sJC
+         ZuRjzMSXDn/Xvl0e2OxhEz/znVynblSgeVzng2olwgKf0Ra3CumwiOD/ujBYKU7+AC84
+         645KguJKcGrYGwJ9HHG+v5eeQAaSbsuCEBZS8+QNRbwT6m084MaZ0FNp7FBUHQlPSajA
+         lv9Q==
+X-Forwarded-Encrypted: i=1; AHgh+Rq+sfhFR+ZOOWXBDCEkdr6nbIJ5mBN8Io+IkgQf5EWWHGdP3B/oBgMK+YHq/lVlUB2YFDKYPZKsivLa@vger.kernel.org
+X-Gm-Message-State: AOJu0YwUpmB2lY/bR/P9EDfNEsatPGkv8mjnFEL8zaAMZLenvEHAwLKU
+	IhGdS1GDsA+eAzi6Z7MpGVPlqIr9OJvdAQNbKvCnLGCFTA0iwh7PVl1Lw1/MieteMeLbQL9eqwn
+	xmzeplJQ//ZRHhCgsy90Jv1qaQvymZLY=
+X-Gm-Gg: AR+sD13Mi1EjFoU8tiZ9SmgnJIdMO6jBKa6SCGJe4ayWt0UKACEq+Ao1nj9+LTbhTFN
+	ZzUx6dNhyolD5pqfuz4LYZZlK21qQgcbZFsDFLC9kxzFlKiTiEoBSR85KICrFcljVHj0IWEpjn6
+	sa3P+FLazh+q398dgqmCwFutY07I5GLJVIc+umYn94x6NottpR17wIYUvOhGJLw5SaCgSyqY3HE
+	7YqcjD0afl0ik4J816oE16vxXKAxxSC0DIPJwuC6tjJ6oNGjNXBbhWlSc3H7tlhTJzL2qrq
+X-Received: by 2002:a17:902:e804:b0:2ca:d172:7228 with SMTP id
+ d9443c01a7336-2cfde7a73a4mr46103665ad.11.1785050907492; Sun, 26 Jul 2026
+ 00:28:27 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+References: <20260523-af-alg-harden-v1-2-c76755c3a5c5@gmail.com>
+ <20260603133312.12848-1-freude@linux.ibm.com> <amOGWwdjnJqyxH5L@codewreck.org>
+ <20260724160034.GB2032@sol> <amOTjPW__CNZui3_@codewreck.org>
+ <CAFLxGvy+ec3nQLrQtwFZgGELhT2pKBDnHdD0pMvEGh-Mf3rjgQ@mail.gmail.com> <20260725220443.GA41199@quark>
+In-Reply-To: <20260725220443.GA41199@quark>
+From: Richard Weinberger <richard.weinberger@gmail.com>
+Date: Sun, 26 Jul 2026 09:28:14 +0200
+X-Gm-Features: AUfX_mzf8K1M0e1Vg7IaGl-nBN4a4aellAj-_sCLX-Ln3es0XP2ZaWEmYseqOmw
+Message-ID: <CAFLxGvyBGzfwh61F5YkYqctNPCQJCpFOwTtKfDs4L+iK8WJZpQ@mail.gmail.com>
+Subject: Re: [PATCH 2/3] AF_ALG: Drop support for off-CPU cryptography
+To: Eric Biggers <ebiggers@kernel.org>
+Cc: Dominique Martinet <asmadeus@codewreck.org>, demiobenour@gmail.com, 
+	Harald Freudenberger <freude@linux.ibm.com>, acme@kernel.org, adrian.hunter@intel.com, 
+	alexander.shishkin@linux.intel.com, ardb@kernel.org, axboe@kernel.dk, 
+	corbet@lwn.net, davem@davemloft.net, edumazet@google.com, 
+	herbert@gondor.apana.org.au, horms@kernel.org, io-uring@vger.kernel.org, 
+	irogers@google.com, james.clark@linaro.org, jolsa@kernel.org, kuba@kernel.org, 
+	kuniyu@google.com, linux-crypto@vger.kernel.org, linux-doc@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org, 
+	mark.rutland@arm.com, mingo@redhat.com, namhyung@kernel.org, 
+	netdev@vger.kernel.org, pabeni@redhat.com, peterz@infradead.org, 
+	skhan@linuxfoundation.org, willemb@google.com, linux-s390@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
+On Sun, Jul 26, 2026 at 12:04=E2=80=AFAM Eric Biggers <ebiggers@kernel.org>=
+ wrote:
+> > You can create a CAAM BLOB (a generated and sealed key) using the
+> > trusted keys subsystem and use this BLOB
+> > later in AF_ALG to perform AES with a key invisible to userspace.
+> >
+> > e.g.
+> > kid=3D$(keyctl add trusted mykey "new 32 pk" @s)
+> > keyctl print $kid | xxd -r -p > blob.bin
+> > Then just create a caam_pkey_info in userspace and feed it into AF_ALG
+> > and perform AES with it.
+>
+> Well, specifically AES-CBC.  That's the only one that is in the driver.
 
-Pre-existing issues:
-- [Critical] Hardware Status Modifier skips allow the channel subsystem to =
-fetch and execute CCWs from out-of-bounds host memory because VFIO prematur=
-ely truncates the allocated chain.
---
+Yes.
 
---- Patch [3]: [PATCH v5 03/10] s390/vfio_ccw: fix out of bounds check on C=
-CW array ---
-commit 7c8a75a862f0fe5c95ff1ad636c202fa276e66c2
-Author: Eric Farman <farman@linux.ibm.com>
+> > So, pretty please,  if you kill AF_ALG and all this, offer some way to
+> > achieve the same in userspace.
+>
+> If needed, "cbc(paes)" and/or "cbc-paes-caam" (whichever name it is
+> being accessed as) can be allowed as a special case, as a stop-gap.
 
-s390/vfio_ccw: fix out of bounds check on CCW array
+Would be great.
 
-This commit fixes an out-of-bounds array access in ccwchain_calc_length().
-It restructures the loop to exit safely once the maximum number of CCWs
-(256) have been processed, preventing the code from evaluating memory
-outside the valid range.
+> This would need confirmed use of that specific algorithm with upstream,
+> which we don't quite have yet.  Dominique had a confirmed use of
+> "tk(cbc(aes))", but that has never existed upstream in the first place,
+> so it's not something that could be allowlisted upstream.
 
-> diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_c=
-p.c
-> --- a/drivers/s390/cio/vfio_ccw_cp.c
-> +++ b/drivers/s390/cio/vfio_ccw_cp.c
+It's "cbc(paes)".
 
-[ ... ]
+From one of my demo applications:
 
-> @@ -377,11 +377,9 @@ static void ccwchain_cda_free(struct ccwchain *chain=
-, int idx)
->  static int ccwchain_calc_length(u64 iova, struct channel_program *cp)
->  {
->  	struct ccw1 *ccw =3D cp->guest_cp;
-> -	int cnt =3D 0;
-> -
-> -	do {
-> -		cnt++;
-> +	int cnt;
-> =20
-> +	for (cnt =3D 1; cnt <=3D CCWCHAIN_LEN_MAX; cnt++, ccw++) {
->  		/*
->  		 * We want to keep counting if the current CCW has the
->  		 * command-chaining flag enabled, or if it is a TIC CCW
-> @@ -391,15 +389,10 @@ static int ccwchain_calc_length(u64 iova, struct ch=
-annel_program *cp)
->  		 * after the TIC, depending on the results of its operation.
->  		 */
->  		if (!ccw_is_chain(ccw) && !is_tic_within_range(ccw, iova, cnt))
-> -			break;
-> -
-> -		ccw++;
-> -	} while (cnt < CCWCHAIN_LEN_MAX + 1);
-> -
-> -	if (cnt =3D=3D CCWCHAIN_LEN_MAX + 1)
-> -		cnt =3D -EINVAL;
-> +			return cnt;
+struct sockaddr_alg sa =3D {
+       .salg_family =3D AF_ALG,
+       .salg_type =3D "skcipher",
+       .salg_name =3D "cbc(paes)",
+};
 
-[Severity: Critical]
-This is a pre-existing issue, but does this termination condition fully
-account for hardware status modifier skips?
+> You've only mentioned that it "can" be used in this way in upstream.
+> Can you confirm that it *is* used, and with an actual upstream algorithm
+> name, and if so which one(s)?  And if so, would you also be able to
+> share whether this is for dm-crypt or not?  We should remember that
+> dm-crypt accepts keys directly and AF_ALG is not needed to use it.
 
-If a guest constructs a channel program where a CCW specifies chaining
-and executes a command that generates a status modifier, and the
-immediately following CCW explicitly clears the chaining flag, will
-ccwchain_calc_length() stop counting at the second CCW?
+Well, if you require me to point to some open source application, sorry I c=
+an't.
 
-If the calculation stops there, it appears the subsystem would allocate a h=
-ost
-buffer sized for exactly two CCWs. When executed, the hardware would see
-the status modifier, skip the second CCW, and fetch a third CCW from
-memory immediately following the allocated buffer.
+But no, the use cases I know about are not dm-crypt.
+It's more allowing to encrypt/decrypt data in userspace without being able =
+to
+extract the key from the device. Since the key is hardware bound too,
+it is device
+specific and you cannot decrypt on device B what you have encrypted on A, e=
+ven
+if you share the BLOB.
+So, it's more like a building block for a poor man's secure element.
 
-Could this allow the channel subsystem to fetch and execute an untranslated,
-out-of-bounds CCW from host memory if the guest places one adjacent to the
-allocation?
-
-> +	}
-> =20
-> -	return cnt;
-> +	return -EINVAL;
->  }
-> =20
->  static int tic_target_chain_exists(struct ccw1 *tic, struct channel_prog=
-ram *cp)
+At $dayjob we've been recommending AF_ALG because it's a standard interface=
+.
+Not like other ad-hoc horrors via sysfs or worse we've seen on some BSPs.
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260726040129.2946=
-151-1-farman@linux.ibm.com?part=3D3
+Thanks,
+//richard
