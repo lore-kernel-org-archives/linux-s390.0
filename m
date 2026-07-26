@@ -1,69 +1,68 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 93E093D525F;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA43E3D565A;
 	Sun, 26 Jul 2026 17:22:03 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785086525; cv=none; b=IDToxWgMiShyV1u9eyupAMWlXQ85lFRcvYI4AvSyiePW/MYI/+Y0f55QEKTwpt3pZMQZyzO9ZtBtHAdNd2uYaA9L3nlczTDHXSnBFtOGmm+dtoEg6qkm9WdTZ16nxGmiCN5eI7l7K4N029s+xhqAJMzDo9yPguqT2gLvUyL4QOs=
+	t=1785086525; cv=none; b=YSdP+pyQken+NFqmGhYZ4FdnXbfzLS/CO1SVBHCb/UWlxEVZIpQ/rP8cUJNfsbbWkCe+pXYePa0j7m4N8t2jE/hML1ftnH3wmbIlexzvFHvvvkZ4PjVMNw9jHItTerU5FtSJFNoT+XSXciOWtOCv3Wk/dVF+ezVkEZlmufm//XU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1785086525; c=relaxed/simple;
-	bh=MhZP+ExapMndEcJ7FnnxrxZxP7LObxdIWgI1TyHjyNE=;
+	bh=vJs9xc/30hDx9JGZIF0UswmCWppURTGwpARUb6jic0E=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=jVfTx8VTEUjTLxKfqu+vNCjgJnQ34QSkw4bQ53+xmYLrp0yQG2eC//oon+eDovywariT6FtrtVojBMWHWHyuU/KwlYce6HOoYPwfbX3KfLSstvOuEuMF2JKvMZa0M9VVLEyJ3gqEK1Li6jTUeDzPelM+mkmODkkxOg65D8CA3mQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=dMkSJhSt; arc=none smtp.client-ip=148.163.158.5
+	 MIME-Version; b=p3RNpgsABWqBv+3xXzFszluEwAsBWPYi8Gg5SH1a9v5th63hjMcu2fiDFIKyMxHI1TtM1CTTjmScxQ2y1GFSJ5WskHvcn0r67B2FUA5tUSr6gjQtauDcngbnYglIxx5INbLgGVFyhFvMzsngdJ5YEc4EGvMugHZCbdhplF3PsmY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=VjGUavPG; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="dMkSJhSt"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66QHJV3X3957779;
-	Sun, 26 Jul 2026 17:22:01 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="VjGUavPG"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66QHHfns3965189;
+	Sun, 26 Jul 2026 17:22:02 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=x4lpqNOAqdwmvxg4I
-	fxoTPAN8S+mdYoMzkMlHCCSKOA=; b=dMkSJhStIpbrnqLIxmQxq2uh8juXgrwr9
-	mXN5JfBltVIgJUJ49HLUM7+QS3ztwd8GK2+mwAFfVv8BySM/iCg7F43q6prl1+IJ
-	fBc85lzdwGOyUo6ZcvQPz9l5LFIPuNbudQm8fk+dCDNgvbluSSSNxDcn7pIJ4RBF
-	jqhc4m605SlxtSNR6QWMUJkoTjQBgUFQCLCwPGDzWzmsPyX153uEQr/abWD+lf1D
-	9APSIQm+qpqFVO38esU7StdtK1XjTGobnMRXOesMmG0tt49t5S3WFhV6m9dcflLk
-	4ij9TDCdG/90USJSNH1iUD973mswjLTrcY3OsUM9hYQfjwUzoIz4Q==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fmv0nc350-1
+	:mime-version:references:subject:to; s=pp1; bh=pehW+LNYXXMR8byif
+	W1tmfAYrofliG2hjo0xlZC76H0=; b=VjGUavPGz0YBxHdEppj8mb5HE7xP00jhl
+	xWjz59hN/AtV4aCOOtnd7EGSyc/dxIoazKSBScbjzWWsU5wCLMfgc3B2O20hS0eC
+	BZhGzSCMHrGvHrKl1d92DLVJMsDeGcnMYLL/bI2K4eIcU6ruj95ykJxRtqA4C6AS
+	WRA9RkNxNVmaW1Ahlk+/JSgPTP8exGWDKvoOgORRZaomLvox+PdseuHsi1m8UlSn
+	R323/08bDwfOckNULEjXHr+8Y6iCmzQY7hlbvrvrgUfyKOQFA6yFocwpOz4YBmt7
+	Ec7IDL6WXtm1B3/O7dukdCxGQ1eYTOt7xkwsHUal3DK8gh7rdkrWA==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fmuyhv3u6-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Sun, 26 Jul 2026 17:22:02 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66QHBhbh008349;
+	Sun, 26 Jul 2026 17:22:01 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fn8yh25j4-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Sun, 26 Jul 2026 17:22:01 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66QHBklN020751;
-	Sun, 26 Jul 2026 17:22:00 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fn9pg21js-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Sun, 26 Jul 2026 17:22:00 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66QHLvfl44696024
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66QHLvN151839288
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
 	Sun, 26 Jul 2026 17:21:57 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id EDA8F2005A;
-	Sun, 26 Jul 2026 17:21:56 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C5E5720063;
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A8A1820099;
+	Sun, 26 Jul 2026 17:21:57 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9CBB02009B;
 	Sun, 26 Jul 2026 17:21:56 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with SMTP;
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with SMTP;
 	Sun, 26 Jul 2026 17:21:56 +0000 (GMT)
 Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 4958)
-	id 8A22D1611ED; Sun, 26 Jul 2026 19:21:56 +0200 (CEST)
+	id 85DBF161122; Sun, 26 Jul 2026 19:21:56 +0200 (CEST)
 From: Eric Farman <farman@linux.ibm.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org,
         linux-kernel@vger.kernel.org
 Cc: Matthew Rosato <mjrosato@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Eric Farman <farman@linux.ibm.com>, stable@vger.kernel.org,
-        Cornelia Huck <cohuck@redhat.com>
-Subject: [PATCH v6 06/10] s390/vfio_ccw: ensure index for read/write regions are within range
-Date: Sun, 26 Jul 2026 19:21:49 +0200
-Message-ID: <20260726172153.1818056-7-farman@linux.ibm.com>
+        Eric Farman <farman@linux.ibm.com>, stable@vger.kernel.org
+Subject: [PATCH v6 04/10] s390/vfio_ccw: ensure first IDAW remains constant
+Date: Sun, 26 Jul 2026 19:21:47 +0200
+Message-ID: <20260726172153.1818056-5-farman@linux.ibm.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260726172153.1818056-1-farman@linux.ibm.com>
 References: <20260726172153.1818056-1-farman@linux.ibm.com>
@@ -75,186 +74,115 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI2MDE3NSBTYWx0ZWRfX+FaXXXdCoiTS
- UF+rL9RZ2B8dKmh2aIx6j5uFWqIIW8tGX7Uo+/cx2G70Hxkd+daW7o/wPvwS7vqVZ0eSe/yD3Uk
- C7OE2GznA24v2xBsBXzjzcXd2b62i7U=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI2MDE3NSBTYWx0ZWRfX/Nzk2BsXIPKU
- cXWjBEBef3pF+OR6+lvNgbwf+9FvRA2MpxH0wmOt0tgRgdDGtEFpNuvSDs6O1UsmojCJBhk5jLC
- g8WhIhGU8CtMbjg6jiLFVwljaiAecO5RhrtOWRxqPCsqlELS0uH6XP50AftRrVoJ8HcRbkyHP0X
- vaMXB/2ppCx1umfmeeM9s6hZH7h52/tdY5o3VFE30KWMj1aGqpDsgEkz4KB8ojQjbfDpPPffWeB
- 9iFUtdNZEyAze2gp4ZpGTxD675FjyTZQ8//QhdOicsxBDyJe6KBaOTYIdWbOhBfi5t4NzQXqDTv
- qLisqhZDUYy/Vk7DDcA9vqayQnJwSmwY4fxBBEQ0sHEkVrYnkvz07fJQV2oZN96wTv/FheXxq5j
- /eKPtc662DoTEIV0OJ67DU0OHlBbB0trOtqhKsDzA0rdQB3a3YyW0avuj2KyyXDd9wwbR1PIIta
- EhkNlX9EAChgLcPPNAQ==
-X-Authority-Analysis: v=2.4 cv=b5WCJNGx c=1 sm=1 tr=0 ts=6a664239 cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI2MDE3NSBTYWx0ZWRfXwdE3vYdCAPn7
+ S8Z/Nn6fhp0A+0uo7LV2fdpJkulMFpCbXMqipxIFuxQA4wNgIHPaVJ2QgDVfP1RjHDxsbDycgWi
+ A1hcWu27XfVuH/g+kvRUVd6azs31SAk=
+X-Proofpoint-GUID: rgNoVkx2-IqU4kgbIle-jA6nZBY5_66u
+X-Proofpoint-ORIG-GUID: rgNoVkx2-IqU4kgbIle-jA6nZBY5_66u
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI2MDE3NSBTYWx0ZWRfX9Hz9yZ9kVyCU
+ vqrzbsR7uoc4Y6GwtyJm73U4aa7z6REFNMQXvSJk2fwhf5pWDYT8qPqNAQOnxJqGPvL2yLc6PUb
+ Fi9EkWBsMjDweFgdUugVUW0n+CGGRe4YLlqD38YyLMB46alqHpNSWdowVw7CZjHiXqCoiEMeF15
+ kb1ak6HzqGZ+/jj6aJJDUnKO17qb9rfnlrcSZZCYu67VCL//7HYiPi0Bleis/XaKtCAsm20zjbA
+ Q8b9j3aoKxtasIyGQHKcsl7KVWn9xWuCSEmfmyr+t8Q80rWMgQ0EDSRchi4JCmaO9/XNTsxsi1/
+ HvJWc9av//uqEUF9e6th1Jh15GOj3ZLjmOvmvA6zvVo4RV5TJMcRo+WP7y7Bceqa34xorpo4exh
+ dzr3gvhACEIYDBvQ68jeUKNK1Bj1B5MyAAp2R9Bb9ERGeaw5Cqr17+iKRHLtCfRJ5HGu4Zj+Pu7
+ rQJo9VRhIsqSwrLJWEA==
+X-Authority-Analysis: v=2.4 cv=X5Vi7mTe c=1 sm=1 tr=0 ts=6a66423a cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
  a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=V8glGbnc2Ofi9Qvn3v5h:22 a=VwQbUJbxAAAA:8 a=20KFwNOVAAAA:8 a=VnNF1IyMAAAA:8
- a=jUipGm6kB3s0BbMcHoAA:9
-X-Proofpoint-GUID: VRGZQKEIGIuGh3PsLub1XQU2X3wZnimj
-X-Proofpoint-ORIG-GUID: VRGZQKEIGIuGh3PsLub1XQU2X3wZnimj
+ a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
+ a=TyQ-expsAN5g-WtpmiwA:9
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-07-26_05,2026-07-24_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 spamscore=0 adultscore=0 malwarescore=0 impostorscore=0
- bulkscore=0 phishscore=0 suspectscore=0 clxscore=1015 lowpriorityscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607260175
+ clxscore=1015 impostorscore=0 lowpriorityscore=0 phishscore=0
+ priorityscore=1501 malwarescore=0 spamscore=0 suspectscore=0 bulkscore=0
+ adultscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2607260175
 
-The introduction of the capability chain rightly clamped the
-region indexes to the range of the capabilities itself, but
-neglected to do so for the existing read/write regions which
-should also be enforced.
+The first IDAW in a list does not need to be on a 2K/4K boundary
+like all others, and so is read separately to accurately calculate
+the size of the buffer needed to read the full IDAL.
 
-Fixes: db8e5d17ac03 ("vfio-ccw: add capabilities chain")
+Verify that the address found in the first IDAW is unchanged between
+reads, to ensure a consistent set of IDAWs being worked with.
+
+Fixes: 01aa26c672c0 ("s390/cio: Combine direct and indirect CCW paths")
 Cc: stable@vger.kernel.org
-Cc: Cornelia Huck <cohuck@redhat.com>
 Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
 Signed-off-by: Eric Farman <farman@linux.ibm.com>
 ---
- drivers/s390/cio/vfio_ccw_async.c | 16 ++++++++++++++++
- drivers/s390/cio/vfio_ccw_chp.c   | 15 +++++++++++++++
- drivers/s390/cio/vfio_ccw_ops.c   |  7 +++----
- 3 files changed, 34 insertions(+), 4 deletions(-)
+ drivers/s390/cio/vfio_ccw_cp.c | 16 ++++++++++++++++
+ drivers/s390/cio/vfio_ccw_cp.h |  2 ++
+ 2 files changed, 18 insertions(+)
 
-diff --git a/drivers/s390/cio/vfio_ccw_async.c b/drivers/s390/cio/vfio_cc=
-w_async.c
-index 420d89ba7f83..4aff0b58fa5d 100644
---- a/drivers/s390/cio/vfio_ccw_async.c
-+++ b/drivers/s390/cio/vfio_ccw_async.c
-@@ -8,6 +8,7 @@
-  */
-=20
- #include <linux/vfio.h>
-+#include <linux/nospec.h>
-=20
- #include "vfio_ccw_private.h"
-=20
-@@ -24,11 +25,20 @@ static ssize_t vfio_ccw_async_region_read(struct vfio=
-_ccw_private *private,
- 		return -EINVAL;
-=20
- 	mutex_lock(&private->io_mutex);
+diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_c=
+p.c
+index af632f9d5453..6275794751cb 100644
+--- a/drivers/s390/cio/vfio_ccw_cp.c
++++ b/drivers/s390/cio/vfio_ccw_cp.c
+@@ -523,6 +523,7 @@ static dma64_t *get_guest_idal(struct ccw1 *ccw, stru=
+ct channel_program *cp, int
+ 		&container_of(cp, struct vfio_ccw_private, cp)->vdev;
+ 	dma64_t *idaws;
+ 	dma32_t *idaws_f1;
++	u64 first_idaw;
+ 	int idal_len =3D idaw_nr * sizeof(*idaws);
+ 	int idaw_size =3D idal_is_2k(cp) ? PAGE_SIZE / 2 : PAGE_SIZE;
+ 	int idaw_mask =3D ~(idaw_size - 1);
+@@ -539,6 +540,18 @@ static dma64_t *get_guest_idal(struct ccw1 *ccw, str=
+uct channel_program *cp, int
+ 			kfree(idaws);
+ 			return ERR_PTR(ret);
+ 		}
 +
-+	if (i >=3D private->num_regions) {
-+		ret =3D -EINVAL;
-+		goto out_unlock;
-+	}
++		idaws_f1 =3D (dma32_t *)idaws;
++		if (cp->orb.cmd.c64)
++			first_idaw =3D dma64_to_u64(idaws[0]);
++		else
++			first_idaw =3D dma32_to_u32(idaws_f1[0]);
 +
-+	i =3D array_index_nospec(i, private->num_regions);
- 	region =3D private->region[i].data;
- 	if (copy_to_user(buf, (void *)region + pos, count))
- 		ret =3D -EFAULT;
- 	else
- 		ret =3D count;
-+
-+out_unlock:
- 	mutex_unlock(&private->io_mutex);
- 	return ret;
- }
-@@ -48,6 +58,12 @@ static ssize_t vfio_ccw_async_region_write(struct vfio=
-_ccw_private *private,
- 	if (!mutex_trylock(&private->io_mutex))
- 		return -EAGAIN;
-=20
-+	if (i >=3D private->num_regions) {
-+		ret =3D -EINVAL;
-+		goto out_unlock;
-+	}
-+
-+	i =3D array_index_nospec(i, private->num_regions);
- 	region =3D private->region[i].data;
- 	if (copy_from_user((void *)region + pos, buf, count)) {
- 		ret =3D -EFAULT;
-diff --git a/drivers/s390/cio/vfio_ccw_chp.c b/drivers/s390/cio/vfio_ccw_=
-chp.c
-index 38c176cf6295..f3015132d4b5 100644
---- a/drivers/s390/cio/vfio_ccw_chp.c
-+++ b/drivers/s390/cio/vfio_ccw_chp.c
-@@ -9,6 +9,7 @@
-  */
-=20
- #include <linux/slab.h>
-+#include <linux/nospec.h>
- #include <linux/vfio.h>
- #include "vfio_ccw_private.h"
-=20
-@@ -26,6 +27,13 @@ static ssize_t vfio_ccw_schib_region_read(struct vfio_=
-ccw_private *private,
- 		return -EINVAL;
-=20
- 	mutex_lock(&private->io_mutex);
-+
-+	if (i >=3D private->num_regions) {
-+		ret =3D -EINVAL;
-+		goto out;
-+	}
-+
-+	i =3D array_index_nospec(i, private->num_regions);
- 	region =3D private->region[i].data;
-=20
- 	if (cio_update_schib(sch)) {
-@@ -97,6 +105,12 @@ static ssize_t vfio_ccw_crw_region_read(struct vfio_c=
-cw_private *private,
- 		list_del(&crw->next);
-=20
- 	mutex_lock(&private->io_mutex);
-+	if (i >=3D private->num_regions) {
-+		ret =3D -EINVAL;
-+		goto out;
-+	}
-+
-+	i =3D array_index_nospec(i, private->num_regions);
- 	region =3D private->region[i].data;
-=20
- 	if (crw)
-@@ -109,6 +123,7 @@ static ssize_t vfio_ccw_crw_region_read(struct vfio_c=
-cw_private *private,
-=20
- 	region->crw =3D 0;
-=20
-+out:
- 	mutex_unlock(&private->io_mutex);
-=20
- 	kfree(crw);
-diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_=
-ops.c
-index 45ec722d25ea..032a1cdf4df7 100644
---- a/drivers/s390/cio/vfio_ccw_ops.c
-+++ b/drivers/s390/cio/vfio_ccw_ops.c
-@@ -243,6 +243,7 @@ static ssize_t vfio_ccw_mdev_read(struct vfio_device =
-*vdev,
- 		return vfio_ccw_mdev_read_io_region(private, buf, count, ppos);
- 	default:
- 		index -=3D VFIO_CCW_NUM_REGIONS;
-+		index =3D array_index_nospec(index, private->num_regions);
- 		return private->region[index].ops->read(private, buf, count,
- 							ppos);
++		/* Unexpected mismatch from earlier read */
++		if (first_idaw !=3D cp->guest_iova) {
++			kfree(idaws);
++			return ERR_PTR(-EINVAL);
++		}
+ 	} else {
+ 		/* Fabricate an IDAL based off CCW data address */
+ 		if (cp->orb.cmd.c64) {
+@@ -604,6 +617,9 @@ static int ccw_count_idaws(struct ccw1 *ccw,
+ 		iova =3D dma32_to_u32(ccw->cda);
  	}
-@@ -295,6 +296,7 @@ static ssize_t vfio_ccw_mdev_write(struct vfio_device=
- *vdev,
- 		return vfio_ccw_mdev_write_io_region(private, buf, count, ppos);
- 	default:
- 		index -=3D VFIO_CCW_NUM_REGIONS;
-+		index =3D array_index_nospec(index, private->num_regions);
- 		return private->region[index].ops->write(private, buf, count,
- 							 ppos);
- 	}
-@@ -338,11 +340,8 @@ static int vfio_ccw_mdev_ioctl_get_region_info(struc=
-t vfio_device *vdev,
- 		    VFIO_CCW_NUM_REGIONS + private->num_regions)
- 			return -EINVAL;
 =20
--		info->index =3D array_index_nospec(info->index,
--						 VFIO_CCW_NUM_REGIONS +
--						 private->num_regions);
--
- 		i =3D info->index - VFIO_CCW_NUM_REGIONS;
-+		i =3D array_index_nospec(i, private->num_regions);
++	/* Save the read address for later */
++	cp->guest_iova =3D iova;
++
+ 	/* Format-1 IDAWs operate on 2K each */
+ 	if (!cp->orb.cmd.c64)
+ 		return idal_2k_nr_words((void *)iova, bytes);
+diff --git a/drivers/s390/cio/vfio_ccw_cp.h b/drivers/s390/cio/vfio_ccw_c=
+p.h
+index a9b1d8dbc6f6..9af98ff12d67 100644
+--- a/drivers/s390/cio/vfio_ccw_cp.h
++++ b/drivers/s390/cio/vfio_ccw_cp.h
+@@ -35,6 +35,7 @@
+  * @initialized: whether this instance is actually initialized
+  * @guest_cp: copy of guest channel program
+  * @ccwchain_count: number of channel program segments (linked by TIC)
++ * @guest_iova: first data address of a guest channel program
+  *
+  * @ccwchain_list is the head of a ccwchain list, that contents the
+  * translated result of the guest channel program that pointed out by
+@@ -46,6 +47,7 @@ struct channel_program {
+ 	bool initialized;
+ 	struct ccw1 *guest_cp;
+ 	unsigned int ccwchain_count;
++	u64 guest_iova;
+ };
 =20
- 		info->offset =3D VFIO_CCW_INDEX_TO_OFFSET(info->index);
- 		info->size =3D private->region[i].size;
+ int cp_init(struct channel_program *cp, union orb *orb);
 --=20
 2.53.0
 
