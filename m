@@ -1,225 +1,108 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D8B003C1991;
-	Sun, 26 Jul 2026 17:39:01 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9E7693D6CA5;
+	Sun, 26 Jul 2026 17:40:12 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785087543; cv=none; b=nzUVKd1y1IR37+izb/sbTsrbj4MFNXPOZfDAY6HoIYui1dN55Dnj/y4/NeJlsQG8KImjtBKvewhxPzRWbGDz2B6sgoI78Xu1POdrYol5NqqOCDIt+D1AjZlxkFygCJaSqfa2lPi4VZT0R+tapVEWzjtaEG6zKvF73r38+GyyESw=
+	t=1785087613; cv=none; b=tcMIfTc1N90BbDIF39H8FJe4vCf7FqgH0R1uCuDczMI6QPAxRmFc3hlMwAdxmNhy0VygcEWn9ccQ18vbgpAxAud5rdiN65SP/jnCegT5m0rP5EliPF8WD2w3H5ctQh2DtrWpIG24V+DTnahge5MnhI1APnaDrnYIpFAG7HySYjc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785087543; c=relaxed/simple;
-	bh=Vjpl3iYMYT0IrxHTYUJgBJUeUo6CABeyu0ZN3c/QI5s=;
+	s=arc-20240116; t=1785087613; c=relaxed/simple;
+	bh=tGq9Xe5djD8NEW9++dDHZWyKtzcKAaD+QxINb1rZJHk=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=WrHYr93HTwBGXrWxqFbaNce1GOdvihBH44b1teF8ra/SpPOfcDaOMsOCdF73q4fUnTYVMDo8//sr+j7tu6Oa/Fox47BsF2j0YiKFmTlv2HUXuZ+OWmR1wsJlBhiz7Mg7aZ8S8wE3gDRhG4cNVcqzkbfAc+RBs8tPPouJ7hTKfuc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ePlDnU5r; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=tveQZ68eKuAk3RmylRlQZ/aTSXZM/iwifGvLXTO4C3p+noCZZ8B6yDZZ7PHZDWboEhRoJZipCZvdLUyPQq/i2TmVyNzxeu+t//J8VMZaKVt1EqyoaD/DIPEjlD7hyN/o8MN2tDigrR/HZb4IX/nhfoNkPsl8P/EQAVxpjI8wklw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=b5ugJpKa; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ePlDnU5r"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48D311F000E9;
-	Sun, 26 Jul 2026 17:39:01 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="b5ugJpKa"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37EC91F000E9;
+	Sun, 26 Jul 2026 17:40:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785087541;
-	bh=W7ixV6Jpk18NmoaqKlcuyRQNXdjxTf/jIWd8ZYwVS+A=;
+	s=k20260515; t=1785087612;
+	bh=+uMZQq1nndo5vV+rB/hzZNVRX6Auswa2CFaQ54rhkdI=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=ePlDnU5rkHA8BCXETBB9D8LdI7UYcYtFGEj9BIbTjpZ8Ydeq2MCOgj4ruardJ146K
-	 baPwilPC0GBzJQrbO6SapqfczFUFXITWYtNaCGbq+6mafGMTTUOpcQJzsEpR4Wq+QY
-	 IzOp3PVWT2Jwt855+54aDsKHD4xVkEVnbc8S0PzIWC/T1PnJsp2Z2rfe1CBGs6UIeL
-	 M6qboO8CN8nQrB7/Dnzuwh9o6W7+ohU9GfF3hjga+Et9m8HhfSudaPq4wIdt86O3oF
-	 zc0p0Xn+ZsaUxmht1F7pH+pjDW1DUzsOLuvJgeIVOsv1iBOvR58L3JFAmp4r1Mi/wf
-	 rxsjZhK2goGkA==
+	b=b5ugJpKa/7AIF16hGbGGwnGWo20xHtWlCJXd/WC3il/L55ruwQPEJrp1eJ7yvHKuY
+	 WvnzHOdBN7WZZLbel5NGQyZY0E3XwwGUFQAXxUTvqaX3u4FJc8VlLU6bt9W475+awj
+	 cl0y4Pt6k4IBmYHCRDeeKY8BnjSBY0Dbz3S7bztRF6spWu9xq0Cd7sihJahYeeSyZB
+	 3JoBsTP8NTQq7JuPlQtR488WyeKrfj4aASUY8NnDC/7mvLBCgWo8UmzeNXGhX4wB2u
+	 bBqFEfnerfRfYLsrFLREklmVAoN9xyYjb9lFuZHdPidHJl0CtiO6Zq1q+OEnmlyEoZ
+	 1Ybh2Zzdo+KDQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v6 10/10] s390/vfio_ccw: implement a crw lock
+Subject: Re: [PATCH v6 04/10] s390/vfio_ccw: ensure first IDAW remains
+ constant
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Eric Farman" <farman@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
- Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
-In-Reply-To: <20260726172153.1818056-11-farman@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>, "Heiko
+ Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, kvm@vger.kernel.org
+In-Reply-To: <20260726172153.1818056-5-farman@linux.ibm.com>
 References: <20260726172153.1818056-1-farman@linux.ibm.com>
- <20260726172153.1818056-11-farman@linux.ibm.com>
+ <20260726172153.1818056-5-farman@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sun, 26 Jul 2026 17:39:00 +0000
-Message-Id: <20260726173901.48D311F000E9@smtp.kernel.org>
+Date: Sun, 26 Jul 2026 17:40:11 +0000
+Message-Id: <20260726174012.37EC91F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 5 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [High] A race condition between asynchronous channel path events (vfio_cc=
-w_chp_event) and device removal (vfio_ccw_mdev_remove) can cause a Use-Afte=
-r-Free of the private structure.
-- [High] Unbounded growth of the CRW queue leads to kernel memory leaks and=
- potential OOM.
-- [High] Unsynchronized replacement and freeing of eventfd triggers in vfio=
-_ccw_mdev_set_irqs races with their usage, leading to a Use-After-Free.
-- [High] Incorrect teardown sequence in vfio_ccw_mdev_release_dev frees lis=
-t elements before cancelling asynchronous work, causing a memory leak or UA=
-F.
-- [Medium] A 0-byte read operation on the CRW region inappropriately consum=
-es and drops a CRW event.
+- [High] Out of Bounds Memory Read in get_guest_idal for Format-1 IDALs
 --
 
---- Patch [10]: [PATCH v6 10/10] s390/vfio_ccw: implement a crw lock ---
-commit a24849c415dabc5f49c5f9509d897bea1c9a72dc
+--- Patch [4]: [PATCH v6 04/10] s390/vfio_ccw: ensure first IDAW remains co=
+nstant ---
+commit c3bce41a8cd87ec5448bafb458598e338f70a2c4
 Author: Eric Farman <farman@linux.ibm.com>
 
-s390/vfio_ccw: implement a crw lock
+s390/vfio_ccw: ensure first IDAW remains constant
 
-Unlike the channel_program struct, which covers synchronous I/O
-submissions and asynchronous interrupts, the CRW region relies
-exclusively on asynchronous events coming from hardware.
-Implement a lock to manage the list of those payloads, to ensure
-they are read cohesively.
+The first IDAW in a list does not need to be on a 2K/4K boundary
+like all others, and so is read separately to accurately calculate
+the size of the buffer needed to read the full IDAL. This commit
+verifies that the address found in the first IDAW is unchanged between
+reads to ensure a consistent set of IDAWs being worked with.
 
-> diff --git a/drivers/s390/cio/vfio_ccw_chp.c b/drivers/s390/cio/vfio_ccw_=
-chp.c
-> index f3015132d4b5f..7708eb4d6de0b 100644
-> --- a/drivers/s390/cio/vfio_ccw_chp.c
-> +++ b/drivers/s390/cio/vfio_ccw_chp.c
-[ ... ]
-> @@ -113,6 +108,16 @@ static ssize_t vfio_ccw_crw_region_read(struct vfio_=
-ccw_private *private,
->  	i =3D array_index_nospec(i, private->num_regions);
->  	region =3D private->region[i].data;
-> =20
-> +	spin_lock_irqsave(&private->crw_lock, flags);
-> +	crw =3D list_first_entry_or_null(&private->crw,
-> +				       struct vfio_ccw_crw, next);
-> +
-> +	if (crw)
-> +		list_del(&crw->next);
-> +
-> +	/* Drop CRW lock while copying to userspace */
-> +	spin_unlock_irqrestore(&private->crw_lock, flags);
-> +
-
-[Severity: Medium]
-This is a pre-existing issue, but does a 0-byte read operation on the CRW
-region inappropriately consume and drop a CRW event?
-
-If userspace performs a read operation on the CRW region with count =3D=3D =
-0, the
-driver proceeds to dequeue an event from private->crw here, performs a 0-by=
-te
-copy_to_user(), and then frees the CRW object. The event would be lost fore=
-ver
-without being delivered.
-
-> diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_=
-drv.c
-> index faf2de074a10f..d7e93b9d491ca 100644
-> --- a/drivers/s390/cio/vfio_ccw_drv.c
-> +++ b/drivers/s390/cio/vfio_ccw_drv.c
-> @@ -122,11 +122,14 @@ void vfio_ccw_sch_io_todo(struct work_struct *work)
->  void vfio_ccw_crw_todo(struct work_struct *work)
->  {
->  	struct vfio_ccw_private *private;
-> +	unsigned long flags;
-> =20
->  	private =3D container_of(work, struct vfio_ccw_private, crw_work);
-> =20
-> +	spin_lock_irqsave(&private->crw_lock, flags);
->  	if (!list_empty(&private->crw) && private->crw_trigger)
->  		eventfd_signal(private->crw_trigger);
-> +	spin_unlock_irqrestore(&private->crw_lock, flags);
->  }
+> diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_c=
+p.c
+> index af632f9d54535..6275794751cb4 100644
+> --- a/drivers/s390/cio/vfio_ccw_cp.c
+> +++ b/drivers/s390/cio/vfio_ccw_cp.c
+> @@ -523,6 +523,7 @@ static dma64_t *get_guest_idal(struct ccw1 *ccw, stru=
+ct channel_program *cp, int
+>  		&container_of(cp, struct vfio_ccw_private, cp)->vdev;
+>  	dma64_t *idaws;
+>  	dma32_t *idaws_f1;
+> +	u64 first_idaw;
+>  	int idal_len =3D idaw_nr * sizeof(*idaws);
 
 [Severity: High]
-This is a pre-existing issue, but is there an unsynchronized replacement and
-freeing of eventfd triggers in vfio_ccw_mdev_set_irqs() that races with the=
-ir
-usage here?
+This is a pre-existing issue, but does this unconditionally calculate the D=
+MA=20
+read length assuming 8-byte IDAWs?
 
-Userspace can call the VFIO_DEVICE_SET_IRQS ioctl to change or clear eventf=
-ds.
-vfio_ccw_mdev_set_irqs() handles this and calls eventfd_ctx_put() without
-holding any locks to serialize it against asynchronous readers like
-vfio_ccw_crw_todo().
+Since sizeof(*idaws) evaluates to 8 for the dma64_t type, but Format-1 IDAW=
+s=20
+are only 4 bytes (dma32_t), idal_len appears to be double the required size=
+=20
+for Format-1.
 
-If a reader holds a pointer to private->crw_trigger while the ioctl drops t=
-he
-reference, could the reader call eventfd_signal() on a freed object?
+When this over-calculated size is later passed to vfio_dma_rw() in this same
+function:
 
-> @@ -296,7 +300,9 @@ static void vfio_ccw_queue_crw(struct vfio_ccw_privat=
-e *private,
->  	crw->crw.erc =3D erc;
->  	crw->crw.rsid =3D rsid;
-> =20
-> +	spin_lock_irqsave(&private->crw_lock, flags);
->  	list_add_tail(&crw->next, &private->crw);
-> +	spin_unlock_irqrestore(&private->crw_lock, flags);
->  	queue_work(vfio_ccw_work_q, &private->crw_work);
->  }
+get_guest_idal() {
+    ...
+    ret =3D vfio_dma_rw(vdev, dma32_to_u32(ccw->cda), idaws, idal_len, fals=
+e);
+    ...
+}
 
-[Severity: High]
-This is a pre-existing issue, but could unbounded growth of the CRW queue
-lead to kernel memory leaks and potential OOM?
-
-vfio_ccw_queue_crw() unconditionally allocates new struct vfio_ccw_crw obje=
-cts
-using kzalloc_obj(GFP_ATOMIC) and appends them to private->crw. Without bou=
-nds
-checking or a limit on the number of elements, a stream of events could cau=
-se
-the queue to grow infinitely, consuming un-reclaimable kernel memory.
-
-[Severity: High]
-This is a pre-existing issue, but is there a race condition between
-asynchronous channel path events and device removal?
-
-In vfio_ccw_chp_event(), the private structure is fetched using
-dev_get_drvdata() without acquiring a reference count:
-
-vfio_ccw_chp_event()
-    struct vfio_ccw_private *private =3D dev_get_drvdata(&parent->dev);
-
-Concurrently, if a user unbinds the device, vfio_ccw_mdev_remove() executes,
-clearing the drvdata and dropping the final reference via vfio_put_device(),
-which frees the private structure.
-
-Could vfio_ccw_chp_event() then call vfio_ccw_queue_crw(), dereferencing the
-freed pointer and causing a Use-After-Free?
-
-> diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_=
-ops.c
-> index ddfcd2b4296f1..2f28846fdf724 100644
-> --- a/drivers/s390/cio/vfio_ccw_ops.c
-> +++ b/drivers/s390/cio/vfio_ccw_ops.c
-[ ... ]
-> @@ -137,11 +138,14 @@ static void vfio_ccw_mdev_release_dev(struct vfio_d=
-evice *vdev)
->  	struct vfio_ccw_private *private =3D
->  		container_of(vdev, struct vfio_ccw_private, vdev);
->  	struct vfio_ccw_crw *crw, *temp;
-> +	unsigned long flags;
-> =20
-> +	spin_lock_irqsave(&private->crw_lock, flags);
->  	list_for_each_entry_safe(crw, temp, &private->crw, next) {
->  		list_del(&crw->next);
->  		kfree(crw);
->  	}
-> +	spin_unlock_irqrestore(&private->crw_lock, flags);
-> =20
->  	/* Should be empty, but just in case */
->  	cancel_work_sync(&private->io_work);
-
-[Severity: High]
-This is a pre-existing issue, but does this teardown sequence free list
-elements before cancelling asynchronous work?
-
-By iterating through private->crw and freeing all elements before calling
-cancel_work_sync(&private->crw_work), the lifecycle ordering violates the
-principle of stopping asynchronous work before freeing the resources it
-operates on.
-
-If an event concurrently calls vfio_ccw_queue_crw() and inserts an element
-after the list is emptied but before cancel_work_sync(), could the element
-be leaked?
+Could this cause valid I/O requests to fail if the over-calculated length=20
+happens to cross into an unmapped adjacent guest memory page?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260726172153.1818=
-056-1-farman@linux.ibm.com?part=3D10
+056-1-farman@linux.ibm.com?part=3D4
