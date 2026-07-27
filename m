@@ -1,45 +1,45 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C7EC3D3499;
-	Mon, 27 Jul 2026 20:03:49 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 06F0B3CFF73;
+	Mon, 27 Jul 2026 20:04:16 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785182630; cv=none; b=A85eVuZaNZkSrC0usi9jylbNgvu8Fefsy29YAVCaDKPCHxijj7mJphWzUDG62UUAfKIXiaueLx6O7yUx23Ym2UoDv3lkn0LiHpOMcuqVWhNomsRy1CXpZEY3DFOAkWWxczbz9BLqQdlU12ueizTJfRCZUu1+9KEgqlaZxMzFSro=
+	t=1785182658; cv=none; b=vFln4BntVgWo9jnXcJGIGkbajzadsV1RFbQMNuiso0q6vpMDyzJDz+UFtwbg0dp8Cf+tD/PKfOMAWKKt25N+qQFnzKZVib1UUJaEHGgVMtTWVykF2AM+IWtWCveBCNPCgWdl0KSJDmFEZzqp/KXPlUQn9koEZhBFL9z+qeHFFOA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785182630; c=relaxed/simple;
-	bh=9T5YxTQK23Y6mmy/57FwAhONNL4BSaipIBvUnydnDcM=;
+	s=arc-20240116; t=1785182658; c=relaxed/simple;
+	bh=XLDJiv2AFZRL3Lsv6slBQrM4fWc2aw5A+s5aRnasFdQ=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=tR6sg9lEMw9fvMF3hQXjYVCAGpF1z2ea0tPY6Jcr36Go4FzTHgV1HYzppd4jGl3CHdWGfZL24x6Ri5U7LJiU67D04Lj3RPJhQZeFeIiEQTBNHRDlyln3u92Ks/uZ5HISAHV1LGuLt48ICu1aI/AdDzWu5zE4K/xZ22QfJLAeii8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jNtXKpR5; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=sFrQOPspgNBHFtRfZoqNQfoBkQyRPuiinhWD2CdoORDDi8LL6RaqU9WeCPXzqB1hqXzQiOo1PdqecGk6l1kGEVSijVn+agHNulkh1Vvyv70l4fVrCqDuPnGJMjJffpY0EEdm48oMT1QVtWjF6BQJuqg7s/bE0Eza9OYJaYuQOnM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=D3oS2hlG; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jNtXKpR5"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4ED21F00A3A;
-	Mon, 27 Jul 2026 20:03:48 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="D3oS2hlG"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 383341F000E9;
+	Mon, 27 Jul 2026 20:04:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785182629;
-	bh=wClLzNCwgAI0+TrvDl9iiRDFJFy8VZJ1bacbzzfBO3U=;
+	s=k20260515; t=1785182656;
+	bh=Atq3qOksgVbPnOndK/3gfnZD5OSi5e4anEwuxyBVTfM=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=jNtXKpR5U9DJSXOQtnTNJs4Z2OuAVP+GmTlxJtVkgEX2sqQ3sPRt7p0Cn0txv0sPw
-	 dF5gXwlvQTPfwjUiiIo4Z/E1xdb/ArS4YfWGNvD26qEw2mDqy9JQR8GxL6ZsIsQJz+
-	 5Cm25Orrl5Sw/qr1DJys7q1Vqh88zBjPuClejDeF0GUQ9Ebmloys2PtpxGDpOby+hS
-	 WlczsznO3DQ/54mFxyxnVEFoQBT6Aw1xKqDa4Md7KY5WgAGYUYR0NwXP2CIyB/9RU+
-	 FOKVmLT8rb83t8Hm3ngVbkaU9RPm8xwAZ0omngFL2Vxm9gk5lLb+xzGnMkf4zFz1r7
-	 kSePXnaO6bEew==
+	b=D3oS2hlGOekV50sckEan9HzXXD05+wo3g0ZVpFKBqUJvYlEVuHUFfAY6Va5e4JpQ2
+	 MENrGJb8fy0+hzjQpgRKZ0Sd08phK0P/Srq5GJSmVaZ3TxJKC+9uNug9DRdNzLaZpt
+	 BKPNvxZJMQbkxTUZN0WsuJOwVWbRNt87AGnHb4aC/uCWoxbsAwbgVz9xdzrI9exJy6
+	 20CoDqfcwfIwMni8q4J+yghhllxc4PAcoHBtaNcHh2aAaSm7N0CQLfL5RcVJbZQueQ
+	 Xn65X20Ct2BaKsBGjd6vOWJIukSokLnpDlr0NgXEf2WiJSfFiLkjzvXc0izKtq+Whr
+	 Xu8S3Rt/3NLWg==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v7 06/10] s390/vfio_ccw: ensure index for read/write
- regions are within range
+Subject: Re: [PATCH v7 08/10] s390/vfio_ccw: move cp cleanup out of not
+ operational
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Eric Farman" <farman@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, kvm@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>
-In-Reply-To: <20260727192230.2715207-7-farman@linux.ibm.com>
+Cc: "Heiko Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, "Vasily
+ Gorbik" <gor@linux.ibm.com>
+In-Reply-To: <20260727192230.2715207-9-farman@linux.ibm.com>
 References: <20260727192230.2715207-1-farman@linux.ibm.com>
- <20260727192230.2715207-7-farman@linux.ibm.com>
+ <20260727192230.2715207-9-farman@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 27 Jul 2026 20:03:48 +0000
-Message-Id: <20260727200348.A4ED21F00A3A@smtp.kernel.org>
+Date: Mon, 27 Jul 2026 20:04:15 +0000
+Message-Id: <20260727200416.383341F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -49,139 +49,137 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 Thank you for your contribution! Sashiko AI review found 3 potential issue(=
 s) to consider:
 
+New issues:
+- [Critical] Concurrent execution of `cp_free()` via `notoper_work` without=
+ synchronization leads to data races and double-free of channel program res=
+ources.
+- [High] Canceling `notoper_work` during device release or close permanentl=
+y leaks channel program resources if the work is pending.
+
 Pre-existing issues:
-- [Critical] Concurrent lockless modification and usage of `private->*_trig=
-ger` eventfd pointers can lead to use-after-free.
-- [High] Concurrent lockless accesses and modifications to the `private->cr=
-w` list lead to list corruption, infinite loops, and potential use-after-fr=
-ee.
-- [High] Work items `io_work` and `crw_work` are not unconditionally cancel=
-led before freeing the device structure.
+- [Critical] A TOCTOU race in `vfio_ccw_sch_event()` can queue `notoper_wor=
+k` on a freed `private` structure during concurrent device removal.
 --
 
---- Patch [6]: [PATCH v7 06/10] s390/vfio_ccw: ensure index for read/write =
-regions are within range ---
-commit f8eafc3dc61a7fdadf00091fc10c59686336cf60
+--- Patch [8]: [PATCH v7 08/10] s390/vfio_ccw: move cp cleanup out of not o=
+perational ---
+commit 553f8e3a76925556dafb452c43ea6719ddd97d0b
 Author: Eric Farman <farman@linux.ibm.com>
 
-s390/vfio_ccw: ensure index for read/write regions are within range
+s390/vfio_ccw: move cp cleanup out of not operational
 
-This patch adds bounds checking to the region indexes in the read/write pat=
-hs.
-The capability chain previously clamped the region indexes, but the existing
-read/write regions lacked these checks, which are now enforced.
+The fsm_notoper() routine is called when the device has been lost, and is
+(by definition) no longer operational. Push the cleanup of the private->cp
+resources to a workqueue.
 
-> diff --git a/drivers/s390/cio/vfio_ccw_chp.c b/drivers/s390/cio/vfio_ccw_=
-chp.c
-> index 38c176cf62957..f3015132d4b5f 100644
-> --- a/drivers/s390/cio/vfio_ccw_chp.c
-> +++ b/drivers/s390/cio/vfio_ccw_chp.c
+Cc: stable@vger.kernel.org
+
+> diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_=
+drv.c
+> index 1a095085bc728..c197ad5ab5805 100644
+> --- a/drivers/s390/cio/vfio_ccw_drv.c
+> +++ b/drivers/s390/cio/vfio_ccw_drv.c
 [ ... ]
-> @@ -97,6 +105,12 @@ static ssize_t vfio_ccw_crw_region_read(struct vfio_c=
-cw_private *private,
->  		list_del(&crw->next);
+> @@ -125,6 +125,15 @@ void vfio_ccw_crw_todo(struct work_struct *work)
+>  		eventfd_signal(private->crw_trigger);
+>  }
 > =20
->  	mutex_lock(&private->io_mutex);
+> +void vfio_ccw_notoper_todo(struct work_struct *work)
+> +{
+> +	struct vfio_ccw_private *private;
+> +
+> +	private =3D container_of(work, struct vfio_ccw_private, notoper_work);
+> +
+> +	cp_free(&private->cp);
+> +}
 
-[Severity: High]
-This is a pre-existing issue, but is the private->crw list modified lockles=
-sly
-here?
+[Severity: Critical]
+Does this introduce a double-free race condition?  The new workqueue
+callback invokes cp_free() asynchronously without acquiring io_mutex or
+the subchannel lock.
 
-If an asynchronous host event handler queues a CRW using list_add_tail():
+Concurrently, fsm_close() might also execute and call cp_free(). Since
+cp_free() checks and updates the initialized flag locklessly:
 
-drivers/s390/cio/vfio_ccw_drv.c:vfio_ccw_queue_crw() {
-	...
-	list_add_tail(&crw->next, &private->crw);
-	queue_work(vfio_ccw_work_q, &private->crw_work);
-	...
+drivers/s390/cio/vfio_ccw_cp.c:cp_free() {
+    ...
+    if (!cp->initialized)
+        return;
+
+    cp->initialized =3D false;
+    ...
 }
 
-Could a concurrent read from userspace calling vfio_ccw_crw_region_read()
-corrupt the list pointers when calling list_del() since neither operation
-appears to hold a lock protecting private->crw?
+Could both threads proceed to double-free the channel program resources and
+double-unpin guest memory pages?
 
-> +	if (i >=3D private->num_regions) {
-> +		ret =3D -EINVAL;
-> +		goto out;
-> +	}
-> +
-> +	i =3D array_index_nospec(i, private->num_regions);
->  	region =3D private->region[i].data;
+> diff --git a/drivers/s390/cio/vfio_ccw_fsm.c b/drivers/s390/cio/vfio_ccw_=
+fsm.c
+> index 4d7988ea47ef0..4d47a3c7b9a06 100644
+> --- a/drivers/s390/cio/vfio_ccw_fsm.c
+> +++ b/drivers/s390/cio/vfio_ccw_fsm.c
+> @@ -170,8 +170,7 @@ static void fsm_notoper(struct vfio_ccw_private *priv=
+ate,
+>  	css_sched_sch_todo(sch, SCH_TODO_UNREG);
+>  	private->state =3D VFIO_CCW_STATE_NOT_OPER;
 > =20
->  	if (crw)
+> -	/* This is usually handled during CLOSE event */
+> -	cp_free(&private->cp);
+> +	queue_work(vfio_ccw_work_q, &private->notoper_work);
 
+[Severity: Critical]
+This is a pre-existing issue, but could this queue_work() trigger a
+use-after-free due to a race with device removal?
+
+In vfio_ccw_sch_event(), the private structure is fetched locklessly:
+
+drivers/s390/cio/vfio_ccw_drv.c:vfio_ccw_sch_event() {
+    struct vfio_ccw_private *private =3D dev_get_drvdata(&parent->dev);
+    ...
+}
+
+Concurrently, if userspace initiates device removal, vfio_ccw_mdev_remove()
+clears drvdata and frees the private structure via vfio_put_device(). If
+vfio_ccw_sch_event() is preempted after fetching the pointer but before
+acquiring the lock, could it pass a freed private pointer into
+vfio_ccw_fsm_event(), which then queues the notoper_work?
+
+>  }
+> =20
+>  /*
 > diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_=
 ops.c
-> index 45ec722d25ea6..032a1cdf4df70 100644
+> index bd488e40e1531..8ec6b175d9914 100644
 > --- a/drivers/s390/cio/vfio_ccw_ops.c
 > +++ b/drivers/s390/cio/vfio_ccw_ops.c
 [ ... ]
-> @@ -243,6 +243,7 @@ static ssize_t vfio_ccw_mdev_read(struct vfio_device =
-*vdev,
->  		return vfio_ccw_mdev_read_io_region(private, buf, count, ppos);
->  	default:
->  		index -=3D VFIO_CCW_NUM_REGIONS;
+> @@ -139,6 +140,7 @@ static void vfio_ccw_mdev_release_dev(struct vfio_dev=
+ice *vdev)
+>  	/* Should be empty, but just in case */
+>  	cancel_work_sync(&private->io_work);
+>  	cancel_work_sync(&private->crw_work);
+> +	cancel_work_sync(&private->notoper_work);
 
 [Severity: High]
-This is a pre-existing issue, but are io_work and crw_work unconditionally
-cancelled before freeing the device structure?
+Does canceling the deferred cleanup synchronously here leak the channel
+program resources?
 
-Looking at vfio_ccw_mdev_release_dev(), the private structure is freed:
+If the device transitions to VFIO_CCW_STATE_NOT_OPER, queue_work() schedules
+this cleanup. If the device is subsequently closed or released before the
+workqueue executes, cancel_work_sync() will abort the pending cleanup.
 
-drivers/s390/cio/vfio_ccw_ops.c:vfio_ccw_mdev_release_dev() {
-	...
-	kfree(private->cp.guest_cp);
-	mutex_destroy(&private->io_mutex);
-}
+Furthermore, because the state is VFIO_CCW_STATE_NOT_OPER, the normal close
+handler is bypassed:
 
-If a background event queues io_work or crw_work, and the work item is not
-flushed before release, could vfio_ccw_crw_todo() dereference the freed
-private pointer when accessing private->crw_trigger?
+drivers/s390/cio/vfio_ccw_fsm.c:vfio_ccw_jumptable
+    [VFIO_CCW_STATE_NOT_OPER][VFIO_CCW_EVENT_CLOSE] =3D fsm_nop,
 
-drivers/s390/cio/vfio_ccw_drv.c:vfio_ccw_crw_todo() {
-	private =3D container_of(work, struct vfio_ccw_private, crw_work);
+Does this completely bypass cp_free() and permanently leak the allocations
+and pinned guest memory pages?
 
-	if (!list_empty(&private->crw) && private->crw_trigger)
-	...
-}
-
-[Severity: Critical]
-This is another pre-existing issue, but can concurrent modification and usa=
-ge
-of the private->*_trigger eventfd pointers lead to a use-after-free?
-
-The VFIO_DEVICE_SET_IRQS ioctl can locklessly drop the reference and clear =
-the
-eventfd pointer:
-
-drivers/s390/cio/vfio_ccw_ops.c:vfio_ccw_mdev_set_irqs() {
-	...
-		if (fd =3D=3D -1) {
-			if (*ctx)
-				eventfd_ctx_put(*ctx);
-			*ctx =3D NULL;
-	...
-}
-
-If background work items like vfio_ccw_crw_todo() check the pointer and then
-call eventfd_signal():
-
-drivers/s390/cio/vfio_ccw_drv.c:vfio_ccw_crw_todo() {
-	...
-	if (!list_empty(&private->crw) && private->crw_trigger)
-		eventfd_signal(private->crw_trigger);
-	...
-}
-
-Could the eventfd context be freed between the check and the signal call,
-resulting in a dereference of the freed context?
-
-> +		index =3D array_index_nospec(index, private->num_regions);
->  		return private->region[index].ops->read(private, buf, count,
->  							ppos);
->  	}
+> =20
+>  	kmem_cache_free(vfio_ccw_crw_region, private->crw_region);
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260727192230.2715=
-207-1-farman@linux.ibm.com?part=3D6
+207-1-farman@linux.ibm.com?part=3D8
