@@ -1,187 +1,246 @@
-Received: from mail-yw1-f174.google.com (mail-yw1-f174.google.com [209.85.128.174])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8E0C63F9F39
-	for <linux-s390@vger.kernel.org>; Mon, 27 Jul 2026 11:08:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.128.174
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785150530; cv=pass; b=qFLSYOFRHp2SYRNNICYi3Jk2zy4qTer5nx/JsiUhNWSTbUwLkqbNEQjE7wcWyUIY60oX8aAbVR+5ISSVfPErWPPY1DIFohR8wIqNHNOyeYRo0v7lmJ94XCdTmx+5FdUDApTkHJPe++f7JSXldNkge6wcbs7XJN6PdC6Px+E8Jn4=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785150530; c=relaxed/simple;
-	bh=pV1TDUaa2YAV2kxJY3x35Y0FQXGiZRc6WWYevwzWDGg=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=nb1O/HOKN+mddHnjMvlUJ/3LroMEfss460VuKGWe/txEd2NfvL1Ata+VEtl4HG5nVbChvbzCi6yfD6whsWQAXyzE2srOzmenaVgz1f13Vz4zE7kq6rGEnzUu/ji0xvLlFa1P/gvLhdUod8RVT7ubpivhJMKQNcvENfcQRnpuz+Y=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=M3mRoCn4; arc=pass smtp.client-ip=209.85.128.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BBB7F188713;
+	Mon, 27 Jul 2026 11:16:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785150975; cv=none; b=Ivmx3VDbj0ofqGXXA74D7ArhYUuut3a7PjR4HvY+aiIj2drdhGq9iCa+pzN/fJy81ttbp5Olsason/uq47aeyQseBF5poWfd7WbFhIdp+DQPx2ZZ5iLiycjQgFdIsxyZrE6CGsXfmrWVEqIkWPMLgAJ4XyElQSYIWC9J1jADI4o=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785150975; c=relaxed/simple;
+	bh=/+itlBm7r0v4QqIDP9l1rzX4iGLSmwtHVsUq25eU1x8=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=ny3qaGZDhxSdeUIpOr1bDd3RhLF74SHELA9FjT87Jnt5b51N8svHwtpPmKstVA/ULiWHxAhH7m8LJZan/YaM3qncHZQOt+lBBXyLo8pHN0rT7Pd1TDMDGYIwDXD3VhZZGeUDdh91OZZRPt/WlGQlX97F7oBttEZI4iNu+MMZgEc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=qp0BHyey; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="M3mRoCn4"
-Received: by mail-yw1-f174.google.com with SMTP id 00721157ae682-81e86df8987so29997117b3.3
-        for <linux-s390@vger.kernel.org>; Mon, 27 Jul 2026 04:08:46 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1785150525; cv=none;
-        d=google.com; s=arc-20260327;
-        b=DyTSwO4XvHvYxVtYG6NPjKoWpG2UUF/m+rbxydad2Kf1mKo6xQFtg43Ai63NhQeLlY
-         Nh48I6lDZjzoOPDQJ1LT1HtNn7ledUl830jgBW51HlGOyIeGW1Z/kXIEvjZs2j+DPiAB
-         Rys4xNthS7YE1ECmrxmz61RA4hpJSxOaw3pvHVnkJtE0LPKzzVJr3fK5l54eAikB8fUn
-         o2OPtIOg9NbrWEYBxriJXeRrLy9xA+dQWOgT1+9RQMJTJz0IqundMdKvQRxLG9s+vQiB
-         QfdGRNqvlPoWjj8uGm89XFCrdG++e9PPe0QVW6DKVQ7qt3sju9m8lX+sMYZxIMfcv3Fq
-         NZhw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=pV1TDUaa2YAV2kxJY3x35Y0FQXGiZRc6WWYevwzWDGg=;
-        fh=1FE4Kt2O9ADWEUubTj1SFL77OnDukdBsIbpdzPUXy7Y=;
-        b=Cl56VKyglNE6ZA/J1oKkLhJFST+uLCRXDfzZbGN8lf8MWfqCgTl+p5p77MnSjRBMeN
-         9EB/uOrFoMc4nLXrvh7FiePMVp3qKxYhBKdvthqRMD5yHQokUvBIDyos8zSCzti5u+sS
-         liYdfxppdRyauj8Vgx/l+STdi1YfczT31r5C5TQCLm+iYDgvHIn0Hsu5vM3lXxcSR7EV
-         RHNWTarvixa8YRXaWRMxqhtYONWu2nQgmLu+q90vPlnA1gDeJ+/UBL8e5mvs7ux3umGe
-         jcHx/oDQftKY7ZIv8pICgBORtBu6dwR/9O1c0stZciG80sysIZzmdwNniAsk8+eR+Haf
-         D12A==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785150525; x=1785755325; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=pV1TDUaa2YAV2kxJY3x35Y0FQXGiZRc6WWYevwzWDGg=;
-        b=M3mRoCn4tl8RPjfQixKwIWWGSOwAsLGhmh+pOW5tV4opu6k/FIUqHgtBSUi/lYWXNo
-         K98eF+P/A41j+K8iwFXw6liU49SqTYrvvms0nmGWFjNMcapwdxy/m16HBI26xKOSiPvw
-         bHpYUNToOx9zQJmLUksPduoTCqqE2dSxgHeSldgGIbLqv2CWqoDhAou0N3efVhSwmwfM
-         VQbpCmhybFLItirVtnzw4TnneJchaVYJVzYdQrFlaDO4vxp9qnK66elczaAbAPUjs+C1
-         1bvSmITqLw2KhR3gNZaWHhZGr+7ZSQD962od3gweFtTkzKTtbvFjOOIGdEoRbtgOHS17
-         oVMA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785150525; x=1785755325;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=pV1TDUaa2YAV2kxJY3x35Y0FQXGiZRc6WWYevwzWDGg=;
-        b=sFRwO/6DAvTw9q8W72nbqz7CjVK1XIKaeap99HUEQnvU6DlpkMXUhV+bN+fNDCynrk
-         R0a/XpwwDurbpavr/G/0kMYsQhPlcflGQ6HDBdPcvJkTtLz9AOK1kELIR4ekxlRvBwUQ
-         4q5bKpdpv1viBxUdu7C2febrmbJ7Mlu4XK7qM611JlL79pwdF2euFHrmIX/o+10hW6dL
-         aPX3CKjSoL4MpTGYc5yKpoeLLa8gBmHoXPyVzFvEjH1JuZlbGRP/Ecw/trRyJQrGjU3e
-         93E9I1P7TZKKRwMhyKZ6rUXEHO3SAQR+lA13lUhEdNuHawTZiVaiMfJCsU7Tomk1mJEa
-         WpsQ==
-X-Forwarded-Encrypted: i=1; AHgh+RqfZ4OFLTCRxIOPjUii4iJgWouiKiNO7cSz8NgmVjQWYi3VgFd8oRFt9++S6IAUmyshKwFN8uTiSC47@vger.kernel.org
-X-Gm-Message-State: AOJu0Yz4WFv3cwQAuY1Y4gc9MdsP0derhfuvQ2SIYCGkGkQZ0BjTuymK
-	wk07Q0ZQdC/RvKyvFhZT2RGv/+VPbMUA3YsInksDGUD4Edf6xR5CGDMu7WcM+CgWh4VwuAoziNP
-	GuauEgmJF8/tQrlorqurdN6aX6QamXr0=
-X-Gm-Gg: AR+sD13AWXFw+bDXuzEEboq6nLHcbxX8VBwtucnQx/ISG9NCj7JRSLYOXT/vlegUSVf
-	kjtg7hEQ4pGlXaS53ImxeML5YLoROqbMYwdetmZh9B6+ALmCsoZ+UPMl1It+Mv5uqvMSwETl+co
-	HNgvj1DS55OdPyA9xl7abMpK7EAJLX8kXuAQ3hG+XhCRLYNrgZBvdLwyApBbTJ2dnBaCxT5jPwN
-	+0Tf4SV21fSB1hBVM2VtyohSkif6hthY096RJDnTWO8wOsBnu9Xrp8Yymw=
-X-Received: by 2002:a05:690c:3747:b0:809:86c6:ee18 with SMTP id
- 00721157ae682-81f69e3978bmr27868337b3.37.1785150525277; Mon, 27 Jul 2026
- 04:08:45 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="qp0BHyey"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66RAJIph1923915;
+	Mon, 27 Jul 2026 11:16:13 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=8S1cLg
+	QcvXjYWpfjurcLn7t0WBOdgSCbMmbSNFjBi9I=; b=qp0BHyeym9EU/v97LxR/Hq
+	KzWD3OGPrH+7BR1DkaZlsOn4kaXJR+55PKHhPXP+0ftDt0zmie6qV39s+SSNa9ii
+	8SKSIVzyDzmlO6Jm5Zdl474zxMXsJnd4I3ebh1o74HXxV9WFWExsCp50vOMN+AGj
+	Lw8k2QIubu+Ega2cGzI2xhCWBKx0n26OguMr4nMDsoInr1s8Erh9bZb4IcrItGHF
+	ifDmbP8tluVK/ly2nFR7f7bzmLCBxCOSmQAOaKYXkyazr4/oGJDJsY5L7nr736Kn
+	ThFa0n/t2p/xKkR2GemFzcEZ2a62WLzNZgc1PIqXe6Nx/0KdOyfzlDaMDTIyw2Uw
+	==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fmuw77ns8-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 27 Jul 2026 11:16:12 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66RBBFSJ003475;
+	Mon, 27 Jul 2026 11:16:11 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fn8yh51pp-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 27 Jul 2026 11:16:11 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66RBG7hw36897202
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 27 Jul 2026 11:16:07 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 7AF0720090;
+	Mon, 27 Jul 2026 11:16:07 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 64DDA20093;
+	Mon, 27 Jul 2026 11:16:07 +0000 (GMT)
+Received: from [9.224.77.173] (unknown [9.224.77.173])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Mon, 27 Jul 2026 11:16:07 +0000 (GMT)
+Message-ID: <a59c038d-a735-4a8e-a76f-60ffbeb6992b@linux.ibm.com>
+Date: Mon, 27 Jul 2026 13:15:59 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260723184538.3888637-1-ekffu200098@gmail.com>
- <20260724144822.6af8213f@kernel.org> <0ee1ef4aa7daa908bf28397ccc639c89b6aabd9c@intel.com>
-In-Reply-To: <0ee1ef4aa7daa908bf28397ccc639c89b6aabd9c@intel.com>
-From: Sang-Heon Jeon <ekffu200098@gmail.com>
-Date: Mon, 27 Jul 2026 20:08:33 +0900
-X-Gm-Features: AUfX_mzhfgKW48GB4CRuyNKliFu1x1EH8aDGDqYePXeE0rGOBX3Wid5IOU1hKpc
-Message-ID: <CABFDxMFMOAZ_3kYxEGCutnGt1OSSmgvmwx-=M1RxGc3VGKORYQ@mail.gmail.com>
-Subject: Re: [PATCH 00/36] treewide: remove conditional returns with no effect
-To: Jani Nikula <jani.nikula@linux.intel.com>
-Cc: Jakub Kicinski <kuba@kernel.org>, Julia.Lawall@inria.fr, 
-	Alex Deucher <alexander.deucher@amd.com>, 
-	Alexander Shishkin <alexander.shishkin@linux.intel.com>, 
-	Alexandre Belloni <alexandre.belloni@bootlin.com>, Andrew Lunn <andrew@lunn.ch>, 
-	Andrew Morton <akpm@linux-foundation.org>, 
-	Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>, Borislav Petkov <bp@alien8.de>, 
-	=?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>, 
-	Daniel Lezcano <daniel.lezcano@kernel.org>, David Airlie <airlied@gmail.com>, 
-	"David S. Miller" <davem@davemloft.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
-	Eric Dumazet <edumazet@google.com>, Florian Westphal <fw@strlen.de>, 
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Hans de Goede <hansg@kernel.org>, 
-	Hans Verkuil <hverkuil@kernel.org>, Heikki Krogerus <heikki.krogerus@linux.intel.com>, 
-	Herbert Xu <herbert@gondor.apana.org.au>, 
-	=?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>, 
-	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, Jaroslav Kysela <perex@perex.cz>, 
-	Jason Gunthorpe <jgg@ziepe.ca>, Jiri Pirko <jiri@resnulli.us>, "Joerg Roedel (AMD)" <joro@8bytes.org>, 
-	Johan Hovold <johan@kernel.org>, Jonathan Cameron <jic23@kernel.org>, 
-	Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Julian Anastasov <ja@ssi.bg>, 
-	Leon Romanovsky <leon@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Linus Walleij <linusw@kernel.org>, 
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Mark Brown <broonie@kernel.org>, 
-	"Martin K. Petersen" <martin.petersen@oracle.com>, Matthew Sakai <msakai@redhat.com>, 
-	Mauro Carvalho Chehab <mchehab@kernel.org>, Maxime Ripard <mripard@kernel.org>, 
-	Michael Turquette <mturquette@baylibre.com>, Mike Rapoport <rppt@kernel.org>, 
-	Miri Korenblit <miriam.rachel.korenblit@intel.com>, Nicolas Palix <nicolas.palix@imag.fr>, 
-	Pablo Neira Ayuso <pablo@netfilter.org>, Paolo Abeni <pabeni@redhat.com>, 
-	Ping-Ke Shih <pkshih@realtek.com>, "Rafael J. Wysocki" <rafael@kernel.org>, 
-	Rodrigo Vivi <rodrigo.vivi@intel.com>, Sebastian Reichel <sre@kernel.org>, Shuah Khan <shuah@kernel.org>, 
-	Simona Vetter <simona@ffwll.ch>, Simon Horman <horms@verge.net.au>, Stephen Boyd <sboyd@kernel.org>, 
-	Steve French <sfrench@samba.org>, Takashi Iwai <tiwai@suse.com>, Thomas Renninger <trenn@suse.com>, 
-	Thomas Zimmermann <tzimmermann@suse.de>, Tony Luck <tony.luck@intel.com>, 
-	Tvrtko Ursulin <tursulin@ursulin.net>, Vadim Fedorenko <vadim.fedorenko@linux.dev>, 
-	Vinod Koul <vkoul@kernel.org>, Will Deacon <will@kernel.org>, 
-	Yazen Ghannam <Yazen.Ghannam@amd.com>, cocci@inria.fr, amd-gfx@lists.freedesktop.org, 
-	dmaengine@vger.kernel.org, dm-devel@lists.linux.dev, 
-	dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, 
-	intel-wired-lan@lists.osuosl.org, iommu@lists.linux.dev, 
-	linux-cifs@vger.kernel.org, linux-clk@vger.kernel.org, 
-	linux-crypto@vger.kernel.org, linux-edac@vger.kernel.org, 
-	linux-gpio@vger.kernel.org, linux-iio@vger.kernel.org, 
-	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-media@vger.kernel.org, linux-mm@kvack.org, linux-pm@vger.kernel.org, 
-	linux-rdma@vger.kernel.org, linux-rtc@vger.kernel.org, 
-	linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, 
-	linux-sound@vger.kernel.org, linux-usb@vger.kernel.org, 
-	linux-wireless@vger.kernel.org, lvs-devel@vger.kernel.org, 
-	netdev@vger.kernel.org, netfilter-devel@vger.kernel.org, 
-	nouveau@lists.freedesktop.org, platform-driver-x86@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [GIT PULL 2/7] KVM: s390: pci: Fix memory accounting for
+ pinned/unpinned pages
+To: sashiko-reviews@lists.linux.dev
+Cc: linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev
+ <agordeev@linux.ibm.com>, kvm@vger.kernel.org
+References: <20260727095720.9150-1-borntraeger@linux.ibm.com>
+ <20260727095720.9150-3-borntraeger@linux.ibm.com>
+ <20260727101121.C86F61F00AC4@smtp.kernel.org>
+Content-Language: en-US
+From: Christian Borntraeger <borntraeger@linux.ibm.com>
+In-Reply-To: <20260727101121.C86F61F00AC4@smtp.kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: jxCCxUMGY3Ic_i2w-VQNgY77Jjpu4MRx
+X-Proofpoint-ORIG-GUID: jxCCxUMGY3Ic_i2w-VQNgY77Jjpu4MRx
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI3MDEwNSBTYWx0ZWRfX1kzTMQ8KyOVn
+ pz06+Yeou4JeSdwwMsY7yjMmNPZxHAITKIsFt5kq9MVKhKI7FP7JoWgYmuKcdAs2P+uCVsg98Nn
+ NIR9sq11A0Fzief6rHynGUJkasoZ52DQujHUA4EqDM2SbK5tkecMoe2xKQWWFDSyB6882q2YE5i
+ tiwMK7RwGXZmcYBTnY1404CT5frl4LEeJz1e+IZJqch9TB3sppZ9JHVyNZ/BIzhUwXrZNb2jeFU
+ MHZC0P6qC78hE7JfOrdEdw4ZP+4s36+ngML2ts7nN/Ps6kUPZMzHu5+HzJzySIRaliMzs9xnxQt
+ yCLbDNvHeTLgpUp6dtUKW1tu0XJDNwpSSJacAR0I3FEn9L7wtqW7EmJnYf3GPGmKeYPETHUoeeB
+ W+rYJPFwSKId4dHDWYXdgUfbyoxuJxTzOwAGOhNnQMqNEC5fjFueukMmZZnEDHko5G8YD2/Cv7Q
+ FLw3h5L0lwmtPLRBASA==
+X-Authority-Analysis: v=2.4 cv=SKFykuvH c=1 sm=1 tr=0 ts=6a673dfc cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=c92rfblmAAAA:8
+ a=VnNF1IyMAAAA:8 a=VwQbUJbxAAAA:8 a=rpbQ5iLBezYDpLgtt8IA:9 a=QEXdDO2ut3YA:10
+ a=GvGzcOZaWPEFPQC_NcjD:22
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI3MDEwNSBTYWx0ZWRfX+PTddQKEGrZr
+ 0CFRhryvsZYR9Iie9BebPoZ3rcGlrBByoh7hekZVFpETUv5g0rQwNdAVzaxPLyY9/sBSYtGqV6y
+ 3c+Eea9JLcBDB6lIul//824auyBQ7XY=
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-07-27_03,2026-07-24_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ priorityscore=1501 malwarescore=0 clxscore=1015 adultscore=0
+ lowpriorityscore=0 bulkscore=0 impostorscore=0 phishscore=0 spamscore=0
+ suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2607270105
 
-Hello,
+Am 27.07.26 um 12:11 schrieb sashiko-bot@kernel.org:
+> Thank you for your contribution! Sashiko AI review found 3 potential issue(s) to consider:
+> 
+> New issues:
+> - [High] The patch introduces `mm_struct` and `user_struct` reference count leaks on the `airq_iv_alloc_bit()` error path.
 
-On Mon, Jul 27, 2026 at 5:30=E2=80=AFPM Jani Nikula <jani.nikula@linux.inte=
-l.com> wrote:
->
-> On Fri, 24 Jul 2026, Jakub Kicinski <kuba@kernel.org> wrote:
-> > On Fri, 24 Jul 2026 03:45:02 +0900 Sang-Heon Jeon wrote:
-> >> Patch 1 adds a Coccinelle script that matches the pattern, including
-> >> negation and constant-comparison variants. Where a local variable is
-> >> assigned right before the check, the assignment and the two returns
-> >> turn into a single return of the assigned expression.
-> >
-> > Huh, I thought we already had such script. Various script children have
-> > been sending such "cleanups" in the past.
->
-> We did, and it was removed, I believe in 1a617a8475e8 ("coccinelle:
-> misc: remove "complex return code" warnings"), because people just don't
-> want this constant churn.
->
-> It's perfectly fine to have the error case and happy day scenario
-> separated.
+For some reason sashiko failed to apply patch3, which fixes this exact problem.
 
-Thanks for sharing the history.
+> - [High] Calling the `KVM_S390_ZPCIOP_REG_AEN` ioctl multiple times sequentially overwrites `kzdev->mm_account` and `kzdev->user_account`, permanently leaking the previously acquired kernel object references.
 
-I checked the mailing list. The removed script looks similar to the
-new one, but it is different. The removed script reported a
-conditional return followed by an explicit return 0, where the error
-case and happy day scenario are separated as you mentioned, and Johan
-also complained about this 10 years ago.
+same here. Looks like sashiko applied this series to a wrong tree.
 
-But the new script only reports when both branches return the same
-variable, not the explicit 0. So, I think the new script is close to
-the restricted version that Julia mentioned 10 years ago, and it
-should be acceptable.
+All PCI fixes have been reviewed before here:
 
->
-> BR,
-> Jani.
->
->
+https://sashiko.dev/#/patchset/20260723221409.5874-1-alifm%40linux.ibm.com
+
+
+> 
+> Pre-existing issues:
+> - [High] Missing NULL check for `airq_iv_create()` return value causes a guaranteed NULL pointer dereference.
 > --
-> Jani Nikula, Intel
+> 
+> --- Patch [1]: [GIT PULL 2/7] KVM: s390: pci: Fix memory accounting for pinned/unpinned pages ---
+> commit c8a84dcb0557ca0ba1070398f64a0a7a9a08e82b
+> Author: Farhan Ali <alifm@linux.ibm.com>
+> Date:   Mon Jul 27 09:57:15 2026 +0000
+> 
+>      KVM: s390: pci: Fix memory accounting for pinned/unpinned pages
+> 
+> This patch stores the pinning process user_struct and mm_struct when
+> accounting for pinned pages. It subsequently frees these resources when the
+> pages are unpinned to resolve context issues.
+> 
+>> diff --git a/arch/s390/kvm/pci.c b/arch/s390/kvm/pci.c
+>> index 5b075c38998e3..c2f5085a0f5f1 100644
+>> --- a/arch/s390/kvm/pci.c
+>> +++ b/arch/s390/kvm/pci.c
+> [ ... ]
+>> @@ -190,33 +190,54 @@ static int kvm_zpci_clear_airq(struct zpci_dev *zdev)
+> [ ... ]
+>> -static inline int account_mem(unsigned long nr_pages)
+>> +static inline int account_mem(struct kvm_zdev *kzdev, unsigned long nr_pages)
+>>   {
+>>   	struct user_struct *user = get_uid(current_user());
+>>   	unsigned long page_limit, cur_pages, new_pages;
+>> +	int rc = 0;
+>>   
+>>   	page_limit = rlimit(RLIMIT_MEMLOCK) >> PAGE_SHIFT;
+>>   
+>>   	cur_pages = atomic_long_read(&user->locked_vm);
+>>   	do {
+>>   		new_pages = cur_pages + nr_pages;
+>> -		if (new_pages > page_limit)
+>> -			return -ENOMEM;
+>> +		if (new_pages > page_limit) {
+>> +			rc = -ENOMEM;
+>> +			goto out;
+>> +		}
+>>   	} while (!atomic_long_try_cmpxchg(&user->locked_vm, &cur_pages, new_pages));
+>>   
+>> -	atomic64_add(nr_pages, &current->mm->pinned_vm);
+>> +	if (current->mm) {
+>> +		mmgrab(current->mm);
+>> +		atomic64_add(nr_pages, &current->mm->pinned_vm);
+>> +	}
+>> +
+>> +	kzdev->user_account = user;
+>> +	kzdev->mm_account = current->mm;
+> 
+> [Severity: High]
+> If the KVM_S390_ZPCIOP_REG_AEN ioctl invokes kvm_s390_pci_aif_enable()
+> multiple times sequentially, will this unconditionally overwrite
+> kzdev->user_account and kzdev->mm_account?
+> 
+> It appears that if the device is already enabled, the previously acquired
+> references would be permanently leaked since unaccount_mem() isn't called
+> before assigning the new pointers here.
+> 
+>>   
+>>   	return 0;
+>> +
+>> +out:
+>> +	free_uid(user);
+>> +	return rc;
+>>   }
+>>   
+>>   static int kvm_s390_pci_aif_enable(struct zpci_dev *zdev, struct zpci_fib *fib,
+>> @@ -275,7 +296,7 @@ static int kvm_s390_pci_aif_enable(struct zpci_dev *zdev, struct zpci_fib *fib,
+>>   	}
+>>   
+>>   	/* Account for pinned pages, roll back on failure */
+>> -	if (account_mem(pcount))
+>> +	if (account_mem(zdev->kzdev, pcount))
+>>   		goto unpin2;
+>>   
+>>   	/* AISB must be allocated before we can fill in GAITE */
+> 
+> [Severity: High]
+> If airq_iv_alloc_bit() fails later in this function, the error path
+> jumps to the unlock and unpin labels:
+> 
+> kvm_s390_pci_aif_enable() {
+>          ...
+>          bit = airq_iv_alloc_bit(aift->sbv);
+>          if (bit == -1UL)
+>                  goto unlock;
+>          ...
+> unlock:
+>          mutex_unlock(&aift->aift_lock);
+> unpin2:
+>          if (fib->fmt0.sum == 1)
+>                  unpin_user_page(aisb_page);
+>          ...
+> }
+> 
+> Does this error path need to call unaccount_mem() to prevent leaking the
+> mm_struct and user_struct references acquired by account_mem() earlier?
+> 
+> [Severity: High]
+> This is a pre-existing issue, but is it possible for airq_iv_create() to
+> return NULL under memory pressure?
+> 
+> If it fails, zdev->aibv is assigned NULL a bit later in
+> kvm_s390_pci_aif_enable():
+> 
+> kvm_s390_pci_aif_enable() {
+>          ...
+>          zdev->aibv = airq_iv_create(...);
+>          ...
+>          rc = kvm_zpci_set_airq(zdev);
+>          ...
+> }
+> 
+> Could this lead to a NULL pointer dereference when kvm_zpci_set_airq()
+> attempts to access airq_iv_end(zdev->aibv)?
+> 
 
-Best Regards,
-Sang-Heon Jeon
