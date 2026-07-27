@@ -1,45 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 29B8E3E44EF;
-	Mon, 27 Jul 2026 10:06:01 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B10613E49C8;
+	Mon, 27 Jul 2026 10:06:08 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785146763; cv=none; b=rKp96gwVM+7PHFWUflEF6bfkgLKkkiYtkJpIr0909TgCiE5M0Moxhf+x8a3SBV0tqSxRTZYNwFRE85sSgyk3L33tU+Q8Dgf8ioVWCHf+LuKaynuomGJFUPwxvSp1ykaFU8MH15VA8hMUkgqbTKTMf6y2dmVhhvN/5bqfxEASG8E=
+	t=1785146769; cv=none; b=rhTOgo+ycES5aWk9jmRHO+rV2QTdzL999H3H176ZlJQDHbEq9P2JqSZ3DAu2trlMZVBk6qr3uWeesHAzM4fcqrHcUEyZJhR/mpb9f2nVoIxFSca6A/Cb+4S+isyBte56strzJmYvEZcmC3SxsWnyPydn3/HNEtj6AasMyElrhiY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785146763; c=relaxed/simple;
-	bh=edPPFSppao7S9lX7cIZh/6+2LOTwQKgOQoY37mNC1gE=;
+	s=arc-20240116; t=1785146769; c=relaxed/simple;
+	bh=7iPpvJhkBlZHQRW/Dzj8eNS7luS2Lz8BpJnvE0jlDWI=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=Nr7lwaAn1foewTVvE8ogZ1l4J5aLvAenapWI9ecOu2aYJAORIrQJhmc8pPTGIbxhEEPMU7aXjwlxRQC3ncPXjhd+yq4WvRyf0BMto+RhGdu8fE/ThdVpLt8nZbq2Y+KOAE4GVNJAj3sCf0FOTaaVq5NuXkik9M6ZT7cD/w7NF90=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=J2A/qqeL; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=mXZASFpMwFr/31sMqhuMsYBH9FNut4UF01uKZas0Kxo9gnOjK6EQnKnKNuS2QtOPERVhC3724A2uFIvJCzvMkV2zLzXnkcj8QjJ3dlXkhYmB9Yl9PGWFXFshTOSFuckRrCHOnWGik69vWV4ierTTMgrzTI8a7nSE30PPr28r/I4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=G+i7XTdI; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="J2A/qqeL"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0CC0D1F000E9;
-	Mon, 27 Jul 2026 10:06:01 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="G+i7XTdI"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06D451F000E9;
+	Mon, 27 Jul 2026 10:06:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785146761;
-	bh=edPPFSppao7S9lX7cIZh/6+2LOTwQKgOQoY37mNC1gE=;
+	s=k20260515; t=1785146768;
+	bh=7iPpvJhkBlZHQRW/Dzj8eNS7luS2Lz8BpJnvE0jlDWI=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=J2A/qqeLMycyegTgcHlPIWMSAUUKSvA2EkGDynVL3mWJxxmjuJRrdfA6xg1mAl1ow
-	 mAgJniwMxzpXtQ3mhKu75BEm+V4+z03UjkUZK9ibgDhKw60jJr+mZht/XmBz8xxImY
-	 dgml6NGsfdua/lXo6z1C+bFO88uDbeJEr/rWkJ48Xq6Dd2fXPH9BCttsr4ZRNIJehY
-	 jHYCKGStyLh3uhQcFtj5E0ywTj7Huao/DjvT0oZVR2hTeLVXm9L3TUT/1Ubf4r5yjK
-	 ddj+6MFdKKMG+b/Ly22l3CBCtA+pICwsS26iHtkptGdALMIz9a5TudTiWWARLVZKmd
-	 WVapKpCOH4DjQ==
+	b=G+i7XTdI0jcpE10KaGv1Pvq+US8Vr28S+ZzPU8UGqD5cZBrb+cSFvKVUvZ+YDRn+t
+	 Ir7Kf+WFJRE4KscZYFm9NL9Fimq9Wm18K2iKP05hFnlWM4ZNuzpi5OXI+tZNV3xj+n
+	 5p/0IdpWqEbZ2++4ZK6TtuE0SF80zkr6FTibQG5D27/UeSUM3HREeeHl5swAOrzBWL
+	 vKsrd83kv2wytqAC0qWE+FDXih5SI4NT3KxVwR5XaOr0fxLT9wQFVTvf6wxMguInKH
+	 tEzASU8iVWcrL3SyLk0am7QKGoQUBqEavLtUnPDRZQwr+w18CCoByTYv0zekrmiC5q
+	 Pxp29EiHN1aCA==
 From: sashiko-bot@kernel.org
-Subject: Re: [GIT PULL 2/5] KVM: s390: vsie: Avoid potential deadlock with
- real spaces
+Subject: Re: [GIT PULL 4/5] KVM: s390: Improve kvm_s390_vm_stop_migration()
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Christian Borntraeger" <borntraeger@de.ibm.com>
-Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Heiko
- Carstens" <hca@linux.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org
-In-Reply-To: <20260727095359.107671-3-borntraeger@de.ibm.com>
+Cc: kvm@vger.kernel.org, "Alexander Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
+ Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>
+In-Reply-To: <20260727095359.107671-5-borntraeger@de.ibm.com>
 References: <20260727095359.107671-1-borntraeger@de.ibm.com>
- <20260727095359.107671-3-borntraeger@de.ibm.com>
+ <20260727095359.107671-5-borntraeger@de.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 27 Jul 2026 10:06:00 +0000
-Message-Id: <20260727100601.0CC0D1F000E9@smtp.kernel.org>
+Date: Mon, 27 Jul 2026 10:06:07 +0000
+Message-Id: <20260727100608.06D451F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -48,17 +47,13 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
 > From: Claudio Imbrenda <imbrenda@linux.ibm.com>
 >=20
-> The natural lock ordering is mmu_lock -> children_lock, but in
-> gmap_create_shadow() the reverse order is used when handling shadowing
-> of real address spaces.
+> There is no need to clear cmma-dirty state if the VM is not using CMMA.
 >=20
-> Convert the inner locking of kvm->mmu_lock to a trylock; return -EAGAIN
-> if the lock is busy, and let the caller try again.
+> Skip the CMMA-related code if CMMA is not in use.
 >=20
-> This path is not expected to happen in real-life scenarios, so its
-> performance is not important.
->=20
-> Fixes: a2c17f9270cc ("KVM: s390: New gmap code")
+> Fixes: 6cfd47f91f6a ("KVM: s390: Fix cmma dirty tracking")
+> Fixes: 190df4a212a7 ("KVM: s390: CMMA tracking, ESSA emulation, migration=
+ mode")
 > Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 > Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
 > Signed-off-by: Christian Borntraeger <borntraeger@linux.ibm.com>
@@ -67,5 +62,5 @@ Sashiko has reviewed this patch and found no issues. It looks great!
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260727095359.1076=
-71-3-borntraeger@de.ibm.com?part=3D1
+71-5-borntraeger@de.ibm.com?part=3D1
 
