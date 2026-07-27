@@ -1,54 +1,54 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0A7A837EFFC;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 07FDB37EFEC;
 	Mon, 27 Jul 2026 14:28:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785162541; cv=none; b=rbIpkUFx8NdnullwSUawvryv89/bS0KA6zL9qYwqXAcxhd4/nw5//04YCjWXoeAs1VrC2eLjDYt95BFnkX59cWikT9FCc2PEWbi5U/shSU2relCTzq/3ejY5h5UaSKpaT7Nnbczq9lx1FUYOXz2tXEc5s/+daDTgQ+yFtKvkmqQ=
+	t=1785162542; cv=none; b=iC/Etso39cMenuF0s2i8YiiYKiCGJ/gKNhAoBPud8aTbQA2Fk9Cuq292F7ZZyrBhJFr2SlZqJYIF7aqp7xG7vt8WM1m4osIp1bqTeFe7CukKeoUt8fcDswa2JGd+aWfg/HPuUnVL1QG06CNG9LXwf5fTFf4GefYQeTZlZ4eihPw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785162541; c=relaxed/simple;
-	bh=BfGd7zKLm9twscX93NateSok5gG6Oqi0t8aVMYlbKqQ=;
+	s=arc-20240116; t=1785162542; c=relaxed/simple;
+	bh=yiibBTkivwRw4DOGzOaO3IoKVvZNoTx7hNyCbyzNsQ8=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=K7YcYyPD8MwDtm3QCHXh05H/jn4i8bjhM2ogGN3oDfWgW8L/Tr/dDpijO6dBwozvKF2Nci8UKreaxY5/HyZg0etzCBJqu+Fe0Fh45l+m0iRnumd+CHpfd/HnUf2kuxwuFnnW5TXBzGayFedWx2XgjN/3FVqKUiUK9lzZvDfiKlc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=PlMCoWSS; arc=none smtp.client-ip=148.163.158.5
+	 MIME-Version:Content-Type; b=AhQaGqjsJvPcIwpppkmBqnOt4fCsfFv1a/FG8yN8pVSWB/Euv6mD88CzUabWl2qsSnxdPC1Z02kc7rMiRYfnVk075C7vd+KWu7U0ovbeOI5bS6m4vm8NURpve1UmIpA+AOIjZyzceOTF1QPfTTpLgHWTEWiEnpoquYWfSKMvY30=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=gcv0/IKH; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="PlMCoWSS"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66RDnWCL2292103;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="gcv0/IKH"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66RDn9w32407986;
 	Mon, 27 Jul 2026 14:28:56 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=daJVaG
-	PrvAQuxv+2ktFL9OCljrr9PH6hI6/vpb0iHfM=; b=PlMCoWSSCPl0xWGvSiikf5
-	vG9m3H8EZXqy2RI5FjAYaILqHKgrTPpHMrLoZyHlF1gapoLe5xcgn+W0OgMrEWv6
-	5LX3lJi03LA4gukILG9OsUOI/h3BLBPvRgRfWkMJIhSDk5t8QXHq5JneyMHpc9Js
-	zbZxPlqKi92YA/ca4U0m3FnVRZPnjr0oc2YLEGX94aKDKKtbFo4uHTGpnu0r3MXX
-	oKXvvXNvw9vjxB5BGjyPCW9h0sernsSC5TkGHG47ozrYCzPV3KRQxoXvfDA9IuME
-	N2/Xz6fdyh8bsG3LW4oojlxnrMm9TRackACuKltmnmsGdpQDe+ktTt+OJYEpPD/A
+	:message-id:mime-version:references:subject:to; s=pp1; bh=Fohw0A
+	liHraUciOinHAZHqStTtUicqP/oS2W1TC5kGA=; b=gcv0/IKH45sq9IONGkPrwZ
+	IuPW6ej2dhSY9qoNbHNrhvSMJ+e20kaxBPC5M/4bKJGO3pFRN0aPbKhc8eUE4ksC
+	U+xeH3ScUKTAOKDdsxmsoktdzRNLVbkpHxzIcOmkxWUH5JJC2A55MKzEshvEbpWD
+	/qIpphxldEPjv5xuf0tIyGwsYLEWDhJbjHs7gQY1LBzIr5yjSp4pXEY/kMzCkOJ/
+	vsR6b03MHFdncmjwoHw2PHfrDKFI2HkZVxk2wQ+yYNUjdFgXw2kOIDhRmXkgnh8W
+	VpYYlIZg/wMl4potJf8JyBKtJQp67OkY7eZp7jcM+N3lVxof+Hyg85EdH+eLtFVA
 	==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fmv0ng1yh-1
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fmv0xggaj-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Mon, 27 Jul 2026 14:28:56 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66REQHP0005436;
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66REQEa7013991;
 	Mon, 27 Jul 2026 14:28:55 GMT
 Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fna5xwf0c-1
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fn9pg5had-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Mon, 27 Jul 2026 14:28:55 +0000 (GMT)
 Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66RESneh50331970
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66RESn5F50331966
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
 	Mon, 27 Jul 2026 14:28:49 GMT
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B96E3200C8;
+	by IMSVA (Postfix) with ESMTP id 77452200C8;
 	Mon, 27 Jul 2026 14:28:49 +0000 (GMT)
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9C4FE20103;
+	by IMSVA (Postfix) with ESMTP id 59EC520103;
 	Mon, 27 Jul 2026 14:28:49 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
 	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
@@ -59,9 +59,9 @@ Cc: linux-block@vger.kernel.org, Jan Hoeppner <hoeppner@linux.ibm.com>,
         linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 3/3] s390/dasd: Fix undersized format-check buffer
-Date: Mon, 27 Jul 2026 16:28:40 +0200
-Message-ID: <20260727142840.567286-4-sth@linux.ibm.com>
+Subject: [PATCH 1/3] s390/dasd: Fix path verification interrupted by concurrent dasd_sleep_on_immediatly
+Date: Mon, 27 Jul 2026 16:28:38 +0200
+Message-ID: <20260727142840.567286-2-sth@linux.ibm.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260727142840.567286-1-sth@linux.ibm.com>
 References: <20260727142840.567286-1-sth@linux.ibm.com>
@@ -74,98 +74,109 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI3MDEzNiBTYWx0ZWRfXwU4+9t3kH0XN
- ReKQwio8/MWPaSTrSWCapzfZtFLxYj7+JZ43AL5Awie71XFXyaeSG1Z0Yv9hkhCZhXjU8j5Zy+p
- nRU93wRar61GcVaIwfhwRI2DckoIJfU=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI3MDEzNiBTYWx0ZWRfX6GfQ+vA7e9Yw
- ebWZQ48yJvFlwWnaJB5hAlmYltKBXAVKq9Br6/bRYYVQDEfCO9wVdE0imYaqvQTY3nAqJDxSrAn
- T0r9hff0BFmtvyFHyogO5joiwp7nnx7w3PjEeYWOOu8rQs9lwz/vZvP7nt3U9IB1exFDNXE6XRW
- sWZurJFoz6yxkhPj2h7/86G14Q8693p0r1vb/ZLidxgH1PxzuNydxzCr4DUJFdLml0lDYGHesrl
- OtyGcVeDmvbPzd2CptPmmyrRhrtrBV7jWFQCkE021Xc0fbUeCwUFRBbKI50FfgiHGBvdyKeNeOn
- PCxrJMbfKeZFnh02g9NkST9aYVm5wkHUtUebG+5ChMuFsgRrghe+tcjfin3uUeTKjwKYIeXYNOE
- f3pIXabZSxjqRkKjSyvQ/oJz5tQOuI6szxAQjRL/nnNnOPZOYkwNMtQtvSPMgbbr3seUyCdEeCa
- 2qp9OsZo9TCdRG7EZ+Q==
-X-Authority-Analysis: v=2.4 cv=b5WCJNGx c=1 sm=1 tr=0 ts=6a676b28 cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+X-Proofpoint-GUID: yoOf-eoerU8nZkuWVrtm_XJ0_BrYbwFf
+X-Proofpoint-ORIG-GUID: yoOf-eoerU8nZkuWVrtm_XJ0_BrYbwFf
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI3MDEzNiBTYWx0ZWRfX6s0VboH3DS04
+ 0DoF0gqgunHVERQucWmzWfs+BlhhB1lwR1UCjisjz6aYoI7tYquFef3XYQQPO09HsZOhuoY+QdR
+ TEANh+3ojX4sGdXX7K1eKceHGecdYpA=
+X-Authority-Analysis: v=2.4 cv=dYuwG3Xe c=1 sm=1 tr=0 ts=6a676b28 cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
  a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VwQbUJbxAAAA:8
- a=VnNF1IyMAAAA:8 a=xGc9WWtXZu7sglNFPhkA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: pAP8hfn1gpfNRA9NRMiYpkoy7bia7rwJ
-X-Proofpoint-ORIG-GUID: pAP8hfn1gpfNRA9NRMiYpkoy7bia7rwJ
+ a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8
+ a=Wy_majLh4fx_fQ3wRLAA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI3MDEzNiBTYWx0ZWRfX8mx4BMv7nU4I
+ 60Eegvp2JOAxq2+14UJy4GHYnll0O6rOUh95gY1HfvtsrTLmXbmKr2C96MzFENpIiNOjFzPFklt
+ hJifScDtYoRvxMXIy+XUYnChmpKP64i+FErpEtb3nG9t4LA7o2O0407HD40Joytb7eHPa6BIywL
+ Qe9ECxS8n0FuYIwdXIpu4+F6jkes4En6clDAa7GqSZeycUhfMQ67BwWc65aw3oyZECqafMgPqii
+ n5O0FZC0DfQTqPiuAfrFVlEHOsVqEi3ZVaSBmxw4oNBAoq26cFq9exlwSO5sDEBCV/qLyxMX2NU
+ m8+CCwJ5iPN/oYeL5OCWeK2ThuaEAE1cPN6ojxWqgb7JEG9T7F/hMuw25R1yACb4a332DoBJpdc
+ E/iV7cAXHbLylJPZdkFCr+x8ZOvP+6JQiv99RbY6XUetNS2XScNtODkXRsrfn8cr5VCRvYwBocW
+ RPiZwvX2SVCPHctRcJw==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-07-27_04,2026-07-24_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 spamscore=0 adultscore=0 malwarescore=0 impostorscore=0
- bulkscore=0 phishscore=0 suspectscore=0 clxscore=1011 lowpriorityscore=0
+ priorityscore=1501 impostorscore=0 clxscore=1011 phishscore=0 malwarescore=0
+ spamscore=0 lowpriorityscore=0 bulkscore=0 suspectscore=0 adultscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607270136
 
-fmt_buffer_size in dasd_eckd_check_device_format() is declared as
-int, even though one of the multiplicands, sizeof(struct eckd_count),
-is a size_t. The expression
+When all channel paths to a DASD device are lost and subsequently
+recovered, the path event handler starts one IO per path via
+dasd_sleep_on_immediatly() to execute read configuration data (RCD) with
+high priority.
 
-    trkcount * rpt_max * sizeof(struct eckd_count)
+dasd_sleep_on_immediatly() works by terminating the currently running
+request before inserting the new request.
+If a concurrent caller, such as the attention handler
+dasd_eckd_check_attention_work() or the summary unit
+check handler summary_unit_check_handling_work(), also calls
+dasd_sleep_on_immediatly() while a path verification RCD is in progress,
+the RCD gets terminated.
 
-is therefore correctly evaluated at 64-bit width, but the result is
-silently truncated when it is stored back into the 32-bit
-fmt_buffer_size variable. For a sufficiently large track range
-(start_unit/stop_unit are caller-controlled) this truncation
-yields a buffer size far smaller than the number of tracks actually
-requested. kzalloc() then succeeds with an undersized allocation,
-while the subsequent channel program build still operates on the
-untruncated track count and writes past the end of that buffer.
+The problem is that a terminated request transitions from CLEARED to
+TERMINATED without going through the normal retry path in
+__dasd_device_process_ccw_queue.
 
-Compute the buffer size with check_mul_overflow() and keep it in a
-size_t, so that a value that no longer fits results in -EINVAL
-instead of a silently truncated allocation size.
+The RCD therefore returns -EIO, and the affected paths remain
+non-operational after recovery. RCD CQRs used for path verification
+already carry the DASD_CQR_VERIFY_PATH flag.
 
-Fixes: 8fd575200db5 ("s390/dasd: Add new ioctl BIODASDCHECKFMT")
-Cc: stable@vger.kernel.org #4.7
+Extend _dasd_term_running_cqr() to check this flag: instead of terminating
+such a request, return -EAGAIN. In dasd_sleep_on_immediatly(), loop on
+-EAGAIN with a short sleep, waiting for the path verification request to
+complete before inserting the new request.
+
+This is consistent with the already indefinite wait_event() that
+dasd_sleep_on_immediatly() uses for its own request, and all other callers
+(attention handler, summary unit check handler, reserve/release/steal-lock)
+benefit automatically without requiring changes.
+
 Reviewed-by: Jan Höppner <hoeppner@linux.ibm.com>
 Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
 ---
- drivers/s390/block/dasd_eckd.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/s390/block/dasd.c | 14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
-index 74fe73b5738a..d356a9f8f016 100644
---- a/drivers/s390/block/dasd_eckd.c
-+++ b/drivers/s390/block/dasd_eckd.c
-@@ -20,6 +20,7 @@
+diff --git a/drivers/s390/block/dasd.c b/drivers/s390/block/dasd.c
+index 3181c06d91ce..d8d912a3b3fe 100644
+--- a/drivers/s390/block/dasd.c
++++ b/drivers/s390/block/dasd.c
+@@ -21,6 +21,7 @@
+ #include <linux/debugfs.h>
  #include <linux/seq_file.h>
- #include <linux/uaccess.h>
- #include <linux/io.h>
-+#include <linux/overflow.h>
+ #include <linux/vmalloc.h>
++#include <linux/delay.h>
  
- #include <asm/css_chars.h>
  #include <asm/machine.h>
-@@ -3475,11 +3476,11 @@ static int dasd_eckd_check_device_format(struct dasd_device *base,
- {
- 	struct dasd_eckd_private *private = base->private;
- 	struct eckd_count *fmt_buffer;
--	struct irb irb;
-+	size_t fmt_buffer_size;
-+	unsigned int trkcount;
- 	int rpt_max, rpt_exp;
--	int fmt_buffer_size;
-+	struct irb irb;
- 	int trk_per_cyl;
--	int trkcount;
- 	int tpm = 0;
- 	int rc;
- 
-@@ -3490,7 +3491,9 @@ static int dasd_eckd_check_device_format(struct dasd_device *base,
- 	rpt_exp = recs_per_track(&private->rdc_data, 0, cdata->expect.blksize);
- 
- 	trkcount = cdata->expect.stop_unit - cdata->expect.start_unit + 1;
--	fmt_buffer_size = trkcount * rpt_max * sizeof(struct eckd_count);
-+	if (check_mul_overflow(trkcount, rpt_max, &fmt_buffer_size) ||
-+	    check_mul_overflow(fmt_buffer_size, sizeof(struct eckd_count), &fmt_buffer_size))
-+		return -EINVAL;
- 
- 	fmt_buffer = kzalloc(fmt_buffer_size, GFP_KERNEL | GFP_DMA);
- 	if (!fmt_buffer)
+ #include <asm/ccwdev.h>
+@@ -2511,6 +2512,13 @@ static inline int _dasd_term_running_cqr(struct dasd_device *device)
+ 	if (list_empty(&device->ccw_queue))
+ 		return 0;
+ 	cqr = list_entry(device->ccw_queue.next, struct dasd_ccw_req, devlist);
++	/*
++	 * Path verification requests must not be terminated. They are critical
++	 * for bringing paths back online. Terminating them would cause rc=-EIO
++	 * because CLEARED requests skip the retry path.
++	 */
++	if (test_bit(DASD_CQR_VERIFY_PATH, &cqr->flags))
++		return -EAGAIN;
+ 	rc = device->discipline->term_IO(cqr);
+ 	if (!rc)
+ 		/*
+@@ -2535,7 +2543,11 @@ int dasd_sleep_on_immediatly(struct dasd_ccw_req *cqr)
+ 		return -EIO;
+ 	}
+ 	spin_lock_irq(get_ccwdev_lock(device->cdev));
+-	rc = _dasd_term_running_cqr(device);
++	while ((rc = _dasd_term_running_cqr(device)) == -EAGAIN) {
++		spin_unlock_irq(get_ccwdev_lock(device->cdev));
++		msleep(1);
++		spin_lock_irq(get_ccwdev_lock(device->cdev));
++	}
+ 	if (rc) {
+ 		spin_unlock_irq(get_ccwdev_lock(device->cdev));
+ 		return rc;
 -- 
 2.53.0
 
