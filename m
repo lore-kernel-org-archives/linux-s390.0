@@ -1,98 +1,99 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D69D236F437;
-	Mon, 27 Jul 2026 09:35:44 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A084F36F437;
+	Mon, 27 Jul 2026 09:36:02 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785144946; cv=none; b=gSjTs2kYhll9f6gd2rNHqL8lbAqC1EMBJ+nLpVKKwDqRWbhofq0OBOZc0CttjTAYwuNH3AU9vWTU5Hv9SU34KhV3qs/6/t0XXYtPAp+GvY0ta6f2JYOa7pvTIdWqJeyD5Vc7awIFSw3p2TMHH1SLKDIFiKkssv6I+Obgnsem8FY=
+	t=1785144963; cv=none; b=o18w9Q+JkiJsvnnbuC83q9SnDG3qNHHtNZJzT1yGoFvhv/pFl/wD35maCkCwFGGYcEDhdhzFAvHAMxtzZXfKRSyrRsV1N25YNmLjfwoKoaR6RKw8M7uQuNgf9xU/hnJIFBRDhWfU8HYaP+ChJ16lRq6slj9dSKlpT9B8L/n+kkU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785144946; c=relaxed/simple;
-	bh=PiFexxv/63o2u/J1QELKyb7j+x37qLVEqk0JktAH1RE=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=hOPQZCg3ugUbsE88ucdSQXQEs/wsSmkDqd64q/eQe3UYDVMVGxxyRlgmc8ww9v2akfdvv0zFqokwmEX822LriqzhSCD/Yhpzp0K9awAWLy123f1L7Vw9tWQmBa312so0BYW5/Rwud6BdoJYPZPJ5inygNHy/INnOK/uyPClTMhI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=i5QfeznJ; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1785144963; c=relaxed/simple;
+	bh=qMXqCXO7Vn0MZcv4NCXe0HVhhHb8E+w9zX6+A6WE+co=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=ZN1jC9ZGbh+CWdoreJcJB1GKgPgQAvMZSYSRw7NF3iNP89X949szdEXYVGSK/9vilw8XXZPv3hDhIjTMJYf315IaZIYiasckzqX9mhTmKCJJnVJdyP+zggcd7sxWaP2d4HUdF0nNBowrYlBdY57/5ca6sA2zSzmy8r7iTCFD6Hk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=tYyuut1q; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="i5QfeznJ"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="tYyuut1q"
 Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66R9UllS4154511;
-	Mon, 27 Jul 2026 09:35:37 GMT
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66R9Uc4D4154296;
+	Mon, 27 Jul 2026 09:36:02 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=UO61xM23KinFQFco9FSOtMYhQPc/AbGFT6ejY4z9+
-	yM=; b=i5QfeznJAZP49FNCrUZTHOanNI7NRqU3ZX7iFk6+/xZGo5N9IRddo9EJ/
-	2+j4jpKY2FWAetWI10v90vePkoQT7IpGKoKHbDzUp2t6lv9IVfJGC5vWv6uq+95t
-	7kHzajOJn504ZKopZjiaaG2BpFR7HSe6RjStY+OI3oQPCh+HIQf3KYz7xeKQ78Zs
-	dERlNxGaj7tP/kplV4KP+uG/S7xJMUf54BV/mpUyY6vsL08ttObsiwzOoID1EUj/
-	X/lQ0T025Ry/VSfHGyYfRhumcdFUcjMYfInl83lmpOvo4KhuUjbNn6/EedVAXoZk
-	tqkxaf56z/J5lHBwZMXi3Y5tYEemw==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fmuyc78vr-1
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=p8JLy/
+	m+cFj2sLhJvbC5qgWfebqW+UmhGZjoNDyV7c4=; b=tYyuut1q/eYevtadhMHwC1
+	Zeg4FYPZr5I+5ssU7iCIWiUfwwTM6sPVcM6bQ1WKTSHz0Ru5n8A44Jr9B4/5jsmB
+	NoO5kkcHC9m8HEeQT0Jpfp3/7qqeaRc0aXCshGjuPmHbLGQm3I8Dd4sijzlL+B85
+	cGMLG71UMA5mzvv79Odw95ahSU80r6aWmdHR+uCOsKjVVhGa7c8ANmAhvp1rbFcJ
+	YW9aRohCUu7Fv8sDyrl5txlqRfFVwl9dS3d2FlU9JEui5jSRVaFsk1Oidcb2VKL1
+	Ro+6YS62bmVYFS7/jZV2Bo/SgIvLtOP/B9ZEhBCS7DU35ASPU1OSc2Syah7IALHg
+	==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fmuyc78xn-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 27 Jul 2026 09:35:36 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66R9QGjR009764;
-	Mon, 27 Jul 2026 09:35:35 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fn8yh4qb9-1
+	Mon, 27 Jul 2026 09:36:01 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66R9QDO3011908;
+	Mon, 27 Jul 2026 09:36:00 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fna5xvgv2-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 27 Jul 2026 09:35:35 +0000 (GMT)
+	Mon, 27 Jul 2026 09:36:00 +0000 (GMT)
 Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66R9ZVV536176290
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66R9Zv2M41550334
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 27 Jul 2026 09:35:31 GMT
+	Mon, 27 Jul 2026 09:35:57 GMT
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7565E20076;
-	Mon, 27 Jul 2026 09:35:31 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 259E820079;
+	Mon, 27 Jul 2026 09:35:57 +0000 (GMT)
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2EF2920075;
-	Mon, 27 Jul 2026 09:35:31 +0000 (GMT)
-Received: from t83lp68.lnxne.boe (unknown [9.87.84.240])
+	by IMSVA (Postfix) with ESMTP id E875420077;
+	Mon, 27 Jul 2026 09:35:56 +0000 (GMT)
+Received: from [9.111.31.34] (unknown [9.111.31.34])
 	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 27 Jul 2026 09:35:31 +0000 (GMT)
-From: Hidayath Khan <hidayath@linux.ibm.com>
-To: davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-        pabeni@redhat.com, wintera@linux.ibm.com, alibuda@linux.alibaba.com,
-        dust.li@linux.alibaba.com, sidraya@linux.ibm.com, wenjia@linux.ibm.com,
-        mjambigi@linux.ibm.com
-Cc: tonylu@linux.alibaba.com, guwen@linux.alibaba.com, horms@kernel.org,
-        hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
-        borntraeger@linux.ibm.com, svens@linux.ibm.com, pasic@linux.ibm.com,
-        gbayer@linux.ibm.com, andrew+netdev@lunn.ch, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH net] dibs: fix use-after-free of dmb_node in loopback attach/detach/unregister
-Date: Mon, 27 Jul 2026 11:35:30 +0200
-Message-ID: <20260727093530.968834-1-hidayath@linux.ibm.com>
-X-Mailer: git-send-email 2.52.0
+	Mon, 27 Jul 2026 09:35:56 +0000 (GMT)
+Message-ID: <504bdd81-707a-4015-ab91-1b35730b480a@linux.ibm.com>
+Date: Mon, 27 Jul 2026 11:35:56 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 2/3] s390: Implement arch_do_panic
+To: sashiko-reviews@lists.linux.dev
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>
+References: <20260727-arch_do_panic-v1-0-ca1777547c38@linux.ibm.com>
+ <20260727-arch_do_panic-v1-2-ca1777547c38@linux.ibm.com>
+ <20260727091040.A7F791F000E9@smtp.kernel.org>
+Content-Language: en-US
+From: Mete Durlu <meted@linux.ibm.com>
+In-Reply-To: <20260727091040.A7F791F000E9@smtp.kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-ORIG-GUID: -Ex0jxdPAV7rLypbSJS_B1Hl2CPzgfUq
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI3MDA5MSBTYWx0ZWRfX4MA6FT21YQAi
- VPg2k966gfn4TWI6izLysSu6sfUb7PQxGNBD6pOQWV/wwXWTIV+UF0LTzGqoAuQ+WQdTkbM+1iR
- Mpev6q8PcgLoWZ0bY6oZLmjPosEAx5hqw6YQ6onghmyXBbU1v53U+iUdaL3iSLfu1kYS9ba7+sk
- vVvZXLgBzIJPsY5KkXRukoOhwPiUd+huTvrmJaKm2wXqUKOjqlo2B7fp5IH6wglVk4tT67Wdl9q
- 00t4xapnnGZDjE2fV6VWi1ekP07KIF+2G5XKh/0XPfym870rw2Lo/P3o4TmIk1d9kYLo5vp0d6d
- hmHupieEMputlgzLwrlPcAmY+5eeUNjHi1jNTZk5ihcfXy5VXGoy6ZQS0dGStSIIsuJADX0M53o
- q8D0K3lzpS094kJxmDfZeYAl5U4dFq99jUEgqKXaQbUl+HPx7Ql+aWBZkftkjFqUiXmrT0nDSb4
- 3hvS9q53jYTSSrS+23w==
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI3MDA5MSBTYWx0ZWRfX9nnw/RLusy/R
- gHCuFEStcsYAQuY9pZG94BqtXVg2FZzKk/QxBZ24B0ghUezgh8szdJ4eZO875qVsihdL52pu3qH
- ynavxE6UUb5ORoCsP1y7WQftPAM8odU=
-X-Authority-Analysis: v=2.4 cv=AZeB2XXG c=1 sm=1 tr=0 ts=6a672669 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=uAbxVGIbfxUO_5tXvNgY:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
- a=j3-GGZ3PBAWOPdPpVlEA:9
-X-Proofpoint-GUID: 4rTJSMQnV6OKOOdUU71XWwUsWfdTPJJg
+X-Proofpoint-ORIG-GUID: Nw23zAqii5xZh9CH-qRZ4OVc8-a4GVcC
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI3MDA5MSBTYWx0ZWRfXzYkNwU4WN89b
+ YCW4qodKLiUuI6lJ8/wNw5tBpozPgSJDAKznlBM6lFTNjXAFsbK40+5Xl6MMhn68RMnfEcFyJIW
+ kUTkipahsod+ovTD+/tC25VFkhuscOtHDqrPtzlusE6TGO/kBe+lqRvFuad/ZCBhqNmoxg26IMf
+ q8oOh66LP8Wru4uhFnYrdnhaye6DhZsvizGDrj/Z9B6h5AeTan6Zit6ZvO7s0AyFeUT7S9NpxcN
+ Q+Bq1pbDRiTgYSw4F9c3mKDe15x4EBoe5lUpMJr4kiT6zaey4Kd7esgsO3U/BNZv1GEXzmD5iSP
+ 4URfGGCLl3aEEBcUW2gkG3GXC4DAX/zpJAzN67B7U/wBTVVU6abP8vti+BNbbwWLv2W4XYkTjxe
+ 47SO2UFuaVu+FgUOw4hybHPq6L7ILkmSL/hJlQ5e/BFOtP1cJfMvk8ztAaf0cvrp0PlFtdnHVkR
+ 3C8hcJWUesF7i4YbR6w==
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI3MDA5MSBTYWx0ZWRfX92HKhjtCg1HK
+ CncxcCjXASGDP68CrhAagup5OrYlmVg3demMtntE6ZeyVJ1bVT9fjPnB/xrKwECzKaL8S9CNP4d
+ g9CV6EJnjH9WhxkxAswJ+Gc5p+f2t5E=
+X-Authority-Analysis: v=2.4 cv=AZeB2XXG c=1 sm=1 tr=0 ts=6a672681 cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VwQbUJbxAAAA:8
+ a=VnNF1IyMAAAA:8 a=GR1TegcZMGn3hSD79ekA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: Nw23zAqii5xZh9CH-qRZ4OVc8-a4GVcC
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-07-27_02,2026-07-24_02,2025-10-01_01
@@ -102,177 +103,76 @@ X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607270091
 
-dibs_lo_attach_dmb(), dibs_lo_detach_dmb() and dibs_lo_unregister_dmb()
-look up the dmb_node under dmb_ht_lock, drop the lock and only then
-operate on the node's refcount. Nothing keeps the node alive across
-that window: __dibs_lo_unregister_dmb() removes the node from the hash
-table under the write lock and immediately frees it.
+On 7/27/26 11:10 AM, sashiko-bot@kernel.org wrote:
+> Thank you for your contribution! Sashiko AI review found 2 potential issue(s) to consider:
+> - [High] arch_do_panic() is bypassed when panic_timeout != 0
+> - [Low] Unused declaration of s390_do_panic()
+> --
+> 
+> --- Patch [2]: [PATCH 2/3] s390: Implement arch_do_panic ---
+> commit 640e72aef0a165dacc87c9e5913aa8f9442aa6e9
+> Author: Mete Durlu <meted@linux.ibm.com>
+> 
+> s390: Implement arch_do_panic
+> 
+> This commit implements the arch_do_panic() hook for s390 to handle
+> architecture-specific panic actions instead of relying on the panic_notifier
+> chain. This change allows user-specified panic_timeout values to be evaluated
+> in common code before executing the s390 specific actions.
+> 
+>> diff --git a/arch/s390/include/asm/ipl.h b/arch/s390/include/asm/ipl.h
+>> index b0d00032479d6..38924c4a5d1d7 100644
+>> --- a/arch/s390/include/asm/ipl.h
+>> +++ b/arch/s390/include/asm/ipl.h
+>> @@ -166,5 +166,6 @@ enum diag308_rc {
+>>   extern int diag308(unsigned long subcode, void *addr);
+>>   extern void store_status(void (*fn)(void *), void *data);
+>>   extern void lgr_info_log(void);
+>> +void s390_do_panic(void);
+> 
+> [Severity: Low]
+> Is this declaration necessary?
+> 
+> It looks like s390_do_panic() is declared here but never implemented or used,
+> as the actual implementation provided in arch/s390/kernel/ipl.c is named
+> arch_do_panic().
 
-A concurrent final put can therefore free the node between the lookup
-and the refcount operation:
+This is leftover code. I'll remove it in the next version.
 
-CPU0 (attach)                     CPU1 (owner unregisters)
+> [ ... ]
+> 
+>> diff --git a/kernel/panic.c b/kernel/panic.c
+>> index 1eb0cdc159d94..de0bda946cabb 100644
+>> --- a/kernel/panic.c
+>> +++ b/kernel/panic.c
+>> @@ -755,9 +755,6 @@ void vpanic(const char *fmt, va_list args)
+>>   		pr_emerg("Press Stop-A (L1-A) from sun keyboard or send break\n"
+>>   			 "twice on console to return to the boot prom\n");
+>>   	}
+>> -#endif
+>> -#if defined(CONFIG_S390)
+>> -	disabled_wait();
+>>   #endif
+>>   	pr_emerg("---[ end Kernel panic - not syncing: %s ]---\n", buf);
+> 
+> [Severity: High]
+> Does this change unintentionally bypass the s390 panic actions when
+> panic_timeout != 0?
+> 
+> Looking at vpanic() in kernel/panic.c, if a panic timeout is set, the system
+> will restart before reaching arch_do_panic():
+> 
+>      if (panic_timeout != 0) {
+>          ...
+>          emergency_restart();
+>      }
+>      pr_emerg("---[ end Kernel panic - not syncing: %s ]---\n", buf);
+> 
+>      arch_do_panic();
+> 
+> Since emergency_restart() does not return, will the user-configured on_panic
+> actions be lost in this scenario?
 
-read_lock_bh(&dmb_ht_lock)
-find dmb_node (refcnt == 1)
-read_unlock_bh(&dmb_ht_lock)
-                                  refcount_dec_and_test() 1 -> 0
-                                  write_lock_bh(&dmb_ht_lock)
-                                  hash_del(&dmb_node->list)
-                                  write_unlock_bh(&dmb_ht_lock)
-                                  kfree(dmb_node)
-refcount_inc_not_zero(&dmb_node->refcnt)  <-- use-after-free
-
-The same window exists for the refcount_dec_and_test() calls in the
-detach and unregister paths.
-
-Close the race structurally by making hash table membership and the
-refcount transitions atomic with respect to each other:
-
-- Perform the final refcount_dec_and_test() and hash_del() in a single
-  dmb_ht_lock write-side critical section, in both the unregister and
-  the detach path. Freeing the node still happens after the lock is
-  dropped, which is safe because a node whose refcount reached zero has
-  left the hash table and can no longer be found.
-
-- This establishes the invariant that any node found in the hash table
-  holds at least one reference, and that the final reference can only
-  be dropped under the write lock. dibs_lo_attach_dmb() can thus take
-  its reference with a plain refcount_inc() while still holding the
-  read lock; refcount_inc_not_zero() is no longer needed.
-
-__dibs_lo_unregister_dmb() no longer touches the hash table and is
-renamed to dibs_lo_free_dmb() accordingly.
-
-Note: commit cc21191b584c ("dibs: Move data path to dibs layer") moved
-the code to its current location; the race was introduced earlier by
-commit c3a910f2380f ("net/smc: implement DMB-merged operations of
-loopback-ism").
-
-Tested SMC-D via ISM and dibs loopback.
-
-Fixes: c3a910f2380f ("net/smc: implement DMB-merged operations of loopback-ism")
-Cc: stable@vger.kernel.org
-Signed-off-by: Hidayath Khan <hidayath@linux.ibm.com>
-Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
----
- drivers/dibs/dibs_loopback.c | 47 ++++++++++++++++++------------------
- 1 file changed, 24 insertions(+), 23 deletions(-)
-
-diff --git a/drivers/dibs/dibs_loopback.c b/drivers/dibs/dibs_loopback.c
-index 0f2e09311152..fd5caf1e19a8 100644
---- a/drivers/dibs/dibs_loopback.c
-+++ b/drivers/dibs/dibs_loopback.c
-@@ -118,14 +118,9 @@ static int dibs_lo_register_dmb(struct dibs_dev *dibs, struct dibs_dmb *dmb,
- 	return rc;
- }
- 
--static void __dibs_lo_unregister_dmb(struct dibs_lo_dev *ldev,
--				     struct dibs_lo_dmb_node *dmb_node)
-+static void dibs_lo_free_dmb(struct dibs_lo_dev *ldev,
-+			     struct dibs_lo_dmb_node *dmb_node)
- {
--	/* remove dmb from hash table */
--	write_lock_bh(&ldev->dmb_ht_lock);
--	hash_del(&dmb_node->list);
--	write_unlock_bh(&ldev->dmb_ht_lock);
--
- 	clear_bit(dmb_node->sba_idx, ldev->sba_idx_mask);
- 	folio_put(virt_to_folio(dmb_node->cpu_addr));
- 	kfree(dmb_node);
-@@ -139,27 +134,33 @@ static int dibs_lo_unregister_dmb(struct dibs_dev *dibs, struct dibs_dmb *dmb)
- 	struct dibs_lo_dmb_node *dmb_node = NULL, *tmp_node;
- 	struct dibs_lo_dev *ldev;
- 	unsigned long flags;
-+	bool last;
- 
- 	ldev = dibs->drv_priv;
- 
- 	/* find dmb from hash table */
--	read_lock_bh(&ldev->dmb_ht_lock);
-+	write_lock_bh(&ldev->dmb_ht_lock);
- 	hash_for_each_possible(ldev->dmb_ht, tmp_node, list, dmb->dmb_tok) {
- 		if (tmp_node->token == dmb->dmb_tok) {
- 			dmb_node = tmp_node;
- 			break;
- 		}
- 	}
--	read_unlock_bh(&ldev->dmb_ht_lock);
--	if (!dmb_node)
-+	if (!dmb_node) {
-+		write_unlock_bh(&ldev->dmb_ht_lock);
- 		return -EINVAL;
-+	}
-+	last = refcount_dec_and_test(&dmb_node->refcnt);
-+	if (last)
-+		hash_del(&dmb_node->list);
-+	write_unlock_bh(&ldev->dmb_ht_lock);
- 
--	if (refcount_dec_and_test(&dmb_node->refcnt)) {
-+	if (last) {
- 		spin_lock_irqsave(&dibs->lock, flags);
- 		dibs->dmb_clientid_arr[dmb_node->sba_idx] = NO_DIBS_CLIENT;
- 		spin_unlock_irqrestore(&dibs->lock, flags);
- 
--		__dibs_lo_unregister_dmb(ldev, dmb_node);
-+		dibs_lo_free_dmb(ldev, dmb_node);
- 	}
- 	return 0;
- }
-@@ -188,14 +189,9 @@ static int dibs_lo_attach_dmb(struct dibs_dev *dibs, struct dibs_dmb *dmb)
- 		read_unlock_bh(&ldev->dmb_ht_lock);
- 		return -EINVAL;
- 	}
-+	refcount_inc(&dmb_node->refcnt);
- 	read_unlock_bh(&ldev->dmb_ht_lock);
- 
--	if (!refcount_inc_not_zero(&dmb_node->refcnt))
--		/* the dmb is being unregistered, but has
--		 * not been removed from the hash table.
--		 */
--		return -EINVAL;
--
- 	/* provide dmb information */
- 	dmb->idx = dmb_node->sba_idx;
- 	dmb->dmb_tok = dmb_node->token;
-@@ -209,11 +205,12 @@ static int dibs_lo_detach_dmb(struct dibs_dev *dibs, u64 token)
- {
- 	struct dibs_lo_dmb_node *dmb_node = NULL, *tmp_node;
- 	struct dibs_lo_dev *ldev;
-+	bool last;
- 
- 	ldev = dibs->drv_priv;
- 
- 	/* find dmb_node according to dmb->dmb_tok */
--	read_lock_bh(&ldev->dmb_ht_lock);
-+	write_lock_bh(&ldev->dmb_ht_lock);
- 	hash_for_each_possible(ldev->dmb_ht, tmp_node, list, token) {
- 		if (tmp_node->token == token) {
- 			dmb_node = tmp_node;
-@@ -221,13 +218,17 @@ static int dibs_lo_detach_dmb(struct dibs_dev *dibs, u64 token)
- 		}
- 	}
- 	if (!dmb_node) {
--		read_unlock_bh(&ldev->dmb_ht_lock);
-+		write_unlock_bh(&ldev->dmb_ht_lock);
- 		return -EINVAL;
- 	}
--	read_unlock_bh(&ldev->dmb_ht_lock);
-+	last = refcount_dec_and_test(&dmb_node->refcnt);
-+	if (last)
-+		hash_del(&dmb_node->list);
-+	write_unlock_bh(&ldev->dmb_ht_lock);
-+
-+	if (last)
-+		dibs_lo_free_dmb(ldev, dmb_node);
- 
--	if (refcount_dec_and_test(&dmb_node->refcnt))
--		__dibs_lo_unregister_dmb(ldev, dmb_node);
- 	return 0;
- }
- 
-
-base-commit: 9dca6104d80f94a285aad6eb6712d004b7151e7d
--- 
-2.52.0
+Yes, this is the intended behavior with this change. I'll document it in
+the commit message in next version.
 
