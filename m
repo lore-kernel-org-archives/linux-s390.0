@@ -1,139 +1,148 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 01DD43DB31F;
-	Mon, 27 Jul 2026 10:13:38 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7AB8B3E63A4;
+	Mon, 27 Jul 2026 10:18:12 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785147220; cv=none; b=UzmZgqKM9n0Ooe0AigK6jgBf1xtyOaBOguCw86bipWqoTGIabImAqpvWG24avdoWz+pC/8R3qt2fOaBl9hlG2UVfm+w7xV1sEe296QbmGkV5WjQuGXAyy7Lgj+DKh7ufkGUUXXbauhUPqQGfflTDK4dZV2MoL2/2tt3T6xWGlyc=
+	t=1785147493; cv=none; b=LsxZE1VL+3EmWeLlEiRUwHP+qNycSdfkCagFcPkN8gnFh65AXyd3geZucSVH+1sWtdsotLPfrFtf7g7WSo/kmAgtv/94Yb6xHQa1BaTHdcsV3AoPKCj7n7YNs1UvoO0a/lXmTwK8dkxi6pEx7h+XkCJLsc13ZL+/rLv8tbeW7qM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785147220; c=relaxed/simple;
-	bh=JH1gjpL/W2dCiEENarPnPPyavBZTZuhIOO5kPOAVOOs=;
+	s=arc-20240116; t=1785147493; c=relaxed/simple;
+	bh=pyNteccbh3cEGG21E1ZII2mb7J5Rkl3iLr9uhS6PJZ8=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=ZSBhx56wtGE43ljblRAEdzKOYd5z/ArbNQO3wbmxAcm2Ijsv0SV8a+l5qNRNblh+Y+r7FiRU9ue3BiKxVlmc8muwOUfFYCJC1RjPR/GcGS4+eOoUmB16h/zZT3GBWINWNRpGCp9AENGnTyMc9zAq8ZTGBjnUuaYDG0JoVtCpKEg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=i2wQ9U0I; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=EWr4lsSv/NS5mivv0S+ukOWlzV7z94btanc26eFcyW28QjbNqHBuWYVf2I6e99qWIJBjwWJjce5EkhBdhKLTztcQRE3AAwtyoHzfILbXWe2xQKMdGgggJRfVPhUZx985p5qABBK4Kj5v6VerPjRUcjyvmjAdy1rV0S4qZWocUWg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jyvmzfMZ; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="i2wQ9U0I"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 473401F00A3A;
-	Mon, 27 Jul 2026 10:13:37 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jyvmzfMZ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A1B21F000E9;
+	Mon, 27 Jul 2026 10:18:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785147218;
-	bh=IVQWuaAnE60IIrm3oesd+3lA558t5oCEAMErRZm81DI=;
+	s=k20260515; t=1785147492;
+	bh=/6Qi63aAcgPRh84ELrxQO66GC90D0IO84z7eQpViPlA=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=i2wQ9U0I9ofCzg52Hgn7671avQ2Wq4rtQJqtbrB7sKBtKwLoMM1PwKv52002NJH98
-	 OYBJmbkG6gDPqfrzr8An3QdM2rMYICAJ9Suitd6ky9UzHK0BZ3m1joxYb2szHmSIrv
-	 cK/gTVML87W/g9axLt/T3lMwS0nAMz/bUHbD9yARlzz0IMIONcQJ7ECoygnbI2hCSg
-	 cAd8nHetWOKEbkZp666Z/X4ShIYXRvep3yWzXkipS2tyZSkc1A+qyqJeqU0KtPcVaC
-	 HQq9KzMKW1cCbDQ2bB1pXHF4JUqVNWK42fimBm2W07KD//ayZLVJBAhelPYq+Hyndu
-	 co8iCd+HhAXiQ==
+	b=jyvmzfMZVEL8LlQDof5Hh7zR7V3SJZLb+FFP8/HTbvPLOU0vYx4XprPjcUDxA53Oa
+	 bp22xoeo96ZD0UJcj94ahWX7KYjjVlKl60ngmxRpK6QHWlGzEdkS3ldgOUj6DQ6iyT
+	 IdnPLwFi2OdORn+S+xKrya3xy+6YZaBynmgAyYeA2Av9UwYkH27uG7zRGIUeL3sKih
+	 fAsHsZgW0XUVaXKpBbKG7eo2AIgkQBGEFctMU8vxgeHGxRQ3l3ZKoaxiNAv5CR54ea
+	 Z9jt1/qmziBE2G3CNDCIn2fHBdy2TeOfCFUbuFm2dMgJ1p6G+9sdMGMMpqdwTDhQv1
+	 KpLAepde6gDhw==
 From: sashiko-bot@kernel.org
-Subject: Re: [GIT PULL 1/7] KVM: s390: pci: Reject adapter interrupt
- forwarding if already enabled
+Subject: Re: [GIT PULL 6/7] KVM: s390: pci: Validate AIBV and AISB before
+ pinning guest pages
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Christian Borntraeger" <borntraeger@linux.ibm.com>
-Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, "Heiko
+Cc: linux-s390@vger.kernel.org, "Alexander Gordeev" <agordeev@linux.ibm.com>, kvm@vger.kernel.org, "Heiko
  Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>
-In-Reply-To: <20260727095720.9150-2-borntraeger@linux.ibm.com>
+In-Reply-To: <20260727095720.9150-7-borntraeger@linux.ibm.com>
 References: <20260727095720.9150-1-borntraeger@linux.ibm.com>
- <20260727095720.9150-2-borntraeger@linux.ibm.com>
+ <20260727095720.9150-7-borntraeger@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 27 Jul 2026 10:13:37 +0000
-Message-Id: <20260727101338.473401F00A3A@smtp.kernel.org>
+Date: Mon, 27 Jul 2026 10:18:10 +0000
+Message-Id: <20260727101811.1A1B21F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+Thank you for your contribution! Sashiko AI review found 7 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [High] kvm_s390_pci_aif_enable() silently returns success (0) when accoun=
-t_mem() or airq_iv_alloc_bit() fail, leaving the device non-functional in t=
-he guest.
-- [High] Missing NULL check for airq_iv_create() return value causes a guar=
-anteed kernel panic on allocation failure.
-- [High] The helper functions account_mem() and unaccount_mem() permanently=
- leak user_struct reference counts and inaccurately uncharge teardown threa=
-ds.
+- [Critical] Missing NULL check for `aisb_page` leads to host memory corrup=
+tion via a garbage physical address in `gaite->aisb`.
+- [Critical] Missing validation of the user-provided `aisbo` allows an out-=
+of-bounds bit flip in host physical memory.
+- [High] Missing software state rollback if hardware configuration fails in=
+ `kvm_zpci_set_airq()`.
+- [High] Missing `kvm_s390_gisc_unregister()` on error paths leaks GISC ref=
+erence counts.
+- [High] No check for already enabled AEN allows guests to leak host resour=
+ces via repeated ioctl calls.
+- [High] Failures in `account_mem()` and `airq_iv_alloc_bit()` return a fal=
+se success to userspace and leak memory accounting.
+- [High] Missing NULL check for `airq_iv_create()` return value leads to ho=
+st kernel panic.
 --
 
---- Patch [1]: [GIT PULL 1/7] KVM: s390: pci: Reject adapter interrupt forw=
-arding if already enabled ---
-commit 834c3470cb709cfa95cf6f7b8315fe450f54610b
+--- Patch [1]: [GIT PULL 6/7] KVM: s390: pci: Validate AIBV and AISB before=
+ pinning guest pages ---
+commit b6f9e911464048e2480c6dd2f890285a31bef43d
 Author: Farhan Ali <alifm@linux.ibm.com>
 
-KVM: s390: pci: Reject adapter interrupt forwarding if already enabled
-   =20
-The MPCIFC instruction doesn't allow registering adapter interrupts without
-first unregistering. So reject any request to enable interrupt forwarding
-if its already enabled for the zPCI device. This also fixes overwriting and
-thus leaking resources when the ioctl is called multiple times for the same
-device.
+KVM: s390: pci: Validate AIBV and AISB before pinning guest pages
 
-Fixes: 3c5a1b6f0a18 ("KVM: s390: pci: provide routines for enabling/disabli=
-ng interrupt forwarding")
-Cc: stable@vger.kernel.org
+This commit adds validation checks for the AIBV and AISB addresses provided
+by the guest during PCI interrupt forwarding setup. It ensures that the AIBV
+does not span more than one page and that the AISB is doubleword aligned.
 
 > diff --git a/arch/s390/kvm/pci.c b/arch/s390/kvm/pci.c
-> index 5b075c38998e3..02ec50a01fed2 100644
+> index 5b075c38998e3..efeee49e18ea3 100644
 > --- a/arch/s390/kvm/pci.c
 > +++ b/arch/s390/kvm/pci.c
-> @@ -237,6 +237,10 @@ static int kvm_s390_pci_aif_enable(struct zpci_dev *=
+> @@ -246,6 +246,14 @@ static int kvm_s390_pci_aif_enable(struct zpci_dev *=
 zdev, struct zpci_fib *fib,
->  	if (zdev->gisa =3D=3D 0)
->  		return -EINVAL;
+>  		return gisc;
 > =20
-> +	/* AIF already enabled for the device */
-> +	if (zdev->kzdev->fib.fmt0.aibv !=3D 0)
-> +		return -EINVAL;
+>  	/* Replace AIBV address */
+> +	size =3D BITS_TO_LONGS(msi_vecs + fib->fmt0.aibvo) * sizeof(unsigned lo=
+ng);
+> +	npages =3D DIV_ROUND_UP((fib->fmt0.aibv & ~PAGE_MASK) + size, PAGE_SIZE=
+);
+> +	/* AIBV cannot span more than 1 page */
+> +	if (npages > 1) {
+> +		rc =3D -EINVAL;
+> +		goto out;
+> +	}
 > +
->  	kvm =3D zdev->kzdev->kvm;
->  	msi_vecs =3D min_t(unsigned int, fib->fmt0.noi, zdev->max_msi);
+
+[Severity: High]
+This isn't a bug introduced by this patch, but does the new error path leak
+the GISC reference count?
+
+If npages > 1 triggers, the code jumps to out without calling
+kvm_s390_gisc_unregister(), which was registered earlier:
+
+	gisc =3D kvm_s390_gisc_register(kvm, fib->fmt0.isc);
+	if (gisc < 0)
+		return gisc;
+
+Can a guest repeatedly pass spanning addresses to overflow the reference co=
+unter?
+
+>  	idx =3D srcu_read_lock(&kvm->srcu);
+>  	hva =3D gfn_to_hva(kvm, gpa_to_gfn((gpa_t)fib->fmt0.aibv));
+>  	npages =3D pin_user_pages_fast(hva, 1, FOLL_WRITE | FOLL_LONGTERM, page=
+s);
+> @@ -261,6 +269,12 @@ static int kvm_s390_pci_aif_enable(struct zpci_dev *=
+zdev, struct zpci_fib *fib,
 > =20
+>  	/* Pin the guest AISB if one was specified */
+>  	if (fib->fmt0.sum =3D=3D 1) {
+> +		/* AISB must be dword aligned */
+> +		if (fib->fmt0.aisb & 0x7) {
+> +			rc =3D -EINVAL;
+> +			goto unpin1;
+> +		}
+> +
 
 [Severity: High]
-This is a pre-existing issue, but does kvm_s390_pci_aif_enable() silently
-return success when account_mem() fails?
-
-If account_mem() fails, it jumps to unpin2, but rc remains 0:
-
-arch/s390/kvm/pci.c:kvm_s390_pci_aif_enable() {
-    ...
-	/* Account for pinned pages, roll back on failure */
-	if (account_mem(pcount))
-		goto unpin2;
-    ...
-unpin2:
-	if (fib->fmt0.sum =3D=3D 1)
-		unpin_user_page(aisb_page);
-unpin1:
-	unpin_user_page(aibv_page);
-out:
-	return rc;
-}
-
-The same happens if airq_iv_alloc_bit() fails:
-
-arch/s390/kvm/pci.c:kvm_s390_pci_aif_enable() {
-    ...
-	bit =3D airq_iv_alloc_bit(aift->sbv);
-	if (bit =3D=3D -1UL)
-		goto unlock;
-    ...
-}
-
-Should rc be updated to a negative error code before jumping to these clean=
-up
-labels?
+This is a pre-existing issue, but this alignment check also jumps past the=
+=20
+required unregistration. Should unpin1 or a similar cleanup label handle
+the GISC unregistration?
 
 
 [Severity: High]
-This is a pre-existing issue, but could airq_iv_create() return NULL and ca=
-use
-a panic?
+This is a pre-existing issue, but I noticed there doesn't seem to be a chec=
+k=20
+to see if AEN is already enabled on the device.
+
+If a guest repeatedly registers AEN without deregistering first, could the
+function allocate new airq_iv structures, pin new guest memory pages, and
+overwrite the tracking pointers (zdev->aibv, zdev->aisb), leading to an
+exhaustion of host resources?
 
 arch/s390/kvm/pci.c:kvm_s390_pci_aif_enable() {
     ...
@@ -141,13 +150,60 @@ arch/s390/kvm/pci.c:kvm_s390_pci_aif_enable() {
 				    AIRQ_IV_BITLOCK |
 				    AIRQ_IV_GUESTVEC,
 				    phys_to_virt(fib->fmt0.aibv));
-
-	spin_lock_irq(&aift->gait_lock);
     ...
 }
 
-If airq_iv_create() fails and returns NULL, zdev->aibv becomes NULL. Later,
-when kvm_zpci_set_airq() is called, it might dereference this NULL pointer:
+
+[Severity: Critical]
+This is a pre-existing issue, but if a guest registers AEN without requesti=
+ng a
+summary bit (fib->fmt0.sum =3D=3D 0), does aisb_page remain NULL?
+
+If so, later in kvm_s390_pci_aif_enable() we execute:
+
+	gaite->aisb =3D virt_to_phys(page_address(aisb_page) + (fib->fmt0.aisb &
+							      ~PAGE_MASK));
+
+This appears to perform pointer arithmetic on page_address(NULL), yielding a
+garbage physical address. When the device issues an interrupt, could KVM's
+aen_host_forward() see that gaite->aisb !=3D 0 and perform a bit flip on th=
+at
+garbage address, directly corrupting host memory?
+
+
+[Severity: High]
+This isn't a bug introduced by this patch, but does the error handling for
+account_mem() and airq_iv_alloc_bit() return a false success and leak
+memory accounting?
+
+arch/s390/kvm/pci.c:kvm_s390_pci_aif_enable() {
+    ...
+	/* Account for pinned pages, roll back on failure */
+	if (account_mem(pcount))
+		goto unpin2;
+    ...
+	bit =3D airq_iv_alloc_bit(aift->sbv);
+	if (bit =3D=3D -1UL)
+		goto unlock;
+    ...
+}
+
+In both cases, rc seems to remain unassigned (0). Also, it appears the
+unlock error path does not call unaccount_mem(pcount).
+
+
+[Severity: High]
+This is a pre-existing issue, but what happens if airq_iv_create() fails and
+returns NULL?
+
+arch/s390/kvm/pci.c:kvm_s390_pci_aif_enable() {
+    ...
+	zdev->aibv =3D airq_iv_create(msi_vecs, ...);
+    ...
+}
+
+It seems zdev->aibv is assigned without a check, and subsequently
+kvm_zpci_set_airq() will unconditionally dereference it:
 
 arch/s390/kvm/pci.c:kvm_zpci_set_airq() {
     ...
@@ -155,43 +211,47 @@ arch/s390/kvm/pci.c:kvm_zpci_set_airq() {
     ...
 }
 
-Should we check the return value of airq_iv_create() and handle the failure?
+Could this lead to a NULL pointer dereference panic under host memory press=
+ure?
+
+
+[Severity: Critical]
+This is a pre-existing issue, but is the user-provided aisbo validated
+against a 64-bit bounds check?
+
+arch/s390/kvm/pci.c:kvm_s390_pci_aif_enable() {
+    ...
+	gaite->aisbo =3D fib->fmt0.aisbo;
+    ...
+}
+
+If aisbo is unvalidated and can be up to 255, could KVM's software handler
+blindly execute a bit flip crossing into unpinned host physical memory?
+
+arch/s390/kvm/interrupt.c:aen_host_forward() {
+    ...
+		set_bit_inv(gaite->aisbo, phys_to_virt(gaite->aisb));
+    ...
+}
 
 
 [Severity: High]
-This isn't a bug introduced by this patch, but do the accounting functions =
-leak
-user_struct references?
+This is a pre-existing issue, but if kvm_zpci_set_airq() fails at the very
+end of the function, does it bypass the software rollback?
 
-In account_mem():
-
-arch/s390/kvm/pci.c:account_mem() {
+arch/s390/kvm/pci.c:kvm_s390_pci_aif_enable() {
     ...
-	struct user_struct *user =3D get_uid(current_user());
-    ...
-}
+	/* Issue the clp to setup the irq now */
+	rc =3D kvm_zpci_set_airq(zdev);
+	return rc;
 
-And in unaccount_mem():
-
-arch/s390/kvm/pci.c:unaccount_mem() {
-    ...
-	struct user_struct *user =3D get_uid(current_user());
-
-	if (user)
-		atomic_long_sub(nr_pages, &user->locked_vm);
-	if (current->mm)
-		atomic64_sub(nr_pages, &current->mm->pinned_vm);
+unlock:
     ...
 }
 
-Both functions call get_uid(current_user()) which increments the user's
-reference count, but they do not seem to call free_uid().
-
-Additionally, unaccount_mem() might be called in asynchronous teardown
-contexts where current points to a teardown worker thread instead of the
-original VM process. Does this lead to inaccurate uncharging of the
-teardown thread?
+It looks like it returns immediately instead of executing the error cleanup
+labels (unpin1, unpin2, unlock), leaving resources leaked.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260727095720.9150=
--2-borntraeger@linux.ibm.com?part=3D1
+-7-borntraeger@linux.ibm.com?part=3D1
