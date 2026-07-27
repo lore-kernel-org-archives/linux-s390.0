@@ -1,77 +1,87 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f174.google.com (mail-pf1-f174.google.com [209.85.210.174])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E3A1282F13;
-	Mon, 27 Jul 2026 09:57:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7998B3F412B
+	for <linux-s390@vger.kernel.org>; Mon, 27 Jul 2026 09:58:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785146268; cv=none; b=K3kttM7e9BoJcvXgXhdwGu4E+0E8Q6TpZ5a0zwJnpSMdOVcHvsG53HMrOEPs0BuVExXmWt/ZL5fByTel8AnMxNm1HdX5+fDZl4waz5mkdmvScbY40578PBVdjFt4Ux183tSkRmArozeNm0MeiogMUa8RWMgiGis5S22cItYGrho=
+	t=1785146336; cv=none; b=oPnhT7Ftu6SRfusq29gEq8/A2whBan/4y4GOD6AWxWTXpezNNFQWupzZPsqGw3Onxitgsjj+j7hf8KiPg31AJZFjXAp0p0b9xsszvdzx4DFb3Leon0p9i9BriXFY/zVQLwIdixHzaPKGOwMezgb0+SNeO9yfarCIUKWZEHzbvto=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785146268; c=relaxed/simple;
-	bh=Afvv7uPuaQ87jL5LeANQFpB0okeZwhP5qIDt9ROl8mk=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=jAjDyResXDFGByss4vtQWbzCmCkKmkQKVb2dsCqrH7Yz7vKkCZfP1SBwPuttkq4N642ggVI8KKkfydp1rJ3ZxKpyQ/KaCXuGq8xIJFh5DsR3np2zxrLG4rkLpv4Ayp5R0dGiFP++a2SKII3VJw+5z5joXf0U1yOh5zxv2b9CxmU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=FRkmwL5+; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1785146336; c=relaxed/simple;
+	bh=crIQtX20obF3TC5dV0O2T3AsJII0J1ZZB9Qecwr67PI=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=OwRRJ2q7y7QRclEbdV/AeAjY9O5+pZ5E6ETfl4ReZ1ZbfUuJTSWjrshB0eV/laFJgM+/Lh7ydclELtM0n20xgwwh0UvliMu4MGkdUiphwAZCiN0KUv+BTo3iEslJVsjQf+ny1zdPkeqrZmtTd508K4On8aknIDgE/3G5A3QD3KU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=isslab.korea.ac.kr; spf=none smtp.mailfrom=isslab.korea.ac.kr; dkim=pass (2048-bit key) header.d=isslab-korea-ac-kr.20251104.gappssmtp.com header.i=@isslab-korea-ac-kr.20251104.gappssmtp.com header.b=D2MIKSA8; arc=none smtp.client-ip=209.85.210.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=isslab.korea.ac.kr
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=isslab.korea.ac.kr
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="FRkmwL5+"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66R9UcuH1821162;
-	Mon, 27 Jul 2026 09:57:44 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=CTKvmeLiUaZTQyWWc
-	IQR2srXN2A8tVcnckWnu9EOyUs=; b=FRkmwL5+P9PPNNP7f0+hMXDO9g3/brcD+
-	TMyJzJcHu2y5RJFWjAlKhmppx9bq4yGy1sJkli60NjEYqhs/bGhcncZ5C/+Rvrsv
-	FE9lMnjvmzHd8FKvpvctFpYGZpbOy8GLx/mhTy2455db7bk32NJ9SXdBC+kDFIWk
-	gLbm9+j2durTe30q7k52w0pmgx1BSS+GcVHR6JJQwtSaCiSyBzPNvMhCIwsVrcO4
-	zBM0F1OnU0YJF3eTEnvP1NPJLcQH6Ll1HhM8nqmKB4LMcDGAXHsStrifSFEjq02+
-	vohFcQTLE2ynVblpbr7vasDU0+8C5JSm3JxvxYWd54dFewQRcWJ2g==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fmuw77c79-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 27 Jul 2026 09:57:44 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66R9uOws023294;
-	Mon, 27 Jul 2026 09:57:43 GMT
-Received: from smtprelay01.wdc07v.mail.ibm.com ([172.16.1.68])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fn9pg4nf1-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 27 Jul 2026 09:57:43 +0000 (GMT)
-Received: from smtpav02.dal12v.mail.ibm.com (smtpav02.dal12v.mail.ibm.com [10.241.53.101])
-	by smtprelay01.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66R9vfCJ3277714
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 27 Jul 2026 09:57:42 GMT
-Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id BB96F5805C;
-	Mon, 27 Jul 2026 09:57:41 +0000 (GMT)
-Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6912F58051;
-	Mon, 27 Jul 2026 09:57:39 +0000 (GMT)
-Received: from b35lp69.lnxne.boe (unknown [9.87.84.240])
-	by smtpav02.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 27 Jul 2026 09:57:39 +0000 (GMT)
-From: Christian Borntraeger <borntraeger@linux.ibm.com>
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Jaehoon Kim <jhkim@linux.ibm.com>,
-        Douglas Freimuth <freimuth@linux.ibm.com>,
-        Farhan Ali <alifm@linux.ibm.com>
-Subject: [GIT PULL 7/7] KVM: s390: Fall back to short-term pinning in MAP ioctl
-Date: Mon, 27 Jul 2026 11:57:20 +0200
-Message-ID: <20260727095720.9150-8-borntraeger@linux.ibm.com>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20260727095720.9150-1-borntraeger@linux.ibm.com>
-References: <20260727095720.9150-1-borntraeger@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=isslab-korea-ac-kr.20251104.gappssmtp.com header.i=@isslab-korea-ac-kr.20251104.gappssmtp.com header.b="D2MIKSA8"
+Received: by mail-pf1-f174.google.com with SMTP id d2e1a72fcca58-84867f07d63so3023449b3a.2
+        for <linux-s390@vger.kernel.org>; Mon, 27 Jul 2026 02:58:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=isslab-korea-ac-kr.20251104.gappssmtp.com; s=20251104; t=1785146332; x=1785751132; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=+DRMmn4/PFMcmqnUYa9ddb19KSYep8avFsbVeSVbwFQ=;
+        b=D2MIKSA8nJctnlnW+P463RspHheU7YjVtEMAmvb+krpZN1H+i89HYWeGGPo6D27O7n
+         hotiFLgoARkOrD4RluJBwtr3Jr3oI8rjfezsX6RT+N+Hghd0lMr/eZqMmSwHTgVzpm9S
+         fMORJmhqd5MwqQY2AUbPfOsu9beWvhkmackE2AbJupHxEXwP+MsrnXnBEQSjyTNm/WRf
+         Y8nCwSyQ9OHlx5u5hKx3+le6qwTLr4wqjpbb0yuesqN2q0GjIAEPhLDMDk+fxV9Zr+g+
+         2MeHNNMDTB5E79pOIwQqltsb36yjwrRo8InFyVlgRAiVwFBgf4Jf4rpiG1APJ9+qKAtK
+         J7Aw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1785146332; x=1785751132;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=+DRMmn4/PFMcmqnUYa9ddb19KSYep8avFsbVeSVbwFQ=;
+        b=lrHO8ZgEUi+Yv/Jz3LWKpZeBDTVt7l2U6d6APOwJVisQD2AVBMqd5yyb9T/aZRM3lB
+         fk1xuX2rrCYQgjVcssECG9NnuGx600pTDgdFQDQ4+5YljEvC7bV0lGRn6zzqEVLv4wHR
+         DatC9/OvYabv8o1U3DKRQLPaevVMnsyBYY6l20PqIX6DM1brTeO2DP9E50gcOsmlQWxX
+         mX3A5J8NgfIeSajFMT5h+N7baPiK6uJGLXYWOkFdgFFh1JBv6+T2h1lLjNhYb3MchrDc
+         5Of3fud87NdwkUKNWyZyG735+9J6zkGTWzpEcWoQyH1k0RtZUe0wAVoumPJiogwqqb2x
+         8ucQ==
+X-Forwarded-Encrypted: i=1; AHgh+RpJdxZlpNahK4hnbk7HS6zyIKJ9RmE6/TA4RBTjRKud/DeZpHPqhvuCjdxXCFd2qMtw0FNwxYYruI5v@vger.kernel.org
+X-Gm-Message-State: AOJu0YxeD55ODkZTJ8xSoizxeavs4sYpgX6gx/KI/G3NKD62ZofZRxcE
+	DmW+KT1IILAmtidNezA+mHFsp0OZ519pm6emcf6ihOJ+S+T/bYOeDt8Go2jJGDEhXDw=
+X-Gm-Gg: AR+sD12tT+TAw1KuiLmZmcFHWxm3bHIi7vGQ7R17oz7FG6yFhiyOulzkz6DPRcMVHMC
+	01bdnJElUfNx9I2ZzVmvOUeY/Qsd7zYVh6vOEO1UTQp/Ne4avY/I+RFn1ETI1YcavxfYDWhxHBk
+	Sk4sjse+2iVRCtLqQ4zXt01Z1OnSvXXNdjqGTjaD+7Awh2leb6ImSS8dGODWAfXSUE/SPbDq4lz
+	5IoaUaTjM04d1Jrxb8NB7ZCJiZnoTrvL1/ZkaGI7wqs8Iy2xpI4xum8OuryK98ZEuY5wi2NglVF
+	Uc1KsjqP/m5GLGcIYAv5f2258xEMJyOHcjmNNB8Nr3SpoqjpZQnMTKfIU8lMLHkimaT6K+yo8dC
+	C/OWSEKsqbgKPCXdLS+UDnFsi7GGBB56CrrDcQt+Q3+qMwzfi/fYAHJtF5EJl0PEejRyXYaqN8L
+	wem452McHey1TmhTgIHxGxPUA6
+X-Received: by 2002:a05:6a00:392a:b0:848:2f7a:2e50 with SMTP id d2e1a72fcca58-84e5957266amr6287578b3a.63.1785146331561;
+        Mon, 27 Jul 2026 02:58:51 -0700 (PDT)
+Received: from localhost.localdomain ([2406:5900:1044:110c:fc36:f2a9:533e:766d])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-84e5344d9e9sm2863367b3a.55.2026.07.27.02.58.46
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 27 Jul 2026 02:58:51 -0700 (PDT)
+From: Yehyeong Lee <yhlee@isslab.korea.ac.kr>
+To: "D. Wythe" <alibuda@linux.alibaba.com>,
+	Dust Li <dust.li@linux.alibaba.com>,
+	Sidraya Jayagond <sidraya@linux.ibm.com>,
+	Wenjia Zhang <wenjia@linux.ibm.com>,
+	Mahanta Jambigi <mjambigi@linux.ibm.com>,
+	Tony Lu <tonylu@linux.alibaba.com>,
+	Wen Gu <guwen@linux.alibaba.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>,
+	Guangguan Wang <guangguan.wang@linux.alibaba.com>,
+	linux-rdma@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Cc: Kees Cook <kees@kernel.org>,
+	"Gustavo A. R. Silva" <gustavoars@kernel.org>,
+	linux-hardening@vger.kernel.org,
+	Yehyeong Lee <yhlee@isslab.korea.ac.kr>
+Subject: [PATCH net v3] net/smc: fix out-of-bounds read of rkey array in SMC-Rv2 LLC processing
+Date: Mon, 27 Jul 2026 18:58:33 +0900
+Message-ID: <20260727095833.1079618-1-yhlee@isslab.korea.ac.kr>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -79,220 +89,325 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: e4Bq_qggQczEkFxIkE0WWIpZaxGuC3BU
-X-Proofpoint-ORIG-GUID: e4Bq_qggQczEkFxIkE0WWIpZaxGuC3BU
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI3MDA5NiBTYWx0ZWRfX/XNA7xPxB0fu
- 9MoeyBSmk4yjFlKLc9yPzHp2FuNv7gDOuYQEP4xZ/LC8ZMcnG48XxFSCRCxWnbyfU/Vuezw7XCE
- zxiSg6wnDkIh7WAiwa9l3STdAojBvCVZdpXSHa7eJE6MffVkiOTaCdPB699jMS7BOmKeJf5RcPg
- urkMAcdBdPGgQSFg65vSxOEOyr9HVXNb3pyCHnnTIWE2RUfH7GjHwtUQSWK0/yRjpwvh/EfXVeP
- caE3x/ZlLkqJcV5lIGdJoYRePSnZlWlY1e18H/20vDdUi6XFGVZWu91OQ7jt7qIeViyPO491YB0
- frCHxSrclvVGeWuaUjRG2GQUsmbk9iAblW+wXnEr6oha7UVAK8wExS/EKWnNKi2yhXqT2Tsl1E/
- PX0X95BnxziW46yvPPxnmxKgBi1K4uPp74El3sYBZ9sckS/rxGRVZo3Vb+7f3HjgDEaFyV018wV
- +QlWopChAMzm1CIBFBQ==
-X-Authority-Analysis: v=2.4 cv=SKFykuvH c=1 sm=1 tr=0 ts=6a672b98 cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8 a=rQUY9zMWWlwLR9XeW8oA:9
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI3MDA5NiBTYWx0ZWRfXzJyezW4pFPg0
- 8YRg/NxNdACDN7igqZmXYmU5PCtDzi7oKlBbphcSlwB8at3Fw2tfSTQaBxhMiGqNdQq2T7Urc77
- QwjJrj40cs1eKwib/6R7E/KPEjeLBkQ=
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-07-27_02,2026-07-24_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 malwarescore=0 clxscore=1015 adultscore=0
- lowpriorityscore=0 bulkscore=0 impostorscore=0 phishscore=0 spamscore=0
- suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2607270096
 
-From: Jaehoon Kim <jhkim@linux.ibm.com>
+An SMC-Rv2 LLC message can be longer than the 44-byte union smc_llc_msg.
+If the device offers two receive SGEs, the part beyond 44 bytes is
+scattered into the link group's shared v2 buffer. If it does not
+(max_recv_sge == 1, so smc_link_shared_v2_rxbuf() is false), the whole
+message is received into the link's own receive buffer.
 
-FOLL_LONGTERM pinning fails for some memory types, such as file-backed
-guest memory. As a result, kvm_s390_adapter_map() returns -EINVAL and
-irqfd adapter registration fails even though interrupt delivery could
-still work via the existing non-atomic path.
+smc_llc_enqueue() copies only sizeof(union smc_llc_msg) into the queue
+entry, but the consumers keep reading the message past that point:
 
-When FOLL_LONGTERM pinning fails, verify that the page is accessible
-using a short-term pin instead. If the short-term pin succeeds, unpin
-the page and add a map entry with pinned=false to preserve MAP/UNMAP
-symmetry. The non-atomic irqfd path already performs short-term pinning
-for interrupt delivery, so this restores the previous behavior for
-memory that cannot be pinned long-term.
+  smc_llc_rmt_delete_rkey()      rkey[i] at message offset 8 + 4 * i
+  smc_llc_save_add_link_rkeys()  the v2 extension at message offset 44
 
-get_map_info() is updated to return NULL for unpinned entries so that
-the atomic irqfd fast path falls back to the non-atomic path.
-kvm_s390_adapter_unmap() and kvm_s390_unmap_all_adapters() skip dirty
-marking and unpin for unpinned entries.
+In the non-shared layout those bytes are not in the queue entry at all,
+so the reads run off the end of the queue entry allocation. The buffer
+the message arrived in is no source either: smc_wr_rx_post() hands it
+back to the device immediately after the handler runs, while the message
+is consumed later from the llc_event_work work item.
 
-Update Documentation/virt/kvm/devices/s390_flic.rst to reflect the
-new MAP/UNMAP behavior.
+Attach the body to the queue entry instead. smc_llc_enqueue() now takes
+the completion length, and copies whatever arrived beyond the first 44
+bytes into a flexible array at the tail of the same allocation. That
+copy is the only place that has to know which of the two receive layouts
+is in use; every consumer reads one buffer whose lifetime is the queue
+entry's, and the shared/non-shared branches in smc_llc_rmt_delete_rkey(),
+smc_llc_cli_add_link() and smc_llc_srv_add_link() go away.
 
-Fixes: c9a568838086 ("KVM: s390: Add map/unmap ioctl and clean mappings post-guest")
-Signed-off-by: Jaehoon Kim <jhkim@linux.ibm.com>
-Reviewed-by: Douglas Freimuth <freimuth@linux.ibm.com>
-Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
-Signed-off-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+Because the backing allocation is now the size of the received message
+rather than a fixed 8 KiB buffer, the loop bounds have to come from the
+received length too. num_rkeys and the v2 extension's rkey count are
+peer-controlled and unrelated to the number of bytes the peer actually
+sent - a peer can declare 255 rkeys in a 44-byte DELETE_RKEY - so both
+are clamped to what was received, and the extension's count field is
+only read once enough bytes for it have arrived. This is not hardening
+added on top of the fix, it is part of it: the counts were never
+validated before either, the reads happened to stay in bounds only
+because the buffer they addressed was always 8 KiB. The commit message
+of v2 of this patch deferred that check "as a separate hardening"; with
+the body sized by the peer's message it cannot be deferred, so that is
+withdrawn.
+
+Passing the queue entry down also closes a use-after-free on the same
+path. smc_llc_srv_add_link() frees the queue entry before it reads the
+rkeys (net/smc/smc_llc.c, v7.2-rc5):
+
+  1494        smc_llc_save_add_link_info(link_new, add_llc);
+  1495        smc_llc_flow_qentry_del(&lgr->llc_flow_lcl);
+  ...
+  1503        if (lgr->smc_version == SMC_V2) {
+  1504                u8 *llc_msg = smc_link_shared_v2_rxbuf(link) ?
+  1505                        (u8 *)lgr->wr_rx_buf_v2 : (u8 *)add_llc;
+  1506                smc_llc_save_add_link_rkeys(link, link_new, llc_msg);
+
+add_llc points into the queue entry that line 1495 has already freed, so
+on a non-shared link the extension is read from freed memory. Detach the
+entry from the flow with smc_llc_flow_qentry_clr() and free it when the
+function is done with it. It was introduced by the same commit.
+
+Unpatched, a peer that declares 255 rkeys in a 44-byte DELETE_RKEY
+reads past the queue entry:
+
+  BUG: KASAN: slab-out-of-bounds in smc_llc_rmt_delete_rkey+0x6a4/0x780
+  Read of size 4 at addr ffff8880059ee748 by task kworker/0:0H/11
+  Workqueue: events_highpri smc_llc_event_work
+  Call Trace:
+   dump_stack_lvl+0x53/0x70
+   print_report+0xd0/0x630
+   kasan_report+0xce/0x100
+   smc_llc_rmt_delete_rkey+0x6a4/0x780
+   smc_llc_event_handler+0xa13/0xef0
+   smc_llc_event_work+0x189/0x260
+   process_one_work+0x633/0x1030
+   worker_thread+0x45b/0xd10
+   kthread+0x2c6/0x3b0
+   ret_from_fork+0x36e/0x5a0
+   ret_from_fork_asm+0x1a/0x30
+  Allocated by task 43:
+   __kmalloc_cache_noprof+0x158/0x370
+   smc_llc_enqueue+0x72/0x560
+   smc_wr_rx_tasklet_fn+0x474/0xa80
+   ...
+  The buggy address is located 0 bytes to the right of
+   allocated 72-byte region [ffff8880059ee700, ffff8880059ee748)
+
+Reachability does not depend on the peer being able to send a large
+message: the counts are read out of a normally sized message, and a
+malicious peer only has to declare more rkeys than it actually sent.
+Kernel-side injection is needed in the reproducer only because Linux
+never misdeclares its own count.
+
+Reproduced under KASAN with soft-RoCE (rdma_rxe) between two network
+namespaces, with wr_rx_sge_cnt forced to 1 (rxe itself advertises 32
+receive SGEs) and a test-only parameter that raises num_rkeys in the
+DELETE_RKEY the kernel sends. Not exercised: a real HCA with
+max_recv_sge == 1, a non-Linux peer that sends a DELETE_RKEY longer than
+44 bytes, and anything beyond the two link groups and two connections
+the test sets up.
+
+Fixes: 27ef6a9981fe ("net/smc: support SMC-R V2 for rdma devices with max_recv_sge equals to 1")
+Suggested-by: D. Wythe <alibuda@linux.alibaba.com>
+Signed-off-by: Yehyeong Lee <yhlee@isslab.korea.ac.kr>
 ---
- Documentation/virt/kvm/devices/s390_flic.rst | 15 +++++-
- arch/s390/include/asm/kvm_host.h             |  5 ++
- arch/s390/kvm/interrupt.c                    | 56 +++++++++++++++-----
- 3 files changed, 60 insertions(+), 16 deletions(-)
+v3:
+ - Carry the v2 message body on the qentry itself instead of the
+   per-link-group lgr->wr_rx_buf_v2, as suggested by D. Wythe. The body
+   travels in the same allocation as a trailing flexible array, so the
+   shared and non-shared layouts no longer diverge in any consumer and
+   the existing kfree(qentry) sites are unchanged.
+ - Bound the rkey counts by the number of bytes actually received. With
+   a per-qentry body the backing allocation is exactly as large as what
+   arrived, so this is required for memory safety rather than being the
+   separate hardening promised in v2.
+ - Keep the qentry alive in smc_llc_srv_add_link() until the rkeys have
+   been read; the non-shared path there dereferenced it after it had
+   already been freed.
+ - Rebased onto v7.2-rc5; net/smc is unchanged between the v2 base and
+   this one.
 
-diff --git a/Documentation/virt/kvm/devices/s390_flic.rst b/Documentation/virt/kvm/devices/s390_flic.rst
-index b784f8016748..983c858b444a 100644
---- a/Documentation/virt/kvm/devices/s390_flic.rst
-+++ b/Documentation/virt/kvm/devices/s390_flic.rst
-@@ -112,9 +112,20 @@ Groups:
-       mask or unmask the adapter, as specified in mask
- 
-     KVM_S390_IO_ADAPTER_MAP
--      This is now a no-op. The mapping is purely done by the irq route.
-+      Map an adapter indicator or summary page for long-term pinning so that
-+      interrupt injection can be performed in atomic context. If long-term
-+      pinning is not possible (e.g. file-backed memory), the page is verified
-+      via a short-term pin and the ioctl returns success; interrupt injection
-+      will use the non-atomic irqfd path with short-term pinning on each
-+      interrupt. In Secure Execution mode this is a no-op and the ioctl
-+      returns success.
-+
-     KVM_S390_IO_ADAPTER_UNMAP
--      This is now a no-op. The mapping is purely done by the irq route.
-+      Unmap a previously mapped adapter indicator or summary page and release
-+      the long-term pin. If the page was not long-term pinned (e.g. file-backed
-+      memory), the map entry is removed and success is returned; if no prior
-+      map entry exists, -ENOENT is returned. In Secure Execution mode this is
-+      a no-op and the ioctl returns success.
- 
-   KVM_DEV_FLIC_AISM
-     modify the adapter-interruption-suppression mode for a given isc if the
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index eaa34c5bd3c1..c172f9b212d1 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -476,6 +476,11 @@ struct s390_map_info {
- 	__u64 guest_addr;
- 	__u64 addr;
- 	struct page *page;
-+	/*
-+	 * True if the page is long-term pinned. False if long-term pinning
-+	 * failed and this entry exists only to preserve MAP/UNMAP symmetry.
-+	 */
-+	bool pinned;
+v2:
+ - Guard the copy on lgr->smc_version == SMC_V2 to avoid a NULL
+   dereference of wr_rx_buf_v2 on a v1 link group.
+ - Copy the message body only, restoring the header from the per-qentry
+   copy.
+
+Previous postings:
+  v1 20260723094027.391199-1-yhlee@isslab.korea.ac.kr
+  v2 20260724061606.433735-1-yhlee@isslab.korea.ac.kr
+
+ net/smc/smc_llc.c | 70 +++++++++++++++++++++++++++++++----------------
+ 1 file changed, 47 insertions(+), 23 deletions(-)
+
+diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
+index 954b2ff1815c..997664bbe4f2 100644
+--- a/net/smc/smc_llc.c
++++ b/net/smc/smc_llc.c
+@@ -199,10 +199,13 @@ union smc_llc_msg {
+ struct smc_llc_qentry {
+ 	struct list_head list;
+ 	struct smc_link *link;
++	u16 body_len;
+ 	union smc_llc_msg msg;
++	u8 body[] __counted_by(body_len);
  };
  
- struct s390_io_adapter {
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index 9e3e6b0d72ad..7514d9e2403c 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -2520,8 +2520,22 @@ static int kvm_s390_adapter_map(struct kvm *kvm, unsigned int id, __u64 addr)
- 	map->addr = host_addr;
- 	map->page = pin_map_page(kvm, host_addr, FOLL_LONGTERM);
- 	if (!map->page) {
--		ret = -EINVAL;
--		goto out;
-+		/*
-+		 * Long-term pinning may fail for memory types such as file-backed
-+		 * memory. Verify that short-term pinning succeeds so that the
-+		 * non-atomic irqfd path can handle interrupt injection.
-+		 */
-+		map->page = pin_map_page(kvm, host_addr, 0);
-+		if (!map->page) {
-+			ret = -EINVAL;
-+			goto out;
-+		}
-+		unpin_user_page(map->page);
-+		map->page = NULL;
-+		map->pinned = false;
-+		/* Add an entry to preserve MAP/UNMAP symmetry. */
-+	} else {
-+		map->pinned = true;
+-static void smc_llc_enqueue(struct smc_link *link, union smc_llc_msg *llc);
++static void smc_llc_enqueue(struct smc_link *link, union smc_llc_msg *llc,
++			    u32 byte_len);
+ 
+ struct smc_llc_qentry *smc_llc_flow_qentry_clr(struct smc_llc_flow *flow)
+ {
+@@ -998,15 +1001,20 @@ static int smc_llc_cli_conf_link(struct smc_link *link,
+ 
+ static void smc_llc_save_add_link_rkeys(struct smc_link *link,
+ 					struct smc_link *link_new,
+-					u8 *llc_msg)
++					struct smc_llc_qentry *qentry)
+ {
++	const u32 rt_off = offsetof(struct smc_llc_msg_add_link_v2_ext, rt);
+ 	struct smc_llc_msg_add_link_v2_ext *ext;
+ 	struct smc_link_group *lgr = link->lgr;
+ 	int max, i;
+ 
+-	ext = (struct smc_llc_msg_add_link_v2_ext *)(llc_msg +
+-						     SMC_WR_TX_SIZE);
++	/* the rkey count itself is only there if enough bytes arrived */
++	if (qentry->body_len < rt_off)
++		return;
++	ext = (struct smc_llc_msg_add_link_v2_ext *)qentry->body;
+ 	max = min_t(u8, ext->num_rkeys, SMC_LLC_RKEYS_PER_MSG_V2);
++	max = min_t(u32, max, (qentry->body_len - rt_off) /
++			      sizeof(ext->rt[0]));
+ 	down_write(&lgr->rmbs_lock);
+ 	for (i = 0; i < max; i++) {
+ 		smc_rtoken_set(lgr, link->link_idx, link_new->link_idx,
+@@ -1099,9 +1107,7 @@ int smc_llc_cli_add_link(struct smc_link *link, struct smc_llc_qentry *qentry)
+ 	if (rc)
+ 		goto out_clear_lnk;
+ 	if (lgr->smc_version == SMC_V2) {
+-		u8 *llc_msg = smc_link_shared_v2_rxbuf(link) ?
+-			(u8 *)lgr->wr_rx_buf_v2 : (u8 *)llc;
+-		smc_llc_save_add_link_rkeys(link, lnk_new, llc_msg);
++		smc_llc_save_add_link_rkeys(link, lnk_new, qentry);
+ 	} else {
+ 		rc = smc_llc_cli_rkey_exchange(link, lnk_new);
+ 		if (rc) {
+@@ -1481,7 +1487,7 @@ int smc_llc_srv_add_link(struct smc_link *link,
  	}
- 	spin_lock_irqsave(&adapter->maps_lock, flags);
- 	if (adapter->nr_maps < MAX_S390_ADAPTER_MAPS) {
-@@ -2532,7 +2546,7 @@ static int kvm_s390_adapter_map(struct kvm *kvm, unsigned int id, __u64 addr)
- 		ret = -EINVAL;
+ 	add_llc = &qentry->msg.add_link;
+ 	if (add_llc->hd.flags & SMC_LLC_FLAG_ADD_LNK_REJ) {
+-		smc_llc_flow_qentry_del(&lgr->llc_flow_lcl);
++		smc_llc_flow_qentry_clr(&lgr->llc_flow_lcl);
+ 		rc = -ENOLINK;
+ 		goto out_err;
  	}
- 	spin_unlock_irqrestore(&adapter->maps_lock, flags);
--	if (ret)
-+	if (ret && map->page)
- 		unpin_user_page(map->page);
+@@ -1492,7 +1498,7 @@ int smc_llc_srv_add_link(struct smc_link *link,
+ 		lgr_new_t = SMC_LGR_ASYMMETRIC_PEER;
+ 	}
+ 	smc_llc_save_add_link_info(link_new, add_llc);
+-	smc_llc_flow_qentry_del(&lgr->llc_flow_lcl);
++	smc_llc_flow_qentry_clr(&lgr->llc_flow_lcl);
+ 
+ 	rc = smc_ib_ready_link(link_new);
+ 	if (rc)
+@@ -1501,9 +1507,7 @@ int smc_llc_srv_add_link(struct smc_link *link,
+ 	if (rc)
+ 		goto out_err;
+ 	if (lgr->smc_version == SMC_V2) {
+-		u8 *llc_msg = smc_link_shared_v2_rxbuf(link) ?
+-			(u8 *)lgr->wr_rx_buf_v2 : (u8 *)add_llc;
+-		smc_llc_save_add_link_rkeys(link, link_new, llc_msg);
++		smc_llc_save_add_link_rkeys(link, link_new, qentry);
+ 	} else {
+ 		rc = smc_llc_srv_rkey_exchange(link, link_new);
+ 		if (rc)
+@@ -1512,6 +1516,7 @@ int smc_llc_srv_add_link(struct smc_link *link,
+ 	rc = smc_llc_srv_conf_link(link, link_new, lgr_new_t);
+ 	if (rc)
+ 		goto out_err;
++	kfree(qentry);
+ 	kfree(ini);
+ 	return 0;
+ out_err:
+@@ -1520,6 +1525,7 @@ int smc_llc_srv_add_link(struct smc_link *link,
+ 		smcr_link_clear(link_new, false);
+ 	}
  out:
- 	if (ret)
-@@ -2546,6 +2560,7 @@ static int kvm_s390_adapter_unmap(struct kvm *kvm, unsigned int id, __u64 addr)
- 	struct s390_map_info *map, *tmp, *map_to_free;
- 	struct page *map_page_to_put = NULL;
- 	u64 map_addr_to_mark = 0;
-+	bool map_pinned = false;
- 	unsigned long flags;
- 	int found = 0, idx;
- 
-@@ -2560,6 +2575,7 @@ static int kvm_s390_adapter_unmap(struct kvm *kvm, unsigned int id, __u64 addr)
- 			list_del(&map->list);
- 			map_page_to_put = map->page;
- 			map_addr_to_mark = map->guest_addr;
-+			map_pinned = map->pinned;
- 			map_to_free = map;
- 			break;
- 		}
-@@ -2568,11 +2584,18 @@ static int kvm_s390_adapter_unmap(struct kvm *kvm, unsigned int id, __u64 addr)
- 
- 	if (found) {
- 		kfree(map_to_free);
--		idx = srcu_read_lock(&kvm->srcu);
--		mark_page_dirty(kvm, map_addr_to_mark >> PAGE_SHIFT);
--		set_page_dirty_lock(map_page_to_put);
--		srcu_read_unlock(&kvm->srcu, idx);
--		unpin_user_page(map_page_to_put);
-+		if (map_pinned) {
-+			/*
-+			 * Only long-term pinned pages need to be marked dirty
-+			 * and released. Fallback entries exist only for
-+			 * MAP/UNMAP symmetry.
-+			 */
-+			idx = srcu_read_lock(&kvm->srcu);
-+			mark_page_dirty(kvm, map_addr_to_mark >> PAGE_SHIFT);
-+			set_page_dirty_lock(map_page_to_put);
-+			srcu_read_unlock(&kvm->srcu, idx);
-+			unpin_user_page(map_page_to_put);
-+		}
- 	}
- 
- 	return found ? 0 : -ENOENT;
-@@ -2598,11 +2621,13 @@ void kvm_s390_unmap_all_adapters(struct kvm *kvm)
- 
- 		list_for_each_entry_safe(map, tmp, &local_list, list) {
- 			list_del(&map->list);
--			idx = srcu_read_lock(&kvm->srcu);
--			mark_page_dirty(kvm, map->guest_addr >> PAGE_SHIFT);
--			set_page_dirty_lock(map->page);
--			srcu_read_unlock(&kvm->srcu, idx);
--			unpin_user_page(map->page);
-+			if (map->pinned) {
-+				idx = srcu_read_lock(&kvm->srcu);
-+				mark_page_dirty(kvm, map->guest_addr >> PAGE_SHIFT);
-+				set_page_dirty_lock(map->page);
-+				srcu_read_unlock(&kvm->srcu, idx);
-+				unpin_user_page(map->page);
-+			}
- 			kfree(map);
- 		}
- 	}
-@@ -2929,8 +2954,11 @@ static struct s390_map_info *get_map_info(struct s390_io_adapter *adapter,
- 		return NULL;
- 
- 	list_for_each_entry(map, &adapter->maps, list) {
--		if (map->addr == addr)
-+		if (map->addr == addr) {
-+			if (!map->pinned)
-+				return NULL;
- 			return map;
-+		}
- 	}
- 	return NULL;
++	kfree(qentry);
+ 	kfree(ini);
+ 	if (send_req_add_link_resp)
+ 		smc_llc_send_req_add_link_response(req_qentry);
+@@ -1552,7 +1558,8 @@ void smc_llc_add_link_local(struct smc_link *link)
+ 	add_llc.hd.common.llc_type = SMC_LLC_ADD_LINK;
+ 	smc_llc_init_msg_hdr(&add_llc.hd, link->lgr, sizeof(add_llc));
+ 	/* no dev and port needed */
+-	smc_llc_enqueue(link, (union smc_llc_msg *)&add_llc);
++	smc_llc_enqueue(link, (union smc_llc_msg *)&add_llc,
++			sizeof(union smc_llc_msg));
  }
+ 
+ /* worker to process an add link message */
+@@ -1588,7 +1595,8 @@ void smc_llc_srv_delete_link_local(struct smc_link *link, u8 del_link_id)
+ 	del_llc.link_num = del_link_id;
+ 	del_llc.reason = htonl(SMC_LLC_DEL_LOST_PATH);
+ 	del_llc.hd.flags |= SMC_LLC_FLAG_DEL_LINK_ORDERLY;
+-	smc_llc_enqueue(link, (union smc_llc_msg *)&del_llc);
++	smc_llc_enqueue(link, (union smc_llc_msg *)&del_llc,
++			sizeof(union smc_llc_msg));
+ }
+ 
+ static void smc_llc_process_cli_delete_link(struct smc_link_group *lgr)
+@@ -1811,16 +1819,15 @@ static void smc_llc_rmt_delete_rkey(struct smc_link_group *lgr)
+ 
+ 	if (lgr->smc_version == SMC_V2) {
+ 		struct smc_llc_msg_delete_rkey_v2 *llcv2;
++		const u32 rkey_off =
++			offsetof(struct smc_llc_msg_delete_rkey_v2, rkey);
+ 
+-		if (smc_link_shared_v2_rxbuf(link)) {
+-			memcpy(lgr->wr_rx_buf_v2, llc, sizeof(*llc));
+-			llcv2 = (struct smc_llc_msg_delete_rkey_v2 *)lgr->wr_rx_buf_v2;
+-		} else {
+-			llcv2 = (struct smc_llc_msg_delete_rkey_v2 *)llc;
+-		}
++		llcv2 = (struct smc_llc_msg_delete_rkey_v2 *)llc;
+ 		llcv2->num_inval_rkeys = 0;
+ 
+ 		max = min_t(u8, llcv2->num_rkeys, SMC_LLC_RKEYS_PER_MSG_V2);
++		max = min_t(u32, max, (sizeof(qentry->msg) + qentry->body_len -
++				       rkey_off) / sizeof(llcv2->rkey[0]));
+ 		for (i = 0; i < max; i++) {
+ 			if (smc_rtoken_delete(link, llcv2->rkey[i]))
+ 				llcv2->num_inval_rkeys++;
+@@ -2063,18 +2070,35 @@ static void smc_llc_rx_response(struct smc_link *link,
+ 	wake_up(&link->lgr->llc_msg_waiter);
+ }
+ 
+-static void smc_llc_enqueue(struct smc_link *link, union smc_llc_msg *llc)
++static void smc_llc_enqueue(struct smc_link *link, union smc_llc_msg *llc,
++			    u32 byte_len)
+ {
+ 	struct smc_link_group *lgr = link->lgr;
+ 	struct smc_llc_qentry *qentry;
+ 	unsigned long flags;
++	u16 body_len = 0;
++
++	/* V2 messages can be longer than the inline union smc_llc_msg. Carry
++	 * the remainder in the qentry itself, so that its lifetime and its
++	 * length match the message the peer actually sent.
++	 */
++	if (lgr->smc_version == SMC_V2 && byte_len > SMC_WR_TX_SIZE)
++		body_len = min_t(u32, byte_len, SMC_WR_BUF_V2_SIZE) -
++			   SMC_WR_TX_SIZE;
+ 
+-	qentry = kmalloc_obj(*qentry, GFP_ATOMIC);
++	qentry = kmalloc_flex(*qentry, body, body_len, GFP_ATOMIC);
+ 	if (!qentry)
+ 		return;
++	qentry->body_len = body_len;
+ 	qentry->link = link;
+ 	INIT_LIST_HEAD(&qentry->list);
+ 	memcpy(&qentry->msg, llc, sizeof(union smc_llc_msg));
++	if (body_len) {
++		u8 *src = smc_link_shared_v2_rxbuf(link) ?
++			(u8 *)lgr->wr_rx_buf_v2 : (u8 *)llc;
++
++		memcpy(qentry->body, src + SMC_WR_TX_SIZE, body_len);
++	}
+ 
+ 	/* process responses immediately */
+ 	if ((llc->raw.hdr.flags & SMC_LLC_FLAG_RESP) &&
+@@ -2106,7 +2130,7 @@ static void smc_llc_rx_handler(struct ib_wc *wc, void *buf)
+ 			return; /* invalid message */
+ 	}
+ 
+-	smc_llc_enqueue(link, llc);
++	smc_llc_enqueue(link, llc, wc->byte_len);
+ }
+ 
+ /***************************** worker, utils *********************************/
 -- 
-2.53.0
+2.43.0
 
