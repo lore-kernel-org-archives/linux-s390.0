@@ -1,121 +1,164 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E28C63ABD82;
-	Mon, 27 Jul 2026 11:40:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A743737E5FB
+	for <linux-s390@vger.kernel.org>; Mon, 27 Jul 2026 12:12:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785152424; cv=none; b=VzfjIWXtobmgcbCMemynVZ3lgqHNziHOAMd+YvA2yrxYenK3ENg8MURsiyRRECeo/aMP6ovOIBYOBjybjesqgKZhpYJjlvIV7NUNvbHxl0TuSupp/aKSX9t+EJFgsp6P9hoYLZ0qxKP+ZnwfwLs7m2xhTlhKaRX/GlGdpgiBjtc=
+	t=1785154326; cv=none; b=UCpjw4dj14tktTODn48MBe2aoG8ING1iQABcYxwhcStsf+nm+qleLdwnePaj1lwloSh4mQXiVbsNt4sthMjl1hH9PQRnV0C03o0NRn/m5na8AQ3Z0FaN4rSHNn0QnPADpDv+u9qjjKhMg6FGHrrObIjgx9wPe8jydpm6KEk4k2I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785152424; c=relaxed/simple;
-	bh=2RXUrwY0zbrsvCAnBWB1uXr+KZaZ8spSxMsRS/yD9a4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=FWZHg2Y6Z2bVLfuPUWX3+/H2SCKTxu4enj957oYZsd95QV3mgieLzqbLcd550ApyhW2sd7+ohhFWXO40eVRko/vXCFM5DdRmacJ8t94qSTNt37ygyWy1nIB5YXIZ+i46YGpAV1mtFfwjS7sPsNMJGtT2WgIlNk1U4yrI/CnZCYo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=T7OMLWX0; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1785154326; c=relaxed/simple;
+	bh=uX6O3T9tt/HiYIQUoy9/oxBrkTTu4sJ/RdLNfRVndqE=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=ClKs8oUnLwnjPgzmFstIPMHObwruy/5XVKyIjd5Krb6QsNQHiAElaOUJLUSqIT0tZ4edvtmbaym6/01jl4ZQOevE5q36sFgXKjprUE16KhxqxziUGZ82M8VfLUykLCL8m4aQogn92teYGwVrqYc0S9rYd8Ljp8Uvh7VM4JnvQgo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=R/3GDASJ; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="T7OMLWX0"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 970C81F000E9;
-	Mon, 27 Jul 2026 11:40:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785152422;
-	bh=n2qS5mLYUTp7Uhtq7TiQK32AVf+rs7o35+jqHSIQjdw=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=T7OMLWX0gYiwKXEiXgssU5fPiaQe6F++mUD+fwHLVNHIk9HOv1Yvhh9ZRchQz32Nt
-	 LnQ5LDiAdizYA+qmqA1SVxRHHAR0hoEt/bd4mCi8k6Hq/JFkP6WuOj8ApoNfm3Ly9K
-	 iuAxRMvaicTI+NcpJiKAWEuPtZCNJ1uOO9vIJPigpr6q+2V+HODr643mVFec0Q3OrI
-	 XE3oGi3J/mM0RfCrQrwZDKOfBEgBLA8zQrBUI4xB2kD+tO8gQRyhCXqmt6Oi4fDDXH
-	 nqQ7sees8iukt4+eTNpLhy3yicdte/VE2pqIL3ZlBXQZzdpHfIAHUuH8PK7DK1aaWx
-	 A5wogUb8a0VKg==
-Date: Mon, 27 Jul 2026 14:40:15 +0300
-From: Leon Romanovsky <leon@kernel.org>
-To: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>, iommu@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	linux-coco@lists.linux.dev, Robin Murphy <robin.murphy@arm.com>,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
-	Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
-	Steven Price <steven.price@arm.com>,
-	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Jiri Pirko <jiri@resnulli.us>, Mostafa Saleh <smostafa@google.com>,
-	Petr Tesarik <ptesarik@suse.com>,
-	Alexey Kardashevskiy <aik@amd.com>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Xu Yilun <yilun.xu@linux.intel.com>, linuxppc-dev@lists.ozlabs.org,
-	linux-s390@vger.kernel.org,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org,
-	stable@vger.kernel.org, Michael Kelley <mhklinux@outlook.com>
-Subject: Re: [PATCH v8 01/23] dma-direct: return struct page from
- dma_direct_alloc_from_pool()
-Message-ID: <20260727114015.GL12003@unreal>
-References: <20260721115456.GI110966@unreal>
- <yq5atsps77c5.fsf@kernel.org>
- <20260721142921.GN110966@unreal>
- <yq5ao6g0750v.fsf@kernel.org>
- <20260721153321.GO110966@unreal>
- <amEhEKQW0_HJ9cLN@ziepe.ca>
- <20260723075704.GC110966@unreal>
- <amTJY_CdE-uDgoGG@ziepe.ca>
- <20260726081753.GD12003@unreal>
- <ambdXXcfgK+cxqxa@ziepe.ca>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="R/3GDASJ"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66RAJ0LH1956947
+	for <linux-s390@vger.kernel.org>; Mon, 27 Jul 2026 12:12:04 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=PGYauI
+	/qNVYqijX6JkUCLIV1hwDL7fcKgGdqY/pHpaQ=; b=R/3GDASJSDPwnogf6GW5n3
+	g9akAr/4UUHEpriy1oPluzA1X2E1NLq3xyz3uP73RsjHNi9a0LESvHzEYLl0LVte
+	nCcOGX9eOXGnUUGywPkQWCrWpwLuXNdlLvE18mDdLzMr+KWXswh/ViTci6IIw+sV
+	2uXY0NivySFPGGY+JRZcdw/nVRMmsswnwfK3BICP+HuaIw9DF/RkbNm5zmlV/+fA
+	nmqRQC1ZxCImYmbZu4sqQoNS7LlYfWso7j8w+Rv/3TSFvEMbXy+u7yG+9ZmVZLra
+	AaLOxKlgfts7O463NrX97t1ThpvTTDZyxyKGR6qhmPyKXQd+QKBo5obiiUCgd7Ug
+	==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fmv0xfw2a-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Mon, 27 Jul 2026 12:12:03 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66RCBHrb019298
+	for <linux-s390@vger.kernel.org>; Mon, 27 Jul 2026 12:12:02 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fn9pg53gu-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Mon, 27 Jul 2026 12:12:02 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66RCBxJF17695020
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 27 Jul 2026 12:11:59 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id EEF152013E;
+	Mon, 27 Jul 2026 12:11:58 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id AFFF22013D;
+	Mon, 27 Jul 2026 12:11:58 +0000 (GMT)
+Received: from [9.111.67.171] (unknown [9.111.67.171])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Mon, 27 Jul 2026 12:11:58 +0000 (GMT)
+Message-ID: <15a2b581-b04a-4f49-a846-b5d872a17a76@linux.ibm.com>
+Date: Mon, 27 Jul 2026 14:11:58 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ambdXXcfgK+cxqxa@ziepe.ca>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v6 1/2] s390/zcrypt: Improve CCA CPRB length and overflow
+ checks
+To: Harald Freudenberger <freude@linux.ibm.com>
+Cc: fcallies@linux.ibm.com, linux-s390@vger.kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>
+References: <20260727083200.151976-1-freude@linux.ibm.com>
+ <20260727083200.151976-2-freude@linux.ibm.com>
+From: Holger Dengler <dengler@linux.ibm.com>
+Content-Language: en-US
+In-Reply-To: <20260727083200.151976-2-freude@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: J2WoykAvEEknX-gIvnANyu2_CBOZU_z5
+X-Proofpoint-ORIG-GUID: J2WoykAvEEknX-gIvnANyu2_CBOZU_z5
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI3MDExNiBTYWx0ZWRfX9suwEftVhKUL
+ L8kfdTyVggXHJKd1a618uZ6be3i3tZtU+SR3WFPgxEuoZtRJVySvPPyzQI8zo/9ZVDHYBILkx+O
+ d4miMzS2YpXmIFxiavwNHR7YZlWvUEM=
+X-Authority-Analysis: v=2.4 cv=dYuwG3Xe c=1 sm=1 tr=0 ts=6a674b13 cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+ a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8
+ a=goHlAa6d6fNH7Q_GjdUA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI3MDExNiBTYWx0ZWRfXwebFvWiTzZXQ
+ aIyiZNNvvecQwuJcKM9vObiO2s3dfRyNNbQZUlcLrbyFk2f8+XpmgvZtpCUFE37SejDwi3oM9CX
+ BMQQHCUa7NEnD7+z4J7ZNULYhC6nIPKDhPpZ0/XE6nCUUayVtwADOfOoGyEpsIKDE3SEviAcXrQ
+ 3rNXG/If/r2DsjTkhNUC78h035XKStsCVoX/0sxEWOZaLQiqiB9dhrJJdwZXcOzXbOOe8ISdIva
+ IMtNqWS4YawUhgcbQx+DusjF3sNSKN1ubx9KLS8sYMmY23o8gLCY8Jo6lKHymrdmz8H1XlXZGWy
+ rYDpPlhPPjx/jjU9XuVqqXV7giggynoUEWcVokh2gB5FI9nD+FCBrfTvD5D8J2ldpRWx4YjP1Bl
+ y5Mlxs4vvdVBrOuAF88QocfOFXLi8MKkAxOJHNZakqP1LbTzB8Q1h+3VYo9vGRg1NKMChWF8lS4
+ 8c7yqBdfo8U1pVPTClw==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-07-27_03,2026-07-24_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ priorityscore=1501 impostorscore=0 clxscore=1015 phishscore=0 malwarescore=0
+ spamscore=0 lowpriorityscore=0 bulkscore=0 suspectscore=0 adultscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607270116
 
-On Mon, Jul 27, 2026 at 01:23:57AM -0300, Jason Gunthorpe wrote:
-> On Sun, Jul 26, 2026 at 11:17:53AM +0300, Leon Romanovsky wrote:
+On 7/27/26 10:31, Harald Freudenberger wrote:
+> The xcrb_msg_to_type6cprb_msgx() function lacks proper input
+> validation, creating security vulnerabilities:
+> 1. Integer overflow after CEIL4 alignment: Signed int variables could
+>     overflow during 4-byte boundary alignment, causing undersized
+>     buffer allocations or incorrect bounds checking.
+> 2. Missing minimum size validation: The CPRBX structure is copied from
+>     userspace without verifying sufficient buffer length. Undersized
+>     buffers cause uninitialized memory access when reading structure
+>     fields like cprbx.cprb_len and cprbx.domain.
+> 3. Arithmetic overflow in sum calculations: Adding control block and
+>     data block sizes could overflow, bypassing size checks and enabling
+>     buffer overflows.
+> 4. Potential kernel memory leak if copy_from_user() only copies
+>     xcrb->request_control_blk_length bytes but the processing of the
+>     message works with the rounded up to 4 byte boundary buffer size.
 > 
-> > Currently, the phys type universally describes memory and can be
-> > reliably translated into any required representation. It is the most
-> > fundamental type we have.
-> 
-> You cannot go from phys to page reliably unless you make assumptions
-> about the phys, that's the whole issue here. If the callchain expects
-> and intends to use a page it should really stay in a page and not take
-> a side trip to phys.
-> 
-> I agree it would help to have some helpers that were more phys based
-> for the callchains that want that since we are mixing two fairly
-> different activities in these functions..
+> Fix by using size_t for length calculations, adding U32_MAX boundary
+> checks after alignment, validating minimum control block size before
+> copying from userspace, and detecting sum calculation overflows. Fix
+> the possible kernel memory leak by zeroing the trailing bytes.
 
-Yes, we are agreed here.
+The last sentence should go into a separate patch. See my comment below.
 
+> Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
+
+The length check looks good so far. Only the min-length check need some 
+rework (as discussed).
+
+> ---
+>   drivers/s390/crypto/zcrypt_msgtype6.c | 77 +++++++++++++--------------
+>   1 file changed, 37 insertions(+), 40 deletions(-)
 > 
-> But making phys the only output out of the pool isn't going to be an
-> improvement.
+> diff --git a/drivers/s390/crypto/zcrypt_msgtype6.c b/drivers/s390/crypto/zcrypt_msgtype6.c
+> index 40f72cdf284d..2e4aef330b68 100644
+> --- a/drivers/s390/crypto/zcrypt_msgtype6.c
+> +++ b/drivers/s390/crypto/zcrypt_msgtype6.c
+[...]
+> @@ -404,6 +395,9 @@ static int xcrb_msg_to_type6cprb_msgx(bool userspace, struct ap_message *ap_msg,
+>   			     xcrb->request_control_blk_addr,
+>   			     xcrb->request_control_blk_length))
+>   		return -EFAULT;
+> +	if (xcrb->request_control_blk_length < req_cblen)
+> +		memset(msg->userdata + xcrb->request_control_blk_length,
+> +		       0, req_cblen - xcrb->request_control_blk_length);
 
-I don't know, phys was natural suggestion due to multiple
-page_to_phys/phys_to_page conversions down the road.
+Can you please move this wipe into a separate patch? It is not related 
+to the input checking but addresses another class of vulnerability.
 
-> 
-> BTW how does a struct page even work for decrypted memory? You can't
-> actually use it that way right? If you try to access it then you'll
-> get the wrong IPA and it should explode?
-> 
-> Maybe we should be blocking the struct page path entirely for CC
-> shared?
+I think it is worth to describe this issue/fix in its own commit message.
 
-It will simplify things. Ultimately, this series demonstrates that
-CC users must be aware of the memory attribute (CC_SHARED) and struct
-page is too generic.
+>   	if (msg->cprbx.cprb_len + sizeof(msg->hdr.function_code) >
+>   	    xcrb->request_control_blk_length)
+>   		return -EINVAL;[...]
 
-Thanks
+-- 
+Mit freundlichen Grüßen / Kind regards
+Holger Dengler
 
-> 
-> Jason
-> 
