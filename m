@@ -1,56 +1,57 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 43D9A3033D6;
-	Mon, 27 Jul 2026 09:57:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8D3383EF650;
+	Mon, 27 Jul 2026 09:57:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785146249; cv=none; b=OADGp2xmT0Y3DxanBtIvz+T+Pm5alfOEllcF8DtBKASJm02L6GJv9JLhelVtnU97maaYv+imwlG4gZdpHtgdwhHAj9zGQoiyARQsEeaBVMSqG0lsFFkIPWs+Rr85sKgaTDf3M5spPo121ufP5fe8SNiRlbgKN+9R+HPfK7S7iqU=
+	t=1785146252; cv=none; b=Q8KcIyCp9QvuQQT+nHr6BNQlBwlwZnA6TES8zlY+bZaiF3dPC1KC+sbPtTz7/BLsp2MDOspSLzLNuXqUlMo3EPHm1iA3Bc35JA+EhhZKOqdbN9C4OW/BX6d2solfAK9Gu3jrj9fyUo1a2S5OBO+/mf252PO4UgTfVHgx98BM9Sw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785146249; c=relaxed/simple;
-	bh=ymPrEs1qcMs/rFt9Bxi/+vFAeoXBsP5S+NBOYzRJcq0=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=fr0lkO27xThcfPpcrTbwIhrR+pD5RbK5Ux2LHQzaxEvWjsTA0wl6H1liFEwfxCt/asL+fhUZdGQRlYZZ6SETLOqcWOfwPL0eV1iyh7N7khlZIgSL2PTdsln2YtsblH0hcXlZsjBJpves90RspSV28KLo/UwuSlKpyY0R73o+lpM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=DsQNteox; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1785146252; c=relaxed/simple;
+	bh=X7sBzC5Y4MVZOi58wpp4PxDp67gcS5G/n2bDbXe4v/s=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=X03ouJVi+DBCc3ubpDiuy1dZq1S1EmoVb/HdwwEUkXWqI4R/jDZNtFIZn/eho8BeG3UniiaVY7qoXyKMARCRdNWeegCWh87JhVhATyrhVttNvoDf5tdIcrRLgpK7nLaEADNSKqEJSYDSka/givgKDMeRqK6YJHPJsT4hwvWa3tE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=bpuS8QRW; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="DsQNteox"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66R9UgJV1742782;
-	Mon, 27 Jul 2026 09:57:26 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="bpuS8QRW"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66R9UiE64154491;
+	Mon, 27 Jul 2026 09:57:28 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=sjHWvJpkXU6ksGoFni32sJzqoSZDSVMFV++GUZw22
-	p4=; b=DsQNteoxPIWelGwT6bemV/cvHHlGLZKojQO8Dl2zld2O54HJxYcgcNELi
-	7DM8srPoI+zEwF//MzgSCzFJmPJEHQIpz231MPyHpVixUXl/8SxMbdQOYVAypDOh
-	O0gTcrA368wIKt9wf5Lai9ItRR+vgkfpoOgn0MIr+md6sdfev+Dm7iMfKQtMsbRj
-	Af15bEABU0c4xy+2NKkD65ynU6Fw3o5Zuvb7MjK5hEe7Jn/BhIa0Tcc88cikZliH
-	+s/UDl282SRizzDV7DnfCuKfdtmkZ4dUTtIcpBc+RFrUoIQppP6xp8XroluumyI1
-	juBvL8t46HZxB1yhEcsV+fjCSBdXw==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fmuyhxyh5-1
+	:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=pp1; bh=+CkgrD4ffuc5Id/qO
+	MQXrZXGoluo61w7ggKa6b8NUIk=; b=bpuS8QRW6vsU7Z9IY+AxJHUir/DeuxRsT
+	XfRXS8Pe+Z+Crs9VU94lB2APpwpfRJObViOL4INLbxxZZTlWpskPVFzXav5HuxVr
+	ryAd8kk5DWAJMqWcILbg4nzMSwsDRKhNg+R1gci5QRn3KrCmVpPqJ9yoAnCF9u49
+	xHyeSbd6wVN5xh0+xo8wNx9d3AQd4x7xASAeQx7spZjYy69C3h7RhNKM1zquSCMY
+	koufKSFbQLO0Wn0HRwLDSEaRHs6o14AY3xKXNS1FdJ1w5eqCZg8W+5FDvzJ3PsNF
+	vg1duYRfhsakuyCu+MWXz3sByL2u2t5xd/1lqR2c1yrGHQXKh+kfw==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fmuyc7bh5-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 27 Jul 2026 09:57:25 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66R9uGn4001123;
-	Mon, 27 Jul 2026 09:57:25 GMT
-Received: from smtprelay02.dal12v.mail.ibm.com ([172.16.1.4])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fn8fjvum9-1
+	Mon, 27 Jul 2026 09:57:28 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66R9uIPN011366;
+	Mon, 27 Jul 2026 09:57:27 GMT
+Received: from smtprelay06.dal12v.mail.ibm.com ([172.16.1.8])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fn7uvvyb6-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 27 Jul 2026 09:57:25 +0000 (GMT)
+	Mon, 27 Jul 2026 09:57:27 +0000 (GMT)
 Received: from smtpav02.dal12v.mail.ibm.com (smtpav02.dal12v.mail.ibm.com [10.241.53.101])
-	by smtprelay02.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66R9vNt831064732
+	by smtprelay06.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66R9vQpa24511160
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 27 Jul 2026 09:57:23 GMT
+	Mon, 27 Jul 2026 09:57:26 GMT
 Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id ACE1E5805C;
+	by IMSVA (Postfix) with ESMTP id 4B6B85805E;
+	Mon, 27 Jul 2026 09:57:26 +0000 (GMT)
+Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id EE47C58051;
 	Mon, 27 Jul 2026 09:57:23 +0000 (GMT)
-Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 58E4D58051;
-	Mon, 27 Jul 2026 09:57:21 +0000 (GMT)
 Received: from b35lp69.lnxne.boe (unknown [9.87.84.240])
 	by smtpav02.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 27 Jul 2026 09:57:21 +0000 (GMT)
+	Mon, 27 Jul 2026 09:57:23 +0000 (GMT)
 From: Christian Borntraeger <borntraeger@linux.ibm.com>
 To: Paolo Bonzini <pbonzini@redhat.com>
 Cc: KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.ibm.com>,
@@ -65,10 +66,12 @@ Cc: KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.ibm.com>,
         Jaehoon Kim <jhkim@linux.ibm.com>,
         Douglas Freimuth <freimuth@linux.ibm.com>,
         Farhan Ali <alifm@linux.ibm.com>
-Subject: [GIT PULL 0/7] KVM: s390: Fixes for 7.2
-Date: Mon, 27 Jul 2026 11:57:13 +0200
-Message-ID: <20260727095720.9150-1-borntraeger@linux.ibm.com>
+Subject: [GIT PULL 1/7] KVM: s390: pci: Reject adapter interrupt forwarding if already enabled
+Date: Mon, 27 Jul 2026 11:57:14 +0200
+Message-ID: <20260727095720.9150-2-borntraeger@linux.ibm.com>
 X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20260727095720.9150-1-borntraeger@linux.ibm.com>
+References: <20260727095720.9150-1-borntraeger@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -77,80 +80,67 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI3MDA5NiBTYWx0ZWRfX043RXqfgnGww
- r3FtAGg+2W+4uTeqp2CltH2b/F/HMdCj79Q8oyCoRkmyfXoxrx4Jc/FQIe818mta9yf4DDLRIge
- got8bYT9FBlFPd/iF4F4NyP+EVSsL0k=
-X-Proofpoint-GUID: Jy9RM7k8-X-qPgwr1RmHqnXA-oJm5ERX
-X-Proofpoint-ORIG-GUID: Jy9RM7k8-X-qPgwr1RmHqnXA-oJm5ERX
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI3MDA5NiBTYWx0ZWRfX7mqQVBZ5Bf8P
- txFUt8OmqJfqg1TKWtHb6AjFoPoDAnSgnGKNllNGcFHY7XOg02kLqzVgzCvCC+rFX78kFrKXCEU
- 3ixv5efxK+Shgx4Otuksa5s2jNx8N6P4MIfbydB3Kf3GU1D99eNvN9HrHJWMFPLFXx7ClQSZC3X
- K1iHHitG0GWldG9LuCmprRSZVjSA9pE1jBMRUppj6nlgc10RQtmyAU3CzDMPjwrpaJzPsCKEtjC
- bHXfWqpjhSLdBcIJZc2nYIcli33N2Eg8CkNxJB/Ovt24YlLJ5+OFSDvXUySY9tpXARPEoPvJNY+
- v06s0kMFrr4KK9YQBeLHacbA4Z9FpnzD2Sa9VptmQ2+uFj0QoMvAWdaY4eRfmuR/Z5QMclm0/A1
- EfVkWJEqAbqAF6TyVlR1gYjewAFz15iGNoMwLO9UOl+rYLqGqLWuP6fVFv1vImM5cenc1G46Z+D
- YVgSiZ8IHiEORQ+9mug==
-X-Authority-Analysis: v=2.4 cv=X5Vi7mTe c=1 sm=1 tr=0 ts=6a672b85 cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+X-Proofpoint-ORIG-GUID: FoDCFbEE5eoxObJb0-tw442GFPCLUPke
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI3MDA5NiBTYWx0ZWRfX8I8tc8CkPNVP
+ Ux8cUcVthnunhXAXVK5MUOkgBGxM1YuogWgChv9AhcPrBl8WAeSNDfqRNyOfFictx7aLc6dQnF7
+ kJXll0TavZuhKs5i5leEDqfEKb3lvtXHr7dUkwIRyA6/pBw+ihIgfEFq7bCiE0x0XpBDZYN3sRS
+ lTDRCA0/VO2N6w+vodb7ZMDhl4ZHRPobVYd574wVL7jRcR8v4vM6aTYCIfYECtAavPxYDUbao45
+ AmGLgGYtHz7Xp5JhMcnHqzb+KL8Yqe+FMzDtXl6S/G0uHUCJ068xdcmPtMR3FQvJa7OYLNJG4rd
+ pD0uf1CbtP2OVcmQNmqo+3Ds/r3vnWUqqYMr/XPyZdP/wdKCqY4aPBp67iL3OLUyc2IMJyaNR/a
+ Bh644ty5cSzKBkjqPfdk7hOuRS8EvA4DD3AIsXMgFtLM4MeAcEF4k+61zy+8FBISXB1cw4YCpn1
+ Ul3SEMoi8FHBALwS9Wg==
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI3MDA5NiBTYWx0ZWRfX/v1zSRn6UZAM
+ sbdQnESEVd6CDfuYwL9OjXwU0bq2A2LJsCVUaevz6/HOoThoQ2qXq/diZeoCjTS0WD1sIYo/fJy
+ Dai9IOe5qFUZyV8hB29W5D+s0t3sV+E=
+X-Authority-Analysis: v=2.4 cv=AZeB2XXG c=1 sm=1 tr=0 ts=6a672b88 cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
  a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VwQbUJbxAAAA:8 a=_NmZE6AsOWs4FgYXpaAA:9
+ a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8 a=VwQbUJbxAAAA:8
+ a=G-uFRffD-WzugI8hyjEA:9
+X-Proofpoint-GUID: FoDCFbEE5eoxObJb0-tw442GFPCLUPke
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-07-27_02,2026-07-24_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1011 impostorscore=0 lowpriorityscore=0 phishscore=0
- priorityscore=1501 malwarescore=0 spamscore=0 suspectscore=0 bulkscore=0
- adultscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2607270096
+ spamscore=0 priorityscore=1501 phishscore=0 adultscore=0 impostorscore=0
+ clxscore=1011 malwarescore=0 suspectscore=0 lowpriorityscore=0 bulkscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607270096
 
-Paolo,
+From: Farhan Ali <alifm@linux.ibm.com>
 
-some more fixes triggered by AI bug reports or testing.
-Mostly for PCI support.
-This also has a regression fix that we introduced in 7.2-rc1
+The MPCIFC instruction doesn't allow registering adapter interrupts without
+first unregistering. So reject any request to enable interrupt forwarding
+if its already enabled for the zPCI device. This also fixes overwriting and
+thus leaking resources when the ioctl is called multiple times for the same
+device.
 
-The following changes since commit 3e3aa6da87d30a0064a17b836685cd43c90a3572:
+Fixes: 3c5a1b6f0a18 ("KVM: s390: pci: provide routines for enabling/disabling interrupt forwarding")
+Cc: stable@vger.kernel.org
+Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
+Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+Tested-by: Matthew Rosato <mjrosato@linux.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+---
+ arch/s390/kvm/pci.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-  KVM: s390: pci: Fix handling of AIF enable without AISB (2026-07-09 16:23:10 +0200)
+diff --git a/arch/s390/kvm/pci.c b/arch/s390/kvm/pci.c
+index 720bb58cabe2..d2a11cdf6941 100644
+--- a/arch/s390/kvm/pci.c
++++ b/arch/s390/kvm/pci.c
+@@ -237,6 +237,10 @@ static int kvm_s390_pci_aif_enable(struct zpci_dev *zdev, struct zpci_fib *fib,
+ 	if (zdev->gisa == 0)
+ 		return -EINVAL;
+ 
++	/* AIF already enabled for the device */
++	if (zdev->kzdev->fib.fmt0.aibv != 0)
++		return -EINVAL;
++
+ 	kvm = zdev->kzdev->kvm;
+ 	msi_vecs = min_t(unsigned int, fib->fmt0.noi, zdev->max_msi);
+ 
+-- 
+2.53.0
 
-are available in the Git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  tags/kvm-s390-master-7.2-2
-
-for you to fetch changes up to 9972befc3e34ff8b6847198c84f11bfc312dde40:
-
-  KVM: s390: Fall back to short-term pinning in MAP ioctl (2026-07-27 09:23:53 +0200)
-
-
-All fixes had no new sashiko findings, just pre-existing issues or
-finding that are being fixed by other patches of the series.
-
-We have some more fixes pending for gmap and vfio-ccw that still need
-testing or sashiko fixups, but we should process these fixes now.
-
-
-----------------------------------------------------------------
-KVM: s390: Fixes for 7.2
-
-- several fixes for PCI passthru in s390 kvm
-- fix a 7.2-rc regression in the adapter interrupt mapping code
-
-----------------------------------------------------------------
-Farhan Ali (6):
-      KVM: s390: pci: Reject adapter interrupt forwarding if already enabled
-      KVM: s390: pci: Fix memory accounting for pinned/unpinned pages
-      KVM: s390: pci: Fix missing error codes and memory unaccounting
-      KVM: s390: pci: Fix NULL dereference on AIBV allocation failure
-      KVM: s390: pci: Fix resource leak on IRQ registration failure
-      KVM: s390: pci: Validate AIBV and AISB before pinning guest pages
-
-Jaehoon Kim (1):
-      KVM: s390: Fall back to short-term pinning in MAP ioctl
-
- Documentation/virt/kvm/devices/s390_flic.rst |  15 +++-
- arch/s390/include/asm/kvm_host.h             |   5 ++
- arch/s390/kvm/interrupt.c                    |  56 ++++++++++----
- arch/s390/kvm/pci.c                          | 107 +++++++++++++++++++++------
- arch/s390/kvm/pci.h                          |   2 +
- 5 files changed, 148 insertions(+), 37 deletions(-)
