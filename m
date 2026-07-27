@@ -1,45 +1,45 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 69CF3282F13;
-	Mon, 27 Jul 2026 10:02:22 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 29B8E3E44EF;
+	Mon, 27 Jul 2026 10:06:01 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785146543; cv=none; b=gj39gp+JvqWR5+JScOROeBnzjjOOogOWOmHCm48G5k5V/Vc6U3sQKTRvJliKBzR7rX3qTgW5kgUg14N0jOcF/Xx8j8U/1rc+HIBadczCLuWZThyJzK8qkYtk1AeTP7xp8jU+ET9X6eBEV/bh0V+G+q5HfHMwa02Lp62WMWgtbAQ=
+	t=1785146763; cv=none; b=rKp96gwVM+7PHFWUflEF6bfkgLKkkiYtkJpIr0909TgCiE5M0Moxhf+x8a3SBV0tqSxRTZYNwFRE85sSgyk3L33tU+Q8Dgf8ioVWCHf+LuKaynuomGJFUPwxvSp1ykaFU8MH15VA8hMUkgqbTKTMf6y2dmVhhvN/5bqfxEASG8E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785146543; c=relaxed/simple;
-	bh=TdExs+AbftxUBxoIvihW7b4rMJpbmNhS6c2eNSwqvBg=;
+	s=arc-20240116; t=1785146763; c=relaxed/simple;
+	bh=edPPFSppao7S9lX7cIZh/6+2LOTwQKgOQoY37mNC1gE=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=hFs7Sjw9AMuB7GsmZkeKlGOiausiip7R0AMNYFi1spX4gkrVb/Y0WuV5wfs6R1h7FG0LZx/h1Cypdz2Mxjnxpoz5HfPwTFvUXFT82ZHBHPeIwT+MyhNQ1n7u5ONScNvL9/o5PcNL4u9PxsNvCfIBqEj7ulRFNwoJsVck4k7mt+A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HnFdDgZ4; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=Nr7lwaAn1foewTVvE8ogZ1l4J5aLvAenapWI9ecOu2aYJAORIrQJhmc8pPTGIbxhEEPMU7aXjwlxRQC3ncPXjhd+yq4WvRyf0BMto+RhGdu8fE/ThdVpLt8nZbq2Y+KOAE4GVNJAj3sCf0FOTaaVq5NuXkik9M6ZT7cD/w7NF90=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=J2A/qqeL; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HnFdDgZ4"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7437F1F000E9;
-	Mon, 27 Jul 2026 10:02:21 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="J2A/qqeL"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0CC0D1F000E9;
+	Mon, 27 Jul 2026 10:06:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785146541;
-	bh=TdExs+AbftxUBxoIvihW7b4rMJpbmNhS6c2eNSwqvBg=;
+	s=k20260515; t=1785146761;
+	bh=edPPFSppao7S9lX7cIZh/6+2LOTwQKgOQoY37mNC1gE=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=HnFdDgZ4UNJv+ERevZCABqcaEPSn10cRbJ7AIJUN2G3Kzyb/c46Efk6VsNciMzqvc
-	 LWbyXV8imdk/0Zf62+PSm7+h5nXpMXfFK7vucku7FwS7nZQwq4oAPZc7L/mznCCOpd
-	 T09rA2plGYJ4Af+6LprXJJwn2vPruxsv2kxKdYJzUwzzVZwxb0yXlzlfpzyIzm8W0L
-	 q0CpbqYPuAcDycv7QbKUYeh5IXEAB5dtIGi5LxA4/i5CctEnFMDAavu0pUZapRgC9K
-	 4CAeLkxe2MWI7KUrrdHIYSqRTvY0kNyctrDUyGdT8TJKP3oH6YqGibVkkv1QffXNZm
-	 lRrQNXvtDFWQA==
+	b=J2A/qqeLMycyegTgcHlPIWMSAUUKSvA2EkGDynVL3mWJxxmjuJRrdfA6xg1mAl1ow
+	 mAgJniwMxzpXtQ3mhKu75BEm+V4+z03UjkUZK9ibgDhKw60jJr+mZht/XmBz8xxImY
+	 dgml6NGsfdua/lXo6z1C+bFO88uDbeJEr/rWkJ48Xq6Dd2fXPH9BCttsr4ZRNIJehY
+	 jHYCKGStyLh3uhQcFtj5E0ywTj7Huao/DjvT0oZVR2hTeLVXm9L3TUT/1Ubf4r5yjK
+	 ddj+6MFdKKMG+b/Ly22l3CBCtA+pICwsS26iHtkptGdALMIz9a5TudTiWWARLVZKmd
+	 WVapKpCOH4DjQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [GIT PULL 3/5] KVM: s390: Fix dat_crste_walk_range() early
- return
+Subject: Re: [GIT PULL 2/5] KVM: s390: vsie: Avoid potential deadlock with
+ real spaces
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Christian Borntraeger" <borntraeger@de.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
- Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
-In-Reply-To: <20260727095359.107671-4-borntraeger@de.ibm.com>
+Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Heiko
+ Carstens" <hca@linux.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org
+In-Reply-To: <20260727095359.107671-3-borntraeger@de.ibm.com>
 References: <20260727095359.107671-1-borntraeger@de.ibm.com>
- <20260727095359.107671-4-borntraeger@de.ibm.com>
+ <20260727095359.107671-3-borntraeger@de.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 27 Jul 2026 10:02:20 +0000
-Message-Id: <20260727100221.7437F1F000E9@smtp.kernel.org>
+Date: Mon, 27 Jul 2026 10:06:00 +0000
+Message-Id: <20260727100601.0CC0D1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -48,21 +48,17 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
 > From: Claudio Imbrenda <imbrenda@linux.ibm.com>
 >=20
-> If a walk entry handler for a lower level returns a value,
-> dat_crste_walk_range() will not return immediately, but instead loop
-> again and move to the next entry.
+> The natural lock ordering is mmu_lock -> children_lock, but in
+> gmap_create_shadow() the reverse order is used when handling shadowing
+> of real address spaces.
 >=20
-> This means that some entries are potentially skipped, and early return
-> is ignored. Skipped entries might lead to all kinds of issues, given
-> that the caller expects them to not be skipped. Early return is often
-> used to interrupt a walk when a rescheduling is needed; if it is
-> ignored it can lead to stalls.
+> Convert the inner locking of kvm->mmu_lock to a trylock; return -EAGAIN
+> if the lock is busy, and let the caller try again.
 >=20
-> Fix by breaking from the loop immediately if the walk to a lower level
-> returned non-zero.
+> This path is not expected to happen in real-life scenarios, so its
+> performance is not important.
 >=20
-> Fixes: 2db149a0a6c5 ("KVM: s390: KVM page table management functions: wal=
-ks")
+> Fixes: a2c17f9270cc ("KVM: s390: New gmap code")
 > Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 > Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
 > Signed-off-by: Christian Borntraeger <borntraeger@linux.ibm.com>
@@ -71,5 +67,5 @@ Sashiko has reviewed this patch and found no issues. It looks great!
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260727095359.1076=
-71-4-borntraeger@de.ibm.com?part=3D1
+71-3-borntraeger@de.ibm.com?part=3D1
 
