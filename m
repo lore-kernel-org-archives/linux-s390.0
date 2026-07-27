@@ -1,257 +1,146 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7AB8B3E63A4;
-	Mon, 27 Jul 2026 10:18:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 084613890FB;
+	Mon, 27 Jul 2026 10:36:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785147493; cv=none; b=LsxZE1VL+3EmWeLlEiRUwHP+qNycSdfkCagFcPkN8gnFh65AXyd3geZucSVH+1sWtdsotLPfrFtf7g7WSo/kmAgtv/94Yb6xHQa1BaTHdcsV3AoPKCj7n7YNs1UvoO0a/lXmTwK8dkxi6pEx7h+XkCJLsc13ZL+/rLv8tbeW7qM=
+	t=1785148602; cv=none; b=ccVp2bdD9b6L/O+TCUL6fHkdcGZ7SPYPKiTxQYqe9HfthRx68ZkYEYBreW8F2ysto7FrDT827l5+zrAZEsn/dsxvpHzvbJ6732ZgTiVsC6bVPVNEIC1Duxb+8tewDZ3P1wZNgrevuhrk3hl7xTY+fI24O+u/g8kk9jMy9ToFjAk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785147493; c=relaxed/simple;
-	bh=pyNteccbh3cEGG21E1ZII2mb7J5Rkl3iLr9uhS6PJZ8=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=EWr4lsSv/NS5mivv0S+ukOWlzV7z94btanc26eFcyW28QjbNqHBuWYVf2I6e99qWIJBjwWJjce5EkhBdhKLTztcQRE3AAwtyoHzfILbXWe2xQKMdGgggJRfVPhUZx985p5qABBK4Kj5v6VerPjRUcjyvmjAdy1rV0S4qZWocUWg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jyvmzfMZ; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1785148602; c=relaxed/simple;
+	bh=Nr9pqwCaBaqgBE4vf7n0/MiVoxGGnyKbS7S3Zqf20tE=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=TrZh0V4EzH3fENytZ8gOLP+eVSpu5xHmvZQDzR1Nen7yY9soNn/ebKIzPk6BSs976pU7TDCGp03yfla4d847mAW/aTFH0h05bVEt4jUTDgNNsFo3TylenTrnO4MgFYdgt2uVQQSgScypa00qX2OiFmt21VmeyPsz1YNG/1FlChs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=eExTZ6ze; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jyvmzfMZ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A1B21F000E9;
-	Mon, 27 Jul 2026 10:18:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785147492;
-	bh=/6Qi63aAcgPRh84ELrxQO66GC90D0IO84z7eQpViPlA=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=jyvmzfMZVEL8LlQDof5Hh7zR7V3SJZLb+FFP8/HTbvPLOU0vYx4XprPjcUDxA53Oa
-	 bp22xoeo96ZD0UJcj94ahWX7KYjjVlKl60ngmxRpK6QHWlGzEdkS3ldgOUj6DQ6iyT
-	 IdnPLwFi2OdORn+S+xKrya3xy+6YZaBynmgAyYeA2Av9UwYkH27uG7zRGIUeL3sKih
-	 fAsHsZgW0XUVaXKpBbKG7eo2AIgkQBGEFctMU8vxgeHGxRQ3l3ZKoaxiNAv5CR54ea
-	 Z9jt1/qmziBE2G3CNDCIn2fHBdy2TeOfCFUbuFm2dMgJ1p6G+9sdMGMMpqdwTDhQv1
-	 KpLAepde6gDhw==
-From: sashiko-bot@kernel.org
-Subject: Re: [GIT PULL 6/7] KVM: s390: pci: Validate AIBV and AISB before
- pinning guest pages
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Christian Borntraeger" <borntraeger@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, "Alexander Gordeev" <agordeev@linux.ibm.com>, kvm@vger.kernel.org, "Heiko
- Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>
-In-Reply-To: <20260727095720.9150-7-borntraeger@linux.ibm.com>
-References: <20260727095720.9150-1-borntraeger@linux.ibm.com>
- <20260727095720.9150-7-borntraeger@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 27 Jul 2026 10:18:10 +0000
-Message-Id: <20260727101811.1A1B21F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="eExTZ6ze"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66RAIS3t1921918;
+	Mon, 27 Jul 2026 10:36:30 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=p/UBmX
+	PsshYILClnY/0b+PS55rq+L2jxS0XsUIEbf08=; b=eExTZ6zeH+r7vNppWYdR83
+	dDBFgatwX9DP+n9H42mgtzT+Ali5AzjCph5BM1x9o7r/GNjF8L4AP4uQRmXiIxeU
+	ASqj9vX8ItTfZZlz3wTjvqC/dk45TdE4NujdKupgjT3oAQvqd+OzcVHBzxS4hD5P
+	R3bVzQLc5MG8UScQRiUQKEELhXqCiz5FavJZEe2HN9gmnk/jlVvbMb0NWF9nZNaO
+	eRatlrlQ6b698qLFlDqErxAQlHItf59M0Ef6sNxyFfgGRQradWdoKwfWF5T8np/b
+	BggHI+jcEFk8WtW8tBnuPqgNH2WfLK9bIYARnL8XC0EzmM7FMFPNFeYdQdoGtILA
+	==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fmuw77h2w-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 27 Jul 2026 10:36:30 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66RAQdt6004639;
+	Mon, 27 Jul 2026 10:36:29 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fn8fjvyx3-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 27 Jul 2026 10:36:29 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66RAaPfl39518596
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 27 Jul 2026 10:36:25 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 64BFA2005A;
+	Mon, 27 Jul 2026 10:36:25 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 055742004D;
+	Mon, 27 Jul 2026 10:36:25 +0000 (GMT)
+Received: from [192.168.2.127] (unknown [9.111.31.34])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Mon, 27 Jul 2026 10:36:24 +0000 (GMT)
+From: Mete Durlu <meted@linux.ibm.com>
+Date: Mon, 27 Jul 2026 12:36:20 +0200
+Subject: [PATCH v2 1/3] panic: Introduce arch_do_panic
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20260727-arch_do_panic-v2-1-4e25ceb05075@linux.ibm.com>
+References: <20260727-arch_do_panic-v2-0-4e25ceb05075@linux.ibm.com>
+In-Reply-To: <20260727-arch_do_panic-v2-0-4e25ceb05075@linux.ibm.com>
+To: Andrew Morton <akpm@linux-foundation.org>, Petr Mladek <pmladek@suse.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Andreas Larsson <andreas@gaisler.com>
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        sparclinux@vger.kernel.org, Mete Durlu <meted@linux.ibm.com>
+X-Mailer: b4 0.14.3
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: hYuBBZ5t5TESj7GHziVPwXTj8SFtpLys
+X-Proofpoint-ORIG-GUID: hYuBBZ5t5TESj7GHziVPwXTj8SFtpLys
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI3MDEwMCBTYWx0ZWRfX9Riwf9rjDBie
+ OQfKdzAiM+mRrbP8XTNZpXG5c8CN0G2cK1jGK8E7UnZnJIm5yom0+jWAKHTW7PhN3fF26330LYT
+ fwcZJPWSmHc2db+Gthqs2b43fxTAzJnx7tFpcJxF1d2HI86L9n8HkFghKTISjLZAOGLDyoZ7L2Q
+ WzbBIY0aXOjaFeo8yUIf4LF+LuL6VHKLva1cr8JQvlVHTm5uxQe9JBWn02QBISYhM4ah1IU4PO1
+ /klueZKZSvG0oI76l1qOU3Z0HcF4lawA1Hj4P3RIY/W235nqXHuDdOwHYnBq9oImDKGwTq/eq4k
+ X7w1CyWq5XzKhmcV8PuebSqXpiW2ecUEN9AbYXyp3VAYk7zfdE6tJ+nNjMl+FNysLOjvzD8tRKS
+ wS9zBAxIQ+sE+1iDCyUZsEca94JREHxJEDfV77aJ0wcDo+A8TUtlvUsIReMrPgllxdrdDZJ9r7m
+ w9xYvQraQjQutwr11yw==
+X-Authority-Analysis: v=2.4 cv=SKFykuvH c=1 sm=1 tr=0 ts=6a6734ae cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8
+ a=vDqFKWyYXM9dIk6-_9sA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI3MDEwMCBTYWx0ZWRfXzdn7aZhn2dXR
+ QcTs/Zxy6aFdNNIqFUEaTh1xiu+PXVu3pfJ+ndNZxsQ/7h4qNIJbUePAVWhJhVExD9d+OL1keza
+ eB3Lk/4fYOb4QQTfaNMiwPxKWDJHdgk=
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-07-27_03,2026-07-24_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ priorityscore=1501 malwarescore=0 clxscore=1015 adultscore=0
+ lowpriorityscore=0 bulkscore=0 impostorscore=0 phishscore=0 spamscore=0
+ suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2607270100
 
-Thank you for your contribution! Sashiko AI review found 7 potential issue(=
-s) to consider:
+Introduce a hook for architectures to put their specific panic handlers.
+s390 and sparc already has ifdef preprocessor checks to execute
+architecture specific code. Pave the way for vpanic() cleanup.
 
-Pre-existing issues:
-- [Critical] Missing NULL check for `aisb_page` leads to host memory corrup=
-tion via a garbage physical address in `gaite->aisb`.
-- [Critical] Missing validation of the user-provided `aisbo` allows an out-=
-of-bounds bit flip in host physical memory.
-- [High] Missing software state rollback if hardware configuration fails in=
- `kvm_zpci_set_airq()`.
-- [High] Missing `kvm_s390_gisc_unregister()` on error paths leaks GISC ref=
-erence counts.
-- [High] No check for already enabled AEN allows guests to leak host resour=
-ces via repeated ioctl calls.
-- [High] Failures in `account_mem()` and `airq_iv_alloc_bit()` return a fal=
-se success to userspace and leak memory accounting.
-- [High] Missing NULL check for `airq_iv_create()` return value leads to ho=
-st kernel panic.
---
+Suggested-by: Sven Schnelle <svens@linux.ibm.com>
+Signed-off-by: Mete Durlu <meted@linux.ibm.com>
+---
+ kernel/panic.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- Patch [1]: [GIT PULL 6/7] KVM: s390: pci: Validate AIBV and AISB before=
- pinning guest pages ---
-commit b6f9e911464048e2480c6dd2f890285a31bef43d
-Author: Farhan Ali <alifm@linux.ibm.com>
+diff --git a/kernel/panic.c b/kernel/panic.c
+index 213725b612aa..1eb0cdc159d9 100644
+--- a/kernel/panic.c
++++ b/kernel/panic.c
+@@ -567,6 +567,11 @@ static void panic_other_cpus_shutdown(bool crash_kexec)
+ 		crash_smp_send_stop();
+ }
+ 
++#ifndef arch_do_panic
++#define arch_do_panic arch_do_panic
++static inline void arch_do_panic(void) {}
++#endif
++
+ /**
+  * vpanic - halt the system
+  * @fmt: The text string to print
+@@ -756,6 +761,7 @@ void vpanic(const char *fmt, va_list args)
+ #endif
+ 	pr_emerg("---[ end Kernel panic - not syncing: %s ]---\n", buf);
+ 
++	arch_do_panic();
+ 	/* Do not scroll important messages printed above */
+ 	suppress_printk = 1;
+ 
 
-KVM: s390: pci: Validate AIBV and AISB before pinning guest pages
+-- 
+2.55.0
 
-This commit adds validation checks for the AIBV and AISB addresses provided
-by the guest during PCI interrupt forwarding setup. It ensures that the AIBV
-does not span more than one page and that the AISB is doubleword aligned.
-
-> diff --git a/arch/s390/kvm/pci.c b/arch/s390/kvm/pci.c
-> index 5b075c38998e3..efeee49e18ea3 100644
-> --- a/arch/s390/kvm/pci.c
-> +++ b/arch/s390/kvm/pci.c
-> @@ -246,6 +246,14 @@ static int kvm_s390_pci_aif_enable(struct zpci_dev *=
-zdev, struct zpci_fib *fib,
->  		return gisc;
-> =20
->  	/* Replace AIBV address */
-> +	size =3D BITS_TO_LONGS(msi_vecs + fib->fmt0.aibvo) * sizeof(unsigned lo=
-ng);
-> +	npages =3D DIV_ROUND_UP((fib->fmt0.aibv & ~PAGE_MASK) + size, PAGE_SIZE=
-);
-> +	/* AIBV cannot span more than 1 page */
-> +	if (npages > 1) {
-> +		rc =3D -EINVAL;
-> +		goto out;
-> +	}
-> +
-
-[Severity: High]
-This isn't a bug introduced by this patch, but does the new error path leak
-the GISC reference count?
-
-If npages > 1 triggers, the code jumps to out without calling
-kvm_s390_gisc_unregister(), which was registered earlier:
-
-	gisc =3D kvm_s390_gisc_register(kvm, fib->fmt0.isc);
-	if (gisc < 0)
-		return gisc;
-
-Can a guest repeatedly pass spanning addresses to overflow the reference co=
-unter?
-
->  	idx =3D srcu_read_lock(&kvm->srcu);
->  	hva =3D gfn_to_hva(kvm, gpa_to_gfn((gpa_t)fib->fmt0.aibv));
->  	npages =3D pin_user_pages_fast(hva, 1, FOLL_WRITE | FOLL_LONGTERM, page=
-s);
-> @@ -261,6 +269,12 @@ static int kvm_s390_pci_aif_enable(struct zpci_dev *=
-zdev, struct zpci_fib *fib,
-> =20
->  	/* Pin the guest AISB if one was specified */
->  	if (fib->fmt0.sum =3D=3D 1) {
-> +		/* AISB must be dword aligned */
-> +		if (fib->fmt0.aisb & 0x7) {
-> +			rc =3D -EINVAL;
-> +			goto unpin1;
-> +		}
-> +
-
-[Severity: High]
-This is a pre-existing issue, but this alignment check also jumps past the=
-=20
-required unregistration. Should unpin1 or a similar cleanup label handle
-the GISC unregistration?
-
-
-[Severity: High]
-This is a pre-existing issue, but I noticed there doesn't seem to be a chec=
-k=20
-to see if AEN is already enabled on the device.
-
-If a guest repeatedly registers AEN without deregistering first, could the
-function allocate new airq_iv structures, pin new guest memory pages, and
-overwrite the tracking pointers (zdev->aibv, zdev->aisb), leading to an
-exhaustion of host resources?
-
-arch/s390/kvm/pci.c:kvm_s390_pci_aif_enable() {
-    ...
-	zdev->aibv =3D airq_iv_create(msi_vecs, AIRQ_IV_DATA |
-				    AIRQ_IV_BITLOCK |
-				    AIRQ_IV_GUESTVEC,
-				    phys_to_virt(fib->fmt0.aibv));
-    ...
-}
-
-
-[Severity: Critical]
-This is a pre-existing issue, but if a guest registers AEN without requesti=
-ng a
-summary bit (fib->fmt0.sum =3D=3D 0), does aisb_page remain NULL?
-
-If so, later in kvm_s390_pci_aif_enable() we execute:
-
-	gaite->aisb =3D virt_to_phys(page_address(aisb_page) + (fib->fmt0.aisb &
-							      ~PAGE_MASK));
-
-This appears to perform pointer arithmetic on page_address(NULL), yielding a
-garbage physical address. When the device issues an interrupt, could KVM's
-aen_host_forward() see that gaite->aisb !=3D 0 and perform a bit flip on th=
-at
-garbage address, directly corrupting host memory?
-
-
-[Severity: High]
-This isn't a bug introduced by this patch, but does the error handling for
-account_mem() and airq_iv_alloc_bit() return a false success and leak
-memory accounting?
-
-arch/s390/kvm/pci.c:kvm_s390_pci_aif_enable() {
-    ...
-	/* Account for pinned pages, roll back on failure */
-	if (account_mem(pcount))
-		goto unpin2;
-    ...
-	bit =3D airq_iv_alloc_bit(aift->sbv);
-	if (bit =3D=3D -1UL)
-		goto unlock;
-    ...
-}
-
-In both cases, rc seems to remain unassigned (0). Also, it appears the
-unlock error path does not call unaccount_mem(pcount).
-
-
-[Severity: High]
-This is a pre-existing issue, but what happens if airq_iv_create() fails and
-returns NULL?
-
-arch/s390/kvm/pci.c:kvm_s390_pci_aif_enable() {
-    ...
-	zdev->aibv =3D airq_iv_create(msi_vecs, ...);
-    ...
-}
-
-It seems zdev->aibv is assigned without a check, and subsequently
-kvm_zpci_set_airq() will unconditionally dereference it:
-
-arch/s390/kvm/pci.c:kvm_zpci_set_airq() {
-    ...
-	fib.fmt0.noi =3D airq_iv_end(zdev->aibv);
-    ...
-}
-
-Could this lead to a NULL pointer dereference panic under host memory press=
-ure?
-
-
-[Severity: Critical]
-This is a pre-existing issue, but is the user-provided aisbo validated
-against a 64-bit bounds check?
-
-arch/s390/kvm/pci.c:kvm_s390_pci_aif_enable() {
-    ...
-	gaite->aisbo =3D fib->fmt0.aisbo;
-    ...
-}
-
-If aisbo is unvalidated and can be up to 255, could KVM's software handler
-blindly execute a bit flip crossing into unpinned host physical memory?
-
-arch/s390/kvm/interrupt.c:aen_host_forward() {
-    ...
-		set_bit_inv(gaite->aisbo, phys_to_virt(gaite->aisb));
-    ...
-}
-
-
-[Severity: High]
-This is a pre-existing issue, but if kvm_zpci_set_airq() fails at the very
-end of the function, does it bypass the software rollback?
-
-arch/s390/kvm/pci.c:kvm_s390_pci_aif_enable() {
-    ...
-	/* Issue the clp to setup the irq now */
-	rc =3D kvm_zpci_set_airq(zdev);
-	return rc;
-
-unlock:
-    ...
-}
-
-It looks like it returns immediately instead of executing the error cleanup
-labels (unpin1, unpin2, unlock), leaving resources leaked.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260727095720.9150=
--7-borntraeger@linux.ibm.com?part=3D1
