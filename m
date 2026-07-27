@@ -1,138 +1,181 @@
-Received: from mail-pj1-f43.google.com (mail-pj1-f43.google.com [209.85.216.43])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB37E378803
-	for <linux-s390@vger.kernel.org>; Sun, 26 Jul 2026 20:11:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.216.43
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785096663; cv=pass; b=XULz5+9GwEDwLIkxhGOwZFP3i50ug1dwyQ6RD0UCff7P0dRSmOQ/LS/P5W7kH1f8D80pwSoswnrowaMeaUyVlAuWv0F6TMiGC7Yq9x8BVl1C+ut1yQLbTIthvsETJHORJAgRvDkI9Ol3WUYV9mNSHTb0qTMBHx3e6ziYNHgIo8Q=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785096663; c=relaxed/simple;
-	bh=kWd2ZlnaGIqOzhBDtr6CPo+wqxbzhTWntedFRzAihME=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=pdLDemwrQuW51osbEC1x06+3PXYYcdg6LBcMB2kS29MkB0poGEXdbo6dGWYSaRKi0DCdK5g7vQNkY+F3R9TneWPy9tBxuM9z6xaEjcvANcLx29+9juk1BHFXtOmCGYBCgV93fFbzGPqnNKdy3PnsdI5BnaJj0QtOTDlNxbmDR2A=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bWjNmrzf; arc=pass smtp.client-ip=209.85.216.43
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4B1C1349CD7;
+	Mon, 27 Jul 2026 02:14:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785118445; cv=none; b=flfc1apoBPkVciQZyfC8MEJhqHhtZFjiQTVpGIp2LSQUtrla39sotI9UQFk87njRIuJN1pfHqe+5YIVOzmOvvJ4RBjNrNfXVlvHdMdjU99DBAXlE2fNJF4cdPExiBDg8HdDdPUMSB04PuqbxGV0fmV13mrJCfR113MJArijaEo4=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785118445; c=relaxed/simple;
+	bh=UcyWkhB1BwqyVGewzPWhmauGmdL0yqumW3alZv/j3zQ=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=ZOlZAZT5n5sscHxatYHHADZk7tqG/rl61G8qOgXHlBD6LnsAQOHM3G/0YQCQUaEPBW8IGFRKYsAJD09US2LKwuiW9KcodBI9Wv/pQdJDTPRuIAu4rPVrE2BAzYZ/DBSqHubpbMUoSQmsoSDwGUFcPul4Kgm0WhgHNUJphbmZkvA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GnaWqrFh; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bWjNmrzf"
-Received: by mail-pj1-f43.google.com with SMTP id 98e67ed59e1d1-381b831d535so2518564a91.0
-        for <linux-s390@vger.kernel.org>; Sun, 26 Jul 2026 13:11:01 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1785096661; cv=none;
-        d=google.com; s=arc-20260327;
-        b=ENt74gzLILI4Zq/ml8CocHEg/EqtKmv0P4sNI4AJUKnCvYLSIadxpoJkzeWdCP6/o4
-         KJvTBBr84ayhdPxhh0JUGWxWQ2CAcza/pzK01BEE+QIgCjie8axypkVlNqIeywtiTokq
-         bKFzwzKbkc2w7KnsYXpc24KcvAHkxn+M733mk+xlm9It4/tcQtkoUdSgg1nuugwWTAL8
-         0ZGTQtfyeVLK1SY6EPbYsXonbIPLcM7nKyBtgXI+vQAM1bceYH4UYP5aNdpgBtDAA8EW
-         oBZSmrBPEmGQ++PxPhT3CjWgo4jSl+VwIF8MwvJcMKiFljep58qyQZZ06blqvs87jYFU
-         Gn9w==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=2+Bo0viCEB2m22FDhwGjICfsYsQ1DUFzTfnhxFo1SU0=;
-        fh=0ODFQVnYYBNx0QvkfOTio6qBNzZ+VUDsjr8A/Me9iYc=;
-        b=dqDsOI6RPjcz1k6rZ/MhTPalLuZ+avMDvjhIzFlYawo4Z84DMNznDieQoEV+S5BuVJ
-         0RnPQ0HFMk1FvLI8q2Atu8k3EMu6lBViAZiysdRBdPWTNOspkuCm+yNRC3d9edvxHArL
-         pDpsf1C/JnNb/jswz4riiN6JeG2bJMPu/VlS5NoHbQWi2pI94l0MJC0cTnEmFZnwY6yr
-         O21XpB531diaicXuSJzBJXy5B5N6AGlIccDkXYiPoPuPGy7Rre3h3ZW9bpqD7K46r6hI
-         +QvfAlewaYsgHsD7FWjmhYu5R0lpmAlZGnjw3SHzcmSzacIYs6NexesoIu5QieeRA7Mh
-         rGvw==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785096661; x=1785701461; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=2+Bo0viCEB2m22FDhwGjICfsYsQ1DUFzTfnhxFo1SU0=;
-        b=bWjNmrzfOcznBPitgGj/HS0xLXFm9c9EvME+U9Y38WewNosDqzxcptmAggNl6jtEYm
-         THi8L8kT7chED9bWcXg7+qUv/N7TMowQCnPZL3LwK7fkr6tym+6FhlhoxdYN4k1BD/Uf
-         9qaSxmxHi4Sjq3UYpbzBwI0DQFesqVWoJqU2jiPsnBPApLeCtmNo0OUMuH18+2f9+5LA
-         oo9hGHabcykOJDdvexQexzB4IBppCw9JBRQRZdnqM2zqJLAfzdlDvLn0nywYK8qtiGOj
-         x9pUhyT/uAItjv0TDjAWjuOVo5/1tolIctW/xUEQ+wdpDz9bPsJdIrkZuxbm8Nu+sMBL
-         pOOw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785096661; x=1785701461;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=2+Bo0viCEB2m22FDhwGjICfsYsQ1DUFzTfnhxFo1SU0=;
-        b=BDu5Ieh5gKPdOI5bZr2MSfD9BSs3V1TSnfNWfdaldgSb9Mr1MN/jL+CTzEZoyVv9Pp
-         BAwd/0wLZA+twMSrTCfoSNF5Emsje2PNXZku7n/pe2g5Bndi6o6URGnu4JH71XHizZLV
-         eJ6fdrfnJ0+Rv1WQucX/wtpibDb9duWwE+6/mYy2ewyyVnNttywVNJCbLsRI7gsfvPQv
-         oG1OTNCFAgMykQ/VnkF3rVrtjCeQWvZ5yd/D4kwKCekaEJoqWnbQCx716js8+RCTFE9w
-         QHw0xukLKlMqJUCapKCrUNrxLk9M5sx4Dwqz2FGmsF4R2FLz1ncgPaPnVmIYGjekqsUs
-         5ZHw==
-X-Forwarded-Encrypted: i=1; AHgh+RogqatJGKz5D1z2yfmOdiAIF9scc67kzKNp4uDmMLbBLH/H7hC8c3Svb4Jf4kCO/2Rc6WUcjts+I2e6@vger.kernel.org
-X-Gm-Message-State: AOJu0Yw2BCHrYgKmtYn3lehlhVSOG4rW01eJHZzKrKlhgiXO9yewZA84
-	0xTgCpQsL8OqXXo13VIJuxZr9LSQ+Fu/TPtDfDDWO7+U4jToJv6GDpAoAEZEr7l3JkfuIQA/G+w
-	OEZnnPvH+SK38k4sCzt9lApBwBBWowe4/tlghPvg=
-X-Gm-Gg: AR+sD11l5BhPF4p+oeNcyL2eLdvG1kuFKhjXQlQMMeQcXjBHM5xRVuJQ37Q4z/Gz5fL
-	YXX/Hs2MdJjQYgYJckyILyWiiw9FmFICZ3gBV/u0Saw9DAX2lz6KoT1p5FuevZP4djC0QGBHcto
-	MoE2+mLFu/G2QbYp8RiulQ/p+qA0WH4D5VEmDlYFG3nL6a9MLT4eE/8B5qLitBlK17P5P5AV0Gl
-	ctdKMBueZgbWYEh68hl8YLYWkGiFdw53D5NCOHAt+BrgSiWYo13i8znUEK33xU+l1LxCnzE
-X-Received: by 2002:a17:90b:384b:b0:38d:ef48:b04 with SMTP id
- 98e67ed59e1d1-38f294ea3c5mr6088330a91.10.1785096661118; Sun, 26 Jul 2026
- 13:11:01 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GnaWqrFh"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id C70D1C2BCB3;
+	Mon, 27 Jul 2026 02:14:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1785118444;
+	bh=UcyWkhB1BwqyVGewzPWhmauGmdL0yqumW3alZv/j3zQ=;
+	h=From:Date:Subject:To:Cc:Reply-To:From;
+	b=GnaWqrFhb6gX+1bSws1JWfWjaX46zMpbLsFcN2PGHSmi4JpfoB3VjO5HnzboxsKBw
+	 cKIZIujR5JT/NYxS3dDgqwYNShQiAlpdnFqmrNAvPS5n79TXMUF26BgdV2JJYk3P69
+	 vfQyNpzfdclXQOv1dBeAlFyAGgsOnrJEWa44wZojaBNw5N2FapObjDEbGvxC/6fW1L
+	 LfT7jGbW/2FsWOV+qo9nFtrKMAlMpXns6wuwZxK8QgocfulxCJpOACwFOa3GOIko6f
+	 6pmYsNawv8qo/cgYqqBNZYlRojvTCbLTWWledxqkYwGlTvPGx3qgBxodCKRehWWm9X
+	 qgkjX3e5l5SzQ==
+Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A3998C53200;
+	Mon, 27 Jul 2026 02:14:04 +0000 (UTC)
+From: Bryam Vargas via B4 Relay <devnull+hexlabsecurity.proton.me@kernel.org>
+Date: Sun, 26 Jul 2026 21:14:04 -0500
+Subject: [PATCH net] net/smc: drain the rx tasklet before detaching the
+ ghost sndbuf
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260523-af-alg-harden-v1-2-c76755c3a5c5@gmail.com>
- <20260603133312.12848-1-freude@linux.ibm.com> <amOGWwdjnJqyxH5L@codewreck.org>
- <20260724160034.GB2032@sol> <amOTjPW__CNZui3_@codewreck.org>
- <CAFLxGvy+ec3nQLrQtwFZgGELhT2pKBDnHdD0pMvEGh-Mf3rjgQ@mail.gmail.com>
- <20260725220443.GA41199@quark> <CAFLxGvyBGzfwh61F5YkYqctNPCQJCpFOwTtKfDs4L+iK8WJZpQ@mail.gmail.com>
- <20260726155024.GB1673@sol>
-In-Reply-To: <20260726155024.GB1673@sol>
-From: Richard Weinberger <richard.weinberger@gmail.com>
-Date: Sun, 26 Jul 2026 22:10:48 +0200
-X-Gm-Features: AUfX_mwZurnXooec2A3FqadK1K8O_igYrMZGYhDFbqwtbTaFK-ATjGnI_bmWgHQ
-Message-ID: <CAFLxGvzaAH+ZGr-OFo=Li1aOxgwBjjR76T7m1CjFaL-6w3KPPQ@mail.gmail.com>
-Subject: Re: [PATCH 2/3] AF_ALG: Drop support for off-CPU cryptography
-To: Eric Biggers <ebiggers@kernel.org>
-Cc: Dominique Martinet <asmadeus@codewreck.org>, demiobenour@gmail.com, 
-	Harald Freudenberger <freude@linux.ibm.com>, acme@kernel.org, adrian.hunter@intel.com, 
-	alexander.shishkin@linux.intel.com, ardb@kernel.org, axboe@kernel.dk, 
-	corbet@lwn.net, davem@davemloft.net, edumazet@google.com, 
-	herbert@gondor.apana.org.au, horms@kernel.org, io-uring@vger.kernel.org, 
-	irogers@google.com, james.clark@linaro.org, jolsa@kernel.org, kuba@kernel.org, 
-	kuniyu@google.com, linux-crypto@vger.kernel.org, linux-doc@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org, 
-	mark.rutland@arm.com, mingo@redhat.com, namhyung@kernel.org, 
-	netdev@vger.kernel.org, pabeni@redhat.com, peterz@infradead.org, 
-	skhan@linuxfoundation.org, willemb@google.com, linux-s390@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20260726-b4-disp-a135b4e5-v1-1-705aaec79986@proton.me>
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/yXMwQ5EMBCA4VeROe8kVS1rX0UcVAfjYKWDSMS7K
+ 47f4f8PEApMAr/kgEAbC/+niPSTQDs0U0/IPhq00rkqdI7OoGeZsUkz6wxZLI21hXFeldkXYjY
+ H6nh/llX9WlY3UrvcHzjPC8SRSId0AAAA
+X-Change-ID: 20260726-b4-disp-a135b4e5-945574bd0938
+To: Dust Li <dust.li@linux.alibaba.com>, 
+ Wenjia Zhang <wenjia@linux.ibm.com>, "D. Wythe" <alibuda@linux.alibaba.com>, 
+ Sidraya Jayagond <sidraya@linux.ibm.com>
+Cc: Mahanta Jambigi <mjambigi@linux.ibm.com>, netdev@vger.kernel.org, 
+ linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ Tony Lu <tonylu@linux.alibaba.com>, Paolo Abeni <pabeni@redhat.com>, 
+ Wen Gu <guwen@linux.alibaba.com>, linux-rdma@vger.kernel.org
+X-Mailer: b4 0.15.2
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1785118443; l=4217;
+ i=hexlabsecurity@proton.me; s=default; h=from:subject:message-id;
+ bh=wYjklXpHMVg2rxAnVlYLWc6qQreV8jc7yrCCSeUtrwM=;
+ b=1GEGA8s3WVGo60Q4bcloSNg1Gju64r30GQhhMxdGRBVQOQGm5bUWZLlmQF5+7v/EwNEdFwmyY
+ 3MQ0zZej/HwDEyRt3LXmJTVZTCeaahQGJu4AWQ4SoAroZrHNEg2RKd0
+X-Developer-Key: i=hexlabsecurity@proton.me; a=ed25519;
+ pk=xw1AhCtQdvuoQc+bOQIYy9o8G++cp4/VniI2G/tc3G8=
+X-Endpoint-Received: by B4 Relay for hexlabsecurity@proton.me/default with
+ auth_id=893
+X-Original-From: Bryam Vargas <hexlabsecurity@proton.me>
+Reply-To: hexlabsecurity@proton.me
 
-On Sun, Jul 26, 2026 at 5:52=E2=80=AFPM Eric Biggers <ebiggers@kernel.org> =
-wrote:
-> Then I would suggest that skcipher_bind() should check if the name is
-> "cbc(paes)", and if so use 0 instead of AF_ALG_CRYPTOAPI_MASK.  Please
-> go ahead and send a patch against mainline (for v7.2-rc6) if you're
-> interested.
+From: Bryam Vargas <hexlabsecurity@proton.me>
 
-Patch sent.
+On the SMC-D DMB-nocopy path smcd_buf_detach() frees conn->sndbuf_desc
+while the receive tasklet can still be running: both teardown sites free
+first and drain afterwards. A tasklet already past the conn->killed check
+then dereferences the freed buffer in smc_cdc_msg_recv_action(), which
+reaches the same field again through smc_tx_prepared_sends().
 
-> On cryptodev/master (future 7.3) it should get an entry in the new
-> skcipher_allowlist as well: { "cbc(paes)", true }.  That would be a
-> separate patch.
+Drain the tasklet before the detach at both sites, mirroring rmb_desc,
+which smc_buf_unuse() only releases after the drain.
 
-Do you mind a new field in struct af_alg_allowlist_entry which indicates
-that  AF_ALG_CRYPTOAPI_MASK should get bypassed?
+Fixes: ae2be35cbed2 ("net/smc: {at|de}tach sndbuf to peer DMB if supported")
+Cc: stable@kernel.org
+Signed-off-by: Bryam Vargas <hexlabsecurity@proton.me>
+---
+Found with KASAN on an SMC-D loopback rig (CONFIG_SMC_LO, x86_64).
 
-bool bypass_apimask;?
+The teardown is driven through smc_conn_kill() by arming abort_work from a debug
+module parameter: on SMC-D nothing in the receive path queues that work, while on
+SMC-R smc_cdc_msg_validate() queues it for an out-of-range peer seqno. Everything
+after the abort is the unmodified path. A second parameter holds the receive tasklet
+just past the conn->killed check, so the free lands mid-run.
 
-> With those it will keep working as root.  (And you mentioned in your
-> other email it's used only as root anyway.)
+  arm         ordering           abort armed   result
+  vulnerable  detach then drain  yes           KASAN slab-use-after-free
+  control     detach then drain  no            clean
+  patched     drain then detach  yes           clean
 
-Agreed. While I don't know whether others out there using it in
-non-privileged mode,
-let's be conservative. If something breaks, users will speak up, I hope.
+Same module, same boot, same trigger, same delay; only the ordering differs.
 
---=20
-Thanks,
-//richard
+  BUG: KASAN: slab-use-after-free in smc_cdc_msg_recv_action+0x1ed9/0x1f20 [smc]
+  Read of size 4 at addr ffff88810f6c9720 by task kworker/3:1/147
+  Workqueue: smc_close_wq smc_conn_abort_work [smc]
+   <IRQ>
+    smc_cdc_msg_recv_action+0x1ed9/0x1f20 [smc]
+    smcd_cdc_rx_tsklet+0x1f2/0x2f0 [smc]
+    tasklet_action_common+0x2fd/0x850
+    handle_softirqs+0x18c/0x4f0
+    do_softirq+0x3a/0x60
+   </IRQ>
+   <TASK>
+    __local_bh_enable_ip+0x5d/0x60
+    smc_cdc_get_slot_and_msg_send+0x253/0x680 [smc]
+    smc_conn_kill+0xa8/0x4d0 [smc]
+    smc_conn_abort_work+0x34/0x90 [smc]
+   </TASK>
+
+  Allocated by task 70:
+    smcd_buf_attach+0xbd/0x2a0 [smc]
+    smc_listen_work+0x2499/0x49a0 [smc]
+
+  Freed by task 44:
+    kfree+0x135/0x390
+    smc_conn_kill+0x3ab/0x4d0 [smc]
+    smc_conn_abort_work+0x34/0x90 [smc]
+
+  The buggy address belongs to the object at ffff88810f6c9700
+   which belongs to the cache kmalloc-128 of size 128
+  The buggy address is located 32 bytes inside of
+   freed 128-byte region [ffff88810f6c9700, ffff88810f6c9780)
+
+The read is conn->sndbuf_desc->len.
+
+A plain close() does not get there: smc_close_active() always moves the socket to
+SMC_PEERCLOSEWAIT1, so the free happens in smc_close_passive_work() after the peer's
+close CDC -- the same event that stops feeding the tasklet. About 18000 such teardowns
+produced nothing. The ordering is wrong either way, and smc_conn_kill() has no such
+coupling.
+
+Logs on request.
+---
+ net/smc/smc_core.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index cf6b620fef05..da64e7a6bd73 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -1270,9 +1270,9 @@ void smc_conn_free(struct smc_connection *conn)
+ 	if (lgr->is_smcd) {
+ 		if (!list_empty(&lgr->list))
+ 			smc_ism_unset_conn(conn);
++		tasklet_kill(&conn->rx_tsklet);
+ 		if (smc_ism_support_dmb_nocopy(lgr->smcd))
+ 			smcd_buf_detach(conn);
+-		tasklet_kill(&conn->rx_tsklet);
+ 	} else {
+ 		smc_cdc_wait_pend_tx_wr(conn);
+ 		if (current_work() != &conn->abort_work)
+@@ -1525,12 +1525,12 @@ static void smc_conn_kill(struct smc_connection *conn, bool soft)
+ 	smc_sk_wake_ups(smc);
+ 	if (conn->lgr->is_smcd) {
+ 		smc_ism_unset_conn(conn);
+-		if (smc_ism_support_dmb_nocopy(conn->lgr->smcd))
+-			smcd_buf_detach(conn);
+ 		if (soft)
+ 			tasklet_kill(&conn->rx_tsklet);
+ 		else
+ 			tasklet_unlock_wait(&conn->rx_tsklet);
++		if (smc_ism_support_dmb_nocopy(conn->lgr->smcd))
++			smcd_buf_detach(conn);
+ 	} else {
+ 		smc_cdc_wait_pend_tx_wr(conn);
+ 	}
+
+---
+base-commit: 4235cb24ec1e8e96843f3671ba4da2a6ccca2c7b
+change-id: 20260726-b4-disp-a135b4e5-945574bd0938
+
+Best regards,
+--  
+Bryam Vargas <hexlabsecurity@proton.me>
+
+
