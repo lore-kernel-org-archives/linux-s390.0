@@ -1,161 +1,152 @@
-Received: from mail-yw1-f172.google.com (mail-yw1-f172.google.com [209.85.128.172])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from latitanza.investici.org (latitanza.investici.org [185.218.207.228])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 447A940A93A
-	for <linux-s390@vger.kernel.org>; Mon, 27 Jul 2026 12:59:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.128.172
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785157186; cv=pass; b=gXdaXC/Lx3g91WawveGMksIabryDBb3hTZeImeV84FSTx6eQ+IMaQgytZBskfchNeuE1qkIWsJhHwJ+E4MpVAigzOy3D/u5UJtjea5hvLyr1809TQ7Km0JdeHd/geqbijzdrY76fJwvYvBEz0FlMtjuL+Nr+hcQK/NSUID6f5WM=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785157186; c=relaxed/simple;
-	bh=luUc9ZQFmCjynsr/029wplBmFfuONlqLQlNMir6ffmc=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=tsH5+yhBZokgGMReNooKU2foZTwGF3COx3XmAui3+Nvx1QVfhl7ovJHXpLBE3H03qBK7sgAgd36ublumMWQ7pbKNlgJ2nzcLrtvTUv/XM3030t4XMJxLlwJV4XcCpEkN8cKFgz3ZQmgw40RwTmyTg6nKxIjda3bpO+7jm50815o=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Jq+uwgTQ; arc=pass smtp.client-ip=209.85.128.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 326D340EBAD;
+	Mon, 27 Jul 2026 13:01:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.218.207.228
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785157318; cv=none; b=KAfJ79tGghZoV44X9T9OHdJbCX+Nd+O/zRcAANBwbgs08Y5ujoGNrH2FHn+bfrCZndtdBafehbax+A5s6D/u+sg82YEl7w9Vil93umsuafyT0tLERVKMutskISddQ8tRWJTLzhX6x+qFGsAQGNw8weGZoS80bvkrjVuoI0Gc5P0=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785157318; c=relaxed/simple;
+	bh=vRmwV93Fa18w+kcitfqwkvEVqIYApp5K9/Ak61EQLSQ=;
+	h=Date:From:To:CC:Subject:In-Reply-To:Message-ID:MIME-Version:
+	 Content-Type; b=rhiUbUUzmF6LWkxXxRFvvUhdFoqD6yN7T52rmPWeZvkUWXzEC8TzY3KrMveNdPj5AFDqz/weCnN7hII1r8Z/jFM3Qk0Dn7ZJ0iYXQU3hxIJcQon2UAPw6QIdLRijCDRCzku0H0eVbb+80V10s2GlJJ6s7JNdtC57oHLZwZJWI9I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=grrlz.net; spf=pass smtp.mailfrom=grrlz.net; dkim=pass (1024-bit key) header.d=grrlz.net header.i=@grrlz.net header.b=msTbvKaj; arc=none smtp.client-ip=185.218.207.228
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=grrlz.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=grrlz.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Jq+uwgTQ"
-Received: by mail-yw1-f172.google.com with SMTP id 00721157ae682-80cebd41372so29047007b3.3
-        for <linux-s390@vger.kernel.org>; Mon, 27 Jul 2026 05:59:43 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1785157182; cv=none;
-        d=google.com; s=arc-20260327;
-        b=DIZkWJrBHmozaRmAi9ysz6tpe/fkJSw/HoXF+5GYkyiNV3VeRYf9moXDOwXO+tt7Wc
-         ElHCcByM5KV3u8fw9GI7Dw3/eAZ6Ss841VbvfLAsybWLj+HbXQ3DZ5HiXi6iEDOMzJBy
-         uk6Kes8MX4gQ6+KHNL9rilfHilsYaQjKTkxsiVDtuMNlRKtz5+BlL90jc1m3ipz80IGx
-         ul9GDXc6n9KxNzVQtTz+R7d5wGAgO0b/3GA1Dx91NrUzLxLnJFKumvDvHIrar690L27R
-         Z7UhhidIBfeEc89mXQ0BEoZuLeoBlEACQnfHV4DA38h6Zn/BxnVPdWruCFDA2ICyciFq
-         +D9g==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=ix29oOBbLOf7nlyiJN1FbRfyq7KaaHwmDtcPHELsDuI=;
-        fh=3MOsqEdgweYz5Mkx1eO1rqoxx7dsZkfWETgQP+q5zz8=;
-        b=SbIu+vu5fps16WJCTD1wEIYRRaHtNav+NV639PsBxBIbCPcqKUblvUk4sSFrsiveZ7
-         1DVYloHL6KsOsBpz19pl4KTwJHI4JNoiMeJRFBs52n4isXo4Fyg2ez/3jeerw/BnKger
-         UXcMD4gASVUbgxi9ZBMKMWwu4hL43yPw6bQNwBSfr3nKcvwo6nAUJKZLuePLy7UaOyNh
-         +k3IJ6cWnxsuf0lMD+eiL6qlmmLUTxcWD+0YwIf0IbTJKf4m22gO5QNRg/l5FiLIy0Ol
-         GN7gmadB10z0LkgCetDoqr7ds8U55++s1NVxr11j/A6Ot9YUE6Ki9Ruby22bi1izJGke
-         Tcqg==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785157182; x=1785761982; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=ix29oOBbLOf7nlyiJN1FbRfyq7KaaHwmDtcPHELsDuI=;
-        b=Jq+uwgTQ0O1mmHxnBGxWcL+kdE/a9RtHdIP1tjT7Ei9n+xl4gDgXDSpklqMXUWUDZJ
-         ac+GrumYYzSuNYK88A3/T4fkN6MG4wQqkhyc+crip1OV9Ijk+VP1IqgTH+CDfXD7MNfK
-         izYR0QrNtnZH5422kCYtXpZUgaLbeTRubkLzot33FEHtm/0zOCL+zY/SYXVb/YZMHfi9
-         1UT3syyMpKMiD5iEheioIjGtc40Mtnrnje0QPSkcU+JF6Fi7cbHX042hz4Kxs0mUOVq5
-         ese1af/Z/IOALMSRWCj+UGhUzDc90HKs6jlW61M0+1P4+BJjqXHXw0K6Q6tEdTQomu6E
-         hxMw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785157182; x=1785761982;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=ix29oOBbLOf7nlyiJN1FbRfyq7KaaHwmDtcPHELsDuI=;
-        b=nTLk++CKpaVHSqc5TBaoVyxrGo1+XQySAYFTDemwsSbXwMyEXpzx1H385WrKFscyXZ
-         R5ZKQS++dyQsDSqgOJqd021EA/3SAgecglxlKye/9rvFpIUPMb0Tl+Sl2NfMnxwsNEv9
-         OQGgkL12l51n/bLAj0pHToUowtwBOetGZ1/9+qKabGZovXkB+RaFlPevDATtUmh+5Pt3
-         mZ5J/lWv+KQ8QTfPud0KsSQ/eCnlYQVwjEYBrvsg5rRv8hkBA8GFbQKY0h/uR8LLFy00
-         n8HZC51aMYF4dKieQkd3F9/nWz2CwU5kkVtvfxkiRTzI1klwNP6WTQzn3CfWUxq4UxFM
-         NvSA==
-X-Forwarded-Encrypted: i=1; AHgh+RrE/YOFIxVLaebdFl53iKK8YuneGrAD9T7B9Qm92eDk8I0cMuSIGhtGJCfSDrNblmCB1rLW5H5rx8JW@vger.kernel.org
-X-Gm-Message-State: AOJu0YwC2Zv0Yit00d1pTSd4jFtw8hySYTzcUP96IoUIWPBI/6sK6y4D
-	wLIdSh35b6YGHsF7ob5jkoQAvGGxPXW3WM7iU33YJ7xoGgrw6UyehQSjkYXwKbwN9J7CRnNq3QE
-	TazXFtnIUHHpYbFREgxOcugnniQXrHO8=
-X-Gm-Gg: AR+sD10Sl83RDrtfA/jVh4Fdd6mX2iLPex118mgY0GEDqlE7Ta+KeTs1/u0F7QkDAwQ
-	Qgg53oG55mEaETbOtbAf5xjTn14G2SobKqqKP8BC4p8gbyVJf3bThqsprMORuoHvkAUo/tsg0MT
-	bMLECyj31nEsFWl2TLS1iDaAo0U5K7yzDdDNzV6QBc8bcb9L0pCTPQJJOw47Rr1lc3e6crCMCLa
-	6TxnyLoiqndmgdRK/3VXk9atgpz9JNddT1MKvCbSZmUUUqoSDVx7/vgdGJGITKQ/D1SJQ==
-X-Received: by 2002:a05:690c:6f02:b0:81e:97e2:2210 with SMTP id
- 00721157ae682-81f69ebac17mr31274727b3.69.1785157182142; Mon, 27 Jul 2026
- 05:59:42 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=grrlz.net header.i=@grrlz.net header.b="msTbvKaj"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=grrlz.net;
+	s=stigmate; t=1785157312;
+	bh=wEmLxfActWCi8y9KKOsCUmr4+jkf6zkWnHyr22idtFg=;
+	h=Date:From:To:CC:Subject:In-Reply-To:From;
+	b=msTbvKaj8rPmEoxaYi9vGO7N5dPT6pu11Qyq4YSQ+2+CVi4tyNVaaOTdG/2y9dtsJ
+	 BliTaII6vCaGCoioBY3q4dYaD1w4ly7z5pYW6rrOOaWOWG1KktJ0fn+pq9xDcA7r5C
+	 BdGBuSfRnvLBE7sjQ4Ufpf1v3eFqb4CXaSnI5aFo=
+Received: from mx3.investici.org (unknown [127.0.0.1])
+	by latitanza.investici.org (Postfix) with ESMTP id 4h7zJJ4NG3zGpKq;
+	Mon, 27 Jul 2026 13:01:52 +0000 (UTC)
+Received: by mx3.investici.org (Postfix) id 4h7zJJ1zx9zGpDy;
+	Mon, 27 Jul 2026 13:01:52 +0000 (UTC)
+Date: Mon, 27 Jul 2026 14:01:54 +0100
+From: Bradley Morgan <include@grrlz.net>
+To: meted@linux.ibm.com
+CC: agordeev@linux.ibm.com, akpm@linux-foundation.org, andreas@gaisler.com,
+ borntraeger@linux.ibm.com, davem@davemloft.net, gor@linux.ibm.com,
+ hca@linux.ibm.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+ pmladek@suse.com, sparclinux@vger.kernel.org, svens@linux.ibm.com
+Subject: Re: [PATCH v2 2/3] s390: Implement arch_do_panic
+In-Reply-To: <20260727-arch_do_panic-v2-2-4e25ceb05075@linux.ibm.com>
+Message-ID: <8E5EEFE6-C655-4319-B659-E3817DD24954@grrlz.net>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260723184538.3888637-1-ekffu200098@gmail.com> <adcfc6f2-3309-4496-8331-1ae31e85d363@sirena.org.uk>
-In-Reply-To: <adcfc6f2-3309-4496-8331-1ae31e85d363@sirena.org.uk>
-From: Sang-Heon Jeon <ekffu200098@gmail.com>
-Date: Mon, 27 Jul 2026 21:59:30 +0900
-X-Gm-Features: AUfX_mxOitBR08KsPWHGWKTOhvBmlqBsOevQYdsbBN1kI3uyZROYcZJFQfRk1pk
-Message-ID: <CABFDxMEmB=5UZx6RZgFNZyB5sg-+e2hgx_T1QjV0JzqP+auTFQ@mail.gmail.com>
-Subject: Re: [PATCH 00/36] treewide: remove conditional returns with no effect
-To: Mark Brown <broonie@kernel.org>
-Cc: Julia.Lawall@inria.fr, Alex Deucher <alexander.deucher@amd.com>, 
-	Alexander Shishkin <alexander.shishkin@linux.intel.com>, 
-	Alexandre Belloni <alexandre.belloni@bootlin.com>, Andrew Lunn <andrew@lunn.ch>, 
-	Andrew Morton <akpm@linux-foundation.org>, 
-	Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>, Borislav Petkov <bp@alien8.de>, 
-	=?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>, 
-	Daniel Lezcano <daniel.lezcano@kernel.org>, David Airlie <airlied@gmail.com>, 
-	"David S. Miller" <davem@davemloft.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
-	Eric Dumazet <edumazet@google.com>, Florian Westphal <fw@strlen.de>, 
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Hans de Goede <hansg@kernel.org>, 
-	Hans Verkuil <hverkuil@kernel.org>, Heikki Krogerus <heikki.krogerus@linux.intel.com>, 
-	Herbert Xu <herbert@gondor.apana.org.au>, 
-	=?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>, 
-	Jakub Kicinski <kuba@kernel.org>, 
-	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, 
-	Jani Nikula <jani.nikula@linux.intel.com>, Jaroslav Kysela <perex@perex.cz>, 
-	Jason Gunthorpe <jgg@ziepe.ca>, Jiri Pirko <jiri@resnulli.us>, "Joerg Roedel (AMD)" <joro@8bytes.org>, 
-	Johan Hovold <johan@kernel.org>, Jonathan Cameron <jic23@kernel.org>, 
-	Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Julian Anastasov <ja@ssi.bg>, 
-	Leon Romanovsky <leon@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Linus Walleij <linusw@kernel.org>, 
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
-	"Martin K. Petersen" <martin.petersen@oracle.com>, Matthew Sakai <msakai@redhat.com>, 
-	Mauro Carvalho Chehab <mchehab@kernel.org>, Maxime Ripard <mripard@kernel.org>, 
-	Michael Turquette <mturquette@baylibre.com>, Mike Rapoport <rppt@kernel.org>, 
-	Miri Korenblit <miriam.rachel.korenblit@intel.com>, Nicolas Palix <nicolas.palix@imag.fr>, 
-	Pablo Neira Ayuso <pablo@netfilter.org>, Paolo Abeni <pabeni@redhat.com>, 
-	Ping-Ke Shih <pkshih@realtek.com>, "Rafael J. Wysocki" <rafael@kernel.org>, 
-	Rodrigo Vivi <rodrigo.vivi@intel.com>, Sebastian Reichel <sre@kernel.org>, Shuah Khan <shuah@kernel.org>, 
-	Simona Vetter <simona@ffwll.ch>, Simon Horman <horms@verge.net.au>, Stephen Boyd <sboyd@kernel.org>, 
-	Steve French <sfrench@samba.org>, Takashi Iwai <tiwai@suse.com>, Thomas Renninger <trenn@suse.com>, 
-	Thomas Zimmermann <tzimmermann@suse.de>, Tony Luck <tony.luck@intel.com>, 
-	Tvrtko Ursulin <tursulin@ursulin.net>, Vadim Fedorenko <vadim.fedorenko@linux.dev>, 
-	Vinod Koul <vkoul@kernel.org>, Will Deacon <will@kernel.org>, 
-	Yazen Ghannam <Yazen.Ghannam@amd.com>, cocci@inria.fr, amd-gfx@lists.freedesktop.org, 
-	dmaengine@vger.kernel.org, dm-devel@lists.linux.dev, 
-	dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, 
-	intel-wired-lan@lists.osuosl.org, iommu@lists.linux.dev, 
-	linux-cifs@vger.kernel.org, linux-clk@vger.kernel.org, 
-	linux-crypto@vger.kernel.org, linux-edac@vger.kernel.org, 
-	linux-gpio@vger.kernel.org, linux-iio@vger.kernel.org, 
-	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-media@vger.kernel.org, linux-mm@kvack.org, linux-pm@vger.kernel.org, 
-	linux-rdma@vger.kernel.org, linux-rtc@vger.kernel.org, 
-	linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, 
-	linux-sound@vger.kernel.org, linux-usb@vger.kernel.org, 
-	linux-wireless@vger.kernel.org, lvs-devel@vger.kernel.org, 
-	netdev@vger.kernel.org, netfilter-devel@vger.kernel.org, 
-	nouveau@lists.freedesktop.org, platform-driver-x86@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain;
+ charset=utf-8
+Content-Transfer-Encoding: 8bit
 
-On Mon, Jul 27, 2026 at 9:12=E2=80=AFPM Mark Brown <broonie@kernel.org> wro=
-te:
->
-> On Fri, Jul 24, 2026 at 03:45:02AM +0900, Sang-Heon Jeon wrote:
->
-> > All patches are independent and can be applied separately, but for
-> > everyone's convenience, it would be nice if they were merged through
-> > a single tree.
->
-> Please don't do this, it does not make anything more convenient - it
-> results in huge CC lists and makes it more difficult to work out who
-> will actually apply things.  If there's no dependencies just send to
-> each subsystem independently.
+Mete,
 
-Thanks for letting me know. I'll keep that in mind. In v2, I will send
-the cleanup patches to each subsystem independently.
+> -#endif
+> -#if defined(CONFIG_S390)
+> -	disabled_wait();
+> -#endif
 
-Best Regards,
-Sang-Heon Jeon
+removal is fine, this was unreachable anyway. the notifier ran
+do_panic() which ends in stop_run(), so nothing ever came back to hit
+this disabled_wait().
+
+> +void arch_do_panic(void);
+> +#define arch_do_panic arch_do_panic
+
+with the weak function i suggested on patch 1, this whole asm/setup.h
+hunk disappears and the patch shrinks to exactly the parts that mean
+something:
+
+diff --git a/arch/s390/kernel/ipl.c b/arch/s390/kernel/ipl.c
+--- a/arch/s390/kernel/ipl.c
++++ b/arch/s390/kernel/ipl.c
+@@ -2115,7 +2115,7 @@ static ssize_t on_panic_store(struct kobject *kobj,
+ }
+ static struct kobj_attribute on_panic_attr = __ATTR_RW(on_panic);
+ 
+-static void do_panic(void)
++void arch_do_panic(void)
+ {
+ 	lgr_info_log();
+ 	on_panic_trigger.action->fn(&on_panic_trigger);
+@@ -2331,18 +2331,6 @@ static int __init vmcmd_on_poff_setup(char *str)
+ }
+ __setup("vmpoff=", vmcmd_on_poff_setup);
+ 
+-static int on_panic_notify(struct notifier_block *self,
+-			   unsigned long event, void *data)
+-{
+-	do_panic();
+-	return NOTIFY_OK;
+-}
+-
+-static struct notifier_block on_panic_nb = {
+-	.notifier_call = on_panic_notify,
+-	.priority = INT_MIN,
+-};
+-
+ void __init setup_ipl(void)
+ {
+ 	BUILD_BUG_ON(sizeof(struct ipl_parameter_block) != PAGE_SIZE);
+@@ -2375,7 +2363,6 @@ void __init setup_ipl(void)
+ 		/* We have no info to copy */
+ 		break;
+ 	}
+-	atomic_notifier_chain_register(&panic_notifier_list, &on_panic_nb);
+ }
+ 
+ void __no_stack_protector s390_reset_system(void)
+diff --git a/kernel/panic.c b/kernel/panic.c
+--- a/kernel/panic.c
++++ b/kernel/panic.c
+@@ -755,9 +755,6 @@ void vpanic(const char *fmt, va_list args)
+ 		pr_emerg("Press Stop-A (L1-A) from sun keyboard or send break\n"
+ 			 "twice on console to return to the boot prom\n");
+ 	}
+-#endif
+-#if defined(CONFIG_S390)
+-	disabled_wait();
+ #endif
+ 	pr_emerg("---[ end Kernel panic - not syncing: %s ]---\n", buf);
+ 
+same deal, suggestion only, no SoB from me, fold it in under yours.
+check whether linux/panic_notifier.h is still needed in ipl.c after
+the notifier goes away.
+
+> This now means that the panic_timeout value takes precedence over user
+> defined on_panic behavior.
+
+this is the part i want to poke at. distros routinely ship panic=N on
+the cmdline. with this change, anyone who configured on_panic=dump on
+such a system silently stops getting dumps, because
+emergency_restart() runs first and never returns. a reboot instead of
+the dump you explicitly asked for is strictly worse. if you and Sven
+want that semantic, fine, but spell it out properly and give the s390
+docs for on_panic a line about the new precedence.
+
+also worth saying in the changelog what this actually wins: today the
+INT_MIN notifier never returns, so sys_info, kmsg_dump, the post
+notifier crash_kexec path, the console flushes and the end banner
+never execute on s390 once on_panic fires. after this patch they all
+do. thats the headline and the changelog undersells it.
+
+> Fixes: ff6b8ea68f4b ("[S390] ipl/dump on panic.")
+
+What's broken? What's buggy? I'm sure this is just a behaviour 
+change, could you either
+
+1: Drop the fixes tag
+2: Put in the changelog What's broken and why?
+
+
+s/now allow/now allows/ in the changelog..
+Thanks!
