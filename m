@@ -1,159 +1,68 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E9E8A3D649A;
-	Mon, 27 Jul 2026 19:44:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B77834D4CE;
+	Mon, 27 Jul 2026 19:52:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785181456; cv=none; b=F+mmS21JXQgAnnu9JSo2bsjznTLL4idIGxcdVT0QBqC78b2opQ5GKnMKjs/KcAs7yXQueA6cS2zx9vtrfrOaCpMuswSR7SYBgWBDJj+udkPHzRy6TcY6rhK2RmUmdVlKFrXBWImSSpMP1zZlQfps+Cd/w0noRP4vTkL3XmtfVsA=
+	t=1785181969; cv=none; b=ntQhkKGJQrdXARq4belrXi5rDBe3/YC/89+mpjj7gI6udEI9XesEIp7ffu1ObnDG3ellLA1MppjXY7NF53h5YLlTKTHYyahhlSh4ypZhCxmZ5gT+xC18nH6ZUB1UsGSor8gAqiBOK4L9JJOi/4DNhEs/fa9xtnDmT7o3IDBlufE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785181456; c=relaxed/simple;
-	bh=WfP9KjGiUhNC00atHi0kyLYVsoioA+Sf9b2zatRqvMU=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=RSHfvzvjl32Fy+BkX6ji0GQeP+oIyNBn6JLhTPnXeCuuo2uSS3YAYvaaNFPUh9QSLy6OWchjYkyDKufItnPJ6aB4VI1QzOZ7H01H0BIGwI1FrurrisRtbbFjqgPSA5IPXIDl5qQkbiEldhc2AUjIxIyfOZt8LyJxWVxdPLcnrZE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=S6SEBloS; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1785181969; c=relaxed/simple;
+	bh=fF5sjsGNWKvL1GnzFlg0YiF2q1494y49Ij+AqxeyPQg=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=kC8P3iEOvZtf8Bar4HO3yrmAarAxJaGC4xTiZbBaLORCzBNf8XJTJgrfv+VknWBhlQ6wejGVGsUK369PkWqmTbvEhPmRZVHOPUwJsWHJmiyvWvmCUI3OIwJGz/H4zFs3peYGMNyK5hZHEo1a35oLfJZ6i90HGBQ9a2ARujzUAuI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=g6OAjKnv; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="S6SEBloS"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66RIHrJA2991527;
-	Mon, 27 Jul 2026 19:43:58 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=t1PHiV8rkqviZARZ9
-	5VBMbb5uovzUNwzuKi8hlP295s=; b=S6SEBloSRtmNnQC5V+xvz/AzjqT3zI92G
-	1H7rVF6wHeyQGEcT6EHMFhc4XTkjy+UCiyjDrvYawwhdqQzfFauTErv206H1aa/5
-	myowEEf70pWeLYtwZz3XZx8JIQ8mv1kQZWRUaouXWJ6IkxiQgYtMFMpnlebmkgp6
-	Yi8WvgJI6+1mD81CRAkERznkIaKEdbRSpdB77ldFyE09JWU/J6RMFsY/3rcBtujZ
-	qEQZCnkN7roezS40Eu644ARyBVg4eLaAbHVDtQCTHILE4gC6+a5nCleBpFDSYY/b
-	4jKTyciBqUMv9OmxLX7w+c8wTVbCEWYHnthw78T/YHfuQsyBqjDTw==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fmv0xhta5-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 27 Jul 2026 19:43:58 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66RJfHCr020211;
-	Mon, 27 Jul 2026 19:43:57 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fn7uvxwcr-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 27 Jul 2026 19:43:57 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66RJhrVT49807638
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 27 Jul 2026 19:43:53 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 286512023E;
-	Mon, 27 Jul 2026 19:22:47 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 082792023B;
-	Mon, 27 Jul 2026 19:22:47 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with SMTP;
-	Mon, 27 Jul 2026 19:22:46 +0000 (GMT)
-Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 4958)
-	id BF0AF162824; Mon, 27 Jul 2026 21:22:36 +0200 (CEST)
-From: Eric Farman <farman@linux.ibm.com>
-To: linux-s390@vger.kernel.org, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Cc: Matthew Rosato <mjrosato@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Eric Farman <farman@linux.ibm.com>,
-        sashiko-bot <sashiko-bot@kernel.org>, stable@vger.kernel.org
-Subject: [PATCH v7 05/10] s390/vfio_ccw: calculate idal length based on idaw type
-Date: Mon, 27 Jul 2026 21:22:25 +0200
-Message-ID: <20260727192230.2715207-6-farman@linux.ibm.com>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20260727192230.2715207-1-farman@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="g6OAjKnv"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B09811F00A3A;
+	Mon, 27 Jul 2026 19:52:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1785181968;
+	bh=fF5sjsGNWKvL1GnzFlg0YiF2q1494y49Ij+AqxeyPQg=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=g6OAjKnvRfR35uacJBwWu+7Wq56F1Acw3WIzH3J//Q8NEeSvXA94owathRqmSRA4Z
+	 LphUmOrRs4TWKLg72bJdFVYPxir5H2zu8IQMmhMyAf6NCdFXEBcHglF3hZyY8oVXd3
+	 dp/hAoXUYlpR2KWHI8GjKG1pw38EpES9YUmTHSWr9xolEuXUGaYeEa1lS/5szrN03R
+	 uTRkyi7EThTrcmmG4eIlKh6vtBsmwTffbi45nT5HJiz2iMzDAL3J1jf39I1UY6J8w6
+	 rOsWwT8BH+FZppEXZa7mR0rwgXyecAPsPlFh8oAzWc1Bebzky/fONk5r6EecbfxApW
+	 mttWWok5YEt3g==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v7 02/10] s390/vfio_ccw: limit the number of channel
+ program segments
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Eric Farman" <farman@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, kvm@vger.kernel.org, "Vasily
+ Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
+In-Reply-To: <20260727192230.2715207-3-farman@linux.ibm.com>
 References: <20260727192230.2715207-1-farman@linux.ibm.com>
+ <20260727192230.2715207-3-farman@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Mon, 27 Jul 2026 19:52:47 +0000
+Message-Id: <20260727195247.B09811F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: ELH4skJgiawNxwrjon_R23pPQeGdAWdc
-X-Proofpoint-ORIG-GUID: ELH4skJgiawNxwrjon_R23pPQeGdAWdc
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI3MDE3NyBTYWx0ZWRfX+76e6ZlyfA1y
- EQ99QDYXKCngPyAM0WJBbB+41qHtMwfoC0//3QJo+Cp6MwHT4UoAVd+eGbn5RCuu1AbCUAr0+rD
- vPrl6GRBR8/lNH7rAOFFEunJCLJ2ev4=
-X-Authority-Analysis: v=2.4 cv=dYuwG3Xe c=1 sm=1 tr=0 ts=6a67b4fe cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
- a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=U7nrCbtTmkRpXpFmAIza:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
- a=Qev3T-O1x3Ov5i2I8JAA:9
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI3MDE3NyBTYWx0ZWRfXz/uIVws1iw7S
- wSW4A0UjfCkz9TJ5kgGgRLrM6nmO/vgMSsgYrtw0bPzzKzyDrqrsl0Id0MOfKq4nsajUUOj6LSt
- ysCDs+LZA8+1A09HH97AJJadYRJ5WTtP/LLqmK+WIyNnekbYP3oKoE2IzxtT+n83PvK0eQaIXju
- KPhurAqA/r6MAsTK5Uvl8trOB0D7tlYtQRxL9JAvBCKX5ALfO09zsrrJShZbfm1j802bBseJsCH
- NXuPBKLH6vc0VnJkGgLSJnJBXcp+qoXZrqiFcnqUd5SsA3+A3vAvzgjUOEkDfynew58CwH0Z/Jl
- vgju+BNZmrbsrogiyjmoLAsN77D/zN4ksuH8471nuKV/9L1FIGoOggb6y2LJPZpFuc1ZEWOSka2
- xvjtjjuBhtYGwj/CSqndZKB6ODn3kLLSo3o9+oIcAZIqdnbfTm5cpqfs2xQawAY/CnkclEtFMbK
- +ZmohuqM/st8l29mS6w==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-07-27_05,2026-07-27_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 impostorscore=0 clxscore=1015 phishscore=0 malwarescore=0
- spamscore=0 lowpriorityscore=0 bulkscore=0 suspectscore=0 adultscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607270177
 
-Sashiko pointed out that get_guest_idal() unconditionally calculates
-the length of the IDAL presuming everything is a Format-2 IDAW.
+> The processing of channel programs, and the CCWs within them, is done
+> recursively. As such, there is an arbitrary (but not architectural)
+> limit to the number of CCWs that can exist in a single channel program.
+>=20
+> The vfio-ccw logic breaks these channel programs into segments whenever
+> it encounters a Transfer-In-Channel (TIC) CCW, and the combined number
+> of segments count towards the global limit. Impose an equivalent limit
+> to the number of segments until such logic can be made non-recursive.
+>=20
+> Fixes: 0a19e61e6d4c ("vfio: ccw: introduce channel program interfaces")
+> Cc: stable@vger.kernel.org
+> Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
+> Signed-off-by: Eric Farman <farman@linux.ibm.com>
 
-The output of vfio-ccw is always Format-2, but the input can be either
-Format-1 (31-bit addresses) or Format-2 (64-bit addresses). As a result,
-the size of the guest IDAL may be incorrect and should be trimmed down.
+Sashiko has reviewed this patch and found no issues. It looks great!
 
-Reported-by: sashiko-bot <sashiko-bot@kernel.org>
-Link: https://lore.kernel.org/r/20260720203400.7328E1F000E9@smtp.kernel.o=
-rg/
-Fixes: 1b676fe3d9d3 ("vfio/ccw: handle a guest Format-1 IDAL")
-Cc: stable@vger.kernel.org
-Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
-Signed-off-by: Eric Farman <farman@linux.ibm.com>
----
- drivers/s390/cio/vfio_ccw_cp.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_c=
-p.c
-index 6275794751cb..5ef082b8289a 100644
---- a/drivers/s390/cio/vfio_ccw_cp.c
-+++ b/drivers/s390/cio/vfio_ccw_cp.c
-@@ -233,6 +233,7 @@ static void convert_ccw0_to_ccw1(struct ccw1 *source,=
- unsigned long len)
- }
-=20
- #define idal_is_2k(_cp) (!(_cp)->orb.cmd.c64 || (_cp)->orb.cmd.i2k)
-+#define get_idaw_size(_cp) ((_cp)->orb.cmd.c64 ? sizeof(u64) : sizeof(u3=
-2))
-=20
- /*
-  * Helpers to operate ccwchain.
-@@ -524,7 +525,7 @@ static dma64_t *get_guest_idal(struct ccw1 *ccw, stru=
-ct channel_program *cp, int
- 	dma64_t *idaws;
- 	dma32_t *idaws_f1;
- 	u64 first_idaw;
--	int idal_len =3D idaw_nr * sizeof(*idaws);
-+	int idal_len =3D idaw_nr * get_idaw_size(cp);
- 	int idaw_size =3D idal_is_2k(cp) ? PAGE_SIZE / 2 : PAGE_SIZE;
- 	int idaw_mask =3D ~(idaw_size - 1);
- 	int i, ret;
-@@ -593,7 +594,7 @@ static int ccw_count_idaws(struct ccw1 *ccw,
- 	struct vfio_device *vdev =3D
- 		&container_of(cp, struct vfio_ccw_private, cp)->vdev;
- 	u64 iova;
--	int size =3D cp->orb.cmd.c64 ? sizeof(u64) : sizeof(u32);
-+	int size =3D get_idaw_size(cp);
- 	int ret;
- 	int bytes =3D 1;
-=20
 --=20
-2.53.0
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260727192230.2715=
+207-1-farman@linux.ibm.com?part=3D2
 
