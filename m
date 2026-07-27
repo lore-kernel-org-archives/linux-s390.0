@@ -1,203 +1,248 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 063B33ED5A1;
-	Mon, 27 Jul 2026 10:08:44 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 092C13F5BE3;
+	Mon, 27 Jul 2026 10:09:07 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785146926; cv=none; b=flzTIEFAmNTj8hw7bOhtFvVnm1vW1RMO5vsPvteGOSmoqED+srqNgWQP38yeP+cC3UB1Vz296slB1vFVi0NxUWm8a2z8HQGafNKvooh0oqwWvLYcJzo2s8eh22t57em2isXUPsiLtlM/0IsGGG9dWC1/K6tDd+SLIK1jIKR1EQA=
+	t=1785146949; cv=none; b=BIl8vHNkqeNZ0LSMb+MLBtsPNfskpZT+xlQFAyfn7KOin61UNttXy7VkHYvriTLYnughBV/46pnEcAcY4GdARzgRT8WHS3tsU635mSSGUlchHMG7bP6snnww4j8VVstRnTnm500kF/X1oyVOdHpdOll8eM1zsg79+82bdeP+SIM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785146926; c=relaxed/simple;
-	bh=meSog5GXpUo3xM3D3ZSeoSapznw5JFGDYF/UeK+be9g=;
+	s=arc-20240116; t=1785146949; c=relaxed/simple;
+	bh=aPYVcYBSugq0wZSTaHUVJjEGu14XmSSGAQEev360Brk=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=qmRaoVZDSJzFwGkG3khHvlXgVSEPynwiZqgKSiyDHdoltIn7uGU/eTmvtQpFw87XUF6B1h+AkKyc808QH2IeClsIDNKGK1TW3J4xmCDJPFeLxJHkrr8RPcpAWv6rPAQSM7FBxMzyNVB3Sq3x7IIolAB2aYbCUyDoHX/q3bEX36s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kvDkGCdA; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=XbZ3mj+M7oekJ8kcaYKPuhUxsYS7Ic3ifU8sSauKYRvTNQY4BjlxfwUq48IYrkcllpBmpBaLqJKXfbRt78Yi52Xz9P91G1Jp0DQRh5jydjfYewGv6sj8/eouktqvnExFlNv7Cy4z5X7XSw/dN+dP7UqQHDAfEcuo0Qw+PbX5Wj0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mKBYbTDh; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kvDkGCdA"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 435BB1F000E9;
-	Mon, 27 Jul 2026 10:08:44 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mKBYbTDh"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8414B1F00A3A;
+	Mon, 27 Jul 2026 10:09:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785146924;
-	bh=XwSvoa/CtstXYwA7wL1QhU1PyeYp/lQgY1GnMzThURo=;
+	s=k20260515; t=1785146947;
+	bh=Ns1zqF85rjZgy8bnE+SltCak+Dkj71WiF0NTXVauUSU=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=kvDkGCdAGlQqn85WsTNSFs9WovxWL1pGf+gNeUZR8WrwruhPQDAwQYefE4KCvSza0
-	 25eoMVODQBFQozBWPoChlCsr6w9V7AoDM6HIuPPDJScuhc35muoCW7Ju2yt9JrJ5PO
-	 chqjVg2/LFyhwIE9v5LasDIk8l5JQt85MkyZjquA0BRm7TYHOBzaarz7y8CtAhTBwe
-	 b9ZHd646EEdJV4CNRSlS6ndjc+InQCplQ+QIMXXZItlJnDgDua0KEdSaUUH15UxKxH
-	 ra1jOWsmEiKf3m2UmcZXrZwdJ2dmIJ3YBDL4I9YxW2vxnVDZN0AQJDesR4FuFHQqM9
-	 Gu0vbZAQHbz0Q==
+	b=mKBYbTDh1F/nPZOz/TGofGokA4ZzfUmWTg9bUid4tNK6f+FkKmbZsQ+ZJgFlKsuSR
+	 D2jR9/D1d0as6ApBlw1bJeN0o2ZLWzlKq8cQ9Rf63Ol1Tcd6SDpDuo+r4bLYcQM+a8
+	 aRB8xoK5qBrQiR8XJoIN/FEZfVuVtWA5IXebhzayrr6AJKIcHok1MAX+8gw+HPv8z2
+	 GyQFYzYy1+1k1VyWCWG89mkwMBUZRSpQXDCzFqj2B6URGCgwONQUg/qZnK+KZm6lij
+	 FcNX3N088Ya0qa7vO0tDlu+HHt/kYYCZKi1HyGBphuxecaiqCg3901Z5cFjrx7rUp6
+	 fAo4/QN/rd66A==
 From: sashiko-bot@kernel.org
-Subject: Re: [GIT PULL 1/5] KVM: s390: pci: Fix GISC refcount leak on AIF
- enable failure
+Subject: Re: [GIT PULL 5/5] KVM: s390: pci: Fix handling of AIF enable
+ without AISB
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Christian Borntraeger" <borntraeger@de.ibm.com>
-Cc: "Vasily Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
- Carstens" <hca@linux.ibm.com>, kvm@vger.kernel.org, "Alexander Gordeev" <agordeev@linux.ibm.com>
-In-Reply-To: <20260727095359.107671-2-borntraeger@de.ibm.com>
+Cc: linux-s390@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, kvm@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>
+In-Reply-To: <20260727095359.107671-6-borntraeger@de.ibm.com>
 References: <20260727095359.107671-1-borntraeger@de.ibm.com>
- <20260727095359.107671-2-borntraeger@de.ibm.com>
+ <20260727095359.107671-6-borntraeger@de.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 27 Jul 2026 10:08:43 +0000
-Message-Id: <20260727100844.435BB1F000E9@smtp.kernel.org>
+Date: Mon, 27 Jul 2026 10:09:06 +0000
+Message-Id: <20260727100907.8414B1F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 6 potential issue(=
+Thank you for your contribution! Sashiko AI review found 7 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [Critical] Repeated calls to the `KVM_S390_ZPCIOP_REG_AEN` ioctl leak res=
-ources and cause Use-After-Free.
-- [High] `account_mem` and `unaccount_mem` leak `struct user_struct` refere=
-nce counts and use wrong accounting context.
-- [High] `kvm_s390_pci_aif_enable` silently fails on memory accounting or b=
-it allocation failure.
-- [High] Resource leak on `kvm_zpci_set_airq` hardware setup failure.
-- [High] Missing memory unaccounting on bit allocation failure.
-- [High] Unchecked `airq_iv_create()` return value leads to kernel panic.
+- [Critical] Missing page boundary check allows unprivileged guest to trigg=
+er out-of-bounds hardware DMA writes.
+- [High] Missing error code assignments cause silent failures and memory ac=
+counting leaks.
+- [High] Missing NULL check on the return value of airq_iv_create() leads t=
+o an unconditional host kernel panic.
+- [High] Repeatedly enabling AIF on an already-registered device causes sta=
+te corruption and massive resource leaks.
+- [High] Kernel resources are not rolled back if the PCI hardware configura=
+tion (kvm_zpci_set_airq) fails.
+- [High] account_mem() and unaccount_mem() perpetually leak user_struct ref=
+erence counts.
+- [High] The guest ISC reference count leaks on error paths, leading to a 3=
+2-bit integer overflow and Denial of Service.
 --
 
---- Patch [1]: [GIT PULL 1/5] KVM: s390: pci: Fix GISC refcount leak on AIF=
- enable failure ---
-commit 2781de8fecc1ddfd2641c260ff20fd3cfb663715
-Author: Haoxiang Li <haoxiang_li2024@163.com>
-Subject: KVM: s390: pci: Fix GISC refcount leak on AIF enable failure
+--- Patch [1]: [GIT PULL 5/5] KVM: s390: pci: Fix handling of AIF enable wi=
+thout AISB ---
+commit d999e1412ad1f5b8348f25eacbb5dfb9be451bb1
+Author: Matthew Rosato <mjrosato@linux.ibm.com>
 
-This commit fixes a reference count leak of the guest ISC in the error
-handling path of kvm_s390_pci_aif_enable(). It ensures that if setup fails,
-kvm_s390_gisc_unregister() is called to properly release the GISC reference.
+KVM: s390: pci: Fix handling of AIF enable without AISB
+   =20
+This commit modifies the KVM s390 PCI interrupt forwarding (AIF) enablement=
+.=20
+It ensures that when a guest registers IRQs without a summary bit (AISB), t=
+he=20
+guest AISB location is explicitly set to 0 rather than a potentially invali=
+d=20
+physical address derived from a NULL pointer.
 
 > diff --git a/arch/s390/kvm/pci.c b/arch/s390/kvm/pci.c
-> index 5b075c38998e3..686113be05309 100644
+> index 5b075c38998e3..dc748cde4703b 100644
 > --- a/arch/s390/kvm/pci.c
 > +++ b/arch/s390/kvm/pci.c
-> @@ -328,6 +328,7 @@ static int kvm_s390_pci_aif_enable(struct zpci_dev *z=
-dev, struct zpci_fib *fib,
->  unpin1:
->  	unpin_user_page(aibv_page);
->  out:
-> +	kvm_s390_gisc_unregister(kvm, fib->fmt0.isc);
->  	return rc;
->  }
-
-[Severity: High]
-This is a pre-existing issue, but does a failure in kvm_zpci_set_airq() leak
-all previously allocated resources?
-
-Looking at the lines just above this diff in kvm_s390_pci_aif_enable():
-
-    rc =3D kvm_zpci_set_airq(zdev);
-    return rc;
-
-unlock:
-    mutex_unlock(&aift->aift_lock);
-
-Returning rc directly bypasses the unlock, unpin2, unpin1, and out labels.
-This skips all resource cleanup, including the new kvm_s390_gisc_unregister=
-()
-call added by this patch.
-
-
-[Severity: High]
-This isn't a bug introduced by this patch, but is there a missing call to
-unaccount_mem() in the error path?
-
-Looking at the error handling in kvm_s390_pci_aif_enable():
-
-unlock:
-    mutex_unlock(&aift->aift_lock);
-unpin2:
-
-If airq_iv_alloc_bit() fails and jumps to unlock, it unwinds the pinned pag=
-es
-but leaves the memory accounted for, potentially leaking the locked_vm limi=
-t.
-
-
-[Severity: High]
-This is a pre-existing issue, but do these error paths return 0 to userspace
-instead of an error code?
-
-In kvm_s390_pci_aif_enable(), when memory accounting or bit allocation fail=
-s:
-
-    if (account_mem(pcount))
-        goto unpin2;
-    ...
-    bit =3D airq_iv_alloc_bit(aift->sbv);
-    if (bit =3D=3D -1UL)
-        goto unlock;
-
-When jumping to the cleanup labels, rc does not appear to be set to a negat=
-ive
-value like -ENOMEM or -ENOSPC. Since rc is initialized to 0, this would
-silently mask the internal failure.
-
+> @@ -300,9 +300,14 @@ static int kvm_s390_pci_aif_enable(struct zpci_dev *=
+zdev, struct zpci_fib *fib,
+> =20
+>  	gaite->gisc =3D fib->fmt0.isc;
+>  	gaite->count++;
+> -	gaite->aisbo =3D fib->fmt0.aisbo;
+> -	gaite->aisb =3D virt_to_phys(page_address(aisb_page) + (fib->fmt0.aisb &
+> -							      ~PAGE_MASK));
+> +	if (fib->fmt0.sum =3D=3D 1) {
+> +		gaite->aisbo =3D fib->fmt0.aisbo;
+> +		gaite->aisb =3D virt_to_phys(page_address(aisb_page) +
+> +					   (fib->fmt0.aisb & ~PAGE_MASK));
+> +	} else {
+> +		gaite->aisbo =3D 0;
+> +		gaite->aisb =3D 0;
+> +	}
+>  	aift->kzdev[zdev->aisb] =3D zdev->kzdev;
+>  	spin_unlock_irq(&aift->gait_lock);
 
 [Severity: Critical]
-This isn't a bug introduced by this patch, but what happens if userspace ca=
-lls
-the KVM_S390_ZPCIOP_REG_AEN ioctl multiple times?
+This is a pre-existing issue, but does this lack of boundary checking allow
+out-of-bounds hardware DMA writes?
 
-In kvm_s390_pci_aif_enable():
+Looking at kvm_s390_pci_aif_enable(), the code pins exactly one page for the
+guest's Adapter Interruption Broadcast Vector (AIBV):
 
-    zdev->aisb =3D bit; /* store the summary bit number */
-    zdev->aibv =3D airq_iv_create(...);
+arch/s390/kvm/pci.c:kvm_s390_pci_aif_enable() {
     ...
-    aift->kzdev[zdev->aisb] =3D zdev->kzdev;
+	npages =3D pin_user_pages_fast(hva, 1, FOLL_WRITE | FOLL_LONGTERM, pages);
+    ...
+	gaddr =3D page_to_phys(aibv_page) + (fib->fmt0.aibv & ~PAGE_MASK);
+    ...
+}
 
-It looks like this blindly allocates new resources and overwrites zdev->aibv
-and zdev->aisb without cleaning up any previous allocations. The old aisb i=
-ndex
-remains populated in aift->kzdev, which might lead to a use-after-free when
-the device is unregistered.
-
-
-[Severity: High]
-This is a pre-existing issue, but can airq_iv_create() return NULL here?
-
-In kvm_s390_pci_aif_enable():
-
-    zdev->aibv =3D airq_iv_create(msi_vecs, AIRQ_IV_DATA | ...
-
-If it fails due to memory pressure, it seems zdev->aibv becomes NULL. Later,
-zdev is passed to kvm_zpci_set_airq() which does this:
-
-    fib.fmt0.noi =3D airq_iv_end(zdev->aibv);
-    fib.fmt0.aibv =3D virt_to_phys(zdev->aibv->vector);
-
-This unconditionally dereferences the unchecked pointer, potentially causing
-a crash.
-
+If the guest supplies an offset near the end of the page and a large number
+of MSI vectors, could the hardware DMA overflow the single pinned page and
+corrupt adjacent unpinned physical memory?
 
 [Severity: High]
-This isn't a bug introduced by this patch, but do account_mem() and
-unaccount_mem() leak the user_struct reference?
+This is a pre-existing issue, but does this error path leak the guest ISC
+reference count?
+
+arch/s390/kvm/pci.c:kvm_s390_pci_aif_enable() {
+    ...
+	gisc =3D kvm_s390_gisc_register(kvm, fib->fmt0.isc);
+	if (gisc < 0)
+		return gisc;
+    ...
+	npages =3D pin_user_pages_fast(hva, 1, FOLL_WRITE | FOLL_LONGTERM, pages);
+	srcu_read_unlock(&kvm->srcu, idx);
+	if (npages < 1) {
+		rc =3D -EIO;
+		goto out;
+	}
+    ...
+out:
+	return rc;
+}
+
+If pin_user_pages_fast() fails, the function branches to the out label but
+appears to omit calling kvm_s390_gisc_unregister(). Could this lead to a
+32-bit integer overflow on gi->alert.ref_count[gisc]?
+
+[Severity: High]
+This is a pre-existing issue, but do these error paths silently fail and le=
+ak
+memory accounting limits?
+
+arch/s390/kvm/pci.c:kvm_s390_pci_aif_enable() {
+    ...
+	if (account_mem(pcount))
+		goto unpin2;
+    ...
+	bit =3D airq_iv_alloc_bit(aift->sbv);
+	if (bit =3D=3D -1UL)
+		goto unlock;
+    ...
+}
+
+If account_mem() or airq_iv_alloc_bit() fail, the function jumps to cleanup
+labels but returns rc, which is initialized to 0.=20
+
+Additionally, in the airq_iv_alloc_bit() error path, unaccount_mem() appears
+to be missing entirely. Does this silently leak the locked_vm memory
+accounting?
+
+[Severity: High]
+This is a pre-existing issue, but what prevents a guest from repeatedly cal=
+ling
+KVM_S390_ZPCIOP_REG_AEN for the same device?
+
+arch/s390/kvm/pci.c:kvm_s390_pci_aif_enable() {
+    ...
+	zdev->aisb =3D bit; /* store the summary bit number */
+	zdev->aibv =3D airq_iv_create(msi_vecs, AIRQ_IV_DATA |
+    ...
+}
+
+If userspace calls KVM_S390_ZPCIOP_REG_AEN multiple times for the same PCI
+device, the function appears to lack a check verifying if zdev->aibv is
+already set.=20
+
+Could this blindly allocate and pin new resources while unconditionally
+overwriting the existing pointers, permanently leaking the previously
+pinned pages and airq_iv structures?
+
+[Severity: High]
+This is a pre-existing issue, but does this code risk a NULL pointer
+dereference if airq_iv_create() fails?
+
+arch/s390/kvm/pci.c:kvm_s390_pci_aif_enable() {
+    ...
+	zdev->aibv =3D airq_iv_create(msi_vecs, AIRQ_IV_DATA |
+				    AIRQ_IV_BITLOCK |
+				    AIRQ_IV_GUESTVEC,
+				    phys_to_virt(fib->fmt0.aibv));
+    ...
+}
+
+If airq_iv_create() returns NULL in out-of-memory conditions, the result is
+assigned to zdev->aibv without validation.=20
+
+Could this lead to an unconditional host kernel panic when
+kvm_zpci_set_airq() subsequently dereferences it via airq_iv_end(zdev->aibv=
+)?
+
+[Severity: High]
+This is a pre-existing issue, but are kernel resources permanently leaked if
+the hardware configuration fails?
+
+arch/s390/kvm/pci.c:kvm_s390_pci_aif_enable() {
+    ...
+	/* Issue the clp to setup the irq now */
+	rc =3D kvm_zpci_set_airq(zdev);
+	return rc;
+
+unlock:
+    ...
+}
+
+If kvm_zpci_set_airq() returns an error because the hardware rejects the CLP
+instruction, the function returns directly. Should it use the cleanup labels
+to avoid leaking pinned guest memory pages and GISC registrations?
+
+[Severity: High]
+This is a pre-existing issue, but do account_mem() and unaccount_mem()
+perpetually leak user_struct references?
 
 arch/s390/kvm/pci.c:account_mem() {
     ...
-    struct user_struct *user =3D get_uid(current_user());
+	struct user_struct *user =3D get_uid(current_user());
     ...
 }
 
-I see get_uid() increments the refcount, but there doesn't appear to be a
-matching free_uid() on success or error.
-
-Additionally, in unaccount_mem():
-
-arch/s390/kvm/pci.c:unaccount_mem() {
-    ...
-    struct user_struct *user =3D get_uid(current_user());
-    ...
-}
-
-Calling current_user() might un-account from a different process or kernel
-thread if deregistration happens asynchronously.
+Both functions call get_uid(current_user()), which increments the reference
+count. However, neither function appears to ever call free_uid() to release
+the acquired reference.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260727095359.1076=
-71-2-borntraeger@de.ibm.com?part=3D1
+71-6-borntraeger@de.ibm.com?part=3D1
