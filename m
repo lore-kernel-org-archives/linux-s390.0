@@ -1,153 +1,156 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB17A3CBE79;
-	Mon, 27 Jul 2026 21:55:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E0E431ED80;
+	Mon, 27 Jul 2026 22:56:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785189305; cv=none; b=n5ncaY3pDG6KT0RUL4ACuW8XJfvWWGddc2OrvgPkU+iugFwq7wjWMJ3y2HGD9Gmw2DsWDxCcrA0VXmG5KdSc0RXt3JYBkoTcDnamDwkM/3zdanHaFTa/mwtnd6gX5uz8jx2d1clZZYIHhTjDMf2G/V/Sb4mvf8NqUI1trcmXlJA=
+	t=1785192965; cv=none; b=U47DxFXbM4HSYkKH1TZ2axzuplxkbkf8KKI8o1YJlm97sd6Vkubuxi8O654JlElW0yvVMZzBYkSuCr/NebeLhb2YdPtHCZrDD7LLM/ubRugmef+vTmzSCKxUYUwXXIsPXodYrFJ6Y+1EMO6jKxWheLj50mPo595YuRGvLB71gDE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785189305; c=relaxed/simple;
-	bh=mUxnC7mrSP9pZhfJg0EgTabIMyd9VcbsCPiif50T+Mk=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=mGh9aJru/hN3tJm6MUxZb4ciZmzwL8x5NCWMB+HW+UIqcL7L+1YZQvUOPTJqmFqxHwaIHIoDN0IkD0+2i5LCxl5ZaCm//U/Y9objBSEAiA/xLNssRmZGKaPq7BBpQB+W3BhGPPDTcC649OhesJnLoJfbTLCqKgnHmPXmYOJktD8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=MxB6FwFl; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1785192965; c=relaxed/simple;
+	bh=oEgoEtojyQ9PC8g7uhG7viM9B7fGAJubrsCe9lk5/YY=;
+	h=From:To:Cc:In-Reply-To:References:Subject:Message-Id:Date:
+	 MIME-Version:Content-Type; b=DIUMCMU2SIQHdp3QhJBxNx+FOc7dtpZh/E2wUrQZvOXlkSOCbHcf1/2BOUUe0jVtPq7Su0hSdgrWmxjKIeQQu1q/E/Tl6qozvJU2kZidb6zjqZGsFuVg61zAcbaZzOtFBM5Or0IMMa3V9lkaygGaDwUriiaKa2QrMZIm+0LQ1gY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=iwaG5uRX; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="MxB6FwFl"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66RLlkIx3433163;
-	Mon, 27 Jul 2026 21:55:02 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=aKeCtL
-	HGsYdP4t0PjwPUjDPgu7gesM2JnDnU/J8TnKU=; b=MxB6FwFlLYTClz6dIODaU1
-	aLv/qkWu8Fd0lQAq6N40RdBzqEzH/ZpLZDnkNlvDgNl7KpL72ADWuqrG94rKbdMo
-	eFAqF48K7jCAM6oM3ICBQzIpsLBbC7j5+EA9lgSYns8B0IhAyc760TJoeEfxPLLb
-	HP8VXant8aqeXtz5wwn72QNgiRzeM5ZWIy2EEeDzhffxaBlZIqoxWFWY6rzcELy8
-	qp7Vvq/p1GgLpmvgUq9UfMjf9cx8dse0icOMVtdeEcc84ZJvpK0cqkRM/D4Em9nQ
-	FTVS1L1WrJyH6J8WaKA/Flwrvv/U6UAXurYp6XYBtuzRgQDPZAzof5El5XtVw8MQ
-	==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fmuwcssft-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 27 Jul 2026 21:55:02 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66RLg2lm029985;
-	Mon, 27 Jul 2026 21:55:01 GMT
-Received: from smtprelay06.dal12v.mail.ibm.com ([172.16.1.8])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fna5xxvk1-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 27 Jul 2026 21:55:01 +0000 (GMT)
-Received: from smtpav04.dal12v.mail.ibm.com (smtpav04.dal12v.mail.ibm.com [10.241.53.103])
-	by smtprelay06.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66RLt0Ue29950578
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 27 Jul 2026 21:55:00 GMT
-Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B2D8C5805E;
-	Mon, 27 Jul 2026 21:55:00 +0000 (GMT)
-Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2E5FC58052;
-	Mon, 27 Jul 2026 21:55:00 +0000 (GMT)
-Received: from [9.61.157.32] (unknown [9.61.157.32])
-	by smtpav04.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 27 Jul 2026 21:55:00 +0000 (GMT)
-Message-ID: <23c3c2e9-bfc6-4b17-a011-d9b02f34b7b2@linux.ibm.com>
-Date: Mon, 27 Jul 2026 17:54:59 -0400
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="iwaG5uRX"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04CDB1F000E9;
+	Mon, 27 Jul 2026 22:55:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1785192964;
+	bh=QggSvxtNQ67iS+XUwqrDlrH2xraHrxGb+vgcG7y0WsY=;
+	h=From:To:Cc:In-Reply-To:References:Subject:Date;
+	b=iwaG5uRX32rTgcSQn1oI8cDhvVdBgF7xNVMcmwA5nB2roQEpjWkBM9/elDUKMWR+e
+	 A0p9zb+3tSs36tELwjTyibEs5znVgnOoeBgaUwvlk+h9jnbCN1e+v9elShDExZRawl
+	 S9FIBGMRZSowIq2RtsqIUQJ/GKy2epEJEkS13zWkXc/uH+dFvxm4jWJtqykilYp8FZ
+	 n/dZuVVGnI4Oh8Jv/TOV8zbNHWDjAXhVQbUPhHErbAZOrGNAAwjAULYVaj3h2kBbW9
+	 ED2feS2pNPbAGb5xCgo1ctL4J3aD2Ir+AJmF+Wa3lGIyvJ/mNC9waIoSbc3rE33Rm4
+	 vgzkKLQuteGUQ==
+From: Mark Brown <broonie@kernel.org>
+To: Julia.Lawall@inria.fr, Alex Deucher <alexander.deucher@amd.com>, 
+ Alexander Shishkin <alexander.shishkin@linux.intel.com>, 
+ Alexandre Belloni <alexandre.belloni@bootlin.com>, 
+ Andrew Lunn <andrew@lunn.ch>, Andrew Morton <akpm@linux-foundation.org>, 
+ Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>, 
+ Borislav Petkov <bp@alien8.de>, 
+ =?utf-8?q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>, 
+ Daniel Lezcano <daniel.lezcano@kernel.org>, 
+ David Airlie <airlied@gmail.com>, "David S. Miller" <davem@davemloft.net>, 
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
+ Eric Dumazet <edumazet@google.com>, Florian Westphal <fw@strlen.de>, 
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
+ Hans de Goede <hansg@kernel.org>, Hans Verkuil <hverkuil@kernel.org>, 
+ Heikki Krogerus <heikki.krogerus@linux.intel.com>, 
+ Herbert Xu <herbert@gondor.apana.org.au>, 
+ =?utf-8?q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>, 
+ Jakub Kicinski <kuba@kernel.org>, 
+ "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, 
+ Jani Nikula <jani.nikula@linux.intel.com>, Jaroslav Kysela <perex@perex.cz>, 
+ Jason Gunthorpe <jgg@ziepe.ca>, Jiri Pirko <jiri@resnulli.us>, 
+ "Joerg Roedel (AMD)" <joro@8bytes.org>, Johan Hovold <johan@kernel.org>, 
+ Jonathan Cameron <jic23@kernel.org>, 
+ Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, 
+ Julian Anastasov <ja@ssi.bg>, Leon Romanovsky <leon@kernel.org>, 
+ Liam Girdwood <lgirdwood@gmail.com>, Linus Walleij <linusw@kernel.org>, 
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
+ "Martin K. Petersen" <martin.petersen@oracle.com>, 
+ Matthew Sakai <msakai@redhat.com>, 
+ Mauro Carvalho Chehab <mchehab@kernel.org>, 
+ Maxime Ripard <mripard@kernel.org>, 
+ Michael Turquette <mturquette@baylibre.com>, 
+ Mike Rapoport <rppt@kernel.org>, 
+ Miri Korenblit <miriam.rachel.korenblit@intel.com>, 
+ Nicolas Palix <nicolas.palix@imag.fr>, 
+ Pablo Neira Ayuso <pablo@netfilter.org>, Paolo Abeni <pabeni@redhat.com>, 
+ Ping-Ke Shih <pkshih@realtek.com>, "Rafael J. Wysocki" <rafael@kernel.org>, 
+ Rodrigo Vivi <rodrigo.vivi@intel.com>, Sebastian Reichel <sre@kernel.org>, 
+ Shuah Khan <shuah@kernel.org>, Simona Vetter <simona@ffwll.ch>, 
+ Simon Horman <horms@verge.net.au>, Stephen Boyd <sboyd@kernel.org>, 
+ Steve French <sfrench@samba.org>, Takashi Iwai <tiwai@suse.com>, 
+ Thomas Renninger <trenn@suse.com>, Thomas Zimmermann <tzimmermann@suse.de>, 
+ Tony Luck <tony.luck@intel.com>, Tvrtko Ursulin <tursulin@ursulin.net>, 
+ Vadim Fedorenko <vadim.fedorenko@linux.dev>, Vinod Koul <vkoul@kernel.org>, 
+ Will Deacon <will@kernel.org>, Yazen Ghannam <Yazen.Ghannam@amd.com>, 
+ Sang-Heon Jeon <ekffu200098@gmail.com>
+Cc: cocci@inria.fr, amd-gfx@lists.freedesktop.org, 
+ dmaengine@vger.kernel.org, dm-devel@lists.linux.dev, 
+ dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, 
+ intel-wired-lan@lists.osuosl.org, iommu@lists.linux.dev, 
+ linux-cifs@vger.kernel.org, linux-clk@vger.kernel.org, 
+ linux-crypto@vger.kernel.org, linux-edac@vger.kernel.org, 
+ linux-gpio@vger.kernel.org, linux-iio@vger.kernel.org, 
+ linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ linux-media@vger.kernel.org, linux-mm@kvack.org, linux-pm@vger.kernel.org, 
+ linux-rdma@vger.kernel.org, linux-rtc@vger.kernel.org, 
+ linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, 
+ linux-sound@vger.kernel.org, linux-usb@vger.kernel.org, 
+ linux-wireless@vger.kernel.org, lvs-devel@vger.kernel.org, 
+ netdev@vger.kernel.org, netfilter-devel@vger.kernel.org, 
+ nouveau@lists.freedesktop.org, platform-driver-x86@vger.kernel.org
+In-Reply-To: <20260723184538.3888637-1-ekffu200098@gmail.com>
+References: <20260723184538.3888637-1-ekffu200098@gmail.com>
+Subject: Re: (subset) [PATCH 00/36] treewide: remove conditional returns
+ with no effect
+Message-Id: <178515520105.50339.6347304746485042237.b4-ty@b4>
+Date: Mon, 27 Jul 2026 13:26:41 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v7 07/10] s390/vfio_ccw: cancel existing workqueues
-To: Eric Farman <farman@linux.ibm.com>, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Halil Pasic <pasic@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        stable@vger.kernel.org
-References: <20260727192230.2715207-1-farman@linux.ibm.com>
- <20260727192230.2715207-8-farman@linux.ibm.com>
-Content-Language: en-US
-From: Matthew Rosato <mjrosato@linux.ibm.com>
-In-Reply-To: <20260727192230.2715207-8-farman@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 0uD-46w9eW3P_YoY8vNx2XThw4rpZwrq
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI3MDE5NiBTYWx0ZWRfX5bDgwDMb/n5X
- 5mTksKO5M4vEKY6PTkSaAkV1RK4MEMeZUSWV9ONo4IdBJaQT1CMr3toBER0WByDznkWk/C5vlkx
- s/itACFVwfzkrKZGBgDDh1ImzGJarLM=
-X-Authority-Analysis: v=2.4 cv=E/z9Y6dl c=1 sm=1 tr=0 ts=6a67d3b6 cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8
- a=VwQbUJbxAAAA:8 a=wUE47ySAcWlnlIsVtMMA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI3MDE5NiBTYWx0ZWRfX+XBYUggKhbfn
- SDDYJ2z6LP0ofuOQER7SdGusIf8gqwiDzqbG59nTAy5HzllTt0Ph5hzCsrJzdRKzjtVNx5kRO4L
- 0xhx1t1sKz1aihwhyRNd9fI24sVSGI2h+UGltbfJrd60Tl5t/6nppqqmZgNspg7mXvpSsrBRdVt
- /KcL83GtNGIw5ER2o9WoUQ8aE5du6opcdj0Kzr4UoinsjJMWVFexBR940B7H02f9ds3W28GKQKt
- ZiLxM0bcudLrsV+9CszY6+zBHuPsDkkhPdGDEWNDsgKwfDDLgOpGavibjgdeJ6eZjz+LGPzjhaf
- HVPqHGc+a2nj5UApBNw6WfPfZg/2KENNiIHbNv9EmJ633pxREqNQOJS9qvN3LjedXFxSL4yfAeK
- IZ7BPUL8ENLbFHdV/ELDFrRLGmhvEg/B5+mki1t1NpQviFSRNwNEPM5djla8b+jBViywVggMUTc
- 0or5nqTMVYKcTyjHNMA==
-X-Proofpoint-GUID: 0uD-46w9eW3P_YoY8vNx2XThw4rpZwrq
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-07-27_06,2026-07-27_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- adultscore=0 priorityscore=1501 spamscore=0 clxscore=1015 phishscore=0
- lowpriorityscore=0 bulkscore=0 malwarescore=0 impostorscore=0 suspectscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607270196
+X-Mailer: b4 0.16-dev
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1395; i=broonie@kernel.org;
+ h=from:subject:message-id; bh=oEgoEtojyQ9PC8g7uhG7viM9B7fGAJubrsCe9lk5/YY=;
+ b=owEBbQGS/pANAwAKASTWi3JdVIfQAcsmYgBqZ+HxlIWhtS7M/+/D/kSsIotZNE7ycdvTNKMa6
+ lyMcsUy1YGJATMEAAEKAB0WIQSt5miqZ1cYtZ/in+ok1otyXVSH0AUCamfh8QAKCRAk1otyXVSH
+ 0NGoB/9aZSWKSSxB+DoiO9o+r0R7LvQ0b9P0b+u/ow+7Ti4Va043c7UzGI2RzCGdUpf18XgLn6f
+ SgEv95GzlB+upqVsxmPG9VHhXWw4Ho9J4p/hSGXTDgAS8ErF8GjIkiAzWtWwlF1NwqBzKdr1HBU
+ 4bzLooMHmkm+sRhw0K+K8vYxKzoIVIF4rw3OtvuVpbcnMjoni4zgFcLTc5cd+g7gZ+ms/PpNPge
+ 1bCGwvXOdpSE1Sx0RqUVVFnzDZUByQ/Qgq4t95aAwkznICTyGzRGtCagn7hNdby/Adb/VqLQiGG
+ EXfGwi5kgCay4GMGfP+CcNTcNXARRSisUOfJQUCdGh8to0xz
+X-Developer-Key: i=broonie@kernel.org; a=openpgp;
+ fpr=3F2568AAC26998F9E813A1C5C3F436CA30F5D8EB
 
-On 7/27/26 3:22 PM, Eric Farman wrote:
-> The initialization of the io_work and crw_work workqueues begs the
-> question of whether they should be un-initialized. Add the corresponding
-> cleanup tags in _release_dev to ensure work isn't dispatched after
-> the private struct is free'd.
+On Fri, 24 Jul 2026 03:45:02 +0900, Sang-Heon Jeon wrote:
+> treewide: remove conditional returns with no effect
 > 
-> Suggested-by: Matthew Rosato <mjrosato@linux.ibm.com>
-> Fixes: e5f84dbaea59 ("vfio: ccw: return I/O results asynchronously")
-> Fixes: 3f02cb2fd9d2 ("vfio-ccw: Wire up the CRW irq and CRW region")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Eric Farman <farman@linux.ibm.com>
-> ---
->  drivers/s390/cio/vfio_ccw_ops.c | 8 ++++++++
->  1 file changed, 8 insertions(+)
+> Hello,
 > 
-> diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
-> index 032a1cdf4df7..bd488e40e153 100644
-> --- a/drivers/s390/cio/vfio_ccw_ops.c
-> +++ b/drivers/s390/cio/vfio_ccw_ops.c
-> @@ -136,6 +136,10 @@ static void vfio_ccw_mdev_release_dev(struct vfio_device *vdev)
->  		kfree(crw);
->  	}
->  
-> +	/* Should be empty, but just in case */
-> +	cancel_work_sync(&private->io_work);
-> +	cancel_work_sync(&private->crw_work);
-> +
+> While reading mm/memblock, I found a conditional return where both
+> branches return the same value:
+> 
+> [...]
 
-I think the sashiko report here means you should do the cancel work
-prior to running the crw list.  I think actually patch 10 will resolve
-this as well, but moving it a bit earlier in this patch would avoid
-introducing the temporary regression in the first place.
+Applied to
 
->  	kmem_cache_free(vfio_ccw_crw_region, private->crw_region);
->  	kmem_cache_free(vfio_ccw_schib_region, private->schib_region);
->  	kmem_cache_free(vfio_ccw_cmd_region, private->cmd_region);
-> @@ -202,6 +206,10 @@ static void vfio_ccw_mdev_close_device(struct vfio_device *vdev)
->  		container_of(vdev, struct vfio_ccw_private, vdev);
->  
->  	vfio_ccw_fsm_event(private, VFIO_CCW_EVENT_CLOSE);
-> +
-> +	cancel_work_sync(&private->io_work);
-> +	cancel_work_sync(&private->crw_work);
-> +
->  	vfio_ccw_unregister_dev_regions(private);
->  }
->  
+   https://git.kernel.org/pub/scm/linux/kernel/git/broonie/regulator.git for-7.3
+
+Thanks!
+
+[14/36] ASoC: remove conditional return with no effect
+        https://git.kernel.org/broonie/misc/c/ca9b51f41c9d
+[28/36] regulator: wm831x-isink: remove conditional return with no effect
+        https://git.kernel.org/broonie/misc/c/9396a1d9e142
+
+All being well this means that it will be integrated into the linux-next
+tree (usually sometime in the next 24 hours) and sent to Linus during
+the next merge window (or sooner if it is a bug fix), however if
+problems are discovered then the patch may be dropped or reverted.
+
+You may get further e-mails resulting from automated or manual testing
+and review of the tree, please engage with people reporting problems and
+send followup patches addressing any issues that are reported if needed.
+
+If any updates are required or you are submitting further changes they
+should be sent as incremental updates against current git, existing
+patches will not be replaced.
+
+Please add any relevant lists and maintainers to the CCs when replying
+to this mail.
+
+Thanks,
+Mark
 
