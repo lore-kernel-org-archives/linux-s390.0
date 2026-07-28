@@ -1,200 +1,158 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D1A62175A7B;
-	Tue, 28 Jul 2026 02:01:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1BA962D0614;
+	Tue, 28 Jul 2026 02:08:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785204084; cv=none; b=WB76lWs3qRkviJps0y36KkkI2NNGW/Ej64a0LbZ8QDVW+NBsmbPxITU1VMw7epJFaP/Rgt0NxfQos8/5iNA8TiMoNRrlnWYGC8qL2i4L8i37LciM8P2MgocyCdWlqqGNjts9lNkf7zu1S+smdgSSJ7/7i9sCRkTJMw6Bl+U7r/Q=
+	t=1785204482; cv=none; b=p9jpR6o+7gZeRXXHmhbaw73PmxZGleppBfH0MlW6rMjPCmjAoIhOOG9ayXzMJ6hBcA8HNKVjqoeu5T8PGIB5Pn+rg+qWl6Z4pkeqOygqQrJILbJYWhR6OHwgx6Za/w+RWLwCvEx2V2jj5COQ2AX4oKrRgd6n6G0NZK5sH7Y100U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785204084; c=relaxed/simple;
-	bh=GcyKGx1W/KMlzC3WHeB74U2tSpKxBH73hydE7X/s9JQ=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=nAtYBCLMLADccHf82QAs/EFEcVwrziLtRFAc8NtUqzW876oS3BODmkRjdPD5GtoCoYJxRHqUWylXP6xbIIYnKlhkEogzE7ryWMzG3sJZvjmz3VxS921akzo6q/ydepsZhI2CanyEtXhufjS62icj6KCQHQexYk07KXHNntlgK78=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mqW6MEd0; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1785204482; c=relaxed/simple;
+	bh=Jwp6BtvWqAIFGVTNPLtN5FqIXfzpGqDtYmyhSyLXNMc=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=LaRb+GWQOIQd6eEXrGwWLDPjph7DzBcjBHaiXdEMdCaB35Lh+JGG8c9Gi+1Tm0I0WTuIHDD1bRIDAUdHXwR4Zp77p/Of7XVCfqeb1AVSjKXTYREN0tuId0/pB6POLbvjaZsoB6d3fTq7k6jJOJm7MGeORrQXUywloB23sZz3i6s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Xh7F3Qrb; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mqW6MEd0"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E8F61F00ADB;
-	Tue, 28 Jul 2026 02:01:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785204082;
-	bh=2f7VhaADrBnW603DHsC0RQvaBLDh6HaEqHpwIp40OQA=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=mqW6MEd0uQ6iILF+va//m7Rgvu87NlYkheZHw7lzCspRWDByq9LIzLiLBgfagEKlA
-	 YYUrOI7JXjMvVQTgLAKawLFdLqGXPzsn+l12FLbUt0F2YBlDhJArmYK58ZBEytUJ/T
-	 U59Hkr29vV1v2m/6L6IrAf6b/1uZyarY+ofvtxR09jg7gy2e2fS9DPsh+j1CbDXUOG
-	 zC71fNHwx+FhGm/kcx4A2X+N/FaPFRLhRCo8Y5m4vzYof54BU6boJJfIp4XX7sfQq6
-	 4HB7xCTgwAcFfjCoxzhYL17qJxwl8Kcrh6SsAQu6PVWEbROVvkl7U5TauPIuOxkdym
-	 mM7hyCZirL53Q==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v8 10/10] s390/vfio_ccw: implement a crw lock
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Eric Farman" <farman@linux.ibm.com>
-Cc: "Heiko Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, kvm@vger.kernel.org
-In-Reply-To: <20260728013509.1551753-11-farman@linux.ibm.com>
-References: <20260728013509.1551753-1-farman@linux.ibm.com>
- <20260728013509.1551753-11-farman@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 28 Jul 2026 02:01:21 +0000
-Message-Id: <20260728020122.0E8F61F00ADB@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Xh7F3Qrb"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66S0lnpg3675510;
+	Tue, 28 Jul 2026 02:08:00 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=Xbl+tU
+	YTSErcwxtPO/i1osVgwyJ30Sm6Va/OZo4mgAU=; b=Xh7F3QrbGLbEAhTmEOdJMQ
+	BmWuRgYo1/dyfBl+I4rl8e+qZaCSkBjq+C1ul/KVPDcAQ3FwjqzDul9krxgq3THJ
+	9TVN5LFwRqboiL8E87Nt5i6j+gGTCS9STIX4kd/GvqiP9ZD0nuXDCa4U7wetvkfF
+	aAzeMe9D+Q3kN46OfD3aUke2JnzJNYkmaaYpUNIICJ2NENrStHfdnZk90ceX5P9F
+	NTyKqWIOn+Xzpm0D1n4nt74es5tE28W+I7HJHwdorsTNK1A8w6Z4SHEhBGF3Rlnc
+	SldIMTayn+H7AF7Q9WB9gq5Y1KflbN/PudCc6H8Wt6NnL89RtKpmPb07/hFhoABA
+	==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fmuyj2g61-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 28 Jul 2026 02:07:59 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66S1uKh5014938;
+	Tue, 28 Jul 2026 02:07:59 GMT
+Received: from smtprelay04.wdc07v.mail.ibm.com ([172.16.1.71])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fn8fjyv42-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 28 Jul 2026 02:07:59 +0000 (GMT)
+Received: from smtpav04.dal12v.mail.ibm.com (smtpav04.dal12v.mail.ibm.com [10.241.53.103])
+	by smtprelay04.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66S27vJp32113176
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 28 Jul 2026 02:07:58 GMT
+Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A960B58056;
+	Tue, 28 Jul 2026 02:07:57 +0000 (GMT)
+Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 2712D58052;
+	Tue, 28 Jul 2026 02:07:57 +0000 (GMT)
+Received: from [9.61.157.32] (unknown [9.61.157.32])
+	by smtpav04.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 28 Jul 2026 02:07:57 +0000 (GMT)
+Message-ID: <e0cc1373-0888-4518-8bf7-91cc3713c595@linux.ibm.com>
+Date: Mon, 27 Jul 2026 22:07:56 -0400
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v8 07/10] s390/vfio_ccw: cancel existing workqueues
+To: Eric Farman <farman@linux.ibm.com>, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Halil Pasic <pasic@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        stable@vger.kernel.org
+References: <20260728013509.1551753-1-farman@linux.ibm.com>
+ <20260728013509.1551753-8-farman@linux.ibm.com>
+Content-Language: en-US
+From: Matthew Rosato <mjrosato@linux.ibm.com>
+In-Reply-To: <20260728013509.1551753-8-farman@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI4MDAxNCBTYWx0ZWRfX9CbPDKCbypEI
+ 8jnhvdAOFqvfYUL4+gDJGdW5MDbdayQCi+11SARgpv3jUVhUnC0x5DOdNAdc1FvLMEllDOzfMzE
+ gxaU2CPChjBAKD3/ooTAMw89gJWj7Ng=
+X-Proofpoint-GUID: tnqmqTPbudCkKjVoPp91IRdAdR3RWMMI
+X-Proofpoint-ORIG-GUID: tnqmqTPbudCkKjVoPp91IRdAdR3RWMMI
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI4MDAxNCBTYWx0ZWRfX9fII8/Cv5oPc
+ zWZLreKfhGrSPW49J2u/7JdzASTrSva/WDob52pB69JLXVIUsjPejYFzE6wGYKgKgUyEz590l93
+ TgXe82Zs5wQKRBle4Q9vlIT1zZGHzkjex9dOdr/roVJ+3pwtHjNxPl70TMHtCvqmWooYMycgAbt
+ o9wuzdc52wLmmM2kIHeAQnm3GVVwkFv8Xpmp54AhA/1yimjE2BGq5G5z4H+VAMePPzSfsnjAbPX
+ OZh18Bokp83UTV6qmqZmiG0R2lAzxgFzgE5BZygyx4+xSZ9/qNlq/v7AI+UvQOJ4o9XE2etdesM
+ AmpYtDw8VMg2orTrLO2maVZPx8KN99/qhzcozDv0N1jU0nV05/gYGVD0JPzATqXZoeuObKS5MWO
+ uxZza+aPgmdlz5yhEh/m8xNlhTZnd/3NGGykVWSyfj3qFCxfgZq37oMS5lZ+WDQ+HTEnZnREegv
+ yengVRYBJUzZzLLz73w==
+X-Authority-Analysis: v=2.4 cv=X5Vi7mTe c=1 sm=1 tr=0 ts=6a680eff cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8
+ a=VwQbUJbxAAAA:8 a=wUE47ySAcWlnlIsVtMMA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-07-27_07,2026-07-27_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ clxscore=1015 impostorscore=0 lowpriorityscore=0 phishscore=0
+ priorityscore=1501 malwarescore=0 spamscore=0 suspectscore=0 bulkscore=0
+ adultscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2607280014
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
-s) to consider:
+On 7/27/26 9:35 PM, Eric Farman wrote:
+> The initialization of the io_work and crw_work workqueues begs the
+> question of whether they should be un-initialized. Add the corresponding
+> cleanup tags in _release_dev to ensure work isn't dispatched after
+> the private struct is free'd.
+> 
+> Suggested-by: Matthew Rosato <mjrosato@linux.ibm.com>
+> Fixes: e5f84dbaea59 ("vfio: ccw: return I/O results asynchronously")
+> Fixes: 3f02cb2fd9d2 ("vfio-ccw: Wire up the CRW irq and CRW region")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Eric Farman <farman@linux.ibm.com>
 
-New issues:
-- [High] Missing cancellation of `notoper_work` during device release leads=
- to Use-After-Free.
+Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
 
-Pre-existing issues:
-- [Critical] Lockless modification of eventfd triggers in `vfio_ccw_mdev_se=
-t_irqs` leads to Use-After-Free of `eventfd_ctx` in asynchronous workers.
-- [High] Race condition between asynchronous CSS callbacks and mdev removal=
- leads to Use-After-Free of the `private` structure.
---
-
---- Patch [10]: [PATCH v8 10/10] s390/vfio_ccw: implement a crw lock ---
-commit e956337911477e5c5887e514827c14569954a32d
-Author: Eric Farman <farman@linux.ibm.com>
-
-s390/vfio_ccw: implement a crw lock
-
-This patch adds a lock to the vfio_ccw driver to manage the list of
-asynchronous CRW events. It serializes access to the CRW payload list
-to ensure cohesive reads between hardware events and userspace.
-
-> diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_=
-drv.c
-> index 757ff5b2556e3..ab6b518cc353f 100644
-> --- a/drivers/s390/cio/vfio_ccw_drv.c
-> +++ b/drivers/s390/cio/vfio_ccw_drv.c
-> [ ... ]
-> @@ -118,11 +118,14 @@ void vfio_ccw_sch_io_todo(struct work_struct *work)
->  void vfio_ccw_crw_todo(struct work_struct *work)
->  {
->  	struct vfio_ccw_private *private;
-> +	unsigned long flags;
-> =20
->  	private =3D container_of(work, struct vfio_ccw_private, crw_work);
-> =20
-> +	spin_lock_irqsave(&private->crw_lock, flags);
->  	if (!list_empty(&private->crw) && private->crw_trigger)
->  		eventfd_signal(private->crw_trigger);
-
-[Severity: Critical]
-This is a pre-existing issue, but I noticed a potential problem with how
-crw_trigger is accessed here.
-
-Does private->crw_lock actually protect private->crw_trigger from
-concurrent modification?
-
-Looking at vfio_ccw_mdev_set_irqs(), it replaces and frees eventfd contexts
-without holding any locks:
-
-drivers/s390/cio/vfio_ccw_ops.c:vfio_ccw_mdev_set_irqs() {
-    ...
-    if (*ctx)
-        eventfd_ctx_put(*ctx);
-
-    *ctx =3D efdctx;
-}
-
-If the VFIO_DEVICE_SET_IRQS ioctl swaps and frees the eventfd_ctx while
-this asynchronous worker is preparing to signal it, won't eventfd_signal()
-dereference a freed pointer?
-
-> +	spin_unlock_irqrestore(&private->crw_lock, flags);
->  }
-> [ ... ]
-> diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_=
-ops.c
-> index 1cca3ecdae45b..4a0fe2f8fdb44 100644
+> ---
+>  drivers/s390/cio/vfio_ccw_ops.c | 15 +++++++++++++++
+>  1 file changed, 15 insertions(+)
+> 
+> diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
+> index 032a1cdf4df7..bc8eb485d03f 100644
 > --- a/drivers/s390/cio/vfio_ccw_ops.c
 > +++ b/drivers/s390/cio/vfio_ccw_ops.c
-> [ ... ]
-> @@ -131,6 +132,7 @@ static void vfio_ccw_mdev_release_dev(struct vfio_dev=
-ice *vdev)
->  	struct vfio_ccw_private *private =3D
+> @@ -131,6 +131,13 @@ static void vfio_ccw_mdev_release_dev(struct vfio_device *vdev)
 >  		container_of(vdev, struct vfio_ccw_private, vdev);
 >  	struct vfio_ccw_crw *crw, *temp;
-> +	unsigned long flags;
-> =20
->  	/*
->  	 * Ensure these work items are fully drained, so none can
->  	 * fire after being released. The notoper_work struct is
->  	 * only meaningful if the device had been opened, which
->  	 * means it would have been cleaned in an earlier close.
->  	 */
->  	cancel_work_sync(&private->io_work);
->  	cancel_work_sync(&private->crw_work);
-
-[Severity: High]
-The comment above suggests notoper_work is only meaningful if the device
-had been opened, but could a race occur here?
-
-If the device was never opened (state is VFIO_CCW_STATE_STANDBY), can an
-asynchronous CSS callback still trigger a VFIO_CCW_EVENT_NOT_OPER event
-(e.g., if the subchannel is unregistered)?
-
-If this happens and queues notoper_work, and the device is subsequently
-released, won't release_dev free the private structure while notoper_work
-is still queued?
-
-When the workqueue executes:
-
-drivers/s390/cio/vfio_ccw_drv.c:vfio_ccw_notoper_todo() {
-    ...
-    mutex_lock(&private->io_mutex);
-    cp_free(&private->cp);
-    mutex_unlock(&private->io_mutex);
-}
-
-Won't this dereference the freed private pointer? Should we add
-cancel_work_sync(&private->notoper_work) here?
-
-
-[Severity: High]
-This is a pre-existing issue, but since we are looking at the lifecycle of
-the private structure, is there a race condition with asynchronous CSS
-callbacks during mdev removal?
-
-In vfio_ccw_sch_event(), the private pointer is fetched locklessly:
-
-drivers/s390/cio/vfio_ccw_drv.c:vfio_ccw_sch_event() {
-    struct vfio_ccw_parent *parent =3D dev_get_drvdata(&sch->dev);
-    struct vfio_ccw_private *private =3D dev_get_drvdata(&parent->dev);
-    unsigned long flags;
-    ...
-    spin_lock_irqsave(&sch->lock, flags);
-}
-
-If vfio_ccw_mdev_remove() runs concurrently, it clears the drvdata
-locklessly and drops the device reference:
-
-drivers/s390/cio/vfio_ccw_ops.c:vfio_ccw_mdev_remove() {
-    vfio_unregister_group_dev(&private->vdev);
-    dev_set_drvdata(&parent->dev, NULL);
-    vfio_put_device(&private->vdev);
-}
-
-If the CSS callback is preempted after fetching the pointer but before
-acquiring sch->lock, and resumes after the removal path completes, won't
-it use the freed private structure?
-
-> +	spin_lock_irqsave(&private->crw_lock, flags);
+>  
+> +	/*
+> +	 * Ensure these work items are fully drained, so none can
+> +	 * fire after being released.
+> +	 */
+> +	cancel_work_sync(&private->io_work);
+> +	cancel_work_sync(&private->crw_work);
+> +
 >  	list_for_each_entry_safe(crw, temp, &private->crw, next) {
 >  		list_del(&crw->next);
 >  		kfree(crw);
->  	}
-> +	spin_unlock_irqrestore(&private->crw_lock, flags);
-> [ ... ]
+> @@ -202,6 +209,14 @@ static void vfio_ccw_mdev_close_device(struct vfio_device *vdev)
+>  		container_of(vdev, struct vfio_ccw_private, vdev);
+>  
+>  	vfio_ccw_fsm_event(private, VFIO_CCW_EVENT_CLOSE);
+> +
+> +	/*
+> +	 * Ensure these work items are drained, in the event the
+> +	 * device is re-opened instead of released
+> +	 */
+> +	cancel_work_sync(&private->io_work);
+> +	cancel_work_sync(&private->crw_work);
+> +
+>  	vfio_ccw_unregister_dev_regions(private);
+>  }
+>  
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260728013509.1551=
-753-1-farman@linux.ibm.com?part=3D10
