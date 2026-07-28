@@ -1,65 +1,65 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C27239DBCC;
-	Tue, 28 Jul 2026 17:07:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C20DE39CCF3;
+	Tue, 28 Jul 2026 17:07:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785258448; cv=none; b=iJXDi5DzzrmXZc73lv3hQ20Dh+Z2ol32etortG+jF9pu2XWtAtxdAAIrvqdS5ns/ClLyIYivQtU+wbBQWZBwTKbgWuauWv7myIXRqhH50J9TKmkkCgWvj2CKQ6Vp5xVCUJLqN1sfyqyLb2hL9gEbKLsTtFkTDpoPcdQLe247W9I=
+	t=1785258448; cv=none; b=ur2enm6ASfhpifoh3PkUKhIBuudb5139tDWYepQ9SBv3EBaAvOrGe9rHkjf3Ql5EK9XqVo650i5MCt6oaGfuUE2tOLjlGpFx5lYM0wWrO/Dc8BFZBO3taDt0EfuHNNGOLPsZxlEtjtcyr8Xqa0Ar9Ya+NzH7pEKRJzl2ZczwNEQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1785258448; c=relaxed/simple;
-	bh=yzKdIZyWjJYlk27N6mIx7wcJmjW8TTZXiDWoVjykfZw=;
+	bh=zho/jIjZkeV4dgiBK9swTQJdlFYHNUMAyHnt9MSMn1U=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=X9/FdvpBninFb6yoO8BweYLd0xBC7Es2dyGVKcsBSyNcZBr2DrbotDsItJZ+wgxIHawXKM+EaqA6wFOsm30B3QqQTDNax98+CJqw67SsUmX2N3AYAfIBIJ3zXZYypdMLYebGDHwgfAg30l18WwKUfU/ua16Li+eCnGZ1Dhszi8c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=asCXJiZU; arc=none smtp.client-ip=148.163.158.5
+	 MIME-Version; b=ChZiGTRedZeobi8TNxdg4tqV8gHsCrDq3bNHbiS1lAyAy/ZhE7LNBzHQulIdGRDid/rTg+vEj4BBUmbBsAi/X2M6rnu5xA1t8Apaql5NcosGHmk87UqQpYqXzxTKgH5CXp2hDqOGT3/XDfzbEU6u+77ssEVrxajHqRIecPb63lk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=YIrCvIvi; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="asCXJiZU"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66SElhs21380177;
-	Tue, 28 Jul 2026 17:07:22 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="YIrCvIvi"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66SEmPWk1492463;
+	Tue, 28 Jul 2026 17:07:24 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=+U8v2GX1N+HdBGUO9
-	szNAEzxuy+gOwr9+NnEkFWqLiU=; b=asCXJiZUvS/IYT2C0r1jMVl3GlYIVv5Ge
-	+BGxxHzr1XHCWeIpBQlgml1a9mVG4W2kNhhbSxYgCC/TA+U3lntWpdP8sBDHPi9t
-	a85dQ8lLuQzNu9PZx5JMxfdMQCXS4/GGLz3qVST0xMDNp8iIPYmYCZ0FVXDKQ8id
-	sSm0IDXwHhp8AI3B/8YLIyYgTOrq4EmNxQMNfZ2YdLDJLGu5dw1WK/jf7apHSJZf
-	wXYnw4pN1CpSWltzatAxuqAa9mAPd+oga+fqJiHvgjqhWO7PHWzKe0sjJzPY6Aiv
-	950dMSm7cqsPqNsIMkBwdy6OrQbRYnTVPd+ipTqtRyqmT4e+4NV6w==
+	:mime-version:references:subject:to; s=pp1; bh=NJg8B969fB6VOjwl5
+	SL6EY3xqV+/PAP5qRtuuS6VMw4=; b=YIrCvIvidKDr8m+bvB6B3mkqxBso6AmUh
+	9o9QF2wuL3BxvzKeESOiMVnFmcFgmdH38ccXq6YTzrfhf2WERhiBLs/kcnnRkK6Z
+	hqNz8kwzUj2DGSQifxMMQrW6zyHUNVaBJz7Zs4Fm0yoztl9RDiPEuBrSWemXXYM7
+	FBQhDn8vNc3hF9Ou4uMLYXfHWwvF0FteBIuWtcDvlGvTN+/a40hDgId9JDCpKu82
+	SlcXIIuDj6TntvRt9nY2559I8SMdsY8SDZlut/A6WgeBK5jvpIbpPgTVL0QhLycA
+	jCkYema/6BN5vzFxHU+HGxQPy1a+C1jSYog2eYTVDLo7a+pzaKNRQ==
 Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fmuyj5wb8-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fmv0xphrq-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 28 Jul 2026 17:07:22 +0000 (GMT)
+	Tue, 28 Jul 2026 17:07:24 +0000 (GMT)
 Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66SGuFo9018820;
-	Tue, 28 Jul 2026 17:07:22 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fn8fk2y0r-1
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66SGuEMS018803;
+	Tue, 28 Jul 2026 17:07:23 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fn8fk2y0x-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 28 Jul 2026 17:07:21 +0000 (GMT)
+	Tue, 28 Jul 2026 17:07:23 +0000 (GMT)
 Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66SH7Fab27459856
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66SH7HC451970460
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 28 Jul 2026 17:07:15 GMT
+	Tue, 28 Jul 2026 17:07:17 GMT
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1E2AD20049;
-	Tue, 28 Jul 2026 17:07:15 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 4048220049;
+	Tue, 28 Jul 2026 17:07:17 +0000 (GMT)
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 41BE820040;
-	Tue, 28 Jul 2026 17:07:14 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 7BF4F20040;
+	Tue, 28 Jul 2026 17:07:16 +0000 (GMT)
 Received: from p-imbrenda.ibmuc.com (unknown [9.111.73.241])
 	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 28 Jul 2026 17:07:14 +0000 (GMT)
+	Tue, 28 Jul 2026 17:07:16 +0000 (GMT)
 From: Claudio Imbrenda <imbrenda@linux.ibm.com>
 To: linux-kernel@vger.kernel.org
 Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, borntraeger@de.ibm.com,
         frankja@linux.ibm.com, david@kernel.org, seiden@linux.ibm.com,
         nrb@linux.ibm.com, schlameuss@linux.ibm.com, gra@linux.ibm.com
-Subject: [PATCH v4 06/13] KVM: s390: Fix overclearing ESCA in case of error
-Date: Tue, 28 Jul 2026 19:07:01 +0200
-Message-ID: <20260728170708.294400-7-imbrenda@linux.ibm.com>
+Subject: [PATCH v4 08/13] KVM: s390: Free the mmu cache when kvm_arch_vcpu_create() fails
+Date: Tue, 28 Jul 2026 19:07:03 +0200
+Message-ID: <20260728170708.294400-9-imbrenda@linux.ibm.com>
 X-Mailer: git-send-email 2.55.0
 In-Reply-To: <20260728170708.294400-1-imbrenda@linux.ibm.com>
 References: <20260728170708.294400-1-imbrenda@linux.ibm.com>
@@ -71,76 +71,124 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI4MDE0OSBTYWx0ZWRfX+c4QbDDDc7I0
- Mz/QX2Ot2DPEHrA6g2VePDMSeWAH/DV6gG1PBMezyPRIcc5rKOTIpJvvYdbhjETJwwM3C1FFA+X
- AOkfvwC/lzRu0PMbp1Cf8JzHvqk1zQo=
-X-Proofpoint-GUID: Bicg_u1CpK38_eMN4hg2Vr7Ieu94-D0f
-X-Proofpoint-ORIG-GUID: Bicg_u1CpK38_eMN4hg2Vr7Ieu94-D0f
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI4MDE0OSBTYWx0ZWRfXxmgI/vbF3SHQ
- u4gIlI3f98EkmjibDKM3n6F67nFd8ThWJSJ8Stre60VX3cBEd9+whx1Se+bg4BtZJ6YO4ECFxoz
- ZdjqtaadPZ9Tr1vIO2LFXMGDLgILCBF03/AAo5Qr52bQArvhGQAVN5gP1sm4trXPvkgDNsXRVgc
- Q6dm7CIWqphC3X8sS+fIXvkujxxM/AHQPEgo4DX9NmuhponXXq6zveKbJnp2KktnXlG3MKPtJyR
- eSTi/8ZPu/8dnCcg+GcZtxVetivLmajJ/A3WgbmxRr7rWzyBH0n8H1szMjM3gxDYwVcoIGhtKEq
- 8MecPTG0W1NMiKFM5/Vnp07nnsLVXdvRG7HqV7fu/y7HmMfB4ngzYswELBl0e+pSpLEqTuZcHc2
- EOvTYXVnhdoY0yZV4DGWccVOtCioTZB0nwjW1tdAtEbs3U7Ws5lK2C5zv2C8MuvNLn3tImLDaKL
- SoYTBqRnFO6C/H2n1lA==
-X-Authority-Analysis: v=2.4 cv=X5Vi7mTe c=1 sm=1 tr=0 ts=6a68e1ca cx=c_pps
+X-Proofpoint-GUID: rdbXVX2D3R4zgCiq7TwYn4QYGz74c_4r
+X-Proofpoint-ORIG-GUID: rdbXVX2D3R4zgCiq7TwYn4QYGz74c_4r
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI4MDE0OSBTYWx0ZWRfX+bRQQ88SKhUM
+ M7EC5GC7RiZtCCdZ6u4o6w5j+FA+cxuKwxGVF8gXQfKBO5xMjjlxB8kKHVkPLQchq9P0rIaBXB5
+ onjOjUtVoo5UXh9UtaEGuTzIn8rSjR4=
+X-Authority-Analysis: v=2.4 cv=dYuwG3Xe c=1 sm=1 tr=0 ts=6a68e1cc cx=c_pps
  a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
  a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8 a=OniIQR2WiTFW0jQNa14A:9
+ a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8 a=owYgaZMeOewOGYH0y6gA:9
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI4MDE0OSBTYWx0ZWRfX6trLqphNfpFd
+ aK0huHop0XbYKzxzQ0+o80f9QP1b9fbqaOy4VR3yFnxVwAO1k1YlD8+4S5hYOunB/PH0zjNsaiZ
+ pFzOrmmhcnQlssZ/8L8dqEs6LE1XgYZMhymtaSd4VNlsELZdzR3SiOAJgqLFZZb+lk2GVyj5Vd1
+ zPVUnDnplsvmSNdEBEB3G6d5rfQSGGZl+JvsHXfmZ2Bx5zTPy4R6hkNLqTLD9llEFPmEFelsj5E
+ yvaJt/wapYVhs34FXgMq1e3b2y5QMGZkSSZTsqkLLz6yIjhLkkeaxvwnrZH1fLw3O1ffdfwgKtH
+ X0s1ztXoBqNNJvq6wfWt+PT6/zh2IhksIFE9E0tHXrN0MAm+uZGlKu1NTl3Re/93gjBYWRWTxGb
+ neI6b742isyR6FoXkdQ6LdzW8gBgrgSACmCfIGO9wgwB3JeUVk4jDxdW6xwnnEdF5E5owyxkaLn
+ LQby8A+93BwZybI4Esg==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-07-28_04,2026-07-28_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 impostorscore=0 lowpriorityscore=0 phishscore=0
- priorityscore=1501 malwarescore=0 spamscore=0 suspectscore=0 bulkscore=0
- adultscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2607280149
+ priorityscore=1501 impostorscore=0 clxscore=1015 phishscore=0 malwarescore=0
+ spamscore=0 lowpriorityscore=0 bulkscore=0 suspectscore=0 adultscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607280149
 
-If an attempt is made to create a vCPU with an already existing ID,
-the duplicated vCPU will be destroyed. When destroying a vCPU, its
-ESCA entry will be cleared. In the above scenario, the spurious
-duplicate vCPU is destroyed, but the ESCA entry corresponding to the
-original vCPU is cleared.
+The mmu cache is the first thing that is allocated in
+kvm_arch_vcpu_create(), but in case of failure it was not freed.
 
-Fix by skipping clearing the ESCA entry if the vCPU creation was not
-successful, i.e. if the pointer to the ESCA in the state description is
-not set.
+Fix by freeing the mmu cache in case of failure.
+
+Refactor kvm_arch_vcpu_create() to use scope-based cleanup instead of
+gotos.
 
 Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+Fixes: e38c884df921 ("KVM: s390: Switch to new gmap")
 ---
- arch/s390/kvm/interrupt.c | 2 +-
- arch/s390/kvm/kvm-s390.c  | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ arch/s390/kvm/kvm-s390.c | 40 ++++++++++++++++++----------------------
+ 1 file changed, 18 insertions(+), 22 deletions(-)
 
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index 9e3e6b0d72ad..2acdff130fa6 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -86,7 +86,7 @@ static void sca_clear_ext_call(struct kvm_vcpu *vcpu)
- 	struct esca_block *sca = vcpu->kvm->arch.sca;
- 	union esca_sigp_ctrl *sigp_ctrl = &sca->cpu[vcpu->vcpu_id].sigp_ctrl;
- 
--	if (!kvm_s390_use_sca_entries())
-+	if (!kvm_s390_use_sca_entries() || !vcpu->arch.initialized)
- 		return;
- 	kvm_s390_clear_cpuflags(vcpu, CPUSTAT_ECALL_PEND);
- 
 diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 82c6c8632e1b..47eba1664bec 100644
+index 47eba1664bec..776dfa0ef970 100644
 --- a/arch/s390/kvm/kvm-s390.c
 +++ b/arch/s390/kvm/kvm-s390.c
-@@ -3461,7 +3461,7 @@ static void sca_del_vcpu(struct kvm_vcpu *vcpu)
+@@ -3795,21 +3795,21 @@ int kvm_arch_vcpu_precreate(struct kvm *kvm, unsigned int id)
+ 	return 0;
+ }
+ 
++DEFINE_FREE(sie_page, struct sie_page *, if (_T) free_page((unsigned long)(_T)))
++
+ int kvm_arch_vcpu_create(struct kvm_vcpu *vcpu)
  {
- 	struct esca_block *sca = vcpu->kvm->arch.sca;
+-	struct sie_page *sie_page;
++	struct kvm_s390_mmu_cache *mc __free(kvm_s390_mmu_cache) = NULL;
++	struct sie_page *sie_page __free(sie_page) = NULL;
+ 	int rc;
  
--	if (!kvm_s390_use_sca_entries())
-+	if (!kvm_s390_use_sca_entries() || !vcpu->arch.initialized)
- 		return;
+ 	BUILD_BUG_ON(sizeof(struct sie_page) != 4096);
+-	vcpu->arch.mc = kvm_s390_new_mmu_cache();
+-	if (!vcpu->arch.mc)
++	mc = kvm_s390_new_mmu_cache();
++	if (!mc)
+ 		return -ENOMEM;
+ 	sie_page = (struct sie_page *) get_zeroed_page(GFP_KERNEL_ACCOUNT);
+-	if (!sie_page) {
+-		kvm_s390_free_mmu_cache(vcpu->arch.mc);
+-		vcpu->arch.mc = NULL;
++	if (!sie_page)
+ 		return -ENOMEM;
+-	}
  
- 	clear_bit_inv(vcpu->vcpu_id, (unsigned long *)sca->mcn);
+ 	vcpu->arch.sie_block = &sie_page->sie_block;
+ 	vcpu->arch.sie_block->itdba = virt_to_phys(&sie_page->itdb);
+@@ -3851,10 +3851,9 @@ int kvm_arch_vcpu_create(struct kvm_vcpu *vcpu)
+ 		vcpu->run->kvm_valid_regs |= KVM_SYNC_FPRS;
+ 
+ 	if (kvm_is_ucontrol(vcpu->kvm)) {
+-		rc = -ENOMEM;
+ 		vcpu->arch.gmap = gmap_new_child(vcpu->kvm->arch.gmap, -1UL);
+ 		if (!vcpu->arch.gmap)
+-			goto out_free_sie_block;
++			return -ENOMEM;
+ 	}
+ 
+ 	VM_EVENT(vcpu->kvm, 3, "create cpu %d at 0x%p, sie block at 0x%p",
+@@ -3862,22 +3861,19 @@ int kvm_arch_vcpu_create(struct kvm_vcpu *vcpu)
+ 	trace_kvm_s390_create_vcpu(vcpu->vcpu_id, vcpu, vcpu->arch.sie_block);
+ 
+ 	rc = kvm_s390_vcpu_setup(vcpu);
+-	if (rc)
+-		goto out_ucontrol_uninit;
++	if (rc) {
++		if (kvm_is_ucontrol(vcpu->kvm)) {
++			scoped_guard(spinlock, &vcpu->kvm->arch.gmap->children_lock)
++				gmap_remove_child(vcpu->arch.gmap);
++			vcpu->arch.gmap = gmap_put(vcpu->arch.gmap);
++		}
++		return rc;
++	}
+ 
++	vcpu->arch.mc = no_free_ptr(mc);
++	sie_page = NULL;
+ 	kvm_s390_update_topology_change_report(vcpu->kvm, 1);
+ 	return 0;
+-
+-out_ucontrol_uninit:
+-	if (kvm_is_ucontrol(vcpu->kvm)) {
+-		spin_lock(&vcpu->kvm->arch.gmap->children_lock);
+-		gmap_remove_child(vcpu->arch.gmap);
+-		spin_unlock(&vcpu->kvm->arch.gmap->children_lock);
+-		vcpu->arch.gmap = gmap_put(vcpu->arch.gmap);
+-	}
+-out_free_sie_block:
+-	free_page((unsigned long)(vcpu->arch.sie_block));
+-	return rc;
+ }
+ 
+ int kvm_arch_vcpu_runnable(struct kvm_vcpu *vcpu)
 -- 
 2.55.0
 
