@@ -1,65 +1,65 @@
-Received: from mail-wm1-f43.google.com (mail-wm1-f43.google.com [209.85.128.43])
+Received: from mail-wm1-f47.google.com (mail-wm1-f47.google.com [209.85.128.47])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9DDD83B585F
-	for <linux-s390@vger.kernel.org>; Tue, 28 Jul 2026 14:25:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB483448B98
+	for <linux-s390@vger.kernel.org>; Tue, 28 Jul 2026 14:26:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785248724; cv=none; b=aAwzlmoGQazHhmu1AYjRxAM85RDqUgX6IDDz8gUsL5K5803kQC1GNKWQOgDO5nVZgB6B2e0ceLIzbGh+d/NEYIL5FvjdpUpDbumKlh8j9ovqaT6ridesKOwLBCdn6okERKKpFh+aP25H1gusjYf5kC3scpL9MzzW2sAOwYloH5g=
+	t=1785248773; cv=none; b=n/eFa7esweR3LVBSnJEzjXuhBqx+ltuGqHJEQmciff5fOvKVOt++Zwq1XT2yjKN1CiAUfk6qC/ioKDsMjOapxbrJv+FK7+o1fRXimZALiCZzmCqdoqo7GjDjLUrlSbjUDI9olEs4i3/01sqq4ooF3KdtXU/borkqAsrWeKzp5fc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785248724; c=relaxed/simple;
-	bh=egNeZU/QDoq/vLDQYCkE07iRqxJcGDGKBgWjXVKB+qg=;
+	s=arc-20240116; t=1785248773; c=relaxed/simple;
+	bh=kcHzJYFXRY1vN3ZEMF3nRLAjfmrJkH7B2gEfA9eBK5w=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=FGjYWN7y3miQAxHhlExndytW3No/4IULfRPFCkur074bCOTeDbcWxsNz15vnewFvSSB0qfE7jfhTU7efD819cDndHsxNT6EmQZfIaPMIotvjJIZ3LA/mC0p0XY+tJW4Cl45flvTouWOuQQG7PUn5ScTT6RUVRKM7r80TIcQT3G4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=SRMC/0FJ; arc=none smtp.client-ip=209.85.128.43
+	 Content-Type:Content-Disposition:In-Reply-To; b=HZIh8tEeUxHBOnRVHN7bJAYEOlJ0FcA5xMPcCXrgNFQAN5v86FxtLLLZHKLsB/Ni/KeifrgymHaIni788UfmSa3kRvfl4TKu1OQKFdcEEwjcSw5A1aACzH0krR2H+NqF092JJQxF/tDbwjdcVWv6DSHhRtnzDLq/aPlIXPb9RqE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=QjSO98bL; arc=none smtp.client-ip=209.85.128.47
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="SRMC/0FJ"
-Received: by mail-wm1-f43.google.com with SMTP id 5b1f17b1804b1-4954bb689dfso42475e9.1
-        for <linux-s390@vger.kernel.org>; Tue, 28 Jul 2026 07:25:22 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="QjSO98bL"
+Received: by mail-wm1-f47.google.com with SMTP id 5b1f17b1804b1-493be0fbcc5so62195e9.0
+        for <linux-s390@vger.kernel.org>; Tue, 28 Jul 2026 07:26:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1785248721; x=1785853521; darn=vger.kernel.org;
+        d=google.com; s=20251104; t=1785248769; x=1785853569; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=Hhyo6VG61tN8AV0h0asytp+Vqc/+CnuTmYLnyeoXGkw=;
-        b=SRMC/0FJvWahTMVytBM5rtJpfV70+M847+aPhLcKhy0l4etb/qsjxjpGcu7Eq20yjW
-         ILXqCcd5Io4epUEM2bBStEdqnrtN7I2oT2tEr5upd58Ikzg2nuD0nqSOnyJtQxRu87pP
-         Q7Q5d6TyNP6zP2Fpdo9ByfNGjvMX4Nh09tKsC00zXCTo7M0X4UAv9nhuSnfcEqh6R/Ku
-         Ab4SA+BWg5kGNESnr1YMl3u/2++v8hO+mJs9ysQxncXp6jzbfIWF1QJml/bvdiJCI9Hs
-         2xCSIZOR0CBuCzTonRiAoU0AYACpWlvYflODnHJsyFZ8kEZC4ZBrwBpm15pyFJT9oqBj
-         bQfA==
+        bh=vpWtv0pYfxndfeslGolf2QwgOrAZhpu3GPmCVKvsSLo=;
+        b=QjSO98bLksvvZrbfytJYxgzpvAFD8fmWkFFix+UqpmJ35UPu+n9wLMT0WChn5UxO91
+         5wUiDVHhevzDxhiOu/zs7axqpQEuvHWlXf5+m1i8yDcj+Vu7zQt26RqpjzSNuub4QMjf
+         zOs2woHWaORnl4Ky6AsNyhLKNOodM2dHTu7zxc0CtLmzRtuEMw7Wp+otfv6PCY3OBTIw
+         SyXEZE345/UkqQlvhqg+FN1p4EhLjcsPQXm3Iql8cUG0tJDLCOASoKYclJbtX/PU/yiu
+         lts6PJMoe/8r+xBfKX/hgXCYv5ltdPBEDUtQFhDCVSbhnlmgQpS5iAu3ek5wbtdHsgAe
+         Esug==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785248721; x=1785853521;
+        d=1e100.net; s=20251104; t=1785248769; x=1785853569;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=Hhyo6VG61tN8AV0h0asytp+Vqc/+CnuTmYLnyeoXGkw=;
-        b=hA9uMyu1hay3yT/6cTOaww7o2skFAh73O+WMdLb/vEcVN5dLBynj9rjlk0E+o0EWn8
-         PQnqS9dprEmOZDOa3j4Wj4G/EZEdJgpg57FTCEU49CimOmO8o+Ue0rGqAvWb1Ajm51ra
-         D04yLA5hzlwldQ0g3PotafYqbMlU2PPodOZaS8yhcW3refHDmQF45TzMIlUKeO70pUS1
-         of/xOoeu3pGcXN4OXJzZDaMiRs8YRrGW/6yc8DK/u5p0RcW7XTE3EzbgEcCypAEpgmAe
-         J9MXvDOp6uf3go/TAdukv4AA8KuHblwOYGbkfNhgJELRRwp7lPOdlBvC+gAeFY569Vw0
-         aSNA==
-X-Forwarded-Encrypted: i=1; AHgh+RrK3asVEo3ZsmeuJEkFb0qH+Js6seBfibFF75nIYUnpVQ2HpIRPKwBsIuvwhEklF14N5dVqccwXfRC+@vger.kernel.org
-X-Gm-Message-State: AOJu0YzvvuDrNDC0NR9fig0I5Ebph7fRqJILeZO0c7PyFW9et9v8KCXy
-	vS28wFuuJ/5WGKO8aBpZQeByQ8FQlhT7TCbt0qtTbH//PWhd+MeSlIjc1sZA6L+OoQ==
-X-Gm-Gg: AR+sD10rOjRrykENYzVrPtj826kOz1SSRjj7ADQ18K4B7EQnKPZFgyh4zGMtWP98WBj
-	DWO45eWZaYT8FSLnQwFpb0gclJZdB0cnfFYZfYSkqXFVWxLQ2fnrQeoRmynLQ/KZOjZhOsmiWrp
-	acoTw7atbii1RQQBWcGqe+npyuJ6EaLrragjsGiefyIm7+m4XK4+iLg5HI0kPwRuXmK2NRAk0Pn
-	I2xlrk+dCy3dcpDaAfxoci5pkaReOCo9lkhe6pbUBR+r3VuWxLEqjoPsV5e1FRkQBNv/MOVdgQC
-	xrVI/jHZlZf6L2naXEZ4NW6bHlVxQIIw7NsMbIZ/CF+P5emNJcMPVUlTqVwWw6ofSNhnyMzthsm
-	dT6L6Tl5zF04pqm0WTrunB0gQwUGFu8gdCV6vPJM3qa+0gIUT4JmDWntizfeiG4UyJwr+3bvi5e
-	puj9GucHmaQarw6Nesd8DQBBpG2oMpQIWHHB4BGC9oWis=
-X-Received: by 2002:a05:600c:6a8d:b0:493:b47f:a24 with SMTP id 5b1f17b1804b1-496b4d2f236mr4342575e9.6.1785248720307;
-        Tue, 28 Jul 2026 07:25:20 -0700 (PDT)
+        bh=vpWtv0pYfxndfeslGolf2QwgOrAZhpu3GPmCVKvsSLo=;
+        b=kYvvq5OCvtKIA6HfziWirZy3pHZl/XzTAIc1n4YNVd7D+9NJNe9zEP5MEuY48fK11G
+         lfcWAzM48UoyKlNTnvCOWpSopqgBTYzyu2RwOujIlbP6hkRzcpbRS2FqDS1lr6KXS7s9
+         3mEiWITdQyt1sumpadg8CXSLgtXyMqlPzfNLM/yJqsjbOBV9wdqgGMstVSP1QbfsddQg
+         ruAmOhAR74dxM+JR+tD0KODQPfxqJzVAfhKeZE8Tf7SEm2sSSa8TwlcImervELDf1vBT
+         oUlCIpgrslmjhBfwFCUhwmGf37sNuQOnLwmy3vCnwFzCYuOwPTuL9EsG2XxMNgj8WPAI
+         Xu5Q==
+X-Forwarded-Encrypted: i=1; AHgh+RqYZfzMgW5CohYulPsYiPcQXEjAt3K32RrAYzh3ozI85Pr/hTDEuLHmbnHM+TY0nblnaBHOHBWaoRE2@vger.kernel.org
+X-Gm-Message-State: AOJu0YwWR1yGbwU0i0mqLVV2cD0NxUsB4DTOTIUTR3n2qtyqVDKxV1lT
+	2F2L4j+i1qO36bOKH+PbKNGdChmRCUEx10sqaLTPPymmvLEjC030K0WSSS40owNDFw==
+X-Gm-Gg: AR+sD10lIgayrhVLHIoVNaETAoNjIRLROIVCwQitKRGHlRuHAFQxYPl9Q2zTU0LQYPN
+	kZcZVvcXNqi0v/T/n9qw6Tc1bAB1vDWCmT/08CXl1Rzw9sSIdi4ylg9XzhUOhNy4pKtEZ0JCYH4
+	zX4yPk3zgVhucwQZKSWic7nvWtjvpjNHMOF71BmZi8CA7GiMWYDyWrXla1EJGv3gNvTAccVTa8I
+	/tLBKBwRRDsZ0D1sP5V36Ez2c79CrK6fxm7HVkAGZGGaZWZSV3cdqgjkzTVaGSt4fdfUY/nk8DO
+	7KCYU2X/z177AYYPb1CmD/0QqDTpFYz+tZ8Udo7yd24HEsf8ryUbk0m5HDLXj4dnzPW8dBUSTRP
+	yV7grcG1/m9omFfuH2nGOn2aMUgGFRY4cenH1p2jccQL2NEV8zXpSSp/1Q4O5+jNgHySQhUGWL4
+	WbcVEwI1k9lQyJAOpODMOTiIUI8rTnAgrzOFeQ22PpUIs=
+X-Received: by 2002:a05:600c:4583:b0:493:aca0:32e2 with SMTP id 5b1f17b1804b1-496b4cf6c38mr21115e9.4.1785248768109;
+        Tue, 28 Jul 2026 07:26:08 -0700 (PDT)
 Received: from google.com (250.192.189.35.bc.googleusercontent.com. [35.189.192.250])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-496c45e0424sm84654015e9.13.2026.07.28.07.25.19
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-47f85bb57cfsm60556481f8f.11.2026.07.28.07.26.07
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 28 Jul 2026 07:25:19 -0700 (PDT)
-Date: Tue, 28 Jul 2026 14:25:11 +0000
+        Tue, 28 Jul 2026 07:26:07 -0700 (PDT)
+Date: Tue, 28 Jul 2026 14:25:58 +0000
 From: Mostafa Saleh <smostafa@google.com>
 To: "Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org>
 Cc: iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
@@ -86,13 +86,12 @@ Cc: iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
 	Vasily Gorbik <gor@linux.ibm.com>,
 	Christian Borntraeger <borntraeger@linux.ibm.com>,
 	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org,
-	Jason Gunthorpe <jgg@nvidia.com>,
-	Michael Kelley <mhklinux@outlook.com>
-Subject: Re: [PATCH v8 05/23] swiotlb: Preserve allocation virtual address
- for dynamic pools
-Message-ID: <ami7x9uXfRLmjVhK@google.com>
+	Jason Gunthorpe <jgg@nvidia.com>
+Subject: Re: [PATCH v8 09/23] dma-mapping: Add internal shared allocation
+ attribute
+Message-ID: <ami79lwqbqcaFpqo@google.com>
 References: <20260717180442.110954-1-aneesh.kumar@kernel.org>
- <20260717180442.110954-6-aneesh.kumar@kernel.org>
+ <20260717180442.110954-10-aneesh.kumar@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -101,29 +100,22 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260717180442.110954-6-aneesh.kumar@kernel.org>
+In-Reply-To: <20260717180442.110954-10-aneesh.kumar@kernel.org>
 
-On Fri, Jul 17, 2026 at 11:34:23PM +0530, Aneesh Kumar K.V (Arm) wrote:
-> swiotlb_alloc_tlb() can allocate from the DMA atomic pool when a decrypted
-> pool is needed from atomic context. With CONFIG_DMA_DIRECT_REMAP, the
-> atomic pool is backed by remapped virtual addresses, which are not the same
-> as the direct-map addresses returned by phys_to_virt().
+On Fri, Jul 17, 2026 at 11:34:27PM +0530, Aneesh Kumar K.V (Arm) wrote:
+> DMA_ATTR_CC_SHARED describes an existing DMA mapping whose backing memory
+> is already shared, or decrypted, for confidential computing. It is a
+> mapping attribute: callers use it to request a shared DMA address encoding
+> for memory that has already been prepared for shared DMA.
 > 
-> swiotlb_init_io_tlb_pool() currently reconstructs the pool virtual address
-> from the physical start address. For atomic-pool backed allocations this
-> stores the wrong address in pool->vaddr. Later, swiotlb_free_tlb() passes
-> that address to dma_free_from_pool(), which will fail to recognize the
-> chunk
+> Allocation paths need a related but different state. Once the DMA core
+> decides that an allocation must use shared backing pages, the lower-level
+> allocation helpers need to select shared pools, decrypt newly allocated
+> pages, derive the DMA address with the shared-memory translation and
+> restore encryption on free. That state is internal to the DMA-mapping
+> implementation and should not be passed by drivers to dma_alloc_attrs().
 > 
-> Pass the virtual address returned by the allocation path into
-> swiotlb_init_io_tlb_pool(), and store that address in pool->vaddr. This
-> keeps the pool free path using the same virtual address as the allocator.
-> 
-> Fixes: 79636caad361 ("swiotlb: if swiotlb is full, fall back to a transient memory pool")
 > Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
-> Tested-by: Michael Kelley <mhklinux@outlook.com>
-> Tested-by: Mostafa Saleh <smostafa@google.com>
-> Reviewed-by: Petr Tesarik <ptesarik@suse.com>
 > Signed-off-by: Aneesh Kumar K.V (Arm) <aneesh.kumar@kernel.org>
 
 Reviewed-by: Mostafa Saleh <smostafa@google.com>
@@ -132,126 +124,81 @@ Thanks,
 Mostafa
 
 > ---
->  kernel/dma/swiotlb.c | 31 +++++++++++++++++++------------
->  1 file changed, 19 insertions(+), 12 deletions(-)
+>  Documentation/core-api/dma-attributes.rst | 29 +++++++++++++++++++++++
+>  include/linux/dma-mapping.h               |  8 +++++++
+>  include/trace/events/dma.h                |  3 ++-
+>  3 files changed, 39 insertions(+), 1 deletion(-)
 > 
-> diff --git a/kernel/dma/swiotlb.c b/kernel/dma/swiotlb.c
-> index 1abd3e6146f4..6e8db52866bf 100644
-> --- a/kernel/dma/swiotlb.c
-> +++ b/kernel/dma/swiotlb.c
-> @@ -266,9 +266,9 @@ void __init swiotlb_update_mem_attributes(void)
->  }
+> diff --git a/Documentation/core-api/dma-attributes.rst b/Documentation/core-api/dma-attributes.rst
+> index 123c8468d58f..eee743184acd 100644
+> --- a/Documentation/core-api/dma-attributes.rst
+> +++ b/Documentation/core-api/dma-attributes.rst
+> @@ -179,3 +179,32 @@ interface when building their uAPIs, when possible.
 >  
->  static void swiotlb_init_io_tlb_pool(struct io_tlb_pool *mem, phys_addr_t start,
-> -		unsigned long nslabs, bool late_alloc, unsigned int nareas)
-> +		void *vaddr, unsigned long nslabs, bool late_alloc,
-> +		unsigned int nareas)
->  {
-> -	void *vaddr = phys_to_virt(start);
->  	unsigned long bytes = nslabs << IO_TLB_SHIFT, i;
->  
->  	mem->nslabs = nslabs;
-> @@ -409,7 +409,7 @@ void __init swiotlb_init_remap(bool addressing_limit, unsigned int flags,
->  		return;
->  	}
->  
-> -	swiotlb_init_io_tlb_pool(mem, __pa(tlb), nslabs, false, nareas);
-> +	swiotlb_init_io_tlb_pool(mem, __pa(tlb), tlb, nslabs, false, nareas);
->  	add_mem_pool(&io_tlb_default_mem, mem);
->  
->  	if (flags & SWIOTLB_VERBOSE)
-> @@ -507,7 +507,7 @@ int swiotlb_init_late(size_t size, gfp_t gfp_mask,
->  
->  	set_memory_decrypted((unsigned long)vstart,
->  			     (nslabs << IO_TLB_SHIFT) >> PAGE_SHIFT);
-> -	swiotlb_init_io_tlb_pool(mem, virt_to_phys(vstart), nslabs, true,
-> +	swiotlb_init_io_tlb_pool(mem, virt_to_phys(vstart), vstart, nslabs, true,
->  				 nareas);
->  	add_mem_pool(&io_tlb_default_mem, mem);
->  
-> @@ -605,25 +605,26 @@ static struct page *alloc_dma_pages(gfp_t gfp, size_t bytes, u64 phys_limit)
->   * @bytes:	Size of the buffer.
->   * @phys_limit:	Maximum allowed physical address of the buffer.
->   * @gfp:	GFP flags for the allocation.
-> + * @vaddr:	Receives the virtual address for the allocated buffer.
->   *
->   * Return: Allocated pages, or %NULL on allocation failure.
->   */
->  static struct page *swiotlb_alloc_tlb(struct device *dev, size_t bytes,
-> -		u64 phys_limit, gfp_t gfp)
-> +		u64 phys_limit, gfp_t gfp, void **vaddr)
->  {
->  	struct page *page;
->  
-> +	*vaddr = NULL;
+>  It must never be used in an in-kernel driver that only works with
+>  kernel memory.
 > +
->  	/*
->  	 * Allocate from the atomic pools if memory is encrypted and
->  	 * the allocation is atomic, because decrypting may block.
->  	 */
->  	if (!gfpflags_allow_blocking(gfp) && dev && force_dma_unencrypted(dev)) {
-> -		void *vaddr;
-> -
->  		if (!IS_ENABLED(CONFIG_DMA_COHERENT_POOL))
->  			return NULL;
+> +DMA_ATTR_CC_SHARED
+> +------------------
+> +
+> +This attribute indicates that a DMA mapping is shared, or decrypted, for
+> +confidential computing guests. For normal system memory, the caller must
+> +already have marked the memory decrypted with set_memory_decrypted(). CPU
+> +PTEs for the mapping must use pgprot_decrypted(), and the same shared
+> +semantic may be passed to a vIOMMU when it sets up the IOPTE.
+> +
+> +This attribute describes an existing mapping. It does not allocate shared
+> +backing pages and must not be passed to dma_alloc_attrs(). For MMIO, use
+> +this together with DMA_ATTR_MMIO to indicate shared MMIO. Unless
+> +DMA_ATTR_MMIO is provided, the mapping requires a struct page.
+> +
+> +__DMA_ATTR_ALLOC_CC_SHARED
+> +--------------------------
+> +
+> +This is an internal DMA-mapping attribute for confidential computing guests.
+> +It is used by allocation paths after the DMA core has determined that the
+> +backing pages must be shared, or decrypted. For example, the direct DMA and
+> +SWIOTLB allocation paths use it to select shared DMA pools, decrypt newly
+> +allocated pages, derive DMA addresses using the shared-memory translation, and
+> +restore encryption on free.
+> +
+> +__DMA_ATTR_ALLOC_CC_SHARED differs from DMA_ATTR_CC_SHARED in that it is not
+> +a caller-visible DMA API attribute. DMA_ATTR_CC_SHARED describes an
+> +already-shared mapping and requires the caller to have prepared normal
+> +system memory before mapping it.
+> diff --git a/include/linux/dma-mapping.h b/include/linux/dma-mapping.h
+> index cc0823a99cfd..a3e880649fa4 100644
+> --- a/include/linux/dma-mapping.h
+> +++ b/include/linux/dma-mapping.h
+> @@ -103,6 +103,14 @@
+>   */
+>  #define DMA_ATTR_CC_SHARED	(1UL << 13)
 >  
-> -		return dma_alloc_from_pool(dev, bytes, &vaddr, gfp,
-> +		return dma_alloc_from_pool(dev, bytes, vaddr, gfp,
->  					   dma_coherent_ok);
->  	}
+> +/*
+> + * __DMA_ATTR_ALLOC_CC_SHARED: Internal DMA-mapping attribute used by
+> + * allocation paths that create shared (decrypted) backing pages for
+> + * confidential computing guests. Drivers must not pass this attribute to
+> + * dma_alloc_attrs().
+> + */
+> +#define __DMA_ATTR_ALLOC_CC_SHARED	(1UL << 14)
+> +
+>  /*
+>   * A dma_addr_t can hold any valid DMA or bus address for the platform.  It can
+>   * be given to a device to use as a DMA source or target.  It is specific to a
+> diff --git a/include/trace/events/dma.h b/include/trace/events/dma.h
+> index 31c9ddf72c9d..9df02c1511de 100644
+> --- a/include/trace/events/dma.h
+> +++ b/include/trace/events/dma.h
+> @@ -35,7 +35,8 @@ TRACE_DEFINE_ENUM(DMA_NONE);
+>  		{ DMA_ATTR_MMIO, "MMIO" }, \
+>  		{ DMA_ATTR_DEBUGGING_IGNORE_CACHELINES, "CACHELINES_OVERLAP" }, \
+>  		{ DMA_ATTR_REQUIRE_COHERENT, "REQUIRE_COHERENT" }, \
+> -		{ DMA_ATTR_CC_SHARED, "CC_SHARED" })
+> +		{ DMA_ATTR_CC_SHARED, "CC_SHARED" }, \
+> +		{ __DMA_ATTR_ALLOC_CC_SHARED, "ALLOC_CC_SHARED" })
 >  
-> @@ -645,6 +646,8 @@ static struct page *swiotlb_alloc_tlb(struct device *dev, size_t bytes,
->  			return NULL;
->  	}
->  
-> +	if (page)
-> +		*vaddr = phys_to_virt(page_to_phys(page));
->  	return page;
->  }
->  
-> @@ -685,6 +688,7 @@ static struct io_tlb_pool *swiotlb_alloc_pool(struct device *dev,
->  {
->  	struct io_tlb_pool *pool;
->  	unsigned int slot_order;
-> +	void *tlb_vaddr;
->  	struct page *tlb;
->  	size_t pool_size;
->  	size_t tlb_size;
-> @@ -701,7 +705,8 @@ static struct io_tlb_pool *swiotlb_alloc_pool(struct device *dev,
->  	pool->areas = (void *)pool + sizeof(*pool);
->  
->  	tlb_size = nslabs << IO_TLB_SHIFT;
-> -	while (!(tlb = swiotlb_alloc_tlb(dev, tlb_size, phys_limit, gfp))) {
-> +	while (!(tlb = swiotlb_alloc_tlb(dev, tlb_size, phys_limit, gfp,
-> +					 &tlb_vaddr))) {
->  		if (nslabs <= minslabs)
->  			goto error_tlb;
->  		nslabs = ALIGN(nslabs >> 1, IO_TLB_SEGSIZE);
-> @@ -715,11 +720,12 @@ static struct io_tlb_pool *swiotlb_alloc_pool(struct device *dev,
->  	if (!pool->slots)
->  		goto error_slots;
->  
-> -	swiotlb_init_io_tlb_pool(pool, page_to_phys(tlb), nslabs, true, nareas);
-> +	swiotlb_init_io_tlb_pool(pool, page_to_phys(tlb), tlb_vaddr, nslabs,
-> +				 true, nareas);
->  	return pool;
->  
->  error_slots:
-> -	swiotlb_free_tlb(page_address(tlb), tlb_size);
-> +	swiotlb_free_tlb(tlb_vaddr, tlb_size);
->  error_tlb:
->  	kfree(pool);
->  error:
-> @@ -1851,7 +1857,8 @@ static int rmem_swiotlb_device_init(struct reserved_mem *rmem,
->  
->  		set_memory_decrypted((unsigned long)phys_to_virt(rmem->base),
->  				     rmem->size >> PAGE_SHIFT);
-> -		swiotlb_init_io_tlb_pool(pool, rmem->base, nslabs,
-> +		swiotlb_init_io_tlb_pool(pool, rmem->base, phys_to_virt(rmem->base),
-> +					 nslabs,
->  					 false, nareas);
->  		mem->force_bounce = true;
->  		mem->for_alloc = true;
+>  DECLARE_EVENT_CLASS(dma_map,
+>  	TP_PROTO(struct device *dev, phys_addr_t phys_addr, dma_addr_t dma_addr,
 > -- 
 > 2.43.0
 > 
