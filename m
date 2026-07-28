@@ -1,216 +1,164 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from SN4PR2101CU001.outbound.protection.outlook.com (mail-southcentralusazon11012009.outbound.protection.outlook.com [40.93.195.9])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A00E53C09E0;
-	Tue, 28 Jul 2026 07:05:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785222333; cv=none; b=O2oNWj4+MksyUUC7GRlrj1s9kgrbk/hWqW6iwPz8651OgHX2O1jQnYpHPRdxiwtNLJJur6/ryMSeGIKMonwQOH7Q5AgWMszc0e371WrZwBuzTG0LTOvTmSd8CvvURFq1k2wTFMYeZXjhR0xU4YuW2iImZ0ork7wSC6f4dyXgUX8=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785222333; c=relaxed/simple;
-	bh=dtn7qjC9RiPTBBKf/7O6RMXJTbcvwpu5QOMrio4YYi8=;
-	h=MIME-Version:Date:From:To:Cc:Subject:In-Reply-To:References:
-	 Message-ID:Content-Type; b=kmSmb3t1iEKfNo7wURMQZtvyreRvgmGotxhAqLmGlfnNMGLrnZw9MQl+l9b7A4Ff/kEKwFdIj4T+6Nh87vLd/IlFGtZ+1iiM5OGI/a26sUswQyZmK4bRsFb/lyb7hD9VB/n7qLFIOn4fEqOPN9Dk4tiaMQpaVDkG76K3JJoLzRU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=DKMEroxZ; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F16B13F4854
+	for <linux-s390@vger.kernel.org>; Tue, 28 Jul 2026 08:21:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.93.195.9
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785226888; cv=fail; b=jod6eMi+5Xsb0OqCzl5Z/iC/1EXqtI/+lVrF+hKK/kZsmKqfq5F213n6xaUfTF6GF9JiJbMcigmugvu2v7ZIm8QyCpbJCCqg87MeVyD9+2/SsNEacjerkeeuvb8Q6kXr9CvMklQTBucNU6AJGKXHpOjLtQGh9yKVoWmiBhwavxQ=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785226888; c=relaxed/simple;
+	bh=30eWy3lK8HNuUNffnedjZmnrDq8D8g5foMWP/mOrNyg=;
+	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
+	 In-Reply-To:Content-Type; b=CazkD3Tef3KzuPLzYdE+247rUw+3qQvTKFhfC0g+a5xa8wtTtn5pMWqnRih/jU7IT1hxk1MUr+Yu1aYiyS+bTYfcdnXPNXeU7SKSxxk/C9jipUed97afGi/6HlixSIaTHlFaJ9HKYBT8qeFct4qhhclkA/qvfMRdBPQp8VqHwRk=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=mzq92/8S; arc=fail smtp.client-ip=40.93.195.9
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="DKMEroxZ"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66S3m9rW2245702;
-	Tue, 28 Jul 2026 07:05:20 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:reply-to:subject:to; s=pp1;
-	 bh=kaI2CdVOqz0BWwCW1/bhzpZ1zqAu2Pt0ohUjEjrDh84=; b=DKMEroxZXzvM
-	DleQWgLrTrft87Z2KDxar7pWT/9gpIBVw6xmC5rv961ZgzGuPf7Sm4GVIx6W9xYX
-	KZChvDJIghJPTGFEmDyVlBrrHm7gWmwABNbPJsdAR1WA6qBDFgP9pfnWTfDtz18M
-	Fn9P5N4WbOFwShpCoYE+fXNFJlVkA7xeoleHAioR4+WrLT5XnjkXxdQRe+nR7jXD
-	xvZ2qdOcrJy2WtPs2AIQEkZA/BJ9NKfI4KnFkxNBlv5TdAzaekcoNjB+hhVjCON6
-	RD8WQR6l9/nmWieI26Cu7808zaxWtJoChOrYdbnhn6R3FG1XRALIYd/eRgj+89iE
-	RFbwW7RVyw==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fmuycbw91-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 28 Jul 2026 07:05:20 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66S6uDvD015684;
-	Tue, 28 Jul 2026 07:05:19 GMT
-Received: from smtprelay06.dal12v.mail.ibm.com ([172.16.1.8])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fn7fq8vbb-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 28 Jul 2026 07:05:19 +0000 (GMT)
-Received: from smtpav02.wdc07v.mail.ibm.com (smtpav02.wdc07v.mail.ibm.com [10.39.53.229])
-	by smtprelay06.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66S75IJc33161962
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 28 Jul 2026 07:05:18 GMT
-Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3F31458058;
-	Tue, 28 Jul 2026 07:05:18 +0000 (GMT)
-Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1FFB358059;
-	Tue, 28 Jul 2026 07:05:17 +0000 (GMT)
-Received: from ltc.linux.ibm.com (unknown [9.5.196.140])
-	by smtpav02.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 28 Jul 2026 07:05:17 +0000 (GMT)
+	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="mzq92/8S"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=P8HaSOmU8MMruydp5AFXR9c5y89s2Iw1CipMUw2eJvnaFcMS9aDl/2jSUvS2pFiQ46S9IOKk7feMrm633YRSPDR6ear7hBrMp8dFagfjZZOl0DfrCxaMMf9b3ZMbWbx5gy9pYKpLrULZ7u82uliJj/vQdPCl9PSUOre79zc6wtQN/f6K+K7HuNEf1I56rY/Txdg70+XSsOJrFx3kGqYAhzVFkr2OTTA+UYCxHc/GLnzb7KMJKKQthjVUtTfYtxaKWWJlklt+JZbvDF9iXldZ0ZUo4gRUznR7FYPBpWG2Q+ANVfSaujURSWwYeimnrK/w6F4Rjy4t92Qu/E6Dc8rUyw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=M6fhEShDUkXRwIdkSmgEsYaQwyja1JBji4pfhQcuvc4=;
+ b=bJtUxNxWCCwZoi9i8jsxDSDGAP5VDm6dQVSxOedI/Z0ulR7YjFbtxV3zxA4l2WN9gR0Bnl147I78tfRpRuda927hz34++alYk9qES34DIKqe9AXVhjobeMeRzXOYbW2sZeXnP3TtCFUF2Dz1aXVSys5dTjFraGdNb+hQxSx6nNCkDeDFDl6ScMQZJq6Kl19fd+XHuiJsirThIA+eIlUc07C6OxPxyB2viVEqAFd67dxM65TsGkC/vfWomeiaWQ0og6kdGAGHxpg2aLQ/rggr1wGwQp8UgQQR/p8+G8UWSkAz0rngNsHkef32VLfTIFMZ3H4526z1KMBfTWmAlVfR4Q==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 165.204.84.17) smtp.rcpttodomain=lists.linux.dev smtp.mailfrom=amd.com;
+ dmarc=pass (p=quarantine sp=quarantine pct=100) action=none
+ header.from=amd.com; dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=M6fhEShDUkXRwIdkSmgEsYaQwyja1JBji4pfhQcuvc4=;
+ b=mzq92/8SOicVolYFczL6DCJ+Uwc/Lqcc0mW77NKoYaTVFWgDzIczIBXfFvewGAQOpy1EbNOIoGaDxVa6VeOjGr78BK8sjClTydiwuSnf3jVMcpcCNwO+El8NCO9/uwE6LWZBqZPMC/XpAXuLdUIRsSvjRxQD6pfkVjBm+CmKjJ8=
+Received: from MW3PR05CA0022.namprd05.prod.outlook.com (2603:10b6:303:2b::27)
+ by CH2PR12MB4247.namprd12.prod.outlook.com (2603:10b6:610:7c::20) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.270.12; Tue, 28 Jul
+ 2026 08:21:21 +0000
+Received: from MW1PEPF0001615C.namprd21.prod.outlook.com
+ (2603:10b6:303:2b:cafe::8) by MW3PR05CA0022.outlook.office365.com
+ (2603:10b6:303:2b::27) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_AES_256_GCM_SHA384) id 15.21.270.12 via Frontend Transport; Tue,
+ 28 Jul 2026 08:21:21 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
+ smtp.mailfrom=amd.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=amd.com;
+Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
+ 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
+ client-ip=165.204.84.17; helo=satlexmb07.amd.com; pr=C
+Received: from satlexmb07.amd.com (165.204.84.17) by
+ MW1PEPF0001615C.mail.protection.outlook.com (10.167.249.87) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.21.292.1 via Frontend Transport; Tue, 28 Jul 2026 08:21:20 +0000
+Received: from satlexmb10.amd.com (10.181.42.219) by satlexmb07.amd.com
+ (10.181.42.216) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.41; Tue, 28 Jul
+ 2026 03:21:20 -0500
+Received: from satlexmb08.amd.com (10.181.42.217) by satlexmb10.amd.com
+ (10.181.42.219) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.41; Tue, 28 Jul
+ 2026 03:21:20 -0500
+Received: from [10.136.36.1] (10.180.168.240) by satlexmb08.amd.com
+ (10.181.42.217) with Microsoft SMTP Server id 15.2.2562.41 via Frontend
+ Transport; Tue, 28 Jul 2026 03:21:18 -0500
+Message-ID: <5d658a42-edc9-406c-a755-281e1884a61d@amd.com>
+Date: Tue, 28 Jul 2026 13:51:17 +0530
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Date: Tue, 28 Jul 2026 09:05:16 +0200
-From: Harald Freudenberger <freude@linux.ibm.com>
-To: Heiko Carstens <hca@linux.ibm.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle
- <svens@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian
- Borntraeger <borntraeger@linux.ibm.com>,
-        Holger Dengler
- <dengler@linux.ibm.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Peter
- Oberparleiter <oberpar@linux.ibm.com>,
-        Janosch Frank
- <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David
- Hildenbrand <david@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/4] s390/crypto: Replace cond_resched() with schedule()
-Reply-To: freude@linux.ibm.com
-Mail-Reply-To: freude@linux.ibm.com
-In-Reply-To: <20260727162430.1599396-2-hca@linux.ibm.com>
-References: <20260727162430.1599396-1-hca@linux.ibm.com>
- <20260727162430.1599396-2-hca@linux.ibm.com>
-Message-ID: <f88846b24b1250f89b503b6ddfda318c@linux.ibm.com>
-X-Sender: freude@linux.ibm.com
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v6 1/8] x86/runtime-const: Introduce
+ runtime_const_mask_32()
+To: <sashiko-reviews@lists.linux.dev>
+CC: Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
+	<linux-s390@vger.kernel.org>, Alexander Gordeev <agordeev@linux.ibm.com>
+References: <20260728052540.4728-1-kprateek.nayak@amd.com>
+ <20260728052540.4728-2-kprateek.nayak@amd.com>
+ <20260728053722.832811F000E9@smtp.kernel.org>
+Content-Language: en-US
+From: K Prateek Nayak <kprateek.nayak@amd.com>
+In-Reply-To: <20260728053722.832811F000E9@smtp.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: Add-fjscn7n5dn0mGoCIC8W2tqQKZa60
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI4MDA2MCBTYWx0ZWRfX68PTFrVD+mPn
- gU+yq6+TjYa1ReC5L2yyKtowAvv3o7ZXmZ84dMDVZmFBGAVZPGzvqekC3gHuSk9L62oVmeenG2f
- lRYyKBdSSv7hKOMXWQbwTIcvcqsAw8hqH5025/zABf2NX23VfFrXtb6n0A92JTISWMIWHQrN2yL
- N4hgqyVuSdU0qiIlTMvNJVeK+9HTepvjmpcUrWFBKQBqskqblV0txTYr3Rg92EcH0LZ5y/jqeYB
- 1ichoqibCeyPZsQBrLm/+Be/iIeAC1acmYjz7EwrVM0AzAWuCI2qmVv6+UfW5ThE9Txnm+VY7ZL
- bGZ9B8WUYJtkC6RsVAZH33V2Jq0GE+eLPSHHPe5j1B9Oju0fWCxdYZ3v1JIhKYD++MxTYB+qwPT
- wlvrO+lGFxcsut0+ovB9/pTi2yW8mWrmxt9IFRW5NCkV3wGBz5o2fpVsUqi8lMZmmfasbuRGqUY
- OMZeDb49nWjnqlgPBEw==
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI4MDA2MCBTYWx0ZWRfX2wgH3ljXcmXk
- XU5gbnWN1HyiDAleCR1ZWgzRvYw1TdXPM2/HQ0/+0+81OBiJ1Ci2qcnEJuPHi9T2wfanKynvAeN
- V05ujqx0+Zadh2RAsQV0OxKHI7ofuaQ=
-X-Authority-Analysis: v=2.4 cv=AZeB2XXG c=1 sm=1 tr=0 ts=6a6854b0 cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
- a=kj9zAlcOel0A:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8
- a=ho2JyYDv265wicM2L38A:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-GUID: Add-fjscn7n5dn0mGoCIC8W2tqQKZa60
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-07-28_01,2026-07-27_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 priorityscore=1501 phishscore=0 adultscore=0 impostorscore=0
- clxscore=1015 malwarescore=0 suspectscore=0 lowpriorityscore=0 bulkscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607280060
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: MW1PEPF0001615C:EE_|CH2PR12MB4247:EE_
+X-MS-Office365-Filtering-Correlation-Id: 61536a60-53ac-44b1-c222-08deec813485
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|82310400026|1800799024|376014|23010399003|36860700016|4143699003|10067099003|11063799006|56012099006|22082099003|18002099003;
+X-Microsoft-Antispam-Message-Info:
+	ctlr2sMyy6qXxo4Ob5N9jsd2aWJfDUW0wzYuXPefCaaSr7wa2JVyHlPWQiLnDp/2lojV16d55DnT/nEVuuVF+SxIq5MPVfGMuheK0PwEyODb78PxiSYZdBcrEL/4LGRDYK/5zG/i1piITwTVLk77moUQuCEw6hNJ0vU2jjqk80GXx8ZUM/eJ4j/F1JeGdkETZxTrxGY3oVPffzNvdm2592dYVrGrjLBx7huxSCq+2RrsnERbC/ZFB/3spsZfG+nzx2PbqQM8yfrgD2xm1DTgfPXarPyz9q2OLf5gkogNwLT93PBezKkkbP69Ny9VHQBI6TCVGUGv+BKUAsZF5Qcade9UIrp4K1XpXWaGN1As+IYk+WiYQkTBYUoE2xf9o+m9Foa+S7NJgxZ9nJW6Fh5CVfh26rwloZNMrIkxUIE0hJto7XVjCeufDPovghDgGLwFynsVumtvtx2wehENO1LyFMB0Ts2YiyNZ9LajKoWwVSxML/PjDLOITrpZY/sA1576QGG4CThsc8ZZ/P1ZDCryo9YSDEaoMrt4rJVGk4g9hXgwn5gvi/+Jz6M9xNpPcdEvulBWKgFFIuJdylPfP9Sag0PEnb8RzAf3oihm3mcICw6yCTZerOMZ2eeNGaPx15Tn2pSvGjjt7fzHZOaWKvqjNGNpAmtzW+Pw6cENFICDyco/chnELxA6X9CQ75/9zwcuM696M+7pD3n8ruFyP8H9sg==
+X-Forefront-Antispam-Report:
+	CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:satlexmb07.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(82310400026)(1800799024)(376014)(23010399003)(36860700016)(4143699003)(10067099003)(11063799006)(56012099006)(22082099003)(18002099003);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	hJiKmuGv6lmP2LX4aa67AwLLYNZ/M5XyxJ8OMQlHb6zPATvdbkA3MYFCUd5bIrPYhNO6JSqfaasFQUt/cQPKz4lMb7annN5dBx+PRvQxjpI02TFT7kqgS9i//ZDWa1/XtDCmTN9PhrEEKbnO/SO2EY4G46NtVBsdZWXSXVsHC1MoKAt75hCf15IO6xQVr98wVKTmpduoX9wvKLdBnPOvw3VJ1QoYeyjaikjHh7DNhIzNMzb+GIP09ZJ9By7I4yf1P6Dm3XJcKdx2Iaf42bBbsxK3GxwmLxb9y+GUb7hAYNnhq8hf3xEmjLBl9pTulAJQ/vxY++IEyaoUwhHIGjMoCXvvdru/nHUCrJIeUH4lxuo062YbwSnpcVUQ96PStE1X37Wcx1KEuidHz37Nyt/twSK40y0MGKm3SQ7onp69mUtMzAQc5umUcdQRVRCMJ+XY
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 28 Jul 2026 08:21:20.8517
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 61536a60-53ac-44b1-c222-08deec813485
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[satlexmb07.amd.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	MW1PEPF0001615C.namprd21.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH2PR12MB4247
 
-On 2026-07-27 18:24, Heiko Carstens wrote:
-> The comment for all cond_resched() calls in crypto code says that the
-> process should be scheduled away to avoid instant re-invocation of a
-> callback. This is not what cond_resched() would do or did.
-> 
-> Replace cond_resched() with a call to schedule() which comes closer, 
-> but
-> it looks more like this code wants an msleep() call.
-> 
-> Note that with [1] cond_resched() is always compiled away and becomes a
-> no-op.
-> 
-> [1] commit 7dadeaa6e851 ("sched: Further restrict the preemption 
-> modes")
-> 
-> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-> ---
->  arch/s390/crypto/paes_s390.c  | 8 ++++----
->  arch/s390/crypto/phmac_s390.c | 4 ++--
->  2 files changed, 6 insertions(+), 6 deletions(-)
-> 
-> diff --git a/arch/s390/crypto/paes_s390.c 
-> b/arch/s390/crypto/paes_s390.c
-> index 8cfe6166c193..d02de945f864 100644
-> --- a/arch/s390/crypto/paes_s390.c
-> +++ b/arch/s390/crypto/paes_s390.c
-> @@ -555,7 +555,7 @@ static int ecb_paes_do_one_request(struct
-> crypto_engine *engine, void *areq)
->  		 * To avoid immediately re-invocation of this callback,
->  		 * tell the scheduler to voluntarily give up the CPU here.
->  		 */
-> -		cond_resched();
-> +		schedule();
->  		pr_debug("rescheduling request\n");
->  		return -ENOSPC;
->  	} else if (rc) {
-> @@ -821,7 +821,7 @@ static int cbc_paes_do_one_request(struct
-> crypto_engine *engine, void *areq)
->  		 * To avoid immediately re-invocation of this callback,
->  		 * tell the scheduler to voluntarily give up the CPU here.
->  		 */
-> -		cond_resched();
-> +		schedule();
->  		pr_debug("rescheduling request\n");
->  		return -ENOSPC;
->  	} else if (rc) {
-> @@ -1129,7 +1129,7 @@ static int ctr_paes_do_one_request(struct
-> crypto_engine *engine, void *areq)
->  		 * To avoid immediately re-invocation of this callback,
->  		 * tell the scheduler to voluntarily give up the CPU here.
->  		 */
-> -		cond_resched();
-> +		schedule();
->  		pr_debug("rescheduling request\n");
->  		return -ENOSPC;
->  	} else if (rc) {
-> @@ -1572,7 +1572,7 @@ static int xts_paes_do_one_request(struct
-> crypto_engine *engine, void *areq)
->  		 * To avoid immediately re-invocation of this callback,
->  		 * tell the scheduler to voluntarily give up the CPU here.
->  		 */
-> -		cond_resched();
-> +		schedule();
->  		pr_debug("rescheduling request\n");
->  		return -ENOSPC;
->  	} else if (rc) {
-> diff --git a/arch/s390/crypto/phmac_s390.c 
-> b/arch/s390/crypto/phmac_s390.c
-> index 03ca33ffe6cc..bddfdcee6cb3 100644
-> --- a/arch/s390/crypto/phmac_s390.c
-> +++ b/arch/s390/crypto/phmac_s390.c
-> @@ -895,7 +895,7 @@ static int phmac_do_one_request(struct
-> crypto_engine *engine, void *areq)
->  			 * tell scheduler to voluntarily give up the CPU here.
->  			 */
->  			pr_debug("rescheduling request\n");
-> -			cond_resched();
-> +			schedule();
->  			return -ENOSPC;
->  		} else if (rc) {
->  			hwh_advance(hwh, rc);
-> @@ -916,7 +916,7 @@ static int phmac_do_one_request(struct
-> crypto_engine *engine, void *areq)
->  			 * tell scheduler to voluntarily give up the CPU here.
->  			 */
->  			pr_debug("rescheduling request\n");
-> -			cond_resched();
-> +			schedule();
->  			return -ENOSPC;
->  		}
->  		break;
+Hello,
 
-Ok for me but we agreed to have all this code going via Herbert Xu.
-So please address this patch to Herbert and the crypto mailing list.
-And then I'll add my Reviewed-by.
+On 7/28/2026 11:07 AM, sashiko-bot@kernel.org wrote:
+>> diff --git a/arch/x86/include/asm/runtime-const.h b/arch/x86/include/asm/runtime-const.h
+>> index 4cd94fdcb45e2..b13f7036c1c9b 100644
+>> --- a/arch/x86/include/asm/runtime-const.h
+>> +++ b/arch/x86/include/asm/runtime-const.h
+> [ ... ]
+>> @@ -41,6 +41,15 @@
+>>  		:"+r" (__ret));					\
+>>  	__ret; })
+>>  
+>> +#define runtime_const_mask_32(val, sym) ({			\
+>> +	typeof(0u+(val)) __ret = (val);				\
+>> +	asm_inline("and $0x12345678, %k0\n1:\n"				\
+>> +		   ".pushsection runtime_mask_" #sym ",\"a\"\n\t"\
+>> +		   ".long 1b - 4 - .\n"				\
+>> +		   ".popsection"				\
+>> +		   : "+r" (__ret));				\
+>> +	__ret; })
+>> +
+> 
+> [Severity: Medium]
+> Will this cause a build regression on non-x86 architectures when the generic
+> code starts using runtime_const_mask_32()?
+
+That only happens at Patch 8 and by Patch 7, we have the generic
+fallback. Everything is aligned before the first user is introduced.
+
+> 
+> The commit message mentions this will be used by the futex hash computation in
+> a subsequent commit. However, there doesn't appear to be a generic fallback
+> for this macro in include/asm-generic/runtime-const.h.
+> 
+> Without a generic fallback, it seems architectures that don't support or
+> haven't yet implemented runtime constants would fail to compile once the
+> generic futex code uses this macro.
+> 
+> Should a fallback like the following be introduced in
+> include/asm-generic/runtime-const.h alongside this x86 implementation to
+> maintain cross-architecture compatibility and strict bisectability?
+> 
+> #define runtime_const_mask_32(val, sym) ((val) & (sym))
+
+Done in Patch 7. Bisectibility is preserved by having the plumbing
+in place (in some order) before first user is introduced in Patch 8.
+
+-- 
+Thanks and Regards,
+Prateek
+
