@@ -1,145 +1,69 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC27D25C818;
-	Tue, 28 Jul 2026 01:49:17 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 15701246BCD;
+	Tue, 28 Jul 2026 01:49:53 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785203358; cv=none; b=NUq2N76I32tnCFTctk+WRlOLq7SFKjQKvjvh87ae2+UjQXGCXova68Ke1k5WSTf3exuTRAg4y7p4VFnAcvVosro90e0l/kOz8czEziCBeLobXS95HOBjp3TcSWV0COcGgnDSPlbn2SuYv35iH6XwvMrS8Lr3hIHdX6ZNY2SLIZg=
+	t=1785203395; cv=none; b=jiJQyFA6RVimpchjPSYpX3q6IcXKa12FhiUZpF7U6+ka/lvJzCfVnkjdY4l9plGVAmRVyw3CQSCObHR0xoQ8/c2OhoUNhqtH3L4cycZyvW7rFa8qdTFWzGsvkvhx8J43tLfi4pn7ZJtUyYPzjD+xWe/vghO3VCdw/W57L9nH/FQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785203358; c=relaxed/simple;
-	bh=xT4XkISPkOnRoa7soU/FZz6gZqJ53qyYOO2Ww/dUql8=;
+	s=arc-20240116; t=1785203395; c=relaxed/simple;
+	bh=gulx7YkJzG4SfzJdarlE8sJyfd7eBs8vD0Lwl4KNxgs=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=tNgGzPOPdyBwvOZhkgrz1jZcuJ+3ncrz0lQKztUIOZeLE2J6sy0RsS1njo8snFCD6c2iYYNHMhGn0+nemeXwSbvJY6wZnUBt1ye2O74cF9Dsjyl+r4Hun4ysP3bPBfO4nVpSJHjdESrrOdzjQDJShcV74fGU4izP+9oDn+8ex0Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WyuPP9lo; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=BKOa3PVRTm7dSQGygx3jdB+SJS244WVk/vImRuOpGhN6KpV0aU0bWZQYpebQcNv219DmITVK7trdLTqgY0zSSHxuRj/+rIQcH/6E9zygD8dxFlVRINAzY0a6csLuwFg3fAPasGdcZbvGFduWB36LY9XW1kCqjGTAgi05LSgiFtw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=it6JLgIQ; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WyuPP9lo"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8F411F000E9;
-	Tue, 28 Jul 2026 01:49:16 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="it6JLgIQ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 517491F000E9;
+	Tue, 28 Jul 2026 01:49:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785203357;
-	bh=5N1+qjs0S2sSq5nbX32/oF6MWTBp+5dN/eZKWMKabCg=;
+	s=k20260515; t=1785203393;
+	bh=gulx7YkJzG4SfzJdarlE8sJyfd7eBs8vD0Lwl4KNxgs=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=WyuPP9loIKdS6nKOnA2UTV40plsa0aG0kq39/dAGhN4LcHbU+RmntRtiSFr0uDp+u
-	 fzyWf9R3hUHd8UbnYvd51Du/gtXcjpgdeVM/JEa+IDE8QTBqOlEsx5bcJaz5is8/vS
-	 xwIx1FZ5DhOjIneKolu/Pzel1xPamhXwaYkGtNj3GbNHc7ooJwzIupesQ+q4wlv9hh
-	 I7r0AsbMaOWYWpCODIG6u8SsBEiNgxDsPS60CKO7c1LNKI8k+oCzK5M+N1MvZAsFaU
-	 0rOhJH8nQNutI2CsTw/kBS0poj95nQtPJJwIByii8ml58IPAza8Ra9BQGnwIs7t1SE
-	 1+azdavIwcFGw==
+	b=it6JLgIQBVh5pixpLQFJBIqwFNyRM1tI3v4NbJcMTu3UGnvA8MW99Qg36lK/5BW8c
+	 IvH9Pi/ay+Rr1ZcdtondWAQxFh10tN2PUrqVmWO2N2dgcwsGEj09IIbJlePBZe28Ya
+	 cW/ny/Ym2y1u/yBNly4QdZntviNG4L+5Ecov2Go7wP8J1RwG2h28v5tMsw4ifcp7ke
+	 8AJtrS9QkIbOnPm9NSEGr05OvS3Wdi2nL+yUQU/cIkGQXfVotjqX9TaoFNS3S6xrfH
+	 a+lWDBIRASieBjnU5x5bp8Bfys6h6BQALx81AUDKS7LeTz7J44W47M5BPpfAyAVsUF
+	 fza+kOL23T/8Q==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v8 08/10] s390/vfio_ccw: move cp cleanup out of not
- operational
+Subject: Re: [PATCH v8 05/10] s390/vfio_ccw: calculate idal length based on
+ idaw type
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Eric Farman" <farman@linux.ibm.com>
-Cc: "Vasily Gorbik" <gor@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, kvm@vger.kernel.org, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org
-In-Reply-To: <20260728013509.1551753-9-farman@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>
+In-Reply-To: <20260728013509.1551753-6-farman@linux.ibm.com>
 References: <20260728013509.1551753-1-farman@linux.ibm.com>
- <20260728013509.1551753-9-farman@linux.ibm.com>
+ <20260728013509.1551753-6-farman@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 28 Jul 2026 01:49:16 +0000
-Message-Id: <20260728014916.D8F411F000E9@smtp.kernel.org>
+Date: Tue, 28 Jul 2026 01:49:52 +0000
+Message-Id: <20260728014953.517491F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
-- [High] Failure to cancel pending `notoper_work` during device release cau=
-ses a workqueue leak and use-after-free on the `private` structure.
-- [High] Missing `io_mutex` locking in `vfio_ccw_notoper_todo` leads to a d=
-ata race with concurrent channel program operations.
---
+> Sashiko pointed out that get_guest_idal() unconditionally calculates
+> the length of the IDAL presuming everything is a Format-2 IDAW.
+>=20
+> The output of vfio-ccw is always Format-2, but the input can be either
+> Format-1 (31-bit addresses) or Format-2 (64-bit addresses). As a result,
+> the size of the guest IDAL may be incorrect and should be trimmed down.
+>=20
+> Reported-by: sashiko-bot <sashiko-bot@kernel.org>
+> Link: https://lore.kernel.org/r/20260720203400.7328E1F000E9@smtp.kernel.o=
+rg/
+> Fixes: 1b676fe3d9d3 ("vfio/ccw: handle a guest Format-1 IDAL")
+> Cc: stable@vger.kernel.org
+> Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
+> Signed-off-by: Eric Farman <farman@linux.ibm.com>
 
---- Patch [8]: [PATCH v8 08/10] s390/vfio_ccw: move cp cleanup out of not o=
-perational ---
-commit bf6c617fa515fe63ff2d80efc36831d26b7cdedc
-Author: Eric Farman <farman@linux.ibm.com>
-
-s390/vfio_ccw: move cp cleanup out of not operational
-
-The fsm_notoper() routine is called when the device has been lost, and is
-no longer operational. Push the cleanup of the private->cp resources to a
-workqueue, where it can be done safely under a common locking mechanism.
-
-> diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_=
-drv.c
-> --- a/drivers/s390/cio/vfio_ccw_drv.c
-> +++ b/drivers/s390/cio/vfio_ccw_drv.c
-> @@ -125,6 +125,15 @@ void vfio_ccw_crw_todo(struct work_struct *work)
->  		eventfd_signal(private->crw_trigger);
->  }
-> =20
-> +void vfio_ccw_notoper_todo(struct work_struct *work)
-> +{
-> +	struct vfio_ccw_private *private;
-> +
-> +	private =3D container_of(work, struct vfio_ccw_private, notoper_work);
-> +
-> +	cp_free(&private->cp);
-> +}
-> +
-
-[Severity: High]
-The commit message mentions performing the cleanup safely under a common
-locking mechanism. Could this lockless call to cp_free() lead to a regressi=
-on
-with concurrent channel program operations?
-
-If userspace initiates an I/O request, vfio_ccw_mdev_write_io_region()
-holds io_mutex and processes the request via fsm_io_request() and
-cp_init() / cp_prefetch().
-
-Concurrently, if a hardware event triggers fsm_notoper() and queues
-notoper_work, this worker executes vfio_ccw_notoper_todo() and locklessly
-calls cp_free(&private->cp).
-
-Should this function acquire io_mutex to prevent a data race with the
-allocation and initialization of ccwchain structures in the I/O path?
-
-> diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_=
-ops.c
-> --- a/drivers/s390/cio/vfio_ccw_ops.c
-> +++ b/drivers/s390/cio/vfio_ccw_ops.c
-
-[ ... ]
-
-> @@ -133,7 +134,9 @@ static void vfio_ccw_mdev_release_dev(struct vfio_dev=
-ice *vdev)
-> =20
->  	/*
->  	 * Ensure these work items are fully drained, so none can
-> -	 * fire after being released.
-> +	 * fire after being released. The notoper_work struct is
-> +	 * only meaningful if the device had been opened, which
-> +	 * means it would have been cleaned in an earlier close.
->  	 */
->  	cancel_work_sync(&private->io_work);
->  	cancel_work_sync(&private->crw_work);
-
-[Severity: High]
-Is the assumption that notoper_work is only meaningful if the device had
-been opened always correct?
-
-If a machine check or path loss occurs before the mediated device is opened,
-vfio_ccw_sch_event() transitions the state from STANDBY to NOT_OPER via
-fsm_notoper(), queuing notoper_work unconditionally.
-
-Since the device was never opened, vfio_ccw_mdev_close_device() (which
-flushes the work) is never called.
-
-When the device is subsequently removed, this release function omits cancel=
-ing
-notoper_work. This could allow the workqueue to execute vfio_ccw_notoper_to=
-do()
-after the VFIO core frees the private structure.
-
-Should cancel_work_sync(&private->notoper_work) be added here to prevent a
-potential use-after-free on the private structure?
+Sashiko has reviewed this patch and found no issues. It looks great!
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260728013509.1551=
-753-1-farman@linux.ibm.com?part=3D8
+753-1-farman@linux.ibm.com?part=3D5
+
