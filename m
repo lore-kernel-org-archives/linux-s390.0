@@ -1,124 +1,127 @@
-Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6EA83AEF4F;
-	Tue, 28 Jul 2026 10:47:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 95D443AEF4F;
+	Tue, 28 Jul 2026 10:50:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785235662; cv=none; b=GM70h0LpvikEveC5O77oPUKl48F6bgWEWuTt5G+LMTMzYnM/cBa/tNH4LN8VLW+hIWurImPVJv7JE6k+390BlJSGGJyN1VDjL0OFZhyf6jTWvV04fEKHiRYo74HwGNI3cll8yg42JbbFRoswH8kKDY7g6OaeqD6JkFrHfX+URYU=
+	t=1785235837; cv=none; b=Zf3qC300dK2in1GRI+c49z4JA3/mpKPKc+qFjv8EHVdekIpxz6DBWAKxMi6YWAtQd1XvMqWRLiNOYrr5pGeld9138ihyKACdEnZpKWys8WsgD/ySz6GF6ZiqENLLLfLGX1jeZJB2Va/ldCdFukXxzMbo7wMW4yEPA8ArVBhERxI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785235662; c=relaxed/simple;
-	bh=AmSEF6HFZys6JjNZa2z9DCyGQ55biJYxxnaeAwaOQUs=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=B9KA+OsfGAiU/kDky0dPq1NLw+8A/BcTksVPDA2USRfE1UiBPyUyIeHWtB6rvH16n/wuxOTGXcL4XJo7b8TY8jfBp5bCf8JCALMd9SCaOACB3097P+e5VEGC2F7A0fZFiR3oohpa5JRJhaCnkjrqqz1tw2Xy191EYvHlOd1MvTc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=pass smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=K8CCxGGr; arc=none smtp.client-ip=90.155.50.34
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=infradead.org
+	s=arc-20240116; t=1785235837; c=relaxed/simple;
+	bh=pHODENAMAwfnGyLkSo/HZZl7Pu/8FmPJmTJlj4vSCsw=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=QN7r5GaqAL7xg5tp9MBkLkXtLc2slKXgBvtyp4tEQl7PXHUxwQk/86YT4S57SDWgLyO5+SXYT5pjAkhmcXLBej0SD5v5kgL9JbaVMED3VOsNgjmz+tqRRhbhmhtslKtvIcertQfE+BJmLE7FHDi8UhCxj4CDwrOYR3J1Q7qOLpw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=py5KqViM; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="K8CCxGGr"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=LrI5jV+9lXNAqZIXhKCOO60TpJjIaMeX3ChNxpBQxyE=; b=K8CCxGGrapIcqHInx/7kof6kca
-	HCFPPO5QU1klh4tiNTlKP3uNgbwrsSQDJ9nafWEGexokijPJ5vN+3+nL/JDn8Dk91aMNa7wPqJtyb
-	u1pWFl/Oax8LyTDsqOjYPlRtnq/H2aft7UIkh4zAET2xULeB5OEYbu9utOEVe9cJhicjY7cWNZc9Q
-	J3iJBOYIthtEVS0z6AAqdUEE+8rYWTv4TYZ1/5Auty0QflNhaxHrYJaPtHles362rX9/tB2ZrBebH
-	AcurUXuksS3zfrqTfO8Y/aDWsNPmn8kh8Ddi9dDI0UNfRMyNV15/dP+jZT081aEyUpe3rlYr/3kJp
-	t2nNPAnQ==;
-Received: from 77-249-17-252.cable.dynamic.v4.ziggo.nl ([77.249.17.252] helo=noisy.programming.kicks-ass.net)
-	by casper.infradead.org with esmtpsa (Exim 4.99.1 #2 (Red Hat Linux))
-	id 1wofKo-0000000CzEg-1C8e;
-	Tue, 28 Jul 2026 10:46:54 +0000
-Received: by noisy.programming.kicks-ass.net (Postfix, from userid 1000)
-	id BA9DB30093A; Tue, 28 Jul 2026 12:46:53 +0200 (CEST)
-Date: Tue, 28 Jul 2026 12:46:53 +0200
-From: Peter Zijlstra <peterz@infradead.org>
-To: K Prateek Nayak <kprateek.nayak@amd.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, Thomas Gleixner <tglx@kernel.org>,
-	Ingo Molnar <mingo@redhat.com>,
-	Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-	Charlie Jenkins <thecharlesjenkins@gmail.com>,
-	Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will@kernel.org>, Paul Walmsley <pjw@kernel.org>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Darren Hart <dvhart@infradead.org>,
-	Davidlohr Bueso <dave@stgolabs.net>,
-	=?iso-8859-1?Q?Andr=E9?= Almeida <andrealmeid@igalia.com>,
-	linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-s390@vger.kernel.org, linux-riscv@lists.infradead.org,
-	linux-arm-kernel@lists.infradead.org,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	Sean Christopherson <seanjc@google.com>,
-	Thomas Huth <thuth@redhat.com>, Jisheng Zhang <jszhang@kernel.org>,
-	Ben Dooks <ben.dooks@codethink.co.uk>,
-	Samuel Holland <samuel.holland@sifive.com>,
-	Radim =?utf-8?B?S3LEjW3DocWZ?= <rkrcmar@ventanamicro.com>,
-	Guo Ren <guoren@kernel.org>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>
-Subject: Re: [PATCH v6 8/8] futex: Use runtime constants for __futex_hash()
- hot path
-Message-ID: <20260728104653.GH49951@noisy.programming.kicks-ass.net>
-References: <20260728052540.4728-1-kprateek.nayak@amd.com>
- <20260728052540.4728-9-kprateek.nayak@amd.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="py5KqViM"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66SAlm47896814;
+	Tue, 28 Jul 2026 10:50:18 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=/zZCOp
+	bkYB37Wb7dao3TlYIKTkOEgSemVSQDkHXwdoM=; b=py5KqViM8w/N2HfQS5bTed
+	PUslNNQF91+aFMFCQbDqSlJThm2+eMEkVBrKE/UixhCPZC/TeDomGm/JeLzeIDqY
+	6U3fOUmfehurCdBqCxq7ExB2OpSM6bskckMwRvhuRngNMkL2d/KUEvnFfFpoCrm3
+	bKMJ0JAVCB1F8GaAQOAoCaYupPhYoyt0w1oMbyqmTaN57WkwyasxSMu1S7AZW+Ep
+	Qi4IBWsBLlk4L2mMQYXvPfDIhQCZFWYJCmHkH09r60qC4miBwt/soZ2odyDhK6/4
+	8txcbJdzSx/awOMecjm/2xYJEkWt6T0sawdJWqS62rmev9av7cP+8Q0jlRzk5kpw
+	==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fmuwcv6dp-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 28 Jul 2026 10:50:17 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66SAfhgp021761;
+	Tue, 28 Jul 2026 10:50:17 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fn7uw1jhu-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 28 Jul 2026 10:50:16 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66SAoCs127918818
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 28 Jul 2026 10:50:12 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C03842004B;
+	Tue, 28 Jul 2026 10:50:12 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A0A6220043;
+	Tue, 28 Jul 2026 10:50:07 +0000 (GMT)
+Received: from [9.124.208.66] (unknown [9.124.208.66])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 28 Jul 2026 10:50:07 +0000 (GMT)
+Message-ID: <366c7f5b-3261-4786-8a10-1323597af43f@linux.ibm.com>
+Date: Tue, 28 Jul 2026 16:20:05 +0530
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260728052540.4728-9-kprateek.nayak@amd.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net] s390/qeth: Check CAP_NET_ADMIN for private ioctls
+To: Jakub Kicinski <kuba@kernel.org>
+Cc: David Miller <davem@davemloft.net>, Paolo Abeni <pabeni@redhat.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Andrew Lunn <andrew+netdev@lunn.ch>, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Alexandra Winter <wintera@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, Simon Horman <horms@kernel.org>,
+        arnd@arndb.de, stable@vger.kernel.org
+References: <20260723140050.762991-1-aswin@linux.ibm.com>
+ <20260727180644.0e97582b@kernel.org>
+Content-Language: en-US
+From: Aswin Karuvally <aswin@linux.ibm.com>
+In-Reply-To: <20260727180644.0e97582b@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-ORIG-GUID: EmAYogU9qUEZJKZYlswdILgdhV7egqH_
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI4MDA5NSBTYWx0ZWRfX808sFjD/Ao0f
+ Ij9jRkwtpua9EnVVpUL+XN3DYfLUCAi4HO80jMjz9vKRrIScN6ixWoEAWslJIUMCOqIVbEZpNp3
+ T4EkZmgOpbFMtlXPIgyZ9RR+e/JPmZA=
+X-Authority-Analysis: v=2.4 cv=E/z9Y6dl c=1 sm=1 tr=0 ts=6a68896a cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=GhjaPdZqsfwpqAw5TiUA:9
+ a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI4MDA5NSBTYWx0ZWRfXzl+QhZjIGvpX
+ s7xDipQCVoJW4ceY8rkNLb7Fk8lLxU8oew1tcKLrKvKubkXx0HJ3ZNpB7jAY4Bh5PDCO29v6HTg
+ keDJlRsrnywHcH7ZCREfi41sYUmvG0h8pZNMzpXCVUWhvHeaSQOdOJOfaHJIjYSEbK3Grwgjw/7
+ /f1FInn/x/epYgC4AFL3KK7rKUBufITi+8jfe+2j1tlYE/SpwvdktegHVd4EGKDGygcHn9pS5BW
+ 1pIaJVimUJ+mEyFwzas5fpcBrEixIW0VzLPsedxmI5Oo/V7tBD/wnuNDhEUJuGDji0c783LG6vX
+ sffOfYB3G75xiYrU+1Hcf93QTQD56hivIqAbBuVApoLJCuJEuirPDlZQiUvrw2mejX3UK3uERQz
+ UXTmjxzrfij5l4okUqHUj/1JrjO75MnHdf/lKjrTo32RFuFOy/nDrXJ85vVrJ7b45S4rcBWFIjA
+ f6M/NJV3JDLIa/fQagw==
+X-Proofpoint-GUID: ykyNVfwhXSE1VLdz3q0fysdLIgzp5SXc
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-07-28_02,2026-07-28_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ adultscore=0 priorityscore=1501 spamscore=0 clxscore=1011 phishscore=0
+ lowpriorityscore=0 bulkscore=0 malwarescore=0 impostorscore=0 suspectscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607280095
 
-On Tue, Jul 28, 2026 at 05:25:40AM +0000, K Prateek Nayak wrote:
-> From: Peter Zijlstra <peterz@infradead.org>
+On 28/07/26 06:36, Jakub Kicinski wrote:
+> On Thu, 23 Jul 2026 16:00:50 +0200 Aswin Karuvally wrote:
+>> Gate the SIOCDEVPRIVATE ioctl commands SIOC_QETH_ADP_SET_SNMP_CONTROL,
+>> SIOC_QETH_GET_CARD_TYPE and SIOC_QETH_QUERY_OAT with CAP_NET_ADMIN
+>> capable check to ensure unprivileged users cannot invoke them.
 > 
-> Runtime constify the read-only after init data  __futex_shift(shift_32),
-> __futex_mask(mask_32), and __futex_queues(ptr) used in __futex_hash()
-> hot path to avoid referencing global variable.
-> 
-> This also allows __futex_queues to be allocated dynamically to
-> "nr_node_ids" slots instead of reserving config dependent MAX_NUMNODES
-> (1 << CONFIG_NODES_SHIFT) worth of slots upfront.
-> 
-> Runtime constants are initialized before their first access and
-> runtime_const_init() provides necessary barrier to ensure subsequent
-> accesses are not reordered against their initialization.
-> 
-> No functional changes intended.
-> 
->   [ prateek: Dynamically allocate __futex_queues, mark the global data
->     __ro_after_init since they are constified after futex_init(). ]
-> 
-> Link: https://patch.msgid.link/20260227161841.GH606826@noisy.programming.kicks-ass.net
-> Reported-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de> # MAX_NUMNODES bloat
-> Signed-off-by: Peter Zijlstra <peterz@infradead.org>
-> Reviewed-by: Charlie Jenkins <thecharlesjenkins@gmail.com>
-> Tested-by: Charlie Jenkins <thecharlesjenkins@gmail.com>
-> Signed-off-by: K Prateek Nayak <kprateek.nayak@amd.com>
-> ---
-> changelog v5..v6:
-> 
-> o Picked up tags from Charlie. (Thanks a ton!)
-> 
-> o Picked up Peter's S-o-b from his tree.
+> No need to make this netns-aware, I assume?
 
-Right, so I also munged the Changelog in my tree to include those
-benchmark results. I failed to actually push out those patches before
-disappearing on holidays, but I recon I should refresh them patches and
-re-munge the changelog?
+Hi Jakub,
+Thank you for accepting the patch!
 
-> o Added a barrier after runtime_const_init() after to prevent compilers
->   from re-ordering a later runtime const usage in the init function with
->   their initialization. (Sashiko; Reported by Intel test robot with a
->   GCC14 build).
->   (https://lore.kernel.org/lkml/alNgNvhIkBfkGo1Y@xsang-OptiPlex-9020/)
-
+It was concluded that the tools that make use of these calls are
+strictly meant for IBM OSA cards on an LPAR, which find very limited use
+within environments that make use of network namespaces, eg. containers.
+Thus stuck with capable().
