@@ -1,209 +1,130 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E6AF2D5432
-	for <linux-s390@vger.kernel.org>; Tue, 28 Jul 2026 04:08:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 19FFE1FF7C8;
+	Tue, 28 Jul 2026 04:49:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785211706; cv=none; b=fQy6LIHiOaR12f6RZAevUSOh1isrkxqZbJd4Bd2o+qQc7NKCw5Hs5jACT6ZDf5sJNV3iEKyrhLsK+TMQKdm5eQLX6cn8I1qX56/QvERopIjxh8NXyaV9I4cmyBPyBYpUBMVng/67Q4IduxmQWYtnVKJOOegYL9kasRv7rIvC3Ds=
+	t=1785214158; cv=none; b=iXyKjgQ12UIBr4B3OMLumlRTJBrtGcV69etrJtwaBL26D+bUW4P6OGN+IQp+r0AezCirJ2tY+RbVJw50b6rlFA3UqoNsr64zkxKmOzwFis65QhchgHaWsRN8Wbmyu0smlb57BdAyKOwZ5XZ7MVQ2OV5akkV+G1Npbhs/lgcRwEA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785211706; c=relaxed/simple;
-	bh=9tXKL4whEC0JshPPjNi4xv6JiKmAbYBhzcxBLJtPh0M=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=nkzAcpKk3cqqT0QN4jFaZlU0t0ukvSctj9gUhYSYojijPy+g6Cs7Fph+vN2SK4FjZok3heoi0C03g/Njfy50wdZU7Y3OrG44UPhjCDUYCK2VFLSAjN7FLFA2YnUJEoD8a7orZPdoIkIqTzinjS0ZxxbrD/ZLSq5kph7+4Qj0eg8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=i1nn3iAi; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1785214158; c=relaxed/simple;
+	bh=7zUVBX5tyLOusuhpwBWiz4PP9PoEGDo/g2fiA83/RXk=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=UFa/dihU3t+hKq0dagK75fdRNeY/LNJkv5I29U58EkksSNdlepuSMhYftfix4NPYqd+YU+zuP6AShdvHuy4opmyJfOiyULZt0lx6Hbv5rQ+JQwvb7liP1fHnS63RuMJbeP/L3XpZpk1ISbS09oMKKmNy8c1tJpbN5pinhCYGdp8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=fnJ9c2ym; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="i1nn3iAi"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0DA731F000E9;
-	Tue, 28 Jul 2026 04:08:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785211705;
-	bh=j1KMmOO/p1+aNq2t7ohyJGoB4KL9iXsJ63+aiHUqhj8=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=i1nn3iAiM/ZgxV7uXXxfQI1NeLicHyeRput+zD4BhSoLege9m8rW4PZJRfYQKcIxw
-	 /v5TV+5hp8pA4+87K2JyjwMC78lz4JbQj8KYlXxp1P/Cnj36GuuNbxW+uYuwgJdiDB
-	 Nri6fL8kU45z9vuWDWkhTK5ClSoUSolSyJqSw4RuAX6xCp4hqgvELEGBp18OGmoBgv
-	 e9vfZXe6BC8YG1KUUCyoXn2YCF0xkrdnhFxHQbM9WbqqW+7cDk51Eoznok2c+8OeT1
-	 BW8d3esMAHbM+NaQRApdHQklgSRaauLqBoDnoEYDMNwpR94p0CK9VajIOMfO0J0OBc
-	 RzYUvoVHI339A==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH net] net/smc: clamp peer supplied CDC cursors to the
- buffer size
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Nguyen Le Thanh Tung" <nguyenlethanhtung555@gmail.com>
-Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
- Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org
-In-Reply-To: <20260727040806.1911118-1-nguyenlethanhtung555@gmail.com>
-References: <20260727040806.1911118-1-nguyenlethanhtung555@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 28 Jul 2026 04:08:24 +0000
-Message-Id: <20260728040825.0DA731F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="fnJ9c2ym"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66S3lxws4031396;
+	Tue, 28 Jul 2026 04:49:15 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=Kkm/exbFzCPD4g6HhRdsMd9jsIrxr15/qwegXGWWZ
+	00=; b=fnJ9c2ymgHAYqfdcEv5SV++sFs2rV/S799FrNMf9qLWWeAO3l0+ZbiYGg
+	NxKn3NxewwWO0SqM2S2skB/JHAOGIL4v6O8GgEJ/LmTz3FlvplGb+NlVtKm9LTd7
+	vRHSrAXf0Uym2fMGEFpWv4oGyy1td8PmY725o/pTZZ3X8NShim3embJSLoMI46Mr
+	+FUiCs9e7XFYLNnxl6bwt2Z3FfxPt5ob7HqIO/sMS7ktlwyMUpGY7gOsWksDr9BT
+	mJfnT4dzoVr0PzbTD0tThRH2/u/a0+UwPxlOHdp84p4wOrcbG+zQv29g7eGOoK0Y
+	5Te86cwGmEkd2rCQvf6RtGLWgpK8g==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fmv0njwff-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 28 Jul 2026 04:49:14 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66S4fOxq013155;
+	Tue, 28 Jul 2026 04:49:14 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fn8fk0aas-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 28 Jul 2026 04:49:14 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66S4n8O935127716
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 28 Jul 2026 04:49:08 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 047AD20182;
+	Tue, 28 Jul 2026 04:49:08 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C422020181;
+	Tue, 28 Jul 2026 04:49:07 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 28 Jul 2026 04:49:07 +0000 (GMT)
+From: Nihar Panda <niharp@linux.ibm.com>
+To: "James E . J . Bottomley" <James.Bottomley@HansenPartnership.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>
+Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>,
+        =?UTF-8?q?Vasily=20Gorbik=C2=A0?= <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        =?UTF-8?q?Christian=20Borntraeger=C2=A0?= <borntraeger@de.ibm.com>,
+        =?UTF-8?q?Nihar=20Panda=C2=A0?= <nihar.panda@ibm.com>
+Subject: [PATCH v2 0/3] Request to queue zfcp enhancements for upstream merge window. 
+Date: Tue, 28 Jul 2026 06:48:54 +0200
+Message-ID: <20260728044857.2532646-1-niharp@linux.ibm.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI4MDA0MSBTYWx0ZWRfX59TEIHChE6Oi
+ D/9tRQRNTNuLOj1+pIrXPsR641Z6fTE4YvtPWoiNVH8745btJUD2BIhIpdRcmwFt0S5JFy+puuf
+ dHE+tpwxMKU9P+/CSCL1fj7llqBuDOg=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI4MDA0MSBTYWx0ZWRfX1JOpKqy+V+sP
+ ad+dRSq8vUZbaxE6IfxJ6sPuMcOkoz+Jjhcuo1xftJB/BEfCNWJ2YBH9kpuWrZJSZLPBXihyPjU
+ eNjlk1RVt0bsBXUHFBfuYGOvZEvMgrF9w1KwfCBmdOEDoY6yOEtWpl5olSDxFN7wj5unNNTTK9a
+ XlJvJo1dlLqFTLN6fhnSiYElFj+zoSt+zUIGGK5uYhLewqTVPcIsBU3SdgXMjKuHR8G3y6rVyw5
+ 4ZsDNgGz8OrFOmrko9aW0c/RzhUKeP8NgQyDt9keZxc1dmvSh+tprhRYLVdlK3Q8q66DFcaj7AB
+ dU+cBgLibyocWjlrbPSi8wSAjfzU1i8eb2SKQJFk2qedTqz2UL0z8PgzxUCow5ctpMUL++fcvEB
+ 9fTqS47F698xx3pa0052PoQwnGmB/IJKvSQcXPWA7T043s8hfyfnwDkEhxzxGJrMYhcTmRRwLEH
+ gEOR/79iuPcTu4ztRaQ==
+X-Authority-Analysis: v=2.4 cv=b5WCJNGx c=1 sm=1 tr=0 ts=6a6834ca cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=V8glGbnc2Ofi9Qvn3v5h:22 a=JIPYGDCacM9sF5FWy84A:9
+X-Proofpoint-GUID: DamegO_gnIsfzraPMsKfH_XwLcmz46RA
+X-Proofpoint-ORIG-GUID: DamegO_gnIsfzraPMsKfH_XwLcmz46RA
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-07-28_01,2026-07-27_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ priorityscore=1501 spamscore=0 adultscore=0 malwarescore=0 impostorscore=0
+ bulkscore=0 phishscore=0 suspectscore=0 clxscore=1015 lowpriorityscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607280041
 
-Thank you for your contribution! Sashiko AI review found 5 potential issue(=
-s) to consider:
+Hi Martin and James,
 
-New issues:
-- [High] Remote Denial of Service via WARN_ON_ONCE on unvalidated peer inpu=
-t.
+We are submitting zfcp enhancement designed to improve trace logging for 
+the upcoming v7.3 release. 
 
-Pre-existing issues:
-- [Critical] Incomplete bounds fix allowing massive Out-of-Bounds (OOB) mem=
-ory corruption via inflated cursor differences.
-- [High] NULL pointer dereference when processing CDC messages before buffe=
-r allocation.
-- [High] Use-After-Free in SMC-D receive tasklet due to incorrect teardown =
-sequence.
-- [High] Use-After-Free in SMC-R receive handler due to premature buffer re=
-lease.
---
+Regarding the sashiko bot feedback: the majority of the reported findings are legacy issues 
+rather than regressions caused by this series. We plan to resolve those separately. 
 
---- Patch [1]: [PATCH net] net/smc: clamp peer supplied CDC cursors to the =
-buffer size ---
-commit f873ac03443b750c458d1c1371904e2822a0b300
-Author: Nguyen Le Thanh Tung <nguyenlethanhtung555@gmail.com>
-Subject: net/smc: clamp peer supplied CDC cursors to the buffer size
+This v2 submission corrects the single issue introduced by our previous patch set.
+Revision History (v2):
+Updated patch v2-0003 to initialize fcp_lun to 0 as per the sashiko review requirements.
 
-This commit clamps the peer-supplied CDC cursor count to the size of the
-buffer it indexes. The intent is to prevent out-of-bounds accesses by
-ensuring everything derived from the cursor stays inside the buffer. Both
-SMC-R and SMC-D paths are updated to perform this validation.
 
-> diff --git a/net/smc/smc_cdc.h b/net/smc/smc_cdc.h
-> --- a/net/smc/smc_cdc.h
-> +++ b/net/smc/smc_cdc.h
-[ ... ]
-> @@ -219,16 +219,34 @@ static inline void smc_host_msg_to_cdc(struct smc_c=
-dc_msg *peer,
->  	peer->conn_state_flags =3D local->conn_state_flags;
->  }
-> =20
-> +/* Bound a peer supplied cursor count to the size of the buffer it index=
-es.
-> + * A conforming peer never sends count >=3D size (see smc_curs_add()), a=
-nd every
-> + * user of the cursor - the byte accounting in smc_cdc_msg_recv_action()=
- and
-> + * the direct RMB dereference in smc_cdc_handle_urg_data_arrival() - rel=
-ies on
-> + * that. Nothing validates it, so do it here, once, where the value ente=
-rs the
-> + * connection state.
-> + */
-> +static inline u32 smc_cdc_clamp_count(u32 count, unsigned int size)
-> +{
-> +	if (WARN_ON_ONCE(size && count >=3D size))
-> +		count =3D size - 1;
+Chinmaya Kajagar (2):
+  zfcp: Enhance fsf status read buffer tracing
+  zfcp: trace return values of sysfs unit add store
 
-[Severity: High]
-Does this WARN_ON_ONCE() in smc_cdc_clamp_count() evaluate peer-controlled
-network input?
+Steffen Maier (1):
+  zfcp: Trace plogi and prli within open port response as payload
 
-If a remote peer sends a crafted SMC CDC message with a cursor count field
-greater than or equal to the buffer size, the condition is met.  On systems
-with panic_on_warn=3D1, would this result in a kernel panic and a remote
-denial of service?
+ drivers/s390/scsi/zfcp_dbf.c   | 80 +++++++++++++++++++++++++++++++---
+ drivers/s390/scsi/zfcp_dbf.h   | 34 ++++++++++++++-
+ drivers/s390/scsi/zfcp_ext.h   |  4 +-
+ drivers/s390/scsi/zfcp_fsf.h   |  4 +-
+ drivers/s390/scsi/zfcp_sysfs.c | 19 +++++---
+ 5 files changed, 126 insertions(+), 15 deletions(-)
 
-[Severity: Critical]
-This is a pre-existing issue, but does this clamp completely prevent the
-out-of-bounds memory access?
+-- 
+2.53.0
 
-While this clamps the count field, it doesn't restrict the total computed
-difference or validate the wrap counter.  A peer can repeatedly send CDC
-messages to artificially advance the wrap counter.  Because smc_curs_diff()
-in net/smc/smc_cdc.c computes differences on wrap changes, this can inflate
-conn->bytes_to_rcv well beyond the physical buffer sizes.
-
-When the receive path reads chunks:
-
-net/smc/smc_rx.c:smc_rx_recvmsg() {
-    ...
-    copylen =3D min_t(size_t, read_remaining, readable);
-    ...
-    rc =3D memcpy_to_msg(msg, rcvbuf_base + chunk_off, chunk_len);
-    ...
-}
-
-It trusts the inflated bytes_to_rcv (readable).  Would this allow chunk_len
-to exceed the actual buffer size, resulting in a massive out-of-bounds read
-from rcvbuf_base?
-
-> +	return count;
-> +}
-[ ... ]
-> @@ -246,8 +264,10 @@ static inline void smcr_cdc_msg_to_host(struct smc_h=
-ost_cdc_msg *local,
->  	local->len =3D peer->len;
->  	local->seqno =3D ntohs(peer->seqno);
->  	local->token =3D ntohl(peer->token);
-> -	smc_cdc_cursor_to_host(&local->prod, &peer->prod, conn);
-> -	smc_cdc_cursor_to_host(&local->cons, &peer->cons, conn);
-> +	smc_cdc_cursor_to_host(&local->prod, &peer->prod, conn,
-> +			       conn->rmb_desc->len);
-
-[Severity: High]
-This is a pre-existing issue, but by explicitly moving the dereference of
-conn->rmb_desc->len here, does this open up a NULL pointer dereference?
-
-During connection setup, smc_conn_create() in net/smc/smc_core.c registers
-the connection in the link group's RB tree with a sequential alert_token.
-This happens before smc_buf_create() allocates memory for conn->rmb_desc.
-
-If a remote peer sends a targeted CDC message to the link group with the
-predicted token, the RX softirq handler would look up the uninitialized
-connection and call smcr_cdc_msg_to_host().  Would this unconditionally
-dereference conn->rmb_desc->len when it is still NULL?
-
-> +	smc_cdc_cursor_to_host(&local->cons, &peer->cons, conn,
-> +			       conn->peer_rmbe_size);
->  	local->prod_flags =3D peer->prod_flags;
->  	local->conn_state_flags =3D peer->conn_state_flags;
->  }
-
-While reviewing the connection teardown paths, a couple of other pre-existi=
-ng
-issues were noticed:
-
-[Severity: High]
-This isn't a bug introduced by this patch, but does the SMC-D connection
-teardown sequence allow a use-after-free?
-
-net/smc/smc_core.c:smc_conn_free() {
-    ...
-    if (smc_ism_support_dmb_nocopy(lgr->smcd))
-        smcd_buf_detach(conn);
-    tasklet_kill(&conn->rx_tsklet);
-    ...
-}
-
-This frees conn->sndbuf_desc and sets it to NULL before halting the RX
-tasklet. If the smcd_cdc_rx_tsklet executes concurrently via an ISM hardware
-interrupt, it calls smc_cdc_msg_recv_action() which unconditionally
-dereferences conn->sndbuf_desc->len.  Would this access freed memory?
-
-[Severity: High]
-This is another pre-existing issue, but does the premature release of buffe=
-rs
-create a race with the network RX softirq?
-
-net/smc/smc_core.c:smc_conn_free() {
-    ...
-    smc_buf_unuse(conn, lgr);
-    smc_lgr_unregister_conn(conn);
-    ...
-}
-
-If a buffer encountered a registration error, smc_buf_unuse() synchronously
-frees conn->rmb_desc.  Since the connection hasn't been removed from the
-link group's RB tree yet, it is still visible.  Could a concurrent softirq
-find the connection and pass it to smcr_cdc_msg_to_host(), resulting in a
-dereference of the freed conn->rmb_desc->len?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260727040806.1911=
-118-1-nguyenlethanhtung555@gmail.com?part=3D1
