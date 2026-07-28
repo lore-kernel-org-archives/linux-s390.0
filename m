@@ -1,106 +1,85 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mail-43101.protonmail.ch (mail-43101.protonmail.ch [185.70.43.101])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 53E623A75B6;
-	Tue, 28 Jul 2026 17:25:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE07E3A5E9F;
+	Tue, 28 Jul 2026 17:26:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.70.43.101
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785259539; cv=none; b=cKIcD1dEzN1W+P2QtuRpnhVwXoAnLiXiWhFw9+GVjjTVxnMnOFsV0kOzPWRQK0JaX4eFW/cYovUdQczwIoLg6jaBxnwbXwHI3r0P7T8ZYKFCHAwlnQk/bHQo+KZeiKB0r5cbufY2iwzAQSuEsaDZ34nhNnuWyGwWvBvcbNKA52w=
+	t=1785259574; cv=none; b=Nd3vVDBT8f1tjc2Tle4+VCrvci7hdDViBf2AKoiMbweeboikHK1Oup/K4Vfh2rqy61Foi3WyqpwjCHUXspCyp+Qs4ntSYPTPgLmhEG6fhD0KhWinIhTwnOtpPZ4/fwci/gLfB7a4zUiPyfuuJmpOA4Aa4xcj3/HTaGTetQ+Mb1E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785259539; c=relaxed/simple;
-	bh=J+fe8oMvpNufqTFyZibH3lMwf2OYmKxp+mHNHujU1vo=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=HGwyIas0+sFIqT997xcy23yzt/6F4FNXRXELmYSgx4IV+UqBxkX6UVjbObnfoAARpVhRu1SgIV/7kZW/MYdUz6kTCJXFOLS4YHJd+42dCo4qMS6ojzqY8l0oR9g91TPY7Co4WtSmILNIU89dvlAGsjLKvFj2TV0knnSxHT7QUFw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=m/uydPeY; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1785259574; c=relaxed/simple;
+	bh=q28Sr1aNpbsBs6vn67MJSp6jSWn48v1duQoJS5RjksU=;
+	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=Ag89MTZOX4QvMpTVmhxsVmdAtFw+2XVanqMWvDp+g1Rsxy1WMHaX7m8R8XhzXlMx1FUFWnMpSz+yVymHVuFDz8Z7DN8cAP7nWlRq2ObbA4IfxJWUN+2lEkNe5Nsanj/hAhizg1zb2IfK1k2Xux7fNxdF3ulLoQWHG/vrjdXdyK0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=proton.me; spf=pass smtp.mailfrom=proton.me; dkim=pass (2048-bit key) header.d=proton.me header.i=@proton.me header.b=fYJr31Ku; arc=none smtp.client-ip=185.70.43.101
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=proton.me
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=proton.me
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="m/uydPeY"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9832C1F000E9;
-	Tue, 28 Jul 2026 17:25:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785259537;
-	bh=GVF+6/FpMmNQOLETJYYbnRoOe+zrVwOpiDKNL8+ixNQ=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=m/uydPeYAXd4lJ7893jP7LH2kE9oYhn8kWAJuAY8SLMKyn5bRMoE3iSTc90UFlT69
-	 1V8RITTaHbi5jSnx7d80NyrPf2jSXOs8v0nyyCK0yr6BjtztzD3R0N79kB0FLuWzmE
-	 ubKIiNm22e8BlMh9S3vQbl2XvDzMG0JpGqLV5KRiY563jYXm6vRQpvEmIDZ2xk0JQO
-	 QTP+JVAxSiVQjUFTHsywRuVg+RjYyXnGGQSXybOw8gwkd+LFOytBmnbdnSsFD2i40l
-	 VlEVbZj73vnsitZGHxP8cX4DIlOa48eIp+KRpHaw1gUw3e9wwEAurIxQUluAbdHdPZ
-	 DofORP3AHE2OQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 11/13] KVM: s390: Fix kvm_arch_commit_memory_region()
- when low on memory
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>
-Cc: "Heiko Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, kvm@vger.kernel.org
-In-Reply-To: <20260728170708.294400-12-imbrenda@linux.ibm.com>
-References: <20260728170708.294400-1-imbrenda@linux.ibm.com>
- <20260728170708.294400-12-imbrenda@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 28 Jul 2026 17:25:37 +0000
-Message-Id: <20260728172537.9832C1F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=proton.me header.i=@proton.me header.b="fYJr31Ku"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=proton.me;
+	s=protonmail; t=1785259563; x=1785518763;
+	bh=q28Sr1aNpbsBs6vn67MJSp6jSWn48v1duQoJS5RjksU=;
+	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
+	 Feedback-ID:From:To:Cc:Date:Subject:Reply-To:Feedback-ID:
+	 Message-ID:BIMI-Selector;
+	b=fYJr31KuQPEOXsEGr8rpi4/VpW52ZyBXhk5NhDRhXpNXZX/f0PFb+GgkUX4la7v0I
+	 zFtcBxw/RhN2hG24Uml428yng+8DuF2oZx2bs/97/VCtNaqj9D5/cWFnHe3aM/ndSP
+	 dpC6yPkBbWHENo8/MRmn8A5fx3hmgavrmGJm04zPFbeifTOQHYnBfSTbG83MGQhewm
+	 KX+ZRXFXNPHJ4IewkSQSNbf+cXBULAJyingI4zYNJxxiMMcRh6XR4TX2zkugyCxUo1
+	 AW/HshI7+ZX8sEPliQyU8mw70NcJ9u8mrt2MX+S/4U9PAtb/H8x5RldsrJe7t1CVfE
+	 dWTUP1Tzs/+0w==
+Date: Tue, 28 Jul 2026 17:25:59 +0000
+To: Paolo Abeni <pabeni@redhat.com>
+From: Bryam Vargas <hexlabsecurity@proton.me>
+Cc: Sidraya Jayagond <sidraya@linux.ibm.com>, Jakub Kicinski <kuba@kernel.org>, "D . Wythe" <alibuda@linux.alibaba.com>, "David S . Miller" <davem@davemloft.net>, Wen Gu <guwen@linux.alibaba.com>, Wenjia Zhang <wenjia@linux.ibm.com>, Eric Dumazet <edumazet@google.com>, Tony Lu <tonylu@linux.alibaba.com>, Mahanta Jambigi <mjambigi@linux.ibm.com>, Dust Li <dust.li@linux.alibaba.com>, Ursula Braun <ubraun@linux.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Simon Horman <horms@kernel.org>, linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH net v5 1/3] net/smc: bound the wire-controlled producer cursor to the RMB
+Message-ID: <20260728172552.69349-1-hexlabsecurity@proton.me>
+In-Reply-To: <4b5f67a2-5624-4adb-812a-bd87d99416ed@redhat.com>
+References: <20260723-b4-disp-0d07164f-v5-0-6a9e235dbc4e@proton.me> <20260723-b4-disp-0d07164f-v5-1-6a9e235dbc4e@proton.me> <4b5f67a2-5624-4adb-812a-bd87d99416ed@redhat.com>
+Feedback-ID: 199661219:user:proton
+X-Pm-Message-ID: 00f4050115f71b32b665beecb2c12776f51a9507
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [High] User-triggerable KVM_BUG_ON (WARN_ON_ONCE) on memcg OOM.
---
+On Tue, 28 Jul 2026 15:50:02 +0200, Paolo Abeni wrote:
+> Sashiko gemini suspects the above may cause a Null ptr dereference:
+>
+> https://sashiko.dev/#/patchset/20260723-b4-disp-0d07164f-v5-0-6a9e235dbc4=
+e%40proton.me
 
---- Patch [11]: [PATCH v4 11/13] KVM: s390: Fix kvm_arch_commit_memory_regi=
-on() when low on memory ---
-commit 9bd2f3fe880640681d24faea9af3bd26f006d538
-Author: Claudio Imbrenda <imbrenda@linux.ibm.com>
+The window is real, but this patch doesn't open it: the same load is alread=
+y
+on that path.
 
-KVM: s390: Fix kvm_arch_commit_memory_region() when low on memory
-   =20
-When low on memory, kvm_arch_commit_memory_region() attempts to refill
-the MMU cache and retry. If the refill fails, it kills the VM using
-KVM_BUG_ON.
+smc_cdc_msg_recv_action() dereferences conn->rmb_desc->len unconditionally
+at smc_cdc.c:376, and nothing between the conversion call at :339 and that
+line can return early, so every CDC that reaches the conversion reaches the
+existing dereference as well. The patch moves the load about 37 lines up
+inside the same function; it doesn't add an execution that touches
+conn->rmb_desc. On SMC-D the existing one comes first anyway --
+smcd_cdc_rx_tsklet() reads rmb_desc->cpu_addr at :452 before it calls
+smc_cdc_msg_recv() at all. Line numbers are against net/main at
+e095f249e220.
 
-> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> --- a/arch/s390/kvm/kvm-s390.c
-> +++ b/arch/s390/kvm/kvm-s390.c
-[ ... ]
-> @@ -5850,11 +5848,17 @@ void kvm_arch_commit_memory_region(struct kvm *kv=
-m,
->  		case KVM_MR_FLAGS_ONLY:
->  			break;
->  		default:
-> +			rc =3D 0;
->  			WARN(1, "Unknown KVM MR CHANGE: %d\n", change);
->  		}
->  	}
-> +	if (rc =3D=3D -ENOMEM) {
-> +		rc =3D kvm_s390_mmu_cache_topup(mc);
-> +		if (!rc)
-> +			goto retry;
-> +	}
->  out:
-> -	if (rc)
-> +	if (KVM_BUG_ON(rc, kvm))
+What the bot is pointing at is a separate defect. smc_conn_create() puts th=
+e
+connection in the link group's token tree before smc_buf_create() allocates
+the RMB, so a CDC arriving in that window finds a connection whose buffer i=
+s
+still unset -- with or without this series. That one is fixed by [PATCH net
+v4] "net/smc: order the CDC receive path against buffer publication", which
+publishes the buffers with smp_store_release() once the receive state is
+initialised and makes the CDC entry points bail while they are unset:
 
-[Severity: High]
-Could this KVM_BUG_ON() be triggered by a host-userspace process facing
-memory pressure?
+https://lore.kernel.org/all/20260728-b4-disp-52ee4e7d-v4-1-0dda94b0f397@pro=
+ton.me/
 
-If an unprivileged userspace process creates a VM within a restricted memory
-cgroup (memcg), and then calls KVM_SET_USER_MEMORY_REGION to modify a
-memslot, kvm_s390_mmu_cache_topup() could return -ENOMEM due to the memcg
-limit.
+Thanks,
+Bryam
 
-Since KVM_BUG_ON expands to WARN_ON_ONCE, wouldn't this allow a malicious
-guest or unprivileged host process to cause a host-side denial of service
-if panic_on_warn is enabled?
-
->  		pr_warn("failed to commit memory region\n");
->  	return;
->  }
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260728170708.2944=
-00-1-imbrenda@linux.ibm.com?part=3D11
