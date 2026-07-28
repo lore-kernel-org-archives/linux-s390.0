@@ -1,115 +1,169 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F014E3A59A3;
-	Tue, 28 Jul 2026 17:21:26 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF73C3A59A8;
+	Tue, 28 Jul 2026 17:22:54 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785259288; cv=none; b=rXoO6MfnakXul19Q5bREY+kDRTQgs7Sf5Wyrk7ge4EH+peSCq//VvWHaG+NjC7/Yx26LKEBXN0c69TzVOxgJKXU93IV6LPUrDEApH6ALmi701GyajJkn519B2vqfQJFyp1m54B7avJZA3dt2I7C/eDuGt7SHCga2AwuZ8n2iLhg=
+	t=1785259375; cv=none; b=A+Xa4RweLM/DVTbsgYgxwYPWQ+8PEYTozvJy/XuE65iZxGk1PYVCgIeS1W26ZB46+s5ReWNMoI55Whpv3Hgrbk5N4PsTa0tZiODg8TXzqpXbJ8dQ6FgQ9o39DYG4teewJXYYiQQXcXQZ95ZwgXn3OVMsiv+HIiUv0sljR44p3go=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785259288; c=relaxed/simple;
-	bh=e2yjGuVdFB51b7TfmtRBokvwPtAhNwntyERG6mR2N5o=;
+	s=arc-20240116; t=1785259375; c=relaxed/simple;
+	bh=4Xu9kftZEyuQlgaeum0aj7MOHeFV4RrS6h+W2reT/5U=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=bRxC1v/LVQNblxb4Z10QskS++Nnji2c307KIpCfZumwjhpir5MFjArsDBT8YXG8fnF09E9+HN7ZT14SXok9zdZISAg5ocyRJnAo58EH3B6dyctu9UAjxCG3uXPHokm6vYMHnyNVpl9/1mvs0HCJ9fddhP6/R7qi6SJBm/KTGxtE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Fs5Ww7Bq; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=h5w+P3VqFljdvvzOdVNCv1JUwFXPmppV613e+LhfLeZdWvEzhrqZ8KakyZw0XgcCJ3mIqolioGZsh4YOfOt+cqlE5bySpMZQ3UHjekOHPCmCcPVJyGE6gOug0fsVd6uACWMoO2F3m9TYWAv/bTLq+NWFZDAM+ej0QDrR7nkmHSo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=IzYF/yDk; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Fs5Ww7Bq"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F1F91F000E9;
-	Tue, 28 Jul 2026 17:21:26 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IzYF/yDk"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD0A71F000E9;
+	Tue, 28 Jul 2026 17:22:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785259286;
-	bh=9d+tYCqIJV3B5CtwayaQ8/XgBimbnLvCvTUFW6jom9s=;
+	s=k20260515; t=1785259374;
+	bh=8bCrJAOOX7pPujFi/oSmmwAkziwQEWq3hj5wWf1YFc4=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Fs5Ww7Bqi2Vg2xv10dffktLgVkeqHr5e7N5qobUDTIJWGWqYau9QnH+JQFfbO7xWy
-	 zCECmYpwN0oRFMKLIvsYZfYhGUUk+f/vpNYiiQ7BVMOdiAPn9YVuXRA2cGszrWzhKG
-	 32cu4U9eQI+0REXqAGqiAYnZqUud1fh/fNJBLCuttVSC3cXKh7DrgiE4liwp/KF6G7
-	 AetYSVPV2eRKuiKgp2ra15678PIJufigLy3ZweZ0hjnj/BD3LPcCNbB+6hy07mOhp7
-	 XRo7Ley02Ab0PHpimJcxaCOK+GZqfPWwEj4jcY3fEUZe1Nopq/DhMcLwcgvzW5NI0J
-	 LDn1OAvM3p4Wg==
+	b=IzYF/yDkjZ3pPK4zB76ys5NNHTep9C7Za0jMCvSAVS/upYgjXIdqP9EQL7DMhYy2c
+	 9GkFPUxDhNKA9DGHvjYpVaH+kDLPWVSWhF/NkhOPlVB9JQNZGW6MTTicWdEl13Cw1f
+	 Y8chNK9JaRTpc5h1MZBuqTPoU9wGZTatTZUP/rNzNDXUcdlWRiAVRU3LpTZrwycuA+
+	 TiKgg5YQc138IJORSaDd2mw/ae232bdvL19lK1kC+7q2lEJQ8weJjhx8yn6i0msH2A
+	 rOYbyRUNhHj6GNj72Q/s3sANmy3+3eNHDSL+MKQwCyoVpCZidx+z30H3mpC7sh8Ffz
+	 XPIxa0ofBaoRQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 03/13] KVM: s390: Fix race in __do_essa()
+Subject: Re: [PATCH v4 04/13] KVM: s390: cmma: Fix dirty tracking when
+ removing memslot
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>
 Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
  Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, kvm@vger.kernel.org
-In-Reply-To: <20260728170708.294400-4-imbrenda@linux.ibm.com>
+In-Reply-To: <20260728170708.294400-5-imbrenda@linux.ibm.com>
 References: <20260728170708.294400-1-imbrenda@linux.ibm.com>
- <20260728170708.294400-4-imbrenda@linux.ibm.com>
+ <20260728170708.294400-5-imbrenda@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 28 Jul 2026 17:21:25 +0000
-Message-Id: <20260728172126.3F1F91F000E9@smtp.kernel.org>
+Date: Tue, 28 Jul 2026 17:22:53 +0000
+Message-Id: <20260728172253.AD0A71F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
-- [Medium] Meaningful code, documentation, and commit message mismatch rega=
-rding which lock is used.
+- [High] Double-decrement of `cmma_dirty_pages` counter on `-ENOMEM` retry =
+paths
+- [Medium] Mixing goto-based error handling and split definition-initializa=
+tion with scope-based cleanup helpers (`__free` and `guard`)
 --
 
---- Patch [3]: [PATCH v4 03/13] KVM: s390: Fix race in __do_essa() ---
-commit 44561620d155e5433777595f8bc3b2d06087934d
+--- Patch [4]: [PATCH v4 04/13] KVM: s390: cmma: Fix dirty tracking when re=
+moving memslot ---
+commit 335967b9cb5dc29aafc1953486ce5288ed03df4d
 Author: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-KVM: s390: Fix race in __do_essa()
-
-This patch fixes a potential race condition between __do_essa() and the=20
-migration and CMMA state handling functions. It transitions the affected pa=
-ths=20
-to use the architecture-specific slots lock via scope-based guards.
-
-> KVM: s390: Fix race in __do_essa()
->
-> An unlikely race between __do_essa() and kvm_s390_vm_start_migration(),
-> kvm_s390_vm_stop_migration(), or dat_get_cmma() was possible.
->
-> Fix by locking kvm->slots_lock. Since this is not a hot path, the
-> overhead of an additional mutex is negligible.
-
-[Severity: Medium]
-This isn't a bug, but the commit message states the fix uses kvm->slots_loc=
-k,
-while the code changes actually use kvm->slots_arch_lock. Should the commit
-message be updated to reflect the use of the architecture-specific lock?
+KVM: s390: cmma: Fix dirty tracking when removing memslot
+   =20
+This patch fixes cmma-dirty tracking by appropriately decrementing the
+cmma-dirty counter when a memslot is removed. It also opportunistically
+switches kvm_arch_commit_memory_region() to use __free() for the MMU
+cache.
 
 > diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index 89de085f39670..1952f592a80a1 100644
+> index 1952f592a80a1..5046de39d739e 100644
 > --- a/arch/s390/kvm/kvm-s390.c
 > +++ b/arch/s390/kvm/kvm-s390.c
-> @@ -1298,7 +1298,9 @@ static int kvm_s390_vm_set_migration(struct kvm *kv=
+[ ... ]
+> @@ -5803,14 +5803,24 @@ int kvm_arch_prepare_memory_region(struct kvm *kv=
 m,
->  {
->  	int res =3D -ENXIO;
+>  	return 0;
+>  }
 > =20
-> -	mutex_lock(&kvm->slots_lock);
-> +	guard(srcu)(&kvm->srcu);
-> +	guard(mutex)(&kvm->slots_arch_lock);
+> +static long cmma_d_count_pte(union pte *ptep, gfn_t gfn, gfn_t next, str=
+uct dat_walk *walk)
+> +{
+> +	if (pgste_of(ptep)->cmma_d)
+> +		atomic64_dec(walk->priv);
+> +	return 0;
+> +}
+> +
+>  void kvm_arch_commit_memory_region(struct kvm *kvm,
+>  				struct kvm_memory_slot *old,
+>  				const struct kvm_memory_slot *new,
+>  				enum kvm_mr_change change)
+>  {
+> -	struct kvm_s390_mmu_cache *mc =3D NULL;
+> +	const struct dat_walk_ops ops =3D { .pte_entry =3D cmma_d_count_pte, };
+> +	struct kvm_s390_mmu_cache *mc __free(kvm_s390_mmu_cache) =3D NULL;
 
 [Severity: Medium]
-This isn't a bug, but the function documentation for kvm_s390_vm_start_migr=
-ation()
-and kvm_s390_vm_stop_migration() (which are called from here) still states =
-they
-must be called with kvm->slots_lock held:
+This isn't a bug, but does mixing goto-based error handling and split
+definition-initialization with scope-based cleanup helpers go against the
+cleanup subsystem guidelines?
 
-arch/s390/kvm/kvm-s390.c:kvm_s390_vm_start_migration():
-/*
- * Must be called with kvm->srcu held to avoid races on memslots, and with
- * kvm->slots_lock to avoid races with ourselves, kvm_s390_vm_stop_migratio=
-n(),
- * and kvm_s390_get_cmma_bits().
- */
-static int kvm_s390_vm_start_migration(struct kvm *kvm)
+In kvm_arch_commit_memory_region(), mc is initialized to NULL at the
+function start. Later, the code continues to handle errors with a goto:
 
-Since these paths now use kvm->slots_arch_lock instead, would it be helpful
-to update those comments to match the new locking behavior?
+    mc =3D kvm_s390_new_mmu_cache();
+    if (!mc)
+        goto out;
 
+Could the goto out; be replaced with a direct return to avoid mixing
+cleanup patterns, and could the variable be declared at the point of
+allocation?
+
+>  	int rc =3D 0;
+> =20
+> +	guard(mutex)(&kvm->slots_arch_lock);
+> +
+>  	if (change =3D=3D KVM_MR_FLAGS_ONLY)
+>  		return;
 [ ... ]
+> @@ -5821,6 +5831,12 @@ void kvm_arch_commit_memory_region(struct kvm *kvm,
+>  	}
+> =20
+>  	scoped_guard(write_lock, &kvm->mmu_lock) {
+> +		if (kvm->arch.migration_mode && kvm->arch.use_cmma && old) {
+> +			_dat_walk_gfn_range(old->base_gfn, old->base_gfn + old->npages,
+> +					    kvm->arch.gmap->asce, &ops, DAT_WALK_IGN_HOLES,
+> +					    &kvm->arch.cmma_dirty_pages);
+> +		}
+> +
+>  		switch (change) {
+>  		case KVM_MR_DELETE:
+>  			rc =3D dat_delete_slot(mc, kvm->arch.gmap->asce, old->base_gfn, old->=
+npages);
+
+[Severity: High]
+Can this result in a double-decrement of the cmma_dirty_pages counter?
+
+Looking at kvm_arch_commit_memory_region(), this block executes inside a
+retry loop:
+
+    retry:
+        scoped_guard(write_lock, &kvm->mmu_lock) {
+            if (kvm->arch.migration_mode && kvm->arch.use_cmma && old) {
+                _dat_walk_gfn_range(..., &ops, ...);
+            }
+           =20
+            switch (change) {
+            case KVM_MR_DELETE:
+                rc =3D dat_delete_slot(...);
+                ...
+        }
+        if (rc =3D=3D -ENOMEM) {
+            rc =3D kvm_s390_mmu_cache_topup(mc);
+            if (!rc)
+                goto retry;
+        }
+
+If dat_delete_slot() clears cmma_d on some PTEs and then fails with
+-ENOMEM (e.g. running out of MMU cache while splitting a page table), we=20
+top up the cache and jump back to the retry label. The pre-pass
+_dat_walk_gfn_range() runs again, but cmma_d_count_pte() doesn't clear the
+cmma_d bit on the unhandled PTEs during its traversal.
+
+Would the second pass decrement the counter again for the PTEs that weren't
+processed before the -ENOMEM failure, potentially causing the counter to
+underflow?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260728170708.2944=
-00-1-imbrenda@linux.ibm.com?part=3D3
+00-1-imbrenda@linux.ibm.com?part=3D4
