@@ -1,166 +1,313 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f46.google.com (mail-wm1-f46.google.com [209.85.128.46])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 948EF41E6A6;
-	Tue, 28 Jul 2026 14:16:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C97C6448B98
+	for <linux-s390@vger.kernel.org>; Tue, 28 Jul 2026 14:22:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785248205; cv=none; b=bj9ryvVg4xPvCoA0TX7Ds+wgpazVsO11m6inEzzxmKPOxk79+Bgi14j5h9Os/QOWtgfEl1pRJzrmD0PTKqEvGSWFgI18L2VRPl0vXI2TrmDvKvSOd3pVDzCma4ob3SQUTNGn8cbHYMIE5XSLvGy5dwSsLIwHMxBYWrQIUp7EOIw=
+	t=1785248536; cv=none; b=lJnKgH4OLWkaLv5GQkdyqQReRNUcCP5tF0vvOfFfxsd6YvB374kRa98wqNhkANcvLupLEJ7QrNNLlWNF3VkfJuUlXmB8YskqwpVyLspDcfb/+A6Zn2GuuKJ3rZrB3BimC0UIpk3cJkQNmLkCwWiv0XcJvmmCeQAp+aQetcl3/TI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785248205; c=relaxed/simple;
-	bh=f15DNwGxFp6stvU7A45bmyuWowjT34d9Osd1VnRS1gI=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=RLXARkLNAJ2bBFbbR3OFOqQConlbmeVmI79U4SR+Qetvprc5um0fm5fRAFMziqjquiMmg0FLwa5iiMTxG+DUE/lJVRzuL5l9iUx50eYlL/q8tXOq4/MXy75BprHYrfj0cYUpu3IARkRhixtSy3GgT5T5I3S92sMGvhQvYE/pfps=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=pT4nerlS; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1785248536; c=relaxed/simple;
+	bh=ivljL6kq2veliFFs/cqIsngvBYmK8alSQCuPHbgyblw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=g9BiHh6MvlkCbjgNP5LobunB/yKn/dKO9L9KusYkWNQjT6fy2BPvcFjYCRT4EqiLnuMfYepTi8D6Lshy2E9Alytl9XyoUNFnwB0+Txyjy8YrQaeCyuar5ymzkOdWuAa7H91kEW1KQGp6yp/7rvhfJhtVDCNQ0vewgd0Fh83EEHc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=GYLnjzZ5; arc=none smtp.client-ip=209.85.128.46
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="pT4nerlS"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66SDlfB61314871;
-	Tue, 28 Jul 2026 14:16:43 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=aX36Y1
-	8tNgyRrtQ1h41iHzokBdvqpRtBs2nLGJG0UpU=; b=pT4nerlSGsQS4dkJWj7JOr
-	4o+eVb8dYUuBRRoNfdLfKn7Ecxd3uHbsKUgHzcofV3acTaJeKXSc7LZDsjgIFChL
-	LhW1znbHllf0PUcVspt0A2+/yvOVhTk2FCKcDYx/s+UE8ZATEqous5SmnicuSWLF
-	q5rq0NVes17KO3knpNqiRhaKJD4KF8FZIird7iPvc3O2YcdiZoMqqDfP03ubA1AM
-	a+uy0R5i7xi3Ok1lqrDW+9GvoXa/q/BRn5msyJWcwWRNahOZQY54hjRgyRLBWTfZ
-	HZCoJ3mhilKnM1JXUBNO9ub72wTQ1mI4c91tLdxAlxOZ65kOr7ZfjDQVrsLwjvxA
-	==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fmuw7dmc6-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 28 Jul 2026 14:16:42 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66SEBGVR013291;
-	Tue, 28 Jul 2026 14:16:41 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fn8yha3qm-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 28 Jul 2026 14:16:41 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66SEGZ4M45744462
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 28 Jul 2026 14:16:35 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0CA7F20043;
-	Tue, 28 Jul 2026 14:16:35 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C03AF20040;
-	Tue, 28 Jul 2026 14:16:34 +0000 (GMT)
-Received: from [9.87.138.40] (unknown [9.87.138.40])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 28 Jul 2026 14:16:34 +0000 (GMT)
-Message-ID: <e4f436f7-2d44-4dbe-a6a5-08b94bdf580a@linux.ibm.com>
-Date: Tue, 28 Jul 2026 16:16:34 +0200
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="GYLnjzZ5"
+Received: by mail-wm1-f46.google.com with SMTP id 5b1f17b1804b1-493be0fbcc5so61665e9.0
+        for <linux-s390@vger.kernel.org>; Tue, 28 Jul 2026 07:22:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20251104; t=1785248533; x=1785853333; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=cjI/qIF8COGmEwdyirpRIztZNWL1yf6sjcg+eLvBxKM=;
+        b=GYLnjzZ571cff5OntvM/EzLqtL64mZbKeUI4e6IKcswsZL65utC8+CcaUNv6Lx5JUW
+         fdJAMlTgla5nAucrjqsNomFmDSHijbFwt6RVo43A0E7SmJnwSVNsZNtWrri4IEaXJlFg
+         cWXQgBwx2NClSFm/zlD5S4oSwG/BemujVrnms3kn9lmnEYQCLAPHnghVqFTSzdFJbCvB
+         2G5BsA1U5yHdfR6ToaArQvJoUW1L82LR+p+eweD1yl1tRLjJyE0PC6kWQomRgZejoHKx
+         KnLmHj3anjCHvurmuXWd/Me09ghIlr/m66CME4KtgpqQ0CrQmDmMfR6jtp0XM6hukxFa
+         Tgqw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1785248533; x=1785853333;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=cjI/qIF8COGmEwdyirpRIztZNWL1yf6sjcg+eLvBxKM=;
+        b=YTLoEKFJZ9nIN7L44U7kSqCMGHXzRTN0sEYjMkKQP033Q/UTZAJMBc5K+USlRsog6t
+         KS+o8/1Exh1SFcNb90ag8wD3rkdALEHTk0BFvUVKb0FAaaETVKZRUsgjRqpP7pC3OWIl
+         ZapHHhWHvQcFyMzFEfIGJvxKSdCZy8jTZpeofxMcWYhfHmCZyXU5DQpw4te4S+mzrrte
+         nmkZnjz8lfbgnyi7tPISNe4RgTxv/upd+ybpsbszJr5EoHxnFZbw7ANa9IrspHIDx1+c
+         o2FBaPLCOUgsfiUdTv7FeKRuLcezpxKCn9SjZmxOmFMsGFRqi8Hf6iAKnHcxr2zd5wLI
+         k1qg==
+X-Forwarded-Encrypted: i=1; AHgh+RpV3I6jKjDajyGhbNVPfp298En5AIATDXJ6fhfsN8NtlQarx0Ckzo2RhO84ZNIkVQP7UK5OMb85VHWa@vger.kernel.org
+X-Gm-Message-State: AOJu0Yw53DZfklgw7akNKe6DFrgfBVZiLjmBLYpNJjeshWUx+DSnKUru
+	XlEnUp5IuqM6ngzmJLBKFNv6hcs0R685PqBDBRpA8GLkk0BFCJKC8+aSZ4rvj0Jq8Q==
+X-Gm-Gg: AR+sD10jbzhxbIpU4ZsRBdvR21B/DXPBlRrHTbmAsCKifvodOaH6Z80sYS2z6pg4QN9
+	1EbGSKJULdadxoRl/mhc9cfZd0iHYUwLFQu7DH+V8RnWf1Q9MP9vCM2HFsZ3YkhRElamjRF3A28
+	Rz8Ij/wW/W3vN6nztQ5Ia89UUBPFRfvaeXyL+rpiHmgkRBHsIruxjuA6pCPXmtDZFfubZcY6Cq8
+	W05B3aWRbikaIhx0jPPpvKlE42j49wvmRXkAvSELEifvHhbwlhqmF5DyV404PEbA9iLqmLnxRr0
+	zlyuc643DMWemjyTVP5+rJhHhKtVLEwfuUS8a+sfFBVzafGkZup5jEmwmGqjwfxKy/a1Enh81I/
+	mbUyvrvS2oapsOmjPKXdZF/ms5E5PXNSoEGwaFSuiI7Nv72Wu26mjzlJaPDsWilgAwOPgbJYNqn
+	Ftx+FgrH4rrmxSkNM1SZJ/3zdNBnCWlLvfK7gKPXGkOLPntBE3Lxii0g==
+X-Received: by 2002:a05:600c:528c:b0:490:ab15:b9e8 with SMTP id 5b1f17b1804b1-496b944f535mr5088815e9.2.1785248532370;
+        Tue, 28 Jul 2026 07:22:12 -0700 (PDT)
+Received: from google.com (250.192.189.35.bc.googleusercontent.com. [35.189.192.250])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-47f85b9a5a2sm64337943f8f.7.2026.07.28.07.22.11
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 28 Jul 2026 07:22:11 -0700 (PDT)
+Date: Tue, 28 Jul 2026 14:22:04 +0000
+From: Mostafa Saleh <smostafa@google.com>
+To: "Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org>
+Cc: iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev,
+	Robin Murphy <robin.murphy@arm.com>,
+	Marek Szyprowski <m.szyprowski@samsung.com>,
+	Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
+	Steven Price <steven.price@arm.com>,
+	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Jiri Pirko <jiri@resnulli.us>, Jason Gunthorpe <jgg@ziepe.ca>,
+	Petr Tesarik <ptesarik@suse.com>,
+	Alexey Kardashevskiy <aik@amd.com>,
+	Dan Williams <dan.j.williams@intel.com>,
+	Xu Yilun <yilun.xu@linux.intel.com>, linuxppc-dev@lists.ozlabs.org,
+	linux-s390@vger.kernel.org,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org
+Subject: Re: [PATCH v8 00/23] dma-mapping: Track shared DMA state through
+ direct, pool and swiotlb paths
+Message-ID: <ami7DMIlYHbcEt_6@google.com>
+References: <20260717180442.110954-1-aneesh.kumar@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 01/10] KVM: s390: Fix unlikely NULL gmap dereference
-To: Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-kernel@vger.kernel.org
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, borntraeger@de.ibm.com,
-        david@kernel.org, seiden@linux.ibm.com, nrb@linux.ibm.com,
-        schlameuss@linux.ibm.com, gra@linux.ibm.com
-References: <20260727150254.236021-1-imbrenda@linux.ibm.com>
- <20260727150254.236021-2-imbrenda@linux.ibm.com>
-Content-Language: en-US
-From: Janosch Frank <frankja@linux.ibm.com>
-Autocrypt: addr=frankja@linux.ibm.com; keydata=
- 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
-In-Reply-To: <20260727150254.236021-2-imbrenda@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: H9TZlr6YFlfeXTCRrE4C9-5KPKSGXvbh
-X-Proofpoint-ORIG-GUID: H9TZlr6YFlfeXTCRrE4C9-5KPKSGXvbh
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI4MDEyMiBTYWx0ZWRfX93QDdu1qJ7P8
- RAOha//wzVIGAJL2N8Df5EV9m9m2bXXQ13yOWQB0tKwau3KRHWVeBAraaCEV1RS0eu8cbShEwuK
- DgOqpzY+w02pobHWLxWIjdtDTbC+pxdfZJMT6yqNMSAm6LWE0iqF3cGRYxxYa9JDjOx9KFY0AeN
- fPE2O7Fq2LucISZd6iU6QY9Y2snWpdON5nBMyq7n+ArPW2O3o+7BA/exXu/j4LlXM/xJaEMKh1G
- O3U2RTVS9MLhCpwj35DpwVTSeevDD+ONx4sHrldqOzJy9bKbLFwXY2efNeGw63iIZ7SaCEgPp9F
- WKJAQpx/3sqHsjBUcBLz5D2QuVWYXMroziZBws0o4ha8XWMMRkFAWl+oeoDFYzgWq6QBJbe3C3s
- UCRlZUsv7SLsOvGz8qN98LkYy99UpIYwlcd5LjRnB/tEZtBqA/vdALaf7j6WoUahSmtGUjt3fCL
- y1xQ9cME0QcU3OROF2A==
-X-Authority-Analysis: v=2.4 cv=SKFykuvH c=1 sm=1 tr=0 ts=6a68b9ca cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8
- a=_BKb5qho9Nre88LnVS8A:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI4MDEyMiBTYWx0ZWRfXwXheXBqXbBGb
- /SKqO/MuC2mjkIoDSW5FAQ3rMmukBjChBoYkoShu/bOG1IDyAjruYrPSVj4rEul3XvDmVInRCPy
- L+Y9xIX8vWsvwbUHCGXXDI2SCxBku/Q=
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-07-28_03,2026-07-28_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 malwarescore=0 clxscore=1015 adultscore=0
- lowpriorityscore=0 bulkscore=0 impostorscore=0 phishscore=0 spamscore=0
- suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2607280122
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260717180442.110954-1-aneesh.kumar@kernel.org>
 
-On 7/27/26 17:02, Claudio Imbrenda wrote:
-> When creating a new vCPU, kvm_vm_ioctl_create_vcpu() will call
-> kvm_arch_vcpu_postcreate() after the file descriptor for the new vCPU
-> has been created. The new file descriptor has not been returned yet,
-> but a malicious userspace program could try to guess it.
+On Fri, Jul 17, 2026 at 11:34:18PM +0530, Aneesh Kumar K.V (Arm) wrote:
+> This series tracks confidential-computing shared DMA state through the
+> dma-direct, dma-pool, and swiotlb paths so that encrypted and decrypted
+> DMA buffers are handled consistently.
 > 
-> If a malicious userspace program manages to start the newly created vCPU
-> before kvm_arch_vcpu_postcreate() is called, __vcpu_run() will try to
-> dereference vcpu->arch.gmap and trigger a NULL pointer dereference.
+> Today, the direct DMA path mostly relies on force_dma_unencrypted() for
+> shared/decrypted buffer handling. This series consolidates the
+> force_dma_unencrypted() checks in the top-level functions and ensures
+> that the remaining DMA interfaces use DMA attributes to make the correct
+> decisions.
 > 
-> Fix this by adding a new field to struct kvm_vcpu_arch to keep track of
-> the initialization status of the vCPU. Refuse to run a vCPU that is not
-> fully initialized.
+> The series separates mapping and allocation state:
+> - DMA_ATTR_CC_SHARED describes the DMA address attribute requested for a
+>   mapping. It tells the DMA mapping path that the DMA address must target
+>   shared/decrypted memory.
+> - __DMA_ATTR_ALLOC_CC_SHARED is an internal DMA-mapping attribute used only
+>   by allocation paths after the DMA core decides that the backing pages
+>   must be allocated as shared/decrypted memory.
 > 
-> Fixes: dafd032a15f8 ("KVM: s390: move vcpu specific initalization to a later point")
-> Fixes: e38c884df921 ("KVM: s390: Switch to new gmap")
-> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> Reviewed-by: Steffen Eiden <seiden@linux.ibm.com>
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+> The series:
+> - moves swiotlb-backed allocations out of __dma_direct_alloc_pages(),
+> - uses __DMA_ATTR_ALLOC_CC_SHARED through the dma-direct alloc/free paths
+> - teaches the atomic DMA pools to track encrypted versus decrypted
+>   state
+> - tracks swiotlb pool encryption state and enforces strict pool
+>   selection
+> - centralizes encrypted/decrypted pgprot handling in dma_pgprot() using
+>   DMA attributes
+> - passes DMA attributes down to dma_capable() so capability checks can
+>   validate whether the selected DMA address encoding matches
+>   DMA_ATTR_CC_SHARED
+> - makes dma_direct_map_phys() choose the DMA address encoding from
+>   DMA_ATTR_CC_SHARED and fall back to swiotlb when a shared DMA request
+>   cannot use the direct mapping, which lets arm64 and x86 CCA guests stop
+>   relying on SWIOTLB_FORCE for DMA mappings
+> - use the selected swiotlb pool state to derive the returned DMA
+>   address
+> - reports CC_ATTR_GUEST_MEM_ENCRYPT for arm64 Realms, powerpc secure
+>   guests, and s390 protected virtualization guests.
+> 
+
+This series has been getting bigger, going through it again, I see
+that patches (1, 2, 3, 4, 5, 16, 20, 22) are not really related to the
+shared DMA work and are either fixes for exisiting bugs or clean ups.
+Would it make sense to have those separated?
+
+Thanks,
+Mostafa
+
+> Dependency:
+> This series depends on the pKVM changes posted at:
+> https://lore.kernel.org/all/20260603110522.3331819-1-smostafa@google.com
+> 
+> Please merge this series only after the pKVM changes above are merged.
+> Otherwise pKVM will be broken.
+> 
+> Changes since v7:
+> https://lore.kernel.org/all/20260701054926.825925-1-aneesh.kumar@kernel.org
+> * Rebased onto dma-mapping-for-next
+> * Prepared the series on top of the prerequisite pKVM changes, resolving
+>   conflicts so it can be applied directly to the pKVM topic branch once ready.
+>   https://git.gitlab.arm.com/linux-arm/linux-cca/-/commits/scratch/pkvm/testing
+> * Added comments documenting possible follow-up improvements for CC_SHARED
+>   atomic pools and physical-address-based pool freeing.
+> * Retained virtual-address-based pool freeing when
+>   CONFIG_DMA_DIRECT_REMAP is disabled.
+> * Applied pgprot_decrypted() only when expanding a CC_SHARED atomic pool.
+> 
+> Changes since v6:
+> https://lore.kernel.org/all/20260604083959.1265923-1-aneesh.kumar@kernel.org
+> * Rebase onto the latest kernel.
+> * Add __DMA_ATTR_ALLOC_CC_SHARED for allocation paths. DMA_ATTR_CC_SHARED
+>   is now used to describe the requested DMA mapping address attribute,
+>   while __DMA_ATTR_ALLOC_CC_SHARED is used internally when allocating
+>   shared/decrypted backing pages.
+> * Report CC_ATTR_GUEST_MEM_ENCRYPT for arm64 Realms, powerpc secure
+>   guests, and s390 protected virtualization guests.
+> * Add CC_ATTR_HOST_MEM_ENCRYPT and swiotlb=force fixes.
+> 
+> Changes since v5:
+> https://lore.kernel.org/all/20260522042815.370873-1-aneesh.kumar@kernel.org
+> * Add Tested-by
+> * Drop the pKVM patch, which has now been posted separately:
+>   https://lore.kernel.org/all/20260603110522.3331819-1-smostafa@google.com
+> * Remove the DO_NOT_MERGE tag from the s390 change.
+> * Add a patch to drop the SWIOTLB_FORCE flag.
+> * Rebase onto the latest kernel.
+> 
+> Changes since v4:
+> https://lore.kernel.org/all/20260512090408.794195-1-aneesh.kumar@kernel.org
+> * Add new patches based on Sashiko review:
+>   swiotlb: Preserve allocation virtual address for dynamic pools
+>   dma: free atomic pool pages by physical address
+>   dma: swiotlb: handle set_memory_decrypted() failures
+>   dma: swiotlb: free dynamic pools from process context
+>   iommu/dma: Check atomic pool allocation result directly
+> * Include pKVM and s390 changes as dependent patches. These are not yet
+>   ready to merge and are waiting for subsystem testing feedback.
+> * Drop the AMD GART patch because it requires wider testing.
+> * Update swiotlb_tbl_map_single() to take attrs by reference.
+> * Switch swiotlb_free() to use rcu_work.
+> * Avoid calling swiotlb_find_pool() multiple times in the free path.
+> * Make DMA_ATTR_MMIO imply DMA_ATTR_CC_SHARED for devices requiring unencrypted DMA.
+> 
+> Changes from v3:
+> https://lore.kernel.org/all/20260427055509.898190-1-aneesh.kumar@kernel.org
+> * Handle DMA_ATTR_MMIO correctly in dma_direct_map_phys()
+> * Address most of sashiko review
+> * Rebase to latest kernel
+> * drop SWIOTLB_FORCE for s390 and powerpc secure guest.
+> 
+> Changes from v2:
+> https://lore.kernel.org/all/20260420061415.3650870-1-aneesh.kumar@kernel.org
+> * pass attrs to dma_capable() and update direct, swiotlb, Xen swiotlb, and
+>   x86 GART paths so the capability checks see the DMA address attr value
+>   DMA_ATTR_CC_SHARED.
+> * rework dma_direct_map_phys() so DMA_ATTR_CC_SHARED selects
+>   phys_to_dma_unencrypted() while the default path uses
+>   phys_to_dma_encrypted(), with swiotlb fallback when the requested
+>   shared/private state cannot be satisfied by a direct DMA address.
+> * stop relying on SWIOTLB_FORCE for arm64 and x86 CC guest DMA mappings;
+>   swiotlb is still enabled there, but shared mappings is now selected
+>   through the generic dma_direct_map_phys()/dma_capable() decision instead
+>   of a global force-bounce flag.
+> 
+> Changes from v1:
+> https://lore.kernel.org/all/20260417085900.3062416-1-aneesh.kumar@kernel.org
+> * rebased to latest kernel (change from DMA_ATTR_CC_DECRYPTED -> DMA_ATTR_CC_SHARED)
+> * update the alloc path so DMA_ATTR_CC_SHARED is not a caller-visible attribute.
+> 
+> Cc: Robin Murphy <robin.murphy@arm.com>
+> Cc: Marek Szyprowski <m.szyprowski@samsung.com>
+> Cc: Will Deacon <will@kernel.org>
+> Cc: Marc Zyngier <maz@kernel.org>
+> Cc: Steven Price <steven.price@arm.com>
+> Cc: Suzuki K Poulose <Suzuki.Poulose@arm.com>
+> Cc: Catalin Marinas <catalin.marinas@arm.com>
+> Cc: Jiri Pirko <jiri@resnulli.us>
+> Cc: Jason Gunthorpe <jgg@ziepe.ca>
+> Cc: Mostafa Saleh <smostafa@google.com>
+> Cc: Petr Tesarik <ptesarik@suse.com>
+> Cc: Alexey Kardashevskiy <aik@amd.com>
+> Cc: Dan Williams <dan.j.williams@intel.com>
+> Cc: Xu Yilun <yilun.xu@linux.intel.com>
+> Cc: linuxppc-dev@lists.ozlabs.org
+> Cc: linux-s390@vger.kernel.org
+> Cc: Madhavan Srinivasan <maddy@linux.ibm.com>
+> Cc: Michael Ellerman <mpe@ellerman.id.au>
+> Cc: Nicholas Piggin <npiggin@gmail.com>
+> Cc: "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>
+> Cc: Alexander Gordeev <agordeev@linux.ibm.com>
+> Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+> Cc: Heiko Carstens <hca@linux.ibm.com>
+> Cc: Vasily Gorbik <gor@linux.ibm.com>
+> Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
+> Cc: Sven Schnelle <svens@linux.ibm.com>
+> Cc: x86@kernel.org
+> 
+> Aneesh Kumar K.V (Arm) (23):
+>   dma-direct: return struct page from dma_direct_alloc_from_pool()
+>   dma-pool: fix page leak in atomic_pool_expand() cleanup
+>   iommu/dma: Check atomic pool allocation result directly
+>   dma: free atomic pool pages by physical address
+>   swiotlb: Preserve allocation virtual address for dynamic pools
+>   s390: Expose protected virtualization through cc_platform_has()
+>   dma-direct: swiotlb: handle swiotlb alloc/free outside
+>     __dma_direct_alloc_pages
+>   coco: arm64: s390: powerpc: Mark secure guests with
+>     CC_ATTR_GUEST_MEM_ENCRYPT
+>   dma-mapping: Add internal shared allocation attribute
+>   dma-direct: use __DMA_ATTR_ALLOC_CC_SHARED in alloc/free paths
+>   dma-pool: track decrypted atomic pools and select them via attrs
+>   dma: swiotlb: pass mapping attributes by reference
+>   dma: swiotlb: track pool encryption state and honor DMA_ATTR_CC_SHARED
+>   dma-mapping: make dma_pgprot() honor __DMA_ATTR_ALLOC_CC_SHARED
+>   dma-direct: pass attrs to dma_capable() for DMA_ATTR_CC_SHARED checks
+>   dma-direct: Move dma_direct_map_phys() to dma/direct.c
+>   dma-direct: make dma_direct_map_phys() honor DMA_ATTR_CC_SHARED
+>   dma-direct: set decrypted flag for remapped DMA allocations
+>   dma-direct: select DMA address encoding from
+>     __DMA_ATTR_ALLOC_CC_SHARED
+>   dma-direct: rename ret to cpu_addr in alloc helpers
+>   dma: swiotlb: free dynamic pools from process context
+>   dma: swiotlb: handle set_memory_decrypted() failures
+>   swiotlb: remove unused SWIOTLB_FORCE flag
+> 
+>  Documentation/core-api/dma-attributes.rst    |  29 ++
+>  arch/arm64/mm/init.c                         |   5 +-
+>  arch/powerpc/platforms/pseries/cc_platform.c |   1 +
+>  arch/powerpc/platforms/pseries/svm.c         |   2 +-
+>  arch/s390/Kconfig                            |   1 +
+>  arch/s390/mm/init.c                          |  17 +-
+>  arch/x86/kernel/amd_gart_64.c                |  30 +-
+>  arch/x86/kernel/pci-dma.c                    |   4 +-
+>  drivers/iommu/dma-iommu.c                    |  20 +-
+>  drivers/xen/swiotlb-xen.c                    |   8 +-
+>  include/linux/dma-direct.h                   |  20 +-
+>  include/linux/dma-map-ops.h                  |   3 +-
+>  include/linux/dma-mapping.h                  |   8 +
+>  include/linux/swiotlb.h                      |  25 +-
+>  include/trace/events/dma.h                   |   3 +-
+>  kernel/dma/direct.c                          | 326 ++++++++++++++-----
+>  kernel/dma/direct.h                          |  56 +---
+>  kernel/dma/mapping.c                         |  25 +-
+>  kernel/dma/pool.c                            | 237 ++++++++++----
+>  kernel/dma/swiotlb.c                         | 292 +++++++++++++----
+>  20 files changed, 810 insertions(+), 302 deletions(-)
+> 
+> -- 
+> 2.43.0
+> 
