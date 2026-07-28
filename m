@@ -1,218 +1,190 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B0ACE33D503;
-	Tue, 28 Jul 2026 16:13:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 378F5377A9A;
+	Tue, 28 Jul 2026 16:21:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785255226; cv=none; b=V7+PZ6JdJEMHzk/iJaGHkEFKrSVu4WBslWvjMpVZHrjHMfQQ1yp7oVkSOBAV6xwvom4K77Zu7znBfpmHtZlfhSNRzRji1J/PGTPOCNINkFgfpVhoNBsd0w8H59Ehj/w4OOZjAnA+O5Q9PA1v70Ab9eEuMCbeOhi6fyR71qAakuI=
+	t=1785255693; cv=none; b=usT7TpRHnrWXUu8UnLQo5Z2IjR01oGxtFWeshck4++2hmMKC1AVUB6cUVUvfDXye9FoCKCbrUcO8RAUHPL0bJ3R9PU0oyKrq6DQluDzFcw7p2foAi0esjOp2UBiyP8ACE4cpTIJe93qxJoSp7J+88uTn3EkNPQOBbXlDMjZT0hY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785255226; c=relaxed/simple;
-	bh=UnIavyZsCfxoCQ1+Hppm/SP0GoXjymRVCJYqB3jrp3I=;
-	h=MIME-Version:Date:From:To:Cc:Subject:In-Reply-To:References:
-	 Message-ID:Content-Type; b=YTb35oE/fJQO6Ua1Soso3El/5Z/VyvbeLRnuF8mlmiNBe8KnChu4GBXtPNZzIFYus436AbJCLs7nKd2YLo9DOxzkGtvAVdaWI/MFfbqoWXJDhIBAD4tP6bhhUhQBsQSCg2q8QtordQ4dwgS6SiuGN6EABcX8Bin/a9GxIwxcMR0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=IPneuWKQ; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1785255693; c=relaxed/simple;
+	bh=hYEi2jCuXLe8ZIWyOxoM8w7uww8HOwqnK9b6z+1Uamo=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=uR8CcOY6hGmlK88s6xaFsXjlwvy9owVaUjlF29ePv2DlebD3d7qOah4cNA8XBDOZ3hnD0pzttvcdYxgWJq+BHeCh5zUyoKvhwabuQRIfCHWsF88D20uGYqHN2U6yKwg9Z5EXxGRhdOQz8G+zTWTwPR0/ZOhchg52vP1yvz8qmW8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ZfaNeyBT; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="IPneuWKQ"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66SElrbe1459524;
-	Tue, 28 Jul 2026 16:13:36 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ZfaNeyBT"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66SElgkH1380153;
+	Tue, 28 Jul 2026 16:21:29 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:reply-to:subject:to; s=pp1;
-	 bh=Ju3UKVR1T6AOFfpculsveJFdgsQv264Z+bRKDWddmaU=; b=IPneuWKQwBP6
-	qptsG1c2Mkg1nkZVz1wEOBN3k8tv9g21pAbkj2um7v3v7GHwOTzNOz8EtpFraY3a
-	bQFY6TrrS+pI+pkSe18CWIR+maRPq9V7LhjQpzEv8NDFm6u/gKJQQJFgn7Xj5KDG
-	PDfjQh5Gx9yqrHYHT9ILsgOHNsZEIe7aEHd8xqNUDqbje2jN22JGOHIb2oaG0CDg
-	GhB7MXnYJKcr7/aN5UqyM/uz7D+uO3VCrmxr939eqDtE+dkN8w8CLAV8Yl+DraJc
-	vXrmjxyGsZpiQTt1pRVTd8P6JH9pywcUnIydvq3gar0kfGADAMjZNspqzrtM5PYv
-	cL3h/1SWgA==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fmuw7e8jg-1
+	:message-id:mime-version:references:subject:to; s=pp1; bh=pFzsBu
+	+BlHojYcL0C4kQwTXqxp1R62iqsMD7jRO2woo=; b=ZfaNeyBT6avCVc/8kAG9+5
+	5Z3MmY/MGXFVj8ouHL8g7oN4fSw0cLZAxqAa7QaYpaUS7+6a/xugxd9iXTmQVvWJ
+	Wa/JbVnV3SbgXzcswcMoPgTsdo+8cJLk8lh1bnlkAYWWFJ69gh+TxV/n0TuFtgQp
+	UWypAEMv8bGzQ+oOoRhiVCkWWE/mJWumgKQNmTk//2/tYlXd2KPYUVRJOjWTHqbd
+	LM4/UdQ7MPIBTIbGXLKos74L2FhM8zB31pLHp4yVlWMvRRn1UYnCePQfXtk/O/WY
+	PVRq/dSFLX9EMSuXBePM9ePkfVp3BHjdFpGzAcClm8MsvwVd//dR3rX1wm834u5w
+	==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fmuyj5p5v-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 28 Jul 2026 16:13:36 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66SGBFnr006463;
-	Tue, 28 Jul 2026 16:13:35 GMT
-Received: from smtprelay06.dal12v.mail.ibm.com ([172.16.1.8])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fn8yhamkp-1
+	Tue, 28 Jul 2026 16:21:29 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66SGBI6n027448;
+	Tue, 28 Jul 2026 16:21:29 GMT
+Received: from smtprelay05.dal12v.mail.ibm.com ([172.16.1.7])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fn8fk2r3t-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 28 Jul 2026 16:13:35 +0000 (GMT)
-Received: from smtpav06.dal12v.mail.ibm.com (smtpav06.dal12v.mail.ibm.com [10.241.53.105])
-	by smtprelay06.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66SGDX1e27525830
+	Tue, 28 Jul 2026 16:21:29 +0000 (GMT)
+Received: from smtpav04.dal12v.mail.ibm.com (smtpav04.dal12v.mail.ibm.com [10.241.53.103])
+	by smtprelay05.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66SGLRcI29360714
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 28 Jul 2026 16:13:33 GMT
-Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C847B58059;
-	Tue, 28 Jul 2026 16:13:33 +0000 (GMT)
-Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 10BAD58043;
-	Tue, 28 Jul 2026 16:13:33 +0000 (GMT)
-Received: from ltc.linux.ibm.com (unknown [9.5.196.140])
-	by smtpav06.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 28 Jul 2026 16:13:32 +0000 (GMT)
+	Tue, 28 Jul 2026 16:21:28 GMT
+Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id DA27F58052;
+	Tue, 28 Jul 2026 16:21:27 +0000 (GMT)
+Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 103C158062;
+	Tue, 28 Jul 2026 16:21:27 +0000 (GMT)
+Received: from [9.61.157.32] (unknown [9.61.157.32])
+	by smtpav04.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 28 Jul 2026 16:21:26 +0000 (GMT)
+Message-ID: <eb8e8909-1e0e-4144-988d-05be9221e2b8@linux.ibm.com>
+Date: Tue, 28 Jul 2026 12:21:26 -0400
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Date: Tue, 28 Jul 2026 18:13:32 +0200
-From: Harald Freudenberger <freude@linux.ibm.com>
-To: Heiko Carstens <hca@linux.ibm.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle
- <svens@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian
- Borntraeger <borntraeger@linux.ibm.com>,
-        Holger Dengler
- <dengler@linux.ibm.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Peter
- Oberparleiter <oberpar@linux.ibm.com>,
-        Janosch Frank
- <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David
- Hildenbrand <david@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Herbert Xu <herbert@gondor.apana.org.au>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org
-Subject: Re: [PATCH v2 1/4] s390/crypto: Replace cond_resched() with msleep(1)
-Reply-To: freude@linux.ibm.com
-Mail-Reply-To: freude@linux.ibm.com
-In-Reply-To: <20260728150412.3893933-2-hca@linux.ibm.com>
-References: <20260728150412.3893933-1-hca@linux.ibm.com>
- <20260728150412.3893933-2-hca@linux.ibm.com>
-Message-ID: <2cbaf523a137849d351d7393058286e2@linux.ibm.com>
-X-Sender: freude@linux.ibm.com
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3] KVM: s390: Fall back to short-term pinning in MAP
+ ioctl
+To: Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Jaehoon Kim <jhkim@linux.ibm.com>, frankja@linux.ibm.com,
+        imbrenda@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
+        agordeev@linux.ibm.com
+Cc: david@kernel.org, svens@linux.ibm.com, freimuth@linux.ibm.com,
+        kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20260724133943.1664961-1-jhkim@linux.ibm.com>
+ <b099b7bf-31c6-40ec-a43f-9081f2c64195@linux.ibm.com>
+Content-Language: en-US
+From: Matthew Rosato <mjrosato@linux.ibm.com>
+In-Reply-To: <b099b7bf-31c6-40ec-a43f-9081f2c64195@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: VgBQ2d4R80tmrpmdv7Knm86Yqi-VpGuy
-X-Proofpoint-ORIG-GUID: VgBQ2d4R80tmrpmdv7Knm86Yqi-VpGuy
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI4MDE0MCBTYWx0ZWRfX5u+H2DCBGGnH
- WL1vke0YM/FQTQhjj9f5fbZLsm8BjnZLcn6KM/vKNAfl45+VYNfOYRvOs3p8FUw8fIxRmMo92dg
- R5BTpOiJbNoUt+OE3fFrgqBdPhEZiNfKTjvTlgl7T77iUkyN/+7CGCLIsjaMqCx0QiJPzM2whlN
- +lEao7KMmJOvi7iuP59W1y6Z5xZdhmWnC5jHrjIJgIz/cU/zEMuzbVECoyGj4KucFUKP6j4+tXh
- 3m/8HO9QZSOoiUXk9vjv5xZNoahjHcTAP+F1f+fm7D4n1qaQLaqKyUXXXgW8Y8kIaKYTMr92fFx
- G0kJooFcaOF2VKEuhj7cpWugjB9fTnqm2FyPq084PNMU3JGjbGFOHVXTedVaKDQln0rLlL1zUYW
- ixDhQ/42hQSVNnOkJ/q1bVuxg9VLiNwz1h1nJfdUHrrNIDTeH9lM3B4pWjuCNyb9CSRdGhPZnxi
- FllvEeWOYY419frXQxA==
-X-Authority-Analysis: v=2.4 cv=SKFykuvH c=1 sm=1 tr=0 ts=6a68d530 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=kj9zAlcOel0A:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8
- a=DcPO_hv44LQIqzGHYZIA:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI4MDE0MCBTYWx0ZWRfX6Zuw39tXzSFa
- waHq+FWcQXft8JyDTp0q2MPE3VwpCDUQbZFIRtBuLGgOiii6EoHF2ch1J71t3DJ46ZoDGYqzYze
- LiI3hS7Lp/eis2lo3lI51ko9TNqHNw4=
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI4MDE0NCBTYWx0ZWRfX0l+J8yVqN5ND
+ bLuNnc8uNaL6dTUix3VVNHijQSd+K422o9c/x3aNtiVtZI3KcvrgCv0fyofBUVaDmw42o6TO2tx
+ wvx3dE6WeEYpl8MA+jp5wOwiM0V3nWA=
+X-Proofpoint-GUID: eEJlClbBnWUGDbcpkReHxV0pI4w0o15b
+X-Proofpoint-ORIG-GUID: eEJlClbBnWUGDbcpkReHxV0pI4w0o15b
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI4MDE0NCBTYWx0ZWRfXyxLpVVA436Ln
+ zTNkNXvxrDF5Ir7EsJkwuvmgseuRN+TZAgX3FPFwLsjkCUgXp+iBAZGNsDypWvH5PaAgqeMIPsY
+ 2KODC2AjFORk2ZBM1Wr/13n5D7ivmzOU9SHRZUsPcvNAhKzFs70AYYQZUVDf/FkgbyOVj4rplTE
+ F7aLsLYz+FXesQMLDFkmI5RkHij+OcxXGFDhe1zUTP1rAREoVFZy2nGav5NhEWTY9ocqWOW7fGD
+ NV8VLtBfyo2P68Vrp/mAtgg/zO6xTXiRsRoJm9bJOjGv8AtmBfSyoM+dLnno5fRtRN/7zDQsaMM
+ gCOCBu5TmnJvEqTmPk7CQ189HSysZXbh3+HLmcRE1ExaXfMi4ayrQOim2TcZJ1N8+qwlcvl9YQz
+ LhKW9y8T9Ab1SYGDdk+35oUxt7AD6A==
+X-Authority-Analysis: v=2.4 cv=X5Vi7mTe c=1 sm=1 tr=0 ts=6a68d709 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VwQbUJbxAAAA:8
+ a=VnNF1IyMAAAA:8 a=yptSlSW76F1WqccU_tgA:9 a=QEXdDO2ut3YA:10
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-07-28_04,2026-07-28_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 malwarescore=0 clxscore=1015 adultscore=0
- lowpriorityscore=0 bulkscore=0 impostorscore=0 phishscore=0 spamscore=0
- suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ lowpriorityscore=0 phishscore=0 malwarescore=0 spamscore=0 suspectscore=0
+ bulkscore=0 adultscore=0 classifier=typeunknown authscore=0 authtc= authcc=
  route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2607280140
+ definitions=main-2607280144
 
-On 2026-07-28 17:04, Heiko Carstens wrote:
-> With [1] cond_resched() is always compiled away and becomes a no-op.
+On 7/27/26 3:29 AM, Christian Borntraeger wrote:
+> Am 24.07.26 um 15:39 schrieb Jaehoon Kim:
+>> FOLL_LONGTERM pinning fails for some memory types, such as file-backed
+>> guest memory. As a result, kvm_s390_adapter_map() returns -EINVAL and
+>> irqfd adapter registration fails even though interrupt delivery could
+>> still work via the existing non-atomic path.
+>>
+>> When FOLL_LONGTERM pinning fails, verify that the page is accessible
+>> using a short-term pin instead. If the short-term pin succeeds, unpin
+>> the page and add a map entry with pinned=false to preserve MAP/UNMAP
+>> symmetry. The non-atomic irqfd path already performs short-term pinning
+>> for interrupt delivery, so this restores the previous behavior for
+>> memory that cannot be pinned long-term.
+>>
+>> get_map_info() is updated to return NULL for unpinned entries so that
+>> the atomic irqfd fast path falls back to the non-atomic path.
+>> kvm_s390_adapter_unmap() and kvm_s390_unmap_all_adapters() skip dirty
+>> marking and unpin for unpinned entries.
+>>
+>> Update Documentation/virt/kvm/devices/s390_flic.rst to reflect the
+>> new MAP/UNMAP behavior.
+>>
+>> Fixes: c9a568838086 ("KVM: s390: Add map/unmap ioctl and clean
+>> mappings post-guest")
+>> Signed-off-by: Jaehoon Kim <jhkim@linux.ibm.com>
+>> Reviewed-by: Douglas Freimuth <freimuth@linux.ibm.com>
+>> Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
 > 
-> The comments for all cond_resched() calls in crypto code however 
-> indicate
-> that the current process should be scheduled away to avoid instant
-> re-invocation of a callback. This is not what cond_resched() would do 
-> or
-> did.
+> queued for kvm/master.
 > 
-> Instead of just removing the cond_resched() calls, replace them with
-> msleep() calls, as suggested by Holger Dengler. This forces the current
-> task to be scheduled away (sleeps) like originally intended.
+> Doug, Jaehoon, Matt,
 > 
-> [1] commit 7dadeaa6e851 ("sched: Further restrict the preemption 
-> modes")
+> can you have a look at the sashiko feedback for the pre-existing issue
+> and work on a
+> followup fix?
 > 
-> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-> ---
->  arch/s390/crypto/paes_s390.c  | 8 ++++----
->  arch/s390/crypto/phmac_s390.c | 4 ++--
->  2 files changed, 6 insertions(+), 6 deletions(-)
-> 
-> diff --git a/arch/s390/crypto/paes_s390.c 
-> b/arch/s390/crypto/paes_s390.c
-> index 8cfe6166c193..511cb6105436 100644
-> --- a/arch/s390/crypto/paes_s390.c
-> +++ b/arch/s390/crypto/paes_s390.c
-> @@ -555,7 +555,7 @@ static int ecb_paes_do_one_request(struct
-> crypto_engine *engine, void *areq)
->  		 * To avoid immediately re-invocation of this callback,
->  		 * tell the scheduler to voluntarily give up the CPU here.
->  		 */
-> -		cond_resched();
-> +		msleep(1);
->  		pr_debug("rescheduling request\n");
->  		return -ENOSPC;
->  	} else if (rc) {
-> @@ -821,7 +821,7 @@ static int cbc_paes_do_one_request(struct
-> crypto_engine *engine, void *areq)
->  		 * To avoid immediately re-invocation of this callback,
->  		 * tell the scheduler to voluntarily give up the CPU here.
->  		 */
-> -		cond_resched();
-> +		msleep(1);
->  		pr_debug("rescheduling request\n");
->  		return -ENOSPC;
->  	} else if (rc) {
-> @@ -1129,7 +1129,7 @@ static int ctr_paes_do_one_request(struct
-> crypto_engine *engine, void *areq)
->  		 * To avoid immediately re-invocation of this callback,
->  		 * tell the scheduler to voluntarily give up the CPU here.
->  		 */
-> -		cond_resched();
-> +		msleep(1);
->  		pr_debug("rescheduling request\n");
->  		return -ENOSPC;
->  	} else if (rc) {
-> @@ -1572,7 +1572,7 @@ static int xts_paes_do_one_request(struct
-> crypto_engine *engine, void *areq)
->  		 * To avoid immediately re-invocation of this callback,
->  		 * tell the scheduler to voluntarily give up the CPU here.
->  		 */
-> -		cond_resched();
-> +		msleep(1);
->  		pr_debug("rescheduling request\n");
->  		return -ENOSPC;
->  	} else if (rc) {
-> diff --git a/arch/s390/crypto/phmac_s390.c 
-> b/arch/s390/crypto/phmac_s390.c
-> index 03ca33ffe6cc..da76c7beb184 100644
-> --- a/arch/s390/crypto/phmac_s390.c
-> +++ b/arch/s390/crypto/phmac_s390.c
-> @@ -895,7 +895,7 @@ static int phmac_do_one_request(struct
-> crypto_engine *engine, void *areq)
->  			 * tell scheduler to voluntarily give up the CPU here.
->  			 */
->  			pr_debug("rescheduling request\n");
-> -			cond_resched();
-> +			msleep(1);
->  			return -ENOSPC;
->  		} else if (rc) {
->  			hwh_advance(hwh, rc);
-> @@ -916,7 +916,7 @@ static int phmac_do_one_request(struct
-> crypto_engine *engine, void *areq)
->  			 * tell scheduler to voluntarily give up the CPU here.
->  			 */
->  			pr_debug("rescheduling request\n");
-> -			cond_resched();
-> +			msleep(1);
->  			return -ENOSPC;
->  		}
->  		break;
 
-Reviewed-by: Harald Freudenberger <freude@linux.ibm.com>
+I believe this report is not nearly as extreme as it sounds.
+
+It claims:
+"If a malicious guest or untrusted userspace configures an IRQ routing
+entry with an unmapped host virtual address for summary_addr, the
+short-term pin will fail:"
+
+However: the summary_page was previously validated when the route was
+setup in kvm_set_routing_entry():
+
+uaddr_s = gpa_to_hva(kvm, ue->u.adapter.summary_addr);
+...
+if (kvm_is_error_hva(uaddr_s) || kvm_is_error_hva(uaddr_i))
+	return -EFAULT;
+e->adapter.summary_addr = uaddr_s;
+
+So we already know that the address was pre-validated before we try to
+use it in adapter_indicators_set().  BTW this is similar to what Janosch
+did for
+dcf96f7ad556 KVM: s390: Limit adapter indicator access to mapped page
+
+I think we could only have some problem if we later remove a memslot
+that happened to have the summary page on it such that the up-front
+validation is no longer accurate?  Can this even happen?
+
+So: Not nearly as easy or user-controlled as 'guest provides bogus
+address, crashing panic_on_warn=1 host'
+
+All that said:
+The only reason this case is 'weird' is because we may have already
+indicated AIBV successfully (made changes to the guest) but cannot
+complete delivery because AISB is unreachable.
+Maybe the simple answer is to downgrade this to something like
+pr_warn_once("Cannot indicate summary on previously-validated routing
+entry") so we don't lose the breadcrumbs for this highly-unlikely
+scenario but also don't add the potential panic in the first place?  If
+we ever reach this situation, the guest in question is going to get bits
+set in AIBV but will likely never see them because it will poll first on
+AISB which we cannot set anymore.
+
+
+That would track with
+https://docs.kernel.org/process/coding-style.html#do-not-warn-lightly
+even if I don't think it's easy to trigger.
+
+Doug / Jaehoon / s390 KVM maintainers -- thoughts?
