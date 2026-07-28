@@ -1,175 +1,123 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7DD0A30C618;
-	Tue, 28 Jul 2026 04:01:50 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 77C6630C618;
+	Tue, 28 Jul 2026 04:02:06 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785211311; cv=none; b=RhLUPxGYl9grINLNdcz8yhjLmUEjgEy0xPe7kUw74zHztemof6I/6u+djz7DOogYcciHxmIX/s4+nnRwfs0kkwibuAdeSKEj0QySUCTN0RbRyY171Gl9LhkU5/UlCbP5o+9chF9+vP7/UJbFcifXJ4Pw3FGGQ8LIr6Ad7CB8JU8=
+	t=1785211327; cv=none; b=AsGYERHZ/Vy/p9z58JCSUtZsfCvD0LF006Hh2OVKK8FCJfk4QcDuT7KpDcRCWpWsUmupB6BcyKeyyRcDuRkqerCRE9xblCdB5RvsddcxZXkDK+Rbt9o5kgZv54Rh5nsB+JAH8P4mRmEvuj+tvknnaIXlAW3mITRwdfkrl/Z5M9U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785211311; c=relaxed/simple;
-	bh=I08ewCYqfPMZ6vCU0//94UDLD987z3K2JT7HxZkm+/U=;
+	s=arc-20240116; t=1785211327; c=relaxed/simple;
+	bh=TDjDWMK50GnLfma4cmm8c6RjKyRZdKHab+Naoyh3tdw=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=sJWOc3IuKjDNz4nTHttq3HbXCFxh05Nw21ceh5X91nZXZjmXl8KtR1pav38ixaQySBYXJ2SOka8BqdJAlY9rR/NH/ZXGgnaie5wvEdTqAA92qc8PdYEvPNiDIfdmjOrXuzARoB9232DE8LVmxeXMvi+Yfrgeabd9Amykf0KmOr0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nkMDk5GD; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=QDb0OMWMbrhGd2R++T0bvH6FsOOx46b5CjpXYxPoptKWoOGt6hxZl3cI+D+774eJk6kVXEePSnqzf6v5zGZ3jdIYwRdrQcyHhHHhYBj1bUbRMpS0JKzMDb+RvRrqUWO2NzosLLciZ9OK/+vbFa53apEa+X0gk9q1lEgW9/L/vMg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mSVm5gtv; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nkMDk5GD"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB0041F000E9;
-	Tue, 28 Jul 2026 04:01:49 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mSVm5gtv"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B50EB1F000E9;
+	Tue, 28 Jul 2026 04:02:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785211310;
-	bh=C+71wp9GN0qkqczwgv8rnvEvOLHIEdy91s3PGtG6yAE=;
+	s=k20260515; t=1785211326;
+	bh=WLQKGNU6n9WsQBNJUGCXMD8FR0c/KNrTLDbM7d415QM=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=nkMDk5GDXNa/f3faMN4mgRoocxwmKdvhkTCsCBNYfqfzpPBKfX5QKRGcleqruPxzu
-	 PZkBJBIsk54Ai4eKYSzsz0yc2yTeVGS4tVYOIYIgtPXew0BUbx+kNKL85ZEzUD628Z
-	 7Ifk2w4VhW05T9Jb2kb80+7yDwvXduPL1WuZTPXc36hmK/mM74G0JLR1uh6td8qfnb
-	 SHeIM2JzBOBKtRJOhYvp1kcqJshI2xhiJaowVrcuHFTzHmLJCcmzgWulY2/a4ipQOI
-	 3YxXmpx5RZM+BsiHizJGhGms/7wsize3fQFIKg7tVWXs5n0yhnQyPyIG/cWo4u5nbI
-	 DJ8HXz2N9OitQ==
+	b=mSVm5gtvzriHtbKUeIZN6zUHLnPAZ0KKF24UUNjQ0JvqOa9TzxCbDbPHgJShchWq8
+	 FVkaYzIoTm1QZndniBmKpEJN9t0YIgG8tGfTknmwOG5OB9UQKpNSkjzwAg3oAwaQ9d
+	 RMRKTMQYYi/mqIsJ8Q5UZzIlUUqELEpVtiE/Z49QcHEvl4KOrob/AVxRn+yNKxe0SE
+	 AoYpOn7iXwwat4dWS5XqAUEinFInT9M57hR4e6t4AO7cXb0Sisjg9jHBk5wWwQ0NDL
+	 p8Ii9vMQGMAj4VIE2hxiFAEJQeNGM4WJCRjfyEY5x6adkpK26C+T64O+9s8YjHtyiU
+	 rY+HbgXk0mmwg==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v9 08/10] s390/vfio_ccw: move cp cleanup out of not
- operational
+Subject: Re: [PATCH v9 06/10] s390/vfio_ccw: ensure index for read/write
+ regions are within range
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Eric Farman" <farman@linux.ibm.com>
-Cc: "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, "Heiko
- Carstens" <hca@linux.ibm.com>
-In-Reply-To: <20260728033022.2658232-9-farman@linux.ibm.com>
+Cc: "Heiko Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org
+In-Reply-To: <20260728033022.2658232-7-farman@linux.ibm.com>
 References: <20260728033022.2658232-1-farman@linux.ibm.com>
- <20260728033022.2658232-9-farman@linux.ibm.com>
+ <20260728033022.2658232-7-farman@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 28 Jul 2026 04:01:49 +0000
-Message-Id: <20260728040149.CB0041F000E9@smtp.kernel.org>
+Date: Tue, 28 Jul 2026 04:02:05 +0000
+Message-Id: <20260728040205.B50EB1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [Critical] The `vfio_ccw_notoper_todo` work function calls `cp_free()` wi=
-thout acquiring `private->io_mutex`, leading to a severe data race with use=
-rspace I/O request processing.
-- [High] Asynchronous subchannel events can queue `notoper_work` after `flu=
-sh_work()` has completed during device release, leading to a use-after-free=
- of the `private` structure.
-- [High] Concurrent execution of `cp_free()` from `fsm_close()` and the new=
- `notoper_work` leads to a double free of channel program resources.
+- [Critical] Race condition causing linked list corruption on `private->crw=
+`.
+- [Critical] Missing background work cancellation leading to Use-After-Free.
 --
 
---- Patch [8]: [PATCH v9 08/10] s390/vfio_ccw: move cp cleanup out of not o=
-perational ---
-commit 6c38f1bdce307c2af2028b820c48f0ec882d90de
+--- Patch [6]: [PATCH v9 06/10] s390/vfio_ccw: ensure index for read/write =
+regions are within range ---
+commit a96682323321d1f6bd6354e74ae1c8c0bbb835a1
 Author: Eric Farman <farman@linux.ibm.com>
 
-s390/vfio_ccw: move cp cleanup out of not operational
+s390/vfio_ccw: ensure index for read/write regions are within range
 
-This commit moves the cleanup of the channel program out of the
-fsm_notoper() routine and defers it to a workqueue. This avoids
-performing the cleanup while holding the cio subchannel lock.
+The introduction of the capability chain rightly clamped the
+region indexes to the range of the capabilities itself, but
+neglected to do so for the existing read/write regions which
+should also be enforced.
 
-> diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_=
-drv.c
-> --- a/drivers/s390/cio/vfio_ccw_drv.c
-> +++ b/drivers/s390/cio/vfio_ccw_drv.c
-
+> diff --git a/drivers/s390/cio/vfio_ccw_chp.c b/drivers/s390/cio/vfio_ccw_=
+chp.c
+> index 38c176cf62957..f3015132d4b5f 100644
+> --- a/drivers/s390/cio/vfio_ccw_chp.c
+> +++ b/drivers/s390/cio/vfio_ccw_chp.c
 [ ... ]
-
-> @@ -125,6 +125,15 @@ void vfio_ccw_crw_todo(struct work_struct *work)
->  		eventfd_signal(private->crw_trigger);
->  }
-> =20
-> +void vfio_ccw_notoper_todo(struct work_struct *work)
-> +{
-> +	struct vfio_ccw_private *private;
-> +
-> +	private =3D container_of(work, struct vfio_ccw_private, notoper_work);
-> +
-> +	cp_free(&private->cp);
-> +}
+> @@ -97,6 +105,12 @@ static ssize_t vfio_ccw_crw_region_read(struct vfio_c=
+cw_private *private,
+>  		list_del(&crw->next);
 
 [Severity: Critical]
-This isn't a bug introduced by this patch, but does moving the cleanup
-to a workqueue create a data race with userspace I/O requests?
+This is a pre-existing issue, but is it safe to dequeue from private->crw
+locklessly here?
 
-If vfio_ccw_notoper_todo() runs concurrently with a guest operating system
-issuing an I/O request via vfio_ccw_mdev_write_io_region() (which acquires
-private->io_mutex), might cp_free() execute locklessly?
+In drivers/s390/cio/vfio_ccw_drv.c:vfio_ccw_queue_crw(), the hardware event
+path appends to this list without locks:
 
-If notoper_todo executes during fsm_io_request() processing cp_prefetch(),
-it could tear down the channel program and free ccwchain pointers while
-they are actively being iterated and dereferenced.
+    list_add_tail(&crw->next, &private->crw);
 
-The commit message notes a future patch manages locking, but should this
-be protected by io_mutex here to avoid memory leaks and use-after-free
-conditions?
+Could a concurrent userspace read on the CRW region race with a hardware
+event and corrupt the linked list pointers?
 
-[Severity: High]
-This is also a pre-existing issue, but could this lockless execution lead
-to a double free if the device is closed concurrently?
+> =20
+>  	mutex_lock(&private->io_mutex);
+> +	if (i >=3D private->num_regions) {
+> +		ret =3D -EINVAL;
+> +		goto out;
+> +	}
+> +
+> +	i =3D array_index_nospec(i, private->num_regions);
+>  	region =3D private->region[i].data;
 
-When the device is closed, fsm_close() drops sch->lock and calls cp_free().
-If a notoper event occurs simultaneously after the lock is dropped,
-vfio_ccw_sch_event() queues notoper_work.
 
-Since cp_free() is lockless and cp->initialized is not atomically updated,
-could both the fsm_close() thread and the new workqueue thread read
-cp->initialized as true and double-free the channel program allocations?
+[Severity: Critical]
+This is another pre-existing issue, but does vfio_ccw_mdev_release_dev()
+need to cancel the background work queues during teardown?
 
-> diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_=
-ops.c
-> --- a/drivers/s390/cio/vfio_ccw_ops.c
-> +++ b/drivers/s390/cio/vfio_ccw_ops.c
-
-[ ... ]
-
-> @@ -134,9 +135,16 @@ static void vfio_ccw_mdev_release_dev(struct vfio_de=
-vice *vdev)
->  	/*
->  	 * Ensure these work items are fully drained, so none can
->  	 * fire after being released.
-> +	 *
-> +	 * notoper_work should have nothing to do here, because only
-> +	 * open devices could have channel_program resources in use
-> +	 * and those would be released during close. Nevertheless,
-> +	 * call flush here as well to be certain anything that was
-> +	 * allocated is freed.
->  	 */
->  	cancel_work_sync(&private->io_work);
->  	cancel_work_sync(&private->crw_work);
-> +	flush_work(&private->notoper_work);
-
-[Severity: High]
-This is a pre-existing issue, but does flushing the work here guarantee
-that new work cannot be queued afterwards?
-
-If a user removes the mdev via sysfs concurrently with a subchannel event,
-vfio_ccw_sch_event() fetches the private pointer from drvdata outside
-the subchannel lock:
-
-drivers/s390/cio/vfio_ccw_drv.c:vfio_ccw_sch_event() {
-	struct vfio_ccw_private *private =3D dev_get_drvdata(&parent->dev);
-	...
-	if (cio_update_schib(sch)) {
-		if (private)
-			vfio_ccw_fsm_event(private, VFIO_CCW_EVENT_NOT_OPER);
-	}
+drivers/s390/cio/vfio_ccw_ops.c:vfio_ccw_mdev_release_dev() {
+    struct vfio_ccw_private *private =3D
+        container_of(vdev, struct vfio_ccw_private, vdev);
+    ...
 }
 
-If the event thread is preempted, vfio_ccw_mdev_remove() can complete
-unregistering the device and invoke vfio_ccw_mdev_release_dev(). Once
-release finishes, flush_work() returns and the private structure is freed.
+During device release, if fsm_close() disables the subchannel immediately
+and skips vfio_ccw_sch_quiesce(), could private->crw_work and
+private->io_work still be queued?
 
-When the preempted vfio_ccw_sch_event() thread resumes, won't it use the
-freed private pointer to call fsm_notoper() and execute queue_work() on
-the freed private->notoper_work memory?
-
-Calling queue_work() after the workqueue shutdown sequence completes
-might corrupt the workqueue linked list.
+Since vfio_ccw_mdev_release_dev() lacks cancel_work_sync() calls, would any
+pending work items execute after the private struct has been freed by the
+VFIO core, leading to a use-after-free?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260728033022.2658=
-232-1-farman@linux.ibm.com?part=3D8
+232-1-farman@linux.ibm.com?part=3D6
