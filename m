@@ -1,69 +1,68 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EE5E834F24A;
-	Tue, 28 Jul 2026 03:30:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5007312B143;
+	Tue, 28 Jul 2026 03:46:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785209434; cv=none; b=e9bq+T/ehcntcrGSVKCZ8qeKtqsNKlKap8/C3xqUf8mfrkUw2aex7jGf+2pxFN/uJtZsEv8x3zaaJTDLroa7jPdSj8BGEdc6ASw9AFw8o0Sjpq1bQFZIY7LOrIjHTsNVoUrWEDHE8e/R7X4prqBvDbWxy/niMVfaXoH9HoZ/fPk=
+	t=1785210399; cv=none; b=DGG1W9wm6cHSafXEv8nUES6xa6OUmJAc5eoKqlXNn/Ro3X8t0VE3KgAUjFP/YSMn2rIdDYfycOHfmMxJo/t8wKc5TnNbSfXZRMfCzM9ouEVVXUzXhUF+OIzQ/Y+2e3Kcz8cQs+/EtZziLsqp3VCr+BoW5lcLrthD1eFYoOk0438=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785209434; c=relaxed/simple;
-	bh=WfP9KjGiUhNC00atHi0kyLYVsoioA+Sf9b2zatRqvMU=;
+	s=arc-20240116; t=1785210399; c=relaxed/simple;
+	bh=io6x3nA72pTA1hFUFfnE6wexECiMroBJvUj3ONzkADc=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=GUimkddTg/YqBUYaog3TtR8HngRaKqJR9EEYPgukMVlwfKIHnGPPet60cYGjX/ufEaqJe4AR3GvnMxVVbkzXkxqOCbaYkniKwd7OdwZj84vvsnxoCP75lQM74iDAzHPQXS1BO7jFsyYW7iqhapn/UyQMNi0BheQ1IhNtSdi+cSA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=oOqGK+jw; arc=none smtp.client-ip=148.163.158.5
+	 MIME-Version; b=PieOFJN2b/09uoRJDoVozkUg9n3cT29V6NiRd89PeUOSQ+Z6fQjAkSz8tWuNgF+tAvNCw1mAiEmxQXQnJiin0Ay3fiA5hVLUkONc7/xLLXL425zVXGpd4YfAZRLu8uSBU9FcGE8KRXdofD+dQ4m7MVpfLR+bHvtJXChWYwpcid4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=lFW3s0fD; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="oOqGK+jw"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66S0mdgJ3677160;
-	Tue, 28 Jul 2026 03:30:29 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="lFW3s0fD"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66S0lYBH3751590;
+	Tue, 28 Jul 2026 03:46:37 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=t1PHiV8rkqviZARZ9
-	5VBMbb5uovzUNwzuKi8hlP295s=; b=oOqGK+jwxgLdPRKyFzuzTLGnobkPPT9On
-	U30mm4e5GLS1xluKt4JQ8TqQQXrnjvudhS3G8DBDZFTdd0XWUlWTnbJOsV0Tb3uB
-	QXhT+nOcz/pkPFUH5AdnHKcNGaGwBGLc02I3QblS/85IlCoDtbiS8XtPR5RgWQU4
-	O/j0DFbnccb71UuCZzDgqgWoXj3NsQIZaTTGpNbawZcuFnwY0/8HXsSz/D0RoOy7
-	keTFNyMFUPVcrYKI8re3m0oYS1BOpa2xhBA3hzfhaHIVaXBGTH/kF3osVGxwHOna
-	4rFN3Z3uRyPYmT8j12axefzAE+DgMcmehXFI4at4J4jHsWsipbSNg==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fmuyj2q1x-1
+	:mime-version:references:subject:to; s=pp1; bh=GP+SiwQBTq9QAtKkg
+	oBZfMm0nxpLWAtcULDly9mVJkE=; b=lFW3s0fDiHkFwEDB9B580pNlZCiRt8UfD
+	tezZ3H/N0olGuKyvBO/UDbGsAMTddkiJNRf+3Ez4C9lvAl4e282T+4HGlL4uNa+m
+	Rv5gDUMNq1Lf/tNdp8pw+4ubstlzETfebZfhdYupu3g9dpZV1cC85HD5qymOKMph
+	EQpI14OCyiz5Y6QHxcI/xyH7k/evwpBYL/hiZKZFoCM9kinpYcBA1/IaVuZhEC4s
+	ZniMAFyGsOi3im0Ih3Wphx9M0Z+9Oe/DMUqbyufBt+xIbtULOU7TZ9TtjEsaOuiP
+	s78gE7cWoHNpPMDTo9bDOKXqz/yYluF2A3qUU5bTSslXyyyrGtkLg==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fmuw7ba14-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 28 Jul 2026 03:30:29 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66S3QID0002886;
-	Tue, 28 Jul 2026 03:30:28 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fn8yh80d6-1
+	Tue, 28 Jul 2026 03:46:37 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66S3fUSl019492;
+	Tue, 28 Jul 2026 03:46:36 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fn7uw08fp-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 28 Jul 2026 03:30:28 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66S3UOtN10813876
+	Tue, 28 Jul 2026 03:46:36 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66S3kUpN37683462
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 28 Jul 2026 03:30:24 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6F95720049;
+	Tue, 28 Jul 2026 03:46:30 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 86AE920242;
 	Tue, 28 Jul 2026 03:30:24 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4EC7C20063;
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 5D83620240;
 	Tue, 28 Jul 2026 03:30:24 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with SMTP;
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with SMTP;
 	Tue, 28 Jul 2026 03:30:24 +0000 (GMT)
 Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 4958)
-	id 1B2E7162822; Tue, 28 Jul 2026 05:30:24 +0200 (CEST)
+	id 23D9C16282C; Tue, 28 Jul 2026 05:30:24 +0200 (CEST)
 From: Eric Farman <farman@linux.ibm.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org,
         linux-kernel@vger.kernel.org
 Cc: Matthew Rosato <mjrosato@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Eric Farman <farman@linux.ibm.com>,
-        sashiko-bot <sashiko-bot@kernel.org>, stable@vger.kernel.org
-Subject: [PATCH v9 05/10] s390/vfio_ccw: calculate idal length based on idaw type
-Date: Tue, 28 Jul 2026 05:30:17 +0200
-Message-ID: <20260728033022.2658232-6-farman@linux.ibm.com>
+        Eric Farman <farman@linux.ibm.com>, stable@vger.kernel.org
+Subject: [PATCH v9 09/10] s390/vfio_ccw: selectively expand io_mutex
+Date: Tue, 28 Jul 2026 05:30:21 +0200
+Message-ID: <20260728033022.2658232-10-farman@linux.ibm.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260728033022.2658232-1-farman@linux.ibm.com>
 References: <20260728033022.2658232-1-farman@linux.ibm.com>
@@ -75,86 +74,196 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI4MDAyOCBTYWx0ZWRfX7Z6C0TXsM7vP
- TwVMyAd7HDDv+R/JDxzDp5uYHe2WEM8YyYYoJOGO0B/c1qhSku03t+6lZ6z7JY0m9JDYo7L4qAs
- wOfowOke4DdfgJd6u+VmZEuc/rp+OoU=
-X-Proofpoint-GUID: bV3vxfTUSxgAh7ayw3e-1FbgGUdzblER
-X-Proofpoint-ORIG-GUID: bV3vxfTUSxgAh7ayw3e-1FbgGUdzblER
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI4MDAyOCBTYWx0ZWRfXz+g+G9gtZU3b
- fhvRFBpHl1tXPEsZNqXRmm/9PPCn+cA3LjsQlRB8DW+qd7kbTX4tTGbOQajsJg4T1v4IVJrJOoa
- AeGvW6lyR9yACFs4vLoOCajhvwaifOGQxdXzEAqtyfJ9/QhdVdKy497trjn63GcVLmdlwTKrxtM
- CdGZzjcCUtkyeD0imkARdJXjaTELw8ptwLF5NltQCuKqtGKOQIw6t9S1gqyiXwmB8FeE/igOHfr
- mVYub5zI4Ys5NL8MsBrYElVplm/N4kAqYpumleN/zd5Fo/RcTBFoak/Y9ToLrXFV5GNXX5DJY3W
- sNTHalLhVCx4II4W/mr9pnsUq3A2mhFabrgXz3vBQawsuchHKI38WHZzN/C671icOjiQ0XOLW+c
- uUyq5oJLA41zBhy4fMMmFoKOi8WIOudLndLi1BYDjkzRaTswkcYrzc98DIxR5xuKO3duqvoE3/S
- wVqhIDVYtJKG4QsqWzg==
-X-Authority-Analysis: v=2.4 cv=X5Vi7mTe c=1 sm=1 tr=0 ts=6a682255 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+X-Proofpoint-GUID: beihfFYhiFDQspeT1PjPTwmiwo7bYaR9
+X-Proofpoint-ORIG-GUID: beihfFYhiFDQspeT1PjPTwmiwo7bYaR9
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI4MDAyOCBTYWx0ZWRfX638Dtk6gQvaf
+ iFaB4N/a0uvgqdNVfY3vAQaQ1Fki/UDa2nKL0xvmXIXzFtfLVggW6V63Fu9mU5Vx3D8vnFtbN24
+ aifVpvWeNFIuqhtPH5841CSRq5iDSTZyLlvYzjQAqVfH6zKBaql5UbY/uYjNu44YueXK8QAjXmO
+ TICReWea0t6OsorFmdGMMSEUcFr33LKiAl57BD/aJ5XGAayg6scKX2To86hg0DYMwVrNYMfwFDT
+ NYCTyVkNrO8URnxx5T2ZgM9EJiJ0hfu712vnbXhjNeq2Mj1B/+ZVeYrYg+lgUaCJqYHnxunjrg2
+ bTyF1NSGzOLyBYUmj7+RIAEy+Al62vJZfZ9YCpg9/QXMN0N2kUZ+239PBfBMnk7puY2qsnkW/Vg
+ YtFclzmxJboGexHd2Sh9D06/cSmXxr/e+e572FFNCuwctVhwcC1+KTZW8380V5HOekmLevcRf7I
+ NOCb3shF1goRisK0XEA==
+X-Authority-Analysis: v=2.4 cv=SKFykuvH c=1 sm=1 tr=0 ts=6a68261d cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
  a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
- a=Qev3T-O1x3Ov5i2I8JAA:9
+ a=iQ6ETzBq9ecOQQE5vZCe:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
+ a=EkIAoCbfkmX2K6UF1qUA:9
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI4MDAyOCBTYWx0ZWRfXxcNF0XZbmGud
+ 4BlmCqQw45fQi4cRM0DMxIidQvCJvHIrf0N0pZ+AoTjrtvrai4deavYbmh1m21B+c3i9eSkx0oK
+ hD/xIaXp5VLupLDMrc8ZqqhFMwiSOoc=
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-07-27_07,2026-07-27_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 impostorscore=0 lowpriorityscore=0 phishscore=0
- priorityscore=1501 malwarescore=0 spamscore=0 suspectscore=0 bulkscore=0
- adultscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ priorityscore=1501 malwarescore=0 clxscore=1015 adultscore=0
+ lowpriorityscore=0 bulkscore=0 impostorscore=0 phishscore=0 spamscore=0
+ suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
  route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
  definitions=main-2607280028
 
-Sashiko pointed out that get_guest_idal() unconditionally calculates
-the length of the IDAL presuming everything is a Format-2 IDAW.
+The io_mutex was defined to serialize the io_regions, but then has
+also sort of been associated with the I/O themselves because of
+the close relationship they share.
 
-The output of vfio-ccw is always Format-2, but the input can be either
-Format-1 (31-bit addresses) or Format-2 (64-bit addresses). As a result,
-the size of the guest IDAL may be incorrect and should be trimmed down.
+With the handful of races that are possible, the choices are either to:
+ A) expand the scope of io_mutex to close these remaining windows, or
+ B) reduce the scope of io_mutex to just io_region, and introduce a new
+    lock mechanism for the remaining I/O resources
 
-Reported-by: sashiko-bot <sashiko-bot@kernel.org>
-Link: https://lore.kernel.org/r/20260720203400.7328E1F000E9@smtp.kernel.o=
-rg/
-Fixes: 1b676fe3d9d3 ("vfio/ccw: handle a guest Format-1 IDAL")
+This patch implements A, since B brings with it a lot more interactions
+that would need to be tracked and kept in a correct hierarchy. It also
+takes advantage of the workqueue element for cp_free() that now gets
+called out of fsm_notoper(), which could be invoked out of an interrupt
+context and thus cannot acquire a mutex itself.
+
+Fixes: 4f76617378ee ("vfio-ccw: protect the I/O region")
 Cc: stable@vger.kernel.org
-Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
 Signed-off-by: Eric Farman <farman@linux.ibm.com>
 ---
- drivers/s390/cio/vfio_ccw_cp.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/s390/cio/vfio_ccw_chp.c     | 2 +-
+ drivers/s390/cio/vfio_ccw_cp.c      | 8 +++++++-
+ drivers/s390/cio/vfio_ccw_drv.c     | 6 ++++--
+ drivers/s390/cio/vfio_ccw_fsm.c     | 5 +++++
+ drivers/s390/cio/vfio_ccw_private.h | 3 ++-
+ 5 files changed, 19 insertions(+), 5 deletions(-)
 
+diff --git a/drivers/s390/cio/vfio_ccw_chp.c b/drivers/s390/cio/vfio_ccw_=
+chp.c
+index f3015132d4b5..9269b54f5cfd 100644
+--- a/drivers/s390/cio/vfio_ccw_chp.c
++++ b/drivers/s390/cio/vfio_ccw_chp.c
+@@ -98,13 +98,13 @@ static ssize_t vfio_ccw_crw_region_read(struct vfio_c=
+cw_private *private,
+ 	if (pos + count > sizeof(*region))
+ 		return -EINVAL;
+=20
++	mutex_lock(&private->io_mutex);
+ 	crw =3D list_first_entry_or_null(&private->crw,
+ 				       struct vfio_ccw_crw, next);
+=20
+ 	if (crw)
+ 		list_del(&crw->next);
+=20
+-	mutex_lock(&private->io_mutex);
+ 	if (i >=3D private->num_regions) {
+ 		ret =3D -EINVAL;
+ 		goto out;
 diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_c=
 p.c
-index 6275794751cb..5ef082b8289a 100644
+index 5ef082b8289a..58722c4baa25 100644
 --- a/drivers/s390/cio/vfio_ccw_cp.c
 +++ b/drivers/s390/cio/vfio_ccw_cp.c
-@@ -233,6 +233,7 @@ static void convert_ccw0_to_ccw1(struct ccw1 *source,=
- unsigned long len)
+@@ -977,17 +977,23 @@ void cp_update_scsw(struct channel_program *cp, uni=
+on scsw *scsw)
+  */
+ bool cp_iova_pinned(struct channel_program *cp, u64 iova, u64 length)
+ {
++	struct vfio_ccw_private *private =3D
++		container_of(cp, struct vfio_ccw_private, cp);
+ 	struct ccwchain *chain;
+ 	int i;
+=20
+ 	if (!cp->initialized)
+ 		return false;
+=20
++	mutex_lock(&private->io_mutex);
+ 	list_for_each_entry(chain, &cp->ccwchain_list, next) {
+ 		for (i =3D 0; i < chain->ch_len; i++)
+-			if (page_array_iova_pinned(&chain->ch_pa[i], iova, length))
++			if (page_array_iova_pinned(&chain->ch_pa[i], iova, length)) {
++				mutex_unlock(&private->io_mutex);
+ 				return true;
++			}
+ 	}
++	mutex_unlock(&private->io_mutex);
+=20
+ 	return false;
+ }
+diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_=
+drv.c
+index c197ad5ab580..757ff5b2556e 100644
+--- a/drivers/s390/cio/vfio_ccw_drv.c
++++ b/drivers/s390/cio/vfio_ccw_drv.c
+@@ -91,6 +91,7 @@ void vfio_ccw_sch_io_todo(struct work_struct *work)
+=20
+ 	is_final =3D !(scsw_actl(&irb->scsw) &
+ 		     (SCSW_ACTL_DEVACT | SCSW_ACTL_SCHACT));
++	mutex_lock(&private->io_mutex);
+ 	if (scsw_is_solicited(&irb->scsw)) {
+ 		cp_update_scsw(&private->cp, &irb->scsw);
+ 		if (is_final && private->state =3D=3D VFIO_CCW_STATE_CP_PENDING) {
+@@ -98,9 +99,7 @@ void vfio_ccw_sch_io_todo(struct work_struct *work)
+ 			cp_is_finished =3D true;
+ 		}
+ 	}
+-	mutex_lock(&private->io_mutex);
+ 	memcpy(private->io_region->irb_area, irb, sizeof(*irb));
+-	mutex_unlock(&private->io_mutex);
+=20
+ 	/*
+ 	 * Reset to IDLE only if processing of a channel program
+@@ -110,6 +109,7 @@ void vfio_ccw_sch_io_todo(struct work_struct *work)
+ 	 */
+ 	if (cp_is_finished)
+ 		private->state =3D VFIO_CCW_STATE_IDLE;
++	mutex_unlock(&private->io_mutex);
+=20
+ 	if (private->io_trigger)
+ 		eventfd_signal(private->io_trigger);
+@@ -131,7 +131,9 @@ void vfio_ccw_notoper_todo(struct work_struct *work)
+=20
+ 	private =3D container_of(work, struct vfio_ccw_private, notoper_work);
+=20
++	mutex_lock(&private->io_mutex);
+ 	cp_free(&private->cp);
++	mutex_unlock(&private->io_mutex);
  }
 =20
- #define idal_is_2k(_cp) (!(_cp)->orb.cmd.c64 || (_cp)->orb.cmd.i2k)
-+#define get_idaw_size(_cp) ((_cp)->orb.cmd.c64 ? sizeof(u64) : sizeof(u3=
-2))
-=20
  /*
-  * Helpers to operate ccwchain.
-@@ -524,7 +525,7 @@ static dma64_t *get_guest_idal(struct ccw1 *ccw, stru=
-ct channel_program *cp, int
- 	dma64_t *idaws;
- 	dma32_t *idaws_f1;
- 	u64 first_idaw;
--	int idal_len =3D idaw_nr * sizeof(*idaws);
-+	int idal_len =3D idaw_nr * get_idaw_size(cp);
- 	int idaw_size =3D idal_is_2k(cp) ? PAGE_SIZE / 2 : PAGE_SIZE;
- 	int idaw_mask =3D ~(idaw_size - 1);
- 	int i, ret;
-@@ -593,7 +594,7 @@ static int ccw_count_idaws(struct ccw1 *ccw,
- 	struct vfio_device *vdev =3D
- 		&container_of(cp, struct vfio_ccw_private, cp)->vdev;
- 	u64 iova;
--	int size =3D cp->orb.cmd.c64 ? sizeof(u64) : sizeof(u32);
-+	int size =3D get_idaw_size(cp);
- 	int ret;
- 	int bytes =3D 1;
+diff --git a/drivers/s390/cio/vfio_ccw_fsm.c b/drivers/s390/cio/vfio_ccw_=
+fsm.c
+index 4d47a3c7b9a0..5fd94e9d5c61 100644
+--- a/drivers/s390/cio/vfio_ccw_fsm.c
++++ b/drivers/s390/cio/vfio_ccw_fsm.c
+@@ -170,6 +170,7 @@ static void fsm_notoper(struct vfio_ccw_private *priv=
+ate,
+ 	css_sched_sch_todo(sch, SCH_TODO_UNREG);
+ 	private->state =3D VFIO_CCW_STATE_NOT_OPER;
 =20
++	/* This routine could be called from IRQ context, so defer */
+ 	queue_work(vfio_ccw_work_q, &private->notoper_work);
+ }
+=20
+@@ -409,7 +410,11 @@ static void fsm_close(struct vfio_ccw_private *priva=
+te,
+=20
+ 	private->state =3D VFIO_CCW_STATE_STANDBY;
+ 	spin_unlock_irq(&sch->lock);
++
++	mutex_lock(&private->io_mutex);
+ 	cp_free(&private->cp);
++	mutex_unlock(&private->io_mutex);
++
+ 	return;
+=20
+ err_unlock:
+diff --git a/drivers/s390/cio/vfio_ccw_private.h b/drivers/s390/cio/vfio_=
+ccw_private.h
+index e2256402b089..739121116ab6 100644
+--- a/drivers/s390/cio/vfio_ccw_private.h
++++ b/drivers/s390/cio/vfio_ccw_private.h
+@@ -88,7 +88,8 @@ struct vfio_ccw_parent {
+  * @state: internal state of the device
+  * @completion: synchronization helper of the I/O completion
+  * @io_region: MMIO region to input/output I/O arguments/results
+- * @io_mutex: protect against concurrent update of I/O regions
++ * @io_mutex: protect against concurrent update of I/O resources
++ *            and @cp lifecycle
+  * @region: additional regions for other subchannel operations
+  * @cmd_region: MMIO region for asynchronous I/O commands other than STA=
+RT
+  * @schib_region: MMIO region for SCHIB information
 --=20
 2.53.0
 
