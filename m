@@ -1,194 +1,180 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 96E2628688C;
-	Tue, 28 Jul 2026 17:33:00 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 203AB3B9DA6;
+	Tue, 28 Jul 2026 17:39:03 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785259981; cv=none; b=mIE6fdk8/A50tNDakaVkrCL/87nzC5nDQuoUoIsb5QeNB7tKYqp6EeTOcbpbJ/Z6JLZcdiOrZn+6mtFa8cg/I+s/cCXkpvgP82OdMM4RRj4NhhGwbZqAtwwVLDLFzNw6yLiVu6DADEoym9217CbTdfRY7U8hKu67Su5ZZLaF+us=
+	t=1785260345; cv=none; b=nL2/cWNgtxi7CqXeYggMAfIl1pvZmOBuzVQ8ubmXbs8lBxiOaUytdtZn0rZj8IbjV2yx3mZdWl/GwapxhIFpmYAQyp4yGpYlgIvDgABATiT67a+9Fy7wsjIT7hDIZojBhW2i9ldHOrAUEPu91yURHLznpg4HmGKCf/5QsSu8QWE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785259981; c=relaxed/simple;
-	bh=mzMFX+0HSPySRyDAyUgRiUuO3ycC52pX0VfSaltnjm0=;
+	s=arc-20240116; t=1785260345; c=relaxed/simple;
+	bh=7CDsY73F9e+yUeTT0uKGeG3aRjFvS0s0KdhxJHIjfOc=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=QcfHFWBzF5pBob0kZuLJ/sG+zFqTzNUb6U8d/R9wJkmFrqGIoQ1Pdsjuk70WRIa5ko4/Y7CWsTlqZbHmg1InlY3RQb2evkc6xFpKs5z4SA8tvXBMB4EHpWcxU3RvjRcXbsMFFxsHR1SrFECat+qdZredAbDAENy5VPXxoNkt4QY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=THZxSXdI; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=tpc8QB+TX2XVO75x/8dzkP6OZJeTCm7Am0kR59ftj3/ECdvEK1RDPEdPCOcntgDXT3MAjA3+hD9PWarJdoZ2D1yyBj9K9m3QupitCURXSambsaEr2nZg7OkTWHSlGQK0rC1J3tbwdyG8j/kBRcxDfevS6Blk39AD0kBn0M5djDk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jVPiIaMM; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="THZxSXdI"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2814E1F000E9;
-	Tue, 28 Jul 2026 17:33:00 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jVPiIaMM"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D34761F000E9;
+	Tue, 28 Jul 2026 17:39:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785259980;
-	bh=5DOXu7+3UlAvldy+wPuUnLgxsnzA6XaWpquWVmFREAA=;
+	s=k20260515; t=1785260343;
+	bh=GGOmGavii8rSHeWKjpJ6aDseh1v7eN7/iJJ61nY4eLY=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=THZxSXdIADFlLWKoGp/s3wJ6kEbMWlJYpSWiKtXkToXkbz485Hj1MHyVukxzV6cGk
-	 Rc5ke7KHAn6X4Tw6Hz0m/wc3AVqJ4p7zBi4PmIvUK7FVuQbtLfa+YQ1+GP+X5pWXv8
-	 SSGrVcJ+4qy1jZwKDCyTWfs0crskhwxKTuM+WQNZ38D7VJ4C2aWX7kszLjzotyXbj8
-	 Ae0bu2mWFZFnNV59HbaxItvs1XlWTaCda04l86IZ6UiFWY94Tpq9d8cycgJuGpCVMR
-	 936XAQYnM18Zic2mz/aSgJ7JWI1LcxnldI0ede7TmyvrcIN9ZutE077Rod0FzbSW/z
-	 VhdncOQDX7l1w==
+	b=jVPiIaMMh8CeaAukxew1PBqeKdVRpj40D7/A7bG5nFipq79eQLRwTXKLW9QFRQORH
+	 JM6imPaykr3yOnAs5Mj1EDlC3Xxk/tqm9MjaliMlLAVzl2INkcUwlsamuYeM1oN54D
+	 EMufk/WTvmTHzrng+B1KaYY2+4hlKtVLytHuNKCsF/zmXcBTajvHJKKc7tAeprlvRK
+	 lr7B8TVGvG3EcM5uWMQlfKKrN9SDQt5Kx71SJD9tycgnZCLeb5KYIU6f5Tscp+ejku
+	 yvPbNtQF/13/gfBUJQ+x9r7NHbZZviIu4UTgbYGfi1eqcc4WsmnIB4cDq4T3kj5vmp
+	 UhTtJAtcRIgZQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 07/13] KVM: s390: Return -EINTR if a signal was
- pending while faulting-in
+Subject: Re: [PATCH v4 13/13] KVM: s390: Fix sca_clear_ext_call() for
+ UCONTROL
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>
-Cc: "Vasily Gorbik" <gor@linux.ibm.com>, kvm@vger.kernel.org, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
- Carstens" <hca@linux.ibm.com>
-In-Reply-To: <20260728170708.294400-8-imbrenda@linux.ibm.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
+ Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
+In-Reply-To: <20260728170708.294400-14-imbrenda@linux.ibm.com>
 References: <20260728170708.294400-1-imbrenda@linux.ibm.com>
- <20260728170708.294400-8-imbrenda@linux.ibm.com>
+ <20260728170708.294400-14-imbrenda@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 28 Jul 2026 17:32:59 +0000
-Message-Id: <20260728173300.2814E1F000E9@smtp.kernel.org>
+Date: Tue, 28 Jul 2026 17:39:02 +0000
+Message-Id: <20260728173902.D34761F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
 s) to consider:
 
+New issues:
+- [High] Asymmetric resource teardown of CPUSTAT_ECALL_PEND for UCONTROL VM=
+s leading to a permanent stuck state.
+- [High] Double-decrement of `cmma_dirty_pages` counter due to a retry loop.
+
 Pre-existing issues:
-- [High] Nested virtualization (vSIE) skips the SIE instruction and corrupt=
-s guest state when a signal interrupts the shadow page fault handler.
-- [High] Instruction handlers using read_guest/write_guest (e.g., STSI, LPS=
-W) silently skip execution if a signal is pending during page fault-in.
+- [Critical] Out-of-bounds memory access in `sca_inject_ext_call()` and `sc=
+a_ext_call_pending()` for UCONTROL VMs.
 --
 
---- Patch [7]: [PATCH v4 07/13] KVM: s390: Return -EINTR if a signal was pe=
-nding while faulting-in ---
-commit 1e3636aa03c57bfbcde97da61dcda6802d420d61
+--- Patch [13]: [PATCH v4 13/13] KVM: s390: Fix sca_clear_ext_call() for UC=
+ONTROL ---
+commit d27d3f9f6aa096af6e829ecfb494bcc68d320453
 Author: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Date:   Tue Jul 28 17:07:08 2026 +0000
 
-KVM: s390: Return -EINTR if a signal was pending while faulting-in
+    KVM: s390: Fix sca_clear_ext_call() for UCONTROL
 
-If a signal is pending while trying to fault-in a page, return -EINTR
-instead of -EAGAIN. Also fix unpack_one() and handle_mvpg_pei() so
-that they can handle -EINTR properly.
+This commit fixes an out-of-bounds access in sca_clear_ext_call() for UCONT=
+ROL
+VMs by returning early before touching the ESCA block. UCONTROL VMs bypass =
+ESCA
+but can have vCPU IDs larger than the ESCA block capacity.
 
-> diff --git a/arch/s390/kvm/faultin.c b/arch/s390/kvm/faultin.c
-> index fee80047bd94f..4ff4c59709566 100644
-> --- a/arch/s390/kvm/faultin.c
-> +++ b/arch/s390/kvm/faultin.c
-> @@ -92,8 +92,8 @@ int kvm_s390_faultin_gfn(struct kvm_vcpu *vcpu, struct =
-kvm *kvm, struct guest_fa
->  		if (is_noslot_pfn(f->pfn))
->  			return PGM_ADDRESSING;
->  		/* Signal pending: try again. */
-> -		if (f->pfn =3D=3D KVM_PFN_ERR_SIGPENDING)
-> -			return -EAGAIN;
-> +		if (is_sigpending_pfn(f->pfn))
-> +			return -EINTR;
+> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+> index 2acdff130fa6c..8d146a0681dce 100644
+> --- a/arch/s390/kvm/interrupt.c
+> +++ b/arch/s390/kvm/interrupt.c
+> @@ -84,10 +84,13 @@ static int sca_inject_ext_call(struct kvm_vcpu *vcpu,=
+ int src_id)
+>  static void sca_clear_ext_call(struct kvm_vcpu *vcpu)
+>  {
+>  	struct esca_block *sca =3D vcpu->kvm->arch.sca;
+> -	union esca_sigp_ctrl *sigp_ctrl =3D &sca->cpu[vcpu->vcpu_id].sigp_ctrl;
+> +	union esca_sigp_ctrl *sigp_ctrl;
+> =20
+> -	if (!kvm_s390_use_sca_entries() || !vcpu->arch.initialized)
+> +	if (!kvm_s390_use_sca_entries() || !vcpu->arch.initialized || kvm_is_uc=
+ontrol(vcpu->kvm))
+>  		return;
 
 [Severity: High]
-This is a pre-existing issue, but does propagating this error cause
-nested virtualization (vSIE) to skip the SIE instruction when a signal
-interrupts the shadow page fault handler?
+Could this early return for UCONTROL VMs skip clearing the CPUSTAT_ECALL_PE=
+ND
+flag?
 
-If a signal is sent to the vCPU thread while handling a nested fault,
-gaccess_shadow_fault() calls kvm_s390_get_guest_page(), which returns -EINT=
-R.
+Prior to this patch, if an external call was injected into a UCONTROL VM,
+sca_inject_ext_call() would set the CPUSTAT_ECALL_PEND cpuflag, and
+sca_clear_ext_call() would later clear it. By adding an early return here
+without a corresponding check in sca_inject_ext_call(), the flag is set but
+never cleared. Would this leave the VM in a permanently corrupted state acr=
+oss
+resets?
 
-This error propagates without rewinding the L2 guest PSW via
-retry_vsie_icpt() or kvm_s390_rewind_psw():
+[Severity: Critical]
+This is a pre-existing issue, but UCONTROL VMs bypass the sca_can_add_vcpu()
+constraints, allowing vCPU IDs up to KVM_MAX_VCPUS - 1 (254). The ESCA block
+only holds KVM_S390_ESCA_CPU_SLOTS (248) entries.
 
-arch/s390/kvm/vsie.c:vsie_handle_mvpg() {
+While this patch prevents out-of-bounds access in sca_clear_ext_call(), it
+fails to patch identical accesses in sca_inject_ext_call():
+
+arch/s390/kvm/interrupt.c:sca_inject_ext_call() {
     ...
-    if (rc_dest < 0)
-        return rc_dest;
-    ...
-}
-
-arch/s390/kvm/vsie.c:vsie_run() {
-    ...
-    if (rc || scb_s->icptcode)
-        break;
-    ...
-}
-
-When userspace resumes KVM_RUN, does execution continue at the advanced PSW,
-skipping the SIE instruction and corrupting L2 guest state? Does vSIE need
-to be addressed similarly to how handle_mvpg_pei() is fixed in this patch?
-
->  		/* Check if it's read-only memory; don't try to actually handle that c=
-ase. */
->  		if (f->pfn =3D=3D KVM_PFN_ERR_RO_FAULT)
->  			return -EOPNOTSUPP;
-> diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
-> index 1980df61ef304..a40fe2a10cbfe 100644
-> --- a/arch/s390/kvm/intercept.c
-> +++ b/arch/s390/kvm/intercept.c
-[ ... ]
-> @@ -369,27 +369,30 @@ static int handle_mvpg_pei(struct kvm_vcpu *vcpu)
->  	if (rc)
->  		return kvm_s390_inject_prog_cond(vcpu, rc);
-> =20
-> -	do {
-> -		rc =3D kvm_s390_faultin_gfn_simple(vcpu, NULL, gpa_to_gfn(srcaddr), fa=
-lse);
-> -	} while (rc =3D=3D -EAGAIN);
-> -	if (rc)
-> -		return rc;
-> -
-> -	/* Ensure that the source is paged-in, no actual access -> no key check=
-ing */
-> +	/* Ensure that the destination is paged-in, no actual access -> no key =
-checking */
->  	rc =3D guest_translate_address_with_key(vcpu, vcpu->run->s.regs.gprs[re=
-g1],
->  					      reg1, &dstaddr, GACC_STORE, 0);
->  	if (rc)
->  		return kvm_s390_inject_prog_cond(vcpu, rc);
-> =20
-> +	/*
-> +	 * If an error happens below, the instruction needs to be retried.
-> +	 * Positive error codes are impossible; addressing exceptions would
-> +	 * have been discovered and reported above.
-> +	 */
-> +	kvm_s390_retry_instr(vcpu);
-
-[Severity: High]
-This isn't a bug introduced by this patch, but while adding the instruction
-retry logic here, do other instruction handlers using read_guest() or
-write_guest() in arch/s390/kvm/priv.c also need this fix?
-
-If a signal interrupts kvm_s390_faultin_gfn() during an instruction interce=
-pt,
-the handler receives -EINTR (or -EAGAIN prior to this patch) and returns it
-to userspace without calling kvm_s390_retry_instr().
-
-Does this leave the guest's PSW at the instruction following the intercept,
-causing the instruction to be skipped when userspace resumes the vCPU?
-
-arch/s390/kvm/priv.c:handle_stsi() {
-    ...
-    if (rc) {
-        rc =3D kvm_s390_inject_prog_cond(vcpu, rc);
-        goto out;
-    }
+    union esca_sigp_ctrl *sigp_ctrl =3D &sca->cpu[vcpu->vcpu_id].sigp_ctrl;
     ...
 }
 
-arch/s390/kvm/priv.c:kvm_s390_handle_lpsw() {
+and sca_ext_call_pending():
+
+arch/s390/kvm/interrupt.c:sca_ext_call_pending() {
     ...
-    rc =3D read_guest(vcpu, addr, ar, &new_psw, sizeof(new_psw));
-    if (rc)
-        return kvm_s390_inject_prog_cond(vcpu, rc);
+    union esca_sigp_ctrl sigp_ctrl =3D sca->cpu[vcpu->vcpu_id].sigp_ctrl;
     ...
 }
+
+The entry point for userspace interrupt injection, __inject_extcall(), calls
+sca_inject_ext_call() based on host hardware capabilities without verifying
+if the target VM is UCONTROL.
+
+Can a malicious userspace process trigger these out-of-bounds accesses by
+injecting external calls or polling for pending interrupts on a vCPU with
+an ID >=3D 248?
 
 > +
->  	do {
-> -		rc =3D kvm_s390_faultin_gfn_simple(vcpu, NULL, gpa_to_gfn(dstaddr), tr=
-ue);
-> +		rc =3D kvm_s390_faultin_gfn_simple(vcpu, NULL, gpa_to_gfn(srcaddr), fa=
-lse);
->  	} while (rc =3D=3D -EAGAIN);
->  	if (rc)
->  		return rc;
+> +	/* Initialize after the above check, to prevent going out of bounds */
+> +	sigp_ctrl =3D &sca->cpu[vcpu->vcpu_id].sigp_ctrl;
+>  	kvm_s390_clear_cpuflags(vcpu, CPUSTAT_ECALL_PEND);
+> =20
+>  	WRITE_ONCE(sigp_ctrl->value, 0);
+
+[Severity: High]
+I also noticed a separate issue introduced in commit 'KVM: s390: Fix
+kvm_arch_commit_memory_region() when low on memory'.
+
+Is there a risk that the retry loop in kvm_arch_commit_memory_region() caus=
+es
+a double-decrement of the cmma_dirty_pages counter?
+
+arch/s390/kvm/kvm-s390.c:kvm_arch_commit_memory_region() {
+    ...
+    retry:
+        ...
+        _dat_walk_gfn_range(old->base_gfn, old->base_gfn + old->npages,
+                            kvm->arch.gmap->asce, &ops, DAT_WALK_IGN_HOLES,
+                            &kvm->arch.cmma_dirty_pages);
+    ...
+}
+
+Inside this loop, _dat_walk_gfn_range() uses cmma_d_count_pte() to decrement
+kvm->arch.cmma_dirty_pages for every PTE where cmma_d is set:
+
+arch/s390/kvm/kvm-s390.c:cmma_d_count_pte() {
+    if (pgste_of(ptep)->cmma_d)
+        atomic64_dec(walk->priv);
+    ...
+}
+
+Because cmma_d_count_pte() does not clear the cmma_d bit, if
+dat_delete_slot() or dat_create_slot() fails with -ENOMEM, the code jumps
+to retry and executes the pass again over the exact same range.
+
+Could this decrement the counter a second time for unchanged PTEs, leading =
+to
+an underflow and breaking CMMA dirty page tracking during VM migration?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260728170708.2944=
-00-1-imbrenda@linux.ibm.com?part=3D7
+00-1-imbrenda@linux.ibm.com?part=3D13
