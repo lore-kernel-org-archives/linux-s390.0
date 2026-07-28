@@ -1,61 +1,51 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 69CA92F5474
-	for <linux-s390@vger.kernel.org>; Tue, 28 Jul 2026 15:32:08 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C91B63B992A
+	for <linux-s390@vger.kernel.org>; Tue, 28 Jul 2026 15:38:16 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785252729; cv=none; b=bi4vVrg854u45iJKHVVRXKWPeIO94STtj4urlDciHXVDEXryncIAIDa8TOsSH36lNinuhWG1N0euHULxDwKMlDQcNSxT4QAoD07PbZoYObwuwSjyEKlIEkSgpzlAqxomaKEJQgF+XR6Drd4UvWt0VzJ45L8UA7PXMUjg+COpecI=
+	t=1785253097; cv=none; b=hMI/1PLhMmEb1k1Zb+sfTrUMpjVaTadBJsoqXe5EXCYW7r0v7vYaxuLuP384WgTG/TN9V8ojNc56PyT++NhZmsPLQx5GQL7NciGJTFRnBEalkSTXp+9OfsbOLR+xUlGwnpOCoX1cTm/L1hyFfl0YL7CWwvAzA5kQNxu/GDI4Q2Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785252729; c=relaxed/simple;
-	bh=sQVEkc3qFttUpVbpNGHfUblVyKzFSv1Wjwjz0J7Dd+M=;
+	s=arc-20240116; t=1785253097; c=relaxed/simple;
+	bh=Dm2qdN/eHTpIgssQSjAwRT/CeibfFTs7rNwnUwUbQYg=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=OR0wrCl7OvJwU7TxmHpoI2r+Ld8yQat5Sz0vjAea0R3ISdO+HqcCIdCZ6OcTm1J4y7A3OhqkqnHzkpI8JfDBTR7/T93MynXFs9subUYLJPYJsiJIHRZXp8cQNzoM0SvDd3MckVc+KnW2iFK5XGAGzTRjW9p5YXkrQpt+9BRW3zA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=AUkMwNlk; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=Aa+UYaGn8U+ymKxAULwvJ7usIKF35kJQ2HXb4NlRik/YN4dS/MJEvEtQoetfRj//8Phe+ye3LwWg8lUMfT6gI5oCw+BbBD2AwYFYMo8N4lOG1ogkHqJKDsA3Y0mLckvfEE/M8qzRG6jJXpbZ1bARdoyX0um9IPTll+d3gaHMCxI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=J8ZOiZ+M; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AUkMwNlk"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B69BB1F000E9;
-	Tue, 28 Jul 2026 15:32:07 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="J8ZOiZ+M"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E0CE1F000E9;
+	Tue, 28 Jul 2026 15:38:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785252728;
-	bh=sQVEkc3qFttUpVbpNGHfUblVyKzFSv1Wjwjz0J7Dd+M=;
+	s=k20260515; t=1785253096;
+	bh=Dm2qdN/eHTpIgssQSjAwRT/CeibfFTs7rNwnUwUbQYg=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=AUkMwNlkVaN5EkERNHCPZhvPKoBzbFRi9EnW05wQzOddheFThSymhZzLe8r0TSowK
-	 ijeJ1NGWmrlUJ3Y7CAH/JolMFMrLv4htyUFQBbEW//OiRMIzkp1pXZy5RlKkpgugii
-	 SsigBksp7yDF4x5FbyVRKScYgc+7BYzEgQv4EYv2vlEspDCnPgqJow3WtXMGd7ul3B
-	 LMJ8B4GADP5eNz+XluHvQd685XVF/v+v8x9ATWGsV4xTWhEGioDV9/4u0Csri3DHYH
-	 3Ap5NUKOhzc5sk/ScTlQ62d0kCwanLPPlIYXsUZMVr8NGQLSZT3Gz0RxaCS0jZoPzw
-	 5tWXJ53pC+O0Q==
+	b=J8ZOiZ+MWCFF71M5F1dML+9J1Nb1lNYpqVDTGy/LPENqq8q3ZPudkzX8h0aPajOFb
+	 C3+SKWPDUuQAZ+aKoLR62Rz7ozitVA9bRkhzJyOMfGYNNUBiVthrQd+yECY9ZNxsIa
+	 JBTTzIiKmLL5GAgQE63NDymIhVqMYisukVY3oheu5orRZuQdufmEtqkk0eW6zjxDSH
+	 46spP9/jE6OA8LoH3d7Mb10jPMVcZ1mHYMw4Jov76eVXup/0S+uLAdqEGziXFU1sq+
+	 Rv+d+3CQSSzd5yvX4vxqcP7gXVboAoiafYtOoBbImEeXQRjYZZEPcWemxV0SLBvtLH
+	 yfnLrKYpRGv0w==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 1/4] s390/crypto: Replace cond_resched() with
- msleep(1)
+Subject: Re: [PATCH v2 2/4] KVM: s390: Remove cond_resched() calls
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Heiko Carstens" <hca@linux.ibm.com>
-Cc: "Vasily Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
- Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
-In-Reply-To: <20260728150412.3893933-2-hca@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>
+In-Reply-To: <20260728150412.3893933-3-hca@linux.ibm.com>
 References: <20260728150412.3893933-1-hca@linux.ibm.com>
- <20260728150412.3893933-2-hca@linux.ibm.com>
+ <20260728150412.3893933-3-hca@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 28 Jul 2026 15:32:06 +0000
-Message-Id: <20260728153207.B69BB1F000E9@smtp.kernel.org>
+Date: Tue, 28 Jul 2026 15:38:15 +0000
+Message-Id: <20260728153816.0E0CE1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-> With [1] cond_resched() is always compiled away and becomes a no-op.
->=20
-> The comments for all cond_resched() calls in crypto code however indicate
-> that the current process should be scheduled away to avoid instant
-> re-invocation of a callback. This is not what cond_resched() would do or
-> did.
->=20
-> Instead of just removing the cond_resched() calls, replace them with
-> msleep() calls, as suggested by Holger Dengler. This forces the current
-> task to be scheduled away (sleeps) like originally intended.
+> Since [1] cond_resched() is a no-op on s390. Remove all calls.
 >=20
 > [1] commit 7dadeaa6e851 ("sched: Further restrict the preemption modes")
 >=20
@@ -65,5 +55,5 @@ Sashiko has reviewed this patch and found no issues. It looks great!
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260728150412.3893=
-933-1-hca@linux.ibm.com?part=3D1
+933-1-hca@linux.ibm.com?part=3D2
 
