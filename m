@@ -1,65 +1,65 @@
-Received: from mail-wm1-f46.google.com (mail-wm1-f46.google.com [209.85.128.46])
+Received: from mail-wm1-f41.google.com (mail-wm1-f41.google.com [209.85.128.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C97C6448B98
-	for <linux-s390@vger.kernel.org>; Tue, 28 Jul 2026 14:22:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 04F0E3B5F5D
+	for <linux-s390@vger.kernel.org>; Tue, 28 Jul 2026 14:24:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785248536; cv=none; b=lJnKgH4OLWkaLv5GQkdyqQReRNUcCP5tF0vvOfFfxsd6YvB374kRa98wqNhkANcvLupLEJ7QrNNLlWNF3VkfJuUlXmB8YskqwpVyLspDcfb/+A6Zn2GuuKJ3rZrB3BimC0UIpk3cJkQNmLkCwWiv0XcJvmmCeQAp+aQetcl3/TI=
+	t=1785248684; cv=none; b=hIGpytuAOe67OzuIwbgMtqydSa37swKPjhMAJpRvWYQut8y/WNnBrBJnBl9bG871cbXUAOnSL+0b01j+eMpb/MkT5qyJYX5QL8vxvYMeUmqimG+aSDO04mdDzHds94HAMfU/XrE1XWIYp3hT3r8i7LUFKKqz6x+nyJo/BI+ehag=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785248536; c=relaxed/simple;
-	bh=ivljL6kq2veliFFs/cqIsngvBYmK8alSQCuPHbgyblw=;
+	s=arc-20240116; t=1785248684; c=relaxed/simple;
+	bh=4XOJjc+yumy68KaAaTWxwFxLNiGxWo7sfJLrQMd0YX4=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=g9BiHh6MvlkCbjgNP5LobunB/yKn/dKO9L9KusYkWNQjT6fy2BPvcFjYCRT4EqiLnuMfYepTi8D6Lshy2E9Alytl9XyoUNFnwB0+Txyjy8YrQaeCyuar5ymzkOdWuAa7H91kEW1KQGp6yp/7rvhfJhtVDCNQ0vewgd0Fh83EEHc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=GYLnjzZ5; arc=none smtp.client-ip=209.85.128.46
+	 Content-Type:Content-Disposition:In-Reply-To; b=K6bu42oqI1d5ECjuQlz4D1YsPlIPrkN4r8RUoGsJ+06QHwtSY1pdresHnyxaIId8wol4OTYc1WrZjumd1i9s5IXJ74wgiuXytmk3jC8xU+aHrnRVqFL8NUsdH0taWkM1p9sxHz2jZgSOZVEapcFv+sd73H4fJQ2KHpxFSydXMf8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=tCxDDh97; arc=none smtp.client-ip=209.85.128.41
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="GYLnjzZ5"
-Received: by mail-wm1-f46.google.com with SMTP id 5b1f17b1804b1-493be0fbcc5so61665e9.0
-        for <linux-s390@vger.kernel.org>; Tue, 28 Jul 2026 07:22:14 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="tCxDDh97"
+Received: by mail-wm1-f41.google.com with SMTP id 5b1f17b1804b1-495509b08ebso49065e9.1
+        for <linux-s390@vger.kernel.org>; Tue, 28 Jul 2026 07:24:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1785248533; x=1785853333; darn=vger.kernel.org;
+        d=google.com; s=20251104; t=1785248680; x=1785853480; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=cjI/qIF8COGmEwdyirpRIztZNWL1yf6sjcg+eLvBxKM=;
-        b=GYLnjzZ571cff5OntvM/EzLqtL64mZbKeUI4e6IKcswsZL65utC8+CcaUNv6Lx5JUW
-         fdJAMlTgla5nAucrjqsNomFmDSHijbFwt6RVo43A0E7SmJnwSVNsZNtWrri4IEaXJlFg
-         cWXQgBwx2NClSFm/zlD5S4oSwG/BemujVrnms3kn9lmnEYQCLAPHnghVqFTSzdFJbCvB
-         2G5BsA1U5yHdfR6ToaArQvJoUW1L82LR+p+eweD1yl1tRLjJyE0PC6kWQomRgZejoHKx
-         KnLmHj3anjCHvurmuXWd/Me09ghIlr/m66CME4KtgpqQ0CrQmDmMfR6jtp0XM6hukxFa
-         Tgqw==
+        bh=pLh0JMDAJYh72m8FtF6BfLrBflAoWAmkZ9Sv6YSjD4c=;
+        b=tCxDDh97IUfcGWDKosXdwNe/PD/J5+RWvF3v0ohvDYw41VNkPyAVHUQi2Z679Anr2a
+         jsx7GdvOW50oo3KsAnZ9wa/v3vCvstiFmpv2wNKjfMT6J8yAWpg0BXWhY0PG+qEHIpeA
+         pa0e6lumvw4d2TYekhaG8Uo7Jm6x1V4LlIhdFPeQK2kZqzHAXuUWH1pTpaoHLmMLicTE
+         QONUy2W6zUNFF2JsCLxZtFW9zjtSVRv/id8VhaSoQH7XjAuKaZcbhwWUe8CwZt3UBj4S
+         nEuxBcyM2bydRNYMsP8OgNhYI2EzmAp3uGOl04cCjuVJ1/t5P50pus3aBhelXJTnOSGd
+         ksCw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785248533; x=1785853333;
+        d=1e100.net; s=20251104; t=1785248680; x=1785853480;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=cjI/qIF8COGmEwdyirpRIztZNWL1yf6sjcg+eLvBxKM=;
-        b=YTLoEKFJZ9nIN7L44U7kSqCMGHXzRTN0sEYjMkKQP033Q/UTZAJMBc5K+USlRsog6t
-         KS+o8/1Exh1SFcNb90ag8wD3rkdALEHTk0BFvUVKb0FAaaETVKZRUsgjRqpP7pC3OWIl
-         ZapHHhWHvQcFyMzFEfIGJvxKSdCZy8jTZpeofxMcWYhfHmCZyXU5DQpw4te4S+mzrrte
-         nmkZnjz8lfbgnyi7tPISNe4RgTxv/upd+ybpsbszJr5EoHxnFZbw7ANa9IrspHIDx1+c
-         o2FBaPLCOUgsfiUdTv7FeKRuLcezpxKCn9SjZmxOmFMsGFRqi8Hf6iAKnHcxr2zd5wLI
-         k1qg==
-X-Forwarded-Encrypted: i=1; AHgh+RpV3I6jKjDajyGhbNVPfp298En5AIATDXJ6fhfsN8NtlQarx0Ckzo2RhO84ZNIkVQP7UK5OMb85VHWa@vger.kernel.org
-X-Gm-Message-State: AOJu0Yw53DZfklgw7akNKe6DFrgfBVZiLjmBLYpNJjeshWUx+DSnKUru
-	XlEnUp5IuqM6ngzmJLBKFNv6hcs0R685PqBDBRpA8GLkk0BFCJKC8+aSZ4rvj0Jq8Q==
-X-Gm-Gg: AR+sD10jbzhxbIpU4ZsRBdvR21B/DXPBlRrHTbmAsCKifvodOaH6Z80sYS2z6pg4QN9
-	1EbGSKJULdadxoRl/mhc9cfZd0iHYUwLFQu7DH+V8RnWf1Q9MP9vCM2HFsZ3YkhRElamjRF3A28
-	Rz8Ij/wW/W3vN6nztQ5Ia89UUBPFRfvaeXyL+rpiHmgkRBHsIruxjuA6pCPXmtDZFfubZcY6Cq8
-	W05B3aWRbikaIhx0jPPpvKlE42j49wvmRXkAvSELEifvHhbwlhqmF5DyV404PEbA9iLqmLnxRr0
-	zlyuc643DMWemjyTVP5+rJhHhKtVLEwfuUS8a+sfFBVzafGkZup5jEmwmGqjwfxKy/a1Enh81I/
-	mbUyvrvS2oapsOmjPKXdZF/ms5E5PXNSoEGwaFSuiI7Nv72Wu26mjzlJaPDsWilgAwOPgbJYNqn
-	Ftx+FgrH4rrmxSkNM1SZJ/3zdNBnCWlLvfK7gKPXGkOLPntBE3Lxii0g==
-X-Received: by 2002:a05:600c:528c:b0:490:ab15:b9e8 with SMTP id 5b1f17b1804b1-496b944f535mr5088815e9.2.1785248532370;
-        Tue, 28 Jul 2026 07:22:12 -0700 (PDT)
+        bh=pLh0JMDAJYh72m8FtF6BfLrBflAoWAmkZ9Sv6YSjD4c=;
+        b=k7NhONh1mDrmD0wSEUxISyEkGseDWE4MqJgRgHxRRfmrK6+/JeZKMDo0co0fHnp1jO
+         8eNPBwOS6n3W7ErJEkmy1Y/IWYyZhx8YAdd0IU6HqhlOs79oLlrV0YbtEzYXjHRmMclj
+         09RhlfzOXne3KAaXdFkSv3NrQgh4SlfDCLVedTFkCw7Gzs5vHNBHRUMWUP80whtHl0yz
+         eJPXlpogS1fNv86TW58z/XHZoT2jhQy3dIToGAGT9hndjhjeCHdiAsHHDu5NrxcVQrdM
+         CKnGkfdEc0O+vEW1h0bFNEVB8ZptIAhXzs9Tvhbi8spTy319KjDSd0eqP7ghff+kZO3r
+         i32w==
+X-Forwarded-Encrypted: i=1; AHgh+RqWcHGnY3Npif4FYFPkprzU0zc/pZ3RuKbFIDCYHFNyGhIPzeMqJeNKiJz0dl9UQS9FTW65vXjOKrpk@vger.kernel.org
+X-Gm-Message-State: AOJu0YwS0G2Rwjr/ao6Z91Pnf9rtpAO9D15JQvmAn6B2todbM/82bv0Y
+	ScLrPCkEVaIU22rmo/vSg39SXimX1PZVfdJzQQeDfwl+WnRHh4GXBR/FsUb1taKvPw==
+X-Gm-Gg: AR+sD12A96ZwI2yPatSM/cxzMDG9ufz95y5HM4M6vpeaDPd/MnDeqIaqogVqMBVktvf
+	/idWRf+Tt9DvnY0kDmIn9QKD4Ae0Dz5Uz5erMRaXYoteDx9rmVvA/IDcmXSi+FkjRu0edlW4MPF
+	zZ5y/FYOdlZPjElL43auXkGFo2TGfIQuvNgLbWDCUhdbVnoeeOoTgYByfGIXGngDn9hTm84/hBR
+	zdxT254+Ua6ggruDK5ttYyVRyBQ8+jFPE26s1FlH5kUERE0tNh76rJ/pr+Cs0/gaJnXSM+IqDKd
+	Vk6zVCMcLEUP7bucABPp6/EiEUIhxzObHfeUSL/BId69dHg1N7ueX2UUB4hZ0FNI4dllOa7nDAE
+	Wvne7g9NYqfEWVXe3fEHbashfmscW/dzD1Frhj0vmJv4H6NrdyvMTg8cBoXQTBCmiidH57SeFTw
+	gLo+4AmE+qokCwW8/habEnjK+jULgce5ZxTZe8aR1RCYc=
+X-Received: by 2002:a05:600c:35c2:b0:495:5515:3c00 with SMTP id 5b1f17b1804b1-496b53f7910mr71275e9.9.1785248679759;
+        Tue, 28 Jul 2026 07:24:39 -0700 (PDT)
 Received: from google.com (250.192.189.35.bc.googleusercontent.com. [35.189.192.250])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-47f85b9a5a2sm64337943f8f.7.2026.07.28.07.22.11
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-496c444304esm79447515e9.0.2026.07.28.07.24.39
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 28 Jul 2026 07:22:11 -0700 (PDT)
-Date: Tue, 28 Jul 2026 14:22:04 +0000
+        Tue, 28 Jul 2026 07:24:39 -0700 (PDT)
+Date: Tue, 28 Jul 2026 14:24:30 +0000
 From: Mostafa Saleh <smostafa@google.com>
 To: "Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org>
 Cc: iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
@@ -85,11 +85,14 @@ Cc: iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
 	Heiko Carstens <hca@linux.ibm.com>,
 	Vasily Gorbik <gor@linux.ibm.com>,
 	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org
-Subject: Re: [PATCH v8 00/23] dma-mapping: Track shared DMA state through
- direct, pool and swiotlb paths
-Message-ID: <ami7DMIlYHbcEt_6@google.com>
+	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org,
+	stable@vger.kernel.org, Michael Kelley <mhklinux@outlook.com>,
+	Jason Gunthorpe <jgg@nvidia.com>
+Subject: Re: [PATCH v8 01/23] dma-direct: return struct page from
+ dma_direct_alloc_from_pool()
+Message-ID: <ami7nhBTXzAfqoVE@google.com>
 References: <20260717180442.110954-1-aneesh.kumar@kernel.org>
+ <20260717180442.110954-2-aneesh.kumar@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -98,216 +101,88 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260717180442.110954-1-aneesh.kumar@kernel.org>
+In-Reply-To: <20260717180442.110954-2-aneesh.kumar@kernel.org>
 
-On Fri, Jul 17, 2026 at 11:34:18PM +0530, Aneesh Kumar K.V (Arm) wrote:
-> This series tracks confidential-computing shared DMA state through the
-> dma-direct, dma-pool, and swiotlb paths so that encrypted and decrypted
-> DMA buffers are handled consistently.
+On Fri, Jul 17, 2026 at 11:34:19PM +0530, Aneesh Kumar K.V (Arm) wrote:
+> Commit 5b138c534fda ("dma-direct: factor out a dma_direct_alloc_from_pool
+> helper") changed dma_direct_alloc_from_pool() to return the CPU address
+> from dma_alloc_from_pool(). That fits dma_direct_alloc(), but
+> dma_direct_alloc_pages() also uses the helper and expects a struct page *.
 > 
-> Today, the direct DMA path mostly relies on force_dma_unencrypted() for
-> shared/decrypted buffer handling. This series consolidates the
-> force_dma_unencrypted() checks in the top-level functions and ensures
-> that the remaining DMA interfaces use DMA attributes to make the correct
-> decisions.
+> Fix this by making dma_direct_alloc_from_pool() return the struct page *
+> again, and pass the CPU address back through an out-parameter for the
+> dma_direct_alloc() caller.
 > 
-> The series separates mapping and allocation state:
-> - DMA_ATTR_CC_SHARED describes the DMA address attribute requested for a
->   mapping. It tells the DMA mapping path that the DMA address must target
->   shared/decrypted memory.
-> - __DMA_ATTR_ALLOC_CC_SHARED is an internal DMA-mapping attribute used only
->   by allocation paths after the DMA core decides that the backing pages
->   must be allocated as shared/decrypted memory.
-> 
-> The series:
-> - moves swiotlb-backed allocations out of __dma_direct_alloc_pages(),
-> - uses __DMA_ATTR_ALLOC_CC_SHARED through the dma-direct alloc/free paths
-> - teaches the atomic DMA pools to track encrypted versus decrypted
->   state
-> - tracks swiotlb pool encryption state and enforces strict pool
->   selection
-> - centralizes encrypted/decrypted pgprot handling in dma_pgprot() using
->   DMA attributes
-> - passes DMA attributes down to dma_capable() so capability checks can
->   validate whether the selected DMA address encoding matches
->   DMA_ATTR_CC_SHARED
-> - makes dma_direct_map_phys() choose the DMA address encoding from
->   DMA_ATTR_CC_SHARED and fall back to swiotlb when a shared DMA request
->   cannot use the direct mapping, which lets arm64 and x86 CCA guests stop
->   relying on SWIOTLB_FORCE for DMA mappings
-> - use the selected swiotlb pool state to derive the returned DMA
->   address
-> - reports CC_ATTR_GUEST_MEM_ENCRYPT for arm64 Realms, powerpc secure
->   guests, and s390 protected virtualization guests.
-> 
+> Fixes: 5b138c534fda ("dma-direct: factor out a dma_direct_alloc_from_pool helper")
+> Cc: stable@vger.kernel.org
+> Tested-by: Michael Kelley <mhklinux@outlook.com>
+> Tested-by: Mostafa Saleh <smostafa@google.com>
+> Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
+> Signed-off-by: Aneesh Kumar K.V (Arm) <aneesh.kumar@kernel.org>
 
-This series has been getting bigger, going through it again, I see
-that patches (1, 2, 3, 4, 5, 16, 20, 22) are not really related to the
-shared DMA work and are either fixes for exisiting bugs or clean ups.
-Would it make sense to have those separated?
+Reviewed-by: Mostafa Saleh <smostafa@google.com>
 
 Thanks,
 Mostafa
 
-> Dependency:
-> This series depends on the pKVM changes posted at:
-> https://lore.kernel.org/all/20260603110522.3331819-1-smostafa@google.com
+> ---
+>  kernel/dma/direct.c | 18 ++++++++++--------
+>  1 file changed, 10 insertions(+), 8 deletions(-)
 > 
-> Please merge this series only after the pKVM changes above are merged.
-> Otherwise pKVM will be broken.
-> 
-> Changes since v7:
-> https://lore.kernel.org/all/20260701054926.825925-1-aneesh.kumar@kernel.org
-> * Rebased onto dma-mapping-for-next
-> * Prepared the series on top of the prerequisite pKVM changes, resolving
->   conflicts so it can be applied directly to the pKVM topic branch once ready.
->   https://git.gitlab.arm.com/linux-arm/linux-cca/-/commits/scratch/pkvm/testing
-> * Added comments documenting possible follow-up improvements for CC_SHARED
->   atomic pools and physical-address-based pool freeing.
-> * Retained virtual-address-based pool freeing when
->   CONFIG_DMA_DIRECT_REMAP is disabled.
-> * Applied pgprot_decrypted() only when expanding a CC_SHARED atomic pool.
-> 
-> Changes since v6:
-> https://lore.kernel.org/all/20260604083959.1265923-1-aneesh.kumar@kernel.org
-> * Rebase onto the latest kernel.
-> * Add __DMA_ATTR_ALLOC_CC_SHARED for allocation paths. DMA_ATTR_CC_SHARED
->   is now used to describe the requested DMA mapping address attribute,
->   while __DMA_ATTR_ALLOC_CC_SHARED is used internally when allocating
->   shared/decrypted backing pages.
-> * Report CC_ATTR_GUEST_MEM_ENCRYPT for arm64 Realms, powerpc secure
->   guests, and s390 protected virtualization guests.
-> * Add CC_ATTR_HOST_MEM_ENCRYPT and swiotlb=force fixes.
-> 
-> Changes since v5:
-> https://lore.kernel.org/all/20260522042815.370873-1-aneesh.kumar@kernel.org
-> * Add Tested-by
-> * Drop the pKVM patch, which has now been posted separately:
->   https://lore.kernel.org/all/20260603110522.3331819-1-smostafa@google.com
-> * Remove the DO_NOT_MERGE tag from the s390 change.
-> * Add a patch to drop the SWIOTLB_FORCE flag.
-> * Rebase onto the latest kernel.
-> 
-> Changes since v4:
-> https://lore.kernel.org/all/20260512090408.794195-1-aneesh.kumar@kernel.org
-> * Add new patches based on Sashiko review:
->   swiotlb: Preserve allocation virtual address for dynamic pools
->   dma: free atomic pool pages by physical address
->   dma: swiotlb: handle set_memory_decrypted() failures
->   dma: swiotlb: free dynamic pools from process context
->   iommu/dma: Check atomic pool allocation result directly
-> * Include pKVM and s390 changes as dependent patches. These are not yet
->   ready to merge and are waiting for subsystem testing feedback.
-> * Drop the AMD GART patch because it requires wider testing.
-> * Update swiotlb_tbl_map_single() to take attrs by reference.
-> * Switch swiotlb_free() to use rcu_work.
-> * Avoid calling swiotlb_find_pool() multiple times in the free path.
-> * Make DMA_ATTR_MMIO imply DMA_ATTR_CC_SHARED for devices requiring unencrypted DMA.
-> 
-> Changes from v3:
-> https://lore.kernel.org/all/20260427055509.898190-1-aneesh.kumar@kernel.org
-> * Handle DMA_ATTR_MMIO correctly in dma_direct_map_phys()
-> * Address most of sashiko review
-> * Rebase to latest kernel
-> * drop SWIOTLB_FORCE for s390 and powerpc secure guest.
-> 
-> Changes from v2:
-> https://lore.kernel.org/all/20260420061415.3650870-1-aneesh.kumar@kernel.org
-> * pass attrs to dma_capable() and update direct, swiotlb, Xen swiotlb, and
->   x86 GART paths so the capability checks see the DMA address attr value
->   DMA_ATTR_CC_SHARED.
-> * rework dma_direct_map_phys() so DMA_ATTR_CC_SHARED selects
->   phys_to_dma_unencrypted() while the default path uses
->   phys_to_dma_encrypted(), with swiotlb fallback when the requested
->   shared/private state cannot be satisfied by a direct DMA address.
-> * stop relying on SWIOTLB_FORCE for arm64 and x86 CC guest DMA mappings;
->   swiotlb is still enabled there, but shared mappings is now selected
->   through the generic dma_direct_map_phys()/dma_capable() decision instead
->   of a global force-bounce flag.
-> 
-> Changes from v1:
-> https://lore.kernel.org/all/20260417085900.3062416-1-aneesh.kumar@kernel.org
-> * rebased to latest kernel (change from DMA_ATTR_CC_DECRYPTED -> DMA_ATTR_CC_SHARED)
-> * update the alloc path so DMA_ATTR_CC_SHARED is not a caller-visible attribute.
-> 
-> Cc: Robin Murphy <robin.murphy@arm.com>
-> Cc: Marek Szyprowski <m.szyprowski@samsung.com>
-> Cc: Will Deacon <will@kernel.org>
-> Cc: Marc Zyngier <maz@kernel.org>
-> Cc: Steven Price <steven.price@arm.com>
-> Cc: Suzuki K Poulose <Suzuki.Poulose@arm.com>
-> Cc: Catalin Marinas <catalin.marinas@arm.com>
-> Cc: Jiri Pirko <jiri@resnulli.us>
-> Cc: Jason Gunthorpe <jgg@ziepe.ca>
-> Cc: Mostafa Saleh <smostafa@google.com>
-> Cc: Petr Tesarik <ptesarik@suse.com>
-> Cc: Alexey Kardashevskiy <aik@amd.com>
-> Cc: Dan Williams <dan.j.williams@intel.com>
-> Cc: Xu Yilun <yilun.xu@linux.intel.com>
-> Cc: linuxppc-dev@lists.ozlabs.org
-> Cc: linux-s390@vger.kernel.org
-> Cc: Madhavan Srinivasan <maddy@linux.ibm.com>
-> Cc: Michael Ellerman <mpe@ellerman.id.au>
-> Cc: Nicholas Piggin <npiggin@gmail.com>
-> Cc: "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>
-> Cc: Alexander Gordeev <agordeev@linux.ibm.com>
-> Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-> Cc: Heiko Carstens <hca@linux.ibm.com>
-> Cc: Vasily Gorbik <gor@linux.ibm.com>
-> Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
-> Cc: Sven Schnelle <svens@linux.ibm.com>
-> Cc: x86@kernel.org
-> 
-> Aneesh Kumar K.V (Arm) (23):
->   dma-direct: return struct page from dma_direct_alloc_from_pool()
->   dma-pool: fix page leak in atomic_pool_expand() cleanup
->   iommu/dma: Check atomic pool allocation result directly
->   dma: free atomic pool pages by physical address
->   swiotlb: Preserve allocation virtual address for dynamic pools
->   s390: Expose protected virtualization through cc_platform_has()
->   dma-direct: swiotlb: handle swiotlb alloc/free outside
->     __dma_direct_alloc_pages
->   coco: arm64: s390: powerpc: Mark secure guests with
->     CC_ATTR_GUEST_MEM_ENCRYPT
->   dma-mapping: Add internal shared allocation attribute
->   dma-direct: use __DMA_ATTR_ALLOC_CC_SHARED in alloc/free paths
->   dma-pool: track decrypted atomic pools and select them via attrs
->   dma: swiotlb: pass mapping attributes by reference
->   dma: swiotlb: track pool encryption state and honor DMA_ATTR_CC_SHARED
->   dma-mapping: make dma_pgprot() honor __DMA_ATTR_ALLOC_CC_SHARED
->   dma-direct: pass attrs to dma_capable() for DMA_ATTR_CC_SHARED checks
->   dma-direct: Move dma_direct_map_phys() to dma/direct.c
->   dma-direct: make dma_direct_map_phys() honor DMA_ATTR_CC_SHARED
->   dma-direct: set decrypted flag for remapped DMA allocations
->   dma-direct: select DMA address encoding from
->     __DMA_ATTR_ALLOC_CC_SHARED
->   dma-direct: rename ret to cpu_addr in alloc helpers
->   dma: swiotlb: free dynamic pools from process context
->   dma: swiotlb: handle set_memory_decrypted() failures
->   swiotlb: remove unused SWIOTLB_FORCE flag
-> 
->  Documentation/core-api/dma-attributes.rst    |  29 ++
->  arch/arm64/mm/init.c                         |   5 +-
->  arch/powerpc/platforms/pseries/cc_platform.c |   1 +
->  arch/powerpc/platforms/pseries/svm.c         |   2 +-
->  arch/s390/Kconfig                            |   1 +
->  arch/s390/mm/init.c                          |  17 +-
->  arch/x86/kernel/amd_gart_64.c                |  30 +-
->  arch/x86/kernel/pci-dma.c                    |   4 +-
->  drivers/iommu/dma-iommu.c                    |  20 +-
->  drivers/xen/swiotlb-xen.c                    |   8 +-
->  include/linux/dma-direct.h                   |  20 +-
->  include/linux/dma-map-ops.h                  |   3 +-
->  include/linux/dma-mapping.h                  |   8 +
->  include/linux/swiotlb.h                      |  25 +-
->  include/trace/events/dma.h                   |   3 +-
->  kernel/dma/direct.c                          | 326 ++++++++++++++-----
->  kernel/dma/direct.h                          |  56 +---
->  kernel/dma/mapping.c                         |  25 +-
->  kernel/dma/pool.c                            | 237 ++++++++++----
->  kernel/dma/swiotlb.c                         | 292 +++++++++++++----
->  20 files changed, 810 insertions(+), 302 deletions(-)
-> 
+> diff --git a/kernel/dma/direct.c b/kernel/dma/direct.c
+> index d8219efe3273..363d984d90e7 100644
+> --- a/kernel/dma/direct.c
+> +++ b/kernel/dma/direct.c
+> @@ -164,22 +164,21 @@ static bool dma_direct_use_pool(struct device *dev, gfp_t gfp)
+>  	return !gfpflags_allow_blocking(gfp) && !is_swiotlb_for_alloc(dev);
+>  }
+>  
+> -static void *dma_direct_alloc_from_pool(struct device *dev, size_t size,
+> -		dma_addr_t *dma_handle, gfp_t gfp)
+> +static struct page *dma_direct_alloc_from_pool(struct device *dev, size_t size,
+> +		dma_addr_t *dma_handle, void **cpu_addr, gfp_t gfp)
+>  {
+>  	struct page *page;
+>  	u64 phys_limit;
+> -	void *ret;
+>  
+>  	if (WARN_ON_ONCE(!IS_ENABLED(CONFIG_DMA_COHERENT_POOL)))
+>  		return NULL;
+>  
+>  	gfp |= dma_direct_optimal_gfp_mask(dev, &phys_limit);
+> -	page = dma_alloc_from_pool(dev, size, &ret, gfp, dma_coherent_ok);
+> +	page = dma_alloc_from_pool(dev, size, cpu_addr, gfp, dma_coherent_ok);
+>  	if (!page)
+>  		return NULL;
+>  	*dma_handle = phys_to_dma_direct(dev, page_to_phys(page));
+> -	return ret;
+> +	return page;
+>  }
+>  
+>  static void *dma_direct_alloc_no_mapping(struct device *dev, size_t size,
+> @@ -247,8 +246,11 @@ void *dma_direct_alloc(struct device *dev, size_t size,
+>  	 * the atomic pools instead if we aren't allowed block.
+>  	 */
+>  	if ((remap || force_dma_unencrypted(dev)) &&
+> -	    dma_direct_use_pool(dev, gfp))
+> -		return dma_direct_alloc_from_pool(dev, size, dma_handle, gfp);
+> +	    dma_direct_use_pool(dev, gfp)) {
+> +		page = dma_direct_alloc_from_pool(dev, size, dma_handle,
+> +						  &ret, gfp);
+> +		return page ? ret : NULL;
+> +	}
+>  
+>  	/* we always manually zero the memory once we are done */
+>  	page = __dma_direct_alloc_pages(dev, size, gfp & ~__GFP_ZERO, true);
+> @@ -357,7 +359,7 @@ struct page *dma_direct_alloc_pages(struct device *dev, size_t size,
+>  	void *ret;
+>  
+>  	if (force_dma_unencrypted(dev) && dma_direct_use_pool(dev, gfp))
+> -		return dma_direct_alloc_from_pool(dev, size, dma_handle, gfp);
+> +		return dma_direct_alloc_from_pool(dev, size, dma_handle, &ret, gfp);
+>  
+>  	page = __dma_direct_alloc_pages(dev, size, gfp, false);
+>  	if (!page)
 > -- 
 > 2.43.0
 > 
