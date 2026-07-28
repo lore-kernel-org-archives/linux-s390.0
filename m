@@ -1,146 +1,160 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 279EC45D1A6;
-	Tue, 28 Jul 2026 14:50:15 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9A2E143CE62;
+	Tue, 28 Jul 2026 14:53:47 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785250217; cv=none; b=JI59mtSu6gb8sqVPY0y+dAldb2rhVGeDPUNOpn08CXdsn4dz713C5gy4J8fOa2ktSO1JRsr/smOn7ZYGKQWBj573qIPQdLqCZM9gyzLTm6eM0UQSR+ioEo62DRA1PS1doIdgcm6pS7pnGh8WKkebu2zzYLlbUN2ifKBmo4HoSgE=
+	t=1785250428; cv=none; b=SxnMjX2/D88k57qckNoPhKmqvxhHDaP9uw9MfpQTQY0+i3SFU5NII9EbK3JlSFON7efClysKLj1soqLW5wR1gHzeGzhbmJIKM9dTCiSVJTIBYDyQUzOVoN4kwauGTbjkazfXnwdwE6nF6zyRSotaXHETgJRgSYPzJBkdHxdf9vQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785250217; c=relaxed/simple;
-	bh=jixQe4nGYBKzIc7uRjN5MuMKaJ3xDpnoiYY9eCFzzCo=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=N4QWrFx1qL4An7hoZdSUR7rL3pVu+x3dPE4aOCIRbHbyVsU669MGzL/aZzM5D0IkxoH4J00B9ow2lGCm0VkPl4Atd+W1ERA7us8lIckD/DbPcmKzGGD3vEbh+fxSI2mZLfc439TBTvFjP6VLWzfmw4/p6afRHgh+EXMwJtTppas=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Lf8qU6uk; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1785250428; c=relaxed/simple;
+	bh=NHciinpjyjHArAAKkBzFn5d2Tji4u8Aux6m/KJ6sjEo=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=irNR/UW8s/Vli5GiOu+FKCW9zImfW9YSsH226glIwrodrdDTbvJwkfpDZvbm7FQ+82o9OCE9Q1S+pIj5iw83483hMq726SV6rcVKNZAScqwkCWoyfPSSccryMnBHMt7QN73MbKCsXPSg3xTRz+lSKQ2ZKsDv/9R7Agij05Fc/sk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=KVn/Kr+w; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Lf8qU6uk"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66SEljpY1459403;
-	Tue, 28 Jul 2026 14:50:10 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="KVn/Kr+w"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66SEmPFf1492463;
+	Tue, 28 Jul 2026 14:53:46 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=P0j9PR
-	GK7c1wjedrc8EaCglxKV9ZSEfkzPpg75aNaIs=; b=Lf8qU6uk6nbt31URgpn+rB
-	4E71ejeymbyf5YRkEMtaUzNETDPEeIeuruPBs9qq3xOTBa8MqyaVqdazzw3WD6JC
-	adSLSWQE7v0/wAKx2xrUkPkOJx3P6yveeQqa9AdhWLaZ0+Ca7CE3Ox36ZrACl8xj
-	vPfzRuHM89p80gRT+TjMUXwRqhg5qDPGX5sPOuM9ofec+BbP5gIFDgEUQ7RM0IE8
-	mF2ttK5SZohf6uw0GGzKQ83hlwQb4x4tNPc9kE8ZUDwTSmZ4l4N8W0fEtM7EBKgn
-	UHAMqMYgcxVrLBZs10qhe8xyChJVQU7P8XliMdCPAmPzif9gWMnlmR8aJ7XHsWXQ
+	:message-id:mime-version:references:subject:to; s=pp1; bh=iBifai
+	MDvd2SGX0ZTOHgh3wFlFZ7GKsrep4ygATRmwE=; b=KVn/Kr+wE12CQ5qfOa2DIg
+	kHGUDr7RvitLyi+DNx0ltOVWxYGmos72VDeksn7+87vKwIGEmhjwZC1tXVVKASbW
+	D/YYmTth8jbVYo6p32wiHY394t+unYb3IwkCDxb5NyOy2kh7oguE7dzh7yLUPp45
+	kkWLfIUjpJYlTq1X5AbKnLorAdsCfYBYov7Rs+0Un0080QVji1frc0JGF94NFOVh
+	mJkPf0WaihOOHSUg4xZDtm5x7TB90cEPCtzfu9NlXl24VtYNbY2Om2/N7H1uAh6D
+	2mqIOo753QK/TZMMCBXPH/q31c4gEBblC3rVhOok34raZD/XEzw+89iaUFOtVoBA
 	==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fmuw7dt4p-1
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fmv0xnuje-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 28 Jul 2026 14:50:10 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66SEffOh021483;
-	Tue, 28 Jul 2026 14:50:09 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fn7uw2fbq-1
+	Tue, 28 Jul 2026 14:53:46 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66SEfbu4022330;
+	Tue, 28 Jul 2026 14:53:45 GMT
+Received: from smtprelay03.dal12v.mail.ibm.com ([172.16.1.5])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fn7fqah0d-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 28 Jul 2026 14:50:09 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66SEo2vn27853226
+	Tue, 28 Jul 2026 14:53:45 +0000 (GMT)
+Received: from smtpav04.dal12v.mail.ibm.com (smtpav04.dal12v.mail.ibm.com [10.241.53.103])
+	by smtprelay03.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66SEriV38979166
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 28 Jul 2026 14:50:02 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id BBF2D20040;
-	Tue, 28 Jul 2026 14:50:02 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B60BA20043;
-	Tue, 28 Jul 2026 14:50:01 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.111.73.241])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with SMTP;
-	Tue, 28 Jul 2026 14:50:01 +0000 (GMT)
-Date: Tue, 28 Jul 2026 16:49:58 +0200
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-To: Janosch Frank <frankja@linux.ibm.com>
-Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, borntraeger@de.ibm.com, david@kernel.org,
-        seiden@linux.ibm.com, nrb@linux.ibm.com, schlameuss@linux.ibm.com,
-        gra@linux.ibm.com
-Subject: Re: [PATCH v3 07/10] KVM: s390: Return -EINTR if a signal was
- pending while faulting-in
-Message-ID: <20260728164958.23b8e391@p-imbrenda>
-In-Reply-To: <1f9d8fb4-3b38-4495-b8f3-cdb51ba1318c@linux.ibm.com>
-References: <20260727150254.236021-1-imbrenda@linux.ibm.com>
-	<20260727150254.236021-8-imbrenda@linux.ibm.com>
-	<1f9d8fb4-3b38-4495-b8f3-cdb51ba1318c@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-redhat-linux-gnu)
+	Tue, 28 Jul 2026 14:53:44 GMT
+Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id BDA4158062;
+	Tue, 28 Jul 2026 14:53:44 +0000 (GMT)
+Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4BC5758056;
+	Tue, 28 Jul 2026 14:53:44 +0000 (GMT)
+Received: from [9.61.157.32] (unknown [9.61.157.32])
+	by smtpav04.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 28 Jul 2026 14:53:44 +0000 (GMT)
+Message-ID: <93e1e75a-3036-47cc-a142-eff9b43630d7@linux.ibm.com>
+Date: Tue, 28 Jul 2026 10:53:43 -0400
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v9 00/10] s390/vfio_ccw fixes
+To: Eric Farman <farman@linux.ibm.com>, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Halil Pasic <pasic@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>
+References: <20260728033022.2658232-1-farman@linux.ibm.com>
+Content-Language: en-US
+From: Matthew Rosato <mjrosato@linux.ibm.com>
+In-Reply-To: <20260728033022.2658232-1-farman@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: k_tCYUJQDn_ve6lOV8HQQexlHDav8jSk
-X-Proofpoint-ORIG-GUID: k_tCYUJQDn_ve6lOV8HQQexlHDav8jSk
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI4MDEzMiBTYWx0ZWRfX80WXBDmSYNoQ
- 7mmS2muICEgDyYQDFoqWuKjJY0WV5q+FLxVbavS0ui67gFFVkf1Oftu3VNzhwF/q0soM06FMXm3
- Rf1Zt2fI8mJtxI7XfwsdNXvlLQpSgOO+qNeNjmnzC7dNxW+wsIgm7pDfRFQJdsobZnfiFSyXP3C
- h3P/8zjmaealGZTam1wp+1TY74C7n+BzHbVFbSEcrAddwzlr5VVbPlQXOsHbi/MrEes2fFx05zY
- RF5rpo1Ubbm0c/49FwOO+QoExU5BwJYgLeqgNQT7op+V4gB4K3qSZXHJEtjn0wUGkzRQd84Mpie
- D0dnfS5AhPjUYNpwOMP7tHFb0JW8SBqC7Tp/N0eWbpjal/XUaMLC5OdFzEZHFqV1orwjyVa5mdB
- 2t4Mjd3t5CA4z6bIVR4gtAOLiKVm2TvEv/5rRoWoEsajcjpLP+rC2zexQhyrKsRUdrRs9YBaG/O
- oNXORVEBtdbOIso3j3A==
-X-Authority-Analysis: v=2.4 cv=SKFykuvH c=1 sm=1 tr=0 ts=6a68c1a2 cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
- a=kj9zAlcOel0A:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8
- a=5piRC5TjQ-BYy-1OIBUA:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI4MDEzMiBTYWx0ZWRfX1oPW5Hx33IT3
- uQL3CMlkePoVGaLv2VJ5TnePHPveeFVPtb7pNsWKOSYM7nila605uvjABuITMWi4QyLHz/SKO4+
- Vyt2ZYWN5IT0dgHfDeW+bw7fnwkK++A=
+X-Proofpoint-GUID: yulX7zCzvWNy_sM-94JwC6pSqzBHvVe2
+X-Proofpoint-ORIG-GUID: yulX7zCzvWNy_sM-94JwC6pSqzBHvVe2
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI4MDEzMiBTYWx0ZWRfX00ipVedcetPq
+ 5oVxN7QndKF0UGjXxN9EYF09ZT8G9BhWCIRuWV5fpphfSctUjbS3kB3a0VtrXlwj7pvgJVRWSac
+ /wXFb7Ak3r1HRzW7SltdvoQegM6dfOo=
+X-Authority-Analysis: v=2.4 cv=dYuwG3Xe c=1 sm=1 tr=0 ts=6a68c27a cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+ a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=VwQbUJbxAAAA:8
+ a=VnNF1IyMAAAA:8 a=CwKo_ULbxPcJYfvcVycA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI4MDEzMiBTYWx0ZWRfX/D4S/v7AKO4f
+ 37wmW3D9pQOj+1kEwPs0R2W5H+sipvce8FvvTxtyyNFjPmSQUiJmgUr2jGGLp7ucHgEmHaNxMMP
+ jBtXYC6Y4UjlgC9R3UOmg6RofLRB6vXEJ/+vZ1QJHmepc2OvlWx42ZpBDgA0BGvnB+wpeJxGApF
+ tBxhKBOtT3oPlES2KuX9e/H6FtCYjQe6ZTxR2Kc9OLth3NNuFN6QtqipiQbBU3aNDGMbWscQC4q
+ SV6RmApzg/KEODj+dfNbBhyRRn4A0wLaWfUK9/e6B+YYTjetqYvZyPfU1SuRFQFVu6sKzyZp9nm
+ in5kfv/lpLOr/SqGxpUG24qTr67sqG5IZOFCorVJLAauIpbNrKQMiRa++5ppNcGKplHBBoeOFX+
+ HG3R1D4ebDBtYc3PTeG1uD19+uXb5aJ9QQNrn3XsHF8U94bapzcMIhiRkYrE564tNNU7PEQ0KG2
+ HT6riPg8gzW8nCJ3VYQ==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-07-28_04,2026-07-28_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 malwarescore=0 clxscore=1015 adultscore=0
- lowpriorityscore=0 bulkscore=0 impostorscore=0 phishscore=0 spamscore=0
- suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2607280132
+ priorityscore=1501 impostorscore=0 clxscore=1015 phishscore=0 malwarescore=0
+ spamscore=0 lowpriorityscore=0 bulkscore=0 suspectscore=0 adultscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607280132
 
-On Tue, 28 Jul 2026 16:28:38 +0200
-Janosch Frank <frankja@linux.ibm.com> wrote:
-
-> On 7/27/26 17:02, Claudio Imbrenda wrote:
-> > If a signal is pending while trying to fault-in a page, return -EINTR
-> > instead of -EAGAIN.
-> > 
-> > Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> > Fixes: e907ae530133 ("KVM: s390: Add helper functions for fault handling")
-> > ---
-> >   arch/s390/kvm/faultin.c   |  4 ++--
-> >   arch/s390/kvm/intercept.c | 18 ++++++++----------
-> >   arch/s390/kvm/pv.c        |  2 +-
-> >   3 files changed, 11 insertions(+), 13 deletions(-)
-> > 
-> > diff --git a/arch/s390/kvm/faultin.c b/arch/s390/kvm/faultin.c
-> > index fee80047bd94..4ff4c5970956 100644
-> > --- a/arch/s390/kvm/faultin.c
-> > +++ b/arch/s390/kvm/faultin.c
-> > @@ -92,8 +92,8 @@ int kvm_s390_faultin_gfn(struct kvm_vcpu *vcpu, struct kvm *kvm, struct guest_fa
-> >   		if (is_noslot_pfn(f->pfn))
-> >   			return PGM_ADDRESSING;
-> >   		/* Signal pending: try again. */
-> > -		if (f->pfn == KVM_PFN_ERR_SIGPENDING)
-> > -			return -EAGAIN;
-> > +		if (is_sigpending_pfn(f->pfn))
-> > +			return -EINTR;
-> >   		/* Check if it's read-only memory; don't try to actually handle that case. */
-> >   		if (f->pfn == KVM_PFN_ERR_RO_FAULT)
-> >   			return -EOPNOTSUPP;  
+On 7/27/26 11:30 PM, Eric Farman wrote:
+> This series addresses some pre-existing issues found in the
+> s390 vfio_ccw (DASD passthrough) driver.
 > 
-> The code above is what I'd expect from the description but there's more 
-> code in this patch. Are we fixing multiple things?
+> Patches 1-6 are identical to v6/v7/v8
+> Patches 7-10 have minor changes compared to v7/v8
+> 
+> v1: https://lore.kernel.org/r/20260714232208.1683788-1-farman@linux.ibm.com/
+> v2: https://lore.kernel.org/r/20260720201931.976660-1-farman@linux.ibm.com/
+> v3: https://lore.kernel.org/r/20260723174751.1180334-1-farman@linux.ibm.com/
+> v4: https://lore.kernel.org/r/20260725152705.3958100-1-farman@linux.ibm.com/
+> v5: https://lore.kernel.org/r/20260726040129.2946151-1-farman@linux.ibm.com/
+> v6: https://lore.kernel.org/r/20260726172153.1818056-1-farman@linux.ibm.com/
+> v7: https://lore.kernel.org/r/20260727192230.2715207-1-farman@linux.ibm.com/
+> v8: https://lore.kernel.org/r/20260728013509.1551753-1-farman@linux.ibm.com/
+> v8->v9:
+>  - [MR] Added r-b (thank you!)
+>  - [MR] Commit/comment message improvements
+>  - [MR/sashiko] Re-add workqueue cleanup to vfio_ccw_mdev_release_dev, in the
+>    form of a flush_work() call
 
-I'm also fixing the callers that would not deal with -EINTR properly;
-I'll fix the patch description accordingly
+Thanks Eric.
 
-[...]
+I think at this point the big issues are resolved, and this already is a
+significant improvement overall.
+
+We've also identified a few things (here and off-list) that would be
+reasonable tackled as follow-ons, such as a well-defined lock hierarchy
+and identifying reasonable places to add lockdep assertions.
+
+Thanks,
+Matt
+
+> 
+> Eric Farman (10):
+>   s390/vfio_ccw: free all memory if cp_init() fails
+>   s390/vfio_ccw: limit the number of channel program segments
+>   s390/vfio_ccw: fix out of bounds check on CCW array
+>   s390/vfio_ccw: ensure first IDAW remains constant
+>   s390/vfio_ccw: calculate idal length based on idaw type
+>   s390/vfio_ccw: ensure index for read/write regions are within range
+>   s390/vfio_ccw: cancel existing workqueues
+>   s390/vfio_ccw: move cp cleanup out of not operational
+>   s390/vfio_ccw: selectively expand io_mutex
+>   s390/vfio_ccw: implement a crw lock
+> 
+>  drivers/s390/cio/vfio_ccw_async.c   | 16 +++++++
+>  drivers/s390/cio/vfio_ccw_chp.c     | 31 ++++++++++--
+>  drivers/s390/cio/vfio_ccw_cp.c      | 74 +++++++++++++++++++++--------
+>  drivers/s390/cio/vfio_ccw_cp.h      | 10 ++++
+>  drivers/s390/cio/vfio_ccw_drv.c     | 21 +++++++-
+>  drivers/s390/cio/vfio_ccw_fsm.c     |  8 +++-
+>  drivers/s390/cio/vfio_ccw_ops.c     | 39 +++++++++++++--
+>  drivers/s390/cio/vfio_ccw_private.h | 10 +++-
+>  8 files changed, 176 insertions(+), 33 deletions(-)
+> 
+
