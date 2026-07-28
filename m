@@ -1,289 +1,167 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6221F38F92D;
-	Tue, 28 Jul 2026 16:52:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99F0439CCED;
+	Tue, 28 Jul 2026 17:07:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785257574; cv=none; b=UcgQYZZWJvo5uIWtkJQJVdIGfREH4hC5Oc9m1eYGsBHQFNJF3Aa3G0a2fY7MdRHCyar27OkMn8XUMm5zEBo4V16G3GBmJ5QFUYRfanV0A0Eeprbm+XfwLMJ9sCT6/rVySiF0zZ4jDQtYaz0sT2nYRIRwsxJI8I8Ud2BJ4RVyeHA=
+	t=1785258440; cv=none; b=EL9ogKfSN6h3xkPhvkf70IlpMKZeeWm8jtDxm9vdUESFmx1PNfQFJWVGESOc+wz8pqLfm9G2KoHnDnUyTwn+Qt3qm/vwa8+iDnCd8FP46u7kW6hZcSj/oea89dfRh5govcKUw0mX+Q5QEg+g3PjZnTQk2akxzVX44TCCuTyiWPY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785257574; c=relaxed/simple;
-	bh=vJqqefbyWSqt2P9trmIyhVESgMTG5+8O9OXr9a2a9Ac=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=IFesJ1O47o5gj2aeJPvNO2RO/khngJoy/cOUKL9gms0jSRcJ07Clmb0WbavlaBJpQ12CKJ1hLm/0XUqWmLrzsln/40icoE5r9XAhyeU5kVo704GnBL0YPtwvTyLT7s+S/2aUwUlMJXlzQ5gRw5TRtkSisdbbLMU2jFv9IXuP/0E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QEeCRqej; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1785258440; c=relaxed/simple;
+	bh=8lHyAoLmNaGSw/SdyDBgtMYsQ6bdcDfz6SYQwUXNZgg=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=W/RkatjGs5AAOMXvE0kvJ7hczV6W/Htwyv/da+xsONBCIqm/0kA964ASIT/2ZLkV1wdsf6bMFXHbQipfstuS1nnGCL72nCadDOBPHYZxkdmY/t3uQMqiJwV6LkQM5LJkttGPrJJPTTZkcnWkpYXLGCiEgI/cSi/X6eiX4sZzDDw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=CW9F2RL9; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QEeCRqej"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 24DB9C2BCC6;
-	Tue, 28 Jul 2026 16:52:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1785257574;
-	bh=vJqqefbyWSqt2P9trmIyhVESgMTG5+8O9OXr9a2a9Ac=;
-	h=From:Date:Subject:To:Cc:Reply-To:From;
-	b=QEeCRqejuoI53J0cfuKZKNOdnAIcqsPN6T6RJzn5I6cW+7ZEwJI9+JpvrY1gcV/7c
-	 xnNHCzyj8QTUACls3Tjz7Apt8Lb+FAq5VedqlJL3uDUYVvUNRp+yfBiVkeWkWJLc0l
-	 JyAliuxFAksdmHry6Yw1TgZ+QygR5PWJRoA6pk+Vkajehts9AtWSSOOFSYX7vq0823
-	 Ote87pVhrRaG17fRxgFC/nS4iQiQ/18F5D22ceTIEp1fJ9KhjG51RlYe8sUxMlYLG5
-	 8y3+crCn/V1UNnsWb4dp3G/aDYKnzon1zscM+R9uudUFH4Lf4YV5Ogl7HpmPi3+Vac
-	 FXt/jEbXYtehQ==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 00819C54F54;
-	Tue, 28 Jul 2026 16:52:54 +0000 (UTC)
-From: Bryam Vargas via B4 Relay <devnull+hexlabsecurity.proton.me@kernel.org>
-Date: Tue, 28 Jul 2026 11:52:53 -0500
-Subject: [PATCH net v4] net/smc: order the CDC receive path against buffer
- publication
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="CW9F2RL9"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66SElY6i3788533;
+	Tue, 28 Jul 2026 17:07:17 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=aY7vD1lL9K3FjE96NMCDK6JXUZXmdaNWvixLBSP19
+	9w=; b=CW9F2RL9uQm3XSkGnasJzjT0I+MQi7t5PqDXKFt30hto3Nx4+H/OxbJCp
+	rcnbNzPLkYeqZ2zJ5NGSZ1ULMfcAfZF85D0H7dBSjLdm2T/USEiEQQPx1SP6sFyR
+	+S3oDcu1/YRuLamdxgmS1rOlPNv7xSt6v/KzoW15xkv2uGbmy7Z54SZoYQXml8sP
+	3W99e02hLZXbO37ZB/nVbdVBQTO0dGoR8LPA2YBCWpGNlM1LRwPJAwWh1sutSpr/
+	1hmiARkxvYd6mPaVxapfjPmiu6/v8yNnGsrvCxZgxLkRGQpfkfz5CxOCaI8mQ4nX
+	f7DLN/LNSZbrOBxnuo1NhyM4AZoQw==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fmuycefyv-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 28 Jul 2026 17:07:17 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66SGuHUG030198;
+	Tue, 28 Jul 2026 17:07:16 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fn7uw33a8-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 28 Jul 2026 17:07:16 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66SH79NI31261134
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 28 Jul 2026 17:07:09 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9A7ED20040;
+	Tue, 28 Jul 2026 17:07:09 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id CA80220049;
+	Tue, 28 Jul 2026 17:07:08 +0000 (GMT)
+Received: from p-imbrenda.ibmuc.com (unknown [9.111.73.241])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 28 Jul 2026 17:07:08 +0000 (GMT)
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, borntraeger@de.ibm.com,
+        frankja@linux.ibm.com, david@kernel.org, seiden@linux.ibm.com,
+        nrb@linux.ibm.com, schlameuss@linux.ibm.com, gra@linux.ibm.com
+Subject: [PATCH v4 00/13] KVM: s390: Misc fixes
+Date: Tue, 28 Jul 2026 19:06:55 +0200
+Message-ID: <20260728170708.294400-1-imbrenda@linux.ibm.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260728-b4-disp-52ee4e7d-v4-1-0dda94b0f397@proton.me>
-X-B4-Tracking: v=1; b=H4sIAAAAAAAC/yXMMQ6CQBBG4auQqZkE1sEFrkIshP3RoQCyA8aEc
- HdXLb/ivYMMUWHUZgdFvNR0mRMkz2h43ucHWEMyucJdC+9q7oWD2sqVAwQ+8EVqX8mIpkSglK0
- Ro75/y+72t+39hGH7fug8P1dKY+l0AAAA
-X-Change-ID: 20260728-b4-disp-52ee4e7d-348754fe91ed
-To: Tony Lu <tonylu@linux.alibaba.com>, Paolo Abeni <pabeni@redhat.com>, 
- Eric Dumazet <edumazet@google.com>, "David S. Miller" <davem@davemloft.net>, 
- "D. Wythe" <alibuda@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>, 
- Sidraya Jayagond <sidraya@linux.ibm.com>, Jakub Kicinski <kuba@kernel.org>, 
- Mahanta Jambigi <mjambigi@linux.ibm.com>, 
- Dust Li <dust.li@linux.alibaba.com>
-Cc: Hans Wippel <hwippel@linux.ibm.com>, netdev@vger.kernel.org, 
- linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, 
- Wenjia Zhang <wenjia@linux.ibm.com>, linux-rdma@vger.kernel.org, 
- Ursula Braun <ubraun@linux.ibm.com>, Simon Horman <horms@kernel.org>
-X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1785257572; l=10163;
- i=hexlabsecurity@proton.me; s=default; h=from:subject:message-id;
- bh=Vts1TiiPbGpD3Qv/nKiQnSpqKQKxXy38+nvWx/7Gr0s=;
- b=Fd8GQGB24INiIZa3WpnsGbRwVJbGzz5vUjvCCb5AUxxJTvnAWEpIDFlAZNPCoM3UgqT48stXc
- JEitAt5kWyVAbMCGZDgXM/lJs23TeD1KfDyOji6gXywl102Z39zyf7a
-X-Developer-Key: i=hexlabsecurity@proton.me; a=ed25519;
- pk=xw1AhCtQdvuoQc+bOQIYy9o8G++cp4/VniI2G/tc3G8=
-X-Endpoint-Received: by B4 Relay for hexlabsecurity@proton.me/default with
- auth_id=893
-X-Original-From: Bryam Vargas <hexlabsecurity@proton.me>
-Reply-To: hexlabsecurity@proton.me
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: Uhpi7ro2W9SxadMVv7PwHpfzbLsRpZoG
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI4MDE0OSBTYWx0ZWRfX5XVosBIt35M1
+ 7M7jTT5bOuCgTEC06Iy7niJm+G1FmG1b7DW8DXj77eznT41crR4GzpB5JVHRiqs0x2t/vy/d/88
+ /tBfXFvg8FUb7uwYz48KqKfqdCEi5T/lmDcHI5pNm0FxnKpMPgt0dSsHlFS3Yx3J2arLyJZWgDL
+ ASfdx7HEkOgmI/Fv62tMajTxO5fu70YDPja+HzPKQWLia9Oyq8NjGSVWntIbe57hIsx8LaqXg5a
+ 0BuPp4+tE65Wo9e52qo6s6qMlSSuM4F6L4P5hLiEGfyQ9wlg2ILbKp+8vJUys+inj20iH/tVPY7
+ ABGa/g7N2Ny9AkFmREOxj+BsWWa5gPV6/Cy2z9rjXR43kBq+7B3pIK98ja9CqmgUXgWjLjGpZMV
+ omRMgErofsIJGISPq5Z0mL0zoMzDpwDOEMWwxzuveCSn0F+KrwpaeQjvbb1DKhBFUFl/Jjua4KA
+ 8VSZf66BWYVGUEmpRZQ==
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI4MDE0OSBTYWx0ZWRfXxlyAqJAvi/hX
+ 6mhqn3qohQ7u1tHk/mK64qzz4wGu+ko1m+/ZKfukaUv5d+2x5MWTgDw3//jbqGeGBjzFu71NMwd
+ 9YPjhKoCBsIS+WUT3SQVLs1iy8IzS1I=
+X-Authority-Analysis: v=2.4 cv=AZeB2XXG c=1 sm=1 tr=0 ts=6a68e1c5 cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=uAbxVGIbfxUO_5tXvNgY:22 a=aWu7778oA4-70mMxV74A:9
+X-Proofpoint-GUID: Uhpi7ro2W9SxadMVv7PwHpfzbLsRpZoG
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-07-28_04,2026-07-28_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ spamscore=0 priorityscore=1501 phishscore=0 adultscore=0 impostorscore=0
+ clxscore=1015 malwarescore=0 suspectscore=0 lowpriorityscore=0 bulkscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607280149
 
-From: Bryam Vargas <hexlabsecurity@proton.me>
+Fix a bunch of small issues that came up during the previous round of fixes.
 
-The SMC CDC receive handlers dereference conn->rmb_desc, and on the
-SMC-D DMB-nocopy path conn->sndbuf_desc, but both are published after the
-connection is already reachable to a peer: rmb_desc once the connection
-is in the link group's token tree, the nocopy ghost sndbuf_desc later
-still, in smcd_buf_attach() after the ISM receive tasklet is armed. A CDC
-in that window hits a handler with the buffer unset -- a NULL dereference
-and host DoS -- or, on a weakly ordered CPU, non-NULL but not yet
-initialised. Both are also published before the receive state
-(bytes_to_rcv, sndbuf_space), so an early CDC's accounting can be
-overwritten by setup.
+They are mostly extremely unlikely races, but they should be fixed
+nonetheless.
 
-Initialise the receive state first and publish both buffers last with
-smp_store_release(), consuming them with smp_load_acquire() and bailing
-while unset, as the handlers already do for a killed connection. Gate the
-whole sndbuf consumer trigger on the send buffer, not just the nocopy
-accounting: smc_tx_prepared_sends() and smc_tx_pending() dereference it
-too. Conforming peers are unaffected.
+v3->v4
+* Improve patch descriptions, add comments
+* Use smp_store_release and smp_load_acquire in the first patch
+* Multiple fixes in patch 4: potential NULL pointer dereference,
+  incorrect behaviour in low memory condition
+* Rework patch 8 to use scope-based cleanup instead of gotos.
+* Three new patches:
+  - KVM: s390: Fix kvm_arch_commit_memory_region() when low on memory
+  - KVM: s390: Fix kvm_s390_vcpu_unsetup_cmma()
+  - KVM: s390: Fix sca_clear_ext_call() for UCONTROL
 
-Fixes: 69cb7dc0218b ("net/smc: add common buffer size in send and receive buffer descriptors")
-Closes: https://sashiko.dev/#/patchset/20260714-b4-disp-835288a6-v2-1-581555ef2145@proton.me?part=1
-Cc: stable@vger.kernel.org
-Signed-off-by: Bryam Vargas <hexlabsecurity@proton.me>
----
-v4: Add the Fixes: tag Jakub asked for. 69cb7dc0218b is where the CDC path
- started reading the buffer length through a descriptor pointer -- it replaced
- conn->rmbe_size and conn->sndbuf_size with conn->rmb_desc->len and
- conn->sndbuf_desc->len -- so it is the first commit where an unpublished
- buffer can be dereferenced here. The token lookup itself is older
- (5f08318f617b, 2017), but it read a scalar, so there was nothing to
- dereference. The SMC-D DMB-nocopy hunks cover the ghost sndbuf_desc, added
- by ae2be35cbed2; a tree without that commit needs only the rmb_desc part.
-v3: https://lore.kernel.org/all/20260716-b4-disp-aa52955a-v3-1-03a4411a7549@proton.me/
- - Publish rmb_desc and the ghost sndbuf_desc after the receive state is
-   initialised, not before. The earlier revision released the pointer first,
-   which let an early CDC's accounting be overwritten by setup.
- - Gate the whole sndbuf consumer trigger on sndbuf_desc, not only the nocopy
-   accounting: smc_tx_prepared_sends() and smc_tx_pending() dereference it too.
- The v2 review raised both.
-v2: https://lore.kernel.org/all/20260714-b4-disp-835288a6-v2-1-581555ef2145@proton.me/
-v1: https://lore.kernel.org/all/20260711-b4-disp-c36a9798-v1-1-340b0c6053fb@proton.me/
+v2->v3
+* Use READ_ONCE to pair with WRITE_ONCE in the first patch
+* Fix leaking PGM_ADDRESSING also in kvm_s390_keyop() and related functions
+* Fix and improve commit messages
+* Use slots_arch_lock instead of slots_lock for ESSA operations
+* Use normal spin_{,un}lock() functions instead of scoped_guard to avoid
+  mixing the two styles
+* Use the newly introduced vcpu->arch.initialized to determine whether the
+  SCA entry needs to be cleared
+* Improve handling of -EINTR; handle_mvpg_pei() needed some refactoring to
+  deal with it properly
+* Three new patches:
+  - Free the mmu cache when kvm_arch_vcpu_create() fails
+  - Fix ordering when adding to SCA
+  - Fix cleanup in kvm_s390_pv_create_cpu()
 
-herd7 models both orderings. Plain accesses allow the "pointer published, buffer
-stale" outcome and flag a data race; release/acquire forbid it. A publish-order
-litmus shows the lost update is allowed with the store released first and never
-with it released last. af_smc runs over an RDMA fabric or an ISM device, so the
-weak-memory arm is model-level; litmus tests and reproducer on request.
+v1->v2
+* Drop some patches that have been picked upstream in the meantime.
+* Drop patch 3, as it was trying to fix a bug that does not exist
+* Avoid the NULL gmap dereference by using a flag
+* Fix the return value of kvm_s390_[gp]et_skeys too
+* Use kvm->slots_arch_lock instead of kvm->slots_lock for CMMA and ESSA
+  handling, to avoid potential deadlocks with the RCU.
+* Three new patches to fix other issues that came out while fixing the
+  other issues
 
-Happy to split rmb/sndbuf for a cleaner stable backport.
----
- net/smc/smc_cdc.c  | 50 +++++++++++++++++++++++++++++++++++++++++---------
- net/smc/smc_core.c | 26 ++++++++++++++++++++++----
- 2 files changed, 63 insertions(+), 13 deletions(-)
+Claudio Imbrenda (13):
+  KVM: s390: Fix unlikely NULL gmap dereference
+  KVM: s390: Fix leaking of PGM_ADDRESSING to userspace
+  KVM: s390: Fix race in __do_essa()
+  KVM: s390: cmma: Fix dirty tracking when removing memslot
+  KVM: s390: ucontrol: Add missing locking around gmap_remove_child()
+  KVM: s390: Fix overclearing ESCA in case of error
+  KVM: s390: Return -EINTR if a signal was pending while faulting-in
+  KVM: s390: Free the mmu cache when kvm_arch_vcpu_create() fails
+  KVM: s390: Fix ordering when adding to SCA
+  KVM: s390: Fix cleanup in kvm_s390_pv_create_cpu()
+  KVM: s390: Fix kvm_arch_commit_memory_region() when low on memory
+  KVM: s390: Fix kvm_s390_vcpu_unsetup_cmma()
+  KVM: s390: Fix sca_clear_ext_call() for UCONTROL
 
-diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
-index 32d6d03df321..ea61b1e75c72 100644
---- a/net/smc/smc_cdc.c
-+++ b/net/smc/smc_cdc.c
-@@ -332,8 +332,20 @@ static void smc_cdc_msg_recv_action(struct smc_sock *smc,
- {
- 	union smc_host_cursor cons_old, prod_old;
- 	struct smc_connection *conn = &smc->conn;
-+	struct smc_buf_desc *sndbuf_desc;
- 	int diff_cons, diff_prod, diff_tx;
- 
-+	/* Acquire the send buffer once, pairing with the smp_store_release() in
-+	 * __smc_buf_create()/smcd_buf_attach().  On the SMC-D DMB-nocopy path
-+	 * the ghost sndbuf_desc is attached only after the connection is already
-+	 * reachable to the ISM device, so it can still be unset here; every
-+	 * sndbuf_desc consumer below (the nocopy accounting and the sndbuf
-+	 * consumer trigger, which dereferences it via smc_tx_prepared_sends())
-+	 * is skipped while it is NULL to avoid a NULL deref and a load of an
-+	 * uninitialised buffer.
-+	 */
-+	sndbuf_desc = smp_load_acquire(&conn->sndbuf_desc);
-+
- 	smc_curs_copy(&prod_old, &conn->local_rx_ctrl.prod, conn);
- 	smc_curs_copy(&cons_old, &conn->local_rx_ctrl.cons, conn);
- 	smc_cdc_msg_to_host(&conn->local_rx_ctrl, cdc, conn);
-@@ -351,14 +363,17 @@ static void smc_cdc_msg_recv_action(struct smc_sock *smc,
- 
- 		/* if local sndbuf shares the same memory region with
- 		 * peer RMB, then update tx_curs_fin and sndbuf_space
--		 * here since peer has already consumed the data.
-+		 * here since peer has already consumed the data.  The ghost
-+		 * sndbuf_desc (acquired above) may still be unset in the SMC-D
-+		 * DMB-nocopy setup window, so skip the update while it is NULL.
- 		 */
- 		if (conn->lgr->is_smcd &&
--		    smc_ism_support_dmb_nocopy(conn->lgr->smcd)) {
-+		    smc_ism_support_dmb_nocopy(conn->lgr->smcd) &&
-+		    sndbuf_desc) {
- 			/* Calculate consumed data and
- 			 * increment free send buffer space.
- 			 */
--			diff_tx = smc_curs_diff(conn->sndbuf_desc->len,
-+			diff_tx = smc_curs_diff(sndbuf_desc->len,
- 						&conn->tx_curs_fin,
- 						&conn->local_rx_ctrl.cons);
- 			/* increase local sndbuf space and fin_curs */
-@@ -391,10 +406,15 @@ static void smc_cdc_msg_recv_action(struct smc_sock *smc,
- 			conn->urg_state = SMC_URG_NOTYET;
- 	}
- 
--	/* trigger sndbuf consumer: RDMA write into peer RMBE and CDC */
--	if ((diff_cons && smc_tx_prepared_sends(conn)) ||
--	    conn->local_rx_ctrl.prod_flags.cons_curs_upd_req ||
--	    conn->local_rx_ctrl.prod_flags.urg_data_pending) {
-+	/* trigger sndbuf consumer: RDMA write into peer RMBE and CDC.
-+	 * smc_tx_prepared_sends() and smc_tx_pending() dereference sndbuf_desc,
-+	 * so skip the whole trigger while it is unset (the SMC-D DMB-nocopy
-+	 * setup window): there is nothing to send without a send buffer.
-+	 */
-+	if (sndbuf_desc &&
-+	    ((diff_cons && smc_tx_prepared_sends(conn)) ||
-+	     conn->local_rx_ctrl.prod_flags.cons_curs_upd_req ||
-+	     conn->local_rx_ctrl.prod_flags.urg_data_pending)) {
- 		if (!sock_owned_by_user(&smc->sk))
- 			smc_tx_pending(conn);
- 		else
-@@ -443,13 +463,21 @@ static void smcd_cdc_rx_tsklet(struct tasklet_struct *t)
- {
- 	struct smc_connection *conn = from_tasklet(conn, t, rx_tsklet);
- 	struct smcd_cdc_msg *data_cdc;
-+	struct smc_buf_desc *rmb_desc;
- 	struct smcd_cdc_msg cdc;
- 	struct smc_sock *smc;
- 
- 	if (!conn || conn->killed)
- 		return;
-+	/* Pair with smp_store_release() in __smc_buf_create(): the connection
-+	 * is published before its RMB is allocated, so bail while rmb_desc is
-+	 * unset to avoid a NULL deref and a load of an uninitialised buffer.
-+	 */
-+	rmb_desc = smp_load_acquire(&conn->rmb_desc);
-+	if (!rmb_desc)
-+		return;
- 
--	data_cdc = (struct smcd_cdc_msg *)conn->rmb_desc->cpu_addr;
-+	data_cdc = (struct smcd_cdc_msg *)rmb_desc->cpu_addr;
- 	smcd_curs_copy(&cdc.prod, &data_cdc->prod, conn);
- 	smcd_curs_copy(&cdc.cons, &data_cdc->cons, conn);
- 	smc = container_of(conn, struct smc_sock, conn);
-@@ -483,7 +511,11 @@ static void smc_cdc_rx_handler(struct ib_wc *wc, void *buf)
- 	lgr = smc_get_lgr(link);
- 	read_lock_bh(&lgr->conns_lock);
- 	conn = smc_lgr_find_conn(ntohl(cdc->token), lgr);
--	if (!conn || conn->out_of_sync) {
-+	/* Pair with smp_store_release() in __smc_buf_create(): bail while the
-+	 * RMB is unset (smc_cdc_msg_recv_action() dereferences it) to avoid a
-+	 * NULL deref and a stale-buffer read in the connection setup window.
-+	 */
-+	if (!conn || conn->out_of_sync || !smp_load_acquire(&conn->rmb_desc)) {
- 		read_unlock_bh(&lgr->conns_lock);
- 		return;
- 	}
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index b4208cb186c5..33bf9cc979ef 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -2499,15 +2499,26 @@ static int __smc_buf_create(struct smc_sock *smc, bool is_smcd, bool is_rmb)
- 	}
- 
- 	if (is_rmb) {
--		conn->rmb_desc = buf_desc;
- 		conn->rmbe_size_comp = bufsize_comp;
- 		smc->sk.sk_rcvbuf = bufsize * 2;
- 		atomic_set(&conn->bytes_to_rcv, 0);
- 		conn->rmbe_update_limit =
- 			smc_rmb_wnd_update_limit(buf_desc->len);
-+		/* Publish the receive buffer last, with release semantics: the
-+		 * connection is already in the link group's token tree, so a
-+		 * concurrent CDC receive handler must observe the fully
-+		 * initialised receive state above (and the buffer) once it sees
-+		 * a non-NULL rmb_desc.  Pairs with the smp_load_acquire() in the
-+		 * CDC receive path.
-+		 */
-+		smp_store_release(&conn->rmb_desc, buf_desc);
- 		if (is_smcd)
- 			smc_ism_set_conn(conn); /* map RMB/smcd_dev to conn */
- 	} else {
-+		/* Plain store: this send-buffer pass runs before the RMB pass,
-+		 * whose smp_store_release(&conn->rmb_desc) then publishes this
-+		 * store too, and the CDC receive path is gated on rmb_desc.
-+		 */
- 		conn->sndbuf_desc = buf_desc;
- 		smc->sk.sk_sndbuf = bufsize * 2;
- 		atomic_set(&conn->sndbuf_space, bufsize);
-@@ -2599,9 +2610,16 @@ int smcd_buf_attach(struct smc_sock *smc)
- 	buf_desc->cpu_addr =
- 		(u8 *)buf_desc->cpu_addr + sizeof(struct smcd_cdc_msg);
- 	buf_desc->len -= sizeof(struct smcd_cdc_msg);
--	conn->sndbuf_desc = buf_desc;
--	conn->sndbuf_desc->used = 1;
--	atomic_set(&conn->sndbuf_space, conn->sndbuf_desc->len);
-+	buf_desc->used = 1;
-+	atomic_set(&conn->sndbuf_space, buf_desc->len);
-+	/* Publish the ghost send buffer last, with release semantics: the
-+	 * connection is already reachable to the ISM device (smc_ism_set_conn()
-+	 * ran in __smc_buf_create()), so the CDC receive tasklet must observe
-+	 * the fully initialised ghost buffer once it sees a non-NULL
-+	 * sndbuf_desc.  Pairs with smp_load_acquire() in
-+	 * smc_cdc_msg_recv_action().
-+	 */
-+	smp_store_release(&conn->sndbuf_desc, buf_desc);
- 	return 0;
- 
- free:
+ arch/s390/include/asm/kvm_host.h |   1 +
+ arch/s390/kvm/dat.c              |  23 ++++--
+ arch/s390/kvm/dat.h              |   2 +-
+ arch/s390/kvm/faultin.c          |   4 +-
+ arch/s390/kvm/intercept.c        |  23 +++---
+ arch/s390/kvm/interrupt.c        |   7 +-
+ arch/s390/kvm/kvm-s390.c         | 121 +++++++++++++++++++------------
+ arch/s390/kvm/priv.c             |  10 ++-
+ arch/s390/kvm/pv.c               |  43 +++++------
+ 9 files changed, 141 insertions(+), 93 deletions(-)
 
----
-base-commit: e095f249e2209674f6366f6db0383a2b96e19239
-change-id: 20260728-b4-disp-52ee4e7d-348754fe91ed
-
-Best regards,
---  
-Bryam Vargas <hexlabsecurity@proton.me>
-
+-- 
+2.55.0
 
