@@ -1,140 +1,131 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F2C1A3FC5AA;
-	Tue, 28 Jul 2026 09:51:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2BE6512F585
+	for <linux-s390@vger.kernel.org>; Tue, 28 Jul 2026 09:59:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785232280; cv=none; b=E1r4/EJUrmLJyZbwKpckDEfuNA/KcoAaRQSclmU9XnfY7cE34gESdy40eFfW94nb+8+GL9cBRIWyFKjLv4r/LCZapXgsXZkb+Wbt2QIND7eR8AyftNF3gEAgWwvIg0J9QHNF8i1HF4x1T3VzT72NcwKMe7GKSXgeQRrr+4JvkSs=
+	t=1785232745; cv=none; b=f84OMwd7iKT5w8lvxOqrXkJO9Nz634raMi2ECPEC2QqvWgTIoKZKKZBtu3OsoS6zg/q+5hxRBQI6KQkMgMsNPLJduPRG2Cinmxx0N6yxgcqWj+N8H7/0vlijqOGRQcxYTfZFdRW5p2dNTbG+9SCUPy3wUNL76ibUNm7+cMWvNnY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785232280; c=relaxed/simple;
-	bh=5bqZR58k9VyTcQeA3w194QZQ3+EBOuFEbYqBB5YO8QI=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=cKqCZglANI2k2nYeCOzCBkr6I0VgQubAf/k2KgE1nvT2beEfGFiCNgQ67Dqj6aUsynm0sfxQkNaEZfCN816KH2rpRhFW+c5N8ck0map9L/2Vh34PC3iJ/4j42jNRUWFuyOHY+j74+RlOcJRdO/oTpx5pa0J8BE5JVw/U8haIfHQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=HmnE8XgM; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1785232745; c=relaxed/simple;
+	bh=gJDIRS8gK3H/n1DKy1tgxVQvl68QWgrga3wWNqCC3RU=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=hRVELCcoMCBDhGDSpgHsl2PkxpkdnyshkwByL+gble87xrUx0afxp3Q1oOuYgBzXvolO5FIBpL2kncGf3AYXy9PT4xtzF1hezwm1GW1n1pAKf2tXeaRwhjZ+N5Lb2rpb28adDU2iqCH/d0A5B1znGW7nLQ+PwKgrOND0vtEVQMA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Gw4lzFDt; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="HmnE8XgM"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66S8HcOj511714;
-	Tue, 28 Jul 2026 09:51:10 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=ROplq/
-	hcU2gsOgtYAUb4UUWvw13VseDqKzURE12GY0I=; b=HmnE8XgMRRPlhrCAum80DP
-	LSctQiv1v7CT3tLhAQzzpeZ9D/3vY5BOf010AalIe2s3bTVmmBvQOltQe7gmALKx
-	+Cx3/mByO4zLnjkJXoZD+adqJUKAC/iEfVMjTtBuriPmP67XVeTNwq28hza8iyUK
-	oznM0hDNGgkZAdyefcnLP/tpD30tf/yO1wqp5+fXunUet5RKi5qJAGgzJWTBKv/b
-	cx7jgUTdj1IKd24QH1E/5CL2aHYEw71Dovtk0sz0JLtSHEmpEPlxAaS+lblgkRde
-	W2x+hYt4yz3MGS4ZIKHH9IEtiDW9yP47BNyQfS16iPPNlqY9EbwZwrF1RTYX3JRw
-	==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fmv0xmhv0-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 28 Jul 2026 09:51:10 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66S9fJes022957;
-	Tue, 28 Jul 2026 09:51:09 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fn9pg910c-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 28 Jul 2026 09:51:09 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66S9p5Ve32244048
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 28 Jul 2026 09:51:05 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8E74720043;
-	Tue, 28 Jul 2026 09:51:05 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1441B20040;
-	Tue, 28 Jul 2026 09:51:05 +0000 (GMT)
-Received: from [9.111.67.171] (unknown [9.111.67.171])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 28 Jul 2026 09:51:05 +0000 (GMT)
-Message-ID: <09e9a0f4-48c7-4e63-a6f3-dae61c1f94e1@linux.ibm.com>
-Date: Tue, 28 Jul 2026 11:51:04 +0200
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Gw4lzFDt"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9A321F000E9;
+	Tue, 28 Jul 2026 09:59:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1785232744;
+	bh=nw3DJGVnxmtxXMOC4XCnLDyG0gUam/9+90eel2Vmt4g=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=Gw4lzFDt2WarX0Zwp8ziDUXu9QwEZ7mhUvHNBOZbNXCYcx3IOKYExZDOZ0rNknFFY
+	 2d3lTX/Mr8LfjmBT9+RF/9VA4cPPdcXIM3Pi/3TMoOHIZzTtbdP0SBGSvChJswVfdm
+	 rva5NRgCbtznqjvO2nxkpAFUkFkld9jmMzxl3La7Jcyd3k5tAI8fls8cSK+u4M+MgU
+	 ihJ8+pV+s/8qRCrJZQS4b8OhIDMnaj3cN5n60UaPXV7D5ASDo9vKpqWcB+kbS93WSk
+	 /nXvQZuLXyhjmSX+56iqJ4Q3EF5cI67ix3QCVhZQ7OAIbOuULkCxjUG5gknbgBDn8f
+	 vC9BANxkiLyeg==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH net v3] net/smc: fix out-of-bounds read of rkey array in
+ SMC-Rv2 LLC processing
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Yehyeong Lee" <yhlee@isslab.korea.ac.kr>
+Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, linux-s390@vger.kernel.org, "Vasily
+ Gorbik" <gor@linux.ibm.com>
+In-Reply-To: <20260727095833.1079618-1-yhlee@isslab.korea.ac.kr>
+References: <20260727095833.1079618-1-yhlee@isslab.korea.ac.kr>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 28 Jul 2026 09:59:03 +0000
+Message-Id: <20260728095903.B9A321F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 1/4] s390/crypto: Replace cond_resched() with schedule()
-To: Heiko Carstens <hca@linux.ibm.com>
-Cc: Harald Freudenberger <freude@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <20260727162430.1599396-1-hca@linux.ibm.com>
- <20260727162430.1599396-2-hca@linux.ibm.com>
- <f88846b24b1250f89b503b6ddfda318c@linux.ibm.com>
- <20260728082948.13361Ab7-hca@linux.ibm.com>
-From: Holger Dengler <dengler@linux.ibm.com>
-Content-Language: en-US
-In-Reply-To: <20260728082948.13361Ab7-hca@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: FP7mdeo-xiPscPLzBLDIyZ8S-AlsRWNN
-X-Proofpoint-ORIG-GUID: FP7mdeo-xiPscPLzBLDIyZ8S-AlsRWNN
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI4MDA4NSBTYWx0ZWRfXyoc036Q6jSO7
- cX+oAUkIFzYNREqsTAZYzWur8g/yKCryhNSZGGn1aiUJ85ePipZf/NJdJ1o/raNiyehdOMGC+0J
- Sk+C82g21XIYh77qZJ7apjMR0xkRDzY=
-X-Authority-Analysis: v=2.4 cv=dYuwG3Xe c=1 sm=1 tr=0 ts=6a687b8e cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=aCFUBb3aLFy8RMfsWHIA:9
- a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI4MDA4NSBTYWx0ZWRfX3NPkFFbn92q1
- WMkB8vUA0PofHxLFuJ1yhH4YOClwG3rObE2zoLNcaxfIViytnkyZxJ7ZvkoWRpPOMlburvplEUa
- 1XEZ6KpL0bwnhwgmCtbt3cJhZaf85WNemT4BVLB9/462dnyLSzJcNj+DJgx7lDk1xgnBbBZX5e/
- 3Y+TnGe1rrstYaNP/RSx6mr3vNgJSETC5ZQyx9uBBskHfJjfXQno1vCV4gImSObhaE8QScwj0w1
- mIHttnsLmqI7hc+AuKfO0fR9xQcHO0+XhOsWBq/WfSsp+cOwhmuCOqPePNOrx/XPGfEDfQg6wSI
- Zh5M9DOklNWyUDmbtdEVZ/umWtHRw85XoS235aD7jJ/gCjmGVj1HSIao9ekC6wUQeFZmN59sAyJ
- vc43LnJCxuwtCmfaDW6OWQFpG9pxxtwtNznCOJF5+oXqdiDte9LTu+Pw6JHnxu2J6G9Tr8Fmflg
- C8eh6b45GfynrTTPGSg==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-07-28_02,2026-07-27_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 impostorscore=0 clxscore=1011 phishscore=0 malwarescore=0
- spamscore=0 lowpriorityscore=0 bulkscore=0 suspectscore=0 adultscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607280085
 
-On 7/28/26 10:29, Heiko Carstens wrote:
-> Well, the main question still remains: why did the code use cond_resched()?
-> 
-> This doesn't make sense to me, at least when reading the comment. So to me
-> even the schedule() approach I proposed is questionable. Why didn't the code
-> use msleep() instead? Or can we just remove cond_resched() entirely without
-> any replacement?
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
 
-As the comment says, if possible, the scheduler should run any other 
-workload in case of a -EKEYEXPIRED, as the re-creation of the protected 
-key is in progress.
+New issues:
+- [High] Accessing the flexible array member `rkey` in `smc_llc_rmt_delete_=
+rkey` crosses the statically known boundary of the `msg` union into the `bo=
+dy` flexible array, triggering a compiler array-bounds panic.
 
-My current understanding was (and still is), that cond_resched() (or 
-even schedule()) is doing exactly that: give back the control to the 
-scheduler. If this is not the case, but msleep() is doing the trick, I 
-would vote for msleep().
+Pre-existing issues:
+- [High] The function `smc_rtoken_delete` modifies shared rtoken state with=
+out holding the appropriate lock, leading to a race condition.
+--
 
-Removing the code completely might also work. The situations, where the 
-protected keys expires are very rare (once per protected key after a 
-live guest relocation). These situations are hard to trigger and we 
-should test carefully, if the removal works in all cases.
+--- Patch [1]: [PATCH net v3] net/smc: fix out-of-bounds read of rkey array=
+ in SMC-Rv2 LLC processing ---
+commit bc4e86ac0d674a2bb992c13bb4936670fa839d8d
+Author: Yehyeong Lee <yhlee@isslab.korea.ac.kr>
 
--- 
-Mit freundlichen Grüßen / Kind regards
-Holger Dengler
+net/smc: fix out-of-bounds read of rkey array in SMC-Rv2 LLC processing
 
+This commit fixes an out-of-bounds read when processing SMC-Rv2 messages
+in non-shared link scenarios. It changes smc_llc_qentry to carry the
+message body in a flexible array rather than relying on a separate buffer.
+Loop bounds are also clamped to the received byte length.
+
+> diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
+> index 954b2ff1815c2..997664bbe4f2a 100644
+> --- a/net/smc/smc_llc.c
+> +++ b/net/smc/smc_llc.c
+
+[ ... ]
+
+> @@ -1811,16 +1819,15 @@ static void smc_llc_rmt_delete_rkey(struct smc_li=
+nk_group *lgr)
+> =20
+>  	if (lgr->smc_version =3D=3D SMC_V2) {
+>  		struct smc_llc_msg_delete_rkey_v2 *llcv2;
+> +		const u32 rkey_off =3D
+> +			offsetof(struct smc_llc_msg_delete_rkey_v2, rkey);
+> =20
+> -		if (smc_link_shared_v2_rxbuf(link)) {
+> -			memcpy(lgr->wr_rx_buf_v2, llc, sizeof(*llc));
+> -			llcv2 =3D (struct smc_llc_msg_delete_rkey_v2 *)lgr->wr_rx_buf_v2;
+> -		} else {
+> -			llcv2 =3D (struct smc_llc_msg_delete_rkey_v2 *)llc;
+> -		}
+> +		llcv2 =3D (struct smc_llc_msg_delete_rkey_v2 *)llc;
+>  		llcv2->num_inval_rkeys =3D 0;
+> =20
+>  		max =3D min_t(u8, llcv2->num_rkeys, SMC_LLC_RKEYS_PER_MSG_V2);
+> +		max =3D min_t(u32, max, (sizeof(qentry->msg) + qentry->body_len -
+> +				       rkey_off) / sizeof(llcv2->rkey[0]));
+>  		for (i =3D 0; i < max; i++) {
+>  			if (smc_rtoken_delete(link, llcv2->rkey[i]))
+
+[Severity: High]
+Will this trigger a UBSAN array-bounds panic for large messages?
+
+Since llcv2 is cast from the 44-byte msg union, but the rkeys actually
+extend into the adjacent qentry->body flexible array, doesn't reading
+llcv2->rkey[i] for i >=3D 9 cross the statically known boundaries of the
+union?
+
+Even though the memory is physically contiguous, accessing beyond the union
+size violates strict intra-object bounds checking.
+
+[Severity: High]
+This is a pre-existing issue, but does this loop need locking to protect
+against concurrent modifications to the rtoken structures?
+
+When smc_llc_rmt_delete_rkey() calls smc_rtoken_delete() to modify
+lgr->rtokens and lgr->rtokens_used_mask, neither lgr->rmbs_lock nor
+lgr->llc_conf_mutex is held.
+
+Since smc_llc_save_add_link_rkeys() and smcr_rtoken_clear_link() can run
+concurrently and modify these same structures, could this result in data
+corruption of the RDMA memory access keys?
+
+>  				llcv2->num_inval_rkeys++;
+>  		}
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260727095833.1079=
+618-1-yhlee@isslab.korea.ac.kr?part=3D1
