@@ -1,82 +1,174 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A554E420898;
-	Tue, 28 Jul 2026 09:33:14 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9ACD041DE0C
+	for <linux-s390@vger.kernel.org>; Tue, 28 Jul 2026 09:35:48 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785231195; cv=none; b=j4i7yVQQ9rZD4zaF1iWUl+35iUIIJZbe09GXJutmjCecPDeNAjM5ypnjEPMVF4xLHWBS7nETrwOYs9oqKKfMsqUdJTPHlDewi4XO8ZlAYY0vPix/W4euiJnlZUhAEYGWXRiHZOAbrARdZPfHsA/TFE8xuYVrOldM61ZDc++Zg9k=
+	t=1785231351; cv=none; b=l2g+E43tu5gQEDU1uRKWkpPZlUgfez+nNKd0Je5FD9c+12bagaT/KDV1wwQ2qzpSa0KjUQu14aQJpPdFXdtnuSNnk7mzvn48ges0Nsew7bxcxfiMQsRkTinFnKzazl+vR+6KSOfXi/9VV/ZpngFf4ngMZgzraDaMD0e0lVdzpOw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785231195; c=relaxed/simple;
-	bh=vwQOIcrkLHtf1F/QTORo2k/3DPd3qqpQYbGXzLbPgo4=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=Rh3UYi6NI3CcUv+OkGNT8BncKfLfAjq2C3Y/ldvrSbkq63+jSErA39SE4eNLc16Bo1u3rz/TKhEuBVtRt4+F8WaCDW2CKUDzx9XAvmDqwZSgFPJ0J/deD7jRBzGWYgCyDo5s5y8OUMPLv8ClK33Euu720RUk5G/kXU1b8JOua1U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Eli4/Gfb; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1785231351; c=relaxed/simple;
+	bh=EkjWYVPqzxZY+lZakYqk+cfF/qnujB0PkPR1x1Hb4T0=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=rxIOIgGvsEhPxIPGl4tfxKzdQzD4byA8PoHSu10pI5z4scx5Ey9Kl+EUXrprMnLZ5M0wTPHEX1TlFRkqHCvVCyLGRcZjm92Ro5Dcr931/fTTSqB/fbExKvM681JzXK99BMjKH19JIt9N9JAhQHsEzpnFqYDMKGvbRhgl82N769w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Hthd94uZ; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Eli4/Gfb"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 639481F000E9;
-	Tue, 28 Jul 2026 09:33:14 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Hthd94uZ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8AEA41F01561;
+	Tue, 28 Jul 2026 09:35:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785231194;
-	bh=yXVJCu5/Qamnw1N6lX0XHc3lf1HIt2Qzb3ANNzVYI10=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc;
-	b=Eli4/Gfb8dN6uNEc2tTx9P+9Rn+1Z6lkKlyIa0MU8oL+jUhx87OF1rFrx8taywWZc
-	 0qoTW8JVZTC0Cqr4qFBKYaFDCct3sK2e6KZD4JK9dTi/jHbJFbv7ZUzuVAjPJrPFkz
-	 db512HBkJ4MQYWcMUhLfaL1yty/5l3FGPun8NVXp/IH5o2GvstNdlYbrN/nL8ycOYi
-	 05AQ7KDJa0Es0uNVoVt+HiogV9bFWbkT1rbCCoMPKwtHQEZC/HLUq1W/zbWiACdHRi
-	 MgRQ6NzKQfAmXlVXJTgWSzwh8wVS7XosRjk8TSFqZthcm+kHYV4JZMlmvCwk+K5HGB
-	 zVYAYavrnwTnA==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 93ADE380CFE5;
-	Tue, 28 Jul 2026 09:32:40 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	s=k20260515; t=1785231348;
+	bh=fXDmk4N6IHw5r6tJrevupm0XCWWlS71ixaK7aw7STnQ=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=Hthd94uZORQBfNuGMS2icBZI/fvt+SM39gEvMJRc4RZ1Qwodj9HwqDIGyGwo8KIzq
+	 YBlN5yBQonKfvbfwA84q9fB+Pg5AWl3bc26BS5oHHcD/pK76XmiDFOnioEwyfqY5bP
+	 uscAdjCBbuRnKyQYGmB3wHVzeep2UYWGtjh8zVrnt1qFQjHCi9onSIk7Gf/X7TdHVU
+	 mwKSFkvIedl8ezmaH3bZOR1312W4af7OmrHRcw0nY98TBMeU6o5mLjLbuOYzpmszvr
+	 Dh6Cbvr/uxTnNPrkcXocBSVhWbwigNdbMdWcqtz/mGYDZAXY4YtM/0odiVBflTADgm
+	 pToi529A09Z6Q==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH net] dibs: fix use-after-free of dmb_node in loopback
+ attach/detach/unregister
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Hidayath Khan" <hidayath@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>
+In-Reply-To: <20260727093530.968834-1-hidayath@linux.ibm.com>
+References: <20260727093530.968834-1-hidayath@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 28 Jul 2026 09:35:46 +0000
+Message-Id: <20260728093547.8AEA41F01561@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net v1] net/smc: fix socket use-after-free during link
- group
- termination
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <178523115913.1642152.18219172215531493703.git-patchwork-notify@kernel.org>
-Date: Tue, 28 Jul 2026 09:32:39 +0000
-References: <20260723105454.87016-1-xuanqiang.luo@linux.dev>
-In-Reply-To: <20260723105454.87016-1-xuanqiang.luo@linux.dev>
-To: luoxuanqiang <xuanqiang.luo@linux.dev>
-Cc: netdev@vger.kernel.org, alibuda@linux.alibaba.com,
- dust.li@linux.alibaba.com, sidraya@linux.ibm.com, wenjia@linux.ibm.com,
- mjambigi@linux.ibm.com, tonylu@linux.alibaba.com, guwen@linux.alibaba.com,
- davem@davemloft.net, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
- horms@kernel.org, kgraul@linux.ibm.com, ubraun@linux.ibm.com,
- linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
- luoxuanqiang@kylinos.cn, stable@vger.kernel.org
 
-Hello:
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+s) to consider:
 
-This patch was applied to netdev/net.git (main)
-by Paolo Abeni <pabeni@redhat.com>:
+Pre-existing issues:
+- [High] dibs_lo_detach_dmb() fails to clear dibs->dmb_clientid_arr when dr=
+opping the final reference, leading to permanent client resource leaks.
+- [High] Double free of dibs->dmb_clientid_arr in dibs_lo_dev_probe() error=
+ path.
+- [High] Race condition in dibs_lo_move_data() routes spurious interrupts t=
+o wrong clients.
+--
 
-On Thu, 23 Jul 2026 18:54:54 +0800 you wrote:
-> From: Xuanqiang Luo <luoxuanqiang@kylinos.cn>
-> 
-> __smc_lgr_terminate() drops conns_lock after finding a connection in
-> lgr->conns_all, but before taking a reference on its socket. The connection
-> is embedded in the socket, and its registration reference protects it only
-> while the connection remains in the tree.
-> 
-> [...]
+--- Patch [1]: [PATCH net] dibs: fix use-after-free of dmb_node in loopback=
+ attach/detach/unregister ---
+commit 90d8ce044f1442abf2a546d5baabbf36276d4b45
+Author: Hidayath Khan <hidayath@linux.ibm.com>
 
-Here is the summary with links:
-  - [net,v1] net/smc: fix socket use-after-free during link group termination
-    https://git.kernel.org/netdev/net/c/f621d6ebeebb
+dibs: fix use-after-free of dmb_node in loopback attach/detach/unregister
 
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+This commit fixes a use-after-free race condition in the DMB loopback
+operations. It closes the race by making the hash table membership and refc=
+ount
+transitions atomic with respect to each other under the write lock. Freeing=
+ the
+node is now handled safely after the lock is dropped.
 
+> diff --git a/drivers/dibs/dibs_loopback.c b/drivers/dibs/dibs_loopback.c
+> index 0f2e093111526..fd5caf1e19a8f 100644
+> --- a/drivers/dibs/dibs_loopback.c
+> +++ b/drivers/dibs/dibs_loopback.c
+[ ... ]
+> @@ -209,11 +205,12 @@ static int dibs_lo_detach_dmb(struct dibs_dev *dibs=
+, u64 token)
+>  {
+[ ... ]
+> +	last =3D refcount_dec_and_test(&dmb_node->refcnt);
+> +	if (last)
+> +		hash_del(&dmb_node->list);
+> +	write_unlock_bh(&ldev->dmb_ht_lock);
+> +
+> +	if (last)
+> +		dibs_lo_free_dmb(ldev, dmb_node);
 
+[Severity: High]
+This isn't a bug introduced by this patch, but does this code fail to clear
+the client ID array when dropping the final reference?
+
+When an owner unregisters a DMB that still has active attachers (refcount >=
+ 1),
+dibs_lo_unregister_dmb() does not clear the array because last =3D=3D false.
+
+When the final attacher detaches, dibs_lo_detach_dmb() drops the refcount t=
+o 0,
+frees the node and the sba_idx, but structurally fails to clear
+dibs->dmb_clientid_arr[sba_idx].
+
+Could this leave a stale client ID in dmb_clientid_arr indefinitely, causing
+future unregistration to fail with -EBUSY and permanently leaking the client
+resource?
+
+> =20
+> -	if (refcount_dec_and_test(&dmb_node->refcnt))
+> -		__dibs_lo_unregister_dmb(ldev, dmb_node);
+>  	return 0;
+>  }
+
+[Severity: High]
+This is a pre-existing issue, but is there a double free of
+dibs->dmb_clientid_arr in the dibs_lo_dev_probe() error path?
+
+If dibs_dev_add() fails internally, it frees the array without nullifying i=
+t:
+
+drivers/dibs/dibs_main.c:dibs_dev_add() {
+    ...
+free_client_arr:
+	kfree(dibs->dmb_clientid_arr);
+	return ret;
+}
+
+The caller receives the error and unconditionally frees the already-freed a=
+rray
+again:
+
+drivers/dibs/dibs_loopback.c:dibs_lo_dev_probe() {
+    ...
+err_reg:
+	kfree(dibs->dmb_clientid_arr);
+    ...
+}
+
+Could this double-free cause slab allocator corruption?
+
+[Severity: High]
+This is a pre-existing issue, but is there a race condition in
+dibs_lo_move_data() that routes spurious interrupts to wrong clients?
+
+The target sba_idx is cached and the protection lock is dropped:
+
+drivers/dibs/dibs_loopback.c:dibs_lo_move_data() {
+    ...
+	sba_idx =3D rmb_node->sba_idx;
+	read_unlock_bh(&ldev->dmb_ht_lock);
+    ...
+}
+
+Before it acquires the lock to trigger the IRQ, another CPU could drop the
+final reference to the DMB, free the node, and clear its sba_idx.
+
+If a completely different client then immediately registers a new DMB and
+reallocates the same sba_idx, will the IRQ be routed to the wrong client wh=
+en
+the code continues?
+
+drivers/dibs/dibs_loopback.c:dibs_lo_move_data() {
+    ...
+	spin_lock(&dibs->lock);
+	client_id =3D dibs->dmb_clientid_arr[sba_idx];
+	s_mask =3D ror16(0x1000, idx);
+	if (likely(client_id !=3D NO_DIBS_CLIENT && dibs->subs[client_id]))
+		dibs->subs[client_id]->ops->handle_irq(dibs, sba_idx, s_mask);
+    ...
+}
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260727093530.9688=
+34-1-hidayath@linux.ibm.com?part=3D1
