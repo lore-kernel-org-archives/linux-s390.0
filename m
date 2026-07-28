@@ -1,210 +1,166 @@
-Received: from mail-wm1-f51.google.com (mail-wm1-f51.google.com [209.85.128.51])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F17644E03B
-	for <linux-s390@vger.kernel.org>; Tue, 28 Jul 2026 14:41:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A595C448CF4;
+	Tue, 28 Jul 2026 14:43:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785249701; cv=none; b=iHsBWc+cIAneTQLEACtcpdkQH1a7MSQpQ6PTRB32NU2AFZXX8gkxNGmsWf8TmapRvuReT1viWu9inVwBt0Gry80qKeW2JfGzlKhwRXupZB+QgwoOb0hAMTklK2TPkg2qvU+wiQgsSM9isO+vWNJevKI/3yt68/P+EJOfYHgpDKU=
+	t=1785249806; cv=none; b=RdUeY5CW1RMj9nHELjzTjuvTIWCzPii/X2F4T1Uzq2BJnNyfjM9JI6aK4sp3VgKpdMxQvtXZywIHeujS3HM2LohUARUwqgSkbgM4hHJs0F7uriTTrOphyp9IbmRuXlg9mqkJ+V9fsnoTu1N1tH9W0l3+NU/ZAgOoZYYzYNh0X1I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785249701; c=relaxed/simple;
-	bh=HyNNoVnivWfWMKFmKPjajYoM7OeYhzbKX854ccuv5SE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=riM5GOCmOT82DVdFDQF/6NzM2Kb9suFoXMUnZDmZi8sXC76cpBQzNJie6cgPZKt17IUo6bctUd7mPs6ioGNlLivQCJzlhWfHAtfDmawJILQj5/kdvYmxcck9lnwYkQgBjWqVfOlVntlfPrZSU0njrVQ7EKPzLTpXnVxrRqfe6IM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=FYtQNDK6; arc=none smtp.client-ip=209.85.128.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	s=arc-20240116; t=1785249806; c=relaxed/simple;
+	bh=w7Zzhce0TWe/WabLsNQTEG8CbCIaUrKZfyu5lDhyQYo=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=K5i54VvGzp1558/hHt3GpUOOPAyA6Hg/mQvMQnu1MdYayt3SX3a+wVSynkWA3N92hXljYCQS1a9Z8meoyX3FDnvsDKnuPAvyLau3MUYRAttd/fxkdRR75/yUm99lbpJFtd2PH1kIMa/L8vqV1WrR22Prkf6FkKFkZT6ZSa/n9BY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=bdWP6obn; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="FYtQNDK6"
-Received: by mail-wm1-f51.google.com with SMTP id 5b1f17b1804b1-493be0fbcc5so64045e9.0
-        for <linux-s390@vger.kernel.org>; Tue, 28 Jul 2026 07:41:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1785249698; x=1785854498; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=JCZrUOE9kwIF4hUfSxEIdPGLi7SYMbxXEbVOya3wkPE=;
-        b=FYtQNDK60yPFl7XNt7g7Yy32DgZf6bsVE9K+1P2/m0pX41GlqmyVUBZsJkJ44CL5pt
-         hhk4skBsOSkJzdStZIBE1HyKnEJLO7iFW/dvfeZLfdIkMHfqynDsw2ztC7u+hOWoUstg
-         jaEufRocRje+0xeLBqogBz0ZwuH5FxWJIPYrzoEmiftIfY86+8g23VCS+Qmw2lfdyqYQ
-         npp3L2NlIf5V9KiBbC/zuPXbcZY1S5jfN/Mg4/LSMltAlob1X1+hs17nZB9dBDLBOhbE
-         81mkiXlRg97WplonnP6qsMh6nikFVB2JmuTE1hrHzvQ1/Dkp9LkM2neOXN0OLOmLs7B4
-         m/rg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785249698; x=1785854498;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=JCZrUOE9kwIF4hUfSxEIdPGLi7SYMbxXEbVOya3wkPE=;
-        b=fvo/M/8AYikHC6qxoh3o6N3FnyHjUflKrafbAXHJMNBF76wLOeRJXKjElB8aGYEixR
-         ULOu6q58b2rPrE37YD+2Q4h/lXU2sxMQ2i/wpMls1Jo5hlBb69ctctZdK0mwzmztfoGz
-         QfFcg45zk8ykfjp+HmK8dEJtM0DE75EG/j+ZZszXNmo73FJa0StDZ40xHZt6y8kOC/za
-         9rxCG2X4c7od82g6yikz/1VP29WU1cVZcLd1wO/pnakR9STtc4l9TLCXmlRlTKY/TGpK
-         rL9zowEIz2IGg3jfOndjVi+RXkNOzTDgxjyllwxs/XFvGAH2DrEpx6aHMw6JVPuWp2Jc
-         vCuQ==
-X-Forwarded-Encrypted: i=1; AHgh+RomJD7bho1OKhvvAYI2UdXmd6o33tUDSB7zEFAgiRWLN6WiEkeN37uzAvvYmoA9U4TTb4ura6onVC/d@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy4KwP+j5SDQLPqRfcqsT2wOCVW+2EBw6X7fFviduUZTL2P8aOU
-	XcvIqMHi81oUHYwxCqXs9PlC2DjjN6dTPXxXA5pZDEgZVbYh1Sy1yyWwGNRYSJyrpQ==
-X-Gm-Gg: AR+sD134xMCV9YGY/FZWVDehT6da/Yrv88TVB0uNOwIz2d1HAxvtPM/Q7HCn0wJMNrL
-	zA2drlvIvlodgxCUlJaphhAO6sR5oJIf/lNk6QCfN5AHWdzTb/pgVCmHJsPbLwUBup/xt8KJp0z
-	LMGv6MAY91KLwUcUg75EPR6nIkS1d/FQGmRA2L4Cbv5V3HLjYZjlflbDfEhwySJwlk8hR65fV6C
-	EkbbwOKycXxBfgKD3dPjXbFS3wg204GRN5HGfc2A0q9lodDIooAE96Fbo9O7Tm0sASeGsQiY6Zk
-	oMv7lHz7tDnzsCirdZ2RgVa7wBHJsd6OMU/RKFdy6Yfo1kELT6opqB9GW+3tN/ObS3wPKEpSmTq
-	2zWLCCoI5UAmr19IbVpnLuPVmFeI8EPWOJGloqCZiVl0DbY5AqoxV8tE2Qf/ov9f57M+2e3jQGC
-	4dFlwIb+V5QdEGFQpf6LyFkbWNWjRLnSBzfzs9QmHXjlk=
-X-Received: by 2002:a05:600c:528c:b0:490:ab15:b9e8 with SMTP id 5b1f17b1804b1-496b944f535mr5111045e9.2.1785249696887;
-        Tue, 28 Jul 2026 07:41:36 -0700 (PDT)
-Received: from google.com (250.192.189.35.bc.googleusercontent.com. [35.189.192.250])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-496c45c338fsm83874795e9.8.2026.07.28.07.41.36
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 28 Jul 2026 07:41:36 -0700 (PDT)
-Date: Tue, 28 Jul 2026 14:41:30 +0000
-From: Mostafa Saleh <smostafa@google.com>
-To: "Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org>
-Cc: iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev,
-	Robin Murphy <robin.murphy@arm.com>,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
-	Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
-	Steven Price <steven.price@arm.com>,
-	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Jiri Pirko <jiri@resnulli.us>, Jason Gunthorpe <jgg@ziepe.ca>,
-	Petr Tesarik <ptesarik@suse.com>,
-	Alexey Kardashevskiy <aik@amd.com>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Xu Yilun <yilun.xu@linux.intel.com>, linuxppc-dev@lists.ozlabs.org,
-	linux-s390@vger.kernel.org,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org,
-	Jason Gunthorpe <jgg@nvidia.com>,
-	Michael Kelley <mhklinux@outlook.com>
-Subject: Re: [PATCH v8 12/23] dma: swiotlb: pass mapping attributes by
- reference
-Message-ID: <ami_mpd_1pF4Tmdu@google.com>
-References: <20260717180442.110954-1-aneesh.kumar@kernel.org>
- <20260717180442.110954-13-aneesh.kumar@kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="bdWP6obn"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66SDlg7A1356676;
+	Tue, 28 Jul 2026 14:43:22 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=sqAdYE
+	Ob4kLdAF/BUMX181y0iRXHew1ImpypI2TO3Gk=; b=bdWP6obnB68ADRxReLti4/
+	U4CPipP7bHXAYMDk9k9ZYdHjpYHFe6ZEggtvHycALHdqmrpfyRurO9bX2TUQWua6
+	/KEr4DvY2pCcgYCtd0S66Zdig4ZE+8WFAbdWZ4q2gPkrXdLHb/s/w6fVRHhRs4lD
+	Jk9rB8pXAdGQI2oPfBys+lovgO/hgaaPeagEfLA1aolsR2phoL/NmXZgj+Xw661h
+	dMEmgTVjP9JbD0su8imgxUREkdgPGxb9UvSugbXJnFRzSHHOlMNVXm2ilo3sJO9X
+	wii2sIs1lWOQgtARHA3n63alztjP6RGw4M/UAdZbF/XKfIr8r84y+/1bsGMoz3uA
+	==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fmuwcw6q6-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 28 Jul 2026 14:43:21 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66SEffum024265;
+	Tue, 28 Jul 2026 14:43:21 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fna5y20t0-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 28 Jul 2026 14:43:20 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66SEhEi232375048
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 28 Jul 2026 14:43:14 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B57D02004E;
+	Tue, 28 Jul 2026 14:43:14 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E0A6C20043;
+	Tue, 28 Jul 2026 14:43:13 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.111.73.241])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with SMTP;
+	Tue, 28 Jul 2026 14:43:13 +0000 (GMT)
+Date: Tue, 28 Jul 2026 16:43:09 +0200
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+To: Janosch Frank <frankja@linux.ibm.com>
+Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, borntraeger@de.ibm.com, david@kernel.org,
+        seiden@linux.ibm.com, nrb@linux.ibm.com, schlameuss@linux.ibm.com,
+        gra@linux.ibm.com
+Subject: Re: [PATCH v3 10/10] KVM: s390: Fix cleanup in
+ kvm_s390_pv_create_cpu()
+Message-ID: <20260728164309.5a172dac@p-imbrenda>
+In-Reply-To: <dd83d8ba-e8fc-48ec-b980-d9331d2e29c8@linux.ibm.com>
+References: <20260727150254.236021-1-imbrenda@linux.ibm.com>
+	<20260727150254.236021-11-imbrenda@linux.ibm.com>
+	<dd83d8ba-e8fc-48ec-b980-d9331d2e29c8@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260717180442.110954-13-aneesh.kumar@kernel.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: oVCemLghfhs-1B_SSZHALIa6I1x1wRel
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI4MDEyNyBTYWx0ZWRfX1GFpBrQsVf8O
+ opK1nK02PYAaeXVVoPagca8dTtFoEs7fuSoE8IC7gMM0TlNiCYcve3dzzLK/iCFh0kWswgi+wYz
+ BRpTmnfsM2D7Wuz1Fn+pY8/kblZFZM4=
+X-Authority-Analysis: v=2.4 cv=E/z9Y6dl c=1 sm=1 tr=0 ts=6a68c009 cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=kj9zAlcOel0A:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8
+ a=-VSMeyrPRzZKpqsa-XEA:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI4MDEyNyBTYWx0ZWRfX9KPc0AKyo3Kb
+ FfDwoL8WprlvfT+MhFmQiUf7IDRqhJAth6TDlwugo0dIW6kJ+nkcZF3ganp4TgAKCbA5ONsQlAo
+ vaTb5v5fXhVqOUWeTcxKOlh+nVhTwUbR61n75TRHCqjO23C6gEhjkJU4tjLdNtomwy+ewVUKy3G
+ PyocT8GXRXOcRdj7zhkENUi59ZCyNPgmJ/NtzqFfY4b7EywU4qeGVv9yJvmagWPDj1J1urK8DPz
+ OYORMJwUGyfdLmT7QJC8I4k4a8XxiE9C/3iiMe8uXdqRsvwcPvh1/QS/RTTjZCQBNUR0xWSi/LR
+ 86YdAIKkgyVkmeRLOnP4eCJ+MFvIgGKFeOOqabhBw7EDL5PPgWazMAi2IzlWigWbOQtZE/IvTs9
+ 8JPHQMKzz1dWXNdx5QLu6K44RX9bsSwy3BcGewYwfjs0vpyp8QsXTtuLFiTTS8PhA3fRkX6HclL
+ Z9hsCWLMx9D6vFF1xWA==
+X-Proofpoint-GUID: oVCemLghfhs-1B_SSZHALIa6I1x1wRel
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-07-28_03,2026-07-28_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ adultscore=0 priorityscore=1501 spamscore=0 clxscore=1015 phishscore=0
+ lowpriorityscore=0 bulkscore=0 malwarescore=0 impostorscore=0 suspectscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607280127
 
-On Fri, Jul 17, 2026 at 11:34:30PM +0530, Aneesh Kumar K.V (Arm) wrote:
-> Change swiotlb_tbl_map_single() to take the DMA mapping attributes by
-> reference and update the direct callers accordingly.
-> 
-> This is a preparatory change for a follow-up patch which updates the
-> attributes based on the selected swiotlb pool. Keeping the signature change
-> separate makes the follow-up patch easier to review.
-> 
+On Tue, 28 Jul 2026 16:12:15 +0200
+Janosch Frank <frankja@linux.ibm.com> wrote:
 
-I do not understand the point of this, why would
-swiotlb_tbl_map_single() force attrs over the caller which should
-already know the context (whether DMA is shared or not) which case
-would this be useful to force from the SWIOTLB code?
-
-Thanks,
-Mostafa
-
-
-> No functional change in this patch.
+> On 7/27/26 17:02, Claudio Imbrenda wrote:
+> > If creating a protected vCPU in kvm_s390_pv_create_cpu() fails,
+> > kvm_s390_pv_destroy_cpu() was called, which checks whether the vCPU has
+> > a PV handle and exits doing nothing otherwise. At that point, due to
+> > not having created the protected vCPU, the PV handle will not be set,
+> > and kvm_s390_pv_destroy_cpu() will do nothing, thus leaking the
+> > allocated memory.
+> > 
+> > Fix by factoring out the code to free and reset a PV vCPU; call it from
+> > kvm_s390_pv_destroy_cpu() and kvm_s390_pv_create_cpu().
+> > 
+> > Fixes: d4074324b07a ("KVM: s390: pv: avoid double free of sida page")
+> > Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> > ---
+> >   arch/s390/kvm/pv.c | 41 +++++++++++++++++++++--------------------
+> >   1 file changed, 21 insertions(+), 20 deletions(-)
+> > 
+> > diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
+> > index dc204b521052..b02e0159d3cd 100644
+> > --- a/arch/s390/kvm/pv.c
+> > +++ b/arch/s390/kvm/pv.c
+> > @@ -244,6 +244,24 @@ static void kvm_s390_clear_pv_state(struct kvm *kvm)
+> >   	kvm->arch.pv.stor_var = NULL;
+> >   }
+> >   
+> > +static void kvm_s390_pv_dispose_cpu(struct kvm_vcpu *vcpu, bool free_stor_base)
+> > +{
+> > +	if (free_stor_base)
+> > +		free_pages(vcpu->arch.pv.stor_base, get_order(uv_info.guest_cpu_stor_len));
+> > +	free_page((unsigned long)sida_addr(vcpu->arch.sie_block));
+> > +	vcpu->arch.sie_block->pv_handle_cpu = 0;
+> > +	vcpu->arch.sie_block->pv_handle_config = 0;
+> > +	memset(&vcpu->arch.pv, 0, sizeof(vcpu->arch.pv));
+> > +	vcpu->arch.sie_block->sdf = 0;
+> > +	/*
+> > +	 * The sidad field (for sdf == 2) is now the gbea field (for sdf == 0).
+> > +	 * Use the reset value of gbea to avoid leaking the kernel pointer of
+> > +	 * the just freed sida.
+> > +	 */
+> > +	vcpu->arch.sie_block->gbea = 1;
+> > +	kvm_make_request(KVM_REQ_TLB_FLUSH, vcpu);
+> > +}
+> > +
+> >   int kvm_s390_pv_destroy_cpu(struct kvm_vcpu *vcpu, u16 *rc, u16 *rrc)
+> >   {
+> >   	int cc;
+> > @@ -258,24 +276,9 @@ int kvm_s390_pv_destroy_cpu(struct kvm_vcpu *vcpu, u16 *rc, u16 *rrc)
+> >   	WARN_ONCE(cc, "protvirt destroy cpu failed rc %x rrc %x", *rc, *rrc);
+> >   
+> >   	/* Intended memory leak for something that should never happen. */  
 > 
-> Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
-> Tested-by: Michael Kelley <mhklinux@outlook.com>
-> Tested-by: Mostafa Saleh <smostafa@google.com>
-> Reviewed-by: Petr Tesarik <ptesarik@suse.com>
-> Signed-off-by: Aneesh Kumar K.V (Arm) <aneesh.kumar@kernel.org>
-> ---
->  drivers/iommu/dma-iommu.c | 2 +-
->  drivers/xen/swiotlb-xen.c | 2 +-
->  include/linux/swiotlb.h   | 2 +-
->  kernel/dma/swiotlb.c      | 6 +++---
->  4 files changed, 6 insertions(+), 6 deletions(-)
-> 
-> diff --git a/drivers/iommu/dma-iommu.c b/drivers/iommu/dma-iommu.c
-> index 83bf15ae9777..c42e40e60575 100644
-> --- a/drivers/iommu/dma-iommu.c
-> +++ b/drivers/iommu/dma-iommu.c
-> @@ -1180,7 +1180,7 @@ static phys_addr_t iommu_dma_map_swiotlb(struct device *dev, phys_addr_t phys,
->  	trace_swiotlb_bounced(dev, phys, size);
->  
->  	phys = swiotlb_tbl_map_single(dev, phys, size, iova_mask(iovad), dir,
-> -			attrs);
-> +				      &attrs);
->  
->  	/*
->  	 * Untrusted devices should not see padding areas with random leftover
-> diff --git a/drivers/xen/swiotlb-xen.c b/drivers/xen/swiotlb-xen.c
-> index 2cbf2b588f5b..8c4abe65cd49 100644
-> --- a/drivers/xen/swiotlb-xen.c
-> +++ b/drivers/xen/swiotlb-xen.c
-> @@ -243,7 +243,7 @@ static dma_addr_t xen_swiotlb_map_phys(struct device *dev, phys_addr_t phys,
->  	 */
->  	trace_swiotlb_bounced(dev, dev_addr, size);
->  
-> -	map = swiotlb_tbl_map_single(dev, phys, size, 0, dir, attrs);
-> +	map = swiotlb_tbl_map_single(dev, phys, size, 0, dir, &attrs);
->  	if (map == (phys_addr_t)DMA_MAPPING_ERROR)
->  		return DMA_MAPPING_ERROR;
->  
-> diff --git a/include/linux/swiotlb.h b/include/linux/swiotlb.h
-> index c92ff6791595..ea4c0a292dea 100644
-> --- a/include/linux/swiotlb.h
-> +++ b/include/linux/swiotlb.h
-> @@ -238,7 +238,7 @@ static inline phys_addr_t default_swiotlb_limit(void)
->  
->  phys_addr_t swiotlb_tbl_map_single(struct device *hwdev, phys_addr_t phys,
->  		size_t mapping_size, unsigned int alloc_aligned_mask,
-> -		enum dma_data_direction dir, unsigned long attrs);
-> +		enum dma_data_direction dir, unsigned long *attrs);
->  dma_addr_t swiotlb_map(struct device *dev, phys_addr_t phys,
->  		size_t size, enum dma_data_direction dir, unsigned long attrs);
->  
-> diff --git a/kernel/dma/swiotlb.c b/kernel/dma/swiotlb.c
-> index 908de28aceb2..046ae92c4832 100644
-> --- a/kernel/dma/swiotlb.c
-> +++ b/kernel/dma/swiotlb.c
-> @@ -1396,7 +1396,7 @@ static unsigned long mem_used(struct io_tlb_mem *mem)
->   */
->  phys_addr_t swiotlb_tbl_map_single(struct device *dev, phys_addr_t orig_addr,
->  		size_t mapping_size, unsigned int alloc_align_mask,
-> -		enum dma_data_direction dir, unsigned long attrs)
-> +		enum dma_data_direction dir, unsigned long *attrs)
->  {
->  	struct io_tlb_mem *mem = dev->dma_io_tlb_mem;
->  	unsigned int offset;
-> @@ -1430,7 +1430,7 @@ phys_addr_t swiotlb_tbl_map_single(struct device *dev, phys_addr_t orig_addr,
->  	size = ALIGN(mapping_size + offset, alloc_align_mask + 1);
->  	index = swiotlb_find_slots(dev, orig_addr, size, alloc_align_mask, &pool);
->  	if (index == -1) {
-> -		if (!(attrs & DMA_ATTR_NO_WARN))
-> +		if (!(*attrs & DMA_ATTR_NO_WARN))
->  			dev_warn_ratelimited(dev,
->  	"swiotlb buffer is full (sz: %zd bytes), total %lu (slots), used %lu (slots)\n",
->  				 size, mem->nslabs, mem_used(mem));
-> @@ -1609,7 +1609,7 @@ dma_addr_t swiotlb_map(struct device *dev, phys_addr_t paddr, size_t size,
->  
->  	trace_swiotlb_bounced(dev, phys_to_dma(dev, paddr), size);
->  
-> -	swiotlb_addr = swiotlb_tbl_map_single(dev, paddr, size, 0, dir, attrs);
-> +	swiotlb_addr = swiotlb_tbl_map_single(dev, paddr, size, 0, dir, &attrs);
->  	if (swiotlb_addr == (phys_addr_t)DMA_MAPPING_ERROR)
->  		return DMA_MAPPING_ERROR;
->  
-> -- 
-> 2.43.0
-> 
+> That comment doesn't make a lot of sense anymore after your changes.
+
+how so?
+potentially calling the helper function with free_stor_base == false
+
