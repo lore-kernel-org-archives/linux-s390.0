@@ -1,363 +1,233 @@
-Received: from mail-ed1-f49.google.com (mail-ed1-f49.google.com [209.85.208.49])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D3DC943F8AE
-	for <linux-s390@vger.kernel.org>; Tue, 28 Jul 2026 14:27:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 973E744781A;
+	Tue, 28 Jul 2026 14:28:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785248828; cv=none; b=OAZuEvimMpJ8W7dMJIQn/ApCE4IFE5+jQseateewgp4WdAcYp/Bxus8X9vdgeJlfS/zSJ9yYhN7U0wqWrZjaCEF3ZUrlQq0MEt11hne6ZQo6eSsMCisEyKE4J/HQYHIFSKb5+ZZZ+vzpatN2vEBY3avnuocS1w5rsA+qKKBPeOU=
+	t=1785248931; cv=none; b=sgm0L6OXAKBWlaKYmPVroh6ecEE4++spCUNN+VBB+U7Y/mtIdefR9Jaz1k5ylRh4HgyjsKNJkg9TOgY0xRc0AybsROqI+R9rCXZjnBcTPiozkOccfI8DnoSqOx2D16LFpXtn8e5qjM98M0QgovU7AIx7reHk9VReFG4lEML9gjI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785248828; c=relaxed/simple;
-	bh=gVq0Fz3g+XDQCPf7dOicHGB4Jxifut+ZUEFvN2XpjTs=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=rkZd8FiiM90suI+utAiycEXLG/gm6uj24PPrJvlEFFY7d2LQeSc3TwngWrhuAQJy4nF9uDz0g27DhcbD6Et5078NSQ3FIqd6m3DAZq0GwUNyoJBvsFd9gbqVDTztJMlfNxqwXp62LxJW7rtdXFP+SyMt0cCqHqryzdITiuSoNC4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=N1uxR3xG; arc=none smtp.client-ip=209.85.208.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	s=arc-20240116; t=1785248931; c=relaxed/simple;
+	bh=s++qewmSlGd4YBhexaz5OiohnxxsvIn42mIc2atFuqc=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=NDWec/7gM7UQS5X2uPQ1yTxyqio8J0uVtnLLiXptPimj4pHT+RihEBYid1DkbuJcwiVxQsbWEIrT62TOH886aAUCX9jM3U8WMGUX8eaH6lETpAeOm4D1+pOVgvm1VLSrECl0KHF7exEealmlJLIJmhhWFggQ5t3ePlVEwZZi6n0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=PKjOJwo6; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="N1uxR3xG"
-Received: by mail-ed1-f49.google.com with SMTP id 4fb4d7f45d1cf-69fec8b4638so12821a12.0
-        for <linux-s390@vger.kernel.org>; Tue, 28 Jul 2026 07:27:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1785248825; x=1785853625; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=xBoFAKEkC+vfpGEapr3+3YEZ3mSu2No6TKaGaOQmWRI=;
-        b=N1uxR3xGwIOq3PFLjIc6nOFegsWg56RS5bY7qck/BUgZKWbVI4yWC57v/iNdGa4OPB
-         cR67wB0qJ+XWsjELe9Nk9y73I1Fs/YjyqRb0V/mdezT1lmjwq0JLPMj9IeiKhnpmn620
-         F/ou0btUiIdS+iWn3D45hMIiIwRkADIFS+Xo9xN2+n05u/nbkjJGjr0Sy3XHAiXxde79
-         q+Ne9jqPnfJbSo0ZkZPZEIulcVH0nlCPauuhQgGe9lKA9d+aHwslE3+tzkwxsSz30VhL
-         YDJe2YODmO8yj53MqhcDu9VTqa25ArVzSPAxwMQsv7lt91a6gf6+aeD4QD2PS2I3kMVz
-         kP5w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785248825; x=1785853625;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=xBoFAKEkC+vfpGEapr3+3YEZ3mSu2No6TKaGaOQmWRI=;
-        b=pz3/acCPraXu2wJkQs76oIr9xwW8D2/cOM6BxFDy+d8o1j4biuzoOXnWJaYaLeF1VX
-         d3wfj/59EL5obOAZGxKVJ2VOs7fuz92roGjRg+Fj+GdFNeBrou09rKHU/JFNkYR0SEQX
-         /GNPv4qYZo/JTqCJdXH/3CJC1zdQgnyKRmTmmjmHVbzn/09ZD6y1rkvlPiNrZcdmK9T9
-         g6ZRDEV5pc0zYm5eL5LseyCOtt08wo9JYGpK2pJfs9nij7toz3D3TQ5bAiW3k6wEWNi1
-         r4V61/8Im07JPAJvH1XYxu3HhWZIQtVw4GObsILFjdwOKX/WMn6bsynLSNdXIUfA4KsP
-         /Dvw==
-X-Forwarded-Encrypted: i=1; AHgh+RpWuWi6vVwNOoDoGJ4o/n5/igeN7DxRbamHRBeje5WTxQ30BYnHLKuC4PYuWGqPyqfeFra0QymYsB52@vger.kernel.org
-X-Gm-Message-State: AOJu0Yyuv8B5ZhTzNGohL44Ae/HipTJVWE5bU9dGDulGSRIJ0N9JxcLE
-	NqC1b2R7zrb5XAtdI5DkoivuDwN/XQn/c44p9EIXSeebmGmhIK3vAjNCcaDIBUM0Mw==
-X-Gm-Gg: AR+sD12gsAcSGYrgkKMcEebz8FR7TKzt/tQSWDnDsafi/6XfipJmvAdGrzmzGnVkZby
-	H8HvlvKUUANIYZ4y1aI4O9ULDi6jkOOKBPbpeO3T5NHyja0hkunU/XsXBHYDFzNBwr5VqOcVBOe
-	Z/f6Mj+Xw1prk65U1w9vV978BJvh8c/SXplB4GmMMsV+//CbWvPxDNf6GnJAZ0Rr27h3w3jddZN
-	BrPgr4g3/XFThE+Sm8C8LF91Pccax0XNcCJHa+DwUUrz8sWGAx17vgDh+XpWQp+o5iuedAN9E6+
-	nodMU1fGqPY29CNxNpp6HGD3OC1tJgJO/y/A58jAVKsku42NeN7sbpIJr8+z3HJl6npthNOKIQp
-	Ya8PfikyN94bN2H1z4BH6rE5gHAED9o0K0YktoIFTIEMYnZOoc2ep03GMKjU/L/osVUu6zyuApm
-	hWsadrCAaIDkwWs1LbxJnUgkbBKO4ySOnwXbyiE4e+r8E=
-X-Received: by 2002:a05:6402:a20f:10b0:697:e82f:e4f2 with SMTP id 4fb4d7f45d1cf-69fb80feebemr4712a12.4.1785248824492;
-        Tue, 28 Jul 2026 07:27:04 -0700 (PDT)
-Received: from google.com (250.192.189.35.bc.googleusercontent.com. [35.189.192.250])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-69fb594622asm4455060a12.26.2026.07.28.07.27.03
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 28 Jul 2026 07:27:03 -0700 (PDT)
-Date: Tue, 28 Jul 2026 14:26:56 +0000
-From: Mostafa Saleh <smostafa@google.com>
-To: "Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org>
-Cc: iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev,
-	Robin Murphy <robin.murphy@arm.com>,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
-	Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
-	Steven Price <steven.price@arm.com>,
-	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Jiri Pirko <jiri@resnulli.us>, Jason Gunthorpe <jgg@ziepe.ca>,
-	Petr Tesarik <ptesarik@suse.com>,
-	Alexey Kardashevskiy <aik@amd.com>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Xu Yilun <yilun.xu@linux.intel.com>, linuxppc-dev@lists.ozlabs.org,
-	linux-s390@vger.kernel.org,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org,
-	Jason Gunthorpe <jgg@nvidia.com>, Jiri Pirko <jiri@nvidia.com>,
-	Michael Kelley <mhklinux@outlook.com>
-Subject: Re: [PATCH v8 07/23] dma-direct: swiotlb: handle swiotlb alloc/free
- outside __dma_direct_alloc_pages
-Message-ID: <ami8MLFLGrvihL_W@google.com>
-References: <20260717180442.110954-1-aneesh.kumar@kernel.org>
- <20260717180442.110954-8-aneesh.kumar@kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="PKjOJwo6"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66SDlqR53644599;
+	Tue, 28 Jul 2026 14:28:46 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=vQzoLu
+	7nQ7+e2DUIm36h6l3pUZbdK91IuK9W0akcb14=; b=PKjOJwo6KZ6kg1NbtLBEmv
+	bWH5LqmLj0pcLc8nNriyAy37HH3O6/XTqyq/hscrZkEZv1Vs6jlIj5lA5fxs00IR
+	meoAvIYHI5ypDqc/WKtspHOoU2gVeRnD4IBDumcJfmNnlqybS6yzZA1MjGcr/nhs
+	eLPSGsrTSWM9x0Rsju1sPA1MEN23SheEPbuq4ZlqWkvTV51nl8/jU8t7lcrkydX6
+	pi0qJTqpkvYfIeI0gS2WOJpLpKXgWrhPv+SMxrbAZl3VzCgf7flT0AuBH58LKKf5
+	r3JhNUGGgYd7g5iW+bpYG/NTxBakQQ9GdWa7ViV6uR7tDNmO55CSdJ4SU9HcmcVw
+	==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fmuycdnmp-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 28 Jul 2026 14:28:46 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66SEQHHe005189;
+	Tue, 28 Jul 2026 14:28:45 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fna5y1xug-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 28 Jul 2026 14:28:45 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66SESd2j29557044
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 28 Jul 2026 14:28:39 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 080DD20043;
+	Tue, 28 Jul 2026 14:28:39 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C04BA20040;
+	Tue, 28 Jul 2026 14:28:38 +0000 (GMT)
+Received: from [9.87.138.40] (unknown [9.87.138.40])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 28 Jul 2026 14:28:38 +0000 (GMT)
+Message-ID: <1f9d8fb4-3b38-4495-b8f3-cdb51ba1318c@linux.ibm.com>
+Date: Tue, 28 Jul 2026 16:28:38 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260717180442.110954-8-aneesh.kumar@kernel.org>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 07/10] KVM: s390: Return -EINTR if a signal was pending
+ while faulting-in
+To: Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-kernel@vger.kernel.org
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, borntraeger@de.ibm.com,
+        david@kernel.org, seiden@linux.ibm.com, nrb@linux.ibm.com,
+        schlameuss@linux.ibm.com, gra@linux.ibm.com
+References: <20260727150254.236021-1-imbrenda@linux.ibm.com>
+ <20260727150254.236021-8-imbrenda@linux.ibm.com>
+Content-Language: en-US
+From: Janosch Frank <frankja@linux.ibm.com>
+Autocrypt: addr=frankja@linux.ibm.com; keydata=
+ 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
+In-Reply-To: <20260727150254.236021-8-imbrenda@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: EJwHFcwvyBqXXv8GunrKtp49_4f7RVtk
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI4MDEyNyBTYWx0ZWRfX8tDCP0MQ6wTH
+ 1fyFXAwqPexqHKe9570soY+iycBioJrofLaWk1PCHIEfWYBKu89GfB/MJ56AaRg2+omIZMMg5Qt
+ kZp6OZXP/HGKWFdUVJ3/vqH+GJnaIQAaiQQiiNGJQJtHlLC1VL8LaXVD/FNH5HjmBdlITRB4FYN
+ ADFIFalDCuu25FWzwodVH6w8pzZNitWNeiCqDScb/Ywo2/bUM4Kx9W6d1h/NnrZfXRFFc1lp8I1
+ sUzXYc5B4qMUY8bvrXg9BVGc7KkVSMv1Vw01Liia272GR0ktslVvSgeGd8qifmIieLNOpuENMZ6
+ Z0zUtbGrFXz1g4+xuURZE0Uw1w6KyTS0aPGttVvvbnuAm8QzpG16Dho4cAoOVavQBozLy/iX3s2
+ N7juljQiztNag/6ZAtrm9QfLT9QmhR4leNqefg89ozBV4JLIvWa7OdfXEHvhD27iWzHW+lSAtZG
+ t9DkeXIoWg0hqPwmisg==
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI4MDEyNyBTYWx0ZWRfX2x7M2r7z0Scd
+ o64wDKS79F6rYj1279q3rEG3hDce7wotS/DTii01l+BCQMUKmTWEM67KIX6GfaUCSURSstJbfLz
+ rZYMBkf3pejCgRy7Z+lD2IsHycpT2ms=
+X-Authority-Analysis: v=2.4 cv=AZeB2XXG c=1 sm=1 tr=0 ts=6a68bc9e cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8
+ a=vc5uE6uYo8RvJNRDSLcA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: EJwHFcwvyBqXXv8GunrKtp49_4f7RVtk
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-07-28_03,2026-07-28_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ spamscore=0 priorityscore=1501 phishscore=0 adultscore=0 impostorscore=0
+ clxscore=1015 malwarescore=0 suspectscore=0 lowpriorityscore=0 bulkscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607280127
 
-On Fri, Jul 17, 2026 at 11:34:25PM +0530, Aneesh Kumar K.V (Arm) wrote:
-> Move swiotlb allocation out of __dma_direct_alloc_pages() and handle it in
-> dma_direct_alloc() / dma_direct_alloc_pages().
+On 7/27/26 17:02, Claudio Imbrenda wrote:
+> If a signal is pending while trying to fault-in a page, return -EINTR
+> instead of -EAGAIN.
 > 
-> This is needed for follow-up changes that simplify the handling of
-> memory encryption/decryption based on the DMA attribute flags.
-> 
-> swiotlb backing pages are already mapped decrypted by
-> swiotlb_update_mem_attributes() and rmem_swiotlb_device_init(), so
-> dma-direct should not call dma_set_decrypted() on allocation nor
-> dma_set_encrypted() on free for swiotlb-backed memory.
-> 
-> Update alloc/free paths to detect swiotlb-backed pages and skip
-> encrypt/decrypt transitions for those paths. Keep the existing highmem
-> rejection in dma_direct_alloc_pages() for swiotlb allocations.
-> 
-> Only for "restricted-dma-pool", we currently set `for_alloc = true`, while
-> rmem_swiotlb_device_init() decrypts the whole pool up front. This pool is
-> typically used together with "shared-dma-pool", where the shared region is
-> accessed after remap/ioremap and the returned address is suitable for
-> decrypted memory access. So existing code paths remain valid.
-> 
-> Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
-> Tested-by: Jiri Pirko <jiri@nvidia.com>
-> Tested-by: Michael Kelley <mhklinux@outlook.com>
-> Tested-by: Mostafa Saleh <smostafa@google.com>
-> Signed-off-by: Aneesh Kumar K.V (Arm) <aneesh.kumar@kernel.org>
-
-Reviewed-by: Mostafa Saleh <smostafa@google.com>
-
-Thanks,
-Mostafa
-
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> Fixes: e907ae530133 ("KVM: s390: Add helper functions for fault handling")
 > ---
->  include/linux/swiotlb.h |  6 ++++
->  kernel/dma/direct.c     | 71 ++++++++++++++++++++++++++++++-----------
->  kernel/dma/swiotlb.c    |  6 ++++
->  3 files changed, 65 insertions(+), 18 deletions(-)
+>   arch/s390/kvm/faultin.c   |  4 ++--
+>   arch/s390/kvm/intercept.c | 18 ++++++++----------
+>   arch/s390/kvm/pv.c        |  2 +-
+>   3 files changed, 11 insertions(+), 13 deletions(-)
 > 
-> diff --git a/include/linux/swiotlb.h b/include/linux/swiotlb.h
-> index 3dae0f592063..c92ff6791595 100644
-> --- a/include/linux/swiotlb.h
-> +++ b/include/linux/swiotlb.h
-> @@ -284,6 +284,8 @@ extern void swiotlb_print_info(void);
->  #ifdef CONFIG_DMA_RESTRICTED_POOL
->  struct page *swiotlb_alloc(struct device *dev, size_t size);
->  bool swiotlb_free(struct device *dev, struct page *page, size_t size);
-> +void swiotlb_free_from_pool(struct device *dev,
-> +		phys_addr_t tlb_addr, struct io_tlb_pool *pool);
->  
->  static inline bool is_swiotlb_for_alloc(struct device *dev)
->  {
-> @@ -299,6 +301,10 @@ static inline bool swiotlb_free(struct device *dev, struct page *page,
->  {
->  	return false;
->  }
-> +static inline void swiotlb_free_from_pool(struct device *dev,
-> +		phys_addr_t tlb_addr, struct io_tlb_pool *pool)
-> +{
-> +}
->  static inline bool is_swiotlb_for_alloc(struct device *dev)
->  {
->  	return false;
-> diff --git a/kernel/dma/direct.c b/kernel/dma/direct.c
-> index a81597f8c3ed..171c89fe99c9 100644
-> --- a/kernel/dma/direct.c
-> +++ b/kernel/dma/direct.c
-> @@ -96,14 +96,6 @@ static int dma_set_encrypted(struct device *dev, void *vaddr, size_t size)
->  	return ret;
->  }
->  
-> -static void __dma_direct_free_pages(struct device *dev, struct page *page,
-> -				    size_t size)
-> -{
-> -	if (swiotlb_free(dev, page, size))
-> -		return;
-> -	dma_free_contiguous(dev, page, size);
-> -}
+> diff --git a/arch/s390/kvm/faultin.c b/arch/s390/kvm/faultin.c
+> index fee80047bd94..4ff4c5970956 100644
+> --- a/arch/s390/kvm/faultin.c
+> +++ b/arch/s390/kvm/faultin.c
+> @@ -92,8 +92,8 @@ int kvm_s390_faultin_gfn(struct kvm_vcpu *vcpu, struct kvm *kvm, struct guest_fa
+>   		if (is_noslot_pfn(f->pfn))
+>   			return PGM_ADDRESSING;
+>   		/* Signal pending: try again. */
+> -		if (f->pfn == KVM_PFN_ERR_SIGPENDING)
+> -			return -EAGAIN;
+> +		if (is_sigpending_pfn(f->pfn))
+> +			return -EINTR;
+>   		/* Check if it's read-only memory; don't try to actually handle that case. */
+>   		if (f->pfn == KVM_PFN_ERR_RO_FAULT)
+>   			return -EOPNOTSUPP;
+
+The code above is what I'd expect from the description but there's more 
+code in this patch. Are we fixing multiple things?
+
+
+> diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
+> index 1980df61ef30..08f2128db147 100644
+> --- a/arch/s390/kvm/intercept.c
+> +++ b/arch/s390/kvm/intercept.c
+> @@ -369,27 +369,25 @@ static int handle_mvpg_pei(struct kvm_vcpu *vcpu)
+>   	if (rc)
+>   		return kvm_s390_inject_prog_cond(vcpu, rc);
+>   
+> -	do {
+> -		rc = kvm_s390_faultin_gfn_simple(vcpu, NULL, gpa_to_gfn(srcaddr), false);
+> -	} while (rc == -EAGAIN);
+> -	if (rc)
+> -		return rc;
 > -
->  static struct page *dma_direct_alloc_swiotlb(struct device *dev, size_t size)
->  {
->  	struct page *page = swiotlb_alloc(dev, size);
-> @@ -125,9 +117,6 @@ static struct page *__dma_direct_alloc_pages(struct device *dev, size_t size,
->  
->  	WARN_ON_ONCE(!PAGE_ALIGNED(size));
->  
-> -	if (is_swiotlb_for_alloc(dev))
-> -		return dma_direct_alloc_swiotlb(dev, size);
-> -
->  	gfp |= dma_direct_optimal_gfp_mask(dev, &phys_limit);
->  	page = dma_alloc_contiguous(dev, size, gfp);
->  	if (page) {
-> @@ -203,6 +192,7 @@ void *dma_direct_alloc(struct device *dev, size_t size,
->  		dma_addr_t *dma_handle, gfp_t gfp, unsigned long attrs)
->  {
->  	bool remap = false, set_uncached = false;
-> +	bool mark_mem_decrypt = true;
->  	struct page *page;
->  	void *ret;
->  
-> @@ -252,11 +242,21 @@ void *dma_direct_alloc(struct device *dev, size_t size,
->  		return page ? ret : NULL;
->  	}
->  
-> +	if (is_swiotlb_for_alloc(dev)) {
-> +		page = dma_direct_alloc_swiotlb(dev, size);
-> +		if (page) {
-> +			mark_mem_decrypt = false;
-> +			goto setup_page;
-> +		}
-> +		return NULL;
-> +	}
+> -	/* Ensure that the source is paged-in, no actual access -> no key checking */
+> +	/* Ensure that the destination is paged-in, no actual access -> no key checking */
+>   	rc = guest_translate_address_with_key(vcpu, vcpu->run->s.regs.gprs[reg1],
+>   					      reg1, &dstaddr, GACC_STORE, 0);
+>   	if (rc)
+>   		return kvm_s390_inject_prog_cond(vcpu, rc);
+>   
+> +	kvm_s390_retry_instr(vcpu);
 > +
->  	/* we always manually zero the memory once we are done */
->  	page = __dma_direct_alloc_pages(dev, size, gfp & ~__GFP_ZERO, true);
->  	if (!page)
->  		return NULL;
->  
-> +setup_page:
->  	/*
->  	 * dma_alloc_contiguous can return highmem pages depending on a
->  	 * combination the cma= arguments and per-arch setup.  These need to be
-> @@ -283,7 +283,7 @@ void *dma_direct_alloc(struct device *dev, size_t size,
->  			goto out_free_pages;
->  	} else {
->  		ret = page_address(page);
-> -		if (dma_set_decrypted(dev, ret, size))
-> +		if (mark_mem_decrypt && dma_set_decrypted(dev, ret, size))
->  			goto out_leak_pages;
->  	}
->  
-> @@ -300,10 +300,11 @@ void *dma_direct_alloc(struct device *dev, size_t size,
->  	return ret;
->  
->  out_encrypt_pages:
-> -	if (dma_set_encrypted(dev, page_address(page), size))
-> +	if (mark_mem_decrypt && dma_set_encrypted(dev, page_address(page), size))
->  		return NULL;
->  out_free_pages:
-> -	__dma_direct_free_pages(dev, page, size);
-> +	if (!swiotlb_free(dev, page, size))
-> +		dma_free_contiguous(dev, page, size);
->  	return NULL;
->  out_leak_pages:
->  	return NULL;
-> @@ -312,6 +313,9 @@ void *dma_direct_alloc(struct device *dev, size_t size,
->  void dma_direct_free(struct device *dev, size_t size,
->  		void *cpu_addr, dma_addr_t dma_addr, unsigned long attrs)
->  {
-> +	phys_addr_t phys;
-> +	bool mark_mem_encrypted = true;
-> +	struct io_tlb_pool *swiotlb_pool;
->  	unsigned int page_order = get_order(size);
->  
->  	if ((attrs & DMA_ATTR_NO_KERNEL_MAPPING) &&
-> @@ -340,16 +344,25 @@ void dma_direct_free(struct device *dev, size_t size,
->  	    dma_free_from_pool(dev, cpu_addr, PAGE_ALIGN(size)))
->  		return;
->  
-> +	phys = dma_to_phys(dev, dma_addr);
-> +	swiotlb_pool = swiotlb_find_pool(dev, phys);
-> +	if (swiotlb_pool)
-> +		/* Swiotlb doesn't need a page attribute update on free */
-> +		mark_mem_encrypted = false;
-> +
->  	if (is_vmalloc_addr(cpu_addr)) {
->  		vunmap(cpu_addr);
->  	} else {
->  		if (IS_ENABLED(CONFIG_ARCH_HAS_DMA_CLEAR_UNCACHED))
->  			arch_dma_clear_uncached(cpu_addr, size);
-> -		if (dma_set_encrypted(dev, cpu_addr, size))
-> +		if (mark_mem_encrypted && dma_set_encrypted(dev, cpu_addr, size))
->  			return;
->  	}
->  
-> -	__dma_direct_free_pages(dev, dma_direct_to_page(dev, dma_addr), size);
-> +	if (swiotlb_pool)
-> +		swiotlb_free_from_pool(dev, phys, swiotlb_pool);
-> +	else
-> +		dma_free_contiguous(dev, dma_direct_to_page(dev, dma_addr), size);
->  }
->  
->  struct page *dma_direct_alloc_pages(struct device *dev, size_t size,
-> @@ -361,6 +374,15 @@ struct page *dma_direct_alloc_pages(struct device *dev, size_t size,
->  	if (force_dma_unencrypted(dev) && dma_direct_use_pool(dev, gfp))
->  		return dma_direct_alloc_from_pool(dev, size, dma_handle, &ret, gfp);
->  
-> +	if (is_swiotlb_for_alloc(dev)) {
-> +		page = dma_direct_alloc_swiotlb(dev, size);
-> +		if (!page)
-> +			return NULL;
-> +
-> +		ret = page_address(page);
-> +		goto setup_page;
-> +	}
-> +
->  	page = __dma_direct_alloc_pages(dev, size, gfp, false);
->  	if (!page)
->  		return NULL;
-> @@ -368,6 +390,7 @@ struct page *dma_direct_alloc_pages(struct device *dev, size_t size,
->  	ret = page_address(page);
->  	if (dma_set_decrypted(dev, ret, size))
->  		goto out_leak_pages;
-> +setup_page:
->  	memset(ret, 0, size);
->  	*dma_handle = phys_to_dma_direct(dev, page_to_phys(page));
->  	return page;
-> @@ -379,16 +402,28 @@ void dma_direct_free_pages(struct device *dev, size_t size,
->  		struct page *page, dma_addr_t dma_addr,
->  		enum dma_data_direction dir)
->  {
-> +	phys_addr_t phys;
->  	void *vaddr = page_address(page);
-> +	struct io_tlb_pool *swiotlb_pool;
-> +	bool mark_mem_encrypted = true;
->  
->  	/* If page is not from an atomic pool, dma_free_from_pool_page() fails */
->  	if (IS_ENABLED(CONFIG_DMA_COHERENT_POOL) &&
->  	    dma_free_from_pool_page(dev, page, size))
->  		return;
->  
-> -	if (dma_set_encrypted(dev, vaddr, size))
-> +	phys = page_to_phys(page);
-> +	swiotlb_pool = swiotlb_find_pool(dev, phys);
-> +	if (swiotlb_pool)
-> +		mark_mem_encrypted = false;
-> +
-> +	if (mark_mem_encrypted && dma_set_encrypted(dev, vaddr, size))
->  		return;
-> -	__dma_direct_free_pages(dev, page, size);
-> +
-> +	if (swiotlb_pool)
-> +		swiotlb_free_from_pool(dev, phys, swiotlb_pool);
-> +	else
-> +		dma_free_contiguous(dev, page, size);
->  }
->  
->  #if defined(CONFIG_ARCH_HAS_SYNC_DMA_FOR_DEVICE) || \
-> diff --git a/kernel/dma/swiotlb.c b/kernel/dma/swiotlb.c
-> index 6e8db52866bf..d54154c165e5 100644
-> --- a/kernel/dma/swiotlb.c
-> +++ b/kernel/dma/swiotlb.c
-> @@ -1815,6 +1815,12 @@ bool swiotlb_free(struct device *dev, struct page *page, size_t size)
->  	return true;
->  }
->  
-> +void swiotlb_free_from_pool(struct device *dev,
-> +		phys_addr_t tlb_addr, struct io_tlb_pool *pool)
-> +{
-> +	swiotlb_release_slots(dev, tlb_addr, pool);
-> +}
-> +
->  static int rmem_swiotlb_device_init(struct reserved_mem *rmem,
->  				    struct device *dev)
->  {
-> -- 
-> 2.43.0
-> 
+>   	do {
+> -		rc = kvm_s390_faultin_gfn_simple(vcpu, NULL, gpa_to_gfn(dstaddr), true);
+> +		rc = kvm_s390_faultin_gfn_simple(vcpu, NULL, gpa_to_gfn(srcaddr), false);
+>   	} while (rc == -EAGAIN);
+>   	if (rc)
+>   		return rc;
+>   
+> -	kvm_s390_retry_instr(vcpu);
+> +	do {
+> +		rc = kvm_s390_faultin_gfn_simple(vcpu, NULL, gpa_to_gfn(dstaddr), true);
+> +	} while (rc == -EAGAIN);
+>   
+> -	return 0;
+> +	return rc;
+>   }
+>   
+>   static int handle_partial_execution(struct kvm_vcpu *vcpu)
+> diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
+> index 1beacc841ca8..dc204b521052 100644
+> --- a/arch/s390/kvm/pv.c
+> +++ b/arch/s390/kvm/pv.c
+> @@ -809,7 +809,7 @@ static int unpack_one(struct kvm *kvm, unsigned long addr, u64 tweak,
+>   			return -EAGAIN;
+>   	}
+>   
+> -	if (ret && ret != -EAGAIN)
+> +	if (ret && ret != -EAGAIN && ret != -EINTR)
+>   		KVM_UV_EVENT(kvm, 3, "PROTVIRT VM UNPACK: failed addr %llx with rc %x rrc %x",
+>   			     uvcb.gaddr, *rc, *rrc);
+>   	return ret;
+
