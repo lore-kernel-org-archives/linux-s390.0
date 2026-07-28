@@ -1,197 +1,289 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0103938F621;
-	Tue, 28 Jul 2026 16:47:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6221F38F92D;
+	Tue, 28 Jul 2026 16:52:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785257244; cv=none; b=aImsavYh+MzlRNltkC9//vPMiBliTT4DwglMSq9kMht5dXQPj1twUUEISoI66jM7mM2VP0++4IZmnqg/MT66mq284+ZFF0jX1VLf3/eoNT1kcfJhYzv2QcC1XBzRXGFhbjwQxfojRo+BvuOXUDctB44bt6hGsN18utJ4sUqLBuo=
+	t=1785257574; cv=none; b=UcgQYZZWJvo5uIWtkJQJVdIGfREH4hC5Oc9m1eYGsBHQFNJF3Aa3G0a2fY7MdRHCyar27OkMn8XUMm5zEBo4V16G3GBmJ5QFUYRfanV0A0Eeprbm+XfwLMJ9sCT6/rVySiF0zZ4jDQtYaz0sT2nYRIRwsxJI8I8Ud2BJ4RVyeHA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785257244; c=relaxed/simple;
-	bh=IsfoklXLjZ3wiCGOkKNy8f4UDtzPg8vIFAJ3pt6ORgA=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=uMLNZwken1sjxxxzhYnwjICTN8hmuKxdnUP4JqHzOqmohYshCoNnaXLs/WuY5lKenwyoDDYIgdXMJT07e7qcuQAmHkapKTDTlsoFvwp4YygGyGASA5KUeKjyS5tKPMMj9nZWz78XNI/ezS9Fj+quJxvQQT/Scl5CnYG6wY2ZO8I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=sslGsd7l; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1785257574; c=relaxed/simple;
+	bh=vJqqefbyWSqt2P9trmIyhVESgMTG5+8O9OXr9a2a9Ac=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=IFesJ1O47o5gj2aeJPvNO2RO/khngJoy/cOUKL9gms0jSRcJ07Clmb0WbavlaBJpQ12CKJ1hLm/0XUqWmLrzsln/40icoE5r9XAhyeU5kVo704GnBL0YPtwvTyLT7s+S/2aUwUlMJXlzQ5gRw5TRtkSisdbbLMU2jFv9IXuP/0E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QEeCRqej; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="sslGsd7l"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66SEm1Zw1491778;
-	Tue, 28 Jul 2026 16:47:13 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=2TXgiI
-	MaRc9Arx+XD3uc7z32DgJVLuoSeEnd9446NDQ=; b=sslGsd7lhg0dhViY3UMDN0
-	pTmb0cg2RVJKxDFZN63eiMkzQSJUGbPtBcX7IKXSjBO8YgBDVIDn3yP03x73HVfe
-	L10fz0b+JrQaFtkQ4jWU1JCEWo2XsmRQSvdsGuTinKlViRzBIXBJsfCHoMZe4LIS
-	vIB8UYpgc0vdGmWIK13j7GTwBg4HEjHSbWxzd0tola+3ebp048/TL0LSbPErDm4U
-	TAOydUnduVjL8D5VKQRsG+mQDpeiBxPs23uirD12LM0xr5YbVZzwh+oYCjJSCdaR
-	MdQSiFx5PG3cY/b2rmg9xAQBmq+uRwuGMWRE2wszzn9Q3J7a83w7YjHGnD3CsXBA
-	==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fmv0xpe8c-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 28 Jul 2026 16:47:13 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66SGfFbe019188;
-	Tue, 28 Jul 2026 16:47:12 GMT
-Received: from smtprelay03.wdc07v.mail.ibm.com ([172.16.1.70])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fn9pgan4y-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 28 Jul 2026 16:47:12 +0000 (GMT)
-Received: from smtpav05.dal12v.mail.ibm.com (smtpav05.dal12v.mail.ibm.com [10.241.53.104])
-	by smtprelay03.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66SGkY7x26673744
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 28 Jul 2026 16:46:34 GMT
-Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C955C58052;
-	Tue, 28 Jul 2026 16:47:10 +0000 (GMT)
-Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8923858067;
-	Tue, 28 Jul 2026 16:47:10 +0000 (GMT)
-Received: from [9.61.248.127] (unknown [9.61.248.127])
-	by smtpav05.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 28 Jul 2026 16:47:10 +0000 (GMT)
-Message-ID: <cfbae0ef-51b3-4e5c-b9e9-9a9289dacd90@linux.ibm.com>
-Date: Tue, 28 Jul 2026 11:47:08 -0500
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QEeCRqej"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 24DB9C2BCC6;
+	Tue, 28 Jul 2026 16:52:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1785257574;
+	bh=vJqqefbyWSqt2P9trmIyhVESgMTG5+8O9OXr9a2a9Ac=;
+	h=From:Date:Subject:To:Cc:Reply-To:From;
+	b=QEeCRqejuoI53J0cfuKZKNOdnAIcqsPN6T6RJzn5I6cW+7ZEwJI9+JpvrY1gcV/7c
+	 xnNHCzyj8QTUACls3Tjz7Apt8Lb+FAq5VedqlJL3uDUYVvUNRp+yfBiVkeWkWJLc0l
+	 JyAliuxFAksdmHry6Yw1TgZ+QygR5PWJRoA6pk+Vkajehts9AtWSSOOFSYX7vq0823
+	 Ote87pVhrRaG17fRxgFC/nS4iQiQ/18F5D22ceTIEp1fJ9KhjG51RlYe8sUxMlYLG5
+	 8y3+crCn/V1UNnsWb4dp3G/aDYKnzon1zscM+R9uudUFH4Lf4YV5Ogl7HpmPi3+Vac
+	 FXt/jEbXYtehQ==
+Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 00819C54F54;
+	Tue, 28 Jul 2026 16:52:54 +0000 (UTC)
+From: Bryam Vargas via B4 Relay <devnull+hexlabsecurity.proton.me@kernel.org>
+Date: Tue, 28 Jul 2026 11:52:53 -0500
+Subject: [PATCH net v4] net/smc: order the CDC receive path against buffer
+ publication
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3] KVM: s390: Fall back to short-term pinning in MAP
- ioctl
-To: Matthew Rosato <mjrosato@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        frankja@linux.ibm.com, imbrenda@linux.ibm.com, hca@linux.ibm.com,
-        gor@linux.ibm.com, agordeev@linux.ibm.com
-Cc: david@kernel.org, svens@linux.ibm.com, freimuth@linux.ibm.com,
-        kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <20260724133943.1664961-1-jhkim@linux.ibm.com>
- <b099b7bf-31c6-40ec-a43f-9081f2c64195@linux.ibm.com>
- <eb8e8909-1e0e-4144-988d-05be9221e2b8@linux.ibm.com>
-Content-Language: en-US
-From: JAEHOON KIM <jhkim@linux.ibm.com>
-In-Reply-To: <eb8e8909-1e0e-4144-988d-05be9221e2b8@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: lvCV0XwuEmMDBF02ohP8oTwNSqMX4sDP
-X-Proofpoint-ORIG-GUID: lvCV0XwuEmMDBF02ohP8oTwNSqMX4sDP
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI4MDE0OSBTYWx0ZWRfXy3ehGnQHEwZU
- zte0IP0lQefmuYIWTdECwo48VXYsxCG0RY2sGbiApAnGdMmCSnZNM6mvUTEUJf6roHeHh2GzaWf
- UStvZMYXcX6+MdO71MP3IjCmdwHrVy8=
-X-Authority-Analysis: v=2.4 cv=dYuwG3Xe c=1 sm=1 tr=0 ts=6a68dd11 cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=VwQbUJbxAAAA:8
- a=VnNF1IyMAAAA:8 a=EBKGDvUYjlEhDsWVOxYA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI4MDE0OSBTYWx0ZWRfX7t6K9cWf9RSG
- Hk5kyPp0qVgtzQxIHWKFW4AvreiLfwMAaV5GBvwj5RkDEpFhA8h9FHuwbTA+At11cXgSzUwGUft
- m7KD2DTC4iI3eW0INsK3bruhsINTy0VIS8Y7iMvlWfIEFN0ZVZ/07ed+d3UcMlnL4Pr/Ojje8YA
- q6deg5wsxj9DSwr3pmd4cPMLtOorDV6o5tfwUbtI0MCfhMHKNBKhN1jtFGckcNKFgoXPFgjeA23
- c68QiYxSWNowl69DBEWL14asSmdO+B7dOYVwOUi6wuXpi3dUsIk0wQ1CppEfZPLcGYjugu/+gpi
- RWBtLJo/zqEqTaYqwDNcPJLAE7uHLRRP+t9YE2b6e+yv3NtRRV0oi3ArZd4he1pFN4i9riYy4w7
- rmlSl/PnR+/CkId7b4ZiSWqWfcnddS1e3hUBrrYaxJdFNcWxnKR7AgAzd7tKG60cwch1YO4TwVA
- MvpHB627gl2kdCxyI5w==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-07-28_04,2026-07-28_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 impostorscore=0 clxscore=1015 phishscore=0 malwarescore=0
- spamscore=0 lowpriorityscore=0 bulkscore=0 suspectscore=0 adultscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607280149
+Message-Id: <20260728-b4-disp-52ee4e7d-v4-1-0dda94b0f397@proton.me>
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/yXMMQ6CQBBG4auQqZkE1sEFrkIshP3RoQCyA8aEc
+ HdXLb/ivYMMUWHUZgdFvNR0mRMkz2h43ucHWEMyucJdC+9q7oWD2sqVAwQ+8EVqX8mIpkSglK0
+ Ro75/y+72t+39hGH7fug8P1dKY+l0AAAA
+X-Change-ID: 20260728-b4-disp-52ee4e7d-348754fe91ed
+To: Tony Lu <tonylu@linux.alibaba.com>, Paolo Abeni <pabeni@redhat.com>, 
+ Eric Dumazet <edumazet@google.com>, "David S. Miller" <davem@davemloft.net>, 
+ "D. Wythe" <alibuda@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>, 
+ Sidraya Jayagond <sidraya@linux.ibm.com>, Jakub Kicinski <kuba@kernel.org>, 
+ Mahanta Jambigi <mjambigi@linux.ibm.com>, 
+ Dust Li <dust.li@linux.alibaba.com>
+Cc: Hans Wippel <hwippel@linux.ibm.com>, netdev@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, 
+ Wenjia Zhang <wenjia@linux.ibm.com>, linux-rdma@vger.kernel.org, 
+ Ursula Braun <ubraun@linux.ibm.com>, Simon Horman <horms@kernel.org>
+X-Mailer: b4 0.15.2
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1785257572; l=10163;
+ i=hexlabsecurity@proton.me; s=default; h=from:subject:message-id;
+ bh=Vts1TiiPbGpD3Qv/nKiQnSpqKQKxXy38+nvWx/7Gr0s=;
+ b=Fd8GQGB24INiIZa3WpnsGbRwVJbGzz5vUjvCCb5AUxxJTvnAWEpIDFlAZNPCoM3UgqT48stXc
+ JEitAt5kWyVAbMCGZDgXM/lJs23TeD1KfDyOji6gXywl102Z39zyf7a
+X-Developer-Key: i=hexlabsecurity@proton.me; a=ed25519;
+ pk=xw1AhCtQdvuoQc+bOQIYy9o8G++cp4/VniI2G/tc3G8=
+X-Endpoint-Received: by B4 Relay for hexlabsecurity@proton.me/default with
+ auth_id=893
+X-Original-From: Bryam Vargas <hexlabsecurity@proton.me>
+Reply-To: hexlabsecurity@proton.me
 
-On 7/28/2026 11:21 AM, Matthew Rosato wrote:
-> On 7/27/26 3:29 AM, Christian Borntraeger wrote:
->> Am 24.07.26 um 15:39 schrieb Jaehoon Kim:
->>> FOLL_LONGTERM pinning fails for some memory types, such as file-backed
->>> guest memory. As a result, kvm_s390_adapter_map() returns -EINVAL and
->>> irqfd adapter registration fails even though interrupt delivery could
->>> still work via the existing non-atomic path.
->>>
->>> When FOLL_LONGTERM pinning fails, verify that the page is accessible
->>> using a short-term pin instead. If the short-term pin succeeds, unpin
->>> the page and add a map entry with pinned=false to preserve MAP/UNMAP
->>> symmetry. The non-atomic irqfd path already performs short-term pinning
->>> for interrupt delivery, so this restores the previous behavior for
->>> memory that cannot be pinned long-term.
->>>
->>> get_map_info() is updated to return NULL for unpinned entries so that
->>> the atomic irqfd fast path falls back to the non-atomic path.
->>> kvm_s390_adapter_unmap() and kvm_s390_unmap_all_adapters() skip dirty
->>> marking and unpin for unpinned entries.
->>>
->>> Update Documentation/virt/kvm/devices/s390_flic.rst to reflect the
->>> new MAP/UNMAP behavior.
->>>
->>> Fixes: c9a568838086 ("KVM: s390: Add map/unmap ioctl and clean
->>> mappings post-guest")
->>> Signed-off-by: Jaehoon Kim <jhkim@linux.ibm.com>
->>> Reviewed-by: Douglas Freimuth <freimuth@linux.ibm.com>
->>> Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
->> queued for kvm/master.
->>
->> Doug, Jaehoon, Matt,
->>
->> can you have a look at the sashiko feedback for the pre-existing issue
->> and work on a
->> followup fix?
->>
-> I believe this report is not nearly as extreme as it sounds.
->
-> It claims:
-> "If a malicious guest or untrusted userspace configures an IRQ routing
-> entry with an unmapped host virtual address for summary_addr, the
-> short-term pin will fail:"
->
-> However: the summary_page was previously validated when the route was
-> setup in kvm_set_routing_entry():
->
-> uaddr_s = gpa_to_hva(kvm, ue->u.adapter.summary_addr);
-> ...
-> if (kvm_is_error_hva(uaddr_s) || kvm_is_error_hva(uaddr_i))
-> 	return -EFAULT;
-> e->adapter.summary_addr = uaddr_s;
->
-> So we already know that the address was pre-validated before we try to
-> use it in adapter_indicators_set().  BTW this is similar to what Janosch
-> did for
-> dcf96f7ad556 KVM: s390: Limit adapter indicator access to mapped page
->
-> I think we could only have some problem if we later remove a memslot
-> that happened to have the summary page on it such that the up-front
-> validation is no longer accurate?  Can this even happen?
->
-> So: Not nearly as easy or user-controlled as 'guest provides bogus
-> address, crashing panic_on_warn=1 host'
->
-> All that said:
-> The only reason this case is 'weird' is because we may have already
-> indicated AIBV successfully (made changes to the guest) but cannot
-> complete delivery because AISB is unreachable.
-> Maybe the simple answer is to downgrade this to something like
-> pr_warn_once("Cannot indicate summary on previously-validated routing
-> entry") so we don't lose the breadcrumbs for this highly-unlikely
-> scenario but also don't add the potential panic in the first place?  If
-> we ever reach this situation, the guest in question is going to get bits
-> set in AIBV but will likely never see them because it will poll first on
-> AISB which we cannot set anymore.
->
->
-> That would track with
-> https://docs.kernel.org/process/coding-style.html#do-not-warn-lightly
-> even if I don't think it's easy to trigger.
->
-> Doug / Jaehoon / s390 KVM maintainers -- thoughts?
+From: Bryam Vargas <hexlabsecurity@proton.me>
 
-Thanks for clarifying. I agree that this is different from the original
-Sashiko concern, since the address is already validated. pr_warn_once()
-sounds like a good balance to keep the breadcrumb while avoiding a
-potential panic.
+The SMC CDC receive handlers dereference conn->rmb_desc, and on the
+SMC-D DMB-nocopy path conn->sndbuf_desc, but both are published after the
+connection is already reachable to a peer: rmb_desc once the connection
+is in the link group's token tree, the nocopy ghost sndbuf_desc later
+still, in smcd_buf_attach() after the ISM receive tasklet is armed. A CDC
+in that window hits a handler with the buffer unset -- a NULL dereference
+and host DoS -- or, on a weakly ordered CPU, non-NULL but not yet
+initialised. Both are also published before the receive state
+(bytes_to_rcv, sndbuf_space), so an early CDC's accounting can be
+overwritten by setup.
+
+Initialise the receive state first and publish both buffers last with
+smp_store_release(), consuming them with smp_load_acquire() and bailing
+while unset, as the handlers already do for a killed connection. Gate the
+whole sndbuf consumer trigger on the send buffer, not just the nocopy
+accounting: smc_tx_prepared_sends() and smc_tx_pending() dereference it
+too. Conforming peers are unaffected.
+
+Fixes: 69cb7dc0218b ("net/smc: add common buffer size in send and receive buffer descriptors")
+Closes: https://sashiko.dev/#/patchset/20260714-b4-disp-835288a6-v2-1-581555ef2145@proton.me?part=1
+Cc: stable@vger.kernel.org
+Signed-off-by: Bryam Vargas <hexlabsecurity@proton.me>
+---
+v4: Add the Fixes: tag Jakub asked for. 69cb7dc0218b is where the CDC path
+ started reading the buffer length through a descriptor pointer -- it replaced
+ conn->rmbe_size and conn->sndbuf_size with conn->rmb_desc->len and
+ conn->sndbuf_desc->len -- so it is the first commit where an unpublished
+ buffer can be dereferenced here. The token lookup itself is older
+ (5f08318f617b, 2017), but it read a scalar, so there was nothing to
+ dereference. The SMC-D DMB-nocopy hunks cover the ghost sndbuf_desc, added
+ by ae2be35cbed2; a tree without that commit needs only the rmb_desc part.
+v3: https://lore.kernel.org/all/20260716-b4-disp-aa52955a-v3-1-03a4411a7549@proton.me/
+ - Publish rmb_desc and the ghost sndbuf_desc after the receive state is
+   initialised, not before. The earlier revision released the pointer first,
+   which let an early CDC's accounting be overwritten by setup.
+ - Gate the whole sndbuf consumer trigger on sndbuf_desc, not only the nocopy
+   accounting: smc_tx_prepared_sends() and smc_tx_pending() dereference it too.
+ The v2 review raised both.
+v2: https://lore.kernel.org/all/20260714-b4-disp-835288a6-v2-1-581555ef2145@proton.me/
+v1: https://lore.kernel.org/all/20260711-b4-disp-c36a9798-v1-1-340b0c6053fb@proton.me/
+
+herd7 models both orderings. Plain accesses allow the "pointer published, buffer
+stale" outcome and flag a data race; release/acquire forbid it. A publish-order
+litmus shows the lost update is allowed with the store released first and never
+with it released last. af_smc runs over an RDMA fabric or an ISM device, so the
+weak-memory arm is model-level; litmus tests and reproducer on request.
+
+Happy to split rmb/sndbuf for a cleaner stable backport.
+---
+ net/smc/smc_cdc.c  | 50 +++++++++++++++++++++++++++++++++++++++++---------
+ net/smc/smc_core.c | 26 ++++++++++++++++++++++----
+ 2 files changed, 63 insertions(+), 13 deletions(-)
+
+diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
+index 32d6d03df321..ea61b1e75c72 100644
+--- a/net/smc/smc_cdc.c
++++ b/net/smc/smc_cdc.c
+@@ -332,8 +332,20 @@ static void smc_cdc_msg_recv_action(struct smc_sock *smc,
+ {
+ 	union smc_host_cursor cons_old, prod_old;
+ 	struct smc_connection *conn = &smc->conn;
++	struct smc_buf_desc *sndbuf_desc;
+ 	int diff_cons, diff_prod, diff_tx;
+ 
++	/* Acquire the send buffer once, pairing with the smp_store_release() in
++	 * __smc_buf_create()/smcd_buf_attach().  On the SMC-D DMB-nocopy path
++	 * the ghost sndbuf_desc is attached only after the connection is already
++	 * reachable to the ISM device, so it can still be unset here; every
++	 * sndbuf_desc consumer below (the nocopy accounting and the sndbuf
++	 * consumer trigger, which dereferences it via smc_tx_prepared_sends())
++	 * is skipped while it is NULL to avoid a NULL deref and a load of an
++	 * uninitialised buffer.
++	 */
++	sndbuf_desc = smp_load_acquire(&conn->sndbuf_desc);
++
+ 	smc_curs_copy(&prod_old, &conn->local_rx_ctrl.prod, conn);
+ 	smc_curs_copy(&cons_old, &conn->local_rx_ctrl.cons, conn);
+ 	smc_cdc_msg_to_host(&conn->local_rx_ctrl, cdc, conn);
+@@ -351,14 +363,17 @@ static void smc_cdc_msg_recv_action(struct smc_sock *smc,
+ 
+ 		/* if local sndbuf shares the same memory region with
+ 		 * peer RMB, then update tx_curs_fin and sndbuf_space
+-		 * here since peer has already consumed the data.
++		 * here since peer has already consumed the data.  The ghost
++		 * sndbuf_desc (acquired above) may still be unset in the SMC-D
++		 * DMB-nocopy setup window, so skip the update while it is NULL.
+ 		 */
+ 		if (conn->lgr->is_smcd &&
+-		    smc_ism_support_dmb_nocopy(conn->lgr->smcd)) {
++		    smc_ism_support_dmb_nocopy(conn->lgr->smcd) &&
++		    sndbuf_desc) {
+ 			/* Calculate consumed data and
+ 			 * increment free send buffer space.
+ 			 */
+-			diff_tx = smc_curs_diff(conn->sndbuf_desc->len,
++			diff_tx = smc_curs_diff(sndbuf_desc->len,
+ 						&conn->tx_curs_fin,
+ 						&conn->local_rx_ctrl.cons);
+ 			/* increase local sndbuf space and fin_curs */
+@@ -391,10 +406,15 @@ static void smc_cdc_msg_recv_action(struct smc_sock *smc,
+ 			conn->urg_state = SMC_URG_NOTYET;
+ 	}
+ 
+-	/* trigger sndbuf consumer: RDMA write into peer RMBE and CDC */
+-	if ((diff_cons && smc_tx_prepared_sends(conn)) ||
+-	    conn->local_rx_ctrl.prod_flags.cons_curs_upd_req ||
+-	    conn->local_rx_ctrl.prod_flags.urg_data_pending) {
++	/* trigger sndbuf consumer: RDMA write into peer RMBE and CDC.
++	 * smc_tx_prepared_sends() and smc_tx_pending() dereference sndbuf_desc,
++	 * so skip the whole trigger while it is unset (the SMC-D DMB-nocopy
++	 * setup window): there is nothing to send without a send buffer.
++	 */
++	if (sndbuf_desc &&
++	    ((diff_cons && smc_tx_prepared_sends(conn)) ||
++	     conn->local_rx_ctrl.prod_flags.cons_curs_upd_req ||
++	     conn->local_rx_ctrl.prod_flags.urg_data_pending)) {
+ 		if (!sock_owned_by_user(&smc->sk))
+ 			smc_tx_pending(conn);
+ 		else
+@@ -443,13 +463,21 @@ static void smcd_cdc_rx_tsklet(struct tasklet_struct *t)
+ {
+ 	struct smc_connection *conn = from_tasklet(conn, t, rx_tsklet);
+ 	struct smcd_cdc_msg *data_cdc;
++	struct smc_buf_desc *rmb_desc;
+ 	struct smcd_cdc_msg cdc;
+ 	struct smc_sock *smc;
+ 
+ 	if (!conn || conn->killed)
+ 		return;
++	/* Pair with smp_store_release() in __smc_buf_create(): the connection
++	 * is published before its RMB is allocated, so bail while rmb_desc is
++	 * unset to avoid a NULL deref and a load of an uninitialised buffer.
++	 */
++	rmb_desc = smp_load_acquire(&conn->rmb_desc);
++	if (!rmb_desc)
++		return;
+ 
+-	data_cdc = (struct smcd_cdc_msg *)conn->rmb_desc->cpu_addr;
++	data_cdc = (struct smcd_cdc_msg *)rmb_desc->cpu_addr;
+ 	smcd_curs_copy(&cdc.prod, &data_cdc->prod, conn);
+ 	smcd_curs_copy(&cdc.cons, &data_cdc->cons, conn);
+ 	smc = container_of(conn, struct smc_sock, conn);
+@@ -483,7 +511,11 @@ static void smc_cdc_rx_handler(struct ib_wc *wc, void *buf)
+ 	lgr = smc_get_lgr(link);
+ 	read_lock_bh(&lgr->conns_lock);
+ 	conn = smc_lgr_find_conn(ntohl(cdc->token), lgr);
+-	if (!conn || conn->out_of_sync) {
++	/* Pair with smp_store_release() in __smc_buf_create(): bail while the
++	 * RMB is unset (smc_cdc_msg_recv_action() dereferences it) to avoid a
++	 * NULL deref and a stale-buffer read in the connection setup window.
++	 */
++	if (!conn || conn->out_of_sync || !smp_load_acquire(&conn->rmb_desc)) {
+ 		read_unlock_bh(&lgr->conns_lock);
+ 		return;
+ 	}
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index b4208cb186c5..33bf9cc979ef 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -2499,15 +2499,26 @@ static int __smc_buf_create(struct smc_sock *smc, bool is_smcd, bool is_rmb)
+ 	}
+ 
+ 	if (is_rmb) {
+-		conn->rmb_desc = buf_desc;
+ 		conn->rmbe_size_comp = bufsize_comp;
+ 		smc->sk.sk_rcvbuf = bufsize * 2;
+ 		atomic_set(&conn->bytes_to_rcv, 0);
+ 		conn->rmbe_update_limit =
+ 			smc_rmb_wnd_update_limit(buf_desc->len);
++		/* Publish the receive buffer last, with release semantics: the
++		 * connection is already in the link group's token tree, so a
++		 * concurrent CDC receive handler must observe the fully
++		 * initialised receive state above (and the buffer) once it sees
++		 * a non-NULL rmb_desc.  Pairs with the smp_load_acquire() in the
++		 * CDC receive path.
++		 */
++		smp_store_release(&conn->rmb_desc, buf_desc);
+ 		if (is_smcd)
+ 			smc_ism_set_conn(conn); /* map RMB/smcd_dev to conn */
+ 	} else {
++		/* Plain store: this send-buffer pass runs before the RMB pass,
++		 * whose smp_store_release(&conn->rmb_desc) then publishes this
++		 * store too, and the CDC receive path is gated on rmb_desc.
++		 */
+ 		conn->sndbuf_desc = buf_desc;
+ 		smc->sk.sk_sndbuf = bufsize * 2;
+ 		atomic_set(&conn->sndbuf_space, bufsize);
+@@ -2599,9 +2610,16 @@ int smcd_buf_attach(struct smc_sock *smc)
+ 	buf_desc->cpu_addr =
+ 		(u8 *)buf_desc->cpu_addr + sizeof(struct smcd_cdc_msg);
+ 	buf_desc->len -= sizeof(struct smcd_cdc_msg);
+-	conn->sndbuf_desc = buf_desc;
+-	conn->sndbuf_desc->used = 1;
+-	atomic_set(&conn->sndbuf_space, conn->sndbuf_desc->len);
++	buf_desc->used = 1;
++	atomic_set(&conn->sndbuf_space, buf_desc->len);
++	/* Publish the ghost send buffer last, with release semantics: the
++	 * connection is already reachable to the ISM device (smc_ism_set_conn()
++	 * ran in __smc_buf_create()), so the CDC receive tasklet must observe
++	 * the fully initialised ghost buffer once it sees a non-NULL
++	 * sndbuf_desc.  Pairs with smp_load_acquire() in
++	 * smc_cdc_msg_recv_action().
++	 */
++	smp_store_release(&conn->sndbuf_desc, buf_desc);
+ 	return 0;
+ 
+ free:
+
+---
+base-commit: e095f249e2209674f6366f6db0383a2b96e19239
+change-id: 20260728-b4-disp-52ee4e7d-348754fe91ed
+
+Best regards,
+--  
+Bryam Vargas <hexlabsecurity@proton.me>
+
 
