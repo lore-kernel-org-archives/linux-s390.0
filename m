@@ -1,85 +1,71 @@
-Received: from mail-43101.protonmail.ch (mail-43101.protonmail.ch [185.70.43.101])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE07E3A5E9F;
-	Tue, 28 Jul 2026 17:26:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.70.43.101
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B76793AFCED;
+	Tue, 28 Jul 2026 17:27:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785259574; cv=none; b=Nd3vVDBT8f1tjc2Tle4+VCrvci7hdDViBf2AKoiMbweeboikHK1Oup/K4Vfh2rqy61Foi3WyqpwjCHUXspCyp+Qs4ntSYPTPgLmhEG6fhD0KhWinIhTwnOtpPZ4/fwci/gLfB7a4zUiPyfuuJmpOA4Aa4xcj3/HTaGTetQ+Mb1E=
+	t=1785259640; cv=none; b=CfLbGkaikKACYHs92SEyDyT0kCRzrMaKvimS3YLhsRRYs7jwa5IZgFiuYC0bfSls9VOhFLsB8l2afzZQaZMtNXq8Zgmc0uq3PTSx1YvGgPCfamXIBnMXMpmWqL+Uj7vflHo15bE/1pApfCd/6J2hIAugrOaoJvkE1q8kOAJ3Pio=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785259574; c=relaxed/simple;
-	bh=q28Sr1aNpbsBs6vn67MJSp6jSWn48v1duQoJS5RjksU=;
-	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=Ag89MTZOX4QvMpTVmhxsVmdAtFw+2XVanqMWvDp+g1Rsxy1WMHaX7m8R8XhzXlMx1FUFWnMpSz+yVymHVuFDz8Z7DN8cAP7nWlRq2ObbA4IfxJWUN+2lEkNe5Nsanj/hAhizg1zb2IfK1k2Xux7fNxdF3ulLoQWHG/vrjdXdyK0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=proton.me; spf=pass smtp.mailfrom=proton.me; dkim=pass (2048-bit key) header.d=proton.me header.i=@proton.me header.b=fYJr31Ku; arc=none smtp.client-ip=185.70.43.101
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=proton.me
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=proton.me
+	s=arc-20240116; t=1785259640; c=relaxed/simple;
+	bh=BxDoQS4Zxvxz0zkCpEYkhuu5+K9FdxslyhvYQwmM0q4=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=STvgN/CDG3NXh9gwBnb+GI3vAFnZX+9JL8z3fK2AJ6bjqErLzKP5Ha1Th7EQeGI7xkXkcebNfTvvuuUwJisb5VklXLDWpwX8h9S+POaAaywfZl6xwhMcToh3hoE8pBs7nmILkXHxA88p/Cnys+96jxV3LqQNEyW2smq9YjIfT0g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YTnYrqyJ; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=proton.me header.i=@proton.me header.b="fYJr31Ku"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=proton.me;
-	s=protonmail; t=1785259563; x=1785518763;
-	bh=q28Sr1aNpbsBs6vn67MJSp6jSWn48v1duQoJS5RjksU=;
-	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
-	 Feedback-ID:From:To:Cc:Date:Subject:Reply-To:Feedback-ID:
-	 Message-ID:BIMI-Selector;
-	b=fYJr31KuQPEOXsEGr8rpi4/VpW52ZyBXhk5NhDRhXpNXZX/f0PFb+GgkUX4la7v0I
-	 zFtcBxw/RhN2hG24Uml428yng+8DuF2oZx2bs/97/VCtNaqj9D5/cWFnHe3aM/ndSP
-	 dpC6yPkBbWHENo8/MRmn8A5fx3hmgavrmGJm04zPFbeifTOQHYnBfSTbG83MGQhewm
-	 KX+ZRXFXNPHJ4IewkSQSNbf+cXBULAJyingI4zYNJxxiMMcRh6XR4TX2zkugyCxUo1
-	 AW/HshI7+ZX8sEPliQyU8mw70NcJ9u8mrt2MX+S/4U9PAtb/H8x5RldsrJe7t1CVfE
-	 dWTUP1Tzs/+0w==
-Date: Tue, 28 Jul 2026 17:25:59 +0000
-To: Paolo Abeni <pabeni@redhat.com>
-From: Bryam Vargas <hexlabsecurity@proton.me>
-Cc: Sidraya Jayagond <sidraya@linux.ibm.com>, Jakub Kicinski <kuba@kernel.org>, "D . Wythe" <alibuda@linux.alibaba.com>, "David S . Miller" <davem@davemloft.net>, Wen Gu <guwen@linux.alibaba.com>, Wenjia Zhang <wenjia@linux.ibm.com>, Eric Dumazet <edumazet@google.com>, Tony Lu <tonylu@linux.alibaba.com>, Mahanta Jambigi <mjambigi@linux.ibm.com>, Dust Li <dust.li@linux.alibaba.com>, Ursula Braun <ubraun@linux.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Simon Horman <horms@kernel.org>, linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH net v5 1/3] net/smc: bound the wire-controlled producer cursor to the RMB
-Message-ID: <20260728172552.69349-1-hexlabsecurity@proton.me>
-In-Reply-To: <4b5f67a2-5624-4adb-812a-bd87d99416ed@redhat.com>
-References: <20260723-b4-disp-0d07164f-v5-0-6a9e235dbc4e@proton.me> <20260723-b4-disp-0d07164f-v5-1-6a9e235dbc4e@proton.me> <4b5f67a2-5624-4adb-812a-bd87d99416ed@redhat.com>
-Feedback-ID: 199661219:user:proton
-X-Pm-Message-ID: 00f4050115f71b32b665beecb2c12776f51a9507
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YTnYrqyJ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 136481F000E9;
+	Tue, 28 Jul 2026 17:27:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1785259639;
+	bh=BxDoQS4Zxvxz0zkCpEYkhuu5+K9FdxslyhvYQwmM0q4=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=YTnYrqyJjNux0MU87FDCWDKuwPYp67KVZ+LMy1kbZ3FqmI7avgq6vmWAQVf5jC2HY
+	 WgcJ6iNdS9Rpg/QDEWXxgdSrDyeOIYAiselbtXLvDBZVR+Y26d+Sg/mPzaW3t/aM0a
+	 WrqVU5rSMhOsDwNrnUnDXLpp0SqIq+R83X1jNkxFWwrn0vVyHUx9LnKRu/gkRfdj+g
+	 S8PS+HbMnAwQAosUNf/kO6Ekv/w1n5B1+n4lQBZ2ZUd1zqWmp/sCNYL5/tOZ66zX53
+	 A0OegogotIm3tT7q5izMjklaJmZvmzuH95ibzUF6CivML9+wKRh7SHcgD+XFVUTkmt
+	 AxpLYyKjUv01g==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v4 01/13] KVM: s390: Fix unlikely NULL gmap dereference
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>
+Cc: "Heiko Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, kvm@vger.kernel.org
+In-Reply-To: <20260728170708.294400-2-imbrenda@linux.ibm.com>
+References: <20260728170708.294400-1-imbrenda@linux.ibm.com>
+ <20260728170708.294400-2-imbrenda@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 28 Jul 2026 17:27:18 +0000
+Message-Id: <20260728172719.136481F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
 
-On Tue, 28 Jul 2026 15:50:02 +0200, Paolo Abeni wrote:
-> Sashiko gemini suspects the above may cause a Null ptr dereference:
->
-> https://sashiko.dev/#/patchset/20260723-b4-disp-0d07164f-v5-0-6a9e235dbc4=
-e%40proton.me
+> When creating a new vCPU, kvm_vm_ioctl_create_vcpu() will call
+> kvm_arch_vcpu_postcreate() after the file descriptor for the new vCPU
+> has been created. The new file descriptor has not been returned yet,
+> but a malicious userspace program could try to guess it.
+>=20
+> If a malicious userspace program manages to start the newly created vCPU
+> before kvm_arch_vcpu_postcreate() is called, __vcpu_run() will try to
+> dereference vcpu->arch.gmap and trigger a NULL pointer dereference.
+>=20
+> Fix this by adding a new field to struct kvm_vcpu_arch to keep track of
+> the initialization status of the vCPU. Refuse to run a vCPU that is not
+> fully initialized.
+>=20
+> Fixes: dafd032a15f8 ("KVM: s390: move vcpu specific initalization to a la=
+ter point")
+> Fixes: e38c884df921 ("KVM: s390: Switch to new gmap")
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-The window is real, but this patch doesn't open it: the same load is alread=
-y
-on that path.
+Sashiko has reviewed this patch and found no issues. It looks great!
 
-smc_cdc_msg_recv_action() dereferences conn->rmb_desc->len unconditionally
-at smc_cdc.c:376, and nothing between the conversion call at :339 and that
-line can return early, so every CDC that reaches the conversion reaches the
-existing dereference as well. The patch moves the load about 37 lines up
-inside the same function; it doesn't add an execution that touches
-conn->rmb_desc. On SMC-D the existing one comes first anyway --
-smcd_cdc_rx_tsklet() reads rmb_desc->cpu_addr at :452 before it calls
-smc_cdc_msg_recv() at all. Line numbers are against net/main at
-e095f249e220.
-
-What the bot is pointing at is a separate defect. smc_conn_create() puts th=
-e
-connection in the link group's token tree before smc_buf_create() allocates
-the RMB, so a CDC arriving in that window finds a connection whose buffer i=
-s
-still unset -- with or without this series. That one is fixed by [PATCH net
-v4] "net/smc: order the CDC receive path against buffer publication", which
-publishes the buffers with smp_store_release() once the receive state is
-initialised and makes the CDC entry points bail while they are unset:
-
-https://lore.kernel.org/all/20260728-b4-disp-52ee4e7d-v4-1-0dda94b0f397@pro=
-ton.me/
-
-Thanks,
-Bryam
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260728170708.2944=
+00-1-imbrenda@linux.ibm.com?part=3D1
 
