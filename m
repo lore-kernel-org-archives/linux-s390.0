@@ -1,180 +1,150 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 203AB3B9DA6;
-	Tue, 28 Jul 2026 17:39:03 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28BDD3A6B81;
+	Tue, 28 Jul 2026 19:16:22 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785260345; cv=none; b=nL2/cWNgtxi7CqXeYggMAfIl1pvZmOBuzVQ8ubmXbs8lBxiOaUytdtZn0rZj8IbjV2yx3mZdWl/GwapxhIFpmYAQyp4yGpYlgIvDgABATiT67a+9Fy7wsjIT7hDIZojBhW2i9ldHOrAUEPu91yURHLznpg4HmGKCf/5QsSu8QWE=
+	t=1785266184; cv=none; b=spVE4i47OF4eqxU89VtHX2S5UVc3SB+bsxdbm1LvIaMeT8H5jmVWDGEOaRunTxo5by+PD9Z/ku60T0Nn7MEihstoXmm/mO96fK3m0ySbtXRPBOZG5NsYhkulkly4OfbybuKt53uKaaAB8+AKo0mrEcbFVCn6oQHaqsSj5VXDYyQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785260345; c=relaxed/simple;
-	bh=7CDsY73F9e+yUeTT0uKGeG3aRjFvS0s0KdhxJHIjfOc=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=tpc8QB+TX2XVO75x/8dzkP6OZJeTCm7Am0kR59ftj3/ECdvEK1RDPEdPCOcntgDXT3MAjA3+hD9PWarJdoZ2D1yyBj9K9m3QupitCURXSambsaEr2nZg7OkTWHSlGQK0rC1J3tbwdyG8j/kBRcxDfevS6Blk39AD0kBn0M5djDk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jVPiIaMM; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1785266184; c=relaxed/simple;
+	bh=n2W61PVXCdtIk6SElDSA9Umo0y8Jmm0l+kWYBmb/wQc=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Y/B/UvX9gUOhCxTsZNcjXZFQ/N9MYYoYDjAIjCl9/kfv0MAGGFqQB79VC7uFO7Rsi35s9G0ka8nIXk20U453RZsxdNXgQFV0ZEal5pY28ncuIfDkvAm6CHkRnmZYnGVmkJi3PBk6hNj1CLiprck08x2QkPrGGqaZHKLJ7Vn10Rc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=oshJ75d/; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jVPiIaMM"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D34761F000E9;
-	Tue, 28 Jul 2026 17:39:02 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="oshJ75d/"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82D0B1F000E9;
+	Tue, 28 Jul 2026 19:16:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785260343;
-	bh=GGOmGavii8rSHeWKjpJ6aDseh1v7eN7/iJJ61nY4eLY=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=jVPiIaMMh8CeaAukxew1PBqeKdVRpj40D7/A7bG5nFipq79eQLRwTXKLW9QFRQORH
-	 JM6imPaykr3yOnAs5Mj1EDlC3Xxk/tqm9MjaliMlLAVzl2INkcUwlsamuYeM1oN54D
-	 EMufk/WTvmTHzrng+B1KaYY2+4hlKtVLytHuNKCsF/zmXcBTajvHJKKc7tAeprlvRK
-	 lr7B8TVGvG3EcM5uWMQlfKKrN9SDQt5Kx71SJD9tycgnZCLeb5KYIU6f5Tscp+ejku
-	 yvPbNtQF/13/gfBUJQ+x9r7NHbZZviIu4UTgbYGfi1eqcc4WsmnIB4cDq4T3kj5vmp
-	 UhTtJAtcRIgZQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 13/13] KVM: s390: Fix sca_clear_ext_call() for
- UCONTROL
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
- Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
-In-Reply-To: <20260728170708.294400-14-imbrenda@linux.ibm.com>
-References: <20260728170708.294400-1-imbrenda@linux.ibm.com>
- <20260728170708.294400-14-imbrenda@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 28 Jul 2026 17:39:02 +0000
-Message-Id: <20260728173902.D34761F000E9@smtp.kernel.org>
+	s=k20260515; t=1785266182;
+	bh=Ucma//m7I9ZjolPSJuaz8kY1G6WksJd+BgRCHn1VKVw=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=oshJ75d/nhkILilXbfV+QYhEmihij01Vum5PFtjMxq73JzWFICXk86FGO5ZyFSTC3
+	 rejygIKvtGle9tNtPtQo0OeEqVo0/bUCFuwXGdnZQGNiF6hpbe3LPqM5VMCDp0uzhH
+	 OxwBtaGdrWhPaQbP9KlN2FbmQVh/RKAILqV+Tu5W9Cz1hPWssKkayMaiDehnRuOw/X
+	 8loLKNifFWSA6ty+JdDc0/m+X6nVSSk4MQwj7hW3Rvnc0ULgcrAl0XOgnmEY47/TOi
+	 Or1I4z9+/1zFVdGezFCCxMAMe1lAb+fUYM00ZX/M81MtnO6ovXRm8vUTF7WFRx0ERq
+	 VBZ1qZqI6hn4A==
+Message-ID: <04d881f4-419c-450e-b9b4-1341497fa93a@kernel.org>
+Date: Tue, 28 Jul 2026 21:16:08 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH RFC] mm/huge_memory: eliminate reference-counted huge zero
+ folio
+To: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Zi Yan <ziy@nvidia.com>,
+ Baolin Wang <baolin.wang@linux.alibaba.com>,
+ "Liam R. Howlett" <liam@infradead.org>, Nico Pache <nico.pache@linux.dev>,
+ Ryan Roberts <ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>,
+ Barry Song <baohua@kernel.org>, Lance Yang <lance.yang@linux.dev>,
+ Usama Arif <usama.arif@linux.dev>, Vlastimil Babka <vbabka@kernel.org>,
+ Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>,
+ Michal Hocko <mhocko@suse.com>, Jonathan Corbet <corbet@lwn.net>,
+ Shuah Khan <skhan@linuxfoundation.org>, Heiko Carstens <hca@linux.ibm.com>,
+ Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
+ <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>, Alexander Viro
+ <viro@zeniv.linux.org.uk>, Christian Brauner <brauner@kernel.org>,
+ Jan Kara <jack@suse.cz>, Dan Williams <djbw@kernel.org>,
+ Matthew Wilcox <willy@infradead.org>, Kees Cook <kees@kernel.org>,
+ Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>,
+ Juri Lelli <juri.lelli@redhat.com>,
+ Vincent Guittot <vincent.guittot@linaro.org>,
+ Dietmar Eggemann <dietmar.eggemann@arm.com>,
+ Steven Rostedt <rostedt@goodmis.org>, Ben Segall <bsegall@google.com>,
+ Mel Gorman <mgorman@suse.de>, Valentin Schneider <vschneid@redhat.com>,
+ K Prateek Nayak <kprateek.nayak@amd.com>, linux-mm@kvack.org,
+ linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+ nvdimm@lists.linux.dev, Pankaj Raghav <pankaj.raghav@linux.dev>
+References: <20260728-persist-huge-zero-folio-v1-1-e7b604eaf416@kernel.org>
+From: "David Hildenbrand (Arm)" <david@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=david@kernel.org; keydata=
+ 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
+ qIws/H2t
+In-Reply-To: <20260728-persist-huge-zero-folio-v1-1-e7b604eaf416@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
-s) to consider:
+On 7/28/26 15:06, Lorenzo Stoakes (ARM) wrote:
+> The reference-counted huge zero folio is problematic - it's prone to subtle
+> races, it can introduce allocation latency and it is confusing and
+> complicated code.
 
-New issues:
-- [High] Asymmetric resource teardown of CPUSTAT_ECALL_PEND for UCONTROL VM=
-s leading to a permanent stuck state.
-- [High] Double-decrement of `cmma_dirty_pages` counter due to a retry loop.
+Just a note that the subject is misleading: the huge zero folio is always
+refcounted (e.g., GUP must take references), it's just that the persistent huge
+zero folio never drops the refcount to 0 to free it.
 
-Pre-existing issues:
-- [Critical] Out-of-bounds memory access in `sca_inject_ext_call()` and `sc=
-a_ext_call_pending()` for UCONTROL VMs.
---
+What you probably mean is "mm/huge_memory: eliminate dynamically allocated huge
+zero folio".
 
---- Patch [13]: [PATCH v4 13/13] KVM: s390: Fix sca_clear_ext_call() for UC=
-ONTROL ---
-commit d27d3f9f6aa096af6e829ecfb494bcc68d320453
-Author: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Date:   Tue Jul 28 17:07:08 2026 +0000
+If we go down that path here, we can also teach GUP to not take a reference on
+the huge zero folio anymore on the FOLL_PIN path, similar to how we handle the
+zero folio.
 
-    KVM: s390: Fix sca_clear_ext_call() for UCONTROL
+See the occurrences of is_zero_folio() in mm/gup.c.
 
-This commit fixes an out-of-bounds access in sca_clear_ext_call() for UCONT=
-ROL
-VMs by returning early before touching the ESCA block. UCONTROL VMs bypass =
-ESCA
-but can have vCPU IDs larger than the ESCA block capacity.
+The reason we do it for now for FOLL_PIN is that a remote pin might outlive the
+process, meaning the huge folio could otherwise get freed by the shrinker even
+though someone still holds a reference. Bad. So that would no longer apply if
+the huge zero folio can no longer get freed.
 
-> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-> index 2acdff130fa6c..8d146a0681dce 100644
-> --- a/arch/s390/kvm/interrupt.c
-> +++ b/arch/s390/kvm/interrupt.c
-> @@ -84,10 +84,13 @@ static int sca_inject_ext_call(struct kvm_vcpu *vcpu,=
- int src_id)
->  static void sca_clear_ext_call(struct kvm_vcpu *vcpu)
->  {
->  	struct esca_block *sca =3D vcpu->kvm->arch.sca;
-> -	union esca_sigp_ctrl *sigp_ctrl =3D &sca->cpu[vcpu->vcpu_id].sigp_ctrl;
-> +	union esca_sigp_ctrl *sigp_ctrl;
-> =20
-> -	if (!kvm_s390_use_sca_entries() || !vcpu->arch.initialized)
-> +	if (!kvm_s390_use_sca_entries() || !vcpu->arch.initialized || kvm_is_uc=
-ontrol(vcpu->kvm))
->  		return;
 
-[Severity: High]
-Could this early return for UCONTROL VMs skip clearing the CPUSTAT_ECALL_PE=
-ND
-flag?
+I recall there was a discussion (dropping dynamically allocated huge zero folio)
+on this topic while upstreaming the persistent huge zero folio.
 
-Prior to this patch, if an external call was injected into a UCONTROL VM,
-sca_inject_ext_call() would set the CPUSTAT_ECALL_PEND cpuflag, and
-sca_clear_ext_call() would later clear it. By adding an early return here
-without a corresponding check in sca_inject_ext_call(), the flag is set but
-never cleared. Would this leave the VM in a permanently corrupted state acr=
-oss
-resets?
+I don't have time right now to dig, but it would be worthwhile to look at that
+history if there was a good reason to keep it buried in that discussion.
 
-[Severity: Critical]
-This is a pre-existing issue, but UCONTROL VMs bypass the sca_can_add_vcpu()
-constraints, allowing vCPU IDs up to KVM_MAX_VCPUS - 1 (254). The ESCA block
-only holds KVM_S390_ESCA_CPU_SLOTS (248) entries.
+-- 
+Cheers,
 
-While this patch prevents out-of-bounds access in sca_clear_ext_call(), it
-fails to patch identical accesses in sca_inject_ext_call():
-
-arch/s390/kvm/interrupt.c:sca_inject_ext_call() {
-    ...
-    union esca_sigp_ctrl *sigp_ctrl =3D &sca->cpu[vcpu->vcpu_id].sigp_ctrl;
-    ...
-}
-
-and sca_ext_call_pending():
-
-arch/s390/kvm/interrupt.c:sca_ext_call_pending() {
-    ...
-    union esca_sigp_ctrl sigp_ctrl =3D sca->cpu[vcpu->vcpu_id].sigp_ctrl;
-    ...
-}
-
-The entry point for userspace interrupt injection, __inject_extcall(), calls
-sca_inject_ext_call() based on host hardware capabilities without verifying
-if the target VM is UCONTROL.
-
-Can a malicious userspace process trigger these out-of-bounds accesses by
-injecting external calls or polling for pending interrupts on a vCPU with
-an ID >=3D 248?
-
-> +
-> +	/* Initialize after the above check, to prevent going out of bounds */
-> +	sigp_ctrl =3D &sca->cpu[vcpu->vcpu_id].sigp_ctrl;
->  	kvm_s390_clear_cpuflags(vcpu, CPUSTAT_ECALL_PEND);
-> =20
->  	WRITE_ONCE(sigp_ctrl->value, 0);
-
-[Severity: High]
-I also noticed a separate issue introduced in commit 'KVM: s390: Fix
-kvm_arch_commit_memory_region() when low on memory'.
-
-Is there a risk that the retry loop in kvm_arch_commit_memory_region() caus=
-es
-a double-decrement of the cmma_dirty_pages counter?
-
-arch/s390/kvm/kvm-s390.c:kvm_arch_commit_memory_region() {
-    ...
-    retry:
-        ...
-        _dat_walk_gfn_range(old->base_gfn, old->base_gfn + old->npages,
-                            kvm->arch.gmap->asce, &ops, DAT_WALK_IGN_HOLES,
-                            &kvm->arch.cmma_dirty_pages);
-    ...
-}
-
-Inside this loop, _dat_walk_gfn_range() uses cmma_d_count_pte() to decrement
-kvm->arch.cmma_dirty_pages for every PTE where cmma_d is set:
-
-arch/s390/kvm/kvm-s390.c:cmma_d_count_pte() {
-    if (pgste_of(ptep)->cmma_d)
-        atomic64_dec(walk->priv);
-    ...
-}
-
-Because cmma_d_count_pte() does not clear the cmma_d bit, if
-dat_delete_slot() or dat_create_slot() fails with -ENOMEM, the code jumps
-to retry and executes the pass again over the exact same range.
-
-Could this decrement the counter a second time for unchanged PTEs, leading =
-to
-an underflow and breaking CMMA dirty page tracking during VM migration?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260728170708.2944=
-00-1-imbrenda@linux.ibm.com?part=3D13
+David
