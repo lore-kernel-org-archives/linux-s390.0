@@ -1,140 +1,158 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0073542A792;
-	Tue, 28 Jul 2026 12:32:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E63FF3BF67A;
+	Tue, 28 Jul 2026 12:33:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785241922; cv=none; b=pR0kVDRKUjtCLbApI//44et+i37DRbbSlFxeeB0aIZqOd7dadOeDj1qKCs7hvmimxXvJb8BXtgj1vZHPJH8mjSY++BTIPwT68QmSASSWMZLnjaOjDWU/QY9tcfzd85wdYPShjnn0VAR7FmmxGoKjfWa9/ssO2Dm9zKO7pWxyjl8=
+	t=1785242002; cv=none; b=uHld8oFmwJW37DLkr2VB8Ub2W3DTncV+9jQ6jU6h75xruVB+oU9Na4fFiSrKoYNp4yU8kQ5kinn0hYInPe9kxJgLmv74c3fu0UrcxjYLdz6BxMBLQ0WhzXySsjqVdbaDfPGuhEa9n6GYJzZL4LQwUk4gPKdZh+uTQicFZR/0rok=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785241922; c=relaxed/simple;
-	bh=DwDX6DQL7cMvuolyolXtePjrRKyhuxkkJnirH8faXg4=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=NKLEcrpHLH8vtEzg7N5CprhJfWC2rFLMmW5wXnRDd8INJ4y8hfRbvaNjHbMBJO89kP3Sx5SLSC1Rcc1lqzLMKOqGnJ6cdUf4dc9otmkMM2jpchEJVDBlAGLoPc2LxXwKdJqTU2UucbA52Xv7r7/5WiSjH5XdmS+tLfKMVA9K69A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WEM01trD; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1785242002; c=relaxed/simple;
+	bh=mhQpq/E0DWraNIG/R1idWgsuOLTGeHyKvA6lAeM8Omo=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=ZjD6npf/edZNR2LKhVh1AlXCIvPpIBeWnl5NKFxhCKzE6NXAbIVJVTD3IcIimL9v0Pcn6TTWLhTghYtVtxN5Fk61vSI+NCHdGzP5vBnjc95vZy2NywvSq9fbHYRh/442t/APIQdzfrMCTIV2/MxtCaUoDdbW3yxLbzjvKEtj76k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=jjEA8n07; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WEM01trD"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95E771F000E9;
-	Tue, 28 Jul 2026 12:31:49 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785241920;
-	bh=lSkwhKAcEsyJqT/0xqVJXtxYxIXWD0v9uCPSjTmMF2M=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date;
-	b=WEM01trD462HpzukrLQzJYedOMo/krm72PvzqlsPIr95pA22pK97BItUkKTq0RiE1
-	 BafhKgnPLjt9aVTzvU1dFa7RMbB40i5ZGyvy+Uq+GD3nlFNKGJAlh6v5YCczVVs88W
-	 XLgMqJmGuxCudWp7Pe+Yi+kgsFNJVH9ZJXfZCAW/9lfgbs+iqFLXWZDleq9blMw7mP
-	 +MH5pd841sVe9ss5f/WYkSBvsx7eS76Efavuj5k30SQrM2EWKd6eLiQqbz9Kr4x/nz
-	 YGdV+Rm3lqSrOuShxDdIBjk4LGOrgQZRl5vevgtv94weDxSm1UhqL4Mz6Y3mDajtlK
-	 HdSaygY48BoeQ==
-X-Mailer: emacs 30.2 (via feedmail 11-beta-1 I)
-From: "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>
-To: Leon Romanovsky <leon@kernel.org>
-Cc: Jason Gunthorpe <jgg@ziepe.ca>, iommu@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev,
-	Robin Murphy <robin.murphy@arm.com>,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
-	Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
-	Steven Price <steven.price@arm.com>,
-	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Jiri Pirko <jiri@resnulli.us>,
-	Mostafa Saleh <smostafa@google.com>,
-	Petr Tesarik <ptesarik@suse.com>,
-	Alexey Kardashevskiy <aik@amd.com>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Xu Yilun <yilun.xu@linux.intel.com>,
-	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org,
-	stable@vger.kernel.org, Michael Kelley <mhklinux@outlook.com>
-Subject: Re: [PATCH v8 01/23] dma-direct: return struct page from
- dma_direct_alloc_from_pool()
-In-Reply-To: <20260726081753.GD12003@unreal> (Leon Romanovsky's message of
-	"Sun, 26 Jul 2026 11:17:53 +0300")
-References: <20260717180442.110954-1-aneesh.kumar@kernel.org>
-	<20260717180442.110954-2-aneesh.kumar@kernel.org>
-	<20260721115456.GI110966@unreal> <yq5atsps77c5.fsf@kernel.org>
-	<20260721142921.GN110966@unreal> <yq5ao6g0750v.fsf@kernel.org>
-	<20260721153321.GO110966@unreal> <amEhEKQW0_HJ9cLN@ziepe.ca>
-	<20260723075704.GC110966@unreal> <amTJY_CdE-uDgoGG@ziepe.ca>
-	<20260726081753.GD12003@unreal>
-User-Agent: mu4e 1.14.1; emacs 30.2
-Date: Tue, 28 Jul 2026 18:01:45 +0530
-Message-ID: <yq5ah5ljjnwu.fsf@kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="jjEA8n07"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66SBHbQq3258326;
+	Tue, 28 Jul 2026 12:33:17 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=cK9nDzUeZ+f1Pmoq+HyJmbVm4CcvXw
+	IglcoLOvXWN2U=; b=jjEA8n07nEqez5t+4/GqRR2wCUh7hoH+egjtzRUWToule7
+	h6boCgzOdtSEWVm/rDjQHZYR82iEf89vRkl1SeGIvx9aH1TqqIj9dDHNdk1qxTZc
+	5Ar5kokQGJUTtCl1s7Vb9Lj/khr2xdy43/VD7CkzOFFRuTWwOiQd5B6cEWck4Yzd
+	2xRl8WApbIx2i1ZASakDsA6qBKdrpI1c6V1OJ6YtRQf2M67bvOJ7xmcWJLD39JeZ
+	v7hZdCCnvDhQvtva0pzAqThJtJ0fqLxR6cGH0WqNd5M5qQ60KYDJt7Fwtl7+g1yr
+	aYFswkAe3Wlxzxk41dh1y0SzE3OtdcrIOlzsfe/A==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fmuycd2wf-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 28 Jul 2026 12:33:16 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66SCQRmP017974;
+	Tue, 28 Jul 2026 12:33:16 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fna5y1ffg-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 28 Jul 2026 12:33:16 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66SCXCsl49807758
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 28 Jul 2026 12:33:12 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4305E20043;
+	Tue, 28 Jul 2026 12:33:12 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 238A72004F;
+	Tue, 28 Jul 2026 12:33:12 +0000 (GMT)
+Received: from osiris (unknown [9.224.76.185])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Tue, 28 Jul 2026 12:33:12 +0000 (GMT)
+Date: Tue, 28 Jul 2026 14:33:10 +0200
+From: Steffen Eiden <seiden@linux.ibm.com>
+To: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, borntraeger@de.ibm.com,
+        frankja@linux.ibm.com, david@kernel.org, nrb@linux.ibm.com,
+        schlameuss@linux.ibm.com, gra@linux.ibm.com
+Subject: Re: [PATCH v3 08/10] KVM: s390: Free the mmu cache when
+ kvm_arch_vcpu_create() fails
+Message-ID: <20260728123310.385398-A-seiden@linux.ibm.com>
+References: <20260727150254.236021-1-imbrenda@linux.ibm.com>
+ <20260727150254.236021-9-imbrenda@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260727150254.236021-9-imbrenda@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: wcJqqIERciq_N02tu8VPpYz3JItv0LHs
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI4MDEwOCBTYWx0ZWRfX6fWY8b1zN/w2
+ 4BIOy0/liKGTGjKJvozM5R2E10RlpoBsoUY4fZPu9z2/eAXi2/u4rFiWuKf5/UY/B+ZmPx0grzB
+ WG517IXvlazV4NkU8LjrQpsaQq4LV1lIBZ9O4Di4kPahgdSTpqM4VqCxpyTXZKjhJOtdUXt35qS
+ 2cm69AnJBfqJyqZh9+Gn8J11XQA+G21Gu1h/HPaI6pvyAhm03uPE7dj7gT/V4DbGYMq1M4HpWnB
+ Lqrls04lFcu20lR4NkqoWEjTy8g6Oao+FK0ViXoRNRPAd6fGftpAV8wZHQEVgmqIiGeWneZ6rfh
+ OMyUiql3I6lYyVAj1tHesTI6zFb21YpZuAOF0p3a8zFv7JzKWnYRLQk//TspUodR2Jw0V9aje2Y
+ +rpmU03zVvRwZuDeX+mnqu7oIkpf81OPuLIp3g7kjnWkoFVynBQyg0NifGsyeSEiW4y8g2UM4Qk
+ 7uv0NaDioQ1+R97fdfg==
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI4MDEwOCBTYWx0ZWRfX186G/Yg9KWzf
+ lJGux57FDIiyOpjQ+dbjY8XQFppJGlxofRSqCXGwsztJDqI26lSz1K2zxcGXAtafP7oV3z5Q5sW
+ OX4U4a3IvBSrEu9vq/9okbJSffYW3UI=
+X-Authority-Analysis: v=2.4 cv=AZeB2XXG c=1 sm=1 tr=0 ts=6a68a18d cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=kj9zAlcOel0A:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8
+ a=7mvGINVea8rqDsz_NfEA:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-GUID: wcJqqIERciq_N02tu8VPpYz3JItv0LHs
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-07-28_03,2026-07-28_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ spamscore=0 priorityscore=1501 phishscore=0 adultscore=0 impostorscore=0
+ clxscore=1015 malwarescore=0 suspectscore=0 lowpriorityscore=0 bulkscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607280108
 
-Leon Romanovsky <leon@kernel.org> writes:
+On Mon, Jul 27, 2026 at 05:02:52PM +0200, Claudio Imbrenda wrote:
+> The mmu cache is the first thing that is allocated in
+> kvm_arch_vcpu_create(), but in case of failure it was not freed.
+> 
+> Fix by freeing the mmu cache in case of failure.
+> 
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> Fixes: e38c884df921 ("KVM: s390: Switch to new gmap")
+> ---
+>  arch/s390/kvm/kvm-s390.c | 12 ++++++------
+>  1 file changed, 6 insertions(+), 6 deletions(-)
+> 
+> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> index 69c9027c42bf..8afb88a2b73d 100644
+> --- a/arch/s390/kvm/kvm-s390.c
+> +++ b/arch/s390/kvm/kvm-s390.c
+> @@ -3796,19 +3796,17 @@ int kvm_arch_vcpu_precreate(struct kvm *kvm, unsigned int id)
+>  
+>  int kvm_arch_vcpu_create(struct kvm_vcpu *vcpu)
+>  {
+> +	struct kvm_s390_mmu_cache *mc __free(kvm_s390_mmu_cache) = NULL;
+>  	struct sie_page *sie_page;
+>  	int rc;
+>  
+>  	BUILD_BUG_ON(sizeof(struct sie_page) != 4096);
+> -	vcpu->arch.mc = kvm_s390_new_mmu_cache();
+> -	if (!vcpu->arch.mc)
+> +	mc = kvm_s390_new_mmu_cache();
+> +	if (!mc)
+>  		return -ENOMEM;
+>  	sie_page = (struct sie_page *) get_zeroed_page(GFP_KERNEL_ACCOUNT);
+> -	if (!sie_page) {
+> -		kvm_s390_free_mmu_cache(vcpu->arch.mc);
+> -		vcpu->arch.mc = NULL;
+> +	if (!sie_page)
+>  		return -ENOMEM;
+> -	}
+>  
+>  	vcpu->arch.sie_block = &sie_page->sie_block;
+>  	vcpu->arch.sie_block->itdba = virt_to_phys(&sie_page->itdb);
+> @@ -3864,6 +3862,8 @@ int kvm_arch_vcpu_create(struct kvm_vcpu *vcpu)
+>  	if (rc)
+>  		goto out_ucontrol_uninit;
+>  
+> +	vcpu->arch.mc = mc;
+> +	mc = NULL;
+use
 
-> On Sat, Jul 25, 2026 at 11:34:11AM -0300, Jason Gunthorpe wrote:
->> On Thu, Jul 23, 2026 at 10:57:04AM +0300, Leon Romanovsky wrote:
->> > On Wed, Jul 22, 2026 at 04:59:12PM -0300, Jason Gunthorpe wrote:
->> > > On Tue, Jul 21, 2026 at 06:33:21PM +0300, Leon Romanovsky wrote:
->> > > 
->> > > > Something like, but probably void* needs to be phys_addr_t:
->> > > > 
->> > > > static inline struct page *dma_phys_to_page(void *addr)
->> > > > {
->> > > > #ifdef CONFIG_DMA_DIRECT_REMAP
->> > > > 	return vmalloc_to_page(addr);
->> > > > #else
->> > > > 	return virt_to_page(addr);
->> > > > #endif
->> > > > }
->> > > 
->> > > I don't like this, we don't know for sure the addr will be in a vmap
->> > > and this will fail if it isn't.
->> > 
->> > Of course we know. The existing "#ifdef CONFIG_DMA_DIRECT_REMAP" is
->> > relevant for addresses acquired from pool.
->> 
->> Yeah, but I still don't like it :) It is hard to follow if you make
->> those kinds of leaps, someone will call this new helper on something
->> they shouldn't
->
-> This issue is straightforward to address today. Limit the scope, use
-> an appropriate function name, and add a comment indicating that the
-> function is local to and specific to the pool. The latter helps
-> AI-based review tools flag incorrect usage outside the intended scope.
->
->> 
->> > dma_phys_to_page() is a bad name for some low-level conversion function.
->> > It needs to be internal to DMA logic, in the level when we convert from
->> > phys to page.
->> 
->> I think we should not convert from phys to page, that's also easy to
->> do wrong
->
-> Perhaps I'll reiterate my complaint. DMA internals are already hard to
-> understand. Part of that complexity is necessary to support every
-> possible use case, but another part comes from a maze of types that is
-> entirely self-inflicted. I think this code only makes the latter worse.
->
-> Currently, the phys type universally describes memory and can be
-> reliably translated into any required representation. It is the most
-> fundamental type we have.
->
+vcpu->arch.mc = no_free_ptr(mc);
 
-I think we can address the suggested changes as a follow-up patch series
-on top of this.
+instead of those two lines.
 
-How about we get this picked up for the next merge window first, so that
-we can get the CC_SHARED related changes in? The follow-up changes
-should be easier once we have agreement on the overall design, and can
-then be done as incremental cleanups.
+rest LGTM.
 
--aneesh
+	Steffen
