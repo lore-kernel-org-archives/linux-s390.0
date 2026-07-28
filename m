@@ -1,68 +1,69 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE96B2C3255;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ED2ED2D12ED;
 	Tue, 28 Jul 2026 01:35:16 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785202518; cv=none; b=f9zmY3b51YvO9Q9a4GRZcaojiDz8XCRAHC8jQUjrhNiMPrgSTFrglIKhOVpNM87xEc9zFjJ5EFZJ/Z2QvUL0pNv8EOLmTkGToyBhum7uyLmM8CArFb71jOoWD9LwZpJmXDqQ2lNjLNpbHIhh4VA1FMLLFOayVC0JyInkZXhurK8=
+	t=1785202518; cv=none; b=F8pqFADbVMJqDxxCMSjMIpx4wNMospsNoHsHM9/ddl5clgTOSfxc2lQRa1ksXqTz8G24jJsWBz/e9y8RsIXZzOV34VK20xffqBgz5lID8y0sE/ORT+biFXsYJyPsKA7hKSAXiROgxBLbegQ4Ydh2sU5WFPl1ipFj/eZSHqQ/6ag=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1785202518; c=relaxed/simple;
-	bh=vJs9xc/30hDx9JGZIF0UswmCWppURTGwpARUb6jic0E=;
+	bh=HIEfwPaGQYkxDHOavVjieOFEOBtaFwgF1ymJ5Di9fi0=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=H0t9whuxw1hPxGH/ocXqdLPH12hyrQydogGHGHyLHUPPS5dzmgHIsqtxhmKY6coE2rPPGOnlBLiHMCCIo47H5qyoT1VJ9RmsCwlrzewyl9zeU9N8iKNbSWlLCAkS4txhV+wTbsDi1Y+5j86indV5534H8ZG8yj6PLG4EPVWTTto=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=OO1Q5z8F; arc=none smtp.client-ip=148.163.158.5
+	 MIME-Version; b=HEb3E2JZw8r0QJGZhbCKuf2rf1QjdpTDX+kE/nAUI17uZMZ6fuFjQrnf46pFG5MxqtYYg8ieZXS/cpTq5ZqZg9sBFzxe1uAve6CvVAwA6xSJWkBwBGBVESygRg70xdSIGaUJmqBAZde6ptEFOlvkzdmnL1cw8QspQN4FjXtdvJI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=kxrJMQZm; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="OO1Q5z8F"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66S0m42f3674514;
-	Tue, 28 Jul 2026 01:35:15 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="kxrJMQZm"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66S0leEA3675393;
+	Tue, 28 Jul 2026 01:35:16 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=pehW+LNYXXMR8byif
-	W1tmfAYrofliG2hjo0xlZC76H0=; b=OO1Q5z8Fz9d/6OyLSYD1hJHOHXGWeeby6
-	GGci4Fp5K0aBexUCY5ye99T+2xGN25BwZj65MD7h2lQH06btczLySqpPzinwIJJq
-	IUocDRFrBvOFcZAXrf0hisJx8o8ZIi54AZyt2gmuhB0Wl137WwewsuyAqI/81jZx
-	ytwG+noE/Dc54jIj14S0eT5LcQ+ROFD2RYwi9gPqyXvfSxAHtACbx57xvL/Um+tL
-	DhUcJykxlDNolZU9P+jhwoc3Ne9fQ+eOQGnSFytN3WmNlQ6KWBzYBRQzbVCfvuiC
-	+GvoojL5O4LfXp6E4x7JvydqHKqWuBHe9uDWtspDzh9ZC72x2BWkA==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fmv0njc4a-1
+	:mime-version:references:subject:to; s=pp1; bh=zpM0d92cLyd/xCS59
+	6va0WkyFJIdH/6GpDttSZdtBug=; b=kxrJMQZm8SQaN/XHHSkAticJE3UG4Ckdg
+	CYp0NDuUHpd+7+T9LNJsATnGezoYV3/ng6HqXLK/jJtcrTLbZdBFQzfbkbXrHDJh
+	5Sc3/SjjkTskWucXthSpHSuelqtxmpv7Cvc892yDP+pyvF0JfKxESSs64ELKk9O2
+	4DE/tmwyad/wV31M2FByTIP/OHDA256ovE+nIZJdJzAYmHt3ShjgekVm036+Krbe
+	b7FGoI9jnY07SRAULR91IIg4foW1LIyyXPedOzZ5wEkwWvzRttLP5PB+aMSfAezK
+	Dc3xedhXuRIBnzjQYyGfO9WWjqWekG9hCYr640AATimj/pSrhYYVA==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fmuyj2cth-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Tue, 28 Jul 2026 01:35:15 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66S1QQk1029311;
-	Tue, 28 Jul 2026 01:35:14 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fn7fq7x1m-1
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66S1BRx0013134;
+	Tue, 28 Jul 2026 01:35:15 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fn8yh7pdj-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 28 Jul 2026 01:35:14 +0000 (GMT)
+	Tue, 28 Jul 2026 01:35:15 +0000 (GMT)
 Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66S1ZAbA46661978
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66S1ZBSD50069808
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
 	Tue, 28 Jul 2026 01:35:11 GMT
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id DEDB520092;
-	Tue, 28 Jul 2026 01:35:10 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 1282120091;
+	Tue, 28 Jul 2026 01:35:11 +0000 (GMT)
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C052320091;
+	by IMSVA (Postfix) with ESMTP id E55A220093;
 	Tue, 28 Jul 2026 01:35:10 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
 	by smtpav06.fra02v.mail.ibm.com (Postfix) with SMTP;
 	Tue, 28 Jul 2026 01:35:10 +0000 (GMT)
 Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 4958)
-	id 7BA5E162822; Tue, 28 Jul 2026 03:35:10 +0200 (CEST)
+	id 89AFC162834; Tue, 28 Jul 2026 03:35:10 +0200 (CEST)
 From: Eric Farman <farman@linux.ibm.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org,
         linux-kernel@vger.kernel.org
 Cc: Matthew Rosato <mjrosato@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Eric Farman <farman@linux.ibm.com>, stable@vger.kernel.org
-Subject: [PATCH v8 04/10] s390/vfio_ccw: ensure first IDAW remains constant
-Date: Tue, 28 Jul 2026 03:35:03 +0200
-Message-ID: <20260728013509.1551753-5-farman@linux.ibm.com>
+        Eric Farman <farman@linux.ibm.com>, stable@vger.kernel.org,
+        Farhan Ali <alifm@linux.ibm.com>
+Subject: [PATCH v8 10/10] s390/vfio_ccw: implement a crw lock
+Date: Tue, 28 Jul 2026 03:35:09 +0200
+Message-ID: <20260728013509.1551753-11-farman@linux.ibm.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260728013509.1551753-1-farman@linux.ibm.com>
 References: <20260728013509.1551753-1-farman@linux.ibm.com>
@@ -74,114 +75,219 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI4MDAwOSBTYWx0ZWRfX2PUMxhIwqK/X
- /48Lwd5q5LG/y62HFFtW1ry2ZkYnB00Waz1nLdX3Xh2JY2IfAkduTZnKmgRS6bYTeKx483lr7DQ
- L+mt+kyzsiAK4EtepwpId1TSTbwwFTw=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI4MDAwOSBTYWx0ZWRfXyYCTxscF/gej
- QmgD4Av4tMzTpa1z+06mZ5bc0+yIrnI2SSaJVMyqTiHi/J07pV0wJeZGIKGwQYtBvWl3RQAzS7j
- YljCgLetvzvSIxNCFCuwpX+7LeWeHgIpYhMdL/Qni9KRD6VYucMr4y1NPhuzAAOjay5o7SWsvNj
- 5gLgTJUUIic1WmyWbKb+jTmkbtpjvq5/p7DuMkucp2QNormLz1a3ghxi6hOp8YQxDml1dgfR9nt
- Fr6ZDq339HAxB2kQjtkSCLX/Si32rn+mU29LYdq6ntYdLaAi3RsN11XN8GxtaS1YuOvdMB+Su9g
- oiqqLsAfXewnQc4KxpoJdY0zpWETZ32zv8Sw1mAwVbhLfTsHk9IvU9c9zmlTJstB1rHIt6LGksn
- CGwBR/zjjTiNaCEgcbKhmWvKMgJR7v/hFY+uIg403L0JQh5Xv4vmP9EBrxd0yA4YrejCUkBqCPc
- 7lE2vBeAwZiNmiSxlqw==
-X-Authority-Analysis: v=2.4 cv=b5WCJNGx c=1 sm=1 tr=0 ts=6a680753 cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI4MDAwOSBTYWx0ZWRfXyJSskBmJ+Q2q
+ jqVYGiOxMs+2iYqbJlXAzM6KO98iZ4csg8IM5Dr1aNgYfBC9k13MRD6kmo7MVIsiouF57iz0i1z
+ 2pKGGcAthE/TJ5c6g1qlDp2kIdIQ+4g=
+X-Proofpoint-GUID: PCqMoTnA83qYYVF6IaOpob7v5jqGuKsG
+X-Proofpoint-ORIG-GUID: PCqMoTnA83qYYVF6IaOpob7v5jqGuKsG
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI4MDAwOSBTYWx0ZWRfX2T69Mxn8BBGI
+ IiQr2n9mEfpRCxil3hFFD3Hhd7BgvtUOf/c6DftO89mJNeJwN0Ky5IZxGpzUYULujuENoHNnkdY
+ wJrxioBeKiHOJFegsR1NOdJWJdSaDyE/jCMQ6mudV4qiDiWf1E8Ql973OztG/sImf56hv4yiLMa
+ /o5TJSeih0r44Uj5YX8aqiPJWAGVWEYz7bf5MdcZIptBmaCtvTM//XdpPcdHJpAjLakQyrcTEKg
+ TUPSlEskkx2I4witnxVFk68Mekg84LblwhuWQku+rk8/G+jE4gBhrU0oaibtSUjoY84yyCKza/u
+ y98K12yKC5Bzk+HxIe0tpeoWjDYohRb3S8W3g6MmzQlX25NvTFO1YX3qcXCyqsg+H7hRNCZa03t
+ tcPLKa0lVbw5L0nlb4RW31dduOLPBTIiRAEWi9DVU13QKHPs5MWLeYWEviKbIPSXigSOENCONeE
+ TReYqniued3gLzO9dUQ==
+X-Authority-Analysis: v=2.4 cv=X5Vi7mTe c=1 sm=1 tr=0 ts=6a680753 cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
  a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=V8glGbnc2Ofi9Qvn3v5h:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
- a=TyQ-expsAN5g-WtpmiwA:9
-X-Proofpoint-GUID: lAANxgtfLvNWjl7H8X-ZWl-U45mpqjgy
-X-Proofpoint-ORIG-GUID: lAANxgtfLvNWjl7H8X-ZWl-U45mpqjgy
+ a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
+ a=5HEjZEaU-qRc82GsN3sA:9
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-07-27_07,2026-07-27_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 spamscore=0 adultscore=0 malwarescore=0 impostorscore=0
- bulkscore=0 phishscore=0 suspectscore=0 clxscore=1015 lowpriorityscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607280009
+ clxscore=1015 impostorscore=0 lowpriorityscore=0 phishscore=0
+ priorityscore=1501 malwarescore=0 spamscore=0 suspectscore=0 bulkscore=0
+ adultscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2607280009
 
-The first IDAW in a list does not need to be on a 2K/4K boundary
-like all others, and so is read separately to accurately calculate
-the size of the buffer needed to read the full IDAL.
+Unlike the channel_program struct, which covers synchronous I/O
+submissions and asynchronous interrupts, the CRW region relies
+exclusively on asynchronous events coming from hardware.
 
-Verify that the address found in the first IDAW is unchanged between
-reads, to ensure a consistent set of IDAWs being worked with.
+Implement a lock to manage the list of those payloads, to ensure
+they are read cohesively.
 
-Fixes: 01aa26c672c0 ("s390/cio: Combine direct and indirect CCW paths")
+Fixes: 3f02cb2fd9d2 ("vfio-ccw: Wire up the CRW irq and CRW region")
 Cc: stable@vger.kernel.org
 Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
+Reviewed-by: Farhan Ali<alifm@linux.ibm.com>
 Signed-off-by: Eric Farman <farman@linux.ibm.com>
 ---
- drivers/s390/cio/vfio_ccw_cp.c | 16 ++++++++++++++++
- drivers/s390/cio/vfio_ccw_cp.h |  2 ++
- 2 files changed, 18 insertions(+)
+ drivers/s390/cio/vfio_ccw_chp.c     | 26 ++++++++++++++++----------
+ drivers/s390/cio/vfio_ccw_drv.c     |  6 ++++++
+ drivers/s390/cio/vfio_ccw_ops.c     |  4 ++++
+ drivers/s390/cio/vfio_ccw_private.h |  4 ++++
+ 4 files changed, 30 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_c=
-p.c
-index af632f9d5453..6275794751cb 100644
---- a/drivers/s390/cio/vfio_ccw_cp.c
-+++ b/drivers/s390/cio/vfio_ccw_cp.c
-@@ -523,6 +523,7 @@ static dma64_t *get_guest_idal(struct ccw1 *ccw, stru=
-ct channel_program *cp, int
- 		&container_of(cp, struct vfio_ccw_private, cp)->vdev;
- 	dma64_t *idaws;
- 	dma32_t *idaws_f1;
-+	u64 first_idaw;
- 	int idal_len =3D idaw_nr * sizeof(*idaws);
- 	int idaw_size =3D idal_is_2k(cp) ? PAGE_SIZE / 2 : PAGE_SIZE;
- 	int idaw_mask =3D ~(idaw_size - 1);
-@@ -539,6 +540,18 @@ static dma64_t *get_guest_idal(struct ccw1 *ccw, str=
-uct channel_program *cp, int
- 			kfree(idaws);
- 			return ERR_PTR(ret);
- 		}
+diff --git a/drivers/s390/cio/vfio_ccw_chp.c b/drivers/s390/cio/vfio_ccw_=
+chp.c
+index 9269b54f5cfd..7708eb4d6de0 100644
+--- a/drivers/s390/cio/vfio_ccw_chp.c
++++ b/drivers/s390/cio/vfio_ccw_chp.c
+@@ -93,18 +93,13 @@ static ssize_t vfio_ccw_crw_region_read(struct vfio_c=
+cw_private *private,
+ 	loff_t pos =3D *ppos & VFIO_CCW_OFFSET_MASK;
+ 	struct ccw_crw_region *region;
+ 	struct vfio_ccw_crw *crw;
++	unsigned long flags;
+ 	int ret;
+=20
+ 	if (pos + count > sizeof(*region))
+ 		return -EINVAL;
+=20
+ 	mutex_lock(&private->io_mutex);
+-	crw =3D list_first_entry_or_null(&private->crw,
+-				       struct vfio_ccw_crw, next);
+-
+-	if (crw)
+-		list_del(&crw->next);
+-
+ 	if (i >=3D private->num_regions) {
+ 		ret =3D -EINVAL;
+ 		goto out;
+@@ -113,6 +108,16 @@ static ssize_t vfio_ccw_crw_region_read(struct vfio_=
+ccw_private *private,
+ 	i =3D array_index_nospec(i, private->num_regions);
+ 	region =3D private->region[i].data;
+=20
++	spin_lock_irqsave(&private->crw_lock, flags);
++	crw =3D list_first_entry_or_null(&private->crw,
++				       struct vfio_ccw_crw, next);
 +
-+		idaws_f1 =3D (dma32_t *)idaws;
-+		if (cp->orb.cmd.c64)
-+			first_idaw =3D dma64_to_u64(idaws[0]);
-+		else
-+			first_idaw =3D dma32_to_u32(idaws_f1[0]);
++	if (crw)
++		list_del(&crw->next);
 +
-+		/* Unexpected mismatch from earlier read */
-+		if (first_idaw !=3D cp->guest_iova) {
-+			kfree(idaws);
-+			return ERR_PTR(-EINVAL);
-+		}
- 	} else {
- 		/* Fabricate an IDAL based off CCW data address */
- 		if (cp->orb.cmd.c64) {
-@@ -604,6 +617,9 @@ static int ccw_count_idaws(struct ccw1 *ccw,
- 		iova =3D dma32_to_u32(ccw->cda);
++	/* Drop CRW lock while copying to userspace */
++	spin_unlock_irqrestore(&private->crw_lock, flags);
++
+ 	if (crw)
+ 		memcpy(&region->crw, &crw->crw, sizeof(region->crw));
+=20
+@@ -122,15 +127,16 @@ static ssize_t vfio_ccw_crw_region_read(struct vfio=
+_ccw_private *private,
+ 		ret =3D count;
+=20
+ 	region->crw =3D 0;
+-
+-out:
+-	mutex_unlock(&private->io_mutex);
+-
+ 	kfree(crw);
+=20
+ 	/* Notify the guest if more CRWs are on our queue */
++	spin_lock_irqsave(&private->crw_lock, flags);
+ 	if (!list_empty(&private->crw) && private->crw_trigger)
+ 		eventfd_signal(private->crw_trigger);
++	spin_unlock_irqrestore(&private->crw_lock, flags);
++
++out:
++	mutex_unlock(&private->io_mutex);
+=20
+ 	return ret;
+ }
+diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_=
+drv.c
+index 757ff5b2556e..ab6b518cc353 100644
+--- a/drivers/s390/cio/vfio_ccw_drv.c
++++ b/drivers/s390/cio/vfio_ccw_drv.c
+@@ -118,11 +118,14 @@ void vfio_ccw_sch_io_todo(struct work_struct *work)
+ void vfio_ccw_crw_todo(struct work_struct *work)
+ {
+ 	struct vfio_ccw_private *private;
++	unsigned long flags;
+=20
+ 	private =3D container_of(work, struct vfio_ccw_private, crw_work);
+=20
++	spin_lock_irqsave(&private->crw_lock, flags);
+ 	if (!list_empty(&private->crw) && private->crw_trigger)
+ 		eventfd_signal(private->crw_trigger);
++	spin_unlock_irqrestore(&private->crw_lock, flags);
+ }
+=20
+ void vfio_ccw_notoper_todo(struct work_struct *work)
+@@ -286,6 +289,7 @@ static void vfio_ccw_queue_crw(struct vfio_ccw_privat=
+e *private,
+ 			       unsigned int rsid)
+ {
+ 	struct vfio_ccw_crw *crw;
++	unsigned long flags;
+=20
+ 	/*
+ 	 * If unable to allocate a CRW, just drop the event and
+@@ -303,7 +307,9 @@ static void vfio_ccw_queue_crw(struct vfio_ccw_privat=
+e *private,
+ 	crw->crw.erc =3D erc;
+ 	crw->crw.rsid =3D rsid;
+=20
++	spin_lock_irqsave(&private->crw_lock, flags);
+ 	list_add_tail(&crw->next, &private->crw);
++	spin_unlock_irqrestore(&private->crw_lock, flags);
+ 	queue_work(vfio_ccw_work_q, &private->crw_work);
+ }
+=20
+diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_=
+ops.c
+index 1cca3ecdae45..4a0fe2f8fdb4 100644
+--- a/drivers/s390/cio/vfio_ccw_ops.c
++++ b/drivers/s390/cio/vfio_ccw_ops.c
+@@ -55,6 +55,7 @@ static int vfio_ccw_mdev_init_dev(struct vfio_device *v=
+dev)
+ 	INIT_WORK(&private->io_work, vfio_ccw_sch_io_todo);
+ 	INIT_WORK(&private->crw_work, vfio_ccw_crw_todo);
+ 	INIT_WORK(&private->notoper_work, vfio_ccw_notoper_todo);
++	spin_lock_init(&private->crw_lock);
+=20
+ 	private->cp.guest_cp =3D kzalloc_objs(struct ccw1, CCWCHAIN_LEN_MAX);
+ 	if (!private->cp.guest_cp)
+@@ -131,6 +132,7 @@ static void vfio_ccw_mdev_release_dev(struct vfio_dev=
+ice *vdev)
+ 	struct vfio_ccw_private *private =3D
+ 		container_of(vdev, struct vfio_ccw_private, vdev);
+ 	struct vfio_ccw_crw *crw, *temp;
++	unsigned long flags;
+=20
+ 	/*
+ 	 * Ensure these work items are fully drained, so none can
+@@ -141,10 +143,12 @@ static void vfio_ccw_mdev_release_dev(struct vfio_d=
+evice *vdev)
+ 	cancel_work_sync(&private->io_work);
+ 	cancel_work_sync(&private->crw_work);
+=20
++	spin_lock_irqsave(&private->crw_lock, flags);
+ 	list_for_each_entry_safe(crw, temp, &private->crw, next) {
+ 		list_del(&crw->next);
+ 		kfree(crw);
  	}
++	spin_unlock_irqrestore(&private->crw_lock, flags);
 =20
-+	/* Save the read address for later */
-+	cp->guest_iova =3D iova;
+ 	kmem_cache_free(vfio_ccw_crw_region, private->crw_region);
+ 	kmem_cache_free(vfio_ccw_schib_region, private->schib_region);
+diff --git a/drivers/s390/cio/vfio_ccw_private.h b/drivers/s390/cio/vfio_=
+ccw_private.h
+index 739121116ab6..3bd0171d38d0 100644
+--- a/drivers/s390/cio/vfio_ccw_private.h
++++ b/drivers/s390/cio/vfio_ccw_private.h
+@@ -98,6 +98,8 @@ struct vfio_ccw_parent {
+  * @cp: channel program for the current I/O operation
+  * @irb: irb info received from interrupt
+  * @scsw: scsw info
++ * @crw_lock: serialization of CRW list information
++ * @crw: list of Channel Report Word elements
+  * @io_trigger: eventfd ctx for signaling userspace I/O results
+  * @crw_trigger: eventfd ctx for signaling userspace CRW information
+  * @req_trigger: eventfd ctx for signaling userspace to return device
+@@ -120,6 +122,8 @@ struct vfio_ccw_private {
+ 	struct channel_program	cp;
+ 	struct irb		irb;
+ 	union scsw		scsw;
 +
- 	/* Format-1 IDAWs operate on 2K each */
- 	if (!cp->orb.cmd.c64)
- 		return idal_2k_nr_words((void *)iova, bytes);
-diff --git a/drivers/s390/cio/vfio_ccw_cp.h b/drivers/s390/cio/vfio_ccw_c=
-p.h
-index a9b1d8dbc6f6..9af98ff12d67 100644
---- a/drivers/s390/cio/vfio_ccw_cp.h
-+++ b/drivers/s390/cio/vfio_ccw_cp.h
-@@ -35,6 +35,7 @@
-  * @initialized: whether this instance is actually initialized
-  * @guest_cp: copy of guest channel program
-  * @ccwchain_count: number of channel program segments (linked by TIC)
-+ * @guest_iova: first data address of a guest channel program
-  *
-  * @ccwchain_list is the head of a ccwchain list, that contents the
-  * translated result of the guest channel program that pointed out by
-@@ -46,6 +47,7 @@ struct channel_program {
- 	bool initialized;
- 	struct ccw1 *guest_cp;
- 	unsigned int ccwchain_count;
-+	u64 guest_iova;
- };
++	spinlock_t		crw_lock;
+ 	struct list_head	crw;
 =20
- int cp_init(struct channel_program *cp, union orb *orb);
+ 	struct eventfd_ctx	*io_trigger;
 --=20
 2.53.0
 
