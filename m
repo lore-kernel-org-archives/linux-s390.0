@@ -1,45 +1,45 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C096C4DB57A
-	for <linux-s390@vger.kernel.org>; Wed, 29 Jul 2026 16:02:24 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 655FC45C70B;
+	Wed, 29 Jul 2026 16:06:43 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785340946; cv=none; b=FDpA/0uNaicV2H3kmxAorpXjmczFNR79bPGFwrL+Sqte+f4tyW3t/SA1zcz7t0lpHO0RKwmdQ2Pto+lcgvcDEftL+Qm2j6jgmNatNPpafczGXiIXvff2WFFw7DyEdcnKM/A49ZSdR4jxm7TZJbUr3B0/1yxDSttR0DaNbUXuka4=
+	t=1785341204; cv=none; b=EvFMB0hC36+NSgUhipnJ2YWXrMb/5k/6XmnxUluCz5pv1onKXmBQ/0SSQvS9sPtmXit7P8bU4zT3wKCeLRtz7mqyUztPI4w3ammOch3t9cBLmlWd2M9sUKGrHOHsEXW7JxzZYA34C92Ak1g6z+fiGJwXP897g/7WBS+8BxwEBiA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785340946; c=relaxed/simple;
-	bh=7InHlSGK/Pa9dGGs5LCKPhLg3Dhn29PRxT49d00Rmg4=;
+	s=arc-20240116; t=1785341204; c=relaxed/simple;
+	bh=imHAnHOASMszjFWAAI6pzhns/ootIV7dQYseIplO2k4=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=r1lj3VPsxklHQSwEvjJEtqqv3ueA//WF6K1Or4yvidSKNhafnGe8GC75xhwiZduj/XsTFHP20OfsbdsinOWX1onnWAGrsMdsAkgxQbQODxHLgp+RCE7ob2wa3wgOCIJig2rmraYs8e3hPQcQpRSdmehT+6UMnlTiJftuH6/YuzI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Fi6t6Z9y; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=rCOwq4Gge9pTAOGZfUW1dFCs5IwKesPbu0fVYetxkNr3Qb2Oerlp+XBbxPg4UxbNiMhmal8IuAwUks8OQbE6V8WXOUZIB/eU390zdGTYlqqwIdJa+lG+/W9enbTsfeWk+RIOmk6VIUD76RHSSHickmbNtrsbnSut7cYXnzsiHIM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ScBiVHwz; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Fi6t6Z9y"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 422111F00A3A;
-	Wed, 29 Jul 2026 16:02:24 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ScBiVHwz"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B18C11F000E9;
+	Wed, 29 Jul 2026 16:06:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785340944;
-	bh=46EswHke7HaP/QQmu4sxShUrd4UlQvas/gAjeTptySg=;
+	s=k20260515; t=1785341202;
+	bh=AewAhwS41Pk4oMbqWPkVLHWxwzQQ0Kl5/+DIZm+/H9A=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Fi6t6Z9yN+Od/BH48V3C6Wu9BkpLqrj8jKKAFOGkG0Rv8T6waaWqA/BY8Ck1DM+H1
-	 5lypKd0Jt/SBdni4hZv0UioQ49SkSikciO2kWQg/BHBrMv39AG1r1/EH4Mgv2KEt1m
-	 AGBH8vmCFnNyR0jfbgybRPhQhgLM/Ulc2P8MJh4A176hG0LRUIx1/ewgvYNQ1J5w/1
-	 7GazucpnfNTYtSnYoyVDBEth5xpE9sb5iWuO9CqZfWpiHJupbMVEU2pBWOuTBzHa8w
-	 /vikoSDPTTmtSz8JnwATyJTzk3kmoFbezki0caWt65b0K6dAoQOfqRXxbzFsUGWXMV
-	 yV+VwZo6LNaNA==
+	b=ScBiVHwzzJ6vOwoi2avjW9PsEY5Ni/7Uuzmv/p3nVmCm8QF55hqw+/S0kYl7xhQrw
+	 P4MblHikTjUXh8Pv9u2k2wqQLXbEg0KuYXkndtKXDa7XPlVoTNp+C6i3dAEscUZ8oG
+	 MsKSIqx+eIRo5IdneAwjk6v1QJ+7lc+Ak2zFp77b6jOJ4xcIjbFCNbP4pOWlSYMug+
+	 bW3cujRV/N7MRlVDPAS23inILFzvXSFcd3ya9d/hhXp0FFIwjAlek0ckEbnU9I8qY2
+	 qKIC2lI3V3SD1PL0OjJjwYSpvtXcD9BDfjJI1Fi7RwKhRF9/nwqTqZ0ORxUN5j2G/h
+	 XPHICYKbkpjww==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v9 1/5] s390/zcrypt: Fix CPRB memory allocation in
- zcrypt misc code
+Subject: Re: [PATCH v5 02/13] KVM: s390: Fix kvm_s390_vcpu_unsetup_cmma()
 Reply-To: sashiko-reviews@lists.linux.dev
-To: "Harald Freudenberger" <freude@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Heiko
- Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>
-In-Reply-To: <20260729154458.195135-2-freude@linux.ibm.com>
-References: <20260729154458.195135-1-freude@linux.ibm.com>
- <20260729154458.195135-2-freude@linux.ibm.com>
+To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>
+Cc: kvm@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>, "Heiko
+ Carstens" <hca@linux.ibm.com>, linux-s390@vger.kernel.org, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>
+In-Reply-To: <20260729152938.782383-3-imbrenda@linux.ibm.com>
+References: <20260729152938.782383-1-imbrenda@linux.ibm.com>
+ <20260729152938.782383-3-imbrenda@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 29 Jul 2026 16:02:23 +0000
-Message-Id: <20260729160224.422111F00A3A@smtp.kernel.org>
+Date: Wed, 29 Jul 2026 16:06:42 +0000
+Message-Id: <20260729160642.B18C11F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -50,80 +50,58 @@ Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [High] Uninitialized kernel heap memory padding is leaked to the crypto h=
-ardware via the AP bus message buffer.
+- [High] The struct kvm_s390_mmu_cache allocated in kvm_arch_vcpu_create() =
+is leaked on error paths.
 --
 
---- Patch [1]: [PATCH v9 1/5] s390/zcrypt: Fix CPRB memory allocation in zc=
-rypt misc code ---
-commit bbdecb3add414a50e3e90e0021b88d5f9c7bf242
-Author: Harald Freudenberger <freude@linux.ibm.com>
+--- Patch [2]: [PATCH v5 02/13] KVM: s390: Fix kvm_s390_vcpu_unsetup_cmma()=
+ ---
+commit 0d3b94e982f008ae0ede697fd75113aea3b668c3
+Author: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-    s390/zcrypt: Fix CPRB memory allocation in zcrypt misc code
-   =20
-    Both CPRB alloc functions in zcrypt_ccamisc.c and zcrypt_ep11misc.c
-    did not round up the memory allocation to a multiple of 4 bytes as it
-    is needed by the zcrypt layer to process the CPRBs.
-   =20
-    Now the alloc_and_prep_cprbmem() and alloc_cprbmem() functions
-    guarantee that the base CPRB struct and a possible parameter block are
-    aligned to a 4-byte boundary and the backing memory allocation is
-    rounded up to the next multiple of 4 byte. Also the free_cprbmem() is
-    updated and scrubs the rounded up amount of memory.
+KVM: s390: Fix kvm_s390_vcpu_unsetup_cmma()
 
-> diff --git a/drivers/s390/crypto/zcrypt_ccamisc.c b/drivers/s390/crypto/z=
-crypt_ccamisc.c
-> index 84936a795b956..6819acd67c49b 100644
-> --- a/drivers/s390/crypto/zcrypt_ccamisc.c
-> +++ b/drivers/s390/crypto/zcrypt_ccamisc.c
+In some cases kvm_s390_vcpu_unsetup_cmma() can be called with a 0 cbrlo.
+This commit fixes an issue where running with V !=3D R causes free_page() to
+attempt freeing physical page 0 by ensuring cbrlo is only freed if it is
+non-zero.
 
-[ ... ]
+> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> index 2fe2e46b7ac39..096b426c1281b 100644
+> --- a/arch/s390/kvm/kvm-s390.c
+> +++ b/arch/s390/kvm/kvm-s390.c
+> @@ -3675,7 +3675,8 @@ static void kvm_s390_vcpu_crypto_setup(struct kvm_v=
+cpu *vcpu)
+> =20
+>  void kvm_s390_vcpu_unsetup_cmma(struct kvm_vcpu *vcpu)
+>  {
+> -	free_page((unsigned long)phys_to_virt(vcpu->arch.sie_block->cbrlo));
+> +	if (vcpu->arch.sie_block->cbrlo)
+> +		free_page((unsigned long)phys_to_virt(vcpu->arch.sie_block->cbrlo));
+>  	vcpu->arch.sie_block->cbrlo =3D 0;
+>  }
 
-[Severity: High]
-This isn't a bug introduced by this patch, but while reviewing how CPRB
-requests are padded and aligned, I noticed a pre-existing issue in
-drivers/s390/crypto/zcrypt_msgtype6.c.
+This is a pre-existing issue, but while reviewing this file I noticed a
+memory leak in kvm_arch_vcpu_create().
 
-drivers/s390/crypto/zcrypt_msgtype6.c:xcrb_msg_to_type6cprb_msgx() {
-        ...
-	/* prepare CPRB */
-	if (z_copy_from_user(userspace, msg->userdata,
-			     xcrb->request_control_blk_addr,
-			     xcrb->request_control_blk_length))
-		return -EFAULT;
-        ...
+When a subsequent initialization step inside kvm_arch_vcpu_create() fails,
+the function jumps to the out_free_sie_block label:
+
+arch/s390/kvm/kvm-s390.c:kvm_arch_vcpu_create() {
+    ...
+	vcpu->arch.mc =3D kvm_s390_new_mmu_cache();
+	if (!vcpu->arch.mc)
+		return -ENOMEM;
+    ...
+out_free_sie_block:
+	free_page((unsigned long)(vcpu->arch.sie_block));
+	return rc;
 }
 
-Does this code leak uninitialized kernel heap memory padding to the crypto
-hardware via the AP bus message buffer?
-
-When a userspace application calls the zcrypt ioctl (e.g., ICARSAMODEXPO)
-with an unaligned request_control_blk_length, the ap_msg->msg buffer is
-allocated via kmalloc without __GFP_ZERO by ap_init_apmsg().
-
-Since only the unaligned length is copied into the buffer, while the total
-message length sent to the AP card uses the 4-byte aligned CEIL4() length,
-could the unwritten padding bytes (up to 3 bytes) retain their previous
-kernel heap contents and be transmitted to the hardware?
-
-
 [Severity: High]
-This is a pre-existing issue, but the same behavior appears in
-xcrb_msg_to_type6_ep11cprb_msgx():
-
-drivers/s390/crypto/zcrypt_msgtype6.c:xcrb_msg_to_type6_ep11cprb_msgx() {
-        ...
-	/* Import CPRB data from the ioctl input parameter */
-	if (z_copy_from_user(userspace, msg->userdata,
-			     (char __force __user *)xcrb->req, xcrb->req_len)) {
-		return -EFAULT;
-	}
-        ...
-}
-
-Can the unaligned request length copied here also leave padding bytes
-uninitialized before being sent to the hardware?
+Does this error path permanently leak the struct kvm_s390_mmu_cache
+allocated earlier in the function, since vcpu->arch.mc is not freed here?
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260729154458.1951=
-35-1-freude@linux.ibm.com?part=3D1
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260729152938.7823=
+83-1-imbrenda@linux.ibm.com?part=3D2
