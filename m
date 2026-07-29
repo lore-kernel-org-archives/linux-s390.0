@@ -1,45 +1,45 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7D495411A1F;
-	Wed, 29 Jul 2026 16:35:21 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A5240411A1F
+	for <linux-s390@vger.kernel.org>; Wed, 29 Jul 2026 16:35:57 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785342922; cv=none; b=UkHy7gk86gI331Nfw3TtQlycKksNpg/WuZ8o6QYABvMreh7RMhNstyYdNsyodhUiErfB15Tkb5/TmOBUaY66qk3Uroy0FdnAD+ACG9IXbgP9DQ0yqomMGXk+z3PmUr5WIS7ubl+WKfGbd7pNzRXBN2u3Mo4z2DyOgTo8VqXAPWs=
+	t=1785342958; cv=none; b=b2wP8IFraw8+UeRx6PFlW69XWjM704KXxk/8fyAGPZXR44WX+Ap8cKinuEnruwtB+STSZmRgDigcRNwfSoPo8MIBmPpi4njSw4UyAa8Trjyu+PKlkQGdy8/Z/omh1jNkV9HOfEyE3HiwG5PTKAufljSXc0W1jkVvib/A9Hi/uTE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785342922; c=relaxed/simple;
-	bh=3xgqX10ROYlke4Y7g6+kbWJI71ZAvlfYtb6BB8Qsjkc=;
+	s=arc-20240116; t=1785342958; c=relaxed/simple;
+	bh=hiGlfocsYTIz87CcCyn1pt9kJRegEQv7kSdf4PPusz0=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=UT39xUbkayNFVmF4PjZmm2a3B3GL1Z/ylv5EsXk4l1k0HRzWA1vSqzjrnU6JLkRUXxotYS8250nO1Zz+nGxAC4OLPeEnQ5OkpIx+8kJQ9/Bp0XGvkluMhIwQKlYUCkJ8fB6niFPZ0ADui8Au48xVIfIK77zMo8nQ3+KawB8lkV8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=L0etTpIn; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=Exhwu/K/iExH0rvj3T6l7UC3CSVkmstxKGxWwU80bANHgtu6vJmQDmIlDn9GmvA1LZs7nIwmcQsvb9MxVnAs8dRryOtO8o84Kjh6bpQWRHa3QBCSufm4Wtbv0pj/8Wv7qgWx4579Cle42UR5VW2Mc9OQrzb5n0So+siNOWKZiNM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TFFrmvF6; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="L0etTpIn"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03A4D1F000E9;
-	Wed, 29 Jul 2026 16:35:20 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TFFrmvF6"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F272B1F000E9;
+	Wed, 29 Jul 2026 16:35:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785342921;
-	bh=FzTRepEBTaYg6S4skEGauvhuai/LzBm9NnU5vONjhZ8=;
+	s=k20260515; t=1785342957;
+	bh=o+36L4Aos88AiqQzCI+Xen9sjMl48w2dpjOP6CbnQd0=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=L0etTpInN5YS2wKhph7yVmb+E9tGUgbSY0/ZpMvqTUgySwPmDppw4tClGoqckEqbA
-	 ILm0WTg0v8dfpv4fPhPD7LzcR58JMuQfNgzIJcpXQyBtwo6bb1xCfJo+MDVwfaM6bf
-	 WMMJ8bociz4zT9vgoNvDjGlcDD/1L6eXUK3JaCL9+XrZA7XqVQ1n8dI1DS07XSf4Ar
-	 YwY4F16cQT5y+bpqH/mU4hcs9iHIbIP2vh5LCeOJfk9XWy7uUO68v24P5TrzFQuDZu
-	 L26q76JTu6izaqLB9FMGFevLQpRc+SNSc/DWweH94/4JbSf+M/ymOUKL/3ziIZ8rwP
-	 in0E2Su613QYw==
+	b=TFFrmvF6i+i90Wtl9W0rLpmOdimCoNevZcgWVQar26M8sPojtyoRVI5nIWC6e/8Gf
+	 C8OpMcvatc9UsxN24VQEACD+mrkZvkEaKtOGuiv/XlGsnhPuU+fSIJ/xc2cU9VwjUn
+	 vbkdA+7BV0sOe/pAho5U6J7Gn5liR1IjIyW45vea5kL44UgH1pyQuRikfapwS2c8Bd
+	 PxxPOUqW4DrqdWUh3rY+jkMCsYThoFv6Vdr3PqXFdY5o9FakJxgYtmjNdt77EyM7kG
+	 rNTUdPUeHnaK8vil7zX5YN6+BQ7hnX7A7OkE/jrqb6mTjPQ9973Uh4mdxfkjJEvmYo
+	 pgKeK7MT21Jzw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 03/13] KVM: s390: Fix overclearing ESCA in case of
- error
+Subject: Re: [PATCH v9 3/5] s390/zcrypt: Improve EP11 CPRB length and
+ overflow checks
 Reply-To: sashiko-reviews@lists.linux.dev
-To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>
-In-Reply-To: <20260729152938.782383-4-imbrenda@linux.ibm.com>
-References: <20260729152938.782383-1-imbrenda@linux.ibm.com>
- <20260729152938.782383-4-imbrenda@linux.ibm.com>
+To: "Harald Freudenberger" <freude@linux.ibm.com>
+Cc: "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Heiko
+ Carstens" <hca@linux.ibm.com>, linux-s390@vger.kernel.org
+In-Reply-To: <20260729154458.195135-4-freude@linux.ibm.com>
+References: <20260729154458.195135-1-freude@linux.ibm.com>
+ <20260729154458.195135-4-freude@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 29 Jul 2026 16:35:20 +0000
-Message-Id: <20260729163521.03A4D1F000E9@smtp.kernel.org>
+Date: Wed, 29 Jul 2026 16:35:56 +0000
+Message-Id: <20260729163556.F272B1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -49,106 +49,132 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
 
+New issues:
+- [High] The `asn1_int_decode` function casts potentially unaligned byte po=
+inters to `u16 *` and `u32 *`, invoking undefined behavior.
+
 Pre-existing issues:
-- [Critical] Creating and destroying a KVM_VM_S390_UCONTROL VM with vCPU ID=
-s >=3D KVM_S390_ESCA_CPU_SLOTS (248) causes out-of-bounds memory accesses o=
-n `esca_block->cpu`.
-- [High] gmap_remove_child() is called without holding the parent gmap's ch=
-ildren_lock in the error path of kvm_arch_vcpu_create().
+- [Critical] The patch updates `xcrb_msg_to_type6_ep11cprb_msgx()` to flexi=
+bly parse ASN.1 payloads but leaves the legacy fixed C-struct overlay (`str=
+uct pld_hdr`) in `zcrypt_msgtype6_send_ep11_cprb()` untouched, allowing dom=
+ain isolation to be bypassed.
 --
 
---- Patch [3]: [PATCH v5 03/13] KVM: s390: Fix overclearing ESCA in case of=
- error ---
-commit de5b0e7f34127f8db5eb8b0fa184043139c25a8c
-Author: Claudio Imbrenda <imbrenda@linux.ibm.com>
+--- Patch [3]: [PATCH v9 3/5] s390/zcrypt: Improve EP11 CPRB length and ove=
+rflow checks ---
+commit ea4312469ba49e7cc43bf68e3a1d383e305d99b5
+Author: Harald Freudenberger <freude@linux.ibm.com>
 
-KVM: s390: Fix overclearing ESCA in case of error
+s390/zcrypt: Improve EP11 CPRB length and overflow checks
 
-If an attempt is made to create a vCPU with an already existing ID,
-the duplicated vCPU is destroyed. This patch ensures the ESCA entry
-is only cleared if the vCPU was successfully created to avoid
-clearing the original vCPU's ESCA entry by mistake.
+The xcrb_msg_to_type6_ep11cprb_msgx() function lacks proper input
+validation, creating security vulnerabilities:
+1. Missing minimum size validation: The ep11_cprb structure and
+   subsequent payload fields (pld_tag, pld_lenfmt) are copied from
+   userspace without verifying sufficient buffer length.
+2. Arithmetic overflow in length calculations: CEIL4 alignment could
+   overflow, bypassing size checks and enabling buffer overflows.
+3. The payload is asn1 encoded but the function just uses a simple c
+   struct overlay to access some fields of the payload.
 
-> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-> index 9e3e6b0d72ad6..2acdff130fa6c 100644
-> --- a/arch/s390/kvm/interrupt.c
-> +++ b/arch/s390/kvm/interrupt.c
-> @@ -86,7 +86,7 @@ static void sca_clear_ext_call(struct kvm_vcpu *vcpu)
->  	struct esca_block *sca =3D vcpu->kvm->arch.sca;
->  	union esca_sigp_ctrl *sigp_ctrl =3D &sca->cpu[vcpu->vcpu_id].sigp_ctrl;
+Fix by using size_t for length calculations, adding U32_MAX boundary
+checks after alignment, and validating minimum request size and
+minimum reply size before copying from userspace. Do a very simple
+asn1 parsing of the payload up to the function value field.
+
+> diff --git a/drivers/s390/crypto/zcrypt_msgtype6.c b/drivers/s390/crypto/=
+zcrypt_msgtype6.c
+> index fb37e28c82424..c4b5d9b85f7a9 100644
+> --- a/drivers/s390/crypto/zcrypt_msgtype6.c
+> +++ b/drivers/s390/crypto/zcrypt_msgtype6.c
+> @@ -439,12 +439,61 @@ static int xcrb_msg_to_type6cprb_msgx(bool userspac=
+e, struct ap_message *ap_msg,
+>  	return 0;
+>  }
 > =20
-> -	if (!kvm_s390_use_sca_entries())
-> +	if (!kvm_s390_use_sca_entries() || !vcpu->arch.initialized)
->  		return;
-
-[Severity: Critical]
-This is a pre-existing issue, but can this out-of-bounds access still occur
-for UCONTROL VMs?
-
-In kvm_arch_vcpu_precreate(), the sca_can_add_vcpu() bounds check is skipped
-for UCONTROL VMs, which allows vcpu_id to be up to KVM_MAX_VCPUS - 1 (254):
-
-arch/s390/kvm/kvm-s390.c:kvm_arch_vcpu_precreate() {
-	...
-	if (!kvm_is_ucontrol(kvm) && !sca_can_add_vcpu(kvm, id))
-		return -EINVAL;
-	...
-}
-
-Because the esca_block->cpu array only has KVM_S390_ESCA_CPU_SLOTS (248)
-elements, if a UCONTROL vCPU with an ID between 248 and 254 successfully
-initializes, it would bypass the new !vcpu->arch.initialized check here.
-
-When this vCPU is destroyed in sca_clear_ext_call() or handles an external =
-call
-interrupt in sca_inject_ext_call(), computing &sca->cpu[vcpu->vcpu_id] resu=
-lts
-in a pointer outside the allocated esca_block.
-
-Could this allow writing out of bounds when WRITE_ONCE(sigp_ctrl->value, 0)=
- is
-called?
-
->  	kvm_s390_clear_cpuflags(vcpu, CPUSTAT_ECALL_PEND);
-> =20
-> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index 096b426c1281b..3e40a52bfd152 100644
-> --- a/arch/s390/kvm/kvm-s390.c
-> +++ b/arch/s390/kvm/kvm-s390.c
-> @@ -3459,7 +3459,7 @@ static void sca_del_vcpu(struct kvm_vcpu *vcpu)
->  {
->  	struct esca_block *sca =3D vcpu->kvm->arch.sca;
-> =20
-> -	if (!kvm_s390_use_sca_entries())
-> +	if (!kvm_s390_use_sca_entries() || !vcpu->arch.initialized)
->  		return;
-> =20
->  	clear_bit_inv(vcpu->vcpu_id, (unsigned long *)sca->mcn);
+> +/*
+> + * Simple asn1 int reader/decoder helper function
+> + * Returns number of bytes processed or < 0 on failure
+> + * Only accepts int length values of 1, 2 or 4.
+> + */
+> +static inline int asn1_int_decode(const u8 *buf, size_t intlen, u32 *u)
+> +{
+> +	switch (intlen) {
+> +	case 1:
+> +		*u =3D (u32)(*((u8 *)buf));
+> +		return 1;
+> +	case 2:
+> +		*u =3D (u32)be16_to_cpup((u16 *)buf);
 
 [Severity: High]
-This isn't a bug introduced by this patch, but is there a data race in the
-error handling path of kvm_arch_vcpu_create() for UCONTROL VMs?
+Does this code trigger undefined behavior?
 
-If kvm_s390_vcpu_setup() fails, the code jumps to out_ucontrol_uninit:
+The buf parameter points to an arbitrary offset within an ASN.1 encoded
+payload in xcrb_msg_to_type6_ep11cprb_msgx(), which is not guaranteed to
+be 2-byte aligned. Casting this unaligned u8 * to u16 * and passing it to
+be16_to_cpup() violates C strict alignment rules.
 
-arch/s390/kvm/kvm-s390.c:kvm_arch_vcpu_create() {
-	...
-out_ucontrol_uninit:
-	if (kvm_is_ucontrol(vcpu->kvm)) {
-		gmap_remove_child(vcpu->arch.gmap);
-		vcpu->arch.gmap =3D gmap_put(vcpu->arch.gmap);
-	}
-	...
+While s390 hardware generally supports scalar unaligned accesses, the
+compiler may assume u16 * is properly aligned and emit instructions that
+strictly require alignment, potentially causing a kernel panic when parsing
+untrusted payloads.
+
+> +		return 2;
+> +	case 4:
+> +		*u =3D (u32)be32_to_cpup((u32 *)buf);
+
+[Severity: High]
+Does this code also trigger undefined behavior for 4-byte values?
+
+Similar to the 2-byte case above, this casts a potentially unaligned byte
+pointer to a u32 *, which could cause an Oops if the compiler emits
+alignment-strict instructions.
+
+> +		return 4;
+> +	default:
+> +		return -EINVAL;
+> +	}
+> +}
+
+[ ... ]
+
+> -	struct pld_hdr {
+> -		unsigned char	func_tag;	/* fixed value 0x4 */
+> -		unsigned char	func_len;	/* fixed value 0x4 */
+> -		unsigned int	func_val;	/* function ID	   */
+> -		unsigned char	dom_tag;	/* fixed value 0x4 */
+> -		unsigned char	dom_len;	/* fixed value 0x4 */
+> -		unsigned int	dom_val;	/* domain id	   */
+> -	} __packed * payload_hdr =3D NULL;
+> -
+
+[Severity: Critical]
+This is a pre-existing issue, but this patch updates
+xcrb_msg_to_type6_ep11cprb_msgx() to parse ASN.1 payloads dynamically,
+while leaving the legacy fixed C-struct overlay (struct pld_hdr) untouched
+in zcrypt_msgtype6_send_ep11_cprb().
+
+Does this allow the cryptographic domain isolation to be bypassed?
+
+The kernel enforces crypto domain isolation by overwriting the dom_val field
+in the user-provided EP11 payload with the queue's domain:
+
+drivers/s390/crypto/zcrypt_msgtype6.c:zcrypt_msgtype6_send_ep11_cprb() {
+    ...
+    payload_hdr =3D (struct pld_hdr *)((&msg->pld_lenfmt) + lfmt);
+    payload_hdr->dom_val =3D AP_QID_QUEUE(zq->queue->qid);
+    ...
 }
 
-Because kvm->lock is released prior to calling kvm_arch_vcpu_create(), mult=
-iple
-concurrent vCPU creations could fail and execute this error path simultaneo=
-usly.
+Because this still uses the hardcoded C-struct which assumes func_val is
+exactly 4 bytes, what happens if an unprivileged user crafts an ASN.1
+payload where the function ID is encoded in 1 or 2 bytes?
 
-Since gmap_remove_child() mutates the parent gmap's children list without
-holding the children_lock, could this lead to list corruption?
+It appears the actual dom_val would be shifted earlier in the payload, and
+the kernel would overwrite the wrong bytes at a fixed offset, leaving the
+user-controlled domain ID unmodified. This seems to allow an attacker to
+execute crypto commands against unauthorized domains.
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260729152938.7823=
-83-1-imbrenda@linux.ibm.com?part=3D3
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260729154458.1951=
+35-1-freude@linux.ibm.com?part=3D3
