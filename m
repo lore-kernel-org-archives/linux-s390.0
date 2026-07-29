@@ -1,156 +1,141 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 894653B05B5
-	for <linux-s390@vger.kernel.org>; Wed, 29 Jul 2026 16:19:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB7233EC818
+	for <linux-s390@vger.kernel.org>; Wed, 29 Jul 2026 16:24:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785341994; cv=none; b=pJrZkrOf2HOIMePKwZvo63mXD7TmwXjkJXb6CSRVckUE9av/Rlw1HMNdUQpCsUoSDHFpn+j75fmlaegYPeKbUb1xEeuj+9/5eJJfK0fV1kFJIqPeW6w05AixPOrzFzY8VsopGMgwhELAP3/bx6+BqhFWCGG9jZl0XlpRNhowzcg=
+	t=1785342257; cv=none; b=RfA0UWLG88RaqM/utU5HcOlQ+INRLB7+SLFLDY+pD17YoNZ9O038M/QyFLeIV/Ke3WRlHCvzRBt/1wExWBCg1Dt3cHDB9MukLTPzR4oq5SdxnkSX6TUemi3Uek6yfHE/TANdxEiHgUsDCtkkUz/x3Jt/+YgzCyq86xKvCqNSbDE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785341994; c=relaxed/simple;
-	bh=yhdw9DP+BHMnAZYtgY8FLfi73O0T5fhm9CX5PHDqwDw=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=EsAgLDZUq7du3rdLGc3zEEbbt+9KMFwOepqKttSsdGYeIu5qBQRgeLSShojEzBwaQTcUYLwOTJbitGbNey85D0koDdTRk23CZWbUj1j76gfv1pOn15gHBHRQ0S8cbs3sZi53CMKsWe5FNvo693DFtb4sefQBuR7y12XJMy8YsoE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PMN/7iHY; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1785342257; c=relaxed/simple;
+	bh=5U29WrmeGiikWZD24mQNXuSA/H3NIhUMCDS8qMTL6+8=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=YyzK35dq88bm5KHGMw0ZDQIu0UvgdIrWIVQI3w+m6Sh+ot1naKDkfKOfq99O8a6pg2ClCnMc/4GUDQkXbPUYmsg1CPFBDfMLjfaYlGDdOlADy/wOPiCcVMEEljIFW5WRKC9c34hn4OSN0yKvfdyjgmQwIQPIbQOsSMREau7TvWM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=VPvpeZl6; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PMN/7iHY"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DC9A1F000E9;
-	Wed, 29 Jul 2026 16:19:50 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785341991;
-	bh=4I+rfb5KdqNksa98vGi0uckJM9A5hHR98jKqcc8521I=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=PMN/7iHYFVqTFyip2x5o6nRYWABMZFL4osZYed+vb792xGJQpb2L8HxruQiN6iqjS
-	 T94eTUwe08Q/fQnubbfhzcWex7F4bRw3+9NqxzT1QICnLZAUWqFCN11D8LpNSknFxi
-	 30Y1Zd8mo7iuldGuvTxHJI1ONI0eqkzr1Is+fFFFrFP31CUfXkIN5T6MplF9wQgY7g
-	 eXuN8Qv0XYPPgeyrcc3MVyPOUU2pMvVUAMtyrWOcIZ7ZyJSFMGDG8WrToz/3AXV40d
-	 aqF4axp8FfPAmL9cnZSzqwrtjx4hBYfuxQLTZVqTul9xNRo1i3940U3m+iHnLAxwlC
-	 vuILRAKTAyfMA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v9 2/5] s390/zcrypt: Improve CCA CPRB length and
- overflow checks
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Harald Freudenberger" <freude@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>, "Heiko
- Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
-In-Reply-To: <20260729154458.195135-3-freude@linux.ibm.com>
-References: <20260729154458.195135-1-freude@linux.ibm.com>
- <20260729154458.195135-3-freude@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 29 Jul 2026 16:19:50 +0000
-Message-Id: <20260729161950.8DC9A1F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="VPvpeZl6"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66TFI3fT279383
+	for <linux-s390@vger.kernel.org>; Wed, 29 Jul 2026 16:24:12 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=cWOfxL
+	bhZoAn5kC5iJXtICPhXtDe1x22vb5xR251yHo=; b=VPvpeZl6R+413Wmb4QlQwT
+	FLlQnQcnUlkYrc0L0YJUTj8/aTwfR+fxbyIO+oN5j7BNV7LPsgRm+qv/zJ/W4G2B
+	UFDdoW/CgskoyAegA1FzR3sWY6V2cnCW6MpNZcxAuOk0tsIQTDTjrz227Vr44PoD
+	4TKIyzJlSJknCjvSM4EY+6W8ciDwzj6itRFjNkzSSH+1NxNvMF1ANVro8DIPdgD2
+	4l3PDrYsyWWR6NcHDbXoKbB1uJ6xc+W7oaFx2wVdkV4wmGnsD/pOOs5xrzRh9xXR
+	hJqAP4JLZrd7FyhnOeeTdd4q8veMVKVIMwn6CuvAou2dGy67z4tYdpdeQJoeu0yw
+	==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fmuyjau0r-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Wed, 29 Jul 2026 16:24:12 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66TGBLAH006039
+	for <linux-s390@vger.kernel.org>; Wed, 29 Jul 2026 16:24:12 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fn8fk7fs5-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Wed, 29 Jul 2026 16:24:11 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66TGO7Ni30081466
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 29 Jul 2026 16:24:08 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id D7F032004B;
+	Wed, 29 Jul 2026 16:24:07 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8EBF620043;
+	Wed, 29 Jul 2026 16:24:07 +0000 (GMT)
+Received: from [9.111.91.28] (unknown [9.111.91.28])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 29 Jul 2026 16:24:07 +0000 (GMT)
+Message-ID: <4cacb77b-8478-40f1-83c9-8a3e6ca2eb5e@linux.ibm.com>
+Date: Wed, 29 Jul 2026 18:24:06 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 1/1] s390/zcrypt: Fix missing mem scrub at clear key
+ import in cca_clr2cipherkey()
+To: Harald Freudenberger <freude@linux.ibm.com>
+Cc: fcallies@linux.ibm.com, ifranzki@linux.ibm.com, linux-s390@vger.kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>
+References: <20260729140134.191448-1-freude@linux.ibm.com>
+ <20260729140134.191448-2-freude@linux.ibm.com>
+From: Holger Dengler <dengler@linux.ibm.com>
+Content-Language: en-US, de-DE
+In-Reply-To: <20260729140134.191448-2-freude@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI5MDEyOSBTYWx0ZWRfX4P0hVU+zNXNV
+ +vZQem/d+8U2cRsubpBZm4zvUpk9AM35ZU08PcxbxAUhXowj1UoqA+6lkJbW+YLlbX+9aqBSmT1
+ wBTDzHED8FLRmItbRWxxsXob4+uLOp4=
+X-Proofpoint-GUID: 6ssyuuI5k0CKEZYYy52hpXYzMtuYZUiM
+X-Proofpoint-ORIG-GUID: 6ssyuuI5k0CKEZYYy52hpXYzMtuYZUiM
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI5MDEyOSBTYWx0ZWRfX0D+tGUtJWAjt
+ 70uBK/gn+mnp6GxFIM12Gfw34rO5K1HpgebGmTZ+DgZvaBoZPhKAHx2zY7xDJjpzWCQzICJKN7m
+ Btey19LuTGfkXBS9TgS1RMkt+PLj3XA+aP46RFEj0GCgiGv1zwPg1jESH5GI4MME9gugqxOY4cE
+ aH+jpVqdNNyucg5l02hBrdT+5kgPGyMwWuk5EtNAEfKLu6OYjW/dZAkyU7Pu91KqHmDogTaFCiJ
+ 4mYrHyN9tFAFJLYDtah9DmKGGGZ/BKOuX+ivgBOEoVR5lB+6KcX/7SDj2tdzcKTUElswXc5yoNX
+ 4IjwZ8XJ9+gZVQEwMcNxbf2WXD4n3U/3MWLsRZDMHUCvZKZXKzDiCSbUcaYwpyEtOmLb8jXKPhL
+ TrTIoVAOo0gWqip2XI7XQn2pkQATnOsr15+7Q36d+r/5kEZK3l11arJBmUXh3RwUfgnt+wtX1B4
+ h6WDSEUHEBZy1ShGd4Q==
+X-Authority-Analysis: v=2.4 cv=X5Vi7mTe c=1 sm=1 tr=0 ts=6a6a292c cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8
+ a=VwQbUJbxAAAA:8 a=e2as-ruOGLGTfvegKZoA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-07-29_06,2026-07-29_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ clxscore=1015 impostorscore=0 lowpriorityscore=0 phishscore=0
+ priorityscore=1501 malwarescore=0 spamscore=0 suspectscore=0 bulkscore=0
+ adultscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2607290129
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
-s) to consider:
+On 7/29/26 16:01, Harald Freudenberger wrote:
+> The helper function _ip_cprb_helper() uses internal buffer memory for
+> building and processing CPRBs. After use this buffer was never
+> scrubbed which could lead to leaving for example clear key material in
+> memory which could be exposed via tricky reuse of this same memory.
+> 
+> Extent the _ip_cprb_helper() function with another parameter 'scrub'
 
-New issues:
-- [High] Uninitialized memory read due to incorrect bounds check when copyi=
-ng subfunction code.
-- [Low] Redundant and mathematically impossible integer overflow checks on =
-64-bit sum calculations.
+typo: Extend
 
-Pre-existing issues:
-- [High] Missing minimum size validation for EP11 CPRB messages allows read=
-ing uninitialized memory.
---
+> used to steer scrubbing of this buffer. So now the caller has the
+> opportunity to decide if scrubbing is needed or not.
+> 
+> Extent the clear key to secure key token import process in function
 
---- Patch [2]: [PATCH v9 2/5] s390/zcrypt: Improve CCA CPRB length and over=
-flow checks ---
-commit 93cf9dfadb28a27fc37f0252a7721661ccec467d
-Author: Harald Freudenberger <freude@linux.ibm.com>
-s390/zcrypt: Improve CCA CPRB length and overflow checks
+typo: Extend
 
-This commit addresses integer overflow and missing bounds checks in the
-xcrb_msg_to_type6cprb_msgx function during CCA CPRB processing. It introduc=
-es
-64-bit size_t variables for length arithmetic and explicitly bounds the
-calculated lengths to U32_MAX. Minimum control block sizes are also validat=
-ed
-prior to copying data from userspace.
+> cca_clr2cipherkey() to tell the helper function from above to scrub
+> the cprb buffer when the clear key value is part of the request data.
+> 
+> Add explicit scrubbing on return from function cca_clr2cipherkey() for
+> the random EXOR buffer and the cprb buffer.
+> 
+> Overall this cleans the internal used buffer in case of clear key
+> import to prevent sensitive data to get exposed.
+> 
+> Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
+> Cc: stable@vger.kernel.org
 
-> --- a/drivers/s390/crypto/zcrypt_msgtype6.c
-> +++ b/drivers/s390/crypto/zcrypt_msgtype6.c
+Reviewed-by: Holger Dengler <dengler@linux.ibm.com>
 
-[ ... ]
+-- 
+Mit freundlichen Grüßen / Kind regards
+Holger Dengler
 
-> @@ -342,49 +342,40 @@ static int xcrb_msg_to_type6cprb_msgx(bool userspac=
-e, struct ap_message *ap_msg,
-> +	req_sumlen =3D req_cblen + xcrb->request_data_length;
-> +	if (req_sumlen > U32_MAX)
-> +		return -EINVAL;
-> +	if (req_cblen <=3D xcrb->request_data_length ?
->  	    req_sumlen < xcrb->request_data_length :
-> -	    req_sumlen < CEIL4(xcrb->request_control_blk_length)) {
-> +	    req_sumlen < req_cblen) {
->  		return -EINVAL;
->  	}
-
-[Severity: Low]
-Does this ternary check provide any value now that the lengths are using
-64-bit size_t?
-
-Since req_cblen and req_sumlen are bounded to U32_MAX, their sum cannot
-overflow a 64-bit variable, making this condition impossible to reach.
-
-[ ... ]
-
-> @@ -404,8 +395,8 @@ static int xcrb_msg_to_type6cprb_msgx(bool userspace,=
- struct ap_message *ap_msg,
->  			     xcrb->request_control_blk_addr,
->  			     xcrb->request_control_blk_length))
->  		return -EFAULT;
-> -	if (msg->cprbx.cprb_len + sizeof(msg->hdr.function_code) >
-> -	    xcrb->request_control_blk_length)
-> +	/* copy subfunction code into AP msg type 6 function code field */
-> +	if (msg->cprbx.cprb_len > req_cblen - sizeof(msg->hdr.function_code))
->  		return -EINVAL;
->  	function_code =3D ((unsigned char *)&msg->cprbx) + msg->cprbx.cprb_len;
->  	memcpy(msg->hdr.function_code, function_code,
-
-[Severity: High]
-Can this modification lead to an uninitialized memory read?
-
-If an attacker passes a CPRB request where xcrb->request_control_blk_length
-is 13 bytes, the aligned req_cblen becomes 16. If they also set
-cprbx.cprb_len to 14, z_copy_from_user() will copy only 13 bytes, leaving
-the padding uninitialized.
-
-The new bounds check allows cprb_len =3D 14 (since 14 is not greater than
-16 - 2), and the code then copies 2 uninitialized bytes starting at offset =
-14
-into msg->hdr.function_code. This could leak kernel heap memory to the
-crypto device and influence routing decisions.
-
-[Severity: High]
-This isn't a bug introduced by this patch, but I noticed a similar missing
-minimum size validation in xcrb_msg_to_type6_ep11cprb_msgx().
-
-drivers/s390/crypto/zcrypt_msgtype6.c:xcrb_msg_to_type6_ep11cprb_msgx() {
-...
-	/* Import CPRB data from the ioctl input parameter */
-	if (z_copy_from_user(userspace, msg->userdata,
-			     (char __force __user *)xcrb->req, xcrb->req_len)) {
-		return -EFAULT;
-	}
-
-	if ((msg->pld_lenfmt & 0x80) =3D=3D 0x80) {
-...
-}
-
-Does this function also need a minimum size validation?
-
-If a user issues the ZSENDEP11CPRB ioctl with an EP11 user request block
-where req_len is extremely small (e.g., 0), z_copy_from_user() will succeed
-by copying 0 bytes. The kernel then evaluates fields like msg->pld_lenfmt,
-msg->cprbx.flags, and msg->cprbx.target_id from uninitialized kernel heap
-memory, potentially allowing bypasses of authorization boundaries.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260729154458.1951=
-35-1-freude@linux.ibm.com?part=3D2
