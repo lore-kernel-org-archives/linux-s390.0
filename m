@@ -1,131 +1,122 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 932794772BA;
-	Wed, 29 Jul 2026 12:28:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F276480DF3;
+	Wed, 29 Jul 2026 12:42:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785328127; cv=none; b=NgzZR9Y6wIiZXa2PwnQYYBVrHUd/Qsk9jFg2GOeJWkpwjmgUJS60wDYk9uOXm32r+xvq+puEXtkDWT9deyiXk7yOH0LlVzZosJLzawYvQ+G3I8i3kU4DDyywUACmmiUYXAAsySNq+NelbmPw1zN97iwbx2SewC9hBx6KVL8sQkc=
+	t=1785328986; cv=none; b=AxppMETLBPUnsacNBOoj+Yl0lANPyF2ulrwHSUOjhNYrQIE95Xire9u6Vw8xam7ml8Z0BXHw4cIJqX0Oig13J2u3nGkxIGECuJ5WKilfI3A2oDmaI0NfuCvDFM7Q9YMakR2HXnhWc5PYYxfERv9W872xZNhK31IjIGQbgSb7+kU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785328127; c=relaxed/simple;
-	bh=dz3HCe+wZxU9P5mKArryicIFj2a20GbaUsg7vh4pMCc=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Itcx1sy0DEDcA1+sCmf0VuSL1oqL1Q10D2e8bPdylsfHxfabhJuLaM5xm0/S+7Gz/YJBh0WFAESH8F/zv5/ruTZc0X3EcYo4SofOhHKEwJeiZ+C1CFoGOqIgDIn6ika5dsGkqMwn1mtcs9UbZi20WaDlKPy+oxaTSo3EJEGdQ9A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=de.ibm.com; spf=pass smtp.mailfrom=de.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Wm4hc9qW; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=de.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=de.ibm.com
+	s=arc-20240116; t=1785328986; c=relaxed/simple;
+	bh=Ia8/vfH7EGUbV4SUqITPF9OFmdFVzi+jxxqYzv7h8FY=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=pBcLonfEVpruYRFIiY+Yfop9JtcQiZUZspoKQJQ44O+S3YdrOH7hjvTflDpuPVJ4SU5qxKGiQnooP2gfnJWIKcfAuVV2vkXkpmH56EVPPEZ6PVvCXuyQWBS5PzWSfo2RmJU+xLk2XxvOTiwcBBbg1iS8paivOf2y1hfPuc1Iz3o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fk51lgHO; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Wm4hc9qW"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66TBHu9L4030443;
-	Wed, 29 Jul 2026 12:28:35 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=NFKllh
-	/2wGS/d8YNfaTfR/QifYG4CSJlH9FvcuyjiR4=; b=Wm4hc9qWGOANlL5I6y1Rcu
-	/p4kvTxfNk32Ub8eHJ7bkoLNhmcoX1f0azAqAxEFBlSTPYVB66/N36hbYXroU9OU
-	j35cuzeTlPlnpEJ4Ss0R0n5ONwnvfh+ztb8/lbPux/dFVz7nZZxRE0uRmkrb+IHh
-	JM/PLMjulgeh4yT4vOPHWsQYcOQbt8aPGwd0R0eUVghumf/rR34iGt1MlCHDvoiy
-	Vgms7/FuWBJNmAUm/ndvNyz0eZD1V1CHQ8n5OAjNgyjMxN+jYheefCZZeEiy49s8
-	GUJZE6Yp/LTUeFYG6j0aZUR9OUKII3B2fZFy4yqNUsQlC3AKWSptfkwsp0iBDOvg
-	==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fmuw7jkgs-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 29 Jul 2026 12:28:35 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66TCQI1u008868;
-	Wed, 29 Jul 2026 12:28:33 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fn7uw6s71-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 29 Jul 2026 12:28:33 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66TCSTRV29229352
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 29 Jul 2026 12:28:29 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id BB7092004B;
-	Wed, 29 Jul 2026 12:28:29 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 75C3D20040;
-	Wed, 29 Jul 2026 12:28:29 +0000 (GMT)
-Received: from [9.224.77.173] (unknown [9.224.77.173])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 29 Jul 2026 12:28:29 +0000 (GMT)
-Message-ID: <c318813f-521e-4ad3-8cba-b2444703ecc7@de.ibm.com>
-Date: Wed, 29 Jul 2026 14:28:28 +0200
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fk51lgHO"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71AFC1F00A3A;
+	Wed, 29 Jul 2026 12:42:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1785328976;
+	bh=Bj9zUQeAnHt3kbxhKKqsrB/Vw/2J1kCjeLL3HysJ+OQ=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date;
+	b=fk51lgHOMjZ7UJy7rfHUcnROpoZJbqgvZ+c4OYkSOe9jR6EyxJQLtCRvfMrkzVzx/
+	 Rf5/RAEHf7GArTBqQ2VB+DFRw0QyG2ql7V72s/sHnBfMKNLGNkKhrriLiArX2QJ6cx
+	 1qjqorspgFLmPUCGw/ASAMk1xr2Hf3oQaNKGeNdpiutzp0s+nYTRSZ/CF0deF+AX7m
+	 j+0tciNij7lI/yw9EWy9c9F87NR3fNmwd7IBMyco2FdZOP3CL96MBIgHeLxBgXTGUm
+	 RadyiuP8fXfsneErpOdP7H1gRrbUQIP2TUtweQLf125QqSdmlDtS8C9gom80W6A0AG
+	 Isf/jYJgsYTQQ==
+X-Mailer: emacs 30.2 (via feedmail 11-beta-1 I)
+From: Aneesh Kumar K.V <aneesh.kumar@kernel.org>
+To: Mostafa Saleh <smostafa@google.com>
+Cc: iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev,
+	Robin Murphy <robin.murphy@arm.com>,
+	Marek Szyprowski <m.szyprowski@samsung.com>,
+	Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
+	Steven Price <steven.price@arm.com>,
+	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Jiri Pirko <jiri@resnulli.us>,
+	Jason Gunthorpe <jgg@ziepe.ca>,
+	Petr Tesarik <ptesarik@suse.com>,
+	Alexey Kardashevskiy <aik@amd.com>,
+	Dan Williams <dan.j.williams@intel.com>,
+	Xu Yilun <yilun.xu@linux.intel.com>,
+	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org,
+	Jason Gunthorpe <jgg@nvidia.com>,
+	Michael Kelley <mhklinux@outlook.com>
+Subject: Re: [PATCH v8 12/23] dma: swiotlb: pass mapping attributes by
+ reference
+In-Reply-To: <amnRB98ZZIysHuM3@google.com>
+References: <20260717180442.110954-1-aneesh.kumar@kernel.org>
+ <20260717180442.110954-13-aneesh.kumar@kernel.org>
+ <ami_mpd_1pF4Tmdu@google.com> <yq5a5x1ygo7z.fsf@kernel.org>
+ <amnRB98ZZIysHuM3@google.com>
+Date: Wed, 29 Jul 2026 18:12:38 +0530
+Message-ID: <yq5acxw6dl1d.fsf@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4 01/13] KVM: s390: Fix unlikely NULL gmap dereference
-To: Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-kernel@vger.kernel.org
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, frankja@linux.ibm.com,
-        david@kernel.org, seiden@linux.ibm.com, nrb@linux.ibm.com,
-        schlameuss@linux.ibm.com, gra@linux.ibm.com
-References: <20260728170708.294400-1-imbrenda@linux.ibm.com>
- <20260728170708.294400-2-imbrenda@linux.ibm.com>
-Content-Language: en-US
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-In-Reply-To: <20260728170708.294400-2-imbrenda@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: sEULQp11A-S0uilTdm_gU99Z8_kcLH6s
-X-Proofpoint-ORIG-GUID: sEULQp11A-S0uilTdm_gU99Z8_kcLH6s
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI5MDEwMiBTYWx0ZWRfX4xzV3rC9JfF3
- B77dhcXq0JPOyFudGnhTY44QUSq6YwE8thJ2VrgYpBaDfiTt+uAmFEpxpJjIL7objOtgjM0IsZc
- jaLGlDT1ek7ii2EYpT6cp3wNqf5swYB1Hbcbn5o5G0Rd8KuYO3WbRjLdkY4R3YNww//yjXlXjOi
- MPb+0QFEyRMfreNuTkh070RF8TzXyxUb1952K9FlJQVl3ngI+dmxSaNuT8OmuA9v1LCC/3CnlYq
- AFPHrHBHnVGwyC8NHvg70nlxDDqMDGfgm33nkrT78I0Wgl2M8u6QmmE9My4P8m7E3P9WnSIsax4
- SgRD+RecVTQgBGy54hdIKB2gV8Lbmw+BO6KFby7yg7nuDggrIKr/7VQAS2BVmiVsiy7IMV/PA8Z
- cTUTiajjR9yjqd75jolL2hSXx6AeBxByCVkiPKHe7/TbnZGBNmWUH7lWfSNBtyEyl/sqJLUUZ1F
- qHapDpFULoL4+d82jUw==
-X-Authority-Analysis: v=2.4 cv=SKFykuvH c=1 sm=1 tr=0 ts=6a69f1f3 cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
- a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8
- a=_BKb5qho9Nre88LnVS8A:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI5MDEwMiBTYWx0ZWRfX3HRyr0e3RoYW
- 8zwOwFejkorPkAV7gzkw2kprjFNnzKQ1x0DJkFhmpk2r9GY+YR8Mm19Bi24wedvZK+UTmDjXQ+k
- aCwp6p4pZRFXZ5IGntZYsS3wZ1MzCg4=
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-07-29_04,2026-07-28_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 malwarescore=0 clxscore=1015 adultscore=0
- lowpriorityscore=0 bulkscore=0 impostorscore=0 phishscore=0 spamscore=0
- suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2607290102
+Content-Type: text/plain
 
+Mostafa Saleh <smostafa@google.com> writes:
 
+> On Wed, Jul 29, 2026 at 02:35:36PM +0530, Aneesh Kumar K.V wrote:
+>> Mostafa Saleh <smostafa@google.com> writes:
+>> 
+>> > On Fri, Jul 17, 2026 at 11:34:30PM +0530, Aneesh Kumar K.V (Arm) wrote:
+>> >> Change swiotlb_tbl_map_single() to take the DMA mapping attributes by
+>> >> reference and update the direct callers accordingly.
+>> >> 
+>> >> This is a preparatory change for a follow-up patch which updates the
+>> >> attributes based on the selected swiotlb pool. Keeping the signature change
+>> >> separate makes the follow-up patch easier to review.
+>> >> 
+>> >
+>> > I do not understand the point of this, why would
+>> > swiotlb_tbl_map_single() force attrs over the caller which should
+>> > already know the context (whether DMA is shared or not) which case
+>> > would this be useful to force from the SWIOTLB code?
+>> >
+>> 
+>> The mapping request was for private memory, but the device could not use
+>> it because the dma_capable() (force_dma_unencrypted() == true) check
+>> failed. As a result, dma_direct_map_phys() allocated a swiotlb bounce
+>> buffer, which is shared. Since the DMA now targets the shared bounce
+>> buffer rather than the original private memory, the attributes must be
+>> updated to reflect the new shared mapping.
+>> 
+>> dma_addr = phys_to_dma(dev, phys);
+>> if (unlikely(!dma_capable(dev, dma_addr, size, true)))
+>> 	if (is_swiotlb_active(dev))
+>> 		return swiotlb_map(dev, phys, size, dir, attrs);
+>> 
+>> 
+>
+> But it does not make sense to me to have it in such a low level
+> function, and it shouldn't change the attrs that was passed.
+>
+> dma_direct_map_phys() is the right place to do this it should set
+> the correct attrs before calling swiotlb_map().
+>
 
-Am 28.07.26 um 19:06 schrieb Claudio Imbrenda:
-> When creating a new vCPU, kvm_vm_ioctl_create_vcpu() will call
-> kvm_arch_vcpu_postcreate() after the file descriptor for the new vCPU
-> has been created. The new file descriptor has not been returned yet,
-> but a malicious userspace program could try to guess it.
-> 
-> If a malicious userspace program manages to start the newly created vCPU
-> before kvm_arch_vcpu_postcreate() is called, __vcpu_run() will try to
-> dereference vcpu->arch.gmap and trigger a NULL pointer dereference.
-> 
-> Fix this by adding a new field to struct kvm_vcpu_arch to keep track of
-> the initialization status of the vCPU. Refuse to run a vCPU that is not
-> fully initialized.
-> 
-> Fixes: dafd032a15f8 ("KVM: s390: move vcpu specific initalization to a later point")
-> Fixes: e38c884df921 ("KVM: s390: Switch to new gmap")
-> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> Reviewed-by: Steffen Eiden <seiden@linux.ibm.com>
-> Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+There is a possibility that we may support io_tlb_mem with cc_shared =
+false in the future. As a result, only swiotlb_map() knows which type of
+bounce buffer was used, making it the only place where the attributes
+can be updated correctly.
 
-Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
-
-
-
+-aneesh
