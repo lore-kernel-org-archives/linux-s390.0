@@ -1,141 +1,154 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB7233EC818
-	for <linux-s390@vger.kernel.org>; Wed, 29 Jul 2026 16:24:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7D495411A1F;
+	Wed, 29 Jul 2026 16:35:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785342257; cv=none; b=RfA0UWLG88RaqM/utU5HcOlQ+INRLB7+SLFLDY+pD17YoNZ9O038M/QyFLeIV/Ke3WRlHCvzRBt/1wExWBCg1Dt3cHDB9MukLTPzR4oq5SdxnkSX6TUemi3Uek6yfHE/TANdxEiHgUsDCtkkUz/x3Jt/+YgzCyq86xKvCqNSbDE=
+	t=1785342922; cv=none; b=UkHy7gk86gI331Nfw3TtQlycKksNpg/WuZ8o6QYABvMreh7RMhNstyYdNsyodhUiErfB15Tkb5/TmOBUaY66qk3Uroy0FdnAD+ACG9IXbgP9DQ0yqomMGXk+z3PmUr5WIS7ubl+WKfGbd7pNzRXBN2u3Mo4z2DyOgTo8VqXAPWs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785342257; c=relaxed/simple;
-	bh=5U29WrmeGiikWZD24mQNXuSA/H3NIhUMCDS8qMTL6+8=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=YyzK35dq88bm5KHGMw0ZDQIu0UvgdIrWIVQI3w+m6Sh+ot1naKDkfKOfq99O8a6pg2ClCnMc/4GUDQkXbPUYmsg1CPFBDfMLjfaYlGDdOlADy/wOPiCcVMEEljIFW5WRKC9c34hn4OSN0yKvfdyjgmQwIQPIbQOsSMREau7TvWM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=VPvpeZl6; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1785342922; c=relaxed/simple;
+	bh=3xgqX10ROYlke4Y7g6+kbWJI71ZAvlfYtb6BB8Qsjkc=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=UT39xUbkayNFVmF4PjZmm2a3B3GL1Z/ylv5EsXk4l1k0HRzWA1vSqzjrnU6JLkRUXxotYS8250nO1Zz+nGxAC4OLPeEnQ5OkpIx+8kJQ9/Bp0XGvkluMhIwQKlYUCkJ8fB6niFPZ0ADui8Au48xVIfIK77zMo8nQ3+KawB8lkV8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=L0etTpIn; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="VPvpeZl6"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66TFI3fT279383
-	for <linux-s390@vger.kernel.org>; Wed, 29 Jul 2026 16:24:12 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=cWOfxL
-	bhZoAn5kC5iJXtICPhXtDe1x22vb5xR251yHo=; b=VPvpeZl6R+413Wmb4QlQwT
-	FLlQnQcnUlkYrc0L0YJUTj8/aTwfR+fxbyIO+oN5j7BNV7LPsgRm+qv/zJ/W4G2B
-	UFDdoW/CgskoyAegA1FzR3sWY6V2cnCW6MpNZcxAuOk0tsIQTDTjrz227Vr44PoD
-	4TKIyzJlSJknCjvSM4EY+6W8ciDwzj6itRFjNkzSSH+1NxNvMF1ANVro8DIPdgD2
-	4l3PDrYsyWWR6NcHDbXoKbB1uJ6xc+W7oaFx2wVdkV4wmGnsD/pOOs5xrzRh9xXR
-	hJqAP4JLZrd7FyhnOeeTdd4q8veMVKVIMwn6CuvAou2dGy67z4tYdpdeQJoeu0yw
-	==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fmuyjau0r-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Wed, 29 Jul 2026 16:24:12 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66TGBLAH006039
-	for <linux-s390@vger.kernel.org>; Wed, 29 Jul 2026 16:24:12 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fn8fk7fs5-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Wed, 29 Jul 2026 16:24:11 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66TGO7Ni30081466
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 29 Jul 2026 16:24:08 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D7F032004B;
-	Wed, 29 Jul 2026 16:24:07 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8EBF620043;
-	Wed, 29 Jul 2026 16:24:07 +0000 (GMT)
-Received: from [9.111.91.28] (unknown [9.111.91.28])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 29 Jul 2026 16:24:07 +0000 (GMT)
-Message-ID: <4cacb77b-8478-40f1-83c9-8a3e6ca2eb5e@linux.ibm.com>
-Date: Wed, 29 Jul 2026 18:24:06 +0200
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="L0etTpIn"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03A4D1F000E9;
+	Wed, 29 Jul 2026 16:35:20 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1785342921;
+	bh=FzTRepEBTaYg6S4skEGauvhuai/LzBm9NnU5vONjhZ8=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=L0etTpInN5YS2wKhph7yVmb+E9tGUgbSY0/ZpMvqTUgySwPmDppw4tClGoqckEqbA
+	 ILm0WTg0v8dfpv4fPhPD7LzcR58JMuQfNgzIJcpXQyBtwo6bb1xCfJo+MDVwfaM6bf
+	 WMMJ8bociz4zT9vgoNvDjGlcDD/1L6eXUK3JaCL9+XrZA7XqVQ1n8dI1DS07XSf4Ar
+	 YwY4F16cQT5y+bpqH/mU4hcs9iHIbIP2vh5LCeOJfk9XWy7uUO68v24P5TrzFQuDZu
+	 L26q76JTu6izaqLB9FMGFevLQpRc+SNSc/DWweH94/4JbSf+M/ymOUKL/3ziIZ8rwP
+	 in0E2Su613QYw==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v5 03/13] KVM: s390: Fix overclearing ESCA in case of
+ error
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>
+In-Reply-To: <20260729152938.782383-4-imbrenda@linux.ibm.com>
+References: <20260729152938.782383-1-imbrenda@linux.ibm.com>
+ <20260729152938.782383-4-imbrenda@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Wed, 29 Jul 2026 16:35:20 +0000
+Message-Id: <20260729163521.03A4D1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 1/1] s390/zcrypt: Fix missing mem scrub at clear key
- import in cca_clr2cipherkey()
-To: Harald Freudenberger <freude@linux.ibm.com>
-Cc: fcallies@linux.ibm.com, ifranzki@linux.ibm.com, linux-s390@vger.kernel.org,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>
-References: <20260729140134.191448-1-freude@linux.ibm.com>
- <20260729140134.191448-2-freude@linux.ibm.com>
-From: Holger Dengler <dengler@linux.ibm.com>
-Content-Language: en-US, de-DE
-In-Reply-To: <20260729140134.191448-2-freude@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI5MDEyOSBTYWx0ZWRfX4P0hVU+zNXNV
- +vZQem/d+8U2cRsubpBZm4zvUpk9AM35ZU08PcxbxAUhXowj1UoqA+6lkJbW+YLlbX+9aqBSmT1
- wBTDzHED8FLRmItbRWxxsXob4+uLOp4=
-X-Proofpoint-GUID: 6ssyuuI5k0CKEZYYy52hpXYzMtuYZUiM
-X-Proofpoint-ORIG-GUID: 6ssyuuI5k0CKEZYYy52hpXYzMtuYZUiM
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI5MDEyOSBTYWx0ZWRfX0D+tGUtJWAjt
- 70uBK/gn+mnp6GxFIM12Gfw34rO5K1HpgebGmTZ+DgZvaBoZPhKAHx2zY7xDJjpzWCQzICJKN7m
- Btey19LuTGfkXBS9TgS1RMkt+PLj3XA+aP46RFEj0GCgiGv1zwPg1jESH5GI4MME9gugqxOY4cE
- aH+jpVqdNNyucg5l02hBrdT+5kgPGyMwWuk5EtNAEfKLu6OYjW/dZAkyU7Pu91KqHmDogTaFCiJ
- 4mYrHyN9tFAFJLYDtah9DmKGGGZ/BKOuX+ivgBOEoVR5lB+6KcX/7SDj2tdzcKTUElswXc5yoNX
- 4IjwZ8XJ9+gZVQEwMcNxbf2WXD4n3U/3MWLsRZDMHUCvZKZXKzDiCSbUcaYwpyEtOmLb8jXKPhL
- TrTIoVAOo0gWqip2XI7XQn2pkQATnOsr15+7Q36d+r/5kEZK3l11arJBmUXh3RwUfgnt+wtX1B4
- h6WDSEUHEBZy1ShGd4Q==
-X-Authority-Analysis: v=2.4 cv=X5Vi7mTe c=1 sm=1 tr=0 ts=6a6a292c cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8
- a=VwQbUJbxAAAA:8 a=e2as-ruOGLGTfvegKZoA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-07-29_06,2026-07-29_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 impostorscore=0 lowpriorityscore=0 phishscore=0
- priorityscore=1501 malwarescore=0 spamscore=0 suspectscore=0 bulkscore=0
- adultscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2607290129
 
-On 7/29/26 16:01, Harald Freudenberger wrote:
-> The helper function _ip_cprb_helper() uses internal buffer memory for
-> building and processing CPRBs. After use this buffer was never
-> scrubbed which could lead to leaving for example clear key material in
-> memory which could be exposed via tricky reuse of this same memory.
-> 
-> Extent the _ip_cprb_helper() function with another parameter 'scrub'
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
 
-typo: Extend
+Pre-existing issues:
+- [Critical] Creating and destroying a KVM_VM_S390_UCONTROL VM with vCPU ID=
+s >=3D KVM_S390_ESCA_CPU_SLOTS (248) causes out-of-bounds memory accesses o=
+n `esca_block->cpu`.
+- [High] gmap_remove_child() is called without holding the parent gmap's ch=
+ildren_lock in the error path of kvm_arch_vcpu_create().
+--
 
-> used to steer scrubbing of this buffer. So now the caller has the
-> opportunity to decide if scrubbing is needed or not.
-> 
-> Extent the clear key to secure key token import process in function
+--- Patch [3]: [PATCH v5 03/13] KVM: s390: Fix overclearing ESCA in case of=
+ error ---
+commit de5b0e7f34127f8db5eb8b0fa184043139c25a8c
+Author: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-typo: Extend
+KVM: s390: Fix overclearing ESCA in case of error
 
-> cca_clr2cipherkey() to tell the helper function from above to scrub
-> the cprb buffer when the clear key value is part of the request data.
-> 
-> Add explicit scrubbing on return from function cca_clr2cipherkey() for
-> the random EXOR buffer and the cprb buffer.
-> 
-> Overall this cleans the internal used buffer in case of clear key
-> import to prevent sensitive data to get exposed.
-> 
-> Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
-> Cc: stable@vger.kernel.org
+If an attempt is made to create a vCPU with an already existing ID,
+the duplicated vCPU is destroyed. This patch ensures the ESCA entry
+is only cleared if the vCPU was successfully created to avoid
+clearing the original vCPU's ESCA entry by mistake.
 
-Reviewed-by: Holger Dengler <dengler@linux.ibm.com>
+> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+> index 9e3e6b0d72ad6..2acdff130fa6c 100644
+> --- a/arch/s390/kvm/interrupt.c
+> +++ b/arch/s390/kvm/interrupt.c
+> @@ -86,7 +86,7 @@ static void sca_clear_ext_call(struct kvm_vcpu *vcpu)
+>  	struct esca_block *sca =3D vcpu->kvm->arch.sca;
+>  	union esca_sigp_ctrl *sigp_ctrl =3D &sca->cpu[vcpu->vcpu_id].sigp_ctrl;
+> =20
+> -	if (!kvm_s390_use_sca_entries())
+> +	if (!kvm_s390_use_sca_entries() || !vcpu->arch.initialized)
+>  		return;
 
--- 
-Mit freundlichen Grüßen / Kind regards
-Holger Dengler
+[Severity: Critical]
+This is a pre-existing issue, but can this out-of-bounds access still occur
+for UCONTROL VMs?
 
+In kvm_arch_vcpu_precreate(), the sca_can_add_vcpu() bounds check is skipped
+for UCONTROL VMs, which allows vcpu_id to be up to KVM_MAX_VCPUS - 1 (254):
+
+arch/s390/kvm/kvm-s390.c:kvm_arch_vcpu_precreate() {
+	...
+	if (!kvm_is_ucontrol(kvm) && !sca_can_add_vcpu(kvm, id))
+		return -EINVAL;
+	...
+}
+
+Because the esca_block->cpu array only has KVM_S390_ESCA_CPU_SLOTS (248)
+elements, if a UCONTROL vCPU with an ID between 248 and 254 successfully
+initializes, it would bypass the new !vcpu->arch.initialized check here.
+
+When this vCPU is destroyed in sca_clear_ext_call() or handles an external =
+call
+interrupt in sca_inject_ext_call(), computing &sca->cpu[vcpu->vcpu_id] resu=
+lts
+in a pointer outside the allocated esca_block.
+
+Could this allow writing out of bounds when WRITE_ONCE(sigp_ctrl->value, 0)=
+ is
+called?
+
+>  	kvm_s390_clear_cpuflags(vcpu, CPUSTAT_ECALL_PEND);
+> =20
+> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> index 096b426c1281b..3e40a52bfd152 100644
+> --- a/arch/s390/kvm/kvm-s390.c
+> +++ b/arch/s390/kvm/kvm-s390.c
+> @@ -3459,7 +3459,7 @@ static void sca_del_vcpu(struct kvm_vcpu *vcpu)
+>  {
+>  	struct esca_block *sca =3D vcpu->kvm->arch.sca;
+> =20
+> -	if (!kvm_s390_use_sca_entries())
+> +	if (!kvm_s390_use_sca_entries() || !vcpu->arch.initialized)
+>  		return;
+> =20
+>  	clear_bit_inv(vcpu->vcpu_id, (unsigned long *)sca->mcn);
+
+[Severity: High]
+This isn't a bug introduced by this patch, but is there a data race in the
+error handling path of kvm_arch_vcpu_create() for UCONTROL VMs?
+
+If kvm_s390_vcpu_setup() fails, the code jumps to out_ucontrol_uninit:
+
+arch/s390/kvm/kvm-s390.c:kvm_arch_vcpu_create() {
+	...
+out_ucontrol_uninit:
+	if (kvm_is_ucontrol(vcpu->kvm)) {
+		gmap_remove_child(vcpu->arch.gmap);
+		vcpu->arch.gmap =3D gmap_put(vcpu->arch.gmap);
+	}
+	...
+}
+
+Because kvm->lock is released prior to calling kvm_arch_vcpu_create(), mult=
+iple
+concurrent vCPU creations could fail and execute this error path simultaneo=
+usly.
+
+Since gmap_remove_child() mutates the parent gmap's children list without
+holding the children_lock, could this lead to list corruption?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260729152938.7823=
+83-1-imbrenda@linux.ibm.com?part=3D3
