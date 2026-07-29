@@ -1,31 +1,31 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC94C442FAD;
-	Wed, 29 Jul 2026 09:09:20 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E132F39EB47;
+	Wed, 29 Jul 2026 09:13:09 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785316161; cv=none; b=DsXtbVsy7EXJM3o9iqsrNSuPq0FHc6BJ/Z6FlyZoow5vvi9hGrUGspKlJkne2srEF7kwY17tA3CHV7g79ZkP3zCp2rnzyh6XesYIJFkpOZ0hdl2D32hfNx3fiXHwIP5dXgKqCuBIvA8zObrdV4uHwY/clzeyvDHfk+1GQhLWXvs=
+	t=1785316391; cv=none; b=mBot9c344exJ/q3Hq3Fa6EsMRnj3TJnylKeKrZbw9ETEZR+LFKz9kBlUm9zNG63qKmOAxGNt1SwD4ksh9ysIZJEPrYCB9UFGGJsi6wOZxvm2RFheAePdCiW8LqvsE10F3xRHJo69wIqpUzNzTjgtNbVkZiz900iph0ll//yKF5c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785316161; c=relaxed/simple;
-	bh=hPcS3YA9tQ7BB8XX1AWw3zre5i5jAQ3HY/DvSaz1owM=;
+	s=arc-20240116; t=1785316391; c=relaxed/simple;
+	bh=eC9vp3UnLfVxsdykRc4blWrWyR00cWPALhi3X7I4z+c=;
 	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=WDSKHTzrKgUg4yE8J1E/PYqTbdv0E7YrMVt9vjmoUuoxejPaqwBDV2ZmyjFKgga/yHMf8bYg6D274/mkrpdgo5U8s8eobyzmD6d5A2SJWAt8E9wpDYfueRFIV+U3d9ZphcOd07Y5tdL1GwFtJN2ngV9yOqpjqbW8KuXOgqcR/rA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=A2VcftX+; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=YHDJ0Y/t3tkQB+GCucZ+FJjWR/TMMJu8RViNAdJEWLel21dx1sA1ESgGCX+vOFsBoyU8dwuO/PWG0U3FxQ9NN0Ib59/BqhoKTpbW8ZzY6qJkCOc6y5Qw7n713lg/p5bBW20sK38Y6UDAe+U8sGsPY/cCn39vRJDghsZaD8zATxI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NTrQYIaG; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="A2VcftX+"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BD2D1F000E9;
-	Wed, 29 Jul 2026 09:09:11 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NTrQYIaG"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1385A1F000E9;
+	Wed, 29 Jul 2026 09:12:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785316160;
-	bh=3SpSxnvuNGmLHWtJ7jUwkJNoaIB6p9cDPcBNT0kYRN8=;
+	s=k20260515; t=1785316389;
+	bh=6LOzzspZUA4rNVaGF/4ILR4pTU8q5zeUbIg7i83Gjpw=;
 	h=From:To:Cc:Subject:In-Reply-To:References:Date;
-	b=A2VcftX+szPrGFM49eBI8rgFYkmukzvFokMsd6WGe+h74xvC6CtdICs0UZ4yjOqvR
-	 fdcdUi7fzgpOIuZL4RtiddkR2ScDaD1cM0BLIuDlG5jfNQnWGV0+ncs9XXY9Jex52k
-	 tM0VQtKPqoomYgjwCx715PfvDmGSE4Gn1EIUcmgyqaAnRRJQaMVwm6nS/F4mOO27ja
-	 qcoSXdaQMlMbY8tkdYIqHfSFfCMxIeoHQkHUsXhWW/I8Fs/VcUew2AFEtR4JR7Y19H
-	 PUnnq88/Wgvhkl2D7ezzQNWPFWPputmv9S883P/cocuobYpEolgl3n/xjWk2H65qch
-	 z6Y42MpMAW7YQ==
+	b=NTrQYIaG/ehk3iBfKYQ4h5VsyLIi9R25YASP+VfHEeqJLRKgGBvkPSyD3Z9S8z4Mj
+	 IF3b3Y7zHwM1Ki87LSJnQvxxpFux7arhN+PB36u7RYtulEQwTh6IzxDRfys1GB1PYP
+	 wQB4ruCqa5tgtepcLoDAHeF9+Xnzu0Vu+PAcp95Nt1fNRZMvtXWiwCJpv5J0FxkUcN
+	 Rb9r9HrCA3JCEOWqEBO0cYpVmnNO7ADrIAeTCDv5mUNlZOFS4StYS2PO33vIrkV7ae
+	 H8zXXtL5Jf4+s89pxC57mJ/77Uat6XV1Wh/ahQsyAMIHiwd/azsjJ8TLnt5OedZG+Y
+	 rEpctXEsvldqg==
 X-Mailer: emacs 30.2 (via feedmail 11-beta-1 I)
 From: Aneesh Kumar K.V <aneesh.kumar@kernel.org>
 To: Mostafa Saleh <smostafa@google.com>
@@ -53,18 +53,14 @@ Cc: iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
 	Heiko Carstens <hca@linux.ibm.com>,
 	Vasily Gorbik <gor@linux.ibm.com>,
 	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org,
-	Jason Gunthorpe <jgg@nvidia.com>,
-	Jiri Pirko <jiri@nvidia.com>,
-	Michael Kelley <mhklinux@outlook.com>
-Subject: Re: [PATCH v8 15/23] dma-direct: pass attrs to dma_capable() for
- DMA_ATTR_CC_SHARED checks
-In-Reply-To: <ami9CIGanuQX3lxb@google.com>
+	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org
+Subject: Re: [PATCH v8 00/23] dma-mapping: Track shared DMA state through
+ direct, pool and swiotlb paths
+In-Reply-To: <ami7DMIlYHbcEt_6@google.com>
 References: <20260717180442.110954-1-aneesh.kumar@kernel.org>
- <20260717180442.110954-16-aneesh.kumar@kernel.org>
- <ami9CIGanuQX3lxb@google.com>
-Date: Wed, 29 Jul 2026 14:39:08 +0530
-Message-ID: <yq5a33x2go23.fsf@kernel.org>
+ <ami7DMIlYHbcEt_6@google.com>
+Date: Wed, 29 Jul 2026 14:42:56 +0530
+Message-ID: <yq5azezaf9bb.fsf@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -75,28 +71,59 @@ Content-Type: text/plain
 
 Mostafa Saleh <smostafa@google.com> writes:
 
->>  static inline bool dma_capable(struct device *dev, dma_addr_t addr, size_t size,
->> -		bool is_ram)
->> +		bool is_ram, unsigned long attrs)
->>  {
->>  	dma_addr_t end = addr + size - 1;
->>  
->>  	if (addr == DMA_MAPPING_ERROR)
->>  		return false;
->> +	/*
->> +	 * The DMA address was derived from encrypted RAM, but this device
->> +	 * requires unencrypted DMA addresses. Treat it as not DMA-capable
->> +	 * so the caller can fall back to a suitable SWIOTLB pool.
->> +	 */
->> +	if (!(attrs & DMA_ATTR_CC_SHARED) && force_dma_unencrypted(dev))
->> +		return false;
->> +
+> On Fri, Jul 17, 2026 at 11:34:18PM +0530, Aneesh Kumar K.V (Arm) wrote:
+>> This series tracks confidential-computing shared DMA state through the
+>> dma-direct, dma-pool, and swiotlb paths so that encrypted and decrypted
+>> DMA buffers are handled consistently.
+>> 
+>> Today, the direct DMA path mostly relies on force_dma_unencrypted() for
+>> shared/decrypted buffer handling. This series consolidates the
+>> force_dma_unencrypted() checks in the top-level functions and ensures
+>> that the remaining DMA interfaces use DMA attributes to make the correct
+>> decisions.
+>> 
+>> The series separates mapping and allocation state:
+>> - DMA_ATTR_CC_SHARED describes the DMA address attribute requested for a
+>>   mapping. It tells the DMA mapping path that the DMA address must target
+>>   shared/decrypted memory.
+>> - __DMA_ATTR_ALLOC_CC_SHARED is an internal DMA-mapping attribute used only
+>>   by allocation paths after the DMA core decides that the backing pages
+>>   must be allocated as shared/decrypted memory.
+>> 
+>> The series:
+>> - moves swiotlb-backed allocations out of __dma_direct_alloc_pages(),
+>> - uses __DMA_ATTR_ALLOC_CC_SHARED through the dma-direct alloc/free paths
+>> - teaches the atomic DMA pools to track encrypted versus decrypted
+>>   state
+>> - tracks swiotlb pool encryption state and enforces strict pool
+>>   selection
+>> - centralizes encrypted/decrypted pgprot handling in dma_pgprot() using
+>>   DMA attributes
+>> - passes DMA attributes down to dma_capable() so capability checks can
+>>   validate whether the selected DMA address encoding matches
+>>   DMA_ATTR_CC_SHARED
+>> - makes dma_direct_map_phys() choose the DMA address encoding from
+>>   DMA_ATTR_CC_SHARED and fall back to swiotlb when a shared DMA request
+>>   cannot use the direct mapping, which lets arm64 and x86 CCA guests stop
+>>   relying on SWIOTLB_FORCE for DMA mappings
+>> - use the selected swiotlb pool state to derive the returned DMA
+>>   address
+>> - reports CC_ATTR_GUEST_MEM_ENCRYPT for arm64 Realms, powerpc secure
+>>   guests, and s390 protected virtualization guests.
+>> 
 >
-> I guess it does not make sense to check the other way? I'd be worried if
-> some a confidential device uses shared memory which might leak info.
+> This series has been getting bigger, going through it again, I see
+> that patches (1, 2, 3, 4, 5, 16, 20, 22) are not really related to the
+> shared DMA work and are either fixes for exisiting bugs or clean ups.
+> Would it make sense to have those separated?
 >
 
-From the perspective of the dma_capable() check, this should be allowed;
-that is, a trusted device is permitted to access shared memory.
+Some of these fixes were originally at the end of the series. However,
+it was suggested that they be moved earlier to make backporting easier.
+The changes are kept as a single series because of the code dependencies
+and to make it easier for Sashiko to apply and review them.
+
+One of the reasons I'm also requesting that this be picked up for -next
+is to avoid continuing to add more changes to the series at this stage.
 
 -aneesh
