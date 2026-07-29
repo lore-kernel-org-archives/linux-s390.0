@@ -1,145 +1,117 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA4B3486BAE;
-	Wed, 29 Jul 2026 13:02:49 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EAD4248EBC4
+	for <linux-s390@vger.kernel.org>; Wed, 29 Jul 2026 13:31:01 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785330173; cv=none; b=We+WOAUIloc38bvM0VOnOEYNn2LYsBGH6KmKz3NYVKgAQZz0yf3+9QdOQCA/cpoIUsOjJRbQ1KB7Da98shRMtwJvSugDnORCO6zXXvYyTjhcjvZjhxQrG3lY7MmgeT4ssVT1DgHcKi+vzHMKnQVOvBedDwynnIXBs0sF0KVk2p4=
+	t=1785331867; cv=none; b=fpGaXWIfHAPG1cR1YraaWN5HEDoHgawugKpc5AoyNLtmAt6+g7Uqv8aXdgV2HN+Kn4Ngxm0pkSenDsS3n3rHssfM1aWAdnvaXp3MBG5wbEs8lmCbTVyGIZp/omsQNTFD+BdzR/mp5CnKAFOYSuDen03q90bWIzuHfZ2wDz8SrP4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785330173; c=relaxed/simple;
-	bh=SDrPbwPsmo75Du/iHg+9g+qdqgzcJPEHzR8tXp00Sl4=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ZMqDu/wpe0OqDrTrgcd8RRVpV/eJsA8jJsorUONM4HLaa2r26IO72fAHqcqRedZ7y7VoPXrgp33cgrBQC3SDVtIapEv9+XxUScXacpCH5gmYL76TJCeh4csm3t5gXxX3WV03O/+SoHNEtJFeaOBrwdt7Fh1+AAlBqZmTlzcYoLM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=rqEFQGUu; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1785331867; c=relaxed/simple;
+	bh=wl9o5WZSQe75Cws4d59Y9J3P78eh55KmGMOPP2x3xZw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=gaCJ2wmj1aYbuHJPSxUskdNgJvvrhmpJMLcJPJuuc4NVSQ5GgNa73OLxV4G5nWbzwcqOWA5iZqxf4nljjG0kE3lSdrdClg3XsRVEJCFs9TN+WFMflsuIoOYiG11f/ufgH/LEVItCWcwfcxGEQx67/P3UrqQA/TLM+plDrVMBXhY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=KeUwU9ky; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="rqEFQGUu"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="KeUwU9ky"
 Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66TBHWc44062807;
-	Wed, 29 Jul 2026 13:02:42 GMT
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66TDHsU4127728
+	for <linux-s390@vger.kernel.org>; Wed, 29 Jul 2026 13:30:56 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=Ad0wgp3aJgiV4B/XXNKIXhTmDheby8lx719oeDI5d
-	6w=; b=rqEFQGUuh5DneBf9RUmfrKgZh5xqn3WJxqQ2cWl5BB3PslqGQX9bdezv6
-	UJoli0nuWVRQWtWde8TRJV0yyhKN+KG+En2rKJIQVrmBldV/tGq9FgEAzucuO/3N
-	2NFGiZCKIhuQK6vu1tsapsTqDTdfltFUp90fbDHxiG4fGf55vDPv5IHOQUmEK+20
-	mv2nTDrT3fvn/lFNLBDzI/sa39eHUvoxRbX5ZYgWD7mkzJeAXK6D1HwRzDr1zISc
-	cJ2JTDzq61LCNsnnPvBkbpqgA/xrKWKHqmoewKeU6Xq9zPqIsfU2dviP7T2je3RC
-	IPXJHlnJ51oo+pdmJPzjmKfFe77hQ==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fmv0xtsyg-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 29 Jul 2026 13:02:41 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66TCuQw5002882;
-	Wed, 29 Jul 2026 13:02:40 GMT
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=PhxQNLm+7uXcNAJpf1QCRZjLSG6yqd
+	1EVxoC65CwjEw=; b=KeUwU9kyjTx2flJkjP6Q8LkLsU19nvtwYQo8xZsE0TDiLh
+	y+NtRqwy+k7DdQwGdVBh2VjdY70dQTdwj3B9ie/xJMIP+Ui99gr1GP7KOqALQicv
+	SIe5dL7Hn8e070bImr0pirOLbVmkfYMbAMyOFFbjSL3uwmlWw4bsiqHL1S9xw97P
+	3dlfJlAaeyGw7Le5PE/JSWTWV2sumTNENmLLb344DfGtIeZ6VCxt9rBD3erQfPgp
+	UEnNbg69uM0wZXzJj5OmCbKvlucnbMJpyiK0RnK0TBU9FwkWu+E1BaYEKOU5mzpi
+	McWZzRnUBTAT1L+DtLmtbsoCsYvlpJBaTEtPjaaQ==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fmv0xtwwq-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Wed, 29 Jul 2026 13:30:56 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66TDQRV2019233
+	for <linux-s390@vger.kernel.org>; Wed, 29 Jul 2026 13:30:55 GMT
 Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fn8fk6sxr-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 29 Jul 2026 13:02:40 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66TD2aeO48234916
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fna5y6kjf-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Wed, 29 Jul 2026 13:30:55 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66TDUpiN50135534
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 29 Jul 2026 13:02:36 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4AEBD20063;
-	Wed, 29 Jul 2026 13:02:36 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 33B952004F;
-	Wed, 29 Jul 2026 13:02:36 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Wed, 29 Jul 2026 13:02:36 +0000 (GMT)
-Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 56341)
-	id DD5BD1628BC; Wed, 29 Jul 2026 15:02:35 +0200 (CEST)
-From: Mahanta Jambigi <mjambigi@linux.ibm.com>
-To: andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
-        kuba@kernel.org, pabeni@redhat.com, alibuda@linux.alibaba.com,
-        dust.li@linux.alibaba.com, sidraya@linux.ibm.com,
-        hidayath@linux.ibm.com
-Cc: pasic@linux.ibm.com, horms@kernel.org, tonylu@linux.alibaba.com,
-        guwen@linux.alibaba.com, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, Mahanta Jambigi <mjambigi@linux.ibm.com>
-Subject: [PATCH net] net/smc: fix qentry overwrite for CONFIRM_LINK and ADD_LINK_CONT in smc_llc_event_handler()
-Date: Wed, 29 Jul 2026 15:01:53 +0200
-Message-ID: <20260729130153.970800-1-mjambigi@linux.ibm.com>
-X-Mailer: git-send-email 2.53.0
+	Wed, 29 Jul 2026 13:30:51 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id BE8A820043;
+	Wed, 29 Jul 2026 13:30:51 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 7BA4A20040;
+	Wed, 29 Jul 2026 13:30:51 +0000 (GMT)
+Received: from localhost (unknown [9.87.133.185])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Wed, 29 Jul 2026 13:30:51 +0000 (GMT)
+Date: Wed, 29 Jul 2026 15:30:50 +0200
+From: Vasily Gorbik <gor@linux.ibm.com>
+To: Holger Dengler <dengler@linux.ibm.com>
+Cc: freude@linux.ibm.com, linux-s390@vger.kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>, ifranzki@linux.ibm.com
+Subject: Re: [PATCH v1 0/2] s390/zcrypt: Validate length in CCA key requests
+Message-ID: <ttixuve@ub.hpns>
+References: <20260729093616.4184642-1-dengler@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20260729093616.4184642-1-dengler@linux.ibm.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-GUID: p3OING_fplFz6uR4NO91Ccwtw0s6YG7w
-X-Proofpoint-ORIG-GUID: KtSl6z0MAI8W_zgo2CKPMKsDtp8Fmy-n
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI5MDEwNiBTYWx0ZWRfX0XSKgU/E1j20
- TrRCL+HpokK1cILHKe1qRT5+UaR4GVCN4xk2C+MygBhaoyrswjmLjzdILcaPY9EVgDctDI01h0W
- PyCtzl8n/rZM7/OT3NHA0iD4QtwrK9s=
-X-Authority-Analysis: v=2.4 cv=dYuwG3Xe c=1 sm=1 tr=0 ts=6a69f9f2 cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8 a=W179ObIX3BJvcE7xjOIA:9
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI5MDEwNiBTYWx0ZWRfXy5TloUljpG7y
- Xte/8/pjmm7IaUGBG3v3Vt9EBfSUv5Wk5PuRKX+SFZcDI+yRPw6Xft5bLlss021z3iF1pK5af+1
- a0xygai9A2zflMdKIvVRVRF/vkRNCtVjmU39iPFjONGzURxvzFjrBKaMKmcXSDPo4Gy61luFTQO
- NrXgdGU+AJPzvt9RIblCfRCYJaME9ZYFxgGr1wnKHB9DENlSJ+oJ3dpy0S1MKGb9FzN/9SJ4M2a
- EbvR3VI843wVI2uiFU2VwyfDXRXpC562tLrlWKXWEilwE2ltPjE41t+mMQGECiAOkLGiNISFXMP
- 30XTM+SpFw8P+LYVn2yTHCiNM5gElmyvOSW09rdOya+8ZrK75uBpBg+NX0CYNMeNL03JIXLNTuL
- Ae2XlCpn2RmZfjtgM/nStTNfrDCNrmZe/Mkm7wodL/ogFjLxmdMA+upy45OJChG06bNWEh8Ia6j
- 6WrhIVY63WYdSQcrMEA==
+X-Proofpoint-GUID: KCIr2dwRM2LMlD7fE0aWYr5KKQxghrvZ
+X-Proofpoint-ORIG-GUID: KCIr2dwRM2LMlD7fE0aWYr5KKQxghrvZ
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI5MDExMCBTYWx0ZWRfX7D8jcAAN0UFj
+ bkCbIYuTTN1ni/zz/Nqo0AyQM6fS1DMrWmvk/3zVCvKRmdOrl96SLCPJkjE6lrbUWYb9lUnl48u
+ B8aFSMV8JcTOaViRxCOjEdi0ij/Rb8I=
+X-Authority-Analysis: v=2.4 cv=dYuwG3Xe c=1 sm=1 tr=0 ts=6a6a0090 cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=r0tFQrFAznK0qOXvjb4A:9
+ a=QEXdDO2ut3YA:10 a=zgiPjhLxNE0A:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI5MDExMCBTYWx0ZWRfX7ntY4sfVrdWP
+ zv9ffbX8MHk8ye3ywfMkOrFrq/QSrt/qHXkEDtmbqdWeDnZc5axqn2z261ER2H40JVG2hh66EeS
+ Je5usqETGVpPkmgpuuvzDmhyoNg82wouCRxlLdT4D9aWWzvTXQW4SRfBPVyr3fakUI4kjODUlZu
+ ls9aBBxeqY8Y+I5ehvvVmncWlPYvhGJlUTIszrkc/9FuOZm9AIJxF1A2/mIgrzdM5LPuIPCO4uV
+ 6R0mVdS9O1QjjQmK5mVpla5LvdQtL5jv3MlFEAMjgHY6b2MZ0Cy0+zwI9GOykD22tgIHlh4p2eF
+ enBAzf3WMMgQygiJ05fBuu76eqn5cUUguhT7Jd2VzJN4132XmSoY4gYWZfrFGPQ1UiF8EHbkjBw
+ sdP/x+xmWwy0tRyD3aSG/ihmgbe6/fXIIWdtbLH6IfR3zn7ThV5fiUBKYS62kddzzhtmNjLuQBK
+ lCQFK7iT3+/b7m5ld7Q==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-07-29_04,2026-07-28_02,2025-10-01_01
+ definitions=2026-07-29_05,2026-07-28_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
  priorityscore=1501 impostorscore=0 clxscore=1015 phishscore=0 malwarescore=0
  spamscore=0 lowpriorityscore=0 bulkscore=0 suspectscore=0 adultscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607290106
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607290110
 
-The SMC_LLC_CONFIRM_LINK / SMC_LLC_ADD_LINK_CONT branch in
-smc_llc_event_handler() stores an incoming qentry into the local LLC flow
-without first checking whether a qentry is already pending. If a malicious or
-buggy peer sends a second CONFIRM_LINK or ADD_LINK_CONT request while a flow is
-active and flow->qentry is already set, smc_llc_flow_qentry_set() overwrites the
-pointer without freeing the previous allocation, leaking one kmalloc-96 object
-per spurious message.
+On Wed, Jul 29, 2026 at 11:36:14AM +0200, Holger Dengler wrote:
+> The series contains two missing length field validations for requests
+> with CCA AES cipher keys and CCA ECC private keys. In both cases, the
+> length information is used to copy the payload to the request block
+> without checking the available space. Malformed requests can so cause
+> out-of-band writes on the heap.
+> 
+> This series applies on top of Linus' master branch.
+> 
+> Holger Dengler (2):
+>   s390/zcrypt: Validate length for CCA AES cipher key requests
+>   s390/zcrypt: Validate length for CCA ECC private key requests
+> 
+>  drivers/s390/crypto/zcrypt_ccamisc.c | 6 ++++++
+>  1 file changed, 6 insertions(+)
 
-The sibling SMC_LLC_DELETE_LINK branch already has the correct !flow->qentry
-guard. Apply the same guard to the CONFIRM_LINK/ADD_LINK_CONT branch so that a
-duplicate message when qentry is already occupied falls through to break and is
-freed by the kfree(qentry) at the out: label, rather than silently leaking the
-existing allocation.
-
-The response direction (smc_llc_rx_response()) is unaffected: it already guards
-with flow->qentry at the equivalent site and drops duplicate responses
-correctly.
-
-Fixes: 0fb0b02bd6fd ("net/smc: adapt SMC client code to use the LLC flow")
-Signed-off-by: Mahanta Jambigi <mjambigi@linux.ibm.com>
-Reviewed-by: Hidayath Khan <hidayath@linux.ibm.com>
-Reviewed-by: Sidraya Jayagond <sidraya@linux.ibm.com>
----
- net/smc/smc_llc.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
-index 954b2ff1815c..aa6d83af55ed 100644
---- a/net/smc/smc_llc.c
-+++ b/net/smc/smc_llc.c
-@@ -1927,7 +1927,8 @@ static void smc_llc_event_handler(struct smc_llc_qentry *qentry)
- 		return;
- 	case SMC_LLC_CONFIRM_LINK:
- 	case SMC_LLC_ADD_LINK_CONT:
--		if (lgr->llc_flow_lcl.type != SMC_LLC_FLOW_NONE) {
-+		if (lgr->llc_flow_lcl.type != SMC_LLC_FLOW_NONE &&
-+		    !lgr->llc_flow_lcl.qentry) {
- 			/* a flow is waiting for this message */
- 			smc_llc_flow_qentry_set(&lgr->llc_flow_lcl, qentry);
- 			wake_up(&lgr->llc_msg_waiter);
--- 
-2.53.0
-
+Applied, thank you!
