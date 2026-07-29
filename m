@@ -1,45 +1,45 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C23F3D9DA0
-	for <linux-s390@vger.kernel.org>; Wed, 29 Jul 2026 17:07:40 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E1C8442131;
+	Wed, 29 Jul 2026 17:08:36 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785344861; cv=none; b=sbSm0mhR+tLiSNR1nGQ2RAltH+sNG44RCwnpFxOjzenKUtWCj1JvSin/uCdylYbHm3PhjkQBMo3hpPUC2ot09szWpBXoNxCfvkFO0BkMv/6uTHjBHiLcMbzIJHuMjmVlolfUmWehQTUwesSQA6zlOmO0Ok7kXoYWte/ClrE0e8I=
+	t=1785344917; cv=none; b=jsxP0MYh6qvoOXTKIs5lKND4hMqCR2mEW/WTtExBgbNsxg1wJkQrWV6VAB/urdNe6Tc5++HxKq57jhBUbKl8OyPdnxbuE0UfEvbk+Hjb9ZBN5mYNFhY2tz+YL/U3VyDcQVamflC5e/WaqXGOycyrgo//r0trD7v0a38NIX4kZQg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785344861; c=relaxed/simple;
-	bh=lc4eeqs569yI9YyLCrbuZ4ghPtst9BznbgmScuKdWcQ=;
+	s=arc-20240116; t=1785344917; c=relaxed/simple;
+	bh=OAwvz7VUj4y9kVLsdtrA1rBz0MZbfWXYCPWERDZnUas=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=G2jCnLPBSJ3/b/Nvb5SQwMRxROyFKb3uuMaFQc+EgAzm4aajHErMMYVBd3Qg3h+V27w/AtbyGLvq8pGMWEx5I7fbwDoSDNBae38D/HpkGYeBhk5fsXWNtMYOe2tBtFoVjFxoewYwZigN1AWl4hXH7kzIvPWtoQctuysTBm1KvRk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VssgPC4m; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=EmkZf6djROQr5xgsmL567L5Pltg6WDLGoHEgIJm32Aph7119NoiKHtFGCV80lwnyMAU7sJgtt8VoB7ZgsSQvGoXIqL7lF9Go8Vbr9EY6FGl4syNWqPjjNTHVbbil1V2MZd4VWmqY6923osxhJ6QMcbWZa6Hpnp/uDUydaubPPLI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Zd66pdug; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VssgPC4m"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0FF11F000E9;
-	Wed, 29 Jul 2026 17:07:39 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Zd66pdug"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AAFD31F000E9;
+	Wed, 29 Jul 2026 17:08:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785344860;
-	bh=PTMsJzRa9siNZDNQKLvLw7EixQ/xYF3JXtBcDJQtWq8=;
+	s=k20260515; t=1785344916;
+	bh=hBh13dXyn04HxHOd7b4uZQ2mshdf/ibYTa3XnlWIu8E=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=VssgPC4mIRNxZMayu+c6sTjEx1AWlVPf/e05tE9zGst5j6MhXrXQYfC3gByFo/U61
-	 VFyPdQAbKNsPzhgN70PYUimYPYcl8bYeGu+C07DYwCCycpRXgKo3p82MQbAQkp1N2r
-	 IIDu9BP1aHiUS6uwqpLMRQmWcYuv77nUbtOJG/RKCcENKYHU92yE85p4MhGPhLl94u
-	 uZejKd9H5Z1WhSyvAU+LKmzpF8wVkN1AzRwnuQqwLuHuMcLuDuqRI06Lqrqc9/0nbU
-	 +Kawb6BQqw08CpLyckOMfoN4oQhWpGylvY0HfAgIIP46H+xJJM0ArPtN2Pr/VaTydk
-	 y1iG+ykm02wNw==
+	b=Zd66pduglQQ4AUVImOfWP6jhxsi7k1PrR8VQobZWKJYbqqXyMAbfQeRD6uyL8mj1Q
+	 bfhot5lSAQXmaKOAXHJYzVc6YJChBAZ/WWqawrDIwAm2q97TT/Olk4UZWvVg4Owumu
+	 l9t9TVMn7/1mm4M+hkT1BVoqVLI52i6FikBYVM30NuRp8jofjuQ9e1ktH9act3FAEo
+	 gR9gvHF0bQvWhA7pAIl1cLbvLw0yrF/vQUqgOlh9oM0FBEChqdUKecjWMRHxl4rF7S
+	 OF594Xh0glH5SK673HwAe549cyVnqe71w8NI30nUqIjvBEIn2Intv9cUFs6TxvtsmI
+	 cAw9GRS7WQ0cA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v9 5/5] s390/zcrypt: Pad trailing CCA or EP11 message
- with zeros
+Subject: Re: [PATCH v5 05/13] KVM: s390: Fix leaking of PGM_ADDRESSING to
+ userspace
 Reply-To: sashiko-reviews@lists.linux.dev
-To: "Harald Freudenberger" <freude@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Vasily
- Gorbik" <gor@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>
-In-Reply-To: <20260729154458.195135-6-freude@linux.ibm.com>
-References: <20260729154458.195135-1-freude@linux.ibm.com>
- <20260729154458.195135-6-freude@linux.ibm.com>
+To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>
+In-Reply-To: <20260729152938.782383-6-imbrenda@linux.ibm.com>
+References: <20260729152938.782383-1-imbrenda@linux.ibm.com>
+ <20260729152938.782383-6-imbrenda@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 29 Jul 2026 17:07:39 +0000
-Message-Id: <20260729170739.C0FF11F000E9@smtp.kernel.org>
+Date: Wed, 29 Jul 2026 17:08:35 +0000
+Message-Id: <20260729170835.AAFD31F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -50,60 +50,92 @@ Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [High] This problem wasn't introduced by this patch, but an integer overf=
-low and incomplete bounds checking in hardware response parsing allows a ma=
-ssive out-of-bounds kernel memory leak to userspace.
+- [High] O(N^2) execution and potential soft lockup in `kvm_s390_set_skeys`=
+ and `kvm_s390_set_cmma_bits` due to restarting the iteration from `0` on e=
+very MMU cache top-up.
 --
 
---- Patch [5]: [PATCH v9 5/5] s390/zcrypt: Pad trailing CCA or EP11 message=
- with zeros ---
-commit 0141bfa352999fc87f7b7c58c7c727f991c4b416
-Author: Harald Freudenberger <freude@linux.ibm.com>
+--- Patch [5]: [PATCH v5 05/13] KVM: s390: Fix leaking of PGM_ADDRESSING to=
+ userspace ---
+commit 89e2ddf835cf981fcd7459eaa6f4853002045254
+Author: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-s390/zcrypt: Pad trailing CCA or EP11 message with zeros
+KVM: s390: Fix leaking of PGM_ADDRESSING to userspace
 
-This patch fixes an information leak to the crypto card firmware. It zeroes
-out the gap between the user space copied message and the message buffer
-length sent to the CCA or EP11 message processing.
+This commit fixes KVM operations like kvm_s390_set_skeys and
+kvm_s390_set_cmma_bits by converting positive error codes (such as
+PGM_ADDRESSING) to -EFAULT. This ensures negative error values are properly
+returned to userspace.
 
-> diff --git a/drivers/s390/crypto/zcrypt_msgtype6.c b/drivers/s390/crypto/=
-zcrypt_msgtype6.c
-> index da7580933c6f2..4a60540b07003 100644
-> --- a/drivers/s390/crypto/zcrypt_msgtype6.c
-> +++ b/drivers/s390/crypto/zcrypt_msgtype6.c
+> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> --- a/arch/s390/kvm/kvm-s390.c
+> +++ b/arch/s390/kvm/kvm-s390.c
 
 [ ... ]
 
+> @@ -2274,7 +2274,7 @@ static int kvm_s390_set_skeys(struct kvm *kvm, stru=
+ct kvm_s390_skeys *args)
+>  	kvm_s390_free_mmu_cache(mc);
+>  out:
+>  	kvfree(keys);
+> -	return r;
+> +	return r <=3D 0 ? r : -EFAULT;
+>  }
+
 [Severity: High]
-This is a pre-existing issue, but I noticed an integer overflow and
-incomplete bounds checking in hardware response parsing that could allow an
-out-of-bounds kernel memory leak to userspace.
+This is a pre-existing issue, but does the iteration in kvm_s390_set_skeys()
+risk a soft lockup?
 
-In zcrypt_msgtype6_receive():
+If dat_set_storage_key() returns -ENOMEM because the MMU cache is depleted,
+the outer do-while loop tops up the cache and retries. However, the inner
+for-loop unconditionally restarts from i =3D 0:
 
-        if (t86r->fmt2.count2)
-            len =3D t86r->fmt2.offset2 + t86r->fmt2.count2;
-        else
-            len =3D t86r->fmt2.offset1 + t86r->fmt2.count1;
+        scoped_guard(read_lock, &kvm->mmu_lock) {
+                for (i =3D 0 ; i < args->count; i++) {
+                        r =3D dat_set_storage_key(mc, kvm->arch.gmap->asce,
+                                                args->start_gfn + i, keys[i=
+], 0);
 
-If a compromised or malicious crypto device firmware returns a response whe=
-re
-offset1 + count1 overflows 32-bit arithmetic, it might bypass the buffer
-size check. Alternatively, if count2 is non-zero, the bounds check in
-zcrypt_msgtype6_receive() only validates offset2 + count2 and completely
-ignores offset1 + count1.
+If userspace passes a large count (up to KVM_S390_SKEYS_MAX), restarting fr=
+om
+0 on every page table allocation could result in O(N^2) execution time.=20
 
-Later in convert_type86_xcrb():
+Since this is done while holding the mmu_lock with preemption disabled, cou=
+ld
+this trigger RCU stalls or kernel panics?
 
-    if (z_copy_to_user(userspace, xcrb->reply_control_blk_addr,
-               data + msg->fmt2.offset1, msg->fmt2.count1))
-        return -EFAULT;
+[ ... ]
 
-Since the bounds check can pass under those conditions, could offset1 be
-used as an unvalidated offset into kernel memory here, resulting in
-z_copy_to_user() copying out-of-bounds kernel memory into the user-provided
-buffer?
+> @@ -2384,7 +2384,7 @@ static int kvm_s390_set_cmma_bits(struct kvm *kvm,
+> =20
+>  	set_bit(GMAP_FLAG_USES_CMM, &kvm->arch.gmap->flags);
+> =20
+> -	return r;
+> +	return r <=3D 0 ? r : -EFAULT;
+>  }
+
+[Severity: High]
+This is also a pre-existing issue, but does kvm_s390_set_cmma_bits() have
+the same quadratic restart problem?
+
+Similar to the skeys function above, if dat_set_cmma_bits() returns -ENOMEM,
+the loop tops up the cache and restarts processing from args->start_gfn:
+
+        do {
+                r =3D kvm_s390_mmu_cache_topup(mc);
+                if (r)
+                        return r;
+                scoped_guard(read_lock, &kvm->mmu_lock) {
+                        r =3D dat_set_cmma_bits(mc, kvm->arch.gmap->asce, a=
+rgs->start_gfn,
+                                              args->count, args->mask, bits=
+);
+                }
+        } while (r =3D=3D -ENOMEM);
+
+Should these loops advance the starting address/index so they resume where
+they left off instead of starting over?
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260729154458.1951=
-35-1-freude@linux.ibm.com?part=3D5
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260729152938.7823=
+83-1-imbrenda@linux.ibm.com?part=3D5
