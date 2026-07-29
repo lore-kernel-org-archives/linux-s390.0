@@ -1,31 +1,31 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EDAD6439332;
-	Wed, 29 Jul 2026 09:05:50 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC94C442FAD;
+	Wed, 29 Jul 2026 09:09:20 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785315952; cv=none; b=vCJ4oU1KLe3o0OzyQCcLUpEB+ny+NTTeaUxW+qizmMlc10x9+JLcfvtDO4TA/XpY7o6t/Wa73xTxYT9Q3KDqz6ZvnqOUWrsgvNC/bmYYU49kgdffVbViNq/wDROsdOEAudcSk1VGYuSElar3V6WBxN+3rm63bYd1YV1W38Q1c7Y=
+	t=1785316161; cv=none; b=DsXtbVsy7EXJM3o9iqsrNSuPq0FHc6BJ/Z6FlyZoow5vvi9hGrUGspKlJkne2srEF7kwY17tA3CHV7g79ZkP3zCp2rnzyh6XesYIJFkpOZ0hdl2D32hfNx3fiXHwIP5dXgKqCuBIvA8zObrdV4uHwY/clzeyvDHfk+1GQhLWXvs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785315952; c=relaxed/simple;
-	bh=Ifgsh1erQBtK7EZCOyhFIlGF/sTEQ/sRw8fApy8L8b0=;
+	s=arc-20240116; t=1785316161; c=relaxed/simple;
+	bh=hPcS3YA9tQ7BB8XX1AWw3zre5i5jAQ3HY/DvSaz1owM=;
 	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=P02UAwKo6T3D6hcYiSWNp9gcziv3Jza98g9Pa4tjrr7LaGuOHjf2gB0aykMsk5iuaTfrw1KYEm6mGPxV0gVMd3PqA5JSrnS0Jb5LAsKpFtMEKA3m8m/J/szLmujaH4LxrTx7Q+SzKRtcLwovkOmSvX49fFjRVb8vqKfH4sEYhjM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FIiVguq8; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=WDSKHTzrKgUg4yE8J1E/PYqTbdv0E7YrMVt9vjmoUuoxejPaqwBDV2ZmyjFKgga/yHMf8bYg6D274/mkrpdgo5U8s8eobyzmD6d5A2SJWAt8E9wpDYfueRFIV+U3d9ZphcOd07Y5tdL1GwFtJN2ngV9yOqpjqbW8KuXOgqcR/rA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=A2VcftX+; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FIiVguq8"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46B8C1F000E9;
-	Wed, 29 Jul 2026 09:05:39 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="A2VcftX+"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BD2D1F000E9;
+	Wed, 29 Jul 2026 09:09:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785315950;
-	bh=mdJF8EmQKgpnQ4yp7hIAeNI8pBNYHTci1rt2RdWV4Nk=;
+	s=k20260515; t=1785316160;
+	bh=3SpSxnvuNGmLHWtJ7jUwkJNoaIB6p9cDPcBNT0kYRN8=;
 	h=From:To:Cc:Subject:In-Reply-To:References:Date;
-	b=FIiVguq8KuBDqtT0PXndjI3quzG7GdBQ1gIp34vD37A8jQkdWqL0UX8t4ngnnjw/Y
-	 C1TGNG6KB/mLppq5/XDp/OJd0nOoba+lKfaEOW1LX+EA2h4mD1pQbF1PvCJ/Q/Eqzu
-	 JYHZG1UhYCRPP+hX0i3nNC/TPyuGs3AWR/UFZrCcjQeHQFvPfssnUTotdfEDMCcf9C
-	 Bque7EqPetzJBNZ/tmfvnu38rco3IaKUW/tUjUkQDC8B9Va+jAkXSWlio5jwcBDJcQ
-	 032EZr/fGZqP3Ig+R6AV32MntNnjBgko8r+IdZsY00ucLhuRfLDTrWkLN6fQNm1iE3
-	 VDhP3iJzHAcTA==
+	b=A2VcftX+szPrGFM49eBI8rgFYkmukzvFokMsd6WGe+h74xvC6CtdICs0UZ4yjOqvR
+	 fdcdUi7fzgpOIuZL4RtiddkR2ScDaD1cM0BLIuDlG5jfNQnWGV0+ncs9XXY9Jex52k
+	 tM0VQtKPqoomYgjwCx715PfvDmGSE4Gn1EIUcmgyqaAnRRJQaMVwm6nS/F4mOO27ja
+	 qcoSXdaQMlMbY8tkdYIqHfSFfCMxIeoHQkHUsXhWW/I8Fs/VcUew2AFEtR4JR7Y19H
+	 PUnnq88/Wgvhkl2D7ezzQNWPFWPputmv9S883P/cocuobYpEolgl3n/xjWk2H65qch
+	 z6Y42MpMAW7YQ==
 X-Mailer: emacs 30.2 (via feedmail 11-beta-1 I)
 From: Aneesh Kumar K.V <aneesh.kumar@kernel.org>
 To: Mostafa Saleh <smostafa@google.com>
@@ -55,15 +55,16 @@ Cc: iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
 	Christian Borntraeger <borntraeger@linux.ibm.com>,
 	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org,
 	Jason Gunthorpe <jgg@nvidia.com>,
+	Jiri Pirko <jiri@nvidia.com>,
 	Michael Kelley <mhklinux@outlook.com>
-Subject: Re: [PATCH v8 12/23] dma: swiotlb: pass mapping attributes by
- reference
-In-Reply-To: <ami_mpd_1pF4Tmdu@google.com>
+Subject: Re: [PATCH v8 15/23] dma-direct: pass attrs to dma_capable() for
+ DMA_ATTR_CC_SHARED checks
+In-Reply-To: <ami9CIGanuQX3lxb@google.com>
 References: <20260717180442.110954-1-aneesh.kumar@kernel.org>
- <20260717180442.110954-13-aneesh.kumar@kernel.org>
- <ami_mpd_1pF4Tmdu@google.com>
-Date: Wed, 29 Jul 2026 14:35:36 +0530
-Message-ID: <yq5a5x1ygo7z.fsf@kernel.org>
+ <20260717180442.110954-16-aneesh.kumar@kernel.org>
+ <ami9CIGanuQX3lxb@google.com>
+Date: Wed, 29 Jul 2026 14:39:08 +0530
+Message-ID: <yq5a33x2go23.fsf@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -74,32 +75,28 @@ Content-Type: text/plain
 
 Mostafa Saleh <smostafa@google.com> writes:
 
-> On Fri, Jul 17, 2026 at 11:34:30PM +0530, Aneesh Kumar K.V (Arm) wrote:
->> Change swiotlb_tbl_map_single() to take the DMA mapping attributes by
->> reference and update the direct callers accordingly.
->> 
->> This is a preparatory change for a follow-up patch which updates the
->> attributes based on the selected swiotlb pool. Keeping the signature change
->> separate makes the follow-up patch easier to review.
->> 
+>>  static inline bool dma_capable(struct device *dev, dma_addr_t addr, size_t size,
+>> -		bool is_ram)
+>> +		bool is_ram, unsigned long attrs)
+>>  {
+>>  	dma_addr_t end = addr + size - 1;
+>>  
+>>  	if (addr == DMA_MAPPING_ERROR)
+>>  		return false;
+>> +	/*
+>> +	 * The DMA address was derived from encrypted RAM, but this device
+>> +	 * requires unencrypted DMA addresses. Treat it as not DMA-capable
+>> +	 * so the caller can fall back to a suitable SWIOTLB pool.
+>> +	 */
+>> +	if (!(attrs & DMA_ATTR_CC_SHARED) && force_dma_unencrypted(dev))
+>> +		return false;
+>> +
 >
-> I do not understand the point of this, why would
-> swiotlb_tbl_map_single() force attrs over the caller which should
-> already know the context (whether DMA is shared or not) which case
-> would this be useful to force from the SWIOTLB code?
+> I guess it does not make sense to check the other way? I'd be worried if
+> some a confidential device uses shared memory which might leak info.
 >
 
-The mapping request was for private memory, but the device could not use
-it because the dma_capable() (force_dma_unencrypted() == true) check
-failed. As a result, dma_direct_map_phys() allocated a swiotlb bounce
-buffer, which is shared. Since the DMA now targets the shared bounce
-buffer rather than the original private memory, the attributes must be
-updated to reflect the new shared mapping.
-
-dma_addr = phys_to_dma(dev, phys);
-if (unlikely(!dma_capable(dev, dma_addr, size, true)))
-	if (is_swiotlb_active(dev))
-		return swiotlb_map(dev, phys, size, dir, attrs);
-
+From the perspective of the dma_capable() check, this should be allowed;
+that is, a trusted device is permitted to access shared memory.
 
 -aneesh
