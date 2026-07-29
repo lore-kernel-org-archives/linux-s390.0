@@ -1,107 +1,156 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 655FC45C70B;
-	Wed, 29 Jul 2026 16:06:43 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 894653B05B5
+	for <linux-s390@vger.kernel.org>; Wed, 29 Jul 2026 16:19:51 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785341204; cv=none; b=EvFMB0hC36+NSgUhipnJ2YWXrMb/5k/6XmnxUluCz5pv1onKXmBQ/0SSQvS9sPtmXit7P8bU4zT3wKCeLRtz7mqyUztPI4w3ammOch3t9cBLmlWd2M9sUKGrHOHsEXW7JxzZYA34C92Ak1g6z+fiGJwXP897g/7WBS+8BxwEBiA=
+	t=1785341994; cv=none; b=pJrZkrOf2HOIMePKwZvo63mXD7TmwXjkJXb6CSRVckUE9av/Rlw1HMNdUQpCsUoSDHFpn+j75fmlaegYPeKbUb1xEeuj+9/5eJJfK0fV1kFJIqPeW6w05AixPOrzFzY8VsopGMgwhELAP3/bx6+BqhFWCGG9jZl0XlpRNhowzcg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785341204; c=relaxed/simple;
-	bh=imHAnHOASMszjFWAAI6pzhns/ootIV7dQYseIplO2k4=;
+	s=arc-20240116; t=1785341994; c=relaxed/simple;
+	bh=yhdw9DP+BHMnAZYtgY8FLfi73O0T5fhm9CX5PHDqwDw=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=rCOwq4Gge9pTAOGZfUW1dFCs5IwKesPbu0fVYetxkNr3Qb2Oerlp+XBbxPg4UxbNiMhmal8IuAwUks8OQbE6V8WXOUZIB/eU390zdGTYlqqwIdJa+lG+/W9enbTsfeWk+RIOmk6VIUD76RHSSHickmbNtrsbnSut7cYXnzsiHIM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ScBiVHwz; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=EsAgLDZUq7du3rdLGc3zEEbbt+9KMFwOepqKttSsdGYeIu5qBQRgeLSShojEzBwaQTcUYLwOTJbitGbNey85D0koDdTRk23CZWbUj1j76gfv1pOn15gHBHRQ0S8cbs3sZi53CMKsWe5FNvo693DFtb4sefQBuR7y12XJMy8YsoE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PMN/7iHY; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ScBiVHwz"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B18C11F000E9;
-	Wed, 29 Jul 2026 16:06:42 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PMN/7iHY"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DC9A1F000E9;
+	Wed, 29 Jul 2026 16:19:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785341202;
-	bh=AewAhwS41Pk4oMbqWPkVLHWxwzQQ0Kl5/+DIZm+/H9A=;
+	s=k20260515; t=1785341991;
+	bh=4I+rfb5KdqNksa98vGi0uckJM9A5hHR98jKqcc8521I=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=ScBiVHwzzJ6vOwoi2avjW9PsEY5Ni/7Uuzmv/p3nVmCm8QF55hqw+/S0kYl7xhQrw
-	 P4MblHikTjUXh8Pv9u2k2wqQLXbEg0KuYXkndtKXDa7XPlVoTNp+C6i3dAEscUZ8oG
-	 MsKSIqx+eIRo5IdneAwjk6v1QJ+7lc+Ak2zFp77b6jOJ4xcIjbFCNbP4pOWlSYMug+
-	 bW3cujRV/N7MRlVDPAS23inILFzvXSFcd3ya9d/hhXp0FFIwjAlek0ckEbnU9I8qY2
-	 qKIC2lI3V3SD1PL0OjJjwYSpvtXcD9BDfjJI1Fi7RwKhRF9/nwqTqZ0ORxUN5j2G/h
-	 XPHICYKbkpjww==
+	b=PMN/7iHYFVqTFyip2x5o6nRYWABMZFL4osZYed+vb792xGJQpb2L8HxruQiN6iqjS
+	 T94eTUwe08Q/fQnubbfhzcWex7F4bRw3+9NqxzT1QICnLZAUWqFCN11D8LpNSknFxi
+	 30Y1Zd8mo7iuldGuvTxHJI1ONI0eqkzr1Is+fFFFrFP31CUfXkIN5T6MplF9wQgY7g
+	 eXuN8Qv0XYPPgeyrcc3MVyPOUU2pMvVUAMtyrWOcIZ7ZyJSFMGDG8WrToz/3AXV40d
+	 aqF4axp8FfPAmL9cnZSzqwrtjx4hBYfuxQLTZVqTul9xNRo1i3940U3m+iHnLAxwlC
+	 vuILRAKTAyfMA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 02/13] KVM: s390: Fix kvm_s390_vcpu_unsetup_cmma()
+Subject: Re: [PATCH v9 2/5] s390/zcrypt: Improve CCA CPRB length and
+ overflow checks
 Reply-To: sashiko-reviews@lists.linux.dev
-To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>
-Cc: kvm@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>, "Heiko
- Carstens" <hca@linux.ibm.com>, linux-s390@vger.kernel.org, "Alexander
- Gordeev" <agordeev@linux.ibm.com>
-In-Reply-To: <20260729152938.782383-3-imbrenda@linux.ibm.com>
-References: <20260729152938.782383-1-imbrenda@linux.ibm.com>
- <20260729152938.782383-3-imbrenda@linux.ibm.com>
+To: "Harald Freudenberger" <freude@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>, "Heiko
+ Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
+In-Reply-To: <20260729154458.195135-3-freude@linux.ibm.com>
+References: <20260729154458.195135-1-freude@linux.ibm.com>
+ <20260729154458.195135-3-freude@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 29 Jul 2026 16:06:42 +0000
-Message-Id: <20260729160642.B18C11F000E9@smtp.kernel.org>
+Date: Wed, 29 Jul 2026 16:19:50 +0000
+Message-Id: <20260729161950.8DC9A1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
 s) to consider:
 
+New issues:
+- [High] Uninitialized memory read due to incorrect bounds check when copyi=
+ng subfunction code.
+- [Low] Redundant and mathematically impossible integer overflow checks on =
+64-bit sum calculations.
+
 Pre-existing issues:
-- [High] The struct kvm_s390_mmu_cache allocated in kvm_arch_vcpu_create() =
-is leaked on error paths.
+- [High] Missing minimum size validation for EP11 CPRB messages allows read=
+ing uninitialized memory.
 --
 
---- Patch [2]: [PATCH v5 02/13] KVM: s390: Fix kvm_s390_vcpu_unsetup_cmma()=
- ---
-commit 0d3b94e982f008ae0ede697fd75113aea3b668c3
-Author: Claudio Imbrenda <imbrenda@linux.ibm.com>
+--- Patch [2]: [PATCH v9 2/5] s390/zcrypt: Improve CCA CPRB length and over=
+flow checks ---
+commit 93cf9dfadb28a27fc37f0252a7721661ccec467d
+Author: Harald Freudenberger <freude@linux.ibm.com>
+s390/zcrypt: Improve CCA CPRB length and overflow checks
 
-KVM: s390: Fix kvm_s390_vcpu_unsetup_cmma()
+This commit addresses integer overflow and missing bounds checks in the
+xcrb_msg_to_type6cprb_msgx function during CCA CPRB processing. It introduc=
+es
+64-bit size_t variables for length arithmetic and explicitly bounds the
+calculated lengths to U32_MAX. Minimum control block sizes are also validat=
+ed
+prior to copying data from userspace.
 
-In some cases kvm_s390_vcpu_unsetup_cmma() can be called with a 0 cbrlo.
-This commit fixes an issue where running with V !=3D R causes free_page() to
-attempt freeing physical page 0 by ensuring cbrlo is only freed if it is
-non-zero.
+> --- a/drivers/s390/crypto/zcrypt_msgtype6.c
+> +++ b/drivers/s390/crypto/zcrypt_msgtype6.c
 
-> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index 2fe2e46b7ac39..096b426c1281b 100644
-> --- a/arch/s390/kvm/kvm-s390.c
-> +++ b/arch/s390/kvm/kvm-s390.c
-> @@ -3675,7 +3675,8 @@ static void kvm_s390_vcpu_crypto_setup(struct kvm_v=
-cpu *vcpu)
-> =20
->  void kvm_s390_vcpu_unsetup_cmma(struct kvm_vcpu *vcpu)
->  {
-> -	free_page((unsigned long)phys_to_virt(vcpu->arch.sie_block->cbrlo));
-> +	if (vcpu->arch.sie_block->cbrlo)
-> +		free_page((unsigned long)phys_to_virt(vcpu->arch.sie_block->cbrlo));
->  	vcpu->arch.sie_block->cbrlo =3D 0;
->  }
+[ ... ]
 
-This is a pre-existing issue, but while reviewing this file I noticed a
-memory leak in kvm_arch_vcpu_create().
+> @@ -342,49 +342,40 @@ static int xcrb_msg_to_type6cprb_msgx(bool userspac=
+e, struct ap_message *ap_msg,
+> +	req_sumlen =3D req_cblen + xcrb->request_data_length;
+> +	if (req_sumlen > U32_MAX)
+> +		return -EINVAL;
+> +	if (req_cblen <=3D xcrb->request_data_length ?
+>  	    req_sumlen < xcrb->request_data_length :
+> -	    req_sumlen < CEIL4(xcrb->request_control_blk_length)) {
+> +	    req_sumlen < req_cblen) {
+>  		return -EINVAL;
+>  	}
 
-When a subsequent initialization step inside kvm_arch_vcpu_create() fails,
-the function jumps to the out_free_sie_block label:
+[Severity: Low]
+Does this ternary check provide any value now that the lengths are using
+64-bit size_t?
 
-arch/s390/kvm/kvm-s390.c:kvm_arch_vcpu_create() {
-    ...
-	vcpu->arch.mc =3D kvm_s390_new_mmu_cache();
-	if (!vcpu->arch.mc)
-		return -ENOMEM;
-    ...
-out_free_sie_block:
-	free_page((unsigned long)(vcpu->arch.sie_block));
-	return rc;
-}
+Since req_cblen and req_sumlen are bounded to U32_MAX, their sum cannot
+overflow a 64-bit variable, making this condition impossible to reach.
+
+[ ... ]
+
+> @@ -404,8 +395,8 @@ static int xcrb_msg_to_type6cprb_msgx(bool userspace,=
+ struct ap_message *ap_msg,
+>  			     xcrb->request_control_blk_addr,
+>  			     xcrb->request_control_blk_length))
+>  		return -EFAULT;
+> -	if (msg->cprbx.cprb_len + sizeof(msg->hdr.function_code) >
+> -	    xcrb->request_control_blk_length)
+> +	/* copy subfunction code into AP msg type 6 function code field */
+> +	if (msg->cprbx.cprb_len > req_cblen - sizeof(msg->hdr.function_code))
+>  		return -EINVAL;
+>  	function_code =3D ((unsigned char *)&msg->cprbx) + msg->cprbx.cprb_len;
+>  	memcpy(msg->hdr.function_code, function_code,
 
 [Severity: High]
-Does this error path permanently leak the struct kvm_s390_mmu_cache
-allocated earlier in the function, since vcpu->arch.mc is not freed here?
+Can this modification lead to an uninitialized memory read?
+
+If an attacker passes a CPRB request where xcrb->request_control_blk_length
+is 13 bytes, the aligned req_cblen becomes 16. If they also set
+cprbx.cprb_len to 14, z_copy_from_user() will copy only 13 bytes, leaving
+the padding uninitialized.
+
+The new bounds check allows cprb_len =3D 14 (since 14 is not greater than
+16 - 2), and the code then copies 2 uninitialized bytes starting at offset =
+14
+into msg->hdr.function_code. This could leak kernel heap memory to the
+crypto device and influence routing decisions.
+
+[Severity: High]
+This isn't a bug introduced by this patch, but I noticed a similar missing
+minimum size validation in xcrb_msg_to_type6_ep11cprb_msgx().
+
+drivers/s390/crypto/zcrypt_msgtype6.c:xcrb_msg_to_type6_ep11cprb_msgx() {
+...
+	/* Import CPRB data from the ioctl input parameter */
+	if (z_copy_from_user(userspace, msg->userdata,
+			     (char __force __user *)xcrb->req, xcrb->req_len)) {
+		return -EFAULT;
+	}
+
+	if ((msg->pld_lenfmt & 0x80) =3D=3D 0x80) {
+...
+}
+
+Does this function also need a minimum size validation?
+
+If a user issues the ZSENDEP11CPRB ioctl with an EP11 user request block
+where req_len is extremely small (e.g., 0), z_copy_from_user() will succeed
+by copying 0 bytes. The kernel then evaluates fields like msg->pld_lenfmt,
+msg->cprbx.flags, and msg->cprbx.target_id from uninitialized kernel heap
+memory, potentially allowing bypasses of authorization boundaries.
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260729152938.7823=
-83-1-imbrenda@linux.ibm.com?part=3D2
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260729154458.1951=
+35-1-freude@linux.ibm.com?part=3D2
