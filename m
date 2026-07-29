@@ -1,44 +1,45 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 702C8469825
-	for <linux-s390@vger.kernel.org>; Wed, 29 Jul 2026 16:53:07 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 01016469837;
+	Wed, 29 Jul 2026 16:55:04 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785343988; cv=none; b=DMjMFbFjPcoDdgVGZRXhkpGEMYQTO6drj834yb/s5BPimSWXj56Ekc/FiLG/sM7c/6v4K7rlW1KYv9cmzWoyd+Jn4Q+5LfwxY8ZU/PJ7fGyLq8G0fXt8kTh9nNNKnCRyNCFGItCYzK2Z76qTK7zGnWWCFnig+VTgG8Ilp4+IEPA=
+	t=1785344105; cv=none; b=FqLJ4Yk7CmS5MB+d/C9PsJYF6XjV1/A687NJzR5lFFbpW4R5sJrL+OmNYz96iKLW4Ug5clu/2MAS3YxI+dQjPM+mAdIUJ/OzQBL3FLYUxOv7hy+mFTJixKKKNhvxruu9jTOApeKk7yOqZHWCgJFPwhhYmFffa3qSVHVFYyKbvxk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785343988; c=relaxed/simple;
-	bh=G959MEJWX4nkncmOo6m5fxFl26zKyxqIRIu05SkidJ8=;
+	s=arc-20240116; t=1785344105; c=relaxed/simple;
+	bh=LS1Dd1hTLB61Qh4BQY+4iac3jZECt+CqgZOyClVlWLE=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=PgJc+z6pvzkN96SeoR6DId2fIk6MqeJL/s4keh/kr0T/iWzW5dLxdDnUInjqnRO7gSqVdDII5R+iPGp/sbVvxXZ5ESLQkTiACriXoVnYCRA56r3Ef1XtmsWJlDNah4+bbEsGvJx8pHNun1sQWkzvaIrSKBopCvZ8sqmRBs4BFZ0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OYTUUbZB; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=rqXtLU6uhGF3HuBNFaHiR0WBJNHrG8lBxVyhNaBRwd640FajX4ax4RAl6q+tuK7F/FrpWyc9xdpUePHx7rL3Skq/2jxk4zUMPpt8X5DWzmeFztlb5mP0tudKu9g5VRctvNMEJ/lz51K9kBsT0/5c5wMiZV4fk6eLuM0D3SVVh3w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BGmYZYxy; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OYTUUbZB"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE7C21F000E9;
-	Wed, 29 Jul 2026 16:53:06 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BGmYZYxy"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F9641F000E9;
+	Wed, 29 Jul 2026 16:55:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785343987;
-	bh=dnCpvFez96YHaOGXshMb5LQeZQY03JpJklJWP5VLaYM=;
+	s=k20260515; t=1785344103;
+	bh=UIPtQz1wnCSOGwRnrOqGSbMBdjkSAfmxp1OAl/skvFY=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=OYTUUbZBGYCGD8N4SupTyV59j+k2hw4IHiatokeqp+6yPxm6tIQU7s5LdSawajtdX
-	 AAZMXhBlXNB74PNYgTX1fGU6wk4cXQW/P70eirFtCvEBl/vO0b2F//ZJVkwZH8SRyb
-	 CmrmEUXEUE2MnGnt29iMTqdroRagyQzS4c33JTHdzhQr5R9Q4ytET5ppwgHrVBrNrZ
-	 jYPs5PFqLRvGOlKyFlGtUTQQRDNmz9ocPlxb29kf4r9t6N4T7J/nNEkmvFqi56cF66
-	 VHZfSCTcRaNYZI8w87CVNoSa3wVWCyc1Ix07fpfQp1HehmffrGRx1McIzbxI40dsw7
-	 hUUbiokQxivBw==
+	b=BGmYZYxy1PQjagyliqNOr7Tdt9WDFhE0kIY+U6XmypjYoXBD0sKklkfrWok3S/Z0D
+	 9c2Zu3SYU3AlJB6Y//hklWt/5ghOoAsEw1dqSue40uX7SVQ0pYfk75MlEWGG84CVhl
+	 H0h2PkNBSkcb2gptL1lEwPTcWVss52qQihSUQ/1f1mPjBnOL2m4kjfTwvj7W/xK4gm
+	 Ryca9vVjWmz9raQlkGplgthWHyteh2S3AIsXiqtT90IjSvvztkQcyWQ+slZYpiObPI
+	 OyL2Iw5v+a5m2pYjvU9+lxxqXVew50dtxlVBvgPBigPJj6uvdhWcYOTSBoJAY08gzY
+	 pOeHAGVl2r2bA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH net v4] net/smc: order the CDC receive path against
- buffer publication
+Subject: Re: [PATCH v5 04/13] KVM: s390: ucontrol: Fix sca_clear_ext_call()
 Reply-To: sashiko-reviews@lists.linux.dev
-To: "Bryam Vargas" <hexlabsecurity@proton.me>
-Cc: "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Heiko
- Carstens" <hca@linux.ibm.com>, linux-s390@vger.kernel.org
-In-Reply-To: <20260728-b4-disp-52ee4e7d-v4-1-0dda94b0f397@proton.me>
-References: <20260728-b4-disp-52ee4e7d-v4-1-0dda94b0f397@proton.me>
+To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>
+Cc: "Vasily Gorbik" <gor@linux.ibm.com>, kvm@vger.kernel.org, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
+ Carstens" <hca@linux.ibm.com>
+In-Reply-To: <20260729152938.782383-5-imbrenda@linux.ibm.com>
+References: <20260729152938.782383-1-imbrenda@linux.ibm.com>
+ <20260729152938.782383-5-imbrenda@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 29 Jul 2026 16:53:06 +0000
-Message-Id: <20260729165306.BE7C21F000E9@smtp.kernel.org>
+Date: Wed, 29 Jul 2026 16:55:03 +0000
+Message-Id: <20260729165503.8F9641F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -48,120 +49,126 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 Thank you for your contribution! Sashiko AI review found 3 potential issue(=
 s) to consider:
 
+New issues:
+- [High] The newly added `KVM_BUG_ON` checks for UCONTROL VMs violate KVM s=
+ubsystem guidelines against userspace-reachable assertions, creating a Deni=
+al of Service vulnerability.
+
 Pre-existing issues:
-- [High] Time-Of-Check to Time-Of-Use (TOCTOU) vulnerability leading to NUL=
-L pointer dereference in CDC receive path.
-- [High] Improper teardown ordering allows Use-After-Free of SMC-D send buf=
-fer descriptor.
-- [High] Premature buffer freeing in `smc_conn_free` causes Use-After-Free =
-of `rmb_desc` during CDC receive.
+- [Medium] Incomplete fix leaves an out-of-bounds memory read in `sca_ext_c=
+all_pending()` for UCONTROL VMs.
+- [Low] Inconsistent fix leaves an out-of-bounds pointer calculation in `sc=
+a_inject_ext_call()` for UCONTROL VMs.
 --
 
---- Patch [1]: [PATCH net v4] net/smc: order the CDC receive path against b=
-uffer publication ---
-commit 4253ee2293b7503f954eb700f0d01241f120e824
-Author: Bryam Vargas <hexlabsecurity@proton.me>
+--- Patch [4]: [PATCH v5 04/13] KVM: s390: ucontrol: Fix sca_clear_ext_call=
+() ---
+commit 497994f9fead637806bdf9fa1fbe4ded72deee52
+Author: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-net/smc: order the CDC receive path against buffer publication
+KVM: s390: ucontrol: Fix sca_clear_ext_call()
 
-This commit fixes a vulnerability where SMC CDC receive handlers dereference
-unpublished buffer descriptors. It ensures the receive state is initialized
-first and the buffers are published last using smp_store_release() and
-smp_load_acquire().
+When cleaning up a UCONTROL VM, sca_clear_ext_call() will touch memory
+outside of the allocated ESCA block, and UCONTROL VMs don't even use
+ESCA. Fix by not touching ESCA for UCONTROL VMs, and opportunistically
+add checks in sca_ext_call_pending() and sca_inject_ext_call().
 
-Closes: https://sashiko.dev/#/patchset/20260714-b4-disp-835288a6-v2-1-58155=
-5ef2145@proton.me?part=3D1
-
-> diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
-> index 32d6d03df3214..ea61b1e75c72c 100644
-> --- a/net/smc/smc_cdc.c
-> +++ b/net/smc/smc_cdc.c
-[ ... ]
-> @@ -391,10 +406,15 @@ static void smc_cdc_msg_recv_action(struct smc_sock=
- *smc,
->  			conn->urg_state =3D SMC_URG_NOTYET;
->  	}
+> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+> index 2acdff130fa6c..d02724bd1829c 100644
+> --- a/arch/s390/kvm/interrupt.c
+> +++ b/arch/s390/kvm/interrupt.c
+> @@ -50,6 +50,8 @@ static int sca_ext_call_pending(struct kvm_vcpu *vcpu, =
+int *src_id)
+>  	if (!kvm_s390_test_cpuflags(vcpu, CPUSTAT_ECALL_PEND))
+>  		return 0;
 > =20
-> -	/* trigger sndbuf consumer: RDMA write into peer RMBE and CDC */
-> -	if ((diff_cons && smc_tx_prepared_sends(conn)) ||
-> -	    conn->local_rx_ctrl.prod_flags.cons_curs_upd_req ||
-> -	    conn->local_rx_ctrl.prod_flags.urg_data_pending) {
-> +	/* trigger sndbuf consumer: RDMA write into peer RMBE and CDC.
-> +	 * smc_tx_prepared_sends() and smc_tx_pending() dereference sndbuf_desc,
-> +	 * so skip the whole trigger while it is unset (the SMC-D DMB-nocopy
-> +	 * setup window): there is nothing to send without a send buffer.
-> +	 */
-> +	if (sndbuf_desc &&
-> +	    ((diff_cons && smc_tx_prepared_sends(conn)) ||
-> +	     conn->local_rx_ctrl.prod_flags.cons_curs_upd_req ||
-> +	     conn->local_rx_ctrl.prod_flags.urg_data_pending)) {
+> +	if (KVM_BUG_ON(kvm_is_ucontrol(vcpu->kvm), vcpu->kvm))
+> +		return -EINVAL;
+
+[Severity: Medium]
+This is a pre-existing issue, but does this function still perform an
+out-of-bounds memory read before we even reach this new check?
+
+At the top of sca_ext_call_pending(), sigp_ctrl is initialized by value:
+
+static int sca_ext_call_pending(struct kvm_vcpu *vcpu, int *src_id)
+{
+        struct esca_block *sca =3D vcpu->kvm->arch.sca;
+        union esca_sigp_ctrl sigp_ctrl =3D sca->cpu[vcpu->vcpu_id].sigp_ctr=
+l;
+
+For a UCONTROL VM, vcpu_id can be up to 254, but the ESCA array only has
+248 slots. Does this cause an unconditional out-of-bounds memory read when
+entering the function?
 
 [Severity: High]
-This is a pre-existing issue, but does this create a Time-Of-Check to
-Time-Of-Use vulnerability?
+Could this KVM_BUG_ON check be triggered by host userspace?
 
-The code caches conn->sndbuf_desc into the local variable sndbuf_desc and
-checks it for NULL, but then execution continues into smc_tx_prepared_sends=
-(conn).
+According to the KVM subsystem guidelines, userspace-reachable BUG_ON or
+WARN_ON calls act as a denial of service. If a host userspace process invok=
+es
+the KVM_S390_INTERRUPT ioctl to inject a KVM_S390_INT_EXTERNAL_CALL into a
+UCONTROL VM, wouldn't this wedge the VM and potentially trigger a panic?
 
-Looking at smc_tx_prepared_sends() in net/smc/smc_tx.h:
-
-net/smc/smc_tx.h:smc_tx_prepared_sends() {
-    union smc_host_cursor sent, prep;
-
-    smc_curs_copy(&sent, &conn->tx_curs_sent, conn);
-    smc_curs_copy(&prep, &conn->tx_curs_prep, conn);
-    return smc_curs_diff(conn->sndbuf_desc->len, &sent, &prep);
-}
-
-Doesn't this helper re-read the global conn->sndbuf_desc? If a concurrent
-teardown thread calls smcd_buf_detach() and nullifies it after the local
-check, couldn't this lead to a NULL pointer dereference or use-after-free?
+>  	BUG_ON(!kvm_s390_use_sca_entries());
+> =20
+>  	if (src_id)
 
 [ ... ]
 
-[Severity: High]
-This isn't a bug introduced by this patch, but could there be a use-after-f=
-ree
-in the SMC-D send buffer descriptor teardown?
-
-Looking at smc_conn_free() in net/smc/smc_core.c:
-
-net/smc/smc_core.c:smc_conn_free() {
-    ...
-    if (smc_ism_support_dmb_nocopy(lgr->smcd))
-        smcd_buf_detach(conn);
-    tasklet_kill(&conn->rx_tsklet);
-    ...
-}
-
-Because smcd_buf_detach() unconditionally frees conn->sndbuf_desc before
-the receive tasklet is killed, and the tasklet runs concurrently in softirq
-context, could the tasklet access the freed buffer descriptor if a peer
-sends a CDC message during teardown?
+> @@ -66,6 +68,8 @@ static int sca_inject_ext_call(struct kvm_vcpu *vcpu, i=
+nt src_id)
+>  	int expect, rc;
+> =20
+>  	BUG_ON(!kvm_s390_use_sca_entries());
+> +	if (KVM_BUG_ON(kvm_is_ucontrol(vcpu->kvm), vcpu->kvm))
+> +		return -EINVAL;
 
 [Severity: High]
-This is a pre-existing issue, but does the teardown order in smc_conn_free()
-allow a use-after-free of the receive buffer?
+Similar to the check in sca_ext_call_pending() above, is this KVM_BUG_ON
+reachable from host userspace and acting as a denial of service?
 
-Looking at smc_conn_free() in net/smc/smc_core.c:
+[Severity: Low]
+This isn't a bug introduced by this patch, but is the pointer calculation
+for sigp_ctrl at the top of sca_inject_ext_call() also occurring before
+this new check?
 
-net/smc/smc_core.c:smc_conn_free() {
-    ...
-    smc_buf_unuse(conn, lgr);
-    smc_lgr_unregister_conn(conn);
-    ...
-}
+static int sca_inject_ext_call(struct kvm_vcpu *vcpu, int src_id)
+{
+        struct esca_block *sca =3D vcpu->kvm->arch.sca;
+        union esca_sigp_ctrl *sigp_ctrl =3D &sca->cpu[vcpu->vcpu_id].sigp_c=
+trl;
+        ...
 
-If the buffer had a registration error, smc_buf_unuse() will free the
-rmb_desc. However, the connection is still in the link group's connection
-tree at this point.
+While it is just an address calculation, for UCONTROL VMs it calculates an
+out-of-bounds pointer. Could this be moved after the check, similar to how
+it was fixed in sca_clear_ext_call() below?
 
-Could a concurrent IB receive handler (smc_cdc_rx_handler) look up the
-connection and extract the dangling conn->rmb_desc pointer before it is
-unregistered, leading to a use-after-free when smc_cdc_msg_recv_action()
-dereferences it?
+> =20
+>  	old_val =3D READ_ONCE(*sigp_ctrl);
+>  	old_val.c =3D 0;
+
+[ ... ]
+
+> @@ -84,10 +88,13 @@ static int sca_inject_ext_call(struct kvm_vcpu *vcpu,=
+ int src_id)
+>  static void sca_clear_ext_call(struct kvm_vcpu *vcpu)
+>  {
+>  	struct esca_block *sca =3D vcpu->kvm->arch.sca;
+> -	union esca_sigp_ctrl *sigp_ctrl =3D &sca->cpu[vcpu->vcpu_id].sigp_ctrl;
+> +	union esca_sigp_ctrl *sigp_ctrl;
+> =20
+> -	if (!kvm_s390_use_sca_entries() || !vcpu->arch.initialized)
+> +	if (!kvm_s390_use_sca_entries() || !vcpu->arch.initialized || kvm_is_uc=
+ontrol(vcpu->kvm))
+>  		return;
+> +
+> +	/* Initialize after the above check, to prevent going out of bounds */
+> +	sigp_ctrl =3D &sca->cpu[vcpu->vcpu_id].sigp_ctrl;
+>  	kvm_s390_clear_cpuflags(vcpu, CPUSTAT_ECALL_PEND);
+> =20
+>  	WRITE_ONCE(sigp_ctrl->value, 0);
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260728-b4-disp-52=
-ee4e7d-v4-1-0dda94b0f397@proton.me?part=3D1
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260729152938.7823=
+83-1-imbrenda@linux.ibm.com?part=3D4
