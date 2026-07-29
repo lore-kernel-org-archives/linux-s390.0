@@ -1,160 +1,142 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B0A9239AD49
-	for <linux-s390@vger.kernel.org>; Wed, 29 Jul 2026 10:16:12 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C8ECE443E58
+	for <linux-s390@vger.kernel.org>; Wed, 29 Jul 2026 10:40:30 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785320173; cv=none; b=ux+X2tUO4TsMQUr5pRsz1QMXPGUyQd08D2b+R/NpiN1GSIoVq6fluuNTZhKZ8SNdVR9Efd2IOBW4Rsf6YDbg2ypvN+yJ4mFBB/odIkbY1Y/ZsQJglrE0cuz+bk/4szFeS1HxDBAF+GG/Mx4zbraiWmNCQ90Q+E0sTULmFyFMLAY=
+	t=1785321631; cv=none; b=ufIiEaWYTmaJArQ2qDfcxo+L7FyitHnlbfv59h3QMgcDGlzjSuIRRatQv7dojvlUGy5mfW20v63JuxO4gg1JnGkZtuugtn5hEUVTqZWpqPN494MTBDPSnXwcZv5uIYOtytqYaHFh1DdyMrBlu+mx9xLQeRNTsjfCb+xu1LZTd1o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785320173; c=relaxed/simple;
-	bh=ltqURssCEywIUL52oVipV6UX05OZdh7SOv63FVhBk4g=;
+	s=arc-20240116; t=1785321631; c=relaxed/simple;
+	bh=zAaaWpnJ+CwRjnw2NTaYVsP+zPc3ycpJ5r8J5sEA+Y0=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=N2wWpzpSXa3ac//vCzB8ySgdo9o1m57ae58RWi8kOvpgyxfiZDi4BiMqXK/4RdiRjB3eI/qocwjaVZhngH/v+Msyupr4Dm0tnws2+2DXz33zqVviV+YC10UWKNuCGjACEk65ZM+82okkVvcpEGLR9QmUI/JAyfQT82C3BWRILA8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OaduD5UG; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=dkpsqa/R0zduApsWqtBTQsiwbI2r9x9YJvmbd9f0BGyO7TUPyrDchkbAXRL7THgebliwyI76jyUgxcP22h3I92EN5Lo82P1NKqEPEE8u37lMZ1J/8oYhG3w8VoqwFBEVVBSr27V20+NSdKNIgiXS9DTbrQj0ZbkNcR8Mhmx3Kw4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TVjD582H; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OaduD5UG"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D4A11F00A3E;
-	Wed, 29 Jul 2026 10:16:12 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TVjD582H"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62DF11F000E9;
+	Wed, 29 Jul 2026 10:40:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785320172;
-	bh=TeualuRpb4/pg5htohTVFHwz+MssBaIhQxXF52BwbPE=;
+	s=k20260515; t=1785321630;
+	bh=iss/ajLrRshKNcLwjKRKm3uBoXL2N2MdoIYxo4B2Jqo=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=OaduD5UGcdbFdTCxJilQ4CUfnVjLxyojmfdU6qBNt0uOFBYFHUuDmItpC87Xorfhl
-	 6U98xrm7HUTKdD1zbQS7FrnNwl/PUSuVvCUxpDAPIcWAiwNQcLHRE/k6+0STGLCO3j
-	 kHXSPuFXX6E+8H4swGKJWYO9FiW85RKiVSzGSI4hyXPSUURrfmolGahXHJllXAAScn
-	 SufiRrKIbXyD+PQI2RwnP0Xn01BIRguT//J5c1hPBfTDGTqWi+bPNwNlgVfHPKihKR
-	 r5XzOlHKVfMSkqkH+DhywpkYE+1Zrl+ejGQBOICeCqY1qU9UPxFbBPc81pFi+R+w+C
-	 AstZd4CewO98A==
+	b=TVjD582HVMD/glLqCB7MwlN+KAiDvlP4f89Wi5I1aVhk8utBAbwFImpdIy6q14Fnt
+	 SCFLYRpTo9GHKqlM5/ps2i67/sIRKGJtEZtqSQIxE+SKjZLRqtyhqepOP1cCfuzrwK
+	 tqaE+yueOvjmYqGQ0/+mu37zesREQupMUfemPt+xne7Z/g75leo4HyqSxOERaA6Fx1
+	 8di/VWHTPaNFBSFdKSwvRj5KvLDkPrb18+N9r9H5HJBAuNScrCSN2thUBdTH8S9TVH
+	 D31jgN2qP+Rxc56Pi8Bc+kVJSBaa+cvtNTSm77GRhK0g3LdzGf4nxeYTssHmDlkTMj
+	 wd1RJ1SdTXxFQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v1 2/2] s390/zcrypt: Validate length for CCA ECC private
- key requests
+Subject: Re: [PATCH v7 2/5] s390/zcrypt: Improve CCA CPRB length and
+ overflow checks
 Reply-To: sashiko-reviews@lists.linux.dev
-To: "Holger Dengler" <dengler@linux.ibm.com>
-Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
- Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>
-In-Reply-To: <20260729093616.4184642-3-dengler@linux.ibm.com>
-References: <20260729093616.4184642-1-dengler@linux.ibm.com>
- <20260729093616.4184642-3-dengler@linux.ibm.com>
+To: "Harald Freudenberger" <freude@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>
+In-Reply-To: <20260729095318.184141-3-freude@linux.ibm.com>
+References: <20260729095318.184141-1-freude@linux.ibm.com>
+ <20260729095318.184141-3-freude@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 29 Jul 2026 10:16:11 +0000
-Message-Id: <20260729101612.0D4A11F00A3E@smtp.kernel.org>
+Date: Wed, 29 Jul 2026 10:40:29 +0000
+Message-Id: <20260729104030.62DF11F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [High] Missing bounds validation on user-provided keys leads to Slab Out-=
-of-Bounds Reads.
-- [High] Unvalidated token length from hardware reply causes Heap Buffer Ov=
-erflow and Out-of-Bounds Read.
+- [High] The patch addresses integer overflow and uninitialized memory read=
+ vulnerabilities in the CCA CPRB processing function (`xcrb_msg_to_type6cpr=
+b_msgx`), but completely overlooks the sibling function `xcrb_msg_to_type6_=
+ep11cprb_msgx` which suffers from identical flaws.
 --
 
---- Patch [2]: [PATCH v1 2/2] s390/zcrypt: Validate length for CCA ECC priv=
-ate key requests ---
-commit dd9e9a635152d7bae8edba05dc9b9aad02d9a1e9
-Author: Holger Dengler <dengler@linux.ibm.com>
+--- Patch [2]: [PATCH v7 2/5] s390/zcrypt: Improve CCA CPRB length and over=
+flow checks ---
+commit 7ba0a2485f45508566e0f47333fa671569923db4
+Author: Harald Freudenberger <freude@linux.ibm.com>
 
-s390/zcrypt: Validate length for CCA ECC private key requests
+s390/zcrypt: Improve CCA CPRB length and overflow checks
 
-This patch adds a length validation check for CCA ECC private key requests =
-in
-cca_ecc2protkey(). It ensures the key token length does not exceed the
-available space in the parameter block before proceeding with CPRB memory
-allocation.
+The xcrb_msg_to_type6cprb_msgx() function lacks proper input
+validation, creating security vulnerabilities:
+1. Integer overflow after CEIL4 alignment: Signed int variables could
+   overflow during 4-byte boundary alignment, causing undersized
+   buffer allocations or incorrect bounds checking.
+2. Missing minimum size validation: The CPRBX structure is copied from
+   userspace without verifying sufficient buffer length. Undersized
+   buffers cause uninitialized memory access when reading structure
+   fields like cprbx.cprb_len and cprbx.domain.
+3. Arithmetic overflow in sum calculations: Adding control block and
+   data block sizes could overflow, bypassing size checks and enabling
+   buffer overflows.
 
-> diff --git a/drivers/s390/crypto/zcrypt_ccamisc.c b/drivers/s390/crypto/z=
-crypt_ccamisc.c
-> index db6a4211a97e0..322677a8d3200 100644
-> --- a/drivers/s390/crypto/zcrypt_ccamisc.c
-> +++ b/drivers/s390/crypto/zcrypt_ccamisc.c
-> @@ -1428,6 +1428,9 @@ int cca_ecc2protkey(u16 cardnr, u16 domain, const u=
-8 *key,
->  	} __packed * prepparm;
->  	int keylen =3D ((struct eccprivkeytoken *)key)->len;
+Fix by using size_t for length calculations, adding U32_MAX boundary
+checks after alignment, validating minimum control block size before
+copying from userspace, and detecting sum calculation overflows.
+
+> diff --git a/drivers/s390/crypto/zcrypt_msgtype6.c b/drivers/s390/crypto/=
+zcrypt_msgtype6.c
+> index 40f72cdf284d3..fb37e28c82424 100644
+> --- a/drivers/s390/crypto/zcrypt_msgtype6.c
+> +++ b/drivers/s390/crypto/zcrypt_msgtype6.c
+
+[ ... ]
+
+> @@ -437,10 +428,13 @@ static int xcrb_msg_to_type6cprb_msgx(bool userspac=
+e, struct ap_message *ap_msg,
+>  	}
 > =20
-> +	if (keylen > PARMBSIZE - sizeof(struct aureqparm))
-> +		return -EINVAL;
-> +
->  	/* get already prepared memory for 2 cprbs with param block each */
->  	rc =3D alloc_and_prep_cprbmem(PARMBSIZE, &mem,
->  				    &preqcblk, &prepcblk, xflags);
+>  	/* copy data block */
+> -	if (xcrb->request_data_length &&
+> -	    z_copy_from_user(userspace, req_data, xcrb->request_data_address,
+> -			     xcrb->request_data_length))
+> -		return -EFAULT;
+> +	if (xcrb->request_data_length) {
+> +		req_data =3D ap_msg->msg + sizeof(struct type6_hdr) + req_cblen;
+> +		if (z_copy_from_user(userspace, req_data,
+> +				     xcrb->request_data_address,
+> +				     xcrb->request_data_length))
+> +			return -EFAULT;
+> +	}
+> =20
+>  	return 0;
+>  }
 
 [Severity: High]
-This is a pre-existing issue, but since we are adding length validations in=
-=20
-this subsystem, is it possible for unprivileged users to trigger slab=20
-out-of-bounds reads in other functions like cca_apqns4key(),=20
-cca_verifykey(), and cca_key2protkey() in drivers/s390/crypto/pkey_cca.c?
+This isn't a bug introduced by this patch, but the sibling function
+xcrb_msg_to_type6_ep11cprb_msgx() in this same file appears to suffer from
+the exact same vulnerabilities being fixed here.
 
-If a user triggers an ioctl like PKEY_APQNS4K with an 8-byte buffer and set=
-s=20
-keylen=3D8, _copy_key_from_user() will allocate exactly 8 bytes. The code o=
-nly=20
-verifies that keylen is at least 8 bytes, but then casts the buffer to=20
-larger structures.
+For example, when req_len is smaller than the required struct size,
+z_copy_from_user() can complete successfully but leave trailing buffer
+bytes uninitialized:
 
-In drivers/s390/crypto/pkey_cca.c:cca_apqns4key():
+drivers/s390/crypto/zcrypt_msgtype6.c:xcrb_msg_to_type6_ep11cprb_msgx() {
+...
+	if (z_copy_from_user(userspace, msg->userdata,
+			     (char __force __user *)xcrb->req, xcrb->req_len)) {
+		return -EFAULT;
+	}
 
-    if (flags & PKEY_FLAGS_MATCH_CUR_MKVP)
-        ptr_cur_mkvp =3D t->mkvp;
+	if ((msg->pld_lenfmt & 0x80) =3D=3D 0x80) { /*ext.len.fmt 2 or 3*/
+...
+}
 
-Could this access t->mkvp well beyond the 8-byte allocation?
+Because ap_msg->msg is allocated without zeroing, this reads uninitialized
+kernel heap memory to perform routing and access control logic (like
+domain, fcode, and whether the request requires admin or usage permission).
+Additionally, CEIL4 can overflow for lengths near U64_MAX, bypassing
+initial length checks.
 
-Similarly, in drivers/s390/crypto/pkey_cca.c:cca_key2protkey():
-
-    if (cca_check_secaescipherkey(pkey_dbf_info,
-                  3, key, 0, 1))
-
-Does this pass the key buffer to a function that reads up to 60 bytes,=20
-without verifying the key is actually large enough (since checking against=
-=20
-hdr->len could be bypassed if the user sets hdr->len =3D 8)?
-
-And in drivers/s390/crypto/pkey_cca.c:cca_verifykey():
-
-    *keybitsize =3D t->bitsize;
-
-Does this access t->bitsize at offset 56 directly after only verifying the=
-=20
-8-byte header?
-
-[Severity: High]
-This is also a pre-existing issue, but I noticed there might be another spo=
-t=20
-in zcrypt_ccamisc.c where we trust token lengths without sufficient bounds=
-=20
-checking.=20
-
-If a malfunctioning or compromised APQN crypto device returns a CPRB hardwa=
-re=20
-reply with a large t->len value, could this lead to an out-of-bounds read o=
-r=20
-heap buffer overflow?
-
-In drivers/s390/crypto/zcrypt_ccamisc.c:_ip_cprb_helper():
-
-    memcpy(key_token, t, t->len);
-
-Does this trust the t->len value from the hardware response blindly,=20
-potentially causing an unbounded write to the destination buffer?
-
-Also, in drivers/s390/crypto/zcrypt_ccamisc.c:cca_gencipherkey():
-
-    if (*keybufsize >=3D t->len)
-        memcpy(keybuf, t, t->len);
-
-Since *keybufsize is user-controlled (up to 8192) but the CPRB parameter=20
-block backing t is strictly allocated to PARMBSIZE (512 bytes), could an=20
-oversized t->len bypass this check? Would this cause memcpy() to read=20
-beyond the 512-byte allocation and leak kernel memory back to userspace?
+Should xcrb_msg_to_type6_ep11cprb_msgx() also receive similar minimum
+size validation and overflow checks?
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260729093616.4184=
-642-1-dengler@linux.ibm.com?part=3D2
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260729095318.1841=
+41-1-freude@linux.ibm.com?part=3D2
