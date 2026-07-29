@@ -1,174 +1,109 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 01016469837;
-	Wed, 29 Jul 2026 16:55:04 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C23F3D9DA0
+	for <linux-s390@vger.kernel.org>; Wed, 29 Jul 2026 17:07:40 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785344105; cv=none; b=FqLJ4Yk7CmS5MB+d/C9PsJYF6XjV1/A687NJzR5lFFbpW4R5sJrL+OmNYz96iKLW4Ug5clu/2MAS3YxI+dQjPM+mAdIUJ/OzQBL3FLYUxOv7hy+mFTJixKKKNhvxruu9jTOApeKk7yOqZHWCgJFPwhhYmFffa3qSVHVFYyKbvxk=
+	t=1785344861; cv=none; b=sbSm0mhR+tLiSNR1nGQ2RAltH+sNG44RCwnpFxOjzenKUtWCj1JvSin/uCdylYbHm3PhjkQBMo3hpPUC2ot09szWpBXoNxCfvkFO0BkMv/6uTHjBHiLcMbzIJHuMjmVlolfUmWehQTUwesSQA6zlOmO0Ok7kXoYWte/ClrE0e8I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785344105; c=relaxed/simple;
-	bh=LS1Dd1hTLB61Qh4BQY+4iac3jZECt+CqgZOyClVlWLE=;
+	s=arc-20240116; t=1785344861; c=relaxed/simple;
+	bh=lc4eeqs569yI9YyLCrbuZ4ghPtst9BznbgmScuKdWcQ=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=rqXtLU6uhGF3HuBNFaHiR0WBJNHrG8lBxVyhNaBRwd640FajX4ax4RAl6q+tuK7F/FrpWyc9xdpUePHx7rL3Skq/2jxk4zUMPpt8X5DWzmeFztlb5mP0tudKu9g5VRctvNMEJ/lz51K9kBsT0/5c5wMiZV4fk6eLuM0D3SVVh3w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BGmYZYxy; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=G2jCnLPBSJ3/b/Nvb5SQwMRxROyFKb3uuMaFQc+EgAzm4aajHErMMYVBd3Qg3h+V27w/AtbyGLvq8pGMWEx5I7fbwDoSDNBae38D/HpkGYeBhk5fsXWNtMYOe2tBtFoVjFxoewYwZigN1AWl4hXH7kzIvPWtoQctuysTBm1KvRk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VssgPC4m; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BGmYZYxy"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F9641F000E9;
-	Wed, 29 Jul 2026 16:55:03 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VssgPC4m"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0FF11F000E9;
+	Wed, 29 Jul 2026 17:07:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785344103;
-	bh=UIPtQz1wnCSOGwRnrOqGSbMBdjkSAfmxp1OAl/skvFY=;
+	s=k20260515; t=1785344860;
+	bh=PTMsJzRa9siNZDNQKLvLw7EixQ/xYF3JXtBcDJQtWq8=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=BGmYZYxy1PQjagyliqNOr7Tdt9WDFhE0kIY+U6XmypjYoXBD0sKklkfrWok3S/Z0D
-	 9c2Zu3SYU3AlJB6Y//hklWt/5ghOoAsEw1dqSue40uX7SVQ0pYfk75MlEWGG84CVhl
-	 H0h2PkNBSkcb2gptL1lEwPTcWVss52qQihSUQ/1f1mPjBnOL2m4kjfTwvj7W/xK4gm
-	 Ryca9vVjWmz9raQlkGplgthWHyteh2S3AIsXiqtT90IjSvvztkQcyWQ+slZYpiObPI
-	 OyL2Iw5v+a5m2pYjvU9+lxxqXVew50dtxlVBvgPBigPJj6uvdhWcYOTSBoJAY08gzY
-	 pOeHAGVl2r2bA==
+	b=VssgPC4mIRNxZMayu+c6sTjEx1AWlVPf/e05tE9zGst5j6MhXrXQYfC3gByFo/U61
+	 VFyPdQAbKNsPzhgN70PYUimYPYcl8bYeGu+C07DYwCCycpRXgKo3p82MQbAQkp1N2r
+	 IIDu9BP1aHiUS6uwqpLMRQmWcYuv77nUbtOJG/RKCcENKYHU92yE85p4MhGPhLl94u
+	 uZejKd9H5Z1WhSyvAU+LKmzpF8wVkN1AzRwnuQqwLuHuMcLuDuqRI06Lqrqc9/0nbU
+	 +Kawb6BQqw08CpLyckOMfoN4oQhWpGylvY0HfAgIIP46H+xJJM0ArPtN2Pr/VaTydk
+	 y1iG+ykm02wNw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 04/13] KVM: s390: ucontrol: Fix sca_clear_ext_call()
+Subject: Re: [PATCH v9 5/5] s390/zcrypt: Pad trailing CCA or EP11 message
+ with zeros
 Reply-To: sashiko-reviews@lists.linux.dev
-To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>
-Cc: "Vasily Gorbik" <gor@linux.ibm.com>, kvm@vger.kernel.org, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
- Carstens" <hca@linux.ibm.com>
-In-Reply-To: <20260729152938.782383-5-imbrenda@linux.ibm.com>
-References: <20260729152938.782383-1-imbrenda@linux.ibm.com>
- <20260729152938.782383-5-imbrenda@linux.ibm.com>
+To: "Harald Freudenberger" <freude@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Vasily
+ Gorbik" <gor@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>
+In-Reply-To: <20260729154458.195135-6-freude@linux.ibm.com>
+References: <20260729154458.195135-1-freude@linux.ibm.com>
+ <20260729154458.195135-6-freude@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 29 Jul 2026 16:55:03 +0000
-Message-Id: <20260729165503.8F9641F000E9@smtp.kernel.org>
+Date: Wed, 29 Jul 2026 17:07:39 +0000
+Message-Id: <20260729170739.C0FF11F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
 
-New issues:
-- [High] The newly added `KVM_BUG_ON` checks for UCONTROL VMs violate KVM s=
-ubsystem guidelines against userspace-reachable assertions, creating a Deni=
-al of Service vulnerability.
-
 Pre-existing issues:
-- [Medium] Incomplete fix leaves an out-of-bounds memory read in `sca_ext_c=
-all_pending()` for UCONTROL VMs.
-- [Low] Inconsistent fix leaves an out-of-bounds pointer calculation in `sc=
-a_inject_ext_call()` for UCONTROL VMs.
+- [High] This problem wasn't introduced by this patch, but an integer overf=
+low and incomplete bounds checking in hardware response parsing allows a ma=
+ssive out-of-bounds kernel memory leak to userspace.
 --
 
---- Patch [4]: [PATCH v5 04/13] KVM: s390: ucontrol: Fix sca_clear_ext_call=
-() ---
-commit 497994f9fead637806bdf9fa1fbe4ded72deee52
-Author: Claudio Imbrenda <imbrenda@linux.ibm.com>
+--- Patch [5]: [PATCH v9 5/5] s390/zcrypt: Pad trailing CCA or EP11 message=
+ with zeros ---
+commit 0141bfa352999fc87f7b7c58c7c727f991c4b416
+Author: Harald Freudenberger <freude@linux.ibm.com>
 
-KVM: s390: ucontrol: Fix sca_clear_ext_call()
+s390/zcrypt: Pad trailing CCA or EP11 message with zeros
 
-When cleaning up a UCONTROL VM, sca_clear_ext_call() will touch memory
-outside of the allocated ESCA block, and UCONTROL VMs don't even use
-ESCA. Fix by not touching ESCA for UCONTROL VMs, and opportunistically
-add checks in sca_ext_call_pending() and sca_inject_ext_call().
+This patch fixes an information leak to the crypto card firmware. It zeroes
+out the gap between the user space copied message and the message buffer
+length sent to the CCA or EP11 message processing.
 
-> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-> index 2acdff130fa6c..d02724bd1829c 100644
-> --- a/arch/s390/kvm/interrupt.c
-> +++ b/arch/s390/kvm/interrupt.c
-> @@ -50,6 +50,8 @@ static int sca_ext_call_pending(struct kvm_vcpu *vcpu, =
-int *src_id)
->  	if (!kvm_s390_test_cpuflags(vcpu, CPUSTAT_ECALL_PEND))
->  		return 0;
-> =20
-> +	if (KVM_BUG_ON(kvm_is_ucontrol(vcpu->kvm), vcpu->kvm))
-> +		return -EINVAL;
-
-[Severity: Medium]
-This is a pre-existing issue, but does this function still perform an
-out-of-bounds memory read before we even reach this new check?
-
-At the top of sca_ext_call_pending(), sigp_ctrl is initialized by value:
-
-static int sca_ext_call_pending(struct kvm_vcpu *vcpu, int *src_id)
-{
-        struct esca_block *sca =3D vcpu->kvm->arch.sca;
-        union esca_sigp_ctrl sigp_ctrl =3D sca->cpu[vcpu->vcpu_id].sigp_ctr=
-l;
-
-For a UCONTROL VM, vcpu_id can be up to 254, but the ESCA array only has
-248 slots. Does this cause an unconditional out-of-bounds memory read when
-entering the function?
-
-[Severity: High]
-Could this KVM_BUG_ON check be triggered by host userspace?
-
-According to the KVM subsystem guidelines, userspace-reachable BUG_ON or
-WARN_ON calls act as a denial of service. If a host userspace process invok=
-es
-the KVM_S390_INTERRUPT ioctl to inject a KVM_S390_INT_EXTERNAL_CALL into a
-UCONTROL VM, wouldn't this wedge the VM and potentially trigger a panic?
-
->  	BUG_ON(!kvm_s390_use_sca_entries());
-> =20
->  	if (src_id)
+> diff --git a/drivers/s390/crypto/zcrypt_msgtype6.c b/drivers/s390/crypto/=
+zcrypt_msgtype6.c
+> index da7580933c6f2..4a60540b07003 100644
+> --- a/drivers/s390/crypto/zcrypt_msgtype6.c
+> +++ b/drivers/s390/crypto/zcrypt_msgtype6.c
 
 [ ... ]
 
-> @@ -66,6 +68,8 @@ static int sca_inject_ext_call(struct kvm_vcpu *vcpu, i=
-nt src_id)
->  	int expect, rc;
-> =20
->  	BUG_ON(!kvm_s390_use_sca_entries());
-> +	if (KVM_BUG_ON(kvm_is_ucontrol(vcpu->kvm), vcpu->kvm))
-> +		return -EINVAL;
-
 [Severity: High]
-Similar to the check in sca_ext_call_pending() above, is this KVM_BUG_ON
-reachable from host userspace and acting as a denial of service?
+This is a pre-existing issue, but I noticed an integer overflow and
+incomplete bounds checking in hardware response parsing that could allow an
+out-of-bounds kernel memory leak to userspace.
 
-[Severity: Low]
-This isn't a bug introduced by this patch, but is the pointer calculation
-for sigp_ctrl at the top of sca_inject_ext_call() also occurring before
-this new check?
+In zcrypt_msgtype6_receive():
 
-static int sca_inject_ext_call(struct kvm_vcpu *vcpu, int src_id)
-{
-        struct esca_block *sca =3D vcpu->kvm->arch.sca;
-        union esca_sigp_ctrl *sigp_ctrl =3D &sca->cpu[vcpu->vcpu_id].sigp_c=
-trl;
-        ...
+        if (t86r->fmt2.count2)
+            len =3D t86r->fmt2.offset2 + t86r->fmt2.count2;
+        else
+            len =3D t86r->fmt2.offset1 + t86r->fmt2.count1;
 
-While it is just an address calculation, for UCONTROL VMs it calculates an
-out-of-bounds pointer. Could this be moved after the check, similar to how
-it was fixed in sca_clear_ext_call() below?
+If a compromised or malicious crypto device firmware returns a response whe=
+re
+offset1 + count1 overflows 32-bit arithmetic, it might bypass the buffer
+size check. Alternatively, if count2 is non-zero, the bounds check in
+zcrypt_msgtype6_receive() only validates offset2 + count2 and completely
+ignores offset1 + count1.
 
-> =20
->  	old_val =3D READ_ONCE(*sigp_ctrl);
->  	old_val.c =3D 0;
+Later in convert_type86_xcrb():
 
-[ ... ]
+    if (z_copy_to_user(userspace, xcrb->reply_control_blk_addr,
+               data + msg->fmt2.offset1, msg->fmt2.count1))
+        return -EFAULT;
 
-> @@ -84,10 +88,13 @@ static int sca_inject_ext_call(struct kvm_vcpu *vcpu,=
- int src_id)
->  static void sca_clear_ext_call(struct kvm_vcpu *vcpu)
->  {
->  	struct esca_block *sca =3D vcpu->kvm->arch.sca;
-> -	union esca_sigp_ctrl *sigp_ctrl =3D &sca->cpu[vcpu->vcpu_id].sigp_ctrl;
-> +	union esca_sigp_ctrl *sigp_ctrl;
-> =20
-> -	if (!kvm_s390_use_sca_entries() || !vcpu->arch.initialized)
-> +	if (!kvm_s390_use_sca_entries() || !vcpu->arch.initialized || kvm_is_uc=
-ontrol(vcpu->kvm))
->  		return;
-> +
-> +	/* Initialize after the above check, to prevent going out of bounds */
-> +	sigp_ctrl =3D &sca->cpu[vcpu->vcpu_id].sigp_ctrl;
->  	kvm_s390_clear_cpuflags(vcpu, CPUSTAT_ECALL_PEND);
-> =20
->  	WRITE_ONCE(sigp_ctrl->value, 0);
+Since the bounds check can pass under those conditions, could offset1 be
+used as an unvalidated offset into kernel memory here, resulting in
+z_copy_to_user() copying out-of-bounds kernel memory into the user-provided
+buffer?
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260729152938.7823=
-83-1-imbrenda@linux.ibm.com?part=3D4
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260729154458.1951=
+35-1-freude@linux.ibm.com?part=3D5
