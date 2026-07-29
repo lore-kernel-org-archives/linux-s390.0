@@ -1,65 +1,68 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2DF2030C368;
-	Wed, 29 Jul 2026 15:29:48 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 775763AAF4B;
+	Wed, 29 Jul 2026 15:29:49 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785338989; cv=none; b=st6BoyRyTRkWiIfedQWBfx8xv0lUDCgS4HBOpOXncSi7Wwy2UJ8KLbTPnMhjHqI8NaMOgMI3j5xaKQp/72iB3Jt+6wkvGKrMWOKdCuC2VWzkJqNugVOEUFCjTP55AwNiL6ZOCdCHa5Zjkw4pYJR2qJtUAzHIKiNMNr7CvdhTNaE=
+	t=1785338990; cv=none; b=X1bIhYR4x5YSLKF4Hsf62dNeo5Pxyhm9NSzw+EoW3GqdtbAfG1t8lnZjhJ8vE0bL18NUbTjOJ1cAmX5RisgYgC9Lz8ikhczcusSSSQr/2ZQ3UkFjCing43niphlFvdE8SYYv4ahu7t3orK/vxD+0SgbYFO3rnQiamu56eduuxSY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785338989; c=relaxed/simple;
-	bh=I2us5/0QAhLh76ChgnneM5JJpx+SIG/kurn2ki0wyWw=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=SwF16xDdAgNfHKRI1ckc6EbfJAhIfAMXC8z3hm4+7HTlC7XtFoFHIrZXMaYk8uPUF4v5YwLMz8tD3pb8O7GAtwXGUeY20leDN2o5gDEUzXMEU69BG7p00yipzbxv40CptLigDJ+hM0tUxqx7dYziQW7l+hChrctGRZY47feWysM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=CYGIejIa; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1785338990; c=relaxed/simple;
+	bh=n9hiqWykKl/GtKLSLhlFw0N0tZkcrcqOy0OHRBUp37M=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=Aocr879g5zxb0UCswresgdsuFq1YBCEH8PzrWopVj906k5E3dYeegnLYX7rDBUB3XHdDKDScZE950aQFqUkZEWz424sVevG+syUGGxxI1O6MkcNpzZKr2ElVDeWNdHdhgrV3N84eG8tM+SSgkqDSgrq6mBOrnXay41f9JWc/R1c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=bXxPTv3z; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="CYGIejIa"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66TFHipr388692;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="bXxPTv3z"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66TFHYUX355794;
 	Wed, 29 Jul 2026 15:29:46 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=vSZ5mL3JQ+oiFst4K7RbDHJ8R2KRrZDefzGcfv6uX
-	yM=; b=CYGIejIasbl096UBBiabhNLsZeZP3J78VshOqM8M7TTgLj1iQUFX9Tp0j
-	v5+ushQpIMqtejg+KnN0cxszxw2r2lNDeb+yi+zP7Oiiuo9jZdSf+2IHz7klFNJH
-	SPi9W1B/tbjw0l5YBZ2XghQKzeY0jDdb41MdBAzKaYZsHncc4TIyyBlH1FMd0VM5
-	Gx1BgUxR3Dl0O7/usjJlTHUjHk5QPcfshvlLy1SpAhoLY8RewDKDGL7g2VS4SjaY
-	dSBzsaxInte/o0f273CNLWEmzDMJQmjhJx0yiUtP1t+MfO1CMPftnd6LI6P01Zez
-	7KnYaU34phcGYAgH60s1Rq6JFYZ2A==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fmv0xuefe-1
+	:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=pp1; bh=mpHgaFdGTfbXF70e4
+	mcmMNG9ajz50URSueP0qU+Bq4I=; b=bXxPTv3zBlXIojJJfaEDQBwCot65W6R2I
+	e9zthN69F+bfTna4g1znLfKGvq+GizGu/idj7FjRhUbPYuD7/Ks13Y6v10z/ne8v
+	Gzk9QN3v9yKWqSASd8gAXt30/nU5fkzzs45kAc5uuc1ixtmO9BXwpNLtfZ1JfP5I
+	50z8IUtNgBEsODn97GOuJ3cMA4N8OsgnbaaaXRt0ciDyoS69e45jYqS4IcM/IpLr
+	KFkZJqSZBsU/qlwPkjRrgoQhLWyGevOijLojPuacNVLa+ZQ16fnnprdxwAKBXkt1
+	QIzR6IKwrAWA8QRqptcWOFCmweVuY4FoGZoiFGCAzpzUB8rgtDR3Q==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fmuw7kdft-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Wed, 29 Jul 2026 15:29:46 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66TFQL7M028810;
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66TFQGcm030580;
 	Wed, 29 Jul 2026 15:29:45 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fn8yhf6cs-1
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fna5y70gc-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 29 Jul 2026 15:29:44 +0000 (GMT)
+	Wed, 29 Jul 2026 15:29:45 +0000 (GMT)
 Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66TFTcDE51839402
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66TFTdJu45875704
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 29 Jul 2026 15:29:38 GMT
+	Wed, 29 Jul 2026 15:29:39 GMT
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8537520043;
-	Wed, 29 Jul 2026 15:29:38 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 977DA20043;
+	Wed, 29 Jul 2026 15:29:39 +0000 (GMT)
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5E3F320040;
-	Wed, 29 Jul 2026 15:29:38 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 73BB52004B;
+	Wed, 29 Jul 2026 15:29:39 +0000 (GMT)
 Received: from p-imbrenda.ehn-de.ibm.com (unknown [9.224.75.30])
 	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 29 Jul 2026 15:29:38 +0000 (GMT)
+	Wed, 29 Jul 2026 15:29:39 +0000 (GMT)
 From: Claudio Imbrenda <imbrenda@linux.ibm.com>
 To: linux-kernel@vger.kernel.org
 Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, borntraeger@de.ibm.com,
         frankja@linux.ibm.com, david@kernel.org, seiden@linux.ibm.com,
         nrb@linux.ibm.com, schlameuss@linux.ibm.com, gra@linux.ibm.com
-Subject: [PATCH v5 00/13] KVM: s390: Misc fixes
-Date: Wed, 29 Jul 2026 17:29:25 +0200
-Message-ID: <20260729152938.782383-1-imbrenda@linux.ibm.com>
+Subject: [PATCH v5 06/13] KVM: s390: Fix race in __do_essa()
+Date: Wed, 29 Jul 2026 17:29:31 +0200
+Message-ID: <20260729152938.782383-7-imbrenda@linux.ibm.com>
 X-Mailer: git-send-email 2.55.0
+In-Reply-To: <20260729152938.782383-1-imbrenda@linux.ibm.com>
+References: <20260729152938.782383-1-imbrenda@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -68,110 +71,129 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: Lv9NdKW50SnfLTKBk1F1RXsANFu6CBCs
-X-Proofpoint-ORIG-GUID: Lv9NdKW50SnfLTKBk1F1RXsANFu6CBCs
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI5MDEyMyBTYWx0ZWRfX5V1v4UWQsCKV
- J0lgpUfbXkWC2zGrmNm+3Z5kof0cuX94JRDck9geFjZn2piTx29Tl51kBhFH/B1Xh/D6ZmNFlPH
- p9gkTvdKoebEYohcdetPqiXnLNsXfxE=
-X-Authority-Analysis: v=2.4 cv=dYuwG3Xe c=1 sm=1 tr=0 ts=6a6a1c6a cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+X-Proofpoint-GUID: RpT1Uh9U2wJ6RA6P3dr1l2OkC3df5SxT
+X-Proofpoint-ORIG-GUID: RpT1Uh9U2wJ6RA6P3dr1l2OkC3df5SxT
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI5MDEyMyBTYWx0ZWRfXyJmMU5X411Zi
+ XUU3n8Vufz0QEFgps/Ss2lXW9fpTrhkstM3tDj2tyKyxSC/G8kj8W6nZqL70hJ5eagw6WpYfhMX
+ D32kAnTbq5tysF+tdRvJZPGBy5pJgPpkoQCiTtZ85MhibsxOcLDPep5x7ZnRf9ejMTYP9H/LMNO
+ JUqM5tbw7xk/3zzGwekR/4bLv3UN47ef0eJhTnkbwvHruxFvQaaGzGOSezEK0LPR8EFWyrRYK/E
+ UXqjwpznj+W/rS8AGh5uXb4Wbspx9JpKtYbqqk8keqPV5rCAOKy6zDGIZ9JXJpoCBSaJekvzyzs
+ VYM70qe5uYHBTZSkm8LG97zpNV/0lGum/9T1l0ngsPtlQDpOet7zDcUnXqVUgwHFhu1j7GyCQtg
+ oeyzJFbmfb5Kv1RAlRSjTIcJwO30vk2C9BvCK6k5HnQUxZUHcJFtoG6qyqKeeULbgPVmd9d5cCO
+ tNzHxS2s3PAR/YG5QXg==
+X-Authority-Analysis: v=2.4 cv=SKFykuvH c=1 sm=1 tr=0 ts=6a6a1c6a cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
  a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=U7nrCbtTmkRpXpFmAIza:22 a=aWu7778oA4-70mMxV74A:9
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI5MDEyMyBTYWx0ZWRfX9PrktLJQRNI0
- JL+s927qLk2f1j8wnltt9GuriS2N3BPPCSOWEHfz/O4OLb95fQMrLLQmV7A9pOg/QgwZ4/wFW5O
- 2dE7xm2Fg6siYL+UEiKEtscpcZtn1B37JGYvrCrAPHNM6O9RmIED223vlFM7F9/TDs6nZurhsXU
- 40I/LRLdizjoL7s3xQ4d8IKa27y33DEoBniLpoBumQ8zT7iFw5D0DQm95HQt6zWGyxk1RCLr1fb
- cPAlk8re5oktDylfrYoBGuLL3eZaODXLe7Nje8xOl9vNNckM+4WnsOAe5Vkx1BbGIBJckGD4IBH
- kDqlf/8Ic0IvyVEKdbyC+Hb0HzVfq9hSNf4RGfUmsowaP+bnPeNJq+LIL9kc983iNT5NVOGUD1/
- X0u+B1McM0LEIi9UZHp49WNlgV7HTtJkkT/pyOUM2wUZB8SYopGst1aUTREPLsR5vovOUdAyICk
- YrGOWXjzwAmW6boiw+Q==
+ a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8 a=vVGDtJNaOgRaVfleRDgA:9
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI5MDEyMyBTYWx0ZWRfX902PGjmSkBEg
+ G/LyKXq2agXJPWzu4X31pL7MGd7IOmFJa7I6v/eaLZo1FRX/XkmW3SpJN9EyMTuuZQ9Gqs6Q9Fm
+ ANiXgDAciXWVpcnosAKGLqchnA92AP8=
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-07-29_06,2026-07-29_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 impostorscore=0 clxscore=1015 phishscore=0 malwarescore=0
- spamscore=0 lowpriorityscore=0 bulkscore=0 suspectscore=0 adultscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607290123
+ priorityscore=1501 malwarescore=0 clxscore=1015 adultscore=0
+ lowpriorityscore=0 bulkscore=0 impostorscore=0 phishscore=0 spamscore=0
+ suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2607290123
 
-Fix a bunch of small issues that came up during the previous round of fixes.
+An unlikely race between __do_essa() and kvm_s390_vm_start_migration(),
+kvm_s390_vm_stop_migration(), or dat_get_cmma() was possible.
 
-They are mostly extremely unlikely races, but they should be fixed
-nonetheless.
+Fix by locking kvm->slots_arch_lock. Since this is not a hot path, the
+overhead of an additional mutex is negligible.
 
-v4->v5
-* Improve / fix some comments
-* Undo handle_mvpg_pei() changes
-* cmma_d_count_pte() now clears the cmma_d bit, to avoid double counting
-* Improve some patch descriptions
-* Trigger KVM_BUG_ON() in sca_ext_call_pending() and
-  sca_inject_ext_call() if called on UCONTROL vCPUs
-* Reshuffle the order of the patches to hopefully get fewer false
-  positives from sashiko
-* Check and free cbrlo only if it's not zero
+Fixes: e38c884df921 ("KVM: s390: Switch to new gmap")
+Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+---
+ arch/s390/kvm/kvm-s390.c | 20 ++++++++++----------
+ arch/s390/kvm/priv.c     |  5 +++--
+ 2 files changed, 13 insertions(+), 12 deletions(-)
 
-v3->v4
-* Improve patch descriptions, add comments
-* Use smp_store_release and smp_load_acquire in the first patch
-* Multiple fixes in patch 4: potential NULL pointer dereference,
-  incorrect behaviour in low memory condition
-* Rework patch 8 to use scope-based cleanup instead of gotos.
-* Three new patches:
-  - KVM: s390: Fix kvm_arch_commit_memory_region() when low on memory
-  - KVM: s390: Fix kvm_s390_vcpu_unsetup_cmma()
-  - KVM: s390: Fix sca_clear_ext_call() for UCONTROL
-
-v2->v3
-* Use READ_ONCE to pair with WRITE_ONCE in the first patch
-* Fix leaking PGM_ADDRESSING also in kvm_s390_keyop() and related functions
-* Fix and improve commit messages
-* Use slots_arch_lock instead of slots_lock for ESSA operations
-* Use normal spin_{,un}lock() functions instead of scoped_guard to avoid
-  mixing the two styles
-* Use the newly introduced vcpu->arch.initialized to determine whether the
-  SCA entry needs to be cleared
-* Improve handling of -EINTR; handle_mvpg_pei() needed some refactoring to
-  deal with it properly
-* Three new patches:
-  - Free the mmu cache when kvm_arch_vcpu_create() fails
-  - Fix ordering when adding to SCA
-  - Fix cleanup in kvm_s390_pv_create_cpu()
-
-v1->v2
-* Drop some patches that have been picked upstream in the meantime.
-* Drop patch 3, as it was trying to fix a bug that does not exist
-* Avoid the NULL gmap dereference by using a flag
-* Fix the return value of kvm_s390_[gp]et_skeys too
-* Use kvm->slots_arch_lock instead of kvm->slots_lock for CMMA and ESSA
-  handling, to avoid potential deadlocks with the RCU.
-* Three new patches to fix other issues that came out while fixing the
-  other issues
-
-Claudio Imbrenda (13):
-  KVM: s390: Fix unlikely NULL gmap dereference
-  KVM: s390: Fix kvm_s390_vcpu_unsetup_cmma()
-  KVM: s390: Fix overclearing ESCA in case of error
-  KVM: s390: ucontrol: Fix sca_clear_ext_call()
-  KVM: s390: Fix leaking of PGM_ADDRESSING to userspace
-  KVM: s390: Fix race in __do_essa()
-  KVM: s390: cmma: Fix dirty tracking when removing memslot
-  KVM: s390: ucontrol: Add missing locking around gmap_remove_child()
-  KVM: s390: Free the mmu cache when kvm_arch_vcpu_create() fails
-  KVM: s390: Return -EINTR if a signal was pending while faulting-in
-  KVM: s390: Fix ordering when adding to SCA
-  KVM: s390: Fix cleanup in kvm_s390_pv_create_cpu()
-  KVM: s390: Fix kvm_arch_commit_memory_region() when low on memory
-
- arch/s390/include/asm/kvm_host.h |   1 +
- arch/s390/kvm/dat.c              |  23 ++++--
- arch/s390/kvm/dat.h              |   2 +-
- arch/s390/kvm/faultin.c          |   6 +-
- arch/s390/kvm/interrupt.c        |  11 ++-
- arch/s390/kvm/kvm-s390.c         | 133 +++++++++++++++++++------------
- arch/s390/kvm/priv.c             |  10 ++-
- arch/s390/kvm/pv.c               |  43 +++++-----
- 8 files changed, 142 insertions(+), 87 deletions(-)
-
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 39626649901d..80036b8a1f31 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -1219,8 +1219,8 @@ static void kvm_s390_sync_request_broadcast(struct kvm *kvm, int req)
+ 
+ /*
+  * Must be called with kvm->srcu held to avoid races on memslots, and with
+- * kvm->slots_lock to avoid races with ourselves, kvm_s390_vm_stop_migration(),
+- * and kvm_s390_get_cmma_bits().
++ * kvm->slots_arch_lock to avoid races with ourselves,
++ * kvm_s390_vm_stop_migration(), and kvm_s390_get_cmma_bits().
+  */
+ static int kvm_s390_vm_start_migration(struct kvm *kvm)
+ {
+@@ -1265,7 +1265,7 @@ static int kvm_s390_vm_start_migration(struct kvm *kvm)
+ }
+ 
+ /*
+- * Must be called with kvm->slots_lock to avoid races with ourselves,
++ * Must be called with kvm->slots_arch_lock to avoid races with ourselves,
+  * kvm_s390_vm_start_migration() and kvm_s390_get_cmma_bits().
+  */
+ static int kvm_s390_vm_stop_migration(struct kvm *kvm)
+@@ -1300,7 +1300,9 @@ static int kvm_s390_vm_set_migration(struct kvm *kvm,
+ {
+ 	int res = -ENXIO;
+ 
+-	mutex_lock(&kvm->slots_lock);
++	guard(srcu)(&kvm->srcu);
++	guard(mutex)(&kvm->slots_arch_lock);
++
+ 	switch (attr->attr) {
+ 	case KVM_S390_VM_MIGRATION_START:
+ 		res = kvm_s390_vm_start_migration(kvm);
+@@ -1311,7 +1313,6 @@ static int kvm_s390_vm_set_migration(struct kvm *kvm,
+ 	default:
+ 		break;
+ 	}
+-	mutex_unlock(&kvm->slots_lock);
+ 
+ 	return res;
+ }
+@@ -2998,9 +2999,8 @@ int kvm_arch_vm_ioctl(struct file *filp, unsigned int ioctl, unsigned long arg)
+ 		r = -EFAULT;
+ 		if (copy_from_user(&args, argp, sizeof(args)))
+ 			break;
+-		mutex_lock(&kvm->slots_lock);
+-		r = kvm_s390_get_cmma_bits(kvm, &args);
+-		mutex_unlock(&kvm->slots_lock);
++		scoped_guard(mutex, &kvm->slots_arch_lock)
++			r = kvm_s390_get_cmma_bits(kvm, &args);
+ 		if (!r) {
+ 			r = copy_to_user(argp, &args, sizeof(args));
+ 			if (r)
+@@ -3014,9 +3014,9 @@ int kvm_arch_vm_ioctl(struct file *filp, unsigned int ioctl, unsigned long arg)
+ 		r = -EFAULT;
+ 		if (copy_from_user(&args, argp, sizeof(args)))
+ 			break;
+-		mutex_lock(&kvm->slots_lock);
++		mutex_lock(&kvm->slots_arch_lock);
+ 		r = kvm_s390_set_cmma_bits(kvm, &args);
+-		mutex_unlock(&kvm->slots_lock);
++		mutex_unlock(&kvm->slots_arch_lock);
+ 		break;
+ 	}
+ 	case KVM_S390_PV_COMMAND: {
+diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
+index ea5a99537346..b1ba24c346ef 100644
+--- a/arch/s390/kvm/priv.c
++++ b/arch/s390/kvm/priv.c
+@@ -1261,8 +1261,9 @@ static int handle_essa(struct kvm_vcpu *vcpu)
+ 		/* Retry the ESSA instruction */
+ 		kvm_s390_retry_instr(vcpu);
+ 	} else {
+-		scoped_guard(read_lock, &vcpu->kvm->mmu_lock)
+-			i = __do_essa(vcpu, orc);
++		scoped_guard(mutex, &vcpu->kvm->slots_arch_lock)
++			scoped_guard(read_lock, &vcpu->kvm->mmu_lock)
++				i = __do_essa(vcpu, orc);
+ 		if (i < 0)
+ 			return i;
+ 		/* Account for the possible extra cbrl entry */
 -- 
 2.55.0
 
