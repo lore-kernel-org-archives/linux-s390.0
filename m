@@ -1,129 +1,117 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E132F39EB47;
-	Wed, 29 Jul 2026 09:13:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 58DA31C84A0
+	for <linux-s390@vger.kernel.org>; Wed, 29 Jul 2026 09:36:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785316391; cv=none; b=mBot9c344exJ/q3Hq3Fa6EsMRnj3TJnylKeKrZbw9ETEZR+LFKz9kBlUm9zNG63qKmOAxGNt1SwD4ksh9ysIZJEPrYCB9UFGGJsi6wOZxvm2RFheAePdCiW8LqvsE10F3xRHJo69wIqpUzNzTjgtNbVkZiz900iph0ll//yKF5c=
+	t=1785317784; cv=none; b=LpfDTMGM1lRPH4d2iT60ngg/w9rKedvV66pjj+h7J+xDSCO7atvAMhYgwl4HzY5RRBf4OZFlm7Jb+crtCTV26EBliaCRo4HQtj9iQoYHgaLCUOZX+9ezlkCGCMbThVoFWGqLXb6kDA8I4mQ/eQOJqytI+QKV0aqScBM/wwN0Dx0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785316391; c=relaxed/simple;
-	bh=eC9vp3UnLfVxsdykRc4blWrWyR00cWPALhi3X7I4z+c=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=YHDJ0Y/t3tkQB+GCucZ+FJjWR/TMMJu8RViNAdJEWLel21dx1sA1ESgGCX+vOFsBoyU8dwuO/PWG0U3FxQ9NN0Ib59/BqhoKTpbW8ZzY6qJkCOc6y5Qw7n713lg/p5bBW20sK38Y6UDAe+U8sGsPY/cCn39vRJDghsZaD8zATxI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NTrQYIaG; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1785317784; c=relaxed/simple;
+	bh=csCIH0dUkazl2cG9+wgLA7QvnjufGJSMjys9Rl572ls=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=LRrn/JyUcWMh7IsTSY8fz1x49h2AgfDutN0mx1qSR2+HyOGRKNCo2C2TnY6ISHiUQ8M4KvbtIagcdg56bOqyQ7IJJCT1wnNCa6MZjHdUP//nymbcBuCHN1Y16Xb4uLjC1aHHgYE6rzYRev3xg93K1Mk7Yfl9sUjmgjnAhJimsUc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=lUVo8ndO; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NTrQYIaG"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1385A1F000E9;
-	Wed, 29 Jul 2026 09:12:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785316389;
-	bh=6LOzzspZUA4rNVaGF/4ILR4pTU8q5zeUbIg7i83Gjpw=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date;
-	b=NTrQYIaG/ehk3iBfKYQ4h5VsyLIi9R25YASP+VfHEeqJLRKgGBvkPSyD3Z9S8z4Mj
-	 IF3b3Y7zHwM1Ki87LSJnQvxxpFux7arhN+PB36u7RYtulEQwTh6IzxDRfys1GB1PYP
-	 wQB4ruCqa5tgtepcLoDAHeF9+Xnzu0Vu+PAcp95Nt1fNRZMvtXWiwCJpv5J0FxkUcN
-	 Rb9r9HrCA3JCEOWqEBO0cYpVmnNO7ADrIAeTCDv5mUNlZOFS4StYS2PO33vIrkV7ae
-	 H8zXXtL5Jf4+s89pxC57mJ/77Uat6XV1Wh/ahQsyAMIHiwd/azsjJ8TLnt5OedZG+Y
-	 rEpctXEsvldqg==
-X-Mailer: emacs 30.2 (via feedmail 11-beta-1 I)
-From: Aneesh Kumar K.V <aneesh.kumar@kernel.org>
-To: Mostafa Saleh <smostafa@google.com>
-Cc: iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev,
-	Robin Murphy <robin.murphy@arm.com>,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
-	Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
-	Steven Price <steven.price@arm.com>,
-	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Jiri Pirko <jiri@resnulli.us>,
-	Jason Gunthorpe <jgg@ziepe.ca>,
-	Petr Tesarik <ptesarik@suse.com>,
-	Alexey Kardashevskiy <aik@amd.com>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Xu Yilun <yilun.xu@linux.intel.com>,
-	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org
-Subject: Re: [PATCH v8 00/23] dma-mapping: Track shared DMA state through
- direct, pool and swiotlb paths
-In-Reply-To: <ami7DMIlYHbcEt_6@google.com>
-References: <20260717180442.110954-1-aneesh.kumar@kernel.org>
- <ami7DMIlYHbcEt_6@google.com>
-Date: Wed, 29 Jul 2026 14:42:56 +0530
-Message-ID: <yq5azezaf9bb.fsf@kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="lUVo8ndO"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66T7mMeD3507680
+	for <linux-s390@vger.kernel.org>; Wed, 29 Jul 2026 09:36:22 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=ugBCW+tZ+KnzNP0vANbLrYtMJ3/ML497Kgfcg2dVx
+	NI=; b=lUVo8ndOK1DQr+mw9ZHSXvp2RHYs5jo4atgE56op+13Doa1YeuihGtkFu
+	HhPP0Xn5w4R1Zm8Q0h5ePjjeMXqIBIj8KHYL4G7icGsAKI+OVip4aCRft9Eq2i6l
+	aecY8tnAVApnBTHi3KVwxxTFpxIi3ZnR0EIrrwbZn0lqlHZ82FBE27wyCF6osIGc
+	Kacru4VdPwuN+ApeNNFsSOYZYpLSFttR4fx/Dbyk1rQw34hxFuTPe3njWGZF06mG
+	7w0V7wt2xr2X6TXh5G5PzIVqiDwzt0YBe/3au0gEt1mxjZR1/euMNZaW5GXhGi8C
+	3Z7qWCAXb7WRJIOlk5XB2cR8Fm+lA==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fmuyj96f1-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Wed, 29 Jul 2026 09:36:21 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66T9QFmY032209
+	for <linux-s390@vger.kernel.org>; Wed, 29 Jul 2026 09:36:21 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fn9pgdw3j-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Wed, 29 Jul 2026 09:36:20 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66T9aHxg31129888
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 29 Jul 2026 09:36:17 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 49B8220043;
+	Wed, 29 Jul 2026 09:36:17 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id ED26420040;
+	Wed, 29 Jul 2026 09:36:16 +0000 (GMT)
+Received: from ibm.com (unknown [9.111.67.171])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 29 Jul 2026 09:36:16 +0000 (GMT)
+From: Holger Dengler <dengler@linux.ibm.com>
+To: freude@linux.ibm.com
+Cc: dengler@linux.ibm.com, linux-s390@vger.kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>, ifranzki@linux.ibm.com
+Subject: [PATCH v1 0/2] s390/zcrypt: Validate length in CCA key requests
+Date: Wed, 29 Jul 2026 11:36:14 +0200
+Message-ID: <20260729093616.4184642-1-dengler@linux.ibm.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI5MDA3NiBTYWx0ZWRfXzfHYxusXddXI
+ jUBqzl5/7AMVKhEnA9oPwDLGFyfa5/lm9YOx7OP8boSmJ3fP9e+iOYgOkhy30zVkrjlxu7ZZEBF
+ QJH1OyKgqu/kijwuDc4Qg7Q/fuP2d1E=
+X-Proofpoint-GUID: P18pUFchKKQvoZDoTfnZBKQM5ISNdjb1
+X-Proofpoint-ORIG-GUID: P18pUFchKKQvoZDoTfnZBKQM5ISNdjb1
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI5MDA3NiBTYWx0ZWRfX35IBGRvnma4s
+ O5ZBVr0BWzJesGN7dh4zq8/kwQqE/4+Cm4w5i1HJnKWqgYvNm5zOfGIyTQ26NChH69uSk8ig12e
+ Id6oJEW33akXwBxrOF7eExBeycA0QZ3eegRbFNwqnwcqReV5tTI9IFoiFAcl3lrUhkDledZqwYo
+ tqNR4BakAbilRnzlmAbpThjZ9719Hyr2xZIPdG9vEjo2VqnLWTb9E8GwgLfQGckBgKkmEiPDDZ/
+ cIRV0NXfUCpBeL/X5MD5v+pGehLVqFbfRQE6CfjomvZ0v4yo4kATY8JZmmOaqCcOqNMrlpruz09
+ wntdqU6kC2Y+MYTyNNsk/qXB3jLXxTbbrjrPDE/WBHhD8BO7TpJju5hgbf96AebYamJ8IUByayO
+ j9kEjPXy3M/whgC+gIb9JzyyFGLOlY5FS8mxPTbvx1yrDbTQYGOeM6m+eKLzVCOVEnvSrFNW/ky
+ VQZNOo1M8FWiFUGhcrg==
+X-Authority-Analysis: v=2.4 cv=X5Vi7mTe c=1 sm=1 tr=0 ts=6a69c995 cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+ a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=Y2IxJ9c9Rs8Kov3niI8_:22 a=eZL2FeTKUk823_XBMisA:9 a=zgiPjhLxNE0A:10
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-07-29_03,2026-07-28_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ clxscore=1015 impostorscore=0 lowpriorityscore=0 phishscore=0
+ priorityscore=1501 malwarescore=0 spamscore=0 suspectscore=0 bulkscore=0
+ adultscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2607290076
 
-Mostafa Saleh <smostafa@google.com> writes:
+The series contains two missing length field validations for requests
+with CCA AES cipher keys and CCA ECC private keys. In both cases, the
+length information is used to copy the payload to the request block
+without checking the available space. Malformed requests can so cause
+out-of-band writes on the heap.
 
-> On Fri, Jul 17, 2026 at 11:34:18PM +0530, Aneesh Kumar K.V (Arm) wrote:
->> This series tracks confidential-computing shared DMA state through the
->> dma-direct, dma-pool, and swiotlb paths so that encrypted and decrypted
->> DMA buffers are handled consistently.
->> 
->> Today, the direct DMA path mostly relies on force_dma_unencrypted() for
->> shared/decrypted buffer handling. This series consolidates the
->> force_dma_unencrypted() checks in the top-level functions and ensures
->> that the remaining DMA interfaces use DMA attributes to make the correct
->> decisions.
->> 
->> The series separates mapping and allocation state:
->> - DMA_ATTR_CC_SHARED describes the DMA address attribute requested for a
->>   mapping. It tells the DMA mapping path that the DMA address must target
->>   shared/decrypted memory.
->> - __DMA_ATTR_ALLOC_CC_SHARED is an internal DMA-mapping attribute used only
->>   by allocation paths after the DMA core decides that the backing pages
->>   must be allocated as shared/decrypted memory.
->> 
->> The series:
->> - moves swiotlb-backed allocations out of __dma_direct_alloc_pages(),
->> - uses __DMA_ATTR_ALLOC_CC_SHARED through the dma-direct alloc/free paths
->> - teaches the atomic DMA pools to track encrypted versus decrypted
->>   state
->> - tracks swiotlb pool encryption state and enforces strict pool
->>   selection
->> - centralizes encrypted/decrypted pgprot handling in dma_pgprot() using
->>   DMA attributes
->> - passes DMA attributes down to dma_capable() so capability checks can
->>   validate whether the selected DMA address encoding matches
->>   DMA_ATTR_CC_SHARED
->> - makes dma_direct_map_phys() choose the DMA address encoding from
->>   DMA_ATTR_CC_SHARED and fall back to swiotlb when a shared DMA request
->>   cannot use the direct mapping, which lets arm64 and x86 CCA guests stop
->>   relying on SWIOTLB_FORCE for DMA mappings
->> - use the selected swiotlb pool state to derive the returned DMA
->>   address
->> - reports CC_ATTR_GUEST_MEM_ENCRYPT for arm64 Realms, powerpc secure
->>   guests, and s390 protected virtualization guests.
->> 
->
-> This series has been getting bigger, going through it again, I see
-> that patches (1, 2, 3, 4, 5, 16, 20, 22) are not really related to the
-> shared DMA work and are either fixes for exisiting bugs or clean ups.
-> Would it make sense to have those separated?
->
+This series applies on top of Linus' master branch.
 
-Some of these fixes were originally at the end of the series. However,
-it was suggested that they be moved earlier to make backporting easier.
-The changes are kept as a single series because of the code dependencies
-and to make it easier for Sashiko to apply and review them.
+Holger Dengler (2):
+  s390/zcrypt: Validate length for CCA AES cipher key requests
+  s390/zcrypt: Validate length for CCA ECC private key requests
 
-One of the reasons I'm also requesting that this be picked up for -next
-is to avoid continuing to add more changes to the series at this stage.
+ drivers/s390/crypto/zcrypt_ccamisc.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
--aneesh
+
+base-commit: fc02acf6ac0ccde0c805c2daa9148683cdd01ba8
+-- 
+2.55.0
+
