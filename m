@@ -1,189 +1,174 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1A92F410D24;
-	Thu, 30 Jul 2026 11:34:45 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 40A4F4014BB;
+	Thu, 30 Jul 2026 11:55:02 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785411287; cv=none; b=re9yCJx5aXRff25ahm/HP7HiAibXOqRBxFkXMwW2/Tie5nAefdStBOslDSz3+7YYUCaH5d4P+8xBY+xfAiZI/S8qGr2oCTrNzfkCG1oQkzFocfYG4wxv4mmAAB7SRr0W9XHN66wY5VVFxCYzh/31B7ZfKRI3pcLq3DY4R8Vf+3s=
+	t=1785412503; cv=none; b=vF8X0xqMmu+fUE4ozXyYCFB7B8n+6ClGYka4icJuM4WWOsK5OU9Weip1fCqNtAOez7bg9YDEXj8ThaDGennuyM1QtTX3hWL6jLqcglAFj1TUIMyG0yd4KSx0IdUwgZlbCsXT/WJa2z+IW2Bk3eZff2e1imFA4nyDSuOXE58wTeU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785411287; c=relaxed/simple;
-	bh=fZV59fNhXu4Wh0j6giBgv27AD6aj39rpSIuWb5WBfEs=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=fdrlcsOILEgt8iYS67rlFeQ8474B4BXFfQbYbArCBTaAuk+hqynvd7lBvCCN1XPo9s9bGBWFzi1we3wwMA2wK4HK5Da885RLQBkN5uwV7j9tOiksBtdiYc3FVR8mY7hiPCvbULgk09rlvkPARIsu5IK/zn9nk5WgS9h1l+ow/A0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=qnQB5Xl0; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1785412503; c=relaxed/simple;
+	bh=f2FGjSU7PQcQ6pCLBbrunFcuMa4gsFA6dJ2X1WjOpqk=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=NJL0LJrYNBOQazyy70zC3aIzSK3MI6tWtVZyjgf+K061kA3B8AGHbH5aCQIZzZxqeOoRzYQSH7T9yoXWHa38lDzGBaiqO4sP3K1pXhLW8vjxpzV31kNekQtmGOxxXS6TZ33PO+3GdtL1e2ig2WnnKs8esI8ZJ1/NNdGEwZvWIbI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Dx9IHtp9; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="qnQB5Xl0"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Dx9IHtp9"
 Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66UAHxNp846258;
-	Thu, 30 Jul 2026 11:34:37 GMT
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66UAHkbc846050;
+	Thu, 30 Jul 2026 11:54:53 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=82/Iz9
-	QOAM773M75QL8FheOWFaPVv13KCdaeeO8EOag=; b=qnQB5Xl0UgHiwbaPD2b70j
-	03r+ZBhZoLmFmFfiJ8x5P5QOhPAF4pL0ZYJ6ghcspcaUEc/H9Up+ba6V+3DkNYQS
-	Pmk8hZIxIQwAqBzxxq/rFFpoCpEMYsNktQUIdsXXuH+j2Ybt6OOEbyHmyB8gNNmp
-	nbLOhwzuSmYPiAG7kXmv33DBxYqt+BDRdT3Dg/Kzakcru6R7Hv2Y3msoVraYwQZk
-	xjAvq12ABVslOaiqosz5pPZBmzNSvVje8dSUOznuCki4D1Ep9TwWbx78HoHdime/
-	qL/L5pqKwXa5M+wIpQgjo215nBsX39ggUX9tQUfFmWC05iRkiarlNHoZXBVD0w7w
-	==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fmuycqcdh-1
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=YyBLCkOgf4K1uTZCM0DqV3UlW9hn/f
+	C6mGXiJu9JRgo=; b=Dx9IHtp99VoXWEFNCLlUfIS5mp8na2B42Pfju7rL6IXfaw
+	bs7V4djwxqrjzsAcegOlV4X+MP+QaqJxzY5nLx9wXkEiVEm9CDgpvytkldEIELw6
+	S+PnexisgFaGHMsLCPHhHMHy5F8ghOfFUaXUQECAoXmZ9gGCLk7NE0+hv2QRr7Ca
+	ooHPsF+U8Gyt+8k4+QTpQbprLrry6cO/ccLqG0ECv38ogiaoT4sKiuK7EEKOUexa
+	N6zCbxiygUjDTYQZlvfzqEb/c+/d9bgnaH4IlnLVtwNXWwZKNcji7GnW2fXD8SJC
+	3KbeFnYDuviotUm92sUGqur5p8M/AufbuYZQ8QJw==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fmuycqer6-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 30 Jul 2026 11:34:36 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66UBQJxA016526;
-	Thu, 30 Jul 2026 11:34:35 GMT
+	Thu, 30 Jul 2026 11:54:52 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66UBfGaW023444;
+	Thu, 30 Jul 2026 11:54:51 GMT
 Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fn9pgjwu6-1
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fn8yhk2bm-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 30 Jul 2026 11:34:35 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66UBYWgO13500688
+	Thu, 30 Jul 2026 11:54:51 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66UBslVd31588978
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 30 Jul 2026 11:34:32 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id EFD7A20043;
-	Thu, 30 Jul 2026 11:34:31 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9AE0220040;
-	Thu, 30 Jul 2026 11:34:31 +0000 (GMT)
-Received: from [9.224.91.220] (unknown [9.224.91.220])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 30 Jul 2026 11:34:31 +0000 (GMT)
-Message-ID: <39570813-27b0-40f9-89c5-8e2dce05e2f0@linux.ibm.com>
-Date: Thu, 30 Jul 2026 13:34:31 +0200
+	Thu, 30 Jul 2026 11:54:47 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 3AC3320043;
+	Thu, 30 Jul 2026 11:54:47 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id BC83C20040;
+	Thu, 30 Jul 2026 11:54:46 +0000 (GMT)
+Received: from osiris (unknown [9.111.22.102])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Thu, 30 Jul 2026 11:54:46 +0000 (GMT)
+Date: Thu, 30 Jul 2026 13:54:45 +0200
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Mete Durlu <meted@linux.ibm.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Petr Mladek <pmladek@suse.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Andreas Larsson <andreas@gaisler.com>,
+        Bradley Morgan <include@grrlz.net>, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, sparclinux@vger.kernel.org
+Subject: Re: [PATCH v3 2/3] s390: Implement arch_do_panic
+Message-ID: <20260730115445.18059Aac-hca@linux.ibm.com>
+References: <20260730-arch_do_panic-v3-0-d5401e683cdb@linux.ibm.com>
+ <20260730-arch_do_panic-v3-2-d5401e683cdb@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 1/4] s390/crypto: Replace cond_resched() with msleep(1)
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: Heiko Carstens <hca@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@kernel.org>,
-        Herbert Xu <herbert@gondor.apana.org.au>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org
-References: <20260730052907.2607026-1-hca@linux.ibm.com>
- <20260730052907.2607026-2-hca@linux.ibm.com>
- <20260730101157.GQ49951@noisy.programming.kicks-ass.net>
-From: Holger Dengler <dengler@linux.ibm.com>
-Content-Language: en-US, de-DE
-In-Reply-To: <20260730101157.GQ49951@noisy.programming.kicks-ass.net>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260730-arch_do_panic-v3-2-d5401e683cdb@linux.ibm.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: hiqQkvn8PvBnI17F-vxIjYpzSOMyp8Bo
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzMwMDA4NCBTYWx0ZWRfXx1vtqZPeqfXu
- COYGtKwcC2hD0UGlzC9fkJnTKnsQeK/cTd5aqbnajkzMhwDw67WRI2KAzrtNjRA93c2OP8P7lMK
- rIgr4gNvefp3xzaHmCRbUCJ9vdvfJx2T3pYKAuH+W7wXtrHzGH8uZMwia3pt12pDH3bIMSHf419
- QTGF13Vo/DMAOv0YyPidOX1al0qfG89LOJkaA6VHeWo0Ua15xTzFx7U2B5wXZR+NzsSY2AJGyAI
- r1gtMLv70r327VczkA6G0OdlY3ekOV7yDjq6IUWkprO490BZuf8c/zSHpohk0D2RPfrMEWsa1N+
- DmScpiPBTrZ/4nmVFr6YKfr4j+j0EVCYelWIvl6hsRUqnzK3yLCXvcEJvPI7KZcWJWuJeXzk/PB
- UA1SOLMthWdyQbMO5N2AXKd0lqlzAPDM0x2VCE0QNAUpeLCfIqY67U2eJwVOAepRoxDyozWKHry
- KXMclZRUHeGaDo9A01Q==
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzMwMDA4NCBTYWx0ZWRfX//qOuzKBorKB
- 6Z2cm0lR+qiOogkJJ9oXs1IFK3BISaMFhSes/wPFjr42OQVPX5iQHgDdFfe5c9IeGFAW5jBysUj
- 4mNAXq7ZkKFygm7VxgvLjGRTiHK1lK8=
-X-Authority-Analysis: v=2.4 cv=AZeB2XXG c=1 sm=1 tr=0 ts=6a6b36cc cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
+X-Proofpoint-ORIG-GUID: 1fXfNg7Hvx6Y46HC3902dNvsuRw1TATp
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzMwMDA4OSBTYWx0ZWRfX2caB7v0qsDQx
+ Z6qw2tV3Y1ozoUzr2pDFPpUDXiUtzZjiBhLwWKzP3cduDIKdDhfVE+2ciFxhw/FI3n+J4QEkDnp
+ 2pCfG0gk05fbVarBQIr6eHltzElIhahmkORALYr8lCpzbAIHp++zopHBldrXmM8u8EJUOLoVMYM
+ xS+9wB5BLIAHeB5oqEfYO0VJja5Xk4cdOGmHVEMhAcrZTnKiMiM0qDhtlakXxaPOSiTlvHKy0+F
+ Okuz39iM7leP37SlJFRAep1CHENp0rGX5sIdKHUSs9Oo3u4hR5M3XPSDcEjVFAeiTZwtWkEOS8t
+ 73fM01eSpUk+E2dOC9a92UfRwmVENq22ZqBCWK2NcrSDk6LT95Yo8p3HuWOeSPWNSEUB4grwF7c
+ gzA3zJ69pm1JFICFsSa2HpjRt0xK1gcmOG+TBtQnZ30aRBEfkbAlyMB6pUXBwhzlxRfBIiMZ4hG
+ A8HRzZOl1uWzryHZ1gQ==
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzMwMDA4OSBTYWx0ZWRfX0z8ALQhHdsKC
+ ge35XqasJ6u8t9qQEjy/1zETGcWTYdCH7V8ygwpV50bIiVx3zj3+qiW3hATkaYZo+0zgRfUi0TE
+ yzqCRZOaeAhOLESaZs0d+jjYI04zDm0=
+X-Authority-Analysis: v=2.4 cv=AZeB2XXG c=1 sm=1 tr=0 ts=6a6b3b8c cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=kj9zAlcOel0A:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
  a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8
- a=ZkYAL_Nd9JtXCKDLLNsA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: hiqQkvn8PvBnI17F-vxIjYpzSOMyp8Bo
+ a=-JCyyWmiuEp79ddJ_woA:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-GUID: 1fXfNg7Hvx6Y46HC3902dNvsuRw1TATp
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-07-30_03,2026-07-29_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
  spamscore=0 priorityscore=1501 phishscore=0 adultscore=0 impostorscore=0
- clxscore=1015 malwarescore=0 suspectscore=0 lowpriorityscore=0 bulkscore=0
+ clxscore=1011 malwarescore=0 suspectscore=0 lowpriorityscore=0 bulkscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607300084
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607300089
 
-Peter,
-
-On 7/30/26 12:11, Peter Zijlstra wrote:
-> On Thu, Jul 30, 2026 at 07:29:04AM +0200, Heiko Carstens wrote:
->> With [1] cond_resched() is always compiled away and becomes a no-op.
->>
->> The comments for all cond_resched() calls in crypto code however indicate
->> that the current process should be scheduled away to avoid instant
->> re-invocation of a callback. This is not what cond_resched() would do or
->> did.
->>
->> Instead of just removing the cond_resched() calls, replace them with
->> msleep() calls, as suggested by Holger Dengler. This forces the current
->> task to be scheduled away (sleeps) like originally intended.
->>
->> [1] commit 7dadeaa6e851 ("sched: Further restrict the preemption modes")
->>
->> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
->> ---
->>  arch/s390/crypto/paes_s390.c  | 8 ++++----
->>  arch/s390/crypto/phmac_s390.c | 4 ++--
->>  2 files changed, 6 insertions(+), 6 deletions(-)
->>
->> diff --git a/arch/s390/crypto/paes_s390.c b/arch/s390/crypto/paes_s390.c
->> index 8cfe6166c193..511cb6105436 100644
->> --- a/arch/s390/crypto/paes_s390.c
->> +++ b/arch/s390/crypto/paes_s390.c
->> @@ -555,7 +555,7 @@ static int ecb_paes_do_one_request(struct crypto_engine *engine, void *areq)
->>  		 * To avoid immediately re-invocation of this callback,
->>  		 * tell the scheduler to voluntarily give up the CPU here.
->>  		 */
->> -		cond_resched();
->> +		msleep(1);
->>  		pr_debug("rescheduling request\n");
->>  		return -ENOSPC;
->>  	} else if (rc) {
+On Thu, Jul 30, 2026 at 11:23:28AM +0200, Mete Durlu wrote:
+> s390 has a custom panic handler which carries out user specified actions
+> during a panic scenario. This handler is invoked via the panic_notifier
+> call chain and executed before panic_timeout value is evaluated in
+> common code.
 > 
-> I am somewhat conflicted on this. It will add a 'random' delay to this
-> crypto user (which might be real-time task) that is not related to the
-> actual event this is waiting for.
+> Use arch_do_panic() hook to invoke arch specific panic handling instead
+> of using panic_notifier call chain. By reordering s390's panic handler
+> allow more information to be printed during a panic.
+> The execution order of panic handlers now allows for user specified
+> panic_timeout value to be taken into account. This fixes the broken
+> "panic" kernel parameter for s390, earlier it was just ignored
+> inexplicibly.
 > 
-> That is, it could be that this key expiration thing is sorted way faster
-> than this one milisecond.
+> This now means that the panic_timeout value takes precedence over user
+> defined on_panic behavior defined via "chshut" or writing to
+> /sys/firmware/shutdown_actions/on_panic.
 > 
-> Is there nothing the crypto layer can do that is more clever; like a
-> condition variable on the key update when -ENOSPC is returned or
-> something.
+> Fixes: ff6b8ea68f4b ("[S390] ipl/dump on panic.")
+> Suggested-by: Sven Schnelle <svens@linux.ibm.com>
+> Signed-off-by: Mete Durlu <meted@linux.ibm.com>
+> ---
+>  arch/s390/kernel/ipl.c | 19 +++++--------------
+>  kernel/panic.c         |  3 ---
+>  2 files changed, 5 insertions(+), 17 deletions(-)
 
-Let me give a bit of background here: The protected key can only get
-invalid, if the linux instance (z/VM or KVM guest) is moved to another
-hypervisor on a different machine (aka life guest relocation). In such a
-case, the crypto accelerator card and the host has to exchange the "real
-key", which is wrapped by the host and handed back to the guest as the
-re-newed protected key. Unfortunately there is no asynchronous trigger
-on completion, you have to re-try (and maybe get another "in progress"
-return).
+So, finally I took a closer look :)
 
-And as if that weren't bad enough, if this key exchange between card and
-host is the first one, card and host has to instanciate a secure
-communication channel (including a key exchange for the transport layer).
+Question: why is it desirable that panic_timeout takes precedence? The result
+of this change is quite surprising: if anybody (e.g. a distribution) sets
+CONFIG_PANIC_TIMEOUT to a non-zero value this completely breaks "on_panic"
+behaviour on s390.
 
-I agree, this sounds rally bad for real-time tasks. But we're talking
-about 2nd-level virtualization (with non-real-time hypervisors below)
-and about cases, which can only happen right after a guest relocation to
-another machine. Would the current solution be acceptable under these
-circumstances?
+I could understand if this change would result in a larger timeout and
+additional information being printed, but not that it breaks existing and
+actually designed and desired behaviour.
 
-> This all sounds like a horrible hack one way or the other.
+This change also makes it more likely that the system deadlocks on console
+messages, before the actual arch_do_panic() is called, if I'm not mistaken.
+Which would also be a regression.
 
-Ähh, yes... :)
+What I like about this patch set is that it removes architecture dependent
+ifdefs from common code. But the side effects are very questionable.
 
--- 
-Mit freundlichen Grüßen / Kind regards
-Holger Dengler
+The "obvious" cleanup would be to move only the existing ifdef'ed code
+into arch_do_panic(), and only then provide semantical changes, which
+wouldn't need to be part of such a cleanup series.
 
+> diff --git a/arch/s390/kernel/ipl.c b/arch/s390/kernel/ipl.c
+> index 3c346b02ceb9..6a5fa9213450 100644
+> --- a/arch/s390/kernel/ipl.c
+> +++ b/arch/s390/kernel/ipl.c
+> @@ -2111,11 +2111,15 @@ static ssize_t on_panic_store(struct kobject *kobj,
+>  			      struct kobj_attribute *attr,
+>  			      const char *buf, size_t len)
+>  {
+> +	if (panic_timeout) {
+> +		pr_warn("on_panic action will be ignored in favor of panic timeout (panic=%d)",
+> +			panic_timeout);
+> +	}
+>  	return set_trigger(buf, &on_panic_trigger, len);
+>  }
+
+I'm wondering why AI doesn't complain about this user trigger-able warning
+message. This is not good. *If* we go this way, writing to this attribute
+should simply fail, instead of giving the user the impression that something
+has been configured, which would actually do something.
