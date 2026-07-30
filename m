@@ -1,149 +1,76 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from 011.lax.mailroute.net (011.lax.mailroute.net [199.89.1.14])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C76035C180;
-	Thu, 30 Jul 2026 17:04:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 76A022EDD40;
+	Thu, 30 Jul 2026 18:35:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=199.89.1.14
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785431085; cv=none; b=nHoHu97jpM5/ZM7NCBNLMxQchz8PzGBQIuARMmkWyhOHhniT38YmpN/go4ifHkgeiQRDKoyc9hkSxYrXA/1b4B6cpHsiLOcXmXViuIX/Yhu/U03HzU5GqUmFKl1CqwL/TfwCI1AbiQ5T/MsSvGhWO9r+/8h+Dl0i1Nr5zVC7Uao=
+	t=1785436504; cv=none; b=bKiPGLD7tlF0rV1AK6YfghEfHyIa8gdaz5U2NWUl74pYeOgylEHJl/t6NZlOjRzDAkoDC4YnMlOPESDvit/7SySJqDAP4AK1l3rw/ZPT/RomWnuYJuibggAlXnoWhpME/YUX8stEOxuRCIqv4ImEQeBjjkI1s2s/Lk7E/RbFXJs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785431085; c=relaxed/simple;
-	bh=vDuvDHLHJ+0AZ41ug75orRGPYaz8ZMCR448uzbUP7qM=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=mZ/6E5zIOjdh++Kam83nqutA2AnRVOxHUpZCaOiXqQyoP05oux58FMz9apicLQlzYscCGBwBs2K/NlvsBB+R+T51jK3mQiWErdpRBFyAb87y6o1F5JTfxaBZJj6R91RdhJUDDAnmFCdG+Cu8O7asXcPaCQPNlbDrlAJM6zaRw9U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RWHzmFL0; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1785436504; c=relaxed/simple;
+	bh=2ldMrhV1ugKVggGGxGNHKWoq1NXNyzXemeVaKlQ0DTs=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Lt+Fk58czG02YGeITxH7D1T5DtABgkE50XshjWNlRNtqbKDlYRXwFYCANjBe8Tw+0plEm6UauLuVUol5R+uk/D2qJdyBHmMzDf14z4rCBFRRcrfV7Oxs33RzRortQhBIzjaSi0DZDXOrVau0+m6gQKMbNg91GgJxXtMiCeDZ32c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=acm.org; spf=pass smtp.mailfrom=acm.org; dkim=pass (2048-bit key) header.d=acm.org header.i=@acm.org header.b=htitda2P; arc=none smtp.client-ip=199.89.1.14
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=acm.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=acm.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RWHzmFL0"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E7441F000E9;
-	Thu, 30 Jul 2026 17:04:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785431084;
-	bh=9J0QRCWAkroDOML7M6Pu99OroGdhTBe5DYMDcE6OMyY=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=RWHzmFL0+xM1OQnobx51vQNlmNiFtMLJoVR5Op4DYvMBxl9mx2MMbmHYOuTPtMeuY
-	 FsGdbHHrMNWJDEQW47V5um6BIoJzXuWtIeYgFTLLRHvhTnU89GmRXvo/550v6c/XJo
-	 u55oKIvW0WKDG8zj9xlMaFLGNgdYlf1ZqNPOW8oFeu+duyqmn128TI4GzF6GjuB8bs
-	 k/jI0E6FcfLETeoCeoqjA9ahCus0SSbYN9guc83kCGZ0/XWOk+rvUCkCMfKD9Futjr
-	 Z7s/URHSWeUSHTPPU1EGwTXe9j0Pf0SobTFvynbPEu7zndcy5Rroyvd6LrGepBnnls
-	 ly3oTUefP70fw==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v6 03/14] KVM: s390: Fix overclearing ESCA in case of
- error
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
- Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
-In-Reply-To: <20260730162714.133327-4-imbrenda@linux.ibm.com>
-References: <20260730162714.133327-1-imbrenda@linux.ibm.com>
- <20260730162714.133327-4-imbrenda@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 30 Jul 2026 17:04:42 +0000
-Message-Id: <20260730170443.0E7441F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=acm.org header.i=@acm.org header.b="htitda2P"
+Received: from localhost (localhost [127.0.0.1])
+	by 011.lax.mailroute.net (Postfix) with ESMTP id 4h9yYL6GL9z1XM30k;
+	Thu, 30 Jul 2026 18:35:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=acm.org; h=
+	content-transfer-encoding:content-type:content-type:in-reply-to
+	:from:from:content-language:references:subject:subject
+	:user-agent:mime-version:date:date:message-id:received:received;
+	 s=mr01; t=1785436494; x=1788028495; bh=2ldMrhV1ugKVggGGxGNHKWoq
+	1NXNyzXemeVaKlQ0DTs=; b=htitda2Pa84jRhL0ptF2wiOxirvBOO4OcUCa7oa3
+	ccO96JGKk2alZ+Z/av07dlQHemaffkVJn4+zTNeoxmCGnIRwcWNLELdIbGqJoXHD
+	0AthCXGyaI3SiSgHv1Bx8tfiCxP5v/OAPcyDeWcAE6f6EZVTlxaSmP9aOztQ9URc
+	1t7KWDRCy2PpSVVDbA4OeIEmrERTS6Q6m7YckeUpEx3HBzAPV62a3/K7DxT9v6K8
+	1Q/SNOOspTDX/5txICnz9Lqv5o++kTHegRzlxnK2JXGU6zThCsBWTcgJb/I7hAEG
+	cbP4+8xeOu+3rzyFNcInOEgRCb9Niva6J70DihtEyRdiYg==
+X-Virus-Scanned: by MailRoute
+Received: from 011.lax.mailroute.net ([127.0.0.1])
+ by localhost (011.lax [127.0.0.1]) (mroute_mailscanner, port 10029) with LMTP
+ id uwqm6bYaInKa; Thu, 30 Jul 2026 18:34:54 +0000 (UTC)
+Received: from [100.119.48.131] (unknown [104.135.180.219])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	(Authenticated sender: bvanassche@acm.org)
+	by 011.lax.mailroute.net (Postfix) with ESMTPSA id 4h9yY44G6Cz1XM4TB;
+	Thu, 30 Jul 2026 18:34:48 +0000 (UTC)
+Message-ID: <87d2c139-8020-4b04-af4c-eae0f61f5301@acm.org>
+Date: Thu, 30 Jul 2026 11:34:47 -0700
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH rdma-next v3 07/14] RDMA/srp: Make the SRP sysfs class net
+ namespace aware
+To: Jiri Pirko <jiri@resnulli.us>, linux-rdma@vger.kernel.org
+Cc: cgroups@vger.kernel.org, netdev@vger.kernel.org,
+ linux-s390@vger.kernel.org, linux-kselftest@vger.kernel.org, jgg@ziepe.ca,
+ leon@kernel.org, parav@nvidia.com, mbloch@nvidia.com, cmeiohas@nvidia.com,
+ roman.gushchin@linux.dev, zyjzyj2000@gmail.com, shuah@kernel.org,
+ tj@kernel.org, mkoutny@suse.com, hannes@cmpxchg.org,
+ alibuda@linux.alibaba.com, dust.li@linux.alibaba.com, sidraya@linux.ibm.com,
+ wenjia@linux.ibm.com, yanjun.zhu@linux.dev, cui.tao@linux.dev
+References: <20260716132316.1495242-1-jiri@resnulli.us>
+ <20260716132316.1495242-8-jiri@resnulli.us>
+Content-Language: en-US
+From: Bart Van Assche <bvanassche@acm.org>
+In-Reply-To: <20260716132316.1495242-8-jiri@resnulli.us>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
+On 7/16/26 6:23 AM, Jiri Pirko wrote:
+> Tag srp_class by the RDMA device's net namespace so SRP hosts derived from
+> same-named RDMA devices can coexist across namespaces.
 
-Pre-existing issues:
-- [High] Missing ucontrol checks in ESCA handling lead to out-of-bounds mem=
-ory accesses for KVM_VM_UCONTROL VMs.
-- [High] Memory leak of `vcpu->arch.mc` on error paths in `kvm_arch_vcpu_cr=
-eate()`.
---
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
 
---- Patch [3]: [PATCH v6 03/14] KVM: s390: Fix overclearing ESCA in case of=
- error ---
-commit 0972b46b8d10201faec4d5ded093d7c4cc013c9b
-Author: Claudio Imbrenda <imbrenda@linux.ibm.com>
-
-KVM: s390: Fix overclearing ESCA in case of error
-   =20
-If an attempt is made to create a vCPU with an already existing ID,
-the duplicated vCPU will be destroyed. When destroying a vCPU, its
-ESCA entry will be cleared. In the above scenario, the spurious
-duplicate vCPU is destroyed, but the ESCA entry corresponding to the
-original vCPU is cleared.
-
-> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-> index 9e3e6b0d72ad6..2acdff130fa6c 100644
-> --- a/arch/s390/kvm/interrupt.c
-> +++ b/arch/s390/kvm/interrupt.c
-> @@ -86,7 +86,7 @@ static void sca_clear_ext_call(struct kvm_vcpu *vcpu)
->  	struct esca_block *sca =3D vcpu->kvm->arch.sca;
->  	union esca_sigp_ctrl *sigp_ctrl =3D &sca->cpu[vcpu->vcpu_id].sigp_ctrl;
-> =20
-> -	if (!kvm_s390_use_sca_entries())
-> +	if (!kvm_s390_use_sca_entries() || !vcpu->arch.initialized)
-
-[Severity: High]
-This is a pre-existing issue, but missing ucontrol checks in ESCA handling
-can lead to out-of-bounds memory accesses for KVM_VM_UCONTROL VMs.
-
-If a user creates a KVM_VM_S390_UCONTROL VM (requires CAP_SYS_ADMIN), skips
-sca_can_add_vcpu() limit checks during vCPU creation, and successfully
-initializes vCPU IDs up to 254 (above the ESCA array limit of 248), does th=
-is
-allow out-of-bounds reads and writes?
-
-For example, when injecting KVM_S390_INT_EXTERNAL_CALL or resetting the vCP=
-U,
-sca_clear_ext_call() unconditionally writes 0:
-
-arch/s390/kvm/interrupt.c:sca_clear_ext_call() {
-    ...
-    WRITE_ONCE(sigp_ctrl->value, 0);
-}
-
-Similarly, sca_inject_ext_call() performs an out-of-bounds cmpxchg write:
-
-arch/s390/kvm/interrupt.c:sca_inject_ext_call() {
-    ...
-    rc =3D cmpxchg(&sigp_ctrl->value, old_val.value, new_val.value);
-}
-
-Could this corrupt the kernel memory adjacent to the esca_block pages for
-vCPU IDs >=3D 248?
-
->  		return;
->  	kvm_s390_clear_cpuflags(vcpu, CPUSTAT_ECALL_PEND);
-
-[ ... ]
-
-> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index 9ec5833a09732..58cec3703c2d5 100644
-> --- a/arch/s390/kvm/kvm-s390.c
-> +++ b/arch/s390/kvm/kvm-s390.c
-
-[ ... ]
-
-[Severity: High]
-This is a pre-existing issue, but does kvm_arch_vcpu_create() in
-arch/s390/kvm/kvm-s390.c leak the MMU cache allocation on error paths?
-
-If a subsequent allocation fails after kvm_s390_new_mmu_cache() assigns the
-cache to vcpu->arch.mc, the function jumps to out_free_sie_block and returns
-an error without freeing the MMU cache:
-
-arch/s390/kvm/kvm-s390.c:kvm_arch_vcpu_create() {
-    ...
-out_free_sie_block:
-    free_page((unsigned long)(vcpu->arch.sie_block));
-    return rc;
-}
-
-Since kvm_vm_ioctl_create_vcpu() decrements kvm->created_vcpus and frees the
-vCPU struct but does not call kvm_arch_vcpu_destroy() on this error path,
-would vcpu->arch.mc be permanently leaked?
-
-Can an unprivileged user repeatedly attempt to create a vCPU and force memo=
-ry
-allocation failures to cause an unbounded memory leak?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260730162714.1333=
-27-1-imbrenda@linux.ibm.com?part=3D3
