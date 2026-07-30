@@ -1,119 +1,171 @@
-Received: from mail-pj1-f43.google.com (mail-pj1-f43.google.com [209.85.216.43])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8BA684418D7
-	for <linux-s390@vger.kernel.org>; Thu, 30 Jul 2026 16:15:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E853C43D515;
+	Thu, 30 Jul 2026 16:27:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785428106; cv=none; b=iUm9C0Bp7gXlDF50E+8TNgWgvIXvIN4vBYbFf7ZtsXuCl9DDdnGciwDoSHq7KpRK4ApPjQCWGVZH3QbY3NY5OYe8GQ+GhMFXHtmwqBdfBlllm2Ul/kbfl03gYcwr6iDBSAeu53dkdW3mgqpgYdjPT2hbblgUJH8upLs974I174U=
+	t=1785428834; cv=none; b=CS1jiiI18pED1tWGUV5Yq2u+5zeFpchomIbrcCZvHrH8DPW37tuBW0h21/F30z1NcdfsfigZHFWT7OQPWd/UwFLNTohRzDPit4ybvWx/tS+fATaqe3fnHCAcsX9h1DCaW/SjfGa7wOqbypwbkv0OpQKiWSMVjISHLFFxYYlij3Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785428106; c=relaxed/simple;
-	bh=Prrq3lRrNtjBMcFNoLT6vy0bmYe4ExXeIRC0llIkt7s=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=V62tkykvD+KCRSxoa7EMI9KZbCO9NFRY1o5porjeMgAN0NFqL7hQuu/1YnNyoB9mohYu/e4a4o+j21dzI8T5mfW9lcWCnZutYSo0VSJqePOl0aKmevdJtGfS9J3W4SV+ov9JjiZBGlifnG3jJlek/qvu+NGCxNTh54fIuPqMREw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=dama.to; spf=none smtp.mailfrom=dama.to; dkim=pass (2048-bit key) header.d=dama-to.20251104.gappssmtp.com header.i=@dama-to.20251104.gappssmtp.com header.b=aD1x7KZO; arc=none smtp.client-ip=209.85.216.43
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=dama.to
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=dama.to
+	s=arc-20240116; t=1785428834; c=relaxed/simple;
+	bh=HupSaWUxAQikdFcuyhWnW1QDOAiZbKbh8EtT5MGjlM8=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=hT297pymHUYKCMK50q8/k2q+tiLoYUwdPRokbGVNkb8Lf083jGM2mLoWvtzxA3LPaHo5Kv2nkLnmUYOAYDFpdFh8iu8vwJakRZ8Hh+Oi0WbGVzbO88ZvLEr3C6F/q4E7/hNz7sePeXqUTdbCumGagGhxYrWEmXozFdnyEwQEOg0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=e//4S/+1; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=dama-to.20251104.gappssmtp.com header.i=@dama-to.20251104.gappssmtp.com header.b="aD1x7KZO"
-Received: by mail-pj1-f43.google.com with SMTP id 98e67ed59e1d1-3811f512167so35796a91.3
-        for <linux-s390@vger.kernel.org>; Thu, 30 Jul 2026 09:15:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=dama-to.20251104.gappssmtp.com; s=20251104; t=1785428104; x=1786032904; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:mail-followup-to:message-id:subject:cc:to:from:date:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=sc7/PIL5nmBZuTJI/qyxnyFN7S+kHFcyfHQ2vtF45hE=;
-        b=aD1x7KZOof0CcjkO3K2mWdjMAAFm27fqdl7lL9hKPfT7nYI/samOcztz60bwQqvTPE
-         wFyQsC7b70zbV5K6ObSxMVMDfwqRXrBLb+8MozDJ/MVkPH7qUbhzdEAUYxKLYSGqxLMA
-         5coRJy5pRS4vLsXDunzwN4PDIYvKWsQaMEE4QtGTOtlUDa9ijQJETS4xUHaQJh42o1+1
-         q31yDnWZcszUH53+AQZNb9dPr94O6Qmme1jJDcEh4rAaH8Sn3X/Peq6mLw+6bFRTYFCN
-         aE5yGr82pAMRs/cmeZkd42a4dpwg2XgrW0bhcBbOM8re1S7ktPRrEAFLhrYcnD/FtP/f
-         WbkA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785428104; x=1786032904;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:mail-followup-to:message-id:subject:cc:to:from:date
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to:content-type;
-        bh=sc7/PIL5nmBZuTJI/qyxnyFN7S+kHFcyfHQ2vtF45hE=;
-        b=rJmaGc0lSifVz2nwgHeQwsXpaSQQBYzmb7xsL5wE4UXVHstUkZXek6dgBtlCHhaqF7
-         Lhu/y0VWyJ5w5zPlLzySHcNCe2F/XCsGiaQkM8j6FuQW+vOLan7srVLJ7IMlmOh1IC4W
-         eMqsRMR/OEi7x7ceUFVPUCQzC60Ao3gY5B1KAiSudOin/Per0uW/pp5tKseyetPiI/na
-         xpdKZg9N7ObTKQWVhNeOABxgCS1TZ2s0OPKeZSlIqwAUp1KwhmLsNZr8pTJgqJnQPyzy
-         kzpIaeFb4tSrzsS+WO0eSXWr1fuY5JulBAu8S4T7913QUxdiKqivbn9xmnOOvivgctH2
-         fDzg==
-X-Forwarded-Encrypted: i=1; AHgh+RpcJUCawOyq1ztDrTY6EW8ZlcQbdzQzo7hzBzBVWnb5IXYL0y6YrwJfRAUy/BcGNYCWdR9JHo3hehid@vger.kernel.org
-X-Gm-Message-State: AOJu0YwYauvUSe9lTCUf3YJX3gEU7x83U31otqMxaJkjmcMihbUviXrL
-	WkTGbdjfuTmOd9gUb3oq3IOvJ0wq1g2JNtm70LEIS9jRq1hNYtZGKXwrAgmEHUeKKBo=
-X-Gm-Gg: AR+sD10T7zY56Jxc41emlo9Uct4/V7eoH1ZpaNKrlVUa1pz2DEfvWG9Rv8tAsaWL46E
-	JKDvdeM5HfpTaKlHvUyrBZ+JISXVNdr8QmekfJVdJ9aQlw19EGEYcqeLDDRRo2SUO7qz3ChIGc2
-	i5aVw+KHvJ7yNqcmV00iAxYS0YIOEkS2Lc0QTDMJNlxuIfB9xtKW4zs3GDK+WuNsTMBOg+JtatJ
-	T7UhfO0eXTUw5W8Ve1RzZloBYzw21IeX7V2NQc7+sFFhpUrFyrw+73H8zG4fd2//1SejyjppHgt
-	PGNB1ir9GlTNy7+bhvAFGQq8ZR6G/tSZ2P+D32lTnB5usDgi0SjglQo6fpLcf5WLrC7lHtGJgkJ
-	cpgy2700WhivlJN2A7iHmUt4OLVsvU0XrzSS4mGal7o1MR9d3tsmmg0xUGSRrEzslK6IuTEykjV
-	xSVyTSN1boq8PqrWCeRsmTwvLdg/yQIBUrBur8tdPwYfvvUCAAl3O1
-X-Received: by 2002:a17:90b:582c:b0:38e:57a3:f218 with SMTP id 98e67ed59e1d1-38f9bdd2f2dmr2888847a91.13.1785428103654;
-        Thu, 30 Jul 2026 09:15:03 -0700 (PDT)
-Received: from localhost ([2a03:2880:2ff:48::])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-38faba8491esm4092a91.2.2026.07.30.09.15.02
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 30 Jul 2026 09:15:02 -0700 (PDT)
-Date: Thu, 30 Jul 2026 09:15:02 -0700
-From: Joe Damato <joe@dama.to>
-To: Hidayath Khan <hidayath@linux.ibm.com>
-Cc: davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-	pabeni@redhat.com, andrew+netdev@lunn.ch, wintera@linux.ibm.com,
-	aswin@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
-	agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
-	svens@linux.ibm.com, horms@kernel.org, netdev@vger.kernel.org,
-	linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org
-Subject: Re: [PATCH net] s390/qeth: validate user buffer length in SNMP and
- ARP query ioctls
-Message-ID: <amt4hhb/IZwi+0PE@devvm20253.cco0.facebook.com>
-Mail-Followup-To: Joe Damato <joe@dama.to>,
-	Hidayath Khan <hidayath@linux.ibm.com>, davem@davemloft.net,
-	edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
-	andrew+netdev@lunn.ch, wintera@linux.ibm.com, aswin@linux.ibm.com,
-	hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
-	borntraeger@linux.ibm.com, svens@linux.ibm.com, horms@kernel.org,
-	netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-	linux-kernel@vger.kernel.org, stable@vger.kernel.org
-References: <20260730142216.218309-1-hidayath@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="e//4S/+1"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66UFmA103354377;
+	Thu, 30 Jul 2026 16:27:08 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=F5u7cT
+	slDZBYOB3ONe8QR3v9dJZrRwjMwhbbbnCEyP0=; b=e//4S/+1ol+PUNDuA6gDr2
+	N2IBKaCGa/utoQAjxgAnLQbZLYD6qEcC/mTypjV6K0JZrMMjLRhmatp170QTvMMi
+	OcV6aZAItq4hJ7cPLWxtPhCwF9NQIqOlcFJNgvsodPfPvkTl1Yb7wx+pJr1CYQ2w
+	peO9kQA3L4qi6d7bITmO59DflV7aBDM/LzTXZuprOBtAWa016TRBvbKvnClqCRBT
+	YDjDD4Ghoi4CaAjJcJ6ksbESgmTsy0VOF7ig6IUC+0Eiuky5tD21PsXfs9rDs6qx
+	eZNE0Vb8z2JiWBpZ6Q/30OGwn01CYk6xVbwBpDiYdGnBL5UM0te6ULjiuEeEOycw
+	==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fmuyjfvjp-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 30 Jul 2026 16:27:08 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66UGQQo1010581;
+	Thu, 30 Jul 2026 16:27:07 GMT
+Received: from smtprelay06.wdc07v.mail.ibm.com ([172.16.1.73])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fna5ybv4w-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 30 Jul 2026 16:27:07 +0000 (GMT)
+Received: from smtpav02.wdc07v.mail.ibm.com (smtpav02.wdc07v.mail.ibm.com [10.39.53.229])
+	by smtprelay06.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66UGR5RL44368156
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 30 Jul 2026 16:27:05 GMT
+Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A7A1658059;
+	Thu, 30 Jul 2026 16:27:05 +0000 (GMT)
+Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id EB32558058;
+	Thu, 30 Jul 2026 16:27:04 +0000 (GMT)
+Received: from [9.61.249.143] (unknown [9.61.249.143])
+	by smtpav02.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 30 Jul 2026 16:27:04 +0000 (GMT)
+Message-ID: <01d69d29-e20d-48f7-b4fd-d6a88cd64cc9@linux.ibm.com>
+Date: Thu, 30 Jul 2026 09:27:04 -0700
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260730142216.218309-1-hidayath@linux.ibm.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v22 0/4] [PCI] Error recovery for vfio-pci devices on
+ s390x
+To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-pci@vger.kernel.org
+Cc: helgaas@kernel.org, alex@shazbot.org, schnelle@linux.ibm.com,
+        mjrosato@linux.ibm.com
+References: <20260720192505.2957-1-alifm@linux.ibm.com>
+Content-Language: en-US
+From: Farhan Ali <alifm@linux.ibm.com>
+In-Reply-To: <20260720192505.2957-1-alifm@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzMwMDEyMyBTYWx0ZWRfX2sXUQx53iIBV
+ lhrb2Xh0O5VcFAm8xKIJblLneQgokjUYNOlWxTHfIf9YigGANYKgkXIChbyKPxKKnSyTjBJ5Tb9
+ VqM44KYtersnvbiIU/wd303kNL4lz8o=
+X-Proofpoint-GUID: GWMsBm_iVsUJLz3aXE7tHUWoPLGy6xQC
+X-Proofpoint-ORIG-GUID: GWMsBm_iVsUJLz3aXE7tHUWoPLGy6xQC
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzMwMDEyMyBTYWx0ZWRfX3R7a+jGdBurK
+ I0da39FczsG0xF8iXc8PmZjza/Iis43avXaxS2y+cpdSi/28AfechSNb+0Xe0zF5K6qP7Gvhbxc
+ wavQY4AOudMcEIGs7qMe9uy5jQfqAHgmA4sc80eQGbLR5oPqU56suP53IgYKBKFdCAMZhHXBcLm
+ BrnTpfS5lSuYVsHEUqBRUUmZDLXB/YVRwEG5qhtVfcdlWRVTdCeR1YlAqz/K40XYqNQXDhUNEoz
+ Qx4V/Ob8Qb6d4005Tf8L6c8JbbUkf83vcu9ck2keymhc7n25A1ShngH6CbopgsnHr5qaS0KfP4H
+ E77X0S/8AX5SKjczXySGjlOgLsqgLD8cAmMXNWiv0hY+qng+f8FNSv67UTdUkKTzOrgUlzsb9qj
+ ZKuoLh3lNhqLVMcFbSNMVj+H7JNVTPpOJxwvmg7NgSi5MwiW8XrfKIvmLBaVinFgtdCs/6YVF26
+ TW8YZtaXL885N2TwHvA==
+X-Authority-Analysis: v=2.4 cv=X5Vi7mTe c=1 sm=1 tr=0 ts=6a6b7b5c cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VwQbUJbxAAAA:8
+ a=VnNF1IyMAAAA:8 a=r1p2_3pzAAAA:8 a=2uVeXHBKdPZxKLczT7kA:9 a=QEXdDO2ut3YA:10
+ a=O8hF6Hzn-FEA:10 a=r_pkcD-q9-ctt7trBg_g:22
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-07-30_04,2026-07-30_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ clxscore=1015 impostorscore=0 lowpriorityscore=0 phishscore=0
+ priorityscore=1501 malwarescore=0 spamscore=0 suspectscore=0 bulkscore=0
+ adultscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2607300123
 
-On Thu, Jul 30, 2026 at 04:22:16PM +0200, Hidayath Khan wrote:
-> qeth_snmp_command() and qeth_l3_arp_query() allocate a buffer sized by
-> a user-supplied length (udata_len) without checking a lower bound, then
-> set udata_offset to a fixed non-zero value and pass both to a reply
-> callback. The callback bounds-checks the copy with
-> 
->         if ((udata_len - udata_offset) < len)
-> 
-> Both fields are u32, so a udata_len smaller than udata_offset makes the
-> subtraction wrap and the check pass, and the following memcpy() writes
-> past the allocation. A udata_len of 0 also yields ZERO_SIZE_PTR from
-> kzalloc(), which the existing NULL check does not catch.
-> 
-> Reject buffers smaller than udata_offset before allocating, so the
-> callback subtraction can no longer underflow.
-> 
-> Fixes: 4a71df50047f ("qeth: new qeth device driver")
-> Cc: stable@vger.kernel.org
-> Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
-> Signed-off-by: Hidayath Khan <hidayath@linux.ibm.com>
-> ---
->  drivers/s390/net/qeth_core_main.c | 3 +++
->  drivers/s390/net/qeth_l3_main.c   | 5 +++++
->  2 files changed, 8 insertions(+)
+Hi Bjorn,
 
-Reviewed-by: Joe Damato <joe@dama.to>
+Polite ping for these patches. I would like some guidance on how should 
+we proceed with this series.
+
+Thanks
+
+Farhan
+
+On 7/20/2026 12:25 PM, Farhan Ali wrote:
+> Hi Bjorn,
+>
+> This patch set includes only the PCI patches of the original series for
+> error recovery for vfio-pci devices on s390x [1]. Breaking up the patch
+> series into PCI and VFIO only patches to make merging easier based on
+> discussion with Alex [2].
+>
+> Thanks
+> Farhan
+>
+> [1] https://lore.kernel.org/all/20260520171113.1111-1-alifm@linux.ibm.com/
+> [2] https://lore.kernel.org/all/20260602163344.1eda12d2@shazbot.org/
+>
+> ChangeLog
+> ---------
+> v21: https://lore.kernel.org/all/20260630164807.643-1-alifm@linux.ibm.com/
+> v21 -> v22
+>    - Ammend commit message for patch 1.
+>    - Rebase on 7.2-rc4
+>
+> v20 https://lore.kernel.org/all/20260622171840.1618-1-alifm@linux.ibm.com/
+> v20 -> v21
+>    - Amend commit message to include Fixes tag and cc stable (patch 4).
+>    - Rebase on 7.2-rc1.
+>
+> v19 https://lore.kernel.org/all/20260615183524.2880-1-alifm@linux.ibm.com/
+> v19 -> v20
+>    - Unconditionally enable Memory bit while restoring MSI-X (patch 4).
+>    Fixes an issue found with sashiko.
+>
+> v18 https://lore.kernel.org/all/20260603181647.2215-1-alifm@linux.ibm.com/
+> v18 -> v19
+>    - Move config space accessible check to pcie_flr() function (based on
+>    discussion of Sashiko review)
+>
+>    - Fix a gap in MSI-X restoration (patch 4).
+>
+>    - Rebase on 7.1-rc7
+>
+> v17 -> v18
+>    - Rebase on 7.1-rc6.
+>
+> Farhan Ali (4):
+>    PCI: Allow per function PCI slots to fix slot reset on s390
+>    PCI: Avoid saving config space state if inaccessible
+>    PCI: Fail FLR when config space is inaccessible
+>    PCI/MSI: Enable memory decoding before restoring MSI-X messages
+>
+>   drivers/pci/hotplug/rpaphp_slot.c |  2 +-
+>   drivers/pci/msi/msi.c             | 10 ++++++++++
+>   drivers/pci/pci.c                 | 32 ++++++++++++++++++++++++++++--
+>   drivers/pci/slot.c                | 33 +++++++++++++++++++++++--------
+>   include/linux/pci.h               |  8 ++++++--
+>   5 files changed, 72 insertions(+), 13 deletions(-)
+>
