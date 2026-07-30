@@ -1,184 +1,218 @@
-Received: from mail-pf1-f170.google.com (mail-pf1-f170.google.com [209.85.210.170])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C1CC43F4A3
-	for <linux-s390@vger.kernel.org>; Thu, 30 Jul 2026 14:56:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E93F44418D7;
+	Thu, 30 Jul 2026 15:08:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785423377; cv=none; b=Eaoa2u2W3FrF6VPKK/fxgQCVZo6T6IoBkupKQ76qXPVHt5CQ49z58uxfqs8g8k4SsT+5IfXHd+Ihj436AG4fJv4oy76eNH3v+f7YhYFIGzTlCXFGrmbvYyLYs2Dg2GGq0zUNBxL98rNIQ3MiChkcsocvMxu50VJZx5tUik4XZ8Q=
+	t=1785424084; cv=none; b=US8I1obPIGZ13YgPKmV5249djLA2iMAss5hAjrmoKvnIizNvpW+hMQkzoqYjcG3F4hvn2Nyn76U0qQ1vCVoFeFAMY+HeyjpK9M9zBuVJ0TY7bD+zggdZm6bWs1mH/X7Ps7NoBkPNr2f7Fz9cSJbmX7vyz/W0UkZhTfYRLhLKwbM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785423377; c=relaxed/simple;
-	bh=UrAN4OCt1D4hYKAylCi+a2dtUcFv7D2+39R4Mj9cFgA=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=t/sNr76J0lKwiRqIZ+IU3oC263fTgfrwaoJzvLZY+soxGTgw2U+BwPaL9ZmQVwtfVBVxgbPESw9hl41zkQBFE287MtFY1C5rjchSpGk1HbwlOgHBkagFlaIPlaWODqzdRpjm82uHcVgN4vo/mV9HOG7WAyq2sES0Qr11+iTqKfs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ggXqMDo9; arc=none smtp.client-ip=209.85.210.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1785424084; c=relaxed/simple;
+	bh=KZ5fGIi/ct0u55woCy4dTuVhCotKeYjJSm3AvY24S2w=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=tc09Ai7OIGU9zZwwRXARMfWWhKeCE/faMtWCvUZhRxWJWfm7LphtBxxEEUARTlPjVYKT+2fdExFv1unw08R0zTxYSDEeXe0NFXNtUEWA9eu06KMTwdDnUHyXfyUdxN43B8+EahKfD4CkFiOh26Zk83Ch7Sf+5SFpNr80bSGnMMM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=hgstc5wB; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ggXqMDo9"
-Received: by mail-pf1-f170.google.com with SMTP id d2e1a72fcca58-84874b52eabso3124259b3a.0
-        for <linux-s390@vger.kernel.org>; Thu, 30 Jul 2026 07:56:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785423375; x=1786028175; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=l4sCpPfdggw4dNIomKaGnq4IuZW9LM2QCkdx9s2TmYU=;
-        b=ggXqMDo94bl35aXEjukBOhIKvormV+2lfOnb2CuTawE0bvDXzQWnUxa7ItA94ip54K
-         HKvnoMTdWujhZ4/5c9Ci90jf7TZfM7QSD99P59VcC3GybpjUMJRX9ul9P3TT0ErjRF3N
-         7eXxPmyLSqQK0X2HYc/YdNX5qvFQqXVLarskKQKsbvgadUJiufnaDT2G/e3fbv/AqNw8
-         cKJ6lLiAOIcSgWEhpLtYqF/rBe+A3h6nNbXZvBmtIQUOm01VanxLm7fVvt+M7W+k0qtU
-         5NVzk4yHyylBbcdMJHkosABoVfioIxPjXe1FS4/MOYssBQD6XbNOKAM7AvytTDOHXQnv
-         0A9g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785423375; x=1786028175;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=l4sCpPfdggw4dNIomKaGnq4IuZW9LM2QCkdx9s2TmYU=;
-        b=rHpY87E0jqTqLZuaKUJI4nzm28YZjFG/IngwfIU2hb4R90yowRA533e2kn12R9YUor
-         H6xPmXJy0AbJ5SrbWBzTmbjsmzAN5mM6TcVls9BaYPcGhJk1KCWHUyB8LqxGZwdOc20j
-         bX6fhMxagGJunuNK6dxP8uN4tUdqbxc+ieJWtjymGr5Atz6xivm4bqUqEoV2SYjDC840
-         gtp0yZBqGiECqrg6oSQkS46qXBM9vkYs0z3ZCRP4zE6CzFauIiTfDozRQse7ImL8cXrp
-         d3rcIhXMfQKbzkjJvRTvB0gyj4fwRFRIcFXkZRmhwzupNcmHYdctDlTwm6wIJ75ksEvi
-         Yq8A==
-X-Forwarded-Encrypted: i=1; AHgh+Rqofq3/WGxMbP9tSvYnlyGtRbGfVEGHeODmgzfU9P4km0QTDEuTOMvPLxKrAsjZGfcLNQqsZs5mJrYt@vger.kernel.org
-X-Gm-Message-State: AOJu0Yx1/LpvNUVBAVr3Wrb/KEOPQyW8ozZ5MRORPPwIOS24qD157NzH
-	DV7aiyX47k5iUCPSpqRVYH0WV1snOsgcoHfNHI4vReeRlmWOqc457S4s
-X-Gm-Gg: AR+sD13UN5vWeGREqA4hCuhjIvf6hIXlX0+2sftzdCT78hgXDLP3KZddGbvdYv1lBqw
-	pMya7uFyDMFtPC+YSBvH9+e9jWpN4CLJfVBj1EdO95Of6dgGlvcXavc52uck2MUIIP7vamnSD+e
-	D9ha6Pcz0AgI0Y4OFORUn1SLcbgK5FObu9JtS97G+PanWXQrkKkYMkWoE4FTNkBs4lDPw9SY1LR
-	nVzB3ufPcJOW7fsNbIfsgywFd8cWLBxPJhOtvg0yj5gHrA1jQRm/bXLxJKvVz/+uQVPp5IczDN8
-	qzZBZkOrAVSZ8bQ0jHRetarB4w5mTLwNEsFqvMMG63VtGZaukDrfI2U0Xhjs4WFpWXN4glqj/zX
-	xMV3wUoywy4gZ4fOXEwm7C6i9wTttLGByH5C8+CmN55qExUUyFVfviOrF1idh+530ezLJTz5wIV
-	ICGsadxEXSEk1G1UC5B83jQ1B6Gxr8V5/WYC1qt4eKKRQEWr6KKggDyTxKt5/NIJP6ipYgEkIFp
-	+9tcMNognOkXpU=
-X-Received: by 2002:a05:6a00:414a:b0:848:5540:2377 with SMTP id d2e1a72fcca58-84ebc24e899mr2806177b3a.17.1785423374556;
-        Thu, 30 Jul 2026 07:56:14 -0700 (PDT)
-Received: from enjou-Legion-Y7000P-2019 ([165.232.167.5])
-        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-cbdb78ae98asm2265960a12.1.2026.07.30.07.56.05
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 30 Jul 2026 07:56:14 -0700 (PDT)
-From: Ren Wei <enjou1224z@gmail.com>
-To: linux-rdma@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	netdev@vger.kernel.org
-Cc: alibuda@linux.alibaba.com,
-	dust.li@linux.alibaba.com,
-	sidraya@linux.ibm.com,
-	mjambigi@linux.ibm.com,
-	tonylu@linux.alibaba.com,
-	guwen@linux.alibaba.com,
-	davem@davemloft.net,
-	edumazet@google.com,
-	kuba@kernel.org,
-	pabeni@redhat.com,
-	horms@kernel.org,
-	ubraun@linux.ibm.com,
-	stefan.raspl@linux.ibm.com,
-	vega@nebusec.ai,
-	lx24@stu.ynu.edu.cn,
-	d4n.for.sec@gmail.com,
-	enjou1224z@gmail.com
-Subject: [PATCH net v2 1/1] net: smc: fix splice entry lifetime imbalance in smc_rx_splice
-Date: Thu, 30 Jul 2026 22:55:52 +0800
-Message-ID: <20260730145552.360287-2-enjou1224z@gmail.com>
-X-Mailer: git-send-email 2.51.0
-In-Reply-To: <20260730145552.360287-1-enjou1224z@gmail.com>
-References: <20260730145552.360287-1-enjou1224z@gmail.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="hgstc5wB"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66UDHdFM3091356;
+	Thu, 30 Jul 2026 15:07:56 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=va1LMl
+	kkG9vfwyPgpRDGpJCBngVEnhhYzy9Ab2oJKp8=; b=hgstc5wBr3bJ03rc5k6p8O
+	0+psU/XuEo7rqUOWdOKtFeuE4fU3KhJgQHe9PsUZHn6QX1tP1m3LTWG/piZBoz+0
+	tdHsk/ED1DUj4OTN/LHXMMjQFY8vc2YNnYJQyQ4HWmWfFOGxwQenNPR6d/ISfXYr
+	nB5g5Br3o3NrbHbYzEDCphS3L21i+1q6bNbUJAthztP7/XplScHDm6pzMdg0WEA1
+	5xB36cowP1ZUN35aPBZKUZAEoi+BnKv/KfqQRAK125D74jI8tmI5ZnFqpVSxCt05
+	Nl+Tw7//YbseDqss0bd9oY42ahJ6hVTrI+wnpYOxLE9i3PrMWFbOjQj79RknlFng
+	==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fmuw7rdb6-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 30 Jul 2026 15:07:56 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66UEuL2P005698;
+	Thu, 30 Jul 2026 15:07:55 GMT
+Received: from smtprelay02.dal12v.mail.ibm.com ([172.16.1.4])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fn7uwc10q-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 30 Jul 2026 15:07:55 +0000 (GMT)
+Received: from smtpav03.dal12v.mail.ibm.com (smtpav03.dal12v.mail.ibm.com [10.241.53.102])
+	by smtprelay02.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66UF7rXj18875134
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 30 Jul 2026 15:07:53 GMT
+Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C7BFF58056;
+	Thu, 30 Jul 2026 15:07:53 +0000 (GMT)
+Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C55C05803F;
+	Thu, 30 Jul 2026 15:07:52 +0000 (GMT)
+Received: from [9.61.176.239] (unknown [9.61.176.239])
+	by smtpav03.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 30 Jul 2026 15:07:52 +0000 (GMT)
+Message-ID: <98d60643-cf6c-4142-83dc-3612cc1f213c@linux.ibm.com>
+Date: Thu, 30 Jul 2026 11:07:52 -0400
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2] s390/vfio-ap: fix stale pqap_hook pointer on error in
+ vfio_ap_mdev_set_kvm()
+To: sashiko-reviews@lists.linux.dev
+Cc: Heiko Carstens <hca@linux.ibm.com>, linux-s390@vger.kernel.org,
+        Vasily Gorbik <gor@linux.ibm.com>, kvm@vger.kernel.org,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Kirti Wankhede <kwankhede@nvidia.com>,
+        Alex Williamson <alex@shazbot.org>,
+        Claudio Imbrenda
+ <imbrenda@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>
+References: <20260728162705.2631004-1-akrowiak@linux.ibm.com>
+ <20260728164105.4AAC01F000E9@smtp.kernel.org>
+Content-Language: en-US
+From: Anthony Krowiak <akrowiak@linux.ibm.com>
+In-Reply-To: <20260728164105.4AAC01F000E9@smtp.kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: XwrEpglIy1-KtR9J6OBO4fwvwd8KgYbE
+X-Proofpoint-ORIG-GUID: XwrEpglIy1-KtR9J6OBO4fwvwd8KgYbE
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzMwMDExMiBTYWx0ZWRfX5uNkmWnnQBDQ
+ LCg7WtIRxxMh7lOe32F4mTtkETqK72qsa9prEpYHwdtzw83WTAKS26FW1flWuhbyCTc3cI8IEn2
+ U6sx6CAky4L2AcLSnPzCXlgHtm5UYu92jIKmHcn4PCD4R5ASrRiYKBtjzYDx9Iy7lRDVWGGIrUh
+ jqXO20oDSk7is1w6DbyZPVRZ4ABbAzIjtpr5ahBltVC333iMdB+tw6mM/9kasYz4GS/cBOGRlTj
+ pidm7fWWlzJ5gH6Arvnfs0DQFd6kZ6jtEB/NaX2kLqU9QHAlIPREgflphI2yWdKDEpWPbGZq/81
+ WlysGqMCjhPx1HklJcuKdV8qsHuVy9DNY9HSLX9ziili6Mj+F5UGh6s3ZD17aqeZIFhXBXiO1gd
+ +EHOv0nqoqRdAxgtLqCc04UXkYt6s5QNA+UJEZQ2q/u7j/+Ryg5EbKpdsKwQvFQ9QAqObf5bjIL
+ RMCILfS8XME5TupCTKg==
+X-Authority-Analysis: v=2.4 cv=SKFykuvH c=1 sm=1 tr=0 ts=6a6b68cc cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VwQbUJbxAAAA:8
+ a=VnNF1IyMAAAA:8 a=SnmR3V4DJBMBAkIxd3wA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzMwMDExMiBTYWx0ZWRfX8TEztlwVsNPp
+ rgae/VSpZJpXCdelEo+WvmsqHk+F8kKitc6ES+VLfn8bi4Wm4Y37TuQPcG/FgvLo0ZXGRSHgjWj
+ u3uaLqg/Jma3weH7Xf+6toSs9O2kpzQ=
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-07-30_04,2026-07-29_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ priorityscore=1501 malwarescore=0 clxscore=1015 adultscore=0
+ lowpriorityscore=0 bulkscore=0 impostorscore=0 phishscore=0 spamscore=0
+ suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2607300112
 
-From: Daming Li <d4n.for.sec@gmail.com>
 
-smc_rx_splice() passes pages to splice_to_pipe() before taking the
-references that cover the lifetime of each splice entry. In the
-VM-backed RMB path, splice_to_pipe() may drop unqueued entries through
-smc_rx_spd_release(), while queued entries are released later via the
-pipe buffer callback.
 
-The old post-splice accounting also derives the number of queued VM pages
-from an offset mutated while building the descriptor, and a multi-page
-splice pairs one sock_hold() with multiple sock_put() calls.
+On 7/28/26 12:41 PM, sashiko-bot@kernel.org wrote:
+> Thank you for your contribution! Sashiko AI review found 1 potential issue(s) to consider:
+> - [High] Removing the `mdev_list` iteration from within the `update_locks` critical section introduces a Time-Of-Check to Time-Of-Use (TOCTOU) race condition between `vfio_ap_mdev_set_kvm()` and `vfio_ap_mdev_unset_kvm()` that silently clobbers KVM APCB masks for a newly attached mdev.
+> --
+>
+> --- Patch [1]: [PATCH v2] s390/vfio-ap: fix stale pqap_hook pointer on error in vfio_ap_mdev_set_kvm() ---
+> commit 0834fa20c3fb715cac9e1ff09376e43784d44814
+> Author: Anthony Krowiak <akrowiak@linux.ibm.com>
+> s390/vfio-ap: fix stale pqap_hook pointer on error in vfio_ap_mdev_set_kvm()
+>
+> This commit changes vfio_ap_mdev_set_kvm() to use pqap_hook to detect
+> conflicting assignments instead of iterating mdev_list under the update locks,
+> resolving a potential stale pointer dereference.
+>
+> Fixes: 86956e70761b3 ("s390/vfio-ap: replace open coded locks for VFIO_GROUP_NOTIFY_SET_KVM notification")
+> Cc: stable@vger.kernel.org
+>
+>> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+>> index 44b3a1dcc1b36..b0a038faa93ac 100644
+>> --- a/drivers/s390/crypto/vfio_ap_ops.c
+>> +++ b/drivers/s390/crypto/vfio_ap_ops.c
+> [ ... ]
+>> @@ -1821,26 +1821,25 @@ static const struct attribute_group *vfio_ap_mdev_attr_groups[] = {
+>>   static int vfio_ap_mdev_set_kvm(struct ap_matrix_mdev *matrix_mdev,
+>>   				struct kvm *kvm)
+>>   {
+>> -	struct ap_matrix_mdev *m;
+>> -
+>>   	if (kvm->arch.crypto.crycbd) {
+>> +		/*
+>> +		 * Taking the kvm->arch.crypto.pqap_hook_rwsem lock while
+>> +		 * holding the update locks (below) could result in a
+>> +		 * deadlock condition, so let's hold the rwsem here while we
+>> +		 * check and update the pqap_hook.
+>> +		 */
+>>   		down_write(&kvm->arch.crypto.pqap_hook_rwsem);
+>> +		if (kvm->arch.crypto.pqap_hook) {
+>> +			up_write(&kvm->arch.crypto.pqap_hook_rwsem);
+>> +			return -EPERM;
+>> +		}
+>>   		kvm->arch.crypto.pqap_hook = &matrix_mdev->pqap_hook;
+>>   		up_write(&kvm->arch.crypto.pqap_hook_rwsem);
+>>   
+>>   		get_update_locks_for_kvm(kvm);
+> [Severity: High]
+> Can this introduce a race with vfio_ap_mdev_unset_kvm()?
 
-Take the page and socket references for every candidate entry before
-splice_to_pipe(), and drop the matching private state, page reference,
-and socket reference from smc_rx_spd_release() for entries that never
-get queued. This fixes a refcount imbalance that can underflow page
-refcounts and trigger a use-after-free.
+After further review, it looks like this is a legitimate concern. As the 
+comment
+preceding the the code inside of the 'if' block stated, we needed to 
+take the
+pqap_hook_rwsem lock outside of the update_locks to avoid a deadlock
+situation when the pqap_hook is executed. There is no reason, however, that
+we can't take the update_locks while holding the pqap_hook_rwsem. The
+same thing will have to also be done in the vfio_ap_mdev_unset_kvm
+function also.
 
-Fixes: 9014db202cb7 ("smc: add support for splice()")
-Cc: stable@vger.kernel.org
-Reported-by: Vega <vega@nebusec.ai>
-Assisted-by: Codex:GPT-5.4
-Co-developed-by: Xiao Liu <lx24@stu.ynu.edu.cn>
-Signed-off-by: Xiao Liu <lx24@stu.ynu.edu.cn>
-Signed-off-by: Daming Li <d4n.for.sec@gmail.com>
-Signed-off-by: Ren Wei <enjou1224z@gmail.com>
-Reviewed-by: Dust Li <dust.li@linux.alibaba.com>
-Reviewed-by: Sidraya Jayagond <sidraya@linux.ibm.com>
----
-Changes in v2:
-- Keep the offset declaration in its original position to preserve SMC
-  reverse-xmas-tree ordering, as requested by Dust Li.
-- Add Reviewed-by tags from Dust Li and Sidraya Jayagond.
-- Link to v1: https://lore.kernel.org/all/192d1b44ed358ca143f44ef167d14153bccc51e9.1781097957.git.d4n.for.sec@gmail.com/
+>
+> By moving the conflict check outside of the update_locks critical section,
+> is it possible for the following sequence to occur during concurrent
+> hot-plug/unplug operations?
+>
+> Thread 1 (in vfio_ap_mdev_unset_kvm):
+>      down_write(&kvm->arch.crypto.pqap_hook_rwsem);
+>      kvm->arch.crypto.pqap_hook = NULL;
+>      up_write(&kvm->arch.crypto.pqap_hook_rwsem);
+>
+> Thread 2 (in vfio_ap_mdev_set_kvm):
+>      down_write(&kvm->arch.crypto.pqap_hook_rwsem);
+>      // Sees pqap_hook is NULL
+>      kvm->arch.crypto.pqap_hook = &matrix_mdev->pqap_hook;
+>      up_write(&kvm->arch.crypto.pqap_hook_rwsem);
+>      get_update_locks_for_kvm(kvm);
+>      vfio_ap_mdev_update_guest_apcb(matrix_mdev);
+>      release_update_locks_for_kvm(kvm);
+>
+> Thread 1 (continuing in vfio_ap_mdev_unset_kvm):
+>      get_update_locks_for_kvm(kvm);
+>      kvm_arch_crypto_clear_masks(kvm);
+>
+> If Thread 1 interleaves after Thread 2 sets the guest masks but before Thread
+> 1 clears them, would this result in Thread 1 unconditionally clearing the KVM
+> APCB masks that Thread 2 just successfully configured, leaving the newly
+> attached mdev with inaccessible queues?
+>
+>> -
+>> -		list_for_each_entry(m, &matrix_dev->mdev_list, node) {
+>> -			if (m != matrix_mdev && m->kvm == kvm) {
+>> -				release_update_locks_for_kvm(kvm);
+>> -				return -EPERM;
+>> -			}
+>> -		}
+>> -
+>>   		kvm_get_kvm(kvm);
+>>   		matrix_mdev->kvm = kvm;
+>>   		vfio_ap_mdev_update_guest_apcb(matrix_mdev);
+>> -
+>>   		release_update_locks_for_kvm(kvm);
+>>   	}
+>>
 
- net/smc/smc_rx.c | 19 ++++++++++---------
- 1 file changed, 10 insertions(+), 9 deletions(-)
-
-diff --git a/net/smc/smc_rx.c b/net/smc/smc_rx.c
-index c1d9b923938d..5c9e4d8b57de 100644
---- a/net/smc/smc_rx.c
-+++ b/net/smc/smc_rx.c
-@@ -150,7 +150,12 @@ static const struct pipe_buf_operations smc_pipe_ops = {
- static void smc_rx_spd_release(struct splice_pipe_desc *spd,
- 			       unsigned int i)
- {
-+	struct smc_spd_priv *priv = (struct smc_spd_priv *)spd->partial[i].private;
-+	struct sock *sk = &priv->smc->sk;
-+
-+	kfree(priv);
- 	put_page(spd->pages[i]);
-+	sock_put(sk);
- }
- 
- static int smc_rx_splice(struct pipe_inode_info *pipe, char *src, size_t len,
-@@ -209,6 +214,10 @@ static int smc_rx_splice(struct pipe_inode_info *pipe, char *src, size_t len,
- 			offset = 0;
- 		}
- 	}
-+	for (i = 0; i < nr_pages; i++) {
-+		get_page(pages[i]);
-+		sock_hold(&smc->sk);
-+	}
- 	spd.nr_pages_max = nr_pages;
- 	spd.nr_pages = nr_pages;
- 	spd.pages = pages;
-@@ -217,16 +226,8 @@ static int smc_rx_splice(struct pipe_inode_info *pipe, char *src, size_t len,
- 	spd.spd_release = smc_rx_spd_release;
- 
- 	bytes = splice_to_pipe(pipe, &spd);
--	if (bytes > 0) {
--		sock_hold(&smc->sk);
--		if (!lgr->is_smcd && smc->conn.rmb_desc->is_vm) {
--			for (i = 0; i < PAGE_ALIGN(bytes + offset) / PAGE_SIZE; i++)
--				get_page(pages[i]);
--		} else {
--			get_page(smc->conn.rmb_desc->pages);
--		}
-+	if (bytes > 0)
- 		atomic_add(bytes, &smc->conn.splice_pending);
--	}
- 	kfree(priv);
- 	kfree(partial);
- 	kfree(pages);
-
-base-commit: 14fa65d10f5696b063a7d8d26e8291ea84a2c6ed
--- 
-2.34.1
