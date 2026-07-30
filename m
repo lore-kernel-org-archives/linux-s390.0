@@ -1,111 +1,105 @@
-Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C4D13F8231;
-	Thu, 30 Jul 2026 10:12:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2A3463FF1D5
+	for <linux-s390@vger.kernel.org>; Thu, 30 Jul 2026 10:14:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785406323; cv=none; b=QuO8iDkhbcGUcpGyR4NU+8psQFwxqnmvn71hyilABPnJfU+dEuIsASfH6UsH6D4kZc+UHhVF2/RBpJIhKtV+aSRw69U1bCKjzQwWW5ftJvSJBdjz5cqdtSg1D196GSg0H84DRrYFLIadLuxskJGPb9O5Ul2AoRWX0TrmwWu2WzQ=
+	t=1785406446; cv=none; b=mWb6YD3kHfJ4Mfjtsei8f+/UoaM4LshrXPP0TnmWeEA0YchJxxhexekReMpd/otSc6kjdGeGpfZpO5Xl36husB4LrOP8YiiPCsQ8GluTn6XC9sdE47ViUsiIZeKn7Sf2izRWIKihEuMha3lAr4Un33pQQ42J6jEk91kokxlu8Dg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785406323; c=relaxed/simple;
-	bh=n/EPU/7Rf7w3/KOeEHDFnaFa+3QKJ8ZGzpfG2nxmcz0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=nYmdeGgLdPZKeKBpP0HE5Pv7sFL5KDH6yvw8rFlJpn7xcSBWT7DLuYYdzWwBr455Y39P/DDfETq+PKtimrLFrTiyWGeLlOK81AKf5QlqD/m4f/Scfuoiu+A2cfxcf8gmBWBDdmMGBIkf9uqq+49A5PQPLFORrcWvpH+Lndwqev0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=pass smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=UaIKw47h; arc=none smtp.client-ip=90.155.50.34
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=infradead.org
+	s=arc-20240116; t=1785406446; c=relaxed/simple;
+	bh=hj/XwCVdONtH0VWyjacCJuXK/a5cu9l5If0Rw/Fj1d0=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=WPwrf/G3yUHuAA2tcG0xhTkvB+qEEUENuU1r1JUCToYqrDnARL75PqzNi0mqpIJXsPrxXMdEg6AvqfdfiBD+9QAguOaBBmVfIk166iQU+5ji9cDyjh/GmYUrUbYNHZqkjJTvQGG677UpiscWNXtRNAjv2BLbNu9mkMUwUzrxxJs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HW1U8Y7r; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="UaIKw47h"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=9+PbgHxj9mmjJtARI9aO2cSn96w8izQC86mhCuwECGI=; b=UaIKw47h2TM814Kt2b/fYJCwki
-	7cz1xMMC9qvL+zVDK7R3Y4QaWUBUrvAdIG4Ttu9kW93n81Mj2F6TjNFxDTrjd0eQJiXEptnTa858w
-	jZT00XM60xsRLtRdk8noAgaRADJgjvT1112Ym7auy+aPzqmVAeu7XG/B69By5ZV+uuljge/h8ZSLL
-	7HfQkjMUl6agwTjhMA7r+fQOW7kftHA7Vge3pQ4uvxO2UxJKuPsAA6PqlhqaGrg4vrxu3ngOuZnly
-	ZnNRiDT7089VsnfwnaWQRTcBe9FJ7czJB9a9eqASXL2ejZGDP9cJP43VKLNsVJ+gKXw1FASrjVTMl
-	XSaV7/rQ==;
-Received: from 77-249-17-252.cable.dynamic.v4.ziggo.nl ([77.249.17.252] helo=noisy.programming.kicks-ass.net)
-	by casper.infradead.org with esmtpsa (Exim 4.99.1 #2 (Red Hat Linux))
-	id 1wpNk6-0000000AwiT-0JFd;
-	Thu, 30 Jul 2026 10:11:58 +0000
-Received: by noisy.programming.kicks-ass.net (Postfix, from userid 1000)
-	id 834D530095A; Thu, 30 Jul 2026 12:11:57 +0200 (CEST)
-Date: Thu, 30 Jul 2026 12:11:57 +0200
-From: Peter Zijlstra <peterz@infradead.org>
-To: Heiko Carstens <hca@linux.ibm.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Harald Freudenberger <freude@linux.ibm.com>,
-	Holger Dengler <dengler@linux.ibm.com>,
-	Vineeth Vijayan <vneethv@linux.ibm.com>,
-	Peter Oberparleiter <oberpar@linux.ibm.com>,
-	Janosch Frank <frankja@linux.ibm.com>,
-	Claudio Imbrenda <imbrenda@linux.ibm.com>,
-	David Hildenbrand <david@kernel.org>,
-	Herbert Xu <herbert@gondor.apana.org.au>,
-	linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-crypto@vger.kernel.org
-Subject: Re: [PATCH v3 1/4] s390/crypto: Replace cond_resched() with msleep(1)
-Message-ID: <20260730101157.GQ49951@noisy.programming.kicks-ass.net>
-References: <20260730052907.2607026-1-hca@linux.ibm.com>
- <20260730052907.2607026-2-hca@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HW1U8Y7r"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A0FB1F00A3A;
+	Thu, 30 Jul 2026 10:14:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1785406441;
+	bh=E/sXvpr62ifVowsKmhkX2O73lPLQmuHT2CJIgOzppwk=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=HW1U8Y7rkaPxYzkC/iC8N2Ao4q/ag9kn2Ej1S9ZZnzBPqvOaPVP9PoaoIuHdqPDGq
+	 ggmZEFnKuDJ0+ZLGGof1GMjHaBfIBIhBr/nWOrAtKG/E18bS+17L4yoYZYY+lofI83
+	 xF0Gau5xrdFnOatz4hwfgzd3zpC6jXow6RIvVDl2NkW6HvX+UNuVk0ezTt9kWILHep
+	 z2xSnjrFvdT8AYPljcX9rNdhFlb8xxwf0VK3U4jXkq3BK7sMv5P3I5Q2XFh2kM/5DA
+	 sTSeMe9QJL8i9//UwKaxCT5hTkxM/yAJ8jt2/0QfBRsH37w/OvZIJCJ8fRF4lwBbAm
+	 sIHv0mScMhw0Q==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v3 3/3] sparc: Implement arch_do_panic
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Mete Durlu" <meted@linux.ibm.com>
+Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
+ Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org
+In-Reply-To: <20260730-arch_do_panic-v3-3-d5401e683cdb@linux.ibm.com>
+References: <20260730-arch_do_panic-v3-0-d5401e683cdb@linux.ibm.com>
+ <20260730-arch_do_panic-v3-3-d5401e683cdb@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 30 Jul 2026 10:14:00 +0000
+Message-Id: <20260730101401.3A0FB1F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260730052907.2607026-2-hca@linux.ibm.com>
 
-On Thu, Jul 30, 2026 at 07:29:04AM +0200, Heiko Carstens wrote:
-> With [1] cond_resched() is always compiled away and becomes a no-op.
-> 
-> The comments for all cond_resched() calls in crypto code however indicate
-> that the current process should be scheduled away to avoid instant
-> re-invocation of a callback. This is not what cond_resched() would do or
-> did.
-> 
-> Instead of just removing the cond_resched() calls, replace them with
-> msleep() calls, as suggested by Holger Dengler. This forces the current
-> task to be scheduled away (sleeps) like originally intended.
-> 
-> [1] commit 7dadeaa6e851 ("sched: Further restrict the preemption modes")
-> 
-> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-> ---
->  arch/s390/crypto/paes_s390.c  | 8 ++++----
->  arch/s390/crypto/phmac_s390.c | 4 ++--
->  2 files changed, 6 insertions(+), 6 deletions(-)
-> 
-> diff --git a/arch/s390/crypto/paes_s390.c b/arch/s390/crypto/paes_s390.c
-> index 8cfe6166c193..511cb6105436 100644
-> --- a/arch/s390/crypto/paes_s390.c
-> +++ b/arch/s390/crypto/paes_s390.c
-> @@ -555,7 +555,7 @@ static int ecb_paes_do_one_request(struct crypto_engine *engine, void *areq)
->  		 * To avoid immediately re-invocation of this callback,
->  		 * tell the scheduler to voluntarily give up the CPU here.
->  		 */
-> -		cond_resched();
-> +		msleep(1);
->  		pr_debug("rescheduling request\n");
->  		return -ENOSPC;
->  	} else if (rc) {
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
+- [Low] Missing explicit `#include <linux/panic.h>` and `#include <linux/pr=
+intk.h>` in `arch/sparc/kernel/setup.c`.
+- [Low] Redundant local block-scoped `extern` declaration for `stop_a_enabl=
+ed`.
+--
 
-I am somewhat conflicted on this. It will add a 'random' delay to this
-crypto user (which might be real-time task) that is not related to the
-actual event this is waiting for.
+--- Patch [3]: [PATCH v3 3/3] sparc: Implement arch_do_panic ---
+commit 96c609160e8ec354a006cf513eb7fe2d614de6bc
+Author: Mete Durlu <meted@linux.ibm.com>
 
-That is, it could be that this key expiration thing is sorted way faster
-than this one milisecond.
+sparc: Implement arch_do_panic
 
-Is there nothing the crypto layer can do that is more clever; like a
-condition variable on the key update when -ENOSPC is returned or
-something.
+This commit implements a sparc specific arch_do_panic() instead of using
+ifdef sections in vpanic() code. It also reorders arch specific panic handl=
+ing.
 
-This all sounds like a horrible hack one way or the other.
+> diff --git a/arch/sparc/kernel/setup.c b/arch/sparc/kernel/setup.c
+> index 4975867d9001b..87d3569c520f8 100644
+> --- a/arch/sparc/kernel/setup.c
+> +++ b/arch/sparc/kernel/setup.c
+[ ... ]
+> @@ -36,6 +36,14 @@ static const struct ctl_table sparc_sysctl_table[] =3D=
+ {
+>  #endif
+>  };
+> =20
+> +void arch_do_panic(void)
+> +{
+
+[Severity: Low]
+Should this file explicitly include <linux/panic.h> and <linux/printk.h>?
+
+Since arch_do_panic() is a globally exported function, missing the panic.h
+header can cause a missing prototypes warning during compilation. It might
+also be better to explicitly include printk.h for pr_emerg() rather than
+relying on implicit header inclusions.
+
+> +	extern int stop_a_enabled;
+
+[Severity: Low]
+Is this block-scoped extern declaration still needed?
+
+While this declaration was copied from its old location in kernel/panic.c,
+it is redundant here because arch/sparc/kernel/setup.c already includes
+<asm/setup.h>, which provides the exact same global extern declaration for
+stop_a_enabled.=20
+
+> +	/* Make sure the user can actually press Stop-A (L1-A) */
+> +	stop_a_enabled =3D 1;
+> +	pr_emerg("Press Stop-A (L1-A) from sun keyboard or send break\n"
+> +		 "twice on console to return to the boot prom\n");
+> +}
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260730-arch_do_pa=
+nic-v3-0-d5401e683cdb@linux.ibm.com?part=3D3
