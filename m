@@ -1,126 +1,191 @@
-Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 947CE2F39C7;
-	Thu, 30 Jul 2026 05:43:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.118
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5287C489873
+	for <linux-s390@vger.kernel.org>; Thu, 30 Jul 2026 05:57:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785390236; cv=none; b=YVa9WGhX4vFZDx15EKolY2p7M0zAP/F7GPuhsmo/JUAmNrVxOTv8200VCig6I+NgNfLM2Gi4esFl2dNzHTpzf/yLkD2QBDYbHEEb8FkdloFWFIH7oyB+xaI9K4B37Qd9ruZ7hRGyqn9E8RB6U5f318md7jDoJo05gAt9en2Xbto=
+	t=1785391029; cv=none; b=KgyT6olT+9t2gtnsHAJ2j+RRrCySGG59i3whopF8tV/Nh5tewK6t184+8h1Ys0kIGLUhMyqXdOxvp5CY4SGxUxMLl7jGTH+QL1sKjxlqO7RDIljTcEKVDSfy+j4nWgS/wejjbuDAmo9WnWdV/ge3nDRHO1mq23/r/FCJ35HEgG8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785390236; c=relaxed/simple;
-	bh=r67pZ/vOuOMEK045wV+jH6NC7RflH5Q1MUGdqlyGvSc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=qKLpe7bEvL2PMXf8Og8SwCHl1nRRezl+ZZu8Is435/YatOfDOsvVAUf0UvsdVC5ZfsV2+QW7lG+NnlGM1KPbJ54VgHoHDE0ua99DEz+9BhoqQgYs3xc3x5FoZs3+DSI7KKNtM9l0ikc/UYlI1I5EENhfD/QXA8OU7Iswv+mvvQw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=bWmVau9z; arc=none smtp.client-ip=115.124.30.118
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1785391029; c=relaxed/simple;
+	bh=2pLoukYahHb7S8TYUggI5uaqxMqr5qTBtTS3rmyESvo=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=LstaBr/U677m9hQ8ZyPWyfkpJbPwp5GQgpatDLLJxeuA/p2ZEEutd9hQdph09HuupqSRgJiVLYg6Fx6R57o2ztcJ0WhBWm0e8MnayWzp8gwJZ/M84+7VfI2AOUfHrpkfVaRYRkJ0cvzH1fHd9vA1lP35tAJ07Xw3qxhnCIyp9ik=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LFkhIvg5; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="bWmVau9z"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1785390224; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
-	bh=wpE+mVKTeJAkeuJ9qronGd9HrTv1M9cJYsVrmp3yGDA=;
-	b=bWmVau9z5gpxXrsP9SDECU0s3/p9VE0x9PLmCDCJrmwrMvJsQpZ39wEVPUUMSBOrxxYs1S+yx0emexxhhHN/ocdmTMteAGJk1IRCnUp6y1zTanhNSMATLekycF1h2VOeZuBorXWGYTGSycaX7q/sXq5XE5wAdXjSRPNgewf9Gd4=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037009110;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=18;SR=0;TI=SMTPD_---0X84.V02_1785390223;
-Received: from localhost(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0X84.V02_1785390223 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Thu, 30 Jul 2026 13:43:43 +0800
-Date: Thu, 30 Jul 2026 13:43:42 +0800
-From: "D. Wythe" <alibuda@linux.alibaba.com    >
-To: Mahanta Jambigi <mjambigi@linux.ibm.com>
-Cc: "D. Wythe" <alibuda@linux.alibaba.com>, wenjia@linux.ibm.com,
-	wintera@linux.ibm.com, dust.li@linux.alibaba.com,
-	tonylu@linux.alibaba.com, guwen@linux.alibaba.com, kuba@kernel.org,
-	davem@davemloft.net, netdev@vger.kernel.org,
-	linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
-	leonro@nvidia.com, pabeni@redhat.com, edumazet@google.com,
-	sidraya@linux.ibm.com, jaka@linux.ibm.com,
-	oliver.yang@linux.alibaba.com
-Subject: Re: [PATCH net-next v4 3/3] net/smc: transition to RDMA core CQ
- pooling
-Message-ID: <20260730054342.GA116570@j66a10360.sqa.eu95>
-References: <20260716113745.65234-1-alibuda@linux.alibaba.com>
- <20260716113745.65234-4-alibuda@linux.alibaba.com>
- <92ba5a37-3496-424c-8425-6535515c01ce@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LFkhIvg5"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D6631F000E9;
+	Thu, 30 Jul 2026 05:57:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1785391027;
+	bh=L1tziJydEOpW4204JZuQx79ZMV6H7mtb0ZD4AVJb7EA=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=LFkhIvg54w5ZOdc8C9EUJaK44YlFE1LH1twFXHvjN0aSJ3NK8R0P/kLc599m8UymS
+	 5DlIQCDYFpg1qOSw12xrU2ayvJcDgKSU26Nat51Q6KjspGU/VejtvuF3v4J2euRqHJ
+	 63pw+AnH1Qa3menVAXMcwDu2Cs4EdcLv2H6v0b4t7xgOjTxsFWeB03G1+JU05I+/Eb
+	 FkbMkwE89ws5H0gb90N90EKMKs0p0Fs5ykVtqjl0NuVQJ52iAxy3F7chiptJHCwU9U
+	 6mr7AgMGwQBuH+JOBoMlSNH9ugrNWRnD6sG3V5o1zEpUtw0CxrW3DwCqu3HwTcSFfb
+	 kaeocsoBCx9Hw==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v3 1/4] s390/crypto: Replace cond_resched() with
+ msleep(1)
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Heiko Carstens" <hca@linux.ibm.com>
+Cc: "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
+ Carstens" <hca@linux.ibm.com>
+In-Reply-To: <20260730052907.2607026-2-hca@linux.ibm.com>
+References: <20260730052907.2607026-1-hca@linux.ibm.com>
+ <20260730052907.2607026-2-hca@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 30 Jul 2026 05:57:07 +0000
+Message-Id: <20260730055707.8D6631F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <92ba5a37-3496-424c-8425-6535515c01ce@linux.ibm.com>
-User-Agent: Mutt/1.5.21 (2010-09-15)
 
-On Wed, Jul 22, 2026 at 05:17:15PM +0530, Mahanta Jambigi wrote:
-> 
-> 
-> On 16/07/26 5:07 pm, D. Wythe wrote:
-> > Performance Test: redis-benchmark with max 32 connections per QP
-> > Data format: Requests Per Second (RPS), Percentage in brackets
-> > represents the gain/loss compared to TCP.
-> > 
-> > | Clients | TCP      | SMC (original)      | SMC (cq_pool)       |
-> > |---------|----------|---------------------|---------------------|
-> > | c = 1   | 24449    | 31172  (+27%)       | 34039  (+39%)       |
-> > | c = 2   | 46420    | 53216  (+14%)       | 64391  (+38%)       |
-> > | c = 16  | 159673   | 83668  (-48%)  <--  | 216947 (+36%)       |
-> > | c = 32  | 164956   | 97631  (-41%)  <--  | 249376 (+51%)       |
-> > | c = 64  | 166322   | 118192 (-29%)  <--  | 249488 (+50%)       |
-> > | c = 128 | 167700   | 121497 (-27%)  <--  | 249480 (+48%)       |
-> > | c = 256 | 175021   | 146109 (-16%)  <--  | 240384 (+37%)       |
-> > | c = 512 | 168987   | 101479 (-40%)  <--  | 226634 (+34%)       |
-> > 
-> > The results demonstrate that this optimization effectively resolves the
-> > scalability bottleneck, with RPS increasing by over 110% at c=64
-> > compared to the original implementation.
-> 
-> Thanks for the performance numbers — the scalability improvement at high
-> client counts is striking. A few questions to help reproduce these results:
-> 
-> 1) Was net.smc.smcr_max_conns_per_lgr=32 the value used? The "max 32
-> connections per QP" in the description suggests so, but the sysctl
-> wasn't explicitly listed.
-> 
-> 2) Were net.smc.smcr_max_send_wr and net.smc.smcr_max_recv_wr left at
-> their defaults, or tuned? With per-link CQs the optimal WR counts may
-> differ from the global-CQ case, so knowing whether these were touched
-> would help interpret the numbers.
-> 
-> 3) Was this SMC-R v2? The v2 TX path (smc_wr_tx_get_v2_slot,
-> wr_tx_v2_ib) has different concurrency characteristics, so confirming
-> the version matters for the contention analysis in patch 2/3 as well.
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+s) to consider:
 
-In our tests, we set net.smc.smcr_max_conns_per_lgr=32 via sysctl. We
-also tuned net.smc.smcr_max_send_wr and net.smc.smcr_max_recv_wr from
-their default to 64 to provide sufficient work request depth. 
+Pre-existing issues:
+- [High] Use-After-Free / Incorrect Backlog Handling due to improper `-EBUS=
+Y` check
+- [High] Double completion of crypto requests on error paths leading to Use=
+-After-Free
+- [Medium] Unreachable error handling logic for `-EKEYEXPIRED` in `phmac_do=
+_one_request`
+--
 
-All tests were run with SMC-R v2.
+--- Patch [1]: [PATCH v3 1/4] s390/crypto: Replace cond_resched() with msle=
+ep(1) ---
+commit b1e4ce79023817dc16f19a077b044e708fcff721
+Author: Heiko Carstens <hca@linux.ibm.com>
 
-And the performance numbers do need a refresh: with recent improvements—including
-thundering herd mitigation in earlier patches, the original SMC implementation’s
-regression in the c=16–512 range is expected to be largely resolved.
+s390/crypto: Replace cond_resched() with msleep(1)
 
-> 
-> 4) Was uperf tested for v4 as well, as we did for v1[1] in
-> February-2026? uperf exercises a wider range of message sizes and thread
-> counts, so its numbers would strengthen the case — particularly for the
-> intermediate client counts (c=16 to c=64) where the original
-> implementation regresses below TCP.
+This patch replaces cond_resched calls in the s390 crypto code with msleep(=
+1).
+This ensures that the current task is scheduled away as originally intended,
+since cond_resched is compiled away to a no-op under newer scheduling
+preemption modes.
 
-Of course uperf was tested. We’ll include a comprehensive uperf
-evaluation in the next version. 
+Link: commit 7dadeaa6e851 ("sched: Further restrict the preemption modes")
 
-Given that this CQ-pooling patch may require additional review time, I
-plan to send the first two patches of the series separately.
-They’ve already been reviewed and are ready to merge. This patch
-will follow as a standalone submission once the uperf results are
-ready.
+> diff --git a/arch/s390/crypto/paes_s390.c b/arch/s390/crypto/paes_s390.c
+> index 8cfe6166c193c..511cb6105436f 100644
+> --- a/arch/s390/crypto/paes_s390.c
+> +++ b/arch/s390/crypto/paes_s390.c
 
-D. Wythe
+[Severity: High]
+This is a pre-existing issue, but does the crypto request entry function
+ecb_paes_crypt() properly handle backlogged requests?
 
-> 
-> [1]
-> https://lore.kernel.org/netdev/20260202094800.30373-1-alibuda@linux.alibaba.com/
+When a caller submits a request with CRYPTO_TFM_REQ_MAY_BACKLOG and the
+crypto engine queue is full, crypto_enqueue_request() successfully enqueues
+the request to the backlog and returns -EBUSY.
+
+However, ecb_paes_crypt() appears to treat -EBUSY as an error because it
+only checks for rc !=3D -EINPROGRESS:
+
+ecb_paes_crypt() {
+    rc =3D crypto_transfer_skcipher_request_to_engine(paes_crypto_engine, r=
+eq);
+    if (rc !=3D -EINPROGRESS)
+        atomic_dec(&ctx->via_engine_ctr);
+    ...
+    if (rc !=3D -EINPROGRESS)
+        skcipher_walk_done(walk, rc);
+}
+
+This prematurely tears down the request state while the request remains
+queued in the engine. When the engine eventually processes this request,
+could it execute with freed or zeroed structures and corrupt memory?
+
+> @@ -555,7 +555,7 @@ static int ecb_paes_do_one_request(struct crypto_engi=
+ne *engine, void *areq)
+>  		 * To avoid immediately re-invocation of this callback,
+>  		 * tell the scheduler to voluntarily give up the CPU here.
+>  		 */
+> -		cond_resched();
+> +		msleep(1);
+>  		pr_debug("rescheduling request\n");
+>  		return -ENOSPC;
+>  	} else if (rc) {
+
+[Severity: High]
+This is a pre-existing issue, but does ecb_paes_do_one_request() accidental=
+ly
+trigger a double completion on error paths?
+
+If ecb_paes_do_crypt() fails and returns a negative error code like -EINVAL,
+the code falls through and calls crypto_finalize_skcipher_request(), which
+completes the request.
+
+ecb_paes_do_one_request() then returns that same negative error code back to
+crypto_pump_requests() in the crypto engine. When crypto_pump_requests() se=
+es
+a negative return code that is not -ENOSPC, it branches to its error path
+and calls crypto_request_complete() a second time on the exact same request.
+
+Could this lead to a use-after-free if the user completion callback
+already freed the request context during the first invocation?
+
+[ ... ]
+
+> diff --git a/arch/s390/crypto/phmac_s390.c b/arch/s390/crypto/phmac_s390.c
+> index 03ca33ffe6ccf..da76c7beb1847 100644
+> --- a/arch/s390/crypto/phmac_s390.c
+> +++ b/arch/s390/crypto/phmac_s390.c
+
+[Severity: High]
+This is a pre-existing issue, but does phmac_update() share the same
+backlog handling regression as ecb_paes_crypt()?
+
+It also checks only for rc !=3D -EINPROGRESS and wrongly cleans up the
+request via hwh_advance() on -EBUSY, even though the request was successful=
+ly
+enqueued to the backlog.
+
+> @@ -895,7 +895,7 @@ static int phmac_do_one_request(struct crypto_engine =
+*engine, void *areq)
+>  			 * tell scheduler to voluntarily give up the CPU here.
+>  			 */
+>  			pr_debug("rescheduling request\n");
+> -			cond_resched();
+> +			msleep(1);
+
+[Severity: Medium]
+This is a pre-existing issue, but is this error handling block for
+-EKEYEXPIRED ever actually reachable?
+
+When phmac_kmac_update() and phmac_kmac_final() are called with maysleep
+set to true, they do not seem to proactively check tfm_ctx->pk_state to
+return -EKEYEXPIRED.
+
+Instead, if the key is expired, they synchronously call phmac_convert_key()
+and retry the operation.
+
+Because they handle conversions synchronously in this path, they never
+return -EKEYEXPIRED, which would make this entire error handling block
+dead code. Is there another path where -EKEYEXPIRED could be returned
+here?
+
+>  			return -ENOSPC;
+>  		} else if (rc) {
+>  			hwh_advance(hwh, rc);
+
+[Severity: High]
+This is a pre-existing issue, but just like ecb_paes_do_one_request(), does
+this hash error path also cause a double completion?
+
+If rc is a negative error code like -EINVAL, crypto_finalize_hash_request()
+is called in phmac_do_one_request(), and then crypto_request_complete()
+is called again in the crypto engine error path.
+
+[ ... ]
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260730052907.2607=
+026-1-hca@linux.ibm.com?part=3D1
