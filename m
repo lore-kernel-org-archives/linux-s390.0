@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1B8CE470431;
-	Thu, 30 Jul 2026 23:13:24 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A375039E191;
+	Thu, 30 Jul 2026 23:40:51 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785453206; cv=none; b=T7WpFuBhMcKsNL3SnYVvg5tVaLKCO05uFGXpSOcslpZopKgjINIBP5YlmdqNafrjl0oR+WQwV30cKpKaxK8lbyuRvvvYCiHHLjpAHfkdd9sT4KLsq81oiiyWH0fd6H9JW0TdaP3nnwIEBSnmrbt6hFM4qSWz6Cn/iQRwAG/lgTI=
+	t=1785454853; cv=none; b=HEDkhFPXqDcsGjzchI9/uYx35EE6I79SbKvHQgrhEpqSgfX92QNlYAYIZRN6zl9bFCvVDOn8eha95qPHUz8RUfXL8d/a4VYvTLyvnGArtwSlyp2ootKDqvvaE2s5JuoTZVmp3Gu+mcXibwqYXzagsP3IDWz8XUTi9O6OpkhCQnk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785453206; c=relaxed/simple;
-	bh=avxepvZWWju9S7sHePRsNaozNupgLVuPcY9AFQUoQls=;
+	s=arc-20240116; t=1785454853; c=relaxed/simple;
+	bh=iBNd4K+O4tno7LXYELuL3uAd+WPSyAbldMr9oM3VMKo=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=DLIrWr2xjW2N3lCZsrSn8iIg5eSLNua1a+a1we1VX/f7RVCHPonTNdUTsKdX8IphLE5XaVLiIt7uFU6Of5bWgnXZf7jjnISqPGPPyegJliVToBjr5T+EFb2695+wF+D+V7izB82ZNhJHzYzhrSqJ2HynY9eS1/4BNl33lv+rHV8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WK+wCzpB; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=eMjf/t3OZl9dO/BlkAqi+vPlj18C6pqqdITUvodLeCtfqZct/hV8POjtsnHr/sK3fJCbzSr2i1J/AJ2lb5RE6TNN06Cnw6FfrYvw9qUrvp+I1mRc8S0NSjmHTf/bEwr1leUtKzwYWoW7DFeYSnmcr32CIICOIYR0JAyeRDmMUvA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hyY23R6k; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WK+wCzpB"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FC601F000E9;
-	Thu, 30 Jul 2026 23:13:20 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hyY23R6k"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F6901F000E9;
+	Thu, 30 Jul 2026 23:40:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785453204;
-	bh=l3JegJnkroH/Y9kwd0pWelpz0EiOXDJ6YnZdI9R3F0k=;
+	s=k20260515; t=1785454851;
+	bh=H07kJpzbq3Hf65M0/NsKGMsxVsYpVDaw4sf2gDu2Lfs=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=WK+wCzpBsLbH6FC4gbaY6beR0/fFuzz5P+DCY/UXVeCbI5z2ByCNglf/K1DmkfznQ
-	 yf5OI5Ds0rIfDagDLa0RaJZkrQvrtiSZSUfcWLy0QPH1TvvTd+szToa8HLhJ+ybMLO
-	 o6YDuOkoO4SJGb6TWoe4Jt1zQ4fdwsTU6q3zFPGIKGVDhcOLFYWGL7cXA+YESVrX99
-	 GIPFj/tKDsZvN/oxIZvxOKCOBxtDbxxkGSZISXKbex/AIJk4uvq4nW0+8RWlUdMIHA
-	 hPHSLFzgVDesiuzU+u4JuUTd8RfTH6AT2benCMCnLGgEyoOzKESyjamXcKYnPAZOh3
-	 bDYfGyRWTlUEg==
-Date: Thu, 30 Jul 2026 16:13:17 -0700
-From: Nathan Chancellor <nathan@kernel.org>
+	b=hyY23R6kNcDsGqR9CnHDy+2L2E9FpG5zbiakWGA3tnCJ82tnDU3ByK8Zjm63T7HEg
+	 OxVwHmNkZasV6uTMtFSfkflWGZLwt2MuGDoOLlX+THF11XYNogFI9hcYQFq21tWSxB
+	 IiON8mat8caB7+zC2Nhg4f3TDINAkWsV/RA0I5HwJUWE68XX3QqPJcUuvFtNZvw6fh
+	 X1g0Xxon+6zuXREcdfLeiPjY3yEVpJBxzkQXKO5PfSpfyiri6VutrqgVvAUslbG+mW
+	 STx5fJcMil6zy2QPnqemHt04IVBopGvpG88211PueeilEYvJblBasDbX6Rqj2pJvPL
+	 Jxo89pbn2hlqw==
+Date: Thu, 30 Jul 2026 16:40:50 -0700
+From: Kees Cook <kees@kernel.org>
 To: Heiko Carstens <hca@linux.ibm.com>
 Cc: Stefan Schulze Frielinghaus <stefansf@linux.ibm.com>,
 	Juergen Christ <jchrist@linux.ibm.com>,
@@ -40,7 +40,8 @@ Cc: Stefan Schulze Frielinghaus <stefansf@linux.ibm.com>,
 	Maxim Khmelevskii <max@linux.ibm.com>,
 	Jens Remus <jremus@linux.ibm.com>,
 	Sami Tolvanen <samitolvanen@google.com>,
-	Kees Cook <kees@kernel.org>, Alexei Starovoitov <ast@kernel.org>,
+	Nathan Chancellor <nathan@kernel.org>,
+	Alexei Starovoitov <ast@kernel.org>,
 	Daniel Borkmann <daniel@iogearbox.net>,
 	Andrii Nakryiko <andrii@kernel.org>,
 	Eduard Zingerman <eddyz87@gmail.com>,
@@ -48,7 +49,7 @@ Cc: Stefan Schulze Frielinghaus <stefansf@linux.ibm.com>,
 	bpf@vger.kernel.org, linux-s390@vger.kernel.org,
 	linux-kernel@vger.kernel.org
 Subject: Re: [PATCH v2 0/6] s390: Add kCFI support
-Message-ID: <20260730231317.GA2423962@ax162>
+Message-ID: <202607301639.13BBC08@keescook>
 References: <20260727140514.116501-1-hca@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
@@ -61,47 +62,17 @@ Content-Disposition: inline
 In-Reply-To: <20260727140514.116501-1-hca@linux.ibm.com>
 
 On Mon, Jul 27, 2026 at 04:05:07PM +0200, Heiko Carstens wrote:
-> v2:
-> - Select ARCH_USES_CFI_GENERIC_LLVM_PASS [Nathan Chancellor]
-> - Add CONFIG_FUNCTION_GRAPH_TRACER guard to ftrace stub [bot+bpf-ci]
-> - Add additional CFI offset adjustments to bpf code [sashiko-bot]
-> - Move bpf patch before ARCH_SUPPORTS_CFI is selected, since there are
->   functions with missing __bpfcall atttribute [sashiko-bot]
-> 
-> v1:
 > Add s390 kCFI support using the generic support provided by clang.
-> This comes with a couple of limitations:
-> 
-> The generic kCFI implementation does not generate a .kcfi_traps section,
-> nor is a special instruction used in case a checksum mismatch is detected.
-> 
-> This means in case of a checksum mismatch the kernel just crashes.
-> It should be quite easy to tell by the surrounding code that a crash
-> happened because of a checksum mismatch.
-> 
-> If clang and/or gcc provide a .kcfi_traps section it will be possible to
-> print proper CFI messages instead of just crashing the kernel (enable
-> ARCH_USES_CFI_TRAPS).
-> 
-> In addition this also means that CFI_PERMISSIVE does not work. Even if the
-> option is selected the kernel will crash in case of a checksum mismatch.
-> 
-> However it seems to be acceptable to enable kCFI support to the kernel now
-> even if it is not perfect. Later s390 specific clang and gcc extensions are
-> required to improve this.
 
-Yes, getting coverage over s390 specific code and drivers is worthwhile,
-even if there is no architecture specific expansion available yet, since
-most problems should be visible with either implementation. Getting that
-sooner rather than later would be nice to avoid the panic when a CFI
-check fails and make debugging easier but we will take what we can get.
+Awesome!
 
-I tested clang-18 and clang-23 with defconfig + CFI, which both properly
-fails the CFI_FORWARD_PROTO LKDTM test. I built allmodconfig (which now
-includes CFI=y) with both compilers, which showed no issues.
+Is there anyone you know that might be able to review the GCC KCFI
+series[1], perhaps with an eye towards providing the s390 back-end
+implementation?
 
-Tested-by: Nathan Chancellor <nathan@kernel.org>
+-Kees
+
+[1] https://inbox.sourceware.org/gcc-patches/20260716005527.it.950-kees@kernel.org/
 
 -- 
-Cheers,
-Nathan
+Kees Cook
