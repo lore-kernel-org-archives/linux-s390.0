@@ -1,109 +1,136 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4DBD639F16B
-	for <linux-s390@vger.kernel.org>; Thu, 30 Jul 2026 10:05:08 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 211CA3F12EC;
+	Thu, 30 Jul 2026 10:06:57 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785405909; cv=none; b=NHP38/Z6PPuy+nMZa0B68em7Z89YikWFbApzku5swya1yM2n7hQiS0VK7ZmvG5l+WN7wisnawKQBQpJuzeXgMfYI8er57Vqij7Kph84GXopUU9DpU7is5JJdTCwKSz41IK5QbjB8kS3qNG604A/GSLnCivu8sOCWkMRd3vscRCQ=
+	t=1785406019; cv=none; b=O5g75dj0AHf7x9a6svsfJOao5f9Uiyv9eWbXlf7oX8lcluNyoksFp6Zbz2xpcVStQgvs0o1ADopXpFFNWKngnKNDKOEdGlnM/Q+P/1jR5p0k08bpr2RrzqMRhDlHRJl/tq1SqqTQFT122BfzodJNyfEFWxCNoquDIgFh1P1Lt4k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785405909; c=relaxed/simple;
-	bh=+NLs2tfEQ9EO26Njxu/sBxBLVz3Rn7EMRnNfneluQS8=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=t8WtM3uWNJwvvCuz7aXV0yLROFxtoKQCxfdzQfqtW2Q+WYju8PPsFGrKv9nw8ZEUq9c0+s7xWoQOLLckrC7lXQtv+HDpB+KvVHuZfOFkNZoc0rpNYXk+115c8nyhVd/yQB8WNBBcEQUUPqn1lfplafqHvPr4sSY2e3TEbbVefhE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=IQmcJ6bX; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1785406019; c=relaxed/simple;
+	bh=UUei0lD/EDb7h2v7ToPNN5nuFxLeREbeKm0rMZyUnpk=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=gCgq1VE1gSMaE/XA4jHVYMtZTOVll5TERjx7MgcGDY8Xvjl2rGWBnAEgOKXTINXSVu3MKGVmkTsvvSmbgpQH0Rk0UfFeKwnu3cjorBKm5tpRX4HSkidUK5SPReA1Zo/jvPzJ/FcNdqy0dqwTVtRersWH1SzySNVmphbfBd2VRzg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=i/APtpjF; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IQmcJ6bX"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 916EC1F000E9;
-	Thu, 30 Jul 2026 10:05:07 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="i/APtpjF"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83E0B1F000E9;
+	Thu, 30 Jul 2026 10:06:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785405907;
-	bh=UV57H2dHlGsQ8GJv6ULZumHM734AiHBm6SwTA4C6R0c=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=IQmcJ6bXC3FKX8tp9y5/Ur0Vq33CxRZ5E1S9TR1xEeHn3zb+4CJZt2VukVhstCclQ
-	 9kizFsuIiS0sECwT/8r7jzr7tiKL1GvxDOyBntujIyGoxHfUWwzdzeHXGPGXQfXtpn
-	 vg1dG+n4/TO55SKYL84lzrNKUoaazqMmdQzq7NtLx2oxT0eFb5PNpBJ37GuYz4GIWH
-	 acItObJ2lA7slMoereS7HqobtH/wDChphLslGY3Mi9ZUqME2tRrTr4LHXdCq3AWaIg
-	 w3TfZJ78/Fif1oUMTvdXrQNNYsgy6fElA+8soInWw0i3jUGQc7kXqknHPRycv4n6Pz
-	 EcfZvnCtF/WTQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 2/3] s390: Implement arch_do_panic
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Mete Durlu" <meted@linux.ibm.com>
-Cc: "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
- Carstens" <hca@linux.ibm.com>
-In-Reply-To: <20260730-arch_do_panic-v3-2-d5401e683cdb@linux.ibm.com>
-References: <20260730-arch_do_panic-v3-0-d5401e683cdb@linux.ibm.com>
- <20260730-arch_do_panic-v3-2-d5401e683cdb@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 30 Jul 2026 10:05:07 +0000
-Message-Id: <20260730100507.916EC1F000E9@smtp.kernel.org>
+	s=k20260515; t=1785406017;
+	bh=UUei0lD/EDb7h2v7ToPNN5nuFxLeREbeKm0rMZyUnpk=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=i/APtpjFfiUT/jwTB0X6v6oJZclMp055NF0CkBCD3J2nPkV89Jb8UtbLPeNNCRNRl
+	 EknI0ZySGCU3e0qUKusebo8eOUMFTKtX+9U/WCYY0kfVzvZCWuya2JnoHmaA6lgTRH
+	 GtHApMybmJNIXjWCNYHA2YsFvfZGjCl5LlOUTjG1zQ4OIqSvBikIjQI73QVhLPSxUY
+	 z2z9rn2N8Qm4gOJ2y0ksh0jhvcniBL8ZLeel0Tq+tmBN2C/n8R6tSbilYsv6dUAnXr
+	 IxmkYDU6XBKfun/Ho6JEv71ZRQLzPCUJhtEvxpwmnWOkQaBLN6a5aBhLGDxTu4pdDX
+	 cmaCsWWVW9zqw==
+Date: Thu, 30 Jul 2026 11:06:33 +0100
+From: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
+To: "David Hildenbrand (Arm)" <david@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Zi Yan <ziy@nvidia.com>, 
+	Baolin Wang <baolin.wang@linux.alibaba.com>, "Liam R. Howlett" <liam@infradead.org>, 
+	Nico Pache <nico.pache@linux.dev>, Ryan Roberts <ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>, 
+	Barry Song <baohua@kernel.org>, Lance Yang <lance.yang@linux.dev>, 
+	Usama Arif <usama.arif@linux.dev>, Vlastimil Babka <vbabka@kernel.org>, 
+	Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>, 
+	Michal Hocko <mhocko@suse.com>, Jonathan Corbet <corbet@lwn.net>, 
+	Shuah Khan <skhan@linuxfoundation.org>, Heiko Carstens <hca@linux.ibm.com>, 
+	Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
+	Christian Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, 
+	Alexander Viro <viro@zeniv.linux.org.uk>, Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, 
+	Dan Williams <djbw@kernel.org>, Matthew Wilcox <willy@infradead.org>, 
+	Kees Cook <kees@kernel.org>, Ingo Molnar <mingo@redhat.com>, 
+	Peter Zijlstra <peterz@infradead.org>, Juri Lelli <juri.lelli@redhat.com>, 
+	Vincent Guittot <vincent.guittot@linaro.org>, Dietmar Eggemann <dietmar.eggemann@arm.com>, 
+	Steven Rostedt <rostedt@goodmis.org>, Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>, 
+	Valentin Schneider <vschneid@redhat.com>, K Prateek Nayak <kprateek.nayak@amd.com>, linux-mm@kvack.org, 
+	linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, 
+	linux-fsdevel@vger.kernel.org, nvdimm@lists.linux.dev, Pankaj Raghav <pankaj.raghav@linux.dev>
+Subject: Re: [PATCH RFC] mm/huge_memory: eliminate reference-counted huge
+ zero folio
+Message-ID: <amsf4_v4EDcU6ePJ@lucifer>
+References: <20260728-persist-huge-zero-folio-v1-1-e7b604eaf416@kernel.org>
+ <04d881f4-419c-450e-b9b4-1341497fa93a@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <04d881f4-419c-450e-b9b4-1341497fa93a@kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
-- [Medium] The `pr_warn()` call in `on_panic_store()` is missing a terminat=
-ing newline (`\n`), which will cause garbled console output.
-- [Low] The file `arch/s390/kernel/ipl.c` does not include `<linux/panic.h>=
-`, leading to a missing prototype compiler warning for `arch_do_panic()`.
---
+On Tue, Jul 28, 2026 at 09:16:08PM +0200, David Hildenbrand (Arm) wrote:
+> On 7/28/26 15:06, Lorenzo Stoakes (ARM) wrote:
+> > The reference-counted huge zero folio is problematic - it's prone to subtle
+> > races, it can introduce allocation latency and it is confusing and
+> > complicated code.
+>
+> Just a note that the subject is misleading: the huge zero folio is always
+> refcounted (e.g., GUP must take references), it's just that the persistent huge
+> zero folio never drops the refcount to 0 to free it.
 
---- Patch [2]: [PATCH v3 2/3] s390: Implement arch_do_panic ---
-commit fa5fa116f1eec4d70650b8cf3a838d2dff72e007
-Author: Mete Durlu <meted@linux.ibm.com>
+I meant huge_zero_refcount not folio refcount :) but maybe could have been
+clearer.
 
-s390: Implement arch_do_panic
+>
+> What you probably mean is "mm/huge_memory: eliminate dynamically allocated huge
+> zero folio".
 
-This commit replaces the s390 custom panic notifier handler with the
-arch_do_panic() hook. This reordering allows the user-specified
-panic_timeout value to be evaluated correctly in common code. The timeout
-now takes precedence over user-defined on_panic behavior.
+Well that's not really getting to the core of it, the problem is the
+huge_zero_refcount meaning it can come and go and you have races.
 
-> diff --git a/arch/s390/kernel/ipl.c b/arch/s390/kernel/ipl.c
-> index 3c346b02ceb95..6a5fa9213450f 100644
-> --- a/arch/s390/kernel/ipl.c
-> +++ b/arch/s390/kernel/ipl.c
-> @@ -2111,11 +2111,15 @@ static ssize_t on_panic_store(struct kobject *kob=
-j,
->  			      struct kobj_attribute *attr,
->  			      const char *buf, size_t len)
->  {
-> +	if (panic_timeout) {
-> +		pr_warn("on_panic action will be ignored in favor of panic timeout (pa=
-nic=3D%d)",
-> +			panic_timeout);
+But agreed refcount is imprecise + clearly confusing vs. folio refcount given
+you immediately assuemd that.
 
-[Severity: Medium]
-Will this result in garbled console output since there is no terminating
-newline in the format string? Because printk does not automatically append
-a newline, the next message printed to the kernel log might be appended to
-this same line.
+So 'mm/huge_memory: eliminiate dynmaically alloc'd/freed huge zero folio' maybe?
 
-> +	}
->  	return set_trigger(buf, &on_panic_trigger, len);
->  }
->  static struct kobj_attribute on_panic_attr =3D __ATTR_RW(on_panic);
-> =20
-> -static void do_panic(void)
-> +void arch_do_panic(void)
+>
+> If we go down that path here, we can also teach GUP to not take a reference on
+> the huge zero folio anymore on the FOLL_PIN path, similar to how we handle the
+> zero folio.
+>
+> See the occurrences of is_zero_folio() in mm/gup.c.
 
-[Severity: Low]
-Does this trigger a missing prototype compiler warning? The global function
-arch_do_panic() is defined here to override the weak definition, but its
-declaration is in linux/panic.h which does not seem to be included in this
-file.
+Ah yeah. Can do that on a respin, thanks.
 
->  {
->  	lgr_info_log();
->  	on_panic_trigger.action->fn(&on_panic_trigger);
+>
+> The reason we do it for now for FOLL_PIN is that a remote pin might outlive the
+> process, meaning the huge folio could otherwise get freed by the shrinker even
+> though someone still holds a reference. Bad. So that would no longer apply if
+> the huge zero folio can no longer get freed.
 
-[ ... ]
+Incredible that we have to think about this...
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260730-arch_do_pa=
-nic-v3-0-d5401e683cdb@linux.ibm.com?part=3D2
+>
+>
+> I recall there was a discussion (dropping dynamically allocated huge zero folio)
+> on this topic while upstreaming the persistent huge zero folio.
+>
+> I don't have time right now to dig, but it would be worthwhile to look at that
+> history if there was a good reason to keep it buried in that discussion.
+
+Maybe this:
+
+https://lore.kernel.org/all/20250811084113.647267-4-kernel@pankajraghav.com/T/#m4100481232bae8a7b661e8f6e86ecc74532c69a4
+
+Generally seems 'smaller systems blah blah'. But smaller systems that set
+CONFIG_THP get bigger reserves etc. so the argument doesn't really work.
+
+I suppose they might default CONFIG_THP on but not enable THP but at that point
+are you really so tiny a system that 2 MiB matters?
+
+Obviously it's more problematic for 64 KiB page size, but then if you have THP
+at all your reserves will already be problematic, and any read fault on a THP
+page gets you the exact same issue.
+
+>
+> --
+> Cheers,
+>
+> David
+
+Cheers, Lorenzo
