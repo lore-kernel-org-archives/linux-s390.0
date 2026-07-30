@@ -1,137 +1,142 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D60E227E07E;
-	Thu, 30 Jul 2026 07:47:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8FB49388E7A;
+	Thu, 30 Jul 2026 07:56:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785397673; cv=none; b=KDxFr/JJnXheQ1ZV7YSGTlhpdgdnEIf8TID6h1TTOlOszJg3kHWz5ntsCSt08P28OyoMqcmd8WO6pR1aQoxy1TnQRl7ssJMvgK/TQgRxDVfqNKcfHwLzDla0uO8JUAvD5PKAYRkB3rw0KpZUpVsLkxDrYV3O4fnDHYhw35vKYWk=
+	t=1785398202; cv=none; b=qrYE/ckLUmyQo3LxtfloD/lnKPDBnCT6zg7zAHVq0IT0LY7+Rsiivxk9WeTih1e8eIrOMmTU2F+f6FIaNvD7SgSeVRah7VSb+J5qaeq8gcQBDgYcXXjSsDFMl32FclqgaXf6rkWvu8hLIPAssIK2yZRrzFO3CtcAbHB3BTtDoLI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785397673; c=relaxed/simple;
-	bh=7eNGpkG3x+WLpBqMYwOCFW9vENEisQvBVUZJSO/cP34=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=GWi1E0yn/TaXQGuD7YzlZzF6ZmObdagf3k648eWmncVKJ0Kvt7eHHC3Izx2lDdx8tmdm9d4gSn6ZOQ+mrrrQ4rk1YAqTyog+qjZhEtUVLteDr4bIPu5j9FTCoEaMkGP3CJyP5PPNSmYCRo9Wpg/YDcJPXOU895hYt1dlxI5mnDk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=esRuQKIb; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1785398202; c=relaxed/simple;
+	bh=lfCd83wlnK2yYwxnTrJj6bXjEBCsKfR1al4IeWNcH28=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=l75TWbCB75AWeww0nPKIOJnvEbMHwbowZ4gzlE8IB87xkgk5/FUexER7oWdVqiVw6yL6SeKVpPYXeGhkIi3opq0kucDoAvvCf1x0utbaZDbehaf5VAB9ucQbmLqGEEku5xFolMYw6S7NgIyLlHRvohxSaeS8RPaCm2D3ExzqVHg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=mAx8AFz0; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="esRuQKIb"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66U6lgrd2300625;
-	Thu, 30 Jul 2026 07:47:41 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="mAx8AFz0"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66U6ll192193257;
+	Thu, 30 Jul 2026 07:56:30 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=IuYvL4
-	4OEHlrqrUDgeIkze2oMAhjd/UFCPUoXSXC3jM=; b=esRuQKIbIoOBW0OGQwiv6I
-	booAbcYMK38UW06y8dWUFQ6kj18C+HVZfeyOKl37TMsR2n+kyNaZRT0+zAbBWFRj
-	cTmNySM2fsLp6He0JPFbhUVe5vBROWSBeJ6j8PH5aBZPwWOeZQTaguzsyT2xxCvY
-	yyATeS7+QCvnEjVPHUCLsaDDFU2X84I1JzIr9WONa7EHoMAVVjlzRAfVthi5HtOo
-	4jZUDYrGdAK5FwskcUwdnVRAeVtJePJ/AEaR4ejggAWSXT0S46mSrbOT3dg7Zdox
-	un9Y/cRx0wSV2v0S5aJ/ZJp6totvyuc16BGk5Q1wpzALI7lR4szcNxqegYuspTMQ
-	==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fmv0xxnns-1
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=i5Foh+HxRSdT7/xEiUWmClXolFVnL3jAUjnokCpK5
+	eU=; b=mAx8AFz0scb27SKUDoAQW6a5Yk+CctCQshbLRZkxzxECGG25wV6gzjgFb
+	xZI58ijL30VSJAAC3tqH255A69TapwXOmygznSL79nyNraMY/FqgVmDk5ozmG5Vx
+	qiP6Q5aIaPywL8I3OSzV7t3L54Lp4pVg4PJVzm32ciHP7afVuX9xASD9TyOQAliQ
+	n2PJkw/QnviInABiFpOimckD7Yhn0wNg1rtHL6QCucah2VTwHQjSchRC5syyaCIB
+	vVlNdf7Fp7xArfYwvKlbMJGT9IPef/iSm1YKIxhYeySOZLSi8FTeFwSjaoEgbKfL
+	dUo8Hg8QS7TUdwuKBJusxzcDJl1yg==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fmuyjdtcf-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 30 Jul 2026 07:47:41 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66U7fGq4012872;
-	Thu, 30 Jul 2026 07:47:40 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fn9pgj5wj-1
+	Thu, 30 Jul 2026 07:56:29 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66U7uQOB021168;
+	Thu, 30 Jul 2026 07:56:29 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fn7uwagd9-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 30 Jul 2026 07:47:40 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66U7lYTt26935776
+	Thu, 30 Jul 2026 07:56:29 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66U7uOtC33620258
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 30 Jul 2026 07:47:34 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id CD5972004D;
-	Thu, 30 Jul 2026 07:47:31 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6604520040;
-	Thu, 30 Jul 2026 07:47:31 +0000 (GMT)
-Received: from [9.224.91.220] (unknown [9.224.91.220])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 30 Jul 2026 07:47:31 +0000 (GMT)
-Message-ID: <d2a02f29-4ffb-4364-9eaf-aba1e74114ba@linux.ibm.com>
-Date: Thu, 30 Jul 2026 09:47:31 +0200
+	Thu, 30 Jul 2026 07:56:24 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id BBB232004E;
+	Thu, 30 Jul 2026 07:56:24 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 621712004B;
+	Thu, 30 Jul 2026 07:56:24 +0000 (GMT)
+Received: from t83lp68.lnxne.boe (unknown [9.87.84.240])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 30 Jul 2026 07:56:24 +0000 (GMT)
+From: Hidayath Khan <hidayath@linux.ibm.com>
+To: davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+        pabeni@redhat.com, wintera@linux.ibm.com, alibuda@linux.alibaba.com,
+        dust.li@linux.alibaba.com, sidraya@linux.ibm.com, wenjia@linux.ibm.com
+Cc: mjambigi@linux.ibm.com, tonylu@linux.alibaba.com, guwen@linux.alibaba.com,
+        horms@kernel.org, hca@linux.ibm.com, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, borntraeger@linux.ibm.com, svens@linux.ibm.com,
+        pasic@linux.ibm.com, gbayer@linux.ibm.com, andrew+netdev@lunn.ch,
+        netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-rdma@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH net] dibs: fix double free of dmb_clientid_arr
+Date: Thu, 30 Jul 2026 09:56:24 +0200
+Message-ID: <20260730075624.114778-1-hidayath@linux.ibm.com>
+X-Mailer: git-send-email 2.52.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 1/4] s390/crypto: Replace cond_resched() with msleep(1)
-To: Heiko Carstens <hca@linux.ibm.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Herbert Xu <herbert@gondor.apana.org.au>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org
-References: <20260730052907.2607026-1-hca@linux.ibm.com>
- <20260730052907.2607026-2-hca@linux.ibm.com>
-From: Holger Dengler <dengler@linux.ibm.com>
-Content-Language: en-US, de-DE
-In-Reply-To: <20260730052907.2607026-2-hca@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: XWUETPjGWHhdWS6AdEQuhPAIzirnb-Th
-X-Proofpoint-ORIG-GUID: XWUETPjGWHhdWS6AdEQuhPAIzirnb-Th
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzMwMDA1NSBTYWx0ZWRfXwd9D0O7Ur6ix
- lO7hhI2MQ40ThZdjkD1GQOLtH4kUAo8Uf2QVyX8bpmgec+p90uMXKX+WEZTepisu3u0RXwXfmUD
- qsUaKbLp0+77fvkTwpQAUBN2x8446BI=
-X-Authority-Analysis: v=2.4 cv=dYuwG3Xe c=1 sm=1 tr=0 ts=6a6b019d cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8
- a=yrk_x9XpjdM9187dwwsA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
- a=zZCYzV9kfG8A:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzMwMDA1NSBTYWx0ZWRfX9FijXlw18+Ri
- Zw3Sz8gSga1BreKzut55pm7VmP/iztR7mzJFIidtWgqvziKKy4Bi94Ko5z6Mu/IuvULAHINKCNG
- L6sXf6bm7MMCUt1Jb4KGZBfXiSZQ6zQKJZq8biIRn/I/6wF/IP5iD8QAXBofmZr1LA3Z24pdKwU
- 1qsrZSMc5/tM1/Qo67hcyrXtJ8fQBrMnMwLADgn7A2eGyboi/fbjrDWtK8RTLUbOe3qqslMkNHn
- ywmF3jvw56rB87EDmawOFPe7el3XM0OU2Xyt67akYBBQimIsQsF7Vl2VidbCsFZubXxKEu/2ZIV
- SlEwP4oqKCo00lnvknCGYcDR0a66DzEBkma37urrL2J5iQTTJBdfCQId+26KXQyOJyIYBwixxYZ
- lKgLvowhQfn2R+j/h+vvAcvUViFwhJvrDLcFYvbtoZN1Z2RH5otLwqujR3CV8mbvM5zBm/gqp1v
- qtrT969eGrnyo5aURwg==
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzMwMDA1NSBTYWx0ZWRfXwavfkeF4/Kt6
+ JoOxs/lXNV6ejkeSz1wRu5cOxKjFHpgXqn9EAInIQP5m82MxQBZUhhAx5yxSuKl+3ZwU+b2yM9z
+ PbvmGmEyCXzmRM3SHEW1J4GHcJVXYg0=
+X-Proofpoint-GUID: Qknss0pyhU9cLSpgH2kGICeVnBYw5r1C
+X-Proofpoint-ORIG-GUID: eu5Yn7kJEpYarRcB3EoH6X1j_meabnsC
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzMwMDA1NSBTYWx0ZWRfXy6i7XPPWhEC7
+ Eo6LIkLVau9jMO9pmu0RBXpcx1FmyRZ6mZmq5mxkpzCmh5ifUuE0xkCIyaEA6Ofozrv1bsXQJ73
+ vm2hXSmPLJU3u/lXlIyOCtdeLac80M3WlwfFKVH7pNXep71+x4TvxGfnCAgjyRWzdC6K+ApzFOl
+ eybYCmjZYnueOJBx8+ypwcs9JZ0G9l/R71Smr0aerNYpYmVRGdBY0rwYBqdeIeCzjzwvGh21J3Y
+ d7fduZ4jtjfqrxdQb9NofP1ptMYAtI4fWlIQxzDGae4E6H4l7PVEoMRyyzCTjV6DLyiCag61diS
+ moBsSqzV80ZQbjOzyhv2F3kJ2bTIFsJL0ZmN4agGYD3rX7KKBTtgsOlwvJqXD6X1PGZTvNWxYE7
+ stDtwRkwMXTI0q9rMgM858Fj0C53ORx72b22x0p+oNkUp9627JQW/DSVnedS4Dm4OIr72CU7r+F
+ 2qrRZd9bwWBX9fqruCg==
+X-Authority-Analysis: v=2.4 cv=X5Vi7mTe c=1 sm=1 tr=0 ts=6a6b03ae cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
+ a=NnsqlADyzmQ-ARdX89kA:9
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-07-30_02,2026-07-29_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 impostorscore=0 clxscore=1015 phishscore=0 malwarescore=0
- spamscore=0 lowpriorityscore=0 bulkscore=0 suspectscore=0 adultscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607300055
+ clxscore=1015 impostorscore=0 lowpriorityscore=0 phishscore=0
+ priorityscore=1501 malwarescore=0 spamscore=0 suspectscore=0 bulkscore=0
+ adultscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2607300055
 
-On 7/30/26 07:29, Heiko Carstens wrote:
-> With [1] cond_resched() is always compiled away and becomes a no-op.
-> 
-> The comments for all cond_resched() calls in crypto code however indicate
-> that the current process should be scheduled away to avoid instant
-> re-invocation of a callback. This is not what cond_resched() would do or
-> did.
-> 
-> Instead of just removing the cond_resched() calls, replace them with
-> msleep() calls, as suggested by Holger Dengler. This forces the current
-> task to be scheduled away (sleeps) like originally intended.
-> 
-> [1] commit 7dadeaa6e851 ("sched: Further restrict the preemption modes")
-> 
-> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+dibs_dev_add() frees dibs->dmb_clientid_arr on both of its failure
+paths, but does not clear the pointer. dibs_lo_dev_probe() then frees
+the same pointer again in its err_reg path, so a failing device_add()
+or sysfs_create_group() results in a double free.
 
-As in v2
-Reviewed-by: Holger Dengler <dengler@linux.ibm.com>
+Drop the kfree() from dibs_lo_dev_probe().
 
+Note: commit cc21191b584c ("dibs: Move data path to dibs layer") moved
+the code to its current location; the race was introduced earlier by
+commit c3a910f2380f ("net/smc: implement DMB-merged operations of
+loopback-ism").
+
+Fixes: c3a910f2380f ("net/smc: implement DMB-merged operations of loopback-ism")
+Cc: stable@vger.kernel.org
+Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
+Signed-off-by: Hidayath Khan <hidayath@linux.ibm.com>
+---
+ drivers/dibs/dibs_loopback.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/drivers/dibs/dibs_loopback.c b/drivers/dibs/dibs_loopback.c
+index fd5caf1e19a8..649e4e375be3 100644
+--- a/drivers/dibs/dibs_loopback.c
++++ b/drivers/dibs/dibs_loopback.c
+@@ -335,7 +335,6 @@ static int dibs_lo_dev_probe(void)
+ 	return 0;
+ 
+ err_reg:
+-	kfree(dibs->dmb_clientid_arr);
+ 	/* pairs with dibs_dev_alloc() */
+ 	put_device(&dibs->dev);
+ 	kfree(ldev);
+
+base-commit: 98379cf6109c0adb5879f86ba3efd4afe389a64a
+prerequisite-patch-id: da145e40ff1ce22e9701dd49676606f612c03872
 -- 
-Mit freundlichen Grüßen / Kind regards
-Holger Dengler
+2.52.0
 
