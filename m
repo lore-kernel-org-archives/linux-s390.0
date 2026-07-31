@@ -1,143 +1,168 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 34C9C440A3E
-	for <linux-s390@vger.kernel.org>; Fri, 31 Jul 2026 16:21:23 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DAB10463B87
+	for <linux-s390@vger.kernel.org>; Fri, 31 Jul 2026 16:27:13 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785514885; cv=none; b=csf+652JtAUaGxxV9hWODvQh8YmybeAhuIbARpazknlSPFnjweLoGlD4952MODi2E3qylQquqxtFhdjZPu4k+m9eiSoIEw/VpPSJ8noat0G4KKL+wgq7GLguQcxRonZ9S2/akJqGs0TZYrdqug+sf+c5LBFqF7octujaGeguXg0=
+	t=1785515235; cv=none; b=KYGYNpuibkACjVN8X4hCO9bhg7/Y8nFXreyl7tsElA+LT2KynBXyl0HkKJcbfgDm1JYzY1YC87VCSANBtMGe8HIPlgK2HT4oB7l+qv4mOJbRfwcexXYl1GuWhKOLHuuBWPtHNX91834gT9PHi6M1xBXduWsTgFs/BcN9yKOLPZ4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785514885; c=relaxed/simple;
-	bh=c9SaQW+4cw/8eaupOLbIqdsCYJwzbbO/WPSkOjIL8r0=;
+	s=arc-20240116; t=1785515235; c=relaxed/simple;
+	bh=ZMgDiHdKzADJrsJduvyRBR1T5YDFM4c8ZRZh1QQ7svw=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=taoSN7ct2W3iz0HxizQ5CSQqhnsXgVKMIh3Zu8W8NU1A0n/N/gGvtxVZAUYPtZPMnTvbrf5ze2syd1nzlqK9szFfgAOFUVRetHw11tscFG5jl+Mnn0M0GNiw62UyC+wIrTAPfo30wsJaE+coo0Oa1PY7JM5y9fb6oRIqaKhn2jk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=c51kpxV1; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=FFyumRNdhPTqI1OTOmTfaGUQA5tt95eGfvX5aR1uVtWjj6lfKtdsNtQuu2wPxe52etFAyMEZ+jPQ7E53IQxkXCzNHmR7jCrb83Sl/HFKzO+x+5IUD7DLLAV9C5g8RGs4pdXGJh9zm4jnFMvY6huDZYQ/U4LUwmJwi2RIDPNdclQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jB1jsLwm; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="c51kpxV1"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9CC521F00AC4;
-	Fri, 31 Jul 2026 16:21:23 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jB1jsLwm"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 113A71F00AC4;
+	Fri, 31 Jul 2026 16:27:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785514883;
-	bh=tlQNq9zkYrA4kh2HnCYClXVG74E82yOwulBnabWGbQY=;
+	s=k20260515; t=1785515233;
+	bh=Kxu2bCY925+yUAG1bhlQmXraffWXwne99TFDR6w3Hos=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=c51kpxV1e8RQHLlJK/V3veQcqMdqFXLXDzvNrW0sbOQU2Wd69uriMT7cdrorqg3zW
-	 GykliQedXWjomNSspV24JO8zCRZIe6pciPzzxrsHylEaeiuzu/97rl1yqLKnVKmS6O
-	 z6r4nF+NEc8EburAybX9CKe7byxdKU3GPmGzBV4wXxZTVNch9WWkGSWvXxMETxih1h
-	 bxFaHlm7lZp4TYnz/UNxOAbyjrAH6KZbXXnpCuQj5qewHmY2xY8XPUZwuBjWE3JidY
-	 snXyO1wNEJ4N7XdGhwLuzqEJkPStLJtdrBW54BadHuA+1aqwYBUVMw6ZY7IcL93MMa
-	 EesEMIRzwt9CQ==
+	b=jB1jsLwmLKorb55dd0uo91LY385k7vrHTDGUmA9/1Efpskn2Fh8bQcHfIrhEf3Te3
+	 xNTUshqqGHLlryhZtM5xHhHGB+Xczx92GBGm0NAsDAc5veQx9+8NaRSD0lxsrdToky
+	 3+65tI83w117scCK+TSlic9YUY2q1WHk3nz4m5Yg4w0f5MJpt6okpgutIP1TMjnJ4L
+	 0Z4+kbAGlgOsMggzI37kMOaBRacOjUHeTx1Cjv9Hv9cA534OKQnZwl6tZ1PFby8emi
+	 OFqAcfsThesZpu4Tk1XU/mU63z4nJjOnxQ4nkN3Rurg8VN4pCfVXmowFXbADKleBDt
+	 +rg6OUATlmSUw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 08/17] s390/dasd: Extend prepare_itcw() to support
- WRITE_FULL_TRACK
+Subject: Re: [PATCH v5 12/17] s390/dasd: Derive adaptive ESE fulltrack
+ heuristic from ft_bias
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Stefan Haberland" <sth@linux.ibm.com>
-Cc: "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
- Carstens" <hca@linux.ibm.com>
-In-Reply-To: <20260731153842.1729627-9-sth@linux.ibm.com>
+Cc: "Heiko Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>
+In-Reply-To: <20260731153842.1729627-13-sth@linux.ibm.com>
 References: <20260731153842.1729627-1-sth@linux.ibm.com>
- <20260731153842.1729627-9-sth@linux.ibm.com>
+ <20260731153842.1729627-13-sth@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 31 Jul 2026 16:21:23 +0000
-Message-Id: <20260731162123.9CC521F00AC4@smtp.kernel.org>
+Date: Fri, 31 Jul 2026 16:27:12 +0000
+Message-Id: <20260731162713.113A71F00AC4@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
 s) to consider:
-
-New issues:
-- [Medium] The explicit assignment `lredata->length =3D 0` for `WRITE_FULL_=
-TRACK` is unconditionally overwritten.
-
-Pre-existing issues:
-- [High] Lockless access to `conf.ned` and `uid.type` in I/O submission pat=
-hs races with concurrent path events, leading to a NULL pointer dereference.
+- [High] The adaptive heuristic parameters are never initialized during dev=
+ice startup because `dasd_ft_bias_apply()` is called before the device's ES=
+E capability is known, causing the heuristic to evaluate on every single I/=
+O.
+- [High] The NRF rate calculation can overflow a 32-bit signed integer, cau=
+sing the heuristic to improperly remain in plain write mode during heavy un=
+formatted I/O.
+- [High] The lockless heuristic evaluation and sysfs updates fail to serial=
+ize state machine transitions, leading to state divergence where the device=
+ permanently sticks in fulltrack mode.
 --
 
---- Patch [8]: [PATCH v5 08/17] s390/dasd: Extend prepare_itcw() to support=
- WRITE_FULL_TRACK ---
-commit 2948648b7fc2c93cb4193e7c55bd961de4d7e8c2
+--- Patch [12]: [PATCH v5 12/17] s390/dasd: Derive adaptive ESE fulltrack h=
+euristic from ft_bias ---
+commit fc455715bb1f927b75206de59511e6f8a3abe72f
 Author: Stefan Haberland <sth@linux.ibm.com>
 
-s390/dasd: Extend prepare_itcw() to support WRITE_FULL_TRACK
-   =20
-prepare_itcw() builds the FCX prefix block (PFX + LRE) for track-mode
-I/O. Extend it to handle DASD_ECKD_CCW_WRITE_FULL_TRACK.
+s390/dasd: Derive adaptive ESE fulltrack heuristic from ft_bias
+
+This patch turns the middle of the ft_bias range into an adaptive heuristic
+that switches between fulltrack write and plain write depending on device
+sparseness. It measures the NRF rate in short probe windows to determine
+when to flip back to fulltrack write mode.
 
 > diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eck=
 d.c
-> index 2f6d97c06237b..c1a26485f506d 100644
+> index cc5a4791cb8f4..1df861f80c268 100644
 > --- a/drivers/s390/block/dasd_eckd.c
 > +++ b/drivers/s390/block/dasd_eckd.c
-> @@ -4397,26 +4399,31 @@ static int prepare_itcw(struct itcw *itcw,
-[ ... ]
-> -	pfxdata.format =3D 1; /* PFX with LRE */
-> -	pfxdata.base_address =3D basepriv->conf.ned->unit_addr;
-> -	pfxdata.base_lss =3D basepriv->conf.ned->ID;
-> -	pfxdata.validity.define_extent =3D 1;
-> +	pfxdata->format =3D 1; /* PFX with LRE */
-> +	pfxdata->base_address =3D basepriv->conf.ned->unit_addr;
-> +	pfxdata->base_lss =3D basepriv->conf.ned->ID;
-
-[Severity: High]
-This is a pre-existing issue, but can this lockless access to conf.ned lead
-to a NULL pointer dereference?
-
-If a concurrent path event triggers dasd_eckd_pe_handler(), it calls
-rebuild_device_uid(), which then calls dasd_eckd_identify_conf_parts().
-That function transiently sets conf.ned =3D NULL without holding any locks.
-
-If prepare_itcw() accesses basepriv->conf.ned->unit_addr at that moment, it
-will dereference a NULL pointer.
-
-> +	pfxdata->validity.define_extent =3D 1;
+> @@ -2160,6 +2160,7 @@ dasd_eckd_check_characteristics(struct dasd_device =
+*device)
 > =20
->  	/* private uid is kept up to date, conf_data may be outdated */
->  	if (startpriv->uid.type =3D=3D UA_BASE_PAV_ALIAS)
+>  	/* default ESE fulltrack write aggressiveness from the module parameter=
+ */
+>  	device->ft_bias =3D min_t(unsigned int, full_track_bias, DASD_FT_BIAS_M=
+AX);
+> -	/* only the "always" endpoint forces fulltrack unconditionally here */
+> -	device->fulltrack =3D (device->ft_bias >=3D DASD_FT_BIAS_MAX) ? 1 : 0;
+> +	dasd_ft_bias_apply(device);
 
 [Severity: High]
-This is a pre-existing issue, but does accessing uid.type here race with a
-concurrent memset?
+Does calling dasd_ft_bias_apply() here happen before the device's ESE
+capability is known?
 
-The create_uid() function memsets the uid to 0 under the ccwdev_lock, but t=
-his
-I/O submission path reads startpriv->uid.type locklessly, exposing it to
-transient zeroes.
+In dasd_eckd_check_characteristics(), dasd_ft_bias_apply() is called early.
+This function relies on dasd_ese_adaptive(), which checks is_ese(). However,
+is_ese() depends on private->vsq, which is populated later when
+dasd_eckd_read_vol_info() is called.=20
 
-> -		pfxdata.validity.verify_base =3D 1;
-> +		pfxdata->validity.verify_base =3D 1;
+Because vsq is empty at this point, dasd_ese_adaptive() returns false, and
+the heuristic parameters (like ese_heu_start_interval and
+ese_heu_probe_window) are left initialized to 0. Will this cause the
+heuristic interval to pass immediately and the FSM to evaluate on every
+single I/O?
+
 [ ... ]
-> @@ -4446,7 +4453,39 @@ static int prepare_itcw(struct itcw *itcw,
+
+> @@ -3235,6 +3241,65 @@ static void clear_format_track(...)
+> +static void dasd_ese_heuristic_tick(struct dasd_device *basedev)
+> +{
 [ ... ]
-> +	case DASD_ECKD_CCW_WRITE_FULL_TRACK:
-> +		dedata->mask.perm =3D 0x3;
-> +		dedata->mask.auth =3D 0x00;
-> +		dedata->attributes.operation =3D basepriv->attrib.operation;
-> +		dedata->blk_size =3D blksize;
-> +		dedata->ga_extended |=3D 0x42;
-> +		rc =3D set_timestamp(NULL, dedata, basedev);
-> +		lredata->operation.orientation =3D 0x0;
-> +		lredata->operation.operation =3D 0x3F;
-> +		lredata->extended_operation =3D 0x11;
-> +		lredata->auxiliary.check_bytes =3D 0x2;
-> +		lredata->length =3D 0;
+> +	case DASD_ESE_HEU_PROBING:
+> +	case DASD_ESE_HEU_FT0_STABLE:
+> +		nrf  =3D atomic_xchg(&basedev->ese_nrf_window, 0);
+> +		rate =3D nrf * 1000 / ios;
+> +		if (rate > (int)basedev->ese_heu_nrf_high) {
 
-[Severity: Medium]
-Will this lredata->length value be unconditionally overwritten?
+[Severity: High]
+Can this rate calculation overflow a 32-bit signed integer?
 
-Later in prepare_itcw(), there is this assignment:
+During the FT0_STABLE state, the ios interval backs off up to max_interval
+(500,000 IOs). If a workload performs large sequential writes into
+unformatted space, an I/O can span multiple tracks, triggering multiple NRF
+events.=20
 
-    lredata->length =3D tlf;
+If the number of formatted tracks reaches ~2,147,483 within the 500,000 IO
+window, nrf * 1000 will exceed INT_MAX and overflow to a negative value.
+Could this cause the check to evaluate to false and improperly keep the
+device stuck in plain write mode during heavy unformatted I/O?
 
-If WRITE_FULL_TRACK is used with a non-zero transfer length factor, the
-tlf value will overwrite the explicitly requested 0.
+> +			/* NRF rate high: device still sparse, ft1 is better */
+> +			basedev->fulltrack          =3D 1;
+> +			basedev->ese_probe_state    =3D DASD_ESE_HEU_FT1_ACTIVE;
+> +			basedev->ese_probe_interval =3D basedev->ese_heu_start_interval;
+> +		} else if (basedev->ese_probe_state =3D=3D DASD_ESE_HEU_PROBING) {
+> +			/*
+> +			 * NRF rate low: device mostly formatted, ft0 is faster.
+> +			 * Re-probe frequently at first, then back off below.
+> +			 */
+> +			basedev->ese_probe_state    =3D DASD_ESE_HEU_FT0_STABLE;
+> +			basedev->ese_probe_interval =3D basedev->ese_heu_probe_window;
 
-> +		lredata->extended_parameter_length =3D 0x02;
+[Severity: High]
+Can this lockless state transition race with a sysfs update and permanently
+stick the device in fulltrack mode?
+
+If a thread is transitioning from PROBING to FT0_STABLE (evaluating
+basedev->ese_probe_state =3D=3D DASD_ESE_HEU_PROBING as true) but is preemp=
+ted
+before writing the state, a concurrent sysfs update via
+full_track_bias_store() -> dasd_ft_bias_apply() could reset the FSM:
+
+drivers/s390/block/dasd_int.h:dasd_ft_bias_apply() {
+    ...
+    device->ese_probe_state    =3D DASD_ESE_HEU_FT1_ACTIVE;
+    device->fulltrack          =3D 1;
+    ...
+}
+
+When the preempted thread resumes, it would set ese_probe_state to
+DASD_ESE_HEU_FT0_STABLE but leave fulltrack as 1. Since fulltrack =3D 1
+suppresses NRF events, the measured rate stays at 0 and the FSM interval
+backs off without ever resetting fulltrack to 0, completely defeating the
+adaptive heuristic.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260731153842.1729=
-627-1-sth@linux.ibm.com?part=3D8
+627-1-sth@linux.ibm.com?part=3D12
