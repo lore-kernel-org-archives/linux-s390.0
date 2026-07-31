@@ -1,168 +1,209 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DAB10463B87
-	for <linux-s390@vger.kernel.org>; Fri, 31 Jul 2026 16:27:13 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8653D44D01F
+	for <linux-s390@vger.kernel.org>; Fri, 31 Jul 2026 16:28:32 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785515235; cv=none; b=KYGYNpuibkACjVN8X4hCO9bhg7/Y8nFXreyl7tsElA+LT2KynBXyl0HkKJcbfgDm1JYzY1YC87VCSANBtMGe8HIPlgK2HT4oB7l+qv4mOJbRfwcexXYl1GuWhKOLHuuBWPtHNX91834gT9PHi6M1xBXduWsTgFs/BcN9yKOLPZ4=
+	t=1785515315; cv=none; b=ZIRv0WvXA9j9dVXYQd9KwJC/YKjpOj1IItWKScOvsi/23q1w3NgT8Ztl63m589Tt6XRE5XPepQ4UO2tmEtaaAOD8nqy6V0nMK6b2PbegFicfWGDJjFndTPhkmbxl5bKhXupkweIMHyCAMzyRVQHls56W119NURUrgJNYQUvjUgQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785515235; c=relaxed/simple;
-	bh=ZMgDiHdKzADJrsJduvyRBR1T5YDFM4c8ZRZh1QQ7svw=;
+	s=arc-20240116; t=1785515315; c=relaxed/simple;
+	bh=2fw5/1SSdPFxO28F5LwP4DVTY8WKgI7c7kJ6WYE0AtI=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=FFyumRNdhPTqI1OTOmTfaGUQA5tt95eGfvX5aR1uVtWjj6lfKtdsNtQuu2wPxe52etFAyMEZ+jPQ7E53IQxkXCzNHmR7jCrb83Sl/HFKzO+x+5IUD7DLLAV9C5g8RGs4pdXGJh9zm4jnFMvY6huDZYQ/U4LUwmJwi2RIDPNdclQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jB1jsLwm; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=tLjdRgIZZ0Xi0daQV/7ayNuPfKDUmHJDUvV23cmM+68tcAdInIWHNFCqggUrzqmr3pLp+8QLkrh/K9eDW8F0nk2Pdbb9OlAs0hRB4fnKEEwNGGjpRyPaZM4fzJhJN+iivabmfnbi1XECEj8MtIu6pVsxQ+RMO2YYqSGzqLO7e90=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mJyYXTAJ; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jB1jsLwm"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 113A71F00AC4;
-	Fri, 31 Jul 2026 16:27:13 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mJyYXTAJ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E7A21F00ACF;
+	Fri, 31 Jul 2026 16:28:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785515233;
-	bh=Kxu2bCY925+yUAG1bhlQmXraffWXwne99TFDR6w3Hos=;
+	s=k20260515; t=1785515309;
+	bh=+aeh7DTMr2uBWBp9XBApqvVNW1yLCuqADCpd3g72Jfs=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=jB1jsLwmLKorb55dd0uo91LY385k7vrHTDGUmA9/1Efpskn2Fh8bQcHfIrhEf3Te3
-	 xNTUshqqGHLlryhZtM5xHhHGB+Xczx92GBGm0NAsDAc5veQx9+8NaRSD0lxsrdToky
-	 3+65tI83w117scCK+TSlic9YUY2q1WHk3nz4m5Yg4w0f5MJpt6okpgutIP1TMjnJ4L
-	 0Z4+kbAGlgOsMggzI37kMOaBRacOjUHeTx1Cjv9Hv9cA534OKQnZwl6tZ1PFby8emi
-	 OFqAcfsThesZpu4Tk1XU/mU63z4nJjOnxQ4nkN3Rurg8VN4pCfVXmowFXbADKleBDt
-	 +rg6OUATlmSUw==
+	b=mJyYXTAJTEdN6q3MWm/5m5r8TU71HQvKvXdvHDi+7aUQpXR4LzBiaXHnltFnBpiyR
+	 Y/e+8dQIpJfarp1Q0qpNyq+Q3mFEf3neC+U5rZVICY8KNJuhbLHGPMJpROb14lbiuR
+	 MdfO8Fa/nCoPQUKPUL+XRSbktpSdydGk0ygnSU2M/aq7q9Xft+oXpVrBoOYTj/rJS3
+	 3q2tXnGmROgZhNG9VddrQZkwfLZr5mDug7z4ExuEDwfIxeDDsu6aLQYremVGpUD/ke
+	 ucxQ/UGYkwLMD+PBecJX7CbVldqnrAQMtMq3IVM2A/UFd7xQzWQ+5urvL/gZS9VfgG
+	 IX3xh7bLw9HrQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 12/17] s390/dasd: Derive adaptive ESE fulltrack
- heuristic from ft_bias
+Subject: Re: [PATCH v5 11/17] s390/dasd: Add full_track_bias to control
+ fulltrack write mode
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Stefan Haberland" <sth@linux.ibm.com>
-Cc: "Heiko Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org, "Alexander
- Gordeev" <agordeev@linux.ibm.com>
-In-Reply-To: <20260731153842.1729627-13-sth@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>
+In-Reply-To: <20260731153842.1729627-12-sth@linux.ibm.com>
 References: <20260731153842.1729627-1-sth@linux.ibm.com>
- <20260731153842.1729627-13-sth@linux.ibm.com>
+ <20260731153842.1729627-12-sth@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 31 Jul 2026 16:27:12 +0000
-Message-Id: <20260731162713.113A71F00AC4@smtp.kernel.org>
+Date: Fri, 31 Jul 2026 16:28:29 +0000
+Message-Id: <20260731162829.9E7A21F00ACF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
-- [High] The adaptive heuristic parameters are never initialized during dev=
-ice startup because `dasd_ft_bias_apply()` is called before the device's ES=
-E capability is known, causing the heuristic to evaluate on every single I/=
-O.
-- [High] The NRF rate calculation can overflow a 32-bit signed integer, cau=
-sing the heuristic to improperly remain in plain write mode during heavy un=
-formatted I/O.
-- [High] The lockless heuristic evaluation and sysfs updates fail to serial=
-ize state machine transitions, leading to state divergence where the device=
- permanently sticks in fulltrack mode.
+- [Medium] Inconsistent initialization of the `fulltrack` flag disables ful=
+l-track writes by default, contradicting the intended behavior and sysfs st=
+ore logic.
+- [Medium] Full-track writes are applied unconditionally to non-ESE devices=
+, exposing them to unintended performance penalties.
 --
 
---- Patch [12]: [PATCH v5 12/17] s390/dasd: Derive adaptive ESE fulltrack h=
-euristic from ft_bias ---
-commit fc455715bb1f927b75206de59511e6f8a3abe72f
+--- Patch [11]: [PATCH v5 11/17] s390/dasd: Add full_track_bias to control =
+fulltrack write mode ---
+commit c5f39fbb283ed6068ac10c59d09a116557c8bbf1
 Author: Stefan Haberland <sth@linux.ibm.com>
+s390/dasd: Add full_track_bias to control fulltrack write mode
 
-s390/dasd: Derive adaptive ESE fulltrack heuristic from ft_bias
+This patch adds a per-device full_track_bias sysfs attribute to control
+full-track write routing for s390 DASD devices. It introduces a module
+parameter to set the default bias applied at online time. The default
+value is intended to enable full-track writes out of the box to avoid
+ESE format penalties.
 
-This patch turns the middle of the ft_bias range into an adaptive heuristic
-that switches between fulltrack write and plain write depending on device
-sparseness. It measures the NRF rate in short probe windows to determine
-when to flip back to fulltrack write mode.
+> diff --git a/drivers/s390/block/dasd_devmap.c b/drivers/s390/block/dasd_d=
+evmap.c
+> index 381d616ad433f..035c022255b68 100644
+> --- a/drivers/s390/block/dasd_devmap.c
+> +++ b/drivers/s390/block/dasd_devmap.c
+
+[ ... ]
+
+> @@ -1630,6 +1630,44 @@ dasd_expires_store(struct device *dev, struct devi=
+ce_attribute *attr,
+> =20
+>  static DEVICE_ATTR(expires, 0644, dasd_expires_show, dasd_expires_store);
+> =20
+> +/* ESE fulltrack write aggressiveness knob (0..100, see DASD_FT_BIAS_*) =
+*/
+> +static ssize_t
+> +full_track_bias_show(struct device *dev, struct device_attribute *attr, =
+char *buf)
+> +{
+
+[ ... ]
+
+> +static ssize_t full_track_bias_store(struct device *dev,
+> +				     struct device_attribute *attr,
+> +				     const char *buf, size_t count)
+> +{
+> +	struct dasd_device *device;
+> +	unsigned int val;
+> +
+> +	if (kstrtouint(buf, 0, &val) || val > DASD_FT_BIAS_MAX)
+> +		return -EINVAL;
+> +
+> +	device =3D dasd_device_from_cdev(to_ccwdev(dev));
+> +	if (IS_ERR(device))
+> +		return -ENODEV;
+> +
+> +	device->ft_bias =3D val;
+> +	device->fulltrack =3D val ? 1 : 0;
+> +
+> +	dasd_put_device(device);
+> +	return count;
+> +}
+> +
+> +static DEVICE_ATTR_RW(full_track_bias);
+> +
+>  static ssize_t
+>  dasd_retries_show(struct device *dev, struct device_attribute *attr, cha=
+r *buf)
+>  {
+
+[ ... ]
 
 > diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eck=
 d.c
-> index cc5a4791cb8f4..1df861f80c268 100644
+> index 4fe1b78366b04..cc5a4791cb8f4 100644
 > --- a/drivers/s390/block/dasd_eckd.c
 > +++ b/drivers/s390/block/dasd_eckd.c
-> @@ -2160,6 +2160,7 @@ dasd_eckd_check_characteristics(struct dasd_device =
-*device)
+
+[ ... ]
+
+> @@ -2148,6 +2160,11 @@ dasd_eckd_check_characteristics(struct dasd_device=
+ *device)
+>  	device->path_interval =3D DASD_ECKD_PATH_INTERVAL;
+>  	device->aq_timeouts =3D DASD_RETRIES_MAX;
 > =20
->  	/* default ESE fulltrack write aggressiveness from the module parameter=
+> +	/* default ESE fulltrack write aggressiveness from the module parameter=
  */
->  	device->ft_bias =3D min_t(unsigned int, full_track_bias, DASD_FT_BIAS_M=
+> +	device->ft_bias =3D min_t(unsigned int, full_track_bias, DASD_FT_BIAS_M=
 AX);
-> -	/* only the "always" endpoint forces fulltrack unconditionally here */
-> -	device->fulltrack =3D (device->ft_bias >=3D DASD_FT_BIAS_MAX) ? 1 : 0;
-> +	dasd_ft_bias_apply(device);
+> +	/* only the "always" endpoint forces fulltrack unconditionally here */
+> +	device->fulltrack =3D (device->ft_bias >=3D DASD_FT_BIAS_MAX) ? 1 : 0;
 
-[Severity: High]
-Does calling dasd_ft_bias_apply() here happen before the device's ESE
-capability is known?
+[Severity: Medium]
+Is this initialization of device->fulltrack contradicting the logic in
+full_track_bias_store()?
 
-In dasd_eckd_check_characteristics(), dasd_ft_bias_apply() is called early.
-This function relies on dasd_ese_adaptive(), which checks is_ese(). However,
-is_ese() depends on private->vsq, which is populated later when
-dasd_eckd_read_vol_info() is called.=20
+In full_track_bias_store() above, device->fulltrack is set to 1 for any
+non-zero value (device->fulltrack =3D val ? 1 : 0). However, here it is only
+set to 1 if device->ft_bias >=3D DASD_FT_BIAS_MAX.
 
-Because vsq is empty at this point, dasd_ese_adaptive() returns false, and
-the heuristic parameters (like ese_heu_start_interval and
-ese_heu_probe_window) are left initialized to 0. Will this cause the
-heuristic interval to pass immediately and the FSM to evaluate on every
-single I/O?
+Since the default full_track_bias is DASD_FT_BIAS_DEFAULT (which is 50), th=
+is
+yields 0 during initialization. This appears to contradict the commit messa=
+ge
+which states: "The default (DASD_FT_BIAS_DEFAULT) enables full-track writes=
+ so
+the ESE format penalty is avoided out of the box."
+
+> +
+>  	if (private->conf.gneq) {
+>  		value =3D 1;
+>  		for (i =3D 0; i < private->conf.gneq->timeout.value; i++)
 
 [ ... ]
 
-> @@ -3235,6 +3241,65 @@ static void clear_format_track(...)
-> +static void dasd_ese_heuristic_tick(struct dasd_device *basedev)
-> +{
-[ ... ]
-> +	case DASD_ESE_HEU_PROBING:
-> +	case DASD_ESE_HEU_FT0_STABLE:
-> +		nrf  =3D atomic_xchg(&basedev->ese_nrf_window, 0);
-> +		rate =3D nrf * 1000 / ios;
-> +		if (rate > (int)basedev->ese_heu_nrf_high) {
+> @@ -5194,11 +5211,20 @@ static struct dasd_ccw_req *dasd_eckd_build_cp(st=
+ruct dasd_device *startdev,
+>  		/* do nothing, just fall through to the cmd mode single case */
+>  	} else if ((data_size <=3D private->fcx_max_data)
+>  		   && (fcx_multitrack || (first_trk =3D=3D last_trk))) {
+> -		cqr =3D dasd_eckd_build_cp_tpm_track(startdev, block, req,
+> -						    first_rec, last_rec,
+> -						    first_trk, last_trk,
+> -						    first_offs, last_offs,
+> -						    blk_per_trk, blksize);
+> +		if (!first_offs && (last_offs + 1 =3D=3D blk_per_trk) &&
+> +		    rq_data_dir(req) =3D=3D WRITE && basedev->fulltrack) {
 
-[Severity: High]
-Can this rate calculation overflow a 32-bit signed integer?
+[Severity: Medium]
+Should there be a check here to ensure the device is an ESE volume before
+routing the IO to the full-track write path?
 
-During the FT0_STABLE state, the ios interval backs off up to max_interval
-(500,000 IOs). If a workload performs large sequential writes into
-unformatted space, an I/O can span multiple tracks, triggering multiple NRF
-events.=20
+The commit message mentions that "The WRITE_FULL_TRACK command has an
+advantage on sparse formatted ESE devices but it has an overall penalty for
+maximum throughput compared to usual track based IO."
 
-If the number of formatted tracks reaches ~2,147,483 within the 500,000 IO
-window, nrf * 1000 will exceed INT_MAX and overflow to a negative value.
-Could this cause the check to evaluate to false and improperly keep the
-device stuck in plain write mode during heavy unformatted I/O?
+However, neither the initialization in dasd_eckd_check_characteristics() nor
+the sysfs store function guards the bias assignment with an ESE check (e.g.,
+dasd_eckd_is_ese(basedev)).=20
 
-> +			/* NRF rate high: device still sparse, ft1 is better */
-> +			basedev->fulltrack          =3D 1;
-> +			basedev->ese_probe_state    =3D DASD_ESE_HEU_FT1_ACTIVE;
-> +			basedev->ese_probe_interval =3D basedev->ese_heu_start_interval;
-> +		} else if (basedev->ese_probe_state =3D=3D DASD_ESE_HEU_PROBING) {
-> +			/*
-> +			 * NRF rate low: device mostly formatted, ft0 is faster.
-> +			 * Re-probe frequently at first, then back off below.
-> +			 */
-> +			basedev->ese_probe_state    =3D DASD_ESE_HEU_FT0_STABLE;
-> +			basedev->ese_probe_interval =3D basedev->ese_heu_probe_window;
+If basedev->fulltrack is enabled on a non-ESE device either via sysfs or by
+fixing the default initialization, could it suffer the performance penalty
+without the intended benefits?
 
-[Severity: High]
-Can this lockless state transition race with a sysfs update and permanently
-stick the device in fulltrack mode?
-
-If a thread is transitioning from PROBING to FT0_STABLE (evaluating
-basedev->ese_probe_state =3D=3D DASD_ESE_HEU_PROBING as true) but is preemp=
-ted
-before writing the state, a concurrent sysfs update via
-full_track_bias_store() -> dasd_ft_bias_apply() could reset the FSM:
-
-drivers/s390/block/dasd_int.h:dasd_ft_bias_apply() {
-    ...
-    device->ese_probe_state    =3D DASD_ESE_HEU_FT1_ACTIVE;
-    device->fulltrack          =3D 1;
-    ...
-}
-
-When the preempted thread resumes, it would set ese_probe_state to
-DASD_ESE_HEU_FT0_STABLE but leave fulltrack as 1. Since fulltrack =3D 1
-suppresses NRF events, the measured rate stays at 0 and the FSM interval
-backs off without ever resetting fulltrack to 0, completely defeating the
-adaptive heuristic.
+> +			cqr =3D dasd_eckd_build_cp_tpm_writefulltrack(startdev, block, req,
+> +								    first_rec, last_rec,
+> +								    first_trk, last_trk,
+> +								    first_offs, last_offs,
+> +								    blk_per_trk, blksize, NULL);
+> +		} else {
+> +			cqr =3D dasd_eckd_build_cp_tpm_track(startdev, block, req,
+> +							   first_rec, last_rec,
+> +							   first_trk, last_trk,
+> +							   first_offs, last_offs,
+> +							   blk_per_trk, blksize);
+> +		}
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260731153842.1729=
-627-1-sth@linux.ibm.com?part=3D12
+627-1-sth@linux.ibm.com?part=3D11
