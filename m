@@ -1,210 +1,170 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 21F36453A31
-	for <linux-s390@vger.kernel.org>; Fri, 31 Jul 2026 16:33:55 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 879EE474266
+	for <linux-s390@vger.kernel.org>; Fri, 31 Jul 2026 16:35:08 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785515636; cv=none; b=YYmltDHQswScKhq3QotX5pQ8Gpfkx2PtGvMiKwRlYPw3t0ye7Y6JU+aguyjoAFWxZiRHKpdNZ4eoOLVpmU7v7yexwzREc2cFHbN7WLbVQ+GBie2y1txvIYaUc2eiz55CbtEF5+BKZkX/LjdBBOWo7nqqCvQ524/frYpY1Y2i0nM=
+	t=1785515710; cv=none; b=gZPPl9PTEcmGiMC/qHd2Cb3QSzUsHHe4U+A9xLeoCNXptnjE00uAWIrfEOOX4qQTGbZuIgY+RERtNq9nUvnv+8CMx4yXIqDKToTUnictz2iLMJehxrby73s5ZUyDeVFWLT5GuD9WlJvikOYQrvQtSik3SjUwume/GcVt3okF9NU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785515636; c=relaxed/simple;
-	bh=g+2IZ26vJIqANnaCLbjqCSaHBZyOiVMIM52N9iOxiVs=;
+	s=arc-20240116; t=1785515710; c=relaxed/simple;
+	bh=O7sM64BCRSMyeQc9jCdoz2SmnnzjWfkye2W8odt9eOM=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=PGmVfQMjm0+GSCy5msn8URG9PaAcso5JL+XW8nbrHH5dJbN//9XKxTbM0gEqa8yBvanxZMGDEKDEhlp+OhdeJqe5/e2b6rocUSJWhJBnwKuge9dx9kownvYQgm0Gjj9CNFxTdR4Z9hDHmmPct8idcBM4qneH+BnyEcbjaW/ljMg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=aV/D4C2w; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=MZeTeFTj/rOyaHhdfhVRmDzA1xbmEh7EBCr55ppGpV2rtUgkfmaT7emG7lGE3/igTx3cD995hCJ0l2LYtQliDCpWS2TNmtjLe2dMJmnS/5ON9znKFnTV7CMCxSse+t6yxzlyK7/Q0dvU+bIgmvf+Yx5dh7Ymw0ThncxSBpo/n+s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MfY2k0kX; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="aV/D4C2w"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3CA81F00AC4;
-	Fri, 31 Jul 2026 16:33:54 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MfY2k0kX"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E15FA1F00AC4;
+	Fri, 31 Jul 2026 16:35:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785515635;
-	bh=Q5voP36XimdiEzF3AQWj9G7rB3JYJeF2wgz2hfPtCdQ=;
+	s=k20260515; t=1785515708;
+	bh=R4ZQbpk9obxwmNAU/l4iNKmNnSujYuCSdUUBVcNnyRo=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=aV/D4C2wK0DOMpvgjKM999+DmekulGLdF97McHPaqm1NF7KomG8Xe6TNHn3Rzpcpw
-	 EXuA894Verss/xAkcVNwKPU+yx0JpZviRdFqNc0uC2NttJEzJGiaJPSJYzuHbEAlZJ
-	 QqUWwJDYwlpIbXzsp/EP+8Tq5rstLQ198aVcylNGZyeOQZR2EG7VeiUH0kweCrCPKK
-	 YHfePWGqQyWkDUs7IdNcJUOgCwRblvcAYdbG75HVPn15dgN0x2Mh4cGTmFbZO5CO2i
-	 gYb4xDCMghD31TUVVbRvVixuHPevpC+3fbb3pXW92QsblUy2vNNcKCoUODnec4AKGT
-	 ha1AfEgVxyS2A==
+	b=MfY2k0kX3jeXdnJVYzuxtTGEb5nQITeSTj0J0IagswgPFEeUJg4xsGmaZ0EkRsXUb
+	 DAclwzu7XHfv9wWmDZk71MtmAo9qTln5Did03WNFflpulh0+iUqre5u+9iYlvVzaWh
+	 I29/avQNFj1/BJttOjt6TP9fC5Qu1wNB4Hkc9pzli91nSP6/zqRVHnFbxLSHp91zoT
+	 W8CL/MPxsHaBho55IHQNj6A+fukOPOfibhnz6VcnjFDF6QLvAMrZAG6YwcLYEsB6gU
+	 FKHacSmG1FRionTIH+JWJaJFOxHkO3ibVgBWtfa+9Q2Mp3hQ+Q/F87mwt7nZxsUC98
+	 R9wIF13H1XbJQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 10/17] s390/dasd: Use WRITE_FULL_TRACK in ESE format
- handler
+Subject: Re: [PATCH v5 13/17] s390/dasd: Stamp a format label into newly
+ formatted volumes
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Stefan Haberland" <sth@linux.ibm.com>
-Cc: "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
- Carstens" <hca@linux.ibm.com>
-In-Reply-To: <20260731153842.1729627-11-sth@linux.ibm.com>
+Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
+ Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>
+In-Reply-To: <20260731153842.1729627-14-sth@linux.ibm.com>
 References: <20260731153842.1729627-1-sth@linux.ibm.com>
- <20260731153842.1729627-11-sth@linux.ibm.com>
+ <20260731153842.1729627-14-sth@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 31 Jul 2026 16:33:54 +0000
-Message-Id: <20260731163354.B3CA81F00AC4@smtp.kernel.org>
+Date: Fri, 31 Jul 2026 16:35:07 +0000
+Message-Id: <20260731163507.E15FA1F00AC4@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 4 potential issue(=
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
-- [High] An infinite loop occurs when a WRITE_FULL_TRACK CQR encounters an =
-INV_TRACK_FORMAT error because the ERP request fails to inherit the `fillda=
-ta` pointer, bypassing the intended permanent-failure path.
-- [High] dasd_eckd_build_cp_tpm_writefulltrack() iterates over bio segments=
- without verifying if the request has data buffers, risking a NULL pointer =
-dereference for data-less requests.
-- [Medium] Non-transient errors (like -EINVAL) from `dasd_eckd_build_cp_tpm=
-_writefulltrack` cause wasteful retry loops instead of failing fast.
-- [Medium] Double counting of I/O statistics for aborted ESE format replace=
-ment requests.
+
+New issues:
+- [Medium] Data race on the `ese_format_quick` flag across concurrent forma=
+t and space release ioctls.
+
+Pre-existing issues:
+- [High] Preexisting heap buffer overflow in dasd_eckd_build_format for non=
+-standard intensities when formatting multiple tracks.
 --
 
---- Patch [10]: [PATCH v5 10/17] s390/dasd: Use WRITE_FULL_TRACK in ESE for=
-mat handler ---
-commit 9457d60af3530b5a71a57c6a68b8e701a0e817f4
+--- Patch [13]: [PATCH v5 13/17] s390/dasd: Stamp a format label into newly=
+ formatted volumes ---
+commit 48510a9c8812b7b8251c801cd33769f3a6c5745d
 Author: Stefan Haberland <sth@linux.ibm.com>
+s390/dasd: Stamp a format label into newly formatted volumes
 
-s390/dasd: Use WRITE_FULL_TRACK in ESE format handler
+When a CDL volume is formatted, write a small on-disk label so the format
+can later be recognised by the kernel. The next patch will use this for
+ESE detection.
 
-This commit modifies the ESE unformatted track handler to use
-WRITE_FULL_TRACK. It changes dasd_eckd_ese_format() to return void and
-stage the CQR directly, while marking the origin CQR as aborted.
-
-> diff --git a/drivers/s390/block/dasd.c b/drivers/s390/block/dasd.c
-> index 35f722e20c6d3..19a04155d271c 100644
-> --- a/drivers/s390/block/dasd.c
-> +++ b/drivers/s390/block/dasd.c
-> @@ -1737,26 +1737,23 @@ void dasd_int_handler(struct ccw_device *cdev, un=
-signed long intparm,
->  			dasd_schedule_device_bh(device);
->  			return;
->  		}
-> -		fcqr =3D device->discipline->ese_format(device, cqr, irb);
-> -		if (IS_ERR(fcqr)) {
-> -			if (PTR_ERR(fcqr) =3D=3D -EINVAL) {
-> -				cqr->status =3D DASD_CQR_ERROR;
-> -				return;
-> -			}
-> +		if (cqr->filldata) {
->  			/*
-> -			 * If we can't format now, let the request go
-> -			 * one extra round. Maybe we can format later.
-> +			 * A WRITE_FULL_TRACK cqr carries the complete
-> +			 * track image; INV_TRACK_FORMAT here means the
-> +			 * generated image or the media itself is bad, not
-> +			 * that the track still needs formatting - retrying
-> +			 * via ese_format() would just resubmit the same
-> +			 * write. Let it fail instead.
->  			 */
-> -			cqr->status =3D DASD_CQR_QUEUED;
-> -			dasd_schedule_device_bh(device);
-> -			return;
-> -		} else {
-> -			fcqr->status =3D DASD_CQR_QUEUED;
-> -			cqr->status =3D DASD_CQR_QUEUED;
-> -			list_add(&fcqr->devlist, &device->ccw_queue);
-> +			cqr->status =3D DASD_CQR_ERROR;
-> +			cqr->stopclk =3D now;
-> +			dasd_device_clear_timer(device);
->  			dasd_schedule_device_bh(device);
->  			return;
->  		}
-> +		device->discipline->ese_format(device, cqr, irb);
-> +		return;
->  	}
-
-[Severity: High]
-Could this cause an infinite loop during Error Recovery (ERP)?
-
-When a WRITE_FULL_TRACK request fails with INV_TRACK_FORMAT, the ERP
-engine creates a retry request but doesn't seem to copy the filldata
-pointer from the base request. If this ERP request fails again with
-INV_TRACK_FORMAT, will the interrupt handler see a NULL filldata here
-and incorrectly call ese_format() again? This would generate a new base
-request instead of failing, potentially looping infinitely.
-
-[ ... ]
-> @@ -2752,6 +2756,9 @@ static void __dasd_cleanup_cqr(struct dasd_ccw_req =
-*cqr)
->  			error =3D BLK_STS_IOERR;
->  			break;
->  		}
-> +	} else if (status =3D=3D DASD_CQR_ABORTED) {
-> +		/* aborted requests are replaced with a new one so do not complete thi=
-s */
-> +		return;
->  	}
-> =20
->  	/*
-
-[Severity: Medium]
-Could this result in double-counting I/O statistics?
-
-dasd_profile_end() is called unconditionally at the beginning of
-__dasd_cleanup_cqr():
-
-__dasd_cleanup_cqr()
-{
-	...
-	dasd_profile_end(cqr->block, cqr, req);
-	...
-	if (status =3D=3D DASD_CQR_ABORTED) {
-		return;
-	}
-}
-
-When the replacement format request eventually completes, won't it account
-for the same block request again?
-
-[ ... ]
 > diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eck=
 d.c
-> index 8d8bd40ba896b..4fe1b78366b04 100644
+> index 1df861f80c268..1e349dbec44de 100644
 > --- a/drivers/s390/block/dasd_eckd.c
 > +++ b/drivers/s390/block/dasd_eckd.c
+
 [ ... ]
-> +	fcqr =3D dasd_eckd_build_cp_tpm_writefulltrack(startdev, block, req,
-> +						     first_rec, last_rec,
-> +						     first_trk, last_trk,
-> +						     first_offs, last_offs,
-> +						     recs_per_trk, blksize, cqr);
+
+> @@ -2770,6 +2794,15 @@ dasd_eckd_build_format(struct dasd_device *base, s=
+truct dasd_device *startdev,
+> =20
+>  	use_prefix =3D base_priv->features.feature[8] & 0x01;
+> =20
+> +	/*
+> +	 * Stamp the format label into R4 of the very first track. Only for CDL
+> +	 * (R4 is the first non-special record there), only when this request
+> +	 * covers track 0, only for the record-writing format intensities (not
+> +	 * track invalidation), and only if the track actually has an R4.
+> +	 */
+> +	write_label =3D (intensity & 0x08) && !((intensity & ~0x08) & 0x04) &&
+> +		      fdata->start_unit =3D=3D 0 && rpt > 3;
+> +
+>  	switch (intensity) {
+>  	case 0x00:	/* Normal format */
+>  	case 0x08:	/* Normal format, use cdl. */
 
 [Severity: High]
-Can this cause a NULL pointer dereference for data-less requests?
+This is a pre-existing issue, but does the calculation for non-standard for=
+mat
+intensities in dasd_eckd_build_format() under-allocate memory?
 
-If a REQ_OP_DISCARD or REQ_OP_WRITE_ZEROES operation fails with an ESE
-format error, it seems ese_format() will unconditionally pass it to
-dasd_eckd_build_cp_tpm_writefulltrack().
+Looking at intensity 0x01, cplength is allocated as:
 
-Since dasd_eckd_build_cp_tpm_writefulltrack() uses rq_for_each_segment()
-which accesses bio data fields, and data-less requests have a NULL
-bi_io_vec, does this need a bio_has_data() check before iterating?
+	case 0x01:	/* Write record zero and format track. */
+	case 0x09:	/* Write record zero and format track, use cdl. */
+		cplength =3D 2 + rpt * nr_tracks;
 
->  	if (IS_ERR(fcqr)) {
->  		if (format)
-> -			clear_format_track(format, block);
-> -		return fcqr;
-> +			clear_format_track(format, cqr->block);
-> +		/*
-> +		 * Transient conditions - the XRC clock is not in sync (-EAGAIN)
-> +		 * or the format request pool is momentarily exhausted under load
-> +		 * (-ENOMEM). Retry the origin without counting down its retries.
-> +		 */
-> +		if (PTR_ERR(fcqr) =3D=3D -EAGAIN || PTR_ERR(fcqr) =3D=3D -ENOMEM)
-> +			cqr->retries++;
-> +		goto out_retry;
+But the subsequent loop unconditionally adds (1 + rpt) CCWs per track for
+intensity 0x01, which exceeds the allocated cplength when nr_tracks > 1.
+
+Can this overflow the heap allocation and corrupt memory if an administrator
+issues a BIODASDFMT ioctl with a non-standard intensity across multiple tra=
+cks?
+
+> @@ -2816,6 +2849,10 @@ dasd_eckd_build_format(struct dasd_device *base, s=
+truct dasd_device *startdev,
+>  		return ERR_PTR(-EINVAL);
 >  	}
+> =20
+> +	/* room for the label data that R4 carries in addition to its count */
+> +	if (write_label)
+> +		datasize +=3D fdata->blksize;
+> +
+>  	fcp =3D dasd_fmalloc_request(DASD_ECKD_MAGIC, cplength, datasize, start=
+dev);
+
+[ ... ]
+
+> @@ -4068,6 +4132,7 @@ dasd_eckd_dso_ras(struct dasd_device *device, struc=
+t dasd_block *block,
+> =20
+>  static int dasd_eckd_release_space_full(struct dasd_device *device)
+>  {
+> +	struct dasd_eckd_private *private;
+>  	struct dasd_ccw_req *cqr;
+>  	int rc;
+> =20
+> @@ -4079,10 +4144,16 @@ static int dasd_eckd_release_space_full(struct da=
+sd_device *device)
+> =20
+>  	if (!rc) {
+>  		/*
+> -		 * Releasing all space (RAS) wipes every track and the device is fully
+> -		 * sparse again, so restart the heuristic from ft1.
+> +		 * Releasing all space (RAS) wipes every track and the device is
+> +		 * fully sparse again, so restart the heuristic from ft1.
+>  		 */
+>  		dasd_ft_bias_apply(device);
+> +		/*
+> +		 * A full release is what makes a subsequent format a quick
+> +		 * (thin) one; remember it so the format label records that.
+> +		 */
+> +		private =3D device->private;
+> +		private->ese_format_quick =3D 1;
 
 [Severity: Medium]
-Does this cause non-transient errors like -EINVAL to be retried
-unnecessarily?
+Are there concurrent accesses to the ese_format_quick flag during ioctls?
 
-By falling through to out_retry without failing immediately, it appears
-permanent build errors might loop until the original request's retry
-counter is exhausted. The original code explicitly checked for -EINVAL
-and returned it to fail fast.
+If a user issues concurrent BIODASDRAS and BIODASDFMT ioctls on the same bl=
+ock
+device, could they race on reading and writing this lockless variable?
+
+dasd_eckd_release_space_full() sets it to 1 here without locks, while
+dasd_eckd_format_device() clears it, and dasd_eckd_fill_format_label() reads
+it. Could this lead to a non-deterministic state where a formatted volume is
+incorrectly tagged as quick or full in its on-disk label?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260731153842.1729=
-627-1-sth@linux.ibm.com?part=3D10
+627-1-sth@linux.ibm.com?part=3D13
