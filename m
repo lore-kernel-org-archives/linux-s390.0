@@ -1,249 +1,133 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 622F342C508
-	for <linux-s390@vger.kernel.org>; Fri, 31 Jul 2026 10:35:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 06F643C4562;
+	Fri, 31 Jul 2026 11:35:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785494147; cv=none; b=HuRqYmY0TFH7CpAaSiiC77xuAesRRRfNVbuKFY1z2Bc5f6OpuQs3YLG6H99QoprACFVwriS4qE9oVjs+woe2bHnR5uZOI9eECdiqA6R7KtUn8dCG++WMbeIEotdx3x6Q/vtQZZGMz5MfIBsRinJzgn4IsNFdvgCl17nY/k218jU=
+	t=1785497753; cv=none; b=TCdEQUJ8twpoi6Sj4ZDhv4HGZi3mzjNSSKVJhIkBp+AWFHGXhbv3vb3JRDhVg2Xq1uEYYO7mpfQsF59ZiKGiObXZXthA89Svw6wL9VlNOtPh/MzO/AtuzQmWRVpbni7sloewK430L51TldGDTVMjhU3W/6mJdj+eOqc+N5yd/i8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785494147; c=relaxed/simple;
-	bh=tQwWL/YYeIneM2q7Qbyupf5a0CRpuPcAjsdSOZfH2GU=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=gvXTd3uUXfDoF1APNzH8hCTloxKDsus4Rp1vHoq5gf0K3gc3fmbc9gjHOqiM8XdA4C5DUzp5WrgeZEVzvv4wQZ6ogXO7LG6KS32FftuI8KwWszJPAv1dCFTm1E6NIxInimB/fzwOemZ/dTwjToOdysLbWrOXf0+jIxcso9YQzAg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=IJdtWFoW; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1785497753; c=relaxed/simple;
+	bh=ZEnn4WmQmKAI8sHaa1voIHm3tmdCq7iMx5mxhYf2aok=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=R8UVLUPaBGu6b4NU60FHWsv7ewn+Qx4b0oIHhYuV/Jt8UAJediHUZ/oT6TyTvs5OySlBYirSY3jUXBxqp5x/x4EACEa2VeXWKXPxJbImCHCRKezNJxp5aKm7fC7Gcz22txJS2g8V5rmu9GuPwX/G/4XcnycX51c8Ll+5WJBo8cE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=n/Oxvwcl; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="IJdtWFoW"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66V8HgN81230373
-	for <linux-s390@vger.kernel.org>; Fri, 31 Jul 2026 10:35:25 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="n/Oxvwcl"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66V8I7743630951;
+	Fri, 31 Jul 2026 11:35:34 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=PUJehX
-	E7FOW+uOx17hmEw2v8iD54pCdLqCIoPPYgNuw=; b=IJdtWFoWFjSRnSSIeTWh75
-	vh9gTaISvQVn8Z+2Ok6fIGFr2Hlt86s8h42GXmZI0epVM0yBV3MiUsJxhOK7vDtZ
-	+eW5PjWERIOzaFx5Km4pbrjQbmnVELB+G2BZMdplNTg05szOs7qnV7E+WiYQ+n15
-	3pIVWaUp+ZE4jjNKFbVK47KnKeX92fD51mOVRvAVh3xjga5QiTmrCeXaXQvV2fVc
-	nDc/dywpK+HgmXHe9GX1ryt06+ZBB6xcBs0CFNxwcyHm4LbToFj7MmY2RxUVKYsW
-	jUp4yXitGL5kLQMfL/4dp7twDQ21IdyIHI9d928y1c4vd8Ff/d+ak2utlfNi1KXQ
-	==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fmv0p3grs-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Fri, 31 Jul 2026 10:35:24 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66VAQIga012168
-	for <linux-s390@vger.kernel.org>; Fri, 31 Jul 2026 10:35:24 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fn7uwfn6d-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Fri, 31 Jul 2026 10:35:24 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66VAZKhm25559510
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=UczLz+y9JDcwKHO6WRrGOu37PzSf4Z
+	qpbe7gTtmLZFM=; b=n/Oxvwcl7gk8rkJmIN3/HQYVHALbcY/zjlaCXe1xnFtmtV
+	8vuNJqd9aHCnc+nDpTq211483QR6Nnd8umg0rwZ+VCaxyHuxV2kMqB/kDwU0Xu+W
+	Y/DgkDzHKDJL2fT9YVgWszsLlCXxiox3TwQmCjohTq9sIUZwb+yPvkwD1tdJTOkG
+	17KrUuOSC+vpMh7vsRFWyvciUC+HtdN9/ZByaWHiJ2ABCi+W9OUiXe1pTG/mfz21
+	bETz8CqPGxzrGr67iA3u7urohdfUC32+dGWyttcxzPHdkDTf+3zZUgFNvp/wnWuY
+	N1MLSmRIBwkXW+cEYKNF/ofnLTTuwSEc87cAH+1g==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fmuycvpgk-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 31 Jul 2026 11:35:34 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66VBQj50022323;
+	Fri, 31 Jul 2026 11:35:33 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fn9pgqgx3-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 31 Jul 2026 11:35:33 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66VBZT3L29098492
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 31 Jul 2026 10:35:20 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4594420043;
-	Fri, 31 Jul 2026 10:35:20 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id ECDC720040;
-	Fri, 31 Jul 2026 10:35:19 +0000 (GMT)
-Received: from [9.111.59.130] (unknown [9.111.59.130])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 31 Jul 2026 10:35:19 +0000 (GMT)
-Message-ID: <b50da3f2-a3de-43d6-8db4-a796f4437cf4@linux.ibm.com>
-Date: Fri, 31 Jul 2026 12:35:19 +0200
+	Fri, 31 Jul 2026 11:35:29 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 5A5F820043;
+	Fri, 31 Jul 2026 11:35:29 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9DADF20040;
+	Fri, 31 Jul 2026 11:35:28 +0000 (GMT)
+Received: from osiris (unknown [9.111.91.157])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Fri, 31 Jul 2026 11:35:28 +0000 (GMT)
+Date: Fri, 31 Jul 2026 13:35:27 +0200
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Nathan Chancellor <nathan@kernel.org>
+Cc: Stefan Schulze Frielinghaus <stefansf@linux.ibm.com>,
+        Juergen Christ <jchrist@linux.ibm.com>,
+        Ilya Leoshkevich <iii@linux.ibm.com>,
+        Dominik Steenken <dost@de.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Maxim Khmelevskii <max@linux.ibm.com>,
+        Jens Remus <jremus@linux.ibm.com>,
+        Sami Tolvanen <samitolvanen@google.com>, Kees Cook <kees@kernel.org>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Eduard Zingerman <eddyz87@gmail.com>,
+        Kumar Kartikeya Dwivedi <memxor@gmail.com>, llvm@lists.linux.dev,
+        bpf@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 0/6] s390: Add kCFI support
+Message-ID: <20260731113527.8638Ade-hca@linux.ibm.com>
+References: <20260727140514.116501-1-hca@linux.ibm.com>
+ <20260730231317.GA2423962@ax162>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v10 2/5] s390/zcrypt: Improve CCA CPRB length and overflow
- checks
-To: Harald Freudenberger <freude@linux.ibm.com>
-Cc: fcallies@linux.ibm.com, ifranzki@linux.ibm.com, linux-s390@vger.kernel.org,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>
-References: <20260730141509.205970-1-freude@linux.ibm.com>
- <20260730141509.205970-3-freude@linux.ibm.com>
-From: Holger Dengler <dengler@linux.ibm.com>
-Content-Language: en-US, de-DE
-In-Reply-To: <20260730141509.205970-3-freude@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260730231317.GA2423962@ax162>
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzMxMDA3NyBTYWx0ZWRfX2fRyOKxlOeQ8
- 7E7Zr2McmdtojXoxNXFCMHsIvADAX9kqsY0qH9V/P7urblhzIyE1YFaqm+HvMbVh6Ir+xGUBaWr
- pxEZgmx+NSd3v3J3ywFXMNQMahzoSc8=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzMxMDA3NyBTYWx0ZWRfXw4xN0jPK/3Hw
- OKtnun2LnB2FBYFOfWyoq7bUi/EKJl4/WCuymXTDbvKApZjP//wytk9ugB7Rigbyua4lz3ZJg3/
- f2P2o9kGYySityZ2HJVjMwkypgkmOjR69mI5Tavx3dK1VALnoX+5ZLE6Vdh5N8bymnxQtAv0nND
- 6W83l7pR9gxcecV+vllaiZTfY9eRa2EBnPMFygfnXBTVj1mn4aNcIsE7F8YPx9uaptIc2M/Y5AZ
- ISUupk520PboBAggFHd9vOFtENJ/PeTNQgMAdutIqcznZOZGpRkitKT9bxOcQSRHvJ3cMiHxjJj
- o8p80b15/hM/ojhbEN1UFy7BTQXTAXhwPy2LZlywMaFqWZ8u+4UKiOXjqE9cSDGDnWDm4js2mGZ
- a8IZK22YJEzSvckAlRLwlj4aoylK3hlec4btu7MVIThrcGtqiXdltAqjxHK7u8YSVV120hyHT/T
- tVotDVSrE7RCUMxCFtA==
-X-Authority-Analysis: v=2.4 cv=b5WCJNGx c=1 sm=1 tr=0 ts=6a6c7a6c cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
- a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8
- a=VwQbUJbxAAAA:8 a=TFtROhQJRlRxTTIoW4YA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: cf3Pva1f6F6YVTeIRcRPx_ww7i7cNbp9
-X-Proofpoint-ORIG-GUID: cf3Pva1f6F6YVTeIRcRPx_ww7i7cNbp9
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-ORIG-GUID: O-s-9cx409rLfs3zvVfFHrgQoilUdFuE
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzMxMDA4NSBTYWx0ZWRfXx2XNXH7cGIMs
+ lYv97SCQCafug3lbM2l7FugJlkLcx0E2CyHzB5YKWTy2G3AsL0szo3haKiu/A50b/6HsdfyEghx
+ Ra1B+LZ0SbH2r6wudzWhL8oey83xFGIBl78PHV/9NystPfhb8zIscJkxFBs/XzXWXqicdh0N3WE
+ 8oWGJzJLetqZTXlK3jW9miuCpOCdVh/pdG4Y+qQ0WTplyCFmxccVEx5+7jw/UxL1f5LSaL6uhag
+ GQu8ed2kjB/TsJB437upF1H5tCI3jYB+OyHPMHGoNhy6xd2m4jTR/dNPfJfcwNIbkGWuW2CNNeE
+ /XGZC5PMSxhOgYs1LCgss2+HAPOW/5a9VZtVi0oRB/8scKOiNeVAs3H90KuZ5QMgKvHxvuPT5/g
+ 3HFw1px2bpPzB/pkrd9w5pJZeCVnmKvPDM+SqxJpFgDVt4Xk2szfct92WCVNnzT/+Kl4+Cx4LH/
+ zcB781EjmLnT1OqHpqg==
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzMxMDA4NSBTYWx0ZWRfX2M6yMXeAl32K
+ cSudhB0GRyt4k20xftFbdj+f+kPwTUfIOQu0KKgmoZMjTgE53wx6w5eTmpZMwZ6hLYfZVaJG9Wu
+ 6Ur8hhAguoTQzrZAETbHnOKBxlICyKY=
+X-Authority-Analysis: v=2.4 cv=AZeB2XXG c=1 sm=1 tr=0 ts=6a6c8886 cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+ a=kj9zAlcOel0A:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VwQbUJbxAAAA:8
+ a=-nT90WUhznJSjK878QMA:9 a=CjuIK1q_8ugA:10 a=zZCYzV9kfG8A:10
+X-Proofpoint-GUID: xm3HIybxnMdWNVlq31DFn1JvRXPHtsa8
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-07-31_03,2026-07-30_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 spamscore=0 adultscore=0 malwarescore=0 impostorscore=0
- bulkscore=0 phishscore=0 suspectscore=0 clxscore=1015 lowpriorityscore=0
+ spamscore=0 priorityscore=1501 phishscore=0 adultscore=0 impostorscore=0
+ clxscore=1015 malwarescore=0 suspectscore=0 lowpriorityscore=0 bulkscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607310077
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607310085
 
-On 7/30/26 16:15, Harald Freudenberger wrote:
-> The xcrb_msg_to_type6cprb_msgx() function lacks proper input
-> validation, creating security vulnerabilities:
-> 1. Integer overflow after CEIL4 alignment: Signed int variables could
->    overflow during 4-byte boundary alignment, causing undersized
->    buffer allocations or incorrect bounds checking.
-> 2. Missing minimum size validation: The CPRBX structure is copied from
->    userspace without verifying sufficient buffer length. Undersized
->    buffers cause uninitialized memory access when reading structure
->    fields like cprbx.cprb_len and cprbx.domain.
-> 3. Arithmetic overflow in sum calculations: Adding control block and
->    data block sizes could overflow, bypassing size checks and enabling
->    buffer overflows.
+On Thu, Jul 30, 2026 at 04:13:17PM -0700, Nathan Chancellor wrote:
+> On Mon, Jul 27, 2026 at 04:05:07PM +0200, Heiko Carstens wrote:
+> > Add s390 kCFI support using the generic support provided by clang.
 > 
-> Fix by using size_t for length calculations, adding U32_MAX boundary
-> checks after alignment, validating minimum control block size before
-> copying from userspace, and detecting sum calculation overflows.
+> Yes, getting coverage over s390 specific code and drivers is worthwhile,
+> even if there is no architecture specific expansion available yet, since
+> most problems should be visible with either implementation. Getting that
+> sooner rather than later would be nice to avoid the panic when a CFI
+> check fails and make debugging easier but we will take what we can get.
 > 
-> Fixes: e2c6d91eb8b1 ("s390/zcrypt: Rework domain processing within zcrypt device driver")
-> Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
-> Cc: stable@vger.kernel.org # 7.1+
-> ---
->  drivers/s390/crypto/zcrypt_msgtype6.c | 78 +++++++++++++--------------
->  1 file changed, 36 insertions(+), 42 deletions(-)
+> I tested clang-18 and clang-23 with defconfig + CFI, which both properly
+> fails the CFI_FORWARD_PROTO LKDTM test. I built allmodconfig (which now
+> includes CFI=y) with both compilers, which showed no issues.
 > 
-> diff --git a/drivers/s390/crypto/zcrypt_msgtype6.c b/drivers/s390/crypto/zcrypt_msgtype6.c
-> index 40f72cdf284d..fb37e28c8242 100644
-> --- a/drivers/s390/crypto/zcrypt_msgtype6.c
-> +++ b/drivers/s390/crypto/zcrypt_msgtype6.c
-> @@ -342,49 +342,40 @@ static int xcrb_msg_to_type6cprb_msgx(bool userspace, struct ap_message *ap_msg,
->  		};
->  	} __packed * msg = ap_msg->msg;
->  
-> -	int rcblen = CEIL4(xcrb->request_control_blk_length);
-> -	int req_sumlen, resp_sumlen;
-> -	char *req_data = ap_msg->msg + sizeof(struct type6_hdr) + rcblen;
-> -	char *function_code;
-> +	size_t req_cblen, rep_cblen, req_sumlen, rep_sumlen;
-> +	char *function_code, *req_data;
->  
-> -	if (CEIL4(xcrb->request_control_blk_length) <
-> -			xcrb->request_control_blk_length)
-> -		return -EINVAL; /* overflow after alignment*/
-> -
-> -	/* length checks */
-> +	/* request length and overflow checks */
-> +	if (xcrb->request_control_blk_length < sizeof(struct CPRBX))
-> +		return -EINVAL;
-> +	req_cblen = CEIL4((size_t)xcrb->request_control_blk_length);
-> +	if (req_cblen > U32_MAX)
-> +		return -EINVAL;
->  	ap_msg->len = sizeof(struct type6_hdr) +
-> -		CEIL4(xcrb->request_control_blk_length) +
-> -		xcrb->request_data_length;
-> +		req_cblen + xcrb->request_data_length;
->  	if (ap_msg->len > ap_msg->bufsize)
->  		return -EINVAL;
-> -
-> -	/*
-> -	 * Overflow check
-> -	 * sum must be greater (or equal) than the largest operand
-> -	 */
-> -	req_sumlen = CEIL4(xcrb->request_control_blk_length) +
-> -			xcrb->request_data_length;
-> -	if ((CEIL4(xcrb->request_control_blk_length) <=
-> -	     xcrb->request_data_length) ?
-> +	req_sumlen = req_cblen + xcrb->request_data_length;
+> Tested-by: Nathan Chancellor <nathan@kernel.org>
 
-The req_sumlen is also used for the calculation of ap_msg->len, right?
-Why not moving the req_sumlen calculation and checks up and use it there?
-
-req_sumlen = req_cblen + xcrb->request_data_length;
-if (req_sumlen > U32_MAX)
-[...]
-ap_msg->len = sizeof(struct type6_hdr) + req_sumlen;
-if (ap_msg->len > ap_msg->bufsize)
-[...]
-
-And another question about the aligned buffer lengths:
-We have the request-control-block, followed by the request-data. Is only
-the request-control-block required to be 4-byte aligned or also the
-request-data, or only both together (request-control-block and -data)?
-
-Lets assume, request-control-block and -data length are both not 4-byte
-alligned. Do we need the padding between the cprb and the data or at the
-end of both blocks or only after data?
-
-Example:
-req-ctrl-blk: length 5
-req-data: length 5
-
-With only cprb padded (--> req_sumlen: 13)
-| req-ctrl-blk[5] | pad[3] | req-data[5] |
-
-
-With both padded separately (--> req_sumlen: 16)
-| req-ctrl-blk[5] | pad[3] | req-data[5] | pad[3] |
-
-With both padded together (--> req_sumlen: 12)
-| req-ctrl-blk[5] | req-data[5] | pad[2] |
-
-
-> +	if (req_sumlen > U32_MAX)
-> +		return -EINVAL;
-> +	if (req_cblen <= xcrb->request_data_length ?
->  	    req_sumlen < xcrb->request_data_length :
-> -	    req_sumlen < CEIL4(xcrb->request_control_blk_length)) {
-> +	    req_sumlen < req_cblen) {
->  		return -EINVAL;
->  	}
->  
-> -	if (CEIL4(xcrb->reply_control_blk_length) <
-> -			xcrb->reply_control_blk_length)
-> -		return -EINVAL; /* overflow after alignment*/
-> -
-> -	/*
-> -	 * Overflow check
-> -	 * sum must be greater (or equal) than the largest operand
-> -	 */
-> -	resp_sumlen = CEIL4(xcrb->reply_control_blk_length) +
-> -			xcrb->reply_data_length;
-> -	if ((CEIL4(xcrb->reply_control_blk_length) <=
-> -	     xcrb->reply_data_length) ?
-> -	    resp_sumlen < xcrb->reply_data_length :
-> -	    resp_sumlen < CEIL4(xcrb->reply_control_blk_length)) {
-> +	/* reply length and overflow checks */
-> +	if (xcrb->reply_control_blk_length < sizeof(struct CPRBX))
-> +		return -EINVAL;
-> +	rep_cblen = CEIL4((size_t)xcrb->reply_control_blk_length);
-> +	if (rep_cblen > U32_MAX)
-> +		return -EINVAL;
-> +	rep_sumlen = rep_cblen + xcrb->reply_data_length;
-[...]
-
-Before this change, resp_sumlen was 4-bate aligned, now only rep_cblen
-is aligned. Is thsi change intended? (the question is similar to the one
-above)
-
-The rest looks good to me.
-
--- 
-Mit freundlichen Grüßen / Kind regards
-Holger Dengler
-
+Thanks a lot!
