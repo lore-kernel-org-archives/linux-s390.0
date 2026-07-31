@@ -1,170 +1,104 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 879EE474266
-	for <linux-s390@vger.kernel.org>; Fri, 31 Jul 2026 16:35:08 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F2A4744606C
+	for <linux-s390@vger.kernel.org>; Fri, 31 Jul 2026 16:39:43 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785515710; cv=none; b=gZPPl9PTEcmGiMC/qHd2Cb3QSzUsHHe4U+A9xLeoCNXptnjE00uAWIrfEOOX4qQTGbZuIgY+RERtNq9nUvnv+8CMx4yXIqDKToTUnictz2iLMJehxrby73s5ZUyDeVFWLT5GuD9WlJvikOYQrvQtSik3SjUwume/GcVt3okF9NU=
+	t=1785515985; cv=none; b=GdOPv6xNn+Z9DeFKDfJ+C7RjyDG6IOHqdmyyst6GWNq5mi+jWpOkeSM0c4KrUcxJusXOqhs7f5peFB7zz3I/XGcH6Rih+ZvRnYP8qgpTRCmnGLKAw0kk1WYTnJW16zQoFXyhx89fCMVJ6ODGfWWk8pxs6//6flv+i/XZ94h/q7c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785515710; c=relaxed/simple;
-	bh=O7sM64BCRSMyeQc9jCdoz2SmnnzjWfkye2W8odt9eOM=;
+	s=arc-20240116; t=1785515985; c=relaxed/simple;
+	bh=j5hKuYW/ghSJtGtPpJdLtoWtKYMyjRTtrECIkh32SP4=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=MZeTeFTj/rOyaHhdfhVRmDzA1xbmEh7EBCr55ppGpV2rtUgkfmaT7emG7lGE3/igTx3cD995hCJ0l2LYtQliDCpWS2TNmtjLe2dMJmnS/5ON9znKFnTV7CMCxSse+t6yxzlyK7/Q0dvU+bIgmvf+Yx5dh7Ymw0ThncxSBpo/n+s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MfY2k0kX; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=dOZ3ZBxJ7fxoSXQN7Xzb7K1zd+diEADl3T3wM8RhU9k/fMDaTSfTvMYD9c54mi+FuEJkrperETm0eLrndrE6XybAb79GTMn5OzVoCewThkLjgboXd7eEJpMlMY8WkTYWvmWJnmn+e9DNj2cwMLP6Y1Ebfupi/9Pu2lWaso039h8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=e5hCnaba; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MfY2k0kX"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E15FA1F00AC4;
-	Fri, 31 Jul 2026 16:35:07 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="e5hCnaba"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D1FD1F00AC4;
+	Fri, 31 Jul 2026 16:39:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785515708;
-	bh=R4ZQbpk9obxwmNAU/l4iNKmNnSujYuCSdUUBVcNnyRo=;
+	s=k20260515; t=1785515983;
+	bh=Q3rqTLEuwzlFBgr2VikQHyuVhfVLSflYaQANNBYjm8M=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=MfY2k0kX3jeXdnJVYzuxtTGEb5nQITeSTj0J0IagswgPFEeUJg4xsGmaZ0EkRsXUb
-	 DAclwzu7XHfv9wWmDZk71MtmAo9qTln5Did03WNFflpulh0+iUqre5u+9iYlvVzaWh
-	 I29/avQNFj1/BJttOjt6TP9fC5Qu1wNB4Hkc9pzli91nSP6/zqRVHnFbxLSHp91zoT
-	 W8CL/MPxsHaBho55IHQNj6A+fukOPOfibhnz6VcnjFDF6QLvAMrZAG6YwcLYEsB6gU
-	 FKHacSmG1FRionTIH+JWJaJFOxHkO3ibVgBWtfa+9Q2Mp3hQ+Q/F87mwt7nZxsUC98
-	 R9wIF13H1XbJQ==
+	b=e5hCnabaajB6pMT7JrjLrRncuZPf77nnX2xswBbX7xYqeZcDKAQuP0zOm5ohZWO5y
+	 lxijSSU7aXl5ZGh13kdiltk4yiYjdbGBGByFp0N2jyP6FoPv/7zeQi3nvvIrYWkcad
+	 FyKT7CIjHQrjKUtmneIQStyLVyvjM111XLlZ+1uAgxRDQsJvPVZgoQrleoJeKfzvP3
+	 Ecnfa2m7nCpOrJnP9vIfWwgLocXIWwJzWQS9VRBuZ4XmJkb+aA11LP0z4Sp/UJ6nZy
+	 fYb4WxizVNcvgb+8BhMFEOOijhjGHLpbPK4ZHiwl1aq4fd3XfXEnIM9oJoR7kqfETS
+	 JJX9pDfNFSx4A==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 13/17] s390/dasd: Stamp a format label into newly
- formatted volumes
+Subject: Re: [PATCH v5 15/17] s390/dasd: Report ESE capability and format
+ mode at device online
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Stefan Haberland" <sth@linux.ibm.com>
-Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
- Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>
-In-Reply-To: <20260731153842.1729627-14-sth@linux.ibm.com>
+Cc: "Heiko Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org
+In-Reply-To: <20260731153842.1729627-16-sth@linux.ibm.com>
 References: <20260731153842.1729627-1-sth@linux.ibm.com>
- <20260731153842.1729627-14-sth@linux.ibm.com>
+ <20260731153842.1729627-16-sth@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 31 Jul 2026 16:35:07 +0000
-Message-Id: <20260731163507.E15FA1F00AC4@smtp.kernel.org>
+Date: Fri, 31 Jul 2026 16:39:42 +0000
+Message-Id: <20260731163943.5D1FD1F00AC4@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
 
-New issues:
-- [Medium] Data race on the `ese_format_quick` flag across concurrent forma=
-t and space release ioctls.
-
 Pre-existing issues:
-- [High] Preexisting heap buffer overflow in dasd_eckd_build_format for non=
--standard intensities when formatting multiple tracks.
+- [High] This problem wasn't introduced by this patch, but the `BIODASDRAS`=
+ ioctl crashes the kernel on DASD devices whose discipline does not impleme=
+nt `.is_ese`.
 --
 
---- Patch [13]: [PATCH v5 13/17] s390/dasd: Stamp a format label into newly=
- formatted volumes ---
-commit 48510a9c8812b7b8251c801cd33769f3a6c5745d
+--- Patch [15]: [PATCH v5 15/17] s390/dasd: Report ESE capability and forma=
+t mode at device online ---
+commit a8b5bcde61b1c7e9effa84a4b07196f1129e6ac3
 Author: Stefan Haberland <sth@linux.ibm.com>
-s390/dasd: Stamp a format label into newly formatted volumes
 
-When a CDL volume is formatted, write a small on-disk label so the format
-can later be recognised by the kernel. The next patch will use this for
-ESE detection.
+s390/dasd: Report ESE capability and format mode at device online
+
+This patch extends the device information line logged when a volume comes
+online with the ESE hardware capability and the on-disk format mode. It
+derives the format mode (full or on demand) from the on-disk format label.
 
 > diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eck=
 d.c
-> index 1df861f80c268..1e349dbec44de 100644
+> index 8f7ffbeb9a6ca..a7d874e79336e 100644
 > --- a/drivers/s390/block/dasd_eckd.c
 > +++ b/drivers/s390/block/dasd_eckd.c
 
 [ ... ]
 
-> @@ -2770,6 +2794,15 @@ dasd_eckd_build_format(struct dasd_device *base, s=
-truct dasd_device *startdev,
-> =20
->  	use_prefix =3D base_priv->features.feature[8] & 0x01;
-> =20
-> +	/*
-> +	 * Stamp the format label into R4 of the very first track. Only for CDL
-> +	 * (R4 is the first non-special record there), only when this request
-> +	 * covers track 0, only for the record-writing format intensities (not
-> +	 * track invalidation), and only if the track actually has an R4.
-> +	 */
-> +	write_label =3D (intensity & 0x08) && !((intensity & ~0x08) & 0x04) &&
-> +		      fdata->start_unit =3D=3D 0 && rpt > 3;
-> +
->  	switch (intensity) {
->  	case 0x00:	/* Normal format */
->  	case 0x08:	/* Normal format, use cdl. */
+This isn't a bug introduced by this patch, but while reviewing the ESE
+support I noticed a pre-existing issue in the BIODASDRAS ioctl handling:
+
+drivers/s390/block/dasd_ioctl.c:dasd_release_space() {
+    if (!device->discipline->is_ese && !device->discipline->is_ese(device))
+        return -ENOTSUPP;
+    if (!device->discipline->release_space)
+        return -ENOTSUPP;
 
 [Severity: High]
-This is a pre-existing issue, but does the calculation for non-standard for=
-mat
-intensities in dasd_eckd_build_format() under-allocate memory?
+Can this logic cause a kernel panic if a privileged user issues the
+BIODASDRAS ioctl on a device whose discipline lacks the .is_ese callback?
 
-Looking at intensity 0x01, cplength is allocated as:
+If the .is_ese function pointer is NULL, the first half of the condition
+evaluates to true. The && operator then proceeds to evaluate the right
+side, which immediately dereferences the NULL function pointer.
 
-	case 0x01:	/* Write record zero and format track. */
-	case 0x09:	/* Write record zero and format track, use cdl. */
-		cplength =3D 2 + rpt * nr_tracks;
+Additionally, when the callback is present (such as on ECKD devices), does
+the && operator skip the capability check entirely? Since the left side
+evaluates to false when the pointer exists, the right side is never
+executed.
 
-But the subsequent loop unconditionally adds (1 + rpt) CCWs per track for
-intensity 0x01, which exceeds the allocated cplength when nr_tracks > 1.
-
-Can this overflow the heap allocation and corrupt memory if an administrator
-issues a BIODASDFMT ioctl with a non-standard intensity across multiple tra=
-cks?
-
-> @@ -2816,6 +2849,10 @@ dasd_eckd_build_format(struct dasd_device *base, s=
-truct dasd_device *startdev,
->  		return ERR_PTR(-EINVAL);
->  	}
-> =20
-> +	/* room for the label data that R4 carries in addition to its count */
-> +	if (write_label)
-> +		datasize +=3D fdata->blksize;
-> +
->  	fcp =3D dasd_fmalloc_request(DASD_ECKD_MAGIC, cplength, datasize, start=
-dev);
-
-[ ... ]
-
-> @@ -4068,6 +4132,7 @@ dasd_eckd_dso_ras(struct dasd_device *device, struc=
-t dasd_block *block,
-> =20
->  static int dasd_eckd_release_space_full(struct dasd_device *device)
->  {
-> +	struct dasd_eckd_private *private;
->  	struct dasd_ccw_req *cqr;
->  	int rc;
-> =20
-> @@ -4079,10 +4144,16 @@ static int dasd_eckd_release_space_full(struct da=
-sd_device *device)
-> =20
->  	if (!rc) {
->  		/*
-> -		 * Releasing all space (RAS) wipes every track and the device is fully
-> -		 * sparse again, so restart the heuristic from ft1.
-> +		 * Releasing all space (RAS) wipes every track and the device is
-> +		 * fully sparse again, so restart the heuristic from ft1.
->  		 */
->  		dasd_ft_bias_apply(device);
-> +		/*
-> +		 * A full release is what makes a subsequent format a quick
-> +		 * (thin) one; remember it so the format label records that.
-> +		 */
-> +		private =3D device->private;
-> +		private->ese_format_quick =3D 1;
-
-[Severity: Medium]
-Are there concurrent accesses to the ese_format_quick flag during ioctls?
-
-If a user issues concurrent BIODASDRAS and BIODASDFMT ioctls on the same bl=
-ock
-device, could they race on reading and writing this lockless variable?
-
-dasd_eckd_release_space_full() sets it to 1 here without locks, while
-dasd_eckd_format_device() clears it, and dasd_eckd_fill_format_label() reads
-it. Could this lead to a non-deterministic state where a formatted volume is
-incorrectly tagged as quick or full in its on-disk label?
+Should this condition use || instead of && to properly check for both the
+existence of the callback and its return value?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260731153842.1729=
-627-1-sth@linux.ibm.com?part=3D13
+627-1-sth@linux.ibm.com?part=3D15
