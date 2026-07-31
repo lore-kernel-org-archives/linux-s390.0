@@ -1,127 +1,142 @@
-Received: from mail-pl1-f198.google.com (mail-pl1-f198.google.com [209.85.214.198])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D8888443AB6
-	for <linux-s390@vger.kernel.org>; Fri, 31 Jul 2026 16:15:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.198
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F0A2844C4F8
+	for <linux-s390@vger.kernel.org>; Fri, 31 Jul 2026 16:16:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785514565; cv=none; b=Cu5WpqsQumE1fU8U4ifcaFvjk0uCD8vo3uCuvXkwdBfPsnLlFnxBdyeug8Ao9DdS3mv4KBX6hW3oKoFUyHGxhX2JvBFod24gO14p6tIpZt5j18MC427LUul7ieZT5FAjUFA6nUqigHQci2B20t5Jf0XD6Q85Ytk8yRRXl/JUc8U=
+	t=1785514585; cv=none; b=hssrPASp2UyGCgoBgTyTWC78akPhkvSDIbD5xQdPD44I4F0N17CQTtANttCUAaCyX/kg/rmeL/2o47Rmz9myR6m5A+X+kjiGeMVZUXfnI2uARNQkIZ14dfbpl0rlLH7qne/M3K/MpocMn8wYaG74MqBUxnX3+dLYFsDoojRVaIc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785514565; c=relaxed/simple;
-	bh=/6OQz+DQUsZXcPRJ4R2zsd2kat4n8VozoJNKylE8h7k=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=M0dRcreu5rkPgIgDa/0jL3fLBXpHPOOsoq5+v0CSEhRIWocilI5OSxBNl+/PSoSutXc0//YMYxdEOdSWg1M9QQMIIeqym69EG541bkocgXcopOFcLq+4ZjJjzvCWXwARCZDvFafW1IyHG04wP+FYG5Cfk2woNaj3j+8bNpBapiI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=kQFp2F52; arc=none smtp.client-ip=209.85.214.198
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
+	s=arc-20240116; t=1785514585; c=relaxed/simple;
+	bh=St5APSqOu7vkfiF2HMWU4v0ht7R75hZSLZPpvO+Aa9M=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=KBQlUGUk3lN2O85cORGpp5LUiL2weBGS5gq3HSlnkJtLILQLerB9b1MC+iJOAG055tkWz4H8s6S+DxMOtc14lsW/jE8PNWs8TvlhFyb5aScpoOOswRL9WTO7XHpPar3B+Ty96PqA+i+Ffqwynnqdaq6JMbBRaE94qpu+rNG7/QQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KJF9qBoP; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="kQFp2F52"
-Received: by mail-pl1-f198.google.com with SMTP id d9443c01a7336-2cc7e86e7c5so21660955ad.3
-        for <linux-s390@vger.kernel.org>; Fri, 31 Jul 2026 09:15:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1785514552; x=1786119352; darn=vger.kernel.org;
-        h=content-type:cc:to:from:subject:message-id:references:mime-version
-         :in-reply-to:date:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=9ytOyVvVUp1+iOjUCBAJJ+Zr5Yli10sJrrWCx9PaxhI=;
-        b=kQFp2F52cW5DfoQqtvhhB2W1oDof3AeGU+CyYko3+1ZiI36LXPsJcSIbILKQzWojFx
-         15xk68Krr2nmQMfbu7JDXQgSxl49Nj9sd8p0mTZ7LLvgSE10M7CXdbeWN8cdBIOz7UPH
-         l7+sE0fRR66JG8lTxM2uVn7qYFFSjDd8twfsSin/iI2wJg53+5zmOtHGzrcTioUnnQf1
-         ndZk8Q3vhzyW9lfKikWH4Af9K0LfNUffKtWf/za94enpuW4XRychccB9ClaoR1miZDiG
-         wjcWbsY+qYtbIu9qCV5ArWX/86wChltRzaj7DIfpQ+dxKE90M9Zr64sh955fS/id+XUf
-         EyDw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785514553; x=1786119353;
-        h=content-type:cc:to:from:subject:message-id:references:mime-version
-         :in-reply-to:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=9ytOyVvVUp1+iOjUCBAJJ+Zr5Yli10sJrrWCx9PaxhI=;
-        b=eXd14RArFuN13bb2lVNhHGgylfc0EZW8Ryn2TCyuL8emifhZir/4TIlLx5jCHBIh4I
-         vUGN0ymDjp7QMEDxeMOAxflZWhoQrdeQAqMgBIGKJ3NOv3DO/xYPN6AK8U1kpd/QvS2H
-         7e7q74NAnFsXxYyt4fqHVrEzi3vB2w3HQO71XnQJmkYHdl6EpAfxg5X8+M/mIV0eUK7p
-         zy08xPtcv5CIoM7/0Q2/PcRH0gHwZASxel10uhMge7hQxmy2W39RcxR93Unq7qhiVqA6
-         4ybKMugSgAkDEaC0+fxi0KnRYJ1DM1WwHAQtVwBXWHACCpVrvRLmCqoPrsK9dgsLFAAo
-         hHtQ==
-X-Forwarded-Encrypted: i=1; AHgh+Romx3cRIJ1Z3CDXVBlivEZY5qUtmbXRce3R0L2lb9EPdADO+EC7X+QV54Yph4eiNd1LSknIGDexhMUX@vger.kernel.org
-X-Gm-Message-State: AOJu0Yyx7zdNz47XUtizKgGgAhSO3I4AprmEhVMZb0Bs/bc4ZlC6/+8L
-	OvTJWQtFySXS8jjgMq9RvNMM1yuvnIpHkbVLiO6aZnftsPknQ/991Q480I51UnfoYGEtryZNmrq
-	cTJRQgQ==
-X-Received: from plbjg5.prod.google.com ([2002:a17:903:26c5:b0:2d0:40fa:a53d])
- (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a17:903:2410:b0:2d0:4021:bb62
- with SMTP id d9443c01a7336-2d0521bcc4dmr5824855ad.16.1785514552447; Fri, 31
- Jul 2026 09:15:52 -0700 (PDT)
-Date: Fri, 31 Jul 2026 09:15:51 -0700
-In-Reply-To: <20260731145435.1016137-B-seiden@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KJF9qBoP"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8656F1F00AC4;
+	Fri, 31 Jul 2026 16:16:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1785514572;
+	bh=WAG7MHCiU5ZnEESivQw29nppczBM1yGuNIa4RTh3Y50=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=KJF9qBoP6U4/qTt7OkP9ktc/aCHTD4rVWShPh6nVRMS6FgqwXiYJEd0FMl0HpEOFy
+	 4fb5C3ltgvCRcygxp37kSRO4zhGJh4avlq+3N5GNFivS3UFekhmkmi6GU9xtQkGIbh
+	 ylcR/IilkYdlYAWYC8nO9ohb+LqThhMka0b0VzTA15mTYpHpt53/vDcg2e8qFjLzjN
+	 VzG8OxFHo2BT58v57mIf8EtM8cPkwAVKgEnVjlLKyorcn211K0n+lQiKf70sYuj4Gm
+	 jVlD+RoJY8jXKtabec6CAn3j/LOSYXFmWv3/WU6hACrgq+0VKeDW7xnnuEd1/V2ls8
+	 yirnGOC63Xuzg==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v5 06/17] s390/dasd: Add infrastructure for ESE
+ full-track write
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Stefan Haberland" <sth@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Vasily
+ Gorbik" <gor@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>
+In-Reply-To: <20260731153842.1729627-7-sth@linux.ibm.com>
+References: <20260731153842.1729627-1-sth@linux.ibm.com>
+ <20260731153842.1729627-7-sth@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 31 Jul 2026 16:16:10 +0000
+Message-Id: <20260731161611.8656F1F00AC4@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-References: <20260731130902.654679-1-seiden@linux.ibm.com> <20260731130902.654679-2-seiden@linux.ibm.com>
- <20260731145435.1016137-B-seiden@linux.ibm.com>
-Message-ID: <amzKNzYWD1ngXdOZ@google.com>
-Subject: Re: [PATCH v5 01/31] vfio: Use file-based reference counting for KVM
-From: Sean Christopherson <seanjc@google.com>
-To: Steffen Eiden <seiden@linux.ibm.com>
-Cc: kvm@vger.kernel.org, kvmarm@lists.linux.dev, 
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, 
-	linux-s390@vger.kernel.org, Alexander Gordeev <agordeev@linux.ibm.com>, 
-	Andreas Grapentin <gra@linux.ibm.com>, Arnd Bergmann <arnd@arndb.de>, 
-	Catalin Marinas <catalin.marinas@arm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
-	Claudio Imbrenda <imbrenda@linux.ibm.com>, David Hildenbrand <david@kernel.org>, 
-	Friedrich Welter <fritz@linux.ibm.com>, Fuad Tabba <tabba@google.com>, 
-	Gautam Gala <ggala@linux.ibm.com>, Hariharan Mari <hari55@linux.ibm.com>, 
-	Heiko Carstens <hca@linux.ibm.com>, Hendrik Brueckner <brueckner@linux.ibm.com>, 
-	Ilya Leoshkevich <iii@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, 
-	Joey Gouly <joey.gouly@arm.com>, Marc Zyngier <maz@kernel.org>, Nico Boehr <nrb@linux.ibm.com>, 
-	Nina Schoetterl-Glausch <oss@nina.schoetterlglausch.eu>, Oliver Upton <oupton@kernel.org>, 
-	Paolo Bonzini <pbonzini@redhat.com>, Suzuki K Poulose <suzuki.poulose@arm.com>, 
-	Sven Schnelle <svens@linux.ibm.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, 
-	Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>, Zenghui Yu <yuzenghui@huawei.com>
-Content-Type: text/plain; charset="us-ascii"
 
-On Fri, Jul 31, 2026, Steffen Eiden wrote:
-> On Fri, Jul 31, 2026 at 03:08:29PM +0200, Steffen Eiden wrote:
-> > Replace manual module reference counting with file-based reference
-> > counting for KVM integration. Previously, VFIO used symbol_get() to
-> > obtain function pointers for kvm_get_kvm_safe() and kvm_put_kvm(),
-> > then manually tracked module references through these symbols. This
-> > approach required storing the put_kvm function pointer in each device
-> > and carefully managing symbol references.
-> > 
-> > Pass struct file pointers instead of struct kvm pointers throughout the
-> > VFIO-KVM interface. This leverages the kernel's existing file reference
-> > counting mechanism via get_file_active() and fput(), eliminating the
-> > need for manual module reference tracking. The file->private_data field
-> > provides access to the underlying struct kvm when needed.
-> > 
-> > This simplifies the code and removes all remaining externally exported
-> > symbols for KVM, paving the path for a second concurrent KVM module.
-> > 
-> > Suggested-by: Jason Gunthorpe <jgg@nvidia.com>
-> > Suggested-by: Sean Christopherson <seanjc@google.com>
-> > Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
-> > ---
-> >  arch/x86/include/asm/kvm_page_track.h |  8 ++---
-> >  arch/x86/kvm/Makefile                 |  3 --
-> >  arch/x86/kvm/mmu/page_track.c         | 16 +++++----
-> >  drivers/s390/crypto/vfio_ap_ops.c     | 24 ++++++++++---
-> >  drivers/vfio/group.c                  |  2 +-
-> >  drivers/vfio/pci/vfio_pci_zdev.c      |  7 +++-
-> >  drivers/vfio/vfio.h                   | 10 +++---
-> >  drivers/vfio/vfio_main.c              | 49 ++++++---------------------
-> >  include/linux/kvm_host.h              |  2 ++
-> >  include/linux/vfio.h                  |  4 +--
-> >  virt/kvm/kvm_main.c                   | 23 ++++++++++---
-> >  virt/kvm/vfio.c                       |  8 ++---
-> >  12 files changed, 81 insertions(+), 75 deletions(-)
-> 
-> @sean: This is based on your draft in https://lore.kernel.org/all/adkFk3ZN4HJtpLA3@google.com/
-> do you want another/more attribution? 
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [High] Aborted origin CQRs (DASD_CQR_ABORTED) are erroneously completed t=
+o the block layer with an I/O error or requeued, causing double-completion =
+or use-after-free.
+--
 
-No preference.  Do whatever feels right to you, you'll know better than me how
-much of the final code came from me.  If you want to give me a Co-developed-by,
-here's my:
+--- Patch [6]: [PATCH v5 06/17] s390/dasd: Add infrastructure for ESE full-=
+track write ---
+commit 6ca5a3ba40b43e7a20a1f06beb37ce4d8e6866d8
+Author: Stefan Haberland <sth@linux.ibm.com>
 
-  Signed-off-by: Sean Christopherson <seanjc@google.com>
+s390/dasd: Add infrastructure for ESE full-track write
+
+This commit adds driver internals to build WRITE_FULL_TRACK FCX channel
+programs for unformatted tracks on ESE devices. It introduces new CQR states
+(DASD_CQR_ABORT and DASD_CQR_ABORTED) intended to retire the origin CQR of a
+replaced write without completing it to the block layer. It also expands
+the CCW and ESE format pools to keep maximum-size requests in flight.
+
+> diff --git a/drivers/s390/block/dasd.c b/drivers/s390/block/dasd.c
+> index 3658a714abd62..d6ccf0186ada4 100644
+> --- a/drivers/s390/block/dasd.c
+> +++ b/drivers/s390/block/dasd.c
+[ ... ]
+> @@ -2759,7 +2804,8 @@ static void __dasd_process_block_ccw_queue(struct d=
+asd_block *block,
+>  		if (cqr->status !=3D DASD_CQR_DONE &&
+>  		    cqr->status !=3D DASD_CQR_FAILED &&
+>  		    cqr->status !=3D DASD_CQR_NEED_ERP &&
+> -		    cqr->status !=3D DASD_CQR_TERMINATED)
+> +		    cqr->status !=3D DASD_CQR_TERMINATED &&
+> +		    cqr->status !=3D DASD_CQR_ABORTED)
+>  			continue;
+
+[Severity: High]
+Will this cause aborted origin CQRs to be erroneously completed to the block
+layer?
+
+By allowing DASD_CQR_ABORTED to pass through here, the request is moved to
+final_queue at the end of __dasd_process_block_ccw_queue().
+
+Later in dasd_block_tasklet(), all requests in final_queue are unconditiona=
+lly
+passed to __dasd_cleanup_cqr():
+
+dasd_block_tasklet() {
+    ...
+    list_for_each_safe(l, n, &final_queue) {
+        cqr =3D list_entry(l, struct dasd_ccw_req, blocklist);
+        ...
+        __dasd_cleanup_cqr(cqr);
+        ...
+    }
+}
+
+Since __dasd_cleanup_cqr() lacks a specific check for DASD_CQR_ABORTED, it
+will set the error to BLK_STS_IOERR and complete the request:
+
+__dasd_cleanup_cqr() {
+    ...
+    status =3D cqr->block->base->discipline->free_cp(cqr, req);
+    ...
+    else if (status =3D=3D 0) {
+        switch (cqr->intrc) {
+        ...
+        default:
+            error =3D BLK_STS_IOERR;
+            break;
+        }
+    }
+
+    if (error)
+        blk_mq_end_request(req, error);
+}
+
+If the replacement format-CQR also attempts to complete or requeue this
+same block request, could this lead to a double-completion or a
+use-after-free in the block layer?
+
+As a related question, does dasd_generic_requeue_all_requests() also need
+to check if the CQR was aborted? It currently appears to requeue the block
+request without checking for the aborted status:
+
+dasd_generic_requeue_all_requests() {
+    ...
+    _dasd_requeue_request(cqr);
+    list_del_init(&cqr->blocklist);
+    ...
+}
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260731153842.1729=
+627-1-sth@linux.ibm.com?part=3D6
