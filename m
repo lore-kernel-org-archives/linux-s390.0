@@ -1,69 +1,138 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DEBC241B8CE;
-	Fri, 31 Jul 2026 14:09:38 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5FE9C3B0AFB;
+	Fri, 31 Jul 2026 14:17:18 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785506980; cv=none; b=s8derYgzsmqW5vxzCM0gKHmgBMuFF/aGNjpSpngC5uXUoRpZ8TcgzkRBJlSPXRvwTLMNWKPWcLWn7Txs1EcWSAY0sQr2JYK+i0HQ0UJnl1G3o7jecwiaH1lW5EmyJJj7qSCr67E1BkYAmKjl6qDlsDVvpaQZfickli2D9M/qWps=
+	t=1785507439; cv=none; b=ppm8rJJrYQQ+5Su/31+R2B0/KfBBrMUEpAf/PMPY7ojWAJKBjK7dOPW4zP5Ym2qUW30Ji9JmPPcdRuqUYCrr/1/yLRCf+cgr2j5cteqpXo2jI8psxbUKNtHGR8qmp0K15rEjkD8B7BVQLz/wFf7cgAjfVnUS+ZUUm16oXnUyuD8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785506980; c=relaxed/simple;
-	bh=HkCEVyIWfclJC24KmEwwKoED4846ao/Fe77xXEM3zus=;
+	s=arc-20240116; t=1785507439; c=relaxed/simple;
+	bh=NXosDiEwIiStMmREomZN8QYxK8d2k0Byt4m1WwGgTnM=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=QEUXK8xNw0AXDJ9b6Z2QAege1DYwTl7BRHYjV6o/KWGNp4nmriGOqcgFiuYKX8nnuHuNHMC1Yv+IN1WVxwR6gJgYrZvrGBDPmVbE7DeyMmduUqIIXk84g/2Hls1RRlcJ7AsicXCOh7g5pHNs/YC3uAcTvmIJrosdn/Ea+iRnBQY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RO64hn+H; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=J570Ja5+6btqF/Wq6VhtOqQjZhRUBV7kfquOiQ4LVXep9ejcjYS7DDE8ahqiLUC9BpboEfwuBioFxH/nnW1MSt0M9juIeUHwpANaEhmn3rkmIDWKDlVdDCddin9HzzCXGjos+OWJb046boqYfbJsrM4qbAchczOhyzjdgYInV+4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Zb9UhInH; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RO64hn+H"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F047D1F00A3A;
-	Fri, 31 Jul 2026 14:09:37 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Zb9UhInH"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDDAA1F000E9;
+	Fri, 31 Jul 2026 14:17:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785506978;
-	bh=HkCEVyIWfclJC24KmEwwKoED4846ao/Fe77xXEM3zus=;
+	s=k20260515; t=1785507438;
+	bh=UGWqA2KyxE0abtM9ecfEHiDwd1jp5LH2FTvddBFITII=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=RO64hn+HgXHnHfbL16vx5f8aka2yADAprzru/rB2ix/d4XErl4oF8jrLIXoPxM5zm
-	 2Gg98GjPeRtLZYr8/D+9F5rOBUnNeJNMnd7ehrSG9ptiOmjWhleL0VjVZOy6k1P4GH
-	 Fj+4DRR9/4PUA5rVLCrL86JcmVFy/LfsWtUq265s7O6YRHanwlOBPDrWCW+WFaYMd8
-	 24kNOQBgLi+eIxbPGRDBqDKG//frBr5P6jmEU1kwMwuN44EJze8pUhvzgO6uC/J/xC
-	 QOhE0RyVbCGdcx8yDwBEcujvUwmndICP6YThzCBl7+HONjKmERgpth1X//z3jB1XBM
-	 WhI1p/PfDklPQ==
+	b=Zb9UhInHhEi2oeFpeas+2L9jky0Gwi0Cm8v0JunU6Yz/ctpmw7FTku1/MMcsP97yn
+	 34EXMt32493xdt7YT67H6wCz/1YzBbYzAyI2xuvNvdsshfhoPTDkKAhc42fPrzzETa
+	 nkQv8OMFr2tOFb1eiLd4PceyOposAbHtHmzcKpmiNGhbbyr604oQO2c3TILXsB1Wlw
+	 sR/EArrOBwSc+ZmPknztO3eBC+NxBO+HoSjnzbgzbzHPR/xt04by2j449w4PX+BXHl
+	 3Bp6DcYDyK6vqCgtj8S2aaYwq70LC/0UkoIISoz7klIWEjm1p1jMciAvFQEjqRigmM
+	 IT9XrVEg0wtOQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 24/31] KVM: s390: arm64: Introduce host definitions
+Subject: Re: [PATCH v5 30/31] KVM: s390: arm64: Implement basic page fault
+ handler
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Steffen Eiden" <seiden@linux.ibm.com>
-Cc: "Vasily Gorbik" <gor@linux.ibm.com>, kvm@vger.kernel.org, kvmarm@lists.linux.dev, "Marc
- Zyngier" <maz@kernel.org>, "Heiko Carstens" <hca@linux.ibm.com>, "Oliver
- Upton" <oupton@kernel.org>, "Alexander Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org
-In-Reply-To: <20260731130902.654679-25-seiden@linux.ibm.com>
+Cc: "Marc Zyngier" <maz@kernel.org>, "Vasily Gorbik" <gor@linux.ibm.com>, kvmarm@lists.linux.dev, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, kvm@vger.kernel.org, "Oliver
+ Upton" <oupton@kernel.org>, linux-s390@vger.kernel.org
+In-Reply-To: <20260731130902.654679-31-seiden@linux.ibm.com>
 References: <20260731130902.654679-1-seiden@linux.ibm.com>
- <20260731130902.654679-25-seiden@linux.ibm.com>
+ <20260731130902.654679-31-seiden@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 31 Jul 2026 14:09:37 +0000
-Message-Id: <20260731140937.F047D1F00A3A@smtp.kernel.org>
+Date: Fri, 31 Jul 2026 14:17:16 +0000
+Message-Id: <20260731141716.DDDAA1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-> Add all basic definitions the arm on s390 KVM host requires. Including,
-> but not limited to, struct kvm*arch definitions, various functions (to
-> be implemented in the following patches), and various defines required
-> to run arm64 guests.
->=20
-> Enlighten asm/kvm_host.h for the new header variant. The new
-> header is chosen instead of asm/kvm_host_s390.h if KVM_S390_ARM64
-> is defined.
->=20
-> Co-developed-by: Andreas Grapentin <gra@linux.ibm.com>
-> Signed-off-by: Andreas Grapentin <gra@linux.ibm.com>
-> Co-developed-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-> Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-> Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
+- [High] The check for `PGM_PROTECTION` in `kvm_s390_cur_gmap_fault_is_writ=
+e()` does not apply `PGM_INT_CODE_MASK` to `hai.pic`.
+- [Low] The local variable `esr` is assigned but never used.
+--
 
-Sashiko has reviewed this patch and found no issues. It looks great!
+--- Patch [30]: [PATCH v5 30/31] KVM: s390: arm64: Implement basic page fau=
+lt handler ---
+commit 4547e2330db1908b3d5e4eeca0c723949d349711
+Author: Steffen Eiden <seiden@linux.ibm.com>
+
+    KVM: s390: arm64: Implement basic page fault handler
+   =20
+    Add host functionality to page in guest memory. If the guest does
+    something unexpected or illegal exit to userspace abort guest execution.
+
+> diff --git a/arch/s390/kvm/arm64/mmu.c b/arch/s390/kvm/arm64/mmu.c
+> new file mode 100644
+> index 0000000000000..71cd582f24ff8
+> --- /dev/null
+> +++ b/arch/s390/kvm/arm64/mmu.c
+> @@ -0,0 +1,177 @@
+> +// SPDX-License-Identifier: GPL-2.0
+> +#include <linux/kvm_host.h>
+> +
+> +#include <arm64/kvm_emulate.h>
+> +
+> +#include <faultin.h>
+> +
+> +static inline bool kvm_s390_cur_gmap_fault_is_write(struct kvm_vcpu *vcp=
+u)
+> +{
+> +	return vcpu->arch.sae_block.hai.pic =3D=3D PGM_PROTECTION ||
+> +	       vcpu->arch.sae_block.hai.teid.fsi =3D=3D TEID_FSI_STORE;
+> +}
+
+[Severity: High]
+Does this code handle concurrent event flags correctly?=20
+
+If a protection fault occurs with concurrent event flags set (e.g., the PER=
+ bit
+0x80) in the Program Interruption Code, hai.pic will contain a value like
+0x84.=20
+
+Since this compares hai.pic directly to PGM_PROTECTION (0x04) without
+applying PGM_INT_CODE_MASK, won't this result in a false evaluation?
+
+If it fails to recognize it as a write fault, user_mem_abort() would call
+kvm_s390_faultin_gfn() with f.write_attempt =3D 0, causing the host to map =
+the
+page read-only instead of making it writable. When the guest resumes, it co=
+uld
+immediately trap again with the same protection fault, leading to an infini=
+te
+page fault loop.
+
+[ ... ]
+
+> +int kvm_handle_guest_abort(struct kvm_vcpu *vcpu)
+> +{
+> +	struct kvm_memory_slot *memslot;
+> +	bool translation =3D false;
+> +	phys_addr_t fault_ipa;
+> +	unsigned long esr;
+> +	unsigned long hva;
+> +	bool write_fault;
+> +	bool guest_size_err;
+> +	bool writable;
+> +	bool is_iabt;
+> +	int ret;
+> +	gfn_t gfn;
+> +	int idx;
+> +
+> +	esr =3D kvm_vcpu_get_esr(vcpu);
+
+[Severity: Low]
+This isn't a bug, but is esr used anywhere else in this function?
+
+It appears this local variable is assigned but never used, which could lead=
+ to a
+-Wunused-but-set-variable compiler warning.
+
+> +	fault_ipa =3D kvm_vcpu_get_fault_ipa(vcpu);
+> +	is_iabt =3D kvm_vcpu_trap_is_iabt(vcpu);
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260731130902.6546=
-79-1-seiden@linux.ibm.com?part=3D24
-
+79-1-seiden@linux.ibm.com?part=3D30
