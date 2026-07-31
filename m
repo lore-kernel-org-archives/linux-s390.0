@@ -1,99 +1,122 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA47F429CDC;
-	Fri, 31 Jul 2026 13:35:30 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1A57D428494;
+	Fri, 31 Jul 2026 13:36:09 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785504933; cv=none; b=KNBa35XQPhNGdJLm2ykfV7RnP/vcbpSNwLQQwa26sKPoCFXaZrjrL0eeXOhqtHZTSvm8J8M2zl7DLeNtjjUEy27thZqLdpM6ZqiGcG2hzbNjOzUs2lO5lyuu+cN8VNWnfIEo7mhLIiPfb9K6VfvciG4LNGIdMPpKqYojuJbpxWk=
+	t=1785504972; cv=none; b=iP8jR5+BKWjoFfFd+18mVG8fcj/Dp8USlpdwAbwcptEFSXB5cFz7w4GkClk2RyFP0HPTSSfRlKX8oRpqMk1JMmvkHA0jKIk89ZmD7mEOBpa9OyKoSwZoy1r7Cksd9ZXaigZj/q1C1RZS8+r89jlqvm3tSKiXVEvnvd9ARlr0dK4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785504933; c=relaxed/simple;
-	bh=IbuBqA/wAS2Gk6BcmIjMGkIbzEwy9SX84xXyEROJCDw=;
+	s=arc-20240116; t=1785504972; c=relaxed/simple;
+	bh=JqFRv6vSQM139dcEm/27QDYsF/EixbasJBvMVce5yTc=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=Ehhvv1bA/z1/5lLzs1SkHE7vMdcs6vY4EVKA2eamzGOSLzG2JECu8o6vQ2nJMF9LX7tQCS2jQGRCdWbec1AJlTcK5t3DBmtCaqxDuueZ9ydMVuylU1WIi82tYLZ8LBDcPeSinzwdYMvW1AURTNuuLCow6pOLmHuOylosO6sa7V4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bWnpxtmQ; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=JmHuJ/HGo+9pn0fyv4oe8WA/ZFotr/Vn3WyMELSiOKzex/43h34y5u51mIXOPDHm1gQHxzxfB6iVRlnKF+ADZgccNMCsTJwVT96D6P5/Qf2O9IlN83Zqfxiw99I8TCMSqyID5+uMvqYk7CZI9mKA8p/KuK6BnhrcpBMNWMrPxzg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PvRXHhy9; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bWnpxtmQ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47B1C1F000E9;
-	Fri, 31 Jul 2026 13:35:30 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PvRXHhy9"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 999A51F000E9;
+	Fri, 31 Jul 2026 13:36:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785504930;
-	bh=wByzuSHP6dpFy5K8TsYWdAuDcO/Qu5z4cmThaJ4Gds8=;
+	s=k20260515; t=1785504969;
+	bh=j+qZA+5v1cEPX8lnHZpILv+Fytelsq7GlKN1S8M68Bg=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=bWnpxtmQun4kD9Begw7cu0TlfzWDXUPSB8HQzN+sEs2ck3wDHnLMnDok/rL6VEHkU
-	 sQFeyEKZuzgUPj3s38lb64+SxST5cG7NTYPUWCK0FxQOs7cJAwtCagnf0/wIhIxzHw
-	 f9eiux/VDtDIJFCqI0j9NxwcHd0h7KxJWwMXdBXKaSMzVx1a+mdJeW01ZPfIYTwnT+
-	 9dB3iQM7hCbd/7uIIUSJOVm8mbnVVLz7ureMItkRfIDik+AWuUI0AFzCEZubAKJ4MA
-	 lGDWSpt+KnNLJsLWr/5Tms1bbffXeVi87yyfJeNwIfhQbCcTgvwzMqaa4atfKkHHWe
-	 hzF3rhraXiRRw==
+	b=PvRXHhy9GEjuXJyp8MpRDdxFpNt2IaXgEBn14mip98J8eYjYLrJ9no9WGjpTp0cnB
+	 Xsyp85FKsbZHSVICQ2xSXRgTYuLno1hE4h5sW+nrYVl+LoDhsVAK6iqZ5zkhmKl0xs
+	 nz+s559XR64uAiGNmLBtOhKft0f8Eldl7NWJ4TKiqb1g+/c58d3V3VGlAbH+Sgk+jb
+	 X87woJI0D6ojhkNKV2wYdZXIRaC82jBCWu5817oBfM4aO2M7LGpVjsV5B64GZ1cnPi
+	 0Q9SmsvKNV1BOX1qBeT48KIxhaWLRFt1vFu2+vYUiGGf4JJPmhgjDy/lbAEaS2Se/b
+	 JKwmfJpGChShA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v7 09/14] KVM: s390: ucontrol: Add missing locking
- around gmap_remove_child()
+Subject: Re: [PATCH v5 08/31] KVM: arm64: Use accessor functions for gprs
+ during reset
 Reply-To: sashiko-reviews@lists.linux.dev
-To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>
-Cc: kvm@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
- Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org, "Alexander Gordeev" <agordeev@linux.ibm.com>
-In-Reply-To: <20260731130138.173983-10-imbrenda@linux.ibm.com>
-References: <20260731130138.173983-1-imbrenda@linux.ibm.com>
- <20260731130138.173983-10-imbrenda@linux.ibm.com>
+To: "Steffen Eiden" <seiden@linux.ibm.com>
+Cc: "Vasily Gorbik" <gor@linux.ibm.com>, kvmarm@lists.linux.dev, kvm@vger.kernel.org, "Heiko
+ Carstens" <hca@linux.ibm.com>, "Marc Zyngier" <maz@kernel.org>, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, "Oliver
+ Upton" <oupton@kernel.org>
+In-Reply-To: <20260731130902.654679-9-seiden@linux.ibm.com>
+References: <20260731130902.654679-1-seiden@linux.ibm.com>
+ <20260731130902.654679-9-seiden@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 31 Jul 2026 13:35:29 +0000
-Message-Id: <20260731133530.47B1C1F000E9@smtp.kernel.org>
+Date: Fri, 31 Jul 2026 13:36:08 +0000
+Message-Id: <20260731133608.999A51F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
-
-Pre-existing issues:
-- [High] Memory leak of the VCPU MMU cache (`vcpu->arch.mc`) on `kvm_arch_v=
-cpu_create()` error paths.
+- [Medium] The macro `kvm_vcpu_get_vregs` incorrectly applies the address-o=
+f operator (`&`) to an array, altering its C semantics.
+- [Low] The macro `compat_lr_abt` expands to an undeclared identifier `__co=
+mpat_lr_ab` instead of `__compat_lr_abt`.
 --
 
---- Patch [9]: [PATCH v7 09/14] KVM: s390: ucontrol: Add missing locking ar=
-ound gmap_remove_child() ---
-commit f9a2b14fcbcb96b8df54e09c4777e2c6d45f939a
-Author: Claudio Imbrenda <imbrenda@linux.ibm.com>
+--- Patch [8]: [PATCH v5 08/31] KVM: arm64: Use accessor functions for gprs=
+ during reset ---
+commit 2e02b3a81c0140da07e44b13884114278108bf3e
+Author: Steffen Eiden <seiden@linux.ibm.com>
 
-KVM: s390: ucontrol: Add missing locking around gmap_remove_child()
+KVM: arm64: Use accessor functions for gprs during reset
 
-This commit adds missing locking around gmap_remove_child() in the error
-handling path of kvm_arch_vcpu_create() for UCONTROL guests.
+Instead of accessing the value directly use assessor function that
+abstract the actual location of the register values. Enable other
+KVM implementations to reuse this code.
 
-> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index ba811f0673d10..2741ca323edea 100644
-> --- a/arch/s390/kvm/kvm-s390.c
-> +++ b/arch/s390/kvm/kvm-s390.c
-> @@ -3875,7 +3875,9 @@ int kvm_arch_vcpu_create(struct kvm_vcpu *vcpu)
+> diff --git a/arch/arm64/include/asm/kvm_host.h b/arch/arm64/include/asm/k=
+vm_host.h
+> index 1094a5997fc24..4a23d3662d6b3 100644
+> --- a/arch/arm64/include/asm/kvm_host.h
+> +++ b/arch/arm64/include/asm/kvm_host.h
+> @@ -1183,6 +1183,12 @@ static inline u64 *___ctxt_sys_reg(const struct kv=
+m_cpu_context *ctxt, int r)
 > =20
->  out_ucontrol_uninit:
->  	if (kvm_is_ucontrol(vcpu->kvm)) {
-> +		spin_lock(&vcpu->kvm->arch.gmap->children_lock);
->  		gmap_remove_child(vcpu->arch.gmap);
-> +		spin_unlock(&vcpu->kvm->arch.gmap->children_lock);
->  		vcpu->arch.gmap =3D gmap_put(vcpu->arch.gmap);
->  	}
->  out_free_sie_block:
+>  #define ctxt_sys_reg(c,r)	(*__ctxt_sys_reg(c,r))
+> =20
+> +#define kvm_vcpu_get_sp_el1(__vcpu) (__ctxt_sys_reg(&(__vcpu)->arch.ctxt=
+, SP_EL1))
+> +#define kvm_vcpu_get_vreg(__vcpu, _n) (&(__vcpu)->arch.ctxt.fp_regs.vreg=
+s[_n])
+> +#define kvm_vcpu_get_vregs(__vcpu) (&(__vcpu)->arch.ctxt.fp_regs.vregs)
 
-[Severity: High]
-This is a pre-existing issue, but does this error path leak the VCPU MMU
-cache?
+[Severity: Medium]
+Does this macro incorrectly apply the address-of operator (&) to the vregs
+array, altering its C semantics?
 
-Looking at kvm_arch_vcpu_create() in arch/s390/kvm/kvm-s390.c, if a failure
-happens and the code jumps to out_ucontrol_uninit or out_free_sie_block,
-it appears to return the error code without calling kvm_s390_free_mmu_cache=
-()
-on vcpu->arch.mc.
+If a developer uses this macro with sizeof(), for example:
+memset(kvm_vcpu_get_vregs(vcpu), 0, sizeof(kvm_vcpu_get_vregs(vcpu)))
 
-Since the core KVM function kvm_vm_ioctl_create_vcpu() skips calling
-kvm_arch_vcpu_destroy() when kvm_arch_vcpu_create() returns an error,
-does this permanently leak the dynamically allocated cache object and its
-elements?
+sizeof() will evaluate to 8 bytes (the size of a pointer) instead of the
+actual array size (512 bytes). This can lead to a silent partial memory
+operation.
+
+Could this accessor provide unexpected pointer-to-array semantics rather
+than decaying to a normal pointer?
+
+> +#define kvm_vcpu_get_fpsr(__vcpu) (&(__vcpu)->arch.ctxt.fp_regs.fpsr)
+> +#define kvm_vcpu_get_fpcr(__vcpu) (&(__vcpu)->arch.ctxt.fp_regs.fpcr)
+> +
+>  u64 kvm_vcpu_apply_reg_masks(const struct kvm_vcpu *, enum vcpu_sysreg, =
+u64);
+
+I also noticed an issue in arch/arm64/include/asm/ptrace.h introduced in the
+patch "arm64: ptrace: Use constants for compat register numbers":
+
+arch/arm64/include/asm/ptrace.h:
+> #define compat_lr_abt	regs[__compat_lr_ab]
+
+[Severity: Low]
+Can the compat_lr_abt macro fail to compile? It expands to an undeclared
+identifier __compat_lr_ab instead of __compat_lr_abt.
+
+Any code attempting to use the compat_lr_abt macro will fail to compile bec=
+ause
+__compat_lr_ab is undefined.
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260731130138.1739=
-83-1-imbrenda@linux.ibm.com?part=3D9
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260731130902.6546=
+79-1-seiden@linux.ibm.com?part=3D8
