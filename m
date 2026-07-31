@@ -1,125 +1,110 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ot1-f43.google.com (mail-ot1-f43.google.com [209.85.210.43])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B3EF13B05AB;
-	Fri, 31 Jul 2026 14:25:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E37C52D060D
+	for <linux-s390@vger.kernel.org>; Fri, 31 Jul 2026 14:29:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785507945; cv=none; b=I6AclccQm5xBRBBYf10n6ww2FMOIGW4xiHBRm/lKhhevtwlZWo1RPlzxAH15ZyZGdacgu5pUaX9CXypW1hLx5YVFS8aSVxXr/UZAsNb1zUMEr4Q2hMSUtLPqLlTU+tCgsemWkKX9jOeJbSo63Syeb4e5+s6x4j75ESQVJyKKkSk=
+	t=1785508150; cv=none; b=OC4CsKFczOQKaFHut792oOJHgoSsGTculoYXA2SKII3Ykt1kwwfUqg6/kaIRkHNqUoO/wbmTRtrUD5l8XBd/nFBpUyJJlJKlTv8pCpFYlXV9cqyKw0wx3n0rScDMubawGxvgGdIMdiTub4uc53uuy0TNrNoFOnCC4oLfb8NhN3Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785507945; c=relaxed/simple;
-	bh=6jgJINs6Tt1dNckPgfIzS+USzWrjFh4HSIcAcZP5DmM=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=Nmm1N88FmWgFmtTubQ0s6OZPP8c9+wnYkzhJEi+Rc8KjS0BsDm0iPZlbbo5lY7xPuOscGG7tnFchL5Syh5Ob5h2pujkn7TfY4NBQQOnYz0e5mixgWsLVq9UgWl3C+UX6teDQ1VVs/PBw0jXbzfI2NLN5ExbDukBUmr1d0qrVWPo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jZTvddFq; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1785508150; c=relaxed/simple;
+	bh=irMpV9a/2qawDXmp6ztz+nswVSbGCihY5H3HF6baxUk=;
+	h=From:To:Cc:In-Reply-To:References:Subject:Message-Id:Date:
+	 MIME-Version:Content-Type; b=uL7ST+GONjQgHtYnqI4tvVbX3DknYFQnOHKDFMR1aFUOQG1y6wdOARXGHBTlN/8dRwQRLtzjyoYA3dT8+UxbJdq1x+0MAnfo9KK79fCW62SkU2S7VyMoOi5WiWG+qLoq3jdQJG6PghLmehcyuZ1cIyseB3TeBGV7qWjGLhrQyBs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=pass smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=kernel-dk.20251104.gappssmtp.com header.i=@kernel-dk.20251104.gappssmtp.com header.b=h0moRNIj; arc=none smtp.client-ip=209.85.210.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jZTvddFq"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D42B91F000E9;
-	Fri, 31 Jul 2026 14:25:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785507944;
-	bh=G9/UKtaQ7R4m+2JLDkju2rtHZrNQUyU5P6SXDg1joPs=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=jZTvddFqcgePJxgrJw79Ooa2GjEpjZLD8DeoB7tXywhOUjYSMPFUf/9NT8JuuKk7P
-	 MF+z7gVmi+ceafBIChWh/0cnOmzcbwZQ4AHHuu7XtgDibyY94ub1U+zGw4Iw4NgBY7
-	 ilvbmrnc+pLc/ppdqAf0oL3wBqDC5/NuXPXHwovzT69+rvSuWz6AeMSntbjNdTyQNu
-	 uXqJks7gLzVddtdFs9SxLfuqlwjE7BeU0bCN3djCP4NFN62jCBs1F2lLRAig3w6Uhp
-	 oo+z2HXHWmFQDeT6kxqqnyupKwkJ32u07fjTqkDRveKEtHPZbhcasMmd+3EcJQgiIK
-	 TdxUoVz5a2qWg==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 31/31] KVM: s390: arm64: Enable KVM_ARM64 config and
- Kbuild
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Steffen Eiden" <seiden@linux.ibm.com>
-Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, "Marc
- Zyngier" <maz@kernel.org>, kvm@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>, "Oliver
- Upton" <oupton@kernel.org>, kvmarm@lists.linux.dev, "Heiko Carstens" <hca@linux.ibm.com>
-In-Reply-To: <20260731130902.654679-32-seiden@linux.ibm.com>
-References: <20260731130902.654679-1-seiden@linux.ibm.com>
- <20260731130902.654679-32-seiden@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 31 Jul 2026 14:25:43 +0000
-Message-Id: <20260731142543.D42B91F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=kernel-dk.20251104.gappssmtp.com header.i=@kernel-dk.20251104.gappssmtp.com header.b="h0moRNIj"
+Received: by mail-ot1-f43.google.com with SMTP id 46e09a7af769-7eb9b427da2so1460336a34.0
+        for <linux-s390@vger.kernel.org>; Fri, 31 Jul 2026 07:29:08 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20251104.gappssmtp.com; s=20251104; t=1785508148; x=1786112948; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:mime-version:date:message-id
+         :subject:references:in-reply-to:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=RjhPOZ3bdgpAm7mKb0QctoHN9xX2G/6IKethU/a6XIM=;
+        b=h0moRNIjCXcEMLCUfTSV65tAHFN5X1N+a7unU64JTlXbMFYofo4dDQtGy7SwmrzPFo
+         /RjhyIiEVU5v/JQiP5O/BxGqwJR6TbiZsRnnf4vnV7gkJ3NDyCZxW72DNQVVyWVNlLuB
+         6re+4PTeqpzV7R1qReCd8MMBOeaC2/3L49PDN9zNKipnnqwPSCbistNa8KTWPph0n6p9
+         PuO8zG5qbXalWihDCKMaHqe9lmX85noCeko+2ktwiY2gtorhysYIhW0NkDRbpD+keX4U
+         Q7x8FOjx9qycPESYi+f2nIRS0NKRNZ+Hi2wgMPpclXUZNgpOlYtVvXNowhaE0tCpQKTf
+         yHaw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1785508148; x=1786112948;
+        h=content-transfer-encoding:content-type:mime-version:date:message-id
+         :subject:references:in-reply-to:cc:to:from:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=RjhPOZ3bdgpAm7mKb0QctoHN9xX2G/6IKethU/a6XIM=;
+        b=PwwH6SdJ2SQ+1X52AD81IEdNRJF5x/0M68CggdCYGiirgO4spOk13SD2bjCcReVG0V
+         VrJGOyKoGcJD70GBmLg9139k2neHPXms1TfYhN1xuVHjm3L283mFw8+t2fL/pldrwAWW
+         287RSBE3EEgoz+mBE4z/7jUf+jBpNsq0a6xeojg2hlTMoGXoQ4at3v90LmPB0ZTOivo7
+         0wE+IvTkRA2LpsP4mRSx27NzwBed/lzpXB3tErdMQvIua68DqXJICUqznEefwwoTuC8y
+         QDtS8x5wELG7pDrs1p0M9CLmzJS5ZW9tETOgDZY2DtTJA0Z+r593X3dgfq6//gb9HiG2
+         iVPQ==
+X-Forwarded-Encrypted: i=1; AHgh+RrkoAvT3QV6iBtzsaGA4nQzObrAD6l/LgXQM6R9INiERwaAmUVzwScv5Y0baKQiHEBcFiUgLxtToGvo@vger.kernel.org
+X-Gm-Message-State: AOJu0YyrHcbdhGTdQZ7iXNyh0cUZBr6YFdp6btmb6S07mE9cG/GhACjj
+	6SW0q4QKAY6WQ6542bvC4W07GASHiH+kesKBBsudE9L12vMRaZzPxdy2sbQELFgpB0AdGBavo3p
+	9oDP38S4REg==
+X-Gm-Gg: AR+sD13CBE39wiRxJ2DIfc0pzqdzAC+Dj82rbB+MsqP5ohr2JHulyFcX6PDWGMEnZDl
+	umVoeFStiGJdzgnajtrjEkaGDBUuh//otObtDu1JIeZtFu1hhIydAeQpwuIJebT6jpvfm/M+pCB
+	CEJjcjd/B8kWRL+7CYERJ/DmnkPUUxwP8CSLKmgKEfCF4S8ACHLwT2/tIClJ+kgo72BZUf0RjMK
+	iQ0is3NU1MvxOXapy+lzGNOkg1x/V34dkJo/DqRCHC0abWv8RJDmZLDQIB8JhY7Gu5n7cFwq6o7
+	7Gb6R3rQWzOUQuK57zCriICGy5bBDrcES4eYbzSDod2ZZuh3QCj3LBVtoWihr4r1MZSI+5B9Lcy
+	QU4xT7/GfpoDlHa2p/1eREX7gIz4IizZTPYqQW8FnLoqh4hqGxKzhvJJShlx6X6D6uZBN1aH/f6
+	Vm2j/ypZnmITPp2iZUN3DHn/GBy5sm4+Ah2zvyYLo4eYD+juv60KsWpCMB6222qQMoxowtDgC7y
+	Zj4dzeW4EOst85MxzCxorV1JibhS5fA0YVhfN6q5A==
+X-Received: by 2002:a05:6820:1985:b0:6aa:e267:f11 with SMTP id 006d021491bc7-6ae38364f69mr2910597eaf.12.1785508147887;
+        Fri, 31 Jul 2026 07:29:07 -0700 (PDT)
+Received: from [127.0.0.1] ([198.8.77.157])
+        by smtp.gmail.com with ESMTPSA id 586e51a60fabf-458f664d884sm1179699fac.12.2026.07.31.07.29.06
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 31 Jul 2026 07:29:07 -0700 (PDT)
+From: Jens Axboe <axboe@kernel.dk>
+To: Stefan Haberland <sth@linux.ibm.com>
+Cc: linux-block@vger.kernel.org, Jan Hoeppner <hoeppner@linux.ibm.com>, 
+ linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>, 
+ Vasily Gorbik <gor@linux.ibm.com>, 
+ Christian Borntraeger <borntraeger@linux.ibm.com>
+In-Reply-To: <20260727142840.567286-1-sth@linux.ibm.com>
+References: <20260727142840.567286-1-sth@linux.ibm.com>
+Subject: Re: [PATCH 0/3] s390/dasd: fixes
+Message-Id: <178550814683.6950.1912092779211953730.b4-ty@b4>
+Date: Fri, 31 Jul 2026 08:29:06 -0600
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+X-Mailer: b4 0.15.2
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
-- [Low] The namespace-mangling logic for built-in compilation (CONFIG_KVM_A=
-RM64=3Dy) uses invalid toolchain flags and incorrectly localizes exported s=
-ymbols, breaking the build.
-- [Low] Duplicate exported symbols cause a fatal modpost failure when both =
-KVM modules are compiled as loadable modules (CONFIG_KVM_ARM64=3Dm and CONF=
-IG_KVM_S390=3Dm).
---
 
---- Patch [31]: [PATCH v5 31/31] KVM: s390: arm64: Enable KVM_ARM64 config =
-and Kbuild ---
-commit c83e4eeb21e3c1207840240024b39a24634ecae4
-Author: Steffen Eiden <seiden@linux.ibm.com>
+On Mon, 27 Jul 2026 16:28:37 +0200, Stefan Haberland wrote:
+> please apply the following 3 patches that partially address rather
+> important issues in the DASD driver.
+> Thanks.
+> 
+> Jan Höppner (1):
+>   s390/dasd: Fix potential NULL pointer dereference
+> 
+> [...]
 
-KVM: s390: arm64: Enable KVM_ARM64 config and Kbuild
+Applied, thanks!
 
-Add all Kbuild/Makefile configurations to build a second KVM module on
-s390 implementing the arm64-KVM API. To prevent symbol conflicts with
-kvm-s390 all internal symbols in kvm-arm64 are mangled if compiled as
-built-in.
+[1/3] s390/dasd: Fix path verification interrupted by concurrent dasd_sleep_on_immediatly
+      commit: dcba277d119af323c267d1f27f61b868dac62753
+[2/3] s390/dasd: Fix potential NULL pointer dereference
+      commit: 9973026f572db6b67570cadc30942f3014e41079
+[3/3] s390/dasd: Fix undersized format-check buffer
+      commit: 7f40b346462f563a0d6e841a77b5163d2a882a04
 
-> diff --git a/arch/s390/kvm/arm64/Makefile b/arch/s390/kvm/arm64/Makefile
-> new file mode 100644
-> index 0000000000000..a102c35664cae
-> --- /dev/null
-> +++ b/arch/s390/kvm/arm64/Makefile
-[ ... ]
-> +ifeq ($(CONFIG_KVM_ARM64),m)
-> +
-> +kvm-arm64-y =3D $(kvm-arm64-obj)
+Best regards,
+-- 
+Jens Axboe
 
-[Severity: Low]
-Does this module build lead to identical global exported symbols?
 
-If both CONFIG_KVM_ARM64=3Dm and CONFIG_KVM_S390=3Dm are selected, both mod=
-ules
-include the core virt/kvm files without symbol localization, which causes a
-fatal modpost failure due to duplicate EXPORT_SYMBOL definitions.
 
-> +
-> +else ifeq ($(CONFIG_KVM_ARM64),y)
-[ ... ]
-> +quiet_cmd_nm_filter =3D NMFLTR  $@
-> +	cmd_nm_filter =3D $(NM) -jU $< | sort -u > $@
-
-[Severity: Low]
-Are the -jU flags supported by GNU nm? Using unsupported flags causes a
-fatal build error here.
-
-> +
-> +$(obj)/kvm_symbol_list: $(obj)/kvm-unnamespaced.o FORCE
-> +	$(call if_changed,nm_filter)
-> +
-> +define rule_oc_o_o
-> +	$(call cmd_and_savecmd,objcopy)
-> +	$(call cmd,gen_objtooldep)
-> +	$(call cmd,gen_symversions_o)
-> +endef
-> +
-> +OBJCOPYFLAGS_kvm-namespaced.o :=3D -O default --localize-symbols=3D$(obj=
-)/kvm_symbol_list
-
-[Severity: Low]
-Is -O default a valid objcopy flag?
-
-Additionally, does this incorrectly localize exported symbols? This breaks
-the build by causing modpost to abort.
-
-> +$(obj)/kvm-namespaced.o: $(obj)/kvm-unnamespaced.o $(obj)/kvm_symbol_lis=
-t FORCE
-> +	$(call if_changed_rule,oc_o_o)
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260731130902.6546=
-79-1-seiden@linux.ibm.com?part=3D31
