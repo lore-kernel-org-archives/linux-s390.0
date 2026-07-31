@@ -1,57 +1,58 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 59FA64399FB;
-	Fri, 31 Jul 2026 13:09:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 710E74457A5;
+	Fri, 31 Jul 2026 13:09:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785503395; cv=none; b=GbDN3YCp4/l72KPrIremqZywiLOJGEX0H3YI8kYQlbNjQvTI1tRj3PW3u1T7fnED8LlpsNzykuLEJX112hdnjGpf0SPzb1xTsc5QXYDAjCWOtXpWZ7EgMpSnsU+rgYV+Ng4gD8PpnFEyMw9ucDo4VC8qZsIamMLRacWT6JrldPs=
+	t=1785503400; cv=none; b=Wgh4481hX21M/XgSIXE5ZEuW9TXM3fMKKgNgRXjCxCJaMzZ0madiVbJgxcPB3fja6d9nP1cjM90EQsi179kEHUAY9akOhSsSi5XxV4U/6co+XMUgC5otSV4/n91T7iYd2M45NcKKOIrL4SHhvCRWpmCaJMBUrvL7Dp2j2dQk9FE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785503395; c=relaxed/simple;
-	bh=foUWQGjWi+gaGptgegHNJEwZbgYd/JW/mjqzVHEMSak=;
+	s=arc-20240116; t=1785503400; c=relaxed/simple;
+	bh=CICD/5LiKsZOQio7EnwScEUOi6Hmuo25l1ZaAalt1WU=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=KxD+RMy+9iogx4GradGR+35K6xYGA/vyqdEl5jqVmoHSVaTlQNDcAQBrlAF+KgHdWMU95cf+7//XiO86HlRYsdZDqjNRqvfqkzDaPDe4Nj4rBDpq7/NfxeUzeKLSrNCum76ZnlInnn+dZm2t6PlX3XGfIOZGm6Fb54ApVJzFWpc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=gvN7AfJS; arc=none smtp.client-ip=148.163.156.1
+	 MIME-Version:Content-Type; b=VijChhV/SK4oyp+Uiyj1jf2u4X5LDNSqttXNos5jhRsiC71L23GvYcsdta132Btie9P3xUJt5ex1x8V7Jg9dkI0ItptWvurNBQQty1Ug31boUGNIEUDvyZvz1VX56HP33AD4pEN0twHxT28T/5higltX0pszTRY7mtzvuPkEMYo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=CkJj1HOw; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="gvN7AfJS"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66VBlYZD1765217;
-	Fri, 31 Jul 2026 13:09:20 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="CkJj1HOw"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66VBlwdT1791076;
+	Fri, 31 Jul 2026 13:09:12 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=ILe1dRkZtRVAxMCaB
-	VCcApvKGLuy0jK34rt6Fw2SQX8=; b=gvN7AfJS3RD+lY4yuFlTfX48jDrch2vRA
-	/z5KTZuWBp4yeNnDJexyuhr4Qcn1SJqANq/FyYj39MgF02qarKJr8Qb1ua4kb6Tk
-	gEYKCPth6Zx6TYopUWsFmbH1cQjQDMzvADlJs5s1xn6XnVbzMf9tHPim57zHj2lJ
-	gzMdqFeOczRP5lps+LuCpO1qYJqFcHK+AqGQJlq99Qq6Pu5o22DbdtMBzCuQ7eiD
-	M+eHKc0pApGBE0U8tla1b3dWUcq+COMf6K566Kso4+z57Tg3iIYy8KMkngQGpd71
-	DswvIJsnfC21hLeq9t6fnTVxAtXufbvUAt/UkD/fiIRU+VhpLvuZQ==
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=haO0xL
+	g1lpYQDFg+IUbQ8KntQoXbMlCu5mOwhPaZ38Y=; b=CkJj1HOwbZfiRhwIjzkUOc
+	hVHGjuN3IGRbD0Nb+r2y1BEIFjjlDHgy+NPANbUhQp0WvTn0mRmj3UWuabS5StiX
+	TqdZmMxvXGU8HF0DBi6DTlEWZS2ieWO7cS0AKXPFgPQH4zla1GlRxp2jfxF9rSnX
+	BOXZrRN6VNzt3q0o6W7qHD/EH79KYw/jryCgc5BXmUP0T5YU75Ankv0p817565tj
+	UDWYxL0ballBkBiv75jExPoocVsXQ9k4161zcKeeWFlNJhUfq34U3q/jwYjjgl/2
+	cBRSeOhFdbU3ikdbo3k6CH/paF0u/kfVNj6d+44v9un6mS3cC6n5FXLRyPa4CtwQ
+	==
 Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fmv0y565u-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fmuwdc41g-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 31 Jul 2026 13:09:19 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66VCuOHC021766;
-	Fri, 31 Jul 2026 13:09:18 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fn7uwg43k-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 31 Jul 2026 13:09:18 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66VD9B1950135412
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 31 Jul 2026 13:09:11 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3DFE020040;
 	Fri, 31 Jul 2026 13:09:11 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C0FE52004B;
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66VCuGHF021726;
+	Fri, 31 Jul 2026 13:09:11 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fn7uwg436-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Fri, 31 Jul 2026 13:09:10 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66VD93CA32965088
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 31 Jul 2026 13:09:03 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B13E620040;
+	Fri, 31 Jul 2026 13:09:03 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 3ADD22004B;
+	Fri, 31 Jul 2026 13:09:03 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
 	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 31 Jul 2026 13:09:10 +0000 (GMT)
+	Fri, 31 Jul 2026 13:09:03 +0000 (GMT)
 From: Steffen Eiden <seiden@linux.ibm.com>
 To: kvm@vger.kernel.org, kvmarm@lists.linux.dev,
         linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
@@ -77,9 +78,9 @@ Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
         Ulrich Weigand <Ulrich.Weigand@de.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>,
         Zenghui Yu <yuzenghui@huawei.com>
-Subject: [PATCH v5 18/31] KVM: s390: gmap: Move storage key and CMMA code to kvm/s390
-Date: Fri, 31 Jul 2026 15:08:46 +0200
-Message-ID: <20260731130902.654679-19-seiden@linux.ibm.com>
+Subject: [PATCH v5 01/31] vfio: Use file-based reference counting for KVM
+Date: Fri, 31 Jul 2026 15:08:29 +0200
+Message-ID: <20260731130902.654679-2-seiden@linux.ibm.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260731130902.654679-1-seiden@linux.ibm.com>
 References: <20260731130902.654679-1-seiden@linux.ibm.com>
@@ -89,1358 +90,573 @@ List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
 X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-GUID: UTzjk0zZWBMJCe5Pdkkb4VzoktwNzmgy
-X-Proofpoint-ORIG-GUID: 6VLgfxXqWy4hl5ym2MEQa2k-NwaD8KMK
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzMxMDA5NiBTYWx0ZWRfX+nbagoTK28+T
- BMHKxMtKbRGau31xB0aLorxcwpeIY71hQJKCe6cgpw4PcDOrPIQrH9Ubll7kGA1V0DkWB2QV/Wc
- /ofXpOf2DxhwnqOo32Y9ssjfl229MUo=
-X-Authority-Analysis: v=2.4 cv=dYuwG3Xe c=1 sm=1 tr=0 ts=6a6c9e80 cx=c_pps
+X-Proofpoint-ORIG-GUID: Zkjb6K7lJBXcG6qt_qPGmH9FhMYnE4iR
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzMxMDA5NiBTYWx0ZWRfXx92q1D91z8MN
+ CnLPRFpuefHDoA1CrGKOH8NheaD1LWqVbK9lppP1XCbpey6IekS39BHwoh8ajT6lbVvKF49AlTp
+ KIpmTDTmLV1VbcWsteZ8+0Z1djOWiKc=
+X-Authority-Analysis: v=2.4 cv=E/z9Y6dl c=1 sm=1 tr=0 ts=6a6c9e78 cx=c_pps
  a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
- a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8 a=gLUulVKEJhMzuiw3ne4A:9
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzMxMDA5NiBTYWx0ZWRfX9vRKaqzcrjvU
- dDAytiDpHhIjH8AHrvEy1wsvUI94Q7dTNs3B5Tl1IrdmfN7RyOAT5TsnjTyAmeejpmE0FVphkwp
- tG51sheJQwHXG6i6ESEbT3RVw2NCN2aw63ll7xfLgbKoHy30csgCdXkyw4lnObuqhH5Jm4/LPlO
- aRgh55k4q3PqepvnDej411xvrpkA2vfG/SEyGDAwDes0do/JE1L6gqcPZooyLPen8TaY9RjIitN
- 2lBtPQz+tDjM32vi8Qos9Jr2i5gBRrKHXVS5pfJ3xkVEQEA6e8M21IUXwzRRnYAqW3mSXhpTyXn
- gkxwWdw0GBjT14TxPlAs5Z6bQuNbaEGwl3JM7F4+GNdxoF+799qwIrzqU8c/tzaoAoBccaWqk1j
- o0VN42N/wsJMQgO+4DK9hau0OvFsaPeMP/gP6tRYMnbncbzkMNoGX4x7EkrVWOR6HRPZS0Qli4R
- pgE+wMp4G833AZb+tpA==
+ a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=Ikd4Dj_1AAAA:8
+ a=1XWaLZrsAAAA:8 a=VnNF1IyMAAAA:8 a=x4cQU7UQcekLRWkedJUA:9 a=3ZKOabzyN94A:10
+ a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzMxMDA5NiBTYWx0ZWRfXyEH0gfwrCeq7
+ hUEgU1RPtk0jO/XM1QZPC6zcC8Vz7Ja3ipTg/s+FnaXJxUlHu/s+/pgT90aWt8IUoyCRbvVPsoc
+ JBvSygvUAP0oUFLtyWxXYa/OYN16f2JFzIJDKFqVMMHYoEwzxMmYauIhL8AzzqJeq3GFvrtC1wc
+ YouVdKb9URxEm656zyE+z353CyNd+TQIoIVAxG08RmHGx92XhkQ9MZ1r4Wpfuwz8sgd6hen1TzF
+ vk2jL5CXsGeML5QjDYDoHeRFHyUpbwZV1csyLS/YMrf0k6BQZV/S7ubd0lLPZcelnI+k6Sk4eIB
+ 3JG2RyjnePDz23MpBvV33u9ntYyScb6EdNJijcoQZqPlYNNRXtzKnfNKnlXK2uLxfZfsRee7kfG
+ 5n0tDAygXmCATKZ4JJQTQcnWa2w5mE5ciH6Qm/psURHnUMYb+cYG/CA8uVaPmxu5Gtuq5sTSP1C
+ 3HN0SvNNZOCjYhL48/w==
+X-Proofpoint-GUID: u029MMhrGTWQTlFvb-nZKPp46zOeFdW6
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-07-31_04,2026-07-30_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 impostorscore=0 clxscore=1015 phishscore=0 malwarescore=0
- spamscore=0 lowpriorityscore=0 bulkscore=0 suspectscore=0 adultscore=0
+ adultscore=0 priorityscore=1501 spamscore=0 clxscore=1015 phishscore=0
+ lowpriorityscore=0 bulkscore=0 malwarescore=0 impostorscore=0 suspectscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607310096
 
-Extract storage key and CMMA functionality from kvm/gmap to kvm/s390.
-This enables other KVM implementations to use gmap without implementing
-storage key or CMMA handling which only makes sense for s390 guests.
+Replace manual module reference counting with file-based reference
+counting for KVM integration. Previously, VFIO used symbol_get() to
+obtain function pointers for kvm_get_kvm_safe() and kvm_put_kvm(),
+then manually tracked module references through these symbols. This
+approach required storing the put_kvm function pointer in each device
+and carefully managing symbol references.
 
-No functional changes.
+Pass struct file pointers instead of struct kvm pointers throughout the
+VFIO-KVM interface. This leverages the kernel's existing file reference
+counting mechanism via get_file_active() and fput(), eliminating the
+need for manual module reference tracking. The file->private_data field
+provides access to the underlying struct kvm when needed.
 
+This simplifies the code and removes all remaining externally exported
+symbols for KVM, paving the path for a second concurrent KVM module.
+
+Suggested-by: Jason Gunthorpe <jgg@nvidia.com>
+Suggested-by: Sean Christopherson <seanjc@google.com>
 Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
 ---
- arch/s390/kvm/gmap/dat.c    | 500 -----------------------------------
- arch/s390/kvm/gmap/dat.h    |   7 -
- arch/s390/kvm/gmap/gmap.c   |  77 ------
- arch/s390/kvm/gmap/gmap.h   |  11 -
- arch/s390/kvm/s390/Makefile |   1 +
- arch/s390/kvm/s390/dat.c    | 506 ++++++++++++++++++++++++++++++++++++
- arch/s390/kvm/s390/gmap.c   |  84 ++++++
- arch/s390/kvm/s390/s390.h   |  23 ++
- 8 files changed, 614 insertions(+), 595 deletions(-)
- create mode 100644 arch/s390/kvm/s390/dat.c
- create mode 100644 arch/s390/kvm/s390/gmap.c
+ arch/x86/include/asm/kvm_page_track.h |  8 ++---
+ arch/x86/kvm/Makefile                 |  3 --
+ arch/x86/kvm/mmu/page_track.c         | 16 +++++----
+ drivers/s390/crypto/vfio_ap_ops.c     | 24 ++++++++++---
+ drivers/vfio/group.c                  |  2 +-
+ drivers/vfio/pci/vfio_pci_zdev.c      |  7 +++-
+ drivers/vfio/vfio.h                   | 10 +++---
+ drivers/vfio/vfio_main.c              | 49 ++++++---------------------
+ include/linux/kvm_host.h              |  2 ++
+ include/linux/vfio.h                  |  4 +--
+ virt/kvm/kvm_main.c                   | 23 ++++++++++---
+ virt/kvm/vfio.c                       |  8 ++---
+ 12 files changed, 81 insertions(+), 75 deletions(-)
 
-diff --git a/arch/s390/kvm/gmap/dat.c b/arch/s390/kvm/gmap/dat.c
-index ed4259d17629..1ac6457de498 100644
---- a/arch/s390/kvm/gmap/dat.c
-+++ b/arch/s390/kvm/gmap/dat.c
-@@ -613,229 +613,6 @@ long _dat_walk_gfn_range(gfn_t start, gfn_t end, union asce asce,
- 	return dat_crste_walk_range(start, min(end, asce_end(asce)), table, &walk);
- }
+diff --git a/arch/x86/include/asm/kvm_page_track.h b/arch/x86/include/asm/kvm_page_track.h
+index 3d040741044b..046a25c8fe4f 100644
+--- a/arch/x86/include/asm/kvm_page_track.h
++++ b/arch/x86/include/asm/kvm_page_track.h
+@@ -44,13 +44,13 @@ struct kvm_page_track_notifier_node {
+ 				    struct kvm_page_track_notifier_node *node);
+ };
  
--int dat_get_storage_key(union asce asce, gfn_t gfn, union skey *skey)
--{
--	union crste *crstep;
--	union pgste pgste;
--	union pte *ptep;
--	int rc;
--
--	skey->skey = 0;
--	rc = dat_entry_walk(NULL, gfn, asce, DAT_WALK_ANY, TABLE_TYPE_PAGE_TABLE, &crstep, &ptep);
--	if (rc)
--		return rc;
--
--	if (!ptep) {
--		union crste crste;
--
--		crste = READ_ONCE(*crstep);
--		if (!crste.h.fc || !crste.s.fc1.pr)
--			return 0;
--		skey->skey = page_get_storage_key(large_crste_to_phys(crste, gfn));
--		return 0;
--	}
--	pgste = pgste_get_lock(ptep);
--	if (ptep->h.i) {
--		skey->acc = pgste.acc;
--		skey->fp = pgste.fp;
--	} else {
--		skey->skey = page_get_storage_key(pte_origin(*ptep));
--	}
--	skey->r |= pgste.gr;
--	skey->c |= pgste.gc;
--	pgste_set_unlock(ptep, pgste);
--	return 0;
--}
--
--static void dat_update_ptep_sd(union pgste old, union pgste pgste, union pte *ptep)
--{
--	if (pgste.acc != old.acc || pgste.fp != old.fp || pgste.gr != old.gr || pgste.gc != old.gc)
--		__atomic64_or(_PAGE_SD, &ptep->val);
--}
--
--int dat_set_storage_key(struct kvm_s390_mmu_cache *mc, union asce asce, gfn_t gfn,
--			union skey skey, bool nq)
--{
--	union pgste pgste, old;
--	union crste *crstep;
--	union pte *ptep;
--	int rc;
--
--	rc = dat_entry_walk(mc, gfn, asce, DAT_WALK_LEAF_ALLOC, TABLE_TYPE_PAGE_TABLE,
--			    &crstep, &ptep);
--	if (rc)
--		return rc;
--
--	if (!ptep) {
--		page_set_storage_key(large_crste_to_phys(*crstep, gfn), skey.skey, !nq);
--		return 0;
--	}
--
--	old = pgste_get_lock(ptep);
--	pgste = old;
--
--	pgste.acc = skey.acc;
--	pgste.fp = skey.fp;
--	pgste.gc = skey.c;
--	pgste.gr = skey.r;
--
--	if (!ptep->h.i) {
--		union skey old_skey;
--
--		old_skey.skey = page_get_storage_key(pte_origin(*ptep));
--		pgste.hc |= old_skey.c;
--		pgste.hr |= old_skey.r;
--		old_skey.c = old.gc;
--		old_skey.r = old.gr;
--		skey.r = 0;
--		skey.c = 0;
--		page_set_storage_key(pte_origin(*ptep), skey.skey, !nq);
--	}
--
--	dat_update_ptep_sd(old, pgste, ptep);
--	pgste_set_unlock(ptep, pgste);
--	return 0;
--}
--
--static bool page_cond_set_storage_key(phys_addr_t paddr, union skey skey, union skey *oldkey,
--				      bool nq, bool mr, bool mc)
--{
--	oldkey->skey = page_get_storage_key(paddr);
--	if (oldkey->acc == skey.acc && oldkey->fp == skey.fp &&
--	    (oldkey->r == skey.r || mr) && (oldkey->c == skey.c || mc))
--		return false;
--	page_set_storage_key(paddr, skey.skey, !nq);
--	return true;
--}
--
--int dat_cond_set_storage_key(struct kvm_s390_mmu_cache *mmc, union asce asce, gfn_t gfn,
--			     union skey skey, union skey *oldkey, bool nq, bool mr, bool mc)
--{
--	union pgste pgste, old;
--	union crste *crstep;
--	union skey prev;
--	union pte *ptep;
--	int rc;
--
--	rc = dat_entry_walk(mmc, gfn, asce, DAT_WALK_LEAF_ALLOC, TABLE_TYPE_PAGE_TABLE,
--			    &crstep, &ptep);
--	if (rc)
--		return rc;
--
--	if (!ptep)
--		return page_cond_set_storage_key(large_crste_to_phys(*crstep, gfn), skey, oldkey,
--						 nq, mr, mc);
--
--	old = pgste_get_lock(ptep);
--	pgste = old;
--
--	rc = 1;
--	pgste.acc = skey.acc;
--	pgste.fp = skey.fp;
--	pgste.gc = skey.c;
--	pgste.gr = skey.r;
--
--	if (!ptep->h.i) {
--		rc = page_cond_set_storage_key(pte_origin(*ptep), skey, &prev, nq, mr, mc);
--		pgste.hc |= prev.c;
--		pgste.hr |= prev.r;
--		prev.c |= old.gc;
--		prev.r |= old.gr;
--	} else {
--		prev.acc = old.acc;
--		prev.fp = old.fp;
--		prev.c = old.gc;
--		prev.r = old.gr;
--	}
--	if (oldkey)
--		*oldkey = prev;
--
--	dat_update_ptep_sd(old, pgste, ptep);
--	pgste_set_unlock(ptep, pgste);
--	return rc;
--}
--
--int dat_reset_reference_bit(union asce asce, gfn_t gfn)
--{
--	union pgste pgste, old;
--	union crste *crstep;
--	union pte *ptep;
--	int rc;
--
--	rc = dat_entry_walk(NULL, gfn, asce, DAT_WALK_ANY, TABLE_TYPE_PAGE_TABLE, &crstep, &ptep);
--	if (rc)
--		return rc;
--
--	if (!ptep) {
--		union crste crste = READ_ONCE(*crstep);
--
--		if (!crste.h.fc || !crste.s.fc1.pr)
--			return 0;
--		return page_reset_referenced(large_crste_to_phys(*crstep, gfn));
--	}
--	old = pgste_get_lock(ptep);
--	pgste = old;
--
--	if (!ptep->h.i) {
--		rc = page_reset_referenced(pte_origin(*ptep));
--		pgste.hr = rc >> 1;
--	}
--	rc |= (pgste.gr << 1) | pgste.gc;
--	pgste.gr = 0;
--
--	dat_update_ptep_sd(old, pgste, ptep);
--	pgste_set_unlock(ptep, pgste);
--	return rc;
--}
--
--static long dat_reset_skeys_pte(union pte *ptep, gfn_t gfn, gfn_t next, struct dat_walk *walk)
--{
--	union pgste pgste;
--
--	pgste = pgste_get_lock(ptep);
--	pgste.acc = 0;
--	pgste.fp = 0;
--	pgste.gr = 0;
--	pgste.gc = 0;
--	if (ptep->s.pr)
--		page_set_storage_key(pte_origin(*ptep), PAGE_DEFAULT_KEY, 1);
--	pgste_set_unlock(ptep, pgste);
--
--	if (need_resched())
--		return next;
--	return 0;
--}
--
--static long dat_reset_skeys_crste(union crste *crstep, gfn_t gfn, gfn_t next, struct dat_walk *walk)
--{
--	phys_addr_t addr, end, origin = crste_origin_large(*crstep);
--
--	if (!crstep->h.fc || !crstep->s.fc1.pr)
--		return 0;
--
--	addr = ((max(gfn, walk->start) - gfn) << PAGE_SHIFT) + origin;
--	end = ((min(next, walk->end) - gfn) << PAGE_SHIFT) + origin;
--	while (ALIGN(addr + 1, _SEGMENT_SIZE) <= end)
--		addr = sske_frame(addr, PAGE_DEFAULT_KEY);
--	for ( ; addr < end; addr += PAGE_SIZE)
--		page_set_storage_key(addr, PAGE_DEFAULT_KEY, 1);
--
--	if (need_resched())
--		return next;
--	return 0;
--}
--
--long dat_reset_skeys(union asce asce, gfn_t start)
--{
--	const struct dat_walk_ops ops = {
--		.pte_entry = dat_reset_skeys_pte,
--		.pmd_entry = dat_reset_skeys_crste,
--		.pud_entry = dat_reset_skeys_crste,
--	};
--
--	return _dat_walk_gfn_range(start, asce_end(asce), asce, &ops, DAT_WALK_IGN_HOLES, NULL);
--}
--
- struct slot_priv {
- 	unsigned long token;
- 	struct kvm_s390_mmu_cache *mc;
-@@ -1048,280 +825,3 @@ int dat_set_prefix_notif_bit(union asce asce, gfn_t gfn)
- 	return 0;
- }
+-int kvm_page_track_register_notifier(struct kvm *kvm,
++int kvm_page_track_register_notifier(struct file *file,
+ 				     struct kvm_page_track_notifier_node *n);
+-void kvm_page_track_unregister_notifier(struct kvm *kvm,
++void kvm_page_track_unregister_notifier(struct file *file,
+ 					struct kvm_page_track_notifier_node *n);
  
--/**
-- * dat_perform_essa() - Perform ESSA actions on the PGSTE.
-- * @asce: The asce to operate on.
-- * @gfn: The guest page frame to operate on.
-- * @orc: The specific action to perform, see the ESSA_SET_* macros.
-- * @state: The storage attributes to be returned to the guest.
-- * @dirty: Returns whether the function dirtied a previously clean entry.
-- *
-- * Context: Called with kvm->mmu_lock held.
-- *
-- * Return:
-- * * %1 if the page state has been altered and the page is to be added to the CBRL
-- * * %0 if the page state has been altered, but the page is not to be added to the CBRL
-- * * %-1 if the page state has not been altered and the page is not to be added to the CBRL
-- */
--int dat_perform_essa(union asce asce, gfn_t gfn, int orc, union essa_state *state, bool *dirty)
--{
--	union crste *crstep;
--	union pgste pgste;
--	union pte *ptep;
--	int res = 0;
--
--	if (dat_entry_walk(NULL, gfn, asce, 0, TABLE_TYPE_PAGE_TABLE, &crstep, &ptep)) {
--		*state = (union essa_state) { .exception = 1 };
--		return -1;
--	}
--
--	pgste = pgste_get_lock(ptep);
--
--	*state = (union essa_state) {
--		.content = (ptep->h.i << 1) + (ptep->h.i && pgste.zero),
--		.nodat = pgste.nodat,
--		.usage = pgste.usage,
--		};
--
--	switch (orc) {
--	case ESSA_GET_STATE:
--		res = -1;
--		break;
--	case ESSA_SET_STABLE:
--		pgste.usage = PGSTE_GPS_USAGE_STABLE;
--		pgste.nodat = 0;
--		break;
--	case ESSA_SET_UNUSED:
--		pgste.usage = PGSTE_GPS_USAGE_UNUSED;
--		if (ptep->h.i)
--			res = 1;
--		break;
--	case ESSA_SET_VOLATILE:
--		pgste.usage = PGSTE_GPS_USAGE_VOLATILE;
--		if (ptep->h.i)
--			res = 1;
--		break;
--	case ESSA_SET_POT_VOLATILE:
--		if (!ptep->h.i) {
--			pgste.usage = PGSTE_GPS_USAGE_POT_VOLATILE;
--		} else if (pgste.zero) {
--			pgste.usage = PGSTE_GPS_USAGE_VOLATILE;
--		} else if (!pgste.gc) {
--			pgste.usage = PGSTE_GPS_USAGE_VOLATILE;
--			res = 1;
--		}
--		break;
--	case ESSA_SET_STABLE_RESIDENT:
--		pgste.usage = PGSTE_GPS_USAGE_STABLE;
--		/*
--		 * Since the resident state can go away any time after this
--		 * call, we will not make this page resident. We can revisit
--		 * this decision if a guest will ever start using this.
--		 */
--		break;
--	case ESSA_SET_STABLE_IF_RESIDENT:
--		if (!ptep->h.i)
--			pgste.usage = PGSTE_GPS_USAGE_STABLE;
--		break;
--	case ESSA_SET_STABLE_NODAT:
--		pgste.usage = PGSTE_GPS_USAGE_STABLE;
--		pgste.nodat = 1;
--		break;
--	default:
--		WARN_ONCE(1, "Invalid ORC!");
--		res = -1;
--		break;
--	}
--	/* If we are discarding a page, set it to logical zero. */
--	pgste.zero = res == 1;
--	if (orc > 0) {
--		*dirty = !pgste.cmma_d;
--		pgste.cmma_d = 1;
--	}
--
--	pgste_set_unlock(ptep, pgste);
--
--	return res;
--}
--
--static long dat_reset_cmma_pte(union pte *ptep, gfn_t gfn, gfn_t next, struct dat_walk *walk)
--{
--	union pgste pgste;
--
--	pgste = pgste_get_lock(ptep);
--	pgste.usage = 0;
--	pgste.nodat = 0;
--	pgste.cmma_d = 0;
--	pgste_set_unlock(ptep, pgste);
--	if (need_resched())
--		return next;
--	return 0;
--}
--
--long dat_reset_cmma(union asce asce, gfn_t start)
--{
--	const struct dat_walk_ops dat_reset_cmma_ops = {
--		.pte_entry = dat_reset_cmma_pte,
--	};
--
--	return _dat_walk_gfn_range(start, asce_end(asce), asce, &dat_reset_cmma_ops,
--				   DAT_WALK_IGN_HOLES, NULL);
--}
--
--struct dat_get_cmma_state {
--	gfn_t start;
--	gfn_t end;
--	unsigned int count;
--	u8 *values;
--	atomic64_t *remaining;
--};
--
--static long __dat_peek_cmma_pte(union pte *ptep, gfn_t gfn, gfn_t next, struct dat_walk *walk)
--{
--	struct dat_get_cmma_state *state = walk->priv;
--	union pgste pgste;
--
--	pgste = pgste_get_lock(ptep);
--	state->values[gfn - walk->start] = pgste.usage | (pgste.nodat << 6);
--	pgste_set_unlock(ptep, pgste);
--	state->end = next;
--
--	return 0;
--}
--
--static long __dat_peek_cmma_crste(union crste *crstep, gfn_t gfn, gfn_t next, struct dat_walk *walk)
--{
--	struct dat_get_cmma_state *state = walk->priv;
--
--	if (crstep->h.i)
--		state->end = min(walk->end, next);
--	return 0;
--}
--
--int dat_peek_cmma(gfn_t start, union asce asce, unsigned int *count, u8 *values)
--{
--	const struct dat_walk_ops ops = {
--		.pte_entry = __dat_peek_cmma_pte,
--		.pmd_entry = __dat_peek_cmma_crste,
--		.pud_entry = __dat_peek_cmma_crste,
--		.p4d_entry = __dat_peek_cmma_crste,
--		.pgd_entry = __dat_peek_cmma_crste,
--	};
--	struct dat_get_cmma_state state = { .values = values, };
--	int rc;
--
--	rc = _dat_walk_gfn_range(start, start + *count, asce, &ops, DAT_WALK_DEFAULT, &state);
--	*count = state.end >= start ? state.end - start : 0;
--	/* Return success if at least one value was saved, otherwise an error. */
--	return (rc == -EFAULT && *count > 0) ? 0 : rc;
--}
--
--static long __dat_get_cmma_pte(union pte *ptep, gfn_t gfn, gfn_t next, struct dat_walk *walk)
--{
--	struct dat_get_cmma_state *state = walk->priv;
--	union pgste pgste;
--
--	if (state->start != -1) {
--		if ((gfn - state->end) > KVM_S390_MAX_BIT_DISTANCE)
--			return 1;
--		if (gfn - state->start >= state->count)
--			return 1;
--	}
--
--	if (!READ_ONCE(*pgste_of(ptep)).cmma_d)
--		return 0;
--
--	pgste = pgste_get_lock(ptep);
--	if (pgste.cmma_d) {
--		if (state->start == -1)
--			state->start = gfn;
--		pgste.cmma_d = 0;
--		atomic64_dec(state->remaining);
--		state->values[gfn - state->start] = pgste.usage | pgste.nodat << 6;
--		state->end = next;
--	}
--	pgste_set_unlock(ptep, pgste);
--	return 0;
--}
--
--int dat_get_cmma(union asce asce, gfn_t *start, unsigned int *count, u8 *values, atomic64_t *rem)
--{
--	const struct dat_walk_ops ops = { .pte_entry = __dat_get_cmma_pte, };
--	struct dat_get_cmma_state state = {
--		.remaining = rem,
--		.values = values,
--		.count = *count,
--		.start = -1,
--	};
--
--	_dat_walk_gfn_range(*start, asce_end(asce), asce, &ops, DAT_WALK_IGN_HOLES, &state);
--	/* If no dirty pages were found, wrap around and continue searching */
--	if (*start && state.start == -1)
--		_dat_walk_gfn_range(0, *start, asce, &ops, DAT_WALK_IGN_HOLES, &state);
--
--	if (state.start == -1) {
--		*count = 0;
--	} else {
--		*count = state.end - state.start;
--		*start = state.start;
--	}
--
--	return 0;
--}
--
--struct dat_set_cmma_state {
--	unsigned long mask;
--	const u8 *bits;
--};
--
--static long __dat_set_cmma_pte(union pte *ptep, gfn_t gfn, gfn_t next, struct dat_walk *walk)
--{
--	struct dat_set_cmma_state *state = walk->priv;
--	union pgste pgste, tmp;
--
--	tmp.val = (state->bits[gfn - walk->start] << 24) & state->mask;
--
--	pgste = pgste_get_lock(ptep);
--	pgste.usage = tmp.usage;
--	pgste.nodat = tmp.nodat;
--	pgste_set_unlock(ptep, pgste);
--
--	return 0;
--}
--
--/**
-- * dat_set_cmma_bits() - Set CMMA bits for a range of guest pages.
-- * @mc: Cache used for allocations.
-- * @asce: The ASCE of the guest.
-- * @gfn: The guest frame of the fist page whose CMMA bits are to set.
-- * @count: How many pages need to be processed.
-- * @mask: Which PGSTE bits should be set.
-- * @bits: Points to an array with the CMMA attributes.
-- *
-- * This function sets the CMMA attributes for the given pages. If the input
-- * buffer has zero length, no action is taken, otherwise the attributes are
-- * set and the mm->context.uses_cmm flag is set.
-- *
-- * Each byte in @bits contains new values for bits 32-39 of the PGSTE.
-- * Currently, only the fields NT and US are applied.
-- *
-- * Return: %0 in case of success, a negative error value otherwise.
-- */
--int dat_set_cmma_bits(struct kvm_s390_mmu_cache *mc, union asce asce, gfn_t gfn,
--		      unsigned long count, unsigned long mask, const uint8_t *bits)
--{
--	const struct dat_walk_ops ops = { .pte_entry = __dat_set_cmma_pte, };
--	struct dat_set_cmma_state state = { .mask = mask, .bits = bits, };
--	union crste *crstep;
--	union pte *ptep;
--	gfn_t cur;
--	int rc;
--
--	for (cur = ALIGN_DOWN(gfn, _PAGE_ENTRIES); cur < gfn + count; cur += _PAGE_ENTRIES) {
--		rc = dat_entry_walk(mc, cur, asce, DAT_WALK_ALLOC, TABLE_TYPE_PAGE_TABLE,
--				    &crstep, &ptep);
--		if (rc)
--			return rc;
--	}
--	return _dat_walk_gfn_range(gfn, gfn + count, asce, &ops, DAT_WALK_IGN_HOLES, &state);
--}
-diff --git a/arch/s390/kvm/gmap/dat.h b/arch/s390/kvm/gmap/dat.h
-index 711ae2f96107..e6fd201ec9b9 100644
---- a/arch/s390/kvm/gmap/dat.h
-+++ b/arch/s390/kvm/gmap/dat.h
-@@ -532,13 +532,6 @@ int dat_entry_walk(struct kvm_s390_mmu_cache *mc, gfn_t gfn, union asce asce, in
- void dat_free_level(struct crst_table *table, bool owns_ptes);
- struct crst_table *dat_alloc_crst_sleepable(unsigned long init);
- int dat_set_asce_limit(struct kvm_s390_mmu_cache *mc, union asce *asce, int newtype);
--int dat_get_storage_key(union asce asce, gfn_t gfn, union skey *skey);
--int dat_set_storage_key(struct kvm_s390_mmu_cache *mc, union asce asce, gfn_t gfn,
--			union skey skey, bool nq);
--int dat_cond_set_storage_key(struct kvm_s390_mmu_cache *mmc, union asce asce, gfn_t gfn,
--			     union skey skey, union skey *oldkey, bool nq, bool mr, bool mc);
--int dat_reset_reference_bit(union asce asce, gfn_t gfn);
--long dat_reset_skeys(union asce asce, gfn_t start);
+-int kvm_write_track_add_gfn(struct kvm *kvm, gfn_t gfn);
+-int kvm_write_track_remove_gfn(struct kvm *kvm, gfn_t gfn);
++int kvm_write_track_add_gfn(struct file *file, gfn_t gfn);
++int kvm_write_track_remove_gfn(struct file *file, gfn_t gfn);
+ #else
+ /*
+  * Allow defining a node in a structure even if page tracking is disabled, e.g.
+diff --git a/arch/x86/kvm/Makefile b/arch/x86/kvm/Makefile
+index 77337c37324b..713fb6e76730 100644
+--- a/arch/x86/kvm/Makefile
++++ b/arch/x86/kvm/Makefile
+@@ -61,9 +61,6 @@ exports_grep_trailer := --include='*.[ch]' -nrw $(srctree)/virt/kvm $(srctree)/a
+ 				-e kvm_page_track_unregister_notifier \
+ 				-e kvm_write_track_add_gfn \
+ 				-e kvm_write_track_remove_gfn \
+-				-e kvm_get_kvm \
+-				-e kvm_get_kvm_safe \
+-				-e kvm_put_kvm
  
- unsigned long dat_get_ptval(struct page_table *table, struct ptval_param param);
- void dat_set_ptval(struct page_table *table, struct ptval_param param, unsigned long val);
-diff --git a/arch/s390/kvm/gmap/gmap.c b/arch/s390/kvm/gmap/gmap.c
-index 9ae55a1d6f09..c4ed40ea3475 100644
---- a/arch/s390/kvm/gmap/gmap.c
-+++ b/arch/s390/kvm/gmap/gmap.c
-@@ -945,39 +945,6 @@ void gmap_split_huge_pages(struct gmap *gmap)
- 	} while (start);
- }
- 
--static int _gmap_enable_skeys(struct gmap *gmap)
--{
--	gfn_t start = 0;
--	int rc;
--
--	if (uses_skeys(gmap))
--		return 0;
--
--	set_bit(GMAP_FLAG_USES_SKEYS, &gmap->flags);
--	rc = gmap_helper_disable_cow_sharing();
--	if (rc) {
--		clear_bit(GMAP_FLAG_USES_SKEYS, &gmap->flags);
--		return rc;
--	}
--
--	do {
--		scoped_guard(write_lock, &gmap->kvm->mmu_lock)
--			start = dat_reset_skeys(gmap->asce, start);
--		cond_resched();
--	} while (start);
--	return 0;
--}
--
--int gmap_enable_skeys(struct gmap *gmap)
--{
--	int rc;
--
--	mmap_write_lock(gmap->kvm->mm);
--	rc = _gmap_enable_skeys(gmap);
--	mmap_write_unlock(gmap->kvm->mm);
--	return rc;
--}
--
- static long _destroy_pages_pte(union pte *ptep, gfn_t gfn, gfn_t next, struct dat_walk *walk)
- {
- 	if (!ptep->s.pr)
-@@ -1098,50 +1065,6 @@ int gmap_protect_rmap(struct kvm_s390_mmu_cache *mc, struct gmap *sg, gfn_t p_gf
- 	return 0;
- }
- 
--static long __set_cmma_clean_pte(union pte *ptep, gfn_t gfn, gfn_t next, struct dat_walk *walk)
--{
--	union pgste pgste;
--
--	pgste = pgste_get_lock(ptep);
--	pgste.cmma_d = 0;
--	pgste_set_unlock(ptep, pgste);
--
--	if (need_resched())
--		return next;
--	return 0;
--}
--
--static long __set_cmma_dirty_pte(union pte *ptep, gfn_t gfn, gfn_t next, struct dat_walk *walk)
--{
--	union pgste pgste;
--
--	pgste = pgste_get_lock(ptep);
--	if (!pgste.cmma_d)
--		atomic64_inc(walk->priv);
--	pgste.cmma_d = 1;
--	pgste_set_unlock(ptep, pgste);
--
--	if (need_resched())
--		return next;
--	return 0;
--}
--
--void _gmap_set_cmma_all(struct gmap *gmap, bool dirty)
--{
--	const struct dat_walk_ops ops = {
--		.pte_entry = dirty ? __set_cmma_dirty_pte : __set_cmma_clean_pte,
--	};
--	gfn_t gfn = 0;
--
--	do {
--		scoped_guard(read_lock, &gmap->kvm->mmu_lock)
--			gfn = _dat_walk_gfn_range(gfn, asce_end(gmap->asce), gmap->asce, &ops,
--						  DAT_WALK_IGN_HOLES,
--						  &gmap->kvm->arch.cmma_dirty_pages);
--		cond_resched();
--	} while (gfn);
--}
--
- static void gmap_unshadow_level(struct gmap *sg, gfn_t r_gfn, int level)
- {
- 	unsigned long align = PAGE_SIZE;
-diff --git a/arch/s390/kvm/gmap/gmap.h b/arch/s390/kvm/gmap/gmap.h
-index c54c35e47d6d..c9cab8f60f62 100644
---- a/arch/s390/kvm/gmap/gmap.h
-+++ b/arch/s390/kvm/gmap/gmap.h
-@@ -104,7 +104,6 @@ int gmap_insert_rmap(struct kvm_s390_mmu_cache *mc, struct gmap *sg, gfn_t p_gfn
- 		     gfn_t r_gfn, int level);
- int gmap_protect_rmap(struct kvm_s390_mmu_cache *mc, struct gmap *sg, gfn_t p_gfn, gfn_t r_gfn,
- 		      kvm_pfn_t pfn, int level, bool wr);
--void _gmap_set_cmma_all(struct gmap *gmap, bool dirty);
- void _gmap_handle_vsie_unshadow_event(struct gmap *parent, gfn_t gfn);
- struct gmap *gmap_create_shadow(struct kvm_s390_mmu_cache *mc, struct gmap *gmap,
- 				union asce asce, int edat_level);
-@@ -198,16 +197,6 @@ static inline bool pte_needs_unshadow(union pte oldpte, union pte newpte, union
- 	return !newpte.h.p || !newpte.s.pr;
- }
- 
--static inline void gmap_set_cmma_all_dirty(struct gmap *gmap)
--{
--	_gmap_set_cmma_all(gmap, true);
--}
--
--static inline void gmap_set_cmma_all_clean(struct gmap *gmap)
--{
--	_gmap_set_cmma_all(gmap, false);
--}
--
- static inline union pgste _gmap_ptep_xchg(struct gmap *gmap, union pte *ptep, union pte newpte,
- 					  union pgste pgste, gfn_t gfn, bool needs_lock)
- {
-diff --git a/arch/s390/kvm/s390/Makefile b/arch/s390/kvm/s390/Makefile
-index 354cb4c52635..1a1e8ce80400 100644
---- a/arch/s390/kvm/s390/Makefile
-+++ b/arch/s390/kvm/s390/Makefile
-@@ -8,6 +8,7 @@ ccflags-y := -I$(src) -I$(srctree)/arch/s390/kvm/gmap
- 
- kvm-y += s390.o intercept.o interrupt.o priv.o sigp.o
- kvm-y += diag.o gaccess.o guestdbg.o vsie.o pv.o
-+kvm-y += dat.o gmap.o
- 
- kvm-$(CONFIG_VFIO_PCI_ZDEV_KVM) += pci.o
- 
-diff --git a/arch/s390/kvm/s390/dat.c b/arch/s390/kvm/s390/dat.c
-new file mode 100644
-index 000000000000..ff2d6c1cf90e
---- /dev/null
-+++ b/arch/s390/kvm/s390/dat.c
-@@ -0,0 +1,506 @@
-+// SPDX-License-Identifier: GPL-2.0
-+
-+#include <asm/page-states.h>
-+
-+#include "s390.h"
-+
-+int dat_get_storage_key(union asce asce, gfn_t gfn, union skey *skey)
-+{
-+	union crste *crstep;
-+	union pgste pgste;
-+	union pte *ptep;
-+	int rc;
-+
-+	skey->skey = 0;
-+	rc = dat_entry_walk(NULL, gfn, asce, DAT_WALK_ANY, TABLE_TYPE_PAGE_TABLE, &crstep, &ptep);
-+	if (rc)
-+		return rc;
-+
-+	if (!ptep) {
-+		union crste crste;
-+
-+		crste = READ_ONCE(*crstep);
-+		if (!crste.h.fc || !crste.s.fc1.pr)
-+			return 0;
-+		skey->skey = page_get_storage_key(large_crste_to_phys(crste, gfn));
-+		return 0;
-+	}
-+	pgste = pgste_get_lock(ptep);
-+	if (ptep->h.i) {
-+		skey->acc = pgste.acc;
-+		skey->fp = pgste.fp;
-+	} else {
-+		skey->skey = page_get_storage_key(pte_origin(*ptep));
-+	}
-+	skey->r |= pgste.gr;
-+	skey->c |= pgste.gc;
-+	pgste_set_unlock(ptep, pgste);
-+	return 0;
-+}
-+
-+static void dat_update_ptep_sd(union pgste old, union pgste pgste, union pte *ptep)
-+{
-+	if (pgste.acc != old.acc || pgste.fp != old.fp || pgste.gr != old.gr || pgste.gc != old.gc)
-+		__atomic64_or(_PAGE_SD, &ptep->val);
-+}
-+
-+int dat_set_storage_key(struct kvm_s390_mmu_cache *mc, union asce asce, gfn_t gfn,
-+			union skey skey, bool nq)
-+{
-+	union pgste pgste, old;
-+	union crste *crstep;
-+	union pte *ptep;
-+	int rc;
-+
-+	rc = dat_entry_walk(mc, gfn, asce, DAT_WALK_LEAF_ALLOC, TABLE_TYPE_PAGE_TABLE,
-+			    &crstep, &ptep);
-+	if (rc)
-+		return rc;
-+
-+	if (!ptep) {
-+		page_set_storage_key(large_crste_to_phys(*crstep, gfn), skey.skey, !nq);
-+		return 0;
-+	}
-+
-+	old = pgste_get_lock(ptep);
-+	pgste = old;
-+
-+	pgste.acc = skey.acc;
-+	pgste.fp = skey.fp;
-+	pgste.gc = skey.c;
-+	pgste.gr = skey.r;
-+
-+	if (!ptep->h.i) {
-+		union skey old_skey;
-+
-+		old_skey.skey = page_get_storage_key(pte_origin(*ptep));
-+		pgste.hc |= old_skey.c;
-+		pgste.hr |= old_skey.r;
-+		old_skey.c = old.gc;
-+		old_skey.r = old.gr;
-+		skey.r = 0;
-+		skey.c = 0;
-+		page_set_storage_key(pte_origin(*ptep), skey.skey, !nq);
-+	}
-+
-+	dat_update_ptep_sd(old, pgste, ptep);
-+	pgste_set_unlock(ptep, pgste);
-+	return 0;
-+}
-+
-+static bool page_cond_set_storage_key(phys_addr_t paddr, union skey skey, union skey *oldkey,
-+				      bool nq, bool mr, bool mc)
-+{
-+	oldkey->skey = page_get_storage_key(paddr);
-+	if (oldkey->acc == skey.acc && oldkey->fp == skey.fp &&
-+	    (oldkey->r == skey.r || mr) && (oldkey->c == skey.c || mc))
-+		return false;
-+	page_set_storage_key(paddr, skey.skey, !nq);
-+	return true;
-+}
-+
-+int dat_cond_set_storage_key(struct kvm_s390_mmu_cache *mmc, union asce asce, gfn_t gfn,
-+			     union skey skey, union skey *oldkey, bool nq, bool mr, bool mc)
-+{
-+	union pgste pgste, old;
-+	union crste *crstep;
-+	union skey prev;
-+	union pte *ptep;
-+	int rc;
-+
-+	rc = dat_entry_walk(mmc, gfn, asce, DAT_WALK_LEAF_ALLOC, TABLE_TYPE_PAGE_TABLE,
-+			    &crstep, &ptep);
-+	if (rc)
-+		return rc;
-+
-+	if (!ptep)
-+		return page_cond_set_storage_key(large_crste_to_phys(*crstep, gfn), skey, oldkey,
-+						 nq, mr, mc);
-+
-+	old = pgste_get_lock(ptep);
-+	pgste = old;
-+
-+	rc = 1;
-+	pgste.acc = skey.acc;
-+	pgste.fp = skey.fp;
-+	pgste.gc = skey.c;
-+	pgste.gr = skey.r;
-+
-+	if (!ptep->h.i) {
-+		rc = page_cond_set_storage_key(pte_origin(*ptep), skey, &prev, nq, mr, mc);
-+		pgste.hc |= prev.c;
-+		pgste.hr |= prev.r;
-+		prev.c |= old.gc;
-+		prev.r |= old.gr;
-+	} else {
-+		prev.acc = old.acc;
-+		prev.fp = old.fp;
-+		prev.c = old.gc;
-+		prev.r = old.gr;
-+	}
-+	if (oldkey)
-+		*oldkey = prev;
-+
-+	dat_update_ptep_sd(old, pgste, ptep);
-+	pgste_set_unlock(ptep, pgste);
-+	return rc;
-+}
-+
-+int dat_reset_reference_bit(union asce asce, gfn_t gfn)
-+{
-+	union pgste pgste, old;
-+	union crste *crstep;
-+	union pte *ptep;
-+	int rc;
-+
-+	rc = dat_entry_walk(NULL, gfn, asce, DAT_WALK_ANY, TABLE_TYPE_PAGE_TABLE, &crstep, &ptep);
-+	if (rc)
-+		return rc;
-+
-+	if (!ptep) {
-+		union crste crste = READ_ONCE(*crstep);
-+
-+		if (!crste.h.fc || !crste.s.fc1.pr)
-+			return 0;
-+		return page_reset_referenced(large_crste_to_phys(*crstep, gfn));
-+	}
-+	old = pgste_get_lock(ptep);
-+	pgste = old;
-+
-+	if (!ptep->h.i) {
-+		rc = page_reset_referenced(pte_origin(*ptep));
-+		pgste.hr = rc >> 1;
-+	}
-+	rc |= (pgste.gr << 1) | pgste.gc;
-+	pgste.gr = 0;
-+
-+	dat_update_ptep_sd(old, pgste, ptep);
-+	pgste_set_unlock(ptep, pgste);
-+	return rc;
-+}
-+
-+static long dat_reset_skeys_pte(union pte *ptep, gfn_t gfn, gfn_t next, struct dat_walk *walk)
-+{
-+	union pgste pgste;
-+
-+	pgste = pgste_get_lock(ptep);
-+	pgste.acc = 0;
-+	pgste.fp = 0;
-+	pgste.gr = 0;
-+	pgste.gc = 0;
-+	if (ptep->s.pr)
-+		page_set_storage_key(pte_origin(*ptep), PAGE_DEFAULT_KEY, 1);
-+	pgste_set_unlock(ptep, pgste);
-+
-+	if (need_resched())
-+		return next;
-+	return 0;
-+}
-+
-+static long dat_reset_skeys_crste(union crste *crstep, gfn_t gfn, gfn_t next, struct dat_walk *walk)
-+{
-+	phys_addr_t addr, end, origin = crste_origin_large(*crstep);
-+
-+	if (!crstep->h.fc || !crstep->s.fc1.pr)
-+		return 0;
-+
-+	addr = ((max(gfn, walk->start) - gfn) << PAGE_SHIFT) + origin;
-+	end = ((min(next, walk->end) - gfn) << PAGE_SHIFT) + origin;
-+	while (ALIGN(addr + 1, _SEGMENT_SIZE) <= end)
-+		addr = sske_frame(addr, PAGE_DEFAULT_KEY);
-+	for ( ; addr < end; addr += PAGE_SIZE)
-+		page_set_storage_key(addr, PAGE_DEFAULT_KEY, 1);
-+
-+	if (need_resched())
-+		return next;
-+	return 0;
-+}
-+
-+long dat_reset_skeys(union asce asce, gfn_t start)
-+{
-+	const struct dat_walk_ops ops = {
-+		.pte_entry = dat_reset_skeys_pte,
-+		.pmd_entry = dat_reset_skeys_crste,
-+		.pud_entry = dat_reset_skeys_crste,
-+	};
-+
-+	return _dat_walk_gfn_range(start, asce_end(asce), asce, &ops, DAT_WALK_IGN_HOLES, NULL);
-+}
-+
-+/**
-+ * dat_perform_essa() - Perform ESSA actions on the PGSTE.
-+ * @asce: The asce to operate on.
-+ * @gfn: The guest page frame to operate on.
-+ * @orc: The specific action to perform, see the ESSA_SET_* macros.
-+ * @state: The storage attributes to be returned to the guest.
-+ * @dirty: Returns whether the function dirtied a previously clean entry.
-+ *
-+ * Context: Called with kvm->mmu_lock held.
-+ *
-+ * Return:
-+ * * %1 if the page state has been altered and the page is to be added to the CBRL
-+ * * %0 if the page state has been altered, but the page is not to be added to the CBRL
-+ * * %-1 if the page state has not been altered and the page is not to be added to the CBRL
-+ */
-+int dat_perform_essa(union asce asce, gfn_t gfn, int orc, union essa_state *state, bool *dirty)
-+{
-+	union crste *crstep;
-+	union pgste pgste;
-+	union pte *ptep;
-+	int res = 0;
-+
-+	if (dat_entry_walk(NULL, gfn, asce, 0, TABLE_TYPE_PAGE_TABLE, &crstep, &ptep)) {
-+		*state = (union essa_state) { .exception = 1 };
-+		return -1;
-+	}
-+
-+	pgste = pgste_get_lock(ptep);
-+
-+	*state = (union essa_state) {
-+		.content = (ptep->h.i << 1) + (ptep->h.i && pgste.zero),
-+		.nodat = pgste.nodat,
-+		.usage = pgste.usage,
-+		};
-+
-+	switch (orc) {
-+	case ESSA_GET_STATE:
-+		res = -1;
-+		break;
-+	case ESSA_SET_STABLE:
-+		pgste.usage = PGSTE_GPS_USAGE_STABLE;
-+		pgste.nodat = 0;
-+		break;
-+	case ESSA_SET_UNUSED:
-+		pgste.usage = PGSTE_GPS_USAGE_UNUSED;
-+		if (ptep->h.i)
-+			res = 1;
-+		break;
-+	case ESSA_SET_VOLATILE:
-+		pgste.usage = PGSTE_GPS_USAGE_VOLATILE;
-+		if (ptep->h.i)
-+			res = 1;
-+		break;
-+	case ESSA_SET_POT_VOLATILE:
-+		if (!ptep->h.i) {
-+			pgste.usage = PGSTE_GPS_USAGE_POT_VOLATILE;
-+		} else if (pgste.zero) {
-+			pgste.usage = PGSTE_GPS_USAGE_VOLATILE;
-+		} else if (!pgste.gc) {
-+			pgste.usage = PGSTE_GPS_USAGE_VOLATILE;
-+			res = 1;
-+		}
-+		break;
-+	case ESSA_SET_STABLE_RESIDENT:
-+		pgste.usage = PGSTE_GPS_USAGE_STABLE;
-+		/*
-+		 * Since the resident state can go away any time after this
-+		 * call, we will not make this page resident. We can revisit
-+		 * this decision if a guest will ever start using this.
-+		 */
-+		break;
-+	case ESSA_SET_STABLE_IF_RESIDENT:
-+		if (!ptep->h.i)
-+			pgste.usage = PGSTE_GPS_USAGE_STABLE;
-+		break;
-+	case ESSA_SET_STABLE_NODAT:
-+		pgste.usage = PGSTE_GPS_USAGE_STABLE;
-+		pgste.nodat = 1;
-+		break;
-+	default:
-+		WARN_ONCE(1, "Invalid ORC!");
-+		res = -1;
-+		break;
-+	}
-+	/* If we are discarding a page, set it to logical zero. */
-+	pgste.zero = res == 1;
-+	if (orc > 0) {
-+		*dirty = !pgste.cmma_d;
-+		pgste.cmma_d = 1;
-+	}
-+
-+	pgste_set_unlock(ptep, pgste);
-+
-+	return res;
-+}
-+
-+static long dat_reset_cmma_pte(union pte *ptep, gfn_t gfn, gfn_t next, struct dat_walk *walk)
-+{
-+	union pgste pgste;
-+
-+	pgste = pgste_get_lock(ptep);
-+	pgste.usage = 0;
-+	pgste.nodat = 0;
-+	pgste.cmma_d = 0;
-+	pgste_set_unlock(ptep, pgste);
-+	if (need_resched())
-+		return next;
-+	return 0;
-+}
-+
-+long dat_reset_cmma(union asce asce, gfn_t start)
-+{
-+	const struct dat_walk_ops dat_reset_cmma_ops = {
-+		.pte_entry = dat_reset_cmma_pte,
-+	};
-+
-+	return _dat_walk_gfn_range(start, asce_end(asce), asce, &dat_reset_cmma_ops,
-+				   DAT_WALK_IGN_HOLES, NULL);
-+}
-+
-+struct dat_get_cmma_state {
-+	gfn_t start;
-+	gfn_t end;
-+	unsigned int count;
-+	u8 *values;
-+	atomic64_t *remaining;
-+};
-+
-+static long __dat_peek_cmma_pte(union pte *ptep, gfn_t gfn, gfn_t next, struct dat_walk *walk)
-+{
-+	struct dat_get_cmma_state *state = walk->priv;
-+	union pgste pgste;
-+
-+	pgste = pgste_get_lock(ptep);
-+	state->values[gfn - walk->start] = pgste.usage | (pgste.nodat << 6);
-+	pgste_set_unlock(ptep, pgste);
-+	state->end = next;
-+
-+	return 0;
-+}
-+
-+static long __dat_peek_cmma_crste(union crste *crstep, gfn_t gfn, gfn_t next, struct dat_walk *walk)
-+{
-+	struct dat_get_cmma_state *state = walk->priv;
-+
-+	if (crstep->h.i)
-+		state->end = min(walk->end, next);
-+	return 0;
-+}
-+
-+int dat_peek_cmma(gfn_t start, union asce asce, unsigned int *count, u8 *values)
-+{
-+	const struct dat_walk_ops ops = {
-+		.pte_entry = __dat_peek_cmma_pte,
-+		.pmd_entry = __dat_peek_cmma_crste,
-+		.pud_entry = __dat_peek_cmma_crste,
-+		.p4d_entry = __dat_peek_cmma_crste,
-+		.pgd_entry = __dat_peek_cmma_crste,
-+	};
-+	struct dat_get_cmma_state state = { .values = values, };
-+	int rc;
-+
-+	rc = _dat_walk_gfn_range(start, start + *count, asce, &ops, DAT_WALK_DEFAULT, &state);
-+	*count = state.end >= start ? state.end - start : 0;
-+	/* Return success if at least one value was saved, otherwise an error. */
-+	return (rc == -EFAULT && *count > 0) ? 0 : rc;
-+}
-+
-+static long __dat_get_cmma_pte(union pte *ptep, gfn_t gfn, gfn_t next, struct dat_walk *walk)
-+{
-+	struct dat_get_cmma_state *state = walk->priv;
-+	union pgste pgste;
-+
-+	if (state->start != -1) {
-+		if ((gfn - state->end) > KVM_S390_MAX_BIT_DISTANCE)
-+			return 1;
-+		if (gfn - state->start >= state->count)
-+			return 1;
-+	}
-+
-+	if (!READ_ONCE(*pgste_of(ptep)).cmma_d)
-+		return 0;
-+
-+	pgste = pgste_get_lock(ptep);
-+	if (pgste.cmma_d) {
-+		if (state->start == -1)
-+			state->start = gfn;
-+		pgste.cmma_d = 0;
-+		atomic64_dec(state->remaining);
-+		state->values[gfn - state->start] = pgste.usage | pgste.nodat << 6;
-+		state->end = next;
-+	}
-+	pgste_set_unlock(ptep, pgste);
-+	return 0;
-+}
-+
-+int dat_get_cmma(union asce asce, gfn_t *start, unsigned int *count, u8 *values, atomic64_t *rem)
-+{
-+	const struct dat_walk_ops ops = { .pte_entry = __dat_get_cmma_pte, };
-+	struct dat_get_cmma_state state = {
-+		.remaining = rem,
-+		.values = values,
-+		.count = *count,
-+		.start = -1,
-+	};
-+
-+	_dat_walk_gfn_range(*start, asce_end(asce), asce, &ops, DAT_WALK_IGN_HOLES, &state);
-+	/* If no dirty pages were found, wrap around and continue searching */
-+	if (*start && state.start == -1)
-+		_dat_walk_gfn_range(0, *start, asce, &ops, DAT_WALK_IGN_HOLES, &state);
-+
-+	if (state.start == -1) {
-+		*count = 0;
-+	} else {
-+		*count = state.end - state.start;
-+		*start = state.start;
-+	}
-+
-+	return 0;
-+}
-+
-+struct dat_set_cmma_state {
-+	unsigned long mask;
-+	const u8 *bits;
-+};
-+
-+static long __dat_set_cmma_pte(union pte *ptep, gfn_t gfn, gfn_t next, struct dat_walk *walk)
-+{
-+	struct dat_set_cmma_state *state = walk->priv;
-+	union pgste pgste, tmp;
-+
-+	tmp.val = (state->bits[gfn - walk->start] << 24) & state->mask;
-+
-+	pgste = pgste_get_lock(ptep);
-+	pgste.usage = tmp.usage;
-+	pgste.nodat = tmp.nodat;
-+	pgste_set_unlock(ptep, pgste);
-+
-+	return 0;
-+}
-+
-+/**
-+ * dat_set_cmma_bits() - Set CMMA bits for a range of guest pages.
-+ * @mc: Cache used for allocations.
-+ * @asce: The ASCE of the guest.
-+ * @gfn: The guest frame of the fist page whose CMMA bits are to set.
-+ * @count: How many pages need to be processed.
-+ * @mask: Which PGSTE bits should be set.
-+ * @bits: Points to an array with the CMMA attributes.
-+ *
-+ * This function sets the CMMA attributes for the given pages. If the input
-+ * buffer has zero length, no action is taken, otherwise the attributes are
-+ * set and the mm->context.uses_cmm flag is set.
-+ *
-+ * Each byte in @bits contains new values for bits 32-39 of the PGSTE.
-+ * Currently, only the fields NT and US are applied.
-+ *
-+ * Return: %0 in case of success, a negative error value otherwise.
-+ */
-+int dat_set_cmma_bits(struct kvm_s390_mmu_cache *mc, union asce asce, gfn_t gfn,
-+		      unsigned long count, unsigned long mask, const uint8_t *bits)
-+{
-+	const struct dat_walk_ops ops = { .pte_entry = __dat_set_cmma_pte, };
-+	struct dat_set_cmma_state state = { .mask = mask, .bits = bits, };
-+	union crste *crstep;
-+	union pte *ptep;
-+	gfn_t cur;
-+	int rc;
-+
-+	for (cur = ALIGN_DOWN(gfn, _PAGE_ENTRIES); cur < gfn + count; cur += _PAGE_ENTRIES) {
-+		rc = dat_entry_walk(mc, cur, asce, DAT_WALK_ALLOC, TABLE_TYPE_PAGE_TABLE,
-+				    &crstep, &ptep);
-+		if (rc)
-+			return rc;
-+	}
-+	return _dat_walk_gfn_range(gfn, gfn + count, asce, &ops, DAT_WALK_IGN_HOLES, &state);
-+}
-diff --git a/arch/s390/kvm/s390/gmap.c b/arch/s390/kvm/s390/gmap.c
-new file mode 100644
-index 000000000000..83def0ed2284
---- /dev/null
-+++ b/arch/s390/kvm/s390/gmap.c
-@@ -0,0 +1,84 @@
-+// SPDX-License-Identifier: GPL-2.0
-+
-+#include <linux/kvm_host.h>
-+#include <asm/gmap_helpers.h>
-+#include <gmap.h>
-+#include "s390.h"
-+
-+static int _gmap_enable_skeys(struct gmap *gmap)
-+{
-+	gfn_t start = 0;
-+	int rc;
-+
-+	if (uses_skeys(gmap))
-+		return 0;
-+
-+	set_bit(GMAP_FLAG_USES_SKEYS, &gmap->flags);
-+	rc = gmap_helper_disable_cow_sharing();
-+	if (rc) {
-+		clear_bit(GMAP_FLAG_USES_SKEYS, &gmap->flags);
-+		return rc;
-+	}
-+
-+	do {
-+		scoped_guard(write_lock, &gmap->kvm->mmu_lock)
-+			start = dat_reset_skeys(gmap->asce, start);
-+		cond_resched();
-+	} while (start);
-+	return 0;
-+}
-+
-+int gmap_enable_skeys(struct gmap *gmap)
-+{
-+	int rc;
-+
-+	mmap_write_lock(gmap->kvm->mm);
-+	rc = _gmap_enable_skeys(gmap);
-+	mmap_write_unlock(gmap->kvm->mm);
-+	return rc;
-+}
-+
-+static long __set_cmma_clean_pte(union pte *ptep, gfn_t gfn, gfn_t next, struct dat_walk *walk)
-+{
-+	union pgste pgste;
-+
-+	pgste = pgste_get_lock(ptep);
-+	pgste.cmma_d = 0;
-+	pgste_set_unlock(ptep, pgste);
-+
-+	if (need_resched())
-+		return next;
-+	return 0;
-+}
-+
-+static long __set_cmma_dirty_pte(union pte *ptep, gfn_t gfn, gfn_t next, struct dat_walk *walk)
-+{
-+	union pgste pgste;
-+
-+	pgste = pgste_get_lock(ptep);
-+	if (!pgste.cmma_d)
-+		atomic64_inc(walk->priv);
-+	pgste.cmma_d = 1;
-+	pgste_set_unlock(ptep, pgste);
-+
-+	if (need_resched())
-+		return next;
-+	return 0;
-+}
-+
-+void _gmap_set_cmma_all(struct gmap *gmap, bool dirty)
-+{
-+	const struct dat_walk_ops ops = {
-+		.pte_entry = dirty ? __set_cmma_dirty_pte : __set_cmma_clean_pte,
-+	};
-+	gfn_t gfn = 0;
-+
-+	do {
-+		scoped_guard(read_lock, &gmap->kvm->mmu_lock)
-+			gfn = _dat_walk_gfn_range(gfn, asce_end(gmap->asce), gmap->asce, &ops,
-+						  DAT_WALK_IGN_HOLES,
-+						  &gmap->kvm->arch.cmma_dirty_pages);
-+		cond_resched();
-+	} while (gfn);
-+}
-+
-diff --git a/arch/s390/kvm/s390/s390.h b/arch/s390/kvm/s390/s390.h
-index 9feb1fa66323..c846b7c6be93 100644
---- a/arch/s390/kvm/s390/s390.h
-+++ b/arch/s390/kvm/s390/s390.h
-@@ -635,4 +635,27 @@ extern unsigned int diag9c_forwarding_hz;
+ # Force grep to emit a goofy group separator that can in turn be replaced with
+ # the above newline macro (newlines in Make are a nightmare).  Note, grep only
+diff --git a/arch/x86/kvm/mmu/page_track.c b/arch/x86/kvm/mmu/page_track.c
+index 7e8195a311bb..860049ed24ea 100644
+--- a/arch/x86/kvm/mmu/page_track.c
++++ b/arch/x86/kvm/mmu/page_track.c
+@@ -237,10 +237,11 @@ static int kvm_enable_external_write_tracking(struct kvm *kvm)
+  * register the notifier so that event interception for the tracked guest
+  * pages can be received.
   */
- int kvm_s390_vm_stop_migration(struct kvm *kvm);
+-int kvm_page_track_register_notifier(struct kvm *kvm,
++int kvm_page_track_register_notifier(struct file *file,
+ 				     struct kvm_page_track_notifier_node *n)
+ {
+ 	struct kvm_page_track_notifier_head *head;
++	struct kvm *kvm = file_to_kvm(file);
+ 	int r;
  
-+/* implemented in dat.c */
-+int dat_get_storage_key(union asce asce, gfn_t gfn, union skey *skey);
-+int dat_set_storage_key(struct kvm_s390_mmu_cache *mc, union asce asce, gfn_t gfn,
-+			union skey skey, bool nq);
-+int dat_cond_set_storage_key(struct kvm_s390_mmu_cache *mmc, union asce asce, gfn_t gfn,
-+			     union skey skey, union skey *oldkey, bool nq, bool mr, bool mc);
-+int dat_reset_reference_bit(union asce asce, gfn_t gfn);
-+long dat_reset_skeys(union asce asce, gfn_t start);
+ 	if (!kvm || kvm->mm != current->mm)
+@@ -252,7 +253,7 @@ int kvm_page_track_register_notifier(struct kvm *kvm,
+ 			return r;
+ 	}
+ 
+-	kvm_get_kvm(kvm);
++	get_file(file);
+ 
+ 	head = &kvm->arch.track_notifier_head;
+ 
+@@ -267,10 +268,11 @@ EXPORT_SYMBOL_GPL(kvm_page_track_register_notifier);
+  * stop receiving the event interception. It is the opposed operation of
+  * kvm_page_track_register_notifier().
+  */
+-void kvm_page_track_unregister_notifier(struct kvm *kvm,
++void kvm_page_track_unregister_notifier(struct file *file,
+ 					struct kvm_page_track_notifier_node *n)
+ {
+ 	struct kvm_page_track_notifier_head *head;
++	struct kvm *kvm = file_to_kvm(file);
+ 
+ 	head = &kvm->arch.track_notifier_head;
+ 
+@@ -279,7 +281,7 @@ void kvm_page_track_unregister_notifier(struct kvm *kvm,
+ 	write_unlock(&kvm->mmu_lock);
+ 	synchronize_srcu(&head->track_srcu);
+ 
+-	kvm_put_kvm(kvm);
++	fput(file);
+ }
+ EXPORT_SYMBOL_GPL(kvm_page_track_unregister_notifier);
+ 
+@@ -339,8 +341,9 @@ void kvm_page_track_delete_slot(struct kvm *kvm, struct kvm_memory_slot *slot)
+  * @kvm: the guest instance we are interested in.
+  * @gfn: the guest page.
+  */
+-int kvm_write_track_add_gfn(struct kvm *kvm, gfn_t gfn)
++int kvm_write_track_add_gfn(struct file *file, gfn_t gfn)
+ {
++	struct kvm *kvm = file_to_kvm(file);
+ 	struct kvm_memory_slot *slot;
+ 	int idx;
+ 
+@@ -369,8 +372,9 @@ EXPORT_SYMBOL_GPL(kvm_write_track_add_gfn);
+  * @kvm: the guest instance we are interested in.
+  * @gfn: the guest page.
+  */
+-int kvm_write_track_remove_gfn(struct kvm *kvm, gfn_t gfn)
++int kvm_write_track_remove_gfn(struct file *file, gfn_t gfn)
+ {
++	struct kvm *kvm = file_to_kvm(file);
+ 	struct kvm_memory_slot *slot;
+ 	int idx;
+ 
+diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+index 44b3a1dcc1b3..bf6a5b959fcd 100644
+--- a/drivers/s390/crypto/vfio_ap_ops.c
++++ b/drivers/s390/crypto/vfio_ap_ops.c
+@@ -8,6 +8,7 @@
+  *	      Halil Pasic <pasic@linux.ibm.com>
+  *	      Pierre Morel <pmorel@linux.ibm.com>
+  */
++#include "linux/cleanup.h"
+ #include <linux/string.h>
+ #include <linux/vfio.h>
+ #include <linux/device.h>
+@@ -1815,13 +1816,26 @@ static const struct attribute_group *vfio_ap_mdev_attr_groups[] = {
+  * @matrix_mdev: a mediated matrix device
+  * @kvm: reference to KVM instance
+  *
+- * Return: 0 if no other mediated matrix device has a reference to @kvm;
+- * otherwise, returns an -EPERM.
++ * Returns: 0 if the reference to kvm is successfully retrieved from @kvm_file
++ * and set into @matrix_mdev; otherwise, returns:
++ *	-ENOENT if a reference to kvm could not be retrieved from @kvm_file
++ *	-EPERM if another mediated matrix device already has a reference to the same kvm instance
++ * 
+  */
+ static int vfio_ap_mdev_set_kvm(struct ap_matrix_mdev *matrix_mdev,
+-				struct kvm *kvm)
++				struct file *kvm_file)
+ {
++	struct file *kvm_file_ref __free(fput) = NULL;
+ 	struct ap_matrix_mdev *m;
++	struct kvm *kvm;
 +
-+/* implemented in gmap.c */
-+int gmap_enable_skeys(struct gmap *gmap);
-+void _gmap_set_cmma_all(struct gmap *gmap, bool dirty);
++	kvm_file_ref = get_file_active(&kvm_file);
++	if (!kvm_file_ref)
++		return -ENOENT;
 +
-+static inline void gmap_set_cmma_all_dirty(struct gmap *gmap)
-+{
-+	_gmap_set_cmma_all(gmap, true);
-+}
++	kvm = kvm_file->private_data;
++	if (!kvm)
++		return -ENOENT;
+ 
+ 	if (kvm->arch.crypto.crycbd) {
+ 		down_write(&kvm->arch.crypto.pqap_hook_rwsem);
+@@ -1837,13 +1851,13 @@ static int vfio_ap_mdev_set_kvm(struct ap_matrix_mdev *matrix_mdev,
+ 			}
+ 		}
+ 
+-		kvm_get_kvm(kvm);
+ 		matrix_mdev->kvm = kvm;
+ 		vfio_ap_mdev_update_guest_apcb(matrix_mdev);
+ 
+ 		release_update_locks_for_kvm(kvm);
+ 	}
+ 
++	no_free_ptr(kvm_file_ref);
+ 	return 0;
+ }
+ 
+@@ -1891,7 +1905,7 @@ static void vfio_ap_mdev_unset_kvm(struct ap_matrix_mdev *matrix_mdev)
+ 
+ 		kvm_arch_crypto_clear_masks(kvm);
+ 		vfio_ap_mdev_reset_queues(matrix_mdev);
+-		kvm_put_kvm(kvm);
++		fput(kvm->file);
+ 		matrix_mdev->kvm = NULL;
+ 
+ 		release_update_locks_for_kvm(kvm);
+diff --git a/drivers/vfio/group.c b/drivers/vfio/group.c
+index b2299e5bc6df..807378cb48de 100644
+--- a/drivers/vfio/group.c
++++ b/drivers/vfio/group.c
+@@ -860,7 +860,7 @@ bool vfio_group_enforced_coherent(struct vfio_group *group)
+ 	return ret;
+ }
+ 
+-void vfio_group_set_kvm(struct vfio_group *group, struct kvm *kvm)
++void vfio_group_set_kvm(struct vfio_group *group, struct file *kvm)
+ {
+ 	spin_lock(&group->kvm_ref_lock);
+ 	group->kvm = kvm;
+diff --git a/drivers/vfio/pci/vfio_pci_zdev.c b/drivers/vfio/pci/vfio_pci_zdev.c
+index 0990fdb146b7..d3a110101353 100644
+--- a/drivers/vfio/pci/vfio_pci_zdev.c
++++ b/drivers/vfio/pci/vfio_pci_zdev.c
+@@ -144,6 +144,7 @@ int vfio_pci_info_zdev_add_caps(struct vfio_pci_core_device *vdev,
+ int vfio_pci_zdev_open_device(struct vfio_pci_core_device *vdev)
+ {
+ 	struct zpci_dev *zdev = to_zpci(vdev->pdev);
++	struct kvm *kvm;
+ 
+ 	if (!zdev)
+ 		return -ENODEV;
+@@ -151,8 +152,12 @@ int vfio_pci_zdev_open_device(struct vfio_pci_core_device *vdev)
+ 	if (!vdev->vdev.kvm)
+ 		return 0;
+ 
++	kvm = vdev->vdev.kvm->private_data;
++	if (!kvm)
++		return -ENOENT;
 +
-+static inline void gmap_set_cmma_all_clean(struct gmap *gmap)
-+{
-+	_gmap_set_cmma_all(gmap, false);
-+}
-+
+ 	if (zpci_kvm_hook.kvm_register)
+-		return zpci_kvm_hook.kvm_register(zdev, vdev->vdev.kvm);
++		return zpci_kvm_hook.kvm_register(zdev, kvm);
+ 
+ 	return -ENOENT;
+ }
+diff --git a/drivers/vfio/vfio.h b/drivers/vfio/vfio.h
+index e4b72e79b7e3..ede8a8001b03 100644
+--- a/drivers/vfio/vfio.h
++++ b/drivers/vfio/vfio.h
+@@ -23,7 +23,7 @@ struct vfio_device_file {
+ 	u8 access_granted;
+ 	u32 devid; /* only valid when iommufd is valid */
+ 	spinlock_t kvm_ref_lock; /* protect kvm field */
+-	struct kvm *kvm;
++	struct file *kvm;
+ 	struct iommufd_ctx *iommufd; /* protected by struct vfio_device_set::lock */
+ };
+ 
+@@ -88,7 +88,7 @@ struct vfio_group {
  #endif
+ 	enum vfio_group_type		type;
+ 	struct mutex			group_lock;
+-	struct kvm			*kvm;
++	struct file			*kvm;
+ 	struct file			*opened_file;
+ 	struct iommufd_ctx		*iommufd;
+ 	spinlock_t			kvm_ref_lock;
+@@ -107,7 +107,7 @@ void vfio_device_group_unuse_iommu(struct vfio_device *device);
+ void vfio_df_group_close(struct vfio_device_file *df);
+ struct vfio_group *vfio_group_from_file(struct file *file);
+ bool vfio_group_enforced_coherent(struct vfio_group *group);
+-void vfio_group_set_kvm(struct vfio_group *group, struct kvm *kvm);
++void vfio_group_set_kvm(struct vfio_group *group, struct file *kvm);
+ bool vfio_device_has_container(struct vfio_device *device);
+ int __init vfio_group_init(void);
+ void vfio_group_cleanup(void);
+@@ -434,11 +434,11 @@ static inline void vfio_virqfd_exit(void)
+ #endif
+ 
+ #if IS_ENABLED(CONFIG_KVM)
+-void vfio_device_get_kvm_safe(struct vfio_device *device, struct kvm *kvm);
++void vfio_device_get_kvm_safe(struct vfio_device *device, struct file *kvm);
+ void vfio_device_put_kvm(struct vfio_device *device);
+ #else
+ static inline void vfio_device_get_kvm_safe(struct vfio_device *device,
+-					    struct kvm *kvm)
++					    struct file *kvm)
+ {
+ }
+ 
+diff --git a/drivers/vfio/vfio_main.c b/drivers/vfio/vfio_main.c
+index ed538aebb0b8..8fad1ca1189f 100644
+--- a/drivers/vfio/vfio_main.c
++++ b/drivers/vfio/vfio_main.c
+@@ -448,35 +448,13 @@ void vfio_unregister_group_dev(struct vfio_device *device)
+ EXPORT_SYMBOL_GPL(vfio_unregister_group_dev);
+ 
+ #if IS_ENABLED(CONFIG_KVM)
+-void vfio_device_get_kvm_safe(struct vfio_device *device, struct kvm *kvm)
++void vfio_device_get_kvm_safe(struct vfio_device *device, struct file *kvm)
+ {
+-	void (*pfn)(struct kvm *kvm);
+-	bool (*fn)(struct kvm *kvm);
+-	bool ret;
+-
+ 	lockdep_assert_held(&device->dev_set->lock);
+ 
+-	if (!kvm)
+-		return;
+-
+-	pfn = symbol_get(kvm_put_kvm);
+-	if (WARN_ON(!pfn))
++	if (!get_file_active(&kvm))
+ 		return;
+ 
+-	fn = symbol_get(kvm_get_kvm_safe);
+-	if (WARN_ON(!fn)) {
+-		symbol_put(kvm_put_kvm);
+-		return;
+-	}
+-
+-	ret = fn(kvm);
+-	symbol_put(kvm_get_kvm_safe);
+-	if (!ret) {
+-		symbol_put(kvm_put_kvm);
+-		return;
+-	}
+-
+-	device->put_kvm = pfn;
+ 	device->kvm = kvm;
+ }
+ 
+@@ -487,14 +465,7 @@ void vfio_device_put_kvm(struct vfio_device *device)
+ 	if (!device->kvm)
+ 		return;
+ 
+-	if (WARN_ON(!device->put_kvm))
+-		goto clear;
+-
+-	device->put_kvm(device->kvm);
+-	device->put_kvm = NULL;
+-	symbol_put(kvm_put_kvm);
+-
+-clear:
++	fput(device->kvm);
+ 	device->kvm = NULL;
+ }
+ #endif
+@@ -1520,7 +1491,7 @@ bool vfio_file_enforced_coherent(struct file *file)
+ }
+ EXPORT_SYMBOL_GPL(vfio_file_enforced_coherent);
+ 
+-static void vfio_device_file_set_kvm(struct file *file, struct kvm *kvm)
++static void vfio_device_file_set_kvm(struct file *file, struct file *kvm)
+ {
+ 	struct vfio_device_file *df = file->private_data;
+ 
+@@ -1536,22 +1507,22 @@ static void vfio_device_file_set_kvm(struct file *file, struct kvm *kvm)
+ 
+ /**
+  * vfio_file_set_kvm - Link a kvm with VFIO drivers
+- * @file: VFIO group file or VFIO device file
+- * @kvm: KVM to link
++ * @vfio_file: VFIO group file or VFIO device file
++ * @kvm: KVM file to link
+  *
+  * When a VFIO device is first opened the KVM will be available in
+  * device->kvm if one was associated with the file.
+  */
+-void vfio_file_set_kvm(struct file *file, struct kvm *kvm)
++void vfio_file_set_kvm(struct file *vfio_file, struct file *kvm)
+ {
+ 	struct vfio_group *group;
+ 
+-	group = vfio_group_from_file(file);
++	group = vfio_group_from_file(vfio_file);
+ 	if (group)
+ 		vfio_group_set_kvm(group, kvm);
+ 
+-	if (vfio_device_from_file(file))
+-		vfio_device_file_set_kvm(file, kvm);
++	if (vfio_device_from_file(vfio_file))
++		vfio_device_file_set_kvm(vfio_file, kvm);
+ }
+ EXPORT_SYMBOL_GPL(vfio_file_set_kvm);
+ 
+diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
+index ab8cfaec82d3..90a9f840fece 100644
+--- a/include/linux/kvm_host.h
++++ b/include/linux/kvm_host.h
+@@ -784,6 +784,7 @@ struct kvm {
+ 	 * kvm_swap_active_memslots().
+ 	 */
+ 	struct mutex slots_arch_lock;
++	struct file *file;  /* Back-reference to VM file descriptor */
+ 	struct mm_struct *mm; /* userspace tied to this vm */
+ 	unsigned long nr_memslot_pages;
+ 	/* The two memslot sets - active and inactive (per address space) */
+@@ -1074,6 +1075,7 @@ void kvm_get_kvm(struct kvm *kvm);
+ bool kvm_get_kvm_safe(struct kvm *kvm);
+ void kvm_put_kvm(struct kvm *kvm);
+ bool file_is_kvm(struct file *file);
++struct kvm *file_to_kvm(struct file *file);
+ void kvm_put_kvm_no_destroy(struct kvm *kvm);
+ 
+ static inline struct kvm_memslots *__kvm_memslots(struct kvm *kvm, int as_id)
+diff --git a/include/linux/vfio.h b/include/linux/vfio.h
+index 31b826efba00..b279bdb6f813 100644
+--- a/include/linux/vfio.h
++++ b/include/linux/vfio.h
+@@ -54,7 +54,7 @@ struct vfio_device {
+ 	struct list_head dev_set_list;
+ 	unsigned int migration_flags;
+ 	u8 precopy_info_v2;
+-	struct kvm *kvm;
++	struct file *kvm;  /* Holds reference to KVM file */
+ 
+ 	/* Members below here are private, not for driver use */
+ 	unsigned int index;
+@@ -377,7 +377,7 @@ static inline bool vfio_file_has_dev(struct file *file, struct vfio_device *devi
+ #endif
+ bool vfio_file_is_valid(struct file *file);
+ bool vfio_file_enforced_coherent(struct file *file);
+-void vfio_file_set_kvm(struct file *file, struct kvm *kvm);
++void vfio_file_set_kvm(struct file *vfio_file, struct file *kvm);
+ 
+ #define VFIO_PIN_PAGES_MAX_ENTRIES	(PAGE_SIZE/sizeof(unsigned long))
+ 
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index 45e784462ec6..994cb40cf2ef 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -1313,7 +1313,7 @@ void kvm_get_kvm(struct kvm *kvm)
+ {
+ 	refcount_inc(&kvm->users_count);
+ }
+-EXPORT_SYMBOL_GPL(kvm_get_kvm);
++EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_get_kvm);
+ 
+ /*
+  * Make sure the vm is not during destruction, which is a safe version of
+@@ -1323,14 +1323,14 @@ bool kvm_get_kvm_safe(struct kvm *kvm)
+ {
+ 	return refcount_inc_not_zero(&kvm->users_count);
+ }
+-EXPORT_SYMBOL_GPL(kvm_get_kvm_safe);
++EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_get_kvm_safe);
+ 
+ void kvm_put_kvm(struct kvm *kvm)
+ {
+ 	if (refcount_dec_and_test(&kvm->users_count))
+ 		kvm_destroy_vm(kvm);
+ }
+-EXPORT_SYMBOL_GPL(kvm_put_kvm);
++EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_put_kvm);
+ 
+ /*
+  * Used to put a reference that was taken on behalf of an object associated
+@@ -4802,7 +4802,7 @@ void kvm_unregister_device_ops(u32 type)
+ 		kvm_device_ops_table[type] = NULL;
+ }
+ 
+-static int kvm_ioctl_create_device(struct kvm *kvm,
++static int kvm_ioctl_create_device(struct file *file, struct kvm *kvm,
+ 				   struct kvm_create_device *cd)
+ {
+ 	const struct kvm_device_ops *ops;
+@@ -5345,7 +5345,7 @@ static long kvm_vm_ioctl(struct file *filp,
+ 		if (copy_from_user(&cd, argp, sizeof(cd)))
+ 			goto out;
+ 
+-		r = kvm_ioctl_create_device(kvm, &cd);
++		r = kvm_ioctl_create_device(filp, kvm, &cd);
+ 		if (r)
+ 			goto out;
+ 
+@@ -5477,6 +5477,15 @@ bool file_is_kvm(struct file *file)
+ }
+ EXPORT_SYMBOL_FOR_KVM_INTERNAL(file_is_kvm);
+ 
++struct kvm *file_to_kvm(struct file *file)
++{
++	if (!file_is_kvm(file))
++		return NULL;
++
++	return file->private_data;
++}
++EXPORT_SYMBOL_FOR_KVM_INTERNAL(file_to_kvm);
++
+ static int kvm_dev_ioctl_create_vm(unsigned long type)
+ {
+ 	char fdname[ITOA_MAX_LEN + 1];
+@@ -5508,6 +5517,10 @@ static int kvm_dev_ioctl_create_vm(unsigned long type)
+ 	 * cases it will be called by the final fput(file) and will take
+ 	 * care of doing kvm_put_kvm(kvm).
+ 	 */
++
++	/* Store back-reference for VFIO and other subsystems */
++	kvm->file = file;
++
+ 	kvm_uevent_notify_change(KVM_EVENT_CREATE_VM, kvm);
+ 
+ 	fd_install(fd, file);
+diff --git a/virt/kvm/vfio.c b/virt/kvm/vfio.c
+index 6cdc4e9a333a..0166cc4d39b3 100644
+--- a/virt/kvm/vfio.c
++++ b/virt/kvm/vfio.c
+@@ -35,15 +35,15 @@ struct kvm_vfio {
+ 	bool noncoherent;
+ };
+ 
+-static void kvm_vfio_file_set_kvm(struct file *file, struct kvm *kvm)
++static void kvm_vfio_file_set_kvm(struct file *vfio_file, struct file *kvm)
+ {
+-	void (*fn)(struct file *file, struct kvm *kvm);
++	void (*fn)(struct file *vfio_file, struct file *kvm);
+ 
+ 	fn = symbol_get(vfio_file_set_kvm);
+ 	if (!fn)
+ 		return;
+ 
+-	fn(file, kvm);
++	fn(vfio_file, kvm);
+ 
+ 	symbol_put(vfio_file_set_kvm);
+ }
+@@ -168,7 +168,7 @@ static int kvm_vfio_file_add(struct kvm_device *dev, unsigned int fd)
+ 	kvf->file = get_file(filp);
+ 	list_add_tail(&kvf->node, &kv->file_list);
+ 
+-	kvm_vfio_file_set_kvm(kvf->file, dev->kvm);
++	kvm_vfio_file_set_kvm(kvf->file, dev->kvm->file);
+ 	kvm_vfio_update_coherency(dev);
+ 
+ 	return 0;
 -- 
 2.53.0
 
