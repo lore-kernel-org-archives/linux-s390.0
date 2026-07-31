@@ -1,65 +1,65 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EBCE442DA55;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1A13E42DA5B;
 	Fri, 31 Jul 2026 13:01:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785502917; cv=none; b=f0ZB0lMp12Dz4tUYrVvxFmIAOUoNJkSOKUlyawAt53K24YgyOHS6yjPRuHj/vOl2rQ/43Y4+k66YF6WX6v1an0/6IJiv/Z0BGxweyrRwlXJ/bChYf6z2XvFbq1gagk+9ZDk7MfYNK6MK0jHSFGSMZmPXI9WV0405TWyJ8rF6R4U=
+	t=1785502917; cv=none; b=INgqLqgx/G9KFnAKk7iswh0ouPd2WJqUOtNnN14wQbp35r+T/uCkKqSgs0JafC5+9iVfkbrthNNWVLIndfQfHWz7K68WJL7+3qxsvCJJMJ638x4HwEojYvLW4AFBp32U8ewgk2yK6O1g6AUqnUz7bwVVRabzmjVHM4WovsIq1ig=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1785502917; c=relaxed/simple;
-	bh=3caGIdp+p3kPdcgMgYkHp0OEp1q1F9YNv8vDbyO0O04=;
+	bh=6BvXJsYg00jRP6uWfhHCWlM8CF6XCRguWqBauy/PYB4=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=p/6lkWq6Li2x+hYBUeS/RVXSFXa6fmTykQTLP3ch5hz6q3r9yGHTHtahO4uMNM58zsGdfdXMJ+TLJ+8I7ECc9srU9QdxK4awnrz8qYu/b9qmVMI1wbcY9ysVOp95xLiaiiN9OoMJJDnfa/j9zTHmvPRtUymlLrRFN1uTOm9Pkxk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=rVotCKmM; arc=none smtp.client-ip=148.163.156.1
+	 MIME-Version; b=obaiX6IL/8wL8fcFJ7urxEWc/HJlFpJaPRi8N5ZH8nuKBeChCXIBts6qiPT1c5vmgkcdnTzY/43f0CjnE3cDyenlbCoHObM3HHoZO24DtK36rdD5PLaZZi//hhpw3S7aVS8fbvscbfN1LZvmcHZwkbxWzsi+6oaquUNdcoHXbbY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=bif0epfc; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="rVotCKmM"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66VBlqW81765837;
-	Fri, 31 Jul 2026 13:01:54 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="bif0epfc"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66VBmHbp1674791;
+	Fri, 31 Jul 2026 13:01:53 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=UneEizWds06um/osM
-	D5l8RbzWNvgmHxpG3rtAjIygyM=; b=rVotCKmM3UypIVrZEIF6pp4cmnL/oVKHi
-	PGLX23DD9vNgjJytsRFMifxi+fR56cXa/wr2bAQfem2K2YMSQ+MvwI9BfYQhKFt0
-	y+zkE8gQBdyIRSEYM7j9Da7MlWMFf4LtYHmoDI/xqfDqMYR7ImWhBK01NGne3c0D
-	n67U5fdQK6ydeGOUyVsIzmDAdD1eX5WRWz7bjVOnMPjEubSnwfpQUa1uQMDg81PS
-	jTrFxUXa8UAJKQtsneWI/2zKxGEXowpK8NyUUXJ+GSUfEMy2ZX1DODPBN+bFTkvi
-	vMhDFvbA+cWTmOOYLsI2yFUTzBimfp4G16FKy4obdZ2NT2WkwgNUg==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fmv0y5509-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 31 Jul 2026 13:01:53 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66VCQIMk026870;
-	Fri, 31 Jul 2026 13:01:52 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fn9pgqs4a-1
+	:mime-version:references:subject:to; s=pp1; bh=FffIEzQXrsNsbAmGp
+	RELJwzpowdDByJB9nWkVuIUH5I=; b=bif0epfc9gI4Q1Yd4wPq+W+PdZOb/F0mW
+	EH3MNMtoZmBYl5Yp89s/wWuBKe9rMIM1fl43+S4zGO9ECbJm58TqNeajRw6tfgKl
+	5DZlhwCDL+jxsvT/FYHzC4/hIN8Tn7d8jMxmHUXQXpHoeMFGQuMNqHMvHfzau+Um
+	7N/ADCkzM0tHi87/x2cEob6qt+0Ri/b56OXrVrbl9zKk6zXMZkKUYLw+HDuQF1WA
+	+EzvoPIg8MLU4FQHev0TV4fwUY39SXcywnyyfylGvuYxtjyaGtc2pzDRAKvLET61
+	PSGoSCfWirMJ4gCH6DFN6SQgumfwe5kB9AQofuZskixqojdntEsig==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fmv0p420h-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Fri, 31 Jul 2026 13:01:52 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66VCuHFf023546;
+	Fri, 31 Jul 2026 13:01:52 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fna5yfp77-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 31 Jul 2026 13:01:51 +0000 (GMT)
 Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66VD1knM32571886
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66VD1jMt43581900
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 31 Jul 2026 13:01:46 GMT
+	Fri, 31 Jul 2026 13:01:45 GMT
 Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B72E420040;
-	Fri, 31 Jul 2026 13:01:46 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D09FF20043;
+	by IMSVA (Postfix) with ESMTP id B300A20040;
 	Fri, 31 Jul 2026 13:01:45 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id DFD4920043;
+	Fri, 31 Jul 2026 13:01:44 +0000 (GMT)
 Received: from p-imbrenda.ibmuc.com (unknown [9.111.4.62])
 	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 31 Jul 2026 13:01:45 +0000 (GMT)
+	Fri, 31 Jul 2026 13:01:44 +0000 (GMT)
 From: Claudio Imbrenda <imbrenda@linux.ibm.com>
 To: linux-kernel@vger.kernel.org
 Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, borntraeger@de.ibm.com,
         frankja@linux.ibm.com, david@kernel.org, seiden@linux.ibm.com,
         nrb@linux.ibm.com, schlameuss@linux.ibm.com, gra@linux.ibm.com
-Subject: [PATCH v7 07/14] KVM: s390: Fix race in __do_essa()
-Date: Fri, 31 Jul 2026 15:01:31 +0200
-Message-ID: <20260731130138.173983-8-imbrenda@linux.ibm.com>
+Subject: [PATCH v7 06/14] KVM: s390: Fix leaking of PGM_ADDRESSING to userspace
+Date: Fri, 31 Jul 2026 15:01:30 +0200
+Message-ID: <20260731130138.173983-7-imbrenda@linux.ibm.com>
 X-Mailer: git-send-email 2.55.0
 In-Reply-To: <20260731130138.173983-1-imbrenda@linux.ibm.com>
 References: <20260731130138.173983-1-imbrenda@linux.ibm.com>
@@ -71,128 +71,200 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: ycC_rVo4QATofPMrvJQLvLJTTsdS_R79
-X-Proofpoint-ORIG-GUID: ycC_rVo4QATofPMrvJQLvLJTTsdS_R79
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzMxMDA5NiBTYWx0ZWRfX53uG7PlvNnpX
- gIPgpnh62xS13mWf/axnGxBD8ObcTCoiu0HQ6tipFaYAhQQ3O3xXOb//p3UOL9iOUjJDD7Bb/dY
- 22qNmTH82KeJN5K1YqrqgAfKIXmeKiA=
-X-Authority-Analysis: v=2.4 cv=dYuwG3Xe c=1 sm=1 tr=0 ts=6a6c9cc1 cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzMxMDA5NiBTYWx0ZWRfXw92rNFEVCo1I
+ oLBAJOYNX4QThlTGLux//6yoPsHnNloM3wBKl9/5YInVvRTT9P/wZUJAOugt1ZnJRbUN31Lz2mh
+ 6JYxQrOG/pjXIDUlWSdA/BVGKWBlU8w=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzMxMDA5NiBTYWx0ZWRfX4FspcwP/7wC3
+ rCFb0iMD5sc88ESUEZcv+8H5HMhzip7tC+25Ju4Fc2nIzqH9hCkm90h5AIKqeloDnUmyPzwlWQ6
+ 2v2785J3Y5Nzd2mNUODyGyzj+c0WTWj84HNlQBXMHFsCTdlCxKJcf2OAXmEAZnFqoD5hd+FosXs
+ VOG7G6qWTsUFNx/zrRBo9EGvwltkjnUH7p8zoVRgh33cFErvcgvYtByK+YnN50dxg/eJ5epZyyz
+ v1Nnp+UU4d2VaBNeWNnvIkG5ZPJ3ItuLxHZfKa/TC3ky+4oGrbxVPCl3yEKHnOUMzFBSkXWQhq9
+ crTsudMMsXUBR6npGXt5W63For6ultDi/Zlek72Am+vvSn/ASvHjGNeMvNBG/mrPlZajlRu0g2L
+ AEZtIndrvFeNmzH47cwnEtrs7XIUHz72fnYUTWOVclAwPAv6Sbb4yeyaauhqg6etSzOQNPH1WjX
+ zraQZC4CfQRni2v+1mw==
+X-Authority-Analysis: v=2.4 cv=b5WCJNGx c=1 sm=1 tr=0 ts=6a6c9cc0 cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
  a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8 a=vVGDtJNaOgRaVfleRDgA:9
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzMxMDA5NiBTYWx0ZWRfX1q/Od4B3ur17
- ZIvJT6Gd/Iyi2BDztOq16Nf3y710TlXLIHWdQpjcM4VwzmBuLtwLIuQBTxNU1AY/Nw3+lai1Ijg
- bZMnjihpJ+jlKX1c7uvKFnSfQ9zJCyXSL2T7e2d4hvb1BnMnbYbcqBdi+S4J6ugmUQP7WiiGSXg
- hmAV1jVD4gMAi0Ai7c8DuT9zzOZPEwzpFwg7e6B872CYElFPMw2KymX1bQ1Ngq+Q0+bYdF1qkBt
- +PP0dzeckIc+1RY4TAICOWJ3cJznyfs5/hlgRf2bFyUsrNwbLU/S273rh9tqibPA8gtsnFPlIUr
- EloKvebXReO15yr2r/PYhDhF/En0TohOYcw/gSmTiKMRXzyVklZbHOsqB2Ap/VfvaN+kCvAKdGz
- irTkL4TxQHPktHetD0nBf5iqlhFllIpbsQErg5FTWaEdpNUj0QM5cdVSeN5CzlpCpKzJKqjzbqk
- D2mFZgtSj+vmAe+0eTw==
+ a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8 a=GvWetJuFWLgL5UM2GZoA:9
+X-Proofpoint-GUID: oECl6dkHjoOLmJHDzojFGSJcdx1lXsg7
+X-Proofpoint-ORIG-GUID: oECl6dkHjoOLmJHDzojFGSJcdx1lXsg7
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-07-31_04,2026-07-30_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 impostorscore=0 clxscore=1015 phishscore=0 malwarescore=0
- spamscore=0 lowpriorityscore=0 bulkscore=0 suspectscore=0 adultscore=0
+ priorityscore=1501 spamscore=0 adultscore=0 malwarescore=0 impostorscore=0
+ bulkscore=0 phishscore=0 suspectscore=0 clxscore=1015 lowpriorityscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607310096
 
-An unlikely race between __do_essa() and kvm_s390_vm_start_migration(),
-kvm_s390_vm_stop_migration(), or dat_get_cmma() was possible.
+If kvm_s390_set_cmma_bits() is asked to set CMMA values outside of a
+memslot, PGM_ADDRESSING (5) is returned, instead of a negative error
+value.
 
-Fix by locking kvm->slots_arch_lock. Since this is not a hot path, the
-overhead of an additional mutex is negligible.
+Same issue with kvm_s390_{g,s}et_skeys(), kvm_s390_keyop(), and
+dat_reset_reference_bit().
+
+Fix by returning -EFAULT whenever the return value would be > 0, which
+is consistent with the behaviour before the gmap rewrite.
 
 Fixes: e38c884df921 ("KVM: s390: Switch to new gmap")
 Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 ---
- arch/s390/kvm/kvm-s390.c | 20 ++++++++++----------
+ arch/s390/kvm/dat.c      | 16 ++++++++++------
+ arch/s390/kvm/dat.h      |  2 +-
+ arch/s390/kvm/kvm-s390.c | 16 ++++++++--------
  arch/s390/kvm/priv.c     |  5 +++--
- 2 files changed, 13 insertions(+), 12 deletions(-)
+ 4 files changed, 22 insertions(+), 17 deletions(-)
 
+diff --git a/arch/s390/kvm/dat.c b/arch/s390/kvm/dat.c
+index ed4259d17629..171b61959908 100644
+--- a/arch/s390/kvm/dat.c
++++ b/arch/s390/kvm/dat.c
+@@ -755,13 +755,15 @@ int dat_cond_set_storage_key(struct kvm_s390_mmu_cache *mmc, union asce asce, gf
+ 	return rc;
+ }
+ 
+-int dat_reset_reference_bit(union asce asce, gfn_t gfn)
++int dat_reset_reference_bit(union asce asce, gfn_t gfn, union skey *skey)
+ {
+ 	union pgste pgste, old;
+ 	union crste *crstep;
+ 	union pte *ptep;
+ 	int rc;
+ 
++	skey->skey = 0;
++
+ 	rc = dat_entry_walk(NULL, gfn, asce, DAT_WALK_ANY, TABLE_TYPE_PAGE_TABLE, &crstep, &ptep);
+ 	if (rc)
+ 		return rc;
+@@ -771,21 +773,23 @@ int dat_reset_reference_bit(union asce asce, gfn_t gfn)
+ 
+ 		if (!crste.h.fc || !crste.s.fc1.pr)
+ 			return 0;
+-		return page_reset_referenced(large_crste_to_phys(*crstep, gfn));
++		skey->skey = page_reset_referenced(large_crste_to_phys(*crstep, gfn)) << 1;
++		return 0;
+ 	}
+ 	old = pgste_get_lock(ptep);
+ 	pgste = old;
+ 
+ 	if (!ptep->h.i) {
+-		rc = page_reset_referenced(pte_origin(*ptep));
+-		pgste.hr = rc >> 1;
++		skey->skey = page_reset_referenced(pte_origin(*ptep)) << 1;
++		pgste.hr = skey->r;
+ 	}
+-	rc |= (pgste.gr << 1) | pgste.gc;
++	skey->r |= pgste.gr;
++	skey->c |= pgste.gc;
+ 	pgste.gr = 0;
+ 
+ 	dat_update_ptep_sd(old, pgste, ptep);
+ 	pgste_set_unlock(ptep, pgste);
+-	return rc;
++	return 0;
+ }
+ 
+ static long dat_reset_skeys_pte(union pte *ptep, gfn_t gfn, gfn_t next, struct dat_walk *walk)
+diff --git a/arch/s390/kvm/dat.h b/arch/s390/kvm/dat.h
+index fad605305e05..141ee7b9f019 100644
+--- a/arch/s390/kvm/dat.h
++++ b/arch/s390/kvm/dat.h
+@@ -537,7 +537,7 @@ int dat_set_storage_key(struct kvm_s390_mmu_cache *mc, union asce asce, gfn_t gf
+ 			union skey skey, bool nq);
+ int dat_cond_set_storage_key(struct kvm_s390_mmu_cache *mmc, union asce asce, gfn_t gfn,
+ 			     union skey skey, union skey *oldkey, bool nq, bool mr, bool mc);
+-int dat_reset_reference_bit(union asce asce, gfn_t gfn);
++int dat_reset_reference_bit(union asce asce, gfn_t gfn, union skey *skey);
+ long dat_reset_skeys(union asce asce, gfn_t start);
+ 
+ unsigned long dat_get_ptval(struct page_table *table, struct ptval_param param);
 diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index e162efaa35b8..e5c5e9f61cb2 100644
+index 21574f57be72..e162efaa35b8 100644
 --- a/arch/s390/kvm/kvm-s390.c
 +++ b/arch/s390/kvm/kvm-s390.c
-@@ -1219,8 +1219,8 @@ static void kvm_s390_sync_request_broadcast(struct kvm *kvm, int req)
- 
- /*
-  * Must be called with kvm->srcu held to avoid races on memslots, and with
-- * kvm->slots_lock to avoid races with ourselves, kvm_s390_vm_stop_migration(),
-- * and kvm_s390_get_cmma_bits().
-+ * kvm->slots_arch_lock to avoid races with ourselves,
-+ * kvm_s390_vm_stop_migration(), and kvm_s390_get_cmma_bits().
-  */
- static int kvm_s390_vm_start_migration(struct kvm *kvm)
- {
-@@ -1265,7 +1265,7 @@ static int kvm_s390_vm_start_migration(struct kvm *kvm)
- }
- 
- /*
-- * Must be called with kvm->slots_lock to avoid races with ourselves,
-+ * Must be called with kvm->slots_arch_lock to avoid races with ourselves,
-  * kvm_s390_vm_start_migration() and kvm_s390_get_cmma_bits().
-  */
- static int kvm_s390_vm_stop_migration(struct kvm *kvm)
-@@ -1300,7 +1300,9 @@ static int kvm_s390_vm_set_migration(struct kvm *kvm,
- {
- 	int res = -ENXIO;
- 
--	mutex_lock(&kvm->slots_lock);
-+	guard(srcu)(&kvm->srcu);
-+	guard(mutex)(&kvm->slots_arch_lock);
-+
- 	switch (attr->attr) {
- 	case KVM_S390_VM_MIGRATION_START:
- 		res = kvm_s390_vm_start_migration(kvm);
-@@ -1311,7 +1313,6 @@ static int kvm_s390_vm_set_migration(struct kvm *kvm,
+@@ -571,7 +571,7 @@ static int kvm_s390_keyop(struct kvm_s390_mmu_cache *mc, struct kvm *kvm, int op
+ 	switch (op) {
+ 	case KVM_S390_KEYOP_SSKE:
+ 		r = dat_cond_set_storage_key(mc, asce, gfn, skey, &skey, 0, 0, 0);
+-		if (r >= 0)
++		if (r == 0 || r == 1)
+ 			return skey.skey;
+ 		break;
+ 	case KVM_S390_KEYOP_ISKE:
+@@ -580,14 +580,14 @@ static int kvm_s390_keyop(struct kvm_s390_mmu_cache *mc, struct kvm *kvm, int op
+ 			return skey.skey;
+ 		break;
+ 	case KVM_S390_KEYOP_RRBE:
+-		r = dat_reset_reference_bit(asce, gfn);
+-		if (r > 0)
+-			return r << 1;
++		r = dat_reset_reference_bit(asce, gfn, &skey);
++		if (!r)
++			return skey.skey;
+ 		break;
  	default:
- 		break;
+ 		return -EINVAL;
  	}
--	mutex_unlock(&kvm->slots_lock);
- 
- 	return res;
+-	return r;
++	return r > 0 ? -EFAULT : r;
  }
-@@ -3001,9 +3002,8 @@ int kvm_arch_vm_ioctl(struct file *filp, unsigned int ioctl, unsigned long arg)
- 		r = -EFAULT;
- 		if (copy_from_user(&args, argp, sizeof(args)))
- 			break;
--		mutex_lock(&kvm->slots_lock);
--		r = kvm_s390_get_cmma_bits(kvm, &args);
--		mutex_unlock(&kvm->slots_lock);
-+		scoped_guard(mutex, &kvm->slots_arch_lock)
-+			r = kvm_s390_get_cmma_bits(kvm, &args);
- 		if (!r) {
- 			r = copy_to_user(argp, &args, sizeof(args));
- 			if (r)
-@@ -3017,9 +3017,9 @@ int kvm_arch_vm_ioctl(struct file *filp, unsigned int ioctl, unsigned long arg)
- 		r = -EFAULT;
- 		if (copy_from_user(&args, argp, sizeof(args)))
- 			break;
--		mutex_lock(&kvm->slots_lock);
-+		mutex_lock(&kvm->slots_arch_lock);
- 		r = kvm_s390_set_cmma_bits(kvm, &args);
--		mutex_unlock(&kvm->slots_lock);
-+		mutex_unlock(&kvm->slots_arch_lock);
- 		break;
+ 
+ /* Section: device related */
+@@ -2214,7 +2214,7 @@ static int kvm_s390_get_skeys(struct kvm *kvm, struct kvm_s390_skeys *args)
  	}
- 	case KVM_S390_PV_COMMAND: {
+ 
+ 	kvfree(keys);
+-	return r;
++	return r <= 0 ? r : -EFAULT;
+ }
+ 
+ static int kvm_s390_set_skeys(struct kvm *kvm, struct kvm_s390_skeys *args)
+@@ -2276,7 +2276,7 @@ static int kvm_s390_set_skeys(struct kvm *kvm, struct kvm_s390_skeys *args)
+ 	kvm_s390_free_mmu_cache(mc);
+ out:
+ 	kvfree(keys);
+-	return r;
++	return r <= 0 ? r : -EFAULT;
+ }
+ 
+ /*
+@@ -2386,7 +2386,7 @@ static int kvm_s390_set_cmma_bits(struct kvm *kvm,
+ 
+ 	set_bit(GMAP_FLAG_USES_CMM, &kvm->arch.gmap->flags);
+ 
+-	return r;
++	return r <= 0 ? r : -EFAULT;
+ }
+ 
+ /**
 diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
-index ea5a99537346..b1ba24c346ef 100644
+index ad0ddc433a73..ea5a99537346 100644
 --- a/arch/s390/kvm/priv.c
 +++ b/arch/s390/kvm/priv.c
-@@ -1261,8 +1261,9 @@ static int handle_essa(struct kvm_vcpu *vcpu)
- 		/* Retry the ESSA instruction */
- 		kvm_s390_retry_instr(vcpu);
- 	} else {
--		scoped_guard(read_lock, &vcpu->kvm->mmu_lock)
--			i = __do_essa(vcpu, orc);
-+		scoped_guard(mutex, &vcpu->kvm->slots_arch_lock)
-+			scoped_guard(read_lock, &vcpu->kvm->mmu_lock)
-+				i = __do_essa(vcpu, orc);
- 		if (i < 0)
- 			return i;
- 		/* Account for the possible extra cbrl entry */
+@@ -289,6 +289,7 @@ static int handle_iske(struct kvm_vcpu *vcpu)
+ static int handle_rrbe(struct kvm_vcpu *vcpu)
+ {
+ 	unsigned long gaddr;
++	union skey skey;
+ 	int reg1, reg2;
+ 	int rc;
+ 
+@@ -307,12 +308,12 @@ static int handle_rrbe(struct kvm_vcpu *vcpu)
+ 	gaddr = kvm_s390_logical_to_effective(vcpu, gaddr);
+ 	gaddr = kvm_s390_real_to_abs(vcpu, gaddr);
+ 	scoped_guard(read_lock, &vcpu->kvm->mmu_lock)
+-		rc = dat_reset_reference_bit(vcpu->arch.gmap->asce, gpa_to_gfn(gaddr));
++		rc = dat_reset_reference_bit(vcpu->arch.gmap->asce, gpa_to_gfn(gaddr), &skey);
+ 	if (rc > 0)
+ 		return kvm_s390_inject_program_int(vcpu, rc);
+ 	if (rc < 0)
+ 		return rc;
+-	kvm_s390_set_psw_cc(vcpu, rc);
++	kvm_s390_set_psw_cc(vcpu, (skey.skey >> 1) & 3);
+ 	return 0;
+ }
+ 
 -- 
 2.55.0
 
