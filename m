@@ -1,65 +1,65 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F04BC42BE86;
-	Fri, 31 Jul 2026 13:01:53 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EBCE442DA55;
+	Fri, 31 Jul 2026 13:01:55 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785502915; cv=none; b=LovLx1AtYOuRM9ffQdwZsTQoeUzLKHIwkZEt9F5E6lBZmdAhri/lIgMgFzqlM4OcURuXk1UInvilrl2p1B7pNLec+JISgYp/yTqK3talwmETXYeQjIFPi3cISLV+Bw1nKgLMdFQ0+Y3CQFm9nmLcKfkCLrXRHzzDEuyhBzLRE58=
+	t=1785502917; cv=none; b=f0ZB0lMp12Dz4tUYrVvxFmIAOUoNJkSOKUlyawAt53K24YgyOHS6yjPRuHj/vOl2rQ/43Y4+k66YF6WX6v1an0/6IJiv/Z0BGxweyrRwlXJ/bChYf6z2XvFbq1gagk+9ZDk7MfYNK6MK0jHSFGSMZmPXI9WV0405TWyJ8rF6R4U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785502915; c=relaxed/simple;
-	bh=eaeBNZ9YdlmEngpslj6Plaaezy+Oxl1yRHDDNOrYPc0=;
+	s=arc-20240116; t=1785502917; c=relaxed/simple;
+	bh=3caGIdp+p3kPdcgMgYkHp0OEp1q1F9YNv8vDbyO0O04=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=DoZ24YUy3suLGDUfSoBwY+I4DFtPYtIGzt5odSOEArFvFl0ycUXnkARHWIzExEg11Kb2Cd0VcPRG670pfuarSs0ZGvd5x2htKleZVkdLJSbInrVW8+u3LD3zg/PPsRxa5lHnLfbUX01otQJ2ysd3MzfSEW4PUHfqptzaaGOrK4U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=nH1gPBXo; arc=none smtp.client-ip=148.163.156.1
+	 MIME-Version; b=p/6lkWq6Li2x+hYBUeS/RVXSFXa6fmTykQTLP3ch5hz6q3r9yGHTHtahO4uMNM58zsGdfdXMJ+TLJ+8I7ECc9srU9QdxK4awnrz8qYu/b9qmVMI1wbcY9ysVOp95xLiaiiN9OoMJJDnfa/j9zTHmvPRtUymlLrRFN1uTOm9Pkxk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=rVotCKmM; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="nH1gPBXo"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="rVotCKmM"
 Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66VBlqW71765837;
-	Fri, 31 Jul 2026 13:01:52 GMT
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66VBlqW81765837;
+	Fri, 31 Jul 2026 13:01:54 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=cYACTU3Ehy66po10q
-	WiN+GQEIAYJ6njLKHh+/AMnRyg=; b=nH1gPBXoIbiWmmKVHN9Lje+6NdIh+AooA
-	rq8AeQmsnkBVN13qd4ndbMrhNeEzAlK5B2tn0xiOk3VzZ2YPVeWdj2njA4ht/5Rk
-	fRXkUQw0s78ak9XUYFt2xnGqU8z5xdgXZ4RG5W7gBPVkuj5F6bhyqpBNpCUVtLIw
-	72e7ziDEv6WjAK1NMQhAaKWQnAUBKbFx8MuvyUusSNg9lerjp+jwkR3fT0Uf4J/v
-	0fL+9ykjMb1psXB0s++6e+AVAKRbYcPSzTvpliarcZa+INEGLSMJiyjVrNyAxGFE
-	aCVFZzzHb6w7NRzy8r2R9k0hbInkKoMhD6a0Dxlpxt1Op0oVWbrPA==
+	:mime-version:references:subject:to; s=pp1; bh=UneEizWds06um/osM
+	D5l8RbzWNvgmHxpG3rtAjIygyM=; b=rVotCKmM3UypIVrZEIF6pp4cmnL/oVKHi
+	PGLX23DD9vNgjJytsRFMifxi+fR56cXa/wr2bAQfem2K2YMSQ+MvwI9BfYQhKFt0
+	y+zkE8gQBdyIRSEYM7j9Da7MlWMFf4LtYHmoDI/xqfDqMYR7ImWhBK01NGne3c0D
+	n67U5fdQK6ydeGOUyVsIzmDAdD1eX5WRWz7bjVOnMPjEubSnwfpQUa1uQMDg81PS
+	jTrFxUXa8UAJKQtsneWI/2zKxGEXowpK8NyUUXJ+GSUfEMy2ZX1DODPBN+bFTkvi
+	vMhDFvbA+cWTmOOYLsI2yFUTzBimfp4G16FKy4obdZ2NT2WkwgNUg==
 Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fmv0y5504-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fmv0y5509-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 31 Jul 2026 13:01:51 +0000 (GMT)
+	Fri, 31 Jul 2026 13:01:53 +0000 (GMT)
 Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66VCQEci026835;
-	Fri, 31 Jul 2026 13:01:50 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fn9pgqs46-1
+	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66VCQIMk026870;
+	Fri, 31 Jul 2026 13:01:52 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fn9pgqs4a-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 31 Jul 2026 13:01:50 +0000 (GMT)
+	Fri, 31 Jul 2026 13:01:52 +0000 (GMT)
 Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66VD1iSA29491694
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66VD1knM32571886
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 31 Jul 2026 13:01:44 GMT
+	Fri, 31 Jul 2026 13:01:46 GMT
 Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B8E4620040;
-	Fri, 31 Jul 2026 13:01:44 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id B72E420040;
+	Fri, 31 Jul 2026 13:01:46 +0000 (GMT)
 Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id DE53520043;
-	Fri, 31 Jul 2026 13:01:43 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id D09FF20043;
+	Fri, 31 Jul 2026 13:01:45 +0000 (GMT)
 Received: from p-imbrenda.ibmuc.com (unknown [9.111.4.62])
 	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 31 Jul 2026 13:01:43 +0000 (GMT)
+	Fri, 31 Jul 2026 13:01:45 +0000 (GMT)
 From: Claudio Imbrenda <imbrenda@linux.ibm.com>
 To: linux-kernel@vger.kernel.org
 Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, borntraeger@de.ibm.com,
         frankja@linux.ibm.com, david@kernel.org, seiden@linux.ibm.com,
         nrb@linux.ibm.com, schlameuss@linux.ibm.com, gra@linux.ibm.com
-Subject: [PATCH v7 05/14] KVM: s390: ucontrol: Fix sca_clear_ext_call()
-Date: Fri, 31 Jul 2026 15:01:29 +0200
-Message-ID: <20260731130138.173983-6-imbrenda@linux.ibm.com>
+Subject: [PATCH v7 07/14] KVM: s390: Fix race in __do_essa()
+Date: Fri, 31 Jul 2026 15:01:31 +0200
+Message-ID: <20260731130138.173983-8-imbrenda@linux.ibm.com>
 X-Mailer: git-send-email 2.55.0
 In-Reply-To: <20260731130138.173983-1-imbrenda@linux.ibm.com>
 References: <20260731130138.173983-1-imbrenda@linux.ibm.com>
@@ -71,23 +71,23 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: yG814ASr9ahDzcOyYjmQfscmjds_78JU
-X-Proofpoint-ORIG-GUID: yG814ASr9ahDzcOyYjmQfscmjds_78JU
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzMxMDA5NiBTYWx0ZWRfX6iXfj6SfzD4v
- 0pxPPvOPWYEvSJS2HS9dO4bVh4+VWOOvv83xxZCwhbMuo2rkj0pL5KYSz4/PGeTYruY3NBJ1LSQ
- oefWdFJj7FSB7m/MI/BKu+zEGhSfXl0=
-X-Authority-Analysis: v=2.4 cv=dYuwG3Xe c=1 sm=1 tr=0 ts=6a6c9cbf cx=c_pps
+X-Proofpoint-GUID: ycC_rVo4QATofPMrvJQLvLJTTsdS_R79
+X-Proofpoint-ORIG-GUID: ycC_rVo4QATofPMrvJQLvLJTTsdS_R79
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzMxMDA5NiBTYWx0ZWRfX53uG7PlvNnpX
+ gIPgpnh62xS13mWf/axnGxBD8ObcTCoiu0HQ6tipFaYAhQQ3O3xXOb//p3UOL9iOUjJDD7Bb/dY
+ 22qNmTH82KeJN5K1YqrqgAfKIXmeKiA=
+X-Authority-Analysis: v=2.4 cv=dYuwG3Xe c=1 sm=1 tr=0 ts=6a6c9cc1 cx=c_pps
  a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
  a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8 a=EUfh2IAhO5dQcouLE0wA:9
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzMxMDA5NiBTYWx0ZWRfXxaHIJd5xKUyU
- sRoAmD18mnzG26MOJUpRrvJE/Lq96GPDs7euGWbGiEzlfafkOrAd9Ioi8ly7EvapoPbfSYDt628
- HIeE+WSFjhcVVCvbwwdMpvS8ejTHbKpgKZB0lDzGJieqomOdW7q7h6FR+eH8W41KgJhw3jI9JcL
- SdF3Tv0oV9VAgkwHfHccMdLDL1reQNMnfE5T9CTp+hsEQKsn4mQ9M/Wl8svVnbTn0JB9F2VFKN8
- opNowXnp8/jiUFcNoNEX737m2GH3xDN1NadkBqSps74IRWcyvFDyCZ/5MHAaHQIAgwkyXpM/Whg
- jQXxmYafIA4lC2vXs8at2ULHXdWbc3el2N//kxmHbGDiaeIw+6NGJ+9gNk2fBmFBmdyoeQk3kuC
- F6VRzz3mEPmoawgc1hdVgwXffW0Ts86Sy0Atdbpqyy4gs1dC5tK0eaj017JDUcWXS2YKTZjJM9j
- 7TfNbFtgJx1RJKsHJnA==
+ a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8 a=vVGDtJNaOgRaVfleRDgA:9
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzMxMDA5NiBTYWx0ZWRfX1q/Od4B3ur17
+ ZIvJT6Gd/Iyi2BDztOq16Nf3y710TlXLIHWdQpjcM4VwzmBuLtwLIuQBTxNU1AY/Nw3+lai1Ijg
+ bZMnjihpJ+jlKX1c7uvKFnSfQ9zJCyXSL2T7e2d4hvb1BnMnbYbcqBdi+S4J6ugmUQP7WiiGSXg
+ hmAV1jVD4gMAi0Ai7c8DuT9zzOZPEwzpFwg7e6B872CYElFPMw2KymX1bQ1Ngq+Q0+bYdF1qkBt
+ +PP0dzeckIc+1RY4TAICOWJ3cJznyfs5/hlgRf2bFyUsrNwbLU/S273rh9tqibPA8gtsnFPlIUr
+ EloKvebXReO15yr2r/PYhDhF/En0TohOYcw/gSmTiKMRXzyVklZbHOsqB2Ap/VfvaN+kCvAKdGz
+ irTkL4TxQHPktHetD0nBf5iqlhFllIpbsQErg5FTWaEdpNUj0QM5cdVSeN5CzlpCpKzJKqjzbqk
+ D2mFZgtSj+vmAe+0eTw==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-07-31_04,2026-07-30_01,2025-10-01_01
@@ -97,104 +97,102 @@ X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607310096
 
-When cleaning up a UCONTROL VM, sca_clear_ext_call() will touch memory
-outside of the allocated ESCA block, and UCONTROL VMs don't even use
-ESCA.
+An unlikely race between __do_essa() and kvm_s390_vm_start_migration(),
+kvm_s390_vm_stop_migration(), or dat_get_cmma() was possible.
 
-Fix by not touching ESCA for UCONTROL VMs, and fence the
-KVM_S390_INTERRUPT ioctl altogether.
+Fix by locking kvm->slots_arch_lock. Since this is not a hot path, the
+overhead of an additional mutex is negligible.
 
-Opportunistically add checks in sca_ext_call_pending() and
-sca_inject_ext_call() to make sure UCONTROL VMs won't call those
-functions ever.
-
+Fixes: e38c884df921 ("KVM: s390: Switch to new gmap")
 Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Fixes: 7d43bafcff17 ("KVM: s390: Make provisions for ESCA utilization")
 ---
- arch/s390/kvm/interrupt.c | 19 ++++++++++++++-----
- arch/s390/kvm/kvm-s390.c  |  5 +++++
- 2 files changed, 19 insertions(+), 5 deletions(-)
+ arch/s390/kvm/kvm-s390.c | 20 ++++++++++----------
+ arch/s390/kvm/priv.c     |  5 +++--
+ 2 files changed, 13 insertions(+), 12 deletions(-)
 
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index 2acdff130fa6..9db68e3ac178 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -45,13 +45,16 @@ static struct kvm_s390_gib *gib;
- static int sca_ext_call_pending(struct kvm_vcpu *vcpu, int *src_id)
- {
- 	struct esca_block *sca = vcpu->kvm->arch.sca;
--	union esca_sigp_ctrl sigp_ctrl = sca->cpu[vcpu->vcpu_id].sigp_ctrl;
-+	union esca_sigp_ctrl sigp_ctrl;
- 
- 	if (!kvm_s390_test_cpuflags(vcpu, CPUSTAT_ECALL_PEND))
- 		return 0;
-+	if (kvm_is_ucontrol(vcpu->kvm))
-+		return 0;
- 
- 	BUG_ON(!kvm_s390_use_sca_entries());
- 
-+	sigp_ctrl = sca->cpu[vcpu->vcpu_id].sigp_ctrl;
- 	if (src_id)
- 		*src_id = sigp_ctrl.scn;
- 
-@@ -60,13 +63,16 @@ static int sca_ext_call_pending(struct kvm_vcpu *vcpu, int *src_id)
- 
- static int sca_inject_ext_call(struct kvm_vcpu *vcpu, int src_id)
- {
--	struct esca_block *sca = vcpu->kvm->arch.sca;
--	union esca_sigp_ctrl *sigp_ctrl = &sca->cpu[vcpu->vcpu_id].sigp_ctrl;
- 	union esca_sigp_ctrl old_val, new_val = {.scn = src_id, .c = 1};
-+	struct esca_block *sca = vcpu->kvm->arch.sca;
-+	union esca_sigp_ctrl *sigp_ctrl;
- 	int expect, rc;
- 
- 	BUG_ON(!kvm_s390_use_sca_entries());
-+	if (KVM_BUG_ON(kvm_is_ucontrol(vcpu->kvm), vcpu->kvm))
-+		return -EINVAL;
- 
-+	sigp_ctrl = &sca->cpu[vcpu->vcpu_id].sigp_ctrl;
- 	old_val = READ_ONCE(*sigp_ctrl);
- 	old_val.c = 0;
- 
-@@ -84,10 +90,13 @@ static int sca_inject_ext_call(struct kvm_vcpu *vcpu, int src_id)
- static void sca_clear_ext_call(struct kvm_vcpu *vcpu)
- {
- 	struct esca_block *sca = vcpu->kvm->arch.sca;
--	union esca_sigp_ctrl *sigp_ctrl = &sca->cpu[vcpu->vcpu_id].sigp_ctrl;
-+	union esca_sigp_ctrl *sigp_ctrl;
- 
--	if (!kvm_s390_use_sca_entries() || !vcpu->arch.initialized)
-+	if (!kvm_s390_use_sca_entries() || !vcpu->arch.initialized || kvm_is_ucontrol(vcpu->kvm))
- 		return;
-+
-+	/* Initialize after the above check, to prevent going out of bounds */
-+	sigp_ctrl = &sca->cpu[vcpu->vcpu_id].sigp_ctrl;
- 	kvm_s390_clear_cpuflags(vcpu, CPUSTAT_ECALL_PEND);
- 
- 	WRITE_ONCE(sigp_ctrl->value, 0);
 diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 5b2727d7dfd1..21574f57be72 100644
+index e162efaa35b8..e5c5e9f61cb2 100644
 --- a/arch/s390/kvm/kvm-s390.c
 +++ b/arch/s390/kvm/kvm-s390.c
-@@ -2934,6 +2934,9 @@ int kvm_arch_vm_ioctl(struct file *filp, unsigned int ioctl, unsigned long arg)
- 	case KVM_S390_INTERRUPT: {
- 		struct kvm_s390_interrupt s390int;
+@@ -1219,8 +1219,8 @@ static void kvm_s390_sync_request_broadcast(struct kvm *kvm, int req)
  
-+		r = -EINVAL;
-+		if (kvm_is_ucontrol(kvm))
-+			break;
+ /*
+  * Must be called with kvm->srcu held to avoid races on memslots, and with
+- * kvm->slots_lock to avoid races with ourselves, kvm_s390_vm_stop_migration(),
+- * and kvm_s390_get_cmma_bits().
++ * kvm->slots_arch_lock to avoid races with ourselves,
++ * kvm_s390_vm_stop_migration(), and kvm_s390_get_cmma_bits().
+  */
+ static int kvm_s390_vm_start_migration(struct kvm *kvm)
+ {
+@@ -1265,7 +1265,7 @@ static int kvm_s390_vm_start_migration(struct kvm *kvm)
+ }
+ 
+ /*
+- * Must be called with kvm->slots_lock to avoid races with ourselves,
++ * Must be called with kvm->slots_arch_lock to avoid races with ourselves,
+  * kvm_s390_vm_start_migration() and kvm_s390_get_cmma_bits().
+  */
+ static int kvm_s390_vm_stop_migration(struct kvm *kvm)
+@@ -1300,7 +1300,9 @@ static int kvm_s390_vm_set_migration(struct kvm *kvm,
+ {
+ 	int res = -ENXIO;
+ 
+-	mutex_lock(&kvm->slots_lock);
++	guard(srcu)(&kvm->srcu);
++	guard(mutex)(&kvm->slots_arch_lock);
++
+ 	switch (attr->attr) {
+ 	case KVM_S390_VM_MIGRATION_START:
+ 		res = kvm_s390_vm_start_migration(kvm);
+@@ -1311,7 +1313,6 @@ static int kvm_s390_vm_set_migration(struct kvm *kvm,
+ 	default:
+ 		break;
+ 	}
+-	mutex_unlock(&kvm->slots_lock);
+ 
+ 	return res;
+ }
+@@ -3001,9 +3002,8 @@ int kvm_arch_vm_ioctl(struct file *filp, unsigned int ioctl, unsigned long arg)
  		r = -EFAULT;
- 		if (copy_from_user(&s390int, argp, sizeof(s390int)))
+ 		if (copy_from_user(&args, argp, sizeof(args)))
  			break;
-@@ -5456,6 +5459,8 @@ long kvm_arch_vcpu_unlocked_ioctl(struct file *filp, unsigned int ioctl,
- 		struct kvm_s390_interrupt s390int;
- 		struct kvm_s390_irq s390irq = {};
- 
-+		if (kvm_is_ucontrol(vcpu->kvm))
-+			return -EINVAL;
- 		if (copy_from_user(&s390int, argp, sizeof(s390int)))
- 			return -EFAULT;
- 		if (s390int_to_s390irq(&s390int, &s390irq))
+-		mutex_lock(&kvm->slots_lock);
+-		r = kvm_s390_get_cmma_bits(kvm, &args);
+-		mutex_unlock(&kvm->slots_lock);
++		scoped_guard(mutex, &kvm->slots_arch_lock)
++			r = kvm_s390_get_cmma_bits(kvm, &args);
+ 		if (!r) {
+ 			r = copy_to_user(argp, &args, sizeof(args));
+ 			if (r)
+@@ -3017,9 +3017,9 @@ int kvm_arch_vm_ioctl(struct file *filp, unsigned int ioctl, unsigned long arg)
+ 		r = -EFAULT;
+ 		if (copy_from_user(&args, argp, sizeof(args)))
+ 			break;
+-		mutex_lock(&kvm->slots_lock);
++		mutex_lock(&kvm->slots_arch_lock);
+ 		r = kvm_s390_set_cmma_bits(kvm, &args);
+-		mutex_unlock(&kvm->slots_lock);
++		mutex_unlock(&kvm->slots_arch_lock);
+ 		break;
+ 	}
+ 	case KVM_S390_PV_COMMAND: {
+diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
+index ea5a99537346..b1ba24c346ef 100644
+--- a/arch/s390/kvm/priv.c
++++ b/arch/s390/kvm/priv.c
+@@ -1261,8 +1261,9 @@ static int handle_essa(struct kvm_vcpu *vcpu)
+ 		/* Retry the ESSA instruction */
+ 		kvm_s390_retry_instr(vcpu);
+ 	} else {
+-		scoped_guard(read_lock, &vcpu->kvm->mmu_lock)
+-			i = __do_essa(vcpu, orc);
++		scoped_guard(mutex, &vcpu->kvm->slots_arch_lock)
++			scoped_guard(read_lock, &vcpu->kvm->mmu_lock)
++				i = __do_essa(vcpu, orc);
+ 		if (i < 0)
+ 			return i;
+ 		/* Account for the possible extra cbrl entry */
 -- 
 2.55.0
 
