@@ -1,57 +1,57 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC1A642C508;
-	Fri, 31 Jul 2026 13:09:38 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4BED142CB00;
+	Fri, 31 Jul 2026 13:09:39 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785503381; cv=none; b=jTnggUOY1eDuFEIKVgjRHojwJQHPT2Mkl8vuU0heCQONemkezI6s8AanZG4yBfWi66bqFkqaX5Zlj9QPoyFMrXBf6jZ1CaNdfp19SRdKrYFP0yO/4o6cOya3YvJVPPxFghQS/9mpMXlUm8Ukw5xdv+KfpIEy6Meq4ejmr1wpgKA=
+	t=1785503381; cv=none; b=efJAyR9DazQe5GesRDOHeROZfRUc4bRyJjdZE6qN7kawzTNPlp6uvCYOXjXGKaJdIdTddu1pDLop3MWzfzYWujDqTC5fiScs0DWCBvZ26G4pDwC0UEWT+AzSV5U1DApRwUXvLp3uxPXtr97gxPoPmLHoY+Eqf14iYkZi12bO+1U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1785503381; c=relaxed/simple;
-	bh=BkUE/e4gfk1CRG0u7zBrEAc7F81M+RQXK1WK30UI+E0=;
+	bh=s/VHK3l4V/opXyxmvjHVQQyx6bMLTnHI1mFNxF8QCQY=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=FHJtbtN3pf5l3P7x8KCjAT78eMA+oHAyZHAm9WO6G6oL+oq14Tln0ALend0f5B6bKZ2CO/rRhGvwbgwZBkUHvvgShx1O8xF6ZGqZgDUG1EmUvjZ1BxOCH44UBI57wKHkMh8J8dRcYDFA1qKBPZZjdKvxQETg7DBzgDd3GWCAh94=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=o6AMEJpr; arc=none smtp.client-ip=148.163.156.1
+	 MIME-Version; b=ows1PLJo1dXMxD6UR6Zvs4SXgeDVcFWN4yvIiKvRNt4IFKQFji5IUtDitwkzc4ZRb3UI8TK2zaL+nUo5i53924af1qit2GfR0jqdAJ07tH4PnzXOic+HZG+IixepQVqjKZGD5iQajqhb+rkW11ru+mfCu6401wg/0kuhSb7PX8w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=lYFH91c3; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="o6AMEJpr"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="lYFH91c3"
 Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66VBldjA1730400;
-	Fri, 31 Jul 2026 13:09:19 GMT
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66VBmUqC1732345;
+	Fri, 31 Jul 2026 13:09:18 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=JKmK/xOF2rYfFCDDz
-	B9ScTAqZe25huI7PolZxZ5u69I=; b=o6AMEJprqgPDzsux1hABe4ojWcV1Kd0UG
-	4Vzm9vmaSHdAWr0JKXlk+5CQgYMBDhC7IdYvoQaZ1f3LuXHGOkp9hllRkHNRgG/L
-	5l8IIOiYHf9wu80iX3b6rOeZXiL+QLBvBj8oP8ndPkkEf61pTs1M/q/wpYywEupr
-	r8fUMq8jh31Vtu8+MBMycLn0W7py0nyGAtVqAG4m1h8odsRjOQ5SMwC5siTgn7Go
-	+XaPUmnT1xX46w4o3R7xYHa2gc2FRpcRrFURBeNoEipzTkgv/P+vLxNI2bg9pF5q
-	VXypXN1zeHrJ5OlVeIxO961I34lqVixXxvr3VE86duV1ww6d/JAHQ==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fmuw7w4m0-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 31 Jul 2026 13:09:19 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66VCQEsY026828;
-	Fri, 31 Jul 2026 13:09:18 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fn9pgqtby-1
+	:mime-version:references:subject:to; s=pp1; bh=pxBQDzcefpvTkc6N8
+	16N8JcNplQq+L7zx85iUJorX5Q=; b=lYFH91c3Q49AJZxfK0CP9omslwsrhUr5L
+	pcHOi1WIYDZs17D38EtC6J8/yhVrM7I9U1Ib0QTUO8BkUq64ejdhH8ZnPADNMFXM
+	4D2qL70u/XaTy6n9giH1QJqxh4dR900ZwscnuzwLQ8nShwIkZA92fTlQEvMuMFME
+	Tx1TiBS2RGWuSGR0yS+PXtzVAWxF5QzN6QOy841w9ZOhwhQr5pDuhmjC9R/HIdap
+	bal4z5IfY75faVbMWVwwOAPl9WK/ENCwVHdHxberpREoZrVJlarO+5VCCYvE9PBN
+	R39p2+qtnhIVVDEDiCTa3jcynEbBCnmIPSFJE6TqbA3wkRbt1RnkQ==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fmuw7w4kt-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Fri, 31 Jul 2026 13:09:17 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66VCuLc6023579;
+	Fri, 31 Jul 2026 13:09:16 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fna5yfqfj-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 31 Jul 2026 13:09:16 +0000 (GMT)
 Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66VD9Bj250135414
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66VD9Akw32637358
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 31 Jul 2026 13:09:11 GMT
+	Fri, 31 Jul 2026 13:09:10 GMT
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id AB1FF20040;
-	Fri, 31 Jul 2026 13:09:11 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 4A36F20040;
+	Fri, 31 Jul 2026 13:09:10 +0000 (GMT)
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 44AC320043;
-	Fri, 31 Jul 2026 13:09:11 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id DE2142004B;
+	Fri, 31 Jul 2026 13:09:09 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
 	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 31 Jul 2026 13:09:11 +0000 (GMT)
+	Fri, 31 Jul 2026 13:09:09 +0000 (GMT)
 From: Steffen Eiden <seiden@linux.ibm.com>
 To: kvm@vger.kernel.org, kvmarm@lists.linux.dev,
         linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
@@ -77,9 +77,9 @@ Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
         Ulrich Weigand <Ulrich.Weigand@de.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>,
         Zenghui Yu <yuzenghui@huawei.com>
-Subject: [PATCH v5 19/31] KVM: s390: gmap: Move prefix handling to kvm/s390
-Date: Fri, 31 Jul 2026 15:08:47 +0200
-Message-ID: <20260731130902.654679-20-seiden@linux.ibm.com>
+Subject: [PATCH v5 16/31] KVM: s390: Move PGM code definitions to asm/kvm_host.h
+Date: Fri, 31 Jul 2026 15:08:44 +0200
+Message-ID: <20260731130902.654679-17-seiden@linux.ibm.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260731130902.654679-1-seiden@linux.ibm.com>
 References: <20260731130902.654679-1-seiden@linux.ibm.com>
@@ -92,23 +92,23 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
 X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-GUID: jmbg_IUaJhgEWwTs7p6F0H2czEl_h1lr
-X-Proofpoint-ORIG-GUID: Wcl7-u5EVBgteko2dK6MwurjdXbtNLex
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzMxMDA5NiBTYWx0ZWRfX0Nd9DjaUMJq1
- Zf6vtoNhpzjGnuAvELovmjR4zJz4sSvVIyfBNGDJcQbB4u6b2Vhzn5Ojz+nRH0ZTptioQiVIIz1
- 8WZy9lIzqwkc0atwgMM4GtXveRa+5JCpOEMhmPNmGvIL86xBugfrVVV1RvW1qJJH0uUBm2E/B45
- AVEA+N9fYvrnL89u/sbGauQuvjHHR/1XbMMuaV4m1/z6hjfaAZ1U99UzTK5LqDPz/sBFRZvonJf
- Q8XmpkOYu2Oq4m8qz83mBSUfHxRXAoUV7S/AWHMc0CAl7cUS9hv4FVYDiVwVyWrQkEmgGy0nrIF
- 85qgiFDZYW4MsAxFOQUcNwVya7ilNJvedi7PmR/0QVBzCjrmCl+/VRliEQhtAKpLRHcS+90UPNx
- JkZ9pAlfRNM+9jZZLND2nqG8maKSW+tkSMO8kbZiTEQ1YU/6RgbjsbQoWmxjh5/ePy+8nJcnQOU
- g6rVTbDxveAeMkBrmiw==
-X-Authority-Analysis: v=2.4 cv=SKFykuvH c=1 sm=1 tr=0 ts=6a6c9e7f cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+X-Proofpoint-GUID: cU7S3y4KSk2SIDvEgrsO8afsPJQL_AIn
+X-Proofpoint-ORIG-GUID: a2lqMBN7jYHmnRoNghA6BeDvM0XIgTvb
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzMxMDA5NiBTYWx0ZWRfX7B4GY8RGThkQ
+ URj2Jneu56iseBIK2qgNknpnHN0nx5XYYBOf14Wg/wOV09EVsUSxQGTG2r3/hAgjH5XiFfcOKhz
+ hJybZNDp4QUiaqgEVXgLnRN2os1+7EoM5bpViIOafovR57xI0gE9oqmz2iKBJ8j9H2e0eHXlQE5
+ 2iMJzipC0QUomQ8SWcD6dqTf2WzIe1THoAgZWQtB8di6C8KFuM3qDL0u4U6WcyQb+ddCa32bxJQ
+ Ww5Ym3EqkUUce/gcn3026MMTeigmADZvRpGUpXqg2Hn+/GOgRxfwGxO4HjwkSwwnI1Jz7SLZStD
+ QvLCRtFF/fbkodJ/FMFLYZ2UsGo0zlJzurgoEbylCAMYYMG8lmP024Hifw+V4zNgpMkD1XFzoDH
+ ie4Y3LBfy1BmZHOaYpqE2+jOs8ScSpAm0bQ4nVdXYWbp68XO0sWxJ3efTmsEsWnr9sHWBYHfk/i
+ xqAMpkar3cUXF7Z+GUg==
+X-Authority-Analysis: v=2.4 cv=SKFykuvH c=1 sm=1 tr=0 ts=6a6c9e7e cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
  a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8 a=4SwaMfgYKtkue4rGTFgA:9
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzMxMDA5NiBTYWx0ZWRfX2SqBLmgj3JDN
- 4jwCnM55PiHBDB99DYBZCcdRcScyts97tkVyAA3exp7ysiuel1YbaD5lTj7/ziEVIV7QbmxIz/z
- 9SnDYvPgTzmtq8XL1AlZRUz0i/tko8k=
+ a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8 a=TiwjLMfUdNF-F4zQeIEA:9
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzMxMDA5NiBTYWx0ZWRfX+h51CXDNeRl6
+ dc8fzXFh8PPy2q4DIvhSzsZy4Hw0z5I35A21sy3ZAnLN+S7sxUj+jf0j0CIPy45kb9FyuWGACXL
+ BGAFxw0b1lkvUa1Fojf64ziw6LMUapA=
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-07-31_04,2026-07-30_01,2025-10-01_01
@@ -119,335 +119,151 @@ X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
  route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
  definitions=main-2607310096
 
-Move code handling prefix page tracking from kvm/gmap to kvm/s390. This
-enables other KVM implementations to use gmap without implementing
-prefix handling. The prefix tracking is turned on if
-KVM_S390_GUEST_HAS_PREFIX is defined.
+Move the PGM definitions from kvm_host_s390.h (back) to kvm_host.h so
+they can be used by a second KVM implementation.
 
-No functional changes.
+No functional change.
 
 Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
 ---
- arch/s390/include/asm/kvm_host_s390.h |  2 ++
- arch/s390/kvm/gmap/dat.c              | 48 ---------------------------
- arch/s390/kvm/gmap/dat.h              |  1 -
- arch/s390/kvm/gmap/gmap.c             | 28 ----------------
- arch/s390/kvm/gmap/gmap.h             | 12 +------
- arch/s390/kvm/gmap/prefix.h           | 39 ++++++++++++++++++++++
- arch/s390/kvm/s390/dat.c              | 48 +++++++++++++++++++++++++++
- arch/s390/kvm/s390/gmap.c             | 29 ++++++++++++++++
- 8 files changed, 119 insertions(+), 88 deletions(-)
- create mode 100644 arch/s390/kvm/gmap/prefix.h
+ arch/s390/include/asm/kvm_host.h      | 57 +++++++++++++++++++++++++++
+ arch/s390/include/asm/kvm_host_s390.h | 57 ---------------------------
+ 2 files changed, 57 insertions(+), 57 deletions(-)
 
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index e76ceee11ef5..147325978225 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -5,4 +5,61 @@
+ 
+ #include <asm/kvm_host_s390.h>
+ 
++#define PGM_OPERATION			0x01
++#define PGM_PRIVILEGED_OP		0x02
++#define PGM_EXECUTE			0x03
++#define PGM_PROTECTION			0x04
++#define PGM_ADDRESSING			0x05
++#define PGM_SPECIFICATION		0x06
++#define PGM_DATA			0x07
++#define PGM_FIXED_POINT_OVERFLOW	0x08
++#define PGM_FIXED_POINT_DIVIDE		0x09
++#define PGM_DECIMAL_OVERFLOW		0x0a
++#define PGM_DECIMAL_DIVIDE		0x0b
++#define PGM_HFP_EXPONENT_OVERFLOW	0x0c
++#define PGM_HFP_EXPONENT_UNDERFLOW	0x0d
++#define PGM_HFP_SIGNIFICANCE		0x0e
++#define PGM_HFP_DIVIDE			0x0f
++#define PGM_SEGMENT_TRANSLATION		0x10
++#define PGM_PAGE_TRANSLATION		0x11
++#define PGM_TRANSLATION_SPEC		0x12
++#define PGM_SPECIAL_OPERATION		0x13
++#define PGM_OPERAND			0x15
++#define PGM_TRACE_TABEL			0x16
++#define PGM_VECTOR_PROCESSING		0x1b
++#define PGM_SPACE_SWITCH		0x1c
++#define PGM_HFP_SQUARE_ROOT		0x1d
++#define PGM_PC_TRANSLATION_SPEC		0x1f
++#define PGM_AFX_TRANSLATION		0x20
++#define PGM_ASX_TRANSLATION		0x21
++#define PGM_LX_TRANSLATION		0x22
++#define PGM_EX_TRANSLATION		0x23
++#define PGM_PRIMARY_AUTHORITY		0x24
++#define PGM_SECONDARY_AUTHORITY		0x25
++#define PGM_LFX_TRANSLATION		0x26
++#define PGM_LSX_TRANSLATION		0x27
++#define PGM_ALET_SPECIFICATION		0x28
++#define PGM_ALEN_TRANSLATION		0x29
++#define PGM_ALE_SEQUENCE		0x2a
++#define PGM_ASTE_VALIDITY		0x2b
++#define PGM_ASTE_SEQUENCE		0x2c
++#define PGM_EXTENDED_AUTHORITY		0x2d
++#define PGM_LSTE_SEQUENCE		0x2e
++#define PGM_ASTE_INSTANCE		0x2f
++#define PGM_STACK_FULL			0x30
++#define PGM_STACK_EMPTY			0x31
++#define PGM_STACK_SPECIFICATION		0x32
++#define PGM_STACK_TYPE			0x33
++#define PGM_STACK_OPERATION		0x34
++#define PGM_ASCE_TYPE			0x38
++#define PGM_REGION_FIRST_TRANS		0x39
++#define PGM_REGION_SECOND_TRANS		0x3a
++#define PGM_REGION_THIRD_TRANS		0x3b
++#define PGM_SECURE_STORAGE_ACCESS	0x3d
++#define PGM_NON_SECURE_STORAGE_ACCESS	0x3e
++#define PGM_SECURE_STORAGE_VIOLATION	0x3f
++#define PGM_MONITOR			0x40
++#define PGM_PER				0x80
++#define PGM_CRYPTO_OPERATION		0x119
++
+ #endif /* ASM_KVM_HOST_H */
 diff --git a/arch/s390/include/asm/kvm_host_s390.h b/arch/s390/include/asm/kvm_host_s390.h
-index 9e4d7ed53078..cfd95df60130 100644
+index 3c592e4bb883..9e4d7ed53078 100644
 --- a/arch/s390/include/asm/kvm_host_s390.h
 +++ b/arch/s390/include/asm/kvm_host_s390.h
-@@ -32,6 +32,8 @@
+@@ -150,63 +150,6 @@ struct kvm_vcpu_stat {
+ 	u64 signal_exits;
+ };
  
- #define KVM_INTERNAL_MEM_SLOTS 1
- 
-+#define KVM_S390_GUEST_HAS_PREFIX
-+
- /*
-  * These seem to be used for allocating ->chip in the routing table, which we
-  * don't use. 1 is as small as we can get to reduce the needed memory. If we
-diff --git a/arch/s390/kvm/gmap/dat.c b/arch/s390/kvm/gmap/dat.c
-index 1ac6457de498..6252a7cd81a8 100644
---- a/arch/s390/kvm/gmap/dat.c
-+++ b/arch/s390/kvm/gmap/dat.c
-@@ -777,51 +777,3 @@ bool dat_test_age_gfn(union asce asce, gfn_t start, gfn_t end)
- 	return _dat_walk_gfn_range(start, end, asce, &test_age_ops, 0, NULL) > 0;
- }
- 
--static long dat_set_pn_crste(union crste *crstep, gfn_t gfn, gfn_t next, struct dat_walk *walk)
--{
--	union crste newcrste, oldcrste;
--	int *n = walk->priv;
+-#define PGM_OPERATION			0x01
+-#define PGM_PRIVILEGED_OP		0x02
+-#define PGM_EXECUTE			0x03
+-#define PGM_PROTECTION			0x04
+-#define PGM_ADDRESSING			0x05
+-#define PGM_SPECIFICATION		0x06
+-#define PGM_DATA			0x07
+-#define PGM_FIXED_POINT_OVERFLOW	0x08
+-#define PGM_FIXED_POINT_DIVIDE		0x09
+-#define PGM_DECIMAL_OVERFLOW		0x0a
+-#define PGM_DECIMAL_DIVIDE		0x0b
+-#define PGM_HFP_EXPONENT_OVERFLOW	0x0c
+-#define PGM_HFP_EXPONENT_UNDERFLOW	0x0d
+-#define PGM_HFP_SIGNIFICANCE		0x0e
+-#define PGM_HFP_DIVIDE			0x0f
+-#define PGM_SEGMENT_TRANSLATION		0x10
+-#define PGM_PAGE_TRANSLATION		0x11
+-#define PGM_TRANSLATION_SPEC		0x12
+-#define PGM_SPECIAL_OPERATION		0x13
+-#define PGM_OPERAND			0x15
+-#define PGM_TRACE_TABEL			0x16
+-#define PGM_VECTOR_PROCESSING		0x1b
+-#define PGM_SPACE_SWITCH		0x1c
+-#define PGM_HFP_SQUARE_ROOT		0x1d
+-#define PGM_PC_TRANSLATION_SPEC		0x1f
+-#define PGM_AFX_TRANSLATION		0x20
+-#define PGM_ASX_TRANSLATION		0x21
+-#define PGM_LX_TRANSLATION		0x22
+-#define PGM_EX_TRANSLATION		0x23
+-#define PGM_PRIMARY_AUTHORITY		0x24
+-#define PGM_SECONDARY_AUTHORITY		0x25
+-#define PGM_LFX_TRANSLATION		0x26
+-#define PGM_LSX_TRANSLATION		0x27
+-#define PGM_ALET_SPECIFICATION		0x28
+-#define PGM_ALEN_TRANSLATION		0x29
+-#define PGM_ALE_SEQUENCE		0x2a
+-#define PGM_ASTE_VALIDITY		0x2b
+-#define PGM_ASTE_SEQUENCE		0x2c
+-#define PGM_EXTENDED_AUTHORITY		0x2d
+-#define PGM_LSTE_SEQUENCE		0x2e
+-#define PGM_ASTE_INSTANCE		0x2f
+-#define PGM_STACK_FULL			0x30
+-#define PGM_STACK_EMPTY			0x31
+-#define PGM_STACK_SPECIFICATION		0x32
+-#define PGM_STACK_TYPE			0x33
+-#define PGM_STACK_OPERATION		0x34
+-#define PGM_ASCE_TYPE			0x38
+-#define PGM_REGION_FIRST_TRANS		0x39
+-#define PGM_REGION_SECOND_TRANS		0x3a
+-#define PGM_REGION_THIRD_TRANS		0x3b
+-#define PGM_SECURE_STORAGE_ACCESS	0x3d
+-#define PGM_NON_SECURE_STORAGE_ACCESS	0x3e
+-#define PGM_SECURE_STORAGE_VIOLATION	0x3f
+-#define PGM_MONITOR			0x40
+-#define PGM_PER				0x80
+-#define PGM_CRYPTO_OPERATION		0x119
 -
--	do {
--		oldcrste = READ_ONCE(*crstep);
--		if (!oldcrste.h.fc || oldcrste.h.i || oldcrste.h.p)
--			return 0;
--		if (oldcrste.s.fc1.prefix_notif)
--			break;
--		newcrste = oldcrste;
--		newcrste.s.fc1.prefix_notif = 1;
--	} while (!dat_crstep_xchg_atomic(crstep, oldcrste, newcrste, gfn, walk->asce));
--	*n = 2;
--	return 0;
--}
--
--static long dat_set_pn_pte(union pte *ptep, gfn_t gfn, gfn_t next, struct dat_walk *walk)
--{
--	int *n = walk->priv;
--	union pgste pgste;
--
--	pgste = pgste_get_lock(ptep);
--	if (!ptep->h.i && !ptep->h.p) {
--		pgste.prefix_notif = 1;
--		*n += 1;
--	}
--	pgste_set_unlock(ptep, pgste);
--	return 0;
--}
--
--int dat_set_prefix_notif_bit(union asce asce, gfn_t gfn)
--{
--	static const struct dat_walk_ops ops = {
--		.pte_entry = dat_set_pn_pte,
--		.pmd_entry = dat_set_pn_crste,
--		.pud_entry = dat_set_pn_crste,
--	};
--
--	int n = 0;
--
--	_dat_walk_gfn_range(gfn, gfn + 2, asce, &ops, DAT_WALK_IGN_HOLES, &n);
--	if (n != 2)
--		return -EAGAIN;
--	return 0;
--}
--
-diff --git a/arch/s390/kvm/gmap/dat.h b/arch/s390/kvm/gmap/dat.h
-index e6fd201ec9b9..fb412bd07685 100644
---- a/arch/s390/kvm/gmap/dat.h
-+++ b/arch/s390/kvm/gmap/dat.h
-@@ -538,7 +538,6 @@ void dat_set_ptval(struct page_table *table, struct ptval_param param, unsigned
- 
- int dat_set_slot(struct kvm_s390_mmu_cache *mc, union asce asce, gfn_t start, gfn_t end,
- 		 u16 type, u16 param);
--int dat_set_prefix_notif_bit(union asce asce, gfn_t gfn);
- bool dat_test_age_gfn(union asce asce, gfn_t start, gfn_t end);
- 
- int dat_perform_essa(union asce asce, gfn_t gfn, int orc, union essa_state *state, bool *dirty);
-diff --git a/arch/s390/kvm/gmap/gmap.c b/arch/s390/kvm/gmap/gmap.c
-index c4ed40ea3475..07915278ee98 100644
---- a/arch/s390/kvm/gmap/gmap.c
-+++ b/arch/s390/kvm/gmap/gmap.c
-@@ -24,11 +24,6 @@
- #include "s390.h"
- #include "faultin.h"
- 
--static inline bool kvm_s390_is_in_sie(struct kvm_vcpu *vcpu)
--{
--	return vcpu->arch.sie_block->prog0c & PROG_IN_SIE;
--}
--
- static int gmap_limit_to_type(gfn_t limit)
- {
- 	if (!limit)
-@@ -256,29 +251,6 @@ int s390_replace_asce(struct gmap *gmap)
- 	return 0;
- }
- 
--bool _gmap_unmap_prefix(struct gmap *gmap, gfn_t gfn, gfn_t end, bool hint)
--{
--	struct kvm *kvm = gmap->kvm;
--	struct kvm_vcpu *vcpu;
--	gfn_t prefix_gfn;
--	unsigned long i;
--
--	if (is_shadow(gmap))
--		return false;
--	kvm_for_each_vcpu(i, vcpu, kvm) {
--		/* Match against both prefix pages */
--		prefix_gfn = gpa_to_gfn(kvm_s390_get_prefix(vcpu));
--		if (prefix_gfn < end && gfn <= prefix_gfn + 1) {
--			if (hint && kvm_s390_is_in_sie(vcpu))
--				return false;
--			VCPU_EVENT(vcpu, 2, "gmap notifier for %llx-%llx",
--				   gfn_to_gpa(gfn), gfn_to_gpa(end));
--			kvm_s390_sync_request(KVM_REQ_REFRESH_GUEST_PREFIX, vcpu);
--		}
--	}
--	return true;
--}
--
- struct clear_young_pte_priv {
- 	struct gmap *gmap;
- 	bool young;
-diff --git a/arch/s390/kvm/gmap/gmap.h b/arch/s390/kvm/gmap/gmap.h
-index c9cab8f60f62..28ab585db7e1 100644
---- a/arch/s390/kvm/gmap/gmap.h
-+++ b/arch/s390/kvm/gmap/gmap.h
-@@ -11,6 +11,7 @@
- #define ARCH_KVM_GMAP_GMAP_H
- 
- #include "dat.h"
-+#include "prefix.h"
- 
- /**
-  * enum gmap_flags - Flags of a gmap.
-@@ -83,7 +84,6 @@ struct gmap_cache {
- 	for (pos = (head); n = pos ? pos->next : NULL, pos; pos = n)
- 
- int s390_replace_asce(struct gmap *gmap);
--bool _gmap_unmap_prefix(struct gmap *gmap, gfn_t gfn, gfn_t end, bool hint);
- bool gmap_age_gfn(struct gmap *gmap, gfn_t start, gfn_t end);
- bool gmap_unmap_gfn_range(struct gmap *gmap, struct kvm_memory_slot *slot, gfn_t start, gfn_t end);
- int gmap_try_fixup_minor(struct gmap *gmap, struct guest_fault *fault);
-@@ -157,16 +157,6 @@ static inline void gmap_handle_vsie_unshadow_event(struct gmap *parent, gfn_t gf
- 		_gmap_handle_vsie_unshadow_event(parent, gfn);
- }
- 
--static inline bool gmap_mkold_prefix(struct gmap *gmap, gfn_t gfn, gfn_t end)
--{
--	return _gmap_unmap_prefix(gmap, gfn, end, true);
--}
--
--static inline bool gmap_unmap_prefix(struct gmap *gmap, gfn_t gfn, gfn_t end)
--{
--	return _gmap_unmap_prefix(gmap, gfn, end, false);
--}
--
- /**
-  * pte_needs_unshadow() -- Check if the pte operations triggers unshadowing.
-  * @oldpte: the previous value for the guest pte.
-diff --git a/arch/s390/kvm/gmap/prefix.h b/arch/s390/kvm/gmap/prefix.h
-new file mode 100644
-index 000000000000..f83b6c2c4afa
---- /dev/null
-+++ b/arch/s390/kvm/gmap/prefix.h
-@@ -0,0 +1,39 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+
-+#ifndef ARCH_KVM_GMAP_PREFIX_H
-+#define ARCH_KVM_GMAP_PREFIX_H
-+
-+#include "asm/dat-bits.h"
-+#include <linux/types.h>
-+#include <linux/kvm_types.h>
-+#include <linux/kvm_host.h>
-+
-+struct gmap;
-+union asce;
-+
-+#ifdef KVM_S390_GUEST_HAS_PREFIX
-+bool _gmap_unmap_prefix(struct gmap *gmap, gfn_t gfn, gfn_t end, bool hint);
-+int dat_set_prefix_notif_bit(union asce asce, gfn_t gfn);
-+#else
-+static inline bool _gmap_unmap_prefix(struct gmap *gmap, gfn_t gfn, gfn_t end, bool hint)
-+{
-+	return true;
-+}
-+
-+static inline int dat_set_prefix_notif_bit(union asce asce, gfn_t gfn)
-+{
-+	return 0;
-+}
-+#endif /* KVM_S390_GUEST_HAS_PREFIX */
-+
-+static inline bool gmap_mkold_prefix(struct gmap *gmap, gfn_t gfn, gfn_t end)
-+{
-+	return _gmap_unmap_prefix(gmap, gfn, end, true);
-+}
-+
-+static inline bool gmap_unmap_prefix(struct gmap *gmap, gfn_t gfn, gfn_t end)
-+{
-+	return _gmap_unmap_prefix(gmap, gfn, end, false);
-+}
-+
-+#endif /* ARCH_KVM_GMAP_PREFIX_H */
-diff --git a/arch/s390/kvm/s390/dat.c b/arch/s390/kvm/s390/dat.c
-index ff2d6c1cf90e..a56b1523e6e4 100644
---- a/arch/s390/kvm/s390/dat.c
-+++ b/arch/s390/kvm/s390/dat.c
-@@ -504,3 +504,51 @@ int dat_set_cmma_bits(struct kvm_s390_mmu_cache *mc, union asce asce, gfn_t gfn,
- 	}
- 	return _dat_walk_gfn_range(gfn, gfn + count, asce, &ops, DAT_WALK_IGN_HOLES, &state);
- }
-+
-+static long dat_set_pn_crste(union crste *crstep, gfn_t gfn, gfn_t next, struct dat_walk *walk)
-+{
-+	union crste newcrste, oldcrste;
-+	int *n = walk->priv;
-+
-+	do {
-+		oldcrste = READ_ONCE(*crstep);
-+		if (!oldcrste.h.fc || oldcrste.h.i || oldcrste.h.p)
-+			return 0;
-+		if (oldcrste.s.fc1.prefix_notif)
-+			break;
-+		newcrste = oldcrste;
-+		newcrste.s.fc1.prefix_notif = 1;
-+	} while (!dat_crstep_xchg_atomic(crstep, oldcrste, newcrste, gfn, walk->asce));
-+	*n = 2;
-+	return 0;
-+}
-+
-+static long dat_set_pn_pte(union pte *ptep, gfn_t gfn, gfn_t next, struct dat_walk *walk)
-+{
-+	int *n = walk->priv;
-+	union pgste pgste;
-+
-+	pgste = pgste_get_lock(ptep);
-+	if (!ptep->h.i && !ptep->h.p) {
-+		pgste.prefix_notif = 1;
-+		*n += 1;
-+	}
-+	pgste_set_unlock(ptep, pgste);
-+	return 0;
-+}
-+
-+int dat_set_prefix_notif_bit(union asce asce, gfn_t gfn)
-+{
-+	static const struct dat_walk_ops ops = {
-+		.pte_entry = dat_set_pn_pte,
-+		.pmd_entry = dat_set_pn_crste,
-+		.pud_entry = dat_set_pn_crste,
-+	};
-+
-+	int n = 0;
-+
-+	_dat_walk_gfn_range(gfn, gfn + 2, asce, &ops, DAT_WALK_IGN_HOLES, &n);
-+	if (n != 2)
-+		return -EAGAIN;
-+	return 0;
-+}
-diff --git a/arch/s390/kvm/s390/gmap.c b/arch/s390/kvm/s390/gmap.c
-index 83def0ed2284..b744992f0af1 100644
---- a/arch/s390/kvm/s390/gmap.c
-+++ b/arch/s390/kvm/s390/gmap.c
-@@ -3,6 +3,7 @@
- #include <linux/kvm_host.h>
- #include <asm/gmap_helpers.h>
- #include <gmap.h>
-+#include <prefix.h>
- #include "s390.h"
- 
- static int _gmap_enable_skeys(struct gmap *gmap)
-@@ -82,3 +83,31 @@ void _gmap_set_cmma_all(struct gmap *gmap, bool dirty)
- 	} while (gfn);
- }
- 
-+static inline bool kvm_s390_is_in_sie(struct kvm_vcpu *vcpu)
-+{
-+	return vcpu->arch.sie_block->prog0c & PROG_IN_SIE;
-+}
-+
-+bool _gmap_unmap_prefix(struct gmap *gmap, gfn_t gfn, gfn_t end, bool hint)
-+{
-+	struct kvm *kvm = gmap->kvm;
-+	struct kvm_vcpu *vcpu;
-+	gfn_t prefix_gfn;
-+	unsigned long i;
-+
-+	if (is_shadow(gmap))
-+		return false;
-+	kvm_for_each_vcpu(i, vcpu, kvm) {
-+		/* Match against both prefix pages */
-+		prefix_gfn = gpa_to_gfn(kvm_s390_get_prefix(vcpu));
-+		if (prefix_gfn < end && gfn <= prefix_gfn + 1) {
-+			if (hint && kvm_s390_is_in_sie(vcpu))
-+				return false;
-+			VCPU_EVENT(vcpu, 2, "gmap notifier for %llx-%llx",
-+				   gfn_to_gpa(gfn), gfn_to_gpa(end));
-+			kvm_s390_sync_request(KVM_REQ_REFRESH_GUEST_PREFIX, vcpu);
-+		}
-+	}
-+	return true;
-+}
-+
+ /* irq types in ascend order of priorities */
+ enum irq_types {
+ 	IRQ_PEND_SET_PREFIX = 0,
 -- 
 2.53.0
 
