@@ -1,163 +1,147 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A90842E8C3;
-	Fri, 31 Jul 2026 14:55:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F3A94302E5
+	for <linux-s390@vger.kernel.org>; Fri, 31 Jul 2026 14:56:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785509709; cv=none; b=Ayg4jfljOZVaJkIabQvWkf/CC2NYmyOYpK1OZXf39w9bKuartNVfYQDuVNyuAnOrHNEgStDatqsgF+sDkmqZv++2qjW2BrdbhTL+RW6rC6hhVHo16nILjwOXbpDnoH3kf8zxjxeLn93NRYihLqWqhuEq303lkuS1g/df3WpoBZw=
+	t=1785509794; cv=none; b=a+rabqTcnso2QCgy+52NP80sJ0afCgmKXr9OXVdDfmg9fRGN0Inc+DH6OYtmCyIK9VWcqNpW3bZvWpzufCiIt7J85k3KzFMOCgaWJe9DEQrN7rMcfHbHxysSNW4gJqkXrygsr6cPfJ6Zlq80wpWwFYbraOXrvaLPqzjP8NHRst8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785509709; c=relaxed/simple;
-	bh=rIYUEZa+I6JTd3B0DZhBhSlxAf7SRsRWitjZdQ7B1Dc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=uqugNWxE3Ejgadh1G5VhgQtTN3Hxa+YiWLd2qpjthbSICC0kY9MbVDst3+nyT+m7Ri242ekBKfbRctdXsrCdh01UJY2KEONmvhA0lCrOP0BwDLuHc0J4aad13mgGJqxrSRw13g4e/1yl4LMHzCknM78iIcxprBTf3XlDURACaUk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=jJsawE+q; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1785509794; c=relaxed/simple;
+	bh=m6DDCCsG1LoxSgNHmFyAoJ3gBLm74NaOiuLG1Whk3qc=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=H420Mj44sc8LUlCED1e2+IN0SnE3jo1TTCZUGs1ZtcMKY1T1MtZaBBSOWA3SkMSOpf+nDHJaNDyTcjVHmd7iwXd5Hla+5WRKq37BVBcX/jqC8rvlVwHuWlBkbZkiUbc0zUBOMnjjl2TEZA5XQXtJ8VU5Rm5SQIXeG5DXyc7F1aM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SnSQPWvM; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="jJsawE+q"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66VBluWX1670964;
-	Fri, 31 Jul 2026 14:54:43 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=wyOLfXapGVCMFCK80B76KNSUZOfJcE
-	7IYnSc6LvcL50=; b=jJsawE+qvRTZfRljcoXav7lVBBplcQ2kVqnu2wquX/fAJv
-	ErH+1Ayz1US8ie2AsQTC+J+3yL8U2eGWx6Js5FzRT5PRgNUa45aqFdD56sDkYNZ4
-	+ozfCjuoBCzYl6U/pM0aXMM/udHacYrW4iLw15UqKRv9LYxqWAvRvMII5PSdZuLg
-	VTuRMpEA7dpupU+ThZeQj0ovbST02BsQ2aHXkdDnOEOexmvAm/FBft9i5AQt/9HH
-	jHiF63EEvEzpMgmLq/GwUjxraf/cUdndlaQh+8Y6aRlpqMyfo6bR4rVB2kGbnKK1
-	651ebOPQ3fYVaCTj87wqldwV0jXfa1jsbCZC1OFA==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fmuyjmjqp-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 31 Jul 2026 14:54:43 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66VEfGuj024182;
-	Fri, 31 Jul 2026 14:54:42 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fn9pgr5km-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 31 Jul 2026 14:54:42 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66VEsc9L30736658
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 31 Jul 2026 14:54:38 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id F32A62004D;
-	Fri, 31 Jul 2026 14:54:37 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D27502004F;
-	Fri, 31 Jul 2026 14:54:36 +0000 (GMT)
-Received: from osiris (unknown [9.111.39.121])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Fri, 31 Jul 2026 14:54:36 +0000 (GMT)
-Date: Fri, 31 Jul 2026 16:54:35 +0200
-From: Steffen Eiden <seiden@linux.ibm.com>
-To: Sean Christopherson <seanjc@google.com>
-Cc: kvm@vger.kernel.org, kvmarm@lists.linux.dev,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, Alexander Gordeev <agordeev@linux.ibm.com>,
-        Andreas Grapentin <gra@linux.ibm.com>, Arnd Bergmann <arnd@arndb.de>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@kernel.org>,
-        Friedrich Welter <fritz@linux.ibm.com>, Fuad Tabba <tabba@google.com>,
-        Gautam Gala <ggala@linux.ibm.com>,
-        Hariharan Mari <hari55@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Hendrik Brueckner <brueckner@linux.ibm.com>,
-        Ilya Leoshkevich <iii@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>, Joey Gouly <joey.gouly@arm.com>,
-        Marc Zyngier <maz@kernel.org>, Nico Boehr <nrb@linux.ibm.com>,
-        Nina Schoetterl-Glausch <oss@nina.schoetterlglausch.eu>,
-        Oliver Upton <oupton@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Ulrich Weigand <Ulrich.Weigand@de.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>,
-        Zenghui Yu <yuzenghui@huawei.com>
-Subject: Re: [PATCH v5 01/31] vfio: Use file-based reference counting for KVM
-Message-ID: <20260731145435.1016137-B-seiden@linux.ibm.com>
-References: <20260731130902.654679-1-seiden@linux.ibm.com>
- <20260731130902.654679-2-seiden@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SnSQPWvM"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27B5E1F000E9;
+	Fri, 31 Jul 2026 14:56:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1785509787;
+	bh=e1IgpV84CozkyG8uzJIo2LHODOOR1i1akvuLySrQTLE=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=SnSQPWvMG4S4jZ+H6vfkr0WDbryAjCnDwm6ra+CDqWAc65F9gZZQoISV8EUtlZ11C
+	 SrMhDs3r9wQ8QFPrH1C+sc4/usQ6STy0JI8OaRqnXGv9lsjGRuCv5fdCgIcaG1Zuwg
+	 SYt+zEKWtjVGGRxKEQC5OS7S6dPo0+PLIXHIYk9EJ81R3QtFS/fQOV2cQf+UYdm6vP
+	 df9d8ER1/iSajovLZdwYHk2Jha4/ilVzKnQq4K9k4eWkZZDq0dnFjrq/TKZGkAQ+G5
+	 QIwP1NEcGuPkXqAZzeIPHCwZ6It4nLPVPiRDd1bvPsFIPINGlGUd1zy+FzB9KrMqLc
+	 D4g+p0qpDnZyg==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH net v2 1/1] net: smc: fix splice entry lifetime
+ imbalance in smc_rx_splice
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Ren Wei" <enjou1224z@gmail.com>
+Cc: linux-s390@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>
+In-Reply-To: <20260730145552.360287-2-enjou1224z@gmail.com>
+References: <20260730145552.360287-1-enjou1224z@gmail.com>
+ <20260730145552.360287-2-enjou1224z@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 31 Jul 2026 14:56:26 +0000
+Message-Id: <20260731145627.27B5E1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260731130902.654679-2-seiden@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzMxMDExMyBTYWx0ZWRfX4hv35tlDuMVM
- F3TXRYLy4XQkf8bKrgeOqkZm8c6XRwqSoYVNvYSvleEg8wS4D5URwBB98Jb7iE9aJkGst/R1dz+
- BW/bYeAx9EjmdIK40TJ57PN0Ihl9Ias=
-X-Proofpoint-GUID: jwhUHEZPuOYg88dhNDAhOGsqrR0YX0rG
-X-Proofpoint-ORIG-GUID: FDr6UuFMO9qRKFTSC5NpcgYL8jFU-QrO
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzMxMDExMyBTYWx0ZWRfXwkD7c0jWNzi6
- bnBgGVovJ7pze0ug+D4hmokKx4LE7ns0bc3TM9Vh6A3YJv0jJ6eOVZh0ZNBRgbYAzqcwlm8ybjw
- TwhpYqm15MqiGWPxV127CFfJlRy/DwdrA2fOV/h2XXFrXyBA7laayrb5AB5qBePnFWuua/h0AUC
- Cj09HAExdd4yNt0narsKYtFcc3bYVujyJi11qGI1vflttyF8nPzPMqk3W3r5oKRnOQfoz6/ZCet
- lTiy4RLKkpfx9JwvrstRQl4U1aMFrH8TIWuTl7XgadrzS6KPOiqha3WSxSbZIqfLtYzAFD74jaA
- d2ix93j3tlByr4I4JEhSxmhURNcr1I/MCsjoB+SQaBsHPFcyUJ36EpntoWdDGjybkqzZsdwbC9U
- qpbPeoYWf8lsvw0xbyymoPfWM4VTlkp3C3b1XrXcgohtmoogjATDUJLUbHBL/Y5t55BPlmimdzD
- J9NcraK8Xf9O2jDZpVA==
-X-Authority-Analysis: v=2.4 cv=X5Vi7mTe c=1 sm=1 tr=0 ts=6a6cb733 cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=kj9zAlcOel0A:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VwQbUJbxAAAA:8
- a=1XWaLZrsAAAA:8 a=Ikd4Dj_1AAAA:8 a=VnNF1IyMAAAA:8 a=1c9xuZXCCkOUJ1rrCtEA:9
- a=CjuIK1q_8ugA:10
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-07-31_04,2026-07-30_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 impostorscore=0 lowpriorityscore=0 phishscore=0
- priorityscore=1501 malwarescore=0 spamscore=0 suspectscore=0 bulkscore=0
- adultscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2607310113
 
-On Fri, Jul 31, 2026 at 03:08:29PM +0200, Steffen Eiden wrote:
-> Replace manual module reference counting with file-based reference
-> counting for KVM integration. Previously, VFIO used symbol_get() to
-> obtain function pointers for kvm_get_kvm_safe() and kvm_put_kvm(),
-> then manually tracked module references through these symbols. This
-> approach required storing the put_kvm function pointer in each device
-> and carefully managing symbol references.
-> 
-> Pass struct file pointers instead of struct kvm pointers throughout the
-> VFIO-KVM interface. This leverages the kernel's existing file reference
-> counting mechanism via get_file_active() and fput(), eliminating the
-> need for manual module reference tracking. The file->private_data field
-> provides access to the underlying struct kvm when needed.
-> 
-> This simplifies the code and removes all remaining externally exported
-> symbols for KVM, paving the path for a second concurrent KVM module.
-> 
-> Suggested-by: Jason Gunthorpe <jgg@nvidia.com>
-> Suggested-by: Sean Christopherson <seanjc@google.com>
-> Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
-> ---
->  arch/x86/include/asm/kvm_page_track.h |  8 ++---
->  arch/x86/kvm/Makefile                 |  3 --
->  arch/x86/kvm/mmu/page_track.c         | 16 +++++----
->  drivers/s390/crypto/vfio_ap_ops.c     | 24 ++++++++++---
->  drivers/vfio/group.c                  |  2 +-
->  drivers/vfio/pci/vfio_pci_zdev.c      |  7 +++-
->  drivers/vfio/vfio.h                   | 10 +++---
->  drivers/vfio/vfio_main.c              | 49 ++++++---------------------
->  include/linux/kvm_host.h              |  2 ++
->  include/linux/vfio.h                  |  4 +--
->  virt/kvm/kvm_main.c                   | 23 ++++++++++---
->  virt/kvm/vfio.c                       |  8 ++---
->  12 files changed, 81 insertions(+), 75 deletions(-)
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
 
-@sean: This is based on your draft in https://lore.kernel.org/all/adkFk3ZN4HJtpLA3@google.com/
-do you want another/more attribution? If yes which?
+Pre-existing issues:
+- [Critical] SMC receive buffers (`rmb_desc`) are returned to the reusable =
+pool when a connection is freed, even if those buffers are still mapped in =
+a pipe via `splice_to_pipe`. A new connection can reuse the buffer, allowin=
+g the old pipe reader to read the new connection's data.
+- [High] `smc_rx_pipe_buf_release()` checks `sk->sk_state` outside the sock=
+et lock, creating a TOCTOU race condition that leads to a Use-After-Free of=
+ connection resources (like `conn->rmb_desc` and `conn->lgr`) if the socket=
+ is closed concurrently.
+--
 
-	Steffen
+--- Patch [1]: [PATCH net v2 1/1] net: smc: fix splice entry lifetime imbal=
+ance in smc_rx_splice ---
+commit c6407321bb893fb435f1c82222aefbb185ac53e0
+Author: Daming Li <d4n.for.sec@gmail.com>
+
+net: smc: fix splice entry lifetime imbalance in smc_rx_splice
+
+smc_rx_splice() passes pages to splice_to_pipe() before taking the
+references that cover the lifetime of each splice entry. Take the page and
+socket references for every candidate entry before splice_to_pipe(), and
+drop the matching private state, page reference, and socket reference from
+smc_rx_spd_release() for entries that never get queued.
+
+> diff --git a/net/smc/smc_rx.c b/net/smc/smc_rx.c
+> index c1d9b923938da..5c9e4d8b57de4 100644
+> --- a/net/smc/smc_rx.c
+> +++ b/net/smc/smc_rx.c
+
+[Severity: High]
+This isn't a bug introduced by this patch, but could this state check in
+smc_rx_pipe_buf_release() lead to a race condition?
+
+net/smc/smc_rx.c:smc_rx_pipe_buf_release() {
+    ...
+	if (sk->sk_state =3D=3D SMC_CLOSED ||
+	    sk->sk_state =3D=3D SMC_PEERFINCLOSEWAIT ||
+	    sk->sk_state =3D=3D SMC_APPFINCLOSEWAIT)
+		goto out;
+	conn =3D &smc->conn;
+	lock_sock(sk);
+	smc_rx_update_cons(smc, priv->len);
+    ...
+}
+
+If the socket state is checked outside the socket lock, can the state change
+before lock_sock() is acquired?
+
+For example, if close() runs concurrently, could it transition the state to
+SMC_CLOSED and free the connection resources? When smc_rx_pipe_buf_release()
+eventually acquires the lock, it doesn't recheck the state before calling
+smc_rx_update_cons(), which might access the freed conn->rmb_desc->len.
+
+
+[Severity: Critical]
+This is also a pre-existing issue, but does smc_buf_unuse() return receive
+buffers to the reusable pool while they might still be mapped in a splice
+pipe?
+
+net/smc/smc_core.c:smc_buf_unuse() {
+    ...
+	if (conn->rmb_desc) {
+		bufsize =3D conn->rmb_desc->len;
+		if (!is_smcd) {
+			smcr_buf_unuse(conn->rmb_desc, true, lgr);
+		} else {
+    ...
+}
+
+When a socket is closed, smc_release() calls smc_conn_free(), which calls
+smc_buf_unuse() to mark the buffer unused.
+
+If a user had spliced data into a pipe, the buffer pages might still be
+mapped. Could a new connection reuse this buffer and write its payload into
+memory that is still accessible via the old pipe? This appears it might
+allow an old pipe reader to read a new connection's data.
+
+> @@ -150,7 +150,12 @@ static const struct pipe_buf_operations smc_pipe_ops=
+ =3D {
+>  static void smc_rx_spd_release(struct splice_pipe_desc *spd,
+>  			       unsigned int i)
+>  {
+> +	struct smc_spd_priv *priv =3D (struct smc_spd_priv *)spd->partial[i].pr=
+ivate;
+> +	struct sock *sk =3D &priv->smc->sk;
+> +
+> +	kfree(priv);
+>  	put_page(spd->pages[i]);
+> +	sock_put(sk);
+>  }
+
+[ ... ]
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260730145552.3602=
+87-2-enjou1224z@gmail.com?part=3D1
