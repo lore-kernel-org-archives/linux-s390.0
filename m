@@ -1,57 +1,57 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E27BC432BD8;
-	Fri, 31 Jul 2026 13:09:43 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 60A9C432E6E;
+	Fri, 31 Jul 2026 13:09:44 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785503386; cv=none; b=g7TxZpd6ONy6XlddSIUF5OCE5fs6ezlDE7ZTFUxQ/x7SgkfP0wrwMcMbobuTzT2enMGUJbqJA8+w97Ed4auOmyq/I3dWGibg3Vi96CPN8qNJjcMq8NMRcxlMpLdTRsc/fUcyV1JOAV9+NvOqf9SABPn8qseTxyH1OYuhgLzLSBw=
+	t=1785503387; cv=none; b=EmLx+TuPEsrL0jfIYj3vYunaufIRRJZzVyI4au0CArIQ3GMpKTtnZluASm01v66TKZ0AIoUf8IwyBDwDwPUb048GP/P9tUI3jiG0aHxeu/Qx6BCmd5EWL1ShrSOx2xeuuEePJl6pqJGxS2q3jPf0jV8a50eThKVeNdIjQnrUwSE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785503386; c=relaxed/simple;
-	bh=fPy6BToqWSVFi7Y8MD2LUMyFUKrIGQ+wREW0W/OqWns=;
+	s=arc-20240116; t=1785503387; c=relaxed/simple;
+	bh=F92ygwDq/Td6MZpSBCRtPhSZFM0iWRLbDMN7HxUPPRg=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=uudBx+QD1aOM+idDvjiA8xsyZejPdDT8P3uQ6oSOHLzZjqNFulOnnfVR0hNc/9Ae+rTLV7UL/X7+F4ZDAM/ISADkUr4Q7WtO0ntuaNEqqiXSh2EfbU/ObDpkaXLYmgqWc0wZCmrwt9zsUAxvRov2pY8Man60B3g6Quu/ec6K/XI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=dNGUpXhf; arc=none smtp.client-ip=148.163.158.5
+	 MIME-Version; b=ub5iwJ1+3Pn8co5rZL+ulwVChA2SNFu4A/AVeCEZ3psIRG5Zv44sUq27TXw9La2TZ+guhRXZTcWWiEtiiShod1UItntMMEJo+i2nsKMWOlYkdw6NyFbFBAsBo/QueCZrb7sPY9zwfEauk9FMLeouz8ioVQBSHMATXW5GeFKXjO4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=UZOfVeE8; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="dNGUpXhf"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66VBliK81672742;
-	Fri, 31 Jul 2026 13:09:20 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="UZOfVeE8"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66VBlma11670624;
+	Fri, 31 Jul 2026 13:09:21 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=2gSaLBoMbRJk0858C
-	Xqy4+SLu/lbitIoLn80Gt6/yDs=; b=dNGUpXhfOvRJGFuIelKol659hb+NjyKHT
-	JxwlwSeV6G2SMSFPSWDmw9lc/4E10qIHwBcMO7+jlocWLZ9BbLpA/2FVhY3XiGDh
-	7cRSQEJU0XKpqBDiAYdRB6YPk1Q5VlUn0LT3aZk6ueamMWoGXBPQx8xi5Qu+AAjk
-	Ypzuz8jwxDsILS/pmX9RYt8QncQUbe5Q8OQ7r4B44vNyZADcyB4zep493O0Zm7tN
-	JzqqOK1WeQgyDyJZ4f5yx+4+RfLeAKTC2Z5DmMQ+3Az8LN36dfC2mGkn+0LQ2sHV
-	WuxnxvqqUTg6OpQJ5WQTyOxz1u10ctyTPxwznglKTI3F0NM6UcRBA==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fmv0p43bt-1
+	:mime-version:references:subject:to; s=pp1; bh=FxG7on3EwKDJYza6h
+	L7eelDxYAraMq9eELkm4Z/+4iY=; b=UZOfVeE8DHDThrbjB2dG54PwAWQxdOY0M
+	q6h/RKdYFHI/HUcjiw9xRO8HC1edtG3VlPPYfFrtkpW0vlKwckAXomNH6IEEEOq3
+	609Ry+iRdj8QSuFZA0AqR09+LLDkeng/kVqoWLxfQy1SD17aOGi7h1Vf9D1k3ubB
+	x1HkA9XnvdAawJP6BtVdlcUkqOEiYDhVMOJAgdSzX+Vvx5tUrXxoP19R+klsPNvz
+	TUsg04yixTRxrROGxnK7oMezhOmwGpwwZp9dCRl1P9dT86l80IIqtHydRc0uhdEs
+	LLDdAI1AAw+VHOq2f6cWZ82g3ikvbeHUtwAxUoNWN2zJNTl0kmytg==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fmuyjm3vy-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 31 Jul 2026 13:09:19 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66VCuf3N013237;
+	Fri, 31 Jul 2026 13:09:20 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66VCQEsa026828;
 	Fri, 31 Jul 2026 13:09:19 GMT
 Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fn8fkg087-1
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fn9pgqtc5-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Fri, 31 Jul 2026 13:09:19 +0000 (GMT)
 Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66VD9Cfg28705030
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66VD9CuU28705032
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
 	Fri, 31 Jul 2026 13:09:12 GMT
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 203A220040;
+	by IMSVA (Postfix) with ESMTP id 8C9EE20040;
 	Fri, 31 Jul 2026 13:09:12 +0000 (GMT)
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B1C852004B;
-	Fri, 31 Jul 2026 13:09:11 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 2682E20043;
+	Fri, 31 Jul 2026 13:09:12 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
 	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 31 Jul 2026 13:09:11 +0000 (GMT)
+	Fri, 31 Jul 2026 13:09:12 +0000 (GMT)
 From: Steffen Eiden <seiden@linux.ibm.com>
 To: kvm@vger.kernel.org, kvmarm@lists.linux.dev,
         linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
@@ -77,9 +77,9 @@ Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
         Ulrich Weigand <Ulrich.Weigand@de.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>,
         Zenghui Yu <yuzenghui@huawei.com>
-Subject: [PATCH v5 20/31] KVM: s390: Prepare KVM/s390 for a second KVM module
-Date: Fri, 31 Jul 2026 15:08:48 +0200
-Message-ID: <20260731130902.654679-21-seiden@linux.ibm.com>
+Subject: [PATCH v5 21/31] s390: Use arm64 headers
+Date: Fri, 31 Jul 2026 15:08:49 +0200
+Message-ID: <20260731130902.654679-22-seiden@linux.ibm.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260731130902.654679-1-seiden@linux.ibm.com>
 References: <20260731130902.654679-1-seiden@linux.ibm.com>
@@ -92,76 +92,280 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
 X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzMxMDA5NiBTYWx0ZWRfXxvu3QdrVnJRF
- G1P1zhJkRc4OD/4/VTO0jLV0BgY7D02WGhE7XIhLk6z6IiFWrx5Rz8WUDuHaWBt0QuzVQsP41sF
- tDxs5gCUrXO/xBS3qEfygF6DLKq6leU=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzMxMDA5NiBTYWx0ZWRfX+1t/x45wPYxS
- OCe61xI9WFRYMNx1UG2XCYA/WpIHH9kcufgOKSBZa456PejCPHquUqb3UYhXlptxNYlY0w7Hf20
- SVtg7OWzCywcCyvHtgOvXvffs4A+4MVWHbHzsFAA7Ad2ZeK+z9M1DBkav7cQuHOeO6KIQxyB/+5
- z8Gz6UEjEuHmTBfEd6nfLNraf+O0mnAeWeFVNvnxQqOF7GvCJeWfTqc1gwfRStFIZMfLHZrBjo5
- r2dyBNxTDYc+joCsQVG/nisg7cHyJxtSSLPUf7qF9QcDCFq6nqaHqbEbDnhvU5msW7dwyHaB2CL
- /9C1L1TPIN+11/9XP3sI/ze3KJmLg5gOzZ9GIeHManjeUst7zgFkSY/4fpCWY3e783BO64PCuc5
- QY8W67R2VJvO+h9yibm2zvnfpZrEizBxWn9ZG3yr4YrdsyTPUAwEl8ySSKkqePvEzfuOvPMs/ke
- noJV2U9VGN/UXWoFPyQ==
-X-Authority-Analysis: v=2.4 cv=b5WCJNGx c=1 sm=1 tr=0 ts=6a6c9e80 cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzMxMDA5NiBTYWx0ZWRfX6YxhyvNlzHPF
+ teoQOuH37CVUCvIIynrCd7OaQarxkqYGuEBR2zX6DUA4JX63AfuFSCswJTJXWNm5I+FyZxOp3+5
+ 0vJ6G980el5FoDT1p7MtqPzeqLXUEbo=
+X-Proofpoint-GUID: _IF5-tiNv4pjDVrnW_MxQxZLQIpM2EZA
+X-Proofpoint-ORIG-GUID: MJSOKd5j_rTVX3wlfBaqgYbFchkAIiNK
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzMxMDA5NiBTYWx0ZWRfX8ZOG0VIodXgS
+ Sb2zaxsw14F5SQalgMhTvV2l7rE02kESXnwmXnuRX4XorTF33fH5EOrI7HVRa2GRGE08Lq8m+eh
+ bq3gH7bAb9vFyc6gZyEs7TMG6Zfc+Z+6aMSifNMLoN8xOK5mhJtP/jM6oC4VMZjzGo41OpwH9/a
+ xgLcQO9d6so1lgP0pDOIv3Wm+wJf+AXikLX23Vel65Zy0GikE3pXdxcmm65hDwOUe7S2OwsCIQb
+ meUH/+rlDGJTEoAbNECDdSC0akxYXlwc1Od2MssmH8NJHvt49x646wARkScq619Ws7B77VurQSR
+ 69HZYds7voA5+fZZzdPX+oEgyMYhi5sMSwZvNEvafq8nOx90hkRmwqyMbzvEfhWe2RavT1Ix56K
+ K7G6GI6GWyLHZwPLVsYaL7Kp3R/BWcOPctETLOslbzD1EHBTWCNR1Q7snl28+FWaDtwn1MoC7Qw
+ 0io82cOog97V92jhedg==
+X-Authority-Analysis: v=2.4 cv=X5Vi7mTe c=1 sm=1 tr=0 ts=6a6c9e80 cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
  a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8 a=m33X-YrdrFVFgJ0cfecA:9
-X-Proofpoint-GUID: Edqq77U__IiVRQ6VD88KJjp55DSkAmU4
-X-Proofpoint-ORIG-GUID: hQRBE-RHYqs791nT1usmcThQoNWi3Wbf
+ a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8 a=ZhoKsAT7EqIUtuKD8d0A:9
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-07-31_04,2026-07-30_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 spamscore=0 adultscore=0 malwarescore=0 impostorscore=0
- bulkscore=0 phishscore=0 suspectscore=0 clxscore=1015 lowpriorityscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607310096
+ clxscore=1015 impostorscore=0 lowpriorityscore=0 phishscore=0
+ priorityscore=1501 malwarescore=0 spamscore=0 suspectscore=0 bulkscore=0
+ adultscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2607310096
 
-The second KVM module will have a different Kconfig set. When both
-modules are compiled the Kconfig sets get merged and the native s390 KVM
-needs to implement functionality required by the respective config
-options. Ensure that s390-KVM will still compile by implementing a stub
-for kvm_arch_vcpu_run_pid_change if CONFIG_HAVE_KVM_VCPU_RUN_PID_CHANGE
-is enabled and defining KVM_NO_MMIO to disable KVM_MMIO.
+Introduce a flexible system for sharing ARM64 headers with s390 KVM.
+Selected arm64 headers or snippet of headers will be reachable by s390
+code through asm/header.h.
+
+Add copy-arm64h.awk that detects ARM64_S390_COMMON markers and extracts
+marked section into a generated header consumable by s390. Falls back to
+full file copy when no markers are found.
+
+Transform copied includes by replacing '#include <asm/...>' with
+'#include <arm64/...>' and similar for uapi headers to ensure
+correct path resolution on s390 and allow for a clear separation of s390
+asm headers and arm64 asm headers.
+
+Integrate this extraction into the s390/kapi target, conditional on (the
+not yet existing) CONFIG_KVM_S390_ARM64.
 
 Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
 ---
- arch/s390/include/asm/kvm_host_s390.h | 1 +
- arch/s390/kvm/s390/s390.c             | 8 ++++++++
- 2 files changed, 9 insertions(+)
+ arch/s390/tools/Makefile             | 10 +++-
+ arch/s390/tools/Makefile.arm64h      | 57 ++++++++++++++++++++++
+ arch/s390/tools/copy-arm64h-full.awk | 47 ++++++++++++++++++
+ arch/s390/tools/copy-arm64h.awk      | 72 ++++++++++++++++++++++++++++
+ 4 files changed, 185 insertions(+), 1 deletion(-)
+ create mode 100644 arch/s390/tools/Makefile.arm64h
+ create mode 100644 arch/s390/tools/copy-arm64h-full.awk
+ create mode 100644 arch/s390/tools/copy-arm64h.awk
 
-diff --git a/arch/s390/include/asm/kvm_host_s390.h b/arch/s390/include/asm/kvm_host_s390.h
-index cfd95df60130..c753dc816b02 100644
---- a/arch/s390/include/asm/kvm_host_s390.h
-+++ b/arch/s390/include/asm/kvm_host_s390.h
-@@ -29,6 +29,7 @@
+diff --git a/arch/s390/tools/Makefile b/arch/s390/tools/Makefile
+index f2862364fb42..3e0f21b552da 100644
+--- a/arch/s390/tools/Makefile
++++ b/arch/s390/tools/Makefile
+@@ -3,12 +3,20 @@
+ # Makefile for s390 specific build tools
+ #
  
- #define KVM_HAVE_MMU_RWLOCK
- #define KVM_MAX_VCPUS 255
-+#define KVM_NO_MMIO
- 
- #define KVM_INTERNAL_MEM_SLOTS 1
- 
-diff --git a/arch/s390/kvm/s390/s390.c b/arch/s390/kvm/s390/s390.c
-index 87d4b25bc849..0e43754d9cf5 100644
---- a/arch/s390/kvm/s390/s390.c
-+++ b/arch/s390/kvm/s390/s390.c
-@@ -5829,6 +5829,14 @@ bool kvm_unmap_gfn_range(struct kvm *kvm, struct kvm_gfn_range *range)
- 	return gmap_unmap_gfn_range(kvm->arch.gmap, range->slot, range->start, range->end);
- }
- 
-+#ifdef CONFIG_HAVE_KVM_VCPU_RUN_PID_CHANGE
-+/* Make s390 compile if arm64-on-s390 is selected */
-+int kvm_arch_vcpu_run_pid_change(struct kvm_vcpu *vcpu)
-+{
-+	return 0;
-+}
-+#endif /* CONFIG_HAVE_KVM_VCPU_RUN_PID_CHANGE */
++include $(srctree)/arch/s390/tools/Makefile.arm64h
 +
- static inline unsigned long nonhyp_mask(int i)
- {
- 	unsigned int nonhyp_fai = (sclp.hmfai << i * 2) >> 30;
+ kapi := arch/$(ARCH)/include/generated/asm
+ kapi-hdrs-y := $(kapi)/facility-defs.h $(kapi)/dis-defs.h
+ 
++targets += $(addprefix ../../../,$(kapi-hdrs-y))
++# Convert ARM64 absolute paths to relative before Kbuild adds $(obj)/ prefix
++targets += $(patsubst $(objtree)/%,../../../%,$(ARM64_TARGETS))
++
++kapi-hdrs-$(CONFIG_KVM_ARM64) += $(ARM64_TARGETS)
++
+ PHONY += kapi
+ 
+-kapi:	$(kapi-hdrs-y)
++kapi:	$(kapi-hdrs-y) $(ARM64_TARGETS)
+ 
+ hostprogs		    += gen_facilities
+ hostprogs		    += gen_opcode_table
+diff --git a/arch/s390/tools/Makefile.arm64h b/arch/s390/tools/Makefile.arm64h
+new file mode 100644
+index 000000000000..8fbd9cb48695
+--- /dev/null
++++ b/arch/s390/tools/Makefile.arm64h
+@@ -0,0 +1,57 @@
++# SPDX-License-Identifier: GPL-2.0
++#
++# Share ARM64 headers with s390 KVM
++#
++
++arm64api := $(objtree)/arch/$(ARCH)/include/generated/arm64
++arm64uapi := $(objtree)/arch/$(ARCH)/include/generated/uapi/arm64
++
++# List of ARM64 headers to share with s390 KVM
++# Format: [uapi:]header.h or header-gen.h
++#
++# * header.h - from arch/arm64/include/asm/ to arm64/
++# * uapi:header.h - from arch/arm64/include/uapi/asm/ to uapi/arm64/
++# * header-gen.h - generated as header-gen.h from ARM64 header header.h
++# If a header contains partial markers (#ifdef ARM64_S390_COMMON) only this part will be copied.
++# If the file does not contain any markers the whole file will be copied.
++ARM64_SHARED_HEADERS := \
++	brk-imm.h \
++	esr.h \
++	kvm_arm.h \
++	kvm_emulate-gen.h \
++	kvm_host.h \
++	ptrace-gen.h \
++	sysreg-gen.h \
++	uapi:hwcap.h \
++	uapi:kvm.h \
++	uapi:ptrace.h \
++	uapi:sve_context.h \
++
++quiet_cmd_gen_arm_hdr = GEN     $@
++      cmd_gen_arm_hdr = mkdir -p $(dir $@); \
++                      $(AWK) -f $(src)/copy-arm64h.awk $< > $@ || \
++                      $(AWK) -f $(src)/copy-arm64h-full.awk -v srcfile="$(subst $(srctree)/,,$(subst $(srctree)/../,,$<))" $< > $@ || \
++		      { echo "Error: Unbalanced ARM64_S390_COMMON markers in $<" >&2; rm -f $@; exit 1; }
++
++arm64-type = $(firstword $(subst :, ,$(1)))
++arm64-base = $(or $(word 2,$(subst :, ,$(1))),$(1))
++arm64-src-base = $(patsubst %-gen.h,%.h,$(call arm64-base,$(1)))
++
++arm64-src = $(srctree)/arch/arm64/include/$(if $(filter uapi,$(call arm64-type,$(1))),uapi/)asm/$(call arm64-src-base,$(1))
++arm64-dst = $(objtree)/$(if $(filter uapi,$(call arm64-type,$(1))),$(arm64uapi),$(arm64api))/$(call arm64-base,$(1))
++
++$(foreach hdr,$(ARM64_SHARED_HEADERS),\
++	$(eval $(call arm64-dst,$(hdr)): $(call arm64-src,$(hdr)) $(src)/copy-arm64h.awk $(src)/copy-arm64h-full.awk))
++
++ARM64_TARGETS := $(sort $(foreach hdr,$(ARM64_SHARED_HEADERS),$(call arm64-dst,$(hdr))))
++
++$(ARM64_TARGETS):
++	$(call cmd,gen_arm_hdr)
++
++quiet_cmd_gen_sysreg_arm64 = GEN     $@
++      cmd_gen_sysreg_arm64 = mkdir -p $(dir $@); $(AWK) -f $(srctree)/arch/arm64/tools/gen-sysreg.awk $(srctree)/arch/arm64/tools/sysreg > $@
++
++$(arm64api)/sysreg-defs.h: $(srctree)/arch/arm64/tools/gen-sysreg.awk $(srctree)/arch/arm64/tools/sysreg FORCE
++	$(call if_changed,gen_sysreg_arm64)
++
++ARM64_TARGETS += $(arm64api)/sysreg-defs.h
+diff --git a/arch/s390/tools/copy-arm64h-full.awk b/arch/s390/tools/copy-arm64h-full.awk
+new file mode 100644
+index 000000000000..a6aaf9cc3332
+--- /dev/null
++++ b/arch/s390/tools/copy-arm64h-full.awk
+@@ -0,0 +1,47 @@
++#!/usr/bin/awk -f
++# SPDX-License-Identifier: GPL-2.0
++#
++# Process entire ARM64 headers for sharing with s390 KVM
++#
++# Usage: copy-arm64h-full.awk -v srcfile=<source_path> <input_file>
++#
++# This processes the entire file (unlike copy-arm64h.awk which only extracts marked sections)
++
++BEGIN {
++	max_guard_line = 25
++	guard_found = 0
++	header_added = 0
++}
++
++# Find and process the include guard in the first few lines
++NR <= max_guard_line && !guard_found && /^#ifndef [A-Z_0-9]+$/ {
++	guard_name = $2
++	guard_found = 1
++	print "/* This header was copied from " srcfile " */"
++	print ""
++	print
++	header_added = 1
++	next
++}
++
++# Transform include directives
++/^#include <uapi\/asm\// {
++	sub(/<uapi\/asm\//, "<uapi/arm64/")
++	print
++	next
++}
++
++/^#include <asm\// {
++	sub(/<asm\//, "<arm64/")
++	print
++	next
++}
++
++/ARM64_S390_COMMON/ {
++	exit 1
++}
++
++# Pass through all other lines
++{
++	print
++}
+diff --git a/arch/s390/tools/copy-arm64h.awk b/arch/s390/tools/copy-arm64h.awk
+new file mode 100644
+index 000000000000..d74df368c1b5
+--- /dev/null
++++ b/arch/s390/tools/copy-arm64h.awk
+@@ -0,0 +1,72 @@
++#!/usr/bin/awk -f
++# SPDX-License-Identifier: GPL-2.0
++#
++# Extract marked sections from ARM64 headers for sharing with s390 KVM
++#
++# Usage: share-arm64-header.awk <input_file>
++#
++# Extracts all sections between start/end markers. If no markers found, signals for fallback.
++#TODO verification script or c file for arm to verify the ifdef things keep working
++BEGIN {
++	# Constants
++	start_pattern = "^#ifdef ARM64_S390_COMMON$"
++	end_pattern = "^#endif \\/\\* ARM64_S390_COMMON \\*\\/$"
++	max_guard_line = 25
++
++	# State variables
++	copying = found_marker = 0
++	guard_name = ""
++	file_header_done = 0
++}
++
++NR <= max_guard_line && !guard_name && /^#ifndef [A-Za-z0-9_]+$/ {
++	guard_name = $2
++	filename = FILENAME
++	sub(/^.*arch\/arm64\//, "arch/arm64/", filename)
++	print "/*"
++	print " * This header was automatically generated from " filename
++	print " * Do not modify this file directly."
++	print " */"
++	print "#ifndef " guard_name
++	print "#define " guard_name
++	print ""
++	next
++}
++
++NR > max_guard_line && !guard_name && !file_header_done {
++	print "error: no include guard found in first " max_guard_line " lines" > "/dev/stderr"
++	file_header_done = 1
++	exit 1
++}
++
++!guard_name {
++	print
++	next
++}
++
++$0 ~ start_pattern {
++	if (copying) { exit 1 }
++	copying = found_marker = 1
++	next
++}
++
++guard_name && !found_marker {
++	next
++}
++
++$0 ~ end_pattern { copying = 0; next }
++
++copying {
++	gsub(/#include <asm\//, "#include <arm64/")
++	gsub(/#include <uapi\/asm\//, "#include <uapi/arm64/")
++	print
++	next
++}
++
++END {
++	if (found_marker) {
++		print ""
++		print "#endif /* " guard_name " */"
++	}
++	exit !found_marker || copying
++}
 -- 
 2.53.0
 
