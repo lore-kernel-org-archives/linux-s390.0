@@ -1,112 +1,141 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B1DF3290DBB;
-	Fri, 31 Jul 2026 13:24:47 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B8E83FCB2C;
+	Fri, 31 Jul 2026 13:26:24 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785504288; cv=none; b=HdHdqKJ9AJ0gkS/LYosC3s9/7qfIVgBgKa+fEW1NsUVYKRxl5sklsriIHiAfSjjaO/u89qQi95yWSqeAj4aM4K6q0kPd8NsjX6PhWbBjRP1Dan8rxupykINjqJ9xpAjKgNGkrqhJCLKgzWw4A6tYzXQR8QaDwOCcfWsNXwGClAI=
+	t=1785504385; cv=none; b=jCZjuBW4aXmYsCmMKdBmHV7G8im1CZfU6apWc5rYPV2YZ7AaKUiy9GWQ618PowpKXL5WEE8kW29nmCusysMKvcpet9zZHM7GcY6dt38BeHN2Ul7jU8vQXaZmrArKeePcTLYPaz1NMYvyrtLaMPFU3bjzRwjLZ97SvWaXrSTQP/M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785504288; c=relaxed/simple;
-	bh=6NXY0tjoV94HgytkVQDDz6H1lQjiE1ZDcfANuTM8rps=;
+	s=arc-20240116; t=1785504385; c=relaxed/simple;
+	bh=aJ6Ims8eNBrjMp81dEwP8lY1ukvhwWCzV8AostD9/hM=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=LPg0lX6muD39Bw+67cXl8ZFjbi3VXmadTBHrB+kzrsyTbSiwIXvMgbRX4R/G/hayfXn1YJaQ8KsYn9RhjRmSYLJXoXL7qjMK8c3Qsxz6n5SgAyVRfFuUTPIuNTvqwM9bg4+6oI/V4akrCbv7FP4aCsadesetlP41Qc0tWWyUT+s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VHw4M8/V; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=gdwsgefbq2qLnv0tZPgmua/8RI6o3jSHvCZCtv0IVnRbzgq4HKLfnenJYgonWaG8rOwbA5Xwc3Mqr9pPe4hK3XnOmxyK2YLuIyHny1M0eCkypxELnLqBGpuGuw0ZJ45w332r7VZsiLyt2ObwV16Gqdb3dn8Pr0jCb/eM07aBAbA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fcbMku4+; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VHw4M8/V"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A3D01F000E9;
-	Fri, 31 Jul 2026 13:24:46 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fcbMku4+"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A2D41F000E9;
+	Fri, 31 Jul 2026 13:26:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785504287;
-	bh=dCGnlQ3cMDloOfRWxkVbW+s3RW9yUgcsA1UqEqKutgU=;
+	s=k20260515; t=1785504384;
+	bh=58ZumfEHd4/+SXBO/aDdnPUe7NRJCpb/JjpgZXyVTNs=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=VHw4M8/VmH5clWYIXIRe6znI/Axu9agShtiL6J0g1SZJh+Xp2RuoaWOiHCT9kAKID
-	 DC2k81r2soZDNgYQIGdvMXawIWTOP6EyewfSgFajYwFMUId7czgJOH2582ky10J2FE
-	 LrwdvoAI1V5iV00Ze/I+i+Rch9Nzv0RSuFqzy8TxgsdGTfigZvYwpCeG0EJdgwyodr
-	 3Fy2z0bjJlBFbsNPyKg8XQ3IBigHzlC+L1DOttzQdlNRZ45aNgoscwQanBm7Nu/3+d
-	 E5amTsFYS2GK/VO3D+m8j3o71UnmBRmU/90GF/oH8yKsIM86F8e8WZ4qKXt1euKMGK
-	 /Sdn5/anNpnrw==
+	b=fcbMku4+Hym/U/RarpjjwCiMqdm+LxfgxYXdUBMbpfV/qBmx0QTTaqC7iaM8N38HA
+	 GryLeTXRe9y/q/NDbHLIEQH/0J5CtpwN/Me8VqoGrKeVsSTx7LJTyJzY6trxXLqMI8
+	 0nR38PzSPs7WUvp7PPsZvqtlyOikT4BxhdjVclZgKQP/djJjsd30x3XVQaZi0DJVab
+	 00KG+xik3vZL9DDKXZW2VT0/TBEB5Cqb1BcqoAGl6MFJiYEeHmxbotbgVBdk/iunkP
+	 mrJZNPel6/GMc1f1O6OveG8V4qocuaqpyh4mDphS963gdwzWu13rnsqy5nsXVOXMl0
+	 ILptBQ0RQqn5w==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v7 06/14] KVM: s390: Fix leaking of PGM_ADDRESSING to
- userspace
+Subject: Re: [PATCH v5 02/31] KVM: Make device name configurable
 Reply-To: sashiko-reviews@lists.linux.dev
-To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, "Alexander Gordeev" <agordeev@linux.ibm.com>, kvm@vger.kernel.org, "Heiko
- Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>
-In-Reply-To: <20260731130138.173983-7-imbrenda@linux.ibm.com>
-References: <20260731130138.173983-1-imbrenda@linux.ibm.com>
- <20260731130138.173983-7-imbrenda@linux.ibm.com>
+To: "Steffen Eiden" <seiden@linux.ibm.com>
+Cc: "Marc Zyngier" <maz@kernel.org>, kvm@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
+ Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org, "Alexander Gordeev" <agordeev@linux.ibm.com>, kvmarm@lists.linux.dev, "Oliver
+ Upton" <oupton@kernel.org>
+In-Reply-To: <20260731130902.654679-3-seiden@linux.ibm.com>
+References: <20260731130902.654679-1-seiden@linux.ibm.com>
+ <20260731130902.654679-3-seiden@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 31 Jul 2026 13:24:46 +0000
-Message-Id: <20260731132446.7A3D01F000E9@smtp.kernel.org>
+Date: Fri, 31 Jul 2026 13:26:23 +0000
+Message-Id: <20260731132624.0A2D41F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
-
-Pre-existing issues:
-- [High] Uninitialized stack variable `prev.zero` is leaked to userspace.
+- [Medium] Memory allocated for `kvm_dev.name` is leaked if the subsequent =
+`cache_name` allocation fails.
+- [Medium] Mixing `goto`-based error handling and `__free()` scope-based cl=
+eanup within the same function.
 --
 
---- Patch [6]: [PATCH v7 06/14] KVM: s390: Fix leaking of PGM_ADDRESSING to=
- userspace ---
-commit ed708d75cfaadb270c9e236e10c87fa7cbbb9d4f
-Author: Claudio Imbrenda <imbrenda@linux.ibm.com>
+--- Patch [2]: [PATCH v5 02/31] KVM: Make device name configurable ---
+commit bb225c1b3b23a0088c5fdee909b0a0007a39479e
+Author: Steffen Eiden <seiden@linux.ibm.com>
 
-KVM: s390: Fix leaking of PGM_ADDRESSING to userspace
+KVM: Make device name configurable
 
-This commit modifies KVM memory ioctls (such as setting CMMA bits or storage
-keys) to return -EFAULT instead of a positive PGM_ADDRESSING error code when
-addressing outside a memslot. This restores the expected behavior from befo=
-re
-the gmap rewrite.
+This commit allows KVM implementations to choose alternative device names.
+This is especially useful for architectures providing multiple KVM
+implementations simultaneously.
 
-> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index 21574f57be72e..e162efaa35b8f 100644
-> --- a/arch/s390/kvm/kvm-s390.c
-> +++ b/arch/s390/kvm/kvm-s390.c
-> @@ -571,7 +571,7 @@ static int kvm_s390_keyop(struct kvm_s390_mmu_cache *=
-mc, struct kvm *kvm, int op
->  	switch (op) {
->  	case KVM_S390_KEYOP_SSKE:
->  		r =3D dat_cond_set_storage_key(mc, asce, gfn, skey, &skey, 0, 0, 0);
+> diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+> index 994cb40cf2efe..18eb3d5d04f4c 100644
+> --- a/virt/kvm/kvm_main.c
+> +++ b/virt/kvm/kvm_main.c
 
-[Severity: High]
-This is a pre-existing issue, but does dat_cond_set_storage_key() leak
-uninitialized kernel stack memory to userspace here?
+[ ... ]
 
-When the KVM_S390_KEYOP ioctl is called with KVM_S390_KEYOP_SSKE, it calls
-dat_cond_set_storage_key(), which populates a local stack variable:
+> @@ -6491,23 +6490,39 @@ void kvm_unregister_perf_callbacks(void)
+>  }
+>  #endif
+> =20
+> -int kvm_init(unsigned vcpu_size, unsigned vcpu_align, struct module *mod=
+ule)
+> +int kvm_init(unsigned int vcpu_size, unsigned int vcpu_align, struct mod=
+ule *module)
+>  {
+> +	return kvm_init_with_dev(vcpu_size, vcpu_align, module, "kvm", KVM_MINO=
+R);
+> +}
+> +
+> +int kvm_init_with_dev(unsigned int vcpu_size, unsigned int vcpu_align,
+> +		      struct module *module, const char *dev_name, int minor)
+> +{
+> +	char *cache_name __free(kfree) =3D NULL;
+>  	int r;
+>  	int cpu;
+> =20
+> +	kvm_dev.minor =3D minor;
+> +	kvm_dev.name =3D kstrdup_const(dev_name, GFP_KERNEL);
+> +	if (!kvm_dev.name)
+> +		return -ENOMEM;
+> +
+>  	/* A kmem cache lets us meet the alignment requirements of fx_save. */
+>  	if (!vcpu_align)
+>  		vcpu_align =3D __alignof__(struct kvm_vcpu);
+> +	cache_name =3D kasprintf(GFP_KERNEL, "%s_vcpu", dev_name);
+> +	if (!cache_name)
+> +		return -ENOMEM;
 
-arch/s390/kvm/dat.c:dat_cond_set_storage_key() {
-    ...
-	} else {
-		prev.acc =3D old.acc;
-		prev.fp =3D old.fp;
-		prev.c =3D old.gc;
-		prev.r =3D old.gr;
-	}
-	if (oldkey)
-		*oldkey =3D prev;
-    ...
-}
+[Severity: Medium]
+Does this direct return leak kvm_dev.name?
 
-The 1-bit prev.zero bitfield is left uninitialized in this branch. The enti=
-re
-1-byte union is then copied into *oldkey and returned to kvm_s390_keyop().
-Could this value then be copied to userspace, successfully leaking 1 bit of
-kernel stack memory?
+The kvm_dev.name pointer is allocated via kstrdup_const() just above. If
+kasprintf() fails, this path returns -ENOMEM directly instead of jumping
+to the err_dev_name label to free the previously allocated memory.
 
-> -		if (r >=3D 0)
-> +		if (r =3D=3D 0 || r =3D=3D 1)
->  			return skey.skey;
->  		break;
+>  	kvm_vcpu_cache =3D
+> -		kmem_cache_create_usercopy("kvm_vcpu", vcpu_size, vcpu_align,
+> +		kmem_cache_create_usercopy(cache_name, vcpu_size, vcpu_align,
+>  					   SLAB_ACCOUNT,
+>  					   offsetof(struct kvm_vcpu, arch),
+>  					   offsetofend(struct kvm_vcpu, stats_id)
+>  					   - offsetof(struct kvm_vcpu, arch),
+>  					   NULL);
+> +	r =3D -ENOMEM;
+>  	if (!kvm_vcpu_cache)
+> -		return -ENOMEM;
+> +		goto err_dev_name;
+
+[Severity: Medium]
+Is it intended to mix scope-based cleanup with goto error labels here?
+
+The kvm_init_with_dev() function declares cache_name using __free(kfree):
+
+    char *cache_name __free(kfree) =3D NULL;
+
+But it also uses traditional goto-based error unwinding throughout the rest
+of the function, such as the goto err_dev_name seen here. The cleanup
+subsystem guidelines require that functions either convert all resources to
+scope-based cleanup or use goto labels exclusively. Mixing them in the same
+function can lead to confusing ownership semantics.
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260731130138.1739=
-83-1-imbrenda@linux.ibm.com?part=3D6
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260731130902.6546=
+79-1-seiden@linux.ibm.com?part=3D2
