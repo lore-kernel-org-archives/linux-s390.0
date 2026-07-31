@@ -1,117 +1,127 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f198.google.com (mail-pl1-f198.google.com [209.85.214.198])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A69273E6394
-	for <linux-s390@vger.kernel.org>; Fri, 31 Jul 2026 16:13:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D8888443AB6
+	for <linux-s390@vger.kernel.org>; Fri, 31 Jul 2026 16:15:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.198
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785514417; cv=none; b=gJTBtLOKeAzMhOWMteA/c1o4nJhB8timAxk/IRNRplpa/fN+2Sw1EOBeNIB2Suj8NJE204mYkiOh5DDAk/6EGrZu7Zevg9Pcg9mvk5cpxxoZySy6IJQpqWR/2vNeRSjXMIVSA7RT8P+5FGm1VQFQAu3No1SgZHpQLvr+u7PLuCc=
+	t=1785514565; cv=none; b=Cu5WpqsQumE1fU8U4ifcaFvjk0uCD8vo3uCuvXkwdBfPsnLlFnxBdyeug8Ao9DdS3mv4KBX6hW3oKoFUyHGxhX2JvBFod24gO14p6tIpZt5j18MC427LUul7ieZT5FAjUFA6nUqigHQci2B20t5Jf0XD6Q85Ytk8yRRXl/JUc8U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785514417; c=relaxed/simple;
-	bh=dhq3Flw/5DM0plPZmyXLkE/1PrFox4gaKvucWeA4jvA=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=gRH5VqiuWfi+Y2FThnc1AScW0PMy/uJqcR6LOgEqHoIswcimbqPg4D1+FA0ZNQz/o6rhGU7ynBZpzXehynB9drHx6/1YyEc92Ny/cXhhUo+KXwKYzFrvCKM4dtwZs0TPGM3zmo6ROwPt7HnWT5V4EqNlZ6CPw46TXlQRqZYiC68=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RBGf7W65; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1785514565; c=relaxed/simple;
+	bh=/6OQz+DQUsZXcPRJ4R2zsd2kat4n8VozoJNKylE8h7k=;
+	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
+	 To:Cc:Content-Type; b=M0dRcreu5rkPgIgDa/0jL3fLBXpHPOOsoq5+v0CSEhRIWocilI5OSxBNl+/PSoSutXc0//YMYxdEOdSWg1M9QQMIIeqym69EG541bkocgXcopOFcLq+4ZjJjzvCWXwARCZDvFafW1IyHG04wP+FYG5Cfk2woNaj3j+8bNpBapiI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=kQFp2F52; arc=none smtp.client-ip=209.85.214.198
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RBGf7W65"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E9DB1F00AC4;
-	Fri, 31 Jul 2026 16:13:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785514415;
-	bh=RoiMJ4XYGPyGxo9tBiI3xAdU8h0K5VmlcIfmJqmaHxc=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=RBGf7W65wb5bl/cuAb8d5uqYaalo630trSWrpN9EdOOM0F18PykIngrCY2bSIrL1/
-	 g0eUxcfjdsH4srkBe6VQNlZoIZyPfEDzMBlVNHHUyADIDClW0G/CpyusV32DgoG+hS
-	 r3rLAYscmwesredQXbJdwyIc1guMHoqNg2zpksO46RKr0t7sDpD1ooWgGI/Dl/ztHk
-	 Wwdmm5lWkko6A359uH1YLrDia5aTpXRA4pflenEqM69d2qCUSc/qe9kvVTT78qhfPg
-	 /s0jgaga0moAsUhizJJXBipphIM4xmbYhLjJnTusJxv+1dIEEe1WCdnTiM+VyMwsmH
-	 icGaqhBq9MGdQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 09/17] s390/dasd: Add
- dasd_eckd_build_cp_tpm_writefulltrack()
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Stefan Haberland" <sth@linux.ibm.com>
-Cc: "Vasily Gorbik" <gor@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, linux-s390@vger.kernel.org, "Alexander
- Gordeev" <agordeev@linux.ibm.com>
-In-Reply-To: <20260731153842.1729627-10-sth@linux.ibm.com>
-References: <20260731153842.1729627-1-sth@linux.ibm.com>
- <20260731153842.1729627-10-sth@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 31 Jul 2026 16:13:34 +0000
-Message-Id: <20260731161335.3E9DB1F00AC4@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="kQFp2F52"
+Received: by mail-pl1-f198.google.com with SMTP id d9443c01a7336-2cc7e86e7c5so21660955ad.3
+        for <linux-s390@vger.kernel.org>; Fri, 31 Jul 2026 09:15:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20251104; t=1785514552; x=1786119352; darn=vger.kernel.org;
+        h=content-type:cc:to:from:subject:message-id:references:mime-version
+         :in-reply-to:date:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=9ytOyVvVUp1+iOjUCBAJJ+Zr5Yli10sJrrWCx9PaxhI=;
+        b=kQFp2F52cW5DfoQqtvhhB2W1oDof3AeGU+CyYko3+1ZiI36LXPsJcSIbILKQzWojFx
+         15xk68Krr2nmQMfbu7JDXQgSxl49Nj9sd8p0mTZ7LLvgSE10M7CXdbeWN8cdBIOz7UPH
+         l7+sE0fRR66JG8lTxM2uVn7qYFFSjDd8twfsSin/iI2wJg53+5zmOtHGzrcTioUnnQf1
+         ndZk8Q3vhzyW9lfKikWH4Af9K0LfNUffKtWf/za94enpuW4XRychccB9ClaoR1miZDiG
+         wjcWbsY+qYtbIu9qCV5ArWX/86wChltRzaj7DIfpQ+dxKE90M9Zr64sh955fS/id+XUf
+         EyDw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1785514553; x=1786119353;
+        h=content-type:cc:to:from:subject:message-id:references:mime-version
+         :in-reply-to:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=9ytOyVvVUp1+iOjUCBAJJ+Zr5Yli10sJrrWCx9PaxhI=;
+        b=eXd14RArFuN13bb2lVNhHGgylfc0EZW8Ryn2TCyuL8emifhZir/4TIlLx5jCHBIh4I
+         vUGN0ymDjp7QMEDxeMOAxflZWhoQrdeQAqMgBIGKJ3NOv3DO/xYPN6AK8U1kpd/QvS2H
+         7e7q74NAnFsXxYyt4fqHVrEzi3vB2w3HQO71XnQJmkYHdl6EpAfxg5X8+M/mIV0eUK7p
+         zy08xPtcv5CIoM7/0Q2/PcRH0gHwZASxel10uhMge7hQxmy2W39RcxR93Unq7qhiVqA6
+         4ybKMugSgAkDEaC0+fxi0KnRYJ1DM1WwHAQtVwBXWHACCpVrvRLmCqoPrsK9dgsLFAAo
+         hHtQ==
+X-Forwarded-Encrypted: i=1; AHgh+Romx3cRIJ1Z3CDXVBlivEZY5qUtmbXRce3R0L2lb9EPdADO+EC7X+QV54Yph4eiNd1LSknIGDexhMUX@vger.kernel.org
+X-Gm-Message-State: AOJu0Yyx7zdNz47XUtizKgGgAhSO3I4AprmEhVMZb0Bs/bc4ZlC6/+8L
+	OvTJWQtFySXS8jjgMq9RvNMM1yuvnIpHkbVLiO6aZnftsPknQ/991Q480I51UnfoYGEtryZNmrq
+	cTJRQgQ==
+X-Received: from plbjg5.prod.google.com ([2002:a17:903:26c5:b0:2d0:40fa:a53d])
+ (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a17:903:2410:b0:2d0:4021:bb62
+ with SMTP id d9443c01a7336-2d0521bcc4dmr5824855ad.16.1785514552447; Fri, 31
+ Jul 2026 09:15:52 -0700 (PDT)
+Date: Fri, 31 Jul 2026 09:15:51 -0700
+In-Reply-To: <20260731145435.1016137-B-seiden@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+Mime-Version: 1.0
+References: <20260731130902.654679-1-seiden@linux.ibm.com> <20260731130902.654679-2-seiden@linux.ibm.com>
+ <20260731145435.1016137-B-seiden@linux.ibm.com>
+Message-ID: <amzKNzYWD1ngXdOZ@google.com>
+Subject: Re: [PATCH v5 01/31] vfio: Use file-based reference counting for KVM
+From: Sean Christopherson <seanjc@google.com>
+To: Steffen Eiden <seiden@linux.ibm.com>
+Cc: kvm@vger.kernel.org, kvmarm@lists.linux.dev, 
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, 
+	linux-s390@vger.kernel.org, Alexander Gordeev <agordeev@linux.ibm.com>, 
+	Andreas Grapentin <gra@linux.ibm.com>, Arnd Bergmann <arnd@arndb.de>, 
+	Catalin Marinas <catalin.marinas@arm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
+	Claudio Imbrenda <imbrenda@linux.ibm.com>, David Hildenbrand <david@kernel.org>, 
+	Friedrich Welter <fritz@linux.ibm.com>, Fuad Tabba <tabba@google.com>, 
+	Gautam Gala <ggala@linux.ibm.com>, Hariharan Mari <hari55@linux.ibm.com>, 
+	Heiko Carstens <hca@linux.ibm.com>, Hendrik Brueckner <brueckner@linux.ibm.com>, 
+	Ilya Leoshkevich <iii@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, 
+	Joey Gouly <joey.gouly@arm.com>, Marc Zyngier <maz@kernel.org>, Nico Boehr <nrb@linux.ibm.com>, 
+	Nina Schoetterl-Glausch <oss@nina.schoetterlglausch.eu>, Oliver Upton <oupton@kernel.org>, 
+	Paolo Bonzini <pbonzini@redhat.com>, Suzuki K Poulose <suzuki.poulose@arm.com>, 
+	Sven Schnelle <svens@linux.ibm.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, 
+	Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>, Zenghui Yu <yuzenghui@huawei.com>
+Content-Type: text/plain; charset="us-ascii"
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
-- [Medium] Unconditional iteration over payload segments violates subsystem=
- guidelines and risks a NULL pointer dereference for payload-less requests.
-- [Low] Unused static function `dasd_eckd_build_cp_tpm_writefulltrack` caus=
-es a build warning/breakage.
---
+On Fri, Jul 31, 2026, Steffen Eiden wrote:
+> On Fri, Jul 31, 2026 at 03:08:29PM +0200, Steffen Eiden wrote:
+> > Replace manual module reference counting with file-based reference
+> > counting for KVM integration. Previously, VFIO used symbol_get() to
+> > obtain function pointers for kvm_get_kvm_safe() and kvm_put_kvm(),
+> > then manually tracked module references through these symbols. This
+> > approach required storing the put_kvm function pointer in each device
+> > and carefully managing symbol references.
+> > 
+> > Pass struct file pointers instead of struct kvm pointers throughout the
+> > VFIO-KVM interface. This leverages the kernel's existing file reference
+> > counting mechanism via get_file_active() and fput(), eliminating the
+> > need for manual module reference tracking. The file->private_data field
+> > provides access to the underlying struct kvm when needed.
+> > 
+> > This simplifies the code and removes all remaining externally exported
+> > symbols for KVM, paving the path for a second concurrent KVM module.
+> > 
+> > Suggested-by: Jason Gunthorpe <jgg@nvidia.com>
+> > Suggested-by: Sean Christopherson <seanjc@google.com>
+> > Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
+> > ---
+> >  arch/x86/include/asm/kvm_page_track.h |  8 ++---
+> >  arch/x86/kvm/Makefile                 |  3 --
+> >  arch/x86/kvm/mmu/page_track.c         | 16 +++++----
+> >  drivers/s390/crypto/vfio_ap_ops.c     | 24 ++++++++++---
+> >  drivers/vfio/group.c                  |  2 +-
+> >  drivers/vfio/pci/vfio_pci_zdev.c      |  7 +++-
+> >  drivers/vfio/vfio.h                   | 10 +++---
+> >  drivers/vfio/vfio_main.c              | 49 ++++++---------------------
+> >  include/linux/kvm_host.h              |  2 ++
+> >  include/linux/vfio.h                  |  4 +--
+> >  virt/kvm/kvm_main.c                   | 23 ++++++++++---
+> >  virt/kvm/vfio.c                       |  8 ++---
+> >  12 files changed, 81 insertions(+), 75 deletions(-)
+> 
+> @sean: This is based on your draft in https://lore.kernel.org/all/adkFk3ZN4HJtpLA3@google.com/
+> do you want another/more attribution? 
 
---- Patch [9]: [PATCH v5 09/17] s390/dasd: Add dasd_eckd_build_cp_tpm_write=
-fulltrack() ---
-commit 2c25716c288b80bde9127da58f3afd957ee39c9c
-Author: Stefan Haberland <sth@linux.ibm.com>
-s390/dasd: Add dasd_eckd_build_cp_tpm_writefulltrack()
+No preference.  Do whatever feels right to you, you'll know better than me how
+much of the final code came from me.  If you want to give me a Co-developed-by,
+here's my:
 
-This commit adds the channel program builder for WRITE_FULL_TRACK requests.
-It emits an eckd_r0 header, an eckd_count plus data pair for every record,
-and a terminating pseudo-count to format and write tracks atomically.
-
-> diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eck=
-d.c
-> index c1a26485f506d..8d8bd40ba896b 100644
-> --- a/drivers/s390/block/dasd_eckd.c
-> +++ b/drivers/s390/block/dasd_eckd.c
-[ ... ]
-> @@ -4741,6 +4749,339 @@ static struct dasd_ccw_req *dasd_eckd_build_cp_tp=
-m_track(
-[ ... ]
-> +static struct dasd_ccw_req *dasd_eckd_build_cp_tpm_writefulltrack(struct=
- dasd_device *startdev,
-
-[Severity: Low]
-Because this static function is defined but not called anywhere in this
-commit, will this generate a -Wunused-function warning and potentially break
-builds with -Werror?
-
-> +								  struct dasd_block *block,
-> +								  struct request *req,
-> +								  sector_t first_rec,
-> +								  sector_t last_rec,
-> +								  sector_t first_trk,
-> +								  sector_t last_trk,
-> +								  unsigned int first_offs,
-> +								  unsigned int last_offs,
-> +								  unsigned int blk_per_trk,
-> +								  unsigned int blksize,
-> +								  struct dasd_ccw_req *ocqr)
-> +{
-[ ... ]
-> +	/* process data records */
-> +	rec =3D first_offs + 1;
-> +	rec_count =3D 0;
-> +	rq_for_each_segment(bv, req, iter) {
-> +		dst =3D bvec_virt(&bv);
-
-[Severity: Medium]
-Does this code risk a NULL pointer dereference for payload-less requests?
-
-Iterating over a bio without data using rq_for_each_segment() triggers a
-NULL pointer dereference on bio->bi_io_vec. Subsystem guidelines require
-using a bio_has_data() guard before accessing data fields. If a payload-less
-request (like FLUSH or DISCARD) is passed here, it could crash.
-
-> +		seg_len =3D bv.bv_len;
-> +		while (seg_len) {
-[ ... ]
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260731153842.1729=
-627-1-sth@linux.ibm.com?part=3D9
+  Signed-off-by: Sean Christopherson <seanjc@google.com>
