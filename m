@@ -1,54 +1,53 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D1934443AB3
-	for <linux-s390@vger.kernel.org>; Fri, 31 Jul 2026 15:39:08 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5BB6744604F
+	for <linux-s390@vger.kernel.org>; Fri, 31 Jul 2026 15:39:09 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785512354; cv=none; b=o81uTdAANvr61WAOZIkXN2HjbK8cl6CXv7uWv0ceVM8hIwuXyrzwZJPZuuH/hPDBh/3J2T8tsecYZNVyxizahzamKlSpblwUc1uosxDtdgYH3tX2qwUklx38WddAQ0ZvX/Mdg18pmfJHjfOBw7RlWsvcQAfjxL7pe8q9Su2vqpE=
+	t=1785512354; cv=none; b=r6aogtXQop4bmpS71+XB19xJ8r5kDWWdzpcH+uDEniP583q9PGoNIvwryNznfe1zJ/F9n0hIogJAmhAMWJp4Ed9JfI3qguDlcRYz6feh5YSIaPcvVSzOQU5ejtdKY4ohngFY/qdaUjUcPpkhI0i2wPjvjKI5TBWAocokDno1T3Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1785512354; c=relaxed/simple;
-	bh=hvw5OMuIfjn8jhdhzSohKwWxZMaH2fKHmVh0LhSgazM=;
+	bh=ry5v6a173WPKQcirEW0rNOvRbF6wqyndsc2YY35LEXU=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=r0FUNI44fVp1NHgyUBE/eR+7jEcSdsdTwz0oQQWcVeZfEdH2qxJlvkxWupHox8CdpBGm7ceqCzQ7P243LkcrAYaN605pH+d0GZc10/1Oi3ZTn4Q6m8j5K5CApJvqRLzQ6v9XO4iTdDnpTXWq+w7AUi+yF8RguW7PVjCCj1Djgio=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=jWe/hboE; arc=none smtp.client-ip=148.163.158.5
+	 MIME-Version; b=EBX1lkKQeidXLcws4FiEXlBDCm2lj8Y/z2VJI5pmjXRGsBgCA6ZE05I3T5RvMme7hiFntrDwA7XHvvWtEQ3xIRrPF/WFXkZL+W8wOOJRZ9Q85oIplg9c5jX+M8Fc0WVbTBuwn1ZZfNItJbP2F3pcsqOSscB/tBVjfetszNcecTU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=VqQKPUzY; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="jWe/hboE"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66VBlwug1791081
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="VqQKPUzY"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66VBlhqT1670371
 	for <linux-s390@vger.kernel.org>; Fri, 31 Jul 2026 15:39:06 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=Sq5yBN
-	LAtBMrapFTliyhfcTnbCCay07c0PDxE8CzXDo=; b=jWe/hboEK3eu/NsSH+mHwp
-	aC9K6QqsyBWTCYi2TIFmWLVEyeGRnaqmhlqcMu9AzDSmBOLD0ufEzdqef2ro+tyo
-	qRYKW79qG6VLPLag3iu3PEw+lWl3zf4B7V9RpQ5Ab61tzPF2jZhWM4JocBnaS4s1
-	gpreC5Jw9Kxlo+jXSp5AvuhrAj4PHwYKUWtDap9Quq0+5wTwD+s1cLDvwA3+hIOj
-	Cns8ZGzRECR0MqWO0ba/47JdqKuT7jbxffXCdicsCzkycru9ZRv1Gr/jVTu0Fe6L
-	WOIKLo68SmGf8Lm0vQvpuiS1vqRHoSxcYuoSKiIwg/fp9XstHvvBRmNeMU3Q038Q
-	==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fmuwdcrdg-1
+	:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=pp1; bh=M0jhN48JEtHC1A9Cw
+	FTVr0M1BZwBP08TJtyTTPFacb4=; b=VqQKPUzYueGfuWErHMA/jy870sgcZ+Slq
+	aplpyV9GlWqaNyeMISBSyC2wpA+XTUOhTnni88719l3FIZdRP3SAM1jZEvh2O33+
+	++8YHEDOImtXwlyuWLAbu4PhHN3DbaTR+TIF8vh3fAY9jNfWAu4auAXocr3i1bGx
+	lOaZeUT8itxqlJAXPa6JSiO/MQzjIcom6r6+Q3g3eFE4V3+mJcct3GY+hEus1WZ2
+	6S2zDJw1iWzBZlbPVZM3bdHO/wyOXhSknAiFbNtPKUPm6p/4hVt7buAkh5LuPEyF
+	5xxsxKnZISYtlr7zSfZvFFpppiggLTJm8EXzvluxzZK0ek17rcmBg==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fmuyjmr6s-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
 	for <linux-s390@vger.kernel.org>; Fri, 31 Jul 2026 15:39:06 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66VFBO1F027900
-	for <linux-s390@vger.kernel.org>; Fri, 31 Jul 2026 15:39:05 GMT
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66VFQc19029247
+	for <linux-s390@vger.kernel.org>; Fri, 31 Jul 2026 15:39:06 GMT
 Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fn9pgra28-1
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fn8fkgg55-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
 	for <linux-s390@vger.kernel.org>; Fri, 31 Jul 2026 15:39:05 +0000 (GMT)
 Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66VFd1F528639492
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66VFd1w431261074
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
 	Fri, 31 Jul 2026 15:39:01 GMT
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 71F2220049;
+	by IMSVA (Postfix) with ESMTP id AD4E82004B;
 	Fri, 31 Jul 2026 15:39:01 +0000 (GMT)
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 542872004D;
+	by IMSVA (Postfix) with ESMTP id 9016B2004E;
 	Fri, 31 Jul 2026 15:39:01 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
 	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
@@ -57,9 +56,9 @@ From: Stefan Haberland <sth@linux.ibm.com>
 To: linux-s390@vger.kernel.org
 Cc: Jan Hoeppner <hoeppner@linux.ibm.com>,
         Eduard Shishkin <edward6@linux.ibm.com>
-Subject: [PATCH v5 14/17] s390/dasd: Detect ESE volumes from the on-disk format label
-Date: Fri, 31 Jul 2026 17:38:39 +0200
-Message-ID: <20260731153842.1729627-15-sth@linux.ibm.com>
+Subject: [PATCH v5 16/17] s390/dasd: Re-enable discard support for ESE volumes
+Date: Fri, 31 Jul 2026 17:38:41 +0200
+Message-ID: <20260731153842.1729627-17-sth@linux.ibm.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260731153842.1729627-1-sth@linux.ibm.com>
 References: <20260731153842.1729627-1-sth@linux.ibm.com>
@@ -69,378 +68,368 @@ List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: YxFxgjif9pU1Pp1_b4HpY9onYitrRmOL
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzMxMDExNiBTYWx0ZWRfX/VwNttZ9+96w
- W1fwloF16KBS1RxGzxRGNM+48Lno8QMAC7HpajoXPzMqPxcItzx/K3OSKkrHOeb2blYlREU7GmS
- B3fKcuYuerxfaCHDDwKvR0vVHV0/37E=
-X-Authority-Analysis: v=2.4 cv=E/z9Y6dl c=1 sm=1 tr=0 ts=6a6cc19a cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8
- a=XCryhe0Ejjn_Du0XFGgA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzMxMDExNiBTYWx0ZWRfXzOrYnfQI3wLQ
- 19iLa1tuhhQujou6QSUpKa1DXDsN1WKcNmTrinn/WKghrSG9jBA0Q/ZHnHwim8SzZoaoNZjrK3K
- W5hnEUjWzICOyHGJoSJDhubICXN0Llfcke6BzCwG0cozmQuYwCP+bdUQz2exaWbRKarHCGtcSA0
- 9mccXOqCxuj1STIB3WFEc9l+wGjadWmSFkIqM7yMFpv+7wchGlAgLUg9zn/ocrvcsAy3THj11JB
- oyW4rEFigIPJGQO0mP4lFVMqZGDaDyU+EOSOvyL80IvwUGFPNX7gUjv/xRrSdz2GH3ulHGXa6AU
- JODQwdii1Gs6wnw9EIXZZr/abXaGaAGmjSgF21n5EpmU8RrKazLywmgBlhHX7qU+TELPDLZmQDt
- YA/O0l42631R7OIqNqX1mB+D9hUh9amENdibiGAsQjie4aMJaghhLn9ldSgpP2eP4zvvPDEn+LT
- cVs4uSWXKp1I6WoNwCA==
-X-Proofpoint-GUID: YxFxgjif9pU1Pp1_b4HpY9onYitrRmOL
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzMxMDExNiBTYWx0ZWRfXxb4PUMwhoTOR
+ 89aUEUCB+NqLaRh+ITdt0Xrj0jrY6ucc3O2eiJNp/6W8lKVfLuY+Md5jZvEtGJ2Su+hHytoQYG6
+ 3U82rysqEfz0RTFtljwFtp0GafZVmW0=
+X-Proofpoint-GUID: 5BGnCQxs9xUN5dZMooSyvoeu1xfHWN8_
+X-Proofpoint-ORIG-GUID: 5BGnCQxs9xUN5dZMooSyvoeu1xfHWN8_
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzMxMDExNiBTYWx0ZWRfX3B5ju4pY831I
+ vAYJsLbesF99u92uqmokX7KmFkgYj29oU/J3lBO8a8HJQDjJd7E6v0VpSJpH6pmm5NYeySo+IyD
+ E7ScxTcytnNXe7SYSLlKt9UlMoHLcxEZN7pLBycfOTYXP5ToGp3kp9M96VoHf3df4O3B84USrbF
+ 9+D1egvY8KUUxyyeVagrsLmOfYLHv9q8AFNabRCzLTD6wqcxSOvDThQqixmMF3NmSV1Pzc0NrHS
+ fNyTnysF9DZcHem0wq6crGyh4oMxnBFPLsOnbAXjtp8UHNHbVhk6DdUiaqRW9ezUnPYUGn2QyJ3
+ 0o78g83BlZzH17gnVOVk291IMBUXs1B6eEO9ADItRG+yXs6dZB5kN16eiPvOYcRz8KB9SXiUJFK
+ toHfiSdrtMIwnjfw/fWN/VKOY16SewMSUXlEQydugcsO+GpEERnwgDEJXsXLr3xdTHmDt1HV7WG
+ uYIlG+qsBPfY3p42T+Q==
+X-Authority-Analysis: v=2.4 cv=X5Vi7mTe c=1 sm=1 tr=0 ts=6a6cc19a cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8 a=BHqjD8HPc08Ugyy6hOkA:9
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-07-31_04,2026-07-30_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- adultscore=0 priorityscore=1501 spamscore=0 clxscore=1015 phishscore=0
- lowpriorityscore=0 bulkscore=0 malwarescore=0 impostorscore=0 suspectscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607310116
+ clxscore=1015 impostorscore=0 lowpriorityscore=0 phishscore=0
+ priorityscore=1501 malwarescore=0 spamscore=0 suspectscore=0 bulkscore=0
+ adultscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2607310116
 
-Read the format label from track 0 record 4 at device bring-up and cache
-it. When a valid label is present, is_ese() is derived from it instead of
-the hardware volume field.
-A volume copied off ESE storage onto other hardware is thus still handled
-as thin.
-Without a label (older format) is_ese() falls back to the hardware field as
-before.
-The cache is refreshed after a format so is_ese() stays coherent without an
-offline/online cycle.
+Re-enable block-layer discard for ESE ECKD volumes, releasing thin space
+via release allocated space (RAS).
+This is based on
+commit 7e64db1597fe ("s390/dasd: Add discard support for ESE volumes")
+but adapted to the current code and fixed.
 
-The label F_ESE bit is stamped from the hardware capability rather than
-is_ese(), and space release (quick format) is gated on the hardware
-capability, so a copied label cannot enable it on non-ESE hardware.
+REQ_OP_DISCARD is routed to a RAS release over the request's track range,
+and discard requests run on the base device only. Discard limits use extent
+granularity via the disc_limits discipline hook so the block layer only
+issues extent-aligned discards.
 
-The ese sysfs attribute, and with this lsdasd, shows the hardware
-capability and not the internal handling. This is in line with the view
-from storage server interface. To reflect the specific internal handling an
-additional attribute on_demand_formatting is added to show that a device is
-handled like an ESE device internally based on the disk label.
+Discard is gated on the DASD_FEATURE_DISCARD device feature rather than a
+per-discipline flag: the driver sets the feature when the volume is on ESE
+hardware (i.e. RAS is available), and the block-layer setup enables discard
+limits for a device that has it.
 
-Reviewed-by: Jan Höppner <hoeppner@linux.ibm.com>
 Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
 ---
- drivers/s390/block/dasd_devmap.c |   6 +-
- drivers/s390/block/dasd_eckd.c   | 177 ++++++++++++++++++++++++++++---
- drivers/s390/block/dasd_eckd.h   |   7 ++
- drivers/s390/block/dasd_int.h    |   3 +
- 4 files changed, 176 insertions(+), 17 deletions(-)
+ drivers/s390/block/dasd.c      |  29 ++++--
+ drivers/s390/block/dasd_eckd.c | 171 ++++++++++++++++++++++++++-------
+ drivers/s390/block/dasd_int.h  |   2 +
+ 3 files changed, 159 insertions(+), 43 deletions(-)
 
-diff --git a/drivers/s390/block/dasd_devmap.c b/drivers/s390/block/dasd_devmap.c
-index 50301e545bbe..89f155e414fd 100644
---- a/drivers/s390/block/dasd_devmap.c
-+++ b/drivers/s390/block/dasd_devmap.c
-@@ -2479,9 +2479,10 @@ static ssize_t dasd_##_name##_show(struct device *dev,			\
- 									\
- 	return sysfs_emit(buf, "%d\n", val);			\
- }									\
--static DEVICE_ATTR(_name, 0444, dasd_##_name##_show, NULL);		\
-+static DEVICE_ATTR(_name, 0444, dasd_##_name##_show, NULL);
+diff --git a/drivers/s390/block/dasd.c b/drivers/s390/block/dasd.c
+index 06e99be3100e..27998bbb8935 100644
+--- a/drivers/s390/block/dasd.c
++++ b/drivers/s390/block/dasd.c
+@@ -354,17 +354,19 @@ static int dasd_state_basic_to_ready(struct dasd_device *device)
+ 	 */
+ 	lim.dma_alignment = lim.logical_block_size - 1;
  
--DASD_DEFINE_ATTR(ese, device->discipline->is_ese);
-+DASD_DEFINE_ATTR(ese, device->discipline->ese_capable);
-+DASD_DEFINE_ATTR(on_demand_formatting, device->discipline->on_demand_format);
- DASD_DEFINE_ATTR(extent_size, device->discipline->ext_size);
- DASD_DEFINE_ATTR(pool_id, device->discipline->ext_pool_id);
- DASD_DEFINE_ATTR(space_configured, device->discipline->space_configured);
-@@ -2519,6 +2520,7 @@ static struct attribute * dasd_attrs[] = {
- 	&dev_attr_path_reset.attr,
- 	&dev_attr_hpf.attr,
- 	&dev_attr_ese.attr,
-+	&dev_attr_on_demand_formatting.attr,
- 	&dev_attr_fc_security.attr,
- 	&dev_attr_copy_pair.attr,
- 	&dev_attr_copy_role.attr,
+-	if (device->discipline->has_discard) {
++	if (device->features & DASD_FEATURE_DISCARD) {
+ 		unsigned int max_bytes;
+ 
+-		lim.discard_granularity = block->bp_block;
+-
+-		/* Calculate max_discard_sectors and make it PAGE aligned */
+-		max_bytes = USHRT_MAX * block->bp_block;
+-		max_bytes = ALIGN_DOWN(max_bytes, PAGE_SIZE);
+-
+-		lim.max_hw_discard_sectors = max_bytes / block->bp_block;
+-		lim.max_write_zeroes_sectors = lim.max_hw_discard_sectors;
++		if (device->discipline->disc_limits) {
++			device->discipline->disc_limits(block, &lim);
++		} else {
++			lim.discard_granularity = block->bp_block;
++			/* Calculate max_discard_sectors and make it PAGE aligned */
++			max_bytes = USHRT_MAX * block->bp_block;
++			max_bytes = ALIGN_DOWN(max_bytes, PAGE_SIZE);
++			lim.max_hw_discard_sectors = max_bytes / block->bp_block;
++			lim.max_write_zeroes_sectors = lim.max_hw_discard_sectors;
++		}
+ 	}
+ 	rc = queue_limits_commit_update(block->gdp->queue, &lim);
+ 	if (rc)
+@@ -3169,6 +3171,15 @@ static blk_status_t do_dasd_request(struct blk_mq_hw_ctx *hctx,
+ 			rc = BLK_STS_RESOURCE;
+ 		} else if (PTR_ERR(cqr) == -EINVAL) {
+ 			rc = BLK_STS_INVAL;
++		} else if (PTR_ERR(cqr) == -EOPNOTSUPP) {
++			/*
++			 * e.g. a discard that covers no whole extent. This is an
++			 * expected, benign outcome (fstrim ranges rarely align to
++			 * the large ESE extent granularity), so silence the
++			 * per-request block-layer error print for it.
++			 */
++			req->rq_flags |= RQF_QUIET;
++			rc = BLK_STS_NOTSUPP;
+ 		} else {
+ 			DBF_DEV_EVENT(DBF_ERR, basedev,
+ 				      "CCW creation failed (rc=%ld) on request %p",
 diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
-index b9994104f5eb..98db3f0bd60e 100644
+index 787c3cc6ac68..2f8839c066f3 100644
 --- a/drivers/s390/block/dasd_eckd.c
 +++ b/drivers/s390/block/dasd_eckd.c
-@@ -1676,7 +1676,8 @@ static int dasd_eckd_read_vol_info(struct dasd_device *device)
- 	return rc;
- }
- 
--static int dasd_eckd_is_ese(struct dasd_device *device)
-+/* Hardware/volume ESE capability, from the Volume Storage Query. */
-+static int dasd_eckd_ese_capable(struct dasd_device *device)
- {
- 	struct dasd_eckd_private *private = device->private;
- 
-@@ -1686,6 +1687,49 @@ static int dasd_eckd_is_ese(struct dasd_device *device)
- 	return private->vsq.vol_info.ese;
- }
- 
-+/*
-+ * Whether the volume is to be handled as ESE (thin). This reflects the state
-+ * of the data, not the hardware: a volume copied off ESE storage onto other
-+ * hardware still needs ESE handling. The on-disk format label is authoritative
-+ * when present; without it (e.g. a volume formatted by an older driver) fall
-+ * back to the hardware ESE field.
-+ *
-+ * Only the F_ESE flag gates this. An ESE volume is thin regardless of whether
-+ * it was quick- or full-formatted (tracks are allocated on write, and discard
-+ * re-thins a full one).
-+ */
-+static int dasd_eckd_is_ese(struct dasd_device *device)
-+{
-+	struct dasd_eckd_private *private = device->private;
-+
-+	if (private->ese_label_valid)
-+		return !!(private->ese_label.flags & DASD_ESE_LABEL_F_ESE);
-+
-+	return dasd_eckd_ese_capable(device);
-+}
-+
-+/*
-+ * Whether the volume is formatted on demand (thin), as opposed to fully
-+ * formatted. This is the format mode, not the hardware ESE capability. When a
-+ * label is present it is authoritative (F_QUICK). Without a label the mode is
-+ * unknown, but an ESE volume is still handled on demand (NRF triggers the
-+ * format), so fall back to the ESE state to stay consistent with the driver's
-+ * behavior on older, label-less volumes.
-+ */
-+static int dasd_eckd_on_demand_format(struct dasd_device *device)
-+{
-+	struct dasd_eckd_private *private = device->private;
-+
-+	/* sysfs may read this during set_online before private is allocated */
-+	if (!private)
-+		return 0;
-+
-+	if (private->ese_label_valid)
-+		return !!(private->ese_label.flags & DASD_ESE_LABEL_F_QUICK);
-+
-+	return dasd_eckd_is_ese(device);
-+}
-+
- static int dasd_eckd_ext_pool_id(struct dasd_device *device)
- {
- 	struct dasd_eckd_private *private = device->private;
-@@ -2105,6 +2149,69 @@ static bool dasd_eckd_pprc_enabled(struct dasd_device *device)
- 	return private->rdc_data.facilities.PPRC_enabled;
- }
- 
-+/*
-+ * Read the on-disk format label from track 0, record 4. On a formatted volume
-+ * R4 holds the label as its record data; on an unformatted (fresh ESE) or
-+ * label-less volume the read returns No Record Found, which is expected and
-+ * leaves the cache invalid so is_ese() falls back to the hardware field.
-+ */
-+static void dasd_eckd_read_format_label(struct dasd_device *device)
-+{
-+	struct dasd_eckd_private *private = device->private;
-+	struct dasd_format_label *label;
-+	struct DE_eckd_data *dedata;
-+	struct LO_eckd_data *lodata;
-+	struct dasd_ccw_req *cqr;
-+	struct ccw1 *ccw;
-+
-+	private->ese_label_valid = false;
-+
-+	/* The label lives on the base volume; aliases have none of their own. */
-+	if (private->uid.type == UA_BASE_PAV_ALIAS ||
-+	    private->uid.type == UA_HYPER_PAV_ALIAS)
-+		return;
-+
-+	cqr = dasd_smalloc_request(DASD_ECKD_MAGIC, 3 /* DE + LO + READ */,
-+				   sizeof(*dedata) + sizeof(*lodata) +
-+				   sizeof(*label), device, NULL);
-+	if (IS_ERR(cqr))
-+		return;
-+
-+	dedata = cqr->data;
-+	lodata = (struct LO_eckd_data *)(dedata + 1);
-+	label = (struct dasd_format_label *)(lodata + 1);
-+
-+	ccw = cqr->cpaddr;
-+	define_extent(ccw++, dedata, 0, 0, DASD_ECKD_CCW_READ, device, 0);
-+	ccw[-1].flags |= CCW_FLAG_CC;
-+	locate_record(ccw++, lodata, 0, 4, 1, DASD_ECKD_CCW_READ, device,
-+		      sizeof(*label));
-+	ccw[-1].flags |= CCW_FLAG_CC;
-+	ccw->cmd_code = DASD_ECKD_CCW_READ;
-+	ccw->count = sizeof(*label);
-+	ccw->flags = CCW_FLAG_SLI;
-+	ccw->cda = virt_to_dma32(label);
-+
-+	cqr->startdev = device;
-+	cqr->memdev = device;
-+	cqr->block = NULL;
-+	cqr->retries = 256;
-+	cqr->expires = 10 * HZ;
-+	cqr->buildclk = get_tod_clock();
-+	cqr->status = DASD_CQR_FILLED;
-+	/* R4 may be absent (unformatted) or larger than the label. */
-+	set_bit(DASD_CQR_SUPPRESS_NRF, &cqr->flags);
-+	set_bit(DASD_CQR_SUPPRESS_IL, &cqr->flags);
-+
-+	if (!dasd_sleep_on(cqr) &&
-+	    label->magic == DASD_ESE_LABEL_MAGIC &&
-+	    label->version == DASD_ESE_LABEL_VERSION) {
-+		private->ese_label = *label;
-+		private->ese_label_valid = true;
-+	}
-+	dasd_sfree_request(cqr, device);
-+}
-+
- /*
-  * Check device characteristics.
-  * If the device is accessible using ECKD discipline, the device is enabled.
-@@ -2161,10 +2268,6 @@ dasd_eckd_check_characteristics(struct dasd_device *device)
- 	device->path_interval = DASD_ECKD_PATH_INTERVAL;
- 	device->aq_timeouts = DASD_RETRIES_MAX;
- 
--	/* default ESE fulltrack write aggressiveness from the module parameter */
--	device->ft_bias = min_t(unsigned int, full_track_bias, DASD_FT_BIAS_MAX);
--	dasd_ft_bias_apply(device);
--
- 	if (private->conf.gneq) {
- 		value = 1;
- 		for (i = 0; i < private->conf.gneq->timeout.value; i++)
-@@ -2219,6 +2322,16 @@ dasd_eckd_check_characteristics(struct dasd_device *device)
+@@ -2322,6 +2322,18 @@ dasd_eckd_check_characteristics(struct dasd_device *device)
  	/* Read Volume Information */
  	dasd_eckd_read_vol_info(device);
  
-+	/* Read the on-disk format label for ESE detection */
-+	dasd_eckd_read_format_label(device);
-+
 +	/*
-+	 * is_ese() now reflects the real ESE state (vsq + on-disk label), so
-+	 * the adaptive heuristic can be derived correctly for this device.
++	 * Advertise discard through the device feature so the block layer sets
++	 * up discard limits. Discard releases allocated space, so require a thin
++	 * (ESE) volume whose storage reports support for the space-release
++	 * function. Raw-track access bypasses the normal block CCW path (discard
++	 * would reach the raw builder, which has no record data), so exclude it.
 +	 */
-+	device->ft_bias = min_t(unsigned int, full_track_bias, DASD_FT_BIAS_MAX);
-+	dasd_ft_bias_apply(device);
++	if (dasd_eckd_ese_capable(device) &&
++	    (private->features.feature[56] & 0x01) &&
++	    !(device->features & DASD_FEATURE_USERAW))
++		device->features |= DASD_FEATURE_DISCARD;
 +
- 	/* Read Extent Pool Information */
- 	dasd_eckd_read_ext_pool_info(device);
+ 	/* Read the on-disk format label for ESE detection */
+ 	dasd_eckd_read_format_label(device);
  
-@@ -2730,7 +2843,12 @@ static void dasd_eckd_fill_format_label(struct dasd_device *device, void *data,
- 	memset(label, 0, blksize);
- 	label->magic = DASD_ESE_LABEL_MAGIC;
- 	label->version = DASD_ESE_LABEL_VERSION;
--	if (dasd_eckd_is_ese(device))
-+	/*
-+	 * F_ESE records the hardware capability at format time, not is_ese():
-+	 * is_ese() is derived from the label, so using it here would let the
-+	 * flag flip on repeated quick/full reformats.
-+	 */
-+	if (dasd_eckd_ese_capable(device))
- 		label->flags |= DASD_ESE_LABEL_F_ESE;
- 	if (private->ese_format_quick)
- 		label->flags |= DASD_ESE_LABEL_F_QUICK;
-@@ -2740,6 +2858,13 @@ static void dasd_eckd_fill_format_label(struct dasd_device *device, void *data,
- 	label->format_tod = get_tod_clock();
- 	strscpy(label->kernel_version, init_utsname()->release,
- 		sizeof(label->kernel_version));
-+
-+	/*
-+	 * Populate the cache directly from the bytes just computed instead of
-+	 * synchronously reading them back from disk after the write lands.
-+	 */
-+	private->ese_label = *label;
-+	private->ese_label_valid = true;
+@@ -4118,37 +4130,13 @@ static int dasd_eckd_ras_sanity_checks(struct dasd_device *device,
  }
  
- static struct dasd_ccw_req *
-@@ -3224,23 +3349,35 @@ static int dasd_eckd_format_device(struct dasd_device *base,
- 	struct dasd_eckd_private *private = base->private;
- 	int rc;
- 
--	/*
--	 * A full format (start_unit == 0) returns the device to a fully sparse
--	 * state, so restart the heuristic from ft1 without an offline cycle.
--	 */
--	if (fdata->start_unit == 0)
--		dasd_ft_bias_apply(base);
+ /*
+- * Helper function to count the amount of involved extents within a given range
+- * with extent alignment in mind.
++ * Number of extents the track range [from, to] spans. Extent n covers tracks
++ * [n * trks_per_ext, (n + 1) * trks_per_ext - 1], so the range touches the
++ * extents from (from / trks_per_ext) to (to / trks_per_ext) inclusive.
+  */
+ static int count_exts(unsigned int from, unsigned int to, int trks_per_ext)
+ {
+-	int cur_pos = 0;
+-	int count = 0;
+-	int tmp;
 -
- 	rc = dasd_eckd_format_process_data(base, fdata, enable_pav, 0, NULL,
- 					   0, NULL);
-+	if (fdata->start_unit != 0)
-+		return rc;
-+
-+	if (rc) {
-+		/*
-+		 * The format failed, so the label cached speculatively during
-+		 * CCW build may not match the disk; drop it so is_ese() falls
-+		 * back to the hardware field until the next successful format
-+		 * or bring-up.
-+		 */
-+		private->ese_label_valid = false;
-+		return rc;
+-	if (from == to)
+-		return 1;
+-
+-	/* Count first partial extent */
+-	if (from % trks_per_ext != 0) {
+-		tmp = from + trks_per_ext - (from % trks_per_ext) - 1;
+-		if (tmp > to)
+-			tmp = to;
+-		cur_pos = tmp - from + 1;
+-		count++;
+-	}
+-	/* Count full extents */
+-	if (to - (from + cur_pos) + 1 >= trks_per_ext) {
+-		tmp = to - ((to - trks_per_ext + 1) % trks_per_ext);
+-		count += (tmp - (from + cur_pos) + 1) / trks_per_ext;
+-		cur_pos = tmp;
+-	}
+-	/* Count last partial extent */
+-	if (cur_pos < to)
+-		count++;
+-
+-	return count;
++	return to / trks_per_ext - from / trks_per_ext + 1;
+ }
+ 
+ static int dasd_in_copy_relation(struct dasd_device *device)
+@@ -4199,9 +4187,17 @@ dasd_eckd_dso_ras(struct dasd_device *device, struct dasd_block *block,
+ 	if (dasd_eckd_ras_sanity_checks(device, first_trk, last_trk))
+ 		return ERR_PTR(-EINVAL);
+ 
+-	copy_relation = dasd_in_copy_relation(device);
+-	if (copy_relation < 0)
+-		return ERR_PTR(copy_relation);
++	/*
++	 * The block-layer discard path (req != NULL) runs in atomic context, so
++	 * it must not issue the sleeping copy-relation (PPRC) query. It also
++	 * leaves guarantee_init off - discard does not promise zeroing anyway.
++	 */
++	copy_relation = 0;
++	if (!req) {
++		copy_relation = dasd_in_copy_relation(device);
++		if (copy_relation < 0)
++			return ERR_PTR(copy_relation);
 +	}
  
- 	/*
- 	 * The quick-format indicator was consumed by the label stamped into
- 	 * track 0; clear it so a later format that is not preceded by a full
- 	 * space release is recorded as a full format.
- 	 */
--	if (fdata->start_unit == 0)
--		private->ese_format_quick = 0;
-+	private->ese_format_quick = 0;
-+
-+	/*
-+	 * A full format returns the device to a fully sparse state and has just
-+	 * committed a fresh label; restart the heuristic from ft1 on the now
-+	 * current is_ese state, without an offline cycle.
-+	 */
-+	dasd_ft_bias_apply(base);
+ 	rq = req ? blk_mq_rq_to_pdu(req) : NULL;
  
- 	return rc;
+@@ -4233,7 +4229,7 @@ dasd_eckd_dso_ras(struct dasd_device *device, struct dasd_block *block,
+ 	 * not fully specified, but is only supported with a certain feature
+ 	 * subset and for devices not in a copy relation.
+ 	 */
+-	if (features->feature[56] & 0x01 && !copy_relation)
++	if (!req && features->feature[56] & 0x01 && !copy_relation)
+ 		ras_data->op_flags.guarantee_init = 1;
+ 
+ 	ras_data->lss = private->conf.ned->ID;
+@@ -4329,6 +4325,9 @@ static int dasd_eckd_release_space_trks(struct dasd_device *device,
+ 
+ 	INIT_LIST_HEAD(&ras_queue);
+ 
++	if (dasd_eckd_ext_size(device) == 0)
++		return -EINVAL;
++
+ 	device_exts = private->real_cyl / dasd_eckd_ext_size(device);
+ 	trks_per_ext = dasd_eckd_ext_size(device) * private->rdc_data.trk_per_cyl;
+ 
+@@ -5466,6 +5465,58 @@ static struct dasd_ccw_req *dasd_eckd_build_cp_tpm_writefulltrack(struct dasd_de
+ 	return ERR_PTR(ret);
  }
-@@ -4232,6 +4369,14 @@ static int dasd_eckd_release_space_trks(struct dasd_device *device,
- static int dasd_eckd_release_space(struct dasd_device *device,
- 				   struct format_data_t *rdata)
- {
-+	/*
-+	 * Space release (and thus a quick format) requires real ESE hardware.
-+	 * is_ese() may be true from a copied label on non-ESE hardware, so gate
-+	 * on the hardware capability, not on is_ese().
-+	 */
-+	if (!dasd_eckd_ese_capable(device))
-+		return -EOPNOTSUPP;
+ 
++static struct dasd_ccw_req *
++dasd_eckd_build_cp_discard(struct dasd_device *device, struct dasd_block *block,
++			   struct request *req, sector_t first_trk,
++			   sector_t last_trk, unsigned int first_offs,
++			   unsigned int last_offs, unsigned int blk_per_trk)
++{
++	struct dasd_eckd_private *private = device->private;
++	sector_t first_ext_trk, last_ext_end, last_ext_trk;
++	unsigned int trks_per_ext;
 +
- 	if (rdata->intensity & DASD_FMT_INT_ESE_FULL)
- 		return dasd_eckd_release_space_full(device);
- 	else if (rdata->intensity == 0)
-@@ -7604,6 +7749,8 @@ static struct dasd_discipline dasd_eckd_discipline = {
- 	.hpf_enabled = dasd_eckd_hpf_enabled,
- 	.reset_path = dasd_eckd_reset_path,
- 	.is_ese = dasd_eckd_is_ese,
-+	.ese_capable = dasd_eckd_ese_capable,
-+	.on_demand_format = dasd_eckd_on_demand_format,
- 	.space_allocated = dasd_eckd_space_allocated,
- 	.space_configured = dasd_eckd_space_configured,
- 	.logical_capacity = dasd_eckd_logical_capacity,
-diff --git a/drivers/s390/block/dasd_eckd.h b/drivers/s390/block/dasd_eckd.h
-index 92fd8ac92b79..30745f62402b 100644
---- a/drivers/s390/block/dasd_eckd.h
-+++ b/drivers/s390/block/dasd_eckd.h
-@@ -747,6 +747,13 @@ struct dasd_eckd_private {
- 	 * the next format to mark the on-disk label as a quick (vs full) format.
- 	 */
- 	int ese_format_quick;
++	trks_per_ext = dasd_eckd_ext_size(device) * private->rdc_data.trk_per_cyl;
++	if (!trks_per_ext)
++		return ERR_PTR(-EOPNOTSUPP);
++
 +	/*
-+	 * Cached on-disk format label (R4), read at online and refreshed on
-+	 * format. When valid, is_ese() is derived from it; otherwise it falls
-+	 * back to the hardware ESE field (vsq.vol_info.ese).
++	 * A discard range is rarely track-aligned: fstrim is FS-block granular
++	 * and discard_granularity is only a hint. If it starts or ends mid-track,
++	 * that boundary track still holds live records outside the range, so drop
++	 * it from the whole-track span first. Otherwise a partial boundary track
++	 * that happens to sit on an extent boundary would be released together
++	 * with its live records resulting in silent data loss
 +	 */
-+	struct dasd_format_label ese_label;
-+	bool ese_label_valid;
- };
++	if (first_offs)				/* partial first track */
++		first_trk++;
++	if (last_offs != blk_per_trk - 1) {	/* partial last track */
++		if (!last_trk)
++			return ERR_PTR(-EOPNOTSUPP);
++		last_trk--;
++	}
++	if (first_trk > last_trk)
++		return ERR_PTR(-EOPNOTSUPP);	/* no whole track fully covered */
++
++	/*
++	 * RAS releases whole extents. Only release extents that lie entirely
++	 * within the (now whole-track) discard range by rounding inward to extent
++	 * boundaries - an extent shared with a live allocation must never be
++	 * released. If no whole extent is covered there is nothing to release
++	 * safely (e.g. a sub-extent discard, unavoidable with large extents), so
++	 * reject the request rather than release too much.
++	 */
++	first_ext_trk = roundup(first_trk, trks_per_ext);
++	/* one past the last whole extent inside the range (exclusive) */
++	last_ext_end = rounddown(last_trk + 1, trks_per_ext);
++	if (first_ext_trk >= last_ext_end)
++		return ERR_PTR(-EOPNOTSUPP);
++	/* inclusive last track; the guard above keeps this from underflowing */
++	last_ext_trk = last_ext_end - 1;
++
++	return dasd_eckd_dso_ras(device, block, req, first_ext_trk,
++				 last_ext_trk, 1);
++}
++
+ static struct dasd_ccw_req *dasd_eckd_build_cp(struct dasd_device *startdev,
+ 					       struct dasd_block *block,
+ 					       struct request *req)
+@@ -5504,6 +5555,12 @@ static struct dasd_ccw_req *dasd_eckd_build_cp(struct dasd_device *startdev,
+ 	last_offs = sector_div(last_trk, blk_per_trk);
+ 	cdlspecial = (private->uses_cdl && first_rec < 2*blk_per_trk);
  
++	if (req_op(req) == REQ_OP_DISCARD)
++		return dasd_eckd_build_cp_discard(startdev, block, req,
++						  first_trk, last_trk,
++						  first_offs, last_offs,
++						  blk_per_trk);
++
+ 	fcx_multitrack = private->features.feature[40] & 0x20;
+ 	data_size = blk_rq_bytes(req);
+ 	if (data_size % blksize || data_size == 0)
+@@ -5816,11 +5873,13 @@ static struct dasd_ccw_req *dasd_eckd_build_alias_cp(struct dasd_device *base,
+ 						     struct request *req)
+ {
+ 	struct dasd_eckd_private *private;
+-	struct dasd_device *startdev;
++	struct dasd_device *startdev = NULL;
+ 	unsigned long flags;
+ 	struct dasd_ccw_req *cqr;
  
+-	startdev = dasd_alias_get_start_dev(base);
++	/* Discard requests (space release) can only run on the base device. */
++	if (req_op(req) != REQ_OP_DISCARD)
++		startdev = dasd_alias_get_start_dev(base);
+ 	if (!startdev)
+ 		startdev = base;
+ 	private = startdev->private;
+@@ -7708,6 +7767,49 @@ static unsigned int dasd_eckd_max_sectors(struct dasd_block *block)
+ 	return DASD_ECKD_MAX_BLOCKS << block->s2b_shift;
+ }
+ 
++/*
++ * Discard on ECKD releases space through RAS, which works on whole extents.
++ * Advertise extent granularity so the block layer only sends extent-aligned
++ * discards (avoiding partially specified extents), and only for volumes on ESE
++ * hardware. Non-ESE devices are left without discard limits.
++ */
++static void dasd_eckd_disc_limits(struct dasd_block *block,
++				  struct queue_limits *lim)
++{
++	struct dasd_device *device = block->base;
++	struct dasd_eckd_private *private = device->private;
++	unsigned int logical_block_size = block->bp_block;
++	unsigned int max_discard_sectors, max_bytes, ext_bytes;
++	int recs_per_trk, trks_per_cyl, ext_limit, ext_size;
++
++	if (!dasd_eckd_ese_capable(device) || dasd_eckd_ext_size(device) == 0)
++		return;
++
++	trks_per_cyl = private->rdc_data.trk_per_cyl;
++	recs_per_trk = recs_per_track(&private->rdc_data, 0, logical_block_size);
++
++	ext_size = dasd_eckd_ext_size(device);
++	ext_limit = min(private->real_cyl / ext_size, DASD_ECKD_RAS_EXTS_MAX);
++	ext_bytes = ext_size * trks_per_cyl * recs_per_trk * logical_block_size;
++	max_bytes = UINT_MAX - (UINT_MAX % ext_bytes);
++	if (max_bytes / ext_bytes > ext_limit)
++		max_bytes = ext_bytes * ext_limit;
++
++	max_discard_sectors = max_bytes / 512;
++
++	lim->max_hw_discard_sectors = max_discard_sectors;
++	/*
++	 * ext_bytes is the hardware extent size and is not a power of two, so
++	 * the block layer's power-of-two round_up()/round_down() alignment
++	 * helpers compute it only approximately. That is a hint, not a
++	 * correctness requirement: RAS safety is enforced in the CCW builder,
++	 * which rounds the range inward to whole extents and rejects a request
++	 * that covers no whole extent, so a misaligned range is never
++	 * over-released. At worst a few sub-extent discards are declined.
++	 */
++	lim->discard_granularity = ext_bytes;
++}
++
+ static struct ccw_driver dasd_eckd_driver = {
+ 	.driver = {
+ 		.name	= "dasd-eckd",
+@@ -7730,6 +7832,7 @@ static struct dasd_discipline dasd_eckd_discipline = {
+ 	.owner = THIS_MODULE,
+ 	.name = "ECKD",
+ 	.ebcname = "ECKD",
++	.disc_limits = dasd_eckd_disc_limits,
+ 	.check_device = dasd_eckd_check_characteristics,
+ 	.uncheck_device = dasd_eckd_uncheck_device,
+ 	.do_analysis = dasd_eckd_do_analysis,
 diff --git a/drivers/s390/block/dasd_int.h b/drivers/s390/block/dasd_int.h
-index c899073c19c8..f61af45deab0 100644
+index f61af45deab0..26ecf9f47d2e 100644
 --- a/drivers/s390/block/dasd_int.h
 +++ b/drivers/s390/block/dasd_int.h
-@@ -401,6 +401,9 @@ struct dasd_discipline {
- 	 * Extent Space Efficient (ESE) relevant functions
- 	 */
- 	int (*is_ese)(struct dasd_device *);
-+	int (*ese_capable)(struct dasd_device *);
-+	/* Whether the volume is formatted on demand (thin), from the label */
-+	int (*on_demand_format)(struct dasd_device *);
+@@ -404,6 +404,8 @@ struct dasd_discipline {
+ 	int (*ese_capable)(struct dasd_device *);
+ 	/* Whether the volume is formatted on demand (thin), from the label */
+ 	int (*on_demand_format)(struct dasd_device *);
++	/* Fill discard queue limits */
++	void (*disc_limits)(struct dasd_block *, struct queue_limits *);
  	/* Capacity */
  	int (*space_allocated)(struct dasd_device *);
  	int (*space_configured)(struct dasd_device *);
