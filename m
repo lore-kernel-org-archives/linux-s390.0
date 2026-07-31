@@ -1,209 +1,210 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8653D44D01F
-	for <linux-s390@vger.kernel.org>; Fri, 31 Jul 2026 16:28:32 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 21F36453A31
+	for <linux-s390@vger.kernel.org>; Fri, 31 Jul 2026 16:33:55 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785515315; cv=none; b=ZIRv0WvXA9j9dVXYQd9KwJC/YKjpOj1IItWKScOvsi/23q1w3NgT8Ztl63m589Tt6XRE5XPepQ4UO2tmEtaaAOD8nqy6V0nMK6b2PbegFicfWGDJjFndTPhkmbxl5bKhXupkweIMHyCAMzyRVQHls56W119NURUrgJNYQUvjUgQ=
+	t=1785515636; cv=none; b=YYmltDHQswScKhq3QotX5pQ8Gpfkx2PtGvMiKwRlYPw3t0ye7Y6JU+aguyjoAFWxZiRHKpdNZ4eoOLVpmU7v7yexwzREc2cFHbN7WLbVQ+GBie2y1txvIYaUc2eiz55CbtEF5+BKZkX/LjdBBOWo7nqqCvQ524/frYpY1Y2i0nM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785515315; c=relaxed/simple;
-	bh=2fw5/1SSdPFxO28F5LwP4DVTY8WKgI7c7kJ6WYE0AtI=;
+	s=arc-20240116; t=1785515636; c=relaxed/simple;
+	bh=g+2IZ26vJIqANnaCLbjqCSaHBZyOiVMIM52N9iOxiVs=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=tLjdRgIZZ0Xi0daQV/7ayNuPfKDUmHJDUvV23cmM+68tcAdInIWHNFCqggUrzqmr3pLp+8QLkrh/K9eDW8F0nk2Pdbb9OlAs0hRB4fnKEEwNGGjpRyPaZM4fzJhJN+iivabmfnbi1XECEj8MtIu6pVsxQ+RMO2YYqSGzqLO7e90=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mJyYXTAJ; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=PGmVfQMjm0+GSCy5msn8URG9PaAcso5JL+XW8nbrHH5dJbN//9XKxTbM0gEqa8yBvanxZMGDEKDEhlp+OhdeJqe5/e2b6rocUSJWhJBnwKuge9dx9kownvYQgm0Gjj9CNFxTdR4Z9hDHmmPct8idcBM4qneH+BnyEcbjaW/ljMg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=aV/D4C2w; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mJyYXTAJ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E7A21F00ACF;
-	Fri, 31 Jul 2026 16:28:29 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="aV/D4C2w"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3CA81F00AC4;
+	Fri, 31 Jul 2026 16:33:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785515309;
-	bh=+aeh7DTMr2uBWBp9XBApqvVNW1yLCuqADCpd3g72Jfs=;
+	s=k20260515; t=1785515635;
+	bh=Q5voP36XimdiEzF3AQWj9G7rB3JYJeF2wgz2hfPtCdQ=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=mJyYXTAJTEdN6q3MWm/5m5r8TU71HQvKvXdvHDi+7aUQpXR4LzBiaXHnltFnBpiyR
-	 Y/e+8dQIpJfarp1Q0qpNyq+Q3mFEf3neC+U5rZVICY8KNJuhbLHGPMJpROb14lbiuR
-	 MdfO8Fa/nCoPQUKPUL+XRSbktpSdydGk0ygnSU2M/aq7q9Xft+oXpVrBoOYTj/rJS3
-	 3q2tXnGmROgZhNG9VddrQZkwfLZr5mDug7z4ExuEDwfIxeDDsu6aLQYremVGpUD/ke
-	 ucxQ/UGYkwLMD+PBecJX7CbVldqnrAQMtMq3IVM2A/UFd7xQzWQ+5urvL/gZS9VfgG
-	 IX3xh7bLw9HrQ==
+	b=aV/D4C2wK0DOMpvgjKM999+DmekulGLdF97McHPaqm1NF7KomG8Xe6TNHn3Rzpcpw
+	 EXuA894Verss/xAkcVNwKPU+yx0JpZviRdFqNc0uC2NttJEzJGiaJPSJYzuHbEAlZJ
+	 QqUWwJDYwlpIbXzsp/EP+8Tq5rstLQ198aVcylNGZyeOQZR2EG7VeiUH0kweCrCPKK
+	 YHfePWGqQyWkDUs7IdNcJUOgCwRblvcAYdbG75HVPn15dgN0x2Mh4cGTmFbZO5CO2i
+	 gYb4xDCMghD31TUVVbRvVixuHPevpC+3fbb3pXW92QsblUy2vNNcKCoUODnec4AKGT
+	 ha1AfEgVxyS2A==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 11/17] s390/dasd: Add full_track_bias to control
- fulltrack write mode
+Subject: Re: [PATCH v5 10/17] s390/dasd: Use WRITE_FULL_TRACK in ESE format
+ handler
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Stefan Haberland" <sth@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>
-In-Reply-To: <20260731153842.1729627-12-sth@linux.ibm.com>
+Cc: "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
+ Carstens" <hca@linux.ibm.com>
+In-Reply-To: <20260731153842.1729627-11-sth@linux.ibm.com>
 References: <20260731153842.1729627-1-sth@linux.ibm.com>
- <20260731153842.1729627-12-sth@linux.ibm.com>
+ <20260731153842.1729627-11-sth@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 31 Jul 2026 16:28:29 +0000
-Message-Id: <20260731162829.9E7A21F00ACF@smtp.kernel.org>
+Date: Fri, 31 Jul 2026 16:33:54 +0000
+Message-Id: <20260731163354.B3CA81F00AC4@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 4 potential issue(=
 s) to consider:
-- [Medium] Inconsistent initialization of the `fulltrack` flag disables ful=
-l-track writes by default, contradicting the intended behavior and sysfs st=
-ore logic.
-- [Medium] Full-track writes are applied unconditionally to non-ESE devices=
-, exposing them to unintended performance penalties.
+- [High] An infinite loop occurs when a WRITE_FULL_TRACK CQR encounters an =
+INV_TRACK_FORMAT error because the ERP request fails to inherit the `fillda=
+ta` pointer, bypassing the intended permanent-failure path.
+- [High] dasd_eckd_build_cp_tpm_writefulltrack() iterates over bio segments=
+ without verifying if the request has data buffers, risking a NULL pointer =
+dereference for data-less requests.
+- [Medium] Non-transient errors (like -EINVAL) from `dasd_eckd_build_cp_tpm=
+_writefulltrack` cause wasteful retry loops instead of failing fast.
+- [Medium] Double counting of I/O statistics for aborted ESE format replace=
+ment requests.
 --
 
---- Patch [11]: [PATCH v5 11/17] s390/dasd: Add full_track_bias to control =
-fulltrack write mode ---
-commit c5f39fbb283ed6068ac10c59d09a116557c8bbf1
+--- Patch [10]: [PATCH v5 10/17] s390/dasd: Use WRITE_FULL_TRACK in ESE for=
+mat handler ---
+commit 9457d60af3530b5a71a57c6a68b8e701a0e817f4
 Author: Stefan Haberland <sth@linux.ibm.com>
-s390/dasd: Add full_track_bias to control fulltrack write mode
 
-This patch adds a per-device full_track_bias sysfs attribute to control
-full-track write routing for s390 DASD devices. It introduces a module
-parameter to set the default bias applied at online time. The default
-value is intended to enable full-track writes out of the box to avoid
-ESE format penalties.
+s390/dasd: Use WRITE_FULL_TRACK in ESE format handler
 
-> diff --git a/drivers/s390/block/dasd_devmap.c b/drivers/s390/block/dasd_d=
-evmap.c
-> index 381d616ad433f..035c022255b68 100644
-> --- a/drivers/s390/block/dasd_devmap.c
-> +++ b/drivers/s390/block/dasd_devmap.c
+This commit modifies the ESE unformatted track handler to use
+WRITE_FULL_TRACK. It changes dasd_eckd_ese_format() to return void and
+stage the CQR directly, while marking the origin CQR as aborted.
+
+> diff --git a/drivers/s390/block/dasd.c b/drivers/s390/block/dasd.c
+> index 35f722e20c6d3..19a04155d271c 100644
+> --- a/drivers/s390/block/dasd.c
+> +++ b/drivers/s390/block/dasd.c
+> @@ -1737,26 +1737,23 @@ void dasd_int_handler(struct ccw_device *cdev, un=
+signed long intparm,
+>  			dasd_schedule_device_bh(device);
+>  			return;
+>  		}
+> -		fcqr =3D device->discipline->ese_format(device, cqr, irb);
+> -		if (IS_ERR(fcqr)) {
+> -			if (PTR_ERR(fcqr) =3D=3D -EINVAL) {
+> -				cqr->status =3D DASD_CQR_ERROR;
+> -				return;
+> -			}
+> +		if (cqr->filldata) {
+>  			/*
+> -			 * If we can't format now, let the request go
+> -			 * one extra round. Maybe we can format later.
+> +			 * A WRITE_FULL_TRACK cqr carries the complete
+> +			 * track image; INV_TRACK_FORMAT here means the
+> +			 * generated image or the media itself is bad, not
+> +			 * that the track still needs formatting - retrying
+> +			 * via ese_format() would just resubmit the same
+> +			 * write. Let it fail instead.
+>  			 */
+> -			cqr->status =3D DASD_CQR_QUEUED;
+> -			dasd_schedule_device_bh(device);
+> -			return;
+> -		} else {
+> -			fcqr->status =3D DASD_CQR_QUEUED;
+> -			cqr->status =3D DASD_CQR_QUEUED;
+> -			list_add(&fcqr->devlist, &device->ccw_queue);
+> +			cqr->status =3D DASD_CQR_ERROR;
+> +			cqr->stopclk =3D now;
+> +			dasd_device_clear_timer(device);
+>  			dasd_schedule_device_bh(device);
+>  			return;
+>  		}
+> +		device->discipline->ese_format(device, cqr, irb);
+> +		return;
+>  	}
+
+[Severity: High]
+Could this cause an infinite loop during Error Recovery (ERP)?
+
+When a WRITE_FULL_TRACK request fails with INV_TRACK_FORMAT, the ERP
+engine creates a retry request but doesn't seem to copy the filldata
+pointer from the base request. If this ERP request fails again with
+INV_TRACK_FORMAT, will the interrupt handler see a NULL filldata here
+and incorrectly call ese_format() again? This would generate a new base
+request instead of failing, potentially looping infinitely.
 
 [ ... ]
-
-> @@ -1630,6 +1630,44 @@ dasd_expires_store(struct device *dev, struct devi=
-ce_attribute *attr,
+> @@ -2752,6 +2756,9 @@ static void __dasd_cleanup_cqr(struct dasd_ccw_req =
+*cqr)
+>  			error =3D BLK_STS_IOERR;
+>  			break;
+>  		}
+> +	} else if (status =3D=3D DASD_CQR_ABORTED) {
+> +		/* aborted requests are replaced with a new one so do not complete thi=
+s */
+> +		return;
+>  	}
 > =20
->  static DEVICE_ATTR(expires, 0644, dasd_expires_show, dasd_expires_store);
-> =20
-> +/* ESE fulltrack write aggressiveness knob (0..100, see DASD_FT_BIAS_*) =
-*/
-> +static ssize_t
-> +full_track_bias_show(struct device *dev, struct device_attribute *attr, =
-char *buf)
-> +{
+>  	/*
+
+[Severity: Medium]
+Could this result in double-counting I/O statistics?
+
+dasd_profile_end() is called unconditionally at the beginning of
+__dasd_cleanup_cqr():
+
+__dasd_cleanup_cqr()
+{
+	...
+	dasd_profile_end(cqr->block, cqr, req);
+	...
+	if (status =3D=3D DASD_CQR_ABORTED) {
+		return;
+	}
+}
+
+When the replacement format request eventually completes, won't it account
+for the same block request again?
 
 [ ... ]
-
-> +static ssize_t full_track_bias_store(struct device *dev,
-> +				     struct device_attribute *attr,
-> +				     const char *buf, size_t count)
-> +{
-> +	struct dasd_device *device;
-> +	unsigned int val;
-> +
-> +	if (kstrtouint(buf, 0, &val) || val > DASD_FT_BIAS_MAX)
-> +		return -EINVAL;
-> +
-> +	device =3D dasd_device_from_cdev(to_ccwdev(dev));
-> +	if (IS_ERR(device))
-> +		return -ENODEV;
-> +
-> +	device->ft_bias =3D val;
-> +	device->fulltrack =3D val ? 1 : 0;
-> +
-> +	dasd_put_device(device);
-> +	return count;
-> +}
-> +
-> +static DEVICE_ATTR_RW(full_track_bias);
-> +
->  static ssize_t
->  dasd_retries_show(struct device *dev, struct device_attribute *attr, cha=
-r *buf)
->  {
-
-[ ... ]
-
 > diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eck=
 d.c
-> index 4fe1b78366b04..cc5a4791cb8f4 100644
+> index 8d8bd40ba896b..4fe1b78366b04 100644
 > --- a/drivers/s390/block/dasd_eckd.c
 > +++ b/drivers/s390/block/dasd_eckd.c
-
 [ ... ]
+> +	fcqr =3D dasd_eckd_build_cp_tpm_writefulltrack(startdev, block, req,
+> +						     first_rec, last_rec,
+> +						     first_trk, last_trk,
+> +						     first_offs, last_offs,
+> +						     recs_per_trk, blksize, cqr);
 
-> @@ -2148,6 +2160,11 @@ dasd_eckd_check_characteristics(struct dasd_device=
- *device)
->  	device->path_interval =3D DASD_ECKD_PATH_INTERVAL;
->  	device->aq_timeouts =3D DASD_RETRIES_MAX;
-> =20
-> +	/* default ESE fulltrack write aggressiveness from the module parameter=
- */
-> +	device->ft_bias =3D min_t(unsigned int, full_track_bias, DASD_FT_BIAS_M=
-AX);
-> +	/* only the "always" endpoint forces fulltrack unconditionally here */
-> +	device->fulltrack =3D (device->ft_bias >=3D DASD_FT_BIAS_MAX) ? 1 : 0;
+[Severity: High]
+Can this cause a NULL pointer dereference for data-less requests?
+
+If a REQ_OP_DISCARD or REQ_OP_WRITE_ZEROES operation fails with an ESE
+format error, it seems ese_format() will unconditionally pass it to
+dasd_eckd_build_cp_tpm_writefulltrack().
+
+Since dasd_eckd_build_cp_tpm_writefulltrack() uses rq_for_each_segment()
+which accesses bio data fields, and data-less requests have a NULL
+bi_io_vec, does this need a bio_has_data() check before iterating?
+
+>  	if (IS_ERR(fcqr)) {
+>  		if (format)
+> -			clear_format_track(format, block);
+> -		return fcqr;
+> +			clear_format_track(format, cqr->block);
+> +		/*
+> +		 * Transient conditions - the XRC clock is not in sync (-EAGAIN)
+> +		 * or the format request pool is momentarily exhausted under load
+> +		 * (-ENOMEM). Retry the origin without counting down its retries.
+> +		 */
+> +		if (PTR_ERR(fcqr) =3D=3D -EAGAIN || PTR_ERR(fcqr) =3D=3D -ENOMEM)
+> +			cqr->retries++;
+> +		goto out_retry;
+>  	}
 
 [Severity: Medium]
-Is this initialization of device->fulltrack contradicting the logic in
-full_track_bias_store()?
+Does this cause non-transient errors like -EINVAL to be retried
+unnecessarily?
 
-In full_track_bias_store() above, device->fulltrack is set to 1 for any
-non-zero value (device->fulltrack =3D val ? 1 : 0). However, here it is only
-set to 1 if device->ft_bias >=3D DASD_FT_BIAS_MAX.
-
-Since the default full_track_bias is DASD_FT_BIAS_DEFAULT (which is 50), th=
-is
-yields 0 during initialization. This appears to contradict the commit messa=
-ge
-which states: "The default (DASD_FT_BIAS_DEFAULT) enables full-track writes=
- so
-the ESE format penalty is avoided out of the box."
-
-> +
->  	if (private->conf.gneq) {
->  		value =3D 1;
->  		for (i =3D 0; i < private->conf.gneq->timeout.value; i++)
-
-[ ... ]
-
-> @@ -5194,11 +5211,20 @@ static struct dasd_ccw_req *dasd_eckd_build_cp(st=
-ruct dasd_device *startdev,
->  		/* do nothing, just fall through to the cmd mode single case */
->  	} else if ((data_size <=3D private->fcx_max_data)
->  		   && (fcx_multitrack || (first_trk =3D=3D last_trk))) {
-> -		cqr =3D dasd_eckd_build_cp_tpm_track(startdev, block, req,
-> -						    first_rec, last_rec,
-> -						    first_trk, last_trk,
-> -						    first_offs, last_offs,
-> -						    blk_per_trk, blksize);
-> +		if (!first_offs && (last_offs + 1 =3D=3D blk_per_trk) &&
-> +		    rq_data_dir(req) =3D=3D WRITE && basedev->fulltrack) {
-
-[Severity: Medium]
-Should there be a check here to ensure the device is an ESE volume before
-routing the IO to the full-track write path?
-
-The commit message mentions that "The WRITE_FULL_TRACK command has an
-advantage on sparse formatted ESE devices but it has an overall penalty for
-maximum throughput compared to usual track based IO."
-
-However, neither the initialization in dasd_eckd_check_characteristics() nor
-the sysfs store function guards the bias assignment with an ESE check (e.g.,
-dasd_eckd_is_ese(basedev)).=20
-
-If basedev->fulltrack is enabled on a non-ESE device either via sysfs or by
-fixing the default initialization, could it suffer the performance penalty
-without the intended benefits?
-
-> +			cqr =3D dasd_eckd_build_cp_tpm_writefulltrack(startdev, block, req,
-> +								    first_rec, last_rec,
-> +								    first_trk, last_trk,
-> +								    first_offs, last_offs,
-> +								    blk_per_trk, blksize, NULL);
-> +		} else {
-> +			cqr =3D dasd_eckd_build_cp_tpm_track(startdev, block, req,
-> +							   first_rec, last_rec,
-> +							   first_trk, last_trk,
-> +							   first_offs, last_offs,
-> +							   blk_per_trk, blksize);
-> +		}
+By falling through to out_retry without failing immediately, it appears
+permanent build errors might loop until the original request's retry
+counter is exhausted. The original code explicitly checked for -EINVAL
+and returned it to fail fast.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260731153842.1729=
-627-1-sth@linux.ibm.com?part=3D11
+627-1-sth@linux.ibm.com?part=3D10
