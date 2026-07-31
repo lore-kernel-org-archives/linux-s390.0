@@ -1,195 +1,183 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C41323D7F0
-	for <linux-s390@vger.kernel.org>; Fri, 31 Jul 2026 16:54:15 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D130740A953
+	for <linux-s390@vger.kernel.org>; Fri, 31 Jul 2026 16:58:43 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785516856; cv=none; b=qdf6qLM5/jF4CglUM2TrXnaD2GyDyD5d7TVbrvxKl/uFCpsX5TLB/iSf8OjT9fS+8G7R8BxDMSIuyGFi9qsHZRyz0TFStBHgo8LIYAAIZ4ryDBvPxEnnfrX3fj3DqtOQyNsUUMmyJSmuQPEsNwb33QZeU9Y6cPrw6hIFu1kn7nw=
+	t=1785517125; cv=none; b=usJgTEKYa5/A/f/EJgfSGMvCp4lAgSmVdYl5Zv3lOqCHH7xZj9I0/HMeqxXLHUUSlK+taw6J0Lu2GqPp7KOdfdi+i2FRx/Qp+EEmi8tiaXgWJgAQGrweLchp52ajGK9vzjw1hmBNQcadB0kAPyLBwvib/IHxViGKKIyK7ZdNdt0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785516856; c=relaxed/simple;
-	bh=R7uVkihIUGxIM/xxR0GHla6sqW7taVnr9HcQGGICa2c=;
+	s=arc-20240116; t=1785517125; c=relaxed/simple;
+	bh=woo2M6lUXi1mBUe2HcWv5zH8zqMEQpGOUixK9oGTzbU=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=V6Hwu8qC+5R9/GdUNSNu4vuJ6is/J+EwjD4h3BuFyiJtFzNSIEfgTfIOY7pOUfDee6AUG8BKvrMjSMSTyBW7Ztp3GZq2YpYXAn+KRbNYBoJfDlRLHIYjLuKt0fbCP8HxlS7zZk8gU6RdiqVAQTq2M56Wg6dWqd5Y7eWnj6g1mnA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VltqmLXq; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=WoWdmfNgaDIn9Jp8boyBNBO2doA8AOz25+4GsCoEcesSqbjCgCTyWjXcQYCAPz6wKKzeCgC7xbSeRD5JEdMXF3Lsj4f4wU9hRSlCPk46ZSm989v2nkQ4rv9mIVKquznBl+OdFgKDK7ydXV8QssxCZoajuKgI/xKe/Rw1EZSQ+lQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Nxe1es3K; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VltqmLXq"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D8B41F00AC4;
-	Fri, 31 Jul 2026 16:54:14 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Nxe1es3K"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D3361F00AC4;
+	Fri, 31 Jul 2026 16:58:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785516855;
-	bh=TRfMBWMm4uyXD0rPE6zKQDE/x8tZXnkoEK/eoU6zKhQ=;
+	s=k20260515; t=1785517123;
+	bh=H0PcjSQeBh1cHnW4uc94Zf/sahHVCyQv4Dcc6nIbRrs=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=VltqmLXqRAK8WADv4psYLWhka1b/IBT4yolpTQUC89qnOC9DdV5ycoYi8eyYmense
-	 lu65f/bb/TAgnLgyNdYohqNMBTmY3MFkJSbPwnTEbVr3YzFWUL4YnuSZLw6RepuvVQ
-	 wqOQ7KHczCAMmf8PixDcanfczjam/NfGmW6WS5SXNMGGT0eAXWpvqReJUVWy0CDmrN
-	 //R5tVEQvhOAQsgoFjweoxf5pvlFx5SX3POT1Dr7Y3avsrbD5jWCuPtJzyXipmTcSA
-	 S+Nx06LOWMG6CqLlcS3qmhPqjIxIhxv/3jVYW3JxozmyP0QpAPcIHTphU65CyW0+SA
-	 M0GH47RDv3p8A==
+	b=Nxe1es3KrA9oP+ny4a3bfH5Cd5/Y68oueJUdZHN8Aw1hLg9Gbm/OrbgpHH80o4+5w
+	 eHfxxJnC4GTfuw2EUV7SIKmGemyCU9LNm9wXwwc6wrJ/3GpFl5+ocvsrOZM92LmvA2
+	 o6RZeIGFE3Ar9jI3uYL7KHoeQZ4NwA+OmbEaWO9h9smuVwO9zlWT1uDl9s6xU+2m2L
+	 t8tK23+IvoAz7dBfbghk96YaXV/jmwhzqiQTs0m1IIA70cKS+Etzsi8or6PyEQQzjk
+	 8Oms1Fe4e11YgllHF1aa5IJDAuQmKh/H48S/kiSIIBukZ9qG480kgITpsMxHwPjhEA
+	 QzMYFI6T3T/9w==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 16/17] s390/dasd: Re-enable discard support for ESE
- volumes
+Subject: Re: [PATCH v5 17/17] s390/dasd: Read cached unit address and LSS in
+ the CCW build path
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Stefan Haberland" <sth@linux.ibm.com>
-Cc: "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
- Carstens" <hca@linux.ibm.com>
-In-Reply-To: <20260731153842.1729627-17-sth@linux.ibm.com>
+Cc: "Heiko Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Vasily
+ Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org
+In-Reply-To: <20260731153842.1729627-18-sth@linux.ibm.com>
 References: <20260731153842.1729627-1-sth@linux.ibm.com>
- <20260731153842.1729627-17-sth@linux.ibm.com>
+ <20260731153842.1729627-18-sth@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 31 Jul 2026 16:54:14 +0000
-Message-Id: <20260731165414.7D8B41F00AC4@smtp.kernel.org>
+Date: Fri, 31 Jul 2026 16:58:43 +0000
+Message-Id: <20260731165843.6D3361F00AC4@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+Thank you for your contribution! Sashiko AI review found 5 potential issue(=
 s) to consider:
-- [Critical] Setting discard_granularity to a non-power-of-two value corrup=
-ts block layer discard math.
-- [High] Returning BLK_STS_NOTSUPP for a benign unaligned discard causes fi=
-lesystems to permanently disable discard support.
-- [High] Potential divide-by-zero kernel panic in dasd_eckd_disc_limits if =
-ext_bytes evaluates to 0.
+
+Pre-existing issues:
+- [High] Transient zeroing of `uid.type` disables alias device verification=
+ in lockless CCW-build paths.
+- [High] Concurrent sysfs write to `path_reset` triggers a Use-After-Free o=
+r NULL pointer dereference on `conf.gneq`.
+- [High] Concurrent `BIODASDINFO` / `BIODASDINFO2` ioctl triggers a Use-Aft=
+er-Free or NULL pointer dereference on `conf.data`.
+- [High] Concurrent execution of path event handlers and configuration relo=
+ad causes memory corruption and UAF on `conf.data` and `conf.ned`.
+- [High] TOCTOU NULL pointer dereference in `dasd_eckd_generate_uid`.
 --
 
---- Patch [16]: [PATCH v5 16/17] s390/dasd: Re-enable discard support for E=
-SE volumes ---
-commit 7e5698c663d8a9a7aaad634b522a9f242320381c
+--- Patch [17]: [PATCH v5 17/17] s390/dasd: Read cached unit address and LS=
+S in the CCW build path ---
+commit 962f258b40a4684c7ad8e7e9f2ae8c0f71efe3ff
 Author: Stefan Haberland <sth@linux.ibm.com>
 
-s390/dasd: Re-enable discard support for ESE volumes
+s390/dasd: Read cached unit address and LSS in the CCW build path
 
-Re-enable block-layer discard for ESE ECKD volumes, releasing thin space
-via release allocated space (RAS). This routes REQ_OP_DISCARD to a RAS rele=
-ase
-over the request's track range and defines limits using extent granularity.
-
-> diff --git a/drivers/s390/block/dasd.c b/drivers/s390/block/dasd.c
-> --- a/drivers/s390/block/dasd.c
-> +++ b/drivers/s390/block/dasd.c
-
-[ ... ]
-
-> @@ -3157,6 +3159,15 @@ static blk_status_t do_dasd_request(struct blk_mq_=
-hw_ctx *hctx,
->  			rc =3D BLK_STS_RESOURCE;
->  		} else if (PTR_ERR(cqr) =3D=3D -EINVAL) {
->  			rc =3D BLK_STS_INVAL;
-> +		} else if (PTR_ERR(cqr) =3D=3D -EOPNOTSUPP) {
-> +			/*
-> +			 * e.g. a discard that covers no whole extent. This is an
-> +			 * expected, benign outcome (fstrim ranges rarely align to
-> +			 * the large ESE extent granularity), so silence the
-> +			 * per-request block-layer error print for it.
-> +			 */
-> +			req->rq_flags |=3D RQF_QUIET;
-> +			rc =3D BLK_STS_NOTSUPP;
-
-[Severity: High]
-Will this cause upper layers to completely disable discard support?
-
-When returning BLK_STS_NOTSUPP for a benign unaligned discard, filesystems
-like ext4 typically interpret this as the underlying device lacking discard
-support entirely. This causes them to clear their DISCARD mount flag,
-permanently disabling discard for the volume.
-
-Should this instead complete the request with BLK_STS_OK so that it acts as
-a silent no-op without breaking subsequent discard requests?
-
->  		} else {
->  			DBF_DEV_EVENT(DBF_ERR, basedev,
->  				      "CCW creation failed (rc=3D%ld) on request %p",
-
-[ ... ]
+This commit resolves a use-after-free in the CCW build paths by caching
+the unit address and LSS from conf.ned into the private device data. This
+prevents a race condition where the reload worker frees conf.ned while
+I/O requests are being built.
 
 > diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eck=
 d.c
+> index eb2a2f8fac644..6548ee0c01d90 100644
 > --- a/drivers/s390/block/dasd_eckd.c
 > +++ b/drivers/s390/block/dasd_eckd.c
+> @@ -588,8 +588,9 @@ static int prefix_LRE(struct ccw1 *ccw, struct PFX_ec=
+kd_data *pfxdata,
+>  		return -EINVAL;
+>  	}
+>  	pfxdata->format =3D format;
+> -	pfxdata->base_address =3D basepriv->conf.ned->unit_addr;
+> -	pfxdata->base_lss =3D basepriv->conf.ned->ID;
+> +	/* cached copies - conf.ned may be freed under us by the reload worker =
+*/
+> +	pfxdata->base_address =3D basepriv->ned_ua;
+> +	pfxdata->base_lss =3D basepriv->ned_lss;
+>  	pfxdata->validity.define_extent =3D 1;
+> =20
+>  	/* private uid is kept up to date, conf_data may be outdated */
+
+[Severity: High]
+This is a pre-existing issue, but since this patch fixes lockless access
+to ned_lss and ned_ua, could a similar problem occur with uid.type?
+
+In drivers/s390/block/dasd_eckd.c, both prefix_LRE() and prepare_itcw()
+read startpriv->uid.type locklessly during I/O submission:
+
+    if (startpriv->uid.type =3D=3D UA_BASE_PAV_ALIAS)
+        pfxdata->validity.verify_base =3D 1;
+
+Concurrently, a configuration reload calls create_uid() under ccwdev_lock,
+which executes memset(uid, 0, sizeof(struct dasd_uid)).
+
+Could this transient zeroing of the uid structure disable alias device
+verification during these CCW-build paths?
 
 [ ... ]
 
-> @@ -7708,6 +7767,49 @@ static unsigned int dasd_eckd_max_sectors(struct d=
-asd_block *block)
->  	return DASD_ECKD_MAX_BLOCKS << block->s2b_shift;
+> @@ -806,6 +807,9 @@ static int dasd_eckd_generate_uid(struct dasd_device =
+*device)
+>  		return -ENODEV;
+>  	spin_lock_irqsave(get_ccwdev_lock(device->cdev), flags);
+>  	create_uid(&private->conf, &private->uid);
+> +	/* cache LSS and unit address for the lockless CCW-build path */
+> +	private->ned_lss =3D private->conf.ned->ID;
+> +	private->ned_ua =3D private->conf.ned->unit_addr;
+>  	spin_unlock_irqrestore(get_ccwdev_lock(device->cdev), flags);
+>  	return 0;
 >  }
-> =20
-> +/*
-> + * Discard on ECKD releases space through RAS, which works on whole exte=
-nts.
-> + * Advertise extent granularity so the block layer only sends extent-ali=
-gned
-> + * discards (avoiding partially specified extents), and only for volumes=
- on ESE
-> + * hardware. Non-ESE devices are left without discard limits.
-> + */
-> +static void dasd_eckd_disc_limits(struct dasd_block *block,
-> +				  struct queue_limits *lim)
-> +{
-> +	struct dasd_device *device =3D block->base;
-> +	struct dasd_eckd_private *private =3D device->private;
-> +	unsigned int logical_block_size =3D block->bp_block;
-> +	unsigned int max_discard_sectors, max_bytes, ext_bytes;
-> +	int recs_per_trk, trks_per_cyl, ext_limit, ext_size;
-> +
-> +	if (!dasd_eckd_ese_capable(device) || dasd_eckd_ext_size(device) =3D=3D=
- 0)
-> +		return;
-> +
-> +	trks_per_cyl =3D private->rdc_data.trk_per_cyl;
-> +	recs_per_trk =3D recs_per_track(&private->rdc_data, 0, logical_block_si=
-ze);
-> +
-> +	ext_size =3D dasd_eckd_ext_size(device);
-> +	ext_limit =3D min(private->real_cyl / ext_size, DASD_ECKD_RAS_EXTS_MAX);
-> +	ext_bytes =3D ext_size * trks_per_cyl * recs_per_trk * logical_block_si=
-ze;
-> +	max_bytes =3D UINT_MAX - (UINT_MAX % ext_bytes);
 
 [Severity: High]
-Can ext_bytes evaluate to zero here?
+This isn't a bug introduced by this patch, but looking at the earlier checks
+in dasd_eckd_generate_uid() in drivers/s390/block/dasd_eckd.c, there appears
+to be a potential Time-of-Check to Time-of-Use race:
 
-If the hardware or hypervisor supplies malformed RDC data, or if recs_per_t=
-rk
-evaluates to 0 due to an unrecognized device type, ext_bytes will be zero.
+    if (!private->conf.ned || !private->conf.gneq)
+        return -ENODEV;
+    spin_lock_irqsave(get_ccwdev_lock(device->cdev), flags);
+    create_uid(&private->conf, &private->uid);
+    /* cache LSS and unit address for the lockless CCW-build path */
+    private->ned_lss =3D private->conf.ned->ID;
 
-Would the subsequent modulo arithmetic (UINT_MAX % ext_bytes) then trigger
-a divide-by-zero panic during device initialization?
+Since the NULL check for private->conf.ned happens outside the ccwdev_lock,
+could a concurrent reconfiguration (like in dasd_eckd_identify_conf_parts())
+locklessly set conf->ned to NULL? If so, would this result in a NULL pointer
+dereference when it is subsequently used inside create_uid() or when caching
+private->ned_lss?
 
-> +	if (max_bytes / ext_bytes > ext_limit)
-> +		max_bytes =3D ext_bytes * ext_limit;
-> +
-> +	max_discard_sectors =3D max_bytes / 512;
-> +
-> +	lim->max_hw_discard_sectors =3D max_discard_sectors;
-> +	/*
-> +	 * ext_bytes is the hardware extent size and is not a power of two, so
-> +	 * the block layer's power-of-two round_up()/round_down() alignment
-> +	 * helpers compute it only approximately. That is a hint, not a
-> +	 * correctness requirement: RAS safety is enforced in the CCW builder,
-> +	 * which rounds the range inward to whole extents and rejects a request
-> +	 * that covers no whole extent, so a misaligned range is never
-> +	 * over-released. At worst a few sub-extent discards are declined.
-> +	 */
-> +	lim->discard_granularity =3D ext_bytes;
+[ ... ]
 
-[Severity: Critical]
-Is it safe to use a non-power-of-two value for discard_granularity here?
+While reviewing the fixes for conf.ned, I noticed a few other pre-existing
+synchronization issues related to configuration reloads and path events in
+drivers/s390/block/dasd_eckd.c.
 
-The block layer strictly requires discard_granularity to be a power of two
-because it relies on bitwise macros to compute discard alignments (such as
-sector &=3D ~(granularity >> SECTOR_SHIFT - 1) in __blkdev_issue_discard).
+[Severity: High]
+This is a pre-existing issue, but is there a potential use-after-free
+in get_fcx_max_data() during a concurrent sysfs path_reset?
 
-Could supplying a non-power-of-two value break these assumptions and cause
-the block layer to compute incorrect sector offsets and lengths, potentially
-discarding live filesystem data instead of free space?
+When dasd_eckd_clear_conf_data() frees device->path[i].conf_data, it
+appears to leave private->conf.gneq pointing to the freed memory. Could
+a concurrent sysfs write to path_reset call get_fcx_max_data() and
+locklessly read private->conf.gneq->reserved2[7], dereferencing the
+dangling pointer?
 
-> +}
+[Severity: High]
+This isn't a bug introduced by this patch, but does the BIODASDINFO ioctl
+have a similar race with device reloads?
+
+Looking at dasd_eckd_fill_info(), it locklessly reads private->conf.len
+and performs a memcpy() from private->conf.data. If the reload worker
+calls dasd_eckd_clear_conf_data() concurrently, it frees the underlying
+buffer and sets conf.data =3D NULL. Could the ioctl thread read a non-zero
+length but execute the memcpy() after the buffer is freed or NULLed,
+leading to a crash or a memory leak to userspace?
+
+[Severity: High]
+This is a pre-existing issue, but is there a lack of mutual exclusion
+between path event handlers and configuration reloads?
+
+The do_pe_handler_work() and do_reload_device() workers might execute
+concurrently. If do_reload_device() calls dasd_eckd_clear_conf_data(),
+could rebuild_device_uid() in the PE handler concurrently execute a
+lockless memcpy() into the freed private->conf.data? Would it then call
+dasd_eckd_generate_uid(), which dereferences the dangling conf.ned pointer?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260731153842.1729=
-627-1-sth@linux.ibm.com?part=3D16
+627-1-sth@linux.ibm.com?part=3D17
