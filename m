@@ -1,184 +1,160 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2DEC53BE635;
-	Fri, 31 Jul 2026 14:17:24 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B405A3B05AB;
+	Fri, 31 Jul 2026 14:18:30 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785507446; cv=none; b=lEkJ06yUeR/k8aXVy61HK03531r88OG56BiCW/f5XC69MV3Mj45U56f/FVYzkR6MfXJbd5oHMYVjQNH4StAlexYr0SiilKhMHYaSfmhnuxHPR1G8PNMNJ8YsAW48vKeUbfAqNCf01r66V/+4RuGNXuFeR/05Ah4D17fGWgAYclg=
+	t=1785507511; cv=none; b=QT7Ck3fwdXFjUV5JELU56kOJ86q2JDY7w5t2RuVBkc43R6ujdYG+s6BkLyFmAxv2H8THoi8psd2HMXvX6crhCEEqCYZSqcKynkqMFz0Kukrj8dyol+ZNcx94q3PCsC9QCv33zXpCs40aIigCNi75CMBYTn8ciC85gtZUWf52SSE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785507446; c=relaxed/simple;
-	bh=ny+WAyjL0ZdwMfSRACQxN0SP59/++2QN+UQ1u5iB7aQ=;
-	h=Date:Message-ID:From:To:Cc:Subject:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=iQUuIqBD7S5y+Sm9V1Nkaw+C/A2M5QMkQ8HY3Cd85k8F3+HnKzCGJ7LSGaGAqD3TbKec0jCG1MAP1wqJIaa7J6jYQTSHPzikNfngoSfZ4e9x3uFLo/118kwd6JS+frS8EAL8LYEDoRb6sLoaCY+8+v/y3I5En4Mv2uNaiZE4SeE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fOSctRSm; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1785507511; c=relaxed/simple;
+	bh=HrOJKE9RK+F7SHJlEVQ7H6VDQRlDzAk/eAehx2bFrtQ=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=gxna59kR2gZjgI0T2xtLlGm3b1zKz3LXJ8M5I0j+FONp9C1YoLrI6bNCJNtckOfClEaPmiqmxJKpl/2ZGD6yfzw0lItpUCfaO0g2LlOMjYTx6Zedx5B7v4gDvfXGKah8XJSZy/75X1fYJPqkkE8KqNz61Gmv6PMtiJBkb2Z+epA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Yi7WfOM+; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fOSctRSm"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6CE51F000E9;
-	Fri, 31 Jul 2026 14:17:24 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Yi7WfOM+"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E61241F000E9;
+	Fri, 31 Jul 2026 14:18:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785507444;
-	bh=U0aoTx+JIMbNcemvR5BXn3jXNyYGeWb89EHxZLv8ff0=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References;
-	b=fOSctRSm8cIqWDiHJFYiZMeOidcwD4vGG1KQbnwRXNBXPFblLD/B5Te+bDb1jTWlC
-	 F1h/Iq5qStKIgccVUO6RZGvMLaW/YwGl50eIaL6dzcGhQMnIb79YTBdKPElyAKmvRf
-	 h1IvWndxICYUV8mvilnpBD4mDnkC/da4gcNK9L4NWEKsUT0z+80pVvUEu0H8u0kfr5
-	 0X/uf6c+tfppW7efvGwd5J+GWTeEl1cRhKDx/UureKjvPeTzJK+u4XmSIEFtFIqnuf
-	 uB7Uu1lvEmvDzQIBW1x1GQPq7MBnGgGWrt7yNpY6cZ+p90H2CRPzVjcnS7f+x2ZadP
-	 GELFhp6Kjfu8g==
-Received: from sofa.misterjones.org ([185.219.108.64] helo=goblin-girl.misterjones.org)
-	by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.98.2)
-	(envelope-from <maz@kernel.org>)
-	id 1wpo38-0000000Ay4o-0kT9;
-	Fri, 31 Jul 2026 14:17:22 +0000
-Date: Fri, 31 Jul 2026 15:17:21 +0100
-Message-ID: <86bjbnckge.wl-maz@kernel.org>
-From: Marc Zyngier <maz@kernel.org>
-To: Steffen Eiden <seiden@linux.ibm.com>
-Cc: kvm@vger.kernel.org,
-	kvmarm@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Andreas Grapentin <gra@linux.ibm.com>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Claudio Imbrenda <imbrenda@linux.ibm.com>,
-	David Hildenbrand <david@kernel.org>,
-	Friedrich Welter <fritz@linux.ibm.com>,
-	Fuad Tabba <tabba@google.com>,
-	Gautam Gala <ggala@linux.ibm.com>,
-	Hariharan Mari <hari55@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Hendrik Brueckner <brueckner@linux.ibm.com>,
-	Ilya Leoshkevich <iii@linux.ibm.com>,
-	Janosch Frank <frankja@linux.ibm.com>,
-	Joey Gouly <joey.gouly@arm.com>,
-	Nico Boehr <nrb@linux.ibm.com>,
-	Nina Schoetterl-Glausch <oss@nina.schoetterlglausch.eu>,
-	Oliver Upton <oupton@kernel.org>,
-	Paolo Bonzini <pbonzini@redhat.com>,
-	Suzuki K Poulose <suzuki.poulose@arm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Ulrich Weigand <Ulrich.Weigand@de.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Will Deacon <will@kernel.org>,
-	Zenghui Yu <yuzenghui@huawei.com>
-Subject: Re: [PATCH v5 06/31] arm64/sysreg: Convert SPSR_ELx to automatic register generation
-In-Reply-To: <20260731130902.654679-7-seiden@linux.ibm.com>
+	s=k20260515; t=1785507510;
+	bh=+LUtMa5pq1aK11E6m+SYA/spDxt648GW3r5fROgPc5o=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=Yi7WfOM+FOV9kK8Te0SsEzaISDYUfAeu61Zf3NdTHpnRlmhq+7rm/hFBiqGhUrljy
+	 cf8TsOVAn3A84U6UIOFFVo20WepSV0AQH5WA7KPTrthBjjumyjCb1ydPsVWrEOrnMe
+	 Rqi00Z3PNlw91j3hHdsg9Ad8HkTJmpM52bsIWP+jeRJIaoiX0Y8RNhMk9Sk0A182/W
+	 ypuguGADCmFSseHbKdUTrf8Xwxin691TmOlqgvkgXtLD1YGcGerhmIWOdSEiMkrFKy
+	 71DnpH2rIxHDUMAfsZRupc0kbL92wZGUBTt5EsYO+uwFnDtNUVFREd5+Y9/S3pFjy2
+	 Zp/T7mTLrD8ZA==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v5 28/31] KVM: s390: arm64: Implement vm/vcpu create
+ destroy.
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Steffen Eiden" <seiden@linux.ibm.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, "Alexander Gordeev" <agordeev@linux.ibm.com>, kvmarm@lists.linux.dev, "Heiko
+ Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Marc
+ Zyngier" <maz@kernel.org>, "Oliver Upton" <oupton@kernel.org>
+In-Reply-To: <20260731130902.654679-29-seiden@linux.ibm.com>
 References: <20260731130902.654679-1-seiden@linux.ibm.com>
-	<20260731130902.654679-7-seiden@linux.ibm.com>
-User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
- FLIM-LB/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL-LB/10.8 EasyPG/1.0.0 Emacs/30.1
- (aarch64-unknown-linux-gnu) MULE/6.0 (HANACHIRUSATO)
+ <20260731130902.654679-29-seiden@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 31 Jul 2026 14:18:29 +0000
+Message-Id: <20260731141829.E61241F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
-Content-Type: text/plain; charset=US-ASCII
-X-SA-Exim-Connect-IP: 185.219.108.64
-X-SA-Exim-Rcpt-To: seiden@linux.ibm.com, kvm@vger.kernel.org, kvmarm@lists.linux.dev, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, agordeev@linux.ibm.com, gra@linux.ibm.com, arnd@arndb.de, catalin.marinas@arm.com, borntraeger@linux.ibm.com, imbrenda@linux.ibm.com, david@kernel.org, fritz@linux.ibm.com, tabba@google.com, ggala@linux.ibm.com, hari55@linux.ibm.com, hca@linux.ibm.com, brueckner@linux.ibm.com, iii@linux.ibm.com, frankja@linux.ibm.com, joey.gouly@arm.com, nrb@linux.ibm.com, oss@nina.schoetterlglausch.eu, oupton@kernel.org, pbonzini@redhat.com, suzuki.poulose@arm.com, svens@linux.ibm.com, Ulrich.Weigand@de.ibm.com, gor@linux.ibm.com, will@kernel.org, yuzenghui@huawei.com
-X-SA-Exim-Mail-From: maz@kernel.org
-X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 
-On Fri, 31 Jul 2026 14:08:34 +0100,
-Steffen Eiden <seiden@linux.ibm.com> wrote:
-> 
-> Convert SPSR_EL{1, 2, 12} to automatic register generation as per
-> DDIO616 2026-06. No functional change.
->
-> Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
-> ---
->  arch/arm64/include/asm/sysreg.h |  3 --
->  arch/arm64/tools/sysreg         | 72 +++++++++++++++++++++++++++++++++
->  2 files changed, 72 insertions(+), 3 deletions(-)
-> 
-> diff --git a/arch/arm64/include/asm/sysreg.h b/arch/arm64/include/asm/sysreg.h
-> index 4bfdac9401bd..1aa601c95188 100644
-> --- a/arch/arm64/include/asm/sysreg.h
-> +++ b/arch/arm64/include/asm/sysreg.h
-> @@ -295,7 +295,6 @@
->  #define SYS_APGAKEYLO_EL1		sys_reg(3, 0, 2, 3, 0)
->  #define SYS_APGAKEYHI_EL1		sys_reg(3, 0, 2, 3, 1)
->  
-> -#define SYS_SPSR_EL1			sys_reg(3, 0, 4, 0, 0)
->  #define SYS_ELR_EL1			sys_reg(3, 0, 4, 0, 1)
->  
->  #define SYS_ICC_PMR_EL1			sys_reg(3, 0, 4, 6, 0)
-> @@ -518,7 +517,6 @@
->  #define SYS_VTTBR_EL2			sys_reg(3, 4, 2, 1, 0)
->  
->  #define SYS_HAFGRTR_EL2			sys_reg(3, 4, 3, 1, 6)
-> -#define SYS_SPSR_EL2			sys_reg(3, 4, 4, 0, 0)
->  #define SYS_ELR_EL2			sys_reg(3, 4, 4, 0, 1)
->  #define SYS_SP_EL1			sys_reg(3, 4, 4, 1, 0)
->  #define SYS_SPSR_irq			sys_reg(3, 4, 4, 3, 0)
-> @@ -604,7 +602,6 @@
->  #define SYS_BRBCR_EL12			sys_reg(2, 5, 9, 0, 0)
->  #define SYS_TTBR0_EL12			sys_reg(3, 5, 2, 0, 0)
->  #define SYS_TTBR1_EL12			sys_reg(3, 5, 2, 0, 1)
-> -#define SYS_SPSR_EL12			sys_reg(3, 5, 4, 0, 0)
->  #define SYS_ELR_EL12			sys_reg(3, 5, 4, 0, 1)
->  #define SYS_AFSR0_EL12			sys_reg(3, 5, 5, 1, 0)
->  #define SYS_AFSR1_EL12			sys_reg(3, 5, 5, 1, 1)
-> diff --git a/arch/arm64/tools/sysreg b/arch/arm64/tools/sysreg
-> index 7cb61aca3797..2a4b94e8c62f 100644
-> --- a/arch/arm64/tools/sysreg
-> +++ b/arch/arm64/tools/sysreg
-> @@ -401,6 +401,78 @@ Res0	3:1
->  Field	0	SO
->  EndSysreg
->  
-> +Sysreg	SPSR_EL1	3	0	4	0	0
-> +Res0	63:37
-> +Field	36	UNIJ
-> +Res0	35:34
-> +Field	33	PPEND
-> +Res0	32
-> +Field	31	N
-> +Field	30	Z
-> +Field	29	C
-> +Field	28	V
-> +Field	27	Q
-> +Field	26:25	IT01
-> +Field	24	DIT
-> +Field	23	SSBS
-> +Field	22	PAN
-> +Field	21	SS
-> +Field	20	IL
-> +Field	19:16	GE
-> +Field	15:10	IT27
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+s) to consider:
 
-I'm sorry, but this is complete nonsense. It looks like you have
-lifted the AArch32 version of the definition, and not the AArch64 view
-(which really is what matters here).
+New issues:
+- [High] Integer underflow in kvm_max_guest_address() when host memory is l=
+ess than 1GB bypasses guest physical memory boundaries.
+- [High] Incorrect calculation of KVM IPA limit causes VM creation failure =
+for non-power-of-two maximum memory sizes.
 
-> +Field	9	E
-> +Field	8	A
-> +Field	7	I
-> +Field	6	F
-> +Field	5	T
-> +Field	4	M4
-> +Enum	3:0	M
+Pre-existing issues:
+- [High] s390_kvm_mmu_commit_memory_region silently ignores ENOMEM, leaving=
+ hardware page tables out of sync with KVM memslots.
+--
 
-I don't think you should split the M field as such. The AArch32
-encoding uses bit 4, and should be described.
+--- Patch [28]: [PATCH v5 28/31] KVM: s390: arm64: Implement vm/vcpu create=
+ destroy. ---
+commit 1d8cc2e3c6c2245e41621c3d2e7a8e11e5053070
+Author: Steffen Eiden <seiden@linux.ibm.com>
 
-> +	0b0000	EL0
-> +	0b0100	EL1t
-> +	0b0101	EL1h
-> +	0b1000	EL1tnv
-> +	0b1001	EL1hnv
+KVM: s390: arm64: Implement vm/vcpu create destroy.
 
-Please do *not* invent names. These are EL2t/EL2h, and cannot be
-anything else.
+Implement init and destroy IOCTLS for vcpu and vm.
+Implement arch vm IOCTL. Use s390 gmap and gmap plumbing.
 
-	M.
+> diff --git a/arch/s390/kvm/arm64/arm.c b/arch/s390/kvm/arm64/arm.c
+> index 8e17b7eef8131..3f1bbbf38abec 100644
+> --- a/arch/s390/kvm/arm64/arm.c
+> +++ b/arch/s390/kvm/arm64/arm.c
+[ ... ]
+> @@ -53,6 +58,83 @@ static u64 kvm_max_guest_address(void)
+>  	return ALIGN_DOWN(max_addr + 1, 1 << 30) - 1;
 
--- 
-Without deviation from the norm, progress is not possible.
+[Severity: High]
+If the host maximum address (sclp.hamax) is less than 1GB - 1, could
+max_addr + 1 be strictly less than 1GB?
+
+If so, ALIGN_DOWN(..., 1 << 30) would evaluate to 0, which would underflow =
+to
+U64_MAX when subtracting 1.
+
+This U64_MAX value is then used in kvm_arch_vcpu_create() to set the hardwa=
+re
+execution block's memory size limit (msl):
+
+    sae_block->msl =3D kvm_max_guest_address();
+
+Could this eliminate hardware-enforced limits on guest physical memory,
+allowing unprivileged guest VMs to bypass their memory bounds?
+
+>  }
+> =20
+[ ... ]
+> @@ -64,6 +146,13 @@ long kvm_arch_dev_ioctl(struct file *filp,
+[ ... ]
+>  u32 get_kvm_ipa_limit(void)
+>  {
+>  	return fls64(kvm_max_guest_address() + 1) - 1;
+
+[Severity: High]
+Does this formula improperly compute the number of bits required to address
+the memory when the maximum address is not a perfect power of two?
+
+For example, if max_addr + 1 is 3GB, fls64(3GB) - 1 evaluates to 31 bits,
+but addressing 3GB actually requires 32 bits.
+
+Because ARM64_MIN_PARANGE_BITS is 32, if the calculated limit drops to 31,
+kvm_vm_type_ipa_size_shift() will return -EINVAL, which could prevent VM
+creation on hosts with memory limits like 3GB.
+
+>  }
+> =20
+[ ... ]
+> @@ -103,6 +223,81 @@ static unsigned long system_supported_vcpu_features(=
+void)
+[ ... ]
+> +void kvm_arch_commit_memory_region(struct kvm *kvm, struct kvm_memory_sl=
+ot *old,
+> +				   const struct kvm_memory_slot *new,
+> +				   enum kvm_mr_change change)
+> +{
+> +	s390_kvm_mmu_commit_memory_region(kvm, old, new, change);
+
+[Severity: High]
+This isn't a bug introduced by this patch, but by wiring up
+s390_kvm_mmu_commit_memory_region() here, are we exposing a pre-existing
+error handling flaw?
+
+In s390_kvm_mmu_commit_memory_region(), if kvm_s390_new_mmu_cache() fails:
+
+    if (!mc) {
+        rc =3D -ENOMEM;
+        goto out;
+    }
+
+The function returns without performing the dat_delete_slot() or
+dat_create_slot() updates.
+
+Because kvm_arch_commit_memory_region() is called after active memslots are
+swapped and cannot return an error, does this leave KVM and the hardware
+page tables permanently out of sync?
+
+If a memslot deletion fails to reach the hardware page tables, could the
+guest retain access to host memory that has been formally released, leading
+to a use-after-free?
+
+> +}
+> +
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260731130902.6546=
+79-1-seiden@linux.ibm.com?part=3D28
