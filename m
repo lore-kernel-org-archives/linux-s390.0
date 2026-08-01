@@ -1,53 +1,54 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 39A973BD651
-	for <linux-s390@vger.kernel.org>; Sat,  1 Aug 2026 18:00:43 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7222F3BE627
+	for <linux-s390@vger.kernel.org>; Sat,  1 Aug 2026 18:00:44 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785607246; cv=none; b=Z35o8rp6GG2xKRYGN5/77h4+aolxLTwtqn2r4o+VnHtB912HVKCJEdavzVy0pmdEljHLdxaNMUgiRrReUPgXhAdEBKqsECHbGje+2+spbLbOPdQ7DvRjfZSfQeZ/Vk4aoKtw3VLlq3sgcQlEnSHWAtGfHI+YApRUOQ4KvRhejEM=
+	t=1785607246; cv=none; b=WmPoyWn5vfHx69zhgJjcSvSS9Le5Er1wO6IMfJoKwPlulcevxBFb8gArsy5FIqQP+IvA71vjhfz/Ew7kfuSw61ChSm0TZqUXyiaiel0QWgsdBTw6pYIT6Zuiuw6wwQBjdRkf9lFnOJj/WiO9L9g53KcV5UlcFDs1wECydL+cPw8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1785607246; c=relaxed/simple;
-	bh=OxImImWxLHjgaSA2U6wwqHXFHX41kvyCa6OlvHquers=;
+	bh=hxJBaEJKo98IfCYCfLDlC/PhvwBnbYshMBYresJ9sPs=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=W89ku7flpJAxDRYOTJlXlY4/ndqyPA+kTqFrFgp1Y6XYPjBZ74jYeUYnYkHgliG8NEhaG3QuRpegU5se4k1sfWnkyBpJXRJQcdPMC2Oxl3HbxG9LdAPI6q20B/2Mb6CzswqBOUp7EDL+wGUaqrB9sl1un9C7Bo+uswsmiWjo01s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=oS8lkw7F; arc=none smtp.client-ip=148.163.156.1
+	 MIME-Version:Content-Type; b=S2YGiCig/LIsc4W0O1qAlSE4DDkYzd3hWDdcp8ZDsof9R8NY08IeDFw1VJoKFW4OAiqGMskYHdMAA8o/e59SWRIURml3G34rFICpfqKNYBJJ4uBRLeXurTIXS5hQKXMSoSd6gS4ZOLRDLz/jqNb2CKZ51UhdVWpNvempFqC2Zbo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=mZtVdW9T; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="oS8lkw7F"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 671FlYdX3271702
-	for <linux-s390@vger.kernel.org>; Sat, 1 Aug 2026 18:00:42 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="mZtVdW9T"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 671Fm8tu960600
+	for <linux-s390@vger.kernel.org>; Sat, 1 Aug 2026 18:00:43 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=T1hPZk+Rmgsc2d56k
-	tE+L+VC0IOTl7Vx1Qws+l2aTkU=; b=oS8lkw7FAbuYg1clL5Bpj3AyaBjJQ/0wB
-	AA2Gu9rUt++T6WAdfP+4Ar2tbbC+rFyukaeGW7c+COB/60XKHZq7FwkZfKk3KJGj
-	dvh5XgsqPKK7IXjhIv5diGeUJsXgomWLECUz9gdMfpDAGqNH30kzP2p2BorkjlUE
-	3AnqOoDfSJTEoN6CJN7HliPJYKhCMRB7DM7fL0isdMKb1X7nPO5ELsNYPiU7FUWJ
-	376u2ueZi7YXuJGWbrcItInFH80bGzindSXOgBkukyacOppcqqCfDSQTxtjPekvv
-	LVlff6UXzO/vmz0JMvN9w9pGck2koqywx5Wi1rIHiS+5KnkpP759A==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fs8fqa241-1
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=5wedlw
+	VLuWY34+VwWRVhRpJx73PWpKPt1HdAelosPD4=; b=mZtVdW9Tnw7i2qZobZniKX
+	PnfY4IHx88mLKHnoe+3DfmICTbokxpcws17iriYtqXsRsqiTjJa5vbxfmVtiojH+
+	knq3P9lwDQRvGdNrqCJRIJEQbkONsUawv+gU4JK20FjqCLm9+A9mwxNhkp+jA6+T
+	jR7m8I3qZpcGNA5FCsFK+YjGQCS5vwM2klkr53V7XPuOFFoQEz+4p36WYKRLX9Qp
+	P6w6N9KGwxW6bDiIOcGJTb8k3Tjt0Lfc5ogA7gYNFQaUlRL+cC+ZASf+DLCs666J
+	kwponYrc0hFSNhCJ8WhJXfIWjOUTeJ9bdGiCruYU5ZuuPtlM6TxgALQckMD8jrbA
+	==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fs8h4j275-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Sat, 01 Aug 2026 18:00:43 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 671HuLUN030274
+	for <linux-s390@vger.kernel.org>; Sat, 1 Aug 2026 18:00:42 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fn8yhvmu3-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
 	for <linux-s390@vger.kernel.org>; Sat, 01 Aug 2026 18:00:42 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 671HuO4L022221
-	for <linux-s390@vger.kernel.org>; Sat, 1 Aug 2026 18:00:41 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fn7fqvw96-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Sat, 01 Aug 2026 18:00:41 +0000 (GMT)
 Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 671I0ble35127786
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 671I0cer30147100
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Sat, 1 Aug 2026 18:00:37 GMT
+	Sat, 1 Aug 2026 18:00:38 GMT
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 957C02004D;
-	Sat,  1 Aug 2026 18:00:37 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 1B2CB20043;
+	Sat,  1 Aug 2026 18:00:38 +0000 (GMT)
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 75C1020043;
+	by IMSVA (Postfix) with ESMTP id F072B20040;
 	Sat,  1 Aug 2026 18:00:37 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
 	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
@@ -56,9 +57,9 @@ From: Stefan Haberland <sth@linux.ibm.com>
 To: linux-s390@vger.kernel.org
 Cc: Jan Hoeppner <hoeppner@linux.ibm.com>,
         Eduard Shishkin <edward6@linux.ibm.com>
-Subject: [PATCH v7 11/19] s390/dasd: Add dasd_eckd_build_cp_tpm_writefulltrack()
-Date: Sat,  1 Aug 2026 20:00:25 +0200
-Message-ID: <20260801180033.3679412-12-sth@linux.ibm.com>
+Subject: [PATCH v7 14/19] s390/dasd: Derive adaptive ESE fulltrack heuristic from ft_bias
+Date: Sat,  1 Aug 2026 20:00:28 +0200
+Message-ID: <20260801180033.3679412-15-sth@linux.ibm.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260801180033.3679412-1-sth@linux.ibm.com>
 References: <20260801180033.3679412-1-sth@linux.ibm.com>
@@ -68,414 +69,400 @@ List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: VEO43Up79FsG84hRVxOxMsVR_vhwS5Q8
-X-Proofpoint-ORIG-GUID: VEO43Up79FsG84hRVxOxMsVR_vhwS5Q8
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODAxMDE0MyBTYWx0ZWRfX2dzCDe/mQRAn
- Ailk5NPaMhpVThDcEaM6EL3uqhCY6eUzDA8/8m2JUhz0KlLaWqJaxWL1XtPUCRapaDMn8Bk7WOp
- /G9W46Gt5EVs/8QEQ1OdyXhuxHs7iVg=
-X-Authority-Analysis: v=2.4 cv=K8cS2SWI c=1 sm=1 tr=0 ts=6a6e344a cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
- a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8 a=N88Q6yKB32gPlXi9WnIA:9
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODAxMDE0MyBTYWx0ZWRfX/We95J0F/QPM
- RhnhaXWbmANzIyMtyKgHnIkIUDCLUXRYX2Ay71YGWTfIMRbypDJShbPb/ORHnsT9IlFbN0BzQ33
- Wbn5VFG45tbVXU4ziln3kCOZ8eflzQf/ahTgUQ6PGvXr6l7LPFIQLv7LvDiqxotyTFWnmTAqv4Y
- 65GIkX9JUm9bf/nrnvGWoSdopOTrOEYJYCpso2wsj17FTDXwbKh4obslzo5pTkb5eP5mCSOnW2f
- kHziU7lUmlKujQeq2DHv47nfcQkaoz1b8WJg6BnjSzOVWMu0Zk2roufVcHKi66zopl6bibjK0U9
- xYcYvNXLo/6EjHxZj6eHKYM/H+OfafQUE1NzBijaSQkkSZU+au5H2dPf96JQya5EOLznPGJv+dc
- sfjkDh/z7lreO1VMICyiGVfYwZ3HBVfaLkL7bN2jcSnQqPczIzK95QXB1iB2xXvIXdlJdMOr6pg
- 1LdWmTKuqXxuvWoBRMQ==
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODAxMDE0MyBTYWx0ZWRfX+2Gd56zVQrmZ
+ yzIuGrvWxM3Dz/Z/sgubwPAzUAnLRmsdx+9DgE/+iSl83ltOe4+VeU7WTgLkH3sU4fPGWLzYB7P
+ ZfGxctDPZfUCSHDEC1Taoo2VCC72Uuw=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODAxMDE0MyBTYWx0ZWRfXxE/lhNxnmeZh
+ Dir8AZRPfPyZzxNJu2xzVoiCvlTjfVUMpf2MJiLBHO4vSz7bxa080J28vGOmdlNTEiMCcPfHq/J
+ 3+WAVIirMWoO2fIhmLz23X+j8Nrb9Hk/+T0WzApNaUHw1ZcqrjqOJ6WAR8L3f/MGyMyYtmNejFy
+ dcCBVqcS0JRQDvEgLVUIb7IK6hnAqunmZf7Ua+nNXc9E0cIwZ1eWyK7l1z0pYS97gsYfS+L4fe+
+ qQJAkZh7hMcGUCQ3/eCZbuS4VJGWHIL96e+TpAPe7EjxpR44c+mubAsPSX9TGa2RJuPPe0YV4oz
+ mzSijGYC8g6Xkd6RDjDFHNixvRFPWzDMYGggt2tNGEZZ20Eb9wDWlWfMQEEEq5N4Rf3wTK8Te89
+ oHc+WSvhZPcl1JdRk80NxRjG8PBpJ1nAqXlDqah8BYd1yXR4ADBY5snB2YgaqaJkofVmDiY15Jv
+ 3SsH5yXBpYFOQlYHkIg==
+X-Authority-Analysis: v=2.4 cv=SI1ykuvH c=1 sm=1 tr=0 ts=6a6e344b cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8
+ a=AC7lDxl1z509KiHOqFYA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+X-Proofpoint-ORIG-GUID: 4oqV-ztRaAXsApO7M1Wq-sMgtdGmrlie
+X-Proofpoint-GUID: 4oqV-ztRaAXsApO7M1Wq-sMgtdGmrlie
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-08-01_02,2026-07-30_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 spamscore=0 impostorscore=0 bulkscore=0 priorityscore=1501
- lowpriorityscore=0 malwarescore=0 phishscore=0 suspectscore=0 adultscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608010143
+ clxscore=1015 bulkscore=0 suspectscore=0 impostorscore=0 spamscore=0
+ phishscore=0 priorityscore=1501 lowpriorityscore=0 adultscore=0
+ malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2608010143
 
-Add the channel program builder for WRITE_FULL_TRACK requests, used
-by dasd_eckd_ese_format() (next patch) to format and write a set of
-tracks atomically and avoid the format cycle on ESE devices.
+Turn the middle of the ft_bias range (1..99) into an adaptive heuristic
+that switches between fulltrack write (ft1) and plain write ft0 depending
+on how sparse the device still is.
 
-The program is an ITCW with a TIDAW list. Per track it emits an eckd_r0
-header, an eckd_count + data pair for every record (pad records before
-and after the caller's data window use device->nulldata, records in the
-window point into the bio payload), and a terminating 0xFF pseudo-count
-with TIDAW_FLAGS_INSERT_CBC. The descriptors come from the per-device
-fill_chunks pool so they can be freed in bulk in __dasd_cleanup_cqr().
+A sparse device benefits from fulltrack writes (it avoids the format/retry
+cycle); once enough tracks are formatted the per-write overhead of
+ft1 outweighs that. An state machine  measures the NRF rate in short ft0
+probe windows and flips back to ft1 when it is high
+(FT1_ACTIVE -> PROBING -> FT0_STABLE, with a backing-off reprobe interval).
 
-Add inline helpers crosses_page() and reserve_nocross(), to keep each
-descriptor within one page since TIDAW addressing must not cross a page
-boundary.
+The four parameters are derived from ft_bias by linear interpolation,
+anchored so ft_bias == 50 derives the following values:
+
+ese_heu_start_interval - 2000 - IOs in ft1, before first ft0-Probe starts
+ese_heu_probe_window - 100 - IOs in probe window
+ese_heu_nrf_high - 10 ‰ (= 1 %) - TRACK_FORMAT rate that leads to ft1
+ese_heu_max_interval - 500000 - Backoff-Cap: max. IOs between two probes
+
+Higher is more eager to use ft1, and 0/100 skips the heuristic.
+The NRF counter is bumped in dasd_eckd_ese_format() for both the classic
+NRF sense and the HPF INV_TRACK_FORMAT equivalent.
+The state machine resets to ft1 on check_characteristics, full format,
+and release-space.
+
+A read-only ese_heuristic_state sysfs attribute exposes the current mode.
 
 Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
 ---
- drivers/s390/block/dasd_eckd.c | 342 +++++++++++++++++++++++++++++++++
- 1 file changed, 342 insertions(+)
+ drivers/s390/block/dasd_devmap.c | 44 ++++++++++++++-
+ drivers/s390/block/dasd_eckd.c   | 97 ++++++++++++++++++++++++++++++--
+ drivers/s390/block/dasd_int.h    | 85 ++++++++++++++++++++++++++++
+ 3 files changed, 220 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
-index 8b0c32395c8b..8495686b1ac2 100644
---- a/drivers/s390/block/dasd_eckd.c
-+++ b/drivers/s390/block/dasd_eckd.c
-@@ -123,6 +123,14 @@ static int prepare_itcw(struct itcw *, unsigned int, unsigned int, int,
- 			unsigned int, unsigned int);
- static int dasd_eckd_query_pprc_status(struct dasd_device *,
- 				       struct dasd_pprc_data_sc4 *);
-+static struct dasd_ccw_req *dasd_eckd_build_cp_tpm_writefulltrack(struct dasd_device *,
-+								  struct dasd_block *,
-+								  struct request *,
-+								  sector_t, sector_t,
-+								  sector_t, sector_t,
-+								  unsigned int, unsigned int,
-+								  unsigned int, unsigned int,
-+								  struct dasd_ccw_req *);
+diff --git a/drivers/s390/block/dasd_devmap.c b/drivers/s390/block/dasd_devmap.c
+index 035c022255b6..50301e545bbe 100644
+--- a/drivers/s390/block/dasd_devmap.c
++++ b/drivers/s390/block/dasd_devmap.c
+@@ -1659,8 +1659,14 @@ static ssize_t full_track_bias_store(struct device *dev,
+ 	if (IS_ERR(device))
+ 		return -ENODEV;
  
- /* initial attempt at a probe function. this can be simplified once
-  * the other detection code is gone */
-@@ -4742,6 +4750,340 @@ static struct dasd_ccw_req *dasd_eckd_build_cp_tpm_track(
- 	return ERR_PTR(ret);
- }
++	/*
++	 * ft_bias is the tuning target; fulltrack is a best-effort mode hint
++	 * that the per-IO heuristic also updates locklessly. A racing writer can
++	 * at most leave a transient mismatch that self-corrects on the next IO,
++	 * never corruption, so the update is left unlocked.
++	 */
+ 	device->ft_bias = val;
+-	device->fulltrack = val ? 1 : 0;
++	dasd_ft_bias_apply(device);
  
-+static __always_inline bool crosses_page(const void *addr, size_t len)
+ 	dasd_put_device(device);
+ 	return count;
+@@ -1668,6 +1674,41 @@ static ssize_t full_track_bias_store(struct device *dev,
+ 
+ static DEVICE_ATTR_RW(full_track_bias);
+ 
++static const char * const dasd_ese_heu_state_names[] = {
++	[DASD_ESE_HEU_FT1_ACTIVE] = "fulltrack active",
++	[DASD_ESE_HEU_PROBING]    = "probing",
++	[DASD_ESE_HEU_FT0_STABLE] = "fulltrack inactive",
++};
++
++/* read-only: current full-track mode / adaptive FSM state, for observability */
++static ssize_t
++ese_heuristic_state_show(struct device *dev, struct device_attribute *attr,
++			 char *buf)
 +{
-+	return len && (offset_in_page(addr) + len > PAGE_SIZE);
++	struct dasd_device *device;
++	unsigned int state;
++	int len;
++
++	device = dasd_device_from_cdev(to_ccwdev(dev));
++	if (IS_ERR(device))
++		return -ENODEV;
++	if (device->ft_bias == 0) {
++		len = sysfs_emit(buf, "fulltrack deactivated\n");
++	} else if (device->ft_bias >= DASD_FT_BIAS_MAX) {
++		len = sysfs_emit(buf, "fulltrack permanent active\n");
++	} else {
++		state = device->ese_probe_state;
++		if (state < ARRAY_SIZE(dasd_ese_heu_state_names))
++			len = sysfs_emit(buf, "%s\n", dasd_ese_heu_state_names[state]);
++		else
++			len = sysfs_emit(buf, "unknown\n");
++	}
++	dasd_put_device(device);
++	return len;
 +}
 +
-+static __always_inline void *reserve_nocross(char **p, size_t *space, size_t len)
++static DEVICE_ATTR_RO(ese_heuristic_state);
++
+ static ssize_t
+ dasd_retries_show(struct device *dev, struct device_attribute *attr, char *buf)
+ {
+@@ -2464,6 +2505,7 @@ static struct attribute * dasd_attrs[] = {
+ 	&dev_attr_failfast.attr,
+ 	&dev_attr_expires.attr,
+ 	&dev_attr_full_track_bias.attr,
++	&dev_attr_ese_heuristic_state.attr,
+ 	&dev_attr_retries.attr,
+ 	&dev_attr_timeout.attr,
+ 	&dev_attr_reservation_policy.attr,
+diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
+index dc849f8ee924..abd35afdeb22 100644
+--- a/drivers/s390/block/dasd_eckd.c
++++ b/drivers/s390/block/dasd_eckd.c
+@@ -2160,11 +2160,6 @@ dasd_eckd_check_characteristics(struct dasd_device *device)
+ 	device->path_interval = DASD_ECKD_PATH_INTERVAL;
+ 	device->aq_timeouts = DASD_RETRIES_MAX;
+ 
+-	/* default ESE fulltrack write aggressiveness from the module parameter */
+-	device->ft_bias = min_t(unsigned int, full_track_bias, DASD_FT_BIAS_MAX);
+-	/* only the "always" endpoint forces fulltrack unconditionally here */
+-	device->fulltrack = (device->ft_bias >= DASD_FT_BIAS_MAX) ? 1 : 0;
+-
+ 	if (private->conf.gneq) {
+ 		value = 1;
+ 		for (i = 0; i < private->conf.gneq->timeout.value; i++)
+@@ -2219,6 +2214,13 @@ dasd_eckd_check_characteristics(struct dasd_device *device)
+ 	/* Read Volume Information */
+ 	dasd_eckd_read_vol_info(device);
+ 
++	/*
++	 * is_ese() now reflects the hardware ESE state, so derive the default
++	 * fulltrack write bias from the module parameter.
++	 */
++	device->ft_bias = min_t(unsigned int, full_track_bias, DASD_FT_BIAS_MAX);
++	dasd_ft_bias_apply(device);
++
+ 	/* Read Extent Pool Information */
+ 	dasd_eckd_read_ext_pool_info(device);
+ 
+@@ -3171,6 +3173,13 @@ static int dasd_eckd_format_process_data(struct dasd_device *base,
+ static int dasd_eckd_format_device(struct dasd_device *base,
+ 				   struct format_data_t *fdata, int enable_pav)
+ {
++	/*
++	 * A full format (start_unit == 0) returns the device to a fully sparse
++	 * state, so restart the heuristic from ft1 without an offline cycle.
++	 */
++	if (fdata->start_unit == 0)
++		dasd_ft_bias_apply(base);
++
+ 	return dasd_eckd_format_process_data(base, fdata, enable_pav, 0, NULL,
+ 					     0, NULL);
+ }
+@@ -3230,6 +3239,69 @@ static void clear_format_track(struct dasd_format_entry *format,
+ 	spin_unlock_irqrestore(&block->format_lock, flags);
+ }
+ 
++/*
++ * Adaptive ft_bias heuristic, called once per IO from dasd_eckd_build_cp().
++ * Probes the device formatting state by briefly switching to ft0 and measuring
++ * the NRF rate; parameters are derived from ft_bias.
++ */
++static void dasd_ese_heuristic_tick(struct dasd_device *basedev)
 +{
-+	size_t pad = crosses_page(*p, len) ? PAGE_SIZE - offset_in_page(*p) : 0;
-+	void *ret;
++	int ios, nrf, rate;
 +
-+	if (*space < pad + len)
-+		return NULL;	/* out of space */
++	if (atomic_inc_return(&basedev->ese_io_cnt) < (int)basedev->ese_probe_interval)
++		return;
 +
-+	*p += pad;
-+	*space -= pad;
-+	ret = *p;
-+	*p += len;
-+	*space -= len;
-+	return ret;
++	/*
++	 * One wins the race to evaluate, the rest see ios == 0 after the
++	 * xchg and return early, preventing redundant state transitions.
++	 */
++	ios = atomic_xchg(&basedev->ese_io_cnt, 0);
++	if (ios <= 0)
++		return;
++
++	switch (basedev->ese_probe_state) {
++	case DASD_ESE_HEU_FT1_ACTIVE:
++		/* Start ft0 probe window, reset NRF counter for clean measurement */
++		basedev->fulltrack          = 0;
++		basedev->ese_probe_state    = DASD_ESE_HEU_PROBING;
++		basedev->ese_probe_interval = basedev->ese_heu_probe_window;
++		atomic_set(&basedev->ese_nrf_window, 0);
++		break;
++
++	case DASD_ESE_HEU_PROBING:
++	case DASD_ESE_HEU_FT0_STABLE:
++		nrf  = atomic_xchg(&basedev->ese_nrf_window, 0);
++		rate = (int)((u64)nrf * 1000 / ios);
++		if (rate > (int)basedev->ese_heu_nrf_high) {
++			/* NRF rate high: device still sparse, ft1 is better */
++			basedev->fulltrack          = 1;
++			basedev->ese_probe_state    = DASD_ESE_HEU_FT1_ACTIVE;
++			basedev->ese_probe_interval = basedev->ese_heu_start_interval;
++		} else if (basedev->ese_probe_state == DASD_ESE_HEU_PROBING) {
++			/*
++			 * NRF rate low: device mostly formatted, ft0 is faster.
++			 * Re-probe frequently at first, then back off below.
++			 */
++			basedev->fulltrack          = 0;
++			basedev->ese_probe_state    = DASD_ESE_HEU_FT0_STABLE;
++			basedev->ese_probe_interval = basedev->ese_heu_probe_window;
++		} else {
++			/*
++			 * Still stable in ft0: re-assert plain-write mode so a
++			 * fulltrack value left behind by a racing sysfs write
++			 * self-corrects, and back off the re-probe interval
++			 * (double it, capped at max_interval) so a long-lived
++			 * formatted device is not probed more often than needed.
++			 */
++			basedev->fulltrack          = 0;
++			basedev->ese_probe_interval =
++				min(basedev->ese_probe_interval * 2,
++				    basedev->ese_heu_max_interval);
++		}
++		break;
++	}
++}
++
+ static void dasd_eckd_ese_format(struct dasd_device *startdev, struct dasd_ccw_req *cqr,
+ 				 struct irb *irb)
+ {
+@@ -3254,6 +3326,8 @@ static void dasd_eckd_ese_format(struct dasd_device *startdev, struct dasd_ccw_r
+ 	block = cqr->block;
+ 	base = block->base;
+ 	private = base->private;
++	if (dasd_ese_adaptive(base))
++		atomic_inc(&base->ese_nrf_window);
+ 	blksize = block->bp_block;
+ 	recs_per_trk = recs_per_track(&private->rdc_data, 0, blksize);
+ 
+@@ -4017,6 +4091,14 @@ static int dasd_eckd_release_space_full(struct dasd_device *device)
+ 
+ 	rc = dasd_sleep_on_interruptible(cqr);
+ 
++	if (!rc) {
++		/*
++		 * Releasing all space (RAS) wipes every track and the device is fully
++		 * sparse again, so restart the heuristic from ft1.
++		 */
++		dasd_ft_bias_apply(device);
++	}
++
+ 	dasd_sfree_request(cqr, cqr->memdev);
+ 
+ 	return rc;
+@@ -5185,6 +5267,11 @@ static struct dasd_ccw_req *dasd_eckd_build_cp(struct dasd_device *startdev,
+ 	struct dasd_ccw_req *cqr;
+ 
+ 	basedev = block->base;
++	if (dasd_ese_adaptive(basedev))
++		dasd_ese_heuristic_tick(basedev);
++	else
++		/* re-assert the endpoint mode: a stale heuristic write cannot stick */
++		basedev->fulltrack = (basedev->ft_bias >= DASD_FT_BIAS_MAX) ? 1 : 0;
+ 	private = basedev->private;
+ 
+ 	/* Calculate number of blocks/records per track. */
+diff --git a/drivers/s390/block/dasd_int.h b/drivers/s390/block/dasd_int.h
+index e2df8666520f..c899073c19c8 100644
+--- a/drivers/s390/block/dasd_int.h
++++ b/drivers/s390/block/dasd_int.h
+@@ -633,6 +633,15 @@ struct dasd_device {
+ 	/* ESE fulltrack write control (see full_track_bias sysfs attribute) */
+ 	unsigned int ft_bias;	/* aggressiveness 0..100: 0=off, 100=always */
+ 	unsigned int fulltrack;	/* internal: use WRITE_FULL_TRACK for aligned writes */
++	/* adaptive heuristic (active for ft_bias 1..99), derived from ft_bias */
++	unsigned int ese_probe_state;        /* heuristic FSM state */
++	unsigned int ese_probe_interval;     /* IOs between evaluations */
++	atomic_t ese_io_cnt;                 /* IO counter for current window */
++	atomic_t ese_nrf_window;             /* NRF/INV_TRACK_FORMAT events in window */
++	unsigned int ese_heu_start_interval; /* IOs before first probe */
++	unsigned int ese_heu_probe_window;   /* IOs in probe window */
++	unsigned int ese_heu_max_interval;   /* max IOs between probes (backoff cap) */
++	unsigned int ese_heu_nrf_high;       /* NRF per-mille threshold → activate ft1 */
+ };
+ 
+ struct dasd_block {
+@@ -704,6 +713,25 @@ struct dasd_queue {
+ #define DASD_FT_BIAS_MAX	100
+ #define DASD_FT_BIAS_DEFAULT	50
+ 
++/* ESE fulltrack heuristic FSM states (adaptive range, ft_bias 1..99) */
++#define DASD_ESE_HEU_FT1_ACTIVE   0   /* fulltrack write active */
++#define DASD_ESE_HEU_PROBING      1   /* ft0 probe window, measuring NRF rate */
++#define DASD_ESE_HEU_FT0_STABLE   2   /* device formatted, ft0 active */
++
++/*
++ * Heuristic parameters are derived from ft_bias by linear interpolation,
++ * anchored so that ft_bias == 50 reproduces the previously shipped defaults
++ * and ft_bias == 100 is the most aggressive end of the range.
++ * probe_window is constant.
++ */
++#define DASD_ESE_HEU_PROBE_WINDOW	   100
++#define DASD_ESE_HEU_NRF_HIGH_A50	    10	/* NRF per-mille threshold */
++#define DASD_ESE_HEU_NRF_HIGH_A100	     1
++#define DASD_ESE_HEU_START_A50		  2000	/* IOs before first probe */
++#define DASD_ESE_HEU_START_A100		   500
++#define DASD_ESE_HEU_MAX_A50		500000	/* backoff cap */
++#define DASD_ESE_HEU_MAX_A100		 20000
++
+ /* per device flags */
+ #define DASD_FLAG_OFFLINE	3	/* device is in offline processing */
+ #define DASD_FLAG_EER_SNSS	4	/* A SNSS is required */
+@@ -866,6 +894,63 @@ static inline bool dasd_req_conflict(struct dasd_ccw_req *cqr1,
+ 		 cqr2->end_trk < cqr1->format->start_trk);
+ }
+ 
++/*
++ * true when device is ese device and ft_bias selects the adaptive
++ * heuristic (neither hard endpoint)
++ */
++static inline bool dasd_ese_adaptive(struct dasd_device *device)
++{
++	return device->discipline &&
++		device->discipline->is_ese &&
++		device->discipline->is_ese(device) &&
++		device->ft_bias > 0 &&
++		device->ft_bias < DASD_FT_BIAS_MAX;
 +}
 +
 +/*
-+ * Helpers for dasd_eckd_build_cp_tpm_writefulltrack(): append the TIDAWs for
-+ * one track-image element (R0 header, a count + data record, or the trailing
-+ * pseudo track end count) to the itcw. Return the last TIDAW, or NULL on failure.
++ * Linear interpolation of a heuristic parameter between its value at aggr==50
++ * (v50) and its value at aggr==100 (v100).
 + */
-+static struct tidaw *add_track_r0(struct itcw *itcw, char **fill,
-+				  size_t *fillsize, u32 cyl, u16 head)
++static inline unsigned int dasd_ese_lerp(unsigned int v50, unsigned int v100,
++					 unsigned int aggr)
 +{
-+	struct tidaw *tidaw;
-+	struct eckd_r0 *r0;
-+
-+	r0 = reserve_nocross(fill, fillsize, sizeof(*r0));
-+	if (WARN_ON_ONCE(!r0))
-+		return NULL;
-+	set_chr_t(r0, cyl, head, 0);
-+	r0->count.dl = 8;
-+	tidaw = itcw_add_tidaw(itcw, 0, r0, sizeof(*r0));
-+	return IS_ERR_OR_NULL(tidaw) ? NULL : tidaw;
++	return (unsigned int)((int)v50 +
++		((int)v100 - (int)v50) * ((int)aggr - 50) / 50);
 +}
 +
-+static struct tidaw *add_track_record(struct itcw *itcw, char **fill,
-+				      size_t *fillsize, u32 cyl, u16 head,
-+				      u8 rec, void *data, u32 dl)
++/*
++ * Apply the ft_bias knob. For the hard endpoints just pin the mode; for the
++ * adaptive range derive the heuristic parameters from ft_bias and (re)start
++ * the FSM in ft1 so a freshly sparse device avoids the NRF penalty right away.
++ */
++static inline void dasd_ft_bias_apply(struct dasd_device *device)
 +{
-+	struct eckd_count *count;
-+	struct tidaw *tidaw;
++	unsigned int a = device->ft_bias;
 +
-+	count = reserve_nocross(fill, fillsize, sizeof(*count));
-+	if (WARN_ON_ONCE(!count))
-+		return NULL;
-+	set_chr_t(count, cyl, head, rec);
-+	count->dl = dl;
-+	tidaw = itcw_add_tidaw(itcw, 0, count, sizeof(*count));
-+	if (IS_ERR_OR_NULL(tidaw))
-+		return NULL;
-+	tidaw = itcw_add_tidaw(itcw, 0, data, dl);
-+	return IS_ERR_OR_NULL(tidaw) ? NULL : tidaw;
++	if (!dasd_ese_adaptive(device)) {
++		device->fulltrack = (a >= DASD_FT_BIAS_MAX) ? 1 : 0;
++		device->ese_probe_state = DASD_ESE_HEU_FT1_ACTIVE;
++		return;
++	}
++
++	device->ese_heu_nrf_high =
++		dasd_ese_lerp(DASD_ESE_HEU_NRF_HIGH_A50,
++			      DASD_ESE_HEU_NRF_HIGH_A100, a);
++	device->ese_heu_start_interval =
++		dasd_ese_lerp(DASD_ESE_HEU_START_A50,
++			      DASD_ESE_HEU_START_A100, a);
++	device->ese_heu_max_interval =
++		dasd_ese_lerp(DASD_ESE_HEU_MAX_A50,
++			      DASD_ESE_HEU_MAX_A100, a);
++	device->ese_heu_probe_window = DASD_ESE_HEU_PROBE_WINDOW;
++
++	device->ese_probe_state    = DASD_ESE_HEU_FT1_ACTIVE;
++	device->ese_probe_interval = device->ese_heu_start_interval;
++	device->fulltrack          = 1;
++	atomic_set(&device->ese_io_cnt, 0);
++	atomic_set(&device->ese_nrf_window, 0);
 +}
 +
-+static struct tidaw *add_track_end(struct itcw *itcw, char **fill,
-+				   size_t *fillsize)
-+{
-+	struct eckd_count *count;
-+	struct tidaw *tidaw;
-+
-+	count = reserve_nocross(fill, fillsize, sizeof(*count));
-+	if (WARN_ON_ONCE(!count))
-+		return NULL;
-+	count->cyl = 0xffff;
-+	count->head = 0xffff;
-+	count->dl = 0xffff;
-+	count->record = 0xff;
-+	count->kl = 0xff;
-+	tidaw = itcw_add_tidaw(itcw, TIDAW_FLAGS_INSERT_CBC, count, sizeof(*count));
-+	return IS_ERR_OR_NULL(tidaw) ? NULL : tidaw;
-+}
-+
-+static __maybe_unused struct dasd_ccw_req *
-+dasd_eckd_build_cp_tpm_writefulltrack(struct dasd_device *startdev,
-+				      struct dasd_block *block,
-+				      struct request *req,
-+				      sector_t first_rec,
-+				      sector_t last_rec,
-+				      sector_t first_trk,
-+				      sector_t last_trk,
-+				      unsigned int first_offs,
-+				      unsigned int last_offs,
-+				      unsigned int blk_per_trk,
-+				      unsigned int blksize,
-+				      struct dasd_ccw_req *ocqr)
-+{
-+	struct dasd_eckd_private *private = block->base->private;
-+	unsigned int seg_len, part_len, len_to_track_end;
-+	unsigned int count, count_to_trk_end, offs;
-+	unsigned int trkcount, ctidaw, tlf;
-+	int itcw_op, rec_count, datasize;
-+	struct tidaw *last_tidaw = NULL;
-+	sector_t recid, trkid, curr_trk;
-+	unsigned char cmd, new_track;
-+	struct dasd_device *basedev;
-+	size_t itcw_size, fillsize;
-+	struct dasd_ccw_req *cqr;
-+	struct req_iterator iter;
-+	char *dst, *filldata;
-+	unsigned long flags;
-+	struct itcw *itcw;
-+	struct bio_vec bv;
-+	int ret = -EINVAL;
-+	void *nullrecord;
-+	u16 heads, head;
-+	u32 cyl;
-+	u8 rec;
-+
-+	basedev = block->base;
-+	cmd = DASD_ECKD_CCW_WRITE_FULL_TRACK;
-+	itcw_op = ITCW_OP_WRITE;
-+
-+	/*
-+	 * trackbased I/O needs address all memory via TIDAWs,
-+	 * not just for 64 bit addresses. This allows us to map
-+	 * each segment directly to one tidaw.
-+	 * In the case of write requests, additional tidaws may
-+	 * be needed when a segment crosses a track boundary.
-+	 * Per track we emit one R0 tidaw, two tidaws per record (count field
-+	 * plus data - a record never crosses a track or page boundary, as
-+	 * part_len is clamped to both blksize and the track end), and one track
-+	 * end tidaw: 2 * blk_per_trk + 2.
-+	 * Round the +2 up to blk_per_trk-independent headroom via 2 * (blk_per_trk + 2).
-+	 */
-+	trkcount = last_trk - first_trk + 1;
-+	ctidaw = trkcount * 2 * (blk_per_trk + 2);
-+
-+	/*
-+	 * build_cp (ocqr == NULL): the request owns its CCW program - block in
-+	 * the pdu, ITCW in ccw_chunks. ese_format (ocqr != NULL): the failing
-+	 * origin still owns its pdu, so take the replacement from ese_chunks.
-+	 */
-+	itcw_size = itcw_calc_size(0, ctidaw, 0);
-+	if (ocqr)
-+		cqr = dasd_fmalloc_request(DASD_ECKD_MAGIC, 0, itcw_size, startdev);
-+	else
-+		cqr = dasd_smalloc_request(DASD_ECKD_MAGIC, 0, itcw_size, startdev,
-+					   blk_mq_rq_to_pdu(req));
-+	if (IS_ERR(cqr))
-+		return cqr;
-+	fillsize = trkcount * (sizeof(struct eckd_r0) +
-+			       (sizeof(struct eckd_count) * (blk_per_trk + 2)));
-+	/*
-+	 * reserve_nocross() pads elements away from page boundaries and draws
-+	 * that padding from fillsize; budget one element per page the buffer
-+	 * may span so it never runs short.
-+	 */
-+	fillsize += (fillsize / PAGE_SIZE + 1) * sizeof(struct eckd_r0);
-+	spin_lock_irqsave(&startdev->mem_lock, flags);
-+	filldata  = dasd_alloc_chunk(&startdev->fill_chunks, fillsize);
-+	spin_unlock_irqrestore(&startdev->mem_lock, flags);
-+	if (!filldata) {
-+		ret = -ENOMEM;
-+		goto out_error;
-+	}
-+	memset(filldata, 0, fillsize);
-+	cqr->filldata = filldata;
-+
-+	nullrecord = startdev->nulldata;
-+
-+	/* count + data for each record, plus r0 and the pseudo count */
-+	tlf = blk_per_trk * (blksize + sizeof(struct eckd_count));
-+	tlf += sizeof(struct eckd_r0) + sizeof(struct eckd_count);
-+
-+	itcw = itcw_init(cqr->data, itcw_size, itcw_op, 0, ctidaw, 0);
-+	if (IS_ERR(itcw)) {
-+		ret = -EINVAL;
-+		goto out_error;
-+	}
-+	cqr->cpaddr = itcw_get_tcw(itcw);
-+	datasize = trkcount * tlf;
-+	if (prepare_itcw(itcw, first_trk, last_trk,
-+			 cmd, basedev, startdev,
-+			 0,
-+			 trkcount, blksize,
-+			 datasize,
-+			 tlf,
-+			 blk_per_trk) == -EAGAIN) {
-+		/* Clock not in sync and XRC is enabled.
-+		 * Try again later.
-+		 */
-+		ret = -EAGAIN;
-+		goto out_error;
-+	}
-+	heads = private->rdc_data.trk_per_cyl;
-+	/*
-+	 * A tidaw can address 4k of memory, but must not cross page boundaries
-+	 * We can let the block layer handle this by setting seg_boundary_mask
-+	 * to page boundaries and max_segment_size to page size when setting up
-+	 * the request queue.
-+	 */
-+	curr_trk = first_trk;
-+	recid = first_rec;
-+	trkid = recid;
-+	offs = sector_div(trkid, blk_per_trk);
-+	count = blk_per_trk;
-+	len_to_track_end = count * blksize;
-+	recid += count - first_offs;
-+	new_track = 0;
-+
-+	/* the R0 header of the first track */
-+	cyl = curr_trk / heads;
-+	head = curr_trk % heads;
-+	last_tidaw = add_track_r0(itcw, &filldata, &fillsize, cyl, head);
-+	if (!last_tidaw)
-+		goto out_error;
-+
-+	/* empty records before the first data record */
-+	for (int i = 1; i <= first_offs; i++) {
-+		len_to_track_end -= blksize;
-+		last_tidaw = add_track_record(itcw, &filldata, &fillsize,
-+					      cyl, head, i, nullrecord, blksize);
-+		if (!last_tidaw)
-+			goto out_error;
-+	}
-+
-+	/* process data records */
-+	rec = first_offs + 1;
-+	rec_count = 0;
-+	rq_for_each_segment(bv, req, iter) {
-+		dst = bvec_virt(&bv);
-+		seg_len = bv.bv_len;
-+		while (seg_len) {
-+			if (new_track) {
-+				trkid = recid;
-+				offs = sector_div(trkid, blk_per_trk);
-+				count_to_trk_end = blk_per_trk - offs;
-+				count = min((last_rec - recid + 1),
-+					    (sector_t)count_to_trk_end);
-+				/*
-+				 * Size to the physical track end: a short last
-+				 * track is padded in out_skip, so the track-end
-+				 * marker must not be emitted early here.
-+				 */
-+				len_to_track_end = count_to_trk_end * blksize;
-+				recid += count;
-+				new_track = 0;
-+				/* the R0 header of the next track */
-+				cyl = curr_trk / heads;
-+				head = curr_trk % heads;
-+				last_tidaw = add_track_r0(itcw, &filldata,
-+							  &fillsize, cyl, head);
-+				if (!last_tidaw)
-+					goto out_error;
-+				rec = 1;
-+			}
-+			/*
-+			 * One count + data record per block: a bvec segment can
-+			 * be up to a page, so clamp to blksize - otherwise the
-+			 * count field would describe one oversized record instead
-+			 * of several blksize ones for sub-page block sizes.
-+			 */
-+			part_len = min(seg_len, len_to_track_end);
-+			part_len = min(part_len, blksize);
-+			seg_len -= part_len;
-+			len_to_track_end -= part_len;
-+			/*
-+			 * This block ends the track; the next one starts a new
-+			 * track. The track-end marker emitted below carries the
-+			 * CBC flag.
-+			 */
-+			if (!len_to_track_end)
-+				new_track = 1;
-+
-+			last_tidaw = add_track_record(itcw, &filldata, &fillsize,
-+						      cyl, head, rec, dst, part_len);
-+			if (!last_tidaw)
-+				goto out_error;
-+
-+			if (new_track) {
-+				/* add track end marker */
-+				last_tidaw = add_track_end(itcw, &filldata,
-+							   &fillsize);
-+				if (!last_tidaw)
-+					goto out_error;
-+				curr_trk++;
-+			}
-+			rec++;
-+			dst += part_len;
-+			rec_count++;
-+			if (rec_count >= (last_rec - first_rec + 1))
-+				goto out_skip;
-+		}
-+	}
-+
-+out_skip:
-+	new_track = 0;
-+	/* empty records after the last data record */
-+	for (int i = last_offs + 2; i <= blk_per_trk; i++) {
-+		len_to_track_end -= blksize;
-+		last_tidaw = add_track_record(itcw, &filldata, &fillsize,
-+					      cyl, head, i, nullrecord, blksize);
-+		if (!last_tidaw)
-+			goto out_error;
-+		new_track = 1;
-+	}
-+
-+	/* add track end marker */
-+	if (new_track) {
-+		last_tidaw = add_track_end(itcw, &filldata, &fillsize);
-+		if (!last_tidaw)
-+			goto out_error;
-+	}
-+
-+	last_tidaw->flags |= TIDAW_FLAGS_LAST;
-+	last_tidaw->flags &= ~TIDAW_FLAGS_INSERT_CBC;
-+	itcw_finalize(itcw);
-+
-+	if (blk_noretry_request(req) ||
-+	    block->base->features & DASD_FEATURE_FAILFAST)
-+		set_bit(DASD_CQR_FLAGS_FAILFAST, &cqr->flags);
-+	cqr->cpmode = 1;
-+	cqr->startdev = startdev;
-+	cqr->memdev = startdev;
-+	cqr->block = block;
-+	cqr->expires = startdev->default_expires * HZ;	/* default 5 minutes */
-+	cqr->lpm = dasd_path_get_ppm(startdev);
-+	cqr->retries = startdev->default_retries;
-+	cqr->buildclk = get_tod_clock();
-+	cqr->status = DASD_CQR_FILLED;
-+
-+	return cqr;
-+out_error:
-+	/* dasd_sfree_request frees from the right pool via cqr->mem_chunk */
-+	dasd_sfree_request(cqr, startdev);
-+	return ERR_PTR(ret);
-+}
-+
- static struct dasd_ccw_req *dasd_eckd_build_cp(struct dasd_device *startdev,
- 					       struct dasd_block *block,
- 					       struct request *req)
+ /* externals in dasd.c */
+ #define DASD_PROFILE_OFF	 0
+ #define DASD_PROFILE_ON 	 1
 -- 
 2.53.0
 
