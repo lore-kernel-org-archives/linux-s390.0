@@ -1,186 +1,166 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA86323392C
-	for <linux-s390@vger.kernel.org>; Sat,  1 Aug 2026 18:29:52 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C0FC11A5B9D
+	for <linux-s390@vger.kernel.org>; Sat,  1 Aug 2026 18:30:58 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785608994; cv=none; b=femuulULJ+33n8Dt5x04+rypWv1/wwcNC/QNwlO/PoPugxBnUp0xhpHrjLqDYdI9l1JHLmSEXgxtmG6OQh0PsFmW6N4mTUA4Zo/u2gmwAkCRzwRT12Hlnlx8MrNM+bowSdKg4OQzyq/jY3/55ZzJAd7WqBU+KKqlVBIyrEWtabk=
+	t=1785609059; cv=none; b=XDNLoWaSQ1dfRzW4fzQddzRHCDOPOIeX8GMaue9ruBeHpK0/NJhGNtQwZKQj6+76XBpzORA5LvXuCZ6MMvL0INONR9y1yl0VOHFNvyawtgseB4c3J7VXEj+P61BoSTenOb3VQAtFHFMy13/loQRTsiQAnGWi+NeGI5pn+Et44R4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785608994; c=relaxed/simple;
-	bh=qyXOLvGWOabvKObuoafOfHEglIi6BaIocONKY1xVd+s=;
+	s=arc-20240116; t=1785609059; c=relaxed/simple;
+	bh=TzNqmqMmfgHmlOQZ4wx6Qw63LzTu40t2+BptVMjJU9g=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=B+2zX1tew0q8MwRw7IiIj00+gFJS4L2/OH1dFf4RX/qKZ8BctmBLQPbwVjSZVsjEBatA7wF7pnsqKIRsd/SxKtfAB7gsGHQY2v89mm0bItl2wury2tWnSl1h/5j82DW9syXm13eFTFjuXJAAGOBcFsVbnoZQk+gCDTUp/SpUKNE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fgmk7BZ4; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=YA3aVh8g3bz3NWis0U4/WHOCXcEal9drIcpjQxZtWS/ev7pBi82lIpZMeNw/+dDeSDF+ZIjAO8wjT5an7F2dndjBrjwGUbckoTCQeLHIhvFg5osQ1E/aWFws4TIphkSFa7T8G+nSt7rA7+bOs1eriQYgzpn+oels+aH4f24HKNY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Om5xyy7Z; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fgmk7BZ4"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2EAE51F00AC4;
-	Sat,  1 Aug 2026 18:29:52 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Om5xyy7Z"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22DD51F00AC4;
+	Sat,  1 Aug 2026 18:30:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785608992;
-	bh=5C4yUtDBAlQww2avB8+8XCX7ihyOCOBhd5zQTXkeyMQ=;
+	s=k20260515; t=1785609058;
+	bh=9bWG1f6poMTw8hXJQJMu+bJ4wP9TiOpKF9p8J8do/ek=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=fgmk7BZ4d2YR+XPkr0TSzxzctNLFsCwUz4lMZ2SIirwcOGk0J/cFi6OBLgh3Bf5ce
-	 4mGUUNpRr8ewdQ9o4RnupkxxwzghXS2MaZToj9wjW3924X4JotOAIT6jDz2hGmg7Ze
-	 4IRZudLWgh9iDBRGTLsaYiEdt+kHasxz/0EJPtrwSNH2RgkxuikxjO2xmF5Nn5Pu8o
-	 6cs/rlSYyhbV/tyuoCMM6LXZ2nDaGdvTUu+MOBRsNEd+0f1K50tjOB/OEYnBSsX2dJ
-	 7sp5+R9jdrGisWJxu4ffJ0QxSnsWYTCuY4T/gpz+O3J+AJWPaEXhmJ6XSiZ+AtdeBL
-	 O8OWEavfIyFLQ==
+	b=Om5xyy7ZaCQd3LmHqr9cdo9FV4mlvdpw5ijNPSwvFsODUT43/VG+LVrfdtampQ5ph
+	 usPaK8cq3x7vzXxUCisD5DKH5M8D131Spz2lcQ8r1QpVVb6o1L1psVu/rC2+zt3wFJ
+	 zAoKkkfdHl0+sk+im5LPGR2r7MD1xLtCxGQqc/lhC1l6AwUPVwV7nxPu0Ibr4dsbNh
+	 orRdPzlfZ8fkDo0lvpjpuzHeba58zIqj6tXmLxsrmgc7CVgtni5b1abZgmglj5s/sn
+	 tGoi4X7WFe7klD4ltvSSDrwVsJ5hLr7noJhfrl74WcHAcy230UYgTb4AjwTpIKfnUY
+	 ZW/WJvzhyOr7g==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v7 03/19] s390/dasd: Guard sysfs discipline callbacks
- against unallocated private data
+Subject: Re: [PATCH v7 01/19] s390/dasd: Do not complete a failed ESE read
+ as successful
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Stefan Haberland" <sth@linux.ibm.com>
-Cc: "Heiko Carstens" <hca@linux.ibm.com>, linux-s390@vger.kernel.org, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>
-In-Reply-To: <20260801180033.3679412-4-sth@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>, "Heiko
+ Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
+In-Reply-To: <20260801180033.3679412-2-sth@linux.ibm.com>
 References: <20260801180033.3679412-1-sth@linux.ibm.com>
- <20260801180033.3679412-4-sth@linux.ibm.com>
+ <20260801180033.3679412-2-sth@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sat, 01 Aug 2026 18:29:51 +0000
-Message-Id: <20260801182952.2EAE51F00AC4@smtp.kernel.org>
+Date: Sat, 01 Aug 2026 18:30:57 +0000
+Message-Id: <20260801183058.22DD51F00AC4@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 5 potential issue(=
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
 s) to consider:
 
-New issues:
-- [Medium] Lockless reads of `device->private` lack `READ_ONCE()`, leaving =
-them vulnerable to compiler reloading and TOCTOU races.
-- [Low] A race condition between reading `private->lcu` and `private->featu=
-res` allows unsupported I/O on HYPER PAV alias devices.
-
 Pre-existing issues:
-- [High] The patch misses a NULL pointer dereference in `dasd_eckd_pprc_ena=
-bled()` reachable via the `copy_pair` sysfs attribute.
-- [High] Asynchronous path event handlers unconditionally dereference `devi=
-ce->private` and are not canceled on initialization failure.
-- [High] Lockless access to `device->private` in sysfs handlers allows a us=
-e-after-free if device initialization fails.
+- [Critical] When `dasd=3Dfixedbuffers` is enabled, `dasd_eckd_free_cp()` o=
+verwrites the zeroed bio buffer with uninitialized kernel memory from the b=
+ounce buffer.
+- [High] Missing Timer Cleanup & BH Schedule on early error paths in dasd_i=
+nt_handler stalls the device queue.
+- [High] Calling `rq_data_dir(req)` on `callback_data` causes a kernel pani=
+c for internal driver requests because their `callback_data` is a special t=
+ag (`DASD_SLEEPON_START_TAG`), not a `struct request *`.
 --
 
---- Patch [3]: [PATCH v7 03/19] s390/dasd: Guard sysfs discipline callbacks=
- against unallocated private data ---
-commit ef202481581d23c8dd03c5042f532b8675ad8998
+--- Patch [1]: [PATCH v7 01/19] s390/dasd: Do not complete a failed ESE rea=
+d as successful ---
+commit 0082fb828aa2cab07732e010fb549548d0fd5d72
 Author: Stefan Haberland <sth@linux.ibm.com>
 
-s390/dasd: Guard sysfs discipline callbacks against unallocated private data
-
-This commit guards several sysfs show/store handlers against unallocated
-device->private pointers during device initialization.
-
-Fixes: c729696bcf8b ("s390/dasd: Recognise data for ESE volumes")
+s390/dasd: Do not complete a failed ESE read as successful
+   =20
+dasd_int_handler() completes an NRF read of an unallocated ESE track by
+calling ese_read() and unconditionally marking the request
+DASD_CQR_SUCCESS. dasd_eckd_ese_read() can return an error before it has
+zeroed the destination buffer: a failed sense-data parse or a current
+track outside the requested range both return early, leaving the
+destination pages untouched. The request is still completed successfully,
+so the block layer is handed stale / uninitialized memory instead of
+zeros.
+   =20
+Check the ese_read() return value and fail the request through the normal
+error path instead of forcing DASD_CQR_SUCCESS.
+   =20
+Fixes: 5e6bdd37c552 ("s390/dasd: fix data corruption for thin provisioned d=
+evices")
 Cc: stable@vger.kernel.org
 
-> diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eck=
-d.c
-> index 74fe73b5738ab..6e2fd445688cb 100644
-> --- a/drivers/s390/block/dasd_eckd.c
-> +++ b/drivers/s390/block/dasd_eckd.c
+> diff --git a/drivers/s390/block/dasd.c b/drivers/s390/block/dasd.c
+> index 3181c06d91ce3..dbe3caa1e0b4a 100644
+> --- a/drivers/s390/block/dasd.c
+> +++ b/drivers/s390/block/dasd.c
+> @@ -1691,15 +1691,17 @@ void dasd_int_handler(struct ccw_device *cdev, un=
+signed long intparm,
+>  	if (dasd_ese_needs_format(cqr->block, irb)) {
+>  		req =3D dasd_get_callback_data(cqr);
+>  		if (!req) {
+>  			cqr->status =3D DASD_CQR_ERROR;
+>  			return;
+>  		}
 
 [Severity: High]
-This is a pre-existing issue, but does this patch miss guarding
-dasd_eckd_pprc_enabled()?
+This isn't a bug introduced by this patch, but this early return path seems=
+ to
+miss cleaning up the timer and scheduling the bottom half.
 
-When a device is set online, device->discipline is assigned before
-check_device() allocates device->private. If the copy_pair sysfs attribute
-is written during this window, dasd_copy_pair_store() locklessly invokes
-device->discipline->pprc_enabled(device):
+If !req is true, the request is marked as DASD_CQR_ERROR and returned
+early without clearing the timer and scheduling the bottom half via
+dasd_device_clear_timer() and dasd_schedule_device_bh() in dasd_int_handler.
+Does this leave the request stuck in the queue and stall the block device
+queue until the timeout triggers ERP?
 
-    if (device->discipline->pprc_enabled) {
-        pprc_enabled =3D device->discipline->pprc_enabled(device);
-
-The callback unconditionally dereferences
-private->rdc_data.facilities.PPRC_enabled, which seems like it could still
-cause a NULL pointer dereference.
+>  		if (rq_data_dir(req) =3D=3D READ) {
 
 [Severity: High]
-This is also a pre-existing issue, but are asynchronous path event handlers
-safe from this same NULL pointer dereference?
+This is a pre-existing issue, but can this dereference an invalid address?
 
-If a path event occurs while device->private is unallocated, the CIO layer
-triggers dasd_eckd_pe_handler() which schedules do_pe_handler_work().
-Functions like dasd_eckd_read_fc_security() then unconditionally dereference
-private:
+If an internal driver request (like space release via
+dasd_eckd_release_space_trks) is initiated using
+dasd_sleep_on_queue_interruptible(), it sets cqr->callback_data to a
+special tag (DASD_SLEEPON_START_TAG, which is (void *)1), not a valid
+pointer.
 
-    rc =3D chsc_scud(private->uid.ssid, (u64 *)esm, &esm_valid);
+Since dasd_get_callback_data() would return 1, the !req check above is
+bypassed. Would rq_data_dir(req) then dereference (void *)1 in
+dasd_int_handler, causing a kernel panic?
 
-Additionally, if dasd_eckd_check_characteristics() encounters an error, its
-out_err1 path frees device->private but does not appear to cancel the pendi=
-ng
-pe_handler_worker workqueue, which could lead to a panic later.
+> -			device->discipline->ese_read(cqr, irb);
+> -			cqr->status =3D DASD_CQR_SUCCESS;
+> +			if (device->discipline->ese_read(cqr, irb))
+> +				cqr->status =3D DASD_CQR_ERROR;
+> +			else
+> +				cqr->status =3D DASD_CQR_SUCCESS;
 
-[Severity: High]
-This is another pre-existing issue, but is the lockless access to
-device->private safe from use-after-free if device initialization fails?
+[Severity: Critical]
+This is a pre-existing issue, but is there a potential information leak when
+dasd=3Dfixedbuffers is enabled?
 
-While the new guards prevent NULL pointer dereferences, device->private is
-accessed locklessly in these handlers. If dasd_eckd_check_characteristics()
-encounters an error, it calls kfree(device->private). If a concurrent sysfs
-reader has just passed the if (!private) check, could it proceed to
-dereference the freed memory?
+If a user reads an unallocated area of a DASD device with dasd=3Dfixedbuffe=
+rs
+enabled, the driver allocates bounce buffers using kmem_cache_alloc without
+__GFP_ZERO.
 
-[ ... ]
+When dasd_eckd_ese_read() successfully zeroes the original bio buffer, this
+request completes with DASD_CQR_SUCCESS. During cleanup, does
+dasd_eckd_free_cp() unconditionally copy the uninitialized bounce buffer
+back over the zeroed bio buffer for READ requests?
 
-> @@ -1831,7 +1848,11 @@ static int dasd_eckd_read_ext_pool_info(struct das=
-d_device *device)
->  static int dasd_eckd_ext_size(struct dasd_device *device)
->  {
->  	struct dasd_eckd_private *private =3D device->private;
-> -	struct dasd_ext_pool_sum eps =3D private->eps;
-> +	struct dasd_ext_pool_sum eps;
-> +
-> +	if (!private)
-> +		return 0;
-> +	eps =3D private->eps;
+drivers/s390/block/dasd_eckd.c:dasd_eckd_free_cp() {
+    ...
+				if (dst !=3D cda) {
+					if (rq_data_dir(req) =3D=3D READ)
+						memcpy(dst, cda, bv.bv_len);
+					kmem_cache_free(dasd_page_cache,
+					    (void *)((addr_t)cda & PAGE_MASK));
+				}
+    ...
+}
 
-[Severity: Medium]
-Should we use READ_ONCE() when assigning private from device->private?
+Could this overwrite the zeros populated by ese_read() with uninitialized
+kernel memory, which is then handed to userspace?
 
-Because device->private is accessed locklessly and can be set to NULL
-concurrently by the error path, could the compiler optimize this by
-reloading the pointer from device->private after the NULL check? This might
-allow a TOCTOU NULL pointer dereference if it gets set to NULL between the
-check and the reload.
-
-> =20
->  	if (!eps.flags.extent_size_valid)
->  		return 0;
-
-[ ... ]
-
-> @@ -5935,8 +5965,11 @@ static int dasd_eckd_query_host_access(struct dasd=
-_device *device,
->  	struct ccw1 *ccw;
->  	int rc;
-> =20
-> +	if (!private)
-> +		return -ENODEV;
-> +
->  	/* not available for HYPER PAV alias devices */
-> -	if (!device->block && private->lcu->pav =3D=3D HYPER_PAV)
-> +	if (!device->block && private->lcu && private->lcu->pav =3D=3D HYPER_PA=
-V)
-
-[Severity: Low]
-Could checking private->lcu here introduce a race with the subsequent
-private->features check?
-
-A sysfs reader thread could read private->lcu as NULL before it is populated
-and bypass this abort. If preempted, check_device() could finish populating
-both lcu and features. When the reader resumes, it could evaluate the newly
-initialized features and proceed to issue the PSF command. Would this allow
-an unsupported command on HYPER PAV aliases?
-
->  		return -EOPNOTSUPP;
-> =20
->  	/* may not be supported by the storage server */
+>  			cqr->stopclk =3D now;
+>  			dasd_device_clear_timer(device);
+>  			dasd_schedule_device_bh(device);
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260801180033.3679=
-412-1-sth@linux.ibm.com?part=3D3
+412-1-sth@linux.ibm.com?part=3D1
