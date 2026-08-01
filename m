@@ -1,166 +1,120 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C0FC11A5B9D
-	for <linux-s390@vger.kernel.org>; Sat,  1 Aug 2026 18:30:58 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 007573BAD9A
+	for <linux-s390@vger.kernel.org>; Sat,  1 Aug 2026 18:33:05 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785609059; cv=none; b=XDNLoWaSQ1dfRzW4fzQddzRHCDOPOIeX8GMaue9ruBeHpK0/NJhGNtQwZKQj6+76XBpzORA5LvXuCZ6MMvL0INONR9y1yl0VOHFNvyawtgseB4c3J7VXEj+P61BoSTenOb3VQAtFHFMy13/loQRTsiQAnGWi+NeGI5pn+Et44R4=
+	t=1785609187; cv=none; b=eB9Po8qm1CIF3lNzUyetLwh5xt0CDlQMT6fLP5fAwnrOhg1P7D5nb2xjKgLZdB29SJ9+ePls2cK5+BbZMtYybb9KJtNBub2es/KdRRsp3IWVoxsD/6AfkG7p4XQS1WpGnTONyYx/ntWd6+rTCOTkABzmbSVJETYPAfPQ3oBBAoQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785609059; c=relaxed/simple;
-	bh=TzNqmqMmfgHmlOQZ4wx6Qw63LzTu40t2+BptVMjJU9g=;
+	s=arc-20240116; t=1785609187; c=relaxed/simple;
+	bh=66XDwlpWZb7mIeF9QkMMUFPd1n5G++4hG6Qzl/7FKCg=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=YA3aVh8g3bz3NWis0U4/WHOCXcEal9drIcpjQxZtWS/ev7pBi82lIpZMeNw/+dDeSDF+ZIjAO8wjT5an7F2dndjBrjwGUbckoTCQeLHIhvFg5osQ1E/aWFws4TIphkSFa7T8G+nSt7rA7+bOs1eriQYgzpn+oels+aH4f24HKNY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Om5xyy7Z; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=UH2yke2Z8v5G+phX261uuzGHRk+4rPE+izifzGvUaJhSGspxOXn6r/K2yfokaLeH4af6bSmSPHGBe+JaM3xWTmllXf7+IKgrGmchbGEQLYzC2hfUnkGaHkbaijrmwNMbXw4vwlrCLpNRmYJwSJmCm4AjQ+QCc+w9HwJynm89Kzs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QRF1LYml; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Om5xyy7Z"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22DD51F00AC4;
-	Sat,  1 Aug 2026 18:30:58 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QRF1LYml"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 733E41F00AC4;
+	Sat,  1 Aug 2026 18:33:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785609058;
-	bh=9bWG1f6poMTw8hXJQJMu+bJ4wP9TiOpKF9p8J8do/ek=;
+	s=k20260515; t=1785609185;
+	bh=OFQ87fVek4Idd49xuQ5bCRA5vqcoa3xSgPeSAHkP+qo=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Om5xyy7ZaCQd3LmHqr9cdo9FV4mlvdpw5ijNPSwvFsODUT43/VG+LVrfdtampQ5ph
-	 usPaK8cq3x7vzXxUCisD5DKH5M8D131Spz2lcQ8r1QpVVb6o1L1psVu/rC2+zt3wFJ
-	 zAoKkkfdHl0+sk+im5LPGR2r7MD1xLtCxGQqc/lhC1l6AwUPVwV7nxPu0Ibr4dsbNh
-	 orRdPzlfZ8fkDo0lvpjpuzHeba58zIqj6tXmLxsrmgc7CVgtni5b1abZgmglj5s/sn
-	 tGoi4X7WFe7klD4ltvSSDrwVsJ5hLr7noJhfrl74WcHAcy230UYgTb4AjwTpIKfnUY
-	 ZW/WJvzhyOr7g==
+	b=QRF1LYmlZsh9QYUfX/zqOIUR6qOjyTLApH0ECB6TP/ohYCXOXYjc1bgdbVpPp79fZ
+	 vVQQaSp1hF4gtCaXxoS7IcXHLI3Cw/yTuWtG8EQrV28lC70+KTSOZRGmMZNFjGKmXf
+	 HC09aldTnqX+/2vQuaee7tYqSZWiwWQjVa96MpKvo+3FlAW5uvf54UVfknuiypyCte
+	 BXCyd4C9XNTcwIxQ2xuoujpFUhm9npsODqxPjxa5fM2FHTHhvd0ks8xjqKfspdejdd
+	 ItbKkVvcKv9HN30mLnpEq6seHCVS1kIEA4/n9xWnWEg3FBl8FssZx9FUBSqHjolHqs
+	 BRgMz4RDIk0cQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v7 01/19] s390/dasd: Do not complete a failed ESE read
- as successful
+Subject: Re: [PATCH v7 12/19] s390/dasd: Use WRITE_FULL_TRACK in ESE format
+ handler
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Stefan Haberland" <sth@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>, "Heiko
- Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
-In-Reply-To: <20260801180033.3679412-2-sth@linux.ibm.com>
+Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
+ Carstens" <hca@linux.ibm.com>
+In-Reply-To: <20260801180033.3679412-13-sth@linux.ibm.com>
 References: <20260801180033.3679412-1-sth@linux.ibm.com>
- <20260801180033.3679412-2-sth@linux.ibm.com>
+ <20260801180033.3679412-13-sth@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sat, 01 Aug 2026 18:30:57 +0000
-Message-Id: <20260801183058.22DD51F00AC4@smtp.kernel.org>
+Date: Sat, 01 Aug 2026 18:33:05 +0000
+Message-Id: <20260801183305.733E41F00AC4@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-
-Pre-existing issues:
-- [Critical] When `dasd=3Dfixedbuffers` is enabled, `dasd_eckd_free_cp()` o=
-verwrites the zeroed bio buffer with uninitialized kernel memory from the b=
-ounce buffer.
-- [High] Missing Timer Cleanup & BH Schedule on early error paths in dasd_i=
-nt_handler stalls the device queue.
-- [High] Calling `rq_data_dir(req)` on `callback_data` causes a kernel pani=
-c for internal driver requests because their `callback_data` is a special t=
-ag (`DASD_SLEEPON_START_TAG`), not a `struct request *`.
+- [High] When the `dasd=3Dfixedbuffers` (`dasd_page_cache`) module paramete=
+r is enabled, `dasd_eckd_free_cp()` misinterprets the unconditionally creat=
+ed transport-mode (TPM) ESE format replacement request as a command-mode (C=
+CW) request, causing invalid frees of arbitrary memory.
 --
 
---- Patch [1]: [PATCH v7 01/19] s390/dasd: Do not complete a failed ESE rea=
-d as successful ---
-commit 0082fb828aa2cab07732e010fb549548d0fd5d72
+--- Patch [12]: [PATCH v7 12/19] s390/dasd: Use WRITE_FULL_TRACK in ESE for=
+mat handler ---
+commit e3d3248abe2fbc8a98e5dc48c8f9561bcf553195
 Author: Stefan Haberland <sth@linux.ibm.com>
 
-s390/dasd: Do not complete a failed ESE read as successful
-   =20
-dasd_int_handler() completes an NRF read of an unallocated ESE track by
-calling ese_read() and unconditionally marking the request
-DASD_CQR_SUCCESS. dasd_eckd_ese_read() can return an error before it has
-zeroed the destination buffer: a failed sense-data parse or a current
-track outside the requested range both return early, leaving the
-destination pages untouched. The request is still completed successfully,
-so the block layer is handed stale / uninitialized memory instead of
-zeros.
-   =20
-Check the ese_read() return value and fail the request through the normal
-error path instead of forcing DASD_CQR_SUCCESS.
-   =20
-Fixes: 5e6bdd37c552 ("s390/dasd: fix data corruption for thin provisioned d=
-evices")
-Cc: stable@vger.kernel.org
+s390/dasd: Use WRITE_FULL_TRACK in ESE format handler
 
-> diff --git a/drivers/s390/block/dasd.c b/drivers/s390/block/dasd.c
-> index 3181c06d91ce3..dbe3caa1e0b4a 100644
-> --- a/drivers/s390/block/dasd.c
-> +++ b/drivers/s390/block/dasd.c
-> @@ -1691,15 +1691,17 @@ void dasd_int_handler(struct ccw_device *cdev, un=
-signed long intparm,
->  	if (dasd_ese_needs_format(cqr->block, irb)) {
->  		req =3D dasd_get_callback_data(cqr);
->  		if (!req) {
->  			cqr->status =3D DASD_CQR_ERROR;
->  			return;
->  		}
+Wire dasd_eckd_build_cp_tpm_writefulltrack() into the ESE unformated
+track handler.
+
+> diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eck=
+d.c
+> index 475c0aca4a5ae..e731d7e183121 100644
+> --- a/drivers/s390/block/dasd_eckd.c
+> +++ b/drivers/s390/block/dasd_eckd.c
+[ ... ]
+> @@ -5328,6 +5399,15 @@ dasd_eckd_free_cp(struct dasd_ccw_req *cqr, struct=
+ request *req)
+>  	sector_t recid;
+>  	int status;
+> =20
+> +	/*
+> +	 * A format-aborted request finished nothing - its replacement
+> +	 * completes the block request - so report ABORTED instead of DONE,
+> +	 * but still release its bounce buffers like any other request.
+> +	 */
+> +	if (cqr->status =3D=3D DASD_CQR_ABORTED)
+> +		status =3D DASD_CQR_ABORTED;
+> +	else
+> +		status =3D cqr->status =3D=3D DASD_CQR_DONE;
+>  	if (!dasd_page_cache)
+>  		goto out;
 
 [Severity: High]
-This isn't a bug introduced by this patch, but this early return path seems=
- to
-miss cleaning up the timer and scheduling the bottom half.
+Can this corrupt memory when the dasd_page_cache module parameter is enable=
+d?
 
-If !req is true, the request is marked as DASD_CQR_ERROR and returned
-early without clearing the timer and scheduling the bottom half via
-dasd_device_clear_timer() and dasd_schedule_device_bh() in dasd_int_handler.
-Does this leave the request stuck in the queue and stall the block device
-queue until the timeout triggers ERP?
+The new ESE format replacement request created by
+dasd_eckd_build_cp_tpm_writefulltrack() unconditionally sets cqr->cpmode =
+=3D 1
+(Transport Mode) and uses an ITCW, regardless of dasd_page_cache.
 
->  		if (rq_data_dir(req) =3D=3D READ) {
+However, the replacement request takes ownership of the block request in
+dasd_eckd_ese_format():
 
-[Severity: High]
-This is a pre-existing issue, but can this dereference an invalid address?
+    fcqr->callback_data =3D base_cqr->callback_data;
 
-If an internal driver request (like space release via
-dasd_eckd_release_space_trks) is initiated using
-dasd_sleep_on_queue_interruptible(), it sets cqr->callback_data to a
-special tag (DASD_SLEEPON_START_TAG, which is (void *)1), not a valid
-pointer.
+This causes the replacement request to be routed here to dasd_eckd_free_cp()
+upon completion.
 
-Since dasd_get_callback_data() would return 1, the !req check above is
-bypassed. Would rq_data_dir(req) then dereference (void *)1 in
-dasd_int_handler, causing a kernel panic?
+If the kernel is booted with dasd=3Dfixedbuffers (which enables
+dasd_page_cache), dasd_eckd_free_cp() will proceed past this check since
+dasd_page_cache is true.
 
-> -			device->discipline->ese_read(cqr, irb);
-> -			cqr->status =3D DASD_CQR_SUCCESS;
-> +			if (device->discipline->ese_read(cqr, irb))
-> +				cqr->status =3D DASD_CQR_ERROR;
-> +			else
-> +				cqr->status =3D DASD_CQR_SUCCESS;
-
-[Severity: Critical]
-This is a pre-existing issue, but is there a potential information leak when
-dasd=3Dfixedbuffers is enabled?
-
-If a user reads an unallocated area of a DASD device with dasd=3Dfixedbuffe=
-rs
-enabled, the driver allocates bounce buffers using kmem_cache_alloc without
-__GFP_ZERO.
-
-When dasd_eckd_ese_read() successfully zeroes the original bio buffer, this
-request completes with DASD_CQR_SUCCESS. During cleanup, does
-dasd_eckd_free_cp() unconditionally copy the uninitialized bounce buffer
-back over the zeroed bio buffer for READ requests?
-
-drivers/s390/block/dasd_eckd.c:dasd_eckd_free_cp() {
-    ...
-				if (dst !=3D cda) {
-					if (rq_data_dir(req) =3D=3D READ)
-						memcpy(dst, cda, bv.bv_len);
-					kmem_cache_free(dasd_page_cache,
-					    (void *)((addr_t)cda & PAGE_MASK));
-				}
-    ...
-}
-
-Could this overwrite the zeros populated by ese_read() with uninitialized
-kernel memory, which is then handed to userspace?
-
->  			cqr->stopclk =3D now;
->  			dasd_device_clear_timer(device);
->  			dasd_schedule_device_bh(device);
+Because dasd_eckd_free_cp() lacks a check for cqr->cpmode =3D=3D 0, it appe=
+ars
+this could cause dasd_eckd_free_cp() to iterate over the ITCW memory as if =
+it
+were a list of struct ccw1, extract garbage addresses, and pass them to
+kmem_cache_free().
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260801180033.3679=
-412-1-sth@linux.ibm.com?part=3D1
+412-1-sth@linux.ibm.com?part=3D12
