@@ -1,65 +1,65 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B16213BE165
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 274A43A75B1
 	for <linux-s390@vger.kernel.org>; Sat,  1 Aug 2026 18:00:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785607245; cv=none; b=eq+dzYYFNHtzaSFkS3JvixhpZ/NPOdyGUV4sE4jUCUKV4CeCBwMM0XaIl+DpBMDu1ggVibLGIy3vhKwrT6bFmoaGGMZqsdapof5vKiSoeyFThRwTH2wCRCxUy+uSfc4y4WyJ29x6hl5c1/wbFqdjoZs10K0iPLwfiTzU1DMbc9M=
+	t=1785607245; cv=none; b=uMesRQNERCZrgJmE9XoyebyZoIgdtsnUpU+iGU38JkTq0qR0hJHB/3rlpzDNxOaSaNT77DAvf2XEOC+I4Q6W23L95aN8nZzjkix0Gt8+hkUQJ9RmD4o1UIFvAPdIJWS4X+jUz9TH2ZAHehhSIAbf5C6X3caBReYVtYCZgD3JWN0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1785607245; c=relaxed/simple;
-	bh=gtPVToKQ8676WE+TnfmBZ/yeiOmI+kV4qRmxidbAlQw=;
+	bh=XMVWGB/WsOVkeZJDFiF6gsJBUYlPzq0d/AhaCko4oVE=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=DyPzi2sZ6twfPyrmBW1ZzWAzJB0wo4Bi4yskcaqc7fnuAcipwgz08Gkcu8MEeL/pOzlsAQiAPbzIP/YMSQ+mgq+kZzAHV0B88+O8HKqbswBNWrKhOvuj4BR5dNqwLlSTTSOZqWIvolH9vaWtMCwc/rrCavWiYqkYkTphJIAwEvQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=gbCqt4Gq; arc=none smtp.client-ip=148.163.156.1
+	 MIME-Version:Content-Type; b=NqUYfoWLx7NgZbFGehMSQpqMKgpSmU2UE0bW5aiV9bsgKju/1566zlt/dwsjn3lt8DmqEbGnYgEPlmwzmX5N64uCFcYd0ePLrRwnZjLH4De6HPVBD++kTxkgxv2YXRIa0fw0LvvkqTl321/0h/sl6ErdMin4qJWRqtxCLqsp1nc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=DXTSKt94; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="gbCqt4Gq"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 671FllIW959945
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="DXTSKt94"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 671FnC101000671
 	for <linux-s390@vger.kernel.org>; Sat, 1 Aug 2026 18:00:43 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=Ry7BOG
-	5OhYVjDOxl6VsdeDtnM0FFLbutF3cxFrXzhA8=; b=gbCqt4GqfbWgj4cao3NZbX
-	EpU2/k46YA7USFG/HxZ3ezYqQXD1JLaNkm0dWTYPy05qTqg/c2m3gUj60AomkoI5
-	mi9EezfebrlqJv7y3KYCI4JVSIprHnKWFdhu/eaYD+gQoEcFE6Jy7WwFbcEPNPLy
-	8se/m16lJ2+eu1NLn9g3CgDyYyzkg9gixm+PEyFfyBDyzHcComjn0uZBfyH85ahd
-	wvEZ7OjkP7TePq/DzvMzWM9XBTtSMASt+wffrY1SZ5e2cfFpv9FTb+XkjEdJVtRv
-	iMNzYI7vYc1AtH79U5LVGjxOvMjxLii9T9lOcSvHltvZ45RFLCUX0B8JQv2bsEug
+	:message-id:mime-version:references:subject:to; s=pp1; bh=gPvi04
+	MMdfJR5ZAvp0bntGIddYXQ7HI6436j5swrzbo=; b=DXTSKt94RsqVr/e5kNTF+v
+	8ikZ/88PN6lLzZK6xhqmVrh94FU1UbpWXqC/d+POqx/vXwSdxFhEP0AKZa4mlYhT
+	j7VuxgdPA7vqqygerNfJusdZC+DvVhT5NFDS9kFXpJB6lJ5c0PZlEz3mHgBxqfJu
+	0C/iJSzurG8NlSnEQ+Z2czO3Q3ghMLKLD+5+oj2Fk9Jy4ufVrtTbdPkpUtdO009R
+	XxCk4aRg0B2VXXsNLmJj5WiHqiYyxu+7jjatOeGAwLyY9xIq2CH9fnzW1Fhbs4Z+
+	+HJIVuts3l/GSUiIzmGaJd/XSy/zFKD9EYzJoRKLWps2NwxSezW6n6nLydNZaiGw
 	==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fs8h4j274-1
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fs8eu9y7f-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
 	for <linux-s390@vger.kernel.org>; Sat, 01 Aug 2026 18:00:42 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 671HuGPh027752
-	for <linux-s390@vger.kernel.org>; Sat, 1 Aug 2026 18:00:42 GMT
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 671HuH60027794
+	for <linux-s390@vger.kernel.org>; Sat, 1 Aug 2026 18:00:41 GMT
 Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fn9pgvhhn-1
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fna5ymfhg-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
 	for <linux-s390@vger.kernel.org>; Sat, 01 Aug 2026 18:00:41 +0000 (GMT)
 Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 671I0c8d30147104
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 671I0cd630147098
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
 	Sat, 1 Aug 2026 18:00:38 GMT
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 646B120043;
-	Sat,  1 Aug 2026 18:00:38 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id EB6EF2004D;
+	Sat,  1 Aug 2026 18:00:37 +0000 (GMT)
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 454492004B;
-	Sat,  1 Aug 2026 18:00:38 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id CA0442004B;
+	Sat,  1 Aug 2026 18:00:37 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
 	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Sat,  1 Aug 2026 18:00:38 +0000 (GMT)
+	Sat,  1 Aug 2026 18:00:37 +0000 (GMT)
 From: Stefan Haberland <sth@linux.ibm.com>
 To: linux-s390@vger.kernel.org
 Cc: Jan Hoeppner <hoeppner@linux.ibm.com>,
         Eduard Shishkin <edward6@linux.ibm.com>
-Subject: [PATCH v7 16/19] s390/dasd: Detect ESE volumes from the on-disk format label
-Date: Sat,  1 Aug 2026 20:00:30 +0200
-Message-ID: <20260801180033.3679412-17-sth@linux.ibm.com>
+Subject: [PATCH v7 13/19] s390/dasd: Add full_track_bias to control fulltrack write mode
+Date: Sat,  1 Aug 2026 20:00:27 +0200
+Message-ID: <20260801180033.3679412-14-sth@linux.ibm.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260801180033.3679412-1-sth@linux.ibm.com>
 References: <20260801180033.3679412-1-sth@linux.ibm.com>
@@ -72,370 +72,220 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODAxMDE0MyBTYWx0ZWRfX+PmybWdXfc6W
- SLc65D0NgxQ+ZR4BQVwi167YjuKKIy2LPpVK+UwW+H/4HXiB59Xgosyrw706LpgaMDrjpUxGleY
- PtxQ1YGBk1lNH4+gQmAVRfyvOcO54hw=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODAxMDE0MyBTYWx0ZWRfX0jigUUSUDVMy
- B7vZbGTiXXfCUaDrsDXselcR8eVUsMvv/L5XJTGkuESyegFMFwLojxHi2T218r9Ycx1lk2AUlFt
- Ic2ig6zZ5lYL9sUfx4AGWtQpGtoMcCEcv5Z3ffhp4xBSdURL4eGJGER2MjLYUDhXP+pRpgQZsQN
- W+WflWbbfLETHeg1NmG+HijSJMp8roS3ASfunT3QMEx9lyuYF6YCn76XeEm91ao6NA4dPrHNhfo
- 2yiWO6zs8RyLaZrTbWJkd62gmI2Blbecg+n2NzFcGxOR2MSLOvhRffB/KAeSO95Sm24RkR2HNFk
- ZfPJyfHY/25G9g5GNZysK2XVWmSwSZrAm9EhmKBeyMh4VQx8ZxtaUQdT9KxYylL3HlAV+z0xuxc
- 4ATGwKpfnMkoeF3Qk6xF11Pa/Q4R+jkIFgR4EWAvlxvMCcW/9W1vEEkvIGDMZ50vyZkE/yk2gCs
- gk3SaRtksDlRSJu5pnw==
-X-Authority-Analysis: v=2.4 cv=SI1ykuvH c=1 sm=1 tr=0 ts=6a6e344a cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+X-Proofpoint-ORIG-GUID: Ucl0hE1St9HXjdzbI6eNYqf5N9YaebLg
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODAxMDE0MyBTYWx0ZWRfX0uQ5A2itPgdW
+ GSdyeBPk4Ast7BW9PUf2kym7LM7Btr/aX3ERVTw8IV4+aEFnIHPGbYVygE40GAuXlhRvGAQiQ+W
+ ghBOXHwWtT4vKx4GfrgglRt5g6Yn/fM=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODAxMDE0MyBTYWx0ZWRfX09WTuH3bw9rm
+ LjSw0hVLZfVwFBLY1wkRfMFj4ZEzuSW69f6rqG6kyd0WycHemhdSCUeIfT21joyuXvVwkmWkBAt
+ yGRygFL4R8V855GaMcc/82KQGbH4jEJ894BaA8gRsAyWpnTjDOkbE7MifTVW7E6jNe8AjiSUoTD
+ 9B48FOFZa2OxechZj7QHLPTvxeHpFq9RC9rLwQrlkF+kYk55t+3Ug+yxtv5zHeXuAWfkijqWb3w
+ jwUNR53qOLP6EL075Zc8sHIQ1MMuYps3Lvct/M8//SBnwtsa4XxO2PS6BP6KYS6RNebeISbg28K
+ guXGiwmAo4kLqa3KqbLn1U0RVjMuFu4HAcKa4pGzzssTJJ18kyld8Kp43KjJIxUnJ901180jgFo
+ DpIAx4sgEvcmVWRHVgERDp0L0+QuRm9sErknDVkdEbbfqo4R9/7wdISIZGkMzCOMHt76OROodgX
+ VrRyQ5eZwxOhZb0lcZw==
+X-Proofpoint-GUID: Ucl0hE1St9HXjdzbI6eNYqf5N9YaebLg
+X-Authority-Analysis: v=2.4 cv=KfzidwYD c=1 sm=1 tr=0 ts=6a6e344a cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
  a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8
- a=_CgVIJRZcvbIkyxbzCkA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-Proofpoint-ORIG-GUID: AK8q_nzetz4kt-Tg0utm9gWpIwtdGlWL
-X-Proofpoint-GUID: AK8q_nzetz4kt-Tg0utm9gWpIwtdGlWL
+ a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8
+ a=EGcN5M5RbvjoWc33k-sA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-08-01_02,2026-07-30_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 bulkscore=0 suspectscore=0 impostorscore=0 spamscore=0
- phishscore=0 priorityscore=1501 lowpriorityscore=0 adultscore=0
- malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2608010143
+ lowpriorityscore=0 bulkscore=0 impostorscore=0 suspectscore=0 malwarescore=0
+ adultscore=0 clxscore=1015 priorityscore=1501 phishscore=0 spamscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608010143
 
-Read the format label from track 0 record 4 at device bring-up and cache
-it. When a valid label is present, is_ese() is derived from it instead of
-the hardware volume field.
-A volume copied off ESE storage onto other hardware is thus still handled
-as thin.
-Without a label (older format) is_ese() falls back to the hardware field as
-before.
-The cache is refreshed after a format so is_ese() stays coherent without an
-offline/online cycle.
+Add a single per-device 'full_track_bias' sysfs attribute (0..100) that
+gates the full-track write path. 0 disables it, 100 routes every aligned,
+full-track write through dasd_eckd_build_cp_tpm_writefulltrack(). Values in
+between are reserved for the adaptive heuristic added in the next patch.
+For now any non-zero value simply enables full-track writes. Internally the
+value is kept in the per-device 'ft_bias' field.
 
-The label F_ESE bit is stamped from the hardware capability rather than
-is_ese(), and space release (quick format) is gated on the hardware
-capability, so a copied label cannot enable it on non-ESE hardware.
+This will control the default IO path only.
+In case we get an unformatted track error it will always be used to format
+and write the track in one go.
 
-The ese sysfs attribute, and with this lsdasd, shows the hardware
-capability and not the internal handling. This is in line with the view
-from storage server interface. To reflect the specific internal handling an
-additional attribute on_demand_formatting is added to show that a device is
-handled like an ESE device internally based on the disk label.
+The WRITE_FULL_TRACK command has an advantage on sparse formatted ESE
+devices but it has an overall penalty for maximum throughput compared to
+usual track based IO.
+
+The attribute lives at /sys/bus/ccw/devices/<devid>/full_track_bias and
+accepts 0..100. The default is DASD_FT_BIAS_DEFAULT; together with the
+adaptive heuristic added in the next patch it uses full-track writes only
+where they pay off, avoiding the ESE format penalty out of the box while
+keeping the throughput cost off already-formatted volumes.
+
+A 'full_track_bias' module parameter sets the initial value applied to
+every device at online time; individual volumes can still be re-tuned
+through their sysfs attribute afterwards.
 
 Reviewed-by: Jan Höppner <hoeppner@linux.ibm.com>
 Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
 ---
- drivers/s390/block/dasd_devmap.c |   6 +-
- drivers/s390/block/dasd_eckd.c   | 174 ++++++++++++++++++++++++++++---
- drivers/s390/block/dasd_eckd.h   |   7 ++
- drivers/s390/block/dasd_int.h    |   3 +
- 4 files changed, 175 insertions(+), 15 deletions(-)
+ drivers/s390/block/dasd_devmap.c | 39 ++++++++++++++++++++++++++++++++
+ drivers/s390/block/dasd_eckd.c   | 36 +++++++++++++++++++++++++----
+ drivers/s390/block/dasd_int.h    | 18 +++++++++++++++
+ 3 files changed, 88 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/s390/block/dasd_devmap.c b/drivers/s390/block/dasd_devmap.c
-index 50301e545bbe..89f155e414fd 100644
+index 381d616ad433..035c022255b6 100644
 --- a/drivers/s390/block/dasd_devmap.c
 +++ b/drivers/s390/block/dasd_devmap.c
-@@ -2479,9 +2479,10 @@ static ssize_t dasd_##_name##_show(struct device *dev,			\
- 									\
- 	return sysfs_emit(buf, "%d\n", val);			\
- }									\
--static DEVICE_ATTR(_name, 0444, dasd_##_name##_show, NULL);		\
-+static DEVICE_ATTR(_name, 0444, dasd_##_name##_show, NULL);
+@@ -1630,6 +1630,44 @@ dasd_expires_store(struct device *dev, struct device_attribute *attr,
  
--DASD_DEFINE_ATTR(ese, device->discipline->is_ese);
-+DASD_DEFINE_ATTR(ese, device->discipline->ese_capable);
-+DASD_DEFINE_ATTR(on_demand_formatting, device->discipline->on_demand_format);
- DASD_DEFINE_ATTR(extent_size, device->discipline->ext_size);
- DASD_DEFINE_ATTR(pool_id, device->discipline->ext_pool_id);
- DASD_DEFINE_ATTR(space_configured, device->discipline->space_configured);
-@@ -2519,6 +2520,7 @@ static struct attribute * dasd_attrs[] = {
- 	&dev_attr_path_reset.attr,
- 	&dev_attr_hpf.attr,
- 	&dev_attr_ese.attr,
-+	&dev_attr_on_demand_formatting.attr,
- 	&dev_attr_fc_security.attr,
- 	&dev_attr_copy_pair.attr,
- 	&dev_attr_copy_role.attr,
+ static DEVICE_ATTR(expires, 0644, dasd_expires_show, dasd_expires_store);
+ 
++/* ESE fulltrack write aggressiveness knob (0..100, see DASD_FT_BIAS_*) */
++static ssize_t
++full_track_bias_show(struct device *dev, struct device_attribute *attr, char *buf)
++{
++	struct dasd_device *device;
++	int len;
++
++	device = dasd_device_from_cdev(to_ccwdev(dev));
++	if (IS_ERR(device))
++		return -ENODEV;
++	len = sysfs_emit(buf, "%u\n", device->ft_bias);
++	dasd_put_device(device);
++	return len;
++}
++
++static ssize_t full_track_bias_store(struct device *dev,
++				     struct device_attribute *attr,
++				     const char *buf, size_t count)
++{
++	struct dasd_device *device;
++	unsigned int val;
++
++	if (kstrtouint(buf, 0, &val) || val > DASD_FT_BIAS_MAX)
++		return -EINVAL;
++
++	device = dasd_device_from_cdev(to_ccwdev(dev));
++	if (IS_ERR(device))
++		return -ENODEV;
++
++	device->ft_bias = val;
++	device->fulltrack = val ? 1 : 0;
++
++	dasd_put_device(device);
++	return count;
++}
++
++static DEVICE_ATTR_RW(full_track_bias);
++
+ static ssize_t
+ dasd_retries_show(struct device *dev, struct device_attribute *attr, char *buf)
+ {
+@@ -2425,6 +2463,7 @@ static struct attribute * dasd_attrs[] = {
+ 	&dev_attr_erplog.attr,
+ 	&dev_attr_failfast.attr,
+ 	&dev_attr_expires.attr,
++	&dev_attr_full_track_bias.attr,
+ 	&dev_attr_retries.attr,
+ 	&dev_attr_timeout.attr,
+ 	&dev_attr_reservation_policy.attr,
 diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
-index 3b560846fa79..ba67a3311193 100644
+index d3e532e71c8a..dc849f8ee924 100644
 --- a/drivers/s390/block/dasd_eckd.c
 +++ b/drivers/s390/block/dasd_eckd.c
-@@ -1676,7 +1676,8 @@ static int dasd_eckd_read_vol_info(struct dasd_device *device)
- 	return rc;
- }
- 
--static int dasd_eckd_is_ese(struct dasd_device *device)
-+/* Hardware/volume ESE capability, from the Volume Storage Query. */
-+static int dasd_eckd_ese_capable(struct dasd_device *device)
- {
- 	struct dasd_eckd_private *private = device->private;
- 
-@@ -1686,6 +1687,53 @@ static int dasd_eckd_is_ese(struct dasd_device *device)
- 	return private->vsq.vol_info.ese;
- }
+@@ -47,6 +47,18 @@
+ MODULE_DESCRIPTION("S/390 DASD ECKD Disks device driver");
+ MODULE_LICENSE("GPL");
  
 +/*
-+ * Whether the volume is to be handled as ESE (thin). This reflects the state
-+ * of the data, not the hardware: a volume copied off ESE storage onto other
-+ * hardware still needs ESE handling. The on-disk format label is authoritative
-+ * when present; without it (e.g. a volume formatted by an older driver) fall
-+ * back to the hardware ESE field.
-+ *
-+ * Only the F_ESE flag gates this. An ESE volume is thin regardless of whether
-+ * it was quick- or full-formatted (tracks are allocated on write, and discard
-+ * re-thins a full one).
++ * Default full-track write bias applied to every ESE volume at online time;
++ * individual volumes can be re-tuned afterwards through their per-device
++ * full_track_bias sysfs attribute. 0 disables full-track writes, 100 always
++ * uses them, 50 (the default) enables the adaptive heuristic. Values above
++ * DASD_FT_BIAS_MAX are capped when applied.
 + */
-+static int dasd_eckd_is_ese(struct dasd_device *device)
-+{
-+	struct dasd_eckd_private *private = device->private;
++static unsigned int full_track_bias = DASD_FT_BIAS_DEFAULT;
++module_param(full_track_bias, uint, 0644);
++MODULE_PARM_DESC(full_track_bias,
++		 "Default ESE full-track write bias 0..100 (0=off, 1..99=adaptive, 100=always)");
 +
-+	/* sysfs may read this during set_online before private is allocated */
-+	if (!private)
-+		return 0;
-+
-+	if (private->ese_label_valid)
-+		return !!(private->ese_label.flags & DASD_ESE_LABEL_F_ESE);
-+
-+	return dasd_eckd_ese_capable(device);
-+}
-+
-+/*
-+ * Whether the volume is formatted on demand (thin), as opposed to fully
-+ * formatted. This is the format mode, not the hardware ESE capability. When a
-+ * label is present it is authoritative (F_QUICK). Without a label the mode is
-+ * unknown, but an ESE volume is still handled on demand (NRF triggers the
-+ * format), so fall back to the ESE state to stay consistent with the driver's
-+ * behavior on older, label-less volumes.
-+ */
-+static int dasd_eckd_on_demand_format(struct dasd_device *device)
-+{
-+	struct dasd_eckd_private *private = device->private;
-+
-+	/* sysfs may read this during set_online before private is allocated */
-+	if (!private)
-+		return 0;
-+
-+	if (private->ese_label_valid)
-+		return !!(private->ese_label.flags & DASD_ESE_LABEL_F_QUICK);
-+
-+	return dasd_eckd_is_ese(device);
-+}
-+
- static int dasd_eckd_ext_pool_id(struct dasd_device *device)
- {
- 	struct dasd_eckd_private *private = device->private;
-@@ -2105,6 +2153,69 @@ static bool dasd_eckd_pprc_enabled(struct dasd_device *device)
- 	return private->rdc_data.facilities.PPRC_enabled;
- }
+ static struct dasd_discipline dasd_eckd_discipline;
  
-+/*
-+ * Read the on-disk format label from track 0, record 4. On a formatted volume
-+ * R4 holds the label as its record data; on an unformatted (fresh ESE) or
-+ * label-less volume the read returns No Record Found, which is expected and
-+ * leaves the cache invalid so is_ese() falls back to the hardware field.
-+ */
-+static void dasd_eckd_read_format_label(struct dasd_device *device)
-+{
-+	struct dasd_eckd_private *private = device->private;
-+	struct dasd_format_label *label;
-+	struct DE_eckd_data *dedata;
-+	struct LO_eckd_data *lodata;
-+	struct dasd_ccw_req *cqr;
-+	struct ccw1 *ccw;
-+
-+	private->ese_label_valid = false;
-+
-+	/* The label lives on the base volume; aliases have none of their own. */
-+	if (private->uid.type == UA_BASE_PAV_ALIAS ||
-+	    private->uid.type == UA_HYPER_PAV_ALIAS)
-+		return;
-+
-+	cqr = dasd_smalloc_request(DASD_ECKD_MAGIC, 3 /* DE + LO + READ */,
-+				   sizeof(*dedata) + sizeof(*lodata) +
-+				   sizeof(*label), device, NULL);
-+	if (IS_ERR(cqr))
-+		return;
-+
-+	dedata = cqr->data;
-+	lodata = (struct LO_eckd_data *)(dedata + 1);
-+	label = (struct dasd_format_label *)(lodata + 1);
-+
-+	ccw = cqr->cpaddr;
-+	define_extent(ccw++, dedata, 0, 0, DASD_ECKD_CCW_READ, device, 0);
-+	ccw[-1].flags |= CCW_FLAG_CC;
-+	locate_record(ccw++, lodata, 0, 4, 1, DASD_ECKD_CCW_READ, device,
-+		      sizeof(*label));
-+	ccw[-1].flags |= CCW_FLAG_CC;
-+	ccw->cmd_code = DASD_ECKD_CCW_READ;
-+	ccw->count = sizeof(*label);
-+	ccw->flags = CCW_FLAG_SLI;
-+	ccw->cda = virt_to_dma32(label);
-+
-+	cqr->startdev = device;
-+	cqr->memdev = device;
-+	cqr->block = NULL;
-+	cqr->retries = 256;
-+	cqr->expires = 10 * HZ;
-+	cqr->buildclk = get_tod_clock();
-+	cqr->status = DASD_CQR_FILLED;
-+	/* R4 may be absent (unformatted) or larger than the label. */
-+	set_bit(DASD_CQR_SUPPRESS_NRF, &cqr->flags);
-+	set_bit(DASD_CQR_SUPPRESS_IL, &cqr->flags);
-+
-+	if (!dasd_sleep_on(cqr) &&
-+	    label->magic == DASD_ESE_LABEL_MAGIC &&
-+	    label->version == DASD_ESE_LABEL_VERSION) {
-+		private->ese_label = *label;
-+		private->ese_label_valid = true;
-+	}
-+	dasd_sfree_request(cqr, device);
-+}
-+
- /*
-  * Check device characteristics.
-  * If the device is accessible using ECKD discipline, the device is enabled.
-@@ -2215,9 +2326,12 @@ dasd_eckd_check_characteristics(struct dasd_device *device)
- 	/* Read Volume Information */
- 	dasd_eckd_read_vol_info(device);
+ /* The ccw bus type uses this table to find devices that it sends to
+@@ -2148,6 +2160,11 @@ dasd_eckd_check_characteristics(struct dasd_device *device)
+ 	device->path_interval = DASD_ECKD_PATH_INTERVAL;
+ 	device->aq_timeouts = DASD_RETRIES_MAX;
  
-+	/* Read the on-disk format label for ESE detection */
-+	dasd_eckd_read_format_label(device);
++	/* default ESE fulltrack write aggressiveness from the module parameter */
++	device->ft_bias = min_t(unsigned int, full_track_bias, DASD_FT_BIAS_MAX);
++	/* only the "always" endpoint forces fulltrack unconditionally here */
++	device->fulltrack = (device->ft_bias >= DASD_FT_BIAS_MAX) ? 1 : 0;
 +
- 	/*
--	 * is_ese() now reflects the hardware ESE state, so derive the default
--	 * fulltrack write bias from the module parameter.
-+	 * is_ese() now reflects the real ESE state (vsq + on-disk label), so
-+	 * the adaptive heuristic can be derived correctly for this device.
- 	 */
- 	device->ft_bias = min_t(unsigned int, full_track_bias, DASD_FT_BIAS_MAX);
- 	dasd_ft_bias_apply(device);
-@@ -2733,7 +2847,12 @@ static void dasd_eckd_fill_format_label(struct dasd_device *device, void *data,
- 	memset(label, 0, blksize);
- 	label->magic = DASD_ESE_LABEL_MAGIC;
- 	label->version = DASD_ESE_LABEL_VERSION;
--	if (dasd_eckd_is_ese(device))
-+	/*
-+	 * F_ESE records the hardware capability at format time, not is_ese():
-+	 * is_ese() is derived from the label, so using it here would let the
-+	 * flag flip on repeated quick/full reformats.
-+	 */
-+	if (dasd_eckd_ese_capable(device))
- 		label->flags |= DASD_ESE_LABEL_F_ESE;
- 	if (private->ese_format_quick)
- 		label->flags |= DASD_ESE_LABEL_F_QUICK;
-@@ -2743,6 +2862,13 @@ static void dasd_eckd_fill_format_label(struct dasd_device *device, void *data,
- 	label->format_tod = get_tod_clock();
- 	strscpy(label->kernel_version, init_utsname()->release,
- 		sizeof(label->kernel_version));
-+
-+	/*
-+	 * Populate the cache directly from the bytes just computed instead of
-+	 * synchronously reading them back from disk after the write lands.
-+	 */
-+	private->ese_label = *label;
-+	private->ese_label_valid = true;
- }
- 
- static struct dasd_ccw_req *
-@@ -3227,23 +3353,35 @@ static int dasd_eckd_format_device(struct dasd_device *base,
- 	struct dasd_eckd_private *private = base->private;
- 	int rc;
- 
--	/*
--	 * A full format (start_unit == 0) returns the device to a fully sparse
--	 * state, so restart the heuristic from ft1 without an offline cycle.
--	 */
--	if (fdata->start_unit == 0)
--		dasd_ft_bias_apply(base);
--
- 	rc = dasd_eckd_format_process_data(base, fdata, enable_pav, 0, NULL,
- 					   0, NULL);
-+	if (fdata->start_unit != 0)
-+		return rc;
-+
-+	if (rc) {
-+		/*
-+		 * The format failed, so the label cached speculatively during
-+		 * CCW build may not match the disk; drop it so is_ese() falls
-+		 * back to the hardware field until the next successful format
-+		 * or bring-up.
-+		 */
-+		private->ese_label_valid = false;
-+		return rc;
-+	}
- 
- 	/*
- 	 * The quick-format indicator was consumed by the label stamped into
- 	 * track 0; clear it so a later format that is not preceded by a full
- 	 * space release is recorded as a full format.
- 	 */
--	if (fdata->start_unit == 0)
--		private->ese_format_quick = 0;
-+	private->ese_format_quick = 0;
-+
-+	/*
-+	 * A full format returns the device to a fully sparse state and has just
-+	 * committed a fresh label; restart the heuristic from ft1 on the now
-+	 * current is_ese state, without an offline cycle.
-+	 */
-+	dasd_ft_bias_apply(base);
- 
- 	return rc;
- }
-@@ -4246,6 +4384,14 @@ static int dasd_eckd_release_space_trks(struct dasd_device *device,
- static int dasd_eckd_release_space(struct dasd_device *device,
- 				   struct format_data_t *rdata)
- {
-+	/*
-+	 * Space release (and thus a quick format) requires real ESE hardware.
-+	 * is_ese() may be true from a copied label on non-ESE hardware, so gate
-+	 * on the hardware capability, not on is_ese().
-+	 */
-+	if (!dasd_eckd_ese_capable(device))
-+		return -EOPNOTSUPP;
-+
- 	if (rdata->intensity & DASD_FMT_INT_ESE_FULL)
- 		return dasd_eckd_release_space_full(device);
- 	else if (rdata->intensity == 0)
-@@ -7618,6 +7764,8 @@ static struct dasd_discipline dasd_eckd_discipline = {
- 	.hpf_enabled = dasd_eckd_hpf_enabled,
- 	.reset_path = dasd_eckd_reset_path,
- 	.is_ese = dasd_eckd_is_ese,
-+	.ese_capable = dasd_eckd_ese_capable,
-+	.on_demand_format = dasd_eckd_on_demand_format,
- 	.space_allocated = dasd_eckd_space_allocated,
- 	.space_configured = dasd_eckd_space_configured,
- 	.logical_capacity = dasd_eckd_logical_capacity,
-diff --git a/drivers/s390/block/dasd_eckd.h b/drivers/s390/block/dasd_eckd.h
-index 92fd8ac92b79..30745f62402b 100644
---- a/drivers/s390/block/dasd_eckd.h
-+++ b/drivers/s390/block/dasd_eckd.h
-@@ -747,6 +747,13 @@ struct dasd_eckd_private {
- 	 * the next format to mark the on-disk label as a quick (vs full) format.
- 	 */
- 	int ese_format_quick;
-+	/*
-+	 * Cached on-disk format label (R4), read at online and refreshed on
-+	 * format. When valid, is_ese() is derived from it; otherwise it falls
-+	 * back to the hardware ESE field (vsq.vol_info.ese).
-+	 */
-+	struct dasd_format_label ese_label;
-+	bool ese_label_valid;
- };
- 
- 
+ 	if (private->conf.gneq) {
+ 		value = 1;
+ 		for (i = 0; i < private->conf.gneq->timeout.value; i++)
+@@ -5201,11 +5218,20 @@ static struct dasd_ccw_req *dasd_eckd_build_cp(struct dasd_device *startdev,
+ 		/* do nothing, just fall through to the cmd mode single case */
+ 	} else if ((data_size <= private->fcx_max_data)
+ 		   && (fcx_multitrack || (first_trk == last_trk))) {
+-		cqr = dasd_eckd_build_cp_tpm_track(startdev, block, req,
+-						    first_rec, last_rec,
+-						    first_trk, last_trk,
+-						    first_offs, last_offs,
+-						    blk_per_trk, blksize);
++		if (!first_offs && (last_offs + 1 == blk_per_trk) &&
++		    rq_data_dir(req) == WRITE && basedev->fulltrack) {
++			cqr = dasd_eckd_build_cp_tpm_writefulltrack(startdev, block, req,
++								    first_rec, last_rec,
++								    first_trk, last_trk,
++								    first_offs, last_offs,
++								    blk_per_trk, blksize, NULL);
++		} else {
++			cqr = dasd_eckd_build_cp_tpm_track(startdev, block, req,
++							   first_rec, last_rec,
++							   first_trk, last_trk,
++							   first_offs, last_offs,
++							   blk_per_trk, blksize);
++		}
+ 		if (IS_ERR(cqr) && (PTR_ERR(cqr) != -EAGAIN) &&
+ 		    (PTR_ERR(cqr) != -ENOMEM))
+ 			cqr = NULL;
 diff --git a/drivers/s390/block/dasd_int.h b/drivers/s390/block/dasd_int.h
-index c899073c19c8..f61af45deab0 100644
+index b523d5a08a17..e2df8666520f 100644
 --- a/drivers/s390/block/dasd_int.h
 +++ b/drivers/s390/block/dasd_int.h
-@@ -401,6 +401,9 @@ struct dasd_discipline {
- 	 * Extent Space Efficient (ESE) relevant functions
- 	 */
- 	int (*is_ese)(struct dasd_device *);
-+	int (*ese_capable)(struct dasd_device *);
-+	/* Whether the volume is formatted on demand (thin), from the label */
-+	int (*on_demand_format)(struct dasd_device *);
- 	/* Capacity */
- 	int (*space_allocated)(struct dasd_device *);
- 	int (*space_configured)(struct dasd_device *);
+@@ -629,6 +629,10 @@ struct dasd_device {
+ 	struct dasd_copy_relation *copy;
+ 	unsigned long aq_mask;
+ 	unsigned int aq_timeouts;
++
++	/* ESE fulltrack write control (see full_track_bias sysfs attribute) */
++	unsigned int ft_bias;	/* aggressiveness 0..100: 0=off, 100=always */
++	unsigned int fulltrack;	/* internal: use WRITE_FULL_TRACK for aligned writes */
+ };
+ 
+ struct dasd_block {
+@@ -686,6 +690,20 @@ struct dasd_queue {
+ #define DASD_STOPPED_PPRC    32        /* PPRC swap */
+ #define DASD_STOPPED_NOSPC   128       /* no space left */
+ 
++/*
++ * ESE fulltrack write aggressiveness (full_track_bias sysfs attribute), 0..100:
++ *   0   - never use proactively WRITE_FULL_TRACK
++ *   100 - always use proactively WRITE_FULL_TRACK, no probing
++ *   1..99 - adaptive; higher means switch to ft more eagerly
++ * WRITE_FULL_TRACK has an advantage on sparse formatted ESE devices
++ * but it has an overall penalty for maximum throughput for fully
++ * formatted devices.
++ * The default of 50 tries to balance both and do some probing in between
++ * to choose the best mode for default IO.
++ */
++#define DASD_FT_BIAS_MAX	100
++#define DASD_FT_BIAS_DEFAULT	50
++
+ /* per device flags */
+ #define DASD_FLAG_OFFLINE	3	/* device is in offline processing */
+ #define DASD_FLAG_EER_SNSS	4	/* A SNSS is required */
 -- 
 2.53.0
 
