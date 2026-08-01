@@ -1,120 +1,202 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 007573BAD9A
-	for <linux-s390@vger.kernel.org>; Sat,  1 Aug 2026 18:33:05 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 09D9330CD89
+	for <linux-s390@vger.kernel.org>; Sat,  1 Aug 2026 18:39:03 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785609187; cv=none; b=eB9Po8qm1CIF3lNzUyetLwh5xt0CDlQMT6fLP5fAwnrOhg1P7D5nb2xjKgLZdB29SJ9+ePls2cK5+BbZMtYybb9KJtNBub2es/KdRRsp3IWVoxsD/6AfkG7p4XQS1WpGnTONyYx/ntWd6+rTCOTkABzmbSVJETYPAfPQ3oBBAoQ=
+	t=1785609545; cv=none; b=Wgn74Z3my6Cjh9daP/N0oUexMXrc+xg6zOTQ1iKrWzutN4TQMSO7ESbbeq6hzoyOXSZcMX45E8s7/hlWBpN/C/a2XAqoPh3UCR1xcAQdYLrjWUAkppJknT4LWZcYZrKkZsObl1RgSTTKpgOCuW9V1vmmRmVVBHHBcLV9CLaFIjc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785609187; c=relaxed/simple;
-	bh=66XDwlpWZb7mIeF9QkMMUFPd1n5G++4hG6Qzl/7FKCg=;
+	s=arc-20240116; t=1785609545; c=relaxed/simple;
+	bh=CbaVR4ISR/Bid6c/ersHL1mUFXL6zXU2JDCsd5Tkl/I=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=UH2yke2Z8v5G+phX261uuzGHRk+4rPE+izifzGvUaJhSGspxOXn6r/K2yfokaLeH4af6bSmSPHGBe+JaM3xWTmllXf7+IKgrGmchbGEQLYzC2hfUnkGaHkbaijrmwNMbXw4vwlrCLpNRmYJwSJmCm4AjQ+QCc+w9HwJynm89Kzs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QRF1LYml; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=mz1VGoc5L4Z/3pVADOaXvA/Oj4nB5syE5r1d9Xu1g+wcKbtuyH/0cOXFc14iNhn9HFlSXn9bUpo2QBESsrJ51EWOI5x/fps+r4+Zgmnfr1MOkuATm60kEPLVQQPV+eank1o4sCSpUVdcAd6JzpY+9mXPAd3QoM4KAbAUfYx4l3M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=klQ1D/qg; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QRF1LYml"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 733E41F00AC4;
-	Sat,  1 Aug 2026 18:33:05 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="klQ1D/qg"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50CEB1F00AC4;
+	Sat,  1 Aug 2026 18:39:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785609185;
-	bh=OFQ87fVek4Idd49xuQ5bCRA5vqcoa3xSgPeSAHkP+qo=;
+	s=k20260515; t=1785609543;
+	bh=6mysQOLZTiyVPbOXZRoXnYf6++QyxzlmeNmGkCa9kEA=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=QRF1LYmlZsh9QYUfX/zqOIUR6qOjyTLApH0ECB6TP/ohYCXOXYjc1bgdbVpPp79fZ
-	 vVQQaSp1hF4gtCaXxoS7IcXHLI3Cw/yTuWtG8EQrV28lC70+KTSOZRGmMZNFjGKmXf
-	 HC09aldTnqX+/2vQuaee7tYqSZWiwWQjVa96MpKvo+3FlAW5uvf54UVfknuiypyCte
-	 BXCyd4C9XNTcwIxQ2xuoujpFUhm9npsODqxPjxa5fM2FHTHhvd0ks8xjqKfspdejdd
-	 ItbKkVvcKv9HN30mLnpEq6seHCVS1kIEA4/n9xWnWEg3FBl8FssZx9FUBSqHjolHqs
-	 BRgMz4RDIk0cQ==
+	b=klQ1D/qgYUc0MKXGEhhjG5DEvn5+zgmDr9dEyh55W/rCSy9v4A9hGrV8xJ5+wcGjN
+	 BJOjEjtJLPyhlnfszwOrv5T4Po/K7HL/cmqKBMUTUPGMHRNxkYxyDKpDEl+ajbNltn
+	 nqW47kOPMUbfwK6Fw6RdirNKeOpdEL14xixPEsI+PBycEVKdwOEhF1Gmy0F2OuszeB
+	 jLGEYDq0qryrF1uL09vyKnXPINXcs5abFk3i9WEPboG3Tupo1h3tn9SrTsc16wYho2
+	 55MsLVVZrUbf2qhnL+nXmU6jU6gR56D78JrYinPiUEPr5n076wzmunCvpScMvVfCNv
+	 lO8K1SE2vVUow==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v7 12/19] s390/dasd: Use WRITE_FULL_TRACK in ESE format
- handler
+Subject: Re: [PATCH v7 16/19] s390/dasd: Detect ESE volumes from the on-disk
+ format label
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Stefan Haberland" <sth@linux.ibm.com>
-Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
- Carstens" <hca@linux.ibm.com>
-In-Reply-To: <20260801180033.3679412-13-sth@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Vasily
+ Gorbik" <gor@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>
+In-Reply-To: <20260801180033.3679412-17-sth@linux.ibm.com>
 References: <20260801180033.3679412-1-sth@linux.ibm.com>
- <20260801180033.3679412-13-sth@linux.ibm.com>
+ <20260801180033.3679412-17-sth@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sat, 01 Aug 2026 18:33:05 +0000
-Message-Id: <20260801183305.733E41F00AC4@smtp.kernel.org>
+Date: Sat, 01 Aug 2026 18:39:02 +0000
+Message-Id: <20260801183903.50CEB1F00AC4@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+Thank you for your contribution! Sashiko AI review found 4 potential issue(=
 s) to consider:
-- [High] When the `dasd=3Dfixedbuffers` (`dasd_page_cache`) module paramete=
-r is enabled, `dasd_eckd_free_cp()` misinterprets the unconditionally creat=
-ed transport-mode (TPM) ESE format replacement request as a command-mode (C=
-CW) request, causing invalid frees of arbitrary memory.
+
+New issues:
+- [Medium] The in-memory ESE format label cache (`ese_label_valid`) is not =
+invalidated when the on-disk label is overwritten or erased without a new l=
+abel being explicitly written.
+- [Medium] Lockless read and non-atomic update of the `ese_label` cache cau=
+ses data races and potential torn reads.
+
+Pre-existing issues:
+- [Critical] Heap buffer overflow in `dasd_eckd_build_format()` when format=
+ting multiple tracks with intensity 0x01.
+- [High] Pre-existing NULL pointer dereference in `dasd_release_space()` fo=
+r devices without an `is_ese` discipline function.
 --
 
---- Patch [12]: [PATCH v7 12/19] s390/dasd: Use WRITE_FULL_TRACK in ESE for=
-mat handler ---
-commit e3d3248abe2fbc8a98e5dc48c8f9561bcf553195
+--- Patch [16]: [PATCH v7 16/19] s390/dasd: Detect ESE volumes from the on-=
+disk format label ---
+commit ac9e4583836d81406ee7f0dc251d245f5892a7de
 Author: Stefan Haberland <sth@linux.ibm.com>
+Subject: s390/dasd: Detect ESE volumes from the on-disk format label
 
-s390/dasd: Use WRITE_FULL_TRACK in ESE format handler
-
-Wire dasd_eckd_build_cp_tpm_writefulltrack() into the ESE unformated
-track handler.
+Read the format label from track 0 record 4 at device bring-up and cache
+it. When a valid label is present, is_ese() is derived from it instead of
+the hardware volume field. The cache is refreshed after a format so is_ese()
+stays coherent without an offline/online cycle.
 
 > diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eck=
 d.c
-> index 475c0aca4a5ae..e731d7e183121 100644
+> index 7a27dc08fb961..68736f9efcaf2 100644
 > --- a/drivers/s390/block/dasd_eckd.c
 > +++ b/drivers/s390/block/dasd_eckd.c
+
 [ ... ]
-> @@ -5328,6 +5399,15 @@ dasd_eckd_free_cp(struct dasd_ccw_req *cqr, struct=
- request *req)
->  	sector_t recid;
->  	int status;
-> =20
+
+> @@ -1676,7 +1676,8 @@ static int dasd_eckd_read_vol_info(struct dasd_devi=
+ce *device)
+> +static int dasd_eckd_is_ese(struct dasd_device *device)
+> +{
+> +	struct dasd_eckd_private *private =3D device->private;
+> +
+> +	/* sysfs may read this during set_online before private is allocated */
+> +	if (!private)
+> +		return 0;
+> +
+> +	if (private->ese_label_valid)
+> +		return !!(private->ese_label.flags & DASD_ESE_LABEL_F_ESE);
+
+[Severity: Medium]
+Does this code allow a data race when reading the label flags?
+
+Looking at dasd_eckd_is_ese() and dasd_eckd_on_demand_format(), they read
+private->ese_label_valid and private->ese_label.flags without locks or
+memory barriers.
+
+If a concurrent update happens in dasd_eckd_fill_format_label() during a
+format operation, could this lead to a torn read and transiently incorrect
+sysfs output?
+
+> +
+> +	return dasd_eckd_ese_capable(device);
+> +}
+
+[ ... ]
+
+> @@ -2733,7 +2847,12 @@ static void dasd_eckd_fill_format_label(struct das=
+d_device *device, void *data,
+>  	label->format_tod =3D get_tod_clock();
+>  	strscpy(label->kernel_version, init_utsname()->release,
+>  		sizeof(label->kernel_version));
+> +
 > +	/*
-> +	 * A format-aborted request finished nothing - its replacement
-> +	 * completes the block request - so report ABORTED instead of DONE,
-> +	 * but still release its bounce buffers like any other request.
+> +	 * Populate the cache directly from the bytes just computed instead of
+> +	 * synchronously reading them back from disk after the write lands.
 > +	 */
-> +	if (cqr->status =3D=3D DASD_CQR_ABORTED)
-> +		status =3D DASD_CQR_ABORTED;
-> +	else
-> +		status =3D cqr->status =3D=3D DASD_CQR_DONE;
->  	if (!dasd_page_cache)
->  		goto out;
+> +	private->ese_label =3D *label;
+> +	private->ese_label_valid =3D true;
+
+[Severity: Medium]
+Does this code update the 512-byte label cache safely?
+
+Since this struct copy is not atomic, could concurrent readers in
+dasd_eckd_is_ese() observe an inconsistent state?
+
+>  }
+
+[ ... ]
+
+> @@ -3227,23 +3353,35 @@ static int dasd_eckd_format_device(struct dasd_de=
+vice *base,
+> -	if (fdata->start_unit =3D=3D 0)
+> -		private->ese_format_quick =3D 0;
+> +	private->ese_format_quick =3D 0;
+> +
+> +	/*
+> +	 * A full format returns the device to a fully sparse state and has just
+> +	 * committed a fresh label; restart the heuristic from ft1 on the now
+> +	 * current is_ese state, without an offline cycle.
+> +	 */
+> +	dasd_ft_bias_apply(base);
+> +
+>  	return rc;
+>  }
+
+[Severity: Medium]
+Does this code properly invalidate the label cache when the label is erased?
+
+In dasd_eckd_format_device(), the success path clears ese_format_quick but
+does not clear ese_label_valid when track 0 is formatted with a non-CDL
+layout (intensity 0) where no label is explicitly written.
+
+Similarly, space release successfully unallocates all tracks (erasing
+track 0) in dasd_eckd_release_space_full() but fails to invalidate the
+label cache.
+
+Could this cause the driver to retain a stale label cache and incorrectly
+apply ESE-specific performance heuristics to non-ESE devices?
+
+
+Additional observations about related pre-existing code:
 
 [Severity: High]
-Can this corrupt memory when the dasd_page_cache module parameter is enable=
-d?
+This is a pre-existing issue, but does dasd_release_space() in
+drivers/s390/block/dasd_ioctl.c have a NULL pointer dereference?
 
-The new ESE format replacement request created by
-dasd_eckd_build_cp_tpm_writefulltrack() unconditionally sets cqr->cpmode =
-=3D 1
-(Transport Mode) and uses an ITCW, regardless of dasd_page_cache.
+If a device uses a discipline that does not implement the is_ese callback,
+such as FBA:
 
-However, the replacement request takes ownership of the block request in
-dasd_eckd_ese_format():
+    if (!device->discipline->is_ese && !device->discipline->is_ese(device))
 
-    fcqr->callback_data =3D base_cqr->callback_data;
+Could this logic flaw trigger a panic when a user issues the release space
+ioctl, since it uses a logical AND instead of OR?
 
-This causes the replacement request to be routed here to dasd_eckd_free_cp()
-upon completion.
 
-If the kernel is booted with dasd=3Dfixedbuffers (which enables
-dasd_page_cache), dasd_eckd_free_cp() will proceed past this check since
-dasd_page_cache is true.
+[Severity: Critical]
+This is a pre-existing issue, but does dasd_eckd_build_format() in
+drivers/s390/block/dasd_eckd.c have a heap buffer overflow?
 
-Because dasd_eckd_free_cp() lacks a check for cqr->cpmode =3D=3D 0, it appe=
-ars
-this could cause dasd_eckd_free_cp() to iterate over the ITCW memory as if =
-it
-were a list of struct ccw1, extract garbage addresses, and pass them to
-kmem_cache_free().
+When formatting multiple tracks with intensity 0x01, the memory is allocated
+for the CCW chain using:
+
+    cplength =3D 2 + rpt * nr_tracks;
+
+However, the generation loop consumes an extra CCW per track for record zer=
+o,
+meaning it consumes 1 + rpt CCWs per track.
+
+If a user requests a format spanning multiple tracks, could this deficit
+cause an out-of-bounds write into the dasd_alloc_chunk heap memory pool?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260801180033.3679=
-412-1-sth@linux.ibm.com?part=3D12
+412-1-sth@linux.ibm.com?part=3D16
