@@ -1,240 +1,130 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2938A377A8E
-	for <linux-s390@vger.kernel.org>; Sat,  1 Aug 2026 11:40:08 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C02BE48986E
+	for <linux-s390@vger.kernel.org>; Sat,  1 Aug 2026 11:45:37 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785584410; cv=none; b=mM9zusvYslzQii3+ovP1fwrfxca9FXVde5FmPNxzdew63lzvM2iNMTUN3axMNH4Rkg3h73x9+oaST9PfPliBhL3YBTLg94TO8Z7YtSFCsi3f5TMeUueFY6jkcPi+9maUkiy/EtKlmh07/Gx/YdbBC9RB6Nvm/JCLvsi5atrzKn8=
+	t=1785584738; cv=none; b=qmtJGaDbp9frprg57Up96rMOgIszxlFc8qVXTZIJFEHAUw4/y+d+5L6M0Bf6K2/QvEKchMrA446ZDX94TZM+wGnGZBkqntIK5vfQnV51XAHL5oELm6hCqIIokqqxZJyWOXZCImRqh2AMIMDDOEppq7930zl3XuJ9GQounMJhDxI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785584410; c=relaxed/simple;
-	bh=lgR5c5TBY6vTctjqpkp+1kaan72eiodfWN98ZYF1uVg=;
+	s=arc-20240116; t=1785584738; c=relaxed/simple;
+	bh=GGGZXzgTP2DUoThmcK1Zs2qUf6MomGLVa1mBe40NXW8=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=tTE1rxCPcTmxi60VPyvPy/BXa8vthCVcUWKHPPPK3mrjbVTCDPAC4IfYs7VOWaX1ChffR1FX5RFYVZzngPV8JNw04BGhtyldDNzt+DWGmy1Pzb5Ec2LTfQUHBhBZCnPCoDaF51OHhC+QfO8UACIU0iWXU4OrQ40OH0TjiAXyXSM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RaLxdnQd; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=WItdRKf3AHgGCfdJVHd5P1X5IC2ZLJJuVSqMZeCHYxGf7rsP4N8yWaSlr5p+4qSpWsuxVaYzLApewgl9XO7X6xHimrfd2jATFdJfnstoBcBCxyQVM+anYHfMIEbH6FBPvbhcMkAroEbtdE5DMTUWxb7L7kFe/xJDVvMy1QuYCdE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=AD/X6GF7; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RaLxdnQd"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8089C1F00AC4;
-	Sat,  1 Aug 2026 11:40:08 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AD/X6GF7"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D5B01F00AC4;
+	Sat,  1 Aug 2026 11:45:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785584408;
-	bh=9q7tZIDRYsYhutx2BJD8e2mMhz5MB453M7B4qogIfh4=;
+	s=k20260515; t=1785584737;
+	bh=EdfP8/hozZmeBeJjnbWfEhZr2wvTuftuQocS1EwqWck=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=RaLxdnQdUs9c0UPRuiIvTWBEA30lZpv3LnNj1nr0Mon+LHHcITCl6nDzQOjJakXDG
-	 0NMdyjfCZA/w6qtoMixwW4yBpXv2EuT9pwiGFNEn5vJNKn3tLOIK0cYlDOL18h2/pL
-	 4WZK7rTJPU3j/XMEvv1DVPZbzjr3kggab48FvxLounnnS3k89SGxoWmQ0In4Qh4mhD
-	 wuj8F/1iy/ZMYUUYXjqesjX0gb9Ak1KxMgR/hlB0sBKCLNnI3pbsrwFpaHs0q16es6
-	 dIvyNlv4a2thc1Aheu1/G6fejGZ4G5YEnTY7ByfuxkA4nfyHTLYLU+1ia81No5Kt9n
-	 pXT0h5lecxMhw==
+	b=AD/X6GF7lFM/mXIt9Ix9WgFYL+QFmQYDLBR0mFjTakHJUJKYLeC/6Wd82Udrhtjhr
+	 gQRaFJQUZmubIkPcN3B5RQFi9rMaSta+Bkyv4RytRPP0KCfBHbjb+Yvf4UsEa7CWIF
+	 USDrUgbxnvCg3fcZ3E0QLJGeC2MPnM1RDagGuFYLzHJAsIM2NjK5gwteYENmSqfe2/
+	 /tsBbUZVG+fDKswoARNMx7mVY1Io98X0XovKWsGyHiJtIrqxQ3bDMRjaoLyLMOA8Ww
+	 L/jUCeROVJB3A9q8pKrTnzgdJN6xWHdEGhxWwY4FL0zicW4uSUlhROKM8AFF3sJ+/b
+	 e4nVeyzl/FoUQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v6 03/18] s390/dasd: Guard sysfs discipline callbacks
- against unallocated private data
+Subject: Re: [PATCH v6 16/18] s390/dasd: Report ESE capability and format
+ mode at device online
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Stefan Haberland" <sth@linux.ibm.com>
-Cc: "Vasily Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>
-In-Reply-To: <20260801111008.3391031-4-sth@linux.ibm.com>
+Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Heiko
+ Carstens" <hca@linux.ibm.com>, linux-s390@vger.kernel.org
+In-Reply-To: <20260801111008.3391031-17-sth@linux.ibm.com>
 References: <20260801111008.3391031-1-sth@linux.ibm.com>
- <20260801111008.3391031-4-sth@linux.ibm.com>
+ <20260801111008.3391031-17-sth@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sat, 01 Aug 2026 11:40:08 +0000
-Message-Id: <20260801114008.8089C1F00AC4@smtp.kernel.org>
+Date: Sat, 01 Aug 2026 11:45:36 +0000
+Message-Id: <20260801114537.1D5B01F00AC4@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 5 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-
-Pre-existing issues:
-- [Critical] The patch fails to protect against a lockless Time-of-Check to=
- Time-of-Use (TOCTOU) race where `device->private` is freed on the error pa=
-th of `discipline->check_device()`, leading to a Use-After-Free or NULL poi=
-nter dereference.
-- [High] The patch adds NULL checks for `device->private` in multiple sysfs=
--triggered callbacks but misses `dasd_eckd_pprc_enabled`, leaving a race co=
-ndition that can panic the kernel.
-- [High] The newly added `!private` checks are insufficient because callbac=
-ks subsequently dereference `private->conf.ned` before it is initialized.
-- [High] In `dasd_release_space()`, an incorrect logical AND (`&&`) causes =
-a NULL pointer dereference for disciplines without an `is_ese` callback, an=
-d silently bypasses the check for disciplines that have it.
-- [High] The asynchronous attention interrupt handler path is vulnerable to=
- the same `device->private` NULL pointer dereference race condition that th=
-e patch attempts to fix for sysfs.
+- [Medium] Lockless reading of partially updated `dasd_format_label` causes=
+ a data race and potential torn read in sysfs.
 --
 
---- Patch [3]: [PATCH v6 03/18] s390/dasd: Guard sysfs discipline callbacks=
- against unallocated private data ---
-commit 698838157896167de2e3f1afbbb4fdad63518bec
+--- Patch [16]: [PATCH v6 16/18] s390/dasd: Report ESE capability and forma=
+t mode at device online ---
+commit 1bb0c0f3e976fb237f52d951feaeac8bfd58702e
 Author: Stefan Haberland <sth@linux.ibm.com>
 
-s390/dasd: Guard sysfs discipline callbacks against unallocated private data
+s390/dasd: Report ESE capability and format mode at device online
 
-This patch adds NULL checks for device->private in several sysfs
-show/store handlers inside dasd_eckd.c. It aims to fix a panic caused by
-an unprivileged read of a sysfs attribute during the window between
-discipline assignment and device->private allocation.
-
-Cc: stable@vger.kernel.org
+This commit extends the device information line logged when a volume comes
+online with the ESE hardware capability and the on-disk format mode. The
+format mode is derived from the on-disk format label.
 
 > diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eck=
 d.c
-> index 74fe73b5738ab..6e2fd445688cb 100644
+> index 35a970e006fd0..643eb7882f9cd 100644
 > --- a/drivers/s390/block/dasd_eckd.c
 > +++ b/drivers/s390/block/dasd_eckd.c
-
-[ ... ]
-
-> @@ -1646,6 +1648,9 @@ static int dasd_eckd_is_ese(struct dasd_device *dev=
-ice)
->  {
->  	struct dasd_eckd_private *private =3D device->private;
+> @@ -2608,15 +2609,29 @@ static int dasd_eckd_end_analysis(struct dasd_blo=
+ck *block)
+>  			  private->rdc_data.trk_per_cyl *
+>  			  blk_per_trk);
 > =20
-> +	if (!private)
-> +		return 0;
-> +
->  	return private->vsq.vol_info.ese;
->  }
+> +	/*
+> +	 * Report the ESE hardware capability and the format mode. The mode
+> +	 * comes from dasd_eckd_on_demand_format() (the on-disk label, or the
+> +	 * ESE state when no label is present), matching the on_demand_formatti=
+ng
+> +	 * sysfs attribute.
+> +	 */
+> +	ese_str =3D dasd_eckd_ese_capable(device) ? ", ESE" : "";
+> +	fmt_str =3D "";
+> +	if (dasd_eckd_on_demand_format(device))
 
-[Severity: High]
-This isn't a bug introduced by this patch, but does this pattern leave the
-code vulnerable to a Time-of-Check to Time-of-Use race?
+[Severity: Medium]
+Could calling dasd_eckd_on_demand_format() locklessly result in a data race
+and a potential torn read?
 
-If a sysfs read calls dasd_eckd_is_ese() during dasd_generic_set_online(),
-it can pass the new !private check. If the dasd_eckd_check_characteristics()
-error path simultaneously frees device->private locklessly:
+When reading from sysfs, or here in dasd_eckd_end_analysis(), we read the
+label without locks:
 
-drivers/s390/block/dasd_eckd.c:dasd_eckd_check_characteristics() {
+drivers/s390/block/dasd_eckd.c:dasd_eckd_on_demand_format() {
     ...
-out_err1:
-    kfree(device->private);
-    device->private =3D NULL;
-    ...
-}
-
-Could the sysfs handler then resume and dereference the freed memory when
-accessing private->vsq.vol_info.ese?
-
-[Severity: High]
-This is a pre-existing issue, but while looking at the is_ese callback,
-does dasd_release_space() in drivers/s390/block/dasd_ioctl.c have an issue
-with its short-circuit logic?
-
-drivers/s390/block/dasd_ioctl.c:dasd_release_space() {
-    ...
-    if (!device->discipline->is_ese && !device->discipline->is_ese(device))
+	if (private->ese_label_valid)
+		return !!(private->ese_label.flags & DASD_ESE_LABEL_F_QUICK);
     ...
 }
 
-If the discipline does not implement is_ese (like FBA devices), wouldn't
-the left operand evaluate to true, forcing evaluation of the right operand
-and causing a NULL pointer dereference? And if it does implement is_ese,
-wouldn't the left operand evaluate to false, bypassing the check entirely?
+However, other paths overwrite the label locklessly. This happens during
+the format ioctl:
 
-[ ... ]
-
-> @@ -5935,8 +5965,11 @@ static int dasd_eckd_query_host_access(struct dasd=
-_device *device,
->  	struct ccw1 *ccw;
->  	int rc;
-> =20
-> +	if (!private)
-> +		return -ENODEV;
-> +
->  	/* not available for HYPER PAV alias devices */
-> -	if (!device->block && private->lcu->pav =3D=3D HYPER_PAV)
-> +	if (!device->block && private->lcu && private->lcu->pav =3D=3D HYPER_PA=
-V)
->  		return -EOPNOTSUPP;
-
-[Severity: High]
-This isn't a bug introduced by this patch, but is this check sufficient to
-prevent dereferencing uninitialized pointers later in the function?
-
-Inside dasd_eckd_check_characteristics(), device->private is allocated
-immediately, but private->conf.ned is not populated until
-dasd_eckd_read_conf() succeeds. If this sysfs handler executes during that
-window, the !private check passes, but further down in
-dasd_eckd_query_host_access() (and similarly in dasd_eckd_read_vol_info()),
-the code performs:
-
-    prssdp->lss =3D private->conf.ned->ID;
-    prssdp->volume =3D private->conf.ned->unit_addr;
-
-Since private->conf.ned would still be NULL during this window, can this
-cause a NULL pointer dereference?
-
-[ ... ]
-
-> @@ -6801,6 +6834,9 @@ static int dasd_eckd_hpf_enabled(struct dasd_device=
- *device)
->  {
->  	struct dasd_eckd_private *private =3D device->private;
-> =20
-> +	if (!private)
-> +		return 0;
-> +
->  	return private->fcx_max_data ? 1 : 0;
->  }
-
-[Severity: High]
-This is a pre-existing issue, but does dasd_eckd_pprc_enabled() also need
-this NULL check?
-
-If a user writes to the copy_pair sysfs attribute during device
-initialization, dasd_copy_pair_store() locklessly calls the discipline
-callback:
-
-drivers/s390/block/dasd_devmap.c:dasd_copy_pair_store() {
+drivers/s390/block/dasd_eckd.c:dasd_eckd_fill_format_label() {
     ...
-    pprc_enabled =3D device->discipline->pprc_enabled(device);
+	private->ese_label =3D *label;
+	private->ese_label_valid =3D true;
     ...
 }
 
-Inside dasd_eckd_pprc_enabled(), device->private is unconditionally
-dereferenced:
+It also happens during device probe:
 
-drivers/s390/block/dasd_eckd.c:dasd_eckd_pprc_enabled() {
+drivers/s390/block/dasd_eckd.c:dasd_eckd_read_format_label() {
     ...
-    return private->rdc_data.facilities.PPRC_enabled;
-}
-
-Could this trigger a NULL pointer dereference if hit during the same
-initialization window?
-
-[Severity: High]
-This is a pre-existing issue, but is the asynchronous attention interrupt
-handler path vulnerable to this same race condition?
-
-Since the subchannel is enabled during probe, a hardware attention interrupt
-could arrive during the same device initialization window.
-dasd_int_handler() locklessly calls device->discipline->check_attention(),
-which schedules dasd_eckd_check_attention_work():
-
-drivers/s390/block/dasd_eckd.c:dasd_eckd_check_attention() {
-    ...
-    INIT_WORK(&data->worker, dasd_eckd_check_attention_work);
-    schedule_work(&data->worker);
+		private->ese_label =3D *label;
+		private->ese_label_valid =3D true;
     ...
 }
 
-This asynchronous work eventually calls dasd_eckd_cuir_quiesce() which
-unconditionally dereferences private->lcu:
+If a user repeatedly reads the sysfs attribute (or this device online path
+is executed) while concurrently running a format ioctl, could this cause a
+torn read that returns a corrupted or uninitialized boolean value?
 
-drivers/s390/block/dasd_eckd.c:dasd_eckd_cuir_quiesce() {
-    ...
-    list_for_each_entry_safe(dev, n, &private->lcu->active_devices,
-                             alias_list) {
-    ...
-}
-
-If device->private is not yet allocated, does this cause a NULL pointer
-dereference?
+> +		fmt_str =3D ", on-demand format";
+> +	else if (dasd_eckd_ese_capable(device))
+> +		fmt_str =3D ", full format";
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260801111008.3391=
-031-1-sth@linux.ibm.com?part=3D3
+031-1-sth@linux.ibm.com?part=3D16
