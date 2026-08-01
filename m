@@ -1,150 +1,115 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E6B5A3BED69
-	for <linux-s390@vger.kernel.org>; Sat,  1 Aug 2026 18:20:31 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6F1E30566C
+	for <linux-s390@vger.kernel.org>; Sat,  1 Aug 2026 18:21:53 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785608433; cv=none; b=peFmwIzm7kZk+55XrJ+sttnvDHq/QCJfti0stBnSLXHy1tq4bkGUVBU4gUGQtMZzEzypmJM0QlGeATpwVn02YC3TVfeIlutoAiCHD/dh2oG0mXogj+xvk7aSwe7l5RzwfTABpLP782SMqdmDGjpd6PqgNyG/90FntSCnWF2D0ss=
+	t=1785608514; cv=none; b=cz8leKHBUEdWe8zRMMMV2sWAfuWzmSbd89Pzn+JbmHa+CzA5nzn/Q19n1jFEKbCI3sSsCDZh0tfPeTLATTQdQ0XdPA2D0bnz+nlp9fdcauVrUGxQ3n4n3dUWKadG5jEa2LlNYkXljPwR4QKHK0SxJYi4y3C0pZlx52AKt/4oMcA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785608433; c=relaxed/simple;
-	bh=wCTRJsTxQuETLXGPGcADMELe2eClU1vUMvI9m059vc0=;
+	s=arc-20240116; t=1785608514; c=relaxed/simple;
+	bh=ZgkcYw+Gxnywz0jIAxgD0qopqJBRSntNtwo6URtbU5s=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=HhpGNnOFz2Ic/IHbj/Esl0Uflukl1XY62M58CMuor6K1G/zskMR57mlYW8jSe1wcXWcTyn1j9ZvgXCdxDEVkak4aOVKM0BwSoQ4Wte8dNiMmJi4x5Ei2pxqx2UsVS+MaQX+C8u/TW18qozwJzh32HsfIA4oEcGWx+WC33zT8edw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VmxjidRp; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=WGAPTCXJEc1s9ynotcZAl/cxqAUtqkDAvobehWRoU5P1v8BOJkW7Hrd5HnMmn+qpgechdIEtXIMoFufd0FqeKsk3Oz1Ns2vRSYFUo4MkCDiU1f5XDzjWHyjCBVFz85s1obbGsQDzqAiKuHs/9/ZzlCe6qPShRmfZSriki9PAdfI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GcMxqAQ+; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VmxjidRp"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7F2C1F00AC4;
-	Sat,  1 Aug 2026 18:20:30 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GcMxqAQ+"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 362F61F00AC4;
+	Sat,  1 Aug 2026 18:21:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785608431;
-	bh=R3xaWQUo7entT/oYfbJFYMMI+aNCU1I+m8vJ2vcSdWE=;
+	s=k20260515; t=1785608513;
+	bh=g828i5OtnqkcZXu7X6rlWs9Tv7vRmbX6u0xmEOr0bFo=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=VmxjidRpOSmf00jg3GI/OD5VIjPZ5/mi0SypDwO1AO9G/WEAfxgcIKAbUUx7p4NsC
-	 fJjmYzAj4Jxb8hBH9v38z8viAutoa+8yER2EifbXIEqOqgUYFp3eSo/MRSVHFFUPKc
-	 6VLFRRUN8peXkF8YSVWXmu+DzHkaumEvlGXrOnyN4PwQlkLOOoo48ltEv+nkncpEBK
-	 5ih49wkft4Nmok+SIJocxwq1BnN0/t/eUTVr+vTknjqTn6sR7ad2y/Ss/EQ8SujRIA
-	 94VOBiImhXOkDNhxV4tEL+mEXspyEphg7cnMkj3RHcyUIHQuoeWF7XpQGCgZ32GeBN
-	 mX8CvuO9byBzw==
+	b=GcMxqAQ+Cqd/x/opTmPi080OMfL3waJBd8yWhSQ6oXovijRIDOj/Q6yxm6L7B5emn
+	 SNCQTlq5RnpB8NRsVbbRhXzEks78pazXmonripbA8BO8qndI3Ji47z13cWPyfNBJ/P
+	 NyEb+UpZvYlfmK1eEHDbXxsUaDr0YQ9Pnbc6CnirRD+RFNA5XYYudc1cCJhBJ8BKzH
+	 zwPaF5/BGm4KX10ZJwVBfbGZuNOQMgJVbKqAQUsL76oXEAZeA/I2OaODN4zCKXKK83
+	 Gs0cbenYUdiX4FKbeOXy+vtvFZEnQgfWkiEiPcBvBhDPdhSXfZv5PfRnhezZswt1KC
+	 cPiEheJnexHvQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v7 13/19] s390/dasd: Add full_track_bias to control
- fulltrack write mode
+Subject: Re: [PATCH v7 02/19] s390/dasd: Propagate partial completion length
+ across ERP recovery
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Stefan Haberland" <sth@linux.ibm.com>
-Cc: "Heiko Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org, "Alexander
- Gordeev" <agordeev@linux.ibm.com>
-In-Reply-To: <20260801180033.3679412-14-sth@linux.ibm.com>
+Cc: "Heiko Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org
+In-Reply-To: <20260801180033.3679412-3-sth@linux.ibm.com>
 References: <20260801180033.3679412-1-sth@linux.ibm.com>
- <20260801180033.3679412-14-sth@linux.ibm.com>
+ <20260801180033.3679412-3-sth@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sat, 01 Aug 2026 18:20:30 +0000
-Message-Id: <20260801182030.A7F2C1F00AC4@smtp.kernel.org>
+Date: Sat, 01 Aug 2026 18:21:52 +0000
+Message-Id: <20260801182153.362F61F00AC4@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [Medium] Inconsistent initialization of the `fulltrack` flag between the =
-module parameter and sysfs store, breaking the intended default behavior.
-- [Low] Lockless concurrent updates to `ft_bias` and `fulltrack` by multipl=
-e writers cause persistent state inconsistency.
+
+Pre-existing issues:
+- [Critical] dasd_eckd_ese_read() directly dereferences cqr->callback_data,=
+ which is NULL for ERP requests, causing a kernel panic.
 --
 
---- Patch [13]: [PATCH v7 13/19] s390/dasd: Add full_track_bias to control =
-fulltrack write mode ---
-commit 377e4de782323378dcdb6afeafb0086a91d9e269
+--- Patch [2]: [PATCH v7 02/19] s390/dasd: Propagate partial completion len=
+gth across ERP recovery ---
+commit 5cfd110150006620d9ee9acaf83c89fea865281b
 Author: Stefan Haberland <sth@linux.ibm.com>
 
-s390/dasd: Add full_track_bias to control fulltrack write mode
+s390/dasd: Propagate partial completion length across ERP recovery
 
-This patch adds a sysfs attribute full_track_bias to control full-track
-writes on ESE devices. It also adds a module parameter to set the default
-bias applied to devices at online time.
+This commit ensures that the partial completion length of a request is prop=
+erly
+carried over during error recovery procedure (ERP) post-actions. It address=
+es
+an issue where partially completed requests would silently return zeroed da=
+ta
+because the processed bytes counter was dropped.
 
-> diff --git a/drivers/s390/block/dasd_devmap.c b/drivers/s390/block/dasd_d=
-evmap.c
-> index 381d616ad433f..035c022255b68 100644
-> --- a/drivers/s390/block/dasd_devmap.c
-> +++ b/drivers/s390/block/dasd_devmap.c
+> dasd_default_erp_postaction() copies the timing and device state from
+> the finished ERP request back to the original request but drops
+> proc_bytes. A request that was partially completed, an ESE read of a
+> not-yet-allocated track returns fewer bytes than requested, and then
+> recovered through the ERP chain loses its partial-completion length.
 
-[ ... ]
+[Severity: Critical]
+This is a pre-existing issue, but since we are looking at ESE reads recover=
+ed
+through the ERP chain, does the current error handling sequence lead to a N=
+ULL
+pointer dereference?
 
-> +static ssize_t full_track_bias_store(struct device *dev,
-> +				     struct device_attribute *attr,
-> +				     const char *buf, size_t count)
-> +{
-> +	struct dasd_device *device;
-> +	unsigned int val;
-> +
-> +	if (kstrtouint(buf, 0, &val) || val > DASD_FT_BIAS_MAX)
-> +		return -EINVAL;
-> +
-> +	device =3D dasd_device_from_cdev(to_ccwdev(dev));
-> +	if (IS_ERR(device))
-> +		return -ENODEV;
-> +
-> +	device->ft_bias =3D val;
-> +	device->fulltrack =3D val ? 1 : 0;
+When an ERP request encounters a No Record Found (NRF) error while reading
+from an unallocated track, dasd_int_handler() processes it. While it uses
+dasd_get_callback_data() to check the data direction, it appears to pass the
+raw ERP request to ese_read():
 
-[Severity: Low]
-Can concurrent writes to this sysfs attribute cause a persistent state
-inconsistency? If two threads write different values (like 100 and 0) at the
-same time, could the lockless updates to device->ft_bias and device->fulltr=
-ack
-interleave, leaving ft_bias =3D 0 but fulltrack =3D 1?
+drivers/s390/block/dasd.c:dasd_int_handler() {
+    ...
+    if (device->discipline->ese_read(cqr, irb))
+    ...
+}
 
-> +
-> +	dasd_put_device(device);
-> +	return count;
-> +}
+Inside dasd_eckd_ese_read(), the code directly casts cqr->callback_data
+instead of using the helper:
 
-[ ... ]
+drivers/s390/block/dasd_eckd.c:dasd_eckd_ese_read() {
+    ...
+    req =3D (struct request *) cqr->callback_data;
+    ...
+    first_trk =3D first_blk =3D blk_rq_pos(req) >> block->s2b_shift;
+    ...
+}
 
-> diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eck=
-d.c
-> index e731d7e183121..0247e9a6d7929 100644
-> --- a/drivers/s390/block/dasd_eckd.c
-> +++ b/drivers/s390/block/dasd_eckd.c
-
-[ ... ]
-
-> @@ -2148,6 +2160,11 @@ dasd_eckd_check_characteristics(struct dasd_device=
- *device)
->  	device->path_interval =3D DASD_ECKD_PATH_INTERVAL;
->  	device->aq_timeouts =3D DASD_RETRIES_MAX;
-> =20
-> +	/* default ESE fulltrack write aggressiveness from the module parameter=
- */
-> +	device->ft_bias =3D min_t(unsigned int, full_track_bias, DASD_FT_BIAS_M=
-AX);
-> +	/* only the "always" endpoint forces fulltrack unconditionally here */
-> +	device->fulltrack =3D (device->ft_bias >=3D DASD_FT_BIAS_MAX) ? 1 : 0;
-
-[Severity: Medium]
-Does this initialization miss the intended default behavior described in the
-commit message?
-
-With the default ft_bias of 50, the ternary operator evaluates to 0, which
-disables the feature by default during device initialization. However, in
-full_track_bias_store() in dasd_devmap.c, the code uses:
-
-    device->fulltrack =3D val ? 1 : 0;
-
-meaning if an administrator manually writes the exact same default value of=
- 50
-to sysfs, the flag flips to 1. Should this initialization match the sysfs s=
-tore
-logic to enable full-track writes out-of-the-box for any non-zero value?
-
-> +
->  	if (private->conf.gneq) {
->  		value =3D 1;
->  		for (i =3D 0; i < private->conf.gneq->timeout.value; i++)
+Since ERP requests allocated via dasd_alloc_erp_request() do not set
+callback_data, req becomes NULL and is immediately dereferenced by
+blk_rq_pos(). Could this cause a kernel panic, and should dasd_eckd_ese_rea=
+d()
+be updated to use dasd_get_callback_data(cqr) instead?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260801180033.3679=
-412-1-sth@linux.ibm.com?part=3D13
+412-1-sth@linux.ibm.com?part=3D2
