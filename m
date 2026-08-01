@@ -1,45 +1,45 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 09BB9356779
-	for <linux-s390@vger.kernel.org>; Sat,  1 Aug 2026 11:37:15 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 02254489863
+	for <linux-s390@vger.kernel.org>; Sat,  1 Aug 2026 11:38:36 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785584237; cv=none; b=g0BjJ0q6pqSaX3GiDX8qdMQqi2jqW1ursO/v8umuV6tc7yBpJpPfRxP6o+GaZ2XP6cnFDXBIFQpqisQ1rLP64t7SP2BlHBE2s8zI+od1ncqYJTJRLVFnIBKvqV38r7flKLnRIwEp1X5BypvCXTqJuWs6zMGcWgvroVag8MJIa9g=
+	t=1785584318; cv=none; b=niPHXotptds0BMagN2qNVmVUF8lfR8aTbW2E9QL9f8vqCYX960rPJso14gskHiAgnBkMw0/nzPF1h7eoNsFbbfFdpWMXF7fv9xB8dxdlh6M7aG9eevUQkYzdjHRg1ejOxCs/73ABgQZWehMvJETRiw2UiorZF30WegAkWyBEaCU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785584237; c=relaxed/simple;
-	bh=BvldfPhOgQ+XsAjo/6ORMpnUOnZujeiJLVRveBs5paY=;
+	s=arc-20240116; t=1785584318; c=relaxed/simple;
+	bh=46/ab33HjaGPaR4M3GEfmC+1lrc8wxaoKNnIVOAJsIs=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=dYeGAf56ZII+bQpe487wXp5u6uFzKptbbT7QrP3ZBXn2Hpmvay4edivt2JnO2XntI7KK3su0A7dkDdjSvqhZn5Hned5hhbOW4HzXF6l9qL1IeiQTU9nL9zONH3gLlyjBfaCGg+SWei7w0XuFIrR3qENqBAzUTSQ/6HWmSwDcMTo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FnZkbmdq; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=d9MXS4oHCPPVButJbqBPbCMO7fStlKBRncp0qGnIcHWe1lecw4w46EMXnzMALi6vTtxjEczChmllTDII7s2Kl9VPyNIvr9GVwWSmhtHsQL+ReGAZ40c0gzI4O1Sop3Mvjy28Syzyxp0Bni1UfQgCj2tjOHVGZTda9Eu989Fdl00=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XUyLXd5S; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FnZkbmdq"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 611961F00AC4;
-	Sat,  1 Aug 2026 11:37:15 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XUyLXd5S"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BEA71F00AC4;
+	Sat,  1 Aug 2026 11:38:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785584235;
-	bh=y1KPZBYzdwJ3mXzlyZPxRzaL1JoGMprxjHQDk/Pn/ns=;
+	s=k20260515; t=1785584316;
+	bh=GUCmySwZ68ZjC3ez0FA4nGaOI9jE98UVVJ4oJ5MaxBY=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=FnZkbmdqxnCMVqZyXl2CxfssdjsI+v2xWHFQmZCb/w4bSdwVMKD8o14Dm/zWOVc8k
-	 UiUIN/B7fa2z+QDK5htGUIt9fq138Uy/VKp0naMak25DVMN7dVjnjlk4PsDTAbDCHD
-	 I64thL1Jjb0l0LBoyzL9tqKQIFDY5O7PWJLLcz/+5doWbomPm3l6tgl+lIIyPxsuzq
-	 sMiy1pStXPMIGPfyHb8sIuLAiwpr01W5qgdrGnD+xUaDePGWc5Pux/oQKwv6IJMqkL
-	 MOE0E2oERW4uyKDE1Vw46C3zgVVlDEuUlVQQgBRxN8aAJiH54PbJk/7x5gJ/ztp6r0
-	 tkxegnIwDpI/g==
+	b=XUyLXd5S2K8HziTXWeWgFoLChGvLnO/Y6jZVZ3L2VKMCNY+tlcSJvbYJAH5RbY6sh
+	 47MJ6wZ+JxNUj6QWVZyLn3JVsHoE7DZIl7wO7QYywlFMUgRlCjSDeoiEhO0VAbG0lO
+	 PXlCZIiLkuePlUcdyaSGovgciqvi5RiINn5nzD91l1q0y63ddUNs5/2XkBMxtycz0x
+	 P5M6kXc9zwQxKx8K94LMzSy1DKcIxqwyc+LhA5ZODQ/YJr4jqNAyv2pII5Um99uY8b
+	 tjC0zpIldguny2EdUZtu3E8Sr7ZwXKxDI84FLlt+fwKkRoKLFCXGFbNpgwcWWMLafp
+	 VvAd7YQ5/iKfg==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v6 09/18] s390/dasd: Extend prepare_itcw() to support
- WRITE_FULL_TRACK
+Subject: Re: [PATCH v6 15/18] s390/dasd: Detect ESE volumes from the on-disk
+ format label
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Stefan Haberland" <sth@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>, "Heiko
- Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
-In-Reply-To: <20260801111008.3391031-10-sth@linux.ibm.com>
+Cc: "Heiko Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Vasily
+ Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org
+In-Reply-To: <20260801111008.3391031-16-sth@linux.ibm.com>
 References: <20260801111008.3391031-1-sth@linux.ibm.com>
- <20260801111008.3391031-10-sth@linux.ibm.com>
+ <20260801111008.3391031-16-sth@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sat, 01 Aug 2026 11:37:15 +0000
-Message-Id: <20260801113715.611961F00AC4@smtp.kernel.org>
+Date: Sat, 01 Aug 2026 11:38:35 +0000
+Message-Id: <20260801113836.5BEA71F00AC4@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -48,131 +48,106 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
-- [High] The newly added DASD_ECKD_CCW_WRITE_FULL_TRACK case correctly init=
-ializes fields but they are unconditionally overwritten by trailing common =
-code in prepare_itcw().
-- [High] Uninitialized `start_trk` and `end_trk` in non-format requests cau=
-se false-positive collision detection when track 0 is formatted.
+
+New issues:
+- [Medium] The in-memory ESE label cache (`private->ese_label_valid`) is no=
+t invalidated when track 0 is formatted without an ESE label, leaving the d=
+river with a stale ESE state that no longer matches the physical disk.
+
+Pre-existing issues:
+- [High] Fatal NULL pointer dereference in `dasd_release_space()` for devic=
+es whose discipline lacks the `is_ese` method (e.g., FBA or DIAG devices).
 --
 
---- Patch [9]: [PATCH v6 09/18] s390/dasd: Extend prepare_itcw() to support=
- WRITE_FULL_TRACK ---
-commit c073fedc91e7807d5ec588cea865d8b63661d671
+--- Patch [15]: [PATCH v6 15/18] s390/dasd: Detect ESE volumes from the on-=
+disk format label ---
+commit d17ebb7bd94d36c62afdabb020d82a8a18a64bba
 Author: Stefan Haberland <sth@linux.ibm.com>
+Subject: s390/dasd: Detect ESE volumes from the on-disk format label
 
-s390/dasd: Extend prepare_itcw() to support WRITE_FULL_TRACK
-
-This commit extends prepare_itcw() to build the FCX prefix block (PFX +
-LRE) for the new DASD_ECKD_CCW_WRITE_FULL_TRACK track-mode I/O command. It
-allocates the prefix buffer on the stack to prevent memory allocation
-failures under pressure during the writeback path.
+This commit updates the DASD driver to detect Extent Space Efficient (ESE)
+volumes by reading the format label from track 0 during device bring-up. It
+caches this label and derives the ESE status from it, allowing volumes copi=
+ed
+from ESE storage to maintain their thin-provisioned handling on different
+hardware.
 
 > diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eck=
 d.c
-> index 77ceba151560b..01c6cdc8430fe 100644
+> index ebffb3364c33c..35a970e006fd0 100644
 > --- a/drivers/s390/block/dasd_eckd.c
 > +++ b/drivers/s390/block/dasd_eckd.c
-> @@ -4383,11 +4383,13 @@ static int prepare_itcw(struct itcw *itcw,
-
 [ ... ]
-
->  	switch (cmd) {
-> @@ -4446,7 +4453,38 @@ static int prepare_itcw(struct itcw *itcw,
->  		 * data as well.
->  		 */
->  		if (dedata->ga_extended & 0x08 && dedata->ga_extended & 0x02)
-> -			pfxdata.validity.time_stamp =3D 1; /* 'Time Stamp Valid' */
-> +			pfxdata->validity.time_stamp =3D 1; /* 'Time Stamp Valid' */
-> +		pfx_cmd =3D DASD_ECKD_CCW_PFX;
-> +		break;
-> +	case DASD_ECKD_CCW_WRITE_FULL_TRACK:
-> +		dedata->mask.perm =3D 0x3;
-> +		dedata->mask.auth =3D 0x00;
-> +		dedata->attributes.operation =3D basepriv->attrib.operation;
-> +		dedata->blk_size =3D blksize;
-> +		dedata->ga_extended |=3D 0x42;
-> +		rc =3D set_timestamp(NULL, dedata, basedev);
-> +		lredata->operation.orientation =3D 0x0;
-> +		lredata->operation.operation =3D 0x3F;
-> +		lredata->extended_operation =3D 0x11;
-> +		lredata->auxiliary.check_bytes =3D 0x2;
-> +		lredata->extended_parameter_length =3D 0x02;
-> +		if (count > 8) {
-> +			lredata->extended_parameter[0] =3D 0xFF;
-> +			lredata->extended_parameter[1] =3D 0xFF;
-> +			lredata->extended_parameter[1] <<=3D (16 - count);
-> +		} else {
-> +			lredata->extended_parameter[0] =3D 0xFF;
-> +			lredata->extended_parameter[0] <<=3D (8 - count);
-> +			lredata->extended_parameter[1] =3D 0x00;
-> +		}
-> +		sector =3D 0xFF;
+> @@ -3224,23 +3353,35 @@ static int dasd_eckd_format_device(struct dasd_de=
+vice *base,
+>  	struct dasd_eckd_private *private =3D base->private;
+>  	int rc;
+> =20
+>  	rc =3D dasd_eckd_format_process_data(base, fdata, enable_pav, 0, NULL,
+>  					   0, NULL);
+> +	if (fdata->start_unit !=3D 0)
+> +		return rc;
+> +
+> +	if (rc) {
 > +		/*
-> +		 * If XRC is supported the System Time Stamp is set. The
-> +		 * validity of the time stamp must be reflected in the prefix
-> +		 * data as well.
+> +		 * The format failed, so the label cached speculatively during
+> +		 * CCW build may not match the disk; drop it so is_ese() falls
+> +		 * back to the hardware field until the next successful format
+> +		 * or bring-up.
 > +		 */
-> +		if (dedata->ga_extended & 0x08 && dedata->ga_extended & 0x02)
-> +			pfxdata->validity.time_stamp =3D 1; /* 'Time Stamp Valid' */
->  		pfx_cmd =3D DASD_ECKD_CCW_PFX;
->  		break;
->  	case DASD_ECKD_CCW_READ_COUNT_MT:
+> +		private->ese_label_valid =3D false;
+> +		return rc;
+> +	}
 
-[Severity: High]
-Does the trailing code in prepare_itcw() overwrite these initialized fields
-for the new full-track write command?
+[Severity: Medium]
+When track 0 is formatted, what happens if no ESE label is written?
 
-In the trailing code further down in prepare_itcw():
+If a user issues the BIODASDFMT ioctl with start_unit =3D=3D 0 and a non-CDL
+layout (e.g., intensity & 0x08 =3D=3D 0), dasd_eckd_build_format() might not
+write a new label. The physical label on track 0 is then zeroed or destroyed
+by the format.
 
-	if (cmd =3D=3D DASD_ECKD_CCW_READ_COUNT_MT) {
-		lredata->auxiliary.length_valid =3D 0;
-		lredata->auxiliary.length_scope =3D 0;
-		lredata->sector =3D 0xff;
-	} else {
-		lredata->auxiliary.length_valid =3D 1;
-		lredata->auxiliary.length_scope =3D 1;
-		lredata->sector =3D sector;
-	}
-
-If rec_on_trk is non-zero, it will recalculate sector and overwrite the 0xFF
-initialized above, and it will unconditionally set length_valid =3D 1 which=
- is
-incorrect for WRITE_FULL_TRACK. Should the exception condition be updated to
-also exclude the new full-track write command?
+However, dasd_eckd_format_device() only clears private->ese_label_valid on
+failure. Could this regression leave the driver using a stale ESE state that
+no longer matches the physical disk after a successful format?
 
 [ ... ]
-
-Additional note regarding track-based collision detection introduced in this
-series:
+> @@ -4241,6 +4382,14 @@ static int dasd_eckd_release_space_trks(struct das=
+d_device *device,
+>  static int dasd_eckd_release_space(struct dasd_device *device,
+>  				   struct format_data_t *rdata)
+>  {
+> +	/*
+> +	 * Space release (and thus a quick format) requires real ESE hardware.
+> +	 * is_ese() may be true from a copied label on non-ESE hardware, so gate
+> +	 * on the hardware capability, not on is_ese().
+> +	 */
+> +	if (!dasd_eckd_ese_capable(device))
+> +		return -EOPNOTSUPP;
+> +
 
 [Severity: High]
-Can uninitialized start_trk and end_trk in non-format requests cause
-false-positive collision detection when track 0 is formatted?
+This isn't a bug introduced by this patch, but does the ioctl path for space
+release have a NULL pointer dereference for devices without an is_ese metho=
+d?
 
-Standard read/write requests are allocated via dasd_smalloc_request(), which
-zeroes the request struct, but start_trk and end_trk are never initialized =
-for
-normal I/O requests (leaving them at 0).
+In drivers/s390/block/dasd_ioctl.c, dasd_release_space() contains this chec=
+k:
 
-When a format request completes on track 0 (format->start_trk =3D=3D 0),
-dasd_return_cqr_cb() evaluates dasd_req_conflict() against all in-flight
-requests:
+    if (!device->discipline->is_ese && !device->discipline->is_ese(device))
+        return -ENOTSUPP;
 
-drivers/s390/block/dasd_int.h:dasd_req_conflict() {
-	...
-	return !(cqr1->format->end_trk < cqr2->start_trk ||
-		 cqr2->end_trk < cqr1->format->start_trk);
-}
+Since it uses a logical AND (&&) instead of OR (||), if the discipline (e.g=
+.,
+FBA or DIAG) lacks the is_ese method, the first operand evaluates to true.
 
-For uninitialized standard I/O requests, the overlap condition
-!(0 < 0 || 0 < 0) evaluates to true, erroneously flagging all in-flight
-standard I/O requests with collision =3D true.=20
+Will this force the evaluation of the second operand, immediately
+dereferencing the NULL function pointer when a user issues the BIODASDRAS
+ioctl?
 
-If those requests later receive an NRF error and require formatting, their
-collision flag incorrectly tells test_and_set_format_track() they collided,
-causing an immediate I/O retry without actually formatting the track. Does
-this result in infinite retry loops and I/O failures on track 0?
+>  	if (rdata->intensity & DASD_FMT_INT_ESE_FULL)
+>  		return dasd_eckd_release_space_full(device);
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260801111008.3391=
-031-1-sth@linux.ibm.com?part=3D9
+031-1-sth@linux.ibm.com?part=3D15
