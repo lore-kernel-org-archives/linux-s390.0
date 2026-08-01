@@ -1,202 +1,189 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 09D9330CD89
-	for <linux-s390@vger.kernel.org>; Sat,  1 Aug 2026 18:39:03 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D18C2D6E6C
+	for <linux-s390@vger.kernel.org>; Sat,  1 Aug 2026 18:46:51 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785609545; cv=none; b=Wgn74Z3my6Cjh9daP/N0oUexMXrc+xg6zOTQ1iKrWzutN4TQMSO7ESbbeq6hzoyOXSZcMX45E8s7/hlWBpN/C/a2XAqoPh3UCR1xcAQdYLrjWUAkppJknT4LWZcYZrKkZsObl1RgSTTKpgOCuW9V1vmmRmVVBHHBcLV9CLaFIjc=
+	t=1785610012; cv=none; b=JcRUMFrEYnXf3yopijPozkrj6uZT2lw6m8JGb2Z0jEuA6j8bHLDk1MxoJt0ZGjQntzsUvk9yTC/a6UqayQ8lORKMAcmoK7CbQpRaZWczQzVuesV05XNM6twYNhK6alHEiv+AWCf4zbFfuOQtXKOtbDhAffGgCE4o93RrEnuSKOk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785609545; c=relaxed/simple;
-	bh=CbaVR4ISR/Bid6c/ersHL1mUFXL6zXU2JDCsd5Tkl/I=;
+	s=arc-20240116; t=1785610012; c=relaxed/simple;
+	bh=UjR7JmvUCGTfmuZBAfC26Y31SP7BTPsbg/w4RnAbIGY=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=mz1VGoc5L4Z/3pVADOaXvA/Oj4nB5syE5r1d9Xu1g+wcKbtuyH/0cOXFc14iNhn9HFlSXn9bUpo2QBESsrJ51EWOI5x/fps+r4+Zgmnfr1MOkuATm60kEPLVQQPV+eank1o4sCSpUVdcAd6JzpY+9mXPAd3QoM4KAbAUfYx4l3M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=klQ1D/qg; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=H5iPu0u5l9S7piu3KghSgLV2IrP4d5dh25JuQWgsPR+ACQIKiUZ2bbAe2cxrcTDf14xZT4WLmJpLH+4rYrFOx9qt7VyA6riMHsx9XHbRGc7+MQEQIgW55VdWCvD5pzJBPE8SpTGXehI8Z3Jic+4eI53zg4m2EOHXi7HX507A60g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=I+9zljS3; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="klQ1D/qg"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50CEB1F00AC4;
-	Sat,  1 Aug 2026 18:39:03 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="I+9zljS3"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E941B1F00AC4;
+	Sat,  1 Aug 2026 18:46:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785609543;
-	bh=6mysQOLZTiyVPbOXZRoXnYf6++QyxzlmeNmGkCa9kEA=;
+	s=k20260515; t=1785610011;
+	bh=SSw6GcBwIdgH3VG4tDEN5rSNsQ2Y9OK68AsucYHCAvg=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=klQ1D/qgYUc0MKXGEhhjG5DEvn5+zgmDr9dEyh55W/rCSy9v4A9hGrV8xJ5+wcGjN
-	 BJOjEjtJLPyhlnfszwOrv5T4Po/K7HL/cmqKBMUTUPGMHRNxkYxyDKpDEl+ajbNltn
-	 nqW47kOPMUbfwK6Fw6RdirNKeOpdEL14xixPEsI+PBycEVKdwOEhF1Gmy0F2OuszeB
-	 jLGEYDq0qryrF1uL09vyKnXPINXcs5abFk3i9WEPboG3Tupo1h3tn9SrTsc16wYho2
-	 55MsLVVZrUbf2qhnL+nXmU6jU6gR56D78JrYinPiUEPr5n076wzmunCvpScMvVfCNv
-	 lO8K1SE2vVUow==
+	b=I+9zljS3ycZoTqDqcU2Lx4PQZmhkh6rAbAJBpslkH6GuBQOajykL3v+pvzXjTXjQi
+	 V6i2gSnGd5fKMFba1pJyL5HM8nWFQXIEvPcr68lZJhye62K59U4Fa6ek9eLg8O904X
+	 tSiKtnDdZKtlBpKdTApfLtXgM0FVwCw48Ca391c6P9i2A+nOPiFqp7qWPCZ2f+sl3W
+	 x1r4tc8CAhUe94RgX+cmmRa4KcOyIKvnGfd4TqIO/p+7Nd85Q4l5KRfl5ZDg2IMIAt
+	 1tZczjKPneD03f9EqxdOO/HY9QTWdCieX2Jux7agpLi03cy35iSf0188p0eMLiSMxy
+	 d7G41dBSMK/mA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v7 16/19] s390/dasd: Detect ESE volumes from the on-disk
- format label
+Subject: Re: [PATCH v7 18/19] s390/dasd: Re-enable discard support for ESE
+ volumes
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Stefan Haberland" <sth@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Vasily
- Gorbik" <gor@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>
-In-Reply-To: <20260801180033.3679412-17-sth@linux.ibm.com>
+Cc: "Heiko Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org
+In-Reply-To: <20260801180033.3679412-19-sth@linux.ibm.com>
 References: <20260801180033.3679412-1-sth@linux.ibm.com>
- <20260801180033.3679412-17-sth@linux.ibm.com>
+ <20260801180033.3679412-19-sth@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sat, 01 Aug 2026 18:39:02 +0000
-Message-Id: <20260801183903.50CEB1F00AC4@smtp.kernel.org>
+Date: Sat, 01 Aug 2026 18:46:50 +0000
+Message-Id: <20260801184650.E941B1F00AC4@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 4 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-
-New issues:
-- [Medium] The in-memory ESE format label cache (`ese_label_valid`) is not =
-invalidated when the on-disk label is overwritten or erased without a new l=
-abel being explicitly written.
-- [Medium] Lockless read and non-atomic update of the `ese_label` cache cau=
-ses data races and potential torn reads.
-
-Pre-existing issues:
-- [Critical] Heap buffer overflow in `dasd_eckd_build_format()` when format=
-ting multiple tracks with intensity 0x01.
-- [High] Pre-existing NULL pointer dereference in `dasd_release_space()` fo=
-r devices without an `is_ese` discipline function.
+- [High] Setting `discard_granularity` to a non-power-of-two value breaks b=
+lock layer bitwise alignment macros, resulting in misaligned discard chunks=
+ that silently fail to release any storage space.
 --
 
---- Patch [16]: [PATCH v7 16/19] s390/dasd: Detect ESE volumes from the on-=
-disk format label ---
-commit ac9e4583836d81406ee7f0dc251d245f5892a7de
+--- Patch [18]: [PATCH v7 18/19] s390/dasd: Re-enable discard support for E=
+SE volumes ---
+commit 991725ca26feab13c3c8f77dd5e57ee71891a902
 Author: Stefan Haberland <sth@linux.ibm.com>
-Subject: s390/dasd: Detect ESE volumes from the on-disk format label
 
-Read the format label from track 0 record 4 at device bring-up and cache
-it. When a valid label is present, is_ese() is derived from it instead of
-the hardware volume field. The cache is refreshed after a format so is_ese()
-stays coherent without an offline/online cycle.
+s390/dasd: Re-enable discard support for ESE volumes
+
+This patch re-enables block-layer discard support for ESE ECKD volumes by
+routing discard operations to release allocated space (RAS). It introduces
+extent-aligned limit constraints and handles discarded ranges at the driver
+level.
+
+> diff --git a/drivers/s390/block/dasd.c b/drivers/s390/block/dasd.c
+> index 0e01b498b0e8e..cf6a405ee0c75 100644
+> --- a/drivers/s390/block/dasd.c
+> +++ b/drivers/s390/block/dasd.c
+[ ... ]
+> @@ -3172,6 +3175,18 @@ static blk_status_t do_dasd_request(struct blk_mq_=
+hw_ctx *hctx,
+>  			rc =3D BLK_STS_RESOURCE;
+>  		} else if (PTR_ERR(cqr) =3D=3D -EINVAL) {
+>  			rc =3D BLK_STS_INVAL;
+> +		} else if (PTR_ERR(cqr) =3D=3D -EOPNOTSUPP) {
+> +			/*
+> +			 * A discard that covers no whole extent releases
+> +			 * nothing. Discard is advisory, so complete it as a
+> +			 * benign no-op: the device does support discard, this
+> +			 * range just does not align to the large ESE extent
+> +			 * granularity. Returning BLK_STS_NOTSUPP would make
+> +			 * filesystems treat the device as lacking discard and
+> +			 * stop issuing it. Completed after the lock is dropped.
+> +			 */
+> +			rc =3D BLK_STS_OK;
+> +			complete_noop =3D true;
+
+[Severity: High]
+Does this code silently drop all discard requests without actually freeing
+any space, when combined with the non-power-of-two discard_granularity?
+
+If discard_granularity is not a power of two, the block layer splits the
+discard bio into misaligned chunks. The CCW builder will then reject every
+chunk with -EOPNOTSUPP because they don't cover a full extent. This handler
+intercepts the error and completes it as BLK_STS_OK, causing user space too=
+ls
+like fstrim to report success while no space is released.
 
 > diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eck=
 d.c
-> index 7a27dc08fb961..68736f9efcaf2 100644
+> index 27833c6d7ddf3..57e927926be1a 100644
 > --- a/drivers/s390/block/dasd_eckd.c
 > +++ b/drivers/s390/block/dasd_eckd.c
-
 [ ... ]
-
-> @@ -1676,7 +1676,8 @@ static int dasd_eckd_read_vol_info(struct dasd_devi=
-ce *device)
-> +static int dasd_eckd_is_ese(struct dasd_device *device)
+> +static struct dasd_ccw_req *
+> +dasd_eckd_build_cp_discard(struct dasd_device *device, struct dasd_block=
+ *block,
+> +			   struct request *req, sector_t first_trk,
+> +			   sector_t last_trk, unsigned int first_offs,
+> +			   unsigned int last_offs, unsigned int blk_per_trk)
 > +{
-> +	struct dasd_eckd_private *private =3D device->private;
-> +
-> +	/* sysfs may read this during set_online before private is allocated */
-> +	if (!private)
-> +		return 0;
-> +
-> +	if (private->ese_label_valid)
-> +		return !!(private->ese_label.flags & DASD_ESE_LABEL_F_ESE);
-
-[Severity: Medium]
-Does this code allow a data race when reading the label flags?
-
-Looking at dasd_eckd_is_ese() and dasd_eckd_on_demand_format(), they read
-private->ese_label_valid and private->ese_label.flags without locks or
-memory barriers.
-
-If a concurrent update happens in dasd_eckd_fill_format_label() during a
-format operation, could this lead to a torn read and transiently incorrect
-sysfs output?
-
-> +
-> +	return dasd_eckd_ese_capable(device);
-> +}
-
 [ ... ]
-
-> @@ -2733,7 +2847,12 @@ static void dasd_eckd_fill_format_label(struct das=
-d_device *device, void *data,
->  	label->format_tod =3D get_tod_clock();
->  	strscpy(label->kernel_version, init_utsname()->release,
->  		sizeof(label->kernel_version));
-> +
 > +	/*
-> +	 * Populate the cache directly from the bytes just computed instead of
-> +	 * synchronously reading them back from disk after the write lands.
+> +	 * RAS releases whole extents. Only release extents that lie entirely
+> +	 * within the (now whole-track) discard range by rounding inward to ext=
+ent
+> +	 * boundaries - an extent shared with a live allocation must never be
+> +	 * released. If no whole extent is covered there is nothing to release
+> +	 * safely (e.g. a sub-extent discard, unavoidable with large extents), =
+so
+> +	 * reject the request rather than release too much.
 > +	 */
-> +	private->ese_label =3D *label;
-> +	private->ese_label_valid =3D true;
-
-[Severity: Medium]
-Does this code update the 512-byte label cache safely?
-
-Since this struct copy is not atomic, could concurrent readers in
-dasd_eckd_is_ese() observe an inconsistent state?
-
->  }
-
-[ ... ]
-
-> @@ -3227,23 +3353,35 @@ static int dasd_eckd_format_device(struct dasd_de=
-vice *base,
-> -	if (fdata->start_unit =3D=3D 0)
-> -		private->ese_format_quick =3D 0;
-> +	private->ese_format_quick =3D 0;
-> +
-> +	/*
-> +	 * A full format returns the device to a fully sparse state and has just
-> +	 * committed a fresh label; restart the heuristic from ft1 on the now
-> +	 * current is_ese state, without an offline cycle.
-> +	 */
-> +	dasd_ft_bias_apply(base);
-> +
->  	return rc;
->  }
-
-[Severity: Medium]
-Does this code properly invalidate the label cache when the label is erased?
-
-In dasd_eckd_format_device(), the success path clears ese_format_quick but
-does not clear ese_label_valid when track 0 is formatted with a non-CDL
-layout (intensity 0) where no label is explicitly written.
-
-Similarly, space release successfully unallocates all tracks (erasing
-track 0) in dasd_eckd_release_space_full() but fails to invalidate the
-label cache.
-
-Could this cause the driver to retain a stale label cache and incorrectly
-apply ESE-specific performance heuristics to non-ESE devices?
-
-
-Additional observations about related pre-existing code:
+> +	first_ext_trk =3D roundup(first_trk, trks_per_ext);
+> +	/* one past the last whole extent inside the range (exclusive) */
+> +	last_ext_end =3D rounddown(last_trk + 1, trks_per_ext);
+> +	if (first_ext_trk >=3D last_ext_end)
+> +		return ERR_PTR(-EOPNOTSUPP);
 
 [Severity: High]
-This is a pre-existing issue, but does dasd_release_space() in
-drivers/s390/block/dasd_ioctl.c have a NULL pointer dereference?
+Does this safety check reject all the chunks generated by the block layer?
 
-If a device uses a discipline that does not implement the is_ese callback,
-such as FBA:
+Because the block layer splits the discard bio into unaligned chunks based =
+on
+the corrupted math from discard_granularity, dasd_eckd_build_cp_discard()
+determines that no single chunk covers a full hardware extent. It rejects e=
+very
+chunk with -EOPNOTSUPP, leading to the silent failure described above.
 
-    if (!device->discipline->is_ese && !device->discipline->is_ese(device))
+[ ... ]
+> @@ -7723,6 +7782,51 @@ static unsigned int dasd_eckd_max_sectors(struct d=
+asd_block *block)
+>  	return DASD_ECKD_MAX_BLOCKS << block->s2b_shift;
+>  }
+> =20
+> +/*
+> + * Discard on ECKD releases space through RAS, which works on whole exte=
+nts.
+> + * Advertise extent granularity so the block layer only sends extent-ali=
+gned
+> + * discards (avoiding partially specified extents), and only for volumes=
+ on ESE
+> + * hardware. Non-ESE devices are left without discard limits.
+> + */
+> +static void dasd_eckd_disc_limits(struct dasd_block *block,
+> +				  struct queue_limits *lim)
+> +{
+[ ... ]
+> +	/*
+> +	 * ext_bytes is the hardware extent size and is not a power of two, so
+> +	 * the block layer's power-of-two round_up()/round_down() alignment
+> +	 * helpers compute it only approximately. That is a hint, not a
+> +	 * correctness requirement: RAS safety is enforced in the CCW builder,
+> +	 * which rounds the range inward to whole extents and rejects a request
+> +	 * that covers no whole extent, so a misaligned range is never
+> +	 * over-released. At worst a few sub-extent discards are declined.
+> +	 */
+> +	lim->discard_granularity =3D ext_bytes;
 
-Could this logic flaw trigger a panic when a user issues the release space
-ioctl, since it uses a logical AND instead of OR?
+[Severity: High]
+Will setting discard_granularity to a non-power-of-two value break the block
+layer's bitwise alignment calculations?
 
+The block layer's alignment macros, such as round_down() and round_up()
+(defined in include/linux/math.h), strictly require a power of two because
+they use bitwise AND masking.
 
-[Severity: Critical]
-This is a pre-existing issue, but does dasd_eckd_build_format() in
-drivers/s390/block/dasd_eckd.c have a heap buffer overflow?
+When applied to non-power-of-two values, they calculate incorrect, unaligned
+results. For example, round_down(BIO_MAX_SIZE, 15482880) calculates
+1048576 & ~15482879, returning exactly 1MB instead of 0.
 
-When formatting multiple tracks with intensity 0x01, the memory is allocated
-for the CCW chain using:
-
-    cplength =3D 2 + rpt * nr_tracks;
-
-However, the generation loop consumes an extra CCW per track for record zer=
-o,
-meaning it consumes 1 + rpt CCWs per track.
-
-If a user requests a format spanning multiple tracks, could this deficit
-cause an out-of-bounds write into the dasd_alloc_chunk heap memory pool?
+This is the root cause of the broken discards, as it causes the block layer
+to compute completely unaligned boundaries instead of an approximation.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260801180033.3679=
-412-1-sth@linux.ibm.com?part=3D16
+412-1-sth@linux.ibm.com?part=3D18
