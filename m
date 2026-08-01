@@ -1,45 +1,45 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D783236F8F9
-	for <linux-s390@vger.kernel.org>; Sat,  1 Aug 2026 11:33:26 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 501A1356773
+	for <linux-s390@vger.kernel.org>; Sat,  1 Aug 2026 11:36:35 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785584008; cv=none; b=pHutITGP6bU8C9adSQxf8oIhpSm45s8jjoRASQVSTqT5aZXuXXUtQ0Wr/y+3JgLNSjlYOfBABW0oMLqQiiKcXDC8k2TtrgoJxjsCCDHdMTUjFQPyNj23Osz6SMeBYB+QpqHCUh5ExrbPpcjJvnKzVuu/PVsubNAT8R3A9bRVWQI=
+	t=1785584196; cv=none; b=Lsg+rEjBn5BcgdNS3sBsAiPBjmX8u/G12SuogO/GNZq/rVFMBjfpO5tCWWTDgBQwWCCIk3wd3noKU96Im5DEYsvNmB4jHNBe5t5VRD/Bihci3g2hU1NvKUywP0oWV2tAHcs502X0N4Y+LMPMY4AemZrpRvF14fEnVoXsUjP/udw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785584008; c=relaxed/simple;
-	bh=zQhFxRAtuX95vSV8Ult6FkNzu2zQ+D9Qgfos0IsgWoM=;
+	s=arc-20240116; t=1785584196; c=relaxed/simple;
+	bh=35FdbKRqTkMjyRZI/8a5yJJA0+3EEpfDP1UNczZrYZw=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=gYuE2YyPYZ31OAXq3AJajw5UPPJC9XxSXILAYzRvLWq9jKHtYMphjVhk92SGleiscrhbifLvAmw0sr8PFMfGR10sLJDrdF4ItKfeEdo/B+r6ecXVDbI+ZaMcH1N8Ki2tyg1Or0eHQ5PMlkQiZFi79Q08a0dzmZQ7wv+ADyt6lsI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RGiiNAUv; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=b5KNMVQ4ejx0E5wL+EVOwuYBglI1Ouy2gGETc0xiU0nyeEJlb8Nilb8ZZfwgbnDJUNyV6V6U6pKMu2uU6n0UntHKF8APZWMnhPbmqe0hWucIhyb2K2y4JJo+Rt/ngUbTtAhVPhhCF7xkUWHnvhf/LUjykACZ8HxAd8U4IVbWBh0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YbyE4VoV; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RGiiNAUv"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46DDD1F00AC4;
-	Sat,  1 Aug 2026 11:33:26 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YbyE4VoV"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 959421F00AC4;
+	Sat,  1 Aug 2026 11:36:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785584006;
-	bh=kvj8s2Q9Ffp9GHgH4HZxonkUUaKt4v7U+zwfVFJU6DA=;
+	s=k20260515; t=1785584194;
+	bh=35FdbKRqTkMjyRZI/8a5yJJA0+3EEpfDP1UNczZrYZw=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=RGiiNAUvFmh+XlUKiA6tsvaDILjxJVnbybZ3WtpXiRfeNAe2OQdqar8Irr6WZU7uG
-	 n3ALqCgDgIxh3eXPLb+9IyJu/CoBhdy87Hm3mg7A00TCFwiCCJ4F/u5oCn1OPGrNhB
-	 EZ0B2UpZs8ff+rqfOgqneQ66bBk5OpOwsQqq5892++D82VV4AXMHdGObpl3Utu8LKB
-	 QrB4o0heHEvIeOa1GP7SvMUH6CkpzzzfZdnSMHLfXGGZwCZHuAHme9+AabALiMCp1C
-	 7RJD772D/yF0nFYLFcE+R12nrLkv0nNtasrEAofyHRoQyfgADf2yZ3Berqvr6FOsdX
-	 gV9UCqi4d7Dlg==
+	b=YbyE4VoV2R90oDg2oiIr3bK6W49V0eWN9MCouNjHq1vohYeN4uTN2zVHvka60XYDJ
+	 IGAsf6ZUhHJOgK8PfWfe/YXLuLMLP4FMQsKaOn1lJ3Ltl9GA6EURXhW+yN+1GfuH+5
+	 uAPVksnCjJvwFhKDy2MPFzxkqHGEP00Llkdh0Kgn3LEcpZr1JRhQb7O54YJlF8+Dvr
+	 /m9zdnVXp5cmeS2QYjIGtS3MEaitWc/m2GyQkTWJ1HPAdKOM+6XwGqbaZMaeX9FiNW
+	 WLG4egm4RBLx92Gmfq5nYHeHeCmtTqJZc9Vwpj3E3lYVENBIn6JjuwiTiec5BHevy5
+	 38pRks0WVaaMA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v6 14/18] s390/dasd: Stamp a format label into newly
- formatted volumes
+Subject: Re: [PATCH v6 08/18] s390/dasd: Add range-based format-track
+ collision detection
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Stefan Haberland" <sth@linux.ibm.com>
 Cc: "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
  Carstens" <hca@linux.ibm.com>
-In-Reply-To: <20260801111008.3391031-15-sth@linux.ibm.com>
+In-Reply-To: <20260801111008.3391031-9-sth@linux.ibm.com>
 References: <20260801111008.3391031-1-sth@linux.ibm.com>
- <20260801111008.3391031-15-sth@linux.ibm.com>
+ <20260801111008.3391031-9-sth@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sat, 01 Aug 2026 11:33:25 +0000
-Message-Id: <20260801113326.46DDD1F00AC4@smtp.kernel.org>
+Date: Sat, 01 Aug 2026 11:36:34 +0000
+Message-Id: <20260801113634.959421F00AC4@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -48,136 +48,62 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
-
-New issues:
-- [Medium] Unsynchronized modification of the ese_format_quick state flag.
-
-Pre-existing issues:
-- [High] Heap buffer overflow in dasd_eckd_build_format when handling speci=
-alized format intensities.
+- [Critical] Premature removal of the `trkcount` check introduces a double-=
+format vulnerability that breaks bisection and causes data corruption.
+- [Low] Unsynchronized modification of `format->cqr` outside of `format_loc=
+k` causes a data race.
 --
 
---- Patch [14]: [PATCH v6 14/18] s390/dasd: Stamp a format label into newly=
- formatted volumes ---
-commit 1a0c863785cfe5455ad8a4386ef60684b5d42b93
+--- Patch [8]: [PATCH v6 08/18] s390/dasd: Add range-based format-track col=
+lision detection ---
+Note: The format of this review has been altered to a free-form summary to
+comply with system recitation restrictions. Standard diff quoting has been
+omitted.
+
+commit a04e5d02e092ddaf9f460306f01f82bfd4b72118
 Author: Stefan Haberland <sth@linux.ibm.com>
+s390/dasd: Add range-based format-track collision detection
 
-s390/dasd: Stamp a format label into newly formatted volumes
+This commit replaces the single format_entry with an array to support multi=
+ple
+in-flight format requests, and modifies conflict detection to use range
+overlaps. It also removes the trkcount snapshot in dasd_start_IO().
 
-When a CDL volume is formatted, write a small on-disk label so the format
-can later be recognised by the kernel. The label records a magic, a version,
-whether the volume is ESE, and whether it was formatted quick (space releas=
-ed,
-thin) or full.
+[Severity: Critical]
+In dasd_start_IO(), the snapshot of trkcount was removed, which previously
+protected against delayed-interrupt races. In test_and_set_format_track(),
+this was replaced with a scan of format_list.
 
-> diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eck=
-d.c
-> index 67c301e182c0f..ebffb3364c33c 100644
-> --- a/drivers/s390/block/dasd_eckd.c
-> +++ b/drivers/s390/block/dasd_eckd.c
+However, because the new collision flag mechanism is dormant in this patch,
+does this premature removal introduce a double-format vulnerability that br=
+eaks
+bisection?
 
-[ ... ]
+If CPU 1 and CPU 2 both issue a WRITE to the same unallocated track, the
+device fails both, generating two unformatted track interrupts. If CPU 1
+processes its interrupt, formats the track, and retries its WRITE, it will
+remove the track from format_list. If CPU 2 is delayed and processes its
+interrupt after CPU 1s format completes, it calls test_and_set_format_track=
+().
 
-> @@ -2816,6 +2849,10 @@ dasd_eckd_build_format(struct dasd_device *base, s=
-truct dasd_device *startdev,
->  		return ERR_PTR(-EINVAL);
->  	}
-> =20
-> +	/* room for the label data that R4 carries in addition to its count */
-> +	if (write_label)
-> +		datasize +=3D fdata->blksize;
-> +
+Since the track is no longer in format_list and the new collision mechanism=
+ is
+inactive, CPU 2 will not detect the collision and will issue a second forma=
+t,
+potentially erasing CPU 1s freshly written data.
 
-[Severity: High]
-This is a pre-existing issue, but can this code cause a heap buffer overflo=
-w?
+[Severity: Low]
+In dasd_eckd_ese_format(), there is an assignment format->cqr =3D fcqr which
+occurs outside of the format_lock.
 
-When handling specialized format intensities (e.g., 0x01 or 0x09), the size
-calculation in dasd_eckd_build_format() appears to under-calculate the
-required allocation for multi-track requests by missing per-track R0
-allocations:
+Concurrently, in test_and_set_format_track(), a reader checks
+device->format_entry[i].cqr while holding the lock.
 
-dasd_eckd_build_format() {
-    ...
-	case 0x01:	/* Write record zero and format track. */
-	case 0x09:	/* Write record zero and format track, use cdl. */
-		cplength =3D 2 + rpt * nr_tracks;
-		if (use_prefix)
-			datasize =3D sizeof(struct PFX_eckd_data) +
-				sizeof(struct LO_eckd_data) +
-				sizeof(struct eckd_count) +
-				rpt * nr_tracks * sizeof(struct eckd_count);
-    ...
-}
-
-However, the subsequent loop unconditionally writes nr_tracks sets of CCWs =
-and
-eckd_count structures:
-
-dasd_eckd_build_format() {
-    ...
-	for (j =3D 0; j < nr_tracks; j++) {
-        ...
-		if (intensity & 0x01) {	/* write record zero */
-			ect =3D (struct eckd_count *) data;
-			data +=3D sizeof(struct eckd_count);
-        ...
-			ccw++;
-    ...
-}
-
-Could this write past the allocated boundaries if a user with CAP_SYS_ADMIN
-invokes the BIODASDFMT ioctl with a track range spanning multiple tracks?
-
->  	fcp =3D dasd_fmalloc_request(DASD_ECKD_MAGIC, cplength, datasize, start=
-dev);
->  	if (IS_ERR(fcp))
->  		return fcp;
-
-[ ... ]
-
-> @@ -3177,8 +3231,18 @@ static int dasd_eckd_format_device(struct dasd_dev=
-ice *base,
->  	if (fdata->start_unit =3D=3D 0)
->  		dasd_ft_bias_apply(base);
-> =20
-> -	return dasd_eckd_format_process_data(base, fdata, enable_pav, 0, NULL,
-> -					     0, NULL);
-> +	rc =3D dasd_eckd_format_process_data(base, fdata, enable_pav, 0, NULL,
-> +					   0, NULL);
-> +
-> +	/*
-> +	 * The quick-format indicator was consumed by the label stamped into
-> +	 * track 0; clear it so a later format that is not preceded by a full
-> +	 * space release is recorded as a full format.
-> +	 */
-> +	if (fdata->start_unit =3D=3D 0)
-> +		private->ese_format_quick =3D 0;
-
-[Severity: Medium]
-Is it possible for this flag modification to race with concurrent updates?
-
-If a concurrent BIODASDRAS ioctl is executing, dasd_eckd_release_space_full=
-()
-might update this state flag without locks:
-
-dasd_eckd_release_space_full() {
-    ...
-		private =3D device->private;
-		private->ese_format_quick =3D 1;
-    ...
-}
-
-Because dasd_eckd_format_device() clears the flag unconditionally after an
-unprotected blocking operation, could it overwrite the concurrent update?
-
-This might cause the next disk format label to be incorrectly stamped as a
-'full' format rather than a 'quick' format.
-
-> +
-> +	return rc;
->  }
+Does this unsynchronized modification cause a data race on a shared pointer?
+While it might not cause a crash since the pointer transitions from one val=
+id
+non-NULL pointer to another, it appears to violate kernel concurrency rules.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260801111008.3391=
-031-1-sth@linux.ibm.com?part=3D14
+031-1-sth@linux.ibm.com?part=3D8
