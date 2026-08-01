@@ -1,227 +1,144 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 077A1DDCD
-	for <linux-s390@vger.kernel.org>; Sat,  1 Aug 2026 11:49:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 52CC73B4EAC
+	for <linux-s390@vger.kernel.org>; Sat,  1 Aug 2026 18:00:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785584952; cv=none; b=HXisoI9WdpkqznPtSuERyzqD02goIzD0rgO4uanrQwhBN5boRS0HmUyRwbBDW1jpe5hYX09b+aHr7ZhHA4c6ka8wivIaObM7XdZx2Gf3BUc2GrAGvaMV64HTJ5Wjs8L7A2SRyvjTb6x7GKs1pLnO2jUpmKh4aQLYKRzyDdRZq6A=
+	t=1785607243; cv=none; b=U/lTFdX0VyQkvyR13KKdXwkvCq8H8eufEx9VZq3Rwd1jeZwMgEDe2DcRHnmgldLAMffog1EZZDnNINC3Gam+m+BRHLM8jn+YOUQB0aT5Vt9hgCis1uMj82aLDxk6cm9czesENzOrhKqMBsEHOIJJWnkW6mYisEJRGCeuVfaCTiU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785584952; c=relaxed/simple;
-	bh=e94UuDpR4kjbnJGHrEEe18nno4JzLLBIelAl1N7uxFs=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=mSbzPmrT5bv1jHk1NV7RALnWrviUSgDlLj219qj+LiuJOEP6Ug+Wy3uS/C6hDW9J8qt6FV4pJ7xZZxhgBGA0H+rI4kGGAkGAO2jIXOUTwYA+6cOdZk+8GDdRmiqY0IbRTl36t/ul9QAZcHPMiqb3lKli6EAbARgF+A7vy5OI81A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fBtpw8TH; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1785607243; c=relaxed/simple;
+	bh=LzsPfivYtLgvEd/8D52g1AT1vH6p4yvg0XjeCB6mW0g=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=aJqqmubWqPCWgapSryM3zUxK3QJ3b1lrynBDt17vQvLxH+Im+o3llXSJ/VajpqwH8Qth4vwtQsxwImCruKlz/5uJDq6xwJcZmfJ80gVd2ESNuE2B1UbzDEshFwDWI2rME9RWbCZS6dV0zma6XK3Woe5O02oGkHMJM57xKlmnEIY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=bN25E9g6; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fBtpw8TH"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5849F1F00AC4;
-	Sat,  1 Aug 2026 11:49:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785584950;
-	bh=oi/KFX1Cc+q0JWaSfXwmQUNLmfuWg2tEWc1v8hvvt2U=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=fBtpw8THyZOLUi40R0Xe+HfH0WriDdkS3IoVHoCvP9q60Rc1UEuurZHyEinPyy+H4
-	 VisAJfjPd5vjQcYR8OvelkxFSXs1WDnD2wCTLAVHoFOfmxNqp4Lg7+FPOIiYIIrpPE
-	 AK/1e5AA9TklFD+lAfIZH0mw/2xAGE7LyucuhC7db478i/qn6BIT9sWXICT50SQ0sR
-	 z9x6kU5UIACrCkfctCQYWvII/XeFUz7rzG0K/I6yKOrUnashHypyK81XmISlrQx5DA
-	 xrrlZcdeG9VYeEacMk7XRxqPuHWHMy7W1NlJ6ouGKgmcMLK6nZ1BWeFfv7UHNZ9tnz
-	 qJqzvXPBVH1AA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v6 18/18] s390/dasd: Read cached unit address and LSS in
- the CCW build path
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Stefan Haberland" <sth@linux.ibm.com>
-Cc: "Vasily Gorbik" <gor@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org
-In-Reply-To: <20260801111008.3391031-19-sth@linux.ibm.com>
-References: <20260801111008.3391031-1-sth@linux.ibm.com>
- <20260801111008.3391031-19-sth@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sat, 01 Aug 2026 11:49:09 +0000
-Message-Id: <20260801114910.5849F1F00AC4@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="bN25E9g6"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 671FmhI8882935
+	for <linux-s390@vger.kernel.org>; Sat, 1 Aug 2026 18:00:41 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=pp1; bh=kzgY+kcFeGQMN581r
+	Q0CkliWClYxRn0Q/J4syiKYFBc=; b=bN25E9g6PBYTzjieHkNYuWC5GB26n7B6p
+	ukmyEFFUe1fPC8RapahOlVXptHlnL65eUGBw88IJtKYSblpJJ+vlujbs12MvvBXI
+	8vRQWV3BwFmWyRvrNK9l/FvGe4KmDTvDNgypKf85XXBAnsct7Tbz2HDb/crSEBDK
+	5qI5UGKM15xLuepvh07YLD5eTVSrC+u615R1s+uqQOnDjOTkPvd8a6z/U6DUCHUt
+	XKw0NrtIM16sPox99e5PldicIE7jDWAuIm8Fv5UFtiuP/M86i3kWCHA4vLFbdWoF
+	ioqqgUFCK3xK/4YTalm9wmSBAnwVvCKtmy0hR+p5qTs4LKP9ZEb4w==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fs77ft5hu-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Sat, 01 Aug 2026 18:00:41 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 671HuGhs027685
+	for <linux-s390@vger.kernel.org>; Sat, 1 Aug 2026 18:00:40 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fn9pgvhhg-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Sat, 01 Aug 2026 18:00:40 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 671I0aGo45875564
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Sat, 1 Aug 2026 18:00:36 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9F0112004B;
+	Sat,  1 Aug 2026 18:00:36 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 876882004E;
+	Sat,  1 Aug 2026 18:00:36 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Sat,  1 Aug 2026 18:00:36 +0000 (GMT)
+From: Stefan Haberland <sth@linux.ibm.com>
+To: linux-s390@vger.kernel.org
+Cc: Jan Hoeppner <hoeppner@linux.ibm.com>,
+        Eduard Shishkin <edward6@linux.ibm.com>
+Subject: [PATCH v7 04/19] s390/dasd: Snapshot intrc before freeing the request block
+Date: Sat,  1 Aug 2026 20:00:18 +0200
+Message-ID: <20260801180033.3679412-5-sth@linux.ibm.com>
+X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20260801180033.3679412-1-sth@linux.ibm.com>
+References: <20260801180033.3679412-1-sth@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODAxMDE0MyBTYWx0ZWRfX25Ziwb1L8miN
+ bM2e1MyQEKoFJlogjQRF8HUZMDRfT+5skm5E0p/OVmW0L3tmqgx3KJcNM4uHHTpJEnnGUukVJ78
+ D7C7b4hsov/nLwJk97E/V6Kcf5vgM4FBkB7cUXnswa6VNd4b7miIQFcqtx/taABh2TnbxCmBZtW
+ e0sIUqx6c6E0pZRZ0Vwu/pZU95rWSnOhuHsg55wUcVOWy5ZXfSoylzBWUiHGXFapwwPbM3Dz91h
+ 4JUYHTIv48SIisl6F4wqqZm6z+rgzEduIpLZTtjIDSA7WvFXTKsrOCskerth9NDyzuFKUTp9rn3
+ nbuKvsyIu0m+qoTJgS6Ne2dsdzUOElekhK9+mbMbEhTNSfOShyFZ8JgjwYM0wEhFclmdkFeZmPz
+ yW36gWXQFeuMO7O1CNdgD87Jjk2jIQTFdixmQ9qfIaifDdnYcveU9mW00Jb9exZz7pzvYFJO2bK
+ CxIakuNfxXvNckjjz2g==
+X-Authority-Analysis: v=2.4 cv=WIFPmHsR c=1 sm=1 tr=0 ts=6a6e3449 cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+ a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8 a=QORe2UURYKPq8wpwqioA:9
+X-Proofpoint-GUID: cERe1xCTnbGJFii-sm5xxbezE4oe0OdP
+X-Proofpoint-ORIG-GUID: cERe1xCTnbGJFii-sm5xxbezE4oe0OdP
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODAxMDE0MyBTYWx0ZWRfXwzWhEXvsJWAK
+ 6b+BLmSrxSm0hiEaYZeq1eLWpUzpZ8a+BXTeW44wo8U+SIzQ3TaOVXl6Du6QcAUNrBugQ/bRVzT
+ Oq/AYGYjoddG930egrCuhp2ws4aV5nc=
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-08-01_02,2026-07-30_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ spamscore=0 lowpriorityscore=0 priorityscore=1501 phishscore=0 malwarescore=0
+ suspectscore=0 clxscore=1015 impostorscore=0 bulkscore=0 adultscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608010143
 
-Thank you for your contribution! Sashiko AI review found 4 potential issue(=
-s) to consider:
+__dasd_cleanup_cqr() maps the completion result to a block status by
+reading cqr->intrc, but only after discipline->free_cp() has returned the
+request block to its memory pool (dasd_eckd_free_cp() ends in
+dasd_sfree_request()). On SMP another CPU can reallocate that block and
+overwrite cqr->intrc before it is read, completing the request with the
+wrong error. proc_bytes is already snapshotted before free_cp() for the
+same reason; do the same for intrc.
 
-New issues:
-- [Low] Missing READ_ONCE()/WRITE_ONCE() annotations for locklessly accesse=
-d cached variables.
+Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
+---
+ drivers/s390/block/dasd.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-Pre-existing issues:
-- [High] Lockless CCW build paths read `uid.type` which is subject to a tra=
-nsient zero during configuration reload, resulting in malformed commands.
-- [High] Race condition in `dasd_eckd_generate_uid` and `rebuild_device_uid=
-` against configuration reload workers allowing Use-After-Free and kernel h=
-eap corruption.
-- [High] Lockless access to `private->conf.data` in `dasd_eckd_fill_info` c=
-an lead to a Use-After-Free and leak freed kernel memory to userspace.
---
+diff --git a/drivers/s390/block/dasd.c b/drivers/s390/block/dasd.c
+index e9f0722af104..8ade71a22376 100644
+--- a/drivers/s390/block/dasd.c
++++ b/drivers/s390/block/dasd.c
+@@ -2699,17 +2699,23 @@ static void __dasd_cleanup_cqr(struct dasd_ccw_req *cqr)
+ 	struct request *req;
+ 	blk_status_t error = BLK_STS_OK;
+ 	unsigned int proc_bytes;
+-	int status;
++	int status, intrc;
+ 
+ 	req = (struct request *) cqr->callback_data;
+ 	dasd_profile_end(cqr->block, cqr, req);
+ 
++	/*
++	 * free_cp() returns the request block to its memory pool, so snapshot
++	 * everything still needed from cqr before calling it - another CPU can
++	 * reallocate and overwrite the block right after.
++	 */
+ 	proc_bytes = cqr->proc_bytes;
++	intrc = cqr->intrc;
+ 	status = cqr->block->base->discipline->free_cp(cqr, req);
+ 	if (status < 0)
+ 		error = errno_to_blk_status(status);
+ 	else if (status == 0) {
+-		switch (cqr->intrc) {
++		switch (intrc) {
+ 		case -EPERM:
+ 			/*
+ 			 * DASD doesn't implement SCSI/NVMe reservations, but it
+-- 
+2.53.0
 
---- Patch [18]: [PATCH v6 18/18] s390/dasd: Read cached unit address and LS=
-S in the CCW build path ---
-commit db725aecd487c6d786378910088d76a932cca049
-Author: Stefan Haberland <sth@linux.ibm.com>
-Date:   Sat Aug 1 11:10:08 2026 +0000
-
-    s390/dasd: Read cached unit address and LSS in the CCW build path
-   =20
-    The CCW build path (prefix_LRE, the full-track prefix and dso_ras) read=
- the
-    base address and LSS straight from conf.ned. That buffer is freed and
-    reallocated by the reload worker (do_reload_device - dasd_eckd_read_con=
-f -
-    dasd_eckd_clear_conf_data), so a configuration change concurrent with I=
-/O
-    can free conf.ned while a request is being built.
-    Use-after-free reported by KASAN in prefix_LRE.
-   =20
-    Read the cached copies instead.
-    The unit address is already kept in uid.real_unit_addr, and the LSS is =
-now
-    cached in ned_lss. Both are refreshed under the ccwdev lock in
-    dasd_eckd_generate_uid whenever the configuration is (re)read.
-    Also fix for prepare for read subsystem data (prssd) users.
-   =20
-    Reviewed-by: Jan H=C3=B6ppner <hoeppner@linux.ibm.com>
-    Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
-
-> diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eck=
-d.c
-> index 09ef6d11f0ce7..816ea66fb2fe4 100644
-> --- a/drivers/s390/block/dasd_eckd.c
-> +++ b/drivers/s390/block/dasd_eckd.c
-> @@ -588,8 +588,9 @@ static int prefix_LRE(struct ccw1 *ccw, struct PFX_ec=
-kd_data *pfxdata,
->  		return -EINVAL;
->  	}
->  	pfxdata->format =3D format;
-> -	pfxdata->base_address =3D basepriv->conf.ned->unit_addr;
-> -	pfxdata->base_lss =3D basepriv->conf.ned->ID;
-> +	/* cached copies - conf.ned may be freed under us by the reload worker =
-*/
-> +	pfxdata->base_address =3D basepriv->ned_ua;
-> +	pfxdata->base_lss =3D basepriv->ned_lss;
-
-[Severity: Low]
-Are READ_ONCE() and WRITE_ONCE() annotations needed for these cached
-variables?
-
-The variables private->ned_lss and private->ned_ua are updated in
-dasd_eckd_generate_uid() under the ccwdev_lock, but are intentionally read
-locklessly here in prefix_LRE().
-
-The Linux kernel memory model typically requires READ_ONCE() and WRITE_ONCE=
-()
-for concurrent lockless accesses to prevent compiler optimizations like load
-fusing and to document the intentional data race, which avoids KCSAN
-warnings.
-
->  	pfxdata->validity.define_extent =3D 1;
-> =20
->  	/* private uid is kept up to date, conf_data may be outdated */
-
-[Severity: High]
-This is a pre-existing issue, but does this lockless read of
-startpriv->uid.type risk seeing a transient zero?
-
-Just after this comment, prefix_LRE() and prepare_itcw() locklessly read
-startpriv->uid.type. When a reload worker concurrently calls create_uid(),
-it memsets the entire uid structure to zero:
-
-drivers/s390/block/dasd_eckd.c:create_uid() {
-    ...
-    memset(uid, 0, sizeof(struct dasd_uid));
-    ...
-}
-
-If prefix_LRE() or prepare_itcw() reads startpriv->uid.type while it is
-transiently zeroed, the reader may observe the type as 0 (UA_BASE_DEVICE)
-instead of UA_BASE_PAV_ALIAS or UA_HYPER_PAV_ALIAS.
-
-Consequently, the driver will silently fail to set the verify_base and
-hyper_pav flags in the PFX hardware command, which could lead to malformed
-storage requests, rejected I/Os, or potential data corruption.
-
-[ ... ]
-
-> @@ -806,6 +807,9 @@ static int dasd_eckd_generate_uid(struct dasd_device =
-*device)
->  		return -ENODEV;
->  	spin_lock_irqsave(get_ccwdev_lock(device->cdev), flags);
->  	create_uid(&private->conf, &private->uid);
-> +	/* cache LSS and unit address for the lockless CCW-build path */
-> +	private->ned_lss =3D private->conf.ned->ID;
-> +	private->ned_ua =3D private->conf.ned->unit_addr;
->  	spin_unlock_irqrestore(get_ccwdev_lock(device->cdev), flags);
->  	return 0;
->  }
-
-[Severity: High]
-This is a pre-existing issue, but is there a use-after-free risk involving
-private->conf.ned in this function?
-
-Just before the lock is acquired, dasd_eckd_generate_uid() locklessly check=
-s:
-
-drivers/s390/block/dasd_eckd.c:dasd_eckd_generate_uid() {
-    ...
-    if (!private->conf.ned || !private->conf.gneq)
-        return -ENODEV;
-    spin_lock_irqsave(...)
-    ...
-}
-
-Concurrently, a reload worker executing dasd_eckd_read_conf() calls
-dasd_eckd_clear_conf_data(), which frees the underlying conf.data memory
-without acquiring ccwdev_lock.
-
-Since conf.ned points inside the freed conf.data allocation,
-dasd_eckd_generate_uid() can pass the lockless check but dereference freed
-memory once inside the lock.
-
-Additionally, rebuild_device_uid() writes directly to private->conf.data
-using memcpy() without locking. If the reload worker frees conf.data
-concurrently, rebuild_device_uid() might overwrite freed slab memory, causi=
-ng
-kernel heap corruption.
-
-[Severity: High]
-This is a pre-existing issue, but does dasd_eckd_fill_info() also risk a
-use-after-free that could leak freed memory to userspace?
-
-The BIODASDINFO ioctl path calls dasd_ioctl_information(), which invokes
-dasd_eckd_fill_info() without acquiring any device locks:
-
-drivers/s390/block/dasd_eckd.c:dasd_eckd_fill_info() {
-    ...
-    memcpy(info->configuration_data, private->conf.data, info->confdata_siz=
-e);
-    ...
-}
-
-Concurrently, a reload worker executing dasd_eckd_reload_device() calls
-dasd_eckd_clear_conf_data(), setting private->conf.data to NULL and freeing
-the underlying memory:
-
-drivers/s390/block/dasd_eckd.c:dasd_eckd_clear_conf_data() {
-    ...
-    private->conf.data =3D NULL;
-    ...
-    kfree(device->path[i].conf_data);
-}
-
-If the ioctl thread reads the private->conf.data pointer just before the
-reload worker frees it, the memcpy() will read from freed slab memory, leak=
-ing
-potentially sensitive kernel data to userspace. If it reads NULL, it will
-cause a kernel panic.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260801111008.3391=
-031-1-sth@linux.ibm.com?part=3D18
