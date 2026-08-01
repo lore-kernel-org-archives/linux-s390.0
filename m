@@ -1,65 +1,65 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 274A43A75B1
-	for <linux-s390@vger.kernel.org>; Sat,  1 Aug 2026 18:00:43 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F0D33BBFC9
+	for <linux-s390@vger.kernel.org>; Sat,  1 Aug 2026 18:00:42 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785607245; cv=none; b=uMesRQNERCZrgJmE9XoyebyZoIgdtsnUpU+iGU38JkTq0qR0hJHB/3rlpzDNxOaSaNT77DAvf2XEOC+I4Q6W23L95aN8nZzjkix0Gt8+hkUQJ9RmD4o1UIFvAPdIJWS4X+jUz9TH2ZAHehhSIAbf5C6X3caBReYVtYCZgD3JWN0=
+	t=1785607246; cv=none; b=bUwOW4TYFpPdRRyj1Bciqxv01M+O85fFcg/gbAKNmR6hdoUkgIsEHbH+2M/FyqnDo6uS8coonV7JzAQW9lMsnhIzB/ubEuIK3ng42PbsT9UlEp/xemeth7NR7L235pIESn6uVzuzaTJ83Jzl5+wyu7QuHOOjWSg0SX4itRYf1EA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785607245; c=relaxed/simple;
-	bh=XMVWGB/WsOVkeZJDFiF6gsJBUYlPzq0d/AhaCko4oVE=;
+	s=arc-20240116; t=1785607246; c=relaxed/simple;
+	bh=1nkbS4t0z/jNRIPvt15xVo/n2dUlxGg0BuXBYg2XhL0=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=NqUYfoWLx7NgZbFGehMSQpqMKgpSmU2UE0bW5aiV9bsgKju/1566zlt/dwsjn3lt8DmqEbGnYgEPlmwzmX5N64uCFcYd0ePLrRwnZjLH4De6HPVBD++kTxkgxv2YXRIa0fw0LvvkqTl321/0h/sl6ErdMin4qJWRqtxCLqsp1nc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=DXTSKt94; arc=none smtp.client-ip=148.163.158.5
+	 MIME-Version:Content-Type; b=siM7m8pBQbjQq6u5yx9Jv+aoGpRcHwNlEcW6O3xWwTL3A8Nmn3+OuuUSV7ZmOu1yw9mTEzKLkY345ASzvaKiRHei6k8Y4A+JJeoBnJRvKF1GgD4sq0V2phr7tnTtbRLEn9eKhnHxrfyJeSQIHMTNuB8jX7iIoH78E9e1pnrHKMg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Jnm7MJ8y; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="DXTSKt94"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 671FnC101000671
-	for <linux-s390@vger.kernel.org>; Sat, 1 Aug 2026 18:00:43 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Jnm7MJ8y"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 671FlfRm875070
+	for <linux-s390@vger.kernel.org>; Sat, 1 Aug 2026 18:00:41 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=gPvi04
-	MMdfJR5ZAvp0bntGIddYXQ7HI6436j5swrzbo=; b=DXTSKt94RsqVr/e5kNTF+v
-	8ikZ/88PN6lLzZK6xhqmVrh94FU1UbpWXqC/d+POqx/vXwSdxFhEP0AKZa4mlYhT
-	j7VuxgdPA7vqqygerNfJusdZC+DvVhT5NFDS9kFXpJB6lJ5c0PZlEz3mHgBxqfJu
-	0C/iJSzurG8NlSnEQ+Z2czO3Q3ghMLKLD+5+oj2Fk9Jy4ufVrtTbdPkpUtdO009R
-	XxCk4aRg0B2VXXsNLmJj5WiHqiYyxu+7jjatOeGAwLyY9xIq2CH9fnzW1Fhbs4Z+
-	+HJIVuts3l/GSUiIzmGaJd/XSy/zFKD9EYzJoRKLWps2NwxSezW6n6nLydNZaiGw
+	:message-id:mime-version:references:subject:to; s=pp1; bh=qPeZ8L
+	meuKfX5O8qbmPQCZbpm6RTF4pXptsGoiEH3rs=; b=Jnm7MJ8y3U2lRI+kT1xbpE
+	xJQ/vh1nECDNpGRwn4VvZY6NSn1taMrCbQjSPXdMpWOd2Pzg25V8T2PGUuYKQ1Bm
+	0CjvgoOel0nvHOSGyDOwYlnrXzwiy8XCugzZOXyeuq8l1wP9lHaw+TxAzYGaUxwK
+	1dXhAX+c4jRVEnXLhVXxQggWBD+RIU9qCvEpTSGyTAP7AOR2Jyhono2yJ/j8Px5j
+	ovoLZscFcsRVTawaQcw7lA36igNWk31F9NLFsuO+ABl1PJoOLZ59f4hzlhu+DhcM
+	8gRoOLt413A19yh4GY8lHswaXzfwktKuBz1hTzjm/mzRHDBjXkzaM1+89i6i6MLw
 	==
 Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fs8eu9y7f-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Sat, 01 Aug 2026 18:00:42 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 671HuH60027794
-	for <linux-s390@vger.kernel.org>; Sat, 1 Aug 2026 18:00:41 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fna5ymfhg-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fs67ha9sm-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
 	for <linux-s390@vger.kernel.org>; Sat, 01 Aug 2026 18:00:41 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 671HuITf027800
+	for <linux-s390@vger.kernel.org>; Sat, 1 Aug 2026 18:00:40 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fna5ymfh9-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Sat, 01 Aug 2026 18:00:40 +0000 (GMT)
 Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 671I0cd630147098
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 671I0aHF49348978
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Sat, 1 Aug 2026 18:00:38 GMT
+	Sat, 1 Aug 2026 18:00:36 GMT
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id EB6EF2004D;
-	Sat,  1 Aug 2026 18:00:37 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id C51A420040;
+	Sat,  1 Aug 2026 18:00:36 +0000 (GMT)
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id CA0442004B;
-	Sat,  1 Aug 2026 18:00:37 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id A3A272004F;
+	Sat,  1 Aug 2026 18:00:36 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
 	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Sat,  1 Aug 2026 18:00:37 +0000 (GMT)
+	Sat,  1 Aug 2026 18:00:36 +0000 (GMT)
 From: Stefan Haberland <sth@linux.ibm.com>
 To: linux-s390@vger.kernel.org
 Cc: Jan Hoeppner <hoeppner@linux.ibm.com>,
         Eduard Shishkin <edward6@linux.ibm.com>
-Subject: [PATCH v7 13/19] s390/dasd: Add full_track_bias to control fulltrack write mode
-Date: Sat,  1 Aug 2026 20:00:27 +0200
-Message-ID: <20260801180033.3679412-14-sth@linux.ibm.com>
+Subject: [PATCH v7 05/19] s390/dasd: Optimize max blocks per request for track alignment
+Date: Sat,  1 Aug 2026 20:00:19 +0200
+Message-ID: <20260801180033.3679412-6-sth@linux.ibm.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260801180033.3679412-1-sth@linux.ibm.com>
 References: <20260801180033.3679412-1-sth@linux.ibm.com>
@@ -72,220 +72,58 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: Ucl0hE1St9HXjdzbI6eNYqf5N9YaebLg
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODAxMDE0MyBTYWx0ZWRfX0uQ5A2itPgdW
- GSdyeBPk4Ast7BW9PUf2kym7LM7Btr/aX3ERVTw8IV4+aEFnIHPGbYVygE40GAuXlhRvGAQiQ+W
- ghBOXHwWtT4vKx4GfrgglRt5g6Yn/fM=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODAxMDE0MyBTYWx0ZWRfX09WTuH3bw9rm
- LjSw0hVLZfVwFBLY1wkRfMFj4ZEzuSW69f6rqG6kyd0WycHemhdSCUeIfT21joyuXvVwkmWkBAt
- yGRygFL4R8V855GaMcc/82KQGbH4jEJ894BaA8gRsAyWpnTjDOkbE7MifTVW7E6jNe8AjiSUoTD
- 9B48FOFZa2OxechZj7QHLPTvxeHpFq9RC9rLwQrlkF+kYk55t+3Ug+yxtv5zHeXuAWfkijqWb3w
- jwUNR53qOLP6EL075Zc8sHIQ1MMuYps3Lvct/M8//SBnwtsa4XxO2PS6BP6KYS6RNebeISbg28K
- guXGiwmAo4kLqa3KqbLn1U0RVjMuFu4HAcKa4pGzzssTJJ18kyld8Kp43KjJIxUnJ901180jgFo
- DpIAx4sgEvcmVWRHVgERDp0L0+QuRm9sErknDVkdEbbfqo4R9/7wdISIZGkMzCOMHt76OROodgX
- VrRyQ5eZwxOhZb0lcZw==
-X-Proofpoint-GUID: Ucl0hE1St9HXjdzbI6eNYqf5N9YaebLg
-X-Authority-Analysis: v=2.4 cv=KfzidwYD c=1 sm=1 tr=0 ts=6a6e344a cx=c_pps
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODAxMDE0MyBTYWx0ZWRfX+4m2Fwr1Ur5y
+ zePI4XDX0MqjI0ZjSCgC8hwoUlUwl7l5EqLy1MYgSbbcEzh+6KoxY6ioTtGAjgTOX832fJPVlZy
+ bJSAKGZSUw4NXiHZesq09SllLfFN6bg=
+X-Authority-Analysis: v=2.4 cv=I7VVgtgg c=1 sm=1 tr=0 ts=6a6e3449 cx=c_pps
  a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
  a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8
- a=EGcN5M5RbvjoWc33k-sA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+ a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8
+ a=8f17mpASHZ0i51vZi0YA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODAxMDE0MyBTYWx0ZWRfX+FtxdXSYLdBZ
+ SZZf/krmrHSzWlcwb5EBKLsgKTEupeV6z48cG4X7lG10eFw6fvQrhVUuCLsXEHHrINU9q95zC6/
+ u1UxEq7BXW7GCFtSzHxB2/u4UQqGTK3wBl1UpSdt/0G21IEC5cVSb75KQV9oPmzq57Tc7Y6IfGU
+ 0VIWwefC62g/EK6+E2Hid0l4z9oBNNQrjqWcprAVTAVNDCFIFJaAc2BwqClLexrrp0ziRPvxZFX
+ 3QAZYJ37s2i6jBjqbWowQwIiHtRPXk6cfS5PFI/ECWbZ1Xgme8xD2tHe6Ayp8uPTRd3nyjnrjx0
+ PlwCL0uJ/Bu03zgJ0Y95tSAVEVIumpj7nt4oN/gRadKy8SpHI3jLld2zppgdlKdv6vx1kJKbagQ
+ UEpUJTSryzjVMNklO0eEb9k0mgn9vOOdyduHTbnjpEymE0gRJjSRP0AWcyfS6Hnlb21ja0V1ahd
+ 68VPqnIp3myhi59gLeA==
+X-Proofpoint-ORIG-GUID: AfVskf6EJurlWfsF7W4ywtyk1JcGrAn9
+X-Proofpoint-GUID: AfVskf6EJurlWfsF7W4ywtyk1JcGrAn9
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-08-01_02,2026-07-30_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- lowpriorityscore=0 bulkscore=0 impostorscore=0 suspectscore=0 malwarescore=0
- adultscore=0 clxscore=1015 priorityscore=1501 phishscore=0 spamscore=0
+ bulkscore=0 impostorscore=0 clxscore=1015 priorityscore=1501 suspectscore=0
+ malwarescore=0 adultscore=0 lowpriorityscore=0 phishscore=0 spamscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608010143
 
-Add a single per-device 'full_track_bias' sysfs attribute (0..100) that
-gates the full-track write path. 0 disables it, 100 routes every aligned,
-full-track write through dasd_eckd_build_cp_tpm_writefulltrack(). Values in
-between are reserved for the adaptive heuristic added in the next patch.
-For now any non-zero value simply enables full-track writes. Internally the
-value is kept in the per-device 'ft_bias' field.
-
-This will control the default IO path only.
-In case we get an unformatted track error it will always be used to format
-and write the track in one go.
-
-The WRITE_FULL_TRACK command has an advantage on sparse formatted ESE
-devices but it has an overall penalty for maximum throughput compared to
-usual track based IO.
-
-The attribute lives at /sys/bus/ccw/devices/<devid>/full_track_bias and
-accepts 0..100. The default is DASD_FT_BIAS_DEFAULT; together with the
-adaptive heuristic added in the next patch it uses full-track writes only
-where they pay off, avoiding the ESE format penalty out of the box while
-keeping the throughput cost off already-formatted volumes.
-
-A 'full_track_bias' module parameter sets the initial value applied to
-every device at online time; individual volumes can still be re-tuned
-through their sysfs attribute afterwards.
+With 4096-byte blocks a full ECKD track holds exactly 12 records. Lower
+DASD_ECKD_MAX_BLOCKS from 190 to 180 so requests align to track
+boundaries (15 full tracks); full-track I/O is more efficient than
+partial-track writes, and 190 had no alignment significance and could
+let a request cross a track boundary.
 
 Reviewed-by: Jan Höppner <hoeppner@linux.ibm.com>
 Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
 ---
- drivers/s390/block/dasd_devmap.c | 39 ++++++++++++++++++++++++++++++++
- drivers/s390/block/dasd_eckd.c   | 36 +++++++++++++++++++++++++----
- drivers/s390/block/dasd_int.h    | 18 +++++++++++++++
- 3 files changed, 88 insertions(+), 5 deletions(-)
+ drivers/s390/block/dasd_eckd.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/s390/block/dasd_devmap.c b/drivers/s390/block/dasd_devmap.c
-index 381d616ad433..035c022255b6 100644
---- a/drivers/s390/block/dasd_devmap.c
-+++ b/drivers/s390/block/dasd_devmap.c
-@@ -1630,6 +1630,44 @@ dasd_expires_store(struct device *dev, struct device_attribute *attr,
+diff --git a/drivers/s390/block/dasd_eckd.h b/drivers/s390/block/dasd_eckd.h
+index f9299bd184ba..763733bcc4d2 100644
+--- a/drivers/s390/block/dasd_eckd.h
++++ b/drivers/s390/block/dasd_eckd.h
+@@ -131,7 +131,7 @@
+ /*
+  * Maximum number of blocks to be chained
+  */
+-#define DASD_ECKD_MAX_BLOCKS		 190
++#define DASD_ECKD_MAX_BLOCKS		 180
+ #define DASD_ECKD_MAX_BLOCKS_RAW	 256
  
- static DEVICE_ATTR(expires, 0644, dasd_expires_show, dasd_expires_store);
- 
-+/* ESE fulltrack write aggressiveness knob (0..100, see DASD_FT_BIAS_*) */
-+static ssize_t
-+full_track_bias_show(struct device *dev, struct device_attribute *attr, char *buf)
-+{
-+	struct dasd_device *device;
-+	int len;
-+
-+	device = dasd_device_from_cdev(to_ccwdev(dev));
-+	if (IS_ERR(device))
-+		return -ENODEV;
-+	len = sysfs_emit(buf, "%u\n", device->ft_bias);
-+	dasd_put_device(device);
-+	return len;
-+}
-+
-+static ssize_t full_track_bias_store(struct device *dev,
-+				     struct device_attribute *attr,
-+				     const char *buf, size_t count)
-+{
-+	struct dasd_device *device;
-+	unsigned int val;
-+
-+	if (kstrtouint(buf, 0, &val) || val > DASD_FT_BIAS_MAX)
-+		return -EINVAL;
-+
-+	device = dasd_device_from_cdev(to_ccwdev(dev));
-+	if (IS_ERR(device))
-+		return -ENODEV;
-+
-+	device->ft_bias = val;
-+	device->fulltrack = val ? 1 : 0;
-+
-+	dasd_put_device(device);
-+	return count;
-+}
-+
-+static DEVICE_ATTR_RW(full_track_bias);
-+
- static ssize_t
- dasd_retries_show(struct device *dev, struct device_attribute *attr, char *buf)
- {
-@@ -2425,6 +2463,7 @@ static struct attribute * dasd_attrs[] = {
- 	&dev_attr_erplog.attr,
- 	&dev_attr_failfast.attr,
- 	&dev_attr_expires.attr,
-+	&dev_attr_full_track_bias.attr,
- 	&dev_attr_retries.attr,
- 	&dev_attr_timeout.attr,
- 	&dev_attr_reservation_policy.attr,
-diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
-index d3e532e71c8a..dc849f8ee924 100644
---- a/drivers/s390/block/dasd_eckd.c
-+++ b/drivers/s390/block/dasd_eckd.c
-@@ -47,6 +47,18 @@
- MODULE_DESCRIPTION("S/390 DASD ECKD Disks device driver");
- MODULE_LICENSE("GPL");
- 
-+/*
-+ * Default full-track write bias applied to every ESE volume at online time;
-+ * individual volumes can be re-tuned afterwards through their per-device
-+ * full_track_bias sysfs attribute. 0 disables full-track writes, 100 always
-+ * uses them, 50 (the default) enables the adaptive heuristic. Values above
-+ * DASD_FT_BIAS_MAX are capped when applied.
-+ */
-+static unsigned int full_track_bias = DASD_FT_BIAS_DEFAULT;
-+module_param(full_track_bias, uint, 0644);
-+MODULE_PARM_DESC(full_track_bias,
-+		 "Default ESE full-track write bias 0..100 (0=off, 1..99=adaptive, 100=always)");
-+
- static struct dasd_discipline dasd_eckd_discipline;
- 
- /* The ccw bus type uses this table to find devices that it sends to
-@@ -2148,6 +2160,11 @@ dasd_eckd_check_characteristics(struct dasd_device *device)
- 	device->path_interval = DASD_ECKD_PATH_INTERVAL;
- 	device->aq_timeouts = DASD_RETRIES_MAX;
- 
-+	/* default ESE fulltrack write aggressiveness from the module parameter */
-+	device->ft_bias = min_t(unsigned int, full_track_bias, DASD_FT_BIAS_MAX);
-+	/* only the "always" endpoint forces fulltrack unconditionally here */
-+	device->fulltrack = (device->ft_bias >= DASD_FT_BIAS_MAX) ? 1 : 0;
-+
- 	if (private->conf.gneq) {
- 		value = 1;
- 		for (i = 0; i < private->conf.gneq->timeout.value; i++)
-@@ -5201,11 +5218,20 @@ static struct dasd_ccw_req *dasd_eckd_build_cp(struct dasd_device *startdev,
- 		/* do nothing, just fall through to the cmd mode single case */
- 	} else if ((data_size <= private->fcx_max_data)
- 		   && (fcx_multitrack || (first_trk == last_trk))) {
--		cqr = dasd_eckd_build_cp_tpm_track(startdev, block, req,
--						    first_rec, last_rec,
--						    first_trk, last_trk,
--						    first_offs, last_offs,
--						    blk_per_trk, blksize);
-+		if (!first_offs && (last_offs + 1 == blk_per_trk) &&
-+		    rq_data_dir(req) == WRITE && basedev->fulltrack) {
-+			cqr = dasd_eckd_build_cp_tpm_writefulltrack(startdev, block, req,
-+								    first_rec, last_rec,
-+								    first_trk, last_trk,
-+								    first_offs, last_offs,
-+								    blk_per_trk, blksize, NULL);
-+		} else {
-+			cqr = dasd_eckd_build_cp_tpm_track(startdev, block, req,
-+							   first_rec, last_rec,
-+							   first_trk, last_trk,
-+							   first_offs, last_offs,
-+							   blk_per_trk, blksize);
-+		}
- 		if (IS_ERR(cqr) && (PTR_ERR(cqr) != -EAGAIN) &&
- 		    (PTR_ERR(cqr) != -ENOMEM))
- 			cqr = NULL;
-diff --git a/drivers/s390/block/dasd_int.h b/drivers/s390/block/dasd_int.h
-index b523d5a08a17..e2df8666520f 100644
---- a/drivers/s390/block/dasd_int.h
-+++ b/drivers/s390/block/dasd_int.h
-@@ -629,6 +629,10 @@ struct dasd_device {
- 	struct dasd_copy_relation *copy;
- 	unsigned long aq_mask;
- 	unsigned int aq_timeouts;
-+
-+	/* ESE fulltrack write control (see full_track_bias sysfs attribute) */
-+	unsigned int ft_bias;	/* aggressiveness 0..100: 0=off, 100=always */
-+	unsigned int fulltrack;	/* internal: use WRITE_FULL_TRACK for aligned writes */
- };
- 
- struct dasd_block {
-@@ -686,6 +690,20 @@ struct dasd_queue {
- #define DASD_STOPPED_PPRC    32        /* PPRC swap */
- #define DASD_STOPPED_NOSPC   128       /* no space left */
- 
-+/*
-+ * ESE fulltrack write aggressiveness (full_track_bias sysfs attribute), 0..100:
-+ *   0   - never use proactively WRITE_FULL_TRACK
-+ *   100 - always use proactively WRITE_FULL_TRACK, no probing
-+ *   1..99 - adaptive; higher means switch to ft more eagerly
-+ * WRITE_FULL_TRACK has an advantage on sparse formatted ESE devices
-+ * but it has an overall penalty for maximum throughput for fully
-+ * formatted devices.
-+ * The default of 50 tries to balance both and do some probing in between
-+ * to choose the best mode for default IO.
-+ */
-+#define DASD_FT_BIAS_MAX	100
-+#define DASD_FT_BIAS_DEFAULT	50
-+
- /* per device flags */
- #define DASD_FLAG_OFFLINE	3	/* device is in offline processing */
- #define DASD_FLAG_EER_SNSS	4	/* A SNSS is required */
+ /*****************************************************************************
 -- 
 2.53.0
 
