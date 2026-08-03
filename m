@@ -1,181 +1,194 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A43C1403AE6;
-	Mon,  3 Aug 2026 14:13:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E3360427FBB
+	for <linux-s390@vger.kernel.org>; Mon,  3 Aug 2026 14:18:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785766436; cv=none; b=ipGDWTFpSs9xOptPPoy7uS4AGlmd2vOf8n2IWcZa1c55jLpwZa+WyJFrbDOj19DOqfmkEj3tHtsd3Yl4L2ICAuT2t2HQ4JQ2n7XdPbNe3eaaP/W3eAlGFKGpzmDN8zpcs+7sWEUyhIji2ebYrg6SWbqJot3o3CPGnaIqlHDujWw=
+	t=1785766741; cv=none; b=SfWE4k5Wo3E4Sldey4los2AvIt/zvfmBAhjjqyS9tUtroHg47hdxoKc2Vy2AkZFRDb3N1a6B9Nt0GyDKTVKcvZOl+VaSvVq+cNox/m5ylSQORvscy497/SzXu5Xj570viR50ez+EE5U5QdzlThh9deYqIQdPvjCKAN9NDJPpiyw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785766436; c=relaxed/simple;
-	bh=IUgiuI5dQu8yeCl3P+r02WgX/nsq39eQuMppI51MJVM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=WarP/FmoDvYHEtS8H0Pv9VDlbdf125lxUqpMH7lgcjFPQfCzw8exfgCPGZpksrEacjXHQ4YXo5JJ1KDertPb1P/C6Cf0Zt7hbZGvztxJXsD4A1Aqi5bnHxy4nvprqpKo732qyIAlQdNEmrveRSnYjw3FuKW7lmjyg0bYU9om9MY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=l4yqY2A6; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1785766741; c=relaxed/simple;
+	bh=SkyvK0dRAfUi0j+FKCXPW42BvqJ007dDumEjuxoltAc=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=JtLXERj61ra6RbBoZ5+XO857xTqSxu3CWG91+cbcCANwDV2cHp7IiMNiYCjmBaDaowkCJJm8c9u1xLhO9zdQY2BhwrgAAJAy0HIeWIIssNMGisncoDz1BVv7HcLR3Lc+3mCRu6fswGyxp5nb8q3PPJobAgXdwSiJ4NvqkrlWjdo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=c+xzqodf; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="l4yqY2A6"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 673DlX3Y2214380;
-	Mon, 3 Aug 2026 14:13:52 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=oL0oe0
-	a1m84O8qmrj0n3N4XdYR2npE4MkJlokWlkV6U=; b=l4yqY2A6rx+sSJ1ORrNUyp
-	HN7riL44beZQ5k/PVL8OMH1MKp97H37EFZ9C5abNefYwyJg2W0/zwF1ia59zDNcd
-	37BXXxXbwtQ3gihCdcLFyNQ4ouXNoa0il+H569odSvUMgbjkHuiO6+ZVOIy0PrTs
-	UDDw4MEDhvir6s1FtP88gSJUUfHADdnZHxPUwv0ztrvDKM8tGTnOGLFzqVJRuobK
-	TAj/zobFJy49EG+vfiyLFwj3IxxLe5HeWIgDh8tsuGgWkqTmp/2h7uSnM150/F8A
-	TW78MFNTy9UtsO+8DMjFlH+0fzB7S15vHNGu459+C08BJ89t4uE/cEpjH+etjVbQ
-	==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fs8h4s6qh-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 03 Aug 2026 14:13:52 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 673EDO5Z003966;
-	Mon, 3 Aug 2026 14:13:51 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fsugvwtgq-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 03 Aug 2026 14:13:51 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 673EDixj30015926
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 3 Aug 2026 14:13:44 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B3A412004B;
-	Mon,  3 Aug 2026 14:13:44 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8E92120043;
-	Mon,  3 Aug 2026 14:13:44 +0000 (GMT)
-Received: from [9.224.88.46] (unknown [9.224.88.46])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon,  3 Aug 2026 14:13:44 +0000 (GMT)
-Message-ID: <ba672a56-6177-44c5-a4a1-4c381fa90f5b@linux.ibm.com>
-Date: Mon, 3 Aug 2026 16:13:44 +0200
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="c+xzqodf"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41B501F00ACF;
+	Mon,  3 Aug 2026 14:18:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1785766739;
+	bh=ZLbAOjylrk/FqJSGltUqRkj7HFP2+oXOmT7o6KoYTn8=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=c+xzqodfPn6GCBmLxW1+dYNnaK/Dq+v0hXZV9obusxkoyf8Z1AR4WxmY3e2qL/gUi
+	 nfTvB55smofiQypwh8zQiP5n7qhcboc42Y1I4IArd/wDdhs9WIdLX+4y12VO7nlEfD
+	 fxmh1MHqdKCYWObMRxeAOkjPupyuvXHFPgHogLSjQze5y/l6xb63qBjJ50M8OmZYUW
+	 iLEQWTI5o8r54k9alwrgVWaLSTD8Efojy61yLJPO9oij5MJbvNyQ2B7fPxxwoUOR5M
+	 KINI7c8rGpEtlCrjBKQ6hSUNQgV1q8+U9n52gtgxWnjn56SDPMGLwEXvS3exdXR9ju
+	 feXaRPZJ59jpQ==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] s390/cpum_cf: Handle CPU hotplug add and delete 5
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Thomas Richter" <tmricht@linux.ibm.com>
+Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, linux-s390@vger.kernel.org, "Vasily
+ Gorbik" <gor@linux.ibm.com>
+In-Reply-To: <20260803134932.2385616-1-tmricht@linux.ibm.com>
+References: <20260803134932.2385616-1-tmricht@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Mon, 03 Aug 2026 14:18:58 +0000
+Message-Id: <20260803141859.41B501F00ACF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v8 02/13] KVM: s390: Do not free SCA if it was not
- allocated
-To: Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-kernel@vger.kernel.org
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, borntraeger@de.ibm.com,
-        david@kernel.org, seiden@linux.ibm.com, nrb@linux.ibm.com,
-        schlameuss@linux.ibm.com, gra@linux.ibm.com
-References: <20260803124040.126471-1-imbrenda@linux.ibm.com>
- <20260803124040.126471-3-imbrenda@linux.ibm.com>
-Content-Language: en-US
-From: Janosch Frank <frankja@linux.ibm.com>
-Autocrypt: addr=frankja@linux.ibm.com; keydata=
- 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
-In-Reply-To: <20260803124040.126471-3-imbrenda@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODAzMDEyNCBTYWx0ZWRfXzMEkULtn0Jjw
- 7vQ5tRgJcdPKUkqPZpUjt4jg4av1QGZOcqyIZ7nQQvwYsZi0KpJQaWFgy1DSOEfNahTkB/YS3bV
- Wuk5Wdjn6GqWn8rE+/SDzz+f2xWsfL0=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODAzMDEyNCBTYWx0ZWRfX+NwEMeJbinrm
- 7sUcVBu2V4c6aeF5lzqJ4ox6ltq7/Wymi/aYikkKf+ELxPUYRNPvO5rDQsF5xg0jxCXEwH+kUyS
- QPiZtuY4HMc0qLKMFwGL/RIe7y/XAe/aRua+Hgo3hc4gEbEjw++DZUXB1WgLLkB4SLlB6VLal33
- J7H8HWnBzdbuytCzoGIRZmCuCRCl6THNCBUMNtvBsYvDA9Kg24wJpV4baRx9i8BnvqWcO5R+n5F
- l5iGe/qplMHfmdHI5V7tG3ZVkMJCSwF1GEW1cwGcgVv47Gkq61/0s6rIdSs1Y/mk1KyjlVVLjZ2
- FQDzze6uVvLXB/jttsNmynw/a2ngPlsdAL9KBSEuVmT/ZPVRQQCLYRPwfyLgTMnRD2VFWX0Wf1q
- qrVsu40O8zAozQ7TC0Lvt/lDCSxLpRa3OrmVy1BdfWCgAxG/TBwKgJubI0B2PuxP+JVsq1IUxin
- tYg4vAF+vIHhqgJcfhw==
-X-Authority-Analysis: v=2.4 cv=SI1ykuvH c=1 sm=1 tr=0 ts=6a70a220 cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
- a=M5uM2SGDJJfKum1V:21 a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22
- a=VnNF1IyMAAAA:8 a=2HitSDPJqUxGu8htRZYA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-ORIG-GUID: EEV39lBO2SnROxtYa-u73MwRmubjz3Xm
-X-Proofpoint-GUID: EEV39lBO2SnROxtYa-u73MwRmubjz3Xm
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-08-03_03,2026-08-03_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 bulkscore=0 suspectscore=0 impostorscore=0 spamscore=0
- phishscore=0 priorityscore=1501 lowpriorityscore=0 adultscore=0
- malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2608030124
 
-On 8/3/26 14:40, Claudio Imbrenda wrote:
-> If VM creation fails early in kvm_arch_init_vm(), the cleanup code
-> tries to free up the SCA, even though the address is 0. Due to using
-> free_pages_exact(), only the first page is skipped, accidentally
-> freeing pages 1, 2, and 3.
-> 
-> Fix by checking whether the pointer is NULL before attempting to free
-> the SCA in sca_dispose().
-> 
-> Fixes: e72753ed1267 ("KVM: s390: Use ESCA instead of BSCA at VM init")
-> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> ---
->   arch/s390/kvm/kvm-s390.c | 3 ++-
->   1 file changed, 2 insertions(+), 1 deletion(-)
-> 
-> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index f86b4b0b356f..1b3290a5ad1a 100644
-> --- a/arch/s390/kvm/kvm-s390.c
-> +++ b/arch/s390/kvm/kvm-s390.c
-> @@ -3247,7 +3247,8 @@ static void kvm_s390_crypto_init(struct kvm *kvm)
->   
->   static void sca_dispose(struct kvm *kvm)
->   {
-> -	free_pages_exact(kvm->arch.sca, sizeof(*kvm->arch.sca));
-> +	if (kvm->arch.sca)
-> +		free_pages_exact(kvm->arch.sca, sizeof(*kvm->arch.sca));
->   	kvm->arch.sca = NULL;
->   }
->   
+Thank you for your contribution! Sashiko AI review found 4 potential issue(=
+s) to consider:
+- [High] The CPU hotplug handler incorrectly initializes the per-CPU PMU st=
+ructure refcount to 1, leading to premature freeing and subsequent UAF/NULL=
+ dereference for active events.
+- [High] Kernel panic in cpumf_pmu_stop() during CPU offline teardown becau=
+se cpuhw is freed before the event is stopped.
+- [Medium] The CPU hotplug handler misinterprets `cpu_cf_root.refcnt` as a =
+count of per-task events, erroneously allocating structures for hotplugged =
+CPUs when only per-CPU events exist.
+- [Medium] Concurrent per-task event initialization and CPU hotplug can dou=
+ble-allocate CPUMF references, leading to a permanent memory leak.
+--
 
-uh, right, there's no null check in free_pages_exact()
+--- Patch [1]: [PATCH] s390/cpum_cf: Handle CPU hotplug add and delete 5 ---
+commit 4991a250e6aaf68659c77722e073f5976ce4c570
+Author: Thomas Richter <tmricht@linux.ibm.com>
 
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+s390/cpum_cf: Handle CPU hotplug add and delete 5
+
+This patch addresses a kernel crash that occurs when CPUs are hotplugged
+during a per-task perf session. It modifies the CPU hotplug add and delete
+handlers to allocate and free the CPUMF per-CPU infrastructure when per-task
+processes are active.
+
+> diff --git a/arch/s390/kernel/perf_cpum_cf.c b/arch/s390/kernel/perf_cpum=
+_cf.c
+> index 2076ac22e2c49..817978039744f 100644
+> --- a/arch/s390/kernel/perf_cpum_cf.c
+> +++ b/arch/s390/kernel/perf_cpum_cf.c
+[ ... ]
+> @@ -1105,13 +1121,13 @@ static int cpum_cf_online_cpu(unsigned int cpu)
+>  {
+>  	int rc =3D 0;
+> =20
+> -	/*
+> -	 * Ignore notification for perf_event_open().
+> -	 * Handle only /dev/hwctr device sessions.
+> -	 */
+>  	mutex_lock(&cfset_ctrset_mutex);
+> -	if (refcount_read(&cfset_opencnt)) {
+> +	/* Allocate per-CPU infrastructure when event task active. */
+> +	mutex_lock(&pmc_reserve_mutex);
+> +	if (refcount_read(&cpu_cf_root.refcnt))
+>  		rc =3D cpum_cf_alloc_cpu(cpu);
+
+[Severity: High]
+Does this incorrectly initialize the per-CPU PMU structure refcount to 1?
+
+If a user creates multiple per-task perf events, the global number of active
+events is N > 1. When a new CPU is hotplugged online, cpum_cf_alloc_cpu()
+allocates cpuhw for this CPU but sets its refcount to 1 instead of N.
+
+When the user closes any single event, cpum_cf_free() iterates over all
+online CPUs and decrements the refcount by 1. On the newly hotplugged CPU,
+the refcount drops from 1 to 0 and cpuhw is freed, even though N-1 events
+are still active.
+
+When one of these remaining events is disabled, rotated, or scheduled out,
+cpumf_pmu_stop() is called and dereferences the NULL cpuhw pointer, causing
+a panic.
+
+[Severity: Medium]
+Does this misinterpret cpu_cf_root.refcnt as a count of per-task events?
+
+The cpu_cf_root.refcnt counter tracks all CPUMF allocations, including
+per-CPU events. If a user creates a per-CPU event on CPU 0, the root
+refcount becomes > 0.
+
+If CPU 1 is then hotplugged online, this check sees the non-zero refcount
+and assumes per-task events exist, allocating a cpuhw on CPU 1.
+
+When the per-CPU event on CPU 0 is eventually destroyed, cpum_cf_free()
+only cleans up CPU 0, permanently leaking the cpuhw allocated on CPU 1.
+
+[Severity: Medium]
+Can concurrent per-task event initialization and CPU hotplug cause a double
+allocation here?
+
+When a new CPU comes online, it is added to the online mask before the
+architecture-specific CPUHP callbacks are executed. If a per-task perf event
+is initialized concurrently, cpum_cf_alloc() iterates over the online CPU
+mask without holding hotplug locks:
+
+	if (cpu =3D=3D -1) {
+		if (!zalloc_cpumask_var(&mask, GFP_KERNEL)) {
+			rc =3D -ENOMEM;
+			goto out;
+		}
+		for_each_online_cpu(cpu) {
+			rc =3D cpum_cf_alloc_cpu(cpu);
+
+It will observe the new CPU in the mask and allocate a cpuhw with a refcount
+of 1. Shortly after, the CPU hotplug thread executes cpum_cf_online_cpu()
+for the new CPU. It sees cpu_cf_root.refcnt > 0 and unconditionally calls
+cpum_cf_alloc_cpu() a second time for the same CPU, incrementing the refcou=
+nt
+to 2.
+
+When the single event is later destroyed, the refcount only drops by 1,
+permanently leaking the cpuhw structure.
+
+> +	mutex_unlock(&pmc_reserve_mutex);
+> +	if (refcount_read(&cfset_opencnt)) {
+>  		if (!rc)
+>  			cfset_online_cpu(cpu);
+>  	}
+[ ... ]
+> @@ -1130,13 +1146,15 @@ static int cpum_cf_offline_cpu(unsigned int cpu)
+>  	 * perf_event_open() created events. Perf common code triggers event
+>  	 * destruction when the event file descriptor is closed.
+>  	 *
+> -	 * Handle only /dev/hwctr device sessions.
+> +	 * Handle /dev/hwctr device sessions.
+>  	 */
+>  	mutex_lock(&cfset_ctrset_mutex);
+> -	if (refcount_read(&cfset_opencnt)) {
+> +	if (refcount_read(&cfset_opencnt))
+>  		cfset_offline_cpu(cpu);
+> +	mutex_lock(&pmc_reserve_mutex);
+> +	if (refcount_read(&cpu_cf_root.refcnt))
+>  		cpum_cf_free_cpu(cpu);
+
+[Severity: High]
+Does this prematurely drop the refcount and potentially free cpuhw before
+the perf events are stopped?
+
+During a CPU offline operation, teardown callbacks are executed in reverse
+order. cpum_cf_offline_cpu() is registered at CPUHP_AP_PERF_S390_CF_ONLINE,
+which runs before the perf core's teardown at CPUHP_AP_PERF_ONLINE.
+
+This modified logic unconditionally calls cpum_cf_free_cpu() if the root
+refcount is non-zero, which can free cpuhw if its refcount reaches 0.
+
+Later, when the perf core attempts to stop active events or multiplex timers
+fire during the offlining window, cpumf_pmu_stop() is invoked. Since it lac=
+ks
+a NULL check, it dereferences the NULL cpuhw pointer, leading to a panic.
+
+> -	}
+> +	mutex_unlock(&pmc_reserve_mutex);
+>  	mutex_unlock(&cfset_ctrset_mutex);
+>  	return 0;
+>  }
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260803134932.2385=
+616-1-tmricht@linux.ibm.com?part=3D1
