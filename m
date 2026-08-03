@@ -1,134 +1,142 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99B11283C83
-	for <linux-s390@vger.kernel.org>; Mon,  3 Aug 2026 08:50:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 46D033B7B8C;
+	Mon,  3 Aug 2026 08:53:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785747022; cv=none; b=kYtIxFSyIqM2nz+c283LDfS5SPvkjEstWoszK8H/0SCl8QvRYPfhl8cO56fhOYg3DECSfF9Q76jyJHx7JI0sro2Cm+lN5i8AmJT5emLUEvxkOCpPuxui8pfAlma+JCnmPSMY5ikKYa22m9Mz/j7Fq+yU19obaWoWw8idva6YZgo=
+	t=1785747216; cv=none; b=kg4JiUxeOf7RyX2pCpgIRJyjXfIXblv0w8ezJKIQqanZ3EJu/C7IPmq9xy5PObhWe4Och8vCnYBocws1wqFd4AYdOkBDdJdOXwiue90L9Ami0cZ6C9SuRGVayK8Xxhq+9uLmgTpefcWAc1P6T5n7y+2Rm+PTGqVi+TPOpCaHzos=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785747022; c=relaxed/simple;
-	bh=bE8CtM9wOOhd9Q2gNTBlySMqYuBT/kpbzKGdps+C7CM=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=gd2iy8jQKiQt+q3a6RcK3nO0PCo7brDOXkF6QS5xiy5u5PV4Df8NPwLwfhf7nDR36Dpgda+d/Zw08lyULjzZK24q4I/XXpFxYx/HghfCJy5bl7APhu41laiSrkDX+tjejon1QkDMfXcLYREx/GtYeRryjaOF9YacbaG0NQ3szWo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gSbRy4Gh; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1785747216; c=relaxed/simple;
+	bh=qnPYF0dJ5LoNIFjT78YN2sF0bfY+98UGKuPLsb9OGMA=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=gJtAyhFtZoRozO6a/8A9bBaKUKeaNDdwHvL+wF/kccP/FXNUtIIJf2JqsRlaYfT+eyG0Ndl/1EUfF1rKrH47kjZT4qSrpvZJOm9KlOPjp/QZ66xK96LN/4PrX6gaqXBd/ACEx88oJARW/0HLB4QO30GqgYq4WZYhHMd/59o8ZFM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=qHKMukGl; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gSbRy4Gh"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30E061F000E9;
-	Mon,  3 Aug 2026 08:50:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785747021;
-	bh=sOF6V2vYiCle26AiIDCZj67qzsCpdV0blS/o1PlZaHw=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=gSbRy4GhnmuxVw5x7D5LGVXCxd0n5+OizwJiZoDwInX519IM74k6F8o/EzlVr4Y12
-	 BwEdvOPT9OdSj4w93Xlm/WOd9byhy83ETXHztdD2zGhOc2ArI5GnwWeoTaRfR4x+fr
-	 cPnaLRmOz/mIP0YDtBo0AK3pExJyCfzZl1VR7fYuue+jkLH0csqkQB5FvjVmzkBG5g
-	 zwwAzpfMkJxI/T0oTFtD3y3vUjDw2BX2KmsbN/RSDRjvX+qKaoIZqC3yJqjSUeofFE
-	 +tjz6Yf/uHFZ57GAgz6+nEN61H6JU9sr1n12ws8x6jzq0tN1U1zXmj7bLsOKy/Ez28
-	 ykZmJAkfO2lmQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v11 3/5] s390/zcrypt: Improve EP11 CPRB length and
- overflow checks
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Harald Freudenberger" <freude@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Vasily
- Gorbik" <gor@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>
-In-Reply-To: <20260803083339.212885-4-freude@linux.ibm.com>
-References: <20260803083339.212885-1-freude@linux.ibm.com>
- <20260803083339.212885-4-freude@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 03 Aug 2026 08:50:20 +0000
-Message-Id: <20260803085021.30E061F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="qHKMukGl"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 672Llk1u223083;
+	Mon, 3 Aug 2026 08:52:58 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=ojNpVX
+	Ar9C6kbXB5se49F0UrV/sUPl4K6fMjvo2qdPU=; b=qHKMukGlVP9+jJau+pAbRM
+	suxzs4fbcVLj3ZSx6m6F48xKdwy2E6I7ugbuFIatfiQDwPoYgN1oinjeUmKAa59w
+	lD29jmdMvAkCvhY6K1lS6XnTjwJM2JEXXi2bKAU+F1cSiYUG/o4hbknbB8cOPPSn
+	OsbP2pfc/70POkj28kQy/uboa2QewQ4jbnhU+jGR3LFOyS/CbH6wEio8TTAJoa1m
+	aXWnq3ZlW93idf2IWojTopAI4IH+LrSYL5ZWYHjU+lPCRy0Ai7ldJxKcR/edlLO7
+	tls6CecC3kX6erkl+0rwMrEWDVdB58ss1WwGkNVGkqGQw6OuWsb7cvqGP5UlPsSg
+	==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fs8a3qu45-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 03 Aug 2026 08:52:57 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 6738fGbG017910;
+	Mon, 3 Aug 2026 08:52:57 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fswtycb2p-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 03 Aug 2026 08:52:56 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6738qrBG32375196
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 3 Aug 2026 08:52:53 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 219542004E;
+	Mon,  3 Aug 2026 08:52:53 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6461020043;
+	Mon,  3 Aug 2026 08:52:52 +0000 (GMT)
+Received: from [9.224.77.173] (unknown [9.224.77.173])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Mon,  3 Aug 2026 08:52:52 +0000 (GMT)
+Message-ID: <d1d3f628-901a-490a-b077-c55f0bb68625@linux.ibm.com>
+Date: Mon, 3 Aug 2026 10:52:52 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v5 24/31] KVM: s390: arm64: Introduce host definitions
+To: Steffen Eiden <seiden@linux.ibm.com>, kvm@vger.kernel.org,
+        kvmarm@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
+        Andreas Grapentin <gra@linux.ibm.com>, Arnd Bergmann <arnd@arndb.de>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@kernel.org>,
+        Friedrich Welter
+ <fritz@linux.ibm.com>, Fuad Tabba <tabba@google.com>,
+        Gautam Gala <ggala@linux.ibm.com>,
+        Hariharan Mari <hari55@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Hendrik Brueckner <brueckner@linux.ibm.com>,
+        Ilya Leoshkevich <iii@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>, Joey Gouly <joey.gouly@arm.com>,
+        Marc Zyngier <maz@kernel.org>, Nico Boehr <nrb@linux.ibm.com>,
+        Nina Schoetterl-Glausch <oss@nina.schoetterlglausch.eu>,
+        Oliver Upton <oupton@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Ulrich Weigand <Ulrich.Weigand@de.ibm.com>,
+        Vasily Gorbik
+ <gor@linux.ibm.com>, Will Deacon <will@kernel.org>,
+        Zenghui Yu <yuzenghui@huawei.com>
+References: <20260731130902.654679-1-seiden@linux.ibm.com>
+ <20260731130902.654679-25-seiden@linux.ibm.com>
+Content-Language: en-US
+From: Christian Borntraeger <borntraeger@linux.ibm.com>
+In-Reply-To: <20260731130902.654679-25-seiden@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Authority-Analysis: v=2.4 cv=E6P9Y6dl c=1 sm=1 tr=0 ts=6a7056ea cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=Ye4JxvfrUpV3zCvSIqoA:9
+ a=QEXdDO2ut3YA:10 a=zZCYzV9kfG8A:10
+X-Proofpoint-ORIG-GUID: t1Dj1E_DQmMMSorX4K-67CMEBVSvlida
+X-Proofpoint-GUID: cMhc1a_myABnYRnnGiE4USWT9ryT-0lW
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODAzMDA3NyBTYWx0ZWRfX6PJv2oGosg+N
+ CHnHrtrD4WWX07CwEHTtT/Lv3Pzg4jEzZla3G5+PjZWwi7tsAtgm/Y+PA4qEa7XOnAEk6c1zAPt
+ nUPWiSoSXJ3LIikSyXAK49So5E/hXK0=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODAzMDA3NyBTYWx0ZWRfX+L66dUp1JQOE
+ fnqUPi7+V5o0X6nsmVjVwCoWlA4qggI4CW/rnAt8UhxkZh1zSHUqD5SZ/6zQtRORLxI7Q/HrrAV
+ bKtOhei9pHECD7chuEAc6wEsVF92SKEqmIloyG+mPD2UY6t1DbqWuP+yOgEyVJwUyMG+LoP5LBF
+ SKnqkcmii0vH2uvQTPErarvmnO2vdpG3bDxwtEuOfCtcPCTEPFRPzlopyLPcnIY45xiBYmQBc9Z
+ MUGgMir/zUao9gG1RSxqG1alak8Gyv+63Sv7hGsvfhS9N+BpQF5wZy3Cy4elFAaNebQvit5O9jP
+ 3pOLF/5wdYNrHwPFKfT1/fhlCcVVtc5SsYUM02pus71VYPNcrNFm8/2tU48b90/ljVNHXGBU+JP
+ 3c2MQ5P9QD8Eg6RP1rBExq0nhG9rdbNK60rMOVpTLwQl7RIBIUgyIH88iRFhPN4fshKCRHo30vI
+ UFINK577+EdfncHm5Gw==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-08-02_06,2026-07-30_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ bulkscore=0 clxscore=1015 lowpriorityscore=0 priorityscore=1501
+ suspectscore=0 adultscore=0 spamscore=0 malwarescore=0 impostorscore=0
+ phishscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2608030077
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
 
-Pre-existing issues:
-- [Critical] Incomplete Fix / Domain Isolation Bypass. The patch introduces=
- proper ASN.1 parsing in `xcrb_msg_to_type6_ep11cprb_msgx()` to extract the=
- function code, allowing shorter encodings of `func_val` (e.g., 1 byte inst=
-ead of 4). However, it fails to update the subsequent send function `zcrypt=
-_msgtype6_send_ep11_cprb()`, which still uses a fixed-offset C struct (`str=
-uct pld_hdr`) to overwrite the domain ID (`dom_val`) in the payload. Becaus=
-e the EP11 hardware natively parses the ASN.1 payload, an attacker can supp=
-ly a shorter `func_val` to shift the actual `dom_val` field. The driver wil=
-l validate the request but overwrite the wrong offset, leaving the attacker=
--supplied domain ID intact. The hardware will then process the payload usin=
-g the attacker-controlled domain ID, bypassing cryptographic domain isolati=
-on.
---
 
---- Patch [3]: [PATCH v11 3/5] s390/zcrypt: Improve EP11 CPRB length and ov=
-erflow checks ---
-commit ded2aaf4bb041722a4604d826ab3b2f1e7bf5794
-Author: Harald Freudenberger <freude@linux.ibm.com>
+Am 31.07.26 um 15:08 schrieb Steffen Eiden:
 
-s390/zcrypt: Improve EP11 CPRB length and overflow checks
+> --- a/arch/s390/kernel/entry.S
+> +++ b/arch/s390/kernel/entry.S
+> @@ -253,9 +253,6 @@ SYM_FUNC_START(__sae64a)
+>   	stmg	%r6,%r14,__SF_GPRS(%r15)	# store kernel registers
+>   	STBEAR	__SF_SAE_BEAR(%r15)		# save breaking event address register
+>   	.insn	rre,0xb9a50000,%r2,0		# Start Arm Execution
+> -# Let the next instruction be NOP to avoid triggering a machine check
+> -# and handling it in a guest as result of the instruction execution.
+> -	nopr	7
 
-This commit fixes missing minimum size validation and arithmetic overflows
-in xcrb_msg_to_type6_ep11cprb_msgx(). It introduces proper size checks and a
-simple ASN.1 parsing mechanism for the payload up to the function value
-field.
-
-> diff --git a/drivers/s390/crypto/zcrypt_msgtype6.c b/drivers/s390/crypto/=
-zcrypt_msgtype6.c
-> index 3e19e79d747cf..7e1f76c935ee1 100644
-> --- a/drivers/s390/crypto/zcrypt_msgtype6.c
-> +++ b/drivers/s390/crypto/zcrypt_msgtype6.c
-> @@ -491,26 +540,51 @@ static int xcrb_msg_to_type6_ep11cprb_msgx(bool use=
-rspace, struct ap_message *ap
-
-[ ... ]
-
-> +	/* function length */
-> +	if (offs >=3D pld_len)
-> +		return -EINVAL;
-> +	i =3D asn1_length_decode(pld + offs, pld_len - offs, &u);
-> +	if (i < 0)
-> +		return -EINVAL;
-> +	offs +=3D i;
-> +	if (offs >=3D pld_len || u > pld_len - offs)
-> +		return -EINVAL;
-> +	/* function value */
-> +	i =3D asn1_int_decode(pld + offs, u, &u);
-> +	if (i < 0)
-> +		return -EINVAL;
-> +	offs +=3D i;
-> +	*fcode =3D 0xFFFF & u;
-
-[Severity: Critical]
-This is a pre-existing issue, but this updated parsing exposes a bypass of
-the cryptographic domain isolation.
-
-The new ASN.1 logic correctly parses a variable-length payload, allowing a
-shorter encoding of func_val (e.g., 1 byte instead of 4). However, how does
-the subsequent send function handle this?
-
-Looking at zcrypt_msgtype6_send_ep11_cprb(), it appears to still use a
-fixed C-struct offset to overwrite the domain ID:
-
-drivers/s390/crypto/zcrypt_msgtype6.c:zcrypt_msgtype6_send_ep11_cprb() {
-        ...
-        payload_hdr =3D (struct pld_hdr *)((&msg->pld_lenfmt) + lfmt);
-        payload_hdr->dom_val =3D AP_QID_QUEUE(zq->queue->qid);
-        ...
-}
-
-If an unprivileged user issues an EP11 CPRB ioctl with a valid ASN.1 payload
-containing a 1-byte function ID, wouldn't the fixed offset in
-zcrypt_msgtype6_send_ep11_cprb() miss the actual dom_val field?
-
-It seems this would result in the driver validating the request but
-overwriting the wrong offset. This could leave an attacker-supplied domain
-ID intact, allowing the EP11 hardware to process the payload using the
-wrong domain.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260803083339.2128=
-85-1-freude@linux.ibm.com?part=3D3
+rebase artifact. This was introduced by patch 23.
