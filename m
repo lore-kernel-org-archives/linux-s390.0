@@ -1,52 +1,53 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 60F982E2852;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D893630BF67;
 	Mon,  3 Aug 2026 14:29:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785767355; cv=none; b=hFjv+SIfvjcAwZkzfVgL5pLYdjHBSMZdAox4efOAk3H4nKe2ZU+zOryiosLdZf9sxNhf8pZ0VcYoZy3MhXr2PPMxevfMCtN2RAm1qHAZMqNpoN2YGO3HlRlMGenR/fmaOqjRIEzoJwP++6JCD/uaa8rbArFjgUgW8l+sdgzmIFE=
+	t=1785767356; cv=none; b=JyI9C3c9hZLIotWIVOy0SaUktVX7bYVQrlRP93RmmRNqjfSf3s/YwH2Nzdr5soCwZ3OsA/ZajIGCZpORHdrTnKF7fhw9g8Zs34uWijCNxY4wxw3DR0J4sP7XUkB/4ZooRNxioXr0Cawx/uLU7WnC+p5U7tOK2a+9SMBE1/eNbww=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785767355; c=relaxed/simple;
-	bh=Uh8U2G6Z/yPEiIbN8PX+qBhcNii0qjI23U2seWLQWNQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=axhX5V7RaNAsPq7N0BnnQLBYYw0Oll78KxPBQ8iaiE+5NW5HSz9VS6sERlxnjNWYTX/qouNWSF/sWd9iExAL4iEEnFLjBJHB742W0fhGkfnJzDdbs/dufwC2fzYc9u0Km5bkk3liU2roXxtD7viI8aqBHMzUeq8pYdfM8xxSccA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=n944bEVD; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1785767356; c=relaxed/simple;
+	bh=mclsNwZP6adbRjVRyGhr3KqNodbTA1Ic/YqMpeR3I6E=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=NxVmdx2XYrmTI0ixYXNYjSmZPBAd+3wiBrPe8pCU7y2uf+Ea5oV74Iy6Ghr9ozAU1Fiq0N5PCb9waZquczaIBxllBiYpuS14vVDVJE7bLW4h/qJn/t/27q2ywV/9fvjwk6m2Of+uP8X9uIFSD/LIr3JyLY5nX3+/wlYKdYgxQOo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=RIO1y2KC; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="n944bEVD"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 673EHr2s2341591;
-	Mon, 3 Aug 2026 14:29:13 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="RIO1y2KC"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 673EHYY7413703;
+	Mon, 3 Aug 2026 14:29:14 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=M8ZHqgDji8/KqPlrIIxihA+CVQlnlC51H1nD5IfZp
-	UQ=; b=n944bEVD0ThkgxLDV4dLm/uflVaissV2Laow7LbtUvrLFsRdJloLknvDh
-	oymFlUC5QkvkuCNbiym+8w6Doa5QvpewNtWpXHarv2/+ehi7l9LpPn6BbnfLknwB
-	b3ABhYeHb/4s8Gn/5s1vsyfrmrCdfW+Pu4M+TEVvgFLBJNc09IiiUx3kXT8rFsUC
-	jPl7yw6SzOUiDjQuy+7TXbQ8wjdXPIT6Y6kg0v8m+2PQlcTIJ6NAgu6RTyk+oXV0
-	veXqc/AkwnYZ94OHZ1+cVEY5s7/8u0iL6Yd/cIZeisxp/WTPxStzXXJUlXWA4LNi
-	vv8zuN/T4Cc1eByUxcTp8o4U3/W0A==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fs8eugwjv-1
+	:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=pp1; bh=37EJygpbD7lUmddly
+	IOgIJgMzApXhhDgvbSyl7VQjHg=; b=RIO1y2KCxrVVydi3O7FZyCelHCfYcTpKX
+	T83hCc5Px676o01xXNlw4L2UMq7S/4CBBPBoBHy2kxITa5QIMnzWKGCBnb0RpzRU
+	TA6hpQJ/DmTVc07f9Xu5gd0IbwuAcuml0HvT+bqTfXi2VEW1+7FTqJGK/QwerE80
+	/0JDup6YwBwYNNpmBczyTAam1iD7UV9r8+clEiac5JF9qIIL/6OEQt54NHaGm80i
+	M4Nez9glrwaW8yoWsG/V9Twm0cHu8aeGnEQgunAz0Z537MDCPRyzW56iUhhjDslt
+	i+aH8PWEg6KHjQEn9GRljpxj+j5wiAo2EELZHivWHW62iclvJweAg==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fs8fqh7xu-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Mon, 03 Aug 2026 14:29:13 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 673EQFBM009288;
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 673EQMpM019962;
 	Mon, 3 Aug 2026 14:29:12 GMT
 Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fswbg5jvy-1
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fsugvwvba-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Mon, 03 Aug 2026 14:29:12 +0000 (GMT)
 Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 673ET8n227656708
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 673ET8c820120164
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
 	Mon, 3 Aug 2026 14:29:08 GMT
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4736920043;
+	by IMSVA (Postfix) with ESMTP id D126E20043;
 	Mon,  3 Aug 2026 14:29:08 +0000 (GMT)
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1EACB20040;
+	by IMSVA (Postfix) with ESMTP id A1B3C20040;
 	Mon,  3 Aug 2026 14:29:08 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
 	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
@@ -58,10 +59,12 @@ To: Alexander Gordeev <agordeev@linux.ibm.com>,
         Niklas Schnelle <schnelle@linux.ibm.com>,
         Gerd Bayer <gbayer@linux.ibm.com>
 Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH v2 0/3] s390/pci: Enable CONTEXT_ANALYSIS
-Date: Mon,  3 Aug 2026 16:29:04 +0200
-Message-ID: <20260803142907.1771509-1-hca@linux.ibm.com>
+Subject: [PATCH v2 3/3] s390/pci: Enable CONTEXT_ANALYSIS
+Date: Mon,  3 Aug 2026 16:29:07 +0200
+Message-ID: <20260803142907.1771509-4-hca@linux.ibm.com>
 X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20260803142907.1771509-1-hca@linux.ibm.com>
+References: <20260803142907.1771509-1-hca@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -70,75 +73,53 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: VG7hvzJlFNE7TuPL4-ZvszD6TSDSG0Ee
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODAzMDEyOCBTYWx0ZWRfX0IDf6oCI+bp9
- bUfWCWw57jHtAx+Q2GofuDshy1o4aPXsuIwAQj+D+AF7RxbrdpVNO9JWyt8n1+iLeMJY5GvOOj6
- i5S9HwTDlq772Th0LEN7AImjt0Ki1Z0=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODAzMDEyOCBTYWx0ZWRfXyoeP71NbrQJI
- SkkB6CjO2OGLe/KLLNE5wWE10vMIM3+I8GkJ2T9GGL70GVSJqfKqQxpHuiV2vcJM+hhqQc1TkkK
- oozGygeIQEwCQdHJEFBUDoiAnXKujYp0vDRxgL9vzmxdDQzB9it2FW3lH6ppmxVFCVfxCMpXoGo
- uRN6SFi+VvrvtuZL0s+PzYGvBdBm+3MLY10tK9cd7ULZJA/S/abFxEm7zMRiNZNE47wEpBGE47F
- g+fZ7xrPUuuq27z8KSbAFnOdhOhweHIw+JzIswJF3uAifQ/ATBO6lRiiIYCiEDg8WuxwAorxk09
- Dnn1Zkzc0i+VstehlOicsLjCdyYVEW8W4bX1x3m6Uc3FAYUSekA9hBEOLgKLFyBOEzng9+zVlzO
- sTs3DRoeFX/YdRAToqZsDngzuxUFzO1HLW1WOIXpC1C8NZopignUqAHVm4jF7tB7Pfx1u0zkcLn
- 0+CqMfAbQKqervZuVug==
-X-Proofpoint-GUID: VG7hvzJlFNE7TuPL4-ZvszD6TSDSG0Ee
-X-Authority-Analysis: v=2.4 cv=KfzidwYD c=1 sm=1 tr=0 ts=6a70a5b9 cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+X-Proofpoint-GUID: GkozQfUg8lWKibHwLATRa3sP-4ACOOGE
+X-Proofpoint-ORIG-GUID: GkozQfUg8lWKibHwLATRa3sP-4ACOOGE
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODAzMDEyOCBTYWx0ZWRfXwvU06kuIyPNl
+ w3+xwC2IG7Dx/PnIgOWz0qH1O6gsBdQy5bp+z0MXzcMIOHO7qQDDmoR9JcOM5wgdFbkiTosxkKU
+ 0zO+51IkKYtRLbpwCe1ffU8EPZxqZl0=
+X-Authority-Analysis: v=2.4 cv=K8cS2SWI c=1 sm=1 tr=0 ts=6a70a5ba cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
  a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=RzCfie-kr_QcCd8fBx8p:22 a=nvFg73JcvTBpR_9UBFoA:9
+ a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8 a=BVUoiYlOf69TRVgg-NoA:9
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODAzMDEyOCBTYWx0ZWRfX2lv2Q0W+QZwh
+ 2JjUj8geLLUj5Oy0FMtxmGmqs7FuC8anyx4VIBbGFFH5QF/P6K7zZ55n8trxTjU53EWfZHujpML
+ /TJrkiBzwAwSHYGZv+pGVnfw6DAUf+khoWpmO/r1N7B0W8r+wQ/vuPuALUb/XewopnxezWhxBnr
+ tYCmBm9eDcNYGMNOHzpR/QG34W7NZVPwV3Y+zoM545GsSti9yBeZjBnzCQqXQqgI52vqc2W8WMR
+ vSThdf8i1MgYnE836rr9RbAgig5CSN6oEfarVWMy3RalFWQKseKom8HTXh6E6ZWzGeWF8C/Voec
+ bZ8NPXCXxGLemf4VBMNPfPkYwZFZJKU4T0w9n56UAHZfP0MiTNFmUJJ/moSPoVYq8Q/jIfp6AqE
+ mXssVSd0x/u2JrTQWAHDKraBFyhzQQzddvEHH9oiaohn137gl4mm4hXYDQimHympVAjSNYcmDWD
+ 0Q4ojIbJ4W9XijJjTlQ==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-08-03_03,2026-08-03_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- lowpriorityscore=0 bulkscore=0 impostorscore=0 suspectscore=0 malwarescore=0
- adultscore=0 clxscore=1015 priorityscore=1501 phishscore=0 spamscore=0
+ clxscore=1015 spamscore=0 impostorscore=0 bulkscore=0 priorityscore=1501
+ lowpriorityscore=0 malwarescore=0 phishscore=0 suspectscore=0 adultscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608030128
 
-v2:
+Enable CONTEXT_ANALYSIS since s390's pci code compiles now without
+warnings.
 
-- Address potential zdev reference leak (false positive) by adding a
-  comment, and moving get_zdev_by_fid() [Sashiko, Niklas]
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+---
+ arch/s390/pci/Makefile | 2 ++
+ 1 file changed, 2 insertions(+)
 
-- Note: this reveals a pre-existing bug: zpci_remove_reserved_devices()
-  calls zpci_device_reserved() without holding locks. It looks like
-  this can be fixed easily by adding a mutex_lock()/mutex_unlock()
-  pair in zpci_remove_reserved_devices(), but that is not within
-  the scope of this series, and up to the pci maintainers
-
-v1:
-Enable CONTEXT_ANALYSYS for s390's pci code.
-
-Static code checking for acquiring and releasing locks used to be done
-with sparse. That was removed with [1] and replaced with a clang based
-approach [2]. The new approach requires that each subsystem needs to be
-explicitly enabled for checking.
-
-Do that for s390's pci code. In order to avoid false positives the code
-has to be slightly reworked, since conditionally acquiring and releasing
-locks does not work with the checker (besides that this is sub optimal
-coding style).
-
-[1] 5b63d0ae94cc ("compiler-context-analysis: Remove Sparse support")
-[2] 3269701cb256 ("compiler-context-analysis: Add infrastructure for Context Analysis with Clang")
-
-Notes:
-
-- More patches for other s390 specific subsystems will follow
-
-- "Pre-existing issues" reported by AI will not be addressed in the
-  context of this series
-
-Heiko Carstens (3):
-  s390/pci: Rework __zpci_event_error() to remove conditional locking
-  s390/pci: Rework__zpci_event_availability() to remove conditional locking
-  s390/pci: Enable CONTEXT_ANALYSIS
-
- arch/s390/pci/Makefile    |   2 +
- arch/s390/pci/pci_event.c | 151 +++++++++++++++++++-------------------
- 2 files changed, 79 insertions(+), 74 deletions(-)
-
+diff --git a/arch/s390/pci/Makefile b/arch/s390/pci/Makefile
+index 1810e0944a4e..b8be1316491b 100644
+--- a/arch/s390/pci/Makefile
++++ b/arch/s390/pci/Makefile
+@@ -3,6 +3,8 @@
+ # Makefile for the s390 PCI subsystem.
+ #
+ 
++CONTEXT_ANALYSIS := y
++
+ obj-$(CONFIG_PCI)	+= pci.o pci_irq.o pci_clp.o \
+ 			   pci_event.o pci_debug.o pci_insn.o pci_mmio.o \
+ 			   pci_bus.o pci_kvm_hook.o pci_report.o pci_fixup.o
 -- 
 2.53.0
 
