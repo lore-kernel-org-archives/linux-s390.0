@@ -1,64 +1,64 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3A4593655D6;
-	Mon,  3 Aug 2026 16:09:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F6CA2FC01B;
+	Mon,  3 Aug 2026 16:09:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785773377; cv=none; b=RD/Y3XHZo0p4KgoqQR5VeVtnP5YL40bGg/eMZghVAod4sV5NGOsGsXVCuZrRMqJ+r1nQaN0kmPgptiAV5LjDpFGgwMDdxpH60e9cw7DaxW+wDPWueKWipYAUC8Oj6TG3cp2FmRAka4TSvCCp88NMJUAPr7kGucC5TBGmz3ogJqg=
+	t=1785773377; cv=none; b=JlkDkZAD6rKYPvwQgvgdggN23OChqF8NJCHuE7xpFyJIdNScbmH3jj24rZ6oj82ipnfnioEIA8Ln1Gcx4LIvYbEZzaFL/UHsQrcrsiiO/7QL14/pcjYy1qLBGzd3NPTYZJTUQpgrqS+h3c1Q7sCGyR/8mXj2U5+gKzK9E+Kg8sU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1785773377; c=relaxed/simple;
-	bh=VHHUzty73ezjp/qU8clH5A8n/XfF1Tp6AY6wx/J/coY=;
+	bh=BR5LyePrpS9h8AybXICdDrj2cmb4iRINLPUasY9qlDA=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=aGIRnsMZy+hgs/B2Ez3S1gmeBbd9SN7QemQ8a2Yv1XRxsTi451dvcVXsBvsvIxNreuP89rX3JdVxWoRMWZA/J+w9kB1+HSgY5ohjqExM9f1p7fpAEFZJoFOFOhVvWZeFe4wsa8k85FZeQPGnenJq7Ga8OivvpYAhuFxnoUlmmzo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=dBCM7rZr; arc=none smtp.client-ip=148.163.156.1
+	 MIME-Version; b=PP6f0teEValHmW1qYFWD69PtYGnkmjo/TZMuNlhUYDPLNJY3VLZheTBd/QIuL0MkmsOAXZlErOC65rfVwWaDt1w1RAosYeGxctySOpmaRPKlSN9J9sX+WZi2r9H/z0qUgwllGey8IcvWRY0L5nR7js377Z564h28AFVcqENx2fU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=c8l1AhYu; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="dBCM7rZr"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 673EHnTe2262163;
-	Mon, 3 Aug 2026 16:09:33 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="c8l1AhYu"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 673EHxeg2202477;
+	Mon, 3 Aug 2026 16:09:32 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=Qt0U07Rzf29OFxR07
-	WOvz1poLCpC66XhXn7f2l+CWy8=; b=dBCM7rZrgR2zV0wKONTtmESTsnejTDB7a
-	8GX7jZS9I3LYJJGs92+TP+Ae1gsb4NfD3T9wQaX+Bb+Hfu+tZEK1MrZQM6n09+dT
-	qBaYZ3qxWg2Gd1TOThPpXu/zeNsj+aFuGY433tFDMQ0LK+sFFAKSIU22/NDvjkd7
-	SW4qQa9KaO0WlH8HfEgGZgA20u+JFKG7jXFJF9CZaHxT1a0Z1FQhr1Q/Xb4Q7Cxq
-	5rZUuZJMm0OVFBkD3Bh+kl1DjBVakrjW1836diPjAqU8h6uHy0jPdMDTAvt/7POH
-	cAf9UKghWxicgEKd6a/jWEW2BAuovjLYSBfvIP5/VYJyuKjt+J3QQ==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fs8a3sqtp-1
+	:mime-version:references:subject:to; s=pp1; bh=hbfUHvHy4rJgJYRqw
+	Hxt4tDJx/XjWuiWcL78OHM6TI0=; b=c8l1AhYukvTyJEfXYv3dH+EaCourgm7OL
+	LSY2RTziUp2htgx6hlD3Jr2jT95txtPChVdsWbpBHjPBkeQxms8TX43NExXrIEff
+	PeCO7hl7jxWH4ehvhFs1h4VK92QFSU7Y+rZfgLOvNxziKAapPF4gSRBh+teTogs/
+	T3RSXUvsgcX2533kAHllDzGG8n3JxsDJw3foDWWWURjLUWSXFBFNl9rBkB57qyaV
+	xvfoeTeeMKVZ8LxbwllK+NkD1IXFA7sK6pQX0IH2F7/bzSuI3Ovn44lUIEATk3J9
+	iuHlY1O3ciLBssQ+o0vOUHjfuIGdbmIHRamBF+up8Hm1STZAh6++Q==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fs67hhnpv-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Mon, 03 Aug 2026 16:09:32 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 673FuJfB025659;
-	Mon, 3 Aug 2026 16:09:32 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fswtydwwy-1
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 673FuLdT025350;
+	Mon, 3 Aug 2026 16:09:31 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fsv4jx5y8-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Mon, 03 Aug 2026 16:09:31 +0000 (GMT)
 Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 673G9Qb649414590
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 673G9Ppv32899492
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 3 Aug 2026 16:09:26 GMT
+	Mon, 3 Aug 2026 16:09:25 GMT
 Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E7D5620043;
+	by IMSVA (Postfix) with ESMTP id 142772004E;
 	Mon,  3 Aug 2026 16:09:25 +0000 (GMT)
 Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id CEB912004D;
-	Mon,  3 Aug 2026 16:09:25 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id EAD872004B;
+	Mon,  3 Aug 2026 16:09:24 +0000 (GMT)
 Received: from p-imbrenda.ehn-de.ibm.com (unknown [9.224.75.30])
 	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon,  3 Aug 2026 16:09:25 +0000 (GMT)
+	Mon,  3 Aug 2026 16:09:24 +0000 (GMT)
 From: Claudio Imbrenda <imbrenda@linux.ibm.com>
 To: pbonzini@redhat.com
 Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, frankja@linux.ibm.com,
         borntraeger@de.ibm.com
-Subject: [GIT PULL v1 08/23] s390/vfio_ccw: Move cp cleanup out of not operational
-Date: Mon,  3 Aug 2026 18:09:09 +0200
-Message-ID: <20260803160924.236807-9-imbrenda@linux.ibm.com>
+Subject: [GIT PULL v1 01/23] s390/vfio_ccw: Free all memory if cp_init() fails
+Date: Mon,  3 Aug 2026 18:09:02 +0200
+Message-ID: <20260803160924.236807-2-imbrenda@linux.ibm.com>
 X-Mailer: git-send-email 2.55.0
 In-Reply-To: <20260803160924.236807-1-imbrenda@linux.ibm.com>
 References: <20260803160924.236807-1-imbrenda@linux.ibm.com>
@@ -70,162 +70,106 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=E6P9Y6dl c=1 sm=1 tr=0 ts=6a70bd3c cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODAzMDE0MSBTYWx0ZWRfXwA6f7UaLNs/+
+ gGAfbS+e6gWNwbwWCahwacXnzgSGEK1WwhEacOcohCJQDTQ5LL/7Le4JpVQtWLhT1wtKoH239gi
+ JQuk3RSNvShKuf3AeJoW39A/uk8saDs=
+X-Authority-Analysis: v=2.4 cv=I7VVgtgg c=1 sm=1 tr=0 ts=6a70bd3c cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
  a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8 a=VwQbUJbxAAAA:8
- a=PHhSqfijsb0kgUKkh4oA:9
-X-Proofpoint-ORIG-GUID: qjoo_4vt4nBgXlfXow6Hw3lKhlveQvpK
-X-Proofpoint-GUID: qjoo_4vt4nBgXlfXow6Hw3lKhlveQvpK
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODAzMDE0MSBTYWx0ZWRfX80PTa9RT3TST
- YrvsnI2NB/plmsHK9Ak9uNu0jz4yiQuMSGVsrTKxiqhkWNz5MOLhZjjZfahH+7hxBOXJ7XFH0+S
- t1mtBrbwAGYjEvORIw1zOcUOqcNK3zU=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODAzMDE0MSBTYWx0ZWRfX+SOFnHeGRSOk
- aBW4nmVfFhcYrLFzjVy1FCpn9G9oAUhZJXXh2C4S7T7C0hKkAqqYWRdN5GMB+TGCsO3fuzZdD/n
- ll4KmchJ5zaykHZ2z7BJOXA+PFrIo/LYMap0dZHm5HipXt+cDn43nP8WL9RfYU7/pMUrT7fcGML
- Wy9HDZwxtUTgSjDugGjkEn7OH0tefY0R9veiT5I7Km1CX0JvYUbZF3XJuA7TLnB0VZidhyi6Sry
- zQaqvV1xpfFrPGhEqPJNfa6ucRmZWOJWZFLoIf/JJ3V+GiUh139PN1E7DfmKo0E9wIXdTik3sHr
- k1kIfEVTEu0UEN1f3LXrqZFwJUjlNH4YwnEVQFEXyk5uma+Bws+dkDa0H3oHZa3yooGmC5WhMtk
- Zv+TCnEjGjL/DeO2Bw3yFchTWfFIZ9jMEaCRXh9zAcY18GajCFJyvvAOZGtDzzBYb0KgqIckH7t
- i34kJ9MsuccKOO/J7xA==
+ a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8 a=VwQbUJbxAAAA:8
+ a=WEmllObKAWPfCt-5-jUA:9
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODAzMDE0MSBTYWx0ZWRfX5LeYct5JM9l2
+ jee9cC407Q1ssywpZKPob/7tHZJ7gWXgtQXbnZO1n1WZFPtOvZ7n5AnXTGIAUWXob3VDCr52QAd
+ 1VrhVN5GkRO3Ooafx3ocFGqsP+35e9XNXFqoe41Lae33FXEUaoZERAsYKi1EE7NrsvJ/h/1h69t
+ skVuOHwZ2NENO+GjTRtnzgAgUJGdmj3Nun3xagt83u1ioMY32HHYdfSJqaWZdMp25LeW3HwH+bq
+ Toi0PJosi5z8Ap5TLBx8zRpffTTGcy6bpNqNSgNeNxeYEhhRi2og1BzTey/gdRtilUyQ/E7EpjH
+ waZK9A3iQkbC7HpG9zQl+KE4tt1CKN38bdGGis7WFYkmUB6qBOM0hGA5TofPA5kUHmxZDpxEZjd
+ hDQzezn7YvtLQVh/1pJq38izEpqIJXVaufTWmb29gbnTwt4bwDwPeL7gmqxtLl1Dk9SRldJRcZ+
+ Du0Hk3f8YhlNlxrtK5g==
+X-Proofpoint-ORIG-GUID: XBJQiUDxfmlL9RYIu_CRtoi5IlTgRrwT
+X-Proofpoint-GUID: XBJQiUDxfmlL9RYIu_CRtoi5IlTgRrwT
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-08-03_03,2026-08-03_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0 clxscore=1015 lowpriorityscore=0 priorityscore=1501
- suspectscore=0 adultscore=0 spamscore=0 malwarescore=0 impostorscore=0
- phishscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2608030141
+ bulkscore=0 impostorscore=0 clxscore=1015 priorityscore=1501 suspectscore=0
+ malwarescore=0 adultscore=0 lowpriorityscore=0 phishscore=0 spamscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608030141
 
 From: Eric Farman <farman@linux.ibm.com>
 
-The fsm_notoper() routine is called when the device has been
-lost, and is (by definition) no longer operational. Since this
-can happen asynchronously from the normal behavior of the
-driver, the cleanup may happen when holding other locks
-in the calling sequence (notably, the cio subchannel lock).
+The routine cp_free() is called to unpin/free any memory once an I/O
+is completed successfully, or if cp_prefetch() fails. But if cp_init()
+fails, and cp->initialized is not enabled, the same routine cannot be
+used to free all the memory.
 
-Push the cleanup of the private->cp resources to a workqueue,
-where it can be done out from under that lock sequence and
-a future patch can safely manage the locking requirements.
+An attempt to address this exists in ccwchain_handle_ccw(), where a
+single call to ccwchain_free() is made for the currently-processed
+CCW segment. But this will leak other segments (created as a result
+of a Transfer in Channel) that had been allocated as part of the same
+channel program.
 
-Fixes: 204b394a23ad ("vfio/ccw: Move FSM open/close to MDEV open/close")
+Address this by performing the cleanup outside of the recursive
+ccwchain_handle_ccw()/ccwchain_loop_tic() logic.
+
+Fixes: 8b515be512a2 ("vfio-ccw: Fix memory leak and don't call cp_free in cp_init")
 Cc: stable@vger.kernel.org
-Signed-off-by: Eric Farman <farman@linux.ibm.com>
+Reviewed-by: Farhan Ali <alifm@linux.ibm.com>
 Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
+Signed-off-by: Eric Farman <farman@linux.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@linux.ibm.com>
 ---
- drivers/s390/cio/vfio_ccw_drv.c     |  9 +++++++++
- drivers/s390/cio/vfio_ccw_fsm.c     |  3 +--
- drivers/s390/cio/vfio_ccw_ops.c     | 13 +++++++++++++
- drivers/s390/cio/vfio_ccw_private.h |  3 +++
- 4 files changed, 26 insertions(+), 2 deletions(-)
+ drivers/s390/cio/vfio_ccw_cp.c | 22 ++++++++++++++++++----
+ 1 file changed, 18 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
-index 1a095085bc72..c197ad5ab580 100644
---- a/drivers/s390/cio/vfio_ccw_drv.c
-+++ b/drivers/s390/cio/vfio_ccw_drv.c
-@@ -125,6 +125,15 @@ void vfio_ccw_crw_todo(struct work_struct *work)
- 		eventfd_signal(private->crw_trigger);
+diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
+index 7561aa7d3e01..086d1b54bdb0 100644
+--- a/drivers/s390/cio/vfio_ccw_cp.c
++++ b/drivers/s390/cio/vfio_ccw_cp.c
+@@ -455,9 +455,6 @@ static int ccwchain_handle_ccw(dma32_t cda, struct channel_program *cp)
+ 	/* Loop for tics on this new chain. */
+ 	ret = ccwchain_loop_tic(chain, cp);
+ 
+-	if (ret)
+-		ccwchain_free(chain);
+-
+ 	return ret;
  }
  
-+void vfio_ccw_notoper_todo(struct work_struct *work)
+@@ -486,6 +483,23 @@ static int ccwchain_loop_tic(struct ccwchain *chain, struct channel_program *cp)
+ 	return 0;
+ }
+ 
++static int ccwchain_build_ccws(dma32_t cda, struct channel_program *cp)
 +{
-+	struct vfio_ccw_private *private;
++	struct ccwchain *chain, *temp;
++	int ret;
 +
-+	private = container_of(work, struct vfio_ccw_private, notoper_work);
++	ret = ccwchain_handle_ccw(cda, cp);
 +
-+	cp_free(&private->cp);
++	if (ret) {
++		/* Cleanup if an error occurred */
++		list_for_each_entry_safe(chain, temp, &cp->ccwchain_list, next) {
++			ccwchain_free(chain);
++		}
++	}
++
++	return ret;
 +}
 +
- /*
-  * Css driver callbacks
-  */
-diff --git a/drivers/s390/cio/vfio_ccw_fsm.c b/drivers/s390/cio/vfio_ccw_fsm.c
-index 4d7988ea47ef..4d47a3c7b9a0 100644
---- a/drivers/s390/cio/vfio_ccw_fsm.c
-+++ b/drivers/s390/cio/vfio_ccw_fsm.c
-@@ -170,8 +170,7 @@ static void fsm_notoper(struct vfio_ccw_private *private,
- 	css_sched_sch_todo(sch, SCH_TODO_UNREG);
- 	private->state = VFIO_CCW_STATE_NOT_OPER;
+ static int ccwchain_fetch_tic(struct ccw1 *ccw,
+ 			      struct channel_program *cp)
+ {
+@@ -735,7 +749,7 @@ int cp_init(struct channel_program *cp, union orb *orb)
+ 	memcpy(&cp->orb, orb, sizeof(*orb));
  
--	/* This is usually handled during CLOSE event */
--	cp_free(&private->cp);
-+	queue_work(vfio_ccw_work_q, &private->notoper_work);
- }
+ 	/* Build a ccwchain for the first CCW segment */
+-	ret = ccwchain_handle_ccw(orb->cmd.cpa, cp);
++	ret = ccwchain_build_ccws(orb->cmd.cpa, cp);
  
- /*
-diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
-index d361d1fde3a0..1df6d649565b 100644
---- a/drivers/s390/cio/vfio_ccw_ops.c
-+++ b/drivers/s390/cio/vfio_ccw_ops.c
-@@ -54,6 +54,7 @@ static int vfio_ccw_mdev_init_dev(struct vfio_device *vdev)
- 	INIT_LIST_HEAD(&private->crw);
- 	INIT_WORK(&private->io_work, vfio_ccw_sch_io_todo);
- 	INIT_WORK(&private->crw_work, vfio_ccw_crw_todo);
-+	INIT_WORK(&private->notoper_work, vfio_ccw_notoper_todo);
- 
- 	private->cp.guest_cp = kzalloc_objs(struct ccw1, CCWCHAIN_LEN_MAX);
- 	if (!private->cp.guest_cp)
-@@ -134,9 +135,16 @@ static void vfio_ccw_mdev_release_dev(struct vfio_device *vdev)
- 	/*
- 	 * Ensure these work items are fully drained, so none can
- 	 * fire after being released.
-+	 *
-+	 * notoper_work should have nothing to do here, because only
-+	 * open devices could have channel_program resources in use
-+	 * and those would be released during close. Nevertheless,
-+	 * call flush here as well to be certain anything that was
-+	 * allocated is freed.
- 	 */
- 	cancel_work_sync(&private->io_work);
- 	cancel_work_sync(&private->crw_work);
-+	flush_work(&private->notoper_work);
- 
- 	list_for_each_entry_safe(crw, temp, &private->crw, next) {
- 		list_del(&crw->next);
-@@ -213,9 +221,14 @@ static void vfio_ccw_mdev_close_device(struct vfio_device *vdev)
- 	/*
- 	 * Ensure these work items are drained, in the event the
- 	 * device is re-opened instead of released.
-+	 *
-+	 * notoper_work needs to be given a chance to run if it
-+	 * is queued, so any memory associated with the channel
-+	 * program can be returned.
- 	 */
- 	cancel_work_sync(&private->io_work);
- 	cancel_work_sync(&private->crw_work);
-+	flush_work(&private->notoper_work);
- 
- 	vfio_ccw_unregister_dev_regions(private);
- }
-diff --git a/drivers/s390/cio/vfio_ccw_private.h b/drivers/s390/cio/vfio_ccw_private.h
-index 0501d4bbcdbd..e2256402b089 100644
---- a/drivers/s390/cio/vfio_ccw_private.h
-+++ b/drivers/s390/cio/vfio_ccw_private.h
-@@ -102,6 +102,7 @@ struct vfio_ccw_parent {
-  * @req_trigger: eventfd ctx for signaling userspace to return device
-  * @io_work: work for deferral process of I/O handling
-  * @crw_work: work for deferral process of CRW handling
-+ * @notoper_work: work for deferred processing in not-operational state
-  */
- struct vfio_ccw_private {
- 	struct vfio_device vdev;
-@@ -125,11 +126,13 @@ struct vfio_ccw_private {
- 	struct eventfd_ctx	*req_trigger;
- 	struct work_struct	io_work;
- 	struct work_struct	crw_work;
-+	struct work_struct	notoper_work;
- } __aligned(8);
- 
- int vfio_ccw_sch_quiesce(struct subchannel *sch);
- void vfio_ccw_sch_io_todo(struct work_struct *work);
- void vfio_ccw_crw_todo(struct work_struct *work);
-+void vfio_ccw_notoper_todo(struct work_struct *work);
- 
- extern struct mdev_driver vfio_ccw_mdev_driver;
- 
+ 	if (!ret)
+ 		cp->initialized = true;
 -- 
 2.55.0
 
