@@ -1,269 +1,218 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E1FBC3815DF;
-	Mon,  3 Aug 2026 16:41:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B239386C3F;
+	Mon,  3 Aug 2026 16:41:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785775281; cv=none; b=eFeUegeb6qE3t/8L1PpXr5fno/z/2NYa+7vToBQTHcLLZJiXVo+hj37AfWGuj9wmUPaQ8jhj6J/ZIxclO3/lRTEd/slsEduOPxjVKaUv5UKxQdKOa1+TKA46aHq3tciKg0pJ/8RSvs7nhXbppdtpkfrbRXwLQwwoKyRk3gUj/lU=
+	t=1785775298; cv=none; b=nvnQiyDUE5ZySCB10VOcYQZ1UY/7lGlV8Z++po8ZQfnvfleKIpa62UR9m1xirXQqXoWxmQLgc9tqbRYfTnLMtUBjKYvDB9Lq3iqCQhvQLVUBB/xcE/rP7t2r750QigK/mvXFqr5gR7gIhMmjMGw6jQ/Lw0G6oZ8W/sSEygNvYTw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785775281; c=relaxed/simple;
-	bh=WzYXqiW1e/bpxwOTk8uTSdPqI1H48FbaRf7wrPRBx4s=;
-	h=Message-ID:Subject:From:To:Cc:In-Reply-To:References:Content-Type:
-	 Date:MIME-Version; b=YdbxzItGp5QdctvzFe0qllyGNpC8brNFQan9z8dXjxL6+akEx6sACKuZzdrmpKA2Ero1lE13IttP6IgZg0ghfO7suJdEMUx7zIf2gmwupU/FV0lKIPQrU5VFG0j4nWeOJeCt+t+wndNnyig2FqKXpyW3IhKC5j8i7TWHVXgPANw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=qgqiMGxM; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1785775298; c=relaxed/simple;
+	bh=8eauQcoOxaZr5hV2SNSHoZm1dEc9RASllM7ZreMnJU4=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=hXKI0KvKvYrDkr5WRMc5nqBbNgfSFlGp4516/ZQXf1lOp1Yt+gJwct2oXBqKeH/fP+mmoHLohmKbnT25Jd5vMDo0TnhvzpZxYQmgIQ+E9ez0muINf3Ok8ORSzvhKUVyA911HRpG6BY6hjHIYMBN7QE6S0plr/vfN/mMs1kiDB8c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=abHYbiqX; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="qgqiMGxM"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 673EHntv2341358;
-	Mon, 3 Aug 2026 16:41:18 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=s6ky7z
-	U/hEIv8BcfWEy7ktQhfKyjGu3PcGAhdsBSJeQ=; b=qgqiMGxMNr14kvzHcZcQDg
-	LgTtgQ6fKykD8PSd7essoTP1wsrxlA2lKIv5TtlW4Q8ztuLmRn/2Tzm8j59iaYXr
-	3EP/BPFuzSwC43GF78vIDpfc4oCfyoUBAOzLDo9J7bS8YJkoB3YpP6xwNUVsnqMU
-	vGwXcmjxcUSmlBUB/ODjlM1nhz1tmdicuoQV40QntT/tRfKsNYXcF+jqId4aYZvU
-	xMuIcNEtMndGtdJEPW/jNWuY6A9FDht4b+mmr/dugvBymYtYcK0ApKfTufGIhzHe
-	Mq30F5dCQNucNxZerHmDzzmbkP0zgC9WU+qAKAm139gwbX+p5jUSEO//vPGp27ow
-	==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fs8euhg0f-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 03 Aug 2026 16:41:18 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 673GfFUn013949;
-	Mon, 3 Aug 2026 16:41:17 GMT
-Received: from smtprelay05.dal12v.mail.ibm.com ([172.16.1.7])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fswbg633r-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 03 Aug 2026 16:41:17 +0000 (GMT)
-Received: from smtpav02.dal12v.mail.ibm.com (smtpav02.dal12v.mail.ibm.com [10.241.53.101])
-	by smtprelay05.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 673GfGE112321390
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 3 Aug 2026 16:41:16 GMT
-Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C159F58051;
-	Mon,  3 Aug 2026 16:41:16 +0000 (GMT)
-Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3E78C5805E;
-	Mon,  3 Aug 2026 16:41:15 +0000 (GMT)
-Received: from [9.111.54.211] (unknown [9.111.54.211])
-	by smtpav02.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Mon,  3 Aug 2026 16:41:15 +0000 (GMT)
-Message-ID: <cbcdabac9c84252aabfaf1adda139652711de9a6.camel@linux.ibm.com>
-Subject: Re: [PATCH v2 1/3] s390/pci: Rework __zpci_event_error() to remove
- conditional locking
-From: Niklas Schnelle <schnelle@linux.ibm.com>
-To: Heiko Carstens <hca@linux.ibm.com>,
-        Alexander Gordeev	
- <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Vasily
- Gorbik	 <gor@linux.ibm.com>,
-        Christian Borntraeger
- <borntraeger@linux.ibm.com>,
-        Gerd Bayer <gbayer@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20260803142907.1771509-2-hca@linux.ibm.com>
-References: <20260803142907.1771509-1-hca@linux.ibm.com>
-	 <20260803142907.1771509-2-hca@linux.ibm.com>
-Autocrypt: addr=schnelle@linux.ibm.com; prefer-encrypt=mutual;
- keydata=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
-Content-Type: text/plain; charset="UTF-8"
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="abHYbiqX"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA5371F000E9;
+	Mon,  3 Aug 2026 16:41:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1785775297;
+	bh=u3kRSpLdKmHDt05+dtxh1K00QVpdOgkUQWblAilPyT4=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=abHYbiqXGYU7iZasXijXBsWjsrZ1zQUO+Zz8+pk5j/l6E3cqRdq5GIzfBBP34XZ7/
+	 bOQ1IOeaiaFu6xfegEgurf+CnID1hd3508J2Ia4iqSiEAn6JZL20tc+PvlXx4nf7v0
+	 yrfyl80DSjcgRS7MkvxTh5B0W/31oEYoDwvhv07/m6qfycUMJyIr5OM/cih/gw8xtc
+	 NaztVq5KiAEJ9hnHdPpJjuLh/U5y0dABKZoZNdjQMrEfQ6Y4nTuFcHBKqYC9/Bmpl1
+	 ALuzP+rOQoZbcUym7UOHPDTM9qi83P1DiocWKvWRsCLdM8Mfy8KMyOCT0CXqVwadUP
+	 Bh8vfcUNObm9g==
+From: sashiko-bot@kernel.org
+Subject: Re: [GIT PULL v1 07/23] s390/vfio_ccw: Cancel existing workqueues
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>
+Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, "Heiko
+ Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>
+In-Reply-To: <20260803160924.236807-8-imbrenda@linux.ibm.com>
+References: <20260803160924.236807-1-imbrenda@linux.ibm.com>
+ <20260803160924.236807-8-imbrenda@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 03 Aug 2026 18:40:13 +0200
+Date: Mon, 03 Aug 2026 16:41:35 +0000
+Message-Id: <20260803164136.CA5371F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Evolution 3.60.2 (3.60.2-1.fc44) 
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: ewQDV0eYI59MhBwvYqM79tG7AbUbgFXj
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODAzMDE0NiBTYWx0ZWRfX00vZ4S1zTZ/u
- xcQ0jy/oQAxeDxQucIWWAH9oM51bixJjWWb7n0pkPUN2djAn1ytURJ1rhACIJUn4mlhV8DPhlGS
- M6j0Yn3yn0u0b72vrRmT+wP+cgpclN4=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODAzMDE0NiBTYWx0ZWRfXw6LK6MEy1vTR
- g/RiQf4phroOvaTjSAnxehG63gKdJl9VNFCUFaQQaKRcVkmmscF5QA6zngi1MlmZRBlALhgcuO8
- UJQmj/0J3wYj7BIJ6LYNLwBasDbo2uexC6St678qsiH9H7kxKtkzMtkcveZzZJN7jgKDQjzyzyB
- uX0KJVk7qaP4ZQbjESv21H9kR6WiJ8rM4o8xZwSpymC7NPRsgv+nvWY6JZp2/DPCuVI7qXTQcxy
- N+U92eK4hp9J1HuhRT5A8EIW1SdZuTqyYGfg3wAPZc+60OcO2/1pCWRNauLUWcDHnPgzXMfMMr2
- tFRpKwZGeDb2QSZNMHrGStG6b7HzgMpURmUBR6qHiu0Zu+MnbccnVSiZyfTqdd1pnEs9lS6PEz5
- vwUw/XwHjZwDXZOfzUDLshdCImPwySh3MUjvAKu7LOzWOT+xKRCdoHPt5Q08xTZZym3Z6Va+3QB
- WMyjnm6b1sS971Mq/DA==
-X-Proofpoint-GUID: ewQDV0eYI59MhBwvYqM79tG7AbUbgFXj
-X-Authority-Analysis: v=2.4 cv=KfzidwYD c=1 sm=1 tr=0 ts=6a70c4ae cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8
- a=BYthbiou9KiBg9ueyzsA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-08-03_03,2026-08-03_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- lowpriorityscore=0 bulkscore=0 impostorscore=0 suspectscore=0 malwarescore=0
- adultscore=0 clxscore=1015 priorityscore=1501 phishscore=0 spamscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608030146
 
-On Mon, 2026-08-03 at 16:29 +0200, Heiko Carstens wrote:
-> Clang's compiler based static context analysis does not work with
-> locks that are conditionally taken like in __zpci_event_error():
->=20
-> arch/s390/pci/pci_event.c:320:2: warning: mutex 'get_zdev_by_fid(ccdf->fi=
-d).state_lock'
->  is not held on every path through here [-Wthread-safety-analysis]
->=20
-> Given that code which takes locks conditionally can be considered
-> suboptimal rework __zpci_event_error() to get rid of this.
->=20
-> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-> ---
->  arch/s390/pci/pci_event.c | 43 ++++++++++++++++++++++-----------------
->  1 file changed, 24 insertions(+), 19 deletions(-)
->=20
-> diff --git a/arch/s390/pci/pci_event.c b/arch/s390/pci/pci_event.c
-> index 839bd91c056e..48fa26dcbee1 100644
-> --- a/arch/s390/pci/pci_event.c
-> +++ b/arch/s390/pci/pci_event.c
-> @@ -288,6 +288,12 @@ static void zpci_event_io_failure(struct pci_dev *pd=
-ev, pci_channel_state_t es)
->  	pci_dev_unlock(pdev);
->  }
-> =20
-> +static void __zpci_event_print_error(struct pci_dev *pdev, struct zpci_c=
-cdf_err *ccdf)
-> +{
-> +	pr_err("%s: Event 0x%x reports an error for PCI function 0x%x\n",
-> +	       pdev ? pci_name(pdev) : "n/a", ccdf->pec, ccdf->fid);
-> +}
-> +
->  static void __zpci_event_error(struct zpci_ccdf_err *ccdf)
->  {
->  	struct zpci_dev *zdev =3D get_zdev_by_fid(ccdf->fid);
-> @@ -301,24 +307,24 @@ static void __zpci_event_error(struct zpci_ccdf_err=
- *ccdf)
->  	zpci_err("error CCDF:\n");
->  	zpci_err_hex(ccdf, sizeof(*ccdf));
-> =20
-> -	if (zdev) {
-> -		mutex_lock(&zdev->state_lock);
-> -		rc =3D clp_refresh_fh(zdev->fid, &fh);
-> -		if (rc)
-> -			goto no_pdev;
-> -		if (!fh || ccdf->fh !=3D fh) {
-> -			/* Ignore events with stale handles */
-> -			zpci_dbg(3, "err fid:%x, fh:%x (stale %x)\n",
-> -				 ccdf->fid, fh, ccdf->fh);
-> -			goto no_pdev;
-> -		}
-> -		zpci_update_fh(zdev, ccdf->fh);
-> -		if (zdev->zbus->bus)
-> -			pdev =3D pci_get_slot(zdev->zbus->bus, zdev->devfn);
-> -	}
-> +	if (!zdev)
-> +		return __zpci_event_print_error(pdev, ccdf);
+Thank you for your contribution! Sashiko AI review found 4 potential issue(=
+s) to consider:
 
-Nit: Here pdev is always NULL because the assignment moved below.
-Functionally this is fine but it would be more clear this is the case
-if you passed NULL for pdev explicitly.
+Pre-existing issues:
+- [High] Double-free and use-after-free of channel program structures due t=
+o concurrent execution of `cp_free()`.
+- [High] Use-after-free of `vfio_ccw_private` due to concurrent execution o=
+f `vfio_ccw_mdev_remove()` and `vfio_ccw_chp_event()`.
+- [High] Data race and linked list corruption of `private->crw`.
+- [High] Use-after-free of `eventfd_ctx` due to lack of synchronization in =
+`vfio_ccw_mdev_set_irqs()`.
+--
 
+--- Patch [7]: [GIT PULL v1 07/23] s390/vfio_ccw: Cancel existing workqueue=
+s ---
+commit 9c72e034f4d8d6193d6ae49cecd7dc50eda41903
+Author: Eric Farman <farman@linux.ibm.com>
+Subject: s390/vfio_ccw: Cancel existing workqueues
+
+The initialization of the io_work and crw_work workqueues begs the
+question of whether they should be un-initialized. Add the corresponding
+cleanup tags in _release_dev to ensure work isn't dispatched after
+the private struct is free'd.
+
+> diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_=
+ops.c
+> index 032a1cdf4df70..d361d1fde3a0d 100644
+> --- a/drivers/s390/cio/vfio_ccw_ops.c
+> +++ b/drivers/s390/cio/vfio_ccw_ops.c
+> @@ -131,6 +131,13 @@ static void vfio_ccw_mdev_release_dev(struct vfio_de=
+vice *vdev)
+>  		container_of(vdev, struct vfio_ccw_private, vdev);
+>  	struct vfio_ccw_crw *crw, *temp;
 > =20
-> -	pr_err("%s: Event 0x%x reports an error for PCI function 0x%x\n",
-> -	       pdev ? pci_name(pdev) : "n/a", ccdf->pec, ccdf->fid);
-> +	mutex_lock(&zdev->state_lock);
-> +	rc =3D clp_refresh_fh(zdev->fid, &fh);
-> +	if (rc)
-> +		goto no_pdev;
-> +	if (!fh || ccdf->fh !=3D fh) {
-> +		/* Ignore events with stale handles */
-> +		zpci_dbg(3, "err fid:%x, fh:%x (stale %x)\n",
-> +			 ccdf->fid, fh, ccdf->fh);
-> +		goto no_pdev;
-> +	}
-> +	zpci_update_fh(zdev, ccdf->fh);
-> +	if (zdev->zbus->bus)
-> +		pdev =3D pci_get_slot(zdev->zbus->bus, zdev->devfn);
-> +
-> +	__zpci_event_print_error(pdev, ccdf);
-> =20
->  	if (!pdev)
->  		goto no_pdev;
-> @@ -340,8 +346,7 @@ static void __zpci_event_error(struct zpci_ccdf_err *=
-ccdf)
+> +	/*
+> +	 * Ensure these work items are fully drained, so none can
+> +	 * fire after being released.
+> +	 */
+> +	cancel_work_sync(&private->io_work);
+> +	cancel_work_sync(&private->crw_work);
+
+[Severity: High]
+This is a pre-existing issue, but does this cancellation prevent subsequent
+queuing if vfio_ccw_chp_event() races with vfio_ccw_mdev_remove()?
+
+vfio_ccw_chp_event() reads private locklessly before it is cleared and
+prepares to queue work:
+
+drivers/s390/cio/vfio_ccw_drv.c:vfio_ccw_chp_event() {
+    struct vfio_ccw_private *private =3D dev_get_drvdata(&parent->dev);
+    ...
+        vfio_ccw_queue_crw(private, CRW_RSC_CPATH, CRW_ERC_PERRN,
+                           link->chpid.id);
+}
+
+If vfio_ccw_mdev_remove() concurrently clears the driver data, releases the
+device, and drains the currently empty workqueue via
+cancel_work_sync(&private->crw_work), can vfio_ccw_chp_event() subsequently
+queue work on the freed private object, leading to a use-after-free when
+vfio_ccw_crw_todo() executes?
+
+>  	list_for_each_entry_safe(crw, temp, &private->crw, next) {
+
+[Severity: High]
+This is a pre-existing issue, but is the private->crw linked list protected
+against concurrent modifications here?
+
+vfio_ccw_queue_crw() appends elements to the list with list_add_tail() while
+holding sch->lock. Concurrently, userspace triggering a read on the CRW
+region invokes vfio_ccw_crw_region_read(), which locklessly calls
+list_first_entry_or_null() and list_del() before acquiring
+private->io_mutex:
+
+drivers/s390/cio/vfio_ccw_chp.c:vfio_ccw_crw_region_read() {
+    ...
+    crw =3D list_first_entry_or_null(&private->crw,
+                                   struct vfio_ccw_crw, next);
+    if (crw)
+        list_del(&crw->next);
+    mutex_lock(&private->io_mutex);
+}
+
+Can multiple concurrent reads, or a read concurrent with an asynchronous
+channel path event, corrupt the list pointers?
+
+>  		list_del(&crw->next);
+>  		kfree(crw);
 >  	}
->  	pci_dev_put(pdev);
->  no_pdev:
-> -	if (zdev)
-> -		mutex_unlock(&zdev->state_lock);
-> +	mutex_unlock(&zdev->state_lock);
->  	zpci_zdev_put(zdev);
->  }
+
+[ ... ]
+
+> @@ -202,6 +209,14 @@ static void vfio_ccw_mdev_close_device(struct vfio_d=
+evice *vdev)
+>  		container_of(vdev, struct vfio_ccw_private, vdev);
 > =20
+>  	vfio_ccw_fsm_event(private, VFIO_CCW_EVENT_CLOSE);
+> +
+> +	/*
+> +	 * Ensure these work items are drained, in the event the
+> +	 * device is re-opened instead of released.
+> +	 */
+> +	cancel_work_sync(&private->io_work);
 
-Thanks for cleaning this up. Even on its own this would be a net
-improvement. So with or without my nit resolved feel free to add:
+[Severity: High]
+This is a pre-existing issue, but does placing cancel_work_sync() after
+vfio_ccw_fsm_event() leave a double-free race intact?
 
-Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
+The device is closed via vfio_ccw_mdev_close_device(), which triggers the
+FSM CLOSE event and calls fsm_close(). fsm_close() invokes cp_free()
+entirely locklessly:
 
-Thanks,
-Niklas
+drivers/s390/cio/vfio_ccw_fsm.c:fsm_close() {
+    ...
+    spin_unlock_irq(&sch->lock);
+    cp_free(&private->cp);
+}
 
+Concurrently, if the io_work workqueue is already running
+vfio_ccw_sch_io_todo(), it locklessly evaluates
+private->state =3D=3D VFIO_CCW_STATE_CP_PENDING and also calls cp_free():
 
+drivers/s390/cio/vfio_ccw_drv.c:vfio_ccw_sch_io_todo() {
+    ...
+    if (is_final && private->state =3D=3D VFIO_CCW_STATE_CP_PENDING) {
+        cp_free(&private->cp);
+    ...
+}
+
+Since the new cancel_work_sync(&private->io_work) executes after the FSM
+event, can io_work still execute concurrently with the FSM close handler
+and double-free the channel program structures?
+
+[Severity: High]
+This isn't a bug introduced by this patch, but does the lack of
+synchronization in vfio_ccw_mdev_set_irqs() allow a use-after-free of the
+eventfd_ctx object?
+
+In vfio_ccw_mdev_set_irqs(), userspace can unregister an eventfd, executing
+eventfd_ctx_put(*ctx):
+
+drivers/s390/cio/vfio_ccw_ops.c:vfio_ccw_mdev_set_irqs() {
+    ...
+        if (fd =3D=3D -1) {
+            if (*ctx)
+                eventfd_ctx_put(*ctx);
+            *ctx =3D NULL;
+        }
+}
+
+There appear to be no locks preventing the workqueue from concurrently
+reading private->io_trigger. If vfio_ccw_sch_io_todo() reads the pointer
+locklessly:
+
+drivers/s390/cio/vfio_ccw_drv.c:vfio_ccw_sch_io_todo() {
+    ...
+    if (private->io_trigger)
+        eventfd_signal(private->io_trigger);
+}
+
+Can the workqueue execute eventfd_signal() on freed memory if
+vfio_ccw_mdev_set_irqs() frees the context after it was read but before it
+is signaled?
+
+> +	cancel_work_sync(&private->crw_work);
+> +
+>  	vfio_ccw_unregister_dev_regions(private);
+>  }
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260803160924.2368=
+07-1-imbrenda@linux.ibm.com?part=3D7
