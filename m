@@ -1,70 +1,121 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5CC2A3CD8A9;
-	Mon,  3 Aug 2026 13:05:12 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0A8F740F75D;
+	Mon,  3 Aug 2026 13:08:45 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785762313; cv=none; b=fe4B44ji6xBYrGXM4rR0EYa0u5Y60IgeH1CKunVkxFuLfdUHgNjBhp4XCL72047gKifuNEV6Y+paBsxpRo91LrPu3+Vwl/gm58RdCe0cieGV4dv8FqbeIVfjat5FZjxVFz9OeKJk+uUx/934Asuku1OJ25uulTZaQ7qqZRdlf0A=
+	t=1785762526; cv=none; b=acd3zD9dJ1pyUAbkQAAhNqj0mHUMYZr4jGpCxP0sMzNJs3I8uQbTzTuJtkAxZHFI4vPMog+TBhRvh0u5DsQXh8sDx+FQMZKEHZ01IyHaRUbHTq+qKxRHB31oYCgwKwr3+8nbH74/o75dCVrdyKHag9f6qiX9nffP7IkK4Ym9xwo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785762313; c=relaxed/simple;
-	bh=yy6n3Dhs9ya4mMhInxonzz7t84HuIEncLwPAYFCx+HA=;
+	s=arc-20240116; t=1785762526; c=relaxed/simple;
+	bh=n5tu+xInQvNO3LrbvXSVAwzgQWyJIIzVR0oeEiloz1s=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=ICZLIE2CWC4ulm3ZqYh+V7U+CqhR0GSrpLWWwkWXLzfYVg+2KDrVtRhFVxthfiMZBteuBkIBU5h0IB4ZofjViWrSLJhRlKmHdFOJHmvKoOQSgbH6XhCjfzTulJTWVr+ejhUpPRFyEotZcFY1jnMwImd7b7wdHmstpGk+WlerOT0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Tz+d+n0q; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=iZAUl723B/bSkkp6wL/LMbc6hudLRNUc8LWA2DoOJmvfqZwIgyP+HohqqplcYkZ1bp3+DgC3mPBX74rwJBeOCQe7fktL3ePdWwZ37CQsvZvMuKgQENNIAURFqbTjX2RPqinMOe1+dMsg/9Z0zTnqcSrZqc2ZWoddyMc92/Wv6hY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DySaHdrN; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Tz+d+n0q"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2845B1F000E9;
-	Mon,  3 Aug 2026 13:05:11 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DySaHdrN"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0640B1F000E9;
+	Mon,  3 Aug 2026 13:08:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785762312;
-	bh=yy6n3Dhs9ya4mMhInxonzz7t84HuIEncLwPAYFCx+HA=;
+	s=k20260515; t=1785762524;
+	bh=ZRIiGFzjZ3FJXXWS3EoeUVh2aIwH/oTIs0H/DdYCVNk=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Tz+d+n0qVVjOEAy6MJSX6hKk04u032JzXC00vVbKI89RZZSGAfWvJvBop7DzpOS9A
-	 q7hL6mdA4ujec/s0Itk0IWYsHqNb/+dqc7m41c84SoTZ7kvfD/MULOkJkllf5z74oi
-	 t2RHmmmpl3NH7tz2sjUsiLpJSF4WRwAO5StZajBpOZde/Nn+JHpRrxEesD7H2l+epg
-	 4ZcexUW7I4NxyHFSMILWy6uTH50l29kOk0LyGBNViwJISkCKpT+35R4ufX3M1RUAvi
-	 JYlz750ZFi9L+udnrRJcul93zP7bwq+i6zU0G1Oymk9hv5Un13Q8Zg0KNh4k6i8GOF
-	 9jv/YuhFe20gQ==
+	b=DySaHdrNJG4d5ctYDxnnmvCy4Dy4l5c3Plh+FD736cZpzlpOUfduRYekrpofD/Xpt
+	 KxeFtzNe/7GBIZgapjoybYHsgpS1hwuvWbGGzFAb0TgyeGRrnvdCIMq9zMhY/gAZ8D
+	 IU/LiDQ1+jirV1KyXip2LshPfiraNqvY2rwxTx5uWkZXNHIe9iTwPLP/brKmyTgqBM
+	 HUX979n4nTPvwJvfCixWgWS3oBKnjR+ysuUMwk9nOOqHhcglx9cK+Hmm5LtVp45Uot
+	 4zX3Qtx477arD2LOhVjh5ulvlyPCrUdBTzbkRb1uhcKTNEcOWaN+p7ZHw0f1cC7gir
+	 UXtmZflVSk6sA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v8 13/13] KVM: s390: Fix cleanup in
- kvm_s390_pv_create_cpu()
+Subject: Re: [PATCH v8 08/13] KVM: s390: cmma: Fix dirty tracking when
+ removing memslot
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
- Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
-In-Reply-To: <20260803124040.126471-14-imbrenda@linux.ibm.com>
+Cc: kvm@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
+ Carstens" <hca@linux.ibm.com>
+In-Reply-To: <20260803124040.126471-9-imbrenda@linux.ibm.com>
 References: <20260803124040.126471-1-imbrenda@linux.ibm.com>
- <20260803124040.126471-14-imbrenda@linux.ibm.com>
+ <20260803124040.126471-9-imbrenda@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 03 Aug 2026 13:05:10 +0000
-Message-Id: <20260803130511.2845B1F000E9@smtp.kernel.org>
+Date: Mon, 03 Aug 2026 13:08:42 +0000
+Message-Id: <20260803130844.0640B1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-> If creating a protected vCPU in kvm_s390_pv_create_cpu() fails,
-> kvm_s390_pv_destroy_cpu() was called, which checks whether the vCPU has
-> a PV handle and exits doing nothing otherwise. At that point, due to
-> not having created the protected vCPU, the PV handle will not be set,
-> and kvm_s390_pv_destroy_cpu() will do nothing, thus leaking the
-> allocated memory.
->=20
-> Fix by factoring out the code to free and reset a PV vCPU; call it from
-> kvm_s390_pv_destroy_cpu() and kvm_s390_pv_create_cpu().
->=20
-> Opportunistically fix the return value of kvm_s390_pv_destroy_cpu() in
-> case of errors: return -EIO instead if EIO.
->=20
-> Fixes: d4074324b07a ("KVM: s390: pv: avoid double free of sida page")
-> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [High] The CMMA dirty pages counter leaks when unmapped pages (holes) wit=
+h `cmma_d =3D=3D 1` are deleted.
+--
 
-Sashiko has reviewed this patch and found no issues. It looks great!
+--- Patch [8]: [PATCH v8 08/13] KVM: s390: cmma: Fix dirty tracking when re=
+moving memslot ---
+commit 914169226ab516b51f60cbd45659598a2b39525d
+Author: Claudio Imbrenda <imbrenda@linux.ibm.com>
+
+KVM: s390: cmma: Fix dirty tracking when removing memslot
+
+This commit decrements the cmma-dirty counter when a memslot is removed
+to ensure accurate dirty tracking during migration mode. It also
+opportunistically adopts scope-based resource management for the
+kvm_s390_mmu_cache.
+
+> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> index e5c5e9f61cb24..ba811f0673d10 100644
+> --- a/arch/s390/kvm/kvm-s390.c
+> +++ b/arch/s390/kvm/kvm-s390.c
+[ ... ]
+> @@ -5830,6 +5846,12 @@ void kvm_arch_commit_memory_region(struct kvm *kvm,
+>  	}
+> =20
+>  	scoped_guard(write_lock, &kvm->mmu_lock) {
+> +		if (kvm->arch.migration_mode && kvm->arch.use_cmma && old) {
+> +			_dat_walk_gfn_range(old->base_gfn, old->base_gfn + old->npages,
+> +					    kvm->arch.gmap->asce, &ops, DAT_WALK_IGN_HOLES,
+> +					    &kvm->arch.cmma_dirty_pages);
+> +		}
+> +
+
+[Severity: High]
+Does this code leak the cmma_dirty_pages counter when unmapped pages (holes)
+have cmma_d =3D=3D 1?
+
+Because this pre-walk uses DAT_WALK_IGN_HOLES without DAT_WALK_ANY,
+dat_pte_walk_range() will skip calling cmma_d_count_pte() for holes:
+
+arch/s390/kvm/dat.c:dat_pte_walk_range() {
+	if (pte_hole(READ_ONCE(table->ptes[idx]))) {
+		if (!(w->flags & DAT_WALK_IGN_HOLES))
+			return -EFAULT;
+		if (!(w->flags & DAT_WALK_ANY))
+			continue;
+	}
+	...
+}
+
+If a guest page was dirtied (setting cmma_d =3D 1 and incrementing the
+counter), and then the host unmaps the page (e.g., via page reclaim
+or MADV_DONTNEED), the PTE becomes a hole but the PGSTE retains
+cmma_d =3D=3D 1.
+
+When the memslot is removed, this pre-walk skips the hole, failing
+to decrement cmma_dirty_pages. Then dat_delete_slot() walks the range
+with DAT_WALK_ANY and clears cmma_d, causing the counter to permanently
+leak.
+
+If this counter never reaches 0, could it stall live migration by causing
+userspace to infinite loop waiting for remaining dirty pages to drop to 0?
+
+>  		switch (change) {
+>  		case KVM_MR_DELETE:
+>  			rc =3D dat_delete_slot(mc, kvm->arch.gmap->asce, old->base_gfn, old->=
+npages);
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260803124040.1264=
-71-1-imbrenda@linux.ibm.com?part=3D13
-
+71-1-imbrenda@linux.ibm.com?part=3D8
