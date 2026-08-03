@@ -1,76 +1,136 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0FA4B417BC3;
-	Mon,  3 Aug 2026 16:17:32 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D9E06332907;
+	Mon,  3 Aug 2026 16:24:31 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785773859; cv=none; b=TvdiMvffTe4YOi4LX/txmPvXlFE9dhN2arsAhStHA0F1VcCLOHGadBdd3zc51NJNMgn3aWuNyEeXh2VVuGNtr5Yz4mDa4U5PuIO11w97C/gCnQL/ubjMKv+/uFZu/GW5Bki0/S+EDefPh3WDzz4Vsf3vKzaJbB+r3vy7Kw8ei8k=
+	t=1785774273; cv=none; b=MUrRXgay5bxCQ+uUiQT867n5Bq6h99RIm6Ss/pj9wQJsbgAHtDIhNdCsRlSlf5jNWk01MOoI6TyWVNXKxcezCJam++R+5CO/6M2rlWQaytTsNS9zoqFZaUuVNyhKyDxq0ouDueua2ZRRk0F1UE3IklnmIUdw0GLhAhbF/j6n4D0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785773859; c=relaxed/simple;
-	bh=jfvel/UBA3KmF10d6IeFwvdHI/sWv1/jo3pHXLTGG9o=;
+	s=arc-20240116; t=1785774273; c=relaxed/simple;
+	bh=yHW4KIrcgyw7EKoWXLy7TpK7UIgVKRPu4M/DvtzjOl4=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=EzPA0/LwThhAAJodx1R6/74TmiJMPUV2cWwxjDz9vNuHDNUYJTQJdF4x18MU+EI2JZ4NMx9Ywd0SIiQ5QEwqCA0VxrKuHkxTYpCoEQrEU44K79ZVLLnHKka0FXdMudGSFW1n8a7sOj8CoH47xb0Ar5z6H3vMGekh85t47AZxn6s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kd05mG9P; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=VWBKMM2wwolP4pQ+NteQq14WMyJg/COFhFlDiblCxje4uTGEfT97xRGt46i3gz/KnYKtC/ys7k1/e2T4n69Heg/JP6LWljBKUlHqQdkLPcyP/LpQuN667WiKL4yiuBDKNREtXsczTGWd5UwKNN5FQWEkqrBQ+zkc4+NzTmDJcrg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NY710zl3; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kd05mG9P"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EEAA71F000E9;
-	Mon,  3 Aug 2026 16:17:30 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NY710zl3"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45A541F000E9;
+	Mon,  3 Aug 2026 16:24:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785773851;
-	bh=jfvel/UBA3KmF10d6IeFwvdHI/sWv1/jo3pHXLTGG9o=;
+	s=k20260515; t=1785774270;
+	bh=g3O1oDmpjOCmW7t8Aw5VD+BPLCYZkCpvLa0doeP/4Mw=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=kd05mG9PK4o8X0rLo/4Xk2I/vWrlIxdYveXWzFG8xMF0cSm4PVt/UEW5MvEeGARwp
-	 6J5EhEAgfrQ7p34znSq4gmxAihjM7gRYeD3oc4S7UMsSKREyYtZTcK+BbOfhhknPC1
-	 wL8bzp+yofD6GjPKTaq+SdUdlQt4xRb1shjG0rzwlC5+OSXG0jOiWj2yj14IdyRSgW
-	 gHWDnJ2Ndk21GFv2j51Jb8PuylimqFwY7huiUX0JRPyM92O9mwa03IcptmtG5QHwZF
-	 vpPo7bECUGVfQfgav1Z34W+2rCm809egaVgAPceDiLhOkFWVq03wkXBryt6uDbSsJy
-	 vUVx1j8Q/styw==
+	b=NY710zl3oXJxWyhMS4JmvrTC9g/l5u/cHomTAp+7ATA6aYx+svIUZZK+wF3t7OLfq
+	 Bok5gs1mzHVbFZnSRywKrORgZPKM5FwcrHhHcG4Yn+Cb+Hmiz/3JirfnELMME4lBza
+	 Jw2RwXqFXpBnDAVa9tp7szmzD9fqfe9cmZfDruqhAuWHIXwST1ciUzl5b3dLDPqvEe
+	 3UgoIjiTGsPqLChVLzxlDRyRem6Nk07AhtE3SOSjFiv6YsgR93r8t3v2QIZW+A9rrh
+	 zXMNChX6KIko7mGqbfNOd3hlOlDgjnxQ8zhpTIb4YBAGrbuZ+DLftvhJ3BcFH3QUJj
+	 LiFnUMYy6GXkQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [GIT PULL v1 03/23] s390/vfio_ccw: Fix out of bounds check on
- CCW array
+Subject: Re: [GIT PULL v1 04/23] s390/vfio_ccw: Ensure first IDAW remains
+ constant
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
- Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
-In-Reply-To: <20260803160924.236807-4-imbrenda@linux.ibm.com>
+Cc: kvm@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
+ Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
+In-Reply-To: <20260803160924.236807-5-imbrenda@linux.ibm.com>
 References: <20260803160924.236807-1-imbrenda@linux.ibm.com>
- <20260803160924.236807-4-imbrenda@linux.ibm.com>
+ <20260803160924.236807-5-imbrenda@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 03 Aug 2026 16:17:30 +0000
-Message-Id: <20260803161730.EEAA71F000E9@smtp.kernel.org>
+Date: Mon, 03 Aug 2026 16:24:29 +0000
+Message-Id: <20260803162430.45A541F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-> From: Eric Farman <farman@linux.ibm.com>
->=20
-> The routine ccwchain_calc_length() counts the number of channel
-> command words (CCWs) that are chained together in a single channel
-> program, and rejects anything larger than CCWCHAIN_LEN_MAX (256) CCWs.
->=20
-> The loop itself is "do..while (count < 257)", and while the logic in
-> is_cpa_within_range() correctly adjusts between the 0-index array of
-> CCWs and the count of CCWs starting at 1, this means it would look
-> at a possible 257th CCW before ending the loop and (correctly)
-> returning an error.
->=20
-> Fix this by restructuring the loop to break as soon as 256 CCWs
-> (thus indexes 0-255) are examined, without looking at memory
-> outside the range.
->=20
-> Fixes: 0a19e61e6d4c ("vfio: ccw: introduce channel program interfaces")
-> Cc: stable@vger.kernel.org
-> Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
-> Signed-off-by: Eric Farman <farman@linux.ibm.com>
-> Signed-off-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
 
-Sashiko has reviewed this patch and found no issues. It looks great!
+Pre-existing issues:
+- [High] Guest memory over-read in get_guest_idal() for Format-1 IDALs requ=
+ests twice the actual size of the guest's IDAL, potentially causing valid c=
+hannel programs to be rejected.
+- [High] When processing a CCW with the SKIP flag and IDA flag, the driver =
+fails to translate the guest IDAWs into valid host physical addresses, pote=
+ntially causing a host Channel Program Check.
+--
+
+--- Patch [4]: [GIT PULL v1 04/23] s390/vfio_ccw: Ensure first IDAW remains=
+ constant ---
+commit fb0447391e53154ceda5e61ab696ff1e49d88abb
+Author: Eric Farman <farman@linux.ibm.com>
+
+s390/vfio_ccw: Ensure first IDAW remains constant
+
+The first IDAW in a list does not need to be on a 2K/4K boundary
+like all others, and so is read separately to accurately calculate
+the size of the buffer needed to read the full IDAL. Verify that
+the address found in the first IDAW is unchanged between reads,
+to ensure a consistent set of IDAWs being worked with.
+
+Cc: stable@vger.kernel.org
+
+> diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_c=
+p.c
+> index af632f9d54535..6275794751cb4 100644
+> --- a/drivers/s390/cio/vfio_ccw_cp.c
+> +++ b/drivers/s390/cio/vfio_ccw_cp.c
+> @@ -523,6 +523,7 @@ static dma64_t *get_guest_idal(struct ccw1 *ccw, stru=
+ct channel_program *cp, int
+>  		&container_of(cp, struct vfio_ccw_private, cp)->vdev;
+>  	dma64_t *idaws;
+>  	dma32_t *idaws_f1;
+> +	u64 first_idaw;
+>  	int idal_len =3D idaw_nr * sizeof(*idaws);
+
+[Severity: High]
+This isn't a bug introduced by this patch, but does this over-calculate the
+length for Format-1 IDALs?
+
+Since Format-1 IDAWs are only 4 bytes long, but sizeof(*idaws) is 8 bytes,
+idal_len ends up being twice the actual size.
+
+When vfio_dma_rw() is called a few lines later:
+
+    ret =3D vfio_dma_rw(vdev, dma32_to_u32(ccw->cda), idaws, idal_len, fals=
+e);
+
+could this attempt to read past the allocated IDAL size in guest memory? If
+the over-read crosses into an unmapped page, it might spuriously reject a
+valid guest channel program.
+
+[ ... ]
+
+I also noticed another issue in the same file.
+
+[Severity: High]
+This is a pre-existing issue, but do we correctly handle guest IDAW
+translation when a CCW has both the SKIP and IDA flags set?
+
+For such commands, ccw_does_data_transfer() returns 0, bypassing page
+pinning:
+
+drivers/s390/cio/vfio_ccw_cp.c:ccwchain_fetch_ccw() {
+    ...
+    if (!ccw_does_data_transfer(ccw)) {
+        ...
+        pa->pa_nr =3D 0;
+    }
+    ...
+    page_array_idal_create_words(pa, idaws);
+}
+
+Because pa->pa_nr is 0, page_array_idal_create_words() returns without doing
+anything, leaving the raw guest virtual addresses (IOVAs) in the idaws arra=
+y.
+
+Will the host channel subsystem hardware fetch these invalid physical
+addresses and raise an access exception (Program Check), failing the valid
+guest request?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260803160924.2368=
-07-1-imbrenda@linux.ibm.com?part=3D3
-
+07-1-imbrenda@linux.ibm.com?part=3D4
