@@ -1,202 +1,400 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1B5213B961B;
-	Mon,  3 Aug 2026 09:10:27 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 070933D9DBC
+	for <linux-s390@vger.kernel.org>; Mon,  3 Aug 2026 09:19:52 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785748229; cv=none; b=tG/eQR8DnURTxArJiNV0RqiQrMnS6J2ZiYg3a9cfLbrbiyXBEsdksixdWDS1kIGRRAQ0fQRUH9d+kyEW9LOf26Vxe40W5swvjsGzscH5Qt7jU0aDYMYa6SPnL6A60qIR1pk7GL2fyZbUEHlEDjw1c60hODM2A6ga4VWtZG9qx7U=
+	t=1785748795; cv=none; b=HzKiJRgfBRzU0jOhDf8kHGSGDTuprtjcPjiW229sxMu21dP5LejPT5WbX7N9mOpFb10h8FP/gvLa0AcWgBmdTS2u0J6rWkfCLQT1APYIiSvd+39NXzyOwPm7g3akqGKlNSuywdtL52HryhUkzTmFpg1wzin2nOPQIzvyxaeWMcs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785748229; c=relaxed/simple;
-	bh=2VL0gj57AHtR9TuB2gjU0ih10v3CWwrdXO9PQfolceY=;
-	h=MIME-Version:Date:From:To:Cc:Subject:In-Reply-To:References:
-	 Message-ID:Content-Type; b=UtlQzOZRZUu99Mw9APU56QRE0dJCzIbQj0XC53D24X8GO3M43lxHcE+Gdv8j8eHfdR7qSaFM9veixRhrw8mPVNr+Ui73eoy/XyyvgAUTguoRlrjo33eZ0x9kQ0YSKZbRly38sPvablVoXnTlXerKe4J23en9GiXwlO4WdHm+M8A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=GhlqpniU; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1785748795; c=relaxed/simple;
+	bh=vEfKvfsqd86eHnLYbk1kzQ8ZkGnNca2a18iE1Vx406w=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=bIf6P5UHX1vbnsoXKX2+WaGDHbCYIg3+m8ovna6qviuCWnXpRHmUo9yrnL5GF0lpakcws896C/1jQjtK07wvTHCw71CNtcewhkxPNgDKOSszSTYtn5vnr0FFD4h9eRqdjfbopeHcM3f5Hk1GfEoW1VDeHL5/PMOPnamgb9tEEX0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Fj+P44ug; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="GhlqpniU"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 672Lllwb243753;
-	Mon, 3 Aug 2026 09:10:27 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Fj+P44ug"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 672Lmp522566607
+	for <linux-s390@vger.kernel.org>; Mon, 3 Aug 2026 09:19:51 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:reply-to:subject:to; s=pp1;
-	 bh=enciRw4rag5AFKjo6tsCyJWrSL2rACIMWzz4dMD7ArU=; b=GhlqpniUyuft
-	mfwcAAiMF5G14YWab0uwzHyt6dDc/ws0S7wZjadaFk8Dxzy6l1eRjbE0tBe+TQRN
-	qXG9k7E77bnUTGxCKMKyhPU022p1dUz2UrA3gXkxOkO8AbhE7FCrI++EdnUlArhV
-	lb/6dkN80DX7eIGthDXCNAx3aeJBedHxJeo2RMP/2Wy/eusBCoV+TbB/oTFK1QJx
-	/gCa6+EeFvBsLSSzgKxWttfmeGQ4r4JHFws+J8c0lerzQWBrfHdVaXnJaXGGk+bR
-	E7UsWJ/7q1qYpbPOyfeg8q0VdeeugD1n7lVAbk3mmmxJP8iC+Quce+3cca0Qq4wp
-	lCnV+CrJQg==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fs8h4qvyb-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 03 Aug 2026 09:10:26 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 6738uMVF013221;
-	Mon, 3 Aug 2026 09:10:25 GMT
-Received: from smtprelay03.dal12v.mail.ibm.com ([172.16.1.5])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fsugvvrd6-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 03 Aug 2026 09:10:25 +0000 (GMT)
-Received: from smtpav06.dal12v.mail.ibm.com (smtpav06.dal12v.mail.ibm.com [10.241.53.105])
-	by smtprelay03.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6739AOKI12845738
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=/J7PLKUiK3SANcS+VJK+NiZf8n6HAg1hB70EL2yZL
+	Ms=; b=Fj+P44ugxZcBct/znUjVFLyl9iTs+9SSgdKUgf2Un/w5iy8AWMjuEsL1M
+	r4QPd2n483wB9st4szaAcFlGT1DUBi8BNPu/eSHXDVeygcSC9lmgw3EtlKH+YCjU
+	yZIv5z55OXltJq+CF4QsDVkOuS1h3lEV3vIFqqpJNFZdmtbzzzp1Ltl+mxsWcc4w
+	l9wYxew87fqlZi6l2mme4Y0LaeJYuvlKfos4imHigWfYVbQkTTlIrL2Shn8szuX/
+	1UGPkWO9Lkxp2MPJiT0KZVVpQDuftD+3itMiO2oDuy2WhfVlb+qM09qk7g0n6cG6
+	Sxju/EprKkKBBoAPIeTxD0y7pVaKw==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fs8fqfwqq-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Mon, 03 Aug 2026 09:19:51 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 6739BIqo025111
+	for <linux-s390@vger.kernel.org>; Mon, 3 Aug 2026 09:19:50 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fsu4qcush-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Mon, 03 Aug 2026 09:19:50 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6739Jk2m31457560
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 3 Aug 2026 09:10:24 GMT
-Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 781005805D;
-	Mon,  3 Aug 2026 09:10:24 +0000 (GMT)
-Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 35CF658055;
-	Mon,  3 Aug 2026 09:10:24 +0000 (GMT)
-Received: from ltc.linux.ibm.com (unknown [9.5.196.140])
-	by smtpav06.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Mon,  3 Aug 2026 09:10:24 +0000 (GMT)
+	Mon, 3 Aug 2026 09:19:46 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8B48F20043;
+	Mon,  3 Aug 2026 09:19:46 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6E41520040;
+	Mon,  3 Aug 2026 09:19:46 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Mon,  3 Aug 2026 09:19:46 +0000 (GMT)
+From: Thomas Richter <tmricht@linux.ibm.com>
+To: linux-s390@vger.kernel.org
+Cc: Thomas Richter <tmricht@linux.ibm.com>
+Subject: [PATCH v4] s390/cpum_cf: Handle CPU hotplug add and delete
+Date: Mon,  3 Aug 2026 11:19:40 +0200
+Message-ID: <20260803091940.1318933-1-tmricht@linux.ibm.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Date: Mon, 03 Aug 2026 11:10:23 +0200
-From: Harald Freudenberger <freude@linux.ibm.com>
-To: sashiko-reviews@lists.linux.dev
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
-        Heiko Carstens
- <hca@linux.ibm.com>, linux-s390@vger.kernel.org,
-        Vasily Gorbik
- <gor@linux.ibm.com>
-Subject: Re: [PATCH v11 2/5] s390/zcrypt: Improve CCA CPRB length and overflow
- checks
-Reply-To: freude@linux.ibm.com
-Mail-Reply-To: freude@linux.ibm.com
-In-Reply-To: <20260803090427.81AF31F000E9@smtp.kernel.org>
-References: <20260803083339.212885-1-freude@linux.ibm.com>
- <20260803083339.212885-3-freude@linux.ibm.com>
- <20260803090427.81AF31F000E9@smtp.kernel.org>
-Message-ID: <397232af830f5c0f791959983b0b7396@linux.ibm.com>
-X-Sender: freude@linux.ibm.com
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODAzMDA3NyBTYWx0ZWRfX5yjNS/XCz0wt
- Qv0/RYYMznOgAOumPxwAYL6SpsVipVcjtbVN8m1B6CgJofaXIr+PsSrMofYXtb1MCmqY8SN3Mh7
- 44Qvc85pHJIA1mgLuweWYKp81KZcLBc=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODAzMDA3NyBTYWx0ZWRfX70XgOWLSZR0Z
- 6QLZ1h9oyJXAaDaOIuz+3V4J4li3vaBIdcvyts/dV436cw5UtS+MQTZBD4GkDN7XM+aWBMV/yw0
- 99dKbMccAIXrkGY/JkyWYmk3rpEP3+5dw7OPUeb5ynmlY1ju2ulRYHi+XxzvobAp3s1H2h7gKJp
- yVqF2d2Lo6MznrDOKm1Ejf9EK+5PoxWebNywoM4tKthBytx9EGrTfjs67lfxuMkiDzCev2e3zH5
- sPmrG+R/jwhbBQ+kJH6LzQGc2lLtYfXX8iMkyaZiW8ypyvN2GFVaCoXElBukK8vIeQLFwUuFfX9
- 5H/6hXtJyOW1GO5B27Qj5KXsCa8vhZXVwEcopZ3u/VocOi8fvJQq66F1HVn0ybGYWRxMaZyDq+d
- EankdiuPqimdILBl2GTigYdYQ37/J4UbHGPCP3QjvqBwOYUzihQK8Py5l8nu+pMLxqpPYLzMnG1
- DrDfvggFz7zMNGWVthw==
-X-Authority-Analysis: v=2.4 cv=SI1ykuvH c=1 sm=1 tr=0 ts=6a705b02 cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
- a=kj9zAlcOel0A:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=VwQbUJbxAAAA:8
- a=VnNF1IyMAAAA:8 a=njc2o0LNXeiAGBJAAbsA:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-ORIG-GUID: M9MR5jSVreUUUdZqnEQ2zX07Irvqlolj
-X-Proofpoint-GUID: M9MR5jSVreUUUdZqnEQ2zX07Irvqlolj
+X-Proofpoint-GUID: 0jY99x6lGWUsHGpUj_ZqW05YjjDgfKcX
+X-Proofpoint-ORIG-GUID: 0jY99x6lGWUsHGpUj_ZqW05YjjDgfKcX
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODAzMDA4MiBTYWx0ZWRfX3PhqKdDQ1bwW
+ 3JLXg6GBpmMSfh7KJri9F4SbSurjGzzmPGolhbKETw9a/QWQWeRMB+TVUQn8ZXxRqU/eBk2S0LF
+ QtgLD0LyBqytFdYQ5wYzY+1Ylp7CpPg=
+X-Authority-Analysis: v=2.4 cv=K8cS2SWI c=1 sm=1 tr=0 ts=6a705d37 cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+ a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=uAbxVGIbfxUO_5tXvNgY:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
+ a=fDrZ1Cj77qLCV54Yk5wA:9
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODAzMDA4MiBTYWx0ZWRfXyUU+4HbYJwY/
+ tPvsBeCliUtbE83DRXKFuvr3kH6gGsJsx63nbmV9hXmLgWxaMljZLpnAXDURw1Mz8ejcFP2mtXJ
+ 0wGdWYw5oeFr4Kq168c/k0DHAH5FQgDGmFPqQZV0qHxZnwbX958n6JJbA5EJ3QYkKabSdrkCdNa
+ GzPEujQeu6xVyW//rwaZK4sgy/gL/iOY9fob/A2AsZa8e9hjL77XMCSpTt1uC1xoCWS7sXsVY2Y
+ GdPT/aKeyocvfARRYd3ffofzWA5LxBkZCsyTzpD+A+9SrRga42e6JeO7GC2JZwF3qZMUpAlCZly
+ OajWdmWWwLlVjAuSBPhWQT39sRgSBXpK2KK15SacLy3ieRwUgHkjeVsLXYut8oPOTbHCseQ4kp8
+ mSH+0tsmZo7S49Z4MPcjRLeR5z4QB/PspqMLNtk9QdbikyQVINJ2XCKCJ0uGR8ZTNYszHgVyitK
+ i8hu3XGx6RfL1duGYRA==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-08-02_06,2026-07-30_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 bulkscore=0 suspectscore=0 impostorscore=0 spamscore=0
- phishscore=0 priorityscore=1501 lowpriorityscore=0 adultscore=0
- malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2608030077
+ clxscore=1015 spamscore=0 impostorscore=0 bulkscore=0 priorityscore=1501
+ lowpriorityscore=0 malwarescore=0 phishscore=0 suspectscore=0 adultscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608030082
 
-On 2026-08-03 11:04, sashiko-bot@kernel.org wrote:
-> Thank you for your contribution! Sashiko AI review found 2 potential
-> issue(s) to consider:
-> 
-> New issues:
-> - [High] Out-of-bounds read into uninitialized padding due to relaxed
-> bounds check.
-> 
-> Pre-existing issues:
-> - [High] Missing minimum size validation for EP11 requests allows
-> uninitialized memory access.
-> --
-> 
-> --- Patch [2]: [PATCH v11 2/5] s390/zcrypt: Improve CCA CPRB length
-> and overflow checks ---
-> commit 91475dced80fa0f4ff3795e01d4bba627b9d0bfe
-> Author: Harald Freudenberger <freude@linux.ibm.com>
-> s390/zcrypt: Improve CCA CPRB length and overflow checks
-> 
-> This commit improves length and overflow validations for CCA CPRB 
-> structures.
-> It updates calculations to use size_t, adds U32_MAX boundary checks, 
-> and
-> enforces minimum control block size requirements.
-> 
->> diff --git a/drivers/s390/crypto/zcrypt_msgtype6.c 
->> b/drivers/s390/crypto/zcrypt_msgtype6.c
->> index 40f72cdf284d3..3e19e79d747cf 100644
->> --- a/drivers/s390/crypto/zcrypt_msgtype6.c
->> +++ b/drivers/s390/crypto/zcrypt_msgtype6.c
-> 
-> [ ... ]
-> 
->> @@ -404,8 +394,8 @@ static int xcrb_msg_to_type6cprb_msgx(bool 
->> userspace, struct ap_message *ap_msg,
->>  			     xcrb->request_control_blk_addr,
->>  			     xcrb->request_control_blk_length))
->>  		return -EFAULT;
->> -	if (msg->cprbx.cprb_len + sizeof(msg->hdr.function_code) >
->> -	    xcrb->request_control_blk_length)
->> +	/* copy subfunction code into AP msg type 6 function code field */
->> +	if (msg->cprbx.cprb_len > req_cblen - 
->> sizeof(msg->hdr.function_code))
->>  		return -EINVAL;
->>  	function_code = ((unsigned char *)&msg->cprbx) + 
->> msg->cprbx.cprb_len;
->>  	memcpy(msg->hdr.function_code, function_code,
-> 
-> [Severity: High]
-> Does this change allow an out-of-bounds read into uninitialized 
-> padding?
-> 
-> The bounds check was relaxed from checking against
-> request_control_blk_length to checking against the 4-byte aligned 
-> req_cblen.
-> 
-> If a user supplies an unaligned xcrb->request_control_blk_length (e.g., 
-> 37)
-> and sets msg->cprbx.cprb_len to point into the uninitialized padding
-> (e.g., 38), it appears up to 2 bytes of uninitialized kernel heap 
-> memory can
-> be read into msg->hdr.function_code and subsequently sent to the
-> cryptographic hardware.
-> 
-> [Severity: High]
-> This is a pre-existing issue, but could we apply similar minimum size
-> validation to xcrb_msg_to_type6_ep11cprb_msgx() for EP11 requests?
-> 
-> When a user calls the zcrypt ioctl for an EP11 request with an 
-> undersized
-> xcrb->req_len (e.g., 0):
-> 
-> drivers/s390/crypto/zcrypt_msgtype6.c:xcrb_msg_to_type6_ep11cprb_msgx() 
-> {
->     ...
->     if (z_copy_from_user(userspace, msg->userdata,
->                          (char __force __user *)xcrb->req, 
-> xcrb->req_len)) {
->     ...
-> }
-> 
-> User-supplied data is copied using the user-controlled length without
-> verifying it meets the minimum required size for the struct fields that
-> are subsequently accessed.
-> 
-> This allows uninitialized heap memory in ap_msg->msg to dictate control 
-> flow
-> and be sent to the cryptographic hardware when reading fields like
-> msg->pld_lenfmt or msg->cprbx.flags.
+V4: Addressed comments from Sumanth
+    Fixed typos
+    Reworked mutex locking to avoid race
 
-see #5 of this patch series
+V3: Implements Heiko's option 3
+    Count per-task processes and only install CPUMF per-CPU
+    infratructure when a per-task process is running during
+    CPU hot plug add.
+
+The command 'perf stat -e cycles -- <command> crashes the kernel
+when CPUs are hotplug added during that run.
+
+Root cause is the allocation of struct cpu_cf_events at first
+event initialization. The allocation is dynamic and the first
+event that has task context creates such a structure for
+each online CPU. This is not sufficient. CPUs may be offline
+during event creation and can be set online during the
+perf run time. For example commands
+
+ # echo 0 > /sys/devices/system/cpu/cpu1/online
+ # perf stat -e cycles -i -- stress-ng -t10s --matrix X
+ # sleep 1
+ # echo 1 > /sys/devices/system/cpu/cpu1/online
+
+create an event for CPUs 0,2-X. Since the events are created with
+task-context, the scheduler will eventually schedule the program
+on CPU1. This CPU has not created and initialized any per
+CPU event infrastructure as that CPU was not online at the time
+of the perf invocation. Thus when the scheduler runs stress-ng
+on CPU1, the function cpumf_pmu_add() refers to a NULL pointer:
+
+ struct cpu_cf_events *cpuhw = this_cpu_cfhw();
+
+This function call is invoked after the task stress-ng has been
+made runnable on CPU1. And this_cpu_cfhw() returns NULL.
+
+The result is a panic:
+[1148608.961663] Unable to handle kernel pointer dereference in virtual kernel address space
+[1148608.961677] Failing address: 0000000000000000 TEID: 0000000000000483
+[1148608.961679] Fault in home space mode while using kernel ASCE.
+[1148608.961683] AS:000000ff318dc007 R3:000000fffd5a8007 S:000000fffd5a7801 P:000000000000013d
+[1148608.961733] Oops: 0004 ilc:3 [#1]SMP
+[1148608.961738] Modules linked in: nf_tables ib_core vhost_net vhost
+                 ....
+[1148608.961797] Hardware name: IBM 9175 ML1 400 (LPAR)
+[1148608.961799] Krnl PSW : 0404d00180000000 000003ef8291fd0c (cpumf_pmu_add+0x3c/0x80)
+[1148608.961813]            R:0 T:1 IO:0 EX:0 Key:0 M:1 W:0 P:0 AS:3 CC:1 PM:0 RI:0 EA:3
+[1148608.961816] Krnl GPRS: 0000000000000026 0000000000040000 0000000000000000 0000000000000004
+[1148608.961818]            0000000000000130 fffffd105615b000 0000000000000000 0000000085324300
+[1148608.961820]            0000000000000000 00000000857edc80 0000000000000001 0000000290090000
+[1148608.961821]            000003ff9ad094c0 0000000290090000 000003ef8291fcfa 0000036f86ccb3e0
+[1148608.961830] Krnl Code: 000003ef8291fcfa: e330b1880004      lg      %r3,392(%r11)
+           000003ef8291fd00: e31020180004       lg      %r1,24(%r2)
+          #000003ef8291fd06: ec13002f1056       rosbg   %r1,%r3,0,47,16
+          >000003ef8291fd0c: e31020180024       stg     %r1,24(%r2)
+           000003ef8291fd12: e54cb1f00003       mvhi    496(%r11),3
+           000003ef8291fd18: a7a10001           tmll    %r10,1
+           000003ef8291fd1c: a774000a           brc     7,000003ef8291fd30
+           000003ef8291fd20: a7290000           lghi    %r2,0
+[1148608.961880] Call Trace:
+[1148608.961881]  [<000003ef8291fd0c>] cpumf_pmu_add+0x3c/0x80
+[1148608.961885]  [<000003ef82bb5e3e>] event_sched_in+0xae/0x190
+[1148608.961890]  [<000003ef82bb60d6>] merge_sched_in+0x1b6/0x390
+[1148608.961892]  [<000003ef82bb65b8>] visit_groups_merge.constprop.0.isra.0+0x308/0x5b0
+[1148608.961894]  [<000003ef82bb689a>] pmu_groups_sched_in+0x3a/0x50
+[1148608.961896]  [<000003ef82bb6a30>] ctx_sched_in+0x180/0x260
+[1148608.961898]  [<000003ef82bb780c>] perf_event_context_sched_in+0x11c/0x2d0
+[1148608.961900]  [<000003ef82bb79ee>] __perf_event_task_sched_in+0x2e/0xc0
+[1148608.961902]  [<000003ef82994834>] finish_task_switch.isra.0+0x1a4/0x250
+[1148608.961907]  [<000003ef8340b5e6>] __schedule+0x376/0x750
+[1148608.961914]  [<000003ef8340b9fe>] schedule+0x3e/0xd0
+[1148608.961916]  [<000003ef83412ca2>] schedule_hrtimeout_range_clock+0xc2/0x110
+[1148608.961919]  [<000003ef82d0d36c>] poll_schedule_timeout.constprop.0+0x5c/0xb0
+[1148608.961926]  [<000003ef82d0e276>] do_poll+0x286/0x3b0
+[1148608.961928]  [<000003ef82d0e5a8>] do_sys_poll+0x208/0x2f0
+[1148608.961931]  [<000003ef82d0f230>] __s390x_sys_poll+0xe0/0x160
+[1148608.961934]  [<000003ef83408028>] __do_syscall+0x168/0x290
+[1148608.961936]  [<000003ef83413754>] system_call+0x74/0x98
+[1148608.961938] Last Breaking-Event-Address:
+[1148608.961939]  [<000003ef8291f1d8>] this_cpu_cfhw+0x38/0x40
+[1148608.961943] Kernel panic - not syncing: Fatal exception: panic_on_oops
+
+The issue arises only in per-task context when the CPUMF facility is
+used and the scheduler picks a random CPU for such a process to run on.
+The scheduler enables the CPUMF infrastructure via PMU callback
+functions pmu::add() and pmu::del().
+Now count all per-task processes currently running and active.
+When a CPU is hotplug added, check for running per-task context
+processes. If one or more are active, install the CPUMF instructure
+on that new CPU.  This ensures the intrastructure is available when
+new CPU is selected to run the per-task context process.
+
+Fixes: 9b9cf3c77e7e ("s390/cpum_cf: rework PER_CPU_DEFINE of struct cpu_cf_events")
+Cc: <Stable@vger.kernel.org> # v6.10+
+Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+---
+ arch/s390/kernel/perf_cpum_cf.c | 75 +++++++++++++++++++++------------
+ 1 file changed, 47 insertions(+), 28 deletions(-)
+
+diff --git a/arch/s390/kernel/perf_cpum_cf.c b/arch/s390/kernel/perf_cpum_cf.c
+index 2076ac22e2c4..f24b2145a0df 100644
+--- a/arch/s390/kernel/perf_cpum_cf.c
++++ b/arch/s390/kernel/perf_cpum_cf.c
+@@ -110,6 +110,7 @@ struct cpu_cf_ptr {
+ 
+ static struct cpu_cf_root {		/* Anchor to per CPU data */
+ 	refcount_t refcnt;		/* Overall active events */
++	atomic_t tskcnt;		/* Number task-context users */
+ 	struct cpu_cf_ptr __percpu *cfptr;
+ } cpu_cf_root;
+ 
+@@ -175,9 +176,9 @@ static void cpum_cf_free_root(void)
+ 	cpu_cf_root.cfptr = NULL;
+ 	irq_subclass_unregister(IRQ_SUBCLASS_MEASUREMENT_ALERT);
+ 	on_each_cpu(cpum_cf_reset_cpu, NULL, 1);
+-	debug_sprintf_event(cf_dbg, 4, "%s root.refcnt %u cfptr %d\n",
++	debug_sprintf_event(cf_dbg, 3, "%s root.refcnt %u cfptr %d tskcnt %d\n",
+ 			    __func__, refcount_read(&cpu_cf_root.refcnt),
+-			    !cpu_cf_root.cfptr);
++			    !cpu_cf_root.cfptr, atomic_read(&cpu_cf_root.tskcnt));
+ }
+ 
+ /*
+@@ -212,14 +213,13 @@ static void cpum_cf_free_cpu(int cpu)
+ 	struct cpu_cf_events *cpuhw;
+ 	struct cpu_cf_ptr *p;
+ 
+-	mutex_lock(&pmc_reserve_mutex);
+ 	/*
+ 	 * When invoked via CPU hotplug handler, there might be no events
+ 	 * installed or that particular CPU might not have an
+ 	 * event installed. This anchor pointer can be NULL!
+ 	 */
+ 	if (!cpu_cf_root.cfptr)
+-		goto out;
++		return;
+ 	p = per_cpu_ptr(cpu_cf_root.cfptr, cpu);
+ 	cpuhw = p->cpucf;
+ 	/*
+@@ -227,15 +227,13 @@ static void cpum_cf_free_cpu(int cpu)
+ 	 * installed on that CPU, but on different CPUs.
+ 	 */
+ 	if (!cpuhw)
+-		goto out;
++		return;
+ 
+ 	if (refcount_dec_and_test(&cpuhw->refcnt)) {
+ 		kfree(cpuhw);
+ 		p->cpucf = NULL;
+ 	}
+ 	cpum_cf_free_root();
+-out:
+-	mutex_unlock(&pmc_reserve_mutex);
+ }
+ 
+ /* Allocate CPU counter data structure for a PMU. Called under mutex lock. */
+@@ -245,7 +243,6 @@ static int cpum_cf_alloc_cpu(int cpu)
+ 	struct cpu_cf_ptr *p;
+ 	int rc;
+ 
+-	mutex_lock(&pmc_reserve_mutex);
+ 	rc = cpum_cf_alloc_root();
+ 	if (rc)
+ 		goto unlock;
+@@ -272,7 +269,6 @@ static int cpum_cf_alloc_cpu(int cpu)
+ 		cpum_cf_free_root();
+ 	}
+ unlock:
+-	mutex_unlock(&pmc_reserve_mutex);
+ 	return rc;
+ }
+ 
+@@ -290,9 +286,12 @@ static int cpum_cf_alloc(int cpu)
+ 	cpumask_var_t mask;
+ 	int rc;
+ 
++	mutex_lock(&pmc_reserve_mutex);
+ 	if (cpu == -1) {
+-		if (!zalloc_cpumask_var(&mask, GFP_KERNEL))
+-			return -ENOMEM;
++		if (!zalloc_cpumask_var(&mask, GFP_KERNEL)) {
++			rc = -ENOMEM;
++			goto out;
++		}
+ 		for_each_online_cpu(cpu) {
+ 			rc = cpum_cf_alloc_cpu(cpu);
+ 			if (rc) {
+@@ -303,20 +302,27 @@ static int cpum_cf_alloc(int cpu)
+ 			cpumask_set_cpu(cpu, mask);
+ 		}
+ 		free_cpumask_var(mask);
++		if (!rc)
++			atomic_inc(&cpu_cf_root.tskcnt);
+ 	} else {
+ 		rc = cpum_cf_alloc_cpu(cpu);
+ 	}
++out:
++	mutex_unlock(&pmc_reserve_mutex);
+ 	return rc;
+ }
+ 
+ static void cpum_cf_free(int cpu)
+ {
++	mutex_lock(&pmc_reserve_mutex);
+ 	if (cpu == -1) {
+ 		for_each_online_cpu(cpu)
+ 			cpum_cf_free_cpu(cpu);
++		atomic_dec(&cpu_cf_root.tskcnt);
+ 	} else {
+ 		cpum_cf_free_cpu(cpu);
+ 	}
++	mutex_unlock(&pmc_reserve_mutex);
+ }
+ 
+ #define	CF_DIAG_CTRSET_DEF		0xfeef	/* Counter set header mark */
+@@ -1026,6 +1032,11 @@ static int cpumf_pmu_add(struct perf_event *event, int flags)
+ {
+ 	struct cpu_cf_events *cpuhw = this_cpu_cfhw();
+ 
++	/* Might be zero when a per-task context event is active. Happens
++	 * when CPUs are made offline and process migration takes place.
++	 */
++	if (!cpuhw)
++		return -ENODEV;
+ 	ctr_set_enable(&cpuhw->state, event->hw.config_base);
+ 	event->hw.state = PERF_HES_UPTODATE | PERF_HES_STOPPED;
+ 
+@@ -1040,6 +1051,11 @@ static void cpumf_pmu_del(struct perf_event *event, int flags)
+ 	struct cpu_cf_events *cpuhw = this_cpu_cfhw();
+ 	int i;
+ 
++	/* Might be zero when a per-task context event is active. Happens
++	 * when CPUs are made offline and process migration takes place.
++	 */
++	if (!cpuhw)
++		return;
+ 	cpumf_pmu_stop(event, PERF_EF_UPDATE);
+ 
+ 	/* Check if any counter in the counter set is still used.  If not used,
+@@ -1090,14 +1106,18 @@ static refcount_t cfset_opencnt = REFCOUNT_INIT(0);	/* Access count */
+ static DEFINE_MUTEX(cfset_ctrset_mutex);
+ 
+ /*
+- * CPU hotplug handles only /dev/hwctr device.
+- * For perf_event_open() the CPU hotplug handling is done on kernel common
+- * code:
+- * - CPU add: Nothing is done since a file descriptor can not be created
+- *   and returned to the user.
+- * - CPU delete: Handled by common code via pmu_disable(), pmu_stop() and
+- *   pmu_delete(). The event itself is removed when the file descriptor is
+- *   closed.
++ * CPU hotplug handles /dev/hwctr device.
++ *
++ * For perf_event_open() the CPU hotplug handler needs to check the number
++ * of per-task context events currently active. A per-task context event
++ * needs per-CPU data structures. The scheduler might schedule the task on
++ * the new CPU and then the CPUMF per-CPU infrastructure must be available.
++ * Common code relies on that and calls cpum_cf_add(), cpum_cf_start(),
++ * cpum_cf_stop() and cpum_cf_del() to install PMU backend functions on
++ * the new CPU.
++ *
++ * If no per-task context event has been installed, the events are per-CPU
++ * and do not care about a new CPU.
+  */
+ static int cfset_online_cpu(unsigned int cpu);
+ 
+@@ -1105,13 +1125,13 @@ static int cpum_cf_online_cpu(unsigned int cpu)
+ {
+ 	int rc = 0;
+ 
+-	/*
+-	 * Ignore notification for perf_event_open().
+-	 * Handle only /dev/hwctr device sessions.
+-	 */
+ 	mutex_lock(&cfset_ctrset_mutex);
+-	if (refcount_read(&cfset_opencnt)) {
++	/* Allocate per-CPU infrastructure when per-task context active. */
++	mutex_lock(&pmc_reserve_mutex);
++	if (atomic_read(&cpu_cf_root.tskcnt))
+ 		rc = cpum_cf_alloc_cpu(cpu);
++	mutex_unlock(&pmc_reserve_mutex);
++	if (refcount_read(&cfset_opencnt)) {
+ 		if (!rc)
+ 			cfset_online_cpu(cpu);
+ 	}
+@@ -1130,13 +1150,12 @@ static int cpum_cf_offline_cpu(unsigned int cpu)
+ 	 * perf_event_open() created events. Perf common code triggers event
+ 	 * destruction when the event file descriptor is closed.
+ 	 *
+-	 * Handle only /dev/hwctr device sessions.
++	 * Handle /dev/hwctr device sessions.
+ 	 */
+ 	mutex_lock(&cfset_ctrset_mutex);
+-	if (refcount_read(&cfset_opencnt)) {
++	if (refcount_read(&cfset_opencnt))
+ 		cfset_offline_cpu(cpu);
+-		cpum_cf_free_cpu(cpu);
+-	}
++	cpum_cf_free(cpu);
+ 	mutex_unlock(&cfset_ctrset_mutex);
+ 	return 0;
+ }
+-- 
+2.55.0
+
