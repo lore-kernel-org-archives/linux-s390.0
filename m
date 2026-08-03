@@ -1,53 +1,52 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 60EF92C21FF;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 60F982E2852;
 	Mon,  3 Aug 2026 14:29:14 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785767355; cv=none; b=Wr6FffAW+aVP8mOgerlNBn26+gFt8inhf1yHb2CHOu0rODwzQAXvViSxCgznSpCWlvvMGlrV6D/LW/8n/fw+JwfxM+9du1TNHZYwRFqBM/41/RR3FfRiFawxchfHVEB8xywlddru2+6K8J2GpTPu1mbknSNC02Q7A7efa1OS40c=
+	t=1785767355; cv=none; b=hFjv+SIfvjcAwZkzfVgL5pLYdjHBSMZdAox4efOAk3H4nKe2ZU+zOryiosLdZf9sxNhf8pZ0VcYoZy3MhXr2PPMxevfMCtN2RAm1qHAZMqNpoN2YGO3HlRlMGenR/fmaOqjRIEzoJwP++6JCD/uaa8rbArFjgUgW8l+sdgzmIFE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1785767355; c=relaxed/simple;
-	bh=l8VHo3beb+c1Ya5TU1gZOZ/9kYIgeg3YtqpughHy37Y=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=JjP1ztIeMZDAm58MM1zrMQqxcmSCnIHvykWC//w+xf8HHWrbmpGPsCpUJk58r4BcqikCAhWMMd4KDckACejES+cFVnuxurbavi10XTkTTVIs1Qee5yjRkb4aN92F4sRVLvq1xahg4Gk6QF9W/P8/YZZ7lSV7W725ZSVvLyYEneM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=fJKiROfK; arc=none smtp.client-ip=148.163.158.5
+	bh=Uh8U2G6Z/yPEiIbN8PX+qBhcNii0qjI23U2seWLQWNQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=axhX5V7RaNAsPq7N0BnnQLBYYw0Oll78KxPBQ8iaiE+5NW5HSz9VS6sERlxnjNWYTX/qouNWSF/sWd9iExAL4iEEnFLjBJHB742W0fhGkfnJzDdbs/dufwC2fzYc9u0Km5bkk3liU2roXxtD7viI8aqBHMzUeq8pYdfM8xxSccA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=n944bEVD; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="fJKiROfK"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 673EHv532206416;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="n944bEVD"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 673EHr2s2341591;
 	Mon, 3 Aug 2026 14:29:13 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=KAPt8yphSUrRziQzp
-	GGyIEBbbgEz71A+Y8k1zEJtR2s=; b=fJKiROfKdk9H5I7hkaIqTduKVLYS3NvQx
-	dW5QLFI3EWSctBHK7y9b4brbLmx5Rsk09/TsMa5Bnsh0lBo7LlCTuYm40lnCUSl2
-	Cuy/KbO5uFbuym00G+WiI87Gs6TMLKPALDRGxeEo9GE6vYDF+SazBi1LnQUemeY7
-	cS+vcC5Bd29vsKRJ/p3oSQVnxw6Vr+sEkcuRuLhOeeUJ9KBSWmMjsPMcdxWBGBzA
-	XuoPTlc9fYh6C36SrvG3YH2KoH8chWZiIxNEMc4SlDIIT3pnQmj6WfcZ+EEriglW
-	uq1KO1njvCWq2t+4Kvesv+D5yGu76MehnNnDeJURyL6pZphs2GOzw==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fs77g13gw-1
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=M8ZHqgDji8/KqPlrIIxihA+CVQlnlC51H1nD5IfZp
+	UQ=; b=n944bEVD0ThkgxLDV4dLm/uflVaissV2Laow7LbtUvrLFsRdJloLknvDh
+	oymFlUC5QkvkuCNbiym+8w6Doa5QvpewNtWpXHarv2/+ehi7l9LpPn6BbnfLknwB
+	b3ABhYeHb/4s8Gn/5s1vsyfrmrCdfW+Pu4M+TEVvgFLBJNc09IiiUx3kXT8rFsUC
+	jPl7yw6SzOUiDjQuy+7TXbQ8wjdXPIT6Y6kg0v8m+2PQlcTIJ6NAgu6RTyk+oXV0
+	veXqc/AkwnYZ94OHZ1+cVEY5s7/8u0iL6Yd/cIZeisxp/WTPxStzXXJUlXWA4LNi
+	vv8zuN/T4Cc1eByUxcTp8o4U3/W0A==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fs8eugwjv-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Mon, 03 Aug 2026 14:29:13 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 673EQFVP012122;
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 673EQFBM009288;
 	Mon, 3 Aug 2026 14:29:12 GMT
 Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fswtydhpe-1
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fswbg5jvy-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Mon, 03 Aug 2026 14:29:12 +0000 (GMT)
 Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 673ET83714680514
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 673ET8n227656708
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
 	Mon, 3 Aug 2026 14:29:08 GMT
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 713FD20040;
+	by IMSVA (Postfix) with ESMTP id 4736920043;
 	Mon,  3 Aug 2026 14:29:08 +0000 (GMT)
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4CAE32004B;
+	by IMSVA (Postfix) with ESMTP id 1EACB20040;
 	Mon,  3 Aug 2026 14:29:08 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
 	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
@@ -59,12 +58,10 @@ To: Alexander Gordeev <agordeev@linux.ibm.com>,
         Niklas Schnelle <schnelle@linux.ibm.com>,
         Gerd Bayer <gbayer@linux.ibm.com>
 Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH v2 1/3] s390/pci: Rework __zpci_event_error() to remove conditional locking
-Date: Mon,  3 Aug 2026 16:29:05 +0200
-Message-ID: <20260803142907.1771509-2-hca@linux.ibm.com>
+Subject: [PATCH v2 0/3] s390/pci: Enable CONTEXT_ANALYSIS
+Date: Mon,  3 Aug 2026 16:29:04 +0200
+Message-ID: <20260803142907.1771509-1-hca@linux.ibm.com>
 X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20260803142907.1771509-1-hca@linux.ibm.com>
-References: <20260803142907.1771509-1-hca@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -73,115 +70,75 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODAzMDEyOCBTYWx0ZWRfX+G191qlPCXQ7
- 6FL49vu8HyfWqUus+JR900HE4bjlYNm9i4vVCATkDykVqCt+uNOR2Jnzq84l3v0wF5plhMLpjuu
- 7+/vp1vN8AaagUONZ6xl/gP6qIvaTX57bwj/DA3JHmDZ48f8sGas0jA1HGwHKmncz4vQlOWOGMq
- HKSXyiSS6SZx48zxbB229gnCoDTfLQ1QqzK12RI9b1/ekwSIaWQgsqtvT46C7YJHF9V60ZsCWcU
- 76lwa9rWepYhRbZmvR3Hp8TMQ5TGe4xmNB3ontwMDEkfeRQlxernUE7W3gPWzFNE8SAUqal/uqH
- ByzLJxLbMbnMU9O6Z2ZRw6PtGjJdVFZitnD4gKFvBPePpYULFLoVOMt+HSq/VbkLLatHwVM+e8+
- QwlrSXBoMBjaZPvQc6OOaziBYbnHADrKF5fQXh3y+k/olMI6PdWrTmkqCyHMN1O3eZGkmwPNqEG
- xCr+ux+As1e4HXfo+hQ==
-X-Authority-Analysis: v=2.4 cv=WIFPmHsR c=1 sm=1 tr=0 ts=6a70a5b9 cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+X-Proofpoint-ORIG-GUID: VG7hvzJlFNE7TuPL4-ZvszD6TSDSG0Ee
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODAzMDEyOCBTYWx0ZWRfX0IDf6oCI+bp9
+ bUfWCWw57jHtAx+Q2GofuDshy1o4aPXsuIwAQj+D+AF7RxbrdpVNO9JWyt8n1+iLeMJY5GvOOj6
+ i5S9HwTDlq772Th0LEN7AImjt0Ki1Z0=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODAzMDEyOCBTYWx0ZWRfXyoeP71NbrQJI
+ SkkB6CjO2OGLe/KLLNE5wWE10vMIM3+I8GkJ2T9GGL70GVSJqfKqQxpHuiV2vcJM+hhqQc1TkkK
+ oozGygeIQEwCQdHJEFBUDoiAnXKujYp0vDRxgL9vzmxdDQzB9it2FW3lH6ppmxVFCVfxCMpXoGo
+ uRN6SFi+VvrvtuZL0s+PzYGvBdBm+3MLY10tK9cd7ULZJA/S/abFxEm7zMRiNZNE47wEpBGE47F
+ g+fZ7xrPUuuq27z8KSbAFnOdhOhweHIw+JzIswJF3uAifQ/ATBO6lRiiIYCiEDg8WuxwAorxk09
+ Dnn1Zkzc0i+VstehlOicsLjCdyYVEW8W4bX1x3m6Uc3FAYUSekA9hBEOLgKLFyBOEzng9+zVlzO
+ sTs3DRoeFX/YdRAToqZsDngzuxUFzO1HLW1WOIXpC1C8NZopignUqAHVm4jF7tB7Pfx1u0zkcLn
+ 0+CqMfAbQKqervZuVug==
+X-Proofpoint-GUID: VG7hvzJlFNE7TuPL4-ZvszD6TSDSG0Ee
+X-Authority-Analysis: v=2.4 cv=KfzidwYD c=1 sm=1 tr=0 ts=6a70a5b9 cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
  a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8 a=m4_1mmLPwvc7V99NFaoA:9
-X-Proofpoint-GUID: Ff15MI4aK0exooL4EH2z8VZXB7Q_tAA2
-X-Proofpoint-ORIG-GUID: Ff15MI4aK0exooL4EH2z8VZXB7Q_tAA2
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODAzMDEyOCBTYWx0ZWRfXwZYsou9p05wC
- VC92OR87YOLwVhvAS5AOZOhHn41Xiv8qOeELLb5ajh256F5aP+Qr078bZn7MVubZx1MXOEyilOt
- o5vTil6WO6V/k9O4/KRRYElsJPo5Al8=
+ a=RzCfie-kr_QcCd8fBx8p:22 a=nvFg73JcvTBpR_9UBFoA:9
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-08-03_03,2026-08-03_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 lowpriorityscore=0 priorityscore=1501 phishscore=0 malwarescore=0
- suspectscore=0 clxscore=1015 impostorscore=0 bulkscore=0 adultscore=0
+ lowpriorityscore=0 bulkscore=0 impostorscore=0 suspectscore=0 malwarescore=0
+ adultscore=0 clxscore=1015 priorityscore=1501 phishscore=0 spamscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608030128
 
-Clang's compiler based static context analysis does not work with
-locks that are conditionally taken like in __zpci_event_error():
+v2:
 
-arch/s390/pci/pci_event.c:320:2: warning: mutex 'get_zdev_by_fid(ccdf->fid).state_lock'
- is not held on every path through here [-Wthread-safety-analysis]
+- Address potential zdev reference leak (false positive) by adding a
+  comment, and moving get_zdev_by_fid() [Sashiko, Niklas]
 
-Given that code which takes locks conditionally can be considered
-suboptimal rework __zpci_event_error() to get rid of this.
+- Note: this reveals a pre-existing bug: zpci_remove_reserved_devices()
+  calls zpci_device_reserved() without holding locks. It looks like
+  this can be fixed easily by adding a mutex_lock()/mutex_unlock()
+  pair in zpci_remove_reserved_devices(), but that is not within
+  the scope of this series, and up to the pci maintainers
 
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
----
- arch/s390/pci/pci_event.c | 43 ++++++++++++++++++++++-----------------
- 1 file changed, 24 insertions(+), 19 deletions(-)
+v1:
+Enable CONTEXT_ANALYSYS for s390's pci code.
 
-diff --git a/arch/s390/pci/pci_event.c b/arch/s390/pci/pci_event.c
-index 839bd91c056e..48fa26dcbee1 100644
---- a/arch/s390/pci/pci_event.c
-+++ b/arch/s390/pci/pci_event.c
-@@ -288,6 +288,12 @@ static void zpci_event_io_failure(struct pci_dev *pdev, pci_channel_state_t es)
- 	pci_dev_unlock(pdev);
- }
- 
-+static void __zpci_event_print_error(struct pci_dev *pdev, struct zpci_ccdf_err *ccdf)
-+{
-+	pr_err("%s: Event 0x%x reports an error for PCI function 0x%x\n",
-+	       pdev ? pci_name(pdev) : "n/a", ccdf->pec, ccdf->fid);
-+}
-+
- static void __zpci_event_error(struct zpci_ccdf_err *ccdf)
- {
- 	struct zpci_dev *zdev = get_zdev_by_fid(ccdf->fid);
-@@ -301,24 +307,24 @@ static void __zpci_event_error(struct zpci_ccdf_err *ccdf)
- 	zpci_err("error CCDF:\n");
- 	zpci_err_hex(ccdf, sizeof(*ccdf));
- 
--	if (zdev) {
--		mutex_lock(&zdev->state_lock);
--		rc = clp_refresh_fh(zdev->fid, &fh);
--		if (rc)
--			goto no_pdev;
--		if (!fh || ccdf->fh != fh) {
--			/* Ignore events with stale handles */
--			zpci_dbg(3, "err fid:%x, fh:%x (stale %x)\n",
--				 ccdf->fid, fh, ccdf->fh);
--			goto no_pdev;
--		}
--		zpci_update_fh(zdev, ccdf->fh);
--		if (zdev->zbus->bus)
--			pdev = pci_get_slot(zdev->zbus->bus, zdev->devfn);
--	}
-+	if (!zdev)
-+		return __zpci_event_print_error(pdev, ccdf);
- 
--	pr_err("%s: Event 0x%x reports an error for PCI function 0x%x\n",
--	       pdev ? pci_name(pdev) : "n/a", ccdf->pec, ccdf->fid);
-+	mutex_lock(&zdev->state_lock);
-+	rc = clp_refresh_fh(zdev->fid, &fh);
-+	if (rc)
-+		goto no_pdev;
-+	if (!fh || ccdf->fh != fh) {
-+		/* Ignore events with stale handles */
-+		zpci_dbg(3, "err fid:%x, fh:%x (stale %x)\n",
-+			 ccdf->fid, fh, ccdf->fh);
-+		goto no_pdev;
-+	}
-+	zpci_update_fh(zdev, ccdf->fh);
-+	if (zdev->zbus->bus)
-+		pdev = pci_get_slot(zdev->zbus->bus, zdev->devfn);
-+
-+	__zpci_event_print_error(pdev, ccdf);
- 
- 	if (!pdev)
- 		goto no_pdev;
-@@ -340,8 +346,7 @@ static void __zpci_event_error(struct zpci_ccdf_err *ccdf)
- 	}
- 	pci_dev_put(pdev);
- no_pdev:
--	if (zdev)
--		mutex_unlock(&zdev->state_lock);
-+	mutex_unlock(&zdev->state_lock);
- 	zpci_zdev_put(zdev);
- }
- 
+Static code checking for acquiring and releasing locks used to be done
+with sparse. That was removed with [1] and replaced with a clang based
+approach [2]. The new approach requires that each subsystem needs to be
+explicitly enabled for checking.
+
+Do that for s390's pci code. In order to avoid false positives the code
+has to be slightly reworked, since conditionally acquiring and releasing
+locks does not work with the checker (besides that this is sub optimal
+coding style).
+
+[1] 5b63d0ae94cc ("compiler-context-analysis: Remove Sparse support")
+[2] 3269701cb256 ("compiler-context-analysis: Add infrastructure for Context Analysis with Clang")
+
+Notes:
+
+- More patches for other s390 specific subsystems will follow
+
+- "Pre-existing issues" reported by AI will not be addressed in the
+  context of this series
+
+Heiko Carstens (3):
+  s390/pci: Rework __zpci_event_error() to remove conditional locking
+  s390/pci: Rework__zpci_event_availability() to remove conditional locking
+  s390/pci: Enable CONTEXT_ANALYSIS
+
+ arch/s390/pci/Makefile    |   2 +
+ arch/s390/pci/pci_event.c | 151 +++++++++++++++++++-------------------
+ 2 files changed, 79 insertions(+), 74 deletions(-)
+
 -- 
 2.53.0
 
