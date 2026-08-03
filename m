@@ -1,53 +1,53 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6BD3F40C5D4;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E6FB240DB33;
 	Mon,  3 Aug 2026 12:40:56 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785760858; cv=none; b=aLxDtb6qAUuBySlMAh7rqoWRmUxOdRYuHgUdsl7gAEyo83xh/2fToKIfv5OPH3Alrn6oatQEQn5/sWMChASpNm/ag4SKY+Q8tZoIkght29/sDCItKHYRO5QIhffR8M60Q3kIJ6QetzduKoBp3rdWwKSyFnq3clctZU4Jg7yFPoM=
+	t=1785760859; cv=none; b=E26WIpTX+/is+M8xc2gz0vesBjJcXXz7OYAa5I+FmldFnaxRJur94joCOL7cN1JiVblxMvfBdd5K4etYvuW41ul/D2EXBjulgRu3llD6/Z7Wy8OKttSQ2CgNWtDn7s9KFcfHXTQj3kQh+LwtE64odvs0cIbm+f0Y3nJQQZQvdOY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785760858; c=relaxed/simple;
-	bh=lrLXFoXGkCQqajiFzpvyyVTqja9Wibw9Q7qbE7OIzeQ=;
+	s=arc-20240116; t=1785760859; c=relaxed/simple;
+	bh=SueeGW913y+l6iNRtLVYVpFY6wBTQ6KEeYtAQFCxDSE=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=JARI9x/L+WUi1m2zaePrJDm6CROJ0BVWRB1er2fqnDCZN3k4l+G6O5jYRtRZ+aZ5mBPcytOVkrpDqnyIfgoWQ21IsDUF7CbogNMtq8cnzlpw881q6ty5bTsR7FAUOhBvrdZNjJi1Cg1EdOyjPbWX3kQyuPbll1XkcHuTjUJXugA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=FBRO3CTp; arc=none smtp.client-ip=148.163.158.5
+	 MIME-Version; b=V3t7a4t9Nf0SqbckZ1nd0h6e1u2LosD6nmjrlLCQ8nHbLm4XkZhC1Bo3EvantO9PR0FAvc07AJfk6uQX0B2D33wrZblwvmLrfXEFwmbf5dF977gAcvNSQ4C5A4WepdM9jNHG0iMlZ62Ba6nSGUXkOr2skBOBpZMEopa/3DURBiE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=dYXLa1gv; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="FBRO3CTp"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 673CHrQM1943500;
-	Mon, 3 Aug 2026 12:40:53 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="dYXLa1gv"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 673CIq5h1939728;
+	Mon, 3 Aug 2026 12:40:54 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=J5ryilsnnfEEjhv+w
-	mZlP5DZ1N22K6iGMAkWi7r5uEo=; b=FBRO3CTpC3L9alivacjczHpWWIiZ4aDsE
-	7lhyAuSKeuMQe9eWHo9mKxJSXG3KOoth/w85ltBrA4o4ePo24NZXbJRlfaWQF+z0
-	Awlt7ODTHJ6rtV4KoOmYMBdPVpdN4fRgMkgQRSpX/otVjkDSMO4o89RFtPuezvh5
-	zkc0Dj3nyj3VSmtRyEwZU9ta3W3fCe4ta/vvzyY/wCEh4Y2khm4UNQjUWkN3WZPV
-	sXaEUG7kxxv5XZY4EZ2BIQtrgO1aemZvFQMXYfQX3xC824YKYc8uvtdoQNEGYpUq
-	/LO4SC/KqW9P4tcmbdield9cZjgbcAMxfaY+JpCUP5lUZLEM8MZQg==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fs77g0k71-1
+	:mime-version:references:subject:to; s=pp1; bh=kD16CCXM6IusG0twE
+	5s++dKeFs80vjBLnsgXBQEbWo8=; b=dYXLa1gvB50ogq/Ry2pGwmxRm7G5d1GAe
+	X14shRmxJX+KYvNADyiFBo9+lQzmRGE0CmgZzU89UEF3Ji04blU+oU30f0ism6pP
+	xOwPQjpeT9uqt2vDt8lJhSiD9zumurxCRaXxXpwcheOJo704LsSmrQc7axgTouxF
+	esSp3vFo5BUEN6PknjwACKRQbAZ4nbmcHjAT9NcgVQOXSfond7c8OVsZzPfcOt7B
+	MmTpuRmMCpffqpIOGFyPGff8YDTCfikkv8Ok8505S15CP3TfSnwImZqzD/AUkjqX
+	4WznAyZBb+QOoWfUZzk0NUvA0F3hlgeV5q+CJXOZuXglo+psZJqew==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fs67hgqdb-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 03 Aug 2026 12:40:54 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 673CBcuS016815;
+	Mon, 3 Aug 2026 12:40:53 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fsugvwe5v-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Mon, 03 Aug 2026 12:40:53 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 673CQHEv027325;
-	Mon, 3 Aug 2026 12:40:52 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fsu4qdgqw-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 03 Aug 2026 12:40:52 +0000 (GMT)
 Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 673Cekmk31457652
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 673CelXC29229430
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 3 Aug 2026 12:40:46 GMT
+	Mon, 3 Aug 2026 12:40:47 GMT
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C912220040;
-	Mon,  3 Aug 2026 12:40:46 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 7AC2520040;
+	Mon,  3 Aug 2026 12:40:47 +0000 (GMT)
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4BF0A20043;
+	by IMSVA (Postfix) with ESMTP id D9A422004B;
 	Mon,  3 Aug 2026 12:40:46 +0000 (GMT)
 Received: from p-imbrenda.ehn-de.ibm.com (unknown [9.224.75.30])
 	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
@@ -57,9 +57,9 @@ To: linux-kernel@vger.kernel.org
 Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, borntraeger@de.ibm.com,
         frankja@linux.ibm.com, david@kernel.org, seiden@linux.ibm.com,
         nrb@linux.ibm.com, schlameuss@linux.ibm.com, gra@linux.ibm.com
-Subject: [PATCH v8 11/13] KVM: s390: Return -EINTR if a signal is pending while faulting-in
-Date: Mon,  3 Aug 2026 14:40:38 +0200
-Message-ID: <20260803124040.126471-12-imbrenda@linux.ibm.com>
+Subject: [PATCH v8 12/13] KVM: s390: Fix ordering when adding to SCA
+Date: Mon,  3 Aug 2026 14:40:39 +0200
+Message-ID: <20260803124040.126471-13-imbrenda@linux.ibm.com>
 X-Mailer: git-send-email 2.55.0
 In-Reply-To: <20260803124040.126471-1-imbrenda@linux.ibm.com>
 References: <20260803124040.126471-1-imbrenda@linux.ibm.com>
@@ -71,74 +71,60 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODAzMDExMCBTYWx0ZWRfX0fcjnLDbspwQ
- edKuIQi+/zzPFUrks/VxkUTM0S1p0bk6GxQSzkSO3nl968Zn3KP2rkZU08BMVchfWMd8Xxhb89D
- PxH1OJ+phwlCzQmYD4GojOeoxfDRZDGut0JIu945Ry83+pHoE1MRUSmy2BvMabnLYpMva1P4yKf
- BIJYkMzRN09l9NgZNHyrK4uKRTiOHjULJLGxWk+nvmN7OVEdb/YRZgo4ewGLQfHw6HB72Vo8Kn1
- FCVJyTRu7BuxbLPoIMmUpsYidh+fZwaUr6YNcn+BH5HN2sEYGN9fyVvKcbUriFiQHQuDZ2lxWG+
- EL+I5oa/nF2a8m5E4Zg+199vcP/SMj7D+AYWvjAqNBVA3vDTVcQiHL0fvQR1ve2zxsaG5p2TJs4
- iP788ZiXdzhx7qlfjoR3ND5ECf0hlGrZ5QBQqy3VmOyFlMaycSBG65szh7SiVskd+UXaDbF6lQJ
- K1LF6lUWk7nGmco6MgQ==
-X-Authority-Analysis: v=2.4 cv=WIFPmHsR c=1 sm=1 tr=0 ts=6a708c55 cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODAzMDExMCBTYWx0ZWRfXxHzVOFYr1kzz
+ Hov6aWiR1YAS0vXp+JXMtVVQU36X1IlYI9vD6XraCim1SLQd/5K+t8xqNn3ANzyI50NSaCumhU8
+ t9VLF27p1k90jBQiWngQMcAcNZpzWXw=
+X-Authority-Analysis: v=2.4 cv=I7VVgtgg c=1 sm=1 tr=0 ts=6a708c56 cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
  a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8 a=4yawSYOjwzvXb9KGJXwA:9
-X-Proofpoint-GUID: QthsY7RTdJQ33zaa-zrLeFbpH9hI15Ff
-X-Proofpoint-ORIG-GUID: QthsY7RTdJQ33zaa-zrLeFbpH9hI15Ff
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODAzMDExMCBTYWx0ZWRfX+H6bkR0xKM6D
- 2BhaJD7OoTOc91cpzGgabCYIsXZHzVPgz/6R1wxxdUsn3uPLLZmWFErznulM0ECweeiX9cGdrEF
- kAEQzTGPuAuwOrqF3D9a0wl27IDjiNU=
+ a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8 a=DpaZzcUc-R7GdRs0254A:9
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODAzMDExMCBTYWx0ZWRfX2rbK8XZ+AOgs
+ w1hTcNlJAaCWO1vl9fSv2D+kGupHaUZ2xECa4ogbcyswEWcmn9X2+3dDKee76FR64p3qiXlIf0z
+ 9OVE/noc62JPjw9ifPZ+vcP7rBBBjEG7GSV9c5EMxpSeb3YZByJgv5DnUr96jsphkkRFayG6ZxC
+ qy+SdMEA9Gr+8EC/CwOVgy2vnl57CuWvGEsZ1hZ2//ufsUokH7E5MrhuvGvwQk3wBY7UwxrS8w8
+ CxTr9rervC2/fXsYCmM5GPN3c1Yzk/Boetzrjh5raUsFQ3abPztXRbOOEI/WSdw/7MF+wKnzHVd
+ 3EWiuYUU1bHyW2SrJNgk3YuRBr876TOmlF3chmIlfR7+ZCEx3sluSIqNH+w7jjtNZFywcX2eEBK
+ fNiZxaeEi4Wx7cshP92oS391I7RVQG25bVMhUj3tsrXV1b/I2zW/epWP94EESSJxAY+J9hEZGnM
+ a2ze8yigQ0Y7H1Mr/3A==
+X-Proofpoint-ORIG-GUID: 7rLfAkHWlYQUo97yIxm2-XveVALHTIsW
+X-Proofpoint-GUID: 7rLfAkHWlYQUo97yIxm2-XveVALHTIsW
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-08-03_03,2026-07-30_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 lowpriorityscore=0 priorityscore=1501 phishscore=0 malwarescore=0
- suspectscore=0 clxscore=1015 impostorscore=0 bulkscore=0 adultscore=0
+ bulkscore=0 impostorscore=0 clxscore=1015 priorityscore=1501 suspectscore=0
+ malwarescore=0 adultscore=0 lowpriorityscore=0 phishscore=0 spamscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608030110
 
-If a fatal signal is pending while trying to fault-in a page, return
--EINTR instead of -EAGAIN.
+When adding a new vCPU to the SCA area, the validity bit in the MCN was
+set before the pointer to the state description, potentially allowing
+for a race.
 
-Also fix unpack_one() to handle -EINTR properly.
+Fix by setting the pointer before setting the bit.
 
+Fixes: 14542a0a54c5 ("KVM: S390: Remove sca_lock")
 Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Fixes: e907ae530133 ("KVM: s390: Add helper functions for fault handling")
+Reviewed-by: Steffen Eiden <seiden@linux.ibm.com>
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
 ---
- arch/s390/kvm/faultin.c | 6 +++---
- arch/s390/kvm/pv.c      | 2 +-
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ arch/s390/kvm/kvm-s390.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/s390/kvm/faultin.c b/arch/s390/kvm/faultin.c
-index fee80047bd94..3cc45f7f5b2d 100644
---- a/arch/s390/kvm/faultin.c
-+++ b/arch/s390/kvm/faultin.c
-@@ -91,9 +91,9 @@ int kvm_s390_faultin_gfn(struct kvm_vcpu *vcpu, struct kvm *kvm, struct guest_fa
- 		/* Access outside memory, addressing exception. */
- 		if (is_noslot_pfn(f->pfn))
- 			return PGM_ADDRESSING;
--		/* Signal pending: try again. */
--		if (f->pfn == KVM_PFN_ERR_SIGPENDING)
--			return -EAGAIN;
-+		/* Fatal signal pending: bail out. */
-+		if (is_sigpending_pfn(f->pfn))
-+			return -EINTR;
- 		/* Check if it's read-only memory; don't try to actually handle that case. */
- 		if (f->pfn == KVM_PFN_ERR_RO_FAULT)
- 			return -EOPNOTSUPP;
-diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
-index 1beacc841ca8..dc204b521052 100644
---- a/arch/s390/kvm/pv.c
-+++ b/arch/s390/kvm/pv.c
-@@ -809,7 +809,7 @@ static int unpack_one(struct kvm *kvm, unsigned long addr, u64 tweak,
- 			return -EAGAIN;
- 	}
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 9b8a35e7dc82..518a69c55e85 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -3485,8 +3485,8 @@ static void sca_add_vcpu(struct kvm_vcpu *vcpu)
+ 	if (!kvm_s390_use_sca_entries())
+ 		return;
  
--	if (ret && ret != -EAGAIN)
-+	if (ret && ret != -EAGAIN && ret != -EINTR)
- 		KVM_UV_EVENT(kvm, 3, "PROTVIRT VM UNPACK: failed addr %llx with rc %x rrc %x",
- 			     uvcb.gaddr, *rc, *rrc);
- 	return ret;
++	WRITE_ONCE(sca->cpu[vcpu->vcpu_id].sda, virt_to_phys(vcpu->arch.sie_block));
+ 	set_bit_inv(vcpu->vcpu_id, (unsigned long *)sca->mcn);
+-	sca->cpu[vcpu->vcpu_id].sda = virt_to_phys(vcpu->arch.sie_block);
+ }
+ 
+ static int sca_can_add_vcpu(struct kvm *kvm, unsigned int id)
 -- 
 2.55.0
 
