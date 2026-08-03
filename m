@@ -1,33 +1,60 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 77BF53BCD14;
-	Mon,  3 Aug 2026 13:59:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A07182E7365;
+	Mon,  3 Aug 2026 14:08:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785765589; cv=none; b=lm+hWmeqLyOtUmfEUqfxF0+/LmW70sKyuwuJiKaaYMKAlIujB545DLz+KHAT9bSZRpyyhlu3dxi4q/a389S7qR1kNcADyqoZlF9g57RKCjcTgWYt9f58CoyTPmDsQJgetjPMgSQUewv6S+ev15YCqZW+WK5MTUTI9b3pvLT1mxs=
+	t=1785766112; cv=none; b=Zpkho1qIx9RkNmocSe4imMZn9TZqm1ZqSWqwyA2g42GGqD0p7hpPzcfjXEl3GyCnLoQbvuiagKK7QMjgiQOJyURQwaPt6AYfilJhmq+CUmGWPjOKYDNIQmIRRS+LdoQAjQbvx9JDjDwnS3SfDXcKL3Flrqh4DT2FJ3Bqv5mHXO4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785765589; c=relaxed/simple;
-	bh=BMco7cE6ZUb0x1sY/U4XBBksWpvbpHojwOQxtubK6HA=;
+	s=arc-20240116; t=1785766112; c=relaxed/simple;
+	bh=L8/fdCorWeJNAHphY2bA84IhAj9ziQdgK1NlLSQHFkA=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=hl5RUgkce6lCHMieWkU+EChNLtQXBCOAwSRdG09e4fZXXpGaxlNC1KXotjKY+8ClocGsCPAgl7QlPw5NKAklGDC7CxgNCImVIh5naguQcVci7oOl1RMu9VuZ86Wr3/jy3iwdzqRCemdnRrBt4QrHef2cyhgkGdfFie8wDCjk8EI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VdJzXRQm; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:Content-Type; b=s4i8CVDdTy/auwKF2AE9yisGAysI1tHE34s0EytGcjKCshueNLNN9gnpNk9vBdJBtOBZrhVByEZ6geuagCQ6TcvOvvN2U/kfXbMxrN1Pux/V2Lhz7H+k4KsSAwGJ1QzHGv4CAq6+eOo+fAwmrr13GULZyiVR0msxld83fwDTgvc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=de.ibm.com; spf=pass smtp.mailfrom=de.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=U+5ERiZ6; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=de.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=de.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VdJzXRQm"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E4B91F000E9;
-	Mon,  3 Aug 2026 13:59:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785765588;
-	bh=JgJjMGVQwXfN1+lfqi/7mzYbORC4vBXwntqjWOpjj5Y=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=VdJzXRQmCKCQ7JgyKiUD1/ILZ8ALjapAPRXEniDDnzS1EoQJOd2Rh4mnj01mS0kaC
-	 SkdwvAXDVmUbSsA21mXsGUsV6UFqBCfzHqr7sKaMJIwGAPUZ/EuQ/qXVQNy9gbWQou
-	 k9r4ZeSmv7XSpcXC6vcb89age58OUEyz0Y3jtZ3UkudyTNaZ5gI+4+nRjmeVka/o9q
-	 /dN7dYJ78mn13G49euOFXvjaEbz3SgPDfvCdEu2cZqtsnpAXKCLf+lhpTv+wU8hwAu
-	 5uCt9p7JGa3sPVxgYgc/nGl9g631hfgqX2Lq234uZ0mjzzpUHJEqevNTssxpWPfwhD
-	 A251zj+Snu4hw==
-Message-ID: <01f07ea2-8bdd-4450-8a49-548f8b646cfd@kernel.org>
-Date: Mon, 3 Aug 2026 15:59:35 +0200
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="U+5ERiZ6"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 673Dlg052194645;
+	Mon, 3 Aug 2026 14:08:28 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=oKSiox
+	KGi33/OZpp6NIG9X1mKxupjKgxJWpLRZUGk4w=; b=U+5ERiZ6Uym+prs9N2CatU
+	328Fm8r+gVCBZasHAj/dAeAT6eoKYMXfYiRk2VROdZjsRC0ZABMstEtyn46IeAq1
+	on5g7SLdVfLtNy5pfFEpwKYwDHOh/RM8/hYyrv46i7tFAT1auTUkyggShw7Pz4T6
+	f/ptwepUxJjmSTL7Z5VwLarkCDA3r0RCZ+DlibocL55VzgWwWoaULUJdRDVtcZJW
+	h29vzRTBNkWBCH1VJWG/Z+63S5ftgEhOATHbyxrmx6Lbc4CKIPvLGdNnjSCBdlm2
+	/G/kHcBC5lQ6ElT70Iyg3IGC30T4ZThWe0cRx3AvsaKxJfsuXIOQClsVwznTKF1A
+	==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fs8a3s6ch-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 03 Aug 2026 14:08:28 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 673DuHI8008282;
+	Mon, 3 Aug 2026 14:08:27 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fsv4jwq2g-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 03 Aug 2026 14:08:27 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 673E8N2I32440716
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 3 Aug 2026 14:08:23 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 19A4420049;
+	Mon,  3 Aug 2026 14:08:23 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B09B220040;
+	Mon,  3 Aug 2026 14:08:22 +0000 (GMT)
+Received: from [9.224.77.173] (unknown [9.224.77.173])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Mon,  3 Aug 2026 14:08:22 +0000 (GMT)
+Message-ID: <09e79918-6f3d-4990-a8ac-3f4a5e9447d6@de.ibm.com>
+Date: Mon, 3 Aug 2026 16:08:22 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -35,145 +62,80 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 03/22] mm: introduce MMF_KERNEL flag and set it for
- init_mm
-To: Kevin Brodsky <kevin.brodsky@arm.com>, linux-mm@kvack.org
-Cc: Andrew Morton <akpm@linux-foundation.org>,
- David Hildenbrand <david@kernel.org>, Lorenzo Stoakes <ljs@kernel.org>,
- "Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>,
- Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>,
- Michal Hocko <mhocko@suse.com>, Pasha Tatashin <pasha.tatashin@soleen.com>,
- Russell King <linux@armlinux.org.uk>,
- Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
- Ryan Roberts <ryan.roberts@arm.com>, linux-arm-kernel@lists.infradead.org,
- Huacai Chen <chenhuacai@kernel.org>, loongarch@lists.linux.dev,
- "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
- Helge Deller <deller@gmx.de>, linux-parisc@vger.kernel.org,
- Madhavan Srinivasan <maddy@linux.ibm.com>,
- Michael Ellerman <mpe@ellerman.id.au>, linuxppc-dev@lists.ozlabs.org,
- Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
- Albert Ou <aou@eecs.berkeley.edu>, linux-riscv@lists.infradead.org,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Gerald Schaefer <gerald.schaefer@linux.ibm.com>, linux-s390@vger.kernel.org,
- "David S. Miller" <davem@davemloft.net>,
- Andreas Larsson <andreas@gaisler.com>, sparclinux@vger.kernel.org,
- Richard Weinberger <richard@nod.at>,
- Anton Ivanov <anton.ivanov@cambridgegreys.com>,
- Johannes Berg <johannes@sipsolutions.net>, linux-um@lists.infradead.org,
- Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
- "H. Peter Anvin" <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>,
- Peter Zijlstra <peterz@infradead.org>, Ning Sun <ning.sun@intel.com>,
- x86@kernel.org, tboot-devel@lists.sourceforge.net,
- Ard Biesheuvel <ardb@kernel.org>,
- Ilias Apalodimas <ilias.apalodimas@linaro.org>, linux-efi@vger.kernel.org,
- Vishal Moola <vishal.moola@gmail.com>, Alistair Popple <apopple@nvidia.com>,
- "Matthew Wilcox (Oracle)" <willy@infradead.org>,
- linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-References: <20260714-remove_pgtable_cdtor-v1-0-44be8a7685d7@arm.com>
- <20260714-remove_pgtable_cdtor-v1-3-44be8a7685d7@arm.com>
-Content-Language: fr-FR
-From: "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>
-In-Reply-To: <20260714-remove_pgtable_cdtor-v1-3-44be8a7685d7@arm.com>
+Subject: Re: [PATCH v8 02/13] KVM: s390: Do not free SCA if it was not
+ allocated
+To: Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-kernel@vger.kernel.org
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, frankja@linux.ibm.com,
+        david@kernel.org, seiden@linux.ibm.com, nrb@linux.ibm.com,
+        schlameuss@linux.ibm.com, gra@linux.ibm.com
+References: <20260803124040.126471-1-imbrenda@linux.ibm.com>
+ <20260803124040.126471-3-imbrenda@linux.ibm.com>
+Content-Language: en-US
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+In-Reply-To: <20260803124040.126471-3-imbrenda@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=E6P9Y6dl c=1 sm=1 tr=0 ts=6a70a0dc cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=M5uM2SGDJJfKum1V:21 a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22
+ a=VnNF1IyMAAAA:8 a=2HitSDPJqUxGu8htRZYA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-ORIG-GUID: qoiKzP9xAXQ36osAhgydZUOoxnL9gM_q
+X-Proofpoint-GUID: qoiKzP9xAXQ36osAhgydZUOoxnL9gM_q
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODAzMDEyNCBTYWx0ZWRfXwEXZtk5kfs2+
+ 4aOtBJnch0T7RZbyZl8CGQAmlOVHIPI6/JD4x8l9Og0zeoM94KvMjdDwrccLtnzvWdzUthbEPFT
+ xtllgwxTPgZZdWr00cq7xv2yZyc05GA=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODAzMDEyNCBTYWx0ZWRfX76IPY8F7xvC9
+ kaATVcpwG4DW1QS2IyVtSQW+IjSTX1BaAuhttATD1ruD3zUHTI8Zn4pUvZf+Rq5uKgUhL2xCi8R
+ OHfZhrEaLAGBdfdRYvlA3q1QuW6sCFD1O7LXEMiSFfhrI5Y8lzTnvlbwtythrH+54shqABQxT23
+ qPAfe7ZOphYVh7rSICA5jYmGN0Pn3zK42/Q8+2X7UGwSnfLo/EhcvS48086wMKBTgMtJh/OjDUB
+ uJf1PJlawUitmK4Xpdd5R+68u1ueWv+QJnzB2fFJVOIdW0vEh6BHS6Uk1xO9DjH5lT6Jlxo/Ap/
+ d8mLsT8lSOZdaXJKk3Pz9UtemLjPO6qr0O9pNQxAa4vGF68mVrkzTMszs5U9u+nWhVY06b5ezxv
+ DIeNtmX6pyRV+JJpa00bbc7lRBFGYNFT3yZVcqgnIfozIIb0pcGwIedIhaJoF6JzAgwGupPFL3i
+ QGdhvCKjxHeqd6PoCHQ==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-08-03_03,2026-08-03_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ bulkscore=0 clxscore=1015 lowpriorityscore=0 priorityscore=1501
+ suspectscore=0 adultscore=0 spamscore=0 malwarescore=0 impostorscore=0
+ phishscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2608030124
 
 
 
-Le 14/07/2026 à 16:03, Kevin Brodsky a écrit :
-> mm code often needs to know whether some mm represents a kernel or
-> user address space. This is currently done by comparing the mm
-> pointer with &init_mm; besides not being particularly elegant, this
-> ignores the fact that other mm's (e.g. efi_mm) may also represent
-> parts of the kernel address space.
+Am 03.08.26 um 14:40 schrieb Claudio Imbrenda:
+> If VM creation fails early in kvm_arch_init_vm(), the cleanup code
+> tries to free up the SCA, even though the address is 0. Due to using
+> free_pages_exact(), only the first page is skipped, accidentally
+> freeing pages 1, 2, and 3.
 > 
-> Introduce a new mm flag MMF_KERNEL and set it for init_mm.
-> Subsequent patches will use this flag to replace comparisons with
-> &init_mm. No functional change is introduced for now.
-
-Did you consider performance impact ? This test is usually done in quite 
-critical memory handling functions.
-
-init_mm is known at link time. Before your patch 08/22 there is just a 
-comparison of mm (r3) with a constant (loaded in r10):
-
-c0014048 <assert_pte_locked>:
-c0014048:	3d 40 c1 09 	lis     r10,-16119
-c001404c:	39 4a 03 98 	addi    r10,r10,920
-c0014050:	7c 03 50 00 	cmpw    r3,r10
-c0014054:	4d 82 00 20 	beqlr
-...
-
-After patch 08/22 we have, it first checks that mm is not 0, then it 
-loads the word located at mm+528 then AND it with 0x1. This load might 
-be costly.
-
-c0014048 <assert_pte_locked>:
-c0014048:	2c 03 00 00 	cmpwi   r3,0
-c001404c:	7c 85 23 78 	mr      r5,r4
-c0014050:	41 82 00 10 	beq     c0014060 <assert_pte_locked+0x18>
-c0014054:	81 23 02 10 	lwz     r9,528(r3)
-c0014058:	71 29 00 01 	andi.   r9,r9,1
-c001405c:	4c 82 00 20 	bnelr
-...
-
-Christophe
-
+> Fix by checking whether the pointer is NULL before attempting to free
+> the SCA in sca_dispose().
 > 
-> Assisted-by: Codex:GPT-5.5
-> Signed-off-by: Kevin Brodsky <kevin.brodsky@arm.com>
+> Fixes: e72753ed1267 ("KVM: s390: Use ESCA instead of BSCA at VM init")
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+
+Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+
 > ---
->   include/linux/mm_types.h | 10 ++++++++++
->   mm/init-mm.c             |  1 +
->   2 files changed, 11 insertions(+)
+>   arch/s390/kvm/kvm-s390.c | 3 ++-
+>   1 file changed, 2 insertions(+), 1 deletion(-)
 > 
-> diff --git a/include/linux/mm_types.h b/include/linux/mm_types.h
-> index a2e0dc5892ff..7838ea3aac00 100644
-> --- a/include/linux/mm_types.h
-> +++ b/include/linux/mm_types.h
-> @@ -1414,6 +1414,8 @@ struct mm_struct {
->   	char flexible_array[] __aligned(__alignof__(unsigned long));
->   };
+> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> index f86b4b0b356f..1b3290a5ad1a 100644
+> --- a/arch/s390/kvm/kvm-s390.c
+> +++ b/arch/s390/kvm/kvm-s390.c
+> @@ -3247,7 +3247,8 @@ static void kvm_s390_crypto_init(struct kvm *kvm)
 >   
-> +#define MM_FLAGS_INIT(flags)	{ .__mm_flags = { BITMAP_FROM_U64(flags) } }
-> +
->   static inline bool mm_flags_test(int flag, const struct mm_struct *mm)
+>   static void sca_dispose(struct kvm *kvm)
 >   {
->   	return test_bit(flag, ACCESS_PRIVATE(&mm->flags, __mm_flags));
-> @@ -2001,6 +2003,9 @@ enum {
->   #define MMF_TOPDOWN		31	/* mm searches top down by default */
->   #define MMF_TOPDOWN_MASK	BIT(MMF_TOPDOWN)
+> -	free_pages_exact(kvm->arch.sca, sizeof(*kvm->arch.sca));
+> +	if (kvm->arch.sca)
+> +		free_pages_exact(kvm->arch.sca, sizeof(*kvm->arch.sca));
+>   	kvm->arch.sca = NULL;
+>   }
 >   
-> +#define MMF_KERNEL		32	/* mm belongs to the kernel */
-> +#define MMF_KERNEL_MASK		BIT_ULL(MMF_KERNEL)
-> +
->   #define MMF_INIT_LEGACY_MASK	(MMF_DUMP_FILTER_MASK |\
->   				 MMF_DISABLE_THP_MASK | MMF_HAS_MDWE_MASK |\
->   				 MMF_VM_MERGE_ANY_MASK | MMF_TOPDOWN_MASK)
-> @@ -2008,6 +2013,11 @@ enum {
->   /* Legacy flags must fit within 32 bits. */
->   static_assert((u64)MMF_INIT_LEGACY_MASK <= (u64)UINT_MAX);
->   
-> +static inline bool mm_is_kernel(const struct mm_struct *mm)
-> +{
-> +	return mm && mm_flags_test(MMF_KERNEL, mm);
-> +}
-> +
->   /*
->    * Initialise legacy flags according to masks, propagating selected flags on
->    * fork. Further flag manipulation can be performed by the caller.
-> diff --git a/mm/init-mm.c b/mm/init-mm.c
-> index 3e792aad7626..93773269bf87 100644
-> --- a/mm/init-mm.c
-> +++ b/mm/init-mm.c
-> @@ -34,6 +34,7 @@ struct mm_struct init_mm = {
->   	.pgd		= swapper_pg_dir,
->   	.mm_users	= ATOMIC_INIT(2),
->   	.mm_count	= ATOMIC_INIT(1),
-> +	.flags		= MM_FLAGS_INIT(MMF_KERNEL_MASK),
->   	.write_protect_seq = SEQCNT_ZERO(init_mm.write_protect_seq),
->   	MMAP_LOCK_INITIALIZER(init_mm)
->   	.page_table_lock =  __SPIN_LOCK_UNLOCKED(init_mm.page_table_lock),
-> 
 
