@@ -1,64 +1,73 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from stravinsky.debian.org (stravinsky.debian.org [82.195.75.108])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 973B6489898;
-	Mon,  3 Aug 2026 12:51:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CDDF4407CF1;
+	Mon,  3 Aug 2026 12:54:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=82.195.75.108
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785761512; cv=none; b=X6Y7qhUKAvaFI7hS+LbFTyFO1i+UqXvhCvKTRmnLqZFIYBwxfSXVf9bI8dCUlXhbvBu0dTLZJpvKd1lTdxK0ek5mhQUecdDuocZ5TRjEOcXCnzYIkb59Qu61nhMmKsWilL0/HHuC2KyhaLwCL6s947vC2huemnm8arKx8bNHZdU=
+	t=1785761702; cv=none; b=aadLA+06vWJrzyZ7ztD2UQGcPiAA3RSuPulK0kKWQOBJuO/frRICaoAaQf3S/av3GlKUzOwmn0C7nCVjN4qqHS7UO0Ja0IdXZYG4kCzIO6aaLbxZV8bPOEFBMlYY6hWgg+yq6v7GAaFH4WeuxZXGjGn0r9eoWwvZwt4FP3Hwdgs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785761512; c=relaxed/simple;
-	bh=bS6QLB6su+PzaXnvo3V3RmRr5nOVs4Iq7ZHJJ5IIzcg=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=URgmDlbOlETEq+oL9laYuz2p/SWv5qhj6s2AEhJkaOJNrm54Ffixphx6B3qSxWJassm7kyQmEBuauQgoss69036G/z3hRL4G9hCsmaNzflodY58LEF173bd5gPbinGZ2tn4xX4/WKkjSDk2UC2xX2VGkAOy2EO1C0tZy1toIuwY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DJzFYTkn; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1785761702; c=relaxed/simple;
+	bh=gRKb2XdkMsd/8OX06fyRyQY7Tr1uWV0zkNfOQuHfrgw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=brOe1ZfUXymbSEnXlTKoEnDbcsrzEqdz7iGbaZvSUmGkkjXpa0/+RHDMLAKBr/4PjLD8umdsLNVwF8BDzvMvPvXr1eXqFsbZ7gWSKw2IMVv9mzLrRGWmkNyXYCcLMLezfQnL0Au2U2AVjhX+s3o+yBJIbfkA4lOP9ELwqWPt2vU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=debian.org; spf=pass smtp.mailfrom=debian.org; dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.b=Ag59Qs94; arc=none smtp.client-ip=82.195.75.108
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=debian.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=debian.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DJzFYTkn"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7484A1F000E9;
-	Mon,  3 Aug 2026 12:51:50 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785761511;
-	bh=bS6QLB6su+PzaXnvo3V3RmRr5nOVs4Iq7ZHJJ5IIzcg=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=DJzFYTknIfIdQoqNacQ9487Cu9urfYvcLNcnR1KuwLGmA+rmjUVw/5gud/PP+pC8S
-	 htphMfnPZAUx9j+tXQ5pZsjjpI446/7shmRvCy+V3Ypt9UHhagrWDJAvGGcuA5dZ5L
-	 vWN59W8JSohFKrdaagUkWmYrIC6fQPRDgTbJujY8hgWj1q8u3zC2lQUPwESWci1jiC
-	 xdryFjEsj2SqKHZI/n6hhlO30XAJ9JXq/AYM6u5QzD8dGVZfB80pvxYdHaLVMGqbnz
-	 bprjS+FjuYHnHr2EOoNQbn1Bg19J0+89xhH3hfQgzz15nOFRAkL3WDzRV7s62JA2pW
-	 gV9w9X6+7AMtA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v8 10/13] KVM: s390: Free the mmu cache when
- kvm_arch_vcpu_create() fails
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>
-Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
- Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, kvm@vger.kernel.org
-In-Reply-To: <20260803124040.126471-11-imbrenda@linux.ibm.com>
-References: <20260803124040.126471-1-imbrenda@linux.ibm.com>
- <20260803124040.126471-11-imbrenda@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 03 Aug 2026 12:51:49 +0000
-Message-Id: <20260803125150.7484A1F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.b="Ag59Qs94"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=debian.org;
+	s=smtpauto.stravinsky; h=X-Debian-User:In-Reply-To:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=s8iGm/MuAMiKvq0ZdaXGrFNRjTUjnJwT/JV0KUDX31Y=; b=Ag59Qs94Wj8AlYNLt4szcXeW5Z
+	c2wwPlWWvfxb0Gh6gMG1hARr2BaqNdH3dvSOINl3KV1vDqS1qz/VfVWmaWRyLUhAJEEGMFce7E80k
+	c0PU//vFtFfu4BKvsYXouGajDLU4uYfTM0dKiI4VEjQ+3rnQdf9NEm98zleCOXnSwiljWnn0cYFZn
+	ckc4K3KfaKjQNE7nO8lQIAAqsFu6ec6GODlA+5nR0xIvrka07n3jE40K2gtRXs88jn20dSzHkTdfX
+	Uo5sO4pFi/UzlBdiI7YhtwB9ZmRB+N9QAWAF7oEwt+dnKgtq7R/OFyNrMU6U0Pu5ambU8smdb+DcS
+	cdl9s0mg==;
+Received: from authenticated-user
+	by stravinsky.debian.org with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+	(Exim 4.96)
+	(envelope-from <leitao@debian.org>)
+	id 1wqsBs-00CN8F-0f;
+	Mon, 03 Aug 2026 12:54:48 +0000
+Date: Mon, 3 Aug 2026 05:54:43 -0700
+From: Breno Leitao <leitao@debian.org>
+To: Sidraya Jayagond <sidraya@linux.ibm.com>
+Cc: davem@davemloft.net, edumazet@google.com, kuba@kernel.org, 
+	pabeni@redhat.com, alibuda@linux.alibaba.com, dust.li@linux.alibaba.com, 
+	horms@kernel.org, mjambigi@linux.ibm.com, tonylu@linux.alibaba.com, 
+	guwen@linux.alibaba.com, hidayath@linux.ibm.com, pasic@linux.ibm.com, 
+	netdev@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: Re: [PATCH net] net/smc: fix TOCTOU race between smc_listen_out()
+ and listener close
+Message-ID: <anCPZl_Rvqj2B7vI@gmail.com>
+References: <20260803070701.126339-1-sidraya@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260803070701.126339-1-sidraya@linux.ibm.com>
+X-Debian-User: leitao
 
-> The mmu cache is the first thing that is allocated in
-> kvm_arch_vcpu_create(), but in case of failure it was not freed.
->=20
-> Fix by freeing the mmu cache in case of failure.
->=20
-> Refactor kvm_arch_vcpu_create() to use scope-based cleanup instead of
-> gotos.
->=20
-> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> @@ -1931,11 +1931,12 @@ static void smc_listen_out(struct smc_sock *new_smc)
+>  		atomic_dec(&lsmc->queued_smc_hs);
+>  
+>  	release_sock(newsmcsk); /* lock in smc_listen_work() */
+> +	lock_sock_nested(&lsmc->sk, SINGLE_DEPTH_NESTING);
+>  	if (lsmc->sk.sk_state == SMC_LISTEN) {
+> -		lock_sock_nested(&lsmc->sk, SINGLE_DEPTH_NESTING);
+>  		smc_accept_enqueue(&lsmc->sk, newsmcsk);
+>  		release_sock(&lsmc->sk);
+>  	} else { /* no longer listening */
+> +		release_sock(&lsmc->sk);
+>  		smc_close_non_accepted(newsmcsk);
+>  	}
 
-Sashiko has reviewed this patch and found no issues. It looks great!
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260803124040.1264=
-71-1-imbrenda@linux.ibm.com?part=3D10
-
+Do you need to call smc_close_non_accepted() without the lock? otherwise
+you can have the lock around the whole if/else clause.
