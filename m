@@ -1,188 +1,269 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D926384CE8;
-	Mon,  3 Aug 2026 16:39:27 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E1FBC3815DF;
+	Mon,  3 Aug 2026 16:41:19 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785775168; cv=none; b=BddFrH/SlEiJ5/AmtsFh4IhdPpbedOWbh01x9/e5oSh76LJcFHaaid8evJqrKSSCA7sGbDZsltByQsulLDxzR2Y+MCvkAlNecGSmm/+5OUa6+W7Z+PnnBYHwJhYGS3/0IQmXKHLKnjyia5xje75X+5xMh4ED2otKZHpxcZwEmzI=
+	t=1785775281; cv=none; b=eFeUegeb6qE3t/8L1PpXr5fno/z/2NYa+7vToBQTHcLLZJiXVo+hj37AfWGuj9wmUPaQ8jhj6J/ZIxclO3/lRTEd/slsEduOPxjVKaUv5UKxQdKOa1+TKA46aHq3tciKg0pJ/8RSvs7nhXbppdtpkfrbRXwLQwwoKyRk3gUj/lU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785775168; c=relaxed/simple;
-	bh=RAbCEjg+DiJkIV2QudEY1shfV7HQCukJVuQ//eO2OAQ=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=DC+FvSXHCgHTJMJXqq1jXtT2aNdApjqh1s680sokXEbcJH7rHKmn5XQhVe9NM0bCrav6kK6XZeMtOeqLMQ+zdsTtdZ51/c18NY9m6oqZUYq29GjaHpO9yk3kWwBOtLyVSRjyhUxX7pQ+rt7F1VBF8G/Wr6+g7LOjNV7XzZr77xU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=GXXtbApU; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1785775281; c=relaxed/simple;
+	bh=WzYXqiW1e/bpxwOTk8uTSdPqI1H48FbaRf7wrPRBx4s=;
+	h=Message-ID:Subject:From:To:Cc:In-Reply-To:References:Content-Type:
+	 Date:MIME-Version; b=YdbxzItGp5QdctvzFe0qllyGNpC8brNFQan9z8dXjxL6+akEx6sACKuZzdrmpKA2Ero1lE13IttP6IgZg0ghfO7suJdEMUx7zIf2gmwupU/FV0lKIPQrU5VFG0j4nWeOJeCt+t+wndNnyig2FqKXpyW3IhKC5j8i7TWHVXgPANw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=qgqiMGxM; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="GXXtbApU"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 673EIMB92203559;
-	Mon, 3 Aug 2026 16:39:23 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="qgqiMGxM"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 673EHntv2341358;
+	Mon, 3 Aug 2026 16:41:18 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=3pZI0V
-	Lx4Q9pGVwfQ8dJX1d9nTq6d7Ui0R7lWd4UrXo=; b=GXXtbApUsmt3ch79irKbmM
-	LGbeOlwc+RtQmoDX0dEQcBt8Ra62UI5hu5chqeqJ9TZQrx5fhDJO5nF+bvj/UwYV
-	aOkF87w2raMisDSSt9uLYtWUXWhZD/a09BPWMMtGoYXx2LWF7UwUOiPZBtlyJocw
-	V4rb73j1vUxpVPyYMTGnI+5ftAqTnIxe5SqnwXjQBUCFsC5jRKO/NUiqjlh0rdns
-	l950+Y+gUF23562ag+o/8QUy2P6BbZiPCdcXL/oo/IPY4K68X2ra8UJxsCbClD7Z
-	iiYc4m4otbNG2z9GiMEXWHHvJBvZHui3fbWj0FHrxw+VH30un0Q9I2JMjr6z1z7Q
+	:message-id:mime-version:references:subject:to; s=pp1; bh=s6ky7z
+	U/hEIv8BcfWEy7ktQhfKyjGu3PcGAhdsBSJeQ=; b=qgqiMGxMNr14kvzHcZcQDg
+	LgTtgQ6fKykD8PSd7essoTP1wsrxlA2lKIv5TtlW4Q8ztuLmRn/2Tzm8j59iaYXr
+	3EP/BPFuzSwC43GF78vIDpfc4oCfyoUBAOzLDo9J7bS8YJkoB3YpP6xwNUVsnqMU
+	vGwXcmjxcUSmlBUB/ODjlM1nhz1tmdicuoQV40QntT/tRfKsNYXcF+jqId4aYZvU
+	xMuIcNEtMndGtdJEPW/jNWuY6A9FDht4b+mmr/dugvBymYtYcK0ApKfTufGIhzHe
+	Mq30F5dCQNucNxZerHmDzzmbkP0zgC9WU+qAKAm139gwbX+p5jUSEO//vPGp27ow
 	==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fs67hhsy0-1
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fs8euhg0f-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 03 Aug 2026 16:39:22 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 673GQHK5006505;
-	Mon, 3 Aug 2026 16:39:22 GMT
+	Mon, 03 Aug 2026 16:41:18 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 673GfFUn013949;
+	Mon, 3 Aug 2026 16:41:17 GMT
 Received: from smtprelay05.dal12v.mail.ibm.com ([172.16.1.7])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fsugvxck8-1
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fswbg633r-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 03 Aug 2026 16:39:22 +0000 (GMT)
-Received: from smtpav04.wdc07v.mail.ibm.com (smtpav04.wdc07v.mail.ibm.com [10.39.53.231])
-	by smtprelay05.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 673GdKPo31261432
+	Mon, 03 Aug 2026 16:41:17 +0000 (GMT)
+Received: from smtpav02.dal12v.mail.ibm.com (smtpav02.dal12v.mail.ibm.com [10.241.53.101])
+	by smtprelay05.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 673GfGE112321390
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 3 Aug 2026 16:39:21 GMT
-Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9A33B58056;
-	Mon,  3 Aug 2026 16:39:20 +0000 (GMT)
-Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B6B1C58052;
-	Mon,  3 Aug 2026 16:39:19 +0000 (GMT)
-Received: from [9.61.246.17] (unknown [9.61.246.17])
-	by smtpav04.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Mon,  3 Aug 2026 16:39:19 +0000 (GMT)
-Message-ID: <c0e6803f-7e57-4dfa-a4cd-f2ee188070c8@linux.ibm.com>
-Date: Mon, 3 Aug 2026 09:39:19 -0700
+	Mon, 3 Aug 2026 16:41:16 GMT
+Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C159F58051;
+	Mon,  3 Aug 2026 16:41:16 +0000 (GMT)
+Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 3E78C5805E;
+	Mon,  3 Aug 2026 16:41:15 +0000 (GMT)
+Received: from [9.111.54.211] (unknown [9.111.54.211])
+	by smtpav02.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Mon,  3 Aug 2026 16:41:15 +0000 (GMT)
+Message-ID: <cbcdabac9c84252aabfaf1adda139652711de9a6.camel@linux.ibm.com>
+Subject: Re: [PATCH v2 1/3] s390/pci: Rework __zpci_event_error() to remove
+ conditional locking
+From: Niklas Schnelle <schnelle@linux.ibm.com>
+To: Heiko Carstens <hca@linux.ibm.com>,
+        Alexander Gordeev	
+ <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Vasily
+ Gorbik	 <gor@linux.ibm.com>,
+        Christian Borntraeger
+ <borntraeger@linux.ibm.com>,
+        Gerd Bayer <gbayer@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20260803142907.1771509-2-hca@linux.ibm.com>
+References: <20260803142907.1771509-1-hca@linux.ibm.com>
+	 <20260803142907.1771509-2-hca@linux.ibm.com>
+Autocrypt: addr=schnelle@linux.ibm.com; prefer-encrypt=mutual;
+ keydata=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
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+Date: Mon, 03 Aug 2026 18:40:13 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1] vfio/pci: Avoid mapping BARs for devices with
- non-mappable BARs
-To: Alex Williamson <alex@shazbot.org>
-Cc: Matthew Rosato <mjrosato@linux.ibm.com>, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, kvm@vger.kernel.org,
-        borntraeger@linux.ibm.com, mattev@meta.com, schnelle@linux.ibm.com
-References: <20260729181116.1373-1-alifm@linux.ibm.com>
- <e7b2da7b-2c70-46c2-9d07-6acc6949915e@linux.ibm.com>
- <46fede14-a740-4d66-98b3-c840e03e8634@linux.ibm.com>
- <20260729143603.175f60a7@shazbot.org>
- <42a3b06d-ecaa-4339-9472-7c592694f877@linux.ibm.com>
- <20260729155021.64f7e1ba@shazbot.org>
-Content-Language: en-US
-From: Farhan Ali <alifm@linux.ibm.com>
-In-Reply-To: <20260729155021.64f7e1ba@shazbot.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+User-Agent: Evolution 3.60.2 (3.60.2-1.fc44) 
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODAzMDE0NiBTYWx0ZWRfXwCZdwPCXq/0y
- G+50Vj4Yt/+Ai7J3YOXClKs62GffSr5946q+SLxxplg8S0cdpU4brfLKwsDtGs26cC56dn38SCO
- M2v0uaJ/aftM4miUd4aUWkGq+ZyxnME=
-X-Authority-Analysis: v=2.4 cv=I7VVgtgg c=1 sm=1 tr=0 ts=6a70c43a cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+X-Proofpoint-ORIG-GUID: ewQDV0eYI59MhBwvYqM79tG7AbUbgFXj
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODAzMDE0NiBTYWx0ZWRfX00vZ4S1zTZ/u
+ xcQ0jy/oQAxeDxQucIWWAH9oM51bixJjWWb7n0pkPUN2djAn1ytURJ1rhACIJUn4mlhV8DPhlGS
+ M6j0Yn3yn0u0b72vrRmT+wP+cgpclN4=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODAzMDE0NiBTYWx0ZWRfXw6LK6MEy1vTR
+ g/RiQf4phroOvaTjSAnxehG63gKdJl9VNFCUFaQQaKRcVkmmscF5QA6zngi1MlmZRBlALhgcuO8
+ UJQmj/0J3wYj7BIJ6LYNLwBasDbo2uexC6St678qsiH9H7kxKtkzMtkcveZzZJN7jgKDQjzyzyB
+ uX0KJVk7qaP4ZQbjESv21H9kR6WiJ8rM4o8xZwSpymC7NPRsgv+nvWY6JZp2/DPCuVI7qXTQcxy
+ N+U92eK4hp9J1HuhRT5A8EIW1SdZuTqyYGfg3wAPZc+60OcO2/1pCWRNauLUWcDHnPgzXMfMMr2
+ tFRpKwZGeDb2QSZNMHrGStG6b7HzgMpURmUBR6qHiu0Zu+MnbccnVSiZyfTqdd1pnEs9lS6PEz5
+ vwUw/XwHjZwDXZOfzUDLshdCImPwySh3MUjvAKu7LOzWOT+xKRCdoHPt5Q08xTZZym3Z6Va+3QB
+ WMyjnm6b1sS971Mq/DA==
+X-Proofpoint-GUID: ewQDV0eYI59MhBwvYqM79tG7AbUbgFXj
+X-Authority-Analysis: v=2.4 cv=KfzidwYD c=1 sm=1 tr=0 ts=6a70c4ae cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
  a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8
- a=XnJmXvh4KQp14z-JlSQA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODAzMDE0NiBTYWx0ZWRfX1z3j7YZqowSr
- xiOBH9XrxT9wJDyLxZYX6pHIlrnUy9h09jU1iT+2giPwYfa0KynIYoGrd2KoeKq573M+n4XcwOi
- +izpFH17Hwiae3qzU5F9cenrb0wbFWgEY4tNSIcz274VgBarqIhT0c1eIBzFw/Q5HqCuaiwPC9f
- HVDz+lAc7bR8dM7FsETJfNpapLvCwYb9lJmBb+bJtYRmwweWJn254BuNBW5W4n29jjgMD6jmO47
- TyVNXDWF5MUqqGOcLuNgbpVOQYMXS4h9QS6/Nmk9KnQX5TsZTzTkoRf7lLZ2NLM4EXgJj/6TcrH
- dp5xDvJPHUJuz9A7LJtNFF7l+C5sBY7E8egjQCRSdb9wduVNG+EQfofHIdetNnpHewD5lh1yvvV
- VtZfJ6mJ1mDJFCGQ7eo0u+L9q1fvZ8RgyjSNOrQYHgzikw8GupqFre+zgRtlmh1f3dEO8nY5sOM
- SM1wcIDNAyuAiRo3yGw==
-X-Proofpoint-ORIG-GUID: ewPa9Umx2uUOxLKALDOoBpH4ydTpwb8o
-X-Proofpoint-GUID: ewPa9Umx2uUOxLKALDOoBpH4ydTpwb8o
+ a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8
+ a=BYthbiou9KiBg9ueyzsA:9 a=QEXdDO2ut3YA:10
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-08-03_03,2026-08-03_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0 impostorscore=0 clxscore=1015 priorityscore=1501 suspectscore=0
- malwarescore=0 adultscore=0 lowpriorityscore=0 phishscore=0 spamscore=0
+ lowpriorityscore=0 bulkscore=0 impostorscore=0 suspectscore=0 malwarescore=0
+ adultscore=0 clxscore=1015 priorityscore=1501 phishscore=0 spamscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608030146
 
+On Mon, 2026-08-03 at 16:29 +0200, Heiko Carstens wrote:
+> Clang's compiler based static context analysis does not work with
+> locks that are conditionally taken like in __zpci_event_error():
+>=20
+> arch/s390/pci/pci_event.c:320:2: warning: mutex 'get_zdev_by_fid(ccdf->fi=
+d).state_lock'
+>  is not held on every path through here [-Wthread-safety-analysis]
+>=20
+> Given that code which takes locks conditionally can be considered
+> suboptimal rework __zpci_event_error() to get rid of this.
+>=20
+> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+> ---
+>  arch/s390/pci/pci_event.c | 43 ++++++++++++++++++++++-----------------
+>  1 file changed, 24 insertions(+), 19 deletions(-)
+>=20
+> diff --git a/arch/s390/pci/pci_event.c b/arch/s390/pci/pci_event.c
+> index 839bd91c056e..48fa26dcbee1 100644
+> --- a/arch/s390/pci/pci_event.c
+> +++ b/arch/s390/pci/pci_event.c
+> @@ -288,6 +288,12 @@ static void zpci_event_io_failure(struct pci_dev *pd=
+ev, pci_channel_state_t es)
+>  	pci_dev_unlock(pdev);
+>  }
+> =20
+> +static void __zpci_event_print_error(struct pci_dev *pdev, struct zpci_c=
+cdf_err *ccdf)
+> +{
+> +	pr_err("%s: Event 0x%x reports an error for PCI function 0x%x\n",
+> +	       pdev ? pci_name(pdev) : "n/a", ccdf->pec, ccdf->fid);
+> +}
+> +
+>  static void __zpci_event_error(struct zpci_ccdf_err *ccdf)
+>  {
+>  	struct zpci_dev *zdev =3D get_zdev_by_fid(ccdf->fid);
+> @@ -301,24 +307,24 @@ static void __zpci_event_error(struct zpci_ccdf_err=
+ *ccdf)
+>  	zpci_err("error CCDF:\n");
+>  	zpci_err_hex(ccdf, sizeof(*ccdf));
+> =20
+> -	if (zdev) {
+> -		mutex_lock(&zdev->state_lock);
+> -		rc =3D clp_refresh_fh(zdev->fid, &fh);
+> -		if (rc)
+> -			goto no_pdev;
+> -		if (!fh || ccdf->fh !=3D fh) {
+> -			/* Ignore events with stale handles */
+> -			zpci_dbg(3, "err fid:%x, fh:%x (stale %x)\n",
+> -				 ccdf->fid, fh, ccdf->fh);
+> -			goto no_pdev;
+> -		}
+> -		zpci_update_fh(zdev, ccdf->fh);
+> -		if (zdev->zbus->bus)
+> -			pdev =3D pci_get_slot(zdev->zbus->bus, zdev->devfn);
+> -	}
+> +	if (!zdev)
+> +		return __zpci_event_print_error(pdev, ccdf);
 
-On 7/29/2026 2:50 PM, Alex Williamson wrote:
-> On Wed, 29 Jul 2026 14:32:45 -0700
-> Farhan Ali <alifm@linux.ibm.com> wrote:
->
->> On 7/29/2026 1:36 PM, Alex Williamson wrote:
->>> On Wed, 29 Jul 2026 13:28:46 -0700
->>> Farhan Ali <alifm@linux.ibm.com> wrote:
->>>   
->>>> On 7/29/2026 12:41 PM, Matthew Rosato wrote:
->>>>> On 7/29/26 2:11 PM, Farhan Ali wrote:
->>>>>> vfio_pci_core_map_bars() calls pci_iomap() to set up BAR resources, but not
->>>>>> all devices support having their BARs mapped by the CPU. The
->>>>>> non_mappable_bars flag indicates that a PCI device's BARs cannot be
->>>>>> accessed by the CPU. The ISM device on s390 is one such device. The BAR
->>>>>> size for an ISM device is 256 TiB, and attempting to map the BAR will lead
->>>>>> to warnings:
->>>>>>
->>>>>> vmalloc_node_range for size 281474976714752 failed: Address range
->>>>>> restricted to 0x2110bab00000 - 0x21903ab00000
->>>>>>
->>>>>> Use pdev->non_mappable_bars to skip pci_iomap() for such devices. This flag
->>>>>> is set by the PCI core at enumeration time and already serves the same
->>>>>> purpose in vfio_pci_probe_mmaps().
->>>>>>
->>>>>> Fixes: 05f2a68b407a ("vfio/pci: Set up BAR resources and maps in vfio_pci_core_enable()")
->>>>>> Reported-by: Christian Borntraeger <borntraeger@linux.ibm.com>
->>>>>> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
->>>>>> ---
->>>>>>     drivers/vfio/pci/vfio_pci_core.c | 3 +++
->>>>>>     1 file changed, 3 insertions(+)
->>>>>>
->>>>>> diff --git a/drivers/vfio/pci/vfio_pci_core.c b/drivers/vfio/pci/vfio_pci_core.c
->>>>>> index 3f11a9624b9c..6a184588ff23 100644
->>>>>> --- a/drivers/vfio/pci/vfio_pci_core.c
->>>>>> +++ b/drivers/vfio/pci/vfio_pci_core.c
->>>>>> @@ -554,6 +554,9 @@ static void vfio_pci_core_map_bars(struct vfio_pci_core_device *vdev)
->>>>>>     
->>>>>>     		vdev->barmap[bar] = IOMEM_ERR_PTR(-ENODEV);
->>>>>>     
->>>>>> +		if (pdev->non_mappable_bars)
->>>>>> +			continue;
->>>>>> +
->>>>> This would work for the ISM case at least, but I wonder: should we check
->>>>> vdev->bar_mmap_supported[bar] instead?
->>>>>
->>>>> My question boils down to: do we still want messages for some of the
->>>>> cases where we set vdev->bar_mmap_supported[bar] = false in
->>>>> vfio_pci_probe_mmaps()?
->>>> AFAIU vfio_pci_probe_mmaps() is only called in
->>>> vfio_pci_core_finish_enable(). Since vfio_pci_core_map_bars() is called
->>>> in vfio_pci_core_enable(), and before vfio_pci_core_finish_enable(),
->>>> bar_mmap_supported would be false here for all devices. So I don't think
->>>> it would work here, unless I missed something?
->>> Also IO Port and sub-page MMIO BARs are things that do exist.  Thanks,
->> Just to clarify, are you suggesting we expand this check to also avoid
->> mapping IO port and sub-page MMIO BARs?
-> Sorry, no, I'm not.  I think we're conflating that the barmap is
-> related to mmap access.  The barmap itself is holding the iomap of the
-> BAR, used for read/write.  The only real relation to the mmap is that
-> we request the resource via this path as well.
->
-> Therefore not only is the ordering of setting up bar_mmap_supported
-> wrong, it's flagging entirely the wrong thing here and keying on it
-> would entirely break IO port and sub-page MMIO BAR access.  Thanks,
->
-> Alex
+Nit: Here pdev is always NULL because the assignment moved below.
+Functionally this is fine but it would be more clear this is the case
+if you passed NULL for pdev explicitly.
 
-Hi Alex,
+> =20
+> -	pr_err("%s: Event 0x%x reports an error for PCI function 0x%x\n",
+> -	       pdev ? pci_name(pdev) : "n/a", ccdf->pec, ccdf->fid);
+> +	mutex_lock(&zdev->state_lock);
+> +	rc =3D clp_refresh_fh(zdev->fid, &fh);
+> +	if (rc)
+> +		goto no_pdev;
+> +	if (!fh || ccdf->fh !=3D fh) {
+> +		/* Ignore events with stale handles */
+> +		zpci_dbg(3, "err fid:%x, fh:%x (stale %x)\n",
+> +			 ccdf->fid, fh, ccdf->fh);
+> +		goto no_pdev;
+> +	}
+> +	zpci_update_fh(zdev, ccdf->fh);
+> +	if (zdev->zbus->bus)
+> +		pdev =3D pci_get_slot(zdev->zbus->bus, zdev->devfn);
+> +
+> +	__zpci_event_print_error(pdev, ccdf);
+> =20
+>  	if (!pdev)
+>  		goto no_pdev;
+> @@ -340,8 +346,7 @@ static void __zpci_event_error(struct zpci_ccdf_err *=
+ccdf)
+>  	}
+>  	pci_dev_put(pdev);
+>  no_pdev:
+> -	if (zdev)
+> -		mutex_unlock(&zdev->state_lock);
+> +	mutex_unlock(&zdev->state_lock);
+>  	zpci_zdev_put(zdev);
+>  }
+> =20
 
-I wanted some guidance on how we should proceed with this patch? The 
-warning messages are a regression on s390 for ISM devices, so we would 
-like to fix it.
+Thanks for cleaning this up. Even on its own this would be a net
+improvement. So with or without my nit resolved feel free to add:
 
-Thanks
+Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
 
-Farhan
+Thanks,
+Niklas
 
 
