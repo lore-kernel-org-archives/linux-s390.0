@@ -1,52 +1,53 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 22BEF30BF4F
-	for <linux-s390@vger.kernel.org>; Mon,  3 Aug 2026 08:33:38 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6285B33711D
+	for <linux-s390@vger.kernel.org>; Mon,  3 Aug 2026 08:33:39 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785746020; cv=none; b=q2ZzCr3YZE3vDnqXXOh188MFC/D1Dm6ELwqnq1Y38Y7kllvVUexS8kIIi1wSkPbkUAiWsG8kmrEWSbrcHCjlNBU/IqH41n4pVql53rArtNE1Lv2ypM6+CcB7ct5y9Jd4JsKuyJY9wLcjO8fluW7swIckduLOFaoeziMzbEM8HdY=
+	t=1785746020; cv=none; b=RmIQcCbyFTSTkMAVOev7OhS4jMbnr1Ang3a/K6rHNIK5X85VtBEeTRGFJ/zUFFrS5fTkyrHCHNYu+o4teYgonuKEHDLRpsuNx4Blvg/+NDvLMMMOpgrRFXXQgyMXSamTMYJ4X+wUx3p1WRlVxgQuV91X/Tcu/Yj6uKGEGgLCMjM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1785746020; c=relaxed/simple;
-	bh=qtEqpVPdS9NfqWhfmn3x7sf8Ea3CtCWROBWiR3abeh0=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=piAOtT7Y5hGHfwbgyRdz1YMh7KvcVi28oFellq79nH04lfyYXGN2TrIVTEcfApL+U77cD/ISp8yqmMhu6ysfXL+iGg+Jpnwe/GzvrE7yWajcjthzXWt4LIh6ibkm7p0Ae2uc0lgPokAxVA0UXLMG/I9v7z8q5JgN21/pg0eMIOk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=XUpi8+FO; arc=none smtp.client-ip=148.163.158.5
+	bh=O43A++24HWBuHgb8MgIpK4pHov/RE41l+A/MH5H6z94=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=E+4enunQ5IZrFJd2C/ATUo6vIacxIA/Hmkrhu4DDIiJ/PzKCntgtUny1SkHdTAiS3TzNcfu4CdyhBC+YPFpJ594rxjzjHIKqbiG65u49GOmgWgyw/01u8kZYyUcLsJzbQ58q3Gb8SufhxcG2VkoBfluXFlzQZA1MWejQHGHXiV4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=WK/em7J5; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="XUpi8+FO"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 672Llo3e291104
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="WK/em7J5"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 672Lm9Xa168336
 	for <linux-s390@vger.kernel.org>; Mon, 3 Aug 2026 08:33:38 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=RiOQ8tnpSYp6cu2aKHlNglyRyAclkPQxt0RMBy6yS
-	Ns=; b=XUpi8+FOmj8f93llX+QLFPe9Ax7G3RkpolX9qP8eWs+yg0PN5dY/cyrfe
-	RPZJdI8TA5MNlVKiKVBoBZekX20QbohkwS+BvPfltut479nElFdkoD+ayaB5wtVb
-	PwTP2iweRxaTYHVtU9aWU4tGfpJ2zIJdCQ6vzhD/DZv8kQpXElnKyTkXgSoBXpNe
-	XNMID0p+McMpTR/rnWUoAqE6Qqe1tz5r/p86pgTCjTsHc8uWgKONELggJMQIIBtH
-	oFn0ET8NKyy35aKt82KGyJznbLsODyzY1ONd1nyz4XRjkAKaXixiAhg0lmAjP3dV
-	MD7EMS7s9Ai1O1sb11hqoRz5vhPtg==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fs8eufd57-1
+	:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=pp1; bh=vD5/RC0Rv/xhzv3Qi
+	MDdAO74h1TvWd2H2jWR7uQeSu4=; b=WK/em7J5FqOYVeXRXlVSwg+T4gXDk03VP
+	UNneTPNmsvkt4PFAFWlnJv15RLchPIYeSLQDXt9umvtaROb9rSiZSAMOOkUTOz45
+	6wpf0inRHOWe3Kf169I/Vw5NtJk59OoEkfQTBn7/SfzOfFAyT5VDPqYHPWQQSAo9
+	xtB0+lONCz6AIFEA1dyig807lkiAn7GDvqk9vBWom8xBJOYouGbqrJ//QCmVwHIV
+	QAHM/YFPAUnUD3ehQGNuc64oU5+ElKArnfWj4ab7Rq4vAduyoqXWvCx1hKJIbreM
+	PJbJFr7lCQOFdLLD/HB2eq0VaP7o+2UdxCobpxIsL3ROGJA9VPtWQ==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fs77fyk60-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Mon, 03 Aug 2026 08:33:37 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 6738QQhN031703
+	for <linux-s390@vger.kernel.org>; Mon, 03 Aug 2026 08:33:38 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 6738QI1W000556
 	for <linux-s390@vger.kernel.org>; Mon, 3 Aug 2026 08:33:37 GMT
 Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fswtyc8fq-1
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fsv4jvgkm-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
 	for <linux-s390@vger.kernel.org>; Mon, 03 Aug 2026 08:33:37 +0000 (GMT)
 Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6738XXbL41550288
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6738XXjw41550290
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
 	Mon, 3 Aug 2026 08:33:33 GMT
 Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 790DC20063;
+	by IMSVA (Postfix) with ESMTP id A31C12004E;
 	Mon,  3 Aug 2026 08:33:33 +0000 (GMT)
 Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 57C062004E;
+	by IMSVA (Postfix) with ESMTP id 7E06D20067;
 	Mon,  3 Aug 2026 08:33:33 +0000 (GMT)
 Received: from funtu2.ibm.com (unknown [9.111.207.251])
 	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
@@ -56,10 +57,12 @@ To: dengler@linux.ibm.com, fcallies@linux.ibm.com, ifranzki@linux.ibm.com
 Cc: freude@linux.ibm.com, linux-s390@vger.kernel.org,
         Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>
-Subject: [PATCH v11 0/5] Improve code in zcrypt msg type 6 handling
-Date: Mon,  3 Aug 2026 10:33:33 +0200
-Message-ID: <20260803083339.212885-1-freude@linux.ibm.com>
+Subject: [PATCH v11 1/5] s390/zcrypt: Fix CPRB memory allocation in zcrypt misc code
+Date: Mon,  3 Aug 2026 10:33:34 +0200
+Message-ID: <20260803083339.212885-2-freude@linux.ibm.com>
 X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20260803083339.212885-1-freude@linux.ibm.com>
+References: <20260803083339.212885-1-freude@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -68,88 +71,165 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: CYWZDTkehEHP45CfJnKApAm0Kyb2Bd6U
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODAzMDA3MiBTYWx0ZWRfX6zvWR8ZXRQ/F
- F5PxIzhj2UPXGiY4TZJaX6wpdiIUVMdC+VBUigLB+/nTJOUF97dG6Kl/IcCObar71UUKqyVLtGe
- vvBf1NpQu2EmKEJvo8OBar0Ou+rHdcg=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODAzMDA3MiBTYWx0ZWRfX0/329Cp9hZGq
- 3P0u3x+z3ZLH9N+hk9SEEEtMgPSB0XU/Ys2QbiXmitFPRLq1zWpgypKuvidg0m5c8AdlODyPmJk
- 6jwtmT37GUfap92fDg9VJc6mtUqLihJCW+I6Zn+4RNSQgsFivF8GHfYFUJAP/peWBT5XOxZVapp
- lYfYqevMLXJGghjZcohP8baX8GnZ+E8y0HHrioZq8x2GTI6dXBWHLPfO8Q0ylMB5H4Sxq2GdNn4
- hOYJ+u36+FOKwUHtJ+02Dkd6H+w51zFHVjQgtabjbJ/85/dBOGrMrgg4MooYKDaDetL04o1UPXp
- DxfewE2lFym8pniFtJncFmOFLZbu52wVVHWCgKAqHq5eK6ad1IvtKHGgHDDuNmvHcQagyA5Tkx0
- RpbJtvX82f8aOTfQXeln3JL36TdZyPqRqWHTunENSy6oSh6lIGzQK5Fxe7i6Lz2S8F4nK6kQliK
- 6iKE2de8ioS497xnQ0w==
-X-Proofpoint-GUID: CYWZDTkehEHP45CfJnKApAm0Kyb2Bd6U
-X-Authority-Analysis: v=2.4 cv=KfzidwYD c=1 sm=1 tr=0 ts=6a705261 cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODAzMDA3MiBTYWx0ZWRfX1jieJYJeecHY
+ jUzgqx6BYu7gRB6fjCIufJG7BdQyAyJosNbSjGquWOgF5yoArxVYLKG8b+NJ341MH2Kqn83+vuk
+ EV2Yf3IkMLDYSzEuy843KqQL2JFOMr22aFqBVkJNwPSmXDhZ2UTAME6hhttq26n3fdNkoQ9d/m0
+ FORxpktN+XFfJaitf9ujVLBmz6BXNQyp4qjukP6Cepa8R0HN3Ma8DxGg9mZEjjZewfI89KeGUKz
+ T4UZ2Iiwwr/sb1c6uM6XV7Yo3itrU9fjrPT7/L9VzHAtx9eVHeJYJwe48wgDUaIrY5UIGXqTNDT
+ RndgbUCV7/hGFcmziwjssK58S6ITPl2dnA7uQKiJiarZKbk1i1vZG2MXSwsI87AcJp/GS+A5H2Z
+ 9qQzsRVl299jO4Kg1htj49G6gafr1QWBtV9W5WyGTXdfgVKds6/tc5yZNPoGQ8abM+qgVgVez+p
+ vmAgmfbc+H2ZZXFmkgw==
+X-Authority-Analysis: v=2.4 cv=WIFPmHsR c=1 sm=1 tr=0 ts=6a705262 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
  a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=RzCfie-kr_QcCd8fBx8p:22 a=Q7xrHvb9Vs8x3X5MzAIA:9
+ a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8 a=VwQbUJbxAAAA:8
+ a=uY6hddB1wUZoGjyr-5sA:9
+X-Proofpoint-GUID: HuLiWDnIN48FGjuNHrGLwFkCHxDR0O6n
+X-Proofpoint-ORIG-GUID: HuLiWDnIN48FGjuNHrGLwFkCHxDR0O6n
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODAzMDA3MiBTYWx0ZWRfXyBPdf7HpRD9+
+ gHMUYTE71WeQO94TgHK/DnRygeg26BJb3Il+3zf75fsTeLVjl4+3j1PBqFIFtxymRik02gK2stS
+ Oanwhz1pmJ0TqJMVQnR+c+wEsDEuP08=
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-08-02_06,2026-07-30_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- lowpriorityscore=0 bulkscore=0 impostorscore=0 suspectscore=0 malwarescore=0
- adultscore=0 clxscore=1015 priorityscore=1501 phishscore=0 spamscore=0
+ spamscore=0 lowpriorityscore=0 priorityscore=1501 phishscore=0 malwarescore=0
+ suspectscore=0 clxscore=1015 impostorscore=0 bulkscore=0 adultscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608030072
 
-Rework the limit and overflow checks in the both functions
-xcrb_msg_to_type6_ep11cprb_msgx() and xcrb_msg_to_type6cprb_msgx().
-And more ... all related to the length checks done in these both
-functions.
+Both CPRB alloc functions in zcrypt_ccamisc.c and zcrypt_ep11misc.c
+did not round up the memory allocation to a multiple of 4 bytes as it
+is needed by the zcrypt layer to process the CPRBs.
 
-Changelog:
+Now the alloc_and_prep_cprbmem() and alloc_cprbmem() functions
+guarantee that the base CPRB struct and a possible parameter block are
+aligned to a 4-byte boundary and the backing memory allocation is
+rounded up to the next multiple of 4 byte. Also the free_cprbmem() is
+updated and scrubs the rounded up amount of memory.
 
-v1: initial version, one patch dealing with overflow checks around
-    the use of the CEIL4 macro in zcrypt_msgtype6.c
-v2: Sashiko found a regression: The check
-      if (ap_msg->len > ap_msg->bufsize)
-    was missing in the rework. Added again this important check.
-v3: - Split into two patches  - one for CCA one for EP11
-    - rework upper limit/overflow check 
-    - add lower limit check
-v4: - tried to address all the remaining complains from sashiko.
-v5: - Yea, sashiko still found out that the min req size needs
-      to take the minimal payload header into account. Fixed.
-v6: - And finally add padding zeros when there is a gap between
-      user space provided message size and rounded message size
-      in kernel.
-v7: - As requested by Holger, the padding code is now an own patch.
-    - As the length checks are now so strict the allocation in the
-      both misc files needed adaption to correctly allocate 4 byte
-      rounded up message buffers.
-    - The EP11 length check has been found to be a mess. The payload
-      is asn1 encoded and now the length parses parts of this payload
-      to extract the needed fields (function value).
-    - Furthermore another function zcrypt_msgtype6_send_ep11_cprb()
-      also needed to be adjusted to parse the asn1 payload to patch
-      the domain value into the payload.
-v8: - Sashiko found out that the cprb free with memory scrub also
-      needs adaption when the allocation rounds up to a 4 byte
-      boundary. So fixed just this in the first patch of the series. 
-v9: - hunk for cprb free with 4 byte boundary for EP11 was missing.
-    - use of put_unaligned_be16/32 instead of direct cast and store.
-v10: - make the asn1 parsing bullet proof. Sashiko found that under
-       some circumstances there could have been an access behind the
-       actual payload.
-     - Added Cc and Fixes tags.
-v11: - Added some Reviewed-by from Holger.
-     - Fixed the wrong limit checks with offs >= pld_len mentioned
-       by Sashiko.
+Fixes: 9bdb5f7e8369 ("s390/zcrypt: Introduce cprb mempool for cca misc functions")
+Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
+Reviewed-by: Holger Dengler <dengler@linux.ibm.com>
+Cc: stable@vger.kernel.org # 6.16+
+---
+ drivers/s390/crypto/zcrypt_ccamisc.c  | 20 ++++++++++++++------
+ drivers/s390/crypto/zcrypt_ep11misc.c | 16 +++++++++++-----
+ 2 files changed, 25 insertions(+), 11 deletions(-)
 
-Harald Freudenberger (5):
-  s390/zcrypt: Fix CPRB memory allocation in zcrypt misc code
-  s390/zcrypt: Improve CCA CPRB length and overflow checks
-  s390/zcrypt: Improve EP11 CPRB length and overflow checks
-  s390/zcrypt: Improve EP11 CPRB domain handling with ASN.1 parsing
-  s390/zcrypt: Pad trailing CCA or EP11 message with zeros
-
- drivers/s390/crypto/zcrypt_ccamisc.c  |  20 +-
- drivers/s390/crypto/zcrypt_ep11misc.c |  16 +-
- drivers/s390/crypto/zcrypt_msgtype6.c | 366 ++++++++++++++++++--------
- 3 files changed, 278 insertions(+), 124 deletions(-)
-
---
+diff --git a/drivers/s390/crypto/zcrypt_ccamisc.c b/drivers/s390/crypto/zcrypt_ccamisc.c
+index 86d2ee78c9f4..d4ce6352b5b2 100644
+--- a/drivers/s390/crypto/zcrypt_ccamisc.c
++++ b/drivers/s390/crypto/zcrypt_ccamisc.c
+@@ -15,6 +15,7 @@
+ #include <linux/module.h>
+ #include <linux/slab.h>
+ #include <linux/random.h>
++#include <linux/align.h>
+ #include <asm/zcrypt.h>
+ #include <asm/pkey.h>
+ 
+@@ -267,6 +268,10 @@ EXPORT_SYMBOL(cca_check_sececckeytoken);
+  * block, reply CPRB and reply param block and fill in values
+  * for the common fields. Returns 0 on success or errno value
+  * on failure.
++ * It is guaranteed that request and a possible param block
++ * are aligned to a 4 byte boundary. Furthermore if a param
++ * block is used, the memory allocated for this is rounded up to
++ * the next multiple of 4 bytes.
+  */
+ static int alloc_and_prep_cprbmem(size_t paramblen,
+ 				  u8 **p_cprb_mem,
+@@ -275,7 +280,8 @@ static int alloc_and_prep_cprbmem(size_t paramblen,
+ 				  u32 xflags)
+ {
+ 	u8 *cprbmem = NULL;
+-	size_t cprbplusparamblen = sizeof(struct CPRBX) + paramblen;
++	size_t cprbplusparamblen =
++		ALIGN(sizeof(struct CPRBX), 4) + ALIGN(paramblen, 4);
+ 	size_t len = 2 * cprbplusparamblen;
+ 	struct CPRBX *preqcblk, *prepcblk;
+ 
+@@ -302,10 +308,10 @@ static int alloc_and_prep_cprbmem(size_t paramblen,
+ 	memcpy(preqcblk->func_id, "T2", 2);
+ 	preqcblk->rpl_msgbl = cprbplusparamblen;
+ 	if (paramblen) {
+-		preqcblk->req_parmb =
+-			((u8 __user *)preqcblk) + sizeof(struct CPRBX);
+-		preqcblk->rpl_parmb =
+-			((u8 __user *)prepcblk) + sizeof(struct CPRBX);
++		preqcblk->req_parmb = ((u8 __user *)preqcblk) +
++			ALIGN(sizeof(struct CPRBX), 4);
++		preqcblk->rpl_parmb = ((u8 __user *)prepcblk) +
++			ALIGN(sizeof(struct CPRBX), 4);
+ 	}
+ 
+ 	*p_cprb_mem = cprbmem;
+@@ -323,8 +329,10 @@ static int alloc_and_prep_cprbmem(size_t paramblen,
+  */
+ static void free_cprbmem(void *mem, size_t paramblen, bool scrub, u32 xflags)
+ {
++	size_t cprblen = ALIGN(sizeof(struct CPRBX), 4) + ALIGN(paramblen, 4);
++
+ 	if (mem && scrub)
+-		memzero_explicit(mem, 2 * (sizeof(struct CPRBX) + paramblen));
++		memzero_explicit(mem, 2 * cprblen);
+ 
+ 	if (xflags & ZCRYPT_XFLAG_NOMEMALLOC)
+ 		mempool_free(mem, cprb_mempool);
+diff --git a/drivers/s390/crypto/zcrypt_ep11misc.c b/drivers/s390/crypto/zcrypt_ep11misc.c
+index 3dda9589f2b9..2d900ffc5068 100644
+--- a/drivers/s390/crypto/zcrypt_ep11misc.c
++++ b/drivers/s390/crypto/zcrypt_ep11misc.c
+@@ -14,6 +14,7 @@
+ #include <linux/module.h>
+ #include <linux/random.h>
+ #include <linux/slab.h>
++#include <linux/align.h>
+ #include <asm/zcrypt.h>
+ #include <asm/pkey.h>
+ #include <crypto/aes.h>
+@@ -355,21 +356,24 @@ EXPORT_SYMBOL(ep11_check_aes_key);
+ 
+ /*
+  * Allocate and prepare ep11 cprb plus additional payload.
++ * It is guaranteed that the memory is aligned to a 4 byte boundary.
++ * Furthermore the memory allocation is rounded up to the next
++ * multiple of 4 bytes (with taking the payload_len into account).
+  */
+ static void *alloc_cprbmem(size_t payload_len, u32 xflags)
+ {
+-	size_t len = sizeof(struct ep11_cprb) + payload_len;
++	size_t memlen = ALIGN(sizeof(struct ep11_cprb) + payload_len, 4);
+ 	struct ep11_cprb *cprb = NULL;
+ 
+ 	if (xflags & ZCRYPT_XFLAG_NOMEMALLOC) {
+-		if (len <= CPRB_MEMPOOL_ITEM_SIZE)
++		if (memlen <= CPRB_MEMPOOL_ITEM_SIZE)
+ 			cprb = mempool_alloc_preallocated(cprb_mempool);
+ 	} else {
+-		cprb = kmalloc(len, GFP_KERNEL);
++		cprb = kmalloc(memlen, GFP_KERNEL);
+ 	}
+ 	if (!cprb)
+ 		return NULL;
+-	memset(cprb, 0, len);
++	memset(cprb, 0, memlen);
+ 
+ 	cprb->cprb_len = sizeof(struct ep11_cprb);
+ 	cprb->cprb_ver_id = 0x04;
+@@ -385,8 +389,10 @@ static void *alloc_cprbmem(size_t payload_len, u32 xflags)
+  */
+ static void free_cprbmem(void *mem, size_t payload_len, bool scrub, u32 xflags)
+ {
++	size_t memlen = ALIGN(sizeof(struct ep11_cprb) + payload_len, 4);
++
+ 	if (mem && scrub)
+-		memzero_explicit(mem, sizeof(struct ep11_cprb) + payload_len);
++		memzero_explicit(mem, memlen);
+ 
+ 	if (xflags & ZCRYPT_XFLAG_NOMEMALLOC)
+ 		mempool_free(mem, cprb_mempool);
+-- 
 2.43.0
 
