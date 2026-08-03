@@ -1,66 +1,64 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D87222F7445;
-	Mon,  3 Aug 2026 18:21:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 436984302E6;
+	Mon,  3 Aug 2026 18:27:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785781273; cv=none; b=gEBxNZ9OeHfxx7pa8af+x9c5+fHj0oaqT6t1zvYcfb92tvQm1mozXuo9u6YT9LYcQvJk7h7U4DkVIkR8mq8uvvPD861s6EeIJtMX4QmXJyNafn3lyUBO3j7yq2C/5Vk2RqJlmALJXfeli0bmTe2p4GydpnuhRne9az1K018UAKM=
+	t=1785781677; cv=none; b=mJWa84TjMK7bVIc9iDKMRlzg/wQ2OHjEQ/a6c8LLujFNpNdDEx0GWWCo/gJLfhsw4ztG9LeeIgdB2Qd3wxJtBQ9usQA84mIxu8rM97sAnjrz6a95WHxkhY8AWDNEN1DkOyYfkLQMH11Y/FR3BvO8oja+lfD6meKIQeFjFpTf9g4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785781273; c=relaxed/simple;
-	bh=3U/p2VkcUuKyIQGR3TS8GF7H2r39AnpZNkXH4YQH7nQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=h0vKaGbwSaKGEntn/xzCkS35YR1rO6GoobIdB+2LQK5+dncc4XC7NSnVUMbRweWikEumjeRIFJNjFarOakjyvF58eDkOEDZgJDP6dW/U+3unZke7XBUAoR7geZkqed240sIqEK4L/amK1CfbCKZFHqnVWmoO9NyK1ck++sZUri0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=UczDOWXc; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1785781677; c=relaxed/simple;
+	bh=+b5Zt8N5u8ceyNy6jaE+YMFKjylcF0QwxRF/OlBnuUI=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=qnnXB298SUBfcx8jsphMlIAgK4xYIQ28z5IHGGBnsNl+oLaJvILZLLHjvVFnMWNOOBf3H2aHRyrwrCRzglHW5D7J9PWfEGxZsy/f6F31VvsM+YFosYAKuwxS2hdkth5nDo5qfxZFrtWEHgr6GEfcIHnFIb4l+0HsRap6xVixy74=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=De3NQcPn; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="UczDOWXc"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 673HIHGj2605140;
-	Mon, 3 Aug 2026 18:21:00 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="De3NQcPn"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 673HHhuH2663605;
+	Mon, 3 Aug 2026 18:27:43 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=wG6SzNxVLqtuB2Ud/Nun4MwcZSIA0axkF7pd3pzkj
-	Qg=; b=UczDOWXc3bpBXsNK3p4pCL/mJTrYdX8iQmX6od729bsXd4lUr+0rFe0bE
-	k+wfes4YSrUIAV0N57qV37bElEwCuidq9qxE8577WIcF3jB1jwRxPG4g39s2fVKn
-	0XnxWz5a2ZVZsHCgFwPvMcdKdP0mZw9DlLkOeiAJsHz4oHDxpK9uef+QTUfhvgZe
-	Z3cc0Eibu3oVkjRJXTxg+CLAgvvz6GCOfn9lm+lB/ZPaJW6ML11m5KEBm0c526/V
-	mWddFR+kak6PPqVnWno9UaKkfrUoOnO3N9Wd0SLIlEBjRQ/Yj8b5jlv9vi4IDU0m
-	edvVHVw1HMi2sI9M9VLaJDq+PmshQ==
+	:content-transfer-encoding:content-type:date:from:message-id
+	:mime-version:subject:to; s=pp1; bh=ksTD/8MPxOmUQsy0DsNgAfCZs/Kp
+	RMuPv1ceYts0d9I=; b=De3NQcPneRc9iW+cOwYDV5C/4cD5JuIUbwSDX1K9f0Ev
+	4Z2+ZxNOGgYZvm0/+Fj/R3MdfQp6XwXI+EJS934SpCcYPeWtSyhuBiaU7zdSjWTY
+	W/WSpzCqTg8gqjF05SjsQOPwcBUR+jYyrI28P28exTO0P3xBg0czjU+/+jTXRrXm
+	T4xr1ZYVxgq33H1d9hKwii3EsYYMc0cOtfHYSuM939EGakVRFn5KwxdQmFhHSLWa
+	kSdkSjmtg4yKZ7+iAmrinyAW+ANIz7E0EQXRcgVeHKcOCFZrm/T2dPamyF08tlsd
+	IYoGnugavzWdYlnvgp0y6I/tt+fcARyXJXCtMI/auA==
 Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fs67hj6b2-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fs8a3t9fj-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 03 Aug 2026 18:20:59 +0000 (GMT)
+	Mon, 03 Aug 2026 18:27:42 +0000 (GMT)
 Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 673IBUSg027313;
-	Mon, 3 Aug 2026 18:20:58 GMT
+	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 673IQIqE010885;
+	Mon, 3 Aug 2026 18:27:41 GMT
 Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fswbg6f1a-1
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fswbg6fj1-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 03 Aug 2026 18:20:58 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 673IKs9Z36045198
+	Mon, 03 Aug 2026 18:27:41 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 673IRbrm36045278
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 3 Aug 2026 18:20:54 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 77E5020043;
-	Mon,  3 Aug 2026 18:20:54 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3B4EB20040;
-	Mon,  3 Aug 2026 18:20:54 +0000 (GMT)
+	Mon, 3 Aug 2026 18:27:37 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 2AB0D20043;
+	Mon,  3 Aug 2026 18:27:37 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E602C20040;
+	Mon,  3 Aug 2026 18:27:36 +0000 (GMT)
 Received: from t83lp71.lnxne.boe (unknown [9.87.84.240])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon,  3 Aug 2026 18:20:54 +0000 (GMT)
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Mon,  3 Aug 2026 18:27:36 +0000 (GMT)
 From: Nagamani PV <nagamani@linux.ibm.com>
-To: davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-        pabeni@redhat.com
-Cc: horms@kernel.org, linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        wintera@linux.ibm.com, twinkler@linux.ibm.com,
-        heiko.carstens@de.ibm.com, hidayath@linux.ibm.com,
-        borntraeger@linux.ibm.com, stable@vger.kernel.org
-Subject: [PATCH net-next] net/iucv: fix UAF in afiucv_netdev_event()
-Date: Mon,  3 Aug 2026 20:20:53 +0200
-Message-ID: <20260803182053.2355882-1-nagamani@linux.ibm.com>
+To: andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com
+Cc: horms@kernel.org, wintera@linux.ibm.com, aswin@linux.ibm.com,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH net-next] s390/ctcm: Convert fsm.h to proper kernel-doc format
+Date: Mon,  3 Aug 2026 20:27:36 +0200
+Message-ID: <20260803182736.2356374-1-nagamani@linux.ibm.com>
 X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
@@ -68,102 +66,338 @@ List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
 X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODAzMDE2MiBTYWx0ZWRfX7Vw8xPl3LY/1
- Z2r+U7gdivjl438T5lb9jzMZIZcHNiYFTFNwv2yN0rnPl6RClnAAKVfFQFIvSDln9FVF94noUKz
- SWp4gMisorgpAsFQZ1t3M59xJulGwN0=
-X-Authority-Analysis: v=2.4 cv=I7VVgtgg c=1 sm=1 tr=0 ts=6a70dc0c cx=c_pps
+X-Authority-Analysis: v=2.4 cv=E6P9Y6dl c=1 sm=1 tr=0 ts=6a70dd9e cx=c_pps
  a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
- a=9erWuH-dJbx6lHhtDFoA:9
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODAzMDE2MiBTYWx0ZWRfX0Trovc4+qUDe
- QQdcFFqKCsvCrkjBO4FWbbA+4ohC+Z+vARGTvaSmK1mLis5VqaIALexKIyXYBaeCn/Tt5W/H52q
- 2eZNwwTe6+qbH0CK6eVMv310d30G6P/7i1841q90Ru7+RY8XVytUBENHYt9SSfe7RlfNJoF5rln
- Pz5doQbD63p2295D7jakFAiadU0daDGtl4962+fMpODoglD7CJOQZU5+PqjzCRORPYnEWly4UtZ
- DP06ymjt63K76UZmi8zHD6EAKvv0Pnkkr0zKjhVDUih2yeauB9L+7xhJYRu9e69xPGIXKnyok4X
- 8brZ/lng7gzHL6a3hnoliiWp+c1pBo5Mql5jJAi3ASD7jTxAuBTyOrWyROlSITHz/nt585cJsEj
- 15gK7dFOC4va7si0FJXz0gWjtdDeo+J2zepfu1wQ1BIVc8Vw61hDprPENP661Ak9E7pI9XpDwyT
- WcWXpF70xpi+m8niN9A==
-X-Proofpoint-ORIG-GUID: RKENEiIK7HTDh2HKB9m3NaR-nxu4k1jT
-X-Proofpoint-GUID: MzUuTnwLBFT2u-rvelEiNoq-Dc2PfjLZ
+ a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8
+ a=peGaGOMV5x4x2WVhuBYA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-ORIG-GUID: 2kIjeWB9rM7a6XsXVu0s7tZNY1zFpGcP
+X-Proofpoint-GUID: N1XjypU_FnJVtQxQF0ZRckX8UQ6PTFYl
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODAzMDE2MiBTYWx0ZWRfXy5x0iOXowigc
+ /krwsDq6eFty9J9wU5HKXP3U5Jwssx6zVOZ2g5NQQvPCYdQkKX3RC9OXzExLkYM8GU2351V07j7
+ gIjgXgk1kyB6v3L3I36S5gXL+JE5w6Y=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODAzMDE2MiBTYWx0ZWRfXzbwzjl7Imv6O
+ ljJx0dKKD68iUAG1JMr2OOLZ4o2747jP/nyYv/MAtZoiES5jPy97iQtmvySRbQjp8X5eQnHEYej
+ qWgLeFQyiBFFWVXga2Tfs3e8LpdyCZXDq//Mwwb5KdLQRzb/M+xLXjyqh75hDOFEoP6YVz4F2rs
+ f0LUwCFylnIYwR2Jq+6jjk/WOmZjiW4/BmeGc6FysKz/0Ky/X/tKVZYH+Cq9577f1QaB+pyXpB1
+ wT1iro0mhnh6ke7yssVjDPMMD37vAXeEIDGIzEt9x4OvwATq9Tsup2tHyn5K79BZy/3VHHbomRk
+ nZSDcNwICRDXkhd1tHTNHl6payLQWhxmMRrfO7RlCOsPIs4DxUj70YBzy9PalEBS3Fhi9wZZR12
+ XC8g3KN/cJTpitplh/Fb2HnonRyIF5w+CXglNn1njqGcbMHdjLZBoiO7TQ3XRyxiFevLG/oFH8q
+ 8ECZyd4ad1HfxyEKcTg==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-08-03_04,2026-08-03_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0 impostorscore=0 clxscore=1011 priorityscore=1501 suspectscore=0
- malwarescore=0 adultscore=0 lowpriorityscore=0 phishscore=0 spamscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608030162
+ bulkscore=0 clxscore=1011 lowpriorityscore=0 priorityscore=1501
+ suspectscore=0 adultscore=0 spamscore=0 malwarescore=0 impostorscore=0
+ phishscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2608030162
 
-afiucv_netdev_event() traverses iucv_sk_list without holding
-iucv_sk_list.lock.
+drivers/s390/net/fsm.h contains comments starting with '/**'
+that don't follow kernel-doc syntax, triggering warnings when
+running:
 
-A concurrent socket teardown can unlink and free an af_iucv socket via
-iucv_sock_kill() while the netdevice notifier path is still traversing
-the list, resulting in a use-after-free when dereferencing the socket.
+  scripts/kernel-doc -none -Wall drivers/s390/net/fsm*
 
-syzbot reported a KASAN slab-use-after-free triggered from the netdevice
-notifier path:
+Example warning:
+Warning: drivers/s390/net/fsm.h:14 This comment starts with '/**', but isn't a kernel-doc comment. Refer to Documentation/doc-guide/kernel-doc.rst
+ * Define this to get debugging messages.
 
-  BUG: KASAN: slab-use-after-free in afiucv_netdev_event+0x166/0x570
-  Read of size 8 at addr 001a54009dcda368 by task syz.3.24/516
+Convert function declarations to proper kernel-doc format per
+Documentation/doc-guide/kernel-doc.rst. Change debug macros and
+internal structure comments from '/**' to '/*' since they are
+not part of the public API. Also add missing parameter name in
+fsm_settimer() declaration to match the implementation. Remove
+redundant extern keywords from all function declarations.
 
-  Call Trace:
-    afiucv_netdev_event+0x166/0x570 net/iucv/af_iucv.c:2193
-    notifier_call_chain+0x18e/0x510 kernel/notifier.c:85
-    call_netdevice_notifiers net/core/dev.c:2301 [inline]
-    __dev_close_many+0x1c6/0x680 net/core/dev.c:1747
-    unregister_netdevice_many_notify+0x9b6/0x2650 net/core/dev.c:12388
-    unregister_netdevice_queue+0x392/0x3d0 net/core/dev.c:12291
-    __tun_detach+0xa50/0x1990 drivers/net/tun.c:621
+No functional change.
 
-  Allocated by task 521:
-    sk_prot_alloc+0xd2/0x230 net/core/sock.c:2247
-    sk_alloc+0x48/0x680 net/core/sock.c:2303
-    iucv_sock_alloc+0x4e/0x710 net/iucv/af_iucv.c:456
-    iucv_sock_create+0x114/0x180 net/iucv/af_iucv.c:2254
-
-  Freed by task 519:
-    kfree+0x164/0x500 mm/slub.c:6561
-    iucv_sock_release+0x12e/0x150 net/iucv/af_iucv.c:1482
-    sock_close+0xa4/0x230 net/socket.c:1514
-
-Protect the list traversal with the existing read-side lock.
-Use read_lock_bh()/read_unlock_bh() to synchronize with
-write_lock_bh()-protected updates to iucv_sk_list.
-
-Fixes: 9fbd87d41392 ("af_iucv: handle netdev events")
-Cc: stable@vger.kernel.org
-Suggested-by: Hidayath Khan <hidayath@linux.ibm.com>
+Reviewed-by: Aswin Karuvally <aswin@linux.ibm.com>
+Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
 Signed-off-by: Nagamani PV <nagamani@linux.ibm.com>
 
 ---
- net/iucv/af_iucv.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/s390/net/fsm.h | 152 +++++++++++++++++++++--------------------
+ 1 file changed, 78 insertions(+), 74 deletions(-)
 
-diff --git a/net/iucv/af_iucv.c b/net/iucv/af_iucv.c
-index ea047bab65e7..034039c50941 100644
---- a/net/iucv/af_iucv.c
-+++ b/net/iucv/af_iucv.c
-@@ -2213,6 +2213,7 @@ static int afiucv_netdev_event(struct notifier_block *this,
- 	switch (event) {
- 	case NETDEV_REBOOT:
- 	case NETDEV_GOING_DOWN:
-+		read_lock_bh(&iucv_sk_list.lock);
- 		sk_for_each(sk, &iucv_sk_list.head) {
- 			iucv = iucv_sk(sk);
- 			if ((iucv->hs_dev == event_dev) &&
-@@ -2223,6 +2224,7 @@ static int afiucv_netdev_event(struct notifier_block *this,
- 				sk->sk_state_change(sk);
- 			}
- 		}
-+		read_unlock_bh(&iucv_sk_list.lock);
- 		break;
- 	case NETDEV_DOWN:
- 	case NETDEV_UNREGISTER:
+diff --git a/drivers/s390/net/fsm.h b/drivers/s390/net/fsm.h
+index 16dc071a2973..6a0b47ca87f0 100644
+--- a/drivers/s390/net/fsm.h
++++ b/drivers/s390/net/fsm.h
+@@ -11,18 +11,18 @@
+ #include <linux/string.h>
+ #include <linux/atomic.h>
+ 
+-/**
++/*
+  * Define this to get debugging messages.
+  */
+ #define FSM_DEBUG         0
+ 
+-/**
++/*
+  * Define this to get debugging massages for
+  * timer handling.
+  */
+ #define FSM_TIMER_DEBUG   0
+ 
+-/**
++/*
+  * Define these to record a history of
+  * Events/Statechanges and print it if a
+  * action_function is not found.
+@@ -32,12 +32,12 @@
+ 
+ struct fsm_instance_t;
+ 
+-/**
++/*
+  * Definition of an action function, called by a FSM
+  */
+ typedef void (*fsm_function_t)(struct fsm_instance_t *, int, void *);
+ 
+-/**
++/*
+  * Internal jump table for a FSM
+  */
+ typedef struct {
+@@ -49,7 +49,7 @@ typedef struct {
+ } fsm;
+ 
+ #if FSM_DEBUG_HISTORY
+-/**
++/*
+  * Element of State/Event history used for debugging.
+  */
+ typedef struct {
+@@ -58,7 +58,7 @@ typedef struct {
+ } fsm_history;
+ #endif
+ 
+-/**
++/*
+  * Representation of a FSM
+  */
+ typedef struct fsm_instance_t {
+@@ -75,7 +75,7 @@ typedef struct fsm_instance_t {
+ #endif
+ } fsm_instance;
+ 
+-/**
++/*
+  * Description of a state-event combination
+  */
+ typedef struct {
+@@ -84,7 +84,7 @@ typedef struct {
+ 	fsm_function_t function;
+ } fsm_node;
+ 
+-/**
++/*
+  * Description of a FSM Timer.
+  */
+ typedef struct {
+@@ -95,50 +95,52 @@ typedef struct {
+ } fsm_timer;
+ 
+ /**
+- * Creates an FSM
++ * init_fsm - Creates a finite state machine
++ * @name: Name of this instance for logging purposes
++ * @state_names: Array of names for all states for logging purposes
++ * @event_names: Array of names for all events for logging purposes
++ * @nr_states: Number of states for this instance
++ * @nr_events: Number of events for this instance
++ * @tmpl: Pointer to fsm_node array describing this FSM
++ * @tmpl_len: Number of entries in the tmpl array
++ * @order: GFP flags for memory allocation (e.g. GFP_KERNEL)
+  *
+- * @param name        Name of this instance for logging purposes.
+- * @param state_names An array of names for all states for logging purposes.
+- * @param event_names An array of names for all events for logging purposes.
+- * @param nr_states   Number of states for this instance.
+- * @param nr_events   Number of events for this instance.
+- * @param tmpl        An array of fsm_nodes, describing this FSM.
+- * @param tmpl_len    Length of the describing array.
+- * @param order       Parameter for allocation of the FSM data structs.
++ * Allocates and initializes a finite state machine instance with the
++ * specified states, events, and transition table.
++ *
++ * Return: Pointer to initialized FSM instance, or NULL on failure
+  */
+-extern fsm_instance *
+-init_fsm(char *name, const char **state_names,
+-	 const char **event_names,
+-	 int nr_states, int nr_events, const fsm_node *tmpl,
+-	 int tmpl_len, gfp_t order);
++fsm_instance *init_fsm(char *name, const char **state_names,
++		       const char **event_names, int nr_states,
++		       int nr_events, const fsm_node *tmpl,
++		       int tmpl_len, gfp_t order);
+ 
+ /**
+- * Releases an FSM
++ * kfree_fsm - Releases a finite state machine
++ * @fi: Pointer to FSM instance, previously created with init_fsm()
+  *
+- * @param fi Pointer to an FSM, previously created with init_fsm.
++ * Frees all memory associated with the FSM instance.
+  */
+-extern void kfree_fsm(fsm_instance *fi);
++void kfree_fsm(fsm_instance *fi);
+ 
+ #if FSM_DEBUG_HISTORY
+-extern void
+-fsm_print_history(fsm_instance *fi);
++void fsm_print_history(fsm_instance *fi);
+ 
+-extern void
+-fsm_record_history(fsm_instance *fi, int state, int event);
++void fsm_record_history(fsm_instance *fi, int state, int event);
+ #endif
+ 
+ /**
+- * Emits an event to a FSM.
+- * If an action function is defined for the current state/event combination,
+- * this function is called.
++ * fsm_event - Emits an event to a finite state machine
++ * @fi: Pointer to FSM which should receive the event
++ * @event: The event to be delivered
++ * @arg: Generic argument, passed to the action function
+  *
+- * @param fi    Pointer to FSM which should receive the event.
+- * @param event The event do be delivered.
+- * @param arg   A generic argument, handed to the action function.
++ * If an action function is defined for the current state/event
++ * combination, that function is called with the provided arguments.
+  *
+- * @return      0  on success,
+- *              1  if current state or event is out of range
+- *              !0 if state and event in range, but no action defined.
++ * Return:
++ * * 0 - Success, action function was called
++ * * 1 - State/event out of range, or no action function defined
+  */
+ static inline int
+ fsm_event(fsm_instance *fi, int event, void *arg)
+@@ -182,11 +184,12 @@ fsm_event(fsm_instance *fi, int event, void *arg)
+ }
+ 
+ /**
+- * Modifies the state of an FSM.
+- * This does <em>not</em> trigger an event or calls an action function.
++ * fsm_newstate - Modifies the state of a finite state machine
++ * @fi: Pointer to FSM
++ * @newstate: The new state for this FSM
+  *
+- * @param fi    Pointer to FSM
+- * @param state The new state for this FSM.
++ * This does not trigger an event or call an action function.
++ * Wakes up any processes waiting on the FSM's wait queue.
+  */
+ static inline void
+ fsm_newstate(fsm_instance *fi, int newstate)
+@@ -203,11 +206,10 @@ fsm_newstate(fsm_instance *fi, int newstate)
+ }
+ 
+ /**
+- * Retrieves the state of an FSM
+- *
+- * @param fi Pointer to FSM
++ * fsm_getstate - Retrieves the current state of a finite state machine
++ * @fi: Pointer to FSM
+  *
+- * @return The current state of the FSM.
++ * Return: Current state number
+  */
+ static inline int
+ fsm_getstate(fsm_instance *fi)
+@@ -216,51 +218,53 @@ fsm_getstate(fsm_instance *fi)
+ }
+ 
+ /**
+- * Retrieves the name of the state of an FSM
+- *
+- * @param fi Pointer to FSM
++ * fsm_getstate_str - Retrieves the name of the current FSM state
++ * @fi: Pointer to FSM
+  *
+- * @return The current state of the FSM in a human readable form.
++ * Return: State name string, or "Invalid" if state is out of range
+  */
+-extern const char *fsm_getstate_str(fsm_instance *fi);
++const char *fsm_getstate_str(fsm_instance *fi);
+ 
+ /**
+- * Initializes a timer for an FSM.
+- * This prepares an fsm_timer for usage with fsm_addtimer.
++ * fsm_settimer - Initializes a timer for a finite state machine
++ * @fi: Pointer to FSM
++ * @this: The timer to be initialized
+  *
+- * @param fi    Pointer to FSM
+- * @param timer The timer to be initialized.
++ * Prepares an fsm_timer for usage with fsm_addtimer().
+  */
+-extern void fsm_settimer(fsm_instance *fi, fsm_timer *);
++void fsm_settimer(fsm_instance *fi, fsm_timer *this);
+ 
+ /**
+- * Clears a pending timer of an FSM instance.
++ * fsm_deltimer - Clears a pending timer of an FSM instance
++ * @timer: The timer to clear
+  *
+- * @param timer The timer to clear.
++ * Stops and removes the timer. Safe to call on an inactive timer.
+  */
+-extern void fsm_deltimer(fsm_timer *timer);
++void fsm_deltimer(fsm_timer *timer);
+ 
+ /**
+- * Adds and starts a timer to an FSM instance.
++ * fsm_addtimer - Adds and starts a timer for an FSM instance
++ * @timer: The timer to be added (timer->fi must point to the FSM instance)
++ * @millisec: Duration in milliseconds after which the timer expires
++ * @event: Event to trigger when timer expires
++ * @arg: Generic argument provided to the event handler
+  *
+- * @param timer    The timer to be added. The field fi of that timer
+- *                 must have been set to point to the instance.
+- * @param millisec Duration, after which the timer should expire.
+- * @param event    Event, to trigger if timer expires.
+- * @param arg      Generic argument, provided to expiry function.
++ * Starts a timer that will trigger the specified event after the given
++ * duration. The timer must have been initialized with fsm_settimer().
+  *
+- * @return         0 on success, -1 if timer is already active.
++ * Return: Always returns 0
+  */
+-extern int fsm_addtimer(fsm_timer *timer, int millisec, int event, void *arg);
++int fsm_addtimer(fsm_timer *timer, int millisec, int event, void *arg);
+ 
+ /**
+- * Modifies a timer of an FSM.
++ * fsm_modtimer - Modifies a timer of a finite state machine
++ * @timer: The timer to modify
++ * @millisec: New duration in milliseconds after which the timer expires
++ * @event: Event to trigger when timer expires
++ * @arg: Generic argument provided to the event handler
+  *
+- * @param timer    The timer to modify.
+- * @param millisec Duration, after which the timer should expire.
+- * @param event    Event, to trigger if timer expires.
+- * @param arg      Generic argument, provided to expiry function.
++ * Stops the existing timer and restarts it with new parameters.
+  */
+-extern void fsm_modtimer(fsm_timer *timer, int millisec, int event, void *arg);
++void fsm_modtimer(fsm_timer *timer, int millisec, int event, void *arg);
+ 
+ #endif /* _FSM_H_ */
 -- 
 2.53.0
 
