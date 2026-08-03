@@ -1,45 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 31C73395266;
-	Mon,  3 Aug 2026 16:51:50 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28A16361948;
+	Mon,  3 Aug 2026 16:54:30 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785775912; cv=none; b=VCvOelQunc5EeBjzIWswpBDbUya2xiUJQr+zAB9iSdmM2WSseHQDW6Y8+f2The3G9AoxomZTKkJO1kyXVxJIw/REOEA1DktY7uNAnzKuGIkErTi6gwG+p9UOdZBhvKtccgzGlcV1Vt+80dRUnDGpUNHfmsxCPIxh+sZQUiMNuF8=
+	t=1785776072; cv=none; b=GlUjKeNPJ06G/1Fkm32/5LQbvnLC9kv+EAddnbQeZjKBPt8epQ+MmHwkfk+F8cAsJp0JlB8L8xY8XHRGtuIVfgCwBDY74eexBzGy0Dhbx+AwhZ2OdN6bw1b0fLZRMQLG3FY6s+F5ukJS2pz2ZQg3I0s4h5uQvslGTj8HrWpx8gg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785775912; c=relaxed/simple;
-	bh=cOvy2782lrXBA+cACAXYHzyIv88J6EV/DJSqvAf5B4k=;
+	s=arc-20240116; t=1785776072; c=relaxed/simple;
+	bh=naM15WPB02gHNFVZOgz8+wWa2XGuuPShyOcwY8D5vVs=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=Hn89zOxktH20+5zoc1YisuEeF4lRCWAPc9BJTC0ilLW8YlsDUr08bPzbx2I/St9CUyp/mZHJUHjSUePusqo8xKlAE8LI2Ger07z/fsO2CZatDKvqZIk4lu/dAz+akm9fUhbsqJVzFDPn18iVWxVFPbEks/sm38FHicDI61tOQG4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SiiTrIEn; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=suGuud5nH5K8cNd5sPKZ5QKlukk6P2MyGlwNO0cZOHXoEKJyxAF/LNcY2JhZs/+DWrqfNOp2RRvht0HDWmTw5Y8EC+cHNBD0kR/83oTsijsfRe5WPB1wGD7tOOJyZobZOP/MPhrlzqwyD3jn2QVAs4lcb/hTGU9skSD1rb9R8bg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=k08G6HC8; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SiiTrIEn"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E2461F000E9;
-	Mon,  3 Aug 2026 16:51:50 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="k08G6HC8"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 684181F000E9;
+	Mon,  3 Aug 2026 16:54:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785775910;
-	bh=5FZZhjkdxLQE0xiSbo1FR5kuHaaKn2HeuAbrlB1SOV0=;
+	s=k20260515; t=1785776070;
+	bh=Po4NA3pbMN3nO040zLmXZgjiPAp6wU3U16Ti98zzWnU=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=SiiTrIEnsGqie/vCRqdj7o+mZS6k9QemzjEDsNusfDL3+liSHGWdfMr939RUQNmlR
-	 +sVIYs9+kD+lRKFGvZwUuom5o/w6l6/dx7z/TQNb9MmavovFTPJnZKu8ifZhHJUov1
-	 uLObTPONUTC6iaYNtBWGQbwAemxMIBAKY4DLRQPlS1gyO9hJSWg1gPgfXkpL7By3d3
-	 EshtQE+KsIVrqRrx6wYqGPi26NsKE73ROLIzmrOKUQv6Sz5flliyki6M6gGtAnhKaR
-	 gJRBQH7cv88t22Msi5CBMHpINOyxnlhb9GPQAT4FbZ8jjBcfBhdgC0aJqiw05HXpWJ
-	 v635lUK9l0Ofg==
+	b=k08G6HC8nz0XBOvjix5PpmUN1jlHeLC09i/IiXjeBW9vHtAQi+wlV/oxH0aG3GcLq
+	 rfLjMWlYyhbgYFMIOJVQEorf6ihfVswD6BuoDerBobJm/0H+42PXxKw78TNNxKrsR8
+	 2Yy99AfL3BMusM92zP0y/aRAR76cCRFf2SkO0yGZhNROhnqz1QsWxQM5nDp2Pfk2c2
+	 Fu3W8FQwFzuwgOTbc7X/lr+TLqpwsWODAqa8URDtmqex6Mgo1UQ75fDTuORQBmlqF2
+	 Ivwn+LPcKkh6h/5naiNPQOf7pMKDzM+kRw1wTDg54Jc0/sem0yTlou7uu4mSYJUkyt
+	 jo/Lo3lUfSWGA==
 From: sashiko-bot@kernel.org
-Subject: Re: [GIT PULL v1 10/23] s390/vfio_ccw: Implement a crw lock
+Subject: Re: [GIT PULL v1 09/23] s390/vfio_ccw: Selectively expand io_mutex
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>
-Cc: kvm@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, "Vasily
- Gorbik" <gor@linux.ibm.com>
-In-Reply-To: <20260803160924.236807-11-imbrenda@linux.ibm.com>
+Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, kvm@vger.kernel.org, "Vasily
+ Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org
+In-Reply-To: <20260803160924.236807-10-imbrenda@linux.ibm.com>
 References: <20260803160924.236807-1-imbrenda@linux.ibm.com>
- <20260803160924.236807-11-imbrenda@linux.ibm.com>
+ <20260803160924.236807-10-imbrenda@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 03 Aug 2026 16:51:48 +0000
-Message-Id: <20260803165150.1E2461F000E9@smtp.kernel.org>
+Date: Mon, 03 Aug 2026 16:54:29 +0000
+Message-Id: <20260803165430.684181F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -50,158 +49,110 @@ Thank you for your contribution! Sashiko AI review found 3 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [High] Missing synchronization when updating eventfd triggers leads to a =
-potential Use-After-Free of the `eventfd_ctx` during `eventfd_signal()`.
-- [High] Concurrent execution of asynchronous CSS hardware callbacks and md=
-ev removal allows a Use-After-Free of the `vfio_ccw_private` structure.
-- [Medium] The `eventfd_ctx` for device triggers is leaked when the device =
-file descriptor is closed without explicitly disabling the IRQs.
+- [High] Concurrent modification of the `private->crw` linked list without =
+proper synchronization, risking list corruption.
+- [High] Missing synchronization between CSS callbacks and `vfio_ccw_mdev_r=
+emove()` causes use-after-free of `private`.
+- [Medium] Valid CRW events are permanently dropped and lost if userspace p=
+rovides an invalid read offset.
 --
 
---- Patch [10]: [GIT PULL v1 10/23] s390/vfio_ccw: Implement a crw lock ---
-commit e6c7aa37724a25bba44b60d5d9939f115e04276a
+--- Patch [9]: [GIT PULL v1 09/23] s390/vfio_ccw: Selectively expand io_mut=
+ex ---
+commit 0dffa46dd03162ef88bfa6bbfa42490f8f336394
 Author: Eric Farman <farman@linux.ibm.com>
 
-s390/vfio_ccw: Implement a crw lock
+s390/vfio_ccw: Selectively expand io_mutex
 
-Unlike the channel_program struct, which covers synchronous I/O
-submissions and asynchronous interrupts, the CRW region relies
-exclusively on asynchronous events coming from hardware.
-
-Implement a lock to manage the list of those payloads, to ensure
-they are read cohesively.
+The io_mutex was defined to serialize the io_regions, but then has
+also sort of been associated with the I/O themselves because of
+the close relationship they share. This patch expands the scope of
+io_mutex to close these remaining windows.
 
 Cc: stable@vger.kernel.org
 
-> diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_=
-drv.c
-> index 757ff5b2556e3..ab6b518cc353f 100644
-> --- a/drivers/s390/cio/vfio_ccw_drv.c
-> +++ b/drivers/s390/cio/vfio_ccw_drv.c
-> @@ -118,11 +118,14 @@ void vfio_ccw_sch_io_todo(struct work_struct *work)
->  void vfio_ccw_crw_todo(struct work_struct *work)
->  {
->  	struct vfio_ccw_private *private;
-> +	unsigned long flags;
+> diff --git a/drivers/s390/cio/vfio_ccw_chp.c b/drivers/s390/cio/vfio_ccw_=
+chp.c
+> index f3015132d4b5f..9269b54f5cfd4 100644
+> --- a/drivers/s390/cio/vfio_ccw_chp.c
+> +++ b/drivers/s390/cio/vfio_ccw_chp.c
+> @@ -98,13 +98,13 @@ static ssize_t vfio_ccw_crw_region_read(struct vfio_c=
+cw_private *private,
+>  	if (pos + count > sizeof(*region))
+>  		return -EINVAL;
 > =20
->  	private =3D container_of(work, struct vfio_ccw_private, crw_work);
+> +	mutex_lock(&private->io_mutex);
+>  	crw =3D list_first_entry_or_null(&private->crw,
+>  				       struct vfio_ccw_crw, next);
 > =20
-> +	spin_lock_irqsave(&private->crw_lock, flags);
->  	if (!list_empty(&private->crw) && private->crw_trigger)
->  		eventfd_signal(private->crw_trigger);
-> +	spin_unlock_irqrestore(&private->crw_lock, flags);
->  }
-
-[Severity: High]
-This is a pre-existing issue, but does this adequately protect against
-concurrent modification of the eventfd context?
-
-While this patch adds crw_lock around the read and signal path here in
-vfio_ccw_crw_todo(), is the writer side in vfio_ccw_mdev_set_irqs()
-also protected?
-
-If vfio_ccw_mdev_set_irqs() replaces or unsets the eventfd without locks:
-
-vfio_ccw_mdev_set_irqs()
-    if (*ctx)
-        eventfd_ctx_put(*ctx);
-    *ctx =3D efdctx;
-   =20
-Could a concurrent execution of vfio_ccw_crw_todo() read the pointer,
-have the context freed by vfio_ccw_mdev_set_irqs(), and then use it in
-eventfd_signal(), resulting in a use-after-free?
-
-[ ... ]
-
-> @@ -286,6 +289,7 @@ static void vfio_ccw_queue_crw(struct vfio_ccw_privat=
-e *private,
->  			       unsigned int rsid)
->  {
->  	struct vfio_ccw_crw *crw;
-> +	unsigned long flags;
-> =20
->  	/*
->  	 * If unable to allocate a CRW, just drop the event and
->  	 * carry on.  The guest will either see a later one or
->  	 * learn when it issues its own store subchannel.
->  	 */
->  	crw =3D kzalloc_obj(*crw, GFP_ATOMIC);
->  	if (!crw)
->  		return;
-> =20
->  	/*
->  	 * Build the CRW based on the inputs given to us.
->  	 */
->  	crw->crw.rsc =3D rsc;
->  	crw->crw.erc =3D erc;
->  	crw->crw.rsid =3D rsid;
-> =20
-> +	spin_lock_irqsave(&private->crw_lock, flags);
->  	list_add_tail(&crw->next, &private->crw);
-> +	spin_unlock_irqrestore(&private->crw_lock, flags);
->  	queue_work(vfio_ccw_work_q, &private->crw_work);
->  }
-
-[Severity: High]
-This is a pre-existing issue, but could vfio_ccw_queue_crw() dereference
-a freed private pointer during device removal?
-
-If an asynchronous CSS hardware callback like vfio_ccw_chp_event() fetches
-the private struct locklessly, and concurrently the mdev is removed via
-sysfs:
-
-vfio_ccw_mdev_remove()
-    dev_set_drvdata(&parent->dev, NULL);
-    vfio_put_device(&private->vdev);
-   =20
-Since there is no synchronization stopping the CSS callback, could the
-private structure be freed before vfio_ccw_chp_event() calls
-vfio_ccw_queue_crw(), leading to a use-after-free when acquiring the
-crw_lock here?
-
-[ ... ]
-
-> diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_=
-ops.c
-> index 1df6d649565b8..5ce91285c7d52 100644
-> --- a/drivers/s390/cio/vfio_ccw_ops.c
-> +++ b/drivers/s390/cio/vfio_ccw_ops.c
-> @@ -131,6 +132,7 @@ static void vfio_ccw_mdev_release_dev(struct vfio_dev=
-ice *vdev)
->  	struct vfio_ccw_private *private =3D
->  		container_of(vdev, struct vfio_ccw_private, vdev);
->  	struct vfio_ccw_crw *crw, *temp;
-> +	unsigned long flags;
-> =20
->  	/*
->  	 * Ensure these work items are fully drained, so none can
-> @@ -146,10 +148,12 @@ static void vfio_ccw_mdev_release_dev(struct vfio_d=
-evice *vdev)
->  	cancel_work_sync(&private->crw_work);
->  	flush_work(&private->notoper_work);
-> =20
-> +	spin_lock_irqsave(&private->crw_lock, flags);
->  	list_for_each_entry_safe(crw, temp, &private->crw, next) {
+>  	if (crw)
 >  		list_del(&crw->next);
->  		kfree(crw);
+
+[Severity: High]
+This isn't a bug introduced by this patch, but does this list_del() lack
+proper synchronization?
+
+It appears vfio_ccw_crw_region_read() dequeues from private->crw while
+only holding the sleepable io_mutex. If an atomic channel path event
+triggers vfio_ccw_chp_event() concurrently, it will call
+vfio_ccw_queue_crw(), which locklessly adds to private->crw using
+list_add_tail().
+
+Since io_mutex is ignored by the atomic queue path, can this concurrent
+access corrupt the linked list if userspace aggressively reads the CRW
+region while hardware events are generated?
+
+> -	mutex_lock(&private->io_mutex);
+>  	if (i >=3D private->num_regions) {
+>  		ret =3D -EINVAL;
+>  		goto out;
 >  	}
-> +	spin_unlock_irqrestore(&private->crw_lock, flags);
-> =20
->  	kmem_cache_free(vfio_ccw_crw_region, private->crw_region);
->  	kmem_cache_free(vfio_ccw_schib_region, private->schib_region);
 
 [Severity: Medium]
-This isn't a bug introduced by this patch, but does closing the device leak
-the eventfd contexts allocated for device triggers?
+This is a pre-existing issue, but are valid CRW events permanently dropped
+if userspace provides an invalid read offset?
 
-When userspace configures IRQs via VFIO_DEVICE_SET_IRQS, eventfd_ctx_fdget()
-increments the reference count of the eventfd context.
+The bounds check for the region index occurs after the event has already
+been dequeued from private->crw. If the offset is invalid, the event seems
+to be discarded and later freed on failure without delivery.
 
-If userspace closes the device without explicitly disabling the IRQs first,
-vfio_ccw_mdev_release_dev() is invoked. Is it necessary to call
-eventfd_ctx_put() here to release the references to private->io_trigger,
-private->crw_trigger, and private->req_trigger?
+Should state mutations happen after all arguments are validated to prevent
+this resource loss?
+
+[ ... ]
+> diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_=
+drv.c
+> index c197ad5ab5805..757ff5b2556e3 100644
+> --- a/drivers/s390/cio/vfio_ccw_drv.c
+> +++ b/drivers/s390/cio/vfio_ccw_drv.c
+[ ... ]
+
+[Severity: High]
+This is a pre-existing issue, but is there a missing synchronization step
+between CSS callbacks and vfio_ccw_mdev_remove() that causes a
+use-after-free?
+
+In drivers/s390/cio/vfio_ccw_ops.c, vfio_ccw_mdev_remove() clears drvdata
+and drops the final reference to the device:
+
+vfio_ccw_mdev_remove() {
+    ...
+    dev_set_drvdata(&parent->dev, NULL);
+    vfio_put_device(&private->vdev);
+}
+
+If an administrator initiates an mdev removal concurrently with a hardware
+event, vfio_ccw_sch_event() in drivers/s390/cio/vfio_ccw_drv.c reads the
+private pointer locklessly via dev_get_drvdata():
+
+vfio_ccw_sch_event() {
+    ...
+    struct vfio_ccw_private *private =3D dev_get_drvdata(&parent->dev);
+}
+
+If the CSS callback is delayed after reading the pointer, could it execute
+vfio_ccw_fsm_event() on the freed private structure?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260803160924.2368=
-07-1-imbrenda@linux.ibm.com?part=3D10
+07-1-imbrenda@linux.ibm.com?part=3D9
