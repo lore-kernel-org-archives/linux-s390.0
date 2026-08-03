@@ -1,60 +1,60 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A07182E7365;
-	Mon,  3 Aug 2026 14:08:30 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A43C1403AE6;
+	Mon,  3 Aug 2026 14:13:54 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785766112; cv=none; b=Zpkho1qIx9RkNmocSe4imMZn9TZqm1ZqSWqwyA2g42GGqD0p7hpPzcfjXEl3GyCnLoQbvuiagKK7QMjgiQOJyURQwaPt6AYfilJhmq+CUmGWPjOKYDNIQmIRRS+LdoQAjQbvx9JDjDwnS3SfDXcKL3Flrqh4DT2FJ3Bqv5mHXO4=
+	t=1785766436; cv=none; b=ipGDWTFpSs9xOptPPoy7uS4AGlmd2vOf8n2IWcZa1c55jLpwZa+WyJFrbDOj19DOqfmkEj3tHtsd3Yl4L2ICAuT2t2HQ4JQ2n7XdPbNe3eaaP/W3eAlGFKGpzmDN8zpcs+7sWEUyhIji2ebYrg6SWbqJot3o3CPGnaIqlHDujWw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785766112; c=relaxed/simple;
-	bh=L8/fdCorWeJNAHphY2bA84IhAj9ziQdgK1NlLSQHFkA=;
+	s=arc-20240116; t=1785766436; c=relaxed/simple;
+	bh=IUgiuI5dQu8yeCl3P+r02WgX/nsq39eQuMppI51MJVM=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=s4i8CVDdTy/auwKF2AE9yisGAysI1tHE34s0EytGcjKCshueNLNN9gnpNk9vBdJBtOBZrhVByEZ6geuagCQ6TcvOvvN2U/kfXbMxrN1Pux/V2Lhz7H+k4KsSAwGJ1QzHGv4CAq6+eOo+fAwmrr13GULZyiVR0msxld83fwDTgvc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=de.ibm.com; spf=pass smtp.mailfrom=de.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=U+5ERiZ6; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=de.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=de.ibm.com
+	 In-Reply-To:Content-Type; b=WarP/FmoDvYHEtS8H0Pv9VDlbdf125lxUqpMH7lgcjFPQfCzw8exfgCPGZpksrEacjXHQ4YXo5JJ1KDertPb1P/C6Cf0Zt7hbZGvztxJXsD4A1Aqi5bnHxy4nvprqpKo732qyIAlQdNEmrveRSnYjw3FuKW7lmjyg0bYU9om9MY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=l4yqY2A6; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="U+5ERiZ6"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 673Dlg052194645;
-	Mon, 3 Aug 2026 14:08:28 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="l4yqY2A6"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 673DlX3Y2214380;
+	Mon, 3 Aug 2026 14:13:52 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=oKSiox
-	KGi33/OZpp6NIG9X1mKxupjKgxJWpLRZUGk4w=; b=U+5ERiZ6Uym+prs9N2CatU
-	328Fm8r+gVCBZasHAj/dAeAT6eoKYMXfYiRk2VROdZjsRC0ZABMstEtyn46IeAq1
-	on5g7SLdVfLtNy5pfFEpwKYwDHOh/RM8/hYyrv46i7tFAT1auTUkyggShw7Pz4T6
-	f/ptwepUxJjmSTL7Z5VwLarkCDA3r0RCZ+DlibocL55VzgWwWoaULUJdRDVtcZJW
-	h29vzRTBNkWBCH1VJWG/Z+63S5ftgEhOATHbyxrmx6Lbc4CKIPvLGdNnjSCBdlm2
-	/G/kHcBC5lQ6ElT70Iyg3IGC30T4ZThWe0cRx3AvsaKxJfsuXIOQClsVwznTKF1A
+	:message-id:mime-version:references:subject:to; s=pp1; bh=oL0oe0
+	a1m84O8qmrj0n3N4XdYR2npE4MkJlokWlkV6U=; b=l4yqY2A6rx+sSJ1ORrNUyp
+	HN7riL44beZQ5k/PVL8OMH1MKp97H37EFZ9C5abNefYwyJg2W0/zwF1ia59zDNcd
+	37BXXxXbwtQ3gihCdcLFyNQ4ouXNoa0il+H569odSvUMgbjkHuiO6+ZVOIy0PrTs
+	UDDw4MEDhvir6s1FtP88gSJUUfHADdnZHxPUwv0ztrvDKM8tGTnOGLFzqVJRuobK
+	TAj/zobFJy49EG+vfiyLFwj3IxxLe5HeWIgDh8tsuGgWkqTmp/2h7uSnM150/F8A
+	TW78MFNTy9UtsO+8DMjFlH+0fzB7S15vHNGu459+C08BJ89t4uE/cEpjH+etjVbQ
 	==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fs8a3s6ch-1
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fs8h4s6qh-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 03 Aug 2026 14:08:28 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 673DuHI8008282;
-	Mon, 3 Aug 2026 14:08:27 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fsv4jwq2g-1
+	Mon, 03 Aug 2026 14:13:52 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 673EDO5Z003966;
+	Mon, 3 Aug 2026 14:13:51 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fsugvwtgq-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 03 Aug 2026 14:08:27 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 673E8N2I32440716
+	Mon, 03 Aug 2026 14:13:51 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 673EDixj30015926
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 3 Aug 2026 14:08:23 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 19A4420049;
-	Mon,  3 Aug 2026 14:08:23 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B09B220040;
-	Mon,  3 Aug 2026 14:08:22 +0000 (GMT)
-Received: from [9.224.77.173] (unknown [9.224.77.173])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon,  3 Aug 2026 14:08:22 +0000 (GMT)
-Message-ID: <09e79918-6f3d-4990-a8ac-3f4a5e9447d6@de.ibm.com>
-Date: Mon, 3 Aug 2026 16:08:22 +0200
+	Mon, 3 Aug 2026 14:13:44 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B3A412004B;
+	Mon,  3 Aug 2026 14:13:44 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8E92120043;
+	Mon,  3 Aug 2026 14:13:44 +0000 (GMT)
+Received: from [9.224.88.46] (unknown [9.224.88.46])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Mon,  3 Aug 2026 14:13:44 +0000 (GMT)
+Message-ID: <ba672a56-6177-44c5-a4a1-4c381fa90f5b@linux.ibm.com>
+Date: Mon, 3 Aug 2026 16:13:44 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -65,48 +65,88 @@ User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH v8 02/13] KVM: s390: Do not free SCA if it was not
  allocated
 To: Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-kernel@vger.kernel.org
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, frankja@linux.ibm.com,
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, borntraeger@de.ibm.com,
         david@kernel.org, seiden@linux.ibm.com, nrb@linux.ibm.com,
         schlameuss@linux.ibm.com, gra@linux.ibm.com
 References: <20260803124040.126471-1-imbrenda@linux.ibm.com>
  <20260803124040.126471-3-imbrenda@linux.ibm.com>
 Content-Language: en-US
-From: Christian Borntraeger <borntraeger@de.ibm.com>
+From: Janosch Frank <frankja@linux.ibm.com>
+Autocrypt: addr=frankja@linux.ibm.com; keydata=
+ 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
 In-Reply-To: <20260803124040.126471-3-imbrenda@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=E6P9Y6dl c=1 sm=1 tr=0 ts=6a70a0dc cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODAzMDEyNCBTYWx0ZWRfXzMEkULtn0Jjw
+ 7vQ5tRgJcdPKUkqPZpUjt4jg4av1QGZOcqyIZ7nQQvwYsZi0KpJQaWFgy1DSOEfNahTkB/YS3bV
+ Wuk5Wdjn6GqWn8rE+/SDzz+f2xWsfL0=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODAzMDEyNCBTYWx0ZWRfX+NwEMeJbinrm
+ 7sUcVBu2V4c6aeF5lzqJ4ox6ltq7/Wymi/aYikkKf+ELxPUYRNPvO5rDQsF5xg0jxCXEwH+kUyS
+ QPiZtuY4HMc0qLKMFwGL/RIe7y/XAe/aRua+Hgo3hc4gEbEjw++DZUXB1WgLLkB4SLlB6VLal33
+ J7H8HWnBzdbuytCzoGIRZmCuCRCl6THNCBUMNtvBsYvDA9Kg24wJpV4baRx9i8BnvqWcO5R+n5F
+ l5iGe/qplMHfmdHI5V7tG3ZVkMJCSwF1GEW1cwGcgVv47Gkq61/0s6rIdSs1Y/mk1KyjlVVLjZ2
+ FQDzze6uVvLXB/jttsNmynw/a2ngPlsdAL9KBSEuVmT/ZPVRQQCLYRPwfyLgTMnRD2VFWX0Wf1q
+ qrVsu40O8zAozQ7TC0Lvt/lDCSxLpRa3OrmVy1BdfWCgAxG/TBwKgJubI0B2PuxP+JVsq1IUxin
+ tYg4vAF+vIHhqgJcfhw==
+X-Authority-Analysis: v=2.4 cv=SI1ykuvH c=1 sm=1 tr=0 ts=6a70a220 cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
  a=M5uM2SGDJJfKum1V:21 a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22
+ a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22
  a=VnNF1IyMAAAA:8 a=2HitSDPJqUxGu8htRZYA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-ORIG-GUID: qoiKzP9xAXQ36osAhgydZUOoxnL9gM_q
-X-Proofpoint-GUID: qoiKzP9xAXQ36osAhgydZUOoxnL9gM_q
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODAzMDEyNCBTYWx0ZWRfXwEXZtk5kfs2+
- 4aOtBJnch0T7RZbyZl8CGQAmlOVHIPI6/JD4x8l9Og0zeoM94KvMjdDwrccLtnzvWdzUthbEPFT
- xtllgwxTPgZZdWr00cq7xv2yZyc05GA=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODAzMDEyNCBTYWx0ZWRfX76IPY8F7xvC9
- kaATVcpwG4DW1QS2IyVtSQW+IjSTX1BaAuhttATD1ruD3zUHTI8Zn4pUvZf+Rq5uKgUhL2xCi8R
- OHfZhrEaLAGBdfdRYvlA3q1QuW6sCFD1O7LXEMiSFfhrI5Y8lzTnvlbwtythrH+54shqABQxT23
- qPAfe7ZOphYVh7rSICA5jYmGN0Pn3zK42/Q8+2X7UGwSnfLo/EhcvS48086wMKBTgMtJh/OjDUB
- uJf1PJlawUitmK4Xpdd5R+68u1ueWv+QJnzB2fFJVOIdW0vEh6BHS6Uk1xO9DjH5lT6Jlxo/Ap/
- d8mLsT8lSOZdaXJKk3Pz9UtemLjPO6qr0O9pNQxAa4vGF68mVrkzTMszs5U9u+nWhVY06b5ezxv
- DIeNtmX6pyRV+JJpa00bbc7lRBFGYNFT3yZVcqgnIfozIIb0pcGwIedIhaJoF6JzAgwGupPFL3i
- QGdhvCKjxHeqd6PoCHQ==
+X-Proofpoint-ORIG-GUID: EEV39lBO2SnROxtYa-u73MwRmubjz3Xm
+X-Proofpoint-GUID: EEV39lBO2SnROxtYa-u73MwRmubjz3Xm
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-08-03_03,2026-08-03_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0 clxscore=1015 lowpriorityscore=0 priorityscore=1501
- suspectscore=0 adultscore=0 spamscore=0 malwarescore=0 impostorscore=0
- phishscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ clxscore=1015 bulkscore=0 suspectscore=0 impostorscore=0 spamscore=0
+ phishscore=0 priorityscore=1501 lowpriorityscore=0 adultscore=0
+ malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
  route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
  definitions=main-2608030124
 
-
-
-Am 03.08.26 um 14:40 schrieb Claudio Imbrenda:
+On 8/3/26 14:40, Claudio Imbrenda wrote:
 > If VM creation fails early in kvm_arch_init_vm(), the cleanup code
 > tries to free up the SCA, even though the address is 0. Due to using
 > free_pages_exact(), only the first page is skipped, accidentally
@@ -117,9 +157,6 @@ Am 03.08.26 um 14:40 schrieb Claudio Imbrenda:
 > 
 > Fixes: e72753ed1267 ("KVM: s390: Use ESCA instead of BSCA at VM init")
 > Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-
-Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
-
 > ---
 >   arch/s390/kvm/kvm-s390.c | 3 ++-
 >   1 file changed, 2 insertions(+), 1 deletion(-)
@@ -139,3 +176,6 @@ Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
 >   }
 >   
 
+uh, right, there's no null check in free_pages_exact()
+
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
