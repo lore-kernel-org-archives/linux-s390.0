@@ -1,158 +1,134 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28A16361948;
-	Mon,  3 Aug 2026 16:54:30 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A484033A9E1;
+	Mon,  3 Aug 2026 16:54:43 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785776072; cv=none; b=GlUjKeNPJ06G/1Fkm32/5LQbvnLC9kv+EAddnbQeZjKBPt8epQ+MmHwkfk+F8cAsJp0JlB8L8xY8XHRGtuIVfgCwBDY74eexBzGy0Dhbx+AwhZ2OdN6bw1b0fLZRMQLG3FY6s+F5ukJS2pz2ZQg3I0s4h5uQvslGTj8HrWpx8gg=
+	t=1785776084; cv=none; b=EOzw8DDMu1oEfk45Fj5lkNzcUWN4n1S/lvq3wUtcXyUsWpD/ODMRxUh6sOloJDssTlUXP43x8XKrRSJh/PHbhBtEBt8Tvivk3WZoC8Xla7CW/OOzv3Ok327tT6y5o+cgFamvXKt4jRJ7su7MXZqrmHpo1oi0Il8YTb53AD+jFVk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785776072; c=relaxed/simple;
-	bh=naM15WPB02gHNFVZOgz8+wWa2XGuuPShyOcwY8D5vVs=;
+	s=arc-20240116; t=1785776084; c=relaxed/simple;
+	bh=p0pZLQTtelx59b+Pf9/y2lhD2o6Y+Nwjdr9DoSo70pw=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=suGuud5nH5K8cNd5sPKZ5QKlukk6P2MyGlwNO0cZOHXoEKJyxAF/LNcY2JhZs/+DWrqfNOp2RRvht0HDWmTw5Y8EC+cHNBD0kR/83oTsijsfRe5WPB1wGD7tOOJyZobZOP/MPhrlzqwyD3jn2QVAs4lcb/hTGU9skSD1rb9R8bg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=k08G6HC8; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=NMWJx3xHXyc0+K5+ESBrVRdHr+1uZS/DagI709neH/9QmMR6H6kov8XG+/XI1gMAS3F1qcnbj4h6cJkmt9jsOrYzxGmR9JVxKSKup0rvMaJHmjjVgvD8srIVeZUp6pQqV5BUGo2p2Ljj9ADPvsovBhYtLmfTzrRDpd3+Bara4FM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LhtgsWXo; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="k08G6HC8"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 684181F000E9;
-	Mon,  3 Aug 2026 16:54:30 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LhtgsWXo"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0AF771F000E9;
+	Mon,  3 Aug 2026 16:54:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785776070;
-	bh=Po4NA3pbMN3nO040zLmXZgjiPAp6wU3U16Ti98zzWnU=;
+	s=k20260515; t=1785776083;
+	bh=qkzaHMxmi2LDaGWBPoHeBjZIC34xYhc2sBmxv7XrWdA=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=k08G6HC8nz0XBOvjix5PpmUN1jlHeLC09i/IiXjeBW9vHtAQi+wlV/oxH0aG3GcLq
-	 rfLjMWlYyhbgYFMIOJVQEorf6ihfVswD6BuoDerBobJm/0H+42PXxKw78TNNxKrsR8
-	 2Yy99AfL3BMusM92zP0y/aRAR76cCRFf2SkO0yGZhNROhnqz1QsWxQM5nDp2Pfk2c2
-	 Fu3W8FQwFzuwgOTbc7X/lr+TLqpwsWODAqa8URDtmqex6Mgo1UQ75fDTuORQBmlqF2
-	 Ivwn+LPcKkh6h/5naiNPQOf7pMKDzM+kRw1wTDg54Jc0/sem0yTlou7uu4mSYJUkyt
-	 jo/Lo3lUfSWGA==
+	b=LhtgsWXoU6eGWDqBOBDbG7rQDuAEfAACP1WGM2SNq2YMKtTmOMJXCLpsfzrU+ezLz
+	 Y5wpBKXg16Y4rRgRgl4YCfOdtmbA7Jx32ddsikEGrVIjvNIByQ0p/AaopyY3xqkxo9
+	 /oIehqITwX1vHu9YlfIMOMtphh4o621MJmFmnqMdeUsEIctgBnF3zH72Neua5bgUk8
+	 kpgyrVURV0x4g1U8GSDN/WBNgEx9YlxsnKiA1hg5byBVmSnyllmYC8K8FPc9/6T7U5
+	 cabUg2/DTz9F01a7JO9nmHr5oJiMlAas0g7/ugPtoRajhvUfWAhEp+INaOlpL2wsKk
+	 J2e1x5mL50thw==
 From: sashiko-bot@kernel.org
-Subject: Re: [GIT PULL v1 09/23] s390/vfio_ccw: Selectively expand io_mutex
+Subject: Re: [GIT PULL v1 13/23] KVM: s390: Fix kvm_s390_vcpu_unsetup_cmma()
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>
-Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, kvm@vger.kernel.org, "Vasily
- Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org
-In-Reply-To: <20260803160924.236807-10-imbrenda@linux.ibm.com>
+Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Heiko
+ Carstens" <hca@linux.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org
+In-Reply-To: <20260803160924.236807-14-imbrenda@linux.ibm.com>
 References: <20260803160924.236807-1-imbrenda@linux.ibm.com>
- <20260803160924.236807-10-imbrenda@linux.ibm.com>
+ <20260803160924.236807-14-imbrenda@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 03 Aug 2026 16:54:29 +0000
-Message-Id: <20260803165430.684181F000E9@smtp.kernel.org>
+Date: Mon, 03 Aug 2026 16:54:41 +0000
+Message-Id: <20260803165442.0AF771F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [High] Concurrent modification of the `private->crw` linked list without =
-proper synchronization, risking list corruption.
-- [High] Missing synchronization between CSS callbacks and `vfio_ccw_mdev_r=
-emove()` causes use-after-free of `private`.
-- [Medium] Valid CRW events are permanently dropped and lost if userspace p=
-rovides an invalid read offset.
+- [High] Unrecoverable memory leak of `vcpu->arch.mc` during vCPU creation =
+failure in `kvm_arch_vcpu_create()`.
+- [High] Leaked `stor_base` and `sida_addr` memory pages when Protected Vir=
+tualization (PV) vCPU creation fails.
 --
 
---- Patch [9]: [GIT PULL v1 09/23] s390/vfio_ccw: Selectively expand io_mut=
-ex ---
-commit 0dffa46dd03162ef88bfa6bbfa42490f8f336394
-Author: Eric Farman <farman@linux.ibm.com>
+--- Patch [13]: [GIT PULL v1 13/23] KVM: s390: Fix kvm_s390_vcpu_unsetup_cm=
+ma() ---
+commit 4fc054529959a7d0bf80c4a0b469e82c4a224bb3
+Author: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-s390/vfio_ccw: Selectively expand io_mutex
+KVM: s390: Fix kvm_s390_vcpu_unsetup_cmma()
+   =20
+This commit fixes an issue where a zero cbrlo value could lead to an attempt
+to free physical page 0 when V !=3D R. It resolves this by checking that cb=
+rlo
+is non-zero before calling free_page().
 
-The io_mutex was defined to serialize the io_regions, but then has
-also sort of been associated with the I/O themselves because of
-the close relationship they share. This patch expands the scope of
-io_mutex to close these remaining windows.
+Link: <20260803124040.126471-4-imbrenda@linux.ibm.com>
 
-Cc: stable@vger.kernel.org
-
-> diff --git a/drivers/s390/cio/vfio_ccw_chp.c b/drivers/s390/cio/vfio_ccw_=
-chp.c
-> index f3015132d4b5f..9269b54f5cfd4 100644
-> --- a/drivers/s390/cio/vfio_ccw_chp.c
-> +++ b/drivers/s390/cio/vfio_ccw_chp.c
-> @@ -98,13 +98,13 @@ static ssize_t vfio_ccw_crw_region_read(struct vfio_c=
-cw_private *private,
->  	if (pos + count > sizeof(*region))
->  		return -EINVAL;
+> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> index 1b3290a5ad1ae..9be27db0a21e6 100644
+> --- a/arch/s390/kvm/kvm-s390.c
+> +++ b/arch/s390/kvm/kvm-s390.c
+[ ... ]
+> @@ -3678,7 +3678,8 @@ static void kvm_s390_vcpu_crypto_setup(struct kvm_v=
+cpu *vcpu)
 > =20
-> +	mutex_lock(&private->io_mutex);
->  	crw =3D list_first_entry_or_null(&private->crw,
->  				       struct vfio_ccw_crw, next);
-> =20
->  	if (crw)
->  		list_del(&crw->next);
+>  void kvm_s390_vcpu_unsetup_cmma(struct kvm_vcpu *vcpu)
+>  {
+> -	free_page((unsigned long)phys_to_virt(vcpu->arch.sie_block->cbrlo));
+> +	if (vcpu->arch.sie_block->cbrlo)
+> +		free_page((unsigned long)phys_to_virt(vcpu->arch.sie_block->cbrlo));
+>  	vcpu->arch.sie_block->cbrlo =3D 0;
+>  }
 
 [Severity: High]
-This isn't a bug introduced by this patch, but does this list_del() lack
-proper synchronization?
+This isn't a bug introduced by this patch, but while reviewing the vCPU
+creation paths in this subsystem, I noticed a potential unrecoverable memory
+leak.
 
-It appears vfio_ccw_crw_region_read() dequeues from private->crw while
-only holding the sleepable io_mutex. If an atomic channel path event
-triggers vfio_ccw_chp_event() concurrently, it will call
-vfio_ccw_queue_crw(), which locklessly adds to private->crw using
-list_add_tail().
+In arch/s390/kvm/kvm-s390.c:kvm_arch_vcpu_create(), the mmu cache is
+successfully allocated:
 
-Since io_mutex is ignored by the atomic queue path, can this concurrent
-access corrupt the linked list if userspace aggressively reads the CRW
-region while hardware events are generated?
+    vcpu->arch.mc =3D kvm_s390_new_mmu_cache();
 
-> -	mutex_lock(&private->io_mutex);
->  	if (i >=3D private->num_regions) {
->  		ret =3D -EINVAL;
->  		goto out;
->  	}
+However, if a subsequent operation fails and the function jumps to the error
+path, it appears to miss freeing the cache:
 
-[Severity: Medium]
-This is a pre-existing issue, but are valid CRW events permanently dropped
-if userspace provides an invalid read offset?
+    out_free_sie_block:
+        free_page((unsigned long)(vcpu->arch.sie_block));
+        return rc;
 
-The bounds check for the region index occurs after the event has already
-been dequeued from private->crw. If the offset is invalid, the event seems
-to be discarded and later freed on failure without delivery.
-
-Should state mutations happen after all arguments are validated to prevent
-this resource loss?
-
-[ ... ]
-> diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_=
-drv.c
-> index c197ad5ab5805..757ff5b2556e3 100644
-> --- a/drivers/s390/cio/vfio_ccw_drv.c
-> +++ b/drivers/s390/cio/vfio_ccw_drv.c
-[ ... ]
+Does this leak the struct kvm_s390_mmu_cache and its internal allocations
+when the core KVM code skips calling kvm_arch_vcpu_destroy() on an
+arch-level creation failure?
 
 [Severity: High]
-This is a pre-existing issue, but is there a missing synchronization step
-between CSS callbacks and vfio_ccw_mdev_remove() that causes a
-use-after-free?
+This is also a pre-existing issue, but looking at the Protected
+Virtualization code in arch/s390/kvm/pv.c, there might be another memory
+leak during vCPU creation failure.
 
-In drivers/s390/cio/vfio_ccw_ops.c, vfio_ccw_mdev_remove() clears drvdata
-and drops the final reference to the device:
+In kvm_s390_pv_create_cpu(), if the UV call fails, it attempts to clean up:
 
-vfio_ccw_mdev_remove() {
-    ...
-    dev_set_drvdata(&parent->dev, NULL);
-    vfio_put_device(&private->vdev);
-}
+    if (cc) {
+        u16 dummy;
 
-If an administrator initiates an mdev removal concurrently with a hardware
-event, vfio_ccw_sch_event() in drivers/s390/cio/vfio_ccw_drv.c reads the
-private pointer locklessly via dev_get_drvdata():
+        kvm_s390_pv_destroy_cpu(vcpu, &dummy, &dummy);
+        return -EIO;
+    }
 
-vfio_ccw_sch_event() {
-    ...
-    struct vfio_ccw_private *private =3D dev_get_drvdata(&parent->dev);
-}
+Because the handle is only populated upon success, it is still 0 during this
+cleanup call. kvm_s390_pv_destroy_cpu() checks the handle and returns early:
 
-If the CSS callback is delayed after reading the pointer, could it execute
-vfio_ccw_fsm_event() on the freed private structure?
+    if (!kvm_s390_pv_cpu_get_handle(vcpu))
+        return 0;
+
+Could this leave the stor_base and sida_addr memory pages permanently leaked
+if userspace repeatedly exhausts UV limits to fail the call?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260803160924.2368=
-07-1-imbrenda@linux.ibm.com?part=3D9
+07-1-imbrenda@linux.ibm.com?part=3D13
