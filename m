@@ -1,53 +1,53 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 85EEB40681A;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F2D2E407CF1;
 	Mon,  3 Aug 2026 12:40:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785760854; cv=none; b=ecMBvKcBr0FMVL/QIeauz53606tSkggt5X45IMbwReUHxvg9UplVOABDR3qMroNME74rKJtCxgdUf14AzgRqWW1V7vHtF1z4aSTfcUAETFcqNQU/mGinlt4uxAMlQiEJeJT7cpTA2TCayqLDMi1WldwKgv8/G0e17WQuge+Ggd0=
+	t=1785760854; cv=none; b=jq4ESCkCZEUV2qoietjmKA0Ye79PT5yceqFDy0FXhoFCjF3dktcZKjOm8NQoHBVAJmFIqb/OmkC7B6IZet+nsfHSKIWMcvTqmRCnR0Pq1fsH5nD/pNOG6ar0oj8k4nvMEdD0tHXShvFCI+RS7Sm1emQPIuEcS6742RT7Yy5G+m0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1785760854; c=relaxed/simple;
-	bh=mOUF/FNmKIk6xX+iKDVdfp/CuFGAPdAfGGNl/wapg7U=;
+	bh=rGUq/bbmBOybJjU+Ue7l7Uyfv2XCqwBWhe6A32dvtIo=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=cHjCC23oWhMEGVTTyRNIHy93Z3eljCqtq5b+24dnvPSlap82oa7El5iHU+eZ2jy9SvfUTJXdUB1PlIAoWrIf7ViJO+BI1Orx1MDii4m91pY0+JYmQXqRZIR7m7cP27KwlPzcTvhShzno0iFFHOShXzrsI11j/M/2eze4lmSJt74=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Jo1REzeu; arc=none smtp.client-ip=148.163.156.1
+	 MIME-Version; b=Xu5WfcMsyoLZ99Q30P3EkFLoDHJPNI88e5ov8OxsKCoQE2GFK3xvZsu+3LnaI3CYFjbEs1PsfFjkBNlHePJHNlFknaCAzozOXtYBh1K5+Tlswk1bhqhgo0xSaCqJ4wvpXviglzRz5je/uKq5I7Ug6owonpwPRTcpWe11oPRXcyk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=shlY6Uaz; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Jo1REzeu"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 673CI1V82018764;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="shlY6Uaz"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 673CHk8C1943450;
 	Mon, 3 Aug 2026 12:40:50 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=PxrXMPXbxz0kJ+bcb
-	c10OSG0wGcTfT747aR8n3xRorE=; b=Jo1REzeuj7UmgOkFcWalNNt6dbR9vUWNN
-	1KNAqyLrVO7Hh0YJNas7O6HEjCEVp9Upazx28uGjffy5oYUDtG2zu9s/pQp+0TDL
-	+ipo8H4Y9KcArdJn9Y8lCIwXEeY+w51XrfPC35zeDE+fTRwNN4p15x9TFQ3kiHLB
-	fPAE57yaei/gw2a9tqfVGNOttmZHvfqybXnpcOaYRWjywLAUCsWjEhEWFi09mIdK
-	lCxEmvwHZOC6w09le+nIYsKjFwMxQMc41Y5WHYKHSUH1x7CpSDYhYTEDeZncYnSt
-	e6IXkEh2W7XJ2gJkCVU6Enq0fw2H8prcmR/lrEAQslgxunwUlmomg==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fs8h4rr5a-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 03 Aug 2026 12:40:50 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 673CQG0T009744;
-	Mon, 3 Aug 2026 12:40:49 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fsvmh59ss-1
+	:mime-version:references:subject:to; s=pp1; bh=a8o63o8zb7q/KcknA
+	rEgZd6tgJdqLJy5aq5FS+Lux1A=; b=shlY6UaznbS+k4Q3/Tg0b58P0Q+WMApeu
+	asgSf7Ch3jGKXvoM0b1L0d0/B+k004NzTeDM7/IleM3fA88vm6YmD51W+f0LeYnx
+	x36AsVx/1eTCgGMPFB14XmT1aVQJ6UaS/CIWIkLbcPpHLVO6DbwZqnia7t6eS+nt
+	Qa4RI+XmSuzK7sTtzZ8ou+Pwshmyq07frsU6Sfpwns2JGfcBJm01484qE0uLl7kt
+	bg3tk+FFuLG2+Pa0WVs139fp7K5eLxQ0rpJ55MuXVuS7xtFzkvS1/AC7ZeYDW7se
+	wLFJFPy2LjEYD/4slmrfHBvY82vkPUKd4oByDaXDf1e4Hr1tIr2ig==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fs77g0k6n-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Mon, 03 Aug 2026 12:40:49 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 673CQMl8027377;
+	Mon, 3 Aug 2026 12:40:48 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fsv4jwbsc-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 03 Aug 2026 12:40:48 +0000 (GMT)
 Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 673CehTa32702968
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 673CegxW52625856
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 3 Aug 2026 12:40:43 GMT
+	Mon, 3 Aug 2026 12:40:42 GMT
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 20A9520040;
-	Mon,  3 Aug 2026 12:40:43 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 8198220043;
+	Mon,  3 Aug 2026 12:40:42 +0000 (GMT)
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D8F642004B;
+	by IMSVA (Postfix) with ESMTP id 20D9D2004D;
 	Mon,  3 Aug 2026 12:40:42 +0000 (GMT)
 Received: from p-imbrenda.ehn-de.ibm.com (unknown [9.224.75.30])
 	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
@@ -57,9 +57,9 @@ To: linux-kernel@vger.kernel.org
 Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, borntraeger@de.ibm.com,
         frankja@linux.ibm.com, david@kernel.org, seiden@linux.ibm.com,
         nrb@linux.ibm.com, schlameuss@linux.ibm.com, gra@linux.ibm.com
-Subject: [PATCH v8 04/13] KVM: s390: Fix overclearing ESCA in case of error
-Date: Mon,  3 Aug 2026 14:40:31 +0200
-Message-ID: <20260803124040.126471-5-imbrenda@linux.ibm.com>
+Subject: [PATCH v8 02/13] KVM: s390: Do not free SCA if it was not allocated
+Date: Mon,  3 Aug 2026 14:40:29 +0200
+Message-ID: <20260803124040.126471-3-imbrenda@linux.ibm.com>
 X-Mailer: git-send-email 2.55.0
 In-Reply-To: <20260803124040.126471-1-imbrenda@linux.ibm.com>
 References: <20260803124040.126471-1-imbrenda@linux.ibm.com>
@@ -71,75 +71,61 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODAzMDExMCBTYWx0ZWRfX/5D64QuIkWdO
- dk3CvvQzeFf/oBWaMDgTEq3F/C9wm2aoJc8LWnYZafWblQSgU/FtnVaQTPJzE+9iGj9jKCRlR4F
- //jEAYrzKBLfqGZq886ZWv5X60R2x+E=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODAzMDExMCBTYWx0ZWRfX3o72Hm2xx1lk
- UOWXYpvNEsB0SRO801Z1DssODIBqsRD7yh5N0CicOdYa8hAr+goArpqmiFCeTV06A1PrCt64J6X
- igtMlAhPJFXBSeyzcQWpKhCRBFAxVhltSHMEeaTrY2GOEW61gatMAl7w0cqyk2oLPgwIBSBLH/O
- k+avu0liO14B/MXQGHiiJ5qv/KODxVx7AT89Xv12/OXpdBz+vDsYWIAmwAcOBaimuF5MtXf0reK
- gInuwyKDsagfSQCVXDXhPz2GPzFDOu35VM6+KAcOsPs/yq10XbWvLf96/aLCLQ5gwZbYcZv4ZQp
- R/f3Cz6yG4umpUyWRwEx5WBzC4Klq2KawaAK1bVh+96KouJJMv/N1Hdub99iJW6S5C8c3i5ppHt
- avh6aH4kcfvGO+AoYHx0H0d3xTNe9SCZ/FiwEDRRQvGeCgtgdTXH14ulaNJUnysjLq3wMIbPnBx
- mLTLhSETH6RlYBsRUTQ==
-X-Authority-Analysis: v=2.4 cv=SI1ykuvH c=1 sm=1 tr=0 ts=6a708c52 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8 a=D5IZcPaqysaIEbzteRoA:9
-X-Proofpoint-ORIG-GUID: diYJ4f2pusnU6GJRo69XVMXIdTjC02VK
-X-Proofpoint-GUID: diYJ4f2pusnU6GJRo69XVMXIdTjC02VK
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODAzMDExMCBTYWx0ZWRfX5lcv7gnQyOlw
+ M+kYFomKKDgus4L3ZwkwcJiIcyemKl1JDerojUhGYuH07axB1kXohRAH4yyftXCWXIKdGnTQPrE
+ JfeRNXlI46sUYK9G0FEln0LKa4GkZTn/vSsbA+e8rHdJsdMX94BX2xCbsw8xFZuBFERmgdOyc1q
+ APO6FpP4oTR2c/VLOP7/20bmYVMkifd/mHDBRqy4BjrVPu2D4q1uZ3447G2kzWrKGTczB7cF0dq
+ rENViTiDySb46GPirhSe9xyeq1e83y0SS9fWwAuUtYU8UYRe0+agCioVADuPMiErv5sRh7oOZTD
+ jROEXBJwTvHEbe8oRvK7BprpyzD1quf0uHqLd8fd5Vbg7JJfCGb1RzIQQLYbRK05jMd2SvABgm0
+ Athic54t6UIccc4X8aiKi7a0dlsOgYxI5lg+Cy4vLqolGApsHGEI1+97RUeznFXfor7QJbELJJL
+ ua9BXQSzIrtZwIOqGvA==
+X-Authority-Analysis: v=2.4 cv=WIFPmHsR c=1 sm=1 tr=0 ts=6a708c51 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=M5uM2SGDJJfKum1V:21 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8
+ a=3jiQNkuJ7WxZ42At8I0A:9
+X-Proofpoint-GUID: _HaArXb3H2aZ5TxBOTQ4TjxMHq3FSvoF
+X-Proofpoint-ORIG-GUID: _HaArXb3H2aZ5TxBOTQ4TjxMHq3FSvoF
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODAzMDExMCBTYWx0ZWRfX9Z65QaW+Rgse
+ VxSMGb6yXWMk11ocIf8VuQFUEjQfBYhebZZlfahuTWzAawsQQjfjjAqFfNMVD4DySrPRNWuq+Qm
+ 9VoYx7iB6/OwWX5kAC+W6j2qLUB8tCI=
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-08-03_03,2026-07-30_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 bulkscore=0 suspectscore=0 impostorscore=0 spamscore=0
- phishscore=0 priorityscore=1501 lowpriorityscore=0 adultscore=0
- malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2608030110
+ spamscore=0 lowpriorityscore=0 priorityscore=1501 phishscore=0 malwarescore=0
+ suspectscore=0 clxscore=1015 impostorscore=0 bulkscore=0 adultscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608030110
 
-If an attempt is made to create a vCPU with an already existing ID,
-the duplicated vCPU will be destroyed. When destroying a vCPU, its
-ESCA entry will be cleared. In the above scenario, the spurious
-duplicate vCPU is destroyed, but the ESCA entry corresponding to the
-original vCPU is cleared.
+If VM creation fails early in kvm_arch_init_vm(), the cleanup code
+tries to free up the SCA, even though the address is 0. Due to using
+free_pages_exact(), only the first page is skipped, accidentally
+freeing pages 1, 2, and 3.
 
-Fix by skipping clearing the ESCA entry if the vCPU creation was not
-successful, i.e. if the vcpu->arch.initialized is still zero.
+Fix by checking whether the pointer is NULL before attempting to free
+the SCA in sca_dispose().
 
+Fixes: e72753ed1267 ("KVM: s390: Use ESCA instead of BSCA at VM init")
 Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
 ---
- arch/s390/kvm/interrupt.c | 2 +-
- arch/s390/kvm/kvm-s390.c  | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ arch/s390/kvm/kvm-s390.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index 9e3e6b0d72ad..2acdff130fa6 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -86,7 +86,7 @@ static void sca_clear_ext_call(struct kvm_vcpu *vcpu)
- 	struct esca_block *sca = vcpu->kvm->arch.sca;
- 	union esca_sigp_ctrl *sigp_ctrl = &sca->cpu[vcpu->vcpu_id].sigp_ctrl;
- 
--	if (!kvm_s390_use_sca_entries())
-+	if (!kvm_s390_use_sca_entries() || !vcpu->arch.initialized)
- 		return;
- 	kvm_s390_clear_cpuflags(vcpu, CPUSTAT_ECALL_PEND);
- 
 diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 9be27db0a21e..5b2727d7dfd1 100644
+index f86b4b0b356f..1b3290a5ad1a 100644
 --- a/arch/s390/kvm/kvm-s390.c
 +++ b/arch/s390/kvm/kvm-s390.c
-@@ -3462,7 +3462,7 @@ static void sca_del_vcpu(struct kvm_vcpu *vcpu)
+@@ -3247,7 +3247,8 @@ static void kvm_s390_crypto_init(struct kvm *kvm)
+ 
+ static void sca_dispose(struct kvm *kvm)
  {
- 	struct esca_block *sca = vcpu->kvm->arch.sca;
+-	free_pages_exact(kvm->arch.sca, sizeof(*kvm->arch.sca));
++	if (kvm->arch.sca)
++		free_pages_exact(kvm->arch.sca, sizeof(*kvm->arch.sca));
+ 	kvm->arch.sca = NULL;
+ }
  
--	if (!kvm_s390_use_sca_entries())
-+	if (!kvm_s390_use_sca_entries() || !vcpu->arch.initialized)
- 		return;
- 
- 	clear_bit_inv(vcpu->vcpu_id, (unsigned long *)sca->mcn);
 -- 
 2.55.0
 
