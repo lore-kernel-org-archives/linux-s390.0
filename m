@@ -1,149 +1,155 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E649F39BFFA;
-	Mon,  3 Aug 2026 08:14:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 22BEF30BF4F
+	for <linux-s390@vger.kernel.org>; Mon,  3 Aug 2026 08:33:38 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785744875; cv=none; b=Ha3TGt9rgmOWW+gPrXSGKnuZEbUOJ3W/XzB2hDcjyARBi0O+rNi++LY1VRJIwLZ9VqUKVHjRvHS5Nw8cpEsvzDHctN0CO+FU6L91igDAoWtpbRK3OY/XKlHpXA9ZWoAojnkBwubrj9Oa13IXxRtj/5SKZViyJu/Ua4vWtNNrDdU=
+	t=1785746020; cv=none; b=q2ZzCr3YZE3vDnqXXOh188MFC/D1Dm6ELwqnq1Y38Y7kllvVUexS8kIIi1wSkPbkUAiWsG8kmrEWSbrcHCjlNBU/IqH41n4pVql53rArtNE1Lv2ypM6+CcB7ct5y9Jd4JsKuyJY9wLcjO8fluW7swIckduLOFaoeziMzbEM8HdY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785744875; c=relaxed/simple;
-	bh=6qc+33s9f83CSEwVmaONo+G8XS+KA2zRe0t9i1NJPwA=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=LT6M4Le7XeRhCbhMeFpy+kgFZTEwrRiYkw3VXcdIrFxQKOMGxeRrtyzTDGHmx2S8Sbx84QYa2cjixfpfPJaYdspD88/2mPhxT7uxd4v2eKaMlOq7HJAHSe5n0GFy5SJdbS1rbmb26FaIFMZr4OW9zXSFlAEl1/JdYzY1JNcrevI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=lQpdWURw; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1785746020; c=relaxed/simple;
+	bh=qtEqpVPdS9NfqWhfmn3x7sf8Ea3CtCWROBWiR3abeh0=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=piAOtT7Y5hGHfwbgyRdz1YMh7KvcVi28oFellq79nH04lfyYXGN2TrIVTEcfApL+U77cD/ISp8yqmMhu6ysfXL+iGg+Jpnwe/GzvrE7yWajcjthzXWt4LIh6ibkm7p0Ae2uc0lgPokAxVA0UXLMG/I9v7z8q5JgN21/pg0eMIOk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=XUpi8+FO; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="lQpdWURw"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 672Mpp8I281400;
-	Mon, 3 Aug 2026 08:14:11 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="XUpi8+FO"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 672Llo3e291104
+	for <linux-s390@vger.kernel.org>; Mon, 3 Aug 2026 08:33:38 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=10XOIX
-	OWNp9y4DxsjXyZqT4Kv+AKJ+NZ2FXRcTGwml0=; b=lQpdWURwyc0brA61CmD1FD
-	LvZnLOmHPmjN3k6IKI8uQEQIXdn+ZvoQAiWfvtzqM6anDxn0QRYe2cDZKq/igqKm
-	KMFryQ1H0GSrQAWq++wLRWdCsbwrojPAYlzHYB4WoR8P8hBpzOQc2cBgDsOSJatI
-	F3s77Cj1B8qJ6LfBUA5PPxWPn3xkO5UbP+NN0VsZ3uftyatIiobFWBxrhg2xTrkC
-	HV+rQjl43FzYatTK95qqbmu1oE50JxvXTRVCXaxcM0vv9Lsa48yWNqw8F8rKOLu0
-	6GnBO6SRTkHpad1QpogVg/847n7sYHGpBNOBQQn/vwcCQYqV9K4aWsdLa+aFoS4A
-	==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fs67hfmk8-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 03 Aug 2026 08:14:10 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 6738BOAd013898;
-	Mon, 3 Aug 2026 08:14:09 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fsu4qck0g-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 03 Aug 2026 08:14:09 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6738E5bb27591148
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=RiOQ8tnpSYp6cu2aKHlNglyRyAclkPQxt0RMBy6yS
+	Ns=; b=XUpi8+FOmj8f93llX+QLFPe9Ax7G3RkpolX9qP8eWs+yg0PN5dY/cyrfe
+	RPZJdI8TA5MNlVKiKVBoBZekX20QbohkwS+BvPfltut479nElFdkoD+ayaB5wtVb
+	PwTP2iweRxaTYHVtU9aWU4tGfpJ2zIJdCQ6vzhD/DZv8kQpXElnKyTkXgSoBXpNe
+	XNMID0p+McMpTR/rnWUoAqE6Qqe1tz5r/p86pgTCjTsHc8uWgKONELggJMQIIBtH
+	oFn0ET8NKyy35aKt82KGyJznbLsODyzY1ONd1nyz4XRjkAKaXixiAhg0lmAjP3dV
+	MD7EMS7s9Ai1O1sb11hqoRz5vhPtg==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fs8eufd57-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Mon, 03 Aug 2026 08:33:37 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 6738QQhN031703
+	for <linux-s390@vger.kernel.org>; Mon, 3 Aug 2026 08:33:37 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fswtyc8fq-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Mon, 03 Aug 2026 08:33:37 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6738XXbL41550288
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 3 Aug 2026 08:14:05 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8757120040;
-	Mon,  3 Aug 2026 08:14:05 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1DE6F20043;
-	Mon,  3 Aug 2026 08:14:05 +0000 (GMT)
-Received: from [9.224.77.173] (unknown [9.224.77.173])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon,  3 Aug 2026 08:14:04 +0000 (GMT)
-Message-ID: <143e8639-9936-4925-ad23-4e9a0aac9629@linux.ibm.com>
-Date: Mon, 3 Aug 2026 10:14:04 +0200
+	Mon, 3 Aug 2026 08:33:33 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 790DC20063;
+	Mon,  3 Aug 2026 08:33:33 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 57C062004E;
+	Mon,  3 Aug 2026 08:33:33 +0000 (GMT)
+Received: from funtu2.ibm.com (unknown [9.111.207.251])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Mon,  3 Aug 2026 08:33:33 +0000 (GMT)
+From: Harald Freudenberger <freude@linux.ibm.com>
+To: dengler@linux.ibm.com, fcallies@linux.ibm.com, ifranzki@linux.ibm.com
+Cc: freude@linux.ibm.com, linux-s390@vger.kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>
+Subject: [PATCH v11 0/5] Improve code in zcrypt msg type 6 handling
+Date: Mon,  3 Aug 2026 10:33:33 +0200
+Message-ID: <20260803083339.212885-1-freude@linux.ibm.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v5 13/31] KVM: s390: Prepare moving KVM/s390 to
- arch/s390/kvm/s390
-To: Steffen Eiden <seiden@linux.ibm.com>, kvm@vger.kernel.org,
-        kvmarm@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
-        Andreas Grapentin <gra@linux.ibm.com>, Arnd Bergmann <arnd@arndb.de>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@kernel.org>,
-        Friedrich Welter
- <fritz@linux.ibm.com>, Fuad Tabba <tabba@google.com>,
-        Gautam Gala <ggala@linux.ibm.com>,
-        Hariharan Mari <hari55@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Hendrik Brueckner <brueckner@linux.ibm.com>,
-        Ilya Leoshkevich <iii@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>, Joey Gouly <joey.gouly@arm.com>,
-        Marc Zyngier <maz@kernel.org>, Nico Boehr <nrb@linux.ibm.com>,
-        Nina Schoetterl-Glausch <oss@nina.schoetterlglausch.eu>,
-        Oliver Upton <oupton@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Ulrich Weigand <Ulrich.Weigand@de.ibm.com>,
-        Vasily Gorbik
- <gor@linux.ibm.com>, Will Deacon <will@kernel.org>,
-        Zenghui Yu <yuzenghui@huawei.com>
-References: <20260731130902.654679-1-seiden@linux.ibm.com>
- <20260731130902.654679-14-seiden@linux.ibm.com>
-Content-Language: en-US
-From: Christian Borntraeger <borntraeger@linux.ibm.com>
-In-Reply-To: <20260731130902.654679-14-seiden@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODAzMDA2OCBTYWx0ZWRfX30hDQTpH8BzN
- Mz7ZiHbo5J6caYaBQ4SFjdDXZ4T1C6Tylc8FsYeJvSYQF7AIrV0N8QGjVPy/ggzyqQA2uZ9QNgB
- WQBXGqIIE0CYJUVQnWqFvdy05z3A+Ec=
-X-Authority-Analysis: v=2.4 cv=I7VVgtgg c=1 sm=1 tr=0 ts=6a704dd2 cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
- a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=DErWZNkAGuNjIuNGA6IA:9
- a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODAzMDA2OCBTYWx0ZWRfXzdAhX5kEZcaZ
- O5+yZV3p8eVBFZ58IKEGh8MaO1J9apG1jTFEQbMJHeq40RfacAwGTqRteUJWP9224HxJrGAdNt6
- SCy3tCWqN2kisaSIwKJd3MVLLx90YJHqww6TuT+5DV0S6GFMsNm5gWmR6kI5hs3625LaQI7ujfO
- VAVXrPg9Fr6pH8VgjadrwWOtVVTmGvOcXPu9d9e1IHt++kfBpRUtplLmcV4uyZ4fgGsk18meTvM
- FbLM0KmyiKOmomJDNRkvUggKD9JPoCHPVz/7rGHpe/r9CxrcGNWN1MIDL0aEBsKe0Dmo/NEM22A
- Ja/g9VkZbxW9r6s+eAoM5Em3XsMW90IpNE0on3eQaTF7WyO5n5RzzYNAjZWcIeKBVMRI62LEsEr
- vGu+BgUGr9xnoHSd3OUQLf3ONWu3+Eut2udo4npnSG58bXhgVN1E8D7mTadcp1ZGmO70taFV92R
- CnXZMA1kcUlbTl6eSJQ==
-X-Proofpoint-ORIG-GUID: QMk5RO98HClPNqqpLrqibkj0W0rVBisV
-X-Proofpoint-GUID: Y1q7vD3lGqq1y6v7WS7yp9zeGfAx617K
+X-Proofpoint-ORIG-GUID: CYWZDTkehEHP45CfJnKApAm0Kyb2Bd6U
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODAzMDA3MiBTYWx0ZWRfX6zvWR8ZXRQ/F
+ F5PxIzhj2UPXGiY4TZJaX6wpdiIUVMdC+VBUigLB+/nTJOUF97dG6Kl/IcCObar71UUKqyVLtGe
+ vvBf1NpQu2EmKEJvo8OBar0Ou+rHdcg=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODAzMDA3MiBTYWx0ZWRfX0/329Cp9hZGq
+ 3P0u3x+z3ZLH9N+hk9SEEEtMgPSB0XU/Ys2QbiXmitFPRLq1zWpgypKuvidg0m5c8AdlODyPmJk
+ 6jwtmT37GUfap92fDg9VJc6mtUqLihJCW+I6Zn+4RNSQgsFivF8GHfYFUJAP/peWBT5XOxZVapp
+ lYfYqevMLXJGghjZcohP8baX8GnZ+E8y0HHrioZq8x2GTI6dXBWHLPfO8Q0ylMB5H4Sxq2GdNn4
+ hOYJ+u36+FOKwUHtJ+02Dkd6H+w51zFHVjQgtabjbJ/85/dBOGrMrgg4MooYKDaDetL04o1UPXp
+ DxfewE2lFym8pniFtJncFmOFLZbu52wVVHWCgKAqHq5eK6ad1IvtKHGgHDDuNmvHcQagyA5Tkx0
+ RpbJtvX82f8aOTfQXeln3JL36TdZyPqRqWHTunENSy6oSh6lIGzQK5Fxe7i6Lz2S8F4nK6kQliK
+ 6iKE2de8ioS497xnQ0w==
+X-Proofpoint-GUID: CYWZDTkehEHP45CfJnKApAm0Kyb2Bd6U
+X-Authority-Analysis: v=2.4 cv=KfzidwYD c=1 sm=1 tr=0 ts=6a705261 cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=RzCfie-kr_QcCd8fBx8p:22 a=Q7xrHvb9Vs8x3X5MzAIA:9
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-08-02_06,2026-07-30_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0 impostorscore=0 clxscore=1015 priorityscore=1501 suspectscore=0
- malwarescore=0 adultscore=0 lowpriorityscore=0 phishscore=0 spamscore=0
+ lowpriorityscore=0 bulkscore=0 impostorscore=0 suspectscore=0 malwarescore=0
+ adultscore=0 clxscore=1015 priorityscore=1501 phishscore=0 spamscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608030068
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608030072
 
-Am 31.07.26 um 15:08 schrieb Steffen Eiden:
-> Lay the groundwork for moving the native KVM/s390 to s390/kvm/s390 to
-> allow for a second KVM module. Move all the kvm_host definitions to
-> _s390 postfixed headers. Prepare local header include guards for a new
-> location. Move gamp related tracing into a separate file. While at it,
-> rename the main KVM/s390 files from s390-kvm.{c,h} to just s390.{c,h} to
-> match the naming scheme of other architectures. Cleanup the KVM/s390
-> makefile.
-> 
-> No functional change.
+Rework the limit and overflow checks in the both functions
+xcrb_msg_to_type6_ep11cprb_msgx() and xcrb_msg_to_type6cprb_msgx().
+And more ... all related to the length checks done in these both
+functions.
 
-Would it be possible to split every single semantic change into one a separate patch?
+Changelog:
 
-1. kvm-s390.[ch] -> s390.[ch]
-2. kvm_host definitions
+v1: initial version, one patch dealing with overflow checks around
+    the use of the CEIL4 macro in zcrypt_msgtype6.c
+v2: Sashiko found a regression: The check
+      if (ap_msg->len > ap_msg->bufsize)
+    was missing in the rework. Added again this important check.
+v3: - Split into two patches  - one for CCA one for EP11
+    - rework upper limit/overflow check 
+    - add lower limit check
+v4: - tried to address all the remaining complains from sashiko.
+v5: - Yea, sashiko still found out that the min req size needs
+      to take the minimal payload header into account. Fixed.
+v6: - And finally add padding zeros when there is a gap between
+      user space provided message size and rounded message size
+      in kernel.
+v7: - As requested by Holger, the padding code is now an own patch.
+    - As the length checks are now so strict the allocation in the
+      both misc files needed adaption to correctly allocate 4 byte
+      rounded up message buffers.
+    - The EP11 length check has been found to be a mess. The payload
+      is asn1 encoded and now the length parses parts of this payload
+      to extract the needed fields (function value).
+    - Furthermore another function zcrypt_msgtype6_send_ep11_cprb()
+      also needed to be adjusted to parse the asn1 payload to patch
+      the domain value into the payload.
+v8: - Sashiko found out that the cprb free with memory scrub also
+      needs adaption when the allocation rounds up to a 4 byte
+      boundary. So fixed just this in the first patch of the series. 
+v9: - hunk for cprb free with 4 byte boundary for EP11 was missing.
+    - use of put_unaligned_be16/32 instead of direct cast and store.
+v10: - make the asn1 parsing bullet proof. Sashiko found that under
+       some circumstances there could have been an access behind the
+       actual payload.
+     - Added Cc and Fixes tags.
+v11: - Added some Reviewed-by from Holger.
+     - Fixed the wrong limit checks with offs >= pld_len mentioned
+       by Sashiko.
 
-maybe also
-3. gmap-trace change
+Harald Freudenberger (5):
+  s390/zcrypt: Fix CPRB memory allocation in zcrypt misc code
+  s390/zcrypt: Improve CCA CPRB length and overflow checks
+  s390/zcrypt: Improve EP11 CPRB length and overflow checks
+  s390/zcrypt: Improve EP11 CPRB domain handling with ASN.1 parsing
+  s390/zcrypt: Pad trailing CCA or EP11 message with zeros
 
-That would make the patch easier to consume.
-We can also handle that in a separate patch series (with the other s390only changes).
+ drivers/s390/crypto/zcrypt_ccamisc.c  |  20 +-
+ drivers/s390/crypto/zcrypt_ep11misc.c |  16 +-
+ drivers/s390/crypto/zcrypt_msgtype6.c | 366 ++++++++++++++++++--------
+ 3 files changed, 278 insertions(+), 124 deletions(-)
+
+--
+2.43.0
 
