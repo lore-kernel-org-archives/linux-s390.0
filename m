@@ -1,155 +1,134 @@
-Received: from fhigh-a8-smtp.messagingengine.com (fhigh-a8-smtp.messagingengine.com [103.168.172.159])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2560E463B8B;
-	Tue,  4 Aug 2026 15:52:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.159
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 48E5D3D1CBE;
+	Tue,  4 Aug 2026 16:24:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785858768; cv=none; b=uUMCgE08cXar0JeWViqh0bGjqUH0Z0xB1W78WWG/tKm6uqrBccYS8X3BmZGXMxQBVbLKRfCR+owbApgghWx5ix71oZniEU+nhafd8wNNCySLdcfWSvXEyCN5mralK4968elMYI+aWV4IwQwfj2lQnscb+TE8W8tK/h16P+bEFIg=
+	t=1785860684; cv=none; b=sDvdFyCmVoQebieAoXXKjbtKpXu9UHH7s1XNtpCyEC1diUmXcsTNE1V/24zH4+jPCxXYyGPxi68+p7tKhrtBzPzFV5viCB2Pq10d8xpiEmXPvy+mYrXkV298zWGbqhnRx4yhQJfwEAA/ftBskcswg6JbAz4VR0Abzqj2fpYcrWc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785858768; c=relaxed/simple;
-	bh=4IMYxJH0hPLNM/inpTfFxvUD3zVh0AxAaEUPOIGaumM=;
-	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
-	 Subject:Content-Type; b=ChbjsP/M0NFdAJYAVHGnvne6McIGNhu2D1zyixlrJorr7k/z/Gb3lLNv/PfFYBgAzsEE9Gzs+lEipoKjbPxO+iXcnqB/hGrrl4AZg43hzcQ+jg46ldc/IvMP+xrqDCanvF+M6ftrSzPF3qbnEIWwGyyJluKqK7xuFYz29zefHTo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=XlbuGjOj; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=OJ6wdfMW; arc=none smtp.client-ip=103.168.172.159
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
+	s=arc-20240116; t=1785860684; c=relaxed/simple;
+	bh=CYD14KIcQ8dN71UIUGim0zfDulh9Pb4wiWeTWzQRBo8=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=g7lKaqoyQ/jiwjVw91L8D8s4jcp6Jl0YNzNvYeCHdotFGGbkmin/u/s4aumu3eFA/Wadj5gBbwYZA27QaivaveFy3IRki6GaDjrcg6aZQ8Tcg72rMrq0SIi25YND9w9NFoSYG9WQpcuPNmgnueejrNh5ewA/TOwIg0kjBGvF2kQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Rpgz84oB; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="XlbuGjOj";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="OJ6wdfMW"
-Received: from ams-compute-02.internal (ams-compute-02.internal [10.64.2.62])
-	by mailfhigh.phl.internal (Postfix) with ESMTP id 3BF3B14000DD;
-	Tue,  4 Aug 2026 11:52:44 -0400 (EDT)
-Received: from ams-imap-03 ([10.64.2.23])
-  by ams-compute-02.internal (MEProxy); Tue, 04 Aug 2026 11:52:46 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
-	:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm2; t=1785858763;
-	 x=1785945163; bh=tvHNcStby7mA2MTedxkPfcu3psZZkC2QAAIerdvv5BY=; b=
-	XlbuGjOjzvtkwwzyaMzIY5/q2c25pE6974gbbyEj7QvtE+brS+TEWKMENWwMZnsV
-	2S8YvnEK2FkgyXvMcn8EMGGDmmjJdFct/1IGy6y8LlDJu000B5gRyKlho7EbfK+V
-	6yGqTT+mH7A+XQiNhkpYXKJSXgxSLg52dvK2lK/QrlMvkVkNfROqZSilXrMjwOMY
-	xqDsYcS2bhdSaS9yYPCYg/+g6F/ehTZH+3pbvUs9mgccsYzFj1fQExZOGLPaZS7B
-	ZSwokkKQAuMtSTKfbxNXtoE2ku76npIPOayG7OIWqP7iOAEptk18oAufdjgpeVH6
-	MPsBicPq4XmrXVUAnNCj1Q==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1785858763; x=
-	1785945163; bh=tvHNcStby7mA2MTedxkPfcu3psZZkC2QAAIerdvv5BY=; b=O
-	J6wdfMWMFi6sSQVuySFR9sQBwgSkRoQZrH/FrkqWgbbr2B4VgyODxgJ/GOqc2tnH
-	WyzRJlle83RX7n+7Tb6TpLKlS4A8TImzYhrd8U2WjsBEW08WBoBvwuEUHEIZXYJS
-	xVqaMJtHkq+KVy660rz2HDKI9HcyYQrX8PtNol2zPTKfARZdCuwoLauFWAiYD8W9
-	YKrbijhAysnw9o45BfgSXH46rfZXrzfnTcCCD/TmNMIgKdxZ7/8bcJv0x0XAYew9
-	NYkyNDDKIn/7jVpL0Fxx/4T9eouYSgmf2G4Nsp3zCysNm3tFT5veebLMj8vTx7NI
-	6FefIOwtuGg1FcrKHWgag==
-X-ME-Sender: <xms:wwpyaoq7LvcUG1u5yPw1YP8DuLa49jXieUbG9ZUvcDjALEQs8-ZZjw>
-    <xme:wwpyapepKqYvi_mjS2Iqlm1WRhHNbniW52G0hm9jnwHY1fsY7O9XEiPCjV70_qovC
-    0qncrywDQQefIAg-8Ha2a14YWbuBMAjTGoiGxF1ShlQaWhz5eHv6g>
-X-ME-Proxy-Cause: dmFkZTE6dy9+2lfDYpR/aLw8faXRHD8Gp+7LDACqd3lgKT3c4TyXY77vVtGtLw+6ogbHJt
-    RQ1TcE3RozZ2SKSmFDQ6m+eaxPt+BvQoXFQNJf/uoDzOfVqb/mG16Mwn/s7DlM4yc2yb49
-    KqKdeyu0ECs1bNgAJjzJESLzzlkIf0BZuC0WhY+1LlN6Fyh3O1wK1s8ROBp4its/Y5r3z3
-    rHRnJxh4mhXbgVgBBbG0AmBtLAdNkpPdL0fZenjvt9OqJUBbiLS7ZUo3URb0a+JLqe4w/m
-    bQ0bEWkC7SLImMlL6TzmuBBUG87+UKpXuU5ju0aJK7x1js7JJA4rslTuh12IbmKBX7oKAn
-    urSEe69AN5eGR0KvqNwOedlZJrHWtZWlZourX2PWybBQABypSOaW83p/qBhxIsuF85qNo9
-    mjeUBE74+saty+KLxFHj4x2WGuO/DrpZquCsNpYIjc5vHoBITY912R314E6ui9iYM7SeTm
-    nDECyBPa3JKyvK4OFU55sVReSbFX1vcbYN9DEc6TtYNp1YgszM89KBfoC/E/8NOvk+oBgW
-    kIi8sqfCFsN3r70rDTFc49YEiXttdApHS8Kk7/D4yJf6q6ziMy9DC3gUx0SxPqWu/NPXbw
-    aSkSsuGlxI0I4jiSIaWl0kpiHX5H9f0C6cjiItFdijVgv8TVNUoyR6LYA24Q
-X-ME-Proxy: <xmx:xwpyavYPzTKZOjVb8fu8GS0IEVwQN7nOXJGsR7JmK1MP7clHDC_R_g>
-    <xmx:xwpyar0VSTueGpVxBppRaCHJM-ikHwG8H45GxiLXRWFuE9U658R2Sw>
-    <xmx:xwpyah7LMvaEgXxgr59Kw0hgurcTrjwXrbyboi6IVxkJn5Has5HslQ>
-    <xmx:xwpyanQICiQWRhTwGF4MAcLA67CAWFE3lIzG2FwgY-7_vnAtykEpXw>
-    <xmx:ywpyaq4ADYVlAyWSIOHnXxaVtWE4TeJi2fviLbyhkM-YiVQ47DG6-y3A>
-Feedback-ID: i56a14606:Fastmail
-Received: by mailuser.ams.internal (Postfix, from userid 501)
-	id 4743132A0062; Tue,  4 Aug 2026 11:52:35 -0400 (EDT)
-X-Mailer: MessagingEngine.com Webmail Interface
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Rpgz84oB"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 674FlaMi1254293;
+	Tue, 4 Aug 2026 16:24:41 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=dZxFb/OF1R8dIB6Htz+/wOYrnQRxqKJNuhR5cMpjg
+	WQ=; b=Rpgz84oBWUEt8BYvXfM6o7cmG5g84hBooSAdk8JzMxjzaC6lP/3toCqza
+	FtTvuCfACv+PhmpBgkZUl5nOCU8PDeJKCySw/IEswmZXAJM6K1z5eViZO6nsaB8s
+	+ewl9p7zDbk0lOYP5O7HomU9IYItKCUbxMQe0SiPJMPj2gFCE1ZfzAsU/pzt4Z26
+	QoPcisEjPRro99I65CnNVTNM5dyw++VsInbFsg9oXEFmPoc6zAjaqSVr70kxihqj
+	pZ33gPME2ybaxqV8MoW+QSf4McTPWcF93hM6gDR3HwCIj0ZPsXFGh0e96EhpQ/aA
+	xJGdmU9DE9rlzwLF9p9fi9dxckbZg==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fs8a3xt8c-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 04 Aug 2026 16:24:41 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 674GBHSv010888;
+	Tue, 4 Aug 2026 16:24:40 GMT
+Received: from smtprelay02.wdc07v.mail.ibm.com ([172.16.1.69])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fsv4k2qnf-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 04 Aug 2026 16:24:40 +0000 (GMT)
+Received: from smtpav02.wdc07v.mail.ibm.com (smtpav02.wdc07v.mail.ibm.com [10.39.53.229])
+	by smtprelay02.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 674GOdv724249050
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 4 Aug 2026 16:24:39 GMT
+Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id EBD5858058;
+	Tue,  4 Aug 2026 16:24:38 +0000 (GMT)
+Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A5B6758059;
+	Tue,  4 Aug 2026 16:24:36 +0000 (GMT)
+Received: from b35lp69.lnxne.boe (unknown [9.87.84.240])
+	by smtpav02.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Tue,  4 Aug 2026 16:24:36 +0000 (GMT)
+From: Christian Borntraeger <borntraeger@linux.ibm.com>
+To: KVM <kvm@vger.kernel.org>
+Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        David Hildenbrand <david@kernel.org>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Douglas Freimuth <freimuth@linux.ibm.com>
+Subject: [PATCH v2 0/7] KVM: s390: more fixes
+Date: Tue,  4 Aug 2026 18:24:28 +0200
+Message-ID: <20260804162435.28617-1-borntraeger@linux.ibm.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-ThreadId: Ag8nwV6tN_57
-Date: Tue, 04 Aug 2026 17:52:14 +0200
-From: "Arnd Bergmann" <arnd@arndb.de>
-To: "Niklas Schnelle" <schnelle@linux.ibm.com>,
- "Heiko Carstens" <hca@linux.ibm.com>, "Danilo Krummrich" <dakr@kernel.org>,
- "Gerd Bayer" <gbayer@linux.ibm.com>
-Cc: "Miguel Ojeda" <ojeda@kernel.org>, "Alice Ryhl" <aliceryhl@google.com>,
- "Daniel Almeida" <daniel.almeida@collabora.com>,
- "Vasily Gorbik" <gor@linux.ibm.com>,
- "Alexander Gordeev" <agordeev@linux.ibm.com>, driver-core@lists.linux.dev,
- "Christian Borntraeger" <borntraeger@linux.ibm.com>,
- "Sven Schnelle" <svens@linux.ibm.com>, linux-s390@vger.kernel.org,
- Linux-Arch <linux-arch@vger.kernel.org>, "Boqun Feng" <boqun@kernel.org>,
- "Gary Guo" <gary@garyguo.net>,
- =?UTF-8?Q?Bj=C3=B6rn_Roy_Baron?= <bjorn3_gh@protonmail.com>,
- "Benno Lossin" <lossin@kernel.org>,
- "Andreas Hindborg" <a.hindborg@kernel.org>,
- "Trevor Gross" <tmgross@umich.edu>, "Tamir Duberstein" <tamird@kernel.org>,
- "Alexandre Courbot" <acourbot@nvidia.com>,
- =?UTF-8?Q?Onur_=C3=96zkan?= <work@onurozkan.dev>,
- rust-for-linux@vger.kernel.org
-Message-Id: <57ac7553-4034-49e2-b686-b7272591da00@app.fastmail.com>
-In-Reply-To: <1aac654b8d333cc058a345b03ae0f798f1724ced.camel@linux.ibm.com>
-References: <20260803180931.97202-1-ojeda@kernel.org>
- <fb2daae7-4eba-4ca1-95a5-60f8157eb66b@app.fastmail.com>
- <DKFKXA6YWW8R.1NDZ44Q13XFQH@kernel.org>
- <20260804071330.24760Aaf-hca@linux.ibm.com>
- <33ecacea-ed2a-409c-ab1c-a136e06b1b7a@app.fastmail.com>
- <1aac654b8d333cc058a345b03ae0f798f1724ced.camel@linux.ibm.com>
-Subject: Re: `io{re,un}map()` build error in s390 under `!CONFIG_HAS_IOMEM`
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=E6P9Y6dl c=1 sm=1 tr=0 ts=6a721249 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=iQ6ETzBq9ecOQQE5vZCe:22 a=bC8FS_QDvYdq3oshdmcA:9
+X-Proofpoint-ORIG-GUID: pxtHF2Orw1KCn3SPLuKwR20QKSZwQpqP
+X-Proofpoint-GUID: pxtHF2Orw1KCn3SPLuKwR20QKSZwQpqP
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODA0MDEzMSBTYWx0ZWRfXyA5TYc0d+GTs
+ u7ZV8Z4gwqu6vQYv0Zvfay2xJFeULjVOz/FteluXyp2WDf3Gfv6HjV1jc7J7n7+TAjFUyl/O5An
+ yax3Guw5Dz4QtJvM5kWggZR9CoFrvU4=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODA0MDEzMSBTYWx0ZWRfXz7Dd8ZlZ7Lji
+ zjS1mFS/r9aS1dKCCBIrTdwRivol52TPCCV3aRK7d45wdMZvWcJQlHSR1UMKmleuk3FZqcHaynl
+ JIPOWPyvHNKRjGEhfdUkrt3/4D31/dFHfQCtabVx0VwLFW6WwXpuV6Pty+vLEoEueO4vP4K2Mio
+ BK5KAoDPkjV2QxCJTB8rIuIToJTDy33+dPRS+ugtaL+fQ7+z3uW1GxqD3w51+TIJH5cPI3nXQOR
+ 7SWHzNiVQEbNKMD4KSGk1j24NBryNwCA85DvPdbkiSLnYB034u4W02lznGRgTXxMG4aTDLbRuw9
+ 9+bI4fgdeJwCPsjMDZakQ2mYi6jE47599L6tXAcSty9j9QIlS+Z2id0/140VZ+hT6z03nh8+Is4
+ GSdelLF4WmfGZstswIvDbg76CsNY7+IMWj1tex+DmU3qLZ+6RLCBBOqDE1XVd7+T8I08afWzuSt
+ THn/t+sGK8A894grvsA==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-08-04_03,2026-08-04_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ bulkscore=0 clxscore=1015 lowpriorityscore=0 priorityscore=1501
+ suspectscore=0 adultscore=0 spamscore=0 malwarescore=0 impostorscore=0
+ phishscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2608040131
 
-On Tue, Aug 4, 2026, at 14:21, Niklas Schnelle wrote:
->
-> I think there is also an interesting interaction with memremap(). 
-> That calls ioremap() under some circumstances and it's a known issue that on
-> s390 memremap() will work if the PCI memory-I/O (MIO) instructions are
-> enabled (e.g. on modern LPARs) because then ioremap() actually maps,
-> but won't work if they aren't enabled. With your proposal it would also
-> work for !PCI.
+v1->v2: several sashiko reports added
+- machine check stack exposure
+- extend zeroing to pfault done interrupts
+- old_data leak
+- srcu protection missing
+- guest debug allocations not freed on destroy
+- uppercase patch title
 
-Right, that is an interesting one, as there are somewhat conflicting
-requirements:
+The comment about double free in kvm_s390_reinject_machine_check from
+sashiko is technically not wrong, but this needs further rework.  We do
+not want to forward channel subsystem damage to our guests and we
+actually do not expect to see those in the wild. 
 
-- On PCI MMIO areas, memremap() and memremap_wt() should return a
-  normal kernel pointer that can be dereferenced, e.g. for
-  option ROM contents for a framebuffer console. This can't work
-  on non-MIO guests but might work on MIO depending on which
-  instructions are allowed those mappings (I can never quite
-  remember how this part works on z, does this have to use
-  pcistgi or does a normal aligned load/store work as well?).
+Christian Borntraeger (7):
+  KVM: s390: Remove user triggerable WARN_ON
+  KVM: s390: Zero initialize data structures for inject_pfault_token
+  KVM: s390: Zero initialize irq in reinject_machine_check
+  KVM: s390: Fix memory leak in guest debug handling
+  KVM: s390: Fix old_data leak in guest debug error path
+  KVM: s390: Take srcu when importing watchpoint data
+  KVM: s390: Free guest debug data on vcpu destroy
 
-- On areas that are backed by physical RAM but not part of the
-  kernel memory (something like z/VM DCSS) should be mapped
-  using memremap(), which would fail with the current !MIO
-  implementation. On x86 and arm, this is done for mapping
-  firmware blobs, but I don't think anything tries to do
-  this on s390.
-  Right now, not having memremap() defined on !PCI configs is
-  the one thing that lets you know if some non-PCI code ever
-  start using it, other than crashing a non-MIO guest.
+ arch/s390/kvm/guestdbg.c  |  7 ++++++-
+ arch/s390/kvm/interrupt.c |  4 ++--
+ arch/s390/kvm/kvm-s390.c  | 11 +++++++----
+ 3 files changed, 15 insertions(+), 7 deletions(-)
 
-> I actually have a prototype lying around where ioremap() always remaps
-> by mapping the address cookies much like we do for user-space access
-> via the s390 specific MMIO syscalls and then doing a page table walk in
-> the accessors for the case where we don't have PCI MIO support. That
-> would also allow us to implement the s390 MMIO syscall via
-> generic_access_phys() getting rid of quite nasty inline assembly and
-> over 300 lines removed in total. On the other hand it would cause
-> overhead for non-MIO systems and sadly this currently includes all KVM
-> and z/VM guests which is why it remains on my prototype pile. I haven't
-> actually been able to measure the overhead but clearly more work is
-> done.
+-- 
+2.53.0
 
-This would not help with either memremap() or the !CONFIG_HAS_MMIO
-issue though, right?
-
-       Arnd
