@@ -1,165 +1,146 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1142D3E5EF1;
-	Tue,  4 Aug 2026 18:19:22 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 25C9A381EA8
+	for <linux-s390@vger.kernel.org>; Tue,  4 Aug 2026 18:21:20 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785867566; cv=none; b=W9wLmOekXlWQq/KxGcQSEkgtgfZhpV/fE7XZlPDmLC98H8eSU+stfh+0DEQ8cmxtGus4Ar1BMlErp+gNn6zlN/H0WJ3ETVrA8t3IOoTtiAwWiF5RKakymHBQUvedZQveo3fgSfm4gEbLgZkj4uq49qQrt6sP2NaURG0fBxgDG4s=
+	t=1785867682; cv=none; b=c/YD+Bvk18vasEgHzlHXcTIN0vc+vxO08RG7IWAksDVPr4Vn5eawtRxNewo+/DUGmpZ/KcMnkCM2/uaiF3IApZKJ/FetbZQkNUJwYLJ/opbZDxgCy34AP551mYF82MaXILVxatsHqLYgS6aHPJ2DD/J1HOAYH0BWv6RCQ5kQBQ0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785867566; c=relaxed/simple;
-	bh=Jf6MVU2waTh7MgGVG9Y72/HaKkGvXAyAmuswADQkemA=;
+	s=arc-20240116; t=1785867682; c=relaxed/simple;
+	bh=dLXjkSOQyCqRaGMqGUOMxrJDVQM6ZsNgoa9Dm8/n1UM=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=ikk9NOihJH6gCrkjo3cSgL2B0917DYtqxQSMgmdUXnlfPze/dCrvynx8Zu6G1g6Gf8fXft3HktqZa5O12BVwnUx5YzicSUI/VmvwjzzrHQ7WvkUlg8TqwRxVJNbo1F/T8IzQTKN7ad4h2UmQhhLSWgL6tCC/JIvmoLkII/IfTAg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CmyQWy6f; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=WDVvtek3/ihP48901ZVFLeiEf+1uVQ5cqBDbwTVtt9A98FuEVZ+zTc53lNpbUpGEuUHH8cwMWcs+b4hnn6y1oh1Gmy145xOWayyj/NQdAMjqWueuTqYJSlQHsviE03TolB0vXGbGxT31fogRdjNCQmcuhopkiVZ1yViprynA/I0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PQsUQg7U; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CmyQWy6f"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B70211F000E9;
-	Tue,  4 Aug 2026 18:19:20 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PQsUQg7U"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 535961F00A3F;
+	Tue,  4 Aug 2026 18:21:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785867561;
-	bh=8Em4rsSW5WvA/pIu5Gq7/dIXWb64UUL/Bx3Kq6L9KbU=;
+	s=k20260515; t=1785867680;
+	bh=Du1bFCnOtaYutJHoUwP78rVAgx+P5NuGbrili6eMMGo=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=CmyQWy6fcF7BsiNzA4qNz636/HUu6tjsZxWB5pJjcgQ/f70QYeklpB3G/+yNOBYYA
-	 fKHf/gQhRtV6uaOXON3i34lmOVzhTDFU2tjlxRXD1jD7x3U/o5ok6qgImJmnb68nQ3
-	 TjApOcnyyl2itonrboHdWkO4+myOotxrgnn/t2LeErIgeWP4AQTNU4EkUEQ/jIXOHX
-	 ZVz7Ooa9RNJk6gCGpOtI9Ig9nG07hOInhGU8UrGGuUy3nT0kA9cybgqRttnzH00/pI
-	 rSsWdsLF16kCliYTRmfOaWsWWablu3IupsrLMOAXyYwWhhaXOyYPHr+XmxBJ0pizr6
-	 QfINlHvvXjsxw==
+	b=PQsUQg7UCrIlATDr8pVdkh5rcz8FBxFmYefCrdRJiJ1sn47Q/eXDE8gzot46nJb4f
+	 0TPP7iJNEQo5pU2fKoPV+0cHiaa5VM3SbBvsfKzdhPqKqjOo5jIgVCVOk/ZT0KL6/I
+	 ijAgyZsUk6x0+/Xa8eHgel0XK/BQV5S/orsay0dNfkTqMieXhF/ZU1m8zSk1XlZbKN
+	 OIaIqp++D60w+ztXZS4WhuPQItanCbG1455UtyPh08mzi6g3W7YLBoZdS7X2wqdAd7
+	 mwoIQCPtwft8RpmFbd+O3MbHPtXFU+UhjbwzyN4u3cw86kir7aA4VxPKH99TBRDvlx
+	 DO7BCVXPaaazQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 5/7] KVM: s390: Fix old_data leak in guest debug
- error path
+Subject: Re: [PATCH net-next] net/iucv: fix UAF in afiucv_netdev_event()
 Reply-To: sashiko-reviews@lists.linux.dev
-To: "Christian Borntraeger" <borntraeger@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>, "Heiko
- Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, kvm@vger.kernel.org
-In-Reply-To: <20260804162435.28617-6-borntraeger@linux.ibm.com>
-References: <20260804162435.28617-1-borntraeger@linux.ibm.com>
- <20260804162435.28617-6-borntraeger@linux.ibm.com>
+To: "Nagamani PV" <nagamani@linux.ibm.com>
+Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Heiko
+ Carstens" <hca@linux.ibm.com>, linux-s390@vger.kernel.org
+In-Reply-To: <20260803182053.2355882-1-nagamani@linux.ibm.com>
+References: <20260803182053.2355882-1-nagamani@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 04 Aug 2026 18:19:20 +0000
-Message-Id: <20260804181920.B70211F000E9@smtp.kernel.org>
+Date: Tue, 04 Aug 2026 18:21:19 +0000
+Message-Id: <20260804182120.535961F00A3F@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
 
+New issues:
+- [High] The patch introduces a sleep-in-atomic-context bug by calling a sl=
+eepable memory allocation function while holding a spinlock (`read_lock_bh`=
+) that disables bottom halves.
+
 Pre-existing issues:
-- [Critical] Missing SRCU read lock around KVM memslot access during KVM_SE=
-T_GUEST_DEBUG causes a Use-After-Free vulnerability.
-- [High] Pre-existing memory leak of guest debug arrays (`hw_wp_info`, `hw_=
-bp_info`) and per-watchpoint `old_data` buffers on vCPU destruction.
-- [High] Integer truncation of `bp_data->len` allows unconstrained memory a=
-llocation, leading to a kernel WARNING and potential Denial of Service.
+- [High] Socket state, shutdown flags, and transmissions are manipulated lo=
+cklessly, leading to data races, lost state updates, and a potential NULL p=
+ointer dereference if the socket is orphaned concurrently.
 --
 
---- Patch [5]: [PATCH v2 5/7] KVM: s390: Fix old_data leak in guest debug e=
-rror path ---
-commit a3583776c5b24b471704343b4d20b599ed4ab8ca
-Author: Christian Borntraeger <borntraeger@linux.ibm.com>
+--- Patch [1]: [PATCH net-next] net/iucv: fix UAF in afiucv_netdev_event() =
+---
+commit 295060a75254f1d540b1b59d065d45ebee09c8e8
+Author: Nagamani PV <nagamani@linux.ibm.com>
+Subject: net/iucv: fix UAF in afiucv_netdev_event()
 
-KVM: s390: Fix old_data leak in guest debug error path
+This commit aims to fix a KASAN slab-use-after-free in afiucv_netdev_event(=
+) by
+protecting the socket list traversal with read_lock_bh() / read_unlock_bh().
+This prevents concurrent socket teardown from freeing the socket during
+iteration.
 
-__import_wp_info() allocates a per-watchpoint old_data buffer to back up
-the original guest memory contents. If a later watchpoint of the same
-KVM_SET_GUEST_DEBUG request fails to import, kvm_s390_import_bp_data()
-jumps to the error label, which frees the wp_info array but not the
-old_data buffers of the entries that were imported successfully.
-
-Cc: stable@vger.kernel.org
-
-> diff --git a/arch/s390/kvm/guestdbg.c b/arch/s390/kvm/guestdbg.c
-> index 4c02dbebb2eb3..f7c94d54efbe2 100644
-> --- a/arch/s390/kvm/guestdbg.c
-> +++ b/arch/s390/kvm/guestdbg.c
-> @@ -252,7 +252,7 @@ int kvm_s390_import_bp_data(struct kvm_vcpu *vcpu,
->  			ret =3D __import_wp_info(vcpu, &bp_data[i],
->  					       &wp_info[nr_wp]);
-
-[Severity: Critical]
-This is a pre-existing issue, but does this call path lack SRCU protection?
-
-When KVM_SET_GUEST_DEBUG calls __import_wp_info(), it eventually invokes
-read_guest_abs() which dereferences the KVM memslots array via
-gfn_to_memslot().
-
-Neither kvm_vcpu_ioctl() nor kvm_arch_vcpu_ioctl_set_guest_debug() appears
-to acquire the kvm->srcu read lock. Can a concurrent
-KVM_SET_USER_MEMORY_REGION ioctl free the memslot structure while it is
-being accessed, triggering a use-after-free?
-
-
-[Severity: High]
-This is a pre-existing issue, but is there an integer truncation bug inside
-__import_wp_info() for the length parameter?
-
-bp_data->len is a 64-bit user-controlled value, which is assigned to
-wp_info->len (a 32-bit signed int):
-
-arch/s390/kvm/guestdbg.c:__import_wp_info() {
-    ...
-    wp_info->len =3D bp_data->len;
-    ...
-    if (wp_info->len < 0 || wp_info->len > MAX_WP_SIZE)
-        return -EINVAL;
-
-    wp_info->old_data =3D kmalloc(bp_data->len, GFP_KERNEL_ACCOUNT);
-    ...
-}
-
-By providing a large 64-bit value (e.g., 0x100000005), the lower 32 bits
-would pass the bounds check (5 <=3D MAX_WP_SIZE), but the untruncated 64-bit
-value is then passed to kmalloc().
-
-Can this lead to an unbounded memory allocation exceeding MAX_PAGE_ORDER,
-triggering a kernel warning?
-
->  			if (ret)
-> -				goto error;
-> +				goto error_wp;
->  			nr_wp++;
->  			break;
+> diff --git a/net/iucv/af_iucv.c b/net/iucv/af_iucv.c
+> index ea047bab65e7c..034039c509418 100644
+> --- a/net/iucv/af_iucv.c
+> +++ b/net/iucv/af_iucv.c
 
 [ ... ]
 
-> @@ -269,6 +269,10 @@ int kvm_s390_import_bp_data(struct kvm_vcpu *vcpu,
->  	vcpu->arch.guestdbg.hw_wp_info =3D wp_info;
->  	kfree(bp_data);
->  	return 0;
-> +
-> +error_wp:
-> +	while (nr_wp--)
-> +		kfree(wp_info[nr_wp].old_data);
->  error:
->  	kfree(bp_data);
+> @@ -2213,6 +2213,7 @@ static int afiucv_netdev_event(struct notifier_bloc=
+k *this,
+>  	switch (event) {
+>  	case NETDEV_REBOOT:
+>  	case NETDEV_GOING_DOWN:
+> +		read_lock_bh(&iucv_sk_list.lock);
+>  		sk_for_each(sk, &iucv_sk_list.head) {
+>  			iucv =3D iucv_sk(sk);
+>  			if ((iucv->hs_dev =3D=3D event_dev) &&
+>  			    (sk->sk_state =3D=3D IUCV_CONNECTED)) {
 
 [Severity: High]
-This is a pre-existing issue, but does kvm_arch_vcpu_destroy() leak these
-dynamically allocated buffers when tearing down a vCPU?
+This isn't a bug introduced by this patch, but does checking and modifying
+the socket state here without taking the socket lock create a data race?
 
-If the VM is destroyed while guest debugging is active,
-kvm_arch_vcpu_destroy() seems to skip calling kvm_s390_clear_bp_data()
-to free hw_wp_info, hw_bp_info, and the old_data buffers:
+If a concurrent iucv_sock_release() sets the state to closed and calls
+sock_orphan(sk) (which sets sk->sk_socket =3D NULL) before waiting on
+iucv_sk_list.lock, could this event loop read the old state, get delayed,
+and invoke iucv_send_ctrl() after the socket is orphaned?
 
-arch/s390/kvm/kvm-s390.c:kvm_arch_vcpu_destroy() {
-    ...
-    VCPU_EVENT(vcpu, 3, "%s", "free cpu");
+When sock_alloc_send_pskb() is subsequently called inside iucv_send_ctrl(),
+if the socket's write buffer is full, it tries to set SOCK_NOSPACE via
+set_bit(SOCK_NOSPACE, &sk->sk_socket->flags). Would this result in a NULL
+pointer dereference since sk->sk_socket was cleared?
+
+The iucv_send_ctrl() function also directly manipulates sk->sk_shutdown
+temporarily without locking the socket:
+
+iucv_send_ctrl() {
+    if (sk->sk_shutdown & SEND_SHUTDOWN) {
+        shutdown =3D sk->sk_shutdown;
+        sk->sk_shutdown &=3D RCV_SHUTDOWN;
+    }
     ...
 }
 
-Could a host userspace process repeatedly create and destroy vCPUs with
-guest debug enabled to exhaust host memory?
+Does this create a race window that loses concurrent shutdown updates?
 
->  	kfree(wp_info);
->  	kfree(bp_info);
->  	return ret;
->  }
+>  				if (event =3D=3D NETDEV_GOING_DOWN)
+>  					iucv_send_ctrl(sk, AF_IUCV_FLAG_FIN);
+
+[Severity: High]
+Does this introduce a sleep-in-atomic-context bug?
+
+By acquiring read_lock_bh() earlier in afiucv_netdev_event(), the code now
+executes in an atomic context. However, iucv_send_ctrl() performs a memory
+allocation that can block:
+
+afiucv_netdev_event()
+   read_lock_bh(&iucv_sk_list.lock)
+   iucv_send_ctrl()
+      sock_alloc_send_skb()
+
+The allocation relies on sk->sk_allocation (which defaults to
+GFP_KERNEL | GFP_DMA for AF_IUCV sockets). Since these flags contain
+__GFP_DIRECT_RECLAIM, will this allow the allocator to sleep and trigger
+a "scheduling while atomic" panic?
+
+>  				sk->sk_state =3D IUCV_DISCONN;
+>  				sk->sk_state_change(sk);
+>  			}
+>  		}
+> +		read_unlock_bh(&iucv_sk_list.lock);
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260804162435.2861=
-7-1-borntraeger@linux.ibm.com?part=3D5
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260803182053.2355=
+882-1-nagamani@linux.ibm.com?part=3D1
