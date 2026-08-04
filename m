@@ -1,153 +1,180 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 62B703F54AA
-	for <linux-s390@vger.kernel.org>; Tue,  4 Aug 2026 18:27:59 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0BAE63EC811;
+	Tue,  4 Aug 2026 18:40:25 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785868080; cv=none; b=C1vzq3Pv+NT9OIYql9DjIBVcpuWZSfL3PEouLHjebWH9xVMFk/aoU6EOr139wMVdHiXDikMUXCUgWaKfj+wMlcBLh7xv3h8FniQDpI+idQ2oMv3ZWynU6gHhPvWlo5ASuhHf7MhEgRxaHbWv1f+7cLRwSIeNeIPdhggzexE+P7A=
+	t=1785868827; cv=none; b=oGbbxCQay6Nx5Vp6K1zuFhUdiUlL2H0F7p9E69ZZ/gLgGX2EneBErvIJaV+5MppNxsOBDDqdTe1PpDELM7k0NkKxj79dG+4LlfMgg3a6OlVXSc8tGBISS00qmTUrh/lnhGHRu0oTRtwetNQNs9286UX2mDpIbZfGnuKhQmNAfLM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785868080; c=relaxed/simple;
-	bh=e7V1PITXS5tUg/XuB0Wc6WcZ4i096u26cy9UTaN1T8U=;
+	s=arc-20240116; t=1785868827; c=relaxed/simple;
+	bh=eY65Bcxjph3ZcbvKYPqOyWN5aIDD1EspKXx052ly2Q0=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=CnDaZs3AD3Ed2UPyTasuRsbXlGhlM00OogBaemxK0AHJxmRQoHl8AxoUjiptfYimP+j9xgqr5dWzmZ9+0UL6pijCQteWBXQWvv2OCObu8b37rlUek9nChas3tGcKm8yWa/qKQ5jBOk7LxyF63KxtNWUXdnR6NTeH0/76kWeOga0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JBRcbPMA; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=Pe8ot/qZah16DgyF7jMI0da21UVFxnFbqGfvilpVYWKAP55CauAJcQIpZtpk3T8+cqMzkdmsIVR2yPKwF/q7wdLbZ+MjEh/SvHRYc0yQKUkMpCes5nCm1J97SfpmL3MSpMsTUXatgcdg6nO+6FATSVghzadCA7+v/4skiOPVPH0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=deaG0tML; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JBRcbPMA"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C19221F000E9;
-	Tue,  4 Aug 2026 18:27:58 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="deaG0tML"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9A961F000E9;
+	Tue,  4 Aug 2026 18:40:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785868079;
-	bh=K3W5HzSb5MhZhe1zvY2wuHfeFfAC2TgUoHwXRF0R1wI=;
+	s=k20260515; t=1785868825;
+	bh=56FFIoP2vrqnbsIDNf7SEtR8MKLE68KpquZxikJMcnc=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=JBRcbPMA/GycwInyFH7/0m7JQyqAHE1oFGoY57S7zP7tpRFdDHelx516Jy+xPVaa2
-	 LuZ8X7rR0NbjVzEykk2fKxA3/Df09TcLYzJycTY4I6872mIGXkVd1K2FE4vVtppMrY
-	 gmvXovK71mH4n1wowrqbAADll3rLNoLtH/s7K0Ybyd7Scs64QEGcTQrDMufbXIwpXe
-	 dGfMR7qyygYynJ3iX52R050uIksXA4Md6NyuECkPyEL05Vjz/HKoMI+dhuscW+0Qrp
-	 Ti8sLhaH2r1nXdu0qpJEwmcbkjqhlLIShCEgZZuGYjHUQlKw9igiW2qBWy1zdpIfel
-	 tt7xj7/aewsxg==
+	b=deaG0tMLAuyCzseptceLR5wnDtxCS0jS/So6suwWQbbHD/+ckssn2MzycxEEoNoab
+	 9eV5U1D3bdhanrwhNdMQ+EEXw9Iu4UmuefUQtcrTIf7t+x2lQOHIe9fgAgvAswOavR
+	 uNXFuuQlH3wPRjBSbEyv9ImwyYRWMeSHtzhfCOWLwA6hRl0CV9PlkcCdbeJFNvbMVT
+	 RjmJ3iVKA1c1IVV8wCrg20MJSBVrj3V84VvywE+EAt7xa///riRBEyViKIWksHLIpn
+	 eTOjiBg8nXaRGKbCHBV9rg+8/gfEUdBleKX7m9Y/xk0Ws2cBMGPedMpKD+d/kW8DZN
+	 WgszvskJUGbuw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH net-next] s390/ctcm: Convert fsm.h to proper kernel-doc
- format
+Subject: Re: [PATCH v2 6/7] KVM: s390: Take srcu when importing watchpoint
+ data
 Reply-To: sashiko-reviews@lists.linux.dev
-To: "Nagamani PV" <nagamani@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>
-In-Reply-To: <20260803182736.2356374-1-nagamani@linux.ibm.com>
-References: <20260803182736.2356374-1-nagamani@linux.ibm.com>
+To: "Christian Borntraeger" <borntraeger@linux.ibm.com>
+Cc: "Vasily Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>
+In-Reply-To: <20260804162435.28617-7-borntraeger@linux.ibm.com>
+References: <20260804162435.28617-1-borntraeger@linux.ibm.com>
+ <20260804162435.28617-7-borntraeger@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 04 Aug 2026 18:27:58 +0000
-Message-Id: <20260804182758.C19221F000E9@smtp.kernel.org>
+Date: Tue, 04 Aug 2026 18:40:23 +0000
+Message-Id: <20260804184024.B9A961F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 4 potential issue(=
 s) to consider:
 
+New issues:
+- [High] Holding kvm->srcu across a copy_from_user() operation introduces a=
+ userfaultfd deadlock vulnerability.
+- [Low] Mixing goto-based error handling and scope-based cleanup helpers in=
+ the same function.
+
 Pre-existing issues:
-- [High] `fsm_deltimer()` uses non-sync `timer_delete()`, which can lead to=
- a use-after-free when timers are freed during teardown.
-- [High] `fsm_addtimer()` unconditionally calls `timer_setup()`, which corr=
-upts the timer wheel if the timer is already active.
+- [High] Hardware breakpoint and watchpoint data allocated via KVM_SET_GUES=
+T_DEBUG is leaked upon VCPU destruction.
+- [High] Integer truncation bypasses length validation, allowing unbounded =
+kmalloc requests and kernel log spam.
 --
 
---- Patch [1]: [PATCH net-next] s390/ctcm: Convert fsm.h to proper kernel-d=
-oc format ---
-commit 2780dcd525cc21b0863567563af1ccbda9bf1645
-Author: Nagamani PV <nagamani@linux.ibm.com>
+--- Patch [6]: [PATCH v2 6/7] KVM: s390: Take srcu when importing watchpoin=
+t data ---
+commit f52f981282afa4c844e3d3336d83110ab98f5741
+Author: Christian Borntraeger <borntraeger@linux.ibm.com>
 
-s390/ctcm: Convert fsm.h to proper kernel-doc format
+KVM: s390: Take srcu when importing watchpoint data
 
-This commit converts function declarations and comments in drivers/s390/net=
-/fsm.h
-to proper kernel-doc format. It changes debug macros and internal comments =
-to
-use standard block comments and removes redundant extern keywords.
+This commit wraps the call to kvm_s390_import_bp_data() in an SRCU read-side
+critical section using scoped_guard(). This is done to ensure that the
+memslots array is not freed concurrently during the watchpoint import
+process.
 
-> diff --git a/drivers/s390/net/fsm.h b/drivers/s390/net/fsm.h
-> index 16dc071a2973c..6a0b47ca87f0c 100644
-> --- a/drivers/s390/net/fsm.h
-> +++ b/drivers/s390/net/fsm.h
+> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> index 611dcb5342101..0a197e055cad0 100644
+> --- a/arch/s390/kvm/kvm-s390.c
+> +++ b/arch/s390/kvm/kvm-s390.c
+
 [ ... ]
->  /**
-> - * Clears a pending timer of an FSM instance.
-> + * fsm_deltimer - Clears a pending timer of an FSM instance
-> + * @timer: The timer to clear
->   *
-> - * @param timer The timer to clear.
-> + * Stops and removes the timer. Safe to call on an inactive timer.
->   */
-> -extern void fsm_deltimer(fsm_timer *timer);
-> +void fsm_deltimer(fsm_timer *timer);
+
+> @@ -4248,8 +4248,10 @@ int kvm_arch_vcpu_ioctl_set_guest_debug(struct kvm=
+_vcpu *vcpu,
+>  		/* enforce guest PER */
+>  		kvm_s390_set_cpuflags(vcpu, CPUSTAT_P);
+> =20
+> -		if (dbg->control & KVM_GUESTDBG_USE_HW_BP)
+> -			rc =3D kvm_s390_import_bp_data(vcpu, dbg);
+> +		if (dbg->control & KVM_GUESTDBG_USE_HW_BP) {
+> +			scoped_guard(srcu, &vcpu->kvm->srcu)
+
+[Severity: Low]
+This isn't a bug, but does mixing scoped_guard() with the existing goto-bas=
+ed
+error handling in this function violate the cleanup guidelines?
+
+According to include/linux/cleanup.h, mixing goto-based error handling with
+scope-based cleanup helpers in the same function can create confusing
+ownership semantics. The guidelines suggest converting all resources that
+need a goto cleanup to scope-based cleanup, or converting none of them. In
+this function, vcpu_put(vcpu) is still handled via a goto out; label.
+
+> +				rc =3D kvm_s390_import_bp_data(vcpu, dbg);
 
 [Severity: High]
-This isn't a bug introduced by this patch, but is it possible for this
-non-synchronous timer deletion to cause a use-after-free during device
-teardown?
+Could holding the SRCU read lock across this call introduce a userfaultfd
+deadlock?
 
-Looking at fsm_deltimer() in drivers/s390/net/fsm.c, it uses timer_delete().
-During teardown in ctcm_free_channel(), the driver calls:
+Inside kvm_s390_import_bp_data(), the very first operation is:
 
-ctcm_free_channel() {
-        fsm_deltimer(&ch->timer);
-        ...
-        kfree_fsm(ch->fsm);
-        kfree(ch);
+arch/s390/kvm/guestdbg.c:kvm_s390_import_bp_data() {
+    ...
+    bp_data =3D memdup_array_user(dbg->arch.hw_bp, dbg->arch.nr_hw_bp,
+                                sizeof(*bp_data));
+    ...
 }
 
-Since timer_delete() does not wait for a concurrently executing timer
-callback, could fsm_expire_timer() still be running on another CPU and
-dereference ch->fsm after it has been freed by kfree_fsm()? Would it be
-safer to use timer_shutdown_sync() or timer_delete_sync() here?
-
->  /**
-> - * Adds and starts a timer to an FSM instance.
-> + * fsm_addtimer - Adds and starts a timer for an FSM instance
-> + * @timer: The timer to be added (timer->fi must point to the FSM instan=
-ce)
-> + * @millisec: Duration in milliseconds after which the timer expires
-> + * @event: Event to trigger when timer expires
-> + * @arg: Generic argument provided to the event handler
->   *
-> - * @param timer    The timer to be added. The field fi of that timer
-> - *                 must have been set to point to the instance.
-> - * @param millisec Duration, after which the timer should expire.
-> - * @param event    Event, to trigger if timer expires.
-> - * @param arg      Generic argument, provided to expiry function.
-> + * Starts a timer that will trigger the specified event after the given
-> + * duration. The timer must have been initialized with fsm_settimer().
->   *
-> - * @return         0 on success, -1 if timer is already active.
-> + * Return: Always returns 0
->   */
-> -extern int fsm_addtimer(fsm_timer *timer, int millisec, int event, void =
-*arg);
-> +int fsm_addtimer(fsm_timer *timer, int millisec, int event, void *arg);
+If user space maps this array using userfaultfd, the VCPU thread will block
+in copy_from_user() while holding the kvm->srcu read lock. If the user space
+userfaultfd handler attempts to execute a VM-wide KVM ioctl that modifies
+memslots (such as KVM_SET_USER_MEMORY_REGION), that ioctl will call
+synchronize_srcu(&kvm->srcu). The VCPU thread would wait for the page fault
+to be resolved, and the userfaultfd handler would wait for the SRCU lock to
+be released.
 
 [Severity: High]
-This is a pre-existing issue, but does fsm_addtimer() risk corrupting the
-timer wheel if called on an already active timer?
+This isn't a bug introduced by this patch, but does kvm_s390_import_bp_data=
+()
+leak the dynamically allocated debug information upon VCPU destruction?
 
-In drivers/s390/net/fsm.c, fsm_addtimer() unconditionally calls
-timer_setup():
+kvm_s390_import_bp_data() allocates memory for wp_info, bp_info, and old_da=
+ta,
+and assigns them to vcpu->arch.guestdbg. While these are freed during a
+subsequent KVM_SET_GUEST_DEBUG ioctl via kvm_s390_clear_bp_data(vcpu), it
+appears kvm_s390_clear_bp_data() is never invoked during VCPU destruction:
 
-fsm_addtimer() {
-        timer_setup(&this->tl, fsm_expire_timer, 0);
-        ...
-        add_timer(&this->tl);
+arch/s390/kvm/kvm-s390.c:kvm_arch_vcpu_destroy() {
+    ...
+    // No call to kvm_s390_clear_bp_data()
+    ...
 }
 
-Since timer_setup() zeros out the list entry fields, calling this on a
-currently pending timer will corrupt the timer wheel list. While many
-callers delete the timer first, there are paths like mpc_action_side_xid()
-in drivers/s390/net/ctcm_mpc.c that invoke fsm_addtimer() without a
-preceding fsm_deltimer(). Should this use mod_timer() instead to safely
-handle already active timers?
+Could an unprivileged user who can create VCPUs repeatedly set hardware
+breakpoints and then close the VCPU file descriptor to leak this memory?
+
+[Severity: High]
+This is a pre-existing issue, but can an integer truncation in
+__import_wp_info() bypass length validation and cause unbounded kmalloc
+requests?
+
+When kvm_s390_import_bp_data() processes watchpoints, it calls
+__import_wp_info(), where the user-provided __u64 length is truncated to an
+int for the bounds check:
+
+arch/s390/kvm/guestdbg.c:__import_wp_info() {
+    ...
+    wp_info->len =3D bp_data->len;
+    ...
+    if (wp_info->len < 0 || wp_info->len > MAX_WP_SIZE)
+        return -EINVAL;
+   =20
+    wp_info->old_data =3D kmalloc(bp_data->len, GFP_KERNEL_ACCOUNT);
+    ...
+}
+
+If a malicious user provides a length of 4GB + 1, the truncated integer
+becomes 1, bypassing the bounds check. The code then calls kmalloc() with
+the original __u64 size. Since it lacks __GFP_NOWARN, won't this trigger a
+memory allocation warning dump in the kernel log?
+
+> +		}
+>  	} else {
+>  		kvm_s390_clear_cpuflags(vcpu, CPUSTAT_P);
+>  		vcpu->arch.guestdbg.last_bp =3D 0;
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260803182736.2356=
-374-1-nagamani@linux.ibm.com?part=3D1
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260804162435.2861=
+7-1-borntraeger@linux.ibm.com?part=3D6
