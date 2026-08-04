@@ -1,44 +1,45 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 503822BB17;
-	Tue,  4 Aug 2026 12:30:16 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B50B31E85E;
+	Tue,  4 Aug 2026 12:31:56 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785846618; cv=none; b=rplQusFvHbFGGtJrbwpcIzZbKANlLt99MFcnXnovGxg9qJSJWISnngBMbt9uaSzmWRtunRanKFrNleRXZmOW6e4oGrZQk93s3sGF8mXVgHTSGoJUA6UQkbrOss8JfDnUGTw0ufQpwGXRM8epygSkckWkIl/s3PmHxK/q55Agl18=
+	t=1785846718; cv=none; b=T+pvQMCdsCMlxRzEYr+PVPZdCfsjdo9Kx+TOM2eiBTzasKrc8F848U5j6SxxftNRJcnVQl13FJrFgZoiX3FLiJMPAlbkK7MK05QDgZpHATN8O/kk6AZ9yvOpWDId96xkZQm0dC3DKO2OJ2Ck6Y94P/iPIgvlbZB2kR6TRphU7no=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785846618; c=relaxed/simple;
-	bh=qS5Zopki3VAAUhDWMRXelmQti9f2wXDrmesUVlo3Pao=;
+	s=arc-20240116; t=1785846718; c=relaxed/simple;
+	bh=2eMCZj3wMRY2FtHiV9IYph6UHiqs2UPzP/kv7BEJTmA=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=UrQNxrNvmsf2V92A5L1QHcf2ZKtCL8orlG7rA5OV/jJdFq46SqwF4RwwbHuQJOp0nryEyDZ6YSLh1Ai5YEAo/+I+eXX23v2C21Z+xnmA4DobKgwQC3H+MY/qjDkCwPuUQc4J2gLCk/3AFqJDr9ssc64RKYN754KZnzU1fF3Vuag=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=K0enCvpu; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=HkXugiRCn57Nv715CMpoj7affG1NJcOQvgQu/Dnrdw9JHSj6j0vL9VG1w+Mc9SlpyGfByoy8ShR54SksEhV8FsLGbzsz30LB5Q9cS9EGR5Tmt6sQbU+4m8T+SoHkjOMXNsL9wg3OuNX/0qPAAqao4TCbNG3SMY3wTPt7fCUv54A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lX71/vsV; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="K0enCvpu"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 411CC1F000E9;
-	Tue,  4 Aug 2026 12:30:14 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lX71/vsV"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 601E01F00A3A;
+	Tue,  4 Aug 2026 12:31:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785846615;
-	bh=h6uTgvbzsfHztun3X6lhFFLMxhJuej9DVPBNS+33W74=;
+	s=k20260515; t=1785846716;
+	bh=3Rdr1MiG9gdlT4/0z8dZX9Xgl1tJzo3jF2h2RIkg/o0=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=K0enCvputhz/9LjsEu/IrIpuMarE7Ts377TNOShUIBV/rtGiKKiGOGEj329XPHSEn
-	 JCkDuu1LDJlLg4WqZaEgEmfWfJp7fCMHH9+MsXOKuIvOrHaE7fzAxy0KiULU+zQEO8
-	 ZoHWzSgt5fUrN7y0Rz6VuG6omM8W0kVnywlXNEGKcfvfFOvFo+HHcA6m5/n17ydWMO
-	 FjYlSDj5c/v8kPylDYgYXqPFZv7G1NDQfgukNgbdxvkn54wxrIrzbM+iMEQsVP7nuZ
-	 LMeVOx0NNP8BU5jDsh9pmQtx+/3aHrtNCUHnT4WM+68ZNecT+d80QVqhx4vQqB0RHL
-	 0c9pbIyM6RL9g==
+	b=lX71/vsV6c57CzX/Ll5kGMtJimg09mwgyQJouZAvFraJon/DW+UHZyu47S58cIj5Z
+	 oNYe5CePvZRMVuKd6Wka+ZqJGimTk0XZPy+hWreU3GmPVIBP8fr1urbrB6fJbkdV7L
+	 TcN+otWYoiNbRk4NtUnU6N0xIYssE6XPtMSTqk6ie/+YhFg4/BuSpjIKBI8uIPR37a
+	 YQjfbAc4IjCsgjNTL8BloHEReY6jYrJdSBja+wnlR1L52DiNen5FPs82yoSNLIsbIu
+	 iUG9DXITRyG1jaPCMBOcB7/d8NfBwf26u1PNQ4zIhihtmEnGEQzqxnMjiq//oQys+1
+	 w1jazjJUcbiOA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 2/6] drm/shmem_helper: use vmf_insert_pfn_mkwrite()
+Subject: Re: [PATCH 2/3] KVM: s390: zero initialize irq for
+ inject_pfault_token
 Reply-To: sashiko-reviews@lists.linux.dev
-To: "Paolo Bonzini" <pbonzini@redhat.com>
-Cc: dri-devel@lists.freedesktop.org, "Heiko Carstens" <hca@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, "Vasily
- Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
-In-Reply-To: <20260804120529.1730187-3-pbonzini@redhat.com>
-References: <20260804120529.1730187-1-pbonzini@redhat.com>
- <20260804120529.1730187-3-pbonzini@redhat.com>
+To: "Christian Borntraeger" <borntraeger@linux.ibm.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>
+In-Reply-To: <20260804120631.736919-3-borntraeger@linux.ibm.com>
+References: <20260804120631.736919-1-borntraeger@linux.ibm.com>
+ <20260804120631.736919-3-borntraeger@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 04 Aug 2026 12:30:13 +0000
-Message-Id: <20260804123015.411CC1F000E9@smtp.kernel.org>
+Date: Tue, 04 Aug 2026 12:31:55 +0000
+Message-Id: <20260804123156.601E01F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -49,125 +50,108 @@ Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [Critical] The `.huge_fault` handler `drm_gem_shmem_any_fault` does not v=
-erify if the PMD-sized huge page fits entirely within the bounds of the VMA=
-, allowing a VMA boundary bypass.
-- [High] Incorrect page offset calculation in DRM shmem fault handlers caus=
-es the wrong pages to be mapped.
+- [Critical] Calling kfree() on a stack-allocated pointer during floating m=
+achine check reinjection.
+- [High] Uninitialized kernel stack memory in the `fixed_logout` array is l=
+eaked to host userspace via the KVM_GET_IRQ_STATE ioctl.
 --
 
---- Patch [2]: [PATCH v2 2/6] drm/shmem_helper: use vmf_insert_pfn_mkwrite(=
-) ---
-commit 6ce5b52de7395aa4c0a50d399649686c52e613a9
-Author: Paolo Bonzini <pbonzini@redhat.com>
+--- Patch [2]: [PATCH 2/3] KVM: s390: zero initialize irq for inject_pfault=
+_token ---
+commit f6de66eb1335bc1e8dc54d73ed3ad8d7b39ac810
+Author: Christian Borntraeger <borntraeger@linux.ibm.com>
 
-drm/shmem_helper: use vmf_insert_pfn_mkwrite()
+KVM: s390: zero initialize irq for inject_pfault_token
 
-This ensures that KVM or VFIO correctly see a writable PTE when
-they request one. Otherwise, a guest write to an unpopulated
-PTE from a mapping backed by a DRM GEM BO triggers a VM exit
-with EFAULT.
+This commit fixes a potential stack information leak to userspace via
+migration ioctls. It zero-initializes the irq structure in
+__kvm_inject_pfault_token() to ensure stale stack values are not copied.
 
-Link: https://lore.kernel.org/kvm/20260729072044.25796-1-slp@redhat.com/
-
-> diff --git a/drivers/gpu/drm/drm_gem_shmem_helper.c b/drivers/gpu/drm/drm=
-_gem_shmem_helper.c
-> index c989459eb2159..c81be3e973173 100644
-> --- a/drivers/gpu/drm/drm_gem_shmem_helper.c
-> +++ b/drivers/gpu/drm/drm_gem_shmem_helper.c
-> @@ -589,11 +589,25 @@ static void drm_gem_shmem_record_mkwrite(struct vm_=
-fault *vmf)
->  	folio_mark_dirty(page_folio(shmem->pages[page_offset]));
+> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> index 518a69c55e85c..4f4ac6a8d1ad3 100644
+> --- a/arch/s390/kvm/kvm-s390.c
+> +++ b/arch/s390/kvm/kvm-s390.c
+> @@ -4475,7 +4475,7 @@ static void __kvm_inject_pfault_token(struct kvm_vc=
+pu *vcpu, bool start_token,
+>  				     unsigned long token)
+>  {
+>  	struct kvm_s390_interrupt inti;
+> -	struct kvm_s390_irq irq;
+> +	struct kvm_s390_irq irq =3D {};
 
 [Severity: High]
-This is a pre-existing issue, but does this page_offset calculation
-correctly handle the requested offset within the GEM object?
+This isn't a bug introduced by this patch, but while looking at stack memor=
+y=20
+leaks, does a similar uninitialized stack leak happen in=20
+kvm_s390_reinject_machine_check() in arch/s390/kvm/interrupt.c?
 
-When userspace mmaps a sub-range of a GEM object with a non-zero
-offset, or unmaps a prefix of the VMA, the core memory management
-sets vma->vm_pgoff to include the requested offset. Because
-page_offset evaluates to vmf->pgoff - vma->vm_pgoff, it calculates
-the offset relative to the VMA start, ignoring the requested offset
-within the GEM object itself.
+arch/s390/kvm/interrupt.c:kvm_s390_reinject_machine_check() {
+    ...
+    struct kvm_s390_irq irq;
+    ...
+}
 
-This can cause folio_mark_dirty() to mark the wrong folio dirty.
-The same calculation is present in drm_gem_shmem_any_fault(),
-which could lead to mapping the wrong physical pages.
+If the machine check is injected into the vCPU (mci.ck is false), several
+fields are populated, but the fixed_logout array might be left
+uninitialized.=20
 
->  }
-> =20
-> +/*
-> + * Because the vm_ops have a .pfn_mkwrite() callback, vma_set_page_prot()
-> + * has cleared the write bit from vma->vm_page_prot.  vmf_insert_pfn()
-> + * would install a read-only entry even for a write fault, relying on a
-> + * second fault to reach .pfn_mkwrite() and upgrade it, but that second
-> + * fault never happens for fixup_user_fault() callers that directly
-> + * walk the page tables with follow_pfnmap_start().  To ensure that
-> + * they don't see the read-only entry, pass FAULT_FLAG_WRITE info down
-> + * to install a writable entry right away.  Because .pfn_mkwrite() is
-> + * not invoked, record the write afterwards.
-> + */
->  static vm_fault_t try_insert_pfn(struct vm_fault *vmf, unsigned int orde=
-r,
->  				 unsigned long pfn)
->  {
-> +	bool write =3D vmf->flags & FAULT_FLAG_WRITE;
-> +	vm_fault_t ret =3D VM_FAULT_FALLBACK;
-> +
->  	if (!order) {
-> -		return vmf_insert_pfn(vmf->vma, vmf->address, pfn);
-> +		ret =3D vmf_insert_pfn_mkwrite(vmf->vma, vmf->address, pfn, write);
->  #ifdef CONFIG_ARCH_SUPPORTS_PMD_PFNMAP
->  	} else if (order =3D=3D PMD_ORDER) {
->  		unsigned long paddr =3D pfn << PAGE_SHIFT;
-> @@ -601,27 +615,15 @@ static vm_fault_t try_insert_pfn(struct vm_fault *v=
-mf, unsigned int order,
-> =20
->  		if (aligned &&
->  		    folio_test_pmd_mappable(page_folio(pfn_to_page(pfn)))) {
-> -			vm_fault_t ret;
-> -
->  			pfn &=3D PMD_MASK >> PAGE_SHIFT;
-> -
-> -			/* Unlike PTEs which are automatically upgraded to
-> -			 * writeable entries, the PMD upgrades go through
-> -			 * .huge_fault(). Make sure we pass the "write" info
-> -			 * along in that case.
-> -			 * This also means we have to record the write fault
-> -			 * here, instead of in .pfn_mkwrite().
-> -			 */
-> -			ret =3D vmf_insert_pfn_pmd(vmf, pfn,
-> -						 vmf->flags & FAULT_FLAG_WRITE);
-> -			if (ret =3D=3D VM_FAULT_NOPAGE && (vmf->flags & FAULT_FLAG_WRITE))
-> -				drm_gem_shmem_record_mkwrite(vmf);
-> -
-> -			return ret;
-> +			ret =3D vmf_insert_pfn_pmd(vmf, pfn, write);
+When passed to kvm_s390_inject_vcpu() -> __inject_mchk(), the uninitialized
+fixed_logout array is copied into the vCPU's pending interrupt state:
+
+arch/s390/kvm/interrupt.c:__inject_mchk() {
+    ...
+    memcpy(&mchk->fixed_logout, &irq->u.mchk.fixed_logout,
+           sizeof(mchk->fixed_logout));
+    ...
+}
+
+Later, if a host user calls the KVM_S390_GET_IRQ_STATE ioctl, this state
+could be copied to userspace:
+
+arch/s390/kvm/interrupt.c:kvm_s390_get_irq_state() {
+    ...
+    if (copy_to_user(&buf[n], &irq, sizeof(irq)))
+    ...
+}
+
+Could this leak kernel stack memory in the fixed_logout array to userspace?
+
 
 [Severity: Critical]
-This is a pre-existing issue, but does the fault handler verify that a
-PMD-sized huge page fits entirely within the bounds of the VMA?
+This is another pre-existing issue, but while looking at=20
+kvm_s390_reinject_machine_check(), can a stack pointer be incorrectly freed?
 
-The core __thp_vma_allowable_orders() skips VMA boundary checks by
-relying on the driver's .huge_fault handler to enforce them. However,
-drm_gem_shmem_any_fault() does not appear to check if
-vmf->address + PMD_SIZE <=3D vma->vm_end before delegating to
-vmf_insert_pfn_pmd() via try_insert_pfn().
+It allocates struct kvm_s390_interrupt_info inti on the kernel stack:
 
-Could an unprivileged user create a 4KB VMA backed by a PMD-aligned GEM
-object, and fault it to install a 2MB PMD that overwrites adjacent VMA
-page tables?
+arch/s390/kvm/interrupt.c:kvm_s390_reinject_machine_check() {
+    ...
+    struct kvm_s390_interrupt_info inti;
+    ...
+}
 
->  		}
->  #endif
->  	}
-> -	return VM_FAULT_FALLBACK;
-> +
-> +	if (ret =3D=3D VM_FAULT_NOPAGE && write)
-> +		drm_gem_shmem_record_mkwrite(vmf);
-> +	return ret;
->  }
+If mci.ck is true, it attempts to inject a floating machine check by passing
+the stack-allocated struct by reference:
+
+arch/s390/kvm/interrupt.c:kvm_s390_reinject_machine_check() {
+    ...
+    rc =3D __inject_vm(vcpu->kvm, &inti);
+    ...
+}
+
+The injection routes KVM_S390_MCHK to __inject_float_mchk(), which
+unconditionally calls kfree() on the passed pointer:
+
+arch/s390/kvm/interrupt.c:__inject_float_mchk() {
+    ...
+    kfree(inti);
+    ...
+}
+
+Would calling kfree() on this stack pointer cause a kernel panic?
+
+>  	struct kvm_s390_interrupt_info *inti_mem =3D NULL;
+>  	int ret =3D 0;
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260804120529.1730=
-187-1-pbonzini@redhat.com?part=3D2
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260804120631.7369=
+19-1-borntraeger@linux.ibm.com?part=3D2
