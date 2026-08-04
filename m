@@ -1,83 +1,80 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4C8F3A759D
-	for <linux-s390@vger.kernel.org>; Tue,  4 Aug 2026 12:05:45 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EBF443AA507
+	for <linux-s390@vger.kernel.org>; Tue,  4 Aug 2026 12:05:46 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785845147; cv=none; b=oeJc7WvDHr2c60XboNJ6GlGioBKBtOnGrlVpxRnwt6qq7lRLVtd8pObF5nOHSoXragMPjfY+QlBSOS7pfjBWXvs75p3hFUF3AN/2PwbQZ+YNJvIc0oI6OMdyQ8JKfNbL+sp3W/AMCNv+xptBODLi8KV/XsuEuEy7KMQWd2AsRmM=
+	t=1785845148; cv=none; b=aQx62NhKNvn41jF97QqmDcITG053QNAHFO4WmM7MOfIwEJXUwjVINkcO2lOg8egZapF5PH7V2kIlNOXwgR5QF4kzuDOZkZp3+tmwxMYVNIWJTQjDD94Om8ismSgS0vn5NQVkTf/DatXn80WsHeZfUpNy40jhFhzQByByO2LGiDY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785845147; c=relaxed/simple;
-	bh=cDZoklWx0/N7wex/E0OmJ7dckrnB/Lv/S0imotkXjpA=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=XygvmusjPlt8ort29rBm8DontkvXqEDyO0DahH/EM1Fk/xKJDgWwZ2cqdiaqNKmWZVOf4SVah4Srm/OnHTlwt+tDkmPvXln7M5Jp60cspzvYbIWESoh/CpbZ84VVVCqhogCmfaC6R7IhREOcA0PILxWFTdcx809NNDrXVaI3rVw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=JtAD0yik; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=PBlyJqgg; arc=none smtp.client-ip=170.10.133.124
+	s=arc-20240116; t=1785845148; c=relaxed/simple;
+	bh=qhkR2v3EkAztMd7zn4yTHh4XbDWdyGkn7YKKdVCCJyY=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=KWULw2BdGKHSs+Fi4LEohIhkXtO6RAz3N3AIteWfLthLjJk7BpBfYcX6KJo0st9ma9/gIBHHhCTcJdotDWumemGWGJGVq7qYIgH+CKeptPJ9kIW0MS5dA8ydkoz+5JyA6NyD+Gh3DTTet7CN47LnxNYC39oC7ZM3Mu5kAZAzY1g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=MLo1cM+t; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=Xw4bPWhW; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="JtAD0yik";
-	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="PBlyJqgg"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MLo1cM+t";
+	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="Xw4bPWhW"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1785845144;
+	s=mimecast20190719; t=1785845146;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=tjD464vOIu2Voqk/KOGceV068H0b4O8GMn0RbRgTxRU=;
-	b=JtAD0yikt7uIbSB66QLsjCSn9FY/gZqBzemeBQRRqyk7eYeTVDtC3+o7EfTjoGBQOVwtOv
-	VJmUFOuvFLEsE0GK0v+6WtzqLWu/wxM5dBJryGUkUA342Joy35D/ClWZn0QkdG1hIhuGfP
-	C+n4N6sg5R0GaEmS+zGX7G4aw6aSaUQ=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=AZAgqjN1G77tAGGqT1Vu5xvpE2S1pmBmpjJ+rMqalos=;
+	b=MLo1cM+tcsmR3HNNFLeJy3qM0lM80YEzymPFnhHMr9OM3C32AJU5YACPEkeZLl7w/s8e/F
+	oomAJzY1a9ZRZ3pcRK/iWK5TqqO+QQoh7KPChe6x+K1PRRgPZXGpvyuaoNvRvIzKRbuvhA
+	k1BEoX0Drk6h9jdjdqiq/ic9c+1bKf8=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-50-IBtWxA3UNf2Ckbjyo7tJyA-1; Tue, 04 Aug 2026 08:05:43 -0400
-X-MC-Unique: IBtWxA3UNf2Ckbjyo7tJyA-1
-X-Mimecast-MFC-AGG-ID: IBtWxA3UNf2Ckbjyo7tJyA_1785845142
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-4954fe32d6eso14350375e9.1
-        for <linux-s390@vger.kernel.org>; Tue, 04 Aug 2026 05:05:43 -0700 (PDT)
+ us-mta-330-DODoYSDJN8q5BgWA6jKB_w-1; Tue, 04 Aug 2026 08:05:33 -0400
+X-MC-Unique: DODoYSDJN8q5BgWA6jKB_w-1
+X-Mimecast-MFC-AGG-ID: DODoYSDJN8q5BgWA6jKB_w_1785845133
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-495689bfcc8so21105335e9.1
+        for <linux-s390@vger.kernel.org>; Tue, 04 Aug 2026 05:05:33 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=redhat.com; s=google; t=1785845142; x=1786449942; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=tjD464vOIu2Voqk/KOGceV068H0b4O8GMn0RbRgTxRU=;
-        b=PBlyJqggW557o63F/kMXtvdzr2cYcTMTTjJqXhJYSUppJ8jSsDSuNBQDc8qYBT3iTU
-         K4KnBO6ItEFRf/kI5UjlrfAuGEQfJsOYxAhhMXxbVkDiciKBVL3ljk3HV+UwvXajOhr4
-         UQuz2Ddmdw/sZDZRMsjuIeXuU/KXy84ll79fckKqYsiw+Scf5uev7spLgc8nn8Jby9Mf
-         kC/vFboTw2C6Gd2l5LecAQVE4BuR/5RCDHBzPK+Y9tnUWL0bakvh/EX9ftAmZL/ba8RW
-         Q+oHjgYaWQps0V9rkmJrz4pvSSUAGf8d88sp3v9Q7fYQp5FxRbjfLxZDf38IG9P/pVc3
-         B29Q==
+        d=redhat.com; s=google; t=1785845132; x=1786449932; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=AZAgqjN1G77tAGGqT1Vu5xvpE2S1pmBmpjJ+rMqalos=;
+        b=Xw4bPWhW5YhH4Hbuq1Zzw9eyP1K5934gjy2faqt+1W0dGTLCvjgyVjxj57+XHM1UQg
+         +O+fJH+kTZtaqFhjKX5zIotBkFK6hlf3+09VU9QxwRyt5ENJBpQZbV85xglnogJdf7yc
+         v2YIN/eqCdG/7TZJOOXar3LmbF4SVVpgnRrn/P+oNjoHpZNbx5pkqxDOztWlVP5prssL
+         gIlCczdj32EXl9w9UR03OHonik/Ks/w6kpFBPEWwuQadRz9yFtnh75eOLvjOiFLx5u56
+         yitXwrc5nLdli/Pufu/E7MA3uNd8NAx9ThYpLSbjJEizOKOV4c8M9oT3KYZr4azqij74
+         xdVg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785845142; x=1786449942;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=tjD464vOIu2Voqk/KOGceV068H0b4O8GMn0RbRgTxRU=;
-        b=Y3FNQ6Cz4u8PMMrx1d7O7lCyT9eucoEizLOI/RuylxTkcyg+D+auDQYNwfn0jCftH/
-         DRSnSEMbr2D5/diIrerf7Qqgke5CAMlCYt9nJ22X0iZwIb3gs9+gPeuLdwguPRDSzDsH
-         7Ggl2/3PKt8w9U3a+rXpcB6wEszCMXjZaEKp9/PoD6V10esQEmPvhJPb+J5nyFra8aew
-         eXstqMPqmufxN0pBTBWdvmRjWLDhCgd4+k9W/d8fpibJODGdZIp+KACsLfbzlQsMBcxH
-         RYbF0TfiEY+o5/y/rQLH8rXNbPyTS07lFBzen/aFCh7Wwzhd8gK85wtoRkgc+MeONmGd
-         Ipig==
-X-Forwarded-Encrypted: i=1; AHgh+RpfJG1ytEL8wUAMuf2ARofK419OYamzR8b14EpWP15/Npj10Oyjc60R5Mk4dnRxFGlrLwvdZMwb1B8i@vger.kernel.org
-X-Gm-Message-State: AOJu0YxZhvRuaXNcPC+PEB6eqJuMftT2kMWBPHu9EMbG14o4f0YbOMU7
-	r7dof8t0rGPayA41W9OrDZQdNZle/Eb5p2d7585o9nuKIhAwHclKG2W+CxMkr1/VrqTN0l3Vs5q
-	J9HAAih6WIrMhkZGwplbsMYWMgtVwiHWm/Q9mI2c1rEx0TJhd/7mBj0aqOEXiCOw=
-X-Gm-Gg: AR+sD120QbPzVxfOLUiBOwZX1xwUZbwULOMDIlL9nkmOvkZQlyHI7bH1JGCA2eSgbhY
-	0vlHmNS7y3FLZDhxlf9dN/kfgWi8RQZO7tMVneH2CESQo0z0YIn5sKfuYwRIgTQorilLQFuIyCe
-	mQicxGPLZC4yiVAZzXxr54Xs1spMoG2YgoJL4f5clY2R0zPlDZgMEoVMYeg1gWA+8bgh8y9YDuc
-	TvS2ItGlJhURv9iSrhfDGVBhz8GsAVWsaheqlIUZAZT5Wp/QiuH8CVy/BgJT2jGSdpsDygGN5vB
-	lGD1vbu7JIHmf3Hy560APUKgZvaJE409CfuO30U+JtBpcrK69W49CIH8a12MIi5i/QySafkbAKP
-	WmgdJxUt3Qvm63+l0eBbmzvI7Bf3oE9GHGZXFctSVuUWoqw9W7T3lU010b5Hlj0/1NZf8hq2ZZw
-	v3GYw=
-X-Received: by 2002:a05:600c:c8c:b0:495:4589:707 with SMTP id 5b1f17b1804b1-4980c6452f7mr312396135e9.5.1785845142100;
-        Tue, 04 Aug 2026 05:05:42 -0700 (PDT)
-X-Received: by 2002:a05:600c:c8c:b0:495:4589:707 with SMTP id 5b1f17b1804b1-4980c6452f7mr312394755e9.5.1785845141410;
-        Tue, 04 Aug 2026 05:05:41 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1785845132; x=1786449932;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=AZAgqjN1G77tAGGqT1Vu5xvpE2S1pmBmpjJ+rMqalos=;
+        b=XWuxJupOVOMXLxh+0a/Kps8lqKZPf+8C13bUPTVQiVzRU0+013O1MizowkD5I4qDlN
+         54UKI+vHVUOgXEK/1gV03YUO7DVxQXg0OAomTfmFF1MwJd/S8DR2YmmfaH3Tlna57f1a
+         SYvFOkOxxK/kTAgAZrjhwr2Q/NsNcRpnj66uTnVil4sGslIOPRPzSvpHB5gz8Pe3Nn3y
+         tmAJEtaCuA3py6/Tgej+0Rd53zrXOOwr0VBJLg8bRp4SbsV1KclfSEaivAfAXA6zTkPG
+         VJf44k/u8lkhAAT3HKtEjCxCEuXMXRIu8cMBydJ4f1n9AWMz5RfI5YQGuvfWOHP6NxTM
+         KUgQ==
+X-Forwarded-Encrypted: i=1; AHgh+RpHGwSjS5aN77mBP7/SvQr3GuFT1qDQkSMRoflmS/77eJT+yUMl3NlR/DMTDir3aYTF75tp7ZSvpGZ/@vger.kernel.org
+X-Gm-Message-State: AOJu0YwjvyGhGmcOMgNjmP8RHaiRgSJ2+xtQNSdXwlvWftLW+aKgmnFQ
+	yiTr5DWsMn5/wG6qw7CzWCozz7RWgnZLseNS9bIIqan9YLAeZo9wHxVAu889f05FunIEocVqo69
+	WKxOST2YTz3Ct/PWrjDkkoBgDNqDUpy57DQf0sj6AB+Xz4WLhKO1R51MADMSxvG8=
+X-Gm-Gg: AR+sD102qt4SThO+h19RCKG+RmnxM4qwN2njM6X9JLcSOw9356z+hz13pAcicghVL0j
+	ecvbjWbYAAjvaGppU74IoJrvhFDgBzd1d71qpE8mSdvctxXb7gmPrLCDxSF4+wDXckxr3r18HGk
+	h58LlvaIeJJN6uKIQyXg5heJHLQ8dN0Ul8zDNrj+ObZJ2E9BJ4AXtBTiRh9s53KfXY0Cx/idSHY
+	owWm1nt1T4Gq6lv5qrfkKYrltnPJiy5Dt9NPiWOgm9egOoKlqdfzZ95bIpXeTLudjYJB2iAS4EY
+	MTOCbuV7cnzUj9psFsZqzPPXnIAsNMqz3nKtrlmeeZB0ZXrm/83ZMjL2jTqIN3x5Zflnpb4qjLs
+	2xZ2SuHM65gfPVFhKPKL1usCdSh2x8n2RzxWvcC4S7A6Mez71PHAE+JS2R06NPjW7hBBXUMAR9I
+	O1FaE=
+X-Received: by 2002:a7b:cc82:0:b0:495:6e68:5df2 with SMTP id 5b1f17b1804b1-4980c673d61mr252270885e9.12.1785845132449;
+        Tue, 04 Aug 2026 05:05:32 -0700 (PDT)
+X-Received: by 2002:a7b:cc82:0:b0:495:6e68:5df2 with SMTP id 5b1f17b1804b1-4980c673d61mr252270015e9.12.1785845132021;
+        Tue, 04 Aug 2026 05:05:32 -0700 (PDT)
 Received: from [192.168.10.48] ([151.95.34.92])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49949fc2ff6sm79768615e9.1.2026.08.04.05.05.38
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49949fec606sm99039055e9.14.2026.08.04.05.05.30
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 04 Aug 2026 05:05:39 -0700 (PDT)
+        Tue, 04 Aug 2026 05:05:31 -0700 (PDT)
 From: Paolo Bonzini <pbonzini@redhat.com>
 To: linux-kernel@vger.kernel.org,
 	kvm@vger.kernel.org
@@ -95,14 +92,11 @@ Cc: Alex Williamson <alex@shazbot.org>,
 	Peter Xu <peterx@redhat.com>,
 	Sergio Lopez <slp@redhat.com>,
 	Sean Christopherson <seanjc@google.com>,
-	Thomas Zimmermann <tzimmermann@suse.de>,
-	stable@vger.kernel.org
-Subject: [PATCH v2 3/6] drm/ttm, drm/vmwgfx: directly create writable PTEs when mkwrite is in use
-Date: Tue,  4 Aug 2026 14:05:25 +0200
-Message-ID: <20260804120529.1730187-4-pbonzini@redhat.com>
+	Thomas Zimmermann <tzimmermann@suse.de>
+Subject: [PATCH v2 0/6] mm, drm: fix interaction of .pfn_mkwrite() with fixup_user_fault()
+Date: Tue,  4 Aug 2026 14:05:22 +0200
+Message-ID: <20260804120529.1730187-1-pbonzini@redhat.com>
 X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20260804120529.1730187-1-pbonzini@redhat.com>
-References: <20260804120529.1730187-1-pbonzini@redhat.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -111,129 +105,106 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-This ensures that fixup_user_fault() users see a writable PTE when
-they request one.  The flip side is that vmw_bo_vm_fault() now has
-to record by hand the write fault, because .pfn_mkwrite() is
-not invoked.
+This "v2" combines three series that I have previously posted separately to gather
+reviews and tests:
 
-Prefaulting works as before because only the first entry comes
-out writable, while the following ones still end up executing
-the .pfn_mkwrite() callback.
+- kvm: apply VM_READ/VM_WRITE checks to all VMA types
+  https://lore.kernel.org/kvm/20260731175834.1121005-1-pbonzini@redhat.com/
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
----
- drivers/gpu/drm/ttm/ttm_bo_vm.c            |  7 ++--
- drivers/gpu/drm/vmwgfx/vmwgfx_page_dirty.c | 42 ++++++++++++----------
- 2 files changed, 29 insertions(+), 20 deletions(-)
+- mm: pull writability check to follow_pfnmap_start()
+  https://lore.kernel.org/kvm/20260731160514.1101989-1-pbonzini@redhat.com/T/#u
 
-diff --git a/drivers/gpu/drm/ttm/ttm_bo_vm.c b/drivers/gpu/drm/ttm/ttm_bo_vm.c
-index a80510489c45..3ebde936ce60 100644
---- a/drivers/gpu/drm/ttm/ttm_bo_vm.c
-+++ b/drivers/gpu/drm/ttm/ttm_bo_vm.c
-@@ -191,6 +191,7 @@ vm_fault_t ttm_bo_vm_fault_reserved(struct vm_fault *vmf,
- 	unsigned long pfn;
- 	struct ttm_tt *ttm = NULL;
- 	struct page *page;
-+	bool mkwrite;
- 	int err;
- 	pgoff_t i;
- 	vm_fault_t ret = VM_FAULT_NOPAGE;
-@@ -242,6 +243,7 @@ vm_fault_t ttm_bo_vm_fault_reserved(struct vm_fault *vmf,
- 	 * Speculatively prefault a number of pages. Only error on
- 	 * first page.
- 	 */
-+	mkwrite = !!(vmf->flags & FAULT_FLAG_WRITE);
- 	for (i = 0; i < num_prefault; ++i) {
- 		if (bo->resource->bus.is_iomem) {
- 			pfn = ttm_bo_io_mem_pfn(bo, page_offset);
-@@ -263,9 +265,10 @@ vm_fault_t ttm_bo_vm_fault_reserved(struct vm_fault *vmf,
- 		 * at arbitrary times while the data is mmap'ed.
- 		 * See vmf_insert_pfn_prot() for a discussion.
- 		 */
--		ret = vmf_insert_pfn_prot(vma, address, pfn, prot);
-+		ret = vmf_insert_pfn_prot_mkwrite(vma, address, pfn, prot, mkwrite);
- 
--		/* Never error on prefaulted PTEs */
-+		/* Never error on prefaulted PTEs and never map them writable */
-+		mkwrite = false;
- 		if (unlikely((ret & VM_FAULT_ERROR))) {
- 			if (i == 0)
- 				return VM_FAULT_NOPAGE;
-diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_page_dirty.c b/drivers/gpu/drm/vmwgfx/vmwgfx_page_dirty.c
-index 45561bc1c9ef..3099558c0762 100644
---- a/drivers/gpu/drm/vmwgfx/vmwgfx_page_dirty.c
-+++ b/drivers/gpu/drm/vmwgfx/vmwgfx_page_dirty.c
-@@ -398,15 +398,33 @@ void vmw_bo_dirty_clear_res(struct vmw_resource *res)
- 		dirty->end = res_start;
- }
- 
-+static vm_fault_t vmw_bo_dirty_mkwrite(struct vm_fault *vmf, struct ttm_buffer_object *bo)
-+{
-+	unsigned long page_offset;
-+	struct vmw_bo *vbo = to_vmw_bo(&bo->base);
-+
-+	page_offset = vmf->pgoff - drm_vma_node_start(&bo->base.vma_node);
-+	if (unlikely(page_offset >= PFN_UP(bo->resource->size)))
-+		return VM_FAULT_SIGBUS;
-+
-+	if (vbo->dirty && vbo->dirty->method == VMW_BO_DIRTY_MKWRITE &&
-+	    !test_bit(page_offset, &vbo->dirty->bitmap[0])) {
-+		struct vmw_bo_dirty *dirty = vbo->dirty;
-+
-+		__set_bit(page_offset, &dirty->bitmap[0]);
-+		dirty->start = min(dirty->start, page_offset);
-+		dirty->end = max(dirty->end, page_offset + 1);
-+	}
-+	return 0;
-+}
-+
- vm_fault_t vmw_bo_vm_mkwrite(struct vm_fault *vmf)
- {
- 	struct vm_area_struct *vma = vmf->vma;
- 	struct ttm_buffer_object *bo = (struct ttm_buffer_object *)
- 	    vma->vm_private_data;
- 	vm_fault_t ret;
--	unsigned long page_offset;
- 	unsigned int save_flags;
--	struct vmw_bo *vbo = to_vmw_bo(&bo->base);
- 
- 	/*
- 	 * mkwrite() doesn't handle the VM_FAULT_RETRY return value correctly.
-@@ -419,22 +437,7 @@ vm_fault_t vmw_bo_vm_mkwrite(struct vm_fault *vmf)
- 	if (ret)
- 		return ret;
- 
--	page_offset = vmf->pgoff - drm_vma_node_start(&bo->base.vma_node);
--	if (unlikely(page_offset >= PFN_UP(bo->resource->size))) {
--		ret = VM_FAULT_SIGBUS;
--		goto out_unlock;
--	}
--
--	if (vbo->dirty && vbo->dirty->method == VMW_BO_DIRTY_MKWRITE &&
--	    !test_bit(page_offset, &vbo->dirty->bitmap[0])) {
--		struct vmw_bo_dirty *dirty = vbo->dirty;
--
--		__set_bit(page_offset, &dirty->bitmap[0]);
--		dirty->start = min(dirty->start, page_offset);
--		dirty->end = max(dirty->end, page_offset + 1);
--	}
--
--out_unlock:
-+	ret = vmw_bo_dirty_mkwrite(vmf, bo);
- 	dma_resv_unlock(bo->base.resv);
- 	return ret;
- }
-@@ -484,6 +487,9 @@ vm_fault_t vmw_bo_vm_fault(struct vm_fault *vmf)
- 		prot = vm_get_page_prot(vma->vm_flags);
- 
- 	ret = ttm_bo_vm_fault_reserved(vmf, prot, num_prefault);
-+	if (ret == VM_FAULT_NOPAGE && (vmf->flags & FAULT_FLAG_WRITE))
-+		WARN_ON_ONCE(vmw_bo_dirty_mkwrite(vmf, bo));
-+
- 	if (ret == VM_FAULT_RETRY && !(vmf->flags & FAULT_FLAG_RETRY_NOWAIT))
- 		return ret;
- 
+- mm, drm: ensure .fault() does not have to be followed by .pfn_mkwrite() for write faults
+  https://lore.kernel.org/kvm/20260731164341.1109827-1-pbonzini@redhat.com/
+
+All three, together, make it possible to write drivers that use .fault()
+and .pfn_mkwrite() callbacks for VM_IO|VM_PFNMAP regions, and that also
+interact correctly with users of fixup_user_fault().
+
+The problem is that if you define .pfn_mkwrite(), vma_set_page_prot()
+clears the writable PTE bit in vma->vm_page_prot, at which point
+the .fault() callback has no way to create a writable PTE.  Users of
+fixup_user_fault() will then see a read-only PTE and have no clue that
+the page needs a *second* fault to reach its final status.
+
+fixup_user_fault() itself does not have a good way to notice this, because
+vma->vm_page_prot is an opaque pgprot_t, so the fix needs to be somewhere
+else.  Other preexisting functions, namely vmf_insert_page_mkwrite()
+as well as vmf_insert_pfn_pmd(), suggest that this has to be the driver.
+In fact, of the five vm_ops that use .pfn_mkwrite() together with .fault(),
+three are in file systems and are not buggy: all of them ultimately end
+up in dax_fault_iter(), which uses vmf_insert_page_mkwrite() to correctly
+insert the PTE.
+
+The two problematic implementations instead are both in drm code.  One, in
+drm_gem_shmem_helper, was reported as a KVM regression; the other, in
+vmwgfx, was found by inspection of .pfn_mkwrite() implementors.
+Both of these use pfn-mapped regions, but there is nothing like a
+vmf_insert_pfn_mkwrite() function that they could use; the first part of
+this series thus adjusts mm.h to provide two new functions for this
+usecase---vmf_insert_pfn_prot_mkwrite() and vmf_insert_pfn_mkwrite()---and
+then teaches drm's two users of .pfn_mkwrite() to call them.
+
+This however leaves another case buggy where fixup_user_fault() is preceded
+by follow_pfnmap_start().  Most callers of follow_pfnmap_start(), seeing
+it return 0 for a PFN that is mapped read-only, would not attempt to
+call fixup_user_fault() on it, and thus the PTE would not be upgraded
+to writable.
+
+This is arguably a bug in... almost all the callers of follow_pfnmap_start(),
+but fixing it is much better achieved with a small improvement to the API;
+if follow_pfnmap_start() is told by the caller that it needs the memory
+for a write, most callers are simplified because they were doing such a check
+anyway and now just see -EFAULT.  They then proceed to call fixup_user_fault()
+and everyone is happy.  This is done in patch 5.
+
+To sum up:
+
+- patches 1-3 introduce the new MM API, and use it in the DRM .fault()
+  callbacks to install writable PTEs in response to write faults
+
+- patch 4 is a preparatory fix in KVM, eliminating inconsistencies in the
+  handling of !VM_READ and !VM_WRITE VMAs; these would return different
+  error codes for a !VM_WRITE VMA depending on whether the PTE happens
+  to be mapped (but with wrong permissions).  This needs to be here
+  because the next patch would introduce even more inconsistencies.
+  
+- patch 5 moves the check for writable PTEs from follow_pfnmap_start()'s
+  callers to the function itself
+
+- finally, patch 6 is a KVM addendum that will have to wait until
+  the next merge window; it removes yet another inconsistency in
+  KVM's handling of !VM_WRITE but is technically userspace-visible,
+  and therefore it shouldn't be included in stable kernel releases
+  unlike the rest.
+
+
+Thanks,
+
+Paolo
+
+
+Paolo Bonzini (6):
+  mm: export vmf_insert_pfn_prot_mkwrite(), change variants to inline
+  drm/shmem_helper: use vmf_insert_pfn_mkwrite()
+  drm/ttm, drm/vmwgfx: directly create writable PTEs when mkwrite is in
+    use
+  kvm: apply VM_READ/VM_WRITE checks to all VMA types
+  mm: pull writability check to follow_pfnmap_start()
+  kvm: return -EFAULT for writes to !VM_WRITE IO mappings
+
+ arch/s390/pci/pci_mmio.c                   |   2 +
+ drivers/gpu/drm/drm_gem_shmem_helper.c     |  38 +++---
+ drivers/gpu/drm/ttm/ttm_bo_vm.c            |   7 +-
+ drivers/gpu/drm/vmwgfx/vmwgfx_page_dirty.c |  42 +++---
+ drivers/vfio/vfio_iommu_type1.c            |  17 ++-
+ drivers/virt/acrn/mm.c                     |  10 +-
+ include/linux/mm.h                         |  84 +++++++++++-
+ mm/huge_memory.c                           |   2 +-
+ mm/memory.c                                | 146 +++++++++++----------
+ virt/kvm/kvm_main.c                        |  44 +++----
+ 10 files changed, 232 insertions(+), 160 deletions(-)
+
 -- 
 2.55.0
 
