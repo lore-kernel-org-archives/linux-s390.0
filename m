@@ -1,153 +1,163 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3330942047F
-	for <linux-s390@vger.kernel.org>; Tue,  4 Aug 2026 08:24:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=170.10.133.124
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785831892; cv=pass; b=t3fwccALJFbEeYwBKtX5LfJQACYstX05sGpP2a1vgXEiWSRDakBg2erKHQ+llDXJEzBr0wK5mZUKHgHQCSWGqBga6OttIJQB6emitq0SRNqYf44zj74sdjuDAvUd2Z8/9RI65LGGsWqE0i290ZaxL8py1HxTprFFxStYcde8QzU=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785831892; c=relaxed/simple;
-	bh=E7A62dEXRMnTvouK15ML4xNn9IbWSm4bfkJkGy+Osog=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=UezNtjgCCfMnC5JbY/Mh2xL/fj77rE/TUx/flz/1QKqmDoZUF2HA/R03Oa9pf2eEmxN4NrQtagewaaivp3aau8QniWaL/CKikQ7pWjjO6pGux9o3+8QT0qVHBH4gG5hwlhjF99V1rBZwGwBipMh42zPgU/JACys/P0+opFv6KeE=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=g27dOffX; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=XXm5s2IQ; arc=pass smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A981743B6CE;
+	Tue,  4 Aug 2026 08:28:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785832105; cv=none; b=JF9njeBCF+03WJWt1PUqBf/DUToRYpQo9IUgJx8PuHveB3XXZfdGZsPBNff+3ulcHaclb7B+F5OU7TtJ7fMt+RmeIH2Rw2VALJThujW+7sgmsKEcUFow4vOhdFnpRGsWuqHyxMzlsJkysSLr4YgcNqXHimeBCMcAKhgu8thAA/s=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785832105; c=relaxed/simple;
+	bh=upXELchte961i1B5LCMRw3HKSrJ3ve0mw525dlsYJeU=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=qiPj9Hffw9N7i1mHtN1ISqoVG2NNIhtkXL07ZutsaMoI4cqZ9ca9GmEJHJ5NfR8p6gW5Yytpj9rQCgt+fDj3srFv/MMo3Q5eLk+b64M/R5hRbnRBw9Z/+oAA8+doe3uR+dbJxtb30gsRYm36fsIYMytfs3u5/oqYpuL2JHrVZYs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=mXntV2cH; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="g27dOffX";
-	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="XXm5s2IQ"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1785831890;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Tm8UobsJTlbPE9vGUwkb/Bbwe8GB4ZtONSzPRFILqXM=;
-	b=g27dOffXQ3uO6eJbldztQdmZ9KqNgd1t676DBV4/sLeaybCftuCjApDeglxA0UjPmREJ8n
-	qqM6hWuTbU1uO1mnrvRaHQq5NNPe5DGhpniEYnq2t2QSRSYm5GWvqox2q/hB2wJikksbiv
-	HhdVAegGO339xvCptrGN0rGqERwnTcI=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-342-MV1sLo61N7CSW3lpOpcQgg-1; Tue, 04 Aug 2026 04:24:48 -0400
-X-MC-Unique: MV1sLo61N7CSW3lpOpcQgg-1
-X-Mimecast-MFC-AGG-ID: MV1sLo61N7CSW3lpOpcQgg_1785831887
-Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-47f810c8aebso2602624f8f.2
-        for <linux-s390@vger.kernel.org>; Tue, 04 Aug 2026 01:24:48 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1785831887; cv=none;
-        d=google.com; s=arc-20260327;
-        b=mWW/5VUfsXjtgINGnSthDP7SdJa771Q2PdVJA4Y1ij5HZNMbKivScwZVIPXEWIDhCX
-         VH983fLV5OnsjgIA0KRNj1TkGbgSc70N89X2mRqqd7kJEcUHkuoNnOzGAv4nDp8nnEdN
-         UHEAc7bKrhNHVQyK2KqKvR2xgQPrqixcu6esGZL8eDB7Uih1MJLrAsNNf3gCBBv9YdBU
-         11UW6dchuCmPghm7cKxlcox+UTqZgOSerTfSWnTPYuQPVMvTSFEw4pWFrPvnN2NLXkjm
-         DqOdaO/lCXTkEvp6Ude+9A8cZ8p9Yw3fidTLwKDUEuL7SestQ1SN2gyxnOzCVmh4XPBG
-         GxLw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=Tm8UobsJTlbPE9vGUwkb/Bbwe8GB4ZtONSzPRFILqXM=;
-        fh=C8dAk7N88NZ1Yk4xXw7mDrvRjZ62l91PGtbNhygXs1o=;
-        b=fZtD3c1GKF2xU2gYLBXQoyHZx5ukQai8ckTtghqjY/iqRRkC1vkJbXYacnJXrV2jMn
-         cvn2IV+BDOQ178HjjJ4J5uXHe26YBVOM/Bl8elqAvgFMzLxgAzydR6OufwoW1g+5SNOa
-         4MwNQYlU3sJXrICxrstzilKe4yFOPqwTTNpclmsimTdrPMA+f4gtw+dW9/lrITzoTP8+
-         rDvPNgQWnsHaKBN3QS0uw6TfHgak6zdmKBF2vvIpcAEU9yX+WW2ue+2BO/POA+gP/TEw
-         VSNliijJyF+WTS7ylH4oNcL9AuchPlmke6wh6Vh9MrnfBi2z7+MeIaaRLB/rLHYh5C+y
-         S4JA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=redhat.com; s=google; t=1785831887; x=1786436687; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=Tm8UobsJTlbPE9vGUwkb/Bbwe8GB4ZtONSzPRFILqXM=;
-        b=XXm5s2IQ9WnnfT9uUNYHfa2DAMbZAQWWXQ2jLfmcMtnWcqnGt4jYt72e77JtSHUKEy
-         CT4sjQo37m/0YYMYMuj4LjVt0ThUENI4tl8VEtpY18gjbm7pKypW8RiOLr80Lj4DiEg0
-         4bbKsFmDCuBzOib8WyyVT0GrocCjUPSKrw5t9Ux/Fl4FUk1mx40itfq+9noV2glHtwdT
-         clR/eTXwTJydojPTHtDz4AQt5mJ5Blas6JeL6bGwhjZmw6JJd9v/qibBpo8OymtttJ9x
-         aq3jx+PjzywMl3IWCKSHn8JBtokPdAEI1U0eHoRvZoo83yk2Ed6uEptnnp2TyIYL4yCK
-         XbyA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785831887; x=1786436687;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=Tm8UobsJTlbPE9vGUwkb/Bbwe8GB4ZtONSzPRFILqXM=;
-        b=GwXNMdgVJcjUE3x2IRTXz0xAn3DAr6hDtEnG3uD8yvUP2I8jdwhRjwEswH8B1lrpli
-         xD1YmIjDmoRpdwuUXLYittfHfdWIBb31KzFfYXrXqJ7YUpiZkhSAlDBMbtTe0pyVVTXp
-         0vE+ZF/XAo2GK0x8ckFRksCeU90A7PcW2cR4MmwHYY6evHBeURaDIHg5XGu+wrKJQ6FH
-         NrT7QTgUpzjC8/MwWxbBiCN1HQg0qkFLFIg4nIFW3W7AA9T0yNx569LW/8pyZCHqCi4W
-         RaexDgCsbdb8VcxGOSwQKyCTc/4AD/gwpPsMXoBhrrpLNQgtx6cSGiQQCej1dDY+acw0
-         XFdw==
-X-Forwarded-Encrypted: i=1; AHgh+RoRkf7eBi8wnEsFZgWQf+6ebhTci4hYIeskyGu0Adc65JG36wWmrNb5EKd9orFfqWIhN8Hhjaux7qTo@vger.kernel.org
-X-Gm-Message-State: AOJu0YzYlV/mKsETrUROdG0Ak4b8vRgXUOJCsAgL8ZSL8XbqIe+ORuXB
-	4SDFhoi6F3og3x9PYOcBKSVZaIjD9pCdKDM3DsmCwjORsynhcVNaEhKVgm2D2o8VoM3UFxm6BWI
-	BS/xs72k2wEZA5jrcmmIRXl558eD4GK1cGyYSWit9gz34JPJt1/A3ROgvUxzIIMwVljQRHieYMU
-	brgfsZsFZpbe+IxYK/lD2CHkbj8Se6UZ1EEMoA3g==
-X-Gm-Gg: AR+sD12MmF13JwcNvBUVqnv9qRFEe+3R+hYZnNknaYiUK1OLw6waLXU6nrM+KNcgzb0
-	70+6T+loRJVnWIqOjkVGfprHcNEI8UtJgDF882S84JXj51P8xn9xALVwPDUQpZ7eCBo728BEos+
-	69xGiueCu4KPybhfu01uRnip+CBrOw0zf2JGpT1MJRGzLQsvl6rV7pan62i7YttVamI535Zr4Cf
-	W10EH+zl+u/WIyP7o15UkvN3rOVQiAGk1bHfPu05w59LjKwjnzAnQ9tFEM=
-X-Received: by 2002:a05:6000:25e4:b0:47e:aa3e:e75e with SMTP id ffacd0b85a97d-47fd72ba455mr37381043f8f.10.1785831887549;
-        Tue, 04 Aug 2026 01:24:47 -0700 (PDT)
-X-Received: by 2002:a05:6000:25e4:b0:47e:aa3e:e75e with SMTP id
- ffacd0b85a97d-47fd72ba455mr37380975f8f.10.1785831887214; Tue, 04 Aug 2026
- 01:24:47 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="mXntV2cH"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6748IAoK2641931;
+	Tue, 4 Aug 2026 08:28:07 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=gwxiBwgSXoZcJs8DyireIoJ0S6YjdPJ6t3DLJK8L7
+	Uk=; b=mXntV2cHztcbWem8OUdAF7HlCR/HNQ3lYVGXemQDN6XVDjgBVf5828RdO
+	ABGYs35EAyI7u6DHJk07vGyVhrJxdacyoG9B51hd2F9YBMj+EO8EBlO2wCignx17
+	4DZjDa2ZRIx6gEkqUqIJA84XSLYmkIJUWyr5TxvklqqbsfL0cIhUI5vWWswGN7aQ
+	OIQZTxLUkeqNrG54A3s5sibv9kWb/n+1RWpYnEEYUwEkxZYykdRDRowaswU3B3KX
+	+SVVpbU3QFpENVYUNHi9OJyEkN2PTfQYsaFHXJbAXksTd+v/Y7uFei/cEt/gshCh
+	7XjmVFbwbgHUrhWnvDl+dl6I+RP1w==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fs8fqmv1b-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 04 Aug 2026 08:28:06 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 6748QQlA009928;
+	Tue, 4 Aug 2026 08:28:05 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fsv4k14fh-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 04 Aug 2026 08:28:04 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6748S0QX28836336
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 4 Aug 2026 08:28:01 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id D947020043;
+	Tue,  4 Aug 2026 08:28:00 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A613B20040;
+	Tue,  4 Aug 2026 08:28:00 +0000 (GMT)
+Received: from t83lp68.lnxne.boe (unknown [9.87.84.240])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue,  4 Aug 2026 08:28:00 +0000 (GMT)
+From: Hidayath Khan <hidayath@linux.ibm.com>
+To: alibuda@linux.alibaba.com, dust.li@linux.alibaba.com,
+        sidraya@linux.ibm.com, mjambigi@linux.ibm.com, andrew+netdev@lunn.ch
+Cc: tonylu@linux.alibaba.com, guwen@linux.alibaba.com, davem@davemloft.net,
+        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+        horms@kernel.org, pasic@linux.ibm.com, hidayath@linux.ibm.com,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH net] net/smc: fix socket refcount leak in smc_switch_conns()
+Date: Tue,  4 Aug 2026 10:28:00 +0200
+Message-ID: <20260804082800.498672-1-hidayath@linux.ibm.com>
+X-Mailer: git-send-email 2.52.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260731160514.1101989-1-pbonzini@redhat.com> <0a9c8cc8-1fa7-4f4c-b7df-e847925c2b24@kernel.org>
-In-Reply-To: <0a9c8cc8-1fa7-4f4c-b7df-e847925c2b24@kernel.org>
-From: Paolo Bonzini <pbonzini@redhat.com>
-Date: Tue, 4 Aug 2026 10:24:35 +0200
-X-Gm-Features: AUfX_mzYzfP1Oin53-9hO_78pedfHqy7zxUVYNXXragKLN1GkC7l6UbBuVt8H4U
-Message-ID: <CABgObfb_FN9r+D2F=GNsADP5xt0syFztmy-x==T85ovZKyopRA@mail.gmail.com>
-Subject: Re: [PATCH] mm: pull writability check to follow_pfnmap_start()
-To: "David Hildenbrand (Arm)" <david@kernel.org>
-Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org, 
-	Alex Williamson <alex@shazbot.org>, Fei Li <fei1.li@intel.com>, Peter Xu <peterx@redhat.com>, 
-	linux-s390@vger.kernel.org, linux-mm@kvack.org, Sergio Lopez <slp@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-GUID: IjvAAhz18_gPhiZFpPeVhnM70ceXBTgk
+X-Proofpoint-ORIG-GUID: WcIJt3RnmNTDjD3Yt3xlRNhNuZlKpNzf
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODA0MDA2NCBTYWx0ZWRfX/vSMt2VCdLXc
+ zuGIisBx+qAaHxVmtTsktVrMlBhem9ti+WNg9UtBy9PoxKZPEson2sVDVJh4qXGaPLS7mas9oFg
+ 7KYsChkdQjx9gwGevwqXwWtMmwFWMH8=
+X-Authority-Analysis: v=2.4 cv=K8cS2SWI c=1 sm=1 tr=0 ts=6a71a296 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=uAbxVGIbfxUO_5tXvNgY:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
+ a=QgwSWOpKMeOadBk2rDcA:9
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODA0MDA2NCBTYWx0ZWRfX7YXV+r1rNCdJ
+ VAUsUOKPAGTpVqCgkZzQWwfO8euSxfhrKADdrn1Mx1f7pLht6BaJLAytP62AnRUPnLYay6P4Kks
+ 6AqyXNruPgrYn1uC3S0M80q3CoZ1kZZTVQ0DqHxaERPBplyBRk7Dbl5Vro/2IkgbQaul2oK/+0b
+ RsyoFOHcpXU0tzTtnKNfgQFLZlpQ3Wa4Zv9jmVtU+lka+jRUzwpDvFSHCh+Cd0brwSwDlsFTQx1
+ /r4sOlmeHiJLLGLcJ/wbBNnlFFxuvW4O27dZT0JBaaguEaeFjTfc/nEhwQ0x+XMVxyik/EravH2
+ 0MJeZLzDyTx9C35oDMNIWKahS+qghNA+qSrJeBYE5uX6w1WKsr+yoFlBwjZfxMI7op1PfT/r6p+
+ /fI3bF1ihsemVBIpwkXFZfm5H6VD7rIPiId3egsQEAp1pMKq8/3Q+nsNIwAHvHp1Mig41JPhPhW
+ gmWNrQgZJRAu1WYEjpA==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-08-04_02,2026-08-03_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ clxscore=1015 spamscore=0 impostorscore=0 bulkscore=0 priorityscore=1501
+ lowpriorityscore=0 malwarescore=0 phishscore=0 suspectscore=0 adultscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608040064
 
-On Mon, Aug 3, 2026 at 10:55=E2=80=AFAM David Hildenbrand (Arm)
-<david@kernel.org> wrote:
-> > index 485df9c2dbdd..34c79b5fcb9b 100644
-> > --- a/include/linux/mm.h
-> > +++ b/include/linux/mm.h
-> > @@ -3136,9 +3136,12 @@ struct follow_pfnmap_args {
-> >        * Inputs:
-> >        * @vma: Pointer to @vm_area_struct struct
-> >        * @address: the virtual address to walk
-> > +      * @write_fault: if true, fail with -EFAULT unless the mapping is
->
-> Just wondering whether EPERM would be better.
+smc_switch_conns() takes a reference on the SMC socket before dropping
+lgr->conns_lock, so the connection stays alive while the CDC slot is
+fetched:
 
-I considered EACCES, but EFAULT seems more appropriate: it's already
-what most callers return, and vm_fault_to_errno() never returns
-EACCES.
+        sock_hold(&smc->sk);
+        read_unlock_bh(&lgr->conns_lock);
+        /* pre-fetch buffer outside of send_lock, might sleep */
+        rc = smc_cdc_get_free_slot(conn, to_lnk, &wr_buf, NULL, &pend);
+        if (rc)
+                goto err_out;
 
-> > +      * writable
-> >        */
-> >       struct vm_area_struct *vma;
-> >       unsigned long address;
-> > +     bool write_fault;
->
-> "write_fault" is a rather odd name for this, given that this function wil=
-l not
-> trigger a write fault.
->
-> You want something that matches FOLL_WRITE.
->
-> "write_access" / "check_writable" maybe?
+The err_out label only drops the wr_tx link reference, so this early exit
+returns without the matching sock_put().  The second error exit is not
+affected because sock_put() has already run by then:
 
-Just "write" is what mm/ uses for local variables so I'll use that here too=
-.
+        rc = smc_switch_cursor(smc, pend, wr_buf);
+        spin_unlock_bh(&conn->send_lock);
+        sock_put(&smc->sk);
+        if (rc)
+                goto err_out;
 
-Paolo
+A leaked sk_refcnt means the smc_sock is never destroyed.  Its send and
+receive buffers stay allocated, and for a user socket the reference held
+on the network namespace is never released, so the netns can no longer be
+torn down.
+
+smc_cdc_get_free_slot() fails when the target link goes down or when the
+connection has been killed while the switch is in progress.  Both are
+reachable during the link failover this function implements, so the leak
+is triggered by the same hardware events that make smc_switch_conns() run
+in the first place.
+
+Drop the reference on the early error path.
+
+Fixes: 95f7f3e7dc6b ("net/smc: improved fix wait on already cleared link")
+Cc: stable@vger.kernel.org
+Reviewed-by: Mahanta Jambigi <mjambigi@linux.ibm.com>
+Signed-off-by: Hidayath Khan <hidayath@linux.ibm.com>
+---
+ net/smc/smc_core.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index b4208cb186c5..c0027d2fe4e8 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -1148,8 +1148,10 @@ struct smc_link *smc_switch_conns(struct smc_link_group *lgr,
+ 		read_unlock_bh(&lgr->conns_lock);
+ 		/* pre-fetch buffer outside of send_lock, might sleep */
+ 		rc = smc_cdc_get_free_slot(conn, to_lnk, &wr_buf, NULL, &pend);
+-		if (rc)
++		if (rc) {
++			sock_put(&smc->sk);
+ 			goto err_out;
++		}
+ 		/* avoid race with smcr_tx_sndbuf_nonempty() */
+ 		spin_lock_bh(&conn->send_lock);
+ 		smc_switch_link_and_count(conn, to_lnk);
+
+base-commit: e18c8f801a5aa6c1d26af3b359234f11c13ef2c0
+-- 
+2.52.0
 
