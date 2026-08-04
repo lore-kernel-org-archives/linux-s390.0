@@ -1,83 +1,83 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 813163AFB0C
-	for <linux-s390@vger.kernel.org>; Tue,  4 Aug 2026 12:05:50 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2CDD13A9DAB
+	for <linux-s390@vger.kernel.org>; Tue,  4 Aug 2026 12:05:53 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785845152; cv=none; b=FuLkNQtLTCyuPauUV8E164+FeXmZYrnMDdp9+BKt0xeYt8XMAFqHB11JZdkR4T40Gc+EM1iZwpxyA4o/qacBmy+uy38BMy3F6ot+1b6CQpSlL6vwpsRZoZjwfrTpc2QhV0iBAoO4G/B+G1J5HIHBcFbhoM3wVfVnEjcd5oBY3cE=
+	t=1785845156; cv=none; b=qpnST4wZAsaNMx4ksVN7eNQnORvdQqNrc6tiR17U7WDV3qOgLHSHHROiHLyC9CAmp6ILZ69hQcqFwbl7eWjpyxkcPhusRzIkZMB/kiDgDTmue4m9QY+zd0uFbhSSEN1FIUrm69X7SK+xyAVEZIO1wk1k0809QUB0Xnd6T1uxpmo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785845152; c=relaxed/simple;
-	bh=ShgJllGtoj3B6lj3SHwP+387ixSZNj2YWvPFDV6BseQ=;
+	s=arc-20240116; t=1785845156; c=relaxed/simple;
+	bh=pfZ9447zK/9Z8PR/ugAEc+1h5xI66Sw/HNM5zHbRVZw=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=XDzYlItNyHFXs0rg23Ce0StbzRb1aga4NIRJQNxqBtj4JMeFXldlZHlx3uI1PdCTWk2ftwAMgrmAgmOpTlbZ2/E5WlkrShQJ+hh2ghZ5WriJJKWdEUNTYQpTNtjo8VZ5bop8g6r9mfu289ncVzf5Soy2byX8jYBXfCQfkRCQALo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=MszBLhOc; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=cAIhJJ5i; arc=none smtp.client-ip=170.10.133.124
+	 MIME-Version; b=rx66ueqdM0Gn+6TMV1oKcXeJ3a+LCU0jMkuXgfdpdrfid7UammH3nUwvUHn9hgcMjVA3tjQ0r4zWA9lAsc2inHNsaBx36cUt/ZwMiS9y8/h3IySHWuh9Pstra+5RTqMaGGpN79rLcWpWSblffkOi/D5cpGazNjpvI8DAYaNHnw4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=JYBkdgj7; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=E6C/yKqM; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MszBLhOc";
-	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="cAIhJJ5i"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="JYBkdgj7";
+	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="E6C/yKqM"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1785845149;
+	s=mimecast20190719; t=1785845152;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=7VbhR/EeseCGUhv0h0yNN2Py/m+SxPzo7FfzMk4g7pY=;
-	b=MszBLhOchY+md6HmcvB2QW3Xk1e//FqRIkZja+HjmNF+t5AbfT1AFfixhPAlozz03174U+
-	Uv//u617+Xyy/yOc8YDYT7UVNxa3XWTZ++ifPtQjOPOpx70+zbD72dO6XrshLrTst39D9w
-	mJ6NQ4giMwPTMPohHy2anHNZUp33d3E=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=j37JFINyTYCydy6a1WRFKL3cyTkOscZBfjMnbKqhj70=;
+	b=JYBkdgj7vraKX8U+OPef0+NWCLXHZCI7AcWG8eWcPDPhNaqrjsi+oZm30/XkrsDzDMgIBU
+	tFjd9ixMJa4ZKikka47Qm9WOUycMz5HH1r+vop2s431um7o8Up7EQRBOR/nfE3rfWPa2Sx
+	TqlTMAnyQyQBu/XDQEbVOdbjGtwZ11s=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-216-T0S3FnSaMNu6WaURmtvP9w-1; Tue, 04 Aug 2026 08:05:47 -0400
-X-MC-Unique: T0S3FnSaMNu6WaURmtvP9w-1
-X-Mimecast-MFC-AGG-ID: T0S3FnSaMNu6WaURmtvP9w_1785845146
-Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-47f4601af62so2019146f8f.1
-        for <linux-s390@vger.kernel.org>; Tue, 04 Aug 2026 05:05:47 -0700 (PDT)
+ us-mta-534-x3B-H-akPZW3zdmPXwcZ5A-1; Tue, 04 Aug 2026 08:05:50 -0400
+X-MC-Unique: x3B-H-akPZW3zdmPXwcZ5A-1
+X-Mimecast-MFC-AGG-ID: x3B-H-akPZW3zdmPXwcZ5A_1785845150
+Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-47f6db77430so3331657f8f.0
+        for <linux-s390@vger.kernel.org>; Tue, 04 Aug 2026 05:05:50 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=redhat.com; s=google; t=1785845146; x=1786449946; darn=vger.kernel.org;
+        d=redhat.com; s=google; t=1785845149; x=1786449949; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=7VbhR/EeseCGUhv0h0yNN2Py/m+SxPzo7FfzMk4g7pY=;
-        b=cAIhJJ5iypZOUTPkcOfJVA/+T+eNpiURGumey1wvCCiEqCPTbkXpjDSGd2kXAlHDgI
-         it6fL70CYJYt++jBX6Pg7dkNwpXmtH4S8MZJHfIyPz7qSzaoI7AJWObi6LyXq1QAfh/N
-         Nr2H8i0KrzVACddd0yxSRxEE6+k/odK4HgyRlQphWwyA20wzRZgCDegc5FmKqS2c5ye6
-         RpHmIy+9gHvLWdHzrHXywY3ZWc4sDBUJ7s6R48hgs3rRopd8PtRMx2yA9PQRiWon403Q
-         VhxLqw3teQZewLTMwxlTswIepR9ZxT8+XJNtkWPVglCnSf0NucOUpwbbhFuuxmtfrjBV
-         3ijw==
+        bh=j37JFINyTYCydy6a1WRFKL3cyTkOscZBfjMnbKqhj70=;
+        b=E6C/yKqMRyFadcJC6fKjGVc9ZurbscECGfuXwXa5veKYxO3wgWpV1hfVxJE3y0jUpV
+         ugyjpClLjCphtzH/JVprAl5b504ncEXNhLkFOqouMcmwnG7a1G4XiUjpGJQKfzLqCT1g
+         F6avX0ZWzs2DfGnzUW3DgRS5Zc3jk/kXPf2ygWIBUJ9cdmjvRdsHUCPA0jcYOX2NI1gQ
+         J7Rrx9t9y9RCOyECw4ICAphTMOPxbaU3qDz6cYKFi8WBHPoLXOO3qU1loSVj4JNRb+5M
+         iQrli2L7qbh9e9uVNAxTlnZH9HnxMlSsEmsM88LBCF6O1bWNMk/Mn6G5j1j/+O5GwkX1
+         RVkQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785845146; x=1786449946;
+        d=1e100.net; s=20251104; t=1785845149; x=1786449949;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=7VbhR/EeseCGUhv0h0yNN2Py/m+SxPzo7FfzMk4g7pY=;
-        b=EptKFD6207Ym+oV0XdR++N1EzURf6BSJSIBAW0APLph6eRqhVeCETihqyhwT7pMxZ6
-         51ibv5VQMfzopBRl14vriGIwSTYGNHdsAtud8xJKhxrcU32tkycDdKC1B7lr6SYq2g+B
-         rv5BYojeymMxQ3ADZcsHaMg5jA7KeMtWr+WniqihNTiVQkHjEnzo3UN/M1vnsysfOJ3K
-         P0nh5cuZrOa488m0bffS4bUKd5HbZwWWBOdkVcBhEWlR4/8KiUU9VCkPrkh0eZ81chKR
-         HvuC88Yvu08qOhV5SmsV9vEaFZWEWBBpPcPhfDAyKs1BdgNDyIYwSrcrnLbD8WDFoqXP
-         Ummg==
-X-Forwarded-Encrypted: i=1; AHgh+RqAppek3cW7DzLedUnlRhVI7HH55tFAkwd3Iu+3BuaCd5NSZNDhLVt3fWo5NXMDj/1pbrZkGkA34H8o@vger.kernel.org
-X-Gm-Message-State: AOJu0YxW58Lf7Ho0MRurEYwn4ugwGOjfiT9Vg7JuDyEhNcGmNTy11arC
-	I9YlZ2vSIIc71k60MKxSDuNDPqXhcBNG1G4Mpo6YdSWmqHops1ZpKcyMbf8RG3dWJTUYMxKwUbL
-	DPA4xyX53b8+CvV6B2Ss54Temf+B39A3WU6Mso3XemgZuw2yXqXJ0xiWX1/2eVLQ=
-X-Gm-Gg: AR+sD13uSYY7YenFW8Y3uTrVDlHD1Cq/VYKnkqwiegMqY47kahp0uo6cNTwN/z64eMJ
-	r72ZeWvXeQA0AzQmFTbJqC4PXI8okc2fCqvARFTwqTiieLmjJaj3qINca029Ix1CkPJ2OokmBRU
-	OCfYwyu/9ZYAf7Zq2EoI3T4CsXMuKUYZSpeD+/TFzOZ+3v7ddg8zrw8Oc6Xv1NE4Xv/hP6Ma5Eg
-	VqqhnKZng1aNCppaPxrxsJqTCcsH/UPFpRSVdZgNQtuM9Op1rJwMF0xA0YR+yD19YBMUDrriG0J
-	8ghuhRWUUJkFH+qKmwqBqKsJttfzEEwzUAnsotMLHE3sODkA23a7jeReDdDzRpEFZSyx20qk4af
-	zEQmQd7xZ3Tewj7TCtufy+tc45sY+ac2XTsX2VmGPQrldStwM0hTrtDEa2DgucMs9zQ6NNLSyjW
-	0GmSI=
-X-Received: by 2002:a05:6000:2989:20b0:47f:7154:9dfc with SMTP id ffacd0b85a97d-47fd72a8e68mr29813798f8f.9.1785845146082;
-        Tue, 04 Aug 2026 05:05:46 -0700 (PDT)
-X-Received: by 2002:a05:6000:2989:20b0:47f:7154:9dfc with SMTP id ffacd0b85a97d-47fd72a8e68mr29813677f8f.9.1785845145601;
-        Tue, 04 Aug 2026 05:05:45 -0700 (PDT)
+        bh=j37JFINyTYCydy6a1WRFKL3cyTkOscZBfjMnbKqhj70=;
+        b=LF90Ei0t0r/vObdKwfH/B0m5tTjX/8hABOX/qY0g6RLbCSWesVjuSDk88+FP+rgRK0
+         DxPLRMn4rWxwoDyA4dK/Kw3a/aAlLLghxs2aYheWqESdjYQebqz9vfV4EQZl7Fmwm20a
+         10n2rv7AClOB7T9uRJI8R3lj2b+66uCWUTTfotvP6nnamRHoGIVPGyg761/Da+DuhwEX
+         oXGACcd8BXwT8CPp9m5/uXgdH/g4qZG5dAZuwQLvLlHDO0Rnowte+lYsHoonZK+tHOu6
+         Uf1/+iktHMBZgZEF7iGDYlIfCZInkQ2BLt59M4wNOAoTMEUuSjSJabd6Lntqyx8Pw0sW
+         bNkA==
+X-Forwarded-Encrypted: i=1; AHgh+Rrhp69mZaAC2tDFnDMImLCvMOIzPY+ZphYcaNyMsMVUYqqaOYwlYFlbWsMZqLZ6KN+nw4e8KpHEkdn8@vger.kernel.org
+X-Gm-Message-State: AOJu0Yz/+nOcw+rAy9bCaUs50upDJzP1Km+YEPTgy020rzAuVeGNROMa
+	qLsFUqkFGUVlzgxKE8YE+ZJHN67FvJaFeIKa4U8J2TncHjU0S7DHmXbuhBlszkf4JYm9yU2bfa+
+	jF7le+nRBlH+JKw4zQRBfqy+0fbWkni6wuRji9fJxw1kPKiO3tHOZKpFMrUw/p6A=
+X-Gm-Gg: AR+sD13aRrnYXxA9kbAgBqZLLkV8/TYvoabPu9MBQyBxzt4pC3RPWWKQig9TNWELbFB
+	MwGaejBrQYfNWBgL2px2bp36GJGCjkCLc9pwuwFE2FTZspuFgmLWLzPUxxhEUGM+HVsIkWwlqfP
+	6X6QoxUW/VI+Jju8q1aJ682cEtKSfA1OFYFawWiCKPH1+lJHzr2E+T7D2HdaYMLEjWWQt1FzYEV
+	aMWkkjJ76Nv1uBzNgC15yXnlk+HJ2DWzqutkUCQE/IYVdpkAmCMbGsJ6Nu2nm5wSeB0uNfP9oNF
+	kphCkGGBWyeWxLs4D20E7kb5P4yAHjFksNDr/r/4aASz6GJApbgECEsTMye4CO9KbOokf8JE+vx
+	zKXuSSpfpsUnUELedEc/IuWs0h7Ea+X6kBqKB9/S772kGyY/6cig7NDrc2a3HZZ/wblUR+3Eh2J
+	/QZOc=
+X-Received: by 2002:adf:eb8f:0:b0:47f:97f6:d39a with SMTP id ffacd0b85a97d-47fd72c7121mr27900808f8f.17.1785845149400;
+        Tue, 04 Aug 2026 05:05:49 -0700 (PDT)
+X-Received: by 2002:adf:eb8f:0:b0:47f:97f6:d39a with SMTP id ffacd0b85a97d-47fd72c7121mr27900691f8f.17.1785845148854;
+        Tue, 04 Aug 2026 05:05:48 -0700 (PDT)
 Received: from [192.168.10.48] ([151.95.34.92])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-47fd4562667sm45367660f8f.24.2026.08.04.05.05.42
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-47fd41d1756sm41086159f8f.4.2026.08.04.05.05.46
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 04 Aug 2026 05:05:43 -0700 (PDT)
+        Tue, 04 Aug 2026 05:05:47 -0700 (PDT)
 From: Paolo Bonzini <pbonzini@redhat.com>
 To: linux-kernel@vger.kernel.org,
 	kvm@vger.kernel.org
@@ -97,9 +97,9 @@ Cc: Alex Williamson <alex@shazbot.org>,
 	Sean Christopherson <seanjc@google.com>,
 	Thomas Zimmermann <tzimmermann@suse.de>,
 	stable@vger.kernel.org
-Subject: [PATCH v2 4/6] kvm: apply VM_READ/VM_WRITE checks to all VMA types
-Date: Tue,  4 Aug 2026 14:05:26 +0200
-Message-ID: <20260804120529.1730187-5-pbonzini@redhat.com>
+Subject: [PATCH v2 5/6] mm: pull writability check to follow_pfnmap_start()
+Date: Tue,  4 Aug 2026 14:05:27 +0200
+Message-ID: <20260804120529.1730187-6-pbonzini@redhat.com>
 X-Mailer: git-send-email 2.55.0
 In-Reply-To: <20260804120529.1730187-1-pbonzini@redhat.com>
 References: <20260804120529.1730187-1-pbonzini@redhat.com>
@@ -111,109 +111,327 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The VM_READ and VM_WRITE flags are checked only at the very end of
-hva_to_pfn().  For both the hva_to_pfn_remapped() case and for regular
-mappings, this adds unnecessary cases and inconsistent error behavior.
+All callers of follow_pfnmap_start() except s390_pci_mmio_write()
+are following it, if they are doing a write, with a check that
+args.writable is true; for s390_pci_mmio_write() that's a bug.
+Also, most of them return -EFAULT if it is not.  Pull the check
+directly into follow_pfnmap_start() through another input parameter
+args.write_fault, to eliminate the need to do it in the caller.
 
-For hva_to_pfn_remapped(), the code is relying on fixup_user_fault() to
-detect this situation.  This is fragile because hva_to_pfn_remapped()
-returns different error codes for a !VM_WRITE VMA depending on whether
-the PTE happens to be mapped:
+This also fixes an issue where follow_pfnmap_start() would return
+0 for a PFN that is mapped read-only, and the caller would not
+attempt to call fixup_user_fault() on it; this can happen with
+vm_ops that set .pfn_mkwrite(), for example.  Instead, now the
+caller (for example hva_to_pfn_remapped()) sees an error,
+does attempt to fix it, and only returns -EFAULT if the
+fixup was fruitless.
 
-* if the PTE is present, follow_pfnmap_start() sets args.writable to
-  false and KVM_PFN_ERR_RO_FAULT is returned;
-
-* if no PTE is present, fixup_user_fault(FAULT_FLAG_WRITE) returns
-  -EFAULT after checking vma_permits_fault(), and hva_to_pfn() ends
-  up returning KVM_PFN_ERR_FAULT.
-
-With this patch KVM_PFN_ERR_RO_FAULT is returned uniformly.  Likewise,
-a PROT_NONE pfnmap VMA would be mapped into the guest if the PTE was
-pte_present()[1] when the guest attempted to read it; with the patch
-instead KVM uniformly returns KVM_PFN_ERR_FAULT.  Doing the check early
-avoids these special cases and also sidesteps the issue pointed out at
-https://sashiko.dev/#/patchset/20260731160514.1101989-1-pbonzini%40redhat.com.
-
-For regular mappings a PROT_READ VMA, if placed in a writable memslot,
-would return KVM_PFN_ERR_FAULT instead of KVM_PFN_ERR_RO_FAULT when
-the guest writes to it.  This would cause a -EFAULT exit to userspace,
-instead of triggering emulation as the VM_IO|VM_PFNMAP arm would do;
-however it should be considered part of the KVM API because mmu_stress_test
-relies on it.
-
-Still, even with this snag about the returned pfn error code, pull the
-vm_flags checks in front so that they are done for all VMAs and the
-above inconsistency goes away for the VM_IO|VM_PFNMAP case.
-
-[1] on x86, for example, such a page would have _PAGE_PRESENT clear
-  but _PAGE_PROTNONE set
-
+Reported-by: Sergio Lopez <slp@redhat.com>
 Fixes: 28e3918179aa ("drm/gem-shmem: Track folio accessed/dirty status in mmap")
+Link: https://lore.kernel.org/kvm/CAAiTLFU1ALsDoJoKW3d9bUvv990AozAoX=bEHmfnG54qyBAHFg@mail.gmail.com/
 Cc: stable@vger.kernel.org
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 ---
- virt/kvm/kvm_main.c | 34 ++++++++++++++++------------------
- 1 file changed, 16 insertions(+), 18 deletions(-)
+ arch/s390/pci/pci_mmio.c        |  2 ++
+ drivers/vfio/vfio_iommu_type1.c | 17 +++++----
+ drivers/virt/acrn/mm.c          | 10 +-----
+ include/linux/mm.h              |  3 ++
+ mm/memory.c                     | 62 ++++++++++++++++++++-------------
+ virt/kvm/kvm_main.c             | 15 ++++----
+ 6 files changed, 58 insertions(+), 51 deletions(-)
 
-diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-index 45e784462ec6..576bcb21be3a 100644
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -2925,17 +2925,6 @@ static int hva_to_pfn_slow(struct kvm_follow_pfn *kfp, kvm_pfn_t *pfn)
- 	return npages;
+diff --git a/arch/s390/pci/pci_mmio.c b/arch/s390/pci/pci_mmio.c
+index 51e7a28af899..d9d5b3318cbc 100644
+--- a/arch/s390/pci/pci_mmio.c
++++ b/arch/s390/pci/pci_mmio.c
+@@ -180,6 +180,7 @@ SYSCALL_DEFINE3(s390_pci_mmio_write, unsigned long, mmio_addr,
+ 
+ 	args.address = mmio_addr;
+ 	args.vma = vma;
++	args.write = true;
+ 	ret = follow_pfnmap_start(&args);
+ 	if (ret) {
+ 		fixup_user_fault(current->mm, mmio_addr, FAULT_FLAG_WRITE, NULL);
+@@ -332,6 +333,7 @@ SYSCALL_DEFINE3(s390_pci_mmio_read, unsigned long, mmio_addr,
+ 
+ 	args.vma = vma;
+ 	args.address = mmio_addr;
++	args.write = false;
+ 	ret = follow_pfnmap_start(&args);
+ 	if (ret) {
+ 		fixup_user_fault(current->mm, mmio_addr, 0, NULL);
+diff --git a/drivers/vfio/vfio_iommu_type1.c b/drivers/vfio/vfio_iommu_type1.c
+index c8151ba54de3..e6d3a2311a99 100644
+--- a/drivers/vfio/vfio_iommu_type1.c
++++ b/drivers/vfio/vfio_iommu_type1.c
+@@ -541,7 +541,11 @@ static int follow_fault_pfn(struct vm_area_struct *vma, struct mm_struct *mm,
+ 			    unsigned long vaddr, unsigned long *pfn,
+ 			    unsigned long *addr_mask, bool write_fault)
+ {
+-	struct follow_pfnmap_args args = { .vma = vma, .address = vaddr };
++	struct follow_pfnmap_args args = {
++		.vma = vma,
++		.address = vaddr,
++		.write = write_fault,
++	};
+ 	int ret;
+ 
+ 	ret = follow_pfnmap_start(&args);
+@@ -563,15 +567,10 @@ static int follow_fault_pfn(struct vm_area_struct *vma, struct mm_struct *mm,
+ 			return ret;
+ 	}
+ 
+-	if (write_fault && !args.writable) {
+-		ret = -EFAULT;
+-	} else {
+-		*pfn = args.pfn;
+-		*addr_mask = args.addr_mask;
+-	}
+-
++	*pfn = args.pfn;
++	*addr_mask = args.addr_mask;
+ 	follow_pfnmap_end(&args);
+-	return ret;
++	return 0;
  }
  
--static bool vma_is_valid(struct vm_area_struct *vma, bool write_fault)
--{
--	if (unlikely(!(vma->vm_flags & VM_READ)))
--		return false;
+ /*
+diff --git a/drivers/virt/acrn/mm.c b/drivers/virt/acrn/mm.c
+index 5bca500a83e0..2f9808399f19 100644
+--- a/drivers/virt/acrn/mm.c
++++ b/drivers/virt/acrn/mm.c
+@@ -177,7 +177,6 @@ int acrn_vm_ram_map(struct acrn_vm *vm, struct acrn_vm_memmap *memmap)
+ 	vma = vma_lookup(current->mm, memmap->vma_base);
+ 	if (vma && ((vma->vm_flags & VM_PFNMAP) != 0)) {
+ 		unsigned long start_pfn, cur_pfn;
+-		bool writable;
+ 
+ 		if ((memmap->vma_base + memmap->len) > vma->vm_end) {
+ 			mmap_read_unlock(current->mm);
+@@ -188,6 +187,7 @@ int acrn_vm_ram_map(struct acrn_vm *vm, struct acrn_vm_memmap *memmap)
+ 			struct follow_pfnmap_args args = {
+ 				.vma = vma,
+ 				.address = memmap->vma_base + i * PAGE_SIZE,
++				.write = !!(memmap->attr & ACRN_MEM_ACCESS_WRITE),
+ 			};
+ 
+ 			ret = follow_pfnmap_start(&args);
+@@ -197,16 +197,8 @@ int acrn_vm_ram_map(struct acrn_vm *vm, struct acrn_vm_memmap *memmap)
+ 			cur_pfn = args.pfn;
+ 			if (i == 0)
+ 				start_pfn = cur_pfn;
+-			writable = args.writable;
+ 			follow_pfnmap_end(&args);
+ 
+-			/* Disallow write access if the PTE is not writable. */
+-			if (!writable &&
+-			    (memmap->attr & ACRN_MEM_ACCESS_WRITE)) {
+-				ret = -EFAULT;
+-				break;
+-			}
 -
--	if (write_fault && (unlikely(!(vma->vm_flags & VM_WRITE))))
--		return false;
+ 			/* Disallow refcounted pages. */
+ 			if (pfn_valid(cur_pfn) &&
+ 			    !PageReserved(pfn_to_page(cur_pfn))) {
+diff --git a/include/linux/mm.h b/include/linux/mm.h
+index 01184a4bdd6f..1659cb8f42fd 100644
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -3136,9 +3136,12 @@ struct follow_pfnmap_args {
+ 	 * Inputs:
+ 	 * @vma: Pointer to @vm_area_struct struct
+ 	 * @address: the virtual address to walk
++	 * @write: if true, fail with -EFAULT unless the mapping is
++	 * writable
+ 	 */
+ 	struct vm_area_struct *vma;
+ 	unsigned long address;
++	bool write;
+ 	/**
+ 	 * Internals:
+ 	 *
+diff --git a/mm/memory.c b/mm/memory.c
+index b5555217b121..27f5dcc319c8 100644
+--- a/mm/memory.c
++++ b/mm/memory.c
+@@ -6774,12 +6774,15 @@ int __pmd_alloc(struct mm_struct *mm, pud_t *pud, unsigned long address)
+ }
+ #endif /* __PAGETABLE_PMD_FOLDED */
+ 
+-static inline void pfnmap_args_setup(struct follow_pfnmap_args *args,
+-				     spinlock_t *lock, pte_t *ptep,
+-				     pgprot_t pgprot, unsigned long pfn_base,
+-				     unsigned long addr_mask, bool writable,
+-				     bool special)
++static inline int pfnmap_args_setup(struct follow_pfnmap_args *args,
++				    spinlock_t *lock, pte_t *ptep,
++				    pgprot_t pgprot, unsigned long pfn_base,
++				    unsigned long addr_mask, bool writable,
++				    bool special)
+ {
++	if (!writable && args->write)
++		return -EFAULT;
++
+ 	args->lock = lock;
+ 	args->ptep = ptep;
+ 	args->pfn = pfn_base + ((args->address & ~addr_mask) >> PAGE_SHIFT);
+@@ -6787,6 +6790,7 @@ static inline void pfnmap_args_setup(struct follow_pfnmap_args *args,
+ 	args->pgprot = pgprot;
+ 	args->writable = writable;
+ 	args->special = special;
++	return 0;
+ }
+ 
+ static inline void pfnmap_lockdep_assert(struct vm_area_struct *vma)
+@@ -6808,8 +6812,9 @@ static inline void pfnmap_lockdep_assert(struct vm_area_struct *vma)
+  * @args: Pointer to struct @follow_pfnmap_args
+  *
+  * The caller needs to setup args->vma and args->address to point to the
+- * virtual address as the target of such lookup.  On a successful return,
+- * the results will be put into other output fields.
++ * virtual address as the target of such lookup, and optionally set
++ * args->write to require a writable mapping.  On a successful
++ * return, the results will be put into other output fields.
+  *
+  * After the caller finished using the fields, the caller must invoke
+  * another follow_pfnmap_end() to proper releases the locks and resources
+@@ -6832,7 +6837,8 @@ static inline void pfnmap_lockdep_assert(struct vm_area_struct *vma)
+  *
+  * This function must not be used to modify PTE content.
+  *
+- * Return: zero on success, negative otherwise.
++ * Return: zero on success, -EFAULT if @args->write was set but the
++ * mapping is not writable, -EINVAL if there is no mapping at all.
+  */
+ int follow_pfnmap_start(struct follow_pfnmap_args *args)
+ {
+@@ -6845,6 +6851,7 @@ int follow_pfnmap_start(struct follow_pfnmap_args *args)
+ 	pud_t *pudp, pud;
+ 	pmd_t *pmdp, pmd;
+ 	pte_t *ptep, pte;
++	int r = -EINVAL;
+ 
+ 	pfnmap_lockdep_assert(vma);
+ 
+@@ -6878,10 +6885,12 @@ int follow_pfnmap_start(struct follow_pfnmap_args *args)
+ 			spin_unlock(lock);
+ 			goto retry;
+ 		}
+-		pfnmap_args_setup(args, lock, NULL, pud_pgprot(pud),
+-				  pud_pfn(pud), PUD_MASK, pud_write(pud),
+-				  pud_special(pud));
+-		return 0;
++		r = pfnmap_args_setup(args, lock, NULL, pud_pgprot(pud),
++				      pud_pfn(pud), PUD_MASK, pud_write(pud),
++				      pud_special(pud));
++		if (r)
++			spin_unlock(lock);
++		return r;
+ 	}
+ 
+ 	pmdp = pmd_offset(pudp, address);
+@@ -6899,10 +6908,12 @@ int follow_pfnmap_start(struct follow_pfnmap_args *args)
+ 			spin_unlock(lock);
+ 			goto retry;
+ 		}
+-		pfnmap_args_setup(args, lock, NULL, pmd_pgprot(pmd),
+-				  pmd_pfn(pmd), PMD_MASK, pmd_write(pmd),
+-				  pmd_special(pmd));
+-		return 0;
++		r = pfnmap_args_setup(args, lock, NULL, pmd_pgprot(pmd),
++				      pmd_pfn(pmd), PMD_MASK, pmd_write(pmd),
++				      pmd_special(pmd));
++		if (r)
++			spin_unlock(lock);
++		return r;
+ 	}
+ 
+ 	ptep = pte_offset_map_lock(mm, pmdp, address, &lock);
+@@ -6911,14 +6922,16 @@ int follow_pfnmap_start(struct follow_pfnmap_args *args)
+ 	pte = ptep_get(ptep);
+ 	if (!pte_present(pte))
+ 		goto unlock;
+-	pfnmap_args_setup(args, lock, ptep, pte_pgprot(pte),
+-			  pte_pfn(pte), PAGE_MASK, pte_write(pte),
+-			  pte_special(pte));
++	r = pfnmap_args_setup(args, lock, ptep, pte_pgprot(pte),
++			      pte_pfn(pte), PAGE_MASK, pte_write(pte),
++			      pte_special(pte));
++	if (r)
++		goto unlock;
+ 	return 0;
+ unlock:
+ 	pte_unmap_unlock(ptep, lock);
+ out:
+-	return -EINVAL;
++	return r;
+ }
+ EXPORT_SYMBOL_GPL(follow_pfnmap_start);
+ 
+@@ -6960,7 +6973,11 @@ int generic_access_phys(struct vm_area_struct *vma, unsigned long addr,
+ 	int offset = offset_in_page(addr);
+ 	int ret = -EINVAL;
+ 	bool writable;
+-	struct follow_pfnmap_args args = { .vma = vma, .address = addr };
++	struct follow_pfnmap_args args = {
++		.vma = vma,
++		.address = addr,
++		.write = !!(write & FOLL_WRITE)
++	};
+ 
+ retry:
+ 	if (follow_pfnmap_start(&args))
+@@ -6970,9 +6987,6 @@ int generic_access_phys(struct vm_area_struct *vma, unsigned long addr,
+ 	writable = args.writable;
+ 	follow_pfnmap_end(&args);
+ 
+-	if ((write & FOLL_WRITE) && !writable)
+-		return -EINVAL;
 -
--	return true;
--}
--
+ 	maddr = ioremap_prot(phys_addr, PAGE_ALIGN(len + offset), prot);
+ 	if (!maddr)
+ 		return -ENOMEM;
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index 576bcb21be3a..b7c21a48a45c 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -2928,8 +2928,11 @@ static int hva_to_pfn_slow(struct kvm_follow_pfn *kfp, kvm_pfn_t *pfn)
  static int hva_to_pfn_remapped(struct vm_area_struct *vma,
  			       struct kvm_follow_pfn *kfp, kvm_pfn_t *p_pfn)
  {
-@@ -3008,20 +2997,29 @@ kvm_pfn_t hva_to_pfn(struct kvm_follow_pfn *kfp)
- retry:
- 	vma = vma_lookup(current->mm, kfp->hva);
+-	struct follow_pfnmap_args args = { .vma = vma, .address = kfp->hva };
+-	bool write_fault = kfp->flags & FOLL_WRITE;
++	struct follow_pfnmap_args args = {
++		.vma = vma,
++		.address = kfp->hva,
++		.write = !!(kfp->flags & FOLL_WRITE),
++	};
+ 	int r;
  
--	if (vma == NULL)
-+	/*
-+	 * GUP failed.  It could be an inaccessible mapping, a pfnmap one,
-+	 * or the page might be absent.
-+	 */
-+
-+	if (vma == NULL || unlikely(!(vma->vm_flags & VM_READ))) {
- 		pfn = KVM_PFN_ERR_FAULT;
--	else if (vma->vm_flags & (VM_IO | VM_PFNMAP)) {
-+	} else if ((kfp->flags & FOLL_WRITE) && unlikely(!(vma->vm_flags & VM_WRITE))) {
-+		/*
-+		 * Exit to userspace for PROT_READ mappings in a writable
-+		 * memslot, as this is part of the API.
-+		 */
-+		pfn = vma->vm_flags & (VM_IO | VM_PFNMAP) ? KVM_PFN_ERR_RO_FAULT :
-+			KVM_PFN_ERR_FAULT;
-+	} else if (vma->vm_flags & (VM_IO | VM_PFNMAP)) {
- 		r = hva_to_pfn_remapped(vma, kfp, &pfn);
- 		if (r == -EAGAIN)
- 			goto retry;
- 		if (r < 0)
- 			pfn = KVM_PFN_ERR_FAULT;
- 	} else {
--		if ((kfp->flags & FOLL_NOWAIT) &&
--		    vma_is_valid(vma, kfp->flags & FOLL_WRITE))
--			pfn = KVM_PFN_ERR_NEEDS_IO;
--		else
--			pfn = KVM_PFN_ERR_FAULT;
-+		pfn = kfp->flags & FOLL_NOWAIT ? KVM_PFN_ERR_NEEDS_IO :
-+			KVM_PFN_ERR_FAULT;
+ 	/*
+@@ -2948,7 +2951,7 @@ static int hva_to_pfn_remapped(struct vm_area_struct *vma,
+ 		 */
+ 		bool unlocked = false;
+ 		r = fixup_user_fault(current->mm, kfp->hva,
+-				     (write_fault ? FAULT_FLAG_WRITE : 0),
++				     (args.write ? FAULT_FLAG_WRITE : 0),
+ 				     &unlocked);
+ 		if (unlocked)
+ 			return -EAGAIN;
+@@ -2960,13 +2963,7 @@ static int hva_to_pfn_remapped(struct vm_area_struct *vma,
+ 			return r;
  	}
- 	mmap_read_unlock(current->mm);
- 	return pfn;
+ 
+-	if (write_fault && !args.writable) {
+-		*p_pfn = KVM_PFN_ERR_RO_FAULT;
+-		goto out;
+-	}
+-
+ 	*p_pfn = kvm_resolve_pfn(kfp, NULL, &args, args.writable);
+-out:
+ 	follow_pfnmap_end(&args);
+ 	return r;
+ }
 -- 
 2.55.0
 
