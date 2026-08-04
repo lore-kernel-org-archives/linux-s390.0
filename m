@@ -1,188 +1,199 @@
-Received: from fout-a4-smtp.messagingengine.com (fout-a4-smtp.messagingengine.com [103.168.172.147])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4CB0838DC68;
-	Tue,  4 Aug 2026 12:02:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.147
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 26FB2397E89
+	for <linux-s390@vger.kernel.org>; Tue,  4 Aug 2026 12:05:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785844964; cv=none; b=MNbmzMaQP3VB0W+MOIkic0+dRGJQM5KZ6lu2bwjsElGrvAHsCT59/OLB1V/HYCunV2ARwRbxdvipUkRCkJRp/FMfw5ZYAMi739FWb4uasEdsFHqwGZeR+KqHEAf6QtDGSURiaazKwQ+7pesZhDVzv+kA6XIcqjjlc389Is1PG7k=
+	t=1785845143; cv=none; b=A1wa58xV5Wk12tJ+R1cMOJzWZQuTy/38B9dEjoPms7BL/FKU9erF+f6XccWoInucoE31omaJff9QtI4QNLS69Jf4vc2tWpaK8zqcOxqZsOrkB5+P6kec8OW+tLHdJjjDycMmnC96aU4vujsiNN1p90KYr4hkO/CoIvXZ9z/1taM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785844964; c=relaxed/simple;
-	bh=TfoL62eZz7nSoLv8+0E8B+YTOCT6z558wbQb/CMfQdA=;
-	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
-	 Subject:Content-Type; b=HsC2U34ICeV6ixQWD7cB4jHLngwGvw1W/iNvksv+xzwozoxbeWnyxVfcnphFXfUt/fR37xplXraPtYQOt7I8AamrnmUY9V+DAHL06nbb07/8EdvpordJVdRwobf4a75lJbEc9q0JLoHOO+ZyWgccUHst4M3RN/vxL51+JBxuhdU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=DhLm6GAc; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=W6j93psx; arc=none smtp.client-ip=103.168.172.147
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
+	s=arc-20240116; t=1785845143; c=relaxed/simple;
+	bh=tWhbpLrndV3dvFj6rw3wUEqAvQhUNv7Z7XChRUIb0M0=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=Pkel2Io61bFG0FWqCvF3VWeOSzebO0ZHGpHx+oefbjDcTq8/DnpbMubuND+bdYSVgqXcLMgWqALuSWNu09m+nWb0bPw8QnYyrYBEiZNFaEy5pnhMn+NSTYd2WPu6bLPTXKMn6qjYiOk88nbgYap8ZxNcI9hHxVYckkmo/1wgnCM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ZHLPLsk4; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=uDdqbUZv; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="DhLm6GAc";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="W6j93psx"
-Received: from ams-compute-02.internal (ams-compute-02.internal [10.64.2.62])
-	by mailfout.phl.internal (Postfix) with ESMTP id 5CDD4EC01E1;
-	Tue,  4 Aug 2026 08:02:39 -0400 (EDT)
-Received: from ams-imap-03 ([10.64.2.23])
-  by ams-compute-02.internal (MEProxy); Tue, 04 Aug 2026 08:02:41 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
-	:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm2; t=1785844958;
-	 x=1785931358; bh=Z/wu0JpGiYhd+Hbgzo+FTQjllgTiXml1cxedfhDN9Mk=; b=
-	DhLm6GAcjWbpuA6KD+T1GXWUsDUvK03nj7YgJSzB9umEPHoxRG/wt+z5abpZRcIK
-	CHYh8i54X/MKso/nXGhF8oq1Z3hIyfmJHIaHfjjh5XjcOHabY0uNWChaJu9+1lmW
-	IrP06oqZF4dpnCYaArl3jx4ucPOhuBs06JLETK8XreVFUzrjQ7ixG4rkabHIqad3
-	8NxvbQmQCC3bQQuX5RRCNJnK/cqZt+z2o4WAIJS6H4SRnEmBrSssSdXFvOOYcIKV
-	Wr+62LRjKrMJP4n2PvNV6l7U8uGoqoCdrk6drzVLGQA4A3rKUma/9j8Sujb6rKEH
-	qtI9jzgCuQQv1/D2E/mRuA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1785844958; x=
-	1785931358; bh=Z/wu0JpGiYhd+Hbgzo+FTQjllgTiXml1cxedfhDN9Mk=; b=W
-	6j93psx9sB7/CRwDcPtcA50XBY/lW8QO/TjvUicP7hnW4DBd50PRQKOdOp4Moi6o
-	KhuTFm6xNleeNBt+kpKGdkn9d497z7/E67a/fsHa7SUAyCcYUL4hc1pckJmKyHmP
-	qteKLqGZF+ZOFEY87LYN1LVL0OD7mZQIB2IpA3llpUc4K95A/xmqmqaex0HA26Ho
-	ynNClk21KxaF3pbjdsR1xXfPwzXvh7P8cyBYpXIb8q6MFi9scZcZ3GJ9B9jDvTQd
-	gcxHuw79XHTKgGSJBVvBOJmMu9XV+M+QKp+Tlbt87gbUJikfrYrSysl3zm/9sVqt
-	k3RaWo7LI+BRCCZD8Ttsw==
-X-ME-Sender: <xms:1tRxanuUgW9UCM0kFKLlgQDzHqCfW7SuKKBbE-xyOp2djloHEirkXA>
-    <xme:1tRxajSOhUx40RH91fxqKMjGWRtdJoc2KEg9-LkFtmHAO2xmzP0O8hqY40dumGhpQ
-    mPLpyI1xF8JK2HEchklNugy_aEBFLU2J-WFaGTd37saFFu71qeb>
-X-ME-Proxy-Cause: dmFkZTGVMHwlBhYrnIoOOZl4/K95HNiI+6p6yyVfoVn3aP8OYpQJi9nqH6J0gOLwKf3jho
-    zxUm0GBc1R04A8H/hhB8YtCAKCZnvZUISCFid133HQSJWXiPwYlpESCUBIJrzTAxLKsSP8
-    jRSh4rVnvUYKjsodteiRYrUXAL259DNozYUL6lmAIMiHex+TEl7Civ7+JwrDIlP0GAE/3Z
-    BY3WjzPEsXFQd7UhPLdLDBLAtu/wwwP7cwLi0CfLsK8mWhdlanPIe2x6fU4SxKfEBEpjhV
-    BTPvMFkjSHTM6I3aGf8ieOZqhhvQdgYWhRnYq7zlH7dMO3uEQcPLCuXXO7LyYCDruke6pi
-    aTnXHtUAcaXR+wfzc488iQ5frWRgmd6wIYc2C1yeXztJ7GbToWyc1oK9XOOB3HbeyWPn31
-    NcQX3aA30MtOPWZB4ReOzdN7mclgKc5uAxSz6sKr9qah3wgdr+285MKsotVygYBHZ6vhrx
-    nk9kt/siwg0fO/aLwFCDvKHsVBI/EtPYoZXKtfSDWO4mnxlFWXxP9FO7SZj4g0f7z5UJmQ
-    cJVGcMF1HFPuMpPgBVB6ApHcdJUqGsniAQXdPb/olwkfoS4T5+1e4RKSvVhkYsbOCbn0ta
-    dYf9G0hJz/R4tVKzjUqD0+DqKYC/Zt5035Q66gNX/H1H+5kuSDA2otc3MQIQ
-X-ME-Proxy: <xmx:2tRxaocEj4BVlYLd4WlZiVJDajwUwR4dqV-D17BGErZzBWrp7WP-gw>
-    <xmx:2tRxanp9RMypyh-7thr_MZPRBq_U5I-Kr9TAijcQrSo5R9j3HXO32A>
-    <xmx:2tRxapfErRi-p-6Jm5OItSQdJHexx0zWRyhuY7_0CMGavvCOMimf8w>
-    <xmx:2tRxavn2FDgZiEqUiJKT-uH4tkZph3BqqsQB81CbP0AhibQ3QRZvEQ>
-    <xmx:3tRxaqtbnqWdgcnHEmary2iGsKilCcSGvWvP9Ksvv5ibzz1135u34x2d>
-Feedback-ID: i56a14606:Fastmail
-Received: by mailuser.ams.internal (Postfix, from userid 501)
-	id 7064B32A0064; Tue,  4 Aug 2026 08:02:30 -0400 (EDT)
-X-Mailer: MessagingEngine.com Webmail Interface
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ZHLPLsk4";
+	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="uDdqbUZv"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1785845140;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=taQNLA8VzPi8pIAuKLKHCaHnQR8Qtlo0OLpkQO4wnlM=;
+	b=ZHLPLsk4NNkZ1MUg20CMCvFb47FhYoquPXJtd1knMZSb7GQRhdBQ2RFYyEhz3TN9fh6zrg
+	SWvBRUNTHZHZRVz1LLnFHlwebUWD+GpyMtnfOamxDBHuNpyf0G7h5VK6vNOPrGFKUCjNM9
+	0p1pP3CbfFBSr2B1kmyPZgycKM/+mFw=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-192-au_IYzvaPo2i8-2R7o0pbg-1; Tue, 04 Aug 2026 08:05:39 -0400
+X-MC-Unique: au_IYzvaPo2i8-2R7o0pbg-1
+X-Mimecast-MFC-AGG-ID: au_IYzvaPo2i8-2R7o0pbg_1785845138
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-4954dcd6131so33952885e9.3
+        for <linux-s390@vger.kernel.org>; Tue, 04 Aug 2026 05:05:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=redhat.com; s=google; t=1785845138; x=1786449938; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=taQNLA8VzPi8pIAuKLKHCaHnQR8Qtlo0OLpkQO4wnlM=;
+        b=uDdqbUZvYP79RqimY1ZqTEuTXAixIlW/QtJ7a4KlNLDotqiHC1jC+BqaNbdrzoB8iP
+         cU+AHAMYM89wwmVfsuSmTWMfB2/Fx34ztmYWncP0qP1zK32pIaOH9F/xITa1sfSTE/gu
+         ndWjrHWkUfTLCpWYWdkXxS+Nd1po8h50lTtsj9o2CyLeCsSM6FYnnl1uBQEdAg6nPNhI
+         lblviG/InhzcdCosHgo3agQfYY5c/+oKxQPbzW7EO8dIquZ8LX6maNtNVJ9hDC7FY49t
+         5I0I1tJH9MkIOd8zQNWwNqDi/ouIyyGx551nNd9HdphXflkxVPFuaJ7HjIH+8RH5EoxQ
+         10Dg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1785845138; x=1786449938;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=taQNLA8VzPi8pIAuKLKHCaHnQR8Qtlo0OLpkQO4wnlM=;
+        b=Rc1/VBiOuNPV1ZYJIslLaU503bcZBplqEopVmiBNZsHI8LSPB3i1EIWx9QMid56+H8
+         x9UGiZopMKfdQmNgvfnWD+4d01R3P+4HY2aDTTFt+VqrsQyXQlJ1+5+Cm/G41Vned6h1
+         w05VU3tBUIrfI3BZPl+BTDD1/bdDuExTtxi0QI8gI3Pu5gtUdWf3m+LSJ4bz/JlZ9VsE
+         yaRAjeq+c7UR4zuu1sNA077Lkt3rA146U6nICPQ5EfNmHyWWC07MK7jR49Eck9Kib5Aw
+         gXSmer0rB4B5tUDXsbQQAqwVCBdk+3hRriUa7XeQqdBBl90ONAXeYHig7BSqkHvD2sJF
+         dudg==
+X-Forwarded-Encrypted: i=1; AHgh+RrvDJeTXBLCsmZB8Pg1/CWrankB4ZjXyU1sXjrMOtaALkwhoe7oSbF8ifz8vyUFcLGg8jLIWRXwTCR6@vger.kernel.org
+X-Gm-Message-State: AOJu0Yx+m2xGr0OHiAFj285YoAxT001wS7e7EMADgg6uSfHwyyFqgWKK
+	aq0cdC06uy4QVlFNCP0RQeMrPJGZ/mT/R8HLTRCNUlR8xTL7IZKwZez3+6IHWZL8lEshIZHOV60
+	SUDURV3zWOf9l+jiLJ3oNO/YdheFsFg3gTfwvHPTbtVZVnDsGqZjMvKv5WijXlrU=
+X-Gm-Gg: AR+sD13/SI+vhC4nBRS4oGbhxQFxsOHnZswh5RLLzhKiRtuugMAx0zetmDx5hq+Mnoi
+	oFqXxgbW3iSL5iNqr6DcCro2zRGhsMTZQc3O3okErmQfC1shRQ/xobVod4u31DZ9lWY1PNjREWb
+	t/KSR8hUdjTr3ox4gLzu4zddDoJOvAM1cCEVYuQ+aMZxXdXm/jWsvPzitGL5JnUDbZ9r+H1aHYN
+	1sHJJk7U3CBS6xOvAD/ClixMJf868Q3tpTxil4HLKM5acXNdJZEv22kZ2ChI3nc8KpcvDNqMeo0
+	f+Ps/DUQ9kupaSIqKJ7w8wkdwUgxGr+/VfHT6PstdJIv+CibyaAe6c/4PBXgkiN4zIa0K0/tS9b
+	eYCXjK8u6xCOygVUVOv5IGtBOcKzjCmSOI3CHzqicJGVBwbYMxIi0tCN7lVDiKG7JZW5BYAHP6s
+	Afbvw=
+X-Received: by 2002:a05:600c:6298:b0:499:484a:7644 with SMTP id 5b1f17b1804b1-499484a7693mr122467195e9.9.1785845137698;
+        Tue, 04 Aug 2026 05:05:37 -0700 (PDT)
+X-Received: by 2002:a05:600c:6298:b0:499:484a:7644 with SMTP id 5b1f17b1804b1-499484a7693mr122465915e9.9.1785845136990;
+        Tue, 04 Aug 2026 05:05:36 -0700 (PDT)
+Received: from [192.168.10.48] ([151.95.34.92])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49807b8d04fsm453070475e9.3.2026.08.04.05.05.35
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 04 Aug 2026 05:05:36 -0700 (PDT)
+From: Paolo Bonzini <pbonzini@redhat.com>
+To: linux-kernel@vger.kernel.org,
+	kvm@vger.kernel.org
+Cc: Alex Williamson <alex@shazbot.org>,
+	bcm-kernel-feedback-list@broadcom.com,
+	Boris Brezillon <boris.brezillon@collabora.com>,
+	Christian Koenig <christian.koenig@amd.com>,
+	David Hildenbrand <david@kernel.org>,
+	dri-devel@lists.freedesktop.org,
+	Fei Li <fei1.li@intel.com>,
+	Huang Rui <ray.huang@amd.com>,
+	linux-mm@kvack.org,
+	linux-s390@vger.kernel.org,
+	Michal Hocko <mhocko@suse.com>,
+	Peter Xu <peterx@redhat.com>,
+	Sergio Lopez <slp@redhat.com>,
+	Sean Christopherson <seanjc@google.com>,
+	Thomas Zimmermann <tzimmermann@suse.de>,
+	stable@vger.kernel.org
+Subject: [PATCH v2 2/6] drm/shmem_helper: use vmf_insert_pfn_mkwrite()
+Date: Tue,  4 Aug 2026 14:05:24 +0200
+Message-ID: <20260804120529.1730187-3-pbonzini@redhat.com>
+X-Mailer: git-send-email 2.55.0
+In-Reply-To: <20260804120529.1730187-1-pbonzini@redhat.com>
+References: <20260804120529.1730187-1-pbonzini@redhat.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-ThreadId: Ag8nwV6tN_57
-Date: Tue, 04 Aug 2026 14:02:10 +0200
-From: "Arnd Bergmann" <arnd@arndb.de>
-To: "Danilo Krummrich" <dakr@kernel.org>
-Cc: "Heiko Carstens" <hca@linux.ibm.com>,
- "Niklas Schnelle" <schnelle@linux.ibm.com>,
- "Gerd Bayer" <gbayer@linux.ibm.com>, "Miguel Ojeda" <ojeda@kernel.org>,
- "Alice Ryhl" <aliceryhl@google.com>,
- "Daniel Almeida" <daniel.almeida@collabora.com>,
- "Vasily Gorbik" <gor@linux.ibm.com>,
- "Alexander Gordeev" <agordeev@linux.ibm.com>, driver-core@lists.linux.dev,
- "Christian Borntraeger" <borntraeger@linux.ibm.com>,
- "Sven Schnelle" <svens@linux.ibm.com>, linux-s390@vger.kernel.org,
- Linux-Arch <linux-arch@vger.kernel.org>, "Boqun Feng" <boqun@kernel.org>,
- "Gary Guo" <gary@garyguo.net>,
- =?UTF-8?Q?Bj=C3=B6rn_Roy_Baron?= <bjorn3_gh@protonmail.com>,
- "Benno Lossin" <lossin@kernel.org>,
- "Andreas Hindborg" <a.hindborg@kernel.org>,
- "Trevor Gross" <tmgross@umich.edu>, "Tamir Duberstein" <tamird@kernel.org>,
- "Alexandre Courbot" <acourbot@nvidia.com>,
- =?UTF-8?Q?Onur_=C3=96zkan?= <work@onurozkan.dev>,
- rust-for-linux@vger.kernel.org
-Message-Id: <f0e0c069-23eb-443a-800d-267cfe4c2aa2@app.fastmail.com>
-In-Reply-To: <DKG43HF7A2EN.PC1LBC0QUP93@kernel.org>
-References: <20260803180931.97202-1-ojeda@kernel.org>
- <fb2daae7-4eba-4ca1-95a5-60f8157eb66b@app.fastmail.com>
- <DKFKXA6YWW8R.1NDZ44Q13XFQH@kernel.org>
- <20260804071330.24760Aaf-hca@linux.ibm.com>
- <33ecacea-ed2a-409c-ab1c-a136e06b1b7a@app.fastmail.com>
- <DKG43HF7A2EN.PC1LBC0QUP93@kernel.org>
-Subject: Re: `io{re,un}map()` build error in s390 under `!CONFIG_HAS_IOMEM`
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On Tue, Aug 4, 2026, at 13:10, Danilo Krummrich wrote:
-> On Tue Aug 4, 2026 at 12:36 PM CEST, Arnd Bergmann wrote:
->> On Tue, Aug 4, 2026, at 09:13, Heiko Carstens wrote:
->>>
->>>> I just sent out a fix [1]; the only annoying part is [2], but we should change
->>>> those doc-tests anyway. For the one in rust/kernel/io.rs we already did in
->>>> driver-core-next.
->>>> 
->>>> [1] https://lore.kernel.org/driver-core/20260803200249.3494259-1-dakr@kernel.org/
->>
->> This looks like you still provide the rust version of ioremap(),
->> turning what is supposed to be a link failure into a runtime
->> error.
->
-> Which is the standard for many core APIs, such as [1]. However, I do agree that
-> in this case the correct fix would be to have all architectures provide the
-> stubs rather than the Rust code.
+This ensures that KVM or VFIO correctly see a writable PTE when
+they request one.  Otherwise, a guest write to an unpopulated
+PTE from a mapping backed by a DRM GEM BO triggers a VM exit
+with EFAULT.
 
-We have both types of interfaces in the kernel. For HAS_IOMEM and HAS_IOPORT,
-the link failure is intentional, as it helps identify drivers that need
-a Kconfig dependency and are either unusable or potentially harmful if loaded
-without this.
+The code actually is simpler, because the same logic already
+applied to the hugepage mapping case using vmf_insert_pfn_pmd().
 
-Having empty stubs only really makes sense for things like LED support
-where a driver calling the interfaces can continue to work
-correctly when the interface is compile-time disabled.
+Reported-by: Sergio Lopez <slp@redhat.com>
+Link: https://lore.kernel.org/kvm/20260729072044.25796-1-slp@redhat.com/
+Tested-by: Sergio Lopez <slp@redhat.com>
+Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
+Fixes: 28e3918179aa ("drm/gem-shmem: Track folio accessed/dirty status in mmap")
+Cc: stable@vger.kernel.org
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+---
+ drivers/gpu/drm/drm_gem_shmem_helper.c | 38 ++++++++++++++------------
+ 1 file changed, 20 insertions(+), 18 deletions(-)
 
-> However, there's already a precedent for this in the kernel, e.g. in [2]. Of
-> course, it would be better to clean this up, but depending on whether there's
-> more architectures having this issue (I didn't check) that's separate from a
-> fix.
+diff --git a/drivers/gpu/drm/drm_gem_shmem_helper.c b/drivers/gpu/drm/drm_gem_shmem_helper.c
+index c989459eb215..c81be3e97317 100644
+--- a/drivers/gpu/drm/drm_gem_shmem_helper.c
++++ b/drivers/gpu/drm/drm_gem_shmem_helper.c
+@@ -589,11 +589,25 @@ static void drm_gem_shmem_record_mkwrite(struct vm_fault *vmf)
+ 	folio_mark_dirty(page_folio(shmem->pages[page_offset]));
+ }
+ 
++/*
++ * Because the vm_ops have a .pfn_mkwrite() callback, vma_set_page_prot()
++ * has cleared the write bit from vma->vm_page_prot.  vmf_insert_pfn()
++ * would install a read-only entry even for a write fault, relying on a
++ * second fault to reach .pfn_mkwrite() and upgrade it, but that second
++ * fault never happens for fixup_user_fault() callers that directly
++ * walk the page tables with follow_pfnmap_start().  To ensure that
++ * they don't see the read-only entry, pass FAULT_FLAG_WRITE info down
++ * to install a writable entry right away.  Because .pfn_mkwrite() is
++ * not invoked, record the write afterwards.
++ */
+ static vm_fault_t try_insert_pfn(struct vm_fault *vmf, unsigned int order,
+ 				 unsigned long pfn)
+ {
++	bool write = vmf->flags & FAULT_FLAG_WRITE;
++	vm_fault_t ret = VM_FAULT_FALLBACK;
++
+ 	if (!order) {
+-		return vmf_insert_pfn(vmf->vma, vmf->address, pfn);
++		ret = vmf_insert_pfn_mkwrite(vmf->vma, vmf->address, pfn, write);
+ #ifdef CONFIG_ARCH_SUPPORTS_PMD_PFNMAP
+ 	} else if (order == PMD_ORDER) {
+ 		unsigned long paddr = pfn << PAGE_SHIFT;
+@@ -601,27 +615,15 @@ static vm_fault_t try_insert_pfn(struct vm_fault *vmf, unsigned int order,
+ 
+ 		if (aligned &&
+ 		    folio_test_pmd_mappable(page_folio(pfn_to_page(pfn)))) {
+-			vm_fault_t ret;
+-
+ 			pfn &= PMD_MASK >> PAGE_SHIFT;
+-
+-			/* Unlike PTEs which are automatically upgraded to
+-			 * writeable entries, the PMD upgrades go through
+-			 * .huge_fault(). Make sure we pass the "write" info
+-			 * along in that case.
+-			 * This also means we have to record the write fault
+-			 * here, instead of in .pfn_mkwrite().
+-			 */
+-			ret = vmf_insert_pfn_pmd(vmf, pfn,
+-						 vmf->flags & FAULT_FLAG_WRITE);
+-			if (ret == VM_FAULT_NOPAGE && (vmf->flags & FAULT_FLAG_WRITE))
+-				drm_gem_shmem_record_mkwrite(vmf);
+-
+-			return ret;
++			ret = vmf_insert_pfn_pmd(vmf, pfn, write);
+ 		}
+ #endif
+ 	}
+-	return VM_FAULT_FALLBACK;
++
++	if (ret == VM_FAULT_NOPAGE && write)
++		drm_gem_shmem_record_mkwrite(vmf);
++	return ret;
+ }
+ 
+ static vm_fault_t drm_gem_shmem_any_fault(struct vm_fault *vmf, unsigned int order)
+-- 
+2.55.0
 
-arch/um is the only other one that does not always enable HAS_IOMEM,
-though most m68k targets don't have any support for ISA/PCI style
-MMIO or PIO and probably should not enable it in theory.
-
-> [2] 
-> https://elixir.bootlin.com/linux/v7.1.5/source/include/linux/device/devres.h#L115
-
-Right, we are definitely already inconsistent here.
-
->> The simple change below would just extend that behavior to !PCI
->> and make that consistent with CONFIG_PCI=y on machines without
->> actual PCI hardware. Of course any code that might rely on this
->> is now a bug that likely never gets caught at build time.
->>
->> This still relies on implementing the __raw_* helpers as nop
->> to have the same behavior as the PCI=y version, as the generic
->> version would just end up dereferencing the invalid pointers.
->
-> As mentioned, I didn't check, but if this is the only architecture causing those
-> issues that'd be the better fix of course.
->
-> However, IIUC, your patch below would make ioremap() and friends silenty succeed
-> and only the accessors would prevent undefined behavior?
->
-> In this case I still think ioremap() should just fail.
-
-In that case, it would make sense to also change the CONFIG_PCI=y
-version to fail the same way when the address points outside of
-the PCI memory space range. The current version in
-arch/s390/pci/pci.c just falls back to generic_ioremap_prot(),
-which is what I would use here directly:
-
-void __iomem *ioremap_prot(phys_addr_t phys_addr, size_t size,
-                           pgprot_t prot)
-{
-        if (!static_branch_unlikely(&have_mio))
-                return (void __iomem *)phys_addr;
-        return generic_ioremap_prot(phys_addr, size, prot);
-}
-
-The two methods here (generic_ioremap_prot() and the cast)
-are machine specific to refer to two different ways that PCI
-devices can be accessed if present, but there is no case
-for PCI being unavailable altogether.
-
-       Arnd
