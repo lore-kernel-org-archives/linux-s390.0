@@ -1,44 +1,45 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6396C37DEA3
-	for <linux-s390@vger.kernel.org>; Tue,  4 Aug 2026 11:45:28 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 25E02360ECE
+	for <linux-s390@vger.kernel.org>; Tue,  4 Aug 2026 11:47:01 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785843929; cv=none; b=P8Cu5JbXjOnCv5UPWWWU5+GXYe3jt2OM6z+rKhNHxaseeQ2f9ruhW4p/KDCmgI2OVhGWVfuLFdQVYdrw/OdOKgk1tQuA0Rb36xNBZRpp4cxTaDhJZiH5x/zHfxpwNA9/z396pP4NOoqp/b3q0iQDHhVgc2WXISjX1XirOHBm9TU=
+	t=1785844023; cv=none; b=TSimZQ1JPTWA9AImCyrVrN00jb0uSLvvp7hbciuGzO3MBatf4DnK22NYBExA7gVFgsVbjfK4nLBMk1T4XfAaNRfeo3EEr8eGmwovofEbkLZ4Pm1dQVVo/myjrmm40Yzc4Tq+a938FZH1SVJqZirBwKAZpFEoBQDT2cvU2/hBIeM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785843929; c=relaxed/simple;
-	bh=mFcgEge6XwEvQ0hnTdbwMXnAkzTt8cBgcit0tQgjC/Y=;
+	s=arc-20240116; t=1785844023; c=relaxed/simple;
+	bh=V+wSZwt5Urpu9k/biTpg6m3O6DSzZpZ88bwRVtBfKhY=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=vBx1IgDac37MY3kybstxPB5YjvftM9m3w+6SLoLdCKkmVoRAK698z8whUJWmxkIb0jiA+q7NN+JYlc2zQDbHUsh3fwpbuL9wNz1qesjgr3tHPsFk1hDgDiqV4Qu2un8VpapT5OUHSBg9p1WCNECbv8WS3xscbZwdm/XoppeyW2E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=eDneHsia; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=gqrLLJb8qlgsLRJuPvjBNFr++pAeK8eFaw8LYucOGBOBhN+ViLW27P1mqrLEQUiUnY7sZeWsH4OhjXOsCMpFAC5LHtLdOcR6k1PYNkppoVIhX7XNjfmsosPvn1kXxflFx+ta0RSsiLJi1ydz7Avyn0tByQ/evns2oz8cM/W62FI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KfblwY91; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="eDneHsia"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 414C01F000E9;
-	Tue,  4 Aug 2026 11:45:27 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KfblwY91"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54ADE1F000E9;
+	Tue,  4 Aug 2026 11:47:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785843928;
-	bh=bEp3fgnvvYopY9XE0DqmvqLn2zmyEEU+ig9mR2AwugE=;
+	s=k20260515; t=1785844021;
+	bh=TuDY98K83cQzBTcuCFDvL2mZMyH+SqCRrP9yUvd/NTk=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=eDneHsiadkvIgz7K/jAaxtmRMNgIB4aA9Rp5XnacoMezKPp6xyC5Dw9Whmvuv84tE
-	 67hWxN9kSGVaVdmvXb7wqVV48ZLxp4glbeSBJ8O2vZps+b6zwf/2f7Vi1JPELTz4Bn
-	 gp55+lNP45O9EdcijF4gQ2y00LB166mVkq2syg1fOjdKGYg9aITWdgph8P4lQRXSID
-	 sFzWpv1IuDfX6Ur0LGSAatRB1EGkgLVv3IT/h0doUKU5x0hiKAQr8Qs6P7GIr2mfGr
-	 V5Q4CClMinWrcwVIi5XJ5oHgBx28/3ch86ssNCkOAuTCO8W7/3gw4kynfui7F23bFu
-	 06/vrXEoHdS8g==
+	b=KfblwY91hFceDjVWmv8hXtiSBxU0NoH9ow6TMTzwJ5Obs/iT2GR/TfK25r+skEdBs
+	 Ms6y8F7lDjY7HK9rks6I+VVcGsbogJ8KZ4MW3gqPLxouk+hcFmaqCHRXzVVEsGneZ+
+	 iSK6csQ0t+R3tUd3ZHBIP0Mbvb5QhlIj0ITMB9l3GB1wpwOSGhdCLs/oXKSifCbXad
+	 94fJFWwY/twUQQmvygeyIW8JfwAekVjlydbDdET3YtscAWbIdy4TzeMpD4UAOh2l4t
+	 dDpf4mxmbCI7DjIOOrZx/AvRI5MWn9p/rC6ZMSYRZ5+pYO1lwLejrcbU/4eQ9VaX8x
+	 XZ8ERbjGlzGmw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 3/3] s390/crypto: Enable CONTEXT_ANALYSIS
+Subject: Re: [PATCH 2/3] s390/crypto: Rework ctr_paes_do_crypt() to remove
+ conditional locking
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Heiko Carstens" <hca@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
+Cc: "Heiko Carstens" <hca@linux.ibm.com>, linux-s390@vger.kernel.org, "Vasily
  Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
-In-Reply-To: <20260804113736.1423667-4-hca@linux.ibm.com>
+In-Reply-To: <20260804113736.1423667-3-hca@linux.ibm.com>
 References: <20260804113736.1423667-1-hca@linux.ibm.com>
- <20260804113736.1423667-4-hca@linux.ibm.com>
+ <20260804113736.1423667-3-hca@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 04 Aug 2026 11:45:26 +0000
-Message-Id: <20260804114527.414C01F000E9@smtp.kernel.org>
+Date: Tue, 04 Aug 2026 11:47:00 +0000
+Message-Id: <20260804114701.54ADE1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -47,56 +48,77 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [High] Missing error check for `skcipher_walk_virt()` in `ctr_aes_crypt()=
-` causes errors to be silently swallowed.
+
+Pre-existing issues:
+- [High] Silent data corruption when skcipher_walk_done() mapping errors ar=
+e overwritten by paes_convert_key() false success.
 --
 
---- Patch [3]: [PATCH 3/3] s390/crypto: Enable CONTEXT_ANALYSIS ---
-commit 2232f8277d7ab7cfce4ac97a8923bcf8c4ed60e3
+--- Patch [2]: [PATCH 2/3] s390/crypto: Rework ctr_paes_do_crypt() to remov=
+e conditional locking ---
+commit fd135aacfa5dd1086ab5711e4513f6e0edede1dc
 Author: Heiko Carstens <hca@linux.ibm.com>
 
-s390/crypto: Enable CONTEXT_ANALYSIS
+s390/crypto: Rework ctr_paes_do_crypt() to remove conditional locking
 
-Enable CONTEXT_ANALYSIS since s390's crypto code compiles now without
-warnings.
+This commit extracts the core loop of ctr_paes_do_crypt() into a new
+helper function, __ctr_paes_do_crypt(), to avoid conditionally taken locks
+that trip up Clang's static analysis.
 
-> diff --git a/arch/s390/crypto/Makefile b/arch/s390/crypto/Makefile
-> index 48aeb0c0ffbd6..1d64208139357 100644
-> --- a/arch/s390/crypto/Makefile
-> +++ b/arch/s390/crypto/Makefile
-> @@ -3,6 +3,8 @@
->  # Cryptographic API
->  #
-> =20
-> +CONTEXT_ANALYSIS :=3D y
-> +
+> diff --git a/arch/s390/crypto/paes_s390.c b/arch/s390/crypto/paes_s390.c
+> index 8cfe6166c193c..d4a9108d39f5f 100644
+> --- a/arch/s390/crypto/paes_s390.c
+> +++ b/arch/s390/crypto/paes_s390.c
+
+[ ... ]
+
+> @@ -981,34 +955,76 @@ static int ctr_paes_do_crypt(struct s390_paes_ctx *=
+ctx,
+>  		k =3D cpacf_kmctr(ctx->fc, param, walk->dst.virt.addr,
+>  				walk->src.virt.addr, n, ctrptr);
+>  		if (k) {
+> -			if (ctrptr =3D=3D ctrblk)
+> +			if (ctrptr =3D=3D ctrblk) {
+>  				memcpy(walk->iv, ctrptr + k - AES_BLOCK_SIZE,
+>  				       AES_BLOCK_SIZE);
+> +			}
+>  			crypto_inc(walk->iv, AES_BLOCK_SIZE);
+>  			rc =3D skcipher_walk_done(walk, nbytes - k);
+>  		}
+>  		if (k < n) {
+>  			if (!maysleep) {
+> -				if (locked)
+> -					mutex_unlock(&ctrblk_lock);
+>  				rc =3D -EKEYEXPIRED;
+>  				goto out;
+>  			}
+>  			rc =3D paes_convert_key(ctx, tested);
 
 [Severity: High]
-Does this code silently swallow errors from skcipher_walk_virt()?
+This is a pre-existing issue, but does this sequence overwrite an error
+from skcipher_walk_done()?
 
-In arch/s390/crypto/aes_s390.c:ctr_aes_crypt():
+If the hardware stops processing early (k < n) and skcipher_walk_done() fai=
+ls
+to map the next scatterlist chunk, it can return a negative error code
+like -ENOMEM into rc.
 
-	ret =3D skcipher_walk_virt(&walk, req, false);
+However, execution then immediately enters the if (k < n) block where rc is
+unconditionally overwritten. If !maysleep, rc becomes -EKEYEXPIRED. If
+paes_convert_key() is called and succeeds, rc becomes 0.
 
-	if (mutex_trylock(&ctrblk_lock)) {
-		ret =3D __ctr_aes_crypt(sctx, &walk, true);
-		mutex_unlock(&ctrblk_lock);
-	} else {
-		ret =3D __ctr_aes_crypt(sctx, &walk, false);
-	}
+Could this result in silent data corruption where an incomplete encryption =
+is
+treated as a success (rc =3D 0) by the caller?
 
-If memory allocation or scatterlist setup fails during skcipher_walk_virt(),
-it returns an error code (such as -ENOMEM or -EINVAL). Because ret is
-immediately overwritten by __ctr_aes_crypt() without being checked, the
-caller may incorrectly receive 0 (success).
-
-This causes a silent failure where unencrypted or undecrypted data may be
-consumed by the caller.
-
-Could we add an error check before calling __ctr_aes_crypt()?
-
->  obj-$(CONFIG_CRYPTO_AES_S390) +=3D aes_s390.o
+> -			if (rc) {
+> -				if (locked)
+> -					mutex_unlock(&ctrblk_lock);
+> +			if (rc)
+>  				goto out;
+> -			}
+>  			spin_lock_bh(&ctx->pk_lock);
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260804113736.1423=
-667-1-hca@linux.ibm.com?part=3D3
+667-1-hca@linux.ibm.com?part=3D2
