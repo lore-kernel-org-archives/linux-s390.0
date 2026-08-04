@@ -1,145 +1,165 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF6633C9EE4
-	for <linux-s390@vger.kernel.org>; Tue,  4 Aug 2026 12:44:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=170.10.133.124
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785847497; cv=pass; b=oPLmenHwnkPUyqvjOpu6qbrHVEwuzZLqys4L8fzy0HeG2inmfrK1Aaqs/bGh/Ly/pzUvNL/bdMCAunfxMPirbNGk6L+v8hMYetZncNwbFfgpq0MIOpKfrucRDYL+8Wosz8CkbApWgF5KRPqsDT7LwtYVSLQAqAcJ2Hqxf1VAvNM=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785847497; c=relaxed/simple;
-	bh=AhCvAzGz5QWbk/302ntoX0RJ56FBrV8QY/YWkhL/+9Y=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=HE2O3hn53PSrv2KKtL7e05INebk1Weko8ABtsh/Soes3FExVS/bhW4Ju/V/Kr7IIBiofgXySCRW1XqkawgQBFkGpKoGpkM8P9B7HhFYsqWw7h5kAMr64WZGsYJSaA16einledw2mXBn5UjpR438bAYbxW1pKVkUt73OdCSFjNTo=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=KPxFt9EP; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=LbiiUNS9; arc=pass smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C99BA3D955D
+	for <linux-s390@vger.kernel.org>; Tue,  4 Aug 2026 12:47:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785847635; cv=none; b=iyIbEUun3fiO0NKiX/fL+uGFshmP4qSGRyf2bdfCG5JOurFjweRG30Hb8y150lO+mChkw/jz00EuuKRLJg0nt42vxzfQq4lJ9uTMcYSqCJsEPgtb/igba3ygLVyrGhNwrVkfbbo/0Q+5oJans8U0ZaNfqVmKzvTXi5Yd1rFxN7A=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785847635; c=relaxed/simple;
+	bh=yRVBxJjJTMEAn//BGHF2EzYlvvJ9m0JzG8rPs84KBi4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Yxo8u2UyX0Cn0OE3IUTKAxPjaFemI3tGb2K4N+mKE64oXIg1RIaDZ2BI3D/CYwwboVpu3TvNDON7HWUealRPwCHkhdFCxHQAOU4cIs3Ckn/H+3V1xxVhWPTooU7AfgM/sjrLOQ42rzxHU9E7HjMomz7QgHmaWhGDgSoXqAzd/YQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=bpRg7CSl; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="KPxFt9EP";
-	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="LbiiUNS9"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1785847495;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=AhCvAzGz5QWbk/302ntoX0RJ56FBrV8QY/YWkhL/+9Y=;
-	b=KPxFt9EP5GqxlwskjyT9NEkaHe78JKqmsKYItSZhw60mKXod30UVSdN6WP9u1snf+2nfrH
-	J6ZnP27ES+bhftOpxwBm39+EoFeCLWkRj4QTYZ8oqRXhI+QzNGn9xGwSjwpV76wiWbSm/H
-	U0sDkH3x/BOx4nKLjOB/JI/9/L8HHO0=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-398-TAfdbB_wMIyTY1rCegfPTQ-1; Tue, 04 Aug 2026 08:44:53 -0400
-X-MC-Unique: TAfdbB_wMIyTY1rCegfPTQ-1
-X-Mimecast-MFC-AGG-ID: TAfdbB_wMIyTY1rCegfPTQ_1785847493
-Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-47f8f8fde2dso3448953f8f.0
-        for <linux-s390@vger.kernel.org>; Tue, 04 Aug 2026 05:44:53 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1785847492; cv=none;
-        d=google.com; s=arc-20260327;
-        b=LmjiB1gWFDX41tRRJKP4bFRwV9EjSMLd0ckjNtDvyHJlnLV0MBT8cFd7Eeuwi8cVUG
-         UymttgXI6NDImuSrVpsXP+IOEQpt/LAkp28CfsKAtL4/v5uUzpajeYTa35/kdNhbEeHA
-         v70/SH/4UTgbd38XbNnKVzwrJ9Pd9GKAHtUgrZri8WRWLQ9RkztzPFivFhdM5FDoQMsW
-         bY63OSbrXs5kFoR2X+PQAlTO7PgAkIu3L5OBn2IT7LwDImfbChThbhSiEs9WnX1DbWop
-         fXhFYkLb5T2CdpBEc7w3ubhTpUvrKxl6Lch3+3LYXu6Ji7g9wH4Gj01ZGHWNwBEslLLF
-         Xm8w==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=AhCvAzGz5QWbk/302ntoX0RJ56FBrV8QY/YWkhL/+9Y=;
-        fh=n6TYtiHw2BAcLZPaSL5w3FELPcdoPYDwT2q26lH7bQQ=;
-        b=YIjk3IyoPKd52qnjhnBBuGYp1aEGCZHSjn8U9OX5ftjv1DOex6vl8MbUuqjmbwWSRM
-         XI3wS1a2ENmvQE/bUwAWOlmizTgxHuyW51aXtNrtiG+z0ZshLx6omP0VekTVVkiVjZ+2
-         EE05iU96YQ6Na01q/tM2/OY9TVm56BNe0OLU9IX8IzRWDvnVmXdB+AheZII1K1OuE2cM
-         aewwRvv3ZPrfJjFgwRRJXVVCu1QUeah/3e57A1+IPhAibpRc7w6mzuGQAD+pKBq5SkRw
-         QsMWPkhZdjmOQ7yw8EW9xabHWIBN3SC/ZuFFKEZ/Xr3zBNy7rxzoPGDH4WhUYVn9OJVu
-         gUeA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=redhat.com; s=google; t=1785847492; x=1786452292; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=AhCvAzGz5QWbk/302ntoX0RJ56FBrV8QY/YWkhL/+9Y=;
-        b=LbiiUNS9WLDU22basKkI55N9OCI92YtF+oGsC1mZvnztuffOsRPJfTrGs0MJUQewUk
-         iUlYCYN1LZbfCi08s6UQjBpAOVHoao2BRoIoO9bsh6TDj0U2hnkuDmQr67N2+EIwiGuf
-         +SnWity7L8nXz+dy0ZOGpX7gndjtogzPCTF+iJbdWskRIscDAyxy02miSu4M7EwAIxw9
-         poSEHKoXrGJC77/xvgUyt0Nv9U7fJS6S20vvNZ75Ns0HelqsU4IUFIiidaZye79Huh1h
-         1n3bRV9WU0/i1Z4RQQEgG8DDc+MEhEMdmlJFQPo86oEEduLsX4C8/fnUNwE8cmxn+DQ0
-         dwYw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785847492; x=1786452292;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=AhCvAzGz5QWbk/302ntoX0RJ56FBrV8QY/YWkhL/+9Y=;
-        b=YkWhaEeSv6t/YPhXAY3Vssi8GzchdRzrC3C3voTZxX4l9r6O/CsUgNSo1BZ8AsHIQk
-         2PCsAavZXKrdkVl6UjzyVv9L0Qi1z1DTXK/AxCbUXEIP1DNwxBAnCIV9qFht8rdCc44T
-         ecsSM7GBvAsMqDkynqgb54Xuk58krr0OCossqSUjpdAuEEmEePMBeiLM1H+26HKSyh52
-         ZBWeyvIbPek80fPXrB1ZGu6Oa1oTGk7VGDTfwQiZJi/h21lyolCJI4gy0eiCMaARo7jv
-         NZaakp9NzjV2VY6MOnTze26hjG0QEkwKMUvH3sbnFYnfWfgG5/wiBAAeMUEL3nFdW8mH
-         p3sg==
-X-Forwarded-Encrypted: i=1; AHgh+RpGDTL6q14sZuqQ7foE4YV5cQe120/iktbvelJCVUFJ2Irv30G/2diIzEU65QYm/YAvpmxQwAaG07Me@vger.kernel.org
-X-Gm-Message-State: AOJu0YxohC0IOzIR6wmMFU7YDvkWRIz/Ri+GX3PjrOMTCQq6yK9/agxc
-	epNBeohL+vveN1HZhHWcn91zD4hAgiuGApK7ibBeLUtTcNE/THbSAgg4SCKH03PdtsQvpM28dRw
-	hwWgE/93qz+hUFeAItWTec3P6SYL5nODt+BTyqwDnazESqgcZEcKRgDEmz6D8f5XD3ynJqycKjF
-	HKoOkZ9k7SOsZzWH0CbAKJjYs5jbJlS7mbLRCtZDxm4w3Ykg==
-X-Gm-Gg: AR+sD12706dI532tCymNeYjb82TNSFezxz7in8lIjlkhWv2+zg6Kqntqq2ImZJ8XPLJ
-	jzzreAlJcut5MXavDeaAsiUP2JVIVQWRjzDLsiWrktl5Xkr51H4hwMBdllTqdYLpE5QDZS+QDs3
-	IDzvrym3Pp3Gmi/jwnxRph41yzBE/zxCawS6EExONjvctv/uZDbQoT4r0H9MgreFle7WRINlKqn
-	cgpc/1/QyyiMa1vntJ2g6ZRvMWrNb1keYV9yx6CxYRpG6Tafgu//rXrAhw=
-X-Received: by 2002:adf:e196:0:b0:47f:91f0:9a8 with SMTP id ffacd0b85a97d-47fd72d9daamr44077328f8f.23.1785847492560;
-        Tue, 04 Aug 2026 05:44:52 -0700 (PDT)
-X-Received: by 2002:adf:e196:0:b0:47f:91f0:9a8 with SMTP id
- ffacd0b85a97d-47fd72d9daamr44077224f8f.23.1785847492081; Tue, 04 Aug 2026
- 05:44:52 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="bpRg7CSl"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6748HaPW2640270
+	for <linux-s390@vger.kernel.org>; Tue, 4 Aug 2026 12:47:13 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=67e9BPtqE+vsPfTpS7wSJjqE9ALjiF
+	PTS2qnEyTM/zU=; b=bpRg7CSlq6LkjoYq63vwJEYHoOY+aNcybN3Rb0tAU+T/GS
+	UVbZqk+yJT7DSMJGajUCJnEL4o011SZHsFUEQUIpAcX0xL4GeRp1c+Ao1w33TCn3
+	Asx/aqQo8Ak1a30vr4/QlfnD8opJItnA8yNJxzAT3BO+fK1lg7EcVEDdADZP87L1
+	mD3RACIkMPXKV+TQOmoEVd2+RNMNhT1j5h0Y57X+DSeESY3oTDN2HTd04mx+VbHb
+	kWjl1bKoPwIx21CX/h1WP3k6He0fD1HJ5yDdWWU61OVS2Hm7HPKoPL5ypo57tQH7
+	9Jr7Ud5xG98cEDECZZk1zeBOl9hOltDD3cMM0FKg==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fs8fqnswp-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Tue, 04 Aug 2026 12:47:12 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 674CfbT1009431
+	for <linux-s390@vger.kernel.org>; Tue, 4 Aug 2026 12:47:11 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fswbg9r7d-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Tue, 04 Aug 2026 12:47:11 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 674Cl7cs37617938
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 4 Aug 2026 12:47:07 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 7FEDE2004B;
+	Tue,  4 Aug 2026 12:47:07 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 415D920043;
+	Tue,  4 Aug 2026 12:47:07 +0000 (GMT)
+Received: from osiris (unknown [9.87.143.152])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Tue,  4 Aug 2026 12:47:07 +0000 (GMT)
+Date: Tue, 4 Aug 2026 14:47:05 +0200
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Harald Freudenberger <freude@linux.ibm.com>,
+        Holger Dengler <dengler@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>
+Subject: Re: [PATCH 2/3] s390/crypto: Rework ctr_paes_do_crypt() to remove
+ conditional locking
+Message-ID: <20260804124705.12261Cbe-hca@linux.ibm.com>
+References: <20260804113736.1423667-1-hca@linux.ibm.com>
+ <20260804113736.1423667-3-hca@linux.ibm.com>
+ <20260804114701.54ADE1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260804120529.1730187-1-pbonzini@redhat.com> <20260804120529.1730187-5-pbonzini@redhat.com>
- <20260804122348.AC6E51F00A3D@smtp.kernel.org>
-In-Reply-To: <20260804122348.AC6E51F00A3D@smtp.kernel.org>
-From: Paolo Bonzini <pbonzini@redhat.com>
-Date: Tue, 4 Aug 2026 14:44:40 +0200
-X-Gm-Features: AUfX_mzeBd9D7i9RK65m6Y6i1uzG2a-w4C9IIV172eXDDgUNWsdPG5F7opYXrlc
-Message-ID: <CABgObfbd63O_UkmCcik1z0J847Sr6a5rnFgwttBjBb0am=+2PQ@mail.gmail.com>
-Subject: Re: [PATCH v2 4/6] kvm: apply VM_READ/VM_WRITE checks to all VMA types
-To: sashiko-reviews@lists.linux.dev
-Cc: Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, kvm@vger.kernel.org, 
-	linux-s390@vger.kernel.org, Alexander Gordeev <agordeev@linux.ibm.com>, 
-	dri-devel@lists.freedesktop.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260804114701.54ADE1F000E9@smtp.kernel.org>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: XOC3poYnXqyMbJHsDn6QyidKIqPVDUYe
+X-Proofpoint-ORIG-GUID: XOC3poYnXqyMbJHsDn6QyidKIqPVDUYe
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODA0MDA5OCBTYWx0ZWRfX/TE+jE4noEye
+ swIRxJ87zD4C0o4oPEw2X3M0DQHVI8apoPQm0pEOj/T+11uKQhTnPmrIFr8OXJospGXcSg3MBVQ
+ fqSimmawvoqABiaWzmZBYqDfViUCyQc=
+X-Authority-Analysis: v=2.4 cv=K8cS2SWI c=1 sm=1 tr=0 ts=6a71df50 cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+ a=kj9zAlcOel0A:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8
+ a=vmP8kJwS2AODcW9S08UA:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODA0MDA5OCBTYWx0ZWRfX+LRa4eP9T/Wx
+ XK1SDhzKtFmhlL7ezSLMINukvLvWg1m6jCT1YEqttXnOfTM+shUe6Y16Urs+d49jEwH/rP39Opm
+ tRWSmzDzG9L7Sqd/ZKrckTdwMGnqM3zQVjhCf3ob2eDoJIHQ7L2V+a7BlZMh/RCGKd0bO3dc0JR
+ Pf6HNiK/dCbXMNTKaWNiFAPEkKvzngrKgqQIo9hj/5UOtghbv1rnX85nSHNycmLecgNV2/ZAfP+
+ Zq9cavf5kvDHmgnATtONAJRdDK022UD9LQIIcGLEDdl6V+Bf32wWlW2c10Q8UCvb543XvmxVx3I
+ xaOhn9Y0TPf/GzuMvbtDQjbtaPSmxhSLJrhmOIte/ktwa8dV6StXxSkXY7lgJuQcQLBzF+QiKoL
+ C+IpXWiEBEb5FOANvaTA5nW+TFOg84hXg9q24UxrpM7hz26mmsEHROqpHRiXd+fnkHREUBJb6qD
+ CyzuUaYPEj9bU6P0wLQ==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-08-04_02,2026-08-03_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ clxscore=1015 spamscore=0 impostorscore=0 bulkscore=0 priorityscore=1501
+ lowpriorityscore=0 malwarescore=0 phishscore=0 suspectscore=0 adultscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608040098
 
-On Tue, Aug 4, 2026 at 2:23=E2=80=AFPM <sashiko-bot@kernel.org> wrote:
->
-> Thank you for your contribution! Sashiko AI review found 1 potential issu=
-e(s) to consider:
-> - [High] Write faults on write-only `VM_IO | VM_PFNMAP` VMAs are incorrec=
-tly rejected, breaking guest writes to write-only device memory.
->
-> If a guest performs a memory write to a guest physical address backed by =
-a
-> write-only host VMA (e.g. VM_IO or VM_PFNMAP mapped with PROT_WRITE but
-> without PROT_READ), get_user_pages() will fail and fall back to this look=
-up.
->
-> Since the write-only VMA lacks VM_READ, this check will evaluate to true =
-and
-> return KVM_PFN_ERR_FAULT, skipping the VM_IO | VM_PFNMAP handler. Could t=
-his
-> prevent guests from writing to legitimate write-only device memory, such =
-as
-> command ring buffers or write-only PCI BARs?
+Harald, Holger,
 
-This is theoretical only but actually a bugfix, because KVM does not
-support write-only mappings and therefore it would not be possible to
-enforce !PROT_READ/PROT_WRITE.
+> Pre-existing issues:
+> - [High] Silent data corruption when skcipher_walk_done() mapping errors are overwritten by paes_convert_key() false success.
+> --
+> 
+> --- Patch [2]: [PATCH 2/3] s390/crypto: Rework ctr_paes_do_crypt() to remove conditional locking ---
+> commit fd135aacfa5dd1086ab5711e4513f6e0edede1dc
+> Author: Heiko Carstens <hca@linux.ibm.com>
+> 
+> s390/crypto: Rework ctr_paes_do_crypt() to remove conditional locking
+> 
+> This commit extracts the core loop of ctr_paes_do_crypt() into a new
+> helper function, __ctr_paes_do_crypt(), to avoid conditionally taken locks
+> that trip up Clang's static analysis.
+> 
+> > diff --git a/arch/s390/crypto/paes_s390.c b/arch/s390/crypto/paes_s390.c
+> > index 8cfe6166c193c..d4a9108d39f5f 100644
+> > --- a/arch/s390/crypto/paes_s390.c
+> > +++ b/arch/s390/crypto/paes_s390.c
+> 
+> [ ... ]
+> 
+> > @@ -981,34 +955,76 @@ static int ctr_paes_do_crypt(struct s390_paes_ctx *ctx,
+> >  		k = cpacf_kmctr(ctx->fc, param, walk->dst.virt.addr,
+> >  				walk->src.virt.addr, n, ctrptr);
+> >  		if (k) {
+> > -			if (ctrptr == ctrblk)
+> > +			if (ctrptr == ctrblk) {
+> >  				memcpy(walk->iv, ctrptr + k - AES_BLOCK_SIZE,
+> >  				       AES_BLOCK_SIZE);
+> > +			}
+> >  			crypto_inc(walk->iv, AES_BLOCK_SIZE);
+> >  			rc = skcipher_walk_done(walk, nbytes - k);
+> >  		}
+> >  		if (k < n) {
+> >  			if (!maysleep) {
+> > -				if (locked)
+> > -					mutex_unlock(&ctrblk_lock);
+> >  				rc = -EKEYEXPIRED;
+> >  				goto out;
+> >  			}
+> >  			rc = paes_convert_key(ctx, tested);
+> 
+> [Severity: High]
+> This is a pre-existing issue, but does this sequence overwrite an error
+> from skcipher_walk_done()?
 
-Paolo
+What should happen with this? Can this be ignored? Or should this be
+fixed like
 
+  			rc = skcipher_walk_done(walk, nbytes - k);
+			if (rc) {
+				if (locked)
+					mutex_unlock(&ctrblk_lock);
+ 				goto out;
+			}
+
+before the conversion?
+
+Even though I said I don't want to fix pre-existing issues, I broke a
+similar code path with the first patch, so...
