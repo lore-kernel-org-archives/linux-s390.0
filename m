@@ -1,376 +1,143 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B1AB32264C7
-	for <linux-s390@vger.kernel.org>; Tue,  4 Aug 2026 14:49:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D549F332907;
+	Tue,  4 Aug 2026 14:52:19 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785854976; cv=none; b=AlFmOo+jCjX3UNSdXkDI5NRlAcvlo+lXlhSWJuOl48Htb7QtjQaRJW+6K0X9A4ckdAurhTz90S+fP3qSfEChwxsx3k+n1lxOiV6EZ/RzIW9T3Pbyj25GXEMlTQIerBxcZc5vjBmZLAjEVoaLXUsaQgTMip4n8lRAToaDIsBYVz8=
+	t=1785855141; cv=none; b=UgE7MAY24gyioa8ZzP0oGQT08mqU261uQPMRwL4gCfI/gfOfpbumoy4wNVYEFPhLCaC7w1dWu0nFNfFYwFhsO25LCTTDUlWlpw5eHaaj28jwavkWFvVS3QBRwiZuDRwPL1Uje5+wTbei9pfA/X/j8UQYrurHDXloCQ32m9IhmOg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785854976; c=relaxed/simple;
-	bh=T0ijYPWOhl4tC9ZM/1ONLc2vxyAql3LNtq+v6ZR9BwM=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=kZsVAe/uUa9E8itwdD1QIy1+s38ojXon5XBclHMushjnJI1UUqwWU4nJ5qly+iWGR6IMguHL99kE+fhd976GryL4wA1D0eK538ZgkJ4hDUoATi8GghLG2rzuyaniG1hRwAZ8cxoUtv04Ixvz2DCR+FL3ZL9sHdzA786n+zJ1MFk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=YGa+S5Pi; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1785855141; c=relaxed/simple;
+	bh=r9eUxwC2Y2tU2TryqdtvLSezfLtspXkRp+Qyq74U7sw=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=FmYkY+nKQzQk2YOXUucnOgaWiFSboPKy2KA7eRMg2zpsz0WX6jbdYJHRHpPe4/7oxuePzJ1CDWwT2djsLESLu0LwaYaw3JC4VFolF8HIt+QwE+mtz/PFsVDHlcuWWqQdxCJbA4tFUNt+hP1hAKicurRx3R3/bFv22UOxMc7yhyQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=qRib1pfr; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="YGa+S5Pi"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 674Cpa2i808721
-	for <linux-s390@vger.kernel.org>; Tue, 4 Aug 2026 14:49:30 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="qRib1pfr"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 674CmVU7804682;
+	Tue, 4 Aug 2026 14:52:17 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=GCKpaahYEBX6ezJrv
-	Naa+cMbjm10Ae73eZL67g4au1A=; b=YGa+S5PiGLTWztpTg8pc2/ZPlElYSamE3
-	1KGzd78WLrGhJ0fcNOVo2ZLzuoiLoLCIsUIFD8zbNS1mHWA9KyR8mYs9pVbDbm2k
-	Y7+cH2ta68Bxm1KQmvKtXDE/EGgUarvk2ZGxot8B0EN5RPXeiKW+mzG7f/WkdWoa
-	wVl5HoQEe6/VK59jpshPpPFBFx4a/TfZDdyh5etFD/dQHG6kShMU2K4RHRcquYsC
-	awjLDSAGgNNUi2MfAYEYrLXguBBuu/MEVjW5OjYt9CbxFL3NYr23ajNZhkcuJEDd
-	dyknZCHGcCodKd7FEgN5SL0hw/GSoGDu2EwQzNEsxUvZO6+zlhI5Q==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fs67hp7ny-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Tue, 04 Aug 2026 14:49:30 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 674EfFPl032763
-	for <linux-s390@vger.kernel.org>; Tue, 4 Aug 2026 14:49:29 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fsv4k2cug-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Tue, 04 Aug 2026 14:49:29 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 674EnP0B25363180
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=XGBjXM
+	89xOYF2Rpnke2hKuV9lCDZulbuTTmdJ/JboBo=; b=qRib1pfrWuCKtyjaxF9nw/
+	v7bxag/wXCiIMy1YYRAzcIl2zKMuOq6L9xBMqHxZYESLfThCi0wOBKmozdBoKQZs
+	U5KlcG90BspTrq9svnxq1HQfNxYtxO1RZDLUJfhhAvzKyMv8Eu7QUZdo0BSaxGuo
+	VCjT6IdSo9PaADmp3yZSqelweEUduU2YMoB+L7gJFNa//vj6RWJxFtTBDslhuZqN
+	xqvC10hCwzlpoT8iZbAnSNJ5QZI680Vf+iMHJscqpnqDIlmGOV0jbccj4LPtNmkE
+	jI/xxlk4KF+Ur/LLjgHHELr2VgvfMW3yvNTrBbiT9ZREW4zPBlWR1G4u9aNmVVgA
+	==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fs77g63eg-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 04 Aug 2026 14:52:16 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 674EfG6D029419;
+	Tue, 4 Aug 2026 14:52:16 GMT
+Received: from smtprelay01.wdc07v.mail.ibm.com ([172.16.1.68])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fsu4qjhka-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 04 Aug 2026 14:52:16 +0000 (GMT)
+Received: from smtpav02.dal12v.mail.ibm.com (smtpav02.dal12v.mail.ibm.com [10.241.53.101])
+	by smtprelay01.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 674EqErZ65405342
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 4 Aug 2026 14:49:25 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8B9B620040;
-	Tue,  4 Aug 2026 14:49:25 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5ED452004E;
-	Tue,  4 Aug 2026 14:49:25 +0000 (GMT)
-Received: from funtu2.ibm.com (unknown [9.111.167.46])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue,  4 Aug 2026 14:49:25 +0000 (GMT)
-From: Harald Freudenberger <freude@linux.ibm.com>
-To: dengler@linux.ibm.com, fcallies@linux.ibm.com, ifranzki@linux.ibm.com
-Cc: freude@linux.ibm.com, linux-s390@vger.kernel.org,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>
-Subject: [PATCH v6 1/1] s390/zcrypt: Improve zcrypt reply message verification checks
-Date: Tue,  4 Aug 2026 16:49:26 +0200
-Message-ID: <20260804144926.241039-2-freude@linux.ibm.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260804144926.241039-1-freude@linux.ibm.com>
-References: <20260804144926.241039-1-freude@linux.ibm.com>
+	Tue, 4 Aug 2026 14:52:14 GMT
+Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 3317F58060;
+	Tue,  4 Aug 2026 14:52:14 +0000 (GMT)
+Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 17E9D5805C;
+	Tue,  4 Aug 2026 14:52:13 +0000 (GMT)
+Received: from [9.61.86.222] (unknown [9.61.86.222])
+	by smtpav02.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Tue,  4 Aug 2026 14:52:12 +0000 (GMT)
+Message-ID: <75d47b2b-9a47-407c-a02c-01fb9a58fabb@linux.ibm.com>
+Date: Tue, 4 Aug 2026 10:52:12 -0400
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 3/3] KVM: s390: memory leak in guest debug handling
+To: Christian Borntraeger <borntraeger@linux.ibm.com>,
+        KVM <kvm@vger.kernel.org>
+Cc: Janosch Frank <frankja@linux.ibm.com>,
+        David Hildenbrand <david@kernel.org>,
+        linux-s390
+ <linux-s390@vger.kernel.org>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Douglas Freimuth <freimuth@linux.ibm.com>
+References: <20260804120631.736919-1-borntraeger@linux.ibm.com>
+ <20260804120631.736919-4-borntraeger@linux.ibm.com>
+Content-Language: en-US
+From: Matthew Rosato <mjrosato@linux.ibm.com>
+In-Reply-To: <20260804120631.736919-4-borntraeger@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODA0MDEyMCBTYWx0ZWRfX5pc+2drOTl9u
- ZcfZUbTYCc+NpBULnPlhoDXmTgyY03AKK5ZnLrIiDFb50FhdVs7q5tFhshHgx7oqb4QQf9y2R6b
- GaDvA079PjBRMjTQgxrndYsqnT1WbY0=
-X-Authority-Analysis: v=2.4 cv=I7VVgtgg c=1 sm=1 tr=0 ts=6a71fbfa cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8 a=y5L5pJLULh4rkpwcvBgA:9
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODA0MDEyMCBTYWx0ZWRfX2gRtk2fHOo85
- p9BNnH5y7CREyaPWgHTgUjEBNX/VliuEnBXXysseA+SOZGq9xjd6l/jQ9esUqsjaJDmaWb/Y/jz
- WAaD+nlC5/Z+RiCANnVEzAU4ih10hLm0Ff9T1Qt4Vcg64xHpgD8dpUXZFPFhWYw8eEHK4/ANSwO
- /VvuViSimsba2G5AiWOHKcOc+vh+Jknh680O5LwK06PG+J+s2UB5UsyMSJf0+MIXazef3R6YrL7
- amc3J77q0elG+3Tt51ncKXFd6UVlEQPyDNC+AplKwcotrHwA+HfPTF/EZzDhO4sPKPyjCL+Hyf7
- Rn99GWaIPaL2NuIk0Y5lBv1YK2A4tTdv6B15J1LlI/SJVyLnhvZTq6PbO+2rTB+d1QK3RdKi3BS
- HR4oEeBngzLfgMPOgwszLKOjZzBb42mVcMHfiFTTYQRnavjFNcAIkJFUBAUMg3TSFJKjlY9aYbT
- 23HsGL6AN8GmvpBFivA==
-X-Proofpoint-ORIG-GUID: -Plvay7UL4zCoXuPw5SUXchNi5qvs1Dl
-X-Proofpoint-GUID: -Plvay7UL4zCoXuPw5SUXchNi5qvs1Dl
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODA0MDEyMCBTYWx0ZWRfX69X1/BVOc/YI
+ Il9jLNYdYyX2+gb+S80W8BUce6kxeLZEs/zhHy6xEFM968j49AjPyi+gfjsGZ5WtmCR8byeIxbK
+ Xhwq/20b+u9g6l/RzpPSnNNkAnvbvzHqUVnLF99Sa3Lu/g3p9KinmjeTJZBqj0S034SsXPLlwC8
+ JH9gjwSQ+6NdDuZM20wRaEW/t6SCXwimtEH3Y5DzU/7eQDErRMwj9f3CDv5QkgllcAtyjLcMoUU
+ pUVtJkJYSfqtaGhDJO/tnY68Lgpq7H98UCvXLaaTHLJeS+kQNklgjcZPhGmys0yURzMGs3ajM4F
+ 2x/7KOZ1ATK2ZY8727BrDMcxBOJK/8bludZGcaA7wEFCU/v6ZJdVpncdJddZoNbtGPwVsZne1If
+ ADrrSsGpFwZ9Zn9faPey/BFXxVAnoNkHaN2JCo73727oEKcUTRxOPA4CJOMZAiD6pvLzRf64VJt
+ Bj2iNRpABxZqnqnxWqw==
+X-Authority-Analysis: v=2.4 cv=WIFPmHsR c=1 sm=1 tr=0 ts=6a71fca0 cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+ a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8
+ a=SojaDyzEsxftZGC-1DoA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: BuSMatYEgsaEzcT1sxyHjEYwV05HPUnI
+X-Proofpoint-ORIG-GUID: BuSMatYEgsaEzcT1sxyHjEYwV05HPUnI
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODA0MDEyMCBTYWx0ZWRfX+ZXA/wyICTkT
+ GZbz2kUwOlz98RdjiRhB1JBw48KoRLL4xlQH8QPO34ZfU5up3hLiY4G+sxxe9Jwm6EQOR18D9f0
+ tj0/ErbPy8/mdNXLSThhp/N+9EbPMEE=
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-08-04_03,2026-08-03_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0 impostorscore=0 clxscore=1015 priorityscore=1501 suspectscore=0
- malwarescore=0 adultscore=0 lowpriorityscore=0 phishscore=0 spamscore=0
+ spamscore=0 lowpriorityscore=0 priorityscore=1501 phishscore=0 malwarescore=0
+ suspectscore=0 clxscore=1015 impostorscore=0 bulkscore=0 adultscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608040120
 
-Add or improve checks related to buffer sizes and reply sizes to the
-handling of replies from the crypto cards for CCA, EP11 (AP message
-type 6) and ICA (AP type 50) messages. The verification code related
-to reply field length was not designed well and thus firmware
-deficiencies could lead to unexpected behavior in the zcrypt device
-driver. Thus improve the code to more closely inspect especially
-length fields at message replies.
+On 8/4/26 8:06 AM, Christian Borntraeger wrote:
+> bp_data is freed only for the error case by kfree(bp_data).
+> Every successful KVM_SET_GUEST_DEBUG will leak bp_data.
+> 
+> Fixes: 27291e2165b6 ("KVM: s390: hardware support for guest debugging")
+> Signed-off-by: Christian Borntraeger <borntraeger@linux.ibm.com>
 
-Rework zcrypt_msgtype6_receive(), zcrypt_msgtype6_receive_ep11() and
-zcrypt_msgtype50_receive() to validate reply lengths more carefully
-before copying data back into the request buffer. Use size_t for
-length calculations, reject inconsistent reply sizes, and add
-defensive handling for short invalid replies. For XCRB replies,
-validate both reply segments and derive the effective message length
-from the covered range instead of trusting only the second segment.
+Maybe worth re-visiting for potential __free() usage as a follow on and
+replace the goto logic.
 
-Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
----
- drivers/s390/crypto/zcrypt_msgtype50.c |  39 ++++---
- drivers/s390/crypto/zcrypt_msgtype6.c  | 151 ++++++++++++++++---------
- 2 files changed, 126 insertions(+), 64 deletions(-)
+But as a fix this LGTM.
 
-diff --git a/drivers/s390/crypto/zcrypt_msgtype50.c b/drivers/s390/crypto/zcrypt_msgtype50.c
-index d6fc2d8e7fad..ef925b399806 100644
---- a/drivers/s390/crypto/zcrypt_msgtype50.c
-+++ b/drivers/s390/crypto/zcrypt_msgtype50.c
-@@ -416,26 +416,39 @@ static void zcrypt_msgtype50_receive(struct ap_queue *aq,
- 		.reply_code = REP82_ERROR_MACHINE_FAILURE,
- 	};
- 	struct type80_hdr *t80h;
--	int len;
-+	size_t len;
- 
- 	/* Copy the reply message to the request message buffer. */
- 	if (!reply)
- 		goto out;	/* ap_msg->rc indicates the error */
-+
- 	t80h = reply->msg;
--	if (t80h->type == TYPE80_RSP_CODE) {
--		len = t80h->len;
--		if (len > reply->bufsize || len > msg->bufsize ||
--		    len != reply->len) {
--			pr_debug("len mismatch => EMSGSIZE\n");
--			msg->rc = -EMSGSIZE;
--			goto out;
--		}
--		memcpy(msg->msg, reply->msg, len);
--		msg->len = len;
--	} else {
--		memcpy(msg->msg, reply->msg, sizeof(error_reply));
-+
-+	if (t80h->type != TYPE80_RSP_CODE) {
-+		if (reply->len < sizeof(error_reply))
-+			memcpy(msg->msg, &error_reply, sizeof(error_reply));
-+		else
-+			memcpy(msg->msg, reply->msg, sizeof(error_reply));
- 		msg->len = sizeof(error_reply);
-+		goto out;
-+	}
-+
-+	len = t80h->len;
-+	if (len != reply->len) {
-+		pr_warn_ratelimited("len %zu rpl.len %zu mismatch => EMSGSIZE\n",
-+				    len, reply->len);
-+		msg->rc = -EMSGSIZE;
-+		goto out;
- 	}
-+	if (len > reply->bufsize || len > msg->bufsize) {
-+		pr_warn_ratelimited("len %zu exceeds buf %zu/%zu => EMSGSIZE\n",
-+				    len, reply->bufsize, msg->bufsize);
-+		msg->rc = -EMSGSIZE;
-+		goto out;
-+	}
-+	memcpy(msg->msg, reply->msg, len);
-+	msg->len = len;
-+
- out:
- 	complete(&msg->response.work);
- }
-diff --git a/drivers/s390/crypto/zcrypt_msgtype6.c b/drivers/s390/crypto/zcrypt_msgtype6.c
-index 3df1d676de5d..b98449913e24 100644
---- a/drivers/s390/crypto/zcrypt_msgtype6.c
-+++ b/drivers/s390/crypto/zcrypt_msgtype6.c
-@@ -766,6 +766,13 @@ static int convert_type86_rng(struct zcrypt_queue *zq,
- 
- 	if (msg->cprbx.ccp_rtcode != 0 || msg->cprbx.ccp_rscode != 0)
- 		return -EINVAL;
-+	/*
-+	 * Note that offset2 and count2 have already been checked in
-+	 * zcrypt_msgtype6_receive(). So only check for not exceeding
-+	 * the hard coded rng buffer size.
-+	 */
-+	if (msg->fmt2.count2 > ZCRYPT_RNG_BUFFER_SIZE)
-+		return -EMSGSIZE;
- 	memcpy(buffer, data + msg->fmt2.offset2, msg->fmt2.count2);
- 	return msg->fmt2.count2;
- }
-@@ -928,48 +935,75 @@ static void zcrypt_msgtype6_receive(struct ap_queue *aq,
- 	};
- 	struct ap_response_type *resp_type = &msg->response;
- 	struct type86x_reply *t86r;
--	int len;
-+	size_t len, len1, len2 = 0;
- 
- 	/* Copy the reply message to the request message buffer. */
- 	if (!reply)
- 		goto out;	/* ap_msg->rc indicates the error */
-+
- 	t86r = reply->msg;
--	if (t86r->hdr.type == TYPE86_RSP_CODE &&
--	    t86r->cprbx.cprb_ver_id == 0x02) {
--		switch (resp_type->type) {
--		case CEXXC_RESPONSE_TYPE_ICA:
--			len = sizeof(struct type86x_reply) + t86r->length;
--			if (len > reply->bufsize || len > msg->bufsize ||
--			    len != reply->len) {
--				pr_debug("len mismatch => EMSGSIZE\n");
--				msg->rc = -EMSGSIZE;
--				goto out;
--			}
--			memcpy(msg->msg, reply->msg, len);
--			msg->len = len;
--			break;
--		case CEXXC_RESPONSE_TYPE_XCRB:
--			if (t86r->fmt2.count2)
--				len = t86r->fmt2.offset2 + t86r->fmt2.count2;
--			else
--				len = t86r->fmt2.offset1 + t86r->fmt2.count1;
--			if (len > reply->bufsize || len > msg->bufsize ||
--			    len != reply->len) {
--				pr_debug("len mismatch => EMSGSIZE\n");
-+
-+	if (t86r->hdr.type != TYPE86_RSP_CODE ||
-+	    t86r->cprbx.cprb_ver_id != 0x02) {
-+		if (reply->len < sizeof(error_reply))
-+			memcpy(msg->msg, &error_reply, sizeof(error_reply));
-+		else
-+			memcpy(msg->msg, reply->msg, sizeof(error_reply));
-+		msg->len = sizeof(error_reply);
-+		goto out;
-+	}
-+
-+	switch (resp_type->type) {
-+	case CEXXC_RESPONSE_TYPE_ICA:
-+		len = sizeof(struct type86x_reply) + (size_t)t86r->length;
-+		break;
-+	case CEXXC_RESPONSE_TYPE_XCRB:
-+		len1 = (size_t)t86r->fmt2.offset1 + (size_t)t86r->fmt2.count1;
-+		if (t86r->fmt2.offset1 > reply->len ||
-+		    t86r->fmt2.count1 > reply->len) {
-+			pr_warn_ratelimited(
-+				"offset1 %u count1 %u rpl.len %zu mismatch => EMSGSIZE\n",
-+				t86r->fmt2.offset1, t86r->fmt2.count1,
-+				reply->len);
-+			msg->rc = -EMSGSIZE;
-+			goto out;
-+		}
-+		if (t86r->fmt2.count2) {
-+			len2 = (size_t)t86r->fmt2.offset2 +
-+				(size_t)t86r->fmt2.count2;
-+			if (t86r->fmt2.offset2 > reply->len ||
-+			    t86r->fmt2.count2 > reply->len) {
-+				pr_warn_ratelimited(
-+					"offset2 %u count2 %u rpl.len %zu mismatch => EMSGSIZE\n",
-+					t86r->fmt2.offset2, t86r->fmt2.count2,
-+					reply->len);
- 				msg->rc = -EMSGSIZE;
- 				goto out;
- 			}
--			memcpy(msg->msg, reply->msg, len);
--			msg->len = len;
--			break;
--		default:
--			memcpy(msg->msg, &error_reply, sizeof(error_reply));
--			msg->len = sizeof(error_reply);
- 		}
--	} else {
--		memcpy(msg->msg, reply->msg, sizeof(error_reply));
-+		len = max_t(size_t, len1, len2);
-+		break;
-+	default:
-+		memcpy(msg->msg, &error_reply, sizeof(error_reply));
- 		msg->len = sizeof(error_reply);
-+		goto out;
-+	}
-+
-+	if (len != reply->len) {
-+		pr_warn_ratelimited("len %zu rpl.len %zu mismatch => EMSGSIZE\n",
-+				    len, reply->len);
-+		msg->rc = -EMSGSIZE;
-+		goto out;
- 	}
-+	if (len > reply->bufsize || len > msg->bufsize) {
-+		pr_warn_ratelimited("len %zu exceeds buf %zu/%zu => EMSGSIZE\n",
-+				    len, reply->bufsize, msg->bufsize);
-+		msg->rc = -EMSGSIZE;
-+		goto out;
-+	}
-+	memcpy(msg->msg, reply->msg, len);
-+	msg->len = len;
-+
- out:
- 	complete(&resp_type->work);
- }
-@@ -992,34 +1026,49 @@ static void zcrypt_msgtype6_receive_ep11(struct ap_queue *aq,
- 	};
- 	struct ap_response_type *resp_type = &msg->response;
- 	struct type86_ep11_reply *t86r;
--	int len;
-+	size_t len;
- 
- 	/* Copy the reply message to the request message buffer. */
- 	if (!reply)
- 		goto out;	/* ap_msg->rc indicates the error */
-+
- 	t86r = reply->msg;
--	if (t86r->hdr.type == TYPE86_RSP_CODE &&
--	    t86r->cprbx.cprb_ver_id == 0x04) {
--		switch (resp_type->type) {
--		case CEXXC_RESPONSE_TYPE_EP11:
--			len = t86r->fmt2.offset1 + t86r->fmt2.count1;
--			if (len > reply->bufsize || len > msg->bufsize ||
--			    len != reply->len) {
--				pr_debug("len mismatch => EMSGSIZE\n");
--				msg->rc = -EMSGSIZE;
--				goto out;
--			}
--			memcpy(msg->msg, reply->msg, len);
--			msg->len = len;
--			break;
--		default:
-+
-+	if (t86r->hdr.type != TYPE86_RSP_CODE ||
-+	    t86r->cprbx.cprb_ver_id != 0x04) {
-+		if (reply->len < sizeof(error_reply))
- 			memcpy(msg->msg, &error_reply, sizeof(error_reply));
--			msg->len = sizeof(error_reply);
--		}
--	} else {
--		memcpy(msg->msg, reply->msg, sizeof(error_reply));
-+		else
-+			memcpy(msg->msg, reply->msg, sizeof(error_reply));
- 		msg->len = sizeof(error_reply);
-+		goto out;
- 	}
-+
-+	switch (resp_type->type) {
-+	case CEXXC_RESPONSE_TYPE_EP11:
-+		len = t86r->fmt2.offset1 + (size_t)t86r->fmt2.count1;
-+		break;
-+	default:
-+		memcpy(msg->msg, &error_reply, sizeof(error_reply));
-+		msg->len = sizeof(error_reply);
-+		goto out;
-+	}
-+
-+	if (len != reply->len) {
-+		pr_warn_ratelimited("len %zu rpl.len %zu mismatch => EMSGSIZE\n",
-+				    len, reply->len);
-+		msg->rc = -EMSGSIZE;
-+		goto out;
-+	}
-+	if (len > reply->bufsize || len > msg->bufsize) {
-+		pr_warn_ratelimited("len %zu exceeds buf %zu/%zu => EMSGSIZE\n",
-+				    len, reply->bufsize, msg->bufsize);
-+		msg->rc = -EMSGSIZE;
-+		goto out;
-+	}
-+	memcpy(msg->msg, reply->msg, len);
-+	msg->len = len;
-+
- out:
- 	complete(&resp_type->work);
- }
--- 
-2.43.0
+Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
+
+
+> ---
+>  arch/s390/kvm/guestdbg.c | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/arch/s390/kvm/guestdbg.c b/arch/s390/kvm/guestdbg.c
+> index 69835e1d4f20..4c02dbebb2eb 100644
+> --- a/arch/s390/kvm/guestdbg.c
+> +++ b/arch/s390/kvm/guestdbg.c
+> @@ -267,6 +267,7 @@ int kvm_s390_import_bp_data(struct kvm_vcpu *vcpu,
+>  	vcpu->arch.guestdbg.hw_bp_info = bp_info;
+>  	vcpu->arch.guestdbg.nr_hw_wp = nr_wp;
+>  	vcpu->arch.guestdbg.hw_wp_info = wp_info;
+> +	kfree(bp_data);
+>  	return 0;
+>  error:
+>  	kfree(bp_data);
 
