@@ -1,53 +1,52 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B5148366546;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 82C81367F4D;
 	Tue,  4 Aug 2026 11:37:47 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785843472; cv=none; b=ADqlqCX78EpbrdKJH0+0nFp4+zM3fX8dUjit3Lmwu2fbvTkMu4zpJt106FjyEYEUu5apYDSnncWzQ3AVMnIPwCBgv72gu6cAjCkuhsng6KoRR0KmjLdKBpCCOf5kbHYljKSSx7NNL3BoW+Gm1tNS6NeT3dr5CqZGQQkLXcbzLQA=
+	t=1785843472; cv=none; b=T+s7eqENNP/BUD3UIwgXUeF556JhNp2iDd5F7mP5sqxS+oRdgJOGe8Ekbi5LousZwUpWPVl4rGFC1KZPCj/D5bpJf9bLniyLb0yEWRVjOres7gacHIBIzgBoQQBuw0YHlErfoFypf6t2JOvVu+c6Y4K9OFuWwGjCukheLO5KLRQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1785843472; c=relaxed/simple;
-	bh=ts0XQmNOx7XtHue//tpOAU9G//jcEVC8cJ+sDvhsDFU=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=ez+qh6sM1KVxowPf6sgaiELdGfHdKKCvhNSUHju0ExqTk9X7EGWhMugsMn0xWNHq/rNnC/Sk86v04X6AvkCAoWvvpC8Y9OIA9J2cZxzGNH5d0AoWSwMj7xnAriQIZBWl6+NLMXeuHnqZAE3Pnqe9s+HlaDftleybnM14ubQAXak=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=T5c2eXW3; arc=none smtp.client-ip=148.163.156.1
+	bh=FHe6+bniTGIA6/te60tBkTNFsSqn4CNCtlsDLMXxwNc=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=YN1auuXwOs5NA/iviajW6mu1YxQIiGZfezN5RPWK2RLDOOj9WcyL5srErbjhWQFDxHmZO1uN+7WGO9Vqv7/tPwChtc16fa98Jc9DO0jsPRZwTpdW+IYZ9I5CzNwPfraJ8haQKYb8zYRNgCOn8ZVclhiKr9VsdndYEiSub83kFkM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=LwG52kne; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="T5c2eXW3"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6748HUJS323443;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="LwG52kne"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6748HgLC296047;
 	Tue, 4 Aug 2026 11:37:42 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=XwGGfuvy4HLVO8e/x
-	epTISc9Tht5d7q5k1aAnxJNsaU=; b=T5c2eXW332x3f4waFmiBuPcoL0FVvFK/A
-	ugvN8hYjFWaqszYtV2HmqbsC2dr6MJFhsJf4mCEsNi7+WoDGneoBAqSZbqn78VQf
-	6E7ZmTzaKh/945cQhlDSieHu8++kbc7YT6R5UEuNPws1zTFLItx27okyRuwD3EU2
-	xWWOdbL1KOyKz1N/ZR/aCAXJdC2Y5JM8EDNNCA3b70c0RVHsGBvOfnlC+/VvxK2J
-	0Aol5HUFkYuExoaQbzQby/gYJRwJEw5AXcLQod1HXWDQEbqZO3w79VdSSjdnCGS8
-	YY4mlASe57PUx9AumhYX3v3PDDHjTAmxwyP0WoQERfHPOFt1UZ9dw==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fs8h4wkbv-1
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=okt/xT/2stioj7MuG+YNK9GugJ3bLhUtObiKopWZa
+	ZE=; b=LwG52kneBXApYx0KKg772O37Q0mwe5b6aMZMQjGG8QRWcYLX7zzA4kBK8
+	Vz4PLO9S/8QkLP9XDoWAzTxi/lDd8wQMGONKe0DKKD38IxSnenX0iOBf7P6d7nwF
+	oJcsjsGcGmQpYDa5o7aouExhml/I/RVFtbnZpa3NxXbhIBzhzkBJspA6jjzE4hy/
+	wN8HzxZNZlr/dtvM+RvTGRwvvyWWw0yvTbAMaakyu31wmy9TJic2OxYTVgUYrKWM
+	WcoeTRTGhmYcot8xno457aK0P1MsZwt1HxYOPfCSU1GJ1WBWsupqIlrBWGLHq+3e
+	/kfN1OdBs3/RheYtQtkGNsPQcP0WA==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fs8a3wk0b-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 04 Aug 2026 11:37:42 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 674BQLdg009806;
+	Tue, 04 Aug 2026 11:37:41 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 674BBKXm020855;
 	Tue, 4 Aug 2026 11:37:40 GMT
 Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fsvmh9neu-1
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fsugw1tpt-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Tue, 04 Aug 2026 11:37:40 +0000 (GMT)
 Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 674Bbapv44171696
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 674Bbae644171694
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 4 Aug 2026 11:37:37 GMT
+	Tue, 4 Aug 2026 11:37:36 GMT
 Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D31AB2004B;
+	by IMSVA (Postfix) with ESMTP id 9D11F2004B;
 	Tue,  4 Aug 2026 11:37:36 +0000 (GMT)
 Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A33A12004D;
+	by IMSVA (Postfix) with ESMTP id 6196D20043;
 	Tue,  4 Aug 2026 11:37:36 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
 	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
@@ -61,12 +60,10 @@ Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
         linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-crypto@vger.kernel.org
-Subject: [PATCH 1/3] s390/crypto: Rework ctr_aes_crypt() to remove conditional locking
-Date: Tue,  4 Aug 2026 13:37:34 +0200
-Message-ID: <20260804113736.1423667-2-hca@linux.ibm.com>
+Subject: [PATCH 0/3] s390/crypto: Enable CONTEXT_ANALYSIS
+Date: Tue,  4 Aug 2026 13:37:33 +0200
+Message-ID: <20260804113736.1423667-1-hca@linux.ibm.com>
 X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20260804113736.1423667-1-hca@linux.ibm.com>
-References: <20260804113736.1423667-1-hca@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -75,126 +72,63 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODA0MDA5MCBTYWx0ZWRfX++kZP1pquKVD
- t/t+37fCUXjFwXA+st3Jf3TrLXGhD6kwt7pwYCusagMk7KC8PclyNrOCz4sDEQvy3OmDsvQ6UXM
- NPTkJhqvSpNXdWazjIHdSt8H1/1vIVY=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODA0MDA5MCBTYWx0ZWRfX4LLoEbkE4wCt
- /C9yvxyKERzL5IW292wYduCN+M1ehACuB4SMphO3d/PqeOT8gn2pnPLDx59XWkDljPhMrX911q/
- KBh9oSczuZ9H9Xor7TMkVfIW8eHneEE2WctQzpdm+nLfSuavSDpvP/N2rhfqryqiG7OJohcWAQ/
- gYXrAGM2ZXwBKdKWh84DkYy53lkyBBHWcr9GX0vx10OTC2bRALhKpstYTRo7wQ/C4TwSC2Z0cNJ
- 2bs4TchJMIB5bHUkG8O7h69ru41H/UE1dDJdxfil7dZkMqyP0B8amCv+kAuO+7obOD5g0gw8ZFh
- UvHHgV04mRdKZsI/KlB0iB1/VPod1X0z8hYgiXI2nApJFJAgxqwpJNDxiFPUpc2IZerIdI9B0R3
- AIrhcsXhe3eecW2uDwcubohKGpMuyROFv8uQqEBLZ4agB9QE1qNsoWvub/mXAcNwz+aO2dbztLp
- hH+4n8ZVx8wU0dRFRXQ==
-X-Authority-Analysis: v=2.4 cv=SI1ykuvH c=1 sm=1 tr=0 ts=6a71cf06 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+X-Authority-Analysis: v=2.4 cv=E6P9Y6dl c=1 sm=1 tr=0 ts=6a71cf05 cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
  a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8 a=WSDBmxW9uEwFgrZJePAA:9
-X-Proofpoint-ORIG-GUID: g0gSl_rI6OLYr8Oncl10UV8EXrqj3Chh
-X-Proofpoint-GUID: g0gSl_rI6OLYr8Oncl10UV8EXrqj3Chh
+ a=iQ6ETzBq9ecOQQE5vZCe:22 a=jW6YlCM5X9v_IRLvDUIA:9
+X-Proofpoint-ORIG-GUID: Xc_gt_hdy2Ufr2ErK1x_ajEsoNSdOLYc
+X-Proofpoint-GUID: Xc_gt_hdy2Ufr2ErK1x_ajEsoNSdOLYc
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODA0MDA5MCBTYWx0ZWRfX1IhkfubYQON+
+ XgP2ypyda8mzJcD16isyUFQkuVUkRNSg/KXSpxjLnqCrNzEhteqtzysrfM7xxFbq2Buk/5dzqAZ
+ yCbFalR8WAsGqiFJMKFgaSZ8KjSKVCs=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODA0MDA5MCBTYWx0ZWRfX2fc/XMLYp9to
+ 7tYs57pcaU73PZqV0515Oj9uJ9+rnCd/9Iwok4jPb/J+JUhfdfbcVopUqKrBW+f1s2XoV6LBpLg
+ WRGHb5GbLDi8TO1mP57KdN3y+mCvmHR9vvcBLHxXmk0SbJVcLgSW0mB5tjsKQ2vSyVoKmXZiC0i
+ +XlkzqkNk0LN/rfhOacqoEMygW2q9e+k94ckhscVqkXxs9M1LCO94eFT7G9De45OSJNP0kUEcjo
+ mBuJHLNlyVF1XXHjhSLaNbe6doyHepL/aUfekYFZv7XH5eXXZW6HHA/6TDVR0uD/Sw6codBw0Vp
+ oaLiRrVdnurL5KqcOJ3T7EZXIZ5pNMQ9sXKJD6tA4MbGsLf8b2pnJ0H4rOjkGBGe1ZBSAZIvORt
+ iWWgMzycDEyJAPS0a8cWsYg08agOliU/fPIMuV5DNQivRePJ7QXG8jKPho0qxKw8CvImS9EE9/G
+ ZAGaShRXbc8908Fg/qw==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-08-04_02,2026-08-03_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 bulkscore=0 suspectscore=0 impostorscore=0 spamscore=0
- phishscore=0 priorityscore=1501 lowpriorityscore=0 adultscore=0
- malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ bulkscore=0 clxscore=1015 lowpriorityscore=0 priorityscore=1501
+ suspectscore=0 adultscore=0 spamscore=0 malwarescore=0 impostorscore=0
+ phishscore=0 classifier=typeunknown authscore=0 authtc= authcc=
  route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
  definitions=main-2608040090
 
-Clang's compiler based static context analysis does not work with locks
-that are conditionally taken like in ctr_aes_crypt():
+Enable CONTEXT_ANALYSYS for s390's crypto code.
 
-arch/s390/crypto/aes_s390.c:585:13: warning: mutex 'ctrblk_lock' is not held on every path through here
-      [-Wthread-safety-analysis]
-  585 |                 ctrptr = (n > AES_BLOCK_SIZE) ? ctrblk : walk.iv;
-      |                           ^
+Static code checking for acquiring and releasing locks used to be done
+with sparse. That was removed with [1] and replaced with a clang based
+approach [2]. The new approach requires that each subsystem needs to be
+explicitly enabled for checking.
 
-Given that code which takes locks conditionally can be considered
-suboptimal rework ctr_aes_crypt() to get rid of this.
+Do that for s390's crypto code. In order to avoid false positives the
+code has to be slightly reworked, since conditionally acquiring and
+releasing locks does not work with the checker (besides that this is
+sub optimal coding style).
 
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
----
- arch/s390/crypto/aes_s390.c | 54 ++++++++++++++++++++++++-------------
- 1 file changed, 35 insertions(+), 19 deletions(-)
+[1] 5b63d0ae94cc ("compiler-context-analysis: Remove Sparse support")
+[2] 3269701cb256 ("compiler-context-analysis: Add infrastructure for Context Analysis with Clang")
 
-diff --git a/arch/s390/crypto/aes_s390.c b/arch/s390/crypto/aes_s390.c
-index 62edc66d5478..4b7e47423e89 100644
---- a/arch/s390/crypto/aes_s390.c
-+++ b/arch/s390/crypto/aes_s390.c
-@@ -562,37 +562,53 @@ static unsigned int __ctrblk_init(u8 *ctrptr, u8 *iv, unsigned int nbytes)
- 	return n;
- }
- 
-+static int __ctr_aes_crypt(struct s390_aes_ctx *sctx,
-+			   struct skcipher_walk *walk, bool locked)
-+{
-+	unsigned int n, nbytes;
-+	int ret = 0;
-+	u8 *ctrptr;
-+
-+	while ((nbytes = walk->nbytes) >= AES_BLOCK_SIZE) {
-+		n = AES_BLOCK_SIZE;
-+		if (nbytes >= 2 * AES_BLOCK_SIZE && locked)
-+			n = __ctrblk_init(ctrblk, walk->iv, nbytes);
-+		ctrptr = (n > AES_BLOCK_SIZE) ? ctrblk : walk->iv;
-+		cpacf_kmctr(sctx->fc, sctx->key, walk->dst.virt.addr,
-+			    walk->src.virt.addr, n, ctrptr);
-+		if (ctrptr == ctrblk) {
-+			memcpy(walk->iv, ctrptr + n - AES_BLOCK_SIZE,
-+			       AES_BLOCK_SIZE);
-+		}
-+		crypto_inc(walk->iv, AES_BLOCK_SIZE);
-+		ret = skcipher_walk_done(walk, nbytes - n);
-+	}
-+
-+	return ret;
-+}
-+
- static int ctr_aes_crypt(struct skcipher_request *req)
- {
- 	struct crypto_skcipher *tfm = crypto_skcipher_reqtfm(req);
- 	struct s390_aes_ctx *sctx = crypto_skcipher_ctx(tfm);
--	u8 buf[AES_BLOCK_SIZE], *ctrptr;
- 	struct skcipher_walk walk;
--	unsigned int n, nbytes;
--	int ret, locked;
-+	u8 buf[AES_BLOCK_SIZE];
-+	unsigned int nbytes;
-+	int ret;
- 
- 	if (unlikely(!sctx->fc))
- 		return fallback_skcipher_crypt(sctx, req, 0);
- 
--	locked = mutex_trylock(&ctrblk_lock);
--
- 	ret = skcipher_walk_virt(&walk, req, false);
--	while ((nbytes = walk.nbytes) >= AES_BLOCK_SIZE) {
--		n = AES_BLOCK_SIZE;
- 
--		if (nbytes >= 2*AES_BLOCK_SIZE && locked)
--			n = __ctrblk_init(ctrblk, walk.iv, nbytes);
--		ctrptr = (n > AES_BLOCK_SIZE) ? ctrblk : walk.iv;
--		cpacf_kmctr(sctx->fc, sctx->key, walk.dst.virt.addr,
--			    walk.src.virt.addr, n, ctrptr);
--		if (ctrptr == ctrblk)
--			memcpy(walk.iv, ctrptr + n - AES_BLOCK_SIZE,
--			       AES_BLOCK_SIZE);
--		crypto_inc(walk.iv, AES_BLOCK_SIZE);
--		ret = skcipher_walk_done(&walk, nbytes - n);
--	}
--	if (locked)
-+	if (mutex_trylock(&ctrblk_lock)) {
-+		ret = __ctr_aes_crypt(sctx, &walk, true);
- 		mutex_unlock(&ctrblk_lock);
-+	} else {
-+		ret = __ctr_aes_crypt(sctx, &walk, false);
-+	}
-+
-+	nbytes = walk.nbytes;
- 	/*
- 	 * final block may be < AES_BLOCK_SIZE, copy only nbytes
- 	 */
+Note:
+
+- "Pre-existing issues" reported by AI will not be addressed in the
+  context of this series
+
+Heiko Carstens (3):
+  s390/crypto: Rework ctr_aes_crypt() to remove conditional locking
+  s390/crypto: Rework ctr_paes_do_crypt() to remove conditional locking
+  s390/crypto: Enable CONTEXT_ANALYSIS
+
+ arch/s390/crypto/Makefile    |   2 +
+ arch/s390/crypto/aes_s390.c  |  54 +++++++++++-------
+ arch/s390/crypto/paes_s390.c | 104 ++++++++++++++++++++---------------
+ 3 files changed, 97 insertions(+), 63 deletions(-)
+
 -- 
 2.53.0
 
