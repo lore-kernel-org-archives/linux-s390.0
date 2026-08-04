@@ -1,57 +1,57 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BE5264746B8;
-	Tue,  4 Aug 2026 16:24:58 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C90FD4749F5;
+	Tue,  4 Aug 2026 16:25:01 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785860701; cv=none; b=qJg1/uL05jVQW+Cg3RvlqxylN710EBDqA9+jSXvZB2sNfE7qyXk0IOuW3aiu0nuBySN+i+24ld98zXV/vWJVmH84Z2tfc4nmpnjzuJhf8UwrIBu2WfGDx5HGTIC1HymjKjhuEWL6Ngkm0XJejzazyBvm591jX3AhyoONtk8djQc=
+	t=1785860703; cv=none; b=B7A9eytJMXwKcHdtPi2sGl1iN5Pj7fFxlLU8u+pXGemfHMF4AobhD/HgcXVKYg67gSj7HKCiilE4E+C6GyGCegt85bUN0UJctM0R6pvfvlH8rVP9UPCmKsE1xTxUZG5WWEHsoilN8S4ezXdxKthIqdX3RQRvvZSt1cUT3wbD2ls=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785860701; c=relaxed/simple;
-	bh=Fsd6pWJXABO6VAiKRB+/D+bbmaxu7PLXBORZzKJcCds=;
+	s=arc-20240116; t=1785860703; c=relaxed/simple;
+	bh=AtBaY1l3zkB1C+GK3FFBxpFxscFH0k+1+qnixDYfNM4=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=iVM7fcZ3mDvi+Vh5pvdO/2Jk9k7hgE1YH0HlKHpgjS16wV5H5X+diIQTwQ7QIxn1w5brFBLJkYain+5veLDLtdoGdQzVu7SitRTUQd7Cz1n+LuuYQ39E8fUCd7o6SP79w93Ah2k1JCZt1M53cTwsx0Y/9VH2FDNtBd2MhUz3MwU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=TgbqG+dt; arc=none smtp.client-ip=148.163.158.5
+	 MIME-Version; b=oK5M908hMeLW5M12wc9M/6USL+KkVfFmvBc32kRZsYgwKgoy+Cj9ztoO637HCuvz5pnmj8GmKzhB0GqkbqCjG2eL6Rh9ROIUdzQoJxC19Ol5ln621lxTnG1+QCBzlvGjG15RLweOLzi/stgFwPE3BtkSzIcGR9ohEzGpiEqaUfU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=JFNbSRBp; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="TgbqG+dt"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 674FldFX1192104;
-	Tue, 4 Aug 2026 16:24:56 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="JFNbSRBp"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 674Flxp01341042;
+	Tue, 4 Aug 2026 16:24:59 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=37PIucMykZIUAuoBl
-	It+eGGnJJfdjthIGvjI5Ob5uD8=; b=TgbqG+dt/eamHAvh3njfLW4mubNIAo4fo
-	wowwB+5qnQIATwNtOJ1NJoDP4pY91EjO0MzQgKNxrW4Sei24g6TR8Tjrrt2+QaSY
-	wyPsRPySGduZDdavV5I8lEioJlPcOS+qtjuLlKMom4psANAA4bNr3Zr24vV98RCe
-	taYbcB0NRsDOHN7kmDrbTx8sQtpR8mGRtxGcih/0NKoJXcIb6QDhwhQtZPYbwrdM
-	SLHi5hCiqXg5jJ0SIDwbojkEIkGzbwvpzCe7sA8Gx/p/rM4ydVnBtC+4LsTiVj3f
-	zWKp7pPuvBZqGSyIkJ56r8NoAGGti3Gj2G/BQqzxdybuNmbqlm+JQ==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fs67hpnb1-1
+	:mime-version:references:subject:to; s=pp1; bh=ugi7gyUJOirIDtK2r
+	4gU9u4w8jmpqJ4kMD7n4Mu2s/w=; b=JFNbSRBp3IMbCHGt1DadYOmjfVg1d5MGN
+	Z3vduqs/c23VD1TsOIG/XHnHX+CxDQr9oPaHXqjzvx3QCHdDeo5s07ASPYOnj2cC
+	vQ8MgbzwnZa+oZuXE2wa3g3aTShKlbEKS/HSRPyq5p8Wzi8psIgcdDh9tkAD5ia1
+	cEi9k1/GnjK95vanzznFQ8bCEHlB+AhU0f61CxtJVnzXGdvBQNJwR7JHmEMsqfCT
+	oh9cwVVtD12bEz1K0nIlIo37Ny5iw2sx/n9sSS3ea85prJ85QMbamWeHthH75FxY
+	q3bteUf1X7jCub1FqhemcxOfNJkox5euiXb48MS7SuiCt2HxmPscw==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fs8eupb9r-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 04 Aug 2026 16:24:56 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 674GBJdM019709;
-	Tue, 4 Aug 2026 16:24:55 GMT
-Received: from smtprelay04.wdc07v.mail.ibm.com ([172.16.1.71])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fsugw2th3-1
+	Tue, 04 Aug 2026 16:24:58 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 674GBTQK007712;
+	Tue, 4 Aug 2026 16:24:58 GMT
+Received: from smtprelay03.dal12v.mail.ibm.com ([172.16.1.5])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fsu4qjv68-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 04 Aug 2026 16:24:55 +0000 (GMT)
+	Tue, 04 Aug 2026 16:24:58 +0000 (GMT)
 Received: from smtpav02.wdc07v.mail.ibm.com (smtpav02.wdc07v.mail.ibm.com [10.39.53.229])
-	by smtprelay04.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 674GOsin32047716
+	by smtprelay03.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 674GOvR715467046
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 4 Aug 2026 16:24:54 GMT
+	Tue, 4 Aug 2026 16:24:57 GMT
 Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6796358059;
+	by IMSVA (Postfix) with ESMTP id F17ED5805C;
+	Tue,  4 Aug 2026 16:24:56 +0000 (GMT)
+Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B56185805B;
 	Tue,  4 Aug 2026 16:24:54 +0000 (GMT)
-Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2BF8858058;
-	Tue,  4 Aug 2026 16:24:52 +0000 (GMT)
 Received: from b35lp69.lnxne.boe (unknown [9.87.84.240])
 	by smtpav02.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Tue,  4 Aug 2026 16:24:51 +0000 (GMT)
+	Tue,  4 Aug 2026 16:24:54 +0000 (GMT)
 From: Christian Borntraeger <borntraeger@linux.ibm.com>
 To: KVM <kvm@vger.kernel.org>
 Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
@@ -64,9 +64,9 @@ Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
         Sven Schnelle <svens@linux.ibm.com>,
         Matthew Rosato <mjrosato@linux.ibm.com>,
         Douglas Freimuth <freimuth@linux.ibm.com>
-Subject: [PATCH v2 6/7] KVM: s390: Take srcu when importing watchpoint data
-Date: Tue,  4 Aug 2026 18:24:34 +0200
-Message-ID: <20260804162435.28617-7-borntraeger@linux.ibm.com>
+Subject: [PATCH v2 7/7] KVM: s390: Free guest debug data on vcpu destroy
+Date: Tue,  4 Aug 2026 18:24:35 +0200
+Message-ID: <20260804162435.28617-8-borntraeger@linux.ibm.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260804162435.28617-1-borntraeger@linux.ibm.com>
 References: <20260804162435.28617-1-borntraeger@linux.ibm.com>
@@ -78,66 +78,68 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODA0MDEzMSBTYWx0ZWRfX5N4EjzJMCemp
- Vhq9wxQ67nuZ/RTv7V/VhJOuFplVJiAOi0cay7nHziqlwns++nYxfS65A3ZkmrcUKfLc17qqXHG
- Mn6n7JCpNvpyf6A8uphhPu3qYIP34j8=
-X-Authority-Analysis: v=2.4 cv=I7VVgtgg c=1 sm=1 tr=0 ts=6a721258 cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+X-Proofpoint-ORIG-GUID: MBjyLTqYc3EDzladuekXvXUwveVU6gg8
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODA0MDEzMSBTYWx0ZWRfXxEoztewAQUiJ
+ K3jGZEzQ4RWtS7LMvammuJtcG3CQ8ztnf0FlTTjfkA24krLPO3zC/kBNjp5MgV76PflJlOFJD61
+ 9cGxdeYpGRqcpZK0EphDMCV63Iu/DKo=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODA0MDEzMSBTYWx0ZWRfX2MR6IfsBoGd5
+ nX7ylD4sd1zcsNysgemIiAZPwGtpBR3V+xP+4cO4LHz4SdwR/zujkTdBidJ9KG0Mjxpyh/fI+Hk
+ no9URAlTRolSw9l2G7MVFQVciGBaPhJfZd6F7+pBUqQx/H8WOEPMlqbDhLR2Hbyyi5feouYgNRS
+ yMUjUUniNiyAshCiTlOm0Gcp4UPNcgNXxXMuXEU1IFWQ5oyskgKuI476bZEGBBEQQgH87/g6nXv
+ se5zjurWYA/DMiOX5qlNTCDgEvaC5r84eyO+RpkV2a7kq/ziZB6Y4ACsVa/KfijwQrgGGhZoTWq
+ a8trHiZce1Iezu55eIvFm2oBN+1JXSQzOfymPV6z0DN+cuShJ8qHrHOAmAP17l1QrGOYXEq/m5s
+ VWucQvys7oPJX9am8zKsW5Yw/RxFsfFZQA06BYnYjdSI3LWieLpodk6u64iSFWpqEmcebZVPt3F
+ ruV516kOfWh/8vZHCyQ==
+X-Proofpoint-GUID: MBjyLTqYc3EDzladuekXvXUwveVU6gg8
+X-Authority-Analysis: v=2.4 cv=KfzidwYD c=1 sm=1 tr=0 ts=6a72125b cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
  a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
- a=HjbLuaNmiay7o59Kxp4A:9
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODA0MDEzMSBTYWx0ZWRfXxOSBhPbWiplR
- J64dgVwVKroeHN37X6MZn9OJDAx86tu62+6WwblzlBOVGzRXsP59UEDkDliaBhjmo3Q2z0ooBWd
- LDXNRITNZPUCEpH55wK/oN3DlFXlZYYPdSA4RxRSx/SmKieX3FSSFyT/S5Vials770aNSkQWUQG
- ZI72Ot5o6mI6zn1Vh0OSshkckqKEJ+tbhgErOqTzYnqQhHJT6dSexgKx80M6t/ANF8akFu6d5TH
- Eqcdtf+i+9PUAVFnuZyUR7/uJ9bPJBlgmIM8EhnhX+DkVKd2XPE/Biyep5/jsNppJAlV3dF3w4Y
- XNj+IO7FgkphmWXZIybC7ntT07QNzqNGKw5tt5wR7vXOQqno5COvqfh337LHHP9nq4imL5KJ+HX
- gLQujWtMtVk+uslaksrybluLP/qc7J4/Nyoln9dI3bp48rm88aSUwbw/Lq85+OD+KxvHTYL7BzX
- SPLlqBNtJQky5aPeLqg==
-X-Proofpoint-ORIG-GUID: k5p2S8u5Apa4uS0LEyGN2BocJkuRtAN0
-X-Proofpoint-GUID: k5p2S8u5Apa4uS0LEyGN2BocJkuRtAN0
+ a=RzCfie-kr_QcCd8fBx8p:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
+ a=FN5RJEE1uaSDo9arrcAA:9
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-08-04_03,2026-08-04_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0 impostorscore=0 clxscore=1015 priorityscore=1501 suspectscore=0
- malwarescore=0 adultscore=0 lowpriorityscore=0 phishscore=0 spamscore=0
+ lowpriorityscore=0 bulkscore=0 impostorscore=0 suspectscore=0 malwarescore=0
+ adultscore=0 clxscore=1015 priorityscore=1501 phishscore=0 spamscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608040131
 
-__import_wp_info() backs up the original guest memory contents of a
-watchpoint with read_guest_abs(), which is kvm_read_guest() and therefore
-resolves the memslot via __kvm_memslots(). That requires kvm->srcu (or
-kvm->slots_lock) to be held, otherwise a concurrent memslot update can
-free the memslots array under us once its SRCU grace period has elapsed.
+kvm_s390_clear_bp_data() is only called from
+kvm_arch_vcpu_ioctl_set_guest_debug(), i.e. when user space changes or
+disables debugging. A vCPU that is destroyed while hardware breakpoints
+are still armed - the normal case when the VMM just exits or crashes -
+leaks hw_bp_info, hw_wp_info and all old_data buffers, since generic KVM
+frees the vCPU right after kvm_arch_vcpu_destroy().
 
-As this is not fast path, following lock ordering (mutex first, then
-srcu) take the big hammer and hold the srcu for the full import.
+That is bounded by MAX_BP_COUNT entries, so roughly 8 KiB per vCPU, but
+it is unbounded over VM lifetimes. The allocations are
+GFP_KERNEL_ACCOUNT, so the charge also outlives the exiting process and
+pins dying memcgs.
+
+Fix by clearing the debug data on vCPU destruction. Calling it
+unconditionally is fine: struct kvm_vcpu is zero allocated, so for a vCPU
+that never enabled debugging the counters are 0 and the pointers NULL.
 
 Fixes: 27291e2165b6 ("KVM: s390: hardware support for guest debugging")
 Cc: stable@vger.kernel.org
 Signed-off-by: Christian Borntraeger <borntraeger@linux.ibm.com>
 ---
- arch/s390/kvm/kvm-s390.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ arch/s390/kvm/kvm-s390.c | 1 +
+ 1 file changed, 1 insertion(+)
 
 diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index c47c3a930db7..e0548926dc49 100644
+index e0548926dc49..ccbdb109e22c 100644
 --- a/arch/s390/kvm/kvm-s390.c
 +++ b/arch/s390/kvm/kvm-s390.c
-@@ -4247,8 +4247,10 @@ int kvm_arch_vcpu_ioctl_set_guest_debug(struct kvm_vcpu *vcpu,
- 		/* enforce guest PER */
- 		kvm_s390_set_cpuflags(vcpu, CPUSTAT_P);
- 
--		if (dbg->control & KVM_GUESTDBG_USE_HW_BP)
--			rc = kvm_s390_import_bp_data(vcpu, dbg);
-+		if (dbg->control & KVM_GUESTDBG_USE_HW_BP) {
-+			scoped_guard(srcu, &vcpu->kvm->srcu)
-+				rc = kvm_s390_import_bp_data(vcpu, dbg);
-+		}
- 	} else {
- 		kvm_s390_clear_cpuflags(vcpu, CPUSTAT_P);
- 		vcpu->arch.guestdbg.last_bp = 0;
+@@ -3409,6 +3409,7 @@ void kvm_arch_vcpu_destroy(struct kvm_vcpu *vcpu)
+ 	trace_kvm_s390_destroy_vcpu(vcpu->vcpu_id);
+ 	kvm_s390_clear_local_irqs(vcpu);
+ 	kvm_clear_async_pf_completion_queue(vcpu);
++	kvm_s390_clear_bp_data(vcpu);
+ 	if (!kvm_is_ucontrol(vcpu->kvm))
+ 		sca_del_vcpu(vcpu);
+ 	kvm_s390_update_topology_change_report(vcpu->kvm, 1);
 -- 
 2.53.0
 
