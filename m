@@ -1,378 +1,145 @@
-Received: from mail-pl1-f175.google.com (mail-pl1-f175.google.com [209.85.214.175])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A415F36E489
-	for <linux-s390@vger.kernel.org>; Tue,  4 Aug 2026 12:34:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.175
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785846899; cv=none; b=VEPlCvNASFAN1RdzkcKUUj5ph9AboS2fUltfPFMHyG35E8yzEuqOhfRSZWyGmcsL1QSG/n6L6Ce1RZzw0fmS0NrEMH7L801+FJAS6aOoG8wSz3hyuGE3s9+dvyItPFhmFf3/tuHKOalVv7J8jTEx05ZYzkAF2ac0YVWzSYisb0Q=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785846899; c=relaxed/simple;
-	bh=xvzx6jNSlsMnElj3JdiPx7NYYZ80ry82gdfZdzM/6/E=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=j7kUr6Ua0/31rWj3iw/Px1DdOWpmd1vNo09AC22nGRx4CHJBxNSgWClc5xb3OX/nwk7YWUxTv+HMlskT4QXV7o/6XIHqVdcErzphhapUoJYLpJkJdjfbxUQxB0f4r1/pFYjD7u5NE80fl/55qRAju81aBUOb28ecUFLN7r7/i2s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TgsAtjym; arc=none smtp.client-ip=209.85.214.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF6633C9EE4
+	for <linux-s390@vger.kernel.org>; Tue,  4 Aug 2026 12:44:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=170.10.133.124
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785847497; cv=pass; b=oPLmenHwnkPUyqvjOpu6qbrHVEwuzZLqys4L8fzy0HeG2inmfrK1Aaqs/bGh/Ly/pzUvNL/bdMCAunfxMPirbNGk6L+v8hMYetZncNwbFfgpq0MIOpKfrucRDYL+8Wosz8CkbApWgF5KRPqsDT7LwtYVSLQAqAcJ2Hqxf1VAvNM=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785847497; c=relaxed/simple;
+	bh=AhCvAzGz5QWbk/302ntoX0RJ56FBrV8QY/YWkhL/+9Y=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=HE2O3hn53PSrv2KKtL7e05INebk1Weko8ABtsh/Soes3FExVS/bhW4Ju/V/Kr7IIBiofgXySCRW1XqkawgQBFkGpKoGpkM8P9B7HhFYsqWw7h5kAMr64WZGsYJSaA16einledw2mXBn5UjpR438bAYbxW1pKVkUt73OdCSFjNTo=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=KPxFt9EP; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=LbiiUNS9; arc=pass smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TgsAtjym"
-Received: by mail-pl1-f175.google.com with SMTP id d9443c01a7336-2ce98cb8165so11479545ad.1
-        for <linux-s390@vger.kernel.org>; Tue, 04 Aug 2026 05:34:57 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="KPxFt9EP";
+	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="LbiiUNS9"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1785847495;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=AhCvAzGz5QWbk/302ntoX0RJ56FBrV8QY/YWkhL/+9Y=;
+	b=KPxFt9EP5GqxlwskjyT9NEkaHe78JKqmsKYItSZhw60mKXod30UVSdN6WP9u1snf+2nfrH
+	J6ZnP27ES+bhftOpxwBm39+EoFeCLWkRj4QTYZ8oqRXhI+QzNGn9xGwSjwpV76wiWbSm/H
+	U0sDkH3x/BOx4nKLjOB/JI/9/L8HHO0=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-398-TAfdbB_wMIyTY1rCegfPTQ-1; Tue, 04 Aug 2026 08:44:53 -0400
+X-MC-Unique: TAfdbB_wMIyTY1rCegfPTQ-1
+X-Mimecast-MFC-AGG-ID: TAfdbB_wMIyTY1rCegfPTQ_1785847493
+Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-47f8f8fde2dso3448953f8f.0
+        for <linux-s390@vger.kernel.org>; Tue, 04 Aug 2026 05:44:53 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1785847492; cv=none;
+        d=google.com; s=arc-20260327;
+        b=LmjiB1gWFDX41tRRJKP4bFRwV9EjSMLd0ckjNtDvyHJlnLV0MBT8cFd7Eeuwi8cVUG
+         UymttgXI6NDImuSrVpsXP+IOEQpt/LAkp28CfsKAtL4/v5uUzpajeYTa35/kdNhbEeHA
+         v70/SH/4UTgbd38XbNnKVzwrJ9Pd9GKAHtUgrZri8WRWLQ9RkztzPFivFhdM5FDoQMsW
+         bY63OSbrXs5kFoR2X+PQAlTO7PgAkIu3L5OBn2IT7LwDImfbChThbhSiEs9WnX1DbWop
+         fXhFYkLb5T2CdpBEc7w3ubhTpUvrKxl6Lch3+3LYXu6Ji7g9wH4Gj01ZGHWNwBEslLLF
+         Xm8w==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=AhCvAzGz5QWbk/302ntoX0RJ56FBrV8QY/YWkhL/+9Y=;
+        fh=n6TYtiHw2BAcLZPaSL5w3FELPcdoPYDwT2q26lH7bQQ=;
+        b=YIjk3IyoPKd52qnjhnBBuGYp1aEGCZHSjn8U9OX5ftjv1DOex6vl8MbUuqjmbwWSRM
+         XI3wS1a2ENmvQE/bUwAWOlmizTgxHuyW51aXtNrtiG+z0ZshLx6omP0VekTVVkiVjZ+2
+         EE05iU96YQ6Na01q/tM2/OY9TVm56BNe0OLU9IX8IzRWDvnVmXdB+AheZII1K1OuE2cM
+         aewwRvv3ZPrfJjFgwRRJXVVCu1QUeah/3e57A1+IPhAibpRc7w6mzuGQAD+pKBq5SkRw
+         QsMWPkhZdjmOQ7yw8EW9xabHWIBN3SC/ZuFFKEZ/Xr3zBNy7rxzoPGDH4WhUYVn9OJVu
+         gUeA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785846896; x=1786451696; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=CB1U22h59ehvXfT2urrNAh9x6cLRqc+DhUPBJEXZPtY=;
-        b=TgsAtjym+JauGZITblkq2/wv8Rt71NgbklCUFYV7f6fJ42+CY36ESviPPPJhlMChfT
-         s83gYQ1rda7PS8CWkAhR9iwdwwMPN79TZOxOznHRt7ziCtRAjf1xaS4uzc+Qn8/meD3b
-         utmCmwnZmJEOtx1ZNsqZgso4KFjaQzSjhP65Yr0NufcUsTBwtnl9fXbGoXzJMB2l9Gcc
-         2aBon0QoKkYPYqn9uY63JRAuccukPP7fTSsyQc3W5xT0nmzFx3BAuIqgejZpGlS0WfVR
-         Y5EN/znE+/NGvY2XyQNTnvr/UZwwGVCp3uQEX4/K18uIGPpvABiO2sAUVWSkXYfjS+MH
-         B4Ag==
+        d=redhat.com; s=google; t=1785847492; x=1786452292; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=AhCvAzGz5QWbk/302ntoX0RJ56FBrV8QY/YWkhL/+9Y=;
+        b=LbiiUNS9WLDU22basKkI55N9OCI92YtF+oGsC1mZvnztuffOsRPJfTrGs0MJUQewUk
+         iUlYCYN1LZbfCi08s6UQjBpAOVHoao2BRoIoO9bsh6TDj0U2hnkuDmQr67N2+EIwiGuf
+         +SnWity7L8nXz+dy0ZOGpX7gndjtogzPCTF+iJbdWskRIscDAyxy02miSu4M7EwAIxw9
+         poSEHKoXrGJC77/xvgUyt0Nv9U7fJS6S20vvNZ75Ns0HelqsU4IUFIiidaZye79Huh1h
+         1n3bRV9WU0/i1Z4RQQEgG8DDc+MEhEMdmlJFQPo86oEEduLsX4C8/fnUNwE8cmxn+DQ0
+         dwYw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785846896; x=1786451696;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=CB1U22h59ehvXfT2urrNAh9x6cLRqc+DhUPBJEXZPtY=;
-        b=a2qfY+eeUANW0nuw4OAbAHtejbPXfIs+1B6vGyyB8n0hcs2oErnnOZR4DMXSWOuwQ0
-         a4538Vip8hSECwAYjzV9INeHfAU1408mLakzhJUx8K6PzGPTfVHPXNsh+MhNfgTYBMQd
-         ibdHMa7ZcAOUOim8oCk3ZeVkjY8G+B03pPJt/zxevsTHxokKbGFZ31uFcN08/2lOexwm
-         7M/S10ooDM5LXQbl56UNyY7gdE2ZLq0a0JbH+yo/wLJl2by9AvR0OsWXPuPFidNsnWK8
-         sJB5eBifhlsESRaOVizYR/MwjO1P/MGiuG9g4MNSasOHqmQsrZz84Ld9utTd33NNwhlt
-         N5WA==
-X-Forwarded-Encrypted: i=1; AHgh+RpapJFyp2ZI9lNZq7EyO1zlPR4Xy9zpNsocdzU65BnzXXBFEq54tE0zLdbe+PaNzwWWzLNEER9sSvs5@vger.kernel.org
-X-Gm-Message-State: AOJu0YzzLRBFN6v+vt5IgvTQmiiPG2RNt5yvvfiFTDRWTWj6562/2ttO
-	CfJQ+wZ2BjMsoLlftHlN1K+krDnAK5DTqRMIXk6sYjivgxXu0pve1hU+
-X-Gm-Gg: AR+sD13FkE9J/dTJNwAorZdKzj8kdynY6Wr04jCTR7YeTtzwbjmcr0xKoNgSPCtufof
-	igX/SBH25m2R6s3ouCTQHYs/TM/IwXOmUVIUff9iXQaR0lz8q46fceILqyG1rBeUA71WktFTz6s
-	PI38Uc8Ri08QDq439g3KQ9qFjZaqBMjhwem6/6VUb2cG0opkIHA66LmQAS8ks3S5L0rKWTeE2lP
-	Q70t2dhikS+srIf7K4WquRW5T4IYBDKGOqyGHD7NtBjAImE3ymuQVx8WSg4jjdxEmRnVeF/jIgF
-	kTCUEgMQPryGvisIxKz03l5XmJgnjeKVKH9vFOHi/9w5j04OPYKk/GgaoILmb9cF+4/20T/mNXj
-	02pIET6add5ClFQJIgCRTWabUpdKxm0VU39Ofolq3H64riDS4Pxtkhcic+65yspFqHSuRgzXA9T
-	ZiQ+fhHO/W0yug3uXZXvjSohSWdmXJPDt7pxG74kJuhYvNetg8MAnA0TpVdk25OTG4ZcaiVtvCE
-	nTBbZ+c9Cu0UcEcVhl2sZGatKaMGbXM+fX/fAgNeAzwYg==
-X-Received: by 2002:a17:903:2ecb:b0:2cf:70d2:da7c with SMTP id d9443c01a7336-2d08aa7fdddmr31872815ad.12.1785846896392;
-        Tue, 04 Aug 2026 05:34:56 -0700 (PDT)
-Received: from chcpu15.cse.ust.hk (191host116.mobilenet.cse.ust.hk. [143.89.191.116])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2d0a9f9370esm7101365ad.8.2026.08.04.05.34.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 04 Aug 2026 05:34:55 -0700 (PDT)
-From: Qi Zhang <marsy12010123@gmail.com>
-To: "D. Wythe" <alibuda@linux.alibaba.com>,
-	Dust Li <dust.li@linux.alibaba.com>,
-	Sidraya Jayagond <sidraya@linux.ibm.com>,
-	Wenjia Zhang <wenjia@linux.ibm.com>,
-	Mahanta Jambigi <mjambigi@linux.ibm.com>,
-	Tony Lu <tonylu@linux.alibaba.com>,
-	Wen Gu <guwen@linux.alibaba.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	Simon Horman <horms@kernel.org>,
-	Ursula Braun <ubraun@linux.vnet.ibm.com>
-Cc: linux-rdma@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Chengfeng Ye <nicoyip.dev@gmail.com>,
-	stable@vger.kernel.org,
-	Qi Zhang <marsy12010123@gmail.com>
-Subject: [PATCH net] net/smc: prevent device removal during connection setup
-Date: Tue,  4 Aug 2026 20:34:18 +0800
-Message-Id: <20260804123418.2214979-1-marsy12010123@gmail.com>
-X-Mailer: git-send-email 2.25.1
+        d=1e100.net; s=20251104; t=1785847492; x=1786452292;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=AhCvAzGz5QWbk/302ntoX0RJ56FBrV8QY/YWkhL/+9Y=;
+        b=YkWhaEeSv6t/YPhXAY3Vssi8GzchdRzrC3C3voTZxX4l9r6O/CsUgNSo1BZ8AsHIQk
+         2PCsAavZXKrdkVl6UjzyVv9L0Qi1z1DTXK/AxCbUXEIP1DNwxBAnCIV9qFht8rdCc44T
+         ecsSM7GBvAsMqDkynqgb54Xuk58krr0OCossqSUjpdAuEEmEePMBeiLM1H+26HKSyh52
+         ZBWeyvIbPek80fPXrB1ZGu6Oa1oTGk7VGDTfwQiZJi/h21lyolCJI4gy0eiCMaARo7jv
+         NZaakp9NzjV2VY6MOnTze26hjG0QEkwKMUvH3sbnFYnfWfgG5/wiBAAeMUEL3nFdW8mH
+         p3sg==
+X-Forwarded-Encrypted: i=1; AHgh+RpGDTL6q14sZuqQ7foE4YV5cQe120/iktbvelJCVUFJ2Irv30G/2diIzEU65QYm/YAvpmxQwAaG07Me@vger.kernel.org
+X-Gm-Message-State: AOJu0YxohC0IOzIR6wmMFU7YDvkWRIz/Ri+GX3PjrOMTCQq6yK9/agxc
+	epNBeohL+vveN1HZhHWcn91zD4hAgiuGApK7ibBeLUtTcNE/THbSAgg4SCKH03PdtsQvpM28dRw
+	hwWgE/93qz+hUFeAItWTec3P6SYL5nODt+BTyqwDnazESqgcZEcKRgDEmz6D8f5XD3ynJqycKjF
+	HKoOkZ9k7SOsZzWH0CbAKJjYs5jbJlS7mbLRCtZDxm4w3Ykg==
+X-Gm-Gg: AR+sD12706dI532tCymNeYjb82TNSFezxz7in8lIjlkhWv2+zg6Kqntqq2ImZJ8XPLJ
+	jzzreAlJcut5MXavDeaAsiUP2JVIVQWRjzDLsiWrktl5Xkr51H4hwMBdllTqdYLpE5QDZS+QDs3
+	IDzvrym3Pp3Gmi/jwnxRph41yzBE/zxCawS6EExONjvctv/uZDbQoT4r0H9MgreFle7WRINlKqn
+	cgpc/1/QyyiMa1vntJ2g6ZRvMWrNb1keYV9yx6CxYRpG6Tafgu//rXrAhw=
+X-Received: by 2002:adf:e196:0:b0:47f:91f0:9a8 with SMTP id ffacd0b85a97d-47fd72d9daamr44077328f8f.23.1785847492560;
+        Tue, 04 Aug 2026 05:44:52 -0700 (PDT)
+X-Received: by 2002:adf:e196:0:b0:47f:91f0:9a8 with SMTP id
+ ffacd0b85a97d-47fd72d9daamr44077224f8f.23.1785847492081; Tue, 04 Aug 2026
+ 05:44:52 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20260804120529.1730187-1-pbonzini@redhat.com> <20260804120529.1730187-5-pbonzini@redhat.com>
+ <20260804122348.AC6E51F00A3D@smtp.kernel.org>
+In-Reply-To: <20260804122348.AC6E51F00A3D@smtp.kernel.org>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Date: Tue, 4 Aug 2026 14:44:40 +0200
+X-Gm-Features: AUfX_mzeBd9D7i9RK65m6Y6i1uzG2a-w4C9IIV172eXDDgUNWsdPG5F7opYXrlc
+Message-ID: <CABgObfbd63O_UkmCcik1z0J847Sr6a5rnFgwttBjBb0am=+2PQ@mail.gmail.com>
+Subject: Re: [PATCH v2 4/6] kvm: apply VM_READ/VM_WRITE checks to all VMA types
+To: sashiko-reviews@lists.linux.dev
+Cc: Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, kvm@vger.kernel.org, 
+	linux-s390@vger.kernel.org, Alexander Gordeev <agordeev@linux.ibm.com>, 
+	dri-devel@lists.freedesktop.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-From: Chengfeng Ye <nicoyip.dev@gmail.com>
+On Tue, Aug 4, 2026 at 2:23=E2=80=AFPM <sashiko-bot@kernel.org> wrote:
+>
+> Thank you for your contribution! Sashiko AI review found 1 potential issu=
+e(s) to consider:
+> - [High] Write faults on write-only `VM_IO | VM_PFNMAP` VMAs are incorrec=
+tly rejected, breaking guest writes to write-only device memory.
+>
+> If a guest performs a memory write to a guest physical address backed by =
+a
+> write-only host VMA (e.g. VM_IO or VM_PFNMAP mapped with PROT_WRITE but
+> without PROT_READ), get_user_pages() will fail and fall back to this look=
+up.
+>
+> Since the write-only VMA lacks VM_READ, this check will evaluate to true =
+and
+> return KVM_PFN_ERR_FAULT, skipping the VM_IO | VM_PFNMAP handler. Could t=
+his
+> prevent guests from writing to legitimate write-only device memory, such =
+as
+> command ring buffers or write-only PCI BARs?
 
-smc_pnet_determine_gid() stores an smc_ib_device pointer in connection
-initialization data while holding smc_ib_devices.mutex. Connection setup
-keeps using the pointer after releasing the mutex, but device removal only
-waits for links which have already incremented lnk_cnt.
+This is theoretical only but actually a bugfix, because KVM does not
+support write-only mappings and therefore it would not be possible to
+enforce !PROT_READ/PROT_WRITE.
 
-This permits the following interleaving:
-
-  connection setup                 device removal
-  ----------------                 --------------
-  select smcibdev
-  store ini->smcrv2.ib_dev_v2
-  mutex_unlock()
-                                   remove smcibdev from the device list
-                                   observe lnk_cnt == 0
-                                   return from the remove callback
-                                   kfree(smcibdev)
-  copy smcibdev->pnetid
-
-KASAN reported:
-
-  BUG: KASAN: slab-use-after-free in smc_conn_create+0x1330/0x2680
-  Read of size 16 at addr ffff888112dbd934 by task smc_bug86/97
-  Call Trace:
-   __asan_memcpy
-   smc_conn_create
-   __smc_connect
-   smc_connect
-   __sys_connect
-  Allocated by task 93:
-   smc_ib_add_dev
-   add_client_context
-   ib_register_device
-   nldev_newlink
-  Freed by task 98:
-   kfree
-   remove_client_context
-   __ib_unregister_device
-   nldev_dellink
-
-Track selected-device users separately from established links. Acquire a
-selection reference while smc_ib_devices.mutex protects the device list,
-and release it when the connection initialization data is discarded. After
-delisting a device, wait for these users before terminating its links. This
-lets in-flight setup either fail or make any newly created link visible to
-the termination pass, while delisting prevents new users.
-
-Fixes: a046d57da19f ("smc: CLC handshake (incl. preparation steps)")
-Cc: stable@vger.kernel.org
-Signed-off-by: Chengfeng Ye <nicoyip.dev@gmail.com>
-Signed-off-by: Qi Zhang <marsy12010123@gmail.com>
----
- net/smc/af_smc.c   | 11 +++++++----
- net/smc/smc_core.c | 11 +++++++++++
- net/smc/smc_core.h |  3 +++
- net/smc/smc_ib.c   |  5 +++++
- net/smc/smc_ib.h   | 13 +++++++++++++
- net/smc/smc_llc.c  |  8 ++++----
- net/smc/smc_pnet.c |  8 ++++++++
- 7 files changed, 51 insertions(+), 8 deletions(-)
-
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index b5db69073e20..160271464305 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -1225,7 +1225,7 @@ void smc_fill_gid_list(struct smc_link_group *lgr,
- 	       SMC_GID_SIZE);
- 
- out:
--	kfree(alt_ini);
-+	smc_init_info_free(alt_ini);
- }
- 
- static int smc_connect_rdma_v2_prepare(struct smc_sock *smc,
-@@ -1596,14 +1596,14 @@ static int __smc_connect(struct smc_sock *smc)
- 	SMC_STAT_CLNT_SUCC_INC(sock_net(smc->clcsock->sk), aclc);
- 	smc_connect_ism_vlan_cleanup(ini);
- 	kfree(buf);
--	kfree(ini);
-+	smc_init_info_free(ini);
- 	return 0;
- 
- vlan_cleanup:
- 	smc_connect_ism_vlan_cleanup(ini);
- 	kfree(buf);
- fallback:
--	kfree(ini);
-+	smc_init_info_free(ini);
- 	return smc_connect_decline_fallback(smc, rc, version);
- }
- 
-@@ -2343,7 +2343,10 @@ static void smc_find_rdma_v2_device_serv(struct smc_sock *new_smc,
- 
- not_found:
- 	ini->smcr_version &= ~SMC_V2;
-+	if (ini->smcrv2.ib_dev_v2_ref)
-+		smc_ibdev_init_put(ini->smcrv2.ib_dev_v2);
- 	ini->smcrv2.ib_dev_v2 = NULL;
-+	ini->smcrv2.ib_dev_v2_ref = false;
- 	ini->check_smcrv2 = false;
- }
- 
-@@ -2587,7 +2590,7 @@ static void smc_listen_work(struct work_struct *work)
- 	smc_listen_decline(new_smc, rc, ini ? ini->first_contact_local : 0,
- 			   proposal_version);
- out_free:
--	kfree(ini);
-+	smc_init_info_free(ini);
- 	kfree(buf);
- }
- 
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index cf6b620fef05..e59f327f294c 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -55,6 +55,17 @@ static void __smc_lgr_terminate(struct smc_link_group *lgr, bool soft);
- 
- static void smc_link_down_work(struct work_struct *work);
- 
-+void smc_init_info_free(struct smc_init_info *ini)
-+{
-+	if (!ini)
-+		return;
-+	if (ini->ib_dev_ref)
-+		smc_ibdev_init_put(ini->ib_dev);
-+	if (ini->smcrv2.ib_dev_v2_ref)
-+		smc_ibdev_init_put(ini->smcrv2.ib_dev_v2);
-+	kfree(ini);
-+}
-+
- /* return head of link group list and its lock for a given link group */
- static inline struct list_head *smc_lgr_list_head(struct smc_link_group *lgr,
- 						  spinlock_t **lgr_lock)
-diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
-index 5c18f08a4c8a..385f16cc5368 100644
---- a/net/smc/smc_core.h
-+++ b/net/smc/smc_core.h
-@@ -403,6 +403,7 @@ struct smc_init_info_smcrv2 {
- 
- 	/* Output fields when saddr is set */
- 	struct smc_ib_device	*ib_dev_v2;
-+	bool			ib_dev_v2_ref;
- 	u8			ib_port_v2;
- 	u8			ib_gid_v2[SMC_GID_SIZE];
- 
-@@ -438,6 +439,7 @@ struct smc_init_info {
- 	u8			peer_mac[ETH_ALEN];
- 	u8			peer_systemid[SMC_SYSTEMID_LEN];
- 	struct smc_ib_device	*ib_dev;
-+	bool			ib_dev_ref;
- 	u8			ib_gid[SMC_GID_SIZE];
- 	u8			ib_port;
- 	u32			ib_clcqpn;
-@@ -594,6 +596,7 @@ void smc_rtoken_set2(struct smc_link_group *lgr, int rtok_idx, int link_id,
- void smc_sndbuf_sync_sg_for_device(struct smc_connection *conn);
- void smc_rmb_sync_sg_for_cpu(struct smc_connection *conn);
- int smc_vlan_by_tcpsk(struct socket *clcsock, struct smc_init_info *ini);
-+void smc_init_info_free(struct smc_init_info *ini);
- 
- void smc_conn_free(struct smc_connection *conn);
- int smc_conn_create(struct smc_sock *smc, struct smc_init_info *ini);
-diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
-index 9bb495707445..01c9b5c62df7 100644
---- a/net/smc/smc_ib.c
-+++ b/net/smc/smc_ib.c
-@@ -950,6 +950,8 @@ static int smc_ib_add_dev(struct ib_device *ibdev)
- 
- 	smcibdev->ibdev = ibdev;
- 	INIT_WORK(&smcibdev->port_event_work, smc_ib_port_event_work);
-+	atomic_set(&smcibdev->init_cnt, 0);
-+	init_waitqueue_head(&smcibdev->init_wait);
- 	atomic_set(&smcibdev->lnk_cnt, 0);
- 	init_waitqueue_head(&smcibdev->lnks_deleted);
- 	mutex_init(&smcibdev->mutex);
-@@ -1000,6 +1002,9 @@ static void smc_ib_remove_dev(struct ib_device *ibdev, void *client_data)
- 	mutex_unlock(&smc_ib_devices.mutex);
- 	pr_warn_ratelimited("smc: removing ib device %s\n",
- 			    smcibdev->ibdev->name);
-+	if (atomic_read(&smcibdev->init_cnt))
-+		wait_event(smcibdev->init_wait,
-+			   !atomic_read(&smcibdev->init_cnt));
- 	smc_smcr_terminate_all(smcibdev);
- 	smc_ib_cleanup_per_ibdev(smcibdev);
- 	ib_unregister_event_handler(&smcibdev->event_handler);
-diff --git a/net/smc/smc_ib.h b/net/smc/smc_ib.h
-index ef8ac2b7546d..8e9fd5a200a2 100644
---- a/net/smc/smc_ib.h
-+++ b/net/smc/smc_ib.h
-@@ -51,6 +51,8 @@ struct smc_ib_device {				/* ib-device infos for smc */
- 	struct work_struct	port_event_work;
- 	unsigned long		port_event_mask;
- 	DECLARE_BITMAP(ports_going_away, SMC_MAX_PORTS);
-+	atomic_t		init_cnt;	/* number of device selections */
-+	wait_queue_head_t	init_wait;	/* wait for selections to end */
- 	atomic_t		lnk_cnt;	/* number of links on ibdev */
- 	wait_queue_head_t	lnks_deleted;	/* wait 4 removal of all links*/
- 	struct mutex		mutex;		/* protect dev setup+cleanup */
-@@ -59,6 +61,17 @@ struct smc_ib_device {				/* ib-device infos for smc */
- 	int			ndev_ifidx[SMC_MAX_PORTS]; /* ndev if indexes */
- };
- 
-+static inline void smc_ibdev_init_get(struct smc_ib_device *smcibdev)
-+{
-+	atomic_inc(&smcibdev->init_cnt);
-+}
-+
-+static inline void smc_ibdev_init_put(struct smc_ib_device *smcibdev)
-+{
-+	if (atomic_dec_and_test(&smcibdev->init_cnt))
-+		wake_up(&smcibdev->init_wait);
-+}
-+
- static inline __be32 smc_ib_gid_to_ipv4(u8 gid[SMC_GID_SIZE])
- {
- 	struct in6_addr *addr6 = (struct in6_addr *)gid;
-diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
-index 954b2ff1815c..15ae19a9db07 100644
---- a/net/smc/smc_llc.c
-+++ b/net/smc/smc_llc.c
-@@ -1118,7 +1118,7 @@ int smc_llc_cli_add_link(struct smc_link *link, struct smc_llc_qentry *qentry)
- out_reject:
- 	smc_llc_cli_add_link_reject(qentry);
- out:
--	kfree(ini);
-+	smc_init_info_free(ini);
- 	kfree(qentry);
- 	return rc;
- }
-@@ -1192,7 +1192,7 @@ static void smc_llc_cli_add_link_invite(struct smc_link *link,
- 	smc_llc_send_add_link(link, ini->ib_dev->mac[ini->ib_port - 1],
- 			      ini->ib_gid, NULL, SMC_LLC_REQ);
- out:
--	kfree(ini);
-+	smc_init_info_free(ini);
- 	kfree(qentry);
- }
- 
-@@ -1512,7 +1512,7 @@ int smc_llc_srv_add_link(struct smc_link *link,
- 	rc = smc_llc_srv_conf_link(link, link_new, lgr_new_t);
- 	if (rc)
- 		goto out_err;
--	kfree(ini);
-+	smc_init_info_free(ini);
- 	return 0;
- out_err:
- 	if (link_new) {
-@@ -1520,7 +1520,7 @@ int smc_llc_srv_add_link(struct smc_link *link,
- 		smcr_link_clear(link_new, false);
- 	}
- out:
--	kfree(ini);
-+	smc_init_info_free(ini);
- 	if (send_req_add_link_resp)
- 		smc_llc_send_req_add_link_response(req_qentry);
- 	return rc;
-diff --git a/net/smc/smc_pnet.c b/net/smc/smc_pnet.c
-index 63e286e2dfaa..7e01e01a522b 100644
---- a/net/smc/smc_pnet.c
-+++ b/net/smc/smc_pnet.c
-@@ -980,14 +980,22 @@ static int smc_pnet_determine_gid(struct smc_ib_device *ibdev, int i,
- 	if (!ini->check_smcrv2 &&
- 	    !smc_ib_determine_gid(ibdev, i, ini->vlan_id, ini->ib_gid, NULL,
- 				  NULL)) {
-+		if (ini->ib_dev_ref)
-+			smc_ibdev_init_put(ini->ib_dev);
-+		smc_ibdev_init_get(ibdev);
- 		ini->ib_dev = ibdev;
-+		ini->ib_dev_ref = true;
- 		ini->ib_port = i;
- 		return 0;
- 	}
- 	if (ini->check_smcrv2 &&
- 	    !smc_ib_determine_gid(ibdev, i, ini->vlan_id, ini->smcrv2.ib_gid_v2,
- 				  NULL, &ini->smcrv2)) {
-+		if (ini->smcrv2.ib_dev_v2_ref)
-+			smc_ibdev_init_put(ini->smcrv2.ib_dev_v2);
-+		smc_ibdev_init_get(ibdev);
- 		ini->smcrv2.ib_dev_v2 = ibdev;
-+		ini->smcrv2.ib_dev_v2_ref = true;
- 		ini->smcrv2.ib_port_v2 = i;
- 		return 0;
- 	}
--- 
-2.43.0
+Paolo
 
