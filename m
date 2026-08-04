@@ -1,127 +1,141 @@
-Received: from mail-pg1-f169.google.com (mail-pg1-f169.google.com [209.85.215.169])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF8F048AE0D
-	for <linux-s390@vger.kernel.org>; Tue,  4 Aug 2026 21:39:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 798433A1A23
+	for <linux-s390@vger.kernel.org>; Tue,  4 Aug 2026 21:55:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785879568; cv=none; b=ZXvqBKE8lYWtlUu8w8mCk9AuNhb9QRwrZmqzJhCfDMG6V5cl3cJfwuYYzsUn4O8s6lEOVWR/ASJzum3gsFVljiXGbn7aICDjjdeOvnpwYzie+9xyIsatNifa7AKkfTlxAdyA5z9xenl9sQqrpyKJEDIJWBp1Ms1VFWgoDye5mDs=
+	t=1785880532; cv=none; b=pOSBaTln7OHKjnxFH1Ctp65vI3stKkRj7Kb9+r79t8XTNpPQbxIxY9UR/s7Fh0C/8Blbr0HSKiDNrRNN0GMJt6HdrNSIe9HE0jhSJhhjtwHCDjbd5cjdcQ0+n46Jqz3ijv8mPXS9Q15PxnLqoKCoZTSITdh3KkUbevvwoectdro=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785879568; c=relaxed/simple;
-	bh=c0jHAqCKMMLGqElB9P0Zc/ra2eBZhFiyVAmWgrs0dpc=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=nzj5DHx1CcTcSHqyKcqrzs8iQSb7MGZBm6zNRO3RVbCBSsfdI66s5fsxlIR5kSAJzKPNJuXclJ/CDg4o4BmxqpHOHBvjrvQTcrEnjzh7JpRPcwcH1O2As9t976rvyCkUlXNosnpUnJHQ9IZKi1rTZ9lUTxqICO8XdqR/4BeMheQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=e6SmcVV5; arc=none smtp.client-ip=209.85.215.169
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1785880532; c=relaxed/simple;
+	bh=oxkoMDL8xp0/ghASG05w4F1m0d+LnMvCfUeepDdMDk0=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=VKB+nFulFoUIUegohCCeN87R20QmTmUuP9lbDSyDNdwIpwoct0jkaiPyQcnDy+5AQPcqXFXDNs2eqH2EWps6CkaiS1+gCFLD1914LvRksjrFZx6IoSiP5TScw1WhMRRDL/GZbK1F1WhpaoYjohY37Ki6PNDj1irLb9Nbg1GqT5A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=tqRLZZOQ; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="e6SmcVV5"
-Received: by mail-pg1-f169.google.com with SMTP id 41be03b00d2f7-cbe3fed2f58so198383a12.3
-        for <linux-s390@vger.kernel.org>; Tue, 04 Aug 2026 14:39:25 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785879564; x=1786484364; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=AVzPi9qdoodMQ73+79x+gG0Fw90m+Wzneqb+ihmK6gQ=;
-        b=e6SmcVV5jfw8sFCaBIZVZtBXSOxoKLFnviVSNIVBBcs83peqIeViDqgJEo3jqTaY0d
-         TR8/fjJmVb0hWCcPgGzufqhPCPutU31Xm4xTfJoOCv6teNG29GSiL+L0E48vQwy5jTQ3
-         mA/7d2LQHgAacqW5xthUbx9uNEk+JkD2qY11MFzXLwQ3R2pLOPBZe7zB45/csv+uoVDa
-         9WBxSmYkNRb7LDzTaCqlF0pqpjxCWtK+Z1M/wOpKyeQhWFNuWI4k+dD1XSOnqQGgwCaD
-         djz6ydqXVE1xwO6hy1v8ouFil/C2+7sha/+kWbmx/lw4a3dnppMvVTTnxiIv4qzYIqVj
-         2M2Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785879564; x=1786484364;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=AVzPi9qdoodMQ73+79x+gG0Fw90m+Wzneqb+ihmK6gQ=;
-        b=SaIETZTnUf9j6yRl+lyw2PX/Yq44zp+TyLHt2xSBC7oldzioDOfZ28+4cefJMLwCSd
-         cmslb25hBNLg8ktp1vrH7z3zLIegZ3Oe6lQIMweFDyPwrQtypsAXj7mv1XJuxEKmZUAT
-         2IwVz387jxHks4o/6KcGjGQvonsLFIbKx2ASc+qL+y5r2mc2qwc7kNk2dTaco8oJ0T4S
-         pD/i0PEGzccEPh+qKQW4L7FTHI0Z6HyBFPSpg90kPL5x6rOzTrURPuc8D1REgAl0hpHP
-         OHqYTeJO7U9ONFMX3W9YGVYU6adQnZ43Ey0RVvlVL212yCwtQ1g960pQmgwt3LUsjgKp
-         SVZg==
-X-Forwarded-Encrypted: i=1; AHgh+RqFs6n5cojyaB4bg0l0ERhl5BSpYbMJHiQODLxY/EF7vZ/WpPhdKYC444jn8/lPaqMDKNmP8HwiumZy@vger.kernel.org
-X-Gm-Message-State: AOJu0YyqC8U4K2eiJ/wV1KHnUiFbJpz8aLjuDQlSyOvkQV/LxNXyiCG8
-	Dk+bI8m2neQAC/9R8e84+53K8c6r8gCfxGV2j3PkkcLUZNbrpUdFjnnM
-X-Gm-Gg: AR+sD106Anyre4crnCh6pdixIotO3JwtPh7oO2E5v3U5SyXBzTcFgn3+UBwLEvrXz5F
-	6MKLYIVGKWJPHGSz4xV7ry9IiEDPqrystsIaxbBMqcjqNw4jeffh+0+J5dtSHpG1NPic0AaCCsh
-	z0J9PUxzgAS2ZmRzkBRM7EUgFazNj1QfQxgbbPLsIhDb7daYLjAHFz7rCjkwru6mQLTsiuL4dFr
-	LF+SGU6/WyeLXXo9MzX1mJVOTcTPDWqpegr83Y/rAohw11MZLTPuFlSs9pnQJMcneL/1GajEFM/
-	h9HS9OPW8ZKGI0Ww/38oIOZFE+iTaletGIYgycp6DR9FqOSgYlNmt3i4RoqPnZDH7nUg9ZbFrBn
-	OwML1cOj7T2iYYtQJLp4JobI80zlD7JOQFrW2QUNCmkw8IUiKoNI4NnTsElsIsH6W0ECh7wcaPj
-	Twu2fBtseOqc3a5Qw7OPikjUWCHd5WWeU3VkbdYCP/QW87TLT83Jgd9Juo/Pnz08kIDfaCS4Eo8
-	l12yok8pDiBmucjdK5XoUw1VCSshhiqvmIH5/KpD80=
-X-Received: by 2002:a05:6a21:a38d:b0:3bf:6fb1:ce0d with SMTP id adf61e73a8af0-3cb85ea3663mr1881337637.21.1785879564575;
-        Tue, 04 Aug 2026 14:39:24 -0700 (PDT)
-Received: from LAPTOP-DPAKMOI4.it.purdue.edu (pal-210-106-74.itap.purdue.edu. [128.210.106.74])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-315867bc341sm14727379eec.27.2026.08.04.14.39.22
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 04 Aug 2026 14:39:24 -0700 (PDT)
-From: Yifei Gao <gyf161023@gmail.com>
-To: "D . Wythe" <alibuda@linux.alibaba.com>,
-	Dust Li <dust.li@linux.alibaba.com>,
-	Sidraya Jayagond <sidraya@linux.ibm.com>,
-	Mahanta Jambigi <mjambigi@linux.ibm.com>,
-	linux-rdma@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	netdev@vger.kernel.org
-Cc: Tony Lu <tonylu@linux.alibaba.com>,
-	Wen Gu <guwen@linux.alibaba.com>,
-	Karsten Graul <kgraul@linux.ibm.com>,
-	Ursula Braun <ubraun@linux.ibm.com>,
-	Wenjia Zhang <wenjia@linux.ibm.com>,
-	linux-kernel@vger.kernel.org,
-	Yifei Gao <gyf161023@gmail.com>,
-	stable@vger.kernel.org
-Subject: [PATCH] net/smc: fix sock refcount leak in smc_switch_conns() error path
-Date: Tue,  4 Aug 2026 21:39:17 +0000
-Message-ID: <20260804213917.3413525-1-gyf161023@gmail.com>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="tqRLZZOQ"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 674JnJjH4117986;
+	Tue, 4 Aug 2026 21:55:21 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=z2PRr+
+	ebiDNPFCRFsxDhHwssp8h/2KdJvtnlzWvxUfc=; b=tqRLZZOQ5r7CvlIGmrQkJL
+	WeIR+BTmxKAv2DHwLpyJSid1jmc+WLFJHGGvnizQxcyAeF6LFeTpEplyNbR+TIM6
+	Jr3+ZcnS8Q405E2JoYoLnuoBCpTow74byY+7QvFPiIZfY/TbPu0KoP3IKiHLkuaP
+	Q+E9EUqfDDEn1UXuXf56fKLeFak0lWRG56umRVy3WqBaX7vuAwT3MoBtMD6/QynY
+	4GKXW5UwmGRjf2rwh/Mrpbe203iyrK/BzfKahxWRcVMxcToCV/ZsmYEZC1r7WPbi
+	gvqvW2fagOeNxY9AXNAd31T/XLP2zh0amDTYDJhAvHI2Vy5SYhX3Z2BixG93vJVA
+	==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fs8fqr2sy-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 04 Aug 2026 21:55:21 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 674LfMHE015894;
+	Tue, 4 Aug 2026 21:55:20 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fsu4qm1jv-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 04 Aug 2026 21:55:20 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 674LtGph30409162
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 4 Aug 2026 21:55:16 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A6CA820043;
+	Tue,  4 Aug 2026 21:55:16 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 1878F20040;
+	Tue,  4 Aug 2026 21:55:16 +0000 (GMT)
+Received: from [0.0.0.0] (unknown [9.87.144.71])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue,  4 Aug 2026 21:55:15 +0000 (GMT)
+Message-ID: <93c0ca90-dc4d-4739-ab95-abb9237a8b7c@linux.ibm.com>
+Date: Tue, 4 Aug 2026 23:55:15 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v13 04/18] target/s390x: Add helper functions for copy
+ memory to and from guest
+To: Harald Freudenberger <freude@linux.ibm.com>, richard.henderson@linaro.org,
+        david@kernel.org, thuth@redhat.com, berrange@redhat.com
+Cc: qemu-s390x@nongnu.org, qemu-devel@nongnu.org, linux-s390@vger.kernel.org,
+        dengler@linux.ibm.com, borntraeger@linux.ibm.com,
+        fcallies@linux.ibm.com, cohuck@redhat.com
+References: <20260803161235.228704-1-freude@linux.ibm.com>
+ <20260803161235.228704-5-freude@linux.ibm.com>
+Content-Language: en-US
+From: Ilya Leoshkevich <iii@linux.ibm.com>
+In-Reply-To: <20260803161235.228704-5-freude@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: qMExwnLBjRKhbWGo7O7lHvh1JIxUJ-s-
+X-Proofpoint-ORIG-GUID: qMExwnLBjRKhbWGo7O7lHvh1JIxUJ-s-
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODA0MDE3NiBTYWx0ZWRfX9ZR74rx6QbRQ
+ 4sgAU21sI83BtQWzWMLG0B1mQKhyXZiYBpw1scVOyrOCTBUWf8+EUzybSTQCaJGMjNwizD0+aF5
+ iCt1kQhVwXkiXAE+JoJzMeENGihg474=
+X-Authority-Analysis: v=2.4 cv=K8cS2SWI c=1 sm=1 tr=0 ts=6a725fc9 cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+ a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8
+ a=StHepGPFupVIGor_3S8A:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODA0MDE3NiBTYWx0ZWRfX4MuLbm9Fg7Dn
+ 5UFpioEAlX7qmACmWnTfCkLZNYLasJmT1elGVSgIyyBIaKyI4LE6XKCezHnzixzevucdFZjL0/p
+ VAvli0ad0a/IWlSvzGPbmBWBPbqtglptwKR2hy4YeGRg/2/4p7eVluXVITYLK0QQs14S3/LSsrD
+ 4ASwMk9rcg+1L0lFEN/pHcJm07pCZxUYAuG+EI5o05VCpBqu6ynCWwg1jFDDQomSu8eYCcwXv1M
+ 8CrQMob/Z+SFvhgt+N7DfFeJUTUA9GNK3UxcZjVxSJmAiQl1xplQa+zwrThhOX4VvDyfZsclF7E
+ 2XmzxKmowPG1U7TazcwJjbaF9pOwxqQTuCjufYkx8XIfVGtz1cw34tvCNWCRmu0DRgJuDnzw9Yx
+ mhenzi4I0uGdTnuMH5HQ+1sTfthZayo4tP1w2eljRaWgbzGrdq1qN9Sd4C1xfzeqqtT2xFHjJDB
+ VtY+DGHTUNLElfkTV6Q==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-08-04_05,2026-08-04_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ clxscore=1015 spamscore=0 impostorscore=0 bulkscore=0 priorityscore=1501
+ lowpriorityscore=0 malwarescore=0 phishscore=0 suspectscore=0 adultscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608040176
 
-smc_switch_conns() takes a reference on the socket with sock_hold() before
-dropping conns_lock to prefetch a tx slot. On success the reference is
-released by the sock_put() after smc_switch_cursor(). When
-smc_cdc_get_free_slot() fails, however, the function jumps straight to
-err_out without a sock_put(), leaking the reference and leaving the socket
-unreclaimable. During SMC-R link failover with an exhausted backup link
-this leaks one reference per failing connection switch.
 
-Release the reference before jumping to err_out. The err_out label is also
-reached from the smc_switch_cursor() failure path, which has already done
-its own sock_put(), so the put must stay at the get_free_slot failure site
-rather than at the label.
 
-Fixes: c6f02ebeea3a ("net/smc: switch connections to alternate link")
-Cc: stable@vger.kernel.org
-Assisted-by: Claude:claude-opus-4-8
-Signed-off-by: Yifei Gao <gyf161023@gmail.com>
----
- net/smc/smc_core.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+On 8/3/26 18:12, Harald Freudenberger wrote:
+> Add some simple helper functions to copy memory from guest to a local
+> buffer and the other way around:
+> 
+> - read_guest_wrap_u8()
+> - write_guest_wrap_u8()
+> - read_guest_wrap_u32()
+> - write_guest_wrap_u32()
+> - read_guest_wrap_u64()
+> - write_guest_wrap_u64()
+> 
+> The reader functions read from guest memory into an array of
+> u8/u32/u64 with BE conversion. Similar the writer functions write an
+> array of u8/u32/u64 into guest memory with BE conversion.
+> 
+> All these functions are intended to be used for the crypto
+> implementations thus are located in crypto_helper.h.
+> 
+> Rework and simplify the sha 256 and sha 512 implementations to use
+> these helper functions.
+> 
+> Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
+> ---
+>   target/s390x/tcg/cpacf_sha256.c  |  63 ++++---------------
+>   target/s390x/tcg/cpacf_sha512.c  |  63 ++++---------------
+>   target/s390x/tcg/crypto_helper.c |   1 +
+>   target/s390x/tcg/crypto_helper.h | 100 +++++++++++++++++++++++++++++++
+>   4 files changed, 123 insertions(+), 104 deletions(-)
+>   create mode 100644 target/s390x/tcg/crypto_helper.h
 
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index cf6b620fef05..04c6ce608ec7 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -1148,8 +1148,10 @@ struct smc_link *smc_switch_conns(struct smc_link_group *lgr,
- 		read_unlock_bh(&lgr->conns_lock);
- 		/* pre-fetch buffer outside of send_lock, might sleep */
- 		rc = smc_cdc_get_free_slot(conn, to_lnk, &wr_buf, NULL, &pend);
--		if (rc)
-+		if (rc) {
-+			sock_put(&smc->sk);
- 			goto err_out;
-+		}
- 		/* avoid race with smcr_tx_sndbuf_nonempty() */
- 		spin_lock_bh(&conn->send_lock);
- 		smc_switch_link_and_count(conn, to_lnk);
--- 
-2.43.0
+Reviewed-by: Ilya Leoshkevich <iii@linux.ibm.com>
+
 
