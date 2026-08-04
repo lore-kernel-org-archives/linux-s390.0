@@ -1,130 +1,118 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A46273AE1B9;
-	Tue,  4 Aug 2026 12:06:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 492483AAF69
+	for <linux-s390@vger.kernel.org>; Tue,  4 Aug 2026 12:09:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785845216; cv=none; b=iXVTMFV//jlCvLAGqSeA/CWaV7q4/0wgbfy6m9SchvEULcjUqtyZclQNTJA3mX0PSCU258g5wd7/GFlwki9aeO5Nt6DCt+5wSMv/GBGErNf/vlJ4Tl9ayjZcuJJVsPq1kxpCuZvDth7TjiFKMloLd38t2NPGdcgspuI8O8PzxkA=
+	t=1785845373; cv=none; b=bR687VoxV+aX0AqjtoEjyuVO6eqxJ02PA/YHdX24a+AUAWxr87drM/OLh4oFrgH0UfE+o2n6wnAuGxOyDYl24yZrtGZPZmLtx3+Fktmoqmc7/6zHy/u25GiRBGLCRTa3C36FqAi6bDkdGw70aet7vb3RiK276CryVha12zHUvzY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785845216; c=relaxed/simple;
-	bh=5WjLMNdJHCvLB5Cmbe27if+LnF2PGWwIxN6RPgcC6P8=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=d6SpIxej2B1P2pDg6JDEb4gFAOV3aQRz+k4CQ38w3nckrp9grzLMBNJ4kOlCEJpaNO7uacYOhAhm2OyZAVu0NEmU5Hwl3cQSdMU5OF+kK4zol57TqPahwX6JU0v1HuURUdFL34c5Cx2oN0t8uHAAmfVuGORpLgJ8GYmnh4oSYb4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=rbnbsPBn; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1785845373; c=relaxed/simple;
+	bh=9i9kvBHv8MSrjXJprL0ZRJUeU6GYBbxDGMw6oHevf7k=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=foxxmnFQiveR63Orcemt+S85yHT+5u9H2m+XrRGC1GxchbgWfIgNzQ1sTi+3kscPhWKJ2S8F/uTCgv8lEnNza331gFajVuymILHBaK3v6XbT/OiNW0Aenc0plL6z4bdaVki51NxLuKIGhietVKOpH8b6ZVcPfMVaePESu56PmrA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=f/UUTWZN; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="rbnbsPBn"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6748HqlG383260;
-	Tue, 4 Aug 2026 12:06:44 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="f/UUTWZN"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6748HwDo296421
+	for <linux-s390@vger.kernel.org>; Tue, 4 Aug 2026 12:09:29 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=xmNZ9TW12wMT4rHjH
-	P+iTsaG4htWSdCV7GbCqhnu9YU=; b=rbnbsPBn7VT9fZJxFwEioqhxcf9JxIWVK
-	KuIXs7gzXj7rRoFKijWikd6DIAIX+7/kO/2xKhzx0X+BfMWZD0ejbswteE7drFRk
-	ivh9wEXwSUs5+2E/a1CPRjfoLsqmDpZHRTTlNSV8GUBobKawZTvilWR45dPYXxVZ
-	DgCODLXih+SILWY3c/xGQapOJxo49T2AZTLMlWTRWQL79a0540rgirhpIulRwSAZ
-	TalfN3Sd9kVxBkIGoMlT0IU8iyp93Chw0f+QTSHi9+8/nAhczK8cdkKJ03+aac4w
-	cO7Z0Pa03XHkDmTmtTn5ez+sW1McNkWyjWDmD2Q7XZqh5p03UmdYg==
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=XgcJDKncoySsEVgnHRetH39XFTrVQ8
+	/a/0Mu0N1ET/g=; b=f/UUTWZNfpZW5FPsn4UK2H693YzXE7j1hpwL2q3mOHb+go
+	M/xGrfqij76I1hiLTOq27AFDUIhNhydsjiEqwLMANCuXA02MsCWI53ExDeLXeSgQ
+	cwcsDO0/j9sQHgKpbdOJeaG5guv+wZDpi4LNqzKG3SCTvFcHlYHJt55RIFh4n1xV
+	8GkewhvKVcPdSFPmc/V2O0pv1rpvYof9Pyod1INm8e54dDdxGeOa+m/FqPY30ERu
+	Sh24l8A76MTMNdiTZjbWiwbBguBqM/D9J0zPuHnNeThsit/V7ReEeUSgeiSQZV/P
+	ySEnCGF8yEGbDdOijuprJoTOz5jKOrmpxiuuPSdA==
 Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fs8eun8du-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 04 Aug 2026 12:06:44 +0000 (GMT)
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fs8a3wpw2-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Tue, 04 Aug 2026 12:09:29 +0000 (GMT)
 Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 674BuEkn030751;
-	Tue, 4 Aug 2026 12:06:44 GMT
-Received: from smtprelay01.wdc07v.mail.ibm.com ([172.16.1.68])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fsv4k1tqs-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 04 Aug 2026 12:06:44 +0000 (GMT)
-Received: from smtpav02.dal12v.mail.ibm.com (smtpav02.dal12v.mail.ibm.com [10.241.53.101])
-	by smtprelay01.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 674C6gqm6292384
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 674BuuWl031021
+	for <linux-s390@vger.kernel.org>; Tue, 4 Aug 2026 12:09:28 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fsv4k1u24-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Tue, 04 Aug 2026 12:09:27 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 674C9NRM28901780
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 4 Aug 2026 12:06:42 GMT
-Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 997C95805F;
-	Tue,  4 Aug 2026 12:06:42 +0000 (GMT)
-Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A3C865805E;
-	Tue,  4 Aug 2026 12:06:40 +0000 (GMT)
-Received: from b35lp69.lnxne.boe (unknown [9.87.84.240])
-	by smtpav02.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Tue,  4 Aug 2026 12:06:40 +0000 (GMT)
-From: Christian Borntraeger <borntraeger@linux.ibm.com>
-To: KVM <kvm@vger.kernel.org>
-Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        David Hildenbrand <david@kernel.org>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Douglas Freimuth <freimuth@linux.ibm.com>
-Subject: [PATCH 3/3] KVM: s390: memory leak in guest debug handling
-Date: Tue,  4 Aug 2026 14:06:31 +0200
-Message-ID: <20260804120631.736919-4-borntraeger@linux.ibm.com>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20260804120631.736919-1-borntraeger@linux.ibm.com>
-References: <20260804120631.736919-1-borntraeger@linux.ibm.com>
+	Tue, 4 Aug 2026 12:09:24 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id D141E2004E;
+	Tue,  4 Aug 2026 12:09:23 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 932BE20043;
+	Tue,  4 Aug 2026 12:09:23 +0000 (GMT)
+Received: from osiris (unknown [9.87.143.152])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Tue,  4 Aug 2026 12:09:23 +0000 (GMT)
+Date: Tue, 4 Aug 2026 14:09:22 +0200
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Finn Callies <fcallies@linux.ibm.com>
+Cc: gor@linux.ibm.com, agordeev@linux.ibm.com, linux-s390@vger.kernel.org,
+        freude@linux.ibm.com
+Subject: Re: [PATCH v1 1/1] s390/ap: Fix MAPML computation
+Message-ID: <20260804120922.12261A2a-hca@linux.ibm.com>
+References: <20260804105811.17744-1-fcallies@linux.ibm.com>
+ <20260804105811.17744-2-fcallies@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260804105811.17744-2-fcallies@linux.ibm.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: TH1UukU18Ksc_wJVYsRA6Fqs6oP4wITX
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODA0MDA5NCBTYWx0ZWRfX2NJf9RP2J048
- JxoZ+u3Jn1jWZtt7GG+D7Ke8KZwhuwF4CafE+j0UY0sNo4nwzkXYUjYt8SZp5tA/fEAH08vdXa8
- /jWDi9oOdzoKz7XXCSTN8TrmP7EOrIY=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODA0MDA5NCBTYWx0ZWRfX3kholCxciZJ1
- oXP43QnTQhSa/Q9hc4+YKw8VVdVI6DXqouHuAsz7u4cY6TFBVkfRORAFU3/9VyA0ljugrdj5mfx
- a/YyF27Rn7s0n/VCdLbhOORUHpBxHw3Xemc1Ltj49wEUo19uBrN7pzVy/9VzPlwHd3UkUp4+U8y
- Mt5G6Amm2cKR8gBS8lvCaN2LBXZg2EjFQF+XLV0Kdqk9aAFxqJis04kStsPKyjIbCaF26P5Ekdd
- fifkoFb81oDCZ5nigC6HXxGsF79CWVR4sw9NIDG5x9SwcBca9Vwx/8ggNNLf8c+4bl4Ixqg4IZo
- pRSXRtuWysa15QcjNzM2mR6Gj2uxz7q2ePCjBlTrIbyPA9Dr3OjOooFdIxp2eYN/3UTdbEPDa0u
- ajHrs4ihMhfngaCcwCpLZ2g7tYVNKqDZXrZ8J8B1IqMjM/M6HQ1jzSQFA900nT+Qagsj14579h4
- p2ISQB11FFDhrbNpv/A==
-X-Proofpoint-GUID: TH1UukU18Ksc_wJVYsRA6Fqs6oP4wITX
-X-Authority-Analysis: v=2.4 cv=KfzidwYD c=1 sm=1 tr=0 ts=6a71d5d4 cx=c_pps
+X-Authority-Analysis: v=2.4 cv=E6P9Y6dl c=1 sm=1 tr=0 ts=6a71d679 cx=c_pps
  a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8 a=EuSpeD5rqQqXJFU2zEEA:9
+ a=kj9zAlcOel0A:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8
+ a=DaNe_YizA6IbIVO5ObkA:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-ORIG-GUID: s1ASm1-_yR1H2toItPQ6Kw21xoHz0VgK
+X-Proofpoint-GUID: s1ASm1-_yR1H2toItPQ6Kw21xoHz0VgK
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODA0MDA5NCBTYWx0ZWRfX9SBuxCGEOiYZ
+ hdYb2I4f9X5W1lEJdOpsfwN8w+quwZBIfTornN4u/WDAzTfsf3kNUN0nfwXHOGg0iQAbHc7E9kK
+ ygKNZnCtbPHE6jac9IggSr/y26E5Heg=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODA0MDA5NCBTYWx0ZWRfX0K+JunvSNdCf
+ gdjAzq8ctmKpHlqj1AaG9rNnkNcs5T5sf19EstSvcE1ix+Bp2JPcXhAtVXYed/v/2du1AibM9ZF
+ fqSPHwILiDuVpU8jMk/oEl9RA/SwB7hCwE9WGGY657/DXpkdYKg2Is3Dcq3lcaM2pEz1hJCQRo+
+ naVrScziOyjSWm22TThpylUtBsPpoQWD7xf37l2U7S0CdT5P9toIy65vpic7A0CWM+LdmkMdOLw
+ JORvhbqWZv5/rG8HECSK/hrNSun4Fh4PU+jjXmzseNqfE1xIw31WIsm2fPccJqSkTCtyOTKuG3h
+ QuJaAN3vpPAm8sZvimwAiXYTmhgTT4P94G805s9UOtlT39qnUbFAel4gcT5u7SQit9NI9jzUUqR
+ 1CBTp5PTuF10piyJkm6wuEQLAGJ0bdgnYSRlOzhgdQJEt5XyHG9uI5c8nyK5stirH1ZhFo8j41X
+ deqS0vyaZCdlmitVmUg==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-08-04_02,2026-08-03_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- lowpriorityscore=0 bulkscore=0 impostorscore=0 suspectscore=0 malwarescore=0
- adultscore=0 clxscore=1015 priorityscore=1501 phishscore=0 spamscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608040094
+ bulkscore=0 clxscore=1015 lowpriorityscore=0 priorityscore=1501
+ suspectscore=0 adultscore=0 spamscore=0 malwarescore=0 impostorscore=0
+ phishscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2608040094
 
-bp_data is freed only for the error case by kfree(bp_data).
-Every successful KVM_SET_GUEST_DEBUG will leak bp_data.
+On Tue, Aug 04, 2026 at 12:58:11PM +0200, Finn Callies wrote:
+> When the TAPQ subfunction of PQAP returns a value between 0 and 3 in the
+> ml field the Principles of Operation states that the MAPML size is to be
+> 12k bytes.
 
-Fixes: 27291e2165b6 ("KVM: s390: hardware support for guest debugging")
-Signed-off-by: Christian Borntraeger <borntraeger@linux.ibm.com>
----
- arch/s390/kvm/guestdbg.c | 1 +
- 1 file changed, 1 insertion(+)
+What is "MAPML"?
 
-diff --git a/arch/s390/kvm/guestdbg.c b/arch/s390/kvm/guestdbg.c
-index 69835e1d4f20..4c02dbebb2eb 100644
---- a/arch/s390/kvm/guestdbg.c
-+++ b/arch/s390/kvm/guestdbg.c
-@@ -267,6 +267,7 @@ int kvm_s390_import_bp_data(struct kvm_vcpu *vcpu,
- 	vcpu->arch.guestdbg.hw_bp_info = bp_info;
- 	vcpu->arch.guestdbg.nr_hw_wp = nr_wp;
- 	vcpu->arch.guestdbg.hw_wp_info = wp_info;
-+	kfree(bp_data);
- 	return 0;
- error:
- 	kfree(bp_data);
--- 
-2.53.0
+> Reviewed-by: Harald Freudenberger <freude@linux.ibm.com>
+> Signed-off-by: Finn Callies <fcallies@linux.ibm.com>
+> ---
+>  drivers/s390/crypto/ap_card.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 
+Why is this fix required? What does this fix?
+Are there user observable bugs fixed with this?
+If so, which ones?
+Is a Fixes: and/or stable tag required?
