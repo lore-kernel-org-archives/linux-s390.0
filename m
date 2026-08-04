@@ -1,157 +1,378 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f175.google.com (mail-pl1-f175.google.com [209.85.214.175])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B50B31E85E;
-	Tue,  4 Aug 2026 12:31:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A415F36E489
+	for <linux-s390@vger.kernel.org>; Tue,  4 Aug 2026 12:34:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.175
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785846718; cv=none; b=T+pvQMCdsCMlxRzEYr+PVPZdCfsjdo9Kx+TOM2eiBTzasKrc8F848U5j6SxxftNRJcnVQl13FJrFgZoiX3FLiJMPAlbkK7MK05QDgZpHATN8O/kk6AZ9yvOpWDId96xkZQm0dC3DKO2OJ2Ck6Y94P/iPIgvlbZB2kR6TRphU7no=
+	t=1785846899; cv=none; b=VEPlCvNASFAN1RdzkcKUUj5ph9AboS2fUltfPFMHyG35E8yzEuqOhfRSZWyGmcsL1QSG/n6L6Ce1RZzw0fmS0NrEMH7L801+FJAS6aOoG8wSz3hyuGE3s9+dvyItPFhmFf3/tuHKOalVv7J8jTEx05ZYzkAF2ac0YVWzSYisb0Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785846718; c=relaxed/simple;
-	bh=2eMCZj3wMRY2FtHiV9IYph6UHiqs2UPzP/kv7BEJTmA=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=HkXugiRCn57Nv715CMpoj7affG1NJcOQvgQu/Dnrdw9JHSj6j0vL9VG1w+Mc9SlpyGfByoy8ShR54SksEhV8FsLGbzsz30LB5Q9cS9EGR5Tmt6sQbU+4m8T+SoHkjOMXNsL9wg3OuNX/0qPAAqao4TCbNG3SMY3wTPt7fCUv54A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lX71/vsV; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1785846899; c=relaxed/simple;
+	bh=xvzx6jNSlsMnElj3JdiPx7NYYZ80ry82gdfZdzM/6/E=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=j7kUr6Ua0/31rWj3iw/Px1DdOWpmd1vNo09AC22nGRx4CHJBxNSgWClc5xb3OX/nwk7YWUxTv+HMlskT4QXV7o/6XIHqVdcErzphhapUoJYLpJkJdjfbxUQxB0f4r1/pFYjD7u5NE80fl/55qRAju81aBUOb28ecUFLN7r7/i2s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TgsAtjym; arc=none smtp.client-ip=209.85.214.175
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lX71/vsV"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 601E01F00A3A;
-	Tue,  4 Aug 2026 12:31:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785846716;
-	bh=3Rdr1MiG9gdlT4/0z8dZX9Xgl1tJzo3jF2h2RIkg/o0=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=lX71/vsV6c57CzX/Ll5kGMtJimg09mwgyQJouZAvFraJon/DW+UHZyu47S58cIj5Z
-	 oNYe5CePvZRMVuKd6Wka+ZqJGimTk0XZPy+hWreU3GmPVIBP8fr1urbrB6fJbkdV7L
-	 TcN+otWYoiNbRk4NtUnU6N0xIYssE6XPtMSTqk6ie/+YhFg4/BuSpjIKBI8uIPR37a
-	 YQjfbAc4IjCsgjNTL8BloHEReY6jYrJdSBja+wnlR1L52DiNen5FPs82yoSNLIsbIu
-	 iUG9DXITRyG1jaPCMBOcB7/d8NfBwf26u1PNQ4zIhihtmEnGEQzqxnMjiq//oQys+1
-	 w1jazjJUcbiOA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 2/3] KVM: s390: zero initialize irq for
- inject_pfault_token
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Christian Borntraeger" <borntraeger@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>
-In-Reply-To: <20260804120631.736919-3-borntraeger@linux.ibm.com>
-References: <20260804120631.736919-1-borntraeger@linux.ibm.com>
- <20260804120631.736919-3-borntraeger@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 04 Aug 2026 12:31:55 +0000
-Message-Id: <20260804123156.601E01F00A3A@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TgsAtjym"
+Received: by mail-pl1-f175.google.com with SMTP id d9443c01a7336-2ce98cb8165so11479545ad.1
+        for <linux-s390@vger.kernel.org>; Tue, 04 Aug 2026 05:34:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1785846896; x=1786451696; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=CB1U22h59ehvXfT2urrNAh9x6cLRqc+DhUPBJEXZPtY=;
+        b=TgsAtjym+JauGZITblkq2/wv8Rt71NgbklCUFYV7f6fJ42+CY36ESviPPPJhlMChfT
+         s83gYQ1rda7PS8CWkAhR9iwdwwMPN79TZOxOznHRt7ziCtRAjf1xaS4uzc+Qn8/meD3b
+         utmCmwnZmJEOtx1ZNsqZgso4KFjaQzSjhP65Yr0NufcUsTBwtnl9fXbGoXzJMB2l9Gcc
+         2aBon0QoKkYPYqn9uY63JRAuccukPP7fTSsyQc3W5xT0nmzFx3BAuIqgejZpGlS0WfVR
+         Y5EN/znE+/NGvY2XyQNTnvr/UZwwGVCp3uQEX4/K18uIGPpvABiO2sAUVWSkXYfjS+MH
+         B4Ag==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1785846896; x=1786451696;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=CB1U22h59ehvXfT2urrNAh9x6cLRqc+DhUPBJEXZPtY=;
+        b=a2qfY+eeUANW0nuw4OAbAHtejbPXfIs+1B6vGyyB8n0hcs2oErnnOZR4DMXSWOuwQ0
+         a4538Vip8hSECwAYjzV9INeHfAU1408mLakzhJUx8K6PzGPTfVHPXNsh+MhNfgTYBMQd
+         ibdHMa7ZcAOUOim8oCk3ZeVkjY8G+B03pPJt/zxevsTHxokKbGFZ31uFcN08/2lOexwm
+         7M/S10ooDM5LXQbl56UNyY7gdE2ZLq0a0JbH+yo/wLJl2by9AvR0OsWXPuPFidNsnWK8
+         sJB5eBifhlsESRaOVizYR/MwjO1P/MGiuG9g4MNSasOHqmQsrZz84Ld9utTd33NNwhlt
+         N5WA==
+X-Forwarded-Encrypted: i=1; AHgh+RpapJFyp2ZI9lNZq7EyO1zlPR4Xy9zpNsocdzU65BnzXXBFEq54tE0zLdbe+PaNzwWWzLNEER9sSvs5@vger.kernel.org
+X-Gm-Message-State: AOJu0YzzLRBFN6v+vt5IgvTQmiiPG2RNt5yvvfiFTDRWTWj6562/2ttO
+	CfJQ+wZ2BjMsoLlftHlN1K+krDnAK5DTqRMIXk6sYjivgxXu0pve1hU+
+X-Gm-Gg: AR+sD13FkE9J/dTJNwAorZdKzj8kdynY6Wr04jCTR7YeTtzwbjmcr0xKoNgSPCtufof
+	igX/SBH25m2R6s3ouCTQHYs/TM/IwXOmUVIUff9iXQaR0lz8q46fceILqyG1rBeUA71WktFTz6s
+	PI38Uc8Ri08QDq439g3KQ9qFjZaqBMjhwem6/6VUb2cG0opkIHA66LmQAS8ks3S5L0rKWTeE2lP
+	Q70t2dhikS+srIf7K4WquRW5T4IYBDKGOqyGHD7NtBjAImE3ymuQVx8WSg4jjdxEmRnVeF/jIgF
+	kTCUEgMQPryGvisIxKz03l5XmJgnjeKVKH9vFOHi/9w5j04OPYKk/GgaoILmb9cF+4/20T/mNXj
+	02pIET6add5ClFQJIgCRTWabUpdKxm0VU39Ofolq3H64riDS4Pxtkhcic+65yspFqHSuRgzXA9T
+	ZiQ+fhHO/W0yug3uXZXvjSohSWdmXJPDt7pxG74kJuhYvNetg8MAnA0TpVdk25OTG4ZcaiVtvCE
+	nTBbZ+c9Cu0UcEcVhl2sZGatKaMGbXM+fX/fAgNeAzwYg==
+X-Received: by 2002:a17:903:2ecb:b0:2cf:70d2:da7c with SMTP id d9443c01a7336-2d08aa7fdddmr31872815ad.12.1785846896392;
+        Tue, 04 Aug 2026 05:34:56 -0700 (PDT)
+Received: from chcpu15.cse.ust.hk (191host116.mobilenet.cse.ust.hk. [143.89.191.116])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2d0a9f9370esm7101365ad.8.2026.08.04.05.34.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 04 Aug 2026 05:34:55 -0700 (PDT)
+From: Qi Zhang <marsy12010123@gmail.com>
+To: "D. Wythe" <alibuda@linux.alibaba.com>,
+	Dust Li <dust.li@linux.alibaba.com>,
+	Sidraya Jayagond <sidraya@linux.ibm.com>,
+	Wenjia Zhang <wenjia@linux.ibm.com>,
+	Mahanta Jambigi <mjambigi@linux.ibm.com>,
+	Tony Lu <tonylu@linux.alibaba.com>,
+	Wen Gu <guwen@linux.alibaba.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>,
+	Ursula Braun <ubraun@linux.vnet.ibm.com>
+Cc: linux-rdma@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Chengfeng Ye <nicoyip.dev@gmail.com>,
+	stable@vger.kernel.org,
+	Qi Zhang <marsy12010123@gmail.com>
+Subject: [PATCH net] net/smc: prevent device removal during connection setup
+Date: Tue,  4 Aug 2026 20:34:18 +0800
+Message-Id: <20260804123418.2214979-1-marsy12010123@gmail.com>
+X-Mailer: git-send-email 2.25.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
+From: Chengfeng Ye <nicoyip.dev@gmail.com>
 
-Pre-existing issues:
-- [Critical] Calling kfree() on a stack-allocated pointer during floating m=
-achine check reinjection.
-- [High] Uninitialized kernel stack memory in the `fixed_logout` array is l=
-eaked to host userspace via the KVM_GET_IRQ_STATE ioctl.
---
+smc_pnet_determine_gid() stores an smc_ib_device pointer in connection
+initialization data while holding smc_ib_devices.mutex. Connection setup
+keeps using the pointer after releasing the mutex, but device removal only
+waits for links which have already incremented lnk_cnt.
 
---- Patch [2]: [PATCH 2/3] KVM: s390: zero initialize irq for inject_pfault=
-_token ---
-commit f6de66eb1335bc1e8dc54d73ed3ad8d7b39ac810
-Author: Christian Borntraeger <borntraeger@linux.ibm.com>
+This permits the following interleaving:
 
-KVM: s390: zero initialize irq for inject_pfault_token
+  connection setup                 device removal
+  ----------------                 --------------
+  select smcibdev
+  store ini->smcrv2.ib_dev_v2
+  mutex_unlock()
+                                   remove smcibdev from the device list
+                                   observe lnk_cnt == 0
+                                   return from the remove callback
+                                   kfree(smcibdev)
+  copy smcibdev->pnetid
 
-This commit fixes a potential stack information leak to userspace via
-migration ioctls. It zero-initializes the irq structure in
-__kvm_inject_pfault_token() to ensure stale stack values are not copied.
+KASAN reported:
 
-> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index 518a69c55e85c..4f4ac6a8d1ad3 100644
-> --- a/arch/s390/kvm/kvm-s390.c
-> +++ b/arch/s390/kvm/kvm-s390.c
-> @@ -4475,7 +4475,7 @@ static void __kvm_inject_pfault_token(struct kvm_vc=
-pu *vcpu, bool start_token,
->  				     unsigned long token)
->  {
->  	struct kvm_s390_interrupt inti;
-> -	struct kvm_s390_irq irq;
-> +	struct kvm_s390_irq irq =3D {};
+  BUG: KASAN: slab-use-after-free in smc_conn_create+0x1330/0x2680
+  Read of size 16 at addr ffff888112dbd934 by task smc_bug86/97
+  Call Trace:
+   __asan_memcpy
+   smc_conn_create
+   __smc_connect
+   smc_connect
+   __sys_connect
+  Allocated by task 93:
+   smc_ib_add_dev
+   add_client_context
+   ib_register_device
+   nldev_newlink
+  Freed by task 98:
+   kfree
+   remove_client_context
+   __ib_unregister_device
+   nldev_dellink
 
-[Severity: High]
-This isn't a bug introduced by this patch, but while looking at stack memor=
-y=20
-leaks, does a similar uninitialized stack leak happen in=20
-kvm_s390_reinject_machine_check() in arch/s390/kvm/interrupt.c?
+Track selected-device users separately from established links. Acquire a
+selection reference while smc_ib_devices.mutex protects the device list,
+and release it when the connection initialization data is discarded. After
+delisting a device, wait for these users before terminating its links. This
+lets in-flight setup either fail or make any newly created link visible to
+the termination pass, while delisting prevents new users.
 
-arch/s390/kvm/interrupt.c:kvm_s390_reinject_machine_check() {
-    ...
-    struct kvm_s390_irq irq;
-    ...
-}
+Fixes: a046d57da19f ("smc: CLC handshake (incl. preparation steps)")
+Cc: stable@vger.kernel.org
+Signed-off-by: Chengfeng Ye <nicoyip.dev@gmail.com>
+Signed-off-by: Qi Zhang <marsy12010123@gmail.com>
+---
+ net/smc/af_smc.c   | 11 +++++++----
+ net/smc/smc_core.c | 11 +++++++++++
+ net/smc/smc_core.h |  3 +++
+ net/smc/smc_ib.c   |  5 +++++
+ net/smc/smc_ib.h   | 13 +++++++++++++
+ net/smc/smc_llc.c  |  8 ++++----
+ net/smc/smc_pnet.c |  8 ++++++++
+ 7 files changed, 51 insertions(+), 8 deletions(-)
 
-If the machine check is injected into the vCPU (mci.ck is false), several
-fields are populated, but the fixed_logout array might be left
-uninitialized.=20
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index b5db69073e20..160271464305 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -1225,7 +1225,7 @@ void smc_fill_gid_list(struct smc_link_group *lgr,
+ 	       SMC_GID_SIZE);
+ 
+ out:
+-	kfree(alt_ini);
++	smc_init_info_free(alt_ini);
+ }
+ 
+ static int smc_connect_rdma_v2_prepare(struct smc_sock *smc,
+@@ -1596,14 +1596,14 @@ static int __smc_connect(struct smc_sock *smc)
+ 	SMC_STAT_CLNT_SUCC_INC(sock_net(smc->clcsock->sk), aclc);
+ 	smc_connect_ism_vlan_cleanup(ini);
+ 	kfree(buf);
+-	kfree(ini);
++	smc_init_info_free(ini);
+ 	return 0;
+ 
+ vlan_cleanup:
+ 	smc_connect_ism_vlan_cleanup(ini);
+ 	kfree(buf);
+ fallback:
+-	kfree(ini);
++	smc_init_info_free(ini);
+ 	return smc_connect_decline_fallback(smc, rc, version);
+ }
+ 
+@@ -2343,7 +2343,10 @@ static void smc_find_rdma_v2_device_serv(struct smc_sock *new_smc,
+ 
+ not_found:
+ 	ini->smcr_version &= ~SMC_V2;
++	if (ini->smcrv2.ib_dev_v2_ref)
++		smc_ibdev_init_put(ini->smcrv2.ib_dev_v2);
+ 	ini->smcrv2.ib_dev_v2 = NULL;
++	ini->smcrv2.ib_dev_v2_ref = false;
+ 	ini->check_smcrv2 = false;
+ }
+ 
+@@ -2587,7 +2590,7 @@ static void smc_listen_work(struct work_struct *work)
+ 	smc_listen_decline(new_smc, rc, ini ? ini->first_contact_local : 0,
+ 			   proposal_version);
+ out_free:
+-	kfree(ini);
++	smc_init_info_free(ini);
+ 	kfree(buf);
+ }
+ 
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index cf6b620fef05..e59f327f294c 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -55,6 +55,17 @@ static void __smc_lgr_terminate(struct smc_link_group *lgr, bool soft);
+ 
+ static void smc_link_down_work(struct work_struct *work);
+ 
++void smc_init_info_free(struct smc_init_info *ini)
++{
++	if (!ini)
++		return;
++	if (ini->ib_dev_ref)
++		smc_ibdev_init_put(ini->ib_dev);
++	if (ini->smcrv2.ib_dev_v2_ref)
++		smc_ibdev_init_put(ini->smcrv2.ib_dev_v2);
++	kfree(ini);
++}
++
+ /* return head of link group list and its lock for a given link group */
+ static inline struct list_head *smc_lgr_list_head(struct smc_link_group *lgr,
+ 						  spinlock_t **lgr_lock)
+diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
+index 5c18f08a4c8a..385f16cc5368 100644
+--- a/net/smc/smc_core.h
++++ b/net/smc/smc_core.h
+@@ -403,6 +403,7 @@ struct smc_init_info_smcrv2 {
+ 
+ 	/* Output fields when saddr is set */
+ 	struct smc_ib_device	*ib_dev_v2;
++	bool			ib_dev_v2_ref;
+ 	u8			ib_port_v2;
+ 	u8			ib_gid_v2[SMC_GID_SIZE];
+ 
+@@ -438,6 +439,7 @@ struct smc_init_info {
+ 	u8			peer_mac[ETH_ALEN];
+ 	u8			peer_systemid[SMC_SYSTEMID_LEN];
+ 	struct smc_ib_device	*ib_dev;
++	bool			ib_dev_ref;
+ 	u8			ib_gid[SMC_GID_SIZE];
+ 	u8			ib_port;
+ 	u32			ib_clcqpn;
+@@ -594,6 +596,7 @@ void smc_rtoken_set2(struct smc_link_group *lgr, int rtok_idx, int link_id,
+ void smc_sndbuf_sync_sg_for_device(struct smc_connection *conn);
+ void smc_rmb_sync_sg_for_cpu(struct smc_connection *conn);
+ int smc_vlan_by_tcpsk(struct socket *clcsock, struct smc_init_info *ini);
++void smc_init_info_free(struct smc_init_info *ini);
+ 
+ void smc_conn_free(struct smc_connection *conn);
+ int smc_conn_create(struct smc_sock *smc, struct smc_init_info *ini);
+diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
+index 9bb495707445..01c9b5c62df7 100644
+--- a/net/smc/smc_ib.c
++++ b/net/smc/smc_ib.c
+@@ -950,6 +950,8 @@ static int smc_ib_add_dev(struct ib_device *ibdev)
+ 
+ 	smcibdev->ibdev = ibdev;
+ 	INIT_WORK(&smcibdev->port_event_work, smc_ib_port_event_work);
++	atomic_set(&smcibdev->init_cnt, 0);
++	init_waitqueue_head(&smcibdev->init_wait);
+ 	atomic_set(&smcibdev->lnk_cnt, 0);
+ 	init_waitqueue_head(&smcibdev->lnks_deleted);
+ 	mutex_init(&smcibdev->mutex);
+@@ -1000,6 +1002,9 @@ static void smc_ib_remove_dev(struct ib_device *ibdev, void *client_data)
+ 	mutex_unlock(&smc_ib_devices.mutex);
+ 	pr_warn_ratelimited("smc: removing ib device %s\n",
+ 			    smcibdev->ibdev->name);
++	if (atomic_read(&smcibdev->init_cnt))
++		wait_event(smcibdev->init_wait,
++			   !atomic_read(&smcibdev->init_cnt));
+ 	smc_smcr_terminate_all(smcibdev);
+ 	smc_ib_cleanup_per_ibdev(smcibdev);
+ 	ib_unregister_event_handler(&smcibdev->event_handler);
+diff --git a/net/smc/smc_ib.h b/net/smc/smc_ib.h
+index ef8ac2b7546d..8e9fd5a200a2 100644
+--- a/net/smc/smc_ib.h
++++ b/net/smc/smc_ib.h
+@@ -51,6 +51,8 @@ struct smc_ib_device {				/* ib-device infos for smc */
+ 	struct work_struct	port_event_work;
+ 	unsigned long		port_event_mask;
+ 	DECLARE_BITMAP(ports_going_away, SMC_MAX_PORTS);
++	atomic_t		init_cnt;	/* number of device selections */
++	wait_queue_head_t	init_wait;	/* wait for selections to end */
+ 	atomic_t		lnk_cnt;	/* number of links on ibdev */
+ 	wait_queue_head_t	lnks_deleted;	/* wait 4 removal of all links*/
+ 	struct mutex		mutex;		/* protect dev setup+cleanup */
+@@ -59,6 +61,17 @@ struct smc_ib_device {				/* ib-device infos for smc */
+ 	int			ndev_ifidx[SMC_MAX_PORTS]; /* ndev if indexes */
+ };
+ 
++static inline void smc_ibdev_init_get(struct smc_ib_device *smcibdev)
++{
++	atomic_inc(&smcibdev->init_cnt);
++}
++
++static inline void smc_ibdev_init_put(struct smc_ib_device *smcibdev)
++{
++	if (atomic_dec_and_test(&smcibdev->init_cnt))
++		wake_up(&smcibdev->init_wait);
++}
++
+ static inline __be32 smc_ib_gid_to_ipv4(u8 gid[SMC_GID_SIZE])
+ {
+ 	struct in6_addr *addr6 = (struct in6_addr *)gid;
+diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
+index 954b2ff1815c..15ae19a9db07 100644
+--- a/net/smc/smc_llc.c
++++ b/net/smc/smc_llc.c
+@@ -1118,7 +1118,7 @@ int smc_llc_cli_add_link(struct smc_link *link, struct smc_llc_qentry *qentry)
+ out_reject:
+ 	smc_llc_cli_add_link_reject(qentry);
+ out:
+-	kfree(ini);
++	smc_init_info_free(ini);
+ 	kfree(qentry);
+ 	return rc;
+ }
+@@ -1192,7 +1192,7 @@ static void smc_llc_cli_add_link_invite(struct smc_link *link,
+ 	smc_llc_send_add_link(link, ini->ib_dev->mac[ini->ib_port - 1],
+ 			      ini->ib_gid, NULL, SMC_LLC_REQ);
+ out:
+-	kfree(ini);
++	smc_init_info_free(ini);
+ 	kfree(qentry);
+ }
+ 
+@@ -1512,7 +1512,7 @@ int smc_llc_srv_add_link(struct smc_link *link,
+ 	rc = smc_llc_srv_conf_link(link, link_new, lgr_new_t);
+ 	if (rc)
+ 		goto out_err;
+-	kfree(ini);
++	smc_init_info_free(ini);
+ 	return 0;
+ out_err:
+ 	if (link_new) {
+@@ -1520,7 +1520,7 @@ int smc_llc_srv_add_link(struct smc_link *link,
+ 		smcr_link_clear(link_new, false);
+ 	}
+ out:
+-	kfree(ini);
++	smc_init_info_free(ini);
+ 	if (send_req_add_link_resp)
+ 		smc_llc_send_req_add_link_response(req_qentry);
+ 	return rc;
+diff --git a/net/smc/smc_pnet.c b/net/smc/smc_pnet.c
+index 63e286e2dfaa..7e01e01a522b 100644
+--- a/net/smc/smc_pnet.c
++++ b/net/smc/smc_pnet.c
+@@ -980,14 +980,22 @@ static int smc_pnet_determine_gid(struct smc_ib_device *ibdev, int i,
+ 	if (!ini->check_smcrv2 &&
+ 	    !smc_ib_determine_gid(ibdev, i, ini->vlan_id, ini->ib_gid, NULL,
+ 				  NULL)) {
++		if (ini->ib_dev_ref)
++			smc_ibdev_init_put(ini->ib_dev);
++		smc_ibdev_init_get(ibdev);
+ 		ini->ib_dev = ibdev;
++		ini->ib_dev_ref = true;
+ 		ini->ib_port = i;
+ 		return 0;
+ 	}
+ 	if (ini->check_smcrv2 &&
+ 	    !smc_ib_determine_gid(ibdev, i, ini->vlan_id, ini->smcrv2.ib_gid_v2,
+ 				  NULL, &ini->smcrv2)) {
++		if (ini->smcrv2.ib_dev_v2_ref)
++			smc_ibdev_init_put(ini->smcrv2.ib_dev_v2);
++		smc_ibdev_init_get(ibdev);
+ 		ini->smcrv2.ib_dev_v2 = ibdev;
++		ini->smcrv2.ib_dev_v2_ref = true;
+ 		ini->smcrv2.ib_port_v2 = i;
+ 		return 0;
+ 	}
+-- 
+2.43.0
 
-When passed to kvm_s390_inject_vcpu() -> __inject_mchk(), the uninitialized
-fixed_logout array is copied into the vCPU's pending interrupt state:
-
-arch/s390/kvm/interrupt.c:__inject_mchk() {
-    ...
-    memcpy(&mchk->fixed_logout, &irq->u.mchk.fixed_logout,
-           sizeof(mchk->fixed_logout));
-    ...
-}
-
-Later, if a host user calls the KVM_S390_GET_IRQ_STATE ioctl, this state
-could be copied to userspace:
-
-arch/s390/kvm/interrupt.c:kvm_s390_get_irq_state() {
-    ...
-    if (copy_to_user(&buf[n], &irq, sizeof(irq)))
-    ...
-}
-
-Could this leak kernel stack memory in the fixed_logout array to userspace?
-
-
-[Severity: Critical]
-This is another pre-existing issue, but while looking at=20
-kvm_s390_reinject_machine_check(), can a stack pointer be incorrectly freed?
-
-It allocates struct kvm_s390_interrupt_info inti on the kernel stack:
-
-arch/s390/kvm/interrupt.c:kvm_s390_reinject_machine_check() {
-    ...
-    struct kvm_s390_interrupt_info inti;
-    ...
-}
-
-If mci.ck is true, it attempts to inject a floating machine check by passing
-the stack-allocated struct by reference:
-
-arch/s390/kvm/interrupt.c:kvm_s390_reinject_machine_check() {
-    ...
-    rc =3D __inject_vm(vcpu->kvm, &inti);
-    ...
-}
-
-The injection routes KVM_S390_MCHK to __inject_float_mchk(), which
-unconditionally calls kfree() on the passed pointer:
-
-arch/s390/kvm/interrupt.c:__inject_float_mchk() {
-    ...
-    kfree(inti);
-    ...
-}
-
-Would calling kfree() on this stack pointer cause a kernel panic?
-
->  	struct kvm_s390_interrupt_info *inti_mem =3D NULL;
->  	int ret =3D 0;
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260804120631.7369=
-19-1-borntraeger@linux.ibm.com?part=3D2
