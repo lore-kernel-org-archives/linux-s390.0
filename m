@@ -1,114 +1,122 @@
-Received: from stravinsky.debian.org (stravinsky.debian.org [82.195.75.108])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4562119C54E;
-	Tue,  4 Aug 2026 09:06:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=82.195.75.108
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 598A340A940;
+	Tue,  4 Aug 2026 09:22:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785834418; cv=none; b=LeC3WiVwIuvDdtUFpJ0dKmDr6hqEaB66nsIaHjGFwSiwNtMK4dZsvQgcvuHVLDTQf4PNdZwGeBfbrXbOd4Cbd2SkQHuDF/4N/FSOWbiMBH6nb2xaspIsMuTMdx0D//hrvt0IYZ9WstgGJdzPmO9THv1A73Wd1Y705k3B6yMuQAQ=
+	t=1785835365; cv=none; b=rp2+qNoi53saGAIdVe2yGJOjgzfrYXFAL6ERe0l/wpbng/Gqnhnm27+dN5e01rhnCN2MqrTLODq3aqRHG38XmqkE9dTQTuMs9i0OJCJKNrS1bNAnm0fL97YCBtXexxnTuqsOKafNqdbQcwqQR50I6rIJH4n9O7sHudRGHIqDmSE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785834418; c=relaxed/simple;
-	bh=df+DOL0/9v4TwWJ1M6w1vmdVop1R5r/pkY6mwFdjfa4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=b0DbVAvujKnRB6K5o12f2YozvYeWjS68/pSAA4iEtYm06EhdedbnQ+BWOA52k9SnsV+A78IvUGUzv3POVK6qHl5C2NdO5y0eyGGjSHPbtc9aBbDdeazzfgcY5HeDu96NlN8sCo4N4rReCpK+hqwl00kE3xlcaE7pLzdvQ5X7R+w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=debian.org; spf=pass smtp.mailfrom=debian.org; dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.b=n8yGjivz; arc=none smtp.client-ip=82.195.75.108
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=debian.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=debian.org
+	s=arc-20240116; t=1785835365; c=relaxed/simple;
+	bh=aHy+GEoXxh3H6aMZ2RitV45wBIWCEQNieNJmICy3uTU=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=V9kIxWCpFo5y4lTOtMeVnU4zpfTKRhOQUlTIdjgHaxVRCtqVtHVln8US6i6IAVJ3cl1506M5AJV4l2RJ+NkSDmcWyBfKS1Y7OU/c0y4sBEQaB1K35MufaiKQWnPfWNbMBDuhhN8+PgHRqx8N2vmUFz5hXE53MJOH9wBucv9aFMs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KiMclZ3I; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.b="n8yGjivz"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=debian.org;
-	s=smtpauto.stravinsky; h=X-Debian-User:In-Reply-To:Content-Type:MIME-Version:
-	References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=4vIzy7HGPsfFjjZzDsRgRTYSfhAGUKbY42f9YiF8ZKo=; b=n8yGjivzu0lrlMCERRIZ9Jl2me
-	sbwyxwAFQLZiULIyoXCWRKdWka2XOOsU5beLa87DHVb29mWuLvxecfYtopejch5oW/qhjjDS61xpD
-	wQt8KTTKQx2LGumGHp9tO5yqrR29JKo9aTbM9MRtrC/0+GJUyFdywz/MD8jMT8iRknu+tP4kKKDwz
-	Udye2NrBcv56NU7dUARE5QWGqJ6fwTDOaMU4yL2jlPRkvlasFhlr5jrx3/VuoBWVZbvBP6TnUCp87
-	T4WmWZBxNCrYKZr47IlhBlhtFysLe6UiwmPx+oSo+HOqJom+vWGWYFe32BBIhW2spw49Cmq+pe7Dg
-	dCCSM37Q==;
-Received: from authenticated-user
-	by stravinsky.debian.org with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-	(Exim 4.96)
-	(envelope-from <leitao@debian.org>)
-	id 1wrB6e-00D1xN-01;
-	Tue, 04 Aug 2026 09:06:40 +0000
-Date: Tue, 4 Aug 2026 02:06:33 -0700
-From: Breno Leitao <leitao@debian.org>
-To: Hidayath Khan <hidayath@linux.ibm.com>
-Cc: alibuda@linux.alibaba.com, dust.li@linux.alibaba.com, 
-	sidraya@linux.ibm.com, mjambigi@linux.ibm.com, andrew+netdev@lunn.ch, 
-	tonylu@linux.alibaba.com, guwen@linux.alibaba.com, davem@davemloft.net, 
-	edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, horms@kernel.org, 
-	pasic@linux.ibm.com, linux-s390@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [PATCH net] net/smc: fix socket refcount leak in
- smc_switch_conns()
-Message-ID: <anGqEX1JOYlTczQ6@gmail.com>
-References: <20260804082800.498672-1-hidayath@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KiMclZ3I"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA6E11F000E9;
+	Tue,  4 Aug 2026 09:22:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1785835364;
+	bh=mzQiUiyhzopSB+5Jno6Vg6pAKp83zupMA4deoxTuQ+c=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=KiMclZ3IWfjNwFmuc8QeRC2fKCGzOKyaa/fTXYCPu/5VYMm9fBLykHCKd1khPBsWP
+	 GJUUQnE8vm9S8zNUPLboI5dJ4T0104RcxdDET6cIwDoe7w9k3Qoh1E+9no355qha8l
+	 vXfpez/yrA0FQAZh7V6jZ4Em40SvwIxn1sIzrNj4scwP3P/qKSK7kBdhqbMWsIvroh
+	 W+JZ7/kxY4ZJZwdnMzIQhfnHolVr0Qin9RFU1LFTs0b9qX+OBY/qFWMwQc3j7uWk99
+	 //NJIYvfmjV+n4Pcb5AeET0GX60H6e323LeMNn84d3U0StnZRAanF7VowhkhpexKma
+	 c+rAiJwplr45w==
+Message-ID: <053ffb1c-d4e7-4558-8784-8e1eb72de9db@kernel.org>
+Date: Tue, 4 Aug 2026 11:22:40 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260804082800.498672-1-hidayath@linux.ibm.com>
-X-Debian-User: leitao
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] mm: pull writability check to follow_pfnmap_start()
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+ Alex Williamson <alex@shazbot.org>, Fei Li <fei1.li@intel.com>,
+ Peter Xu <peterx@redhat.com>, linux-s390@vger.kernel.org,
+ linux-mm@kvack.org, Sergio Lopez <slp@redhat.com>
+References: <20260731160514.1101989-1-pbonzini@redhat.com>
+ <0a9c8cc8-1fa7-4f4c-b7df-e847925c2b24@kernel.org>
+ <CABgObfb_FN9r+D2F=GNsADP5xt0syFztmy-x==T85ovZKyopRA@mail.gmail.com>
+From: "David Hildenbrand (Arm)" <david@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=david@kernel.org; keydata=
+ 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
+ qIws/H2t
+In-Reply-To: <CABgObfb_FN9r+D2F=GNsADP5xt0syFztmy-x==T85ovZKyopRA@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On Tue, Aug 04, 2026 at 10:28:00AM +0200, Hidayath Khan wrote:
-> smc_switch_conns() takes a reference on the SMC socket before dropping
-> lgr->conns_lock, so the connection stays alive while the CDC slot is
-> fetched:
+On 8/4/26 10:24, Paolo Bonzini wrote:
+> On Mon, Aug 3, 2026 at 10:55 AM David Hildenbrand (Arm)
+> <david@kernel.org> wrote:
+>>> index 485df9c2dbdd..34c79b5fcb9b 100644
+>>> --- a/include/linux/mm.h
+>>> +++ b/include/linux/mm.h
+>>> @@ -3136,9 +3136,12 @@ struct follow_pfnmap_args {
+>>>        * Inputs:
+>>>        * @vma: Pointer to @vm_area_struct struct
+>>>        * @address: the virtual address to walk
+>>> +      * @write_fault: if true, fail with -EFAULT unless the mapping is
+>>
+>> Just wondering whether EPERM would be better.
 > 
->         sock_hold(&smc->sk);
->         read_unlock_bh(&lgr->conns_lock);
->         /* pre-fetch buffer outside of send_lock, might sleep */
->         rc = smc_cdc_get_free_slot(conn, to_lnk, &wr_buf, NULL, &pend);
->         if (rc)
->                 goto err_out;
-> 
-> The err_out label only drops the wr_tx link reference, so this early exit
-> returns without the matching sock_put().  The second error exit is not
-> affected because sock_put() has already run by then:
-> 
->         rc = smc_switch_cursor(smc, pend, wr_buf);
->         spin_unlock_bh(&conn->send_lock);
->         sock_put(&smc->sk);
->         if (rc)
->                 goto err_out;
-> 
-> A leaked sk_refcnt means the smc_sock is never destroyed.  Its send and
-> receive buffers stay allocated, and for a user socket the reference held
-> on the network namespace is never released, so the netns can no longer be
-> torn down.
-> 
-> smc_cdc_get_free_slot() fails when the target link goes down or when the
-> connection has been killed while the switch is in progress.  Both are
-> reachable during the link failover this function implements, so the leak
-> is triggered by the same hardware events that make smc_switch_conns() run
-> in the first place.
-> 
-> Drop the reference on the early error path.
-> 
-> Fixes: 95f7f3e7dc6b ("net/smc: improved fix wait on already cleared link")
-> Cc: stable@vger.kernel.org
-> Reviewed-by: Mahanta Jambigi <mjambigi@linux.ibm.com>
-> Signed-off-by: Hidayath Khan <hidayath@linux.ibm.com>
+> I considered EACCES, but EFAULT seems more appropriate: it's already
+> what most callers return, and vm_fault_to_errno() never returns
+> EACCES.
 
-Reviewed-by: Breno Leitao <leitao@debian.org>
+EACCES is what I actually wanted to say :)
 
-> ---
->  net/smc/smc_core.c | 4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
-> 
-> diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-> index b4208cb186c5..c0027d2fe4e8 100644
-> --- a/net/smc/smc_core.c
-> +++ b/net/smc/smc_core.c
-> @@ -1148,8 +1148,10 @@ struct smc_link *smc_switch_conns(struct smc_link_group *lgr,
->  		read_unlock_bh(&lgr->conns_lock);
->  		/* pre-fetch buffer outside of send_lock, might sleep */
->  		rc = smc_cdc_get_free_slot(conn, to_lnk, &wr_buf, NULL, &pend);
+EFAULT works for me, right now it's a clear indication for insufficient permissions.
 
-Do you need sock_hold(smc->sk) to call smc_cdc_get_free_slot ? Otherwise
-you can move the sock_hold() after the exit.
+-- 
+Cheers,
+
+David
