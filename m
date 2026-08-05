@@ -1,145 +1,146 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B12B432300;
-	Wed,  5 Aug 2026 11:31:21 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 478543F9294;
+	Wed,  5 Aug 2026 11:31:37 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785929482; cv=none; b=icCR/ahTe8ApNwnZve+2FrjfWJ+XJX0j44W2lMe3QZ1jaBR4RHi07SPOWox60uLC86nhGhrVCsOWxvo1Ok7S3nWNLQc7ib9VzIQbDy43+nOwyAyc0Aes7qTlnTFWLJwCzgYpzQi2q7uKCq6JH1lxf4Es30CAPGwnYGpV8DRvTMQ=
+	t=1785929498; cv=none; b=dMl7uqy/wNBWFwe9Qr/WnIDmQMrbvSI55zo528wQ33cABGn6Rj65m/rEZzHwdhk1jwB+1caIcAGvGxx9KEKl1m/yCnFWsOj14kwqmTD9OCM8EW9T3dvm0f2rK/PYyJxnoZXb1t2Zlip84g7l5U0hYzXj12meSRTk0epkbUTOTjU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785929482; c=relaxed/simple;
-	bh=8dAvxp4D37FWkC53uVrs8NeSNPSEGTQmZ7PaekzZi1s=;
+	s=arc-20240116; t=1785929498; c=relaxed/simple;
+	bh=iKt+sKaDlZjOKLFWRf1Kai3i9VcDvSZy6CoDu/v+eLc=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=HhDEDHMOkyYxsyfck/YnL9ohYSX0aMFktGlh+4GtX/VFRVzhPaCb4SeYeY4GBaYeRRDFJW+7qRsK74Hz9Fo5xLlMjTW5xX1sfXEXFB9m7pIYx+l08G9KOGYmjBXmDSrrrmHEG40knGSNg9yR9oTb8qQqqhKXvgL44PWRPsHzZKU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=iOHSdjPF; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=cYUDk8uVQdBq1VR/Tcs1DPI5LAUSJyP9OspIr7hSnIedrO40NWiaewjpWWCbQ8O7DRY1gMmrzqiaCdh1vX8DXK47ZJnaIJAflFiBog6xljpEdg84hYQffmJUISqb2RGpBqzxlCiEhSREWYU1LZULMrHSxRWEbxScJp3TPGdPpZ0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=f9zD2zCi; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="iOHSdjPF"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9909C1F00A3A;
-	Wed,  5 Aug 2026 11:31:20 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="f9zD2zCi"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCC791F00A3A;
+	Wed,  5 Aug 2026 11:31:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785929481;
-	bh=2gQIayWx4Yubk/3nGYfbwdk6Qi+G+jI+TMPth/dWjk8=;
+	s=k20260515; t=1785929497;
+	bh=W0rQJkbtnhYnXnAF82PIvkescxRO6NFKtWSOLKP565E=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=iOHSdjPFiA5ZvvwtmGYO8nsn1W6rP+QNhQH03sA05aWNbxTBUyFG/4hRLc5nh5gN7
-	 Ih5sUX7oJuHXafrxYXwzJ/KgHL0auL1VxELog25FHWWD9K3xes/1XWIO6kJ55jJRiF
-	 K3FBzJ5mdxtSO8gZ7SrsrfsL5xeUsZH6/N9YVJJi865aXv6+wi9LXDoCuqupxNsnTm
-	 VDcPeBcoq/6aWVy/PcKjIHASvDp98XuG+D+9eUQ4WAFIwS9MFmGpQPCs3ICA78Ks0n
-	 OPuEXvZ9wjGMrn2t+gQ1MAUD4TRCN8VAJ+64GqyD+DzbtpZv0tXl9tyH9X9XONMedS
-	 Ats7Z2guwrcrQ==
+	b=f9zD2zCiNHXqk9Mt1ur8gbty3puZz5bTbRKXoUxb9G6tbtCwLoUVRhC+w1CBvkqka
+	 6F1S79X28k9iam+gpqKoAC717YHOsxlV5+ap3mr3prZ9ALw7A2o7tiCFx2BDU74yNt
+	 8uZla7uPx9qO8vHmGMGdxTN2GPsYzlPJwzKEMJvXzB41W+TKCpDrHzSZunyMIOfN1E
+	 IesZbs57bIDnr4LlM7kR8c+mYZ3eSNyMTNLRTMN6wh5m2wOqQ6TgdIW3qNoe7sRchH
+	 O91Oqx+Tx7N91XQM4Bgi7fhUDbaWdrYVEV5ujqWUviIl595S15zG6x/y4tBkzgEakM
+	 47dD3W9qBXDhg==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 6/8] KVM: s390: Take srcu when importing watchpoint
- data
+Subject: Re: [PATCH v3 2/8] KVM: s390: Zero initialize data structures for
+ inject_pfault_token
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Christian Borntraeger" <borntraeger@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, kvm@vger.kernel.org, "Vasily
+Cc: "Heiko Carstens" <hca@linux.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, "Vasily
  Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
-In-Reply-To: <20260805110455.7200-7-borntraeger@linux.ibm.com>
+In-Reply-To: <20260805110455.7200-3-borntraeger@linux.ibm.com>
 References: <20260805110455.7200-1-borntraeger@linux.ibm.com>
- <20260805110455.7200-7-borntraeger@linux.ibm.com>
+ <20260805110455.7200-3-borntraeger@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 05 Aug 2026 11:31:20 +0000
-Message-Id: <20260805113120.9909C1F00A3A@smtp.kernel.org>
+Date: Wed, 05 Aug 2026 11:31:36 +0000
+Message-Id: <20260805113136.CCC791F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
 
-New issues:
-- [Medium] Mixing goto-based error handling and scope-based cleanup helpers=
- in the same function.
-
 Pre-existing issues:
-- [High] VCPU guest debug hardware breakpoints are leaked when the VCPU is =
-destroyed.
-- [High] Integer truncation in watchpoint length check bypasses MAX_WP_SIZE=
-, leading to a massive kmalloc and WARN_ON_ONCE.
+- [Critical] Invalid Free / Kernel Panic in kvm_s390_reinject_machine_check=
+() due to kfree() on a stack pointer.
+- [High] Stack Information Leak to userspace in kvm_s390_reinject_machine_c=
+heck() during local machine check reinjection.
 --
 
---- Patch [6]: [PATCH v3 6/8] KVM: s390: Take srcu when importing watchpoin=
-t data ---
-commit e0e29f54e03d9a52cf7d59a9894e63da62df0c7d
+--- Patch [2]: [PATCH v3 2/8] KVM: s390: Zero initialize data structures fo=
+r inject_pfault_token ---
+commit 99d37a57e11716f103a611788767010736475aa3
 Author: Christian Borntraeger <borntraeger@linux.ibm.com>
 
-KVM: s390: Take srcu when importing watchpoint data
+KVM: s390: Zero initialize data structures for inject_pfault_token
 
-This commit adds a scoped_guard around kvm_s390_import_bp_data to ensure
-the srcu lock is held while backing up original guest memory contents of a
-watchpoint. This prevents concurrent memslot updates from freeing the
-memslots array during the read operation.
+This commit fixes a stack information leak by zero-initializing the
+kvm_s390_interrupt and kvm_s390_irq structures in
+__kvm_inject_pfault_token. This prevents stale stack values from leaking to
+host userspace via migration ioctls.
 
 > diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index 611dcb5342101..0a197e055cad0 100644
+> index 518a69c55e85c..611dcb5342101 100644
 > --- a/arch/s390/kvm/kvm-s390.c
 > +++ b/arch/s390/kvm/kvm-s390.c
-> @@ -4248,8 +4248,10 @@ int kvm_arch_vcpu_ioctl_set_guest_debug(struct kvm=
-_vcpu *vcpu,
->  		/* enforce guest PER */
->  		kvm_s390_set_cpuflags(vcpu, CPUSTAT_P);
-> =20
-> -		if (dbg->control & KVM_GUESTDBG_USE_HW_BP)
-> -			rc =3D kvm_s390_import_bp_data(vcpu, dbg);
-> +		if (dbg->control & KVM_GUESTDBG_USE_HW_BP) {
-> +			scoped_guard(srcu, &vcpu->kvm->srcu)
+> @@ -4474,8 +4474,8 @@ int kvm_s390_try_set_tod_clock(struct kvm *kvm, con=
+st struct kvm_s390_vm_tod_clo
+>  static void __kvm_inject_pfault_token(struct kvm_vcpu *vcpu, bool start_=
+token,
+>  				     unsigned long token)
+>  {
+> -	struct kvm_s390_interrupt inti;
+> -	struct kvm_s390_irq irq;
+> +	struct kvm_s390_interrupt inti =3D {};
+> +	struct kvm_s390_irq irq =3D {};
+>  	struct kvm_s390_interrupt_info *inti_mem =3D NULL;
 
-[Severity: Medium]
-Does mixing scoped_guard with the existing goto out; error handling
-in this function violate the cleanup subsystem guidelines?
+[Severity: Critical]
+This isn't a bug introduced by this patch, but while reviewing this fix,
+I noticed a similar pre-existing issue in arch/s390/kvm/interrupt.c that
+appears to pass a stack pointer to kfree().
 
-The documentation states that for a given routine, we should convert all
-resources that need a goto cleanup to scope-based cleanup, or convert
-none of them.
+In kvm_s390_reinject_machine_check(), a stack-allocated interrupt info
+structure is passed to __inject_vm():
 
-> +				rc =3D kvm_s390_import_bp_data(vcpu, dbg);
+kvm_s390_reinject_machine_check() {
+    ...
+    struct kvm_s390_interrupt_info inti;
+    ...
+    rc =3D __inject_vm(vcpu->kvm, &inti);
+
+When the machine check is a floating machine check, this routes to
+__inject_float_mchk(), which unconditionally frees the pointer:
+
+__inject_float_mchk() {
+    ...
+    kfree(inti);
+
+Could this result in a kernel panic if a nested guest execution triggers
+this path, attempting to free a stack-allocated variable?
 
 [Severity: High]
-This isn't a bug introduced by this patch, but does the guest debug memory
-get leaked when the VCPU is destroyed?
+This is also a pre-existing issue, but I noticed another potential stack
+information leak in arch/s390/kvm/interrupt.c.
 
-Looking at the memory allocated here in kvm_s390_import_bp_data():
+Does kvm_s390_reinject_machine_check() leak uninitialized stack memory
+during local machine check reinjection?
 
-arch/s390/kvm/guestdbg.c:kvm_s390_import_bp_data() {
+kvm_s390_reinject_machine_check() {
     ...
-    wp_info =3D kmalloc_objs(*wp_info, nr_wp, GFP_KERNEL_ACCOUNT);
+    struct kvm_s390_irq irq;
     ...
-}
+    kvm_s390_inject_vcpu(vcpu, &irq);
 
-It seems the cleanup path kvm_arch_vcpu_destroy() fails to call
-kvm_s390_clear_bp_data(vcpu) to release these resources. Could this allow
-a host userspace process to slowly drain host memory by repeatedly
-creating and terminating VMs with hardware breakpoints?
+Because irq is uninitialized on the stack, the padding and fixed_logout
+array contain stale data. __inject_mchk() then copies this data into the
+persistent vCPU state:
 
-[Severity: High]
-This is a pre-existing issue, but is there an integer truncation here that
-bypasses the MAX_WP_SIZE check?
-
-When __import_wp_info() is called:
-
-arch/s390/kvm/guestdbg.c:__import_wp_info() {
+__inject_mchk() {
     ...
-    wp_info->len =3D bp_data->len;
-    if (wp_info->len < 0 || wp_info->len > MAX_WP_SIZE)
-        return -EINVAL;
+    memcpy(&mchk->fixed_logout, &irq->u.mchk.fixed_logout,
+           sizeof(mchk->fixed_logout));
 
-    wp_info->old_data =3D kmalloc(bp_data->len, GFP_KERNEL_ACCOUNT);
+Later, when userspace retrieves the interrupt state, store_local_irq()
+copies it back out:
+
+store_local_irq() {
     ...
-}
+    irq->u.mchk =3D li->irq.mchk;
 
-If userspace passes a large length like 0x100000005, wp_info->len
-(a 32-bit signed integer) would truncate it to 5, passing the validation
-check. However, kmalloc then receives the untruncated 64-bit bp_data->len,
-attempting a large allocation that could trigger a warning and cause host
-instability.
-
-> +		}
->  	} else {
->  		kvm_s390_clear_cpuflags(vcpu, CPUSTAT_P);
->  		vcpu->arch.guestdbg.last_bp =3D 0;
+Could this allow a host userspace process to access uninitialized kernel
+stack memory via the KVM migration ioctls, similar to the issue fixed in
+this patch?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260805110455.7200=
--1-borntraeger@linux.ibm.com?part=3D6
+-1-borntraeger@linux.ibm.com?part=3D2
