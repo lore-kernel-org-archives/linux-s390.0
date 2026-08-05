@@ -1,44 +1,45 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 384033537CD
-	for <linux-s390@vger.kernel.org>; Wed,  5 Aug 2026 14:12:17 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C3F05385D61
+	for <linux-s390@vger.kernel.org>; Wed,  5 Aug 2026 14:23:35 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785939140; cv=none; b=TZIhUAQ9IM0/PyzBkGtjcAnQgnnXmgnM53QJCgLfNqfF8zpvy09fqnkv3nKJ06ZHHHd0sx/7/ZJ8rHpl3h2jW0xI3J61okF84hZVDZpD0K8aiNhjaIM11qrIvnJ9XWxPdbGCHhlNHoVmEZvazTpHoZbcyoFuGz05YjYrh17gMx4=
+	t=1785939822; cv=none; b=Sq+H/bPx89zCndFZ0dqi3dZYYpozZHghvukS+efJ4qtJX/M1FTIHjDglqWHsY6jmYwH+l52+7Q0LLhyKVnttEu+BsUYQp1Lesh/HnmN6bbBLP9enB7y0FCiYrC0b17DyprzKyLnKmsn8DGZUf+qZCyLLBbNqYHe7dt/9g+/z/EI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785939140; c=relaxed/simple;
-	bh=pdb/PYSf1ggJTt3a5V7PfeSBtGo3c9WU62f9j6WiN4w=;
+	s=arc-20240116; t=1785939822; c=relaxed/simple;
+	bh=OnGL6UKsciTkCsB2yWMegJ6MLpXRE/GSqH0SZZdyViY=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=XiRZWq9CXXyGPctkRUP/ZC/wlTQP5u/haaJ3xr+H09pl19xWhpa9oNXxubqOlEoYyneENEBt11+S3ow9+WHBbDnXq77/Wz8W1dn6fyq0HOatCEH8YDRNNAg2kp6M9/bVJQqJ20ZZgUFp79KDXtCkWXx+prDsZisLLnUz/eMyGjI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HK9wuliW; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=XAMjoqzvKIC/n3wQ4UEb7q3XTEzrpyv6ON9qc22efS7KIvWnaikW+WTBpfBrBD3Q7ovkoJIvWpsLKEbYOb+KoofxUykkWZfXfp8EBmwHAk4S9gClEXRoCNyVq/eU2bXL15la8/Shna7ufhLMuY9jW4sNFU/4eYNXCOJyhzstrkA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gbbAVh8l; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HK9wuliW"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 382B01F000E9;
-	Wed,  5 Aug 2026 14:12:16 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gbbAVh8l"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D93451F000E9;
+	Wed,  5 Aug 2026 14:23:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785939136;
-	bh=eMZ0RNq3SWQhDW83ed/cI/U+LvtOr0ULQ4w64rRbJro=;
+	s=k20260515; t=1785939810;
+	bh=1twpP0K4B/groqzg8NymNHNauEUoodkgSeb3RcC0S/0=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=HK9wuliWlHpovxnvLaXW1m41DZZKDZS6q/tly/GtLTA2kiR1YXcYDWresDUVnTjxG
-	 AQehHN5a+stwUeNvYNeQmWlWpPfpY9LpNQQCfAqA1FUM42Myr73e3GjzmXK+u+JLja
-	 OXGWzOLHiudFADv9XivALbPu8VwUWZnHkVTJDYmr1tFsqqsbGBMH1tX6NpJPRTKtWV
-	 /WlgYr6igJCdvo5UtBKslsP2k+DSQNKYKt9ndRJ69dJ2oDyED3JvL7NCIIYPfiGMjW
-	 ATdP5+AcKZ2xnHqAEgZ6IKJM7KFmEjujhpqpXV1UNUSZn6ywUuvYk4R8CwRvYJW46o
-	 fGSKOCo4VowFw==
+	b=gbbAVh8l19DUpMwFAhruqmHcg/wZWMzqw9YkYAsVXnPY52Qp1SArKXzoHTvPWV3Lf
+	 U4qnlwODAO1WlU2HwKeMv1GYcVJD2MnV3waEYOgBwqqomiIXeZsBvpaS+YSL1j+Kzi
+	 F/nk6JegMFOCBOW/kZ4VD3oW1KOW0n+JZmBfhLH2TuV6hDn6/tCHt2yJpptPde6pKO
+	 fKnPeIiMmYYcyMAjbZJWw+ucMXaZC8py7f70YMPElSEEWqvA9eFVBFXyzVHEtpTIxw
+	 ktyAFYcZDlszlsrLlfUM2ZgsKeiuQoGybkYGofJAV7O4X69xVp+TMMzhRdTGGAruBn
+	 EjWWaGfXtJTqA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 3/3] s390/pci: Enable CONTEXT_ANALYSIS
+Subject: Re: [PATCH v3 2/3] s390/pci: Rework __zpci_event_availability() to
+ remove conditional locking
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Heiko Carstens" <hca@linux.ibm.com>
-Cc: "Vasily Gorbik" <gor@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org
-In-Reply-To: <20260805133627.1216607-4-hca@linux.ibm.com>
+Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
+ Carstens" <hca@linux.ibm.com>
+In-Reply-To: <20260805133627.1216607-3-hca@linux.ibm.com>
 References: <20260805133627.1216607-1-hca@linux.ibm.com>
- <20260805133627.1216607-4-hca@linux.ibm.com>
+ <20260805133627.1216607-3-hca@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 05 Aug 2026 14:12:15 +0000
-Message-Id: <20260805141216.382B01F000E9@smtp.kernel.org>
+Date: Wed, 05 Aug 2026 14:23:29 +0000
+Message-Id: <20260805142329.D93451F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -49,68 +50,102 @@ Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [High] Missing lock acquisition in zpci_remove_reserved_devices() leading=
- to lockdep failure and state corruption.
-- [High] Race condition in zpci_event_avail_new_device() exposing an unlock=
-ed device to concurrent state changes.
+- [Critical] zpci_remove_reserved_devices() leaves zdev linked to a stack-a=
+llocated list, leading to Use-After-Scope stack memory corruption.
+- [High] zpci_remove_reserved_devices() modifies device state without holdi=
+ng state_lock, causing data races and lockdep panics.
 --
 
---- Patch [3]: [PATCH v3 3/3] s390/pci: Enable CONTEXT_ANALYSIS ---
-commit f14ecb575360924ecbbf3801f2b0b0e2ff3a2eeb
+--- Patch [2]: [PATCH v3 2/3] s390/pci: Rework __zpci_event_availability() =
+to remove conditional locking ---
+commit 75e2f03936eebee8914ba9e93f94ec0e2bac2ac9
 Author: Heiko Carstens <hca@linux.ibm.com>
 
-s390/pci: Enable CONTEXT_ANALYSIS
+s390/pci: Rework __zpci_event_availability() to remove conditional locking
+   =20
+This patch reworks __zpci_event_availability() to avoid taking locks
+conditionally, resolving a compiler warning from static context analysis.
+The event handling is split into smaller, dedicated functions.
 
-This commit enables CONTEXT_ANALYSIS in the s390 PCI Makefile since the
-code now compiles without warnings.
-
-> diff --git a/arch/s390/pci/Makefile b/arch/s390/pci/Makefile
-> index 1810e0944a4ed..b8be1316491b8 100644
-> --- a/arch/s390/pci/Makefile
-> +++ b/arch/s390/pci/Makefile
-> @@ -3,6 +3,8 @@
->  # Makefile for the s390 PCI subsystem.
->  #
-> =20
-> +CONTEXT_ANALYSIS :=3D y
-> +
+> diff --git a/arch/s390/pci/pci_event.c b/arch/s390/pci/pci_event.c
+> index bead4ed5d4abe..0a9eecb62bd1a 100644
+> --- a/arch/s390/pci/pci_event.c
+> +++ b/arch/s390/pci/pci_event.c
+[ ... ]
+> -static void __zpci_event_availability(struct zpci_ccdf_avail *ccdf)
+> +static bool zpci_event_avail_any_device(struct zpci_ccdf_avail *ccdf)
+>  {
+> -	struct zpci_dev *zdev =3D get_zdev_by_fid(ccdf->fid);
+> -	bool existing_zdev =3D !!zdev;
+> -	enum zpci_state state;
+> -
+> -	zpci_dbg(3, "avl fid:%x, fh:%x, pec:%x\n",
+> -		 ccdf->fid, ccdf->fh, ccdf->pec);
+> +	/* 0x0306 - No handle or fid stored */
+> +	if (ccdf->pec !=3D 0x0306)
+> +		return false;
+> +	/* 0x308 or 0x302 for multiple devices */
+> +	zpci_remove_reserved_devices();
 
 [Severity: High]
-This is a pre-existing issue and was not introduced by the patch under
-review, but since context analysis is being enabled to catch locking issues,
-I noticed a missing lock acquisition that it might not be catching.
+This is a pre-existing issue, but does zpci_remove_reserved_devices() call
+zpci_device_reserved() without holding the state_lock?
+
+Looking at zpci_remove_reserved_devices() in arch/s390/pci/pci.c:
+
+void zpci_remove_reserved_devices(void)
+{
+        ...
+        list_for_each_entry_safe(zdev, tmp, &remove, entry)
+                zpci_device_reserved(zdev);
+}
+
+And zpci_device_reserved() asserts this lock:
+
+void zpci_device_reserved(struct zpci_dev *zdev)
+{
+        lockdep_assert_held(&zdev->state_lock);
+        ...
+
+Will this result in a lockdep warning and potential data races on the
+device state during a 0x0306 PCI event?
+
+
+[Severity: Critical]
+This is also a pre-existing issue, but can this lead to memory corruption
+if the device reference count doesn't drop to zero?
 
 In arch/s390/pci/pci.c:zpci_remove_reserved_devices():
 
-	list_for_each_entry_safe(zdev, tmp, &remove, entry)
-		zpci_device_reserved(zdev);
+void zpci_remove_reserved_devices(void)
+{
+        ...
+        LIST_HEAD(remove);
 
-The function zpci_device_reserved() unconditionally asserts
-lockdep_assert_held(&zdev->state_lock). Will calling it here without
-holding zdev->state_lock lead to a lockdep failure or state corruption
-if accessed concurrently by sysfs or event handlers?
+        spin_lock(&zpci_list_lock);
+        list_for_each_entry_safe(zdev, tmp, &zpci_list, entry) {
+                if (...)
+                        list_move_tail(&zdev->entry, &remove);
+        }
+        ...
+}
 
+The devices are moved to a local stack-allocated list (remove).
 
-[Severity: High]
-This is also a pre-existing issue not introduced by the patch under
-review, but there might be a race condition exposed here as well.
+When zpci_device_reserved(zdev) is called, it drops one reference. If
+another thread currently holds a reference (for example, via
+get_zdev_by_fid()), the device is not freed immediately. When
+zpci_remove_reserved_devices() returns, the stack frame is destroyed, but
+the device's entry remains linked to this destroyed stack memory.
 
-In arch/s390/pci/pci_event.c:zpci_event_avail_new_device():
+Later, when the final reference is dropped, zpci_release_device() will call
+list_del(&zdev->entry), writing to the invalid stack memory. Is there a
+safe way to handle this list manipulation?
 
-	if (zpci_add_device(zdev)) {
-		kfree(zdev);
-		break;
-	}
-	zpci_scan_configured_device(zdev, ccdf->fh);
-
-Once zpci_add_device() publishes the device globally, can concurrent
-threads acquire zdev->state_lock and deconfigure the device while
-zpci_scan_configured_device() is still running unlocked?
-
->  obj-$(CONFIG_PCI)	+=3D pci.o pci_irq.o pci_clp.o \
->  			   pci_event.o pci_debug.o pci_insn.o pci_mmio.o \
->  			   pci_bus.o pci_kvm_hook.o pci_report.o pci_fixup.o
+> +	zpci_scan_devices();
+> +	return true;
+> +}
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260805133627.1216=
-607-1-hca@linux.ibm.com?part=3D3
+607-1-hca@linux.ibm.com?part=3D2
