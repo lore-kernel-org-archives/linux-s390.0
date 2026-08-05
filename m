@@ -1,57 +1,57 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8AA944322F0;
-	Wed,  5 Aug 2026 11:05:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D1D7542FCA9;
+	Wed,  5 Aug 2026 11:05:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785927918; cv=none; b=cN4WgkYW76RyX6RdDh5GfBOhd2G/ciTMMVqaYv/uqFh8gKCMNs1W3AO93gDaLUje/Fi+ubSJd5NBDbQOxGac95dYJjCmO+ClC8kHElez7dbllCymJHihpWjoQ9yDSKGCdvwZdVLtNn4Mrsg7XqhJvbvK9NQOAVhTTxccfZ9swwE=
+	t=1785927922; cv=none; b=blDXLwNmYuy1wZ/rFkR9DCK6Jl9kg5L5QUnJ87UVI/dTRuZYeqPO97cTh00fB9zXvNrQjSigfCUdQ2iJkfwP2fGB52TwGnQxXAeK4U0XaptixzncKcOLHC0t58qJ/oSQoQwJx+Zd6Q9sFUwNLMVHVwI5bBj3NdnJAb9W2jSRGhg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785927918; c=relaxed/simple;
-	bh=R9l0+bhM6k9nLdu9COLjX3W8E5NEi26reF/ukDgJA/o=;
+	s=arc-20240116; t=1785927922; c=relaxed/simple;
+	bh=Fm7zloFicu0UluUepmH4sqs2TetOgKPCT9oWfa8Zh3s=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=ISMVJbtqO9sAVwkK5YftDi3lz3J3DJ0bL8ZH5P6EvgDf+9h3WQndCzSzagXmXodsrvliPBq8277ZlFSGr2Vs6LzOeaj56+g25py/yoWN4DcRggZxgkzRukwBXlUi1S/Vd70oMIba6KK7HH24UGWx0zbD5+UGlTgdq1wdfVOAMG0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Z/54e4Cb; arc=none smtp.client-ip=148.163.156.1
+	 MIME-Version; b=Dp2wrHYcT0mTEmmhlGveCUnhJt2iljpd19Bj1jDp2M5VHLRrUWwUatOrAFLHXsu1+HcYyEugvOgaaRMkdxSIg8xhXa7IuUNOau7hNfHOZrWI/m1QCHGjdgz50fBhMgQU7r5U4Y4AttjQ+YTS8P4TVh7ICxmdp2XI3RTVTT3qDTU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Gt0IReCN; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Z/54e4Cb"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6758lm7F1503330;
-	Wed, 5 Aug 2026 11:05:16 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Gt0IReCN"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6758m2l53438542;
+	Wed, 5 Aug 2026 11:05:18 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=C3tHMc+aRnZ4TWquv
-	HfESCd+txJ7FhvM8tSlns37Wbk=; b=Z/54e4CbVotxBw2QB5YzIUO6a23ahWBLw
-	OAdrhlX1ue97iqClrcOSsbneHTZvuLmdhU597gvOUstLkFXpfsfTyzM3d0Pmg3Ta
-	+JvrOtWiOCuvMnieHI1B3C6P6RGHA+htOnWotQIIbLdfLJzMl140gEs/74HfoVOm
-	2XvVFeSzlPYyHR3cZd++0Z2KQd1RioF5tV5jln605yUG/6q0tyhca2j+sQ8cdxLg
-	cc8U9q7+kFnuykymwHisH8m6hA1rWRLfS9DrtzwljhPRDk5cxK/Vy45XjCvju/6U
-	0YEmoIy7qTRXJUIa98g1RdhulGwyQdDmLXvv0dkP6k3TuVR8Nvk0A==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fs8fqtjxn-1
+	:mime-version:references:subject:to; s=pp1; bh=smpo3eNXjbVmeu8FC
+	QdsYn8MMHXjm7LLib5bWGxq8jA=; b=Gt0IReCN/Zcg5UyWv2IyyGOe2HxwvVJEB
+	S7Pkmqau14bbVHu5Ha9IyDTBPBF/EyLV/aOtIEWLC5Lyah18LKNbgwu6qs8hUrOn
+	Np+cJb44q6CNwri83nNn4yYAvLbKtQnqwzVvf8yWTqau5IRHEDl1mdpVWIwhZCbY
+	UZrglH8KZKF0Bz0lOSUIMa1u7zROomgp+Fl2FWia7AyxX8KJ3CqUABAdAcZ3zWeC
+	S+/BnOJxoLQnHtJXFqFQeIQ4TdoxivqN58v064hrvEKzxOwB5+SPqMZzsVwAPO5x
+	z8vKrNqJEz9R+uQSXtNEz2TFCVTxrbtgTbDiL0eIYmEOMS60A0BPQ==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fs8eut4wh-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 05 Aug 2026 11:05:15 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 675AuIXA027011;
-	Wed, 5 Aug 2026 11:05:14 GMT
-Received: from smtprelay05.dal12v.mail.ibm.com ([172.16.1.7])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fswtynyf5-1
+	Wed, 05 Aug 2026 11:05:17 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 675AuFnZ020928;
+	Wed, 5 Aug 2026 11:05:17 GMT
+Received: from smtprelay03.dal12v.mail.ibm.com ([172.16.1.5])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fsu4qpbf6-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 05 Aug 2026 11:05:14 +0000 (GMT)
+	Wed, 05 Aug 2026 11:05:17 +0000 (GMT)
 Received: from smtpav03.dal12v.mail.ibm.com (smtpav03.dal12v.mail.ibm.com [10.241.53.102])
-	by smtprelay05.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 675B5EUw15139440
+	by smtprelay03.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 675B5G4J27591400
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 5 Aug 2026 11:05:14 GMT
+	Wed, 5 Aug 2026 11:05:16 GMT
 Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0A79C58231;
+	by IMSVA (Postfix) with ESMTP id 31F6A58232;
+	Wed,  5 Aug 2026 11:05:16 +0000 (GMT)
+Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4BA2C58234;
 	Wed,  5 Aug 2026 11:05:14 +0000 (GMT)
-Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 23DE158223;
-	Wed,  5 Aug 2026 11:05:12 +0000 (GMT)
 Received: from b35lp69.lnxne.boe (unknown [9.87.84.240])
 	by smtpav03.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Wed,  5 Aug 2026 11:05:11 +0000 (GMT)
+	Wed,  5 Aug 2026 11:05:14 +0000 (GMT)
 From: Christian Borntraeger <borntraeger@linux.ibm.com>
 To: KVM <kvm@vger.kernel.org>
 Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
@@ -64,9 +64,9 @@ Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
         Sven Schnelle <svens@linux.ibm.com>,
         Matthew Rosato <mjrosato@linux.ibm.com>,
         Douglas Freimuth <freimuth@linux.ibm.com>
-Subject: [PATCH v3 7/8] KVM: s390: Free guest debug data on vcpu destroy
-Date: Wed,  5 Aug 2026 13:04:54 +0200
-Message-ID: <20260805110455.7200-8-borntraeger@linux.ibm.com>
+Subject: [PATCH v3 8/8] KVM: s390: Fix length check __import_wp_info()
+Date: Wed,  5 Aug 2026 13:04:55 +0200
+Message-ID: <20260805110455.7200-9-borntraeger@linux.ibm.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260805110455.7200-1-borntraeger@linux.ibm.com>
 References: <20260805110455.7200-1-borntraeger@linux.ibm.com>
@@ -78,69 +78,69 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: p0acmKKldYpokI-O1jsnmg-tstoNYng9
-X-Proofpoint-ORIG-GUID: p0acmKKldYpokI-O1jsnmg-tstoNYng9
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODA1MDA4NiBTYWx0ZWRfX6Ddwpxso/B+L
- uQTIV48faHl69VHFtBNQrsCSjGBCZHK2SrjSpnlF3jh8EeO1v3w4+TmH8oonxUDPQfa0tpBYT8v
- KQW+m4IvIgWED98psUyAd1xIyvl9QWQ=
-X-Authority-Analysis: v=2.4 cv=K8cS2SWI c=1 sm=1 tr=0 ts=6a7318eb cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+X-Proofpoint-ORIG-GUID: 2hbGDGubmQqNExwQD3-XZ0hOFs0V-sc1
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODA1MDA4NiBTYWx0ZWRfX4Z4syrbTcfKE
+ FgdocJ2VPVOt5XrSFPMvZI3USDEgrvQYVMNYvMo9pLANRFaa9i1D7yle8DzsEfO66VKQfrrEjVG
+ 6jE5r435ZuuxJ7zi328Ae3RoWN3ULX8=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODA1MDA4NiBTYWx0ZWRfX0EiHDRSDfngH
+ 3NINjwwE7kvC0/otmDiNhcoKb6jNHDeqM85rObwCOHW8PSxGqNOEr663ExafRXaxNZouuqD2Y8n
+ 4lll/zQIXgOp9M40jS4/W6LoHXFk36b94vmeJjOevfNQ3BYl9X5grnFoAGrjJixm/LO1R15tTmT
+ jrO/4Au5WLQYxwsDCBCGCPnyFKV0McGuaVVirFB7rTSR2m1mDudwLqi3w2urq4b6bLWb1TrTzLF
+ WWMjqKIwLOz1RxBaqqAB+jUpaaVGedpy82OGujlypMppbkg5w1uSpC777Eo7Z5pJ97mC0ZPeqTp
+ fTWW3dfabp/hoSLKH86ph3yfKdbI0Dop9guvSJhD+ZJS/NiIIgTHb1hJpzO7KoHK1AZj4BDU7di
+ 1Txuziapu1zjA6UQJLPyjZNy36XDhMi0sn8bQie5iK+0/MAKhUXqJMLjtqlPyfMphZ/0vIL+gpm
+ bxhcj2fzD+CX2pHnF9Q==
+X-Proofpoint-GUID: 2hbGDGubmQqNExwQD3-XZ0hOFs0V-sc1
+X-Authority-Analysis: v=2.4 cv=KfzidwYD c=1 sm=1 tr=0 ts=6a7318ee cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
  a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=uAbxVGIbfxUO_5tXvNgY:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
- a=FN5RJEE1uaSDo9arrcAA:9
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODA1MDA4NiBTYWx0ZWRfX17dDQR33HuVN
- 2STTiTpYpzA5UBmfMLbRW+3E95J0Otr7Y7bxH4bLWhPFh3qitZO7kqKwTcbGsmnofnK+mhSDuOB
- KscJ7AeEWnwR6x1bouNQRzoh5DlaYga7kqmzh7ToC8ZJiwad7LBb08mXaJFCaU036MtYDFfpMpr
- 9vFMoVIgutVdGRdefpFgyqwGtbFwkXAEatBUw8NeOuVEifr5SmU9FO2Qtyv4HX/zKJKlCFJh/VS
- yxZ8mjqDggFa/im1NRq93ynhrHHXC64z6Cgds8XFwB1Jq7IUSOhC5DRu+M7sa8OLPSLZ8VWPem7
- LyYjTPFBe5rDDXmWE0maQK+sJNDlXWHw/fwbxG7zG+wn8TLg9LKYtjLKm3VuGBOks3UhZLMq7DW
- Yd5tzX6zbPFjWon48YMoGNo6CCa0uya5CeFKFtNdgWLiIY6kxhIHSrK6NQ+piI+el2q7a7ow368
- /ZImwafOasTDXIO/r8Q==
+ a=RzCfie-kr_QcCd8fBx8p:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
+ a=Wui25AcxXJO4yD6ELYcA:9
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-08-05_03,2026-08-04_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 spamscore=0 impostorscore=0 bulkscore=0 priorityscore=1501
- lowpriorityscore=0 malwarescore=0 phishscore=0 suspectscore=0 adultscore=0
+ lowpriorityscore=0 bulkscore=0 impostorscore=0 suspectscore=0 malwarescore=0
+ adultscore=0 clxscore=1015 priorityscore=1501 phishscore=0 spamscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608050086
 
-kvm_s390_clear_bp_data() is only called from
-kvm_arch_vcpu_ioctl_set_guest_debug(), i.e. when user space changes or
-disables debugging. A vCPU that is destroyed while hardware breakpoints
-are still armed - the normal case when the VMM just exits or crashes -
-leaks hw_bp_info, hw_wp_info and all old_data buffers, since generic KVM
-frees the vCPU right after kvm_arch_vcpu_destroy().
+struct kvm_hw_breakpoint::len is a __u64 that is fully controlled by user
+space. This is then assigned to wp_info->len, which is an int. The bounds
+check is done on the truncated value while the allocation uses the
+untruncated one:
 
-That is bounded by MAX_BP_COUNT entries, so roughly 8 KiB per vCPU, but
-it is unbounded over VM lifetimes. The allocations are
-GFP_KERNEL_ACCOUNT, so the charge also outlives the exiting process and
-pins dying memcgs.
+	wp_info->len = bp_data->len;
+	[...]
+	if (wp_info->len < 0 || wp_info->len > MAX_WP_SIZE)
+		return -EINVAL;
 
-Fix by clearing the debug data on vCPU destruction. Calling it
-unconditionally is fine: struct kvm_vcpu is zero allocated, so for a vCPU
-that never enabled debugging the counters are 0 and the pointers NULL.
+	wp_info->old_data = kmalloc(bp_data->len, GFP_KERNEL_ACCOUNT);
+
+Use the validated value for the allocation as intended. Without this
+fix userspace can trigger >4GB allocations which will fail and result
+in a WARN due to MAX_PAGE_ORDER.
 
 Fixes: 27291e2165b6 ("KVM: s390: hardware support for guest debugging")
 Cc: stable@vger.kernel.org
 Signed-off-by: Christian Borntraeger <borntraeger@linux.ibm.com>
-Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
 ---
- arch/s390/kvm/kvm-s390.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/s390/kvm/guestdbg.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index e0548926dc49..ccbdb109e22c 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -3409,6 +3409,7 @@ void kvm_arch_vcpu_destroy(struct kvm_vcpu *vcpu)
- 	trace_kvm_s390_destroy_vcpu(vcpu->vcpu_id);
- 	kvm_s390_clear_local_irqs(vcpu);
- 	kvm_clear_async_pf_completion_queue(vcpu);
-+	kvm_s390_clear_bp_data(vcpu);
- 	if (!kvm_is_ucontrol(vcpu->kvm))
- 		sca_del_vcpu(vcpu);
- 	kvm_s390_update_topology_change_report(vcpu->kvm, 1);
+diff --git a/arch/s390/kvm/guestdbg.c b/arch/s390/kvm/guestdbg.c
+index f7c94d54efbe..9a6149e310bb 100644
+--- a/arch/s390/kvm/guestdbg.c
++++ b/arch/s390/kvm/guestdbg.c
+@@ -184,7 +184,7 @@ static int __import_wp_info(struct kvm_vcpu *vcpu,
+ 	if (wp_info->len < 0 || wp_info->len > MAX_WP_SIZE)
+ 		return -EINVAL;
+ 
+-	wp_info->old_data = kmalloc(bp_data->len, GFP_KERNEL_ACCOUNT);
++	wp_info->old_data = kmalloc(wp_info->len, GFP_KERNEL_ACCOUNT);
+ 	if (!wp_info->old_data)
+ 		return -ENOMEM;
+ 	/* try to backup the original value */
 -- 
 2.53.0
 
