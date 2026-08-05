@@ -1,120 +1,90 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A3BEC393DE6;
-	Wed,  5 Aug 2026 14:53:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C5913B8BA5;
+	Wed,  5 Aug 2026 15:09:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785941598; cv=none; b=sz3l6wCHItMVsVbFwF49EOv8VHc6GmH20gqsMZfVlDztMDFvBvkWPLTqTjblLY7SmX90Lt+3dHc9tsRp+aCgNvAOr5Ap+XUcwvL6kMUf2HoAZVNKuCJvE1ou7aSca7ASxRT2LMfKeT9OqKnU/Oi2VB4s1XRdPAOBSEK3E42NtMg=
+	t=1785942544; cv=none; b=QlDqTARWLEwndA31o9u0MeoTzYxwbXu6AEhGuFHwdrAqr9XvwGTO/5zGw0huu4Er0eu6HIVl87YbgToXGf8OnuAgbnmJ96gM/XSjSWCnAUXvGKmunCs8nBUsBbxJp+mSSmHAqFVBBsq/ASbNXfxGf6PWy/IvOAVDIQ53/daGFs0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785941598; c=relaxed/simple;
-	bh=2O8azP1jH0LIZ4QthGJg9zfZ2J1oY2G4y8qA/bRt3G4=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=IBG7f51GtM3h+WsXsVYN6WnzWQaSdH5U49bmxwjgAqIOOSvj+oHmzDHfBs2SQL9uNCH8GQ6XiGCYUuTfzdqE6Ztzqy4KZGE2WfNtucTJPkV4JavYXbh1/ZvsI+uKgsq4Dh7H9xt1ES04iJeOSdkqxn9mX1PhpauIRYu4jABG8c8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=XK74j9di; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1785942544; c=relaxed/simple;
+	bh=xCP0AJsN0LWwcut9uH1FrBmQbAr/ubD4ThGJWwDnJq8=;
+	h=Mime-Version:Content-Type:Date:Message-Id:Cc:To:From:Subject:
+	 References:In-Reply-To; b=fvShLo3OZ8QtGZrPmXbn37dO1RIzhEDSLx2s4SE3gNoUSHWTivLcsUXHOfSI74OoIyicz5AXk+L85cHVpEAdoW/LnihdEzXVEdUA3f9xuqWLXuoYh8v2TZQT8DiTgRDn+Xb5vNw0awwdL2K4+3t5ZK9uSlE4rTSShcJsXzoRUOc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lIfHY7e/; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="XK74j9di"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 675CHda53725283;
-	Wed, 5 Aug 2026 14:53:15 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=W2qGd8Jmzj2Hi62kZ3Yc8qZ5aH3zqfIuGqEdgHZpm
-	Ww=; b=XK74j9di8YI0X4b704bBInlrwXtK0X+3bt14TPB3iqDyA3HDGJtjKi/Vm
-	hmvDiUC+X3TI2gjUYawP+Lyv7uHxtsbTxH7FWCIvR+ECpWwJ8u+NoJRIfwf1WqFY
-	JEjgxNC2M0dwsiLS38hxF+wsIVqGFRUAiU2scq0LTd7CmhyVQ9vVFUeQAVJjU/av
-	qZlY3SV0tnQMp0jvRmkhiBXCcxZiWL64oeTktVorpU9C2dDt09GbGLcneXApgoOe
-	qss/puqBNRso6wWwS4laUfPFC6+kYJ9tUF0NkeWJYRT4BkbykJnPuFtUp6JbJNZ7
-	PVMkX3JcVUUfhx8gexl3C5H0uWiiw==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fs67huc3n-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 05 Aug 2026 14:53:15 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 675EfIvl011488;
-	Wed, 5 Aug 2026 14:53:14 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fsugw744k-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 05 Aug 2026 14:53:14 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 675ErAQo32833890
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 5 Aug 2026 14:53:10 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8F1672004B;
-	Wed,  5 Aug 2026 14:53:10 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6A59520040;
-	Wed,  5 Aug 2026 14:53:10 +0000 (GMT)
-Received: from funtu2.ibm.com (unknown [9.111.168.79])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed,  5 Aug 2026 14:53:10 +0000 (GMT)
-From: Harald Freudenberger <freude@linux.ibm.com>
-To: dengler@linux.ibm.com, fcallies@linux.ibm.com, ifranzki@linux.ibm.com
-Cc: freude@linux.ibm.com, linux-s390@vger.kernel.org,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        linux-crypto@vger.kernel.org
-Subject: [PATCH v1 0/1] Fix skcipher_walk return code handling in aes_s390
-Date: Wed,  5 Aug 2026 16:53:09 +0200
-Message-ID: <20260805145310.13130-1-freude@linux.ibm.com>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lIfHY7e/"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 482CF1F000E9;
+	Wed,  5 Aug 2026 15:08:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1785942540;
+	bh=qN+jBzY4sO4wQKae/TxHUsaRK5FcAIoanVdZo53PTCE=;
+	h=Date:Cc:To:From:Subject:References:In-Reply-To;
+	b=lIfHY7e/6dc3DEO6uPgih9oX3DUVdvwadv9Y7ffQmiG/M3DEph7BQ9SIZ56tg9mEa
+	 l8IyrNbHpjuWifpBuz75KrCBzPV3Cucxbhj5sRHLBKgmBfJsFByGJdr3KkzJzj8S/t
+	 +dzF5XT7FkyPUeOHVj6I6ZetDd4P4j3xSHzDKaF8IwLRYy7DnPoDwGoU3Dh+Ob0hgV
+	 T96pORwnxM2oBa18+gaCn7VFftJ1prW3brtGAkAeZ86iibX70hf+XBc7gVIwT0C7Ix
+	 J7ne0JYS0H8dy+/BKZGyfFFcaw2OOlFk10+i65gMxO4wb3nrR4+EQNwbAXjvQHR02a
+	 +TGFp/IA/1jrg==
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODA1MDEyMCBTYWx0ZWRfX8yrA+P8RgvKG
- in+5k3HdQUX4HwkxFCevsFPd2pnldTWtGIhSkeSPfvS+DEF8wnyakFqlSHr7/QgY6HK6hutDtgF
- qRwKSoa+ie+RD5KbxtR2/2xW0VMPNXA=
-X-Authority-Analysis: v=2.4 cv=I7VVgtgg c=1 sm=1 tr=0 ts=6a734e5b cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
- a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=Y2IxJ9c9Rs8Kov3niI8_:22 a=s5IaBbAnHO2ZuBJA9J8A:9 a=zgiPjhLxNE0A:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODA1MDEyMCBTYWx0ZWRfX166GKBRNcFjM
- XV/ODPKQy2p5x6LiW2jD7uhdXz+4nLWgfXbbvh8l1mA1fg7gG0zwFdazSoXVd8EQI+QWDKlDktx
- GpOTd5WYreYi1TA9wPjfuPBXtwtrjwJ1L5svNRwc7IoGErbCXGuYtmaAV66wQMExnn+dDosY+jh
- +aJtKH5jBVRX/27dsCr+OjSisDTl3uk2L4eD1v7RStwXtts3HbiM8YhJq6Mp+SuRp1eo4E0tm8D
- WfSvsPXwMDixPNVOlIyTl/EAe8IAQ8/ETXUVD7c7VyikyMYW2aJw92UqVZpT9nTMB30SqWg8xxD
- pYKyG62y9SqXE1XFxeIxfsYBI9UVIYJGud/5RlOHa6kKyTK/fkTGB+KOs4hxRQJlM7Ti9QKzzY8
- irkZ0i5rZJxTUnIuKR5e/Sy50o++h/sm+pjRDKhLEj4S8k9QiyJ6OSkBC5wjcEIkk7X6fnlP+Bl
- G9n4qPURWCAj+DIqVlg==
-X-Proofpoint-ORIG-GUID: mJDej5bRt67O_3NSFqthwwr6PxITdneq
-X-Proofpoint-GUID: mJDej5bRt67O_3NSFqthwwr6PxITdneq
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-08-05_04,2026-08-04_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0 impostorscore=0 clxscore=1015 priorityscore=1501 suspectscore=0
- malwarescore=0 adultscore=0 lowpriorityscore=0 phishscore=0 spamscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608050120
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Wed, 05 Aug 2026 17:08:54 +0200
+Message-Id: <DKH3SHX3Q95W.3UTJEVH2K3H75@kernel.org>
+Cc: "Heiko Carstens" <hca@linux.ibm.com>, "Niklas Schnelle"
+ <schnelle@linux.ibm.com>, "Gerd Bayer" <gbayer@linux.ibm.com>, "Miguel
+ Ojeda" <ojeda@kernel.org>, "Alice Ryhl" <aliceryhl@google.com>, "Daniel
+ Almeida" <daniel.almeida@collabora.com>, "Vasily Gorbik"
+ <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>,
+ <driver-core@lists.linux.dev>, "Christian Borntraeger"
+ <borntraeger@linux.ibm.com>, "Sven Schnelle" <svens@linux.ibm.com>,
+ <linux-s390@vger.kernel.org>, "Linux-Arch" <linux-arch@vger.kernel.org>,
+ "Boqun Feng" <boqun@kernel.org>, "Gary Guo" <gary@garyguo.net>,
+ =?utf-8?q?Bj=C3=B6rn_Roy_Baron?= <bjorn3_gh@protonmail.com>, "Benno Lossin"
+ <lossin@kernel.org>, "Andreas Hindborg" <a.hindborg@kernel.org>, "Trevor
+ Gross" <tmgross@umich.edu>, "Tamir Duberstein" <tamird@kernel.org>,
+ "Alexandre Courbot" <acourbot@nvidia.com>, =?utf-8?q?Onur_=C3=96zkan?=
+ <work@onurozkan.dev>, <rust-for-linux@vger.kernel.org>
+To: "Arnd Bergmann" <arnd@arndb.de>
+From: "Danilo Krummrich" <dakr@kernel.org>
+Subject: Re: `io{re,un}map()` build error in s390 under `!CONFIG_HAS_IOMEM`
+References: <20260803180931.97202-1-ojeda@kernel.org>
+ <fb2daae7-4eba-4ca1-95a5-60f8157eb66b@app.fastmail.com>
+ <DKFKXA6YWW8R.1NDZ44Q13XFQH@kernel.org>
+ <20260804071330.24760Aaf-hca@linux.ibm.com>
+ <33ecacea-ed2a-409c-ab1c-a136e06b1b7a@app.fastmail.com>
+ <DKG43HF7A2EN.PC1LBC0QUP93@kernel.org>
+ <f0e0c069-23eb-443a-800d-267cfe4c2aa2@app.fastmail.com>
+In-Reply-To: <f0e0c069-23eb-443a-800d-267cfe4c2aa2@app.fastmail.com>
 
-The return codes from skcipher_walk_virt() were not properly checked
-before entering the processing loops in ecb_aes_crypt() and ctr_aes_crypt().
-If skcipher_walk_virt() fails, the walk structure may be in an undefined
-state, and attempting to process data could lead to incorrect behavior
-or accessing uninitialized memory.
+On Tue Aug 4, 2026 at 2:02 PM CEST, Arnd Bergmann wrote:
+> In that case, it would make sense to also change the CONFIG_PCI=3Dy
+> version to fail the same way when the address points outside of
+> the PCI memory space range. The current version in
+> arch/s390/pci/pci.c just falls back to generic_ioremap_prot(),
+> which is what I would use here directly:
+>
+> void __iomem *ioremap_prot(phys_addr_t phys_addr, size_t size,
+>                            pgprot_t prot)
+> {
+>         if (!static_branch_unlikely(&have_mio))
+>                 return (void __iomem *)phys_addr;
+>         return generic_ioremap_prot(phys_addr, size, prot);
+> }
+>
+> The two methods here (generic_ioremap_prot() and the cast)
+> are machine specific to refer to two different ways that PCI
+> devices can be accessed if present, but there is no case
+> for PCI being unavailable altogether.
 
-Add proper return code checking to ensure correct handling of the walk
-initialization and walk advance and eventually return to the caller
-with that return code.
+I think we agree the correct solution is to fix things in s390. But the
+conversation seems to suggest that this rather results into merge window
+material, so I will go ahead and pull in the other fixes for -rc7.
 
-Changelog:
-
-v1: initial version
-
-Harald Freudenberger (1):
-  s390/crypto: Fix skcipher_walk return code handling in aes_s390
-
- arch/s390/crypto/aes_s390.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
-
---
-2.43.0
-
+Thanks,
+Danilo
