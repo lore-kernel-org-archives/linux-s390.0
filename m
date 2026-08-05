@@ -1,176 +1,132 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 50278357CF4
-	for <linux-s390@vger.kernel.org>; Wed,  5 Aug 2026 16:41:17 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A1CCD36196A
+	for <linux-s390@vger.kernel.org>; Wed,  5 Aug 2026 16:48:30 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785948078; cv=none; b=KFw+tTrrBFGcx6UA5qu5jc9uBHzMtgJu9erAiIUnTa+JKRz0dlW1PKGw+3KpidqRVVDYLJfCscz5EsqDbgQ891apQQDyefgPxISvS4JnXoQt+TBeSk3uPTysv5RsfIufToAdN0y/EAF5NpQa2Rw9cV/yYHNDOwY9lWmCoKeXLIw=
+	t=1785948511; cv=none; b=dzb4Qlytsa96X+ObnLkxRg8V+OlMTQqXL/894Jlz3hHhe+lgmrRoYnda7h/BOppbG0LggNAAE8GYimlB45IHB8SmS0eciQ6kpZwOEulpWses/J5b2JO7oewbuKB1su7wzDA/gY49HuYLWLY5HxoDvIPAAFXC7jhc7Ht/+VBjPYs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785948078; c=relaxed/simple;
-	bh=NxQqPiNhiWwiKDbK9pWrJWgKRgmSLvRKhHGwA/48I7k=;
+	s=arc-20240116; t=1785948511; c=relaxed/simple;
+	bh=ei2JCicnGHxDokgd1CWbPX9R4+yi33xt3Ov3EzSJJWI=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=P4wqtoYt0J3YRic6VagDMpEtDOrM9hy78Y5fkW731uYNiiSC931qg8aEtsVOV7xezbDwoFF0YkVMAOy9CfVE21Fk/Ie9qXNukf00TaDYqXcdV1oN6WG+iCnJHDQJT06ZRGI16ePjWEPRZyYXTUkUBp88k/SqZyvRW6s1082r0d8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hHVNaZmJ; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=lGPMP8fDfBmlS8uUb5MIHYqw1HlufmYaqFe9Uhj9ivcyKKKbLwjYwujG0TRz1OI2/uiPqh/olpZUelP/MOumk/YhSRaFlsDU5cpi8sodj5DeIMu+1jtqErZoqn/frkEDCn3m9VENpEJY6JszOStSDT5K1yA1fcMTpX3UEWOnv38=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=F090X6nD; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hHVNaZmJ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8796E1F000E9;
-	Wed,  5 Aug 2026 16:41:16 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="F090X6nD"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21D741F000E9;
+	Wed,  5 Aug 2026 16:48:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785948076;
-	bh=5dqbgNaZ+PVKW+1U734U4LSpc7ufxRiT+UTv9ooGFsg=;
+	s=k20260515; t=1785948510;
+	bh=WegASUQh0WCIPdVcO3QmVLBx69xW19WgVlyjfzqQA9s=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=hHVNaZmJfDUpJGxYoy9MXxPuV0rcGUE1Zt32Pn6uywMnhjNSjIDX0KL5/CqHA7ur9
-	 7RkqUFwhuKI1BXZQPRe5IZA4cI5vIU/SgF6fw8YIww0PpWxGL+4kKOSfRwWZzkEg2e
-	 GhPzB9eFrOj6mUoFAZ3DYLxyPvUAIgkv4UBdQZy4uln+KcHy6hEsWzngDtRf163x+j
-	 +L+zQCSvgM+uIjinHyHjDeWC+K5MnKYzSKlSa8SoLgnCzldQ2A+Y380fWp/AJOFlXX
-	 R60J2rtf4Kr/Ls67RRjMiDpa4DPvgoO03bW9dZvMvpHK0KePZxj8Gd6OxkUjtSdExs
-	 C4lVKet4K2l8A==
+	b=F090X6nDx9+e2kw0r/Qzw5jZWLYQKKiD0INTmY8L7TOGXz2geX+oN45noprtTRazC
+	 48g3/shz3VRBcIjj0OPQ4A9KfEj1LVM1ZISnFsLNHSwzNk6M7+X1aK9oFG02Jsrrgk
+	 mWMsuihsOvAJ5ruFh7PXpoZoE7JQSAv9FgRLMZchA5P85YP+hdF9Wr1nV3v1NPQa2/
+	 EXYVjmQLBiq+gmZ7bBrcoTeoZDGQr9Snd3mSnTi66eiX+nPmc9/WC6KpgGWd+GEaTt
+	 IWlKFlVGGHemvUpUm5UApaxAmPlZ1M0/UO7ZItbrCK5/Vu8m4zKv/bo2dukiagjfur
+	 +XKRSN8+vVJpA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 13/19] s390/dasd: Add full_track_bias to control
- fulltrack write mode
+Subject: Re: [PATCH 14/19] s390/dasd: Derive adaptive ESE fulltrack
+ heuristic from ft_bias
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Stefan Haberland" <sth@linux.ibm.com>
-Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
- Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>
-In-Reply-To: <20260805111612.1285190-14-sth@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>, "Heiko
+ Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
+In-Reply-To: <20260805111612.1285190-15-sth@linux.ibm.com>
 References: <20260805111612.1285190-1-sth@linux.ibm.com>
- <20260805111612.1285190-14-sth@linux.ibm.com>
+ <20260805111612.1285190-15-sth@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 05 Aug 2026 16:41:15 +0000
-Message-Id: <20260805164116.8796E1F000E9@smtp.kernel.org>
+Date: Wed, 05 Aug 2026 16:48:29 +0000
+Message-Id: <20260805164830.21D741F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [High] Using `rq_data_dir(req) =3D=3D WRITE` to gate data buffer accesses=
- allows payload-less requests (such as DISCARD or WRITE_ZEROES) to bypass t=
-ype safety, leading to a potential NULL pointer dereference.
-- [Medium] Inconsistent initialization of `fulltrack` between the module pa=
-rameter logic and the sysfs store function, leading to divergent behavior f=
-or the exact same configuration value.
-- [Medium] Concurrent sysfs writes to `full_track_bias` can leave `ft_bias`=
- and `fulltrack` in a permanently inconsistent state.
+- [Medium] Concurrent IOs bypass the lockless exclusion in `dasd_ese_heuris=
+tic_tick`, causing multiple threads to execute state transitions and corrup=
+ting the heuristic's state and backoff intervals.
 --
 
---- Patch [13]: [PATCH 13/19] s390/dasd: Add full_track_bias to control ful=
-ltrack write mode ---
-commit d2feac141aaa53ff2a5f42b4d0748a881207c899
+--- Patch [14]: [PATCH 14/19] s390/dasd: Derive adaptive ESE fulltrack heur=
+istic from ft_bias ---
+commit e9a2e43413ef73d4ffb3fe2ea3f44d65c5f79bff
 Author: Stefan Haberland <sth@linux.ibm.com>
 
-s390/dasd: Add full_track_bias to control fulltrack write mode
+s390/dasd: Derive adaptive ESE fulltrack heuristic from ft_bias
 
-This patch introduces a per-device full_track_bias sysfs attribute to contr=
-ol
-the full-track write path for DASD ECKD devices. It routes aligned full-tra=
-ck
-writes through a new function based on the bias value. The patch also adds a
-module parameter to set the default bias for all devices at online time.
-
-> diff --git a/drivers/s390/block/dasd_devmap.c b/drivers/s390/block/dasd_d=
-evmap.c
-> index 381d616ad433f..035c022255b68 100644
-> --- a/drivers/s390/block/dasd_devmap.c
-> +++ b/drivers/s390/block/dasd_devmap.c
-
-[ ... ]
-
-> @@ -1630,6 +1630,44 @@ dasd_expires_store(struct device *dev, struct devi=
-ce_attribute *attr,
-
-[ ... ]
-
-> +static ssize_t full_track_bias_store(struct device *dev,
-> +				     struct device_attribute *attr,
-> +				     const char *buf, size_t count)
-> +{
-> +	struct dasd_device *device;
-> +	unsigned int val;
-> +
-> +	if (kstrtouint(buf, 0, &val) || val > DASD_FT_BIAS_MAX)
-> +		return -EINVAL;
-> +
-> +	device =3D dasd_device_from_cdev(to_ccwdev(dev));
-> +	if (IS_ERR(device))
-> +		return -ENODEV;
-> +
-> +	device->ft_bias =3D val;
-> +	device->fulltrack =3D val ? 1 : 0;
-
-[Severity: Medium]
-Can concurrent sysfs writes to full_track_bias leave ft_bias and fulltrack
-in a permanently inconsistent state?
-
-If CPU1 writes 100 and CPU2 writes 0 at the same time, could they interleave
-their updates to these two fields, leaving ft_bias at 0 and fulltrack at 1,
-or vice-versa?
-
-[Severity: Medium]
-Does the logic here mismatch how fulltrack is initialized during online tim=
-e?
-
-In dasd_eckd_check_characteristics(), fulltrack is set to 1 only when the
-bias is >=3D DASD_FT_BIAS_MAX (100). However, in this sysfs store function,
-fulltrack is set to 1 for any non-zero value. Should these conditions match
-to prevent the exact same configuration value from producing different
-behaviors?
-
-> +
-> +	dasd_put_device(device);
-> +	return count;
-> +}
-
-[ ... ]
+Derives adaptive ESE fulltrack heuristic parameters from ft_bias to
+locklessly switch between fulltrack and plain writes based on device
+sparseness.
 
 > diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eck=
 d.c
-> index da488c0775fcd..067ab66209b65 100644
+> index 067ab66209b65..62c03c4787c83 100644
 > --- a/drivers/s390/block/dasd_eckd.c
 > +++ b/drivers/s390/block/dasd_eckd.c
 
 [ ... ]
 
-> @@ -5204,11 +5221,20 @@ static struct dasd_ccw_req *dasd_eckd_build_cp(st=
-ruct dasd_device *startdev,
->  		/* do nothing, just fall through to the cmd mode single case */
->  	} else if ((data_size <=3D private->fcx_max_data)
->  		   && (fcx_multitrack || (first_trk =3D=3D last_trk))) {
-> -		cqr =3D dasd_eckd_build_cp_tpm_track(startdev, block, req,
-> -						    first_rec, last_rec,
-> -						    first_trk, last_trk,
-> -						    first_offs, last_offs,
-> -						    blk_per_trk, blksize);
-> +		if (!first_offs && (last_offs + 1 =3D=3D blk_per_trk) &&
-> +		    rq_data_dir(req) =3D=3D WRITE && basedev->fulltrack) {
+> @@ -3231,6 +3240,69 @@ static void clear_format_track(struct dasd_format_=
+entry *format,
+>  	spin_unlock_irqrestore(&block->format_lock, flags);
+>  }
+> =20
+> +/*
+> + * Adaptive ft_bias heuristic, called once per IO from dasd_eckd_build_c=
+p().
+> + * Probes the device formatting state by briefly switching to ft0 and me=
+asuring
+> + * the NRF rate; parameters are derived from ft_bias.
+> + */
+> +static void dasd_ese_heuristic_tick(struct dasd_device *basedev)
+> +{
+> +	int ios, nrf, rate;
+> +
+> +	if (atomic_inc_return(&basedev->ese_io_cnt) < (int)basedev->ese_probe_i=
+nterval)
+> +		return;
+> +
+> +	/*
+> +	 * One wins the race to evaluate, the rest see ios =3D=3D 0 after the
+> +	 * xchg and return early, preventing redundant state transitions.
+> +	 */
+> +	ios =3D atomic_xchg(&basedev->ese_io_cnt, 0);
+> +	if (ios <=3D 0)
+> +		return;
 
-[Severity: High]
-Can payload-less requests (such as DISCARD or WRITE_ZEROES) bypass type
-safety here?
+[Severity: Medium]
+Can this lockless exclusion logic be bypassed if a third thread increments
+the counter right after the first thread clears it?
 
-The rq_data_dir() check relies on op_is_write(), which returns true for
-dataless operations. If dasd_eckd_build_cp_tpm_writefulltrack() then iterat=
-es
-over the bio segments without verifying bio_has_data(), could this cause a
-NULL pointer dereference when accessing the data fields?
+If Thread A and Thread B both pass the atomic_inc_return() threshold check
+concurrently, they will both proceed to the atomic_xchg().
 
-> +			cqr =3D dasd_eckd_build_cp_tpm_writefulltrack(startdev, block, req,
-> +								    first_rec, last_rec,
-> +								    first_trk, last_trk,
-> +								    first_offs, last_offs,
-> +								    blk_per_trk, blksize, NULL);
-> +		} else {
-> +			cqr =3D dasd_eckd_build_cp_tpm_track(startdev, block, req,
-> +							   first_rec, last_rec,
-> +							   first_trk, last_trk,
-> +							   first_offs, last_offs,
-> +							   blk_per_trk, blksize);
-> +		}
+If Thread A executes atomic_xchg() first, it resets the counter to 0 and
+proceeds to evaluate the state machine.
+
+If Thread C then calls dasd_ese_heuristic_tick() and increments the counter
+from 0 to 1, it will return early because it is below the threshold. Howeve=
+r,
+Thread B could then execute its atomic_xchg() and receive 1.
+
+Since 1 is greater than 0, Thread B will also pass the ios <=3D 0 check and
+evaluate the state machine concurrently with Thread A.
+
+Could this concurrent execution corrupt the heuristic state and backoff
+intervals, causing premature transitions (for example, from FT1_ACTIVE to
+PROBING)?
+
+> +
+> +	switch (basedev->ese_probe_state) {
+> +	case DASD_ESE_HEU_FT1_ACTIVE:
+> +		/* Start ft0 probe window, reset NRF counter for clean measurement */
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260805111612.1285=
-190-1-sth@linux.ibm.com?part=3D13
+190-1-sth@linux.ibm.com?part=3D14
