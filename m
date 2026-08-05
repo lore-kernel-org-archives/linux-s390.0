@@ -1,220 +1,143 @@
-Received: from BYAPR05CU005.outbound.protection.outlook.com (mail-westusazon11010057.outbound.protection.outlook.com [52.101.85.57])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-oo1-f53.google.com (mail-oo1-f53.google.com [209.85.161.53])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B04C826ED46;
-	Wed,  5 Aug 2026 12:30:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.85.57
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785933031; cv=fail; b=Qr2LzVKdvrv0G4GR0A9pCqkcTjRfeUb5xXZEBjNZct35qDNJ3CzQNSWMlG+1CBETJAo7Kd0zZ2mcXiN4MrE+fUZ4oEaYRxBGWNQrrTYSjXyLuCHES/mGLhDXUKV956KxR26sXrJt3kwrgZBAZiwHFKl/Rl2VerQQGwMXqT5goUU=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785933031; c=relaxed/simple;
-	bh=QTnLIjfA6T8toPS72sYvz72PXPXYr+HxZS3UJtNuWJ8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=SkRs42s6dXQPngX6y2b87o8rJi31nEF9Nqphw/v0vmgCfnl3nFbCIJ4Qrr4KggBOEbYENyg0sf/4jzn6TVTpRMKGhFU8onuJPkXCIJcLNl3V6TgaCjVeUXecFQocskNjxidKHmSO64Ud55zvfQJnyWPk0r4s6bCEjLETmkcaXhA=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=MKDGdRlK; arc=fail smtp.client-ip=52.101.85.57
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 401353054E4
+	for <linux-s390@vger.kernel.org>; Wed,  5 Aug 2026 12:32:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.161.53
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785933169; cv=none; b=kVIq9MkKADpVq0FnxR9C8lBJeYtVCC/c+bWUyFP66A7q1jDirPNYXSrvaA+6UeppBkozuh4sMG/TISvD92ysfcGNsq3n+tuqvMWTFgF50kuVMboV2+vR0fGKztGekpyxaIKmVZOQr4jw48EN6A3mkNhVLzuif+bo4KydtxNEBDA=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785933169; c=relaxed/simple;
+	bh=oEqCrBUULOOY/ZiaofrSvncuUWIxfn8H+BJSyY8nC9k=;
+	h=From:To:Cc:In-Reply-To:References:Subject:Message-Id:Date:
+	 MIME-Version:Content-Type; b=qjP09G455MEaTjEOVw3wEVUHWrtwcghntHwgV+4Ba8GE3TaG32OAi4g6vK9DtKlT1noktagzCOPq8dYFSsU3zVM3mYFHWYy3tUI3p5KKodLa8huICnCM1EkUf6DD9YanIvL35r/uJrt++zrOWJMTk5bGo2KNBixJRFDc0X76La8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=pass smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=kernel-dk.20251104.gappssmtp.com header.i=@kernel-dk.20251104.gappssmtp.com header.b=k6dF1b6p; arc=none smtp.client-ip=209.85.161.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="MKDGdRlK"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=rHg7Pqy25T1EHcgljCMLNjJuRPyEm5Tm8xIwNQxi154dmvQaxxwQ5Sfk5Zr1bu+HYKYwn30v6FBIPFAAkSsohBd9qXxRaHAvXuyqtx0FuYmPa4wemPCRkMiuDAv4D86/ViFBDd94eZtEOpbSvAhMWFvPukWS9jGgvFXdgQUhd0/dsxzN94k1pfZeEa+x1iFAZliadFZaGTFhxfNaBZRSvX1v5v6HQGTPxA9h5YoLx/q3TV2/n0GU/MDYB0hsOWYKTaZs9VkoHoAY2Oq5BRHm4HQ1jV46GhoNcGtSdLgqNJLgp/bZm6Ve7PtRBJuhZyzzDjA2floBpGsApbNHKdIxyQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=ox2xbRLxNvdqpJFmgdEJg4jzYCu9Zb10QHH/V8E5mn0=;
- b=J5cAUlCPGO7XGnJjd968I77MnrobAxioxdSRBUM5FQpspKNsY/6F5pwSbUFD5rFdgyHQb3+ytihLz2wLViZ7x2vRY3oMf23x667ReFqT2GL+6uYN39bVg/ZGxR2eUBHDnFswYEE0ctM4M45IXJVTtM/d4XFTc7JynvGy/UUwtFusAZhQKajz5FTuwvAK1SVxv0DbbMYwqhuMTXyWgNTcKZIfYlZhF1eLyWoTo3PzfumItM5XN424YDKpl46axijZo0Zn8beaVzEhOt/wGX5qk6o2FwGjMlhTp184TXde4VAAYIJeb+QUbqxlpRfVbaVLD4vD0lBzUeQIwTsn6tckgw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=ox2xbRLxNvdqpJFmgdEJg4jzYCu9Zb10QHH/V8E5mn0=;
- b=MKDGdRlKhEgo7F2ULcO8dm44E0sNuHGjxPBIwyFLQU51nhvBCS7veG5Oa9Crj4LQJikt0LL1cTsw7dI/yJ1D+nnUuX0dfww+k4pznjZVeYtphfNfTCKan3kwMp2HXXZHPY9rgKauD2BHGoq1CBUbRT443eI1iJCAQHGh0erBq2fj6BxFyOHVghOyphLqgTVwbicP8ZMNW6vxUdgZIexCsT9XDv71/3SDrPZQ4KU1cUJleAvSEJg3CKz5BuynnJExBgY/o5tfWUsG1HhmeYisGrZUDGBXEwwmadQ94+nVV26w9rXznT7FiaayOsIWZdyqFSV6R8L6hnD78fexmViTbw==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from LV8PR12MB9620.namprd12.prod.outlook.com (2603:10b6:408:2a1::19)
- by EAYPR12MB999132.namprd12.prod.outlook.com (2603:10b6:303:2c2::11) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.270.20; Wed, 5 Aug
- 2026 12:30:25 +0000
-Received: from LV8PR12MB9620.namprd12.prod.outlook.com
- ([fe80::299d:f5e0:3550:1528]) by LV8PR12MB9620.namprd12.prod.outlook.com
- ([fe80::299d:f5e0:3550:1528%4]) with mapi id 15.21.0292.015; Wed, 5 Aug 2026
- 12:30:25 +0000
-Date: Wed, 5 Aug 2026 09:30:23 -0300
-From: Jason Gunthorpe <jgg@nvidia.com>
-To: Mostafa Saleh <smostafa@google.com>
-Cc: "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>, iommu@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	linux-coco@lists.linux.dev, Robin Murphy <robin.murphy@arm.com>,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
-	Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
-	Steven Price <steven.price@arm.com>,
-	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Jiri Pirko <jiri@resnulli.us>, Petr Tesarik <ptesarik@suse.com>,
-	Alexey Kardashevskiy <aik@amd.com>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Xu Yilun <yilun.xu@linux.intel.com>, linuxppc-dev@lists.ozlabs.org,
-	linux-s390@vger.kernel.org,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org,
-	Michael Kelley <mhklinux@outlook.com>
-Subject: Re: [PATCH v8 12/23] dma: swiotlb: pass mapping attributes by
- reference
-Message-ID: <20260805123023.GO27883@nvidia.com>
-References: <20260717180442.110954-1-aneesh.kumar@kernel.org>
- <20260717180442.110954-13-aneesh.kumar@kernel.org>
- <ami_mpd_1pF4Tmdu@google.com>
- <yq5a5x1ygo7z.fsf@kernel.org>
- <amnRB98ZZIysHuM3@google.com>
- <yq5acxw6dl1d.fsf@kernel.org>
- <20260804142032.GC27883@nvidia.com>
- <anL9-OrDGqYQAWNV@google.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <anL9-OrDGqYQAWNV@google.com>
-X-ClientProxiedBy: YT4PR01CA0449.CANPRD01.PROD.OUTLOOK.COM
- (2603:10b6:b01:10d::21) To LV8PR12MB9620.namprd12.prod.outlook.com
- (2603:10b6:408:2a1::19)
+	dkim=pass (2048-bit key) header.d=kernel-dk.20251104.gappssmtp.com header.i=@kernel-dk.20251104.gappssmtp.com header.b="k6dF1b6p"
+Received: by mail-oo1-f53.google.com with SMTP id 006d021491bc7-6ae50ba83efso1052585eaf.0
+        for <linux-s390@vger.kernel.org>; Wed, 05 Aug 2026 05:32:46 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20251104.gappssmtp.com; s=20251104; t=1785933166; x=1786537966; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:mime-version:date:message-id
+         :subject:references:in-reply-to:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=f5HS6afxPeOr3O6XnC1tqGdcH6TkzlrKwwT53qowax0=;
+        b=k6dF1b6pojwJ+ka4ETpZjZmuA43i5UGyw71C73qsyKYG4G68JAaGx+K0gl0vyYDwnf
+         6XuVEa8kwV56P2iYXA414axUA+1Us7sefWZGSLvjC1U231bBY7vWTbboKqhYTe0XY/Yv
+         KmjHC8jfr9/l5GZcm9B7d2RU0nsL8DeamLWUNMj85C+GhPBYC38qwW8I5W+qhJchZaRL
+         beJFxdTWQCmvsxAC8UMqa83yWnrhlSLYR2LtslvArYD5VUe9gdvI4n/cIhrdQJdHzGF8
+         ugF9a0l26OT4MlPWQkVeqa3HFT7EIsZqmVnlOP1xkcJTfjBwcvKHf8RbHjgboA6UzQ+p
+         RAaw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1785933166; x=1786537966;
+        h=content-transfer-encoding:content-type:mime-version:date:message-id
+         :subject:references:in-reply-to:cc:to:from:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=f5HS6afxPeOr3O6XnC1tqGdcH6TkzlrKwwT53qowax0=;
+        b=eoifyq7l8ery82PoG1GMHBhmzLrMbogSzblXUYzTOSBKu67ZIvvH6oFcBEgkoXiNB8
+         EnfoXLFAx65SVbL42iobj9uyt0lSXBGGUTOicMoFJqfgUvaXwDXUowlHkbgzYHmVWTCz
+         nn99b54hoI7ga4ZkhkBp94Pgbkny4kTxfrW29czhLz816NC2seUzQbu88hptfN9t9Z/Z
+         O3AYYLTM9Ggim8XfBfSqiq6zjUMICWp1sN0zWhm2tv681zNpXh0MW4pn3U/5Hn+6Y8OD
+         TpT/yKhO9bjB64QaWmJR+L+mcjwbZo2Ki7RaRGsVs+RdJYSl3HhBxKOsCBtJBcEMaf61
+         VX3w==
+X-Forwarded-Encrypted: i=1; AHgh+RqZfO7Wl1q/DDWmVfeykCEN9PhamyqFqeddeDWT3XOiT3PJlTXCSytGi68E2jE5C4VKHO2p/c/sJS/M@vger.kernel.org
+X-Gm-Message-State: AOJu0YxrL5T1FojMp9gYdKZD8ycjDGKS1Hqmv4+kVjeI6KmgOVoCNYLd
+	q2TN2Ya1NviHNl2kTYsMDfDQbUh4P2b/YHAX5O0DKfbWx2jPSAmCHRJ+g0NydrF+G+k=
+X-Gm-Gg: AR+sD1050id0C5PqqXiN9CRMX/UFtbX61kUytsMYIC/grPUqqQLTiqVIIqb7q/Cvejx
+	yREOkkErglBYVzNeOPqg3k5OuGfJHa95A8TPr7UjrlGMPYJcd1FjD05GqW/xIXKxHRmS0PQmVbs
+	y3HxWAjme0pMMhfxDxzdSAevYC3UTmlv/FNSHIO99J07gf5I7J931FV2nil2J5ZW84keCDhCcSI
+	z1Ly+kW/eC8zvOyrWElvLosiRir+K5itZkGTGK7aXrX22v1IOiXuWpewM2pL1hBvWz+YAap6lOy
+	KscVdjzqK4snGZVk4eUIGTrTwvOKUa5mWbL1RyTU8uMf2Viq1jE6HENjkp4dAEn06pYpSe/Wjjj
+	E2JjW4pEdCcooVVFZA7voxdhl5l1zysCN5mb4CExDj4AbBEtCtwNNDGbU06hU/NPyT62HzuB5Oa
+	tjzEIgwNGbdTbgr67TWX2IEQ5ut1QDXn7395NNFqAjw8rxddQ203nCHj432xiUpfn+eQikO7ul4
+	ZObqUzBdlSWOfWff0uxAIZvQSe6CZylwCxUNpq6npKJkLC8HJ3H
+X-Received: by 2002:a05:6820:4b01:b0:6ac:a658:b952 with SMTP id 006d021491bc7-6ae965b624cmr2073364eaf.2.1785933165662;
+        Wed, 05 Aug 2026 05:32:45 -0700 (PDT)
+Received: from [127.0.0.1] ([198.8.77.157])
+        by smtp.gmail.com with ESMTPSA id 006d021491bc7-6ae93d524d3sm2647355eaf.6.2026.08.05.05.32.44
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 05 Aug 2026 05:32:44 -0700 (PDT)
+From: Jens Axboe <axboe@kernel.dk>
+To: Stefan Haberland <sth@linux.ibm.com>
+Cc: linux-block@vger.kernel.org, Jan Hoeppner <hoeppner@linux.ibm.com>, 
+ linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>, 
+ Vasily Gorbik <gor@linux.ibm.com>, 
+ Christian Borntraeger <borntraeger@linux.ibm.com>
+In-Reply-To: <20260805111612.1285190-1-sth@linux.ibm.com>
+References: <20260805111612.1285190-1-sth@linux.ibm.com>
+Subject: Re: [PATCH 00/19] s390/dasd: ESE Performance improvements
+Message-Id: <178593316400.1788337.13989014782442395023.b4-ty@b4>
+Date: Wed, 05 Aug 2026 06:32:44 -0600
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: LV8PR12MB9620:EE_|EAYPR12MB999132:EE_
-X-MS-Office365-Filtering-Correlation-Id: 693df1b0-8bad-4c1b-433e-08def2ed530c
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|366016|1800799024|376014|7416014|23010399003|18002099003|22082099003|4143699003|11063799006|56012099006|6133799003|10067099003;
-X-Microsoft-Antispam-Message-Info:
-	wtpreoMMSbMNkvVIQRVqvnZb64uPO/ftJxH026TyI2TzinjsLqw7pGLDEkAypUGJMmAcdbM2IY90FmH6YKekynfqyKGced4hUOuk9RfrciCspsz4NQJFTPsrpRl5z8AE+5yP7EfQEaHeDyVbP+mAexfUnm5PpXvtZ/vYMp/Th7N5r3q88w81hqhFqqWLuWxkXirkQvjH8GAhF2BjYZvOfAkjTJvGvqCSBheB05I/rJwAmuXhNMGSkBqD3gq4sLcuq5Xx8WOeOs5fu4zM6HE5ciMtyWNJZHXeyehPBcbaSyjngsvB5CWNz3umZ0gkaEw85yIuFxzWr+Ez8+J2ReLWnHOVbzCtZ/U0snRYGtVQKTFVTCP9NIQN2aumWCfasdKIILrze0GTmHp/SzOEc0Y/o7oYPSpJAq2LjRsZqGwRKMGE6pPWbEhfRrktnXm+Kej8dAV5Dd/YnExy1kJB3mkBEd9UE1MUqYCIZxDxhZP5FRAMX02KCbiP4y/Os86P5SG3d5iUCLFcX1fNlj8a7Duq2Uo8e54Lv18GMX7lhsMFgC0SJVk9tA91SAQrucfnwnkeCBy4rrQM9+3cMMVN4jUFO33344zWFqI3oEQRFdMI0B5rtI1sFZMTJdxfncy/3yqov9rEQaTCL06DYaZ9fwTE862u/SLRfklyfilqlxzi2i8=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV8PR12MB9620.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(376014)(7416014)(23010399003)(18002099003)(22082099003)(4143699003)(11063799006)(56012099006)(6133799003)(10067099003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?IhdvWWGfiwCzol3+AUKdUWMHHE4HWALFFNYMRE+RmFsR/2v0ODtmAbuAIrmW?=
- =?us-ascii?Q?++YuY5qxNSSGbhCE/uUqv1Zjre7UVbCER/qCW06WVTAImbxzFOP7BV0KHQju?=
- =?us-ascii?Q?vBuuCfhcl9vk3TVlXgbCJikyf4g9V69eZfKjeyHVYKjZCQUP6/96b9u2FrXy?=
- =?us-ascii?Q?EXkfC4LFf5h/97MPvBYj7HtXF/lW1Q72gmOXNPYUUYwmlNK9oLOBnS7uvtqg?=
- =?us-ascii?Q?+9KvvEN5Ap8UTSJxNyrcCyGm39bMV9f+msR9ieDkLSkEwZirn70aGektH7ul?=
- =?us-ascii?Q?Wir3QQsAufage7I47Xnxol6uEKRuCWyQo+2FxZlDl5rw2r35ZPHJzrhABDSV?=
- =?us-ascii?Q?nQ2OCr0uTwo+hd/CCA4BfENcsgXUNGDKNwyQ7C3yl6AVihvvU9oomRTSES9X?=
- =?us-ascii?Q?66CnYKuSc1TmuRXXaxtdf0f/mhsJh1NEeXxqP4MiLGub8FrdlDQaQsHiGo+O?=
- =?us-ascii?Q?bhE21Pn2LEjbrTVyZhtQYWw/xUiQ27AwYXKFS6KLOi/xawx4KlV19LK6o09U?=
- =?us-ascii?Q?0OigRMbjTxpbvEY6mHKRjOdc7fd1VW36PnM/JQ/4AobFA8EXl7IjJJ8oJmhV?=
- =?us-ascii?Q?QL/SE2wISFBJucIPsPumh62swZWFbj1Fl8HpiqfcbKc22jCeXnz5rnSngtrY?=
- =?us-ascii?Q?WoBioRTvqcEmBlOOsmPDMelFg3yqC+Hac9lKhr5B22c89P/v+2inJGhvUP5S?=
- =?us-ascii?Q?TadWy/uYUATQIbDhMBEoMQjgqmCoFoJ1e8Qa0S2TorUtCaAOfxHdnzpCYVaz?=
- =?us-ascii?Q?RZMm4pEJsbUuFwg1bUQs9cBjvAKqkvAwY18LtVIML/wLcCoxfog1FNJr1Xe7?=
- =?us-ascii?Q?0JI1ywQNQRuAJV1IEVNgJPIQVSJuc1MUxS5qDkD9HV69GKczAk+g38sa+vHx?=
- =?us-ascii?Q?7naYCd1KdDssmBcCL0e8DBr+kz9RgjbAu0hkP6JZFDht1PxbaZnshp2T1Ws2?=
- =?us-ascii?Q?j/an/bIzYWCs+GSsxmf4saCwUi9Qwt8p5ctqftcc2iOzU/aZNffGSWdcTWop?=
- =?us-ascii?Q?hHoCgzOarMuljYizaEyWVXAwzvBmaSwEJ5eLXxQWtjdDXDhqOyRSOiHP40+Z?=
- =?us-ascii?Q?mAeIZzTGQiNsNHrnaZrtgaLMMAClk2eSvN8qtLC48WvM0x4bk+GT/ZXv5HOm?=
- =?us-ascii?Q?Tww27yTLgyTCRHtucU4XbLgBxbeBTg3aKaF/Uf9nYBABBxbgSsCji7sMIcBR?=
- =?us-ascii?Q?o4qUUXOIGSAxDKY+DMqaxfQgQl0eouNSDdO9e1ZZ/OZicVV4bph6Tf7hnZHA?=
- =?us-ascii?Q?udQOE0V7OSTJEZRzRCfYATnyQCS9qkpkdk5QUs9F/EwcX35CHWxZfQ+l+tlQ?=
- =?us-ascii?Q?0UZqvFtnxhnoZECLAfOBTeVsBry1Lj7JEU0528cPZ/kWNRlbzMhRA5N6cFwb?=
- =?us-ascii?Q?91eIDW939hdE1zKt68NPqswU9YUPZ22jYJnFHhEwF/cBJmLMrCcRRlSAZ6PC?=
- =?us-ascii?Q?LYmutjcySr/n1pfCMmLcm1UCc4MsRx+SBQprC0bweGx8CULgSFYOQfF2KkXV?=
- =?us-ascii?Q?GgEcXTpWlUS5nX+VfBOVL/aKhyCJPJat0mgs8o4M/8RFCwZ92jeuLNiYIN/t?=
- =?us-ascii?Q?obhA4NG10RZeFaZB1rDR7JO4ZV8nObjNY8u8u8QBZLN4xX/gy+IEY9VXuTpr?=
- =?us-ascii?Q?6gyMbpy3WJ73qzF1SmH3e+HP/KeeY0iFDWjUEobitwCrGyJa5+3m+wtNrdKp?=
- =?us-ascii?Q?PKWjgiFUGpIO8Gn1hniVAlB7vMjyz+JRtEViMNPoGPScTyYfWmA0iRXChWL2?=
- =?us-ascii?Q?6a91FZ2B/A=3D=3D?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 693df1b0-8bad-4c1b-433e-08def2ed530c
-X-MS-Exchange-CrossTenant-AuthSource: LV8PR12MB9620.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 05 Aug 2026 12:30:24.9433
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: SnEE0VCiRX+7FvTKRW2hbsqeIdcBOCg9gwb9qK8aHHGB4wwY9TBKfnxLggJ3Y/Xl
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: EAYPR12MB999132
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Mailer: b4 0.15.2
 
-On Wed, Aug 05, 2026 at 09:10:16AM +0000, Mostafa Saleh wrote:
-> On Tue, Aug 04, 2026 at 11:20:32AM -0300, Jason Gunthorpe wrote:
-> > On Wed, Jul 29, 2026 at 06:12:38PM +0530, Aneesh Kumar K.V wrote:
-> > > There is a possibility that we may support io_tlb_mem with cc_shared =
-> > > false in the future. As a result, only swiotlb_map() knows which type of
-> > > bounce buffer was used, making it the only place where the attributes
-> > > can be updated correctly.
-> > 
-> > Yeah, +1, the attribute should be changed at the same effective place
-> > the source memory is changed away from what the DMA API user
-> > provided. Only the thing providing the new memory (eg swiotlb) should
-> > know its properties.
+
+On Wed, 05 Aug 2026 13:15:53 +0200, Stefan Haberland wrote:
+> please apply the patch series for the upcoming merge window.
+> It applies onto your for-next branch.
 > 
-> I will keep the conversation here instead of 2 threads.
+> The series significantly improves the performance and overall usability of
+> Extent Space Efficient (ESE, aka thin provisioned) DASD devices.
 > 
-> That seems like a big leap, I'd be worried about devices that operate
-> on confidential data that should not be shared/decrypted.
+> On a freshly provisioned ESE volume I get the following throughput
+> improvements, depending on workload and setup:
+> 
+> [...]
 
-That seems like something very differnt.
+Applied, thanks!
 
-> One example for this which exists in pKVM (this part is not
-> upstream yet) is non coherent devices that require bouncing but they
-> still want to keep the data private. In that case ideally they get
-> an encrypted SWIOTLB pool, but it's always better to fail than to use
-> a decrypted pool behind it's back.
+[01/19] s390/dasd: Do not complete a failed ESE read as successful
+        commit: cddb447c62466f3076938ce120028d7b591f9f37
+[02/19] s390/dasd: Propagate partial completion length across ERP recovery
+        commit: 6fb5ba2e7e43173a3761e46f091070a8185efa14
+[03/19] s390/dasd: Guard sysfs discipline callbacks against unallocated private data
+        commit: 2a1780f9fc2493bd34c418a0be6fc58943afcecf
+[04/19] s390/dasd: Snapshot intrc before freeing the request block
+        commit: dc3e3f7306cb74066f231251602b1be5aaec7bd8
+[05/19] s390/dasd: Optimize max blocks per request for track alignment
+        commit: e647f351da2c6601a3e280b5c3477421e981ca73
+[06/19] s390/dasd: Use GFP_KERNEL in dasd_alloc_device()
+        commit: feea12d1cd8110aac009df32d3c6cd1daf117f95
+[07/19] s390/dasd: Add defines for the Extended Address Volume track address
+        commit: 1edac73fa2e9e8cadf19d59a49d64c681e4e45a3
+[08/19] s390/dasd: Add infrastructure for ESE full-track write
+        commit: 9cebfced13249fb02061dbee8a29cf91ba364519
+[09/19] s390/dasd: Add range-based format-track collision detection
+        commit: 05697849292011dc828b3651c159cfe694d1b5ef
+[10/19] s390/dasd: Extend prepare_itcw() to support WRITE_FULL_TRACK
+        commit: 44f9bf47987ec25a90d46d171b8df847d773f033
+[11/19] s390/dasd: Add dasd_eckd_build_cp_tpm_writefulltrack()
+        commit: 123ec1e9cb4200308ad1535c84a4cf2f81904517
+[12/19] s390/dasd: Use WRITE_FULL_TRACK in ESE format handler
+        commit: 791d257a21ba5241ce723a6c17f395aa0d419982
+[13/19] s390/dasd: Add full_track_bias to control fulltrack write mode
+        commit: 42849375e9280f2ccf492ced782e9591910d6b47
+[14/19] s390/dasd: Derive adaptive ESE fulltrack heuristic from ft_bias
+        commit: 4e304b2e56f09bce314ffeb4d4033ef7b8776c30
+[15/19] s390/dasd: Stamp a format label into newly formatted volumes
+        commit: 7d206efdc2f29240cfd815ffebfa958e2295a63e
+[16/19] s390/dasd: Detect ESE volumes from the on-disk format label
+        commit: 268e40548da2758851b6962a0a4ed2ab241ddbe9
+[17/19] s390/dasd: Report ESE capability and format mode at device online
+        commit: 6c1be943fdb6f8557596f5164ea48ae65cd0c1df
+[18/19] s390/dasd: Re-enable discard support for ESE volumes
+        commit: 04ea1579bc7707366de1d642115ad3b65c6171e1
+[19/19] s390/dasd: Read cached unit address and LSS in the CCW build path
+        commit: a600051da14b4cacc7b00685c967f40b0425ef5b
 
-We don't have any API for a DMA API caller to signal 'must be
-confidential'. If we want to add one it would be a flag to check
-before changing the physical address in swiotlb.
+Best regards,
+-- 
+Jens Axboe
 
-As defined today the DMA API expressly copies from private to shared
-memory, that is baked into it's design and not a bug.
 
-My expectation is all these cases have to be solved by setting up the
-swiotlb properly so it provides suitable bounce buffers. Yes, this
-means we will eventually need both private and shared swiotlb pools.
 
-> I have not been following the work on T=1/T=0 devices, but IIRC, they
-> required some complexity to handle their stage-2 as these modes will
-> be emulated differently (for CCA, RMM vs untrusted host).
-> I was thinking that it might be easier to represent those to the
-> guest kernel as 2 separate devices (bounded to different groups...)
-> where one is trusted and the other is not, and that way the DMA-API
-> can have strict rules about memory sharing.
-
-No way! That's would be a giant disaster for the driver model.
-
-Each struct device will have a flag that shows if it is in T=1 or T=0
-state. The flag can only change while a driver is not bound, and
-changing the flag will update the DMA API configuration.
-
-A T=1 device should have the same issue as you point out for pkvm, it
-really needs to have a private SWIOTLB pool.
- 
-> Otherwise, SWIOTLB does not seem like the right place to me, as it
-> does not understand the context the device is operating in, and the
-> DMA-API should deduce that from the flags passed.
-
-It is exactly the right place because it is the one supplying the new
-memory. Context is irrelevant, the flag only describes what the new
-memory actually *IS*, and swiotlb knows 100% if the new memory is
-shared or private.
-
-For your issue it would be appropriate to add a debugging check that
-the new memory is not incompatible with the expected policy. eg a T=1
-device getting decrypted swiotlb memory is a bug in swiotlb setup that
-should be caught. But that's a debugging check, we expect the swiotlb
-to have selected the right kind of memory by construction. This isn't
-done yet since this series doesn't even yet support a T=1 device..
-
-Jason
