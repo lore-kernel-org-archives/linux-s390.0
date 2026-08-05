@@ -1,151 +1,128 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C3F05385D61
-	for <linux-s390@vger.kernel.org>; Wed,  5 Aug 2026 14:23:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9CB87360ECF;
+	Wed,  5 Aug 2026 14:50:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785939822; cv=none; b=Sq+H/bPx89zCndFZ0dqi3dZYYpozZHghvukS+efJ4qtJX/M1FTIHjDglqWHsY6jmYwH+l52+7Q0LLhyKVnttEu+BsUYQp1Lesh/HnmN6bbBLP9enB7y0FCiYrC0b17DyprzKyLnKmsn8DGZUf+qZCyLLBbNqYHe7dt/9g+/z/EI=
+	t=1785941446; cv=none; b=rIHeKNecTQP0WHRCmHQ9dOhnPKHDnHBogNlZMBTuFyZa9Y7adGpgLSFo82IVaQJuXMAzJPCUYFYHaTIyQ73CxtT4qdbkx58G//OLVDLzo5IRevpQVQIbB2GXgirjBEUCFZycFaAESCvpAtoj5Zv3Iwz+JcQeR4XsfdsIet1wPc4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785939822; c=relaxed/simple;
-	bh=OnGL6UKsciTkCsB2yWMegJ6MLpXRE/GSqH0SZZdyViY=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=XAMjoqzvKIC/n3wQ4UEb7q3XTEzrpyv6ON9qc22efS7KIvWnaikW+WTBpfBrBD3Q7ovkoJIvWpsLKEbYOb+KoofxUykkWZfXfp8EBmwHAk4S9gClEXRoCNyVq/eU2bXL15la8/Shna7ufhLMuY9jW4sNFU/4eYNXCOJyhzstrkA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gbbAVh8l; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1785941446; c=relaxed/simple;
+	bh=ZR63713XfvI1uJjxOSjBAzU+BokQMXbqqYeKN4uVqds=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=rEbM0lO+BfQT5uG8b3J2JaK9S4Qza0iTTUhsh1YJWfk8i8utap/KPQbtlBDY1InahIB72T55g8z5rHoyz+u7/cTFmRo77+UfMWTcvjDQFRw/Z8rkAkO6eN9CCnUW1FnVBSOXsnL0jQxHfPeDsw5LVFjE9AEP1f+mLffS0S3BOqQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=FednoTr7; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gbbAVh8l"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D93451F000E9;
-	Wed,  5 Aug 2026 14:23:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785939810;
-	bh=1twpP0K4B/groqzg8NymNHNauEUoodkgSeb3RcC0S/0=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=gbbAVh8l19DUpMwFAhruqmHcg/wZWMzqw9YkYAsVXnPY52Qp1SArKXzoHTvPWV3Lf
-	 U4qnlwODAO1WlU2HwKeMv1GYcVJD2MnV3waEYOgBwqqomiIXeZsBvpaS+YSL1j+Kzi
-	 F/nk6JegMFOCBOW/kZ4VD3oW1KOW0n+JZmBfhLH2TuV6hDn6/tCHt2yJpptPde6pKO
-	 fKnPeIiMmYYcyMAjbZJWw+ucMXaZC8py7f70YMPElSEEWqvA9eFVBFXyzVHEtpTIxw
-	 ktyAFYcZDlszlsrLlfUM2ZgsKeiuQoGybkYGofJAV7O4X69xVp+TMMzhRdTGGAruBn
-	 EjWWaGfXtJTqA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 2/3] s390/pci: Rework __zpci_event_availability() to
- remove conditional locking
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Heiko Carstens" <hca@linux.ibm.com>
-Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
- Carstens" <hca@linux.ibm.com>
-In-Reply-To: <20260805133627.1216607-3-hca@linux.ibm.com>
-References: <20260805133627.1216607-1-hca@linux.ibm.com>
- <20260805133627.1216607-3-hca@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 05 Aug 2026 14:23:29 +0000
-Message-Id: <20260805142329.D93451F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="FednoTr7"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 675CHglo3793612;
+	Wed, 5 Aug 2026 14:50:39 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=pp1; bh=lIkSXwDCgto5ZM0lb
+	JTDp0K0m0gB7Rz/ijlX/1s45M4=; b=FednoTr7WIL3j+pY3pcUkKfCehohdW9pf
+	0KkPBErh+93vXtH/BbqL677dTmR6LSAO3Fa4apvDSO6Fy1yIkur9xxIwxYmyYpUk
+	8NNDBcd4S+9lU+XKdsFT56VPLB4sslJxck15pVTGcRYNKRPQX4I85YpYKryCY3C1
+	qCWH4mky8xnPm9PcKXghW3fjy85/VKmxjeFH1yqmbY2iw9Y2BDi+2jhJef2FmwyT
+	cRHv7SuMjdqOWXxfC4IQ0uwe7NRHWwA+PluKWflfsBz+kULF+gli2Xz6uRbSA00V
+	HYlk8A4C9HtJPPDn2I5GYpJLHSStunV6a/uA48YEIYRRPBL05m86w==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fs8a43kcw-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 05 Aug 2026 14:50:38 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 675EfHjn028003;
+	Wed, 5 Aug 2026 14:50:37 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fswbgetaw-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 05 Aug 2026 14:50:37 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 675EoX6j17367302
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 5 Aug 2026 14:50:33 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A5BBA20043;
+	Wed,  5 Aug 2026 14:50:33 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 751882004B;
+	Wed,  5 Aug 2026 14:50:33 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed,  5 Aug 2026 14:50:33 +0000 (GMT)
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Alexandra Winter <wintera@linux.ibm.com>,
+        Aswin Karuvally <aswin@linux.ibm.com>,
+        Andrew Lunn <andrew+netdev@lunn.ch>,
+        "David S . Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>
+Cc: linux-s390@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH net-next 2/2] drivers/s390/net: Enable CONTEXT_ANALYSIS
+Date: Wed,  5 Aug 2026 16:50:32 +0200
+Message-ID: <20260805145032.1409325-3-hca@linux.ibm.com>
+X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20260805145032.1409325-1-hca@linux.ibm.com>
+References: <20260805145032.1409325-1-hca@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Authority-Analysis: v=2.4 cv=E6P9Y6dl c=1 sm=1 tr=0 ts=6a734dbe cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+ a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8 a=KtCAfOjNhWRM0Y9jXsoA:9
+X-Proofpoint-ORIG-GUID: 0ikaczQMkfLeB8Wm-a0rlMm5cMXNW7Qt
+X-Proofpoint-GUID: gD1ZQHVxKRVVkCym_U6oV9DYIA7qbfnv
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODA1MDEyMCBTYWx0ZWRfX+c8T1x9XApba
+ jEtXIrYHUDpWbi5Ij+Uc6OeEB3maXfxZeAQInDcoroDWxt7NnWSwTaaiyXAzJD+CMvvkPDoukGO
+ s12loPZPHgYUCYjeIOT1abbmHIrhcu8=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODA1MDEyMCBTYWx0ZWRfXy9wZBjVDX9Dw
+ zCmUrvnWodNHUmJvoVURfXxiSXgDMgIzc2OpkUs9BUrCIj7MTL6LrdbqB83J7G4+ibTH2gRx7K4
+ fB43LJnGiwGilwMDbwZKNFP2ucUS1TJ/S0WeNNuLYh5rpIkXttvH6aQ/97cnnRN49S0kX4F5laq
+ bQFVUmtkfRPPTnwToNeNn5/+sIEIO8UjJK1Cew1diwvZYojazeNP7Goc/TqXzIk3emv9CAGiRfn
+ cp19zUpicGb8a71JjH/K/Qi8FXhUJ5st1FlqnzGamE9C39AYfgj8AjlJe9ZUI1kOvgmyuDRaUIM
+ m2+k0vgy8S/jNIiPy0pKW3pLgKZRKMxIeX1sff3lbrnGI8vrcbUKxY1tZdXbXhReJHtWcyboiG2
+ qhw/HG+bd80YOlEjv6qYfUy13aiq3+fyXVvtNuQjvYh4uiN+qoRA7FI74QNlKiTcb29IDcVjXxC
+ gIfnfz1ZNB+dphJSuoA==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-08-05_04,2026-08-04_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ bulkscore=0 clxscore=1015 lowpriorityscore=0 priorityscore=1501
+ suspectscore=0 adultscore=0 spamscore=0 malwarescore=0 impostorscore=0
+ phishscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2608050120
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
+All drivers in drivers/s390/net pass clang's compile time context
+analysis. Therefore enable CONTEXT_ANALYSIS.
 
-Pre-existing issues:
-- [Critical] zpci_remove_reserved_devices() leaves zdev linked to a stack-a=
-llocated list, leading to Use-After-Scope stack memory corruption.
-- [High] zpci_remove_reserved_devices() modifies device state without holdi=
-ng state_lock, causing data races and lockdep panics.
---
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+---
+ drivers/s390/net/Makefile | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- Patch [2]: [PATCH v3 2/3] s390/pci: Rework __zpci_event_availability() =
-to remove conditional locking ---
-commit 75e2f03936eebee8914ba9e93f94ec0e2bac2ac9
-Author: Heiko Carstens <hca@linux.ibm.com>
+diff --git a/drivers/s390/net/Makefile b/drivers/s390/net/Makefile
+index 537514cc52fb..038ba3e4005d 100644
+--- a/drivers/s390/net/Makefile
++++ b/drivers/s390/net/Makefile
+@@ -3,6 +3,8 @@
+ # S/390 network devices
+ #
+ 
++CONTEXT_ANALYSIS := y
++
+ ctcm-y += ctcm_main.o ctcm_fsms.o ctcm_mpc.o ctcm_sysfs.o ctcm_dbug.o
+ obj-$(CONFIG_CTCM) += ctcm.o fsm.o
+ obj-$(CONFIG_SMSGIUCV) += smsgiucv.o
+-- 
+2.53.0
 
-s390/pci: Rework __zpci_event_availability() to remove conditional locking
-   =20
-This patch reworks __zpci_event_availability() to avoid taking locks
-conditionally, resolving a compiler warning from static context analysis.
-The event handling is split into smaller, dedicated functions.
-
-> diff --git a/arch/s390/pci/pci_event.c b/arch/s390/pci/pci_event.c
-> index bead4ed5d4abe..0a9eecb62bd1a 100644
-> --- a/arch/s390/pci/pci_event.c
-> +++ b/arch/s390/pci/pci_event.c
-[ ... ]
-> -static void __zpci_event_availability(struct zpci_ccdf_avail *ccdf)
-> +static bool zpci_event_avail_any_device(struct zpci_ccdf_avail *ccdf)
->  {
-> -	struct zpci_dev *zdev =3D get_zdev_by_fid(ccdf->fid);
-> -	bool existing_zdev =3D !!zdev;
-> -	enum zpci_state state;
-> -
-> -	zpci_dbg(3, "avl fid:%x, fh:%x, pec:%x\n",
-> -		 ccdf->fid, ccdf->fh, ccdf->pec);
-> +	/* 0x0306 - No handle or fid stored */
-> +	if (ccdf->pec !=3D 0x0306)
-> +		return false;
-> +	/* 0x308 or 0x302 for multiple devices */
-> +	zpci_remove_reserved_devices();
-
-[Severity: High]
-This is a pre-existing issue, but does zpci_remove_reserved_devices() call
-zpci_device_reserved() without holding the state_lock?
-
-Looking at zpci_remove_reserved_devices() in arch/s390/pci/pci.c:
-
-void zpci_remove_reserved_devices(void)
-{
-        ...
-        list_for_each_entry_safe(zdev, tmp, &remove, entry)
-                zpci_device_reserved(zdev);
-}
-
-And zpci_device_reserved() asserts this lock:
-
-void zpci_device_reserved(struct zpci_dev *zdev)
-{
-        lockdep_assert_held(&zdev->state_lock);
-        ...
-
-Will this result in a lockdep warning and potential data races on the
-device state during a 0x0306 PCI event?
-
-
-[Severity: Critical]
-This is also a pre-existing issue, but can this lead to memory corruption
-if the device reference count doesn't drop to zero?
-
-In arch/s390/pci/pci.c:zpci_remove_reserved_devices():
-
-void zpci_remove_reserved_devices(void)
-{
-        ...
-        LIST_HEAD(remove);
-
-        spin_lock(&zpci_list_lock);
-        list_for_each_entry_safe(zdev, tmp, &zpci_list, entry) {
-                if (...)
-                        list_move_tail(&zdev->entry, &remove);
-        }
-        ...
-}
-
-The devices are moved to a local stack-allocated list (remove).
-
-When zpci_device_reserved(zdev) is called, it drops one reference. If
-another thread currently holds a reference (for example, via
-get_zdev_by_fid()), the device is not freed immediately. When
-zpci_remove_reserved_devices() returns, the stack frame is destroyed, but
-the device's entry remains linked to this destroyed stack memory.
-
-Later, when the final reference is dropped, zpci_release_device() will call
-list_del(&zdev->entry), writing to the invalid stack memory. Is there a
-safe way to handle this list manipulation?
-
-> +	zpci_scan_devices();
-> +	return true;
-> +}
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260805133627.1216=
-607-1-hca@linux.ibm.com?part=3D2
