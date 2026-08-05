@@ -1,143 +1,180 @@
-Received: from mail-oo1-f53.google.com (mail-oo1-f53.google.com [209.85.161.53])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 401353054E4
-	for <linux-s390@vger.kernel.org>; Wed,  5 Aug 2026 12:32:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.161.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 266A7470E82
+	for <linux-s390@vger.kernel.org>; Wed,  5 Aug 2026 12:35:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785933169; cv=none; b=kVIq9MkKADpVq0FnxR9C8lBJeYtVCC/c+bWUyFP66A7q1jDirPNYXSrvaA+6UeppBkozuh4sMG/TISvD92ysfcGNsq3n+tuqvMWTFgF50kuVMboV2+vR0fGKztGekpyxaIKmVZOQr4jw48EN6A3mkNhVLzuif+bo4KydtxNEBDA=
+	t=1785933308; cv=none; b=sqJKRAgUU5N6qlGhG/F4Wd3XYTDZkIfsEBI1COwW9oafD1Ub1tk81Sd02+idR4w7MassslZHpDV74z4SvccpSUywxvW7mROAMxJG3OGqH5z2x4wjs48q6q0b1rHJ8BpUCBYGupHPFOiUSj29gvTx4HFwvRXdQMP9k/823Dg9P6E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785933169; c=relaxed/simple;
-	bh=oEqCrBUULOOY/ZiaofrSvncuUWIxfn8H+BJSyY8nC9k=;
-	h=From:To:Cc:In-Reply-To:References:Subject:Message-Id:Date:
-	 MIME-Version:Content-Type; b=qjP09G455MEaTjEOVw3wEVUHWrtwcghntHwgV+4Ba8GE3TaG32OAi4g6vK9DtKlT1noktagzCOPq8dYFSsU3zVM3mYFHWYy3tUI3p5KKodLa8huICnCM1EkUf6DD9YanIvL35r/uJrt++zrOWJMTk5bGo2KNBixJRFDc0X76La8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=pass smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=kernel-dk.20251104.gappssmtp.com header.i=@kernel-dk.20251104.gappssmtp.com header.b=k6dF1b6p; arc=none smtp.client-ip=209.85.161.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kernel.dk
+	s=arc-20240116; t=1785933308; c=relaxed/simple;
+	bh=O0zFK5x8J6afBNHCJqaAgfmKoSwIcqTlpvvijgW1eSA=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=k4OQa2K6bz/DYZMybUP+qAtXyqVYhYQoo+zZu+TsP83UZ8xYcXE/tZfCizlCdagUzz2Uv/Tei6CsJXUmElYDhbk9QD0Qfr4iVdB2Jruwpp/RuKTaKZafB8Zbdy0FjVBTPI92AUquLm/240I/arg4zUEAODoM/qyP1ZWTSIt3txU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=deW4wDnv; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20251104.gappssmtp.com header.i=@kernel-dk.20251104.gappssmtp.com header.b="k6dF1b6p"
-Received: by mail-oo1-f53.google.com with SMTP id 006d021491bc7-6ae50ba83efso1052585eaf.0
-        for <linux-s390@vger.kernel.org>; Wed, 05 Aug 2026 05:32:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20251104.gappssmtp.com; s=20251104; t=1785933166; x=1786537966; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:mime-version:date:message-id
-         :subject:references:in-reply-to:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=f5HS6afxPeOr3O6XnC1tqGdcH6TkzlrKwwT53qowax0=;
-        b=k6dF1b6pojwJ+ka4ETpZjZmuA43i5UGyw71C73qsyKYG4G68JAaGx+K0gl0vyYDwnf
-         6XuVEa8kwV56P2iYXA414axUA+1Us7sefWZGSLvjC1U231bBY7vWTbboKqhYTe0XY/Yv
-         KmjHC8jfr9/l5GZcm9B7d2RU0nsL8DeamLWUNMj85C+GhPBYC38qwW8I5W+qhJchZaRL
-         beJFxdTWQCmvsxAC8UMqa83yWnrhlSLYR2LtslvArYD5VUe9gdvI4n/cIhrdQJdHzGF8
-         ugF9a0l26OT4MlPWQkVeqa3HFT7EIsZqmVnlOP1xkcJTfjBwcvKHf8RbHjgboA6UzQ+p
-         RAaw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785933166; x=1786537966;
-        h=content-transfer-encoding:content-type:mime-version:date:message-id
-         :subject:references:in-reply-to:cc:to:from:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=f5HS6afxPeOr3O6XnC1tqGdcH6TkzlrKwwT53qowax0=;
-        b=eoifyq7l8ery82PoG1GMHBhmzLrMbogSzblXUYzTOSBKu67ZIvvH6oFcBEgkoXiNB8
-         EnfoXLFAx65SVbL42iobj9uyt0lSXBGGUTOicMoFJqfgUvaXwDXUowlHkbgzYHmVWTCz
-         nn99b54hoI7ga4ZkhkBp94Pgbkny4kTxfrW29czhLz816NC2seUzQbu88hptfN9t9Z/Z
-         O3AYYLTM9Ggim8XfBfSqiq6zjUMICWp1sN0zWhm2tv681zNpXh0MW4pn3U/5Hn+6Y8OD
-         TpT/yKhO9bjB64QaWmJR+L+mcjwbZo2Ki7RaRGsVs+RdJYSl3HhBxKOsCBtJBcEMaf61
-         VX3w==
-X-Forwarded-Encrypted: i=1; AHgh+RqZfO7Wl1q/DDWmVfeykCEN9PhamyqFqeddeDWT3XOiT3PJlTXCSytGi68E2jE5C4VKHO2p/c/sJS/M@vger.kernel.org
-X-Gm-Message-State: AOJu0YxrL5T1FojMp9gYdKZD8ycjDGKS1Hqmv4+kVjeI6KmgOVoCNYLd
-	q2TN2Ya1NviHNl2kTYsMDfDQbUh4P2b/YHAX5O0DKfbWx2jPSAmCHRJ+g0NydrF+G+k=
-X-Gm-Gg: AR+sD1050id0C5PqqXiN9CRMX/UFtbX61kUytsMYIC/grPUqqQLTiqVIIqb7q/Cvejx
-	yREOkkErglBYVzNeOPqg3k5OuGfJHa95A8TPr7UjrlGMPYJcd1FjD05GqW/xIXKxHRmS0PQmVbs
-	y3HxWAjme0pMMhfxDxzdSAevYC3UTmlv/FNSHIO99J07gf5I7J931FV2nil2J5ZW84keCDhCcSI
-	z1Ly+kW/eC8zvOyrWElvLosiRir+K5itZkGTGK7aXrX22v1IOiXuWpewM2pL1hBvWz+YAap6lOy
-	KscVdjzqK4snGZVk4eUIGTrTwvOKUa5mWbL1RyTU8uMf2Viq1jE6HENjkp4dAEn06pYpSe/Wjjj
-	E2JjW4pEdCcooVVFZA7voxdhl5l1zysCN5mb4CExDj4AbBEtCtwNNDGbU06hU/NPyT62HzuB5Oa
-	tjzEIgwNGbdTbgr67TWX2IEQ5ut1QDXn7395NNFqAjw8rxddQ203nCHj432xiUpfn+eQikO7ul4
-	ZObqUzBdlSWOfWff0uxAIZvQSe6CZylwCxUNpq6npKJkLC8HJ3H
-X-Received: by 2002:a05:6820:4b01:b0:6ac:a658:b952 with SMTP id 006d021491bc7-6ae965b624cmr2073364eaf.2.1785933165662;
-        Wed, 05 Aug 2026 05:32:45 -0700 (PDT)
-Received: from [127.0.0.1] ([198.8.77.157])
-        by smtp.gmail.com with ESMTPSA id 006d021491bc7-6ae93d524d3sm2647355eaf.6.2026.08.05.05.32.44
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 05 Aug 2026 05:32:44 -0700 (PDT)
-From: Jens Axboe <axboe@kernel.dk>
-To: Stefan Haberland <sth@linux.ibm.com>
-Cc: linux-block@vger.kernel.org, Jan Hoeppner <hoeppner@linux.ibm.com>, 
- linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>, 
- Vasily Gorbik <gor@linux.ibm.com>, 
- Christian Borntraeger <borntraeger@linux.ibm.com>
-In-Reply-To: <20260805111612.1285190-1-sth@linux.ibm.com>
-References: <20260805111612.1285190-1-sth@linux.ibm.com>
-Subject: Re: [PATCH 00/19] s390/dasd: ESE Performance improvements
-Message-Id: <178593316400.1788337.13989014782442395023.b4-ty@b4>
-Date: Wed, 05 Aug 2026 06:32:44 -0600
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="deW4wDnv"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A4CC1F00A3A;
+	Wed,  5 Aug 2026 12:35:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1785933306;
+	bh=CMS2BelvngQSs1BgvAHXw8Q8pxZpETKNGCab0olQoXA=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=deW4wDnv1+8p9IaEucJ3l2CyIlau12l9WZ6sc/fQZniTiSLMqEv9s+t8Zo/ypHfuA
+	 61NXAsKYu7sTD3qLYIn5Z4dlrkbbU7GYVCduIqFcIt8L0iaDtjfewjcf+Z05k3zcut
+	 wGDpC1EHfjD6B0lreQGITjEF3xg6kM3QHFDYI5Cpxc4w8UdQ0t0YA59hJxYL/guOHk
+	 lv161FmGxNJ0seKh+IdmNh9QrD3LiVRUD8tNDaTdN+NVEd7cv+bFySb7NaBnQ5VvAH
+	 TT2RL/jwUESnvTGnb9i8CWvo88AnXSHdjLGjjR9dKIy7dUTnbUQ1GbfFzn+EDm+/lQ
+	 lec2Dfwnp+4zA==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH net] net/smc: prevent device removal during connection
+ setup
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Qi Zhang" <marsy12010123@gmail.com>
+Cc: "Heiko Carstens" <hca@linux.ibm.com>, linux-s390@vger.kernel.org, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>
+In-Reply-To: <20260804123418.2214979-1-marsy12010123@gmail.com>
+References: <20260804123418.2214979-1-marsy12010123@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Wed, 05 Aug 2026 12:35:05 +0000
+Message-Id: <20260805123506.4A4CC1F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Mailer: b4 0.15.2
 
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
 
-On Wed, 05 Aug 2026 13:15:53 +0200, Stefan Haberland wrote:
-> please apply the patch series for the upcoming merge window.
-> It applies onto your for-next branch.
-> 
-> The series significantly improves the performance and overall usability of
-> Extent Space Efficient (ESE, aka thin provisioned) DASD devices.
-> 
-> On a freshly provisioned ESE volume I get the following throughput
-> improvements, depending on workload and setup:
-> 
-> [...]
+New issues:
+- [High] Use-After-Free in smc_ibdev_init_put() racing with smc_ib_remove_d=
+ev()
 
-Applied, thanks!
+Pre-existing issues:
+- [High] Incomplete Fix / Use-After-Free for SMC-D (ISM) devices during con=
+nection setup
+--
 
-[01/19] s390/dasd: Do not complete a failed ESE read as successful
-        commit: cddb447c62466f3076938ce120028d7b591f9f37
-[02/19] s390/dasd: Propagate partial completion length across ERP recovery
-        commit: 6fb5ba2e7e43173a3761e46f091070a8185efa14
-[03/19] s390/dasd: Guard sysfs discipline callbacks against unallocated private data
-        commit: 2a1780f9fc2493bd34c418a0be6fc58943afcecf
-[04/19] s390/dasd: Snapshot intrc before freeing the request block
-        commit: dc3e3f7306cb74066f231251602b1be5aaec7bd8
-[05/19] s390/dasd: Optimize max blocks per request for track alignment
-        commit: e647f351da2c6601a3e280b5c3477421e981ca73
-[06/19] s390/dasd: Use GFP_KERNEL in dasd_alloc_device()
-        commit: feea12d1cd8110aac009df32d3c6cd1daf117f95
-[07/19] s390/dasd: Add defines for the Extended Address Volume track address
-        commit: 1edac73fa2e9e8cadf19d59a49d64c681e4e45a3
-[08/19] s390/dasd: Add infrastructure for ESE full-track write
-        commit: 9cebfced13249fb02061dbee8a29cf91ba364519
-[09/19] s390/dasd: Add range-based format-track collision detection
-        commit: 05697849292011dc828b3651c159cfe694d1b5ef
-[10/19] s390/dasd: Extend prepare_itcw() to support WRITE_FULL_TRACK
-        commit: 44f9bf47987ec25a90d46d171b8df847d773f033
-[11/19] s390/dasd: Add dasd_eckd_build_cp_tpm_writefulltrack()
-        commit: 123ec1e9cb4200308ad1535c84a4cf2f81904517
-[12/19] s390/dasd: Use WRITE_FULL_TRACK in ESE format handler
-        commit: 791d257a21ba5241ce723a6c17f395aa0d419982
-[13/19] s390/dasd: Add full_track_bias to control fulltrack write mode
-        commit: 42849375e9280f2ccf492ced782e9591910d6b47
-[14/19] s390/dasd: Derive adaptive ESE fulltrack heuristic from ft_bias
-        commit: 4e304b2e56f09bce314ffeb4d4033ef7b8776c30
-[15/19] s390/dasd: Stamp a format label into newly formatted volumes
-        commit: 7d206efdc2f29240cfd815ffebfa958e2295a63e
-[16/19] s390/dasd: Detect ESE volumes from the on-disk format label
-        commit: 268e40548da2758851b6962a0a4ed2ab241ddbe9
-[17/19] s390/dasd: Report ESE capability and format mode at device online
-        commit: 6c1be943fdb6f8557596f5164ea48ae65cd0c1df
-[18/19] s390/dasd: Re-enable discard support for ESE volumes
-        commit: 04ea1579bc7707366de1d642115ad3b65c6171e1
-[19/19] s390/dasd: Read cached unit address and LSS in the CCW build path
-        commit: a600051da14b4cacc7b00685c967f40b0425ef5b
+--- Patch [1]: [PATCH net] net/smc: prevent device removal during connectio=
+n setup ---
+commit 7f17c01034c751116f18a345f6abf2f1dee4b013
+Author: Chengfeng Ye <nicoyip.dev@gmail.com>
+Subject: net/smc: prevent device removal during connection setup
 
-Best regards,
--- 
-Jens Axboe
+This patch introduces a reference count mechanism to track in-flight
+connection setups and prevent SMC-R devices from being removed prematurely.
 
+> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+> index b5db69073e20f..160271464305c 100644
+> --- a/net/smc/af_smc.c
+> +++ b/net/smc/af_smc.c
+[ ... ]
+> @@ -1596,14 +1596,14 @@ static int __smc_connect(struct smc_sock *smc)
+>  	SMC_STAT_CLNT_SUCC_INC(sock_net(smc->clcsock->sk), aclc);
+>  	smc_connect_ism_vlan_cleanup(ini);
+>  	kfree(buf);
+> -	kfree(ini);
+> +	smc_init_info_free(ini);
 
+[Severity: High]
+This is a pre-existing issue, but while this patch addresses the use-after-=
+free
+for RoCE devices, does the same vulnerability still exist for SMC-D (ISM)
+devices?
 
+Looking at the connection setup path, an ISM device pointer is selected and
+stored without taking a reference:
+
+net/smc/af_smc.c:smc_find_ism_v2_device_clnt() {
+    ...
+    ini->ism_dev[i] =3D smcd;
+    ...
+}
+
+If the ISM device is unregistered concurrently, smcd_unregister_dev() frees=
+ it
+without waiting for in-flight connection setups:
+
+net/smc/smc_ism.c:smcd_unregister_dev() {
+    ...
+    kfree(smcd);
+}
+
+When the connection setup resumes, the freed smcd pointer is dereferenced:
+
+net/smc/smc_core.c:smc_conn_create() {
+    ...
+    lgr_list =3D ini->is_smcd ? &ini->ism_dev[ini->ism_selected]->lgr_list :
+                              &smc_lgr_list.list;
+    ...
+}
+
+Should a similar initialization reference count be added for SMC-D devices?
+
+> diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
+> index 9bb495707445e..01c9b5c62df76 100644
+> --- a/net/smc/smc_ib.c
+> +++ b/net/smc/smc_ib.c
+[ ... ]
+> @@ -1000,6 +1002,9 @@ static void smc_ib_remove_dev(struct ib_device *ibd=
+ev, void *client_data)
+>  	mutex_unlock(&smc_ib_devices.mutex);
+>  	pr_warn_ratelimited("smc: removing ib device %s\n",
+>  			    smcibdev->ibdev->name);
+> +	if (atomic_read(&smcibdev->init_cnt))
+> +		wait_event(smcibdev->init_wait,
+> +			   !atomic_read(&smcibdev->init_cnt));
+>  	smc_smcr_terminate_all(smcibdev);
+>  	smc_ib_cleanup_per_ibdev(smcibdev);
+>  	ib_unregister_event_handler(&smcibdev->event_handler);
+> diff --git a/net/smc/smc_ib.h b/net/smc/smc_ib.h
+> index ef8ac2b7546df..8e9fd5a200a2b 100644
+> --- a/net/smc/smc_ib.h
+> +++ b/net/smc/smc_ib.h
+[ ... ]
+> @@ -59,6 +61,17 @@ struct smc_ib_device {				/* ib-device infos for smc */
+>  	int			ndev_ifidx[SMC_MAX_PORTS]; /* ndev if indexes */
+>  };
+> =20
+> +static inline void smc_ibdev_init_get(struct smc_ib_device *smcibdev)
+> +{
+> +	atomic_inc(&smcibdev->init_cnt);
+> +}
+> +
+> +static inline void smc_ibdev_init_put(struct smc_ib_device *smcibdev)
+> +{
+> +	if (atomic_dec_and_test(&smcibdev->init_cnt))
+> +		wake_up(&smcibdev->init_wait);
+> +}
+> +
+
+[Severity: High]
+Can this race with device removal and cause a use-after-free of smcibdev?
+
+If Thread A executes smc_ibdev_init_put() and drops the count to 0 via
+atomic_dec_and_test(), it might be preempted before calling wake_up():
+
+Thread A:
+    if (atomic_dec_and_test(&smcibdev->init_cnt))
+        <preempted>
+
+Thread B then executes smc_ib_remove_dev(), sees the count is 0, skips
+wait_event(), and frees the device:
+
+Thread B (smc_ib_remove_dev):
+    if (atomic_read(&smcibdev->init_cnt))
+        wait_event(...) // skipped
+    ...
+    kfree(smcibdev);
+
+When Thread A resumes, it will call wake_up() on the now freed smcibdev
+pointer.
+
+Could this be avoided by using standard completions or by moving the cleanup
+logic into a release function when the count reaches zero?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260804123418.2214=
+979-1-marsy12010123@gmail.com?part=3D1
