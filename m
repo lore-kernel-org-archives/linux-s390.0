@@ -1,174 +1,220 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from BYAPR05CU005.outbound.protection.outlook.com (mail-westusazon11010057.outbound.protection.outlook.com [52.101.85.57])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F37F4611C9;
-	Wed,  5 Aug 2026 12:29:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785932972; cv=none; b=iJjUZpAJORt1xsLnc2XmChmCS+MgkToreImXFTgbMMrvxq7D+oQEls9HxPtBdpD7TvPaMUSyh9l4p8OxKMfHiwoLTjPHmEsPLdnPpJrwMPgEmthovkFpBuiFragHANJlFKNi6dnRFUl90rQN7E3IdmZH5IYHizi3Iu0pX7h08T8=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785932972; c=relaxed/simple;
-	bh=m9nkzrznWYrZiwVsmx8wxZ+0TETSbkZ/nymGHTBFzvA=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=FsO5ho+sZxEiYvd3xxo5mK90jsU20VrMtqLV6JpmmNPB2mDiOAvqGsknxOTBefyDBJ/aJLX2+Y5V111BmRoyJdCqc+9UDzYQttPlwKIsz9BZbcT5XlwrV0WT8cahsvDyblpTBZpZoYU48a69HiJDBHCG5kcXGp5lV4mQTvEVLSo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Dby89k5x; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B04C826ED46;
+	Wed,  5 Aug 2026 12:30:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.85.57
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785933031; cv=fail; b=Qr2LzVKdvrv0G4GR0A9pCqkcTjRfeUb5xXZEBjNZct35qDNJ3CzQNSWMlG+1CBETJAo7Kd0zZ2mcXiN4MrE+fUZ4oEaYRxBGWNQrrTYSjXyLuCHES/mGLhDXUKV956KxR26sXrJt3kwrgZBAZiwHFKl/Rl2VerQQGwMXqT5goUU=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785933031; c=relaxed/simple;
+	bh=QTnLIjfA6T8toPS72sYvz72PXPXYr+HxZS3UJtNuWJ8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=SkRs42s6dXQPngX6y2b87o8rJi31nEF9Nqphw/v0vmgCfnl3nFbCIJ4Qrr4KggBOEbYENyg0sf/4jzn6TVTpRMKGhFU8onuJPkXCIJcLNl3V6TgaCjVeUXecFQocskNjxidKHmSO64Ud55zvfQJnyWPk0r4s6bCEjLETmkcaXhA=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=MKDGdRlK; arc=fail smtp.client-ip=52.101.85.57
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Dby89k5x"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 675CHrat3724963;
-	Wed, 5 Aug 2026 12:29:20 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=sySNNJ
-	RinZMJGqbiapCuiZAyRgaoBQFaLOLOeb4MFXo=; b=Dby89k5xmERBlQZd8VUBj9
-	jTmMnnKeh7cmEE+T/+V6oiJ4n+RAb6V3gmM+53UH59NhzpDN/AeJvcA5/VtcGEii
-	/x65ss/SoImCQIMA37V/adwwXDiVSXzlQI1As0IQfOIoqj2CefRTgMIswEaATuDX
-	F1j/Aet1ysQOFAhm3/Xn8O2c5ZjsWVukKf3iSi1yG/pXn/j+fwvKLj+ChyR+U2LS
-	ZHQqrJqFyYcBD7OHLubM0b61ihKjRwLtyUkukc6VgYb5Bf1K8/oE7whpKweVDWuO
-	nWR+3X8XhilrIfHxR8U923D9r3WsFUjYqArP0V+B01OvZfDK3DeAMjSZ2r5Mkg+g
-	==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fs77gakbw-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 05 Aug 2026 12:29:20 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 675CQImD029190;
-	Wed, 5 Aug 2026 12:29:19 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fswbgea99-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 05 Aug 2026 12:29:19 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 675CTFjs36176272
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 5 Aug 2026 12:29:15 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 660422004E;
-	Wed,  5 Aug 2026 12:29:15 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A87432004B;
-	Wed,  5 Aug 2026 12:29:08 +0000 (GMT)
-Received: from [9.39.22.189] (unknown [9.39.22.189])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed,  5 Aug 2026 12:29:08 +0000 (GMT)
-Message-ID: <1f4251f0-0ab6-4f95-9658-d06ddedfae28@linux.ibm.com>
-Date: Wed, 5 Aug 2026 17:59:06 +0530
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="MKDGdRlK"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=rHg7Pqy25T1EHcgljCMLNjJuRPyEm5Tm8xIwNQxi154dmvQaxxwQ5Sfk5Zr1bu+HYKYwn30v6FBIPFAAkSsohBd9qXxRaHAvXuyqtx0FuYmPa4wemPCRkMiuDAv4D86/ViFBDd94eZtEOpbSvAhMWFvPukWS9jGgvFXdgQUhd0/dsxzN94k1pfZeEa+x1iFAZliadFZaGTFhxfNaBZRSvX1v5v6HQGTPxA9h5YoLx/q3TV2/n0GU/MDYB0hsOWYKTaZs9VkoHoAY2Oq5BRHm4HQ1jV46GhoNcGtSdLgqNJLgp/bZm6Ve7PtRBJuhZyzzDjA2floBpGsApbNHKdIxyQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=ox2xbRLxNvdqpJFmgdEJg4jzYCu9Zb10QHH/V8E5mn0=;
+ b=J5cAUlCPGO7XGnJjd968I77MnrobAxioxdSRBUM5FQpspKNsY/6F5pwSbUFD5rFdgyHQb3+ytihLz2wLViZ7x2vRY3oMf23x667ReFqT2GL+6uYN39bVg/ZGxR2eUBHDnFswYEE0ctM4M45IXJVTtM/d4XFTc7JynvGy/UUwtFusAZhQKajz5FTuwvAK1SVxv0DbbMYwqhuMTXyWgNTcKZIfYlZhF1eLyWoTo3PzfumItM5XN424YDKpl46axijZo0Zn8beaVzEhOt/wGX5qk6o2FwGjMlhTp184TXde4VAAYIJeb+QUbqxlpRfVbaVLD4vD0lBzUeQIwTsn6tckgw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=ox2xbRLxNvdqpJFmgdEJg4jzYCu9Zb10QHH/V8E5mn0=;
+ b=MKDGdRlKhEgo7F2ULcO8dm44E0sNuHGjxPBIwyFLQU51nhvBCS7veG5Oa9Crj4LQJikt0LL1cTsw7dI/yJ1D+nnUuX0dfww+k4pznjZVeYtphfNfTCKan3kwMp2HXXZHPY9rgKauD2BHGoq1CBUbRT443eI1iJCAQHGh0erBq2fj6BxFyOHVghOyphLqgTVwbicP8ZMNW6vxUdgZIexCsT9XDv71/3SDrPZQ4KU1cUJleAvSEJg3CKz5BuynnJExBgY/o5tfWUsG1HhmeYisGrZUDGBXEwwmadQ94+nVV26w9rXznT7FiaayOsIWZdyqFSV6R8L6hnD78fexmViTbw==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from LV8PR12MB9620.namprd12.prod.outlook.com (2603:10b6:408:2a1::19)
+ by EAYPR12MB999132.namprd12.prod.outlook.com (2603:10b6:303:2c2::11) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.270.20; Wed, 5 Aug
+ 2026 12:30:25 +0000
+Received: from LV8PR12MB9620.namprd12.prod.outlook.com
+ ([fe80::299d:f5e0:3550:1528]) by LV8PR12MB9620.namprd12.prod.outlook.com
+ ([fe80::299d:f5e0:3550:1528%4]) with mapi id 15.21.0292.015; Wed, 5 Aug 2026
+ 12:30:25 +0000
+Date: Wed, 5 Aug 2026 09:30:23 -0300
+From: Jason Gunthorpe <jgg@nvidia.com>
+To: Mostafa Saleh <smostafa@google.com>
+Cc: "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>, iommu@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	linux-coco@lists.linux.dev, Robin Murphy <robin.murphy@arm.com>,
+	Marek Szyprowski <m.szyprowski@samsung.com>,
+	Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
+	Steven Price <steven.price@arm.com>,
+	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Jiri Pirko <jiri@resnulli.us>, Petr Tesarik <ptesarik@suse.com>,
+	Alexey Kardashevskiy <aik@amd.com>,
+	Dan Williams <dan.j.williams@intel.com>,
+	Xu Yilun <yilun.xu@linux.intel.com>, linuxppc-dev@lists.ozlabs.org,
+	linux-s390@vger.kernel.org,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org,
+	Michael Kelley <mhklinux@outlook.com>
+Subject: Re: [PATCH v8 12/23] dma: swiotlb: pass mapping attributes by
+ reference
+Message-ID: <20260805123023.GO27883@nvidia.com>
+References: <20260717180442.110954-1-aneesh.kumar@kernel.org>
+ <20260717180442.110954-13-aneesh.kumar@kernel.org>
+ <ami_mpd_1pF4Tmdu@google.com>
+ <yq5a5x1ygo7z.fsf@kernel.org>
+ <amnRB98ZZIysHuM3@google.com>
+ <yq5acxw6dl1d.fsf@kernel.org>
+ <20260804142032.GC27883@nvidia.com>
+ <anL9-OrDGqYQAWNV@google.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <anL9-OrDGqYQAWNV@google.com>
+X-ClientProxiedBy: YT4PR01CA0449.CANPRD01.PROD.OUTLOOK.COM
+ (2603:10b6:b01:10d::21) To LV8PR12MB9620.namprd12.prod.outlook.com
+ (2603:10b6:408:2a1::19)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net] net/smc: fix TOCTOU race between smc_listen_out() and
- listener close
-To: dust.li@linux.alibaba.com, Breno Leitao <leitao@debian.org>
-Cc: davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-        pabeni@redhat.com, alibuda@linux.alibaba.com, horms@kernel.org,
-        mjambigi@linux.ibm.com, tonylu@linux.alibaba.com,
-        guwen@linux.alibaba.com, hidayath@linux.ibm.com, pasic@linux.ibm.com,
-        netdev@vger.kernel.org, linux-s390@vger.kernel.org
-References: <20260803070701.126339-1-sidraya@linux.ibm.com>
- <anCPZl_Rvqj2B7vI@gmail.com>
- <4157b86a-e2cb-470b-a526-137a650b9d5a@linux.ibm.com>
- <anLkl5X2xYedflyt@linux.alibaba.com>
-Content-Language: en-US
-From: Sidraya Jayagond <sidraya@linux.ibm.com>
-In-Reply-To: <anLkl5X2xYedflyt@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODA1MDA5OSBTYWx0ZWRfX4lcO9a+C7+HM
- MPa18xmAeP7coRdVkrf8v6FYg+PxDw/4H0Z/W07IlAhlo7aUScElcIrijcCoNbt28qfg2PDjO7f
- hm5wVwS1zv4sCFPbdpYK505GE7jmk0+I++nfryWRZxadWW5zWvwzCHNRpcVxLzYcEMQRPcTkIWN
- Kps6HnjA1A35dVVRfJRxx9Ic6Qia9ahn/kI8ozY4niyrtmU7u5iIeoReFkwWyOo2RpQiW+7wwNK
- dglmIAmjUP7Vlu2WFsQKWUPBz3Ldmab/VQfT+zuRPN6XqctJAt8rq55EylrAUmk01Zts2ZnChp1
- zkv413j828XviVteWJoQUCUXJt3zLFe33jXtXemAOkYejakv9FeH6dHgo3DCYXWQylSDz9OpWH2
- KKmTn0Ky10b7gYWMBZT/VYgJOHtwqttVWbwfB5mwAKxVEod0Grbqm0FzSLkyTyWRyqTcqmZY0pM
- e7lCdpjH5uG70edj+Kg==
-X-Authority-Analysis: v=2.4 cv=WIFPmHsR c=1 sm=1 tr=0 ts=6a732ca0 cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=SRrdq9N9AAAA:8
- a=fLt5QA0OMVFA8XJhKYoA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: -HHs8ai1tsGuOp9XmR5DLjugnkI_PjwP
-X-Proofpoint-ORIG-GUID: 50nqUFLIcOp1fEIaBDb3SLlTb3d1CnF0
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODA1MDA5OSBTYWx0ZWRfX8wd60mi0Vfaq
- X48P0jcHh4PIgCrBiGQnhjtY+ohlc+Yc8VtJ/39YZoQCfRWwc4l9D4Jie3PrLKN4rwgTfamcOB4
- XSFeCsFdUAQIutHsWvy7atBHf7AxCKE=
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-08-05_04,2026-08-04_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 lowpriorityscore=0 priorityscore=1501 phishscore=0 malwarescore=0
- suspectscore=0 clxscore=1015 impostorscore=0 bulkscore=0 adultscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608050099
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: LV8PR12MB9620:EE_|EAYPR12MB999132:EE_
+X-MS-Office365-Filtering-Correlation-Id: 693df1b0-8bad-4c1b-433e-08def2ed530c
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|366016|1800799024|376014|7416014|23010399003|18002099003|22082099003|4143699003|11063799006|56012099006|6133799003|10067099003;
+X-Microsoft-Antispam-Message-Info:
+	wtpreoMMSbMNkvVIQRVqvnZb64uPO/ftJxH026TyI2TzinjsLqw7pGLDEkAypUGJMmAcdbM2IY90FmH6YKekynfqyKGced4hUOuk9RfrciCspsz4NQJFTPsrpRl5z8AE+5yP7EfQEaHeDyVbP+mAexfUnm5PpXvtZ/vYMp/Th7N5r3q88w81hqhFqqWLuWxkXirkQvjH8GAhF2BjYZvOfAkjTJvGvqCSBheB05I/rJwAmuXhNMGSkBqD3gq4sLcuq5Xx8WOeOs5fu4zM6HE5ciMtyWNJZHXeyehPBcbaSyjngsvB5CWNz3umZ0gkaEw85yIuFxzWr+Ez8+J2ReLWnHOVbzCtZ/U0snRYGtVQKTFVTCP9NIQN2aumWCfasdKIILrze0GTmHp/SzOEc0Y/o7oYPSpJAq2LjRsZqGwRKMGE6pPWbEhfRrktnXm+Kej8dAV5Dd/YnExy1kJB3mkBEd9UE1MUqYCIZxDxhZP5FRAMX02KCbiP4y/Os86P5SG3d5iUCLFcX1fNlj8a7Duq2Uo8e54Lv18GMX7lhsMFgC0SJVk9tA91SAQrucfnwnkeCBy4rrQM9+3cMMVN4jUFO33344zWFqI3oEQRFdMI0B5rtI1sFZMTJdxfncy/3yqov9rEQaTCL06DYaZ9fwTE862u/SLRfklyfilqlxzi2i8=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV8PR12MB9620.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(376014)(7416014)(23010399003)(18002099003)(22082099003)(4143699003)(11063799006)(56012099006)(6133799003)(10067099003);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?IhdvWWGfiwCzol3+AUKdUWMHHE4HWALFFNYMRE+RmFsR/2v0ODtmAbuAIrmW?=
+ =?us-ascii?Q?++YuY5qxNSSGbhCE/uUqv1Zjre7UVbCER/qCW06WVTAImbxzFOP7BV0KHQju?=
+ =?us-ascii?Q?vBuuCfhcl9vk3TVlXgbCJikyf4g9V69eZfKjeyHVYKjZCQUP6/96b9u2FrXy?=
+ =?us-ascii?Q?EXkfC4LFf5h/97MPvBYj7HtXF/lW1Q72gmOXNPYUUYwmlNK9oLOBnS7uvtqg?=
+ =?us-ascii?Q?+9KvvEN5Ap8UTSJxNyrcCyGm39bMV9f+msR9ieDkLSkEwZirn70aGektH7ul?=
+ =?us-ascii?Q?Wir3QQsAufage7I47Xnxol6uEKRuCWyQo+2FxZlDl5rw2r35ZPHJzrhABDSV?=
+ =?us-ascii?Q?nQ2OCr0uTwo+hd/CCA4BfENcsgXUNGDKNwyQ7C3yl6AVihvvU9oomRTSES9X?=
+ =?us-ascii?Q?66CnYKuSc1TmuRXXaxtdf0f/mhsJh1NEeXxqP4MiLGub8FrdlDQaQsHiGo+O?=
+ =?us-ascii?Q?bhE21Pn2LEjbrTVyZhtQYWw/xUiQ27AwYXKFS6KLOi/xawx4KlV19LK6o09U?=
+ =?us-ascii?Q?0OigRMbjTxpbvEY6mHKRjOdc7fd1VW36PnM/JQ/4AobFA8EXl7IjJJ8oJmhV?=
+ =?us-ascii?Q?QL/SE2wISFBJucIPsPumh62swZWFbj1Fl8HpiqfcbKc22jCeXnz5rnSngtrY?=
+ =?us-ascii?Q?WoBioRTvqcEmBlOOsmPDMelFg3yqC+Hac9lKhr5B22c89P/v+2inJGhvUP5S?=
+ =?us-ascii?Q?TadWy/uYUATQIbDhMBEoMQjgqmCoFoJ1e8Qa0S2TorUtCaAOfxHdnzpCYVaz?=
+ =?us-ascii?Q?RZMm4pEJsbUuFwg1bUQs9cBjvAKqkvAwY18LtVIML/wLcCoxfog1FNJr1Xe7?=
+ =?us-ascii?Q?0JI1ywQNQRuAJV1IEVNgJPIQVSJuc1MUxS5qDkD9HV69GKczAk+g38sa+vHx?=
+ =?us-ascii?Q?7naYCd1KdDssmBcCL0e8DBr+kz9RgjbAu0hkP6JZFDht1PxbaZnshp2T1Ws2?=
+ =?us-ascii?Q?j/an/bIzYWCs+GSsxmf4saCwUi9Qwt8p5ctqftcc2iOzU/aZNffGSWdcTWop?=
+ =?us-ascii?Q?hHoCgzOarMuljYizaEyWVXAwzvBmaSwEJ5eLXxQWtjdDXDhqOyRSOiHP40+Z?=
+ =?us-ascii?Q?mAeIZzTGQiNsNHrnaZrtgaLMMAClk2eSvN8qtLC48WvM0x4bk+GT/ZXv5HOm?=
+ =?us-ascii?Q?Tww27yTLgyTCRHtucU4XbLgBxbeBTg3aKaF/Uf9nYBABBxbgSsCji7sMIcBR?=
+ =?us-ascii?Q?o4qUUXOIGSAxDKY+DMqaxfQgQl0eouNSDdO9e1ZZ/OZicVV4bph6Tf7hnZHA?=
+ =?us-ascii?Q?udQOE0V7OSTJEZRzRCfYATnyQCS9qkpkdk5QUs9F/EwcX35CHWxZfQ+l+tlQ?=
+ =?us-ascii?Q?0UZqvFtnxhnoZECLAfOBTeVsBry1Lj7JEU0528cPZ/kWNRlbzMhRA5N6cFwb?=
+ =?us-ascii?Q?91eIDW939hdE1zKt68NPqswU9YUPZ22jYJnFHhEwF/cBJmLMrCcRRlSAZ6PC?=
+ =?us-ascii?Q?LYmutjcySr/n1pfCMmLcm1UCc4MsRx+SBQprC0bweGx8CULgSFYOQfF2KkXV?=
+ =?us-ascii?Q?GgEcXTpWlUS5nX+VfBOVL/aKhyCJPJat0mgs8o4M/8RFCwZ92jeuLNiYIN/t?=
+ =?us-ascii?Q?obhA4NG10RZeFaZB1rDR7JO4ZV8nObjNY8u8u8QBZLN4xX/gy+IEY9VXuTpr?=
+ =?us-ascii?Q?6gyMbpy3WJ73qzF1SmH3e+HP/KeeY0iFDWjUEobitwCrGyJa5+3m+wtNrdKp?=
+ =?us-ascii?Q?PKWjgiFUGpIO8Gn1hniVAlB7vMjyz+JRtEViMNPoGPScTyYfWmA0iRXChWL2?=
+ =?us-ascii?Q?6a91FZ2B/A=3D=3D?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 693df1b0-8bad-4c1b-433e-08def2ed530c
+X-MS-Exchange-CrossTenant-AuthSource: LV8PR12MB9620.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 05 Aug 2026 12:30:24.9433
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: SnEE0VCiRX+7FvTKRW2hbsqeIdcBOCg9gwb9qK8aHHGB4wwY9TBKfnxLggJ3Y/Xl
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: EAYPR12MB999132
 
+On Wed, Aug 05, 2026 at 09:10:16AM +0000, Mostafa Saleh wrote:
+> On Tue, Aug 04, 2026 at 11:20:32AM -0300, Jason Gunthorpe wrote:
+> > On Wed, Jul 29, 2026 at 06:12:38PM +0530, Aneesh Kumar K.V wrote:
+> > > There is a possibility that we may support io_tlb_mem with cc_shared =
+> > > false in the future. As a result, only swiotlb_map() knows which type of
+> > > bounce buffer was used, making it the only place where the attributes
+> > > can be updated correctly.
+> > 
+> > Yeah, +1, the attribute should be changed at the same effective place
+> > the source memory is changed away from what the DMA API user
+> > provided. Only the thing providing the new memory (eg swiotlb) should
+> > know its properties.
+> 
+> I will keep the conversation here instead of 2 threads.
+> 
+> That seems like a big leap, I'd be worried about devices that operate
+> on confidential data that should not be shared/decrypted.
 
+That seems like something very differnt.
 
-On 05/08/26 12:51 pm, Dust Li wrote:
-> On 2026-08-04 12:52:12, Sidraya Jayagond wrote:
->>
->>
->> On 03/08/26 6:24 pm, Breno Leitao wrote:
->>>> @@ -1931,11 +1931,12 @@ static void smc_listen_out(struct smc_sock *new_smc)
->>>>  		atomic_dec(&lsmc->queued_smc_hs);
->>>>  
->>>>  	release_sock(newsmcsk); /* lock in smc_listen_work() */
->>>> +	lock_sock_nested(&lsmc->sk, SINGLE_DEPTH_NESTING);
->>>>  	if (lsmc->sk.sk_state == SMC_LISTEN) {
->>>> -		lock_sock_nested(&lsmc->sk, SINGLE_DEPTH_NESTING);
->>>>  		smc_accept_enqueue(&lsmc->sk, newsmcsk);
->>>>  		release_sock(&lsmc->sk);
->>>>  	} else { /* no longer listening */
->>>> +		release_sock(&lsmc->sk);
->>>>  		smc_close_non_accepted(newsmcsk);
->>>>  	}
->>>
->>> Do you need to call smc_close_non_accepted() without the lock? otherwise
->>> you can have the lock around the whole if/else clause.
->>
->> Yes, smc_close_non_accepted() calls __smc_release() in turn calls
->> smc_close_active(), which in the SMC_ACTIVE case hits
->> smc_close_stream_wait() a blocking wait that can sleep up to
->> SMC_MAX_STREAM_WAIT_TIMEOUT (2 minutes). Holding the listener lock
->> across that would stall any concurrent smc_accept(), smc_listen_out(),
->> or smc_release() on the listener for the same duration.
->>
->> The release_sock() is intentionally placed before
->> smc_close_non_accepted() to keep the critical section minimal:
->> lock
->>  check state
->>    enqueue or not
->>      unlock
->>        then do the slow close work without the listener lock held.
-> 
-> 
-> That patch looks good to me.
-> 
-> Reviewed-by: Dust Li <dust.li@linux.alibaba.com>
-> 
-> 
-> Two corrections to the justification though:
-> 
-> 1. This newsmcsk sock have never been given to userspace, so
->    smc_close_stream_wait() should return immediately. I think the stronger
->    argument for keeping smc_close_non_accepted() outside the listener
->    lock is what follows in smc_close_active()/__smc_release():
->    smc_close_final() can wait up to SMC_WR_TX_WAIT_FREE_SLOT_TIME (10s)
->    for a WR slot, and smc_clcsock_release() tears down the TCP
->    socket.
-> 
-> 2. SMC_MAX_STREAM_WAIT_TIMEOUT is 2 * HZ, i.e. 2 seconds, not 2 minutes.
-> 
+> One example for this which exists in pKVM (this part is not
+> upstream yet) is non coherent devices that require bouncing but they
+> still want to keep the data private. In that case ideally they get
+> an encrypted SWIOTLB pool, but it's always better to fail than to use
+> a decrypted pool behind it's back.
 
-Thank you for the corrections,Dust. Both points are valid.
-> 
-> Best regards,
-> Dust
-> 
+We don't have any API for a DMA API caller to signal 'must be
+confidential'. If we want to add one it would be a flag to check
+before changing the physical address in swiotlb.
 
+As defined today the DMA API expressly copies from private to shared
+memory, that is baked into it's design and not a bug.
+
+My expectation is all these cases have to be solved by setting up the
+swiotlb properly so it provides suitable bounce buffers. Yes, this
+means we will eventually need both private and shared swiotlb pools.
+
+> I have not been following the work on T=1/T=0 devices, but IIRC, they
+> required some complexity to handle their stage-2 as these modes will
+> be emulated differently (for CCA, RMM vs untrusted host).
+> I was thinking that it might be easier to represent those to the
+> guest kernel as 2 separate devices (bounded to different groups...)
+> where one is trusted and the other is not, and that way the DMA-API
+> can have strict rules about memory sharing.
+
+No way! That's would be a giant disaster for the driver model.
+
+Each struct device will have a flag that shows if it is in T=1 or T=0
+state. The flag can only change while a driver is not bound, and
+changing the flag will update the DMA API configuration.
+
+A T=1 device should have the same issue as you point out for pkvm, it
+really needs to have a private SWIOTLB pool.
+ 
+> Otherwise, SWIOTLB does not seem like the right place to me, as it
+> does not understand the context the device is operating in, and the
+> DMA-API should deduce that from the flags passed.
+
+It is exactly the right place because it is the one supplying the new
+memory. Context is irrelevant, the flag only describes what the new
+memory actually *IS*, and swiotlb knows 100% if the new memory is
+shared or private.
+
+For your issue it would be appropriate to add a debugging check that
+the new memory is not incompatible with the expected policy. eg a T=1
+device getting decrypted swiotlb memory is a bug in swiotlb setup that
+should be caught. But that's a debugging check, we expect the swiotlb
+to have selected the right kind of memory by construction. This isn't
+done yet since this series doesn't even yet support a T=1 device..
+
+Jason
