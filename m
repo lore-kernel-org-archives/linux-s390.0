@@ -1,131 +1,156 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from fout-a8-smtp.messagingengine.com (fout-a8-smtp.messagingengine.com [103.168.172.151])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0072147FB04;
-	Wed,  5 Aug 2026 15:55:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D3C8B361DDA;
+	Wed,  5 Aug 2026 15:57:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.151
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785945306; cv=none; b=VO4rOKFTKCH8yfKL4b8ShKnRUfe6bN5c+qpn/hTgwixRoqVeYWaCLcBPrwGz8tCFab6EnsD1eRpddt0bybUlQLlGsuGvDzMYTGrlQLFQ3jn+pX5egW8GyOsH9lo1tp2ghyKGY3X3E8E2Tyt3tEzhrl7+HFdx3VThhCttEv1Np0w=
+	t=1785945450; cv=none; b=q0f8bvah+hTn1+TDdfkXQxqQKH/OWmgITxNo09Tc6uRktcj8r49XvIrm4IFMLkiEUZoE4D0/vlAmMk5N4HiJ5+8nkiF0AxbX9hW/+QqgYRKCkIs3g+LxCWw+VwAQjQsdty09oXj6Gj2Vx0/kD2jS9+ZwdSGUnQ6JJnUA7mdIZC0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785945306; c=relaxed/simple;
-	bh=3DjhGQToKc9w252L8k1OfX/rnBKb7lfmupvuwYC+li4=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=UzLU9/egKd9iO0NmWFg0Exa6rX6Mr+1KN1W5j19c9lKATiC3/c7/y7LWQMIsWtyjS4JBL/C8ZRMDHL2M+/pzXGufUOPPjHPy7WKNHK0LC8116/xOqjyocQ0Yo9vmsFrnZE3y1dtRj3TSyUSb8aVStiq16ni1lVX8TgUFY6mzxbg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Xxx3ExaS; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1785945450; c=relaxed/simple;
+	bh=GOuBNrIp9K9Rk/B7Lnh6vqWtjjXAlDsdSnZqHl0zc/A=;
+	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
+	 Subject:Content-Type; b=lcExhwtnUsmCxp0OZJHlHCKjyxW/9rcs2m4SdgLxKWrpHSh6DgjnMkc3coUBW/R3C/+rn4eeD7aa7ziT6eiNxeyGyjLSn7LrTD4R90dphiiahP9fY9zY6u/XLGECudFdV4L6yXOomAQq/bKdSDyjfLP2BUv/vYwQlpOEZ7LGV+8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=f7noF4+C; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=mmbjj+cR; arc=none smtp.client-ip=103.168.172.151
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Xxx3ExaS"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 675Fli5j088681;
-	Wed, 5 Aug 2026 15:55:04 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=RVwDfWsbGk4ba/8Zh
-	fOFm3tZ9mKEsSQEnTQQUX33DWA=; b=Xxx3ExaSnzUiuUt6ZKfyTIpS+f2mx0SEf
-	PIYZNvqCpIGk9rRs+e0oZPN9qZ5grNUXB5kd9BCJcz15fRqUIV/hKLCVjBj8vj07
-	kYp4feceJaG3Wl+QG8uaZalbzoLt7uhLLlDKvOh6eBvtRGS/alOtAfMybGb2pgx3
-	BBFfJOglpXOK6aa/9Ei0kjO+bOXSnkb+s2Yo9kTHG5iMCcbR0IZyWf6Z6M9l2qtD
-	7KP1a3TxgpKGod2SIqDhnw0PJm3MeuBfZjl+/imsViqdHQftDL2Xq0OB9esF6FCi
-	sIwLdTsUQG7/YUTBlMKMiU4ZUlhsaG+5aEBYq7Qs+ixs5v5sOwndg==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fs8h53vm2-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 05 Aug 2026 15:55:03 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 675Ffn8u002235;
-	Wed, 5 Aug 2026 15:55:03 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fswbgf1c6-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 05 Aug 2026 15:55:02 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 675Fsxj241681200
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 5 Aug 2026 15:54:59 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 350502004B;
-	Wed,  5 Aug 2026 15:54:59 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 12CDA20043;
-	Wed,  5 Aug 2026 15:54:59 +0000 (GMT)
-Received: from funtu2.ibm.com (unknown [9.111.168.79])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed,  5 Aug 2026 15:54:59 +0000 (GMT)
-From: Harald Freudenberger <freude@linux.ibm.com>
-To: dengler@linux.ibm.com, fcallies@linux.ibm.com, ifranzki@linux.ibm.com
-Cc: freude@linux.ibm.com, linux-s390@vger.kernel.org,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        linux-crypto@vger.kernel.org
-Subject: [PATCH v2 2/2] s390/crypto: Explicit scrub temp buffer in PAES ctr mode algorithm
-Date: Wed,  5 Aug 2026 17:54:58 +0200
-Message-ID: <20260805155458.14925-3-freude@linux.ibm.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260805155458.14925-1-freude@linux.ibm.com>
-References: <20260805155458.14925-1-freude@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="f7noF4+C";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="mmbjj+cR"
+Received: from ams-compute-02.internal (ams-compute-02.internal [10.64.2.62])
+	by mailfout.phl.internal (Postfix) with ESMTP id EA7B8EC0105;
+	Wed,  5 Aug 2026 11:57:25 -0400 (EDT)
+Received: from ams-imap-03 ([10.64.2.23])
+  by ams-compute-02.internal (MEProxy); Wed, 05 Aug 2026 11:57:27 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
+	:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm2; t=1785945445;
+	 x=1786031845; bh=p4r12+UHkr+EMzZhSZv8ak/jx56YQfzXVFQO5KTlhKg=; b=
+	f7noF4+C+VRJcm8lqrTHpsubYlKhVEEh/L1/G5h1jEAKqr06csbJd46YjK/AYZxM
+	CJ6naTxt8art2w9WDhiuZFR6V+Wey9DD+qAfwwCf2KFTvfr8z3IyxZtWrzSNRNia
+	+TEpcfQ6rYYraSh7MKr2k309mAiZ/rmgNsPjDWndic568VhHlnXzq5g743Tgpqre
+	a2jclVlCDUWMBM4b+dnjH3WCjteWdieKUb85jVgd+EACUYn4thxwCa00ae+4klAo
+	b7yQGlibfKm2XgQpqJNzdeo+t3owjHFtERHzUBRpBvK3IX6pwh/2YI3+FdUnGm0l
+	J6Esj1ClfLnNSkmttNDLoA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1785945445; x=
+	1786031845; bh=p4r12+UHkr+EMzZhSZv8ak/jx56YQfzXVFQO5KTlhKg=; b=m
+	mbjj+cR+/65nzm4ljBf/ioXiErHr5dOIWFi5TSUuRjf/VRAgCcgITY4InqFpU0Ai
+	WW77bUqYHQP5AaudJhfQZLue93w1fbHMlTFDlGUIz1mCbsHaQUczPw0mAm1m2gSD
+	JjwsJiRCl50FH7YvuLKrqx+fZlmheImKAW41/QelInYuW/uwSjneR+HwWusz0Waq
+	XCWYimPztuRVMMvw0RPPVCLrrtDJSibpMiC2eYZVYsXgT38gV3/12jYka92ehVh7
+	Q8m/uPjEySKrJkrX2GTb63Bj96b4Imha1AmS0yXPQQkhYOoDT48+mgZShn2lcqqM
+	cn7qSYIroNx1Kt3qIFbZg==
+X-ME-Sender: <xms:XF1zaqG4Ihagay9KovRTpzLktorAZdoTFKqQpZkGGbXYuVWhaggHAA>
+    <xme:XF1zamIWpExknCPzNBppG9c6lPgUmoyOm3980frecoYsjJIUr781gAp3JpS0xjVCJ
+    zszRbskh917tYn5NAo116wkauJ4ylH-SL48Q0HDlPAR00OIJcHP8fg>
+X-ME-Proxy-Cause: dmFkZTEK36Nx7j87NXKkFBqBnty+tNGgQukfyje13lHcFq+l5iXCPJQYN1qX9NulQ3oSIk
+    fsP0lxQ6Ac2cdWhd0iJm+duA0peWusLgel8H/WMTjF/OGQ6VdrMO1LVewSDqeVrAiijTkZ
+    P+cqeFtth2mu7q8JaKTEcJeFo7+BQVjwLFYxErVCDmNAZ34opbvZgmlJlvnT3+i3MRWDRI
+    egQnYGPSBWaw4OP+boTH0UdTBO6RYe4ptQmMjz/oWLbhGZATvEF4d0kKtLuIuCtf01bBAK
+    YLC/2qtd9aogweddBJd1uUo9OuvHDaT89SCvaPZ1N/gTs0pDQmarxxD85fUsoEPq0CZ7k0
+    mDe2hEqe+SfDX86D2vzm6PL1Vkija/c5D/yyJYW6rxeOHJsbXgIPBQ6WlXnTNvXTngI60T
+    Z5UDyNEKMeUn6+xcclipjTfEF38tYf3kzjwHoF67EV+ldp0YbHcM4mdDBQnS+00c5wBCA5
+    Hh/ribq+AzoCtWtS9BCJGpXM+zEh9y8Un1yEPyqtlSpssg0X9bi/uPxzsGTMjY6GVqHa5f
+    OpQqUtC1sJSFHb8H24NZkH9snorElXMf+SLk7gXmviNAHOZX1eVB+s3mkyWhe0HMSN9Wnb
+    OGjaHFHsuN4zTo/GZ5DUr8YOFzWE4B7L74BITapx+nHk8N6lKFo5L73GdD7Q
+X-ME-Proxy: <xmx:YF1zam1eZJ-9tZFSph9hL3KT7F5oGP-7Ei9lb_FyOJrB2O-DmG-9ag>
+    <xmx:YF1zamho6O-2yVgRz2_XYAaWfkGqJ_xmwskyOdMtOwYt1CELPLkJVg>
+    <xmx:YF1zau2f8oFJ6nHpQdlUNwYv27nQGGRmTLyqt4jV4rBgEvBP8jDr2w>
+    <xmx:YF1zapeeva6IfT8LgXbZXaWE0aNd5oa31iRwnOzeJTpTLea-8YYzXg>
+    <xmx:ZV1zahkaf9A1kpBXAkSP0_pWh_zatyZojCTATCVcGAMqQecMZKmFSY7Y>
+Feedback-ID: i56a14606:Fastmail
+Received: by mailuser.ams.internal (Postfix, from userid 501)
+	id C597732A0062; Wed,  5 Aug 2026 11:57:16 -0400 (EDT)
+X-Mailer: MessagingEngine.com Webmail Interface
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODA1MDEyOCBTYWx0ZWRfX16gi9ZpY4Ujs
- aAiDHOrS0aRuhBWC94O85mEySqiRgzLH4epooEDzCgMaDXmhpUF3VjVG5IGGpjhLEZ9hcDUdUGI
- UsFSAuKffztyqSb1P3PYeb978c6e2Bo=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODA1MDEyOCBTYWx0ZWRfX8143CIJ+1C8c
- eqTb7IntQCbVVguRDhuJQFuzZHA4O4AFcfRBSomAioyicQtUhpwP32lR4on1lQ6UJciIE4yJ+ae
- fxBb80BDL8ovhbXlhiACKhIGzJPCRCHmHuf+jzEuc8Zqw7qCgvc/NKcccI9SqUAhTL2IvzWy/Cl
- 6r5rTK662EUJMuTs77B0bRfUiouZ/bxEC9SirmO8Xwp9DzDi3PsyeSyXf2zhqCws4NR1KJYuljz
- JNG/YHV6IudjzVMEJ1ogiawGOpZAZrD/UZo45R+YmM9PqueU9+1LbDxXxl4vPl9cYIlK64OYbBK
- vMo37d5wyJTC/DbAkbUdLs+6CXREq+qy30IYqN2GfeogUYyZ44GJidx6xTzQbg/0In70bLovjVq
- grDD6W14h8GBlAnbpP/UAXmjTQK8a7F/NYMmADyfiOXR44bRIouzLywK41d3VXOAayVt+cCenKE
- mFyPeZGfgRK0SfYXNrw==
-X-Authority-Analysis: v=2.4 cv=SI1ykuvH c=1 sm=1 tr=0 ts=6a735cd7 cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8 a=VwQbUJbxAAAA:8
- a=Bu01COFQdOgQPTRGaCEA:9 a=zZCYzV9kfG8A:10
-X-Proofpoint-ORIG-GUID: _vLjuntxIrxlGmmQAyIvDC5813jfztuc
-X-Proofpoint-GUID: _vLjuntxIrxlGmmQAyIvDC5813jfztuc
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-08-05_05,2026-08-04_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 bulkscore=0 suspectscore=0 impostorscore=0 spamscore=0
- phishscore=0 priorityscore=1501 lowpriorityscore=0 adultscore=0
- malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2608050128
+X-ThreadId: Ag8nwV6tN_57
+Date: Wed, 05 Aug 2026 17:56:55 +0200
+From: "Arnd Bergmann" <arnd@arndb.de>
+To: "Niklas Schnelle" <schnelle@linux.ibm.com>,
+ "Heiko Carstens" <hca@linux.ibm.com>, "Danilo Krummrich" <dakr@kernel.org>,
+ "Gerd Bayer" <gbayer@linux.ibm.com>
+Cc: "Miguel Ojeda" <ojeda@kernel.org>, "Alice Ryhl" <aliceryhl@google.com>,
+ "Daniel Almeida" <daniel.almeida@collabora.com>,
+ "Vasily Gorbik" <gor@linux.ibm.com>,
+ "Alexander Gordeev" <agordeev@linux.ibm.com>, driver-core@lists.linux.dev,
+ "Christian Borntraeger" <borntraeger@linux.ibm.com>,
+ "Sven Schnelle" <svens@linux.ibm.com>, linux-s390@vger.kernel.org,
+ Linux-Arch <linux-arch@vger.kernel.org>, "Boqun Feng" <boqun@kernel.org>,
+ "Gary Guo" <gary@garyguo.net>,
+ =?UTF-8?Q?Bj=C3=B6rn_Roy_Baron?= <bjorn3_gh@protonmail.com>,
+ "Benno Lossin" <lossin@kernel.org>,
+ "Andreas Hindborg" <a.hindborg@kernel.org>,
+ "Trevor Gross" <tmgross@umich.edu>, "Tamir Duberstein" <tamird@kernel.org>,
+ "Alexandre Courbot" <acourbot@nvidia.com>,
+ =?UTF-8?Q?Onur_=C3=96zkan?= <work@onurozkan.dev>,
+ rust-for-linux@vger.kernel.org
+Message-Id: <f2002ee7-00a4-4a3f-a516-409886b724ab@app.fastmail.com>
+In-Reply-To: <94c3ebc645e80feae1044a57b8b5c82d4d4ff408.camel@linux.ibm.com>
+References: <20260803180931.97202-1-ojeda@kernel.org>
+ <fb2daae7-4eba-4ca1-95a5-60f8157eb66b@app.fastmail.com>
+ <DKFKXA6YWW8R.1NDZ44Q13XFQH@kernel.org>
+ <20260804071330.24760Aaf-hca@linux.ibm.com>
+ <33ecacea-ed2a-409c-ab1c-a136e06b1b7a@app.fastmail.com>
+ <1aac654b8d333cc058a345b03ae0f798f1724ced.camel@linux.ibm.com>
+ <57ac7553-4034-49e2-b686-b7272591da00@app.fastmail.com>
+ <94c3ebc645e80feae1044a57b8b5c82d4d4ff408.camel@linux.ibm.com>
+Subject: Re: `io{re,un}map()` build error in s390 under `!CONFIG_HAS_IOMEM`
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-In function ctr_paes_do_crypt() there is a buffer used to process
-remaining bytes < AES_BLOCK_SIZE. This buffer was not scrubbed and
-thus could lead to expose of unwanted data.
+On Wed, Aug 5, 2026, at 17:36, Niklas Schnelle wrote:
+> On Tue, 2026-08-04 at 17:52 +0200, Arnd Bergmann wrote:
+>> On Tue, Aug 4, 2026, at 14:21, Niklas Schnelle wrote:
+>> - On PCI MMIO areas, memremap() and memremap_wt() should return a
+>>   normal kernel pointer that can be dereferenced, e.g. for
+>>   option ROM contents for a framebuffer console. This can't work
+>>   on non-MIO guests but might work on MIO depending on which
+>>   instructions are allowed those mappings (I can never quite
+>>   remember how this part works on z, does this have to use
+>>   pcistgi or does a normal aligned load/store work as well?).
+>
+> You still have to use pcistgi/pcilgi/pcistbi normal aligned
+> loads/stores will fail as the physical address is beyond the memory
+> limit. On the other hand the PCI instructions can't access normal
+> memory. So you when using memremap() you'd have to know which kind of
+> memory you're remapping and use the right accessors.
 
-On exit of the function unconditionally scrub this buffer to avoid
-exposure of maybe sensitive data.
+Ok, so memremap() by definition cannot work on s390 for regular
+PCI devices, since you are not allowed to use readl() etc on a
+kernel pointer returned by memremap(), only on an __iomem
+token returned by ioremap().
 
-Fixes: 6cd87cb5ef6c ("s390/crypto: Rework protected key AES for true asynch support")
-Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
-Cc: stable@vger.kernel.org # 6.16+
----
- arch/s390/crypto/paes_s390.c | 1 +
- 1 file changed, 1 insertion(+)
+One important exception seems to be virtio_fs, which uses
+devm_memremap_pages() to map a virtio_shm_region, which in
+turn can come from a virtio-pci device but is backed by
+actual cached memory in the host instead of an emulated
+PCI memory BAR.
 
-diff --git a/arch/s390/crypto/paes_s390.c b/arch/s390/crypto/paes_s390.c
-index 89785ab95e6b..c95cc80b4205 100644
---- a/arch/s390/crypto/paes_s390.c
-+++ b/arch/s390/crypto/paes_s390.c
-@@ -1026,6 +1026,7 @@ static int ctr_paes_do_crypt(struct s390_paes_ctx *ctx,
- 	}
- 
- out:
-+	memzero_explicit(buf, sizeof(buf));
- 	pr_debug("rc=%d\n", rc);
- 	return rc;
- }
--- 
-2.43.0
+>> This would not help with either memremap() or the !CONFIG_HAS_MMIO
+>> issue though, right?
+>
+> I think it would help with memremap() because it would mean that when
+> used on normal memory and accessed with normal loads/stores memremap()
+> works and when used on PCI BAR / MIO addresses and accessed by I/O
+> accessors it would also work. So it should behave the same no matter if
+> memory-I/O is available.
 
+Have you come across any users of memremap() that pass the
+kernel address into readl()/writel() rather than accessing
+them as pointers? This would of course work on arm and x86,
+but is still a violation of the linux/io.h interface definition
+and causes a compile-time warning with sparse. If these exist,
+I think we just need to change them to ioremap().
+
+      Arnd
