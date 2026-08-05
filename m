@@ -1,149 +1,147 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0254341F7C1
-	for <linux-s390@vger.kernel.org>; Wed,  5 Aug 2026 11:48:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 69219444701;
+	Wed,  5 Aug 2026 11:55:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785930524; cv=none; b=t8Wodlsi47eKlrmFITmceN1FpHQv0EqNfFTexpirks2fj2laf/zLYCjCDj3agtasXJUqfLspYpz/cHLZxJrOpii1YHT1LQLTzHb5rYBkiaZ1zSadHqm/dKh2FxH+UQf/HAAWeB6J7iKwt+53xu7sOxyMp8tTdfhyaFonCvyQ4sc=
+	t=1785930913; cv=none; b=bjm2uduRhyJOfTT9hazqOyP5HEt6ZWEbR0nOrdH3fATTMKegfxq5gXxCk/50Qb5l60rUH00AWsUgKgKrjeRi1J0UBANR339NEOuVZrb8xRqhCpX75EToUS+4nm3iBeUogBFB23gIB6iDto7Gj3A1hTRqyC8KUMEc7VBikbwabjg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785930524; c=relaxed/simple;
-	bh=xAl5pX2rGBf79ffzDKh5/EeHJtmPUb4gYxCrNGsOJD0=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=cLUcixwdb/enjYc71Z38lpq7QzCvmicTHoxENf02OBpY8lVTUsEW7W1IZM7af06S0rnpfdQignavbIHALxmO2prFZYlQB8CMxyM9PTH6klXRe/ni6MfqejJslP6OnHzuckZv/dPNaSgCXOeCdnUI+ntSuBwiVwTgwri3atlOVxU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SjbdKO5M; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1785930913; c=relaxed/simple;
+	bh=cx1OoxWe/TQtTsDRzEzsjNZ9ci6+HcE0OO9pdmkjA6E=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=XsWiGkD0iOdXG9q/KjKvsO2B34AGaxq4ieV2AEB+Sz7gTSRK/wYWRSWJn5aKJDlmOa5ju8Z0fgZ8H07DvV3+RMfB/ZGZwvjSoaoQtrc1CGhqdTdGxTZS0i10JEBhFqjOjnLY2VVHg/cii48yVheHv3su7uig+GZ9Sadv9e3RglI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=g5jj+VBp; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SjbdKO5M"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8364B1F00A3D;
-	Wed,  5 Aug 2026 11:48:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785930522;
-	bh=uaIJuL4Tg3mE8T9hvm+qdAh/LtWznka8unjP8idt/Dg=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=SjbdKO5Mz9wxwhdl23vRM3CLvhNR+pPKGHLedq8geO8pRrWCMgHwCtgv3lywt67ad
-	 yY+Aq+bG1Ewavhvgg3QcG/k/Ph565IvxF0UxCxUJIQWZQX5GrHgOC38LjNC76t67ys
-	 Kwwxk+y7FdV1YKGGtOPHhy68OT+CMN3h1Fb5qKsdJKICl3aZ69LIWAzB+jhHtI6LLK
-	 pFxflV/XKBvYsYnVnV6NjZJT/iPMbYB3BTEgKMO6S+rG3lt0aLxKrIfER+1cRdSWsY
-	 V9ao7uJqBZRhHxVv0ax7UAcuUqFaSnFHAwtr+H77AKIjHUwW4lJIOgmp3yzpSEyIi3
-	 1MQnEk+l17ApQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 01/19] s390/dasd: Do not complete a failed ESE read as
- successful
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Stefan Haberland" <sth@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Heiko
- Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>
-In-Reply-To: <20260805111612.1285190-2-sth@linux.ibm.com>
-References: <20260805111612.1285190-1-sth@linux.ibm.com>
- <20260805111612.1285190-2-sth@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 05 Aug 2026 11:48:41 +0000
-Message-Id: <20260805114842.8364B1F00A3D@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="g5jj+VBp"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6758nLfn3440529;
+	Wed, 5 Aug 2026 11:55:10 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=x7X5U4
+	8+aLx4jj6UuIGB2BX4ekVFgM9FIxa6OSBWoF4=; b=g5jj+VBpxvw+D7EKlBOJal
+	/QDM5OZOpP6QVcsrSAZSoY+XWAmu6hCyRJKv3+qOfFqP5lC7z95/zVWlgsDchrj0
+	NXp3232Shh4/NunGgeAy82SzRROFvTIart0aFuCLcJJYDX7b++dPh4l5z9vjj6f3
+	LRfJnb2K3/lfGyPyTJGGPiLQ9I6f1sMJ76qCc27+DBrcNhrq81Qxjw5hhTQiZLxv
+	E5wnZypcKrLVy7Muaa61Q0WzH8a/Mtg5vMwQGK1JftWFdQWmKyxVD6FnSic0a8mK
+	8r12Oc7bwAb9GA6zRwUUvM/hvqh434954fOwQQzzS582akrMqsL3LBpfMf+s5ogw
+	==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fs8euta3n-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 05 Aug 2026 11:55:09 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 675BfFLX015387;
+	Wed, 5 Aug 2026 11:55:09 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fswtyp51r-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 05 Aug 2026 11:55:08 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 675Bt5PK22151932
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 5 Aug 2026 11:55:05 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id EC5D22004D;
+	Wed,  5 Aug 2026 11:55:04 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C0D1E20040;
+	Wed,  5 Aug 2026 11:55:04 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.224.75.30])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with SMTP;
+	Wed,  5 Aug 2026 11:55:04 +0000 (GMT)
+Date: Wed, 5 Aug 2026 13:55:03 +0200
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+To: Christian Borntraeger <borntraeger@linux.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.ibm.com>,
+        David
+ Hildenbrand <david@kernel.org>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle
+ <svens@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Douglas
+ Freimuth <freimuth@linux.ibm.com>
+Subject: Re: [PATCH v3 0/8] KVM: s390: More fixes
+Message-ID: <20260805135503.450af833@p-imbrenda>
+In-Reply-To: <20260805110455.7200-1-borntraeger@linux.ibm.com>
+References: <20260805110455.7200-1-borntraeger@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: zlSJ-gJJ4Mk9Ko4uSpTq0QXYVQ9sXhng
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODA1MDA5NCBTYWx0ZWRfX7XlEHzieMBnr
+ VL6ojg2dAiOw2fPTF6UUrnjk0NAzVxDaR2xjRzmqDWTbcut2ZPcLS0PCkShbGizKgUnqFPSAJe+
+ DYbqI5QuzEclumgIXA7j5r8F32lS5Yg=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODA1MDA5NCBTYWx0ZWRfX/ioZ2oHhaftg
+ Vwwko3aP7l/u7h2jdXRN+J3mJCM/b+Kgyr4L7lmTtvolUHDDnNSd1T4fVVvVSAicxzUQr4McEnj
+ o8F6Ob0zX4oQuEw7NGUBucf+B6MqTIVyXlCDjO9yNSHVeTdZp0/guRDzN7VTjf0Nhb/R1D5QQgf
+ wMIcsMM/p1kjOSo0gTE/Fj4osaGxV/9oDAuabbhuFZIgMyaIO+9Wntiypg5CLEHxv1toE1SQaHS
+ XuUx0A36fBgh6QzX4kv9CtUZoKHYIA/FYb0kgY5t3e6C5R4oV/29so8rHmvRg4UjKjzbyMQpBPi
+ xvp9lAtSUljaZeG+D10t/5ePfRPhLleTpHmYPNhEJ32xSajSjiK9BS4CLpEAZ/lVdQ2Xpzk/y9f
+ T5r4eo8hEz7wjlZa2W36pGfuYFPND4fKQuFKeJfKw0CEWuMMjk+mQgSn1MCN9x9ZiVUrS3R9MOa
+ RPdif/qP0xKmIo3t/2w==
+X-Proofpoint-GUID: zlSJ-gJJ4Mk9Ko4uSpTq0QXYVQ9sXhng
+X-Authority-Analysis: v=2.4 cv=KfzidwYD c=1 sm=1 tr=0 ts=6a73249d cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=kj9zAlcOel0A:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8
+ a=3ZA6qf5-gVS7gfmb9nQA:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-08-05_03,2026-08-04_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ lowpriorityscore=0 bulkscore=0 impostorscore=0 suspectscore=0 malwarescore=0
+ adultscore=0 clxscore=1015 priorityscore=1501 phishscore=0 spamscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608050094
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
-s) to consider:
+On Wed,  5 Aug 2026 13:04:47 +0200
+Christian Borntraeger <borntraeger@linux.ibm.com> wrote:
 
-Pre-existing issues:
-- [Critical] When dasd_page_cache is enabled, successful ese_read operation=
-s for thin-provisioned tracks result in an information leak of uninitialize=
-d kernel slab memory to userspace.
-- [High] Returning early with DASD_CQR_ERROR without clearing the timer and=
- scheduling the bottom half causes a queue hang for ERP requests.
-- [High] A failure to allocate an ERP request when retries are exhausted ca=
-uses the block request to hang indefinitely on the ccw_queue.
---
+> v2->v3:
+> - add length check fix for guest debug
+> - add RB
+> 
+> v1->v2: several sashiko reports added
+> - machine check stack exposure
+> - extend zeroing to pfault done interrupts
+> - old_data leak
+> - srcu protection missing
+> - guest debug allocations not freed on destroy
+> - uppercase patch title
 
---- Patch [1]: [PATCH 01/19] s390/dasd: Do not complete a failed ESE read a=
-s successful ---
-commit 63ead90543228523947461ca90de80a29ba45fc6
-Author: Stefan Haberland <sth@linux.ibm.com>
+Whole series:
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-s390/dasd: Do not complete a failed ESE read as successful
+> 
+> 
+> Christian Borntraeger (8):
+>   KVM: s390: Remove user triggerable WARN_ON
+>   KVM: s390: Zero initialize data structures for inject_pfault_token
+>   KVM: s390: Zero initialize irq in reinject_machine_check
+>   KVM: s390: Fix memory leak in guest debug handling
+>   KVM: s390: Fix old_data leak in guest debug error path
+>   KVM: s390: Take srcu when importing watchpoint data
+>   KVM: s390: Free guest debug data on vcpu destroy
+>   KVM: s390: Fix length check __import_wp_info()
+> 
+>  arch/s390/kvm/guestdbg.c  |  9 +++++++--
+>  arch/s390/kvm/interrupt.c |  4 ++--
+>  arch/s390/kvm/kvm-s390.c  | 11 +++++++----
+>  3 files changed, 16 insertions(+), 8 deletions(-)
+> 
 
-The patch modifies dasd_int_handler() to check the return value of
-ese_read() and fail the request via the normal error path if it fails.
-This prevents stale or uninitialized memory from being handed to the block
-layer when reading an unallocated ESE track.
-
-> diff --git a/drivers/s390/block/dasd.c b/drivers/s390/block/dasd.c
-> index d8d912a3b3fec..56ef38243f823 100644
-> --- a/drivers/s390/block/dasd.c
-> +++ b/drivers/s390/block/dasd.c
-> @@ -1692,8 +1692,10 @@ void dasd_int_handler(struct ccw_device *cdev, uns=
-igned long intparm,
->  	if (dasd_ese_needs_format(cqr->block, irb)) {
->  		req =3D dasd_get_callback_data(cqr);
->  		if (!req) {
->  			cqr->status =3D DASD_CQR_ERROR;
->  			return;
->  		}
-
-[Severity: High]
-This isn't a bug introduced by this patch, but does this early return bypass
-timer clearing and queue scheduling when req is NULL?
-
-If an ERP request triggers a NO_REC_FOUND condition on an ESE device,
-dasd_ese_needs_format() returns true. dasd_int_handler() then retrieves a
-NULL req and returns early without calling dasd_device_clear_timer() or
-dasd_schedule_device_bh(). Can this stall the queue until the device timer
-eventually expires?
-
->  		if (rq_data_dir(req) =3D=3D READ) {
-> -			device->discipline->ese_read(cqr, irb);
-> -			cqr->status =3D DASD_CQR_SUCCESS;
-> +			if (device->discipline->ese_read(cqr, irb))
-> +				cqr->status =3D DASD_CQR_ERROR;
-> +			else
-> +				cqr->status =3D DASD_CQR_SUCCESS;
->  			cqr->stopclk =3D now;
->  			dasd_device_clear_timer(device);
->  			dasd_schedule_device_bh(device);
-
-I also noticed a few other pre-existing issues in this area.
-
-> drivers/s390/block/dasd_eckd.c:dasd_eckd_free_cp()
-> 	if (dst !=3D cda) {
-> 		if (rq_data_dir(req) =3D=3D READ)
-> 			memcpy(dst, cda, bv.bv_len);
-
-[Severity: Critical]
-This is a pre-existing issue, but does this unconditionally copy the
-uninitialized bounce buffer over the original bio page, destroying the zero=
-es
-written by ese_read()?
-
-If dasd_page_cache is enabled, dasd_eckd_build_cp_cmd_single() allocates a
-bounce buffer without __GFP_ZERO. If the device returns NO_REC_FOUND,
-dasd_int_handler() calls ese_read(), which zero-fills the original bio
-pages. On completion, does this copy overwrite the zeroes with uninitialized
-memory, potentially causing an information leak to userspace?
-
-
-> drivers/s390/block/dasd.c:__dasd_process_block_ccw_queue()
-> 	if (cqr->status =3D=3D DASD_CQR_NEED_ERP) {
-> 		erp_fn =3D base->discipline->erp_action(cqr);
-> 		if (IS_ERR(erp_fn(cqr)))
-> 			continue;
-> 		goto restart;
-> 	}
-
-[Severity: High]
-This is a pre-existing issue, but does the continue statement here bypass
-the necessary cleanup and queue movement for the failed request?
-
-If dasd_alloc_erp_request() fails to allocate memory under memory pressure
-and retries are exhausted, it sets cqr->status =3D DASD_CQR_FAILED and retu=
-rns
-an ERR_PTR. Because the code continues to the next loop iteration without
-calling list_move_tail(), does the request remain on block->ccw_queue,
-causing a permanent block device queue hang?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260805111612.1285=
-190-1-sth@linux.ibm.com?part=3D1
