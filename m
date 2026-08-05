@@ -1,67 +1,67 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A44B2435AB5;
-	Wed,  5 Aug 2026 11:16:30 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 18675432BDE;
+	Wed,  5 Aug 2026 11:16:29 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785928598; cv=none; b=X66eRbPyYMyu93ewlhUJM9sG4yaHwLS9gUajbWKZyXt5bV9HCQCJGPN5qdvvZHoA+k44YBsXh77MWUyt8rjpw7NGPgrJ9xsPikkC1p2AGlD/DK+SzPfAI9dRW1goGPlDS628OWqdBER96a5DqjWDqnpHpBrIXKu104YArHBLYsE=
+	t=1785928598; cv=none; b=kJmPwtdChTyl5jWqjeNrjFYBa+6GpESm+hme34iqmbBHocDUw2Zn0t9YXIyWCs9w7o7Mzmkubw2bEwsV/R77OrDnONDi16tG5Kc9aOnCIfBQjkADVJpZ6Tc2DNzlNHkuNISjfK6VgzY4HgsgL56vzJ9Liq5BhvSzwcneEqZErdc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1785928598; c=relaxed/simple;
-	bh=06fFdNY+uKruDYUpJcGozy0EQHI5HowPD/TefFdaKKU=;
+	bh=Zl/8aPhmVJROGLlaLhx3w5WPLDKqw/ckbOPTcodcUUU=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=esl5ieBlA765ohFHoAK8kAkSclCAG4sAnSOvpqH8yLrvytPs84gwqEFpB9/2RdoK0lRu8J6L4z7FvJW8VD7hhWs0I1HLJ9OZEZxbDYHJ1PdxF7BnheSn7RDSFg1jdG9Uzhmeksy8x7uaZjOeKPM8AAq/SOI0UanrPVY2KQ6znwM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=tKncb8Jv; arc=none smtp.client-ip=148.163.156.1
+	 MIME-Version:Content-Type; b=shbodjCaflpO3wXYoYhYcVCcVsBdjGYxRE3DAurVkNZU5Gagnz7gxvcyFlduK4o3b0PAMGXNKXOY9rV4GBzCsxC4zgUihF4ibB4cB3FOSI5WjniCeZg/rdQ3Tho8c1hSV50bH2BRS2B7NUM4Zq2UiukcKmu1NLLDrykExVgOQoU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=JYi1IeFm; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="tKncb8Jv"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6758lZgu3354428;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="JYi1IeFm"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6758lXLZ3387207;
 	Wed, 5 Aug 2026 11:16:26 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=UyXxbx
-	GBTZ7lhHXZC19z581Xze3SelsrFgQ3Gm8mTP4=; b=tKncb8JvIOM0ET6J7WTptc
-	zOfiq6xdlK2A0RIkW//Ol/txUC/nZQpy/HNea2hXbQDrTXyfnJ43vs7gM4zSXzuR
-	bg7Kb45GLYzFKJmoxQPxMlctENT91s8xr4SEzBs5fkJWoAbVZuJnYbKH1xJI4LaS
-	IUlo7Lm2Kf/LQW4on4Byovgt7khgizESzBuxasZndcplpo+EWSLIkXaf7YrU/Oa+
-	b/trsQlXsSVKYQU9dMy9YtR7iO9Udon90ErabsP6nAS6Ec2orxwJa71SOoQm6fJ1
-	wPBPJItgKogLXiLmZbjNzAUnGNFgvr+OiLGMCcjurtwNhjwzvh7mkbvdhP1Unhig
+	:message-id:mime-version:references:subject:to; s=pp1; bh=YYlP5J
+	k6BwhQohMsQ47zZurt7A/hl5PWey7vlJpxhKc=; b=JYi1IeFmnCaYksfMbDAWb+
+	Z1Ru9hEK3matFSpHeRgmbx0cCH65kIm6lAcQJmujssifluG7rf0RlAgzoz/hYmM2
+	OgZrMIZwvPinQl+vygiuSVVVnrcgJKncAHHoJ+B3V3Ldehg/jQmbqhJ5EiKiDgg4
+	xhe8BqavkSu+J8KLt6s1TBOLN5W7lkWRhmJRZSbUQXdULo9wJOqsXMupC8JrLtP5
+	1T7E+TewhVNck8akXCtkXMTQ/n8TA9IqWt/hKJ/W36LNe3AtFEmeE+/+x2JnKG29
+	38bfLiDeDJvyMURIEBf7SXVrsKwJJuiJO/BXf9eLQc177cVua26/7uK6mQsTmfmw
 	==
 Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fs8a42prs-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fs8h52q21-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Wed, 05 Aug 2026 11:16:26 +0000 (GMT)
 Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 675AfmEH006377;
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 675AfmEG006377;
 	Wed, 5 Aug 2026 11:16:25 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fsv4k685n-1
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fsv4k685q-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Wed, 05 Aug 2026 11:16:25 +0000 (GMT)
 Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 675BGIGd32375242
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 675BGJFG43581908
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 5 Aug 2026 11:16:18 GMT
+	Wed, 5 Aug 2026 11:16:19 GMT
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8A13720043;
-	Wed,  5 Aug 2026 11:16:18 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 3F67420043;
+	Wed,  5 Aug 2026 11:16:19 +0000 (GMT)
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5BA142004B;
-	Wed,  5 Aug 2026 11:16:18 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 19D672004D;
+	Wed,  5 Aug 2026 11:16:19 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
 	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed,  5 Aug 2026 11:16:18 +0000 (GMT)
+	Wed,  5 Aug 2026 11:16:19 +0000 (GMT)
 From: Stefan Haberland <sth@linux.ibm.com>
 To: Jens Axboe <axboe@kernel.dk>
 Cc: linux-block@vger.kernel.org, Jan Hoeppner <hoeppner@linux.ibm.com>,
         linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 12/19] s390/dasd: Use WRITE_FULL_TRACK in ESE format handler
-Date: Wed,  5 Aug 2026 13:16:05 +0200
-Message-ID: <20260805111612.1285190-13-sth@linux.ibm.com>
+Subject: [PATCH 16/19] s390/dasd: Detect ESE volumes from the on-disk format label
+Date: Wed,  5 Aug 2026 13:16:09 +0200
+Message-ID: <20260805111612.1285190-17-sth@linux.ibm.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260805111612.1285190-1-sth@linux.ibm.com>
 References: <20260805111612.1285190-1-sth@linux.ibm.com>
@@ -74,523 +74,370 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=E6P9Y6dl c=1 sm=1 tr=0 ts=6a731b8a cx=c_pps
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODA1MDA4NiBTYWx0ZWRfXwhPXHViYtJZJ
+ rrvPeKAiaVCur/5Gq2dVfonuyr7YlzmBmDRleMbts866RudHNqBAKus+H1bRAOR5Q87nRm79aHb
+ t0dYNRwaJoEpTBfi/vVi5N0UjcTAkJ8=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODA1MDA4NiBTYWx0ZWRfX4muCTleJ1LV8
+ U96e84A3gzUF9z+r7SGKoVkhL7E7QgZdNsAQxZqHQkuUcT7EPpl+60iZQ1ea/qa49u7Coy4IbjF
+ 6cERzlMjD+jGG7MDKExMMCkOWluVfoN4TSJje9lRa2vXnv8UIM2QLrgu7sgXUmLq7qVw5oMtttE
+ HGDCSDA6/N/lYRC4a0zucODwYRvh3wEIXokpKPMC4iOALtQwsz1EXBWIdrwQmKGJxjh7WX1Dgjn
+ 96LiVI2ZeWns4pZtre8KtljvVP+3Lmr91kRxQW6RuGmSAOSp/w2Q3cdxfmLhPADmvuWz+hXXWH5
+ /HMgD4WwoCBZRVUSee16cPeHuVsNVKqsczHtaJrmcD24Q7mgjntMJWNP4uqr5SsdWp4vE4jVlto
+ FVbFByyXCFuQk2Q7qd97c8eqfZXcqN1BL1bmIgZv8BZI/XRULyH82LLdwB0KlIkT7YYwr3Va3x2
+ KGAvy9CIHgeNeb4Gwbw==
+X-Authority-Analysis: v=2.4 cv=SI1ykuvH c=1 sm=1 tr=0 ts=6a731b8a cx=c_pps
  a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
  a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8
- a=XmTE6GNeP6Qga7PDqrwA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-Proofpoint-ORIG-GUID: 4pBk7NEOZlBOXoLMUED2wk4HltQDDiGl
-X-Proofpoint-GUID: 4pBk7NEOZlBOXoLMUED2wk4HltQDDiGl
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODA1MDA4NiBTYWx0ZWRfX+sdfXzo9r+3+
- oL52AFh5uKXK973b58JlBOJBTbnvM9Ker9kv9GB2WtKPBf1Jt3BjQFUTznia4kpP1l9A15/fvbC
- u13nU5JtB8bpdx3dn+iEOSAeZIA2ZLw=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODA1MDA4NiBTYWx0ZWRfX7TIA1OnxGK0j
- sWKwJc1NhQwh6jMNJtQQcOHyClZOvg7w6NBfjz/Az/Ue28hwxkqzYLVIAKVjUdZ6m7w5/okS9sI
- 5cMJFBb6rgo+KoVsAvlxKRqSd6zdPIoLDZy9RQvhzLS9FhA3rXga00UtKml3End9nw5GL/eWLMO
- sJ9qGc1vipOVnfle3BeBj6Dg0y2kvzc/60An5d94lHTcQVn+9hUwJH/uSaMhknRmub8HUGOIgSo
- fA+yCS4c6cVGqnZ+inB9nCtxs+k6sVfuOjCySp8Pq5sVy0d62knQmcNBNGP4FfI+UqqIcZGlolU
- 7MjD/PwFUpHyg0nZqMcn+pdyxqQnKOlN9Q7j7lL4CBv8XIlkDVX59B20467TOh2r1pQbbsMPmlW
- fWazwOs/lv4XFkjoYDgewRrtyyzSDB+vpe325rKPFGMgUDM7yZP8KZwsfn4Zo36K6Vo9R3nfeJG
- WDa6aax8Y1xrik3tVYg==
+ a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8
+ a=_CgVIJRZcvbIkyxbzCkA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+X-Proofpoint-ORIG-GUID: JHUAz8W3ZxqmnJrfEthwAAtzVrajO-LZ
+X-Proofpoint-GUID: JHUAz8W3ZxqmnJrfEthwAAtzVrajO-LZ
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-08-05_03,2026-08-04_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0 clxscore=1015 lowpriorityscore=0 priorityscore=1501
- suspectscore=0 adultscore=0 spamscore=0 malwarescore=0 impostorscore=0
- phishscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ clxscore=1015 bulkscore=0 suspectscore=0 impostorscore=0 spamscore=0
+ phishscore=0 priorityscore=1501 lowpriorityscore=0 adultscore=0
+ malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
  route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
  definitions=main-2608050086
 
-Wire dasd_eckd_build_cp_tpm_writefulltrack() into the ESE unformated
-track handler.
+Read the format label from track 0 record 4 at device bring-up and cache
+it. When a valid label is present, is_ese() is derived from it instead of
+the hardware volume field.
+A volume copied off ESE storage onto other hardware is thus still handled
+as thin.
+Without a label (older format) is_ese() falls back to the hardware field as
+before.
+The cache is refreshed after a format so is_ese() stays coherent without an
+offline/online cycle.
 
-dasd_eckd_ese_format() now returns void (matching the revised discipline
-hook): it computes the failing track/record range, trims a partially
-covered last track when several tracks are involved (the block layer
-re-issues the remainder), claims the range with
-test_and_set_format_track(), builds a writefulltrack CQR, copies
-callback_data/proc_bytes from the origin, and stages it on
-block->ese_staging. The origin CQR is set to DASD_CQR_ABORT so
-__dasd_process_cqr() retires it without the normal completion.
+The label F_ESE bit is stamped from the hardware capability rather than
+is_ese(), and space release (quick format) is gated on the hardware
+capability, so a copied label cannot enable it on non-ESE hardware.
 
-Drop dasd_eckd_ese_format_cb(); the format-entry slot is now released by
-dasd_eckd_free_alias_cp() via clear_format_track() when the CQR is freed.
-
-dasd_int_handler() calls the void hook directly and, for writefulltrack
-CQRs (cqr->filldata set), returns DASD_CQR_ERROR instead of looping on
-the NRF.
+The ese sysfs attribute, and with this lsdasd, shows the hardware
+capability and not the internal handling. This is in line with the view
+from storage server interface. To reflect the specific internal handling an
+additional attribute on_demand_formatting is added to show that a device is
+handled like an ESE device internally based on the disk label.
 
 Reviewed-by: Jan Höppner <hoeppner@linux.ibm.com>
 Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
 ---
- drivers/s390/block/dasd.c          |  59 ++++++---
- drivers/s390/block/dasd_3990_erp.c |   1 +
- drivers/s390/block/dasd_eckd.c     | 202 ++++++++++++++++++++---------
- drivers/s390/block/dasd_erp.c      |   8 +-
- drivers/s390/block/dasd_int.h      |   3 +-
- 5 files changed, 193 insertions(+), 80 deletions(-)
+ drivers/s390/block/dasd_devmap.c |   6 +-
+ drivers/s390/block/dasd_eckd.c   | 174 ++++++++++++++++++++++++++++---
+ drivers/s390/block/dasd_eckd.h   |   7 ++
+ drivers/s390/block/dasd_int.h    |   3 +
+ 4 files changed, 175 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/s390/block/dasd.c b/drivers/s390/block/dasd.c
-index 243dec4b4484..18f5f097d2b3 100644
---- a/drivers/s390/block/dasd.c
-+++ b/drivers/s390/block/dasd.c
-@@ -1618,7 +1618,7 @@ static int dasd_ese_oos_cond(u8 *sense)
- void dasd_int_handler(struct ccw_device *cdev, unsigned long intparm,
- 		      struct irb *irb)
- {
--	struct dasd_ccw_req *cqr, *next, *fcqr;
-+	struct dasd_ccw_req *cqr, *next;
- 	struct dasd_device *device;
- 	unsigned long now;
- 	int nrf_suppressed = 0;
-@@ -1740,26 +1740,23 @@ void dasd_int_handler(struct ccw_device *cdev, unsigned long intparm,
- 			dasd_schedule_device_bh(device);
- 			return;
- 		}
--		fcqr = device->discipline->ese_format(device, cqr, irb);
--		if (IS_ERR(fcqr)) {
--			if (PTR_ERR(fcqr) == -EINVAL) {
--				cqr->status = DASD_CQR_ERROR;
--				return;
--			}
-+		if (cqr->filldata) {
- 			/*
--			 * If we can't format now, let the request go
--			 * one extra round. Maybe we can format later.
-+			 * A WRITE_FULL_TRACK cqr carries the complete
-+			 * track image; INV_TRACK_FORMAT here means the
-+			 * generated image or the media itself is bad, not
-+			 * that the track still needs formatting - retrying
-+			 * via ese_format() would just resubmit the same
-+			 * write. Let it fail instead.
- 			 */
--			cqr->status = DASD_CQR_QUEUED;
--			dasd_schedule_device_bh(device);
--			return;
--		} else {
--			fcqr->status = DASD_CQR_QUEUED;
--			cqr->status = DASD_CQR_QUEUED;
--			list_add(&fcqr->devlist, &device->ccw_queue);
-+			cqr->status = DASD_CQR_ERROR;
-+			cqr->stopclk = now;
-+			dasd_device_clear_timer(device);
- 			dasd_schedule_device_bh(device);
- 			return;
- 		}
-+		device->discipline->ese_format(device, cqr, irb);
-+		return;
- 	}
+diff --git a/drivers/s390/block/dasd_devmap.c b/drivers/s390/block/dasd_devmap.c
+index f6aab94b7be6..d07d384a004f 100644
+--- a/drivers/s390/block/dasd_devmap.c
++++ b/drivers/s390/block/dasd_devmap.c
+@@ -2482,9 +2482,10 @@ static ssize_t dasd_##_name##_show(struct device *dev,			\
+ 									\
+ 	return sysfs_emit(buf, "%d\n", val);			\
+ }									\
+-static DEVICE_ATTR(_name, 0444, dasd_##_name##_show, NULL);		\
++static DEVICE_ATTR(_name, 0444, dasd_##_name##_show, NULL);
  
- 	/* Check for clear pending */
-@@ -2733,6 +2730,13 @@ static void __dasd_process_erp(struct dasd_device *device,
- 
- 	if (cqr->status == DASD_CQR_DONE)
- 		DBF_DEV_EVENT(DBF_NOTICE, device, "%s", "ERP successful");
-+	else if (cqr->status == DASD_CQR_ABORTED)
-+		/*
-+		 * ESE format aborts the request and replaces it with a format
-+		 * CQR - this is not an ERP failure.
-+		 */
-+		DBF_DEV_EVENT(DBF_NOTICE, device, "%s",
-+			      "ERP request aborted, replaced by ESE format");
- 	else
- 		dev_err(&device->cdev->dev, "ERP failed for the DASD\n");
- 	erp_fn = device->discipline->erp_postaction(cqr);
-@@ -2779,6 +2783,9 @@ static void __dasd_cleanup_cqr(struct dasd_ccw_req *cqr)
- 			error = BLK_STS_IOERR;
- 			break;
- 		}
-+	} else if (status == DASD_CQR_ABORTED) {
-+		/* aborted requests are replaced with a new one so do not complete this */
-+		return;
- 	}
- 
- 	/*
-@@ -3185,6 +3192,13 @@ static blk_status_t do_dasd_request(struct blk_mq_hw_ctx *hctx,
- 		}
- 		goto out;
- 	}
-+	if (!cqr) {
-+		/* build_cp may collapse a non-transient build error to NULL */
-+		DBF_DEV_EVENT(DBF_ERR, basedev,
-+			      "CCW creation returned NULL on request %p", req);
-+		rc = BLK_STS_IOERR;
-+		goto out;
-+	}
- 	/*
- 	 *  Note: callback is set to dasd_return_cqr_cb in
- 	 * __dasd_block_start_head to cover erp requests as well
-@@ -3978,6 +3992,19 @@ int dasd_generic_requeue_all_requests(struct dasd_device *device)
- 			 */
- 			goto restart_cb;
- 		}
-+		/*
-+		 * An aborted request was replaced by a full-track write and is
-+		 * retired by that replacement; do not requeue it, just release
-+		 * it (mirrors the DASD_CQR_ABORTED handling in
-+		 * __dasd_cleanup_cqr()).
-+		 */
-+		if (cqr->status == DASD_CQR_ABORTED) {
-+			struct request *req = cqr->callback_data;
-+
-+			list_del_init(&cqr->blocklist);
-+			cqr->block->base->discipline->free_cp(cqr, req);
-+			continue;
-+		}
- 		_dasd_requeue_request(cqr);
- 		list_del_init(&cqr->blocklist);
- 		cqr->block->base->discipline->free_cp(
-diff --git a/drivers/s390/block/dasd_3990_erp.c b/drivers/s390/block/dasd_3990_erp.c
-index d0aa267462c5..736459477c19 100644
---- a/drivers/s390/block/dasd_3990_erp.c
-+++ b/drivers/s390/block/dasd_3990_erp.c
-@@ -2400,6 +2400,7 @@ static struct dasd_ccw_req *dasd_3990_erp_add_erp(struct dasd_ccw_req *cqr)
- 	erp->startdev = device;
- 	erp->memdev   = device;
- 	erp->block    = cqr->block;
-+	erp->filldata = cqr->filldata;
- 	erp->magic    = cqr->magic;
- 	erp->expires  = cqr->expires;
- 	erp->retries  = device->default_retries;
+-DASD_DEFINE_ATTR(ese, device->discipline->is_ese);
++DASD_DEFINE_ATTR(ese, device->discipline->ese_capable);
++DASD_DEFINE_ATTR(on_demand_formatting, device->discipline->on_demand_format);
+ DASD_DEFINE_ATTR(extent_size, device->discipline->ext_size);
+ DASD_DEFINE_ATTR(pool_id, device->discipline->ext_pool_id);
+ DASD_DEFINE_ATTR(space_configured, device->discipline->space_configured);
+@@ -2522,6 +2523,7 @@ static struct attribute * dasd_attrs[] = {
+ 	&dev_attr_path_reset.attr,
+ 	&dev_attr_hpf.attr,
+ 	&dev_attr_ese.attr,
++	&dev_attr_on_demand_formatting.attr,
+ 	&dev_attr_fc_security.attr,
+ 	&dev_attr_copy_pair.attr,
+ 	&dev_attr_copy_role.attr,
 diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
-index 8379c8a40382..da488c0775fc 100644
+index 25a9055b97a2..d5854ed0076e 100644
 --- a/drivers/s390/block/dasd_eckd.c
 +++ b/drivers/s390/block/dasd_eckd.c
-@@ -3214,36 +3214,24 @@ static void clear_format_track(struct dasd_format_entry *format,
- 	spin_unlock_irqrestore(&block->format_lock, flags);
+@@ -1677,7 +1677,8 @@ static int dasd_eckd_read_vol_info(struct dasd_device *device)
+ 	return rc;
  }
  
--/*
-- * Callback function to free ESE format requests.
-- */
--static void dasd_eckd_ese_format_cb(struct dasd_ccw_req *cqr, void *data)
--{
--	struct dasd_device *device = cqr->startdev;
--	struct dasd_eckd_private *private = device->private;
--	struct dasd_format_entry *format = data;
--
--	clear_format_track(format, cqr->basedev->block);
--	private->count--;
--	dasd_ffree_request(cqr, device);
--}
--
--static struct dasd_ccw_req *
--dasd_eckd_ese_format(struct dasd_device *startdev, struct dasd_ccw_req *cqr,
--		     struct irb *irb)
-+static void dasd_eckd_ese_format(struct dasd_device *startdev, struct dasd_ccw_req *cqr,
-+				 struct irb *irb)
+-static int dasd_eckd_is_ese(struct dasd_device *device)
++/* Hardware/volume ESE capability, from the Volume Storage Query. */
++static int dasd_eckd_ese_capable(struct dasd_device *device)
  {
- 	struct dasd_format_entry *format = NULL;
-+	unsigned int first_offs, last_offs;
- 	struct dasd_eckd_private *private;
--	struct format_data_t fdata;
--	unsigned int recs_per_trk;
-+	struct dasd_ccw_req *base_cqr;
-+	sector_t first_rec, last_rec;
-+	sector_t first_trk, last_trk;
-+	unsigned int proc_bytes = 0;
- 	struct dasd_ccw_req *fcqr;
-+	unsigned int recs_per_trk;
- 	struct dasd_device *base;
- 	struct dasd_block *block;
- 	unsigned int blksize;
- 	struct request *req;
--	sector_t first_trk;
--	sector_t last_trk;
- 	sector_t curr_trk;
-+	unsigned int diff;
+ 	struct dasd_eckd_private *private = device->private;
+ 
+@@ -1687,6 +1688,53 @@ static int dasd_eckd_is_ese(struct dasd_device *device)
+ 	return private->vsq.vol_info.ese;
+ }
+ 
++/*
++ * Whether the volume is to be handled as ESE (thin). This reflects the state
++ * of the data, not the hardware: a volume copied off ESE storage onto other
++ * hardware still needs ESE handling. The on-disk format label is authoritative
++ * when present; without it (e.g. a volume formatted by an older driver) fall
++ * back to the hardware ESE field.
++ *
++ * Only the F_ESE flag gates this. An ESE volume is thin regardless of whether
++ * it was quick- or full-formatted (tracks are allocated on write, and discard
++ * re-thins a full one).
++ */
++static int dasd_eckd_is_ese(struct dasd_device *device)
++{
++	struct dasd_eckd_private *private = device->private;
++
++	/* sysfs may read this during set_online before private is allocated */
++	if (!private)
++		return 0;
++
++	if (private->ese_label_valid)
++		return !!(private->ese_label.flags & DASD_ESE_LABEL_F_ESE);
++
++	return dasd_eckd_ese_capable(device);
++}
++
++/*
++ * Whether the volume is formatted on demand (thin), as opposed to fully
++ * formatted. This is the format mode, not the hardware ESE capability. When a
++ * label is present it is authoritative (F_QUICK). Without a label the mode is
++ * unknown, but an ESE volume is still handled on demand (NRF triggers the
++ * format), so fall back to the ESE state to stay consistent with the driver's
++ * behavior on older, label-less volumes.
++ */
++static int dasd_eckd_on_demand_format(struct dasd_device *device)
++{
++	struct dasd_eckd_private *private = device->private;
++
++	/* sysfs may read this during set_online before private is allocated */
++	if (!private)
++		return 0;
++
++	if (private->ese_label_valid)
++		return !!(private->ese_label.flags & DASD_ESE_LABEL_F_QUICK);
++
++	return dasd_eckd_is_ese(device);
++}
++
+ static int dasd_eckd_ext_pool_id(struct dasd_device *device)
+ {
+ 	struct dasd_eckd_private *private = device->private;
+@@ -2106,6 +2154,69 @@ static bool dasd_eckd_pprc_enabled(struct dasd_device *device)
+ 	return private->rdc_data.facilities.PPRC_enabled;
+ }
+ 
++/*
++ * Read the on-disk format label from track 0, record 4. On a formatted volume
++ * R4 holds the label as its record data; on an unformatted (fresh ESE) or
++ * label-less volume the read returns No Record Found, which is expected and
++ * leaves the cache invalid so is_ese() falls back to the hardware field.
++ */
++static void dasd_eckd_read_format_label(struct dasd_device *device)
++{
++	struct dasd_eckd_private *private = device->private;
++	struct dasd_format_label *label;
++	struct DE_eckd_data *dedata;
++	struct LO_eckd_data *lodata;
++	struct dasd_ccw_req *cqr;
++	struct ccw1 *ccw;
++
++	private->ese_label_valid = false;
++
++	/* The label lives on the base volume; aliases have none of their own. */
++	if (private->uid.type == UA_BASE_PAV_ALIAS ||
++	    private->uid.type == UA_HYPER_PAV_ALIAS)
++		return;
++
++	cqr = dasd_smalloc_request(DASD_ECKD_MAGIC, 3 /* DE + LO + READ */,
++				   sizeof(*dedata) + sizeof(*lodata) +
++				   sizeof(*label), device, NULL);
++	if (IS_ERR(cqr))
++		return;
++
++	dedata = cqr->data;
++	lodata = (struct LO_eckd_data *)(dedata + 1);
++	label = (struct dasd_format_label *)(lodata + 1);
++
++	ccw = cqr->cpaddr;
++	define_extent(ccw++, dedata, 0, 0, DASD_ECKD_CCW_READ, device, 0);
++	ccw[-1].flags |= CCW_FLAG_CC;
++	locate_record(ccw++, lodata, 0, 4, 1, DASD_ECKD_CCW_READ, device,
++		      sizeof(*label));
++	ccw[-1].flags |= CCW_FLAG_CC;
++	ccw->cmd_code = DASD_ECKD_CCW_READ;
++	ccw->count = sizeof(*label);
++	ccw->flags = CCW_FLAG_SLI;
++	ccw->cda = virt_to_dma32(label);
++
++	cqr->startdev = device;
++	cqr->memdev = device;
++	cqr->block = NULL;
++	cqr->retries = 256;
++	cqr->expires = 10 * HZ;
++	cqr->buildclk = get_tod_clock();
++	cqr->status = DASD_CQR_FILLED;
++	/* R4 may be absent (unformatted) or larger than the label. */
++	set_bit(DASD_CQR_SUPPRESS_NRF, &cqr->flags);
++	set_bit(DASD_CQR_SUPPRESS_IL, &cqr->flags);
++
++	if (!dasd_sleep_on(cqr) &&
++	    label->magic == DASD_ESE_LABEL_MAGIC &&
++	    label->version == DASD_ESE_LABEL_VERSION) {
++		private->ese_label = *label;
++		private->ese_label_valid = true;
++	}
++	dasd_sfree_request(cqr, device);
++}
++
+ /*
+  * Check device characteristics.
+  * If the device is accessible using ECKD discipline, the device is enabled.
+@@ -2216,9 +2327,12 @@ dasd_eckd_check_characteristics(struct dasd_device *device)
+ 	/* Read Volume Information */
+ 	dasd_eckd_read_vol_info(device);
+ 
++	/* Read the on-disk format label for ESE detection */
++	dasd_eckd_read_format_label(device);
++
+ 	/*
+-	 * is_ese() now reflects the hardware ESE state, so derive the default
+-	 * fulltrack write bias from the module parameter.
++	 * is_ese() now reflects the real ESE state (vsq + on-disk label), so
++	 * the adaptive heuristic can be derived correctly for this device.
+ 	 */
+ 	device->ft_bias = min_t(unsigned int, full_track_bias, DASD_FT_BIAS_MAX);
+ 	dasd_ft_bias_apply(device);
+@@ -2734,7 +2848,12 @@ static void dasd_eckd_fill_format_label(struct dasd_device *device, void *data,
+ 	memset(label, 0, blksize);
+ 	label->magic = DASD_ESE_LABEL_MAGIC;
+ 	label->version = DASD_ESE_LABEL_VERSION;
+-	if (dasd_eckd_is_ese(device))
++	/*
++	 * F_ESE records the hardware capability at format time, not is_ese():
++	 * is_ese() is derived from the label, so using it here would let the
++	 * flag flip on repeated quick/full reformats.
++	 */
++	if (dasd_eckd_ese_capable(device))
+ 		label->flags |= DASD_ESE_LABEL_F_ESE;
+ 	if (private->ese_format_quick)
+ 		label->flags |= DASD_ESE_LABEL_F_QUICK;
+@@ -2744,6 +2863,13 @@ static void dasd_eckd_fill_format_label(struct dasd_device *device, void *data,
+ 	label->format_tod = get_tod_clock();
+ 	strscpy(label->kernel_version, init_utsname()->release,
+ 		sizeof(label->kernel_version));
++
++	/*
++	 * Populate the cache directly from the bytes just computed instead of
++	 * synchronously reading them back from disk after the write lands.
++	 */
++	private->ese_label = *label;
++	private->ese_label_valid = true;
+ }
+ 
+ static struct dasd_ccw_req *
+@@ -3228,23 +3354,35 @@ static int dasd_eckd_format_device(struct dasd_device *base,
+ 	struct dasd_eckd_private *private = base->private;
  	int rc;
  
- 	req = dasd_get_callback_data(cqr);
-@@ -3253,50 +3241,94 @@ dasd_eckd_ese_format(struct dasd_device *startdev, struct dasd_ccw_req *cqr,
- 	blksize = block->bp_block;
- 	recs_per_trk = recs_per_track(&private->rdc_data, 0, blksize);
- 
--	first_trk = blk_rq_pos(req) >> block->s2b_shift;
--	sector_div(first_trk, recs_per_trk);
--	last_trk =
--		(blk_rq_pos(req) + blk_rq_sectors(req) - 1) >> block->s2b_shift;
--	sector_div(last_trk, recs_per_trk);
--	rc = dasd_eckd_track_from_irb(irb, base, &curr_trk);
--	if (rc)
--		return ERR_PTR(rc);
-+	/* Calculate record id of first and last block. */
-+	first_rec = blk_rq_pos(req) >> block->s2b_shift;
-+	first_trk = first_rec;
-+	first_offs = sector_div(first_trk, recs_per_trk);
-+	last_rec = (blk_rq_pos(req) + blk_rq_sectors(req) - 1) >> block->s2b_shift;
-+	last_trk = last_rec;
-+	last_offs = sector_div(last_trk, recs_per_trk);
- 
-+	/*
-+	 * detect if some data has already been processed and the unformatted track is
-+	 * within the request.
-+	 * If so, finish the request first with the already processed bytes and let the
-+	 * blocklayer only redrive unformatted part.
-+	 * With this we ensure that there is no overlap of existing data with unformatted
-+	 * zero blocks
-+	 */
-+	rc = dasd_eckd_track_from_irb(irb, base, &curr_trk);
+-	/*
+-	 * A full format (start_unit == 0) returns the device to a fully sparse
+-	 * state, so restart the heuristic from ft1 without an offline cycle.
+-	 */
+-	if (fdata->start_unit == 0)
+-		dasd_ft_bias_apply(base);
+-
+ 	rc = dasd_eckd_format_process_data(base, fdata, enable_pav, 0, NULL,
+ 					   0, NULL);
++	if (fdata->start_unit != 0)
++		return rc;
++
 +	if (rc) {
-+		/* sense data could not be parsed - this will not resolve by retrying */
-+		cqr->status = DASD_CQR_ERROR;
-+		goto out;
++		/*
++		 * The format failed, so the label cached speculatively during
++		 * CCW build may not match the disk; drop it so is_ese() falls
++		 * back to the hardware field until the next successful format
++		 * or bring-up.
++		 */
++		private->ese_label_valid = false;
++		return rc;
 +	}
-+	if (curr_trk >= (sector_t)private->real_cyl * private->rdc_data.trk_per_cyl) {
-+		DBF_DEV_EVENT(DBF_WARNING, startdev,
-+			      "ESE error track %llu exceeds device geometry\n",
-+			      curr_trk);
-+		cqr->status = DASD_CQR_ERROR;
-+		goto out;
-+	}
- 	if (curr_trk < first_trk || curr_trk > last_trk) {
- 		DBF_DEV_EVENT(DBF_WARNING, startdev,
- 			      "ESE error track %llu not within range %llu - %llu\n",
- 			      curr_trk, first_trk, last_trk);
--		return ERR_PTR(-EINVAL);
--	}
--
--	/* test if track is already in formatting by another thread */
--	if (test_and_set_format_track(curr_trk, curr_trk, cqr, block, startdev, &format)) {
--		/* this is no real error so do not count down retries */
--		cqr->retries++;
--		return ERR_PTR(-EEXIST);
-+		cqr->status = DASD_CQR_ERROR;
-+		goto out;
- 	}
--
--	fdata.start_unit = curr_trk;
--	fdata.stop_unit = curr_trk;
--	fdata.blksize = blksize;
--	fdata.intensity = private->uses_cdl ? DASD_FMT_INT_COMPAT : 0;
--
--	rc = dasd_eckd_format_sanity_checks(base, &fdata);
--	if (rc) {
--		if (format)
--			clear_format_track(format, block);
--		return ERR_PTR(-EINVAL);
-+	if (curr_trk != first_trk) {
-+		proc_bytes = ((curr_trk - first_trk) * recs_per_trk - first_offs) * blksize;
-+		cqr->proc_bytes = proc_bytes;
-+		cqr->status = DASD_CQR_SUCCESS;
-+		cqr->stopclk = get_tod_clock();
-+		goto out;
- 	}
  
  	/*
--	 * We're building the request with PAV disabled as we're reusing
--	 * the former startdev.
-+	 * If there are multiple tracks to be format-written, we can not write
-+	 * the partial last track since we do not know if it is already formatted
-+	 * or not so skip the partial last track for now. Return the partial
-+	 * completion to blocklayer and let it redo the remainder
+ 	 * The quick-format indicator was consumed by the label stamped into
+ 	 * track 0; clear it so a later format that is not preceded by a full
+ 	 * space release is recorded as a full format.
  	 */
--	fcqr = dasd_eckd_build_format(base, startdev, &fdata, 0);
-+	if (first_trk != last_trk && last_offs + 1 < recs_per_trk) {
-+		diff = last_offs + 1;
-+		last_rec = last_rec - diff;
-+		last_trk = last_rec;
-+		last_offs = sector_div(last_trk, recs_per_trk);
-+		proc_bytes = (last_rec - first_rec + 1) * blksize;
-+	}
-+	if (first_offs > 0 || last_offs + 1 < recs_per_trk) {
-+		/* test if tracks are already in formatting by another thread */
-+		if (test_and_set_format_track(first_trk, last_trk, cqr,
-+					      cqr->block, cqr->startdev, &format)) {
-+			/* this is no real error so do not count down retries */
-+			cqr->retries++;
-+			goto out_retry;
-+		}
-+	}
+-	if (fdata->start_unit == 0)
+-		private->ese_format_quick = 0;
++	private->ese_format_quick = 0;
 +
-+	fcqr = dasd_eckd_build_cp_tpm_writefulltrack(startdev, block, req,
-+						     first_rec, last_rec,
-+						     first_trk, last_trk,
-+						     first_offs, last_offs,
-+						     recs_per_trk, blksize, cqr);
- 	if (IS_ERR(fcqr)) {
- 		if (format)
--			clear_format_track(format, block);
--		return fcqr;
-+			clear_format_track(format, cqr->block);
-+		if (PTR_ERR(fcqr) == -EINVAL) {
-+			/* permanent build failure - fail instead of retrying */
-+			cqr->status = DASD_CQR_ERROR;
-+			goto out;
-+		}
-+		/*
-+		 * Transient conditions - the XRC clock is not in sync (-EAGAIN)
-+		 * or the format request pool is momentarily exhausted under load
-+		 * (-ENOMEM). Retry the origin without counting down its retries.
-+		 */
-+		if (PTR_ERR(fcqr) == -EAGAIN || PTR_ERR(fcqr) == -ENOMEM)
-+			cqr->retries++;
-+		goto out_retry;
- 	}
- 
- 	if (format) {
-@@ -3304,10 +3336,44 @@ dasd_eckd_ese_format(struct dasd_device *startdev, struct dasd_ccw_req *cqr,
- 		WRITE_ONCE(format->cqr, fcqr);
- 		fcqr->format = format;
- 	}
--	fcqr->callback = dasd_eckd_ese_format_cb;
--	fcqr->callback_data = (void *) format;
- 
--	return fcqr;
 +	/*
-+	 * cqr may be an ERP request; dq and the owning request are only set on
-+	 * the base request at the end of the ERP chain, so copy from there.
++	 * A full format returns the device to a fully sparse state and has just
++	 * committed a fresh label; restart the heuristic from ft1 on the now
++	 * current is_ese state, without an offline cycle.
 +	 */
-+	base_cqr = cqr;
-+	while (base_cqr->refers)
-+		base_cqr = base_cqr->refers;
-+	fcqr->dq = base_cqr->dq;
-+	fcqr->callback_data = base_cqr->callback_data;
-+	if (proc_bytes)
-+		fcqr->proc_bytes = proc_bytes;
-+	fcqr->status = DASD_CQR_FILLED;
-+	((struct dasd_eckd_private *)fcqr->memdev->private)->count++;
-+	/*
-+	 * stage under ese_lock; dasd_block_tasklet splices it into ccw_queue.
-+	 * Direct enqueue here would invert queue_lock / ccwdev_lock.
-+	 */
-+	spin_lock(&block->ese_lock);
-+	list_add(&fcqr->blocklist, &block->ese_staging);
-+	spin_unlock(&block->ese_lock);
-+	/* mark origin CQR as aborted; ccwdev_lock is held by the IRQ handler */
-+	cqr->status = DASD_CQR_ABORT;
-+	goto out;
-+
-+out_retry:
-+	/*
-+	 * If we can't format now, let the request go
-+	 * one extra round. Maybe we can format later.
-+	 * re-queue at the end to let potential format collision finish first
-+	 */
-+	list_move_tail(&cqr->devlist, &cqr->startdev->ccw_queue);
-+	cqr->status = DASD_CQR_QUEUED;
-+out:
-+	dasd_device_clear_timer(startdev);
-+	dasd_schedule_block_bh(block);
-+	dasd_schedule_device_bh(startdev);
-+	return;
++	dasd_ft_bias_apply(base);
+ 
+ 	return rc;
  }
- 
- /*
-@@ -4831,7 +4897,7 @@ static struct tidaw *add_track_end(struct itcw *itcw, char **fill,
- 	return IS_ERR_OR_NULL(tidaw) ? NULL : tidaw;
- }
- 
--static __maybe_unused struct dasd_ccw_req *
-+static struct dasd_ccw_req *
- dasd_eckd_build_cp_tpm_writefulltrack(struct dasd_device *startdev,
- 				      struct dasd_block *block,
- 				      struct request *req,
-@@ -5122,7 +5188,7 @@ static struct dasd_ccw_req *dasd_eckd_build_cp(struct dasd_device *startdev,
- 
- 	fcx_multitrack = private->features.feature[40] & 0x20;
- 	data_size = blk_rq_bytes(req);
--	if (data_size % blksize)
-+	if (data_size % blksize || data_size == 0)
- 		return ERR_PTR(-EINVAL);
- 	/* tpm write request add CBC data on each track boundary */
- 	if (rq_data_dir(req) == WRITE)
-@@ -5164,6 +5230,11 @@ static struct dasd_ccw_req *dasd_eckd_build_cp(struct dasd_device *startdev,
- 						    first_trk, last_trk,
- 						    first_offs, last_offs,
- 						    blk_per_trk, blksize);
-+
-+	if (!IS_ERR(cqr)) {
-+		cqr->start_trk = first_trk;
-+		cqr->end_trk = last_trk;
-+	}
- 	return cqr;
- }
- 
-@@ -5331,7 +5402,17 @@ dasd_eckd_free_cp(struct dasd_ccw_req *cqr, struct request *req)
- 	sector_t recid;
- 	int status;
- 
--	if (!dasd_page_cache)
-+	/*
-+	 * A format-aborted request finished nothing - its replacement
-+	 * completes the block request - so report ABORTED instead of DONE,
-+	 * but still release its bounce buffers like any other request.
-+	 */
-+	if (cqr->status == DASD_CQR_ABORTED)
-+		status = DASD_CQR_ABORTED;
-+	else
-+		status = cqr->status == DASD_CQR_DONE;
-+	/* transport mode has no dasd_page_cache bounce buffers to release */
-+	if (!dasd_page_cache || cqr->cpmode)
- 		goto out;
- 	private = cqr->block->base->private;
- 	blksize = cqr->block->bp_block;
-@@ -5366,7 +5447,6 @@ dasd_eckd_free_cp(struct dasd_ccw_req *cqr, struct request *req)
- 		}
- 	}
- out:
--	status = cqr->status == DASD_CQR_DONE;
- 	dasd_sfree_request(cqr, cqr->memdev);
- 	return status;
- }
-@@ -5443,6 +5523,8 @@ static int dasd_eckd_free_alias_cp(struct dasd_ccw_req *cqr,
- 	private = cqr->memdev->private;
- 	private->count--;
- 	spin_unlock_irqrestore(get_ccwdev_lock(cqr->memdev->cdev), flags);
-+	if (cqr->format)
-+		clear_format_track(cqr->format, cqr->block);
- 	return dasd_eckd_free_cp(cqr, req);
- }
- 
-diff --git a/drivers/s390/block/dasd_erp.c b/drivers/s390/block/dasd_erp.c
-index 468f0b2cc342..05d5366484d7 100644
---- a/drivers/s390/block/dasd_erp.c
-+++ b/drivers/s390/block/dasd_erp.c
-@@ -120,7 +120,7 @@ dasd_default_erp_action(struct dasd_ccw_req *cqr)
-  */
- struct dasd_ccw_req *dasd_default_erp_postaction(struct dasd_ccw_req *cqr)
+@@ -4249,6 +4387,14 @@ static int dasd_eckd_release_space_trks(struct dasd_device *device,
+ static int dasd_eckd_release_space(struct dasd_device *device,
+ 				   struct format_data_t *rdata)
  {
--	int success;
-+	int success, aborted;
- 	unsigned long startclk, stopclk;
- 	struct dasd_device *startdev;
- 	unsigned int proc_bytes;
-@@ -128,6 +128,7 @@ struct dasd_ccw_req *dasd_default_erp_postaction(struct dasd_ccw_req *cqr)
- 	BUG_ON(cqr->refers == NULL || cqr->function == NULL);
++	/*
++	 * Space release (and thus a quick format) requires real ESE hardware.
++	 * is_ese() may be true from a copied label on non-ESE hardware, so gate
++	 * on the hardware capability, not on is_ese().
++	 */
++	if (!dasd_eckd_ese_capable(device))
++		return -EOPNOTSUPP;
++
+ 	if (rdata->intensity & DASD_FMT_INT_ESE_FULL)
+ 		return dasd_eckd_release_space_full(device);
+ 	else if (rdata->intensity == 0)
+@@ -7622,6 +7768,8 @@ static struct dasd_discipline dasd_eckd_discipline = {
+ 	.hpf_enabled = dasd_eckd_hpf_enabled,
+ 	.reset_path = dasd_eckd_reset_path,
+ 	.is_ese = dasd_eckd_is_ese,
++	.ese_capable = dasd_eckd_ese_capable,
++	.on_demand_format = dasd_eckd_on_demand_format,
+ 	.space_allocated = dasd_eckd_space_allocated,
+ 	.space_configured = dasd_eckd_space_configured,
+ 	.logical_capacity = dasd_eckd_logical_capacity,
+diff --git a/drivers/s390/block/dasd_eckd.h b/drivers/s390/block/dasd_eckd.h
+index 92fd8ac92b79..30745f62402b 100644
+--- a/drivers/s390/block/dasd_eckd.h
++++ b/drivers/s390/block/dasd_eckd.h
+@@ -747,6 +747,13 @@ struct dasd_eckd_private {
+ 	 * the next format to mark the on-disk label as a quick (vs full) format.
+ 	 */
+ 	int ese_format_quick;
++	/*
++	 * Cached on-disk format label (R4), read at online and refreshed on
++	 * format. When valid, is_ese() is derived from it; otherwise it falls
++	 * back to the hardware ESE field (vsq.vol_info.ese).
++	 */
++	struct dasd_format_label ese_label;
++	bool ese_label_valid;
+ };
  
- 	success = cqr->status == DASD_CQR_DONE;
-+	aborted = cqr->status == DASD_CQR_ABORTED;
- 	startclk = cqr->startclk;
- 	stopclk = cqr->stopclk;
- 	startdev = cqr->startdev;
-@@ -150,7 +151,10 @@ struct dasd_ccw_req *dasd_default_erp_postaction(struct dasd_ccw_req *cqr)
- 	cqr->stopclk = stopclk;
- 	cqr->startdev = startdev;
- 	cqr->proc_bytes = proc_bytes;
--	if (success)
-+	if (aborted)
-+		/* base request is owned by the ESE format replacement CQR */
-+		cqr->status = DASD_CQR_ABORTED;
-+	else if (success)
- 		cqr->status = DASD_CQR_DONE;
- 	else {
- 		cqr->status = DASD_CQR_FAILED;
+ 
 diff --git a/drivers/s390/block/dasd_int.h b/drivers/s390/block/dasd_int.h
-index b342237b84de..e1ffa20db10a 100644
+index 59cce4e7dbc1..8c73850f7947 100644
 --- a/drivers/s390/block/dasd_int.h
 +++ b/drivers/s390/block/dasd_int.h
-@@ -413,8 +413,7 @@ struct dasd_discipline {
- 	int (*ext_pool_warn_thrshld)(struct dasd_device *);
- 	int (*ext_pool_oos)(struct dasd_device *);
- 	int (*ext_pool_exhaust)(struct dasd_device *, struct dasd_ccw_req *);
--	struct dasd_ccw_req *(*ese_format)(struct dasd_device *,
--					   struct dasd_ccw_req *, struct irb *);
-+	void (*ese_format)(struct dasd_device *, struct dasd_ccw_req *, struct irb *);
- 	int (*ese_read)(struct dasd_ccw_req *, struct irb *);
- 	int (*pprc_status)(struct dasd_device *, struct	dasd_pprc_data_sc4 *);
- 	bool (*pprc_enabled)(struct dasd_device *);
+@@ -401,6 +401,9 @@ struct dasd_discipline {
+ 	 * Extent Space Efficient (ESE) relevant functions
+ 	 */
+ 	int (*is_ese)(struct dasd_device *);
++	int (*ese_capable)(struct dasd_device *);
++	/* Whether the volume is formatted on demand (thin), from the label */
++	int (*on_demand_format)(struct dasd_device *);
+ 	/* Capacity */
+ 	int (*space_allocated)(struct dasd_device *);
+ 	int (*space_configured)(struct dasd_device *);
 -- 
 2.53.0
 
