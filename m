@@ -1,45 +1,45 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B8CE3CB2DA;
-	Wed,  5 Aug 2026 11:36:06 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0254341F7C1
+	for <linux-s390@vger.kernel.org>; Wed,  5 Aug 2026 11:48:42 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785929767; cv=none; b=GfomDWTgX1WDOfsZB1D0f5Z5rN88yz4iLlwPguC2hBrmLZAu5zJAsbkldxlI2pA6Ta/nXZKplXpYqEFr5w3nLuOu3hx014QE9NURQH+Huvq1yPei4dsj9CpxrN+GuNpd4hA/BJPUEUO9npcf5VrYbfq5DQNC6jtsDZO+QE1/0vA=
+	t=1785930524; cv=none; b=t8Wodlsi47eKlrmFITmceN1FpHQv0EqNfFTexpirks2fj2laf/zLYCjCDj3agtasXJUqfLspYpz/cHLZxJrOpii1YHT1LQLTzHb5rYBkiaZ1zSadHqm/dKh2FxH+UQf/HAAWeB6J7iKwt+53xu7sOxyMp8tTdfhyaFonCvyQ4sc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785929767; c=relaxed/simple;
-	bh=41QjbtRhwRDnu4WGkbxS6g6c/L3hSieS4zXkhMJZee4=;
+	s=arc-20240116; t=1785930524; c=relaxed/simple;
+	bh=xAl5pX2rGBf79ffzDKh5/EeHJtmPUb4gYxCrNGsOJD0=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=GyDUXUszPZRfKsXQzGnXArrp94IHwJ7ziGnlYAZOpJn+nBbvAGan1t7DJTMhiWW7YIOUfU9GJUaxntx7FKmXPFQpoq4bqmm+UITj/3FLkRvar2p6/9S/5M/9rCuZaS11F8qOKJusNwvOi3BSJe2Rzn6h/e4zKZ1n3x5oTqIQzFs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=f84ckFq8; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=cLUcixwdb/enjYc71Z38lpq7QzCvmicTHoxENf02OBpY8lVTUsEW7W1IZM7af06S0rnpfdQignavbIHALxmO2prFZYlQB8CMxyM9PTH6klXRe/ni6MfqejJslP6OnHzuckZv/dPNaSgCXOeCdnUI+ntSuBwiVwTgwri3atlOVxU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SjbdKO5M; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="f84ckFq8"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B82B51F000E9;
-	Wed,  5 Aug 2026 11:36:05 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SjbdKO5M"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8364B1F00A3D;
+	Wed,  5 Aug 2026 11:48:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785929766;
-	bh=UDY77qGW8+5L/GQtzFJD9uKQX7CrJBPp2KasHB4YkiY=;
+	s=k20260515; t=1785930522;
+	bh=uaIJuL4Tg3mE8T9hvm+qdAh/LtWznka8unjP8idt/Dg=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=f84ckFq8cQEO3N9xevMIppImKvVGC+CgOuqrzL0JcEMvn3Opf/fYcV1MKFQTqLAg/
-	 Yw+mfsZiUnV3eAjAIqqnNFG630o3l3dwUOtQbmvWBbloDNU5KXYFcNZ3K118ezuioP
-	 QbXRpftXD4X/jN6XCnjyVpZtmC4wIpRJ/Pik5GJX4qw083i8oqY3j387VDH4dP8WB8
-	 qq44KaYdcuB23RwMuBHndJ2puNuEctxqKNscxlSiN9FWbdKwixjGm03VaPWo+f0zJ3
-	 CGbnhllq2VZeYDNWc3MoHdc1XjglQiIIAN1vxHTkt3Gd3OhrbZg/sMtjqenBUhZuKj
-	 gajcWFEXxki+w==
+	b=SjbdKO5Mz9wxwhdl23vRM3CLvhNR+pPKGHLedq8geO8pRrWCMgHwCtgv3lywt67ad
+	 yY+Aq+bG1Ewavhvgg3QcG/k/Ph565IvxF0UxCxUJIQWZQX5GrHgOC38LjNC76t67ys
+	 Kwwxk+y7FdV1YKGGtOPHhy68OT+CMN3h1Fb5qKsdJKICl3aZ69LIWAzB+jhHtI6LLK
+	 pFxflV/XKBvYsYnVnV6NjZJT/iPMbYB3BTEgKMO6S+rG3lt0aLxKrIfER+1cRdSWsY
+	 V9ao7uJqBZRhHxVv0ax7UAcuUqFaSnFHAwtr+H77AKIjHUwW4lJIOgmp3yzpSEyIi3
+	 1MQnEk+l17ApQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 4/8] KVM: s390: Fix memory leak in guest debug
- handling
+Subject: Re: [PATCH 01/19] s390/dasd: Do not complete a failed ESE read as
+ successful
 Reply-To: sashiko-reviews@lists.linux.dev
-To: "Christian Borntraeger" <borntraeger@linux.ibm.com>
-Cc: "Vasily Gorbik" <gor@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, "Alexander
- Gordeev" <agordeev@linux.ibm.com>
-In-Reply-To: <20260805110455.7200-5-borntraeger@linux.ibm.com>
-References: <20260805110455.7200-1-borntraeger@linux.ibm.com>
- <20260805110455.7200-5-borntraeger@linux.ibm.com>
+To: "Stefan Haberland" <sth@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Heiko
+ Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>
+In-Reply-To: <20260805111612.1285190-2-sth@linux.ibm.com>
+References: <20260805111612.1285190-1-sth@linux.ibm.com>
+ <20260805111612.1285190-2-sth@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 05 Aug 2026 11:36:04 +0000
-Message-Id: <20260805113605.B82B51F000E9@smtp.kernel.org>
+Date: Wed, 05 Aug 2026 11:48:41 +0000
+Message-Id: <20260805114842.8364B1F00A3D@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -50,118 +50,100 @@ Thank you for your contribution! Sashiko AI review found 3 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [High] Guest debug dynamically allocated data (hw_wp_info, hw_bp_info, an=
-d old_data buffers) are leaked when a VCPU is destroyed while guest debuggi=
-ng is active.
-- [High] Accessing guest memory (memslots) via `read_guest_abs()` without h=
-olding the SRCU read lock.
-- [High] Integer truncation of `bp_data->len` allows unprivileged host-user=
-space to trigger a page allocator WARN_ON_ONCE via kmalloc().
+- [Critical] When dasd_page_cache is enabled, successful ese_read operation=
+s for thin-provisioned tracks result in an information leak of uninitialize=
+d kernel slab memory to userspace.
+- [High] Returning early with DASD_CQR_ERROR without clearing the timer and=
+ scheduling the bottom half causes a queue hang for ERP requests.
+- [High] A failure to allocate an ERP request when retries are exhausted ca=
+uses the block request to hang indefinitely on the ccw_queue.
 --
 
---- Patch [4]: [PATCH v3 4/8] KVM: s390: Fix memory leak in guest debug han=
-dling ---
-commit 4fe6d9b7b9fc213b17879f6cacc90f0c1ed0f351
-Author: Christian Borntraeger <borntraeger@linux.ibm.com>
+--- Patch [1]: [PATCH 01/19] s390/dasd: Do not complete a failed ESE read a=
+s successful ---
+commit 63ead90543228523947461ca90de80a29ba45fc6
+Author: Stefan Haberland <sth@linux.ibm.com>
 
-KVM: s390: Fix memory leak in guest debug handling
+s390/dasd: Do not complete a failed ESE read as successful
 
-bp_data is freed only for the error case by kfree(bp_data). Every successful
-KVM_SET_GUEST_DEBUG will leak bp_data.
+The patch modifies dasd_int_handler() to check the return value of
+ese_read() and fail the request via the normal error path if it fails.
+This prevents stale or uninitialized memory from being handed to the block
+layer when reading an unallocated ESE track.
 
-Fixes: 27291e2165b6 ("KVM: s390: hardware support for guest debugging")
-Cc: stable@vger.kernel.org
-
-> diff --git a/arch/s390/kvm/guestdbg.c b/arch/s390/kvm/guestdbg.c
-> index 69835e1d4f207..4c02dbebb2eb3 100644
-> --- a/arch/s390/kvm/guestdbg.c
-> +++ b/arch/s390/kvm/guestdbg.c
-> @@ -267,6 +267,7 @@ int kvm_s390_import_bp_data(struct kvm_vcpu *vcpu,
->  	vcpu->arch.guestdbg.hw_bp_info =3D bp_info;
->  	vcpu->arch.guestdbg.nr_hw_wp =3D nr_wp;
->  	vcpu->arch.guestdbg.hw_wp_info =3D wp_info;
-> +	kfree(bp_data);
-
-[Severity: High]
-This isn't a bug introduced by this patch, but it looks like the dynamically
-allocated data (hw_wp_info, hw_bp_info, and old_data buffers) is leaked
-when a VCPU is destroyed.
-
-If a userspace process calls the KVM_SET_GUEST_DEBUG ioctl to enable hardwa=
-re
-breakpoints or watchpoints, it allocates memory for these buffers. If the
-process then destroys the VCPU without disabling debugging, does
-kvm_arch_vcpu_destroy() fail to call kvm_s390_clear_bp_data(vcpu) to free
-these buffers?
-
-arch/s390/kvm/kvm-s390.c:kvm_arch_vcpu_destroy() {
-    ...
-	free_page((unsigned long)(vcpu->arch.sie_block));
-	kvm_s390_free_mmu_cache(vcpu->arch.mc);
-}
-
-Could this allow an unprivileged user with access to KVM to repeatedly crea=
-te
-and destroy VCPUs to trigger a host-side memory exhaustion?
-
+> diff --git a/drivers/s390/block/dasd.c b/drivers/s390/block/dasd.c
+> index d8d912a3b3fec..56ef38243f823 100644
+> --- a/drivers/s390/block/dasd.c
+> +++ b/drivers/s390/block/dasd.c
+> @@ -1692,8 +1692,10 @@ void dasd_int_handler(struct ccw_device *cdev, uns=
+igned long intparm,
+>  	if (dasd_ese_needs_format(cqr->block, irb)) {
+>  		req =3D dasd_get_callback_data(cqr);
+>  		if (!req) {
+>  			cqr->status =3D DASD_CQR_ERROR;
+>  			return;
+>  		}
 
 [Severity: High]
-This is a pre-existing issue, but does this code access guest memory
-without holding the SRCU read lock?
+This isn't a bug introduced by this patch, but does this early return bypass
+timer clearing and queue scheduling when req is NULL?
 
-When __import_wp_info() is called earlier in this function:
+If an ERP request triggers a NO_REC_FOUND condition on an ESE device,
+dasd_ese_needs_format() returns true. dasd_int_handler() then retrieves a
+NULL req and returns early without calling dasd_device_clear_timer() or
+dasd_schedule_device_bh(). Can this stall the queue until the device timer
+eventually expires?
 
-arch/s390/kvm/guestdbg.c:__import_wp_info() {
-    ...
-	/* try to backup the original value */
-	ret =3D read_guest_abs(vcpu, wp_info->phys_addr, wp_info->old_data,
-			     wp_info->len);
-    ...
-}
+>  		if (rq_data_dir(req) =3D=3D READ) {
+> -			device->discipline->ese_read(cqr, irb);
+> -			cqr->status =3D DASD_CQR_SUCCESS;
+> +			if (device->discipline->ese_read(cqr, irb))
+> +				cqr->status =3D DASD_CQR_ERROR;
+> +			else
+> +				cqr->status =3D DASD_CQR_SUCCESS;
+>  			cqr->stopclk =3D now;
+>  			dasd_device_clear_timer(device);
+>  			dasd_schedule_device_bh(device);
 
-The call chain goes through kvm_s390_import_bp_data() -> __import_wp_info()=
- ->
-read_guest_abs() -> kvm_read_guest() without holding srcu_read_lock(&kvm->s=
-rcu).
+I also noticed a few other pre-existing issues in this area.
 
-Could concurrent memslot modifications (e.g., via other VCPU threads or
-memory hotplug) result in a use-after-free when KVM attempts to traverse the
-unprotected memslot tree?
+> drivers/s390/block/dasd_eckd.c:dasd_eckd_free_cp()
+> 	if (dst !=3D cda) {
+> 		if (rq_data_dir(req) =3D=3D READ)
+> 			memcpy(dst, cda, bv.bv_len);
 
+[Severity: Critical]
+This is a pre-existing issue, but does this unconditionally copy the
+uninitialized bounce buffer over the original bio page, destroying the zero=
+es
+written by ese_read()?
+
+If dasd_page_cache is enabled, dasd_eckd_build_cp_cmd_single() allocates a
+bounce buffer without __GFP_ZERO. If the device returns NO_REC_FOUND,
+dasd_int_handler() calls ese_read(), which zero-fills the original bio
+pages. On completion, does this copy overwrite the zeroes with uninitialized
+memory, potentially causing an information leak to userspace?
+
+
+> drivers/s390/block/dasd.c:__dasd_process_block_ccw_queue()
+> 	if (cqr->status =3D=3D DASD_CQR_NEED_ERP) {
+> 		erp_fn =3D base->discipline->erp_action(cqr);
+> 		if (IS_ERR(erp_fn(cqr)))
+> 			continue;
+> 		goto restart;
+> 	}
 
 [Severity: High]
-This is a pre-existing issue, but is there a potential integer truncation
-when handling bp_data->len?
+This is a pre-existing issue, but does the continue statement here bypass
+the necessary cleanup and queue movement for the failed request?
 
-In __import_wp_info(), the 64-bit bp_data->len from userspace is truncated
-to a 32-bit signed integer wp_info->len:
-
-arch/s390/kvm/guestdbg.c:__import_wp_info() {
-    ...
-	wp_info->len =3D bp_data->len;
-    ...
-	if (wp_info->len < 0 || wp_info->len > MAX_WP_SIZE)
-		return -EINVAL;
-
-	wp_info->old_data =3D kmalloc(bp_data->len, GFP_KERNEL_ACCOUNT);
-    ...
-}
-
-If bp_data->len is set to 0x100000001, it would truncate to wp_info->len =
-=3D 1,
-bypassing the MAX_WP_SIZE check. The original 64-bit bp_data->len is then
-passed to kmalloc().
-
-Since the allocation size is >4GB, it exceeds MAX_PAGE_ORDER. Because the
-GFP_KERNEL_ACCOUNT flag lacks __GFP_NOWARN, will the kernel's page allocator
-emit a WARN_ON_ONCE that could be triggered by an unprivileged host-userspa=
-ce
-process?
-
->  	return 0;
->  error:
->  	kfree(bp_data);
+If dasd_alloc_erp_request() fails to allocate memory under memory pressure
+and retries are exhausted, it sets cqr->status =3D DASD_CQR_FAILED and retu=
+rns
+an ERR_PTR. Because the code continues to the next loop iteration without
+calling list_move_tail(), does the request remain on block->ccw_queue,
+causing a permanent block device queue hang?
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260805110455.7200=
--1-borntraeger@linux.ibm.com?part=3D4
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260805111612.1285=
+190-1-sth@linux.ibm.com?part=3D1
