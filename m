@@ -1,155 +1,147 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D68B830C156;
-	Wed,  5 Aug 2026 04:40:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785904830; cv=none; b=SP3NrRfwpdmcuj5lYMlsP1xDeg+NAgA2iwXu2dQFxowU0dyzbLAH5XrtktCCrl5Y+vrMSOovHlBXa2kOLl+7ab0PQW/goz5/JFbWj3iiqM/ut3aIYvkB/ZAZUSwL/mRS8yPnrIaovBdzvTmb0G7cy+/BVvDFAagWkisaAGjlpsI=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785904830; c=relaxed/simple;
-	bh=lyaMiC19LEzfHPgL7ONL7ZX38Ccs/J7rehs3k4Y4iWg=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=qq1Zq7tnuo8TPDN7BykG69ThLtkpWMu4sG+B+sBrhdp7xKD6XTODhfhBepqPc75sDthWqNC5hvMUQF5Gtu09WOkaLr2UpqtuNOxGQ9rTpEGcUKuzcyEmCf7GxihXuJ7JXCmqnUP43e+c+K9Fn39YPlELCGMoFHP/EZEDiy5XKTQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=i6t/d5xI; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3DEED3DAAC3
+	for <linux-s390@vger.kernel.org>; Wed,  5 Aug 2026 06:08:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=170.10.133.124
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785910117; cv=pass; b=HilWgNDxURMaKOxDnLu9Y7T2k7itrK053mbyuzSOa5SzwSDE8xnSK4/uxTMz5hNBjoHoH/18WL19M3BJFGqxWhcOodmYIb5jvZqdK9YUXaZB6ixK6jDJpRuuPWKAgJhwXAlONYcl+vFWzZNuxldL1yJ2U02v2YZy9/PH2Yr24EM=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785910117; c=relaxed/simple;
+	bh=W0Sm6aitHsc62gyEgQg2/9qpXlfx9wA/VX2KIRUAVSU=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=N7C191IHcR9k/TNzhKOWcp486Xk4pvHBD7IVim1Q8ozup+sm/PORGXEWvy5Zb9SOK/mXlcQd3RZo+phYMCSCItdED7WDWqROFZbdEUq8+rXqlaMmPa3Uv8nhCmGFFaCctkSYeLhd0TqXVuAxbnwRkjHfDgs4yWCBkDa9qUZwWA8=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=hZFLiu3U; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=i+y5LgfF; arc=pass smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="i6t/d5xI"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6752nGQW2696052;
-	Wed, 5 Aug 2026 04:40:27 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=aaKdFf
-	RdiERcYuAMtC4GLLsQx8Zz14qxCDmQ0r5ywxM=; b=i6t/d5xI2XSOa4BNZhd6Q3
-	lFCrvWUPQDNppmvCheJjzyXJfLIsSlfCe1+PW6XvBslhTcUdO5kUCa+yaRNuoEke
-	m1Zht2XTvOOMoj51lsydnls4amWZcO++p068iQaqmPqAVAMyJvEN2Z7TrezHOGBz
-	0XtKUlqi7gwDtSTpSn+2JsAmd1JyX8n9X1RawSDicDTfGmNaqikVhJKA2lcZAZbP
-	4Nki5cHAhtJKA3rgfzf9kKFf9xtbPWNuwOC6OYKsmo1/RnloFTFymqIBIfuY7YvY
-	j5d2sQp6eiOOgJhnh1aijVTFq5YfxA0OIwDqJ/A9U4KTbsGQzF4UoChuOfYUzqYg
-	==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fs8eurr98-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 05 Aug 2026 04:40:27 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 6754QHcR023634;
-	Wed, 5 Aug 2026 04:40:26 GMT
-Received: from smtprelay03.wdc07v.mail.ibm.com ([172.16.1.70])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fswtymrdy-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 05 Aug 2026 04:40:26 +0000 (GMT)
-Received: from smtpav06.dal12v.mail.ibm.com (smtpav06.dal12v.mail.ibm.com [10.241.53.105])
-	by smtprelay03.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6754dkA416122580
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 5 Aug 2026 04:39:46 GMT
-Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 77F9958142;
-	Wed,  5 Aug 2026 04:40:23 +0000 (GMT)
-Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A49AF5813E;
-	Wed,  5 Aug 2026 04:40:18 +0000 (GMT)
-Received: from [9.123.5.171] (unknown [9.123.5.171])
-	by smtpav06.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Wed,  5 Aug 2026 04:40:18 +0000 (GMT)
-Message-ID: <66d3bcd7-1c2e-4bc9-b7af-4ecfd85ae6cb@linux.ibm.com>
-Date: Wed, 5 Aug 2026 10:10:17 +0530
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="hZFLiu3U";
+	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="i+y5LgfF"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1785910112;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=W0Sm6aitHsc62gyEgQg2/9qpXlfx9wA/VX2KIRUAVSU=;
+	b=hZFLiu3UwUoW2CwdY6gEUvQDxXKoHngko7VL2leRakgVyhEHNySZZVGhEE3N85C9iKFZtE
+	SR9Xm6562dgTI6qF/wnLs+3EMkGa5lzbkFlQwNZPNsBXioSXpQIdxeRfedTBj5Lx0E0Qqr
+	h+mFlBMv4c+GA3DKqa1wBOQ5iaFmzb8=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-470-svpBQ6JQMIudT8zC59Hd_Q-1; Wed, 05 Aug 2026 02:08:31 -0400
+X-MC-Unique: svpBQ6JQMIudT8zC59Hd_Q-1
+X-Mimecast-MFC-AGG-ID: svpBQ6JQMIudT8zC59Hd_Q_1785910110
+Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-47f810c8aebso296889f8f.2
+        for <linux-s390@vger.kernel.org>; Tue, 04 Aug 2026 23:08:30 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1785910110; cv=none;
+        d=google.com; s=arc-20260327;
+        b=bqBxC9WL7m+ROBoDChiy7m51HRbI+7VVRfyKAUzCnCEAjRv6lbygpAcFaSAV3+VhcY
+         cpbzd85PNFMNeBeOG7+T1M0ukPh3u3I8gp2GRXkVXBsTFpQeavcUdxuW89VwUgQTqehw
+         tWv1WirNVkwPR+3qN2+eeSVUNzhnew14HD2VHXxT0OYnm5oYjna6dBZ5I1uVXGAySZC+
+         mhz0n4vtzcHsOzcYrSSOlVSsuwPi7BuZ947jZMeJ8vndXpIFvxzD8AjfUmAt7MrjLAQU
+         fWrUNa2NJwxlI2d7Kd0t63vIG+35r6wXvmTQ22qBmRXLWUo0Xm73biX5OsgEXVMLHDdC
+         erOw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=W0Sm6aitHsc62gyEgQg2/9qpXlfx9wA/VX2KIRUAVSU=;
+        fh=d68WwMuQckUBzEtMFB9y5Ml5snDnwVBqzxFvSemSrWE=;
+        b=ikQTGOftlYzElvK8XUZEuFSJZb2wPsYnIPj1CcjAvErVzy6x0nQ615qGf9nbzqvkui
+         DnbwyMguiEKpJBJkqDZK/5bex0bOBp/iJP3d/WELILKHSH01Ox6hCAtWISvUorHS8dMH
+         Ebb1iIspEf2mmnxXMgBzT/OufTgg5yOPPUrbeRrpvwk0j8u3O2VbhcUFoDhTnjnPS2ZV
+         PW0yCzrl2AJ7FUT8sRBwvIQlPzx3tn/X0BJbUfvinfW6Rgztu5BBKUonZrq+jXZribd3
+         0yNRtsZLG3q9iqAaUwmSOTn9bF43+8XN9sQiXTT9LnRkRO0ufBv3aLwxe7ikEXWUXrrR
+         yV3w==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=redhat.com; s=google; t=1785910110; x=1786514910; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=W0Sm6aitHsc62gyEgQg2/9qpXlfx9wA/VX2KIRUAVSU=;
+        b=i+y5LgfFY/jp9p2qY1DrA/Aq5Jgf2ReSbS7NdouwIkk8bNPUozzCpHECiXVSuaVsIU
+         A9zKCMSZnzsvYsYCIing134gae5QMiD/89iX1i91Lyn3wT7WUBE4SOx/UkpGRLHzFlg0
+         aSHMiH95oOmJonCtFxg+j0u8aiAGUHrZlXfyNpHfbJh2BBnUPy8UCmjVZ2ZsP+1mmvF+
+         xDotYXJiCaF8bFgjP2pmM8wER8RFrR+abo76NpO39d7lwMT5RqtJ4f4Ppu83VNII9krf
+         xQdunnII9lWsEydnDOS30fuvQk4txoU5zwr+nbwIoJxFmInpBatGIiOw9e7QVSnAVBE6
+         YOaw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1785910110; x=1786514910;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=W0Sm6aitHsc62gyEgQg2/9qpXlfx9wA/VX2KIRUAVSU=;
+        b=phxtgFPR/EdLx2IGzYIb1DdF5O17YrLRimFSoqlZ6LmLwc2MFM2/QCPGD95PNMU7G3
+         WOO4VwVBYARTBm8fcTdlIJNGxWLbbQiO9x19dQ9Fi17ZQRhaPgmbjWc9VranPVnTnFPZ
+         FYe/+FpVZnv2Zf5DjOTzAXAkBWtwrZSIg63W3SkB6WJjKpgIxDcams8xE9fs10lSkan9
+         oAbFa1iSGIEaOtJAgXIbruR5O7O26nfiTN1RZ7uIzQW4g8ux8/mHdWicNMgN/IG55ubP
+         bzGl+BP1StEP40drJhZ7+1TzRnq9zeTdG3P4XtECzaXX0Sn5maDIYj1fGffS2so+vxGL
+         ei1A==
+X-Forwarded-Encrypted: i=1; AHgh+Rrl6xv6z8ihl6cIaMZGQ0hLP826gCnX5W5R647WbCjTSNOQKiBODJpVmKIhKhk1nryaZzGdjqY/1Led@vger.kernel.org
+X-Gm-Message-State: AOJu0YxT9CAI0ZQ3nXNe8dnUxeEgsuJ4nj2E1zcWDDVk2w+oTPYwXtOM
+	2y/2upMQAesc65jxFOafZL3BfLl+ZYygMOJVjV902wgS9Ub3Pky3eZecnd4j8nK8mWhmpRj9F3y
+	cGwnywMbLfVKMZbGxyVSZdzf6MHQK4WO4YEC17iV1zy4vcNpFYwLRjBjUY3xYtccx/DI9uPpT9n
+	DBYu5pD9nTNpJxghlv70rGcDK/MfL53GsnlRLMkg==
+X-Gm-Gg: AR+sD13olT3+HHT9v91IyX1LuCx0QQkGCTA/glPICkl6lgrbG5cIXqJ7IWi4P+cgSLo
+	B6O5XdLil/ROCrAYBnr/YM9zivkYQPaFbfXGEHr10t1N2fLA32XKwVE6FUo2WTiiFtDtdwUYvL3
+	PrbtK9KJDleFCqgCdJMp/kN9eUl6NX3N1XVugJ8FNbssDm5qZBdpla+8EIEUVBp+x4JYkSaichT
+	CedWWFAorENqdbhO6uEuIGnKbulQF/qc4uG3/DLdOgXTgDXNWrqYhXeNoE=
+X-Received: by 2002:adf:e012:0:20b0:47f:753c:5393 with SMTP id ffacd0b85a97d-47fec4e888cmr5402586f8f.6.1785910109878;
+        Tue, 04 Aug 2026 23:08:29 -0700 (PDT)
+X-Received: by 2002:adf:e012:0:20b0:47f:753c:5393 with SMTP id
+ ffacd0b85a97d-47fec4e888cmr5402532f8f.6.1785910109519; Tue, 04 Aug 2026
+ 23:08:29 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] net/smc: fix sock refcount leak in smc_switch_conns()
- error path
-To: Yifei Gao <gyf161023@gmail.com>, "D . Wythe" <alibuda@linux.alibaba.com>,
-        Dust Li <dust.li@linux.alibaba.com>,
-        Sidraya Jayagond
- <sidraya@linux.ibm.com>, linux-rdma@vger.kernel.org,
-        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        Hidayath Khan <hidayath@linux.ibm.com>
-Cc: Tony Lu <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>,
-        Karsten Graul <kgraul@linux.ibm.com>,
-        Ursula Braun <ubraun@linux.ibm.com>,
-        Wenjia Zhang <wenjia@linux.ibm.com>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-References: <20260804213917.3413525-1-gyf161023@gmail.com>
-Content-Language: en-US
-From: Mahanta Jambigi <mjambigi@linux.ibm.com>
-In-Reply-To: <20260804213917.3413525-1-gyf161023@gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-ORIG-GUID: hEvd8y6GQlMGWQpJiluf4kHXyluvx-TO
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODA1MDAyOSBTYWx0ZWRfX6PGfOPukj13q
- /B2F/Q85Zc6m85DXyY9jdw/BHAqKHAlc01Ke6wYq512J8YyAsYhWd/Xm/aSWg3puweKcH46W/FQ
- 606dt33NIF/+alR/5LK6Ze8Pcnxsbu0=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODA1MDAyOSBTYWx0ZWRfXxuQHVdo2Ohax
- pTFkJlExq/ugni50Q6sftxbjxxi6YVcDaAksfKsKIJ8JEMIZuJ27NF2IzFtcOdMTTF5GiSLHij7
- Sg/5Xj20i1E0S6EBNcVtqOBOcc8Etbt4/8kJA1J3WW4TP2oyQnIbGNXRQlLgWpjdTs4GMKSrIZN
- OPMwHgcCdoIuxSHOZAjFW/5nazGpOqQCvp1NU4GqDKZ2ho6OlQT1JdDaQhKF0z/m9jK0S3VXaqR
- C1HxD59WgdTuNqQMsbOu/ceoqS8JrAUBIgXvBWRaQYnR1l26nFomBehUY9joV18CVaf5573jdE0
- JOIn1HgBvMGS6E370p8Y9ZwoURXCVMfqz5H2W8e3w/eSvH+MwUpfkOdIVuE4XM8bJ8tdgnvdHFp
- drmy3p9mraOnQtsqqncvKAVJgDHMv8KjWbiODtS92YuxD5loeAqgivKuZnL7ocff8KBt5WmV9xW
- UbbZ6BVurAaSUyhSSiw==
-X-Proofpoint-GUID: O4mkEsRhdSi5M01UnBaULCLKy-NPBF-I
-X-Authority-Analysis: v=2.4 cv=KfzidwYD c=1 sm=1 tr=0 ts=6a72bebb cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VwQbUJbxAAAA:8
- a=VnNF1IyMAAAA:8 a=pGLkceISAAAA:8 a=h0Cf4ckhx-fnnXdm7CAA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-08-05_01,2026-08-04_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- lowpriorityscore=0 bulkscore=0 impostorscore=0 suspectscore=0 malwarescore=0
- adultscore=0 clxscore=1015 priorityscore=1501 phishscore=0 spamscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608050029
+References: <20260804120529.1730187-1-pbonzini@redhat.com> <20260804120529.1730187-3-pbonzini@redhat.com>
+ <20260804161549.4cd9a66f@fedora-21.home> <20260804161850.58c55c6e@fedora-21.home>
+ <CABgObfbAveuhkjXzmemvGtycmcmDePKABr8Q35Y9mZP0den5aA@mail.gmail.com> <20260804164206.655874ce@fedora-21.home>
+In-Reply-To: <20260804164206.655874ce@fedora-21.home>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Date: Wed, 5 Aug 2026 08:08:17 +0200
+X-Gm-Features: AUfX_mzo9t9ubVXz5xpYzVx4R9t4U8bdls__QKfQW65v6eCkMtC4FUkJ5hgXDI8
+Message-ID: <CABgObfY67mdG9QZ5__Q9GDrEq9Wutc42_tHo8YGSMOPnruZmsg@mail.gmail.com>
+Subject: Re: [PATCH v2 2/6] drm/shmem_helper: use vmf_insert_pfn_mkwrite()
+To: Boris Brezillon <boris.brezillon@collabora.com>
+Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org, 
+	Alex Williamson <alex@shazbot.org>, bcm-kernel-feedback-list@broadcom.com, 
+	Christian Koenig <christian.koenig@amd.com>, David Hildenbrand <david@kernel.org>, 
+	dri-devel@lists.freedesktop.org, Fei Li <fei1.li@intel.com>, 
+	Huang Rui <ray.huang@amd.com>, linux-mm@kvack.org, linux-s390@vger.kernel.org, 
+	Michal Hocko <mhocko@suse.com>, Peter Xu <peterx@redhat.com>, Sergio Lopez <slp@redhat.com>, 
+	Sean Christopherson <seanjc@google.com>, Thomas Zimmermann <tzimmermann@suse.de>, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
+On Tue, Aug 4, 2026 at 4:42=E2=80=AFPM Boris Brezillon
+<boris.brezillon@collabora.com> wrote:
+> Okay, I thought I'd ask to be sure, because of all the implementations
+> of pfn_mkwrite listed here [1], only drm_gem_shmem_helper.c and
+> kernel/events/core.c do that.
 
+Also the vmwgfx one in patch 3; and for the !DAX case ext4 and XFS too
+(e.g. xfs_filemap_pfn_mkwrite gets to iomap_page_mkwrite, not to
+filemap_fault).
 
-On 05/08/26 3:09 am, Yifei Gao wrote:
-> smc_switch_conns() takes a reference on the socket with sock_hold() before
-> dropping conns_lock to prefetch a tx slot. On success the reference is
-> released by the sock_put() after smc_switch_cursor(). When
-> smc_cdc_get_free_slot() fails, however, the function jumps straight to
-> err_out without a sock_put(), leaking the reference and leaving the socket
-> unreclaimable. During SMC-R link failover with an exhausted backup link
-> this leaks one reference per failing connection switch.
-> 
-> Release the reference before jumping to err_out. The err_out label is also
-> reached from the smc_switch_cursor() failure path, which has already done
-> its own sock_put(), so the put must stay at the get_free_slot failure site
-> rather than at the label.
-> 
-> Fixes: c6f02ebeea3a ("net/smc: switch connections to alternate link")
-> Cc: stable@vger.kernel.org
-> Assisted-by: Claude:claude-opus-4-8
-> Signed-off-by: Yifei Gao <gyf161023@gmail.com>
-> ---
->  net/smc/smc_core.c | 4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
-> 
-> diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-> index cf6b620fef05..04c6ce608ec7 100644
-> --- a/net/smc/smc_core.c
-> +++ b/net/smc/smc_core.c
-> @@ -1148,8 +1148,10 @@ struct smc_link *smc_switch_conns(struct smc_link_group *lgr,
->  		read_unlock_bh(&lgr->conns_lock);
->  		/* pre-fetch buffer outside of send_lock, might sleep */
->  		rc = smc_cdc_get_free_slot(conn, to_lnk, &wr_buf, NULL, &pend);
-> -		if (rc)
-> +		if (rc) {
-> +			sock_put(&smc->sk);
->  			goto err_out;
-> +		}
+> The rest have their "generic" fault
+> handler (by generic I mean a fault handler helper that covers all the
+> order/WRITE_FLAG combinations) called from pfn_mkwrite(), and return a
+> non-zero vm_fault_t.
 
-This patch has already been posted by Hidayath:
+I see; I think you can do that, it is handled at
+https://elixir.bootlin.com/linux/v7.2-rc5/source/mm/memory.c#L2681 and
+indeed it returns VM_FAULT_NOPAGE. But it's more or work for no real
+reason. Your .pfn_mkwrite is a single line of code and it is clearer
+IMO if you can see that try_insert_pfn() is calling the same helper as
+.pfn_mkwrite().
 
-https://lore.kernel.org/netdev/20260804082800.498672-1-hidayath@linux.ibm.com/
+Paolo
 
-Adding Hidayath to confirm, but this appears to be a duplicate submission.
