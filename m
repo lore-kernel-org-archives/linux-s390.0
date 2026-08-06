@@ -1,139 +1,165 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C56312BEFFD;
-	Thu,  6 Aug 2026 13:09:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B6AC630C637
+	for <linux-s390@vger.kernel.org>; Thu,  6 Aug 2026 13:11:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786021762; cv=none; b=AOKYXxnnYEajEeYQTF0VR8IFhDaQI2LVfi2KXzs44GXFlRsqD/CGot99IoBkZ2O0AV/3uZYaPh/QzADAUwyeBiqVfHyDy3OqQ451gJiNEtEhRaD6g5mvZANGGN7NOB1wWdeOFP3juxyoGw3eoORs6WcmiV2BJw3KXwutx5a9/Lg=
+	t=1786021869; cv=none; b=HrUanSidEPIr8piBmFbg5akZB8VRVe1ffcsBN6Uk64khwnGPa2b+3EZx+yWETmtkLMHcV/cW0L9H78atk7w1BKxsvzhAR5V68IjYD8GaLiZXjW2/B3ApSXGGRidQKBsk50cujkzPSAB+utvaAbOrmudzH+gEG9Dcbc1L7mdhEa0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786021762; c=relaxed/simple;
-	bh=1zD3/psbF7azCCj46B2fW7e/srSl8SY13vaYTiO76uk=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=gCQVs9vyjUGlCKsRDTRMQAfbVS3/+JwzFRf42W6etCThJHg+YdMvoi7L7M5gLTEUibrdQXEN9u+oBEywxlUTQGzjMNVBqom6yEXMYoF+LUKu0/IkFkns3fjZge0HI3hyba+gmYhAZme1PwVXuK7hdoaX+ZG7O7WLH3et9yGhq7o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=gN0ps6j/; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1786021869; c=relaxed/simple;
+	bh=mmmhDjdXQVvNNR+qeUiM0eaprSknxf7rCFQjYb+osMc=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=p2YGbTG+VEFV8yQ9xbA5Bp5/sIdOrNULVBOKWuc9KaYdCLZCggxcXXJfbZu/bFRnne2xGSd2avQeHdJyvUvgS10cZz2ncfCGcVyHYZwfbQkWPC/IyC8z74bgrDfRjjnD3w8XBULNZf/PsW819/qkxUYaYVkIUwLiSmblXQxxea8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Td3hdhk6; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="gN0ps6j/"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 675Nlgkr993067;
-	Thu, 6 Aug 2026 13:09:19 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=rtGYn0
-	/u1VFGdi2N0WA5Ry7fGTrpuaZB/L5YrmAXZig=; b=gN0ps6j/+1XbQBNibBIhUP
-	DwWlGVfQgOhClDRLmXfXxxrWTB71wT1eVNaYIKI8dW9+6HKsiJVXQnnu/oFhubOH
-	gI1mTr46DOHVJhHZ5wc3vr5lJk9IVJBxq6RioeM7v2pFZPVLTB+rTwY66gOVSFUI
-	BzUHyKpkBP7VnJBznuHGamFCcrHycEVpXj6mMXlLdsf8zT0IMTv5Zw+u8qu8lHrM
-	zalXv8Kqm8aoKs5mCizZFWxo9GU8KtVUGxeaJq2Sgfy93+MeRX5Y4zlEjpM220em
-	GhkRCoub7oE0P+fEbOiKs0YwZwFzMef0J3hswYi1JnfPVj0vSAw2yAdyLHrUeRNw
-	==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fs77gfu2s-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 06 Aug 2026 13:09:18 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 676CuL2Z022039;
-	Thu, 6 Aug 2026 13:09:18 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fsvmhk5xc-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 06 Aug 2026 13:09:18 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 676D9EWk26608252
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 6 Aug 2026 13:09:14 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E6ED12004B;
-	Thu,  6 Aug 2026 13:09:13 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id ADC4020043;
-	Thu,  6 Aug 2026 13:09:13 +0000 (GMT)
-Received: from [9.111.83.204] (unknown [9.111.83.204])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu,  6 Aug 2026 13:09:13 +0000 (GMT)
-Message-ID: <6ecb4cb8-b138-4fa8-b8d2-32cc1224460e@linux.ibm.com>
-Date: Thu, 6 Aug 2026 15:09:13 +0200
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Td3hdhk6"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 077EC1F00A3A;
+	Thu,  6 Aug 2026 13:11:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1786021866;
+	bh=wjBcUN4vN4JhKQN1yjmIxEm1YudxDbzkuodFuYqu54s=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=Td3hdhk6Op63LO97EKXYLFDztFZOq+1/TvrGVfXqfDU1IiZh1VSDMD/J4ju73MF10
+	 IWL5oZ3Dv/Xh7Qx399l/JmolbHlgmXMoFeXWjKFLSzYa5Lq5W3/5eVfusK3MqMhV1u
+	 oDHlSYvcW1sTz9IH8bsMj6TyZRTO9Lwk8YfHqRxCgcWSwpdeKK8yOhibhTm+CtSmPX
+	 Q5WeokgXFIwSbTzFcaZ+p4nub2Kc37uwAw0nXgZ8YqPIy6LSekf91IMiPB0QdlThJ4
+	 iEIfp7iYdEqvRd2+jUcSx8/H6udz9tXp1EAdJ56lbmPc6OHa/6zUkd29Jug276KpUl
+	 7wH98DZoesZHA==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH net] s390/ism: Fix UAF of sba and ieq during
+ ism_dev_exit()
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Alexandra Winter" <wintera@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>
+In-Reply-To: <20260805131043.954639-1-wintera@linux.ibm.com>
+References: <20260805131043.954639-1-wintera@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 06 Aug 2026 13:11:05 +0000
+Message-Id: <20260806131106.077EC1F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 0/2] s390/block: Enable CONTEXT_ANALYSIS
-To: Heiko Carstens <hca@linux.ibm.com>, Jens Axboe <axboe@kernel.dk>,
-        =?UTF-8?Q?Jan_H=C3=B6ppner?= <hoeppner@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-block@vger.kernel.org
-References: <20260806130050.2057443-1-hca@linux.ibm.com>
-Content-Language: en-US
-From: Stefan Haberland <sth@linux.ibm.com>
-In-Reply-To: <20260806130050.2057443-1-hca@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODA2MDEwMSBTYWx0ZWRfX2Wi1xi/FRwAj
- jpdxX13flKZK7HHhDiEskND3BMwvQe8f576a5uzHbODYW/l/6U4VNrWm/lNDusRewHgA1mEeueR
- vAondWb7f6gY3CeKYKSXqzcA2jPi766H3/PIAqMw/SqJgA5pGYHAECxjTNbFaw2hsdfV1K0r0Qn
- PJSpu5nq8FK1AK+iHw0aO+RzRbiY7sgudE13wdsO4NS06x0IFUSRUGko7QC7opbRYcSnKiThS9y
- MwWiaZFY99scPfGmpZU86zhZmoWx0TfijPSwkd8uCNBnuXcfm4yFkwm7SjJ2nYD6VzIMiwuHNhA
- IXfqMjhcOmFhFn99y0TGxDlphJTlBBAO6kmEtAuX6mWUCGzc2bz6GBZq1qO6JwiuxXK4v1xvOKC
- i2gvlvWHfqtaK25u1OKmVFQNg1YGp5B7dJAlX86LWImyDHJlI30rjhO1vNPcAuxz7B3dBzG4YeD
- hngjolSCSDs5CIYSEGA==
-X-Authority-Analysis: v=2.4 cv=WIFPmHsR c=1 sm=1 tr=0 ts=6a74877f cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8
- a=gP54STInbiGPwzblvxgA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: 475Ag63VRHTVO2d8YSKFqAcoMML_Tpjk
-X-Proofpoint-ORIG-GUID: 475Ag63VRHTVO2d8YSKFqAcoMML_Tpjk
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODA2MDEwMSBTYWx0ZWRfX/sKs+3B5ccVN
- RI+LNEE2aqhcKBI7vlrc94MM7eyMOm6a8htQ7++fx6yUB86GLL8Zz/TPdV3isctnH3K/Wg07lFW
- 9N70nTZ//Ea+dnXgWHk83RHB8+xhJxc=
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-08-05_06,2026-08-05_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 lowpriorityscore=0 priorityscore=1501 phishscore=0 malwarescore=0
- suspectscore=0 clxscore=1015 impostorscore=0 bulkscore=0 adultscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608060101
 
-Am 06.08.26 um 15:00 schrieb Heiko Carstens:
-> Enable CONTEXT_ANALYSYS for drivers/s390/block.
-> 
-> Static code checking for acquiring and releasing locks used to be done
-> with sparse. That was removed with [1] and replaced with a clang based
-> approach [2]. The new approach requires that each subsystem needs to be
-> explicitly enabled for checking.
-> 
-> Do that for drivers/s390/block. In order to avoid false positives due to
-> conditional locking, disable context analysis for specific functions of
-> the dasd driver.
-> 
-> Disabling context analysis for specific functions keeps analysis enabled
-> for the rest of a file.
-> 
-> Jens, if you and Stefan agree to the dasd patches, I think it would be
-> best if this would be routed via your tree.
-> 
-> Thanks,
-> Heiko
-> 
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+s) to consider:
 
-Sounds good to me.
-Acked-by: Stefan Haberland <sth@linux.ibm.com>
+New issues:
+- [Critical] The patch unconditionally frees DMA memory even if the firmwar=
+e command to unregister the structures fails, potentially causing the hardw=
+are to perform DMA into freed pages.
 
-> [1] 5b63d0ae94cc ("compiler-context-analysis: Remove Sparse support")
-> [2] 3269701cb256 ("compiler-context-analysis: Add infrastructure for Context Analysis with Clang")
-> 
-> Heiko Carstens (2):
->   s390/dasd: Add __context_unsafe() attribute to various functions
->   s390/block: Enable CONTEXT_ANALYSIS
-> 
->  drivers/s390/block/Makefile    | 2 ++
->  drivers/s390/block/dasd_eckd.c | 7 +++++++
->  2 files changed, 9 insertions(+)
-> 
+Pre-existing issues:
+- [High] Incomplete fix: The `ism_dev_init()` error path frees the SBA data=
+ structure before unregistering the interrupt handler, preserving the Use-A=
+fter-Free/NULL pointer dereference race condition.
+- [High] The interrupt handler is registered before the DMA structures it d=
+epends on are fully initialized, leading to a possible NULL pointer derefer=
+ence on early/spurious interrupts.
+--
 
+--- Patch [1]: [PATCH net] s390/ism: Fix UAF of sba and ieq during ism_dev_=
+exit() ---
+commit b7d428b60205e305c1f2fbb4f8ba1ff2da436f6f
+Author: Alexandra Winter <wintera@linux.ibm.com>
+
+s390/ism: Fix UAF of sba and ieq during ism_dev_exit()
+
+This commit fixes a use-after-free race condition in the device teardown
+path by draining ongoing interrupt handlers before freeing the internal
+shared memory data structures.
+
+> diff --git a/drivers/s390/net/ism_drv.c b/drivers/s390/net/ism_drv.c
+> --- a/drivers/s390/net/ism_drv.c
+> +++ b/drivers/s390/net/ism_drv.c
+> @@ -148,13 +148,16 @@ static int unregister_sba(struct ism_dev *ism)
+>  	if (ret && ret !=3D ISM_ERROR)
+>  		return -EIO;
+> =20
+> +	return 0;
+> +}
+> +
+> +static void ism_free_sba(struct ism_dev *ism)
+> +{
+>  	dma_free_coherent(&ism->pdev->dev, PAGE_SIZE,
+>  			  ism->sba, ism->sba_dma_addr);
+> =20
+>  	ism->sba =3D NULL;
+>  	ism->sba_dma_addr =3D 0;
+> -
+> -	return 0;
+>  }
+
+[ ... ]
+
+> @@ -585,9 +592,13 @@ static void ism_dev_exit(struct ism_dev *ism)
+>  {
+>  	struct pci_dev *pdev =3D ism->pdev;
+> =20
+> +	/* ism will only generate new IRQs while ieq & sba are registered */
+>  	unregister_ieq(ism);
+>  	unregister_sba(ism);
+
+[Severity: Critical]
+If unregister_ieq() or unregister_sba() fails (returning -EIO) due to a
+hardware or firmware error, the device may still be active and performing
+DMA to the SBA or IEQ memory regions.
+
+By separating the free operations and calling them unconditionally here,
+could we be returning active DMA pages to the kernel allocator, leading to
+memory corruption?
+
+> +	/* drain ongoing irpt handlers */
+>  	free_irq(pci_irq_vector(pdev, 0), ism);
+> +	ism_free_ieq(ism);
+> +	ism_free_sba(ism);
+>  	pci_free_irq_vectors(pdev);
+>  }
+
+[ ... ]
+
+> @@ -573,6 +579,7 @@ static int ism_dev_init(struct ism_dev *ism)
+> =20
+>  unreg_sba:
+>  	unregister_sba(ism);
+> +	ism_free_sba(ism);
+>  free_irq:
+>  	free_irq(pci_irq_vector(pdev, 0), ism);
+
+[Severity: High]
+This is a pre-existing issue, but I noticed the error path here frees the
+SBA data structure before calling free_irq().
+
+If register_ieq() fails during initialization, could a concurrent interrupt
+fire after ism_free_sba() but before free_irq(), causing ism_handle_irq()
+to dereference a NULL ism->sba pointer?
+
+Additionally, this is another pre-existing issue, but looking earlier in
+ism_dev_init():
+
+ism_dev_init() {
+    ...
+    ret =3D request_irq(pci_irq_vector(pdev, 0), ism_handle_irq, 0,
+                      pci_name(pdev), ism);
+    if (ret)
+        goto free_vectors;
+
+    ret =3D register_sba(ism);
+    ...
+}
+
+[Severity: High]
+Since request_irq() enables the interrupt handler before register_sba()
+allocates and assigns the data structures, what happens if an early or
+spurious MSI interrupt fires during this window?
+
+Will ism_handle_irq() unconditionally dereference the uninitialized
+ism->sba pointer upon entry?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260805131043.9546=
+39-1-wintera@linux.ibm.com?part=3D1
