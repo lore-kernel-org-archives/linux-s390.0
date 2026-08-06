@@ -1,242 +1,222 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8AB4523E325
-	for <linux-s390@vger.kernel.org>; Thu,  6 Aug 2026 16:02:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 843EC345CBF;
+	Thu,  6 Aug 2026 16:06:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786032176; cv=none; b=jpPTR0HJtJY4dSg59TFkX0Zxvtb3V/i1yns0PHklecCLod7n2Szt/FjMewcQsml/bxonU6MZSUjNEiifKPtRukZZox5RKAETI8xBUPUzp8kvamNdtt0pplYznRzct/APxpEhqR+olFnIbgqfF0+dvs5oRgV1wTxnky+PINRrvB4=
+	t=1786032365; cv=none; b=FbemrjXniLd+UQGq9wrxO3INRRXJLPQf8A7yPdRwa1WiHaQXRqSC2skGo37ioceccUWoCg8YoeCgyj5GEO2y3H9VuKKyVhcb7KrfDfTZLvjb1Fesaai4Glds5tuYW9WQxOBU3XpSfGKepl7w0VOs0NvuthKnL7j7sHgToTFH15o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786032176; c=relaxed/simple;
-	bh=rWcyRQMEJUWQWMJJzOjxscRuwOyryHDZetNcwJFh8NM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=UQlWhyPpwpb6yo2mO8t4u2esbtgVeWK2Jrkied4r47TIaFiuhtuLMJxFqZqT+KXGA6o/HdxlTKwuqtVvcG6P7lZUZsYjYLguqj/ScWCTxSC+Jf8HJULJxhhg0e44db9aNTOZwt0BlVk4SthAz3REU/UKrgr4/8/EbL0Y+hOi6Ys=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=U+Bwe0gb; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1786032365; c=relaxed/simple;
+	bh=OXBwJaRMCb2aSFuWE6aiT3EAFjw/9ijMnx44w28eW5w=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=Ec9DExtt+hpjVs3wXYSoBFTflvvXmbG3X2NkVMX/ecSbLfyiybRv/H+hNxQ+8pIcvuJ1QrlPD3AZghjpmROkreKN7YBCuhJnWeUZXzbiJ8BsMWfhKm7JhPsZekUxqZ4U2vVaAGRfNiMmfA3nw2Dhd0KqjdWain8wBoyyzwxxJHU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nq529Eog; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="U+Bwe0gb"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 676EnOBC2964620
-	for <linux-s390@vger.kernel.org>; Thu, 6 Aug 2026 16:02:54 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=KvpT3x
-	haylh2jmDDrzqiMm9sbxL25VcABLw56LRrCFU=; b=U+Bwe0gbOi0IIpA9cDd5G3
-	uhH3Oonbt/0SqK9A+wAMezhFBYL4zeTiHQ4FqvzVUF8TKSdFaZImvxa1gw0IF0yy
-	fP6e9+18W7hbyZVj3Aq3YPO+ZJMS54w9SFQuiGzNF/oJIc2EY8dV8tLDLu/c8K7n
-	P6ny9adtB9siNEFD2thdy/QHB2A1ltV4dQ5vah0d0Yt2UPqHeQcD8I7uWgP7pWcV
-	n2VwoY8ChrEQg+L0WR3YgKu8ZoIk2Ui7+g+tAhJ7Bfm2BCX7d7dXp/WXrqdnrx3m
-	gF/7xQdA/LJ5Dz6p30JF5aPAjH5cphPT6oxIFqUVM+PFZ1RrzvafVMt0J2lZ2UJQ
-	==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fs8h59631-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Thu, 06 Aug 2026 16:02:54 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 676FuIEA025829
-	for <linux-s390@vger.kernel.org>; Thu, 6 Aug 2026 16:02:53 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fsv4kbv3g-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Thu, 06 Aug 2026 16:02:53 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 676G2nGf53477714
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 6 Aug 2026 16:02:49 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 810882004B;
-	Thu,  6 Aug 2026 16:02:49 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 459A820043;
-	Thu,  6 Aug 2026 16:02:49 +0000 (GMT)
-Received: from osiris (unknown [9.111.55.125])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Thu,  6 Aug 2026 16:02:49 +0000 (GMT)
-Date: Thu, 6 Aug 2026 18:02:47 +0200
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Eric Farman <farman@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, Alexander Gordeev <agordeev@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Subject: Re: [PATCH 1/3] s390/vfio_ccw: Add __must_hold() attribute to
- vfio_ccw_sch_quiesce()
-Message-ID: <20260806160247.15764F95-hca@linux.ibm.com>
-References: <20260806153849.2622576-1-hca@linux.ibm.com>
- <20260806153849.2622576-2-hca@linux.ibm.com>
- <20260806155223.BD6B21F00A3A@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nq529Eog"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDFFB1F000E9;
+	Thu,  6 Aug 2026 16:06:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1786032364;
+	bh=4g5lIJuAXeCvLIdENMvuGJsh3TqPAvXxzk9fJ6oXTCc=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References;
+	b=nq529Eogeb7j9p6duSCkfOhyQZS0r4f2hhXmQIbM4JKU+a9hSqrLCLqzDUW5VeUh4
+	 ktVTwU0wtC8HLfhGK/5YSKBfNykN5fS/vzAdC3Yz8GmyPxga4I+u1bzy6TRrdWOPVC
+	 xz4twRyQWELqDIjRu3MwyD5BqTI+l6YNaQ3foIMKjj2uc6YcMVIJMmr+xvxd19t/sP
+	 93P5L0Nr5Ef//mIsMVSGS2IgfUW5M+pTpdeQZjrpKSYcRxYUv8OYHWy15E3VgwjRyP
+	 f8BdP3cLcnvSXwfOd+BphHoPghMsxlDkgtv1Fwkr5uxcysXgee6tmiOatQBUwYwWpH
+	 FnSTIclVSj+zQ==
+From: Jakub Kicinski <kuba@kernel.org>
+To: wintera@linux.ibm.com
+Cc: Jakub Kicinski <kuba@kernel.org>,
+	hidayath@linux.ibm.com,
+	davem@davemloft.net,
+	pabeni@redhat.com,
+	edumazet@google.com,
+	andrew+netdev@lunn.ch,
+	netdev@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	hca@linux.ibm.com,
+	gor@linux.ibm.com,
+	agordeev@linux.ibm.com,
+	borntraeger@linux.ibm.com,
+	svens@linux.ibm.com,
+	horms@kernel.org,
+	stable@vger.kernel.org
+Subject: Re: [PATCH net] net/dibs: Fix UAF of dmb_clientid_arr after dibs_dev_del()
+Date: Thu,  6 Aug 2026 09:06:02 -0700
+Message-ID: <20260806160602.2694608-1-kuba@kernel.org>
+X-Mailer: git-send-email 2.55.0
+In-Reply-To: <20260804085848.3579518-1-wintera@linux.ibm.com>
+References: <20260804085848.3579518-1-wintera@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20260806155223.BD6B21F00A3A@smtp.kernel.org>
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODA2MDEyMiBTYWx0ZWRfX2aKK/KvGmhfK
- 5sksLgwCV4gsFbSfUNoRXq1ybklMK6nKuVP81Heb9TZS+5IlCw7+s3GifirT8reEwCLzYzON/Ws
- +ksuSgvr5zfV/+yB/0mndj4K77XBbng=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODA2MDEyMiBTYWx0ZWRfX9Qs6Jc5vXgiJ
- T/0c2nG+ayjwMSZG+mMJVZXEkbiMp4ZP0UHHeLUdoW9nqS/8F8PRephbYmABx+dBJNSqTHG+fea
- JfOa1QCVFdjYVax2fdDAfkfWWdPmfvKDA4gsUQZYq95iMEcLSEcNd+DR8D0aU3+Ahx/kgIEsEsB
- EPPezNw/i2+OOOS5wlaU0bEUFZBBaigMUkjdNXB4xVoMeHUXn1EHUEkIswtotGu/+ba7j4jP+An
- Kc6PNYfnq1C3kGBoXaO2UtleyxHbI5QpdkyFSYWmI6JTEZwFGQsNZR3h1iGkrOcwAJ33d9e8Hbd
- wtH7zG+jzfiyE084/A4cQ3hmDzm0dkTD3kFiAfb1Wv1z5tphk+J+uiP12DqH9MtF5en/tqVUvnB
- OAYkVVrK6Ph9aMkQd+k+lQYVVungdUFIPYVFNlkN71+kgRvZSn6uwq2FwdjwIL1TckIrjFTonxT
- OqMegmhd8GeGpGdMcTw==
-X-Authority-Analysis: v=2.4 cv=SI1ykuvH c=1 sm=1 tr=0 ts=6a74b02e cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=8nJEP1OIZ-IA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=c92rfblmAAAA:8
- a=VnNF1IyMAAAA:8 a=VwQbUJbxAAAA:8 a=0wgQjDyZ8gMP37jryY4A:9 a=3ZKOabzyN94A:10
- a=wPNLvfGTeEIA:10 a=GvGzcOZaWPEFPQC_NcjD:22
-X-Proofpoint-ORIG-GUID: dEqplqK14D8dA7Vd7vkjQG-ukgFOKTPX
-X-Proofpoint-GUID: dEqplqK14D8dA7Vd7vkjQG-ukgFOKTPX
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-08-06_01,2026-08-05_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 bulkscore=0 suspectscore=0 impostorscore=0 spamscore=0
- phishscore=0 priorityscore=1501 lowpriorityscore=0 adultscore=0
- malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2608060122
 
-Eric, Matthew,
+This is an AI-generated review of your patch. The human sending this
+email has considered the AI review valid, or at least plausible.
+---
+net/dibs: Fix UAF of dmb_clientid_arr after dibs_dev_del()
 
-not sure if you are aware of the below (nothing I would address). Please handle :)
+This moves the kfree() of dibs->dmb_clientid_arr out of dibs_dev_del() and
+into dibs_dev_release(), so the array survives until the last device
+reference is dropped.  The error paths in dibs_dev_add() are converted from
+gotos to direct returns and no longer free the array.
 
-On Thu, Aug 06, 2026 at 03:52:23PM +0000, sashiko-bot@kernel.org wrote:
-> Thank you for your contribution! Sashiko AI review found 4 potential issue(s) to consider:
-> 
-> Pre-existing issues:
-> - [High] Premature loop termination in `vfio_ccw_sch_quiesce` due to re-used completion without re-initialization.
-> - [High] Unconditional NULL pointer dereference in asynchronous subchannel callbacks.
-> - [High] Leaked workqueue items (`io_work` and `crw_work`) during device teardown leading to Use-After-Free.
-> - [High] Lockless state access in `vfio_ccw_sch_io_todo` causes a double-free of channel program (`cp_free`).
-> --
-> 
-> --- Patch [1]: [PATCH 1/3] s390/vfio_ccw: Add __must_hold() attribute to vfio_ccw_sch_quiesce() ---
-> commit c7b4889a75b6cf11527a57bff8438c3c08dac9c4
-> Author: Heiko Carstens <hca@linux.ibm.com>
-> Subject: s390/vfio_ccw: Add __must_hold() attribute to vfio_ccw_sch_quiesce()
-> 
-> This patch adds the __must_hold attribute to vfio_ccw_sch_quiesce() to
-> inform context analysis that sch->lock must be held on function entry.
-> This resolves a thread-safety-analysis warning during compilation.
-> 
-> > diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
-> > index 1a095085bc728..ed9ca77c5b23f 100644
-> > --- a/drivers/s390/cio/vfio_ccw_drv.c
-> > +++ b/drivers/s390/cio/vfio_ccw_drv.c
-> > @@ -35,6 +35,7 @@ debug_info_t *vfio_ccw_debug_trace_id;
-> >   * Helpers
-> >   */
-> >  int vfio_ccw_sch_quiesce(struct subchannel *sch)
-> > +	__must_hold(&sch->lock);
-> >  {
-> >  	struct vfio_ccw_parent *parent = dev_get_drvdata(&sch->dev);
-> >  	struct vfio_ccw_private *private = dev_get_drvdata(&parent->dev);
-> 
-> [Severity: High]
-> This is a pre-existing issue, but does the completion handling in this loop
-> allow premature termination?
-> 
-> If wait_for_completion_timeout() times out, but a late interrupt arrives
-> and calls complete(), the completion's done counter becomes greater than 0.
-> 
-> On the next iteration of the do/while (ret == -EBUSY) loop in 
-> vfio_ccw_sch_quiesce():
-> 
-> do {
->         ret = cio_cancel_halt_clear(sch, &iretry);
->         ...
->         if (ret == -EBUSY)
->                 wait_for_completion_timeout(&completion, 3*HZ);
->         ...
-> } while (ret == -EBUSY);
-> 
-> Could wait_for_completion_timeout() see done > 0 and return immediately
-> without waiting, causing a tight spin loop calling cio_disable_subchannel()
-> since there is no reinit_completion() inside the loop?
-> 
-> [Severity: High]
-> This isn't a bug introduced by this patch, but is there a risk of a NULL
-> pointer dereference when fetching the parent pointer?
-> 
-> During device removal, vfio_ccw_sch_remove() sets the drvdata to NULL:
-> dev_set_drvdata(&sch->dev, NULL);
-> 
-> If an asynchronous event like an interrupt triggers concurrently before the
-> CSS core fully detaches the driver, could vfio_ccw_sch_irq() or
-> vfio_ccw_sch_event() fetch a NULL parent and immediately dereference it
-> in this sequence?
-> 
-> struct vfio_ccw_parent *parent = dev_get_drvdata(&sch->dev);
-> struct vfio_ccw_private *private = dev_get_drvdata(&parent->dev);
-> 
-> [ ... ]
-> > diff --git a/drivers/s390/cio/vfio_ccw_private.h b/drivers/s390/cio/vfio_ccw_private.h
-> > index 0501d4bbcdbd6..8db29519dbfde 100644
-> > --- a/drivers/s390/cio/vfio_ccw_private.h
-> > +++ b/drivers/s390/cio/vfio_ccw_private.h
-> > @@ -127,7 +127,8 @@ struct vfio_ccw_private {
-> >  	struct work_struct	crw_work;
-> >  } __aligned(8);
-> 
-> [Severity: High]
-> This is a pre-existing issue, but does the device teardown path leak these
-> pending work items?
-> 
-> When a mediated device is removed, vfio_ccw_mdev_release_dev() frees the
-> private structure without calling cancel_work_sync() on io_work or crw_work:
-> 
-> static void vfio_ccw_mdev_release_dev(struct vfio_device *vdev)
-> {
->         ...
->         kfree(private);
-> }
-> 
-> Additionally, fsm_close() can skip the global flush_workqueue() if
-> cio_disable_subchannel() immediately returns 0:
-> 
-> ret = cio_disable_subchannel(sch);
-> if (ret == -EBUSY)
->         ret = vfio_ccw_sch_quiesce(sch);
-> 
-> If a work item is left pending on the workqueue, could it execute after
-> the private structure has been freed, resulting in a use-after-free?
-> 
-> > -int vfio_ccw_sch_quiesce(struct subchannel *sch);
-> > +int vfio_ccw_sch_quiesce(struct subchannel *sch)
-> > +	__must_hold(&sch->lock);
-> >  void vfio_ccw_sch_io_todo(struct work_struct *work);
-> >  void vfio_ccw_crw_todo(struct work_struct *work);
-> 
-> [Severity: High]
-> This isn't a bug introduced by this patch, but does the lockless state check
-> in vfio_ccw_sch_io_todo() allow a double-free of the channel program?
-> 
-> The workqueue function vfio_ccw_sch_io_todo() reads private->state
-> locklessly:
-> 
-> if (is_final && private->state == VFIO_CCW_STATE_CP_PENDING) {
->         cp_free(&private->cp);
->         cp_is_finished = true;
-> }
-> 
-> Concurrently, fsm_close() holds sch->lock, changes the state to STANDBY,
-> unlocks, and also calls cp_free():
-> 
-> spin_unlock_irq(&sch->lock);
-> cp_free(&private->cp);
-> 
-> Since vfio_ccw_sch_io_todo() operates outside sch->lock, could both threads
-> evaluate their conditions simultaneously and concurrently execute cp_free()
-> on the same channel program?
-> 
-> -- 
-> Sashiko AI review · https://sashiko.dev/#/patchset/20260806153849.2622576-1-hca@linux.ibm.com?part=1
+> diff --git a/drivers/dibs/dibs_main.c b/drivers/dibs/dibs_main.c
+> index 14c3e2d84902e..f059fefb09bf8 100644
+> --- a/drivers/dibs/dibs_main.c
+> +++ b/drivers/dibs/dibs_main.c
+> @@ -128,6 +128,7 @@ static void dibs_dev_release(struct device *dev)
+>  
+>  	dibs = container_of(dev, struct dibs_dev, dev);
+>  
+> +	kfree(dibs->dmb_clientid_arr);
+>  	kfree(dibs);
+>  }
+
+[Severity: High]
+This isn't a bug introduced by this patch, but does the new ownership rule
+here leave a double free of dibs->dmb_clientid_arr in the loopback probe
+path?
+
+After this change dibs_dev_release() is the sole owner of the buffer, while
+dibs_lo_dev_probe() in drivers/dibs/dibs_loopback.c still frees it itself
+when dibs_dev_add() fails:
+
+drivers/dibs/dibs_loopback.c:dibs_lo_dev_probe() {
+	...
+	ret = dibs_dev_add(dibs);
+	if (ret)
+		goto err_reg;
+	lo_dev = ldev;
+	return 0;
+
+err_reg:
+	kfree(dibs->dmb_clientid_arr);
+	/* pairs with dibs_dev_alloc() */
+	put_device(&dibs->dev);
+	kfree(ldev);
+	...
+}
+
+dibs_dev_alloc() leaves the refcount at 1 via device_initialize(), and the
+get_device()/put_device() pair inside device_add() nets to zero, so the
+put_device() above drops the last reference and runs dibs_dev_release(),
+which frees the same pointer a second time.
+
+In the baseline this was already a double free (dibs_dev_add() freed the
+array on its free_client_arr path and dibs_lo_dev_probe() freed it again),
+so the defect predates the patch, but since this patch is the one that
+redefines who owns dmb_clientid_arr, should the kfree() at err_reg in
+dibs_lo_dev_probe() be dropped in the same change?
+
+For comparison, drivers/s390/net/ism_drv.c:ism_probe() already relies only
+on put_device() and has no explicit kfree, so the two callers of the same
+exported API currently disagree about ownership:
+
+drivers/s390/net/ism_drv.c:ism_probe() {
+	...
+err_ism:
+	ism_dev_exit(ism);
+err_dibs:
+	/* pairs with dibs_dev_alloc() */
+	put_device(&dibs->dev);
+	...
+}
+
+Since this is tagged for stable, would it be worth also stating the new
+caller contract in the changelog, i.e. that callers must only call
+put_device() when dibs_dev_add() fails?
+
+> @@ -194,12 +195,13 @@ int dibs_dev_add(struct dibs_dev *dibs)
+>  
+>  	ret = device_add(&dibs->dev);
+>  	if (ret)
+> -		goto free_client_arr;
+> +		return ret;
+>  
+>  	ret = sysfs_create_group(&dibs->dev.kobj, &dibs_dev_attr_group);
+>  	if (ret) {
+>  		dev_err(&dibs->dev, "sysfs_create_group failed for dibs_dev\n");
+> -		goto err_device_del;
+> +		device_del(&dibs->dev);
+> +		return ret;
+>  	}
+
+[Severity: High]
+These are the two failure returns that reach the loopback err_reg path
+described above: device_add() returning an error (-ENOMEM, or a
+kobject_add()/duplicate-name failure) and sysfs_create_group() returning
+-ENOMEM.  In both cases dmb_clientid_arr is still allocated and not NULLed,
+so the caller-side kfree() and dibs_dev_release() both free it.  The
+kzalloc-failure case is fine because the pointer is still NULL.
+
+[Severity: Medium]
+This is a pre-existing issue and not introduced by the patch, but the
+changelog reasons about the placement of the allocation:
+
+    Note that allocating in dibs_dev_add() instead of dibs_dev_alloc() is ok
+    for now, because no dmbs can be registered before dibs_dev_add().
+
+Does that reasoning also cover dibs->lock, which is initialized in the same
+place?
+
+drivers/dibs/dibs_main.c:dibs_dev_add() {
+	max_dmbs = dibs->ops->max_dmbs();
+	spin_lock_init(&dibs->lock);
+	dibs->dmb_clientid_arr = kzalloc(max_dmbs, GFP_KERNEL);
+	...
+}
+
+ism_probe() enables interrupts before that, via ism_dev_init() doing
+request_irq(pci_irq_vector(pdev, 0), ism_handle_irq, ...) plus
+register_sba()/register_ieq(), and only calls dibs_dev_add() afterwards.  In
+that window dibs comes from kzalloc, so dibs->lock has never been
+initialized and dmb_clientid_arr is NULL, yet the handler takes the lock and
+indexes the array before any check:
+
+drivers/s390/net/ism_drv.c:ism_handle_irq() {
+	spin_lock(&dibs->lock);
+	ism->sba->s = 0;
+	...
+		client_id = dibs->dmb_clientid_arr[bit];
+		if (unlikely(client_id == NO_DIBS_CLIENT ||
+			     !dibs->subs[client_id]))
+			continue;
+	...
+}
+
+The comment in ism_probe() says interrupts and events are ignored before
+dibs_dev_add() adds the device to any clients, but that check happens on
+dibs->subs[], after the lock acquisition and after the dmb_clientid_arr
+dereference.  With CONFIG_DEBUG_SPINLOCK or lockdep this window would give
+"spinlock bad magic" or "trying to register non-static key" from hardirq
+context, and spin_lock_init() in dibs_dev_add() re-zeroing the lock while
+the handler may hold it would void mutual exclusion.
+
+Would moving spin_lock_init() and the allocation into dibs_dev_alloc() close
+this window?
+
+> @@ -214,13 +216,6 @@ int dibs_dev_add(struct dibs_dev *dibs)
+>  	mutex_unlock(&dibs_dev_list.mutex);
+>  
+>  	return 0;
+> -
+> -err_device_del:
+> -	device_del(&dibs->dev);
+> -free_client_arr:
+> -	kfree(dibs->dmb_clientid_arr);
+> -	return ret;
+> -
+>  }
+>  EXPORT_SYMBOL_GPL(dibs_dev_add);
+
+[ ... ]
+-- 
+pw-bot: cr
