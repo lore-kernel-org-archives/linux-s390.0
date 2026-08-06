@@ -1,132 +1,111 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f54.google.com (mail-wm1-f54.google.com [209.85.128.54])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7093347ECFC
-	for <linux-s390@vger.kernel.org>; Thu,  6 Aug 2026 15:53:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E5C6B481256
+	for <linux-s390@vger.kernel.org>; Thu,  6 Aug 2026 15:58:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.54
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786031601; cv=none; b=pmy5TuBRdYmxYnzXHKl2/5OnlvBv/dk7ogalr4iXRaspn0ljeDqPSdMQT1Ep29RM9Q2jYUDQkgaDQxc+BFncnOF8nt1hTawErzG4fk7PLLrtgqEsW15fDvHwG3gOWrluzRlGfyy2Es0Frg1V71XopxH8rsoZ0o7SvxDJbiv+Wmo=
+	t=1786031896; cv=none; b=IN2uYEnQhbhiDbax3KefadcvqUBF8mH67IiR+en34fMUXTCO24bOdQnlm7Lht/I3NoFX2d5jqC7uSi68gDJvprCMO52k4mbtQJYeH5NqiPTLGXZq/BwQnpWvlBZ7ZOI20DF6D5PMnKxa9glKYcPSePS4foy+w7DSm9ExP6IJkx0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786031601; c=relaxed/simple;
-	bh=iaKviYXPi647a2u+vpZKEkaMZzfs69gxeVOEgxnbbys=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=pZSDrNh9XERRVyVOzdqjCuqlY9yZu5KqKacLtBWSFCAow3NdJ70Wu/4SDoEbWo1baqrB3ULRRxtor79WhKI2wNi356XZuf0VlUCLXj3RAnXiCnu1wTLcOIQ89pbzUt+1n5k/0OaUUKSHpGelLVnSGmHsOpusMJ9AgVSvRaB+Ih0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=m89E9BxY; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1786031896; c=relaxed/simple;
+	bh=FH/WqUfsQ3elAWl2T+YpQuugYmFF4n4zAIj/V4ZWYeA=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=nfZizpYc1ncX8hdn4RbyYhzk7ZcfnGSiUiOCAOvdDD/5EI2pjl3dEuhGQNVpK5OHu6RWsztXmtltpu4QEJTDzm4un9irLSh8+f7hZdrov5EwJiHVMyh0IFD+B/n92/gjuHDr+ZP32NbAUJVXbwCdH7s+gRKrcinl47fNidpO0e8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b=c+4kPqGH; arc=none smtp.client-ip=209.85.128.54
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="m89E9BxY"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 676EnJBS2964499
-	for <linux-s390@vger.kernel.org>; Thu, 6 Aug 2026 15:53:08 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=nn7Wbc6xnFPAhKz2C
-	TzIBoTzoEoJU22YpZb8xjDBr74=; b=m89E9BxY3EjEHl6pJ1kzKbUiCgRTB4/AX
-	ln+prMeVMB5iwAP2x3ze3LfPKD8qAguX5qtQOcy0Fm87DslZvCHybBjxY5awUM3y
-	nYCYhks7ZF+QN2ul0V3KoykmwTkkXS7iQmOvORDBBzdOOCfyEjpsGv86kC5ztv6X
-	thGJSsDIWR+AAjmob3HsuR1X3T7mKnvwApv/58ehHVQxSHN/sOwLeFDCpxiWSPLJ
-	GbgAHMKXCdabdbZYo6yJxhcNz59C+FXV8vMe28zGnY/ZTNTHO9hr1A9YwzlJliOH
-	IOhx0lE4KZc3ozxgOHIyhQ1p0tJHB0GRcWBAgeT6b3h9GE6sQD3mw==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fs8h594jg-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Thu, 06 Aug 2026 15:53:08 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 676FfH0g001496
-	for <linux-s390@vger.kernel.org>; Thu, 6 Aug 2026 15:53:07 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fsu4quxte-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Thu, 06 Aug 2026 15:53:07 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 676Fr3JY47972750
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 6 Aug 2026 15:53:04 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D393D20040;
-	Thu,  6 Aug 2026 15:53:03 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B02332004B;
-	Thu,  6 Aug 2026 15:53:03 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu,  6 Aug 2026 15:53:03 +0000 (GMT)
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org
-Subject: [PATCH 1/2] s390/con3215: Add __must_hold() attribute to raw3215_make_room()
-Date: Thu,  6 Aug 2026 17:53:02 +0200
-Message-ID: <20260806155303.2675932-2-hca@linux.ibm.com>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20260806155303.2675932-1-hca@linux.ibm.com>
-References: <20260806155303.2675932-1-hca@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b="c+4kPqGH"
+Received: by mail-wm1-f54.google.com with SMTP id 5b1f17b1804b1-49954b88fffso8435905e9.0
+        for <linux-s390@vger.kernel.org>; Thu, 06 Aug 2026 08:58:08 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=baylibre.com; s=google; t=1786031886; x=1786636686; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:mime-version:message-id:date
+         :subject:cc:to:from:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=KcxcP20mYl/V9kym9eotg4juRJdYfnm4DRR+SpbAsvI=;
+        b=c+4kPqGHhWt5260TyorRQs8pMoBwZlSJCe3wQjFJg2PiPSdrumPc5//GaI/f9uBV1Y
+         g1lDC+fsQEI9ivnImdCLdy2swhLRxNQ7Xj8sV2sghjzVSFrLOAty7mhHyA54vtsb0vMm
+         sEXatg46ze2QNcsP6GvRaKpf6xTSVmUAzZt6h/fBI6AI8fOvWz8bsWKBjNSrhfw1+e2u
+         4OdSqZxkwKAde+QlzJHu3B479kesZqKWtYRtGLXh3k3QE7eLupLCqtL2B9avpiW60E5L
+         KhQLknrp9kqmTnwTFPYZjsVM4Sd1MNbkySh5uVJIvPIjyjZNAkcEa8bG7znO8G5xlNEC
+         pAFw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1786031886; x=1786636686;
+        h=content-transfer-encoding:content-type:mime-version:message-id:date
+         :subject:cc:to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=KcxcP20mYl/V9kym9eotg4juRJdYfnm4DRR+SpbAsvI=;
+        b=szKtxnXmCkpczq2HNX/Isw7F6pyNTeD79rwQTh9eTtE9ukoSTtLsLBVoxMTBlvFY0O
+         PeoR211lurkspQpa4w7yHp4E6rcLztcxMGpPnAAXNI+LxkfCdzv4n7UnkK9173D1ZJnc
+         xagOzX81cpkvN9q5UI0lnGCeSEmRG4+uZfich40RNHJ73XK7ZVxcxmnPpEj45ryQtFec
+         Ut/0YCbYsUtm/ubytb7G5dD4dK81Fdzuz0kp626MxvZYBIzfS4BPrqC0MGhbccZYD/sx
+         s7y+z3EkH/tK7a4OVsfSg/f3V1H6L0SoOQbPlBDx1hnv/bYDohTgEoIUzD2gGkHctoxo
+         khtw==
+X-Forwarded-Encrypted: i=1; AHgh+Ro7L1QNd+TGBEm+2eEzHl+BwJ2yk92E0bk2rl/Qi7e2rG8+uqAsQJg3W/oyiUyUILjUk/05PaDV1ZRu@vger.kernel.org
+X-Gm-Message-State: AOJu0Yx8eyZDpKFoYB0NB6eMuv28Yg9IeoAiiJXWMQHNpwbfQ+8u8gFP
+	WP/NIEiExatWGYZmyBTlESb/825zHIlQlAYLSwnkjy2+HDmmHoCVBVcqSVll4cvAmmA=
+X-Gm-Gg: AR+sD11/o9pmA+B8wO3WbufmNzyYwCnbJ2BFn3Jbd9udnq4HF2xKqCgSJH2uugI0RTT
+	tYxw6UA9fN9u5JjEbdhwsn37yuGh4fxuJfKn4pyq2i7Q9QodpoLYpF33ZvFsTRgKvE4O/UgKFgT
+	nLkrumEtFsXQDpjIJZDAdWSxSVM371FHNgx3Mq8+madyUCQdOmFTWq3kEGOhYosiLEmiRc5NWWm
+	FeqhsW6yOOLf8WRbV1r9k4CZ069QCD7B3vFE/P3Thm7OSElbKIhlNRNO2rnE41hG1Wdb4KLRFTr
+	64SUBcM60K+S9kcjNKcM4AjS7ceb/YW6yENf6NfNXUuftmIYtGdrdCVzM3BXU6tKwXgqQuqy8Xn
+	kuhL0zk29pF8tVIMfqiNKaBnHD07nlKTa04UPw3eTw1Ls8EuReAY5UuviGngqfBCr1068C6PzjH
+	c6WaDcQRx4Hk3He+q9OYa7eXBN9sxuh/bhgRo2glYR+buDWqPjqLW1upHrS2s3LKoFPspadgafa
+	NnqBHATh6C6ysm1PP4XCyh54e4PjGQA9qGa22dBOtQ70Lsw8QhW
+X-Received: by 2002:a05:600c:474a:b0:495:7888:281c with SMTP id 5b1f17b1804b1-4994e6d4a13mr184701035e9.0.1786031885691;
+        Thu, 06 Aug 2026 08:58:05 -0700 (PDT)
+Received: from localhost (p200300f65f0171047dc1d03432df4abc.dip0.t-ipconnect.de. [2003:f6:5f01:7104:7dc1:d034:32df:4abc])
+        by smtp.gmail.com with UTF8SMTPSA id 5b1f17b1804b1-499542851d6sm82258535e9.12.2026.08.06.08.58.04
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 06 Aug 2026 08:58:05 -0700 (PDT)
+From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig=20=28The=20Capable=20Hub=29?= <u.kleine-koenig@baylibre.com>
+To: Harald Freudenberger <freude@linux.ibm.com>,
+	Holger Dengler <dengler@linux.ibm.com>
+Cc: Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	linux-s390@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Pawel Zalewski <pzalewski@thegoodpenguin.co.uk>
+Subject: [PATCH v1] s390/ap: Drop unused member from ap_device_id
+Date: Thu,  6 Aug 2026 17:57:57 +0200
+Message-ID: <20260806155757.1281233-2-u.kleine-koenig@baylibre.com>
+X-Mailer: git-send-email 2.55.0.11.g153666a7d9bb
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+X-Developer-Signature: v=1; a=openpgp-sha256; l=833; i=u.kleine-koenig@baylibre.com; h=from:subject; bh=FH/WqUfsQ3elAWl2T+YpQuugYmFF4n4zAIj/V4ZWYeA=; b=owEBbQGS/pANAwAKAY+A+1h9Ev5OAcsmYgBqdK8Fjdmk3H09tF8ml8/ZkpTN4KzktS+PcHmgV CEV/w+JgZ+JATMEAAEKAB0WIQQ/gaxpOnoeWYmt/tOPgPtYfRL+TgUCanSvBQAKCRCPgPtYfRL+ ToJOCACrAfHMTxdER1d/L8sAl8ihwYXXI4e8eIoHRRP4MzTd0letlgeeicrh7QqC9kSPnl+Kymy 366IgrRWG/2xHBT1P/FNYy6OIin7KToWfsbtlx8TH+Foh9uFEyB63c1kYCUQTZTKMGi0F6brNEs 8f4ZrqZv4gIZPKaWuiASFRkNdj5R1MYwR6anvFpE2+nxHYz6WPW7qbEGt21lfKOl+qMIG3tenm1 Gh958OXdzfSGnp7lDVbcaZ+NO9zMhYPPrUnEhMwRFhLVNifJd9r36z7vtAg+WPvak9RX8sII14M 5ZhaJjVdzOKGnfTltj9vxw4JeKYOH1lcY23lU9v7ds0mRJJi
+X-Developer-Key: i=u.kleine-koenig@baylibre.com; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODA2MDEyMiBTYWx0ZWRfXz4RJAm5KjJJ9
- MnKbu35I9XQhjZc0sqIbN6U7rza+f3AxBqjsJULWF/foRgLP71VuXbjwSZnbl/mrsdNc8Glds8Z
- dDeMhZS/omN28hWoESCnwMnUeaslJsw=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODA2MDEyMiBTYWx0ZWRfX4AzVDAeAj1LQ
- OODFL4gZSd65zXqd+40ttq/Xrq/q9V2eRfyl4/te3p5zVlH3fKhx/pi2PB0ak3RUiWaQn+44vWz
- OWm+GbF3jzAaCzjmqNzfln2BHIi2Iv1Ncyd0oGVNn4p9HhOk35kVpSldcj7pv+B54yXcBF5vbQG
- jsXCIBSAhQhZGmT0ZCsfuu5Qk6oX/Z5XeZV2wXCNNeSL37rRuywwTomTvz50Zi5dT1BYN1eS4oZ
- m0vjRltl3pVRk804oMQZWVjsG0EhNhp3o/r42sLTUzaesuFMKEF9FJUpA/BfNf+DuUrCfcp23jV
- AzMFuSqJbk88jKD9ZfY8Nvd1kXkkp7digrLiIriTZyBvPPR4YXX58prBaqdf+bO11KR1wr44aTq
- pF5BhSUtk/S4jjhZj+UJmjY+0FlIx2JI4hAvQwwugBwM1OiJSYagWcpnYTTdgBOB2MjtxFox3GT
- nmimREY5fC4orP8Xdpg==
-X-Authority-Analysis: v=2.4 cv=SI1ykuvH c=1 sm=1 tr=0 ts=6a74ade4 cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
- a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8 a=Mbp7PQ1WAxvEsW75D4sA:9
-X-Proofpoint-ORIG-GUID: XagUVhHaKvxQ5Fi4n_o7pHGo74eTL3_1
-X-Proofpoint-GUID: XagUVhHaKvxQ5Fi4n_o7pHGo74eTL3_1
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-08-06_01,2026-08-05_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 bulkscore=0 suspectscore=0 impostorscore=0 spamscore=0
- phishscore=0 priorityscore=1501 lowpriorityscore=0 adultscore=0
- malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2608060122
 
-Add __must_hold() attribute to raw3215_make_room() in order to let
-clang's context analysis know that "get_ccwdev_lock(raw->cdev)" must be
-held on function entry. This can also be easily verified when inspecting
-the function.
+ap_device_id::device_info is not used in the kernel. The structure is
+also not part of API/ABI, so the unused member can just be dropped.
 
-Without this annotation this leads to a valid warning when context
-analysis is enabled:
-
-drivers/s390/char/con3215.c:485:9: warning:
-  expecting spinlock 'raw->cdev->ccwlock' to be held at start of each loop [-Wthread-safety-analysis]
-  485 |         while (RAW3215_BUFFER_SIZE - raw->count < length) {
-
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Uwe Kleine-König (The Capable Hub) <u.kleine-koenig@baylibre.com>
 ---
- drivers/s390/char/con3215.c | 1 +
- 1 file changed, 1 insertion(+)
+ include/linux/device-id/ap.h | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/s390/char/con3215.c b/drivers/s390/char/con3215.c
-index 46265f4fbfd8..57fefa8986d6 100644
---- a/drivers/s390/char/con3215.c
-+++ b/drivers/s390/char/con3215.c
-@@ -481,6 +481,7 @@ static unsigned int raw3215_drop(struct raw3215_info *raw)
-  */
- static unsigned int raw3215_make_room(struct raw3215_info *raw,
- 				      unsigned int length, bool drop)
-+	__must_hold(get_ccwdev_lock(raw->cdev))
- {
- 	while (RAW3215_BUFFER_SIZE - raw->count < length) {
- 		if (drop)
+diff --git a/include/linux/device-id/ap.h b/include/linux/device-id/ap.h
+index 0992333a34db..011af33c0bcf 100644
+--- a/include/linux/device-id/ap.h
++++ b/include/linux/device-id/ap.h
+@@ -14,7 +14,6 @@ typedef unsigned long kernel_ulong_t;
+ struct ap_device_id {
+ 	__u16 match_flags;	/* which fields to match against */
+ 	__u8 dev_type;		/* device type */
+-	kernel_ulong_t driver_info;
+ };
+ 
+ #endif /* ifndef LINUX_DEVICE_ID_AP_H */
+
+base-commit: 1701fda2f58e345c050f4309971bdc07cd6146ba
 -- 
-2.53.0
+2.55.0.11.g153666a7d9bb
 
