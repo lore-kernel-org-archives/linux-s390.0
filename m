@@ -1,70 +1,70 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 98C8C3D1713;
-	Thu,  6 Aug 2026 12:04:59 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1A0D22BE056;
+	Thu,  6 Aug 2026 12:52:48 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786017900; cv=none; b=gjS3f9+71YDYGrwEvXQ9Tk6lLco6pmIVcFyRWnxLHiAgDtjC3oEktoWXO37pgrjt+dQCQoBv82/tHtc3bKMfP61HiEGnPVC8U2FACxEqZuH8mwY6dwMjhXTXAYM0/8yoznqcD983jU3b85plF4SA5UGW/uSWASHYDw8OthBN+dI=
+	t=1786020770; cv=none; b=i02ZWviIsCpBhgVL2Nnr1afjcSY8dTuuHmFWtWXf/1yg6I+OdkRl2nqlGfa7O9SM2NIu87Fvwg86va72YVPfU7ocBWSJ4mj6nYfFRKrjuqSXizY4DBQsfFUWAcZz1yC69Zng7slZr/Qnjdm/J8OmtMjAZBmNWTi+QqW+zDCK4ZU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786017900; c=relaxed/simple;
-	bh=hInYNNR2MRbgIBwO8UgEjL13c2n784AGLihERLLViFE=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=sHET5fMA+n4MIEioNXNdkp00qlrpfxN1Keeh+Y3kRbNPhDlFk2q3VrE5L3HqUXrfdmVUnSnduI0UIicOzbsRyr8DFXVVwDA504cE/XkGcYSkHXVC9w+DKOiIQ5+02Kbl7dPW/ow2Mo9LLHO3F7be3Ikd5HEyU52tmxUZt+R0cf4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=fsR7Nm3l; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1786020770; c=relaxed/simple;
+	bh=CtjnuCeIYXta82XIwCO4KGqoUEdk5e6L+MFxoe/grbk=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=JJKDtnnbt4WDXfiNgdP1r10xsmL2jGwPsTq68/z2ewaVFOaYUlKBZTqJiEwpp5Afqiu1ayHnXPuQP5cNCqCNVBEHMVoRlVWALRy2R9lAhi3pM824s8ZmX/OCf7ST5X0CYH54rbL6/7/CSxtvceLvM4//oqM8tPQcbrHkuLQB1SU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=qyze0idw; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="fsR7Nm3l"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 675Nn0J91094475;
-	Thu, 6 Aug 2026 12:04:53 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="qyze0idw"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 675Nle7A1066093;
+	Thu, 6 Aug 2026 12:52:47 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=jUArO4QTBrXtvlWICDou+TBrUpW/gYP9mZLGidHsx
-	0A=; b=fsR7Nm3lSd4gyJJ3AkbJEQP/Uo7bqRV+3VAhVJLyqn5c9qh8S7piuktGS
-	QDe7UQgekSlFMKxVnmQVpSkuqfAV3bhG5MsMyrHksu7EbkqebdFdJIzORWZcF/wG
-	eOdLnZCSvZgDFiq+RfUzqastCoKIBlC261ZWZC94nCaL3IinFa7KZMKpIopCFWiF
-	zLWnrqZbLVjulOmCg2YQt4jSzIL3cw6dVIURPXp/n9gTfc0zz0afDyo5jTjDfHJY
-	AtXseayOU8X5aku7pvciAVXPwoQg0nwfvlITi2VqC3f96SdI3fK+Z5LXf6tX67MZ
-	hBqBZY+EFfTf3W5Pof/IimXp7u8RA==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fs8h581r6-1
+	:subject:to; s=pp1; bh=8dF2H4Qq9CUzZEaxWgnE5XrpOGOuUcwqzmTNCeF8d
+	ls=; b=qyze0idw87UXUayzvDKRI+WrAA6Pyq+l8zMwlKKpk4vak8EYCIysxLnVq
+	Y+vkhy+xdanFZOAYX41u2qxjDTuE4BiReI0NZ7VvzSn3GVyBqjVo5POk07hNMAyb
+	H59neDeXT/aYLwE0Vl3r1IC4Fuo2q3AXKOBvz7uQuV9/rzrpW+3gq4QPZxlP2WlA
+	CpKbzKUpvUAMNH2wJKtC3fUzju8H5QhK9fdYHolrz/VsvDsUJ97q8wlAs3Jz/6Gh
+	OKxzB2iufo4dLuCe+P/b28qtFisx0m5yiMgnKJgOvlEKDOBX4xh4cZ92RpBZN64K
+	aY2B7DKTr4hAnMrRJ2Gfj0TM9zMqw==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fs8a487es-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 06 Aug 2026 12:04:53 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 676BuJNc028048;
-	Thu, 6 Aug 2026 12:04:52 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fsu4qu6d4-1
+	Thu, 06 Aug 2026 12:52:47 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 676CpBN9028811;
+	Thu, 6 Aug 2026 12:52:46 GMT
+Received: from smtprelay02.wdc07v.mail.ibm.com ([172.16.1.69])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fswbgk04h-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 06 Aug 2026 12:04:52 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 676C4mWD45154612
+	Thu, 06 Aug 2026 12:52:46 +0000 (GMT)
+Received: from smtpav01.dal12v.mail.ibm.com (smtpav01.dal12v.mail.ibm.com [10.241.53.100])
+	by smtprelay02.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 676CqiI732244384
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 6 Aug 2026 12:04:48 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 542BC20043;
-	Thu,  6 Aug 2026 12:04:48 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id DAC2A2004D;
-	Thu,  6 Aug 2026 12:04:47 +0000 (GMT)
-Received: from t83lp68.lnxne.boe (unknown [9.87.84.240])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu,  6 Aug 2026 12:04:47 +0000 (GMT)
-From: Hidayath Khan <hidayath@linux.ibm.com>
-To: davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-        pabeni@redhat.com, wintera@linux.ibm.com, alibuda@linux.alibaba.com,
-        dust.li@linux.alibaba.com, sidraya@linux.ibm.com, wenjia@linux.ibm.com
-Cc: mjambigi@linux.ibm.com, tonylu@linux.alibaba.com, guwen@linux.alibaba.com,
-        horms@kernel.org, hca@linux.ibm.com, gor@linux.ibm.com,
-        agordeev@linux.ibm.com, borntraeger@linux.ibm.com, svens@linux.ibm.com,
-        pasic@linux.ibm.com, gbayer@linux.ibm.com, andrew+netdev@lunn.ch,
-        netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-rdma@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH net v2] dibs: fix double free of dmb_clientid_arr
-Date: Thu,  6 Aug 2026 14:04:47 +0200
-Message-ID: <20260806120447.596164-1-hidayath@linux.ibm.com>
-X-Mailer: git-send-email 2.52.0
+	Thu, 6 Aug 2026 12:52:44 GMT
+Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 5202D58057;
+	Thu,  6 Aug 2026 12:52:44 +0000 (GMT)
+Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9E96858059;
+	Thu,  6 Aug 2026 12:52:42 +0000 (GMT)
+Received: from b35lp69.lnxne.boe (unknown [9.87.84.240])
+	by smtpav01.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Thu,  6 Aug 2026 12:52:42 +0000 (GMT)
+From: Christian Borntraeger <borntraeger@linux.ibm.com>
+To: Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        David Hildenbrand <david@kernel.org>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>
+Subject: [PATCH 0/1] address one of sashiko pre-existing issues
+Date: Thu,  6 Aug 2026 14:52:40 +0200
+Message-ID: <20260806125241.210170-1-borntraeger@linux.ibm.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -73,68 +73,54 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODA2MDA5MyBTYWx0ZWRfX+u2dxN+GqGrH
- lh9PTCKo2/25Gq6I2ahWZ8NU5lAGPmVjauFVVsnwKEgx707cxlq0YVxOnoLZ7zCSJyM4klARV7K
- IVgqiytW67dwdJW3zwk04XF6lO6cyrY=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODA2MDA5MyBTYWx0ZWRfX70B/0rCFRlE3
- a4CNFhjbVA791xXC5lh3KEbRzTGWsUNUpH6CSeu/ZAy9kWNakdJnJzn/tgO622KRegNf75f23XZ
- dzVwuSn8Hs3TFHsRTsFctXiWU3PsbM1KrkRBBwgCgR4OzPZcElsk1bmX+lA/mroGAUPffV6fkVe
- TxvqxpwbTTEpSRUv3W3m/NaPknm1omjx5hhZMahifhDsPU0VEaMJR0xL67m7ZSmJcyKbPOFVsKx
- 9N6GAMwZ4wxDkrmErKGAA5HrIgMTNoEtdIB2EEqCdQZYwHdkAL6yKo+b2qVQ6v9QTrh9ud9YbAl
- UvKB0ZNNjZLi3w9XvXdVEHtzT3Q9OMD3ci6HW9oX23WzWSpPh6l2bUqEZM+2OxI3CW3axqnA/gp
- pXUJDuQJo35mgYGIZz8dNcu8VZi170j+NwLoyWyruWMrd873VAoBotUqFL1XEj4FhOLSareS7Rb
- Dhi26NWMQdHFgl0SEmA==
-X-Authority-Analysis: v=2.4 cv=SI1ykuvH c=1 sm=1 tr=0 ts=6a747865 cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+X-Authority-Analysis: v=2.4 cv=E6P9Y6dl c=1 sm=1 tr=0 ts=6a74839f cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
  a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=U7nrCbtTmkRpXpFmAIza:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
- a=m-JuoJLILF45OwHNZkAA:9
-X-Proofpoint-ORIG-GUID: BBTrFJBgqV3Z7q7frO-uUA_3DTbA-81s
-X-Proofpoint-GUID: Tqso5xCSkUji-Aa9hUD9NM_KbzqRl8Ca
+ a=iQ6ETzBq9ecOQQE5vZCe:22 a=J3Qewhdv2Gq3w6V-qCwA:9
+X-Proofpoint-ORIG-GUID: rWFsUBk4jlbImeu58p3_dIWzxCxzCfEP
+X-Proofpoint-GUID: rWFsUBk4jlbImeu58p3_dIWzxCxzCfEP
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODA2MDEwMSBTYWx0ZWRfX+jZ+OjGX2vgO
+ xk1lZSPsUOsPGKvPCUu8K1fe1uCdSp7PRB7kjIyJezKkMlWIvf5E5brDZoNxmZcN3OF0nZH4eGs
+ 1QTvn2YzSyaPHFVC2h6oqj1sBSPDxwY=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODA2MDEwMSBTYWx0ZWRfX1lIIp3tp8SWy
+ 0KmO5woEN/9WBP3K0itIX6iQZ3YNiZIvd5qPPi1S58XO5S6iq2NzH80I1uUZMr1qdJK9kijVfu5
+ uyUt9e52ivAP9BxelOQ2GvCfhWT6+1T+kf6qFkI97Sr0bx18g/goSGrtIOlnXAody6A5kBKOqwE
+ LlUYSBYNtjjoLxpqCABUNbyaubfmWZbM3pHwoWjqdfikARiRYJO8xVruFuNBnNaGIP9pax9g17T
+ ZUPOyWMOCqfi4OyvF++s4+cZQQ4r3EP0yqGHOq+ET8QBtAVUm36NcySvu4IqV2Gx8CU+ZhUKxhu
+ iduVYJ3Z+Oh5lhjQCLDCfDIOqQ5NUvqXcKpcEzR9FBcKR0DWLIC8Ufb5kZvJrkGwgu649pITLvF
+ a/s1s7t2+W+VCD31th0TVzoYBtJfA8M5S9ZovBGDLF4fUv4puKuv+rBJbj93poPLtrWC0+c0F6P
+ i2O5yn6z3zUfC9lgdCg==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-08-05_06,2026-08-05_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 bulkscore=0 suspectscore=0 impostorscore=0 spamscore=0
- phishscore=0 priorityscore=1501 lowpriorityscore=0 adultscore=0
- malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ bulkscore=0 clxscore=1015 lowpriorityscore=0 priorityscore=1501
+ suspectscore=0 adultscore=0 spamscore=0 malwarescore=0 impostorscore=0
+ phishscore=0 classifier=typeunknown authscore=0 authtc= authcc=
  route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2608060093
+ definitions=main-2608060101
 
-dibs_dev_add() frees dibs->dmb_clientid_arr on both of its failure
-paths, but does not clear the pointer. dibs_lo_dev_probe() then frees
-the same pointer again in its err_reg path, so a failing device_add()
-or sysfs_create_group() results in a double free.
 
-Drop the kfree() from dibs_lo_dev_probe().
+Heiko, Vasily, Alexander,
 
-Fixes: cc21191b584c ("dibs: Move data path to dibs layer")
-Cc: stable@vger.kernel.org
-Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
-Signed-off-by: Hidayath Khan <hidayath@linux.ibm.com>
----
-v2:
-- Fix Fixes: tag (was c3a910f2380f, should be cc21191b584c)
-- Remove incorrect Note paragraph copied from a different patch
+this touches s390 nmi code. Please review the change.
+Shall we move  MCCK_CODE_NO_GUEST into nmi.h and use
+that for masking in s390_backup_mcck_info as well? 
 
- drivers/dibs/dibs_loopback.c | 1 -
- 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/dibs/dibs_loopback.c b/drivers/dibs/dibs_loopback.c
-index fd5caf1e19a8..649e4e375be3 100644
---- a/drivers/dibs/dibs_loopback.c
-+++ b/drivers/dibs/dibs_loopback.c
-@@ -335,7 +335,6 @@ static int dibs_lo_dev_probe(void)
- 	return 0;
- 
- err_reg:
--	kfree(dibs->dmb_clientid_arr);
- 	/* pairs with dibs_dev_alloc() */
- 	put_device(&dibs->dev);
- 	kfree(ldev);
+If you are ok with this, 
+shall we take this via the kvm tree?
 
-base-commit: 92a09f2af870e91efb9471b109db15c2030f90f2
+
+
+Christian Borntraeger (1):
+  KVM: s390: Fix memory corruption by not reinjecting CK machine checks
+
+ arch/s390/include/asm/nmi.h |  1 +
+ arch/s390/kernel/nmi.c      |  4 ++--
+ arch/s390/kvm/interrupt.c   | 24 ++++++++----------------
+ 3 files changed, 11 insertions(+), 18 deletions(-)
+
 -- 
-2.52.0
+2.53.0
 
