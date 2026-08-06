@@ -1,134 +1,191 @@
-Received: from out30-119.freemail.mail.aliyun.com (out30-119.freemail.mail.aliyun.com [115.124.30.119])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 49A4C431A2B;
-	Thu,  6 Aug 2026 09:20:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.119
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 10A79432BD4
+	for <linux-s390@vger.kernel.org>; Thu,  6 Aug 2026 09:22:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786008060; cv=none; b=Bk2d9ehNORMj2rCzNc7F/yFgoDoNlTKAdRbv5mcFQFfa6jpqS/Qqej8zR0tn4E3ixOZn0emywHb4mDv4Vjva27lA+G4BQmCfbvnQ5ObHqIEx64l2NqEcx2UwxAc3iuWkbEu/jAE5vwCqz1zhcxQ0lwZlXfXWKwf2cPtIUXJMiHY=
+	t=1786008125; cv=none; b=Az9UUf7EX1EckD7mVRaugGHvwBp8PRxF8oFOFyIRP04KmkhHt2onx+MuIf1yuZ+Js5GwCvNltJFgD6jCQ28EAEdJAVdOnofd4i78D4TOZfdIH7+5dI572/8WFoFeDMexIsElGRmyD09Mf8JYvz+cnK1SOMo/BWbQAZy1xlEicVQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786008060; c=relaxed/simple;
-	bh=Rj2ZkKqK6RL+viYdwlruvZzP6MLzQql0LuRjsmfUx0w=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=jTrZ2yUO09DnZ71+aSX334dMF/Bf20MNKRkgU1RL7CGwH4QP3aLDkBpVlJn05NqGi7ajBe/mbZDNsX6faGM+p4j6Mfct5m+OemTK8YOLoYQC35Xir3GjQe/6gyfpPL73OcOkYn1ddH87aPnHwxfQIJ7wzj3k9PKVOLEJ7qN2RVc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=r84GRn6w; arc=none smtp.client-ip=115.124.30.119
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1786008125; c=relaxed/simple;
+	bh=YxPWw3YnXRcWHcqqrJ87fQ5IZWTX84kRRlrWmQUSvms=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=azbfFTSUkjqnMTrcPo1q8xv7axGbCwQTghD94zMNMy9S8LaVdFOZDN3D+sO3MY+QZb1eFGIWa3gnvX0nEX8Ui7jgc8saMdkTv231DdiVhcpFTOSn4IWqiEj0SpyZZDZ0+RQFrIWKMDTLzvO16QeuQ5uOol3x0KkysR3sbjU1Cn8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=b3V7eawn; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="r84GRn6w"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1786008054; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
-	bh=nFt5XC6qJL3jq1W5fsS5A7pLtf+tp21ckrhuUR4laoY=;
-	b=r84GRn6wOSLUb7p/x0yFcVRo9LMVaLnkrz/Jk3gxlXdksmbcehtA50k+HHNTBLpYV045Jlw8rAg7NN8rcwNdq2bLBic2dkT5BFIvil0/GqQBE2/BiEKnaUOIATg8uw94pzHcGrVE18ZkFm8RTrJ1PKP00NxwFOi3ui8HUBvYjQI=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R951e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037026112;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=15;SR=0;TI=SMTPD_---0X8TZBB-_1786008053;
-Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0X8TZBB-_1786008053 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Thu, 06 Aug 2026 17:20:54 +0800
-Date: Thu, 6 Aug 2026 17:20:53 +0800
-From: Dust Li <dust.li@linux.alibaba.com>
-To: Hidayath Khan <hidayath@linux.ibm.com>, alibuda@linux.alibaba.com,
-	sidraya@linux.ibm.com, mjambigi@linux.ibm.com,
-	andrew+netdev@lunn.ch
-Cc: tonylu@linux.alibaba.com, guwen@linux.alibaba.com, davem@davemloft.net,
-	edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
-	horms@kernel.org, pasic@linux.ibm.com, linux-s390@vger.kernel.org,
-	netdev@vger.kernel.org
-Subject: Re: [PATCH net] net/smc: drop the abort_work reference when the work
- is cancelled
-Message-ID: <anRR9doLcvlPAj4Q@linux.alibaba.com>
-Reply-To: dust.li@linux.alibaba.com
-References: <20260806081549.595001-1-hidayath@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="b3V7eawn"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F073E1F000E9;
+	Thu,  6 Aug 2026 09:22:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1786008123;
+	bh=QwUxeXt1nCZ+z8BEXYr3a/M7lgLxfFmQc1f525NF6LI=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=b3V7eawnpfTn1GabhRyuLTGbHX0FmLhtWfdl8ioX1yjBh6mVxLsoLvSFojm0CqX/w
+	 IjWVRorov0lSzK6bOdNg4N5JjyyNLT/RLu+kaOmJ6VfbF4IJ794flb5XYYV32S/gQD
+	 JsrMZ/3rwIUtPGB5dOzlEm23BloDBp3vdbhtGEoPCVZRW0Uz137f/lKXmpPwAU++EU
+	 q1TQBWKN9QmSv3+8TuU268ZgEZRUxHcytgR43bqhVixoEZPExQggGYz3y29h4YWtit
+	 8f/3bUkvq6b4k0/tI1OIGB1jWRzFzDW1qdvLA9lmu3GiDo5nhjjHbG5iOT7PPMJTVX
+	 wIk9zJ3ZU2+Rw==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2 2/2] s390/crypto: Explicit scrub temp buffer in AES
+ ctr mode algorithm
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Harald Freudenberger" <freude@linux.ibm.com>
+Cc: "Vasily Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
+ Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
+In-Reply-To: <20260806084950.17679-3-freude@linux.ibm.com>
+References: <20260806084950.17679-1-freude@linux.ibm.com>
+ <20260806084950.17679-3-freude@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 06 Aug 2026 09:22:02 +0000
+Message-Id: <20260806092202.F073E1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260806081549.595001-1-hidayath@linux.ibm.com>
 
-On 2026-08-06 10:15:49, Hidayath Khan wrote:
->The schedulers of conn->abort_work hand a socket reference to the work
->item and rely on it to give the reference back:
->
->        sock_hold(&smc->sk); /* sock_put in abort_work */
->        if (!queue_work(smc_close_wq, &conn->abort_work))
->                sock_put(&smc->sk);
->
->The queue_work() failure case is handled, but the cancellation case is
->not. smc_conn_free() cancels a still-pending abort_work:
->
->        if (current_work() != &conn->abort_work)
->                cancel_work_sync(&conn->abort_work);
->
->and discards the return value.  When cancel_work_sync() returns true the
->work was queued but had not started, so smc_conn_abort_work() never runs
->and its sock_put() never happens.  The reference is lost.
->
->As in smc_switch_conns(), a leaked sk_refcnt means the smc_sock is never
->destroyed: its buffers stay allocated and the network namespace reference
->a user socket holds is never released, so the netns cannot be torn down.
->
->smc_cdc_msg_validate() queues abort_work from the receive tasklet when a
->peer sends a CDC message with an out-of-order sequence number, so a
->remote peer combined with a concurrent local close is enough to reach it.
->
->Drop the reference when the work is cancelled, matching the pattern
->smc_close_cancel_work() already uses for conn->close_work:
->
->        if (cancel_work_sync(&smc->conn.close_work))
->                sock_put(sk);
->
->The sock_put() is safe here: every caller of smc_conn_free() passes the
->connection of a socket it holds a reference to, so this cannot release
->the last one.
->
->Fixes: b286a0651e44 ("net/smc: handle incoming CDC validation message")
->Cc: stable@vger.kernel.org
->Reviewed-by: Mahanta Jambigi <mjambigi@linux.ibm.com>
->Reviewed-by: Sidraya Jayagond <sidraya@linux.ibm.com>
->Signed-off-by: Hidayath Khan <hidayath@linux.ibm.com>
+Thank you for your contribution! Sashiko AI review found 5 potential issue(=
+s) to consider:
 
-Reviewed-by: Dust Li <dust.li@linux.alibaba.com>
+Pre-existing issues:
+- [Critical] Missing zeroization of the highly sensitive AES master key (`p=
+aram` structure) on early error paths in `gcm_aes_crypt()`.
+- [High] The `ctr_paes_do_crypt()` function in Protected AES (PAES) CTR mod=
+e suffers from the exact same stack buffer leak fixed in `ctr_aes_crypt()`,=
+ exposing plaintext or ciphertext on the kernel stack.
+- [High] The `gcm_aes_crypt()` function leaves temporary scatter/gather wal=
+k buffers (`gw_in` and `gw_out`) and authentication tags unscrubbed on the =
+kernel stack, exposing sensitive plaintext and ciphertext data.
+- [High] The PowerPC `p10_aes_gcm_crypt()` glue code uses an unscrubbed sta=
+ck buffer to process partial AES-GCM blocks.
+- [High] Invalid use of `mutex_trylock()` and `mutex_unlock()` in potential=
+ly atomic/softirq context in `ctr_aes_crypt()` and `ctr_paes_do_crypt()`.
+--
 
-Best regards,
-Dust
+--- Patch [2]: [PATCH v2 2/2] s390/crypto: Explicit scrub temp buffer in AE=
+S ctr mode algorithm ---
+commit e6f2a17e1141661b93e968958338ce9c79ff6466
+Author: Harald Freudenberger <freude@linux.ibm.com>
 
->---
-> net/smc/smc_core.c | 10 ++++++++--
-> 1 file changed, 8 insertions(+), 2 deletions(-)
->
->diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
->index c0027d2fe4e8..dd9fffbe41e0 100644
->--- a/net/smc/smc_core.c
->+++ b/net/smc/smc_core.c
->@@ -1254,6 +1254,7 @@ static void smc_buf_unuse(struct smc_connection *conn,
-> /* remove a finished connection from its link group */
-> void smc_conn_free(struct smc_connection *conn)
-> {
->+	struct smc_sock *smc = container_of(conn, struct smc_sock, conn);
-> 	struct smc_link_group *lgr = conn->lgr;
-> 
-> 	if (!lgr || conn->freed)
->@@ -1277,8 +1278,13 @@ void smc_conn_free(struct smc_connection *conn)
-> 		tasklet_kill(&conn->rx_tsklet);
-> 	} else {
-> 		smc_cdc_wait_pend_tx_wr(conn);
->-		if (current_work() != &conn->abort_work)
->-			cancel_work_sync(&conn->abort_work);
->+		/* If the work was pending (cancel returns true) it never ran,
->+		 * so the sock_hold taken by its scheduler was never released.
->+		 */
->+		if (current_work() != &conn->abort_work) {
->+			if (cancel_work_sync(&conn->abort_work))
->+				sock_put(&smc->sk);
->+		}
-> 	}
-> 	if (!list_empty(&lgr->list)) {
-> 		smc_buf_unuse(conn, lgr); /* allow buffer reuse */
->
->base-commit: 2b1c2bc2355fd59cc75045e42d9dc5470ef5fa9a
->-- 
->2.52.0
+    s390/crypto: Explicit scrub temp buffer in AES ctr mode algorithm
+   =20
+    In function ctr_aes_crypt() there is a buffer used to process
+    remaining bytes < AES_BLOCK_SIZE. This buffer was not scrubbed and
+    thus could lead to expose of unwanted data. Explicitly scrub it at
+    the end of the code block.
+
+> diff --git a/arch/s390/crypto/aes_s390.c b/arch/s390/crypto/aes_s390.c
+> index 366ce22d36237..f52c612ae9cb3 100644
+> --- a/arch/s390/crypto/aes_s390.c
+> +++ b/arch/s390/crypto/aes_s390.c
+> @@ -604,6 +604,7 @@ static int ctr_aes_crypt(struct skcipher_request *req)
+>  		memcpy(walk.dst.virt.addr, buf, nbytes);
+>  		crypto_inc(walk.iv, AES_BLOCK_SIZE);
+>  		ret =3D skcipher_walk_done(&walk, 0);
+> +		memzero_explicit(buf, sizeof(buf));
+
+[Severity: High]
+This isn't a bug introduced by this patch, but since ctr_aes_crypt() is a
+synchronous skcipher that can be called from softirq context, is it safe to
+use mutex_trylock() and mutex_unlock() here?
+
+arch/s390/crypto/aes_s390.c:ctr_aes_crypt() {
+    ...
+	locked =3D mutex_trylock(&ctrblk_lock);
+    ...
+    if (locked)
+		mutex_unlock(&ctrblk_lock);
+    ...
+}
+
+Holding or releasing a sleepable lock like a mutex from a software interrupt
+context typically results in lockdep splats. The identical pattern also
+exists in arch/s390/crypto/paes_s390.c in ctr_paes_do_crypt().
+
+[Severity: High]
+This is a pre-existing issue, but arch/s390/crypto/paes_s390.c seems to have
+the exact same stack buffer leak for the protected aes ctr mode. Could this
+also expose unwanted data?
+
+arch/s390/crypto/paes_s390.c:ctr_paes_do_crypt() {
+    ...
+	if (nbytes) {
+		memset(buf, 0, AES_BLOCK_SIZE);
+		memcpy(buf, walk->src.virt.addr, nbytes);
+        ...
+		memcpy(walk->dst.virt.addr, buf, nbytes);
+		crypto_inc(walk->iv, AES_BLOCK_SIZE);
+		rc =3D skcipher_walk_done(walk, 0);
+        // missing memzero_explicit(buf, sizeof(buf));
+	}
+    ...
+}
+
+This temporary stack buffer buf[] appears to be populated with cryptographic
+data but never explicitly zeroized before returning.
+
+[Severity: High]
+This is a pre-existing issue, but could gcm_aes_crypt() in the same file
+also be exposing sensitive plaintext and ciphertext data on the kernel stac=
+k?
+
+arch/s390/crypto/aes_s390.c:gcm_aes_crypt() {
+	struct gcm_sg_walk gw_in, gw_out;
+	u8 tag[GHASH_DIGEST_SIZE];
+    ...
+}
+
+The gw_in and gw_out structures contain u8 buf[AES_BLOCK_SIZE] bounce
+buffers used during scatterlist walks for unaligned chunks. These walk
+buffers, along with the authentication tag, are omitted from the
+memzero_explicit() block at the end of the function.
+
+[Severity: Critical]
+This is a pre-existing issue, but does an early return in gcm_aes_crypt()
+bypass the explicit zeroization of the param structure containing the
+master key?
+
+arch/s390/crypto/aes_s390.c:gcm_aes_crypt() {
+    ...
+		n =3D aad_bytes + pc_bytes;
+		if (gcm_in_walk_done(&gw_in, n) !=3D n)
+			return -ENOMEM;
+		if (gcm_out_walk_done(&gw_out, n) !=3D n)
+			return -ENOMEM;
+    ...
+	memzero_explicit(&param, sizeof(param));
+	return ret;
+}
+
+If gcm_in_walk_done() or gcm_out_walk_done() fail, the function early
+returns -ENOMEM and skips zeroizing the param structure on the stack.
+
+[Severity: High]
+This is a pre-existing issue, but I am wondering if the powerpc aes-gcm
+stitched implementation has a similar partial block leak?
+
+arch/powerpc/crypto/aes-gcm-p10-glue.c:p10_aes_gcm_crypt() {
+    ...
+	while ((nbytes =3D walk.nbytes) > 0 && ret =3D=3D 0) {
+		const u8 *src =3D walk.src.virt.addr;
+		u8 *dst =3D walk.dst.virt.addr;
+		u8 buf[AES_BLOCK_SIZE];
+
+		if (unlikely(nbytes > 0 && nbytes < AES_BLOCK_SIZE))
+			src =3D dst =3D memcpy(buf, src, nbytes);
+    ...
+}
+
+The local buf array holds partial blocks but is never zeroized
+before the loop continues or the function returns, leaving data on the stac=
+k.
+
+>  	}
+> =20
+>  	return ret;
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260806084950.1767=
+9-1-freude@linux.ibm.com?part=3D2
