@@ -1,34 +1,35 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A06E23ED135;
-	Thu,  6 Aug 2026 20:25:58 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D36563750AC;
+	Thu,  6 Aug 2026 20:26:19 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786047961; cv=none; b=uj4CG/IrsPRpHYzvHbv8y63rLB+OuKOKRzLDMX6dViwnD7dkKsM8mKkAT/RFQr7YhwOBKcK+498odKyadRAPCQInRG9zYyBu5+qTUkkYKvCnHCRuEOMfJZ1/WgzdZLUqZTic1IbuIkIPaPWpvVJMGYgEuvtBp4tYIjXsQzGdm7Q=
+	t=1786047981; cv=none; b=SdRPoRTXj6JM5vcbGW3HP3Df4fXVYWq4DNUst5dtYrq2yKwDKpJML7MZz1lNKKzCut5hb/ZxOCpDrYWXCGgW7EmXRrZDsYtnhQmUj+p4L7eVNSBPfNK9aB+jHqlqOsLtRZkn3Neev+wglbKe+sZUSheeI+5jRGLzteMwwrEP294=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786047961; c=relaxed/simple;
-	bh=p3P1FLjNmsKquOfKyZ9JRZehrfWrVy9CMy59xXBf5Js=;
+	s=arc-20240116; t=1786047981; c=relaxed/simple;
+	bh=FQvfrIChtfCHHXCKi2iMmw+WlLObO/vvN/oq4qWGhM0=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=W+CkgvcBQUUh4KVf0K7n7jjlpKFyggnta2L+SVzPTBnn+LBNaNt0j6Rsw5RD5f+RVI81sIcY/vP/7drPkEv+nZkuzKfmI65xhgraSxCBges5e1n8btgWo7wJfVs+u/EM2hhPPqSF3qabL+dSUZ+ZK1DWTm3Ejs9CQytdk/tfsV4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XLaBEEfi; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:To:Cc; b=IJ9i7NMuYwjPwV9rXCvXisPVHsNbWNymwgQvKWzHzSQ+b8z1bt3/FFVbjzfc96u6mp0LHN1eZoFKS2BqKuzl1PGNpxj7sq6nphUNVXiRWypY9WpkbotUeoORVerfcdWQHKWlr+DADjAaZwEgup/VB/Oji+mIdxt5AYE/bqYP3tY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lDrqZrNR; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XLaBEEfi"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A10771F00A3D;
-	Thu,  6 Aug 2026 20:25:38 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lDrqZrNR"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52F6A1F000E9;
+	Thu,  6 Aug 2026 20:25:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786047958;
-	bh=9aEc+GpTkQ0+PyuSQU7RLIhs+vRcJAzmQsvl5QanIRU=;
+	s=k20260515; t=1786047979;
+	bh=Yu2gHLRO/SRcmXO93obChsLu5SUfHnH/15hgrAMzxms=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=XLaBEEfisdymhdMAkrk6t/WHMuk76cQnpPqVJx/MdqUpfsyAOq8O9FcCUK5GppgIp
-	 w7FnNc6qQQ0UNCMPFsuI6Jax1IE0OYNlqFucf6RWEoE2XlOgVc4Rk3vK5+CSDdUmY8
-	 p44YMxs/hfqSJ1P1IdejNuBo1hKTQF2e8eNGUSsxRik61Rl6PY8NtTMk8b3JbCFjKp
-	 m5QGQy3/se94DfwMWTn7kQEjqaguvLEJoU8xj1Q/GGWvwP5FJuQZCK96QJNd1NVz/R
-	 D8qLVd0suYrx9nGQDf1i8x/ZxFpE+E1WIcwD3tJYm9/xVPBEWRE1uUcx2IsGZD9/k2
-	 SVtiXx///mnLw==
+	b=lDrqZrNR/iyUmRO+7Z821lHEcT77036v+dj9GNHtUzgqrvxHacNZrqPcieg2kFf43
+	 5HGbiuVs1H2Ve7zRIBdILvDZkIrcpocaVff5jnMAZzWLZg2YNb+Z9a82hwrlqDC179
+	 2FNHNc8gt0ohZFRtnB8QeJLOtoCkiKBc8gkwVGHzQUQa7gedN8WTtjcgwQIMcY7nkb
+	 LqD9qwm5KLRniYu3UF9X2g/XBoYniq5+YbWe49I4clFRHPT238KYlH8gr9XZ+5iekV
+	 3lwQaZKSn1TWM+iyon8etePZojIgXmHbpASvl5XH+XGN2VM6Q28c+jxiu8cqLD8JVS
+	 na0KUcOWeR8eA==
 From: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
-Date: Thu, 06 Aug 2026 21:21:36 +0100
-Subject: [PATCH v4 11/20] mm: clean up vma_address_end()
+Date: Thu, 06 Aug 2026 21:21:37 +0100
+Subject: [PATCH v4 12/20] mm/huge_memory: update remove_migration_pmd() to
+ accept a folio
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -37,7 +38,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260806-b4-scalable-cow-virt-pgoff-v4-11-ab318a350404@kernel.org>
+Message-Id: <20260806-b4-scalable-cow-virt-pgoff-v4-12-ab318a350404@kernel.org>
 References: <20260806-b4-scalable-cow-virt-pgoff-v4-0-ab318a350404@kernel.org>
 In-Reply-To: <20260806-b4-scalable-cow-virt-pgoff-v4-0-ab318a350404@kernel.org>
 To: Andrew Morton <akpm@linux-foundation.org>, 
@@ -99,67 +100,115 @@ Cc: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>, linux-mm@kvack.org,
  dri-devel@lists.freedesktop.org, intel-xe@lists.freedesktop.org, 
  linux-perf-users@vger.kernel.org, linux-trace-kernel@vger.kernel.org
 X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1986; i=ljs@kernel.org;
- h=from:subject:message-id; bh=p3P1FLjNmsKquOfKyZ9JRZehrfWrVy9CMy59xXBf5Js=;
- b=owGbwMvMwCV2fu7ZrsZH9SKMp9WSGLJK3lz4rtf2q3xF3rGaAu1zfh9Zdudted1+r7vBoOHDr
- 6uNy3O3d5SyMIhxMciKKbI8/yK+P0gkbF7nBX83mDmsTCBDGLg4BWAiTFMZ/mc+EX+ZtKmTb31U
- z6fvdm+/6MbrG2Xmsr7RP2Yf8Krx4mWG/66pky2Xek6cYnxu+bc7N/frhYs8qT6pY3HlUo7Wbpb
- dVowA
+X-Developer-Signature: v=1; a=openpgp-sha256; l=3764; i=ljs@kernel.org;
+ h=from:subject:message-id; bh=FQvfrIChtfCHHXCKi2iMmw+WlLObO/vvN/oq4qWGhM0=;
+ b=owGbwMvMwCV2fu7ZrsZH9SKMp9WSGLJK3lwoPfTn83L/Ct6FU6LefJ/nERIndmuDX9Mxs9Upq
+ jzvj/3l6ShlYRDjYpAVU2R5/kV8f5BI2LzOC/5uMHNYmUCGMHBxCsBEHiszMnRONebz33Tm321v
+ 5aounvlauhNrJ3470nLLuK9hVaDcwypGhiPhRnsvn8m5/+K71JUYLtsNzQz8axce+Swm1FR37hj
+ rDUYA
 X-Developer-Key: i=ljs@kernel.org; a=openpgp;
  fpr=E7F417BF5214569E89D04F46CF9DCD8A81E27F14
 
-vma_address_end() is a confusing function with a lot of moving parts so
-clean it up prior to extending it for anon page indexed mappings.
+This function does not need to accept a page and requiring it to is unnecessary
+and misleading.
 
-Const-ify some variables and establish pgoff_vma_start and pgoff_end
-variables to clearly identify the page offset for the start of the VMA and
-the end of the page offset range specified by the page walk.
+make_[writable, readable]_device_private_entry() must be passed a
+PMD-aligned PFN as they immediately used to obtain a softleaf PMD entry and
+the same argument applies to folio_add_[anon, file]_rmap_pmd().
 
-This simplifies the function significantly and lays the groundwork for a
-future change to update this function to account for anonymously page
-indexed folios.
+While we are here, update a VM_BUG_ON() to a VM_WARN_ON_ONCE().
 
 No functional change intended.
 
 Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
 ---
- mm/internal.h | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ include/linux/swapops.h |  6 +++---
+ mm/huge_memory.c        | 16 +++++++---------
+ mm/migrate.c            |  2 +-
+ 3 files changed, 11 insertions(+), 13 deletions(-)
 
-diff --git a/mm/internal.h b/mm/internal.h
-index 03145b8d0d56..98b067472ceb 100644
---- a/mm/internal.h
-+++ b/mm/internal.h
-@@ -1079,22 +1079,24 @@ static inline unsigned long vma_anon_address(const struct vm_area_struct *vma,
+diff --git a/include/linux/swapops.h b/include/linux/swapops.h
+index c956bc445ee0..1f3ff3b93e16 100644
+--- a/include/linux/swapops.h
++++ b/include/linux/swapops.h
+@@ -325,8 +325,8 @@ struct page_vma_mapped_walk;
+ extern int set_pmd_migration_entry(struct page_vma_mapped_walk *pvmw,
+ 		struct page *page);
+ 
+-extern void remove_migration_pmd(struct page_vma_mapped_walk *pvmw,
+-		struct page *new);
++void remove_migration_pmd(struct page_vma_mapped_walk *pvmw,
++		struct folio *folio);
+ 
+ extern void pmd_migration_entry_wait(struct mm_struct *mm, pmd_t *pmd);
+ 
+@@ -346,7 +346,7 @@ static inline int set_pmd_migration_entry(struct page_vma_mapped_walk *pvmw,
  }
  
- /*
-- * Then at what user virtual address will none of the range be found in vma?
-+ * At what user virtual address will none of the range be found in vma?
-  * Assumes that vma_address() already returned a good starting address.
-  */
- static inline unsigned long vma_address_end(struct page_vma_mapped_walk *pvmw)
+ static inline void remove_migration_pmd(struct page_vma_mapped_walk *pvmw,
+-		struct page *new)
++		struct folio *folio)
  {
--	struct vm_area_struct *vma = pvmw->vma;
--	pgoff_t pgoff;
-+	const pgoff_t pgoff_end = pvmw->pgoff + pvmw->nr_pages;
-+	const struct vm_area_struct *vma = pvmw->vma;
-+	pgoff_t pgoff_vma_start;
- 	unsigned long address;
+ 	BUILD_BUG();
+ }
+diff --git a/mm/huge_memory.c b/mm/huge_memory.c
+index 6b0cabd45b2d..47c9c6e32eba 100644
+--- a/mm/huge_memory.c
++++ b/mm/huge_memory.c
+@@ -5020,9 +5020,8 @@ int set_pmd_migration_entry(struct page_vma_mapped_walk *pvmw,
+ 	return 0;
+ }
  
- 	/* Common case, plus ->pgoff is invalid for KSM */
- 	if (pvmw->nr_pages == 1)
- 		return pvmw->address + PAGE_SIZE;
+-void remove_migration_pmd(struct page_vma_mapped_walk *pvmw, struct page *new)
++void remove_migration_pmd(struct page_vma_mapped_walk *pvmw, struct folio *folio)
+ {
+-	struct folio *folio = page_folio(new);
+ 	struct vm_area_struct *vma = pvmw->vma;
+ 	struct mm_struct *mm = vma->vm_mm;
+ 	unsigned long address = pvmw->address;
+@@ -5058,11 +5057,9 @@ void remove_migration_pmd(struct page_vma_mapped_walk *pvmw, struct page *new)
+ 		swp_entry_t entry;
  
--	pgoff = pvmw->pgoff + pvmw->nr_pages;
-+	pgoff_vma_start = vma_start_pgoff(vma);
-+
- 	address = vma->vm_start +
--		((pgoff - vma_start_pgoff(vma)) << PAGE_SHIFT);
-+		((pgoff_end - pgoff_vma_start) << PAGE_SHIFT);
- 	/* Check for address beyond vma (or wrapped through 0?) */
- 	if (address < vma->vm_start || address > vma->vm_end)
- 		address = vma->vm_end;
+ 		if (pmd_write(pmde))
+-			entry = make_writable_device_private_entry(
+-							page_to_pfn(new));
++			entry = make_writable_device_private_entry(folio_pfn(folio));
+ 		else
+-			entry = make_readable_device_private_entry(
+-							page_to_pfn(new));
++			entry = make_readable_device_private_entry(folio_pfn(folio));
+ 		pmde = softleaf_to_pmd(entry);
+ 
+ 		if (pmd_swp_soft_dirty(*pvmw->pmd))
+@@ -5077,11 +5074,12 @@ void remove_migration_pmd(struct page_vma_mapped_walk *pvmw, struct page *new)
+ 		if (!softleaf_is_migration_read(entry))
+ 			rmap_flags |= RMAP_EXCLUSIVE;
+ 
+-		folio_add_anon_rmap_pmd(folio, new, vma, haddr, rmap_flags);
++		folio_add_anon_rmap_pmd(folio, &folio->page, vma, haddr, rmap_flags);
+ 	} else {
+-		folio_add_file_rmap_pmd(folio, new, vma);
++		folio_add_file_rmap_pmd(folio, &folio->page, vma);
+ 	}
+-	VM_BUG_ON(pmd_write(pmde) && folio_test_anon(folio) && !PageAnonExclusive(new));
++	VM_WARN_ON_ONCE(pmd_write(pmde) && folio_test_anon(folio) &&
++			!PageAnonExclusive(&folio->page));
+ 	set_pmd_at(mm, haddr, pvmw->pmd, pmde);
+ 
+ 	/* No need to invalidate - it was non-present before */
+diff --git a/mm/migrate.c b/mm/migrate.c
+index 222c8c15f782..d08eff028483 100644
+--- a/mm/migrate.c
++++ b/mm/migrate.c
+@@ -372,7 +372,7 @@ static bool remove_migration_pte(struct folio *folio,
+ 		if (!pvmw.pte) {
+ 			VM_BUG_ON_FOLIO(folio_test_hugetlb(folio) ||
+ 					!folio_test_pmd_mappable(folio), folio);
+-			remove_migration_pmd(&pvmw, new);
++			remove_migration_pmd(&pvmw, folio);
+ 			continue;
+ 		}
+ #endif
 
 -- 
 2.55.0
