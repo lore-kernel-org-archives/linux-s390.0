@@ -1,164 +1,132 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C58F23E33D
-	for <linux-s390@vger.kernel.org>; Thu,  6 Aug 2026 06:26:05 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D596178F2F
+	for <linux-s390@vger.kernel.org>; Thu,  6 Aug 2026 06:29:53 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785997566; cv=none; b=WaoYyUHbZ3ND+eJH1I66+y2xIWq3RFBAShuQTn8+y0GdOTQ4BlFafi78qlXgrItdxpa7/6HVOPyo1suhgg9j8HtEMk0IV6u2/L40V+3i0vd588cD9VhLtAw9CbsgdpqtWAgCLQJTms6npyBvfwZP2dCdonAyEclTS7dD7pf5gvU=
+	t=1785997794; cv=none; b=UFQ4hPE9viy3RqQdp5ZRbbZSo/w94mZuKcWSthF9m6xPP3wnRcQACheenmw6EBlai9u1eJAYeRvgdJ4KYggUmR2pHPca4qdu9dzKpXkZEUkPRXJEK25jlXEthBykHDgLQYAhW9fQO9spZNOFgdLqwvc0iKiek3T7EvKN/e3ctNg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785997566; c=relaxed/simple;
-	bh=m7Fv8mnbtZ87cY0PBSOlUqm3XrtlpSOh8ifv0AO1yq0=;
+	s=arc-20240116; t=1785997794; c=relaxed/simple;
+	bh=xaB64Rla0B5nMr3IETngU+D62VpJ+1MvhEVZA7Z1gUs=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=Q/auhXwuJ2VZDgPAxnSJ1KPpYMoUo3JDOq0OBZsJoLm1wNmyNNER+QaCyppAauutHZZvifHsThZAAWMoxNqzJsWiLZWFTWcBNTWzgo3iaGjyXyS1RSuQo/RTwLfKgFSh9hmRkIhF3FSRjb0suRM+NM7NLY8xSy8zaD7kpDbl8BQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JdgrkBJR; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=BnTow0T0XQX/xP8SI5KQIwhjdGdzIJStu9oP+NfIGQz8YF0izImKQt2sDawwkbap/wXC5vnhQFkORoav7Z4EbyinbIf2UVT/L1E0841hVm+HYb6jCsABCmprPt+L/Op1bf+ELDj9QBgxpwSKggWSEQWVpjt9BkMGWVUKOuTOqi0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jak9tYQV; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JdgrkBJR"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76A9F1F000E9;
-	Thu,  6 Aug 2026 06:26:04 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jak9tYQV"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 417D61F000E9;
+	Thu,  6 Aug 2026 06:29:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785997565;
-	bh=g9pHA7gZjTnpcrSk6f47LeVTM/JwjqmnRAn+clKrXdY=;
+	s=k20260515; t=1785997793;
+	bh=QFOQYO3eChpCNsUny0uOrLzBDFQTYaQCNrjYrYgI3eU=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=JdgrkBJRJyhd5IrDkvntERcAUlR3ZKiY6CId5sV10z8Y1FXu1QYlTRHY2IyarDgdR
-	 qec499pQ0OX6gRbArnANpYksojQZ538tmMfQDF9YTfHFOq2B/IEXI6YnNzTUXMIcnK
-	 Z4x0zQGoSIIqyeYoreRHdSActWmNFQUG9etN/OF0aNgFN8Eeu2/gMtI+kus9U+MYVu
-	 4YSUlFV6wIId141KvavWGbKlTYBhsYQzSOPEQt7klA8hnZqEVebeN3pFrg1sdcdzZA
-	 fw/Yww+6Ae+A5udzh/wLSU80XePrW2/1IGgGUSmtMxwvCMgWUh7v8P6iVGkTW3MItb
-	 l45FJU2AoalQw==
+	b=jak9tYQVxOvzmqiXGc2m5kVsXczVLPb93FZKyxJD7PwGF0G4liFQTKc4omImLiGOh
+	 /3yhCKqcpC7egEB76gtMv5smP29LMvQxt6PsGTHjHkqWn/4RJC70HfyJLhzZpL/79X
+	 PP8JcxVAFmhYbYkc+LUb8PeLTk9mCFh4Hm1B9hatuRRxN0FlBRPrfkbDn048BNPNfj
+	 gnj0bDcTmONImoBRnen7IZMttesYos+64fumIPyYRn5h5f/PqGBhGoMBYpthnL2lYC
+	 aAwHPQMxJoWZRFdnQQ3tfrDiLv0rDk8+vj2/XDBAYCzs4G24pNw76f5M2tokes5whi
+	 f7VH6u2PMreXA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 1/3] init/Kconfig: generalize config COMMAND_LINE_SIZE
- to all architectures
+Subject: Re: [PATCH 3/3] init/Kconfig: make config INIT_ENV_ARG_LIMIT
+ user-configurable
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Wilson Felipe Pereira" <wfelipe@google.com>
-Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
- Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org
-In-Reply-To: <20260806061429.474992-2-wfelipe@google.com>
+Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>
+In-Reply-To: <20260806061429.474992-4-wfelipe@google.com>
 References: <20260806061429.474992-1-wfelipe@google.com>
- <20260806061429.474992-2-wfelipe@google.com>
+ <20260806061429.474992-4-wfelipe@google.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 06 Aug 2026 06:26:03 +0000
-Message-Id: <20260806062604.76A9F1F000E9@smtp.kernel.org>
+Date: Thu, 06 Aug 2026 06:29:52 +0000
+Message-Id: <20260806062953.417D61F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 5 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [High] Moving COMMAND_LINE_SIZE to init/Kconfig removes the minimum size =
-limit of 896 bytes for s390, allowing legacy bootloaders to overflow the pa=
-rmarea and corrupt the kernel .text section.
-- [Medium] The newly introduced COMMAND_LINE_SIZE Kconfig option is silentl=
-y bypassed and acts as a placebo for all architectures except s390.
-- [Medium] Making COMMAND_LINE_SIZE globally configurable via Kconfig confl=
-icts with its static definition in userspace-exported UAPI headers.
-- [Medium] The Kconfig default definition for COMMAND_LINE_SIZE references =
-the non-existent symbol 'UM'.
-- [Medium] The default value of CONFIG_COMMAND_LINE_SIZE for RISC-V is inco=
-rrectly set to 1024, which is a reduction from its existing hardcoded size =
-of 2048.
+
+Pre-existing issues:
+- [High] init_setup() and rdinit_setup() fail to clear argv_init[MAX_INIT_A=
+RGS], leading to a ghost argument or spurious kernel panic.
 --
 
---- Patch [1]: [PATCH 1/3] init/Kconfig: generalize config COMMAND_LINE_SIZ=
-E to all architectures ---
-commit 331242b120be7dde8a2decc92398462a27944ed5
+--- Patch [3]: [PATCH 3/3] init/Kconfig: make config INIT_ENV_ARG_LIMIT use=
+r-configurable ---
+commit 40d27a1b9f7dbca831686327245c33052b28fb18
 Author: Wilson Felipe Pereira <wfelipe@google.com>
-Subject: init/Kconfig: generalize config COMMAND_LINE_SIZE to all architect=
-ures
 
-This commit moves CONFIG_COMMAND_LINE_SIZE from s390 to init/Kconfig to
-allow all architectures to configure their maximum command line length. It
-also sets default values intended to match the existing hardcoded sizes.
+init/Kconfig: make config INIT_ENV_ARG_LIMIT user-configurable
 
-[ ... ]
+This commit makes the INIT_ENV_ARG_LIMIT Kconfig symbol user-configurable
+by adding a prompt string and a valid range. This allows users to increase
+the maximum number of kernel command-line arguments passed to init beyond
+the default.
 
 > diff --git a/init/Kconfig b/init/Kconfig
-> index 5230d4879b1c8..c581817966ee2 100644
+> index c581817966ee2..a77a2c33c319c 100644
 > --- a/init/Kconfig
 > +++ b/init/Kconfig
-> @@ -1566,6 +1566,18 @@ config BOOT_CONFIG_EMBED_FILE
->  	  This bootconfig will be used if there is no initrd or no other
->  	  bootconfig in the initrd.
+> @@ -228,9 +228,10 @@ config BROKEN_ON_SMP
+>  	default y
 > =20
-> +config COMMAND_LINE_SIZE
-
-[Severity: Medium]
-Will this Kconfig option actually be used by other architectures?
-
-For example, in arch/x86/include/asm/setup.h, COMMAND_LINE_SIZE is still
-defined as a hardcoded macro:
-
-#define COMMAND_LINE_SIZE 2048
-
-Because the C preprocessor will continue to use the hardcoded macro rather
-than the CONFIG_COMMAND_LINE_SIZE Kbuild variable, won't any changes made
-by users in menuconfig be silently ignored on architectures other than s390?
-
-
-[Severity: Medium]
-Furthermore, does making this globally configurable conflict with its static
-definition in userspace-exported UAPI headers?
-
-Many architectures expose this as a hardcoded constant in their
-include/uapi/asm/setup.h headers:
-
-arch/arm64/include/uapi/asm/setup.h:
-#define COMMAND_LINE_SIZE 2048
-
-Since UAPI headers cannot depend on kernel build configurations (they do
-not include <generated/autoconf.h>), if an architecture maintainer tries to
-fix the bypass by replacing the hardcoded value with the Kconfig variable,
-wouldn't that break the userspace ABI for tools like kexec-tools which rely
-on the UAPI header?
-
-> +	int "Maximum size of kernel command line"
-> +	default 4096 if S390 || LOONGARCH || MIPS || UM
-
-[Severity: Medium]
-Is UM the correct Kconfig symbol here?
-
-The User-Mode Linux architecture uses the config symbol UML. If UM
-evaluates to false because it does not exist, won't User-Mode Linux builds
-silently fall back to the incorrect default of 512 instead of 4096?
-
-> +	default 2048 if X86 || ARM64 || POWERPC || SPARC64
-> +	default 1024 if ARM || PARISC || RISCV
-
-[Severity: Medium]
-The commit message mentions adding defaults to keep values unchanged, but
-is 1024 the correct default for RISC-V?
-
-Checking arch/riscv/include/uapi/asm/setup.h shows that the current size
-is 2048. If this Kconfig option is respected, would this cause a regression
-by halving the allowed command line size for RISC-V?
-
-> +	default 256 if ALPHA || ARC || M68K || MICROBLAZE || SPARC32 || XTENSA
-> +	default 512
-> +	range 256 1048576
+>  config INIT_ENV_ARG_LIMIT
+> -	int
+> +	int "Maximum number of kernel command line arguments"
+>  	default 32 if !UML
+>  	default 128 if UML
+> +	range 32 4096
 
 [Severity: High]
-Does lowering the minimum range to 256 introduce memory corruption risks
-for s390?
+This is a pre-existing issue, but could making this limit configurable=20
+expose a bug in init_setup() and rdinit_setup() where they fail to clear=20
+the last element of argv_init?
 
-The previous range in arch/s390/Kconfig enforced a minimum of 896 bytes. On
-s390, the command_line buffer is placed at the end of struct parmarea, and
-the executable .text section immediately follows it in the linker script:
+Looking at init_setup() in init/main.c:
 
-arch/s390/boot/vmlinux.lds.S:
-.text : {
-    _text =3D .;  /* Text */
+init/main.c:init_setup() {
+    ...
+	for (i =3D 1; i < MAX_INIT_ARGS; i++)
+		argv_init[i] =3D NULL;
+    ...
+}
 
-If an administrator configures a small size like 256, and a legacy
-bootloader writes up to the historical 896 bytes into the parmarea,
-wouldn't it overrun the buffer and corrupt the .text section?
+And similarly in rdinit_setup():
 
-> +	help
-> +	  This allows you to specify the maximum length of the kernel command
-> +	  line.
+init/main.c:rdinit_setup() {
+    ...
+	for (i =3D 1; i < MAX_INIT_ARGS; i++)
+		argv_init[i] =3D NULL;
+    ...
+}
+
+Since argv_init is sized MAX_INIT_ARGS + 2, if the boot command line includ=
+es=20
+exactly MAX_INIT_ARGS unknown arguments before 'init=3D', they populate=20
+argv_init[1] through argv_init[MAX_INIT_ARGS]. The loop in init_setup() sto=
+ps=20
+at MAX_INIT_ARGS - 1, leaving argv_init[MAX_INIT_ARGS] populated with a sta=
+le=20
+argument.
+
+If the boot command line then provides MAX_INIT_ARGS - 1 arguments after=20
+'init=3D', they fill indices 1 to MAX_INIT_ARGS - 1. This makes the unclear=
+ed=20
+argv_init[MAX_INIT_ARGS] contiguous, which could cause kernel_execve to=20
+pass it to init as a ghost argument.=20
+
+Alternatively, if exactly MAX_INIT_ARGS arguments are provided after 'init=
+=3D',
+could the argument checking loop evaluate argv_init[MAX_INIT_ARGS] as true,
+set panic_later, and cause a spurious boot panic?
+
+>  	help
+>  	  Maximum of each of the number of arguments and environment
+>  	  variables passed to init from the kernel command line.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260806061429.4749=
-92-1-wfelipe@google.com?part=3D1
+92-1-wfelipe@google.com?part=3D3
