@@ -1,82 +1,87 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from 011.lax.mailroute.net (011.lax.mailroute.net [199.89.1.14])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B1FA7380FDE;
-	Thu,  6 Aug 2026 16:51:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4DB5E341ABB;
+	Thu,  6 Aug 2026 17:15:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=199.89.1.14
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786035081; cv=none; b=TgSdm3sjuOKNUVIRe2b9ReS8sn04qwVpDEzr4GUv48vfVkZq4FoXUiBPM1ozivYwVH5bLWo3DY74OoBc77QzD09zEXj03hq2zuj0tWQhJL7fln/Cti5SwtkVn/Jtnx4zyOGbZ4306flDO1PdMPdugVLrvc42m5k74lReOrzGQfI=
+	t=1786036536; cv=none; b=tXdIR6HoAvX9RQVmNBc8PY/Imyxaui2SbnCvFZ7EF7f/mRCSjiNHWLXJSRvT7kYdskBREwA0psSAkZSC4PLX2KHfTpwEsO0jlFyBIO6CqVJnx/6pCdUPHJ0/Q7NFAJ1iUZ/tI6IxjxncUP0BDsqvLD+EvU3N0cf9XYWvaiqdNPo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786035081; c=relaxed/simple;
-	bh=5QOLgOF5GA03ixxqefqlHoSmngn+m5FCeceXG6UrlME=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=Fn6kYpzOOybPRbzp0f1daomCas3Y1vUQALi/EWX+cskax4mjkJ8348C7X1opWw9yFaVjTvdPoiOytiGYi5n4VLgJJvTzyzSL34JVc2d+5sUmeaioZVYzRvvJoxrWsuTNyyUIY54x91WYGGAhBodCV0ohyyHI+7VCHq0yHrtyXvo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=W1AJtjOT; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1786036536; c=relaxed/simple;
+	bh=znK2/4lOEkttR/ynwvj8ugpg+t3k+UoZj77xbbcF6Rc=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=PCd4bFEDv0Kwkhfm++hyvDTjr9JHa0ZVix07ePd5OUz0/PHFm2aHt5jLqZB+RFcmNzsGDUDPuybEHlXomHgrzJap0AKOZkJ3hfUwsBjrBlkb/j6ZXMszoPzbJl6Mx509BtLDMZ7LPQUe7C0AlVyVAK3dDnsAxC9xDL/8Nqtp37Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=acm.org; spf=pass smtp.mailfrom=acm.org; dkim=pass (2048-bit key) header.d=acm.org header.i=@acm.org header.b=fWfd1pY8; arc=none smtp.client-ip=199.89.1.14
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=acm.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=acm.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="W1AJtjOT"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E6F11F00A3F;
-	Thu,  6 Aug 2026 16:51:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786035067;
-	bh=w/uefEEOH9/iG6+Ql6DZWRZebcZnCVGNHfKrKvZ9G8w=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc;
-	b=W1AJtjOTWqV6B++zxCIkpRlFmYvfbcAGK85zFmrKlKS8bZfPHjQuKItc3goG+3JKL
-	 u47aE3AGi50Vw4oeEIKxkGc9GJccvoi+p9cn4hwHIAyMTGbYN8WT+z+5kJBUNo8KXt
-	 77ad6Pzlb29BwOHcgd48ZfPu6rTbAWO/gLrt35jb6sP2y+2EsJYlG4I86IPh6+JCVt
-	 L6aKBzJm8/xLZmqUX5UxgYKllI5ZR1aIfNEZXpOyXeYovX4RU7wXSaFUYKRBx1MIMd
-	 PRkKyw6nM+o3Hx4MMkxVrPORZkcxJGaLCky4pXP3DbuN94yeSrT6J2f+3xxegpi/wc
-	 nNTMZKEu409EQ==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 19855380820D;
-	Thu,  6 Aug 2026 16:50:28 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	dkim=pass (2048-bit key) header.d=acm.org header.i=@acm.org header.b="fWfd1pY8"
+Received: from localhost (localhost [127.0.0.1])
+	by 011.lax.mailroute.net (Postfix) with ESMTP id 4hGDSQ5ZWJz1XM6JY;
+	Thu,  6 Aug 2026 17:15:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=acm.org; h=
+	content-transfer-encoding:content-type:content-type:in-reply-to
+	:from:from:content-language:references:subject:subject
+	:user-agent:mime-version:date:date:message-id:received:received;
+	 s=mr01; t=1786036529; x=1788628530; bh=oZXhusvsNiVTw2LNWdGhAncH
+	7EziQoLQLzjFcfA1dQk=; b=fWfd1pY8EngREmKrsn1S8hNEj7f0sqM7rlcwqbUk
+	Grko2xpUnW/70erJE/bEDvBjLhZV81wgTuWUyPjvAx1h5f5roRtsMCAllwG1Ol+8
+	/ZTQ142f+jOnBM88ZLCYthJLY6Yupea0wr6pZp5+GMDiGlfif6xz9YiVqdlQ6QOB
+	wM+Wf9hEBJzzfolsv8WfK5/I1OIHZO7nuE4d5Q+Ut2oUZ97hDVIETpVTIq7NZH1e
+	rJij7FW+iu+cRjT4Z3juRluW+YAfZ9CJVmMXM9H4yVUAvZz861nKdtW2s1vsdX8n
+	XZdg3xAS6j5VwgUP6NC02L3/WPwlqI+4j6YwFFEonqWKDw==
+X-Virus-Scanned: by MailRoute
+Received: from 011.lax.mailroute.net ([127.0.0.1])
+ by localhost (011.lax [127.0.0.1]) (mroute_mailscanner, port 10029) with LMTP
+ id fKxYKzoNdV_x; Thu,  6 Aug 2026 17:15:29 +0000 (UTC)
+Received: from [100.119.48.131] (unknown [104.135.180.219])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	(Authenticated sender: bvanassche@acm.org)
+	by 011.lax.mailroute.net (Postfix) with ESMTPSA id 4hGDSG5l6bz1XM31H;
+	Thu,  6 Aug 2026 17:15:26 +0000 (UTC)
+Message-ID: <9d9092bc-6bf0-4afb-9d1a-5ee16c9c501e@acm.org>
+Date: Thu, 6 Aug 2026 10:15:25 -0700
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net] s390/ism: Fix UAF of sba and ieq during
- ism_dev_exit()
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <178603502663.1375455.2308379407794585304.git-patchwork-notify@kernel.org>
-Date: Thu, 06 Aug 2026 16:50:26 +0000
-References: <20260805131043.954639-1-wintera@linux.ibm.com>
-In-Reply-To: <20260805131043.954639-1-wintera@linux.ibm.com>
-To: Alexandra Winter <wintera@linux.ibm.com>
-Cc: davem@davemloft.net, kuba@kernel.org, pabeni@redhat.com,
- edumazet@google.com, andrew+netdev@lunn.ch, aswin@linux.ibm.com,
- netdev@vger.kernel.org, linux-s390@vger.kernel.org,
- linux-kernel@vger.kernel.org, hca@linux.ibm.com, gor@linux.ibm.com,
- agordeev@linux.ibm.com, borntraeger@linux.ibm.com, svens@linux.ibm.com,
- horms@kernel.org
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2] scsi: core: Drop Scsi_Host.default_lock
+To: John Garry <john.g.garry@oracle.com>,
+ James.Bottomley@HansenPartnership.com, martin.petersen@oracle.com
+Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org,
+ linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linuxppc-dev@lists.ozlabs.org, linux-usb@vger.kernel.org,
+ John Garry <john.garry@linux.dev>
+References: <20260806113958.3127942-1-john.g.garry@oracle.com>
+Content-Language: en-US
+From: Bart Van Assche <bvanassche@acm.org>
+In-Reply-To: <20260806113958.3127942-1-john.g.garry@oracle.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Hello:
+On 8/6/26 4:39 AM, John Garry wrote:
+ > Getting the address of embedded host_lock structure just requires adding
+ > a fixed offset value to the shost pointer. However, getting the value of
+ > the host_lock pointer requires loading from a fixed offset to the shost
+ > pointer. The latter should be very slightly slower, which is relevant as
+ > this lock is used a lot throughout the core code and drivers.
 
-This patch was applied to netdev/net.git (main)
-by Jakub Kicinski <kuba@kernel.org>:
+Hmm ... SCSI drivers for which performance matters shouldn't use the 
+SCSI host lock in their hot path.
 
-On Wed,  5 Aug 2026 15:10:43 +0200 you wrote:
-> A ism interrupt handler can be active in parallel with ism_dev_exit(),
-> accessing freed data structures.
-> 
-> No new interrupts will be generated after unregister_ieq(). Drain ongoing
-> interrupt handlers by free_irq(), before freeing ism data structures.
-> 
-> Fixes: 684b89bc39ce ("s390/ism: add device driver for internal shared memory")
-> Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
-> 
-> [...]
+ > @Bart, Can you kindly build test this? s390 and sh were causing some 
+build
+ > issues for me. Thanks
 
-Here is the summary with links:
-  - [net] s390/ism: Fix UAF of sba and ieq during ism_dev_exit()
-    https://git.kernel.org/netdev/net/c/b1896543ce59
+This patch passes my build tests, but an update for the references to
+default_lock in the Documentation/ directory is missing.
 
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+Otherwise this patch looks good to me. So with or without the
+Documentation/ update, feel free to add:
 
-
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
