@@ -1,83 +1,137 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5AFAC3A3E76;
-	Thu,  6 Aug 2026 01:00:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ECA44377A80;
+	Thu,  6 Aug 2026 04:50:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785978049; cv=none; b=akK325GK9wMoVVG4oZXDr+HZdY4EoNJO0el+uMVo3COzju7Up7AMT+zDKATwKY3If6mGDJhYZCIHbqjIrLOzb5FzBu39xXOCSAmrDreBUR7/8Z1mXXx3d5+M02Wv+ZXrW8yHDQkx6Mdd+rQIQLiCox2sL1vYZM2QekmcQ6BuO5c=
+	t=1785991844; cv=none; b=blq8Yi2Lb78WqaVbV2EezSSRWMP7uog4A8CGCFEEfzIrzIrUVBzO0xfAlIYSlz9u6PmPOZG8wan99jnY2WiVkZ/a5Eka5cZDBHTxcWp3qByXprASTXtm5iFTJU4smc3atiMCA+l+3P6cQVYHzRJLuiUgZFsPLNfTeR1PcKLLJmo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785978049; c=relaxed/simple;
-	bh=JPSe4gtzrnNKCtsVpBlFpB78qbxuJl4LwYtidlJXc4M=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=pNR/IXJMerQnmSgBILKRJfjJKVNQtLa/D6dUMqMaGCEwePiIL/nV/biycJkcwYZffx7k38DV0hezMt7ZRodYuwSzCQBBc58WHzX5IPKiArhOYPrzPqWjKQDiayIk4nYiqiGlIUvwNuZUuakZXOA9N4MmK7dRZmdMNl2SgesLcIU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kaPitzFW; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1785991844; c=relaxed/simple;
+	bh=CVrrbRDp9btK0z6Gh4upLgpFo6JcZIbyZBwWG8gqRL8=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=OsGlSl3fmiba0sULpVcZYQZWumPiZSfPiZMomELYO6BYb+TL9EEixbYm8OUD4YNaSS4SPa3CU7ZZo28WfXSIX8I2ZWAYurGj0ooUSK/szFfona0JdLZNDDXNCICYJ7UfiUCLfV5YRjUQ0u0yYtRd7KiRsAQaJTKr6sYVC5gSrVk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=VBC62gVV; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kaPitzFW"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AACC61F000E9;
-	Thu,  6 Aug 2026 01:00:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785978046;
-	bh=deXZf2iP0pJLp8jHsfbRp9M1K6VBz3PRAbbG55ymYvU=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc;
-	b=kaPitzFWLjmidZPE3QGPeyvcEl7enWD9nI6Hd7ao/5ZaTD4AV45bzBcxCXEM/K3I+
-	 /UscES5v2xo4YFoWWpuJBQw1K+GxbHbSWrsjBWVrB3X3A/Pk4F4A4+xVZAODvf5iP1
-	 7lCqdRTbNLDaPB3G2psptJ/CiUlVDEmnF0wIKbK4Rk+66x1N9DqRPtj4pyYuGHEqvA
-	 Ek2jkl0eKkI/vI1ks/V6TEfjJHsjLZo3LBnLtSvUdtm7Vxw8q7zLDHX7158kUmwPah
-	 S1NHOyKxMZk/bvQtr/XnoCeCmu+r/JM3xYu6sK4NvkeLnWbFXLyXG4YvmglzbjthSU
-	 7foRL93xtt/aQ==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 938E8392FFED;
-	Thu,  6 Aug 2026 01:00:07 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="VBC62gVV"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 675Nlndx1143329;
+	Thu, 6 Aug 2026 04:50:41 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=HgQiFH
+	7oItMtch1gvDVDF9lpdcNiy/dYeqSypPr6SDU=; b=VBC62gVVYLJiUm6ULxddDM
+	U9f1iDxwJseFlpq99uoLiHWzEwFvXs95aA+3jlMd8M+PfoeIfk0nBNbeM3/1HDdw
+	J7wHZFaB0lk4hGTbts071hvko17rlPhvHkSUoWSzz5qfJL6H70orkSY5KAICKwFW
+	FsxSZd5hPVBe5C6OYzrigfGTkq75+24bdDt5n11d8fZh+lTN5lxKCN8rpxbueNry
+	q9Lh+OLOiIC6qKJAwkg3VMRSw5W9sbtQ9Nze9ZRMxmk0peYDA8voTJqberX/Yddt
+	Dnhe+ecKzIdgySu/R7fZ9OTorbgpURylWIeP0hVIpw3jM57SMacs1OaohAQx6IrA
+	==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fs8euwt3p-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 06 Aug 2026 04:50:41 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 6764fGg5013050;
+	Thu, 6 Aug 2026 04:50:40 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fsv4k9p6d-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 06 Aug 2026 04:50:40 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6764oai840501552
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 6 Aug 2026 04:50:36 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 036962004D;
+	Thu,  6 Aug 2026 04:50:36 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id D23E320043;
+	Thu,  6 Aug 2026 04:50:35 +0000 (GMT)
+Received: from [9.224.87.205] (unknown [9.224.87.205])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu,  6 Aug 2026 04:50:35 +0000 (GMT)
+Message-ID: <55386814-ffb8-4410-aafe-2a1d244809f6@linux.ibm.com>
+Date: Thu, 6 Aug 2026 06:50:35 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net] dibs: initialise dibs->lock in dibs_dev_alloc()
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <178597800612.587098.15592056106593550050.git-patchwork-notify@kernel.org>
-Date: Thu, 06 Aug 2026 01:00:06 +0000
-References: <20260730124227.167829-1-hidayath@linux.ibm.com>
-In-Reply-To: <20260730124227.167829-1-hidayath@linux.ibm.com>
-To: Hidayathulla Khan I <hidayath@linux.ibm.com>
-Cc: davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
- pabeni@redhat.com, wintera@linux.ibm.com, alibuda@linux.alibaba.com,
- dust.li@linux.alibaba.com, sidraya@linux.ibm.com, wenjia@linux.ibm.com,
- mjambigi@linux.ibm.com, tonylu@linux.alibaba.com, guwen@linux.alibaba.com,
- horms@kernel.org, hca@linux.ibm.com, gor@linux.ibm.com,
- agordeev@linux.ibm.com, borntraeger@linux.ibm.com, svens@linux.ibm.com,
- pasic@linux.ibm.com, gbayer@linux.ibm.com, andrew+netdev@lunn.ch,
- netdev@vger.kernel.org, linux-s390@vger.kernel.org,
- linux-rdma@vger.kernel.org, linux-kernel@vger.kernel.org
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 1/2] s390/crypto: Fix return code handling at
+ skcipher_walk_done in PAES algorithms
+To: Harald Freudenberger <freude@linux.ibm.com>, dengler@linux.ibm.com,
+        ifranzki@linux.ibm.com
+Cc: linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev
+ <agordeev@linux.ibm.com>,
+        linux-crypto@vger.kernel.org
+References: <20260805155458.14925-1-freude@linux.ibm.com>
+ <20260805155458.14925-2-freude@linux.ibm.com>
+Content-Language: en-GB
+From: Finn Callies <fcallies@linux.ibm.com>
+In-Reply-To: <20260805155458.14925-2-freude@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: D_ccCrzrv5CfTU95b5-R19W2sh2HHcP6
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODA2MDAzMyBTYWx0ZWRfXywX5f3SIzg/B
+ aDfqVKrdB0kyFN3voWKcPPDlSqqo3CSZBwks+9bXYpfyV1btNUWxt40WMBIJ//eWCjAIUsSUjPa
+ ybKP8bv5cDnWM9cCBP32SFAmXvNnSDg=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODA2MDAzMyBTYWx0ZWRfXz/h61kDCEjpP
+ AZ2odFY9ChBFdBdvLA/Q1WrDLdMuvPtig36FlJPlQQ5qhT4bhuG2BnCcH5h9bfE6OUyUrGyvNMX
+ 6jh1q3vIrFw2EcJjZfWxJwjUJcOvUVJVi7txfQlZTg0+Qjh2vaoD40LZPicFwFqczdjx47Voufs
+ T39KFBahLYOEeBavQgztO8GR/9wb5OOCRhdhbO0VPXW/amgz7YVOjF8HQ1aUrs6biUXKt9kQjsS
+ oWrLyTlmcupXsSTJo7KDahLc6jSz4V+B5gUQbheycslN7Kw9H7Q6+zvTA9M3XcHzNADGORZU7wt
+ IsIBtvXcqifwBRBzFgE9xpUkDlIfjk3ZgO7vZBFnTgjwcU+ucrpffPsHOS54hhslW9363WgRMa5
+ gCxiLF8lvfrlq9KItCOeezJoo28pmju7eytL8xBPy8ehsaFZDc41d6hK442pUdt4Nx9pZag+w3Z
+ VtPSKD2r2ZHLdRtxQJg==
+X-Proofpoint-GUID: D_ccCrzrv5CfTU95b5-R19W2sh2HHcP6
+X-Authority-Analysis: v=2.4 cv=KfzidwYD c=1 sm=1 tr=0 ts=6a7412a1 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8
+ a=VwQbUJbxAAAA:8 a=mGMtxAEF_H-nh_TH674A:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-08-05_06,2026-08-05_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ lowpriorityscore=0 bulkscore=0 impostorscore=0 suspectscore=0 malwarescore=0
+ adultscore=0 clxscore=1011 priorityscore=1501 phishscore=0 spamscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608060033
 
-Hello:
 
-This patch was applied to netdev/net.git (main)
-by Jakub Kicinski <kuba@kernel.org>:
 
-On Thu, 30 Jul 2026 14:42:27 +0200 you wrote:
-> dibs->lock is initialised by dibs_dev_add(), but a dibs device can
-> already take interrupts before that call: ism_probe() runs
-> ism_dev_init(), and hence request_irq(), before it calls
-> dibs_dev_add(). No client can have registered a dmb at that point, so
-> no dmb interrupt can occur, but a GID event interrupt can, and
-> ism_handle_irq() takes dibs->lock unconditionally on entry, before it
-> inspects anything else.
+On 05.08.26 17:54, Harald Freudenberger wrote:
+> All the 4 PAES cipher processing loops were not checking the return
+> value of skcipher_walk_done() immediately after calling it. This could
+> lead to error masking when both the walk operation failed and a
+> subsequent key conversion was needed (k < n condition).
 > 
-> [...]
+> Add immediate error checks after skcipher_walk_done() in all main
+> processing loops (ECB, CBC, CTR, XTS modes) to ensure walk errors are
+> properly propagated and not masked by subsequent operations.
+> 
+> With that comes a slight rework around the skcipher_walk_done()
+> invocation. It is now necessary to check if the walk has already been
+> finalized (walk->nbytes is then 0) or not to avoid double
+> de-allocation of resources held by the walk.
+> 
+> Fixes: 6cd87cb5ef6c ("s390/crypto: Rework protected key AES for true asynch support")
+> Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
+> Cc: stable@vger.kernel.org # 6.16+
+> ---
+>   arch/s390/crypto/paes_s390.c | 38 +++++++++++++++++++++++++-----------
+>   1 file changed, 27 insertions(+), 11 deletions(-)
 
-Here is the summary with links:
-  - [net] dibs: initialise dibs->lock in dibs_dev_alloc()
-    https://git.kernel.org/netdev/net/c/c27e36054537
+[ snip ]
 
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
+LGTM
+Reviewed-by: Finn Callies <fcallies@linux.ibm.com>
 
