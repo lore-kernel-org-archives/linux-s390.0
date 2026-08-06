@@ -1,119 +1,173 @@
-Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com [209.85.216.69])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 451A83B9D95
-	for <linux-s390@vger.kernel.org>; Thu,  6 Aug 2026 06:14:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.69
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 251C023E33D
+	for <linux-s390@vger.kernel.org>; Thu,  6 Aug 2026 06:25:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785996886; cv=none; b=aEridq8wSzYnX2wiS46Ywfc7ifTL+au4wY1UgW6Hf+4j26Z3m9h3Vy8EG06wB1hFUPVC9Xr3A4xhZdu2KfXg0Y4OZj/Qk0V0pjMhjDFa8E9azjGmS0U5IkwrDEg5klUJc1IXqmDtsVPR9YKbABiXB/K12r1XdVWqH4sjIPYUJaA=
+	t=1785997560; cv=none; b=Z1mc8C9ewcVOvL3RQ8HDx99NryYoa0ooUkFjjIOvV2bn6Iio4T22tuTroOKR/KDDXEV9RhQcthJJY1sW5TaUg8KnH/Id3iKhqtO4Er2Pz/PKb75nLMw8F+1IhJ4LLTqZCjVqzdYC1tSZlkaSnedAk/c3zsplyN7KqcmM+R5f6kg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785996886; c=relaxed/simple;
-	bh=zK0URDPVEXSMclZ8lWEXPCGPTT3zF/u5FRxlC8toxFI=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=AMmVoQwhn6/su/WZkS4DQnzDIf0Sx2ohF4SuwUkeSKayJkue1LPMANOqatEB2fiW90YB4hzG21k8NUZKRErMZKGMNWfuekTcmvHGctvgAORoMb1HDJ4/fmbIRrT0JxnbJ2/km5/vhTczbHSu/VKnDfaxlCppvU260Ow2Q5ohLsA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--wfelipe.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=FygGjbUN; arc=none smtp.client-ip=209.85.216.69
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--wfelipe.bounces.google.com
+	s=arc-20240116; t=1785997560; c=relaxed/simple;
+	bh=B6U2zwD9/FPET9gE7G0V9jpMaK2cl+wx81CM5c3SIHI=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=qnZaxwpOAp1Ch/AqI4sZmcuz9sp5wgWjAonEo6xH5KYn1xoZlPvBrp+uGqYrVr1DFsoG1BI202DllWA8/lsMC4PwfGJd6sJlSAORBDJ3V4krhwcCOS0pXdAXPRlFjj5FCVO+t6NjHWoCWZ1GCJwHBue9Hyx3HOLRLhJL0aQAtKc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YM7xFZPx; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="FygGjbUN"
-Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-3811279d51aso3034569a91.1
-        for <linux-s390@vger.kernel.org>; Wed, 05 Aug 2026 23:14:45 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1785996884; x=1786601684; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:from:subject
-         :message-id:references:mime-version:in-reply-to:date:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=bFzqH4xCVi7VLSbp83LQR7Sy3Yjk2atQ5O9h+mavTgs=;
-        b=FygGjbUN+j4J9YWV0bZV9jVTaqH62kRHL9vZ08rPKJ+mUTXRm1fcYYeAW4aBCLKrkd
-         TZa5fNsVcA0ARTJK/jxd9ldvd/WJQmXS87QRSkxKE6A9n73FPODA3sWtslZbcaoujdpt
-         lKT6cYNkynj7aeYyY40JdidtRkok7Bn+wbgKawP+AL3cQxb3tHk6VJ9uTfMMQ731HRDV
-         ERvWMqeLHVLigz8TlzkeoVmdLGWeZ6jBfDnfYLYil61Fv7NS2c33MnuQPIjyLaKPQGRo
-         bRyDM8BwV7w/hivW58Ztb2ShvdECLLwjSv4DHM1cGkSziYbqqRFgOZdYkYQPV+GD4ORH
-         Nl1g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785996884; x=1786601684;
-        h=content-transfer-encoding:content-type:cc:to:from:subject
-         :message-id:references:mime-version:in-reply-to:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=bFzqH4xCVi7VLSbp83LQR7Sy3Yjk2atQ5O9h+mavTgs=;
-        b=QodwnoJc9x4IPqWbfOVIAuCGQUnXndjM5u4jwgzvDk7DXhaUDqHXccO087dnhrrDG9
-         X/oJI9yfHVmBVJgc+l2ru/qoJO9K+xXMcWvM/3V7tNp1/V8UF8ISc0Idh3FyOfnRjS8A
-         FBNrwppS4Yt38aCkfVFmtSguuPuRLhmtbnsS4CvGBPya0c/aLiNKiJJ/YZZq3mKsWNSF
-         2j5ZaYJ4j+Ajdagb7cWZ5HK4+WaMQASvEqlXw8/4Iacv2i+Lthcx1ywwMPkdrpgHaqp7
-         krLTnNx+JzgIQke8v9WFkKvHJ/wcHyx8sxkhayWhF5VNHg7Bw8Q4DzvtcE03MnHuIjEJ
-         ZhSA==
-X-Forwarded-Encrypted: i=1; AHgh+RoLv6QJh8RTbu/nEeHBzJejlQ4yeY0L6QM6QswbtbSOnBLzJ6qt1ul3U+pANn7IsPw59t/b9WS5A3sO@vger.kernel.org
-X-Gm-Message-State: AOJu0YxGDjNJEN/V1tVV8AcEQq4WKFcya5qa9kve8upH7lX8xTuPWjTi
-	foPvAQEST2+CVM0BYS6uoIztIgfzAzruGSHzdCYJuGYRndzU0/h7eiaGYmLDHJ+wUaJMKgMU7Sc
-	8D2yhyB+7Iw==
-X-Received: from pjyx15.prod.google.com ([2002:a17:90a:e30f:b0:38d:d40a:d192])
- (user=wfelipe job=prod-delivery.src-stubby-dispatcher) by 2002:a17:90b:4b87:b0:37f:c2a8:ce45
- with SMTP id 98e67ed59e1d1-3903c537d5fmr11343222a91.4.1785996884273; Wed, 05
- Aug 2026 23:14:44 -0700 (PDT)
-Date: Thu,  6 Aug 2026 06:14:16 +0000
-In-Reply-To: <20260806061429.474992-1-wfelipe@google.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YM7xFZPx"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68DD01F000E9;
+	Thu,  6 Aug 2026 06:25:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1785997558;
+	bh=5wNR10o39tBbn3nvWi1DM+K0NILIyGYoVCeAjPEYfpA=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=YM7xFZPxuCKU1NHSrOokouvNrsz9qOavx1kbYhqOlHaD2Mq7g9m/5Z6+upK36+Wq0
+	 vqqVTIsrD7Kkqk9uvfNvBIJ1JB6AQIWUyzX+8vBAIWghuKuIlMqgAUl2DEKKM5aZG1
+	 g1uHiTu+DtGKnFsAJg6zZ2tlXy9cEX/DsiVmFLojmtbSk11gNIwoinkTIeKJ9L6pp1
+	 OVg4IPsPbb1379vVVuDA5A3S8PO1ZVl4o9inRMjOh+km6wN+l96iw4QYxGsQxdMe2b
+	 NjviusNPqLmyIkvTeN3mpKOWaKhSAT6SBV6DC4QpLt2vD1Ny88WIhQxRw8rwBbWxRY
+	 Bs6SiC7nJicKA==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 2/3] arch: use CONFIG_COMMAND_LINE_SIZE across all
+ architectures
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Wilson Felipe Pereira" <wfelipe@google.com>
+Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
+ Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>
+In-Reply-To: <20260806061429.474992-3-wfelipe@google.com>
+References: <20260806061429.474992-1-wfelipe@google.com>
+ <20260806061429.474992-3-wfelipe@google.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 06 Aug 2026 06:25:57 +0000
+Message-Id: <20260806062558.68DD01F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-References: <20260806061429.474992-1-wfelipe@google.com>
-X-Mailer: git-send-email 2.55.0.654.g21b8a5bc05-goog
-Message-ID: <20260806061429.474992-4-wfelipe@google.com>
-Subject: [PATCH 3/3] init/Kconfig: make config INIT_ENV_ARG_LIMIT user-configurable
-From: Wilson Felipe Pereira <wfelipe@google.com>
-To: Arnd Bergmann <arnd@arndb.de>, Andrew Morton <akpm@linux-foundation.org>
-Cc: Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, 
-	Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>, 
-	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
-	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
-	Sven Schnelle <svens@linux.ibm.com>, linux-arch@vger.kernel.org, 
-	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, 
-	Wilson Felipe Pereira <wfelipe@google.com>, 
-	"=?UTF-8?q?Maciej=20=C5=BBenczykowski?=" <maze@google.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-INIT_ENV_ARG_LIMIT is defined without a prompt string (`int`), making it
-a hidden Kconfig symbol that defaults to 32 (or 128 for UML) and cannot
-be configured in `make menuconfig`.
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+s) to consider:
+- [High] RISC-V default command line size is silently truncated from 2048 t=
+o 1024 bytes.
+- [High] Exposing COMMAND_LINE_SIZE to Kconfig allows deterministic stack e=
+xhaustion in the ARM boot decompressor.
+- [High] Configurable COMMAND_LINE_SIZE causes stack exhaustion during earl=
+y boot on m68k Atari.
+--
 
-Now that CONFIG_COMMAND_LINE_SIZE is configurable across all architectures,
-users who select larger kernel command lines (e.g., 4096 bytes) may pass
-more than 32 command-line arguments or environment variables (`foo=3Dbar`) =
-to
-`/sbin/init`. If INIT_ENV_ARG_LIMIT remains hardcoded at 32, any argument
-after the 32nd is silently dropped when the kernel executes init.
+--- Patch [2]: [PATCH 2/3] arch: use CONFIG_COMMAND_LINE_SIZE across all ar=
+chitectures ---
+commit 86e4b8b798d614166a3d212659ea7796c8a7ee99
+Author: Wilson Felipe Pereira <wfelipe@google.com>
 
-Add a prompt string ("Maximum number of kernel command line arguments") and
-a `range 32 4096` to `config INIT_ENV_ARG_LIMIT` so that users can
-configure their init argument and environment variable limit when needed,
-while preserving the existing default of 32 for standard builds.
+arch: use CONFIG_COMMAND_LINE_SIZE across all architectures
 
-Originally-by: Maciej =C5=BBenczykowski <maze@google.com>
-Signed-off-by: Wilson Felipe Pereira <wfelipe@google.com>
----
- init/Kconfig | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+This commit updates every architecture's setup.h to define COMMAND_LINE_SIZE
+using CONFIG_COMMAND_LINE_SIZE for the kernel. The historical hardcoded
+defaults are retained in user-space API headers by wrapping the definition
+in an #ifdef __KERNEL__ guard.
 
-diff --git a/init/Kconfig b/init/Kconfig
-index d42bb55cb2152..28c0f1fb00ebb 100644
---- a/init/Kconfig
-+++ b/init/Kconfig
-@@ -231,9 +231,10 @@ config BROKEN_ON_SMP
- 	default y
-=20
- config INIT_ENV_ARG_LIMIT
--	int
-+	int "Maximum number of kernel command line arguments"
- 	default 32 if !UML
- 	default 128 if UML
-+	range 32 4096
- 	help
- 	  Maximum of each of the number of arguments and environment
- 	  variables passed to init from the kernel command line.
+> diff --git a/arch/arm/include/uapi/asm/setup.h b/arch/arm/include/uapi/as=
+m/setup.h
+> index 8e50e034fec73..4aa93558af1e7 100644
+> --- a/arch/arm/include/uapi/asm/setup.h
+> +++ b/arch/arm/include/uapi/asm/setup.h
+> @@ -17,7 +17,11 @@
+> =20
+>  #include <linux/types.h>
+> =20
+> -#define COMMAND_LINE_SIZE 1024
+> +#ifdef __KERNEL__
+> +#define COMMAND_LINE_SIZE	CONFIG_COMMAND_LINE_SIZE
+> +#else
+> +#define COMMAND_LINE_SIZE	1024
+> +#endif
+
+[Severity: High]
+Does exposing COMMAND_LINE_SIZE to Kconfig allow deterministic stack exhaus=
+tion
+in the ARM boot decompressor?
+
+The ARM boot decompressor uses a fixed 4KB stack (.L_user_stack in
+arch/arm/boot/compressed/head.S), and merge_fdt_bootargs() allocates:
+
+arch/arm/boot/compressed/atags_to_fdt.c:merge_fdt_bootargs() {
+    ...
+	char cmdline[COMMAND_LINE_SIZE];
+    ...
+}
+
+If a user configures CONFIG_COMMAND_LINE_SIZE to a value larger than ~3KB,
+will this stack allocation deterministically crash on boot?
+
+[ ... ]
+
+> diff --git a/arch/m68k/include/uapi/asm/setup.h b/arch/m68k/include/uapi/=
+asm/setup.h
+> index 25fe26d5597cc..2d5b24a5345f9 100644
+> --- a/arch/m68k/include/uapi/asm/setup.h
+> +++ b/arch/m68k/include/uapi/asm/setup.h
+> @@ -12,6 +12,10 @@
+>  #ifndef _UAPI_M68K_SETUP_H
+>  #define _UAPI_M68K_SETUP_H
+> =20
+> -#define COMMAND_LINE_SIZE 256
+> +#ifdef __KERNEL__
+> +#define COMMAND_LINE_SIZE	CONFIG_COMMAND_LINE_SIZE
+> +#else
+> +#define COMMAND_LINE_SIZE	256
+> +#endif
+
+[Severity: High]
+Can a configurable COMMAND_LINE_SIZE cause stack exhaustion during early bo=
+ot
+on m68k Atari?
+
+atari_switches_setup() allocates an array locally on the limited kernel sta=
+ck:
+
+arch/m68k/atari/config.c:atari_switches_setup() {
+    ...
+	char switches[COMMAND_LINE_SIZE];
+    ...
+}
+
+Will tying this to an unbound Kconfig option introduce deterministic stack
+exhaustion on boot for m68k Atari kernels?
+
+[ ... ]
+
+> diff --git a/arch/riscv/include/uapi/asm/setup.h b/arch/riscv/include/uap=
+i/asm/setup.h
+> index eb4f0209c6960..a6c1f4b0987e3 100644
+> --- a/arch/riscv/include/uapi/asm/setup.h
+> +++ b/arch/riscv/include/uapi/asm/setup.h
+> @@ -3,6 +3,10 @@
+>  #ifndef _UAPI_ASM_RISCV_SETUP_H
+>  #define _UAPI_ASM_RISCV_SETUP_H
+> =20
+> +#ifdef __KERNEL__
+> +#define COMMAND_LINE_SIZE	CONFIG_COMMAND_LINE_SIZE
+> +#else
+>  #define COMMAND_LINE_SIZE	2048
+> +#endif
+
+[Severity: High]
+Is the RISC-V default command line size silently truncated from 2048 to 1024
+bytes?
+
+The Kconfig default in init/Kconfig erroneously groups RISC-V with ARM and
+PARISC (1024):
+
+init/Kconfig:
+	default 1024 if ARM || PARISC || RISCV
+
+By replacing the kernel definition with CONFIG_COMMAND_LINE_SIZE here, does
+this create a dangerous discrepancy where userspace headers claim the limit
+is 2048, while the kernel internally enforces 1024 and truncates existing
+boot configurations?
+
 --=20
-2.55.0.654.g21b8a5bc05-goog
-
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260806061429.4749=
+92-1-wfelipe@google.com?part=3D2
