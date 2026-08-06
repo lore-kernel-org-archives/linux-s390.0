@@ -1,119 +1,79 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0B5CE416859
-	for <linux-s390@vger.kernel.org>; Thu,  6 Aug 2026 10:19:31 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B191472762;
+	Thu,  6 Aug 2026 11:40:53 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786011573; cv=none; b=mDMWmp+s8ko2fjmdG8JMsPUaYVYGduLjf2HbTTd/z10IJ4UQzcr5P2AbDFwCentixa2xLZk2Aar8x4sKxCADk6Btmk5dJ2wpToq+eNuDFezGa3hvu5iUDYRxCaqzvDyqY58Guj+1aeqmaCLHWD11s4c6A7nc3yz1M3tLInO65F4=
+	t=1786016461; cv=none; b=hL1haFzLw7YLR3h+Hlkk+DEeytsfo/XgrBN3mUYI4k9+5YjZREzoaLQRcSSCDVurOaam8IxtIfdNoy0lbVfZkZJjCC8q50PbYTGDhhIC88SKfqkZz/erS8YkpuH5A1dkJZLFE2Ftbkyw0jyRHG6DqKaipY1WPXtFuhAsjCkTy9A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786011573; c=relaxed/simple;
-	bh=XJS9tc3VUmMiFDyL1UIfYhQyvHWypkLp+8qtOmaYltU=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=uWRCT1BqiikQ/G3/PT/AkWZbIzGzExD03SrN+ruStcFGJ/aXasQdzJQPOBKE7dRyxjNVrWpsrsHHkYNDN5VmXb9TCrfgwLlPUcXkEJ/wvcC93IImpvKlYzmHbiZLzu/lDzp6E/iTdRidL7VZuqolyjepu7kt1219iom47YhQi7g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZaL5+HkY; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1786016461; c=relaxed/simple;
+	bh=rYTjHbUrl9b5N6ogifdgOcKznIuzf0FuTExqAI5NC8Y=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=V5gYS0bD67fPR3MdNL9l1teEmWZNS3SwAkBJHhQlSL2ZOQFM3r5Cv7ZE9MOlzvg0/NCKd69ktmcEwqf5cNaP8nnGVBdtnT3madoZd0+nuC1nPbDhw0i6/XPYdCRgcgH2n2rQDGvTUz2/ho59Tj/L2OAm9DZjumclcd0nunD5Pfs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LcXsxxfy; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZaL5+HkY"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53AC31F000E9;
-	Thu,  6 Aug 2026 10:19:31 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LcXsxxfy"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 735A11F000E9;
+	Thu,  6 Aug 2026 11:40:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786011571;
-	bh=mt1kC2nOFFeZ6QZMjrlZgkhWzWOC0IbtrLFEFTqbJuA=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=ZaL5+HkYE6jO5PNWUIArxKStJjYqwebMA7qKpu3hdoKOrCHhIKatSNqEP7P6bmyFU
-	 8d+bPt1kaGh0wBwn67c86xMgrpSrxGu1c4RUFXNORZAJzXGwzWagj1rsTY6kqq8LCJ
-	 +wLGyLw2oH/6qs9acLk3SsYnVMU1zZGPWMJBEJ86ySy3mwJ/PCIjz5TQ0rUNaMtJHS
-	 ++fiUKrOwaq6pl8LSlweJ39Wcs34Qwl9ul5QCap+wbO1q/uJxG5Bpy9W+L54Lzmu/u
-	 3zfWsMevysqJoI5zzl9Ozgmw/41y57cMgMZeeLYmqIjq6j/5YRmDy1TLVbdRh20HXW
-	 MfvaeIghFHWpg==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] s390/irqflags: add out-of-line definitions of
- arch_local_irq_*() for KMSAN
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Ilya Leoshkevich" <iii@linux.ibm.com>
-Cc: "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Heiko
- Carstens" <hca@linux.ibm.com>, linux-s390@vger.kernel.org
-In-Reply-To: <20260806100038.3163298-1-iii@linux.ibm.com>
-References: <20260806100038.3163298-1-iii@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 06 Aug 2026 10:19:30 +0000
-Message-Id: <20260806101931.53AC31F000E9@smtp.kernel.org>
+	s=k20260515; t=1786016447;
+	bh=zy17dLJAiURGR1RiJlWaqZZePvRmyg2uWh1NUwjRCtk=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc;
+	b=LcXsxxfy1nimuVs0+6KtLR/QWk7NuUlv8mZOkq8SLh3gWdqFeJwFYAm46KvyabvYJ
+	 RJTHyEw4i3ObZlVmD9t8EytPB8vt880ro30ZA8QYbBDq1KqOmbLpPCZeeKWbOq2zVm
+	 YzKDybZPN7AYsysSLVOohb16KkgDatpRz8XYGcAbFltcqLjWOLZO+YKasLhUUW0cna
+	 3A2s2nAEpSfHowPTqF1ACEps1iv9dwnsszrNXv5v7q7mFVKBvrCUdROfGLbNyez2Le
+	 8WX/gCyzveujQzJd/sqIUh2xKmsXWD3uM6mKW+k8ubua3IZKOXcdtisHUQFX5XG+5R
+	 MPRtCGw4wP7+Q==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 1983D380AA5D;
+	Thu,  6 Aug 2026 11:40:08 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net] net/smc: fix TOCTOU race between smc_listen_out() and
+ listener close
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <178601640689.798872.1785237402553323723.git-patchwork-notify@kernel.org>
+Date: Thu, 06 Aug 2026 11:40:06 +0000
+References: <20260803070701.126339-1-sidraya@linux.ibm.com>
+In-Reply-To: <20260803070701.126339-1-sidraya@linux.ibm.com>
+To: Sidraya Jayagond <sidraya@linux.ibm.com>
+Cc: davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+ pabeni@redhat.com, alibuda@linux.alibaba.com, dust.li@linux.alibaba.com,
+ horms@kernel.org, mjambigi@linux.ibm.com, tonylu@linux.alibaba.com,
+ guwen@linux.alibaba.com, hidayath@linux.ibm.com, pasic@linux.ibm.com,
+ netdev@vger.kernel.org, linux-s390@vger.kernel.org
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [High] Missing KMSAN attributes on the `extern` declarations of `arch_loc=
-al_save_flags` and `arch_local_irq_save` will cause spurious use-of-uniniti=
-alized-value reports.
---
+Hello:
 
---- Patch [1]: [PATCH] s390/irqflags: add out-of-line definitions of arch_l=
-ocal_irq_*() for KMSAN ---
-commit 75ac5ab83800e65155075aeee91b3fd23aa6274d
-Author: Ilya Leoshkevich <iii@linux.ibm.com>
+This patch was applied to netdev/net.git (main)
+by Paolo Abeni <pabeni@redhat.com>:
 
-s390/irqflags: add out-of-line definitions of arch_local_irq_*() for KMSAN
+On Mon,  3 Aug 2026 09:07:01 +0200 you wrote:
+> smc_listen_out() reads lsmc->sk.sk_state without the listener lock,
+> then acquires lock_sock_nested() only after the check passes. This
+> opens a window where smc_close_active() can transition the listener
+> to SMC_CLOSED, call smc_close_cleanup_listen() to drain the accept
+> queue, and release the lock, all between the lockless read and the
+> delayed lock acquisition:
+> 
+> [...]
 
-This commit moves KMSAN arch_local_irq_*() definitions out-of-line to avoid
-warnings about static functions in inline functions. Uninstrumented
-decompressor code keeps the inline definitions, while non-GPL modules see
-the out-of-line versions.
+Here is the summary with links:
+  - [net] net/smc: fix TOCTOU race between smc_listen_out() and listener close
+    https://git.kernel.org/netdev/net/c/185a4caeecab
 
-Closes: https://lore.kernel.org/oe-kbuild-all/202607131219.euJHPSJ5-lkp@int=
-el.com/
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
 
-> diff --git a/arch/s390/include/asm/irqflags.h b/arch/s390/include/asm/irq=
-flags.h
-> index bcab456dfb803..44d158f7831e6 100644
-> --- a/arch/s390/include/asm/irqflags.h
-> +++ b/arch/s390/include/asm/irqflags.h
-> @@ -37,18 +37,24 @@ static __always_inline void __arch_local_irq_ssm(unsi=
-gned long flags)
->  	asm volatile("ssm   %0" : : "Q" (flags) : "memory");
->  }
-> =20
-> -#ifdef CONFIG_KMSAN
-> -#define arch_local_irq_attributes noinline notrace __no_sanitize_memory =
-__maybe_unused
-> +#if defined(CONFIG_KMSAN) && !defined(__DECOMPRESSOR)
-> +extern unsigned long arch_local_save_flags(void);
-> +extern unsigned long arch_local_irq_save(void);
 
-[Severity: High]
-Since these extern declarations lack KMSAN attributes, will instrumented
-callers expect a populated return value shadow in __msan_retval_tls?
-
-When arch_local_save_flags() and arch_local_irq_save() are called from
-instrumented code, the caller reads __msan_retval_tls. However, because the
-corresponding definitions are marked noinstr:
-
-arch/s390/kernel/irqflags.c:
-noinstr unsigned long arch_local_save_flags(void)
-{
-	return __arch_local_save_flags();
-}
-
-instrumentation is skipped, and __msan_retval_tls is never populated before
-returning to the caller.=20
-
-Could this result in spurious use-of-uninitialized-value reports on every
-IRQ state check or lock operation (like spin_lock_irqsave) when the kernel
-is built with CONFIG_KMSAN?
-
-> +extern void arch_local_irq_enable_external(void);
-> +extern void arch_local_irq_enable(void);
->  #else
-> -#define arch_local_irq_attributes __always_inline
-> +#define arch_local_save_flags __arch_local_save_flags
-> +#define arch_local_irq_save __arch_local_irq_save
-
-[ ... ]
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260806100038.3163=
-298-1-iii@linux.ibm.com?part=3D1
