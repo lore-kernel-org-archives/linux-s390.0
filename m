@@ -1,173 +1,164 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 251C023E33D
-	for <linux-s390@vger.kernel.org>; Thu,  6 Aug 2026 06:25:58 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C58F23E33D
+	for <linux-s390@vger.kernel.org>; Thu,  6 Aug 2026 06:26:05 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785997560; cv=none; b=Z1mc8C9ewcVOvL3RQ8HDx99NryYoa0ooUkFjjIOvV2bn6Iio4T22tuTroOKR/KDDXEV9RhQcthJJY1sW5TaUg8KnH/Id3iKhqtO4Er2Pz/PKb75nLMw8F+1IhJ4LLTqZCjVqzdYC1tSZlkaSnedAk/c3zsplyN7KqcmM+R5f6kg=
+	t=1785997566; cv=none; b=WaoYyUHbZ3ND+eJH1I66+y2xIWq3RFBAShuQTn8+y0GdOTQ4BlFafi78qlXgrItdxpa7/6HVOPyo1suhgg9j8HtEMk0IV6u2/L40V+3i0vd588cD9VhLtAw9CbsgdpqtWAgCLQJTms6npyBvfwZP2dCdonAyEclTS7dD7pf5gvU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785997560; c=relaxed/simple;
-	bh=B6U2zwD9/FPET9gE7G0V9jpMaK2cl+wx81CM5c3SIHI=;
+	s=arc-20240116; t=1785997566; c=relaxed/simple;
+	bh=m7Fv8mnbtZ87cY0PBSOlUqm3XrtlpSOh8ifv0AO1yq0=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=qnZaxwpOAp1Ch/AqI4sZmcuz9sp5wgWjAonEo6xH5KYn1xoZlPvBrp+uGqYrVr1DFsoG1BI202DllWA8/lsMC4PwfGJd6sJlSAORBDJ3V4krhwcCOS0pXdAXPRlFjj5FCVO+t6NjHWoCWZ1GCJwHBue9Hyx3HOLRLhJL0aQAtKc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YM7xFZPx; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=Q/auhXwuJ2VZDgPAxnSJ1KPpYMoUo3JDOq0OBZsJoLm1wNmyNNER+QaCyppAauutHZZvifHsThZAAWMoxNqzJsWiLZWFTWcBNTWzgo3iaGjyXyS1RSuQo/RTwLfKgFSh9hmRkIhF3FSRjb0suRM+NM7NLY8xSy8zaD7kpDbl8BQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JdgrkBJR; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YM7xFZPx"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68DD01F000E9;
-	Thu,  6 Aug 2026 06:25:58 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JdgrkBJR"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76A9F1F000E9;
+	Thu,  6 Aug 2026 06:26:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785997558;
-	bh=5wNR10o39tBbn3nvWi1DM+K0NILIyGYoVCeAjPEYfpA=;
+	s=k20260515; t=1785997565;
+	bh=g9pHA7gZjTnpcrSk6f47LeVTM/JwjqmnRAn+clKrXdY=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=YM7xFZPxuCKU1NHSrOokouvNrsz9qOavx1kbYhqOlHaD2Mq7g9m/5Z6+upK36+Wq0
-	 vqqVTIsrD7Kkqk9uvfNvBIJ1JB6AQIWUyzX+8vBAIWghuKuIlMqgAUl2DEKKM5aZG1
-	 g1uHiTu+DtGKnFsAJg6zZ2tlXy9cEX/DsiVmFLojmtbSk11gNIwoinkTIeKJ9L6pp1
-	 OVg4IPsPbb1379vVVuDA5A3S8PO1ZVl4o9inRMjOh+km6wN+l96iw4QYxGsQxdMe2b
-	 NjviusNPqLmyIkvTeN3mpKOWaKhSAT6SBV6DC4QpLt2vD1Ny88WIhQxRw8rwBbWxRY
-	 Bs6SiC7nJicKA==
+	b=JdgrkBJRJyhd5IrDkvntERcAUlR3ZKiY6CId5sV10z8Y1FXu1QYlTRHY2IyarDgdR
+	 qec499pQ0OX6gRbArnANpYksojQZ538tmMfQDF9YTfHFOq2B/IEXI6YnNzTUXMIcnK
+	 Z4x0zQGoSIIqyeYoreRHdSActWmNFQUG9etN/OF0aNgFN8Eeu2/gMtI+kus9U+MYVu
+	 4YSUlFV6wIId141KvavWGbKlTYBhsYQzSOPEQt7klA8hnZqEVebeN3pFrg1sdcdzZA
+	 fw/Yww+6Ae+A5udzh/wLSU80XePrW2/1IGgGUSmtMxwvCMgWUh7v8P6iVGkTW3MItb
+	 l45FJU2AoalQw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 2/3] arch: use CONFIG_COMMAND_LINE_SIZE across all
- architectures
+Subject: Re: [PATCH 1/3] init/Kconfig: generalize config COMMAND_LINE_SIZE
+ to all architectures
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Wilson Felipe Pereira" <wfelipe@google.com>
-Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
- Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>
-In-Reply-To: <20260806061429.474992-3-wfelipe@google.com>
+Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
+ Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org
+In-Reply-To: <20260806061429.474992-2-wfelipe@google.com>
 References: <20260806061429.474992-1-wfelipe@google.com>
- <20260806061429.474992-3-wfelipe@google.com>
+ <20260806061429.474992-2-wfelipe@google.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 06 Aug 2026 06:25:57 +0000
-Message-Id: <20260806062558.68DD01F000E9@smtp.kernel.org>
+Date: Thu, 06 Aug 2026 06:26:03 +0000
+Message-Id: <20260806062604.76A9F1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+Thank you for your contribution! Sashiko AI review found 5 potential issue(=
 s) to consider:
-- [High] RISC-V default command line size is silently truncated from 2048 t=
-o 1024 bytes.
-- [High] Exposing COMMAND_LINE_SIZE to Kconfig allows deterministic stack e=
-xhaustion in the ARM boot decompressor.
-- [High] Configurable COMMAND_LINE_SIZE causes stack exhaustion during earl=
-y boot on m68k Atari.
+- [High] Moving COMMAND_LINE_SIZE to init/Kconfig removes the minimum size =
+limit of 896 bytes for s390, allowing legacy bootloaders to overflow the pa=
+rmarea and corrupt the kernel .text section.
+- [Medium] The newly introduced COMMAND_LINE_SIZE Kconfig option is silentl=
+y bypassed and acts as a placebo for all architectures except s390.
+- [Medium] Making COMMAND_LINE_SIZE globally configurable via Kconfig confl=
+icts with its static definition in userspace-exported UAPI headers.
+- [Medium] The Kconfig default definition for COMMAND_LINE_SIZE references =
+the non-existent symbol 'UM'.
+- [Medium] The default value of CONFIG_COMMAND_LINE_SIZE for RISC-V is inco=
+rrectly set to 1024, which is a reduction from its existing hardcoded size =
+of 2048.
 --
 
---- Patch [2]: [PATCH 2/3] arch: use CONFIG_COMMAND_LINE_SIZE across all ar=
-chitectures ---
-commit 86e4b8b798d614166a3d212659ea7796c8a7ee99
+--- Patch [1]: [PATCH 1/3] init/Kconfig: generalize config COMMAND_LINE_SIZ=
+E to all architectures ---
+commit 331242b120be7dde8a2decc92398462a27944ed5
 Author: Wilson Felipe Pereira <wfelipe@google.com>
+Subject: init/Kconfig: generalize config COMMAND_LINE_SIZE to all architect=
+ures
 
-arch: use CONFIG_COMMAND_LINE_SIZE across all architectures
-
-This commit updates every architecture's setup.h to define COMMAND_LINE_SIZE
-using CONFIG_COMMAND_LINE_SIZE for the kernel. The historical hardcoded
-defaults are retained in user-space API headers by wrapping the definition
-in an #ifdef __KERNEL__ guard.
-
-> diff --git a/arch/arm/include/uapi/asm/setup.h b/arch/arm/include/uapi/as=
-m/setup.h
-> index 8e50e034fec73..4aa93558af1e7 100644
-> --- a/arch/arm/include/uapi/asm/setup.h
-> +++ b/arch/arm/include/uapi/asm/setup.h
-> @@ -17,7 +17,11 @@
-> =20
->  #include <linux/types.h>
-> =20
-> -#define COMMAND_LINE_SIZE 1024
-> +#ifdef __KERNEL__
-> +#define COMMAND_LINE_SIZE	CONFIG_COMMAND_LINE_SIZE
-> +#else
-> +#define COMMAND_LINE_SIZE	1024
-> +#endif
-
-[Severity: High]
-Does exposing COMMAND_LINE_SIZE to Kconfig allow deterministic stack exhaus=
-tion
-in the ARM boot decompressor?
-
-The ARM boot decompressor uses a fixed 4KB stack (.L_user_stack in
-arch/arm/boot/compressed/head.S), and merge_fdt_bootargs() allocates:
-
-arch/arm/boot/compressed/atags_to_fdt.c:merge_fdt_bootargs() {
-    ...
-	char cmdline[COMMAND_LINE_SIZE];
-    ...
-}
-
-If a user configures CONFIG_COMMAND_LINE_SIZE to a value larger than ~3KB,
-will this stack allocation deterministically crash on boot?
+This commit moves CONFIG_COMMAND_LINE_SIZE from s390 to init/Kconfig to
+allow all architectures to configure their maximum command line length. It
+also sets default values intended to match the existing hardcoded sizes.
 
 [ ... ]
 
-> diff --git a/arch/m68k/include/uapi/asm/setup.h b/arch/m68k/include/uapi/=
-asm/setup.h
-> index 25fe26d5597cc..2d5b24a5345f9 100644
-> --- a/arch/m68k/include/uapi/asm/setup.h
-> +++ b/arch/m68k/include/uapi/asm/setup.h
-> @@ -12,6 +12,10 @@
->  #ifndef _UAPI_M68K_SETUP_H
->  #define _UAPI_M68K_SETUP_H
+> diff --git a/init/Kconfig b/init/Kconfig
+> index 5230d4879b1c8..c581817966ee2 100644
+> --- a/init/Kconfig
+> +++ b/init/Kconfig
+> @@ -1566,6 +1566,18 @@ config BOOT_CONFIG_EMBED_FILE
+>  	  This bootconfig will be used if there is no initrd or no other
+>  	  bootconfig in the initrd.
 > =20
-> -#define COMMAND_LINE_SIZE 256
-> +#ifdef __KERNEL__
-> +#define COMMAND_LINE_SIZE	CONFIG_COMMAND_LINE_SIZE
-> +#else
-> +#define COMMAND_LINE_SIZE	256
-> +#endif
+> +config COMMAND_LINE_SIZE
+
+[Severity: Medium]
+Will this Kconfig option actually be used by other architectures?
+
+For example, in arch/x86/include/asm/setup.h, COMMAND_LINE_SIZE is still
+defined as a hardcoded macro:
+
+#define COMMAND_LINE_SIZE 2048
+
+Because the C preprocessor will continue to use the hardcoded macro rather
+than the CONFIG_COMMAND_LINE_SIZE Kbuild variable, won't any changes made
+by users in menuconfig be silently ignored on architectures other than s390?
+
+
+[Severity: Medium]
+Furthermore, does making this globally configurable conflict with its static
+definition in userspace-exported UAPI headers?
+
+Many architectures expose this as a hardcoded constant in their
+include/uapi/asm/setup.h headers:
+
+arch/arm64/include/uapi/asm/setup.h:
+#define COMMAND_LINE_SIZE 2048
+
+Since UAPI headers cannot depend on kernel build configurations (they do
+not include <generated/autoconf.h>), if an architecture maintainer tries to
+fix the bypass by replacing the hardcoded value with the Kconfig variable,
+wouldn't that break the userspace ABI for tools like kexec-tools which rely
+on the UAPI header?
+
+> +	int "Maximum size of kernel command line"
+> +	default 4096 if S390 || LOONGARCH || MIPS || UM
+
+[Severity: Medium]
+Is UM the correct Kconfig symbol here?
+
+The User-Mode Linux architecture uses the config symbol UML. If UM
+evaluates to false because it does not exist, won't User-Mode Linux builds
+silently fall back to the incorrect default of 512 instead of 4096?
+
+> +	default 2048 if X86 || ARM64 || POWERPC || SPARC64
+> +	default 1024 if ARM || PARISC || RISCV
+
+[Severity: Medium]
+The commit message mentions adding defaults to keep values unchanged, but
+is 1024 the correct default for RISC-V?
+
+Checking arch/riscv/include/uapi/asm/setup.h shows that the current size
+is 2048. If this Kconfig option is respected, would this cause a regression
+by halving the allowed command line size for RISC-V?
+
+> +	default 256 if ALPHA || ARC || M68K || MICROBLAZE || SPARC32 || XTENSA
+> +	default 512
+> +	range 256 1048576
 
 [Severity: High]
-Can a configurable COMMAND_LINE_SIZE cause stack exhaustion during early bo=
-ot
-on m68k Atari?
+Does lowering the minimum range to 256 introduce memory corruption risks
+for s390?
 
-atari_switches_setup() allocates an array locally on the limited kernel sta=
-ck:
+The previous range in arch/s390/Kconfig enforced a minimum of 896 bytes. On
+s390, the command_line buffer is placed at the end of struct parmarea, and
+the executable .text section immediately follows it in the linker script:
 
-arch/m68k/atari/config.c:atari_switches_setup() {
-    ...
-	char switches[COMMAND_LINE_SIZE];
-    ...
-}
+arch/s390/boot/vmlinux.lds.S:
+.text : {
+    _text =3D .;  /* Text */
 
-Will tying this to an unbound Kconfig option introduce deterministic stack
-exhaustion on boot for m68k Atari kernels?
+If an administrator configures a small size like 256, and a legacy
+bootloader writes up to the historical 896 bytes into the parmarea,
+wouldn't it overrun the buffer and corrupt the .text section?
 
-[ ... ]
-
-> diff --git a/arch/riscv/include/uapi/asm/setup.h b/arch/riscv/include/uap=
-i/asm/setup.h
-> index eb4f0209c6960..a6c1f4b0987e3 100644
-> --- a/arch/riscv/include/uapi/asm/setup.h
-> +++ b/arch/riscv/include/uapi/asm/setup.h
-> @@ -3,6 +3,10 @@
->  #ifndef _UAPI_ASM_RISCV_SETUP_H
->  #define _UAPI_ASM_RISCV_SETUP_H
-> =20
-> +#ifdef __KERNEL__
-> +#define COMMAND_LINE_SIZE	CONFIG_COMMAND_LINE_SIZE
-> +#else
->  #define COMMAND_LINE_SIZE	2048
-> +#endif
-
-[Severity: High]
-Is the RISC-V default command line size silently truncated from 2048 to 1024
-bytes?
-
-The Kconfig default in init/Kconfig erroneously groups RISC-V with ARM and
-PARISC (1024):
-
-init/Kconfig:
-	default 1024 if ARM || PARISC || RISCV
-
-By replacing the kernel definition with CONFIG_COMMAND_LINE_SIZE here, does
-this create a dangerous discrepancy where userspace headers claim the limit
-is 2048, while the kernel internally enforces 1024 and truncates existing
-boot configurations?
+> +	help
+> +	  This allows you to specify the maximum length of the kernel command
+> +	  line.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260806061429.4749=
-92-1-wfelipe@google.com?part=3D2
+92-1-wfelipe@google.com?part=3D1
