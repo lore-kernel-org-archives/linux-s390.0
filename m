@@ -1,107 +1,83 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4E70C3E120B
-	for <linux-s390@vger.kernel.org>; Wed,  5 Aug 2026 21:39:38 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5AFAC3A3E76;
+	Thu,  6 Aug 2026 01:00:47 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785965979; cv=none; b=K0+8y/yKVrXpPr4LTJO7e9rNoz6Qu5ozdLNWRHDSBJwuryzHh1kdINMYNtv+yYyFny/qTT+2UmpVrQTfq7bd4s3x77OGs5uQ/asTLAxySuknn4AVxxAHVyDGamvjUN52JtQ5zaL/Fg5e8NpSEjY88Hkggpz0N/+HlHA6+PMxxUY=
+	t=1785978049; cv=none; b=akK325GK9wMoVVG4oZXDr+HZdY4EoNJO0el+uMVo3COzju7Up7AMT+zDKATwKY3If6mGDJhYZCIHbqjIrLOzb5FzBu39xXOCSAmrDreBUR7/8Z1mXXx3d5+M02Wv+ZXrW8yHDQkx6Mdd+rQIQLiCox2sL1vYZM2QekmcQ6BuO5c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785965979; c=relaxed/simple;
-	bh=MioUaueiKkT94wG2Dg3vvZoo9kFDkQBQ/eJZnAox3+0=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=rgiM9q2Ug3yugtGdSpJITXKidtkW7ADSECv5LbrVFvT6c2SrNh/OGcLSJ6NE0Um7QX729GwYby1xZvJudLZfcrTC/lqcU93jEbvhGf5I8OUT84g5LTXqxAeayKPYUv3K8iPyDi1wShHe07Y2akhgLQpvRORtydVHKYXI4X3drUs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PrYuyX04; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1785978049; c=relaxed/simple;
+	bh=JPSe4gtzrnNKCtsVpBlFpB78qbxuJl4LwYtidlJXc4M=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=pNR/IXJMerQnmSgBILKRJfjJKVNQtLa/D6dUMqMaGCEwePiIL/nV/biycJkcwYZffx7k38DV0hezMt7ZRodYuwSzCQBBc58WHzX5IPKiArhOYPrzPqWjKQDiayIk4nYiqiGlIUvwNuZUuakZXOA9N4MmK7dRZmdMNl2SgesLcIU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kaPitzFW; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PrYuyX04"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B4CF1F000E9;
-	Wed,  5 Aug 2026 21:39:37 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kaPitzFW"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AACC61F000E9;
+	Thu,  6 Aug 2026 01:00:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785965977;
-	bh=zbZfDMPH75ZJU6wnF8Eq6h595HEXwKSfXjJlKV4dIUY=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=PrYuyX04jPTjvlMz8+6toLbdQfk2m5CTH2WiqQtbrv8ySczbqXtXWDYNvTXENdTyG
-	 bhiYOL+RnIdxFIy1qxOWt1YKHDtLB5miq0SO60wosmRfvmTW5xafWVvT1imIhxR5SV
-	 pIg4lGqZEg+YMxvsFSrhaW9Zq5JV4HbyDc0unRz2NPR/IHB5ckp46TRakYCOi0iFZY
-	 pMLDXZ+1JnnNg+j8XW+86Ot4dRWv11BlOw3D2hat0vKh4EE9CofbFjRkPzmrddQimz
-	 hBgbWzyZIjrFoiA6UxVLQzYDSF3rVg1Zii+ZGGHcAO27l/W9u7Y9eju/awIoz2PAIe
-	 JDGBme/BxYn5g==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] net/smc: fix sock refcount leak in smc_switch_conns()
- error path
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Yifei Gao" <gyf161023@gmail.com>
-Cc: "Heiko Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Vasily
- Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org
-In-Reply-To: <20260804213917.3413525-1-gyf161023@gmail.com>
-References: <20260804213917.3413525-1-gyf161023@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 05 Aug 2026 21:39:36 +0000
-Message-Id: <20260805213937.5B4CF1F000E9@smtp.kernel.org>
+	s=k20260515; t=1785978046;
+	bh=deXZf2iP0pJLp8jHsfbRp9M1K6VBz3PRAbbG55ymYvU=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc;
+	b=kaPitzFWLjmidZPE3QGPeyvcEl7enWD9nI6Hd7ao/5ZaTD4AV45bzBcxCXEM/K3I+
+	 /UscES5v2xo4YFoWWpuJBQw1K+GxbHbSWrsjBWVrB3X3A/Pk4F4A4+xVZAODvf5iP1
+	 7lCqdRTbNLDaPB3G2psptJ/CiUlVDEmnF0wIKbK4Rk+66x1N9DqRPtj4pyYuGHEqvA
+	 Ek2jkl0eKkI/vI1ks/V6TEfjJHsjLZo3LBnLtSvUdtm7Vxw8q7zLDHX7158kUmwPah
+	 S1NHOyKxMZk/bvQtr/XnoCeCmu+r/JM3xYu6sK4NvkeLnWbFXLyXG4YvmglzbjthSU
+	 7foRL93xtt/aQ==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 938E8392FFED;
+	Thu,  6 Aug 2026 01:00:07 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net] dibs: initialise dibs->lock in dibs_dev_alloc()
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <178597800612.587098.15592056106593550050.git-patchwork-notify@kernel.org>
+Date: Thu, 06 Aug 2026 01:00:06 +0000
+References: <20260730124227.167829-1-hidayath@linux.ibm.com>
+In-Reply-To: <20260730124227.167829-1-hidayath@linux.ibm.com>
+To: Hidayathulla Khan I <hidayath@linux.ibm.com>
+Cc: davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+ pabeni@redhat.com, wintera@linux.ibm.com, alibuda@linux.alibaba.com,
+ dust.li@linux.alibaba.com, sidraya@linux.ibm.com, wenjia@linux.ibm.com,
+ mjambigi@linux.ibm.com, tonylu@linux.alibaba.com, guwen@linux.alibaba.com,
+ horms@kernel.org, hca@linux.ibm.com, gor@linux.ibm.com,
+ agordeev@linux.ibm.com, borntraeger@linux.ibm.com, svens@linux.ibm.com,
+ pasic@linux.ibm.com, gbayer@linux.ibm.com, andrew+netdev@lunn.ch,
+ netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+ linux-rdma@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
+Hello:
 
-Pre-existing issues:
-- [High] A concurrent connection abort during failover causes the healthy b=
-ackup link to be erroneously torn down, failing the entire link group failo=
-ver.
---
+This patch was applied to netdev/net.git (main)
+by Jakub Kicinski <kuba@kernel.org>:
 
---- Patch [1]: [PATCH] net/smc: fix sock refcount leak in smc_switch_conns(=
-) error path ---
-commit 1858eaf3cce20ce7bd2bd6af774eda2e7fe87f8d
-Author: Yifei Gao <gyf161023@gmail.com>
+On Thu, 30 Jul 2026 14:42:27 +0200 you wrote:
+> dibs->lock is initialised by dibs_dev_add(), but a dibs device can
+> already take interrupts before that call: ism_probe() runs
+> ism_dev_init(), and hence request_irq(), before it calls
+> dibs_dev_add(). No client can have registered a dmb at that point, so
+> no dmb interrupt can occur, but a GID event interrupt can, and
+> ism_handle_irq() takes dibs->lock unconditionally on entry, before it
+> inspects anything else.
+> 
+> [...]
 
-net/smc: fix sock refcount leak in smc_switch_conns() error path
+Here is the summary with links:
+  - [net] dibs: initialise dibs->lock in dibs_dev_alloc()
+    https://git.kernel.org/netdev/net/c/c27e36054537
 
-This commit resolves a socket reference count leak in smc_switch_conns()
-by ensuring sock_put() is called when smc_cdc_get_free_slot() fails.
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
 
-> diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-> index b4208cb186c5e..c0027d2fe4e8c 100644
-> --- a/net/smc/smc_core.c
-> +++ b/net/smc/smc_core.c
 
-[ ... ]
-
-> @@ -1148,8 +1148,10 @@ struct smc_link *smc_switch_conns(struct smc_link_=
-group *lgr,
->  		read_unlock_bh(&lgr->conns_lock);
->  		/* pre-fetch buffer outside of send_lock, might sleep */
->  		rc =3D smc_cdc_get_free_slot(conn, to_lnk, &wr_buf, NULL, &pend);
-> -		if (rc)
-> +		if (rc) {
-> +			sock_put(&smc->sk);
->  			goto err_out;
-> +		}
-
-[Severity: High]
-This isn't a bug introduced by this patch, but this modified error path
-appears to have a pre-existing logic issue during a concurrent abort.
-
-If a concurrent abort event occurs (for example, if smc_cdc_msg_validate()
-detects an invalid CDC sequence number) and sets conn->killed =3D 1,
-smc_cdc_get_free_slot() will observe this and return -EPIPE.
-
-Since smc_switch_conns() does not distinguish this connection-specific
-error from a link-level error, it will jump directly to err_out and call
-smcr_link_down_cond_sched(to_lnk).
-
-Does this inadvertently tear down the healthy backup link and disrupt all
-other connections in the link group that were successfully failing over,
-just because a single connection was killed?
-
->  		/* avoid race with smcr_tx_sndbuf_nonempty() */
->  		spin_lock_bh(&conn->send_lock);
->  		smc_switch_link_and_count(conn, to_lnk);
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260804213917.3413=
-525-1-gyf161023@gmail.com?part=3D1
