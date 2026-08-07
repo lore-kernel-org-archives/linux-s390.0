@@ -1,158 +1,180 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5614D47CA8C;
-	Fri,  7 Aug 2026 13:18:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 099D02BE043;
+	Fri,  7 Aug 2026 13:54:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786108723; cv=none; b=lgJRstuprIdTZCq5yDdtrTKmEPD7lmwgzNE8PFf93g/qsYtbTmIjq8Mx38zjLQXGKeLpSquVSPlYktTcVMGn2MN07oQ+JS4TT37SITsFDs8/T2frC5YI0pf2IftHBZksHtGuchmAuSyB70pTFc5QKG3JZUqdHAWY/C78V0nsxTg=
+	t=1786110896; cv=none; b=QEzvVnrD1d6YjNwJKOQXcjpf+zX7/RfASTuZtvTlIQha4R3llwocVuDN+8+8qq1Um4MjOj/R8ZhDAfyPGvIDM6FwjGB6U/UQanjY15+fkXaTWzpvZXXKSBHu4QQj6fK3fvAHQ2diyJVuBRjv1NL+Y2LVJzDBphBEvhLLHdOmfXQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786108723; c=relaxed/simple;
-	bh=gDwhkk/t71TRO5fpIF77dkVtXvZNkvZ27+O5qiP/9A4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=GA5LxlQecF/5IL3Ulpic1ts8dYP44squoqFACgRdhPq9hYED1auY18wClzTkCoQyRMjmVozV4B5CNlw5ixZbusDeZ66NrB5MQTdB5caIPe3OK1VzpkJLCxMfsUF3GlNL+6l3eJhwJ+69JpAasQg2TXIUrMWOwdnqRmbGnbaJOq4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cCNbiOkj; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1786110896; c=relaxed/simple;
+	bh=TnhvjgQ+Napyf0PkgUQSG8OwkfMCu8KVyYlywY/C8GQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=Hiu0DO+6hHKSeKB1NF5hs+k1JEfFdUF/4zYWNlxw3gDtprgCGQuNCY7rnJCNgceqV18Y0FnpOB90HOfyb7vAEHbFyU48Oe5Mj6YhSCJmeVPqi/+wGlozE7m5wRqavu2o9EK1XqvF4ryPdDWLgYV5Ts1bI+7+B/CuywMKt5rB6TI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=LQnp7l+b; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cCNbiOkj"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 338611F000E9;
-	Fri,  7 Aug 2026 13:18:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786108720;
-	bh=wsfDDPcsG5MUSLOHvWCFv40tfsXBmUj7P+V3Bqk82YU=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=cCNbiOkjKWAUqmhRd4f35UKCjy7UEhkqpWWFeU9w7Kfiy5DgWT3dZw1OQFG8VAzwR
-	 XZNBYUU8FhCvDz09mx7t85bJh2lGZS5wWKXfdEHcjdTmqrCKuvbXD4PHj259GvbZZY
-	 At6gmah61p+afUyBaMnPfpe+im9eRwJlcM1uOVFcvRENntNyyd8OspaulZRPI21O0+
-	 RQ+DtFZQKiusnOPhpgTJWrPlMW7ENlDI/iDnaojBH384ZJnryZxsxnSTIXfU3vj3ks
-	 R4W0nC24in4QB64L5eYdsvT8dTMBFtjRhb+mL0yI6d/AOEHHOKCqEgpBrbJoOp2NCH
-	 LWSkcbZumcQJg==
-Date: Fri, 7 Aug 2026 14:18:31 +0100
-From: Will Deacon <will@kernel.org>
-To: "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>
-Cc: iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev,
-	Robin Murphy <robin.murphy@arm.com>,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
-	Marc Zyngier <maz@kernel.org>, Steven Price <steven.price@arm.com>,
-	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Jiri Pirko <jiri@resnulli.us>, Jason Gunthorpe <jgg@ziepe.ca>,
-	Mostafa Saleh <smostafa@google.com>,
-	Petr Tesarik <ptesarik@suse.com>,
-	Alexey Kardashevskiy <aik@amd.com>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Xu Yilun <yilun.xu@linux.intel.com>, linuxppc-dev@lists.ozlabs.org,
-	linux-s390@vger.kernel.org,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	Christophe Leroy <chleroy@kernel.org>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org
-Subject: Re: [PATCH] arm64: swiotlb: Keep the default size for protected
- guests
-Message-ID: <anXbJ2O4DWgPxCeg@willie-the-truck>
-References: <20260717180442.110954-18-aneesh.kumar@kernel.org>
- <20260807092612.2202005-1-aneesh.kumar@kernel.org>
- <anXIZSh9lq99VG9X@willie-the-truck>
- <yq5acxvu2ict.fsf@kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="LQnp7l+b"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 677Clixu3829316;
+	Fri, 7 Aug 2026 13:54:46 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=pp1; bh=OZ11EtV2mZPb2QIVq
+	17a/epK2LrZ4cxZ64YassYOTyY=; b=LQnp7l+bTK2zGgih7H53y8A6a5KG2u9na
+	wItdV2JePVA591NnkJ2b9bNo6jmUHTXteh/L9eqV0e11HISU7iRSqjdwYpc269DM
+	/5n1fmmnFNcxL97F5EEcdmtSIqfvaQf9Watrz6TQVcGRxvNBzDQRMoizB9AkACEE
+	iNC/waYpnbtM5KtUjFBzejB6DjbFcV6EU/33aBkL+xqll4cElCJvSq39YlgnPbKc
+	xg4mIoXmWzbBcZuBQTUhco0XWlntCPq197at2JCQJ9BXTbF5gxAMOe6EG+hkTVCA
+	yIn//XJl4cVetUYVX3w8G3gvb4sBHB7Nx27g2+rJtv4PdQfbJw39Q==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fvy01m5sf-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 07 Aug 2026 13:54:46 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 677DfLef007618;
+	Fri, 7 Aug 2026 13:54:45 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fsvmhquen-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 07 Aug 2026 13:54:45 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 677DsfTX31981826
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 7 Aug 2026 13:54:41 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 3843A2005A;
+	Fri,  7 Aug 2026 13:54:41 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 139362004E;
+	Fri,  7 Aug 2026 13:54:41 +0000 (GMT)
+Received: from funtu2.ibm.com (unknown [9.111.146.84])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Fri,  7 Aug 2026 13:54:41 +0000 (GMT)
+From: Harald Freudenberger <freude@linux.ibm.com>
+To: dengler@linux.ibm.com, fcallies@linux.ibm.com, ifranzki@linux.ibm.com
+Cc: freude@linux.ibm.com, linux-s390@vger.kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        linux-crypto@vger.kernel.org
+Subject: [PATCH v3 1/3] s390/crypto: Fix skcipher_walk return code handling in aes_s390
+Date: Fri,  7 Aug 2026 15:54:38 +0200
+Message-ID: <20260807135440.35888-2-freude@linux.ibm.com>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20260807135440.35888-1-freude@linux.ibm.com>
+References: <20260807135440.35888-1-freude@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <yq5acxvu2ict.fsf@kernel.org>
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: zNyNGsGlaOmXxSsxxnZvmfZZVCD7euIB
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODA3MDEwOCBTYWx0ZWRfXz87HU7IuP0n0
+ /597HEOYkfAPAd50XPyrnWNqNQH9glszIiBNOIbkkgWdzbokHrVgbDdxZCDJ8rNlxn1n+U3eQ7u
+ KGUIYBibyg9aXBwBF5/66KcdMDO+UBo=
+X-Proofpoint-ORIG-GUID: zNyNGsGlaOmXxSsxxnZvmfZZVCD7euIB
+X-Authority-Analysis: v=2.4 cv=afNRWxot c=1 sm=1 tr=0 ts=6a75e3a6 cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8 a=VwQbUJbxAAAA:8
+ a=CBD_y4w3mMu2BuU9sPoA:9
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODA3MDEwOCBTYWx0ZWRfX7YCbF2Ka6vCh
+ 9De4+eX0srHIi8aqVg3QrNAKpJJzd7EGOYSg3bBZVECEEXEfPLWPNYA0PyVRpdrCMSYQc0GorJt
+ jtP9hDwTLK3dlnekwZg9wxCU6hMT6xF3aqFtjmlOa2V5YOYI3hgdU6KZVQwBQ12DHH+L0BsZkUO
+ iJb2VtS7p7OB+NDJUIs/m37chUKDb0IR/B1l+Ur5M42qO6t3XoooP/k43z7jidVNvxFc2cx2MYu
+ WpZ9dlrY3d5dOAzjY8AzxXiSGFoBBha5dHh9d2Ei7VGTyHTdjMSv2k5QcImnloYvZhSRdt05gDd
+ ThHTKfBgTsHvwCnBYiWaVJDJ14ucYM3CUzV9EGEoDIyPrQ1piS/5Mod6VdPI/UUlXspmR+68ZEs
+ EDcBVdmtdbGPcAO1A5dZEjl+X9/UV585jDK3rlBlOZ1p8Wmo1KkxWuQHUuvQze6XtGhwJK8UVKE
+ 8Yn251vkAY1uPMQeOAQ==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-08-07_02,2026-08-06_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ malwarescore=0 spamscore=0 phishscore=0 impostorscore=0 adultscore=0
+ suspectscore=0 bulkscore=0 clxscore=1015 priorityscore=1501
+ lowpriorityscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2608070108
 
-On Fri, Aug 07, 2026 at 06:33:14PM +0530, Aneesh Kumar K.V wrote:
-> Will Deacon <will@kernel.org> writes:
-> 
-> > On Fri, Aug 07, 2026 at 02:56:12PM +0530, Aneesh Kumar K.V (Arm) wrote:
-> >> Realm guests and protected KVM guests may require swiotlb for device DMA
-> >> even when all system RAM is addressable by the DMA zones.
-> >> 
-> >> Do not reduce the SWIOTLB buffer to the kmalloc-bouncing size for these
-> >> guests, as the reduced number of slots can be exhausted during CCA guest
-> >> operation.
-> >> 
-> >> Fixes: 30c5e45ee2c5 ("dma-direct: make dma_direct_map_phys() honor DMA_ATTR_CC_SHARED")
-> >> Signed-off-by: Aneesh Kumar K.V (Arm) <aneesh.kumar@kernel.org>
-> >> ---
-> >>  arch/arm64/mm/init.c | 3 ++-
-> >>  1 file changed, 2 insertions(+), 1 deletion(-)
-> >> 
-> >> diff --git a/arch/arm64/mm/init.c b/arch/arm64/mm/init.c
-> >> index e308a7cabd12..24caaf10e755 100644
-> >> --- a/arch/arm64/mm/init.c
-> >> +++ b/arch/arm64/mm/init.c
-> >> @@ -339,7 +339,8 @@ void __init arch_mm_preinit(void)
-> >>  {
-> >>  	unsigned int flags = SWIOTLB_VERBOSE;
-> >>  
-> >> -	if (max_pfn <= PFN_DOWN(arm64_dma_phys_limit)) {
-> >> +	if (!cc_platform_has(CC_ATTR_GUEST_MEM_ENCRYPT) &&
-> >> +	    max_pfn <= PFN_DOWN(arm64_dma_phys_limit)) {
-> >
-> > Protected guests under pKVM rely on restricted DMA, so won't this just
-> > waste memory for them?
-> >
-> 
-> commit 30c5e45ee2c5 ("dma-direct: make dma_direct_map_phys() honor DMA_ATTR_CC_SHARED"),
-> which this patch fixes, has
-> 
-> --- a/arch/arm64/mm/init.c
-> +++ b/arch/arm64/mm/init.c
-> @@ -339,9 +339,7 @@ void __init arch_mm_preinit(void)
->  {
->         unsigned int flags = SWIOTLB_VERBOSE;
->  
-> -       if (is_realm_world() || is_protected_kvm_guest()) {
-> -               flags |= SWIOTLB_FORCE;
-> -       } else if (max_pfn <= PFN_DOWN(arm64_dma_phys_limit)) {
-> +       if (max_pfn <= PFN_DOWN(arm64_dma_phys_limit)) {
->                 /*
->                  * If no bouncing needed for ZONE_DMA, reduce the swiotlb
->                  * buffer for kmalloc() bouncing to 1MB per 1GB of RAM.
-> 
-> The is_protected_kvm_guest() part was added by the 
-> commit e62decaf98e7 ("arm64/coco: Add pKVM as a CC platform")
-> 
-> @@ -337,7 +339,7 @@ void __init arch_mm_preinit(void)
->  {
->         unsigned int flags = SWIOTLB_VERBOSE;
->  
-> -       if (is_realm_world()) {
-> +       if (is_realm_world() || is_protected_kvm_guest()) {
->                 flags |= SWIOTLB_FORCE;
->         } else if (max_pfn <= PFN_DOWN(arm64_dma_phys_limit)) {
->                 /*
-> @@ -412,6 +414,17 @@ void dump_mem_limit(void)
->         }
->  }
-> 
-> I was under the impression that there is a possibility of using swiotlb
-> instead of restricted-dma-pool with pKVM.
+The return codes from skcipher_walk_virt() were not properly checked
+before entering the processing loops in ecb_aes_crypt() and ctr_aes_crypt().
+If skcipher_walk_virt() fails, the walk structure may be in an undefined
+state, and attempting to process data could lead to incorrect behavior
+or accessing uninitialized memory.
 
-Yes, that patch enables swiotlb as a possibility for protected guests
-but with your patch we avoid shrinking the swiotlb buffer even when
-restricted dma pools are being used and that's a waste of memory.
+Add proper return code checking to ensure correct handling of the walk
+initialization and walk advance and eventually return to the caller
+with that return code.
 
-> If that is not the case, then we could change:
-> 
-> !cc_platform_has(CC_ATTR_GUEST_MEM_ENCRYPT) &&
-> 
-> to
-> 
-> !is_realm_world() &&
+Fixes: 7988fb2c03c8 ("crypto: s390/aes - convert to skcipher API")
+Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
+Cc: stable@vger.kernel.org # 5.5+
+---
+ arch/s390/crypto/aes_s390.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-Perhaps, or you could just pass the swiotlb= option if the defaults don't
-work for you. Can you give more details about the slots exhaustion you're
-seeing under CCA?
+diff --git a/arch/s390/crypto/aes_s390.c b/arch/s390/crypto/aes_s390.c
+index 62edc66d5478..366ce22d3623 100644
+--- a/arch/s390/crypto/aes_s390.c
++++ b/arch/s390/crypto/aes_s390.c
+@@ -129,7 +129,7 @@ static int ecb_aes_crypt(struct skcipher_request *req, unsigned long modifier)
+ 		return fallback_skcipher_crypt(sctx, req, modifier);
+ 
+ 	ret = skcipher_walk_virt(&walk, req, false);
+-	while ((nbytes = walk.nbytes) != 0) {
++	while (!ret && ((nbytes = walk.nbytes) != 0)) {
+ 		/* only use complete blocks */
+ 		n = nbytes & ~(AES_BLOCK_SIZE - 1);
+ 		cpacf_km(sctx->fc | modifier, sctx->key,
+@@ -233,7 +233,7 @@ static int cbc_aes_crypt(struct skcipher_request *req, unsigned long modifier)
+ 		return ret;
+ 	memcpy(param.iv, walk.iv, AES_BLOCK_SIZE);
+ 	memcpy(param.key, sctx->key, sctx->key_len);
+-	while ((nbytes = walk.nbytes) != 0) {
++	while (!ret && ((nbytes = walk.nbytes) != 0)) {
+ 		/* only use complete blocks */
+ 		n = nbytes & ~(AES_BLOCK_SIZE - 1);
+ 		cpacf_kmc(sctx->fc | modifier, &param,
+@@ -359,7 +359,7 @@ static int xts_aes_crypt(struct skcipher_request *req, unsigned long modifier)
+ 	memcpy(xts_param.key + offset, xts_ctx->key, xts_ctx->key_len);
+ 	memcpy(xts_param.init, pcc_param.xts, 16);
+ 
+-	while ((nbytes = walk.nbytes) != 0) {
++	while (!ret && ((nbytes = walk.nbytes) != 0)) {
+ 		/* only use complete blocks */
+ 		n = nbytes & ~(AES_BLOCK_SIZE - 1);
+ 		cpacf_km(xts_ctx->fc | modifier, xts_param.key + offset,
+@@ -487,7 +487,7 @@ static int fullxts_aes_crypt(struct skcipher_request *req,  unsigned long modifi
+ 	memcpy(fxts_param.tweak, req->iv, AES_BLOCK_SIZE);
+ 	fxts_param.nap[0] = 0x01; /* initial alpha power (1, little-endian) */
+ 
+-	while ((nbytes = walk.nbytes) != 0) {
++	while (!ret && ((nbytes = walk.nbytes) != 0)) {
+ 		/* only use complete blocks */
+ 		n = nbytes & ~(AES_BLOCK_SIZE - 1);
+ 		cpacf_km(xts_ctx->fc | modifier, fxts_param.key + offset,
+@@ -577,7 +577,7 @@ static int ctr_aes_crypt(struct skcipher_request *req)
+ 	locked = mutex_trylock(&ctrblk_lock);
+ 
+ 	ret = skcipher_walk_virt(&walk, req, false);
+-	while ((nbytes = walk.nbytes) >= AES_BLOCK_SIZE) {
++	while (!ret && ((nbytes = walk.nbytes) >= AES_BLOCK_SIZE)) {
+ 		n = AES_BLOCK_SIZE;
+ 
+ 		if (nbytes >= 2*AES_BLOCK_SIZE && locked)
+@@ -596,7 +596,7 @@ static int ctr_aes_crypt(struct skcipher_request *req)
+ 	/*
+ 	 * final block may be < AES_BLOCK_SIZE, copy only nbytes
+ 	 */
+-	if (nbytes) {
++	if (!ret && nbytes) {
+ 		memset(buf, 0, AES_BLOCK_SIZE);
+ 		memcpy(buf, walk.src.virt.addr, nbytes);
+ 		cpacf_kmctr(sctx->fc, sctx->key, buf, buf,
+-- 
+2.43.0
 
-Will
