@@ -1,127 +1,105 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ABF033EE1E0
-	for <linux-s390@vger.kernel.org>; Fri,  7 Aug 2026 09:23:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B6BC3DA7D0;
+	Fri,  7 Aug 2026 09:26:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786094629; cv=none; b=OX2gFerfWdi4sAAhWXDg5bJXi75bn5+3cXa6wfc8DYtOr/RKnEwrtpcGQkGT/LL9rkq8HTf6by5djSgnvVoStRZUQtTgdaKW/TmRuXl63Fn6Q46OqZJCPnrUr3o2ZHJTbJ/uyobqcq81bxULrSizzBcnlVsidJejelz5OsRKYxM=
+	t=1786094787; cv=none; b=pb6bJT2Y8faH816BptDKCc/f/ATDgCCtSmybFnKqSmsWJT9QphDQGkumbzI1BWn+NSPEwudVMj1I/1LNkK3x6XXVwkCz41riKoXsdSwv6s5i/1zA+kOoid6/PlDM3M8A5p/umXheMl6pDzxNQLAJiBtQAKi/MzuxRi3xAxKR9X4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786094629; c=relaxed/simple;
-	bh=zQfUGN061pWZSvWFC7ddPvfLVxG2i/WqDzSD/jrgrkI=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=Q+DBmw6dccybjUDwWt9ENY+NGMWG8rUYycSjI8HR8Jj7JGFxywER1KL0U+6tE0/ZDERKZYeweL6zwnd4cnhoePmth5zzzje+PRLZKXDecX9ehH9tncbLk4ZqzBP4esA+nZTcVL3fUsoeQ7Lzzqx5h5dY/cf8MviifXruQBSrE/c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=DxkhNFyw; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1786094787; c=relaxed/simple;
+	bh=yC53ntSAx5TD4rakJuUXTcBjWTcwV9oM0D7eTaR4xPM=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=jxOlJuW0LL6Hvc1j9H5jqXodV+VJv9Fx2Gas6JEbYO4FwpwtS4LrhTFq74ljw5XSVLOuS9sihhpmpJKqVwO9GsNRXjLblentIBIaJM1VxT5UuCoOqm9Wi4NUiljJrS/LI8/SAeFBeEZPlFWWlyd5LUXhLvpuur+gRSbbycOG6Aw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KfRd+7a/; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="DxkhNFyw"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6770HttC4134477
-	for <linux-s390@vger.kernel.org>; Fri, 7 Aug 2026 09:23:48 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=3DR3IlZAG1jJ1cPGcjjC7IAoYvZamr
-	pFEVVP7OpA6zY=; b=DxkhNFywNH4+DcPc4UzSlTn4ZrlOAkhOTm3gSEluLwXLbY
-	c+4GTZ2NllaFnKKGchYEpFESGYoIeJe+qOX03Zx6J0oHBNRwQeGPCRr21j+kavH7
-	naPzkkj8BtZZS3X/iSkx605/UECiJhEfSRA84FOjaN6n7qfseOVcvQGTiil5soIL
-	qGGmmY2GBKRZOfYP/Av4H08WEFqzCcKGP7A9tNRu5zj4st0Ru9t0P1ZWeYPmyY1v
-	6PebTXylPk2NRaG5wk5OcYeMLVd0hYS24i8ZLfZIcAsqON0WxYwCpPEXDB1uYhxH
-	G3Gfr54fhowDA8WwiOrCsOeFjPVb5qapffesvf6Q==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fvy0436pc-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Fri, 07 Aug 2026 09:23:47 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 6779BIho003572
-	for <linux-s390@vger.kernel.org>; Fri, 7 Aug 2026 09:23:46 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fsv4kf453-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Fri, 07 Aug 2026 09:23:46 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6779Ng0x16187734
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 7 Aug 2026 09:23:42 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8C71C20049;
-	Fri,  7 Aug 2026 09:23:42 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6FB9220040;
-	Fri,  7 Aug 2026 09:23:42 +0000 (GMT)
-Received: from tuxmaker.linux.ibm.com (unknown [9.87.85.9])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Fri,  7 Aug 2026 09:23:42 +0000 (GMT)
-From: Sven Schnelle <svens@linux.ibm.com>
-To: Heiko Carstens <hca@linux.ibm.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
-        Vasily Gorbik
- <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        linux-s390@vger.kernel.org
-Subject: Re: [PATCH 2/2] s390/char: Enable CONTEXT_ANALYSIS
-In-Reply-To: <20260806155303.2675932-3-hca@linux.ibm.com>
-References: <20260806155303.2675932-1-hca@linux.ibm.com>
-	<20260806155303.2675932-3-hca@linux.ibm.com>
-Date: Fri, 07 Aug 2026 11:23:42 +0200
-Message-ID: <yt9dcxvus2qp.fsf@linux.ibm.com>
-User-Agent: Gnus/5.13 (Gnus v5.13)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KfRd+7a/"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B15F61F000E9;
+	Fri,  7 Aug 2026 09:26:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1786094786;
+	bh=n1DOBxxHQjvAtdVCr2XmzOoDCY/LkKFWumLIHDVnml4=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References;
+	b=KfRd+7a/nQO5IHNyvsOPwguzYdeKqDRBtEiWacDi8mGZTtLnEJKuLyO6lsWudhrXX
+	 Vjjh9c97Ixvp/GYuP/+8kczArrIotpjs+kee9O4So34wX1//sc1uZ4vU5zKkxj5o8C
+	 ybxndGlgdAlKbBuROyiRVYbKZnwpCrnt+bqJe/XwtNOLHjc6fybJgRFYODdA3/hHsd
+	 1iBuJRXBPFB4CfqFWpvLpZJSf3wPTHCNFxEieHBehqy968HIRk80iepSvtieSEy2DJ
+	 OqfvvdvfLrRXVQ4vx9/D1V+LE6LR6bnyPivnccbVVWDr5bA4t1vmy5GyKPlCdC5712
+	 NlmIj347nR/FQ==
+From: "Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org>
+To: iommu@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	linux-coco@lists.linux.dev
+Cc: Robin Murphy <robin.murphy@arm.com>,
+	Marek Szyprowski <m.szyprowski@samsung.com>,
+	Will Deacon <will@kernel.org>,
+	Marc Zyngier <maz@kernel.org>,
+	Steven Price <steven.price@arm.com>,
+	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Jiri Pirko <jiri@resnulli.us>,
+	Jason Gunthorpe <jgg@ziepe.ca>,
+	Mostafa Saleh <smostafa@google.com>,
+	Petr Tesarik <ptesarik@suse.com>,
+	Alexey Kardashevskiy <aik@amd.com>,
+	Dan Williams <dan.j.williams@intel.com>,
+	Xu Yilun <yilun.xu@linux.intel.com>,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-s390@vger.kernel.org,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Christophe Leroy <chleroy@kernel.org>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	x86@kernel.org,
+	"Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org>
+Subject: [PATCH] arm64: swiotlb: Keep the default size for protected guests
+Date: Fri,  7 Aug 2026 14:56:12 +0530
+Message-ID: <20260807092612.2202005-1-aneesh.kumar@kernel.org>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20260717180442.110954-18-aneesh.kumar@kernel.org>
+References: <20260717180442.110954-18-aneesh.kumar@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODA3MDA2OSBTYWx0ZWRfX5oHxNu49BeTO
- Mw/olEg88dk/4eBqNSa+6Z1fxZghy6j2GkBO19nKILOBwTRGodfqYRrpGEUHhlHIofxxpxTJHc4
- a75o4cA/aqxLoV3fLMovYA/GSjhYhgRXY0VcD5PMPTbVONeBrKhJjm58dJbygaUioTS7t4Vivjy
- RtvqCCGk9Mt/YmPbmprnIwjNdHoXyK0ktY3i5BRmgFZ/spP7KsAxBJFtNvJZ0dfeKDU3oBgkO84
- RT2HTqGSQf0kZOPXbYI6he17Teo/oICp7Os69eyin6PfFz1VOdGmJWJp8IdPubEgcXIbs6/Gh1U
- AjQq6ZNZ4zrrDO+q6mxpDw3gPcc4ab9Ei+N+tMq3sgNDua23JdADyTTXqzncG0is5snuTRZMoa4
- 1dcwNu5km/3kh8XsdpLmMNIsbh12xpeXckhAJmRr2Z/uRoQWF2+K7lAE3X+DDzPjpKH4WN49lfJ
- yyiYBUUXpFdRLfqb48g==
-X-Proofpoint-ORIG-GUID: -GsDPEe3Vh235twhFx2cB8F-8hbjbR55
-X-Proofpoint-GUID: -GsDPEe3Vh235twhFx2cB8F-8hbjbR55
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODA3MDA2OSBTYWx0ZWRfX1XwQP3/Bteu2
- lhamTtSYRELxL/rgTGJcgO6MrmminN98QqJH8bn6JyHm1JfzlNSQLz0HeJ6veOUS37P8YKkoDIr
- wCnmoSgD12f3rQxPBmlymdF/YDKeAIw=
-X-Authority-Analysis: v=2.4 cv=WLpPmHsR c=1 sm=1 tr=0 ts=6a75a423 cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8 a=HgAxEO-uAuhvMbp9dKAA:9
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-08-07_01,2026-08-06_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0 lowpriorityscore=0 adultscore=0 malwarescore=0 clxscore=1015
- impostorscore=0 priorityscore=1501 phishscore=0 suspectscore=0 spamscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608070069
+Content-Transfer-Encoding: 8bit
 
-Heiko Carstens <hca@linux.ibm.com> writes:
+Realm guests and protected KVM guests may require swiotlb for device DMA
+even when all system RAM is addressable by the DMA zones.
 
-> All character drivers pass clang's compile time context analysis.
-> Therefore enable CONTEXT_ANALYSIS.
->
-> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-> ---
->  drivers/s390/char/Makefile | 2 ++
->  1 file changed, 2 insertions(+)
->
-> diff --git a/drivers/s390/char/Makefile b/drivers/s390/char/Makefile
-> index 126a87c3c6f8..0ad960d000a2 100644
-> --- a/drivers/s390/char/Makefile
-> +++ b/drivers/s390/char/Makefile
-> @@ -3,6 +3,8 @@
->  # S/390 character devices
->  #
->  
-> +CONTEXT_ANALYSIS := y
-> +
->  ifdef CONFIG_FUNCTION_TRACER
->  # Do not trace early setup code
->  CFLAGS_REMOVE_sclp_early_core.o	= $(CC_FLAGS_FTRACE)
+Do not reduce the SWIOTLB buffer to the kmalloc-bouncing size for these
+guests, as the reduced number of slots can be exhausted during CCA guest
+operation.
 
-Reviewed-by: Sven Schnelle <svens@linux.ibm.com>
+Fixes: 30c5e45ee2c5 ("dma-direct: make dma_direct_map_phys() honor DMA_ATTR_CC_SHARED")
+Signed-off-by: Aneesh Kumar K.V (Arm) <aneesh.kumar@kernel.org>
+---
+ arch/arm64/mm/init.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/arch/arm64/mm/init.c b/arch/arm64/mm/init.c
+index e308a7cabd12..24caaf10e755 100644
+--- a/arch/arm64/mm/init.c
++++ b/arch/arm64/mm/init.c
+@@ -339,7 +339,8 @@ void __init arch_mm_preinit(void)
+ {
+ 	unsigned int flags = SWIOTLB_VERBOSE;
+ 
+-	if (max_pfn <= PFN_DOWN(arm64_dma_phys_limit)) {
++	if (!cc_platform_has(CC_ATTR_GUEST_MEM_ENCRYPT) &&
++	    max_pfn <= PFN_DOWN(arm64_dma_phys_limit)) {
+ 		/*
+ 		 * If no bouncing needed for ZONE_DMA, reduce the swiotlb
+ 		 * buffer for kmalloc() bouncing to 1MB per 1GB of RAM.
+-- 
+2.43.0
+
