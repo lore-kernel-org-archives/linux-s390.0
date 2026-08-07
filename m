@@ -1,197 +1,173 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B250647124B;
-	Fri,  7 Aug 2026 15:54:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 473BD4746B1;
+	Fri,  7 Aug 2026 15:54:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786118092; cv=none; b=uPJLP02sk+Gh+xosOZ2MKUMGQCTnRuFYsNZMd/EOUsAq4XvixPROWa3LYFUiD65/Axi0VV7e6EyWJrQ3x05/rYjHsOlEYoQxdghG0lNLmssgjz9cza/mL0gX9ebRjM9v727vnr642+Bd8hBkudNhuO2xZTm2XrCIu2/V2BzDqd0=
+	t=1786118095; cv=none; b=rHCdto8CdfFMqaWYOmwwUH3gvJw1SLh5UuoX8uXd5NGP2WgkfXUvw+ojt3uGHwzahrFqAWOfc7qFDZv1ICGnEoijr4VF4mVsHTLxSUO0tG0u9CMShPbQctNmEaXrAC7WOSPtN4jSqPdz0CA6WAw3R2ru7QSYAhG8X/CuCyZecMM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786118092; c=relaxed/simple;
-	bh=cNpFkM+ZcxbrYyXoZiVbDg/M+vrbqp/SW9+T2kNjvg8=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=EA1tPNQbJ5Ou4en8qQMiBvD8VfFD63Aj8gfQEPBqd64x5ypLGb1ypFKKWORhHLG5qKyKLEvvno6H19fFA5IjYS/xs8qoxJLrVM/pEOf1F/jXhDi/ktjqlKHzCkf+NZLJUtWJjaW+k4vcx5bTF7GZU0rE7GNfPy11yMLhkVOHg8I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RFetetgo; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1786118095; c=relaxed/simple;
+	bh=klIMPnyANgSy/ng+RmKkjZQ0cx3W8zQnkFuBKihU8PQ=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=UbAMf6KYJGrYGjWYUICBeutROIqWB73qM56jxTEbHfmiTi3cm8T9OxcN5IbgsDEtuG5Lr8aFrK1kyBpDRgzKhMN9ioyOzPhzLR0k4xOdPO4prM/VHLp0gQtfgYcjnNo6Mm5IaI0YdAWj6+2nqm1fX6qYy64gktcSSESlSPXyLq4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=aovgNPAE; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RFetetgo"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92E8D1F000E9;
-	Fri,  7 Aug 2026 15:54:49 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786118090;
-	bh=xDlurFDxUaKm0+DeKwG11I5Asqll1HaQOs3bWTM7T2A=;
-	h=From:Subject:Date:To:Cc;
-	b=RFetetgo7jgxk2hRoVBNP2thvqE1EPEabTG4g4lH092YzQbD/Odq965rNejDzleVE
-	 J3ckOBjT8nkXZ3wNy9Nx4RPTK6m+askAC7z4QSWoQpfG4MxebffJpKPmv69UDX+6OL
-	 iEVDLsrFQqAMjC3zb8GatM7NAYAeBLlhnRtZ8Mcce5gdM7SrXJqHkgyYk7Or7MAkVf
-	 1v73+4+H/NMIykEPIocARawL6LBt2xLJEDW2wFY+w7Ljr85NJJJx0OjEEz4tm8uqs7
-	 VRYlNv+S0gcff4TM8qKclQrd/ETGd8YPtZJh6hMl1H2rsh9+vs6QAXsneltbsqhXC2
-	 1o0k2EvBe+C8g==
-From: Thierry Reding <thierry.reding@kernel.org>
-Subject: [PATCH v4 00/10] dma-buf: heaps: Add support for Tegra VPR
-Date: Fri, 07 Aug 2026 17:54:20 +0200
-Message-Id: <20260807-tegra-vpr-v4-0-5510d16af89e@nvidia.com>
+	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="aovgNPAE"
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 5189D143D;
+	Fri,  7 Aug 2026 08:54:48 -0700 (PDT)
+Received: from [10.2.212.23] (e121345-lin.cambridge.arm.com [10.2.212.23])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 851543F86F;
+	Fri,  7 Aug 2026 08:54:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=arm.com; s=foss;
+	t=1786118092; bh=klIMPnyANgSy/ng+RmKkjZQ0cx3W8zQnkFuBKihU8PQ=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=aovgNPAEtin1OO4HfiSzNaKg/BVf6JUy74t18iDUy9r/nmoJtLq7DTDOD7C2UX7fE
+	 aRAZKiTxIeaOZ/Le+sX7trawhvKYh0vOKjTrWwlv097egb3/nDxp/jBRVs9nakZwXc
+	 cMRXRSiXxnHci10no0Aj/Kwn3nz4J8m6mIQ8wBJw=
+Message-ID: <aefab683-598c-4cca-b5a0-c9081ccf9e1c@arm.com>
+Date: Fri, 7 Aug 2026 16:54:35 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v8 12/23] dma: swiotlb: pass mapping attributes by
+ reference
+To: Jason Gunthorpe <jgg@nvidia.com>
+Cc: Mostafa Saleh <smostafa@google.com>,
+ "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>, iommu@lists.linux.dev,
+ linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+ linux-coco@lists.linux.dev, Marek Szyprowski <m.szyprowski@samsung.com>,
+ Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
+ Steven Price <steven.price@arm.com>,
+ Suzuki K Poulose <Suzuki.Poulose@arm.com>,
+ Catalin Marinas <catalin.marinas@arm.com>, Jiri Pirko <jiri@resnulli.us>,
+ Petr Tesarik <ptesarik@suse.com>, Alexey Kardashevskiy <aik@amd.com>,
+ Dan Williams <dan.j.williams@intel.com>, Xu Yilun
+ <yilun.xu@linux.intel.com>, linuxppc-dev@lists.ozlabs.org,
+ linux-s390@vger.kernel.org, Madhavan Srinivasan <maddy@linux.ibm.com>,
+ Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
+ "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org,
+ Michael Kelley <mhklinux@outlook.com>
+References: <20260717180442.110954-1-aneesh.kumar@kernel.org>
+ <20260717180442.110954-13-aneesh.kumar@kernel.org>
+ <ami_mpd_1pF4Tmdu@google.com> <yq5a5x1ygo7z.fsf@kernel.org>
+ <amnRB98ZZIysHuM3@google.com> <yq5acxw6dl1d.fsf@kernel.org>
+ <20260804142032.GC27883@nvidia.com> <anL9-OrDGqYQAWNV@google.com>
+ <20260805123023.GO27883@nvidia.com>
+ <0ce2249d-3a64-4889-b455-0e8fddcc7282@arm.com>
+ <20260807115500.GA158689@nvidia.com>
+From: Robin Murphy <robin.murphy@arm.com>
+Content-Language: en-GB
+In-Reply-To: <20260807115500.GA158689@nvidia.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAAAAAAAC/2WPwWrDMBBEfyXoXImVLNtyTvmP0oMtb+RtEzmsX
- NEQ/O+1YkoLPQ7Me8M8REImTOJ4eAjGTInmuAX7chB+6mNASeOWhQHTQA2tXDBwL/ONpR/t4E0
- NnbdebP0b45m+nq7Xtz2nz+Ed/VIEpTFRWma+P8eyLr3i3QxgdG2bCpSFynTOSi2XiZD5rhhHi
- uEUrj1dlJ+voqiz+YEb0MboRgN0qnJN7Zz7D38gR7yomcNOV790C/rPpVxJkKODczu4Vg+DPcV
- MI/X78Lqu36G64F8wAQAA
-X-Change-ID: 20260507-tegra-vpr-cd4bc2509c4c
-To: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>, 
- Thierry Reding <thierry.reding@kernel.org>, 
- Jonathan Hunter <jonathanh@nvidia.com>, David Airlie <airlied@gmail.com>, 
- Simona Vetter <simona@ffwll.ch>, 
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
- Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
- Sowjanya Komatineni <skomatineni@nvidia.com>, 
- Luca Ceresoli <luca.ceresoli@bootlin.com>, 
- Mikko Perttunen <mperttunen@nvidia.com>, Yury Norov <yury.norov@gmail.com>, 
- Rasmus Villemoes <linux@rasmusvillemoes.dk>, 
- Russell King <linux@armlinux.org.uk>, 
- Alexander Gordeev <agordeev@linux.ibm.com>, 
- Gerald Schaefer <gerald.schaefer@linux.ibm.com>, 
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
- Christian Borntraeger <borntraeger@linux.ibm.com>, 
- Sven Schnelle <svens@linux.ibm.com>, 
- Andrew Morton <akpm@linux-foundation.org>, 
- David Hildenbrand <david@kernel.org>, Lorenzo Stoakes <ljs@kernel.org>, 
- "Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>, 
- Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>, 
- Michal Hocko <mhocko@suse.com>, Marek Szyprowski <m.szyprowski@samsung.com>, 
- Robin Murphy <robin.murphy@arm.com>, Sumit Semwal <sumit.semwal@linaro.org>, 
- Benjamin Gaignard <benjamin.gaignard@collabora.com>, 
- Brian Starkey <Brian.Starkey@arm.com>, John Stultz <jstultz@google.com>, 
- "T.J. Mercier" <tjmercier@google.com>, 
- =?utf-8?q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>, 
- Steven Rostedt <rostedt@goodmis.org>, 
- Masami Hiramatsu <mhiramat@kernel.org>, 
- Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, 
- Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, 
- Chun Ng <chunn@nvidia.com>
-Cc: Thierry Reding <thierry.reding@gmail.com>, devicetree@vger.kernel.org, 
- linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, 
- dri-devel@lists.freedesktop.org, linux-media@vger.kernel.org, 
- linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, 
- linux-mm@kvack.org, iommu@lists.linux.dev, linaro-mm-sig@lists.linaro.org, 
- linux-trace-kernel@vger.kernel.org, Thierry Reding <treding@nvidia.com>
-X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=4495; i=treding@nvidia.com;
- h=from:subject:message-id; bh=cNpFkM+ZcxbrYyXoZiVbDg/M+vrbqp/SW9+T2kNjvg8=;
- b=owEBbQKS/ZANAwAKAd0jrNd/PrOhAcsmYgBqdf/COeJXZyRFVSTKd7+3r7oFtNF7xrGETRn4j
- DEXKT18h/KJAjMEAAEKAB0WIQSI6sMIAUnM98CNyJ/dI6zXfz6zoQUCanX/wgAKCRDdI6zXfz6z
- oX86EACf3u52ZHWbNE0gzPHk1VCKvHipIKLbzawEbY/eyFL+F3hj0f1oRk5u22tUVgR+XqqdgdU
- gwYJjdIxng+xk3RWveQ2oBaMIzwMJwiykwHMNXFjTMWO7RYuWiz8hLNjGRNX/h6RZRGUa7rSqpc
- ODAcuSqcvfgjqo//n+HcYlrTTme0RgMivbMPVwq/G7KLmDX/7m9mryCILkoR90jXSg0Ha1q8HLM
- DxVa1dmvxpWECDYJU/uizu1XpnO9zKnxwMgHpyNwRTaajqkRB0AOGV1CbZ9mYSFbu1bp5IKwk7e
- SwqEJxq9caikk5y6VUtj3udpbhhJkLqmgyQ1iRROgJ4Jdb0YGfmaMfcI7gpMADo9riMISSZ7BPb
- KBLw3THjD8cjbJl9FeEgiiSWvZce1TCAZEfduXqjJNI9lLl1gpIz2Zz7JyN9gcDPYyjetrj3bFP
- gOOJKTnB7mY4la1dVjl1x5RLq36hdfJhFvabG6qYclCsmQFgU17Oh/nbgiQtV/5S1wQgX5h4KJa
- TiAbSxXHoiN+eL+PJL+Rx5bz5TEcblTUMPK+ub7afb3I9XHkM65Yaj/dE8ZVfmeviLNuhQktuAf
- WXcrW3LRRxZH1TZWTSGjJwaUEcgrGaBx3zUoiECwB7n/9GpOfYfGp4P0FwZ4bqQ9EiWbyjmX1dC
- fksdo8Ciavc0KLw==
-X-Developer-Key: i=treding@nvidia.com; a=openpgp;
- fpr=88EAC3080149CCF7C08DC89FDD23ACD77F3EB3A1
 
-This series adds support for the video protection region (VPR) used on
-Tegra SoC devices. It's a special region of memory that is protected
-from accesses by the CPU and used to store DRM protected content (both
-decrypted stream data as well as decoded video frames).
+On 07/08/2026 12:55 pm, Jason Gunthorpe wrote:
+> On Fri, Aug 07, 2026 at 12:03:14PM +0100, Robin Murphy wrote:
+>>> Each struct device will have a flag that shows if it is in T=1 or T=0
+>>> state. The flag can only change while a driver is not bound, and
+>>> changing the flag will update the DMA API configuration.
+>>
+>> I see we no longer seem to have the concern of devices in TDISP RUN state
+>> being able to send T=0 transactions other than MSI writes,
+> 
+> Right it was too complex and nobody needed it, so Linux will not
+> support T=0 through the DMA API on an T=1 device, and devices should
+> be designed to only send T=1 to the greatest degree possible.
+> 
+> If someone foolishly makes a device that works otherwise they will
+> have to take the difficult SW tasks of making it work.
+> 
+>> where GICv3 means the host is already going to have to be in on the
+>> game to some degree there anyway.
+> 
+> As I understand it:
+> 
+> We will need to teach GIC to understand if/when the device uses a T=0
+> translation for MSI and then use a shared physical address for the ITS
+> IOVA instead of getting an IOVA translation from the iommu. The
+> hypervisor will setup the S2 for the T=0 SMMU translation to be
+> identity with all shared memory and the ITS page will be shared
+> memory.
 
-Patches 1 through 3 add DT binding documentation for the VPR and add the
-VPR to the list of memory-region items for display, host1x and NVDEC.
+IIRC, for MSI or unlocked MSI-X it should look and work pretty much 
+exactly like regular VFIO, as everything can be mediated by the VMM and 
+host kernel.
 
-Patch 4 adds bitmap_allocate(), which is like bitmap_allocate_region()
-but works on sizes that are not a power of two.
+> Presumably in future we will have HW to handle a T=1 ITS page access
+> and some way to negotiate with devices if they should use a T=1 path
+> for MSI or not.
 
-Patch 5 introduces new APIs needed by the Tegra VPR implementation that
-allow CMA areas to be dynamically created at runtime rather than using
-the fixed, system-wide list. This is used in this driver specifically
-because it can use an arbitrary number of these areas (though they are
-currently limited to 4).
+Locked MSI-X would be a pain right now as we cannot intercept the Realm 
+programming the MSI-X cap with a doorbell address and EventID value 
+decided by the ITS driver in the Realm guest, so we'd somehow have to 
+sniff those values out of the VMM's vITS emulation then try to configure 
+an equivalent NS LPI to match, or have a hook in the ITS driver that 
+knows when it's in a Realm and do some RSI handshake to proxy-allocate 
+NS MSI vectors on the host and pass the real values back into the Realm.
 
-Patch 6 adds some infrastructure for DMA heap implementations to provide
-information through debugfs.
+I'm still hoping we (both CCA and possibly Linux in general) can get 
+away with just refusing to support Locked MSI-X without GICv5, as once 
+we have proper Realm MSIs with direct injection then all the problems go 
+away (or at least become much smaller RMM problems that remain invisible 
+to the host - the one "big" problem being that the RMM has to 
+begrudgingly implement an entire GIC driver since it now has its own 
+whole GIC to look after).
 
-The Tegra VPR implementation is added in patch 7. See its commit message
-for more details about the specifics of this implementation.
+> There won't be a vSMMU attached to the T=0 instance at all, it is just
+> wired to be bypass.
 
-Finally, patches 8-10 add the VPR placeholder node on Tegra234 and
-Tegra264 and hook it up to the host1x node so that it can make use of
-this region.
+If that's all anyone will ever want then it does allow some degree of 
+hackery like mirroring the whole of Realm S2 in an equivalent NS IOMMUFD 
+domain, then forcing IOMMU_DOMAIN_IDENTITY for unaccepted devices within 
+the guest. However I was under the impression that folks want to make 
+meaningful use of devices while still in their untrusted pre-acceptance 
+state (but maybe still switch them later), so it seems almost inevitable 
+that eventually someone says "actually, we would like S1 vSMMU for 
+untrusted scatter-gather as well..."
 
-Changes in v4:
-- Link to v3: https://patch.msgid.link/20260701-tegra-vpr-v3-0-d80f7b871bb4@nvidia.com
-- fully remove from linear map while chunks are active
-- address checkpatch.pl and Sashiko comments
-- improve error handling
-- remove freezer support
+>> support in firmware bindings nor the IOMMU API itself to be able to describe
+>> a single device being associated with both the RMM's vSMMU for the T=1
+>> (Realm) VA space, and the NS VMM's vSMMU for the T=0 VA space, even
+>> if we
+> 
+> Right!
+> 
+>> did only have to care about using strictly one or the other at any given
+>> time based on device state. Having distinct struct devices is indeed clunky,
+>> but does at least reduce the problem to a currently-manageable one of the
+>> client driver having to wrangle them as a pair.
+> 
+> So hard! A meaningful goal here is to have existing drivers largely
+> work unchanged in a CC world, so the device starts doing T=1 for
+> almost everything and the existing driver just works.
 
-Changes in v3:
-- Link to v2: https://patch.msgid.link/20260122161009.3865888-1-thierry.reding@kernel.org
-- introduce set_memory_device() and set_memory_normal()
-- rename VPR nodes to "protected"
-- add Tegra264 placeholder nodes
+Agreed, and I think with this series we should be pretty close now, at 
+least for coherent devices with 64-bit DMA masks. And from the thread 
+over at [1], it sounds like Hyper-V's VMbus is ready to go as 
+potentially our first user independent of any other PCI/TSM dependencies.
 
-Changes in v2:
-- Link to v1: https://patch.msgid.link/20250902154630.4032984-1-thierry.reding@gmail.com
-- Tegra VPR implementation is now more optimized to reduce the number of
-  (very slow) resize operations, and allows cross-chunk allocations
-- dynamic CMA areas are now trackd separately from static ones, but the
-  global number of CMA pages accounts for all areas
+Cheers,
+Robin.
 
-Thierry
+[1] https://lore.kernel.org/all/20260803033520.12930-1-tiala@microsoft.com/
 
-Signed-off-by: Thierry Reding <treding@nvidia.com>
----
-Thierry Reding (10):
-      dt-bindings: reserved-memory: Document Tegra VPR
-      dt-bindings: display: tegra: Document memory regions
-      dt-bindings: gpu: host1x: Document memory-regions for NVDEC
-      bitmap: Add bitmap_allocate() function
-      mm/cma: Allow dynamically creating CMA areas
-      dma-buf: heaps: Add debugfs support
-      dma-buf: heaps: Add support for Tegra VPR
-      arm64: tegra: Add VPR placeholder node on Tegra234
-      arm64: tegra: Hook up VPR to host1x
-      arm64: tegra: Add VPR placeholder node on Tegra264
-
- .../display/tegra/nvidia,tegra124-vic.yaml         |    8 +
- .../bindings/display/tegra/nvidia,tegra186-dc.yaml |   10 +
- .../bindings/display/tegra/nvidia,tegra20-dc.yaml  |   10 +-
- .../display/tegra/nvidia,tegra20-host1x.yaml       |    7 +
- .../bindings/gpu/host1x/nvidia,tegra234-nvdec.yaml |    8 +
- .../nvidia,tegra-video-protection-region.yaml      |   75 ++
- arch/arm/mm/dma-mapping.c                          |    2 +-
- arch/arm64/boot/dts/nvidia/tegra234.dtsi           |   45 +
- arch/arm64/boot/dts/nvidia/tegra264.dtsi           |   33 +
- arch/s390/mm/init.c                                |    2 +-
- drivers/dma-buf/dma-heap.c                         |   56 +
- drivers/dma-buf/heaps/Kconfig                      |   12 +
- drivers/dma-buf/heaps/Makefile                     |    1 +
- drivers/dma-buf/heaps/tegra-vpr.c                  | 1368 ++++++++++++++++++++
- include/linux/bitmap.h                             |   25 +-
- include/linux/cma.h                                |    8 +-
- include/linux/dma-heap.h                           |    2 +
- include/trace/events/tegra_vpr.h                   |   57 +
- kernel/dma/contiguous.c                            |    2 +-
- mm/cma.c                                           |  221 +++-
- mm/cma.h                                           |    5 +-
- mm/cma_debug.c                                     |    6 +-
- mm/cma_sysfs.c                                     |    6 +-
- mm/mm_init.c                                       |    4 +-
- 24 files changed, 1912 insertions(+), 61 deletions(-)
----
-base-commit: a6cebf4799ccfd3ea08e45abe5360414fd3822e1
-change-id: 20260507-tegra-vpr-cd4bc2509c4c
-
-Best regards,
---  
-Thierry Reding <treding@nvidia.com>
+> 
+>> (And FWIW when we do get there, I'd be inclined to make the default SWIOTLB
+>> the "private" one, so all the sharing/decryption stuff can be neatly
+>> partitioned off into the CoCo etc. special cases...)
+> 
+> Yeah
+>   
+> Jason
 
