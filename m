@@ -1,188 +1,138 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qv1-f41.google.com (mail-qv1-f41.google.com [209.85.219.41])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F61B42D758;
-	Fri,  7 Aug 2026 16:19:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 03FE137BE7F
+	for <linux-s390@vger.kernel.org>; Fri,  7 Aug 2026 16:47:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786119569; cv=none; b=HSS9tlZx7u4wlX4WCdj0ILG34wPti9GngmGXdFw7NcoNFpt0Vv0E/sz55XWVDg5TeNullPaxMJY9+8NcEgKvYuCe0RDb29Agf2OFByAw2yJ2GU49sQ/hKxPDDTvJAYH/zRSlX84yirZrKCksln6BDgGu+scE4ymS/G+qyUOG9Xs=
+	t=1786121258; cv=none; b=AYjhjAF8PCCqMO296n3suyNhCvoEdaHsd3ayTAhaayXSVlURTXwmxJrH7WDLyqZFCnA9feS+EYEhg4VqJuYgISLX4N/LUYe16NExNT9Z0ONuoroturusSUjKJBHyTdx3U8et/wT380HMMJBWjW6qgKKQUEMRsKpwTSz6dgL4/VQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786119569; c=relaxed/simple;
-	bh=VUT26ZhVY0jT70fM+VL2ePjS3Ktoa88/SqmBMjdido8=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=Uqb4uvTRSuMxK9F3ktKqqEfssMTOg+fZinP8oqJZ0aVoyGuGyzRAV/n0X4MxzDpxD4RwWodYEK6dT3ejVOFLdZYD4sR8Ze1dbfkPMFSLiS1wV/nFZlYwMjGctXHEED0hAV3NIFR8zVYmZq9lZADxEBSqjX6srVNVPWup9RGWsZ4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QR+s6NTa; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1786121258; c=relaxed/simple;
+	bh=7bs5G7VXSiFLS7sfQ/bpcg7JaFFI7guoI5oTlg+tHew=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=BBky4JiKTteR4yAc31271iZm1V+1BsY+NpeplskapeNutfSlupEPo3RFthgMi6hyIJ3pp2DpBlObxxuRJdGLXppJ2gBveuY6R9F6weg5dbMc556OyKN0AGx4kN1z7cZzeAiKg+uTL/TisKodP0YAsBl/d4ORSMesMLp1XpIvrYw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca; spf=pass smtp.mailfrom=ziepe.ca; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=DFI8JbOR; arc=none smtp.client-ip=209.85.219.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QR+s6NTa"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0EBE1F000E9;
-	Fri,  7 Aug 2026 16:19:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786119566;
-	bh=v1AheZj13W95DsaCkP6WXDk3r5NDpTnC+pUtKXy5oj4=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=QR+s6NTaVRR5a9es5VyMuBqcaf5NvjeofOCM7EQJ0FSuWQyB33w1bH4uXpW333V/+
-	 Qo3+XbediqmD0xzTEdhw16WmjIHAConT4VbzjBtiQCihODLl91FIqucmbRtv2arCm2
-	 YV27ZN7svNrCb23AyJgZaBr4yUKeMSKTjjolJW0nqG3xcGa9k0Vj+KWsur4HxFJDqy
-	 0mOzkhGUJBJS5aFIZNulcTpoZxuaMFwV+ZaGjgrifyhXJxscThm77r8kroQP4F1iQt
-	 W2+KeHSA3hPldGy+sAOAQLAgIe27va8ETjfzbsRp8/BWMRlYkTUO9KqLaJzljxzW1e
-	 Lro01H5mXqT8w==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 06/10] dma-buf: heaps: Add debugfs support
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Thierry Reding" <thierry.reding@kernel.org>
-Cc: dri-devel@lists.freedesktop.org, devicetree@vger.kernel.org, conor+dt@kernel.org, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, "Vasily
- Gorbik" <gor@linux.ibm.com>, media-ci@linuxtv.org, robh@kernel.org, "Heiko
- Carstens" <hca@linux.ibm.com>
-In-Reply-To: <20260807-tegra-vpr-v4-6-5510d16af89e@nvidia.com>
-References: <20260807-tegra-vpr-v4-0-5510d16af89e@nvidia.com>
- <20260807-tegra-vpr-v4-6-5510d16af89e@nvidia.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 07 Aug 2026 16:19:24 +0000
-Message-Id: <20260807161925.B0EBE1F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="DFI8JbOR"
+Received: by mail-qv1-f41.google.com with SMTP id 6a1803df08f44-8eeadbc5e21so24109756d6.3
+        for <linux-s390@vger.kernel.org>; Fri, 07 Aug 2026 09:47:36 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ziepe.ca; s=google; t=1786121256; x=1786726056; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=+gWaXZ9+2O+1F3TFyj+8MDOiIFSD+n/ei0pL8L1uFmE=;
+        b=DFI8JbORhspWXRivTxh4KgURgbQAlSfXqwfwkqBL+KfaUOsoik34bi7XTMCILqTCYq
+         7FEBn0/j4OWvaKia9hZ1XUFr7BrVOsyoVB15Yowtb3OTJj4Mt7E9+kBv90XmIXYulThp
+         g2sC1PEcKqojdIvNXUx2Gk6C9kl1csph2AMHj0rT8NHFEefqhTX+GI6S6hXVvycErETt
+         oYegv/UE+lJz60MtS9NFAiaKotZxI3og1sleNdpyGK00dNLVCSfl/WJemyG/ov9B4m9G
+         p4r4iEHSSYspWC1hCqDXP4Vh+n/NNB0GJK+pcPhLHIZY4DW+i7bJZ1C7EHoNTOSvmNu+
+         FWng==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1786121256; x=1786726056;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=+gWaXZ9+2O+1F3TFyj+8MDOiIFSD+n/ei0pL8L1uFmE=;
+        b=OzPPPe2oRKxFsx1Nm9+HfTrhL0LGag6/kJo6mWhppktr9xFXQ3er+e//kJuidjwucS
+         By4mkHd9GNEM4BgBJU6ai+yEGiiiN6LfMWyboMgXCRsZUmQqZlbbaX7bBljSzHElcPXD
+         rc4ujikepXgzh7+sThVUmN7eqKx+iBBaEBt+wtwovXcPJPr22L3AkNgKNLEaVbPGyrPs
+         kAgwb60EGQctYqxaztZmdjs4cu9yr/GSBNGDv3UUlR+TToK6+3sFUbVAZF/WMXNYurl1
+         1JOrmxAWUoF7qgUQ46d0BwPR4cR3NmGS/H5VXLx9LhEo5tLNzm17/ItaCy85+ysYxoVe
+         oShQ==
+X-Forwarded-Encrypted: i=1; AHgh+Rov2ONk7KG25KwGT0pGMQFRA8CV7i6/lMlq3UMf6Aha0tDk0CZ9hJXsAe7PTfd62W2gpCIn6n7vZCyU@vger.kernel.org
+X-Gm-Message-State: AOJu0YxvoksksLN0hrlAb+6QU+WWLRC1P7NBqGMMuf9HoAdKQyMZEHiu
+	4sqSHcEEr+ukKWtAf/nxK1ZT5FWIXgbdB3QqZHyTrtR6+VEl2WRysEU7dDPOBSLtdCM=
+X-Gm-Gg: AR+sD13XlXJP69fFJzvcZK66jBngkVk/INq5bcS057y/PndPz/UfVtBcwSORuRpuzqM
+	LgOk1zvSK4GxYYdgCeSwuCWz8a5YI2hxBNmIAr88JQO+hELl2/ElJ3WhWaWotO6qb0NsiIvqX22
+	GrzaS42P8SSGsK8KDXrJ+p50qrqJcBr78Y8Srnx8/V7w2Ruk9xY8JKGBq2ynGbgskK/fXW0PfNp
+	PSMZdV4oCJ4CmdHQU+gTnaFl4p3zFa291DLj81vawB2s7E+3bXVTPmFSTt/9f4DznWKROsj/Mp0
+	GF1AifzWM4GSt9imQDy+YgT3xC6MIShdbCQm0gFlRCW8js9PGU7eHn25m6ogv0Dw3Qs+GUI3mp5
+	i/BmeXqMI0ugST6OVN37t0GjgbO6Lgq8fB84kaBEsUmdmcZ/uJ9y2pZurpKGenzHhwv9jhIJNZ8
+	djrALNknWGIoT7JcpdOHQnTCGsnm51sfE52f1kq/PXWju/DkQp
+X-Received: by 2002:a05:620a:2849:b0:930:f2c8:d9ea with SMTP id af79cd13be357-93671f33f9fmr432093385a.41.1786121255653;
+        Fri, 07 Aug 2026 09:47:35 -0700 (PDT)
+Received: from ziepe.ca ([142.166.156.215])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-9366e03ed23sm187954085a.7.2026.08.07.09.47.34
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 07 Aug 2026 09:47:35 -0700 (PDT)
+Received: from jgg by wakko with local (Exim 4.97)
+	(envelope-from <jgg@ziepe.ca>)
+	id 1wsNjK-000000014w0-1mQB;
+	Fri, 07 Aug 2026 13:47:34 -0300
+Date: Fri, 7 Aug 2026 13:47:34 -0300
+From: Jason Gunthorpe <jgg@ziepe.ca>
+To: Mostafa Saleh <smostafa@google.com>
+Cc: Will Deacon <will@kernel.org>,
+	"Aneesh Kumar K.V" <aneesh.kumar@kernel.org>, iommu@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	linux-coco@lists.linux.dev, Robin Murphy <robin.murphy@arm.com>,
+	Marek Szyprowski <m.szyprowski@samsung.com>,
+	Marc Zyngier <maz@kernel.org>, Steven Price <steven.price@arm.com>,
+	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Jiri Pirko <jiri@resnulli.us>, Petr Tesarik <ptesarik@suse.com>,
+	Alexey Kardashevskiy <aik@amd.com>,
+	Dan Williams <dan.j.williams@intel.com>,
+	Xu Yilun <yilun.xu@linux.intel.com>, linuxppc-dev@lists.ozlabs.org,
+	linux-s390@vger.kernel.org,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Christophe Leroy <chleroy@kernel.org>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org
+Subject: Re: [PATCH] arm64: swiotlb: Keep the default size for protected
+ guests
+Message-ID: <20260807164734.GE200537@ziepe.ca>
+References: <20260717180442.110954-18-aneesh.kumar@kernel.org>
+ <20260807092612.2202005-1-aneesh.kumar@kernel.org>
+ <anXIZSh9lq99VG9X@willie-the-truck>
+ <yq5acxvu2ict.fsf@kernel.org>
+ <anXbJ2O4DWgPxCeg@willie-the-truck>
+ <20260807135810.GA200537@ziepe.ca>
+ <anX7F7dnKOtAOIIe@google.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <anX7F7dnKOtAOIIe@google.com>
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
-s) to consider:
+On Fri, Aug 07, 2026 at 03:34:47PM +0000, Mostafa Saleh wrote:
+> On Fri, Aug 07, 2026 at 10:58:10AM -0300, Jason Gunthorpe wrote:
+> > On Fri, Aug 07, 2026 at 02:18:31PM +0100, Will Deacon wrote:
+> > 
+> > > > I was under the impression that there is a possibility of using swiotlb
+> > > > instead of restricted-dma-pool with pKVM.
+> > > 
+> > > Yes, that patch enables swiotlb as a possibility for protected guests
+> > > but with your patch we avoid shrinking the swiotlb buffer even when
+> > > restricted dma pools are being used and that's a waste of memory.
+> > 
+> > I also thought we switched pkvm to use CC-like swiotlb as part of the
+> > alignment in this rework? Mostafa ?
+> 
+> Yes, now protected VMs can use the SWIOTLB for bouncing. However for
+> Android (and kvmtool), use restricted DMA. so SWIOTLB is not used.
 
-New issues:
-- [Medium] If debugfs_create_dir() fails, dma_heap_debugfs_dir remains NULL=
-, causing subsequent debugfs files to be erroneously created in the debugfs=
- root directory.
-- [Low] The newly added dma_heap_exit function performs partial cleanup by =
-removing debugfs entries but leaks the character device region and class.
+Oh? Why?
 
-Pre-existing issues:
-- [Critical] Missing provider module pinning and absence of a heap unregist=
-er function causes a Use-After-Free if a dynamically loaded heap provider f=
-ails module initialization.
---
+> However, I do not think we should over engineer this in the code,
+> swiotlb can be set from the cmdline and now through Kconfig also.
 
---- Patch [6]: [PATCH v4 06/10] dma-buf: heaps: Add debugfs support ---
-commit 1c3871b543fe35314ecde7429a59aac59e23b5b3
-Author: Thierry Reding <treding@nvidia.com>
+That's fine for android, but real users buying a cloud VM and sticking
+a distro on it shouldn't be expected to have to mess with cmdline just
+go get a halfway working system
 
-dma-buf: heaps: Add debugfs support
-   =20
-Add a callback to struct dma_heap_ops that heap providers can implement
-to show information about the state of the heap in debugfs. A top-level
-directory named "dma_heap" is created in debugfs and individual files
-will be named after the heaps.
-
-> diff --git a/drivers/dma-buf/dma-heap.c b/drivers/dma-buf/dma-heap.c
-> index 3937dd41bb0f6..389cddd07c8d3 100644
-> --- a/drivers/dma-buf/dma-heap.c
-> +++ b/drivers/dma-buf/dma-heap.c
-
-[ ... ]
-
-> @@ -225,6 +226,46 @@ const char *dma_heap_get_name(struct dma_heap *heap)
->  }
->  EXPORT_SYMBOL_NS_GPL(dma_heap_get_name, "DMA_BUF_HEAP");
-> =20
-> +#ifdef CONFIG_DEBUG_FS
-> +static int dma_heap_debug_show(struct seq_file *s, void *unused)
-> +{
-> +	struct dma_heap *heap =3D s->private;
-> +	int err =3D 0;
-> +
-> +	if (heap->ops && heap->ops->show)
-> +		err =3D heap->ops->show(s, heap);
-> +
-> +	return err;
-> +}
-> +DEFINE_SHOW_ATTRIBUTE(dma_heap_debug);
-> +
-> +static struct dentry *dma_heap_debugfs_dir;
-> +
-> +static void dma_heap_init_debugfs(void)
-> +{
-> +	struct dentry *dir;
-> +
-> +	dir =3D debugfs_create_dir("dma_heap", NULL);
-> +	if (IS_ERR(dir))
-> +		return;
-> +
-> +	dma_heap_debugfs_dir =3D dir;
-> +}
-
-[Severity: Medium]
-If debugfs_create_dir() fails and returns an error pointer, this check
-returns early and leaves dma_heap_debugfs_dir as NULL.
-
-Later, when dma_heap_add() attempts to create files, it will pass NULL
-as the parent directory. Does this cause the debugfs files to be erroneousl=
-y=20
-created in the debugfs root namespace?
-
-If dma_heap_debugfs_dir was allowed to hold the error pointer instead,
-debugfs_create_file() would safely abort child creation.
-
-[ ... ]
-
-> @@ -299,6 +340,13 @@ struct dma_heap *dma_heap_add(const struct dma_heap_=
-export_info *exp_info)
-> =20
->  	/* Add heap to the list */
->  	list_add(&heap->list, &heap_list);
-> +
-> +#ifdef CONFIG_DEBUG_FS
-> +	if (heap->ops && heap->ops->show)
-> +		debugfs_create_file(heap->name, 0444, dma_heap_debugfs_dir,
-> +				    heap, &dma_heap_debug_fops);
-> +#endif
-> +
-
-[Severity: Critical]
-This is a pre-existing issue, but registering debugfs files and character=20
-devices without a corresponding unregister function seems to expose a=20
-use-after-free vulnerability.=20
-
-If a dynamically loaded heap provider module successfully registers its fir=
-st=20
-heap via dma_heap_add() during module_init, but fails to register a second=
-=20
-heap, the module loader will abort the load and free the module's memory.
-
-Since there is no dma_heap_remove() function to undo the first registration=
-,=20
-the first heap remains in heap_list and exposed via its debugfs file.
-
-If a user later accesses this debugfs file (or the chardev), will the kernel
-dereference the freed heap->ops->show pointer in dma_heap_debug_show()?
-
-[ ... ]
-
-> @@ -335,6 +383,14 @@ static int dma_heap_init(void)
->  	}
->  	dma_heap_class->devnode =3D dma_heap_devnode;
-> =20
-> +	dma_heap_init_debugfs();
-> +
->  	return 0;
->  }
->  subsys_initcall(dma_heap_init);
-> +
-> +static void __exit dma_heap_exit(void)
-> +{
-> +	dma_heap_exit_debugfs();
-> +}
-> +__exitcall(dma_heap_exit);
-
-[Severity: Low]
-The new dma_heap_exit() function only cleans up the debugfs entries. Does=20
-this leak the character device region and the device class allocated earlie=
-r=20
-in dma_heap_init()?
-
-Even though the subsystem is currently built-in only, omitting the cleanup
-might become a hazard if it is ever converted to a loadable module.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260807-tegra-vpr-=
-v4-0-5510d16af89e@nvidia.com?part=3D6
+Jason
