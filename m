@@ -1,207 +1,161 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 63BFC472771
-	for <linux-s390@vger.kernel.org>; Fri,  7 Aug 2026 12:05:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C13554756C4
+	for <linux-s390@vger.kernel.org>; Fri,  7 Aug 2026 12:14:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786104330; cv=none; b=lJgTjO0mqUmYpCd2jz3M7bOnYPq8kv6vMKnJoguIF9XwZQaYFT0w9bHws47bfnfPVVWXev64S/Fdefj2d5UoVOf199GIP0UNTEsuVj/O1f9F/TTDIzwIYdwFPNs+kqx+bkI1DsPWU903MsQ0oI4z9OjZB3VadP6DCGkoW9J7VoA=
+	t=1786104902; cv=none; b=plhaLE99R4vK2nhx10/XPZ4n5ru17Oa8O9oTydxJnxmFPMYrDeWWK6lhWoxOa1u5UCL9AKlnRfKaQGAGZ2wUTr8mEpFENNJcC++G2CmNVhAnF9wwzOYJmo0FFKckNeSPKr8dzZ9cVW12cEU5guih+Zywcl7OA3VYWg56SJwswZc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786104330; c=relaxed/simple;
-	bh=KgfLhsNbbFgyzOZ5SkA54n/vgOszh9GPP3tq3pY6nGA=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=YyG0VCT9hIUIRwm/Bw3V8eMeRnfrNldf0H+VTpLxjYpqEsaHT1kYgqcsS7bq9NxcBz7Bk+PwOH7bwmCacr6EGXZQ4bGRWiIOFP72gfKWeCRxFpdwo0210Qa1DV3zgZ116ZOipAvIIaBeBcFDrNMFRTDdShKBZE3/dzn12GEyM4I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jr0vrqEN; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1786104902; c=relaxed/simple;
+	bh=UrdftXdC+EFc1kX/B4HdD7a0nvv1yIr3uO74/chegJw=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=h/vEtB/Pv79fJb647x7U/h4DQB3PvWb28rwdmFDG6Wb7MpNF36wUJDqEnpvOoZlRE/1jGU63dj4nEb4h1v+6eQ66HmuOG7KolOJDy7+spcXJxjZje05tl8pEvdtZqTqQbJTRpjPdc5KS8xFQ68Cj/3oPBSGmO96Z50OOb8RtD1c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=gVF++hOO; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jr0vrqEN"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC5761F00A3A;
-	Fri,  7 Aug 2026 12:05:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786104303;
-	bh=7V7SPLHWzQL9WJUHosPjOzzzKx5aJ3hKKhquZ/vQKy8=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=jr0vrqENYMb37PtwRVIpnNwO1SNDfiKlYtXiAh+jKdLm6nxXxRufdtSgkLQv1agdB
-	 pJZZPTQckV1Cafb3Qn6gcqr4/UxirlLpnKAIYzYVAVADQxJ8BbAILl9TpWxI9okwne
-	 DVUZOlicL5mJTpCViX7SFV/QU4+Px49zrJQp/juKOxS+2OvXrSccEPu4cZ4n4RSMMV
-	 CZTP2AGOJoCvvbU+kNhRhzZDOXcv0mFnsTZ26zSE27MNQS3S6IzA1FuHCjjSJCrJ1i
-	 AFhYkTu+t5Mzt9RUoRNJ0nXYSBhes84qGxl8Po9t6OR5gBkjZhKTxKZgeoEDFlePnE
-	 yuKrJHNafaeFQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH net v2] dibs: fix double free of dmb_clientid_arr
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Hidayath Khan" <hidayath@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Heiko
- Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>
-In-Reply-To: <20260806120447.596164-1-hidayath@linux.ibm.com>
-References: <20260806120447.596164-1-hidayath@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 07 Aug 2026 12:05:02 +0000
-Message-Id: <20260807120502.BC5761F00A3A@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="gVF++hOO"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6770HtjI4060702
+	for <linux-s390@vger.kernel.org>; Fri, 7 Aug 2026 12:14:33 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=LONarR
+	N9hDgAhSl5uKZASCeXhfhz/nk4NiX0bMlNtbQ=; b=gVF++hOOQYTL46Yjv54934
+	BGHPkaI6o/IDOpiV30FUaQhgVf6kS2FoPDKcQzkA84YQDWbHUznt9hlKVYwaWbrz
+	k5p5qdBRHBJGTSgUhzQ3TQUPDUTTV524yYFhehEtV/q7MV7AhnyJVBPLMyHlQHCs
+	inmo1SI5RGBXk1Q+YFvjb2BAfNJwFo3CG8TQO23vRr9vrXauJ7sTPmM5iiHrn5p9
+	hKTJw3S9PAMHPcJS75qQk3ZV2cvoyTNueR74kOfM8icYF8bnmognYOHLMtnqaTQk
+	FvS8oTTgdpeiHvvMa+tPaRTbIemwlJ24WccY+5k7MF44OTmm4h1Ikk75PU43GiVw
+	==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fvy02bnp3-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Fri, 07 Aug 2026 12:14:33 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 677CBFTN006500
+	for <linux-s390@vger.kernel.org>; Fri, 7 Aug 2026 12:14:32 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fsu4qyq66-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Fri, 07 Aug 2026 12:14:32 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 677CES4R15663480
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 7 Aug 2026 12:14:28 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 68F182004B;
+	Fri,  7 Aug 2026 12:14:28 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 15FE820043;
+	Fri,  7 Aug 2026 12:14:28 +0000 (GMT)
+Received: from [9.224.77.173] (unknown [9.224.77.173])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Fri,  7 Aug 2026 12:14:28 +0000 (GMT)
+Message-ID: <b2335b78-1a3e-4545-885e-2e2cae5f93ad@linux.ibm.com>
+Date: Fri, 7 Aug 2026 14:14:27 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 1/3] s390/vfio_ccw: Add __must_hold() attribute to
+ vfio_ccw_sch_quiesce()
+To: Heiko Carstens <hca@linux.ibm.com>, Janosch Frank
+ <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Eric Farman <farman@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org
+References: <20260806153849.2622576-1-hca@linux.ibm.com>
+ <20260806153849.2622576-2-hca@linux.ibm.com>
+Content-Language: en-US
+From: Christian Borntraeger <borntraeger@linux.ibm.com>
+In-Reply-To: <20260806153849.2622576-2-hca@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=G6ws1dk5 c=1 sm=1 tr=0 ts=6a75cc29 cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+ a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8
+ a=UhRHKtATY8iUNcl3ARIA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODA3MDA5MSBTYWx0ZWRfX/JI9JeYI4pK2
+ 8xZ1DFJvTl02tmBDfTrI7IQLJ3ItexlIE7AoUWxBbnBMxzNw/ID02Ten4yMPxY5GrjkfKBBgvYL
+ LuLe6IinE6kPNVSM9IHrRLwM4Xv29PZ+y0kCXT0o+eLlJMvw6R6K+NFwIj2AVQ+TG7Vm6r4klwL
+ EILlf0klv+RxvD0pM3qL35mRjX+kDd4zVqgVwEHDP7Yj6CffBV+X9kTVGyfEuO2SVZu8BKcrkD+
+ IPLZSoRKt7gOYlWwPnUu5/Wj29+9wDo3x9/4T41QnDW+uHZPjhy7+Jg3dSxqQQFjf292AHEKNn0
+ iCB8NceVmTU6y0ey7GM0YzitvZh7gfdm84Y4viiMHYYcztT9vtZ3CLc6UiXvs1zIN+2eqvGTzGM
+ H7hta7a95V9nZzymRIebzYEX7Zjr60SJBI/idBKRUYQ8Kcw5qCBGd4Fp2PgSsNnwrHrF4CHMIN4
+ vqNVgkzqe4M7gQNv/eA==
+X-Proofpoint-ORIG-GUID: kC8LU3aNwvUc1pem2VCz2H9aUumxl8He
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODA3MDA5MSBTYWx0ZWRfX06ukHLExXVqx
+ vfpIrhqGiYK0x3nU6cyKqFvmvKN6UX4g6x7N3ejnMJrfiFYMPmC7ze2nLDFqkSXH6H92mpY93pR
+ MRAFFxUwCiaoZojDLbx2OOudbgPwQ+k=
+X-Proofpoint-GUID: kC8LU3aNwvUc1pem2VCz2H9aUumxl8He
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-08-07_01,2026-08-06_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ impostorscore=0 spamscore=0 lowpriorityscore=0 suspectscore=0 malwarescore=0
+ phishscore=0 priorityscore=1501 adultscore=0 bulkscore=0 clxscore=1015
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608070091
 
-Thank you for your contribution! Sashiko AI review found 5 potential issue(=
-s) to consider:
 
-Pre-existing issues:
-- [High] dibs_unregister_client() fails with partial unregistration if an a=
-ctive DMB is found on a device later in the list, leaving the client in a c=
-orrupted state.
-- [High] Initialization failure in dibs_init() leaks dibs_class and causes =
-Use-After-Free.
-- [High] Early registration of ism_handle_irq() in ism_probe() causes poten=
-tial NULL Pointer Dereference and Use-After-Free.
-- [High] `dibs_lo_move_data()` acquires `dibs->lock` with plain `spin_lock(=
-)`, missing IRQ masking.
-- [High] In the error path of `ism_alloc_dmb()`, a folio allocated page is =
-illegally freed using `kfree()`.
---
 
---- Patch [1]: [PATCH net v2] dibs: fix double free of dmb_clientid_arr ---
-commit c4dab923b3875e2fdb8522fd524541f2cd53cf25
-Author: Hidayath Khan <hidayath@linux.ibm.com>
-Subject: dibs: fix double free of dmb_clientid_arr
+Am 06.08.26 um 17:38 schrieb Heiko Carstens:
+> Add __must_hold() attribute to vfio_ccw_sch_quiesce() in order to let
+> clang's context analysis know that sch->lock must be held on function
+> entry. This can also be easily verified when inspecting the function.
+> 
+> Without this annotation this leads to a valid warning when context
+> analysis is enabled:
+> 
+> drivers/s390/cio/vfio_ccw_drv.c:55:9: warning:
+>    expecting spinlock 'sch->lock' to be held at start of each loop [-Wthread-safety-analysis]
+>     55 |                 ret = cio_cancel_halt_clear(sch, &iretry);
+>        |                       ^
+> 
+> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+> ---
+>   drivers/s390/cio/vfio_ccw_drv.c     | 1 +
+>   drivers/s390/cio/vfio_ccw_private.h | 3 ++-
+>   2 files changed, 3 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
+> index 1a095085bc72..ed9ca77c5b23 100644
+> --- a/drivers/s390/cio/vfio_ccw_drv.c
+> +++ b/drivers/s390/cio/vfio_ccw_drv.c
+> @@ -35,6 +35,7 @@ debug_info_t *vfio_ccw_debug_trace_id;
+>    * Helpers
+>    */
+>   int vfio_ccw_sch_quiesce(struct subchannel *sch)
+> +	__must_hold(&sch->lock);
+Looks like this ; is wrong     ^
 
-This commit removes the kfree() call in dibs_lo_dev_probe() to prevent a
-double free of dibs->dmb_clientid_arr. The pointer is already freed on both
-failure paths of dibs_dev_add(), which is called just before the error path.
+will fixup when applying.
 
-> diff --git a/drivers/dibs/dibs_loopback.c b/drivers/dibs/dibs_loopback.c
-> index fd5caf1e19a8f..649e4e375be33 100644
-> --- a/drivers/dibs/dibs_loopback.c
-> +++ b/drivers/dibs/dibs_loopback.c
-> @@ -335,7 +335,6 @@ static int dibs_lo_dev_probe(void)
->  	return 0;
-> =20
->  err_reg:
-> -	kfree(dibs->dmb_clientid_arr);
->  	/* pairs with dibs_dev_alloc() */
->  	put_device(&dibs->dev);
->  	kfree(ldev);
+>   {
+>   	struct vfio_ccw_parent *parent = dev_get_drvdata(&sch->dev);
+>   	struct vfio_ccw_private *private = dev_get_drvdata(&parent->dev);
+> diff --git a/drivers/s390/cio/vfio_ccw_private.h b/drivers/s390/cio/vfio_ccw_private.h
+> index 0501d4bbcdbd..8db29519dbfd 100644
+> --- a/drivers/s390/cio/vfio_ccw_private.h
+> +++ b/drivers/s390/cio/vfio_ccw_private.h
+> @@ -127,7 +127,8 @@ struct vfio_ccw_private {
+>   	struct work_struct	crw_work;
+>   } __aligned(8);
+>   
+> -int vfio_ccw_sch_quiesce(struct subchannel *sch);
+> +int vfio_ccw_sch_quiesce(struct subchannel *sch)
+> +	__must_hold(&sch->lock);
+>   void vfio_ccw_sch_io_todo(struct work_struct *work);
+>   void vfio_ccw_crw_todo(struct work_struct *work);
+>   
 
-While reviewing this area, I noticed a few pre-existing issues that were not
-introduced by this patch.
-
-drivers/dibs/dibs_main.c:dibs_unregister_client()
-> 		for (int i =3D 0; i < max_dmbs; ++i) {
-> 			if (dibs->dmb_clientid_arr[i] =3D=3D client->id) {
-> 				WARN(1, "%s: attempt to unregister '%s' with registered dmb(s)\n",
-> 				     __func__, client->name);
-> 				rc =3D -EBUSY;
-> 				goto err_reg_dmb;
-> 			}
-> 		}
-> 		/* Stop forwarding IRQs and events */
-> 		dibs->subs[client->id] =3D NULL;
-> 		spin_unlock_irqrestore(&dibs->lock, flags);
-> 		clients[client->id]->ops->del_dev(dibs);
-
-[Severity: High]
-This isn't a bug introduced by this patch, but if dibs_unregister_client()
-finds an active DMB on a device later in the list, it aborts and returns
--EBUSY. Does this leave the client in a corrupted state since the earlier
-devices in the list already had their forwarding stopped and del_dev() call=
-ed?
-A subsequent retry could result in a double-free or use-after-free when
-del_dev() is called again for the already processed devices.
-
-drivers/dibs/dibs_main.c:dibs_init()
-> static int __init dibs_init(void)
-> {
-> 	int rc;
->=20
-> 	rc =3D class_register(&dibs_class);
-> 	if (rc)
-> 		return rc;
->=20
-> 	rc =3D dibs_loopback_init();
-> 	if (rc)
-> 		pr_err("%s fails with %d\n", __func__, rc);
->=20
-> 	return rc;
-> }
-
-[Severity: High]
-This is a pre-existing issue, but does an initialization failure here leak =
-the
-dibs_class? If dibs_loopback_init() fails, the module load is aborted and
-memory is freed, but class_register() isn't undone. Could this result in a
-use-after-free if sysfs accesses the freed module memory?
-
-drivers/s390/net/ism_drv.c:ism_probe()
-> 	/* enable ism device, but any interrupts and events will be ignored
-> 	 * before dibs_dev_add() adds it to any clients.
-> 	 */
-> 	ret =3D ism_dev_init(ism);
-> 	if (ret)
-> 		goto err_dibs;
-> ...
-> 	ret =3D dibs_dev_add(dibs);
-
-drivers/s390/net/ism_drv.c:ism_handle_irq()
-> 	spin_lock(&dibs->lock);
-> 	ism->sba->s =3D 0;
-> 	barrier();
-> ...
-> 		client_id =3D dibs->dmb_clientid_arr[bit];
-
-[Severity: High]
-This isn't a bug introduced by this patch, but is it possible for an early
-interrupt to trigger a NULL pointer dereference or use-after-free?
-ism_dev_init() enables the hardware interrupts before dibs_dev_add()
-initializes dibs->lock and allocates dibs->dmb_clientid_arr. If an interrupt
-fires early, could ism_handle_irq() attempt to acquire an uninitialized lock
-and dereference a NULL pointer?
-
-drivers/dibs/dibs_loopback.c:dibs_lo_move_data()
-> 	spin_lock(&dibs->lock);
-> 	client_id =3D dibs->dmb_clientid_arr[sba_idx];
-> 	s_mask =3D ror16(0x1000, idx);
-> 	if (likely(client_id !=3D NO_DIBS_CLIENT && dibs->subs[client_id]))
-> 		dibs->subs[client_id]->ops->handle_irq(dibs, sba_idx, s_mask);
-> 	spin_unlock(&dibs->lock);
-
-[Severity: High]
-This is a pre-existing issue, but is it safe to acquire dibs->lock using
-spin_lock() here? Since the lock is also acquired in the hardirq context by
-ism_handle_irq(), could acquiring it here without disabling interrupts caus=
-e a
-deadlock if an interrupt arrives on the same CPU?
-
-drivers/s390/net/ism_drv.c:ism_alloc_dmb()
-> 	folio =3D folio_alloc(GFP_KERNEL | __GFP_NOWARN | __GFP_NOMEMALLOC |
-> 			    __GFP_NORETRY, get_order(dmb->dmb_len));
->=20
-> 	if (!folio) {
-> 		rc =3D -ENOMEM;
-> 		goto out_bit;
-> 	}
->=20
-> 	dmb->cpu_addr =3D folio_address(folio);
-> 	dmb->dma_addr =3D dma_map_page(&ism->pdev->dev,
-> 				     virt_to_page(dmb->cpu_addr), 0,
-> 				     dmb->dmb_len, DMA_FROM_DEVICE);
-> 	if (dma_mapping_error(&ism->pdev->dev, dmb->dma_addr)) {
-> 		rc =3D -ENOMEM;
-> 		goto out_free;
-> 	}
->=20
-> 	return 0;
->=20
-> out_free:
-> 	kfree(dmb->cpu_addr);
-
-[Severity: High]
-This isn't a bug introduced by this patch, but does the error path incorrec=
-tly
-free the page memory? Since dmb->cpu_addr was allocated via folio_alloc(),
-shouldn't it be freed using folio_put() instead of kfree() to avoid slab
-allocator corruption?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260806120447.5961=
-64-1-hidayath@linux.ibm.com?part=3D1
