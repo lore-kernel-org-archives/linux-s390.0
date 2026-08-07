@@ -1,45 +1,45 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6ACAF44D6BB
-	for <linux-s390@vger.kernel.org>; Fri,  7 Aug 2026 06:43:17 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 727DF448BB6
+	for <linux-s390@vger.kernel.org>; Fri,  7 Aug 2026 06:43:18 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786085000; cv=none; b=kenZEHQTt2IIuhEFb+gkg1PB/+Ylj/PCKMvG/y9C/i+w+0/ALCPu3/+iI0YbT04Gr/aMo84OBkZQ9fEPDe7ERdY4zAjG2j/+HM6LmuAf8zgScXZaBpG+F4l2i1J+86KsuOlYic4HJ2saHXZV0M5UCq2rwNr59JrqsJNW6YS1PQU=
+	t=1786085000; cv=none; b=fasRXTxhsNznoetkgyNVsZG18iSqIsBcYV4dprgOpYAFBu5jfRrzAgIlrHydfmfHvelfc2IKXfgJADpHIpxN0nD0qg18RFiyvbTPTP98z5dsg1PKs1y2HdO0Ke8gftb1eyG86KKMNPGOH7tVnahyVsWpT735v+hXQ8D918w9sow=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1786085000; c=relaxed/simple;
-	bh=l4hchkhj/AbwtN1P2FRNMcVa62106kqLMJs5XRUVVjI=;
+	bh=Ec9Xgakz9yYmHVLSQjFREKk+7VjuF3kMSb+fonGX94Q=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=YClK0cWEnWbHpayZkFDGitr4ocCHe6jkYvU5HsPaRf1z39P/Hn9PgFyu5J4n+zSXuq82sew9OoYiVfvjTVXULnFCS37v7kGzMikmgaNLTm6x7v5A3L9z9Q8wbSbSwf7rUhO4YfBakKOSVQkobtRW1yGuVAtcADidxecjvDP5BmQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Jpl2H8wm; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=UjHpyGU5D4j63LCl+IBk0ViloKLGeI/5AMd47o5ypRJRxlsQurJOAd9ELUhnPP4/ycUF8AnpGh1sV0xxwvmiQgD1hmf5gtRttAuhe52zqdROsUjqSoijTMfWF0rMXrRV8Ap+OcAA9bszGvQLrvO1yGDFZFA9TyEEWryIV5R944c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hpxROdyF; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Jpl2H8wm"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11F701F000E9;
-	Fri,  7 Aug 2026 06:43:16 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hpxROdyF"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C3941F00A3A;
+	Fri,  7 Aug 2026 06:43:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786084996;
-	bh=IedOI36L9K8BOGeBPHv2UO1I3EqMtNgfAmRBs2zlTUI=;
+	s=k20260515; t=1786084997;
+	bh=v3kV/dwyJhz2aJ9HWM+1J65wPLnqeA4MD3ZNYCxjylg=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Jpl2H8wm57D+Jil9rRUbfQf/RHBlJIfzSeavUTY+XbwJM+f5BiDPAlid3FyOsFrmM
-	 NyygA1yJklIZ3VtAStRu3gmsmJ9O/jpsWc8RQgvz9eAOTRepzfQfC8N9QAkylN/Oee
-	 syfPfxi32KLU9StY8PW30VS92hyL33zMJtl69rlAFEDB5/Py9N5fg7Mj2/nmol6Ajh
-	 WzeytXx0+NaBluSxr0Rlh1wc5ab6ZfVQfjWo+9oNWC0aIO2OAXWXdY/CFnFELpamZF
-	 6CMJ21IVDxSeTaM8b825cg50ZtJdgzM2OqwWVGbnkbHFSOkbdMzqg8pAzU8u5z8bQQ
-	 sLX2kfS+2Dq4w==
+	b=hpxROdyFkyBxTSxNcFl95MOP1oijtkGTdwkZODbpHGqYso1exneXCqYBIB5hEj8x8
+	 jnzCI9cPNPy+VGcqZHB6NLLCDbQF+FQghUz4fuPR5/J5QW/FyjjlwHpcyWJFZ9Nes/
+	 G1ycfcSWGscj5n8VaTahHiIdqUkhB1EeedlEmghzVQ6s1gOZ6G1Wro2F9BXQJFUZ0m
+	 pyiP/cdmP58gXJxdZgZatChxqAad7NTE19HS7q2xsxMaUMt8YfiMTmWZgkuWOwKcZN
+	 VEKd0cSgBYsDjmgiTv3BMS7MvPhCCwHHPPaBKbZD8sCAFu+5ZM5Du8YzjQ1nz836Gi
+	 oZiHM5C1eZaUA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH net-next v1 2/2] net/smc: reduce TX slot contention with
- exclusive wait
+Subject: Re: [PATCH net-next v1 1/2] net/smc: clear the correct v2 slot and
+ buffer in smc_wr_tx_put_slot()
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "D. Wythe" <alibuda@linux.alibaba.com>
-Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, linux-s390@vger.kernel.org, "Vasily
- Gorbik" <gor@linux.ibm.com>
-In-Reply-To: <20260806064252.39180-3-alibuda@linux.alibaba.com>
+Cc: "Heiko Carstens" <hca@linux.ibm.com>, linux-s390@vger.kernel.org, "Vasily
+ Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
+In-Reply-To: <20260806064252.39180-2-alibuda@linux.alibaba.com>
 References: <20260806064252.39180-1-alibuda@linux.alibaba.com>
- <20260806064252.39180-3-alibuda@linux.alibaba.com>
+ <20260806064252.39180-2-alibuda@linux.alibaba.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 07 Aug 2026 06:43:15 +0000
-Message-Id: <20260807064316.11F701F000E9@smtp.kernel.org>
+Date: Fri, 07 Aug 2026 06:43:16 +0000
+Message-Id: <20260807064317.3C3941F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -49,123 +49,91 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
 
-New issues:
-- [High] The open-coded exclusive wait loop introduces a lost wakeup vulner=
-ability by failing to check the condition before enqueuing.
-
 Pre-existing issues:
-- [High] Returning -ERESTARTSYS from smc_wr_tx_get_free_slot causes silent =
-data stalling because the caller does not schedule tx_work to retry, and th=
-e error is ignored by sendmsg.
+- [High] Non-atomic clearing of `wr_tx_v2_pend` before `wr_tx_buf_v2` creat=
+es a TOCTOU race that prematurely signals slot availability, corrupting con=
+current V2 messages and control data.
+- [High] An error completion for a V1 work request unconditionally zeroes o=
+ut the link group-wide V2 buffer, corrupting concurrent V2 messages on othe=
+r links.
 --
 
---- Patch [2]: [PATCH net-next v1 2/2] net/smc: reduce TX slot contention w=
-ith exclusive wait ---
-commit bcc5b21bf03b53f401940337c34d2ab052835d45
+--- Patch [1]: [PATCH net-next v1 1/2] net/smc: clear the correct v2 slot a=
+nd buffer in smc_wr_tx_put_slot() ---
+commit 4fe2881d4ba7f681ee22c596087bf040cfe5c6f0
 Author: D. Wythe <alibuda@linux.alibaba.com>
 
-net/smc: reduce TX slot contention with exclusive wait
+net/smc: clear the correct v2 slot and buffer in smc_wr_tx_put_slot()
 
-This patch modifies smc_wr_tx_get_free_slot() to use an exclusive wait loop=
-=20
-using prepare_to_wait_exclusive(). It also updates the return value on a=20
-pending signal from -EPIPE to -ERESTARTSYS to match standard wait semantics.
+This patch fixes an issue where 8-byte pointer variables were being zeroed
+instead of the structures they point to. It passes the pointers directly
+and uses sizeof(*pointer) to properly clear the intended structures.
 
 > diff --git a/net/smc/smc_wr.c b/net/smc/smc_wr.c
-> index 6b5add9229937..2cdd4063c13d6 100644
 > --- a/net/smc/smc_wr.c
 > +++ b/net/smc/smc_wr.c
-[ ... ]
-> @@ -212,17 +214,31 @@ int smc_wr_tx_get_free_slot(struct smc_link *link,
->  		if (rc)
->  			return rc;
->  	} else {
-> -		rc =3D wait_event_interruptible_timeout(
-> -			link->wr_tx_wait,
-> -			!smc_link_sendable(link) ||
-> -			lgr->terminating ||
-> -			(smc_wr_tx_get_free_slot_index(link, &idx) !=3D -EBUSY),
-> -			SMC_WR_TX_WAIT_FREE_SLOT_TIME);
-> -		if (!rc) {
-> -			/* timeout - terminate link */
-> -			smcr_link_down_cond_sched(link);
-> -			return -EPIPE;
-> +		rc =3D 0;
-> +		for (;;) {
-> +			prepare_to_wait_exclusive(&link->wr_tx_wait, &wait,
-> +						  TASK_INTERRUPTIBLE);
-> +			if (!smc_link_sendable(link) || lgr->terminating ||
-> +			    smc_wr_tx_get_free_slot_index(link, &idx) !=3D -EBUSY)
-> +				break;
+> @@ -288,10 +288,10 @@ int smc_wr_tx_put_slot(struct smc_link *link,
+>  	} else if (link->lgr->smc_version =3D=3D SMC_V2 &&
+>  		   pend->idx =3D=3D link->wr_tx_cnt) {
+>  		/* Large v2 buffer */
+> -		memset(&link->wr_tx_v2_pend, 0,
+> -		       sizeof(link->wr_tx_v2_pend));
+> -		memset(&link->lgr->wr_tx_buf_v2, 0,
+> -		       sizeof(link->lgr->wr_tx_buf_v2));
+> +		memset(link->wr_tx_v2_pend, 0,
+> +		       sizeof(*link->wr_tx_v2_pend));
+> +		memset(link->lgr->wr_tx_buf_v2, 0,
+> +		       sizeof(*link->lgr->wr_tx_buf_v2));
 
 [Severity: High]
-Does this open-coded exclusive wait loop introduce a lost wakeup regression?
+This isn't a bug introduced by this patch, but it looks like this lockless
+synchronization pattern might have a race condition.
 
-By calling prepare_to_wait_exclusive() before checking if a slot is availab=
-le,
-the task is unconditionally added to the waitqueue. If it then finds a free
-slot immediately and breaks, it remains on the waitqueue until finish_wait(=
-) is
-called.
+Because memset() is not atomic, could this zero out the state tracking stru=
+ct
+(which contains idx) before the data buffer is fully cleared?
 
-If another slot is freed concurrently, an exclusive wake_up() could wake th=
-is
-exiting task and stop iterating. This absorbs the wakeup and starves other
-threads that are actually sleeping on the queue.
+If a concurrent thread calls smc_wr_tx_get_v2_slot():
 
-This could cause a 10-second stall for the starved thread, leading to a link
-termination via smcr_link_down_cond_sched().
+    if (link->wr_tx_v2_pend->idx =3D=3D link->wr_tx_cnt)
+        return -EBUSY;
 
-> +			timeout =3D schedule_timeout(timeout);
-> +			/* re-check */
-> +			if (!smc_link_sendable(link) || lgr->terminating ||
-> +			    smc_wr_tx_get_free_slot_index(link, &idx) !=3D -EBUSY)
-> +				break;
-> +			if (!timeout) {
-> +				/* timeout - terminate link */
-> +				smcr_link_down_cond_sched(link);
-> +				break;
-> +			}
-> +			if (signal_pending(current)) {
-> +				rc =3D -ERESTARTSYS;
-> +				break;
-> +			}
+It checks the idx to locklessly determine slot availability. If idx gets
+zeroed early by the first memset(), could the concurrent thread claim the
+slot and write new data, only for it to be destroyed by the remainder of
+the memset() operations?
+
+For V1 buffers, this appears to be safely handled using a dedicated
+link->wr_tx_mask bitmask that is cleared only after the memsets.
 
 [Severity: High]
-This is a pre-existing issue, but does returning -ERESTARTSYS
-here cause silent data stalling if the caller does not schedule a retry?
+This is another pre-existing issue in the same file, but could the error
+logic in smc_wr_tx_process_cqe() corrupt shared V2 payloads?
 
-If we look at smcr_tx_sndbuf_nonempty() in net/smc/smc_tx.c, it only schedu=
-les
-tx_work if the return value is -EBUSY:
+smc_wr_tx_process_cqe() {
+    ...
+    if (wc->status) {
+        ...
+        if (link->lgr->smc_version =3D=3D SMC_V2) {
+            memset(link->wr_tx_v2_pend, 0,
+                   sizeof(*link->wr_tx_v2_pend));
+            memset(link->lgr->wr_tx_buf_v2, 0,
+                   sizeof(*link->lgr->wr_tx_buf_v2));
+        }
+    ...
+}
 
-	if (rc =3D=3D -EBUSY) {
-		...
-		mod_delayed_work(conn->lgr->tx_wq, &conn->tx_work,
-                                 SMC_TX_WORK_DELAY);
-	}
-	return rc;
+If a V1 work request completes with an error, the error path unconditionally
+zeroes out link->lgr->wr_tx_buf_v2 just because the link group version is
+SMC_V2.
 
-And in smc_tx_sendmsg() in net/smc/smc_tx.c, the return value is ignored:
+Since this buffer is shared across all links within the link group, wouldn't
+zeroing it out from a failing link silently corrupt the payload of any
+concurrent V2 message on healthy, surviving links in the same group?
 
-	if (!smc_tx_should_cork(smc, msg))
-		smc_tx_sndbuf_nonempty(conn);
-
-If the syscall is interrupted by a signal, and the data was already copied =
-to
-sndbuf, smc_tx_sendmsg() ignores the return value and returns success to
-userspace. Since tx_work is not scheduled for -ERESTARTSYS, the data could =
-be
-permanently stuck in the buffer.
-
->  		}
-> +		finish_wait(&link->wr_tx_wait, &wait);
-> +		if (rc)
-> +			return rc;
->  		if (idx =3D=3D link->wr_tx_cnt)
->  			return -EPIPE;
+>  		return 1;
 >  	}
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260806064252.3918=
-0-1-alibuda@linux.alibaba.com?part=3D2
+0-1-alibuda@linux.alibaba.com?part=3D1
