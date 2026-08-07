@@ -1,253 +1,174 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-oa1-f70.google.com (mail-oa1-f70.google.com [209.85.160.70])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3B0AD29D27A;
-	Fri,  7 Aug 2026 14:54:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 35AB242AF95
+	for <linux-s390@vger.kernel.org>; Fri,  7 Aug 2026 15:02:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.70
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786114472; cv=none; b=IEtaXEq67sqfcgs6D/98Ox333dA38O/+OSd2duI8LZRNZE6sbMFOeOxVbgU8ztl8yRH7mkTkISH+zZBoCxNBYlxGtNwONTh1DIG2tbL6RXR06j2/ymS5zgHLlL9GL+2ikt3Kv7rE03MCZIxhwCkxwtvCTXhLBRtJITwnmjY7MEE=
+	t=1786114943; cv=none; b=lWIex3r+sScrT2Z436jBvsQf4/F3VRausbIj7M3i75Ss00O/UgCADcY2un7uJy4YEGKSVomeigp98PR+ebVT/5OQ/sR1anvHH6HyyA9wp3qNepwKIWqZOFtkwTcIziD+VTlr/ri+HpaYNpZxgRVWzwOzGF3trQuuEpxZ1AWBD/s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786114472; c=relaxed/simple;
-	bh=NViB+Xf/KxxpiRQ016xOzrNeoGRbkfgfnqFl7bB+2Kg=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=jOgnQzGfy4njWarYcCuX/w2/xxyAGX7FQ3gEuBfUDDy72qNs/jLT9FlYdPmCuCzbCHtvS7hsJqABxSANZ2s7MhmCZgdPGOkp/H5jO+nLDg32DRk2r9+O1hRUpxb3FmqkVyuZBg9/gPYT0Vs73ggbAdtGDB4kMjROsljKIL1usyE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=iSo08dDE; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="iSo08dDE"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 677Clh5m3829277;
-	Fri, 7 Aug 2026 14:54:21 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=X2l8Ti6vIQv+KTQZF19VgCYrX2zol3jyxFA3gEqW0
-	K8=; b=iSo08dDEH76stfaHTB9mXi6uPwXt25QmOrzd+JLzLuspck+2kn8e11Nzc
-	V1kl6zyR0jafwU+xtN8c+F9GyiPxVRIjRFkNKqbjtyJGdmrfJ3T40VbX9137fiTT
-	ahbY+L8aSla9V67UUFVXhzfAHNExR9FRGy4JhVSMrmEvIZ1SHCRGzhFSqdsBNaCJ
-	5l5evs6b0pfW2se9JRBGObkU2XOJqTeukDFO90BFA6mr0qiL81S0AiNw3D5QrEI7
-	p5BDz5WTfgZ44wSpNotcYvRpjWhbnicLL6pYbh3XrhJseUh/0Sf9c1wj39tzJl+4
-	P+ErAOC/DpQj/74hfPjyR40sdar3w==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fvy01md2y-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 07 Aug 2026 14:54:20 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 677EfHVP010701;
-	Fri, 7 Aug 2026 14:54:19 GMT
-Received: from smtprelay06.wdc07v.mail.ibm.com ([172.16.1.73])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fsvmhr140-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 07 Aug 2026 14:54:19 +0000 (GMT)
-Received: from smtpav05.wdc07v.mail.ibm.com (smtpav05.wdc07v.mail.ibm.com [10.39.53.232])
-	by smtprelay06.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 677EsIFu25559560
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 7 Aug 2026 14:54:18 GMT
-Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 42FAB5805D;
-	Fri,  7 Aug 2026 14:54:18 +0000 (GMT)
-Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C0DDB58043;
-	Fri,  7 Aug 2026 14:54:16 +0000 (GMT)
-Received: from li-4c4c4544-004d-4810-8043-b7c04f423534.ibm.com.com (unknown [9.61.52.19])
-	by smtpav05.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Fri,  7 Aug 2026 14:54:16 +0000 (GMT)
-From: Anthony Krowiak <akrowiak@linux.ibm.com>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org
-Cc: jjherne@linux.ibm.com, borntraeger@de.ibm.com, mjrosato@linux.ibm.com,
-        pasic@linux.ibm.com, alex@shazbot.org, kwankhede@nvidia.com,
-        hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
-        stable@vger.kernel.org
-Subject: [PATCH] s390/vfio-ap: Fix dereference matrix_mdev->kvm without checking for NULL
-Date: Fri,  7 Aug 2026 10:54:15 -0400
-Message-ID: <20260807145416.322916-1-akrowiak@linux.ibm.com>
-X-Mailer: git-send-email 2.53.0
+	s=arc-20240116; t=1786114943; c=relaxed/simple;
+	bh=e+81dOHvj0So3RON92CFdhhmQ3xPUfPVWFr2uruoMWA=;
+	h=MIME-Version:Date:In-Reply-To:Message-ID:Subject:From:To:Cc:
+	 Content-Type; b=R10e6k2ml3cAfmFskqzTve8HBC0Ae4LNZZ/csRkF3gpAdBr2k6t6v5zaFsu2OnI2LRhSNqYNE9T4GI68kzCVZxxEuTGBtxaJyHvBrFUxTzBPwQAdMyfpxaPyWH32r0EAFT2KvX4/LRjDCDxb74JlUhGZQmPK02ym+O9m8ltgkcs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.160.70
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-oa1-f70.google.com with SMTP id 586e51a60fabf-455e3cdda0dso2969950fac.1
+        for <linux-s390@vger.kernel.org>; Fri, 07 Aug 2026 08:02:22 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1786114941; x=1786719741;
+        h=content-type:cc:to:from:subject:message-id:in-reply-to:date
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=lqEEJEDiXR1euy6HrUWyog1UErAU/b24emNmEVqWzFU=;
+        b=EjsEX5NRfrUxYI3ge5VQdOIifKMcK6v2VXj2hHm0XjFU076keU/7bxx/nshGheyrt0
+         HKPtnb6jI4FTqXd7poeWR92a/uHq5j0GM1nkUDXm9t73xDT9CUsGXZlV7N3uSQiOYOSP
+         HLzX3y8kmMn1ayrlz8TXOAR7hd5pbVju8vRSnJ7+mqw6cCO49Yzty2pTE73vVmmNns6p
+         Glro4QHPITDsVOhxLkVpQ6WFb/u5kfPsb1QirOAlE9GIdujXsLAxFfES4t1eVBBh2Rsb
+         HsCwWI++SfI0VW2ddtWGB7m0Da9klufMUCN43QIWTA/HvXey7bAy6YE4dQycs40G6oHi
+         h/Bg==
+X-Forwarded-Encrypted: i=1; AHgh+Ro3cS5fWAQmyEh1iB5S1BreqSwAGrVyQ9SsoJb3UG8l5XwPhZtwLMnwYGgJ8/wLknECGOU/9CCmI1zu@vger.kernel.org
+X-Gm-Message-State: AOJu0Yy/HYB0ApjFmqLRJBAIgxFrvlwPVXjDRhSythia9czGFRsA0+Jc
+	RuKEBJRJ2Q4v66QgPPZ3C04zkYCQ/8oImSgQYoQG7UujxNT8RYqaNpAzBfszN47Cjv8mDNpmTYp
+	Xhy7oLIh697t5IHFoA3zNY4fhFxve1rEgLPQj3mZKxCbagKYMXmhIaLz/BnQ=
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 61_rwG6uLRCjBKFgQtNg7OY6Ay0wCaIs
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODA3MDExNiBTYWx0ZWRfX9CRPg0AVbF/e
- 7/ZAOPQCvAo8FruT3lQPQYZaEViRdkaiwKrQn6ps1u3f+L+bVm2acHuo+0NEJwypCfnMpL/cJqe
- zNcdcvphob+ikz0PedP8olw6z3Pp+nQ=
-X-Proofpoint-ORIG-GUID: 61_rwG6uLRCjBKFgQtNg7OY6Ay0wCaIs
-X-Authority-Analysis: v=2.4 cv=afNRWxot c=1 sm=1 tr=0 ts=6a75f19c cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=uAbxVGIbfxUO_5tXvNgY:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
- a=7-PX2TBNVYp1iSTFOFgA:9
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODA3MDExNiBTYWx0ZWRfXwjquQ+spsadP
- n+t0+328xOj/Qo7JA2jBdWNxE0Q/gSxI/I99Z/N2/HTfLfRjhoDg/LkOkpkWg8q0D7EAeNOPtg3
- 5iXhp1n+nBpYtZjTzeJ9lBwgneRz/e+mf9YcODXr6bAW+Q6gDvf2uGtk5GPTAmkIdKKAJxklUaW
- bpQ3yWdp90m6Sg4x8rt4MArIN+TSjQn98wmq6aVJ3rVZxSs9OAHBOSEewxDYiE/9P5J2IVRBzmA
- kApupp9vbNo92nRhuqD7Slol9uJNZ07CoTwHkbZJaltaotwibg3Ku4sfZxA9KPyyZ9dJYVCHX1e
- DfiJZRFlUNCCI8IrDBphEK0OuhUqxdzW5or2BxxgiFmR5akk4vFhdbjg/C9+/JcU0pC7qixx2QD
- IpGJw6dSvhVBiyN1DBaNrANxPj+1N/UgNfOQ0kp/gKLNDS8Aq2vJgXAGBdXIuINv1GZ3I24vEWT
- DpugPzOwdmsFsU28t2g==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-08-07_02,2026-08-06_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 spamscore=0 phishscore=0 impostorscore=0 adultscore=0
- suspectscore=0 bulkscore=0 clxscore=1015 priorityscore=1501
- lowpriorityscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2608070116
+X-Received: by 2002:a05:6820:2083:b0:6aa:9be1:484a with SMTP id
+ 006d021491bc7-6ae96c10158mr12840974eaf.7.1786114941023; Fri, 07 Aug 2026
+ 08:02:21 -0700 (PDT)
+Date: Fri, 07 Aug 2026 08:02:21 -0700
+In-Reply-To: <20260807081606.3200128-1-mjambigi@linux.ibm.com>
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <6a75f37d.b50370da.49fe0.001c.GAE@google.com>
+Subject: [syzbot ci] Re: net/smc: fix clcsock and lgr/lnk races in smc_diag
+ dump path
+From: syzbot ci <syzbot+cia7ddf4f17dfab266@syzkaller.appspotmail.com>
+To: alibuda@linux.alibaba.com, andrew@lunn.ch, davem@davemloft.net, 
+	dust.li@linux.alibaba.com, edumazet@google.com, guwen@linux.alibaba.com, 
+	horms@kernel.org, kuba@kernel.org, linux-s390@vger.kernel.org, 
+	mjambigi@linux.ibm.com, netdev@vger.kernel.org, pabeni@redhat.com, 
+	pasic@linux.ibm.com, sidraya@linux.ibm.com, tonylu@linux.alibaba.com
+Cc: syzbot@lists.linux.dev, syzkaller-bugs@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
 
-The ap_driver structure has two fields which are function pointers to
-callbacks:
+syzbot ci has tested the following series
 
-* .on_config_changed: called at the start of the AP bus scan function to
-                      notify the device driver that the host AP
-                      configuration has changed and the associated AP
-                      devices will be added or removed accordingly. This
-                      gives the implementor a chance to evaluate the
-                      configuration changes and respond to them before
-                      the associated devices are added or removed.
+[v3] net/smc: fix clcsock and lgr/lnk races in smc_diag dump path
+https://lore.kernel.org/all/20260807081606.3200128-1-mjambigi@linux.ibm.com
+* [PATCH net v3] net/smc: fix clcsock and lgr/lnk races in smc_diag dump path
 
-* .on_scan_complete:  Called at the end of the AP bus scan function to
-                      notify the device driver that the host AP
-                      configuration has changed and the AP devices have
-                      been added or removed accordingly. This gives the
-                      implementor the opportunity to respond to the
-                      changes after the associated devices are added or
-                      removed.
+and found the following issue:
+WARNING in smc_diag_dump_proto
 
-These two callbacks are implemented in the vfio_ap device driver via the
-vfio_ap_on_cfg_changed and vfio_ap_on_scan_complete functions respectively.
+Full report is available here:
+https://ci.syzbot.org/series/ab0d12fd-741a-4a0f-9f49-e52b84e94f4a
 
-Within the call stack of these two callback functions the
-matrix_mdev->kvm->lock mutex is taken without checking whether
-matrix_mdev->kvm is NULL or not. If matrix_mdev->kvm has never been set,
-trying to take the lock will trigger a NULL pointer dereference. This patch
-adds checks for matrix_mdev->kvm == NULL before taking the
-matrix_mdev->kvm->lock mutex.
+***
 
-It is important to make note of the following:
-1. The matrix_dev->guests_lock is acquired at the start of both callback
-   functions. This ensures that matrix_mdev will not be removed via the
-   vfio_ap_mdev_remove function because it too takes matrix_dev_guests_lock
-   before removing the object; so, matrix_mdev will be available for the
-   duration of the callback functions.
+WARNING in smc_diag_dump_proto
 
-2. The matrix_dev->mdevs_lock mutex must be taken in order to access
-   fields within the matrix_mdev structure
+tree:      net
+URL:       https://kernel.googlesource.com/pub/scm/linux/kernel/git/netdev/net.git
+base:      594d905195024b228c962627ae5ae7c17bd582a4
+arch:      amd64
+compiler:  Debian clang version 22.1.8 (++20260613092233+e80beda6e255-1~exp1~20260613092250.77), Debian LLD 22.1.8
+config:    https://ci.syzbot.org/builds/0c4d246f-d098-4afe-b6bc-0f0ad52f55f8/config
+syz repro: https://ci.syzbot.org/findings/fa5564b8-8db6-4f76-9d75-dbd796435d87/syz_repro
 
-3. matrix_mdev->kvm->lock mutex must be taken before the
-   matrix_dev->mdevs_lock to prevent a lockdep splat.
+------------[ cut here ]------------
+DEBUG_LOCKS_WARN_ON(lock->magic != lock)
+WARNING: kernel/locking/mutex.c:625 at __mutex_lock_common kernel/locking/mutex.c:625 [inline], CPU#0: syz.0.161/6326
+WARNING: kernel/locking/mutex.c:625 at __mutex_lock+0x12d8/0x1550 kernel/locking/mutex.c:821, CPU#0: syz.0.161/6326
+Modules linked in:
+CPU: 0 UID: 0 PID: 6326 Comm: syz.0.161 Not tainted syzkaller #0 PREEMPT(full) 
+Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.16.2-debian-1.16.2-1 04/01/2014
+RIP: 0010:__mutex_lock_common kernel/locking/mutex.c:625 [inline]
+RIP: 0010:__mutex_lock+0x12df/0x1550 kernel/locking/mutex.c:821
+Code: de 57 90 48 c1 e8 03 0f b6 04 18 84 c0 0f 85 47 02 00 00 83 3d 45 cc 83 04 00 75 13 48 8d 3d a8 1b 87 04 48 c7 c6 40 f7 ec 8b <67> 48 0f b9 3a 90 e9 75 ee ff ff 90 0f 0b 90 e9 48 f2 ff ff 90 0f
+RSP: 0018:ffffc900068c6e40 EFLAGS: 00010246
+RAX: 0000000000000000 RBX: dffffc0000000000 RCX: ffff888170ffd940
+RDX: 0000000000000000 RSI: ffffffff8becf740 RDI: ffffffff905b2db0
+RBP: ffffc900068c6fd0 R08: ffffffff9057de43 R09: 1ffffffff20afbc8
+R10: dffffc0000000000 R11: fffffbfff20afbc9 R12: ffff8881b1006648
+R13: 0000000000000000 R14: 1ffff92000d18ddc R15: 0000000000000000
+FS:  00007f4dacd826c0(0000) GS:ffff88818d945000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 000020000000e000 CR3: 0000000171350000 CR4: 00000000000006f0
+Call Trace:
+ <TASK>
+ smc_diag_msg_common_fill net/smc/smc_diag.c:50 [inline]
+ __smc_diag_dump net/smc/smc_diag.c:101 [inline]
+ smc_diag_dump_proto+0x6d2/0x2620 net/smc/smc_diag.c:255
+ smc_diag_dump+0x59/0xa0 net/smc/smc_diag.c:278
+ netlink_dump+0x711/0xee0 net/netlink/af_netlink.c:2331
+ __netlink_dump_start+0x589/0x7b0 net/netlink/af_netlink.c:2446
+ netlink_dump_start include/linux/netlink.h:341 [inline]
+ smc_diag_handler_dump+0x199/0x240 net/smc/smc_diag.c:293
+ sock_diag_rcv_msg+0x4b0/0x5f0 net/core/sock_diag.c:-1
+ netlink_rcv_skb+0x226/0x4a0 net/netlink/af_netlink.c:2556
+ netlink_unicast_kernel net/netlink/af_netlink.c:1319 [inline]
+ netlink_unicast+0x7bb/0x940 net/netlink/af_netlink.c:1345
+ netlink_sendmsg+0x813/0xb40 net/netlink/af_netlink.c:1900
+ sock_sendmsg_nosec+0x13a/0x180 net/socket.c:775
+ __sock_sendmsg net/socket.c:790 [inline]
+ ____sys_sendmsg+0x54e/0x850 net/socket.c:2684
+ ___sys_sendmsg+0x2a5/0x360 net/socket.c:2738
+ __sys_sendmsg net/socket.c:2770 [inline]
+ __do_sys_sendmsg net/socket.c:2775 [inline]
+ __se_sys_sendmsg net/socket.c:2773 [inline]
+ __x64_sys_sendmsg+0x1b1/0x290 net/socket.c:2773
+ do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
+ do_syscall_64+0x174/0x580 arch/x86/entry/syscall_64.c:94
+ entry_SYSCALL_64_after_hwframe+0x77/0x7f
+RIP: 0033:0x7f4dabf9e019
+Code: ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 e8 ff ff ff f7 d8 64 89 01 48
+RSP: 002b:00007f4dacd82028 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
+RAX: ffffffffffffffda RBX: 00007f4dac226090 RCX: 00007f4dabf9e019
+RDX: 0000000000000600 RSI: 0000200000000540 RDI: 0000000000000003
+RBP: 00007f4dac03500c R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
+R13: 00007f4dac226128 R14: 00007f4dac226090 R15: 00007ffe0de8ec98
+ </TASK>
+----------------
+Code disassembly (best guess):
+   0:	de 57 90             	ficoms -0x70(%rdi)
+   3:	48 c1 e8 03          	shr    $0x3,%rax
+   7:	0f b6 04 18          	movzbl (%rax,%rbx,1),%eax
+   b:	84 c0                	test   %al,%al
+   d:	0f 85 47 02 00 00    	jne    0x25a
+  13:	83 3d 45 cc 83 04 00 	cmpl   $0x0,0x483cc45(%rip)        # 0x483cc5f
+  1a:	75 13                	jne    0x2f
+  1c:	48 8d 3d a8 1b 87 04 	lea    0x4871ba8(%rip),%rdi        # 0x4871bcb
+  23:	48 c7 c6 40 f7 ec 8b 	mov    $0xffffffff8becf740,%rsi
+* 2a:	67 48 0f b9 3a       	ud1    (%edx),%rdi <-- trapping instruction
+  2f:	90                   	nop
+  30:	e9 75 ee ff ff       	jmp    0xffffeeaa
+  35:	90                   	nop
+  36:	0f 0b                	ud2
+  38:	90                   	nop
+  39:	e9 48 f2 ff ff       	jmp    0xfffff286
+  3e:	90                   	nop
+  3f:	0f                   	.byte 0xf
 
-4: The kvm->lock must be held while plugging the guest's AP configuration
-   into its SIE state description via the vfio_ap_mdev_update_guest_apcb
-   function.
 
-5. The vfio_ap_mdev_update_guest_apcb checks matrix_mdev->kvm to verify it
-   is not NULL before doing the hot plug of the guest's AP configuration.
+***
 
-Fixes: eeb386aeb5b7c ("s390/vfio-ap: handle config changed and scan complete notification")
-Cc: stable@vger.kernel.org
-Signed-off-by: Anthony Krowiak <akrowiak@linux.ibm.com>
+If these findings have caused you to resend the series or submit a
+separate fix, please add the following tag to your commit message:
+  Tested-by: syzbot@syzkaller.appspotmail.com
+
 ---
- drivers/s390/crypto/vfio_ap_ops.c | 33 ++++++++++++++++++++++---------
- 1 file changed, 24 insertions(+), 9 deletions(-)
+This report is generated by a bot. It may contain errors.
+syzbot ci engineers can be reached at syzkaller@googlegroups.com.
 
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index 44b3a1dcc1b3..a0b7c37fee28 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -2606,7 +2606,15 @@ static void vfio_ap_mdev_cfg_remove(unsigned long *ap_remove,
- 	int do_remove = 0;
- 
- 	list_for_each_entry(matrix_mdev, &matrix_dev->mdev_list, node) {
--		mutex_lock(&matrix_mdev->kvm->lock);
-+		/*
-+		 * If the mdev is attached to a KVM guest, we will need to
-+		 * hold the KVM lock in order to update the guest's AP
-+		 * configuration if any adapters, domains or control domains
-+		 * have been removed.
-+		 */
-+		if (matrix_mdev->kvm)
-+			mutex_lock(&matrix_mdev->kvm->lock);
-+
- 		mutex_lock(&matrix_dev->mdevs_lock);
- 
- 		do_remove |= bitmap_and(aprem, ap_remove,
-@@ -2624,7 +2632,8 @@ static void vfio_ap_mdev_cfg_remove(unsigned long *ap_remove,
- 						    cdrem);
- 
- 		mutex_unlock(&matrix_dev->mdevs_lock);
--		mutex_unlock(&matrix_mdev->kvm->lock);
-+		if (matrix_mdev->kvm)
-+			mutex_unlock(&matrix_mdev->kvm->lock);
- 	}
- }
- 
-@@ -2748,6 +2757,7 @@ static void vfio_ap_mdev_cfg_add(unsigned long *apm_add, unsigned long *aqm_add,
- 
- 	vfio_ap_filter_apid_by_qtype(apm_add, aqm_add);
- 
-+	mutex_lock(&matrix_dev->mdevs_lock);
- 	list_for_each_entry(matrix_mdev, &matrix_dev->mdev_list, node) {
- 		bitmap_and(matrix_mdev->apm_add,
- 			   matrix_mdev->matrix.apm, apm_add, AP_DEVICES);
-@@ -2756,6 +2766,7 @@ static void vfio_ap_mdev_cfg_add(unsigned long *apm_add, unsigned long *aqm_add,
- 		bitmap_and(matrix_mdev->adm_add,
- 			   matrix_mdev->matrix.adm, adm_add, AP_DEVICES);
- 	}
-+	mutex_unlock(&matrix_dev->mdevs_lock);
- }
- 
- /**
-@@ -2821,9 +2832,6 @@ static void vfio_ap_mdev_hot_plug_cfg(struct ap_matrix_mdev *matrix_mdev)
- 	DECLARE_BITMAP(apm_filtered, AP_DEVICES);
- 	bool filter_domains, filter_adapters, filter_cdoms, do_hotplug = false;
- 
--	mutex_lock(&matrix_mdev->kvm->lock);
--	mutex_lock(&matrix_dev->mdevs_lock);
--
- 	filter_adapters = bitmap_intersects(matrix_mdev->matrix.apm,
- 					    matrix_mdev->apm_add, AP_DEVICES);
- 	filter_domains = bitmap_intersects(matrix_mdev->matrix.aqm,
-@@ -2841,9 +2849,6 @@ static void vfio_ap_mdev_hot_plug_cfg(struct ap_matrix_mdev *matrix_mdev)
- 		vfio_ap_mdev_update_guest_apcb(matrix_mdev);
- 
- 	reset_queues_for_apids(matrix_mdev, apm_filtered);
--
--	mutex_unlock(&matrix_dev->mdevs_lock);
--	mutex_unlock(&matrix_mdev->kvm->lock);
- }
- 
- void vfio_ap_on_scan_complete(struct ap_config_info *new_config_info,
-@@ -2854,15 +2859,25 @@ void vfio_ap_on_scan_complete(struct ap_config_info *new_config_info,
- 	mutex_lock(&matrix_dev->guests_lock);
- 
- 	list_for_each_entry(matrix_mdev, &matrix_dev->mdev_list, node) {
-+		if (matrix_mdev->kvm)
-+			mutex_lock(&matrix_mdev->kvm->lock);
-+
-+		mutex_lock(&matrix_dev->mdevs_lock);
-+
- 		if (bitmap_empty(matrix_mdev->apm_add, AP_DEVICES) &&
- 		    bitmap_empty(matrix_mdev->aqm_add, AP_DOMAINS) &&
- 		    bitmap_empty(matrix_mdev->adm_add, AP_DOMAINS))
--			continue;
-+			goto unlock;
- 
- 		vfio_ap_mdev_hot_plug_cfg(matrix_mdev);
- 		bitmap_clear(matrix_mdev->apm_add, 0, AP_DEVICES);
- 		bitmap_clear(matrix_mdev->aqm_add, 0, AP_DOMAINS);
- 		bitmap_clear(matrix_mdev->adm_add, 0, AP_DOMAINS);
-+
-+unlock:
-+		mutex_unlock(&matrix_dev->mdevs_lock);
-+		if (matrix_mdev->kvm)
-+			mutex_unlock(&matrix_mdev->kvm->lock);
- 	}
- 
- 	mutex_unlock(&matrix_dev->guests_lock);
--- 
-2.53.0
+To test a patch for this bug, please reply with `#syz test`
+(should be on a separate line).
 
+The patch should be attached to the email.
+Note: arguments like custom git repos and branches are not supported.
