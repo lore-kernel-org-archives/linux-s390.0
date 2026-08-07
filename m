@@ -1,78 +1,148 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA96C47607F;
-	Fri,  7 Aug 2026 12:57:19 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 783D2466B5E;
+	Fri,  7 Aug 2026 13:03:30 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786107443; cv=none; b=n/RbopuDKZaWn245nOFGz15Ak+hLnGcCDklLCxk0Pp2CtiqfqySqJxU1vcYxxIjXUY2mH87Qq95UiSEJ8dudtahoTgSg7yL84iJyTHdD+ubQvb1cB/ShYJ5AG0nC5ssuH832o91c5XATcuhdPF0l3ckzcYGN1N141A6QhK6Xet4=
+	t=1786107827; cv=none; b=hOoSVEDLz95tIq4fX48f+CuXJVus6mbkH5i6Xrg6gupK3JZRaiVUwa0ypR5Ajd9MkHkdFkVMF4WaYusypSdyisuc9P2suh4ZqEkgcnb/qkawlk9cucbR2ewXEgDFuV7XbTpHyIwvB/QvQdoqeWeTkl3vX3sXzwCxWQthvYpB+8I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786107443; c=relaxed/simple;
-	bh=RqNrnrfSrh4JGqVqqnuJS4ZrvC2g64alleAL3373SJA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=b9T7T/Q8Wbi8tk0uTba2WCWQBCEnn484xzxakWu5FzKPND1XldV0wpUTRzePp0PE/e1OwQMztk1vlq6e+6MyGO9jodioGalwSSF4W2sNm0vTBbvDeyrLOLGWH61mGWv/tkNaiddElcTE79AP/8UAa4BsT+aY2KnQ+pJgT4NaU4A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZI/xW4b6; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1786107827; c=relaxed/simple;
+	bh=SFOODg6qJhhqz/d8SgHxakbTZXTQ0q6LGAHn5/aRuTU=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=mVZRUsvZSQuxttEhaUBBufSa3dnmhJ2VcP80XXndHAzdKLICXU7p5LArCQbob49oLQMWwUDrxCGYUV/PrEgLRqlMCcFHybEY912X5QtlHWdtklatS5Nb2ufKThB7kjvwGn6/JSbXm/bIs0aeZFzSP3vtg49C3LBGkkZLxroV410=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jZgVfkuo; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZI/xW4b6"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CE321F000E9;
-	Fri,  7 Aug 2026 12:57:14 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jZgVfkuo"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE9CF1F000E9;
+	Fri,  7 Aug 2026 13:03:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786107436;
-	bh=bfeT8Oe0hGP6zH0zazdc6PEZoroy4KpwJjKGjfF2ayA=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=ZI/xW4b6wrmM2Mp2BrqbeavdEN8NnBJ9uODK97LhzrfB3IU2OmtFyN5prTcpLJhg8
-	 8lrqCfC81aS+nWvHyfbvpCCb67hz4ZY4ZOA4xf5uTod6/1YpDDmjSl37jZzvOKdU3v
-	 s9+kkxACDnSJ/0RUjlsSL2JAaMugu2EPOm2A1jg35XpFVyjFMRwDSKOemYj/L4LcYG
-	 AYQK0hhqj5TgWGvYR8dkvyOYsLg0emmSDpscJrvywdNfmWHr1VD2epjlmKpBn9qHFx
-	 Jxb571w0ZRzMoRn+qizl2IWc/kWM6hpm9b1pEET2rC21EGgONKOXIZjN2JOQ8zJgLj
-	 6pvpZ6pQX/akg==
-Date: Fri, 7 Aug 2026 13:57:12 +0100
-From: Simon Horman <horms@kernel.org>
-To: Heiko Carstens <hca@linux.ibm.com>
-Cc: Alexandra Winter <wintera@linux.ibm.com>,
-	Aswin Karuvally <aswin@linux.ibm.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S . Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	linux-s390@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [PATCH net-next 0/2] drivers/s390/net: Enable CONTEXT_ANALYSIS
-Message-ID: <20260807125712.GK51943@horms.kernel.org>
-References: <20260805145032.1409325-1-hca@linux.ibm.com>
+	s=k20260515; t=1786107807;
+	bh=9QqKKM/ejR76i/TkpRfggSdbNj1yOKb4P01vNyYkRUs=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date;
+	b=jZgVfkuoWf2/siK+rKc90sJnAQt9IS3OPxAuRh6EIc5QTd91l788Rnt8tZqkY0eX1
+	 4V1fwC8Xke07dOEvJH4kYYZt+gvugXiKXdGz5s3Jt1/2YTv8XFf+3pPwa5TgRIy87h
+	 tOTUigHIwOO/5rABTOwSnFvBDxhesq9IwfDUw/PwoaE1G3A47ELaIB7XeCacIsSDyy
+	 PyFbqxUIFxAGM/63Xlcz8epDPjAFNlriiXizH5Y2/GDhHud+FPUDHlQJ3ZIrkb6HGm
+	 sOiy7Vzx6vgAVgxctx2iJ5Rbh6hpYJoJ/vzRtPUfqSEI2nVg/CcZrAxJwm0CjWUY4i
+	 tcfKhcQgz+Ztw==
+X-Mailer: emacs 30.2 (via feedmail 11-beta-1 I)
+From: Aneesh Kumar K.V <aneesh.kumar@kernel.org>
+To: Will Deacon <will@kernel.org>
+Cc: iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev,
+	Robin Murphy <robin.murphy@arm.com>,
+	Marek Szyprowski <m.szyprowski@samsung.com>,
+	Marc Zyngier <maz@kernel.org>,
+	Steven Price <steven.price@arm.com>,
+	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Jiri Pirko <jiri@resnulli.us>,
+	Jason Gunthorpe <jgg@ziepe.ca>,
+	Mostafa Saleh <smostafa@google.com>,
+	Petr Tesarik <ptesarik@suse.com>,
+	Alexey Kardashevskiy <aik@amd.com>,
+	Dan Williams <dan.j.williams@intel.com>,
+	Xu Yilun <yilun.xu@linux.intel.com>,
+	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Christophe Leroy <chleroy@kernel.org>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org
+Subject: Re: [PATCH] arm64: swiotlb: Keep the default size for protected guests
+In-Reply-To: <anXIZSh9lq99VG9X@willie-the-truck>
+References: <20260717180442.110954-18-aneesh.kumar@kernel.org>
+ <20260807092612.2202005-1-aneesh.kumar@kernel.org>
+ <anXIZSh9lq99VG9X@willie-the-truck>
+Date: Fri, 07 Aug 2026 18:33:14 +0530
+Message-ID: <yq5acxvu2ict.fsf@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260805145032.1409325-1-hca@linux.ibm.com>
+Content-Type: text/plain
 
-On Wed, Aug 05, 2026 at 04:50:30PM +0200, Heiko Carstens wrote:
-> Enable CONTEXT_ANALYSYS for drivers/s390/net.
-> 
-> Static code checking for acquiring and releasing locks used to be done
-> with sparse. That was removed with [1] and replaced with a clang based
-> approach [2]. The new approach requires that each subsystem needs to be
-> explicitly enabled for checking.
-> 
-> Do that for drivers/s390/net. In order to avoid false positives due to
-> conditional locking, disable context analysis for specific functions of
-> the ctcm driver. All comments in ctcm indicate that the code should stay
-> as it is, and that such warnings should be ignored.
-> 
-> Disabling context analysis for specific functions keeps analysis enabled
-> for the rest of a file.
-> 
-> [1] 5b63d0ae94cc ("compiler-context-analysis: Remove Sparse support")
-> [2] 3269701cb256 ("compiler-context-analysis: Add infrastructure for Context Analysis with Clang")
-> 
-> Heiko Carstens (2):
->   s390/ctcm: Add __context_unsafe() attribute to various functions
->   drivers/s390/net: Enable CONTEXT_ANALYSIS
+Will Deacon <will@kernel.org> writes:
 
-For the series:
+> On Fri, Aug 07, 2026 at 02:56:12PM +0530, Aneesh Kumar K.V (Arm) wrote:
+>> Realm guests and protected KVM guests may require swiotlb for device DMA
+>> even when all system RAM is addressable by the DMA zones.
+>> 
+>> Do not reduce the SWIOTLB buffer to the kmalloc-bouncing size for these
+>> guests, as the reduced number of slots can be exhausted during CCA guest
+>> operation.
+>> 
+>> Fixes: 30c5e45ee2c5 ("dma-direct: make dma_direct_map_phys() honor DMA_ATTR_CC_SHARED")
+>> Signed-off-by: Aneesh Kumar K.V (Arm) <aneesh.kumar@kernel.org>
+>> ---
+>>  arch/arm64/mm/init.c | 3 ++-
+>>  1 file changed, 2 insertions(+), 1 deletion(-)
+>> 
+>> diff --git a/arch/arm64/mm/init.c b/arch/arm64/mm/init.c
+>> index e308a7cabd12..24caaf10e755 100644
+>> --- a/arch/arm64/mm/init.c
+>> +++ b/arch/arm64/mm/init.c
+>> @@ -339,7 +339,8 @@ void __init arch_mm_preinit(void)
+>>  {
+>>  	unsigned int flags = SWIOTLB_VERBOSE;
+>>  
+>> -	if (max_pfn <= PFN_DOWN(arm64_dma_phys_limit)) {
+>> +	if (!cc_platform_has(CC_ATTR_GUEST_MEM_ENCRYPT) &&
+>> +	    max_pfn <= PFN_DOWN(arm64_dma_phys_limit)) {
+>
+> Protected guests under pKVM rely on restricted DMA, so won't this just
+> waste memory for them?
+>
 
-Reviewed-by: Simon Horman <horms@kernel.org>
+commit 30c5e45ee2c5 ("dma-direct: make dma_direct_map_phys() honor DMA_ATTR_CC_SHARED"),
+which this patch fixes, has
 
+--- a/arch/arm64/mm/init.c
++++ b/arch/arm64/mm/init.c
+@@ -339,9 +339,7 @@ void __init arch_mm_preinit(void)
+ {
+        unsigned int flags = SWIOTLB_VERBOSE;
+ 
+-       if (is_realm_world() || is_protected_kvm_guest()) {
+-               flags |= SWIOTLB_FORCE;
+-       } else if (max_pfn <= PFN_DOWN(arm64_dma_phys_limit)) {
++       if (max_pfn <= PFN_DOWN(arm64_dma_phys_limit)) {
+                /*
+                 * If no bouncing needed for ZONE_DMA, reduce the swiotlb
+                 * buffer for kmalloc() bouncing to 1MB per 1GB of RAM.
+
+The is_protected_kvm_guest() part was added by the 
+commit e62decaf98e7 ("arm64/coco: Add pKVM as a CC platform")
+
+@@ -337,7 +339,7 @@ void __init arch_mm_preinit(void)
+ {
+        unsigned int flags = SWIOTLB_VERBOSE;
+ 
+-       if (is_realm_world()) {
++       if (is_realm_world() || is_protected_kvm_guest()) {
+                flags |= SWIOTLB_FORCE;
+        } else if (max_pfn <= PFN_DOWN(arm64_dma_phys_limit)) {
+                /*
+@@ -412,6 +414,17 @@ void dump_mem_limit(void)
+        }
+ }
+
+I was under the impression that there is a possibility of using swiotlb
+instead of restricted-dma-pool with pKVM. If that is not the case, then
+we could change:
+
+!cc_platform_has(CC_ATTR_GUEST_MEM_ENCRYPT) &&
+
+to
+
+!is_realm_world() &&
+
+-aneesh
