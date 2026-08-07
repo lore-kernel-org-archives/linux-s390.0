@@ -1,126 +1,171 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B67F143E06A;
-	Fri,  7 Aug 2026 05:45:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6ACAF44D6BB
+	for <linux-s390@vger.kernel.org>; Fri,  7 Aug 2026 06:43:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786081542; cv=none; b=elXH9UCirF8io/whz/HgQUQD1t8KjnE+6w0YxCgYqtjuVBiIleAIUTSPsL9a5+j47864M5bC0lqevdpEI/+3vjZ6X8TXuMEnWFFF9EBqS3VHzQWtsdL05oaGDqdobfycR+kWjFn6WohAFniYJJ6daYjMOkEcWQH8l36WZnXHV+M=
+	t=1786085000; cv=none; b=kenZEHQTt2IIuhEFb+gkg1PB/+Ylj/PCKMvG/y9C/i+w+0/ALCPu3/+iI0YbT04Gr/aMo84OBkZQ9fEPDe7ERdY4zAjG2j/+HM6LmuAf8zgScXZaBpG+F4l2i1J+86KsuOlYic4HJ2saHXZV0M5UCq2rwNr59JrqsJNW6YS1PQU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786081542; c=relaxed/simple;
-	bh=XEA4BT0LkK1Iq1kR/R0KipogGUWsDyNP3b75JT7lBOY=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=StDbjN6V5504QIzNflX2nG5U9VRPT7PbTlCyVyTLuZCHyRJwNbYUH/2yuXihpQcr3VYkhYqdCNf2x0FU9gOGM8tfd2kCDknfkAE/F9Fi8rDGqoLSrmsX+y5IVOibbQeafzedQqNeV85xAEnRRqUebM4Xi6ujzan9lQh6sEXDlqg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=XiEMxGio; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1786085000; c=relaxed/simple;
+	bh=l4hchkhj/AbwtN1P2FRNMcVa62106kqLMJs5XRUVVjI=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=YClK0cWEnWbHpayZkFDGitr4ocCHe6jkYvU5HsPaRf1z39P/Hn9PgFyu5J4n+zSXuq82sew9OoYiVfvjTVXULnFCS37v7kGzMikmgaNLTm6x7v5A3L9z9Q8wbSbSwf7rUhO4YfBakKOSVQkobtRW1yGuVAtcADidxecjvDP5BmQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Jpl2H8wm; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="XiEMxGio"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6770HxTV4068702;
-	Fri, 7 Aug 2026 05:45:34 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=XEA4BT
-	0LkK1Iq1kR/R0KipogGUWsDyNP3b75JT7lBOY=; b=XiEMxGioLOCnZmNNZMXFvm
-	uHiAn9ipSTM7MlCakf12s/9lhuj9HhIFNj9HCwWL7S3ohQWS2J3czcKlRunrnqKH
-	8t2gjg10dN5FLYVryeP58jo9f/el6o85NYvlRHeVMmtvXTNSPvdDZaK+qvswUQTj
-	yIWimmmdTYbIwjDkZBVLMjfKJsB6KQwIHHrgnzRN4wsHomgWCItlB3as9jD6kMDB
-	nT1Ej7F7r0nEtzT6A3LXU9lGfUNvW3hFzVT+jU7KIqeSUZqOXZfPPWY9rRtIDGn2
-	GCsFWPLYaStCyK74fGqAGDMqPWCPyx+WmQu6K+Z1BdsVLWuPIz0OrlpHxZeOXTjQ
-	==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fvy022cqv-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 07 Aug 2026 05:45:33 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 6775fJAT016185;
-	Fri, 7 Aug 2026 05:45:32 GMT
-Received: from smtprelay03.dal12v.mail.ibm.com ([172.16.1.5])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fswbgp941-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 07 Aug 2026 05:45:32 +0000 (GMT)
-Received: from smtpav03.wdc07v.mail.ibm.com (smtpav03.wdc07v.mail.ibm.com [10.39.53.230])
-	by smtprelay03.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6775jVGG4260476
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 7 Aug 2026 05:45:31 GMT
-Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1938C5805A;
-	Fri,  7 Aug 2026 05:45:31 +0000 (GMT)
-Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 85AEE58054;
-	Fri,  7 Aug 2026 05:45:24 +0000 (GMT)
-Received: from [9.124.213.67] (unknown [9.124.213.67])
-	by smtpav03.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Fri,  7 Aug 2026 05:45:24 +0000 (GMT)
-Message-ID: <e16d16f1-029b-4d30-b393-2e9e525a2998@linux.ibm.com>
-Date: Fri, 7 Aug 2026 11:15:22 +0530
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Jpl2H8wm"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11F701F000E9;
+	Fri,  7 Aug 2026 06:43:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1786084996;
+	bh=IedOI36L9K8BOGeBPHv2UO1I3EqMtNgfAmRBs2zlTUI=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=Jpl2H8wm57D+Jil9rRUbfQf/RHBlJIfzSeavUTY+XbwJM+f5BiDPAlid3FyOsFrmM
+	 NyygA1yJklIZ3VtAStRu3gmsmJ9O/jpsWc8RQgvz9eAOTRepzfQfC8N9QAkylN/Oee
+	 syfPfxi32KLU9StY8PW30VS92hyL33zMJtl69rlAFEDB5/Py9N5fg7Mj2/nmol6Ajh
+	 WzeytXx0+NaBluSxr0Rlh1wc5ab6ZfVQfjWo+9oNWC0aIO2OAXWXdY/CFnFELpamZF
+	 6CMJ21IVDxSeTaM8b825cg50ZtJdgzM2OqwWVGbnkbHFSOkbdMzqg8pAzU8u5z8bQQ
+	 sLX2kfS+2Dq4w==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH net-next v1 2/2] net/smc: reduce TX slot contention with
+ exclusive wait
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "D. Wythe" <alibuda@linux.alibaba.com>
+Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, linux-s390@vger.kernel.org, "Vasily
+ Gorbik" <gor@linux.ibm.com>
+In-Reply-To: <20260806064252.39180-3-alibuda@linux.alibaba.com>
+References: <20260806064252.39180-1-alibuda@linux.alibaba.com>
+ <20260806064252.39180-3-alibuda@linux.alibaba.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 07 Aug 2026 06:43:15 +0000
+Message-Id: <20260807064316.11F701F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v1 2/2] net/smc: reduce TX slot contention with
- exclusive wait
-To: "D. Wythe" <alibuda@linux.alibaba.com>, wenjia@linux.ibm.com,
-        wintera@linux.ibm.com, dust.li@linux.alibaba.com,
-        tonylu@linux.alibaba.com, guwen@linux.alibaba.com
-Cc: kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
-        leonro@nvidia.com, pabeni@redhat.com, edumazet@google.com,
-        sidraya@linux.ibm.com, jaka@linux.ibm.com,
-        oliver.yang@linux.alibaba.com
-References: <20260806064252.39180-1-alibuda@linux.alibaba.com>
- <20260806064252.39180-3-alibuda@linux.alibaba.com>
-Content-Language: en-US
-From: Mahanta Jambigi <mjambigi@linux.ibm.com>
-In-Reply-To: <20260806064252.39180-3-alibuda@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-ORIG-GUID: 5Z1A-X9Ul4AbIGvY6DC94YAoYjzATQny
-X-Authority-Analysis: v=2.4 cv=e5k2j6p/ c=1 sm=1 tr=0 ts=6a7570fd cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=V8dVQpNtD287ao_dHYcA:9
- a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: wg8Cl8HsGDvmhnxFt346RO9uKVX49UbI
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODA3MDAzNiBTYWx0ZWRfX8hvqpcHirg8N
- rDGFekFISNfXNrpmQMugTeNqOkDZXV/ih3Ew6h8biHE+N2VJrqP7Gqw/Zo+vsGRA4wPRjVIg+OI
- tlcAxwWGQB86l5GnQIPyPXWAyR11S2vBO+8GRFM9puNRNe769AEMq5f43gkyfG+YxNOruHs4xXI
- fIgLtK2zFNpuxjxmFMJ5UpW8LWC2K48ZIpe38vdAqDuc1jSjDRwig/imJ1oIHOuDn7RT36VQ9EB
- Vr/SnhKzEoDnWVlM/SAxd3ptYXrZqdfHrE87byfW5l/iKIhSzO5cKdjKBmaPrA8chZhi/3HZOxM
- eVcXo+ql2P9K2ommoip7lkVQsYcNNkF2EKBPm+Hf7Lzeax8L2sukCFWl6h1Gkf+fjQPEOaMw/Sh
- CDGDYr42woHwEdmq9kVavdBNjpSavmhR8uLy5OkqyPdKUGFaeKhSgWNNMiTn7gAEY/78zSHbKSa
- QOK+I2G/Z6KmCEY39mg==
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODA3MDAzNiBTYWx0ZWRfX+EzpRCfcR/D3
- z5rur2urkutzrnix7KXx9vDh9L8Hw9fSoYt7wYtB9PkhIgI82HQuzTJYUHu/giKMYbDkKJd3Yb3
- FEgvMVCT/r7dXRZXkB1cjSbN0O6U1Vc=
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-08-07_01,2026-08-06_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 impostorscore=0 priorityscore=1501 adultscore=0 phishscore=0
- clxscore=1015 malwarescore=0 spamscore=0 lowpriorityscore=0 bulkscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608070036
 
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
 
+New issues:
+- [High] The open-coded exclusive wait loop introduces a lost wakeup vulner=
+ability by failing to check the condition before enqueuing.
 
-On 06/08/26 12:12 pm, D. Wythe wrote:
-> smc_wr_tx_get_free_slot() waits for a free TX slot with
-> wait_event_interruptible_timeout(). Since the wait_event family
-> enqueues waiters as non-exclusive, wake_up() may wake multiple
-> waiters even though only one can use the slot, causing
-> thundering-herd contention when slots are scarce.
+Pre-existing issues:
+- [High] Returning -ERESTARTSYS from smc_wr_tx_get_free_slot causes silent =
+data stalling because the caller does not schedule tx_work to retry, and th=
+e error is ignored by sendmsg.
+--
 
-Have you run any performance benchmarks (e.g. redis-benchmark or uperf)
-to quantify the benefit of this change?
+--- Patch [2]: [PATCH net-next v1 2/2] net/smc: reduce TX slot contention w=
+ith exclusive wait ---
+commit bcc5b21bf03b53f401940337c34d2ab052835d45
+Author: D. Wythe <alibuda@linux.alibaba.com>
 
-Since the motivation is to reduce contention caused by multiple waiters
-being awakened for a single available TX slot, it would be helpful to
-see measurable results. Please share the baseline and patched throughput
-figures, and any observed throughput differences.
+net/smc: reduce TX slot contention with exclusive wait
+
+This patch modifies smc_wr_tx_get_free_slot() to use an exclusive wait loop=
+=20
+using prepare_to_wait_exclusive(). It also updates the return value on a=20
+pending signal from -EPIPE to -ERESTARTSYS to match standard wait semantics.
+
+> diff --git a/net/smc/smc_wr.c b/net/smc/smc_wr.c
+> index 6b5add9229937..2cdd4063c13d6 100644
+> --- a/net/smc/smc_wr.c
+> +++ b/net/smc/smc_wr.c
+[ ... ]
+> @@ -212,17 +214,31 @@ int smc_wr_tx_get_free_slot(struct smc_link *link,
+>  		if (rc)
+>  			return rc;
+>  	} else {
+> -		rc =3D wait_event_interruptible_timeout(
+> -			link->wr_tx_wait,
+> -			!smc_link_sendable(link) ||
+> -			lgr->terminating ||
+> -			(smc_wr_tx_get_free_slot_index(link, &idx) !=3D -EBUSY),
+> -			SMC_WR_TX_WAIT_FREE_SLOT_TIME);
+> -		if (!rc) {
+> -			/* timeout - terminate link */
+> -			smcr_link_down_cond_sched(link);
+> -			return -EPIPE;
+> +		rc =3D 0;
+> +		for (;;) {
+> +			prepare_to_wait_exclusive(&link->wr_tx_wait, &wait,
+> +						  TASK_INTERRUPTIBLE);
+> +			if (!smc_link_sendable(link) || lgr->terminating ||
+> +			    smc_wr_tx_get_free_slot_index(link, &idx) !=3D -EBUSY)
+> +				break;
+
+[Severity: High]
+Does this open-coded exclusive wait loop introduce a lost wakeup regression?
+
+By calling prepare_to_wait_exclusive() before checking if a slot is availab=
+le,
+the task is unconditionally added to the waitqueue. If it then finds a free
+slot immediately and breaks, it remains on the waitqueue until finish_wait(=
+) is
+called.
+
+If another slot is freed concurrently, an exclusive wake_up() could wake th=
+is
+exiting task and stop iterating. This absorbs the wakeup and starves other
+threads that are actually sleeping on the queue.
+
+This could cause a 10-second stall for the starved thread, leading to a link
+termination via smcr_link_down_cond_sched().
+
+> +			timeout =3D schedule_timeout(timeout);
+> +			/* re-check */
+> +			if (!smc_link_sendable(link) || lgr->terminating ||
+> +			    smc_wr_tx_get_free_slot_index(link, &idx) !=3D -EBUSY)
+> +				break;
+> +			if (!timeout) {
+> +				/* timeout - terminate link */
+> +				smcr_link_down_cond_sched(link);
+> +				break;
+> +			}
+> +			if (signal_pending(current)) {
+> +				rc =3D -ERESTARTSYS;
+> +				break;
+> +			}
+
+[Severity: High]
+This is a pre-existing issue, but does returning -ERESTARTSYS
+here cause silent data stalling if the caller does not schedule a retry?
+
+If we look at smcr_tx_sndbuf_nonempty() in net/smc/smc_tx.c, it only schedu=
+les
+tx_work if the return value is -EBUSY:
+
+	if (rc =3D=3D -EBUSY) {
+		...
+		mod_delayed_work(conn->lgr->tx_wq, &conn->tx_work,
+                                 SMC_TX_WORK_DELAY);
+	}
+	return rc;
+
+And in smc_tx_sendmsg() in net/smc/smc_tx.c, the return value is ignored:
+
+	if (!smc_tx_should_cork(smc, msg))
+		smc_tx_sndbuf_nonempty(conn);
+
+If the syscall is interrupted by a signal, and the data was already copied =
+to
+sndbuf, smc_tx_sendmsg() ignores the return value and returns success to
+userspace. Since tx_work is not scheduled for -ERESTARTSYS, the data could =
+be
+permanently stuck in the buffer.
+
+>  		}
+> +		finish_wait(&link->wr_tx_wait, &wait);
+> +		if (rc)
+> +			return rc;
+>  		if (idx =3D=3D link->wr_tx_cnt)
+>  			return -EPIPE;
+>  	}
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260806064252.3918=
+0-1-alibuda@linux.alibaba.com?part=3D2
