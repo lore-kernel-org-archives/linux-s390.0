@@ -1,318 +1,260 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F524354AE3;
-	Fri,  7 Aug 2026 16:12:37 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4060DEEB3;
+	Fri,  7 Aug 2026 16:16:02 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786119159; cv=none; b=Ijim4Snkvn4oq/rXCrjuqIwOPaQ06AzBfbSEXfEchNctPJhDjz1yaD6Tr141OGDb0UYHeUl0NWWq25qSn4/slpOy55oigEkPhCvHlZ6yo1SXcVE4DNx84PtLK6uIDCv8Nwq4zCRehFKtBmwVqj6GCvtV2weHQL7BiYZziz83dSg=
+	t=1786119368; cv=none; b=It0x5u8e03CEXnDiW+2ZeT310YUZhCzRqvTlfj4qEWQANUFsPzRZCuiWaK1/r+TPCLULa5GUzp2NDJRtwIzjdWCH2tO6sgYx03hHPHXHeWFJ5A2kPK4JqZwmMkb62emyzi6ypr5/eqzW+QvZxy6Czg06NUNaDdw0lB7LK56OGG8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786119159; c=relaxed/simple;
-	bh=PIAu/w7czezb2YdoQGRZVByTcp8qsnlnoJkI1gEbWGI=;
+	s=arc-20240116; t=1786119368; c=relaxed/simple;
+	bh=WZULOT6KVP3AQsi0pE1n5c4yQGRM4RWcdxDfNqlzAjA=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=BMVKa24Grs9AG/VhN604KdoVQrInTRWmuYV1uZFtHWfpR/Xx8rMLdiDnEO9sPh8jgrER2M3GCgBwdh6Qv3iDRkkNv/a64pNHEa7Z0NCwS0qv6l8EMi6/D4IDcwWQalnTO3yLawJQi1TUfKlYfSlCaKBT9zTTgWKQ15L6Gpmn1wo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ENUM8gng; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=YM5T4ZmXEaWUYrtgjMr1E0Qu43VTbE6aNVDwu7Q4ACD7KijNHUrk8CzH3BuYoujMahehIpPyG5yR4SJ60SYMUWtnosaVfQpnNEIKjoJ4dzYGan5yJfhWzeDx4laPsrJrCK/3pYmgV3y0v2tcEIG6OoGoJLnho0bSkLbqjU76TA0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JRcNYgh1; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ENUM8gng"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA50B1F000E9;
-	Fri,  7 Aug 2026 16:12:36 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JRcNYgh1"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60B201F000E9;
+	Fri,  7 Aug 2026 16:16:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786119157;
-	bh=+jNMcyviXOqyIyEem8wHFLHqIG2ElgcHXaIlla/xQKk=;
+	s=k20260515; t=1786119360;
+	bh=e8vwAl9ehbANYvaUVmaaVX/+zN9/HZBWlrU/nhLOhoY=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=ENUM8gng0iGZkjG2b+mYbYE9J1ItMtiI+e+hoHjthfD+eQKi2EKisWtvAOdzqlKBy
-	 ZNGarW46nB5+J4IDMXNDD224sUnbrDs+M9KOdeA91hJ05nsG9VmjE+Pj99jKbeAYtn
-	 KgjXsK24IQf2cxr2tB3doE0d1sQaDc6/On/2GNUISn1BPUwNAZwRfP3P8zxE4rJzOy
-	 vRUVlSO+ydqbKg0BOatgN5hye9Ka6Uh7YCW1cNSUyyNYZYzEmrWKKr12q7aBt1s2d1
-	 tqMaYy/qgLHH08WmVkAtlAZ7dsRv2TxwAyv1bEoHXE3QeJiD1/PmJLRBN/oyZwlhQP
-	 Ncd6PjLCCjZlQ==
+	b=JRcNYgh1rQYqPMKKkCUH4ldzt6RUpq4JslvRqmCUcyr15rTFqjSrOEXzmF74+zGK8
+	 1x+BDZAr/r+QfAwCeIcuQjsYtzMB9fAAY5qVKLl9weqYyjYaTAHOUaYIMqK6511acG
+	 7GmZjr1uTeM/hGxd0Y19hrhIyJ8v159f8GBlQfBMiHB/XDpuo87rXfWM6g09BM+iYe
+	 XUvYHOAYzyK5VuNEjSZAUV0IoggObtnBSrPkeeN5xyt4ecTxlaknCem3Xe/TQZgbmO
+	 4E/+2OsfcPZ3KcxN2K5ynToifdbQ5yHvgZjMiBz5CujY2dOGiV4eCEQkj4nXTiJcCZ
+	 VvTQoB/feMP3Q==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 07/10] dma-buf: heaps: Add support for Tegra VPR
+Subject: Re: [PATCH v4 05/10] mm/cma: Allow dynamically creating CMA areas
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Thierry Reding" <thierry.reding@kernel.org>
-Cc: devicetree@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, media-ci@linuxtv.org, linux-s390@vger.kernel.org, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, robh@kernel.org, conor+dt@kernel.org, dri-devel@lists.freedesktop.org
-In-Reply-To: <20260807-tegra-vpr-v4-7-5510d16af89e@nvidia.com>
+Cc: "Vasily Gorbik" <gor@linux.ibm.com>, dri-devel@lists.freedesktop.org, media-ci@linuxtv.org, devicetree@vger.kernel.org, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, "Heiko
+ Carstens" <hca@linux.ibm.com>
+In-Reply-To: <20260807-tegra-vpr-v4-5-5510d16af89e@nvidia.com>
 References: <20260807-tegra-vpr-v4-0-5510d16af89e@nvidia.com>
- <20260807-tegra-vpr-v4-7-5510d16af89e@nvidia.com>
+ <20260807-tegra-vpr-v4-5-5510d16af89e@nvidia.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 07 Aug 2026 16:12:35 +0000
-Message-Id: <20260807161236.DA50B1F000E9@smtp.kernel.org>
+Date: Fri, 07 Aug 2026 16:15:59 +0000
+Message-Id: <20260807161600.60B201F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 11 potential issue=
-(s) to consider:
-- [Critical] `tegra_vpr_map_dma_buf()` unconditionally calls `dma_map_sgtab=
-le()` on an SG table initialized with a NULL page for static VPRs.
-- [High] Ad-hoc invocation of system PM callbacks (`pm_generic_freeze` / `p=
-m_generic_thaw`) without `device_lock()` and freezing userspace risks sever=
-e data races and hardware state corruption.
-- [High] Memory allocated with `kvmalloc_array()` is incorrectly freed usin=
-g `kfree()`, which will cause a kernel panic if the allocation fell back to=
- vmalloc.
-- [High] `tegra_vpr_setup_chunks()` can calculate a chunk size of 0 for the=
- final chunk, causing initialization to fail.
-- [High] Calling `dma_heap_get_drvdata(heap)` before checking if `rmem->pri=
-v` is NULL causes a NULL pointer dereference.
-- [High] If `tegra_vpr_chunk_activate` fails during the `tegra_vpr_recycle`=
- error recovery path, it causes a CMA memory leak and invalid chunk state.
-- [High] Potential NULL pointer dereference in `tegra_vpr_device_init()` if=
- the device has no bound driver.
-- [Medium] Unprotected iteration over the `vpr->buffers` list in `tegra_vpr=
-_debugfs_show_chunks()` causes data races.
-- [Medium] An off-by-one error in `tegra_vpr_find_free_region()` prevents a=
-llocations from using the last page of the VPR.
-- [Medium] The device node reference acquired via `of_node_get()` is leaked=
- on the error paths of `tegra_vpr_add_heap()`.
-- [Low] The `dirty` bitmap is declared using a runtime variable, creating a=
- Variable Length Array (VLA).
+Thank you for your contribution! Sashiko AI review found 8 potential issue(=
+s) to consider:
+- [Critical] cma_free() double-frees pages into the buddy allocator, causin=
+g memory corruption.
+- [High] cma_create() ignores the return value of cma_activate_area(), publ=
+ishing broken and partially-initialized CMA areas.
+- [High] cma_create() relies on memblock_is_region_reserved() at runtime, w=
+hich is discarded after early boot.
+- [High] cma_for_each_area() only iterates over dynamic areas, breaking API=
+s relying on scanning all CMA areas.
+- [High] cma_free() checks if the CMA area is empty without holding the all=
+ocation mutex, leading to a TOCTOU race with concurrent allocations.
+- [Medium] totalcma_pages is permanently inflated if an early CMA area fail=
+s to activate.
+- [Medium] cma_create() fails to initialize cma->nid, defaulting it to 0 an=
+d potentially breaking zone validation on NUMA systems.
+- [Low] Dynamically created CMA areas are missing from sysfs and debugfs in=
+terfaces.
 --
 
---- Patch [7]: [PATCH v4 07/10] dma-buf: heaps: Add support for Tegra VPR -=
---
-commit c6dee57f094afce846e231b53f10aa5c8c4898a7
+--- Patch [5]: [PATCH v4 05/10] mm/cma: Allow dynamically creating CMA area=
+s ---
+commit ef1094abdd1bc24a286e7eaebd2724d471aebbfd
 Author: Thierry Reding <treding@nvidia.com>
 
-dma-buf: heaps: Add support for Tegra VPR
+mm/cma: Allow dynamically creating CMA areas
 
-NVIDIA Tegra SoCs commonly define a Video-Protection-Region, which is a
-region of memory dedicated to content-protected video decode and
-playback. Expose the VPR as a DMA heap so that applications and drivers
-can allocate buffers from this region.
+This patch introduces cma_create() and cma_free() to allow dynamically=20
+creating and freeing CMA regions at runtime. It separates static early area=
+s=20
+from dynamically allocated ones into different tracking structures.
 
-> diff --git a/drivers/dma-buf/heaps/tegra-vpr.c b/drivers/dma-buf/heaps/te=
-gra-vpr.c
-> new file mode 100644
-> index 0000000000000..b56dfa5c7a0a0
-> --- /dev/null
-> +++ b/drivers/dma-buf/heaps/tegra-vpr.c
+> diff --git a/mm/cma.c b/mm/cma.c
+> index a7929c758df15..8d8fe7c82ae5b 100644
+> --- a/mm/cma.c
+> +++ b/mm/cma.c
 [ ... ]
-> @@ -171,6 +171,11 @@ static int tegra_vpr_resize(struct tegra_vpr *vpr)
->  	}
-> =20
->  	list_for_each_entry(node, &vpr->devices, node) {
->  		err =3D pm_generic_freeze(node->dev);
-
-[Severity: High]
-Does this code introduce a data race or risk hardware corruption by invoking
-pm_generic_freeze() directly from an ioctl context? These callbacks are
-normally executed during system-wide suspend and expect device_lock() to be
-held and userspace to be frozen.
-
->  		if (err < 0) {
->  			pr_err("failed to freeze %s: %d\n",
->  			       dev_name(node->dev), err);
-[ ... ]
-> @@ -368,6 +368,7 @@ static int tegra_vpr_activate_chunks(struct tegra_vpr=
- *vpr,
->  				     struct tegra_vpr_buffer *buffer)
->  {
->  	DECLARE_BITMAP(dirty, vpr->num_chunks);
-
-[Severity: Low]
-Does this introduce a variable length array (VLA)? vpr->num_chunks is not a
-compile-time constant, so this expands to a dynamic allocation on the stack,
-which might trigger build errors with -Wvla.
-
->  	unsigned int i, bottom, top;
->  	int err =3D 0, ret;
-[ ... ]
-> @@ -503,8 +503,8 @@ static int tegra_vpr_find_free_region(struct tegra_vp=
-r *vpr,
->  				      unsigned int num_pages,
->  				      unsigned long align)
->  {
->  	return tegra_vpr_find_free_region_in_range(vpr, 0, vpr->num_pages - 1,
->  						   num_pages, align);
-
-[Severity: Medium]
-Does this code leak the last page of the VPR due to an off-by-one boundary
-check? tegra_vpr_find_free_region_in_range() loops while
-pos + num_pages <=3D end_page, meaning passing vpr->num_pages - 1 as end_pa=
-ge
-prevents allocations from using the final page.
-
->  }
-[ ... ]
-> @@ -668,9 +668,9 @@ tegra_vpr_buffer_allocate(struct tegra_vpr *vpr, size=
-_t size)
->  		/*
->  		 * Memory is backed by struct page, so track which ones we
->  		 * use.
->  		 */
->  		buffer->pages =3D kvmalloc_array(buffer->num_pages,
->  					       sizeof(*buffer->pages),
->  					       GFP_KERNEL);
-
-[Severity: High]
-Does this memory leak or cause a panic if the allocation falls back to
-vmalloc? buffer->pages is later freed using kfree(), which will fail for
-vmalloc addresses.
-
->  		if (!buffer->pages) {
->  			err =3D -ENOMEM;
-[ ... ]
-> @@ -746,8 +746,8 @@ static void tegra_vpr_buffer_release(struct tegra_vpr=
-_buffer *buffer)
-> =20
->  	bitmap_clear(vpr->bitmap, buffer->pageno, buffer->num_pages);
->  	list_del(&buffer->list);
->  	kfree(buffer->pages);
-
-[Severity: High]
-Is it possible for this code to panic by calling kfree() on a vmalloc
-pointer? buffer->pages was allocated using kvmalloc_array().
-
->  	kfree(buffer);
-[ ... ]
-> @@ -776,9 +776,9 @@ static int tegra_vpr_attach(struct dma_buf *buf,
->  		if (sg_alloc_table(&attach->sgt, 1, GFP_KERNEL)) {
->  			err =3D -ENOMEM;
->  			goto free;
+> @@ -198,19 +207,24 @@ static void __init cma_activate_area(struct cma *cm=
+a)
+>  			end_pfn =3D cmr->base_pfn + cmr->count;
+>  			for (pfn =3D start_pfn; pfn < end_pfn; pfn++)
+>  				free_reserved_page(pfn_to_page(pfn));
+> +
+> +			/* reset these so we don't later confuse cma_free() */
+> +			cmr->bitmap =3D NULL;
+> +			cmr->count =3D 0;
 >  		}
-> =20
->  		sg_set_page(attach->sgt.sgl, NULL, buffer->size, 0);
-
-[Severity: Critical]
-Can this code cause a panic when an importer maps the buffer? For static
-VPRs, the SG table is initialized with a NULL page here, but later passed to
-dma_map_sgtable() which attempts to dereference it.
-
->  		sg_dma_address(attach->sgt.sgl) =3D buffer->start;
->  		sg_dma_len(attach->sgt.sgl) =3D buffer->size;
 >  	}
+> -	totalcma_pages -=3D cma->count;
+>  	cma->available_count =3D cma->count =3D 0;
+>  	pr_err("CMA area %s could not be activated\n", cma->name);
+> +
+> +	return err;
+>  }
+
+[Severity: Medium]
+Does this removal leave totalcma_pages permanently inflated if an early boot
+area fails to activate? Early areas still have their page count added during
+cma_new_area() prior to activation.
+
 [ ... ]
-> @@ -806,8 +806,8 @@ tegra_vpr_map_dma_buf(struct dma_buf_attachment *atta=
-chment,
->  	struct tegra_vpr_attachment *attach =3D attachment->priv;
->  	struct sg_table *sgt =3D &attach->sgt;
->  	int err;
-> =20
->  	err =3D dma_map_sgtable(attachment->dev, sgt, direction,
->  			      DMA_ATTR_SKIP_CPU_SYNC);
+> @@ -221,41 +235,85 @@ void __init cma_reserve_pages_on_error(struct cma *=
+cma)
+[ ... ]
+> +static int cma_check_memory(phys_addr_t base, phys_addr_t size)
+> +{
+> +	if (!size || !memblock_is_region_reserved(base, size))
+> +		return -EINVAL;
+
+[Severity: High]
+Is it safe to call memblock_is_region_reserved() from cma_create() at runti=
+me?
+Since memblock_is_region_reserved() and memblock data structures are marked
+__init_memblock, won't they be discarded after early boot on architectures
+without CONFIG_ARCH_KEEP_MEMBLOCK, leading to a use-after-free?
+
+[ ... ]
+> @@ -1053,12 +1098,12 @@ bool cma_release_frozen(struct cma *cma, const st=
+ruct page *pages,
+[ ... ]
+> +int cma_for_each_area(int (*it)(struct cma *cma, void *data), void *data)
+> +{
+> +	struct cma *cma;
+> +
+> +	mutex_lock(&cma_lock);
+> +
+> +	list_for_each_entry(cma, &cma_areas, node) {
+
+[Severity: High]
+Since cma_areas only contains dynamically created regions, will callers of
+cma_for_each_area() now silently skip all standard early-boot CMA areas?
+
+[ ... ]
+> @@ -1149,3 +1213,78 @@ void __init *cma_reserve_early(struct cma *cma, un=
+signed long size)
+[ ... ]
+> +struct cma *cma_create(phys_addr_t base, phys_addr_t size,
+> +		       unsigned int order_per_bit, const char *name)
+> +{
+> +	struct cma *cma;
+> +	int ret;
+> +
+> +	ret =3D cma_check_memory(base, size);
+> +	if (ret < 0)
+> +		return ERR_PTR(ret);
+> +
+> +	cma =3D kzalloc_obj(*cma, GFP_KERNEL);
+> +	if (!cma)
+> +		return ERR_PTR(-ENOMEM);
+
+[Severity: Medium]
+Should cma->nid be initialized to NUMA_NO_NODE here? Since kzalloc_obj()
+leaves it as 0, could this cause pfn_range_intersects_zones() to validate
+against Node 0 instead of the correct node, potentially bypassing NUMA zone
+overlap checks?
+
+> +
+> +	mutex_lock(&cma_lock);
+> +
+> +	cma_init_area(cma, name, size, order_per_bit, true);
+> +	cma->ranges[0].base_pfn =3D PFN_DOWN(base);
+> +	cma->ranges[0].early_pfn =3D PFN_DOWN(base);
+> +	cma->ranges[0].count =3D cma->count;
+> +	cma->nranges =3D 1;
+> +
+> +	cma_activate_area(cma);
+> +
+> +	list_add_tail(&cma->node, &cma_areas);
+
+[Severity: High]
+What happens if cma_activate_area() fails (e.g., due to an -ENOMEM during
+bitmap allocation)? The error code is discarded, and the partially-initiali=
+zed
+cma object (with uninitialized mutexes and locks) is added to the global
+cma_areas list. Could this cause crashes when the caller or other subsystems
+try to use or free it?
+
+> +	totalcma_pages +=3D cma->count;
+> +	cma_area_count++;
+> +
+> +	mutex_unlock(&cma_lock);
+> +
+> +	return cma;
+> +}
+> +
+> +void cma_free(struct cma *cma)
+> +{
+> +	unsigned int i;
+> +
+> +	/*
+> +	 * Safety check to prevent a CMA with active allocations from being
+> +	 * released.
+> +	 */
+> +	for (i =3D 0; i < cma->nranges; i++) {
+> +		unsigned long nbits =3D cma_bitmap_maxno(cma, &cma->ranges[i]);
+> +
+> +		if (nbits && !bitmap_empty(cma->ranges[i].bitmap, nbits)) {
+> +			WARN(1, "%s: range %u not empty\n", cma->name, i);
+> +			return;
+> +		}
+> +	}
+
+[Severity: High]
+Can a concurrent thread successfully allocate from this CMA area right after
+the bitmap_empty() check completes? The check is performed outside of
+cma->alloc_mutex, so a race could lead to destroying the mutex and freeing
+the underlying memory while it is actively being allocated.
+
+> +
+> +	mutex_lock(&cma_lock);
+> +
+> +	/* free reserved pages and the bitmap */
+> +	for (i =3D 0; i < cma->nranges; i++) {
+> +		struct cma_memrange *cmr =3D &cma->ranges[i];
+> +		unsigned long end_pfn, pfn;
+> +
+> +		end_pfn =3D cmr->base_pfn + cmr->count;
+> +		for (pfn =3D cmr->base_pfn; pfn < end_pfn; pfn++)
+> +			free_reserved_page(pfn_to_page(pfn));
 
 [Severity: Critical]
-Does this code trigger a panic for static VPR buffers? The sgt can be
-populated with a NULL page by tegra_vpr_attach(), causing dma_map_sgtable()
-to dereference it.
+Does this loop double-free pages into the buddy allocator? When
+cma_activate_area() is initially called, it invokes
+init_cma_reserved_pageblock() which clears the PageReserved flag and inserts
+the memory into the buddy allocator. If cma_free() later iterates over these
+pages and calls free_reserved_page(), won't that blindly call __free_pages()
+on pages already managed by the buddy allocator, corrupting the free lists?
 
->  	if (err < 0)
->  		return ERR_PTR(err);
 [ ... ]
-> @@ -826,6 +826,7 @@ static void tegra_vpr_unmap_dma_buf(struct dma_buf_at=
-tachment *attachment,
->  static void tegra_vpr_recycle(struct tegra_vpr *vpr)
->  {
->  	DECLARE_BITMAP(dirty, vpr->num_chunks);
+> diff --git a/mm/cma_debug.c b/mm/cma_debug.c
+> index 523ba4a0f9f76..548b0157e7b5a 100644
+> --- a/mm/cma_debug.c
+> +++ b/mm/cma_debug.c
+> @@ -204,9 +204,9 @@ static int __init cma_debugfs_init(void)
+> =20
+>  	cma_debugfs_root =3D debugfs_create_dir("cma", NULL);
+> =20
+> -	for (i =3D 0; i < cma_area_count; i++)
+> -		if (test_bit(CMA_ACTIVATED, &cma_areas[i].flags))
+> -			cma_debugfs_add_one(&cma_areas[i], cma_debugfs_root);
+> +	for (i =3D 0; i < cma_early_area_count; i++)
+> +		if (test_bit(CMA_ACTIVATED, &cma_early_areas[i].flags))
+> +			cma_debugfs_add_one(&cma_early_areas[i], cma_debugfs_root);
 
 [Severity: Low]
-Does this introduce a variable length array (VLA)? vpr->num_chunks is not a
-compile-time constant, so this expands to a dynamic stack allocation which
-might trigger build errors with -Wvla.
-
->  	unsigned int i;
->  	int err;
-[ ... ]
-> @@ -890,7 +890,7 @@ static void tegra_vpr_recycle(struct tegra_vpr *vpr)
->  		/*
->  		 * This may not be fully activated at this point, but we need
->  		 * to keep track of it anyway to make sure the CMA region can
->  		 * eventually be released. The WARN_ON above tells us when it
->  		 * happens: here be dragons.
->  		 */
->  		set_bit(i, vpr->active);
-
-[Severity: High]
-Does this code create an inconsistent chunk state and leak CMA memory? If
-tegra_vpr_chunk_activate() fails on the error path above, the chunk's active
-flag remains false, but this blindly sets it as active in the VPR bitmap.
-Subsequent allocations may see the chunk as inactive, allocating new memory
-and leaking the old CMA allocation.
-
->  	}
->  }
-[ ... ]
-> @@ -1023,8 +1023,8 @@ static void tegra_vpr_debugfs_show_chunks(struct te=
-gra_vpr *vpr,
->  			   chunk->active ? "active" : "inactive",
->  			   chunk->num_buffers);
->  	}
-> =20
->  	list_for_each_entry(buffer, &vpr->buffers, list) {
-
-[Severity: Medium]
-Does this unprotected traversal of vpr->buffers cause data races? This loop
-iterates over the list without holding mutex_lock(&vpr->lock), which can ra=
-ce
-against concurrent buffer allocation or release operations.
-
->  		string_get_size(buffer->size, 1, STRING_UNITS_2, buf,
->  				sizeof(buf));
-[ ... ]
-> @@ -1079,9 +1079,9 @@ static int tegra_vpr_setup_chunks(struct tegra_vpr =
-*vpr, const char *name)
->  	for (i =3D 0; i < vpr->num_chunks; i++) {
->  		size_t size =3D limit - start;
->  		phys_addr_t end;
-> =20
->  		size =3D min_t(size_t, size, max_size);
->  		end =3D start + size - 1;
-> =20
->  		err =3D tegra_vpr_chunk_init(vpr, &vpr->chunks[i], start, size,
->  					   order, name);
-
-[Severity: High]
-Can this code fail during initialization if the calculated size is 0? If
-vpr->size is not a power of 2, earlier chunks could consume all available
-space. For the final chunk, size would evaluate to 0, which gets passed to
-tegra_vpr_chunk_init() and cma_create(), failing the allocation.
-
->  		if (err < 0) {
->  			pr_err("failed to create VPR chunk: %d\n", err);
-[ ... ]
-> @@ -1134,6 +1134,7 @@ static int tegra_vpr_add_heap(struct reserved_mem *=
-rmem,
->  	INIT_LIST_HEAD(&vpr->devices);
->  	mutex_init(&vpr->lock);
-> =20
->  	vpr->resizable =3D !of_property_read_bool(np, "no-map");
->  	vpr->dev_node =3D of_node_get(np);
-
-[Severity: Medium]
-Does this code leak the device node reference on error paths? If subsequent
-operations like bitmap_zalloc() or dma_heap_add() fail, the function jumps =
-to
-the free label but does not call of_node_put(vpr->dev_node).
-
->  	vpr->align =3D PAGE_SIZE;
->  	vpr->base =3D rmem->base;
-[ ... ]
-> @@ -1215,9 +1215,9 @@ static int tegra_vpr_node_init(unsigned long offset=
-, struct reserved_mem *rmem)
-> =20
->  static int tegra_vpr_device_init(struct reserved_mem *rmem, struct devic=
-e *dev)
->  {
->  	struct dma_heap *heap =3D rmem->priv;
->  	struct tegra_vpr *vpr =3D dma_heap_get_drvdata(heap);
->  	const struct dev_pm_ops *pm =3D dev->driver->pm;
-
-[Severity: High]
-Can these lines cause a kernel panic due to NULL pointer dereferences?
-dma_heap_get_drvdata() dereferences the heap pointer before checking if
-rmem->priv (the heap) is NULL. Furthermore, dev->driver is dereferenced
-without checking if a driver is actually bound to the device.
-
->  	struct tegra_vpr_device *node;
-> =20
->  	if (!rmem->priv)
->  		return -EPROBE_DEFER;
+Since sysfs and debugfs initialization now strictly iterate over
+cma_early_areas during boot, are dynamically created CMA areas intentionally
+excluded from these interfaces?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260807-tegra-vpr-=
-v4-0-5510d16af89e@nvidia.com?part=3D7
+v4-0-5510d16af89e@nvidia.com?part=3D5
