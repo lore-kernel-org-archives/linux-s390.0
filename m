@@ -1,44 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B31023FDC0E
-	for <linux-s390@vger.kernel.org>; Fri,  7 Aug 2026 08:51:23 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 14EEE37B41E
+	for <linux-s390@vger.kernel.org>; Fri,  7 Aug 2026 09:02:28 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786092684; cv=none; b=CR7+2+1Kp7okZUAq9ig72bEkldS/s+eBs5wvDDBSgLT/jbYvnUaet2utGDE/xHtqqyzt/zgqu3tDlwTHxujtJtYhYwgmaO66mt3TZuAOmE8b80qwSYFec6qT8tUYQLMPTts7872zAOp/sZ0+gsGOy4pW2o0e4iCSZq3SFVWmY/k=
+	t=1786093349; cv=none; b=pojM76xgOvJa+kR8J1CnPBp91IR2CT0v6cYJQg/HylR3l7ber8F3uUybqOtDIxG1xQzv1gvCtVcdBHIjiZe8NXydJyz1On7SpxGmZfEec6mlDr5PKH76tlATsevds6leI5kXDzMmH2Z+JR58OQ2Z3mO9xF5nxXILXyqp6dHCIUU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786092684; c=relaxed/simple;
-	bh=q4LK3gLhiWTGXlGliPU0dTMlRiT3UZ3DLb90CzgWNb8=;
+	s=arc-20240116; t=1786093349; c=relaxed/simple;
+	bh=rp+Oou3GS5NuL3ZdU/8vKxcJass/YsECkB0ZM06yK4c=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=a9wweWD2If0ODk0Z3c9y57GKVTrLsXNvR9F5/1Cp0e5BCLpU/nL8CqXkXriecf9m3rxTFAHI4jGzFbvi8gbI09/o2qmdN4oIxQ2s/P7TlvBPHqHJpHwjSqiBCNyAHyt+bSa39Qvjc+EpIsktMRfkocOhhC7y4/HpYzq6u8Rqcus=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=UI9RCfu9; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=MxzEljxAw2YMcZFosTZYwkf+9OCSw3YgqjmtcUzeVvXb8OalGQJh1xwTs8/JXnSJvXAREAQzq6T4tFtZIA1Xo1UDHrZn5GVznf2AB4hrdChm4dmiTBffC7JbROganGjyuHUntXlKk5/U4Y3BM8Rpib6RTgktcQitFDprApc1uI8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=eX9f+LYn; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="UI9RCfu9"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 533281F000E9;
-	Fri,  7 Aug 2026 08:51:22 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="eX9f+LYn"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A46F21F000E9;
+	Fri,  7 Aug 2026 09:02:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786092683;
-	bh=yx7NirbkxoovqffPx5utEowrXkw0VNhxUqq7P1H2qfo=;
+	s=k20260515; t=1786093348;
+	bh=hjSnq8MMlW6tXtKh5f29gBBizElxirE7udcn5E8Yzl0=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=UI9RCfu92e9LliTym+xmQxMuncOubq8ftwdYR0tjNWYJf9UBHwWRp1fQ/jKhQosdT
-	 fgxS1ga9wAF4fBezDyBvCyWlnInU3HlTaWwAD8Fk00zm5wucA591eoFSe5sao1rqOS
-	 ejfpCKKB5uYGLwyhf5g70vKXrKiqFD+ZAx9eKG5Uw8z2uL0duWrYxta7/D3GAU17yf
-	 k/Yq3VU5ZzlKAx3iPAVPsWk0UkCes4pVPGX5i0HfFeV1qUTQ1kUxDqR7Ef1SWH7f7X
-	 Y2aB9LjfEkXUic/S4uBojssBkwqr46B35VJIrjIaTNN33BFvsLzYrBZ2yXAO0w+PHU
-	 qR2u9sYikfCYg==
+	b=eX9f+LYnBKVu2CIFPK6tS/q2CPDtI+sG7Mj8DUxFKg51qurcLr7vr7amtoyCKzoY+
+	 Gx4LsEyPLMq8dquiZzRTV+YBOPTaz8LhfO+CHqg7VjenT/rVq/xbM/qyNTs7v2Xwh0
+	 jp4opUlSkzcS5I0MSxHNlaf7DfrDRnGtQWJv4CPOnlh0LLX8s25aNRn2DlYQq6Somc
+	 jkSOAM/rSnN7Pl7QUgvJm7lZnVN6qYwQFMZWU0CKESbJMOPvgDRvbwlVSW+XcICLTw
+	 lCyECDiQZ8voAzgfnRjQKpS3+3lSRflMP3hBg17TQqrc+ubMVmEGOOlyK07kUceqX2
+	 iyejAxnQND8pw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 1/2] s390/pai: Use PAI PMU index as parameter replacing
- event
+Subject: Re: [PATCH 2/2] s390/pai: Move locking to event init and delete
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Thomas Richter" <tmricht@linux.ibm.com>
-Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
- Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>
-In-Reply-To: <20260807083910.3771502-1-tmricht@linux.ibm.com>
+Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, "Vasily
+ Gorbik" <gor@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>
+In-Reply-To: <20260807083910.3771502-2-tmricht@linux.ibm.com>
 References: <20260807083910.3771502-1-tmricht@linux.ibm.com>
+ <20260807083910.3771502-2-tmricht@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 07 Aug 2026 08:51:21 +0000
-Message-Id: <20260807085122.533281F000E9@smtp.kernel.org>
+Date: Fri, 07 Aug 2026 09:02:27 +0000
+Message-Id: <20260807090227.A46F21F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -49,77 +49,75 @@ Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [High] The PAI PMU lacks CPU hotplug state registration. When a per-task =
-event is created, per-CPU data is allocated only for currently online CPUs.=
- If a task migrates to a newly onlined CPU, PMU callbacks dereference a NUL=
-L per-CPU pointer, causing a kernel panic.
+- [High] Missing CPU hotplug support causes a NULL pointer dereference in `=
+pai_add()` when a task with an active PAI event migrates to a newly onlined=
+ CPU.
 --
 
---- Patch [1]: [PATCH 1/2] s390/pai: Use PAI PMU index as parameter replaci=
-ng event ---
-commit a1e342cbbe1229dba8d0d235d003b35f9d061a5f
+--- Patch [2]: [PATCH 2/2] s390/pai: Move locking to event init and delete =
+---
+commit fa13d9fdfca46f4567335a92efab0ab04b313967
 Author: Thomas Richter <tmricht@linux.ibm.com>
 
-s390/pai: Use PAI PMU index as parameter replacing event
+s390/pai: Move locking to event init and delete
 
-This patch updates the PAI PMU code to use the PAI index value directly
-as a function argument instead of passing a pointer to struct perf_event.
-This simplifies functions like pai_alloc_cpu() and pai_event_destroy_cpu()
-without introducing any functional changes.
+This commit moves the mutex locking from the per-CPU allocation functions
+to the higher-level event allocation and deletion routines. No functional
+changes are introduced.
 
 > diff --git a/arch/s390/kernel/perf_pai.c b/arch/s390/kernel/perf_pai.c
-> index cdb8006220ca0..7c13f5586c793 100644
+> index 7c13f5586c793..03c5bda53cccb 100644
 > --- a/arch/s390/kernel/perf_pai.c
 > +++ b/arch/s390/kernel/perf_pai.c
 
 [ ... ]
 
-> @@ -318,6 +316,7 @@ static int pai_alloc_cpu(struct perf_event *event, in=
-t cpu)
+> @@ -390,10 +388,12 @@ static int pai_event_init(struct perf_event *event,=
+ int idx)
+>  		}
+>  	}
 > =20
->  static int pai_alloc(struct perf_event *event)
->  {
-> +	int idx =3D PAI_PMU_IDX(event);
->  	struct cpumask *maskptr;
->  	int cpu, rc =3D -ENOMEM;
-> =20
-> @@ -326,10 +325,10 @@ static int pai_alloc(struct perf_event *event)
->  		goto out;
-> =20
->  	for_each_online_cpu(cpu) {
-> -		rc =3D pai_alloc_cpu(event, cpu);
-> +		rc =3D pai_alloc_cpu(idx, cpu);
+> +	mutex_lock(&pai_reserve_mutex);
+>  	if (event->cpu >=3D 0)
+>  		rc =3D pai_alloc_cpu(idx, event->cpu);
+>  	else
+>  		rc =3D pai_alloc(event);
 
 [Severity: High]
-This is a pre-existing issue, but does this allocation strategy handle CPU
-hotplug correctly?
+This is a pre-existing issue, but does the current design lack CPU hotplug
+support?
 
-Since memory for the PMU context is only allocated for currently online
-CPUs, what happens if a task migrates to a newly onlined CPU?
+Looking at pai_alloc() called here, it only allocates memory for currently
+online CPUs:
 
-Looking at pai_add(), if a task is scheduled on a newly hotplugged CPU
-where no memory was allocated, it seems mp->mapptr will be NULL:
+pai_alloc() {
+...
+        for_each_online_cpu(cpu) {
+                rc =3D pai_alloc_cpu(idx, cpu);
+...
 
-arch/s390/kernel/perf_pai.c:pai_add() {
-    ...
-    struct pai_map *cpump =3D mp->mapptr;
-    struct paiext_cb *pcb =3D cpump->paiext_cb;
-    ...
-}
+If a task-bound PAI event is created and a new CPU is hotplugged later, the
+per-CPU mapptr for the new CPU appears to remain NULL.
 
-Can this lead to a NULL pointer dereference when accessing cpump->paiext_cb?
+When the task with the active event is scheduled onto the newly onlined
+CPU, the perf core will call pai_add(), which seems to unconditionally
+dereference cpump:
 
-Should the PAI PMU register for CPU hotplug states to ensure memory is
-allocated when new CPUs come online?
+pai_add() {
+        struct pai_map *cpump =3D mp->mapptr;
+        struct paiext_cb *pcb =3D cpump->paiext_cb;
 
->  		if (rc) {
->  			for_each_cpu(cpu, maskptr)
-> -				pai_event_destroy_cpu(event, cpu);
-> +				pai_event_destroy_cpu(idx, cpu);
->  			kfree(maskptr);
->  			goto out;
->  		}
+        if (++cpump->active_events =3D=3D 1) {
+...
+
+Can this result in a kernel panic due to a NULL pointer dereference when
+a task migrates to a newly onlined CPU?
+
+> +	mutex_unlock(&pai_reserve_mutex);
+>  	if (rc) {
+>  		free_page(PAI_SAVE_AREA(event));
+>  		goto out;
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260807083910.3771=
-502-1-tmricht@linux.ibm.com?part=3D1
+502-1-tmricht@linux.ibm.com?part=3D2
