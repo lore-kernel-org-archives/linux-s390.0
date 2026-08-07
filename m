@@ -1,60 +1,33 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7017842D77E
-	for <linux-s390@vger.kernel.org>; Fri,  7 Aug 2026 10:55:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id B856242BC4D;
+	Fri,  7 Aug 2026 11:03:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786100136; cv=none; b=DFC9Y/XlAqOA2dTzh/xLs8Jqr5jZW5QA9MDgE+mF03fsxqAKXRiyz1SfqysH03Dh8vk9+NyjloRi8GWb7vBQL7FqAWfrrNEOw2lWNlJgLNKHA4Jwfl7VHM5gaXzXp3jmOrYAY+JLoEIY8SFzt9WeHah2QRzSdrxH3/z2moUPPHY=
+	t=1786100604; cv=none; b=MPflhDNdWPCuvCqo1IXXwKHMwF0fOfBD0GtE8dosw0pPS5AmXOobRqNEyhGAU2puLd0NMl2234lCaMcY6FfdUckhOhZ7k6JVBjiXSzXD6JYRsZH2a7eYCZ1HeFKhwRmP5qY/TiQu/3DgH5W5+PTOxkr0OFYsz6B7xmYRHC2iUMI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786100136; c=relaxed/simple;
-	bh=jGvaZRIw1vneQ5c5TmC4FKCPyNyO6W0kz26ZJnWHWno=;
+	s=arc-20240116; t=1786100604; c=relaxed/simple;
+	bh=xVUNR7ylOX30B68Mp97+YrCjqIAMylEeu1MoGj3JgSs=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=PAz4tVaxjuty2ybboQMmNGHA3rlNqNSkTtZ427Z9KjJdRvpcLv5y8BNY+6nnA/e/Y+TI2iSQYAxr8hXYx5qOJwJwymxcCeFEKIvwnNpX3R/468HhI675dP849WP5A1hXpE5ZbJoOkWFBE9YhScgbPPRXDQq4QWWzBQAGjbrEn6A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=T4ZgKs2d; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	 In-Reply-To:Content-Type; b=YPrtiJBwa1Bxu1VzyCDXIRkKOmSjTIFSXMngZ+vGRf3MkQ1aLWYKm1NYjwzO/86tg2c7IX7QpInk3edCogzrq9yKl5l+O/KulGbNOaKrKJz/p93LaT4WrrMZGglPB7dglxsF4YcgQ4k/pHhSh4scsNXmMGeVrn2tQf7582sVDVc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=J8p7ij5I; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="T4ZgKs2d"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6770Hdmu4133707
-	for <linux-s390@vger.kernel.org>; Fri, 7 Aug 2026 10:55:34 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=RS1nAP
-	i5MOXIGu0ZmOLsDkjxKc7PQfjaAHAaquljOKw=; b=T4ZgKs2d8Fv4R9mb6FQn17
-	HLSpjzZqeypLjNjCWVcZh9aFPxhQkZASAzPWkRxHgOM79UuKdDwFaB9ax+z9fgl4
-	vRwaOs71XsZmgje+/8bnya8WhBEK18cXSt5+ZsOA3DMJF/umhcrsCt9L7mQW+yPy
-	D1GXItlSTniMgnOn3KvLHrn2AgyP7FONwvWsFQAAXqN6Vay9LqtWS8W+j/rBVmbD
-	xq4nIfArSuo3XBy5lttjKbRVuTVNY+qqLugne1mSVzFQL/RzLz90ruzWPfbgQ7BY
-	ayC3WEky9N6i3wotwDcIqAKYlJTWeJVp9ip1iW0tLZZE8L9gwImX//yZDqnz18jw
-	==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fvy043gmt-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Fri, 07 Aug 2026 10:55:34 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 677AfGfL015385
-	for <linux-s390@vger.kernel.org>; Fri, 7 Aug 2026 10:55:33 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fsugwff50-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Fri, 07 Aug 2026 10:55:33 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 677AtTd020513302
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 7 Aug 2026 10:55:29 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 22A072004B;
-	Fri,  7 Aug 2026 10:55:29 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A9D8920040;
-	Fri,  7 Aug 2026 10:55:28 +0000 (GMT)
-Received: from [9.224.77.173] (unknown [9.224.77.173])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri,  7 Aug 2026 10:55:28 +0000 (GMT)
-Message-ID: <ff87bfee-148f-418f-897c-6fa9b96aff5f@linux.ibm.com>
-Date: Fri, 7 Aug 2026 12:55:28 +0200
+	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="J8p7ij5I"
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 056EA1A9A;
+	Fri,  7 Aug 2026 04:03:18 -0700 (PDT)
+Received: from [10.57.42.104] (unknown [10.57.42.104])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id CE4F43F86F;
+	Fri,  7 Aug 2026 04:03:16 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=arm.com; s=foss;
+	t=1786100602; bh=xVUNR7ylOX30B68Mp97+YrCjqIAMylEeu1MoGj3JgSs=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=J8p7ij5IxKrp/kurzyHOpL7pNcFvOmaC1o1pKHx1B0H8nD1rs9aRZPjUBxhjjZZCQ
+	 N4wJy56XcfQZ9q6eMGh6OX2azJnBHJkC8guCRYo50qm8khWqqcEcjsfqtXCA71yfRP
+	 ZBj3ot3KvGeWH3bSFFxlac5fB9iAToqsB4eMcWRg=
+Message-ID: <0ce2249d-3a64-4889-b455-0e8fddcc7282@arm.com>
+Date: Fri, 7 Aug 2026 12:03:14 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -62,101 +35,145 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 1/3] s390/vfio_ccw: Add __must_hold() attribute to
- vfio_ccw_sch_quiesce()
-To: Heiko Carstens <hca@linux.ibm.com>, Janosch Frank
- <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Eric Farman <farman@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org
-References: <20260806153849.2622576-1-hca@linux.ibm.com>
- <20260806153849.2622576-2-hca@linux.ibm.com>
-Content-Language: en-US
-From: Christian Borntraeger <borntraeger@linux.ibm.com>
-In-Reply-To: <20260806153849.2622576-2-hca@linux.ibm.com>
+Subject: Re: [PATCH v8 12/23] dma: swiotlb: pass mapping attributes by
+ reference
+To: Jason Gunthorpe <jgg@nvidia.com>, Mostafa Saleh <smostafa@google.com>
+Cc: "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>, iommu@lists.linux.dev,
+ linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+ linux-coco@lists.linux.dev, Marek Szyprowski <m.szyprowski@samsung.com>,
+ Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
+ Steven Price <steven.price@arm.com>,
+ Suzuki K Poulose <Suzuki.Poulose@arm.com>,
+ Catalin Marinas <catalin.marinas@arm.com>, Jiri Pirko <jiri@resnulli.us>,
+ Petr Tesarik <ptesarik@suse.com>, Alexey Kardashevskiy <aik@amd.com>,
+ Dan Williams <dan.j.williams@intel.com>, Xu Yilun
+ <yilun.xu@linux.intel.com>, linuxppc-dev@lists.ozlabs.org,
+ linux-s390@vger.kernel.org, Madhavan Srinivasan <maddy@linux.ibm.com>,
+ Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
+ "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org,
+ Michael Kelley <mhklinux@outlook.com>
+References: <20260717180442.110954-1-aneesh.kumar@kernel.org>
+ <20260717180442.110954-13-aneesh.kumar@kernel.org>
+ <ami_mpd_1pF4Tmdu@google.com> <yq5a5x1ygo7z.fsf@kernel.org>
+ <amnRB98ZZIysHuM3@google.com> <yq5acxw6dl1d.fsf@kernel.org>
+ <20260804142032.GC27883@nvidia.com> <anL9-OrDGqYQAWNV@google.com>
+ <20260805123023.GO27883@nvidia.com>
+From: Robin Murphy <robin.murphy@arm.com>
+Content-Language: en-GB
+In-Reply-To: <20260805123023.GO27883@nvidia.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODA3MDA4MyBTYWx0ZWRfX/d2rXAnCCwqF
- e9MsjKtBetD9Cv/9XG3jRrLurJa2Bxw79weWiUfMff/mUphQ0tGl8j37gnMVhdALdPXAz+UH3xD
- iRg/TLaQalRRsJTr+gE72euvR2wBsjLHwzv6XO8XF25OJhdE/hK6+/nxZp/h4HjIeiHLQDYGLQY
- hBBcbtvM5B+fLjLfRaPsz+fE2l405XVubagz1NjgPlrSaAGyr2uvFZdoZtFqnQ0DEsEY/KaYPw3
- OdQSgLjy7km72qtwFTlJ5c+4Uyaazrdy8i7SFljBDzvol1wWe3rCv40UmsRxE9CgJEMkojsXgkB
- VnzV3I7W+GozvMU0h1UW/T9vi/QYAAfI3codXzT4TljhaVkM4aP8+EywMsMjPDiydcpXP8JOUSs
- edQYxXq9Gfq5Qee5hzgw52cbCVQX4NGRK4mxi7zC2vKQ2/OEf0fqdxnh+aYuzW/zD3YczgbfAHs
- oz2ijVbs+aSA2oMD1nQ==
-X-Proofpoint-ORIG-GUID: baXUjqYzoJBgsi99Mq6n48chYiBsuNHc
-X-Proofpoint-GUID: baXUjqYzoJBgsi99Mq6n48chYiBsuNHc
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODA3MDA4MyBTYWx0ZWRfX0TJGJOet8gZn
- 7+DNpmRMUOU5tBDyZPpOM4zTu/J+IzXAQe9k6jwngbOTR7NI4oJzJZWczvnc9UswLKUVO/xivC6
- W0/qPCJPzX4UfSFsVGrE15rVoZ8obMc=
-X-Authority-Analysis: v=2.4 cv=WLpPmHsR c=1 sm=1 tr=0 ts=6a75b9a6 cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
- a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8
- a=JluCVat7wJMzAMw6YL4A:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-08-07_01,2026-08-06_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0 lowpriorityscore=0 adultscore=0 malwarescore=0 clxscore=1015
- impostorscore=0 priorityscore=1501 phishscore=0 suspectscore=0 spamscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608070083
 
-
-
-Am 06.08.26 um 17:38 schrieb Heiko Carstens:
-> Add __must_hold() attribute to vfio_ccw_sch_quiesce() in order to let
-> clang's context analysis know that sch->lock must be held on function
-> entry. This can also be easily verified when inspecting the function.
+On 2026-08-05 1:30 pm, Jason Gunthorpe wrote:
+> On Wed, Aug 05, 2026 at 09:10:16AM +0000, Mostafa Saleh wrote:
+>> On Tue, Aug 04, 2026 at 11:20:32AM -0300, Jason Gunthorpe wrote:
+>>> On Wed, Jul 29, 2026 at 06:12:38PM +0530, Aneesh Kumar K.V wrote:
+>>>> There is a possibility that we may support io_tlb_mem with cc_shared =
+>>>> false in the future. As a result, only swiotlb_map() knows which type of
+>>>> bounce buffer was used, making it the only place where the attributes
+>>>> can be updated correctly.
+>>>
+>>> Yeah, +1, the attribute should be changed at the same effective place
+>>> the source memory is changed away from what the DMA API user
+>>> provided. Only the thing providing the new memory (eg swiotlb) should
+>>> know its properties.
+>>
+>> I will keep the conversation here instead of 2 threads.
+>>
+>> That seems like a big leap, I'd be worried about devices that operate
+>> on confidential data that should not be shared/decrypted.
 > 
-> Without this annotation this leads to a valid warning when context
-> analysis is enabled:
+> That seems like something very differnt.
 > 
-> drivers/s390/cio/vfio_ccw_drv.c:55:9: warning:
->    expecting spinlock 'sch->lock' to be held at start of each loop [-Wthread-safety-analysis]
->     55 |                 ret = cio_cancel_halt_clear(sch, &iretry);
->        |                       ^
+>> One example for this which exists in pKVM (this part is not
+>> upstream yet) is non coherent devices that require bouncing but they
+>> still want to keep the data private. In that case ideally they get
+>> an encrypted SWIOTLB pool, but it's always better to fail than to use
+>> a decrypted pool behind it's back.
 > 
-> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-
-Acked-by: Christian Borntraeger <borntraeger@linux.ibm.com>
-
-I assume this series should go via the s390 tree with the others?
-
-> ---
->   drivers/s390/cio/vfio_ccw_drv.c     | 1 +
->   drivers/s390/cio/vfio_ccw_private.h | 3 ++-
->   2 files changed, 3 insertions(+), 1 deletion(-)
+> We don't have any API for a DMA API caller to signal 'must be
+> confidential'. If we want to add one it would be a flag to check
+> before changing the physical address in swiotlb.
 > 
-> diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
-> index 1a095085bc72..ed9ca77c5b23 100644
-> --- a/drivers/s390/cio/vfio_ccw_drv.c
-> +++ b/drivers/s390/cio/vfio_ccw_drv.c
-> @@ -35,6 +35,7 @@ debug_info_t *vfio_ccw_debug_trace_id;
->    * Helpers
->    */
->   int vfio_ccw_sch_quiesce(struct subchannel *sch)
-> +	__must_hold(&sch->lock);
->   {
->   	struct vfio_ccw_parent *parent = dev_get_drvdata(&sch->dev);
->   	struct vfio_ccw_private *private = dev_get_drvdata(&parent->dev);
-> diff --git a/drivers/s390/cio/vfio_ccw_private.h b/drivers/s390/cio/vfio_ccw_private.h
-> index 0501d4bbcdbd..8db29519dbfd 100644
-> --- a/drivers/s390/cio/vfio_ccw_private.h
-> +++ b/drivers/s390/cio/vfio_ccw_private.h
-> @@ -127,7 +127,8 @@ struct vfio_ccw_private {
->   	struct work_struct	crw_work;
->   } __aligned(8);
->   
-> -int vfio_ccw_sch_quiesce(struct subchannel *sch);
-> +int vfio_ccw_sch_quiesce(struct subchannel *sch)
-> +	__must_hold(&sch->lock);
->   void vfio_ccw_sch_io_todo(struct work_struct *work);
->   void vfio_ccw_crw_todo(struct work_struct *work);
->   
+> As defined today the DMA API expressly copies from private to shared
+> memory, that is baked into it's design and not a bug.
+> 
+> My expectation is all these cases have to be solved by setting up the
+> swiotlb properly so it provides suitable bounce buffers. Yes, this
+> means we will eventually need both private and shared swiotlb pools.
+> 
+>> I have not been following the work on T=1/T=0 devices, but IIRC, they
+>> required some complexity to handle their stage-2 as these modes will
+>> be emulated differently (for CCA, RMM vs untrusted host).
+>> I was thinking that it might be easier to represent those to the
+>> guest kernel as 2 separate devices (bounded to different groups...)
+>> where one is trusted and the other is not, and that way the DMA-API
+>> can have strict rules about memory sharing.
+> 
+> No way! That's would be a giant disaster for the driver model.
+> 
+> Each struct device will have a flag that shows if it is in T=1 or T=0
+> state. The flag can only change while a driver is not bound, and
+> changing the flag will update the DMA API configuration.
+
+I see we no longer seem to have the concern of devices in TDISP RUN 
+state being able to send T=0 transactions other than MSI writes, where 
+GICv3 means the host is already going to have to be in on the game to 
+some degree there anyway. There could still be a potential concern of 
+other non-PCIe equivalents wanting such a thing, though. However, even 
+then we don't have support in firmware bindings nor the IOMMU API itself 
+to be able to describe a single device being associated with both the 
+RMM's vSMMU for the T=1 (Realm) VA space, and the NS VMM's vSMMU for the 
+T=0 VA space, even if we did only have to care about using strictly one 
+or the other at any given time based on device state. Having distinct 
+struct devices is indeed clunky, but does at least reduce the problem to 
+a currently-manageable one of the client driver having to wrangle them 
+as a pair. Note that there are other such hardware properties that may 
+also differ between states, such as ITS frames when we do get GICv5, so 
+in fact having separate descriptions of the "shared" and "private" 
+aspects of a device, based on their respective MMIO address aliases, may 
+not be entirely unreasonable for CCA - making OSes understand that seems 
+like it might be easier than having to reinvent swathes of ACPI and 
+Devicetree bindings (and then still having to make OSes understand *those*).
+
+> A T=1 device should have the same issue as you point out for pkvm, it
+> really needs to have a private SWIOTLB pool.
+
+Yes, once device_cc_accepted() is true then we *must not* inadvertently 
+share any DMA buffers, if the caller has not explicitly requested 
+CC_SHARED (tying in to the XT use-case), otherwise we'd be breaking the 
+end-to-end confidentiality that TDISP/IDE/etc. is all about. So until we 
+do have an additional private SWIOTLB, we will have to just fail 
+mappings for an accepted device which would otherwise want bouncing due 
+to DMA mask or alignment limitations.
+
+(And FWIW when we do get there, I'd be inclined to make the default 
+SWIOTLB the "private" one, so all the sharing/decryption stuff can be 
+neatly partitioned off into the CoCo etc. special cases...)
+
+Thanks,
+Robin.
+
+>> Otherwise, SWIOTLB does not seem like the right place to me, as it
+>> does not understand the context the device is operating in, and the
+>> DMA-API should deduce that from the flags passed.
+> 
+> It is exactly the right place because it is the one supplying the new
+> memory. Context is irrelevant, the flag only describes what the new
+> memory actually *IS*, and swiotlb knows 100% if the new memory is
+> shared or private.
+> 
+> For your issue it would be appropriate to add a debugging check that
+> the new memory is not incompatible with the expected policy. eg a T=1
+> device getting decrypted swiotlb memory is a bug in swiotlb setup that
+> should be caught. But that's a debugging check, we expect the swiotlb
+> to have selected the right kind of memory by construction. This isn't
+> done yet since this series doesn't even yet support a T=1 device..
+> 
+> Jason
 
