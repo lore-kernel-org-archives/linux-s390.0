@@ -1,209 +1,153 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f41.google.com (mail-ed1-f41.google.com [209.85.208.41])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 404BC370AFC;
-	Fri,  7 Aug 2026 18:01:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4872D377AAC
+	for <linux-s390@vger.kernel.org>; Fri,  7 Aug 2026 18:14:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786125700; cv=none; b=MT0HPMiIUj95XhAJh2NkKjFjFp2sT5AV2gVnJ+p59gtgLNFF9lZIjXv7CzNiVjfzoYZoFECdRzMezmygHJBOsfITceHiVxlSK6f0DADHZDIoCN6NWtmV6vbuBTc7skM+wdIKHiIx9JOn+RJDI+8wsbUgj4CBmUcT58jig+C9A/E=
+	t=1786126441; cv=none; b=nwvAq45dzhQBvqvnpw4pTqAlL3MiRgpdOQV1dQYz8K+T7UVWM6Aw1qTWSdnoX9VnYr3yaZzYE7MYz0vSCOsSsC416SGDRCIDi6QVF6Fyg+c08x1hqKhljC2Gs6p8ArFLlWWXYjGa06KIUHdZoFvgfOj2oLbj6E20PCBaJpfZP+o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786125700; c=relaxed/simple;
-	bh=OOr+Wff/xEuI8eX1p2dnP/IYftgWz7YPQEf/kzMRaZg=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=W+zYCHxcxT7ZRD7k3UCrHZ124g2Pbz1VqDZNlyS7DpKV938HoC5GXGXy1x9iq8vWCgurYmLWAwrMA6oDWw8bsOcX2+BGRdbaChvIctuFO3xSJbBHRVzrikz3vH1HW353wu/lL4zGyS1Tg2xwI2NhSNA6o2Qsxq5c1mEXs2tBSJ8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ejNlKmtW; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1786126441; c=relaxed/simple;
+	bh=E7Ex4RBUa7IG4kdLmTYk7y3iUle3Rq8qAnZNO/0MU2c=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Ayk2/+rHNRDxWxQ6K60rrBawdFzxF3dvsk1x9iIrfKvIFUdvAD9DQU/1FE/tdPenrOC/+tRAIRMAYskkX8YzOGq/wgByKrrghWqjTh69CfVnma8rTDHUQmg3fhej3fb2405WcSKGUpRH0t75+eG6XIuZB+N5LvNUk5FnHr35ulc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=nyxUypfJ; arc=none smtp.client-ip=209.85.208.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ejNlKmtW"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 677Glagp154018;
-	Fri, 7 Aug 2026 18:01:36 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=2SXBq08VVaX1hGm52
-	qWDjdxiGylHya0tiucHuSv74L8=; b=ejNlKmtW79mlTnc3P1R1dCFBZQucHWbpp
-	VsWOU6NCCoeUcTLimFlO8+tjkaqne0p35EVY8Rl55DkwjX5LXdplvb+Nyw5z91Ka
-	nCRxMsFI4ngyCBjg56V2nEXw6YE+gniG/JUqdgcH4Fxuwe6wptInHekPIqKS9Nah
-	hUfnqIwV6l1JpbSCbrCj0yS8zWtgFfXs7PSd3RhSy5ih/tUbuff7CLWXQBtutjhK
-	s5ha+sktGNnHJsmSUHJLqu2D88MCQsuzkRNZJnWRAWV+jJqvYdk9i0rrYtMYgCPe
-	kcWQuor98S5/BFkx/zgHGobIkTWMV1YptJm9p3d+FexMjhPXAFtpg==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fvy01n77x-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 07 Aug 2026 18:01:35 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 677HuMxP018503;
-	Fri, 7 Aug 2026 18:01:34 GMT
-Received: from smtprelay05.dal12v.mail.ibm.com ([172.16.1.7])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fsvmhrpu2-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 07 Aug 2026 18:01:34 +0000 (GMT)
-Received: from smtpav01.dal12v.mail.ibm.com (smtpav01.dal12v.mail.ibm.com [10.241.53.100])
-	by smtprelay05.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 677I1Xi047120676
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 7 Aug 2026 18:01:33 GMT
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 32B1F58058;
-	Fri,  7 Aug 2026 18:01:33 +0000 (GMT)
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B3C8F5805D;
-	Fri,  7 Aug 2026 18:01:32 +0000 (GMT)
-Received: from IBM-GVXK264.ibm.com (unknown [9.61.251.189])
-	by smtpav01.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Fri,  7 Aug 2026 18:01:32 +0000 (GMT)
-From: Ramesh Errabolu <ramesh@linux.ibm.com>
-To: linux-pci@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        driver-core@lists.linux.dev, Bjorn Helgaas <bhelgaas@google.com>,
-        Lukas Wunner <lukas@wunner.de>,
-        =?UTF-8?q?Krzysztof=20Wilczy=C5=84ski?= <kw@linux.com>,
-        Leon Romanovsky <leon@kernel.org>,
-        Niklas Schnelle <schnelle@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Gerd Bayer <gbayer@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Farhan Ali <alifm@linux.ibm.com>,
-        Ramesh Errabolu <ramesh@linux.ibm.com>
-Subject: [PATCH v6 1/1] PCI: hotplug: Add 'uevent' sysfs attribute to trigger slot events
-Date: Fri,  7 Aug 2026 13:01:27 -0500
-Message-ID: <20260807180127.62471-2-ramesh@linux.ibm.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260807180127.62471-1-ramesh@linux.ibm.com>
-References: <20260807180127.62471-1-ramesh@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="nyxUypfJ"
+Received: by mail-ed1-f41.google.com with SMTP id 4fb4d7f45d1cf-6a177b2dc8dso1035a12.0
+        for <linux-s390@vger.kernel.org>; Fri, 07 Aug 2026 11:14:00 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20251104; t=1786126438; x=1786731238; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=NlmgqKiyqc7mU7pAn/JSXJE8TLhKwTlI/zLMMe65kC4=;
+        b=nyxUypfJk9ldvGOs0r00RtaAwiR+rMq5xQ6XKKT7lVl10OAXCHv6k57CTXOcgg9vIS
+         4KtV7QHh9CsJ8E20MJlv/VnFTSK5Svnr2oKQfJEJBmELLzvE6fk0h3ZIoHb87C/FnuS3
+         TLNZV6n2ivazyk3aC2CzkClR7sf9XogrSDKqpDmenXhPcRsf0ViDoo8P1aDyH9kfcPeK
+         QfXz7RFzk7YLqUSwCWXXIdP1KDsC8SAgQYA+hODQOZzHn68HCCP9vaJneVMYRDfJmgYP
+         Rf/eH4mMdW9leqSTH/3jR9UGhaEw7vx6Gz5+ct1yjXNE/Bubsn52AzY12lT3Z/vdySdG
+         fifg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1786126438; x=1786731238;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=NlmgqKiyqc7mU7pAn/JSXJE8TLhKwTlI/zLMMe65kC4=;
+        b=dGCzsssI08x0SE9fRaQyI3qHwyW3mTz0n/8VbZtJV5MSeYrXTf48J+Chv5W93Qb3mX
+         nLrRB/wGmdM3t3gsPb/fDYsY0AmT62R20d3B0CG0pSvLNYYRBSkzrHk4YGrcDuKmvlp9
+         ZrA6soA3T1iX+iLwwjEhnwkuZLorX6LLdzgtC63zcZ7yWo5Uq0W2qdF4xArQp8S+Ee3E
+         /rbruGxDY8ssAv6G2XELcAblpk/V0nm8878JqyNO+hY5YotjPQg9gqn/dZ+7TpJWfS54
+         yLLDqLJGzh3W2waftvTRAPdYykr3gItauWXavWCT0fpjMVGl56lYeS69b0bc5xbSiDtG
+         b12w==
+X-Forwarded-Encrypted: i=1; AHgh+RpTFznixMcZMbNGUS4mpUX60I1zI5pPCBJU7NS6PS28YVRqSen+e4maIdLcLW8VbfzjuZyMK7kQjwFc@vger.kernel.org
+X-Gm-Message-State: AOJu0YwiuEg48nAOn1RgA1Y4RexSA6Er/9DXsWGjOxNG3i18QlyjHFhD
+	PYt04C88NudRSguAEAHHDClCm9QmZo+SVdbmh9HIAUM89cK6gktx2JxU+ggsx6f+dQ==
+X-Gm-Gg: AR+sD10YrIoEfFYjbRLVP7w+HnmbwUaRZuRvRQ9TN3VpWQOhI+HviB81GgLz5Vkxwip
+	Vk0LjoecxLHjQBaQ2/UC5MOMFr7Bel6/ec4bqCHLgJ4qxP633oSYczsuv0/vVeU8C3VQghKn2ud
+	7z0ujOqlNT+7RNfty4GOofjOKhapTxpcLxXmgXollYctu6TQH732J+wQ5NlF8at5ouJJJVOOifI
+	BsPhAp2Va3HwqCIqosL//Ym22QXSRezx9JotEEgJF9l0itML6kOeU7gaoZacn6RFdcnFXawz0bV
+	IxxKyj49IQthL7vjdtKg1hmcGAxWl1EVgNrqUQ+VwC+xs4ZliIYvAIfV4oLInEi4HdUnBU0M+ax
+	XxqKEYA9toVEQcrIArbpcCf/mdamPWK0tmSk77lgVmkOKKmSqkb/GSyAz/H0j5VWMW4qQeUgwSC
+	XHouPCp869c/sjY2jHezwj1ahIjdY9+da7skdqOi/ck4sC1yvOyLQcLpUy9E2FC/1WroryHg5vO
+	oosGD6xHSXE57JcL6ALF3zUmqvkdQ==
+X-Received: by 2002:aa7:ce06:0:b0:6a1:f26c:ae2d with SMTP id 4fb4d7f45d1cf-6a1f4f438f9mr5439a12.6.1786126433777;
+        Fri, 07 Aug 2026 11:13:53 -0700 (PDT)
+Received: from google.com (250.192.189.35.bc.googleusercontent.com. [35.189.192.250])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c2080ab446bsm79186966b.27.2026.08.07.11.13.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 07 Aug 2026 11:13:52 -0700 (PDT)
+Date: Fri, 7 Aug 2026 18:13:49 +0000
+From: Mostafa Saleh <smostafa@google.com>
+To: Jason Gunthorpe <jgg@ziepe.ca>
+Cc: Will Deacon <will@kernel.org>,
+	"Aneesh Kumar K.V" <aneesh.kumar@kernel.org>, iommu@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	linux-coco@lists.linux.dev, Robin Murphy <robin.murphy@arm.com>,
+	Marek Szyprowski <m.szyprowski@samsung.com>,
+	Marc Zyngier <maz@kernel.org>, Steven Price <steven.price@arm.com>,
+	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Jiri Pirko <jiri@resnulli.us>, Petr Tesarik <ptesarik@suse.com>,
+	Alexey Kardashevskiy <aik@amd.com>,
+	Dan Williams <dan.j.williams@intel.com>,
+	Xu Yilun <yilun.xu@linux.intel.com>, linuxppc-dev@lists.ozlabs.org,
+	linux-s390@vger.kernel.org,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Christophe Leroy <chleroy@kernel.org>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org
+Subject: Re: [PATCH] arm64: swiotlb: Keep the default size for protected
+ guests
+Message-ID: <anYgXSR4VAi3TpOj@google.com>
+References: <20260717180442.110954-18-aneesh.kumar@kernel.org>
+ <20260807092612.2202005-1-aneesh.kumar@kernel.org>
+ <anXIZSh9lq99VG9X@willie-the-truck>
+ <yq5acxvu2ict.fsf@kernel.org>
+ <anXbJ2O4DWgPxCeg@willie-the-truck>
+ <20260807135810.GA200537@ziepe.ca>
+ <anX7F7dnKOtAOIIe@google.com>
+ <20260807164734.GE200537@ziepe.ca>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-GUID: x4j_Gi0m2nPCLcVfOX0DFWs5PF7A98Pw
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODA3MDEzOSBTYWx0ZWRfX7NR+VExYLv0Q
- /ehV6j4+0zZo8H0joSF04Icsu0nfkFQva34vtm/F+6ETu7rYv5cJR+DlaDuMUaaCw0ajg0Rx1X4
- dQs5LcNoIlODQ3fSRKyNnFmg4Tkg1I4=
-X-Proofpoint-ORIG-GUID: npgiPb7eqGsBH1tUWKV67rjkuQY4M1Rc
-X-Authority-Analysis: v=2.4 cv=afNRWxot c=1 sm=1 tr=0 ts=6a761d80 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=RLFbKyCAV2Q4rzo76dmsHbHSXqs=:19 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8
- a=xQ9kGAJ0mIG5ymL1pEoA:9
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODA3MDEzOSBTYWx0ZWRfX/tXMee+MkomV
- 1AUgidA6WrE6i+k9FadoEQ4CGJ/x0aXLaEsmzJRzCCVRnw3QPeRKa3+CEd9RmrYjIqNemdffR1o
- 2nBQ2oCl5PT7VGcpND3+xO1K3TPDiGNYSyAlMtEtWdHoQ02gGMv8HtYyXZPM1cFEuYSTfNyycfK
- UvWFhr4tAGBWqMSELeHFq6mDd/xYlLG/GH+yQDAdB06nhEUExSOwVZoGV9Zv/m75NFTy3RUPHt9
- iJ2yVS1tJJ0uBJ6r56xW9CG9r5WnvGe3shy0M4gbltS6C4RtdYCXLM0g+3zdBJaxDFHqHX/vs7D
- UiQE2i9vAcxtcdNxTrrj4SOTT28WNmTqxEd0igtLAKB04+JXTjM15yQFQ3mlpN//GvypBuseLqd
- gh3/IxI69Og0uhEDouM1pxPd8rf9Ko3qal90NoHabU8KKmoOnBwmvWJDcfMnilyZsV+pp3fxJoy
- 2OIAvAQREzHiTGyk7iw==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-08-07_03,2026-08-07_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 spamscore=0 phishscore=0 impostorscore=0 adultscore=0
- suspectscore=0 bulkscore=0 clxscore=1015 priorityscore=1501
- lowpriorityscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2608070139
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260807164734.GE200537@ziepe.ca>
 
-Add a write-only 'uevent' sysfs attribute for synthesizing
-uevents for a PCI slot. This extends the existing uevent
-support which emits a KOBJ_ADD uevent in pci_hp_add() with
-the ability to replay such uevents for cold plugged devices.
-As such events are only emitted by hotplug capable PCI slots
-so is the support for synthesizing them.
+On Fri, Aug 07, 2026 at 01:47:34PM -0300, Jason Gunthorpe wrote:
+> On Fri, Aug 07, 2026 at 03:34:47PM +0000, Mostafa Saleh wrote:
+> > On Fri, Aug 07, 2026 at 10:58:10AM -0300, Jason Gunthorpe wrote:
+> > > On Fri, Aug 07, 2026 at 02:18:31PM +0100, Will Deacon wrote:
+> > > 
+> > > > > I was under the impression that there is a possibility of using swiotlb
+> > > > > instead of restricted-dma-pool with pKVM.
+> > > > 
+> > > > Yes, that patch enables swiotlb as a possibility for protected guests
+> > > > but with your patch we avoid shrinking the swiotlb buffer even when
+> > > > restricted dma pools are being used and that's a waste of memory.
+> > > 
+> > > I also thought we switched pkvm to use CC-like swiotlb as part of the
+> > > alignment in this rework? Mostafa ?
+> > 
+> > Yes, now protected VMs can use the SWIOTLB for bouncing. However for
+> > Android (and kvmtool), use restricted DMA. so SWIOTLB is not used.
+> 
+> Oh? Why?
+> 
 
-The change was validated by manually triggering 'add' uevent
-for a specific hotplug PCI slot:
+The patches are not in Linux yet, when it eventually lands in Android
+it should be possible, I did some initial assessment and did not
+see any regressions.
 
-    $ echo "add $(uuidgen)" | sudo tee   \
-                /sys/bus/pci/slots/<slot-id>/uevent
+> > However, I do not think we should over engineer this in the code,
+> > swiotlb can be set from the cmdline and now through Kconfig also.
+> 
+> That's fine for android, but real users buying a cloud VM and sticking
+> a distro on it shouldn't be expected to have to mess with cmdline just
+> go get a halfway working system
 
-Signed-off-by: Ramesh Errabolu <ramesh@linux.ibm.com>
-Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
-Tested-by: Niklas Schnelle <schnelle@linux.ibm.com>
----
- drivers/pci/hotplug/pci_hotplug_core.c | 24 ++++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
+But the whole thing is best effort anyway, the kernel picks
+IO_TLB_DEFAULT_SIZE which does not depend on the system topology or
+how many devices or how much DMA they do.
+SWIOTLB memory is wasted if unused so we should be careful around
+that as it would be the other way around and users would have to
+decrease it manually.
 
-diff --git a/drivers/pci/hotplug/pci_hotplug_core.c b/drivers/pci/hotplug/pci_hotplug_core.c
-index fadcf98a8a66..bc8fa2f903b5 100644
---- a/drivers/pci/hotplug/pci_hotplug_core.c
-+++ b/drivers/pci/hotplug/pci_hotplug_core.c
-@@ -173,12 +173,26 @@ static ssize_t presence_read_file(struct pci_slot *pci_slot, char *buf)
- 
- static struct pci_slot_attribute hotplug_slot_attr_presence = {
- 	.attr = {.name = "adapter", .mode = S_IFREG | S_IRUGO},
- 	.show = presence_read_file,
- };
- 
-+static ssize_t uevent_write_file(struct pci_slot *slot,
-+				 const char *buf, size_t len)
-+{
-+	int rc;
-+
-+	rc = kobject_synth_uevent(&slot->kobj, buf, len);
-+	return rc ? rc : len;
-+}
-+
-+static struct pci_slot_attribute hotplug_slot_attr_uevent = {
-+	.attr = {.name = "uevent", .mode = S_IFREG | 0200},
-+	.store = uevent_write_file
-+};
-+
- static ssize_t test_write_file(struct pci_slot *pci_slot, const char *buf,
- 			       size_t count)
- {
- 	struct hotplug_slot *slot = pci_slot->hotplug;
- 	unsigned long ltest;
- 	u32 test;
-@@ -251,12 +265,17 @@ static int fs_add_slot(struct hotplug_slot *slot, struct pci_slot *pci_slot)
- 		if (retval)
- 			dev_err(&pci_slot->bus->dev,
- 				"Error creating sysfs link (%d)\n", retval);
- 		kobject_put(kobj);
- 	}
- 
-+	retval = sysfs_create_file(&pci_slot->kobj,
-+				   &hotplug_slot_attr_uevent.attr);
-+	if (retval)
-+		goto exit_uevent;
-+
- 	if (has_power_file(slot)) {
- 		retval = sysfs_create_file(&pci_slot->kobj,
- 					   &hotplug_slot_attr_power.attr);
- 		if (retval)
- 			goto exit_power;
- 	}
-@@ -303,19 +322,24 @@ static int fs_add_slot(struct hotplug_slot *slot, struct pci_slot *pci_slot)
- 		sysfs_remove_file(&pci_slot->kobj,
- 				  &hotplug_slot_attr_attention.attr);
- exit_attention:
- 	if (has_power_file(slot))
- 		sysfs_remove_file(&pci_slot->kobj, &hotplug_slot_attr_power.attr);
- exit_power:
-+	sysfs_remove_file(&pci_slot->kobj,
-+			  &hotplug_slot_attr_uevent.attr);
-+exit_uevent:
- 	sysfs_remove_link(&pci_slot->kobj, "module");
- exit:
- 	return retval;
- }
- 
- static void fs_remove_slot(struct hotplug_slot *slot, struct pci_slot *pci_slot)
- {
-+	sysfs_remove_file(&pci_slot->kobj, &hotplug_slot_attr_uevent.attr);
-+
- 	if (has_power_file(slot))
- 		sysfs_remove_file(&pci_slot->kobj, &hotplug_slot_attr_power.attr);
- 
- 	if (has_attention_file(slot))
- 		sysfs_remove_file(&pci_slot->kobj,
- 				  &hotplug_slot_attr_attention.attr);
--- 
-2.43.0
+Thanks,
+Mostafa
 
+> 
+> Jason
