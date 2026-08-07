@@ -1,164 +1,158 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4E7C5481235;
-	Fri,  7 Aug 2026 13:07:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5614D47CA8C;
+	Fri,  7 Aug 2026 13:18:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786108078; cv=none; b=FDAK/7YM09vdOcE9rhgochkRXdC8uOyKBGKGk0BlxK2kj/e9g77+qDvecsY6bTcPX9LPECXYfy1BsT8B7Jgf6JnFor0QYJujWghggXJQJCJs3IplL2kVMPHoFLY+bV9mOD4G5DDRsw6A4ap3MQdKBv4u5iEqcitmg3rE4JvPc/0=
+	t=1786108723; cv=none; b=lgJRstuprIdTZCq5yDdtrTKmEPD7lmwgzNE8PFf93g/qsYtbTmIjq8Mx38zjLQXGKeLpSquVSPlYktTcVMGn2MN07oQ+JS4TT37SITsFDs8/T2frC5YI0pf2IftHBZksHtGuchmAuSyB70pTFc5QKG3JZUqdHAWY/C78V0nsxTg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786108078; c=relaxed/simple;
-	bh=dJrZLgCeq6zO89rtUH1Mx8hET6Cv4wT4KbHedfvoeco=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=h+E3Gn6Xe6E6jnFU2XxCKFcbrtrzMGLsW2t2kzalDS6UrohHVTTbgxcdQ4yM6AH9oPatZMa+fszvb6uEfCb153xcs74YPgLTl0ySYjXSlBYn/bbpgTBfhCQbDMqZ0AVp/iPRhFueU4DKExHbikcHNtuyTL7Oux0OwhCscw1WKDA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ZIVhOgrd; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1786108723; c=relaxed/simple;
+	bh=gDwhkk/t71TRO5fpIF77dkVtXvZNkvZ27+O5qiP/9A4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=GA5LxlQecF/5IL3Ulpic1ts8dYP44squoqFACgRdhPq9hYED1auY18wClzTkCoQyRMjmVozV4B5CNlw5ixZbusDeZ66NrB5MQTdB5caIPe3OK1VzpkJLCxMfsUF3GlNL+6l3eJhwJ+69JpAasQg2TXIUrMWOwdnqRmbGnbaJOq4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cCNbiOkj; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ZIVhOgrd"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 677ClqBM1420153;
-	Fri, 7 Aug 2026 13:07:40 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=2SFLbj
-	HUMbsyTE5RRzIK6polPho4fTVJV5SBIzfT46o=; b=ZIVhOgrdtjdaAKQrbbZiIv
-	1by7MklWDcnsKzCgkmn3OVyBjU6SbF1owuqkUUpHI4fzynkWCX64zrd2JVKd8e8W
-	dKmm2TK1pbDgsz6y6p0SbbsA7KdMnGwJbkGRxOCvuiIuUnd0heXtn1o9ZhVDCBCM
-	cJo1JS2PVM2gO92JLKNeCADN8KGURC/Xu5sbNLs5AVobz60andFxxjtxSFqrs49I
-	a98gay//z7ap0inZwi5xrfHpQe5VOJe1uDeX9BfanMFclFjMAGi9jsW019f5jMql
-	unHILm0taPvCGDluwbdZCOBcTsByu1sKzkenoo/4MfG6Uqr7iQLdzlVp0etUjOrw
-	==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fvy023v6k-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 07 Aug 2026 13:07:40 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 677CuGSH000984;
-	Fri, 7 Aug 2026 13:07:39 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fswtyyjdm-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 07 Aug 2026 13:07:39 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 677D7Z7F42271168
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 7 Aug 2026 13:07:35 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9364420043;
-	Fri,  7 Aug 2026 13:07:35 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4D2A92004B;
-	Fri,  7 Aug 2026 13:07:35 +0000 (GMT)
-Received: from [0.0.0.0] (unknown [9.111.90.112])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri,  7 Aug 2026 13:07:35 +0000 (GMT)
-Message-ID: <5219b8bc-9d91-4ed6-873f-595d489da08f@linux.ibm.com>
-Date: Fri, 7 Aug 2026 15:07:35 +0200
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cCNbiOkj"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 338611F000E9;
+	Fri,  7 Aug 2026 13:18:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1786108720;
+	bh=wsfDDPcsG5MUSLOHvWCFv40tfsXBmUj7P+V3Bqk82YU=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=cCNbiOkjKWAUqmhRd4f35UKCjy7UEhkqpWWFeU9w7Kfiy5DgWT3dZw1OQFG8VAzwR
+	 XZNBYUU8FhCvDz09mx7t85bJh2lGZS5wWKXfdEHcjdTmqrCKuvbXD4PHj259GvbZZY
+	 At6gmah61p+afUyBaMnPfpe+im9eRwJlcM1uOVFcvRENntNyyd8OspaulZRPI21O0+
+	 RQ+DtFZQKiusnOPhpgTJWrPlMW7ENlDI/iDnaojBH384ZJnryZxsxnSTIXfU3vj3ks
+	 R4W0nC24in4QB64L5eYdsvT8dTMBFtjRhb+mL0yI6d/AOEHHOKCqEgpBrbJoOp2NCH
+	 LWSkcbZumcQJg==
+Date: Fri, 7 Aug 2026 14:18:31 +0100
+From: Will Deacon <will@kernel.org>
+To: "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>
+Cc: iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev,
+	Robin Murphy <robin.murphy@arm.com>,
+	Marek Szyprowski <m.szyprowski@samsung.com>,
+	Marc Zyngier <maz@kernel.org>, Steven Price <steven.price@arm.com>,
+	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Jiri Pirko <jiri@resnulli.us>, Jason Gunthorpe <jgg@ziepe.ca>,
+	Mostafa Saleh <smostafa@google.com>,
+	Petr Tesarik <ptesarik@suse.com>,
+	Alexey Kardashevskiy <aik@amd.com>,
+	Dan Williams <dan.j.williams@intel.com>,
+	Xu Yilun <yilun.xu@linux.intel.com>, linuxppc-dev@lists.ozlabs.org,
+	linux-s390@vger.kernel.org,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Christophe Leroy <chleroy@kernel.org>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org
+Subject: Re: [PATCH] arm64: swiotlb: Keep the default size for protected
+ guests
+Message-ID: <anXbJ2O4DWgPxCeg@willie-the-truck>
+References: <20260717180442.110954-18-aneesh.kumar@kernel.org>
+ <20260807092612.2202005-1-aneesh.kumar@kernel.org>
+ <anXIZSh9lq99VG9X@willie-the-truck>
+ <yq5acxvu2ict.fsf@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2] s390/cpacf: Unpoison instruction results
-To: sashiko-reviews@lists.linux.dev
-Cc: Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org,
-        Heiko Carstens <hca@linux.ibm.com>
-References: <20260807122132.3592583-1-iii@linux.ibm.com>
- <20260807123804.6A8171F000E9@smtp.kernel.org>
-Content-Language: en-US
-From: Ilya Leoshkevich <iii@linux.ibm.com>
-In-Reply-To: <20260807123804.6A8171F000E9@smtp.kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: IOzaBVpZNaVi0GmEC-jMT9oht-1FCWRj
-X-Authority-Analysis: v=2.4 cv=e5k2j6p/ c=1 sm=1 tr=0 ts=6a75d89c cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VwQbUJbxAAAA:8
- a=VnNF1IyMAAAA:8 a=dbhAHS79gimNbExnxjoA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: IOzaBVpZNaVi0GmEC-jMT9oht-1FCWRj
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODA3MDEwMCBTYWx0ZWRfX8iB6/+kvUJW9
- nzXYO4K5O/pE2x/xUB10vHz+3JRXgr5X/T6rCbs7jnxWKyqfiF8lvnlj1nmMTBmt1v7j/22KlfO
- Dh0Pu6B3PZLycJ09k0tiBXI+OkHTNIUZMKQNEvnPpuAV148GGbU2bq/W388hBVuhplNkouQsDTu
- llrX8PrY1k7uh0JWxHAsfD3Jh2SBkNUQPYM9BS5xA32NRknVV4hcU9NBGwDPVWNQdAItDAo5c+M
- YIsbYuKfk47O50sv5ZsUNNsVOSFMLaLqGkBJPS6IqqgNgVBf5Y3wbSP3QC4PCt5VWNU3P5Ye7mg
- 8yliIVil+4BQkFequhgavCJe0jbK8W8Bjfetwo0VnkzAoqxwNR7a+1w5DjM7YFyITH99C5yuOiL
- biAr+X5x7ZF8F0XkR05BjkI78VGDjYMASYKM8K8rngss3GQVRNNZJ++NQFdy9Ct8c8YAZTfw4dZ
- OyCjwKXZj75lJ86tIzg==
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODA3MDEwMCBTYWx0ZWRfX+cefnfkrQ38c
- i9hDxnTUZzVD/fkYtNqyrQjGJ9Dk9fWA8rrPj5/pTvp0J7HIFsS5SwgAPO4/K1c+sqaGrwBWVNS
- J/Ro62L9xB8YvrYjonFw16xFsHDI69M=
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-08-07_02,2026-08-06_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 impostorscore=0 priorityscore=1501 adultscore=0 phishscore=0
- clxscore=1015 malwarescore=0 spamscore=0 lowpriorityscore=0 bulkscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608070100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <yq5acxvu2ict.fsf@kernel.org>
 
+On Fri, Aug 07, 2026 at 06:33:14PM +0530, Aneesh Kumar K.V wrote:
+> Will Deacon <will@kernel.org> writes:
+> 
+> > On Fri, Aug 07, 2026 at 02:56:12PM +0530, Aneesh Kumar K.V (Arm) wrote:
+> >> Realm guests and protected KVM guests may require swiotlb for device DMA
+> >> even when all system RAM is addressable by the DMA zones.
+> >> 
+> >> Do not reduce the SWIOTLB buffer to the kmalloc-bouncing size for these
+> >> guests, as the reduced number of slots can be exhausted during CCA guest
+> >> operation.
+> >> 
+> >> Fixes: 30c5e45ee2c5 ("dma-direct: make dma_direct_map_phys() honor DMA_ATTR_CC_SHARED")
+> >> Signed-off-by: Aneesh Kumar K.V (Arm) <aneesh.kumar@kernel.org>
+> >> ---
+> >>  arch/arm64/mm/init.c | 3 ++-
+> >>  1 file changed, 2 insertions(+), 1 deletion(-)
+> >> 
+> >> diff --git a/arch/arm64/mm/init.c b/arch/arm64/mm/init.c
+> >> index e308a7cabd12..24caaf10e755 100644
+> >> --- a/arch/arm64/mm/init.c
+> >> +++ b/arch/arm64/mm/init.c
+> >> @@ -339,7 +339,8 @@ void __init arch_mm_preinit(void)
+> >>  {
+> >>  	unsigned int flags = SWIOTLB_VERBOSE;
+> >>  
+> >> -	if (max_pfn <= PFN_DOWN(arm64_dma_phys_limit)) {
+> >> +	if (!cc_platform_has(CC_ATTR_GUEST_MEM_ENCRYPT) &&
+> >> +	    max_pfn <= PFN_DOWN(arm64_dma_phys_limit)) {
+> >
+> > Protected guests under pKVM rely on restricted DMA, so won't this just
+> > waste memory for them?
+> >
+> 
+> commit 30c5e45ee2c5 ("dma-direct: make dma_direct_map_phys() honor DMA_ATTR_CC_SHARED"),
+> which this patch fixes, has
+> 
+> --- a/arch/arm64/mm/init.c
+> +++ b/arch/arm64/mm/init.c
+> @@ -339,9 +339,7 @@ void __init arch_mm_preinit(void)
+>  {
+>         unsigned int flags = SWIOTLB_VERBOSE;
+>  
+> -       if (is_realm_world() || is_protected_kvm_guest()) {
+> -               flags |= SWIOTLB_FORCE;
+> -       } else if (max_pfn <= PFN_DOWN(arm64_dma_phys_limit)) {
+> +       if (max_pfn <= PFN_DOWN(arm64_dma_phys_limit)) {
+>                 /*
+>                  * If no bouncing needed for ZONE_DMA, reduce the swiotlb
+>                  * buffer for kmalloc() bouncing to 1MB per 1GB of RAM.
+> 
+> The is_protected_kvm_guest() part was added by the 
+> commit e62decaf98e7 ("arm64/coco: Add pKVM as a CC platform")
+> 
+> @@ -337,7 +339,7 @@ void __init arch_mm_preinit(void)
+>  {
+>         unsigned int flags = SWIOTLB_VERBOSE;
+>  
+> -       if (is_realm_world()) {
+> +       if (is_realm_world() || is_protected_kvm_guest()) {
+>                 flags |= SWIOTLB_FORCE;
+>         } else if (max_pfn <= PFN_DOWN(arm64_dma_phys_limit)) {
+>                 /*
+> @@ -412,6 +414,17 @@ void dump_mem_limit(void)
+>         }
+>  }
+> 
+> I was under the impression that there is a possibility of using swiotlb
+> instead of restricted-dma-pool with pKVM.
 
+Yes, that patch enables swiotlb as a possibility for protected guests
+but with your patch we avoid shrinking the swiotlb buffer even when
+restricted dma pools are being used and that's a waste of memory.
 
-On 8/7/26 14:38, sashiko-bot@kernel.org wrote:
-> Thank you for your contribution! Sashiko AI review found 1 potential issue(s) to consider:
-> - [Medium] `__cpacf_qai` unpoisons the entire 256-byte `cpacf_qai_t` structure, which could mask kernel stack leaks if a specific instruction's QAI output is smaller than 256 bytes.
-> --
+> If that is not the case, then we could change:
 > 
-> --- Patch [1]: [PATCH v2] s390/cpacf: Unpoison instruction results ---
-> commit 587dbefd826fa4c40d5401b72be74dfb37147586
-> Author: Ilya Leoshkevich <iii@linux.ibm.com>
+> !cc_platform_has(CC_ATTR_GUEST_MEM_ENCRYPT) &&
 > 
-> s390/cpacf: Unpoison instruction results
+> to
 > 
-> This commit explicitly unpoisons CPACF instruction outputs to stop KMSAN from
-> reporting them as uninitialized. It leaves variable-length parameter blocks
-> for the callers to handle.
-> 
-> Link: https://lore.kernel.org/linux-s390/20260806190223.3292580-1-iii@linux.ibm.com/
-> 
->> diff --git a/arch/s390/include/asm/cpacf.h b/arch/s390/include/asm/cpacf.h
->> index a83683169d98d..13d6a6344802a 100644
->> --- a/arch/s390/include/asm/cpacf.h
->> +++ b/arch/s390/include/asm/cpacf.h
-> 
-> [ ... ]
-> 
->> @@ -370,6 +371,7 @@ static __always_inline int cpacf_query_func(unsigned int opcode,
->>   static __always_inline void __cpacf_qai(unsigned int opcode, cpacf_qai_t *qai)
->>   {
->>   	__cpacf_query_insn(opcode, qai, CPACF_FC_QUERY_AUTH_INFO);
->> +	kmsan_unpoison_memory(qai, sizeof(*qai));
-> 
-> [Severity: Medium]
-> Will unconditionally unpoisoning the entire 256-byte cpacf_qai_t structure
-> potentially mask kernel stack leaks from KMSAN?
-> 
-> If a specific instruction's QAI output is smaller than 256 bytes, this
-> unpoison would hide the remaining uninitialized stack bytes. In
-> arch/s390/kernel/cpacf.c, the uninitialized stack structure is copied
-> directly to userspace:
-> 
-> arch/s390/kernel/cpacf.c:name##_query_auth_info_raw_read() {
->      ...
->      cpacf_qai_t qai;
->      ...
->      if (!cpacf_qai(CPACF_##instruction, &qai))
->          return -EOPNOTSUPP;
->      return memory_read_from_buffer(buf, count, &offs, &qai,
->                                     sizeof(qai));
-> }
-> 
-> Could this regression lead to uninitialized stack bytes leaking to userspace
-> via the sysfs attribute without KMSAN detecting it, if any current or future
-> hardware query instructions write less than the full struct size?
-> 
->>   }
+> !is_realm_world() &&
 
-POp documents that code 127 (Query-Authentication-Information) format 0
-(and there are no other formats at the moment) blocks are always 256
-bytes and all of these bytes are stored. Reserved bytes are stored as 0.
+Perhaps, or you could just pass the swiotlb= option if the defaults don't
+work for you. Can you give more details about the slots exhaustion you're
+seeing under CCA?
+
+Will
