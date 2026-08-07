@@ -1,33 +1,60 @@
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id B856242BC4D;
-	Fri,  7 Aug 2026 11:03:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 169CF3BFE52;
+	Fri,  7 Aug 2026 11:05:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786100604; cv=none; b=MPflhDNdWPCuvCqo1IXXwKHMwF0fOfBD0GtE8dosw0pPS5AmXOobRqNEyhGAU2puLd0NMl2234lCaMcY6FfdUckhOhZ7k6JVBjiXSzXD6JYRsZH2a7eYCZ1HeFKhwRmP5qY/TiQu/3DgH5W5+PTOxkr0OFYsz6B7xmYRHC2iUMI=
+	t=1786100747; cv=none; b=GOAA8m3RQ965S5tdnKIvmcoKb7jvBb7pmloKS3lEi2O0u6duTsFBo8SDqvk1j4mUtBo1XhtcjWeLhkH/hz+TywPFGqfmoBo2vZeRcYEMA44UFP6P8sSrxt2QMPkVlWAv74qewcDspc6/cWE7XOj3n1xD02YPgPCx/qC6PsrobUI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786100604; c=relaxed/simple;
-	bh=xVUNR7ylOX30B68Mp97+YrCjqIAMylEeu1MoGj3JgSs=;
+	s=arc-20240116; t=1786100747; c=relaxed/simple;
+	bh=7SjSMJ+FAkqiNxQb8Ui/NkU5t9UngIAVhvJR3IEEKfw=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=YPrtiJBwa1Bxu1VzyCDXIRkKOmSjTIFSXMngZ+vGRf3MkQ1aLWYKm1NYjwzO/86tg2c7IX7QpInk3edCogzrq9yKl5l+O/KulGbNOaKrKJz/p93LaT4WrrMZGglPB7dglxsF4YcgQ4k/pHhSh4scsNXmMGeVrn2tQf7582sVDVc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=J8p7ij5I; arc=none smtp.client-ip=217.140.110.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+	 In-Reply-To:Content-Type; b=JlOpvYoudRGm2Ao+aiwV2I03Uv8PBhch9qrzR68nz3oZu76gk9Tzq03gPwE3fDlpXjGu8HucbQjmBNTPQv8TVQWklFmVDaVh1YSJbtrMXCRxtv0gaS8tvx3fsqKC6GtPJvOWt0JEuFoPaV5e8sBitzDtkAyOV4Q2I9WzMJP4+1g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=NxPLJln9; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="J8p7ij5I"
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 056EA1A9A;
-	Fri,  7 Aug 2026 04:03:18 -0700 (PDT)
-Received: from [10.57.42.104] (unknown [10.57.42.104])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id CE4F43F86F;
-	Fri,  7 Aug 2026 04:03:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=arm.com; s=foss;
-	t=1786100602; bh=xVUNR7ylOX30B68Mp97+YrCjqIAMylEeu1MoGj3JgSs=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=J8p7ij5IxKrp/kurzyHOpL7pNcFvOmaC1o1pKHx1B0H8nD1rs9aRZPjUBxhjjZZCQ
-	 N4wJy56XcfQZ9q6eMGh6OX2azJnBHJkC8guCRYo50qm8khWqqcEcjsfqtXCA71yfRP
-	 ZBj3ot3KvGeWH3bSFFxlac5fB9iAToqsB4eMcWRg=
-Message-ID: <0ce2249d-3a64-4889-b455-0e8fddcc7282@arm.com>
-Date: Fri, 7 Aug 2026 12:03:14 +0100
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="NxPLJln9"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6770IJwX4062558;
+	Fri, 7 Aug 2026 11:05:44 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=SQTUDk
+	IhE3YuY48rB5OmRoQpJKwO8sE6Qkfz6LoUnJ0=; b=NxPLJln9Wz2k27shgE29Ph
+	HLOL6TltCmFFSKkAMX45gNqEfgYIwDEPw57lRJB+kC/ynpAljnDHxxJDsXybubsS
+	SOZZWAQTW3limsrjvNVe0ygCAjWqF3tqebnHnf5QwFKuh7bsvtnrvPXGZYQGdY5m
+	1vSraWsr9c5cSkeirewh3O31WSAASvGZ/1+jRrPcxX9rqkcbnTe+mDiuLfXyySM1
+	pimZ43tNSw9MWhU3lXP0AfMnoYTDmvraiIvq9/KcE1LrsfdK8K9mhzss6Bjsn1rd
+	Garr7M5dZm9DLmFRjwjjTMfD38csSOmwqAvBGbQsSFdZNUaJdoMSlpIjRk4w4FLw
+	==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fvy02befb-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 07 Aug 2026 11:05:44 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 677AuFps018966;
+	Fri, 7 Aug 2026 11:05:43 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fswbgq6nh-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 07 Aug 2026 11:05:43 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 677B5ePo25363120
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 7 Aug 2026 11:05:40 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id EFAD02004E;
+	Fri,  7 Aug 2026 11:05:39 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A51E320049;
+	Fri,  7 Aug 2026 11:05:39 +0000 (GMT)
+Received: from [0.0.0.0] (unknown [9.111.90.112])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Fri,  7 Aug 2026 11:05:39 +0000 (GMT)
+Message-ID: <516fe0be-374c-49e0-bdd1-83ec7cefbe0a@linux.ibm.com>
+Date: Fri, 7 Aug 2026 13:05:39 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -35,145 +62,91 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v8 12/23] dma: swiotlb: pass mapping attributes by
- reference
-To: Jason Gunthorpe <jgg@nvidia.com>, Mostafa Saleh <smostafa@google.com>
-Cc: "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>, iommu@lists.linux.dev,
- linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
- linux-coco@lists.linux.dev, Marek Szyprowski <m.szyprowski@samsung.com>,
- Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
- Steven Price <steven.price@arm.com>,
- Suzuki K Poulose <Suzuki.Poulose@arm.com>,
- Catalin Marinas <catalin.marinas@arm.com>, Jiri Pirko <jiri@resnulli.us>,
- Petr Tesarik <ptesarik@suse.com>, Alexey Kardashevskiy <aik@amd.com>,
- Dan Williams <dan.j.williams@intel.com>, Xu Yilun
- <yilun.xu@linux.intel.com>, linuxppc-dev@lists.ozlabs.org,
- linux-s390@vger.kernel.org, Madhavan Srinivasan <maddy@linux.ibm.com>,
- Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
- "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org,
- Michael Kelley <mhklinux@outlook.com>
-References: <20260717180442.110954-1-aneesh.kumar@kernel.org>
- <20260717180442.110954-13-aneesh.kumar@kernel.org>
- <ami_mpd_1pF4Tmdu@google.com> <yq5a5x1ygo7z.fsf@kernel.org>
- <amnRB98ZZIysHuM3@google.com> <yq5acxw6dl1d.fsf@kernel.org>
- <20260804142032.GC27883@nvidia.com> <anL9-OrDGqYQAWNV@google.com>
- <20260805123023.GO27883@nvidia.com>
-From: Robin Murphy <robin.murphy@arm.com>
-Content-Language: en-GB
-In-Reply-To: <20260805123023.GO27883@nvidia.com>
+Subject: Re: [PATCH] s390/cpacf: Unpoison query results
+To: sashiko-reviews@lists.linux.dev
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>
+References: <20260806190223.3292580-1-iii@linux.ibm.com>
+ <20260806191442.AAFE91F000E9@smtp.kernel.org>
+Content-Language: en-US
+From: Ilya Leoshkevich <iii@linux.ibm.com>
+In-Reply-To: <20260806191442.AAFE91F000E9@smtp.kernel.org>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=G6ws1dk5 c=1 sm=1 tr=0 ts=6a75bc08 cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+ a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VwQbUJbxAAAA:8
+ a=VnNF1IyMAAAA:8 a=8yQpLCr1Fxib-xGAfP8A:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODA3MDA4MyBTYWx0ZWRfX+WWKEnA7OXlB
+ 0CBmnWH2NxRorHGMrbav0vwb08zqA/8FH3/AtdWWpAiJBDBmXlQH0qnHDes7HRxU1+GK3gT0WJQ
+ UjdpogRRhlvwEcTPsm+skiUU1SAxeZz5p8PpjmQnrrMafNmA+GvNoZ2vx1pkqDsgvEuQj1zcmc9
+ 4HFa5wlPHPUUgyBvCMPgHdNGTDOHb3R29GCJz92XMepXiu7G42ZbkBFIDfM03HuvVHrCntnQRo4
+ qJaMnXmYXORlEWej5fq267npEHMK69IM7fKy8TGf1S/L6s4jE/Uf1sjd8fOYS39ynKvsoJct3Zo
+ 0gyeUVlT2hDGNIvRgdOnscWwE0qVSLjCAnnJvSCXwDqcEbLMs/b+akk3R3fFmE2gy0dsdjzMget
+ QseyfHe06gwxC3orK5vk5odTxuhdLzb/epqa+7wzJs5Cd5aiqnMal6a9F4hzzpRBucnsQo5I7xF
+ 7ZxVJdygblCdZFm8JlA==
+X-Proofpoint-ORIG-GUID: 0IsZxS70U9nnX2ARSiM6YFVhlCqX46tn
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODA3MDA4MyBTYWx0ZWRfXy/HW463oo5IP
+ OvM8uLMMR6S8XhtQTPErXTKJlw4/lrVw8nH40mph+BoiNtjRqNH6tMJydI7YlSXMhz8zLObC1qZ
+ MG32j5HS8fHUsEH+GKRaxJKwGZAu508=
+X-Proofpoint-GUID: 0IsZxS70U9nnX2ARSiM6YFVhlCqX46tn
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-08-07_01,2026-08-06_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ impostorscore=0 spamscore=0 lowpriorityscore=0 suspectscore=0 malwarescore=0
+ phishscore=0 priorityscore=1501 adultscore=0 bulkscore=0 clxscore=1015
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608070083
 
-On 2026-08-05 1:30 pm, Jason Gunthorpe wrote:
-> On Wed, Aug 05, 2026 at 09:10:16AM +0000, Mostafa Saleh wrote:
->> On Tue, Aug 04, 2026 at 11:20:32AM -0300, Jason Gunthorpe wrote:
->>> On Wed, Jul 29, 2026 at 06:12:38PM +0530, Aneesh Kumar K.V wrote:
->>>> There is a possibility that we may support io_tlb_mem with cc_shared =
->>>> false in the future. As a result, only swiotlb_map() knows which type of
->>>> bounce buffer was used, making it the only place where the attributes
->>>> can be updated correctly.
->>>
->>> Yeah, +1, the attribute should be changed at the same effective place
->>> the source memory is changed away from what the DMA API user
->>> provided. Only the thing providing the new memory (eg swiotlb) should
->>> know its properties.
->>
->> I will keep the conversation here instead of 2 threads.
->>
->> That seems like a big leap, I'd be worried about devices that operate
->> on confidential data that should not be shared/decrypted.
-> 
-> That seems like something very differnt.
-> 
->> One example for this which exists in pKVM (this part is not
->> upstream yet) is non coherent devices that require bouncing but they
->> still want to keep the data private. In that case ideally they get
->> an encrypted SWIOTLB pool, but it's always better to fail than to use
->> a decrypted pool behind it's back.
-> 
-> We don't have any API for a DMA API caller to signal 'must be
-> confidential'. If we want to add one it would be a flag to check
-> before changing the physical address in swiotlb.
-> 
-> As defined today the DMA API expressly copies from private to shared
-> memory, that is baked into it's design and not a bug.
-> 
-> My expectation is all these cases have to be solved by setting up the
-> swiotlb properly so it provides suitable bounce buffers. Yes, this
-> means we will eventually need both private and shared swiotlb pools.
-> 
->> I have not been following the work on T=1/T=0 devices, but IIRC, they
->> required some complexity to handle their stage-2 as these modes will
->> be emulated differently (for CCA, RMM vs untrusted host).
->> I was thinking that it might be easier to represent those to the
->> guest kernel as 2 separate devices (bounded to different groups...)
->> where one is trusted and the other is not, and that way the DMA-API
->> can have strict rules about memory sharing.
-> 
-> No way! That's would be a giant disaster for the driver model.
-> 
-> Each struct device will have a flag that shows if it is in T=1 or T=0
-> state. The flag can only change while a driver is not bound, and
-> changing the flag will update the DMA API configuration.
 
-I see we no longer seem to have the concern of devices in TDISP RUN 
-state being able to send T=0 transactions other than MSI writes, where 
-GICv3 means the host is already going to have to be in on the game to 
-some degree there anyway. There could still be a potential concern of 
-other non-PCIe equivalents wanting such a thing, though. However, even 
-then we don't have support in firmware bindings nor the IOMMU API itself 
-to be able to describe a single device being associated with both the 
-RMM's vSMMU for the T=1 (Realm) VA space, and the NS VMM's vSMMU for the 
-T=0 VA space, even if we did only have to care about using strictly one 
-or the other at any given time based on device state. Having distinct 
-struct devices is indeed clunky, but does at least reduce the problem to 
-a currently-manageable one of the client driver having to wrangle them 
-as a pair. Note that there are other such hardware properties that may 
-also differ between states, such as ITS frames when we do get GICv5, so 
-in fact having separate descriptions of the "shared" and "private" 
-aspects of a device, based on their respective MMIO address aliases, may 
-not be entirely unreasonable for CCA - making OSes understand that seems 
-like it might be easier than having to reinvent swathes of ACPI and 
-Devicetree bindings (and then still having to make OSes understand *those*).
 
-> A T=1 device should have the same issue as you point out for pkvm, it
-> really needs to have a private SWIOTLB pool.
-
-Yes, once device_cc_accepted() is true then we *must not* inadvertently 
-share any DMA buffers, if the caller has not explicitly requested 
-CC_SHARED (tying in to the XT use-case), otherwise we'd be breaking the 
-end-to-end confidentiality that TDISP/IDE/etc. is all about. So until we 
-do have an additional private SWIOTLB, we will have to just fail 
-mappings for an accepted device which would otherwise want bouncing due 
-to DMA mask or alignment limitations.
-
-(And FWIW when we do get there, I'd be inclined to make the default 
-SWIOTLB the "private" one, so all the sharing/decryption stuff can be 
-neatly partitioned off into the CoCo etc. special cases...)
-
-Thanks,
-Robin.
-
->> Otherwise, SWIOTLB does not seem like the right place to me, as it
->> does not understand the context the device is operating in, and the
->> DMA-API should deduce that from the flags passed.
+On 8/6/26 21:14, sashiko-bot@kernel.org wrote:
+> Thank you for your contribution! Sashiko AI review found 1 potential issue(s) to consider:
 > 
-> It is exactly the right place because it is the one supplying the new
-> memory. Context is irrelevant, the flag only describes what the new
-> memory actually *IS*, and swiotlb knows 100% if the new memory is
-> shared or private.
+> Pre-existing issues:
+> - [High] The patch resolves KMSAN false positives for CPACF query instructions by unpoisoning the fixed-size query outputs, but fails to implement the same fix for the primary CPACF data processing wrappers (e.g., `cpacf_km`, `cpacf_kmc`, `cpacf_kmctr`, `cpacf_kma`, `cpacf_prno`). These functions execute CPU instructions (like `.insn rre`) that write to output buffers directly. Because the inline assembly clobbers "memory" but does not explicitly bind the destination memory as an output operand (it only binds the register holding the pointer), KMSAN is unaware that the buffer is initialized. If an uninitialized buffer is passed for out-of-place encryption or PRNG generation, later reads from the buffer will trigger false-positive use-of-uninitialized-value warnings.
+> --
 > 
-> For your issue it would be appropriate to add a debugging check that
-> the new memory is not incompatible with the expected policy. eg a T=1
-> device getting decrypted swiotlb memory is a bug in swiotlb setup that
-> should be caught. But that's a debugging check, we expect the swiotlb
-> to have selected the right kind of memory by construction. This isn't
-> done yet since this series doesn't even yet support a T=1 device..
+> --- Patch [1]: [PATCH] s390/cpacf: Unpoison query results ---
+> commit a5de23eacfba57cb30b8dc14f4c7ed05cf2e259d
+> Author: Ilya Leoshkevich <iii@linux.ibm.com>
 > 
-> Jason
+> s390/cpacf: Unpoison query results
+> 
+> Stop KMSAN from complaining about query results being uninitialized.
+> 
+>> diff --git a/arch/s390/include/asm/cpacf.h b/arch/s390/include/asm/cpacf.h
+>> index a83683169d98d..d4128d3fd5138 100644
+>> --- a/arch/s390/include/asm/cpacf.h
+>> +++ b/arch/s390/include/asm/cpacf.h
+> [ ... ]
+>> @@ -370,6 +371,7 @@ static __always_inline int cpacf_query_func(unsigned int opcode,
+>>   static __always_inline void __cpacf_qai(unsigned int opcode, cpacf_qai_t *qai)
+>>   {
+>>   	__cpacf_query_insn(opcode, qai, CPACF_FC_QUERY_AUTH_INFO);
+>> +	kmsan_unpoison_memory(qai, sizeof(*qai));
+>>   }
+> 
+> [Severity: High]
+> This is a pre-existing issue, but should we also unpoison the buffers in the
+> other CPACF data processing wrappers?
+> 
+> The primary CPACF data processing wrappers (such as cpacf_km(), cpacf_kmc(),
+> cpacf_kmctr(), cpacf_kma(), and cpacf_prno()) execute CPU instructions that
+> write to output buffers directly. Because the inline assembly clobbers memory
+> but does not explicitly bind the destination memory as an output operand, KMSAN
+> remains unaware that the buffer was initialized.
+> 
+> If an uninitialized buffer is passed for out-of-place encryption or PRNG
+> generation, later reads from the buffer might trigger false-positive
+> use-of-uninitialized-value warnings.
+> 
+> Would it be helpful to add kmsan_unpoison_memory() to these functions as well
+> to prevent further false positives?
+
+Fair point, will do.
 
