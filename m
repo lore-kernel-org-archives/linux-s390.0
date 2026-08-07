@@ -1,110 +1,78 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 382DC4746D7
-	for <linux-s390@vger.kernel.org>; Fri,  7 Aug 2026 12:38:06 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA96C47607F;
+	Fri,  7 Aug 2026 12:57:19 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786106295; cv=none; b=JUAriqkLeyWrPy7+lhWXaBSj+Qt7oXQT9JXC//998z/MdiQfhp2iIiEKr0FnGNmGQUazlY0E+EvjRkSAXSkH63VserFzxMAOfxPk/d8RIw+dLztX/O+2hUKUhmmW8rOD2q68abrpvL4Tjh9sjhJCKfAOYrq69wnmcShlplEZ8AU=
+	t=1786107443; cv=none; b=n/RbopuDKZaWn245nOFGz15Ak+hLnGcCDklLCxk0Pp2CtiqfqySqJxU1vcYxxIjXUY2mH87Qq95UiSEJ8dudtahoTgSg7yL84iJyTHdD+ubQvb1cB/ShYJ5AG0nC5ssuH832o91c5XATcuhdPF0l3ckzcYGN1N141A6QhK6Xet4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786106295; c=relaxed/simple;
-	bh=rQEUnIeQrcdKhllBKnYZr8hjkVOXaqbZQ12o0LPmyJ0=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=s4yi2DLyUh2YHcK7fZ68JgPtMF4AX2Pc2o80KhtnS6SI5ygd93VN6W1c2W39aDk6HB0hkWgNwJCQSSppr2NfkiN1merJJobU1gI0jKAwVnU2ZiIjeAdN/AsuPdsnCE5ihPCnYkAC0I96ssTMEuNe9BOZ0C+rhyCT3DrErgfeweU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=V9mEvarb; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1786107443; c=relaxed/simple;
+	bh=RqNrnrfSrh4JGqVqqnuJS4ZrvC2g64alleAL3373SJA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=b9T7T/Q8Wbi8tk0uTba2WCWQBCEnn484xzxakWu5FzKPND1XldV0wpUTRzePp0PE/e1OwQMztk1vlq6e+6MyGO9jodioGalwSSF4W2sNm0vTBbvDeyrLOLGWH61mGWv/tkNaiddElcTE79AP/8UAa4BsT+aY2KnQ+pJgT4NaU4A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZI/xW4b6; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="V9mEvarb"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A8171F000E9;
-	Fri,  7 Aug 2026 12:38:04 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZI/xW4b6"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CE321F000E9;
+	Fri,  7 Aug 2026 12:57:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786106284;
-	bh=sU9QWbi0Qpg+KubnRbd0YFgmRByUznwxI0NXb1UctuE=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=V9mEvarbyhlnnpXw68lf4H/jlNiEF+j8irCIIyXbacvEHqszvtJcTkVyTwmdFL6F3
-	 eT7qYe8cPhLqvRz9Pk6QnUaYgfZl/RWKskz0gD9CkjnlwEHibV7d7VbmKoOpnABVLP
-	 OeaxpZAMiNyZyd5b+ct3fk/DX6SgkEesHGljt0luGv9WG7OEP9RYDdqYOB14qfoNZ5
-	 jSxjj1g7PizvpcF7rdKD+wNfq8tPWFYBpGDLjFU1T638ApFyQqVTtWFAH42Ena2wQu
-	 DRTGNKd9AFgDyXxu7k9i3gaT6ceUG2JVpd/F5xTE9ZFmHvxcfiKdkEelfU6uJ+1ZM3
-	 l0LqkfNNeI0ug==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2] s390/cpacf: Unpoison instruction results
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Ilya Leoshkevich" <iii@linux.ibm.com>
-Cc: "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
- Carstens" <hca@linux.ibm.com>
-In-Reply-To: <20260807122132.3592583-1-iii@linux.ibm.com>
-References: <20260807122132.3592583-1-iii@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 07 Aug 2026 12:38:03 +0000
-Message-Id: <20260807123804.6A8171F000E9@smtp.kernel.org>
+	s=k20260515; t=1786107436;
+	bh=bfeT8Oe0hGP6zH0zazdc6PEZoroy4KpwJjKGjfF2ayA=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=ZI/xW4b6wrmM2Mp2BrqbeavdEN8NnBJ9uODK97LhzrfB3IU2OmtFyN5prTcpLJhg8
+	 8lrqCfC81aS+nWvHyfbvpCCb67hz4ZY4ZOA4xf5uTod6/1YpDDmjSl37jZzvOKdU3v
+	 s9+kkxACDnSJ/0RUjlsSL2JAaMugu2EPOm2A1jg35XpFVyjFMRwDSKOemYj/L4LcYG
+	 AYQK0hhqj5TgWGvYR8dkvyOYsLg0emmSDpscJrvywdNfmWHr1VD2epjlmKpBn9qHFx
+	 Jxb571w0ZRzMoRn+qizl2IWc/kWM6hpm9b1pEET2rC21EGgONKOXIZjN2JOQ8zJgLj
+	 6pvpZ6pQX/akg==
+Date: Fri, 7 Aug 2026 13:57:12 +0100
+From: Simon Horman <horms@kernel.org>
+To: Heiko Carstens <hca@linux.ibm.com>
+Cc: Alexandra Winter <wintera@linux.ibm.com>,
+	Aswin Karuvally <aswin@linux.ibm.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S . Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	linux-s390@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [PATCH net-next 0/2] drivers/s390/net: Enable CONTEXT_ANALYSIS
+Message-ID: <20260807125712.GK51943@horms.kernel.org>
+References: <20260805145032.1409325-1-hca@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260805145032.1409325-1-hca@linux.ibm.com>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [Medium] `__cpacf_qai` unpoisons the entire 256-byte `cpacf_qai_t` struct=
-ure, which could mask kernel stack leaks if a specific instruction's QAI ou=
-tput is smaller than 256 bytes.
---
+On Wed, Aug 05, 2026 at 04:50:30PM +0200, Heiko Carstens wrote:
+> Enable CONTEXT_ANALYSYS for drivers/s390/net.
+> 
+> Static code checking for acquiring and releasing locks used to be done
+> with sparse. That was removed with [1] and replaced with a clang based
+> approach [2]. The new approach requires that each subsystem needs to be
+> explicitly enabled for checking.
+> 
+> Do that for drivers/s390/net. In order to avoid false positives due to
+> conditional locking, disable context analysis for specific functions of
+> the ctcm driver. All comments in ctcm indicate that the code should stay
+> as it is, and that such warnings should be ignored.
+> 
+> Disabling context analysis for specific functions keeps analysis enabled
+> for the rest of a file.
+> 
+> [1] 5b63d0ae94cc ("compiler-context-analysis: Remove Sparse support")
+> [2] 3269701cb256 ("compiler-context-analysis: Add infrastructure for Context Analysis with Clang")
+> 
+> Heiko Carstens (2):
+>   s390/ctcm: Add __context_unsafe() attribute to various functions
+>   drivers/s390/net: Enable CONTEXT_ANALYSIS
 
---- Patch [1]: [PATCH v2] s390/cpacf: Unpoison instruction results ---
-commit 587dbefd826fa4c40d5401b72be74dfb37147586
-Author: Ilya Leoshkevich <iii@linux.ibm.com>
+For the series:
 
-s390/cpacf: Unpoison instruction results
+Reviewed-by: Simon Horman <horms@kernel.org>
 
-This commit explicitly unpoisons CPACF instruction outputs to stop KMSAN fr=
-om
-reporting them as uninitialized. It leaves variable-length parameter blocks
-for the callers to handle.
-
-Link: https://lore.kernel.org/linux-s390/20260806190223.3292580-1-iii@linux=
-.ibm.com/
-
-> diff --git a/arch/s390/include/asm/cpacf.h b/arch/s390/include/asm/cpacf.h
-> index a83683169d98d..13d6a6344802a 100644
-> --- a/arch/s390/include/asm/cpacf.h
-> +++ b/arch/s390/include/asm/cpacf.h
-
-[ ... ]
-
-> @@ -370,6 +371,7 @@ static __always_inline int cpacf_query_func(unsigned =
-int opcode,
->  static __always_inline void __cpacf_qai(unsigned int opcode, cpacf_qai_t=
- *qai)
->  {
->  	__cpacf_query_insn(opcode, qai, CPACF_FC_QUERY_AUTH_INFO);
-> +	kmsan_unpoison_memory(qai, sizeof(*qai));
-
-[Severity: Medium]
-Will unconditionally unpoisoning the entire 256-byte cpacf_qai_t structure
-potentially mask kernel stack leaks from KMSAN?
-
-If a specific instruction's QAI output is smaller than 256 bytes, this
-unpoison would hide the remaining uninitialized stack bytes. In
-arch/s390/kernel/cpacf.c, the uninitialized stack structure is copied
-directly to userspace:
-
-arch/s390/kernel/cpacf.c:name##_query_auth_info_raw_read() {
-    ...
-    cpacf_qai_t qai;
-    ...
-    if (!cpacf_qai(CPACF_##instruction, &qai))
-        return -EOPNOTSUPP;
-    return memory_read_from_buffer(buf, count, &offs, &qai,
-                                   sizeof(qai));
-}
-
-Could this regression lead to uninitialized stack bytes leaking to userspace
-via the sysfs attribute without KMSAN detecting it, if any current or future
-hardware query instructions write less than the full struct size?
-
->  }
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260807122132.3592=
-583-1-iii@linux.ibm.com?part=3D1
