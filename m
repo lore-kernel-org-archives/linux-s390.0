@@ -1,73 +1,74 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D16C468C1A
-	for <linux-s390@vger.kernel.org>; Fri,  7 Aug 2026 12:00:31 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 63BFC472771
+	for <linux-s390@vger.kernel.org>; Fri,  7 Aug 2026 12:05:04 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786104041; cv=none; b=qbaJc5OCKcTDajHgHUviYknRng7g6AquxORDt2pcHBaATYr9X6LwjcFy+3y1SdkiIkEj39qiifzgfyetN4NY67vENuIx/LPSm0WmQKyzuWTOydbGpgJtNTI9E43Q64etCw0yG213vj2haZ+q5uqS7tc74b35EAET+gL5H4j5iD0=
+	t=1786104330; cv=none; b=lJgTjO0mqUmYpCd2jz3M7bOnYPq8kv6vMKnJoguIF9XwZQaYFT0w9bHws47bfnfPVVWXev64S/Fdefj2d5UoVOf199GIP0UNTEsuVj/O1f9F/TTDIzwIYdwFPNs+kqx+bkI1DsPWU903MsQ0oI4z9OjZB3VadP6DCGkoW9J7VoA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786104041; c=relaxed/simple;
-	bh=SrnfegWShWGs2ZPjJHYwxqC368y2DhQVX46nbSkojvI=;
+	s=arc-20240116; t=1786104330; c=relaxed/simple;
+	bh=KgfLhsNbbFgyzOZ5SkA54n/vgOszh9GPP3tq3pY6nGA=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=EzLdDA5ZsTkUkWP0MWqKotUQcKdebC8Fz58+5Am1yNeZ0SbVQOCqN3nM0bcNcRRUNHg85/wf7bknOysRA01Z3Idh50Gstc+lhjpC/nPmay7JXXCAB+TrXkh7LvTiKRrkIT1G6UzGMfYsKSxXvI4MX0OknhZpaxsJsslG0MRG7I4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bWDyvngE; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=YyG0VCT9hIUIRwm/Bw3V8eMeRnfrNldf0H+VTpLxjYpqEsaHT1kYgqcsS7bq9NxcBz7Bk+PwOH7bwmCacr6EGXZQ4bGRWiIOFP72gfKWeCRxFpdwo0210Qa1DV3zgZ116ZOipAvIIaBeBcFDrNMFRTDdShKBZE3/dzn12GEyM4I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jr0vrqEN; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bWDyvngE"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D0631F000E9;
-	Fri,  7 Aug 2026 12:00:28 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jr0vrqEN"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC5761F00A3A;
+	Fri,  7 Aug 2026 12:05:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786104028;
-	bh=FGSaoAscmDMGqFF2OixX/qvWyIgD0IWJSPADbwCO4dI=;
+	s=k20260515; t=1786104303;
+	bh=7V7SPLHWzQL9WJUHosPjOzzzKx5aJ3hKKhquZ/vQKy8=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=bWDyvngELdAd/tsueKmU85YpBDSqSJzJEB2wIx6JvH88QZJ+uZL+pR+mHCAcfuw1t
-	 lb41KlCvReDUr5qCtWds4KN0HYlm2l2P+4SaZQDbyB7Cujznd4WVmAQuGFxP1YYdGm
-	 JkKew/YEt4pwiv5eG03WwFYxOBy2TGjlN0QmU+YEDJoz0aMEqytryG7gRuAPPeOwQZ
-	 UItNh6JioGm0RZnjCGeE8OjzkQcPTL6Sfh4HXI/aHyhohM/5sWvgtr3OL8b7uQ5dPP
-	 ecfhO1U7wc9u0vQGgKnzTMBBLFjNkqqPtYr3vsIwRkjEJTgN7HhXh0taHgvi0BOMMh
-	 etnSlBHPhKlQQ==
+	b=jr0vrqENYMb37PtwRVIpnNwO1SNDfiKlYtXiAh+jKdLm6nxXxRufdtSgkLQv1agdB
+	 pJZZPTQckV1Cafb3Qn6gcqr4/UxirlLpnKAIYzYVAVADQxJ8BbAILl9TpWxI9okwne
+	 DVUZOlicL5mJTpCViX7SFV/QU4+Px49zrJQp/juKOxS+2OvXrSccEPu4cZ4n4RSMMV
+	 CZTP2AGOJoCvvbU+kNhRhzZDOXcv0mFnsTZ26zSE27MNQS3S6IzA1FuHCjjSJCrJ1i
+	 AFhYkTu+t5Mzt9RUoRNJ0nXYSBhes84qGxl8Po9t6OR5gBkjZhKTxKZgeoEDFlePnE
+	 yuKrJHNafaeFQ==
 From: sashiko-bot@kernel.org
 Subject: Re: [PATCH net v2] dibs: fix double free of dmb_clientid_arr
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Hidayath Khan" <hidayath@linux.ibm.com>
-Cc: "Vasily Gorbik" <gor@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, linux-s390@vger.kernel.org, "Alexander
- Gordeev" <agordeev@linux.ibm.com>
-In-Reply-To: <20260806120002.596137-1-hidayath@linux.ibm.com>
-References: <20260730075624.114778-1-hidayath@linux.ibm.com>
- <20260806120002.596137-1-hidayath@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Heiko
+ Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>
+In-Reply-To: <20260806120447.596164-1-hidayath@linux.ibm.com>
+References: <20260806120447.596164-1-hidayath@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 07 Aug 2026 12:00:27 +0000
-Message-Id: <20260807120028.5D0631F000E9@smtp.kernel.org>
+Date: Fri, 07 Aug 2026 12:05:02 +0000
+Message-Id: <20260807120502.BC5761F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 4 potential issue(=
+Thank you for your contribution! Sashiko AI review found 5 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [Critical] Hardware interrupt is registered before required data structur=
-es and locks are initialized.
-- [Critical] Asymmetric teardown order creates a Use-After-Free window in `=
-ism_remove()` and probe error paths.
-- [High] Missing `class_unregister(&dibs_class)` on the error path in `dibs=
-_init()`.
-- [High] Incomplete rollback in `dibs_unregister_client()` leaves client in=
- a partially unregistered state.
+- [High] dibs_unregister_client() fails with partial unregistration if an a=
+ctive DMB is found on a device later in the list, leaving the client in a c=
+orrupted state.
+- [High] Initialization failure in dibs_init() leaks dibs_class and causes =
+Use-After-Free.
+- [High] Early registration of ism_handle_irq() in ism_probe() causes poten=
+tial NULL Pointer Dereference and Use-After-Free.
+- [High] `dibs_lo_move_data()` acquires `dibs->lock` with plain `spin_lock(=
+)`, missing IRQ masking.
+- [High] In the error path of `ism_alloc_dmb()`, a folio allocated page is =
+illegally freed using `kfree()`.
 --
 
 --- Patch [1]: [PATCH net v2] dibs: fix double free of dmb_clientid_arr ---
-commit 1001308ced15383d91624271c00a3bbcf60208a4
+commit c4dab923b3875e2fdb8522fd524541f2cd53cf25
 Author: Hidayath Khan <hidayath@linux.ibm.com>
+Subject: dibs: fix double free of dmb_clientid_arr
 
-dibs: fix double free of dmb_clientid_arr
-
-This commit fixes a double free of dibs->dmb_clientid_arr by dropping
-the kfree() in the err_reg path of dibs_lo_dev_probe(). The pointer is
-already freed by dibs_dev_add() on failure paths.
+This commit removes the kfree() call in dibs_lo_dev_probe() to prevent a
+double free of dibs->dmb_clientid_arr. The pointer is already freed on both
+failure paths of dibs_dev_add(), which is called just before the error path.
 
 > diff --git a/drivers/dibs/dibs_loopback.c b/drivers/dibs/dibs_loopback.c
 > index fd5caf1e19a8f..649e4e375be33 100644
@@ -82,98 +83,125 @@ already freed by dibs_dev_add() on failure paths.
 >  	put_device(&dibs->dev);
 >  	kfree(ldev);
 
-[Severity: High]
-This isn't a bug introduced by this patch, but I noticed a missing
-class_unregister() on the error path in dibs_init().=20
+While reviewing this area, I noticed a few pre-existing issues that were not
+introduced by this patch.
 
-If dibs_loopback_init() fails, it returns an error without cleaning up the
-registered class:
-
-drivers/dibs/dibs_main.c:dibs_init() {
-    ...
-	rc =3D dibs_loopback_init();
-	if (rc)
-		pr_err("%s fails with %d\n", __func__, rc);
-
-	return rc;
-}
-
-Can this lead to a use-after-free? Any subsequent interaction with
-/sys/class/dibs or reloading the module might dereference the freed class
-struct.
+drivers/dibs/dibs_main.c:dibs_unregister_client()
+> 		for (int i =3D 0; i < max_dmbs; ++i) {
+> 			if (dibs->dmb_clientid_arr[i] =3D=3D client->id) {
+> 				WARN(1, "%s: attempt to unregister '%s' with registered dmb(s)\n",
+> 				     __func__, client->name);
+> 				rc =3D -EBUSY;
+> 				goto err_reg_dmb;
+> 			}
+> 		}
+> 		/* Stop forwarding IRQs and events */
+> 		dibs->subs[client->id] =3D NULL;
+> 		spin_unlock_irqrestore(&dibs->lock, flags);
+> 		clients[client->id]->ops->del_dev(dibs);
 
 [Severity: High]
-This is a pre-existing issue, but incomplete rollback in
-dibs_unregister_client() seems to leave the client in a partially
-unregistered state:
+This isn't a bug introduced by this patch, but if dibs_unregister_client()
+finds an active DMB on a device later in the list, it aborts and returns
+-EBUSY. Does this leave the client in a corrupted state since the earlier
+devices in the list already had their forwarding stopped and del_dev() call=
+ed?
+A subsequent retry could result in a double-free or use-after-free when
+del_dev() is called again for the already processed devices.
 
-drivers/dibs/dibs_main.c:dibs_unregister_client() {
-    ...
-				rc =3D -EBUSY;
-				goto err_reg_dmb;
-			}
-		}
-    ...
-}
+drivers/dibs/dibs_main.c:dibs_init()
+> static int __init dibs_init(void)
+> {
+> 	int rc;
+>=20
+> 	rc =3D class_register(&dibs_class);
+> 	if (rc)
+> 		return rc;
+>=20
+> 	rc =3D dibs_loopback_init();
+> 	if (rc)
+> 		pr_err("%s fails with %d\n", __func__, rc);
+>=20
+> 	return rc;
+> }
 
-If it encounters a device with active DMBs, it returns -EBUSY immediately
-without restoring the state of previously unregistered devices. Does this
-permanently corrupt the client state where it misses events for those
-earlier devices while believing it is still fully registered?
+[Severity: High]
+This is a pre-existing issue, but does an initialization failure here leak =
+the
+dibs_class? If dibs_loopback_init() fails, the module load is aborted and
+memory is freed, but class_register() isn't undone. Could this result in a
+use-after-free if sysfs accesses the freed module memory?
 
-[Severity: Critical]
-This isn't a bug introduced by this patch, but the hardware interrupt
-appears to be registered before the required data structures and locks are
-initialized:
+drivers/s390/net/ism_drv.c:ism_probe()
+> 	/* enable ism device, but any interrupts and events will be ignored
+> 	 * before dibs_dev_add() adds it to any clients.
+> 	 */
+> 	ret =3D ism_dev_init(ism);
+> 	if (ret)
+> 		goto err_dibs;
+> ...
+> 	ret =3D dibs_dev_add(dibs);
 
-drivers/s390/net/ism_drv.c:ism_probe() {
-    ...
-	ret =3D ism_dev_init(ism);
-	if (ret)
-		goto err_dibs;
-    ...
-}
+drivers/s390/net/ism_drv.c:ism_handle_irq()
+> 	spin_lock(&dibs->lock);
+> 	ism->sba->s =3D 0;
+> 	barrier();
+> ...
+> 		client_id =3D dibs->dmb_clientid_arr[bit];
 
-ism_dev_init() registers the hardware IRQ before dibs_dev_add() initializes
-dibs->lock and dibs->dmb_clientid_arr. If a spurious or pending interrupt
-fires during this small window:
+[Severity: High]
+This isn't a bug introduced by this patch, but is it possible for an early
+interrupt to trigger a NULL pointer dereference or use-after-free?
+ism_dev_init() enables the hardware interrupts before dibs_dev_add()
+initializes dibs->lock and allocates dibs->dmb_clientid_arr. If an interrupt
+fires early, could ism_handle_irq() attempt to acquire an uninitialized lock
+and dereference a NULL pointer?
 
-drivers/s390/net/ism_drv.c:ism_handle_irq() {
-    ...
-	spin_lock(&dibs->lock);
-...
-		client_id =3D dibs->dmb_clientid_arr[bit];
-    ...
-}
+drivers/dibs/dibs_loopback.c:dibs_lo_move_data()
+> 	spin_lock(&dibs->lock);
+> 	client_id =3D dibs->dmb_clientid_arr[sba_idx];
+> 	s_mask =3D ror16(0x1000, idx);
+> 	if (likely(client_id !=3D NO_DIBS_CLIENT && dibs->subs[client_id]))
+> 		dibs->subs[client_id]->ops->handle_irq(dibs, sba_idx, s_mask);
+> 	spin_unlock(&dibs->lock);
 
-Will this cause a panic due to attempting to acquire an uninitialized
-spinlock and dereferencing the NULL dmb_clientid_arr pointer?
+[Severity: High]
+This is a pre-existing issue, but is it safe to acquire dibs->lock using
+spin_lock() here? Since the lock is also acquired in the hardirq context by
+ism_handle_irq(), could acquiring it here without disabling interrupts caus=
+e a
+deadlock if an interrupt arrives on the same CPU?
 
-[Severity: Critical]
-This is a pre-existing issue, but there seems to be an asymmetric teardown
-order creating a use-after-free window in ism_remove():
+drivers/s390/net/ism_drv.c:ism_alloc_dmb()
+> 	folio =3D folio_alloc(GFP_KERNEL | __GFP_NOWARN | __GFP_NOMEMALLOC |
+> 			    __GFP_NORETRY, get_order(dmb->dmb_len));
+>=20
+> 	if (!folio) {
+> 		rc =3D -ENOMEM;
+> 		goto out_bit;
+> 	}
+>=20
+> 	dmb->cpu_addr =3D folio_address(folio);
+> 	dmb->dma_addr =3D dma_map_page(&ism->pdev->dev,
+> 				     virt_to_page(dmb->cpu_addr), 0,
+> 				     dmb->dmb_len, DMA_FROM_DEVICE);
+> 	if (dma_mapping_error(&ism->pdev->dev, dmb->dma_addr)) {
+> 		rc =3D -ENOMEM;
+> 		goto out_free;
+> 	}
+>=20
+> 	return 0;
+>=20
+> out_free:
+> 	kfree(dmb->cpu_addr);
 
-drivers/s390/net/ism_drv.c:ism_remove() {
-    ...
-	dibs_dev_del(dibs);
-	ism_dev_exit(ism);
-    ...
-}
-
-dibs_dev_del() frees dibs->dmb_clientid_arr:
-
-drivers/dibs/dibs_main.c:dibs_dev_del() {
-    ...
-	kfree(dibs->dmb_clientid_arr);
-    ...
-}
-
-However, the interrupt is only disabled later in ism_dev_exit().=20
-
-If an interrupt fires in this window, ism_handle_irq() will read from the
-freed array. Could garbage data interpreted as client_id cause an
-out-of-bounds access when indexing dibs->subs[client_id]?
+[Severity: High]
+This isn't a bug introduced by this patch, but does the error path incorrec=
+tly
+free the page memory? Since dmb->cpu_addr was allocated via folio_alloc(),
+shouldn't it be freed using folio_put() instead of kfree() to avoid slab
+allocator corruption?
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260806120002.5961=
-37-1-hidayath@linux.ibm.com?part=3D1
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260806120447.5961=
+64-1-hidayath@linux.ibm.com?part=3D1
