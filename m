@@ -1,57 +1,57 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9CB18397B02;
-	Sat,  8 Aug 2026 17:07:23 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 652F937A829;
+	Sat,  8 Aug 2026 17:07:28 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786208845; cv=none; b=Ik9EsKwDhEXfrAp2tusGoCtwn0iY7v9V+uotZ1ODkb88+DZjGZr155DayBkXORYnr67256qj6iFA/pVBxmy/qJBVvLQWiel3rbXBimESXao0aO9Xtucjd3cHQ6pjT0pF15m96dkXTKVFGV362V+Dbp0AAqUAtTph7Kf5aYmZCZA=
+	t=1786208849; cv=none; b=R5+bj20E302tqvOfoBAQjDRwKW5+qxpgOGedKHZxXC6HERHYBcQuhlks7wKAFUVV4+1OGXiEry7meF/7iqic5yJDCJ2tykRsF338ujKc1Eo2szAQZpjNLDINYoSwvsUMYlD6ybSPJUX467aPOHkdFde/EOGbHjZjzxDrTL46Lv4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786208845; c=relaxed/simple;
-	bh=sp851rKcjACvmA4idI1Vzv+6+lvy2OGsAjfNlN8mTIE=;
+	s=arc-20240116; t=1786208849; c=relaxed/simple;
+	bh=4tidI23Pm+dYwkNbLIXMMsazONFi/qGjVCp+vtRgBAI=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=tT3PK4rappSBSh98CtQvi3KwhsEmm4Auj2vUs8rmnSHbwm9P1cXDpIIUkQJmMTJhu9bReOo8hJc+7LZfeCuQYbqcqUPTVEv0ft9bP13AQPoAaC6TG6Cyz7eM70xRuak780+bL+WUK+Q5FLqBgyaY7l1tfnie7tqkp41cnEr5Pe8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=RRBIIalF; arc=none smtp.client-ip=148.163.158.5
+	 MIME-Version; b=RqNeIweLglsSIjPqWcOflun0fZ3gyGyLPgWt3p7LcpBtqSH/4/WBcmoFeZ/cMjGPkXrLv4mHAovXeXgCYFgLSGmjhW1WAqCF+VEdKyRc2Tg4V4eL4D/XQw4EGhnG4+MciCjiBfuCCGSVLyLcuaNtsAcdAMreSP0Up5q2cjvgTyY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=e6W5cLMO; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="RRBIIalF"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 678H1ebD625481;
-	Sat, 8 Aug 2026 17:07:19 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="e6W5cLMO"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 678H1tqh605924;
+	Sat, 8 Aug 2026 17:07:23 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=Cbfw1pahnu31h+7Er
-	d33ZjAfOVNEsK7X1JFcNQj/0L0=; b=RRBIIalFlNh0+J6W1kYdDCxtkVwDu/g2a
-	13772441d2fn3//Y0NGrXRpFxsQVgFGtyQKXf9nOOXNNmBw1AB5Jqyt1hFOvMTlZ
-	443bpItJ+/vNqQ3gcQ5L9PjhkXR3kAoWw/Ci/atRvWyDzn3f398o5udUFrMPnjJV
-	J+9BYTK3BYNqHIGphLR8rOKUkTF2eZTZe6Pg3gMgXY43uHxClt2cgYao4Bb5K8/Y
-	s8VxVecUDncicDJ6eMRd7CuV/L6NiznIVSnYNHqfOJStBeajESxNZwOzB4iqndNt
-	ABQddFvW06aLYlp8eHUfmR3EKFaI4AHrACBI6lENLlqdblERCrwJg==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fwvp2hn1e-1
+	:mime-version:references:subject:to; s=pp1; bh=qbE/FfN+6bKSEEHXg
+	zeGEhHoSj357bjJBkyHRtmLeYs=; b=e6W5cLMOxSIYV2R8CS00JKhqb4U0YmTSk
+	O9/U66SDr5TaJjwZJdLm9Fhg1ma7U8vMKPlLFoGIsM5XMNqkxVZdEm7J6JPYJHPL
+	ZoLPY34noF85BrzzfH1tFLRIwvxFJrdcPX6uQcg++t80j3binXGghu9I+SNU+9Ac
+	XPFsz+TT6nQP8beDhPsy0jRFgXcRe44z2GrxveE+6MLQ3Lmi+T5meVQfPRaGZJ7h
+	cLqHtZD1EXV9Qkw/isn94Dnp0GOzW5bQ/mf9+vxmctnv02LSd21P1T5gR+8EaWid
+	H5fhgG1AHyQMGPpp/pb/5+IqMLoPSA0giNoNnOQWGK7zFKjNjNrWQ==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fwvkchn9b-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Sat, 08 Aug 2026 17:07:18 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 678GujXe015862;
-	Sat, 8 Aug 2026 17:07:18 GMT
-Received: from smtprelay04.wdc07v.mail.ibm.com ([172.16.1.71])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fsv4km4ky-1
+	Sat, 08 Aug 2026 17:07:22 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 678GudD4013079;
+	Sat, 8 Aug 2026 17:07:22 GMT
+Received: from smtprelay02.dal12v.mail.ibm.com ([172.16.1.4])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fswu03vkf-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Sat, 08 Aug 2026 17:07:18 +0000 (GMT)
+	Sat, 08 Aug 2026 17:07:21 +0000 (GMT)
 Received: from smtpav04.wdc07v.mail.ibm.com (smtpav04.wdc07v.mail.ibm.com [10.39.53.231])
-	by smtprelay04.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 678H7GE858458538
+	by smtprelay02.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 678H7KqK27984572
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Sat, 8 Aug 2026 17:07:17 GMT
+	Sat, 8 Aug 2026 17:07:21 GMT
 Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id DCCB358052;
-	Sat,  8 Aug 2026 17:07:16 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id C775558050;
+	Sat,  8 Aug 2026 17:07:20 +0000 (GMT)
 Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2721558045;
-	Sat,  8 Aug 2026 17:07:15 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 00A8D58045;
+	Sat,  8 Aug 2026 17:07:19 +0000 (GMT)
 Received: from li-4c4c4544-004d-4810-8043-b7c04f423534.ibm.com.com (unknown [9.61.94.189])
 	by smtpav04.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Sat,  8 Aug 2026 17:07:15 +0000 (GMT)
+	Sat,  8 Aug 2026 17:07:18 +0000 (GMT)
 From: Anthony Krowiak <akrowiak@linux.ibm.com>
 To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
         kvm@vger.kernel.org
@@ -60,9 +60,9 @@ Cc: jjherne@linux.ibm.com, borntraeger@de.ibm.com, mjrosato@linux.ibm.com,
         fiuczy@linux.ibm.com, pbonzini@redhat.com, frankja@linux.ibm.com,
         imbrenda@linux.ibm.com, agordeev@linux.ibm.com, hca@linux.ibm.com,
         gor@linux.ibm.com, stable@vger.kernel.org
-Subject: [PATCH 1/5] s390/vfio-ap: Fix stale do_remove flag across iterations in vfio_ap_mdev_cfg_remove
-Date: Sat,  8 Aug 2026 13:07:08 -0400
-Message-ID: <20260808170712.839066-2-akrowiak@linux.ibm.com>
+Subject: [PATCH 3/5] s390/vfio-ap: Fix use of wrong lock in mdev probe function
+Date: Sat,  8 Aug 2026 13:07:10 -0400
+Message-ID: <20260808170712.839066-4-akrowiak@linux.ibm.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260808170712.839066-1-akrowiak@linux.ibm.com>
 References: <20260808170712.839066-1-akrowiak@linux.ibm.com>
@@ -74,74 +74,69 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=AMtp2X5w c=1 sm=1 tr=0 ts=6a776246 cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+X-Proofpoint-GUID: mizJpq5wg1SRAPkJIGn-j68Ptjvt9EnM
+X-Authority-Analysis: v=2.4 cv=J86aKgnS c=1 sm=1 tr=0 ts=6a77624a cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
  a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
- a=dlTjfeu_wqJGreSUTgMA:9
-X-Proofpoint-GUID: 0fD-k0eye_LITg1rfWrT2DRMOD0pbIFY
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODA4MDE0NiBTYWx0ZWRfX7itLkES0f4lW
- W59SLYtBiMBwyqcoD2vKBgPpbOyopiorkkoIDjrOVguNz6SxZDmkP1mwAt27+D1DHZF0rtEZhm+
- LnPd1w4sXj7qVcJ0HGhnZLDcL0/l170FHr0l5Vg36ghOadJd8evJzrs/S1dLF8Sb4rnXauFtXbL
- iN9+1qzl6G8bsIVOjoyoHWdivDjgaj6NQ5zs71BXX6dgELBHq3g6fV7zs6pyRqi5K91XvoPi6P+
- HW9oAFWHcHqufsY/rCmP5wJQ6nwzKbG/lz0MesWItqMdCJkaKjnLUZu3LA+MAS6exKv3pTzh7Ze
- nU1uJPzvSdXLuyplAMhUY0lvFP+aPF+uGWPgMn4JxoaLyVZQUUbdSi+oGARK95RLlR5HSK4C3iv
- cwq7lUyPAjW07sExbaxXJQK9BvAmB/rO60y6qrhiKECLQBn9KIKJBaA+8+NMMwd4c/oQjyUYKHX
- uquc2qCDxZL2T71tnFQ==
-X-Proofpoint-ORIG-GUID: 0fD-k0eye_LITg1rfWrT2DRMOD0pbIFY
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODA4MDE0NiBTYWx0ZWRfX4n/siw4d3aaf
- AgFCEbamDLnRdS++u1tDbqI8apibgsHEFRTAn/rZw6wTva+OTXPDeMFBIq8sLZFWGCP9if3csx4
- ktwawsYsKu974k69WbbzKSNFLt90Jcg=
+ a=V8glGbnc2Ofi9Qvn3v5h:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
+ a=IOhVIQ1U7ISs0PSOFQMA:9
+X-Proofpoint-ORIG-GUID: mizJpq5wg1SRAPkJIGn-j68Ptjvt9EnM
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODA4MDE0NiBTYWx0ZWRfX6r5CDk+8WwP1
+ lKxGJO4wCC+cNW1v4UHUUFKQ973J/wUf4MrgMbZAJ4Eh2F2F8IcC3FKvmYnvYzB8pO6qil8zRU6
+ 3NTsrinqOBevI1aUyhUQoba2Us+wISxv7szBhwwyrFu0tuGwoTBEaiLqKz4SQnb6p3cQuhYC1Bo
+ /RJCF243zxFSLoDylz4zhngebfK1HnUcg4o9+iKFhyotdig4kVBSLCvpen8g8ym5fwQussaSbyA
+ VtV5KrVS2uZK34xvGNg+59W04PZ1fZ84RXjp3UgrcJUH4b+xd5vkjVlSHkimO8N9lFjrAGnV/Mp
+ OeWtgAmIcksKSVpJmFb5KMqjpx5yXVrQUPs+8ZWwozJ3uYofi124iNdALoFl0KPfseClSGdxEUN
+ 4lC3nloQygqVn4QaCqdbzsQhmagjccGysWKKrowJ1Oh5Aj34MXMhl3ovjcE0+jPu7UkY1JmgV3x
+ d6hzucMh9eT3S1vaVng==
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODA4MDE0NiBTYWx0ZWRfXwAxH70ALHyjA
+ CZd6UTXWJqVv8AJ6+KMi4IvKK7doVbSbb/sdQWuvj4iEx+0rITI3Gsp0b/HwnR172i54a8dM1WK
+ dj2/Cfe8VznXHpzYQTxrQU3ncp8XFX0=
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-08-08_06,2026-08-07_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 adultscore=0 lowpriorityscore=0 clxscore=1015
- priorityscore=1501 impostorscore=0 phishscore=0 spamscore=0 bulkscore=0
- malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2608080146
+ clxscore=1015 priorityscore=1501 suspectscore=0 malwarescore=0 adultscore=0
+ phishscore=0 impostorscore=0 lowpriorityscore=0 bulkscore=0 spamscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608080146
 
-The do_remove flag in vfio_ap_mdev_cfg_remove() is initialised to zero
-before the loop that iterates over the list of matrix mdevs, but is
-never reset at the start of each iteration. Since do_remove is
-OR-accumulated across iterations, a positive result from one mdev
-carries over to subsequent mdevs.
+The vfio_ap_mdev_probe function uses the matrix_dev->mdevs_lock
+mutex to guard the add of a newly created ap_matrix_mdev object to the
+matrix_dev->mdev_list. This mutex does not protect against traversal
+of the list; its purpose is to guard against concurrent access to fields
+contained in an ap_matrix_mdev object. This could lead to kernel memory
+corruption or use-after-free if another mdev is created concurrently.
 
-The fix is to set the do_remove flag with the first call to bitmap_and;
-for example: do_remove = bitmap_an rather than do_remove |= bitmap_and.
+The adding of an ap_matrix_mdev object to matrix_dev->mdev_list
+is now guarded by the matrix_dev->guests_lock which is the correct
+way to protect against concurrent mdev_list access.
 
-Fixes: eeb386aeb5b7 ("s390/vfio-ap: handle config changed and scan complete notification")
+See the vfio-ap-locking.rst in the linux kernel tree.
+
+Fixes: 2c1ee8983aa3 ("s390/vfio-ap: prepare for dynamic update of guest's APCB on queue probe/remove")
 Cc: stable@vger.kernel.org
 Signed-off-by: Anthony Krowiak <akrowiak@linux.ibm.com>
 ---
- drivers/s390/crypto/vfio_ap_ops.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/s390/crypto/vfio_ap_ops.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index 44b3a1dcc1b3..845c86ba8bc3 100644
+index e382e5a1cb99..a472de00bc14 100644
 --- a/drivers/s390/crypto/vfio_ap_ops.c
 +++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -2603,15 +2603,15 @@ static void vfio_ap_mdev_cfg_remove(unsigned long *ap_remove,
- 	DECLARE_BITMAP(aprem, AP_DEVICES);
- 	DECLARE_BITMAP(aqrem, AP_DOMAINS);
- 	DECLARE_BITMAP(cdrem, AP_DOMAINS);
--	int do_remove = 0;
-+	int do_remove;
+@@ -803,9 +803,9 @@ static int vfio_ap_mdev_probe(struct mdev_device *mdev)
+ 	matrix_mdev->req_trigger = NULL;
+ 	matrix_mdev->cfg_chg_trigger = NULL;
+ 	dev_set_drvdata(&mdev->dev, matrix_mdev);
+-	mutex_lock(&matrix_dev->mdevs_lock);
++	mutex_lock(&matrix_dev->guests_lock);
+ 	list_add(&matrix_mdev->node, &matrix_dev->mdev_list);
+-	mutex_unlock(&matrix_dev->mdevs_lock);
++	mutex_unlock(&matrix_dev->guests_lock);
+ 	return 0;
  
- 	list_for_each_entry(matrix_mdev, &matrix_dev->mdev_list, node) {
- 		mutex_lock(&matrix_mdev->kvm->lock);
- 		mutex_lock(&matrix_dev->mdevs_lock);
- 
--		do_remove |= bitmap_and(aprem, ap_remove,
--					  matrix_mdev->matrix.apm,
--					  AP_DEVICES);
-+		do_remove = bitmap_and(aprem, ap_remove,
-+				       matrix_mdev->matrix.apm,
-+				       AP_DEVICES);
- 		do_remove |= bitmap_and(aqrem, aq_remove,
- 					  matrix_mdev->matrix.aqm,
- 					  AP_DOMAINS);
+ err_put_vdev:
 -- 
 2.53.0
 
