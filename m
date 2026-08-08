@@ -1,107 +1,178 @@
-Received: from mail-24417.protonmail.ch (mail-24417.protonmail.ch [109.224.244.17])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7A47334F474;
-	Sat,  8 Aug 2026 08:13:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=109.224.244.17
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E074B18A6CF
+	for <linux-s390@vger.kernel.org>; Sat,  8 Aug 2026 08:16:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786176786; cv=none; b=KI9ZGjAoZf0rtF+YvPaRqRLEv2AGg5XyUmv7Ww1oENm1gW4M18Xi3c1EuTyHXdEqU4HUorMQm6xYNnjIq3Gr4XcWgIslS8vb6/YX3LeR6Cl85c/xp8C92DbyJhUqOYJzBclABBFRk/eXu2CngBlgrO+AdmUjUZoYVAw1AHHb1UY=
+	t=1786177005; cv=none; b=CrH2SG0bgTeKXxvaDV+kjEUjLML6M27ngMfThOml9yH8HkGzPXHFn6v8f9io/e+0zNdejKsvUQRq0kSACMhqKF+d8KEATZ5W94fKgwN+oSnZzjfJZjjD4QeeN4XkIBIGxP7XRHcdzCAUyLZyp1pHF/mUTPWLepWM/JVAbM/8g8Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786176786; c=relaxed/simple;
-	bh=U7T99eAafPQwDZHJAxRLoUHSj9H9PcIOGK436vZT2JM=;
-	h=Date:To:From:Cc:Subject:Message-ID:MIME-Version:Content-Type; b=CTLqIKH8hyEQqva+w+zsNc2hh6YwyzKHLj0Tnk11F2Dne0juHeQ2nC2rAe4yxcKSgTPWkcq+5XcWVdRI0nXsBehtcuYZkbou7eCToJc6TLY/ZDgrKrVf4IOh7iu8eEW221Viu2AZUaZmD0etmg5fO3DtvZ+U1l4d6L5JywduWrI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=proton.me; spf=pass smtp.mailfrom=proton.me; dkim=pass (2048-bit key) header.d=proton.me header.i=@proton.me header.b=DMs2gOV1; arc=none smtp.client-ip=109.224.244.17
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=proton.me
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=proton.me
+	s=arc-20240116; t=1786177005; c=relaxed/simple;
+	bh=6HMp5LrUk9bAryaCnhNpplhKZpjACeemF5DzBzPsg0U=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=roAjZ8NZNqq3TCLOYEv2lwUJjQe/g0uhu1YwyvmUOne88vIAVBSIg2/LiyaowpJNhNFl27429vLn70zr1qGMNcSfbfOuZrY5SK+QCBOfazrhzrzgbZZHlv5n4T74pU5RzJsTNrc71wXYiWEyeZf652Nrvj/XO2+uZWLDzFXVobg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YTg+H6tL; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=proton.me header.i=@proton.me header.b="DMs2gOV1"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=proton.me;
-	s=yeo2e3rg6rhx3amfdow7g5rx7i.protonmail; t=1786176771; x=1786435971;
-	bh=CPjxbEpyKX9EiaXoNzd1dq0b6n/s36ZaBQgP8FiBpuA=;
-	h=Date:To:From:Cc:Subject:Message-ID:Feedback-ID:From:To:Cc:Date:
-	 Subject:Reply-To:Feedback-ID:Message-ID:BIMI-Selector;
-	b=DMs2gOV11KELf1nfDQ3TMbH/dkyOs/LLhloLCIUAqWtkVTxkHkwsmxy74qDEEGftj
-	 10QVEU7b5KARNUK25xc28GaQgf7GHuZxnkl3S8D1eMeQbpQz7o6XSSyxD26AOT7Cc7
-	 W3auKQ3eE/gdick5Au5ozSivAZJMODd30LOqZDag0OcA3mV69v231GhDQzP5VJxZqB
-	 jSzcJs4EPBq5xTqYITyVlX32+L2cgfq9pSHark4egeT//1TQeRniaaMODBJjdeKLtc
-	 7k7W9S63u6GzcpZKg01kuONYysThjmNjpHBsppfGxjzg8MI6XZQ5Ze1aQH4hT2N+J5
-	 MRIOndhAzV/sQ==
-Date: Sat, 08 Aug 2026 08:12:47 +0000
-To: Hidayath Khan <hidayath@linux.ibm.com>
-From: Bryam Vargas <hexlabsecurity@proton.me>
-Cc: Simon Horman <horms@kernel.org>, Wenjia Zhang <wenjia@linux.ibm.com>, "D . Wythe" <alibuda@linux.alibaba.com>, Dust Li <dust.li@linux.alibaba.com>, Sidraya Jayagond <sidraya@linux.ibm.com>, Mahanta Jambigi <mjambigi@linux.ibm.com>, Wen Gu <guwen@linux.alibaba.com>, Tony Lu <tonylu@linux.alibaba.com>, Paolo Abeni <pabeni@redhat.com>, netdev@vger.kernel.org, linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH net-next] net/smc: abort the connection when the peer overruns the RMB
-Message-ID: <20260808081242.409253-1-hexlabsecurity@proton.me>
-Feedback-ID: 199661219:user:proton
-X-Pm-Message-ID: 9f545b46e6deb2c5541d8a4bee9ea5ce6cd9d6bc
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YTg+H6tL"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35CA11F000E9;
+	Sat,  8 Aug 2026 08:16:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1786177003;
+	bh=pkE6r3Tmx8s0FWxRW1fl7W4xyAb6VuDMrV/FJrL/7Ns=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=YTg+H6tLptZ60lOiCzZ0aPTXJRfXWzAHWUXN3/pF3Ar8MbAHW+oUL1F9QY9BYvmii
+	 q327IsR2jMhX5E7GVZrTWTibFm0CS1+JyvId96D8HDsbiIwpjYTectVawtc4xCA3NJ
+	 TWLDkc9ouDQNtTPSnTMsoNWj6K8BhaLxzAvIy+vDhU4IzhEESRKRmAa46IFeBA0lVl
+	 nOTCOJu3aoI9hmrz6uKEYGO2mAOjFmLLCZkxFtM47gG0o6EFCIJOkBNdWHm0vWJGSU
+	 2u6HxR4p2SrX3urPWt4y8F0NjW5srKNKBnHPPgGVD/U4Oc/HLm8soi9zIPhzfATghJ
+	 2zMOOkLpUulsA==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH net v3] net/smc: fix clcsock and lgr/lnk races in
+ smc_diag dump path
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Mahanta Jambigi" <mjambigi@linux.ibm.com>
+Cc: "Heiko Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Vasily
+ Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org
+In-Reply-To: <20260807081606.3200128-1-mjambigi@linux.ibm.com>
+References: <20260807081606.3200128-1-mjambigi@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Sat, 08 Aug 2026 08:16:42 +0000
+Message-Id: <20260808081643.35CA11F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
 
-Hidayath,
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
 
-> I have a standalone net-next patch that aborts the connection when
-> bytes_to_rcv + diff_prod exceeds rmb_desc->len.  The check sits before
-> the atomic_add(), so the accumulator is never written with an out-of-rang=
-e
-> value
+New issues:
+- [High] Dropping the hash lock per-socket and unconditionally restarting t=
+he list walk from the head using a logical index introduces O(N^2) list tra=
+versal complexity and causes active sockets to be skipped in the diag dump.
 
-That covers the follow-up I said I would send, and the placement is better =
-than
-what I described: I had said a check after the atomic_add, which only notic=
-es
-the counter is already out of range. Yours doesn't let it get there. Consid=
-er my
-follow-up withdrawn -- I am not sending a competing patch.
+Pre-existing issues:
+- [Critical] The patch attempts to fix a Use-After-Free race on `smc->clcso=
+ck` by adding `clcsock_release_lock` in `smc_diag_msg_common_fill()`, but m=
+isses a concurrent teardown path in `smc_accept_dequeue()` that frees the s=
+ocket without acquiring the mutex.
+--
 
-If it is useful for the Fixes decision: I ran the wrap++/count=3D=3D0 vecto=
-r on the
-real SMC-D path under KASAN while working on the cursor series. With only t=
-he
-per-cursor bound applied, bytes_to_rcv reaches 6*len and smc_rx_recvmsg() t=
-rips
-slab-out-of-bounds on a read of 5*len; each CDC advances exactly len, so
-diff =3D=3D len and an advance-bound does not fire -- it's the accumulation=
- that
-overruns, which is what your check catches. Logs on request if you want the=
-m in
-the commit message.
+--- Patch [1]: [PATCH net v3] net/smc: fix clcsock and lgr/lnk races in smc=
+_diag dump path ---
+commit a16d6de2c1851166c340508a037e5292d66a0907
+Author: Mahanta Jambigi <mjambigi@linux.ibm.com>
 
-Two heads-up on collisions, since both are in flight this week rather than
-merged:
+net/smc: fix clcsock and lgr/lnk races in smc_diag dump path
 
-smc_cdc_msg_recv_action() is also touched by "net/smc: order the CDC receiv=
-e
-path against buffer publication" (v4, 20260728-b4-disp-52ee4e7d-v4-1-0dda94=
-b0f397@proton.me),
-which hoists sndbuf_desc to the top of the function and gates the tx-trigge=
-r on
-it. Your hunk sits just above that gate, so whichever lands second will wan=
-t a
-look rather than a blind rebase. I'd rather flag it now than after a confli=
-ct.
+This commit attempts to fix two races in the SMC diag dump path by holding
+clcsock_release_lock in smc_diag_msg_common_fill() and lock_sock() in
+__smc_diag_dump(). It also modifies the dump iteration to pin sockets, drop
+the hash lock, and restart the traversal from the head of the list.
 
-And you mentioned running the abort_work cancel for both transports in v2 -=
--
-that edits smc_conn_free()'s SMC-D branch, which "net/smc: unregister the
-connection before draining the rx tasklet"
-(20260808-b4-disp-22f119e6-v2-1-61647601a6f3@proton.me) also rewrites: it d=
-rops
-the !list_empty guard around smc_ism_unset_conn(), moves the drain ahead of=
- the
-detach, and clears conn->sndbuf_desc before freeing it. Same branch, same w=
-eek.
+> diff --git a/net/smc/smc_diag.c b/net/smc/smc_diag.c
+> index bf0beaa23bdb6..72d77360e504f 100644
+> --- a/net/smc/smc_diag.c
+> +++ b/net/smc/smc_diag.c
+> @@ -39,22 +39,34 @@ static void smc_diag_msg_common_fill(struct smc_diag_=
+msg *r, struct sock *sk)
+>  	memset(r, 0, sizeof(*r));
+>  	r->diag_family =3D sk->sk_family;
+>  	sock_diag_save_cookie(sk, r->id.idiag_cookie);
+> -	if (!smc->clcsock)
+> -		return;
+> -	r->id.idiag_sport =3D htons(smc->clcsock->sk->sk_num);
+> -	r->id.idiag_dst[0] =3D smc->clcsock->sk->sk_daddr;
+> +	/*
+> +	 * smc_clcsock_release() sets smc->clcsock =3D NULL under
+> +	 * clcsock_release_lock before freeing the socket. Hold the same
+> +	 * mutex here to make the NULL check and all field reads atomic
+> +	 * with that writer. mutex_lock() is safe: this function is called
+> +	 * only after the hash spinlock has been dropped by
+> +	 * smc_diag_dump_proto().
+> +	 */
+> +	mutex_lock(&smc->clcsock_release_lock);
+> +	if (smc->clcsock) {
+> +		r->id.idiag_sport =3D htons(smc->clcsock->sk->sk_num);
 
-On the shared bitfield -- agreed it needs a layout change rather than somet=
-hing
-folded into a fix, and it's yours; I'd noted it and left it alone for the
-same reason.
+[Severity: Critical]
+This is a pre-existing issue, but does this mutex fully protect against
+concurrent teardowns?
 
-Thanks,
-Bryam
+Looking at smc_accept_dequeue() in net/smc/af_smc.c, if an unaccepted socket
+is closed (SMC_CLOSED), it unhashes it and frees isk->clcsock without holdi=
+ng
+clcsock_release_lock or the child's socket lock:
 
+net/smc/af_smc.c:smc_accept_dequeue() {
+    ...
+    if (new_sk->sk_state =3D=3D SMC_CLOSED) {
+        new_sk->sk_prot->unhash(new_sk);
+        if (isk->clcsock) {
+            sock_release(isk->clcsock);
+            isk->clcsock =3D NULL;
+        }
+    ...
+}
+
+If the netlink diag dump thread concurrently iterates the hash table, grabs
+the socket reference, and calls smc_diag_msg_common_fill(), could it acquire
+the mutex, see a non-NULL clcsock, and dereference it while it is being fre=
+ed
+by smc_accept_dequeue()?
+
+[ ... ]
+
+> @@ -204,25 +228,43 @@ static int smc_diag_dump_proto(struct proto *prot, =
+struct sk_buff *skb,
+>  	int rc =3D 0, num =3D 0;
+>  	struct sock *sk;
+> =20
+> -	read_lock(&prot->h.smc_hash->lock);
+>  	head =3D &prot->h.smc_hash->ht;
+> +restart:
+> +	num =3D 0;
+> +	read_lock(&prot->h.smc_hash->lock);
+>  	if (hlist_empty(head))
+>  		goto out;
+> -
+>  	sk_for_each(sk, head) {
+>  		if (!net_eq(sock_net(sk), net))
+>  			continue;
+>  		if (num < snum)
+>  			goto next;
+> +		/*
+> +		 * Pin sk before dropping the lock. refcount_inc_not_zero()
+> +		 * skips sockets already past their last reference.
+> +		 * smc_unhash_sk() nulls sk->sk_node.next via sk_del_node_init()
+> +		 * so resuming an interrupted sk_for_each() would terminate
+> +		 * early if a socket is unhashed while the lock is dropped.
+> +		 * Restart from head after each unlock, using snum to skip
+> +		 * already-dumped entries.
+> +		 */
+> +		if (!refcount_inc_not_zero(&sk->sk_refcnt))
+> +			goto next;
+> +		read_unlock(&prot->h.smc_hash->lock);
+> +
+>  		rc =3D __smc_diag_dump(sk, skb, cb, nlmsg_data(cb->nlh), bc);
+> +		sock_put(sk);
+> +
+>  		if (rc < 0)
+> -			goto out;
+> +			goto out_nolock;
+> +		snum =3D num + 1;
+> +		goto restart;
+
+[Severity: High]
+Does restarting the list walk from the head using a logical index (snum)
+introduce an O(N^2) list traversal complexity?
+
+If any previously seen sockets are concurrently unhashed while the lock is
+dropped, could stepping over (num < snum) elements skip active sockets that
+shifted to earlier positions in the list?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260807081606.3200=
+128-1-mjambigi@linux.ibm.com?part=3D1
